@@ -192,7 +192,7 @@ define test4a.check
 	@$(bindir)/comp \
 		$1 $2 \
 		'Orbital moment          ' $(dorbmtol) \
-		'total moment for class   1:' -t > $(comp)
+		'total orbital moment   1:' -t > $(comp)
 	@$(bindir)/comp \
 		$1 $2 \
 		'last iter ehf           ' $(dehf1toln) \
@@ -228,7 +228,7 @@ define test4b.check
 	@$(bindir)/comp \
 		$1 $2 \
 		'Orbital moment          ' $(dorbmtol) \
-		'total moment for class   1:' -t > $(comp)
+		'total orbital moment   1:' -t > $(comp)
 	@cat $(comp)
 	@-grep 'ERR' $(comp) > /dev/null && \
 	echo '$(TARGET) TEST 4b FAILED comparison $1 $2' || \

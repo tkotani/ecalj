@@ -71,8 +71,8 @@ C   --- Try shortening by adding +/- lattice vectors ---
         if (mode(3) .le. 1) j3max = 0
    15   continue
         amin = 0
-        do  16  j1 = -j1max, j1max
-        do  16  j2 = -j2max, j2max
+        do  162  j1 = -j1max, j1max
+        do  161  j2 = -j2max, j2max
         do  16  j3 = -j3max, j3max
 
 C     ... (-1,0,1) (plat(1) + (-1,0,1) plat(2)) + (-1,0,1) plat(3))
@@ -87,7 +87,9 @@ C     ... (-1,0,1) (plat(1) + (-1,0,1) plat(2)) + (-1,0,1) plat(3))
             xmin(3) = x(3)
             amin = a2+2*ap
           endif
-   16   continue
+ 16     continue
+ 161    continue
+ 162    continue
 c       if (amin .lt. 0) then
         if (amin .lt. -tol) then
           pout(1,ib) = pout(1,ib) + xmin(1)

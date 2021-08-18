@@ -5,7 +5,12 @@
       use m_supot,only: iv_a_okv,rv_a_ogv
 c      use m_struc_def, only:s_lat
       use m_xcpbe,  only: xcpbe
-      use m_lmfinit,only:  lat_nabc, lat_ng, lat_alat,lat_vol
+      use m_lmfinit,only:    lat_alat
+      use m_lattic,only: lat_vol
+      use m_supot,only: lat_nabc
+      use m_supot,only: lat_ng
+
+
 !! ----------------------------------------------------------------------
 !!i Inputs
 !!i   lxcg  : dummy now.  (need to set option in xcpbe)

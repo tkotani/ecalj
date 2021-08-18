@@ -30,8 +30,9 @@ C --- Cholesky decomposition of a into L(L+) (lower triangle only) ---
       do  10  j = 1, n
         do  20  k = 1, j-1
           xr = ar(j,k)
-          do  23  i = j, n
-   23     ar(i,j) = ar(i,j) - xr*ar(i,k)
+          do    i = j, n
+             ar(i,j) = ar(i,j) - xr*ar(i,k)
+          enddo   
    20   continue
         ierr = j
         if (ar(j,j) .le. 0) return
@@ -42,8 +43,9 @@ C --- Cholesky decomposition of a into L(L+) (lower triangle only) ---
       if (.not. swI) return
 
 C --- Inversion of L (lower triangle only) ---
-      do  30  j = 1, n
-   30 ar(j,j) = 1/ar(j,j)
+      do    j = 1, n
+         ar(j,j) = 1/ar(j,j)
+      enddo   
 
       do  40  j = 2, n
         call dcopy(n-j+1,ar(j,j-1),1,wk,1)
@@ -51,8 +53,9 @@ C --- Inversion of L (lower triangle only) ---
 C This loop parallelizable ...
         do  50  k = 1, j-1
           xr = ar(j-1,k)
-          do  55  i = j, n
-   55     ar(i,k) = ar(i,k) - xr*wk(i-j+1)
+          do  i = j, n
+             ar(i,k) = ar(i,k) - xr*wk(i-j+1)
+          enddo   
           ar(j,k) = ar(j,k)*ar(j,j)
    50   continue
    40 continue

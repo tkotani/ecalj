@@ -178,7 +178,9 @@ C --- Core eigenfunctions and eigenvalues ---
 
       subroutine atwf2l(ifi,jfi,iclass,a,lmxa,nr,nsp,pnz,rmt,
      .nphimx,konfig,ecore,gcore,gval)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: stdo
+
+
 C- Translate radial wave functions from shifted to standard log mesh
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -222,8 +224,8 @@ C ... Passed parameters
       double precision rmt,a,pnz(n0),gval(nr,2,0:lmxa,nphimx,nsp),
      .ecore(*),gcore(nr,2,*)
 C ... Local parameters
-      integer ic,icore,iphi,iprint,ir,isp,jcore,jx,konf,l,nglob,nphi,
-     .npoly,nrmx,stdo,PRTV
+      integer ic,icore,iphi,iprint,ir,isp,jcore,jx,konf,l,nphi,
+     .npoly,nrmx,PRTV
       double precision xxo,xx,fac,tolg,dot3
       double precision x,y,dy,dytop,dytopa  ! For interpolation
       parameter (npoly=6,nrmx=1501,PRTV=60)
@@ -237,7 +239,7 @@ C ... Local parameters
 
 C ... Setup
 Changenglob      stdo = nglob('stdo')
-      stdo = globalvariables%stdo
+c      stdo = globalvariables%stdo
       if (nr .gt. nrmx) call rx('increase nrmx in atwf')
 
 C ... Shifted and standard log mesh

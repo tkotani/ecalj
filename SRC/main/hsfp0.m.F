@@ -521,7 +521,7 @@ c
       allocate(eqx(ntq,nq,nspin),eqx0(ntq,nq,nspin),eqt(nband))
       do      is = 1,nspin
         do      ip = 1,nq
-          call readeval(q(1,ip),is,eqt)
+          eqt = readeval(q(1,ip),is)
           eqx0(1:ntq,ip,is) = eqt(itq(1:ntq))
           eqx (1:ntq,ip,is) = rydberg()*(eqt(itq(1:ntq))- ef)
         enddo
@@ -633,9 +633,7 @@ c------------------------------------------------------------------
         call dcopy (3*nqibz,qibz,1,qz,1)
         do  is  = 1,nspin      !Readin eband
           do  iqi = 1,nqibz
-c     iq    = idxk (qz(1:3,iqi),qbz,nqbz)
-c     call rwdd1 (ifev(is), iq, nband, eband(:,is,iqi))
-            call readeval(qz(1:3,iqi),is, eband(:,is,iqi))
+            eband(:,is,iqi) = readeval(qz(1:3,iqi),is)
           enddo
         enddo
         volwgt = (3d0 - nspin) / ntetf ! ntetf was =6*n1*n2*n3

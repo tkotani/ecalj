@@ -303,7 +303,7 @@ c lowest eband -----------------------------------------
       real(8)   :: ekt(nband,nqbz,nspin),qbz(3,nqbz)
       do is = 1,nspin
         do iq = 1,nqbz
-          call readeval(qbz(:,iq),is, ekt(1,iq,is))
+          ekt(:,iq,is)= readeval(qbz(:,iq),is)
         enddo
       enddo
       lowesteigen = minval(ekt)

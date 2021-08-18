@@ -1,7 +1,12 @@
       subroutine hsmbl(p,rsm,e,q,lmax,cy,hsm,hsmp) !,slat
-      use m_lattic,only: rv_a_oqlv,rv_a_odlv
+      use m_lattic,only: rv_a_oqlv,rv_a_odlv,lat_plat
       use m_struc_def           !Cgetarg
-      use m_lmfinit,only: lat_alat,lat_plat,lat_qlat,lat_awald,lat_tol,lat_vol,lat_nkd,lat_nkq
+      use m_lmfinit,only: lat_alat,lat_tol
+      use m_lattic,only: lat_qlat
+      use m_lattic,only: lat_vol
+      use m_lattic,only: lat_awald
+      use m_lattic,only: lat_nkd
+      use m_lattic,only: lat_nkq
 C- Bloch-sum of smooth Hankel functions and energy derivatives
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -61,13 +66,14 @@ C ... Local parameters
 C ... Multiply by phase to undo shortening
       cfac = dcmplx(0d0,1d0)*phase
       ilm = 0
-      do  28  l = 0, lmax
+      do    l = 0, lmax
         cfac = cfac*dcmplx(0d0,-1d0)
-      do  28  m = 1, 2*l+1
+      do    m = 1, 2*l+1
         ilm = ilm+1
         hsm(ilm)  = cfac*cy(ilm)*hsm(ilm)
         hsmp(ilm) = cfac*cy(ilm)*hsmp(ilm)
-   28 continue
+      enddo
+      enddo
       end subroutine hsmbl
 
 
@@ -121,9 +127,10 @@ C ... Local parameters
         call sylm(r,yl,lmax,r2)
         den0 = dexp(gamma*(e-r2))/(r2-e)
         den1 = den0/(r2-e)
-      do  26  ilm = 1, nlm
+        do  ilm = 1, nlm
         dl(ilm)  = dl(ilm) + yl(ilm)*eiphi*den0
         dlp(ilm) = dlp(ilm) + yl(ilm)*eiphi*den1
+        enddo  
    26 continue
       do  35  ilm = 1, nlm
         dl(ilm)  = fpibv*dl(ilm)

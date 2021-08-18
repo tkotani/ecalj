@@ -1,7 +1,6 @@
-      subroutine dfaugm ( nbas , lcplxp , lso , ssite , sspec , sv_p_osig 
-     .   , sv_p_otau , sv_p_oppi )
-      use m_struc_def,only:s_rv1,s_site,s_spec !Cgetarg
-      use m_lmfinit,only: globalvariables
+      subroutine dfaugm ( sv_p_osig, sv_p_otau , sv_p_oppi )
+      use m_struc_def,only:s_rv1
+      use m_lmfinit,only: nkaph,nsp,nspc,nbas,lso,lcplxp,ssite=>v_ssite,sspec=>v_sspec
 C- Allocate augmentation matrices sigma,tau,pi for all atoms
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -9,13 +8,7 @@ Ci   nbas  :size of basis
 Ci   lcplxp:if nonzero allocate space for complex ppi
 Ci   lso   :flag for SO coupling
 Ci   ssite :struct for site-specific information; see routine usite
-Ci     Elts read: spec
-Ci     Stored:
-Ci     Passed to:
 Ci   sspec :struct for species-specific information; see routine uspec
-Ci     Elts read: lmxa lmxb kmxt
-Ci     Stored:
-Ci     Passed to:
 Co Outputs
 Co   osig  :memory allocated
 Co   otau  :memory allocated
@@ -46,17 +39,10 @@ Cu   11 Jun 00 spin polarized
 Cu   22 Apr 00 Adapted from nfp df_augm.f
 C ----------------------------------------------------------------------
       implicit none
-C ... Passed parameters
-      integer:: nbas , lcplxp , lso
       type(s_rv1) :: sv_p_oppi(3,nbas)
       type(s_rv1) :: sv_p_otau(3,nbas)
       type(s_rv1) :: sv_p_osig(3,nbas)
-      type(s_site)::ssite(*)
-      type(s_spec)::sspec(*)
-      integer ib,igetss,is,kmax,lmxa,lmxh,nelt1,nelt2,nglob,nlma,nlmh,nsp,nspc,nkaph,nso
-      nsp   = globalvariables%nsp
-      nspc  = globalvariables%nspc
-      nkaph = globalvariables%nkaph
+      integer ib,igetss,is,kmax,lmxa,lmxh,nelt1,nelt2,nglob,nlma,nlmh,nso
       call rxx(lso.eq.1.and.nspc.ne.2,'dfaugm: inconsistent parameters')
       nso = 1
       if (lso .ne. 0) nso = 2
@@ -66,7 +52,6 @@ C --- Loop over sites, allocating sig,tau,pi for each site ---
         lmxa=sspec(is)%lmxa
         lmxh=sspec(is)%lmxb
         kmax=sspec(is)%kmxt
-C       call upack('spec z rmt',sspec,is,z,rmt,0,0)
         nlma = (lmxa+1)**2
         nlmh = (lmxh+1)**2
         if (lmxa .eq. -1) goto 10
@@ -90,7 +75,7 @@ C   ... Case Hsm*Hsm
         else
           allocate(sv_p_oppi(3,ib)%v(abs(nelt2*2)))
         endif
-C   ... Case Hsm*Pkl
+C   ...  Case Hsm*Pkl
         if (lmxh.gt.lmxa) call rx('dfaugm: lmxh.gt.lmxa unexpected')
         nelt1 = nkaph*(kmax+1)*(lmxh+1)*nsp
         nelt2 = nkaph*(kmax+1)*nlmh*nlma*nsp*nspc*nso

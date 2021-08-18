@@ -11,10 +11,10 @@
       logical:: init=.true.
       contains
 
-      subroutine Readpkm4crpa(ib,q,isp,wpw)
+      function Readpkm4crpa(ib,q,isp) result(wpw)
       use m_iqindx_qtt,only: iqindx2_
       intent(in)::            ib,q,isp
-      intent(out)::                    wpw
+c      intent(out)::                    wpw
       integer:: ib,isp,iq,ibin,iqin,ifi,ispin,ifile_handle
       real(8):: wpw,q(3),wpwin,qvec(3),qin(3)
       character*8::fname
@@ -56,5 +56,5 @@
       if(sum(abs(qvecud(:,iq,isp)-qvec))>1d-5 ) then
          call rx('readpkm4crpa:readq in pkmu is not consistent with given q')
       endif 
-      end subroutine
+      end function
       end module m_pkm4crpa

@@ -1,0 +1,13 @@
+#!/bin/bash 
+#    echo " run ix=lda" ,` grep 'mkrout:  Qtrue      sm,loc       local' -A1 llmf_lda  |tail -1`
+    echo " run ix=lda ",` grep mmaftest llmf_lda  |tail -1`
+n=$1
+echo $1
+ITER=260
+for ix in `seq 1 ${ITER}`
+do
+    if [ ! -e llmf.${ix}run ]; then 
+	exit
+    fi
+    echo " run ix=",$ix ,` grep ' 0.00000  0.00000  0.00000 '$1  QPU.${ix}run  |tail -1`
+done

@@ -59,8 +59,10 @@ C     implicit none
       call cross(plat(1,3),plat(1,1),qlat(1,2))
       call cross(plat(1,1),plat(1,2),qlat(1,3))
       vol0 = tripl(plat,plat(1,2),plat(1,3))
-      do 3 i=1,3
-        do 3 k=1,3
-    3 qlat(i,k)=qlat(i,k)/vol0
+      do  i=1,3
+      do  k=1,3
+         qlat(i,k)=qlat(i,k)/vol0
+      enddo
+      enddo
       end
       

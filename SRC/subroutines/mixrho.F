@@ -1,10 +1,11 @@
-      subroutine mixrho ( ssite , sspec ,  nsp , iter , mixmod  !slat ,
-     .  , qval , elind , sv_p_orhnew , sv_p_orhold , k1 , k2 , k3 , dmxp 
-     .  , smrnew , smrho )
+      subroutine mixrho(iter, qval, elind, sv_p_orhnew, sv_p_orhold, smrnew, smrho,rmsdel)
       use m_struc_def
-      use m_lmfinit,only: globalvariables
-      use m_supot,only: iv_a_okv,rv_a_ogv
-      use m_lmfinit,only:lat_nabc,lat_ng,lat_vol,lat_alat
+      use m_supot,only: iv_a_okv,rv_a_ogv,k1,k2,k3
+      use m_lmfinit,only:lat_alat,nbas,stdo,stdl, mixmod=>sstrnmix,ssite=>v_ssite,sspec=>v_sspec,nsp
+      use m_lattic,only: lat_vol
+      use m_supot,only: lat_nabc, lat_ng
+      use m_lmfinit, only:   mix_b,mix_bv,mix_w,mix_wc,mix_nsave,mix_mmix
+
 !!= Mix old and new charge densities =
 !!  Takao's version: real space mixing of smrho. It works OK. However,
 !!  we may need to fix it so that this is well-defined chi=|rho-f(rho)|**2 minimization mixing.
@@ -53,6 +54,15 @@ Cio         :(25)        : (spin polarized case only)
 Cio                      : 1  if weight for n^+ + n^- is nonzero
 Cio                      : 10 if weight for n^+ - n^- is nonzero
 Cio                      : 11 if both nonzero
+C    dmxp for mixing.  Default parameters dmxp:
+C    1(I) mixing scheme; 2 beta; 3 wc; 4,5 wgt; 6(I)nsave 7(I) mmix;
+C    8(I) nkill; 9 betv; 10 rmscst.  11-20 are outputs:
+C    11 rmsdel 12 rms2 13 nmix 14 actual broy 15 actual beta 16-24 tj
+C    25 1 if wt ne 0, 10 if wa ne 0, 11 if all nonzero
+C    27..29: hold parms for static parms block regular mixing
+C    30..32: hold parms for static parms block Euler angle mixing
+C    33 : Lindhard screening parameter
+c
 Cio   orhnew:On input, local parts of the density that generated the ham.
 Cio   orhold:local parts of the density that the hamiltonian generated
 Cio         :On output, the mixed density
@@ -168,7 +178,8 @@ Cu   22 Jun 00 spin polarized
 Cu   30 May 00 Adapted from nfp mix_rho
 C ----------------------------------------------------------------------
       implicit none
-C ... Passed parameters
+      real(8),save::  dmxp(25)
+
 #if MPI | MPIK
       include "mpif.h"
       integer numprocs, ierr, status(MPI_STATUS_SIZE)
@@ -185,18 +196,18 @@ C ... Passed parameters
       character*120 strn
       logical mlog,cmdopt
 #endif
-      integer:: nsp , k1 , k2 , k3 , iter , procid , master
+      integer::  iter , procid , master
       type(s_rv1) :: sv_p_orhold(3,1)
       type(s_rv1) :: sv_p_orhnew(3,1)
-      character*(*) mixmod
-      type(s_site)::ssite(*)
-      type(s_spec)::sspec(*)
+c      character*(*) mixmod
+c      type(s_site)::ssite(*)
+c      type(s_spec)::sspec(*)
 c      type(s_lat)::slat
 
-      double precision qval,elind,dmxp(25)
+      double precision qval,elind
       double complex smrnew(k1,k2,k3,nsp),smrho(k1,k2,k3,nsp)
 C ... Local parameters
-      integer stdo,stdl,lgunit,nbas,i,i1,i2,i3,ib,ipl,ipr,is,k0,k9,kmxv,
+      integer lgunit,i,i1,i2,i3,ib,ipl,ipr,is,k0,k9,kmxv,
      .lmxl,n1,n2,n3,ng,nglob,nlml,nr,nmixr,nmix,nda,mxsav,ifi,nlm0,
      .kkk,nnnew,nnmix,ngabc(3),igetss,fopna,broy,nx,
      .nkill,isw,naa,kmxr,kmxs,locmix,offx,off2
@@ -220,8 +231,6 @@ C ... Local parameters
       double complex xxc
       logical parmxp
       character sout*80,fnam*8
-C ... Heap
-
       integer ::iwdummy ,isp,nnnx,ng02,ng2, iprint
       real(8):: smmin,sss,wgtsmooth
       complex(8),allocatable:: smrnewbk(:,:,:,:),w_owk(:)
@@ -229,23 +238,22 @@ C ... Heap
       real(8),allocatable:: w_oa(:),w_oaa(:),w_ocn(:)
       logical::       noelind
       logical:: mixrealsmooth
-
-
-C     print *, '!!' ; call pshpr(40)
-      if (mixmod .eq. 'none') return
+      logical:: init=.true., initd=.true.
       call tcn('mixrho')
+      if (mixmod .eq. 'none') return
+!  Initial setup for mixrho (charge mixing). This is used in mixrho-parmax.
+      if(initd) then
+         dmxp   = 0d0
+         dmxp(2) = mix_b
+         dmxp(3) = mix_wc
+         dmxp(4:5)= mix_w(1:2)
+         dmxp(6) = mix_nsave
+         dmxp(7) = mix_mmix
+         dmxp(9) = mix_bv
+         call parms0(0,0,0d0,0) !reset mixing block
+         initd=.false.
+      endif
 
-
-ccccccccccccccccccccccccccccc
-c      sv_p_orhnew=sv_p_orhold
-ccccccccccccccccccccccccccccc
-
-
-
-ccccccccccccccccccccccccccccccccccccc
-c      allocate(smrnewbk(k1,k2,k3,nsp))
-c      smrnewbk= (smrnew+smrho)/2d0
-cccccccccccccccccccccccccccccccccccccc
       nnnew=0
 c      open(1898,file='test2vvv_smrho')
       do  i3 = 1, k3
@@ -298,9 +306,9 @@ ccccccccccccccccccccccccccccccccccccc
       master = 0
 #endif
 
-      nbas = globalvariables%nbas
-      stdo = globalvariables%stdo
-      stdl = globalvariables%stdl
+c      nbas = globalvariables%nbas
+c      stdo = globalvariables%stdo
+c      stdl = globalvariables%stdl
       call getpr(ipr)
       ipl = 1
       nx = 0
@@ -425,12 +433,14 @@ C ... <smrout-smrhoin> and <(smrout-smrhoin)**2>, unscreened smrout
         dquns = 0
         rmsuns = 0
         do isp=1,nsp
-          do 12  i3 = 1, n3
-          do 12  i2 = 1, n2
-          do 12  i1 = 1, n1
+          do   i3 = 1, n3
+          do   i2 = 1, n2
+          do   i1 = 1, n1
             dquns  = dquns  + dble(smrnew(i1,i2,i3,isp)-smrho(i1,i2,i3,isp))
             rmsuns = rmsuns + dble(smrnew(i1,i2,i3,isp)-smrho(i1,i2,i3,isp))**2
-   12     continue
+          enddo
+          enddo
+          enddo
         enddo
         rmsuns = dsqrt(rmsuns/(n1*n2*n3))
 C ... 2. cn <- (smrnew - smrho)(G)
@@ -674,7 +684,7 @@ C --- Printout smooth density mixing data ---
       call rhoqm(smrnew,k1,k2,k3,n1,n2,n3,nsp,vol,qscr)
 C     if (ipr .gt. 30) write(stdo,100)
 C    .  sumo*fac,sumu*fac,sums*fac,rms,summ*fac
-      if (ipr .gt. 30) then
+      if (ipr >45) then
         write(stdo,100)
      .  qin(1),qout(1),qscr(1),rms,beta*qscr(1)+(1-beta)*qin(1)
         if (nsp .eq. 2) write(stdo,101)
@@ -818,13 +828,16 @@ C     call rhopos(smrho,k1,k2,k3,n1,n2,n3)
 
 C ... Net interstitial charge and cell charge
       summ = 0
-      do  60  i = 1, nsp
-      do  60  i3 = 1, n3
-      do  60  i2 = 1, n2
-      do  60  i1 = 1, n1
+      do    i = 1, nsp
+      do    i3 = 1, n3
+      do    i2 = 1, n2
+      do    i1 = 1, n1
 C       smrho(i1,i2,i3,i) = smrho(i1,i2,i3,i) + .001
-        summ = summ + dble(smrho(i1,i2,i3,i))
-   60 continue
+         summ = summ + dble(smrho(i1,i2,i3,i))
+      enddo
+      enddo
+      enddo
+      enddo
 C     Net system charge
       qcell  = qval - summ*fac - qmix(1)
 
@@ -837,13 +850,16 @@ cccccccccccccccccccccccccc
 c       print *,'vvv no xx test'
 c       xx=0d0
 ccccccccccccccccccccccccc
-      do  64  i  = 1, nsp
-      do  64  i3 = 1, n3
-      do  64  i2 = 1, n2
-      do  64  i1 = 1, n1
-        smrho(i1,i2,i3,i) = smrho(i1,i2,i3,i) + xx
+      do    i  = 1, nsp
+      do    i3 = 1, n3
+      do    i2 = 1, n2
+      do    i1 = 1, n1
+         smrho(i1,i2,i3,i) = smrho(i1,i2,i3,i) + xx
+      enddo
+      enddo
+      enddo
+      enddo
 C       summ = summ + dble(smrho(i1,i2,i3,i))
-   64 continue
 C     qcell  = qval - summ*fac - qmix(1)
 C     print *, 'qcell after shift',qcell; stop
 
@@ -933,7 +949,7 @@ c            smrho(i1,i2,i3,isp)=minimumrho
           write(6,"(a,2i8,d13.5)") ' mixrho: warning. negative smrho; isp number min=',isp,nnnx,smmin
 c          print *,'enforce smrho >',minimumrho
         else
-          if(iprint()>10) write(6,"(a,i3)") ' mixrho: all smrho are positive for isp=',isp
+          if(iprint()>45) write(6,"(a,i3)") ' mixrho: all smrho are positive for isp=',isp
         endif
       enddo
 C$$$      nnnew=0
@@ -1258,7 +1274,7 @@ C ... Restore rho,amag -> rho+,rho-
       call splrho(1,nsp,nr,nlml,rho1,rho2,rho3)
       call splrho(1,nsp,nr,nlml,rhn1,rhn2,rhn3)
 
-      if (iprint() .gt. 30) then
+      if (iprint() >45 ) then
         write(stdo,100) ib,qold,qnew,qnew,dif,qmix
   100   format(' site ',i4,f12.6,5f14.6)
 C  100   format(' site ',i4,f12.6,f14.6,14x,2f14.6)

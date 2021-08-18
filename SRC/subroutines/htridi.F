@@ -55,25 +55,29 @@ c
       tau(1,n) = 1.0d0
       tau(2,n) = 0.0d0
 c
-      do  100  i = 1, n
-  100 d(i) = ar(i,i)
+      do   i = 1, n
+         d(i) = ar(i,i)
+      enddo   
       do  300  i = n, 1, -1
         l = i - 1
         h = 0.0d0
         scale = 0.0d0
         if (l .lt. 1) go to 130
 c     .......... scale row (algol tol then not needed) ..........
-        do  120  k = 1, l
-  120   scale = scale + dabs(ar(i,k)) + dabs(ai(i,k))
+        do   k = 1, l
+           scale = scale + dabs(ar(i,k)) + dabs(ai(i,k))
+        enddo   
 c
         if (scale .ne. 0.0d0) go to 140
         tau(1,l) = 1.0d0
         tau(2,l) = 0.0d0
-  130   e(i) = 0.0d0
+ 130    continue
+        e(i) = 0.0d0
         e2(i) = 0.0d0
         go to 290
 c
-  140   do  150  k = 1, l
+ 140    continue
+        do 150  k = 1, l
           ar(i,k) = ar(i,k) / scale
           ai(i,k) = ai(i,k) / scale
           h = h + ar(i,k) * ar(i,k) + ai(i,k) * ai(i,k)
@@ -93,23 +97,31 @@ c     .......... form next diagonal element of matrix t ..........
         ai(i,l) = g * ai(i,l)
         if (l .eq. 1) go to 270
         go to 170
-  160   tau(1,l) = -tau(1,i)
+ 160    continue
+        tau(1,l) = -tau(1,i)
         si = tau(2,i)
         ar(i,l) = g
-  170   f = 0.0d0
+ 170    continue
+        f = 0.0d0
         g = tau(1,l)
 C ... use tau1,1:l) and tau(2,1:l) as work array ...
-        do  180  j = 1, l
-          tau(1,j) = 0
-          tau(2,j) = 0
-  180   continue
+c        do  180  j = 1, l
+c          tau(1,j) = 0
+c          tau(2,j) = 0
+c     180   continue
+        tau = 0d0
         do  220  k = 1, l
-          call yyxcpy(k-1,ar(i,k),-ai(i,k),ar(k,1),ai(k,1),nm,
-     .    tau,tau(2,1),2,.true.)
-          call yyaxpy(l-k+1,ar(i,k),-ai(i,k),ar(k,k),ai(k,k),1,
-     .    tau(1,k),tau(2,k),2,.true.)
+c          call yyxcpy(k-1,ar(i,k),-ai(i,k),ar(k,1),ai(k,1),nm,
+c     .          tau,tau(2,1),2,.true.)
+c          call yyaxpy(l-k+1,ar(i,k),-ai(i,k),ar(k,k),ai(k,k),1,
+c     .         tau(1,k),tau(2,k),2,.true.)
+           tau(1,1:k-1) =  ar(i,k)*ar(k,1:k-1) + ai(i,k)*ai(k,1:k-1) + tau(1,1:k-1)
+           tau(2,1:k-1) = -ar(i,k)*ai(k,1:k-1) - ai(i,k)*ar(k,1:k-1) + tau(2,1:k-1)
+           tau(1,k:l)   =  ar(i,k)*ar(k,k:l)   + ai(i,k)*ai(k,k:l)   + tau(1,k:l)
+           tau(2,k:l)   =  ar(i,k)*ai(k,k:l)   - ai(i,k)*ar(k,k:l)   + tau(2,k:l)
   220   continue
-        call dcopy(l,tau,2,e,1)
+c        call dcopy(l,tau,2,e,1)
+        e(1:l) = tau(1,1:l)
         tau(1,l) = g
         do  240  j = 1, l
           e(j) = e(j)/h
@@ -118,7 +130,7 @@ C ... use tau1,1:l) and tau(2,1:l) as work array ...
   240   continue
         hh = f / (h + h)
 c     .......... form reduced a ..........
-        do  260  j = 1, l
+        do  261  j = 1, l
           f = ar(i,j)
           g = e(j) - hh * f
           e(j) = g
@@ -132,14 +144,17 @@ c
             ai(j,k) = ai(j,k) - f * tau(2,k) - g * ai(i,k)
      .      - fi * e(k) - gi * ar(i,k)
   260   continue
+  261   continue
 c
-  270   do  280  k = 1, l
+ 270    continue
+        do  280  k = 1, l
           ar(i,k) = scale * ar(i,k)
           ai(i,k) = scale * ai(i,k)
   280   continue
 c
         tau(2,l) = -si
-  290   hh = d(i)
+ 290    continue
+        hh = d(i)
         d(i) = ar(i,i)
         ar(i,i) = hh
         ai(i,i) = scale * dsqrt(h)

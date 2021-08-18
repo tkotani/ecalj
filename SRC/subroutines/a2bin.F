@@ -821,13 +821,17 @@ C     implicit none
      ..true.,10*.false.,10*.true.,.false.,.true./
 
       if (style .eq. 0) then
-        do  10  i = 0, 10
-          do  10  j = 0, 10
-   10   oprule(i,j) = orule(i,j)
+        do    i = 0, 10
+          do    j = 0, 10
+             oprule(i,j) = orule(i,j)
+          enddo
+          enddo
       else
-        do  20  i = 0, 10
-          do  20  j = 0, 10
-   20   oprule(i,j) = nrule(i,j)
+         do    i = 0, 10
+            do    j = 0, 10
+             oprule(i,j) = nrule(i,j)
+          enddo
+       enddo
       endif
       return
       end

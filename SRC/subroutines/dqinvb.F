@@ -129,15 +129,18 @@ C       ... Do for special case n<=2: w may not be large enough!
                 if (css .eq. 's') call dsisl(a,lda,n,w,ww)
                 if (css .ne. 's') call dgesl(a,lda,n,w,ww,1)
   116         continue
-              do  118  i = 1, n
-  118         b(j,i) = ww(i)
+              do    i = 1, n
+                 b(j,i) = ww(i)
+              enddo   
             else
-              do  16  i = 1, n
-   16         w(i,2) = b(j,i)
+              do    i = 1, n
+                 w(i,2) = b(j,i)
+              enddo   
               if (css .eq. 's') call dsisl(a,lda,n,w,w(1,2))
               if (css .ne. 's') call dgesl(a,lda,n,w,w(1,2),1)
-              do  18  i = 1, n
-   18         b(j,i) = w(i,2)
+              do   i = 1, n
+                 b(j,i) = w(i,2)
+              enddo   
             endif
           endif
    12   continue
@@ -161,27 +164,33 @@ C     call ywrm(0,'a22^-1',1,6,fmt,a(1+m1,1+m1),1,lda,m2,m2)
 C   --- a12 a22^-1 in w; copy back to a12 ---
           call dgemm('N','N',m1,m2,m2,1d0,a(1,1+m1),lda,a(1+m1,1+m1),lda,
      .    0d0,w,ldw)
-          do  20  j = 1, m2
-            do  20  i = 1, m1
-   20     a(i,j+m1) = w(i,j)
+          do    j = 1, m2
+            do  i = 1, m1
+               a(i,j+m1) = w(i,j)
+            enddo
+           enddo
 
         else
 
 C   --- a22^-1 a21 in w; copy back to a21 ---
           call dgemm('N','N',m2,m1,m2,1d0,a(1+m1,1+m1),lda,
      .    a(1+m1,1),lda,0d0,w,ldw)
-          do  22  j = 1, m1
-            do  22  i = 1, m2
-   22     a(i+m1,j) = w(i,j)
+          do    j = 1, m1
+             do  i = 1, m2
+                a(i+m1,j) = w(i,j)
+             enddo
+          enddo
 
         endif
 
 C --- c11^-1 = (a11 - a12 a22^-1 a21) in a11 ---
         if (cs .eq. 's') then
           call dsmpy(m1,m2,a(1,1+m1),lda,a(1+m1,1),lda,0d0,w,ldw)
-          do  24  j = 1, m1
-            do  24  i = 1, m1
-   24     a(i,j) = a(i,j) - w(i,j)
+          do    j = 1, m1
+            do  i = 1, m1
+               a(i,j) = a(i,j) - w(i,j)
+            enddo
+         enddo
         else
           call dgemm('N','N',m1,m1,m2,-1d0,a(1,1+m1),lda,a(1+m1,1),lda,
      .    1d0,a,lda)
@@ -220,8 +229,9 @@ C   ... w2 <- b1 - a12 a22^-1 b2
           jr = -m1
           do  30  j = 1, nb
             jr = jr+m1
-            do  32  i = 1, m1
-   32       w2(i+jr) = b(i,j) - w2(i+jr)
+            do   i = 1, m1
+               w2(i+jr) = b(i,j) - w2(i+jr)
+            enddo
    30     continue
 C       call yprm(.false.,'b1 - a12 a22^-1 b2',1,6,fmt,w2,m1,m1,nb,nb)
 
@@ -234,8 +244,9 @@ C --- w2 <- b2 - a21 x1 ---
         jr = -m2
         do  40  j = 1, nb
           jr = jr+m2
-          do  42  i = 1, m2
-   42     w2(i+jr) = b(i+m1,j) - w2(i+jr)
+          do    i = 1, m2
+             w2(i+jr) = b(i+m1,j) - w2(i+jr)
+          enddo
    40   continue
 
 C --- x2 = a22^-1 (b2 - a21 x1) ---
@@ -264,8 +275,9 @@ C ... w2 <- b1 - b2 a22^-1 a21
           jr = -nb
           do  130  j = 1, m1
             jr = jr+nb
-            do  132  i = 1, nb
-  132       w2(i+jr) = b(i,j) - w2(i+jr)
+            do   i = 1, nb
+               w2(i+jr) = b(i,j) - w2(i+jr)
+            enddo   
   130     continue
 C ... x1 = (b1 - b2 a22^-1 a21) c11
           call dgemm('N','N',nb,m1,m1,1d0,w2,nb,a,lda,0d0,b,ldb)
@@ -278,8 +290,9 @@ C --- w2 <- b2 - x1 a12 ---
         jr = -nb
         do  140  j = 1, m2
           jr = jr+nb
-          do  142  i = 1, nb
-  142     w2(i+jr) = b(i,j+m1) - w2(i+jr)
+          do   i = 1, nb
+             w2(i+jr) = b(i,j+m1) - w2(i+jr)
+          enddo   
   140   continue
 
 C --- x2 = (b2 - a21 x1) a22^-1 ---

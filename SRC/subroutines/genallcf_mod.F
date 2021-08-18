@@ -398,11 +398,12 @@ c total number of LMTO basis functions
       implicit integer(i-n)
       dimension nindx(0:nl-1,nclass),iclass(natom)
       noflmto   = 0
-      do 1    i = 1,natom
+      do  i = 1,natom
         ic        = iclass(i)
-      do 1    l = 0,nl-1
-        noflmto   = noflmto + (2*l+1)*nindx(l,ic)
-    1 continue
+      do  l = 0,nl-1
+         noflmto   = noflmto + (2*l+1)*nindx(l,ic)
+      enddo
+      enddo
       return
       end
 
@@ -421,10 +422,10 @@ c nalwln    = number of allowed phi(l1,n1) phi(l2,n2)
       if (nn .gt. nnx) call rx( 'nalwln: increase nnx')
       icheck=0
       nalwln     = 0
-      do 10   l1 = 0,nl-1
+      do 101   l1 = 0,nl-1
       do 10   n1 = 1,nindx(l1)
         if(nocc(l1,n1) .eq. 0)goto 10
-        do 20   l2 = 0,nl-1
+        do 201   l2 = 0,nl-1
         do 20   n2 = 1,nindx(l2)
           if(nunocc(l2,n2) .eq. 0)goto 20
           if((l1.ne.l2 .or. n1.ne.n2) .and. icheck(l2,n2,l1,n1).ne.0)
@@ -432,7 +433,9 @@ c nalwln    = number of allowed phi(l1,n1) phi(l2,n2)
           nalwln     = nalwln + 1
           icheck(l1,n1,l2,n2) = nalwln
    20   continue
+ 201  continue
    10 continue
+ 101  continue
       return
       end
 
@@ -487,19 +490,24 @@ c nallow    = number of allowed product basis
         end do
       end do
       nallow     = 0
-      do 10   l1 = 0,nl-1
-      do 10   n1 = 1,nindx(l1)
-      do 10   m1 = 1,2*l1+1
-      do 10   l2 = 0,nl-1
-      do 10   n2 = 1,nindx(l2)
-      do 10   m2 = 1,2*l2+1
+      do    l1 = 0,nl-1
+      do    n1 = 1,nindx(l1)
+      do    m1 = 1,2*l1+1
+      do    l2 = 0,nl-1
+      do    n2 = 1,nindx(l2)
+      do    m2 = 1,2*l2+1
 c     if (nocc(l1,n1) .eq. 0)goto 10
 c     if (nunocc(l2,n2) .eq. 0)goto 10
-        if (icheck(l1,n1,l2,n2) .eq. 0) goto 10
+        if (icheck(l1,n1,l2,n2) .eq. 0) cycle
 c temporary
-        if (l1 .eq. l2 .and. n1.eq.n2 .and. m1.lt.m2)goto 10
+        if (l1 .eq. l2 .and. n1.eq.n2 .and. m1.lt.m2) cycle
         nallow     = nallow + 1
-   10 continue
+      enddo  
+      enddo  
+      enddo  
+      enddo  
+      enddo  
+      enddo  
       return
       end
 

@@ -9,11 +9,12 @@ C     implicit none
 
       lok = 0
       do 10 kb = 1,nbas
-        do 2 m = 1,3
+        do m = 1,3
           d(m) = 0
-        do 2 k = 1,3
-          d(m) = d(m)+g(m,k)*(tau(k,kb)-tau(k,ib))
-    2   continue
+        do k = 1,3
+           d(m) = d(m)+g(m,k)*(tau(k,kb)-tau(k,ib))
+        enddo
+        enddo
         kbp = 0
         do 11 kk = 1,nbas
           do 12 m = 1,3
@@ -57,11 +58,12 @@ C     implicit none
    10 continue
 
       lok = 1
-      do 3 m = 1,3
+      do  m = 1,3
         trans(m) = tau(m,jb)
-      do 3 k = 1,3
-        trans(m) = trans(m)-g(m,k)*tau(k,ib)
-    3 continue
+      do  k = 1,3
+         trans(m) = trans(m)-g(m,k)*tau(k,ib)
+      enddo
+      enddo
       call shorbz(trans,trans,rb,qb)
       end
 

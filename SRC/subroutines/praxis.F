@@ -160,8 +160,9 @@ C --- First call to function evaluation ---
         is = 0
         st = ' '
         call bin2a('Praxis: start at x=',0,0,0,1,0,80,st,is)
-        do  30  i = 1, n
-   30   call bin2a(' ',1,0,x(i),4,0,100,st,is)
+        do  i = 1, n
+           call bin2a(' ',1,0,x(i),4,0,100,st,is)
+        enddo   
         print *, st(1:is)
       endif
       nf = 1
@@ -349,12 +350,13 @@ C --- Scale axes to try and reduce condition number ---
       endif
 C                                           T
 C --- Singular value decomposition of v - Golub & Reinsch (Eispack) ---
-      do  14  i = 2, n
-        do  14  j = 1, i-1
+      do    i = 2, n
+        do  j = 1, i-1
           s = v(i,j)
           v(i,j) = v(j,i)
           v(j,i) = s
-   14 continue
+       enddo
+       enddo
       call minfit(n,n,n,v,d,0,tvec,ierr,tvec)
       if (ierr .ne. 0) call fexit(-1,1,'minfit in praxis: ierr=%d',ierr)
       if (scbd .gt. 1) then

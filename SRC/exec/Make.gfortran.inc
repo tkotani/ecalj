@@ -1,12 +1,7 @@
 ### NOTE. we use mpi compilar, but lmfa, lmdos lmchk lmf2gw lmfham1 are only for -np 1
-FC = mpif90 
+FC = mpif90 -Wsurprising -Wmaybe-uninitialized
 LK = mpif90 
 LIBMATH = -lmkl_rt
-
-#FC = gfortran
-#LK = gfortran
-# LIBMATH =/usr/lib/x86_64-linux-gnu/libblas.so.3 \
-# /usr/lib/x86_64-linux-gnu/liblapack.so.3 /usr/lib/x86_64-linux-gnu/libfftw3.so.3
 
 module = -J$(moddir) -I$(moddir)
 

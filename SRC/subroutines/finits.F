@@ -1,9 +1,6 @@
       subroutine finits() !job,fcn,fcargs,iarg)
-C- Machine and compiler-dependent inits for standard FORTRAN startup
-C ----------------------------------------------------------------
-!!
-!! finits set the numbr of iprint(), extension, and -vnam=val
-!! imput arguments are      
+!!--- Set the numbr of iprint(), extension, and -vnam=val
+!!note: input arguments are      
 !!   [-vnam=val ...] [-pr# .or. --pr#] [switches] extens;
 !!--------------------------------      
       integer iarg
@@ -17,7 +14,7 @@ C ----------------------------------------------------------------
 !! Command line arguments and extension ---
       lext = .false.
       do iarg = 1,nargf()-1
-        call getarf(iarg,strn)
+        call getarg(iarg,strn)
         extns = strn
 !  ... v encountered ... parse variables
         if (lsequ(strn,'-v',2,' ',n)) then
@@ -31,15 +28,17 @@ C ----------------------------------------------------------------
           cycle 
         endif
       enddo
-!! Set print verbose ( integer funciton iprint() return # of -pr# in command line arguments).
-      if (cmdopt('-pr',3,0,strn)) then
-         read(strn(4:),*) k
-         call setpr(k)
-      endif
-      if (cmdopt('--pr',4,0,strn)) then
-         read(strn(5:),*) k
-         call setpr(k)
-      endif
+c$$$c     not here
+c$$$!! Set print verbose ( integer funciton iprint() return # of -pr# in command line arguments).
+c$$$      if (cmdopt('-pr',3,0,strn)) then
+c$$$c         print *,'uuuuuuuu'//trim(strn)//'@@@'
+c$$$         read(strn(4:),*) k
+c$$$         call setpr(k)
+c$$$      endif
+c$$$      if (cmdopt('--pr',4,0,strn)) then
+c$$$         read(strn(5:),*) k
+c$$$         call setpr(k)
+c$$$      endif
       end
 
       subroutine fexit(retval,iopt,strng,args)
@@ -58,7 +57,6 @@ Ci   100:   0: do not print work array usage, else do
 Co Outputs
 Cr Remarks
 Cu Updates
-Cu   03 Jul 03 Open file tmp with fopnT, for local directories (MPI)
 C ----------------------------------------------------------------------
       implicit none
 C Passed parameters 
@@ -66,11 +64,13 @@ C Passed parameters
       character*(*) strng
       double precision args(1),arg2(1),arg3(1)
 C Local parameters 
-      integer fopn,fhndl,iprint,i,i2,getdig,i1mach,scrwid,fopnT,mpipid
+      integer fhndl,iprint,i,i2,getdig,i1mach,scrwid,mpipid
 c      parameter (scrwid=300)
       double precision cpusec,tnew
       character*1 timeu
       character*256 strn, datim*26, hostnm*20
+      character(8):: charext
+      character(9):: ftoa9
       logical isopen
       integer master,procid,ierr
       parameter (master = 0)
@@ -83,17 +83,17 @@ c      parameter (scrwid=300)
     5 continue
       procid = mpipid(1)
       if (procid .eq. master.or. retval/=0) then
-        i = getdig(iopt,0,10) 
+        i = mod(iopt,10) !getdig(iopt,0,10) 
         if (i .ne. 0) then
            if (i .eq. 9) then
-              strn = ' Exit %i '//strng
-c              call strip(strn,i,i2)
-              call awrit1(strn,' ',len_trim(strn),i1mach(2),retval)
+              write(i1mach(2),"(a)") "Exit "//trim(charext(retval))//' '//trim(strng)
+c              strn = ' Exit %i '//strng
+c              call awrit1(strn,' ',len_trim(strn),i1mach(2),retval)
            else
              call awrit3(strng,strn,-len_trim(strn),i1mach(2),args,arg2,arg3)
            endif
         endif
-        i = getdig(iopt,1,10)
+        i = mod(iopt/10,10) !getdig(iopt,1,10)
         if (i .ne. 0 .and. cpusec() .ne. 0) then
           timeu = 's'
           tnew = cpusec()
@@ -105,13 +105,10 @@ c              call strip(strn,i,i2)
               tnew = tnew/60
             endif
           endif
-
           datim = ' '
           call ftime(datim)
           hostnm = ' '
           call get_environment_variable('HOST',hostnm)
-c          call word(hostnm,1,i,i2)
-c          i2 = max(i,i2)
           write(i1mach(2),10) tnew,timeu,datim,trim(adjustl(hostnm))
           if (fhndl('LOG') .ge. 0)  then
             if (isopen(fhndl('LOG'),.false.))
@@ -123,8 +120,8 @@ c          i2 = max(i,i2)
       call tcprt(i1mach(2))
 #if MPI | MPIK
       if(retval/=0) then
-         print *,'fexit,fexit2,fexit3 error retval=',retval
-         print *
+         write(6,"(a,i5)")'ERROR: fexit, error code=',retval
+         write(6,*)
          call MPI_abort(MPI_comm_world,retval,ierr)   
          call MPI_FINALIZE(i)
          stop
@@ -135,10 +132,11 @@ c          i2 = max(i,i2)
       end
 
       subroutine rx0s(string)
+      use m_MPItk,only: master_mpi
 c  write extra information before error exit in standard format
       character*(*) string
-      write(6,892) string
-  892 format(/' ---- ',a,a)
+      if(master_mpi) write(6,892) trim(string)//' ======================'
+  892 format(/,a)
       call exit(0)
       end
 

@@ -1,10 +1,12 @@
       subroutine defspc(sspec)
       use m_struc_def,only:s_spec
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: nspec
+
+
       type(s_spec)::sspec(*)
       double precision dgetss,rg,rsma,rfoca,rsmfa,rmt
-      integer nspec,is,nglob
-      nspec = globalvariables%nspec
+      integer is,nglob
+c      nspec = globalvariables%nspec
       do  is = 1, nspec
         rmt = (sspec(is)%rmt)
         rmt=sspec(is)%rmt

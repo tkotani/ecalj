@@ -1,8 +1,10 @@
-      subroutine mkdmtu(ssite,sspec,wtkb,isp,iq,nsp,nspc,ndham,nlmax,
-     .nbas,nev,ppnl,aus,dmatu,nlibu,lmaxu,lldau)
-
-      use m_struc_def  !Cgetarg
-
+      subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu)
+      use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nl,n0,nppn,nlibu,lmaxu,nlibu,lldau
+      use m_lmfinit,only: ham_ldham
+      use m_mkpot,only: ppnl=>ppnl_rv 
+      use m_subzi, only: wtkb=>rv_a_owtkb
+      use m_igv2x,only: ndimh
+      use m_suham,only:  ndham=>ham_ndham,ndhamx=>ham_ndhamx 
 C- Calculate density matrix for LDA+U channels
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -41,29 +43,28 @@ C ----------------------------------------------------------------------
       implicit none
 C     ... Passed parameters
       integer:: i_copy_size
-      integer isp,iq,nsp,nspc,ndham,nlmax,nbas,nev,nlibu,lmaxu,
-     .lldau(nbas)
-      real(8):: wtkb(ndham,nsp,iq)
-      type(s_spec)::sspec(*)
-      type(s_site)::ssite(*)
-
-      double complex aus(nlmax,ndham*nspc,3,nsp,nbas)
+      integer isp,iq,nev
+c      real(8):: wtkb(ndham,nsp,iq)
+c      double complex aus(nlmax,ndham*nspc,3,nsp,nbas)
       double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
-      integer n0,nppn
-      parameter (n0=10,nppn=12)
-      double precision ppnl(nppn,n0,nsp,nbas)
+c      double precision ppnl(nppn,n0,nsp,nbas)
 C ... Local parameters
       double complex add,au,as,az,ap1,ap2
       double precision dlphi,rmt,dlphip,phi,phip,dphi,dphip,r(2,2),det,
      .phz,dphz
       integer lmxa,ilm1,ilm2,l,iv,m1,m2,ib,is,idu(4),igetss,iblu,ispc,
-     .ksp
+     .     ksp
+      complex(8),allocatable ::aus(:,:,:,:,:)
+      double complex evec(ndimh,nsp,nev)
+      real(8)::qp(3)
+      allocate(aus(nlmax,ndham*nspc,3,nsp,nbas))! aus(2*nlmax*ndhamx*3*nsp*nbas))
+      aus=0d0
+      call makusq(0, nbas,0 , nev,  isp, 1, qp, evec, aus )
 
       iblu = 0
       do  ib = 1, nbas
         if (lldau(ib) .eq. 0) goto 10
         is = int(ssite(ib)%spec)
-
 
         lmxa=sspec(is)%lmxa
         i_copy_size=size(sspec(is)%idu)
@@ -129,10 +130,8 @@ C                   ad1 = au*r(1,2) + as*r(2,2)
                     as = aus(ilm2,iv,2,ksp,ib) - dphz*az
                     ap2 = au*r(1,1) + as*r(2,1)
 C                   ad2 = au*r(1,2) + as*r(2,2)
-
                     add = add + ap1*dconjg(ap2)*wtkb(iv,isp,iq)
                   enddo
-
                   dmatu(m1,m2,ksp,iblu) = dmatu(m1,m2,ksp,iblu) + add
 C                  if (m1 .eq. m2 .and. l .eq. 3) call info5(0,0,0,
 C     .              'l=%i m=%i iq=%i isp=%i add=%d',l,m1,iq,ksp,add)
@@ -144,6 +143,7 @@ C     .              'l=%i m=%i iq=%i isp=%i add=%d',l,m1,iq,ksp,add)
         enddo
    10   continue
       enddo
+      deallocate(aus)
       end subroutine mkdmtu
 
 

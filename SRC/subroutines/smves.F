@@ -2,11 +2,12 @@
      .vval,hpot0,sgp0,smrho,smpot,vconst,smq,qsmc,f,rhvsm,zvnsm,zsum,
      .vrmt,qbg)
       use m_supot,only: iv_a_okv, rv_a_ogv
-      use m_lmfinit,only:  rv_a_ocy
       use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
-c      use m_globalvariables
-      use m_lmfinit,only: lat_nabc,lat_ng,lat_vol
+      use m_lmfinit,only: rv_a_ocy,nsp,stdo
+      use m_lattic,only: lat_vol
+      use m_supot,only: lat_nabc
+      use m_supot,only: lat_ng
+      use m_MPItk,only: master_mpi
       use m_ext,only: sname
 C- Electrostatic potential of the smooth density.
 C ----------------------------------------------------------------------
@@ -154,7 +155,7 @@ c      type(s_lat)::slat
       double complex smrho(k1,k2,k3,2),smpot(k1,k2,k3,2)
       integer:: ib , igetss , ilm , ipr , iprint , is , iv0 , lfoc 
      .   , lgunit , lmxl , m , n1 , n2 , n3 , ng , ngabc(3) , nglob , 
-     .   nlm , nsp , stdo , j1 , j2 , j3
+     .   nlm , j1 , j2 , j3
       complex(8) ,allocatable :: cg1_zv(:)
       complex(8) ,allocatable :: cgsum_zv(:)
       complex(8) ,allocatable :: cv_zv(:)
@@ -164,12 +165,11 @@ c      type(s_lat)::slat
      .rfoc,rmt,s1,s2,sbar,srfpi,sumx,sum1,sum2,u00,u0g,ugg,usm,vbar,
      .vcnsto,vol,y0,z,R,eint
       integer ::iwdummy, ifivsmconst,fopna
-      logical master_mpi
 C ... Setup
       call tcn('smves')
       ipr   = iprint()
-      stdo  = lgunit(1)
-      nsp   = globalvariables%nsp
+c      stdo  = lgunit(1)
+c      nsp   = globalvariables%nsp
       pi    = 4d0*datan(1d0)
       srfpi = dsqrt(4d0*pi)
       y0    = 1d0/srfpi
@@ -230,11 +230,10 @@ C --- Make vbar = avg v(RMT) and optionally assign to vconst ---
       vcnsto = vconst
       if (mode .ne. 0) vconst = -vbar
       if (ipr .ge. 20) write (stdo,232) vbar,vcnsto,vconst
-  232 format(/' smves:: avg es pot at rmt=',f9.6,
+  232 format(' smves:: avg es pot at rmt=',f9.6,
      .'  avg sphere pot=',f9.6,'  vconst=',f9.6)
-      if(mode==0) call rx('takao: vsmconst is not vconst due to estatic. need to implement something!')
-
-      if(master_mpi()) then
+      if(mode==0)call rx(' vsmconst is not vconst due to estatic. need to implement something!')
+      if(master_mpi) then
          open(newunit=ifivsmconst,file='vessm.'//trim(sname))
          write(ifivsmconst,"(d23.15)") vconst
          close(ifivsmconst)

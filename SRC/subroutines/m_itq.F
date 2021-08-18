@@ -43,7 +43,7 @@ c      ngpmx = ngpmx_in
          allocate(eqt(nband))
          do is = 1,nspin
             do ip = 1,nq
-               call READEVAL(qibz(1,ip),is, eqt)
+               eqt= readeval(qibz(1,ip),is)
                do iband=1,nband
                   ntq = max(iband,ntq)
                   if(eqt(iband)-eftrue>ebmx_sig) exit
@@ -66,7 +66,7 @@ c      ngpmx = ngpmx_in
       allocate(eqt(nband))
       do is = 1,nspinmx
          do ip = 1,nq   
-            call READEVAL(qibz(1,ip),is, eqt)
+            eqt= READEVAL(qibz(1,ip),is)
             if(lntq) then
                read(ifih,*) ntqxx ! ntqxx = ntq !jun2016
             else  
@@ -128,8 +128,10 @@ c      ngpmx = ngpmx_in
       module m_selectqp
       use m_keyvalue,only: GETKEYVALUE
       implicit none
-      integer nq
-      real(8),allocatable ::q(:,:)
+      
+      integer,protected:: nq
+      real(8),allocatable,protected ::q(:,:)
+
       contains
       subroutine getqpoint(selectqp,nqibz,qibz)
       real(8):: qibz(3,nqibz)

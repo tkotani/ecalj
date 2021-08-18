@@ -6,6 +6,7 @@
       logical:: nexist
       integer,save:: irem=2001
       character*256::nnn
+      ifile_handle=-999999
       do i=irem,9999
          inquire(unit=i,opened=nexist,name=nnn)
          if(.not.nexist) then
@@ -29,7 +30,7 @@ c         print *,'mpipid i=',mpipid(1),i,trim(nnn)
       character(10) function i2char(num)
 !! convert num>0 to char. See charnum3 to understand this.
       implicit none
-      integer(4) ::num,itens,iten,i
+      integer(4) ::num,itens,iten
       i2char=''
       do itens=9,1,-1 !itens mean itens+1's digit
         iten=10**itens

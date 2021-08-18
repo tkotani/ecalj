@@ -53,7 +53,7 @@ C     if (iprint() .ge. 40) write (*,100) range/w,2*mrange,test
      .' ',80,i1mach(2),range/w,2*mrange,test)
       do  7  iq = 1, nqp
         wt = abs(wgts(iq)) / nsp
-        do  6  iband = 1, nband
+        do  61  iband = 1, nband
         do  6  isp = 1, nsp
           e = evl(iband,isp,iq)
           meshpt = (e - emin) / step
@@ -71,6 +71,7 @@ C     if (iprint() .ge. 40) write (*,100) range/w,2*mrange,test
             dos(meshpt,isp) = dos(meshpt,isp) + wt
     5     continue
     6   continue
+ 61     continue
     7 continue
 C     call prmx('nos',dos,ndos,ndos,nsp)
 C  100 format(1x,'MAKNOS:  range of gaussians is ',f5.2,'W (',i4,

@@ -21,7 +21,7 @@ C Local parameters
       fpi = 2.d0*tpi
       y0 = 1.d0/dsqrt(fpi)
       c(1) = y0
-      do  2  l = 1, lmx
+      do  21  l = 1, lmx
         lp1 = l+1
         tlp1 = l+lp1
         lav = l*lp1 + 1
@@ -39,6 +39,7 @@ C Local parameters
         c(i1) = dsqrt(tlp1/(fn2*tpi))
         c(i2) = c(i1)
     2 continue
+ 21   continue
       end subroutine sylmnc
 
 

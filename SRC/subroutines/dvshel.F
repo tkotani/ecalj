@@ -28,8 +28,9 @@ C ... Get the largest increment
    10 continue
       inc = 3*inc+1
       if (inc .lt. n) goto 10
-      do  2  i = 1, n
-    2 iprm(i) = i-1
+      do  i = 1, n
+         iprm(i) = i-1
+      enddo   
       if (lopt .ne. 0 .and. lopt .ne. 1 .and. lopt .ne. 11)
      .call rx('dvshel: bad lopt')
       if (n .le. 1) return
@@ -49,9 +50,10 @@ C     ... Inner loop of straight insertion
    20     continue
           di = 0d0
           dl = 0d0
-          do  24  mm = 1, m
+          do   mm = 1, m
             dl = dl + vecs(mm,iprm(j-inc))**2
-   24     di = di + vecs(mm,iv)**2
+            di = di + vecs(mm,iv)**2
+          enddo  
           if (dl .gt. di) then
 c             print *, 'slip',j-inc,j,i
             iprm(j) = iprm(j-inc)
@@ -121,8 +123,9 @@ C     implicit none
 
       do  10  i = 1, n
         k = iprm(i)+1
-        do  12  j = 1, m
-   12   wk(j,i) = vecs(j,k)
+        do    j = 1, m
+           wk(j,i) = vecs(j,k)
+        enddo   
    10 continue
       if (lopt) call dpcopy(wk,vecs,1,n*m,1d0)
       end

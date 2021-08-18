@@ -316,7 +316,7 @@ def plotws(b1,b2,b3):
     for num_sides in sorted(faces_count.keys()):
         print("{} faces: {}".format(num_sides, faces_count[num_sides]))
 
-    fig = figure()
+    fig = figure() #figsize=figaspect(1))
     ax = fig.add_subplot(111, projection='3d')
     ax.add_collection3d(Poly3DCollection(faces_coords,linewidth=1, alpha=0.3, edgecolor="k", facecolor="#ccccff"))
 
@@ -399,13 +399,17 @@ def plotws(b1,b2,b3):
     ax.axis('off')
 #    ax.view_init(elev=0, azim=60)
     ax.view_init(elev=0, azim=0)
+    
     try:
         ax.set_aspect('equal')
     except NotImplementedError:
-        ax.set_box_aspect((1, 1, 1))
+        pass
+#        ax.set_box_aspect((1, 1, 1))
+        
     ax.autoscale(True,axis='both')
     show()
 
+        
 if __name__ == "__main__":
     ##SC
     #faces_data = get_BZ(b1 = [1,0,0], b2 = [0,1,0], b3 = [0,0,1])

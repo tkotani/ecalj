@@ -1,10 +1,6 @@
-      subroutine rhomom ( nbas , ssite , sspec , sv_p_orhoat , qmom 
-     . , vsum )
-
-
-      use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
-c      use m_globalvariables
+      subroutine rhomom (sv_p_orhoat, qmom,vsum)
+      use m_struc_def 
+      use m_lmfinit,only: nsp,nbas,ssite=>v_ssite,sspec=>v_sspec
 C- Multipole moments of valence sphere densities
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -29,75 +25,48 @@ Cu   22 Apr 00 Adapted from nfp rhomom.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer:: nbas
       type(s_rv1) :: sv_p_orhoat(3,*)
-
       real(8):: qmom(1) , vsum
-      type(s_site)::ssite(*)
-      type(s_spec)::sspec(*)
-
 C ... Local parameters
-      integer:: stdo , ipr , iprint , lgunit , nrmx , nsp , nglob , 
+      integer:: stdo , ipr , iprint , lgunit , nrmx , 
      .j1 , ib , is , igetss , lmxl , nr , nlml , ilm , j , lfoc
       real(8) ,allocatable :: rofi_rv(:)
       real(8) ,allocatable :: rwgt_rv(:)
       real(8) ,allocatable :: h_rv(:)
       real(8) ,allocatable :: v_rv(:)
-
       parameter( nrmx=1501)
-      double precision fpi,y0,z,qc,a,rmt,qcorg,qcorh,qsc,cofg,cofh,rg,
-     .ceh,rfoc,vs1,vs2
-C ... Heap
-
+      double precision fpi,y0,z,qc,a,rmt,qcorg,qcorh,qsc,cofg,cofh,rg,ceh,rfoc,vs1,vs2
 C --- Setup ---
       ipr  = iprint()
       stdo = lgunit(1)
       fpi  = 16d0*datan(1d0)
       y0   = 1d0/dsqrt(fpi)
-Changenglob      nsp  = nglob('nsp')
-      nsp  = globalvariables%nsp
       allocate(rofi_rv(nrmx))
-
       allocate(rwgt_rv(nrmx))
-
       allocate(h_rv(nrmx))
-
       allocate(v_rv(nrmx))
-
       if (ipr .ge. 40) write(stdo,221)
-
 C --- Loop over sites ---
       j1 = 1
       vsum = 0d0
       do  ib = 1, nbas
         is = int(ssite(ib)%spec)
-
-
         lmxl=sspec(is)%lmxl
         z=sspec(is)%z
         qc=sspec(is)%qc
-
-
         a=sspec(is)%a
         nr=sspec(is)%nr
         rmt=sspec(is)%rmt
-
-
         rg=sspec(is)%rg
-
         if (lmxl .eq. -1) goto 10
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
         qc = qcorg+qcorh
         nlml = (lmxl+1)**2
         call radmsh ( rmt , a , nr , rofi_rv )
-
         call radwgt ( rmt , a , nr , rwgt_rv )
-
         call pvrhom ( nlml , nr , nsp , rofi_rv , rwgt_rv , sv_p_orhoat( 1 , ib )%v 
      .   , sv_p_orhoat( 2 , ib )%v , sv_p_orhoat( 3 , ib )%v , cofg , 
      .   cofh , rg , ceh , rfoc , z , h_rv , qmom ( j1 ) )
-
-
         if (ipr .ge. 40) then
           write(stdo,220) ib,1,qmom(j1),qmom(j1)/y0,qc,z
           do  ilm = 2, nlml
@@ -110,28 +79,20 @@ C --- Loop over sites ---
      .  'Qc',8x,'Z')
         call pvrhm2 ( z , a , nr , nlml , nsp , rofi_rv , rwgt_rv , sv_p_orhoat( 1 , ib )%v 
      .   , sv_p_orhoat( 2 , ib )%v , sv_p_orhoat( 3 , ib )%v , qmom ( 
-     .   j1 ) , cofg , cofh , rg , ceh , rfoc , h_rv , v_rv , vs1 , vs2 
-     .   )
-
-
-
+     .   j1 ) , cofg , cofh , rg , ceh , rfoc , h_rv , v_rv , vs1 , vs2   )
         vsum = vsum+vs1-vs2
         j1 = j1+nlml
-
    10   continue
       enddo
-
       if (allocated(v_rv)) deallocate(v_rv)
       if (allocated(h_rv)) deallocate(h_rv)
       if (allocated(rwgt_rv)) deallocate(rwgt_rv)
       if (allocated(rofi_rv)) deallocate(rofi_rv)
-
       end subroutine rhomom
 
 
       subroutine pvrhom(nlml,nr,nsp,rofi,rwgt,rho1,rho2,rhoc,
      .cofg,cofh,rg,ceh,rfoc,z,h,qmom)
-
 C- Multipole moments for one site
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -161,7 +122,7 @@ C     implicit none
 C ... Passed parameters
       integer nlml,nr,nsp
       double precision ceh,cofg,cofh,rfoc,rg,z
-      double precision rofi(1),rwgt(1),h(1),qmom(nlml),rhoc(nr,nsp),
+      double precision rofi(*),rwgt(*),h(*),qmom(nlml),rhoc(nr,nsp),
      .rho1(nr,nlml,nsp),rho2(nr,nlml,nsp)
 C ... Local parameters
       integer n0,i,ilm,l,m,lmxl,ll,isp
@@ -280,8 +241,8 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nr,nlml,nsp
-      double precision a,ceh,cofg,cofh,rfoc,rg,vsum1,vsum2,z,rofi(1),
-     .rwgt(1),rho1(nr,nlml,nsp),rho2(nr,nlml,nsp),h(1),v(nr),qmom(1),
+      double precision a,ceh,cofg,cofh,rfoc,rg,vsum1,vsum2,z,rofi(*),
+     .rwgt(*),rho1(nr,nlml,nsp),rho2(nr,nlml,nsp),h(*),v(nr),qmom(*),
      .rhoc(nr,nsp)
 C ... Local parameters
       integer n0,i

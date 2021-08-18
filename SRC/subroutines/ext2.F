@@ -19,7 +19,7 @@ C Local parameters
       double precision xikr,xiki,xikim
 
       n2 = ndim**2
-      do  100  j = 1, ndim
+      do  1001  j = 1, ndim
         jndim = (j-1)*ndim
         j2ndim = jndim+n2
       do  100  k = 1, ndim
@@ -35,6 +35,7 @@ C Local parameters
      .                                   xikr * hk(k2ndim+i)
   110   continue
   100 continue
+ 1001 continue
       end
 C#elseC
 C      subroutine zhmul(ndim,hk,d,nid,ck)
@@ -112,7 +113,7 @@ C      do 20 i = 1, n2
 C        c(n2+i) = c(n2+i) + a(i)
 C   20 continue
 C#else
-      do  100  j = 1, ndim
+      do  1001  j = 1, ndim
         jndim = (j-1)*ndim
         j2ndim = jndim+n2
       do  100  k = 1, ndim
@@ -128,6 +129,7 @@ C#else
      .                                  + bkj*a(k2ndim+i)
   110   continue
   100 continue
+ 1001 continue
 C#endif
       end
       subroutine zmul(a,nleft,b,nmid,c,nright)
@@ -154,7 +156,7 @@ C Local parameters
       nmr = nmid * nright
       nlr = nleft * nright
 
-      do  100  j = 1, nright
+      do  1001  j = 1, nright
         jc = (j-1) * nleft
         j2c = jc + nlr
         jb = (j-1) * nmid
@@ -170,6 +172,7 @@ C Local parameters
           c(j2c+i) = c(j2c+i) + bk2j*a(ka+i) + bkj*a(k2a+i)
   110   continue
   100 continue
+ 1001 continue
       end
       subroutine zmult(a,nleft,b,nmid,c,nright)
 C- General complex matrix copy c = at*b,
@@ -198,7 +201,7 @@ C Local parameters
       nmr = nmid * nright
       nlr = nleft * nright
 
-      do  100  j = 1, nright
+      do  1001  j = 1, nright
         jc = (j-1) * nleft
         j2c = jc + nlr
         jb = (j-1) * nmid
@@ -215,6 +218,7 @@ C Local parameters
         c(jc+i) = c(jc+i) + cic
         c(j2c+i) = c(j2c+i) + ci2c
   100 continue
+ 1001 continue
       end
       SUBROUTINE DVCPY(A,NCA,B,NCB,N)
 C- general vector copy
@@ -290,7 +294,7 @@ C     implicit none
       double precision ar,ai
 
 C --- Initialize array to zero ---
-      do  10  i = n-1, 0, -1
+      do  101  i = n-1, 0, -1
         nrci = nrc*i
         nccj = -ncc
       do  10  j = m-1, 0, -1
@@ -298,21 +302,15 @@ C --- Initialize array to zero ---
         nrcicj = nrci + nccj
         c(nrcicj)     = 0
         c(nic+nrcicj) = 0
-   10 continue
+ 10    continue
+ 101   continue
 
 C --- Do multiplication ---
-      do  20  k = l-1, 0, -1
-      do  20  i = n-1, 0, -1
+      do  202  k = l-1, 0, -1
+      do  201  i = n-1, 0, -1
         ar = a(      nra*i + nca*k)
         ai = a(nia + nra*i + nca*k)
         nrci = nrc*i
-C#ifdefC BLAS
-C        nrbk = nrb*k
-C        call daxpy(m, ar,b(    nrbk),ncb,c(nrci),    ncc)
-C        call daxpy(m,-ai,b(nib+nrbk),ncb,c(nrci),    ncc)
-C        call daxpy(m, ar,b(nib+nrbk),ncb,c(nic+nrci),ncc)
-C        call daxpy(m, ai,b(    nrbk),ncb,c(nic+nrci),ncc)
-C#else
         nccj = -ncc
         ncbj = -ncb + nrb*k
       do  20  j = m-1, 0, -1
@@ -321,8 +319,9 @@ C#else
         nrcicj = nrci + nccj
         c(nrcicj)     = c(nrcicj)     + ar*b(ncbj) - ai*b(nib+ncbj)
         c(nic+nrcicj) = c(nic+nrcicj) + ar*b(nib+ncbj) + ai*b(ncbj)
-C#endif
    20 continue
+ 201  continue
+ 202  continue
       end
 
 !!#############################################################################

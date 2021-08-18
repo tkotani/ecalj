@@ -45,8 +45,9 @@ c
       ierr = 0
       if (n .eq. 1) go to 1001
 c
-      do 100 i = 2, n
-  100 e2(i-1) = e2(i)
+      do  i = 2, n
+         e2(i-1) = e2(i)
+      enddo   
 c
       f = 0.0d0
       t = 0.0d0
@@ -78,8 +79,9 @@ c     .......... form shift ..........
         d(l) = s / (p + dsign(r,p))
         h = g - d(l)
 c
-        do 140 i = l1, n
-  140   d(i) = d(i) - h
+        do i = l1, n
+           d(i) = d(i) - h
+        enddo   
 c
         f = f + h
 c     .......... rational ql transformation ..........

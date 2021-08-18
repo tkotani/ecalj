@@ -20,8 +20,9 @@ C Local parameters
       integer nmi,k
 
       do  10  nmi = n, 1, -1
-        do  20  k = n, nmi+1, -1
-   20   call daxpy(m,-ar(k,nmi),zr(k,1),nm,zr(nmi,1),nm)
+        do    k = n, nmi+1, -1
+           call daxpy(m,-ar(k,nmi),zr(k,1),nm,zr(nmi,1),nm)
+        enddo   
         call dscal(m,1/ar(nmi,nmi),zr(nmi,1),nm)
    10 continue
 

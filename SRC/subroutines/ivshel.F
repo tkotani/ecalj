@@ -16,8 +16,9 @@ C ----------------------------------------------------------------
       integer lognb2,i,j,k,l,n2,nn,it,mm,mmm
       lognb2 = int(log(float(n+1))*1.4426950)
       n2 = n
-      do  2  i = 1, n
-    2 iwk(i) = i-1
+      do i = 1, n
+         iwk(i) = i-1
+      enddo   
       do  12  nn = 1, lognb2
         n2 = n2/2
         k = n - n2
@@ -69,13 +70,15 @@ C     implicit none
 
       do  10  i = 1, n
         k = iwk(i)+1
-        do  12  j = 1, m
-   12   wk(j,i) = vecs(j,k)
+        do    j = 1, m
+           wk(j,i) = vecs(j,k)
+        enddo   
    10 continue
       if (lopt) then
         k = n*m
-        do  20  i = 1, k
-   20   vecs(i,1) = wk(i,1)
+        do    i = 1, k
+           vecs(i,1) = wk(i,1)
+        enddo   
       endif
       end
 C      program main

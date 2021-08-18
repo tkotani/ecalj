@@ -59,15 +59,16 @@ C --- Contribution (grad fl) r^-l yl ---
       call dpzero(gp,    (ir1-ir0+1)*np*3)
       if (lgg .ne. 0) call dpzero(ggp,   (ir1-ir0+1)*np)
       ilm = 0
-      do  20  l = 0, lmax
+      do  201  l = 0, lmax
       do  20  m = -l, l
       ilm = ilm+1
       if (mod(l2,10) .eq. 0) then
         call poldvm(ri(i0),fl(i0,ilm),nx,nn,lrat,tol,lerr,gf(i0))
         if (lerr .ne. 0) goto 99
       else
-        do  22  ir = i0, nr
-   22   ggf(ir) = fl(ir,ilm)/ri(ir)**2
+        do   ir = i0, nr
+           ggf(ir) = fl(ir,ilm)/ri(ir)**2
+        enddo   
         call poldvm(ri(i0),ggf(i0),nx,nn,lrat,tol,lerr,gf(i0))
         if (lerr .ne. 0) goto 99
       endif
@@ -90,58 +91,73 @@ c          stop 'rrrrrrrrrrrrrrrrrrrrr'
 cccccccccccccccccccccccccccccccccccccccccccccccc
         endif
       endif
-      do  24  ip = 1, np
-      do  24  ir = ir0, ir1
-   24 gp(ir,ip,1) = gp(ir,ip,1) + gf(ir)*yl(ip,ilm)
+      do    ip = 1, np
+      do    ir = ir0, ir1
+         gp(ir,ip,1) = gp(ir,ip,1) + gf(ir)*yl(ip,ilm)
+      enddo
+      enddo
 
 C --- Laplacian: (nabla fl) Yl + fl (nabla Yl) ---
       if (lgg .ne. 0) then
         call poldvm(ri(i0),gf(i0),nx,nn,lrat,tol,lerr,ggf(i0))
         if (lerr .ne. 0) goto 99
         if (mod(l2,10) .eq. 0) then
-          do  25  ir = i0, nr
+          do    ir = i0, nr
           xx = 1/ri(ir)
-   25     ggf(ir) = ggf(ir) + 2d0*gf(ir)*xx - l*(l+1)*fl(ir,ilm)*xx*xx
+          ggf(ir) = ggf(ir) + 2d0*gf(ir)*xx - l*(l+1)*fl(ir,ilm)*xx*xx
+          enddo
         else
-          do  27  ir = i0, nr
+          do    ir = i0, nr
           xx = 1/ri(ir)
-   27     ggf(ir) = ggf(ir) + 2d0*gf(ir)*xx - l*(l+1)*fl(ir,ilm)*xx**4
+          ggf(ir) = ggf(ir) + 2d0*gf(ir)*xx - l*(l+1)*fl(ir,ilm)*xx**4
+          enddo
         endif
         if (i0 .eq. 2) ggf(1)= (ri(3)*ggf(2)-ri(2)*ggf(3))/(ri(3)-ri(2))
-        do  28  ip = 1, np
-        do  28  ir = ir0, ir1
-   28   ggp(ir,ip) = ggp(ir,ip) + ggf(ir)*yl(ip,ilm)
+        do  ip = 1, np
+        do  ir = ir0, ir1
+           ggp(ir,ip) = ggp(ir,ip) + ggf(ir)*yl(ip,ilm)
+        enddo
+        enddo
       endif
    20 continue
-
+ 201  continue
 C ... Split grad r- into x,y,z- components
-      do  26  j = 3, 1, -1
-      do  26  ip = 1, np
+      do    j = 3, 1, -1
+      do    ip = 1, np
       xx = yl(ip,j)/cy1
       if (j .eq. 1) xx = yl(ip,4)/cy1
-      do  26  ir = ir0, ir1
-   26 gp(ir,ip,j) = xx*gp(ir,ip,1)
+      do    ir = ir0, ir1
+         gp(ir,ip,j) = xx*gp(ir,ip,1)
+      enddo
+      enddo
+      enddo
 
 C --- Contribution fl(r) grad r^-l yl (use gf as work array) ---
       ilm = 0
-      do  10  l = 0, lmax
+      do  101  l = 0, lmax
       do  10  m = -l, l
         ilm = ilm+1
 C ...   Factor 1/r from grad Yl
         if (mod(l2,10) .eq. 0) then
-          do  13  ir = max(i0,ir0), nr
-   13     gf(ir) = fl(ir,ilm)/ri(ir)
+          do   ir = max(i0,ir0), nr
+             gf(ir) = fl(ir,ilm)/ri(ir)
+          enddo   
         else
-          do  15  ir = max(i0,ir0), nr
-   15     gf(ir) = fl(ir,ilm)/ri(ir)**3
+          do    ir = max(i0,ir0), nr
+             gf(ir) = fl(ir,ilm)/ri(ir)**3
+          enddo   
         endif
         if (i0 .gt. ir0) gf(1) = (ri(3)*gf(2)-ri(2)*gf(3))/(ri(3)-ri(2))
-        do  18  j = 1, 3
-        do  18  ip = 1, np
+        do    j = 1, 3
+        do    ip = 1, np
         xx = gyl(ip,ilm,j)
-        do  18  ir = ir0, ir1
-   18   gp(ir,ip,j) = gp(ir,ip,j) + gf(ir)*xx
-   10 continue
+        do    ir = ir0, ir1
+           gp(ir,ip,j) = gp(ir,ip,j) + gf(ir)*xx
+        enddo
+        enddo
+        enddo
+ 10   continue
+ 101  continue
       return
 
 C --- Error handling ---

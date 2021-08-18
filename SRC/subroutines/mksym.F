@@ -1,7 +1,7 @@
       module m_mksym
 c      iv_a_oipc,iv_a_oics,iv_a_onrc,rv_a_oclabl,iv_a_onrcp
 c     &     rv_a_oag,rv_a_osymgr, iv_a_oistab
-      real(8) , allocatable ::  rv_a_oag (:)
+      real(8) , allocatable,protected ::  rv_a_oag (:)
       character(8), allocatable,protected ::  rv_a_oclabl(:) !string
       integer , allocatable,protected ::  iv_a_oics (:)
       integer,  allocatable,protected ::  iv_a_oipc(:)
@@ -9,11 +9,18 @@ c     &     rv_a_oag,rv_a_osymgr, iv_a_oistab
       integer , allocatable,protected ::  iv_a_onrcp (:)
       real(8) , allocatable,protected ::  rv_a_osymgr (:)
       integer , allocatable,protected ::  iv_a_oistab (:)
-      integer,protected:: lat_npgrp,lat_nsgrp
+      integer,protected:: lat_npgrp,lat_nsgrp,ctrl_nclass
+      
+      integer,allocatable:: iclasstaf_(:)
+      real(8),allocatable:: symops_af_(:,:,:), ag_af_(:,:)
+      integer:: ngrpaf_
+      
+      private pvsym2
       contains
 
       subroutine mksymaf(v_ssite,iv_a_oips_in,nbas,imaster,strn2,lc,slabl_,mxspec,nsite)!all input
-      use m_hamindex,only: iclasstaf,symops_af,ag_af,ngrpaf  ! mksymaf sets following data. used in sugw.F.
+c      use m_hamindex,only: iclasstaf,symops_af,ag_af,ngrpaf
+!     mksymaf sets data above used in sugw.F. a little complicated...
       use m_struc_def,only: s_site
       intent(in)::       v_ssite,iv_a_oips_in,nbas,imaster,strn2,lc,slabl_,mxspec,nsite
       logical::                         imaster
@@ -37,25 +44,24 @@ c     &     rv_a_oag,rv_a_osymgr, iv_a_oistab
       enddo
       enddo
       if(imaster) call pshpr(60)
-      call mksymx(lc,slabl_,strn2,v_ssite2,iv_a_oips) 
+      call mksym(lc,slabl_,strn2,v_ssite2,iv_a_oips) 
       if(imaster) call poppr()
       if(imaster) write(6,"(a)")' AF: mksym, generator= SYMGRP+SYMGRPAF= '//trim(strn2)
-      ngrpaf     = lat_nsgrp 
-      allocate(iclasstaf(nbas),symops_af(3,3,ngrpaf),ag_af(3,ngrpaf))
-      call dcopy ( ngrpaf * 9 , rv_a_osymgr , 1 , symops_af , 1 )
-      call dcopy ( ngrpaf * 3 , rv_a_oag ,    1 , ag_af , 1 )
-      if(imaster) write(6,"(a,i3)") ' AF: ngrpaf=',ngrpaf
+      ngrpaf_     = lat_nsgrp 
+      allocate(iclasstaf_(nbas),symops_af_(3,3,ngrpaf_),ag_af_(3,ngrpaf_))
+      call dcopy ( ngrpaf_ * 9 , rv_a_osymgr , 1 , symops_af_ , 1 )
+      call dcopy ( ngrpaf_ * 3 , rv_a_oag ,    1 , ag_af_ , 1 )
+      if(imaster) write(6,"(a,i3)") ' AF: ngrpaf=',ngrpaf_
       do ib=1,nbas
-         iclasstaf(ib)=v_ssite2(ib)%class
+         iclasstaf_(ib)=v_ssite2(ib)%class
       enddo
       deallocate(v_ssite2)
       end subroutine
       
       subroutine mksym(mode,slabl,ssymgr,ssite,iv_a_oips) !,sctrl,slat
-      use m_struc_def  !Cgetarg
-      use m_lmfinit,only: ctrl_nbas,ctrl_nsite,ctrl_nspec,ctrl_nclass,
-     & lat_dist,lat_ldist,lat_plat !,iv_a_oips
-      use m_lmfinit,only: globalvariables,rv_a_opos
+      use m_struc_def
+      use m_lattic,only: lat_plat,rv_a_opos,lat_dist
+      use m_lmfinit,only: ctrl_nbas,ctrl_nsite,ctrl_nspec,stdo,lat_ldist
 C- Setup for symmetry group
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -130,10 +136,9 @@ c      type(s_lat)::slat
 c      type(s_array)::sarray
       integer ::iwdummy 
       logical T,F,cmdopt,a2bin,ltmp
-      integer idest,ig,iprint,igets,isym(10),j1,j2,lpgf,nbas,
+      integer:: idest,ig,iprint,igets,isym(10),j1,j2,lpgf,nbas,
      .nbas0,nbasp,nsite,nclass,nclasp,nclspp,ngen,ngnmx,nspec,usegen,
-     .ldist,nggen,ngmx,stdo,nglob,incli !npadl,npadr,
-                 integer:: oiwk , aginv 
+     .ldist,nggen,ngmx,incli, oiwk , aginv 
       integer ,allocatable :: nrspc_iv(:)
       real(8) ,allocatable :: pos2_rv(:,:)
       integer ,allocatable :: ips2_iv(:)
@@ -147,11 +152,11 @@ c      type(s_array)::sarray
       nspec=ctrl_nspec
       nsite=ctrl_nsite
       plat =lat_plat
-      ldist=lat_ldist
+      ldist=lat_ldist! ldist mode need to be recovered if necessary
       i_copy_size=size(lat_dist)
       call dcopy(i_copy_size,lat_dist,1,dist,1)
       ngmx = 48
-      stdo = globalvariables%stdo
+c      stdo = globalvariables%stdo
       if (iprint() .ge. 30) write(stdo,'(1x)')
 C ... Re-entry when ngmx was increased
     5 continue
@@ -364,26 +369,3 @@ C --- Create nrc ---
       end subroutine pvsym2
       end module m_mksym
       
-!ssssssssssssssssssssssssssssssssssssssssssssssssssssss
-      subroutine mksymx(mode,slabl,ssymgr,ssite,iv_a_oips) !this is to avoid cycle dependency of *.o
-      use m_struc_def,only: s_site   
-      use m_mksym,only: mksym
-      character*8 slabl(1),ssymgr*(*)
-      integer mode
-      type(s_site)::ssite(*)
-      integer:: iv_a_oips(*)
-      call mksym(mode,slabl,ssymgr,ssite,iv_a_oips)
-      end
-
-      subroutine mksymafx(v_ssite,iv_a_oips_in,nbas,imaster,strn2,lc,slabl_,mxspec,nsite)!all input
-      use m_hamindex,only: iclasstaf,symops_af,ag_af,ngrpaf  ! mksymaf sets following data. used in sugw.F.
-      use m_struc_def,only: s_site
-      use m_mksym,only: mksymaf
-      intent(in)::        v_ssite,iv_a_oips_in,nbas,imaster,strn2,lc,slabl_,mxspec,nsite
-      logical::                         imaster
-      character strn2*(*)
-      character(8) :: slabl_(mxspec) 
-      type(s_site):: v_ssite(nsite) !pos is rewritten in lmfp
-      integer:: inumaf,iv_a_oips_in(nsite),j,k,nbas,  lc,       mxspec,nsite,ib
-      call mksymaf(v_ssite,iv_a_oips_in,nbas,imaster,strn2,lc,slabl_,mxspec,nsite)
-      end

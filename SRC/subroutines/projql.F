@@ -1,5 +1,7 @@
       subroutine projql(qlat)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: stdo
+
+
 C- Project 3D reciprocal lattice vecs on surface (2D recip lattice vecs)
 C ----------------------------------------------------------------------
 Ci Input qlat(3,3)  3D reciprocal lattice vectors
@@ -8,9 +10,9 @@ Cr if bi i=1,3 are 3D vectors
 Cr    Bi i=1,2 are 2D vectors
 Cr    Bi(u)=bi(u)-(Bi.B3) B3(u)/(B3.B3) for u=x,y,z
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
       double precision qlat(3,3),b3b3,bib3
-      integer i,j,stdo,nglob,iprint
+      integer i,j,iprint
       b3b3 = qlat(1,3)**2 + qlat(2,3)**2 + qlat(3,3)**2
       do  20  i = 1, 2
         bib3 = qlat(1,i)*qlat(1,3) + qlat(2,i)*qlat(2,3)
@@ -23,8 +25,8 @@ C ... Ignore qlat(3,.) by making it zero
 C      do  22  j = 1, 3
 C   22 qlat(j,3)=0d0
       if (iprint() .ge. 20) then
-Changenglob        stdo = nglob('stdo')
-        stdo = globalvariables%stdo
+cChangenglob        stdo = nglob('stdo')
+c        stdo = globalvariables%stdo
         write(stdo,*) ' 2D-reciprocal vectors:'
         do  23  i = 1, 2
           write(stdo,222) (qlat(j,i),j=1,3)

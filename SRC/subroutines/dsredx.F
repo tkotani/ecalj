@@ -25,19 +25,22 @@ C Local parameters
       call tcn('dsredx')
 
 C --- Make a strictly L^-1 ---
-      do  20  i = 1, n
-        do  20 j = 1, i-1
-   20 ar(j,i) = 0
+      do  i = 1, n
+        do j = 1, i-1
+           ar(j,i) = 0
+        enddo
+      enddo
 
 C --- wk <-  L^-1 H ---- 
       call dmpyt(2,mssiz,n,n,ar,nm,hr,nm,wkr,nm)
 
 C --- Copy L^-1 to (L+)^-1 ---
-      do  10  i = 1, n
-        do  10 j = i+1, n
+      do    i = 1, n
+        do j = i+1, n
           ar(i,j) =  ar(j,i)
           ar(j,i) = 0
-   10 continue
+       enddo
+      enddo
 
 C --- New H <-  L^-1 H L+^-1 ---- 
       call dmpyt(11,mssiz,n,n,wkr,nm,ar,nm,hr,nm)

@@ -28,45 +28,49 @@ C ... Local parameters
 
       if (beta(1) .eq. 0 .and. beta(2) .eq. 0) then
         if (alpha(1) .eq. 1 .and. alpha(2) .eq. 0) then
-          do  10  ib = 1, nlmb
-            do  10  ia = 1, nlma
+          do    ib = 1, nlmb
+            do  ia = 1, nlma
               dest(1,ia+ofad,ib+ofbd) = src(1,ia+ofas,ib+ofbs)
               dest(2,ia+ofad,ib+ofbd) = src(2,ia+ofas,ib+ofbs)
-   10     continue
+           enddo
+           enddo
         else
-          do  12  ib = 1, nlmb
-            do  12  ia = 1, nlma
+          do    ib = 1, nlmb
+            do  ia = 1, nlma
               dest(1,ia+ofad,ib+ofbd) =
      .        alpha(1)*src(1,ia+ofas,ib+ofbs) -
      .        alpha(2)*src(2,ia+ofas,ib+ofbs)
               dest(2,ia+ofad,ib+ofbd) =
      .        alpha(1)*src(2,ia+ofas,ib+ofbs) +
-     .        alpha(2)*src(1,ia+ofas,ib+ofbs)
-   12     continue
+     .             alpha(2)*src(1,ia+ofas,ib+ofbs)
+           enddo
+           enddo
         endif
       elseif (beta(1) .eq. 1 .and. beta(2) .eq. 0) then
         if (alpha(1) .eq. 1 .and. alpha(2) .eq. 0) then
-          do  20  ib = 1, nlmb
-            do  20  ia = 1, nlma
+          do    ib = 1, nlmb
+            do  ia = 1, nlma
               dest(1,ia+ofad,ib+ofbd) = dest(1,ia+ofad,ib+ofbd) +
      .        src(1,ia+ofas,ib+ofbs)
               dest(2,ia+ofad,ib+ofbd) = dest(2,ia+ofad,ib+ofbd) +
-     .        src(2,ia+ofas,ib+ofbs)
-   20     continue
+     .             src(2,ia+ofas,ib+ofbs)
+           enddo
+           enddo
         else
-          do  22  ib = 1, nlmb
-            do  22  ia = 1, nlma
+          do    ib = 1, nlmb
+            do  ia = 1, nlma
               dest(1,ia+ofad,ib+ofbd) = dest(1,ia+ofad,ib+ofbd) +
      .        alpha(1)*src(1,ia+ofas,ib+ofbs) -
      .        alpha(2)*src(2,ia+ofas,ib+ofbs)
               dest(2,ia+ofad,ib+ofbd) = dest(2,ia+ofad,ib+ofbd) +
      .        alpha(1)*src(2,ia+ofas,ib+ofbs) +
-     .        alpha(2)*src(1,ia+ofas,ib+ofbs)
-   22     continue
+     .             alpha(2)*src(1,ia+ofas,ib+ofbs)
+           enddo
+           enddo
         endif
       else
-        do  30  ib = 1, nlmb
-          do  30  ia = 1, nlma
+        do    ib = 1, nlmb
+          do   ia = 1, nlma
             dest(1,ia+ofad,ib+ofbd) =
      .      beta(1)*dest(1,ia+ofad,ib+ofbd) -
      .      beta(2)*dest(2,ia+ofad,ib+ofbd) +
@@ -76,8 +80,9 @@ C ... Local parameters
      .      beta(1)*dest(2,ia+ofad,ib+ofbd) +
      .      beta(2)*dest(1,ia+ofad,ib+ofbd) +
      .      alpha(1)*src(2,ia+ofas,ib+ofbs) +
-     .      alpha(2)*src(1,ia+ofas,ib+ofbs)
-   30   continue
+     .           alpha(2)*src(1,ia+ofas,ib+ofbs)
+         enddo
+         enddo
       endif
       end
 

@@ -1,7 +1,7 @@
 ecalroot=../..
 
 # default mpi size, it is overwritten by envirionmen variable
-export mpi_size = 2
+export mpi_size = 4
 # path to the executable programs or scripts
 export bindir = $(CURDIR)/bin
 

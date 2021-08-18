@@ -1,6 +1,8 @@
       subroutine dfratm ( nbas , ssite , sspec , sv_p_orhoat )
       use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: nsp
+
+
 C- Allocate arrays for local atomic densities.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -23,8 +25,8 @@ C ... Passed parameters
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 C ... Local parameters
-      integer ib,is,igetss,lmxl,nlml,nr,nsp,nglob
-      nsp = globalvariables%nsp
+      integer ib,is,igetss,lmxl,nlml,nr
+c      nsp = globalvariables%nsp
       do  ib = 1, nbas
         is = int(ssite(ib)%spec)
         nr=sspec(is)%nr

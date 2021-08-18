@@ -24,23 +24,27 @@ C     call prmx('f-in',f,3,3,nbas)
       call dpzero(f,3*nbas)
 
       if (mode .eq. 1) then
-        do  10  ig = 1, ng
+        do  101  ig = 1, ng
         do  10  ib = 1, nbas
           jb = istab(ib,ig)
-          do  16  i = 1, 3
-          do  16  j = 1, 3
-            f(i,ib) = f(i,ib) + g(i,j,ig)*fwk(j,jb)
-   16     continue
+          do    i = 1, 3
+          do    j = 1, 3
+             f(i,ib) = f(i,ib) + g(i,j,ig)*fwk(j,jb)
+          enddo
+          enddo
    10   continue
+ 101    continue
       else
-        do  20  ig = 1, ng
+        do  201  ig = 1, ng
         do  20  ib = 1, nbas
           jb = istab(ib,ig)
-          do  26  i = 1, 3
-          do  26  j = 1, 3
-            f(i,jb) = f(i,jb) + g(i,j,ig)*fwk(j,ib)
-   26     continue
+          do    i = 1, 3
+          do    j = 1, 3
+             f(i,jb) = f(i,jb) + g(i,j,ig)*fwk(j,ib)
+          enddo
+          enddo
    20   continue
+ 201    continue
       endif
 
 C     call prmx('f-sym',f,3,3,nbas)

@@ -1,0 +1,12 @@
+#!/bin/bash 
+#    echo " run ix=lda" ,` grep 'mkrout:  Qtrue      sm,loc       local' -A1 llmf_lda  |tail -1`
+    echo " run ix=lda ",` grep mmaftest llmf_lda  |tail -1`
+ITER=260
+for ix in `seq 1 ${ITER}`
+do
+    if [ ! -e llmf.${ix}run ]; then 
+	exit
+    fi
+    echo " run ix=",$ix ,` grep mmaftest llmf.${ix}run  |tail -1`
+    #grep 'charges:       ' -A10 llmf.${ix}run |tail -7|grep mmom|head -2
+done

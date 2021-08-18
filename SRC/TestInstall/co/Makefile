@@ -25,17 +25,17 @@ define test1.exec
 	# --- Test 1.  Basic check of programs lmfa,lmf ---
 	#
 	@cat message.test1.$(TARGET)
-	$(bindir)/lmfa  $(TARGET) -vmet=4 -vlmf=1 -vnk=8 -vnit=3 --pr31 \
+	$(bindir)/lmfa  $(TARGET) -vmet=3 -vlmf=1 -vnk=8 -vnit=3 --pr31 \
 		--no-iactiv > $1 2>&1
-	$(LMFP)   $(TARGET) -vmet=4 -vlmf=1 -vnk=8 -vnit=3 -vw2=0 \
+	$(LMFP)   $(TARGET) -vmet=3 -vlmf=1 -vnk=8 -vnit=3 -vw2=0 \
 		--pr31 --no-iactiv --rs=0 >> $1 2>&1
 	rm mixm.$(TARGET)
-	$(LMFP)   $(TARGET) -vmet=4 -vlmf=1 -vnk=8 -vnit=3 -vw1=0 \
+	$(LMFP)   $(TARGET) -vmet=3 -vlmf=1 -vnk=8 -vnit=3 -vw1=0 \
 		--pr31 --no-iactiv >> $1 2>&1
 	rm mixm.$(TARGET)
-	$(LMFP)   $(TARGET) -vmet=4 -vlmf=1 -vnk=8 -vnit=3 -vw1=1 \
+	$(LMFP)   $(TARGET) -vmet=3 -vlmf=1 -vnk=8 -vnit=3 -vw1=1 \
 		--pr31 --no-iactiv --time=5 >> $1 2>&1
-	$(LMFP)  $(TARGET) -vmet=4  -vnk=8 -vnit=3 --pr31 \
+	$(LMFP)  $(TARGET) -vmet=3  -vnk=8 -vnit=3 --pr31 \
 		--no-iactiv -vso=t \
 		--band:fn=syml >> $1 2>&1  #-vlmf=1
 endef
@@ -46,9 +46,9 @@ define test2.exec
 	# --- Test 2.  Core-level spectroscopy (EELS), Mulliken analysis, partial DOS ---
 	#
 	@cat message.test2.$(TARGET)
-	$(bindir)/lmfa  $(TARGET) -vmet=4 -vlmf=1 -vnk=8 -vnit=1 \
+	$(bindir)/lmfa  $(TARGET) -vmet=3 -vlmf=1 -vnk=8 -vnit=1 \
 		--pr31 --no-iactiv > $1 2>&1
-        $(bindir)/job_pdos $(TARGET)  -np $(mpi_size) -vmet=4 -vlmf=1 -vnk=8 -vnit=1 \
+        $(bindir)/job_pdos $(TARGET)  -np $(mpi_size) -vmet=3 -vlmf=1 -vnk=8 -vnit=1 \
 		--pr31 --no-iactiv ---NoGnuplot > $1 2>&1
 endef
 

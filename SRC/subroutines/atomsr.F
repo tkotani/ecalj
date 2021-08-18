@@ -100,7 +100,7 @@ c      print *,'rhocor: nmcore=',nmcore
      .  write(stdo,'('' spin'',i2,'':'')') isp
   757   format(/' state  chg          ecor0',10x,'ecore',10x,'tcore',
      .  4x,'nre',2x,'rho(rmax)')
-        do  10  l = 0, lmax
+        do  101  l = 0, lmax
         do  10  konf = l, konfig(l)-2
           deg = (2*(2*l+1))/nsp
           if (konf+1.eq.kcor .and. l.eq.lcor) then
@@ -140,6 +140,7 @@ C     --- Add to rho, make integral v*rho ---
      .      pqn(konf+1),ang(l+1),deg,ecor0,ecore,tcore,nre,rorim
   758     format(1x,2a1,f8.2,3f15.6,i7,f9.5)
    10   continue
+ 101    continue
         if (ipr.gt.0) write(stdo,230) qcore,sumec(isp),sumtc(isp),rhorim
   230   format(' sum q=',f5.2,'  sum ec=',f12.5,'  sum tc=',f12.5,
      .  '  rho(rmax)',f8.5)
@@ -151,7 +152,7 @@ C     --- Add to rho, make integral v*rho ---
      .nr,rofi,ec,ev,pnu,qnu,idmod,v,dv,rhoin,rho,rhoc,nrmix,qc,sumec,
      .sumtc,sumev,ekin,utot,rhoeps,etot,amgm,rhrmx,vrmax,qtot,exrmax,
      .job,niter,lfrz,plplus,qlplus,nmcore,qelectron,vsum)
-      use  m_lmfinit,only: globalvariables
+      use  m_lmfinit,only: lrel
       use  m_getqvc
 C- Makes an atomic sphere self-consistent and get atomic charges
 C ----------------------------------------------------------------
@@ -254,7 +255,7 @@ C     double precision z(nl,2),qz(3,nl,3)
 C     integer idmoz(nl)
 C  Local parameters
       logical last,cmdopt,ltmp
-      integer iprint,ir,isp,iter,jmix,lgunit,lrel,nglob,ipr1,l,ii,stdo
+      integer iprint,ir,isp,iter,jmix,lgunit,nglob,ipr1,l,ii,stdo
       character strn*10
       double precision b,ddot,decay,dl,dold,drdi,drho,dsumec,ea,fac,pi,
      .rho0t,rhomu,rhovh,rmsdel,ro,sum,tolrsq,vhrmax,vnucl,vrhoc,vsum,
@@ -277,7 +278,7 @@ C tolch is tolerance for change in the charge density, tolv for rseq
       integer:: nmcore
       print *,'atomsc nmcore=',nmcore
       if (lmax .ge. nl) call rx('atomsc:  lmax too large')
-      lrel = globalvariables%lrel
+c      lrel = globalvariables%lrel
       stdo = lgunit(1)
       pi = 4d0*datan(1d0)
       b = rmax/(dexp(a*(nr-1)) - 1)
@@ -547,16 +548,17 @@ C --- write out rho if requested ---
 
 C     implicit none
       integer nr,nsp
-      double precision rofi(1),rho(nr,1),rhozbk,scale
+      double precision rofi(*),rho(nr,*),rhozbk,scale
       integer ir,isp
       double precision s
 
       if (rhozbk .eq. 0) return
       s = 16*datan(1d0)*scale*rhozbk
-      do  10  isp = 1, nsp
-      do  10  ir = 2, nr
-        rho(ir,isp) = rho(ir,isp) + s*rofi(ir)*rofi(ir)
-   10 continue
+      do   isp = 1, nsp
+      do   ir = 2, nr
+         rho(ir,isp) = rho(ir,isp) + s*rofi(ir)*rofi(ir)
+      enddo
+      enddo
       end subroutine addzbk
 
       subroutine poiss0(z,a,b,rofi,rho,nr,vhrmax,v,rhovh,vsum,nsp)
@@ -1022,7 +1024,7 @@ C     Speed of light, or infinity in nonrelativistic case
       real(8):: plplus(0:lmax,nsp),qlplus(0:lmax,nsp)
       integer::nmcore !jun2012
       call setcc(lrel)
-       call tcn('newrho')
+c       call tcn('newrho')
 
       if (nr .gt. nrmx) call rxi(' newrho: increase nrx, need',nr)
       lr = 1
@@ -1061,9 +1063,9 @@ c          ival = ival+1
 c          eval = ev(ival)
 c          endif
       eval=-0.5d0 !initial condition. the same as getqvc
-      do  20  isp = 1, nsp
+      do  202  isp = 1, nsp
         sumev(isp) = 0d0
-      do  20  l = 0, lmax
+      do  201  l = 0, lmax
       do  20  iz=0,1  !takao feb2011
         if (nlr .eq. nl) lr = l+1
         q0 = max(qnu(1,l+1,isp),0d0)
@@ -1147,7 +1149,9 @@ C  ...  Case add -p q2 phi phi into rho
    22     continue
         endif
   20  continue
-      call tcx('newrho')
+ 201  continue
+ 202  continue
+c      call tcx('newrho')
       end subroutine newrho
 
 
@@ -1184,7 +1188,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nr,nre,l
-      double precision a,b,z,ecore,g(nr,2),rofi(1),v(nr),rho(nr),rhormx
+      double precision a,b,z,ecore,g(nr,2),rofi(*),v(nr),rho(nr),rhormx
 C ... Local parameters
       integer nrmx,ir
       double precision fpi,fllp1,vrho,r,wgt,tmc,c,gfac,rhoir,deg,rmax

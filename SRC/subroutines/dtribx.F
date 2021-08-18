@@ -54,9 +54,11 @@ c
 c     .......... transform the eigenvectors of the real symmetric
 c                tridiagonal matrix to those of the full symmetric
 c                tridiagonal matrix. ..........
-      do 50 k = 1, n
-        do 50 j = 1, m
-   50 zr(k,j) = zr(k,j) * tau(k,1)
+      do  k = 1, n
+        do j = 1, m
+           zr(k,j) = zr(k,j) * tau(k,1)
+        enddo
+      enddo
 
       if (n .eq. 1) return
       do 140 i = 2, n
@@ -66,11 +68,13 @@ c                tridiagonal matrix. ..........
         do 130 j = 1, m
           s = 0.0d0
           do 110 k = 1, l
-  110     s = s + ar(k,i) * zr(k,j)
+             s = s + ar(k,i) * zr(k,j)
+ 110      continue
 c     .......... double divisions avoid possible underflow ..........
           s = (s / h) / h
-          do 120 k = 1, l
-  120     zr(k,j) = zr(k,j) - s * ar(k,i)
+          do k = 1, l
+             zr(k,j) = zr(k,j) - s * ar(k,i)
+          enddo
   130   continue
   140 continue
       end

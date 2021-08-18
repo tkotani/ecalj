@@ -1,5 +1,7 @@
       subroutine getqp(mode,nfilqp,nqp,nkabc,lshft,ntet,q,wts,idtet)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: stdo
+
+
 C- I/O for q-points on disc
 C-----------------------------------------------------------------------
 Ci Input
@@ -30,7 +32,7 @@ C Passed parameters
       integer mode,nfilqp,nqp,ntet,nkabc(3),lshft(3),idtet(5,*)
       double precision q(3,*),wts(*)
 C Local variables
-      integer iqp,i,is,iprint,it,iv(5),parg,stdo,nglob,a2vec
+      integer iqp,i,is,iprint,it,iv(5),parg,a2vec
       double precision xv(5)
       external iprint
       character outs*80
@@ -38,7 +40,7 @@ C Local variables
       if (nfilqp .lt. 0) goto 100
       outs = ' '
 Changenglob      stdo = nglob('stdo')
-      stdo = globalvariables%stdo
+c      stdo = globalvariables%stdo
 C --- Read branch ---
 C     Header string: first line not beginning with a '#'
       if (mode .eq. 0) then

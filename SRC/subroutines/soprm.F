@@ -80,15 +80,16 @@ C --- Orthonormalize phi, phidot, neglecting small component ---
       if (mode/4 .ne. 0) then
         if (ipr .gt. 50)
      .  print '(/'' soprm: overlaps  phi*phi     phi*phidot'')'
-        do  1  is = 1, nsp
-        do  1  l = 0, lmx
+        do   is = 1, nsp
+        do   l = 0, lmx
           r1 = dot3(nr,phi(1,l,is),phi(1,l,is),wi)
           call dscal(nr,1/dsqrt(r1),phi(1,l,is),1)
           r2 = dot3(nr,phi(1,l,is),phid(1,l,is),wi)
           call daxpy(nr,-r2,phi(1,l,is),1,phid(1,l,is),1)
           if (ipr .gt. 50) write(stdo,334) is,l,r1,r2
-  334     format('  spin',i2,'  l=',i1,2f13.6)
-    1   continue
+ 334      format('  spin',i2,'  l=',i1,2f13.6)
+        enddo
+        enddo
       endif
       if (mode0 .eq. 0) return
 

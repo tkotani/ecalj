@@ -60,8 +60,8 @@ C   ... Switches flagging whether this plat in lattice vectors
       nv = 0
 
 C --- Loop over all triples, paring out those within rmax ---
-      do  20  i = -imx(1), imx(1)
-      do  20  j = -imx(2), imx(2)
+      do  202  i = -imx(1), imx(1)
+      do  201  j = -imx(2), imx(2)
       do  20  k = -imx(3), imx(3)
         v2 = 0
         do  21  m = 1, 3
@@ -94,6 +94,8 @@ C   ... Increment nv and copy to vec(nv)
           vecs(3,nv) = vj(3)
         endif
    20 continue
+ 201  continue
+ 202  continue
 
 C --- Add plat if ivck ne 0 ---
       if (ivck(1)+ivck(2)+ivck(3) .ne. 0) then

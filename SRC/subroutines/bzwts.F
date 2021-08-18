@@ -1,7 +1,10 @@
       subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
-     .metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,efermi,sumev,
+     .metal,tetra,norder,npts,width,rnge,wtkp,eb,efermi,sumev,
      .wtkb,dosef,qval,ent,lfill)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: stdo,stdl
+
+
+      use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
 C- BZ integration for fermi level, band sum and qp weights
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -27,7 +30,6 @@ Ci   rnge  :(sampling) range over which sampling delta function is assumed
 Ci         :to vanish, in units of width
 Ci   wtkp  :weight of k-point, including spin degeneracy (bzmesh.f)
 Ci   eb    :energy bands; alias eband
-Ci   efmax :largest eigenvalue for which eigenvectors are known
 Ci   eb    :energy bands
 Co Outputs
 Co   efermi:Fermi energy
@@ -57,26 +59,24 @@ C ----------------------------------------------------------------------
 C Passed parameters
       logical metal,tetra
       integer nbmx,norder,npts,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,
-     .idtet(5,ntet)
+     .idtet(5,ntet),ifile_handle
       double precision zval,eb(nbmx,nsp,nkp),width,rnge,wtkp(nkp),
-     .wtkb(nevx,nsp,nkp),efmax,efermi,sumev,dosef(2),qval(2),ent
+     .wtkb(nevx,nsp,nkp),efermi,sumev,dosef(2),qval(2),ent
 C Local variables
       integer:: it , itmax , n , nptdos , nspx , nbmxx , nevxx , ib 
-     ., ikp , ipr , job , nbpw , i1mach , nev , stdo , stdl , nglob 
-     ., mkdlst , ifi , fopna , i , j , lry , procid , mpipid , master 
+     ., ikp , ipr , job , nbpw , i1mach , nev
+     ., mkdlst , ifi , i , j , lry , procid , mpipid , master 
      ., nulli , isw
       real(8) ,allocatable :: dos_rv(:)
       real(8) ,allocatable :: bot_rv(:)
       real(8) ,allocatable :: top_rv(:)
       integer ,allocatable :: bmap_iv(:)
       real(8) ,allocatable :: wk_rv(:)
-
       double precision emin,emax,e1,e2,dum,tol,e,elo,ehi,sumwt,
      .dmin,dmax,dval,egap,amom,dsum,cv,tRy
       character outs*100
       logical cmdopt,efrng2,lfill
       real(8) ,allocatable :: tlst_rv(:)
-
       parameter (nulli=-99999)
       integer w(1)
 
@@ -90,19 +90,11 @@ C --- Locate band limits: lfill => insulator ---
       ent = 0
       n = isign(1,norder) * mod(iabs(norder),100)
 Changenglob      stdo = nglob('stdo')
-      stdo = globalvariables%stdo
+c      stdo = globalvariables%stdo
 Changenglob      stdl = nglob('stdl')
-      stdl = globalvariables%stdl
-#ifdef KINODEBUG
-      write(*,*) 'kino nevx,nsp',nevx,nsp
-#endif
+c      stdl = globalvariables%stdl
       allocate(bot_rv(nevx*nsp))
-
       allocate(top_rv(nevx*nsp))
-#ifdef KINODEBUG
-      write(*,*) 'kino allocate top_rv',nevx*nsp
-#endif
-
       nspx  = 1
       nevxx = nevx*nsp
       nbmxx = nbmx*nsp
@@ -284,10 +276,6 @@ C       Widen emin,emax if not
       else
 
 C --- BZ weights, sumev and E_f by Methfessel-Paxton sampling ---
-C       if (ipr .gt. 30) write (*,102) n,width,nint(rnge)
-C       if (ipr .gt. 30) write (fopn('LOG'),102) n,width
-C  102   format(/' BZWTS : --- Brillouin Zone sampling; N =',i2,
-C     .    ', W =',f6.3:'  range =',i2,'*W ---')
         call info2(31,1,0,' BZWTS : --- Brillouin Zone sampling; '//
      .  'N=%i, W=%10z%;4g%0z ---',n,width)
 C   ... Temporarily remove spin degeneracy if spins are coupled
@@ -369,7 +357,8 @@ C   ... (optional) Tabulate specific heat in file for list of T's
               it = mkdlst ( outs ( i: ) , 1d - 8 , itmax + 1 , tlst_rv )
 
               if (it .ne. itmax) call rx('bzwts: bug in mkdlst')
-              ifi = fopna('cv',-1,0)
+              ifi = ifile_handle()
+              open(ifi,file='cv.'//trim(sname)) !fopna('cv',-1,0)
               rewind ifi
               call awrit1('%% rows %i cols 4%N'//
      .        '#    T(K)    T(Ry)   S(k_B)   TdS/dT(k_B)',' ',80,ifi,it)
@@ -386,7 +375,7 @@ C   ... (optional) Tabulate specific heat in file for list of T's
                 call awrit4('%;9,1D%;9,5D  %;9F  %;9F',' ',80,ifi,
      .          0.1579d6*tRy,tRy,ent,cv)
               enddo
-              call fclose(ifi)
+              close(ifi)
             endif
           endif
         endif
@@ -441,15 +430,9 @@ C ... log file
      .  '%?#n# gap %,4;4d eV##',outs,len(outs),-stdl,
      .  qval,int(amom*10000),amom,isw(egap.gt.0),egap*13.6d0)
       endif
-
-C ... Check that efmax is above efermi ...
       e = efermi
       if (.not. lfill .and. .not. tetra) e = efermi + rnge*width/2
-      if (e .gt. efmax) call fexit2(-1,111,' Exit -1 BZWTS: '//
-     .'efmax=%1;6d < %1;6d',efmax,e)
-
       call tcx('bzwts')
-
       end
 
       subroutine ebcpl(mode,nbmx,nevx,nsp,nspc,nq,nbpw,bmap,wk,eb)

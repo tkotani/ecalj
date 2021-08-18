@@ -1,8 +1,7 @@
-      subroutine fsmbpw(nbas,ssite,sspec,vavg,ndimh,nlmto,iprmb,numq,
+      subroutine fsmbpw(nbas,ssite,sspec,vavg,ndimh,nlmto,iprmb,
      .nevec,evl,evec,ewgt,napw,qpgv,qpg2v,ylv,nlmax,lmxax,alat,sqv,f)
-      use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
-c      use m_globalvariables
+      use m_struc_def 
+      use m_uspecb,only:uspecb
 C- Force from smoothed hamiltonian (constant potential), PW contribution
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -19,7 +18,6 @@ Ci   vavg  :constant potential (MT zero) to be added to h
 Ci   ndimh :dimension of hamiltonian
 Ci   nlmto :dimension of lmto part of hamiltonian
 Ci   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
-Ci   numq  :number of trial Fermi levels
 Ci   nevec :number of occupied eigenvectors
 Ci   evl   :eigenvalues
 Ci   evec  :eigenvectors
@@ -57,12 +55,12 @@ C ... Passed parameters
       logical mlog,cmdopt
       character*120 strn
 #endif
-      integer nbas,ndimh,napw,nlmax,nlmto,nevec,numq,iprmb(nlmto),lmxax
+      integer nbas,ndimh,napw,nlmax,nlmto,nevec,iprmb(nlmto),lmxax
       real(8):: ylv(napw,nlmax)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 
-      double precision evl(ndimh),f(3,nbas,numq),ewgt(numq,nevec),vavg
+      double precision evl(ndimh),f(3,nbas),ewgt(nevec),vavg
       double complex evec(ndimh,ndimh)
       double precision qpgv(3,napw),qpg2v(napw),qpg2,alat,sqv
 C ... Local parameters
@@ -90,8 +88,8 @@ C --- Setup ---
       call tcn ('fsmbpw')
 
 #if MPI
-      allocate(xf(1:3,1:nbas,1:numq), stat=ierr)
-      call dcopy(3*nbas*numq,0d0,0,xf,1)
+      allocate(xf(1:3,1:nbas), stat=ierr)
+      call dcopy(3*nbas,0d0,0,xf,1)
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
       call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
@@ -108,11 +106,7 @@ C --- Setup ---
         enddo
       endif
 #endif
-
-Changenglob      nbas  = nglob('nbas')
-      nbas  = globalvariables%nbas
       pi = 4d0*datan(1d0)
-C     tpiba = 2d0*pi/alat
       fpi = 4*pi
       srm1l(0) = 1d0
       do  l1 = 1, lmxax
@@ -120,38 +114,16 @@ C     tpiba = 2d0*pi/alat
       enddo
 
 C --- Loop over first and second site indices ---
-#if MPI
-      allocate (index(0:numprocs-1,0:nbas-1), stat=ierr)
-      call dstrbp(nbas,numprocs,-1,index(0,0))
-c      do  iloop = 1, index(procid,0)
-      ibini=1
-      ibend=index(procid,0)
-#else
-c      do  ib1 = 1, nbas
       ibini=1
       ibend=nbas
-#endif
 
       do iloop = ibini,ibend
-#if MPI
-        ib1 = index(procid,iloop)
-        if (mlog) then
-          call gettime(datim)
-          call awrit4(' fsmbpw '//datim//' Process %i of %i on '
-     .    //shortname(procid)(1:namelen(procid))//
-     .    ' starting atom %i of %i',' ',256,lgunit(3),
-     .    procid,numprocs,ib1,index(procid,0))
-        endif
-#else
         ib1=iloop
-#endif
-
-
         is1=ssite(ib1)%spec
         i_copy_size=size(ssite(ib1)%pos)
         call dcopy(i_copy_size,ssite(ib1)%pos,1,p1,1)
 
-        call uspecb(0,2,sspec,is1,is1,lh1,rsm1,e1,nkap1)
+        call uspecb(is1,rsm1,e1)
 C       Row info telling fsmbpw where to poke s0 made by hhibl
         call orbl(ib1,0,nlmto,iprmb,norb1,ltab1,ktab1,xx,offl1,xx)
 C       For now, do not allow l blocks to be grouped.
@@ -186,19 +158,11 @@ C         ... Loop over occupied eigenstates and x,y,z
                 do  m = 1, 3
                   sum = 0
                   do  ivec = 1, nevec
-
 C             gradient PW * (H - E S)
                     ccc(m) = ovl * srm1*qpgv(m,ig) * (qpg2 + vavg - evl(ivec))
                     sum = dconjg(evec(i1,ivec))*ccc(m)*evec(i2,ivec)
-
-                    do  iq = 1, numq
-                      wt = ewgt(iq,ivec)
-#if MPI
-                      xf(m,ib1,iq) = xf(m,ib1,iq) - 2*wt*sum
-#else
-                      f(m,ib1,iq) = f(m,ib1,iq) - 2*wt*sum
-#endif
-                    enddo
+                    wt = ewgt(ivec)
+                    f(m,ib1) = f(m,ib1) - 2*wt*sum
 
                   enddo               !ivec
                 enddo               !m
@@ -207,23 +171,6 @@ C             gradient PW * (H - E S)
           enddo                 !io1
         enddo                   !ig
       enddo                     !ib1
-#if MPI
-      call MPI_BARRIER(MPI_COMM_WORLD,ierr)
-      allocate(buffer(1:3*nbas*numq), stat=ierr)
-      call MPI_ALLREDUCE(xf,buffer,3*nbas*numq,
-     .MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
-      if (mlog) then
-        call gettime(datim)
-        call awrit3(' fsmbpw '//datim//' Process %i of %i on '
-     .  //shortname(procid)(1:namelen(procid))//
-     .  ' allreduce f 3*nbas*numq=%i',' ',256,lgunit(3),
-     .  procid,numprocs,3*nbas*numq)
-      endif
-      call daxpy(3*nbas*numq,1d0,buffer,1,f,1)
-      deallocate(buffer, stat=ierr)
-      deallocate(index, stat=ierr)
-      deallocate(xf, stat=ierr)
-#endif
       call tcx ('fsmbpw')
       end subroutine fsmbpw
 

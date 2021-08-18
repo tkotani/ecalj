@@ -151,19 +151,12 @@ C ... Passed parameters
       double precision s(nds,nds,nsp,is2)
 C     real + imaginary storage mode
       double precision sll(ldl,ldl2,2),sil(ldi,ldl2,2),sii(ldi,ldi,2)
-C     complex*16 storage mode
-C     double precision sll(2,ldl,ldl2),sil(2,ldi,ldl2),sii(2,ldi,ldi)
-C     real + imaginary in columns storage mode
-C     double precision sll(ldl,2,ldl2),sil(ldi,2,ldl2),sii(ldi,2,ldi)
 C ... Local parameters
       logical bittst,maskii,maskil,maskll,onsite,ltrans,lsph
       integer ia,ib,iprint,isite,j,k,kcplx,ksite,lblchi,lblchp,ld11,
      .ld12,ld13,ld21,ld22,ld23,lidim,nds1,ndss,offa,offb,oi,scplx
       double precision twopi,TdotK,cosT,sinT
       double precision sc(nds,2,nds),swk(nds,2,nds)
-C     parameter (ndss=49)
-C     double precision sc(ndss,ndss,2),swk(ndss,2,ndss)
-C ... External calls
       external cplxdm,dpzero,pblch1,rx,s2sph,tcn,tcx,yprm,zmscop,ztoy
       logical:: debug=.false.
 C --- Setup ---
@@ -182,9 +175,9 @@ C --- Setup ---
       lidim = ldima+idim
       if(debug) print *,' gggggggggg bloch gggggggggggg 11111',ldl,ldl2,ldi,size(sll),size(sil),size(sii)
       if (mod(mod(lblchi/100,10),2) .eq. 0) then
-        if (.not. maskll) call dpzero(sll,2*ldl*ldl2)
-        if (.not. maskil) call dpzero(sil,2*ldi*ldl2)
-        if (.not. maskii) call dpzero(sii,2*ldi**2)
+        if (.not. maskll) sll=0d0 !call dpzero(sll,2*ldl*ldl2)
+        if (.not. maskil) sil=0d0 !call dpzero(sil,2*ldi*ldl2)
+        if (.not. maskii) sii=0d0 !call dpzero(sii,2*ldi**2)
       endif
       if(debug) print *,' gggggggggg bloch gggggggggggg 2222'
 
@@ -225,10 +218,11 @@ C       Any nonpositive site indices are excluded from sum
         endif
 
         TdotK = 0
-        do  30  j = 1, 3
-        do  30  k = 1, 3
-          TdotK = TdotK + twopi*qp(j)*plat(j,k)*iax(2+k,isite)
-   30   continue
+        do   j = 1, 3
+        do   k = 1, 3
+           TdotK = TdotK + twopi*qp(j)*plat(j,k)*iax(2+k,isite)
+        enddo
+        enddo
         if (mod(lblchi/100,10) .ge. 4) then
           TdotK = -TdotK
         endif
@@ -254,18 +248,9 @@ C         Rotate complex s to spherical harmonics
             call ztoyy(swk,ndss,ndss,ndss,ndss,1,0)
             if (nl**2.ne.ndss) call rx('bloch not ready for sph. harm')
             call s2sph(12,nl,nl,swk,nds,nds,ndss,ndss,sc)
-C         Direct copy
           else
             call zmscop(0,nds,nds,nds,ndss,0,0,0,0,s(1,1,2*isp-1,j),sc)
-C            if (isite .eq. 13) then
-C            call zprm('s',2,sc,ndss,nds,nds)
-C            endif
-C           call zprm('s',2,sc,ndss,nds,nds)
             call ztoy(sc,ndss,nds,nds,0)
-C            if (isite .eq. 13) then
-C            print *, 'ksite=',ksite
-C            call yprm('s',4,sc,ndss,ndss,nds,nds)
-C            endif
           endif
 C   ... Rotate s to spherical harmonics
         else if (lsph) then
@@ -280,18 +265,11 @@ C   ... If otherwise to use transpose of s
         endif
 C   ... Take transpose of sc
         if (ltrans) then
-C         print *, isite
-C         call yprm('s before transpose',4,sc,ndss,ndss,nds,nds)
-          call ymscop(0,nds,nds,2*ndss,2*ndss,0,0,0,0,sc,ndss,swk,ndss)
-          call ymtrns(1,swk,2*ndss,1,ndss,sc,2*ndss,1,ndss,1,nds,1,nds)
-C         call yprm('copy of s',4,swk,ndss,ndss,nds,nds)
-C         call yprm('s after transpose',4,sc,ndss,ndss,nds,nds)
+c          call ymscop(0,nds,nds,2*ndss,2*ndss,0,0,0,0,sc,ndss,swk,ndss)
+c          call ymtrns(1,swk,2*ndss,1,ndss,sc,2*ndss,1,ndss,1,nds,1,nds)
+           sc(:,1,:)=transpose(sc(:,1,:))
+           sc(:,2,:)=transpose(sc(:,2,:))
         endif
-
-C      if (iax(1,isite) .eq. 1 .and. iax(2,isite) .eq. 1) then
-C        print 338, isite, sc(1,1,1)
-C  338   format(i4,f12.6)
-C      endif
 
 C   --- Lower-lower block ---
         if (ldima .ne. 0 .and. .not. maskll) then
@@ -320,15 +298,11 @@ C   --- Intermediate-intermediate block ---
           call pblch1(lblchp,mxorb,offa,offb,ld13,ld23,klu,iprmb,ldima,
      .    lidim,ldimb,lidim,s(1,1,isp,ksite),sc,nds1,cosT,sinT,sii)
         endif
-
-C       call snott(isite,sll,ld21,cost)
-
   100 continue
       if (iprint() .ge. 110) then
         k = mod(mod(lblchi/10,10),4)
         if (.not. maskll)
      .  call yprm('bloch: Sll',12+k,sll,ldima*ldimb,ldl,ldima,ldimb)
-
         if (idim .gt. 0) then
           if (.not. maskil)
      .    call yprm('bloch: Sil',2+k,sil,idim*ldimb,ldi,idim,ldimb)
@@ -336,12 +310,7 @@ C       call snott(isite,sll,ld21,cost)
      .    call yprm('bloch: Sii',12+k,sii,idim*idim,ldi,idim,idim)
         endif
       endif
-
       call tcx('bloch')
-ccccccccccccccccccccccccccccccccccccc
-      if(debug) print *,' end of bloch xxxxxxxxxxxxxxx'
-ccccccccccccccccccccccccccccccccccccc
-
       end subroutine bloch
 
 

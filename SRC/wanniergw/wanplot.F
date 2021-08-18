@@ -26,7 +26,7 @@ c      use m_MLWF
 c      use m_wfrho_abc 
       use m_keyvalue,only: getkeyvalue
       use m_readqg,only: readqg,readngmx
-      use m_readeigen,only: init_readeigen,init_readeigen2,readeval,lowesteval,readcphi,readgeig
+      use m_readeigen,only: init_readeigen,init_readeigen2,readeval,lowesteval,readcphif,readgeigf,readcphifq
       use m_read_bzdata,only: read_bzdata, nqbz,nqibz,nqbzw,nteti,ntetf
      &     ,n1,n2,n3,qbas,ginv,qbz,wbz,qibz,wibz,qbzw,idtetf,ib1bz,idteti !qbasmc,
      &     ,nstar,irk,nstbz,ngrp2=>ngrp !,qibz_r,nqibz_r
@@ -119,10 +119,9 @@ c      use m_wfrho_abc
       cphi = 0d0
       do ikp = 1,nqbz
       do isp = 1,nsp
-c         write(6,"('ikp isp=',2i5,3f12.5)") ikp,isp,qreg(:,ikp)
-         call readcphi(qreg(:,ikp),ldim2,isp, quu, cphi2)
-         if(sum(abs(qreg(:,ikp)-quu))>1d-6) call rx('wanplot: mmlf111eeeee')
-         call readgeig(qreg(:,ikp),ngpmx,isp, quu, geig2)
+         geig2 = readgeigf(qreg(:,ikp),isp) !    call readgeig(qreg(:,ikp),ngpmx,isp, quu, geig2)
+         cphi2 = readcphif(qreg(:,ikp),isp)
+         quu   = readcphifq()
          if(sum(abs(qreg(:,ikp)-quu))>1d-6) call rx('wanplot: mmlf222eeeee')
 !! may2015 use zaxpy. This can avoid bug? when wanplot by qsub.
          do iwf = 1,nwf

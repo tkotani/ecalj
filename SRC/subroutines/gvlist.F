@@ -1,5 +1,6 @@
       subroutine gvlist_notused(alat,plat,tau,n1,n2,n3,gmax,job,ngmx,ng,kv,gv,
      .igv,igv2)
+      use m_shortn3,only: shortn3_initialize,shortn3
 C- Create a list of G vectors for a specified uniform mesh and cutoff
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -158,11 +159,11 @@ C --- Loop through g vectors, shorten, count and keep if within gmax ---
         ! ---> Kino think this is OK even for fullmesh()=F.
         ! But this path did not go through make check.
         noutmx=48
-        call shortn3_initialize(qlat1,rlatp,xmx2) !initialization for shoten3
+        call shortn3_initialize(qlat1) !initialization for shoten3
         allocate(nlatout(3,noutmx))
         do  21  j1 = 0, n1-1
-        do  21  j2 = 0, n2-1
-        do  21  j3 = 0, n3-1
+        do  22  j2 = 0, n2-1
+        do  23  j3 = 0, n3-1
 c              n_gslist=0
 c              do 21 if1=0,1
 c                do 21 if2=0,1
@@ -174,7 +175,7 @@ c                    qpg(3) = j1*qlat(3,1) + j2*qlat(3,2) + j3*qlat(3,3) + q(3)
 
           qpg= (/j1, j2, j3/) + matmul(q,plat(:,:))
           qpg= (/ qpg(1)/dble(n1), qpg(2)/dble(n2), qpg(3)/dble(n3) /)
-          call shortn3(rlatp,xmx2,qpg, noutmx, nout,nlatout)
+          call shortn3(qpg, noutmx, nout,nlatout)
           gs= matmul(qlat1(:,:), (qpg+nlatout(:,1))) ! We use first nlatout only.
           !--->This may numerically break crystal symmetry (very slightly).
           !shortn3 requires shotn3_init in advance.
@@ -252,13 +253,15 @@ c#endif
 
             endif
           endif
+   23   continue
+   22   continue
    21   continue
         deallocate(nlatout)
       else
 
-        do  20  j1 = 0, n1-1
-        do  20  j2 = 0, n2-1
-        do  20  j3 = 0, n3-1
+        do  120  j1 = 0, n1-1
+        do  121  j2 = 0, n2-1
+        do  122  j3 = 0, n3-1
           qpg(1) = j1*qlat(1,1) + j2*qlat(1,2) + j3*qlat(1,3) + q(1)
           qpg(2) = j1*qlat(2,1) + j2*qlat(2,2) + j3*qlat(2,3) + q(2)
           qpg(3) = j1*qlat(3,1) + j2*qlat(3,2) + j3*qlat(3,3) + q(3)
@@ -324,7 +327,9 @@ c#endif
 
             endif
           endif
-   20   continue
+ 122   continue
+ 121  continue
+ 120  continue
 
       endif
       ng = ig
@@ -354,16 +359,16 @@ C ... Sort the list of vectors
 c      call defrr(ogg,   ng)
 c      call defrr(okk,   ng)
 c      call defrr(oiwk,  ng)
-      allocate(gg_rv(ng))
-      allocate(kk_rv(ng))
-      allocate(iwk_rv(ng))
+c      allocate(gg_rv(ng))
+c      allocate(kk_rv(ng))
+c      allocate(iwk_rv(ng))
       if (lgpq) q=0 !call dpzero(q,3)
 c      call pvglst(w(ogg),w(okk),w(oiwk),q,ngmx,ng,ligv,ligv2,gv,kv,igv,
 c     .  igv2)
-      call pvglst ( gg_rv , kk_rv , iwk_rv , q , ngmx , ng 
+      call pvglst ( q , ngmx , ng 
      ., ligv , ligv2 , gv , kv , igv , igv2 )
 c      call rlse(ogg)
-      deallocate(gg_rv,kk_rv,iwk_rv)
+c      deallocate(gg_rv,kk_rv,iwk_rv)
 
 c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$c      if(job==509) print *,'509q=',q
@@ -397,7 +402,7 @@ c$$$      deallocate(ixx)
 c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       end
 
-      subroutine pvglst(gg,kk,iwk,p,ngmx,ng,ligv,ligv2,gv,kv,igv,igv2)
+      subroutine pvglst(p,ngmx,ng,ligv,ligv2,gv,kv,igv,igv2)
 C- Kernel called by gvlist to sort gv and kv
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -499,13 +504,14 @@ C     implicit none
       double complex c0(ng,n),c(k1,k2,k3,n)
       integer ig,i,j1,j2,j3
 
-      do  10  i = 1, n
-      do  10  ig = 1, ng
+      do   i = 1, n
+      do   ig = 1, ng
         j1 = kv(ig,1)
         j2 = kv(ig,2)
         j3 = kv(ig,3)
         c0(ig,i) = c(j1,j2,j3,i)
-   10 continue
+      enddo
+      enddo
       end
       subroutine gvgetf_test(ng,n,kv,k1,k2,k3,c,c0)
 C- Gathers Fourier coefficients from 3D array c into list c0.
@@ -514,15 +520,16 @@ C     implicit none
       double complex c0(ng,n),c(k1,k2,k3,n)
       integer ig,i,j1,j2,j3
 
-      do  10  i = 1, n
-      do  10  ig = 1, ng
+      do   i = 1, n
+      do   ig = 1, ng
         j1 = kv(ig,1)
         j2 = kv(ig,2)
         j3 = kv(ig,3)
 c        print *,'vvvvvvvvvvv kv=',j1,j2,j3,i
         c0(ig,i) = c(j1,j2,j3,i)
-c        print *,'vvvvvvvvvvv xxx'
-   10 continue
+c     print *,'vvvvvvvvvvv xxx'
+      enddo
+      enddo
       end
 
       subroutine gvputf(ng,n,kv,k1,k2,k3,c0,c)
@@ -533,13 +540,14 @@ C     implicit none
       integer ig,i,j1,j2,j3
 
       call dpzero(c,2*k1*k2*k3*n)
-      do  10  i = 1, n
-      do  10  ig = 1, ng
+      do   i = 1, n
+      do   ig = 1, ng
         j1 = kv(ig,1)
         j2 = kv(ig,2)
         j3 = kv(ig,3)
         c(j1,j2,j3,i) = c0(ig,i)
-   10 continue
+      enddo
+      enddo
       end
       subroutine gvaddf(ng,kv,k1,k2,k3,c0,c)
 c  Adds Fourier coefficients from gathered list c0 into 3D array c.

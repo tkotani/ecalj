@@ -61,20 +61,16 @@ C ... rsmh- and eh- independent setup
       lmaxx = lmaxg+lmaxh
       nlmx = (lmaxx+1)**2
       ktop = max0(lmaxg,lmaxh)+kmax
-
-CSFCPP#if F90
       ktop0 = ktop
       nlm0  = nlmx
       allocate( hkl(0:ktop0,nlm0))
-CSFCPP#else
-CSFCPP      if (nlmx .gt. nlm0)  call rxi('ghibl: increase nlm0 to',nlmx)
-CSFCPP      if (ktop .gt. ktop0) call rxi('ghibl: increase ktop0 to',ktop)
-CSFCPP#endif
-      do  3  k = 0, kmax
-      do  3  jlm = 1, nlmh
-      do  3  ilm = 1, nlmg
-        s(ilm,jlm,k) = dcmplx(0d0,0d0)
-    3 continue
+      do    k = 0, kmax
+      do    jlm = 1, nlmh
+      do    ilm = 1, nlmg
+         s(ilm,jlm,k) = dcmplx(0d0,0d0)
+      enddo
+      enddo
+      enddo
 
 C --- Loop over sequences of l with a common rsm,e ---
       l2 = -1
@@ -96,9 +92,9 @@ C --- Loop over sequences of l with a common rsm,e ---
 
 C   ... Combine with Clebsch-Gordan coefficients
         ee = dexp(gamg*(eg-e))
-        do  11  ilg = 1, nlmg
+        do  1111  ilg = 1, nlmg
           lg = ll(ilg)
-        do  11  ilh = ilm1, ilm2
+        do  111  ilh = ilm1, ilm2
           lh = ll(ilh)
           ii = max0(ilg,ilh)
           indx = (ii*(ii-1))/2 + min0(ilg,ilh)
@@ -113,11 +109,8 @@ C   ... Combine with Clebsch-Gordan coefficients
             s(ilg,ilh,ip) = s(ilg,ilh,ip) + fac*hkl(k+ip,ilm)
    12     continue
    11   continue
+ 111  continue
+ 1111 continue
    20 continue
-
-CSFCPP#if F90
-      deallocate(hkl)
-CSFCPP#endif
-
       end
 

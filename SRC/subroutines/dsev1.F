@@ -48,8 +48,9 @@ C --- Eigenvalues of O^-1/2  H  O^-1/2 ---
 
       if (nmx .le. 0) then
         call dtridx(n,n,h,e,wk,wk(1,4),wk(1,2))
-        do  12  j = 1, n
-   12   wk(j,1) = wk(j,1)**2
+        do   j = 1, n
+           wk(j,1) = wk(j,1)**2
+        enddo   
         call tqlrat(n,e,wk,ierr)
         call rxx(ierr.ne.0,'DSEV1: tqlrat cannot find all evals') 
         goto 100
@@ -58,8 +59,9 @@ C --- Eigenvalues of O^-1/2  H  O^-1/2 ---
         call rxx(ierr.ne.0,'DSEV1: imtqlv cannot find all evals') 
 C   ... Determine number of eigenvectors to be calculated
         nev = 1
-        do  14  j = 2, n
-   14   if (j .le. nmx .and. e(j-1) .le. emx) nev = j
+        do   j = 2, n
+           if (j .le. nmx .and. e(j-1) .le. emx) nev = j
+        enddo   
         call tinvit(n,n,wk(1,1),wk(1,4),wk(1,5),nev,e,wk(1,11),z,
      .  ierr,wk(1,6),wk(1,7),wk(1,8),wk(1,9),wk(1,10))
         call rxx(ierr.ne.0,'DSEV1: tinvit cannot find all evecs') 

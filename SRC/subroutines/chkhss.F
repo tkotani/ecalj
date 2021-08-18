@@ -20,8 +20,9 @@ C     call prm(.false.,1,6,' ',w5,n,5)
      .j,9d9,i,z,e)
       call poppr
       j = 0
-      do  60  i = 1, n
-   60 if (e(i) .lt. evtol) j = j+1
+      do  i = 1, n
+         if (e(i) .lt. evtol) j = j+1
+      enddo   
       if (j .gt. 0 .and. iopt .eq. 1) then
         print 333, j,e(1)
   333   format(/' chkhss: Hessian has',i3,' negative evals; e(1)=',

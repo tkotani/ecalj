@@ -25,24 +25,23 @@
      &     nqbz,qbz,nqbzw,qbzw, !, qbzw,nqbzw,qbz, nqibz
      &     idtetf,ib1bz, qbzw,nqbzw !for tetrahedron
       use m_ReadEfermi,only: ef
-c      use m_readhbe,only: nband
       use m_readgwinput,only: ebmx,nbmx,mtet
       implicit none
-!!      
+!! output ------------------------      
       real(8),allocatable,protected,public :: whw(:)
       integer,allocatable,protected,public :: ihw(:,:,:),nhw(:,:,:),jhw(:,:,:),ibjb(:,:,:,:)
       integer,allocatable,protected,public :: n1b(:,:,:),n2b(:,:,:),nbnb(:,:)
       integer,protected,public:: nbnbx,nhwtot
-      public:: gettetwt,tetdeallocate
+      public:: Gettetwt, Tetdeallocate
       private
-!!
-      contains                  !! ----------------------------------------------------------------------
-      subroutine tetdeallocate()
+!!----------------------------------------------
+      contains              
+      subroutine Tetdeallocate()
       deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b,nbnb)
       end subroutine
 
 !! routine --------------------------------------------------------
-      subroutine gettetwt(q,iq,is,isf,nwgt,
+      subroutine Gettetwt(q,iq,is,isf,nwgt,
      i     ekxx1,ekxx2,nband,eibzmode, 
      i     wan )                 !Jan2019 okumura's option
       intent(in)::        q,iq,is,isf,nwgt,
@@ -127,7 +126,9 @@ c      call readefermi() !comment out,since ef is passed nov2016
 ccccccccccccccccc
 c      print *,'nqbz,nqbzw,nteti,ntetf,nqibz_mtet=',nqbz,nqbzw,nteti,ntetf,nqibz_mtet
       wan1=.false.
-      if (present(wan) .and. wan) wan1=.true.
+      if (present(wan)) then
+         if(wan) wan1=.true.
+      endif   
       call tetwt5x_dtet4(npm,ncc,  
      i q, ekxx1, ekxx2, qbas,ginv,ef, 
      d ntetf,nqbzw, nband,nqbz,
@@ -244,7 +245,9 @@ C     --- METHOD (tetwt5) for the tetrahedron weight
       allocate(demin(1,1,1,1),demax(1,1,1,1),iwgt(1,1,1,1)) !dummy
 
       wan1=.false.
-      if (present(wan) .and. wan) wan1=.true.
+      if (present(wan)) then
+         if(wan) wan1=.true.
+      endif   
       call tetwt5x_dtet4(  npm,ncc, 
      i q, ekxx1, ekxx2, qbas,ginv,ef, 
      d ntetf,nqbzw, nband,nqbz,

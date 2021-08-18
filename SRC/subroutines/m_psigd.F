@@ -90,10 +90,9 @@ C ... Local parameters
       parameter (zer=(0d0,0d0),tol=1d-7,PRTE=45)
 ctakao
       integer,optional,intent(in):: iout,isp
-      integer:: fopna
-      integer:: ifiogw,ifiese,ispx
+      integer:: ifiese,ispx !ifiogw,
       real(8),optional,intent(in):: q(3)
-      logical:: nexist
+c      logical:: nexist
       real(8):: sigiir
       integer,optional,intent(in):: iprx
 
@@ -227,7 +226,7 @@ C       Overwrite full sigma with diagonal matrix, or write to sigd
             sig(:,i)=0d0 !call zscal(ndimh,zer,sig(i,1),ndimh) 
             sig(i,i) = sigii
           else
-            sigd(i) = sigii
+            sigd(i) = dble(sigii)
           endif
         endif
         if(.not.llow) then

@@ -20,22 +20,22 @@ C     implicit none
       cmdstr = .true.
       n1 = nargf()
       if (iarg .lt. n1) then
-        call getarf(iarg,a)
-      else
-        call ncmdop(n2)
-        if (iarg .lt. n1+n2) then
-          call gcmdop(iarg-n1+1,a)
-        else
-          cmdstr = .false.
-        endif
+        call getarg(iarg,a)
+c      else
+c        call ncmdop(n2)
+c        if (iarg .lt. n1+n2) then
+c          call gcmdop(iarg-n1+1,a)
+c        else
+c          cmdstr = .false.
+c        endif
       endif
       end
-      integer function nxargc()
-C- Number of generalized command-line arguments
-C     implicit none
-      integer n,nargf
-
-      call ncmdop(n)
-      nxargc = nargf() + n
-      end
+c      integer function nxargc()
+cC- Number of generalized command-line arguments
+cC     implicit none
+c      integer n,nargf
+c
+c      call ncmdop(n)
+c      nxargc = nargf() + n
+c      end
 

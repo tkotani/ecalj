@@ -86,7 +86,8 @@ C   ... copy to lfmt to get around SGI compiler bug
         lf = len(lfmt)
 C   ... Find end of first expression
         j = 2
-   30   ltmp = gettok(lfmt,j,' ',lf)
+ 30     continue
+        ltmp = gettok(lfmt,j,' ',lf)
         if (ltmp) goto 30
         nw = 1
         if (j .gt. 2) then
@@ -109,7 +110,7 @@ C   ... Loop through all rows to find col-dependent size
 C   ... Write out matrix
         imm = 0
    44   continue
-        do  40  ir = 1, nr
+        do  41  ir = 1, nr
           do  40  ic = 1, nc, nw
             jc = min(ic+nw-1,nc)
             k = 0
@@ -125,6 +126,7 @@ C   ... Write out matrix
    42       continue
             call awrit0('%a',sout,-len(sout),-ifi)
    40   continue
+   41   continue
         if (imm .eq. 0 .and. mod(icast,10) .gt. 1) then
           imm = 1
           write(ifi,'(1x)')
@@ -134,26 +136,32 @@ C   ... Write out matrix
       endif
 
       if (mod(icast,10) .eq. 3) then
-        do  50  i = 1, nr
-   50   write(ifi,fmt) (s(2*i-1,2*j-1), j=1,nc)
+        do    i = 1, nr
+           write(ifi,fmt) (s(2*i-1,2*j-1), j=1,nc)
+        enddo
         write(ifi,'(1x)')
-        do  52  i = 1, nr
-   52   write(ifi,fmt) (s(2*i,2*j-1), j=1,nc)
+        do   i = 1, nr
+           write(ifi,fmt) (s(2*i,2*j-1), j=1,nc)
+        enddo   
 
       elseif (mod(icast,10) .eq. 4) then
-        do  60  i = 1, nr
-   60   write(ifi,fmt) (s(i,2*j-1), j=1,nc)
+        do    i = 1, nr
+           write(ifi,fmt) (s(i,2*j-1), j=1,nc)
+        enddo
         write(ifi,'(1x)')
-        do  62  i = 1, nr
-   62   write(ifi,fmt) (s(i,2*j), j=1,nc)
+        do    i = 1, nr
+         write(ifi,fmt) (s(i,2*j), j=1,nc)
+        enddo
 
       else
-        do  10  i = 1, nr
-   10   write(ifi,fmt) (s(i,j), j=1,nc)
+        do    i = 1, nr
+           write(ifi,fmt) (s(i,j), j=1,nc)
+        enddo   
         if (mod(icast,10) .gt. 1) then
           write(ifi,'(1x)')
-          do  20  i = 1, nr
-   20     write(ifi,fmt) (s(i+ofi,j), j=1,nc)
+          do    i = 1, nr
+           write(ifi,fmt) (s(i+ofi,j), j=1,nc)
+          enddo
         endif
       endif
       end

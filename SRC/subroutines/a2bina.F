@@ -68,7 +68,8 @@ C     Look for first non-word character
       if (lassgn) then
         do  12  tj = j, jmax
           a(tj-j+1:tj-j+2) = instr(tj) // ' '
-   12   if (.not. namchr(instr(tj))) goto 14
+          if (.not. namchr(instr(tj))) goto 14
+ 12     continue
 C     Reached last character; no non-word character found
         lassgn = .false.
    14   continue

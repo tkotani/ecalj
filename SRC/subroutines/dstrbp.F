@@ -1,4 +1,5 @@
       subroutine dstrbp(nloop,np,nblk,index)
+      use m_MPItk,only:master_mpi
 C- Distribute loop counter over processes
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -64,9 +65,9 @@ C Local
       index(np)=nloop+1
       if (iprint() .lt. 41) return
 ! Output indices
-      WRITE (*,'(" DSTRBP: i   inode   xnode   block=",i5)') nblk
+      if(master_mpi)WRITE (*,'(" DSTRBP: i   inode   xnode   block=",i5)') nblk
       DO i=0,np-1
-        WRITE (*,'(3x,3i7)') i,inode(i),xnode(i)
+        if(master_mpi) WRITE (*,'(3x,3i7)') i,inode(i),xnode(i)
       END DO
 #endif
       END SUBROUTINE dstrbp

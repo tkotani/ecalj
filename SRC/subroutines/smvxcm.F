@@ -2,11 +2,13 @@
      .smpot,smvxc,smvx,smvc,smexc,repsm,repsmx,repsmc,rmusm,rvmusm,
      .rvepsm,focexc,focex,focec,focvxc,f)
       use m_supot,only: rv_a_ogv,iv_a_okv
-      use m_lmfinit,only: rv_a_ocy
-      use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
-c      use m_globalvariables
-      use m_lmfinit,only: lat_nabc, lat_ng, lat_vol, lat_alat, lat_vol
+      use m_struc_def
+      use m_lmfinit,only: rv_a_ocy,   lat_alat, lxcf,nsp,stdo
+      use m_lattic,only: lat_vol
+      use m_supot,only: lat_nabc
+      use m_supot,only: lat_ng
+
+
 C- XC potential for smooth mesh density
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -81,7 +83,7 @@ Cu    1 May 00 Adapted from nfp sxc_smooth.f
 C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
-      integer nbas,lfrce,k1,k2,k3,ngabc(3)
+      integer nbas,lfrce,k1,k2,k3,ngabc(3),lxcfun
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       real(8):: f(3,nbas) , repsm(2) , repsmx(2) , repsmc(2) , rmusm(2) 
      ., rvmusm(2) , rvepsm(2) , focexc(2) , focex(2) , focec(2) , focvxc(2)
@@ -91,8 +93,8 @@ c      type(s_lat)::slat
       double complex smrho(k1,k2,k3,*),smpot(k1,k2,k3,*),
      .smvxc(k1,k2,k3,*),smvx(k1,k2,k3,*),smvc(k1,k2,k3,*),
      .smexc(k1,k2,k3)
-      integer:: stdo , i , k123 , n1 , n2 , n3 , lgunit , ng , lfoc1 
-     .   , lfoc2 , iprint , excsan , lxcfun , nglob , nsp
+      integer:: i , k123 , n1 , n2 , n3 , lgunit , ng , lfoc1 
+     .   , lfoc2 , iprint , excsan 
       complex(8) ,allocatable :: cgh1_zv(:)
       complex(8) ,allocatable :: cgh2_zv(:)
       complex(8) ,allocatable :: dxcv_zv(:)
@@ -114,12 +116,13 @@ c      type(s_lat)::slat
        if(procid==master) iprx=.true.
 #endif
 
-      stdo = lgunit(1)
-Changenglob      nsp  = nglob('nsp')
-      nsp  = globalvariables%nsp
-Changenglob      lxcfun = nglob('lxcf')
-      lxcfun = globalvariables%lxcf
+c      stdo = lgunit(1)
+cChangenglob      nsp  = nglob('nsp')
+c      nsp  = globalvariables%nsp
+cChangenglob      lxcfun = nglob('lxcf')
+c     lxcfun = globalvariables%lxcf
       call tcn('smvxc')
+      lxcfun= lxcf
       ngabc = lat_nabc
       ng    = lat_ng
       vol  = lat_vol

@@ -1,12 +1,18 @@
-==============================
+=============================================
 How to add new test ?
-1. make a test calculation at a directory.
+1. Perform a test calculation at a directory.
 2. Make a test directory ecalj/TestInstall/foobar/.
-   Then set keep ctrl.* and so on in it (See other test).
+   Then set files ctrl.* and so (for start) and results (for compare).
 3. Write Makefile at ecalj/TestInstall/foobar
-   (see other test).
-4. Add test in the main Makefile at ecalj/TestInstall.
-===========================
+   (See samples TestInstall/si_gwsc and TestInstall/gas_eps_lmfh for example).
+4. Add your test in the main Makefile at ecalj/TestInstall.
+   Probably in LM_TEST of in GW_TEST
+=============================================
+>pwd
+ecalj/SRC/TestInstall
+>make
+show following message
+----------------------------------------------
 
 NAME
 	Makefile - makefile script to test and check ecalj programs.

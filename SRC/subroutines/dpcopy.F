@@ -8,8 +8,9 @@ C     implicit none
       return
 C --- fac not unity ---
   100 continue
-      do  110  i = n1, n2
-  110 ato(i) = fac*afrom(i)
+      do    i = n1, n2
+         ato(i) = fac*afrom(i)
+      enddo   
       end
 C      program test
 C      implicit none

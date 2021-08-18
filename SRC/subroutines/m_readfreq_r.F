@@ -6,7 +6,7 @@
       implicit none
       integer,protected::nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i,nw,npm
       real(8),allocatable,protected:: freq_r(:)
-      real(8),allocatable::freqx(:),freqw(:),wwx(:),expa_(:)
+      real(8),protected,allocatable::freqx(:),freqw(:),wwx(:),expa_(:)
 
       contains
       subroutine readfreq_r()

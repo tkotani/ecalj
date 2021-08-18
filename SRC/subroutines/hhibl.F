@@ -56,12 +56,13 @@ C ... Local parameters
       lmx1 = ll(nlm1)
       lmx2 = ll(nlm2)
 
-      do  3  k = 0, kmax
-      do  3  jlm = 1, nlm2
-      do  3  ilm = 1, nlm1
+      do    k = 0, kmax
+      do    jlm = 1, nlm2
+      do    ilm = 1, nlm1
         s(ilm,jlm,k) = dcmplx(0d0,0d0)
-    3 continue
-
+      enddo
+      enddo
+      enddo
       l1t = -1
       do  20  l1 = 0, lmx1
         if (l1 .le. l1t) goto 20
@@ -164,9 +165,9 @@ C ... Set up functions for connecting vector p1-p2
       endif
 
 C ... Combine with Clebsch-Gordan coefficients
-      do  11  ilm1 = mlm1, nlm1
+      do  1111  ilm1 = mlm1, nlm1
         l1 = ll(ilm1)
-      do  11  ilm2 = mlm2, nlm2
+      do  111  ilm2 = mlm2, nlm2
         l2 = ll(ilm2)
         ii = max0(ilm1,ilm2)
         indx = (ii*(ii-1))/2 + min0(ilm1,ilm2)
@@ -181,6 +182,8 @@ C ... Combine with Clebsch-Gordan coefficients
           s(ilm1,ilm2,ip) = s(ilm1,ilm2,ip) + fac*hkl1(k+ip,ilm)
    12   continue
    11 continue
+  111 continue
+ 1111 continue
 
       end
 

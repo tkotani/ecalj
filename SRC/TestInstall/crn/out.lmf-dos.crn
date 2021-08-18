@@ -1,19 +1,43 @@
-rdcmd:  lmfa crn
-HOST_INFORMATION platform: gfortran
-HOST_INFORMATION compiler version: gcc version 4.6.2 (Ubuntu/Linaro 4.6.2-10ubuntu1~11.10.1) 
-HOST_INFORMATION FFLAGS (<=120): -O2 -fomit-frame-pointer -funroll-loops -ffast-math -ffixed-line-length-132 -DHASIARGC -DHASGETARG -DFDATE -DHASCPUTIME 
-HOST_INFORMATION LIBLOC (<=120): /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf
-HOST_INFORMATION uname -a (<=120): Linux TT4 3.0.0-32-generic #51-Ubuntu SMP Thu Mar 21 15:50:59 UTC 2013 x86_64 x86_64 x86_64 GNU/Linux
-HOST_INFORMATION /etc/issue: Ubuntu 11.10 \n \l
-HOST_INFORMATION git branch: refs/heads/master
-HOST_INFORMATION git commit: 0fd9bd2cf16a41eec9261bd9877686039ea8ed99
-HOST_INFORMATION linked at: Mon May 20 14:58:01 JST 2013
- -----------------------  START LMFA     -----------------------
- ptenv() is called with EXT=crn
- ptenv() not supported, but continue.
+===START LMFA   =====================================
+ mpisize=           1
  HEADER CrN in orthorhombic setting afm structure (a)
-  LMFA  vn 7.00(LMFA 7.0)  verb 30
- end of rdctrl2 in imfav7
+
+mmm === MTO setting ===
+mmm ispec lmxb lpzex nkapii nkaphh=    1    2    0    2    2
+mmm rsmh1    1  1.30  1.30  1.30
+mmm   eh1    1 -0.01 -0.01 -0.01
+mmm rsmh2    1  1.30  1.30  1.30
+mmm  eh2     1 -0.10 -0.10 -0.10
+mmm pz       1  0.00  0.00  0.00
+mmm lh       1  2  2
+mmm ispec lmxb lpzex nkapii nkaphh=    2    2    0    2    2
+mmm rsmh1    2  1.30  1.30  1.30
+mmm   eh1    2 -0.01 -0.01 -0.01
+mmm rsmh2    2  1.30  1.30  1.30
+mmm  eh2     2 -0.10 -0.10 -0.10
+mmm pz       2  0.00  0.00  0.00
+mmm lh       2  2  2
+mmm ispec lmxb lpzex nkapii nkaphh=    3    2    0    2    2
+mmm rsmh1    3  0.90  0.90  0.90
+mmm   eh1    3 -0.01 -0.01 -0.01
+mmm rsmh2    3  0.90  0.90  0.90
+mmm  eh2     3 -0.10 -0.10 -0.10
+mmm pz       3  0.00  0.00  0.00
+mmm lh       3  2  2
+mmm ispec lmxb lpzex nkapii nkaphh=    4    2    0    2    2
+mmm rsmh1    4  0.90  0.90  0.90
+mmm   eh1    4 -0.01 -0.01 -0.01
+mmm rsmh2    4  0.90  0.90  0.90
+mmm  eh2     4 -0.10 -0.10 -0.10
+mmm pz       4  0.00  0.00  0.00
+mmm lh       4  2  2
+mmm ispec lmxb lpzex nkapii nkaphh=    5    2    0    2    2
+mmm rsmh1    5  0.90  0.90  0.90
+mmm   eh1    5 -0.01 -0.01 -0.01
+mmm rsmh2    5  0.90  0.90  0.90
+mmm  eh2     5 -0.10 -0.10 -0.10
+mmm pz       5  0.00  0.00  0.00
+mmm lh       5  2  2
 
                 Plat                                  Qlat
    1.000000   0.000000   0.000000        1.000000   0.000000   0.000000
@@ -23,14 +47,17 @@ HOST_INFORMATION linked at: Mon May 20 14:58:01 JST 2013
 
  LATTC:  as= 2.000   tol=1.00E-08   alat=10.67083   awald= 0.258
          r1=  2.082   nkd=  99      q1=  4.667   nkg= 175
- goto mksym
 
  SGROUP: 1 symmetry operations from 0 generators
+ ADDBAS: basis is already complete --- no sites added
  SYMLAT: Bravais system is orthorhombic with 8 symmetry operations.
  SYMCRY: crystal invariant under 2 symmetry operations for tol=1e-5
+ ig  group op
+   1  i*i                                
+   2  my(-0,0.2646982,0)                 
  GROUPG: the following are sufficient to generate the space group:
-         my:(-0,0.2646982,0)
-         my::(-0,1/2,0)
+ Generator(cart): my:(-0,0.2646982,0)
+ Generator(frac): my::(-0,1/2,0)
  MKSYM:  found 2 space group operations; adding inversion generated 4 ops
 
  SPLCLS:  5 species split into 8 classes
@@ -43,10 +70,7 @@ HOST_INFORMATION linked at: Mon May 20 14:58:01 JST 2013
  N2       4:N2       7
           8:N22      8
  Nh       5:Nh       5
- end of mksym x
- goto defspc
- end of defspc
- goto freeat
+ goto freats
 
 ttt: pnu qat=  1  0     4.900     2.000
 ttt: pnu qat=  1  1     4.900     0.000
@@ -56,148 +80,31 @@ ttt: pnu qat=  2  0     4.900     0.000
 ttt: pnu qat=  2  1     4.900     0.000
 ttt: pnu qat=  2  2     3.800     4.000
 ttt: pnu qat=  2  3     4.100     0.000
- NOTE: when we have two valence: P and PZ, We assume eigen(PZ) is deeper than eigen(P).
-=== Charge for l: Qtot=Qv=     0   1.000   1.000
-=== Charge for l: Qtot=Qv=     1   0.000   0.000
-=== Charge for l: Qtot=Qv=     2   4.000   4.000
-=== Charge for l: Qtot=Qv=     3   0.000   0.000
-=== Charge for l: Qtot=Qv=     0   1.000   1.000
-=== Charge for l: Qtot=Qv=     1   0.000   0.000
-=== Charge for l: Qtot=Qv=     2   0.000   0.000
-=== Charge for l: Qtot=Qv=     3   0.000   0.000
 
+conf:------------------------------------------------------
 conf:SPEC_ATOM= Cr1 : --- Table for atomic configuration ---
-conf When int(P)z .ne. int(P), Qval: Q for MTOcore(PZ)+MTO(P)
 conf:  isp  l  int(P) int(P)z    Qval     Qcore   CoreConf
-conf:    1  0       4  4         1.000    3.000 => 1,2,3,
-conf:    1  1       4  4         0.000    6.000 => 2,3,
-conf:    1  2       3  3         4.000    0.000 => 
-conf:    1  3       4  4         0.000    0.000 => 
-conf:-----------------------------------------------------
-conf:    2  0       4  4         1.000    3.000 => 1,2,3,
-conf:    2  1       4  4         0.000    6.000 => 2,3,
-conf:    2  2       3  3         0.000    0.000 => 
-conf:    2  3       4  4         0.000    0.000 => 
-conf:-----------------------------------------------------
+conf:    1  0       4  0         1.000    3.000 => 1,2,3,
+conf:    1  1       4  0         0.000    6.000 => 2,3,
+conf:    1  2       3  0         4.000    0.000 => 
+conf:    1  3       4  0         0.000    0.000 => 
+conf:    2  0       4  0         1.000    3.000 => 1,2,3,
+conf:    2  1       4  0         0.000    6.000 => 2,3,
+conf:    2  2       3  0         0.000    0.000 => 
+conf:    2  3       4  0         0.000    0.000 => 
 usedQ=     2.000     0.000     4.000     0.000
 
- Species Cr1:  Z=24  Qc=18  R=2.600000  Q=0  mom=4
- mesh:   rmt=2.600000  rmax=49.184172  a=0.03  nr=323  nr(rmax)=421
+conf: Species Cr1:  Z=24  Qc=18  R=2.600000  Q=0  mom=4
+conf:   rmt=2.600000  rmax=49.184172  a=0.03  nr=323  nr(rmax)=421
  goto atomc xxx
  atomsc nmcore=           0
 
   iter     qint         drho          vh0          rho0          vsum     beta
- >> level: 1  CPUsec=      0.03  enter newrho
- >>      0.04   exit  newrho          0.00
     1   24.000000   3.003E+03      120.0000    0.1194E+03      -48.2012   0.30
- >> level: 1  CPUsec=      0.04  enter newrho
- >>      0.04   exit  newrho          0.00
- >> level: 1  CPUsec=      0.04  enter newrho
- >>      0.04   exit  newrho          0.00
- >> level: 1  CPUsec=      0.04  enter newrho
- >>      0.04   exit  newrho          0.00
- >> level: 1  CPUsec=      0.04  enter newrho
- >>      0.05   exit  newrho          0.00
- >> level: 1  CPUsec=      0.05  enter newrho
- >>      0.05   exit  newrho          0.00
- >> level: 1  CPUsec=      0.05  enter newrho
- >>      0.05   exit  newrho          0.00
- >> level: 1  CPUsec=      0.05  enter newrho
- >>      0.06   exit  newrho          0.00
- >> level: 1  CPUsec=      0.06  enter newrho
- >>      0.06   exit  newrho          0.00
- >> level: 1  CPUsec=      0.06  enter newrho
- >>      0.06   exit  newrho          0.00
- >> level: 1  CPUsec=      0.06  enter newrho
- >>      0.06   exit  newrho          0.00
- >> level: 1  CPUsec=      0.06  enter newrho
- >>      0.07   exit  newrho          0.00
- >> level: 1  CPUsec=      0.07  enter newrho
- >>      0.07   exit  newrho          0.00
- >> level: 1  CPUsec=      0.07  enter newrho
- >>      0.07   exit  newrho          0.00
- >> level: 1  CPUsec=      0.07  enter newrho
- >>      0.07   exit  newrho          0.00
- >> level: 1  CPUsec=      0.08  enter newrho
- >>      0.08   exit  newrho          0.00
- >> level: 1  CPUsec=      0.08  enter newrho
- >>      0.08   exit  newrho          0.00
- >> level: 1  CPUsec=      0.08  enter newrho
- >>      0.08   exit  newrho          0.00
- >> level: 1  CPUsec=      0.08  enter newrho
- >>      0.08   exit  newrho          0.00
- >> level: 1  CPUsec=      0.08  enter newrho
- >>      0.09   exit  newrho          0.00
- >> level: 1  CPUsec=      0.09  enter newrho
- >>      0.09   exit  newrho          0.00
- >> level: 1  CPUsec=      0.09  enter newrho
- >>      0.09   exit  newrho          0.00
- >> level: 1  CPUsec=      0.09  enter newrho
- >>      0.09   exit  newrho          0.00
- >> level: 1  CPUsec=      0.09  enter newrho
- >>      0.10   exit  newrho          0.00
- >> level: 1  CPUsec=      0.10  enter newrho
- >>      0.10   exit  newrho          0.00
- >> level: 1  CPUsec=      0.10  enter newrho
- >>      0.10   exit  newrho          0.00
- >> level: 1  CPUsec=      0.10  enter newrho
- >>      0.10   exit  newrho          0.00
- >> level: 1  CPUsec=      0.10  enter newrho
- >>      0.10   exit  newrho          0.00
- >> level: 1  CPUsec=      0.10  enter newrho
- >>      0.11   exit  newrho          0.00
- >> level: 1  CPUsec=      0.11  enter newrho
- >>      0.11   exit  newrho          0.00
- >> level: 1  CPUsec=      0.11  enter newrho
- >>      0.11   exit  newrho          0.00
- >> level: 1  CPUsec=      0.11  enter newrho
- >>      0.11   exit  newrho          0.00
- >> level: 1  CPUsec=      0.12  enter newrho
- >>      0.12   exit  newrho          0.00
- >> level: 1  CPUsec=      0.12  enter newrho
- >>      0.12   exit  newrho          0.00
- >> level: 1  CPUsec=      0.12  enter newrho
- >>      0.12   exit  newrho          0.00
- >> level: 1  CPUsec=      0.12  enter newrho
- >>      0.12   exit  newrho          0.00
- >> level: 1  CPUsec=      0.12  enter newrho
- >>      0.12   exit  newrho          0.00
- >> level: 1  CPUsec=      0.12  enter newrho
- >>      0.13   exit  newrho          0.00
- >> level: 1  CPUsec=      0.13  enter newrho
- >>      0.13   exit  newrho          0.00
- >> level: 1  CPUsec=      0.13  enter newrho
- >>      0.13   exit  newrho          0.00
- >> level: 1  CPUsec=      0.13  enter newrho
- >>      0.14   exit  newrho          0.00
- >> level: 1  CPUsec=      0.14  enter newrho
- >>      0.14   exit  newrho          0.00
- >> level: 1  CPUsec=      0.14  enter newrho
- >>      0.14   exit  newrho          0.00
- >> level: 1  CPUsec=      0.14  enter newrho
- >>      0.14   exit  newrho          0.00
- >> level: 1  CPUsec=      0.14  enter newrho
- >>      0.14   exit  newrho          0.00
- >> level: 1  CPUsec=      0.15  enter newrho
- >>      0.15   exit  newrho          0.00
- >> level: 1  CPUsec=      0.15  enter newrho
- >>      0.15   exit  newrho          0.00
- >> level: 1  CPUsec=      0.15  enter newrho
- >>      0.15   exit  newrho          0.00
- >> level: 1  CPUsec=      0.15  enter newrho
- >>      0.16   exit  newrho          0.00
- >> level: 1  CPUsec=      0.16  enter newrho
- >>      0.16   exit  newrho          0.00
- >> level: 1  CPUsec=      0.16  enter newrho
- >>      0.16   exit  newrho          0.00
    51   24.000000   4.217E-05      208.6092    0.1262E+05     -176.8113   0.30
- >> level: 1  CPUsec=      0.16  enter newrho
- >>      0.16   exit  newrho          0.00
 
  end of atomsc xxxxx
- vsum=  -176.81117860070927                1
- ifives=          13
-  write end of ifives
+ vsum=  -176.81117857474248                1
 
  sumev=-2.918755  etot=-2097.149463  eref=0.000000
 
@@ -226,9 +133,10 @@ usedQ=     2.000     0.000     4.000     0.000
     fit: r>rmt  0.691005   r<rmt  0.327903   qtot  1.018909
     rho: r>rmt  0.691005   r<rmt  0.308995   qtot  1.000000
  tailsm: end
-
- coretail: q=0.00772, rho(rmt)=0.0145.  Fit with Hankel e=-15.666  coeff=591.82
+conf: Core rhoc(rmt)= 0.007725 spillout= 0.014475
+ Fit with Hankel e=-15.666437 coeff=591.819404
  end of freats: spid nmcore=Cr1                0
+ goto freats
 
 ttt: pnu qat=  1  0     4.900     2.000
 ttt: pnu qat=  1  1     4.900     0.000
@@ -238,148 +146,31 @@ ttt: pnu qat=  2  0     4.900     0.000
 ttt: pnu qat=  2  1     4.900     0.000
 ttt: pnu qat=  2  2     3.800    -4.000
 ttt: pnu qat=  2  3     4.130     0.000
- NOTE: when we have two valence: P and PZ, We assume eigen(PZ) is deeper than eigen(P).
-=== Charge for l: Qtot=Qv=     0   1.000   1.000
-=== Charge for l: Qtot=Qv=     1   0.000   0.000
-=== Charge for l: Qtot=Qv=     2   0.000   0.000
-=== Charge for l: Qtot=Qv=     3   0.000   0.000
-=== Charge for l: Qtot=Qv=     0   1.000   1.000
-=== Charge for l: Qtot=Qv=     1   0.000   0.000
-=== Charge for l: Qtot=Qv=     2   4.000   4.000
-=== Charge for l: Qtot=Qv=     3   0.000   0.000
 
+conf:------------------------------------------------------
 conf:SPEC_ATOM= Cr2 : --- Table for atomic configuration ---
-conf When int(P)z .ne. int(P), Qval: Q for MTOcore(PZ)+MTO(P)
 conf:  isp  l  int(P) int(P)z    Qval     Qcore   CoreConf
-conf:    1  0       4  4         1.000    3.000 => 1,2,3,
-conf:    1  1       4  4         0.000    6.000 => 2,3,
-conf:    1  2       3  3         0.000    0.000 => 
-conf:    1  3       4  4         0.000    0.000 => 
-conf:-----------------------------------------------------
-conf:    2  0       4  4         1.000    3.000 => 1,2,3,
-conf:    2  1       4  4         0.000    6.000 => 2,3,
-conf:    2  2       3  3         4.000    0.000 => 
-conf:    2  3       4  4         0.000    0.000 => 
-conf:-----------------------------------------------------
+conf:    1  0       4  0         1.000    3.000 => 1,2,3,
+conf:    1  1       4  0         0.000    6.000 => 2,3,
+conf:    1  2       3  0         0.000    0.000 => 
+conf:    1  3       4  0         0.000    0.000 => 
+conf:    2  0       4  0         1.000    3.000 => 1,2,3,
+conf:    2  1       4  0         0.000    6.000 => 2,3,
+conf:    2  2       3  0         4.000    0.000 => 
+conf:    2  3       4  0         0.000    0.000 => 
 usedQ=     2.000     0.000     4.000     0.000
 
- Species Cr2:  Z=24  Qc=18  R=2.600000  Q=0  mom=-4
- mesh:   rmt=2.600000  rmax=49.184172  a=0.03  nr=323  nr(rmax)=421
+conf: Species Cr2:  Z=24  Qc=18  R=2.600000  Q=0  mom=-4
+conf:   rmt=2.600000  rmax=49.184172  a=0.03  nr=323  nr(rmax)=421
  goto atomc xxx
  atomsc nmcore=           0
 
   iter     qint         drho          vh0          rho0          vsum     beta
- >> level: 1  CPUsec=      0.18  enter newrho
- >>      0.18   exit  newrho          0.00
     1   24.000000   3.003E+03      120.0000    0.1194E+03      -48.2012   0.30
- >> level: 1  CPUsec=      0.18  enter newrho
- >>      0.18   exit  newrho          0.00
- >> level: 1  CPUsec=      0.18  enter newrho
- >>      0.18   exit  newrho          0.00
- >> level: 1  CPUsec=      0.18  enter newrho
- >>      0.19   exit  newrho          0.00
- >> level: 1  CPUsec=      0.19  enter newrho
- >>      0.19   exit  newrho          0.00
- >> level: 1  CPUsec=      0.19  enter newrho
- >>      0.19   exit  newrho          0.00
- >> level: 1  CPUsec=      0.19  enter newrho
- >>      0.20   exit  newrho          0.00
- >> level: 1  CPUsec=      0.20  enter newrho
- >>      0.20   exit  newrho          0.00
- >> level: 1  CPUsec=      0.20  enter newrho
- >>      0.20   exit  newrho          0.00
- >> level: 1  CPUsec=      0.20  enter newrho
- >>      0.20   exit  newrho          0.00
- >> level: 1  CPUsec=      0.20  enter newrho
- >>      0.20   exit  newrho          0.00
- >> level: 1  CPUsec=      0.20  enter newrho
- >>      0.21   exit  newrho          0.00
- >> level: 1  CPUsec=      0.21  enter newrho
- >>      0.21   exit  newrho          0.00
- >> level: 1  CPUsec=      0.21  enter newrho
- >>      0.21   exit  newrho          0.00
- >> level: 1  CPUsec=      0.21  enter newrho
- >>      0.21   exit  newrho          0.00
- >> level: 1  CPUsec=      0.21  enter newrho
- >>      0.22   exit  newrho          0.00
- >> level: 1  CPUsec=      0.22  enter newrho
- >>      0.22   exit  newrho          0.00
- >> level: 1  CPUsec=      0.22  enter newrho
- >>      0.22   exit  newrho          0.00
- >> level: 1  CPUsec=      0.22  enter newrho
- >>      0.22   exit  newrho          0.00
- >> level: 1  CPUsec=      0.22  enter newrho
- >>      0.22   exit  newrho          0.00
- >> level: 1  CPUsec=      0.22  enter newrho
- >>      0.23   exit  newrho          0.00
- >> level: 1  CPUsec=      0.23  enter newrho
- >>      0.23   exit  newrho          0.00
- >> level: 1  CPUsec=      0.23  enter newrho
- >>      0.23   exit  newrho          0.00
- >> level: 1  CPUsec=      0.23  enter newrho
- >>      0.23   exit  newrho          0.00
- >> level: 1  CPUsec=      0.23  enter newrho
- >>      0.24   exit  newrho          0.00
- >> level: 1  CPUsec=      0.24  enter newrho
- >>      0.24   exit  newrho          0.00
- >> level: 1  CPUsec=      0.24  enter newrho
- >>      0.24   exit  newrho          0.00
- >> level: 1  CPUsec=      0.24  enter newrho
- >>      0.24   exit  newrho          0.00
- >> level: 1  CPUsec=      0.24  enter newrho
- >>      0.24   exit  newrho          0.00
- >> level: 1  CPUsec=      0.24  enter newrho
- >>      0.25   exit  newrho          0.00
- >> level: 1  CPUsec=      0.25  enter newrho
- >>      0.25   exit  newrho          0.00
- >> level: 1  CPUsec=      0.25  enter newrho
- >>      0.25   exit  newrho          0.00
- >> level: 1  CPUsec=      0.25  enter newrho
- >>      0.25   exit  newrho          0.00
- >> level: 1  CPUsec=      0.25  enter newrho
- >>      0.26   exit  newrho          0.00
- >> level: 1  CPUsec=      0.26  enter newrho
- >>      0.26   exit  newrho          0.00
- >> level: 1  CPUsec=      0.26  enter newrho
- >>      0.26   exit  newrho          0.00
- >> level: 1  CPUsec=      0.26  enter newrho
- >>      0.26   exit  newrho          0.00
- >> level: 1  CPUsec=      0.26  enter newrho
- >>      0.26   exit  newrho          0.00
- >> level: 1  CPUsec=      0.26  enter newrho
- >>      0.26   exit  newrho          0.00
- >> level: 1  CPUsec=      0.26  enter newrho
- >>      0.27   exit  newrho          0.00
- >> level: 1  CPUsec=      0.27  enter newrho
- >>      0.27   exit  newrho          0.00
- >> level: 1  CPUsec=      0.27  enter newrho
- >>      0.27   exit  newrho          0.00
- >> level: 1  CPUsec=      0.27  enter newrho
- >>      0.28   exit  newrho          0.00
- >> level: 1  CPUsec=      0.28  enter newrho
- >>      0.28   exit  newrho          0.00
- >> level: 1  CPUsec=      0.28  enter newrho
- >>      0.28   exit  newrho          0.00
- >> level: 1  CPUsec=      0.28  enter newrho
- >>      0.28   exit  newrho          0.00
- >> level: 1  CPUsec=      0.28  enter newrho
- >>      0.28   exit  newrho          0.00
- >> level: 1  CPUsec=      0.28  enter newrho
- >>      0.28   exit  newrho          0.00
- >> level: 1  CPUsec=      0.28  enter newrho
- >>      0.29   exit  newrho          0.00
- >> level: 1  CPUsec=      0.29  enter newrho
- >>      0.29   exit  newrho          0.00
- >> level: 1  CPUsec=      0.29  enter newrho
- >>      0.29   exit  newrho          0.00
    51   24.000000   4.217E-05      208.6092    0.1262E+05     -176.8113   0.30
- >> level: 1  CPUsec=      0.29  enter newrho
- >>      0.29   exit  newrho          0.00
 
  end of atomsc xxxxx
- vsum=  -176.81117860016067                2
- ifives=          13
-  write end of ifives
+ vsum=  -176.81117858041128                2
 
  sumev=-2.918755  etot=-2097.149463  eref=0.000000
 
@@ -408,9 +199,10 @@ usedQ=     2.000     0.000     4.000     0.000
     fit: r>rmt  0.871593   r<rmt  2.060998   qtot  2.932591
     rho: r>rmt  0.871593   r<rmt  4.128407   qtot  5.000000
  tailsm: end
-
- coretail: q=0.00772, rho(rmt)=0.0145.  Fit with Hankel e=-15.666  coeff=591.82
+conf: Core rhoc(rmt)= 0.007725 spillout= 0.014475
+ Fit with Hankel e=-15.666437 coeff=591.819404
  end of freats: spid nmcore=Cr2                0
+ goto freats
 
 ttt: pnu qat=  1  0     2.850     2.000
 ttt: pnu qat=  1  1     2.800     3.000
@@ -420,136 +212,31 @@ ttt: pnu qat=  2  0     2.850     0.000
 ttt: pnu qat=  2  1     2.800     0.000
 ttt: pnu qat=  2  2     3.200     0.000
 ttt: pnu qat=  2  3     4.100     0.000
- NOTE: when we have two valence: P and PZ, We assume eigen(PZ) is deeper than eigen(P).
-=== Charge for l: Qtot=Qv=     0   1.000   1.000
-=== Charge for l: Qtot=Qv=     1   1.500   1.500
-=== Charge for l: Qtot=Qv=     2   0.000   0.000
-=== Charge for l: Qtot=Qv=     3   0.000   0.000
-=== Charge for l: Qtot=Qv=     0   1.000   1.000
-=== Charge for l: Qtot=Qv=     1   1.500   1.500
-=== Charge for l: Qtot=Qv=     2   0.000   0.000
-=== Charge for l: Qtot=Qv=     3   0.000   0.000
 
+conf:------------------------------------------------------
 conf:SPEC_ATOM= N1 : --- Table for atomic configuration ---
-conf When int(P)z .ne. int(P), Qval: Q for MTOcore(PZ)+MTO(P)
 conf:  isp  l  int(P) int(P)z    Qval     Qcore   CoreConf
-conf:    1  0       2  2         1.000    1.000 => 1,
-conf:    1  1       2  2         1.500    0.000 => 
-conf:    1  2       3  3         0.000    0.000 => 
-conf:    1  3       4  4         0.000    0.000 => 
-conf:-----------------------------------------------------
-conf:    2  0       2  2         1.000    1.000 => 1,
-conf:    2  1       2  2         1.500    0.000 => 
-conf:    2  2       3  3         0.000    0.000 => 
-conf:    2  3       4  4         0.000    0.000 => 
-conf:-----------------------------------------------------
+conf:    1  0       2  0         1.000    1.000 => 1,
+conf:    1  1       2  0         1.500    0.000 => 
+conf:    1  2       3  0         0.000    0.000 => 
+conf:    1  3       4  0         0.000    0.000 => 
+conf:    2  0       2  0         1.000    1.000 => 1,
+conf:    2  1       2  0         1.500    0.000 => 
+conf:    2  2       3  0         0.000    0.000 => 
+conf:    2  3       4  0         0.000    0.000 => 
 usedQ=     2.000     3.000     0.000     0.000
 
- Species N1:  Z=7  Qc=2  R=1.800000  Q=0  mom=0
- mesh:   rmt=1.800000  rmax=23.783012  a=0.03  nr=223  nr(rmax)=309
+conf: Species N1:  Z=7  Qc=2  R=1.800000  Q=0  mom=0
+conf:   rmt=1.800000  rmax=23.783012  a=0.03  nr=223  nr(rmax)=309
  goto atomc xxx
  atomsc nmcore=           0
 
   iter     qint         drho          vh0          rho0          vsum     beta
- >> level: 1  CPUsec=      0.30  enter newrho
- >>      0.31   exit  newrho          0.00
     1    7.000000   4.962E+02       35.0000    0.3482E+02      -14.0707   0.30
- >> level: 1  CPUsec=      0.31  enter newrho
- >>      0.31   exit  newrho          0.00
- >> level: 1  CPUsec=      0.31  enter newrho
- >>      0.31   exit  newrho          0.00
- >> level: 1  CPUsec=      0.31  enter newrho
- >>      0.31   exit  newrho          0.00
- >> level: 1  CPUsec=      0.31  enter newrho
- >>      0.32   exit  newrho          0.00
- >> level: 1  CPUsec=      0.32  enter newrho
- >>      0.32   exit  newrho          0.00
- >> level: 1  CPUsec=      0.32  enter newrho
- >>      0.32   exit  newrho          0.00
- >> level: 1  CPUsec=      0.32  enter newrho
- >>      0.32   exit  newrho          0.00
- >> level: 1  CPUsec=      0.32  enter newrho
- >>      0.32   exit  newrho          0.00
- >> level: 1  CPUsec=      0.32  enter newrho
- >>      0.32   exit  newrho          0.00
- >> level: 1  CPUsec=      0.32  enter newrho
- >>      0.32   exit  newrho          0.00
- >> level: 1  CPUsec=      0.32  enter newrho
- >>      0.33   exit  newrho          0.00
- >> level: 1  CPUsec=      0.33  enter newrho
- >>      0.33   exit  newrho          0.00
- >> level: 1  CPUsec=      0.33  enter newrho
- >>      0.33   exit  newrho          0.00
- >> level: 1  CPUsec=      0.33  enter newrho
- >>      0.33   exit  newrho          0.00
- >> level: 1  CPUsec=      0.33  enter newrho
- >>      0.34   exit  newrho          0.00
- >> level: 1  CPUsec=      0.34  enter newrho
- >>      0.34   exit  newrho          0.00
- >> level: 1  CPUsec=      0.34  enter newrho
- >>      0.34   exit  newrho          0.00
- >> level: 1  CPUsec=      0.34  enter newrho
- >>      0.34   exit  newrho          0.00
- >> level: 1  CPUsec=      0.34  enter newrho
- >>      0.34   exit  newrho          0.00
- >> level: 1  CPUsec=      0.34  enter newrho
- >>      0.34   exit  newrho          0.00
- >> level: 1  CPUsec=      0.34  enter newrho
- >>      0.34   exit  newrho          0.00
- >> level: 1  CPUsec=      0.34  enter newrho
- >>      0.35   exit  newrho          0.00
- >> level: 1  CPUsec=      0.35  enter newrho
- >>      0.35   exit  newrho          0.00
- >> level: 1  CPUsec=      0.35  enter newrho
- >>      0.35   exit  newrho          0.00
- >> level: 1  CPUsec=      0.35  enter newrho
- >>      0.35   exit  newrho          0.00
- >> level: 1  CPUsec=      0.35  enter newrho
- >>      0.35   exit  newrho          0.00
- >> level: 1  CPUsec=      0.36  enter newrho
- >>      0.36   exit  newrho          0.00
- >> level: 1  CPUsec=      0.36  enter newrho
- >>      0.36   exit  newrho          0.00
- >> level: 1  CPUsec=      0.36  enter newrho
- >>      0.36   exit  newrho          0.00
- >> level: 1  CPUsec=      0.36  enter newrho
- >>      0.36   exit  newrho          0.00
- >> level: 1  CPUsec=      0.36  enter newrho
- >>      0.36   exit  newrho          0.00
- >> level: 1  CPUsec=      0.36  enter newrho
- >>      0.36   exit  newrho          0.00
- >> level: 1  CPUsec=      0.36  enter newrho
- >>      0.37   exit  newrho          0.00
- >> level: 1  CPUsec=      0.37  enter newrho
- >>      0.37   exit  newrho          0.00
- >> level: 1  CPUsec=      0.37  enter newrho
- >>      0.37   exit  newrho          0.00
- >> level: 1  CPUsec=      0.37  enter newrho
- >>      0.37   exit  newrho          0.00
- >> level: 1  CPUsec=      0.37  enter newrho
- >>      0.38   exit  newrho          0.00
- >> level: 1  CPUsec=      0.38  enter newrho
- >>      0.38   exit  newrho          0.00
- >> level: 1  CPUsec=      0.38  enter newrho
- >>      0.38   exit  newrho          0.00
- >> level: 1  CPUsec=      0.38  enter newrho
- >>      0.38   exit  newrho          0.00
- >> level: 1  CPUsec=      0.38  enter newrho
- >>      0.38   exit  newrho          0.00
- >> level: 1  CPUsec=      0.38  enter newrho
- >>      0.38   exit  newrho          0.00
- >> level: 1  CPUsec=      0.38  enter newrho
- >>      0.38   exit  newrho          0.00
- >> level: 1  CPUsec=      0.38  enter newrho
- >>      0.39   exit  newrho          0.00
    45    7.000000   3.931E-05       36.4355    0.2077E+03      -55.1429   0.30
- >> level: 1  CPUsec=      0.39  enter newrho
- >>      0.39   exit  newrho          0.00
 
  end of atomsc xxxxx
- vsum=  -55.142882207999435                3
- ifives=          13
-  write end of ifives
+ vsum=  -55.142882208205158                3
 
  sumev=-4.334850  etot=-108.129589  eref=0.000000
 
@@ -576,7 +263,9 @@ usedQ=     2.000     3.000     0.000     0.000
     fit: r>rmt  0.612528   r<rmt  1.728932   qtot  2.341460
     rho: r>rmt  0.612528   r<rmt  1.887472   qtot  2.500000
  tailsm: end
+conf: Core rhoc(rmt)= 0.000001 spillout= 0.000000
  end of freats: spid nmcore=N1                 0
+ goto freats
 
 ttt: pnu qat=  1  0     2.850     2.000
 ttt: pnu qat=  1  1     2.800     3.000
@@ -586,136 +275,31 @@ ttt: pnu qat=  2  0     2.850     0.000
 ttt: pnu qat=  2  1     2.800     0.000
 ttt: pnu qat=  2  2     3.200     0.000
 ttt: pnu qat=  2  3     4.100     0.000
- NOTE: when we have two valence: P and PZ, We assume eigen(PZ) is deeper than eigen(P).
-=== Charge for l: Qtot=Qv=     0   1.000   1.000
-=== Charge for l: Qtot=Qv=     1   1.500   1.500
-=== Charge for l: Qtot=Qv=     2   0.000   0.000
-=== Charge for l: Qtot=Qv=     3   0.000   0.000
-=== Charge for l: Qtot=Qv=     0   1.000   1.000
-=== Charge for l: Qtot=Qv=     1   1.500   1.500
-=== Charge for l: Qtot=Qv=     2   0.000   0.000
-=== Charge for l: Qtot=Qv=     3   0.000   0.000
 
+conf:------------------------------------------------------
 conf:SPEC_ATOM= N2 : --- Table for atomic configuration ---
-conf When int(P)z .ne. int(P), Qval: Q for MTOcore(PZ)+MTO(P)
 conf:  isp  l  int(P) int(P)z    Qval     Qcore   CoreConf
-conf:    1  0       2  2         1.000    1.000 => 1,
-conf:    1  1       2  2         1.500    0.000 => 
-conf:    1  2       3  3         0.000    0.000 => 
-conf:    1  3       4  4         0.000    0.000 => 
-conf:-----------------------------------------------------
-conf:    2  0       2  2         1.000    1.000 => 1,
-conf:    2  1       2  2         1.500    0.000 => 
-conf:    2  2       3  3         0.000    0.000 => 
-conf:    2  3       4  4         0.000    0.000 => 
-conf:-----------------------------------------------------
+conf:    1  0       2  0         1.000    1.000 => 1,
+conf:    1  1       2  0         1.500    0.000 => 
+conf:    1  2       3  0         0.000    0.000 => 
+conf:    1  3       4  0         0.000    0.000 => 
+conf:    2  0       2  0         1.000    1.000 => 1,
+conf:    2  1       2  0         1.500    0.000 => 
+conf:    2  2       3  0         0.000    0.000 => 
+conf:    2  3       4  0         0.000    0.000 => 
 usedQ=     2.000     3.000     0.000     0.000
 
- Species N2:  Z=7  Qc=2  R=1.800000  Q=0  mom=0
- mesh:   rmt=1.800000  rmax=23.783012  a=0.03  nr=223  nr(rmax)=309
+conf: Species N2:  Z=7  Qc=2  R=1.800000  Q=0  mom=0
+conf:   rmt=1.800000  rmax=23.783012  a=0.03  nr=223  nr(rmax)=309
  goto atomc xxx
  atomsc nmcore=           0
 
   iter     qint         drho          vh0          rho0          vsum     beta
- >> level: 1  CPUsec=      0.40  enter newrho
- >>      0.40   exit  newrho          0.00
     1    7.000000   4.962E+02       35.0000    0.3482E+02      -14.0707   0.30
- >> level: 1  CPUsec=      0.40  enter newrho
- >>      0.40   exit  newrho          0.00
- >> level: 1  CPUsec=      0.40  enter newrho
- >>      0.40   exit  newrho          0.00
- >> level: 1  CPUsec=      0.40  enter newrho
- >>      0.40   exit  newrho          0.00
- >> level: 1  CPUsec=      0.40  enter newrho
- >>      0.40   exit  newrho          0.00
- >> level: 1  CPUsec=      0.40  enter newrho
- >>      0.41   exit  newrho          0.00
- >> level: 1  CPUsec=      0.41  enter newrho
- >>      0.41   exit  newrho          0.00
- >> level: 1  CPUsec=      0.41  enter newrho
- >>      0.41   exit  newrho          0.00
- >> level: 1  CPUsec=      0.41  enter newrho
- >>      0.41   exit  newrho          0.00
- >> level: 1  CPUsec=      0.41  enter newrho
- >>      0.42   exit  newrho          0.00
- >> level: 1  CPUsec=      0.42  enter newrho
- >>      0.42   exit  newrho          0.00
- >> level: 1  CPUsec=      0.42  enter newrho
- >>      0.42   exit  newrho          0.00
- >> level: 1  CPUsec=      0.42  enter newrho
- >>      0.42   exit  newrho          0.00
- >> level: 1  CPUsec=      0.42  enter newrho
- >>      0.42   exit  newrho          0.00
- >> level: 1  CPUsec=      0.42  enter newrho
- >>      0.42   exit  newrho          0.00
- >> level: 1  CPUsec=      0.42  enter newrho
- >>      0.42   exit  newrho          0.00
- >> level: 1  CPUsec=      0.42  enter newrho
- >>      0.43   exit  newrho          0.00
- >> level: 1  CPUsec=      0.43  enter newrho
- >>      0.43   exit  newrho          0.00
- >> level: 1  CPUsec=      0.43  enter newrho
- >>      0.43   exit  newrho          0.00
- >> level: 1  CPUsec=      0.43  enter newrho
- >>      0.43   exit  newrho          0.00
- >> level: 1  CPUsec=      0.43  enter newrho
- >>      0.43   exit  newrho          0.00
- >> level: 1  CPUsec=      0.43  enter newrho
- >>      0.44   exit  newrho          0.00
- >> level: 1  CPUsec=      0.44  enter newrho
- >>      0.44   exit  newrho          0.00
- >> level: 1  CPUsec=      0.44  enter newrho
- >>      0.44   exit  newrho          0.00
- >> level: 1  CPUsec=      0.44  enter newrho
- >>      0.44   exit  newrho          0.00
- >> level: 1  CPUsec=      0.44  enter newrho
- >>      0.44   exit  newrho          0.00
- >> level: 1  CPUsec=      0.44  enter newrho
- >>      0.45   exit  newrho          0.00
- >> level: 1  CPUsec=      0.45  enter newrho
- >>      0.45   exit  newrho          0.00
- >> level: 1  CPUsec=      0.45  enter newrho
- >>      0.45   exit  newrho          0.00
- >> level: 1  CPUsec=      0.45  enter newrho
- >>      0.45   exit  newrho          0.00
- >> level: 1  CPUsec=      0.45  enter newrho
- >>      0.45   exit  newrho          0.00
- >> level: 1  CPUsec=      0.46  enter newrho
- >>      0.46   exit  newrho          0.00
- >> level: 1  CPUsec=      0.46  enter newrho
- >>      0.46   exit  newrho          0.00
- >> level: 1  CPUsec=      0.46  enter newrho
- >>      0.46   exit  newrho          0.00
- >> level: 1  CPUsec=      0.46  enter newrho
- >>      0.46   exit  newrho          0.00
- >> level: 1  CPUsec=      0.46  enter newrho
- >>      0.46   exit  newrho          0.00
- >> level: 1  CPUsec=      0.46  enter newrho
- >>      0.46   exit  newrho          0.00
- >> level: 1  CPUsec=      0.46  enter newrho
- >>      0.46   exit  newrho          0.00
- >> level: 1  CPUsec=      0.46  enter newrho
- >>      0.47   exit  newrho          0.00
- >> level: 1  CPUsec=      0.47  enter newrho
- >>      0.47   exit  newrho          0.00
- >> level: 1  CPUsec=      0.47  enter newrho
- >>      0.47   exit  newrho          0.00
- >> level: 1  CPUsec=      0.47  enter newrho
- >>      0.47   exit  newrho          0.00
- >> level: 1  CPUsec=      0.47  enter newrho
- >>      0.47   exit  newrho          0.00
- >> level: 1  CPUsec=      0.47  enter newrho
- >>      0.48   exit  newrho          0.00
- >> level: 1  CPUsec=      0.48  enter newrho
- >>      0.48   exit  newrho          0.00
    45    7.000000   3.931E-05       36.4355    0.2077E+03      -55.1429   0.30
- >> level: 1  CPUsec=      0.48  enter newrho
- >>      0.48   exit  newrho          0.00
 
  end of atomsc xxxxx
- vsum=  -55.142882207999435                4
- ifives=          13
-  write end of ifives
+ vsum=  -55.142882208205158                4
 
  sumev=-4.334850  etot=-108.129589  eref=0.000000
 
@@ -742,7 +326,9 @@ usedQ=     2.000     3.000     0.000     0.000
     fit: r>rmt  0.612528   r<rmt  1.728932   qtot  2.341460
     rho: r>rmt  0.612528   r<rmt  1.887472   qtot  2.500000
  tailsm: end
+conf: Core rhoc(rmt)= 0.000001 spillout= 0.000000
  end of freats: spid nmcore=N2                 0
+ goto freats
 
 ttt: pnu qat=  1  0     2.850     2.000
 ttt: pnu qat=  1  1     2.800     4.000
@@ -752,153 +338,32 @@ ttt: pnu qat=  2  0     2.850     0.000
 ttt: pnu qat=  2  1     2.800     0.000
 ttt: pnu qat=  2  2     3.200     0.000
 ttt: pnu qat=  2  3     4.100     0.000
- NOTE: when we have two valence: P and PZ, We assume eigen(PZ) is deeper than eigen(P).
-=== Charge for l: Qtot=Qv=     0   1.000   1.000
-=== Charge for l: Qtot=Qv=     1   2.000   2.000
-=== Charge for l: Qtot=Qv=     2   0.000   0.000
-=== Charge for l: Qtot=Qv=     3   0.000   0.000
-=== Charge for l: Qtot=Qv=     0   1.000   1.000
-=== Charge for l: Qtot=Qv=     1   2.000   2.000
-=== Charge for l: Qtot=Qv=     2   0.000   0.000
-=== Charge for l: Qtot=Qv=     3   0.000   0.000
 
+conf:------------------------------------------------------
 conf:SPEC_ATOM= Nh : --- Table for atomic configuration ---
-conf When int(P)z .ne. int(P), Qval: Q for MTOcore(PZ)+MTO(P)
 conf:  isp  l  int(P) int(P)z    Qval     Qcore   CoreConf
-conf:    1  0       2  2         1.000    1.000 => 1,
-conf:    1  1       2  2         2.000    0.000 => 
-conf:    1  2       3  3         0.000    0.000 => 
-conf:    1  3       4  4         0.000    0.000 => 
-conf:-----------------------------------------------------
-conf:    2  0       2  2         1.000    1.000 => 1,
-conf:    2  1       2  2         2.000    0.000 => 
-conf:    2  2       3  3         0.000    0.000 => 
-conf:    2  3       4  4         0.000    0.000 => 
-conf:-----------------------------------------------------
+conf:    1  0       2  0         1.000    1.000 => 1,
+conf:    1  1       2  0         2.000    0.000 => 
+conf:    1  2       3  0         0.000    0.000 => 
+conf:    1  3       4  0         0.000    0.000 => 
+conf:    2  0       2  0         1.000    1.000 => 1,
+conf:    2  1       2  0         2.000    0.000 => 
+conf:    2  2       3  0         0.000    0.000 => 
+conf:    2  3       4  0         0.000    0.000 => 
 usedQ=     2.000     4.000     0.000     0.000
 
- Species Nh:  Z=7  Qc=1  R=1.800000  Q=0  mom=-1
- mesh:   rmt=1.800000  rmax=23.783012  a=0.03  nr=223  nr(rmax)=309
+conf: Species Nh:  Z=7  Qc=1  R=1.800000  Q=0  mom=-1
+conf:   rmt=1.800000  rmax=23.783012  a=0.03  nr=223  nr(rmax)=309
  goto atomc xxx
  atomsc nmcore=           0
          Add core hole:  kcor=1  lcor=0  qcor=-1  amom=-1
 
   iter     qint         drho          vh0          rho0          vsum     beta
- >> level: 1  CPUsec=      0.48  enter newrho
- >>      0.49   exit  newrho          0.00
     1    7.000000   5.429E+02       35.0000    0.3482E+02      -14.0707   0.30
- >> level: 1  CPUsec=      0.49  enter newrho
- >>      0.49   exit  newrho          0.00
- >> level: 1  CPUsec=      0.49  enter newrho
- >>      0.49   exit  newrho          0.00
- >> level: 1  CPUsec=      0.49  enter newrho
- >>      0.49   exit  newrho          0.00
- >> level: 1  CPUsec=      0.49  enter newrho
- >>      0.49   exit  newrho          0.00
- >> level: 1  CPUsec=      0.49  enter newrho
- >>      0.50   exit  newrho          0.00
- >> level: 1  CPUsec=      0.50  enter newrho
- >>      0.50   exit  newrho          0.00
- >> level: 1  CPUsec=      0.50  enter newrho
- >>      0.50   exit  newrho          0.00
- >> level: 1  CPUsec=      0.50  enter newrho
- >>      0.50   exit  newrho          0.00
- >> level: 1  CPUsec=      0.50  enter newrho
- >>      0.50   exit  newrho          0.00
- >> level: 1  CPUsec=      0.50  enter newrho
- >>      0.50   exit  newrho          0.00
- >> level: 1  CPUsec=      0.50  enter newrho
- >>      0.50   exit  newrho          0.00
- >> level: 1  CPUsec=      0.50  enter newrho
- >>      0.51   exit  newrho          0.00
- >> level: 1  CPUsec=      0.51  enter newrho
- >>      0.51   exit  newrho          0.00
- >> level: 1  CPUsec=      0.51  enter newrho
- >>      0.51   exit  newrho          0.00
- >> level: 1  CPUsec=      0.51  enter newrho
- >>      0.51   exit  newrho          0.00
- >> level: 1  CPUsec=      0.51  enter newrho
- >>      0.51   exit  newrho          0.00
- >> level: 1  CPUsec=      0.51  enter newrho
- >>      0.52   exit  newrho          0.00
- >> level: 1  CPUsec=      0.52  enter newrho
- >>      0.52   exit  newrho          0.00
- >> level: 1  CPUsec=      0.52  enter newrho
- >>      0.52   exit  newrho          0.00
- >> level: 1  CPUsec=      0.52  enter newrho
- >>      0.52   exit  newrho          0.00
- >> level: 1  CPUsec=      0.52  enter newrho
- >>      0.52   exit  newrho          0.00
- >> level: 1  CPUsec=      0.52  enter newrho
- >>      0.52   exit  newrho          0.00
- >> level: 1  CPUsec=      0.52  enter newrho
- >>      0.52   exit  newrho          0.00
- >> level: 1  CPUsec=      0.53  enter newrho
- >>      0.53   exit  newrho          0.00
- >> level: 1  CPUsec=      0.53  enter newrho
- >>      0.53   exit  newrho          0.00
- >> level: 1  CPUsec=      0.53  enter newrho
- >>      0.53   exit  newrho          0.00
- >> level: 1  CPUsec=      0.53  enter newrho
- >>      0.53   exit  newrho          0.00
- >> level: 1  CPUsec=      0.53  enter newrho
- >>      0.54   exit  newrho          0.00
- >> level: 1  CPUsec=      0.54  enter newrho
- >>      0.54   exit  newrho          0.00
- >> level: 1  CPUsec=      0.54  enter newrho
- >>      0.54   exit  newrho          0.00
- >> level: 1  CPUsec=      0.54  enter newrho
- >>      0.54   exit  newrho          0.00
- >> level: 1  CPUsec=      0.54  enter newrho
- >>      0.54   exit  newrho          0.00
- >> level: 1  CPUsec=      0.54  enter newrho
- >>      0.54   exit  newrho          0.00
- >> level: 1  CPUsec=      0.54  enter newrho
- >>      0.54   exit  newrho          0.00
- >> level: 1  CPUsec=      0.54  enter newrho
- >>      0.55   exit  newrho          0.00
- >> level: 1  CPUsec=      0.55  enter newrho
- >>      0.55   exit  newrho          0.00
- >> level: 1  CPUsec=      0.55  enter newrho
- >>      0.55   exit  newrho          0.00
- >> level: 1  CPUsec=      0.55  enter newrho
- >>      0.55   exit  newrho          0.00
- >> level: 1  CPUsec=      0.55  enter newrho
- >>      0.55   exit  newrho          0.00
- >> level: 1  CPUsec=      0.55  enter newrho
- >>      0.56   exit  newrho          0.00
- >> level: 1  CPUsec=      0.56  enter newrho
- >>      0.56   exit  newrho          0.00
- >> level: 1  CPUsec=      0.56  enter newrho
- >>      0.56   exit  newrho          0.00
- >> level: 1  CPUsec=      0.56  enter newrho
- >>      0.56   exit  newrho          0.00
- >> level: 1  CPUsec=      0.56  enter newrho
- >>      0.56   exit  newrho          0.00
- >> level: 1  CPUsec=      0.56  enter newrho
- >>      0.56   exit  newrho          0.00
- >> level: 1  CPUsec=      0.56  enter newrho
- >>      0.56   exit  newrho          0.00
- >> level: 1  CPUsec=      0.56  enter newrho
- >>      0.57   exit  newrho          0.00
- >> level: 1  CPUsec=      0.57  enter newrho
- >>      0.57   exit  newrho          0.00
- >> level: 1  CPUsec=      0.57  enter newrho
- >>      0.57   exit  newrho          0.00
- >> level: 1  CPUsec=      0.57  enter newrho
- >>      0.57   exit  newrho          0.00
- >> level: 1  CPUsec=      0.57  enter newrho
- >>      0.57   exit  newrho          0.00
- >> level: 1  CPUsec=      0.57  enter newrho
- >>      0.58   exit  newrho          0.00
    53    7.000000   4.432E-05       27.3856    0.1206E+03      -50.8183   0.30
- >> level: 1  CPUsec=      0.58  enter newrho
- >>      0.58   exit  newrho          0.00
 
  end of atomsc xxxxx
- vsum=  -50.818345100396336                5
- ifives=          13
-  write end of ifives
+ vsum=  -50.818345100310616                5
 
  sumev=-5.954050  etot=-79.352471  eref=0.000000
 
@@ -925,33 +390,50 @@ usedQ=     2.000     4.000     0.000     0.000
     fit: r>rmt  0.475766   r<rmt  1.937878   qtot  2.413645
     rho: r>rmt  0.475766   r<rmt  2.524234   qtot  3.000000
  tailsm: end
+conf: Core rhoc(rmt)= 0.000000 spillout= 0.000000
  end of freats: spid nmcore=Nh                 0
-
-  Write mtopara.* ...
- Exit 0 LMFA 
- CPU time:    0.584s     Fri May 24 11:03:24 2013   on TT4
-
-  ==== xxxxxxxxx ====     calls      == cpu time ===   depth 1
-  entry   xxxx  xxxx                per call  total  (depth is by TIM= in ctrl.*.)
-      0      0      0        1       0.58       0.58   main
-      0      0      0      250       0.00       0.43   `--newrho
-rdcmd:  lmf crn
-HOST_INFORMATION platform: gfortran
-HOST_INFORMATION compiler version: gcc version 4.6.2 (Ubuntu/Linaro 4.6.2-10ubuntu1~11.10.1) 
-HOST_INFORMATION FFLAGS (<=120): -O2 -fomit-frame-pointer -funroll-loops -ffast-math -ffixed-line-length-132 -DHASIARGC -DHASGETARG -DFDATE -DHASCPUTIME 
-HOST_INFORMATION LIBLOC (<=120): /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf
-HOST_INFORMATION uname -a (<=120): Linux TT4 3.0.0-32-generic #51-Ubuntu SMP Thu Mar 21 15:50:59 UTC 2013 x86_64 x86_64 x86_64 GNU/Linux
-HOST_INFORMATION /etc/issue: Ubuntu 11.10 \n \l
-HOST_INFORMATION git branch: refs/heads/master
-HOST_INFORMATION git commit: 0fd9bd2cf16a41eec9261bd9877686039ea8ed99
-HOST_INFORMATION linked at: Mon May 20 14:58:01 JST 2013
- -----------------------  START LMF      -----------------------
- ptenv() is called with EXT=crn
- ptenv() not supported, but continue.
+OK! end of LMFA ======================
+===START LMF   =====================================
+ mpisize=           4
  HEADER CrN in orthorhombic setting afm structure (a)
-  LMF  vn 7.00(LMF 7.0)  verb 30
- special:  forces
- bz:       metal(4), tetra, invit 
+  bndfp (warning): no sigm file found ... LDA calculation only
+
+mmm === MTO setting ===
+mmm ispec lmxb lpzex nkapii nkaphh=    1    2    0    2    2
+mmm rsmh1    1  1.30  1.30  1.30
+mmm   eh1    1 -0.01 -0.01 -0.01
+mmm rsmh2    1  1.30  1.30  1.30
+mmm  eh2     1 -0.10 -0.10 -0.10
+mmm pz       1  0.00  0.00  0.00
+mmm lh       1  2  2
+mmm ispec lmxb lpzex nkapii nkaphh=    2    2    0    2    2
+mmm rsmh1    2  1.30  1.30  1.30
+mmm   eh1    2 -0.01 -0.01 -0.01
+mmm rsmh2    2  1.30  1.30  1.30
+mmm  eh2     2 -0.10 -0.10 -0.10
+mmm pz       2  0.00  0.00  0.00
+mmm lh       2  2  2
+mmm ispec lmxb lpzex nkapii nkaphh=    3    2    0    2    2
+mmm rsmh1    3  0.90  0.90  0.90
+mmm   eh1    3 -0.01 -0.01 -0.01
+mmm rsmh2    3  0.90  0.90  0.90
+mmm  eh2     3 -0.10 -0.10 -0.10
+mmm pz       3  0.00  0.00  0.00
+mmm lh       3  2  2
+mmm ispec lmxb lpzex nkapii nkaphh=    4    2    0    2    2
+mmm rsmh1    4  0.90  0.90  0.90
+mmm   eh1    4 -0.01 -0.01 -0.01
+mmm rsmh2    4  0.90  0.90  0.90
+mmm  eh2     4 -0.10 -0.10 -0.10
+mmm pz       4  0.00  0.00  0.00
+mmm lh       4  2  2
+mmm ispec lmxb lpzex nkapii nkaphh=    5    2    0    2    2
+mmm rsmh1    5  0.90  0.90  0.90
+mmm   eh1    5 -0.01 -0.01 -0.01
+mmm rsmh2    5  0.90  0.90  0.90
+mmm  eh2     5 -0.10 -0.10 -0.10
+mmm pz       5  0.00  0.00  0.00
+mmm lh       5  2  2
 
                 Plat                                  Qlat
    1.000000   0.000000   0.000000        1.000000   0.000000   0.000000
@@ -963,11 +445,15 @@ HOST_INFORMATION linked at: Mon May 20 14:58:01 JST 2013
          r1=  2.082   nkd=  99      q1=  4.667   nkg= 175
 
  SGROUP: 1 symmetry operations from 0 generators
+ ADDBAS: basis is already complete --- no sites added
  SYMLAT: Bravais system is orthorhombic with 8 symmetry operations.
  SYMCRY: crystal invariant under 2 symmetry operations for tol=1e-5
+ ig  group op
+   1  i*i                                
+   2  my(-0,0.2646982,0)                 
  GROUPG: the following are sufficient to generate the space group:
-         my:(-0,0.2646982,0)
-         my::(-0,1/2,0)
+ Generator(cart): my:(-0,0.2646982,0)
+ Generator(frac): my::(-0,1/2,0)
  MKSYM:  found 2 space group operations; adding inversion generated 4 ops
 
  SPLCLS:  5 species split into 8 classes
@@ -981,8 +467,9 @@ HOST_INFORMATION linked at: Mon May 20 14:58:01 JST 2013
           8:N22      8
  Nh       5:Nh       5
  
- BZMESH:  4 irreducible QP from 16 ( 2 4 2 )  shift= T T T
- >> level: 1  CPUsec=      0.03  enter lmfp
+ BZMESH:      4 irreducible QP from    2   4   2 shift=TTT
+ >> level: 1  CPUsec=      0.04  enter lmfp
+ gen_hamindex: not readin QGpsi.
 
  species data:  augmentation                           density
  spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
@@ -992,17 +479,16 @@ HOST_INFORMATION linked at: Mon May 20 14:58:01 JST 2013
  N2       1.800  0.720    3    5         3  0.450  0.900    15    0   0.720
  Nh       1.800  0.720    3    5         3  0.450  0.900    15    0   0.720
 
- gvlist: cutoff radius   7.066 gives   2787   recips of max  13824
+ GVLST2: gmax = 7.066 a.u. created 2787 vectors of 13824 (20%)
+         (input) mesh has 24 x 24 x 24 divisions; length 0.445, 0.235, 0.323
+ goto end of reading rst or atm           1
  SGVSYM: 1555 symmetry stars found for 2787 reciprocal lattice vectors
- 
-
- Makidx:  hamiltonian dimensions Low, Int, High, Negl: 144 0 112 0
- suham :  128 augmentation channels, 128 local potential channels  Maximum lmxa=3
 
  sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-06
  spec      l    rsm    eh     gmax    last term    cutoff
   Cr1      0*   1.30  -0.01   5.718    1.01E-06    1451 
   Cr1      1*   1.30  -0.01   6.080    1.06E-06    1777 
+ goto end of reading rst or atm           1
   Cr1      2    1.30  -0.01   6.444    1.04E-06    2081 
   Cr1      0*   1.30  -0.10   5.718    1.01E-06    1451 
   Cr1      1*   1.30  -0.10   6.080    1.06E-06    1777 
@@ -1031,11 +517,13 @@ HOST_INFORMATION linked at: Mon May 20 14:58:01 JST 2013
   Nh       0*   0.90  -0.10   8.260    4.24E-05    2787*
   Nh       1*   0.90  -0.10   8.889    2.99E-04    2787*
   Nh       2    0.90  -0.10   9.512    2.11E-03    2787*
+ goto end of reading rst or atm           1
 
  iors  : read restart file (binary, mesh density) 
  iors  : empty file ... nothing read
 
  rdovfa: read and overlap free-atom densities (mesh density) ...
+ goto end of reading rst or atm           1
  rdovfa: expected Cr1,     read Cr1      with rmt=  2.6000  mesh   323  0.030
  rdovfa: expected Cr2,     read Cr2      with rmt=  2.6000  mesh   323  0.030
  rdovfa: expected N1,      read N1       with rmt=  1.8000  mesh   223  0.030
@@ -1048,248 +536,240 @@ HOST_INFORMATION linked at: Mon May 20 14:58:01 JST 2013
  amom    3.819412    1.733094    3.823563    1.737246    2.086317
     2    4.437401    2.388901    6.153024    4.104524    2.048500
  amom    3.819412    1.733094    3.825349    1.739032    2.086317
-    3    4.437401    2.388901    6.152839    4.104339    2.048500
- amom   -3.819412   -1.733094   -3.778303   -1.691986   -2.086317
+    3    4.437401    2.388901    6.152839    4.104338    2.048500
+ amom   -3.819412   -1.733094   -3.778303   -1.691986   -2.086318
     4    4.437401    2.388901    6.189055    4.140555    2.048500
- amom   -3.819412   -1.733094   -3.800190   -1.713873   -2.086317
+ amom   -3.819412   -1.733094   -3.800190   -1.713873   -2.086318
     5    4.962145    3.925521    5.494697    4.458073    1.036624
  amom   -0.086323    0.049764   -0.048755    0.087331   -0.136087
     6    3.774944    3.457863    4.305112    3.988031    0.317081
- amom    0.000000    0.000000    0.038126    0.038126    0.000000
+ amom    0.000000   -0.000000    0.038126    0.038126    0.000000
     7    3.774944    3.457863    4.307008    3.989927    0.317081
- amom    0.000000    0.000000   -0.037118   -0.037118    0.000000
+ amom    0.000000   -0.000000   -0.037118   -0.037119    0.000000
+ end of reading rst or atm
+ end of reading rst or atm
     8    3.774944    3.457863    4.306887    3.989806    0.317081
- amom    0.000000    0.000000   -0.037069   -0.037069    0.000000
+ amom    0.000000   -0.000000   -0.037069   -0.037069    0.000000
 
- Smooth charge on mesh:           34.818134    moment    0.136087
+ Smooth charge on mesh:           34.818133    moment    0.136087
  Sum of local charges:            10.181866    moments  -0.136087
- Total valence charge:            44.999999    moment   -0.000000
+ Total valence charge:            44.999999    moment    0.000000
  Sum of core charges:             79.000000    moment   -1.000000
  Sum of nuclear charges:        -124.000000
  Homogeneous background:           0.000000
  Deviation from neutrality:       -0.000001
+ end of reading rst or atm
+ m_qplistinit:start
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    0, (    1    1),  (    1 1)
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    1, (    2    1),  (    2 2)
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    3, (    4    1),  (    4 4)
+ end of reading rst or atm
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    2, (    3    1),  (    3 3)
 
- --- BNDFP:  begin iteration 1 of 2 ---
+ Basis, after reading restart file
+ site spec        pos (Cartesian coordinates)         pos (multiples of plat)
+   1  Cr1       0.145977   0.132349   0.181606    0.145977   0.250000   0.249753
+   2  Cr1      -0.145977   0.397047  -0.181606   -0.145977   0.750000  -0.249753
+   3  Cr2       0.354023   0.397047   0.545176    0.354023   0.750000   0.749753
+   4  Cr2       0.645977   0.132349   0.181964    0.645977   0.250000   0.250247
+   5  Nh        0.099392   0.132349   0.545193    0.099392   0.250000   0.749777
+   6  N1       -0.099392   0.397047  -0.545193   -0.099392   0.750000  -0.749777
+   7  N2        0.400608   0.397047   0.908764    0.400608   0.750000   1.249777
+   8  N2        0.599392   0.132349  -0.181623    0.599392   0.250000  -0.249777
 
- vvvvves: avg es pot at rmt= 0.609977  avg sphere pot= 0.550030  vconst=-0.609977
+ --- BNDFP:  begin iteration 1 of 2
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
+ smves:: avg es pot at rmt= 0.609977  avg sphere pot= 0.550030  vconst=-0.609977
 
- smooth rhoves     86.985734   charge    34.818134
+ smooth rhoves     86.985731   charge    34.818133
  smvxcm: all smrho_w is positive
- smooth rhoeps =  -29.195523 ( -14.647323, -14.548200)
-         rhomu =  -38.112259 ( -19.131244, -18.981015)
+ smooth rhoeps =  -29.195522 ( -14.647323, -14.548199)
+         rhomu =  -38.112258 ( -19.131244, -18.981014)
        avg vxc =   -0.892623 (  -0.893769,  -0.891478)
 
  locpot:
 
  site  1  z= 24.0  rmt= 2.60000  nr=323   a=0.030  nlml=16  rg=0.650  Vfloat=T
  vxcns2 (warning): nr*np=     10336  negative density # of points=         0      7309
- vxcnsp (warning): negative rho: min val =  -1.98E-04
+ vxcns2 (warning): nr*np=     10336  negative density # of points=         0      7309
+ vxcns2 (warning): nr*np=     10336  negative density # of points=         0      7309
  vxcns2 (warning): nr*np=     10336  negative density # of points=         0      7309
  vxcnsp (warning): negative rho: min val =  -1.98E-04
+ vxcns2 (warning): nr*np=     10336  negative density # of points=         0      7309
+ vxcns2 (warning): nr*np=     10336  negative density # of points=         0      7309
+ vxcns2 (warning): nr*np=     10336  negative density # of points=         0      7309
+ vxcnsp (warning): negative rho: min val =  -1.98E-04
+ vxcns2 (warning): nr*np=     10336  negative density # of points=         0      7309
+  ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   4.90000   4.90000   0.00000   0.00000
+  ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   4.90000   4.90000   0.00000   0.00000
+  ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.80000   3.80000   0.00000   0.00000
+  ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.10000   4.10000   0.00000   0.00000
  potential shift to crystal energy zero:    0.000623
 
  site  2  z= 24.0  rmt= 2.60000  nr=323   a=0.030  nlml=16  rg=0.650  Vfloat=T
  vxcns2 (warning): nr*np=     10336  negative density # of points=         0      7360
- vxcnsp (warning): negative rho: min val =  -2.20E-04
+ vxcns2 (warning): nr*np=     10336  negative density # of points=         0      7360
+ vxcns2 (warning): nr*np=     10336  negative density # of points=         0      7360
  vxcns2 (warning): nr*np=     10336  negative density # of points=         0      7360
  vxcnsp (warning): negative rho: min val =  -2.20E-04
+ vxcns2 (warning): nr*np=     10336  negative density # of points=         0      7360
+ vxcns2 (warning): nr*np=     10336  negative density # of points=         0      7360
+ vxcns2 (warning): nr*np=     10336  negative density # of points=         0      7360
+ vxcns2 (warning): nr*np=     10336  negative density # of points=         0      7360
+ vxcnsp (warning): negative rho: min val =  -2.20E-04
+  ibas l=  2  0 pnu(1:nsp) pnz(1:nsp)=   4.90000   4.90000   0.00000   0.00000
+  ibas l=  2  1 pnu(1:nsp) pnz(1:nsp)=   4.90000   4.90000   0.00000   0.00000
+  ibas l=  2  2 pnu(1:nsp) pnz(1:nsp)=   3.80000   3.80000   0.00000   0.00000
+  ibas l=  2  3 pnu(1:nsp) pnz(1:nsp)=   4.10000   4.10000   0.00000   0.00000
  potential shift to crystal energy zero:    0.000656
 
  site  3  z= 24.0  rmt= 2.60000  nr=323   a=0.030  nlml=16  rg=0.650  Vfloat=T
  vxcns2 (warning): nr*np=     10336  negative density # of points=      6978         0
- vxcnsp (warning): negative rho: min val =  -1.10E-04
+ vxcns2 (warning): nr*np=     10336  negative density # of points=      6978         0
+ vxcns2 (warning): nr*np=     10336  negative density # of points=      6978         0
  vxcns2 (warning): nr*np=     10336  negative density # of points=      6978         0
  vxcnsp (warning): negative rho: min val =  -1.10E-04
+ vxcns2 (warning): nr*np=     10336  negative density # of points=      6978         0
+ vxcns2 (warning): nr*np=     10336  negative density # of points=      6978         0
+ vxcns2 (warning): nr*np=     10336  negative density # of points=      6978         0
+ vxcns2 (warning): nr*np=     10336  negative density # of points=      6978         0
+ vxcnsp (warning): negative rho: min val =  -1.10E-04
+  ibas l=  3  0 pnu(1:nsp) pnz(1:nsp)=   4.90000   4.90000   0.00000   0.00000
+  ibas l=  3  1 pnu(1:nsp) pnz(1:nsp)=   4.90000   4.90000   0.00000   0.00000
+  ibas l=  3  2 pnu(1:nsp) pnz(1:nsp)=   3.80000   3.80000   0.00000   0.00000
+  ibas l=  3  3 pnu(1:nsp) pnz(1:nsp)=   4.13000   4.13000   0.00000   0.00000
  potential shift to crystal energy zero:    0.000646
 
  site  4  z= 24.0  rmt= 2.60000  nr=323   a=0.030  nlml=16  rg=0.650  Vfloat=T
+  ibas l=  4  0 pnu(1:nsp) pnz(1:nsp)=   4.90000   4.90000   0.00000   0.00000
+  ibas l=  4  1 pnu(1:nsp) pnz(1:nsp)=   4.90000   4.90000   0.00000   0.00000
+  ibas l=  4  2 pnu(1:nsp) pnz(1:nsp)=   3.80000   3.80000   0.00000   0.00000
+  ibas l=  4  3 pnu(1:nsp) pnz(1:nsp)=   4.13000   4.13000   0.00000   0.00000
  potential shift to crystal energy zero:    0.000625
 
  site  5  z=  7.0  rmt= 1.80000  nr=223   a=0.030  nlml=16  rg=0.450  Vfloat=T
  core hole:  kcor=1  lcor=0  qcor=-1  amom=-1
+  ibas l=  5  0 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
+  ibas l=  5  1 pnu(1:nsp) pnz(1:nsp)=   2.80000   2.80000   0.00000   0.00000
+  ibas l=  5  2 pnu(1:nsp) pnz(1:nsp)=   3.20000   3.20000   0.00000   0.00000
+  ibas l=  5  3 pnu(1:nsp) pnz(1:nsp)=   4.10000   4.10000   0.00000   0.00000
  potential shift to crystal energy zero:   -0.019536
 
  site  6  z=  7.0  rmt= 1.80000  nr=223   a=0.030  nlml=16  rg=0.450  Vfloat=T
+  ibas l=  6  0 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
+  ibas l=  6  1 pnu(1:nsp) pnz(1:nsp)=   2.80000   2.80000   0.00000   0.00000
+  ibas l=  6  2 pnu(1:nsp) pnz(1:nsp)=   3.20000   3.20000   0.00000   0.00000
+  ibas l=  6  3 pnu(1:nsp) pnz(1:nsp)=   4.10000   4.10000   0.00000   0.00000
  potential shift to crystal energy zero:   -0.018475
 
  site  7  z=  7.0  rmt= 1.80000  nr=223   a=0.030  nlml=16  rg=0.450  Vfloat=T
+  ibas l=  7  0 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
+  ibas l=  7  1 pnu(1:nsp) pnz(1:nsp)=   2.80000   2.80000   0.00000   0.00000
+  ibas l=  7  2 pnu(1:nsp) pnz(1:nsp)=   3.20000   3.20000   0.00000   0.00000
+  ibas l=  7  3 pnu(1:nsp) pnz(1:nsp)=   4.10000   4.10000   0.00000   0.00000
  potential shift to crystal energy zero:   -0.018450
 
  site  8  z=  7.0  rmt= 1.80000  nr=223   a=0.030  nlml=16  rg=0.450  Vfloat=T
+  ibas l=  8  0 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
+  ibas l=  8  1 pnu(1:nsp) pnz(1:nsp)=   2.80000   2.80000   0.00000   0.00000
+  ibas l=  8  2 pnu(1:nsp) pnz(1:nsp)=   3.20000   3.20000   0.00000   0.00000
+  ibas l=  8  3 pnu(1:nsp) pnz(1:nsp)=   4.10000   4.10000   0.00000   0.00000
  potential shift to crystal energy zero:   -0.018456
 
  Energy terms:             smooth           local           total
-   rhoval*vef            -91.686322      -215.183010      -306.869333
-   rhoval*ves           -108.946332      -127.398932      -236.345264
-   psnuc*ves             282.917800    -34595.988587    -34313.070787
-   utot                   86.985734    -17361.693760    -17274.708026
-   rho*exc               -29.195523      -396.074958      -425.270482
-   rho*vxc               -38.112259      -524.135907      -562.248166
-   valence chg            34.818134        10.181866        44.999999
+   rhoval*vef            -91.686318      -215.183014      -306.869332
+   rhoval*ves           -108.946333      -127.398931      -236.345264
+   psnuc*ves             282.917794    -34595.988582    -34313.070787
+   utot                   86.985731    -17361.693756    -17274.708026
+   rho*exc               -29.195522      -396.074959      -425.270482
+   rho*vxc               -38.112258      -524.135908      -562.248166
+   valence chg            34.818133        10.181866        44.999999
    valence mag             0.136087        -1.136087        -1.000000
    core charge            79.000000        -0.000000        79.000000
 
  Charges:  valence    45.00000   cores    79.00000   nucleii  -124.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
- -------- qplist --------
-    1   0.250   0.236   0.344
-    2   0.750   0.236   0.344
-    3   0.250   0.708   0.344
-    4   0.750   0.708   0.344
- sigmamode= F
-  gen_hamindex: --- Hamiltonian index ---
-  ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)
-  1  0  1      1    1   Cr1
-  1  1  1      2    4   Cr1
-  1  2  1      5    9   Cr1
-  1  0  2     10   10   Cr1
-  1  1  2     11   13   Cr1
-  1  2  2     14   18   Cr1
-  2  0  1     19   19   Cr1
-  2  1  1     20   22   Cr1
-  2  2  1     23   27   Cr1
-  2  0  2     28   28   Cr1
-  2  1  2     29   31   Cr1
-  2  2  2     32   36   Cr1
-  3  0  1     37   37   Cr2
-  3  1  1     38   40   Cr2
-  3  2  1     41   45   Cr2
-  3  0  2     46   46   Cr2
-  3  1  2     47   49   Cr2
-  3  2  2     50   54   Cr2
-  4  0  1     55   55   Cr2
-  4  1  1     56   58   Cr2
-  4  2  1     59   63   Cr2
-  4  0  2     64   64   Cr2
-  4  1  2     65   67   Cr2
-  4  2  2     68   72   Cr2
-  5  0  1     73   73   Nh
-  5  1  1     74   76   Nh
-  5  2  1     77   81   Nh
-  5  0  2     82   82   Nh
-  5  1  2     83   85   Nh
-  5  2  2     86   90   Nh
-  6  0  1     91   91   N1
-  6  1  1     92   94   N1
-  6  2  1     95   99   N1
-  6  0  2    100  100   N1
-  6  1  2    101  103   N1
-  6  2  2    104  108   N1
-  7  0  1    109  109   N2
-  7  1  1    110  112   N2
-  7  2  1    113  117   N2
-  7  0  2    118  118   N2
-  7  1  2    119  121   N2
-  7  2  2    122  126   N2
-  8  0  1    127  127   N2
-  8  1  1    128  130   N2
-  8  2  1    131  135   N2
-  8  0  2    136  136   N2
-  8  1  2    137  139   N2
-  8  2  2    140  144   N2
- gen_hamindex: not readin QGpsi.
- procid llmfgw=           0 F
-  end of hambls mode=           0
- bndfp:  kpt 1 of 4, k=  0.25000  0.23612  0.34381   ndimh = 144
- -1.2097 -1.1213 -1.0829 -1.0440 -0.5077 -0.4654 -0.4393 -0.4005 -0.3543
- -0.3168 -0.3088 -0.2902 -0.2771 -0.2514 -0.2167 -0.1980  0.0489  0.0986
-  0.1107  0.1189  0.1595  0.1612  0.2454  0.2760  0.2828  0.2986  0.3327
-  0.3486  0.3570  0.3665  0.4017  0.4111  0.5130  0.5276  0.5322  0.5436
-  0.6579  0.7438  0.8163  0.9011  1.0468  1.0941  1.1177  1.1804  1.2192
-  1.2908  1.3026  1.3818  1.4184  1.4695  1.5299  1.6855  1.7843  1.8145
-  1.8755  1.9597  2.0036  2.1156  2.1428  2.1562  2.2966  2.4148  2.4200
-  2.4589  2.4872  2.5915  2.6234  2.6601  2.7003  2.7250  2.7804  2.8494
-  2.8916  2.9130  2.9779  2.9969  3.0154  3.1028  3.2200  3.2366  3.3688
-  3.3814  3.5132  3.7177  3.7279  3.8066  3.8366  3.8649  3.8813  4.0049
-  4.0934  4.1111  4.1966  4.2874  4.3147  4.3816  4.4107  4.4332  4.5435
-  4.5794  4.6656  4.7443  4.7710  4.8451  4.9655  5.0288  5.0425  5.1469
-  5.2939  5.3338  5.5031  5.6634  5.9173  5.9503  6.0190  6.1526  6.1627
-  6.3225  6.3593  6.5357  6.6058  6.7860  6.8423  6.8858  6.9716  6.9848
-  7.2064  7.3407  7.4613  7.5211  7.9212  8.1274  8.4497  8.6672  8.6697
-  8.8353  9.0308  9.4275  9.4713  9.6144  9.7144 10.0613 11.1084 12.3635
-nev nmx ndim evl(nev)=  144  144  144    12.36351
- bndfp:  kpt 1 of 4, k=  0.25000  0.23612  0.34381   ndimh = 144
- -1.2919 -1.1436 -1.0812 -1.0519 -0.5364 -0.5012 -0.4776 -0.4425 -0.3788
- -0.3397 -0.3108 -0.2932 -0.2764 -0.2668 -0.2372 -0.2038  0.0444  0.0924
-  0.1065  0.1198  0.1526  0.1611  0.2449  0.2760  0.2918  0.2956  0.3308
-  0.3513  0.3585  0.3687  0.4078  0.4167  0.4913  0.5116  0.5290  0.5388
-  0.6467  0.7348  0.8088  0.8934  1.0403  1.0807  1.1181  1.1818  1.2159
-  1.2871  1.3051  1.3825  1.4157  1.4668  1.5254  1.6822  1.7870  1.8083
-  1.8778  1.9617  2.0023  2.1116  2.1424  2.1566  2.2873  2.4051  2.4246
-  2.4602  2.4867  2.5863  2.6189  2.6578  2.6911  2.7216  2.7792  2.8459
-  2.8854  2.9082  2.9783  2.9957  3.0111  3.0999  3.2176  3.2300  3.3659
-  3.3785  3.5122  3.7139  3.7259  3.8019  3.8330  3.8622  3.8836  4.0019
-  4.0890  4.1083  4.1939  4.2876  4.3089  4.3811  4.4044  4.4289  4.5412
-  4.5776  4.6626  4.7382  4.7676  4.8384  4.9647  5.0204  5.0470  5.1417
-  5.2904  5.3322  5.5001  5.6554  5.9047  5.9418  6.0107  6.1277  6.1588
-  6.3103  6.3534  6.5303  6.6013  6.7814  6.8381  6.8828  6.9612  6.9794
-  7.2009  7.3368  7.4396  7.5191  7.9175  8.1212  8.4364  8.6509  8.6641
-  8.8327  9.0200  9.4306  9.4530  9.6031  9.7091 10.0533 11.0954 12.3471
-nev nmx ndim evl(nev)=  144  144  144    12.34713
- DOS window (-1,0) reset to (-1.7097,0.9000)
-
- Interpolate to Fermi energy for qval=   45.000
- trial Fermi energies:      0.30000     0.40000     0.50000
- band occupations:         49.56094    59.83655    64.90224
- magnetic moment:          -0.28169     0.28881    -0.93920
-mshn3p: qval outside window; extrapolating
- weights from quad fit:     1.55279    -0.77376     0.22097
- interpolated charge:      49.56094    59.83655    64.90224  ->   45.00000
- eigenvalue sum:          -14.49315   -10.89178    -8.74076  ->  -16.00866
- entropy term:             -0.00022    -0.00137     0.00056  ->    0.00084
- interpolated moment:      -0.28169     0.28881    -0.93920  ->   -0.86841
- old energy window:   ef=   0.40000   plusminus  0.10000
- new energy window:   ef=   0.26682   plusminus  0.26637
+  m_bandcal_init: start
+ bndfp: kpt     1 of     4 k=  0.2500  0.2361  0.3438 ndimh = nmto+napw =   144  144    0
+ bndfp: kpt     1 of     4 k=  0.2500  0.2361  0.3438 ndimh = nmto+napw =   144  144    0
+ ... Done MPI k-loop: elapsed time=   0.7069
 
  BZWTS : --- Tetrahedron Integration ---
  BZINTS: Fermi energy:      0.262558;  45.000000 electrons
          Sum occ. bands:  -15.794503, incl. Bloechl correction: -0.003052
          Mag. moment:       0.000000
+Generating TDOS: efermi, and dos window=    0.2626  -0.5000   1.7626
+  mmmmm m_bandcal_2nd
+       contr. to mm extrapolated for r>rmt:   0.151447 est. true mm = 2.703707
 
- Saved qp weights ...
-
- mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
-   1    5.641901    3.426882    2.215019      3.044885    0.746356    2.298528
-       contr. to mm extrapolated for r>rmt:   0.136232 est. true mm = 3.181117
  getcor:  qcore= 18.00  qsc= 18.00  konf = 4  4  3  4 
  sum q= 9.00  sum ec=  -615.13445  sum tc=  1034.93829  rho(rmax) 0.00040
+
+
  sum q= 9.00  sum ec=  -613.66667  sum tc=  1035.09817  rho(rmax) 0.00047
-   2    5.090461    3.296809    1.793652      3.004182    0.757996    2.246187
-       contr. to mm extrapolated for r>rmt:   0.150547 est. true mm = 3.154729
+
+       contr. to mm extrapolated for r>rmt:   0.147551 est. true mm = 2.706408
+
  getcor:  qcore= 18.00  qsc= 18.00  konf = 4  4  3  4 
  sum q= 9.00  sum ec=  -615.13113  sum tc=  1034.94091  rho(rmax) 0.00040
+
  sum q= 9.00  sum ec=  -613.66318  sum tc=  1035.10166  rho(rmax) 0.00047
-   3    5.395260    3.347690    2.047570     -3.586134   -0.854063   -2.732070
-       contr. to mm extrapolated for r>rmt:  -0.116038 est. true mm =-3.702172
+
+       contr. to mm extrapolated for r>rmt:  -0.074689 est. true mm =-2.596156
+
  getcor:  qcore= 18.00  qsc= 18.00  konf = 4  4  3  4 
  sum q= 9.00  sum ec=  -613.67012  sum tc=  1035.08617  rho(rmax) 0.00047
  sum q= 9.00  sum ec=  -615.13531  sum tc=  1034.94410  rho(rmax) 0.00040
-   4    5.240652    3.459241    1.781411     -3.114419   -0.779090   -2.335329
-       contr. to mm extrapolated for r>rmt:  -0.135979 est. true mm =-3.250398
+
+
+
+       contr. to mm extrapolated for r>rmt:  -0.101115 est. true mm =-2.585507
+
  getcor:  qcore= 18.00  qsc= 18.00  konf = 4  4  3  4 
  sum q= 9.00  sum ec=  -613.71298  sum tc=  1035.04144  rho(rmax) 0.00047
  sum q= 9.00  sum ec=  -615.17859  sum tc=  1034.89692  rho(rmax) 0.00041
-   5    6.183744    4.313405    1.870339     -0.146887    0.005472   -0.152359
+
+
+
+
  getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3  4 
  sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
  sum q= 1.00  sum ec=   -32.26271  sum tc=    47.42333  rho(rmax) 0.00000
-   6    5.291552    4.184878    1.106674     -0.008153   -0.002984   -0.005169
+
+
+
  getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3  4 
  sum q= 1.00  sum ec=   -27.53926  sum tc=    43.54266  rho(rmax) 0.00000
  sum q= 1.00  sum ec=   -27.53907  sum tc=    43.54310  rho(rmax) 0.00000
-   7    5.299592    4.207045    1.092547     -0.028355   -0.028120   -0.000235
+
+
  getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3  4 
+
  sum q= 1.00  sum ec=   -27.53962  sum tc=    43.54304  rho(rmax) 0.00000
  sum q= 1.00  sum ec=   -27.53981  sum tc=    43.54262  rho(rmax) 0.00000
-   8    5.275417    4.185372    1.090045     -0.029281   -0.028680   -0.000601
+
+
+
  getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3  4 
  sum q= 1.00  sum ec=   -27.53963  sum tc=    43.54305  rho(rmax) 0.00000
  sum q= 1.00  sum ec=   -27.53982  sum tc=    43.54263  rho(rmax) 0.00000
 
+ mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
+   1    5.258919    3.353570    1.905350      2.552261    0.644641    1.907620
+   2    5.293439    3.357149    1.936290      2.558857    0.643277    1.915580
+   3    5.337267    3.369443    1.967824     -2.521467   -0.587622   -1.933844
+   4    5.464422    3.524537    1.939884     -2.484393   -0.609928   -1.874465
+   5    6.099533    4.244763    1.854770     -0.158593    0.003396   -0.161989
+   6    5.290717    4.191270    1.099447     -0.021238   -0.009612   -0.011626
+   7    5.299473    4.205965    1.093508      0.024806    0.013150    0.011656
+   8    5.286924    4.196540    1.090385      0.027301    0.014538    0.012763
+
  Symmetrize density..
 
+
+
  Make new boundary conditions for phi,phidot..
-  ebar: 
+  pnunew: ebar: 
     without lo    : ebar = center of gravity of occupied states
     with lo & PZ>P: ebar for lo is meaningless(zero is shown). Use empty-sphere PZ.
                     ebar for valence is at the center of gravity of occ. states.
@@ -1299,378 +779,392 @@ mshn3p: qval outside window; extrapolating
 
  site    1   species   1:Cr1     
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
- 0     0    0.207527   -1.515112    4.900000    4.194753    4.500000    4.500000
- spn 2 0    0.181065   -1.538273    4.900000    4.180904    4.500000    4.500000
- 1     0    0.352825   -0.464816    4.900000    4.271822    4.250000    4.271822
- spn 2 0    0.318828   -0.355591    4.900000    4.271244    4.250000    4.271244
- 2     0    3.670339   -0.088232    3.800000    3.691935    3.147584    3.691935
- spn 2 0    0.680944   -0.555938    3.800000    3.215497    3.147584    3.215497
- 3     0    0.112702   -0.128712    4.100000    4.130694    4.102416    4.130694
- spn 2 0    0.117671   -0.115071    4.100000    4.127987    4.102416    4.127987
+ 0     0    0.207321   -0.607777    4.900000    4.456160    4.500000    4.500000
+ spn 2 0    0.177438   -0.635691    4.900000    4.390085    4.500000    4.500000
+ 1     0    0.348537   -0.521959    4.900000    4.258287    4.250000    4.258287
+ spn 2 0    0.312655   -0.539577    4.900000    4.231953    4.250000    4.250000
+ 2     0    3.233672    0.000210    3.800000    3.803403    3.147584    3.803403
+ spn 2 0    0.746772   -0.273583    3.800000    3.307062    3.147584    3.307062
+ 3     0    0.116061   -0.377886    4.100000    4.120451    4.102416    4.120451
+ spn 2 0    0.116464   -0.375972    4.100000    4.117882    4.102416    4.117882
 
  site    2   species   1:Cr1     
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
- 0     0    0.207553   -1.392002    4.900000    4.211751    4.500000    4.500000
- spn 2 0    0.179275   -1.481329    4.900000    4.187119    4.500000    4.500000
- 1     0    0.348410   -0.490635    4.900000    4.265401    4.250000    4.265401
- spn 2 0    0.315329   -0.369732    4.900000    4.267630    4.250000    4.267630
- 2     0    3.379684   -0.095193    3.800000    3.681154    3.147584    3.681154
- spn 2 0    0.430787   -1.033267    3.800000    3.153046    3.147584    3.153046
- 3     0    0.111674   -0.144169    4.100000    4.129967    4.102416    4.129967
- spn 2 0    0.117748   -0.112401    4.100000    4.128072    4.102416    4.128072
+ 0     0    0.207981   -0.607289    4.900000    4.456067    4.500000    4.500000
+ spn 2 0    0.179383   -0.629313    4.900000    4.392585    4.500000    4.500000
+ 1     0    0.343948   -0.533677    4.900000    4.255527    4.250000    4.255527
+ spn 2 0    0.310834   -0.548920    4.900000    4.230123    4.250000    4.250000
+ 2     0    3.257947    0.002140    3.800000    3.804888    3.147584    3.804888
+ spn 2 0    0.761561   -0.264060    3.800000    3.311524    3.147584    3.311524
+ 3     0    0.116272   -0.383094    4.100000    4.120234    4.102416    4.120234
+ spn 2 0    0.115512   -0.389908    4.100000    4.117372    4.102416    4.117372
 
  site    3   species   2:Cr2     
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
- 0     0    0.180966   -1.330801    4.900000    4.206923    4.500000    4.500000
- spn 2 0    0.208622   -1.575034    4.900000    4.187267    4.500000    4.500000
- 1     0    0.320890   -0.395543    4.900000    4.262401    4.250000    4.262401
- spn 2 0    0.343706   -0.533665    4.900000    4.255302    4.250000    4.255302
- 2     0    0.283807   -1.772436    3.800000    3.113432    3.147584    3.147584
- spn 2 0    3.826121   -0.083440    3.800000    3.697903    3.147584    3.697903
- 3     0    0.118900   -0.130044    4.130000    4.127500    4.102416    4.127500
- spn 2 0    0.112248   -0.177516    4.130000    4.128432    4.102416    4.128432
+ 0     0    0.183374   -0.617799    4.900000    4.399512    4.500000    4.500000
+
+ spn 2 0    0.205500   -0.603080    4.900000    4.457781    4.500000    4.500000
+ 1     0    0.319534   -0.528759    4.900000    4.234526    4.250000    4.250000
+ spn 2 0    0.330275   -0.553126    4.900000    4.251068    4.250000    4.251068
+ 2     0    0.786557   -0.256031    3.800000    3.317344    3.147584    3.317344
+ spn 2 0    3.279183    0.004125    3.800000    3.807120    3.147584    3.807120
+ 3     0    0.118435   -0.352347    4.130000    4.118843    4.102416    4.118843
+ spn 2 0    0.114409   -0.400073    4.130000    4.119559    4.102416    4.119559
 
  site    4   species   2:Cr2     
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
- 0     0    0.189515   -1.312119    4.900000    4.211719    4.500000    4.500000
- spn 2 0    0.221726   -1.283603    4.900000    4.232408    4.500000    4.500000
- 1     0    0.340753   -0.354634    4.900000    4.275572    4.250000    4.275572
- spn 2 0    0.375427   -0.485853    4.900000    4.269998    4.250000    4.269998
- 2     0    0.413015   -1.272380    3.800000    3.137365    3.147584    3.147584
- spn 2 0    3.461594   -0.107595    3.800000    3.677107    3.147584    3.677107
- 3     0    0.119833   -0.112888    4.130000    4.128888    4.102416    4.128888
- spn 2 0    0.118788   -0.131874    4.130000    4.131249    4.102416    4.131249
+ 0     0    0.192317   -0.601506    4.900000    4.413404    4.500000    4.500000
+ spn 2 0    0.221547   -0.578213    4.900000    4.479438    4.500000    4.500000
+ 1     0    0.337918   -0.501705    4.900000    4.242358    4.250000    4.250000
+ spn 2 0    0.366437   -0.499710    4.900000    4.266640    4.250000    4.266640
+ 2     0    0.838141   -0.245565    3.800000    3.329450    3.147584    3.329450
+ spn 2 0    3.267167   -0.009460    3.800000    3.801962    3.147584    3.801962
+ 3     0    0.121637   -0.320406    4.130000    4.120554    4.102416    4.120554
+ spn 2 0    0.119257   -0.345124    4.130000    4.122275    4.102416    4.122275
 
  site    5   species   5:Nh      
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
-  node =           2
- (warning) failed to find proper node count for l=0  ebar=4.0591: pnu not calc
- 0     1    0.796753    4.059107    2.850000    2.850000    2.500000    2.850000
-  node =           2
- (warning) failed to find proper node count for l=0  ebar=3.4802: pnu not calc
- spn 2 1    0.831154    3.480153    2.850000    2.850000    2.500000    2.850000
- 1     0    2.181809   -0.440337    2.800000    2.823122    2.250000    2.823122
- spn 2 0    2.307535   -0.569482    2.800000    2.811650    2.250000    2.811650
- 2     0    0.034947   -0.554024    3.200000    3.178567    3.147584    3.178567
- spn 2 0    0.023933   -0.628052    3.200000    3.174247    3.147584    3.174247
- 3     0    0.004920    0.150474    4.100000    4.122057    4.102416    4.122057
- spn 2 0    0.002694    0.104552    4.100000    4.120873    4.102416    4.120873
+ 0     1    0.792770   -1.154915    2.850000    2.871575    2.500000    2.850000
+ spn 2 1    0.824863   -1.252910    2.850000    2.879668    2.500000    2.850000
+ 1     0    2.144487   -0.386331    2.800000    2.839379    2.250000    2.839379
+ spn 2 0    2.280446   -0.455662    2.800000    2.848532    2.250000    2.848532
+ 2     0    0.028762    0.030671    3.200000    3.213556    3.147584    3.213556
+ spn 2 0    0.020925    0.025155    3.200000    3.212010    3.147584    3.212010
+ 3     0    0.004450    0.026430    4.100000    4.119856    4.102416    4.119856
+ spn 2 0    0.002830   -0.024503    4.100000    4.118637    4.102416    4.118637
 
  site    6   species   3:N1      
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
-  node =           2
- (warning) failed to find proper node count for l=0  ebar=5.2356: pnu not calc
- 0     1    0.754032    5.235572    2.850000    2.850000    2.500000    2.850000
-  node =           2
- (warning) failed to find proper node count for l=0  ebar=5.4035: pnu not calc
- spn 2 1    0.760910    5.403544    2.850000    2.850000    2.500000    2.850000
- 1     0    1.846082   -0.209510    2.800000    2.839887    2.250000    2.839887
- spn 2 0    1.864527   -0.209646    2.800000    2.838778    2.250000    2.838778
- 2     0    0.036820   -0.556982    3.200000    3.182017    3.147584    3.182017
- spn 2 0    0.022113   -0.695692    3.200000    3.174797    3.147584    3.174797
- 3     0    0.004766    0.076546    4.100000    4.122126    4.102416    4.122126
- spn 2 0    0.002302   -0.033548    4.100000    4.119980    4.102416    4.119980
+ 0     1    0.756985   -1.065453    2.850000    2.864254    2.500000    2.850000
+ spn 2 1    0.762287   -1.052058    2.850000    2.866004    2.500000    2.850000
+ 1     0    1.842236   -0.291678    2.800000    2.818241    2.250000    2.818241
+ spn 2 0    1.869061   -0.281171    2.800000    2.819918    2.250000    2.819918
+ 2     0    0.030796    0.028252    3.200000    3.218645    3.147584    3.218645
+ spn 2 0    0.021784    0.020541    3.200000    3.217353    3.147584    3.217353
+ 3     0    0.004723    0.033921    4.100000    4.121357    4.102416    4.121357
+ spn 2 0    0.002846   -0.022092    4.100000    4.120180    4.102416    4.120180
 
  site    7   species   4:N2      
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
-  node =           2
- (warning) failed to find proper node count for l=0  ebar=5.2753: pnu not calc
- 0     1    0.761794    5.275308    2.850000    2.850000    2.500000    2.850000
-  node =           2
- (warning) failed to find proper node count for l=0  ebar=5.0301: pnu not calc
- spn 2 1    0.759105    5.030081    2.850000    2.850000    2.500000    2.850000
- 1     0    1.851499   -0.231371    2.800000    2.833506    2.250000    2.833506
- spn 2 0    1.859883   -0.230934    2.800000    2.834705    2.250000    2.834705
- 2     0    0.020022   -0.797739    3.200000    3.170264    3.147584    3.170264
- spn 2 0    0.039584   -0.553119    3.200000    3.182277    3.147584    3.182277
- 3     0    0.002304   -0.064556    4.100000    4.119471    4.102416    4.119471
- spn 2 0    0.005402    0.122998    4.100000    4.123001    4.102416    4.123001
+ 0     1    0.763248   -1.051573    2.850000    2.866298    2.500000    2.850000
+ spn 2 1    0.757290   -1.065685    2.850000    2.864386    2.500000    2.850000
+ 1     0    1.873395   -0.280587    2.800000    2.820363    2.250000    2.820363
+ spn 2 0    1.844951   -0.291480    2.800000    2.818546    2.250000    2.818546
+ 2     0    0.022484    0.014724    3.200000    3.217025    3.147584    3.217025
+ spn 2 0    0.030337    0.020369    3.200000    3.218136    3.147584    3.218136
+ 3     0    0.003013   -0.011814    4.100000    4.120387    4.102416    4.120387
+ spn 2 0    0.004756    0.031512    4.100000    4.121338    4.102416    4.121338
 
  site    8   species   4:N2      
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
-  node =           2
- (warning) failed to find proper node count for l=0  ebar=5.3313: pnu not calc
- 0     1    0.759550    5.331285    2.850000    2.850000    2.500000    2.850000
-  node =           2
- (warning) failed to find proper node count for l=0  ebar=5.1221: pnu not calc
- spn 2 1    0.756031    5.122096    2.850000    2.850000    2.500000    2.850000
- 1     0    1.840425   -0.236824    2.800000    2.832090    2.250000    2.832090
- spn 2 0    1.850858   -0.236837    2.800000    2.833182    2.250000    2.833182
- 2     0    0.020948   -0.749225    3.200000    3.172415    3.147584    3.172415
- spn 2 0    0.040362   -0.541189    3.200000    3.182887    3.147584    3.182887
- 3     0    0.002144   -0.073272    4.100000    4.119320    4.102416    4.119320
- spn 2 0    0.005097    0.114550    4.100000    4.122844    4.102416    4.122844
+ 0     1    0.762521   -1.052680    2.850000    2.866079    2.500000    2.850000
+ spn 2 1    0.756135   -1.067448    2.850000    2.864035    2.500000    2.850000
+ 1     0    1.868321   -0.281911    2.800000    2.819993    2.250000    2.819993
+ spn 2 0    1.837526   -0.293465    2.800000    2.817987    2.250000    2.817987
+ 2     0    0.023236    0.027006    3.200000    3.217952    3.147584    3.217952
+ spn 2 0    0.031406    0.031847    3.200000    3.219010    3.147584    3.219010
+ 3     0    0.003035   -0.009742    4.100000    4.120423    4.102416    4.120423
+ spn 2 0    0.004744    0.030587    4.100000    4.121320    4.102416    4.121320
 
  Harris energy:
- sumev=      -15.794503  val*vef=    -306.869333   sumtv=     291.074829
+ sumev=      -15.794503  val*vef=    -306.869332   sumtv=     291.074829
  sumec=    -5112.792354  cor*vef=  -13724.063095   ttcor=    8611.270741
  rhoeps=    -425.270482     utot=  -17274.708026    ehar=   -8797.632937
- smvxcm: all smrho_w is positive
- smvxcm: all smrho_w is positive
- smvxcm: all smrho_w is positive
 
- Harris correction to forces: shift in free-atom density              
-  ib         delta-n dVes             delta-n dVxc               total
-   1  -30.16    0.00   -1.04    -4.98    0.00   -0.09    35.14   -0.00    1.13
-   2  131.53   -0.00    0.68    16.31   -0.00    0.05  -147.84    0.00   -0.73
-   3 -129.24   -0.00   -0.70   -15.88    0.00   -0.04   145.11   -0.00    0.74
-   4   33.05    0.00    0.68     2.72   -0.00    0.05   -35.77    0.00   -0.73
-   5 -121.74   -0.00    2.62   -19.81    0.00    0.23   141.55   -0.00   -2.85
-   6  -15.09   -0.00   -1.51     7.26   -0.00   -0.11     7.83    0.00    1.62
-   7  -61.76   -0.00    1.77     4.91    0.00    0.11    56.85   -0.00   -1.89
-   8   94.49   -0.00   -2.05    -1.84    0.00   -0.15   -92.65   -0.00    2.20
- shift forces to make zero average correction:           13.78   -0.00   -0.06
 
- srhov:    -72.522478   -216.310349   -288.832827 sumev=  -15.794503   sumtv=  273.038324
+ srhov:    -72.425131   -213.165949   -285.591080 sumev=  -15.794503   sumtv=  269.796576
 
- vvvvves: avg es pot at rmt= 0.726546  avg sphere pot= 0.552737  vconst=-0.726546
 
- smooth rhoves     82.266396   charge    32.002744
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
+
+ smves:: avg es pot at rmt= 0.729178  avg sphere pot= 0.553659  vconst=-0.729178
+
+ smooth rhoves     82.856228   charge    32.112543
  smvxcm: all smrho_w is positive
- smooth rhoeps =  -26.124986 ( -12.984958, -13.140029)
-         rhomu =  -34.075019 ( -16.917197, -17.157822)
-       avg vxc =   -0.867684 (  -0.866384,  -0.868984)
+ smooth rhoeps =  -26.128755 ( -13.101724, -13.027031)
+         rhomu =  -34.076585 ( -17.095684, -16.980900)
+       avg vxc =   -0.871738 (  -0.873194,  -0.870281)
 
  locpot:
 
  site  1  z= 24.0  rmt= 2.60000  nr=323   a=0.030  nlml=16  rg=0.650  Vfloat=F
+  ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   4.50000   4.50000   0.00000   0.00000
+  ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   4.25829   4.25000   0.00000   0.00000
+  ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.80340   3.30706   0.00000   0.00000
+  ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.12045   4.11788   0.00000   0.00000
 
  site  2  z= 24.0  rmt= 2.60000  nr=323   a=0.030  nlml=16  rg=0.650  Vfloat=F
- vxcns2 (warning): nr*np=     10336  negative density # of points=         0       320
- vxcnsp (warning): negative rho: min val =  -1.45E-02
+  ibas l=  2  0 pnu(1:nsp) pnz(1:nsp)=   4.50000   4.50000   0.00000   0.00000
+  ibas l=  2  1 pnu(1:nsp) pnz(1:nsp)=   4.25553   4.25000   0.00000   0.00000
+  ibas l=  2  2 pnu(1:nsp) pnz(1:nsp)=   3.80489   3.31152   0.00000   0.00000
+  ibas l=  2  3 pnu(1:nsp) pnz(1:nsp)=   4.12023   4.11737   0.00000   0.00000
 
  site  3  z= 24.0  rmt= 2.60000  nr=323   a=0.030  nlml=16  rg=0.650  Vfloat=F
- vxcns2 (warning): nr*np=     10336  negative density # of points=      1486         0
- vxcnsp (warning): negative rho: min val =  -4.92E-02
+  ibas l=  3  0 pnu(1:nsp) pnz(1:nsp)=   4.50000   4.50000   0.00000   0.00000
+  ibas l=  3  1 pnu(1:nsp) pnz(1:nsp)=   4.25000   4.25107   0.00000   0.00000
+  ibas l=  3  2 pnu(1:nsp) pnz(1:nsp)=   3.31734   3.80712   0.00000   0.00000
+  ibas l=  3  3 pnu(1:nsp) pnz(1:nsp)=   4.11884   4.11956   0.00000   0.00000
 
  site  4  z= 24.0  rmt= 2.60000  nr=323   a=0.030  nlml=16  rg=0.650  Vfloat=F
- vxcns2 (warning): nr*np=     10336  negative density # of points=       664         0
- vxcnsp (warning): negative rho: min val =  -2.47E-02
+  ibas l=  4  0 pnu(1:nsp) pnz(1:nsp)=   4.50000   4.50000   0.00000   0.00000
+  ibas l=  4  1 pnu(1:nsp) pnz(1:nsp)=   4.25000   4.26664   0.00000   0.00000
+  ibas l=  4  2 pnu(1:nsp) pnz(1:nsp)=   3.32945   3.80196   0.00000   0.00000
+  ibas l=  4  3 pnu(1:nsp) pnz(1:nsp)=   4.12055   4.12227   0.00000   0.00000
 
  site  5  z=  7.0  rmt= 1.80000  nr=223   a=0.030  nlml=16  rg=0.450  Vfloat=F
  core hole:  kcor=1  lcor=0  qcor=-1  amom=-1
+  ibas l=  5  0 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
+  ibas l=  5  1 pnu(1:nsp) pnz(1:nsp)=   2.83938   2.84853   0.00000   0.00000
+  ibas l=  5  2 pnu(1:nsp) pnz(1:nsp)=   3.21356   3.21201   0.00000   0.00000
+  ibas l=  5  3 pnu(1:nsp) pnz(1:nsp)=   4.11986   4.11864   0.00000   0.00000
 
  site  6  z=  7.0  rmt= 1.80000  nr=223   a=0.030  nlml=16  rg=0.450  Vfloat=F
+  ibas l=  6  0 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
+  ibas l=  6  1 pnu(1:nsp) pnz(1:nsp)=   2.81824   2.81992   0.00000   0.00000
+  ibas l=  6  2 pnu(1:nsp) pnz(1:nsp)=   3.21865   3.21735   0.00000   0.00000
+  ibas l=  6  3 pnu(1:nsp) pnz(1:nsp)=   4.12136   4.12018   0.00000   0.00000
 
  site  7  z=  7.0  rmt= 1.80000  nr=223   a=0.030  nlml=16  rg=0.450  Vfloat=F
+  ibas l=  7  0 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
+  ibas l=  7  1 pnu(1:nsp) pnz(1:nsp)=   2.82036   2.81855   0.00000   0.00000
+  ibas l=  7  2 pnu(1:nsp) pnz(1:nsp)=   3.21702   3.21814   0.00000   0.00000
+  ibas l=  7  3 pnu(1:nsp) pnz(1:nsp)=   4.12039   4.12134   0.00000   0.00000
 
  site  8  z=  7.0  rmt= 1.80000  nr=223   a=0.030  nlml=16  rg=0.450  Vfloat=F
+  ibas l=  8  0 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
+  ibas l=  8  1 pnu(1:nsp) pnz(1:nsp)=   2.81999   2.81799   0.00000   0.00000
+  ibas l=  8  2 pnu(1:nsp) pnz(1:nsp)=   3.21795   3.21901   0.00000   0.00000
+  ibas l=  8  3 pnu(1:nsp) pnz(1:nsp)=   4.12042   4.12132   0.00000   0.00000
 
  Energy terms:             smooth           local           total
-   rhoval*vef            -66.108319      -221.667220      -287.775540
-   rhoval*ves           -110.833032      -106.808320      -217.641352
-   psnuc*ves             275.365824    -34525.759673    -34250.393850
-   utot                   82.266396    -17316.283997    -17234.017601
-   rho*exc               -26.124986      -397.080678      -423.205664
-   rho*vxc               -34.075019      -525.418786      -559.493805
-   valence chg            32.002744        12.997256        45.000000
-   valence mag            -0.187362        -1.681049        -1.868411
+   rhoval*vef            -66.296533      -218.999272      -285.295805
+   rhoval*ves           -111.188540      -104.788711      -215.977251
+   psnuc*ves             276.900995    -34523.772746    -34246.871751
+   utot                   82.856228    -17314.280729    -17231.424501
+   rho*exc               -26.128755      -396.489790      -422.618545
+   rho*vxc               -34.076585      -524.629169      -558.705754
+   valence chg            32.112543        12.887457        45.000000
+   valence mag             0.134305        -1.134305        -1.000000
    core charge            79.000000         0.000000        79.000000
 
  Charges:  valence    45.00000   cores    79.00000   nucleii  -124.00000
     hom background     0.00000   deviation from neutrality:      0.00000
 
  Kohn-Sham energy:
- sumtv=      273.038324  sumtc=      8588.728081   ekin=     8861.766405
- rhoep=     -423.205664   utot=    -17234.017601   ehks=    -8795.456859
- mag. mom=    -0.868411  (bands)       -1.868411  (output rho)
+ sumtv=      269.796576  sumtc=      8588.728081   ekin=     8858.524658
+ rhoep=     -422.618545   utot=    -17231.424501   ehks=    -8795.518388
+ mag. mom=    -1.000000
+ smvxcm: all smrho_w is positive
+ smvxcm: all smrho_w is positive
+ smvxcm: all smrho_w is positive
+
+ Harris correction to forces: shift in free-atom density              
+  ib         delta-n dVes             delta-n dVxc               total
+   1    5.24    0.00   -0.66    -1.77    0.00   -0.05    -3.48   -0.00    0.70
+   2  137.54   -0.00    0.50    17.09   -0.00    0.03  -154.62    0.00   -0.53
+   3 -187.21   -0.00   -0.64   -20.24    0.00   -0.04   207.44   -0.00    0.68
+   4   37.57    0.00    0.62     2.81   -0.00    0.04   -40.37    0.00   -0.65
+   5  112.70   -0.00    0.30     3.07   -0.00    0.01  -115.77    0.00   -0.31
+   6 -104.96    0.00   -0.11     0.17    0.00    0.02   104.80   -0.00    0.09
+   7 -162.83   -0.00    0.13    -7.38   -0.00   -0.01   170.21    0.00   -0.12
+   8  158.35    0.00   -0.10     5.37    0.00    0.01  -163.72   -0.00    0.08
+ shift forces to make zero average correction:            0.56    0.00   -0.01
 
  Forces, with eigenvalue correction
   ib           estatic                  eigval                    total
-   1  -11.85    0.00    0.10   107.73   -0.00    0.03    95.88    0.00    0.13
-   2   33.24   -0.00   -0.12  -152.87    0.00   -0.14  -119.63    0.00   -0.26
-   3  -14.54   -0.00    0.11    57.20   -0.00    0.06    42.66   -0.00    0.16
-   4   -7.13    0.00   -0.09    25.42    0.00   -0.35    18.28    0.00   -0.44
-   5  -37.15    0.00   -0.80    -6.75   -0.00    1.37   -43.89   -0.00    0.56
-   6   38.59   -0.00    0.80   -43.03    0.00   -1.11    -4.44   -0.00   -0.32
-   7   33.87   -0.00   -0.76   -67.32   -0.00    1.45   -33.45   -0.00    0.69
-   8  -35.03    0.00    0.77    79.62    0.00   -1.30    44.59    0.00   -0.53
- Maximum Harris force = 120 mRy/au (site 2)  Max eval correction = 161.6
+   1  -11.85   -0.00    0.10    17.96   -0.00    0.43     6.12   -0.00    0.53
+   2   33.24    0.00   -0.12  -120.38    0.00   -0.32   -87.14    0.00   -0.45
+   3  -14.54    0.00    0.11    95.72   -0.00    0.46    81.18   -0.00    0.56
+   4   -7.13   -0.00   -0.09     3.86    0.00   -0.47    -3.27    0.00   -0.56
+   5  -37.15   -0.00   -0.80    46.92    0.00    1.05     9.77    0.00    0.25
+   6   38.59    0.00    0.80   -47.96   -0.00   -1.10    -9.36    0.00   -0.30
+   7   33.87    0.00   -0.76   -51.80    0.00    1.09   -17.93    0.00    0.33
+   8  -35.03   -0.00    0.77    55.67   -0.00   -1.14    20.64   -0.00   -0.36
+ Maximum Harris force = 87.1 mRy/au (site 3)  Max eval correction = 206.9
 
  Symmetrize forces ...
   
  mixing: mode=A  nmix=3  beta=.5  elind=1.608  kill=4
  mixrealsmooth= T
- wgtsmooth=  8.50517271799714619E-003
- mixrho:  sought 3 iter from file mixm; read 0.  RMS DQ=2.96e-2
- AMIX: nmix=0 mmix=8  nelts=40992  beta=0.5  tm=5  rmsdel=1.48e-2
- mixrho: add corrections to qcell smrho =  0.28251D-06  0.30200D-09
- unscreened rms difference:  smooth  0.034015   local  0.048532
-   screened rms difference:  smooth  0.027319   local  0.048532   tot  0.029570
- mixrho: all smrho are positive for isp=  1
- mixrho: all smrho are positive for isp=  2
- vessm= -0.72654632238034400     
-### Add vref to eigenvalues to get relative to vaccum=   -0.695139
-### mean estatic potential by superposition of atoms eV=  -26.863567
-### VBM=    -5.885620 eV CBM=    -5.885620 eV estatic_pot=  -26.863567 eV
-  not readin vesintatm.* ---> not show VBM. or you need to repeat new lmfa again.
+ wgtsmooth=   8.5051727179971462E-003
+ mixrho:  sought 3 iter from file mixm; read 0.  RMS DQ=3.25e-2
+ AMIX: nmix=0 mmix=8  nelts= 40992  beta=0.50000  tm= 5.00000  rmsdel=1.62D-02
+ mixrho: add corrections to qcell smrho =  0.29361D-06  0.31387D-09
+ unscreened rms difference:  smooth  0.034560   local  0.047518
+   screened rms difference:  smooth  0.027260   local  0.047518   tot  0.032471
 
  iors  : write restart file (binary, mesh density) 
 
-   it  1  of  2    ehf=   -8797.632937   ehk=   -8795.456859
-h mmom=-1.8684112 ehf=-8797.6329369 ehk=-8795.4568593
+   it  1  of  2    ehf=   -8797.632937   ehk=   -8795.518388
+h mmom=-1 ehf=-8797.632937 ehk=-8795.5183882
 
- --- BNDFP:  begin iteration 2 of 2 ---
+ --- BNDFP:  begin iteration 2 of 2
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
+ smves:: avg es pot at rmt= 0.638939  avg sphere pot= 0.551844  vconst=-0.638939
 
- vvvvves: avg es pot at rmt= 0.638465  avg sphere pot= 0.551383  vconst=-0.638465
-
- smooth rhoves     83.230769   charge    33.410439
+ smooth rhoves     83.442992   charge    33.465338
  smvxcm: all smrho_w is positive
- smooth rhoeps =  -27.135416 ( -13.549356, -13.586059)
-         rhomu =  -35.397401 ( -17.669819, -17.727582)
-       avg vxc =   -0.889740 (  -0.889813,  -0.889666)
+ smooth rhoeps =  -27.146305 ( -13.618513, -13.527791)
+         rhomu =  -35.409639 ( -17.775737, -17.633902)
+       avg vxc =   -0.891401 (  -0.892482,  -0.890320)
 
  locpot:
 
  site  1  z= 24.0  rmt= 2.60000  nr=323   a=0.030  nlml=16  rg=0.650  Vfloat=T
- potential shift to crystal energy zero:    0.004746
+  ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   4.50000   4.50000   0.00000   0.00000
+  ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   4.25829   4.25000   0.00000   0.00000
+  ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.80340   3.30706   0.00000   0.00000
+  ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.12045   4.11788   0.00000   0.00000
+ potential shift to crystal energy zero:    0.004790
 
  site  2  z= 24.0  rmt= 2.60000  nr=323   a=0.030  nlml=16  rg=0.650  Vfloat=T
- potential shift to crystal energy zero:    0.004780
+  ibas l=  2  0 pnu(1:nsp) pnz(1:nsp)=   4.50000   4.50000   0.00000   0.00000
+  ibas l=  2  1 pnu(1:nsp) pnz(1:nsp)=   4.25553   4.25000   0.00000   0.00000
+  ibas l=  2  2 pnu(1:nsp) pnz(1:nsp)=   3.80489   3.31152   0.00000   0.00000
+  ibas l=  2  3 pnu(1:nsp) pnz(1:nsp)=   4.12023   4.11737   0.00000   0.00000
+ potential shift to crystal energy zero:    0.004849
 
  site  3  z= 24.0  rmt= 2.60000  nr=323   a=0.030  nlml=16  rg=0.650  Vfloat=T
- vxcns2 (warning): nr*np=     10336  negative density # of points=       364         0
- vxcnsp (warning): negative rho: min val =  -1.59E-02
- potential shift to crystal energy zero:    0.004774
+  ibas l=  3  0 pnu(1:nsp) pnz(1:nsp)=   4.50000   4.50000   0.00000   0.00000
+  ibas l=  3  1 pnu(1:nsp) pnz(1:nsp)=   4.25000   4.25107   0.00000   0.00000
+  ibas l=  3  2 pnu(1:nsp) pnz(1:nsp)=   3.31734   3.80712   0.00000   0.00000
+  ibas l=  3  3 pnu(1:nsp) pnz(1:nsp)=   4.11884   4.11956   0.00000   0.00000
+ potential shift to crystal energy zero:    0.004807
 
  site  4  z= 24.0  rmt= 2.60000  nr=323   a=0.030  nlml=16  rg=0.650  Vfloat=T
- vxcns2 (warning): nr*np=     10336  negative density # of points=         4         0
- vxcnsp (warning): negative rho: min val =  -7.48E-05
- potential shift to crystal energy zero:    0.004627
+  ibas l=  4  0 pnu(1:nsp) pnz(1:nsp)=   4.50000   4.50000   0.00000   0.00000
+  ibas l=  4  1 pnu(1:nsp) pnz(1:nsp)=   4.25000   4.26664   0.00000   0.00000
+  ibas l=  4  2 pnu(1:nsp) pnz(1:nsp)=   3.32945   3.80196   0.00000   0.00000
+  ibas l=  4  3 pnu(1:nsp) pnz(1:nsp)=   4.12055   4.12227   0.00000   0.00000
+ potential shift to crystal energy zero:    0.004723
 
  site  5  z=  7.0  rmt= 1.80000  nr=223   a=0.030  nlml=16  rg=0.450  Vfloat=T
  core hole:  kcor=1  lcor=0  qcor=-1  amom=-1
- potential shift to crystal energy zero:   -0.017702
+  ibas l=  5  0 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
+  ibas l=  5  1 pnu(1:nsp) pnz(1:nsp)=   2.83938   2.84853   0.00000   0.00000
+  ibas l=  5  2 pnu(1:nsp) pnz(1:nsp)=   3.21356   3.21201   0.00000   0.00000
+  ibas l=  5  3 pnu(1:nsp) pnz(1:nsp)=   4.11986   4.11864   0.00000   0.00000
+ potential shift to crystal energy zero:   -0.017737
 
  site  6  z=  7.0  rmt= 1.80000  nr=223   a=0.030  nlml=16  rg=0.450  Vfloat=T
- potential shift to crystal energy zero:   -0.016751
+  ibas l=  6  0 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
+  ibas l=  6  1 pnu(1:nsp) pnz(1:nsp)=   2.81824   2.81992   0.00000   0.00000
+  ibas l=  6  2 pnu(1:nsp) pnz(1:nsp)=   3.21865   3.21735   0.00000   0.00000
+  ibas l=  6  3 pnu(1:nsp) pnz(1:nsp)=   4.12136   4.12018   0.00000   0.00000
+ potential shift to crystal energy zero:   -0.016756
 
  site  7  z=  7.0  rmt= 1.80000  nr=223   a=0.030  nlml=16  rg=0.450  Vfloat=T
- potential shift to crystal energy zero:   -0.016747
+  ibas l=  7  0 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
+  ibas l=  7  1 pnu(1:nsp) pnz(1:nsp)=   2.82036   2.81855   0.00000   0.00000
+  ibas l=  7  2 pnu(1:nsp) pnz(1:nsp)=   3.21702   3.21814   0.00000   0.00000
+  ibas l=  7  3 pnu(1:nsp) pnz(1:nsp)=   4.12039   4.12134   0.00000   0.00000
+ potential shift to crystal energy zero:   -0.016740
 
  site  8  z=  7.0  rmt= 1.80000  nr=223   a=0.030  nlml=16  rg=0.450  Vfloat=T
- potential shift to crystal energy zero:   -0.016762
+  ibas l=  8  0 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
+  ibas l=  8  1 pnu(1:nsp) pnz(1:nsp)=   2.81999   2.81799   0.00000   0.00000
+  ibas l=  8  2 pnu(1:nsp) pnz(1:nsp)=   3.21795   3.21901   0.00000   0.00000
+  ibas l=  8  3 pnu(1:nsp) pnz(1:nsp)=   4.12042   4.12132   0.00000   0.00000
+ potential shift to crystal energy zero:   -0.016751
 
  Energy terms:             smooth           local           total
-   rhoval*vef            -79.630105      -221.526667      -301.156772
-   rhoval*ves           -111.729376      -119.197900      -230.927276
-   psnuc*ves             278.190914    -34563.543476    -34285.352562
-   utot                   83.230769    -17341.370688    -17258.139919
-   rho*exc               -27.135416      -397.234245      -424.369661
-   rho*vxc               -35.397401      -525.648097      -561.045498
-   valence chg            33.410439        11.589561        45.000000
-   valence mag            -0.025638        -1.408568        -1.434206
+   rhoval*vef            -79.800733      -220.241322      -300.042055
+   rhoval*ves           -111.758914      -118.432071      -230.190985
+   psnuc*ves             278.644897    -34562.736671    -34284.091773
+   utot                   83.442992    -17340.584371    -17257.141379
+   rho*exc               -27.146305      -396.965856      -424.112160
+   rho*vxc               -35.409639      -525.288866      -560.698505
+   valence chg            33.465338        11.534662        45.000000
+   valence mag             0.135196        -1.135196        -1.000000
    core charge            79.000000         0.000000        79.000000
 
  Charges:  valence    45.00000   cores    79.00000   nucleii  -124.00000
-    hom background     0.00000   deviation from neutrality:      0.00000
- -------- qplist --------
-    1   0.250   0.236   0.344
-    2   0.750   0.236   0.344
-    3   0.250   0.708   0.344
-    4   0.750   0.708   0.344
- sigmamode= F
- procid llmfgw=           0 F
- bndfp:  kpt 1 of 4, k=  0.25000  0.23612  0.34381   ndimh = 144
- -1.1480 -1.0395 -0.9930 -0.9454 -0.4799 -0.4326 -0.4041 -0.3694 -0.3098
- -0.2839 -0.2735 -0.2586 -0.2415 -0.1960 -0.1780 -0.1518 -0.0723 -0.0594
- -0.0392  0.0288  0.0518  0.0640  0.1110  0.1617  0.1869  0.2349  0.3120
-  0.3201  0.3432  0.3593  0.4304  0.4460  0.5615  0.5782  0.5860  0.6292
-  0.7081  0.7873  0.8370  0.9592  1.0486  1.0962  1.1642  1.1804  1.2862
-  1.3238  1.3497  1.3857  1.4602  1.4794  1.5648  1.7228  1.8312  1.8539
-  1.9003  1.9773  2.0765  2.1414  2.2251  2.2452  2.2845  2.4138  2.4257
-  2.5147  2.5467  2.5907  2.6566  2.7076  2.7732  2.8005  2.8608  2.9064
-  2.9219  2.9559  3.0246  3.0487  3.0803  3.2104  3.2526  3.3511  3.3909
-  3.4346  3.5238  3.6629  3.7391  3.7674  3.8414  3.8826  3.9858  4.0081
-  4.0811  4.1419  4.1818  4.2876  4.2942  4.3671  4.4060  4.4973  4.5444
-  4.5541  4.6110  4.7227  4.7712  4.7937  4.9648  5.0672  5.1833  5.2319
-  5.3211  5.4043  5.4947  5.7279  5.9535  5.9926  6.0974  6.2111  6.2592
-  6.3045  6.4395  6.6020  6.6535  6.7931  6.8204  6.9560  6.9975  7.0526
-  7.3101  7.4227  7.5764  7.6187  8.0715  8.2079  8.5959  8.7386  8.8729
-  9.0287  9.1551  9.5620  9.6394  9.6865  9.8353 10.2655 11.3813 12.5982
-nev nmx ndim evl(nev)=  144  144  144    12.59816
- bndfp:  kpt 1 of 4, k=  0.25000  0.23612  0.34381   ndimh = 144
- -1.2271 -1.0629 -0.9931 -0.9546 -0.4997 -0.4509 -0.4292 -0.4028 -0.3465
- -0.3127 -0.2944 -0.2671 -0.2452 -0.2271 -0.2018 -0.1677 -0.0794 -0.0613
- -0.0461 -0.0120  0.0037  0.0362  0.1177  0.1450  0.1666  0.2064  0.2592
-  0.2794  0.2830  0.3036  0.3564  0.3628  0.4540  0.4816  0.5071  0.5269
-  0.6808  0.7568  0.8117  0.9238  1.0277  1.0686  1.1472  1.1715  1.2588
-  1.3046  1.3225  1.3562  1.4192  1.4594  1.5283  1.6990  1.7925  1.8249
-  1.8946  1.9527  2.0384  2.1164  2.1865  2.2107  2.2466  2.3929  2.4215
-  2.4825  2.5158  2.5615  2.6511  2.6659  2.7345  2.7748  2.8475  2.8649
-  2.8912  2.9232  2.9776  2.9910  3.0429  3.1773  3.2218  3.3164  3.3475
-  3.4123  3.4944  3.6545  3.7188  3.7473  3.8224  3.8700  3.9647  3.9897
-  4.0501  4.1189  4.1658  4.2553  4.2787  4.3631  4.3832  4.4567  4.5124
-  4.5322  4.5928  4.7104  4.7453  4.7781  4.9561  5.0307  5.1448  5.2104
-  5.3015  5.3869  5.4640  5.6996  5.9284  5.9806  6.0813  6.1916  6.2393
-  6.2937  6.4256  6.5809  6.6360  6.7748  6.8098  6.9460  6.9612  7.0383
-  7.2844  7.4022  7.5536  7.6020  8.0499  8.1888  8.5767  8.7260  8.8282
-  9.0120  9.1255  9.5525  9.6040  9.6694  9.8111 10.2467 11.3340 12.5634
-nev nmx ndim evl(nev)=  144  144  144    12.56341
-
- Interpolate to Fermi energy for qval=   45.000
- trial Fermi energies:      0.00045     0.26682     0.53318
- band occupations:         39.12763    52.86084    67.70054
- magnetic moment:          -1.15698    -1.05746    -3.70094
- weights from quad fit:     0.43943     0.68361    -0.12305
- interpolated charge:      39.12763    52.86084    67.70054  ->   45.00000
- eigenvalue sum:          -16.28141   -14.46760    -8.70072  ->  -15.97425
- entropy term:              0.00068     0.00076    -0.00046  ->    0.00088
- interpolated moment:      -1.15698    -1.05746    -3.70094  ->   -0.77592
- old energy window:   ef=   0.26682   plusminus  0.26637
- new energy window:   ef=   0.11699   plusminus  0.29965
+    hom background     0.00000   deviation from neutrality:     -0.00000
+  m_bandcal_init: start
+ bndfp: kpt     1 of     4 k=  0.2500  0.2361  0.3438 ndimh = nmto+napw =   144  144    0
+ bndfp: kpt     1 of     4 k=  0.2500  0.2361  0.3438 ndimh = nmto+napw =   144  144    0
+ ... Done MPI k-loop: elapsed time=   1.0662
 
  BZWTS : --- Tetrahedron Integration ---
- BZINTS: Fermi energy:      0.130956;  45.000000 electrons
-         Sum occ. bands:  -15.987376, incl. Bloechl correction: -0.002888
-         Mag. moment:       0.100747
+ BZINTS: Fermi energy:      0.112168;  45.000000 electrons
+         Sum occ. bands:  -16.197206, incl. Bloechl correction: -0.002356
+         Mag. moment:       0.112205
+Generating TDOS: efermi, and dos window=    0.1122  -0.5000   1.6122
+  mmmmm m_bandcal_2nd
 
- Saved qp weights ...
 
- mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
-   1    5.186363    2.738104    2.448259      2.567030    0.683395    1.883635
-       contr. to mm extrapolated for r>rmt:   0.080137 est. true mm = 2.647167
+       contr. to mm extrapolated for r>rmt:   0.086826 est. true mm = 2.851498
+
  getcor:  qcore= 18.00  qsc= 18.00  konf = 4  4  3  4 
- sum q= 9.00  sum ec=  -617.15794  sum tc=  1036.43651  rho(rmax) 0.00036
- sum q= 9.00  sum ec=  -615.84484  sum tc=  1036.62568  rho(rmax) 0.00041
-   2    6.620053    3.185626    3.434427      3.424762    0.595946    2.828817
-       contr. to mm extrapolated for r>rmt:   0.020039 est. true mm = 3.444802
+ sum q= 9.00  sum ec=  -618.47110  sum tc=  1037.34403  rho(rmax) 0.00033
+ sum q= 9.00  sum ec=  -617.25182  sum tc=  1037.52671  rho(rmax) 0.00038
+
+
+
+
+       contr. to mm extrapolated for r>rmt:   0.082976 est. true mm = 2.794080
+
  getcor:  qcore= 18.00  qsc= 18.00  konf = 4  4  3  4 
- sum q= 9.00  sum ec=  -618.95001  sum tc=  1037.60791  rho(rmax) 0.00032
- sum q= 9.00  sum ec=  -617.64202  sum tc=  1037.81796  rho(rmax) 0.00037
-   3    5.706629    2.860232    2.846397     -3.239691   -0.706141   -2.533551
-       contr. to mm extrapolated for r>rmt:  -0.064426 est. true mm =-3.304117
+ sum q= 9.00  sum ec=  -618.35531  sum tc=  1037.27346  rho(rmax) 0.00034
+ sum q= 9.00  sum ec=  -617.13423  sum tc=  1037.45506  rho(rmax) 0.00038
+
+
+
+       contr. to mm extrapolated for r>rmt:  -0.039457 est. true mm =-2.680203
+
  getcor:  qcore= 18.00  qsc= 18.00  konf = 4  4  3  4 
- sum q= 9.00  sum ec=  -616.43856  sum tc=  1037.04956  rho(rmax) 0.00040
- sum q= 9.00  sum ec=  -617.86695  sum tc=  1036.84718  rho(rmax) 0.00034
-   4    6.561428    3.257164    3.304264     -3.440390   -0.543035   -2.897355
-       contr. to mm extrapolated for r>rmt:  -0.024066 est. true mm =-3.464457
+ sum q= 9.00  sum ec=  -617.01555  sum tc=  1037.36382  rho(rmax) 0.00038
+ sum q= 9.00  sum ec=  -618.23629  sum tc=  1037.19885  rho(rmax) 0.00034
+
+
+
+       contr. to mm extrapolated for r>rmt:  -0.059556 est. true mm =-2.643348
+
  getcor:  qcore= 18.00  qsc= 18.00  konf = 4  4  3  4 
- sum q= 9.00  sum ec=  -617.55980  sum tc=  1037.75737  rho(rmax) 0.00037
- sum q= 9.00  sum ec=  -618.89095  sum tc=  1037.55387  rho(rmax) 0.00033
-   5    5.653858    4.179075    1.474783     -0.143227    0.028149   -0.171376
+ sum q= 9.00  sum ec=  -617.03071  sum tc=  1037.37320  rho(rmax) 0.00038
+ sum q= 9.00  sum ec=  -618.23994  sum tc=  1037.20468  rho(rmax) 0.00034
+
+
+
+
  getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3  4 
  sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
- sum q= 1.00  sum ec=   -31.97025  sum tc=    47.38864  rho(rmax) 0.00000
-   6    4.506001    3.840510    0.665492      0.016196    0.037941   -0.021745
+ sum q= 1.00  sum ec=   -32.02003  sum tc=    47.39529  rho(rmax) 0.00000
+
+
+
+
  getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3  4 
- sum q= 1.00  sum ec=   -27.19295  sum tc=    43.50986  rho(rmax) 0.00000
- sum q= 1.00  sum ec=   -27.19372  sum tc=    43.50923  rho(rmax) 0.00000
-   7    4.483447    3.839382    0.644065      0.017117    0.003847    0.013270
-       contr. to mm extrapolated for r>rmt:   0.017785 est. true mm = 0.034902
+ sum q= 1.00  sum ec=   -27.18941  sum tc=    43.50916  rho(rmax) 0.00000
+ sum q= 1.00  sum ec=   -27.19035  sum tc=    43.50796  rho(rmax) 0.00000
+
+
+
  getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3  4 
- sum q= 1.00  sum ec=   -27.18786  sum tc=    43.50926  rho(rmax) 0.00000
- sum q= 1.00  sum ec=   -27.18825  sum tc=    43.50819  rho(rmax) 0.00000
-   8    4.521385    3.851034    0.670351      0.050909    0.034887    0.016022
-       contr. to mm extrapolated for r>rmt:   0.000107 est. true mm = 0.051016
+ sum q= 1.00  sum ec=   -27.18570  sum tc=    43.50715  rho(rmax) 0.00000
+ sum q= 1.00  sum ec=   -27.18466  sum tc=    43.50846  rho(rmax) 0.00000
+
+
+
+
  getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3  4 
- sum q= 1.00  sum ec=   -27.20214  sum tc=    43.51117  rho(rmax) 0.00000
- sum q= 1.00  sum ec=   -27.20254  sum tc=    43.50995  rho(rmax) 0.00000
+ sum q= 1.00  sum ec=   -27.19186  sum tc=    43.50814  rho(rmax) 0.00000
+ sum q= 1.00  sum ec=   -27.19073  sum tc=    43.50957  rho(rmax) 0.00000
+
+ mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
+   1    6.173441    2.968973    3.204468      2.764672    0.610919    2.153753
+   2    6.167356    2.968935    3.198421      2.711104    0.592049    2.119056
+   3    6.103195    2.951776    3.151419     -2.640746   -0.552020   -2.088726
+   4    6.252539    3.076783    3.175756     -2.583792   -0.566404   -2.017388
+   5    5.580215    4.088123    1.492092     -0.215865   -0.060078   -0.155788
+   6    4.326910    3.673232    0.653678     -0.057175   -0.052771   -0.004404
+   7    4.327402    3.674139    0.653263      0.056602    0.055245    0.001357
+   8    4.300655    3.651856    0.648799      0.061411    0.058929    0.002482
 
  Symmetrize density..
 
  Make new boundary conditions for phi,phidot..
-  ebar: 
+  pnunew: ebar: 
     without lo    : ebar = center of gravity of occupied states
     with lo & PZ>P: ebar for lo is meaningless(zero is shown). Use empty-sphere PZ.
                     ebar for valence is at the center of gravity of occ. states.
@@ -1680,234 +1174,267 @@ nev nmx ndim evl(nev)=  144  144  144    12.56341
 
  site    1   species   1:Cr1     
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
- 0     0    0.226145   -1.238494    4.500000    4.243849    4.500000    4.500000
- spn 2 0    0.195957   -2.292154    4.500000    4.129134    4.500000    4.500000
- 1     0    0.378729   -0.631529    4.271822    4.242982    4.250000    4.250000
- spn 2 0    0.333516   -0.600911    4.271244    4.229794    4.250000    4.250000
- 2     0    3.171033   -0.248972    3.691935    3.584385    3.147584    3.584385
- spn 2 0    0.678464   -0.282866    3.215497    3.346658    3.147584    3.346658
- 3     0    0.100790   -0.209321    4.130694    4.127656    4.102416    4.127656
- spn 2 0    0.101729   -0.181682    4.127987    4.125912    4.102416    4.125912
+ 0     0    0.228567   -0.571676    4.500000    4.509529    4.500000    4.509529
+ spn 2 0    0.191115   -0.613091    4.500000    4.435995    4.500000    4.500000
+ 1     0    0.382552   -0.459601    4.258287    4.291586    4.250000    4.291586
+
+ spn 2 0    0.332413   -0.500707    4.250000    4.257815    4.250000    4.257815
+ 2     0    3.758556   -0.155336    3.803403    3.833752    3.147584    3.833752
+ spn 2 0    1.078221   -0.271941    3.307062    3.411110    3.147584    3.411110
+ 3     0    0.099381   -0.344648    4.120451    4.122769    4.102416    4.122769
+ spn 2 0    0.102635   -0.344524    4.117882    4.120327    4.102416    4.120327
 
  site    2   species   1:Cr1     
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
- 0     0    0.233067   -1.243949    4.500000    4.250985    4.500000    4.500000
- spn 2 0    0.208229   -1.724532    4.500000    4.169492    4.500000    4.500000
- 1     0    0.393402   -0.640504    4.265401    4.250971    4.250000    4.250971
- spn 2 0    0.343047   -0.675819    4.267630    4.225231    4.250000    4.250000
- 2     0    4.294238   -0.315086    3.681154    3.641945    3.147584    3.641945
- spn 2 0    0.939117   -0.298872    3.153046    3.398804    3.147584    3.398804
- 3     0    0.101701   -0.225280    4.129967    4.128086    4.102416    4.128086
- spn 2 0    0.107252   -0.186289    4.128072    4.126778    4.102416    4.126778
+ 0     0    0.229412   -0.569601    4.500000    4.508803    4.500000    4.508803
+ spn 2 0    0.194640   -0.599733    4.500000    4.441156    4.500000    4.500000
+ 1     0    0.369881   -0.483181    4.255527    4.284118    4.250000    4.284118
+ spn 2 0    0.331167   -0.509649    4.250000    4.255038    4.250000    4.255038
+ 2     0    3.737681   -0.149241    3.804888    3.831869    3.147584    3.831869
+ spn 2 0    1.100782   -0.257506    3.311524    3.420084    3.147584    3.420084
+ 3     0    0.102256   -0.343914    4.120234    4.122710    4.102416    4.122710
+ spn 2 0    0.101537   -0.363476    4.117372    4.119555    4.102416    4.119555
 
  site    3   species   2:Cr2     
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
- 0     0    0.198146   -1.623271    4.500000    4.176945    4.500000    4.500000
- spn 2 0    0.224311   -1.060687    4.500000    4.291243    4.500000    4.500000
- 1     0    0.349253   -0.618435    4.262401    4.229605    4.250000    4.250000
- spn 2 0    0.365045   -0.607475    4.255302    4.252131    4.250000    4.252131
- 2     0    0.583035   -0.972191    3.147584    3.163689    3.147584    3.163689
- spn 2 0    3.780811   -0.264467    3.697903    3.632263    3.147584    3.632263
- 3     0    0.103034   -0.159464    4.127500    4.127246    4.102416    4.127246
- spn 2 0    0.102994   -0.239409    4.128432    4.126805    4.102416    4.126805
+ 0     0    0.198045   -0.587729    4.500000    4.447724    4.500000    4.500000
+ spn 2 0    0.226752   -0.562150    4.500000    4.510574    4.500000    4.510574
+ 1     0    0.337038   -0.492017    4.250000    4.259022    4.250000    4.259022
+ spn 2 0    0.350583   -0.505845    4.251068    4.276927    4.250000    4.276927
+ 2     0    1.093939   -0.259494    3.317344    3.414267    3.147584    3.414267
+ spn 2 0    3.696039   -0.143497    3.807120    3.829374    3.147584    3.829374
+ 3     0    0.102202   -0.327597    4.118843    4.120971    4.102416    4.120971
+ spn 2 0    0.098597   -0.367087    4.119559    4.121673    4.102416    4.121673
 
  site    4   species   2:Cr2     
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
- 0     0    0.214778   -1.404798    4.500000    4.206894    4.500000    4.500000
- spn 2 0    0.239451   -0.357468    4.500000    4.640207    4.500000    4.640207
- 1     0    0.372253   -0.553937    4.275572    4.248960    4.250000    4.250000
- spn 2 0    0.404419   -0.520009    4.269998    4.280067    4.250000    4.280067
- 2     0    0.870771   -1.112893    3.147584    3.153396    3.147584    3.153396
- spn 2 0    4.255971   -0.318357    3.677107    3.633596    3.147584    3.633596
- 3     0    0.102716   -0.159368    4.128888    4.128149    4.102416    4.128149
- spn 2 0    0.101069   -0.219252    4.131249    4.128508    4.102416    4.128508
+ 0     0    0.204577   -0.566821    4.500000    4.459543    4.500000    4.500000
+ spn 2 0    0.240437   -0.534833    4.500000    4.527929    4.500000    4.527929
+ 1     0    0.352241   -0.455327    4.250000    4.268013    4.250000    4.268013
+ spn 2 0    0.390778   -0.436289    4.266640    4.296804    4.250000    4.296804
+ 2     0    1.178052   -0.243736    3.329450    3.432775    3.147584    3.432775
+ spn 2 0    3.690474   -0.147434    3.801962    3.824932    3.147584    3.824932
+ 3     0    0.099503   -0.293544    4.120554    4.122338    4.102416    4.122338
+ spn 2 0    0.096476   -0.310327    4.122275    4.124058    4.102416    4.124058
 
  site    5   species   5:Nh      
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
- 0     1    0.789408   -0.655992    2.850000    2.931908    2.500000    2.850000
-  node =           2
- (warning) failed to find proper node count for l=0  ebar=-0.0042: pnu not calc
- spn 2 1    0.806592   -0.004156    2.850000    2.850000    2.500000    2.850000
- 1     0    1.936341   -0.386426    2.823122    2.802545    2.250000    2.802545
- spn 2 0    2.069053   -0.377025    2.811650    2.835456    2.250000    2.835456
- 2     0    0.024643   -0.975852    3.178567    3.159425    3.147584    3.159425
- spn 2 0    0.020974   -0.344807    3.174247    3.187304    3.147584    3.187304
- 3     0    0.004924    0.218200    4.122057    4.122996    4.102416    4.122996
- spn 2 0    0.001922   -0.077369    4.120873    4.117548    4.102416    4.117548
+ 0     1    0.771219   -1.102822    2.850000    2.864144    2.500000    2.850000
+ spn 2 1    0.809816   -1.201578    2.850000    2.872500    2.500000    2.850000
+ 1     0    1.881165   -0.350412    2.839379    2.821680    2.250000    2.821680
+ spn 2 0    2.065881   -0.409690    2.848532    2.833559    2.250000    2.833559
+ 2     0    0.025168   -0.139840    3.213556    3.200976    3.147584    3.200976
+ spn 2 0    0.019181   -0.140374    3.212010    3.200225    3.147584    3.200225
+ 3     0    0.004622   -0.143831    4.119856    4.116954    4.102416    4.116954
+ spn 2 0    0.003162   -0.151088    4.118637    4.116583    4.102416    4.116583
 
  site    6   species   3:N1      
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
- 0     1    0.741406   -0.191081    2.850000    2.956516    2.500000    2.850000
-  node =           2
- (warning) failed to find proper node count for l=0  ebar=1.3463: pnu not calc
- spn 2 1    0.732927    1.346327    2.850000    2.850000    2.500000    2.850000
- 1     0    1.486219   -0.141600    2.839887    2.815603    2.250000    2.815603
- spn 2 0    1.489189   -0.003373    2.838778    2.849473    2.250000    2.849473
- 2     0    0.028480   -1.135050    3.182017    3.154863    3.147584    3.154863
- spn 2 0    0.020605   -0.764012    3.174797    3.168932    3.147584    3.168932
- 3     0    0.004994    0.147770    4.122126    4.122410    4.102416    4.122410
- spn 2 0    0.002181   -0.082286    4.119980    4.118269    4.102416    4.118269
+ 0     1    0.722903   -0.961810    2.850000    2.853844    2.500000    2.850000
+ spn 2 1    0.728793   -0.956983    2.850000    2.854711    2.500000    2.850000
+ 1     0    1.382058   -0.249426    2.818241    2.783723    2.250000    2.783723
+ spn 2 0    1.441658   -0.235859    2.819918    2.787701    2.250000    2.787701
+ 2     0    0.025095   -0.144694    3.218645    3.201490    3.147584    3.201490
+ spn 2 0    0.018444   -0.147158    3.217353    3.201038    3.147584    3.201038
+ 3     0    0.004812   -0.140638    4.121357    4.117377    4.102416    4.117377
+ spn 2 0    0.003148   -0.154646    4.120180    4.117054    4.102416    4.117054
 
  site    7   species   4:N2      
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
- 0     1    0.736885    0.069484    2.850000    2.976606    2.500000    2.850000
- spn 2 1    0.745247    0.229873    2.850000    2.987660    2.500000    2.850000
- 1     0    1.492267   -0.051517    2.833506    2.836987    2.250000    2.836987
- spn 2 0    1.456071   -0.172127    2.834705    2.806430    2.250000    2.806430
- 2     0    0.018679   -1.296003    3.170264    3.149148    3.147584    3.149148
- spn 2 0    0.026737   -0.662702    3.182277    3.173519    3.147584    3.173519
- 3     0    0.002451    0.248665    4.119471    4.124064    4.102416    4.124064
- spn 2 0    0.005110    0.143203    4.123001    4.122266    4.102416    4.122266
+ 0     1    0.729971   -0.952494    2.850000    2.855192    2.500000    2.850000
+ spn 2 1    0.720535   -0.962214    2.850000    2.853270    2.500000    2.850000
+ 1     0    1.439480   -0.232954    2.820363    2.787934    2.250000    2.787934
+ spn 2 0    1.385218   -0.246682    2.818546    2.783818    2.250000    2.783818
+ 2     0    0.019206   -0.152660    3.217025    3.200598    3.147584    3.200598
+ spn 2 0    0.024790   -0.144071    3.218136    3.201416    3.147584    3.201416
+ 3     0    0.003345   -0.148813    4.120387    4.117128    4.102416    4.117128
+ spn 2 0    0.004857   -0.128176    4.121338    4.117554    4.102416    4.117554
 
  site    8   species   4:N2      
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
- 0     1    0.736574   -0.004685    2.850000    2.971859    2.500000    2.850000
-  node =           2
- (warning) failed to find proper node count for l=0  ebar=0.852: pnu not calc
- spn 2 1    0.739376    0.851992    2.850000    2.850000    2.500000    2.850000
- 1     0    1.529243   -0.044372    2.832090    2.840855    2.250000    2.840855
- spn 2 0    1.461493   -0.050259    2.833182    2.840367    2.250000    2.840367
- 2     0    0.017451   -1.383598    3.172415    3.146658    3.147584    3.147584
- spn 2 0    0.029221   -0.718543    3.182887    3.171360    3.147584    3.171360
- 3     0    0.002879    0.192074    4.119320    4.123148    4.102416    4.123148
- spn 2 0    0.005148    0.055169    4.122844    4.120824    4.102416    4.120824
+ 0     1    0.729941   -0.954951    2.850000    2.855158    2.500000    2.850000
+ spn 2 1    0.719404   -0.966129    2.850000    2.852898    2.500000    2.850000
+ 1     0    1.428510   -0.238630    2.819993    2.786902    2.250000    2.786902
+ spn 2 0    1.370096   -0.253834    2.817987    2.782248    2.250000    2.782248
+ 2     0    0.019295   -0.140227    3.217952    3.201439    3.147584    3.201439
+ spn 2 0    0.025304   -0.131969    3.219010    3.202238    3.147584    3.202238
+ 3     0    0.003287   -0.146697    4.120423    4.117172    4.102416    4.117172
+ spn 2 0    0.004818   -0.128921    4.121320    4.117550    4.102416    4.117550
 
  Harris energy:
- sumev=      -15.987376  val*vef=    -301.156772   sumtv=     285.169396
- sumec=    -5135.488766  cor*vef=  -13735.504829   ttcor=    8600.016063
- rhoeps=    -424.369661     utot=  -17258.139919    ehar=   -8797.324121
+ sumev=      -16.197206  val*vef=    -300.042055   sumtv=     283.844849
+ sumec=    -5136.887699  cor*vef=  -13736.904466   ttcor=    8600.016768
+ rhoeps=    -424.112160     utot=  -17257.141379    ehar=   -8797.391922
+
+ srhov:    -62.254645   -255.570094   -317.824739 sumev=  -16.197206   sumtv=  301.627533
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
+ smves:: avg es pot at rmt= 0.554471  avg sphere pot= 0.584100  vconst=-0.554471
+
+ smooth rhoves     74.653237   charge    28.822103
  smvxcm: all smrho_w is positive
- smvxcm: all smrho_w is positive
- smvxcm: all smrho_w is positive
-
- Harris correction to forces: shift in free-atom density              
-  ib         delta-n dVes             delta-n dVxc               total
-   1   36.70    0.00   -0.18     6.00    0.00   -0.03   -42.70   -0.00    0.20
-   2   93.69   -0.00   -0.16    10.96   -0.00    0.00  -104.65    0.00    0.16
-   3 -124.88   -0.00    0.28   -18.28   -0.00   -0.00   143.16    0.00   -0.28
-   4  -16.20    0.00   -0.22     1.36    0.00    0.01    14.84   -0.00    0.21
-   5  196.60   -0.00   -0.89    16.94   -0.00   -0.06  -213.54    0.00    0.95
-   6 -201.05   -0.00    0.17    -2.57   -0.00    0.02   203.62    0.00   -0.19
-   7 -116.99   -0.00   -0.52   -11.16   -0.00   -0.06   128.15    0.00    0.58
-   8  225.33   -0.00    0.62     7.55   -0.00    0.06  -232.89    0.00   -0.68
- shift forces to make zero average correction:          -13.00    0.00    0.12
-
- srhov:    -64.552109   -251.128132   -315.680241 sumev=  -15.987376   sumtv=  299.692865
-
- vvvvves: avg es pot at rmt= 0.586363  avg sphere pot= 0.576831  vconst=-0.586363
-
- smooth rhoves     76.913742   charge    29.511961
- smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=          60 -3.13853249283323199E-003
- smvxcm: enforce positive smrho_w. Add srshift=  3.13853249284323180E-003
- smooth rhoeps =  -26.175473 ( -13.138018, -13.037455)
-         rhomu =  -34.134834 ( -17.151547, -16.983287)
-       avg vxc =   -0.878999 (  -0.879370,  -0.878629)
+ smooth rhoeps =  -22.733094 ( -11.390053, -11.343041)
+         rhomu =  -29.639824 ( -14.855224, -14.784600)
+       avg vxc =   -0.842282 (  -0.843478,  -0.841085)
 
  locpot:
 
  site  1  z= 24.0  rmt= 2.60000  nr=323   a=0.030  nlml=16  rg=0.650  Vfloat=F
- vxcns2 (warning): nr*np=     10336  negative density # of points=         0        51
- vxcnsp (warning): negative rho: min val =  -1.51E-03
- vxcns2 (warning): nr*np=     10336  negative density # of points=         0        51
- vxcnsp (warning): negative rho: min val =  -1.51E-03
+  ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   4.50953   4.50000   0.00000   0.00000
+  ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   4.29159   4.25781   0.00000   0.00000
+  ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.83375   3.41111   0.00000   0.00000
+  ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.12277   4.12033   0.00000   0.00000
 
  site  2  z= 24.0  rmt= 2.60000  nr=323   a=0.030  nlml=16  rg=0.650  Vfloat=F
+  ibas l=  2  0 pnu(1:nsp) pnz(1:nsp)=   4.50880   4.50000   0.00000   0.00000
+  ibas l=  2  1 pnu(1:nsp) pnz(1:nsp)=   4.28412   4.25504   0.00000   0.00000
+  ibas l=  2  2 pnu(1:nsp) pnz(1:nsp)=   3.83187   3.42008   0.00000   0.00000
+  ibas l=  2  3 pnu(1:nsp) pnz(1:nsp)=   4.12271   4.11955   0.00000   0.00000
 
  site  3  z= 24.0  rmt= 2.60000  nr=323   a=0.030  nlml=16  rg=0.650  Vfloat=F
+  ibas l=  3  0 pnu(1:nsp) pnz(1:nsp)=   4.50000   4.51057   0.00000   0.00000
+  ibas l=  3  1 pnu(1:nsp) pnz(1:nsp)=   4.25902   4.27693   0.00000   0.00000
+  ibas l=  3  2 pnu(1:nsp) pnz(1:nsp)=   3.41427   3.82937   0.00000   0.00000
+  ibas l=  3  3 pnu(1:nsp) pnz(1:nsp)=   4.12097   4.12167   0.00000   0.00000
 
  site  4  z= 24.0  rmt= 2.60000  nr=323   a=0.030  nlml=16  rg=0.650  Vfloat=F
+  ibas l=  4  0 pnu(1:nsp) pnz(1:nsp)=   4.50000   4.52793   0.00000   0.00000
+  ibas l=  4  1 pnu(1:nsp) pnz(1:nsp)=   4.26801   4.29680   0.00000   0.00000
+  ibas l=  4  2 pnu(1:nsp) pnz(1:nsp)=   3.43277   3.82493   0.00000   0.00000
+  ibas l=  4  3 pnu(1:nsp) pnz(1:nsp)=   4.12234   4.12406   0.00000   0.00000
 
  site  5  z=  7.0  rmt= 1.80000  nr=223   a=0.030  nlml=16  rg=0.450  Vfloat=F
  core hole:  kcor=1  lcor=0  qcor=-1  amom=-1
+  ibas l=  5  0 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
+  ibas l=  5  1 pnu(1:nsp) pnz(1:nsp)=   2.82168   2.83356   0.00000   0.00000
+  ibas l=  5  2 pnu(1:nsp) pnz(1:nsp)=   3.20098   3.20023   0.00000   0.00000
+  ibas l=  5  3 pnu(1:nsp) pnz(1:nsp)=   4.11695   4.11658   0.00000   0.00000
 
  site  6  z=  7.0  rmt= 1.80000  nr=223   a=0.030  nlml=16  rg=0.450  Vfloat=F
+  ibas l=  6  0 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
+  ibas l=  6  1 pnu(1:nsp) pnz(1:nsp)=   2.78372   2.78770   0.00000   0.00000
+  ibas l=  6  2 pnu(1:nsp) pnz(1:nsp)=   3.20149   3.20104   0.00000   0.00000
+  ibas l=  6  3 pnu(1:nsp) pnz(1:nsp)=   4.11738   4.11705   0.00000   0.00000
 
  site  7  z=  7.0  rmt= 1.80000  nr=223   a=0.030  nlml=16  rg=0.450  Vfloat=F
+  ibas l=  7  0 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
+  ibas l=  7  1 pnu(1:nsp) pnz(1:nsp)=   2.78793   2.78382   0.00000   0.00000
+  ibas l=  7  2 pnu(1:nsp) pnz(1:nsp)=   3.20060   3.20142   0.00000   0.00000
+  ibas l=  7  3 pnu(1:nsp) pnz(1:nsp)=   4.11713   4.11755   0.00000   0.00000
 
  site  8  z=  7.0  rmt= 1.80000  nr=223   a=0.030  nlml=16  rg=0.450  Vfloat=F
+  ibas l=  8  0 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
+  ibas l=  8  1 pnu(1:nsp) pnz(1:nsp)=   2.78690   2.78225   0.00000   0.00000
+  ibas l=  8  2 pnu(1:nsp) pnz(1:nsp)=   3.20144   3.20224   0.00000   0.00000
+  ibas l=  8  3 pnu(1:nsp) pnz(1:nsp)=   4.11717   4.11755   0.00000   0.00000
 
  Energy terms:             smooth           local           total
-   rhoval*vef            -64.810670      -247.210625      -312.021294
-   rhoval*ves           -109.401634      -130.579169      -239.980804
-   psnuc*ves             263.229119    -34575.011223    -34311.782104
-   utot                   76.913742    -17352.795196    -17275.881454
-   rho*exc               -26.175473      -402.383917      -428.559389
-   rho*vxc               -34.134834      -532.405804      -566.540638
-   valence chg            29.511961        15.488038        44.999998
-   valence mag             0.106363        -1.882284        -1.775921
+   rhoval*vef            -62.410639      -251.193936      -313.604575
+   rhoval*ves           -109.909316      -132.769001      -242.678318
+   psnuc*ves             259.215790    -34575.831167    -34316.615378
+   utot                   74.653237    -17354.300084    -17279.646848
+   rho*exc               -22.733094      -403.307228      -426.040322
+   rho*vxc               -29.639824      -533.608215      -563.248039
+   valence chg            28.822103        16.177896        44.999999
+   valence mag             0.101863        -0.989658        -0.887795
    core charge            79.000000         0.000000        79.000000
 
  Charges:  valence    45.00000   cores    79.00000   nucleii  -124.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
 
  Kohn-Sham energy:
- sumtv=      299.692865  sumtc=      8606.142335   ekin=     8905.835200
- rhoep=     -428.559389   utot=    -17275.881454   ehks=    -8798.605643
- mag. mom=    -0.775921  (bands)       -1.775921  (output rho)
+ sumtv=      301.627533  sumtc=      8607.185544   ekin=     8908.813078
+ rhoep=     -426.040322   utot=    -17279.646848   ehks=    -8796.874092
+ mag. mom=    -0.887795
+ smvxcm: all smrho_w is positive
+ smvxcm: all smrho_w is positive
+ smvxcm: all smrho_w is positive
+
+ Harris correction to forces: shift in free-atom density              
+  ib         delta-n dVes             delta-n dVxc               total
+   1   28.35    0.00    0.08     3.71    0.00   -0.02   -32.07   -0.00   -0.07
+   2   28.27   -0.00   -0.22     6.01   -0.00    0.01   -34.27    0.00    0.21
+   3  -97.92   -0.00    0.18   -16.29    0.00   -0.01   114.21   -0.00   -0.17
+   4   37.07    0.00   -0.18     5.87   -0.00    0.01   -42.93    0.00    0.17
+   5  140.77    0.00    0.26     9.94    0.00    0.03  -150.71   -0.00   -0.28
+   6  -67.02    0.00   -0.13    -1.98   -0.00    0.01    69.00    0.00    0.12
+   7  -38.16   -0.00   -0.02    -1.86    0.00   -0.01    40.01   -0.00    0.03
+   8   34.56    0.00    0.06    -0.22   -0.00    0.02   -34.34    0.00   -0.08
+ shift forces to make zero average correction:           -8.89   -0.00   -0.01
 
  Forces, with eigenvalue correction
   ib           estatic                  eigval                    total
-   1   -4.67    0.00    0.56    -3.24   -0.00   -0.74    -7.91    0.00   -0.18
-   2  -21.88   -0.00   -0.38   -74.29   -0.00    0.55   -96.17   -0.00    0.17
-   3   13.08   -0.00    0.45    72.34   -0.00   -0.56    85.41   -0.00   -0.11
-   4  -19.23    0.00   -0.31    45.79   -0.00    0.32    26.56    0.00    0.00
-   5   32.37    0.00   -2.20     1.66    0.00    2.21    34.02    0.00    0.01
-   6   41.46   -0.00    1.64  -117.48   -0.00   -1.58   -76.02   -0.00    0.06
-   7   44.12   -0.00   -1.66   -74.27   -0.00    1.92   -30.15   -0.00    0.27
-   8  -85.24    0.00    1.90   149.50   -0.00   -2.13    64.26    0.00   -0.23
- Maximum Harris force = 96.2 mRy/au (site 8)  Max eval correction = 219.9
+   1   -9.35   -0.00    0.35    15.54   -0.00    0.00     6.19   -0.00    0.36
+   2  -13.92    0.00   -0.32   -51.93    0.00    0.02   -65.85    0.00   -0.30
+   3   39.15    0.00    0.37    -4.60   -0.00    0.07    34.55    0.00    0.44
+   4  -14.41   -0.00   -0.31    16.68    0.00   -0.07     2.27   -0.00   -0.38
+   5  -87.90   -0.00   -1.04   107.42   -0.00    1.10    19.52   -0.00    0.06
+   6   82.29    0.00    0.93   -85.64    0.00   -1.04    -3.34    0.00   -0.11
+   7  109.97    0.00   -0.89  -124.99   -0.00    0.98   -15.03    0.00    0.09
+   8 -105.83   -0.00    0.92   127.53    0.00   -1.07    21.69   -0.00   -0.15
+ Maximum Harris force = 65.9 mRy/au (site 5)  Max eval correction = 141.8
 
  Symmetrize forces ...
   
  mixing: mode=A  nmix=3  beta=.5  elind=1.608  kill=4
- wgtsmooth=  8.50517271799714619E-003
- mixrho:  sought 3 iter from file mixm; read 1.  RMS DQ=2.54e-2  last it=2.96e-2
- AMIX: nmix=1 mmix=8  nelts=40992  beta=0.5  tm=5  rmsdel=1.27e-2
-   tj: 0.42250
- mixrho: add corrections to qcell smrho =  0.61450D-06  0.65690D-09
- unscreened rms difference:  smooth  0.021042   local  0.043869
-   screened rms difference:  smooth  0.018023   local  0.043869   tot  0.025406
- mixrho: all smrho are positive for isp=  1
- mixrho: all smrho are positive for isp=  2
- vessm= -0.58636278157226795     
-### Add vref to eigenvalues to get relative to vaccum=   -0.811229
-### mean estatic potential by superposition of atoms eV=  -26.863567
-### VBM=    -9.255651 eV CBM=    -9.255651 eV estatic_pot=  -26.863567 eV
-  not readin vesintatm.* ---> not show VBM. or you need to repeat new lmfa again.
+ wgtsmooth=   8.5051727179971462E-003
+ mixrho:  sought 3 iter from file mixm; read 1.  RMS DQ=2.31e-2  last it=3.25e-2
+ AMIX: nmix=1 mmix=8  nelts= 40992  beta=0.50000  tm= 5.00000  rmsdel=1.15D-02
+   tj: 0.31087
+ mixrho: add corrections to qcell smrho =  0.29911D-06  0.31975D-09
+ unscreened rms difference:  smooth  0.021966   local  0.031193
+   screened rms difference:  smooth  0.019115   local  0.031193   tot  0.023081
 
  iors  : write restart file (binary, mesh density) 
 
-   it  2  of  2    ehf=   -8797.324121   ehk=   -8798.605643
- From last iter    ehf=   -8797.632937   ehk=   -8795.456859
- diffe(q)=  0.308816 (0.025406)    tol= 0.000010 (0.000010)   more=F
-x mmom=-1.7759213 ehf=-8797.3241208 ehk=-8798.6056429
- >>      9.98   exit  lmfp            9.95
- Exit 0 LMF 
- CPU time:    9.981s     Fri May 24 11:03:34 2013   on TT4
-
-  ==== xxxxxxxxx ====     calls      == cpu time ===   depth 1
-  entry   xxxx  xxxx                per call  total  (depth is by TIM= in ctrl.*.)
-      0      0      0        1       9.98       9.98   main
-      0      0      0        1       9.95       9.95   `--lmfp
-rdcmd:  lmf --rs=1,0 --cls:5,0,1 -vnit=1 -vmetal=2 crn
-HOST_INFORMATION platform: gfortran
-HOST_INFORMATION compiler version: gcc version 4.6.2 (Ubuntu/Linaro 4.6.2-10ubuntu1~11.10.1) 
-HOST_INFORMATION FFLAGS (<=120): -O2 -fomit-frame-pointer -funroll-loops -ffast-math -ffixed-line-length-132 -DHASIARGC -DHASGETARG -DFDATE -DHASCPUTIME 
-HOST_INFORMATION LIBLOC (<=120): /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf
-HOST_INFORMATION uname -a (<=120): Linux TT4 3.0.0-32-generic #51-Ubuntu SMP Thu Mar 21 15:50:59 UTC 2013 x86_64 x86_64 x86_64 GNU/Linux
-HOST_INFORMATION /etc/issue: Ubuntu 11.10 \n \l
-HOST_INFORMATION git branch: refs/heads/master
-HOST_INFORMATION git commit: 0fd9bd2cf16a41eec9261bd9877686039ea8ed99
-HOST_INFORMATION linked at: Mon May 20 14:58:01 JST 2013
- -----------------------  START LMF      -----------------------
- ptenv() is called with EXT=crn
- ptenv() not supported, but continue.
+   it  2  of  2    ehf=   -8797.391922   ehk=   -8796.874092
+ From last iter    ehf=   -8797.632937   ehk=   -8795.518388
+ diffe(q)=  0.241015 (0.023081)    tol= 0.000010 (0.000010)   more=F
+x mmom=-.8877953 ehf=-8797.3919223 ehk=-8796.8740924
+ >>      5.01   exit  lmfp            4.97
+OK! end of LMF ======================
+===START LMF   =====================================
+ mpisize=           1
  HEADER CrN in orthorhombic setting afm structure (a)
-  LMF  vn 7.00(LMF 7.0)  verb 30
- special:  forces
- bz:       metal(2), tetra, invit 
+  bndfp (warning): no sigm file found ... LDA calculation only
 
  Symmetry operations suppressed
+
+mmm === MTO setting ===
+mmm ispec lmxb lpzex nkapii nkaphh=    1    2    0    2    2
+mmm rsmh1    1  1.30  1.30  1.30
+mmm   eh1    1 -0.01 -0.01 -0.01
+mmm rsmh2    1  1.30  1.30  1.30
+mmm  eh2     1 -0.10 -0.10 -0.10
+mmm pz       1  0.00  0.00  0.00
+mmm lh       1  2  2
+mmm ispec lmxb lpzex nkapii nkaphh=    2    2    0    2    2
+mmm rsmh1    2  1.30  1.30  1.30
+mmm   eh1    2 -0.01 -0.01 -0.01
+mmm rsmh2    2  1.30  1.30  1.30
+mmm  eh2     2 -0.10 -0.10 -0.10
+mmm pz       2  0.00  0.00  0.00
+mmm lh       2  2  2
+mmm ispec lmxb lpzex nkapii nkaphh=    3    2    0    2    2
+mmm rsmh1    3  0.90  0.90  0.90
+mmm   eh1    3 -0.01 -0.01 -0.01
+mmm rsmh2    3  0.90  0.90  0.90
+mmm  eh2     3 -0.10 -0.10 -0.10
+mmm pz       3  0.00  0.00  0.00
+mmm lh       3  2  2
+mmm ispec lmxb lpzex nkapii nkaphh=    4    2    0    2    2
+mmm rsmh1    4  0.90  0.90  0.90
+mmm   eh1    4 -0.01 -0.01 -0.01
+mmm rsmh2    4  0.90  0.90  0.90
+mmm  eh2     4 -0.10 -0.10 -0.10
+mmm pz       4  0.00  0.00  0.00
+mmm lh       4  2  2
+mmm ispec lmxb lpzex nkapii nkaphh=    5    2    0    2    2
+mmm rsmh1    5  0.90  0.90  0.90
+mmm   eh1    5 -0.01 -0.01 -0.01
+mmm rsmh2    5  0.90  0.90  0.90
+mmm  eh2     5 -0.10 -0.10 -0.10
+mmm pz       5  0.00  0.00  0.00
+mmm lh       5  2  2
 
                 Plat                                  Qlat
    1.000000   0.000000   0.000000        1.000000   0.000000   0.000000
@@ -1918,9 +1445,9 @@ HOST_INFORMATION linked at: Mon May 20 14:58:01 JST 2013
  LATTC:  as= 2.000   tol=1.00E-08   alat=10.67083   awald= 0.258
          r1=  2.082   nkd=  99      q1=  4.667   nkg= 175
 
+ Generator 1 already in group as element 1
  SGROUP: 1 symmetry operations from 1 generators
- MKSYM:  found 1 space group operations
-         no attempt to add inversion symmetry
+ MKSYM:  found 1 space group operations; adding inversion generated 2 ops
 
  SPLCLS:  5 species split into 8 classes
  Species  Class      Sites...
@@ -1933,8 +1460,9 @@ HOST_INFORMATION linked at: Mon May 20 14:58:01 JST 2013
           8:N22      8
  Nh       5:Nh       5
  
- BZMESH:  16 irreducible QP from 16 ( 2 4 2 )  shift= T T T
- >> level: 1  CPUsec=      0.03  enter lmfp
+ BZMESH:      8 irreducible QP from    2   4   2 shift=TTT
+ >> level: 1  CPUsec=      0.04  enter lmfp
+ gen_hamindex: not readin QGpsi.
 
  species data:  augmentation                           density
  spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
@@ -1944,12 +1472,9 @@ HOST_INFORMATION linked at: Mon May 20 14:58:01 JST 2013
  N2       1.800  0.720    3    5         3  0.450  0.900    15    0   0.720
  Nh       1.800  0.720    3    5         3  0.450  0.900    15    0   0.720
 
- gvlist: cutoff radius   7.066 gives   2787   recips of max  13824
+ GVLST2: gmax = 7.066 a.u. created 2787 vectors of 13824 (20%)
+         (input) mesh has 24 x 24 x 24 divisions; length 0.445, 0.235, 0.323
  SGVSYM: 2787 symmetry stars found for 2787 reciprocal lattice vectors
- 
-
- Makidx:  hamiltonian dimensions Low, Int, High, Negl: 144 0 112 0
- suham :  128 augmentation channels, 128 local potential channels  Maximum lmxa=3
 
  sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-06
  spec      l    rsm    eh     gmax    last term    cutoff
@@ -1983,406 +1508,158 @@ HOST_INFORMATION linked at: Mon May 20 14:58:01 JST 2013
   Nh       0*   0.90  -0.10   8.260    4.24E-05    2787*
   Nh       1*   0.90  -0.10   8.889    2.99E-04    2787*
   Nh       2    0.90  -0.10   9.512    2.11E-03    2787*
+ goto end of reading rst or atm           1
 
  iors  : read restart file (binary, mesh density) 
          use from  restart file: ef window, positions, pnu 
          ignore in restart file: *
+ end of reading rst or atm
+ m_qplistinit:start
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    0, (    1    1),  (    8 8)
 
- --- BNDFP:  begin iteration 1 of 1 ---
+ Basis, after reading restart file
+ site spec        pos (Cartesian coordinates)         pos (multiples of plat)
+   1  Cr1       0.145977   0.132349   0.181606    0.145977   0.250000   0.249753
+   2  Cr1      -0.145977   0.397047  -0.181606   -0.145977   0.750000  -0.249753
+   3  Cr2       0.354023   0.397047   0.545176    0.354023   0.750000   0.749753
+   4  Cr2       0.645977   0.132349   0.181964    0.645977   0.250000   0.250247
+   5  Nh        0.099392   0.132349   0.545193    0.099392   0.250000   0.749777
+   6  N1       -0.099392   0.397047  -0.545193   -0.099392   0.750000  -0.749777
+   7  N2        0.400608   0.397047   0.908764    0.400608   0.750000   1.249777
+   8  N2        0.599392   0.132349  -0.181623    0.599392   0.250000  -0.249777
 
- vvvvves: avg es pot at rmt= 0.628530  avg sphere pot= 0.557996  vconst=-0.628530
+ --- BNDFP:  begin iteration 1 of 1
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
+ smves:: avg es pot at rmt= 0.620047  avg sphere pot= 0.562344  vconst=-0.620047
 
- smooth rhoves     81.116844   charge    32.284758
+ smooth rhoves     80.310693   charge    31.865433
  smvxcm: all smrho_w is positive
- smooth rhoeps =  -26.067686 ( -13.039939, -13.027748)
-         rhomu =  -34.001078 ( -17.013070, -16.988008)
-       avg vxc =   -0.878507 (  -0.878335,  -0.878679)
+ smooth rhoeps =  -25.605572 ( -12.840077, -12.765494)
+         rhomu =  -33.395179 ( -16.754667, -16.640512)
+       avg vxc =   -0.875842 (  -0.877010,  -0.874674)
 
  locpot:
 
  site  1  z= 24.0  rmt= 2.60000  nr=323   a=0.030  nlml=16  rg=0.650  Vfloat=T
- potential shift to crystal energy zero:    0.005485
+  ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   4.50953   4.50000   0.00000   0.00000
+  ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   4.29159   4.25781   0.00000   0.00000
+  ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.83375   3.41111   0.00000   0.00000
+  ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.12277   4.12033   0.00000   0.00000
+ potential shift to crystal energy zero:    0.005583
 
  site  2  z= 24.0  rmt= 2.60000  nr=323   a=0.030  nlml=16  rg=0.650  Vfloat=T
- potential shift to crystal energy zero:    0.005571
+  ibas l=  2  0 pnu(1:nsp) pnz(1:nsp)=   4.50880   4.50000   0.00000   0.00000
+  ibas l=  2  1 pnu(1:nsp) pnz(1:nsp)=   4.28412   4.25504   0.00000   0.00000
+  ibas l=  2  2 pnu(1:nsp) pnz(1:nsp)=   3.83187   3.42008   0.00000   0.00000
+  ibas l=  2  3 pnu(1:nsp) pnz(1:nsp)=   4.12271   4.11955   0.00000   0.00000
+ potential shift to crystal energy zero:    0.005667
 
  site  3  z= 24.0  rmt= 2.60000  nr=323   a=0.030  nlml=16  rg=0.650  Vfloat=T
- vxcns2 (warning): nr*np=     10336  negative density # of points=        56         0
- vxcnsp (warning): negative rho: min val =  -3.64E-03
- potential shift to crystal energy zero:    0.005528
+  ibas l=  3  0 pnu(1:nsp) pnz(1:nsp)=   4.50000   4.51057   0.00000   0.00000
+  ibas l=  3  1 pnu(1:nsp) pnz(1:nsp)=   4.25902   4.27693   0.00000   0.00000
+  ibas l=  3  2 pnu(1:nsp) pnz(1:nsp)=   3.41427   3.82937   0.00000   0.00000
+  ibas l=  3  3 pnu(1:nsp) pnz(1:nsp)=   4.12097   4.12167   0.00000   0.00000
+ potential shift to crystal energy zero:    0.005576
 
  site  4  z= 24.0  rmt= 2.60000  nr=323   a=0.030  nlml=16  rg=0.650  Vfloat=T
- potential shift to crystal energy zero:    0.005303
+  ibas l=  4  0 pnu(1:nsp) pnz(1:nsp)=   4.50000   4.52793   0.00000   0.00000
+  ibas l=  4  1 pnu(1:nsp) pnz(1:nsp)=   4.26801   4.29680   0.00000   0.00000
+  ibas l=  4  2 pnu(1:nsp) pnz(1:nsp)=   3.43277   3.82493   0.00000   0.00000
+  ibas l=  4  3 pnu(1:nsp) pnz(1:nsp)=   4.12234   4.12406   0.00000   0.00000
+ potential shift to crystal energy zero:    0.005378
 
  site  5  z=  7.0  rmt= 1.80000  nr=223   a=0.030  nlml=16  rg=0.450  Vfloat=T
  core hole:  kcor=1  lcor=0  qcor=-1  amom=-1
- potential shift to crystal energy zero:   -0.017650
+  ibas l=  5  0 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
+  ibas l=  5  1 pnu(1:nsp) pnz(1:nsp)=   2.82168   2.83356   0.00000   0.00000
+  ibas l=  5  2 pnu(1:nsp) pnz(1:nsp)=   3.20098   3.20023   0.00000   0.00000
+  ibas l=  5  3 pnu(1:nsp) pnz(1:nsp)=   4.11695   4.11658   0.00000   0.00000
+ potential shift to crystal energy zero:   -0.017630
 
  site  6  z=  7.0  rmt= 1.80000  nr=223   a=0.030  nlml=16  rg=0.450  Vfloat=T
- potential shift to crystal energy zero:   -0.016763
+  ibas l=  6  0 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
+  ibas l=  6  1 pnu(1:nsp) pnz(1:nsp)=   2.78372   2.78770   0.00000   0.00000
+  ibas l=  6  2 pnu(1:nsp) pnz(1:nsp)=   3.20149   3.20104   0.00000   0.00000
+  ibas l=  6  3 pnu(1:nsp) pnz(1:nsp)=   4.11738   4.11705   0.00000   0.00000
+ potential shift to crystal energy zero:   -0.016783
 
  site  7  z=  7.0  rmt= 1.80000  nr=223   a=0.030  nlml=16  rg=0.450  Vfloat=T
- potential shift to crystal energy zero:   -0.016774
+  ibas l=  7  0 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
+  ibas l=  7  1 pnu(1:nsp) pnz(1:nsp)=   2.78793   2.78382   0.00000   0.00000
+  ibas l=  7  2 pnu(1:nsp) pnz(1:nsp)=   3.20060   3.20142   0.00000   0.00000
+  ibas l=  7  3 pnu(1:nsp) pnz(1:nsp)=   4.11713   4.11755   0.00000   0.00000
+ potential shift to crystal energy zero:   -0.016769
 
  site  8  z=  7.0  rmt= 1.80000  nr=223   a=0.030  nlml=16  rg=0.450  Vfloat=T
- potential shift to crystal energy zero:   -0.016754
+  ibas l=  8  0 pnu(1:nsp) pnz(1:nsp)=   2.85000   2.85000   0.00000   0.00000
+  ibas l=  8  1 pnu(1:nsp) pnz(1:nsp)=   2.78690   2.78225   0.00000   0.00000
+  ibas l=  8  2 pnu(1:nsp) pnz(1:nsp)=   3.20144   3.20224   0.00000   0.00000
+  ibas l=  8  3 pnu(1:nsp) pnz(1:nsp)=   4.11717   4.11755   0.00000   0.00000
+ potential shift to crystal energy zero:   -0.016786
 
  Energy terms:             smooth           local           total
-   rhoval*vef            -74.698709      -228.988662      -303.687371
-   rhoval*ves           -112.143620      -121.131341      -233.274962
-   psnuc*ves             274.377308    -34568.661951    -34294.284643
-   utot                   81.116844    -17344.896646    -17263.779802
-   rho*exc               -26.067686      -398.725361      -424.793047
-   rho*vxc               -34.001078      -527.604806      -561.605884
-   valence chg            32.284758        12.715242        45.000000
-   valence mag             0.012477        -1.545353        -1.532876
-   core charge            79.000000         0.000000        79.000000
+   rhoval*vef            -73.025655      -230.512440      -303.538095
+   rhoval*ves           -112.221227      -121.260694      -233.481921
+   psnuc*ves             272.842612    -34568.206110    -34295.363497
+   utot                   80.310693    -17344.733402    -17264.422709
+   rho*exc               -25.605572      -399.039477      -424.645049
+   rho*vxc               -33.395179      -528.007736      -561.402915
+   valence chg            31.865433        13.134567        45.000000
+   valence mag             0.123711        -1.085049        -0.961338
+   core charge            79.000000        -0.000000        79.000000
 
  Charges:  valence    45.00000   cores    79.00000   nucleii  -124.00000
-    hom background     0.00000   deviation from neutrality:     -0.00000
-
- Incompatible or missing qp weights file ...
- Start first of two band passes ...
+    hom background     0.00000   deviation from neutrality:      0.00000
 
  suclst: set up table of site, l and n for CLS
    site   label     l  n   DOS channels up(down)
      5     Nh       0  1   1(2),3(4),5(6)
- CLS: 3Mb memory for aus: nlmax=16 ndham=144 nsistes=1 nsp=2 nkp=16
- -------- qplist --------
-    1   0.250   0.236   0.344
-    2   0.750   0.236   0.344
-    3   0.250   0.708   0.344
-    4   0.750   0.708   0.344
-    5   0.250   1.181   0.344
-    6   0.750   1.181   0.344
-    7   0.250   1.653   0.344
-    8   0.750   1.653   0.344
-    9   0.250   0.236   1.031
-   10   0.750   0.236   1.031
-   11   0.250   0.708   1.031
-   12   0.750   0.708   1.031
-   13   0.250   1.181   1.031
-   14   0.750   1.181   1.031
-   15   0.250   1.653   1.031
-   16   0.750   1.653   1.031
- sigmamode= F
-  gen_hamindex: --- Hamiltonian index ---
-  ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)
-  1  0  1      1    1   Cr1
-  1  1  1      2    4   Cr1
-  1  2  1      5    9   Cr1
-  1  0  2     10   10   Cr1
-  1  1  2     11   13   Cr1
-  1  2  2     14   18   Cr1
-  2  0  1     19   19   Cr1
-  2  1  1     20   22   Cr1
-  2  2  1     23   27   Cr1
-  2  0  2     28   28   Cr1
-  2  1  2     29   31   Cr1
-  2  2  2     32   36   Cr1
-  3  0  1     37   37   Cr2
-  3  1  1     38   40   Cr2
-  3  2  1     41   45   Cr2
-  3  0  2     46   46   Cr2
-  3  1  2     47   49   Cr2
-  3  2  2     50   54   Cr2
-  4  0  1     55   55   Cr2
-  4  1  1     56   58   Cr2
-  4  2  1     59   63   Cr2
-  4  0  2     64   64   Cr2
-  4  1  2     65   67   Cr2
-  4  2  2     68   72   Cr2
-  5  0  1     73   73   Nh
-  5  1  1     74   76   Nh
-  5  2  1     77   81   Nh
-  5  0  2     82   82   Nh
-  5  1  2     83   85   Nh
-  5  2  2     86   90   Nh
-  6  0  1     91   91   N1
-  6  1  1     92   94   N1
-  6  2  1     95   99   N1
-  6  0  2    100  100   N1
-  6  1  2    101  103   N1
-  6  2  2    104  108   N1
-  7  0  1    109  109   N2
-  7  1  1    110  112   N2
-  7  2  1    113  117   N2
-  7  0  2    118  118   N2
-  7  1  2    119  121   N2
-  7  2  2    122  126   N2
-  8  0  1    127  127   N2
-  8  1  1    128  130   N2
-  8  2  1    131  135   N2
-  8  0  2    136  136   N2
-  8  1  2    137  139   N2
-  8  2  2    140  144   N2
- gen_hamindex: not readin QGpsi.
- procid llmfgw=           0 F
-  end of hambls mode=           0
- bndfp:  kpt 1 of 16, k=  0.25000  0.23612  0.34381   ndimh = 144
- -1.1597 -1.0487 -1.0000 -0.9552 -0.4824 -0.4320 -0.4072 -0.3622 -0.3175
- -0.2879 -0.2617 -0.2465 -0.2263 -0.1958 -0.1686 -0.1480 -0.0338 -0.0137
-  0.0013  0.0399  0.0550  0.0856  0.1507  0.1916  0.1984  0.2537  0.3268
-  0.3429  0.3683  0.3891  0.4649  0.4727  0.5562  0.5781  0.6128  0.6540
-  0.7039  0.7882  0.8418  0.9608  1.0489  1.1020  1.1745  1.1831  1.2922
-  1.3323  1.3482  1.3884  1.4633  1.4794  1.5672  1.7211  1.8362  1.8547
-  1.8914  1.9713  2.0755  2.1338  2.2159  2.2323  2.2663  2.4019  2.4167
-  2.4927  2.5360  2.5777  2.6581  2.6855  2.7603  2.7932  2.8501  2.8902
-  2.9008  2.9389  3.0096  3.0381  3.0637  3.2063  3.2475  3.2922  3.3881
-  3.4194  3.5107  3.6231  3.7017  3.7475  3.8189  3.8819  3.9633  4.0048
-  4.0470  4.1112  4.1299  4.2026  4.2516  4.2964  4.3892  4.4823  4.5142
-  4.5484  4.6052  4.7135  4.7504  4.7882  4.9404  5.0639  5.1915  5.2232
-  5.3329  5.4049  5.4868  5.7064  5.9586  6.0037  6.0985  6.2351  6.2842
-  6.3034  6.4656  6.5771  6.6863  6.7693  6.8459  6.9821  7.0277  7.0912
-  7.3660  7.4426  7.6175  7.6662  8.1104  8.2810  8.6672  8.7933  8.9446
-  9.1157  9.2455  9.6549  9.7482  9.7807  9.9472 10.3740 11.5417 12.7920
-nev nmx ndim evl(nev)=  144  144  144    12.79200
- bndfp:  kpt 1 of 16, k=  0.25000  0.23612  0.34381   ndimh = 144
- -1.2435 -1.0685 -0.9991 -0.9623 -0.5048 -0.4620 -0.4348 -0.4006 -0.3359
- -0.2977 -0.2727 -0.2474 -0.2337 -0.2160 -0.1894 -0.1584 -0.0391 -0.0205
-  0.0054  0.0419  0.0640  0.0764  0.1428  0.1731  0.1779  0.1876  0.1957
-  0.2408  0.2618  0.2787  0.2992  0.3269  0.3456  0.4283  0.4419  0.4734
-  0.6638  0.7415  0.7898  0.9129  1.0248  1.0558  1.1288  1.1593  1.2053
-  1.2709  1.2771  1.3444  1.3894  1.4365  1.5034  1.6675  1.7463  1.7961
-  1.8851  1.9074  1.9606  2.0917  2.1231  2.1301  2.2266  2.3726  2.3913
-  2.4310  2.4758  2.5211  2.5868  2.6531  2.6898  2.7082  2.7772  2.8148
-  2.8258  2.8584  2.8919  2.9540  2.9828  3.1222  3.1997  3.2277  3.2695
-  3.3705  3.4467  3.6137  3.6731  3.7166  3.7747  3.8562  3.9189  3.9369
-  3.9682  4.0708  4.1063  4.1796  4.2296  4.2930  4.3372  4.3899  4.4650
-  4.4846  4.5448  4.6771  4.6973  4.7555  4.9229  4.9666  5.0732  5.1585
-  5.2709  5.3425  5.4104  5.6443  5.8918  5.9462  6.0339  6.1525  6.1799
-  6.2445  6.3947  6.5347  6.5960  6.7366  6.8013  6.9131  6.9322  7.0210
-  7.2575  7.3566  7.5154  7.5698  8.0118  8.1675  8.5512  8.7023  8.7705
-  8.9703  9.0947  9.5376  9.5526  9.6538  9.7782 10.2090 11.2451 12.4829
-nev nmx ndim evl(nev)=  144  144  144    12.48295
- bndfp:  kpt 11 of 16, k=  0.25000  0.70835  1.03144   ndimh = 144
- -1.1165 -1.0039 -0.9829 -0.9612 -0.4799 -0.4411 -0.4193 -0.3695 -0.3524
- -0.3261 -0.2905 -0.2650 -0.2362 -0.2254 -0.2002 -0.1791 -0.0479 -0.0200
-  0.0171  0.0402  0.0710  0.0917  0.1597  0.2207  0.2465  0.2636  0.3179
-  0.3414  0.4118  0.4446  0.4619  0.5115  0.5681  0.5801  0.6399  0.6624
-  0.8014  0.8867  0.9033  0.9504  1.0335  1.0814  1.1553  1.1773  1.1964
-  1.2180  1.3050  1.3432  1.4220  1.4527  1.4909  1.5294  1.7994  1.8382
-  1.9417  1.9989  2.0338  2.1059  2.1698  2.2867  2.3780  2.4110  2.4431
-  2.4563  2.4722  2.6243  2.7122  2.7874  2.8559  2.8914  2.9530  2.9916
-  2.9985  3.0364  3.0505  3.0900  3.2120  3.2537  3.2983  3.3734  3.3844
-  3.5617  3.6264  3.6707  3.7018  3.7425  3.7639  3.7852  3.8924  3.9696
-  4.0228  4.0423  4.0801  4.1454  4.2144  4.2452  4.2493  4.3357  4.3836
-  4.4712  4.5277  4.6743  4.7454  4.8076  4.9149  4.9636  5.0096  5.0628
-  5.2224  5.3363  5.4420  5.6194  5.7477  5.7740  5.8189  5.8773  6.0331
-  6.0686  6.2617  6.3291  6.5169  6.6244  6.7516  6.8634  7.0080  7.1983
-  7.4308  7.4671  7.5314  7.6375  7.8529  8.2117  8.2666  8.5188  8.6253
-  9.0831  9.1401  9.2788  9.4184  9.6164 10.0653 11.0065 11.8436 12.6711
-nev nmx ndim evl(nev)=  144  144  144    12.67114
- bndfp:  kpt 11 of 16, k=  0.25000  0.70835  1.03144   ndimh = 144
- -1.2163 -1.0130 -0.9799 -0.9679 -0.5090 -0.4689 -0.4558 -0.3849 -0.3722
- -0.3426 -0.2949 -0.2819 -0.2609 -0.2232 -0.2082 -0.1921 -0.0374 -0.0171
-  0.0210  0.0354  0.0613  0.0909  0.1615  0.1856  0.1991  0.2233  0.2291
-  0.2557  0.2764  0.2888  0.3127  0.3142  0.3444  0.4208  0.4534  0.4699
-  0.7413  0.8223  0.8703  0.9217  0.9993  1.0689  1.0885  1.1111  1.1334
-  1.1576  1.2135  1.2714  1.4043  1.4179  1.4540  1.5103  1.6946  1.7804
-  1.8416  1.9169  1.9611  2.0598  2.1554  2.2520  2.3461  2.3804  2.3934
-  2.4226  2.4535  2.5292  2.6828  2.7508  2.7800  2.8213  2.8709  2.9030
-  2.9385  2.9643  2.9860  3.0266  3.1616  3.2023  3.2631  3.3030  3.3482
-  3.4798  3.5935  3.6346  3.6882  3.7086  3.7293  3.7466  3.8294  3.9098
-  3.9598  4.0323  4.0761  4.1073  4.1855  4.2111  4.2305  4.3095  4.3635
-  4.4500  4.5141  4.6507  4.7087  4.7432  4.8675  4.9188  4.9675  4.9826
-  5.2187  5.2617  5.3698  5.5844  5.6893  5.7354  5.7625  5.8262  5.9432
-  6.0229  6.2132  6.2468  6.4122  6.5673  6.6696  6.7952  6.9511  7.1137
-  7.3422  7.3599  7.4862  7.5570  7.7564  8.1062  8.1465  8.4201  8.4518
-  8.9522  9.0047  9.0861  9.2824  9.4906  9.8370 10.7959 11.5418 12.3409
-nev nmx ndim evl(nev)=  144  144  144    12.34093
+  m_bandcal_init: start
+ bndfp: kpt     1 of     8 k=  0.2500  0.2361  0.3438 ndimh = nmto+napw =   144  144    0
+ bndfp: kpt     1 of     8 k=  0.2500  0.2361  0.3438 ndimh = nmto+napw =   144  144    0
+ bndfp: kpt     2 of     8 k=  0.7500  0.2361  0.3438 ndimh = nmto+napw =   144  144    0
+ bndfp: kpt     2 of     8 k=  0.7500  0.2361  0.3438 ndimh = nmto+napw =   144  144    0
+ bndfp: kpt     3 of     8 k=  0.2500  0.7084  0.3438 ndimh = nmto+napw =   144  144    0
+ bndfp: kpt     3 of     8 k=  0.2500  0.7084  0.3438 ndimh = nmto+napw =   144  144    0
+ bndfp: kpt     4 of     8 k=  0.7500  0.7084  0.3438 ndimh = nmto+napw =   144  144    0
+ bndfp: kpt     4 of     8 k=  0.7500  0.7084  0.3438 ndimh = nmto+napw =   144  144    0
+ bndfp: kpt     5 of     8 k=  0.2500  1.1806  0.3438 ndimh = nmto+napw =   144  144    0
+ bndfp: kpt     5 of     8 k=  0.2500  1.1806  0.3438 ndimh = nmto+napw =   144  144    0
+ bndfp: kpt     6 of     8 k=  0.7500  1.1806  0.3438 ndimh = nmto+napw =   144  144    0
+ bndfp: kpt     6 of     8 k=  0.7500  1.1806  0.3438 ndimh = nmto+napw =   144  144    0
+ bndfp: kpt     7 of     8 k=  0.2500  1.6528  0.3438 ndimh = nmto+napw =   144  144    0
+ bndfp: kpt     7 of     8 k=  0.2500  1.6528  0.3438 ndimh = nmto+napw =   144  144    0
+ bndfp: kpt     8 of     8 k=  0.7500  1.6528  0.3438 ndimh = nmto+napw =   144  144    0
+ bndfp: kpt     8 of     8 k=  0.7500  1.6528  0.3438 ndimh = nmto+napw =   144  144    0
+ ... Done MPI k-loop: elapsed time=   5.7701
 
  BZWTS : --- Tetrahedron Integration ---
- BZINTS: Fermi energy:      0.154202;  45.000000 electrons
-         Sum occ. bands:  -15.442233, incl. Bloechl correction: -0.001189
-         Mag. moment:      -0.000000
-
- Saved qp weights ...
- Start second band pass ...
- -------- qplist --------
-    1   0.250   0.236   0.344
-    2   0.750   0.236   0.344
-    3   0.250   0.708   0.344
-    4   0.750   0.708   0.344
-    5   0.250   1.181   0.344
-    6   0.750   1.181   0.344
-    7   0.250   1.653   0.344
-    8   0.750   1.653   0.344
-    9   0.250   0.236   1.031
-   10   0.750   0.236   1.031
-   11   0.250   0.708   1.031
-   12   0.750   0.708   1.031
-   13   0.250   1.181   1.031
-   14   0.750   1.181   1.031
-   15   0.250   1.653   1.031
-   16   0.750   1.653   1.031
- sigmamode= F
- procid llmfgw=           0 F
- bndfp:  kpt 1 of 16, k=  0.25000  0.23612  0.34381   ndimh = 144
- -1.1597 -1.0487 -1.0000 -0.9552 -0.4824 -0.4320 -0.4072 -0.3622 -0.3175
- -0.2879 -0.2617 -0.2465 -0.2263 -0.1958 -0.1686 -0.1480 -0.0338 -0.0137
-  0.0013  0.0399  0.0550  0.0856  0.1507  0.1916  0.1984  0.2537  0.3268
-  0.3429  0.3683  0.3891  0.4649  0.4727  0.5562  0.5781  0.6128  0.6540
-  0.7039  0.7882  0.8418  0.9608  1.0489  1.1020  1.1745  1.1831  1.2922
-  1.3323  1.3482  1.3884  1.4633  1.4794  1.5672  1.7211  1.8362  1.8547
-  1.8914  1.9713  2.0755  2.1338  2.2159  2.2323  2.2663  2.4019  2.4167
-  2.4927  2.5360  2.5777  2.6581  2.6855  2.7603  2.7932  2.8501  2.8902
-  2.9008  2.9389  3.0096  3.0381  3.0637  3.2063  3.2475  3.2922  3.3881
-  3.4194  3.5107  3.6231  3.7017  3.7475  3.8189  3.8819  3.9633  4.0048
-  4.0470  4.1112  4.1299  4.2026  4.2516  4.2964  4.3892  4.4823  4.5142
-  4.5484  4.6052  4.7135  4.7504  4.7882  4.9404  5.0639  5.1915  5.2232
-  5.3329  5.4049  5.4868  5.7064  5.9586  6.0037  6.0985  6.2351  6.2842
-  6.3034  6.4656  6.5771  6.6863  6.7693  6.8459  6.9821  7.0277  7.0912
-  7.3660  7.4426  7.6175  7.6662  8.1104  8.2810  8.6672  8.7933  8.9446
-  9.1157  9.2455  9.6549  9.7482  9.7807  9.9472 10.3740 11.5417 12.7920
-nev nmx ndim evl(nev)=  144  144  144    12.79200
- bndfp:  kpt 1 of 16, k=  0.25000  0.23612  0.34381   ndimh = 144
- -1.2435 -1.0685 -0.9991 -0.9623 -0.5048 -0.4620 -0.4348 -0.4006 -0.3359
- -0.2977 -0.2727 -0.2474 -0.2337 -0.2160 -0.1894 -0.1584 -0.0391 -0.0205
-  0.0054  0.0419  0.0640  0.0764  0.1428  0.1731  0.1779  0.1876  0.1957
-  0.2408  0.2618  0.2787  0.2992  0.3269  0.3456  0.4283  0.4419  0.4734
-  0.6638  0.7415  0.7898  0.9129  1.0248  1.0558  1.1288  1.1593  1.2053
-  1.2709  1.2771  1.3444  1.3894  1.4365  1.5034  1.6675  1.7463  1.7961
-  1.8851  1.9074  1.9606  2.0917  2.1231  2.1301  2.2266  2.3726  2.3913
-  2.4310  2.4758  2.5211  2.5868  2.6531  2.6898  2.7082  2.7772  2.8148
-  2.8258  2.8584  2.8919  2.9540  2.9828  3.1222  3.1997  3.2277  3.2695
-  3.3705  3.4467  3.6137  3.6731  3.7166  3.7747  3.8562  3.9189  3.9369
-  3.9682  4.0708  4.1063  4.1796  4.2296  4.2930  4.3372  4.3899  4.4650
-  4.4846  4.5448  4.6771  4.6973  4.7555  4.9229  4.9666  5.0732  5.1585
-  5.2709  5.3425  5.4104  5.6443  5.8918  5.9462  6.0339  6.1525  6.1799
-  6.2445  6.3947  6.5347  6.5960  6.7366  6.8013  6.9131  6.9322  7.0210
-  7.2575  7.3566  7.5154  7.5698  8.0118  8.1675  8.5512  8.7023  8.7705
-  8.9703  9.0947  9.5376  9.5526  9.6538  9.7782 10.2090 11.2451 12.4829
-nev nmx ndim evl(nev)=  144  144  144    12.48295
- DOS window (-1,0) reset to (-1.6597,0.6542)
- bndfp:  kpt 11 of 16, k=  0.25000  0.70835  1.03144   ndimh = 144
- -1.1165 -1.0039 -0.9829 -0.9612 -0.4799 -0.4411 -0.4193 -0.3695 -0.3524
- -0.3261 -0.2905 -0.2650 -0.2362 -0.2254 -0.2002 -0.1791 -0.0479 -0.0200
-  0.0171  0.0402  0.0710  0.0917  0.1597  0.2207  0.2465  0.2636  0.3179
-  0.3414  0.4118  0.4446  0.4619  0.5115  0.5681  0.5801  0.6399  0.6624
-  0.8014  0.8867  0.9033  0.9504  1.0335  1.0814  1.1553  1.1773  1.1964
-  1.2180  1.3050  1.3432  1.4220  1.4527  1.4909  1.5294  1.7994  1.8382
-  1.9417  1.9989  2.0338  2.1059  2.1698  2.2867  2.3780  2.4110  2.4431
-  2.4563  2.4722  2.6243  2.7122  2.7874  2.8559  2.8914  2.9530  2.9916
-  2.9985  3.0364  3.0505  3.0900  3.2120  3.2537  3.2983  3.3734  3.3844
-  3.5617  3.6264  3.6707  3.7018  3.7425  3.7639  3.7852  3.8924  3.9696
-  4.0228  4.0423  4.0801  4.1454  4.2144  4.2452  4.2493  4.3357  4.3836
-  4.4712  4.5277  4.6743  4.7454  4.8076  4.9149  4.9636  5.0096  5.0628
-  5.2224  5.3363  5.4420  5.6194  5.7477  5.7740  5.8189  5.8773  6.0331
-  6.0686  6.2617  6.3291  6.5169  6.6244  6.7516  6.8634  7.0080  7.1983
-  7.4308  7.4671  7.5314  7.6375  7.8529  8.2117  8.2666  8.5188  8.6253
-  9.0831  9.1401  9.2788  9.4184  9.6164 10.0653 11.0065 11.8436 12.6711
-nev nmx ndim evl(nev)=  144  144  144    12.67114
- bndfp:  kpt 11 of 16, k=  0.25000  0.70835  1.03144   ndimh = 144
- -1.2163 -1.0130 -0.9799 -0.9679 -0.5090 -0.4689 -0.4558 -0.3849 -0.3722
- -0.3426 -0.2949 -0.2819 -0.2609 -0.2232 -0.2082 -0.1921 -0.0374 -0.0171
-  0.0210  0.0354  0.0613  0.0909  0.1615  0.1856  0.1991  0.2233  0.2291
-  0.2557  0.2764  0.2888  0.3127  0.3142  0.3444  0.4208  0.4534  0.4699
-  0.7413  0.8223  0.8703  0.9217  0.9993  1.0689  1.0885  1.1111  1.1334
-  1.1576  1.2135  1.2714  1.4043  1.4179  1.4540  1.5103  1.6946  1.7804
-  1.8416  1.9169  1.9611  2.0598  2.1554  2.2520  2.3461  2.3804  2.3934
-  2.4226  2.4535  2.5292  2.6828  2.7508  2.7800  2.8213  2.8709  2.9030
-  2.9385  2.9643  2.9860  3.0266  3.1616  3.2023  3.2631  3.3030  3.3482
-  3.4798  3.5935  3.6346  3.6882  3.7086  3.7293  3.7466  3.8294  3.9098
-  3.9598  4.0323  4.0761  4.1073  4.1855  4.2111  4.2305  4.3095  4.3635
-  4.4500  4.5141  4.6507  4.7087  4.7432  4.8675  4.9188  4.9675  4.9826
-  5.2187  5.2617  5.3698  5.5844  5.6893  5.7354  5.7625  5.8262  5.9432
-  6.0229  6.2132  6.2468  6.4122  6.5673  6.6696  6.7952  6.9511  7.1137
-  7.3422  7.3599  7.4862  7.5570  7.7564  8.1062  8.1465  8.4201  8.4518
-  8.9522  9.0047  9.0861  9.2824  9.4906  9.8370 10.7959 11.5418 12.3409
-nev nmx ndim evl(nev)=  144  144  144    12.34093
-
- BZWTS : --- Tetrahedron Integration ---
- BZINTS: Fermi energy:      0.154202;  45.000000 electrons
-         Sum occ. bands:  -15.442233, incl. Bloechl correction: -0.001189
-         Mag. moment:      -0.000000
-
- Saved qp weights ...
-
- CLS atom 5 (Nh) n=1 l=0
+ BZINTS: Fermi energy:      0.181777;  45.000000 electrons
+         Sum occ. bands:  -15.361279, incl. Bloechl correction: -0.002757
+         Mag. moment:       0.024137
+Generating TDOS: efermi, and dos window=    0.1818  -0.5000   1.6818
+  mmmmm m_bandcal_2nd
+CLS atom: ib name n l=    5 Nh    1    0
  Spin 1 ..
- vcdmel: ecor0=-29.371126 ecore=-29.371121
- (not including electrostatic potential shift)
+vcdmel: ecor0=   -29.42460729 ecore=   -29.42460263
+(not including electrostatic potential shift)
    l   <u|core>     <s|core>    <u|r|core>  <s|r|core>
-   0   -0.000091   -0.000273    0.086301   -0.081020
-   1    0.390539   -0.446181    0.179244   -0.193336
-   2    0.067734   -0.029706    0.044877   -0.018582
-   3    0.028031   -0.009760    0.022823   -0.007474
+   0   -0.000088   -0.000274    0.086701   -0.081282
+   1    0.387199   -0.456489    0.177777   -0.197595
+   2    0.072410   -0.034880    0.047580   -0.021589
+   3    0.027453   -0.009343    0.022401   -0.007174
  Spin 2 ..
- vcdmel: ecor0=-32.038102 ecore=-32.038100
- (not including electrostatic potential shift)
+vcdmel: ecor0=   -32.10340716 ecore=   -32.10340489
+(not including electrostatic potential shift)
    l   <u|core>     <s|core>    <u|r|core>  <s|r|core>
-   0    0.000036   -0.000270    0.083663   -0.079293
-   1    0.392324   -0.477406    0.171848   -0.198267
-   2    0.064863   -0.030738    0.041091   -0.018437
-   3    0.023913   -0.008255    0.018868   -0.006154
- Exit 0 done generating core level spectra 
- CPU time:   18.337s     Fri May 24 11:03:52 2013   on TT4
+   0    0.000039   -0.000271    0.084158   -0.079607
+   1    0.397130   -0.479713    0.173725   -0.199109
+   2    0.066114   -0.032164    0.041772   -0.019231
+   3    0.023849   -0.008205    0.018812   -0.006115
+Exit 0 done generating core level spectra
+ CPU time:    9.848s     Thu Jul  8 22:32:59 2021   on 
 
   ==== xxxxxxxxx ====     calls      == cpu time ===   depth 1
   entry   xxxx  xxxx                per call  total  (depth is by TIM= in ctrl.*.)
-      0      0      0        1      18.34      18.34   main
+      0      0      0        1       9.85       9.85   main
       0      0    -10        0       0.00       0.00   `--lmfp
-rdcmd:  lmdos --dos:cls:window=0,1:npts=101 --cls crn
-HOST_INFORMATION platform: gfortran
-HOST_INFORMATION compiler version: gcc version 4.6.2 (Ubuntu/Linaro 4.6.2-10ubuntu1~11.10.1) 
-HOST_INFORMATION FFLAGS (<=120): -O2 -fomit-frame-pointer -funroll-loops -ffast-math -ffixed-line-length-132 -DHASIARGC -DHASGETARG -DFDATE -DHASCPUTIME 
-HOST_INFORMATION LIBLOC (<=120): /usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf
-HOST_INFORMATION uname -a (<=120): Linux TT4 3.0.0-32-generic #51-Ubuntu SMP Thu Mar 21 15:50:59 UTC 2013 x86_64 x86_64 x86_64 GNU/Linux
-HOST_INFORMATION /etc/issue: Ubuntu 11.10 \n \l
-HOST_INFORMATION git branch: refs/heads/master
-HOST_INFORMATION git commit: 0fd9bd2cf16a41eec9261bd9877686039ea8ed99
-HOST_INFORMATION linked at: Mon May 20 14:58:01 JST 2013
- -----------------------  START LMDOS    -----------------------
- ptenv() is called with EXT=crn
- ptenv() not supported, but continue.
- HEADER CrN in orthorhombic setting afm structure (a)
-  LMDOS  vn 7.00  verb 30
- bz:       metal(4), tetra, invit 
-
- Symmetry operations suppressed
-
-                Plat                                  Qlat
-   1.000000   0.000000   0.000000        1.000000   0.000000   0.000000
-   0.000000   0.529396   0.000000        0.000000   1.888944   0.000000
-   0.000000   0.000000   0.727140        0.000000   0.000000   1.375250
-  Cell vol= 467.728041
-
- LATTC:  as= 2.000   tol=1.00E-08   alat=10.67083   awald= 0.258
-         r1=  2.082   nkd=  99      q1=  4.667   nkg= 175
-
- SGROUP: 1 symmetry operations from 1 generators
- MKSYM:  found 1 space group operations
-         no attempt to add inversion symmetry
-
- SPLCLS:  5 species split into 8 classes
- Species  Class      Sites...
- Cr1      1:Cr1      1
-          6:Cr12     2
- Cr2      2:Cr2      3
-          7:Cr22     4
- N1       3:N1       6
- N2       4:N2       7
-          8:N22      8
- Nh       5:Nh       5
-  qqqqq ics nclspp=           1           2           3           4           5           1           2           4           8
- 
- BZMESH:  16 irreducible QP from 16 ( 2 4 2 )  shift= T T T
-
- ASADOS: reading weights from file CLS
-         expecting file to be resolved by l
-         file has 3 channel(s)
- dosmax=   1.5000000000000000     
- IOMOMQ: read 16 qp  efermi=0.154202  vmtz=0.000000
- dos window relative to ef. emin,emax=     -1.65965      1.50000
- efermi=      0.15420
-
- ASADOS:  make dos for 1001 points from 144 bands in window (-1.66,1.654)
- Check the positions os sites by lmchk.
- Exit 0 LMDOS 
- CPU time:    0.040s     Fri May 24 11:03:52 2013   on TT4
-
-  ==== xxxxxxxxx ====     calls      == cpu time ===   depth 1
-  entry   xxxx  xxxx                per call  total  (depth is by TIM= in ctrl.*.)
-      0      0      0        1       0.04       0.04   main
-rdcmd:  mv dos.crn dos-cls.crn

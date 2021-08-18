@@ -58,8 +58,9 @@ C --- First iteration: simple mixing ---
         w0 = wc
         betx = beta
         gmax = 0
-        do  8  k = 1, n
-    8   gmax = max(gmax,abs(gin(k)))
+        do  k = 1, n
+           gmax = max(gmax,abs(gin(k)))
+        enddo   
 
 #if AWRITE
         if (ipr .ge. 30) then
@@ -80,8 +81,9 @@ C --- First iteration: simple mixing ---
      .    ' ',80,i1mach(2),gmax,dxmx,dxmx/gmax)
 #endif
         endif
-        do  10  k = 1, n
-   10   xnew(k) = xin(k) + betx*gin(k)
+        do    k = 1, n
+           xnew(k) = xin(k) + betx*gin(k)
+        enddo   
 
 C --- Subsequent iterations: Broyden mixing ---
       else
@@ -105,35 +107,40 @@ C   ... Shuffle each prior u,vt to prior+1 iteration
           call dcopy(n,wk(1,2,j),1,wk(1,2,j+1),1)
    30   continue
 C   ... Make u,vt for this iteration
-        do  32  k = 1, n
+        do    k = 1, n
           wk(k,1,1) = fac1*wk(k,1,ir) + fac2*wk(k,1,0)
-   32   wk(k,2,1) = fac2*wk(k,1,ir)
+          wk(k,2,1) = fac2*wk(k,1,ir)
+        enddo  
 
 C   --- Make  a and b = ( w0**2 I + a )^-1 (symmetric) ---
         do  42  j = 1, irm2
           aij = zero
           cmj = zero
-          do  44  k = 1, n
+          do    k = 1, n
             cmj = cmj + wk(k,2,ir-j)*gin(k)
-   44     aij = aij + wk(k,2,ir-j)*wk(k,2,1)
+            aij = aij + wk(k,2,ir-j)*wk(k,2,1)
+          enddo  
           a(irm1,j) = aij
           a(j,irm1) = aij
           cm(j) = cmj
    42   continue
         aij = zero
         cmj = zero
-        do  46  k = 1, n
+        do  k = 1, n
           cmj = cmj + wk(k,2,1)*gin(k)
-   46   aij = aij + wk(k,2,1)*wk(k,2,1)
+          aij = aij + wk(k,2,1)*wk(k,2,1)
+        enddo  
         a(irm1,irm1) = aij
         cm(irm1) = cmj
         w(irm1) = wc
 
 C   ... Set up and calculate beta matrix
-        do  50  lm = 1, irm1
-          do  52  ln = 1, irm1
-   52     d(ln,lm) = a(ln,lm)*w(ln)*w(lm)
-   50   d(lm,lm) = w0**2 + a(lm,lm)*w(lm)*w(lm)
+        do   lm = 1, irm1
+          do  ln = 1, irm1
+            d(ln,lm) = a(ln,lm)*w(ln)*w(lm)
+          enddo   
+          d(lm,lm) = w0**2 + a(lm,lm)*w(lm)*w(lm)
+        enddo  
 
 C   --- Invert to make d ---
 c        if (dinv(' ',irm1,nn,d) .ne. 0) then
@@ -156,20 +163,25 @@ C   60   d(ln,ln) = 1
 C        call svbksb(nn,irm1,irm1,irm1,wl(1,3),v,v,d,d,wl)
 
 C   --- xnew <- vector for the new iteration ---
-        do  72  k = 1, n
-   72   xnew(k) = xin(k) + beta*gin(k)
+        do   k = 1, n
+           xnew(k) = xin(k) + beta*gin(k)
+        enddo   
         do  70  i = 1, irm1
           gmi = zero
-          do  74  ip = 1, irm1
-   74     gmi = gmi + cm(ip)*d(ip,i)*w(ip)
-          do  70  k = 1, n
-   70   xnew(k) = xnew(k) - gmi*wk(k,1,ir-i)*w(i)
+          do  ip = 1, irm1
+             gmi = gmi + cm(ip)*d(ip,i)*w(ip)
+          enddo   
+          do  k = 1, n
+             xnew(k) = xnew(k) - gmi*wk(k,1,ir-i)*w(i)
+          enddo   
+ 70     continue
 
 C   ... Cap to maximum allowed shift xnew-xin
         if (dxmx .gt. 0d0) then
           diff = 0
-          do  80  k = 1, n
-   80     diff = max(diff,abs(xnew(k)-xin(k)))
+          do  k = 1, n
+             diff = max(diff,abs(xnew(k)-xin(k)))
+          enddo   
           if (diff .gt. dxmx) then
             betx = dxmx/diff
 #if AWRITE
@@ -177,8 +189,9 @@ C   ... Cap to maximum allowed shift xnew-xin
      .      ' is larger than dxmx = %1;3g.  Scale by %1;3g',
      .      ' ',80,i1mach(2),diff,dxmx,dxmx/diff)
 #endif
-            do  82  k = 1, n
-   82       xnew(k) = xin(k) + betx*(xnew(k)-xin(k))
+            do   k = 1, n
+               xnew(k) = xin(k) + betx*(xnew(k)-xin(k))
+            enddo   
           endif
         endif
 

@@ -1,7 +1,11 @@
       subroutine mshvmt(nbas,ssite,sspec,ng,gv, !slat,
      .     kv,cv,k1,k2,k3,smpot,vval)
-      use m_struc_def           !Cgetarg
-      use m_lmfinit,only:lat_plat,lat_nabc,lat_alat
+      use m_struc_def
+      use m_lattic,only:lat_plat
+      use m_lmfinit,only:lat_alat
+      use m_supot,only: lat_nabc
+
+
 C- Makes potential at MT surfaces given potential on a uniform mesh
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -164,7 +168,7 @@ CSFCPP#endif
       subroutine symvvl(nbas,ssite,sspec,vval,vrmt) 
       use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp
       use m_struc_def           
-      use m_lmfinit,only:lat_plat
+      use m_lattic,only:lat_plat      
 C- Symmetrizes the potential at the MT boundary.
 C ----------------------------------------------------------------------
 Ci Inputs

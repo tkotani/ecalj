@@ -690,7 +690,7 @@ C- Copy from holding array into P,Q
       lcnst = cnst(0) .gt. 0
       na = 1
       rms2 = 0
-      do  11  isp = 1, nsp
+      do  110  isp = 1, nsp
       do  11  ic = 1, nclass
         if (lcnst) then
           if (cnst(ic) .ne. 0) goto 11
@@ -706,6 +706,7 @@ C       print *, i, qold(i,l+1,isp,ic) -  a(na+i,0,2)
           na = na+4
    12   continue
    11 continue
+ 110  continue
 
       call dcopy(nx,a(na,0,2),1,xnew,1)
       rms2 =  rms2 + ddot(nx,xnew,1,xnew,1) -
@@ -763,15 +764,16 @@ C Local variables
 C --- Copy p,q to a; calc. RMS error; read prior iter from ifi ---
       if (ifi .gt. 0) then
         na = 1
-        do  10  isp = 1, nsp
+        do  100  isp = 1, nsp
         do  10  ic = 1, nclass
           if (lcnst) then
             if (cnst(ic) .ne. 0) then
-              do  21  l = 0, lmx(ic)
+              do  121  l = 0, lmx(ic)
                 pnu(l+1,isp,ic) = pold(l+1,isp,ic)
               do  21  i = 1, 3
                 qnu(i,l+1,isp,ic) = qold(i,l+1,isp,ic)
    21         continue
+  121         continue
               goto 10
             endif
           endif
@@ -785,6 +787,7 @@ C --- Copy p,q to a; calc. RMS error; read prior iter from ifi ---
             na = na+4
    11     continue
    10   continue
+  100   continue
 
 C   ... Append extra vector to a
         call dcopy(nx,xnew,1,a(na,0,1),1)

@@ -2,7 +2,7 @@
 
          1.  a spin-polarized case
 
-         2.  mixed tetrahedron/sampling method (METAL=4)
+         2.  tetrahedron method (METAL=3)
 
          3.  Constrained mixing (first spin is kept frozen, then charge, then both are allowed to change)
 

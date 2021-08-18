@@ -52,11 +52,12 @@ c
 c     .......... transform the eigenvectors of the real symmetric
 c                tridiagonal matrix to those of the hermitian
 c                tridiagonal matrix. ..........
-      do 50 k = 1, n
-        do 50 j = 1, m
+      do  k = 1, n
+        do j = 1, m
           zi(k,j) = -zr(k,j) * tau(2,k)
           zr(k,j) = zr(k,j) * tau(1,k)
-   50 continue
+       enddo
+      enddo
 
       if (n .eq. 1) return
 C     .......... recover and apply the householder matrices ..........
@@ -64,23 +65,29 @@ C     .......... recover and apply the householder matrices ..........
         l = i - 1
         h = ai(i,i)
         if (h .eq. 0.0d0) go to 140
-        do 100 j = 1, m
-          tau(1,j) = 0.0d0
-          tau(2,j) = 0.0d0
-  100   continue
+c        do 100 j = 1, m
+c          tau(1,j) = 0.0d0
+c          tau(2,j) = 0.0d0
+c     100   continue
+        tau=0d0
         do  110  k = 1, l
-          call yyaxpy(m,ar(i,k),ai(i,k),zr(k,1),zi(k,1),nm,
-     .    tau,tau(2,1),2,.true.)
+c          call yyaxpy(m,ar(i,k),ai(i,k),zr(k,1),zi(k,1),nm,
+c     .          tau,tau(2,1),2,.true.)
+          tau(1,:)= ar(i,k)*zr(k,:) - ai(i,k)*zi(k,:) + tau(1,:)
+          tau(2,:)= ar(i,k)*zi(k,:) + ai(i,k)*zr(k,:) + tau(2,:) 
   110   continue
-C ... double divisions avoid possible underflow ...
-        call dscal(m,1/h,tau,2)
-        call dscal(m,1/h,tau,2)
-        call dscal(m,1/h,tau(2,1),2)
-        call dscal(m,1/h,tau(2,1),2)
+C     ... double divisions avoid possible underflow ...
+        tau=tau/h**2
+c        call dscal(m,1/h,tau,2)
+c        call dscal(m,1/h,tau,2)
+c        call dscal(m,1/h,tau(2,1),2)
+c        call dscal(m,1/h,tau(2,1),2)
         do  120  j = 1, m
-          call yyxcpy(l,-tau(1,j),-tau(2,j),ar(i,1),ai(i,1),nm,
-     .    zr(1,j),zi(1,j),1,.true.)
-  120   continue
+c          call yyxcpy(l,-tau(1,j),-tau(2,j),ar(i,1),ai(i,1),nm,
+c     .    zr(1,j),zi(1,j),1,.true.)
+           zr(:,j)= -tau(1,j)*ar(i,:) + tau(2,j)*ai(i,:) + zr(:,j)
+           zi(:,j)= +tau(1,j)*ai(i,:) - tau(2,j)*ar(i,:) + zi(:,j)
+ 120    continue
   140 continue
       end
 

@@ -1,3 +1,56 @@
+      module m_rdfiln
+      integer,parameter,public:: mxrecs=10000,recln=511
+      integer,public,protected:: nrecs
+      character*(recln),public,protected:: recrd(mxrecs)
+      public m_rdfiln_init !return -vfoobar replaced simplified contents of ctrl into recrd
+      contains
+      subroutine m_rdfiln_init()
+      use m_ext,only: sname
+      integer:: nfilin,master=0,ierr,i,procid=0,stdo,mpipid,lgunit
+      character(8) :: alabl
+      character:: strn*1000
+      logical:: fileexist,lshowp,lshow,cmdopt0,mlog
+#if MPIK
+      include "mpif.h"
+      procid = mpipid(1) 
+#endif
+      mlog = cmdopt0('--mlog')  !! set log for --mlog (not maintained well)
+      stdo = lgunit(1)
+      if(procid==master) then
+         inquire(file='ctrl.'//trim(sname),exist=fileexist)
+         if(.not.fileexist) call rx("No ctrl file found! ctrl."//trim(sname)) 
+         open(newunit=nfilin,file='ctrl.'//trim(sname)) 
+         call findctrlstart(nfilin) ! if a tag 'ctrlstart' in ctrl, ctrl is read from the tag.
+         alabl = '#{}% ct '
+         call rdfile(nfilin,alabl,recrd,mxrecs,strn,recln,nrecs) !read ctrl into recrd
+         close(nfilin)
+      endif
+#if MPIK
+      call mpibc1( nrecs,1,2,mlog,'main','nrecs')
+      call MPI_BCAST( recrd,recln*(nrecs+1),MPI_CHARACTER,master,MPI_COMM_WORLD,ierr)
+#endif      
+!! Show or not show readin ctrl file.      
+      lshowp = cmdopt0('--showp')
+      lshow  = cmdopt0('--show')
+      if(procid==master.and.(lshow.or.lshowp) ) then
+         write(stdo,"('---- preprocessed ctrl file -------')")
+         do i = 1, nrecs
+            if(trim(recrd(i))=='') cycle
+            write(stdo,"(a)")'%% '//trim(recrd(i))//' %%'
+         enddo
+         write(stdo,"(a,' preprocesses ctrl file. nrecs=', i5)")trim(sname),nrecs
+      endif
+      if(lshowp) call Rx0('end of --showp')
+!  recrd already replace foobar with foobar2 if we have an command-line option
+!    -vfoobar=foobar2 option (replacement of %const defined in ctrl file).
+! Following ctrlrecrd is just for check recrd contains simplified ctrl with -vfoobar replacement.
+c      do i=1,nrecs
+c         if(len_trim(recrd(i))/=0) write(6,"(a)") trim(recrd(i))
+c      enddo
+      end subroutine m_rdfiln_init
+      end module m_rdfiln
+
+      
       subroutine rdfiln(unit,cch,mxlev,loop0,nlin,list,lstsiz,
      .ilist,nlist,vnam,ctbl,mxchr,a,recrd,recl,nr)
 C- Read one line of a file, with variables substitution and loop parsing
@@ -536,7 +589,7 @@ C   ... The following guarantees basic constants loaded:
         lunit = unit
         nchr = 0
         fname = '-cprogname='
-        call getarf(0,fname(12:))
+        call getarg(0,fname(12:))
         i = 2
         call parchv(fname,len(fname),mxchr,cex,'=',0,nchr,ctbl,i)
         i = 2
@@ -577,7 +630,7 @@ C   ... noskip is true unless %if evaluates to F or loop0 is F
 C   ... Look for char variable definitions
         if (len(cch) .ge. 6 .and. cch(6:6) .eq. 'c') then
           do  5  j = 1, nargf()-1
-            call getarf(j,fname)
+            call getarg(j,fname)
             if (lsequ(fname,'-c',2,' ',k)) then
               k = len(fname)
               jr = 0
@@ -632,8 +685,9 @@ C       call strncp(aa,a,1,1,recl)
 C       Keep track of line number
       iecho = 0
       nrd = nrd+1
-      do  14  j = 0, nlev
-   14 nlin(j) = nlin(j)+1
+      do   j = 0, nlev
+         nlin(j) = nlin(j)+1
+      enddo   
 c       print *, 'nlev=',nlev,' nlin=',(nlin(j),j=1,nlev),
 c     .    '  a=',(a(j),j=1,recl)
       j0 = 0
@@ -797,12 +851,14 @@ C       ... if incomplete a repeat:end sequence or a while-end
      .    nlist(nlev) .eq. -1 .and. loop0(nlev)) then
 *             print *, 'nlev=',nlev,' backspacing by',nlin(nlev)
             k = nlin(nlev)
-            do  11  i = 1, nlin(nlev)
-   11       backspace(lunit)
+            do  i = 1, nlin(nlev)
+               backspace(lunit)
+            enddo   
             nrd = nrd-nlin(nlev)
             call rxx(nrd.lt.0,'rdfiln: attempt to loop across files')
-            do  15  i = 0, nlev
-   15       nlin(i) = nlin(i)-nlin(nlev)
+            do  i = 0, nlev
+               nlin(i) = nlin(i)-nlin(nlev)
+            enddo   
 C         ... Case while-end
             if (nlist(nlev) .eq. -1) then
               nlev = nlev-1
@@ -1145,9 +1201,10 @@ C       ... First try to udef a char variable
           call tokmat(fname,ctbl,nchr,ctlen,' ',i1,k,.false.)
           i1 = i1+1
           if (i1 .gt. 0) then
-            do  44  k = i1+1, nchr
+            do  k = i1+1, nchr
               ctbl(k-1,1) = ctbl(k,1)
-   44       ctbl(k-1,2) = ctbl(k,2)
+              ctbl(k-1,2) = ctbl(k,2)
+            enddo  
             nchr = nchr-1
             goto 43
           endif
@@ -1205,8 +1262,9 @@ C   --- Copy this line into recrd, substituting variable names ---
           ja = 1
           call pvfil1(recl,recl,jr,recrd,cex,nchr,mxchr,ctbl,ja,a,
      .    ltrace)
-          do  47  i = ja, recl
-   47     a(i) = ' '
+          do   i = ja, recl
+             a(i) = ' '
+          enddo   
           if (iecho .ne. 0) then
             if (mod(iecho,2) .ne. 0) then
               j = 1
@@ -1240,8 +1298,9 @@ C               call cwrite(a,j,k,1)
         if (ltrace .gt. 0) call awrit1('#rf closing include file: '
      .  //'%i lines',' ',80,i1mach(2),nrd)
         close(lunit)
-        do  54  j = 0, nlev
-   54   nlin(j) = nlin(j)-nrd
+        do  j = 0, nlev
+           nlin(j) = nlin(j)-nrd
+        enddo   
         lunit = unit0(filstk)
         nrd = nrdstk(filstk)
         filstk = filstk-1
@@ -1274,9 +1333,10 @@ C ... const,var directives
    83 if (ltrace .gt. 1) then
         call awrit1('%x#rf %i: '''//dir(i+1)//'%a'', added',aa,80,0,nrd)
         call numsyv(j)
-        do  84  i = nsyv+1, j
+        do   i = nsyv+1, j
           call watsyv(fname,val,i)
-   84   call awrit1('%a '//fname//'%a%?#n<0#,##',aa,80,0,i-j)
+          call awrit1('%a '//fname//'%a%?#n<0#,##',aa,80,0,i-j)
+        enddo  
         if (nsyv .eq. j) call awrit0('%a ... no new vars',aa,80,0)
         call awrit0('%a',aa,80,-i1mach(2))
       endif
@@ -1284,8 +1344,9 @@ C ... const,var directives
 C ... char directives
    85 if (ltrace .gt. 1) then
         call awrit1('%x#rf %i: '''//dir(i+1)//'%a'', added',aa,80,0,nrd)
-        do  86  i = nchr0+1, nchr
-   86   call awrit1('%a '//ctbl(i,1)//'%a%?#n<0#,##',aa,80,0,i-nchr)
+        do  i = nchr0+1, nchr
+           call awrit1('%a '//ctbl(i,1)//'%a%?#n<0#,##',aa,80,0,i-nchr)
+        enddo   
         if (nchr0 .eq. nchr) call awrit0('%a ... no new vars',aa,80,0)
         call awrit0('%a',aa,80,-i1mach(2))
       endif
@@ -1301,17 +1362,18 @@ C ... vec directives
    91 if (ltrace .gt. 1) then
         call awrit1('%x#rf %i: '''//dir(i+1)//'%a'', added',aa,80,0,nrd)
         call numsvv(j)
-        do  92  i = nsyv+1, j
+        do  i = nsyv+1, j
           call watsvv(fname,i)
-   92   call awrit1('%a '//fname//'%a%?#n<0#,##',aa,80,0,i-j)
+          call awrit1('%a '//fname//'%a%?#n<0#,##',aa,80,0,i-j)
+        enddo  
         if (nsyv .eq. j) call awrit0('%a ... no new vars',aa,80,0)
         call awrit0('%a',aa,80,-i1mach(2))
       endif
       goto 10
-
 C --- General error exit ---
   999 call fexit(-1,1,' Exit -1: rdfiln: parse failed, line %i',nrd)
       end
+      
       subroutine rdfile(unit,cch,recrd,mxrecs,a,recl,nr)
 C- Reads entire disk file into recrd, calling rdfiln.
       implicit none
@@ -1324,7 +1386,6 @@ C- Reads entire disk file into recrd, calling rdfiln.
       integer nlin(0:mxlev),list(lstsiz,mxlev),
      .ilist(mxlev),nlist(0:mxlev)
       character vnam(mxlev)*16
-
       nr = 0
    10 call rdfiln(unit,cch,mxlev,loop0,nlin,list,lstsiz,
      .ilist,nlist,vnam,ctbl,mxchr,a,recrd(nr*recl),recl,nr)
@@ -1334,8 +1395,8 @@ C- Reads entire disk file into recrd, calling rdfiln.
       endif
       if (nr .eq. mxrecs) return
       goto 10
-
       end
+      
       subroutine rdfilx(a,recl,lif,j,nrd,ctbl,mxchr,nchr,liff0)
 C- Determines whether an 'if' or 'ifdef' expression is true
 C  Inputs
@@ -1374,13 +1435,12 @@ C ----------------------------------------------------------------
       logical lif,liff0
       integer recl,j,nrd,nchr,mxchr,ctlen
       parameter (ctlen=120)
-      character*(*) a,ctbl(mxchr,2)*(ctlen),aa*(ctlen)
+      character*(*) ctbl(mxchr,2)*(ctlen),aa*(ctlen)
+      character*(*):: a
 C Local variables
       logical a2bin,ltmp,liffa
       integer j0,i0,i1,k
-
       liffa = .true.
-
    10 continue
       call skipbl(a,recl,j)
       j0 = j
@@ -1439,6 +1499,7 @@ C ... Put j at last nw char, equivalent to pos of a2bin above
       call skpblb(a,j-1,j)
       j = j+1
       end
+      
       subroutine pvfil1(reclr,recla,jr,recrd,cex,nchr,mxchr,ctbl,ja,a,t)
 C- Kernel of rdfiln that parses string with substitutions
 C ----------------------------------------------------------------
@@ -1466,15 +1527,17 @@ C Local variables
       character*512 aa
       integer ia,ja0,jaa
 
-      do  5  ia = ja, recla
-    5 a(ia) = ' '
+      do  ia = ja, recla
+         a(ia) = ' '
+      enddo   
       ja0 = ja
       if (.not. pvfil2(reclr,recla,jr,recrd,cex,nchr,mxchr,ctbl,ja,a))
      .return
    10 continue
       aa = ' '
-      do  11  ia = ja0, ja
-   11 aa(ia:ia) = a(ia)
+      do   ia = ja0, ja
+         aa(ia:ia) = a(ia)
+      enddo   
       if (t .gt. 2) then
         call skpblb(aa,ja,ja)
         print 333, '#rf subst: "', aa(1:ja+1),'"'
@@ -1482,10 +1545,9 @@ C Local variables
       endif
       jaa = ja0-1
       ja = ja0
-
       if (pvfil2(recla,recla,jaa,aa,cex,nchr,mxchr,ctbl,ja,a)) goto 10
-
       end
+      
       logical function pvfil2(reclr,recla,jr,recrd,cex,nchr,mxchr,ctbl,
      .ja,a)
 C- Kernel of rdfiln that parses string with substitutions
@@ -1535,8 +1597,9 @@ C       lqchr is T if quote character literally
 C   --- Copy string up to substitution ---
       k = min(k,recla-ja,reclr-jr-1)
       if (k .lt. 0) return
-      do  15  i = 0, k
-   15 a(ja+i) = recrd(jr+i)
+      do  i = 0, k
+         a(ja+i) = recrd(jr+i)
+      enddo   
       jr = jr+k+1
       ja = ja+k+1
       if (lqchr) then
@@ -1554,8 +1617,9 @@ C   ... can't find corresponding close of cex
         call pvfil3('missing "',cex(2:2),'" in line:',recrd,1,reclr)
 C   ... cex is nested.  This pass, quote outer cex literally
       elseif (kkk .eq. 1) then
-        do  16  i = 0, k-1
-   16   a(ja+i) = recrd(jr+i)
+        do  i = 0, k-1
+           a(ja+i) = recrd(jr+i)
+        enddo   
         jr = jr+k
         ja = ja+k
 C         print *, 'testing',(a(kkk), kkk=1,ja)
@@ -1735,8 +1799,9 @@ C   ... Substitute a character variable
         m = min(m,i2+1)
         a(ja-1) = ' '
 C         print *, 'before 33',(a(kkk), kkk=1,ja-2+0)
-        do  33  k = i1, m
-   33   a(ja+k-i1-1) = aa2(k:k)
+        do  k = i1, m
+           a(ja+k-i1-1) = aa2(k:k)
+        enddo   
 C         print *, 'after 33',k1,k2,(a(kkk), kkk=1,ja+m-i1-1)
         ja = ja+m-i1
 
@@ -1778,8 +1843,8 @@ C   ... if a name for a vector, replace with ascii rep of entire vector
 
   999 continue
       call pvfil3('could',' not',' parse',recrd,1,reclr)
-
       end
+      
       subroutine pvfil3(s1,s2,s3,recrd,jr,reclr)
 C- Error exit
       implicit none
@@ -1790,18 +1855,18 @@ C- Error exit
       aa = 'rdfiln '// s1 // s2 // s3 // ' ... '
       call skpblb(aa,len(aa),ii)
       ii = ii+3
-      do  18  i = ii, min(reclr-jr,len(aa))
-   18 aa(i:i) = recrd(i+jr-ii)
+      do  i = ii, min(reclr-jr,len(aa))
+         aa(i:i) = recrd(i+jr-ii)
+      enddo   
       call setpr(20)
       call fexit(-1,009,aa,0d0)
-
       end
+      
       logical function rdstrn(unit,a,len,lopt)
 C- Read one line from logical unit
       integer unit,len
       logical lopt
       character*1 a(len)
-
       rdstrn = .true.
       read(unit,10,end=20,err=20) a
       if (lopt) print 10, a
@@ -1810,4 +1875,206 @@ C- Read one line from logical unit
    20 rdstrn = .false.
       return
       end
+
+      subroutine macset(args,err)
+C- Routines for macro definitions
+C ----------------------------------------------------------------------
+Ci Inputs
+Ci   args   :ascii string defining macro, of form:
+Ci          :macro_name(arg1,arg2,..) expand_string
+Ci   err
+Co Outputs
+Cl Local variables
+Cl   nmaca  : nmaca(i) = number of argments for macro i; limited to nmxarg
+Cl   macarag:macarag(j,i) is the variable names for argument j to macro i
+Cl          :First argument is macro name
+Cr Remarks
+Cr
+Cu Updates
+Cu   08 Jan 07  Increase the max number of macros
+Cu   19 Dec 02  First created
+C ----------------------------------------------------------------------
+C     implicit none
+C ... Passed parameters
+      integer nmac,nmacx,nmxarg,err
+      character*(*) args,strout
+      
+C ... Local parameters
+      parameter (nmacx=10,nmxarg=5)
+C     logical savvar(nmacx)
+C     double precision locval(nmacx)
+      integer nmaca(nmacx),nchar(nmxarg,2)
+      character*16 macarg(nmxarg,nmacx),argsub(nmacx)
+      character*256 macexp(nmacx),strn,strn2
+      integer j,j1,j2,i1,i2,iarg,imac,i,ls,errin
+      save nmac,nmaca,macarg,macexp
+      data nmac /0/
+
+C ... too many macros ... exit err=-1
+      err = -1
+      if (nmac .ge. nmacx) goto 99
+
+C ... No macro defined ... exit err=-2
+      call word(args,1,j1,j2)
+      err = -2
+      if (j1 .gt. j2) goto 99
+C ... macro name doesn't start with a letter ... exit err=-3
+      err = -3
+      call wordg(args(j1:),10,'A-Za-z_0-9',1,i1,i2)
+      if (i2 .lt. i1) goto 99
+C ... Assign macro name
+      macarg(1,nmac+1) = args(j1+i1-1:j1+i2-1)
+C ... First letter after macro name isn't '(' ... exit err=-4
+      err = -4
+      i1 = i2+j1
+      call nword(args,1,i1,i2)
+      if (args(i1:i1) .ne. '(') goto 99
+
+C --- Assign macro arguments ---
+      i1 = i1+1
+      iarg = 1
+   10 continue
+
+C ... Error if macro has too many arguments
+      iarg = iarg+1
+      err = -5
+      if (iarg .gt. nmxarg) goto 99
+
+C ... Error if no terminator to macro
+      call nwordg(args,1,'),',1,i1,i2)
+      err = -6
+      if (i2 .ge. len(args)) goto 99
+
+      macarg(iarg,nmac+1) = args(i1:i2)
+      i1 = i2+2
+      if (args(i2+1:i2+1) .ne. ')') goto 10
+
+C ... get macro string ... error if none
+      err = -7
+      call nword(args,1,i1,i2)
+      if (i2 .lt. i1) goto 99
+      macexp(nmac+1) = args(i1:i2)
+
+C ... Macro arguments complete ... increment number of macros by 1
+      nmac = nmac+1
+      nmaca(nmac) = iarg
+      err = 0
+      goto 99
+
+C --- macro evaluation ---
+      entry macevl(args,strout,err)
+C Input err:   0 -> just return index to macro in err if it exists
+C Input err: <>0 -> return index to macro, and strout = expansion
+
+      errin = err
+
+C ... No macro defined ... exit err=-2
+      call word(args,1,j1,j2)
+      err = -2
+      if (j1 .gt. j2) goto 99
+
+C ... No match to existing macro names ... exit err=-1
+      err = -1
+      call wordg(args(j1:),10,'A-Za-z_0-9',1,i1,i2)
+      if (i2 .lt. i1) goto 99
+      do  imac = 1, nmac
+        if (macarg(1,imac) .eq. args(j1+i1-1:j1+i2-1)) goto 15
+      enddo
+      goto 99
+
+C ... macro found
+   15 continue
+      if (errin .eq. 0) then
+        err = imac
+        return
+      endif
+
+C ... First letter after macro name isn't '(' ... exit err=-4
+      err = -4
+      i1 = i2+j1
+      call nword(args,1,i1,i2)
+      if (args(i1:i1) .ne. '(') goto 99
+
+C --- Assign macro arguments ---
+      i1 = i1+1
+      iarg = 1
+   20 continue
+
+C ... Error if macro has too many arguments
+      iarg = iarg+1
+      err = -5
+      if (iarg .gt. nmaca(imac)) goto 99
+
+C ... Error if no terminator to macro
+      call nwordg(args,1,'),',1,i1,i2)
+      err = -6
+      if (i2 .ge. len(args)) goto 99
+
+C ... For this variable, evaluate argument and load var table with res
+      argsub(iarg) = args(i1:i2)
+      i1 = i2+2
+      if (args(i2+1:i2+1) .ne. ')') goto 20
+
+C ... count number of characters in each macro string
+      do  i = 2, nmaca(imac)
+        call word(macarg(i,imac),1,j1,j2)
+        nchar(i,1) = j2
+        call word(argsub(i),1,j1,j2)
+        nchar(i,2) = j2
+      enddo
+C     i = which string holds current value of macro
+C     j = pointer to current index in string
+      i = 1
+      j = 1
+      strn = macexp(imac)
+      ls = len(strn)
+      call skpblb(strn,len(strn),i)
+      ls = i+1
+C --- macro substitution ---
+   30 continue
+      do  i = 2, nmaca(imac)
+        if (strn(j:j+nchar(i,1)-1) .eq. macarg(i,imac)) then
+C         Also next character cann be part of a word
+          call wordg(strn(j+nchar(i,1)-1:),10,'A-Za-z_0-9',1,i1,i2)
+          if (i2 .le. i1) then
+            strn2(1:ls) = strn
+            strn(j:j+nchar(i,2)-1) = argsub(i)
+            ls = ls + nchar(i,2)-nchar(i,1)
+            strn(j+nchar(i,2):ls) = strn2(j+nchar(i,1):)
+            if (nchar(i,2)-nchar(i,1) .lt. 0) then
+              strn(ls+1:ls+1) = ' '
+            endif
+            j = j + nchar(i,2)-1
+            goto 35
+          endif
+        endif
+      enddo
+   35 continue
+C     Move past current word 
+      call nwordg(strn,10,'A-Za-z_0-9',1,j,j2)
+      if (j2 .gt. j) then
+        j = j2+1
+      else
+        j = j+1
+      endif
+      if (j .le. ls) goto 30
+      err = imac
+      strout = strn(1:ls)
+C --- Error exit ---
+   99 continue
+      end
+
+      subroutine findctrlstart(nfilin)
+! if we find 'ctrlstart', locate reading at the next line of ctrlstart.
+!     this is useful if you like to use script, GWinput, ctrl in a file.
+      implicit none
+      integer:: nfilin
+      character(len=9):: strn, ccc
+      do
+        read(nfilin,"(a)",err=1010,end=1010) strn
+        if(strn == 'ctrlstart') return
+      enddo
+ 1010 continue
+      rewind(nfilin)
+      end subroutine findctrlstart
 

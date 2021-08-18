@@ -1,12 +1,31 @@
 #NOTE: when you add your foobar.F, choose one of *_list.
 
 ELIB_list=\
+mkppovl2.o\
+m_density.o\
+m_ldau.o\
+boltztrap.o\
+m_bzintegration.o\
+m_bandcal.o\
+m_procar.o\
+m_igv2x.o\
+m_qplist.o\
+m_clsmode.o\
+m_mkpot.o\
+m_lmfgw.o\
+writefs.o\
+writeham.o\
+vbmmode.o\
+getqmode.o\
+phispinsym.o\
+m_MPItk.o \
 writedossawada.o\
 m_clsprm.o\
 xcfunc.o\
 m_struc_func.o\
 pqmix.o\
 m_lmfinit.o\
+latsym.o\
 toksw_init.o\
 writeband.o\
 writepdos.o\
@@ -16,7 +35,6 @@ util.o\
 m_toksw.o \
 m_psigd.o \
 m_hamindex.o \
-m_sstrnsname.o \
 m_struc_def.o \
 m_gtv.o \
 addbas.o \
@@ -46,9 +64,7 @@ ccutup.o \
 chgmsh.o \
 chkdmu.o \
 clabel.o \
-clist.o \
 clsset.o \
-cmplat.o \
 config.o \
 contet.o \
 cshear.o \
@@ -65,8 +81,6 @@ drr2.o \
 dstrbp.o \
 dvdos.o \
 efrng2.o \
-f100.o \
-f102.o \
 fermi.o \
 fixef0.o \
 fixpos.o \
@@ -103,7 +117,6 @@ hsmq.o \
 iax2fd.o \
 iclbas.o \
 intnos.o \
-invbl.o \
 iobsmv.o \
 ioeula.o \
 iofa.o \
@@ -111,7 +124,6 @@ ioorbp.o \
 iorbtm.o \
 iors.o \
 iosave.o \
-iosite.o \
 latlim.o \
 lattc.o \
 lattdf.o \
@@ -169,8 +181,6 @@ ropcsm.o \
 roplat.o \
 ropyln1.o \
 ropyln.o \
-rotevs.o \
-roth.o \
 rothrm.o \
 rotpnt.o \
 rotspu.o \
@@ -196,15 +206,12 @@ soprm.o \
 spcgrp.o \
 splcls.o \
 splwts.o \
-stoner.o \
 strx00.o \
 subzi.o \
 suclst.o \
 sudmtu.o \
 sugcut.o \
-suham2.o \
 suham.o \
-suidx.o \
 suldau.o \
 sumlst.o \
 sumsro.o \
@@ -230,12 +237,9 @@ vldau.o \
 volsph.o \
 vxc0sp.o \
 xlgen.o \
-xxxbnd.o \
 xxxdif.o \
 ylmrtg.o \
 writebasis.o \
-spackv_array_copy.o \
-struc_strn.o \
 switch.o \
 rdsigm.o\
 rdsigm2.o\
@@ -346,7 +350,6 @@ ivheap.o \
 ivshel.o \
 iyamax.o \
 ll.o \
-macro.o \
 matm.o \
 minfit.o \
 mkdlst.o \
@@ -361,7 +364,6 @@ nxtgrp.o \
 parchv.o \
 pars1v.o \
 parsvc.o \
-pertev.o \
 platsl.o \
 pmblk.o \
 poldvm.o \
@@ -395,30 +397,13 @@ ymscop.o \
 ymtrns.o \
 yscal.o \
 ywrm.o \
-yyaxpy.o \
-yydot.o \
-yydotc.o \
-yygefa.o \
-yygemm.o \
-yygesl.o \
-yyhifa.o \
-yyhmpy.o \
-yyqinv.o \
-yyqnvb.o \
-yysbmm.o \
-yysbnv.o \
-yysp2a.o \
-yyxcpy.o \
 z2herm.o \
-zampy.o \
 zerfc.o \
 zhev.o \
 zmcpy.o \
 zmsadd.o \
 zmscop.o \
 zpmblk.o \
-zqinv.o \
-zqinvb.o \
 ztoy.o \
 ztoyy.o \
 tc.o \
@@ -431,11 +416,9 @@ augmat.o \
 augmbl.o \
 bndfp.o \
 bstrux.o \
-chimedit.o \
 corprm.o \
 dfaugm.o \
 dfqkkl.o \
-dfratm.o \
 dfrce.o \
 efldos.o \
 elocp.o \
@@ -489,7 +472,6 @@ mkekin.o \
 mkewgt.o \
 mkorbm.o \
 mkpdos.o \
-mkpot.o \
 mkrout.o \
 momusl.o \
 mshdot.o \
@@ -540,7 +522,6 @@ stonerpb.o \
 stonerrsa.o \
 polinta.o \
 lmaux.o \
-bndconn_v2.o \
 gwcphi.o \
 pwmat.o \
 sugw.o \
@@ -675,6 +656,7 @@ m_readQGcou.o\
 m_pbindex.o \
 m_rotMPB.o \
 m_iqindx_qtt.o \
+m_iqindx_wan.o \
 rotwave.o \
 rotcg.o \
 rotgvec.o\

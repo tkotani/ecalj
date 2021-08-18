@@ -1,14 +1,15 @@
-      subroutine lmaux(prgnam,sspec,ssite, !sstr,sctrl,,sham,slat spot,
-     .slabl,mode,wksize) !,sstrn,sbz sarray,
-      use m_clsprm,only: rv_a_ormax
-      use m_mksym,only: rv_a_oclabl,iv_a_oics,iv_a_oipc
-      use m_lmfinit,only: iv_a_oips,str_mxnbr,str_rmax,ctrl_nbas,ctrl_nclass,ctrl_nspec,ctrl_nspin, !irs11,
-     &     ctrl_nl,ctrl_modep,ctrl_omax1,ctrl_omax2,ctrl_wsrmax,rv_a_opos
+      subroutine lmaux() !main part of lmchk
+      use m_mksym,only: ctrl_nclass,rv_a_oclabl,iv_a_oics,iv_a_oipc
+      use m_lmfinit,only: iv_a_oips,str_mxnbr,str_rmax,ctrl_nbas,ctrl_nspec,ctrl_nspin,
+     &     ctrl_nl,ctrl_modep,ctrl_omax1,ctrl_omax2,ctrl_wsrmax,slabl,sspec=>v_sspec,
+     &     lat_avw,lat_alat
+      use m_lattic,only: lat_nkd
+      use m_lattic,only: lat_nkq
       use m_struc_def  !Cgetarg
       use m_pairs
       use m_ovmin , only: ovmin
-      use m_lmfinit,only:  lat_avw,lat_alat,lat_plat,lat_nkd,lat_nkq,ctrl_nclass
-C- Auxilliary programs
+      use m_lattic,only:lat_plat,rv_a_opos
+C- lmchk 
 C ----------------------------------------------------------------------
 Ci Inputs
 Ci   prgnam:name of main program
@@ -73,38 +74,40 @@ Cu   05 Oct 01 Adapted mode 2**3 to work with lm v6.11
 Cu   24 Nov 97 changed ovmin to run quickly
 C ----------------------------------------------------------------------
       implicit none
+c      character prgnam*8
+c      data prgnam /'LMCHK'/
 C ... Passed parameters
-      integer mode,wksize
-      character*(*)  prgnam*8 !sstrn,
-      character*8 slabl(*)
+      integer:: mode=1 !,wksize
+c      character*(*)  prgnam*8 !sstrn,
+c      character*8 slabl(*)
 c      type(s_array)::sarray
 c      type(s_ctrl)::sctrl
 c      type(s_ham)::sham
 c      type(s_pot)::spot
 c      type(s_lat)::slat
-      type(s_spec)::sspec(*)
-      type(s_site)::ssite(*)
+c      type(s_spec)::sspec(*)
+c      type(s_site)::ssite(*)
 c      type(s_str)::sstr
 c      type(s_bz)::sbz
-      type(s_site),allocatable::ssite2(:)
+c      type(s_site),allocatable::ssite2(:)
 
 C ... Local parameters
       character*120 outs,fnam*8
       integer NULLI
       logical cmdopt,T,F,swtmp
       parameter (T=.true., F=.false., NULLI=-99999)
-      integer fopn,getdig,i,ip,j,k,m,ifi,iprint,lpbc,lgunit,
+      integer getdig,i,ip,j,k,m,ifi,iprint,lpbc,lgunit,
 c !lncol,
      .nbas,nclasp,nclass,nl,nlspc,nsp,modep(3),parg,nbasp,
      .nbaspp,nkd,nkq,nspec,neul,nc,mxcsiz,nttab,igets, !npadl,npadr,
-     .iosits,cmplat,ngrp,ival,stdo,irs(5),fopna,nclspp,bitand,igetss,
+     .iosits,cmplat,ngrp,ival,stdo,irs(5),nclspp,bitand,igetss,
      .ngmx,nsgrp
       integer:: oeold  , olmx , opold , owk2 , orham , oamsh 
      .                       , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl , mxclas
       real(8),allocatable:: eula(:,:)
       integer,allocatable :: iv_a_ontab(:)
       integer,allocatable :: iv_a_oiax(:)
-      real(8),allocatable :: rv_a_og(:)
+      real(8),allocatable :: rv_a_og(:),rv_a_ormax(:)
       real(8) ,allocatable :: pos2_rv(:,:)
       real(8) ,allocatable :: rmt_rv(:)
       integer ,allocatable :: lock_iv(:)
@@ -131,6 +134,14 @@ c      real(8),allocatable::idmod(:,:), z(:),amsh(:),rmax(:), nrmsh(:)
       real(8),allocatable:: z(:),rmax(:)
 
       print *,' lmaux:'
+ccc!! Allocate permanent class arrays, maps and other initialization ---
+c      call clsprm(1,sspec)!, v_slat) !,v_sbz) !,v_sstr)!,sstrn)v_sctrl,v_sham,v_spot,,v_sarry
+cc!! Read available class parameters from file ---
+c      call aiocls(.false.,0, sspec,1,0)
+c      call aiocls(.false.,17,sspec,1,0)
+c      if(lc>=20) call clsprp(1,sspec)
+c      call defspc(sspec)
+
       nbas=ctrl_nbas
       nclass=ctrl_nclass
       nl=ctrl_nl
@@ -152,6 +163,10 @@ c      call dcopy(i_copy_size,lat_plat,1,plat,1)
 c      mxnbr=str_mxnbr !sstr%mxnbr
       rmaxs=str_rmax !sstr%rmax
 
+      nclspp = max(nclass,nspec)
+      allocate(rv_a_ormax(nclspp))
+      rv_a_ormax = sspec(iv_a_oics(1:nclasp))%rmt
+      
       allocate(lmxa(nclasp),z(nclasp))
       lmxa(1:nclasp) = sspec(iv_a_oics(1:nclasp))%lmxa !sarray%
       z   (1:nclasp) = sspec(iv_a_oics(1:nclasp))%z
@@ -273,17 +288,15 @@ C   ... Scale sphere radii satisfying constraints
      .      , iv_a_oips , modep , slabl , zz_rv , lock_iv , 1d0 , wsrmax 
      .      , omax1 , omax2 , rmt_rv )
           i_copy_size=1;
-          do i_spackv=1,nspec
-c            call spackv_array_copy_r8_r8 ( 'p' , sspec ( i_spackv ) %rmt 
-c     .      , i_copy_size , i_spackv + 1 - 1 , rmt_rv )
-            sspec(i_spackv)%rmt = rmt_rv(i_spackv)
-          enddo
+c          do i_spackv=1,nspec
+c            sspec(i_spackv)%rmt = rmt_rv(i_spackv)
+c          enddo
           nclspp = max(2*nclasp-nclass,nspec)
           allocate(rmax(nclspp))
           print *,' zzzz nclspp=',nclspp
           if(allocated(rv_a_ormax)) deallocate(rv_a_ormax) !is this correct???
           do i=1,nclspp
-            rmax(i) =sspec(iv_a_oics(i))%rmt
+            rmax(i) = rmt_rv(iv_a_oics(i)) !sspec(iv_a_oics(i))%rmt
           enddo
           allocate(rv_a_ormax(nclspp))
           call dcopy ( nclspp , rmax , 1 , rv_a_ormax , 1 )
@@ -444,7 +457,10 @@ C================================================================
       subroutine ioqpp(lio)     !,spot)!,sctrl
       use m_clsprm,only:rv_a_oqpp
       use m_struc_def           !Cgetarg
-      use m_lmfinit,only:   ctrl_nl,ctrl_nspin,ctrl_nclass,ctrl_nbas
+      use m_lmfinit,only:   ctrl_nl,ctrl_nspin,ctrl_nbas
+
+
+      use m_ext,only:sname
 C     - File i/o for phi-phi, phi-dot, dot-dot products
 C     ----------------------------------------------------------------------
 C     i Inputs:
@@ -460,15 +476,16 @@ C     getarg       double precision sctrl(1),spot(1)
 c      type(s_ctrl)::sctrl
 c      type(s_pot)::spot
 C     ... Local parameters
-      integer:: i1 , i2 , nbas , nl , nsp , igets , ifi , fopna , rdm 
-     .     , ipr 
+      integer:: i1 , i2 , nbas , nl , nsp , igets , ifi , rdm 
+     .     , ipr ,ifile_handle
       call getpr(ipr)
       nbas=ctrl_nbas
       nl=ctrl_nl
       nsp=ctrl_nspin
       i1 = nl**2*(nl**2+1)
       i2 = 4*nsp*nbas
-      ifi = fopna('qpp',-1,4+8)
+      ifi= ifile_handle()
+      open(ifi,file='qpp.'//trim(sname),form='unformatted')
       if (lio) then
          call ywrm ( 1 , 'lmasa' , 1 , ifi , ' ' , rv_a_oqpp , 1 , i1 
      .        , i1 , i2 ) 
@@ -483,7 +500,7 @@ C     ... Local parameters
          endif
          call poppr
       endif
-      call fclose(ifi)
+      close(ifi)
       end subroutine ioqpp 
 
 
@@ -550,11 +567,13 @@ c     #define ONE_ATOM_UNIT 1
      &     rv_a_obxc , rv_a_ogrrme ,  rv_a_opmpol , rv_a_opnu , rv_a_opp , rv_a_opprel,
      &     rv_a_oqnu , rv_a_oqpp , rv_a_oqt , rv_a_orhrmx ,rv_a_opnu,
      &     rv_a_osop , rv_a_ovdif , rv_a_oves , rv_a_ovintr , rv_a_ovrmax 
-      use m_mksym,only: rv_a_oclabl,iv_a_oics
+      use m_mksym,only: rv_a_oclabl,iv_a_oics,ctrl_nclass
       use m_struc_def           !Cgetarg
-      use m_lmfinit,only: globalvariables,rv_a_opos
-      use m_lmfinit,only:   ctrl_nl,ctrl_nspin,ctrl_nclass
-      use m_supot,only:rv_a_omad
+      use m_lmfinit,only:  ctrl_nl,ctrl_nspin,lrel_g=>lrel
+
+
+      use m_ext,only:sname
+      use m_lattic,only: rv_a_opos
 C     - File I/O atomic data for classes ic1..ic2
 C     ----------------------------------------------------------------------
 C     i Inputs
@@ -621,9 +640,9 @@ C     Local variables
      .     readpq,readpp,readso,readop,readva,readmp
       integer::  onrc , n0 , nglob !olpp , olppr , olsop , olgrme , olva , olmp , opot  , ocor ,
       parameter(n0=10)
-      integer ic,is,lmx,k,nl,nsp,ifi,jfi,fopn,lmxx,nspx,nrx,nr,
+      integer ic,is,lmx,k,nl,nsp,ifi,jfi,lmxx,nspx,nrx,nr,
      .     idmod(n0),isw,bitand,i2,nclasp,iclbsj,icmap,jc,nbas,nclass,
-     .     nclspp,iprint,lgunit,mode0,mode00,lrel,i_copy_size
+     .     nclspp,iprint,lgunit,mode0,mode00,lrel,i_copy_size,ifile_handle
 c     integer mpipid,procid
       double precision rhrmx,vrmax(2),ves,z,rmxx,ax,qc,dq,vrmxx(2),
      .     sumec,sumtc,sumev,thrpv,ekin,utot,rhoeps,etot,a,rmax,dval,
@@ -634,7 +653,7 @@ c     integer mpipid,procid
       nsp=ctrl_nspin
       nclass=ctrl_nclass
       nclasp=ctrl_nclass !sarray%nclasp
-      lrel = globalvariables%lrel
+      lrel = lrel_g !globalvariables%lrel
       mode0 = mod(mode,10)
       mode00 = mod(mode0,4)
       i2 = ic2
@@ -660,7 +679,8 @@ C     --- Open the atom file ---
 c         call r8tos8 ( dval ( sarray%rv_a_oclabl , ic ) , clabl ) 
          clabl = rv_a_oclabl(ic)
          if (mode00 .ne. 3) then
-            ifi = fopn(clabl)
+            ifi=ifile_handle()
+            open(ifi,file=trim(clabl)//'.'//trim(sname))
          endif
 
 C     --- Copy what is passed through to holding arrays ---

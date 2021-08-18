@@ -1,51 +1,29 @@
-      subroutine rdovfa ( nbas , nspec , ssite , sspec  !, spot !, slat
-     . , qbg , sv_p_orhoat )
-      use m_supot,only: rv_a_ogv,iv_a_okv,rv_a_ogv,zv_a_osmrho
-      use m_struc_def  !Cgetarg
-      use m_struc_func , only: mpibc1_s_spec
-      use m_lmfinit,only: globalvariables
-c      use m_globalvariables
-      use m_lmfinit,only:lat_alat,lat_plat,lat_nabc,lat_vol,lat_ng
-C- Read and overlap free atom densities.
-C  Also allocates orhoca with free-atom core density.
+      subroutine rdovfa()
+      use m_density,only: zv_a_osmrho=>osmrho,sv_p_orhoat=>orhoat 
+!!      
+      use m_supot,only: lat_nabc,lat_ng,rv_a_ogv,iv_a_okv,rv_a_ogv
+      use m_lmfinit,only:lat_alat,nsp,nbas,nspec,ssite=>v_ssite,sspec=>v_sspec,qbg=>zbak
+      use m_lattic,only: lat_plat,lat_vol
+      use m_struc_def,only: s_rv1
+      use m_struc_func, only: mpibc1_s_spec
+!!- Read and overlap free atom densities.
+C  allocates orhoca with free-atom core density. 
 C ----------------------------------------------------------------------
 Ci Inputs
 Ci   nbas  :size of basis
 Ci   nspec :number of species
 Ci   ssite :struct containing site-specific information
 Ci   sspec :struct containing species-specific information
-Ci   slat  :struct containing information about the lattice
-Ci   qbg   :constant background charge
+Ci   qbg  :constant background charge  qcore+qval-qbg = \sum_i Zi
 Co Outputs
-Co   orhoat:vector of offsets containing site density, in standard
-Co          3-component form (true rho, smoothed rho, core rho)
+Co   orhoat: vector of offsets containing site density, in standard
+Co           3-component form (true rho, smoothed rho, core rho)
 Co   smrho :smoothed interstitial density
 Co         :* for smrho = smoothed mesh density, smrho is complex and
 Co         :  smrho = smrho(k1,k2,k3)
-Cl Local variables
-Ci   k1,k2,k3 dimensions of smrho for smoothed mesh density
-Cr Remarks
-Cu Updates
-Cu   12 May 07 package mpi-specific calls
-Cu   02 Jan 06 generates core magnetic moment, checks against spec->qcor
-Cu   01 Jul 05 Zero-radius empty spheres treated as local orbitals
-Cu   12 Apr 03 (WRL) Added constant charge background
-Cu   15 Feb 02 (ATP) Added MPI parallelization
-Cu   13 Jun 00 spin polarized
-Cu   21 Apr 00 Adapted from nfp rdovfa.f
 C ----------------------------------------------------------------------
       implicit none
-C ... Passed parameters
       integer procid, master, mpipid
-      integer:: nbas , nspec
-      type(s_rv1) :: sv_p_orhoat(3,nbas)
-      real(8):: qbg
-      type(s_site)::ssite(nbas)
-      type(s_spec)::sspec(nspec)
-c      type(s_lat)::slat
-c      type(s_pot)::spot
-
-C ... Local parameters
       integer nrmx, n0
       parameter ( nrmx=1501, n0=10 )
       integer:: nxi(nspec)
@@ -56,7 +34,7 @@ C ... Local parameters
      .hfc(n0,2,nspec),hfct(n0,2,nspec)
       character*8 spid(nspec),spidr
       integer:: ipr , iprint , ngabc(3) , n1 , n2 , n3 , k1 , k2 , 
-     .     k3 , nsp , nglob , lgunit , stdo , stdl , i , ifi , fopna , is 
+     .     k3 , lgunit , stdo , stdl , i , ifi , fopna , is 
      .     , nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ng 
      .     , iofa , kcor , lcor
       real(8) ,allocatable :: rwgt_rv(:)
@@ -70,10 +48,11 @@ C ... Local parameters
       logical:: l_dummy_isanrg,isanrg
       integer:: i_copy_size,i_spec
       call tcn('rdovfa')
+c      qbg=qbg2(1)
       ipr   = iprint()
       stdo  = lgunit(1)
       stdl  = lgunit(2)
-      nsp   = globalvariables%nsp
+c      nsp   = globalvariables%nsp
       msg   = '         File mismatch:'
       procid = mpipid(1)
       master = 0
@@ -131,7 +110,7 @@ C      if (ipr .ge. 30) write(stdo,*) ' '
             ceh=0
             stc=0
             if (allocated(rv_a_ov0a(is)%v)) deallocate(rv_a_ov0a(is)%v)
-            deallocate(sspec(is)%rv_a_orhoc)
+c            deallocate(sspec(is)%rv_a_orhoc)
             if (allocated(rv_a_orhofa(is)%v)) deallocate(rv_a_orhofa(is)%v)
           else
             nr0=nrmx ! %rv_a_orhoc(nrmx*nsp)
@@ -199,7 +178,7 @@ C     Wait for all proccesses to synchronize
 C     Re-broadcast entire species structure, and arrays used below
 cki      call mpibc1(sspec,nspec*nint(sspec(1)%size),4,0,'rdovfa','sspec')
       do i_spec=1,nspec
-        call mpibc1_s_spec(sspec(i_spec),.false.,'rdovfa','sspec')
+        call mpibc1_s_spec(sspec(i_spec),'rdovfa_sspec')
       enddo
 
       if (procid .eq. master) then
@@ -210,6 +189,7 @@ C --- Define arrays for local densities rho1,rho2,rhoc and v0,v1 ---
       ztot = 0d0
       ctot = 0d0
       corm = 0d0
+      allocate(sv_p_orhoat(3,nbas))
       do  20  ib = 1, nbas
         is = int(ssite(ib)%spec)
         a=sspec(is)%a
@@ -220,19 +200,14 @@ C --- Define arrays for local densities rho1,rho2,rhoc and v0,v1 ---
         qc=sspec(is)%qc
         lfoc=sspec(is)%lfoca
         nlml = (lmxl+1)**2
-
-        allocate(sv_p_orhoat(1,ib)%v(abs(nr*nlml*nsp)))
-        if (nr*nlml*nsp<0) sv_p_orhoat(1,ib)%v(:)=0.0d0
-        allocate(sv_p_orhoat(2,ib)%v(abs(nr*nlml*nsp)))
-        if (nr*nlml*nsp<0) sv_p_orhoat(2,ib)%v(:)=0.0d0
-        allocate(sv_p_orhoat(3,ib)%v(abs(nr*nsp)))
-        if (nr*nsp<0) sv_p_orhoat(3,ib)%v(:)=0.0d0
+!!
+        allocate(sv_p_orhoat(1,ib)%v(nr*nlml*nsp))
+        allocate(sv_p_orhoat(2,ib)%v(nr*nlml*nsp))
+        allocate(sv_p_orhoat(3,ib)%v(nr*nsp))
         if (allocated(ssite(ib)%rv_a_ov0)) deallocate(ssite(ib)%rv_a_ov0)
         allocate(ssite(ib)%rv_a_ov0(abs(nr*nsp)))
-        if (nr*nsp<0) ssite(ib)%rv_a_ov0(:)=0.0d0
         if (allocated(ssite(ib)%rv_a_ov1)) deallocate(ssite(ib)%rv_a_ov1)
         allocate(ssite(ib)%rv_a_ov1(abs(nr*nsp)))
-c        if (nr*nsp<0) ssite(ib)%rv_a_ov1(:)=0.0d0
 
 C       Core magnetic moment (possible if magnetized core hole)
         if (nsp .eq. 2 .and. lmxl .gt. -1) then
@@ -269,7 +244,11 @@ C       Core magnetic moment (possible if magnetized core hole)
         ztot = ztot+z
         ctot = ctot+qc
 C     end loop over sites
-   20 continue
+ 20   continue
+      
+!! allocate array for iteration
+      allocate(zv_a_osmrho(k1*k2*k3*nsp))
+      zv_a_osmrho(:)=0d0
 
 C --- Overlap smooth hankels to get smooth interstitial density ---
       ng=lat_ng

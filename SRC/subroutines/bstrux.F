@@ -1,101 +1,92 @@
-CSFCPP#define F90 1
-
-c#define USEOPTIONAL 1
-
-      module m_prlcb1
+      module m_bstrux
+!! Structure constants for P_kL expansion of Bloch lmto + PW around site ia
+      use m_struc_def,only: s_cv3,s_cv4
+      public:: bstrux_set, bstr, dbstr, m_bstrux_init
+      complex(8),pointer,protected::  bstr(:,:,:)
+      complex(8),pointer,protected:: dbstr(:,:,:,:)
+      
+      type(s_cv3),allocatable,protected,private,target:: p_bstr(:,:)
+      type(s_cv4),allocatable,protected,private,target:: p_dbstr(:,:)
+      real(8),allocatable,private:: qall(:,:)
       contains
-      subroutine prlcb1(mode,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,
-     .nlma,kmax,b0,db0,b,db)
-
-C- Poke strux and grads from b0,db0 to full arrays b,db
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   mode  :0 poke b only
-Ci         :1 poke b and db
-Ci   ndimh :dimension of hamiltonian
-Ci   ib    :site of strux head
-Ci   nlmbx :dimensions b,db
-Ci   nlma  :augmentation L-cutoff
-Ci   kmax  :Pkl polynomial cutoff
-Ci   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
-Ci   b0    :L-ordered strux for one ik block and pair of sites
-Ci   db0   :gradient of b0
-Co Outputs
-Co   b     :subblock corresponding to b0 is poked into b
-Co   db    :subblock corresponding to db0 is poked into db
-Cr Remarks
-Cr   b0,db0 have normal L ordering in both row and column dimensions.
-Cr   b,db   have normal L ordering in rows but iprmb ordering in columns
-Cr   This routine is identical in function to paugq1 (augmbl.f) except:
-Cr     the gradient db of b can optionally be filled
-Cr     array indices to b are ordered differently
-Cu Updates
-Cu   25 Aug 04 Adapted to extended local orbitals
-C ----------------------------------------------------------------------
+      
+      subroutine bstrux_set(ia,q)
+      use m_qplist,only: qplist,iqini,iqend
+      use m_lmfinit,only: lfrce=>ctrl_lfrce
       implicit none
-C ... Passed parameters
-      integer mode,kmax,ndimh,ik,nlma,nlmbx
-      integer n0,nkap0
-      parameter (n0=10,nkap0=3)
-      integer norb,ltab(norb),ktab(norb),offl(norb)
-      double precision rsmh(n0,nkap0)
-c#ifdef USEOPTIONAL
-      double complex b0(0:kmax,nlma,nlmbx),b(ndimh,nlma,0:kmax)
-      complex(8),optional::db0(0:kmax,nlma,nlmbx,3),db(ndimh,nlma,0:kmax,3)
-c#else
-c      double complex b0(0:kmax,nlma,nlmbx),b(ndimh,nlma,0:kmax),
-c     .db0(0:kmax,nlma,nlmbx,3),db(ndimh,nlma,0:kmax,3)
-c#endif
-C ... Local parameters
-      integer i1,ik1,k,ilma,ilmb,iorb,l1,nlm1,nlm2
-      integer blks(norb),ntab(norb)
-      double precision xx
-
-C     Block into groups of consecutive l
-      call gtbsl1(4+16,norb,ltab,ktab,rsmh,xx,ntab,blks)
-
-      do  iorb = 1, norb
-        ik1 = ktab(iorb)
-C       Loop only over orbitals belonging to this energy block
-        if (ik1 .eq. ik .and. blks(iorb) .ne. 0) then
-          l1  = ltab(iorb)
-          nlm1 = l1**2+1
-          nlm2 = nlm1 + blks(iorb)-1
-C         i1 = index to hamiltonian offset
-          i1 = offl(iorb)
-C          print *, iorb,ik,l1,i1+1,i1+nlm2-nlm1+1
-C  333     format('block',i4,' ik=',i4,' l=',i4,
-C     .      ' start=',i4,' stop=',i4)
-          do  ilmb = nlm1, nlm2
-            i1 = i1+1
-            if (mode .eq. 0) then
-              do  ilma = 1, nlma
-                do  k = 0, kmax
-                  b(i1,ilma,k) = b0(k,ilma,ilmb)
-                enddo
-              enddo
-            else
-              do  ilma = 1, nlma
-                do  k = 0, kmax
-                  b(i1,ilma,k) =    b0(k,ilma,ilmb)
-                  db(i1,ilma,k,1) = db0(k,ilma,ilmb,1)
-                  db(i1,ilma,k,2) = db0(k,ilma,ilmb,2)
-                  db(i1,ilma,k,3) = db0(k,ilma,ilmb,3)
-                enddo
-              enddo
-            endif
-          enddo
-        endif
+      real(8):: q(3),eps=1d-10
+      integer:: iq,iqx,ia
+      iq=-999
+      do iqx=iqini,iqend
+         if( sum( (q-qall(:,iqx))**2 )<eps) then
+            iq=iqx
+            exit
+         endif
       enddo
-      end subroutine prlcb1
-
-      end module m_prlcb1
-
-      subroutine bstrux(mode,ssite,sspec,cg,indxcg,jcg,cy,iprmb, !,slat
-     .nbas,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igapw,b,db)
-      use m_struc_def  !Cgetarg
-      use m_prlcb1
-      use m_lmfinit,only:lat_alat,lat_qlat,lat_vol
+c      print *,' bbbbbbbbbb iq q=',iq,q
+      if(iq==-999) call rx('err:bstrux_set')
+      bstr => p_bstr(ia,iq)%cv3
+      if(lfrce/=0) dbstr=> p_dbstr(ia,iq)%cv4
+c      write(6,*) q
+      end
+         
+      subroutine m_bstrux_init() !q for qplist --> not yet for sugw.
+      use m_qplist,only: qplist,iqini,iqend
+      use m_lmfinit,only: lfrce=>ctrl_lfrce,nlmax,kmxt,nspec,nbas,ssite=>v_ssite,sspec=>v_sspec
+      use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat
+      use m_igv2x,only: napw, igvapwin=>igv2x, ndimh,m_Igv2x_setiq
+      integer:: kmaxx,ia,isa,lmxa,lmxb,kmax,nlmb,nlma,mode,inn(3),ig,iq,ndimhmax
+      real(8):: pa(3),qin(3),q(3),qlatinv(3,3),rsma
+      integer,allocatable:: igvapw(:,:)
+      
+      if(allocated(qall)) deallocate(qall,p_bstr,p_dbstr)
+      allocate(qall(3,iqini:iqend),p_bstr(nbas,iqini:iqend),p_dbstr(nbas,iqini:iqend)) !iqini:iqend for each rank
+      
+      do 1200 iq = iqini, iqend !This is a big iq loop
+        qin = qplist(:,iq) !qin
+        call m_Igv2x_setiq(iq) ! Get napw,ndimh, and so on for given iq
+        allocate(igvapw(3,napw))
+c        print *,'iqini,iqend=',iqini,iqend,napw
+ccccccccccccccccccccccccccccccccccccc
+!! See hambl.F calling augmbl, calling bstrux_set
+!! input and output
+!!   qpg(ig) = tpiba * ( qin + matmul(qlat,igapwin(1:3,ig))) for h,o,hso
+!! internal
+!!   qpg(ig) = tpiba * ( q  + matmul(qlat,igapw(1:3,ig)))
+!!  NOTE: both qpg are the same for given ig.
+!! qlat*igapw = qlat*igqwin + (qin-q) ---> igvapw = igvapwin + matmul(qlatinv,qin-q)
+        qlatinv = transpose(plat)
+        call shorbz(qin,q,qlat,plat) !Get q. Is this fine?
+        call rtoint(matmul(qlatinv,qin-q),inn,3) 
+        do ig=1,napw
+           igvapw(:,ig) = inn + igvapwin(:,ig)
+        enddo  
+ccccccccccccccccccccccccccccccccccccc
+        do ia=1,nbas
+           isa=ssite(ia)%spec
+           pa=ssite(ia)%pos
+           lmxa=sspec(isa)%lmxa !max l of augmentation
+           kmax=sspec(isa)%kmxt !max of radial k
+           rsma=sspec(isa)%rsma
+           nlma = (lmxa+1)**2
+           if (lmxa .eq. -1) cycle
+           allocate(                p_bstr(ia,iq)%cv3(ndimh,nlma,0:kmax) )
+           if(lfrce/=0) allocate(  p_dbstr(ia,iq)%cv4(ndimh,nlma,0:kmax,3) )
+!  --- Make strux to expand all orbitals at site ia ---
+           qall(:,iq)=q
+           mode = 2
+           if(lfrce/=0) mode=1
+           call bstrux (mode,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igvapw, p_bstr(ia,iq)%cv3,p_dbstr(ia,iq)%cv4)
+        enddo 
+        deallocate(igvapw)
+ 1200 continue
+      end
+      subroutine bstrux(mode,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igapw,  b,                db)
+      use m_struc_def  
+      use m_lmfinit,only:alat=>lat_alat,lhh,nkaphh,nkapii,ssite=>v_ssite,sspec=>v_sspec,cg=>rv_a_ocg,
+     &     indxcg=>iv_a_oidxcg,jcg=>iv_a_ojcg,cy=>rv_a_ocy,iprmb,nbas
+      use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol
+      use m_uspecb,only: uspecb
 C- Structure constants for P_kL expansion of Bloch lmto + PW around site ia
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -148,15 +139,10 @@ Cu   14 Jan 09 Bug fix, mode=2
 Cu   05 Jul 08 (T. Kotani) adapted from augmbl; new PW part.
 C ----------------------------------------------------------------------
       implicit none
-C ... Passed parameters
       real(8):: pa(3) , q(3)
-      type(s_site)::ssite(*)
-      type(s_spec)::sspec(*)
-c      type(s_lat)::slat
-
-      double precision cg(1),cy(1),rsma
-      integer kmax,nbas,ndimh,mode,ia,nlma,napw
-      integer iprmb(1),igapw(3,napw),indxcg(1),jcg(1)
+      double precision rsma
+      integer kmax,ndimh,mode,ia,nlma,napw
+      integer igapw(3,napw)
       double complex b(*)  !b(0:kmax,nlma,ndimh) mode 0;
       !b(ndimh,nlma,0:kmax) mode 1,2
       double complex db(*) !db(ndimh,nlma,0:kmax,3)
@@ -166,25 +152,16 @@ C ... Local parameters
       integer lh(nkap0)
       double precision eh(n0,nkap0),rsmh(n0,nkap0)
       integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
-      double precision p(3),xx,alat,qlat(3,3),vol,srvol
-CSFCPP#if F90
-      complex(8),allocatable:: b0(:),db0(:),bos(:)
-
-C --- Setup ---
-
-      alat=lat_alat
-      qlat=lat_qlat
-      vol=lat_vol
-
+      double precision p(3),xx,srvol
+      complex(8),allocatable:: b0(:),db0(:)
+      real(8),allocatable:: bos(:)
       srvol = dsqrt(vol)
       nlmto = ndimh-napw
-
 C     Zero out strux to eliminate contributions from local orbitals
       call dpzero(b,(kmax+1)*nlma*ndimh*2)
       if (mode .eq. 1) then
         call dpzero(db,(kmax+1)*nlma*ndimh*3*2)
       endif
-
 C --- b for MTO  (Written as C_kl in LMTO book) ---
       if (nlmto .gt. 0) then
         allocate(b0((kmax+1)*nlma*nlmbx),bos((kmax+1)*nlmbx))
@@ -194,20 +171,14 @@ C --- b for MTO  (Written as C_kl in LMTO book) ---
           allocate(db0((kmax+1)*nlma*nlmbx*3))
         endif
         do  ib = 1, nbas
-          is=ssite(ib)%spec
-          p=ssite(ib)%pos
-C       This line augments no local orbitals
-C       ik = 1
-C       This line augments onsite extended local orbitals only
-C       if (ia .eq. ib) ik = 2
-C       This line augments extended local orbitals all sites
-          ik = 2
-          call uspecb(0,ik,sspec,is,is,lh,rsmh,eh,nkapi)
+          is= ssite(ib)%spec
+          p = ssite(ib)%pos
+          call uspecb(is,rsmh,eh)          
 C       Position in h; l,k indices for orbitals connected w/ ib
           call orbl(ib,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
 C       Loop over blocks of envelope functions
-          do  ik = 1, nkapi
-            nlmh = (lh(ik)+1)**2
+          do  ik = 1, nkaphh(is)
+            nlmh = (lhh(ik,is)+1)**2
             if (nlmh .gt. nlmbx) call rxi('augmbl: need nlmbx',nlmh)
             if (nlmh .gt. nlma .and. ia.eq.ib)
      .      call rx('augmbl: nlmh.gt.nlma')
@@ -221,14 +192,10 @@ C       Loop over blocks of envelope functions
             else
               call rxi('bfactor: bad mode',mode)
             endif
-
-c#ifndef ALL3C
             if (ib .eq. ia) then
               call hxpos(rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,kmax,bos)
               call paugq2(kmax,nlmh,nlma,bos,b0)
             endif
-c#endif
-
 C         Note: indices of b are ordered differently by mode (see Outputs)
             if (mode .eq. 0) then
               call paugq1(kmax,nlma,kmax,ik,norb,ltab,ktab,rsmh,offl,
@@ -237,39 +204,93 @@ C         Note: indices of b are ordered differently by mode (see Outputs)
               call prlcb1(1,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,
      .        nlma,kmax,b0,db0,b,db)
             elseif (mode .eq. 2) then
-c#ifdef USEOPTIONAL
               call prlcb1(mode=0,ndimh=ndimh,ik=ik,norb=norb,ltab=ltab,
      .        ktab=ktab,rsmh=rsmh,offl=offl,nlmbx=nlmbx,
      .        nlma=nlma,kmax=kmax,b0=b0,b=b)
-c#else
-c              call prlcb1(0,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,
-c     .        nlma,kmax,b0,xx,b,xx)
-c#endif
             endif
           enddo
         enddo
         deallocate(b0,bos)
         if (mode .eq. 1) deallocate(db0)
       endif
-
-      call paugqp(mode,kmax,nlma,kmax,ndimh,napw,igapw,alat,qlat,srvol,
-     .q,pa,rsma,b,b,db)
-
-      if (mode .eq. 0) then
-C       call zprm('b',2,b,(kmax+1)*nlma,(kmax+1)*nlma,ndimh)
-      endif
-      if (mode .eq. 1 .or. mode .eq. 2) then
-C       call zprm('b mode 1 or 2',2,b,ndimh,ndimh,(kmax+1)*nlma)
-      endif
-
-CSFCPP#else
-CSFCPP      call rx('bstrux requires F90')
-CSFCPP#endif
+      call paugqp(mode,kmax,nlma,kmax,ndimh,napw,igapw,alat,qlat,srvol,q,pa,rsma,b,b,db)
       end subroutine bstrux
-
+!!
+      subroutine prlcb1(mode,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,
+     .nlma,kmax,b0,db0,b,db)
+C- Poke strux and grads from b0,db0 to full arrays b,db
+C ----------------------------------------------------------------------
+Ci Inputs
+Ci   mode  :0 poke b only
+Ci         :1 poke b and db
+Ci   ndimh :dimension of hamiltonian
+Ci   ib    :site of strux head
+Ci   nlmbx :dimensions b,db
+Ci   nlma  :augmentation L-cutoff
+Ci   kmax  :Pkl polynomial cutoff
+Ci   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
+Ci   b0    :L-ordered strux for one ik block and pair of sites
+Ci   db0   :gradient of b0
+Co Outputs
+Co   b     :subblock corresponding to b0 is poked into b
+Co   db    :subblock corresponding to db0 is poked into db
+Cr Remarks
+Cr   b0,db0 have normal L ordering in both row and column dimensions.
+Cr   b,db   have normal L ordering in rows but iprmb ordering in columns
+Cr   This routine is identical in function to paugq1 (augmbl.f) except:
+Cr     the gradient db of b can optionally be filled
+Cr     array indices to b are ordered differently
+Cu Updates
+Cu   25 Aug 04 Adapted to extended local orbitals
+C ----------------------------------------------------------------------
+      implicit none
+C ... Passed parameters
+      integer mode,kmax,ndimh,ik,nlma,nlmbx
+      integer n0,nkap0
+      parameter (n0=10,nkap0=3)
+      integer norb,ltab(norb),ktab(norb),offl(norb)
+      double precision rsmh(n0,nkap0)
+      double complex b0(0:kmax,nlma,nlmbx),b(ndimh,nlma,0:kmax)
+      complex(8),optional::db0(0:kmax,nlma,nlmbx,3),db(ndimh,nlma,0:kmax,3)
+C ... Local parameters
+      integer i1,ik1,k,ilma,ilmb,iorb,l1,nlm1,nlm2
+      integer blks(norb),ntab(norb)
+      double precision xx
+C     Block into groups of consecutive l
+      call gtbsl1(4+16,norb,ltab,ktab,rsmh,xx,ntab,blks)
+      
+      do  iorb = 1, norb
+        ik1 = ktab(iorb)
+        if (ik1 .eq. ik .and. blks(iorb) .ne. 0) then
+          l1  = ltab(iorb)
+          nlm1 = l1**2+1
+          nlm2 = nlm1 + blks(iorb)-1
+          i1 = offl(iorb)
+          do  ilmb = nlm1, nlm2
+            i1 = i1+1
+            if (mode .eq. 0) then
+              do  ilma = 1, nlma
+                do  k = 0, kmax
+                  b(i1,ilma,k) = b0(k,ilma,ilmb)
+                enddo
+              enddo
+            else
+              do  ilma = 1, nlma
+                do  k = 0, kmax
+                  b(i1,ilma,k) =    b0(k,ilma,ilmb)
+                  db(i1,ilma,k,1) = db0(k,ilma,ilmb,1)
+                  db(i1,ilma,k,2) = db0(k,ilma,ilmb,2)
+                  db(i1,ilma,k,3) = db0(k,ilma,ilmb,3)
+                enddo
+              enddo
+            endif
+          enddo
+        endif
+      enddo
+      end subroutine prlcb1
+      
 
       subroutine paugq1(kmax,nlma,k0,ik,norb,ltab,ktab,rsmh,offl,b0,b)
-
 C- Poke strux from b0 to full array b
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -304,10 +325,8 @@ C ... Local parameters
       integer ilmb,ilma,k,iorb,l1,ik1,i1,nlm1,nlm2
       integer blks(norb),ntab(norb)
       double precision xx
-
 C     Block into groups of consecutive l
       call gtbsl1(4+16,norb,ltab,ktab,rsmh,xx,ntab,blks)
-
       do  iorb = 1, norb
         ik1 = ktab(iorb)
 C       Loop only over orbitals belonging to this energy block
@@ -330,9 +349,7 @@ C         i1 = index to hamiltonian offset
           enddo
         endif
       enddo
-
       end subroutine paugq1
-
 
       subroutine paugqp(mode,kmax,nlma,k0,ndimh,napw,igapw,alat,qlat,
      .srvol,q,pa,rsma,b0,b1,db)
@@ -374,18 +391,8 @@ C ... Local parameters
 C     complex(8),allocatable:: bpw(:,:)
       double complex srm1,srm1l,gfourier,phase,facilm,b
       parameter (srm1=(0d0,1d0))
-
+      
       if (napw .eq. 0) return
-
-cccccccccccccccccccccccccccccccccccccccccccc
-c      b0=0d0
-c      if(mode==0) return
-c      b1=0d0
-c      db=0d0
-c      return
-cccccccccccccccccccccccccccccccccccccccccccc
-
-CSFCPP#if F90
       nlmto = ndimh - napw
       pi = 4d0*datan(1d0)
       fpi = 4*pi
@@ -463,7 +470,6 @@ c     fac2l(l)=(2l-1)!! data fac2l /1,1,3,15,105,945,10395,135135,2027025,344594
             rsmal = rsmal*rsma
             srm1l = srm1l * srm1
           enddo
-
         else
           call rxi('paugqp: bad mode',mode)
         endif
@@ -524,14 +530,7 @@ C          enddo
 C        endif
 
       enddo
-C     deallocate(fac2l,yl,bpw)
-
-CSFCPP#else
-CSFCPP      call rx('bstrux requires F90')
-CSFCPP#endif
-
       end subroutine paugqp
-
 
       subroutine paugq2(kmax,nlmh,nlma,bos,b0)
 C- Subtract on-site strux for ib=ia, leaving tail expansion
@@ -561,5 +560,5 @@ C ... Local parameters
       enddo
       end subroutine paugq2
 
-
+      end module m_bstrux
 

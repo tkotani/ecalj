@@ -129,12 +129,13 @@ C --- File WRITE ---
           write(-ifi,891)
   891     format(
      .    '   l',8x,'pl',11x,'q0',11x,'q1',11x,'q2',5x,' id ',6x,'dl')
-          do  11  i = 1, nsp
+          do  110  i = 1, nsp
           do  11  l = 0, lmax
             dl = dtan(pi*(.5d0 - pl(l+1,i)))
             if (dabs(dl) .gt. 9999) dl = 0
             write(-ifi,100) l,pl(l+1,i),(ql(ii,l+1,i),ii=1,3),idmod(l),dl
    11     continue
+ 110      continue
         endif
       endif
       return
@@ -151,18 +152,14 @@ C --- handle read exception ---
         if (ipr .ge. 20)
      .  print *, 'AIOMOM, ATOM=',alabl,
      .  ':  spin 2 input missing; spin 1 moments split'
-        do  40  l = 0, lmax
+        do  400  l = 0, lmax
         do  40  ii = 1, 3
           ql(ii,l+1,1) = ql(ii,l+1,2)
    40   continue
+  400   continue
       else
         aiomom = .false.
       endif
-
    99 continue
-C      call mpibc1(pl,nl*nsp,4,.false.,'aiomom','pl')
-C      call mpibc1(ql,3*nl*nsp,4,.false.,'aiomom','ql')
-C      call mpibc1(rh,1,4,.false.,'aiomom','ql')
-C      call mpibc1(vrmax,2,4,.false.,'aiomom','ql')
       end
 

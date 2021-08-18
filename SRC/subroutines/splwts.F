@@ -1,6 +1,8 @@
       subroutine splwts(nqp,nband,nbmx,nsp,wgts,evl,n,w,efermi,
      .metal,sumev,bndwts,wtot,entrpy,dosef,cv)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: stdo
+
+
 C- make sampling weights for integrals under the Fermi surface
 C-----------------------------------------------------------------------
 Ci  Input
@@ -39,13 +41,13 @@ C ... Passed parameters
       double precision wgts(nqp),evl(nbmx,nsp,nqp),w,efermi,sumev,
      .bndwts(nband,nsp,nqp),wtot,entrpy,dosef,cv
 C ... Local parameters
-      integer iqp,iband,isp,iprint,i1mach,stdo,nglob
+      integer iqp,iband,isp,iprint,i1mach
       double precision e,s,d,wt,x,xx,dsdt,tdsdt
       logical fractional
 C      double precision sp,sm,dsdt,tdsdt,dsdt1,dsdt2
 
 Changenglob      stdo = nglob('stdo')
-      stdo = globalvariables%stdo
+c      stdo = globalvariables%stdo
       sumev = 0d0
       wtot = 0d0
       entrpy = 0d0

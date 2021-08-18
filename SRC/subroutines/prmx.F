@@ -172,14 +172,16 @@ C     implicit none
       fmt = '(9f15.10)'
       ifi = fopna('out',29,0)
       call awrit2('%% rows %i cols %i complex',' ',80,ifi,n1*n2,n3)
-      do  10  i = 1, n1
-      do  10  j = 1, n2
-        write(ifi,fmt) (s(1,i,j,k), k=1,n3)
-   10 continue
-      do  20  i = 1, n1
-      do  20  j = 1, n2
-        write(ifi,fmt) (s(2,i,j,k), k=1,n3)
-   20 continue
+      do    i = 1, n1
+      do    j = 1, n2
+         write(ifi,fmt) (s(1,i,j,k), k=1,n3)
+      enddo
+      enddo
+      do   i = 1, n1
+      do   j = 1, n2
+         write(ifi,fmt) (s(2,i,j,k), k=1,n3)
+      enddo
+      enddo
       call fclose(ifi)
       call awrit1(sfmt,outs,80,0,msga)
       call awrit0('%a.  Continue?',outs,80,-i1mach(2))
@@ -197,10 +199,11 @@ C     implicit none
       fmt = '(9f15.10)'
       ifi = fopna('out',29,0)
       call awrit2('%% rows %i cols %i real',' ',80,ifi,n1*n2,n3)
-      do  10  i = 1, n1
-      do  10  j = 1, n2
-        write(ifi,fmt) (s(i,j,k), k=1,n3)
-   10 continue
+      do   i = 1, n1
+      do    j = 1, n2
+         write(ifi,fmt) (s(i,j,k), k=1,n3)
+      enddo
+      enddo
       call fclose(ifi)
       call awrit1(sfmt,outs,80,0,msga)
       call awrit0('%a.  Continue?',outs,80,-i1mach(2))
@@ -217,11 +220,11 @@ C     implicit none
       ifi = fopna('in',29,0)
       if (rdm(ifi,0,0,' ',xx,n1*n2,n3) .ne. 1) call
      .rx('rdm3:  file mismatch')
-      do  10  i = 1, n1
-      do  10  j = 1, n2
+      do    i = 1, n1
+      do    j = 1, n2
         read(ifi,*) (s(i,j,k), k=1,n3)
-   10 continue
-
+      enddo
+      enddo
       call fclose(ifi)
 
       end

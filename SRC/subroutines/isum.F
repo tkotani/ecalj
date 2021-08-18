@@ -9,8 +9,9 @@ c
       isum = 0
       if (n .le. 0) return
       nincx = n*incx
-      do  10  i = 1, nincx,incx
-   10 isum = isum + idx(i)
+      do   i = 1, nincx,incx
+         isum = isum + idx(i)
+      enddo   
       end
 
 

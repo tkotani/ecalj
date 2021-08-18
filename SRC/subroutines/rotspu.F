@@ -6,7 +6,6 @@ Ci   mode  :1s digit
 Ci           1 if to reverse the sense of rotation
 Ci   nbas  :size of basis
 Ci   nl    :(global maximum l) + 1
-Ci   indxsh:permutation indices ordering orbitals in downfolding order
 Ci   eula  :Euler angles for noncollinear spins
 Ci   neul  :1  if Euler angles are l-independent
 Ci          nl if Euler angles are l-dependent
@@ -23,14 +22,14 @@ C Local variables
       integer ib,il,im,ilm
 
 C --- Spinor rotation matrices for all sites ---
-      do  10  ib = 1, nbas
+      do  102  ib = 1, nbas
 C ... Assume initially Euler angles are not l-dependent
         xxc = dcos(eula(ib,1,2)/2)
         xxs = dsin(eula(ib,1,2)/2)
         alpha = eula(ib,1,1)
         gamma = eula(ib,1,3)
         ilm = 0
-      do  10  il = 1, nl
+      do  101  il = 1, nl
 C   ... If euler angles are l dependent
         if (neul .eq. nl) then
           xxc = dcos(eula(ib,il,2)/2)
@@ -62,5 +61,7 @@ C        print *, ilm,ib
 C        if (ilm .eq. 1 .and. iprint() .ge. 100)
 C     .    call zprm('u in rotspu',2,u(1,1,ilm,ib),2,2,2)
    10 continue
+ 101  continue
+ 102  continue
       end
 

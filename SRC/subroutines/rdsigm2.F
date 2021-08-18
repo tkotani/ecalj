@@ -1,46 +1,65 @@
-!! -----------------------------------------------------------------------------------
-      module m_seneinterp
-      complex(8),allocatable,protected:: sene(:,:)
-      real(8) , allocatable,protected ::  rv_a_ohrs (:)
+      module m_rdsigm2
+      public:: m_rdsigm2_init, getsenex, senex, dsene !getsenex returns the self-energy term.
+
+      private
+      complex(8),allocatable,protected:: sene(:,:),senex(:,:)
+      real(8), allocatable,protected ::  rv_a_ohrs (:)
       integer, allocatable,protected :: iv_a_oiaxs(:)
       integer, allocatable,protected :: iv_a_ontabs(:)
-      integer,protected:: ndimsig,nspsigm
-
+      integer,protected:: ndimsig,nspsigm,ham_ndhrs,ham_nqsig
       integer,private :: nsizeohrs,nsizeoiaxs,nsizeontabs,noqsig
       real(8) , allocatable,private ::  rv_p_oqsig (:)  !not yet protected (rdsigm2 rewrite this)
       contains
       
-!     !ssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-      subroutine dsene()
-      deallocate(sene)
+!!ssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+      subroutine getsenex(qp,isp,ndimh,ovlm)
+!! this return self-energy senex, which is      
+      implicit none
+      integer:: isp,ndimh
+      real(8):: qp(3)
+      complex(8),allocatable:: ovlmtoi(:,:),ovliovl(:,:) 
+      complex(8):: ovlm(ndimh,ndimh)
+      call getsene(qp,isp) 
+      allocate( ovlmtoi(ndimsig,ndimsig),ovliovl(ndimsig,ndimh))
+      ovlmtoi = ovlm(1:ndimsig,1:ndimsig)!,ispc)
+      call matcinv(ndimsig,ovlmtoi)
+      ovliovl = matmul(ovlmtoi,ovlm(1:ndimsig,1:ndimh))
+      deallocate(ovlmtoi)
+      allocate(senex(ndimh,ndimh))
+      senex = matmul(transpose(dconjg(ovliovl)), matmul(sene,ovliovl))
+      deallocate(ovliovl,sene)
       end subroutine
-      subroutine getsene(lrsig,qp,isp) !call after sigmainit
-      use m_lmfinit,only: plat,mxorb,ham_ndhrs,nbas,nl
-      use m_suham,only:  iv_a_oindxo
-      integer:: i, mode, isp, ispsigm,lrsig,iwdummy,ival
+!sssssssssssssssssssssssssssssssssssssssss      
+      subroutine dsene()
+      deallocate(senex)
+      end subroutine
+!sssssssssssssssssssssssssssssssssssssssss      
+      subroutine getsene(qp,isp) !(lrsig,qp,isp) !call after sigmainit
+      use m_lmfinit,only: plat,mxorb,nbas,nl,iprmb
+c      use m_suham,only:  iprmb
+      integer:: i, mode, isp, ispsigm,iwdummy,ival!lrsig
       real(8):: hreal,qp(3)
       logical:: debug=.false.
       if(debug) print *,'ndimsig=',ndimsig
       allocate(sene(ndimsig,ndimsig))
-      i = lrsig*10
-c      if(debug) print *,' i lrsig=',i,lrsig
+c      i = lrsig*10
       hreal = 0
-      if (mod(i/10,10) >= 4) hreal = 1 !this is lrsig in hambles.
+c      if (mod(i/10,10) >= 4) hreal = 1 !this is lrsig in hambles.
       mode = 100000 + 4000 + 40*(1-hreal) + 000 + 10 !hreal=1 -> sig(T) is real
-c     if(debug) print *,'getsene:goto bloch i q nl plat mxorb=',
-c      lrsig,mode,qp,ndimsig,ival(iv_a_ontabs, nbas + 1)
       if(isp>nspsigm) then
          ispsigm = nspsigm
       else
          ispsigm=isp
       endif
 !! bloch: we need hrs(means real space) and iaxs(pair table) for FFT.
-      call bloch (mode,qp,nl,plat,mxorb,iv_a_oindxo,1
+      call bloch (mode,qp,nl,plat,mxorb,iprmb,1
      &           , ival ( iv_a_ontabs , nbas + 1 )
      &           , iv_a_oiaxs , rv_a_ohrs, ham_ndhrs, ispsigm, nspsigm , ndimsig , ndimsig 
      &           , 0 , ndimsig, 0 , ndimsig , 0 , sene, iwdummy, iwdummy )
                if(debug) print *,'end of bloch sene'
-      end subroutine getsene         
+      end subroutine getsene
+!sssssssssssssssssssssssssssssssssssssssss      
+      
 ! takao expected to replace bloch to be a simple version seneinterp2. But not yet...
 c     call seneinterp2(qp,nbas,nk1,nk2,nk3,plat, !npair,nlat,qwgt,npairmx,qsmesh,
 c     i        sfz(:,:,:,:,:,isp),ldim,ndimsig, 
@@ -103,22 +122,20 @@ c$$$          enddo
 c$$$          enddo
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       
-      subroutine seneinterp(nbas,nsp,ndimh,ifis,rsrnge, nk1,nk2,nk3,sfz)!,sham
-      use m_suham,only:iv_a_oindxo,iv_a_ooffH
-!     iv_a_oiaxs,rv_a_ohrs,rv_p_oqsig , ,iv_a_ontabs
+!sssssssssssssssssssssssssssssssssssssssss      
+      subroutine seneinterp(nbas,nsp,ndimh,ifis,rsrnge, nk1,nk2,nk3,sfz)
+      use m_hamindex,only: offH
       use m_mksym,only: rv_a_osymgr ,iv_a_oistab,rv_a_oag,lat_nsgrp
       use m_hft2rs
-      use m_lmfinit,only: globalvariables
       use m_sigflg
-      use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,ham_ldham,ham_rsstol,ham_nqsig,ham_ndhrs,
-     & lat_plat,rv_a_opos
-c      use m_work,only:  rv_p_oqp
-c      use m_rctrl,only: bz_nabc,bz_lshft,bz_nkp
+      use m_lmfinit,only: bz_lshft,ham_rsstol, mxorb,stdo,nl,ham_ldham,iprmb
+      use m_mkqp,only: bz_nabc,bz_nkp
+      use m_lattic,only: lat_plat,rv_a_opos
+      use m_MPItk,only: master_mpi
+      use m_ext,only:sname
       implicit none
 !! seneinterp is used in hambls.F case (store real-space sigma to ham_rv_a_ohrs)
       integer mode,nbas,ifis,ndimh,lwsig
-c      type(s_lat)::slat
-c      type(s_ham)::sham
       double precision rsrnge
       logical llshft(3),cmdopt,ltrans,lphase,lsplts,lnwmsh,
      .latvec,lfbzin,lfbzout
@@ -126,13 +143,11 @@ c      type(s_ham)::sham
       character outs*80,out2*80,dc*1,rots*120
       integer i,j,ifis2,ifiz,isp,nsp,nglob,ival,ldham(16),hreal,lrsig,
      .moditp,nttabs,nkxyz(3),nk1,nk2,nk3,nsgrp,nsgrps,mxkp,nqp,nqps,
-     .ndhrs,j1,k1,k2,k3,iq1,nl,nspc,mxorb,nqsig,!modsgp,nmin,nmax,
-     .fopna,kcplx,lrot,iprint,stdo,lssym,ledit,niax,nscnts,
+     .ndhrs,j1,k1,k2,k3,iq1,nspc,nqsig,!modsgp,nmin,nmax,
+     .kcplx,lrot,iprint,lssym,ledit,niax,nscnts,
      .ndims,ndimz,iq,n123(4),lcore,lhigh
       parameter (niax=10)
       integer:: ohrss
-c      real(8),pointer :: rv_p_oqp(:) =>NULL()
-c      real(8),allocatable,target :: rv_a_oqp(:)
       real(8),allocatable :: rv_p_oqp(:)
       integer ,allocatable :: gstar_iv(:)
       integer ,allocatable :: ipq_iv(:)
@@ -148,29 +163,18 @@ c      real(8),allocatable,target :: rv_a_oqp(:)
 C     For offset q mesh
       integer is(3),lshft(3),ifac(3),lqoffo
       double precision rb(3,3),qb(3,3),qoffi(3),qoffo(3)
-C MPI
-c      logical mlog
-c      integer procid,mpipid,master
-C ... for mixing sigma files: Use alf1*sigm + alf2*sigm1
-      double precision alf(2)
-C     integer os
       double precision plat(3,3),qp(3),tolq,rsstol,qlat(3,3),rotm(3,3),qoff(3),ddot
-c      double precision emin,emax,asig,bsig,efit,sigp(10)
-c      equivalence (emin,sigp(3)),(emax,sigp(5))
-c      equivalence (asig,sigp(6)),(bsig,sigp(7)),(efit,sigp(8))
-C Given (j1,j2,j3) of ipq, q_k(j1,j2,j3) =  sum_i (j_i*ifac(i)-1)*qb(k,i)
+! Given (j1,j2,j3) of ipq, q_k(j1,j2,j3) =  sum_i (j_i*ifac(i)-1)*qb(k,i)
       double precision qk
       integer jj1,jj2,jj3,k
       integer ::iwdummy
-c      real(8):: eseavr
       integer:: napw_in
       complex(8)::sfz(nk1,nk2,nk3,ndimh,ndimh,nsp)
       real(8):: qin(3)
-ckino delete integer(4) def.      integer(4):: ndhamx,debugmode
       integer:: ndhamx,debugmode
       complex(8):: sene(ndimh,ndimh),zv_dummy(1)
       real(8):: rv_dummy(1)
-      integer:: i_copy_size,nhrss,sigswitch
+      integer:: i_copy_size,nhrss,sigswitch,ibas,ifile_handle
       real(8),allocatable::hrss(:)
       logical:: l_dummy_isanrg, isanrg, debug=.false.
 !!
@@ -178,22 +182,18 @@ ckino delete integer(4) def.      integer(4):: ndhamx,debugmode
      .(jj3*ifac(3)-1)*qb(k,3)
 c
       call tcn('seneinterp')
-      print *,'seneinterp: startxxx'
+      if(master_mpi) write(stdo,*)'seneinterp: startxxx'
       mode=12 !lrsig=12
       lwsig=0
       tolq = 1d-6
-      stdo = globalvariables%stdo
       ledit = 0
       lrsig = mod(mode,10)
       lwsig = 0
       moditp = mod(mode/10,10)
-      alf(1) = 1
-      alf(2) = 0
       nscnts = 0
       lqoffo = 0
       lfbzout = .false.
       hreal = 0 !real or complex
-      if (lrsig .ge. 4) hreal = 1
       if (lrsig .eq. 0) return
       ltrans = mod(mode/1000,10) .eq. 0
       kcplx = 1
@@ -201,6 +201,7 @@ c
       lphase = mod(mode/1000,10) .eq. 0
       lssym = mod(mode/10000,10)
       l_dummy_isanrg=isanrg(lssym,0,7,'rdsigm:','10000s digit mode',.true.)
+      
 !! Command-line switches for input sigma and defaults
       call sigflg (dc= ' ' , sio='rsig' , strn=' ', lfbz=lfbzin  , lonesp=lonesp , qpoff=qoffi  )
       if (cmdopt('--rsig',6,0,outs)) then
@@ -214,19 +215,12 @@ c
         lfbzin = .false.
       endif
       if (cmdopt('--mixsig=',9,0,outs)) then
-        j = 0
-        i = parg('--mixsig=',4,outs,j,len(outs),', ',2,2,ifac,alf)
-        if(i/=1.and.i/=2)
-     &    call rx('rdsigm: failed to parse arguments to --mixsig=')
+         call rx('rdsigm: not support --mixsig anymore')
       endif
       call info(10,1,0,' RDSIGM: read file sigm and create '//
      .'%?#n#REAL#COMPLEX# sigma(R) by FT ...',hreal,0)
       ldham =ham_ldham
       rsstol=ham_rsstol
-c      sigp  =ham_sigp
-c      modsgp = nint(sigp(1))
-c      nmin   = nint(sigp(2))
-c      nmax   = nint(sigp(4))
 
       call info2(30,0,0,
      .'%9fSigm will be approximated by:  '//
@@ -236,49 +230,17 @@ c      nmax   = nint(sigp(4))
      .'%?#(n==3)#Interpolation from known points##%-1j'//
      .' ',moditp,0)
 
-c$$$      if (moditp .eq. 1 .or. moditp .eq. 2) then
-c$$$        if( sigswitch()==0 ) then
-c$$$        call info5(30,0,0,
-c$$$     .  '%9fApproximate sigma '//
-c$$$     .  '%?#(n<0)#for energies E(lda)<%d; and %-2j#%-1j#'//
-c$$$     .  '%?#(n>0)#for states up to %-1jn=%i; and ##%j'//
-c$$$     .  '%?#(n<=0)#for energies E(lda)>%d%-2j#%-1j#'//
-c$$$     .  '%?#(n>0)#for states above %-1jn=%i##%j',
-c$$$     .  nmin,emin,nmax,emax,0)
-c$$$        call info5(30,0,0,'%9fFor high states '//
-c$$$     .  '%?#(n==0)#Sigii > %,3;4d + %,3;4d * E(lda)%-2j##%-1j'//
-c$$$     .  '%?#(n==1)#Sigii = %,3;4d + %,3;4d * E(lda)%-2j##%-1j'//
-c$$$     .  '%?#(n==3)#Sigii = %,3;4d + %,3;4d * E(lda)%-2j##%-1j'//
-c$$$     .  '%?#(n==2)#%,3;4d < Sigii < %,3;4d%-2j##%-1j'//
-c$$$     .  ' ',modsgp,asig,bsig,0,0)
-c$$$        if (nmax .gt. 0) call info5(30,0,0,
-c$$$     .  '%9fLinear fit to diagonal sigma for E(lda)>%d'//
-c$$$     .  '%?#(n==3)# and n<%i'//
-c$$$     .  ' ',efit,modsgp,nmax,0,0)
-c$$$        if (nmax .eq. 0) call info5(30,0,0,
-c$$$     .  '%9fLinear fit to diagonal sigma for E(lda)>%d'//
-c$$$     .  '%?#(n==3)# and E(lda)<%d'//
-c$$$     .  ' ',efit,modsgp,emax,0,0)
-c$$$        endif
-c$$$        l_dummy_isanrg=isanrg(modsgp,0,3,'rdsigm:','sig fit mode',.true.)
-c$$$      endif
       if (lfbzin .or. ddot(3,qoffi,1,qoffi,1).ne.0) then
         call info5(30,0,0,'%?#(n==1)#%9fFile sigm in saved in FBZ: '//
      .  'symmetrization suppressed##'//
      .  '%?#(n==1)#%N%9fFile k-mesh is offset by:%3:2g#%j#'//
      .  ' ',isw(lfbzin),isw(ddot(3,qoffi,1,qoffi,1).ne.0),qoffi,0,0)
       endif
-      if (alf(1) .ne. 1 .or. alf(2) .ne. 0) then
-        call info5(30,0,0,
-     .  '%9fUse for sigma: %d*(file sigm)%?#n# + '//
-     .  '%d*(file sigm1)',alf(1),isw(alf(2).ne.0),alf(2),0,0)
-      endif
 
 !! --- Read header of sigma(orbital basis) from file ---
 !! ... Read k-mesh parameters
 !!     Require file contains sigm(orbital basis)
       call iosigh(0,nscnts,i,j,nk1,nk2,nk3,nqp,lshft(1),lshft(2),lshft(3),ifis)
-c      print *,'nscnts111=',nscnts
       if (nscnts .ne. 0 .and. nscnts .ne. 5) then
          call iosigh(2,0,i,j,nk1,nk2,nk3,nqp,lshft(1),lshft(2),lshft(3),ifis)
       endif
@@ -297,7 +259,7 @@ c      print *,'nscnts111=',nscnts
       if(debug) print *,'seneinterp: debug EEEEEEEEEE'
       plat = lat_plat
       nsgrp= lat_nsgrp
-      call offshp ( iv_a_oindxo , 1 , nbas , 2 , 0 , ndimh , 0 , ndhrs )
+      call offshp ( iprmb , 1 , nbas , 2 , 0 , ndimh , 0 , ndhrs )
       k1=nk1
       k2=nk2
       k3=nk3
@@ -319,17 +281,14 @@ C ... Make is,ifac,qb,qlat,qoff
       if(debug) print *,'seneinterp: debug FFFFFFF 2222'
 C ... Setup for r.s. hamiltonian: allocate and create iax,ntab; allocate hrs
       i = 1000 + 10*hreal + 0
-C      if(debug) print *, '!!'; i = 1000*0 + 10*hreal + 0
       if (mod(lssym,4) .ge. 2) i = 10*hreal + 0
       if (ltrans) i = i + 10000
-      if(debug) print *,' rrrrrrrrrr go to hft2rs i=',i
       call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , 1 ,
-     .    nsp , nbas , rv_a_osymgr , rv_a_oag , nsgrp , rsrnge , iv_a_ooffH
+     .    nsp , nbas , rv_a_osymgr , rv_a_oag , nsgrp , rsrnge , offH
      .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , rv_a_opos ,  iv_a_ontabs ,
      .    iv_a_oiaxs , ndhrs , rv_dummy )
-      if(debug) print *,'seneinterp: FFFFFFF size iv_p_ontabls ndhrs=',size(iv_a_ontabs),ndhrs
       nttabs = ival ( iv_a_ontabs , nbas + 1 )
-      if(debug) print *,'nttabs=',nttabs
+      if(debug) print *,'seneinterp: FFFFFFF size iv_p_ontabls ndhrs=',size(iv_a_ontabs),ndhrs,nttabs
       if(hreal .eq. 1) then
         if (allocated(rv_a_ohrs)) deallocate(rv_a_ohrs)
         allocate(rv_a_ohrs(ndhrs**2*nttabs*nsp))
@@ -345,66 +304,45 @@ C --- Get list of irreducible k-points, and ipq and gstar arrays ---
       if (allocated(rv_p_oqsig)) deallocate(rv_p_oqsig)
       allocate(rv_p_oqsig(abs(3*mxkp)))
       allocate(rv_p_oqp(abs(3*mxkp)))
-c      allocate(rv_a_oqp(abs(3*mxkp)))
-c      rv_p_oqp=>rv_a_oqp
-ckino end
-      rv_p_oqp(:)=0.0d0
-      allocate(gstar_iv(abs(-mxkp-1)))
-      if (-mxkp-1<0) gstar_iv(:)=0
+      rv_p_oqp(:)=0d0
+      allocate(gstar_iv(mxkp+1))
+      gstar_iv(:) = 0
       gstar_iv = - 2
       allocate(ipq_iv(mxkp))
-      allocate(wgt_rv(abs(-mxkp)))
-      if (-mxkp<0) wgt_rv(:)=0.0d0
-c      print *,'seneinterp: debug HHHHH'
+      allocate(wgt_rv(mxkp))
+      wgt_rv=0d0
       call info(20,1,0,' q-points in full BZ where sigma calculable ...',0,0)
       call bzmesh(plat, qb, nk1, nk2, nk3, llshft, iwdummy, 0 , ipq_iv, rv_p_oqsig, wgt_rv, nqsig, mxkp, 0, 0 )
       ham_nqsig=nqsig
-      call dpzero ( wgt_rv , mxkp )
+      wgt_rv=0d0
       call info2(20,0,0,' Irr. qp for which sigma is calculated ...',0,0)
       call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_a_osymgr 
      .  , nsgrps , ipq_iv , rv_p_oqp , wgt_rv , nqps , mxkp , gstar_iv, 0 )
-
-Ckino isanrg is logical function,       call isanrg(nqp,nqps,nqps,'rdsigm','file sigm nqp',.true.)
       l_dummy_isanrg=isanrg(nqp,nqps,nqps,'rdsigm','file sigm nqp',.true.)
-C     call prmx('q for which sigma is read',w(oqp),3,3,nqp)
       call info2(30,0,0,'%?#(n==1)#%1fFile sigm has k-offset=%3:2g '//
      .'relative to the above#%j# ',isw(ddot(3,qoffi,1,qoffi,1).ne.0),qoffi)
 
 !! --- Generate hrs = sigma(T) from file sigma(k) ---
 !! ... Loop over spins, keeping sig in full BZ for only one spin
 !!     if (procid .eq. master) then
-        do 1201 isp = 1, nsp
-          if(debug) print *,' seneinterp:do 1201 start isp lsplts,alf=',isp,lsplts,alf
+      do 1201 isp = 1, nsp
+          if(debug) print *,' seneinterp:do 1201 start isp lsplts=',isp,lsplts
           if(debug) print *,'    ndimh nk1nk2nk3,nqp=', ndimh,nk1,nk2,nk3,nqp
           if(debug) print *,'    lshft,ifis=',lshft(1),lshft(2),lshft(3),ifis
 !!     If sigma file not spin polarized, use sigma from spin 1
           if (isp .eq. 2 .and. lsplts) then
              rewind ifis
              read(ifis)
-c            call iosigh(3,0,1,ndimh,nk1,nk2,nk3,nqp,
-c     .      lshft(1),lshft(2),lshft(3),ifis)
           endif
-!!     If to mix in some other sigma file, set up ifis2
-          if (alf(2) .ne. 0) then
-            stop 'seneinterp: alf(2)/=0 is now commmented out' 
-          endif
-          if(debug) print *,'    8888 isp nsp=',isp,nsp
-
 C ... FT sfz and copy sfz(T) to hrs
           i = 10*hreal + 1
           if (ltrans) i = i + 10000
-C ... titus
-C      call hft2rs(i,nk1,nk2,nk3,k1,k2,k3,qoff,isp,nsp,nbas,w(og),w(oag)
-C     .  ,nsgrps,rsrnge,w(ooffH),ib,ib,nlmaa,ndimh,w(osfz),plat,
-C     .  w(opos),ontabs,
-C     .  oiaxs,ndhrs,w(ohrs))
-C ... titus
           call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , isp
-     .         , nsp , nbas , rv_a_osymgr , rv_a_oag , nsgrps , rsrnge , iv_a_ooffH      
+     .         , nsp , nbas , rv_a_osymgr , rv_a_oag , nsgrps , rsrnge , offH      
      .         , 1 , nbas , ndimh , ndimh , sfz ( 1 , 1 , 1 , 1 , 1 , isp )
      .         , plat , rv_a_opos ,iv_a_ontabs , iv_a_oiaxs , ndhrs , rv_a_ohrs )
           print *,' seneinterp:do 1201 end i ndimh ndhrs=',i,ndimh,ndhrs
- 1201   continue
+ 1201  continue
       if(debug) print *,' exit 1201 loop 111111111111111'
       if (allocated(sigm_zv)) deallocate(sigm_zv)
       if (allocated(wk_zv)) deallocate(wk_zv)
@@ -412,223 +350,47 @@ C ... titus
       if (allocated(ipq_iv)) deallocate(ipq_iv)
       if (allocated(gstar_iv)) deallocate(gstar_iv)
       ham_ndhrs=ndhrs
-C ... Check that FT replicates sigma(k) at file qp to tolerance rsstol
-C     rsstol = 1d-6
-C     print *, '!!'
-C     if (alf(1) .ne. 1 .or. alf(2) .ne. 0 .or. .true.) then
-      if (alf(1) .ne. 1 .or. alf(2) .ne. 0) then
-        call info0(20,0,0,' skipping check of Bloch summed sigma'//
-     .  ' (sigma scaled) ')
-      else
-        j1 = 0
-        if (lssym .ge. 4) j1 = 2
-c        if (procid .eq. master) then
-          call dpzero(tmp,3)
-          if(debug) print *,'a8 22222222222 goto chksgr'
-!! --- chksgr read again sigm file---> but it is not for generating new quantities, just for check.
-          call chksgr ( j1 , ltrans , kcplx , plat , nsp , ndimh , ifis
-     .      , hreal , iv_a_oindxo , nttabs , iv_a_oiaxs , rv_a_ohrs , ndhrs 
-     .      , rsstol , i , rv_p_oqp , nbas , 0 , rotm , iwdummy )
-c        endif
-      endif
+      j1 = 0
+      if (lssym .ge. 4) j1 = 2
+      call dpzero(tmp,3)
+      if(debug) print *,'a8 22222222222 goto chksgr'
+!     ! --- chksgr read again sigm file---> but it is not for generating new quantities, just for check.
+      call chksgr ( j1 , ltrans , kcplx , plat , nsp , ndimh , ifis
+     .     , hreal , iprmb , nttabs , iv_a_oiaxs , rv_a_ohrs , ndhrs 
+     .     , rsstol , i , rv_p_oqp , nbas , 0 , rotm , iwdummy )
       if(debug) print *,' a8 end of chksgr 3333333333'
       if ( .not. ( cmdopt ( '--wsig' , 6 , 0 , outs ) .or.cmdopt ( '-wsig' , 5 , 0 , outs ) ) ) then
-c        if (associated(rv_p_oqp)) nullify(rv_p_oqp)
-c        if (allocated(rv_a_oqp)) deallocate(rv_a_oqp)
-        if (allocated(rv_p_oqp)) deallocate(rv_p_oqp)
+         if (allocated(rv_p_oqp)) deallocate(rv_p_oqp)
       endif
       if(debug) print *,' a8 3333333333'
-C ... Broadcast R.S. sigma before symmetrization
-c      if (hreal .eq. 1) then
-c        call mpibc1( ham_rv_a_ohrs , ndhrs * * 2 * nttabs * nsp, 4 , mlog, 'rdsigm' , 'hrs' )
-c      else
-c        call mpibc1( ham_rv_a_ohrs , 2 * ndhrs * * 2 * nttabs * nsp ,4, mlog , 'rdsigm' , 'hrs' )
-c      endif
-
+      
 C --- Symmetrize hrs ---
 C     Best to use nsgrp here instead of nsgrps.
 C     However, neighbor table was generated for nsgrps, and may be
 C     increase if nsgrp>nsgrps.  This branch will fail in that case.
       if (mod(lrsig,4) .ge. 2 .and. nsgrp .gt. 1) then
-cC       Allocate memory for hrs
-c        if (hreal .eq. 1) then
-c          call defdr(ohrss,ndhrs**2*nttabs*nsp)
-cCchp1           call dcopy(ndhrs**2*nttabs*nsp*1,w(ohrs),1,w(ohrss),1)
-c           call dcopy ( ndhrs * * 2 * nttabs * nsp * 1 , rv_p_ohrs , 1 ,
-c     .     w ( ohrss ) , 1 )
-c        else
-c          call defdc(ohrss,ndhrs**2*nttabs*nsp)
-cCchp1           call dcopy(ndhrs**2*nttabs*nsp*2,w(ohrs),1,w(ohrss),1)
-c           call dcopy ( ndhrs * * 2 * nttabs * nsp * 2 , rv_p_ohrs , 1 ,
-c     .     w ( ohrss ) , 1 )
-c        endif
-ckino Dec.22.2011:          nhrss= size(rv_p_ohrs)
-ckino Dec.28.2011:          nhrss= size(ham_rv_p_ohrs)
         nhrss= size(rv_a_ohrs)
         allocate(hrss(nhrss))
-ckino Dec.22.2011:          hrss = rv_p_ohrs
-ckino Dec.28.2011:          hrss = ham_rv_p_ohrs
         hrss = rv_a_ohrs
-Changenglob        mxorb = nglob('mxorb')
-        mxorb = globalvariables%mxorb
 C       10s digit distributes ri-rj pairs to avg (ri-rj),(rj-ri) pairs
 C       Use 10*2 for hermitian matrices, 10*1 for symmetric ones
         i = 1-hreal + 10*2 + 100*(1-hreal) + 100000
         allocate(istb2_iv(nsgrp*nbas))
         call istbpm ( iv_a_oistab , nbas , nsgrp , istb2_iv )
-        nl = globalvariables%nl
-       if(debug) print *,' a8 44444444444444'
-        call rsmsym ( i , plat , mxorb , iv_a_oindxo , ndimh , nbas ,
+        call rsmsym ( i , plat , mxorb , iprmb , ndimh , nbas ,
      .          rv_a_opos , nl , nsp , 1 , nttabs , iv_a_ontabs , iv_a_oiaxs
      .        , rv_a_osymgr , istb2_iv , nsgrp , ndhrs , hrss , rv_a_ohrs )
         if (allocated(istb2_iv)) deallocate(istb2_iv)
         deallocate(hrss)
-C        Debugging
-C        ifis2 = fopna('out',-1,0)
-C        print *, 'hello',ndhrs,nttabs
-C        call ywrm(0,'sig',2,ifis2,'(9f20.10)',w(ohrs),1,ndhrs**2,
-C     .    ndhrs**2,nttabs*nsp)
-C        call rx0('done')
-      if(debug) print *,' a8 55555555555555'
-
 C   ... Check how well symmetrized FT replicates sigma(k) at file qp
 c        if (procid .eq. master) then
           rsstol = 0
-          if (alf(1) .ne. 1 .or. alf(2) .ne. 0) then
-            call info0(20,0,0,' skipping check of symmetrized sigma'//
-     .      ' (sigma scaled) ')
-          else
             call chksgr ( 0 , ltrans , kcplx , plat , nsp , ndimh , ifis
-     .          , hreal , iv_a_oindxo , nttabs , iv_a_oiaxs , rv_a_ohrs , ndhrs 
+     .          , hreal , iprmb , nttabs , iv_a_oiaxs , rv_a_ohrs , ndhrs 
      .          , rsstol , i , 0 , nbas , 0 , rotm , iwdummy )
-c          endif
-        endif
 C   ... Broadcast R.S. sigma after symmetrization
       endif
       if(debug) print *,' a8 6666666666666'
-
-c$$$C ... lwsig=0 modes that internally transform sigma, save and exit
-c$$$      if (lwsig .eq. 0) then
-c$$$        if (cmdopt('--wsig',6,0,outs) .or. cmdopt('-wsig',5,0,outs)) then
-c$$$c          if (procid .eq. master) then
-c$$$            ifis2 = fopna('sigm2',-1,4)
-c$$$            rsstol = 0
-c$$$            out2 = outs(7:)
-c$$$            if (outs(1:5) .eq. '-wsig') out2 = outs(6:)
-c$$$            dc = out2(1:1)
-c$$$            call sigflg(dc,'wsig',out2,ledit,lwsig,lrot,lfbzout,lnwmsh,
-c$$$     .      lonesp,qoffo,rots)
-c$$$
-c$$$            if (lonesp .eq. 1) then
-c$$$              if (nsp .eq. 1) call rx(
-c$$$     .        'onesp option nonsensical unless sigma file is spin pol')
-c$$$              call siged ( 1 , nbas , nsp , ndhrs , plat , lat_rv_a_opos , ndimh
-c$$$     .           , ham_iv_a_oindxo , hreal , ham_iv_a_ontabs , ham_iv_a_oiaxs , ham_rv_a_ohrs )
-c$$$            endif
-c$$$            if (ledit .eq. 1) then
-c$$$              call siged ( 0 , nbas , nsp , ndhrs , plat , lat_rv_a_opos , ndimh
-c$$$     .             , ham_iv_a_oindxo , hreal , ham_iv_a_ontabs , ham_iv_a_oiaxs , ham_rv_a_ohrs )
-c$$$            endif
-c$$$
-c$$$C       Handle case q-mesh for file output differs from file input
-c$$$C       ltmp = true in cases where file symops artificially reduced
-c$$$C        ltmp = mod(lssym,2) .eq. 1 .and. lwsig .ne. 3
-c$$$C        if (lnwmsh .or. ltmp) then
-c$$$c              i_copy_size=size(sbz%nkabc)
-c$$$c              call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
-c$$$c              i_copy_size=size(sbz%lshft)
-c$$$c              call i8icopy(i_copy_size,sbz%lshft,1,lshft,1)
-c$$$ckino Jan.4.2012 needless operation               rv_p_oqp => sbz%rv_p_oqp
-c$$$ckino Jan.4.2012               allocate(rv_p_oqp(abs(3*mxkp)))
-c$$$            if (lnwmsh) then
-c$$$              lshft=sbz%lshft
-c$$$              nkxyz=sbz%nkabc
-c$$$              nqp=sbz%nkp
-c$$$              mxkp = nk1*nk2*nk3
-c$$$              allocate(rv_a_oqp(abs(3*mxkp)))
-c$$$              rv_p_oqp=>rv_a_oqp
-c$$$              if (3*mxkp<0) rv_p_oqp(:)=0.0d0
-c$$$              allocate(gstar_iv(abs(-mxkp-1)))
-c$$$              if (-mxkp-1<0) gstar_iv(:)=0
-c$$$              gstar_iv = - 2
-c$$$              allocate(ipq_iv(mxkp))
-c$$$              allocate(wgt_rv(abs(-mxkp)))
-c$$$              if (-mxkp<0) wgt_rv(:)=0.0d0
-c$$$              do  i = 1, 3
-c$$$                llshft(i) = lshft(i) .ne. 0
-c$$$              enddo
-c$$$              call dpzero ( wgt_rv , mxkp )
-c$$$              if (lfbzout) then
-c$$$                call info0(20,1,0,
-c$$$     .          ' Creating sigma for new mesh, full BZ (file sigm2) ...')
-c$$$                call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , iwdummy 
-c$$$     .            , 0 , ipq_iv , rv_p_oqp , wgt_rv , nqp , mxkp , 0 , 0 )
-c$$$              else
-c$$$                call info0(20,1,0,
-c$$$     .          ' Creating sigma for new mesh (file sigm2) ...')
-c$$$                call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , lat_rv_a_osymgr 
-c$$$     .            , nsgrp , ipq_iv , rv_p_oqp , wgt_rv , nqp , mxkp , gstar_iv 
-c$$$     .            , 0 )
-c$$$              endif
-c$$$            elseif (lfbzout) then
-c$$$              rv_p_oqp => ham_rv_p_oqsig
-c$$$              nqp = nqsig
-c$$$              call info2(20,1,0,
-c$$$     .        ' Creating sigma for full BZ, %i qp (file sigm2) ...',nqp,0)
-c$$$            else
-c$$$              call info2(20,0,0,
-c$$$     .        ' Writing sigma for irr BZ, %i qp (file sigm2) ...',nqp,0)
-c$$$            endif
-c$$$C   ... Setup rotation matrix
-c$$$            if (rots .ne. ' ') then
-c$$$              call a2rotm(rots,.false.,0,rotm)
-c$$$              if (iprint() .ge. 20) then
-c$$$                call info0(20,0,0,' Rotate sigma by rotation matrix:')
-c$$$                write (stdo,350) ((rotm(i,j),j=1,3),i=1,3)
-c$$$  350           format(3f11.6)
-c$$$              endif
-c$$$              lrot = lrot + 1
-c$$$            endif
-c$$$
-c$$$C   ... Setup phase matrix
-c$$$            if (lrot .ge. 2) then
-c$$$              allocate(delt_rv(abs(-3*nbas)))
-c$$$              if (-3*nbas<0) delt_rv(:)=0.0d0
-c$$$              call info0(0,0,0,' Phase shift of sigma.  '//
-c$$$     .        'Translation vectors from shorps file:')
-c$$$              call iopos ( .false. , - 1 , 'shorps' , nbas , delt_rv )
-c$$$            endif
-c$$$C       call prmx('q for which sigm is written',w(oqp),3,3,nqp)
-c$$$            call iosigh(0,nscnts,nsp,ndimh,nk1,nk2,nk3,nqp,
-c$$$     .      lshft(1),lshft(2),lshft(3),-ifis2)
-c$$$            if (lqoffo .ne. 0) then
-c$$$C         call prmx('qp',w(oqp),3,3,nqp)
-c$$$              do  i = 1, nqp
-c$$$                call dmsadd ( rv_p_oqp , 1 , qoffo , 1 , 1 , 3 , 1 , 1 , 3 * 
-c$$$     .           i - 2 , 1 , 1d0 )
-c$$$
-c$$$              enddo
-c$$$C         call prmx('qp',w(oqp),3,3,nqp)
-c$$$            endif
-c$$$            call chksgr ( 1 , ltrans , kcplx , plat , nsp , ndimh , ifis2
-c$$$     .          , hreal , ham_iv_a_oindxo , nttabs , ham_iv_a_oiaxs , ham_rv_a_ohrs , ndhrs 
-c$$$     .          , rsstol , nqp , rv_p_oqp , nbas , lrot , rotm , delt_rv )
-c$$$            call fclose(ifis2)
-c$$$            call rx0('done writing sigma, file sigm2')
-c$$$C      elseif (lwsig .eq. 1 .or. lwsig .eq. 2) then
-c$$$C        if (lfbzout) call info0(20,0,0,' ')
-c$$$C        if (lfbzout) goto 99
-c$$$c          endif
-c$$$        endif
-c$$$      endif
-
-C     Broadcast entire sham structure (shouldn't be needed)
-C     call mpibc1(sham,i,4,mlog,'rdsigm','sham')
-C     Broadcast neighbor table (shouldn't be needed)
-C     call mpibc1(w(ontabs),nbas+1,2,mlog,'rdsigm','ntabs')
-C     call mpibc1(w(oiaxs),niax*nttabs,2,mlog,'rdsigm','iaxs')
-      if(debug) print *,' a8 999999999111111111111111'
-
 C ... Transformations done by caller: write qp list to disk
    99 continue
       if (lwsig .ne. 0) then
@@ -637,7 +399,6 @@ C ... Transformations done by caller: write qp list to disk
            nkxyz=bz_nabc !sbz
            lshft=bz_lshft
            nqp=bz_nkp
-c           rv_p_oqp => sbz%rv_p_oqp
           call info2(20,0,0,
      .    ' Transform sigma on new k-mesh:  '//
      .    'nk=%3:1i  shft=%3:1l',nkxyz,lshft)
@@ -646,11 +407,9 @@ c           rv_p_oqp => sbz%rv_p_oqp
           mxkp = nk1*nk2*nk3
           call info(20,0,0,' rdsigm: use full BZ (%i q-points)...',mxkp,0)
           allocate(rv_p_oqp(abs(3*mxkp)))
-c          allocate(rv_a_oqp(abs(3*mxkp)))
-c          rv_p_oqp=>rv_a_oqp
           allocate(ipq_iv(mxkp))
-          allocate(wgt_rv(abs(-mxkp)))
-          if (-mxkp<0) wgt_rv(:)=0.0d0
+          allocate(wgt_rv(mxkp))
+          wgt_rv=0d0
           i_copy_size=size(lat_plat)
           call dcopy(i_copy_size,lat_plat,1,plat,1)
 C   ... Make is,ifac,qb,qlat
@@ -662,26 +421,22 @@ C   ... Make is,ifac,qb,qlat
           call poppr
           call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , iwdummy 
      .      , 0 , ipq_iv , rv_p_oqp , wgt_rv , nqp , mxkp , 0 , 0 )
-C       call pack2('bz nkp oqp',sbz,nqp,oqp)
           if (allocated(delt_rv)) deallocate(delt_rv)
           if (allocated(wgt_rv)) deallocate(wgt_rv)
         endif
 C ... Write points to disk, shifting by qoffo
         if (lqoffo .ne. 0) then
-C       call prmx('qp',w(oqp),3,3,nqp)
           do  i = 1, nqp
             call dmsadd ( rv_p_oqp , 1 , qoffo , 1 , 1 , 3 , 1 , 1 , 3 * 
      .       i - 2 , 1 , 1d0 )
           enddo
-C       call prmx('qp',w(oqp),3,3,nqp)
         endif
-        call info0(30,0,0,' RDSIGM: writing data to file QPTS ...')
-        ifiz = fopna('qpts',-1,0)
-        call getqp ( 1 , - ifiz , nqp , nkxyz , lshft , 0 , rv_p_oqp 
-     .    , iwdummy , iwdummy )
-        if (lfbzout) then
-          if (allocated(ipq_iv)) deallocate(ipq_iv)
-        endif
+        if(master_mpi.and.iprint()>30) write(stdo,"(a)")' RDSIGM: writing data to file QPTS ...'
+        ifiz=ifile_handle()
+        open(ifiz,file='qpts.'//trim(sname))
+        call getqp(1, -ifiz, nqp , nkxyz , lshft , 0 , rv_p_oqp, iwdummy , iwdummy )
+        close(ifiz)
+        if (lfbzout.and.allocated(ipq_iv)) deallocate(ipq_iv)
       endif
       nsizeohrs  = size( rv_a_ohrs )
       nsizeoiaxs = size( iv_a_oiaxs )
@@ -691,6 +446,7 @@ C       call prmx('qp',w(oqp),3,3,nqp)
       if (allocated(gstar_iv)) deallocate(gstar_iv)
       end subroutine seneinterp
       
+!ssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine senebroadcast(procid,master,mlog)
       integer:: procid,master
       logical:: mlog
@@ -715,22 +471,23 @@ C       call prmx('qp',w(oqp),3,3,nqp)
       
       
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-      subroutine sigmainit(ldim,procid,master)
-      use m_lmfinit,only : rsrnge=>ham_rsrnge,ham_ndhrs,nbas,pwmode=>ham_pwmode
+      subroutine m_rdsigm2_init()
+      use m_lmfinit,only : rsrnge=>ham_rsrnge,nbas,pwmode=>ham_pwmode
       use m_hamindex,only: symops_af,napwmx
+      use m_MPItk,only: procid,master
       use m_ext,only:sname
+      use m_lmfinit,only: ham_ldham
 #if MPI | MPIK
       include "mpif.h"
 #endif
       complex(8),allocatable:: sfz(:,:,:,:,:,:),wgtq(:,:,:,:,:),sfzx(:,:,:,:,:,:),sfzmto(:,:,:,:,:,:)
-      integer:: procid,master,ldim,ierr,ifi,ndimh_dummy,nk1,nk2,nk3,nqps,ifile_handle
+      integer:: ldim,ierr,ifi,ndimh_dummy,nk1,nk2,nk3,nqps,ifile_handle
       logical:: laf,mlog,cmdopt, mtosigmaonly
       character strn*120
       real(8),allocatable:: qsmesh2(:,:,:,:)
-c      real(8):: qsfz(3,100)
+      ldim  = ham_ldham(1)
       ndimsig= ldim             !if(mtosigmaonly()) mode. Dimension of sigm is the size of MTOs.
       if(procid==master) then
-c         rsrnge = ham_rsrnge
          write(6,*)' --- goto sigmainit: rdsigm2 initialization section ---',rsrnge
          ifi=ifile_handle()
          open(ifi,file='sigm.'//trim(sname),form='unformatted') !
@@ -820,16 +577,14 @@ c$$$            deallocate(pos,npair)
 
  9995 continue
       call rx('sigmainit: readin error of sigm file')
-      end subroutine sigmainit
+      end subroutine m_rdsigm2_init
       
 !!--------------------------------------------------------------------------------------------
       subroutine rdsigm2(nbas_dummy,nsp,ifis, 
      &     nk1,nk2,nk3,ldim,qsmesh,sfz     ,nqps,mtosigmaonly,ndimsig) !,qsfz,qqps are for test
-!      use m_seneinterp,only: rv_p_oqsig
       use m_mksym,only: rv_a_osymgr,lat_nsgrp
-      use m_lmfinit,only: globalvariables
       use m_hamindex,only : getikt,napwk,plat,   symops_af,ngrp_original,ngrpaf,symops,ngrp
-      use m_lmfinit,only: ham_nqsig
+      use m_lmfinit,only: nl,stdo
 !! == Expand self-energy (read by ifis) to all the q point on mesh. In developing. ==
 !! nbas is in this structure
 !! input
@@ -896,7 +651,7 @@ Ci   ifis  :file logical unit for sigma
 Ci   rsrnge:maximum length for connecting vectors in sigma(R)
 Cio Inputs/Outputs:
 Cio  sham  :struct for parameters defining hamiltonian; see routine uham
-Cio    Elts read: ldham ooffH oindxo sigp rsstol
+Cio    Elts read: ldham offH oindxo sigp rsstol
 Cio    Stored:    nqsig oqsig ndhrs ontabs oiaxs ohrs
 Cio Outputs:
 Co   lwsig :0  No special transformations of sigma
@@ -1024,8 +779,8 @@ c      type(s_bz)::sbz
       character outs*80,out2*80,dc*1,rots*120
       integer i,j,ifis2,ifiz,isp,nsp,nglob,ival,ldham(16),hreal,lrsig,
      .moditp,nttabs,nkxyz(3),nk1,nk2,nk3,nsgrp,nsgrps,mxkp,nqp,nqps,
-     .ndhrs,j1,k1,k2,k3,iq1,nl,nspc,mxorb,nqsig, !modsgp,nmin,nmax,
-     .fopna,kcplx,lrot,iprint,stdo,lssym,ledit,niax,nscnts,
+     .ndhrs,j1,k1,k2,k3,iq1,nspc,mxorb,nqsig, !modsgp,nmin,nmax,
+     .kcplx,lrot,iprint,lssym,ledit,niax,nscnts,
      .ndims,ndimz,iq,n123(4),lcore,lhigh
       parameter (niax=10)
 c      equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
@@ -1046,7 +801,7 @@ C MPI
 c      logical mlog
 c      integer procid,mpipid,master
 C ... for mixing sigma files: Use alf1*sigm + alf2*sigm1
-      double precision alf(2)
+c      double precision alf(2)
 C     integer os
       double precision qp(3),tolq,rsstol,rotm(3,3),ddot  !plat(3,3),qlat(3,3)
 c      double precision emin,emax,asig,bsig,efit !,qoff(3)
@@ -1087,13 +842,13 @@ c      procid = mpipid(1)
 c      master = 0
 c      mlog = cmdopt('--mlog',6,0,outs)
       tolq = 1d-6
-      stdo = globalvariables%stdo
+c      stdo = globalvariables%stdo
       ledit = 0
       lrsig = 2  !mod(mode,10)
       lwsig = 0
       moditp = 1 !mod(mode/10,10)
-      alf(1) = 1
-      alf(2) = 0
+c      alf(1) = 1
+c      alf(2) = 0
       nscnts = 0
       lfbzout = .false.
       hreal = 0 
@@ -1240,7 +995,7 @@ c            endif
 c          endif
 
           allocate(wk_zv(ndimsig_r**2))
-          nl = globalvariables%nl
+c          nl = globalvariables%nl
           nspc = 1
           allocate(sigm_zv(ndimsig_r,ndimsig_r))
 
@@ -1275,10 +1030,10 @@ c                   if (latvec(1,tolq,plat, qp - qp_rv(:,iq1))) goto 460 ! bugfi
  460        continue
 
 c ... scalced sigm. alf(1:2)
-            if (alf(1) .ne. 1d0) then
-               call rx('not use alf. use ScaledSigma in ctrl file')
-c              call dscal ( ndimsig_r * * 2 * 2 , alf ( 1 ) , sigm_zv , 1 )
-            endif
+c            if (alf(1) .ne. 1d0) then
+c               call rx('not use alf. use ScaledSigma in ctrl file')
+cc              call dscal ( ndimsig_r * * 2 * 2 , alf ( 1 ) , sigm_zv , 1 )
+c            endif
 c ... rotate sigm. w(osigm) at qp ---> w(ofbz) at stars of qp.
 C       call zprm('sigm',2,w(osigm),ndimsig_r,ndimsig_r,ndimsig_r)
             if(mtosigmaonly.or.ldim==ndimsig_r) then
@@ -1326,16 +1081,15 @@ c      endif ! exit of MPI master loop
       if (allocated(gstar_iv)) deallocate(gstar_iv)
       print *,'xxxxxxx end rdsigm2 xxxx'
       end subroutine rdsigm2
+      end module m_rdsigm2
+
+
+
       
-      end module m_seneinterp
 
 
-
-
-
-
-
-      module m_seneinput_notusedyet
+!!--- xxxx -----future version... hamfb3k, bloch will be replaced -----------------
+      module m_seneinput_futureversion_unusedyet
       implicit none
       integer(4),allocatable:: npair(:,:), nlat(:,:,:,:)
       integer(4)::npairmx
@@ -1522,4 +1276,4 @@ c         print *,'888 loop out', ix1,ix2,ix3,j1-ldim,j2-ldim
  1019 continue
       call tcx('seneinterp2')
       end subroutine seneinterp2
-      end module
+      end module 

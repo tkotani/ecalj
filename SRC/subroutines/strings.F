@@ -87,8 +87,9 @@ C     implicit none
       integer idest,isrc,len
       integer i
       character*(1) dest(*),src(*)
-      do  10  i = 0, len-1
-   10 dest(idest+i) = src(isrc+i)
+      do    i = 0, len-1
+         dest(idest+i) = src(isrc+i)
+      enddo   
       end
       logical function parstr(s1,s2,reclen,len,term,i,j)
 C- Find a substring within a given string

@@ -1,11 +1,12 @@
-      subroutine pnunew(nbas,nsp,ssite,sspec,pmin,pmax,lfrzw,hab,sab,
-     .qbyl,hbyl,eferm)
-
-      use m_struc_def  !Cgetarg
+      subroutine pnunew(eferm)
+      use m_MPItk,only: master_mpi
+      use m_mkpot,only: hab=>hab_rv,sab=>sab_rv
+      use m_lmfinit,only:nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,ham_frzwf,
+     &     pmin=>ham_pmin,pmax=>ham_pmax,n0,nab
+      use m_mkrout,only: hbyl=>hbyl_rv,qbyl=>qbyl_rv
+c      use m_struc_def  !Cgetarg
 !!= Makes new boundary conditions pnu for phi,phidot =
 !!* takao sep2010. P is setted to that at efermi if PZ is for semicore.
-
-
 C ----------------------------------------------------------------------
 Ci Inputs
 Ci   nbas  :size of basis
@@ -45,13 +46,13 @@ Cu   28 Aug 01 Extended to local orbitals.  For now, freeze pnu
 C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
-      integer nbas,nsp,lfrzw,n0,nab
-      parameter(n0=10,nab=9)
-      real(8):: pmin(n0) , pmax(n0) , qbyl(n0,nsp,nbas) , hbyl(n0,nsp,nbas) 
-     ., sab(nab,n0,nsp,nbas) , hab(nab,n0,nsp,nbas)
+c      integer n0,nab
+c      parameter(n0=10,nab=9)
+c      real(8):: pmin(n0) , pmax(n0) , qbyl(n0,nsp,nbas) , hbyl(n0,nsp,nbas) 
+c     ., sab(nab,n0,nsp,nbas) , hab(nab,n0,nsp,nbas)
 cki      type(s_site)::ssite(*)
-      type(s_site)::ssite(nbas)
-      type(s_spec)::sspec(*)
+c      type(s_site)::ssite(nbas)
+c      type(s_spec)::sspec(*)
 
 C ... Local parameters
       logical lpz,lfrzv,lfrzz
@@ -72,17 +73,16 @@ ckino Dec.12.2011:         real(8),pointer :: rv_p_ov0(:) =>NULL()
 
       integer ::iwdummy ,i_copy_size,nnz,nnv
       real(8):: eferm,eee
-      logical:: lsemicorepz,phispinsym,cmdopt,master_mpi
+      logical:: lsemicorepz,phispinsym,cmdopt
       real(8):: pmean
       character strn*120
-     
 
       pi = 4d0*datan(1d0)
       stdo = lgunit(1)
       call info(30,1,0,' Make new boundary conditions for phi,phidot..',0,0)
       call getpr(ipr)
       if(ipr>=30) then
-         print *, ' ebar: '
+         print *, ' pnunew: ebar: '
          print *, '   without lo    : ebar = center of gravity of occupied states'
          print *, '   with lo & PZ>P: ebar for lo is meaningless(zero is shown). Use empty-sphere PZ.'
          print *, '                   ebar for valence is at the center of gravity of occ. states.'
@@ -107,10 +107,6 @@ C --- For each site, do ---
         mxcst=sspec(is)%mxcst
 
         if (lmxa .eq. -1) goto 10
-c        do i_spacks=is,is
-c          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-c        enddo
-c        call r8tos8(sspec(is)%name,spid)
         spid=sspec(is)%name
 
         if (mod(mxcst/4,2) .ne. 0) call ivset(idmod,1,n0,1)
@@ -125,7 +121,7 @@ c        call r8tos8(sspec(is)%name,spid)
             pznew = 2d10
 C         Initially set lfrzv,lfrzz to external constraints.
             lfrzv = (mod(idmod(m),10).ne.0 .and. mod(idmod(m),10).ne.3)
-     .      .or. lfrzw .ne. 0
+     .      .or. ham_frzwf !lfrzw .ne. 0
             lfrzz = lfrzv
             lpz = pnz(m,1) .ne. 0
 
@@ -139,7 +135,6 @@ c                write(*,"(a,2i3,l,5f12.4)") 'zzzzz ',m,isp,lpz,pnu(m,isp),pnz(m
               endif
             endif
 
-C         if (dabs(qbyl(m,isp,ib)) .gt. 1d-8 .and. .not. lpz) then
             if (dabs(qbyl(m,isp,ib)) .gt. 1d-8) then
               ebar = hbyl(m,isp,ib)/qbyl(m,isp,ib)
 C       ... Log derivative by direct num integration
@@ -151,8 +146,6 @@ C       ... Log derivative by direct num integration
               allocate(rofi_rv(nr*2))
               call radmsh ( rmt , a , nr , rofi_rv )
               allocate(v0i_rv(nr))
-ckino Dec.12.2011:                 call dpscop ( rv_p_ov0 , v0i_rv , nr , 1 + nr * ( isp - 1 ) ,
-ckino Dec.28.2011:                 call dpscop ( ssite(ib)%rv_p_ov0 , v0i_rv , nr , 1 + nr * ( isp - 1 ) ,
               call dpscop ( ssite(ib)%rv_a_ov0 , v0i_rv , nr , 1 + nr * ( isp - 1 ) , 
      .         1 , 1d0 )
 
@@ -223,7 +216,7 @@ c                print *,'zzzzzz p1=',p1,dl
               endif
 
 C       ... Estimate new pnz for semicore state
-              if (lpz .and. int(mod(pnz(m,1),10d0)).lt.int(pnu(m,1))) then
+              if (lpz .and. int(mod(pnz(m,1),10d0)).lt.int(pnu(m,1))) then !local obital is semicore
                 val(1) = rmt
                 dnz = dtan(pi*(0.5d0-mod(pnz(m,isp),10d0)))
                 slo(1) = dnz + 1d0
@@ -347,7 +340,7 @@ C         ... Permit pnu no lower than free electron value
 !! spin averaged pnu takaoAug2019
           phispinsym= cmdopt('--phispinsym',12,0,strn)
           if(phispinsym) then
-             if(master_mpi().and.m==lmxa+1) write(6,*)'pnunew: --phispinsym enforces spin-averaged pnu' 
+             if(master_mpi.and.m==lmxa+1) write(6,*)'pnunew: --phispinsym enforces spin-averaged pnu' 
              pmean = sum(pnu(m,1:nsp))/nsp
              pnu(m,1:nsp) = pmean
              if (lpz) then

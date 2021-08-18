@@ -1,11 +1,10 @@
-      subroutine smshft ( ssite , sspec ,  sv_p_orhoat !sctrl , sham ,slat , 
-     . , smrho,job )
-      use m_supot,only: iv_a_okv,rv_a_ogv
-      use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
-c      use m_globalvariables
+      subroutine smshft (job)
+      use m_density,only:  sv_p_orhoat=>orhoat,smrho=>osmrho !output
+      use m_supot,only:  iv_a_okv,rv_a_ogv
       use m_lmfinit,only: ctrl_lfrce,ham_elind,
-     &     lat_alat,lat_plat,lat_qlat,lat_nabc,lat_ng,lat_vol
+     &     lat_alat,nsp,nbas, sspec=>v_sspec, ssite=>v_ssite
+      use m_lattic,only: lat_qlat, lat_vol,lat_plat
+      use m_supot,only: lat_nabc, lat_ng
 C- Estimate the smooth density for a shift in atomic positions.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -47,16 +46,16 @@ Cu    3 Jul 00 Adapted from nfp smshft.f
 C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
-      type(s_rv1) :: sv_p_orhoat(3,1)
-      type(s_site)::ssite(*)
-      type(s_spec)::sspec(*)
+c      type(s_rv1) :: sv_p_orhoat(3,1)
+c      type(s_site)::ssite(*)
+c      type(s_spec)::sspec(*)
 c      type(s_lat)::slat
 c      type(s_ctrl)::sctrl
 c      type(s_ham)::sham
-      double complex smrho(*)
+c      double complex smrho(*)
 C ... Local parameters
       integer i,ib,igets,igetss,iprint,is,k1,k2,k3,kcor,lcor,lmxa,n0,n1,
-     .n2,n3,nbas,ng,ngabc(3),nglob,nsp,i_copy_size
+     .n2,n3,ng,ngabc(3),i_copy_size
       complex(8) ,allocatable :: cgr_zv(:)
       complex(8) ,allocatable :: cgs_zv(:)
       complex(8) ,allocatable :: cwk_zv(:)
@@ -75,8 +74,8 @@ c      i_copy_size=size(lat_qlat)
 c      call dcopy(i_copy_size,lat_qlat,1,qlat,1)
 c      i_copy_size=size(lat_nabc)
 c      call icopy(i_copy_size,lat_nabc,1,ngabc,1)
-      nsp  = globalvariables%nsp
-      nbas = globalvariables%nbas
+c      nsp  = globalvariables%nsp
+c      nbas = globalvariables%nbas
       alat=lat_alat
       plat=lat_plat
       qlat=lat_qlat
@@ -144,7 +143,7 @@ c      call dpadd ( cgr_zv , cgs_zv , 1 , ng * 2 * nsp , 1d0 )
       call gvputf ( ng , nsp , iv_a_okv , k1 , k2 , k3 , cgr_zv , smrho )
       call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,1)
 C --- Symmetrize the shifted density ---
-      call symsmr(nsp,k1,k2,k3,smrho) !slat,
+      call symsmrho(smrho) !slat,nsp,k1,k2,k3,
       if (iprint() .gt. 100) call zprm3('shifted smrho',0,smrho,k1,k2,k3*nsp)
       if (allocated(cgs_zv)) deallocate(cgs_zv)
       if (allocated(cgr_zv)) deallocate(cgr_zv)
@@ -154,7 +153,10 @@ C --- Symmetrize the shifted density ---
       subroutine pvsms1 ( ssite , sspec ,  nbas , nsp , kmax !slat ,
      . , ng , gv , sv_p_orhoat , cwk , cg , job )
       use m_struc_def           !Cgetarg
-      use m_lmfinit,only:lat_alat,lat_vol
+      use m_lmfinit,only:lat_alat
+      use m_lattic,only: lat_vol
+
+
 C- Shift in smoothed density according to job.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -315,20 +317,21 @@ C   --- Shift in mesh density, job 1 ---
      .     , sum )
           qloc = (qloc-sum)/y0
           qfat = 0d0
-          do  12  i  = 1, nsp
-          do  12  ie = 1, nxi
+          do   i  = 1, nsp
+          do   ie = 1, nxi
             gam  = 0.25d0*rsmfa**2
             qall = -4d0*pi*y0*dexp(gam*exi(ie))/exi(ie)
             qfat = qfat + hfc(ie,i)*qall
-   12     continue
-          call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc,qval,qsc)
+         enddo
+         enddo
+            call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc,qval,qsc)
 C         Excess sphere charge.  See Remarks above.
           qg = qval+qsc-qfat-qloc
 C     ... Shift in smoothed free atom density
-          do  14    i = 1, nsp
-          do  14  ixi = 1, nxi
+          do    i = 1, nsp
+          do  ixi = 1, nxi
             e = exi(ixi)
-            do  15 ig = 1, ng
+            do ig = 1, ng
               v(1) = gv(ig,1)*tpiba
               v(2) = gv(ig,2)*tpiba
               v(3) = gv(ig,3)*tpiba
@@ -339,11 +342,13 @@ C     ... Shift in smoothed free atom density
               scalp = -alat*(pold(1)*v(1)+pold(2)*v(2)+pold(3)*v(3))
               phase = phase - dcmplx(dcos(scalp),dsin(scalp))
               cg(ig,i) = cg(ig,i) + hfc(ixi,i)*aa*phase*y0/vol
-   15       continue
+          enddo
+          enddo
+          enddo
    14     continue
 C     ... Add gaussian to conserve local charge; see Remarks
-          do  16   i = 1, nsp
-          do  16  ig = 1, ng
+          do    i = 1, nsp
+          do    ig = 1, ng
             v(1) = gv(ig,1)*tpiba
             v(2) = gv(ig,2)*tpiba
             v(3) = gv(ig,3)*tpiba
@@ -353,7 +358,9 @@ C     ... Add gaussian to conserve local charge; see Remarks
             scalp = -alat*(pold(1)*v(1)+pold(2)*v(2)+pold(3)*v(3))
             phase = phase - dcmplx(dcos(scalp),dsin(scalp))
             cg(ig,i) = cg(ig,i) + qg*phase*dexp(-gam*v2)/volsp
-   16     continue
+          enddo
+          enddo
+      
 C   --- Shift in mesh density, job 12 ---
         elseif (job .eq. 12) then
 C     ... Core + valence at old position

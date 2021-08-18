@@ -17,7 +17,7 @@ c modified by Takahi Miyake, May, 2004
 c originally written by Takao Kotani, April, 2004
 c-------------------------------------------------
       use m_readqg,only: Readngmx,ngcmx,Readqg0,Readqg
-      use m_readeigen,only:init_readeigen,init_readeigen2,readcphi,readgeig,readeval
+      use m_readeigen,only:init_readeigen,init_readeigen2,readcphif,readgeigf,readeval
 c      use m_read_bzdata,ngrp2=>ngrp
       use m_read_bzdata,only: read_bzdata,
      & ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,qbas, ginv,
@@ -734,7 +734,7 @@ c$$$            endif
             do is = 1,nspin
               j1min_c(is) = j1min
               j1max_c(is) = j1max
-              call readeval(q1,is,eband)
+              eband= readeval(q1,is)
               eband = (eband-ef)*rydberg()
               nmin = nband
               do i = nband,1,-1
@@ -773,7 +773,7 @@ c$$$            endif
             do is = 1,nspin
               j1min_c(is) = j1min
               j1max_c(is) = j1max
-              call readeval(q1,is,eband)
+              eband = readeval(q1,is)
               eband = (eband-ef)*rydberg()
               nmin = nband
               do i = nband,1,-1
@@ -884,20 +884,24 @@ c          write(1100,"(10d13.6)")rr(ir,ibas),rprodx(ir,0:lxx) !,phij(0:lxx)
 ccccccccccccccccccccccc
         enddo
         do 125 isp = 1,nspin
-         do 25 l1 = 0, nl-1      
-         do 25 n1 = 1, nindx(l1+1,ic)
-         do 25 l2 = 0, nl-1      
-         do 25 n2 = 1, nindx(l2+1,ic)
-          rphiphi(1)       = 0d0
-          rphiphi(2:nrofi(ic)) = phitoto(2:nrofi(ic),l1,n1,ic,isp)
-     &                          *phitoto(2:nrofi(ic),l2,n2,ic,isp)/rr(2:,ic) ! phi = u = r \phi
-         do 25 lx = 0, 2*(nl-1)
-          if(lx <abs(l1-l2) .or. l1+l2<lx) cycle
-          call gintxx( rprodx(1,lx), rphiphi,aa(ic),bb(ic),nrofi(ic),
-     &        ppbrd(l1, n1,l2, n2, lx, isp,ibas) )
-c          if(l1==l2.and.n1==n2.and.lx==0) 
-c         write(6,*) ' ppbrd=',l1,n1,ppbrd(l1, n1,l2, n2, lx, isp,ibas)
-   25    continue
+           do  l1 = 0, nl-1      
+           do  n1 = 1, nindx(l1+1,ic)
+             do  l2 = 0, nl-1      
+             do  n2 = 1, nindx(l2+1,ic)
+                rphiphi(1)       = 0d0
+                rphiphi(2:nrofi(ic)) = phitoto(2:nrofi(ic),l1,n1,ic,isp)
+     &               *phitoto(2:nrofi(ic),l2,n2,ic,isp)/rr(2:,ic) ! phi = u = r \phi
+                do  lx = 0, 2*(nl-1)
+                   if(lx <abs(l1-l2) .or. l1+l2<lx) cycle
+                   call gintxx( rprodx(1,lx), rphiphi,aa(ic),bb(ic),nrofi(ic),
+     &                  ppbrd(l1, n1,l2, n2, lx, isp,ibas) )
+c     if(l1==l2.and.n1==n2.and.lx==0) 
+c     write(6,*) ' ppbrd=',l1,n1,ppbrd(l1, n1,l2, n2, lx, isp,ibas)
+                enddo
+             enddo
+             enddo
+           enddo
+           enddo
  125    continue
  900  continue
 
@@ -911,10 +915,8 @@ cr   ibas_indx(1:ldim2) : ibas index.
       uum = 0d0
       do 1050 ispin=1,nspin
        allocate(cphi1 (nlmto,nband),cphi2(nlmto,nband) )
-       call readcphi(q1, nlmto, ispin, quu, cphi1)
-c       call checkagree(q1,q1x,' q1 ne quu')
-       call readcphi(q2, nlmto, ispin, quu, cphi2)
-c       call checkagree(q2,quu,' q2 ne quu')
+       cphi1= readcphif(q1,ispin) !call readcphi(q1, nlmto, ispin, quu, cphi1)
+       cphi2= readcphif(q2,ispin) !call readcphi(q2, nlmto, ispin, quu, cphi2)
 
        do 1020 ia1 = 1,nlmto
          ibas1= ibas_indx(ia1)
@@ -973,9 +975,9 @@ c            do j2= j2min,j2max
  1020  continue
 
 c ... Interstitial Plane Wave part
-       call readgeig(q1, ngpmx, ispin, quu, geig1)
+       geig1=readgeigf(q1,ispin) !call readgeig(q1, ngpmx, ispin, quu, geig1)
 c       call checkagree(q1,quu,' q1 ne quu eig')
-       call readgeig(q2, ngpmx, ispin, quu, geig2)
+       geig2=readgeigf(q2,ispin) !call readgeig(q2, ngpmx, ispin, quu, geig2)
 c       call checkagree(q2,quu,' q1 ne quu eig')
        if (ixc.eq.5.or.ixc.eq.6) then
          do j1= j1min_c(ispin),j1max_c(ispin)

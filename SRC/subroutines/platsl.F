@@ -12,25 +12,30 @@ C     implicit none
 C --- npt 4 or 8 ---
       if (npt .eq. 4 .or. npt .eq. 8) then
         cx = 1/dsqrt(3d0)
-        do  410  i = 1, 12
-  410   r(i,1) = cx
-        do  411  i = 1, 3
+        do   i = 1, 12
+           r(i,1) = cx
+        enddo   
+        do  i = 1, 3
           r(i,i) = -cx
-  411   r(i,4) = -cx
+          r(i,4) = -cx
+        enddo  
         if (npt .eq. 8) then
-          do  810  i = 1, 12
-  810     r(i,5) = -r(i,1)
+          do i = 1, 12
+             r(i,5) = -r(i,1)
+          enddo   
         endif
         return
       endif
 
 C --- npt 6 ---
       if (npt .eq. 6) then
-        do  610  i = 1, 18
-  610   r(i,1) = 0
-        do  611  i = 1, 3
+        do   i = 1, 18
+           r(i,1) = 0
+        enddo   
+        do   i = 1, 3
           r(i,i) = 1
-  611   r(i,i+3) = -1
+          r(i,i+3) = -1
+        enddo  
         return
       endif
 
@@ -71,8 +76,9 @@ C ... Bottom 6 points of icosahedron
 
 C --- Points on the twenty faces of the icosahedron ---
       if (npt .eq. 20) then
-        do  2030  i = 1, 3
- 2030   r2(i) = r(i,1)+r(i,2)+r(i,6)
+        do i = 1, 3
+           r2(i) = r(i,1)+r(i,2)+r(i,6)
+        enddo   
         d = dsqrt(ddot(3,r2,1,r2,1))
         call dpscop(r,x,36,1,1,1/d)
         do  2040  i = 1, 5
@@ -97,8 +103,9 @@ C --- Points on the twenty faces of the icosahedron ---
 
 C --- Points on the thirty edges of the icosahedron ---
       if (npt .eq. 30) then
-        do  3030  i = 1, 3
- 3030   r2(i) = r(i,1)+r(i,2)
+        do   i = 1, 3
+           r2(i) = r(i,1)+r(i,2)
+        enddo   
         d = dsqrt(ddot(3,r2,1,r2,1))
         call dpscop(r,x,36,1,1,1/d)
         do  3040  i = 1, 5

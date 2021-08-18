@@ -28,7 +28,10 @@ C ... Passed parameters
 
       subroutine chkxpn(ssite,sspec)
       use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: nbas,nspec,stdo,lhh,nkapii
+      use m_uspecb,only:uspecb
+
+
 C- Check accuracy of Pkl expansions of augmented functions
 C     implicit none
 C ... Passed parameters
@@ -36,11 +39,11 @@ C ... Passed parameters
       type(s_spec)::sspec(*)
 
 C ... Local parameters
-      integer k0,nlm0,nrx,n0,nkap0,stdo,lgunit
+      integer k0,nlm0,nrx,n0,nkap0,lgunit
       parameter (k0=20, nlm0=25, nrx=201)
       parameter (nkap0=3,n0=10)
-      integer:: nglob , nbas , nspec , ib1 , is , iclbsj , nr , j1 
-     ., nch , lmxa , kmax , lh(nkap0) , nkapi , ik , l1 , l2 , l , 
+      integer:: ib1 , is , iclbsj , nr , j1 
+     ., nch , lmxa , kmax , nkapi , ik , l1 , l2 , l ,  !lh(nkap0) , 
      .lmax , nlm , k , i , ilm , ipr
       integer ,allocatable :: ips_iv(:)
 
@@ -57,11 +60,11 @@ C ... Heap
       data lch /'s','p','d','f','g'/
 
 C ... setup
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
 Changenglob      nbas  = nglob('nbas')
-      nbas  = globalvariables%nbas
+c      nbas  = globalvariables%nbas
 Changenglob      nspec = nglob('nspec')
-      nspec = globalvariables%nspec
+c      nspec = globalvariables%nspec
       call getpr(ipr)
       write(stdo,400)
   400 format(/' RMS errors in expanded head and tail functions.'
@@ -110,19 +113,19 @@ C        call u_spec_a(sspec,is,lmxa,lmxh,kmax,rsma)
         if (nr .gt. nrx) call rxi('chkxpn: need nrx ge',nr)
         call radmsh(rmt,a,nr,rofi)
         call radwgt(rmt,a,nr,rwgt)
-        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
-
+c        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
+        call uspecb(is,rsmh,eh)
 C  ...  Loop over orbitals for this species
         write(stdo,948)
-        do  ik = 1, nkapi
+        do  ik = 1, nkapii(is)
           l2 = -1
-          do  l1  = 0, lh(ik)
+          do  l1  = 0, lhh(ik,is)
             e = eh(l1+1,ik)
             rsm = rsmh(l1+1,ik)
             if (rsm .ne. 0 .and. l1 .gt. l2) then
               l2 = l1-1
    12         l2 = l2+1
-              if (l2 .lt. lh(ik)) then
+              if (l2 .lt. lhh(ik,is)) then
                 if (rsmh(l2+2,ik).eq.rsm .and. eh(l2+2,ik).eq.e) goto 12
               endif
 

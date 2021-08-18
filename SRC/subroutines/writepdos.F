@@ -94,14 +94,14 @@ c     &  dwgtall, ndos, eminp+ef0, emaxp+ef0,.false.,wkd,pdosall)
       enddo
       enddo
 #if MPIK
-      call mpibc2( pdosalla, ndos*nsp*nchanp*nbas, 4 , mlog , 'writepdos' , 'pdosalla' )
+      call mpibc2_real( pdosalla, ndos*nsp*nchanp*nbas, 'writepdos_pdosalla' )
 #endif
       if(procid==0) then !master only
       allocate(pdosp (ndos,nchanp))
       bin2 = 2d0 * bin
       do isp =1,nspx
       do ibas=1,nbas
-        ifi = fopnn(trim(  'dos.isp'//char(48+isp)//'.site'//charnum3(ibas)  ))
+        open(newunit=ifi,file=trim('dos.isp'//char(48+isp)//'.site'//charnum3(ibas))//'.'//trim(ext))
         write(ifi,"('#lm ordering. See the end of lmdos. relative to efermi')")
 !!      DOS from finite difference of NOS 
         do ichan=1,nchanp

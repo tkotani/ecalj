@@ -97,8 +97,9 @@ C   ... If starting Hessian is zero, set to unity.
         do  6  i = 1, n
           w(i,nx) = x(i)
           w(i,ng) = g(i)
-          do  8  j = 1, n
-    8     x(i) = x(i) - hess(i,j)*g(j)
+          do    j = 1, n
+             x(i) = x(i) - hess(i,j)*g(j)
+          enddo   
     6   continue
 
         call info8(-25,0,0,' brmin: start'//
@@ -114,13 +115,16 @@ C --- Subsequent iterations  ---
 
 C   ... Global scaling of the Hessian matrix
         if (ir .eq. 2 .and. isw32 .ne. 0) then
-          do  10  i = 1, n
+          do    i = 1, n
             w(i,ns) = x(i) - w(i,nx)
-   10     w(i,nd) = g(i) - w(i,ng)
-          do  12  i = 1, n
+            w(i,nd) = g(i) - w(i,ng)
+          enddo  
+          do    i = 1, n
             w(i,nh) = 0d0
-            do  12  j = 1, n
-   12     w(i,nh) = w(i,nh) + hess(i,j)*w(j,nd)
+          do    j = 1, n
+             w(i,nh) = w(i,nh) + hess(i,j)*w(j,nd)
+          enddo
+          enddo
           a = ddot(n,w(1,nd),1,w(1,nh),1)
           b = ddot(n,w(1,nd),1,w(1,ns),1)
           scale = dabs(b/a)
@@ -138,25 +142,30 @@ C       Local copy of the original Hessian
           w(i,nx) = x(i)
           w(i,ng) = g(i)
           w(i,nh) = 0d0
-          do  32  j = 1, n
-   32     w(i,nh) = w(i,nh) + hess(i,j)*w(j,nd)
+          do   j = 1, n
+             w(i,nh) = w(i,nh) + hess(i,j)*w(j,nd)
+          enddo   
    30   continue
         a = ddot(n,w(1,nd),1,w(1,nh),1)
         b = ddot(n,w(1,nd),1,w(1,ns),1)
-        do  40  i = 1, n
-   40   w(i,nh2) = 1/a*w(i,nh) - 1/b*w(i,ns)
+        do    i = 1, n
+           w(i,nh2) = 1/a*w(i,nh) - 1/b*w(i,ns)
+        enddo   
 
 C   --- Update inverse of Hessian ---
-        do  50  i = 1, n
-          do  50  j = i, n
+        do    i = 1, n
+        do   j = i, n
             hess(j,i) = hess(j,i)
      .      - w(j,nh)*w(i,nh)/a + w(j,ns)*w(i,ns)/b
-     .      + beta*a*b*w(j,nh2)*w(i,nh2)
-   50   continue
+     .            + beta*a*b*w(j,nh2)*w(i,nh2)
+         enddo
+         enddo
 C   ... Make it symmetric
-        do  52  i = 2, n
-          do  52  j = 1, i-1
-   52   hess(j,i) = hess(i,j)
+        do    i = 2, n
+        do   j = 1, i-1
+           hess(j,i) = hess(i,j)
+        enddo
+        enddo
 
 C   --- Check that Hessian is positive definite ---
         if (isw31 .ne. 0) then
@@ -172,19 +181,23 @@ C         Keep a local copy of hessian, since dsev1 destroys it.
         endif
 
 C   --- Update x from Hessian, g ---
-        do  70  i = 1, n
-          do  70  j = 1, n
-   70   x(i) = x(i) - hess(i,j)*g(j)
+        do  i = 1, n
+        do  j = 1, n
+           x(i) = x(i) - hess(i,j)*g(j)
+        enddo
+        enddo
 
 C   ... End of subsequent Hessian update
       endif
 
 C --- Limit the shift, depending on dxmx and hmax ---
-      do  80  i = 1, n
-   80 w(i,ns) = x(i) - w(i,nx)
+      do  i = 1, n
+         w(i,ns) = x(i) - w(i,nx)
+      enddo   
       diff = 0
-      do  82  i = 1, n
-   82 diff = max(diff,dabs(w(i,ns)))
+      do  i = 1, n
+         diff = max(diff,dabs(w(i,ns)))
+      enddo   
       if (diff .eq. 0) goto 100
       if (diff .gt. dxmx) then
         factor = dxmx/diff
@@ -223,9 +236,10 @@ C --- Cleanup ---
   100 continue
       diff = 0
       gmax = 0
-      do  110  i = 1, n
+      do  i = 1, n
         gmax = max(gmax,dabs(g(i)))
-  110 diff = max(diff,dabs(w(i,ns)))
+        diff = max(diff,dabs(w(i,ns)))
+      enddo  
 
       if (scale .ne. 1) then
         call info8(-30,0,0,' brmin: iter %i  max shift=%1;4g  '//

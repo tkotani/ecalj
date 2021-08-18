@@ -25,7 +25,7 @@
 
 c read eigenvalues
       q(:) = qbz(:,iq)
-      call readeval (q,is,eks)
+      eks= readeval (q,is)
 
 c construct H
       ham = (0d0,0d0)
@@ -78,7 +78,7 @@ c-----------------------------------------------------------------------
       allocate(eks(nband))
 
       do iq = 1,nqbz
-         call readeval (qbz(:,iq),is,eks)
+         eks= readeval (qbz(:,iq),is)
 
          write(*,*)'Diag energy',iq
          do iband = 1,nwf
@@ -897,9 +897,7 @@ c-----------------------------------------------------------------------
       allocate(dnk(iko_ix:iko_fx,nwf))
 
       do iq = 1,nqbz
-
-         call readeval (qbz(:,iq),is,eks)
-
+         eks= readeval (qbz(:,iq),is)
          dnk = (0d0,0d0)
          do imp = iko_i(iq),iko_f(iq)
          do in = 1,nwf

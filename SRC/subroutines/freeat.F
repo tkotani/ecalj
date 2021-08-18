@@ -1,10 +1,9 @@
-c#define USEOPTIONAL 1
-      subroutine freeat(sspec)!,spot) !sctrl,sham,
-      use m_lmfinit,only:ctrl_smalit,ctrl_lxcf
-      use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
-      use m_lmfinit,only:ham_seref
+      subroutine freeat()
+      use m_struc_def,only:s_spec
       use m_ext,only:sname
+      use m_lmfinit,only: ctrl_smalit,ctrl_lxcf,ham_seref,nsp,nspec, sspec=>v_sspec
+
+
 C- For each species, makes free atom self-consistent
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -37,14 +36,8 @@ Cu   22 Mar 01 Added printout of reference energy
 Cu   10 Jun 00 spin polarized
 C ----------------------------------------------------------------------
       implicit none
-C ... Passed parameters
-c      type(s_ctrl)::sctrl
-c      type(s_ham)::sham
-c      type(s_pot)::spot
-      type(s_spec)::sspec(*)
-
-C ... Local parameters
-      integer fopna,ifi,iprint,is,lgunit,nglob,nr,nrmt,nrmx,nsp,nspec,
+c      type(s_spec)::sspec(*)
+      integer ifi,iprint,is,lgunit,nglob,nr,nrmt,nrmx,
      .n0,nkap0,nxi,nxi0,stdo,nrmix(2),lxcfun,igets,lmxa,kcor,lcor
       character*8 spid,chole*8
       parameter ( nrmx=1501, nxi0=10, n0=10, nkap0=3)
@@ -53,30 +46,22 @@ C ... Local parameters
       double precision hfc(nxi0,2),exi(nxi0),hfct(nxi0,2)
       double precision v(nrmx*2),rho(nrmx*2),rhoc(nrmx*2),rofi(nrmx*2)
       double precision pnu(n0,2),pz(n0,2),qat(n0,2),rcfa(2)
-      double precision rtab(n0,2),etab(n0,2),orbp(n0,2,nkap0)
+      double precision rtab(n0,2),etab(n0,2)!,orbp(n0,2,nkap0)
       double precision rs3,eh3,vmtz
       integer idmod(n0)
-
-      integer:: iofa, i_dummy_iofa
-ctakao
-      logical ixx,ioorbp
-      real(8):: pzsum
+      integer:: iofa, i_dum,ifile_handle
       integer:: i_copy_size,i_spacks,ifives,ifiwv
-
       character strn*120
       logical cmdopt
-
-      ifi = fopna('atm',-1,0)
+      ifi = ifile_handle()
+      open(ifi,file='atm.'//trim(sname))
       rewind ifi
-      nspec = globalvariables%nspec
-      nsp   = globalvariables%nsp
       stdo  = lgunit(1)
-      hfct=0d0
-      pzsum=0d0
+      hfct = 0d0
       open(newunit=ifives,file='vesintatm.'//trim(sname))
-      ifiwv  = fopna('veswavatm',-1,0)
-      do  is = 1, nspec
-c takao. I found tht Li requires -0.5 to have positive smooth rho.
+      ifiwv = ifile_handle()
+      open(ifiwv,file='veswavatm.'//trim(sname))
+      do  is = 1, nspec ! Takao found that Li requires -0.5 to have positive smooth rho.
         if(sspec(is)%z<3.5) then !At least for Li, fitting is not good (negative smooth rho).
           exi(1) = -0.5
           exi(2) = -1
@@ -86,7 +71,7 @@ c takao. I found tht Li requires -0.5 to have positive smooth rho.
           exi(6) = -9
           exi(7) = -15
           nxi = 7
-        else           !this is original setting. For CrN. This is necessary (maybe long range cutoff is required).
+        else !this is original setting. For CrN. This is necessary(maybe long range cutoff is required).
           exi(1) = -1
           exi(2) = -2
           exi(3) = -4
@@ -95,40 +80,22 @@ c takao. I found tht Li requires -0.5 to have positive smooth rho.
           exi(6) = -15
           nxi = 6
         endif
-
-C       Unpack sctrl data
-
         i_copy_size=size(ctrl_smalit)
         call icopy(i_copy_size,ctrl_smalit,1,nrmix,1)
-
         lxcfun = int(ctrl_lxcf)
-
-
-C       Unpack species data
-c        do i_spacks=is,is
-c          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-c        enddo
-        spid=sspec(is)%name
-
-        rsmfa=sspec(is)%rsmfa
-        rfoca=sspec(is)%rfoca
+        spid = sspec(is)%name
+        rsmfa= sspec(is)%rsmfa
+        rfoca= sspec(is)%rfoca
         i_copy_size=size(sspec(is)%coreq)
         call dcopy(i_copy_size,sspec(is)%coreq,1,qcor,1)
-
-c        do i_spacks=is,is
-c          call spacks_copy('u',sspec(i_spacks)%coreh,is,is,chole,i_spacks)
-c        enddo
         chole=sspec(is)%coreh
         call gtpcor(sspec,is,kcor,lcor,qcor)
-
         z=sspec(is)%z
         rmt=sspec(is)%rmt
         a=sspec(is)%a
         nrmt=sspec(is)%nr
-
-        if (z .eq. 0 .and. rmt .eq. 0) goto 10 !floating orbital
+        if (z == 0 .and. rmt == 0) cycle !floating orbital
         call dpzero(qat,n0*2)
-
         i_copy_size=size(sspec(is)%p)
         call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
         i_copy_size=size(sspec(is)%q)
@@ -136,14 +103,9 @@ c        enddo
         i_copy_size=size(sspec(is)%idmod)
         call icopy(i_copy_size,sspec(is)%idmod,1,idmod,1)
         lmxa=sspec(is)%lmxa
-
-
         i_copy_size=size(sspec(is)%pz)
         call dcopy(i_copy_size,sspec(is)%pz,1,pz,1)
-
         eref = (sspec(is)%eref)
-
-
         rs3=sspec(is)%rs3
         eh3=sspec(is)%eh3
         vmtz=sspec(is)%vmtz
@@ -155,63 +117,33 @@ c        enddo
      .  idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof,
      .  ceh,sumec,sumtc,v,etot,sspec(is)%nmcore,ifives,ifiwv)
         print *,'end of freats: spid nmcore=',spid,sspec(is)%nmcore
-C       Repack mesh parms, in case a mesh was selected by freats
-        sspec(is)%z=z
-        sspec(is)%rmt=rmt
-        sspec(is)%a=a
-        sspec(is)%nr=nrmt
-C   ... Pack the basis into sspec
-        call dpzero(orbp,n0*2*nkap0)
-C       call upack2('spec orbp lmxb',sspec,is,orbp)
-        call dcopy(n0,rtab,1,orbp(1,1,1),1)
-        call dcopy(n0,etab,1,orbp(1,2,1),1)
-        sspec(is)%norp=2
-        sspec(is)%ntorb=n0
-        i_copy_size=size(sspec(is)%orbp)
-        call dcopy(i_copy_size,orbp,1,sspec(is)%orbp,1)
-C   --- File write ---
-        if (iprint() .gt. 40) write(stdo,230) spid
-  230   format(/' write free atom data for species  ',a)
-C       Copy second spin channel of rho,v
-        if (nsp .eq. 2 .and. nr .gt. nrmt) then
+        if (iprint()>40) write(stdo,"(a)")' write free atom data for species  '//trim(spid)
+        if (nsp == 2 .and. nr > nrmt) then
           call dcopy(nrmt,rho(1+nr),1,rho(1+nrmt),1)
           call dcopy(nrmt,rhoc(1+nr),1,rhoc(1+nrmt),1)
           call dcopy(nrmt,v(1+nr),1,v(1+nrmt),1)
         endif
-ckino iofa is integer        call iofa(spid,nxi0,nxi,exi,hfc,hfct,rsmfa,z,rmt,
-        i_dummy_iofa= iofa(spid,nxi0,nxi,exi,hfc,hfct,rsmfa,z,rmt,
+        i_dum = iofa(spid,nxi0,nxi,exi,hfc,hfct,rsmfa,z,rmt,
      .  a,nrmt,qc,ccof,ceh,sumtc,rho,rhoc,v,-ifi)
-
-        pzsum= pzsum+sum(pz(1:lmxa+1,1))
-   10   continue
       enddo
-      ixx= ioorbp(1,2,1,nspec,sspec,0,-ifi)
-      call fclose(ifi)
-ctakao
-      print *
-      if(pzsum<1d-10) then
-        print *,' Write mtopara.* ...'
-        ifi = fopna('mtopara',-1,2)
-        call writebasis(nspec,sspec,ifi)
-        call fclose(ifi)
-      else
-        print *,' Not write mtopara.* when there is PZ.'
+      close(ifi)
+      if(iprint() .gt. 30)  then
+         seref = ham_seref
+         write(stdo,"(a,f35.12)") 'Sum of reference energies: ',seref
       endif
-      if (iprint() .gt. 30)  then
-        seref = ham_seref
-        call awrit1('%x%N Sum of reference energies: %1;6d',' ',80,stdo,
-     .  seref)
-      endif
-c     call fclose('vesintatm')
       close(ifives)
+      close(ifiwv)
       end subroutine freeat
-
 
       subroutine freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,kcor,lcor,qcor,
      .nrmix,lwf,lxcfun,z,rmt,a,nrmt,pnu,pz,qat,rs3,eh3,vmtz,rcfa,
      .idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof,ceh,
      .sec,stc,v,etot,nmcore,ifives,ifiwv)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: nsp,lrel
+
+
+      use m_ext,only:sname
+      use m_getqvc
 C- Makes one free atom self-consistent, fits rho tails to smoothed Hankels
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -276,7 +208,6 @@ Cu   01 Feb 06 Enables renormalized free atom density
 Cu   19 Apr 02 Redesigned input to avoid the use of structures
 Cu   10 Apr 02 Redimensionsed etab,rtab to accomodate larger lmax
 C ----------------------------------------------------------------------
-      use m_getqvc
       implicit none
 C ... Passed parameters
       integer nrmx,nrmt,is,nxi0,nxi,nrmix(2),lwf,lxcfun,n0,kcor,lcor
@@ -298,9 +229,8 @@ C     integer idmoz(n0)
      .pzl,pnu(n0,2),qat(n0,2),pl(n0,2),rhoin(nrmx*2),
      .rhot(nrmx*2),ql(3,n0,2),pz(n0,2),rcfa(2) ,qatbk(n0,2)
 C     double precision qz(n0,2)
-      integer fopna,i,ifi,ipr,iprint,isp,isw,l,lfrz,
-     .lgrad,lgunit,lmxa,lplfa,lrel,nglob,nitmax,nmix,nr,
-     .nsp,stdl,stdo,lplawv,irchan(n0)
+      integer i,ifi,ipr,iprint,isp,isw,l,lfrz,
+     .lgrad,lgunit,lmxa,lplfa,nitmax,nmix,nr,stdl,stdo,lplawv,irchan(n0)
       real(8) ,allocatable :: g_rv(:)
       real(8) ,allocatable :: psi_rv(:)
 
@@ -319,9 +249,9 @@ c      print *,'0000111 ifives=',ifives
       stdl   = lgunit(2)
       ipr    = iprint()
 Changenglob      lrel   = nglob('lrel')
-      lrel   = globalvariables%lrel
+c      lrel   = globalvariables%lrel
 Changenglob      nsp    = nglob('nsp')
-      nsp    = globalvariables%nsp
+c      nsp    = globalvariables%nsp
       lfrz   = 0
       lgrad  = lxcfun/10
 ctakao
@@ -329,7 +259,7 @@ ctakao
         print *
         do i = 1, nsp
           do l = 0, lmxa
-            write(6,"(a,2i3,2f10.3)")'ttt: pnu qat=',i,l,pnu(l+1,i),qat(l+1,i)
+            write(stdo,"(a,2i3,2f10.3)")'ttt: pnu qat=',i,l,pnu(l+1,i),qat(l+1,i)
           enddo
         enddo
       endif
@@ -342,7 +272,7 @@ C --- Get species data ----
       plplus=0d0
       qlplus=0d0
 c      print *,'NOTE: when we have two valence: P and PZ, We assume eigen(PZ) is deeper than eigen(P).'
-      do  10  i = 1, nsp
+      do  101  i = 1, nsp
       do  10  l = 0, lmxa
         pnul = pnu(l+1,i)
         pzl  = mod(pz(l+1,1),10d0)
@@ -383,19 +313,24 @@ c      print *,'NOTE: when we have two valence: P and PZ, We assume eigen(PZ) is
         if (nsp .eq. 2.and. pnul .eq. 0) pl(l+1,i) = pl(l+1,1)
         ql(2,l+1,i) = 0d0
         ql(3,l+1,i) = 0d0
+
+        if(iprint()>60) then
         if (pzl/=0.and. int(pnul-1)==int(pzl)) then !pz is deeper than pnul
-          if(nsp==1)write(6,"(a,i2,3f8.3)")'=== Charge for l: Qtot Qpz Qv=',l,qvaltot,ql(1,l+1,i),qlplus(l,i)
-          if(nsp==2)write(6,"(a,i2,3f8.3)")'=== Charge for l: Qtot Qpz Qv=',l,qvaltot,ql(1,l+1,i),qlplus(l,i)
+          if(nsp==1)write(stdo,"(a,i2,3f8.3)")'=== Charge for l: Qtot Qpz Qv=',l,qvaltot,ql(1,l+1,i),qlplus(l,i)
+          if(nsp==2)write(stdo,"(a,i2,3f8.3)")'=== Charge for l: Qtot Qpz Qv=',l,qvaltot,ql(1,l+1,i),qlplus(l,i)
         elseif (pzl/=0) then !pz is higher than pnul
-          if(nsp==1)write(6,"(a,i2,3f8.3)")'=== Charge for l: Qtot Qpz Qv=',l,qvaltot,qlplus(l,i),ql(1,l+1,i)
-          if(nsp==2)write(6,"(a,i2,3f8.3)")'=== Charge for l: Qtot Qpz Qv=',l,qvaltot,qlplus(l,i),ql(1,l+1,i)
+          if(nsp==1)write(stdo,"(a,i2,3f8.3)")'=== Charge for l: Qtot Qpz Qv=',l,qvaltot,qlplus(l,i),ql(1,l+1,i)
+          if(nsp==2)write(stdo,"(a,i2,3f8.3)")'=== Charge for l: Qtot Qpz Qv=',l,qvaltot,qlplus(l,i),ql(1,l+1,i)
         else
-          if(nsp==1)write(6,"(a,i2,3f8.3)")'=== Charge for l: Qtot=Qv=    ',l,qvaltot,ql(1,l+1,i)
-          if(nsp==2)write(6,"(a,i2,3f8.3)")'=== Charge for l: Qtot=Qv=    ',l,qvaltot,ql(1,l+1,i)
-        endif
+          if(nsp==1)write(stdo,"(a,i2,3f8.3)")'=== Charge for l: Qtot=Qv=    ',l,qvaltot,ql(1,l+1,i)
+          if(nsp==2)write(stdo,"(a,i2,3f8.3)")'=== Charge for l: Qtot=Qv=    ',l,qvaltot,ql(1,l+1,i)
+       endif
+       endif
    10 continue
+ 101  continue
 !!
       print *
+      write(stdo,"(a)")'conf:------------------------------------------------------'
       write(stdo,"(a,a)")'conf:SPEC_ATOM= '//trim(spid),' : --- Table for atomic configuration ---'
 c      write(stdo,"(a)")'conf When int(P)z .ne. int(P), Qval: Q for MTOcore(PZ)+MTO(P)'
       write(stdo,"(a)")'conf:  isp  l  int(P) int(P)z    Qval     Qcore   CoreConf'
@@ -419,7 +354,7 @@ c      write(stdo,"(a)")'conf When int(P)z .ne. int(P), Qval: Q for MTOcore(PZ)+
       enddo
 c      write(stdo,"(a)")'conf:-----------------------------------------------------'
       Enddo
-      write(6,"('usedQ=',10f10.3)") (sum(qlplus(l,1:nsp)+ql(1,l+1,1:nsp)),l=0,lmxa)
+      write(stdo,"('usedQ=',10f10.3)") (sum(qlplus(l,1:nsp)+ql(1,l+1,1:nsp)),l=0,lmxa)
 
 cNov 2010 QvalCheck
       do i = 1, nsp
@@ -436,7 +371,7 @@ cNov 2010 QvalCheck
       qtot=qtot+sum(qlplus(:,:)) !takao feb2011
       amgm=amgm+sum(qlplus(:,1)-qlplus(:,nsp)) !takao feb2011
       if (ipr .ge. 20) then
-        call awrit6('%N Species '//spid//'%a:  Z=%d'//
+        call awrit6('%Nconf: Species '//spid//'%a:  Z=%d'//
      .  '  Qc=%d  R=%1,6;6d  Q=%1;6d%?#n==2#  mom=%1;5d#%0d#%a',
      .  ' ',80,stdo,z,qc,rmt,qtot,nsp,amgm)
       endif
@@ -452,7 +387,7 @@ C --- Set up radial mesh for free atom ---
       nr = 1d0+dlog(1d0+rmax/b)/a
       if (mod(nr,2).eq.0) nr = nr-1
       rmax = b*(dexp(a*(nr-1))-1d0)
-      call info5(21,0,0,' mesh:   rmt=%,6;6d  rmax=%,6;6d'//
+      call info5(21,0,0,'conf:   rmt=%,6;6d  rmax=%,6;6d'//
      .'  a=%d  nr=%i  nr(rmax)=%i',rmt,rmax,a,nrmt,nr)
 
 C --- Make atom self-consistent ---
@@ -538,8 +473,8 @@ C --- Optimise smooth-Hankel basis ---
           if (cmdopt('--norscnst',10,0,strn)) i = 0
           if (z .gt. 0) then
 cc     stop 'xxxxxxxxxxxxxxx end cccccxxx000'
-c             write(6,*) '111 ',i,z,a,nr,rmax,nrmt,rmt,lmxa,pl,ql,nsp
-c             write(6,*) '222 ',sum(v(1:nr)),sum(rofi(1:nr)),spid
+c             write(stdo,*) '111 ',i,z,a,nr,rmax,nrmt,rmt,lmxa,pl,ql,nsp
+c             write(stdo,*) '222 ',sum(v(1:nr)),sum(rofi(1:nr)),spid
 cccccccccccccccccccccccccccc
             call optfab(i,z,a,nr,rmax,nrmt,rmt,lmxa,pl,ql,nsp,v,
      .      rofi,spid,itab,rtab,etab)
@@ -556,7 +491,7 @@ C --- Print charges within/outside MT sphere ---
         qct = 0d0
         qvin = 0d0
         qcin = 0d0
-        do  30  isp = 1, nsp
+        do  301  isp = 1, nsp
         do  30  i = 1, nr
           r = rofi(i)
           wt0 = rofi(i+nr)
@@ -570,6 +505,7 @@ C       wt0 = 2*(mod(i+1,2)+1)*a*(r+b)/3d0
           qvt = qvt + wt0*rho(i+(isp-1)*nr)
           qct = qct + wt0*rhoc(i+(isp-1)*nr)
    30   continue
+ 301    continue
         qtt = qvt + qct
         qtin = qvin + qcin
         if (ipr .ge. 40) write (stdo,550) qvin,qvt-qvin,qvt,qcin,qct-qcin,
@@ -593,11 +529,12 @@ C     lplfa = nglob('lplfa')
   344     format(/' write plot file with valence density..')
           if (is .lt. 10) write (str,'(''pl'',i1)') is
           if (is .ge. 10) write (str,'(''pl'',i2)') is
-          ifi = fopna(str,-1,0)
+c          ifi = fopna(str,-1,0)
+          open(newunit=ifi,file=trim(str)//'.'//trim(sname))
           write (ifi,490) spid,rmt,rsmfa,nxi
   490     format('# fit to fa density: ',a/
      .    '# rmt=',f7.3,'   rsm=',f7.3,'   nxi=',i2)
-          call fclose(ifi)
+          close(ifi)
         endif
         call tailsm(0,nr,nrmt,nsp,a,b,rmt,rsmfa,nxi0,nxi,exi,rofi,
      .  rho,rhot,hfc,hfct)
@@ -613,7 +550,10 @@ C --- Fit analytical expression to tail of core density ---
 
       subroutine pratfs(spid,lplawv,z,a,nr,rmax,nrmt,lmaxa,pl,nsp,v,
      .rofi,g,psi,plplus,qlplus,ifiwv)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: stdo
+
+
+      use m_ext,only:sname
 C- Prints out core and valence energy levels of free-atom
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -637,13 +577,13 @@ Cu Updates
 C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
-      integer n0,nr,lmaxa,nsp,nrmt,lplawv
+      integer n0,nr,lmaxa,nrmt,lplawv,nsp
       parameter (n0=10)
       double precision z,a,rmax,pl(n0,nsp),v(nr,nsp),rofi(nr),
      .g(2*nr),psi(nr,0:lmaxa,nsp)
 C ... Local parameters
-      integer fopna,nglob,isp,l,konfig,nn,nre,i,konf,
-     .konfg(0:8),ifi,stdo,lmaxc
+      integer nglob,isp,l,konfig,nn,nre,i,konf,
+     .konfg(0:8),ifi,lmaxc
       double precision ev(0:20),pi,b,tol,eb1,eb2,dl,val,slo,sum,pzero,
      .pmax,ctp,ecor,rmt
       character*1 lsym(0:n0-1), cc, str*15, spid*8
@@ -655,7 +595,7 @@ C ... Local parameters
       real(8):: plplus(0:lmaxa,nsp),qlplus(0:lmaxa,nsp)
       real(8):: sumr !mar2013
       
-      stdo = globalvariables%stdo
+c      stdo = globalvariables%stdo
       pi   = 4d0*datan(1d0)
       if (lmaxa.gt.n0-1) call rx('pratfs:  lmax too large')
       b = rmax/(dexp(a*nr-a)-1d0)
@@ -673,7 +613,7 @@ C --- Valence states ---
         if (isp .eq. 2) write(stdo,'(/'' spin 2:'')')
         eb1 = -50d0
         eb2 =  50d0
-        do  20  l = 0, lmaxa
+        do  201  l = 0, lmaxa
         do 20 iz= 0,1
           if(iz==1 .and. plplus(l,isp)<= 0d0) cycle !feb2011
           konfig = pl(l+1,isp)
@@ -707,6 +647,7 @@ C   ... Copy valence wavefunction to psi
             psi(i,l,isp) = g(i)
    24     continue
    20   continue
+ 201    continue
 
 C --- Core states ---
         write(stdo,403)
@@ -714,7 +655,7 @@ C --- Core states ---
         eb2 = 50d0
         call config(pl,lmaxa,z,konfg,lmaxc)
 
-        do  40  konf = 1, 8
+        do  4011  konf = 1, 8
         do  40  l = 0, min(konf-1,lmaxc)
           konfig = konfg(l)
           if (konf .ge. konfig) goto 40
@@ -732,6 +673,7 @@ C --- Core states ---
   403     format(/' core:        ecore',7x,'node at',6x,'max at',
      .      7x,'c.t.p.   rho(r>rmt)')
   40    continue
+ 4011   continue
 
   80  continue
       if(ifiwv>0) write(ifiwv,"('9 9 9 9 9 --------! this is terminator for an atom section')")
@@ -741,7 +683,8 @@ C --- Write file with valence wavefunctions
         write (str,'(''wf_'',a)') spid
         write (stdo,344) str
   344   format(/' Write valence wavefunctions to plot file: ',a)
-        ifi = fopna(str,-1,0)
+c        ifi = fopna(str,-1,0)
+        open(newunit=ifi,file=trim(str)//'.'//trim(sname))
         write (ifi,490) spid,rmax,rmt,nr,lmaxa,nr,1+nsp*(lmaxa+1)
   490   format('# Free-atom wavefunctions (divided by r) for species ',
      .  a/'# rmax=',f7.3,'   rmt=',f7.3,'   nr=',i5,'   lmax=',i3/
@@ -749,17 +692,18 @@ C --- Write file with valence wavefunctions
         do  50  i=1,nr
           write (ifi,495) rofi(i),((psi(i,l,isp),l=0,lmaxa),isp=1,nsp)
   495     format(f9.5,1p,16d14.5)
-   50   continue
-        call fclr(str,ifi)
+ 50    continue
+       close(ifi)
+c        call fclr(str,ifi)
       endif
 
 c!! print out qbyl
-c      ifqbyl = fopna('qinrmt',-1,2)
+c      open('qinrmt.'//trim(sname))
 c      do  ib = 1, nbas
 c        ispec=ssite(ib)%spec
 c        write(ifqbyl,"(i3,10f12.6)") sspec(ispec)%lmxa, (sum(qbyl_rv(il,1:nsp,ib)),il=1,lmaxa)
 c      enddo  
-c      call fclose(ifqbyl)
+c      close(ifqbyl)
           
 
       end subroutine pratfs
@@ -833,7 +777,9 @@ C ... Find the outermost maximum
 
       subroutine optfab(isw,z,a,nr,rmax,nrmt,rmt,lmxa,pl,ql,nsp,v,rofi,
      .spid,itab,rtab,etab)
-      use m_lmfinit,only: globalvariables
+c      use m_lmfinit,only: lrel
+
+
 C- Optimise a minimal smooth-Hankel basis for the free atom.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -873,7 +819,7 @@ C ... Local parameters
       integer itab(n0,2)
       double precision rtab(n0,2),etab(n0,2)
       integer:: ipr , iprint , irep , isp , istife , istifr , jpr , 
-     .konfig , l , lgunit , lplawv , lrel , nglob , nn , nrep , stdo 
+     .konfig , l , lgunit , lplawv , nn , nrep , stdo 
      ., stdl
       real(8) ,allocatable :: g_rv(:)
       real(8) ,allocatable :: gp_rv(:)
@@ -889,8 +835,8 @@ C ... Heap
       stdo = lgunit(1)
       stdl = lgunit(2)
 Changenglob      lrel = nglob('lrel')
-      lrel = globalvariables%lrel
-      if (z .lt. 0.99d0) lrel = 0
+c      lrel = globalvariables%lrel
+c      if (z .lt. 0.99d0) lrel = 0 !takao think lrel here was not used may2021
       if (lmxa .gt. 8) call rx('optfab:  lmax too large')
       b = rmax/(dexp(a*nr-a)-1d0)
 
@@ -899,9 +845,7 @@ Changenglob      lrel = nglob('lrel')
      .  ' Optimise free-atom basis for species '//spid//'%a, rmt=%;7g',
      .  ' ',80,stdo,ipr,rmt)
         allocate(h_rv(nr))
-
         allocate(g_rv(2*nr))
-
         allocate(gp_rv(2*nr*4))
 
 C --- Parameters for minimisation ---
@@ -1662,7 +1606,7 @@ c|200 format(' PP',i2,'  e',f10.5,'  p',f10.5,'  bc',4f10.5)
 
       subroutine popta5(lmax,rtab,etab,itab,z,pl,rmax,rmt,nr,nrmt,
      .rofi,psi,v,g,a,b,spid)
-
+      use m_ext,only:sname
 C- Write wave functions to plot file
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1699,7 +1643,7 @@ C ... Passed parameters
      .rofi(nr),psi(nr,0:*),g(nr,2),v(nr),pl(0:n0-1)
       character spid*8
 C ... Local parameters
-      integer i,ifi,konfig,l,lgunit,lp1,m,n,nn,nre,fopna,stdo
+      integer i,ifi,konfig,l,lgunit,lp1,m,n,nn,nre,stdo
       integer ltab(n0)
       double precision asm,dfl,drdi,eb1,eb2,eh,evl,fac,fl,flp1,r,rsm,
      .slo,sum1,sum2,tol,val,wt,xi(0:20)
@@ -1758,23 +1702,24 @@ C ... Write the plot file
       write (str,'(''wfa_'',a)') spid
       write (stdo,344) str
   344 format(/' Write fit wavefunctions to plot file: ',a)
-      ifi = fopna(str,-1,0)
+c      ifi = fopna(str,-1,0)
+      open(newunit=ifi,file=trim(str)//'.'//trim(sname))
       write (ifi,490) spid,rmax,rmt,(ltab(i),i=1,n)
   490 format('# Free-atom opt basis (divided by r) for species ',
-     .a/'# rmax=',f7.3,'   rmt=',f7.3,
-     .'   l=',8i2)
+     .a/'# rmax=',f7.3,'   rmt=',f7.3,'   l=',8i2)
       write (ifi,'(''% rows '',i5,'' cols '',i3)') nr,n+1
       do  30  i = 1, nr
         write (ifi,495) rofi(i),(psi(i,m),m=1,n)
   495   format(f9.5,1p,8d14.5)
    30 continue
-      call fclose(ifi)
-
+      close(ifi)
       end subroutine popta5
 
 
       subroutine fctail(nr,nrmt,a,b,rsm,rofi,rhoc,c,eh)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: nsp
+
+
 C- Fit one Hankel to tail of core density.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1801,14 +1746,14 @@ C ... Passed parameters
       integer nr,nrmt
       double precision a,b,c,eh,rmt,rsm,rofi(nr),rhoc(nr,2)
 C ... Local parameters
-      integer i,nsp,lgunit,stdo,ipr,nglob
+      integer i,lgunit,stdo,ipr
       double precision ak1,akap,fit,q,q0,r,s,v0,wt
       character sout*80
 
       call getpr(ipr)
       stdo = lgunit(1)
 Changenglob      nsp =  nglob('nsp')
-      nsp =  globalvariables%nsp
+c      nsp =  globalvariables%nsp
       rmt = rofi(nrmt)
       q0 = 0d0
       do  10  i = nrmt, nr
@@ -1819,7 +1764,7 @@ Changenglob      nsp =  nglob('nsp')
    10 continue
       v0 = (rhoc(nrmt,1)+rhoc(nrmt,nsp))/(3-nsp)/(rmt*rmt)
       write(stdo,"('conf: Core rhoc(rmt)=',f9.6,' spillout=',f9.6)")v0,q0
-      write(stdo,"(a)")'conf:-----------------------------------------------------'
+c      write(stdo,"(a)")'conf:-----------------------------------------------------'
 c      sout = ' '
 c      call awrit3('%?#(n>=30)#%N## coretail: q=%;3g, spill out=%;3g.',
 c     .sout,len(sout),0,ipr,v0,q0)

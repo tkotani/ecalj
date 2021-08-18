@@ -104,11 +104,14 @@ C --- Convert binary to ascii representation (log, int, char) ---
       llnull = .false.
       goto (10,11,12,20,20), cast+1
       call rx('bin2a: bad cast')
-   10 call bin2al('(L8)',res,count,strn2)
+ 10   continue
+      call bin2al('(L8)',res,count,strn2)
       goto 15
-   11 strn2 = fmt
+ 11   continue
+      strn2 = fmt
       goto 15
-   12 call bin2ai('(I16)',res,count,strn2,lnull)
+ 12   continue
+      call bin2ai('(I16)',res,count,strn2,lnull)
       goto 15
 C --- copy strn2 to strn with appropriate number of blanks ---
    15 continue

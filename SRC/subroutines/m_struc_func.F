@@ -2,12 +2,12 @@
       Module m_struc_func
       public  mpibc1_s_spec, mpibc1_s_site 
       contains
-      subroutine mpibc1_s_spec(struc,mlog,funnam,label)
+      subroutine mpibc1_s_spec(struc,label)
       use m_struc_def, only: s_spec
+      use m_MPItk,only: mlog
       implicit none
-      logical mlog
       type(s_spec):: struc
-      character funnam*(*), label*(*)
+      character label*(*)
 #if MPI|MPIK
       include 'mpif.h'
       integer numprocs, ierr
@@ -182,7 +182,7 @@
         call strcop(shortname(procid),name,10,'.',ierr)
         namelen(procid) = ierr-1
         call gettime(datim)
-        strn = ' '//funnam//' '//datim//' Process %i of %i on '
+        strn = '  '//datim//' Process %i of %i on '
      .  //shortname(procid)(1:namelen(procid))//' bcast '//label//
      .  ' (%i %?#n==2#int##%?#n==4#d.p.##%?#n==6#d.c.##)'
         call awrit6(strn,' ',-256,lgunit(3),procid,numprocs,n,cast,cast,
@@ -191,12 +191,12 @@
 #endif
       end subroutine mpibc1_s_spec
 !!sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-      subroutine mpibc1_s_site(struc,mlog,funnam,label)
+      subroutine mpibc1_s_site(struc,label)
       use m_struc_def, only: s_site
+      use m_MPItk,only: mlog
       implicit none
-      logical mlog
       type(s_site):: struc
-      character funnam*(*), label*(*)
+      character label*(*)
 #if MPI|MPIK
       include 'mpif.h'
       integer numprocs, ierr
@@ -242,7 +242,7 @@
         call strcop(shortname(procid),name,10,'.',ierr)
         namelen(procid) = ierr-1
         call gettime(datim)
-        strn = ' '//funnam//' '//datim//' Process %i of %i on '
+        strn = '  '//datim//' Process %i of %i on '
      .  //shortname(procid)(1:namelen(procid))//' bcast '//label//
      .  ' (%i %?#n==2#int##%?#n==4#d.p.##%?#n==6#d.c.##)'
         call awrit6(strn,' ',-256,lgunit(3),procid,numprocs,n,cast,cast,

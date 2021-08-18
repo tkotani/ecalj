@@ -1,10 +1,9 @@
-      subroutine gennlat(pos,nbas,plat,nk1,nk2,nk3,npairmx,ok,npair,  nlat,nqwgt)
-!! find
-!!i   pos,nbas,plot,nk,npairmx,range.
-!!o   npair(rewritten), nlat,qwgt.
 !!    qwgt is the weight for integration. Total number of qwgt is nk =nk1*nk2*nk3.
-c
+      subroutine gennlat(pos,nbas,plat,nk1,nk2,nk3,npairmx,ok,npair,  nlat,nqwgt)
+      use m_shortn3,only: shortn3_initialize,shortn3
       implicit none
+      intent(in)::       pos,nbas,plat,nk1,nk2,nk3,npairmx
+      intent(out)::                                        ok,npair,  nlat,nqwgt
       integer:: nbas,nk1,nk2,nk3,nparimx,npair(nbas,nbas),npairmx
       integer:: ib1,ib2,nnn,ik,nmax(3),ix,i,j,ik1,ik2,ik3,nout,ni
       integer:: nlat(3,npairmx,nbas,nbas),nd(3)
@@ -25,7 +24,7 @@ c
       rxlat(:,1)=plat(:,1)*nk1
       rxlat(:,2)=plat(:,2)*nk2
       rxlat(:,3)=plat(:,3)*nk3
-      call shortn3_initialize(rxlat, rlatp,xmx2)
+      call shortn3_initialize(rxlat)
 c      do i=1,3
 c      do j=1,3
 c        rxprod(i,j) = sum(rxlat(:,i)*rxlat(:,j))
@@ -57,7 +56,7 @@ c      print *, 'end of ellips xmx2=',xmx2
                 pin(1)= (posp(1)+nd(1))/nk1
                 pin(2)= (posp(2)+nd(2))/nk2
                 pin(3)= (posp(3)+nd(3))/nk3
-                call shortn3(rlatp,xmx2,pin,noutmx, nout,nlatout)
+                call shortn3(pin,noutmx, nout,nlatout)
 
 c          rmax2 = sum(pin*matmul(rxprod,pin)) + eps  ! eps is to make degeneracy safe.
 c          nrmax(:) =  sqrt(rmax2*xmx2(:))+abs(pin(:)) ! range of ix used in shortn2
@@ -555,11 +554,11 @@ C ... Make pos-ctr(ib)
 C ... Shorten pos-ctr(ib)
         call shorps(nbasp,plat,mode2,pos,pos)
 C ... Undo shift -ctr(ib) to restore shortened pos to absolute pos
-        do  16  jb = 1, nbasp
-        do  16  i = 1, 3
+        do   jb = 1, nbasp
+        do   i = 1, 3
           pos(i,jb) = pos(i,jb) + p0(i)
-   16   continue
-
+        enddo
+        enddo
 C --- Find all sites in range of ctr ---
         call ppair2 ( nbasp , iltab , pltabp , moder , alat , qlat , 
      .  pos , p0 , range , ips , rtab , ib , r1 , nlat , lat_rv , 
@@ -665,7 +664,7 @@ C --- For each pair, find matching pair, store in iax(6) ---
         iax(6,it) = 0
    74 continue
       if (mod(isw1,2) .eq. 0) then
-        do  70  ib = ib1, ib2
+        do 170  ib = ib1, ib2
         do  70  it = ntab(ib)+1, ntab(ib+1)
           if (iax(6,it) .ne. 0) goto 70
           jb = iax(2,it)
@@ -687,6 +686,7 @@ C         endif
      .      ' matching sites (%i,%i), pair %i',ib,jb,it-ntab(ib))
    73     continue
    70   continue
+  170   continue
       endif
       if (isw1 .eq. 4) return
 
@@ -933,7 +933,7 @@ C ... Passed parameters
       integer iax(niax,1),ntab(ib2)
       double precision plat(3,3),pos(3,*),tol
       integer:: ib , nttab
-      real(8) ,allocatable :: wk1_rv(:)
+      integer ,allocatable :: iwk1_rv(:)
       real(8) ,allocatable :: wk2_rv(:)
 
 C heap:
@@ -941,13 +941,11 @@ C heap:
 C --- Set iax(7) to sort this cluster ---
       do  10  ib = ib1, ib2
         nttab = ntab(ib+1)-ntab(ib)
-        allocate(wk1_rv(nttab))
+        allocate(iwk1_rv(nttab*2))
         allocate(wk2_rv(nttab*3))
         call ppair4 ( ntab ( ib ) + 1 , ntab ( ib + 1 ) , plat , pos 
-     .  , pos ( 1 , ib ) , wk1_rv , wk2_rv , tol , iax )
-        if (allocated(wk2_rv)) deallocate(wk2_rv)
-        if (allocated(wk1_rv)) deallocate(wk1_rv)
-
+     .  , pos ( 1 , ib ) , iwk1_rv , wk2_rv , tol , iax )
+        deallocate(iwk1_rv,wk2_rv)
    10 continue
       end
       subroutine pair3c(offi,nvec,iaxc,iaxh,ntabh,ipiaxh)

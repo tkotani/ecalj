@@ -1,4 +1,4 @@
-#undef SCALAPACK
+c#undef SCALAPACK
       module m_mpi
       implicit none
       include "mpif.h"
@@ -16,25 +16,25 @@
       integer :: mpi__rank
       integer :: mpi__rankMG
       integer :: mpi__rankQ
-      integer :: mpi__rankS
-      integer :: mpi__rankP
-      integer :: mpi__rankB
-      integer :: mpi__rankM
-      integer :: mpi__rankW
+c      integer :: mpi__rankS
+c      integer :: mpi__rankP
+c      integer :: mpi__rankB
+c      integer :: mpi__rankM
+c      integer :: mpi__rankW
 
       logical :: mpi__root
       logical :: mpi__rootQ
-      logical :: mpi__rootS
-      logical :: mpi__rootP
-      logical :: mpi__rootB
-      logical :: mpi__rootM
+c      logical :: mpi__rootS
+c      logical :: mpi__rootP
+c      logical :: mpi__rootB
+c      logical :: mpi__rootM
 
       integer :: mpi__comm = MPI_COMM_WORLD
       integer :: mpi__commQ
-      integer :: mpi__commS
-      integer :: mpi__commP
-      integer :: mpi__commB
-      integer :: mpi__commM
+c      integer :: mpi__commS
+c      integer :: mpi__commP
+c      integer :: mpi__commB
+c      integer :: mpi__commM
 
       integer:: ista(MPI_STATUS_SIZE )
 
@@ -138,7 +138,6 @@ C     !======================================================
       implicit none
       character(1024*4) :: cwd, stdout
       call getcwd(cwd)          ! get current working directory
-
 c$$$CC Reduce size for magnon (avoid memory leak)      
 c$$$      if (mpi__sizeMG > size_lim) then
 c$$$         mpi__sizeMG=size_lim
@@ -146,18 +145,14 @@ c$$$      endif
 c$$$      if (mpi__sizeMG > 10) then
 c$$$         mpi__sizeMG=10
 c$$$      endif
-
       call MPI_Init( mpi__info ) ! current working directory is changed if mpirun is not used
       call MPI_Comm_rank( MPI_COMM_WORLD, mpi__rankMG, mpi__info )
       call MPI_Comm_size( MPI_COMM_WORLD, mpi__sizeMG, mpi__info )
-
-
       if( mpi__rankMG == 0 ) then
          mpi__root = .true.
       else
          mpi__root = .false.
       end if
-
       if( mpi__root ) then
          call chdir(cwd)        ! recover current working directory
       endif
@@ -176,39 +171,37 @@ c      endif
       end subroutine MPI__Initialize_magnon
       
 C     !======================================================
-      subroutine MPI__InitializeQSPBM
+      subroutine MPI__InitializeQ !MPI__InitializeQSPBM
       implicit none
-
       character(1024*4) :: cwd, stdout
       integer :: narg, iargc
       character(len=1024) :: arg
-
-      integer :: mpi__group
-      integer :: mpi__groupQ
-      integer :: mpi__groupS
-      integer :: mpi__groupP
-      integer :: mpi__groupB
-      integer :: mpi__groupM
+c      integer :: mpi__group
+c      integer :: mpi__groupQ
+c$$$      integer :: mpi__groupS
+c$$$      integer :: mpi__groupP
+c$$$      integer :: mpi__groupB
+c$$$      integer :: mpi__groupM
 
       integer, allocatable :: ranklistQ(:)
-      integer, allocatable :: ranklistS(:)
-      integer, allocatable :: ranklistP(:)
-      integer, allocatable :: ranklistB(:)
-      integer, allocatable :: ranklistM(:)
+c      integer, allocatable :: ranklistS(:)
+c      integer, allocatable :: ranklistP(:)
+c      integer, allocatable :: ranklistB(:)
+c      integer, allocatable :: ranklistM(:)
 
-      integer, allocatable :: vsizeQ(:)
-      integer, allocatable :: vsizeS(:)
-      integer, allocatable :: vsizeP(:)
-      integer, allocatable :: vsizeB(:)
-      integer, allocatable :: vsizeM(:)
+c$$$      integer, allocatable :: vsizeQ(:)
+c$$$      integer, allocatable :: vsizeS(:)
+c$$$      integer, allocatable :: vsizeP(:)
+c$$$      integer, allocatable :: vsizeB(:)
+c$$$      integer, allocatable :: vsizeM(:)
 
       integer, allocatable :: vrankQ(:)
-      integer, allocatable :: vrankS(:)
-      integer, allocatable :: vrankP(:)
-      integer, allocatable :: vrankB(:)
-      integer, allocatable :: vrankM(:)
+c      integer, allocatable :: vrankS(:)
+c      integer, allocatable :: vrankP(:)
+c      integer, allocatable :: vrankB(:)
+c      integer, allocatable :: vrankM(:)
       integer :: i, j, n
-      integer, allocatable :: imap(:)
+c      integer, allocatable :: imap(:)
 
 C     ! intialize MPI and
       call getcwd(cwd)          ! get current working directory
@@ -216,224 +209,107 @@ C     ! intialize MPI and
       call MPI_Init( mpi__info ) ! current working directory is changed if mpirun is not used
       call MPI_Comm_rank ( MPI_COMM_WORLD, mpi__rank,  mpi__info )
       call MPI_Comm_size ( MPI_COMM_WORLD, mpi__size,  mpi__info )
-      call MPI_Comm_group( MPI_COMM_WORLD, mpi__group, mpi__info )
 
       mpi__root = ( mpi__rank == 0 )
-
       if( mpi__root ) then
          call chdir(cwd)        ! recover current working directory
       endif
-
-C     ! get arguments
-      narg = iargc()
-      do i=1, narg
-         call getarg(i,arg)
-           if( .false. ) then
-         else if( arg == "-nq" ) then
-            call getarg(i+1,arg)
-            read(arg,*) mpi__sizeQ
-         else if( arg == "-ns" ) then
-            call getarg(i+1,arg)
-            read(arg,*) mpi__sizeS
-         else if( arg == "-np" ) then
-            call getarg(i+1,arg)
-            read(arg,*) mpi__sizeP
-         else if( arg == "-nb" ) then
-            call getarg(i+1,arg)
-            read(arg,*) mpi__sizeB
-         else if( arg == "-nm" ) then
-            call getarg(i+1,arg)
-            read(arg,*) mpi__sizeM
-         end if
-      end do
-      mpi__sizeW = mpi__sizeP
-
-C     ! in case no arguments, set as default
-      if(  mpi__sizeQ == 1 .and. 
-     .     mpi__sizeS == 1 .and. 
-     .     mpi__sizeP == 1 .and. 
-     .     mpi__sizeB == 1 .and. 
-     .     mpi__sizeM == 1 ) then
-         mpi__sizeQ = mpi__size
-         mpi__sizeS = 1
-         mpi__sizeP = 1
-         mpi__sizeB = 1
-         mpi__sizeM = 1
-      end if
-
-      if (mpi__root) then
-      write(6,'(a,10I5)')'mpi_size,Q,S,P,B,M=', mpi__size,
-     .   mpi__sizeQ,mpi__sizeS,mpi__sizeP,mpi__sizeB,mpi__sizeM
-      endif
-
-C     ! check inconsistent settings
-      if( mpi__sizeQ*mpi__sizeS*mpi__sizeP*mpi__sizeB*mpi__sizeM /= mpi__size ) then
-         write(6,*) "MPI size mismatch, mpirun -np size program -nq NQ -ns NS ..."
-         write(6,*) "size must be nq*ns*..."
-         call MPI_Finalize ( mpi__info )
-         call rx( ' MPI size mismatch' )
-      end if
-
-C     ! determine ranks
-      allocate( vrankQ(0:mpi__size-1) )
-      allocate( vrankS(0:mpi__size-1) )
-      allocate( vrankP(0:mpi__size-1) )
-      allocate( vrankB(0:mpi__size-1) )
-      allocate( vrankM(0:mpi__size-1) )
       
-      do i=0, mpi__size-1
-         n = i
-         vrankM(i) = mod(n,mpi__sizeM)
-         n = n / mpi__sizeM
-         vrankB(i) = mod(n,mpi__sizeB)
-         n = n / mpi__sizeB
-         vrankP(i) = mod(n,mpi__sizeP)
-         n = n / mpi__sizeP
-         vrankS(i) = mod(n,mpi__sizeS)
-         n = n / mpi__sizeS
-         vrankQ(i) = mod(n,mpi__sizeQ)
-      end do
 
-      if (mpi__root) then
-      write(6,*)'MPI rank information'
-      write(6,'(a,$)') 'vrankQ='; write(6,'(10i5)') vrankQ
-      write(6,'(a,$)') 'vrankS='; write(6,'(10i5)') vrankS
-      write(6,'(a,$)') 'vrankP='; write(6,'(10i5)') vrankP
-      write(6,'(a,$)') 'vrankB='; write(6,'(10i5)') vrankB
-      write(6,'(a,$)') 'vrankM='; write(6,'(10i5)') vrankM
-      endif
-
-C     ! rank of this process
-      mpi__rankQ = vrankQ(mpi__rank)
-      mpi__rankS = vrankS(mpi__rank)
-      mpi__rankP = vrankP(mpi__rank)
-      mpi__rankB = vrankB(mpi__rank)
-      mpi__rankM = vrankM(mpi__rank)
-      mpi__rankW = mpi__rankP
+c$$$C     ! setup S-parallel
+c$$$C     !  commS for among other S, same Q,P,B,M
+c$$$      allocate( ranklistS(0:mpi__sizeS-1) )
+c$$$      i=0
+c$$$      do j=0, mpi__size-1
+c$$$         if(  vrankQ(j) == mpi__rankQ .and.
+c$$$     .        vrankP(j) == mpi__rankP .and.
+c$$$     .        vrankB(j) == mpi__rankB .and.
+c$$$     .        vrankM(j) == mpi__rankM ) then
+c$$$            ranklistS(i) = j
+c$$$            i=i+1
+c$$$         end if
+c$$$      end do
+c$$$      call MPI_Group_incl( mpi__group,
+c$$$     .     mpi__sizeS, ranklistS, mpi__groupS, mpi__info )
+c$$$      call MPI_Comm_create( MPI_COMM_WORLD,
+c$$$     .     mpi__groupS, mpi__commS, mpi__info )
+c$$$      deallocate( ranklistS )
 
 
-C     ! root or not of this process
-      mpi__rootQ = ( mpi__rankQ == 0 )
-      mpi__rootS = ( mpi__rankS == 0 )
-      mpi__rootP = ( mpi__rankP == 0 )
-      mpi__rootB = ( mpi__rankB == 0 )
-      mpi__rootM = ( mpi__rankM == 0 )
+c$$$C     ! setup P-parallel
+c$$$C     !  commP for among other P, same Q,B,M
+c$$$      allocate( ranklistP(0:mpi__sizeP-1) )
+c$$$      i=0
+c$$$      do j=0, mpi__size-1
+c$$$         if(  vrankQ(j) == mpi__rankQ .and.
+c$$$     .        vrankS(j) == mpi__rankS .and.
+c$$$     .        vrankB(j) == mpi__rankB .and.
+c$$$     .        vrankM(j) == mpi__rankM ) then
+c$$$            ranklistP(i) = j
+c$$$            i=i+1
+c$$$         end if
+c$$$      end do
+c$$$      call MPI_Group_incl( mpi__group,
+c$$$     .     mpi__sizeP, ranklistP, mpi__groupP, mpi__info )
+c$$$      call MPI_Comm_create( MPI_COMM_WORLD,
+c$$$     .     mpi__groupP, mpi__commP, mpi__info )
+c$$$      deallocate( ranklistP )
       
-      
-C     ! setup Q-parallel
-C     !  commQ for among other Q, same S,P,B,M
-      allocate( ranklistQ(0:mpi__sizeQ-1) )
-      i=0
-      do j=0, mpi__size-1
-         if(  vrankS(j) == mpi__rankS .and.
-     .        vrankP(j) == mpi__rankP .and.
-     .        vrankB(j) == mpi__rankB .and.
-     .        vrankM(j) == mpi__rankM ) then
-            ranklistQ(i) = j
-            i=i+1
-         end if
-      end do
-      call MPI_Group_incl( mpi__group,
-     .     mpi__sizeQ, ranklistQ, mpi__groupQ, mpi__info )
-      call MPI_Comm_create( MPI_COMM_WORLD,
-     .     mpi__groupQ, mpi__commQ, mpi__info )
-      deallocate( ranklistQ )
+c$$$C     ! setup B-parallel
+c$$$C     !  commB for among other B, same Q,P,M
+c$$$      allocate( ranklistB(0:mpi__sizeB-1) )
+c$$$      i=0
+c$$$      do j=0, mpi__size-1
+c$$$         if(  vrankQ(j) == mpi__rankQ .and.
+c$$$     .        vrankS(j) == mpi__rankS .and.
+c$$$     .        vrankP(j) == mpi__rankP .and.
+c$$$     .        vrankM(j) == mpi__rankM ) then
+c$$$            ranklistB(i) = j
+c$$$            i=i+1
+c$$$         end if
+c$$$      end do
+c$$$      call MPI_Group_incl( mpi__group,
+c$$$     .     mpi__sizeB, ranklistB, mpi__groupB, mpi__info )
+c$$$      call MPI_Comm_create( MPI_COMM_WORLD,
+c$$$     .     mpi__groupB, mpi__commB, mpi__info )
+c$$$      deallocate( ranklistB )
+c$$$
+c$$$C     ! setup M-parallel      
+c$$$C     !  commM for among other M, same Q,P,B
+c$$$      allocate( ranklistM(0:mpi__sizeM-1) )
+c$$$      i=0
+c$$$      do j=0, mpi__size-1
+c$$$         if(  vrankQ(j) == mpi__rankQ .and.
+c$$$     .        vrankS(j) == mpi__rankS .and.
+c$$$     .        vrankP(j) == mpi__rankP .and.
+c$$$     .        vrankB(j) == mpi__rankB ) then
+c$$$            ranklistM(i) = j
+c$$$            i=i+1
+c$$$         end if
+c$$$      end do
+c$$$      call MPI_Group_incl( mpi__group,
+c$$$     .     mpi__sizeM, ranklistM, mpi__groupM, mpi__info )
+c$$$      call MPI_Comm_create( MPI_COMM_WORLD,
+c$$$     .     mpi__groupM, mpi__commM, mpi__info )
+c$$$      deallocate( ranklistM )
 
-
-C     ! setup S-parallel
-C     !  commS for among other S, same Q,P,B,M
-      allocate( ranklistS(0:mpi__sizeS-1) )
-      i=0
-      do j=0, mpi__size-1
-         if(  vrankQ(j) == mpi__rankQ .and.
-     .        vrankP(j) == mpi__rankP .and.
-     .        vrankB(j) == mpi__rankB .and.
-     .        vrankM(j) == mpi__rankM ) then
-            ranklistS(i) = j
-            i=i+1
-         end if
-      end do
-      call MPI_Group_incl( mpi__group,
-     .     mpi__sizeS, ranklistS, mpi__groupS, mpi__info )
-      call MPI_Comm_create( MPI_COMM_WORLD,
-     .     mpi__groupS, mpi__commS, mpi__info )
-      deallocate( ranklistS )
-
-
-C     ! setup P-parallel
-C     !  commP for among other P, same Q,B,M
-      allocate( ranklistP(0:mpi__sizeP-1) )
-      i=0
-      do j=0, mpi__size-1
-         if(  vrankQ(j) == mpi__rankQ .and.
-     .        vrankS(j) == mpi__rankS .and.
-     .        vrankB(j) == mpi__rankB .and.
-     .        vrankM(j) == mpi__rankM ) then
-            ranklistP(i) = j
-            i=i+1
-         end if
-      end do
-      call MPI_Group_incl( mpi__group,
-     .     mpi__sizeP, ranklistP, mpi__groupP, mpi__info )
-      call MPI_Comm_create( MPI_COMM_WORLD,
-     .     mpi__groupP, mpi__commP, mpi__info )
-      deallocate( ranklistP )
-      
-C     ! setup B-parallel
-C     !  commB for among other B, same Q,P,M
-      allocate( ranklistB(0:mpi__sizeB-1) )
-      i=0
-      do j=0, mpi__size-1
-         if(  vrankQ(j) == mpi__rankQ .and.
-     .        vrankS(j) == mpi__rankS .and.
-     .        vrankP(j) == mpi__rankP .and.
-     .        vrankM(j) == mpi__rankM ) then
-            ranklistB(i) = j
-            i=i+1
-         end if
-      end do
-      call MPI_Group_incl( mpi__group,
-     .     mpi__sizeB, ranklistB, mpi__groupB, mpi__info )
-      call MPI_Comm_create( MPI_COMM_WORLD,
-     .     mpi__groupB, mpi__commB, mpi__info )
-      deallocate( ranklistB )
-
-C     ! setup M-parallel      
-C     !  commM for among other M, same Q,P,B
-      allocate( ranklistM(0:mpi__sizeM-1) )
-      i=0
-      do j=0, mpi__size-1
-         if(  vrankQ(j) == mpi__rankQ .and.
-     .        vrankS(j) == mpi__rankS .and.
-     .        vrankP(j) == mpi__rankP .and.
-     .        vrankB(j) == mpi__rankB ) then
-            ranklistM(i) = j
-            i=i+1
-         end if
-      end do
-      call MPI_Group_incl( mpi__group,
-     .     mpi__sizeM, ranklistM, mpi__groupM, mpi__info )
-      call MPI_Comm_create( MPI_COMM_WORLD,
-     .     mpi__groupM, mpi__commM, mpi__info )
-      deallocate( ranklistM )
-
-#if SCALAPACK
-C     ! setup ScaLapack process list
-      allocate( imap(0:mpi__sizeM-1) )
-      
-      do i=0, mpi__sizeM-1
-         imap(i) = mpi__rankQ * (mpi__sizeS*mpi__sizeP*mpi__sizeB*mpi__sizeM)
-     .        +    mpi__rankS * (mpi__sizeP*mpi__sizeB*mpi__sizeM)
-     .        +    mpi__rankP * (mpi__sizeB*mpi__sizeM)
-     .        +    mpi__rankB * (mpi__sizeM) + i
-      end do
-
-      call BLACS_GET( 0, 0, mpi__Mhandle )
-      call BLACS_GRIDMAP( mpi__Mhandle, imap, 1, 1, mpi__sizeM )
-      deallocate(imap)
-#endif
+c$$$#if SCALAPACK
+c$$$C     ! setup ScaLapack process list
+c$$$      allocate( imap(0:mpi__sizeM-1) )
+c$$$      
+c$$$      do i=0, mpi__sizeM-1
+c$$$         imap(i) = mpi__rankQ * (mpi__sizeS*mpi__sizeP*mpi__sizeB*mpi__sizeM)
+c$$$     .        +    mpi__rankS * (mpi__sizeP*mpi__sizeB*mpi__sizeM)
+c$$$     .        +    mpi__rankP * (mpi__sizeB*mpi__sizeM)
+c$$$     .        +    mpi__rankB * (mpi__sizeM) + i
+c$$$      end do
+c$$$
+c$$$      call BLACS_GET( 0, 0, mpi__Mhandle )
+c$$$      call BLACS_GRIDMAP( mpi__Mhandle, imap, 1, 1, mpi__sizeM )
+c$$$      deallocate(imap)
+c$$$#endif
       return
-      end subroutine MPI__InitializeQSPBM
+      end subroutine MPI__InitializeQ!SPBM
 
 
 
@@ -496,11 +372,11 @@ C     !======================================================
 C     !======================================================
       subroutine MPI__Finalize
       implicit none
-#if SCALAPACK
-      if( mpi__Mhandle /= 0 ) then
-         call BLACS_GRIDEXIT( mpi__Mhandle )
-      end if
-#endif
+c#if SCALAPACK
+c      if( mpi__Mhandle /= 0 ) then
+c         call BLACS_GRIDEXIT( mpi__Mhandle )
+c      end if
+c#endif
       call MPI_Finalize ( mpi__info )
 
       end subroutine MPI__Finalize
@@ -689,6 +565,26 @@ C     !======================================================
       return
       end subroutine MPI__AllreduceSum
 
+C     !======================================================
+      subroutine MPI__reduceSum( root, data, sizex )
+      implicit none
+      integer, intent(in) :: sizex,root
+      complex(8), intent(inout) :: data(sizex)
+      complex(8), allocatable   :: mpi__data(:) 
+
+      if( mpi__size == 1 ) return
+
+      allocate(mpi__data(sizex))
+      mpi__data = data
+
+      call MPI_reduce( mpi__data, data, sizex,
+     &     MPI_DOUBLE_COMPLEX, MPI_SUM, root, MPI_COMM_WORLD, mpi__info )
+
+      deallocate( mpi__data )
+
+      return
+      end subroutine MPI__reduceSum
+
 
 
 C     !======================================================
@@ -712,25 +608,20 @@ C     !======================================================
       end subroutine MPI__AllreduceMax
 
 
-C     !======================================================
-      subroutine MPI__AllreduceSumS( data, sizex )
-      implicit none
-      integer, intent(in) :: sizex
-      complex(8), intent(inout) :: data(sizex)
-      complex(8), allocatable   :: mpi__data(:)
-
-      if( mpi__sizeS == 1 ) return
-
-      allocate(mpi__data(sizex))
-      mpi__data = data
-
-      call MPI_Allreduce( mpi__data, data, sizex,
-     &     MPI_DOUBLE_COMPLEX, MPI_SUM, mpi__commS, mpi__info )
-
-      deallocate( mpi__data )
-
-      return
-      end subroutine MPI__AllreduceSumS
+c$$$C     !======================================================
+c$$$      subroutine MPI__AllreduceSumS( data, sizex )
+c$$$      implicit none
+c$$$      integer, intent(in) :: sizex
+c$$$      complex(8), intent(inout) :: data(sizex)
+c$$$      complex(8), allocatable   :: mpi__data(:)
+c$$$      if( mpi__sizeS == 1 ) return
+c$$$      allocate(mpi__data(sizex))
+c$$$      mpi__data = data
+c$$$      call MPI_Allreduce( mpi__data, data, sizex,
+c$$$     &     MPI_DOUBLE_COMPLEX, MPI_SUM, mpi__commS, mpi__info )
+c$$$      deallocate( mpi__data )
+c$$$      return
+c$$$      end subroutine MPI__AllreduceSumS
 
 
 C     !======================================================
@@ -913,11 +804,38 @@ C     !======================================================
 
 C     !======================================================
       subroutine MPI__hx0fp0_rankdivider2Q(iqxini,iqxend)
+!! not mpi_commq is used in m_llw      
       implicit none
       integer, intent(in) :: iqxini, iqxend
       integer :: iq,i
+      integer,allocatable:: ranklistQ(:)
+      integer :: mpi__group
+      integer :: mpi__groupQ
+      
+      mpi__sizeQ = mpi__size
+      mpi__rankQ = mod(mpi__rank,mpi__sizeQ) !vrankQ(mpi__rank)
+      mpi__rootQ = ( mpi__rankQ == 0 )
+      mpi__commQ = MPI_COMM_WORLD !! mpi__commQ is used in m_llw
+c      
+C     ! setup Q-parallel
+C     !  commQ for among other Q, same S,P,B,M
+c      allocate( ranklistQ(0:mpi__sizeQ-1) )
+c      i=0
+c      do j=0, mpi__size-1
+cc     if(  vrankS(j) == mpi__rankS .and.
+cc     .        vrankP(j) == mpi__rankP .and.
+cc     .        vrankB(j) == mpi__rankB .and.
+cc     .        vrankM(j) == mpi__rankM ) then
+c         ranklistQ(i) = j
+c         i=i+1
+cc     end if
+c      end do
+c      call MPI_Comm_group( MPI_COMM_WORLD, mpi__group, mpi__info )
+c      call MPI_Group_incl(  mpi__group, mpi__sizeQ, ranklistQ, mpi__groupQ, mpi__info )
+c      call MPI_Comm_create( MPI_COMM_WORLD, mpi__groupQ, mpi__commQ, mpi__info ) 
+c      deallocate( ranklistQ )
+c      
       allocate( mpi__Qtask(1:iqxend), mpi__Qranktab(1:iqxend) )
-
       mpi__Qtask(:) = .false.
       mpi__Qranktab(1:iqxend)=999999
       if( mpi__sizeQ == 1 ) then
@@ -925,521 +843,515 @@ C     !======================================================
          mpi__Qranktab(:) = mpi__rankQ
          return
       end if
-      if(mpi__root) write(6,*) "MPI_hx0fp0_rankdivider2Q:"
       if(mpi__root) then
+         write(6,*) "MPI_hx0fp0_rankdivider2Q:"
          write(6,'(a,$)')'mpi__Qtask='
          write(6,'(10L2)')mpi__Qtask
       endif
       do iq=iqxini, iqxend
-         mpi__Qranktab(iq) = mod(iq-1,mpi__sizeQ)  !rank_table for given iq. iq=1 must give rank=0
+         mpi__Qranktab(iq) = mod(iq-1,mpi__sizeQ)  ! rank_table for given iq. iq=1 must give rank=0
          if( mpi__Qranktab(iq) == mpi__rankQ) then
-            mpi__Qtask(iq) = .true.               !mpi__task is nodeID-dependent.
+            mpi__Qtask(iq) = .true.                ! mpi__task is nodeID-dependent.
          endif
-         if(mpi__root) then
-           write(6,"('  iq irank=',2i5)")iq,mpi__Qranktab(iq)
-         endif
+         if(mpi__root) write(6,"('  iq irank=',2i5)")iq,mpi__Qranktab(iq)
       enddo   
-
-      return
       end subroutine MPI__hx0fp0_rankdivider2Q
-
-
-C     !======================================================
-      subroutine MPI__hx0fp0_rankdivider2S( nspinmx )
-      implicit none
-
-      integer, intent(in) :: nspinmx
       
-      integer :: k, jpm, ibib
-      integer :: p, n
-      integer :: blocksize
-      integer :: max_nbnb
-
-C     ! for S(npm) parallelization
-      mpi__Snall = nspinmx
-
-      if( allocated(mpi__Svn) ) deallocate(mpi__Svn)
-      if( allocated(mpi__Svs) ) deallocate(mpi__Svs)
-      if( allocated(mpi__Sve) ) deallocate(mpi__Sve)
-      allocate( mpi__Svn(0:mpi__sizeS-1) )
-      allocate( mpi__Svs(0:mpi__sizeS-1) )
-      allocate( mpi__Sve(0:mpi__sizeS-1) )
-
-      mpi__Svn(:) = mpi__Snall/mpi__sizeS
-      if( mpi__Svn(0) == 0 ) then
-         write(6,*) "Warning: too many processes for S parallelization"
-         write(6,*) "  maximum -np ", mpi__Snall
-         call rx('Warning: too many processes for S parallelization')
-      end if
-
-      do p=0, mpi__sizeS-1
-         if( sum(mpi__Svn(:)) == mpi__Snall ) exit
-         mpi__Svn(p) = mpi__Svn(p) + 1
-      end do
-
-      n=1
-      do p=0, mpi__sizeS-1
-         mpi__Svs(p) = n
-         mpi__Sve(p) = mpi__Svs(p) + mpi__Svn(p) - 1
-         n = n + mpi__Svn(p)
-      end do
-      mpi__Sn = mpi__Svn(mpi__rankS)
-      mpi__Ss = mpi__Svs(mpi__rankS)
-      mpi__Se = mpi__Sve(mpi__rankS)
-
-      if (mpi__root) then
-      write(6,*)mpi__rank,'mpi__Svn',mpi__Svn
-      write(6,*)mpi__rank,'mpi__Svs',mpi__Svs
-      write(6,*)mpi__rank,'mpi__Sve',mpi__Sve
-      endif
-#if 0
-      write(6,*) "DEBUG: mpi__Qnall=", size(mpi__Qtask)
-      write(6,*) "DEBUG: mpi__Snall=", mpi__Snall
-
-      write(6,*) "DEBUG: mpi__Qn=", count(mpi__Qtask)
-      write(6,*) "DEBUG: mpi__Sn=", mpi__Sn
-#endif
-      return
-      end subroutine MPI__hx0fp0_rankdivider2S
-
-C     !======================================================
-      subroutine MPI__x0kf_rankdivider( nbnb, nqbz, npm, ngb, nwt )
-      implicit none
-
-      integer, intent(in) :: nbnb(nqbz,npm), nqbz,npm
-      integer, intent(in) :: ngb,nwt
-      
-      integer :: k, jpm, ibib
-      integer :: p, n
-      integer :: blocksize
-      integer :: max_nbnb
-
-C     ! for P(npm) parallelization
-      mpi__Pnall = npm
-
-      if( allocated(mpi__Pvn) ) deallocate(mpi__Pvn)
-      if( allocated(mpi__Pvs) ) deallocate(mpi__Pvs)
-      if( allocated(mpi__Pve) ) deallocate(mpi__Pve)
-      allocate( mpi__Pvn(0:mpi__sizeP-1) )
-      allocate( mpi__Pvs(0:mpi__sizeP-1) )
-      allocate( mpi__Pve(0:mpi__sizeP-1) )
-
-      mpi__Pvn(:) = mpi__Pnall/mpi__sizeP
-      if( mpi__Pvn(0) == 0 ) then
-         write(6,*) "Warning: too many processes for P parallelization"
-         write(6,*) "  maximum -np ", mpi__Pnall
-         call rx("Warning: too many processes for P parallelization")
-      end if
-
-      do p=0, mpi__sizeP-1
-         if( sum(mpi__Pvn(:)) == mpi__Pnall ) exit
-         mpi__Pvn(p) = mpi__Pvn(p) + 1
-      end do
-
-      n=1
-      do p=0, mpi__sizeP-1
-         mpi__Pvs(p) = n
-         mpi__Pve(p) = mpi__Pvs(p) + mpi__Pvn(p) - 1
-         n = n + mpi__Pvn(p)
-      end do
-      mpi__Pn = mpi__Pvn(mpi__rankP)
-      mpi__Ps = mpi__Pvs(mpi__rankP)
-      mpi__Pe = mpi__Pve(mpi__rankP)
-
-
-C     ! for B(Kpoint&nbnb) parallelization
-      mpi__Bnall=sum(nbnb(1:nqbz,mpi__Ps:mpi__Pe))
-
-      
-      if( allocated(mpi__Bvn) ) deallocate(mpi__Bvn)
-      if( allocated(mpi__Bvs) ) deallocate(mpi__Bvs)
-      if( allocated(mpi__Bve) ) deallocate(mpi__Bve)
-      allocate( mpi__Bvn(0:mpi__sizeB-1) )
-      allocate( mpi__Bvs(0:mpi__sizeB-1) )
-      allocate( mpi__Bve(0:mpi__sizeB-1) )
-
-      mpi__Bvn(:) = mpi__Bnall/mpi__sizeB
-      if( mpi__Bvn(0) == 0 ) then
-         write(6,*) "Warning: too many processes for B parallelization"
-         write(6,*) "  maximum -nb ", mpi__Bnall
-         call rx("Warning: too many processes for B parallelization")
-      end if
-      do p=0, mpi__sizeB-1
-         if( sum(mpi__Bvn(:)) == mpi__Bnall ) exit
-         mpi__Bvn(p) = mpi__Bvn(p) + 1
-      end do
-
-      n=1
-      do p=0, mpi__sizeB-1
-         mpi__Bvs(p) = n
-         mpi__Bve(p) = mpi__Bvs(p) + mpi__Bvn(p) - 1
-         n = n + mpi__Bvn(p)
-      end do
-      mpi__Bn = mpi__Bvn(mpi__rankB)
-      mpi__Bs = mpi__Bvs(mpi__rankB)
-      mpi__Be = mpi__Bve(mpi__rankB)
-
-      max_nbnb=maxval(nbnb(1:nqbz,mpi__Ps:mpi__Pe))      
-
-      if( allocated(mpi__Btask1) ) deallocate(mpi__Btask1)
-      if( allocated(mpi__Btask2) ) deallocate(mpi__Btask2)
-      if( allocated(mpi__Btask3) ) deallocate(mpi__Btask3)
-      allocate( mpi__Btask1(nqbz) )
-      allocate( mpi__Btask2(nqbz,mpi__Ps:mpi__Pe) )
-      allocate( mpi__Btask3(nqbz,mpi__Ps:mpi__Pe,max_nbnb) )
-
-      mpi__Btask1(:)     = .false.
-      mpi__Btask2(:,:)   = .false.
-      mpi__Btask3(:,:,:) = .false.
-
-      n=1
-      do k=1, nqbz
-         do jpm=mpi__Ps, mpi__Pe
-            do ibib=1, nbnb(k,jpm)
-               if( mpi__Bs <= n .and. n<=mpi__Be ) then
-                  mpi__Btask1(k) = .true.
-                  mpi__Btask2(k,jpm) = .true.
-                  mpi__Btask3(k,jpm,ibib) = .true.
-               end if
-               n=n+1
-            end do
-         end do
-      end do
-
-
-C     ! for M(matrix) parallelization
-      if( allocated(mpi__Mvn) ) then
-         deallocate( mpi__Mvn )
-         deallocate( mpi__Mvs )
-         deallocate( mpi__Mve )
-      end if
-      allocate( mpi__Mvn(0:mpi__sizeM-1) )
-      allocate( mpi__Mvs(0:mpi__sizeM-1) )
-      allocate( mpi__Mve(0:mpi__sizeM-1) )
-    
-      mpi__Mnall = ngb
-      
-C     !! the mean is larger
-      mpi__Mvn(:) = int(ceiling(dble(mpi__Mnall)/dble(mpi__sizeM)))
-C     !! the last block is smaller 
-      mpi__Mvn(mpi__sizeM-1) = mpi__Mvn(mpi__sizeM-1)
-     .     - (sum(mpi__Mvn(:))-mpi__Mnall)
-      blocksize = maxval(mpi__Mvn(:))
-#if SCALAPACK           
-      call DescInit( mpi__Mdescv, 1, mpi__Mnall,
-     .     1, blocksize, 0, 0,
-     .     mpi__Mhandle, 1, mpi__info )
-      
-      call DescInit( mpi__Mdescm, mpi__Mnall, mpi__Mnall,
-     .     blocksize, blocksize, 0, 0,
-     .     mpi__Mhandle, mpi__Mnall, mpi__info )
-#endif
-      n=1
-      do p=0, mpi__sizeM-1
-         mpi__Mvs(p) = n
-         mpi__Mve(p) = mpi__Mvs(p) + mpi__Mvn(p) - 1
-         n = n + mpi__Mvn(p)
-      end do
-      mpi__Ms = mpi__Mvs(mpi__rankM)
-      mpi__Me = mpi__Mve(mpi__rankM)
-      mpi__Mn = mpi__Mvn(mpi__rankM)
-      mpi__Mf = mpi__Ms+blocksize-1
-
-C     ! for W(iw) parallelization
-      mpi__Wnall = nwt
-
-      if( allocated(mpi__Wvn) ) deallocate(mpi__Wvn)
-      if( allocated(mpi__Wvs) ) deallocate(mpi__Wvs)
-      if( allocated(mpi__Wve) ) deallocate(mpi__Wve)
-      allocate( mpi__Wvn(0:mpi__sizeW-1) )
-      allocate( mpi__Wvs(0:mpi__sizeW-1) )
-      allocate( mpi__Wve(0:mpi__sizeW-1) )
-
-      mpi__Wvn(:) = mpi__Wnall/mpi__sizeB
-      if( mpi__Wvn(0) == 0 ) then
-         write(6,*) "Warning: too many processes for B parallelization"
-         write(6,*) "  maximum -np ", mpi__Wnall
-         call rx("Warning: too many processes for B parallelization")
-      end if
-
-      do p=0, mpi__sizeW-1
-         if( sum(mpi__Wvn(:)) == mpi__Wnall ) exit
-         mpi__Wvn(p) = mpi__Wvn(p) + 1
-      end do
-
-      n=1
-      do p=0, mpi__sizeW-1
-         mpi__Wvs(p) = n
-         mpi__Wve(p) = mpi__Wvs(p) + mpi__Wvn(p) - 1
-         n = n + mpi__Wvn(p)
-      end do
-      mpi__Wn = mpi__Wvn(mpi__rankW)
-      mpi__Ws = mpi__Wvs(mpi__rankW)
-      mpi__We = mpi__Wve(mpi__rankW)
-
-      write(6,*) "DEBUG: mpi__Qnall=", size(mpi__Qtask)
-      write(6,*) "DEBUG: mpi__Pnall=", mpi__Pnall
-      write(6,*) "DEBUG: mpi__Bnall=", mpi__Bnall
-      write(6,*) "DEBUG: mpi__Mnall=", mpi__Mnall
-      write(6,*) "DEBUG: mpi__Wnall=", mpi__Wnall
-
-      write(6,*) "DEBUG: mpi__Qn=", count(mpi__Qtask)
-      write(6,*) "DEBUG: mpi__Pn=", mpi__Pn
-      write(6,*) "DEBUG: mpi__Bn=", mpi__Bn
-      write(6,*) "DEBUG: mpi__Mn=", mpi__Mn
-      write(6,*) "DEBUG: mpi__Wn=", mpi__Wn
-
-      return
-      end subroutine MPI__x0kf_rankdivider
-
-#if SCALAPACK
-C     !======================================================
-      subroutine MPI__dummy
-      implicit none
-
-      call PZHEGVX              ! dummy call, to poll scalapack library
-
-      return
-      end subroutine MPI__dummy
-      
-C     !======================================================
-C     !!  y = A * x
-      subroutine MPI__ZGEMV( matrixA, vectorX, vectorY )
-      implicit none
-      
-      complex(8), intent(in)  :: matrixA(mpi__Mnall,mpi__Ms:mpi__Mf)
-      complex(8), intent(in)  :: vectorX(mpi__Ms:mpi__Mf)
-      complex(8), intent(out) :: vectorY(mpi__Ms:mpi__Mf)
-      character,  parameter   :: transa = 'N'
-      complex(8), parameter   :: alpha = (1.0d0,0.0d0)
-      complex(8), parameter   :: beta  = (0.0d0,0.0d0)
-      integer :: i, j
-
-      call PZGEMV( transa, mpi__Mnall, mpi__Mnall, alpha,
-     .     matrixA, 1, 1, mpi__Mdescm,
-     .     vectorX, 1, 1, mpi__Mdescv, 1, beta,
-     .     vectorY, 1, 1, mpi__Mdescv, 1 )
-
-      return
-      end subroutine MPI__ZGEMV
-      
-C     !======================================================
-C     !! C = A*B
-      subroutine MPI__ZGEMM( matrixA, matrixB, matrixC )
-      implicit none
-
-      complex(8), intent(in)  :: matrixA(mpi__Mnall,mpi__Ms:mpi__Mf)
-      complex(8), intent(in)  :: matrixB(mpi__Mnall,mpi__Ms:mpi__Mf)
-      complex(8), intent(out) :: matrixC(mpi__Mnall,mpi__Ms:mpi__Mf)
-      character,  parameter   :: transa = 'N'
-      character,  parameter   :: transb = 'N'
-      complex(8), parameter   :: alpha = (1.0d0,0.0d0)
-      complex(8), parameter   :: beta  = (0.0d0,0.0d0)
-      integer :: i, j, k
-
-      call PZGEMM( transa, transb,
-     .     mpi__Mnall, mpi__Mnall, mpi__Mnall,
-     .     alpha,
-     .     matrixA, 1, 1, mpi__Mdescm,
-     .     matrixB, 1, 1, mpi__Mdescm,
-     .     beta,
-     .     matrixC, 1, 1, mpi__Mdescm )
-
-      return
-      end subroutine MPI__ZGEMM
-
-C     !======================================================
-C     !!  C = x^H * y
-      subroutine MPI__ZGERC( vectorX, vectorY, matrixC )
-      implicit none
-
-      complex(8), intent(in)  :: vectorX(mpi__Ms:mpi__Mf)
-      complex(8), intent(in)  :: vectorY(mpi__Ms:mpi__Mf)
-      complex(8), intent(out) :: matrixC(mpi__Mnall,mpi__Ms:mpi__Mf)
-      character,  parameter   :: transa = 'C', transb = 'N'
-      complex(8), parameter   :: alpha = (1.0d0,0.0d0)
-      complex(8), parameter   :: beta  = (0.0d0,0.0d0)
-      integer :: i, j
-
-      call PZGEMM( transa, transb, mpi__Mnall, mpi__Mnall, 1, alpha,
-     .     vectorX, 1, 1, mpi__Mdescv,
-     .     vectorY, 1, 1, mpi__Mdescv, beta,
-     .     matrixC, 1, 1, mpi__Mdescm )
-
-      return
-      end subroutine MPI__ZGERC
-
-C     !======================================================
-C     !!  C = a*A + C
-      subroutine MPI__ZAMPM( alpha, matrixA, matrixC )
-      implicit none
-
-      real(8), intent(in)       :: alpha
-      complex(8), intent(in)    :: matrixA(mpi__Mnall,mpi__Ms:mpi__Mf)
-      complex(8), intent(inout) :: matrixC(mpi__Mnall,mpi__Ms:mpi__Mf)
-      integer :: i, j
-
-!$OMP PARALLEL DO PRIVATE(j) FIRSTPRIVATE(mpi__Ms,mpi__Mf)
-      do j=mpi__Ms,mpi__Mf
-         matrixC(:,j) = alpha*matrixA(:,j) + matrixC(:,j)
-      end do
-!$OMP END PARALLEL
-
-      return
-      end subroutine MPI__ZAMPM
-
-C     !======================================================
-C     !! B = reduce A
-      subroutine MPI__AllreduceMatrixB( matrixA )
-      implicit none
-      complex(8), intent(inout) :: matrixA(mpi__Mnall,mpi__Ms:mpi__Me)
-      complex(8), allocatable   :: matrixA_sum(:,:)
-
-      if( mpi__sizeB == 1 ) return
-
-      allocate( matrixA_sum(mpi__Mnall,mpi__Ms:mpi__Me) )
-
-      call MPI_Allreduce( matrixA, matrixA_sum,
-     .     mpi__Mn*mpi__Mnall,
-     .     MPI_DOUBLE_COMPLEX, MPI_SUM, mpi__commB, mpi__info )
-      
-      matrixA = matrixA_sum
-      deallocate( matrixA_sum )
-
-      return
-      end subroutine MPI__AllreduceMatrixB
-
-C     !======================================================
-C     !! y = gather x
-      subroutine MPI__AllgatherVectorM( vectorX, vectorY )
-      implicit none
-      complex(8), intent(in)  :: vectorX(mpi__Ms:mpi__Me)
-      complex(8), intent(out) :: vectorY(mpi__Mnall)
-
-      if( mpi__sizeM == 1 ) then
-         vectorY = vectorX
-         return
-      end if
-
-      call MPI_Allgatherv( vectorX(mpi__Ms), mpi__Mn,
-     .     MPI_DOUBLE_COMPLEX,
-     .     vectorY, (mpi__Mvn(:)+0), (mpi__Mvs(:)-1),
-     .     MPI_DOUBLE_COMPLEX, mpi__commM, mpi__info )
-
-      return
-      end subroutine MPI__AllgatherVectorM
-
-C     !======================================================
-C     !! Aall = gather A
-      subroutine MPI__AllgatherMatrixM( matrixA, matrixAall )
-      implicit none
-      complex(8), intent(in)   :: matrixA   (mpi__Mnall,mpi__Ms:mpi__Me)
-      complex(8), intent(out)  :: matrixAall(mpi__Mnall,mpi__Mnall)
-
-      if( mpi__sizeM == 1 ) then
-         matrixAall = matrixA
-         return
-      end if
-
-      call MPI_Allgatherv( matrixA(1,mpi__Ms), (mpi__Mn)*mpi__Mnall,
-     .     MPI_DOUBLE_COMPLEX, matrixAall,
-     .     (mpi__Mvn(:)+0)*mpi__Mnall, (mpi__Mvs(:)-1)*mpi__Mnall,
-     .     MPI_DOUBLE_COMPLEX, mpi__commM, mpi__info )
-
-      return
-      end subroutine MPI__AllgatherMatrixM
-
-
-C     !======================================================
-C     !! Aall = gather A
-      subroutine MPI__AllgatherArrayP( arrayA, arrayAall )
-      implicit none
-      complex(8), intent(in)   :: arrayA   
-     .     (mpi__Mnall,mpi__Mnall,mpi__Wnall,mpi__Ps:mpi__Pe)
-      complex(8), intent(out)  :: arrayAall
-     .     (mpi__Mnall,mpi__Mnall,mpi__Wnall,mpi__Pnall)
-
-      if( mpi__sizeP == 1 ) then
-         arrayAall = arrayA
-         return
-      end if
-
-      call MPI_Allgatherv( arrayA(1,1,1,mpi__Ps),
-     .     mpi__Mnall*mpi__Mnall*mpi__Wnall*(mpi__Pn),
-     .     MPI_DOUBLE_COMPLEX, arrayAall,
-     .     mpi__Mnall*mpi__Mnall*mpi__Wnall*(mpi__Pvn(:)+0),
-     .     mpi__Mnall*mpi__Mnall*mpi__Wnall*(mpi__Pvs(:)-1),
-     .     MPI_DOUBLE_COMPLEX, mpi__commP, mpi__info )
-
-      return
-      end subroutine MPI__AllgatherArrayP
-
-
-C     !======================================================
-C     !! matrixB(:,s:e) = matrixA(s:e,:)
-      subroutine MPI__AllMPtoAllMW( matrixA, matrixB )
-      implicit none
-      complex(8), intent(in)  :: matrixA
-     .     (mpi__Mnall,mpi__Ms:mpi__Me,mpi__Wnall,mpi__Ps:mpi__Pe)
-      complex(8), intent(out) :: matrixB
-     .     (mpi__Mnall,mpi__Ms:mpi__Me,mpi__Ws:mpi__We,mpi__Pnall)
-
-      complex(8), allocatable :: matrix_send(:,:,:)
-      complex(8), allocatable :: matrix_recv(:,:,:)
-      integer, allocatable :: vcount_send(:), vdispl_send(:)
-      integer, allocatable :: vcount_recv(:), vdispl_recv(:)
-      integer :: i, j, p, index
-
-      if( mpi__sizeP == 1 ) then
-         matrixB = matrixA
-         return
-      end if
-
-      allocate( matrix_send
-     .     ( mpi__Mnall, mpi__Ms:mpi__Me, mpi__Wnall*mpi__Pn) )
-      allocate( matrix_recv
-     .     ( mpi__Mnall, mpi__Ms:mpi__Me, mpi__Wn*mpi__Pnall) )
-      allocate( vcount_send(0:mpi__sizeP-1) )
-      allocate( vdispl_send(0:mpi__sizeP-1) )
-      allocate( vcount_recv(0:mpi__sizeP-1) )
-      allocate( vdispl_recv(0:mpi__sizeP-1) )
-
-      index=0
-      do p=0, mpi__sizeP-1
-         do i=mpi__Ps, mpi__Pe
-            do j=mpi__Wvs(p), mpi__Wve(p)
-               index=index+1
-               matrix_send(:,:,index) = matrixA(:,:,j,i)
-            end do
-         end do
-
-         vcount_send(p) = mpi__Mnall*mpi__Mn*(mpi__Wvn(p)-0)*mpi__Pn
-         vdispl_send(p) = mpi__Mnall*mpi__Mn*(mpi__Wvs(p)-1)*mpi__Pn
-         vcount_recv(p) = mpi__Mnall*mpi__Mn*mpi__Wn*(mpi__Pvn(p)-0)
-         vdispl_recv(p) = mpi__Mnall*mpi__Mn*mpi__Wn*(mpi__Pvs(p)-1)
-      end do
-
-      call MPI_AlltoAllv(
-     .     matrix_send, vcount_send, vdispl_send, MPI_DOUBLE_COMPLEX,
-     .     matrix_recv, vcount_recv, vdispl_recv, MPI_DOUBLE_COMPLEX,
-     .     mpi__commP, mpi__info )
-
-      index=0
-      do p=0, mpi__sizeP-1
-         do i=mpi__Pvs(p), mpi__Pve(p)
-            do j=mpi__Ws, mpi__We
-               index=index+1
-               matrixB(:,:,j,i) = matrix_recv(:,:,index)
-            end do
-         end do
-      end do
-      
-      deallocate( matrix_send, matrix_recv )
-      deallocate( vcount_send, vcount_recv )
-      deallocate( vdispl_send, vdispl_recv )
-      
-      return
-      end subroutine MPI__AllMPtoAllMW
-#endif 
-
       end module m_mpi
+      
+      
+c$$$C     !======================================================
+c$$$      subroutine MPI__hx0fp0_rankdivider2S( nspinmx )
+c$$$      implicit none
+c$$$      integer, intent(in) :: nspinmx
+c$$$      integer :: k, jpm, ibib
+c$$$      integer :: p, n
+c$$$      integer :: blocksize
+c$$$      integer :: max_nbnb
+c$$$C     ! for S(npm) parallelization
+c$$$      mpi__Snall = nspinmx
+c$$$      if( allocated(mpi__Svn) ) deallocate(mpi__Svn)
+c$$$      if( allocated(mpi__Svs) ) deallocate(mpi__Svs)
+c$$$      if( allocated(mpi__Sve) ) deallocate(mpi__Sve)
+c$$$      allocate( mpi__Svn(0:mpi__sizeS-1) )
+c$$$      allocate( mpi__Svs(0:mpi__sizeS-1) )
+c$$$      allocate( mpi__Sve(0:mpi__sizeS-1) )
+c$$$
+c$$$      mpi__Svn(:) = mpi__Snall/mpi__sizeS
+c$$$      if( mpi__Svn(0) == 0 ) then
+c$$$         write(6,*) "Warning: too many processes for S parallelization"
+c$$$         write(6,*) "  maximum -np ", mpi__Snall
+c$$$         call rx('Warning: too many processes for S parallelization')
+c$$$      end if
+c$$$
+c$$$      do p=0, mpi__sizeS-1
+c$$$         if( sum(mpi__Svn(:)) == mpi__Snall ) exit
+c$$$         mpi__Svn(p) = mpi__Svn(p) + 1
+c$$$      end do
+c$$$
+c$$$      n=1
+c$$$      do p=0, mpi__sizeS-1
+c$$$         mpi__Svs(p) = n
+c$$$         mpi__Sve(p) = mpi__Svs(p) + mpi__Svn(p) - 1
+c$$$         n = n + mpi__Svn(p)
+c$$$      end do
+c$$$      mpi__Sn = mpi__Svn(mpi__rankS)
+c$$$      mpi__Ss = mpi__Svs(mpi__rankS)
+c$$$      mpi__Se = mpi__Sve(mpi__rankS)
+c$$$
+c$$$      if (mpi__root) then
+c$$$      write(6,*)mpi__rank,'mpi__Svn',mpi__Svn
+c$$$      write(6,*)mpi__rank,'mpi__Svs',mpi__Svs
+c$$$      write(6,*)mpi__rank,'mpi__Sve',mpi__Sve
+c$$$      endif
+c$$$#if 0
+c$$$      write(6,*) "DEBUG: mpi__Qnall=", size(mpi__Qtask)
+c$$$      write(6,*) "DEBUG: mpi__Snall=", mpi__Snall
+c$$$
+c$$$      write(6,*) "DEBUG: mpi__Qn=", count(mpi__Qtask)
+c$$$      write(6,*) "DEBUG: mpi__Sn=", mpi__Sn
+c$$$#endif
+c$$$      return
+c$$$      end subroutine MPI__hx0fp0_rankdivider2S
+
+
+c$$$C     !======================================================
+c$$$      subroutine MPI__x0kf_rankdivider( nbnb, nqbz, npm, ngb, nwt )
+c$$$      implicit none
+c$$$
+c$$$      integer, intent(in) :: nbnb(nqbz,npm), nqbz,npm
+c$$$      integer, intent(in) :: ngb,nwt
+c$$$      
+c$$$      integer :: k, jpm, ibib
+c$$$      integer :: p, n
+c$$$      integer :: blocksize
+c$$$      integer :: max_nbnb
+c$$$
+c$$$C     ! for P(npm) parallelization
+c$$$      mpi__Pnall = npm
+c$$$
+c$$$      if( allocated(mpi__Pvn) ) deallocate(mpi__Pvn)
+c$$$      if( allocated(mpi__Pvs) ) deallocate(mpi__Pvs)
+c$$$      if( allocated(mpi__Pve) ) deallocate(mpi__Pve)
+c$$$      allocate( mpi__Pvn(0:mpi__sizeP-1) )
+c$$$      allocate( mpi__Pvs(0:mpi__sizeP-1) )
+c$$$      allocate( mpi__Pve(0:mpi__sizeP-1) )
+c$$$
+c$$$      mpi__Pvn(:) = mpi__Pnall/mpi__sizeP
+c$$$      if( mpi__Pvn(0) == 0 ) then
+c$$$         write(6,*) "Warning: too many processes for P parallelization"
+c$$$         write(6,*) "  maximum -np ", mpi__Pnall
+c$$$         call rx("Warning: too many processes for P parallelization")
+c$$$      end if
+c$$$
+c$$$      do p=0, mpi__sizeP-1
+c$$$         if( sum(mpi__Pvn(:)) == mpi__Pnall ) exit
+c$$$         mpi__Pvn(p) = mpi__Pvn(p) + 1
+c$$$      end do
+c$$$
+c$$$      n=1
+c$$$      do p=0, mpi__sizeP-1
+c$$$         mpi__Pvs(p) = n
+c$$$         mpi__Pve(p) = mpi__Pvs(p) + mpi__Pvn(p) - 1
+c$$$         n = n + mpi__Pvn(p)
+c$$$      end do
+c$$$      mpi__Pn = mpi__Pvn(mpi__rankP)
+c$$$      mpi__Ps = mpi__Pvs(mpi__rankP)
+c$$$      mpi__Pe = mpi__Pve(mpi__rankP)
+c$$$
+c$$$
+c$$$C     ! for B(Kpoint&nbnb) parallelization
+c$$$      mpi__Bnall=sum(nbnb(1:nqbz,mpi__Ps:mpi__Pe))
+c$$$
+c$$$      
+c$$$      if( allocated(mpi__Bvn) ) deallocate(mpi__Bvn)
+c$$$      if( allocated(mpi__Bvs) ) deallocate(mpi__Bvs)
+c$$$      if( allocated(mpi__Bve) ) deallocate(mpi__Bve)
+c$$$      allocate( mpi__Bvn(0:mpi__sizeB-1) )
+c$$$      allocate( mpi__Bvs(0:mpi__sizeB-1) )
+c$$$      allocate( mpi__Bve(0:mpi__sizeB-1) )
+c$$$
+c$$$      mpi__Bvn(:) = mpi__Bnall/mpi__sizeB
+c$$$      if( mpi__Bvn(0) == 0 ) then
+c$$$         write(6,*) "Warning: too many processes for B parallelization"
+c$$$         write(6,*) "  maximum -nb ", mpi__Bnall
+c$$$         call rx("Warning: too many processes for B parallelization")
+c$$$      end if
+c$$$      do p=0, mpi__sizeB-1
+c$$$         if( sum(mpi__Bvn(:)) == mpi__Bnall ) exit
+c$$$         mpi__Bvn(p) = mpi__Bvn(p) + 1
+c$$$      end do
+c$$$
+c$$$      n=1
+c$$$      do p=0, mpi__sizeB-1
+c$$$         mpi__Bvs(p) = n
+c$$$         mpi__Bve(p) = mpi__Bvs(p) + mpi__Bvn(p) - 1
+c$$$         n = n + mpi__Bvn(p)
+c$$$      end do
+c$$$      mpi__Bn = mpi__Bvn(mpi__rankB)
+c$$$      mpi__Bs = mpi__Bvs(mpi__rankB)
+c$$$      mpi__Be = mpi__Bve(mpi__rankB)
+c$$$
+c$$$      max_nbnb=maxval(nbnb(1:nqbz,mpi__Ps:mpi__Pe))      
+c$$$
+c$$$      if( allocated(mpi__Btask1) ) deallocate(mpi__Btask1)
+c$$$      if( allocated(mpi__Btask2) ) deallocate(mpi__Btask2)
+c$$$      if( allocated(mpi__Btask3) ) deallocate(mpi__Btask3)
+c$$$      allocate( mpi__Btask1(nqbz) )
+c$$$      allocate( mpi__Btask2(nqbz,mpi__Ps:mpi__Pe) )
+c$$$      allocate( mpi__Btask3(nqbz,mpi__Ps:mpi__Pe,max_nbnb) )
+c$$$
+c$$$      mpi__Btask1(:)     = .false.
+c$$$      mpi__Btask2(:,:)   = .false.
+c$$$      mpi__Btask3(:,:,:) = .false.
+c$$$
+c$$$      n=1
+c$$$      do k=1, nqbz
+c$$$         do jpm=mpi__Ps, mpi__Pe
+c$$$            do ibib=1, nbnb(k,jpm)
+c$$$               if( mpi__Bs <= n .and. n<=mpi__Be ) then
+c$$$                  mpi__Btask1(k) = .true.
+c$$$                  mpi__Btask2(k,jpm) = .true.
+c$$$                  mpi__Btask3(k,jpm,ibib) = .true.
+c$$$               end if
+c$$$               n=n+1
+c$$$            end do
+c$$$         end do
+c$$$      end do
+c$$$
+c$$$
+c$$$C     ! for M(matrix) parallelization
+c$$$      if( allocated(mpi__Mvn) ) then
+c$$$         deallocate( mpi__Mvn )
+c$$$         deallocate( mpi__Mvs )
+c$$$         deallocate( mpi__Mve )
+c$$$      end if
+c$$$      allocate( mpi__Mvn(0:mpi__sizeM-1) )
+c$$$      allocate( mpi__Mvs(0:mpi__sizeM-1) )
+c$$$      allocate( mpi__Mve(0:mpi__sizeM-1) )
+c$$$    
+c$$$      mpi__Mnall = ngb
+c$$$      
+c$$$C     !! the mean is larger
+c$$$      mpi__Mvn(:) = int(ceiling(dble(mpi__Mnall)/dble(mpi__sizeM)))
+c$$$C     !! the last block is smaller 
+c$$$      mpi__Mvn(mpi__sizeM-1) = mpi__Mvn(mpi__sizeM-1)
+c$$$     .     - (sum(mpi__Mvn(:))-mpi__Mnall)
+c$$$      blocksize = maxval(mpi__Mvn(:))
+c$$$c#if SCALAPACK           
+c$$$c      call DescInit( mpi__Mdescv, 1, mpi__Mnall,
+c$$$c     .     1, blocksize, 0, 0,
+c$$$c     .     mpi__Mhandle, 1, mpi__info )
+c$$$c      
+c$$$c      call DescInit( mpi__Mdescm, mpi__Mnall, mpi__Mnall,
+c$$$c     .     blocksize, blocksize, 0, 0,
+c$$$c     .     mpi__Mhandle, mpi__Mnall, mpi__info )
+c$$$c#endif
+c$$$      n=1
+c$$$      do p=0, mpi__sizeM-1
+c$$$         mpi__Mvs(p) = n
+c$$$         mpi__Mve(p) = mpi__Mvs(p) + mpi__Mvn(p) - 1
+c$$$         n = n + mpi__Mvn(p)
+c$$$      end do
+c$$$      mpi__Ms = mpi__Mvs(mpi__rankM)
+c$$$      mpi__Me = mpi__Mve(mpi__rankM)
+c$$$      mpi__Mn = mpi__Mvn(mpi__rankM)
+c$$$      mpi__Mf = mpi__Ms+blocksize-1
+c$$$
+c$$$C     ! for W(iw) parallelization
+c$$$      mpi__Wnall = nwt
+c$$$
+c$$$      if( allocated(mpi__Wvn) ) deallocate(mpi__Wvn)
+c$$$      if( allocated(mpi__Wvs) ) deallocate(mpi__Wvs)
+c$$$      if( allocated(mpi__Wve) ) deallocate(mpi__Wve)
+c$$$      allocate( mpi__Wvn(0:mpi__sizeW-1) )
+c$$$      allocate( mpi__Wvs(0:mpi__sizeW-1) )
+c$$$      allocate( mpi__Wve(0:mpi__sizeW-1) )
+c$$$
+c$$$      mpi__Wvn(:) = mpi__Wnall/mpi__sizeB
+c$$$      if( mpi__Wvn(0) == 0 ) then
+c$$$         write(6,*) "Warning: too many processes for B parallelization"
+c$$$         write(6,*) "  maximum -np ", mpi__Wnall
+c$$$         call rx("Warning: too many processes for B parallelization")
+c$$$      end if
+c$$$
+c$$$      do p=0, mpi__sizeW-1
+c$$$         if( sum(mpi__Wvn(:)) == mpi__Wnall ) exit
+c$$$         mpi__Wvn(p) = mpi__Wvn(p) + 1
+c$$$      end do
+c$$$
+c$$$      n=1
+c$$$      do p=0, mpi__sizeW-1
+c$$$         mpi__Wvs(p) = n
+c$$$         mpi__Wve(p) = mpi__Wvs(p) + mpi__Wvn(p) - 1
+c$$$         n = n + mpi__Wvn(p)
+c$$$      end do
+c$$$      mpi__Wn = mpi__Wvn(mpi__rankW)
+c$$$      mpi__Ws = mpi__Wvs(mpi__rankW)
+c$$$      mpi__We = mpi__Wve(mpi__rankW)
+c$$$
+c$$$      write(6,*) "DEBUG: mpi__Qnall=", size(mpi__Qtask)
+c$$$      write(6,*) "DEBUG: mpi__Pnall=", mpi__Pnall
+c$$$      write(6,*) "DEBUG: mpi__Bnall=", mpi__Bnall
+c$$$      write(6,*) "DEBUG: mpi__Mnall=", mpi__Mnall
+c$$$      write(6,*) "DEBUG: mpi__Wnall=", mpi__Wnall
+c$$$
+c$$$      write(6,*) "DEBUG: mpi__Qn=", count(mpi__Qtask)
+c$$$      write(6,*) "DEBUG: mpi__Pn=", mpi__Pn
+c$$$      write(6,*) "DEBUG: mpi__Bn=", mpi__Bn
+c$$$      write(6,*) "DEBUG: mpi__Mn=", mpi__Mn
+c$$$      write(6,*) "DEBUG: mpi__Wn=", mpi__Wn
+c$$$
+c$$$      return
+c$$$      end subroutine MPI__x0kf_rankdivider
+
+c$$$#if SCALAPACK
+c$$$C     !======================================================
+c$$$      subroutine MPI__dummy
+c$$$      implicit none
+c$$$
+c$$$      call PZHEGVX              ! dummy call, to poll scalapack library
+c$$$
+c$$$      return
+c$$$      end subroutine MPI__dummy
+c$$$      
+c$$$C     !======================================================
+c$$$C     !!  y = A * x
+c$$$      subroutine MPI__ZGEMV( matrixA, vectorX, vectorY )
+c$$$      implicit none
+c$$$      
+c$$$      complex(8), intent(in)  :: matrixA(mpi__Mnall,mpi__Ms:mpi__Mf)
+c$$$      complex(8), intent(in)  :: vectorX(mpi__Ms:mpi__Mf)
+c$$$      complex(8), intent(out) :: vectorY(mpi__Ms:mpi__Mf)
+c$$$      character,  parameter   :: transa = 'N'
+c$$$      complex(8), parameter   :: alpha = (1.0d0,0.0d0)
+c$$$      complex(8), parameter   :: beta  = (0.0d0,0.0d0)
+c$$$      integer :: i, j
+c$$$
+c$$$      call PZGEMV( transa, mpi__Mnall, mpi__Mnall, alpha,
+c$$$     .     matrixA, 1, 1, mpi__Mdescm,
+c$$$     .     vectorX, 1, 1, mpi__Mdescv, 1, beta,
+c$$$     .     vectorY, 1, 1, mpi__Mdescv, 1 )
+c$$$
+c$$$      return
+c$$$      end subroutine MPI__ZGEMV
+c$$$      
+c$$$C     !======================================================
+c$$$C     !! C = A*B
+c$$$      subroutine MPI__ZGEMM( matrixA, matrixB, matrixC )
+c$$$      implicit none
+c$$$
+c$$$      complex(8), intent(in)  :: matrixA(mpi__Mnall,mpi__Ms:mpi__Mf)
+c$$$      complex(8), intent(in)  :: matrixB(mpi__Mnall,mpi__Ms:mpi__Mf)
+c$$$      complex(8), intent(out) :: matrixC(mpi__Mnall,mpi__Ms:mpi__Mf)
+c$$$      character,  parameter   :: transa = 'N'
+c$$$      character,  parameter   :: transb = 'N'
+c$$$      complex(8), parameter   :: alpha = (1.0d0,0.0d0)
+c$$$      complex(8), parameter   :: beta  = (0.0d0,0.0d0)
+c$$$      integer :: i, j, k
+c$$$
+c$$$      call PZGEMM( transa, transb,
+c$$$     .     mpi__Mnall, mpi__Mnall, mpi__Mnall,
+c$$$     .     alpha,
+c$$$     .     matrixA, 1, 1, mpi__Mdescm,
+c$$$     .     matrixB, 1, 1, mpi__Mdescm,
+c$$$     .     beta,
+c$$$     .     matrixC, 1, 1, mpi__Mdescm )
+c$$$
+c$$$      return
+c$$$      end subroutine MPI__ZGEMM
+c$$$
+c$$$C     !======================================================
+c$$$C     !!  C = x^H * y
+c$$$      subroutine MPI__ZGERC( vectorX, vectorY, matrixC )
+c$$$      implicit none
+c$$$
+c$$$      complex(8), intent(in)  :: vectorX(mpi__Ms:mpi__Mf)
+c$$$      complex(8), intent(in)  :: vectorY(mpi__Ms:mpi__Mf)
+c$$$      complex(8), intent(out) :: matrixC(mpi__Mnall,mpi__Ms:mpi__Mf)
+c$$$      character,  parameter   :: transa = 'C', transb = 'N'
+c$$$      complex(8), parameter   :: alpha = (1.0d0,0.0d0)
+c$$$      complex(8), parameter   :: beta  = (0.0d0,0.0d0)
+c$$$      integer :: i, j
+c$$$
+c$$$      call PZGEMM( transa, transb, mpi__Mnall, mpi__Mnall, 1, alpha,
+c$$$     .     vectorX, 1, 1, mpi__Mdescv,
+c$$$     .     vectorY, 1, 1, mpi__Mdescv, beta,
+c$$$     .     matrixC, 1, 1, mpi__Mdescm )
+c$$$
+c$$$      return
+c$$$      end subroutine MPI__ZGERC
+c$$$
+c$$$C     !======================================================
+c$$$C     !!  C = a*A + C
+c$$$      subroutine MPI__ZAMPM( alpha, matrixA, matrixC )
+c$$$      implicit none
+c$$$
+c$$$      real(8), intent(in)       :: alpha
+c$$$      complex(8), intent(in)    :: matrixA(mpi__Mnall,mpi__Ms:mpi__Mf)
+c$$$      complex(8), intent(inout) :: matrixC(mpi__Mnall,mpi__Ms:mpi__Mf)
+c$$$      integer :: i, j
+c$$$
+c$$$!$OMP PARALLEL DO PRIVATE(j) FIRSTPRIVATE(mpi__Ms,mpi__Mf)
+c$$$      do j=mpi__Ms,mpi__Mf
+c$$$         matrixC(:,j) = alpha*matrixA(:,j) + matrixC(:,j)
+c$$$      end do
+c$$$!$OMP END PARALLEL
+c$$$
+c$$$      return
+c$$$      end subroutine MPI__ZAMPM
+c$$$
+c$$$C     !======================================================
+c$$$C     !! B = reduce A
+c$$$      subroutine MPI__AllreduceMatrixB( matrixA )
+c$$$      implicit none
+c$$$      complex(8), intent(inout) :: matrixA(mpi__Mnall,mpi__Ms:mpi__Me)
+c$$$      complex(8), allocatable   :: matrixA_sum(:,:)
+c$$$
+c$$$      if( mpi__sizeB == 1 ) return
+c$$$
+c$$$      allocate( matrixA_sum(mpi__Mnall,mpi__Ms:mpi__Me) )
+c$$$
+c$$$      call MPI_Allreduce( matrixA, matrixA_sum,
+c$$$     .     mpi__Mn*mpi__Mnall,
+c$$$     .     MPI_DOUBLE_COMPLEX, MPI_SUM, mpi__commB, mpi__info )
+c$$$      
+c$$$      matrixA = matrixA_sum
+c$$$      deallocate( matrixA_sum )
+c$$$
+c$$$      return
+c$$$      end subroutine MPI__AllreduceMatrixB
+c$$$
+c$$$C     !======================================================
+c$$$C     !! y = gather x
+c$$$      subroutine MPI__AllgatherVectorM( vectorX, vectorY )
+c$$$      implicit none
+c$$$      complex(8), intent(in)  :: vectorX(mpi__Ms:mpi__Me)
+c$$$      complex(8), intent(out) :: vectorY(mpi__Mnall)
+c$$$
+c$$$      if( mpi__sizeM == 1 ) then
+c$$$         vectorY = vectorX
+c$$$         return
+c$$$      end if
+c$$$
+c$$$      call MPI_Allgatherv( vectorX(mpi__Ms), mpi__Mn,
+c$$$     .     MPI_DOUBLE_COMPLEX,
+c$$$     .     vectorY, (mpi__Mvn(:)+0), (mpi__Mvs(:)-1),
+c$$$     .     MPI_DOUBLE_COMPLEX, mpi__commM, mpi__info )
+c$$$
+c$$$      return
+c$$$      end subroutine MPI__AllgatherVectorM
+c$$$
+c$$$C     !======================================================
+c$$$C     !! Aall = gather A
+c$$$      subroutine MPI__AllgatherMatrixM( matrixA, matrixAall )
+c$$$      implicit none
+c$$$      complex(8), intent(in)   :: matrixA   (mpi__Mnall,mpi__Ms:mpi__Me)
+c$$$      complex(8), intent(out)  :: matrixAall(mpi__Mnall,mpi__Mnall)
+c$$$
+c$$$      if( mpi__sizeM == 1 ) then
+c$$$         matrixAall = matrixA
+c$$$         return
+c$$$      end if
+c$$$
+c$$$      call MPI_Allgatherv( matrixA(1,mpi__Ms), (mpi__Mn)*mpi__Mnall,
+c$$$     .     MPI_DOUBLE_COMPLEX, matrixAall,
+c$$$     .     (mpi__Mvn(:)+0)*mpi__Mnall, (mpi__Mvs(:)-1)*mpi__Mnall,
+c$$$     .     MPI_DOUBLE_COMPLEX, mpi__commM, mpi__info )
+c$$$
+c$$$      return
+c$$$      end subroutine MPI__AllgatherMatrixM
+c$$$
+c$$$
+c$$$C     !======================================================
+c$$$C     !! Aall = gather A
+c$$$      subroutine MPI__AllgatherArrayP( arrayA, arrayAall )
+c$$$      implicit none
+c$$$      complex(8), intent(in)   :: arrayA   
+c$$$     .     (mpi__Mnall,mpi__Mnall,mpi__Wnall,mpi__Ps:mpi__Pe)
+c$$$      complex(8), intent(out)  :: arrayAall
+c$$$     .     (mpi__Mnall,mpi__Mnall,mpi__Wnall,mpi__Pnall)
+c$$$
+c$$$      if( mpi__sizeP == 1 ) then
+c$$$         arrayAall = arrayA
+c$$$         return
+c$$$      end if
+c$$$
+c$$$      call MPI_Allgatherv( arrayA(1,1,1,mpi__Ps),
+c$$$     .     mpi__Mnall*mpi__Mnall*mpi__Wnall*(mpi__Pn),
+c$$$     .     MPI_DOUBLE_COMPLEX, arrayAall,
+c$$$     .     mpi__Mnall*mpi__Mnall*mpi__Wnall*(mpi__Pvn(:)+0),
+c$$$     .     mpi__Mnall*mpi__Mnall*mpi__Wnall*(mpi__Pvs(:)-1),
+c$$$     .     MPI_DOUBLE_COMPLEX, mpi__commP, mpi__info )
+c$$$
+c$$$      return
+c$$$      end subroutine MPI__AllgatherArrayP
+c$$$
+c$$$
+c$$$C     !======================================================
+c$$$C     !! matrixB(:,s:e) = matrixA(s:e,:)
+c$$$      subroutine MPI__AllMPtoAllMW( matrixA, matrixB )
+c$$$      implicit none
+c$$$      complex(8), intent(in)  :: matrixA
+c$$$     .     (mpi__Mnall,mpi__Ms:mpi__Me,mpi__Wnall,mpi__Ps:mpi__Pe)
+c$$$      complex(8), intent(out) :: matrixB
+c$$$     .     (mpi__Mnall,mpi__Ms:mpi__Me,mpi__Ws:mpi__We,mpi__Pnall)
+c$$$
+c$$$      complex(8), allocatable :: matrix_send(:,:,:)
+c$$$      complex(8), allocatable :: matrix_recv(:,:,:)
+c$$$      integer, allocatable :: vcount_send(:), vdispl_send(:)
+c$$$      integer, allocatable :: vcount_recv(:), vdispl_recv(:)
+c$$$      integer :: i, j, p, index
+c$$$
+c$$$      if( mpi__sizeP == 1 ) then
+c$$$         matrixB = matrixA
+c$$$         return
+c$$$      end if
+c$$$
+c$$$      allocate( matrix_send
+c$$$     .     ( mpi__Mnall, mpi__Ms:mpi__Me, mpi__Wnall*mpi__Pn) )
+c$$$      allocate( matrix_recv
+c$$$     .     ( mpi__Mnall, mpi__Ms:mpi__Me, mpi__Wn*mpi__Pnall) )
+c$$$      allocate( vcount_send(0:mpi__sizeP-1) )
+c$$$      allocate( vdispl_send(0:mpi__sizeP-1) )
+c$$$      allocate( vcount_recv(0:mpi__sizeP-1) )
+c$$$      allocate( vdispl_recv(0:mpi__sizeP-1) )
+c$$$
+c$$$      index=0
+c$$$      do p=0, mpi__sizeP-1
+c$$$         do i=mpi__Ps, mpi__Pe
+c$$$            do j=mpi__Wvs(p), mpi__Wve(p)
+c$$$               index=index+1
+c$$$               matrix_send(:,:,index) = matrixA(:,:,j,i)
+c$$$            end do
+c$$$         end do
+c$$$
+c$$$         vcount_send(p) = mpi__Mnall*mpi__Mn*(mpi__Wvn(p)-0)*mpi__Pn
+c$$$         vdispl_send(p) = mpi__Mnall*mpi__Mn*(mpi__Wvs(p)-1)*mpi__Pn
+c$$$         vcount_recv(p) = mpi__Mnall*mpi__Mn*mpi__Wn*(mpi__Pvn(p)-0)
+c$$$         vdispl_recv(p) = mpi__Mnall*mpi__Mn*mpi__Wn*(mpi__Pvs(p)-1)
+c$$$      end do
+c$$$
+c$$$      call MPI_AlltoAllv(
+c$$$     .     matrix_send, vcount_send, vdispl_send, MPI_DOUBLE_COMPLEX,
+c$$$     .     matrix_recv, vcount_recv, vdispl_recv, MPI_DOUBLE_COMPLEX,
+c$$$     .     mpi__commP, mpi__info )
+c$$$
+c$$$      index=0
+c$$$      do p=0, mpi__sizeP-1
+c$$$         do i=mpi__Pvs(p), mpi__Pve(p)
+c$$$            do j=mpi__Ws, mpi__We
+c$$$               index=index+1
+c$$$               matrixB(:,:,j,i) = matrix_recv(:,:,index)
+c$$$            end do
+c$$$         end do
+c$$$      end do
+c$$$      
+c$$$      deallocate( matrix_send, matrix_recv )
+c$$$      deallocate( vcount_send, vcount_recv )
+c$$$      deallocate( vdispl_send, vdispl_recv )
+c$$$      
+c$$$      return
+c$$$      end subroutine MPI__AllMPtoAllMW
+c$$$#endif 
+c$$$      end module m_mpi

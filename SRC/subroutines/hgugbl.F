@@ -2,7 +2,7 @@
      .s,ds)
       use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
       use m_struc_def           !Cgetarg
-      use m_lmfinit,only:lat_vol
+      use m_lattic,only:lat_vol
 C- Estatic energy integrals between Bloch Hankels and gaussians, and grad
 C ----------------------------------------------------------------------
 Ci Inputs

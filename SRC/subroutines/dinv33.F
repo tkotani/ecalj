@@ -24,12 +24,13 @@ C     implicit none
       if (det .eq. 0d0) call rx('INV33: vanishing determinant')
       if (iopt .ge. 2) det = det/(8*datan(1d0))
       if (mod(iopt,2) .eq. 0) then
-        do  10  i = 1, 3
-          do  10  j = i+1, 3
+        do    i = 1, 3
+          do  j = i+1, 3
             xx = invrse(i,j)
             invrse(i,j) = invrse(j,i)
             invrse(j,i) = xx
-   10   continue
+         enddo
+         enddo
       endif
       call dscal(9,1/det,invrse,1)
       end

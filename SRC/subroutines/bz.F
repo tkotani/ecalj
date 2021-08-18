@@ -51,18 +51,20 @@ C ----------------------------------------------------------------------
       CALL CCUTUP(QB,QB1,IBTR,KCUT)
       ntet = 0
 C ----- START LOOPING OVER MICROCELLS ---------
-      DO  20  I3 = 1, N3
-      DO  20  I2 = 1, N2
+      DO  202  I3 = 1, N3
+      DO  201  I2 = 1, N2
       DO  20  I1 = 1, N1
 C ----- SET UP IDENTIFIERS AT 8 CORNERS OF MICROCELL ------
-        DO  1  K1 = 0, 1
+        DO   K1 = 0, 1
           J1 = MOD(I1 + K1 -1,N1) + 1
-        DO  1  K2 = 0, 1
+        DO   K2 = 0, 1
           J2 = MOD(I2 + K2 -1,N2) + 1
-        DO  1  K3 = 0, 1
+        DO   K3 = 0, 1
           J3 = MOD(I3 + K3 -1,N3) + 1
           IMC(K1,K2,K3)  = IPQ(J1,J2,J3)
-   1    continue
+        enddo
+        enddo
+        enddo
 C ----- LOOP OVER TETRAHEDRA --------------
         DO  10  ITET = 1, 6
           DO  2  IC = 1, 4
@@ -73,14 +75,15 @@ C ----- LOOP OVER TETRAHEDRA --------------
     2     continue
 
 C ----- order the identifiers -----
-          DO  3  J=1,3
-          DO  3  I=1,4-J
-            IF(IQ(I).GT.IQ(I+1))THEN
+          DO   J=1,3
+          DO   I=1,4-J
+           IF(IQ(I).GT.IQ(I+1))THEN
               II=IQ(I)
               IQ(I)=IQ(I+1)
               IQ(I+1)=II
-            ENDIF
-    3     CONTINUE
+           ENDIF
+          enddo
+          enddo
           if (ntet .eq. 0) goto 5
           do  4  n = 1, ntet
             if (       idtet(1,n) .eq. iq(1)
@@ -100,6 +103,8 @@ C ----- order the identifiers -----
           write(6,*)' nnnnn i1i2i3=',i1i2i3,idtet(:,ntet)
    10   CONTINUE
    20 CONTINUE
+ 201  CONTINUE
+ 202  CONTINUE
       print 922, ntet, 6*n1*n2*n3
   922 format(1x,'TETIRR: ',i6,' inequivalent tetrahedra from ',i8)
       END

@@ -54,11 +54,12 @@ C --- Setup ---
       y0  = 1/dsqrt(4*pi)
       a2  = 1/rsm**2
       ta2 = 2*a2
-      do  10  ilm = 1, nlm
-      do  10  k = 0, kmax
+      do    ilm = 1, nlm
+      do    k = 0, kmax
         gkl(1,k,ilm) = 0d0
         gkl(2,k,ilm) = 0d0
-   10 continue
+      enddo
+      enddo
 C ... Shorten connecting vector; need to adjust phase later
       if (job1 .eq. 1 .or. job1 .eq. 3) then
         call shortn(p,p1,dlv,nkd)
@@ -95,7 +96,7 @@ C ...   cos(q.dlv), sin(q.dlv) -> wk(3,4), Y0 exp(-(a dlv)**2) -> wk(2)
       ik2 = 10+lmax
 
 C --- Outer loop over k (in blocks of 2), and over l ---
-      do  30  k = 0, kmax, 2
+      do  301  k = 0, kmax, 2
       do  30  l = 0, lmax
         g0fac = 1/rsm*ta2**(l+1)/pi * dexp(e*rsm*rsm/4)
 
@@ -152,6 +153,7 @@ C   ... For each point, add G_kl Y_L exp(i q.dlv) into Bloch G_kL
    46     continue
         endif
    30 continue
+ 301  continue
 
 C ... Put in phase to undo shortening, or different phase convention
       sp = tpi*(q(1)*(p(1)-p1(1))+q(2)*(p(2)-p1(2))+q(3)*(p(3)-p1(3)))
@@ -159,13 +161,14 @@ C ... Put in phase to undo shortening, or different phase convention
       if (sp .ne. 0d0) then
         cosp = dcos(sp)
         sinp = dsin(sp)
-        do  40  ilm = 1, nlm
-        do  40  k   = 0, kmax
+        do    ilm = 1, nlm
+        do    k   = 0, kmax
           x1 = gkl(1,k,ilm)
           x2 = gkl(2,k,ilm)
           gkl(1,k,ilm) = x1*cosp - x2*sinp
           gkl(2,k,ilm) = x2*cosp + x1*sinp
-   40   continue
+         enddo
+         enddo
       endif
 
       end

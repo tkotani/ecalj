@@ -1,4 +1,3 @@
-c#define unix 1
       subroutine addsyv(nam,val,ival)
 C- Add a symbolic variable to list
 C ----------------------------------------------------------------
@@ -41,9 +40,7 @@ C Local parameters
       nnam = nnam+1
       if (nnam .gt. mxnam) stop 'addsyv: too many names'
       symnam(nnam) = nam
-c#if unix
       call locase(symnam(nnam))
-c#endif
       symval(nnam) = val
       ival = nnam
       return
@@ -51,9 +48,7 @@ c#endif
       entry getsyv(nam,val,ival)
 
       tmpnam = nam
-c#if unix
       call locase(tmpnam)
-c#endif
       do  10  i = 1, nnam
         if (tmpnam .ne. symnam(i)) goto 10
         val = symval(i)
@@ -78,9 +73,7 @@ c#endif
 
       entry chsyv(nam,val,ival)
       tmpnam = nam
-c#if unix
       call locase(tmpnam)
-c#endif
       do  15  i = 1, nnam
         if (tmpnam .ne. symnam(i)) goto 15
         symval(i) = val
@@ -92,9 +85,7 @@ c#endif
 
       entry lodsyv(nam,iopt,val,ival)
       tmpnam = nam
-c#if unix
       call locase(tmpnam)
-c#endif
 C ... Find the name, set value it it exists
       do  16  i = 1, nnam
         if (tmpnam .ne. symnam(i)) goto 16
@@ -187,7 +178,6 @@ C      if (j .ge. size .or. nextop .eq. 7) return
       endif
       j = j-i
       if (j .gt. 15) call fexit(-1,9,'parsyv: var def too long',0)
-c#if unix
       call skipbl(recrd,size,i0)
 C ... This branch writes echo `...` to file tmpdir, reads file contents
 C     and parses result
@@ -196,27 +186,25 @@ C     and parses result
         k = 1
         call strcop(a(7:),recrd(i0+1),min(size-i0,len(a)),'`',k)
         if (a(k+6:k+6) .ne. '`') goto 999
-        tmpdir = ' '
-        call get_environment_variable('TMPDIR',tmpdir)
-        if (tmpdir .eq. ' ') tmpdir = '.'
-        call strcat(tmpdir,len(tmpdir),' ','/parsyv.xxx',11,' ',m)
-        a(k+7:) = ' > '
-        call strcat(a(k+10:),len(a)-10,' ',tmpdir,len(tmpdir),' ',m)
-        call fsystm(a,m)
-        ifi = fopnx(tmpdir,72,1,-1)
-        rewind ifi
-        aa = ' '
-        read(ifi,'(a)') aa
-        call fclose(ifi)
-        m = 0
-        lrd = a2bin(aa,dum,4,0,' ',m,-1)
-        i0 = i0+k+1
+        call rx('I think no way to go thru here')
+c        tmpdir = ' '
+c        call get_environment_variable('TMPDIR',tmpdir)
+c        if (tmpdir .eq. ' ') tmpdir = '.'
+c        call strcat(tmpdir,len(tmpdir),' ','/parsyv.xxx',11,' ',m)
+c        a(k+7:) = ' > '
+c        call strcat(a(k+10:),len(a)-10,' ',tmpdir,len(tmpdir),' ',m)
+c        call fsystm(a,m)
+c        ifi = fopnx(tmpdir,72,1,-1)
+c        rewind ifi
+c        aa = ' '
+c        read(ifi,'(a)') aa
+c        call fclose(ifi)
+c        m = 0
+c        lrd = a2bin(aa,dum,4,0,' ',m,-1)
+c        i0 = i0+k+1
       else
         lrd = a2bin(recrd,dum,4,0,' ',i0,-1)
       endif
-c#else
-c      lrd = a2bin(recrd,dum,4,0,' ',i0,-1)
-c#endif
       if (lrd) then
         ndecl = ndecl+1
         call strcop(a,recrd(i),j,'=',i)
@@ -237,10 +225,7 @@ c#endif
         endif
       endif
       i = i0
-C     call shosyv(0,0,0,6)
       goto 10
-
-C     Error handling
   999 continue
       print *, 'parsyv: bad syntax in var def, parsing at: ',
      .(recrd(i), i=i0-1,min(i0+15,size)),' ...'

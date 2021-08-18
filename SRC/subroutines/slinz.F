@@ -27,14 +27,15 @@ C     Guard against overflow, underflow. Make -1 < i0[1..4] < nr+1
       mxmin(xx) = min(max(xx,-2*de),nr*de)/de+1.9999999d0
 
 C --- Sort the ec ---
-      do  3  i = 1, 3
-      do  3  j = 1, 4-i
+      do   i = 1, 3
+      do   j = 1, 4-i
         if (ec(j) .gt. ec(j+1)) then
           e = ec(j)
           ec(j) = ec(j+1)
           ec(j+1) = e
-        endif
-    3 continue
+       endif
+      enddo
+      enddo
       e1 = ec(1)
       e2 = ec(2)
       e3 = ec(3)

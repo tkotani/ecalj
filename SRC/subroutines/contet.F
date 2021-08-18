@@ -133,7 +133,7 @@ C         ... Add weights from mkcond
 
 C --- DOS from finite difference of NOS ---
       bin = 2d0 * bin
-      do  11  isp  = 1, nsp
+      do  111  isp  = 1, nsp
       do  11  ichan = 1, nchan
         do  10  i = 2, npts - 1
           wk(i) = (zos(i+1,isp,ichan) - zos(i-1,isp,ichan)) / bin
@@ -142,5 +142,6 @@ C --- DOS from finite difference of NOS ---
         wk(npts) = wk(npts-1)
         call dcopy(npts,wk,1,zos(1,isp,ichan),1)
    11 continue
+ 111  continue
       end
 

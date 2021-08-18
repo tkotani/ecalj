@@ -17,7 +17,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C Passed parameters
       integer iopt,n,ipr
-      double precision w(1),z(1),alfa,z0
+      double precision w(1),z(*),alfa,z0
 C Local parameters
       integer in,iroot
       double precision delta,lagn,lnolnp,smachp,root,d1mach
@@ -48,12 +48,14 @@ C ... First guess for z
    20 continue
 
 C --- Debugging: check for identical roots ---
-      do  30  in = 1, n-1
-   30 if (dabs(z(in)-z(in+1)).lt.smachp) stop 'mklagw: identical roots'
+      do    in = 1, n-1
+         if (dabs(z(in)-z(in+1)).lt.smachp) stop 'mklagw: identical roots'
+      enddo   
 
 C --- Weights for alfa=1, z0=0 ---
-      do  40  in = 1, n
-   40 w(in) = z(in)/(lagn(n+1,z(in))*(n+1))**2
+      do    in = 1, n
+         w(in) = z(in)/(lagn(n+1,z(in))*(n+1))**2
+      enddo   
 
 C --- Shift points and weights for alfa and z0 ---
       do  50  in = 1, n
@@ -63,8 +65,9 @@ C --- Shift points and weights for alfa and z0 ---
 
 C --- Scale weights for opt=1 ---
       if (iopt .eq. 1) then
-        do  60  in = 1, n
-   60   w(in) = w(in)*dexp(alfa*z(in))
+        do    in = 1, n
+           w(in) = w(in)*dexp(alfa*z(in))
+        enddo   
       endif
 
 C --- Printout ---

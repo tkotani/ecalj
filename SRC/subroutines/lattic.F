@@ -1,11 +1,15 @@
       module m_lattic
       real(8) , allocatable,protected ::  rv_a_odlv (:)
       real(8) , allocatable,protected ::  rv_a_oqlv (:)
+      real(8),protected:: lat_plat(3,3),lat_qlat(3,3),lat_awald,lat_vol
+      real(8), allocatable :: rv_a_opos(:,:)
+      real(8),protected:: lat_dist(9) !unused because no deformation of cell allowed currently.
+      integer,protected:: lat_nkd,lat_nkq
       contains
-      subroutine lattic() !slat,nbas)
-      use m_lmfinit,only: ctrl_nbas, !,v_sctrl,slat=>v_slat,
-     &     lat_alat, lat_as, lat_tol,lat_rpad,lat_nkdmx,lat_nkqmx,lat_gam,lat_dist,
-     &     lat_plat0,lat_plat,lat_qlat,lat_awald,lat_ldist,lat_nkd,lat_nkq,lat_vol,rv_a_opos
+      subroutine m_lattic_init() !slat,nbas)
+       use m_lmfinit,only: ctrl_nbas, !,v_sctrl,slat=>v_slat,
+     &     lat_alat, lat_as, lat_tol,lat_rpad,lat_nkdmx,lat_nkqmx,lat_gam,v_ssite,
+     &     lat_platin, lat_dist0 ,lat_ldist!,rv_a_opos
 C     - Sets up the real and reciprocal space lattice vectors
 C ----------------------------------------------------------------------
 Cio Inputs/Outputs
@@ -36,7 +40,7 @@ Cu   5 Jun 01 (ATP) Now calls lattc after lattice transformation
 Cu  19 Apr 00 Fixed rotations; new argument list
 C ----------------------------------------------------------------------
       implicit none
-      integer:: ldist , lmxst , nkd , nkdmx , nkq , nkqmx , nbas,i_data_size
+      integer:: ldist , lmxst , nkd , nkdmx , nkq , nkqmx , nbas,i_data_size,i_spackv
       real(8),allocatable:: rv_a_tmp(:)
       integer nbaspp,npadl,npadr
       double precision alat,awald,awald0,gam(4),gx,gy,gz,gt,tol,vol,
@@ -44,6 +48,7 @@ C ----------------------------------------------------------------------
      .plat0(3,3),plat(3,3),qlat(3,3),dist(3,3) !platl(3,3),platr(3,3)
       equivalence (gam(1), gx), (gam(2), gy), (gam(3), gz), (gam(4), gt)
       external daxpy,dcopy,lattc,lattdf,rdistn
+      
       alat=lat_alat
       awald0=lat_as
       tol=lat_tol
@@ -52,14 +57,18 @@ C ----------------------------------------------------------------------
       nkqmx=lat_nkqmx
       gam = lat_gam
       alat = lat_alat
-      plat0=lat_plat
+      plat0=lat_platin
       nbas=ctrl_nbas
       nbaspp = nbas 
 C ... Apply specified linear transformation of lattice and basis vectors
       ldist = lat_ldist
-      dist(1:3,1)= lat_dist(1:3)
-      dist(1:3,2)= lat_dist(4:6)
-      dist(1:3,3)= lat_dist(7:9)
+      dist(1:3,1)= lat_dist0(1:3)
+      dist(1:3,2)= lat_dist0(4:6)
+      dist(1:3,3)= lat_dist0(7:9)
+      allocate(rv_a_opos(3,nbas))
+      do i_spackv=1,nbas
+         rv_a_opos(:,i_spackv)= v_ssite( i_spackv )%pos
+      enddo
       if (abs(gt-1) .gt. 1d-10) then
         call rdistn ( rv_a_opos , rv_a_opos , nbaspp , gx , gy , gz , gt )
       elseif (ldist .ne. 0) then
@@ -77,7 +86,7 @@ C ... Apply specified linear transformation of lattice and basis vectors
      .  gy , gz , gt , plat , qlat , lmxst , vol , awald , rv_a_odlv
      .  , nkd , rv_a_oqlv , nkq , nkdmx , nkqmx )
       lat_vol  =vol
-      lat_plat0=plat0
+c      lat_plat0=plat0
       lat_plat =plat
       lat_qlat =qlat
 !! reduce size. necessary?
@@ -104,10 +113,6 @@ C ... Apply specified linear transformation of lattice and basis vectors
       lat_dist(1:3)=dist(1:3,1)
       lat_dist(4:6)=dist(1:3,2)
       lat_dist(7:9)=dist(1:3,3)
-      end subroutine lattic
+      end subroutine m_lattic_init
       end module m_lattic
-!! 
-      subroutine latticx()
-      use m_lattic,only:lattic
-      call lattic()
-      end
+ 

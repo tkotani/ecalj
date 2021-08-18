@@ -20,8 +20,8 @@
 !     Then you get dosf.dat file
 !! == readin dos input, print out dos
       implicit none
-      integer:: ndhamx,nsp,nspx,nevmin,nchanp,nbas,nkk1,nkk2,nkk3,ntete,ndos,nkp
-     & ,ibas,jsp,ifi,init,iend,ipts,j,isp,itet,ksp,i,ib,ifip
+      integer:: ndhamx,nsp,nspx,nevmin,nchanp,nkk1,nkk2,nkk3,ntete,ndos,nkp
+     & ,ibas,jsp,ifi,init,iend,ipts,j,isp,itet,ksp,i,ib,ifip,nbas
       integer,allocatable::idtete(:,:)
       real(8),allocatable:: evlall(:,:),pdosp(:,:),pdosalla(:,:),dwgtall(:,:,:)
       real(8)::eminp,emaxp,ef0,eee,eminp_,emaxp_
@@ -44,8 +44,8 @@ c      character*100::filenm(2)
       ndos=1000
       open(newunit=ifip,form='formatted',file='eigenf.dat')
       read(ifip,*) nevmin
-      allocate(evlall(nevmin,nkp),dwgtall(nbas,nevmin,nkp))
       nbas=nevmin
+      allocate(evlall(nevmin,nkp),dwgtall(nbas,nevmin,nkp))
       do ikp=1,nkp
          read(ifip,*) evlall(1:nevmin,ikp)
 c         read(ifip,*) dwgtall(ibas,1:nevmin,ikp)
@@ -98,7 +98,7 @@ c      vvv = ( 3d0  -  nsp ) / ( nkk1 * nkk2 * nkk3 * 6d0 )/4d0
       enddo
       enddo
 #if MPIK
-      call mpibc2( pdosalla, ndos, 4 , mlog , 'writedossawada' , 'pdosalla' )
+      call mpibc2_real( pdosalla, ndos, 'writedossawada_pdosalla' )
 #endif
       if(procid==0) then        !master only
          allocate(pdosp (ndos,0:nbas))

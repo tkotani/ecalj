@@ -425,10 +425,11 @@ c 333   format(' hansz1:  not converged to tol=',1pe8.1)
             do  53  ir = 1, nr
               xi(ir,l) = cofl(nmaxl)
    53       continue
-            do  54  m = nmaxl, 1, -1
-            do  54  ir = 1, nr
-              xi(ir,l) = xi(ir,l)*rsq(ir) + cofl(m-1)
-   54       continue
+            do    m = nmaxl, 1, -1
+            do    ir = 1, nr
+               xi(ir,l) = xi(ir,l)*rsq(ir) + cofl(m-1)
+            enddo
+            enddo
           endif
         endif
         ta2l = ta2l*(ta*a)

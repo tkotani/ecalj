@@ -1,7 +1,13 @@
       subroutine pwmat(ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q,!slat,
      .ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
       use m_struc_def           !Cgetarg
-      use m_lmfinit,only: lat_alat,lat_plat,lat_qlat,lat_vol
+      use m_lmfinit,only: lat_alat
+      use m_lattic,only: lat_qlat
+      use m_lattic,only: lat_vol
+      use m_uspecb,only:uspecb
+
+
+      use m_lattic,only:lat_plat
       implicit none
 !! inn:  takao added 27 Apr2009
 !!   We have  q+G(igvx; internal in pwmat) = qp + G(igapw).
@@ -173,7 +179,7 @@ C     Could be optimized, ala hsibl, but not a critical step for GW.
           phase = exp( -img * sum( qpg*bas(:,ib)*alat )  )
           is = int(ssite(ib)%spec)
 
-          call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkapi)
+          call uspecb(is,rsmh,eh)
           call orbl(ib,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
           call gtbsl1(8+16,norb,ltab,ktab,rsmh,eh,ntab,blks)
 
@@ -238,7 +244,13 @@ C --- Cleanup ---
       subroutine pwmat2(ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q,!slat,
      .ngp,nlmax,igv,ovlp,pwh)
       use m_struc_def           !Cgetarg
-      use m_lmfinit,only: lat_alat,lat_plat,lat_qlat,lat_vol
+      use m_lmfinit,only: lat_alat
+      use m_lattic,only: lat_qlat
+      use m_lattic,only: lat_vol
+      use m_uspecb,only:uspecb
+
+
+      use m_lattic,only:lat_plat      
 C- Matrix elements (IPW,IPW); expansion coefficients of basis fns in IPWs
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -360,7 +372,7 @@ C ... Fourier coefficients of smoothed hankels for all LMTOs
           phase = exp( -img * sum( qpg*bas(:,ib)*alat )  )
           is = int(ssite(ib)%spec)
 
-          call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkapi)
+          call uspecb(is,rsmh,eh)
           call orbl(ib,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
           call gtbsl1(8+16,norb,ltab,ktab,rsmh,eh,ntab,blks)
 

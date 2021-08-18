@@ -5,8 +5,9 @@ C     implicit none
       double precision a(n),b(n),c(n),xx
 
       xx = 0d0
-      do  10  i = 1, n
-   10 xx = xx + a(i)*b(i)*c(i)
+      do    i = 1, n
+       xx = xx + a(i)*b(i)*c(i)
+      enddo
       dot3 = xx
       end
 

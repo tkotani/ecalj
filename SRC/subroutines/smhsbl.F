@@ -2,10 +2,15 @@ CSFCPP#define F90 1
       subroutine smhsbl(mode,ssite,sspec,vavg,q,ndimh,iprmb, !,slat
      .napw,igapw,h,s)
       use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
-      use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
-c      use m_globalvariables
-      use m_lmfinit,only:lat_alat,lat_plat,lat_vol
+
+
+      use m_lmfinit,only: lat_alat,nbas,nkaphh,lhh
+      use m_lattic,only: lat_vol
+      use m_uspecb,only:uspecb
+
+
+      use m_struc_def
+      use m_lattic,only:lat_plat      
 C- Smoothed Bloch Hamiltonian (constant potential) and overlap matrix
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -161,7 +166,7 @@ c      type(s_lat)::slat
 C ... Local parameters
       integer nlms,kdim,n0,nkap0
       parameter (nlms=25, kdim=1, n0=10, nkap0=3)
-      integer nbas,nglob,nlmto
+      integer nlmto
       integer i1,i2,ib1,ib2,ilm1,ilm2,io1,io2,is1,is2,nlm1,nlm2,l1,l2,ig
       integer lh1(nkap0),lh2(nkap0),nkap1,nkap2
       integer ltab1(n0*nkap0),ktab1(n0*nkap0),offl1(n0*nkap0),norb1,ik1,
@@ -205,7 +210,7 @@ c      integer obuff
 #endif
 C --- Setup ---
       nlmto = ndimh-napw
-      nbas  = globalvariables%nbas
+c      nbas  = globalvariables%nbas
 C ... Setup below needed for PWs
       if (napw .gt. 0) then
         alat=lat_alat
@@ -299,7 +304,7 @@ c     #endif
 c          i_copy_size=size(ssite(ib1)%pos)
 c          call dcopy(i_copy_size,ssite(ib1)%pos,1,p1,1)
           p1=ssite(ib1)%pos
-          call uspecb(0,2,sspec,is1,is1,lh1,rsm1,e1,nkap1)
+          call uspecb(is1,rsm1,e1)
 C       Row info telling smhsbl where to poke s0 made by hhibl
           call orbl(ib1,0,nlmto,iprmb,norb1,ltab1,ktab1,xx,offl1,xx)
           call gtbsl1(8+16,norb1,ltab1,ktab1,rsm1,e1,ntab1,blks1)
@@ -308,15 +313,15 @@ C       Row info telling smhsbl where to poke s0 made by hhibl
 c            i_copy_size=size(ssite(ib2)%pos)
 c            call dcopy(i_copy_size,ssite(ib2)%pos,1,p2,1)
             p2=ssite(ib2)%pos
-            call uspecb(0,2,sspec,is2,is2,lh2,rsm2,e2,nkap2)
+            call uspecb(is2,rsm2,e2)
 C         Column info telling smhsbl where to poke s0 made by hhibl
             call orbl(ib2,0,nlmto,iprmb,norb2,ltab2,ktab2,xx,offl2,xx)
             call gtbsl1(8+16,norb2,ltab2,ktab2,rsm2,e2,ntab2,blks2)
 C     ... M.E. <1> and <T> between all envelopes connecting ib1 and ib2
-            do  i1 = 1, nkap1
-              do  i2 = 1, nkap2
-                nlm1 = (lh1(i1)+1)**2
-                nlm2 = (lh2(i2)+1)**2
+            do  i1 = 1, nkaphh(is1) !nkap1
+              do  i2 = 1, nkaphh(is2) !nkap2
+                nlm1 = (lhh(i1,is1)+1)**2
+                nlm2 = (lhh(i2,is2)+1)**2
                 if (nlm1 .gt. nlms .or. nlm2 .gt. nlms)
      .          call rx('smhsbl: increase nlms')
                 call hhibl ( 11 , p1 , p2 , q , rsm1 ( 1 , i1 ) , rsm2 ( 1 , 

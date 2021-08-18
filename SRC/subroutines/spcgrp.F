@@ -69,7 +69,9 @@ C --- Make the space group ---
       call sgroup(0,gen,trans,ngen,g,ag,ng,ngmx,qb)
       end
       subroutine sgroup(mode,gen,agen,ngen,g,ag,ng,ngmx,qb)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: stdo
+
+
 C- Sets up space group given generators (gen,agen).
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -110,14 +112,14 @@ C ... Passed parameters
 C ... Local parameters
       double precision h(9),hh(9),e(9),sig(9),asig(3),ah(3),ahh(3),ae(3)
       integer ipr,igen,ig,itry,iord,nnow,j,ip,i,k,n2,m1,m2,is,nnew,n,m,
-     .stdo,nglob,mode0,mode1
+     .mode0,mode1
       logical spgeql
       character sout*80,sg*35
       data e/1d0,0d0,0d0, 0d0,1d0,0d0, 0d0,0d0,1d0/, ae/0d0,0d0,0d0/
 
       call getpr(ipr)
 Changenglob      stdo = nglob('stdo')
-      stdo = globalvariables%stdo
+c      stdo = globalvariables%stdo
       sout = ' '
       call spgcop(e,ae,g,ag)
       ng = 1
@@ -174,8 +176,8 @@ C ... Products with more than one sandwiched sigma-factor
         m2 = nnow
         do  20  is = 2, 50
           nnew = 0
-          do 21 n = ng+1,n2
-          do  21  m = m1, m2
+          do 211 n = ng+1,n2
+          do 21  m = m1, m2
             call spgprd(g(1,n),ag(1,n),g(1,m),ag(1,m),h,ah)
             do  22  k = 1, nnow
               if (spgeql(mode0,g(1,k),ag(1,k),h,ah,qb)) goto 21
@@ -185,6 +187,7 @@ C ... Products with more than one sandwiched sigma-factor
             if (nnow .gt. ngmx) goto 99
             call spgcop(h,ah,g(1,nnow),ag(1,nnow))
    21     continue
+ 211      continue
           m1 = m2+1
           m2 = nnow
           if (nnew .eq. 0) goto 25
@@ -261,7 +264,7 @@ C     implicit none
       double precision
      .g1(3,3),g2(3,3),g(3,3),sum,a1(3),a2(3),a(3),h(3,3),ah(3)
       integer i,j,k
-      do 10 i=1,3
+      do 101 i=1,3
       do 10 j=1,3
         sum=0d0
         do 11 k=1,3
@@ -269,15 +272,18 @@ C     implicit none
    11   continue
         h(i,j)=sum
    10 continue
-      do 13 j=1,3
-      do 13 i=1,3
-        g(i,j)=h(i,j)
-   13 continue
-      do 12 i=1,3
+ 101  continue
+      do j=1,3
+      do i=1,3
+         g(i,j)=h(i,j)
+      enddo
+      enddo
+      do  i=1,3
         ah(i)=a1(i)
-      do 12 j=1,3
-        ah(i)=ah(i)+g1(i,j)*a2(j)
-   12 continue
+      do  j=1,3
+         ah(i)=ah(i)+g1(i,j)*a2(j)
+      enddo
+      enddo
       do 14 i=1,3
         a(i)=ah(i)
    14 continue
@@ -307,13 +313,13 @@ C      mode(2) = 2
 C      mode(3) = 2
       ja = 0
       do  11  ka = 1, nrc
-        do  2  m = 1, 3
+        do  m = 1, 3
           d(m) = ag(m) - pos(m,ia)
-        do  2  k = 1, 3
-          d(m) = d(m) + g(m,k)*pos(k,ka)
-    2   continue
+        do  k = 1, 3
+           d(m) = d(m) + g(m,k)*pos(k,ka)
+        enddo
+        enddo
         call shorbz(d,d,rb,qb)
-C       call shorps(1,rb,mode,d,d)
         if (abs(d(1))+abs(d(2))+abs(d(3)) .lt. 1d-4) then
           ja = ka
           return

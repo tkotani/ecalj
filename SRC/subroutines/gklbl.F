@@ -1,7 +1,12 @@
       subroutine gklbl(p,rsm,e,q,kmax,nlm,k0,cy,gkl) !,slat
-      use m_lattic,only: rv_a_oqlv,rv_a_odlv
+      use m_lattic,only: rv_a_oqlv,rv_a_odlv,lat_plat
       use m_struc_def           !Cgetarg
-      use m_lmfinit,only: lat_vol,lat_awald,lat_nkd,lat_alat,lat_plat,lat_qlat,lat_nkq
+      use m_lmfinit,only: lat_alat
+      use m_lattic,only: lat_qlat
+      use m_lattic,only: lat_vol
+      use m_lattic,only: lat_awald
+      use m_lattic,only: lat_nkd
+      use m_lattic,only: lat_nkq
 C- Bloch-sums of k,L-dependent gaussians
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -63,13 +68,15 @@ C     make the summation in reciprocal space, else in real space
       endif
       cfac = (0d0,1d0)*dexp(0.25d0*e*rsm*rsm)*phase
       ilm = 0
-      do  28  l = 0, lmax
+      do    l = 0, lmax
         cfac = cfac*(0d0,-1d0)
-      do  28  m = 1, 2*l+1
+      do    m = 1, 2*l+1
         ilm = ilm+1
-      do  28  k = 0, kmax
-        gkl(k,ilm) = cfac*cy(ilm)*gkl(k,ilm)
-   28 continue
+      do    k = 0, kmax
+         gkl(k,ilm) = cfac*cy(ilm)*gkl(k,ilm)
+      enddo
+      enddo
+      enddo
       end subroutine gklbl
 !!sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine gklbld(p,rsm,q,kmax,nlm,k0,alat,dlv,nkd,wk,gkl)
@@ -104,10 +111,11 @@ C ... Local parameters
       if (nlm .gt. nlm0) call rxi('increase nlm0 in gklbld; need',nlm)
       tpi = 8d0*datan(1d0)
       lmax = ll(nlm)
-      do  10  ilm = 1, nlm
-      do  10  k = 0, kmax
-        gkl(k,ilm) = 0d0
-   10 continue
+      do    ilm = 1, nlm
+      do    k = 0, kmax
+         gkl(k,ilm) = 0d0
+      enddo
+      enddo
       do  20  ir = 1, nkd
         r(1) = alat*(p(1)-dlv(1,ir))
         r(2) = alat*(p(2)-dlv(2,ir))

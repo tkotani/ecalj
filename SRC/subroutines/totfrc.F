@@ -1,4 +1,5 @@
-      subroutine totfrc(nbas,ssite,leks,fes1,fes2,dfhf,f)
+      subroutine totfrc(leks,fes1,fes2,dfhf,fin,fout)
+      use m_lmfinit,only: nbas,ssite=>v_ssite
       use m_mksym,only:  rv_a_osymgr , iv_a_oistab ,lat_nsgrp
       use m_struc_def           
 C- Add together and print contributions to force
@@ -14,32 +15,21 @@ Ci   fes1  :contribution to HF forces from estat + xc potential   This is for in
 Ci   fes2  :contribution to KS forces from estat + xc potential   This is for output density
 Ci   dfhf  :2nd order corr. HF forces from ansatz density shift (dfrce) !=1st term  in (B.5)
 Cio Inputs/Outputs
-Cio     f  :On input, f is the contribution to force from eigval sum    !=2nd term in (B.5)
-Cio        :On output, f is the total force
+Ci     fin  :On input, f is the contribution to force from eigval sum    !=2nd term in (B.5)
+Cio    fout :On output, f is the total force
 cc Remarks
 Cu Updates
 Cu   12 Apr 03 Prints out max correction to Harris force
 Cu   30 May 00 Adapted from nfp totforce.f
 C ----------------------------------------------------------------------
       implicit none
-C ... Passed parameters
-      integer nbas,leks,i_copy_size
-      real(8):: f(3,nbas) , fes1(3,nbas) , fes2(3,nbas) , dfhf(3,nbas)
-      type(s_site)::ssite(*)
-c      type(s_lat)::slat
-
-C ... Local parameters
-      integer:: stdo , stdl , lgunit , ipr , ipl , ib , m , ng , ibmx 
-     .  , isw
-ckino Dec.12.2011:          real(8),pointer :: rv_p_og(:) =>NULL()
-
-ckino Dec.12.2011:        integer,pointer :: iv_p_oistab(:) =>NULL()
-
+      integer leks,i_copy_size
+      real(8):: fin(3,nbas) ,fout(3,nbas), f(3,nbas) , fes1(3,nbas) , fes2(3,nbas) , dfhf(3,nbas)
+      integer:: stdo , stdl , lgunit , ipr , ipl , ib , m , ng , ibmx , isw
       real(8) ,allocatable :: wk_rv(:)
-
       double precision fev1(3),fev2(3),fhar(3),fks(3),c,ddot,fmax,dfmax
-C ... Heap
-
+      
+      f=fin
       stdo = lgunit(1)
       stdl = lgunit(2)
       if (leks .lt. 0) return
@@ -115,7 +105,7 @@ C     Symmetrize forces to machine precision
      .    f )
         if (allocated(wk_rv)) deallocate(wk_rv)
       endif
-
+      fout=f
       end subroutine totfrc
 
 

@@ -1,5 +1,8 @@
       subroutine loctsh(mode,spid,z,a,nr,nrmt,nsp,lmxb,rofi,v,pnu,pnz,
      .rs3,eh3,vmtz,vsel,rsml,ehl)
+      use m_lmfinit,only: stdo
+
+
 C- Fit value and slope of local orbitals to smoothed Hankel
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -61,9 +64,8 @@ Cu   06 Jul 05 generation of (val,slo,k.e.) and fitting split into
 Cu             independent operations
 Cu   27 Jun 04 First created
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
-      use m_lmfinit,only: globalvariables
 c      use m_globalvariables
       integer lmxb,nr,nrmt,nsp,n0,mode
       double precision a,z,rs3,eh3,vmtz
@@ -72,7 +74,7 @@ c      use m_globalvariables
       double precision rsml(n0,2),ehl(n0,2),vsel(4,n0)
 C ... Local parameters
       character spid*8,orbit(2)*4,flg(2)*1
-      integer:: ipr , iprint , i , l , info , nglob , stdo , mode0 
+      integer:: ipr , iprint , i , l , info , mode0 
      ., mode1 , mode2 , mode3 , mode4 , modei , loclo , nfit , iprt 
      ., isw
       real(8) ,allocatable :: g_rv(:)
@@ -101,7 +103,7 @@ C     call prrmsh('loctsh v',rofi,v,nr,nr,nsp)
 C --- Setup ---
       ipr = iprint()
 Changenglob      stdo = nglob('stdo')
-      stdo = globalvariables%stdo
+c      stdo = globalvariables%stdo
 C     stdl = nglob('stdl')
       if (lmxb .gt. 8) call rx('loctsh:  lmax too large')
       rmt = rofi(nrmt)

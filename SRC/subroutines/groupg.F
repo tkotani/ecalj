@@ -1,5 +1,7 @@
       subroutine groupg(mode,ng,g,ag,plat,ngen,gen,agen,gens,ngout)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: stdo
+
+
 C- Finds a set of generators for the symmetry group
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -36,13 +38,13 @@ C Passed parameters:
       character*(*) gens
 C Local parameters:
       integer imax,isop,ngloc,ngmax,iprint,ngen0,ngmx
-      integer i1,i2,j1,j2,stdo,nglob
+      integer i1,i2,j1,j2
       parameter (ngmx=48*64)
       character*100 sg,sg1,sout,sout2
       double precision gloc(3,3,ngmx),agloc(3,ngmx),qlat(9),xx,vec(3)
 
-Changenglob      stdo = nglob('stdo')
-      stdo = globalvariables%stdo
+cChangenglob      stdo = nglob('stdo')
+c      stdo = globalvariables%stdo
 
 C --- Starting number of group ops ---
       call mkqlat(plat,qlat,xx)

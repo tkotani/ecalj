@@ -1,10 +1,12 @@
       subroutine vcdmel(nl,ssite,sspec,nlmax,ndham,ndimh,!,slat
      .nq,nsp,nspc,ef,evl,aus,nsite,isite,iclsl,iclsn,dosw)!sbz,
       use m_lmfinit,only: rv_a_ocg , iv_a_ojcg , iv_a_oidxcg
-      use m_mkqp,only: iv_a_oidtet 
+      use m_mkqp,only: iv_a_oidtet ,bz_nabc, bz_ntet
       use m_struc_def
       use m_ext,only: sname     !extention for file
-      use m_lmfinit,only: bz_ndos,bz_dosmax,bz_nabc,bz_ntet
+      use m_lmfinit,only: bz_ndos,bz_dosmax
+      use m_elocp,only: rsmlss=>rsml,ehlss=>ehl
+      
 C- Valence-core dipole matrix elements
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -99,7 +101,9 @@ C   --- Augmented wave functions u,s
         allocate(ruu_rv(nr*(lmxa+1)*2*nsp))
         allocate(rus_rv(nr*(lmxa+1)*2*nsp))
         allocate(rss_rv(nr*(lmxa+1)*2*nsp))
-        call uspecb(0,4,sspec,is,is,lh,rsml,ehl,j)
+c     call uspecb(0,4,sspec,is,is,lh,rsml,ehl,j)
+        rsml= rsmlss(:,is)
+        ehl = ehlss(:,is)
         call makusp ( n0 , z , nsp , rmt , lmxa , ssite(ib)%rv_a_ov0 , a , nr , 
      .   xx , xx , pnu , pnz , rsml , ehl , ul_rv , sl_rv , gz_rv 
      .   , ruu_rv , rus_rv , rss_rv )
@@ -343,11 +347,12 @@ C     .              aus(mlm,ib,2),cg(icg),cxx
    14     continue
         endif
    11 continue
-      do  20  k = 1, 3
-      do  20  ib = 1, ndimh
+      do  k = 1, 3
+      do  ib = 1, ndimh
         s(k,isite,ib,1) = s(k,isite,ib,1)*s(k,isite,ib,1)
      .    + s(k,isite,ib,2)*s(k,isite,ib,2)
-   20 continue
+      enddo
+      enddo
       end subroutine pvcdm2
 
 

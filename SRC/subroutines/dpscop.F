@@ -15,6 +15,7 @@ C --- fac not unity ---
   100 continue
       iadd = n2-n1
       ntop = n1+nel-1
-      do  110  i = n1, ntop
-  110 ato(i+iadd) = fac*afrom(i)
+      do    i = n1, ntop
+         ato(i+iadd) = fac*afrom(i)
+      enddo
       end

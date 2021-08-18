@@ -1,8 +1,7 @@
       subroutine suclst(nsitmx,nbas,nsp,ssite,sspec,clsopt,isite,iclsl,
      .iclsn,nsites)
-
-      use m_struc_def  !Cgetarg
-
+      use m_struc_def
+      use m_ext,only:sname
 C- Set up list of sites for core level spectra
 C ----------------------------------------------------------------------
 Ci Inputs: nsitmx (dimension of isite,iclsl,iclsn: set in bndfp)
@@ -64,7 +63,7 @@ C   ... Return here to resume parsing for arguments
           if (j1+3 .gt. j2) call rx('suclst: bad file name')
           fn = clsopt(j1+3:j2)
 C   ... read in data from file
-          ifi = fopna(fn,-1,1)
+          open(newunit=ifi,file=trim(fn)//'.'//trim(sname)) !ifi = fopna(fn,-1,1)
           i = 0
     2     continue
           read (ifi,*,end=3,err=3) isite(i+1),iclsl(i+1),iclsn(i+1)
@@ -72,7 +71,7 @@ C   ... read in data from file
           if (i .gt. nsitmx) call rxi('bndfp needs nsitmx',nsites)
           goto 2
     3     continue
-          call fclose(ifi)
+          close(ifi)
           nsites = i
           goto 4
         elseif (clsopt(j1:j1+3) .eq. 'lst=') then

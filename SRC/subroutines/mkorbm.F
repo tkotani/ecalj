@@ -1,8 +1,11 @@
-      subroutine mkorbm(ssite,sspec,isp,nsp,nspc,nlmax,ndham,nev,
-     .wtkp,iq,nbas,ppnl,aus,nl,nkp,orbtm)
-
-      use m_struc_def  !Cgetarg
-
+      subroutine mkorbm(isp,nev,iq,qp,evec, orbtm)
+      use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nl,n0,nppn,nab
+      use m_lmfinit,only: ham_ldham
+      use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
+      use m_mkpot,only: ppnl=>ppnl_rv 
+      use m_subzi, only: wtkb=>rv_a_owtkb
+      use m_qplist,only: nkp
+      use m_suham,only: ndham=>ham_ndham, ndhamx=>ham_ndhamx 
 C- Decomposition of norm from projection of w.f into MT sphere
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -51,22 +54,27 @@ Cu   30 Aug 04 (A. Chantis) first written, adapted from mkpdos
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer isp,nsp,nspc,nlmax,ndham,nbas,nev
-      integer n0,nppn,nl,nkp,nab,iq
-      parameter (n0=10,nppn=12,nab=9)
-      real(8):: wtkp(ndham,nsp,nkp)
-      type(s_site)::ssite(*)
-      type(s_spec)::sspec(*)
+      integer isp,nev
+      integer iq
+c      parameter (n0=10,nppn=12,nab=9)
+c      real(8):: wtkp(ndham,nsp,nkp)
+c      type(s_site)::ssite(*)
+c      type(s_spec)::sspec(*)
 
-      double precision ppnl(nppn,n0,nsp,*),orbtm(nl,nsp,*)
-      double complex aus(nlmax,ndham*nspc,3,nsp,*)
+      double precision orbtm(nl,nsp,*) !ppnl(nppn,n0,nsp,*),
+c      double complex aus(nlmax,ndham*nspc,3,nsp,*)
 C ... Local parameters
       integer lmxa,lmxax,lmdim,ichan,ib,is,igetss,iv,ilm,l,m,nlma,
      .ll,lc,em,ispc,ksp
       double precision suml(11),s11,s22,s12,s33,s31,s32,s13,s23,
      .suma,rmt,sab(nab,n0,2)
       double complex au,as,az,iot
-
+      complex(8),allocatable ::aus(:,:,:,:,:)
+      double complex evec(ndimh,nsp,nev)
+      real(8):: qp(3)
+      allocate(aus(nlmax,ndham*nspc,3,nsp,nbas))
+      aus=0d0
+      call makusq(0 , nbas,0, nev, isp,1,qp,evec, aus )
       lmxax = ll(nlmax)
       iot = dcmplx(0d0,1d0)
       ichan = 0
@@ -161,7 +169,7 @@ C           If (au,as) are coefficients to (u,s), use this
                 s23 = dconjg(as)*az*sab(7,l+1,ksp)
 
                 orbtm(l+1,ksp,ib)=orbtm(l+1,ksp,ib)+m*(s11+s12+s22+
-     .          s33+s32+s23+s31+s13)*wtkp(iv,isp,iq)
+     .          s33+s32+s23+s31+s13)*wtkb(iv,isp,iq) !corrected. it should be wtkb
 
               enddo
             enddo
@@ -171,6 +179,7 @@ C           If (au,as) are coefficients to (u,s), use this
 C        print*, isp, ib, 'ORB.MOMNT=',orbtm(isp,ib)
    10   continue
       enddo
+      deallocate(aus)
       end subroutine mkorbm
 
 

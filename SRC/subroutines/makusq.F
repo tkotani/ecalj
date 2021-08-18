@@ -1,8 +1,10 @@
-      subroutine makusq(mode,ssite,sspec,nbas,nsites,isite,!,sham,slat
-     .nlmax,ndham,ndimh,napw,igvapw,nev,nsp,nspc,isp,iq,q,evec,ppnl,
-     .     aus)
-      use m_suham,only: iv_a_oindxo
-      use m_struc_def  !Cgetarg
+      subroutine makusq(mode,nsites,isite,
+     .     nev,isp,iq,q,evec,  aus)
+      use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nkapii,lhh,ham_ldham,iprmb
+      use m_suham,only: ndham=>ham_ndham
+      use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
+      use m_mkpot,only: ppnl=>ppnl_rv       
+      use m_uspecb,only:uspecb
 C- Accumulate coefficients of (u,s) in all augmentation spheres at one k-pt
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -83,25 +85,29 @@ Cu                   Some rearrangement of coefficients.
 Cu   19 Feb 01 (MvS) shortened argument list
 Cu   21 Nov 00 (ATP) Adapted from fp mkrout
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
-      integer mode,nbas,nsp,nspc,isp,iq,
-     .ndham,ndimh,napw,igvapw(3,napw),nev,nlmax,n0,nppn,
+! dummy input
+      real(8):: ssite_,sspec_,nbas_,
+     .nlmax_,ndham_,ndimh_,napw_,igvapw_,nsp_,nspc_,ppnl_ !dummy input
+      
+      integer mode,isp,iq, !,nbas,nsp,nspc
+     .nev,n0,nppn, !nlmax, ndham,ndimh,napw,igvapw(3,napw),
      .nsites,isite(nsites)
       parameter (n0=10,nppn=12)
       real(8):: q(3)
-      type(s_site)::ssite(*)
-      type(s_spec)::sspec(*)
+c      type(s_site)::ssite(*)
+c      type(s_spec)::sspec(*)
 c      type(s_lat)::slat
 c      type(s_ham)::sham
 
-      double precision ppnl(nppn,n0,nsp,nbas)
+c      double precision ppnl(nppn,n0,nsp,nbas)
       double complex evec(ndimh,nsp,nev),
      .aus(nlmax,ndham*nspc,3,nsp,nsites,iq)
 C ... Local parameters
       integer nkap0
       parameter (nkap0=3)
-      integer lh(nkap0)
+c      integer lh(nkap0)
       double precision eh(n0,nkap0),rsmh(n0,nkap0),rsma,a,rmt
       integer igetss,ib,nkapi,is,nr,kmax,lmxa,lmxl,lmxh,i
 ckino Dec.12.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
@@ -138,7 +144,9 @@ C --- Start loop over atoms ---
         a=sspec(is)%a
         nr=sspec(is)%nr
         rmt=sspec(is)%rmt
-        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
+c        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
+        call uspecb(is,rsmh,eh)
+        nkapi=nkapii(is)
         lmxh=sspec(is)%lmxb
         if (lmxa .eq. -1) goto 10
 C   --- Set up all radial head and tail functions, and their BC's
@@ -148,7 +156,7 @@ C   --- Set up all radial head and tail functions, and their BC's
         allocate(xh_rv(nr*(lmxh+1)*nkapi))
         allocate(vh_rv((lmxh+1)*nkapi))
         allocate(dh_rv((lmxh+1)*nkapi))
-        call fradhd ( nkapi , eh , rsmh , lh , lmxh , nr , rofi_rv 
+        call fradhd ( nkapi , eh , rsmh , lhh(:,is) , lmxh , nr , rofi_rv 
      .  , fh_rv , xh_rv , vh_rv , dh_rv )
         allocate(fp_rv(nr*(lmxa+1)*(kmax+1)))
         allocate(xp_rv(nr*(lmxa+1)*(kmax+1)))
@@ -157,7 +165,7 @@ C   --- Set up all radial head and tail functions, and their BC's
         call fradpk ( kmax , rsma , lmxa , nr , rofi_rv , fp_rv 
      .  , xp_rv , vp_rv , dp_rv )
 C   --- Add to the coefficient for the projection onto (u,s) for this site
-        call pusq1 ( mode , ib , isp , nspc , iv_a_oindxo , nlmax , lmxh 
+        call pusq1 ( mode , ib , isp , nspc , iprmb , nlmax , lmxh 
      .   , nbas , ssite , sspec ,  q , ndham , ndimh , napw , igvapw !slat ,
      .   , nev , evec , vh_rv , dh_rv , vp_rv , dp_rv , ppnl ( 1 , 1 , 
      .   1 , ib ) , aus ( 1 , 1 , 1 , 1 , i , iq ) , aus ( 1 , 1 , 2 , 
@@ -179,7 +187,9 @@ C   --- Add to the coefficient for the projection onto (u,s) for this site
       subroutine pusq1(mode,ia,isp,nspc,iprmb,nlmax,lmxh,nbas,ssite,
      .sspec,q,ndham,ndimh,napw,igvapw,nev,evec,vh,dh,vp,dp,ppnl, !slat,
      .     au,as,az)
-      use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
+      use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkapii
+      use m_uspecb,only:uspecb
+      use m_bstrux,only: bstrux
       use m_struc_def  !Cgetarg
 C- Add to the coefficient for the projection onto (u,s) for one site
 C ----------------------------------------------------------------------
@@ -254,7 +264,7 @@ c      type(s_lat)::slat
 C ... Local parameters
       integer nkap0,nlmxx
       parameter (nkap0=3,nlmxx=121)
-      integer lh(nkap0)
+c      integer lh(nkap0)
       complex(8) ,allocatable :: b_zv(:)
       complex(8) ,allocatable :: a_zv(:)
       integer isa,lmxa,lmxha,kmax,nlma,ivec,
@@ -262,7 +272,7 @@ C ... Local parameters
       double precision eh(n0,nkap0),rsmh(n0,nkap0)
       double precision rsma,pa(3),rmt,
      .phi,phip,dphi,dlphi,dphip,dlphip,det,rotp(nlmxx,2,2)
-      integer ::iwdummy
+      complex(8):: zdummy(1)
       integer:: i_copy_size
       call tcn ('pusq1')
       isa=ssite(ia)%spec
@@ -276,12 +286,16 @@ C ... Local parameters
       if (lmxa .eq. -1) return
       nlmto = ndimh-napw
       nlma  = (lmxa+1)**2
-      call uspecb(0,1,sspec,isa,isa,lh,rsmh,eh,nkape)
+c      call uspecb(0,1,sspec,isa,isa,lh,rsmh,eh,nkape)
+      call uspecb(isa,rsmh,eh)
+      nkape=nkapii(isa)
 C --- Make strux to expand all orbitals at site ia ---
       allocate(b_zv((kmax+1)*nlma*ndimh))
-      call bstrux ( 2 , ssite , sspec , rv_a_ocg , iv_a_oidxcg !slat , 
-     .     , iv_a_ojcg , rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
-     .     kmax , nlma , ndimh , napw , igvapw , b_zv , iwdummy )
+c      call bstrux ( 2 , ssite , sspec , rv_a_ocg , iv_a_oidxcg !slat , 
+c     .     , iv_a_ojcg , rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
+c     .     kmax , nlma , ndimh , napw , igvapw , b_zv , iwdummy )
+      call bstrux ( 2 ,  ia , pa , rsma , q , 
+     .     kmax , nlma , ndimh , napw , igvapw , b_zv , zdummy )
 C     In noncollinear case, isp=1 always => need internal ispc=1..2
 C     ksp is the current spin index in both cases:
 C     ksp = isp  in the collinear case

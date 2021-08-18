@@ -1,17 +1,3 @@
-c#define unix 1
-c#define PATH 1
-c #define FEXTENS 1
-
-ctakao's new file opener and closer for f90. This can be consistent with fopna
-c      integer function open90(fnam,options)
-c      character*(*)::fnam, options
-c        inquire(fnum,number
-c        ifio=9038
-c        inquire(unit=ifio,opened=nexist)
-c        if(nexist) 
-c     &  stop 'bndfp: I assumed ifio=9038 is not used(too sloppy)'
-
-
       integer function fopna(fnam,lunit,ista)
 C- File opening
 C ----------------------------------------------------------------
@@ -157,7 +143,7 @@ C Passed parameters
       i = fopnx(fnam,111,0,lunit)
       return
 
-      entry fshow
+c      entry fshow
       i = fopnx(' ',190,0,-1)
       end
       subroutine ffnam(fnam,filnam)
@@ -168,79 +154,7 @@ C     implicit none
       filnam = fnam
       i = fopnx(filnam,160,0,-1)
       end
-      integer function fopnT(fnam,lunit,ista,mode)
-C- File opening, using a separate directory
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   fnam  :file name WITHOUT path or extension
-Ci   lunit :file logical lunit.  If passed lunit is -1, program finds
-Ci         :the next available logical unit; see Remarks in fopna
-Ci   ista  :status switches governing mode of file opening;
-Ci         :see Remarks in fopna
-Ci   mode  :selects which path is used for file opening
-Ci         :0 fopnT opens file using tmpdir for path.
-Ci         :  The extension used by fopna is appended
-Ci         :1 fopnT opens file using tmpdir for path.
-Ci         :  No extension is appended.
-Ci         :..Add 2 to cause fopnT returns logical unit associated 
-Ci         :  with name if it exists in table, but do not touch file
-Ci         :11 fopnT opens no files, but copies fnam into tmpdir
-Ci         :  In this case, lunit and ista are not used.
-Ci         :12 fopnT opens no files, but gets environment variable
-Ci         :  TMPDIR and copies it into tmpdir
-Ci         :  In this case, fnam, lunit and ista are not used.
-Co Outputs
-Cl Local variables
-Cr Remarks
-Cr
-Cu Updates
-Cu   30 Apr 03 First created
-C ----------------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
-      character fnam*(*)
-      integer ista,lunit,mode
-C ... Local parameters
-      integer j1,j2,fextg,fopng,fopnx
-      character tmpdir*100,pfnam*100,ext*100
-
-      logical:: isanrg, l_dummy_isanrg
-
-      save tmpdir
-      data tmpdir /' '/
-
-      if (mode .eq. 12) then
-        call get_environment_variable('TMPDIR',tmpdir)
-      elseif (mode .eq. 11) then
-        tmpdir = fnam
-      endif
-      if (mode .eq. 11 .or. mode .eq. 12) then
-        call word(tmpdir,1,j1,j2)
-        if (j2 .ge. j1) then
-          if (tmpdir(j2:j2) .ne. '/') tmpdir(j2+1:j2+1) = '/'
-        endif
-        fopnT = 0
-        return
-      endif
-
-Ckino isanrg is logical function,       call isanrg(mode,0,4,'fopnt','mode',.true.)
-      l_dummy_isanrg=isanrg(mode,0,4,'fopnt','mode',.true.)
-
-      if (mod(mode,2) .eq. 0) then
-        j1 = fextg(ext)
-        call namcat(pfnam,fnam,ext,.false.)
-        ext = pfnam
-        call namcat(pfnam,tmpdir,ext,.true.)
-      else
-        call namcat(pfnam,tmpdir,fnam,.true.)
-      endif
-
-      if (mode .le. 1) then
-        fopnT = fopng(pfnam,lunit,ista)
-      else
-        fopnT = fopnx(pfnam,186,-1,-1)
-      endif
-      end
+      
       integer function fopnx(pnam,mode,ista,lunit)
 C- Kernel called by fopna, etc to open files
 C ----------------------------------------------------------------
@@ -419,9 +333,10 @@ C ... Return full file name in pnam
 C --- Match lunit with table.  matchu=-1 unless a match exists ---
       matchu = -1
       if (lunit .gt. 0) then
-        do  110  i = 1, nnam
+        do  i = 1, nnam
           matchu = i
-  110   if (tabuni(i) .eq. lunit) goto 111
+          if (tabuni(i) .eq. lunit) goto 111
+        enddo  
         matchu = -1
   111   continue
       endif
@@ -432,8 +347,9 @@ C --- If no match, get next available unit number => locuni ---
         locuni = 7
    12   locuni = locuni+1
         if (isopen(locuni,.false.)) goto 12
-        do  14  i = 1, nnam
-   14   if (tabuni(i) .eq. locuni) goto 12
+        do   i = 1, nnam
+           if (tabuni(i) .eq. locuni) goto 12
+        enddo   
       endif
 
 C --- Match pfnam with table, unless not needed ---
@@ -441,7 +357,8 @@ C --- Match pfnam with table, unless not needed ---
       if (matchu .le. 0 .or. bittst(mode1,4)) then
         do  30  i = 1, nnam
           matchn = i
-   30   if (tabnam(i) .eq. pfnam) goto 31
+          if (tabnam(i) .eq. pfnam) goto 31
+ 30    continue
         matchn = -1
    31   continue
       endif
@@ -595,8 +512,9 @@ C     implicit none
      .' among open units: ',15i3)
 
       isopen = .true.
-      do  10  i = nopen-1, 0, -1
-   10 if (unitab(i) .eq. unit) return
+      do   i = nopen-1, 0, -1
+         if (unitab(i) .eq. unit) return
+      enddo   
 
       isopen = .false.
       if (.not. sw) return
@@ -630,8 +548,9 @@ C     implicit none
       if (iprint() .ge. 100) print 20, unit
    20 format(' FCLOSE: closing',i3)
 
-      do  30  i = nopen-1, 0, -1
-   30 if (unitab(i) .eq. unit) unitab(i) = 999
+      do   i = nopen-1, 0, -1
+         if (unitab(i) .eq. unit) unitab(i) = 999
+      enddo   
       call ishell(nopen,unitab)
       if (nopen .eq. 0 .or. unitab(max(nopen-1,0)) .ne. 999) then
         if (iprint() .ge. 100)
@@ -656,22 +575,54 @@ C --- Close all open files ---
       nopen = 0
       return
       end
+
       integer function lgunit(i)
+      use m_ext,only: sname
+      character*8 charext
+      character*100 ext
+      integer i, fopn, i1mach, fhndl,ifile_handle,procid
+      integer,save:: lgunit1=0,lgunit2=0,lgunit3=0
 C- Returns stdout for i=1, log for i=2, mlog for i=3 (MPI logfile)
 C     implicit none
-      integer i, fopn, i1mach, fhndl
-      lgunit = i1mach(2)
+#if MPIK
+      include "mpif.h"
+      integer mpipid
+      procid = mpipid(1) 
+#endif
+      lgunit = 6!i1mach(2)
       if (i .eq. 1) return
       if (i .eq. 2) then
-        lgunit = -1
-        if (fhndl('LOG') .lt. 0) return
-        lgunit = fopn('LOG')
+         if(lgunit2==0) then
+            lgunit2=ifile_handle()
+            open(lgunit2,file='log.'//trim(sname),position='append')
+         endif
+         lgunit = lgunit2
       elseif (i .eq. 3) then
-        lgunit = -1
-        if (fhndl('MLOG') .lt. 0) return
-        lgunit = fopn('MLOG')
+         if(lgunit3==0) then
+            lgunit3=ifile_handle()
+            open(lgunit3,file='mlog.'//trim(sname)//'_'//trim(charext(procid)))
+         endif
+         lgunit = lgunit3
       endif
       end
+     
+c$$$      integer function lgunit(i)
+c$$$C- Returns stdout for i=1, log for i=2, mlog for i=3 (MPI logfile)
+c$$$C     implicit none
+c$$$      integer i, fopn, i1mach, fhndl
+c$$$      lgunit = i1mach(2)
+c$$$      if (i .eq. 1) return
+c$$$      if (i .eq. 2) then
+c$$$        lgunit = -1
+c$$$        if (fhndl('LOG') .lt. 0) return
+c$$$        lgunit = fopn('LOG')
+c$$$      elseif (i .eq. 3) then
+c$$$        lgunit = -1
+c$$$        if (fhndl('MLOG') .lt. 0) return
+c$$$        lgunit = fopn('MLOG')
+c$$$      endif
+c$$$      end
+      
       subroutine namcat(dest,fnam1,fnam2,lcase)
 C- Concatenates two names, optionally lowering the case
 C     implicit none
@@ -693,21 +644,5 @@ C     implicit none
      .  '" was truncated to "',dest,'"'
       endif
       if (lcase) call locase(dest)
-      end
-      
-      subroutine ftflsh(ifi)
-C- Flushes output buffer for file ifi
-C  NB: this routine is nonstandard, and machine-dependent.
-C     implicit none
-      integer ifi
-      character fname*101,fmt*33
-      integer i1mach,j1,j2
-      logical open
-
-      if (ifi .eq. i1mach(2)) then
-        call flushs(1)
-      elseif (ifi .lt. 0) then
-        call flushs(-1)
-      endif
       end
       

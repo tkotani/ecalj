@@ -1,5 +1,6 @@
       subroutine orbl(ib,ldimp,ldim,iprmb,norb,ltab,ktab,off,offl,ndim)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: nl,nkaph
+
 C- Extract a list of l's in given hamiltonian block for one site
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -35,24 +36,12 @@ C     implicit none
       integer ib,ldimp,ldim,iprmb(1),norb,ndim,n0,nkap0
       parameter (n0=10,nkap0=3)
       integer off,ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
-C Local
       integer ik,l,lmr,ltabi(n0*nkap0),ktabi(n0*nkap0),
      .offli(n0*nkap0+1),iwk(n0*nkap0)
-      integer nl,nkaph,nglob
-      save nl,nkaph
-      data nl /-1/, nkaph /-1/
-
-C     if (mxorb .eq. -1) mxorb = nglob('mxorb')
-Changenglob      if (nl .eq. -1) nl = nglob('nl')
-      if (nl .eq. -1) nl = globalvariables%nl
-Changenglob      if (nkaph .eq. -1) nkaph = nglob('nkaph')
-      if (nkaph .eq. -1) nkaph = globalvariables%nkaph
-
 C --- Make ltab,offl in l order, followed by k order ---
       norb = 0
       ndim = 0
       off = -1
-C     lmr = mxorb*(ib-1)
       lmr = nl*nl*nkaph*(ib-1)
       do  ik = 1, nkaph
         do  l = 0, nl-1
@@ -69,7 +58,6 @@ C     lmr = mxorb*(ib-1)
           lmr = lmr + 2*l+1
         enddo
       enddo
-
 C --- Permute to downfolding order ---
       if (norb .gt. n0*nkap0) call rx('orbl: norb .gt. n0')
       call ivheap(1,norb,offli,iwk,1)
@@ -78,107 +66,11 @@ C --- Permute to downfolding order ---
         ktab(l) = ktabi(iwk(l))
         offl(l) = offli(iwk(l))
       enddo
-
-C      call awrit6(' ib %i  ndim,norb= %i %i %-1j ltab=%n:1i'//
-C     .  '  offl=%n:1i',' ',80,6,ib,ndim,norb,ltab,norb,offl)
       end
 
-      subroutine iprmsb(mode,ib1,ib2,nbas,offH,indxsh,indxi,offl,norb)
-      use m_lmfinit,only: globalvariables
-C- Create a permutation table for a hamiltonian subblock
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   mode  :1s digit nonzero make indxi
-Ci         10s digit:
-Ci         :0 do not make offl
-Ci         :1  make offl
-Ci   ib1   :permutation table generated for subblock in sites ib1..ib2
-Ci   ib2   :                  - // -
-Ci   nbas  :size of basis
-Ci   offH :Offsets to hamiltonian matrix (makidx.f)
-Ci  indxsh:permutations ordering orbitals in l+i+h blocks (makidx.f)
-Co Outputs
-Co  indxi :permutation table for array containing subblock
-Co  offl  :offsets to hamiltonian subblock, for each orbital
-Co  norb  :number of orbitals in hamiltonian subblock
-Cr Remarks
-Cu Updates
-C ----------------------------------------------------------------------
-C     implicit none
-      integer nkap0,n0H,n0
-      parameter (nkap0=3,n0H=5,n0=10)
-      integer mode,ib1,ib2,nbas,indxsh(1),indxi(*),offh(n0H,nkap0,nbas)
-      integer offl(*),norb
-      integer hdimg,hdimi,horbi,idimg,idimi,iorbi,ldimg,ldimi,lhdimg,
-     .lidimg,lmr,lorbi,mxorb,nglob,nlmr,offlm,ib,i,nlm,
-     .offnow,norbi,iwk(n0*nkap0),ltab(n0*nkap0),ktab(n0*nkap0)
-
-      ldimg = offH(1,1,nbas+1)
-      idimg = offH(2,1,nbas+1)
-      hdimg = offH(3,1,nbas+1)
-      lidimg = ldimg+idimg
-      lhdimg = ldimg+idimg+hdimg
-      ldimi = offH(1,1,ib2+1) - offH(1,1,ib1)
-      idimi = offH(2,1,ib2+1) - offH(2,1,ib1)
-      hdimi = offH(3,1,ib2+1) - offH(3,1,ib1)
-      lorbi = 0
-      iorbi = ldimi
-      horbi = ldimi+idimi
-      norbi = ldimi+idimi+hdimi
-Changenglob      mxorb = nglob('mxorb')
-      mxorb = globalvariables%mxorb
-      if (mod(mode,10) .eq. 1) then
-        offlm = mxorb*(ib1-1)
-        nlmr = mxorb*ib2 - offlm
-        do  10  lmr = 1, nlmr
-          if (indxsh(lmr+offlm) .le. ldimg) then
-            lorbi = lorbi+1
-            indxi(lmr) = lorbi
-          else if (indxsh(lmr+offlm) .le. lidimg) then
-            iorbi = iorbi+1
-            indxi(lmr) = iorbi
-          else if (indxsh(lmr+offlm) .le. lhdimg) then
-            horbi = horbi+1
-            indxi(lmr) = iorbi
-          else
-            norbi = norbi+1
-            indxi(lmr) = norbi
-          endif
-   10   continue
-      endif
-      if (mod(mode/10,10) .eq. 1) then
-        norb = 0
-        offnow = 0
-C   ... Lower block
-        do  20  ib = ib1, ib2
-          call orbl(ib,0,ldimg,indxsh,norbi,ltab,ktab,i,iwk,nlm)
-          do  22  iorbi = 1, norbi
-            norb = norb+1
-            offl(norb) = offnow
-            offnow = offnow + 2*ltab(iorbi) + 1
-   22     continue
-   20   continue
-        do  30  ib = ib1, ib2
-          call orbl(ib,ldimg,lidimg,indxsh,norbi,ltab,ktab,i,iwk,nlm)
-          do  32  iorbi = 1, norbi
-            norb = norb+1
-            offl(norb) = offnow
-            offnow = offnow + 2*ltab(iorbi) + 1
-   32     continue
-   30   continue
-        do  40  ib = ib1, ib2
-          call orbl(ib,lidimg,lhdimg,indxsh,norbi,ltab,ktab,i,iwk,nlm)
-          do  42  iorbi = 1, norbi
-            norb = norb+1
-            offl(norb) = offnow
-            offnow = offnow + 2*ltab(iorbi) + 1
-   42     continue
-   40   continue
-      endif
-      end
 
       subroutine offsHp(iprmb,ib1,ib2,lfast,ldimp,ldim,off,ld)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: mxorb
 C- Hamiltonian offset and last orbital for a block of sites
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -212,13 +104,11 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer ib1,ib2,lfast,ldimp,ldim,iprmb(*),off,ld
-C ... Local parameters
-      integer nglob,mxorb,i,k,ib
-      save mxorb
-      data mxorb /-1/
-
+      integer i,k,ib
+c      save mxorb
+c      data mxorb /-1/
 Changenglob      if (mxorb .eq. -1) mxorb = nglob('mxorb')
-      if (mxorb .eq. -1) mxorb = globalvariables%mxorb
+c      if (mxorb .eq. -1) mxorb = globalvariables%mxorb
       ld = 0
 
 C ... Brute force (no assumption about site ordering)

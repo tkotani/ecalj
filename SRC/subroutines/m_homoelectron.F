@@ -13,6 +13,7 @@
 !!! generate |q+G| bands
       !!! calculate |q+G|^2
       subroutine read_qgband(alat,plat,q,ngv,ngvec,isp,gsq,qshort)
+      use m_shortn3,only: shortn3_initialize,shortn3
       intent(in)::           alat,plat,q,ngv,ngvec,isp
       intent(out)::                                    gsq,qshort
       integer :: ngv,isp, ngvec(3,*)
@@ -37,12 +38,12 @@
 
 !     ! Get shortest q
       if(init) then
-         call shortn3_initialize(qlat,rlatp,xmx2)
+         call shortn3_initialize(qlat)
          init=.false.
       endif   
       noutmx=48
       qqin = matmul(transpose(plat),q)
-      call shortn3(rlatp,xmx2, qqin,noutmx, nout,nlatout)
+      call shortn3(qqin,noutmx, nout,nlatout)
       iout=1
       qshort(1:3)=  matmul(qlat(:,:), qqin+nlatout(:,iout))
       

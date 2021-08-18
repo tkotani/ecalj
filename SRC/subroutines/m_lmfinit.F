@@ -10,88 +10,64 @@
 !      i=53           ! i=00110101 binary (lowest order byte)
 !      j=45           ! j=00101101 binary (lowest order byte)
 !      k=iand(i,j)    ! k=00100101 binary (lowest order byte)
-c      use m_struc_func,only: mpibc1_s_spec, mpibc1_s_site
-      use m_struc_def,only: s_spec,s_site
-      use m_ext,only :sname !sname contains extension. foobar of ctrl.foobar
+Ci   alat  :length scale of lattice and basis vectors, a.u.
+Ci   ng    :number of G-vectors
+Ci   gv    :list of reciprocal lattice vectors G (gvlist.f)
+Ci   tol   :tolerance in wave function precision:
+Ci         :Here wave function cutoff for g-vectors whose wave
+Ci          functions are less than tol.
+      
+      use m_ext,only :sname               ! sname contains extension. foobar of ctrl.foobar
+      use m_struc_def,only: s_spec,s_site ! spec and site structures.
+      use m_MPItk,only: master_mpi
       implicit none
       
-      private t_globalvariables ! not use globalbariables. Instead, use module variables directly.
-      type t_globalvariables 
-      integer:: lrel=-999999
-      integer:: lxcf=-999999
-      integer:: mxorb=-999999
-      integer:: nat=-999999
-      integer:: nbas=-999999
-      integer:: nbasp=-999999
-      integer:: nkaph=-999999
-      integer:: nl=-999999
-      integer:: nlmax=-999999
-      integer:: nsp=-999999
-      integer:: nspc=-999999
-      integer:: nspec=-999999
-      integer:: stde=-999999
-      integer:: stdl=-999999
-      integer:: stdo=-999999
-      end type t_globalvariables
-      
-      type(t_globalvariables),protected :: globalvariables
-      type(s_spec),allocatable,protected:: v_sspec(:)
-      
+!!---- initial settings read from ctrl and processed -------
       logical,parameter::  T=.true., F=.false.
-      integer,parameter::  NULLI=-99999,mxrecs=10000,recln0=511
-      real(8),parameter::  NULLR =-99999
-      integer,parameter :: n0=10
-      integer,parameter :: nkap0=3
-      integer,parameter :: mxspec=256,lstrn=10000
-      real(8), parameter:: fs = 20.67098d0, degK = 6.3333d-6   ! defaults for MD
-
+      integer,parameter::  NULLI=-99999,nkap0=3,mxspec=256,lstrn=10000
+      integer,parameter::  n0=10,nppn=12, nab=9 !bndfp
+      real(8),parameter::  NULLR =-99999, fs = 20.67098d0, degK = 6.3333d-6 ! defaults for MD
       integer,protected:: io_show=0,io_help=0,nvario=0
       integer(2),protected:: nono
       character(8),protected:: slabl_(mxspec) 
       character(lstrn),protected:: sstrnmix,sstrnsymg
-      integer,protected:: irs1,irs2,irs3,irs4,irs5,irs11, lat_nkqmx !lat_ngrp ,irs11
-      character(256),protected:: header,symg=' '
-      character(256),protected:: symgaf=' '    !june2015 for antiferro (reserved).
+      integer,protected:: irs1,irs2,irs3,irs4,irs5,irs11, lat_nkqmx,nat,lxcf
+      character(256),protected:: header,symg=' ',   symgaf=' '!for Antiferro
       logical,protected :: ham_frzwf,ham_ewald
-      integer,protected:: nspc,stdo,stdl,procid,nproc,master=0
-
-      integer,protected:: ctrl_lxcf,ctrl_nbas,ctrl_lfp,ctrl_lrel,ctrl_lves, !ctrl_lbas,
-     &     ctrl_maxit ,ctrl_modep(3),ctrl_nbasp,ctrl_nl,ctrl_nesabc(3),ctrl_nitmv,ctrl_nspin,
-     &     ctrl_nspec,ctrl_nsite,ctrl_nvario,ctrl_pfloat,ctrl_quit
-     &     ,ham_lxcf,gga,ftmesh(3),nmto=0,lrsig=0
-     &     ,nsp=1,lrel=1,lso=0,ham_udiag=0,ggax 
+      integer,protected:: nspc,stdo,stdl,procid,nproc,master=0,nspx,
+     &     ctrl_lxcf,ctrl_nbas,ctrl_lfp,ctrl_lrel,ctrl_lves, 
+     &     ctrl_maxit ,ctrl_modep(3),ctrl_nl,ctrl_nesabc(3),ctrl_nitmv,ctrl_nspin,
+     &     ctrl_nspec,ctrl_nsite,ctrl_nvario,ctrl_pfloat
+     &     ,ham_lxcf,gga,ftmesh(3),nmto=0,lrsigx=0
+     &     ,nsp=1,lrel=1,lso=0,ham_udiag=0,ggax
       real(8),protected:: pmin(n0),pmax(n0),ham_pmax(10),ham_pmin(10),
      &     ctrl_defm(6), ctrl_wsrmax,ctrl_sdprm(5),ctrl_rmaxes,
-     &     ctrl_omax1(3),ctrl_omax2(3),ctrl_sclwsr,ctrl_rmines,ctrl_zbak(2),
-     &     tolft,elind,dqval,rsrnge,vmtz, scaledsigma  
-     &     ,alfsi=nullr,dabc(3)=nullr,rsstol     
+     &     ctrl_omax1(3),ctrl_omax2(3),ctrl_sclwsr,ctrl_rmines, !ctrl_zbak,
+     &     tolft,elind,dqval,rsrnge,vmtz, scaledsigma  ,rsstol     
      &     ,ham_elind,ham_oveps,ham_rsrnge,ham_rsstol,ham_scaledsigma
      &     ,ham_delta_stabilize 
 !! ... OPTIONS
-      integer,protected ::lves
-      integer,protected:: ctrl_smalit(2),smalit(2),nesabc(3), lstonr(3)=0,quit,nl,lpfloat
+      integer,protected ::lves, ctrl_smalit(2),smalit(2),nesabc(3), lstonr(3)=0,nl,lpfloat
       real(8),protected:: rmines,rmaxes
       logical,protected :: lhf,lcd4
 !! ... STRUC 
-      real(8),protected:: lat_slat(3,3),dlat,alat=NULLR,plat(3,3),dalat,temp33(9)
-      real(8),protected:: vol,avw
-      integer,protected:: nbas=NULLI,nbasp=NULLI,nsite=NULLI,nspec 
+      real(8),protected:: lat_slat(3,3),dlat,alat=NULLR,plat(3,3),dalat,vol,avw
+      integer,protected:: nbas=NULLI,nsite=NULLI,nspec 
 !! ... SPEC
       real(8),protected:: omax1(3),omax2(3),wsrmax,sclwsr
       character*8,protected:: slabl(mxspec)
-      integer,protected:: lmxbx=-1,lmxax,nkaph
+      integer,protected:: lmxbx=-1,lmxax,nkaph,nkapi
       logical,allocatable,protected:: mxcst1(:),mxcst2(:),mxcst4(:)
-      integer,allocatable,protected:: idxdn(:,:), grp(:),grp2(:),
+      integer,allocatable,protected:: idxdn(:,:,:), grp(:),grp2(:),
      .     idu(:,:),lmxb(:),lmxa(:),idmod(:,:),iq1(:,:),ivso(:,:),
-     .     kmxt(:),kmxv(:),lfoca(:),lmxl(:),lxi(:),nxi(:),nr(:),lmxpb(:), nmcore(:)
-      real(8),allocatable,protected:: rsmh(:,:),rsmh2(:,:),eh(:,:),eh2(:,:),
-     .     hcr(:,:),rs3(:),rham(:),alpha(:,:),ehvl(:,:),
-     .     dv(:), uh(:,:),jh(:,:),
+     .     kmxt(:),kmxv(:),lfoca(:),lmxl(:),lxi(:),nxi(:),nr(:),lmxpb(:), nmcore(:),
+     &  nkapii(:),nkaphh(:) 
+      real(8),allocatable,protected:: rsmh1(:,:),rsmh2(:,:),eh1(:,:),eh2(:,:),
+     .     hcr(:,:),rs3(:),rham(:),alpha(:,:),ehvl(:,:),dv(:), uh(:,:),jh(:,:),
      .     qpol(:,:),stni(:),tbvso(:,:),
      .     pnu(:,:,:),qnu(:,:,:),      pnudefault(:,:),qnudefault(:,:),qnudummy(:,:),
      .     coreq(:,:),mass(:),colxbs(:,:),radxbs(:),
-     .     rg(:),rsma(:),rfoca(:),
-     .     rsmfa(:),rcfa(:,:),
+     .     rg(:),rsma(:),rfoca(:), rsmfa(:),rcfa(:,:),
      .     exi(:,:),rint(:),rcut(:),rmt(:),pz(:,:,:),
      .     amom(:,:),spec_a(:),z(:),eref(:),rsmv(:)
       character*(8),allocatable,protected::pb1(:),pb2(:), coreh(:)
@@ -105,7 +81,7 @@ c      use m_struc_func,only: mpibc1_s_spec, mpibc1_s_site
       integer,protected:: bz_lshft(3)=0,
      .     bz_lmet,bz_n,bz_lmull,ctrl_ldos,bz_fsmommethod
       real(8),protected:: bz_efmax,bz_zval,bz_fsmom,
-     .     bz_semsh(10),zbak(2),bz_lcond(4),bz_range=5d0,bz_dosmax
+     .     bz_semsh(10),zbak,bz_lcond(4),bz_range=5d0,bz_dosmax
       logical,protected:: bz_lio1,bz_lio2,ctrl_lmet2 
 !! ... Ewald
       real(8),protected:: lat_as,lat_tol,lat_rpad
@@ -128,33 +104,36 @@ c      use m_struc_func,only: mpibc1_s_spec, mpibc1_s_site
      .     move_kt,move_ts,move_tsequ,move_tstot
       logical,protected:: prmint_new,lbsprm=F,lsdyn=F
       integer,protected:: nitmv,prmint_mi,prmint_mx,prmint_nseq(11),gd_modt(3),gd_nmodt=1
-      integer,protected:: pwmode,ncutovl !ncutovl is by takao. not in lm-7.0beta.npwpad,
+      integer,protected:: pwmode,ncutovl  !ncutovl is by takao. not in lm-7.0beta.npwpad,
       real(8),protected:: pwemax,pwemin,oveps,delta_stabilize
-      integer , allocatable,protected ::  iv_a_oips (:)
+      integer , allocatable,protected ::  iv_a_oips (:)   ,  lpz(:),lpzex(:),lhh(:,:),iprmb(:)
 !! CG coefficient      
       real(8) , allocatable,protected  ::  rv_a_ocg (:)
       real(8) , allocatable,protected  ::  rv_a_ocy (:)
       integer , allocatable,protected  ::  iv_a_oidxcg (:)
-      integer , allocatable,protected  ::  iv_a_ojcg (:)
-
-      integer,protected:: ham_pwmode,ham_pwemax,ham_pwemin,ham_nkaph,ham_nlibu
+      integer , allocatable,protected  ::  iv_a_ojcg (:) 
+!!      
+      integer,protected:: ham_pwmode,ham_nkaph,ham_nlibu,
+     &     ctrl_noinv,nlmax,mxorb,ctrl_lfrce,bz_nevmx,
+     &     ham_neula,ham_nbf,ham_lsig,ctrl_lmet,bz_nabcin(3)=NULLI,
+     &     bz_ndos,              !bndfp
+     &     lat_ldist=0
       logical,protected:: irs1x10,irsrot !(irsrot is not tested)
-c-----------------------
-!! These are (probably) rewritten in other subroutines.
-!!      So, we need to look for modules for these variables.      
-      integer::
-     &     ctrl_nclass,ctrl_noinv,ctrl_lmet,lat_nkd,lat_nkq,lat_ng,lat_nabc(3), !,ctrl_lrs
-     &     ctrl_lfrce,nlmax,mxorb,
-     &     ham_npwmin, ham_ldham(16),ham_lmxax,  ham_lsig, !ham_ndham,ham_npwpad,
-     &     ham_nqsig,ham_ndhrs,ham_neula,ham_nbf, lat_ldist=0,bz_nkp,bz_ntet,bz_nabc(3)=NULLI,bz_ndos,
-     &     bz_nevmx
-      real(8):: lat_plat(3,3),lat_plate(3,3),lat_alat,lat_avw,lat_awald,
-     &     lat_plat0(3,3),lat_plat2(3,3),lat_platl(3,3),lat_platr(3,3),lat_qlat(3,3),rpad,
-     &     lat_tolft,lat_vol,ctrl_mdprm(6),lat_gmax,
-     &     lat_dist(9),lat_gam(4),
-     &     ham_eterms(20),ham_ehk,ham_seref,ham_alfsi,ham_dabc(3),ham_ehf,bz_w,bz_ef,bz_def,bz_dosw(2)
-      real(8), allocatable :: rv_a_opos(:,:)
-      type(s_site),allocatable:: v_ssite(:),v_ssite2(:) !pos is rewritten in lmfp
+      real(8),protected:: ham_seref, bz_w,bz_ef0,bz_def0, !iors,bndfp
+     &     lat_platin(3,3),lat_alat,lat_avw,lat_tolft,lat_gmaxin
+      real(8),protected::
+     &     lat_dist0(1:9)=0d0,lat_gam(1:4)=[0d0,0d0,1d0,1d0], !no deformation. See lattic
+     &     ctrl_mdprm(6),
+     &     bz_doswin(2) 
+      integer,protected:: lekkl,lcplxp
+      integer,protected:: lmaxu,nlibu
+      integer,allocatable,protected::lldau(:)
+      logical,protected:: lpztail=.false.
+      integer,protected:: leks,lrout,plbnd,  pot_nlma,  pot_nlml,ham_nspx,ham_ldham(16),ldham(16)
+      
+!! sspec and ssite are unprotected (be careful)
+      type(s_spec),allocatable:: v_sspec(:) !(nspec: number of species in the cell)
+      type(s_site),allocatable:: v_ssite(:) !(nbas: number of atoms)
       
 !! ... old memo for molecular dynamics section DYN
 C   structure of mdprm:
@@ -193,17 +172,14 @@ C  arg  5:   mx:   order of rational function extrapolation
 C  arg  6:   mi:   number of midpoint rules
 C  arg  7-17 nseq: sequence of no. midpoint divisions
 C     arg  18:        offset to bs workspace
-!!------------------------------------------------
-      
 !!ssssssssssssssssssssssssssssssssssssssssssssssssss      
       contains 
-      subroutine rdctrl2( recrd,recln,nrecs, prgnam)
-!! rdctrl2 sets all data in m_lmfinit      
+      subroutine m_lmfinit_init(prgnam)
+      use m_rdfiln,only: recln,nrecs,recrd
       use m_struc_func
       use m_toksw,only:tksw
       use m_gtv
-!! Set initial data to m_lmfinit. 
-!! All the initial data is pushed into m_lmfinit
+!! All the initial data are pushed into m_lmfinit
 !! ----------------------------------------------------------------------
 !! Inputs
 !!   recrd (recln*nrecs) : preprocessed input
@@ -236,69 +212,42 @@ Cg   mxorb :nkaph * (maximum number of lm channels in any sphere)
 Cg         :Used for dimensioning the indexing arrays involved in
 Cg         :assembling the hamiltonian;
 Cg   nbas  :number of atoms in the basis
-Cg      nbasp : probably the same as nbas (redundant)
 Cg   nkaph :The maximum number of radial functions centered at
-Cg         :particular R and l channel used in the lmto basis.
+Cg         :particular R and l channel used in the lmto basis. +1 when we have lo
 Cg   nl    :1+Maximum l-cutoff for augmentation
 Cg   npl   :(not set by rdctrl) number of principal layers (layer geometries)
-Cg   nkaph :The maximum number of "principal quantum" numbers centered
-Cg         :at a particular R and l channel --- energies for one Rl
-Cg         :at which augmentation (phi-phidot) functions are made.
-Cg   nsp   :1 if not spin-polarized; otherwise 2
+Cg   nkaphh :The maximum number of "principal quantum" numbers centered at a particular R and l channel --- energies for one Rl
+Cg         :at which augmentation (phi-phidot) functions are made. +1 is added when we have lo
+Cg   nsp   :1 if not spin-polarized; otherwise 2. nspc and nspx are 
 Cg   nspec :number of species
 Cg   stde  :standard error file
 Cg   stdl  :standard log file
 Cg   stdo  :standard output file
-Cr Remarks
-Cr rdctrl does:
-Cr  Read input data specified by tokens (see token_init.F)
-co------------------      
-Cu Aug 2020. All data is pushed into m_lmfinit
-Cu   19 Sep 07 (TK+MvS) Adapted from rdctrl, 1st cut at new input
-Cu   20 Oct 06 Broadcast species so floating sites work properly in MPI
-Cu   06 Aug 06 Remove defaults for STR RMAX and HCR
-Cu   24 Nov 05 Remove mpi-specific calls
-Cu   08 Jul 05 Assign nat as global variable
-Cu             fix bug so --rdbasp works again
-Cu   27 Mar 05 Add read option --rs=.,.,2,.. -> add 512 to lrs
-Cu   21 Dec 04 Add switch to rotate FP local density on file read
-Cu   16 Aug 04 Changes for extended local orbitals
-Cu   18 Jun 04 printout of correct LDA+GGA functional
-Cu   20 Dec 03 --rs rechecked in case made part of CMD in ctrl file
-Cu   07 Sep 03 (lmf) rdctrl can read basis info from basis file
-Cu   21 May 03 Added setup for sham->sigp
-Cu   20 Mar 03 Change default for ctrl->tol:3 = etol
-Cu   18 Mar 03 Added handling for fully relativistic case
-Cu   15 Feb 02 (ATP) Added MPI parallelization
-Cu   24 Aug 01 Extended to handle local orbitals.
-Cu   28 Apr 98 code for new category 'OPTICS'
+Cr  Read input data specified by tokens (see m_toksw.F)
 C ----------------------------------------------------------------------
       implicit none
 #if MPI | MPIK
       include "mpif.h"
 #endif
-      integer,intent(in):: recln,nrecs
-      character*(recln),intent(in):: recrd(nrecs)
       character,intent(in)::  prgnam*(*)
       character strn*(recln),strn2*(recln)
       integer:: i_spec
       character fileid*64
-      logical lgors,cmdopt,bittst,ltmp,ioorbp,noinv!,asa
+      logical lgors,cmdopt,bittst,ltmp,ioorbp,noinv,cmdopt0
       double precision dval,dglob,xx(n0*2),dgets !,ekap(6)
-      integer a2vec,bitand,fopna,getdig,i,is,igets,iprint,
+      integer a2vec,bitand,getdig,i,is,igets,iprint,
      .iprt,irs(5),isw,ifi,ix(n0*nkap0),j,k,l,!lbas, !noinv was iand(lqp,1)
-     .lfrzw,lgunit,lmet,
-     .lrs,lstsym,ltb,lxcf,nat,nlibu,nclasp,
+     .lfrzw,lgunit,
+     .lrs,lstsym,ltb,nclasp,
      .nglob,scrwid,stde,k1,k2,mpipid !nkap,lsx1,
       character*(8),allocatable::clabl(:)
       integer,allocatable:: ipc(:),initc(:),ics(:)
-      real(8),allocatable:: pnuc(:,:,:),qnuc(:,:,:,:),
-     .pp(:,:,:,:),ves(:),zc(:)
+      real(8),allocatable:: pnuc(:,:,:),qnuc(:,:,:,:),pp(:,:,:,:),ves(:),zc(:)
       integer:: dvec1(3)=1, dvec2(3)=0
 C ... basis
       double precision orbp(n0,2,nkap0)
       integer o,oclabl,ohave,oics,opnu,opp,oqnu,osgw,osoptc,oves,owk !osordn,
-      real(8):: pnux(20)
+      real(8):: pnux(20) ,temp33(9)
       integer:: nnn
       integer:: i_copy_size,i_spacks,iendx,inix,i_spackv
       real(8):: seref
@@ -338,12 +287,13 @@ c      integer,parameter:: mxspec=256
       character*256:: sss
       logical:: sexist
       integer:: ibas,ierr,lc, iqnu
-      logical:: ltet
+c      logical:: ltet
       integer:: ifzbak
       
       integer,allocatable :: iv_a_oips_bakup (:)
-      integer :: ctrl_nspec_bakup,inumaf
-      logical :: ipr10
+      integer :: ctrl_nspec_bakup,inumaf,iin,iout,ik,iprior,ibp1,indx,iposn,m,nvi,nvl
+      logical :: ipr10,fullmesh,lzz
+      integer,parameter:: maxp=3
 !! Stage 1  read ctrl file ---------------------    
       procid = mpipid(1)
       nproc  = mpipid(0)
@@ -359,34 +309,30 @@ c      lfp = 1
       call gtv_setrcd(recrd,nrecs,recln,stdo,stdl,stde)
 C --- Initialize ---
       call toksw_init(debug)
-      if (cmdopt('--show',6,0,a))  io_show = 1 !iosw=3 in old code
       if (procid .ne. master) io_show = 0
-      if (cmdopt('--input',7,0,a)) io_help = 1 !optio=0 in old code
+      if (cmdopt0('--show') ) io_show = 1 
+c      if (cmdopt0('--input')) io_help = 1 
+      if (cmdopt0('--help') ) io_help = 1
       call gtv_setio(debug,io_show,io_help)
-      if (io_help .eq. 1) then
-        write(stdo,332)
-  332   format(/' Token',t19,'Input   cast  (size,min)'/
-     .  ' ------------------------------------------')
-      elseif (io_show .ne. 0) then
-        write(stdo,333)
-  333   format(/' Token',t19,
-     .  'Input   cast  (size,min,read,def)     result')
+      if (io_help == 1) then
+        write(stdo,"(/' Token',t19,'Input   cast  (size,min)'/
+     .  ' ------------------------------------------')")
+      elseif(io_show/=0) then
+        write(stdo,"(/' Token',t19,'Input   cast  (size,min,read,def)     result')")
       endif
 C     --- IO ---
       nm='IO_SHOW'; call gtv(trim(nm),tksw(prgnam,nm),io_show,def_i4=
      .     0,note='Echo data as it is read from input file')
-      if (cmdopt('--show',6,0,a)) io_show = 1
-      if (procid .ne. master) io_show = 0
-      if (cmdopt('--show=',7,0,a)) then
-         i = 7
-         i = a2vec(a,len(a),i,2,' ',1,1,1,it,io_show)
-      endif
-      call gtv_setio(debug,io_show,io_help) ! In case io_show changed
-      nm='IO_HELP'; call gtv(trim(nm),tksw(prgnam,nm),io_help,
-     .     def_i4=0, note='Show what input would be sought, '//
-     .     'without attempting to read data')
-      if (cmdopt('--input',7,0,a)) io_help = 1 !optio=0 in old code
-      if (io_help == 1) io_show = 1
+      if (cmdopt0('--show')     ) io_show = 1
+      if (procid .ne. master    ) io_show = 0
+c      call gtv_setio(debug,io_show,io_help) ! In case io_show changed
+!!      
+c      nm='IO_HELP'; call gtv(trim(nm),tksw(prgnam,nm),io_help,
+c     .     def_i4=0, note='Show what input would be sought, '//
+c     .     'without attempting to read data')
+c      if (cmdopt0('--input')) io_help = 1 
+c      if (cmdopt0('--help'))  io_help = 1 
+      if (io_help == 1      ) io_show = 1
       call gtv_setio(debug,io_show,io_help) ! In case io_help changed
 
 !     !--- CONST --- for backword compatibility. We will remove this.
@@ -401,8 +347,8 @@ C     --- IO ---
          if (io_show .ne. 0) call shosyv(0,0,0,stdo)
       endif
 
-!     ! begining of log file.
-      if (stdl>0 .and. iprint()>0) call headl2(prgnam,0,stdl)
+c!     ! begining of log file.
+c      if (stdl>0 .and. iprint()>0) call headl2(prgnam,0,stdl)
 
 !     ! --- Header ---
       nm='HEADER'; call gtv(trim(nm),tksw(prgnam,nm),header,note=
@@ -474,22 +420,22 @@ C     Override with '--time=' commmand-line arg
       if (tksw(prgnam,'STRUC') == 2) goto 59
       if (io_show+io_help/=0) call info0(1,1,
      .     0,' --- Parameters for crystal structure ---')
-      nm='STRUC_FILE'; call gtv(trim(nm),tksw(prgnam,nm),outs,nmin=10,
-     .     nout=nout, note=
-     .     'Name of site file containing basis and lattice information.'//
-     .     '%N%3fRead NBAS, PLAT, and optionally ALAT from site file, '//
-     .     'if specified.'//
-     .     '%N%3fOtherwise, they are read from the ctrl file.')
-      if (nout == 1) then
-         xxx = nullr
-         if (procid .eq. master) then
-            j = iosite(7000,3d0,0,trim(outs),i,slabl,alat,plat,nbas,
-     .           nspec,xxx,xxx,xxx,xxx,xxx,xxx,xxx)
-         endif
-         call mpibc1(nbas,1,2,mlog,'readctrl','nbas')
-         call mpibc1(alat,1,4,mlog,'readctrl','alat')
-         call mpibc1(plat,9,4,mlog,'readctrl','plat')
-      endif
+c$$$      nm='STRUC_FILE'; call gtv(trim(nm),tksw(prgnam,nm),outs,nmin=10,
+c$$$     .     nout=nout, note=
+c$$$     .     'Name of site file containing basis and lattice information.'//
+c$$$     .     '%N%3fRead NBAS, PLAT, and optionally ALAT from site file, '//
+c$$$     .     'if specified.'//
+c$$$     .     '%N%3fOtherwise, they are read from the ctrl file.')
+c$$$      if (nout == 1) then
+c$$$         xxx = nullr
+c$$$         if (procid .eq. master) then
+c$$$            j = iosite(7000,3d0,0,trim(outs),i,slabl,alat,plat,nbas,
+c$$$     .           nspec,xxx,xxx,xxx,xxx,xxx,xxx,xxx)
+c$$$         endif
+c$$$         call mpibc1(nbas,1,2,mlog,'readctrl','nbas')
+c$$$         call mpibc1(alat,1,4,mlog,'readctrl','alat')
+c$$$         call mpibc1(plat,9,4,mlog,'readctrl','plat')
+c$$$      endif
       if (alat .eq. NULLR) then
          nm='STRUC_ALAT'; call gtv(trim(nm),tksw(prgnam,nm),
      .        alat, note= 'Scaling of lattice vectors, in a.u.')
@@ -525,11 +471,11 @@ C     Override with '--time=' commmand-line arg
      .           ' ... found %i species in SPEC category',nspec,0)
          endif
       endif
-C     Extra site positions for e.g. point multipoles
-      nm='STRUC_NBASP'; call gtv(trim(nm),tksw(prgnam,nm),nbasp,
-     .     def_i4=nbas,note='nbas + no. of point multipoles')
-      if (nbasp .eq. NULLI) nbasp = nbas
-      nsite = nbasp
+cC     Extra site positions for e.g. point multipoles
+c      nm='STRUC_NBASP'; call gtv(trim(nm),tksw(prgnam,nm),nbasp,
+c     .     def_i4=nbas,note='nbas + no. of point multipoles')
+c     if (nbasp .eq. NULLI) nbasp = nbas
+      nsite = nbas
       nm='STRUC_SLAT'; call gtv(trim(nm),tksw(prgnam,nm),temp33,
      .     nmin=9,note='Supercell lattice vectors')
       lat_slat(1:3,1)=temp33(1:3)
@@ -539,41 +485,50 @@ C     Extra site positions for e.g. point multipoles
      .     dalat, def_r8=0d0, note='added to alat after input is read')
       nm='STRUC_NL'; call gtv(trim(nm),tksw(prgnam,nm),nl,def_i4=3,
      .     note='global default LMXA+1 for basis and augmentation.')
-C     ... Lattice distortion or rotation
-      sw = tksw(prgnam,'STRUC_SHEAR')
-      lat_gam(1) = NULLR
-      if (sw/=2) then
-         j = 0
-         nm='STRUC_SHEAR'; call gtv(trim(nm),0,lat_gam,nmin=4,or=T,
-     .        note='Volume-conserving shear of PLAT (1=ideal)')
-         if (lat_gam(1) /= NULLR .and. io_help == 0) then
-            j = 0
-            goto 880
-         endif
-         nm='STRUC_ROT'; call gtv(trim(nm),0,outs,nmin=10,nout=nout,or=T)
-         if (nout /= 0 .and. io_help == 0) then
-            call a2rotm(outs,.false.,iprint()-10,lat_dist)
-            j = 2
-            goto 880
-         endif
-         nm='STRUC_DEFGRD'; call gtv(trim(nm),0,lat_dist,nmin=9, or=T)
-         if (lat_dist(1) /= NULLR .and. io_help == 0) then
-            j = 2
-            goto 880
-         endif
-         nm='STRUC_STRAIN'; call gtv(trim(nm),sw,lat_dist(1:6),nmin=6,
-     .        note='6 Voigt strain matrix elements')
-         if (lat_dist(1) /= NULLR .or. io_help /= 0) then
-            nm='STRUC_ALPHA'; call gtv(trim(nm),1,lat_dist(7),nout=nout,
-     .           note=
-     .           'Amplitude of (Voigt) strain.  Only read if STRAIN input')
-            if (nout /= 0) j = 3
-         endif
- 880     continue
-         lat_ldist = j
-      endif
-      if (lat_gam(1) == NULLR) lat_gam=(/0d0,0d0,1d0,1d0/)
+      
+C     ... Lattice distortion or rotation. it is better to move main part to lattic
+c$$$      sw = tksw(prgnam,'STRUC_SHEAR')
+c$$$      if(sw/=2) call rx('STRUC_SHEAR is commented out now. Need to recover')
+c$$$      lat_gam(1) = NULLR
+c$$$      if (sw/=2) then
+c$$$         j = 0
+c$$$         nm='STRUC_SHEAR'; call gtv(trim(nm),0,lat_gam,nmin=4,or=T,
+c$$$     .        note='Volume-conserving shear of PLAT (1=ideal)')
+c$$$         if (lat_gam(1) /= NULLR .and. io_help == 0) then
+c$$$            j = 0
+c$$$            goto 880
+c$$$         endif
+c$$$         nm='STRUC_ROT'; call gtv(trim(nm),0,outs,nmin=10,nout=nout,or=T)
+c$$$         if (nout /= 0 .and. io_help == 0) then
+c$$$            call a2rotm(outs,.false.,iprint()-10,lat_dist)
+c$$$            j = 2
+c$$$            goto 880
+c$$$         endif
+c$$$         nm='STRUC_DEFGRD'; call gtv(trim(nm),0,lat_dist,nmin=9, or=T)
+c$$$         if (lat_dist(1) /= NULLR .and. io_help == 0) then
+c$$$            j = 2
+c$$$            goto 880
+c$$$         endif
+c$$$         nm='STRUC_STRAIN'; call gtv(trim(nm),sw,lat_dist(1:6),nmin=6,
+c$$$     .        note='6 Voigt strain matrix elements')
+c$$$         if (lat_dist(1) /= NULLR .or. io_help /= 0) then
+c$$$            nm='STRUC_ALPHA'; call gtv(trim(nm),1,lat_dist(7),nout=nout,
+c$$$     .           note=
+c$$$     .           'Amplitude of (Voigt) strain.  Only read if STRAIN input')
+c$$$            if (nout /= 0) j = 3
+c$$$         endif
+c$$$ 880     continuemk
+c$$$         lat_ldist = j
+c$$$      endif
+c$$$      if (lat_gam(1) == NULLR) lat_gam=(/0d0,0d0,1d0,1d0/)
+c      (folloiwg lines were in lmfp)
+cC     Initial shear was already folded into plat 
+c      gam=lat_gam
+c      gam1 = gam(4)
+c      gam(4) = 1
+c      lat_gam=gam
 C     ... End of struc tokens
+      
    59 continue
 
       
@@ -590,30 +545,12 @@ C     --- Options ---
       nm='OPTIONS_NESABC'; call gtv(trim(nm),tksw(prgnam,nm),nesabc,
      .     nmin=3,def_i4v=(/100,100,100/),
      .     note='No. divisions when searching for empty spheres')
-      outs = ' '
-      nm='OPTIONS_Q'; call gtv(trim(nm),tksw(prgnam,nm),outs,nmin=10,
-     .     note='Use Q=show, Q=atom, or Q=band to quit after '//
-     .     'input, sphere calc or band pass.'//
-     .     '%N%3fCommand-line `--quit=string'' overrides input file')
-      if (outs=='SHOW' .or. outs=='show' .or.
-     .     cmdopt('--quit=show',11,0,a)) then; quit=1
-      elseif (outs=='ATOM' .or. outs=='atom' .or.
-     .        cmdopt('--quit=atom',11,0,a)) then; quit=2
-      elseif (outs=='BAND' .or. outs=='band' .or.
-     .        cmdopt('--quit=band',11,0,a)) then; quit=4
-      elseif (outs=='HAM' .or. outs=='ham' .or.
-     .        cmdopt('--quit=ham',10,0,a)) then; quit=8
-      elseif (outs=='dmat' .or.
-     .        cmdopt('--quit=dmat',11,0,a)) then; quit=16
-      elseif (outs==' ') then
-      else
-         call rx('OPTIONS_Q= must contain one of SHOW, ATOM, or BAND')
-      endif
-      nm='OPTIONS_PFLOAT';call gtv(trim(nm),tksw(prgnam,nm),lpfloat,
-     .     def_i4=1,note=       !feb2012takao
-     .     'Controls how band CG is determined in floating Pnu.'//
-     .     '%N%5f0 Band CG found by traditional method'//
-     .     '%N%5f1 Band CG found from true energy moment of density')
+      lpfloat=1
+c$$$      nm='OPTIONS_PFLOAT';call gtv(trim(nm),tksw(prgnam,nm),lpfloat,
+c$$$     .     def_i4=1,note=       !feb2012takao
+c$$$     .     'Controls how band CG is determined in floating Pnu.'//
+c$$$     .     '%N%5f0 Band CG found by traditional method'//
+c$$$     .     '%N%5f1 Band CG found from true energy moment of density')
 c$$$      nm='OPTIONS_SCR'; call gtv(trim(nm),tksw(prgnam,nm),lscr,
 c$$$     .     def_i4=0,note='Use scr to accelerate convergence:'//
 c$$$     .     '%N%3f0 do nothing'//
@@ -667,12 +604,12 @@ c     .        '%N%3f3 : Like 2, but also compute <L.S-LzSz> by perturbation')
       endif
       sw = tksw(prgnam,'HAM_GMAX')
       if (sw/=2) then
-         nm='HAM_GMAX'; call gtv(trim(nm),sw,lat_gmax,nmin=1,nout=nout,
+         nm='HAM_GMAX'; call gtv(trim(nm),sw,lat_gmaxin,nmin=1,nout=nout,
      .        note='Energy cutoff for plane-wave mesh',or=T)
          if (nout .ne. 0) then
             sw = 2
          else
-            lat_gmax = 0
+            lat_gmaxin = 0
          endif
          nm='HAM_FTMESH'; call gtv(trim(nm),sw,ftmesh,nout=nout,
      .        note='No. divisions for plane-wave mesh '//
@@ -704,23 +641,23 @@ c     .        '%N%3f3 : Like 2, but also compute <L.S-LzSz> by perturbation')
       nm='HAM_GGA'; call gtv(trim(nm),tksw(prgnam,nm),ggax,
      .     nout=nout, def_i4=0, note='UnUsed now. See XCFUN...')
       if(ggax>0) call rx('Use HAM_XCFUN instead of HAM_GGA')
-      nm='HAM_ALFSI'; call gtv(trim(nm),tksw(prgnam,nm),
-     .     alfsi, def_r8=0d0,note=
-     .     'Coefficient to artificial addition of overlap to hamiltonian')
-      nm='HAM_DABC' ; call gtv(trim(nm),tksw(prgnam,nm),
-     .     dabc,nout=nout,
-     .     note='Spacings for real-space interstital mesh')
-      if (nout == 1) dabc(2) = dabc(1)
-      if (nout <  3) dabc(3) = dabc(2)
+c      nm='HAM_ALFSI'; call gtv(trim(nm),tksw(prgnam,nm),
+c     .     alfsi, def_r8=0d0,note=
+c     .     'Coefficient to artificial addition of overlap to hamiltonian')
+c      nm='HAM_DABC' ; call gtv(trim(nm),tksw(prgnam,nm),
+c     .     dabc,nout=nout,
+c     .     note='Spacings for real-space interstital mesh')
+c      if (nout == 1) dabc(2) = dabc(1)
+c      if (nout <  3) dabc(3) = dabc(2)
 !     !    Merge with ?
       nm='HAM_DQVAL'; call gtv(trim(nm),tksw(prgnam,nm),dqval,
      .     note='Total charge')
-      nm='HAM_RDSIG'; call gtv(trim(nm),tksw(prgnam,nm),lrsig,def_i4=0,
+      nm='HAM_RDSIG'; call gtv(trim(nm),tksw(prgnam,nm),lrsigx,def_i4=1,
      .     note=
      .     'Controls how self-energy is added to '//
      .     'local exchange correlation functional:'//
-     .     '%N%3f   0 do not read Sigma'//
-     .     '%N%3f  12 read ESEAVR as Sigma-Vxc')
+     .     '%N%3f   0: do not read Sigma'//
+     .     '%N%3f   1(or not zero): read sigm=Sigma-Vxc. Default now')
       nm='HAM_RSRNGE'; call gtv(trim(nm),tksw(prgnam,nm),rsrnge,
      .     def_r8=5d0, note='Maximum range in connecting vectors for '//
      .     'r.s. sigma (units of alat)')
@@ -787,8 +724,10 @@ C     --- Symmetry group ---
 C     --- Symmetry group for AF --- !june2015
       if (io_show+io_help/=0 .and. tksw(prgnam,'SYMGRPAF')/=2)
      .     call info0(1,1,0,' --- Symmetry group operations ---')
-      nm='SYMGRPAF'; call gtv(trim(nm),tksw(prgnam,nm),symgaf,
-     .     note='An (or multiple) Extra Generator for adding anti ferro symmetry')
+      if(.not.(prgnam=='LMFA'.or.prgnam=='LMCHK')) then
+        nm='SYMGRPAF'; call gtv(trim(nm),tksw(prgnam,nm),symgaf,
+     .  note='An (or multiple) Extra Generator for adding anti ferro symmetry')
+      endif  
 C     --- Species (old CLASS) ---
       if (io_help == 1) nspec = 1
       if (tksw(prgnam,'SPEC') == 2) goto 79
@@ -825,7 +764,7 @@ C     --- Species (old CLASS) ---
 
       allocate(pnu(n0,nsp,nspec),qnu(n0,nsp,nspec),
      .     pz(n0,nsp,nspec),amom(n0,nspec),idmod(n0,nspec),
-     .     rsmh(n0,nspec),eh(n0,nspec),rsmh2(n0,nspec),eh2(n0,nspec),
+     .     rsmh1(n0,nspec),eh1(n0,nspec),rsmh2(n0,nspec),eh2(n0,nspec),
      .     pb1(nspec),pb2(nspec),lmxpb(nspec),
      .     ehvl(n0,nspec),
      .     qpol(n0,nspec),stni(nspec),tbvso(4,nspec),
@@ -835,30 +774,34 @@ C     --- Species (old CLASS) ---
      .     nxi(nspec),exi(n0,nspec),rint(nspec),rcut(nspec),
      .     spec_a(nspec),z(nspec),nr(nspec),mass(nspec),eref(nspec),
      .     coreh(nspec),coreq(2,nspec),
-     .     colxbs(3,nspec),radxbs(nspec),
-     .     idxdn(n0,nspec),
+     .     colxbs(3,nspec),radxbs(nspec), 
+     .     idxdn(n0,nkap0,nspec),
      .     hcr(n0,nspec),       !alpha(n0,nspec),
      .     idu(4,nspec),uh(4,nspec),jh(4,nspec),
      .     dv(nspec),grp(nspec),grp2(nspec),
      .     mxcst1(nspec),mxcst2(nspec),mxcst4(nspec),
      .     kmxt(nspec),kmxv(nspec),
      .     lfoca(nspec),lmxl(nspec),lxi(nspec),lmxa(nspec),lmxb(nspec),nmcore(nspec))
-
+      allocate(lpz(nspec),lpzex(nspec))
+      allocate(nkapii(nspec),nkaphh(nspec))
+      lpz=0
+      lpzex=0
       mxcst1=F
       mxcst2=F
       mxcst4=F
-
-      nkaph = 1
-      lpzi = 1
+      nkapii=1
+      nkapi = 1
+      lpzi = 0 !1
+      
       qpol = NULLR
-      rsmh = 0d0
+      rsmh1 = 0d0
       rsmh2 = 0d0
-      eh = NULLR
-      eh2 = NULLR
+      eh1  = 0d0
+      eh2 = 0d0
       hcr = NULLR
       idmod = NULLI
       ehvl = NULLR
-      do  j = 1, nspec
+      do 1111 j = 1, nspec
         if(debug) print *,'nspec mxcst j-loop j nspec',j,nspec
         colxbs(:,j) = NULLR; radxbs(j) = NULLR
         rcfa(:,j) = NULLR; rfoca(j) = 0d0; rg(j) = 0d0
@@ -956,17 +899,17 @@ C     nlbji: ditto, but used to specify number of default values
 
 C     ... Basis set for lmf
         nm='SPEC_ATOM_RSMH'; call gtv(trim(nm),tksw(prgnam,nm),
-     .       rsmh(1:nlbj,j),cindx=jj,nout=nout,nmin=nlbj,def_r8v=zerov,
+     .       rsmh1(1:nlbj,j),cindx=jj,nout=nout,nmin=nlbj,def_r8v=zerov,
      .       note='Smoothing radii for basis')
         nn = NULLI
         if (nout .gt. 0) nn = nout
-C     Find nn=lmax+1 for which rsmh ne 0 => reduce # EH required
+C     Find nn=lmax+1 for which rsmh1 ne 0 => reduce # EH required
         do  i = 1, nlbj
-           if (rsmh(i,j) .eq. 0) cycle
+           if (rsmh1(i,j) .eq. 0) cycle
            nn = i
         enddo
         nm='SPEC_ATOM_EH'; call gtv(trim(nm),tksw(prgnam,nm),
-     .       eh(1:nlbj,j),nmin=nn,cindx=jj,
+     .       eh1(1:nlbj,j),nmin=nn,cindx=jj,def_r8v=zerov,
      .       note='Kinetic energies for basis')
         nn = NULLI
         if (nout>0) nn = nout
@@ -977,7 +920,8 @@ C     Find nn=lmax+1 for which rsmh ne 0 => reduce # EH required
            nn = NULLI
            sw = tksw(prgnam,nm)
            if (nout>0) then
-              nkaph=2
+              nkapi=2
+              nkapii(j)=2
               nn = nout
               sw = 1
 C     Find nn=lmax+1 for which rsmh ne 0 => reduce # EH required
@@ -987,7 +931,7 @@ C     Find nn=lmax+1 for which rsmh ne 0 => reduce # EH required
               enddo
            endif
            nm='SPEC_ATOM_EH2'; call gtv(trim(nm),sw,
-     .          eh2(1:nlbj,j),nmin=nn,cindx=jj,
+     .          eh2(1:nlbj,j),nmin=nn,cindx=jj,def_r8v=zerov,
      .          note='Basis kinetic energies, second group')
         endif
         if(debug) print *,'nspec ddd mxcst j-loop j nspec',j,nspec
@@ -1055,7 +999,7 @@ C     rsmv(j) = rmt(j)*.5d0   !Not input
         rint(j) = NULLI         !No default for now
         rcut(j) = NULLI         !No default for now
         rs3(j) = NULLI          !If sought, default will be set below
-        idxdn(:,j) = 1
+        idxdn(:,:,j) = 1
         pnu(1,1,j) = NULLI      !If sought, default will be set below
         qnu(1,1,j) = NULLI      !If sought, default will be set below
 
@@ -1144,12 +1088,18 @@ C     call snit
            nm='SPEC_ATOM_PZ'; call gtv(trim(nm),tksw(prgnam,nm),
      .          pz(1:nlaj,1,j),def_r8v=zerov,nmin=nlaji,cindx=jj,note=
      .          'Starting semicore log der. parameters'//
-     .          '%N%10fAdd 10 to attach Hankel tail'//
-     .          '%N%10fAdd 20 to include perturbatively',nout=nout)
+     .          '%N%10fAdd 10 to attach Hankel tail',nout=nout)
            if (nout>0) then
-              if (dasum(nlaj,pz(1,1,j),1) /= 0) lpzi = max(lpzi,2)
+              if (dasum(nlaj,pz(1,1,j),1) /= 0) then
+                 lpzi = max(lpzi,1) !,2
+                 lpz(j)=1
+                 if ( sum(int(pz(1:nlaj,1,j)/10))>0 ) then
+                    lpzex(j)=1
+                 endif   
+              endif   
            endif
-
+           if(maxval(pz(1:nout,1,j))>10d0) lpztail=.true. ! PZ +10 mode exist or not.
+           
 !     ! correct qnu jun2012takao  2012july->mod(int(pz...,10)
 !     ! our four cases are
 !     !  P=Pdefault      ! qnu
@@ -1245,10 +1195,9 @@ c     else
            nn = 1
 c     endif
            nm='SPEC_ATOM_IDXDN'; call gtv(trim(nm),tksw(prgnam,nm),
-     .          idxdn(1:nlbj,j),nmin=nlbj,
+     .          idxdn(1:nlbj,1,j),nmin=nlbj,
      .          def_i4v=(/(nn,i=1,nlbj)/),cindx=jj,
-     .          note='downfolding index: 0, auto; 1, no dnf; 2, fold down;'//
-     .          ' 3, neglect')
+     .          note='orbital index: 1, use; 3, unuse')
 
 C     'Hard Core' radius entering into strux
            nm='SPEC_ATOM_HCR'; call gtv(trim(nm),tksw(prgnam,nm),
@@ -1302,9 +1251,9 @@ C     'Hard Core' radius entering into strux
         if(procid==master .and. sum(abs(idu(:,j)))/=0) then 
            inquire(file='sigm.'//trim(sname),exist=sexist)
            if(sexist) then
-              write(6,*)'We find sigm file --> noLDA+U-> set UH=JH=0'
               do lxx=0+1,3+1
                  if(idu(lxx,j)>10) then
+                    write(stdo,"(a,2i4)")'For IDU>10 with sigm.*, we set UH=JH=0 for l,ibas=',lxx,j
                     uh(lxx,j) = 0d0
                     jh(lxx,j) = 0d0
                  endif
@@ -1314,9 +1263,9 @@ C     'Hard Core' radius entering into strux
               idu(lxx,j) = mod(idu(lxx,j),10)
            enddo  
         endif
-        call mpibc1(idu(:,j),4,2,mlog,'readctrl','idu')
-        call mpibc1(uh(:,j),4,4,mlog,'readctrl','uh')
-        call mpibc1(jh(:,j),4,4,mlog,'readctrl','jh')
+        call mpibc1_int(idu(:,j),4,'m_lmfinit_idu')
+        call mpibc1_int(uh(:,j),4,'m_lmfinit_uh')
+        call mpibc1_int(jh(:,j),4,'m_lmfinit_jh')
 
         nm='SPEC_ATOM_PBAS'; call gtv(trim(nm),tksw(prgnam,nm),pb1(j),
      .       nmin=10,cindx=jj,note='product basis for GW')
@@ -1355,20 +1304,22 @@ c     .  'Colour for xbs') !,-3,4,i1,TF(37))
 c     xxx = rmt(j); if (io_help .eq. 1) xxx = NULLI
 c     nm='SPEC_ATOM_RADIUS'; call gtv(trim(nm),tksw(prgnam,nm),
 c     .  radxbs(j),def_r8=xxx,cindx=jj,note='Radius for xbs')
-      enddo                     ! Loop over species
+
+         nkaphh(j) = nkapii(j) + lpzex(j)
+c         if(master_mpi) write('ispec: nkaphh = nkapii+ lpzex(j)',i3,3i2)") j,nkaphh(j),nkapii(j),lpzex(j)
+ 1111 continue  ! Loop over species
+
+      
 C     ... Cleanup after looping over species data
       if (io_help==0) then
-C     Maximum L-cutoff
-         call imxmn(nspec,lmxa,1,i0,lmxax)
+         call imxmn(nspec,lmxa,1,i0,lmxax) !Maximum L-cutoff
          nlmax = (lmxax+1)**2
-         nkaph = nkaph+lpzi-1
+         nkaph = nkapi + lpzi     !-1
          mxorb= nkaph*nlmax
-         globalvariables%nkaph = nkaph
-         globalvariables%nlmax = nlmax
-         globalvariables%mxorb = mxorb
       endif
  79   continue
-
+      
+      
 !     ! --- Site ---
       if (io_show+io_help/=0 .and. tksw(prgnam,'SITE')/=2) call info0(1,1,0,' --- Parameters for site data ---')
       if (io_help .eq. 1) then
@@ -1506,11 +1457,11 @@ c     .        note='Assign PL potential index to this site')
       nm='BZ_GETQP'; call gtv(trim(nm),tksw(prgnam,nm),bz_lio1,
      .     def_lg=F,note='Read qp from disk',or=T)
       nm='BZ_NKABC'; sw=tksw(prgnam,nm); if (bz_lio1) sw = 2
-      call gtv(trim(nm),sw,bz_nabc,nout=nout,
+      call gtv(trim(nm),sw,bz_nabcin,nout=nout,
      .     note='No. qp along each of 3 lattice vectors.'//
      .     '%N%3fSupply one number for all vectors or a separate '//
      .     'number for each vector.')
-      call fill3in(nout,bz_nabc)
+      call fill3in(nout,bz_nabcin)
       nm='BZ_PUTQP'; call gtv(trim(nm),tksw(prgnam,nm),bz_lio2,
      .     def_lg=F,note='Write qp to disk')
       nm='BZ_BZJOB';call gtv(trim(nm),tksw(prgnam,nm),bz_lshft,nout=nout,
@@ -1522,8 +1473,9 @@ c     .        note='Assign PL potential index to this site')
       nm='BZ_METAL'; call gtv(trim(nm),tksw(prgnam,nm),bz_lmet,
      .     def_i4=1,note=
      .     '0 assume insulator; 1 save evecs on disk; '//
-     .     '2 use wgt from prior iter%N%3f3 always make two band passes;'//
-     .     ' 4 BZ integration with 3-point scheme')
+     .     '2 use wgt from prior iter%N%3f3 wgt calculated from eigenvalues (two band pass)')
+      if(bz_lmet>3) call rx('BZ_lmet is 0,1,2, or 3: usually 3')
+c     .     ' 4 BZ integration with 3-point scheme')
       nm='BZ_TETRA'; call gtv(trim(nm),tksw(prgnam,nm),ctrl_lmet2,
      .     def_lg=T,note='Tetrahedron integration')
       if( cmdopt('--tdos',6,0,a).or.cmdopt('--pdos',6,0,a)) then
@@ -1539,26 +1491,28 @@ c     .        note='Assign PL potential index to this site')
      .     'To be used in conjunction with W= ; see next')
       nm='BZ_W'; call gtv(trim(nm),tksw(prgnam,nm),bz_w,
      .     def_r8=5d-3,note=
-     .     'N>=0: Line broadening for sampling integration%N%3f'//
-     .     'N<0 : Temperature for Fermi distribution (Ry)')
-      nm='BZ_EF0'; call gtv(trim(nm),tksw(prgnam,nm),bz_ef,
+     .     'If BZ_N>=0, Line broadening for sampling integration%N%3f'//
+     .     'If BZ_N<0,  Temperature for Fermi distribution (Ry)')
+      nm='BZ_EF0'; call gtv(trim(nm),tksw(prgnam,nm),bz_ef0,
      .     def_r8=0d0,note='Initial guess at Fermi energy')
-      nm='BZ_DELEF'; call gtv(trim(nm),tksw(prgnam,nm),bz_def,
+      nm='BZ_DELEF'; call gtv(trim(nm),tksw(prgnam,nm),bz_def0,
      .     def_r8=0.05d0,note='Initial uncertainty in Fermi energy')
-      nm='BZ_ZBAK'; call gtv(trim(nm),tksw(prgnam,nm),zbak(1),
+      nm='BZ_ZBAK'; call gtv(trim(nm),tksw(prgnam,nm),zbak,
      .     def_r8=0d0,note='Homogeneous background charge')
 !! write zbak. sep2020
       if(procid==master) then
          open(newunit=ifzbak,file='ZBAK')
-         write(ifzbak,"(d23.5, ' ! zbak')") zbak(1)
+         write(ifzbak,"(d23.5, ' ! zbak')") zbak
          close(ifzbak)
       endif
       nm='BZ_SAVDOS'; call gtv(trim(nm),tksw(prgnam,nm),ctrl_ldos,
      .     def_i4=0,note='Choose 0 or 1: %N%3f1 Write dos.tot.* file (settings are NPTS and DOS)')
-      nm='BZ_DOS'; call gtv(trim(nm),tksw(prgnam,nm),bz_dosw,def_r8v=
-     .     (/-1d0,0d0/),note='Energy window over which DOS accumulated')
+c      nm='BZ_DOS'; call gtv(trim(nm),tksw(prgnam,nm),bz_doswin,def_r8v=
+c     .     (/-1d0,0d0/),note='Energy window over which DOS accumulated')
+      bz_doswin=-9999
       nm='BZ_NPTS'; call gtv(trim(nm),tksw(prgnam,nm),bz_ndos,def_i4=1001,
      .     note='No. DOS points (sampling integration)')
+
       nm='BZ_DOSMAX'; call gtv(trim(nm),tksw(prgnam,nm),bz_dosmax,def_r8=1.5d0,
      &     note='Maximum energy to which DOS accumulated, relative to Efermi') !march 2013
       xxx = 5d0
@@ -1568,6 +1522,7 @@ c     .        note='Assign PL potential index to this site')
      .     def_i4=0,note='Find at most nevmx eigenvectors'//
      .     '%N%3fIf NEVMX=0, program uses internal default'//
      .     '%N%3fIf NEVMX<0, no eigenvectors are generated')
+      
       nm='BZ_NOINV'; call gtv(trim(nm),tksw(prgnam,nm),noinv,
      .     def_lg=F,note=
      .     'Suppress automatic inclusion of inversion symmetry for BZ')
@@ -1615,6 +1570,8 @@ C     Default values for smix (array has same same structure as lstra smix)
          nm='ITER_NRMIX'; call gtv(trim(nm),tksw(prgnam,nm),smalit,
      .        def_i4v=(/80,2/),note='Sphere program, (1) max iter; '//
      .        '(2) no. prior iter for Anderson mixing ')
+         
+!! we use mixrho.F ->parmxp.F. But too complicated to touch it.
          nm='ITER_MIX'; sw=tksw(prgnam,nm); call gtv(trim(nm),sw,iter_mix,
      .        nmin=10,nout=nout,note='Mixing rules for charge mixing.  Syntax:')
          if (io_help/=0 .and. tksw(prgnam,nm)/=2) print 345
@@ -1634,6 +1591,7 @@ C     Default values for smix (array has same same structure as lstra smix)
             endif
             if (io_show==0) call poppr
          endif
+         
          nm='ITER_CONV'; call gtv(trim(nm),tksw(prgnam,nm),ctrl_tol(3),
      .        def_r8=1d-4,note='Tolerance in energy change from prior'//
      .        ' iteration for self-consistency')
@@ -1695,12 +1653,17 @@ c         mix_nitu = i0
          nm='DYN_MSTAT_PDEF'; call gtv(trim(nm),tksw(prgnam,nm),lat_defm,
      .        def_r8v=zerov,note='Lattice deformation modes')
       endif
-      if (io_help > 0) call cexit(0,1)
+      if (io_help >0) then
+         write(stdo,*)
+         write(stdo,"(a)")'==============================================='
+         call lmhelp(prgnam)
+         call cexit(0,1)
+      endif   
 cccc  end of read input parameter ccccccccccccccccccccccccccxxxxxxxxxxxxxxxx
+      
 !! Stage 2  Reorganize ctrl_* in module m_lmfinit ---------------------
       ctrl_defm = lat_defm(:)
-      lmet = isw(bz_lmet.ne.0) + 2*isw(ctrl_lmet2) != 1*lmetal + 2*ltetrahedron
-      ctrl_lmet=lmet
+      ctrl_lmet= isw(bz_lmet.ne.0) + 2*isw(ctrl_lmet2) != 1*lmetal + 2*ltetrahedron
       irs=0
       irs(1) = 1
       irs(2) = 1
@@ -1745,21 +1708,18 @@ C            Add 100*k to compute response function only each kth iteration
       ctrl_mdprm=mdprm
       ctrl_modep=2
       ctrl_nbas=nbas
-
       nl = max(lmxbx,lmxax)+1
-      
-      ctrl_nbasp=nbasp
+      nlmax=nl**2
       ctrl_nesabc=nesabc
       ctrl_nitmv=nitmv
       ctrl_nl=nl
       ctrl_nsite=nsite
       ctrl_nspec=nspec
-
       ctrl_nspin=nsp
       ctrl_nvario=nvario
       ctrl_omax1 = omax1
       ctrl_omax2 = omax2
-      ctrl_quit  = quit
+c      ctrl_quit  = quit
       ctrl_rmaxes= rmaxes
       ctrl_rmines= rmines
       ctrl_sclwsr= sclwsr
@@ -1767,20 +1727,18 @@ C            Add 100*k to compute response function only each kth iteration
       ctrl_smalit= smalit
       ctrl_tol   = ctrl_tol
       ctrl_wsrmax= wsrmax
-      ctrl_zbak  = zbak
+c      ctrl_zbak  = zbak
       ctrl_pfloat= lpfloat
-
       if (dalat == NULLR) dalat=0
       lat_alat=alat+dalat
       lat_avw=avw
       lat_nkqmx=lat_nkdmx
-      lat_nabc=ftmesh
-      lat_plat=plat
-      lat_vol=vol
+c      lat_nabc=ftmesh
+      lat_platin=plat
+c      lat_vol=vol
       lat_tolft=tolft
       
-!! setcg
-!!... Choose dimensions for arrays
+!! set cg coefficients for lmf --- Choose dimensions for arrays
       lmxcg=8
       lmxcy=12
       if (lmxcg .le. 6) then
@@ -1795,7 +1753,7 @@ C            Add 100*k to compute response function only each kth iteration
       else
         call rxi('setcg: cannot handle lmxcg=',lmxcg)
       endif
-C ... Allocate and occupy the arrays
+!     Allocate and fill data for cg
       nlm=(lmxcy+1)**2
       allocate(rv_a_ocy(abs(nlm)))
       allocate(rv_a_ocg(abs(lnjcg)))
@@ -1803,43 +1761,42 @@ C ... Allocate and occupy the arrays
       allocate(iv_a_oidxcg(abs(lnxcg)))
       call sylmnc ( rv_a_ocy , lmxcy )
       call scg ( lmxcg , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg )
-!!
-
-C --- Allocate and copy input to sham ---
-c      ham_size=uham_size()
-      ham_alfsi=alfsi
-      i_copy_size=size(ham_dabc)
-      call dcopy(i_copy_size,dabc,1,ham_dabc,1)
+!! Allocate and copy input to sham ---
+c      ham_alfsi=alfsi
+c      i_copy_size=size(ham_dabc)
+c      call dcopy(i_copy_size,dabc,1,ham_dabc,1)
       ham_elind=elind
       ham_nkaph=nkaph
       i_copy_size=size(ham_pmax)
       call dcopy(i_copy_size,pmax,1,ham_pmax,1)
       i_copy_size=size(ham_pmin)
       call dcopy(i_copy_size,pmin,1,ham_pmin,1)
-      ham_lsig=lrsig
-c      i_copy_size=size(ham_sigp)
-c      call dcopy(i_copy_size,sigp,1,ham_sigp,1)
-c      i_copy_size=size(ham_qss)
-c      call dcopy(i_copy_size,ham_qss,1,ham_qss,1)
-
+      if (procid==master) then
+         inquire(file='sigm.'//trim(sname),exist=sexist)
+         if (lrsigx/=0 .and. (.not.sexist) ) then
+            write(stdo,*)' bndfp (warning): no sigm file found ... LDA calculation only'
+            lrsigx = 0
+         endif
+      endif
+      ham_lsig=lrsigx
+      call mpibc1_int(ham_lsig,1,'bndfp_ham_lsig')
       ham_rsrnge=rsrnge
       ham_rsstol=rsstol
       ham_udiag=ham_udiag
       ham_scaledsigma=scaledsigma
-
-!!  Parameters for APW
       ham_pwmode=pwmode
-c      ham_npwpad=npwpad
-      ham_pwemin=pwemin
-      ham_pwemax=pwemax
       ham_oveps=oveps
       ham_delta_stabilize=delta_stabilize !takao sep2010
+      if (procid==master) then
+         open(newunit=ifi,file='PWMODE')
+         write(ifi,"(i5)")pwmode
+         close(ifi)
+      endif 
       
 C --- Allocate and copy input to sspec ---
       allocate(v_sspec(nspec))
       do j=1,nspec
           slabl_(j) = slabl(j)
-c          v_sspec(j)%size=uspec_size()
           v_sspec(j)%eh3=-0.5d0
           v_sspec(j)%etf=-1d0
           v_sspec(j)%lmxf= 2*nl-2
@@ -1852,7 +1809,6 @@ c          v_sspec(j)%size=uspec_size()
           v_sspec(j)%nmcore=nmcore(j)
           v_sspec(j)%a=spec_a(j)
           v_sspec(j)%nr=nr(j)
-c          v_sspec(j)%alpha=alpha(:,j)
           v_sspec(j)%coreq=coreq(:,j)
           v_sspec(j)%lxi=lxi(j)
           v_sspec(j)%nxi=nxi(j)
@@ -1862,9 +1818,37 @@ c          v_sspec(j)%alpha=alpha(:,j)
           v_sspec(j)%hcr=hcr(:,j)
           v_sspec(j)%idmod=idmod(:,j)
           v_sspec(j)%ehvl=ehvl(:,j)
-          ix = 1
-          ix(1:1+lmxb(j)) = idxdn(1:1+lmxb(j),j)
-          v_sspec(j)%idxdn = ix
+          
+!! idxdn= 1 or 3  (or 10,11 for LO)
+Cr     1  Orbital is included as "active" orbitals, which means
+Cr           they are included in the hamiltonian and diagonalized
+Cr     3   Neglected.
+Cr     10  Orbital is a local orbital whose value and slope are
+Cr         constructed to be zero at the MT boundary.
+Cr         It is included in the basis.
+Cr     11  Orbital is a local orbital with a smooth Hankel tail
+Cr         and it is included in the basis.
+          do  ik = 1, nkap0
+             if (ik <= nkapi) then
+                do lp1 = 1, lmxb(j)+1
+                   if (ik==1.and.rsmh1(lp1,j)<=0) idxdn(lp1,ik,j)=3
+                   if (ik==2.and.rsmh2(lp1,j)<=0) idxdn(lp1,ik,j)=3
+                enddo
+             endif
+             if (ik == nkaph .and. sum(lpz)>0) then
+                idxdn(:,ik,j)=3 !call ivset(idxdn(1,ik,j),1,n0,4)
+                do  lp1  = 1, lmxb(j)+1
+                   if (pz(lp1,1,j) .ne.  0) then
+                      if(pz(lp1,1,j)>=10) idxdn(lp1,ik,j)=11
+                      if(pz(lp1,1,j)>  0) idxdn(lp1,ik,j)=10
+                   endif
+                enddo
+             endif
+             if (ik > nkaph) idxdn(:,ik,j)=3 !call ivset(idxdn(1,ik,j),1,n0,4)
+             idxdn(lmxb(j)+ 2:,ik,j)=3 
+          enddo
+          call dcopy(n0*nkap0,idxdn(1,1,j),1,v_sspec(j)%idxdn,1) ! = idxdn
+          
           v_sspec(j)%idu = idu(:,j)
           v_sspec(j)%jh=jh(:,j)
           v_sspec(j)%uh=uh(:,j)
@@ -1876,17 +1860,24 @@ c          v_sspec(j)%alpha=alpha(:,j)
           v_sspec(j)%lmxb=lmxb(j)
           v_sspec(j)%lmxl=lmxl(j)
           v_sspec(j)%lmxpb=lmxpb(j)
-          orbp=0d0 !call dpzero(orbp,n0*2*nkap0)
-          call dcopy(n0,rsmh(1,j),1,orbp(1,1,1),1)
-          call dcopy(n0,eh(1,j),1,orbp(1,2,1),1)
+          
+          orbp=1d10 
+          call dcopy(n0,rsmh1(1,j),1,orbp(1,1,1),1)
+          call dcopy(n0,eh1(1,j),1,orbp(1,2,1),1)
           call dcopy(n0,rsmh2(1,j),1,orbp(1,1,2),1)
           call dcopy(n0,eh2(1,j),1,orbp(1,2,2),1)
           i_copy_size=size(v_sspec(j)%orbp)
           call dcopy(i_copy_size,orbp,1,v_sspec(j)%orbp,1)
+
           v_sspec(j)%mass = mass(j)
           v_sspec(j)%mxcst= 1*isw(mxcst1(j))+2*isw(mxcst2(j))+4*isw(mxcst4(j))
 !!     Pack P,Q,PZ for both spins
-          v_sspec(j)%p = pnu(1:n0*nsp,1,j) 
+          v_sspec(j)%p = pnu(1:n0*nsp,1,j)
+          if(nsp==2) pz(1:n0,2,j) = pz(1:n0,1,j) !takao
+ccccccccccccccc unused area but fill zero to avoid NaN stop
+          if(nsp==1) v_sspec(j)%p(n0+1:2*n0)  = 0d0
+          if(nsp==1) v_sspec(j)%pz(n0+1:2*n0) = 0d0
+ccccccccccccccc          
           v_sspec(j)%pz= pz(1:n0*nsp,1,j)  
           v_sspec(j)%q = qnu(1:n0*nsp,1,j) 
           v_sspec(j)%z=z(j)
@@ -1907,12 +1898,9 @@ c          v_sspec(j)%alpha=alpha(:,j)
       enddo
       allocate(v_ssite(nsite))
       do j=1,nsite
-c          v_ssite(j)%size=usite_size()
           v_ssite(j)%spec=ips(j)
           v_ssite(j)%class=ips(j)
           v_ssite(j)%clabel=slabl(ips(j))
-c          v_ssite(j)%pl=ipl(j)
-c          v_ssite(j)%plv=plv(j)
           v_ssite(j)%pos=pos(1:3,j)
           v_ssite(j)%vel=vel(1:3,j)
           v_ssite(j)%vshft=vshft(j)
@@ -1933,7 +1921,6 @@ c          v_ssite(j)%plv=plv(j)
          ctrl_noinv=1
       endif
       sstrnsymg=trim(symg)
-!     !
       if (cmdopt('--rdbasp',8,0,strn)) call rx('not support --rdbasp')
 
 !!  Add dalat to alat
@@ -1941,27 +1928,97 @@ c          v_ssite(j)%plv=plv(j)
 !!   is a bug for lm7K when I started lm7K. I had included this bug here. Fixed at 28May2010.
 
 !! Dirac equation requires spin polarization
-        if( nsp==1 .and. int(ctrl_lrel)==2 ) call rx('rdccat: Dirac equation requires NSPIN=2')
+      if( nsp==1 .and. int(ctrl_lrel)==2 ) call rx('rdccat: Dirac equation requires NSPIN=2')
 !! ... Suppress inversion when noncollinear magnetism, SX, NLO
       if(lso.ne. 0) ctrl_noinv=1 !lqp = lqp-bitand(lqp,1)+1
+      
 !! ... Setup for idxdn ... ctrl->lham,4 is automatic downfolding switch
-      j=3+10 ! no downfolding j=3 ; j=+10 nfp-style basis:
-      call suidx(globalvariables%nkaph,j,nspec,v_sspec)
-!! ... Set some global variables
+c      j=3+10 ! no downfolding j=3 ; j=+10 nfp-style basis:
+c      call suidx(nkaph,j,nspec,v_sspec)
+!! Set default values for species data
+      call defspc(v_sspec)
+!!      
       lxcf = ctrl_lxcf
-      globalvariables%nspec = nspec
-      globalvariables%nbas = nbas
-      globalvariables%nbasp= nbasp
-      globalvariables%nsp =  nsp
-      globalvariables%nl =   nl
-      globalvariables%lrel = lrel
-      globalvariables%lxcf = lxcf
-      globalvariables%stdo = stdo
-      globalvariables%stdl = stdl
-      globalvariables%stde = stde
       nspc = 1
       if( lso==1 ) nspc = 2
-      globalvariables%nspc = nspc
+
+      
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc!!      
+      do  20  ib = 1, nbas
+        is=v_ssite(ib)%spec
+        v_ssite(ib)%pnu=v_sspec(is)%p
+        v_ssite(ib)%pz=v_sspec(is)%pz
+   20 continue
+cccccccccccccccccccccccccccccccccccccccccccc
+c      print *,'333xxx000 ibas pnu=',v_ssite(1)%pnu
+cccccccccccccccccccccccccccccccccccccccccccc
+
+      
+      allocate( iprmb(nbas * nl**2 * maxp ) )
+      indx = 0
+c$$$      do 112 iprior = 1, maxp
+c$$$      do 110 ib = 1,nbas
+c$$$          ibp1 = ib+1
+c$$$          is = v_ssite(ib)%spec
+c$$$          iposn = mxorb*(ib-1)
+c$$$          do  1121 ik = 1, nkaph
+c$$$          do  111  l = 0, nl-1
+c$$$            lzz =.false.
+c$$$            if( (idxdn(l+1,ik,is)==10.or.idxdn(l+1,ik,is)==11) .and. iprior==1) lzz=.true.
+c$$$            do   m = -l, l
+c$$$              iposn = iposn+1
+c$$$              if (lzz .or. (idxdn(l+1,ik,is)==iprior)) then
+c$$$                indx = indx+1
+c$$$                iprmb(iposn) = indx
+c$$$             endif
+c$$$            enddo 
+c$$$  111     continue
+c$$$ 1121     continue
+c$$$  110   continue
+c$$$        ldham(iprior) = indx
+c$$$  112  continue
+      
+      ldham=0
+      do 110 ib = 1,nbas
+         is = v_ssite(ib)%spec
+         iposn = mxorb*(ib-1)
+         do 1121 ik = 1, nkaph
+           do     l = 0, nl-1
+           do     m = -l, l
+             iposn = iposn+1
+             if( (idxdn(l+1,ik,is)==10.or.idxdn(l+1,ik,is)==11).or. idxdn(l+1,ik,is)==1 )  then
+               indx = indx+1
+               iprmb(iposn) = indx
+             endif
+           enddo 
+           enddo
+ 1121     continue
+  110 continue
+      ldham(1) = indx
+        
+C     Default value for hamiltonian dimension
+c      ham_ndham= ldham(1)
+C ... Make rest of ldham
+      ldham(4) = nspc
+      ldham(5) = ldham(1) * nspc
+      ldham(6) = ldham(2) * nspc
+      ldham(7) = ldham(3) * nspc
+      nspx  = nsp
+      if(lso/=0) nspx = 1
+      ldham(8) = nspx
+      ham_ldham=ldham
+      nvi=0
+      nvl=0
+      do  ib = 1, nbas
+        is=v_ssite(ib)%spec
+        nvi = nvi + (lmxa(is)+1)**2
+        nvl = nvl + (lmxl(is)+1)**2
+      enddo
+      pot_nlma=nvi
+      pot_nlml=nvl
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      
+      
 C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
       if (procid .eq. master) then
          nat = nbas
@@ -1971,23 +2028,22 @@ C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
             if (l .eq. -1) nat = nat-1
          enddo
       endif
-      call mpibc1(nat,1,2,0,'rdctrl','nat')
-      globalvariables%nat = nat
-C     ... Set modep
+      call mpibc1_int(nat,1,'m_lmfinit_nat')
       ctrl_modep=2
-C     ... Count LDA+U blocks (printout only)
       allocate(wowk(nbas))
       wowk=0
       call pshpr(0)
-      call suldau(nbas,v_sspec,v_ssite,nlibu,k,wowk)
+      call suldau(nbas,v_sspec,v_ssite,nlibu,k,wowk)!Count LDA+U blocks (printout only)
       ham_nlibu=nlibu
       call poppr
-      deallocate(wowk,pnu,qnu,pz,amom,idmod,rsmh,eh,rsmh2,eh2,pb1,pb2,
+c      deallocate(wowk,pnu,qnu,pz,amom,idmod,rsmh,eh,rsmh2,eh2,pb1,pb2,
+      deallocate(wowk,pnu,qnu    ,amom,idmod,                  pb1,pb2,
      .     lmxpb,qpol,stni,tbvso,iq1,ivso,rg,rsma,rfoca,rsmfa,rcfa,nxi,
      .     exi,rint,rcut,coreq,mass,colxbs,radxbs,rs3,rham,idxdn,hcr,
-     .     rmt,idu,uh,jh,dv,grp,grp2,mxcst1,mxcst2,mxcst4,kmxt,kmxv, !alpha,
-     .     lfoca,eref,lmxl,lxi,coreh,lmxa,lmxb,spec_a,z,nr,rsmv,
-     .     pos,vel,eula,vshft,ips,irlx) !,ipl,plv
+     .     rmt,idu,uh,jh,dv,grp,grp2,mxcst1,mxcst2,mxcst4,kmxv,  !kmxt,
+     .     lfoca,eref,lmxl,lxi,coreh,          spec_a,z,nr,rsmv,
+c    .     lfoca,eref,lmxl,lxi,coreh,lmxa,lmxb,spec_a,z,nr,rsmv,
+     .     pos,vel,eula,vshft,ips,irlx) 
 
 c$$$!! --- Printout ---
 c$$$          if (iprint() .ge. 20 .and. procid .eq. master) then
@@ -2025,7 +2081,7 @@ c$$$              endif
 c$$$   90       continue
 c$$$          endif
 
-!     ! --- takao embed contents in susite here. This is only for lmf and lmfgw.
+!! --- takao embed contents in susite here. This is only for lmf and lmfgw.
       seref = 0d0
       do ib = 1, nsite
          ispec = v_ssite(ib)%spec
@@ -2034,10 +2090,10 @@ c$$$          endif
          seref = seref +     v_sspec(ispec)%eref
       enddo
       ham_seref=seref
-      allocate(rv_a_opos(3,nsite))
+c      allocate(rv_a_opos(3,nsite))
       allocate(iv_a_oips(nsite))
       do i_spackv=1,nsite
-         rv_a_opos(:,i_spackv)= v_ssite( i_spackv )%pos
+c         rv_a_opos(:,i_spackv)= v_ssite( i_spackv )%pos
          iv_a_oips(i_spackv) =  v_ssite( i_spackv )%spec
       enddo
       if (procid .eq. master) then
@@ -2051,9 +2107,6 @@ c$$$          endif
             endif
          endif
       endif
-c      do i_spec=1,nspec
-c         call mpibc1_s_spec(v_sspec(i_spec),.false.,'rdctrl','sspec')
-c      enddo
 !! Debugging printout ---
       if (io_help == 0 .and. io_show > 1) then
          print *, '---------- contents of sstrn ------------'
@@ -2063,135 +2116,122 @@ c      enddo
       endif
 #if MPI | MPIK
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
-      print *,' mpipid=',procid
+c      print *,' mpipid=',procid
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
 #endif
-     
-!! Stage 3  ========================================================
-!!--- Lattice setup:deformation ---
-      !!v_* is going to be overwritten 
-      call latticx() ! =lattic (renamed to avoid cyclic dependency)
-      do ibas=1,ctrl_nbas
-        v_ssite(ibas)%pos = rv_a_opos(:,ibas)
-      enddo
-!!--- Generate symmetry operations; split species into classes  ---
-      strn = 'find'
-      if(len_trim(sstrnsymg)>0) strn=trim(sstrnsymg)
-      if (cmdopt('--nosym',7,0,outs).or.cmdopt('--pdos',6,0,outs)) strn = ' '
-!! when lmfgw, 1st digit of lc is zero--> no inversion added in mksym.
-      lc = 10
-      if (.not. prgnam == 'LMFGWD') lc = 12 ! add inversion for (not lmfgw)
-      if (prgnam=='LMFA'.or.prgnam=='LMCHK') then
-         lc=20
-         if( .not.noinv ) lc = lc+1  !+1 means add inversion 
-      endif   
+      if( cmdopt0('--quit=show') ) call rx0(trim(prgnam)//' --quit=show')
 
       
-!! Antiferro symmetric self-energy mode. Feb2021 recovered
-!! To obtain self-consistency, it may be useful to keep AF condition during iteration.
-!! We need SYMGRPAF      
-! sample for nio
-!     SYMGRPAF i:(1,1,1) ! translation + inversion makes antiferro symmetry.
-!     SYMGRP r3d   !this keeps spin axis. (probably larger symmetry allowed for SO=0)
-!STRUC   ALAT={a} PLAT= 0.5 0.5 1.0  0.5 1.0 0.5  1.0 0.5 0.5
-!        NBAS= 4  NSPEC=3
-!SITE    ATOM=Niup POS=  .0   .0   .0   AF=1    <--- AF symmetric pair
-!        ATOM=Nidn POS= 1.0  1.0  1.0   AF=-1   <---
-!        ATOM=O POS=  .5   .5   .5
-!        ATOM=O POS= 1.5  1.5  1.5
-!
-      if(len_trim(symgaf)>0) lc=12 ! inversion allowed for AF case. Good?
-      if (.not.(prgnam=='LMFA'.or.prgnam=='LMCHK')) then
-      ipr10= iprint()>10 !this is only for master
-      if(len_trim(symgaf)>0) then
-        nbas = ctrl_nbas
-        if(ipr10) then
-           write(6,*)
-           write(6,"(a)")       ' AF: ======================================== '
-           write(6,"(a)")       ' AF: Antiferro mode: SPGGRAF='//trim(symgaf)
-           write(6,"(a)")       ' AF:  (neglct waring in GENSYM) '
-           do j=1,nbas
-              write(6,"(a,2i3)") ' AF:  ibas,AF=',j,v_ssite(j)%iantiferro
-           enddo
-        endif
-        strn2=trim(strn)//' '//trim(symgaf)
-        call mksymafx(v_ssite,iv_a_oips,nbas,procid==master,strn2,lc,slabl_,mxspec,nsite)
-!     note ---> rv_a_osymgr, rv_a_oag,lat_nsgrp are overwritten by next 
-!!!   We use symops_af, ngrpaf and so on in suham.F to make a table in sugw.F-gen_hamindex.F.
-!     !    These are passed through m_hamindex
-!     !    The table is for rotation of the self-energy file sigm.*, used in rdsigm2.F-hamfb3k-rotsig.
-!     !
-c$$$  call mptauof ( symops_af , ngrpaf , v_slat2%plat , nbas , v_slat2%rv_a_opos , iclasstaf
-c$$$  .   , miat , tiat , invgx , shtvg )
-c$$$  do ig = 1,ngrpaf
-c$$$  write(*,"(2i4,3e24.16)") ig, invgx(ig), shtvg(1:3,ig)
-c$$$  do i=1,3
-c$$$  write(*,"(3e24.16)") symops_af(i,1:3,ig)
-c$$$  enddo
-c$$$  enddo
-        if(ipr10) write(6,"(a)") ' AF: ===== end of AF section================= '
-        if(ipr10) write(6,"(a)")       
-      endif
-      endif
-
-!! space-group symmetry generator mksym ----
-      if(procid==master) call pshpr(60)
-      call mksymx(lc,slabl_,strn,v_ssite,iv_a_oips) 
-      if(procid==master) call poppr
-c$$$!! test1 ------------------
-c$$$      ngrp=lat_nsgrp
-c$$$      nbas=ctrl_nbas
-c$$$      allocate(iclasst(nbas),invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp),symops(3,3,ngrp),ag(3,ngrp))
-c$$$      call dcopy ( ngrp * 9 , lat_rv_a_osymgr , 1 , symops , 1 )
-c$$$      call dcopy ( ngrp * 3 , lat_rv_a_oag , 1 , ag , 1 )
-c$$$      write(*,*) 'ngrp=',ngrp
-c$$$      do ib=1,nbas
-c$$$        iclasst(ib)=v_ssite(ib)%class
-c$$$      enddo
-c$$$      call mptauof ( symops , ngrp , lat_plat , nbas , lat_rv_a_opos , iclasst 
-c$$$     . , miat , tiat , invgx , shtvg )
-c$$$      do ig = 1,ngrp
-c$$$        write(*,"(2i4,3e24.16)") ig, invgx(ig), shtvg(1:3,ig)
-c$$$        do i=1,3
-c$$$          write(*,"(3e24.16)") symops(i,1:3,ig)
-c$$$        enddo
-c$$$      enddo
-
-!!  Set default values for species data
-      call defspc(v_sspec)
-      if(prgnam == 'LMF') then
-         ltet = bz_lmet/=0 .or. ctrl_ldos/=0
-         call mkqpx(ltet,F,1,-2)!v_sctrl,v_slat,
-      endif
-!!  Show and quit
-      if( quit == 1 ) then
-        write(6,"(a)") prgnam//"Q=SHOW encountered"
-        call rx0(prgnam)
-      endif
-!!  -------------------------- Total energy mode. moved from lmfp-------------------
+!! Stage 3: initial settings ===================================
+!!  Total energy mode setting
       if (cmdopt('--etot',6,0,strn)) then
-!!  No forces or dynamics
-        mdprm=0
+        mdprm=0 !!!  No forces or dynamics
         ctrl_lfrce=0
         ctrl_mdprm=0
         irs2=0
         ctrl_maxit=1
       endif
-      end subroutine rdctrl2
+      if(lhf) ctrl_maxit= 1
+!! scalar rel       
+      call setcc(lrel) !lrel/=0 means scalar relativistiv c=274.074d0 in a.u.
+!!
+      fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !fullmesh stop just after do 2010 iq loop.
+      lrout = 1 ! Whether to evaluate output density and/or KS energy
+      leks = 1
+      if (bz_nevmx .eq. -1) then !bz_nevmx ! Maximum number of eigenvalues
+        lrout = 0
+        leks = 0
+      endif
+      if(cmdopt0('--band').or.fullmesh) then !Switch to plot bands at specified qp
+         ctrl_lfrce = 0
+         plbnd = 1
+         lrout = 0
+      else
+         plbnd=0
+      endif
+      if(ctrl_lmet/=0 ) ctrl_ldos=1
+      if(ctrl_ldos==0 .and. ctrl_lmet==0) bz_ndos = 1
+!! LDA+U block (it was suldau.F)
+      nlibu = 0
+      lmaxu = 0
+      allocate(lldau(nbas))
+      lldau = 0
+      do  ib = 1, nbas
+        is = v_ssite(ib)%spec
+        do  lx = 0, min(v_sspec(is)%lmxa,3)
+          if (v_sspec(is)%idu(lx+1) .ne. 0) then
+            if (lldau(ib) ==0) lldau(ib) = nlibu+1
+            nlibu = nlibu+1
+            lmaxu = max(lmaxu,lx)
+          endif
+        enddo
+      enddo
+      if (master_mpi.and.nlibu/=0) write(stdo,"(' LDA+U: block(s) lmaxu =',2i4)") nlibu,lmaxu
+!! lso  =0 (no so): =1(L.S): =2(LzSz).
+      lcplxp = 0
+      lekkl  = ctrl_pfloat
+      if (lso .ne. 0)    lcplxp = 1
+      if (sum(lldau)/=0) lcplxp = 1
+! lhh, nkapii, nkaphh (nkaphh = nkapii(1 or 2) +1) if extented local orbital exist)
+      allocate(lhh(nkap0,nspec))
+      lhh=-1
+      do i=1,nspec
+         lmxbj = lmxb(i)
+         call getiout(rsmh1(1,i), lmxbj+1,lhh(1,i))
+         if(nkapii(i)==2) call getiout(rsmh2(1,i),lmxbj+1,lhh(2,i))
+         if(lpz(i)==1 )   call getiout(pz(1,1,i),lmxbj+1,lhh(nkaph,i))!lh for lo
+      enddo
+      if(master_mpi) then
+         write(stdo,*)
+         write(stdo,"('mmm === MTO setting ===')")
+         do i=1,nspec
+          write(stdo,"('mmm ispec lmxb lpzex nkapii nkaphh=',10i5)")i,lmxb(i),lpzex(i),nkapii(i),nkaphh(i)
+          write(stdo,"('mmm rsmh1 ',i4,100f6.2)")i, rsmh1(1:lmxbj+1,i)
+          write(stdo,"('mmm   eh1 ',i4,100f6.2)")i,   eh1(1:lmxbj+1,i)
+          write(stdo,"('mmm rsmh2 ',i4,100f6.2)")i, rsmh2(1:lmxbj+1,i)
+          write(stdo,"('mmm  eh2  ',i4,100f6.2)")i,   eh2(1:lmxbj+1,i)
+          write(stdo,"('mmm pz    ',i4,100f6.2)")i,   pz(1:lmxbj+1,1,i)
+          write(stdo,"('mmm lh    ',i4,100i3)")i,   lhh(1:nkaph,i)
+         enddo
+      endif
+      end subroutine m_lmfinit_init
+
+      
+      subroutine getiout(a,iin,iout) !a(1:iout) can be nonzero.
+      integer:: iin,iout,i
+      real(8):: a(iin)
+      do i=iin,1,-1
+         if(a(i)>0) then
+            iout=i-1 !angular mom
+            exit
+         endif
+      enddo
+      end
+      subroutine getiout10(a,iin,iout) !a(1:iout-1) can be >10
+      real(8):: a(iin)
+      integer:: iin,iout,i
+      do i=iin,1,-1
+         if(a(i)>10d0-1d-6) then
+            iout=i-1 !angular mom
+            exit
+         endif
+      enddo
+      end
       end module m_lmfinit
 
 
+! def      Uncertainty in Fermi level
+! dosw     Energy window over which DOS accumulated
+! fsmom    fixed-spin moment (fixed spin moment method)
+! ef       Fermi level
+! ntet     number of tetrahedra
 
       
-!! Hereafter are implication of variables. Some part are Obsolate, but it maybe a help.
+!! Hereafter are list of variables. Old document, but it maybe a help.
 !!mmmmmm old doc mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm      
 !! --- explanation of  bz_* ---
 Cr name    purpose
-Cr def      Uncertainty in Fermi level
-Cr dosw     Energy window over which DOS accumulated
-Cr ef       Fermi level
 Cr efmax    eigenvalues above efmax are not needed
-Cr fsmom    fixed-spin moment (fixed spin moment method)
 Cr lcond    conductivity, and directions
 cCr lio      1  read qp
 cCr          2  write qp
@@ -2205,7 +2245,6 @@ Cr ndos     No. DOS points (sampling integration, and lmdos)
 Cr nevmx    eigenvectors above nevmx are not needed
 Cr nkabc    number of divisions in qp mesh
 Cr nkp      Number of qp
-Cr ntet     number of tetrahedra
 Cr odos     offset to total dos
 Cr oidtet   offset to tetrahedron corners
 Cr oipq     offset to ipq array made in bzmesh
@@ -2241,10 +2280,10 @@ Cr           8 represent full potential density via TCF
 Cr          16 unused
 Cr          32 unused
 Cr          64 (molecules) XC potential by FFT
-Cr   ldos    1 make dos
-cCr           2 generate weights for partial dos
-cCr           4 generate weights for m-decompos'n of pdos
-cCr           8 BZ map
+C   ldos    1 make dos
+cCxxxr           2 generate weights for partial dos
+cCxxxr           4 generate weights for m-decompos'n of pdos
+cCxxxr           8 BZ map
 Cr   lfp     switches for full-potential
 Cr           1 program uses full potential
 Cr   lfrce   How forces are calculated
@@ -2347,8 +2386,7 @@ Cr   nspin   number of spins
 Cr   nvario  number of variables to output
 Cr   omax1   sphere overlap constraints, type 1
 Cr   omax2   sphere overlap constraints, type 2
-Cr   pfloat  stop after:  1 show  2 atom  4 bands
-Cr   quit    stop after:  1 show  2 atom  4 bands
+Cr   pfloat  =1
 Cr   rmaxes  upper limit to ES radius when finding new empty spheres
 Cr   rmines  lower limit to ES radius when finding new empty spheres
 Cr   sclwsr  scale wsr until reaching this fractional vol
@@ -2594,8 +2632,6 @@ Cr  ogmar   (gamma-alpha)*P^alpha/P^gamma fully relativistic
 Cr  ogrrme  radial matrix elements of gradient.
 Cr  ohab    not used now
 Cr  oivso   (tbe) spin orbit
-Cr  omad    Madelung matrix
-Cr  oorhat  pointers to atom densities
 Cr  opalp   ASA potential functions, alpha repsn (mkptfp)
 Cr  opapg   p^alpha/p^gamma fully relativistic
 Cr  opdel   ASA Delta, in hamiltonian order (for LDA+U)
@@ -2640,3 +2676,5 @@ Cr          vconst(2) = potential shift of L end region (PGF)
 Cr          vconst(3) = potential shift of R end region (PGF)
 !!mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm      
       
+
+         

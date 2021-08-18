@@ -276,10 +276,7 @@ cccccccccccccccccccccccccccccccccccccccccc
           ix = 0
           do iqi = 1,nqbz
             ix = ix+1
-c          write(6,*)'is ix=',is,ix
-c          write(6,"(' --- qbz=',2i5,3f9.4,3f9.4)") iqi,is,qbz(:,iqi),ddq
-            call readeval(qbz(:,iqi)+ddq, is, eband2(:,is,ix))
-c            write(6,"(' qbz band=',3f9.4,' ',10f9.4)") qbz(:,iqi)+ddq,eband2(1:5,is,ix)
+            eband2(:,is,ix)= readeval(qbz(:,iqi)+ddq, is)
           enddo
         enddo
         ldim  = nband
@@ -313,12 +310,11 @@ c$$$        write(6,*)' ntot             =',ntot
 c ... read eband
         if(qbzreg() .and. bzcase==1 ) then
           allocate( eband(nband,nspin,nqibz))
-          do is  = 1,nspin !Readin eband
-            do iqi = 1,nqibz
-              call readeval(qibz(:,iqi),is,  eband(:,is,iqi))
-              write(6,"(' -------- qibz=',2i5,3f9.4)")iqi,is,qibz(:,iqi)
-c           write(6,*)eband(:,is,iqi)
-            enddo
+          do is  = 1,nspin 
+          do iqi = 1,nqibz
+            eband(:,is,iqi)=readeval(qibz(:,iqi),is)
+            write(6,"(' -------- qibz=',2i5,3f9.4)")iqi,is,qibz(:,iqi)
+          enddo
           enddo
        endif
        nbandx=nband

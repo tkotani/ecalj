@@ -95,19 +95,21 @@ C ... Make gradients using CGs for p functions
         enddo
       enddo
 
-      do  3  k = 0, kmax
-      do  3  jlm = 1, nlmh
-      do  3  ilm = 1, nlmg
+      do    k = 0, kmax
+      do    jlm = 1, nlmh
+      do    ilm = 1, nlmg
         s(ilm,jlm,k)    = dcmplx(0d0,0d0)
         ds(ilm,jlm,k,1) = dcmplx(0d0,0d0)
         ds(ilm,jlm,k,2) = dcmplx(0d0,0d0)
         ds(ilm,jlm,k,3) = dcmplx(0d0,0d0)
-    3 continue
+      enddo
+      enddo
+      enddo
 
 C --- Combine with Clebsch-Gordan coefficients ---
-      do  11  ilg = 1, nlmg
+      do  1111  ilg = 1, nlmg
         lg = ll(ilg)
-      do  11  ilh = 1, nlmh
+      do  111  ilh = 1, nlmh
         lh = ll(ilh)
         ii = max0(ilg,ilh)
         indx = (ii*(ii-1))/2 + min0(ilg,ilh)
@@ -125,10 +127,8 @@ C --- Combine with Clebsch-Gordan coefficients ---
           ds(ilg,ilh,ip,3) = ds(ilg,ilh,ip,3)+fac*ghkl(k+ip,ilm,3)
    12   continue
    11 continue
-
-CSFCPP#if F90
+ 111  continue
+ 1111 continue
       deallocate(hkl,ghkl)
-CSFCPP#endif
-
       end
 

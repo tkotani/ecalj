@@ -34,10 +34,11 @@ C ... Heap
 
 C --- Make ylm for all points, up to lmxy, which find ---
       lmxy = -1
-      do  1  ip = 1, np
-      do  1  ie = 1, nxi
-        lmxy = max(lmxy,lxi(ie,ip))
-    1 continue
+      do   ip = 1, np
+      do   ie = 1, nxi
+         lmxy = max(lmxy,lxi(ie,ip))
+      enddo
+      enddo
       lmxy = lmxy+lmxa
       fac2l(0) = 1
       do  2  l = 1, lmxy
@@ -73,7 +74,7 @@ c         call bessl2(exi(ie)*r2,0,lmax,phi(0),psi(0))
             ilm = 0
             rfac = dsqrt(r2)
             xxx = 1d0/r2
-            do  20  l = 0, lmax
+            do  201  l = 0, lmax
               rfac = rfac*xxx
 C     ... undo fac2l scaling, to recover standard MSM IV-43.
 C         psil = rfac * psi(l) * fac2l(l)
@@ -82,6 +83,7 @@ C         psil = rfac * psi(l) * fac2l(l)
               ilm = ilm+1
               hl(ilm,ie,ip) = psil*yl(ilm)
    20       continue
+ 201        continue
    10     continue
         else
           do  110  ie = 1, nxi
@@ -91,7 +93,7 @@ C         call bessl2(exi(ie)*r2,-1,lmax,phi(-1),psi(-1))
             ilm = 0
             rfac = dsqrt(r2)
             xxx = 1d0/r2
-            do  120  l = 0, lmax
+            do  1201  l = 0, lmax
               rfac = rfac*xxx
 C         psil = rfac * psi(l) * fac2l(l)
 C         psid = rfac * psi(l-1)*r2/(4*l-2) * fac2l(l)
@@ -102,6 +104,7 @@ C         psid = rfac * psi(l-1)*r2/(4*l-2) * fac2l(l)
               hl(ilm,ie,ip) = psil*yl(ilm)
               hd(ilm,ie,ip) = psid*yl(ilm)
   120       continue
+ 1201       continue
   110     continue
         endif
     5 continue

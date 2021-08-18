@@ -13,8 +13,8 @@ C----------------------------------------------------------------------
       integer:: i,j,n,k,l,mx,m
       complex*16 a(mx,n,n),b(mx,n,n)
       do 40 k=1,m
-        do 10 i=1,n-1
-        do 10 j=i+1,n
+        do 102 i=1,n-1
+        do 101 j=i+1,n
           a(k,j,i)=-a(k,j,i)/a(k,i,i)
           do 30 l=1,i-1
             a(k,j,l)=a(k,j,l)+a(k,j,i)*a(k,i,l)
@@ -22,24 +22,30 @@ C----------------------------------------------------------------------
         do 10 l=i+1,n
           a(k,j,l)=a(k,j,l)+a(k,j,i)*a(k,i,l)
    10   continue
-      do 40 i=n,1,-1
-        do 60 j=1,i-1
+ 101    continue
+ 102    continue
+      do 401 i=n,1,-1
+        do 601 j=1,i-1
           b(k,i,j)=a(k,i,j)
         do 60 l=i+1,n
           b(k,i,j)=b(k,i,j)-a(k,i,l)*b(k,l,j)
    60   continue
-        do 70 j=i+1,n
+ 601    continue
+        do 701 j=i+1,n
           b(k,i,j)=(0d0,0d0)
         do 70 l=i+1,n
           b(k,i,j)=b(k,i,j)-a(k,i,l)*b(k,l,j)
    70   continue
+ 701    continue
         b(k,i,i)=(1d0,0d0)
-        do 100 l=i+1,n
-          b(k,i,i)=b(k,i,i)-a(k,i,l)*b(k,l,i)
-  100   continue
-      do 40 j=1,n
-        b(k,i,j)=b(k,i,j)/a(k,i,i)
-   40 continue
+        do l=i+1,n
+           b(k,i,i)=b(k,i,i)-a(k,i,l)*b(k,l,i)
+        enddo   
+        do j=1,n
+          b(k,i,j)=b(k,i,j)/a(k,i,i)
+        enddo   
+ 401  continue
+ 40   continue
       return
       end
 

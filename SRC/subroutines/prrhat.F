@@ -1,75 +1,43 @@
       subroutine prrhat ( nbas , ssite , sspec , sv_p_orhoat )
+      use m_struc_def  
+      use m_lmfinit,only: nsp,stdo
 
 
-      use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
-c      use m_globalvariables
-C- Print info about the atomic charge densities
-C     implicit none
-C ... Passed parameters
       integer:: nbas
       type(s_rv1) :: sv_p_orhoat(3,nbas)
-
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-
 C ... Local parameters
-      integer:: stdo , lgunit , ib , lmxl , nr , nlml , is , igetss 
-     ., nsp , nglob
+      integer:: ib , lmxl , nr , nlml , is , igetss 
       real(8) ,allocatable :: rofi_rv(:)
       real(8) ,allocatable :: rwgt_rv(:)
-
       double precision a,rmt
-C ... Heap
-
-Changenglob      nsp  = nglob('nsp')
-      nsp  = globalvariables%nsp
-      stdo = lgunit(1)
       do  ib = 1, nbas
         is = int(ssite(ib)%spec)
-
-
         lmxl=sspec(is)%lmxl
         a=sspec(is)%a
         nr=sspec(is)%nr
         rmt=sspec(is)%rmt
-
         if (lmxl .eq. -1) goto 10
         allocate(rofi_rv(nr))
-
         allocate(rwgt_rv(nr))
-
         call radmsh ( rmt , a , nr , rofi_rv )
-
         call radwgt ( rmt , a , nr , rwgt_rv )
-
-
         nlml = (lmxl+1)**2
         write(stdo,200) ib,rmt,nr,nlml
   200   format(/' Density at site',i3,'   rmt=',f8.4,
      .  '   nr=',i5,'   nlml=',i3)
         call prlrho ( 'true density' , nr , nlml , nsp , rofi_rv , rwgt_rv 
      .   , sv_p_orhoat( 1 , ib )%v )
-
-
-
         call prlrho ( 'smooth density' , nr , nlml , nsp , rofi_rv , 
      .   rwgt_rv , sv_p_orhoat( 2 , ib )%v )
-
-
-
         if (allocated(rwgt_rv)) deallocate(rwgt_rv)
         if (allocated(rofi_rv)) deallocate(rofi_rv)
-
-
    10   continue
       enddo
-
       end subroutine prrhat
 
-
       subroutine prlrho(str,nr,nlm,nsp,rofi,rwgt,rho)
-
 C- Print info about site density
 C     implicit none
 C ... Passed parameters
@@ -79,11 +47,9 @@ C ... Passed parameters
 C ... Local parameters
       integer stdo,lgunit,ilm,l,ll,itop,ibot,i
       double precision xx,pi,srfpi,top,bot,sum
-
       stdo = lgunit(1)
       pi = 4d0*datan(1d0)
       srfpi = dsqrt(4d0*pi)
-
       write(stdo,601) str
       do  ilm = 1, nlm
         l = ll(ilm)

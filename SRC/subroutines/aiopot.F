@@ -59,12 +59,13 @@ C           print *, bhat
         if (rmax .eq. 0) rmax=rmax2
         if (a2 .ne. a .or. nr .ne. nr2 .or.
      .  dabs(rmax2-rmax) .gt. .03) goto 15
-        do  10  isp = 1, min0(nsp2,nsp)
+        do  1011  isp = 1, min0(nsp2,nsp)
 c          read(ifi,101,err=15) (v(i,isp),i = 1,nr)
           read(ifi,101) (v(i,isp),i = 1,nr)
         do  10  i = 1, nr
           v(i,nsp) = v(i,isp)
    10   continue
+ 1011   continue
         aiopot = .true.
    15   continue
       else

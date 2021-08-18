@@ -1,7 +1,11 @@
-      subroutine fklbl(p,rsm,kmax,nlm,k0,cy,fkl) !slat,
-c      use m_struc_def  !Cgetarg
-      use m_lattic,only: rv_a_odlv,rv_a_oqlv
-      use m_lmfinit,only: lat_alat,lat_plat,lat_qlat,lat_awald,lat_tol,lat_vol,lat_nkd ,lat_nkq
+      subroutine fklbl(p,rsm,kmax,nlm,k0,cy,fkl) 
+      use m_lattic,only: rv_a_odlv,rv_a_oqlv,lat_plat
+      use m_lmfinit,only: lat_alat,lat_tol
+      use m_lattic,only: lat_qlat
+      use m_lattic,only: lat_vol
+      use m_lattic,only: lat_awald
+      use m_lattic,only: lat_nkd
+      use m_lattic,only: lat_nkq
 C- Bloch sum of smooth Hankels for e=0 and q=(0,0,0).
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -73,14 +77,15 @@ c      call dcopy(i_copy_size,lat_qlat,1,qlat,1)
       endif
       deallocate(wk,yl)
 C ... Upward recursion in k: mainly sets fkl = -4*pi * g(k-1,l)
-      do  2  ilm = 1, nlm
+      do    ilm = 1, nlm
         gklsav = fkl(0,ilm)
         fkl(0,ilm) = fsm(ilm)
-      do  2  k = 1, kmax
+      do    k = 1, kmax
         gklnew = fkl(k,ilm)
         fkl(k,ilm) = -fpi*gklsav
         gklsav = gklnew
-  2   continue
+      enddo
+      enddo
 C ... Add extra term to F(k=1,l=0)
       fkl(1,1) = fkl(1,1) + fpi*y0/vol
       end subroutine fklbl

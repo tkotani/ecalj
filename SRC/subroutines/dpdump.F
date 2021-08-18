@@ -34,27 +34,3 @@ C       (some random number)
         write(-ifile) array 
       endif
       end
-C test lddump
-C      subroutine fmain
-C      implicit none
-C      double precision x(5),y(5)
-C      integer ifi,fopna,lddump
-C      logical lx
-C      data x /1d0,2d0,3d0,4d0,5d0/ y /-1d0,-2d0,-3d0,-4d0,-5d0/
-C
-C      ifi = fopna('out',-1,4)
-C      rewind ifi
-C      call dpdump(x,5,-ifi)
-C      call dpdump(y,5,-ifi)
-C      call dpdump(x,4,-ifi)
-C      rewind ifi
-C
-C      lx = lddump(x,5,ifi)
-C      print *, lx
-C      lx = lddump(y,5,ifi)
-C      print *, lx
-C      lx = lddump(y,5,ifi)
-C      print *, lx
-C      call awrit1('%5:1d',' ',80,6,y)
-C      end
-

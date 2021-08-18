@@ -3,8 +3,7 @@
       use m_readqg,only   : readqg0
       use m_readeigen,only: readeval
       use m_keyvalue,only   : getkeyvalue
-      use m_zmel,only     : Get_zmelt, Setppovlz, Setppovlz_chipm, Deallocate_zmel,
-     o     zmel,zmeltt
+      use m_zmel,only : Get_zmel_init, Setppovlz, Setppovlz_chipm, Deallocate_zmel, zmel
       use m_itq,only: itq,ntq
       use m_genallcf_v3,only: nlmto,nsp=>nspin,nctot,ngrp,niw,ecore !,symgg
       use m_READ_BZDATA,only: qbas,ginv,nstbz,qibz,qbz,wk=>wbz,nqibz,nqbz
@@ -23,18 +22,10 @@ c      use m_freq,only: freq_r,nw_i,nw, freqx,wx !,dwdummy,
       public sxcf_scz
       contains
 !SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
-      subroutine sxcf_scz(qip,ef,esmr, 
-     i isp, irkip,nrkip,  nq,  !wgt0,
-     i exchange,!screen, 
-     i jobsw, hermitianW,
-     o zsec,coh,nbandmx)
-      intent(in)          qip,ef,esmr, 
-     i isp, irkip,nrkip,  nq,  !wgt0,
-     i exchange,!screen, 
-c     i wklm,lxklm,         
-     i jobsw, hermitianW
-     i          ,nbandmx
-      intent(out) :: zsec , coh
+      subroutine sxcf_scz(qip,ef,esmr,isp,irkip,nrkip,nq,exchange,jobsw,hermitianW,nbandmx,
+     o zsec) 
+      intent(in)          qip,ef,esmr,isp,irkip,nrkip,nq,exchange,jobsw,hermitianW,nbandmx
+      intent(out) :: zsec 
 !> \brief
 !! Calcualte full simga_ij(e_i)= <i|Re[Sigma](e_i)|j> 
 !! ---------------------
@@ -45,7 +36,6 @@ c     i wklm,lxklm,
 !!   - S_ij= <i|Re[S](e_i)|j>
 !!   - Note that S_ij itself is not Hermite becasue it includes e_i.
 !!     i and j are band indexes
-!! \param coh dummy 
 !! \param screen dummy 
 !!
 !! \remark
@@ -74,11 +64,10 @@ c     i wklm,lxklm,
 !!     NOTE: matrix element is given by "call get_zmelt". It returns  zmelt or zmeltt.
 !!
 !! jobsw switch
-!!  1-5 scGW mode.
+!!  1,3,5scGW mode.
 !!   diag+@EF      jobsw==1 SE_nn'(ef)+delta_nn'(SE_nn(e_n)-SE_nn(ef))
 !!   xxx modeB (Not Available now)  jobsw==2 SE_nn'((e_n+e_n')/2)  !we need to recover comment out for jobsw==2, and test.
 !!   mode A        jobsw==3 (SE_nn'(e_n)+SE_nn'(e_n'))/2 (Usually usued in QSGW).
-!!   @Ef           jobsw==4 SE_nn'(ef) 
 !!   diagonly      jobsw==5 delta_nn' SE_nn(e_n) (not efficient memoryuse; but we don't use this mode so often).
 !!
 !! Output file in hsfp0 should contain hermitean part of SE
@@ -176,7 +165,7 @@ c      integer :: lxklm !,invg(ngrp) !nnr(nkpo),nor(nkpo),
       real(8) :: ef,esmr!,wklm((lxklm+1)**2) !,qrr(3,nkpo),dwdummy freqx(niw),wx(niw),
       real(8) :: qip(3,nq)!,eftrue!,ecorem !,ebmx
       integer :: nbandmx(nq)
-      complex(8),optional :: zsec(ntq,ntq,nq) , coh(ntq,nq)
+      complex(8),optional :: zsec(ntq,ntq,nq) 
       real(8):: ebmx
       integer :: ifrcw,ifrcwi
       integer :: ip, it, itp, i, ix, kx, irot, kr
@@ -187,10 +176,10 @@ c      integer :: lxklm !,invg(ngrp) !nnr(nkpo),nor(nkpo),
       integer :: invr,ia,nn,ntp0,no,itpp,nrec,npm,itini,itend,nbmxe
       integer :: iwp,nwxi,nwx,iir, igb1,igb2,ix0,iii
 
-      real(8) :: tpi, ekc(nctot+nband),ekq(nband), det, q(3),ua_
+      real(8) :: ekc(nctot+nband),ekq(nband), det, q(3),ua_
       real(8) :: expa_(niw), qxx(3), symope(3,3),shtv(3) !tr(3,natom), 
       real(8) :: efp,efm,wtt,wfac,we,esmrx,qbasinv(3,3)
-      real(8) :: qvv(3),pi,fpi,eq(nband),omega(ntq),quu(3),freqw,ratio
+      real(8) :: qvv(3),eq(nband),omega(ntq),quu(3),freqw,ratio
       real(8) :: qibz_k(3),qbz_kr(3),ddw,vc,omega0,omg
 
 c      complex(8) :: cphiq(nlmto,nband), cphikq(nlmto,nband)
@@ -199,14 +188,15 @@ c      complex(8) :: cphiq(nlmto,nband), cphikq(nlmto,nband)
 ! local arrays
 c      real(8),intent(in) :: freq_r(nw_i:nw)
       real(8),allocatable :: drealzzzmel(:,:,:), dimagzzzmel(:,:,:),uaa(:,:)
-      complex(8),allocatable :: vcoul(:,:),w3p(:,:,:)   
-      complex(8),allocatable :: zzzmel(:,:,:),zw (:,:)
-      complex(8),allocatable :: zwz(:,:,:,:), zwz0(:,:,:),zwzi(:,:,:)
+      complex(8),allocatable :: vcoul(:,:) 
+      complex(8),allocatable :: zzzmel(:,:,:)
+      complex(8),allocatable :: zw (:,:)
+      complex(8),allocatable:: zwz(:,:,:,:)
+      complex(8),allocatable :: zwz0(:,:,:)!,zwzi(:,:,:)
       complex(8),allocatable :: zwix(:,:),zwzix(:,:,:),zmel1(:) !,expikt(:)
-      complex(8), allocatable :: zmel1_(:,:,:), zw3(:,:,:),zw3x(:,:)
+      complex(8), allocatable :: zw3(:,:,:),zw3x(:,:)
       complex(8), allocatable :: zwz4(:,:),zwz44(:,:),pomat(:,:), zwzs(:)
       complex(8),allocatable :: ppovl(:,:),zcousq(:,:)
-      complex(8),allocatable :: z1r(:,:),z2r(:,:),w3pi(:,:)
 
       real(8), parameter :: wfaccut=1d-8
       complex(8), parameter :: img=(0d0,1d0)
@@ -218,31 +208,26 @@ c      logical :: GaussSmear !fixed to be T
 c      logical :: newaniso !fixed to be T
 c      integer :: bzcase !fixed to be 1
       character(5) :: charnum5
-c      integer :: iopen,iclose
       integer :: invrot
-      complex(8) ::  wintzsg_npm !wintzav,
       integer :: nocc
       real(8) :: wfacx
       real(8) :: wfacx2
       real(8) :: weavx2
-      complex(8) :: alagr3z
-      complex(8) :: alagr3z2
+      complex(8) :: alagr3z,w3pp
+      complex(8) :: alagr3z2!,zadd
 
       integer:: ndummy1,ndummy2,nlmtobnd,nt0
       real(8):: wexx
-c      complex(8),allocatable :: z1p(:,:,:),vcoult(:,:)
       logical :: debug, debugp,debug2=.false.
-c      logical :: gass           !external
-c      real(8):: wgtq0p
-      integer::verbose,ififr !,ifile_handle
+      integer::verbose,ififr 
       real(8):: ua2_(niw),freqw1
-      integer :: istate,  nt_max !nbcutc,nbcutin, 
-      real(8):: q_r(3),qk(3),omegat
+      integer :: istate,  nt_max 
+      real(8):: q_r(3),qk(3)
       logical::  oncew, onceww, eibz4sig,  timemix
 
       integer,allocatable:: ixss(:,:),iirx(:)
       real(8),allocatable:: we_(:,:),wfac_(:,:)
-      complex(8),allocatable:: zw3av(:,:),zmelw(:,:,:)
+      complex(8),allocatable:: zw3av(:,:),zmelw(:,:,:),w3p(:),wtff(:)
       integer:: noccx
       real(8)::polinta
       logical,allocatable:: ititpskip(:,:)
@@ -250,16 +235,16 @@ c      real(8):: wgtq0p
       logical:: tote=.false.
       logical:: hermitianW
 
-      real(8),allocatable:: wcorehole(:,:),vcoud_(:)
-      logical:: corehole
-      integer:: ifcorehole
+      real(8),allocatable:: wcorehole(:,:),vcoud_(:),wfft(:)
+      logical:: corehole,iprx
+      integer:: ifcorehole,ixx
       real(8):: tolq=1d-8
+      real(8),parameter:: pi=4d0*datan(1d0), fpi=4d0*pi, tpi=8d0*datan(1d0)
 !!----------------------------------------------------------------
-      timemix=.false.
-      pi  = 4d0*datan(1d0)
-      fpi = 4d0*pi
-      debug=.false.
+c      if (.not.(jobsw==1.or.jobsw==3.or.jobsw==5)) call rx('sxcf_scz: jobsw=1or3or5')
+      if (.not.jobsw==3) call rx('sxcf_scz: only for jobsw=3')
       if(verbose()>=90) debug=.true.
+      timemix=.false.
 !! core-hole mode can work but we need to turn it on by hand.
       corehole=.false.
       if(corehole) then
@@ -276,87 +261,56 @@ c      real(8):: wgtq0p
         open(newunit=ifwd,file='WV.d')
         read(ifwd,*) nprecx,mrecl
         close(ifwd) 
-!! gauss_img : interpolation gaussion for W(i \omega).
-        call getkeyvalue("GWinput","gauss_img",ua_,default=1d0)
-        do ix = 1,niw           !! Energy mesh; along im axis.
+        call getkeyvalue("GWinput","gauss_img",ua_,default=1d0) !interpolation gaussion for W(i \omega).
+        do ix = 1,niw      ! Energy mesh; along im axis.
           freqw     = (1d0 - freqx(ix))/ freqx(ix)
           expa_(ix) = exp(-(ua_*freqw)**2)
         enddo
-        npm = 1                 ! npm=1    Timeveversal case
-        if(nw_i/=0) npm = 2     ! npm=2 No TimeReversal case. Need negative energy part of W(omega)
+        npm=1             ! npm=1    Timeveversal case
+        if(nw_i/=0) npm=2 ! npm=2 No TimeReversal case. Need negative energy part of W(omega)
       endif 
-      tpi         = 8d0*datan(1d0)
       if(nctot/=0) ekc(1:nctot)= ecore(1:nctot,isp)!-ecorem ! core
       nlmtobnd    = nlmto*nband
       nstatetot   = nctot + nband
-
-!!== ip loop to spedify external q ==
-      do 1001 ip = 1,nq         
-        if(sum(irkip(:,:,ip))==0) cycle ! next ip
-        write (6,*) ip,'  out of ',nq,'  k-points(extrnal q) '
-        q(1:3)= qip(1:3,ip)
-        call readeval(q,isp,eq)
-        do i  = 1,ntq
-          omega(i) = eq(itq(i)) 
-        enddo
-!! we only consider bzcase()==1
-        if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
-        if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')
-!! NOTE total number of 
-!!    kx loop(do 1100) and irot loop (do 1000) makes all the k mesh points.
-!!    When iqini=1 (Gamma point), we use effective W(q=0) defined in the paper.
-        iqini = 1
-        iqend = nqibz             !no sum for offset-Gamma points.
-        do 1100 kx = iqini,iqend 
-          if(sum(irkip(kx,:,ip))==0) cycle ! next kx
-          write(6,*) ' ### do 1100 start kx=',kx,' from ',iqini,' through', iqend
+!! we only consider bzcase()==1 now
+      if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
+      if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')
+      iqini = 1
+      iqend = nqibz             !no sum for offset-Gamma points.
+      do 1100 kx = iqini,iqend 
+          if(sum(irkip(kx,:,:))==0) cycle ! next kx
           qibz_k = qibz(:,kx)
           if(timemix) call timeshow("11111 k-cycle")
-          call Readvcoud(qibz_k,kx,NoVcou=.false.) ! Readin ngc,ngb,vcousq,zcousq !for the Coulomb matrix
-          call Setppovlz(qibz_k,matz=.true.)
+          call Readvcoud(qibz_k,kx,NoVcou=.false.)!Readin ngc,ngb,vcousq,zcousq ! Coulomb matrix
+          call Setppovlz(qibz_k,matz=.true.) !ppovlz overlap matrix
           if(debug) write(6,*) ' sxcf_fal2sc: ngb ngc nbloch=',ngb,ngc,nbloch
-          
-!! === open WVR,WVI ===
           if(.not.exchange) then
-c            ifrcw  = iopen('WVR.'//charnum5(kx),0,-1,mrecl)
-c            ifrcwi = iopen('WVI.'//charnum5(kx),0,-1,mrecl)
             open(newunit=ifrcw,  file='WVR.'//charnum5(kx), action='read',form='unformatted',
      &          status='unknown',access='direct',recl=mrecl)
             open(newunit=ifrcwi, file='WVI.'//charnum5(kx), action='read',form='unformatted',
      &          status='unknown',access='direct',recl=mrecl)
           endif
-          nrot=0
-          do irot = 1,ngrp
-c            if( kx <= nqibz) then
-              kr = irkip(kx,irot,ip) ! index for rotated kr in the FBZ
-              if(kr==0) cycle   ! next irot
-              qbz_kr= qbz (:,kr) 
-c            else
-c              kr=-99999         !for sanity check
-c              qbz_kr= 0d0
-c              if( wgt0(kx-nqibz,irot)==0d0 ) cycle ! next irot
-c            endif
-            nrot=nrot+1
-          enddo  
-
-!! === loop 1000 over rotations irot ===
-          do 1000 irot = 1,ngrp
+        do 1000 irot = 1,ngrp !over rotations irot ===
+          if(sum(irkip(kx,irot,:))==0) cycle ! next ip
+          write(6,*) ' ### do 1000-1100 start kx=',kx,irot
+!==  ip loop to spedify external q ==
+!! NOTE: kr(kx,irot,ip) makes all the k mesh points required for q(ip).
+          do 1001 ip = 1,nq         
             kr = irkip(kx,irot,ip) ! index for rotated kr in the FBZ
             if(kr==0) cycle
-            qbz_kr= qbz (:,kr) 
-
-!! no. occupied (core+valence) and unoccupied states at q-rk
+            write (6,*) ip,'  out of ',nq,'  k-points(extrnal q) '
+            q(1:3)= qip(1:3,ip)
+            eq = readeval(q,isp)
+            omega(:) = eq(itq(:)) !1:ntq
+!!    When iqini=1 (Gamma point), we use effective W(q=0) defined in the paper.
+            qbz_kr= qbz (:,kr) !rotated qbz vector. 
             qk =  q - qbz_kr        
-            call readeval(qk, isp, ekq) 
+            ekq = readeval(qk, isp) 
             ekc(nctot+1:nctot+nband) = ekq (1:nband)
             nt0 = nocc (ekc,ef,.true.,nstatetot)
-c            ddw= .5d0
-c            if(GaussSmear()) ddw= 10d0
             ddw= 10d0
             efp= ef+ddw*esmr
             efm= ef-ddw*esmr
-c            nt0p = nocc (ekc,efp,.true.,nstatetot)
-c            nt0m = nocc (ekc,efm,.true.,nstatetot)
             nt0p = nocc (ekq,efp,.true.,nstatetot)+ nctot
             nt0m = nocc (ekq,efm,.true.,nstatetot)+ nctot
             if(exchange) then
@@ -370,98 +324,73 @@ c            nt0m = nocc (ekc,efm,.true.,nstatetot)
             ntqxx = nbandmx(ip) !mar2015
             if(debug) write(6,*)' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
             nstate = nctot + nbmax ! = nstate for the case of correlation
-!! Get matrix element zmelt= rmelt + img*cmelt, defined in m_zmel.F---
-! this return zmeltt (for exchange), or zmel (for correlation)
-            call get_zmelt(exchange,q,kx,qibz_k,irot,qbz_kr,kr,isp,
-     &       ngc,ngb,nbmax,ntqxx,nctot,ncc=0)
-            if(debug) write(6,*)' end of get_zmelt'
+!!  Get zmel(it,ib,itpp) = <phi(q,it) B(qbz_kr,ib) |phi(ittp,q-qbz_kr)>
+            call Get_zmel_init(exchange,q,qibz_k,irot,qbz_kr,isp, nbmax,ntqxx,nctot,ncc=0,iprx=debug)
             wtt = wk(kr)
             if(eibz4sig()) then
               wtt=wtt*nrkip(kx,irot,ip) 
             endif   
 !!--------------------------------------------------------
-!! --- exchange section ---
+! --- exchange section ---
+!  S[i,j=1,nbloch] <psi(q,itp) |psi(q-rk,n) B(rk,i)> v(k)(i,j) <B(rk,j) psi(q-rk,n) |psi(q,itpp)>
 !!--------------------------------------------------------
             if(exchange) then   !At the bottom of this block, cycle do 1000 irot.
-!!            We use the matrix elements zmeltt. Now given by "call get_zmelt"
-!!
-c We need to check following comments ----     
-c     S[i,j=1,nbloch] <psi(q,t) |psi(q-rk,n) B(rk,i)>
-c     v(k)(i,j) <B(rk,j) psi(q-rk,n) |psi(q,t')>
-c     
-c     > z1p(j,n,t) = S[i=1,nbloch] <psi(q,t) | psi(q-rk,n) B(rk,i)> v(k)(i,j)
-              allocate(vcoud_(ngb)) 
-              vcoud_= vcoud 
-c              vc = vcoud(1)     ! save vcoud(1)
-              if (kx == iqini) vcoud_(1) = wklm(1)* fpi*sqrt(fpi) /wk(kx)
-              allocate(z1r(ntqxx,ngb),z2r(ntqxx,ngb),w3pi(ntqxx,ntqxx))
-              allocate(w3p(nctot+nbmax,ntqxx,ntqxx))
-              do  it = 1, nctot+nbmax
-                do  ivc = 1, ngb
-                  do  itp = 1, ntqxx
-                    z1r(itp,ivc) = zmeltt(it,itp,ivc) * vcoud_(ivc)
-                    z2r(itp,ivc) = zmeltt(it,itp,ivc)
-                  enddo         ! ivc
-                enddo           ! it
-                call zgemm('N','C',ntqxx,ntqxx,ngb,(1d0,0d0),z1r,ntqxx,
-     .           z2r,ntqxx,(0d0,0d0),w3pi,ntqxx)
-                do  itp = 1, ntqxx
-                  do itpp = 1, ntqxx
-                    w3p(it,itp,itpp) = w3pi(itp,itpp)
-                  enddo
+              allocate(vcoud_(ngb),wtff(nctot+nbmax),w3p(nctot+nbmax)) 
+              vcoud_= vcoud
+              if(kx == iqini) vcoud_(1) = wklm(1)* fpi*sqrt(fpi) /wk(kx)
+              do it=1,nctot+nbmax
+                 wtff(it)= wfacx(-1d99, ef, ekc(it), esmr)
+              enddo   
+              do 8010 itpp= 1,ntqxx
+              do 8011 itp = 1,ntqxx !S[j=1,nbloch]  z1p(j,t,n) <B(rk,j) psi(q-rk,n) |psi(q,t')>
+c                if(jobsw==5.and.(itpp/=itp)) cycle
+                do it = 1, nctot+nbmax
+                   w3p(it)= sum(dconjg(zmel(:,it,itp)) * vcoud_(:)* zmel(:,it,itpp))
+                   w3pp= sum(dconjg(zmel(:,it,itp)) * zmel(:,it,itpp))
+c                   if(ip==4.and. itp==itpp.and.itpp==1.and.kx==6.and.irot==3) then
+c                      write(6,"(a,3i4,f9.5,f9.5,12f10.5)")'ppppp1',ip,kx,irot, w3p(it),w3pp,abs(sum(vcoud_(1:ngb)))
+c                   endif   
                 enddo
-              enddo
-c              vcoud(1) = vc     !restore vcoud(1)
-              deallocate(z1r,z2r,w3pi,vcoud_)
-              if(verbose()>=30) call cputid2(' complete w3p',0)
-c              deallocate(zmeltt)
-              if(debug) then
-                do  it  = 1,nctot+nbmax; do  itp = 1,ntqxx
-                  write(6,"(' w3p =',2i4,2d14.6)") it,itp,w3p(it,itp,itp)
-                enddo;    enddo
-              endif
-!! --- Correct weigts wfac for valence by esmr
-              do it = nctot+1, nctot+nbmax
-                wfac = wfacx(-1d99, ef, ekc(it), esmr) !gaussian
-                w3p(it,1:ntqxx,1:ntqxx) = wfac * w3p(it,1:ntqxx,1:ntqxx)
-              enddo
-!! apr2015 correct weights for core-hole case
-              if(corehole) then
-                 do it = 1, nctot
-                 w3p(it,1:ntqxx,1:ntqxx) = wcorehole(it,isp) * w3p(it,1:ntqxx,1:ntqxx)
-                 enddo
-              endif
-              do itpp=1,ntqxx
-                do itp = 1,ntqxx !S[j=1,nbloch]  z1p(j,t,n) <B(rk,j) psi(q-rk,n) |psi(q,t')>
-                  if(jobsw==5.and.(itpp/=itp)) cycle
-                  zsec(itp,itpp,ip) = zsec(itp,itpp,ip) 
-     &             - wtt * sum( w3p(:,itp,itpp) )
-                enddo
-              enddo
-              deallocate( w3p)
+                w3p(nctot+1:nctot+nbmax) = w3p(nctot+1:nctot+nbmax) * wtff(nctot+1:nctot+nbmax)
+c                if(ip==4.and. itp==itpp.and.itpp==1.and.kx==6.and.irot==3) then
+c                 write(6,"(a,3i4,f9.5,f9.5,x,2f10.5)")'ppppp1',ip,kx,irot, eq(1),wtt, sum( w3p(:) )
+c                endif
+
+                if(corehole) w3p(1:nctot) = w3p(1:nctot) * wcorehole(1:nctot,isp) 
+                zsec(itp,itpp,ip) = zsec(itp,itpp,ip) - wtt * sum( w3p(:) )
+
+c                block
+c                real(8):: hartree,rydberg
+c                hartree=2d0*rydberg()
+c                if(ip==4.and.itp==itpp.and.itpp==1) then
+c                 write(6,"(a,3i4,f10.5,f10.5)")'ppppp2',ip,kx,irot, hartree*zsec(itp,itpp,ip)
+c                endif
+c                end block
+
+ 8011         continue
+ 8010         continue
+              deallocate(vcoud_,wtff,w3p)
               cycle             ! next irot do 1000 loop
             endif               ! end of if(exchange)
-!! ============== End of exchange section ======================
             if(timemix) call timeshow("33333 k-cycle")
             
 !!----------------------------------------------------------
 !!---  correlation section ---------------------------------
 !!----------------------------------------------------------
-!!  We use the matrix elements zmel, which is given by "call get_zmelt"
-!!
+            
 !!================================================================
-!! need to check the following notes.
+!! Foloiwng note is very old. keep this just for hits.
 !!     The correlated part of the self-energy:
 !!     S[n=all] S[i,j=1,nbloch]
 !!     <psi(q,t) |psi(q-rk,n) B(rk,i)>
 !!     < [w'=0,inf] (1/pi) (w-e)/{(w-e)^2 + w'^2} Wc(k,iw')(i,j) >
 !!     <B(rk,j) psi(q-rk,n) |psi(q,t)>
+!!            
 !!     e = e(q-rk,n), w' is real, Wc = W-v
-!!================================================================
 !! Get zwz0(omega=0, m, i, j), and zwz(i omega, m, i, j)
 !! m intermediate state. zwz= \sum_I,J <i|m I> W_IJ(i omega) <J m|j>
 !!
-!! sum over both occupied and unoccupied states and multiply by weight
+!  sum over both occupied and unoccupied states and multiply by weight
 !     new from Jan2006! I think this should be OK.  ----------------------------
 !     The output of sxcf_fal2 is  <i|Re[S](e_i)|j> ------------
 !     Im-axis integral gives Hermitian part of S.
@@ -472,105 +401,76 @@ c              deallocate(zmeltt)
 !     old befor Jan2006
 !     &        wtt*.5d0*(   sum(zwzi(:,itp,itpp))+ !S_{ij}(e_i)
 !     &        dconjg( sum(zwzi(:,itpp,itp)) )   ) !S_{ji}^*(e_j)= S_{ij}(e_j)
-!-----------------------------------------------------------------------------
+! 
 !! omega integlation along im axis.
 !! zwzi(istate,itqxx1,itqxx2)=\int_ImAxis d\omega' zwz(omega',istate,itqxx1,itqxx2) 1/(omt-omega')
 !! ,where omt=omegat is given in the following 1385-1386 loop.
-!!
-!! -------------------------------------------------------------------
-!! Contribution to SEc(qt,w) from integration along the imaginary axis
-!!     loop over w' = (1-x)/x, frequencies in Wc(k,w')
-!!     {x} are gaussian-integration points between (0,1)
-!!---------------------------------------------------------------------
-!! Readin W(omega=0) and W(i*omega)
-!! Then get zwz0 and zwz
-!! zwz0 = (zmel*)*(W(*omega=0)   -v)*zmel
-!! zwz =  (zmel*)*(W(i*omega(ix))-v)*zmel
-            allocate( zwz0(        nstate,ntqxx,ntqxx))
-            allocate( zwz (niw*npm,nstate,ntqxx,ntqxx)) 
+!!================================================================
+
+! Contribution to SEc(qt,w) from integration along the imaginary axis
+!     loop over w' = (1-x)/x, frequencies in Wc(k,w')
+!     {x} are gaussian-integration points between (0,1)
+!---------------------------------------------------------------------
+! Readin W(omega=0) and W(i*omega)
+! Then get zwz0 and zwz
+! zwz0 = (zmel*)*(W(*omega=0)   -v)*zmel
+! zwz =  (zmel*)*(W(i*omega(ix))-v)*zmel
+c            allocate( zwz0(        nstate,ntqxx,ntqxx))
+            allocate( zwz(0:niw*npm,nstate,ntqxx,ntqxx)) 
             allocate( zw (nblochpmx,nblochpmx))
-            ix = 1 + (0 - nw_i) !at omega=0 ! nw_i=0 (Time reversal) or nw_i =-nw
-            read(ifrcw,rec=ix) zw ! direct access read Wc(0) = W(0) - v
-            call matzwz2(2, zw(1:ngb,1:ngb), zmel, ntqxx, nstate,ngb,   
-     o       zwz0)                   
-            do 1380 istate=1,nstate 
-              zwz0(istate,1:ntqxx,1:ntqxx) = ! w(iw) + w(-iw) Hermitian part.
-     &         (zwz0(istate,1:ntqxx,1:ntqxx)
-     &         + dconjg(transpose(zwz0(istate,1:ntqxx,1:ntqxx))))/2d0 
- 1380       continue
-            do 1390 ix=1,niw    !niw is usually ~10 points.
-              read(ifrcwi,rec=ix) zw ! direct access read Wc(i*omega)=W(i*omega)-v
-              call matzwz2(2, zw(1:ngb,1:ngb), zmel, ntqxx, nstate,ngb,   
-     o         zwz(ix,1:nstate,1:ntqxx,1:ntqxx)) ! zwz = zmel*(W(0)-v)*zmel
-              do 1395 istate=1,nstate
-                zw(1:ntqxx,1:ntqxx)= zwz(ix,istate,1:ntqxx,1:ntqxx)
-                zwz(ix,istate,1:ntqxx,1:ntqxx) = ! w(iw) + w(-iw)  Harmitian part
-     &           ( zw(1:ntqxx,1:ntqxx)
-     &           + dconjg(transpose(zw(1:ntqxx,1:ntqxx))) )/2d0 
-                if(npm==2) then ! w(iw) - w(-iw) Anti Hermitian part
-                  zwz(ix+niw,istate,1:ntqxx,1:ntqxx) = 
-     &             ( zw(1:ntqxx,1:ntqxx)
-     &             - dconjg(transpose(zw(1:ntqxx,1:ntqxx))) )/2d0/img
-                endif
- 1395         continue
- 1390       continue
+            do ixx=0,niw        !niw is usually ~10 points.
+               if(ixx==0) then
+                  ix = 1 + (0 - nw_i) !at omega=0 ! nw_i=0 (Time reversal) or nw_i =-nw
+                  read(ifrcw,rec=ix) zw ! direct access read Wc(0) = W(0) - v
+               elseif(ixx>0) then
+                  ix = ixx
+                  read(ifrcwi,rec=ix) zw ! direct access read Wc(i*omega)=W(i*omega)-v
+               endif
+               call matzwz2(2,zw(1:ngb,1:ngb),zmel,ntqxx,nstate,ngb,zwz(ixx,:,:,:)) ! zwz = zmel*(W(i w)-v)*zmel
+               do istate = 1,nstate
+                  block
+                  complex(8):: zwx(ntqxx,ntqxx)
+                  zwx = zwz(ix,istate,1:ntqxx,1:ntqxx)
+                  zwz(ix,istate,:,:)=(zwx+dconjg(transpose(zwx)))/2d0 ! w(iw) + w(-iw)  Harmitian part
+                  if(npm==2) zwz(ix+niw,istate,:,:)=(zwx-dconjg(transpose(zwx)))/2d0/img !w(iw)-w(-iw) Anti Herm.
+                  end block
+               enddo   
+            enddo
             deallocate(zw)
 !! Integration along imag axis for zwz(omega) for given it,itp,itpp
 !! itp  : left-hand end of expternal band index.
 !! itpp : right-hand end of expternal band index.
 !! it   : intermediate state of G.
-            allocate(zwzi(nstate,ntqxx,ntqxx)) 
+            block
+            real(8):: esmrx(nstate),omegat(ntqxx)
+            real(8):: wgtim(0:npm*niw,ntqxx,nstate)
+!     , wintzsg_npm_wgtim(0:npm*niw),wintzsg_npm_wgtimxxx(0:npm*niw)
+            esmrx(1:nctot)=0d0
+            esmrx(nctot+1:nstate)=esmr
+            omegat(1:ntqxx) = omega(1:ntqxx)
+c            if (jobsw==1) omegat = ef
+!     ! Gaussian smearing. Integration weight wgtim along im axis for zwz(0:niw*npm) 
+            do itp = 1,ntqxx
+            do  it = 1,nstate
+               we = .5d0*(omegat(itp)-ekc(it))
+               call wintzsg_npm_wgtim(npm,freqx,wx,ua_,expa_,we,niw,esmrx(it), wgtim(:,itp,it))
+            enddo
+            enddo
             do 1400 itpp= 1,ntqxx
-              do 1410 itp = 1,ntqxx
-                if((jobsw==5).and.(itpp/=itp)) cycle
-                if (jobsw==1.or.jobsw==4) then
-                  omegat = ef
-c               elseif (jobsw==2)               omegat=.5d0*(omega(itp)+omega(itpp))
-                else
-                  omegat = omega(itp)
-                endif  
-                do 1420  it = 1,nstate
-                  we =.5d0*( omegat -ekc(it))
-                  if(it <= nctot) then
-                    esmrx = 0d0
-                  else
-                    esmrx = esmr
-                  endif   
-!! ua_auto may be recovered in future...
-c     if(ua_auto) then
-c     ratio = .5d0 *( abs(zwz(niw,it,itp,itp  )/zwz0(it,itp,itp  ))
-c     &                     +abs(zwz(niw,it,itpp,itpp)/zwz0(it,itpp,itpp)) )
-c     call gen_ua(ratio,niw,freqx,  expa_,ua_)
-c     endif
-!! Gaussian smearing. Integration along im axis. zwz(1:niw) and zwz0 are used.
-                  zwzi(it,itp,itpp) = 
-     &             wintzsg_npm (npm, zwz(1,it,itp,itpp), zwz0(it,itp,itpp) 
-     &             ,freqx,wx,ua_,expa_,we,niw,esmrx)
- 1420           continue
- 1410         continue  
- 1400       continue  
-            deallocate(zwz0,zwz) !zwzs
-            if(debug) print *,'zzzzzzzzz sum zwzi ',sum(abs(zwzi(:,:,:)))
-!! Contribution to Sigma_{ij}(e_i)
-            do  1500 itpp= 1,ntqxx
-              do 1510 itp = 1,ntqxx
-                if( jobsw==5.and.(itpp/=itp)) cycle
-                zsec(itp,itpp,ip) = zsec(itp,itpp,ip) + wtt*sum(zwzi(:,itp,itpp)) 
- 1510         continue
- 1500       continue
-            deallocate(zwzi)
-            if(jobsw==4) goto 2002
+            do 1410 itp = 1,ntqxx
+c               if((jobsw==5).and.(itpp/=itp)) cycle
+               zsec(itp,itpp,ip) = zsec(itp,itpp,ip) + wtt*sum(wgtim(:,itp,:)*zwz(:,:,itp,itpp))
+ 1410       continue  
+ 1400       continue
+            end block
+            deallocate(zwz) 
 
 !! -------------------------------------------------------------------
 !!  Contribution to SEc(qt,w) from the poles of G (integral along real axis)
 !!    Currently, jobsw =1,3,5 are allowed...
 !!    The variable we means \omega_epsilon in Eq.(55) in PRB76,165106 (2007)
 !! -------------------------------------------------------------------
-            if(timemix) call timeshow("goto Sec pole part k-cycle")
             if(debug)  write(6,*)'GOTO contribution to SEc(qt,w) from the poles of G'
-            if (.not.(jobsw == 1 .or. jobsw == 3.or.jobsw==5)) then
-              call rx( 'sxcf_fal3_scz: jobsw /= 1 3 5')
-            endif
 !! Get index nwxi nwx nt_max. finish quickly. We can simplify this...
             call get_nwx(omega,ntq,ntqxx,nt0p,nt0m,nstate,freq_r,
      i       nw_i,nw,esmr,ef,ekc,wfaccut,nctot,nband,debug,
@@ -580,7 +480,6 @@ c     endif
             call weightset4intreal(nctot,esmr,omega,ekc,freq_r,nw_i,nw,
      i       ntqxx,nt0m,nt0p,ef,nwx,nwxi,nt_max,wfaccut,wtt,
      o       we_,wfac_,ixss,ititpskip,iirx)
-
 !! We need zw3, the Hermitian part, because we need only hermitean part of Sigma_nn'
 !! This can be large array; nwx-nwxi+1 \sim 400 or so...
             allocate( zw3(ngb,ngb,nwxi:nwx)) 
@@ -595,112 +494,93 @@ c     endif
               endif
             enddo
             deallocate(zw)
-!! rearrange index of zmel
-            allocate(zmel1(ngb)) 
-            if(jobsw==3) then
-              allocate(zmel1_(ntqxx,ngb,nstate))
-              do itpp= 1,ntqxx
-                do it  = 1,nstate
-                  zmel1_(itpp,1:ngb,it) = zmel(1:ngb,it,itpp)
-                enddo
-              enddo
-            endif
-!! jobsw==3
-            if( jobsw==3) then
-              allocate(zwz44(3,ntqxx),zwz4(ntqxx,3))
+            
+c            if(jobsw==3) then
               do itp=1,ntqxx
-                do it=1,nt_max
+              do it=1,nt_max
+                 block
+                 real(8)::wgt3(3) !,nt_max,ntqxx)
+                 complex(8)::zadd(ntqxx),zaddx,zw33(ngb,ngb)
                   if(ititpskip(it,itp)) cycle
-                  we =  we_(it,itp) 
                   ixs=  ixss(it,itp)
-                  zmel1(:)=dconjg(zmel(:,it,itp))
-                  zwz4=0d0
-                  do ix0=1,3
-                    ix=ixs+ix0-2
-                    do igb2=1,ngb 
-! !                     **** most time consuming part ******
-                      zz2=sum(zmel1(1:ngb)*zw3(1:ngb,igb2, iirx(itp)*ix)  )
-                      call zaxpy(ntqxx,zz2,zmel1_(1,igb2,it),1,zwz4(1,ix0),1)
-                    enddo
-                  enddo  
-                  zwz44 = transpose(zwz4)
+                  we =  we_(it,itp) 
+                  if(npm==1) call alagr3z2wgt(we,freq_r(ixs-1),wgt3(:))
+                  if(npm==2) call alagr3zwgt (we,freq_r(ixs-1),wgt3(:))
+                  ixs=  ixss(it,itp)
+                  zw33 = wgt3(1)*zw3(:,:,iirx(itp)*(ixs+1-2))  !zw33(ib,ib,it,itp)
+     &                 + wgt3(2)*zw3(:,:,iirx(itp)*(ixs+2-2)) 
+     &                 + wgt3(3)*zw3(:,:,iirx(itp)*(ixs+3-2)) 
+                  zadd(:) = matmul(matmul(dconjg(zmel(:,it,itp)),zw33),zmel(:,it,:))
                   do itpp=1,ntqxx
-                    if(npm==1) then
-                      zsec(itp,itpp,ip) = zsec(itp,itpp,ip) 
-     .                 + wfac_(it,itp) * alagr3z2(we,freq_r(ixs-1),zwz44(1,itpp),itp==itpp ) !mar015 ,itp,itpp)
-                    else
-                      zsec(itp,itpp,ip) = zsec(itp,itpp,ip) 
-     .                 + wfac_(it,itp) * alagr3z(we,freq_r(ixs-1),zwz44(1,itpp))
-                    endif
+                     zaddx = zadd(itpp)
+                     if(itp==itpp.and.dimag(zaddx)>0d0) zaddx=dreal(zaddx)
+                     if(npm==1) zsec(itp,itpp,ip)=zsec(itp,itpp,ip)+ wfac_(it,itp)* zaddx
+                     if(npm==2) zsec(itp,itpp,ip)=zsec(itp,itpp,ip)+ wfac_(it,itp)* zaddx
                   enddo
-                enddo
+                 end block
               enddo
-              deallocate(zwz44,zwz4)
-            endif
-
-!! jobsw=1,5 Sigma are calculated.
-            if( jobsw==1.or.jobsw==5) then
-              do itp=1,ntqxx
-                do it=1,nt_max
-                  if(ititpskip(it,itp)) cycle
-                  we =  we_(it,itp) 
-                  ixs=  ixss(it,itp)
-                  zmel1(:)=dconjg(zmel(:,it,itp))
-                  zwz3=0d0
-                  do ix0=1,3
-                    ix=ixs+ix0-2
-!!                  **** most time consuming part for jobsw=1 ******
-!!                  To reduce computational time, confusing treatment only uses lower half of zw3 (zw3 is Hermitan)
-!!                  Clean up needed.
-!! zwz3 contains <itp| it I> wz3_IJ(we)  <J it| itp>
-!!    when zw3 is hermitian.
-                    if(hermitianW) then
-                      do igb2=2,ngb 
-                      zz2 = sum(zmel1(1:igb2-1)*zw3(1:igb2-1,igb2,iirx(itp)*ix)  ) +
-     &                 .5d0* zmel1(igb2)*zw3(igb2,igb2,iirx(itp)*ix)
-                      zwz3(ix0) = zwz3(ix0)+zz2*zmel(igb2,it,itp)
-                      enddo       !igb2
-                      zwz3(ix0) = 2d0*dreal(zwz3(ix0))+ !I think 2d0 is from upper half.
-     &                zmel1(1)*zw3(1,1, iirx(itp)*ix)*zmel(1,it,itp)
-!!    when zw3 is not need to be hermitian case. This gives life time
-                    else  
-                      zwz3(ix0) = sum( matmul(zmel1(1:ngb), zw3(1:ngb,1:ngb,iirx(itp)*ix))*zmel(1:ngb,it,itp) )
-                    endif  
-                  enddo
-                  if(npm==1) then
-                    zsec(itp,itp,ip) = zsec(itp,itp,ip) 
-     .               + wfac_(it,itp)*alagr3z2(we,freq_r(ixs-1),zwz3,.true.)
-                  else
-                    zsec(itp,itp,ip) = zsec(itp,itp,ip) 
-     .               + wfac_(it,itp)*alagr3z(we,freq_r(ixs-1),zwz3)
-                  endif
-                enddo
               enddo
-            endif               
- 2012       continue
-            deallocate(we_,wfac_,ixss,ititpskip,iirx)
- 2002       continue
-            deallocate(zw3, zmel1)
+c$$$!! jobsw=1,5 Sigma are calculated.
+c$$$            elseif( jobsw==1.or.jobsw==5) then !need improvement if necessary.
+c$$$               allocate(zmel1(ngb)) 
+c$$$              do itp=1,ntqxx
+c$$$                do it=1,nt_max
+c$$$                  if(ititpskip(it,itp)) cycle
+c$$$                  we =  we_(it,itp) 
+c$$$                  ixs=  ixss(it,itp)
+c$$$                  zmel1(:)=dconjg(zmel(:,it,itp))
+c$$$                  zwz3=0d0
+c$$$                  do ix0=1,3
+c$$$                    ix=ixs+ix0-2
+c$$$!!                  **** most time consuming part for jobsw=1 ******
+c$$$!!                  To reduce computational time, confusing treatment only uses lower half of zw3 (zw3 is Hermitan)
+c$$$!!                  Clean up needed.
+c$$$!! zwz3 contains <itp| it I> wz3_IJ(we)  <J it| itp>
+c$$$!!    when zw3 is hermitian.
+c$$$                    if(hermitianW) then
+c$$$                      do igb2=2,ngb 
+c$$$                      zz2 = sum(zmel1(1:igb2-1)*zw3(1:igb2-1,igb2,iirx(itp)*ix)  ) +
+c$$$     &                 .5d0* zmel1(igb2)*zw3(igb2,igb2,iirx(itp)*ix)
+c$$$                      zwz3(ix0) = zwz3(ix0)+zz2*zmel(igb2,it,itp)
+c$$$                      enddo       !igb2
+c$$$                      zwz3(ix0) = 2d0*dreal(zwz3(ix0))+ !I think 2d0 is from upper half.
+c$$$     &                zmel1(1)*zw3(1,1, iirx(itp)*ix)*zmel(1,it,itp)
+c$$$!!    when zw3 is not need to be hermitian case. This gives life time
+c$$$                    else  
+c$$$                      zwz3(ix0) = sum( matmul(zmel1(1:ngb), zw3(1:ngb,1:ngb,iirx(itp)*ix))*zmel(1:ngb,it,itp) )
+c$$$                    endif  
+c$$$                  enddo
+c$$$                  if(npm==1) then
+c$$$                    zsec(itp,itp,ip) = zsec(itp,itp,ip) 
+c$$$     .               + wfac_(it,itp)*alagr3z2(we,freq_r(ixs-1),zwz3,.true.)
+c$$$                  else
+c$$$                    zsec(itp,itp,ip) = zsec(itp,itp,ip) 
+c$$$     .               + wfac_(it,itp)*alagr3z(we,freq_r(ixs-1),zwz3)
+c$$$                  endif
+c$$$                enddo
+c$$$              enddo
+c$$$              deallocate(zmel1)
+c$$$            endif
+         
+            deallocate(we_,wfac_,ixss,ititpskip,iirx,zw3)
             call Deallocate_zmel()
-            if(allocated(zmel1_)) deallocate(zmel1_)
             if(verbose()>50) call timeshow("11after alagr3z iw,itp,it cycles")
             if(debug) then
-              write(6,*)' end of do 2001 '
               do itp = 1,ntq
-                write(6,'(" zsec=",i3,2d15.7)') itp,zsec(itp,itp,ip)
+                write(6,'(" fffffff zsec=",i3,2d15.7)') itp,zsec(itp,itp,ip)
               enddo
             endif
- 1000     continue              ! end do irot
-          close(ifvcoud)
+c        if(irot==1) write(6,"('  sum(abs(zsec))=',d23.15)") sum(abs(zsec))
+ 1001 continue                  ! end do ip
+ 1000 continue                  ! end do irot
+c          close(ifvcoud)
           if(.not.exchange) then
             close(ifrcw)
             close(ifrcwi)
           endif   
- 1100   continue                ! end of kx-loop
-        if(irot==1) write(6,"('  sum(abs(zsec))=',d23.15)") sum(abs(zsec))
-        if (allocated(vcoul)) deallocate(vcoul)
- 1001 continue                  ! end do ip
+ 1100 continue                ! end of kx-loop
       end subroutine sxcf_scz
+      
 !SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
       subroutine weightset4intreal(nctot,esmr,omega,ekc,freq_r,nw_i,nw,
      i     ntqxx,nt0m,nt0p,ef,nwx,nwxi,nt_max,wfaccut,wtt,

@@ -63,8 +63,9 @@ c
       ierr = 0
       if (n .eq. 1) go to 1001
 c
-      do 100 i = 2, n
-  100 e(i-1) = e(i)
+      do  i = 2, n
+         e(i-1) = e(i)
+      enddo   
 c
       f = 0.0d0
       tst1 = 0.0d0
@@ -97,8 +98,9 @@ c     .......... form shift ..........
         h = g - d(l)
         if (l2 .gt. n) go to 145
 c
-        do 140 i = l2, n
-  140   d(i) = d(i) - h
+        do i = l2, n
+           d(i) = d(i) - h
+        enddo   
 c
   145   f = f + h
 c     .......... ql transformation ..........

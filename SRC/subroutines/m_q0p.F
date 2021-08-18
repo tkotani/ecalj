@@ -38,7 +38,7 @@
 
       real(8),allocatable:: funa(:,:),wsumau(:),yll(:,:),alpqg2,qg2,tpiba,wtrue00
       real(8):: qg(3), qdum(6)
-      integer:: ig,lm,iq,ifile_handle
+      integer:: ig,lm,iq!,ifile_handle
       integer:: nmm !not output
 
       integer:: ifi0,ifi00,il,ix,ni,ifinin
@@ -54,8 +54,7 @@
 !! Normal mode. all inputs
          call getq0p(newoffsetG,alat,plat,qlat,nnn,alp,alpv, !apr2015
      i    ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect,lnq0iadd)
-         ifi0=ifile_handle()
-         open (ifi0,file='Q0P')
+         open (newunit=ifi0,file='Q0P')
          write(ifi0,"(3i5,' !nq0i iq0pin nq0iadd; weight q0p(1:3) ix')") nq0i,iq0pin,nq0iadd
          write(ifi0,"(d24.16,3x, 3d24.16,x,i1)" ) (wt(i),q0i(1:3,i),ixyz(i),i=1,nq0i+nq0iadd)
          close(ifi0)
@@ -88,6 +87,8 @@
                nq0i = nq0i00
             endif
             if(nq0i <=0) call rx( 'There are neither <QforEPS> nor <QforEPS>.')
+            allocate(epslgroup(nq0i))
+            epslgroup=0
             allocate( q0i(3,nq0i) )
             print *,' nq0i=',nq0i
             if(nq0i00>0) then
@@ -101,8 +102,6 @@
             if(nq0i0>0) then
                call getkeyvalue("GWinput","<QforEPSL>",unit=ifinin,status=nq0i0)
                allocate( qmin(3,nq0i0), qmax(3,nq0i0) )
-               allocate(epslgroup(nq0i))
-               epslgroup=0
                do i=1, nq0i0
                read(ifinin,*)qmin(:,i), qmax(:,i), ndiv(i)
                write(6,"('<QforEPSL>',3f12.8,2x,3f12.8,i5)")qmin(:,i),qmax(:,i),ndiv(i)
@@ -121,8 +120,7 @@
          endif
          allocate( wt(nq0i) )
          wt = 0d0
-         ifi00=ifile_handle()
-         open (ifi00,file='Q0P')
+         open (newunit=ifi00,file='Q0P')
          write(ifi00,"(3i5,a)") nq0i,iq0pin,0, " !nq0i iq0pin ---"//
      &        "This is readin Q0P from GWinput <QforEPS> ---"
          write(ifi00,"(d24.16,3x, 3d24.16,2i3)") (wt(i),q0i(1:3,i),0,epslgroup(i),i=1,nq0i)
@@ -205,11 +203,14 @@
       integer,allocatable::irrx(:)
       real(8),allocatable:: funa(:,:),wsumau(:),yll(:,:),alpqg2,qg2,tpiba,wtrue00
       real(8):: qg(3)
-      integer:: ig,lm,iq,ifile_handle !,n1q,n2q,n3q
+      integer:: ig,lm,iq!,ifile_handle !,n1q,n2q,n3q
       integer:: nq0x,nmm ,iq0,iqx!not output
       real(8):: tolq=1d-8
 
+      write(6,"('getq0p: offset Gamma method by T.Kotani,JPSJ83,094711,(2014)')")
+      write(6,"(a)")'  We use only wklm(lm=0) so as to keep positive definite weight (from 14mar2016)'
       voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
+      
 c      n1q=nnn(1)
 c      n2q=nnn(2)
 c      n3q=nnn(3)
@@ -329,13 +330,13 @@ c     q0x(:,6)=(/deltaq,deltaq, 0d0/)
           else
             call rx( 'mkqg: not implemented nq00i')
           endif
-          do i=1,nq00i
-            write(*,'(" initial q0x=",i3,3f9.3)')i,q0x(:,i)
-          enddo
+c          do i=1,nq00i
+c            write(*,'(" initial q0x=",i3,3f9.3)')i,q0x(:,i)
+c          enddo
 !! invariante dielectoric tensor.
           allocate(epinv(3,3,nq0x))
           call diele_invariant(q0x,nq0x,symops,ngrp,  epinv,q0i,nq0i, wt)
-          print *,' nq0x,nmm nq0i=',nq0x,nmm,nq0i
+          write(6,"(a,3i5)")'  nq0x,nmm nq0i=',nq0x,nmm,nq0i
 !! == To convert invariant tensor on YL representation (Y00 and Y2m) ==
           lmxax=1
           allocate( cg((lmxax+1)**2,(lmxax+1)**2,(2*lmxax+1)**2) )
@@ -400,17 +401,15 @@ c$$$  enddo
           call sylm(rrr,yl,lx,r2s) !spherical factor Y( q+G )
 !! ===== check (rrr*emat*rrr = sum(dmlx* YL)
 c     do lm=1,9; write(*,"('r lm=',3f8.3,i4,' ylm=',f8.3)") rrr,lm,cy(lm)*yl(lm) ;   enddo
-          write(*,*)
-          write(*,"(  ' test: r=',3f10.5)") rrr
+          write(*,"('  test: sample r=',3f10.5)") rrr
 !!
           do iq0i=1,nq0i
-            write(*,"(' test: ylm   expansion=',i3,f10.5)") 
+            write(*,"('  test: ylm   expansion=',i3,f10.5)") 
      &       iq0i,sum(dmlx(iq0i,:)*cy(:)*yl(:))
             emat=epinv(:,:,iq0i)
-            write(*,"(' test: epinv expansion=',i3,f10.5)") 
+            write(*,"('  test: epinv expansion=',i3,f10.5)") 
      &       iq0i,sum(rrr*matmul(emat,rrr))
           enddo
-          write(*,*)
           allocate( epinvq0i(nq0i,nq0i))
           do i=1,nq0i
           do j=1,nq0i         !epinvq0i= <q0i/|q0i|| epinv(:,:,iq0j)|q0i/|q0i|>
@@ -426,7 +425,7 @@ c          nnnt=n1q*n2q*n3q
 !! Takao think anisotropic treatment in Computer Phys. Comm 176(1007)1-13 
 !! (in our version with auxially function) can be numerically prorematic.
 !! We only keep wklm only up to l=2. (I observed high wklm(lm) components 
-!! are largely negative --->it may cause numerical error).
+!! are largely negative --->it may cause numerical error; I now use only l=0)
 !! 
 !! From the begining, we can only excpect "virtual convergence on Nz" for 
 !! NxNyNz for Si100 slab model in the paper.
@@ -434,7 +433,7 @@ c          nnnt=n1q*n2q*n3q
 !!
 c     print *,' set wklm=0 for l>2. But lxklm(for inversion of epsioln)=',lxklm
           do i=1,(lxklm+1)**2
-            if(abs(wklm(i))>1d-6 ) write(6,'(" mkqg: l lm Wklm=",2i3,f9.4)')llxxx(i),i,wklm(i)
+            if(abs(wklm(i))>1d-6 ) write(6,'("  l lm Wklm=",2i3,f9.4)')llxxx(i),i,wklm(i)
           enddo
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !     ! spherical design des.3.12.5 check. Because of angular momentum synsesize,
@@ -511,8 +510,7 @@ c$$$            endif
 c$$$          enddo
 c$$$          stop 'xxxxxxxxxxxxxxxxxxxxxxxx'
 
-          ifidmlx = ifile_handle()
-          open(ifidmlx,file='EPSwklm',form='unformatted')
+          open(newunit=ifidmlx,file='EPSwklm',form='unformatted')
           write(ifidmlx) nq0i,lxklm
           write(ifidmlx) dmlx, epinv(:,:,1:nq0i),epinvq0i
           write(ifidmlx) wklm
@@ -527,7 +525,7 @@ c$$$          stop 'xxxxxxxxxxxxxxxxxxxxxxxx'
         endif
         deallocate(irrx)
       endif
-      write(6,"('i wt q0i=',i3,f16.7,2x,3d23.15)")(i,wt(i),q0i(1:3,i),i=1,nq0i)
+      write(6,"('  i wt(i) q0i(:,i)=',i3,f16.7,2x,3d23.15)")(i,wt(i),q0i(1:3,i),i=1,nq0i)
 
 !! Add q0
       nq0iadd=0

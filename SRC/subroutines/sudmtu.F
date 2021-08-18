@@ -1,8 +1,6 @@
-      subroutine sudmtu(nbas,nsp,nlibu,lmaxu,ssite,sspec,idvsh,lldau,
-     .ng,g,istab,dmatu,vorb)
-
-      use m_struc_def  !Cgetarg
-
+      subroutine sudmtu(dmatu,vorb)
+      use m_lmfinit,only: nbas,nsp,nlibu,lmaxu,lldau,ssite=>v_ssite,sspec=>v_sspec,stdo
+      use m_mksym,only: g=>rv_a_osymgr,istab=>iv_a_oistab, ng =>lat_nsgrp
 C- Initialize site density matrix and vorb  for LDA+U
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -44,11 +42,11 @@ Cu   27 Apr 05 Lambrecht first created
 C-------------------------------------------------------------------
       implicit none
 C ... Passed parameters
-      integer nbas,nsp,nlibu,lmaxu,ng,idvsh,i_copy_size
-      integer lldau(nbas),istab(nbas,ng)
-      real(8):: g(9,ng)
-      type(s_site)::ssite(*)
-      type(s_spec)::sspec(*)
+      integer:: idvsh=0,i_copy_size !nbas,nsp,nlibu,lmaxu,
+c      integer lldau(nbas),istab(nbas,ng)
+c      real(8):: g(9,ng)
+c      type(s_site)::ssite(*)
+c      type(s_spec)::sspec(*)
 
       double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
       double complex Vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
@@ -59,7 +57,7 @@ C     integer nglob,stdo
       double precision nocc(-3:3,2),iv(7)
       integer idu(4),igetss,is,idmat,fxst,iblu,nlm,nlmu,a2vec,nn
       double precision uh(4),jh(4),eorb,tmp(2,7,7),xx
-      character str*80,spid*8,aaa*4
+      character str*80,spid*8,aaa*24
       complex(8) ,allocatable :: dmwk_zv(:)
       real(8):: uhx,uhxx
 C ... MPI
@@ -112,12 +110,9 @@ C --- Read in dmatu if file  dmats.ext  exists ---
           do  ib = 1, nbas
             if (lldau(ib) .ne. 0) then
               is = int(ssite(ib)%spec)
-
-
               lmxa=sspec(is)%lmxa
               i_copy_size=size(sspec(is)%idu)
               call icopy(i_copy_size,sspec(is)%idu,1,idu,1)
-
               do l = 0, min(lmxa,3)
                 if (idu(l+1) .ne. 0) then
                   iblu = iblu+1
@@ -126,10 +121,6 @@ C --- Read in dmatu if file  dmats.ext  exists ---
                   do  isp = 1, 2
                     if (rdm(idmat,40,2*nlm**2,' ',tmp,nlm,nlm) .ne. 2)
      .              call rxi('sudmtu failed to read dmats for site',ib)
-C              print *, 'dmat for ib=',ib,' spin',isp
-C              call zprm('sudmtu, dmatu',2,tmp,nlm,nlm,nlm)
-C              call dmscop(dmatu(-l,-l,isp,iblu),
-C     .          nlmu,tmp,nlm,1,nlm,1,nlm,1,1,1d0)
                     call zmscop(0,nlm,nlm,nlm,nlmu,0,0,0,0,tmp,
      .              dmatu(-l,-l,isp,iblu))
                   enddo
@@ -199,7 +190,6 @@ C             Skip comment lines
 C ... Initial printout
       call praldm(0,51,51,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,
      .' dmats read from disk',dmatu)
-
       ivsiz = nsp*nlibu*(lmaxu*2+1)**2
       call mpibc1(dmatu,2*ivsiz,4,mlog,'sudmtu','dmatu')
       call mpibc1(havesh,1,2,.false.,' ',' ')
@@ -211,9 +201,8 @@ C ... Density matrix in real or spherical harmonics (fixed by idvsh)
       endif
 
 C ... Symmetrize dmatu (symdmu requires real harmonics)
-      allocate(dmwk_zv(abs(-ivsiz)))
-      if (-ivsiz<0) dmwk_zv(:)=0.0d0
-
+      allocate(dmwk_zv(ivsiz))
+      dmwk_zv=0d0
       if (havesh .eq. 1) then
         call rotycs(-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
         havesh = 0
@@ -282,32 +271,23 @@ C ... Make Vorb (ldau requires spherical harmonics)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc       
 !! experimental block to keep magnetic moment for AF.
        inquire(file='mmtarget.aftest',exist=mmtargetx)
-       inquire(file='uhval.aftest',exist=eee)
-       if(mmtargetx.and. (procid==master).and.(.not.eee)) then
-          ib = 1 !setting assumed
-          l  = 2 
-          is = int(ssite(ib)%spec)
-          nn = size(sspec(is)%uh)
-          call dcopy(nn,sspec(is)%uh,1,uh,1)
-          uhx = uh(l+1)
-          write(6,"('sudmtu: mmtarget mode. Use UH in ctrl at start',f10.6)")uhx
-       elseif(mmtargetx.and. (procid==master)) then
+       inquire(file='mmagfield.aftest',exist=eee)
+       if(mmtargetx.and. (procid==master)) then
           uhx=0d0
-          open(newunit=ifx,file='uhval.aftest')
+          open(newunit=ifx,file='mmagfield.aftest')
           do
              read(ifx,*,end=1112,err=1112) uhxx,aaa
-             if(aaa=='!uhx') uhx=uhxx
+             uhx=uhxx
+             if(trim(aaa)=='!Magfield') uhx=uhxx
           enddo
  1112     continue
           close(ifx)
-          write(6,"('sudmtu: mmtarget mode. Readin UH from uhval.aftest=',f10.6)")uhx
-       endif   
-       if(mmtargetx.and. (procid==master)) then
-          open(newunit=ifx,file='uhval.aftest')
-          write(ifx,"(d23.15,1x,'!uhx :UH read from previous uhval.aftest or ctrl')") uhx
+          write(stdo,"('sudmtu: mmtarget mode. Readin Magfield from mmagfield.aftest=',f10.6)")uhx
+          open(newunit=ifx,file='mmagfield.aftest')
+          write(ifx,"(d23.15,1x,'!Magfield is read from previous mmagfield.aftest')") uhx
           close(ifx)
        endif
-       call MPI_Bcast(uhx, 1, MPI_REAL8, 0, MPI_COMM_WORLD, ierr)
+       call mpibc1_real(uhx,1,'sudmtu_uhx')
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       iblu = 0
@@ -334,7 +314,8 @@ c        enddo
         do  22  l = 0, i
           if (idu(l+1) .ne. 0) then
             iblu = iblu+1
-            if(.not.mmtargetx) uhx=uh(l+1)
+c            if(.not.mmtargetx) uhx=uh(l+1)
+            uhx=uh(l+1)
             call ldau(idu(l+1),l,iblu,uhx,jh(l+1),dmatu,nsp,
      .      lmaxu,vorb,eorb)
 C            call prdmts(0,30,30,0,' sudmtu:  Vorb in spherical harm',ib,

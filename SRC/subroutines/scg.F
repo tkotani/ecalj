@@ -31,24 +31,24 @@ C Local parameters
    11 continue
       ic = 0
       lmindx = 0
-      do  1  i1 = 1, nl
+      do  104  i1 = 1, nl
         l1 = i1-1
         j1s = 2*l1+1
-      do  1  j1 = 1, j1s
+      do  103  j1 = 1, j1s
         m1 = j1-i1
         n1 = iabs(m1)
         s1 = 0
         if (m1 .lt. 0) s1 = 1
         t1 = 0
         if (m1 .eq. 0) t1 = 1
-      do  1  i2 = 1, i1
+      do  102  i2 = 1, i1
         l2 = i2-1
         i31 = l1 - l2 + 1
         i32 = l1 + l2 + 1
         j2s = 2*l2 + 1
         k2 = j1s*j2s
         if (i2 .eq. i1) j2s = j1
-      do  1  j2 = 1, j2s
+      do  101  j2 = 1, j2s
         lmindx = lmindx + 1
         cindx(lmindx) = ic+1
         m2 = j2-i2
@@ -93,7 +93,10 @@ C Local parameters
         nm3 = nm3-1
         m3 = mb
         if (nm3 .gt. 0) goto 5
-    1 continue
+ 101  continue
+ 102  continue
+ 103  continue
+ 104  continue
       cindx(lmindx+1) = ic+1
       return
       end
@@ -120,17 +123,17 @@ c      do 11 i=1,49
 c  11  fac(i+1)=dfloat(i)*fac(i)
       ic=0
       lmindx=0
-      do 1 i1=1,nl
+      do 1111 i1=1,nl
         l1=i1-1
         j1s=2*l1+1
-      do 1 j1=1,j1s
+      do 111 j1=1,j1s
         m1=j1-i1
         n1=iabs(m1)
         s1=0
         if(m1.lt.0) s1=1
         t1=0
         if(m1.eq.0) t1=1
-      do 1 i2=1,i1
+      do 11 i2=1,i1
         l2=i2-1
         i31=l1-l2+1
         i32=l1+l2+1
@@ -148,18 +151,22 @@ c      cindx(lmindx)=ic+1
         t2=0
         if(m2.eq.0) t2=1
         if(m1*m2) 2,3,4
-  2     m3=-n1-n2
+ 2      continue
+        m3=-n1-n2
         mb=-iabs(n1-n2)
         if(mb.eq.0) goto 21
         nm3=2
         goto 5
-  3     m3=m1+m2
+ 3      continue
+        m3=m1+m2
   21    nm3=1
         goto 5
-  4     m3=n1+n2
+ 4      continue
+        m3=n1+n2
         mb=iabs(n1-n2)
         nm3=2
-  5     n3=iabs(m3)
+ 5      continue
+        n3=iabs(m3)
         s3=0
         if(m3.lt.0) s3=1
         t3=0
@@ -182,7 +189,84 @@ c      js(ic)=l3*(l3+1)+m3+1
         m3=mb
         if(nm3.gt.0) goto 5
   1   continue
+ 11   continue
+ 111  continue
+ 1111 continue
 c      cindx(lmindx+1)=ic+1
       lnxcg=max(lnxcg,lmindx+1)
       return
       end
+
+      double precision function f100(fac,j1,j2,j3,m1,m2,m3)
+C-
+C ----------------------------------------------------------------
+Ci Inputs
+Ci   FAC,J1,J2,J3,M1,M2,M3
+Co Outputs
+Co   F100
+Cr Remarks
+Cr
+C ----------------------------------------------------------------
+C     implicit none
+C Passed parameters
+      integer j1,j2,j3,m1,m2,m3
+      double precision fac(50)
+C Local parameters
+      integer m,n,n1,n2
+      double precision t,t1
+
+      if (m3 .ne. m1+m2) goto 2
+      t = (2*j3+1)*fac(j1+j2-j3+1)*fac(j3+j1-j2+1)*fac(j3+j2-j1+1)/
+     .fac(j1+j2+j3+2)
+      t = dsqrt(t*fac(j1+m1+1)*fac(j1-m1+1)*fac(j2+m2+1)*fac(j2-m2+1)*
+     .fac(j3+m3+1)*fac(j3-m3+1))
+      n1 = max0(j2-j3-m1,j1-j3+m2,0) + 1
+      n2 = min0(j1+j2-j3,j1-m1,j2+m2) + 1
+      if (n1 .gt. n2) goto 2
+      t1 = 0.d0
+      do  1  m = n1, n2
+        n = m-1
+        t1 = t1 +
+     .  dble(1+4*(n/2)-2*n)/(fac(m)*fac(j1+j2-j3-n+1)*fac(j1-m1-n+1)*
+     .  fac(j2+m2-n+1)*fac(j3-j2+m1+n+1)*fac(j3-j1-m2+n+1))
+    1 continue
+      f100 = t*t1
+      return
+    2 f100 = 0.d0
+      return
+      end
+
+      double precision function f102(fac,l1,l2,l3)
+C-
+C ----------------------------------------------------------------
+Ci Inputs
+Ci
+Co Outputs
+Co
+Cr Remarks
+Cr
+C ----------------------------------------------------------------
+C     implicit none
+C Passed parameters
+      integer l1,l2,l3
+      double precision fac(50)
+C Local parameters
+      integer lt,p,x
+
+      lt = l1 + l2 + l3
+      p = lt/2
+      if (2*p .ne. lt) goto 1
+      f102 = dsqrt(dble(2*l3+1)/dble(lt+1))
+      f102 = f102*fac(p+1)/dsqrt(fac(2*p+1))
+      x = p-l1
+      f102 = f102*dsqrt(fac(2*x+1))/fac(x+1)
+      x = p-l2
+      f102 = f102*dsqrt(fac(2*x+1))/fac(x+1)
+      x = p-l3
+      f102 = f102*dsqrt(fac(2*x+1))/fac(x+1)
+      if (x .gt. 2*(x/2)) f102 = -f102
+      return
+    1 f102 = 0.d0
+      end
+
+      

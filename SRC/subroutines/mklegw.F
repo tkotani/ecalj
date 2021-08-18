@@ -90,8 +90,9 @@ C --- Straight Gaussian quadrature for interval (xmin,xmax) ---
       call mklegw(n,xp,wp,0)
       call dscal(n,-(xmax-xmin)/2,xp,1)
       call dscal(n,(xmax-xmin)/2,wp,1)
-      do  10  i = 1, n
-   10 xp(i) = xp(i) + (xmax+xmin)/2
+      do   i = 1, n
+         xp(i) = xp(i) + (xmax+xmin)/2
+      enddo   
 
 C --- 10s digit of mode nonzero => shift points y to x ---
       if (mod(mode,100)/10 .eq. 1) then
@@ -105,8 +106,9 @@ C --- 10s digit of mode nonzero => shift points y to x ---
 C --- 1s digit of mode = n => weight points by x**n
       nn = mod(mode,10)
       if (nn .gt. 0) then
-        do  30  i = 1, n
-   30   wp(i) = wp(i)*xp(i)**nn
+        do  i = 1, n
+           wp(i) = wp(i)*xp(i)**nn
+        enddo
       endif
 
 C --- Printout ---

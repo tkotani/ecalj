@@ -1,7 +1,9 @@
 CSFCPP#define F90 1
       subroutine rnatm(pl,ql,n0,irchan,lmax,z,a,b,rofi,ev,
      .nr,rc,nsp,v,rho,plplus,qlplus)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: stdo
+
+
 C- Renormalise charge or potential for a free atom
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -41,7 +43,7 @@ C ... Passed parameters
       double precision rho(nr,nsp),v(nr,nsp),rofi(nr),ev(25)
 C ... Local parameters
       logical pot
-      integer l,isp,lp1,konfig,ir,iprint,stdo,nglob,ltop
+      integer l,isp,lp1,konfig,ir,iprint,ltop
       double precision sum1(10,2),sum2(10,2),tol,r,fac,sum,rmax,rcw
       double precision rh1(nr),rh2(nr),rwgt(nr),ddot
       external dpcopy,info2,makrvl,radwgt,rseq,rx
@@ -57,7 +59,7 @@ CSFCPP#endif
 
 C --- Setup ---
 Changenglob      stdo = nglob('stdo')
-      stdo = globalvariables%stdo
+c      stdo = globalvariables%stdo
       rmax = rofi(nr)
       call radwgt(rmax,a,nr,rwgt)
       rcw = rc(2)
@@ -136,7 +138,9 @@ C      sum = 2d0*sum*a/3d0
 C      end
 
       subroutine makrvl(z,l,a,b,nr,rofi,konfig,v,ev,tol,rho)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only:lrel_g=>lrel
+
+
 C- Makes contribution to charge density from a given spin and l,
 C  for free atom and given spherical potential (Adapted from nwrofp)
 C ----------------------------------------------------------------------
@@ -161,19 +165,16 @@ Cr
 Cu Updates
 Cu   01 Feb 06
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer ir,ival,konfig,l,nn,nr,nre,jr
-      double precision v(nr),rofi(nr),rho(1),ev(1)
+      double precision v(nr),rofi(nr),rho(*),ev(*)
       double precision a,b,z,tol
 C ... Local parameters
-      integer nglob,lrel
-      integer nrx
+      integer :: lrel, nrx
       parameter( nrx=1501 )
       double precision eb1,eb2,eval,slo,sum,val,gfac,fllp1,c,tmc,r
       double precision g(2*nrx)
-
-C     stdo = nglob('stdo')
       eb1 = -50.d0
       eb2 = 15d0
       ival = 0
@@ -182,7 +183,7 @@ C     stdo = nglob('stdo')
       eval = ev(ival)
       val = 1.d-30
       slo = -val
-      lrel = globalvariables%lrel
+      lrel = lrel_g
       if (lrel .eq. 0) then
         call rseq(eb1,eb2,eval,tol,z,l,nn,val,slo,v,g,
      .  sum,a,b,rofi,nr,nre)
@@ -206,9 +207,7 @@ C     stdo = nglob('stdo')
       do  79  ir = nre+1, nr
         rho(ir)= 0d0
    79 continue
-
 C      print *, 'makrvl: l=',l
 C      call prrmsh('psi**2 in makrvl',rofi,rho,nre,nre,1)
-
       end
 

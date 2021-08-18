@@ -80,14 +80,17 @@ C --- Create multiples of P ---
         if (ix(3) .eq. 0) j3max = 0
    15   continue
         nd = 0
-        do  16  j1 = -j1max, j1max
-        do  16  j2 = -j2max, j2max
-        do  16  j3 = -j3max, j3max
+        do   j1 = -j1max, j1max
+        do   j2 = -j2max, j2max
+        do   j3 = -j3max, j3max
           nd = nd+1
-          do  17  i = 1, 3
-            dlat(i,nd) = P(i,1)*j1 + P(i,2)*j2 + P(i,3)*j3
-   17     continue
-   16   continue
+          do   i = 1, 3
+             dlat(i,nd) = P(i,1)*j1 + P(i,2)*j2 + P(i,3)*j3
+          enddo
+        enddo
+        enddo
+        enddo
+          
       endif
 
 C ... Basis vectors in units of S
@@ -139,7 +142,7 @@ C   ... Shorten by adding multiples of P
 
 C ... Case 10s digit mode is >=4
       if (mode1 .ge. 4) then
-        do  30  i = 1, 3
+        do  301  i = 1, 3
           if (xx(i) .ge. 0) then
             add = -int(xx(i))
           else
@@ -148,6 +151,7 @@ C ... Case 10s digit mode is >=4
         do  30  ib = 1, nbas
    32     pos2(i,ib) = pos2(i,ib) + add
    30   continue
+ 301    continue
       endif
 
       if (mode1 .ge. 4) then

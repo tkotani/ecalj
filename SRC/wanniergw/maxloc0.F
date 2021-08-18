@@ -830,7 +830,7 @@ c
 ! k
       do iq = 1,nqbz
          q = qbz(:,iq)
-         call readeval(q,is,eqt)
+         eqt=readeval(q,is)
          call erange(1,eomin,eomax,ef,eqt,nband,nwf,iti,itf)
          iko_i(iq) = iti
          iko_f(iq) = itf
@@ -840,7 +840,7 @@ c
          do ib = 1,nbb
             ikb = ikbidx(ib,iq)
             q = qbz(:,ikb)
-            call readeval(q,is,eqt)
+            eqt= readeval(q,is)
             call erange(1,eomin,eomax,ef,eqt,nband,nwf,iti,itf)
             ikbo_i(ib,iq) = iti
             ikbo_f(ib,iq) = itf
@@ -883,7 +883,7 @@ c no energy window
 ! k
       do iq = 1,nqbz
          q = qbz(:,iq)
-         call readeval(q,is,eqt)
+         eqt=readeval(q,is)
          call erange(2,eimin,eimax,ef,eqt,nband,nwf,iti,itf)
          iki_i(iq) = iti
          iki_f(iq) = itf
@@ -893,7 +893,7 @@ c no energy window
          do ib = 1,nbb
             ikb = ikbidx(ib,iq)
             q = qbz(:,ikb)
-            call readeval(q,is,eqt)
+            eqt= readeval(q,is)
             call erange(2,eimin,eimax,ef,eqt,nband,nwf,iti,itf)
             ikbi_i(ib,iq) = iti
             ikbi_f(ib,iq) = itf

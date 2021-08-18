@@ -1,5 +1,7 @@
 c      subroutine sopert(mode,ndimh,nspc,wk,hin,hout)
-      subroutine sopert2(mode,ndimh,nspc,hin,hout)
+      subroutine sopert2(hin,hout)
+      use m_igv2x,only:   ndimh
+      use m_lmfinit,only: nspc
 C- Manipulates blocks of hamiltonian for noncollinear case
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -31,7 +33,7 @@ Cu   23 Dec 04 First created (mode 0)
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer mode,ndimh,nspc
+      integer:: mode=0 !,ndimh,nspc
       double complex hin(ndimh,ndimh,*),hout(ndimh,2,ndimh,2)
       double complex wk(ndimh,2,ndimh,2)
 C ... Local parameters

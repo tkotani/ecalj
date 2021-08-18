@@ -12,12 +12,14 @@ C     implicit none
       ntop = nf+nel-1
 
       if (mode .eq. 1) then
-        do  10  i = nf, ntop
-   10   ito(i+iadd) = nint(afrom(i))
+        do    i = nf, ntop
+           ito(i+iadd) = nint(afrom(i))
+        enddo   
         return
       else
-        do  20  i = nf, ntop
-   20   ito(i+iadd) = afrom(i)
+        do   i = nf, ntop
+           ito(i+iadd) = afrom(i)
+        enddo   
         return
       endif
       end
@@ -34,8 +36,9 @@ C     implicit none
 
       iadd = nt-nf
       ntop = nf+nel-1
-      do  20  i = nf, ntop
-   20 to(i+iadd) = ifrom(i)
+      do  i = nf, ntop
+         to(i+iadd) = ifrom(i)
+      enddo   
       end
 
 C      subroutine fmain

@@ -124,7 +124,8 @@ C       2    Z^-1     sig(orb)   (Z^-1)+ sigm Z^-1 stored in h
 
 C       Overwrite Zlda with its inverse (step 1)
 C       call zprm('Z_LDA',2,Z,ndimz,ndimz,ndimz)
-        call zqinv('n',Z,ndimz,-ndimz**2,ndimz,h,ndimz,ierr)
+c         call zqinv('n',Z,ndimz,-ndimz**2,ndimz,h,ndimz,ierr)
+        call matcinv(ndimz,Z)
 C       call zprm('Z_LDA^-1',2,Z,ndimz,ndimz,ndimz)
         call rxx(ierr.lt.0,'rotevs: failed to invert Z^LDA')
 C

@@ -57,16 +57,18 @@ c
       call tcn('dtridx')
       tau(n,1) = 1.0d0
 c
-      do  100  i = 1, n
-  100 d(i) = ar(i,i)
+      do  i = 1, n
+         d(i) = ar(i,i)
+      enddo   
       do  300  i = n, 1, -1
         l = i - 1
         h = 0.0d0
         scale = 0.0d0
         if (l .lt. 1) go to 130
 c     .......... scale row (algol tol then not needed) ..........
-        do  120  k = 1, l
-  120   scale = scale + dabs(ar(k,i))
+        do   k = 1, l
+           scale = scale + dabs(ar(k,i))
+        enddo   
         if (scale .ne. 0.0d0) go to 140
         tau(l,1) = 1.0d0
   130   e(i) = 0.0d0
@@ -109,14 +111,14 @@ c     .......... form element of p ..........
 c
         hh = f / (h + h)
 c     .......... form reduced a ..........
-        do  260  j = 1, l
+        do  j = 1, l
           f = ar(j,i)
           g = e(j) - hh * f
           e(j) = g
-c
-          do  260  k = 1, j
-            ar(k,j) = ar(k,j) - f * e(k) - g * ar(k,i)
-  260   continue
+          do   k = 1, j
+             ar(k,j) = ar(k,j) - f * e(k) - g * ar(k,i)
+          enddo
+        enddo
   270   do  280  k = 1, l
           ar(k,i) = scale * ar(k,i)
   280   continue

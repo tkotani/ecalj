@@ -41,7 +41,8 @@ C ... Local parameters
       stdo = lgunit(1)
 
       do  10  i = 1, l1
-   10 write(stdo,100)
+         write(stdo,100)
+ 10   continue
 C     write(stdo,101) string
 C  101 format(1x,a)
       if (l2 .ge. 0) then
@@ -53,7 +54,8 @@ C       i = awrite(string,lstr,recl,0,a1,a2,i,i,i,i,i,i)
         call cwrite(lstr,0,i-1,0)
       endif
       do  20  i = 1, l2
-   20 write(stdo,100)
+         write(stdo,100)
+ 20   continue
   100 format(1x)
       return
 

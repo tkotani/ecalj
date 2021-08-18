@@ -168,9 +168,9 @@ C--- product basis construction
       nxxold = 0
       iprad  = 0
       rprod  = 0d0
-      do 20 l1 = 0, nl-1
-      do 20 n1 = 1, nindx(l1)  ; noo = nocc  (l1,n1)
-      do 20 l2 = 0, nl-1
+      do 203 l1 = 0, nl-1
+      do 202 n1 = 1, nindx(l1)  ; noo = nocc  (l1,n1)
+      do 201 l2 = 0, nl-1
       do 20 n2 = 1, nindx(l2)  ; nuu = nunocc(l2,n2)
 c
 c        write(6,"('l1 n1 l2 n2 noo nuu=',6i4)") l1, n1, l2, n2,noo,nuu
@@ -200,6 +200,9 @@ cccccccccccccccccccccccc
           endif
         endif
    20 continue
+ 201  continue
+ 202  continue
+ 203  continue
 
 cccccccccccccccccccccccccccccc
 c      do l1=0,nl-1
@@ -720,17 +723,14 @@ c----------------------------------------------
           lprc (k) = lx   ! irdc(k,ic) = k
         enddo
       enddo
-Cstop2rx 2013.08.09 kino      if(k/=kmx) stop ' basnfp: k/=kmx'
       if(k/=kmx) call rx( ' basnfp: k/=kmx')
       if(kmx/=0 ) then
         nblocha = iprlc (kmx) + 2*lprc(kmx)+1
       elseif(kmx==0 ) then
         nblocha = 0
       endif
-
 c------------------------
       print *,' reserve rprodx...'
-c        write(6,"(' basnfp: BASFP... kmx nblocha=',2i5)") kmx,nblocha
       filename = 'BASFP'//char( 48+ic/10 )//char( 48+mod(ic,10) )
       ificrb   = iopen ( filename,1,3,0)
       write(ificrb,"(4i6,2d24.16)") 2*(nl-1), kmx, nblocha,nrofi,aa,bb
@@ -744,7 +744,6 @@ c        write(6,"(' basnfp: BASFP... kmx nblocha=',2i5)") kmx,nblocha
         enddo
       enddo
       isx = iclose(filename)
-
       deallocate(rprodx,iprlc,lprc)
  2001 continue
 !April2007
@@ -752,15 +751,11 @@ c        write(6,"(' basnfp: BASFP... kmx nblocha=',2i5)") kmx,nblocha
 !  in order to have the exact match on PPB* when iread=1 for the same BASFP* file.
       print *,' read rprodx...'
       filename = 'BASFP'//char( 48+ic/10 )//char( 48+mod(ic,10) )
-      ificrb   = iopen ( filename,1,3,0)
+      ificrb   = iopen( filename,1,3,0)
       read(ificrb,"(4i6,2d24.16)") nl2m1, kmx,nblocha,nrofi_in,aa_in,bb_in
-Cstop2rx 2013.08.09 kino      if( nl /= nl2m1/2 +1) stop 'wrong 2*(nl-1) in readin BASNFP'
-      if( nl /= nl2m1/2 +1) call rx( 'wrong 2*(nl-1) in readin BASNFP')
-Cstop2rx 2013.08.09 kino      if(nrofi_in /= nrofi) stop 'nrofi_in/=nrofi in readin BASNFP'
-      if(nrofi_in /= nrofi) call rx( 'nrofi_in/=nrofi in readin BASNFP')
-Cstop2rx 2013.08.09 kino      if(abs(aa-aa_in)>1d-12) stop 'aa_in/=aa in readin BASNFP'
+      if( nl /= nl2m1/2 +1)   call rx( 'wrong 2*(nl-1) in readin BASNFP')
+      if(nrofi_in /= nrofi)   call rx( 'nrofi_in/=nrofi in readin BASNFP')
       if(abs(aa-aa_in)>1d-12) call rx( 'aa_in/=aa in readin BASNFP')
-Cstop2rx 2013.08.09 kino      if(abs(bb-bb_in)>1d-12) stop 'bb_in/=bb in readin BASNFP'
       if(abs(bb-bb_in)>1d-12) call rx( 'bb_in/=bb in readin BASNFP')
       write(6,"(' basnfp: BASFP... kmx nblocha=',2i5)") kmx,nblocha
       read(ificrb,"(i5)") nxx(0:2*(nl-1))
@@ -834,21 +829,24 @@ c --- Calculate radial matrix elements.
           isp1=2
           isp2=1
         endif
-c       write(116,*)
-c       write(116,*) ' **** ',ip1,ip2,isp
-        do 25 lx = 0, 2*(nl-1)
-        do 25 nx = 1, nxx(lx)
-        do 25 l1 = 0, nl-1
-        do 25 n1 = 1, nindx(l1)
-        do 25 l2 = 0, nl-1
-        do 25 n2 = 1, nindx(l2)
+        do  lx = 0, 2*(nl-1)
+        do  nx = 1, nxx(lx)
+        do  l1 = 0, nl-1
+        do  n1 = 1, nindx(l1)
+        do  l2 = 0, nl-1
+        do  n2 = 1, nindx(l2)
           if(lx <abs(l1-l2) .or. l1+l2<lx) cycle
           rphiphi(1)       = 0d0
           rphiphi(2:nrofi) = phitoto(2:nrofi,l1,n1,ic,isp2)
      &                      *phitoto(2:nrofi,l2,n2,ic,isp1)/r(2:) ! phi = u = r \phi
           call gintxx( rprodx(1,nx,lx), rphiphi,aa,bb,nrofi,
-     &        ppbrd(l1, n1,l2, n2, lx,nx) )
-   25   continue
+     &         ppbrd(l1, n1,l2, n2, lx,nx) )
+        enddo  
+        enddo  
+        enddo  
+        enddo  
+        enddo  
+        enddo  
         write(ifppb) ppbrd
       enddo
       deallocate(ppbrd)
@@ -861,19 +859,8 @@ C... prodmt proddmt (value and slope of the product at MT). !oct2005
         prodmt = 1d10 !for safe
         do lx = 0, 2*(nl-1)
           do nx = 1, nxx(lx)
-            prodmt(1,nx,lx) = rprodx(nrofi,nx,lx)/r(nrofi)
-            prodmt(2,nx,lx) =derie2(r, rprodx(1:nrofi,nx,lx)/r(1:nrofi), nrofi)
-c          do ix=1,3
-c            prr(ix) = rprodx(ix-3+nrofi,nx,lx)/r(ix-3+ nrofi)
-c          enddo
-c          prodmt(2, nx,lx) = derie( r(1-3+nrofi), prr)
-ccccccccccccccccccccccccccddddd
-c        write(6,"(' derie xxx= ',3d18.10)")
-c     &    derie ( r(1-3+nrofi), prr)
-c     &  , derie3( r(1-3+nrofi), prr)
-c     &  , derie2( r, rprodx(1:nrofi,nx,lx)/r(1:nrofi),nrofi )
-cccccccccccccccccccccddddddddddd
-
+            prodmt(1,nx,lx)= rprodx(nrofi,nx,lx)/r(nrofi)
+            prodmt(2,nx,lx)= derie2(r, rprodx(1:nrofi,nx,lx)/r(1:nrofi), nrofi)
           enddo
         enddo
         filenamep = 'PRODMT_'//charnum3(ic)
@@ -894,7 +881,6 @@ Cr    in fp/locpot.f just befor locpt2 in lmto (lmf).
         sqrtfpi = sqrt(fpi)
         ifv = ifile_handle()
         ibas=ic
-
         if(valmt) then
           open(ifv,file='ValMT.'//charnum3(ibas),form='unformatted')
           read(ifv) nr_r,nlml_r,nsp_r
@@ -905,11 +891,9 @@ Cr    in fp/locpot.f just befor locpt2 in lmto (lmf).
           read(ifv) rofi_r, rho1
           close(ifv)
         else
-c
           open(ifv,file='rhoMT.'//trim(charnum3n(ibas)),form='unformatted',status='old',err=1031)
           goto 1032
  1031     continue !bug fix for lmfgw---remove this path in future.
-Cstop2rx 2013.08.09 kino          if(ibas>9) stop 'rhoMT indexing is over 10'
           if(ibas>9) call rx( 'rhoMT indexing is over 10')
           open(ifv,file='rhoMT.'//char(48+ibas),form='unformatted')
  1032     continue
@@ -924,18 +908,11 @@ Cstop2rx 2013.08.09 kino          if(ibas>9) stop 'rhoMT indexing is over 10'
           r11(1:nrofi)= 1d0
           read (ifv) rho1
         endif
-
-ccccccccccccccccccccc
 c        print *, 'sum rho1=', sum (abs(rho1(1:nr_r,1:nlml_r,1:nsp_r)))
-cccccccccccccccccccc
-
-Cstop2rx 2013.08.09 kino        if(nsp_r/=nsp) stop " ReadinError: ValMT: nspr/= nsp"
         if(nsp_r/=nsp) call rx( " ReadinError: ValMT: nspr/= nsp")
-Cstop2rx 2013.08.09 kino        if(nsp/=2    ) stop " This mode is only for nsp==2"
         if(nsp/=2    ) call rx( " This mode is only for nsp==2")
         rho1= sqrtfpi*rho1  !rho1 is not including sqrt(fpi) Right?
 
-C
         open(ifv,file='MixSpin.'//charnum3(ibas))
         write(ifv,"(2i10,' ! ibas, max l of product basis' )") ibas,2*(nl-1)
         write(ifv,"(i10,'           ! nxx(lx)'  )") nxx(0:2*(nl-1))
@@ -956,14 +933,6 @@ cccccccccccccccccccc
             rspin=0d0
             den=0d0
           endif
-C ... sumcheck
-ccccccccccccccccccccc
-c        print *,' nsp=',nsp,nrofi,nr_r
-c        print *, 'sumchk den1=', sum ( abs(den(1:nr_r,1)) ),maxval(abs(den(1:nr_r,1)))
-c        print *, 'sumchk den2=', sum ( abs(den(1:nr_r,2)) ),maxval(abs(den(1:nr_r,2)))
-c        stop 'xxxxxxxxxxxxxx'
-cccccccccccccccccccc
-
 c den = 4 pi r^2 * rho_true(r)
 c rspin = 4 pi r * rho_true(r)
           if( nxx(lx)/=0) then
@@ -972,23 +941,12 @@ c rspin = 4 pi r * rho_true(r)
             enddo
             write(6,"(' charge: ilm charge=',i5,2f13.6)") ilmx,sumc(1:nsp)
           endif
-cccccccccccccccccccccccc
-c          if(lx==0) then
-c            do ir=1,nrofi
-c              write(6,"('rrr ',2f13.6)") r(ir), r(ir)*rspin(ir)
-c            enddo
-c          endif
-ccccccccccccccccccccc
           bb1s=0d0
           do nx = 1, nxx(lx)
-
-cCase1 -----------
             call gintxx( rprodx(1,nx,lx), rspin,aa,bb,nrofi,
      &        spinvec0 )
             spinvec = spinvec0/sqrtfpi
-
-!2007
-! const = <1|B> where 1 is normalized within the sphere
+! const = <1|B> where 1 is normalized within the sphere 2007
             if(lx==0) then
               call gintxx( rprodx(1,nx,lx), r,aa,bb,nrofi,
      &        const )
@@ -1021,7 +979,6 @@ c           write(ifv,"(2i6,d24.16,2x,f13.10,2x,f13.10,
 c     &       ' ! I=(ilm, nx), <1|B(I)> intrho(1:nsp)')")
 c     &       ilmx, nx, bb1, sumc(1:nsp)
 c        print *,' test: basn: <1|B> ------ '
-
           enddo
         enddo
         deallocate(rofi_r,rho1,rspin)
@@ -1031,7 +988,6 @@ c        print *,' test: basn: <1|B> ------ '
         enddo
         close(ifv)
       endif !ixc==8 end
-C
       print *,' basnfp_v2: end  '
       if (allocated(rprod))   deallocate(rprod)
       if (allocated(phiav))   deallocate(phiav)

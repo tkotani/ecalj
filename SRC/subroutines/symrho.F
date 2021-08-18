@@ -1,11 +1,10 @@
-      subroutine symrho ( ssite , sspec ,  lf , smrho , sv_p_orhoat !slat ,
-     .     , qbyl , hbyl , f )
+      subroutine symrhoat ( sv_p_orhoat, qbyl, hbyl, f)
       use m_supot,only:  rv_a_ogv , iv_a_oips0 , zv_a_obgv ,iv_a_okv
       use m_mksym,only: iv_a_oistab , rv_a_osymgr, rv_a_oag
-      use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
-c      use m_globalvariables
-      use m_lmfinit,only:lat_nabc
+      use m_struc_def  
+      use m_lmfinit,only: nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,lf=>ctrl_lfrce
+      use m_supot,only: lat_nabc
+
 C- Symmetrize charge density and related quantities
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -23,8 +22,8 @@ Ci     Stored:    *
 Ci     Passed to: *
 Ci   lf    :>0 symmetrize forces
 Ci Inputs/Outputs
-Cio  smrho :smooth density
-Cio        :Symmetrized on output
+Ciox  smrho :smooth density
+Ciox        :Symmetrized on output
 Cio  orhoat:vector of offsets containing site density
 Cio        :Symmetrized on output
 Cio  qbyl  :site- and l-decomposed charges
@@ -39,19 +38,19 @@ Cu   01 Jul 05 handle sites with lmxa=-1 -> no augmentation
 Cu   19 Jun 00 Packaged from nfp symrat.f and symsmr.f
 C ----------------------------------------------------------------------
       implicit none
-      integer:: lf
+c      integer:: lf
       type(s_rv1) :: sv_p_orhoat(3,*)
       real(8):: f(*) , qbyl(*) , hbyl(*)
-      type(s_site)::ssite(*)
-      type(s_spec)::sspec(*)
+c      type(s_site)::ssite(*)
+c      type(s_spec)::sspec(*)
 c      type(s_lat)::slat
-      double complex smrho(*)
-      integer nsp,nbas,ngabc(3),n1,n2,n3,k1,k2,k3,nglob,iprint,i_copy_size
+c      double complex smrho(*)
+      integer ngabc(3),n1,n2,n3,k1,k2,k3,nglob,iprint,i_copy_size
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       call tcn('symrho')
       call info(30,1,0,' Symmetrize density..',0,0)
-      nbas = globalvariables%nbas
-      nsp = globalvariables%nsp
+c      nbas = globalvariables%nbas
+c      nsp = globalvariables%nsp
 c      i_copy_size=size(lat_nabc)
 c     call icopy(i_copy_size,lat_nabc,1,ngabc,1)
       ngabc=lat_nabc
@@ -60,16 +59,19 @@ c     call icopy(i_copy_size,lat_nabc,1,ngabc,1)
      . , qbyl , hbyl , f )
       if ( iprint ( ) .gt. 50 ) call prrhat ( nbas , ssite , sspec 
      . , sv_p_orhoat )
-      call symsmr(nsp,k1,k2,k3,smrho) !slat,
+c      call symsmr(nsp,k1,k2,k3,smrho) !slat,
       call tcx('symrho')
-      end subroutine symrho
+      end subroutine symrhoat
 
       subroutine symrat ( ssite , sspec , nbas , nsp , lf , !slat , 
      . sv_p_orhoat , qbyl , hbyl , f )
       use m_struc_def  !Cgetarg
       use m_mksym,only: iv_a_oistab , rv_a_osymgr, rv_a_oag,lat_nsgrp
-      use m_lmfinit,only: lat_plat,lat_qlat
-C- Symmetrize the atomic charge densities and the forces.
+      use m_lattic,only: lat_qlat
+
+
+      use m_lattic,only:lat_plat
+C     - Symmetrize the atomic charge densities and the forces.
 C ----------------------------------------------------------------------
 Ci Inputs
 Ci   ssite :struct for site-specific information; see routine usite
@@ -156,6 +158,9 @@ c     .  , i_copy_size , i_spackv + 1 - 1 , pos0_rv )
 C --- Start loop over classes ---
       allocate(ipa_iv(nbas))
       allocate(pos_rv(3*nbas))
+      if (iprint() .ge. 35) then
+         write(stdo,"(a)")'                qbyl        hbyl        ebar   '
+      endif   
       do  ic = 1, nclass
         call psymr0 ( - 2 , ic , nbas , ipc_iv , pos0_rv , pos_rv 
      .  , ipa_iv , nrclas )
@@ -166,8 +171,8 @@ C --- Start loop over classes ---
           lmxa=sspec(is)%lmxa
           nr=sspec(is)%nr
           nlml = (lmxl+1)**2
-          if (ipr .ge. 40) write(stdo,800) ic,nrclas,nlml
-  800     format(/' Symmetry class',i3,'   nrclas=',i3,'   nlml=',i3)
+c          if (ipr .ge. 40) write(stdo,800) ic,nrclas,nlml
+c  800     format(/' Symmetry class',i3,'   nrclas=',i3,'   nlml=',i3)
 
 C   ... Make the projectors; make to at least to l=1 for forces
           nlmx = max0(nlml,4)
@@ -182,7 +187,7 @@ C   ... Apply the projectors to rhoat
             call psymr1 ( nrclas , ipa_iv , nr , nlml , nsp , nlmx , sym_rv 
      .       , rho_rv , sv_p_orhoat , 2 )
 C   ... Symmetrize site charges and eigval sum
-            call psymrq ( nrclas , nsp , ipa_iv , lmxa , qbyl , hbyl )
+            call psymrq ( nrclas , nsp , ipa_iv , lmxa , qbyl , hbyl ) !write qbyl
           endif
 C   ... Symmetrize the forces
           if ( lf .ne. 0 ) call psymrf ( nrclas , ipa_iv , nlmx , sym_rv 
@@ -249,17 +254,18 @@ C ... Local parameters
         enddo
       enddo
       if (iprint() .ge. 35) then
-        write(stdo,"(a)")' psymrq: symmetrized l-charge qbyl, hbyl and ebar     '
-        write(stdo,"(a)")'   ebar=hbyl/qbyl= center of gravity of occpied states'
-        write(stdo,770) (ipa(ia),ia = 1,nrclas)
+c         write(stdo,"(a)")'                qbyl        hbyl        ebar   '
+c        write(stdo,"(a)")'   ebar=hbyl/qbyl= center of gravity of occpied states'
+c        write(stdo,770) (ipa(ia),ia = 1,nrclas)
 c  770   format(' symmetrized qbyl,hbyl for class containing atom site ib=',20i3)
-  770   format(' atom site ib=',255i3)
+c  770   format(' atom site ib=',255i3)
         if (nsp .eq. 1) write(stdo,780)
-     .  (l,qsum(l+1,1),hsum(l+1,1), hsum(l+1,1)/qsum(l+1,1), l=0,lmxa)
+     .  (ipa(1),l,qsum(l+1,1),hsum(l+1,1), hsum(l+1,1)/qsum(l+1,1), l=0,lmxa)
         if (nsp .eq. 2) write(stdo,781)
-     .  (l,(qsum(l+1,isp),hsum(l+1,isp),hsum(l+1,isp)/qsum(l+1,isp),isp=1,nsp), l=0,lmxa)
-  780   format(' l=',i5,3f12.6)
-  781   format(' l=',i5,3f12.6,'   spin 2',3f12.6)
+     .  (ipa(1),l,(qsum(l+1,isp),hsum(l+1,isp),hsum(l+1,isp)/qsum(l+1,isp),isp=1,nsp), l=0,lmxa)
+  780   format('ib=',i3,' l=',i2,3f12.6)
+ 781    format('ib=',i3,' l=',i2,3f12.6,'   spin 2',3f12.6)
+        write(stdo,*)'-----------------------------------------------'
       endif
       do  ia = 1, nrclas
         ib = ipa(ia)
@@ -302,28 +308,26 @@ C ... Copy to all sites in class
         call pysmr1 ( wgt , nr , nlml , nsp , sym ( 1 , 1 , ia ) , rho 
      .   , sv_p_orhoat( icmp , ib )%v , nn )
       enddo
-      if (iprint() .ge. 40) write(stdo,100) nn,nlml*nlml
-  100 format(' psymr: did',i5,'  of',i5)
+c      if (iprint() .ge. 40) write(stdo,100) nn,nlml*nlml
+c  100 format(' psymr: did',i5,'  of',i5)
       end subroutine psymr1
 
 
-      subroutine symsmr(nsp,k1,k2,k3,smrho) !slat,
+      subroutine symsmrho(smrho) !slat,
+c      subroutine symsmr(nsp,k1,k2,k3,smrho) !slat,
       use m_supot,only:  iv_a_oips0, iv_a_okv,rv_a_ogv,zv_a_obgv
-      use m_struc_def           !Cgetarg
-      use m_lmfinit,only: lat_nabc,lat_ng
+      use m_supot,only: lat_ng,lat_nabc,k1,k2,k3
       use m_mksym,only: lat_nsgrp
+      use m_lmfinit,only: nsp
 C- Symmetrize the smooth charge density
       implicit none
-C ... Passed parameters
-      integer nsp,k1,k2,k3
-c      type(s_lat)::slat
+c      integer nsp,k1,k2,k3
       double complex smrho(k1,k2,k3,nsp)
-C ... Local parameters
       integer:: n1 , n2 , n3 , ng , ngrp , ngabc(3) , isp
       complex(8) ,allocatable :: csym_zv(:)
       complex(8) ,allocatable :: cv_zv(:)
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-      call tcn('symsmr')
+      call tcn('symsmrho')
       ngabc=lat_nabc
       ng=lat_ng
       ngrp=lat_nsgrp
@@ -351,8 +355,8 @@ C   10   smrho(i1,i23,1) = dble(smrho(i1,i23,1))
       else
         call info(30,1,1,' Smooth density not symmetrized (ngrp=1)',0,0)
       endif
-      call tcx('symsmr')
-      end subroutine symsmr
+      call tcx('symsmrho')
+      end subroutine symsmrho
 
       subroutine rhopos(smrho,k1,k2,k3,n1,n2,n3)
 C- Make smrho real and positive
@@ -366,9 +370,9 @@ C ... Local parameters
       stdo = lgunit(1)
       nneg = 0
       rmin = 999
-      do  10  i3 = 1, n3
-      do  10  i2 = 1, n2
-      do  10  i1 = 1, n1
+      do    i3 = 1, n3
+      do    i2 = 1, n2
+      do    i1 = 1, n1
         xx = dble(smrho(i1,i2,i3))
         rmin = min(rmin,xx)
         if (xx .lt. 0) then
@@ -376,7 +380,9 @@ C ... Local parameters
           xx = 1d-8
         endif
         smrho(i1,i2,i3) = xx
-   10 continue
+      enddo
+      enddo
+      enddo
       if (nneg .gt. 0) write(stdo,333) nneg,rmin
   333 format(' rhopos (warning): mesh density negative at',i6,
      .' points.  min=',f13.8)

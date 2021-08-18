@@ -1,6 +1,5 @@
       subroutine praldm(ifi,ipr1,ipr2,sharm,nbas,nsp,lmaxu,lldau,sspec,
      .ssite,strn,dmatu)
-
       use m_struc_def  !Cgetarg
 C- Writes out a site density-matrix-like object for all sites
 C ----------------------------------------------------------------------
@@ -35,26 +34,19 @@ Cu Updates
 Cu   27 Jan 06 First created
 C ----------------------------------------------------------------------
       implicit none
-C ... Passed parameters
       integer nbas,nsp,lldau(nbas),ifi,lmaxu,ipr1,ipr2,sharm,i_copy_size
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
-
       double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
       character strn*(*)
-C ... Local parameters
       integer iblu,ib,is,igetss,lmxa,idu(4),l
-
       iblu = 0
       do  ib = 1, nbas
         if (lldau(ib) .ne. 0) then
           is = int(ssite(ib)%spec)
-
-
           lmxa=sspec(is)%lmxa
           i_copy_size=size(sspec(is)%idu)
           call icopy(i_copy_size,sspec(is)%idu,1,idu,1)
-
           do  l = 0, min(lmxa,3)
             if (idu(l+1) .ne. 0) then
               iblu = iblu+1
@@ -68,7 +60,9 @@ C ... Local parameters
 
       subroutine prdmts(ifi,ipr1,ipr2,sharm,strn,ib,l,lmaxu,iblu,dmats,
      .nsp,nspc)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: stdo
+
+
 C- Writes out a site density-matrix-like object for a single l
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -101,14 +95,14 @@ C ... Passed parameters
       double precision dmats(2,-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,iblu)
       character strn*(*)
 C ... Local parameters
-      integer isp,ipr,stdo,nglob,m1,m2,mpipid,nlm
+      integer isp,ipr,m1,m2,mpipid,nlm
       character strnl*120,strn1*30
 
       if (nspc .eq. 2) call rx('prdmts not ready for nspc=2')
       if (mpipid(1) .ne. 0) return
       call getpr(ipr)
 Changenglob      stdo = nglob('stdo')
-      stdo = globalvariables%stdo
+c      stdo = globalvariables%stdo
       nlm = 2*l+1
 
       if (ifi .ne. 0) then
