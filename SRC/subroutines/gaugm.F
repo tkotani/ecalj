@@ -77,7 +77,7 @@ Co   ppi   :augmentation potential integrals
 Co         :NB: tau is added to pi, so ppi = (kinetic energy + potential)
 Co         :ppi is returned real if lcplxp=0, complex if lcplxp=1
 Co         :In the noncollinear case:
-Co         :ppi(:,:,:,:,isp,1,1) = spin-diagonal part of potential
+Co         :ppi(:,:,:,:,isp,1,1) = spin-diagonal part of potential ! last argment 1.or.2 means real or imag parts.
 Co         :ppi(:,:,:,:,1,2,1) = up-down   (12) block of potential
 Co         :ppi(:,:,:,:,2,2,1) = down-down (21) block of potential
 Co         :In the SO case: the SO hamiltonian is added to ppi
@@ -397,34 +397,40 @@ C 320         format(2i3,2i5,f15.10)
 
       enddo
 
-C --- Copy to complex potential matrix when needed ---
-      if (lso .ne. 0) then
-        if (lso .eq. 3) call rx('fix dim of ppi to add so')
-C       1. Put (true) hso into (complex version of) ppi(:,:,:,:,:,:,2)
-C       2. convert ppiz(1,1,1,1,1:2,1,1) into complex form
-C       3. Add hso=ppiz(:,:,:,:,:,:,2) to ppiz(:,:,:,:,:,:,1)
-        call ppi2z(12,nsp,nspc,nf1,nf2,nlx1,nlx2,hso,ppi,ppi)
-C       i1 = nf1*nf2*nlx1*nlx2
-C       call zprm('ppiz',2,ppi,i1,i1,4)
-      else if (lcplxp .ne. 0) then
-        call ppi2z(1,nsp,nspc,nf1,nf2,nlx1,nlx2,ppiz,ppi,ppi)
-C       call zprm('ppiz',2,ppi,nf1*nf2,nf1*nf2,nlx1*nlx2)
-C     else
-C       call prmx('ppi',ppi,nf1*nf2,nf1*nf2,nlx1*nlx2*nsp*nspc)
+!! Convert to complex form when complex potential (lcplxp/=0) 
+      if (lso==3) call rx('fix dim of ppi to add so')
+c   call ppi2z(1,nsp,nspc,nf1,nf2,nlx1,nlx2,ppiz,ppi,ppi)
+      if(lcplxp /=0 ) then !convert ppi to complex form (SO or LDA+U case).
+         block
+         complex(8):: tmp(nf1,nf2,nlx1,nlx2,nsp)
+         i1 = nf1*nf2*nlx1*nlx2
+         tmp=0d0
+         call dcopy(i1*nsp,ppi,1,tmp,2) !tmp in complex form
+         ppi=0d0
+         call zcopy(i1*nsp,tmp,1,ppi,1)
+         end block
       endif
+      
+! Add SO contribution to ppi     
+      if (lso/=0) then
+         block
+         complex(8):: pp2(nf1,nf2,nlx1,nlx2,nsp,nspc)
+         real(8):: sz
+         i1 = nf1*nf2*nlx1*nlx2
+         pp2 = hso
+         do  i = 1, nsp
+            sz = 1.5d0 - i
+            pp2(:,:,:,:,i,1)=sz*hso(:,:,:,:,i,1)
+         enddo
+         call daxpy(2*i1*nsp*nspc,1d0,pp2,1,ppi,1)
+         end block
+      endif 
+c     call ppi2z(12,nsp,nspc,nf1,nf2,nlx1,nlx2,hso,ppi,ppi)
 
-      if (lldau .ne. 0) then
-        call ppi2z(7,nsp,nspc,nf1,nf2,nlx1,nlx2,ppiz,ppi,ppi)
-C       call zprm('ppiz',2,ppi,nf1*nf2,nf1*nf2,nlx1*nlx2*nsp*nspc)
-      endif
-
-C     call poppr
-C     pause
-
-CSFCPP#if F90
+! Add U contribituon to ppi      
+      if(lldau/=0) call zaxpy(nf1*nf2*nlx1*nlx2*nsp*nspc,1d0,ppiz,1,ppi,1)
+      
       deallocate(hso,ppiz)
-CSFCPP#endif
-
       end
 
       subroutine pvagm1(nf1,nf1s,lmx1,lx1,nlx1,v1,d1,isp,
@@ -1663,7 +1669,10 @@ C ... Local parameters
       double complex tmp(nf1,nf2,nlx1,nlx2,4)
 
       i1 = nf1*nf2*nlx1*nlx2
-
+      
+!  job=12 hso(,...) -->ppiz(...,1,2)
+!!   ppiz = ppir + hso
+      
 C ... Copy SO hamiltonian to/from ppiz(:,:,:,:,:,:,2)
       if (mod(job/10,10) .eq. 1) then
 C       call zprm('hso',2,hso,i1,i1,nsp*nspc)
@@ -1694,7 +1703,7 @@ C       Copy in two steps to avoid possible overwrite of ppi
         call dcopy(i1*nsp,ppir,1,tmp,2)
         call dpzero(ppiz,2*i1*nsp*nspc)
         call dcopy(2*i1*nsp,tmp,1,ppiz,1)
-        if (mod(job,10) .eq. 2) then
+        if (mod(job,10) .eq. 2) then !ppiz = ppir +ppiz(...,2)
           call daxpy(2*i1*nsp*nspc,1d0,ppiz(1,1,1,1,1,1,2),1,ppiz,1)
 C         call zprm('ppiz+so',2,ppiz,i1,i1,nsp*nspc)
         endif

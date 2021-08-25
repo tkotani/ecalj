@@ -123,13 +123,13 @@ C ... End of assembling LDA H, S
   100 continue
       if (mode0 .eq. 0) call z2herm('U',ndimh,ndimh,h)
       if (mode0 .le. 1) call z2herm('U',ndimh,ndimh,s)
-      call getpr(ipr)
-      if (ipr .ge. 90) then
-        call info(0,0,0,' h and s for q=%3:1;6,6d',q,0)
-        if (mode0 .eq. 0) call zprm('h',12,h,ndimh,ndimh,ndimh)
-        if (mode0 .le. 1) call zprm('s',12,s,ndimh,ndimh,ndimh)
-        if (mode1 .eq. 1) call zprm('hso',2,hso,ndimh,ndimh,ndimh)
-      endif
+c      call getpr(ipr)
+c      if (ipr .ge. 90) then
+c        call info(0,0,0,' h and s for q=%3:1;6,6d',q,0)
+c        if (mode0 .eq. 0) call zprm('h',12,h,ndimh,ndimh,ndimh)
+c        if (mode0 .le. 1) call zprm('s',12,s,ndimh,ndimh,ndimh)
+c        if (mode1 .eq. 1) call zprm('hso',2,hso,ndimh,ndimh,ndimh)
+c      endif
       call tcx('hambl')
       end subroutine hambl
 
