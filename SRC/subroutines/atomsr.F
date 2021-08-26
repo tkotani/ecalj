@@ -1,6 +1,3 @@
-c#define ONE_ATOM_UNIT 1
-
-#define USEOPTIONAL 1
       module m_rhocor
       contains
       subroutine rhocor(isw,z,lmax,nsp,konfig,a,b,nr,rofi,v,g,kcor,lcor,
@@ -49,16 +46,10 @@ C  ---------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer:: isw,ipr,lmax,konfig(0:lmax),nr,nsp,kcor,lcor
-#ifdef USEOPTIONAL
       double precision a,b,z,g(nr,2),rho(nr,nsp),rofi(nr),tol,qcor(2),
      .sumec(nsp),sumtc(nsp),v(nr,nsp),ec(*)
       real(8),optional:: gcore(nr,2,*)
       integer,optional:: nmcore
-#else
-      double precision a,b,z,g(nr,2),rho(nr,nsp),rofi(nr),tol,qcor(2),
-     .sumec(nsp),sumtc(nsp),v(nr,nsp),gcore(nr,2,*),ec(*)
-      integer:: nmcore
-#endif
 C ... Local parameters
       character*1 pqn(9),ang(6)
       integer icore,isp,konf,l,ll,nodes,nre,stdo,lgunit,iprint,ir
@@ -298,13 +289,7 @@ C --- Core charge, radial mesh points and weights ---
      .    '  qcor=%d  amom=%d',kcor,lcor,qcor,qcor(2),0)
         endif
       endif
-#ifdef USEOPTIONAL
-      call getqvc(nsp,nl,lmax,z,pnu,qnu,0,0,kcor,lcor,qcor,qc,qtot,amgm
-     .)
-#else
-      call getqvc(nsp,nl,lmax,z,pnu,qnu,0,0,kcor,lcor,qcor,qc,qtot,amgm,
-     .ec,ev)
-#endif
+      call getqvc(nsp,nl,lmax,z,pnu,qnu,0,0,kcor,lcor,qcor,qc,qtot,amgm)
 
 C --- Guesses for core and valence eigenvalues ---
 ctakao probably not needed here
@@ -1044,14 +1029,9 @@ C --- Calculate core density ---
       if (nlr .eq. 1) then
         if (.not. lfrz) then
           call dpzero(rhoc,nr*nsp)
-#ifdef USEOPTIONAL
 c          print *,'goto rhocor nmcore=',nmcore
           call rhocor(0,z,lmaxc,nsp,konfig,a,b,nr,rofi,v,g,
      .    kcor,lcor,qcor,tol,ec,sumec,sumtc,rhoc,nmcore=nmcore,ipr=ipr)
-#else
-          call rhocor(0,z,lmaxc,nsp,konfig,a,b,nr,rofi,v,g,
-     .    kcor,lcor,qcor,tol,ec,sumec,sumtc,rhoc,0d0,nmcore=nmcore,ipr)
-#endif
         endif
         call dcopy(nr*nsp,rhoc,1,rho,1)
       endif

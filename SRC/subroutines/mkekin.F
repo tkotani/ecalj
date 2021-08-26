@@ -141,10 +141,14 @@ C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
       integer ndimh,i_copy_size
-      type(s_rv1) :: sv_p_oppi(3,nbas)
-      type(s_rv1) :: sv_p_otau(3,1)
-      type(s_rv1) :: sv_p_osig(3,1)
-      type(s_rv1) :: sv_p_oqkkl(3,nbas)
+      type(s_rv1),target :: sv_p_oppi(3,nbas)
+      type(s_rv1),target :: sv_p_otau(3,1)
+      type(s_rv1),target :: sv_p_osig(3,1)
+      type(s_rv1),target :: sv_p_oqkkl(3,nbas)
+      real(8),pointer:: OQPP(:), OQHP(:),OQHH(:),
+     &       OSIGHH(:),OSIGHP(:),OSIGPP(:),
+     &       OTAUHH(:),OTAUHP(:),OTAUPP(:),
+     &       OPPIHH(:),OPPIHP(:),OPPIPP(:)
       real(8):: sumev , sumtv , vconst
       double complex smpot(k1,k2,k3,2),smrho(k1,k2,k3,2)
 C ... Local parameters
@@ -158,7 +162,6 @@ c lso,isw
       double precision qum1,qum2,sraugm,srhov,srmesh,sum1,sum2,sumh,
      .sumq,sumt,vol,xx
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-      real(8),pointer:: oppihh
 #if (MPI|MPIK)
        include 'mpif.h'
        integer:: procid=0,ier=0
@@ -193,18 +196,18 @@ C       Block into groups of consecutive l
         call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
         nlma = (lmxa+1)**2
         nlmh = (lmxh+1)**2
-#define OQHH sv_p_oqkkl(3,ib)%v
-#define OQHP sv_p_oqkkl(2,ib)%v
-#define OQPP sv_p_oqkkl(1,ib)%v
-#define OTAUHH sv_p_otau(3,ib)%v
-#define OTAUHP sv_p_otau(2,ib)%v
-#define OTAUPP sv_p_otau(1,ib)%v
-#define OSIGHH sv_p_osig(3,ib)%v
-#define OSIGHP sv_p_osig(2,ib)%v
-#define OSIGPP sv_p_osig(1,ib)%v
-#define OPPIHH sv_p_oppi(3,ib)%v
-#define OPPIHP sv_p_oppi(2,ib)%v
-#define OPPIPP sv_p_oppi(1,ib)%v
+        OQHH => sv_p_oqkkl(3,ib)%v
+        OQHP => sv_p_oqkkl(2,ib)%v
+        OQPP => sv_p_oqkkl(1,ib)%v
+        OTAUHH =>sv_p_otau(3,ib)%v
+        OTAUHP =>sv_p_otau(2,ib)%v
+        OTAUPP =>sv_p_otau(1,ib)%v
+        OSIGHH =>sv_p_osig(3,ib)%v
+        OSIGHP =>sv_p_osig(2,ib)%v
+        OSIGPP =>sv_p_osig(1,ib)%v
+        OPPIHH =>sv_p_oppi(3,ib)%v
+        OPPIHP =>sv_p_oppi(2,ib)%v
+        OPPIPP =>sv_p_oppi(1,ib)%v
         call pvgtkn ( kmax , lmxa , nlma , nkaph , norb , ltab , ktab
      .              , blks , lmxh , nlmh , OTAUHH , OSIGHH , OPPIHH
      .              , OPPIHH , OTAUHP , OSIGHP , OPPIHP , OPPIHP

@@ -1,6 +1,6 @@
       subroutine flocbl(nbas,ia,kmax,nkaph,lmxha,nlmha,nlma,lmxa,nlmto,
-     .ndimh,iprmb,isp,evl,evec,ewgt,cPkL,db,da,wk,ppipp,ppippz,
-     .sigpp,ppihp,ppihpz,sighp,f) !lcplxp,
+     .ndimh,iprmb,isp,evl,evec,ewgt,cPkL,db,!da,wk,
+     .sigpp,sighp,ppippz,ppihpz,f) !lcplxp,
 C- Force contribution from augmentation at site ia.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -56,10 +56,9 @@ C ... Local parameters
       integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
       integer blks(n0*nkap0),ntab(n0*nkap0)
       double precision sum,wt,xx
-
       if (nlmto .eq. 0) return
+      
       call tcn('flocbl')
-
 C ... Make (ppi-evl*sig)*psi in wk
       call flocb2(ia,nlmto,iprmb,kmax,nkaph,nlmha,nlma,evl,evec,
      .ppipp(0,0,1,1,isp),ppippz(0,0,1,1,isp),sigpp(0,0,0,isp),
@@ -95,7 +94,6 @@ C         i = index to head term, (ilm,k) to augmentation
             enddo
           endif
         enddo
-
 C   --- Force term is (grad psi_kL) * (ppi-evl*sig)*evec ---
         do  m = 1, 3
           sum = 0d0
@@ -104,13 +102,10 @@ C   --- Force term is (grad psi_kL) * (ppi-evl*sig)*evec ---
               sum = sum + 2d0*dconjg(da(k,ilm,m))*wk(k,ilm)
             enddo
           enddo
-c|          write (6,300) ia,ib,m,sum
-c|  300     format(' ia=',i3,'  ib=',i3,'   m=',i2,'   sum=',2f12.6)
           wt = ewgt
           f(m,ib) = f(m,ib) - wt*sum
           f(m,ia) = f(m,ia) + wt*sum
         enddo
-
    10   continue
       enddo
 
@@ -182,12 +177,9 @@ C ... Local parameters
       integer i,ilm,ilma,ilmb,io,jlm,k,k1,k2,l,ll,nlm1,nlm2,n0,nkap0,ik,
      .norb
       parameter (n0=10,nkap0=3)
-      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),
-     .blks(n0*nkap0),ntab(n0*nkap0)
+      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),blks(n0*nkap0),ntab(n0*nkap0)
       double precision xx
-
-      call dpzero(wk, 2*(kmax+1)*nlma)
-
+      wk=0d0
 C ... Add Hsm*Pkl block of ppi-evl*sig times evec
       call orbl(ia,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
 C     Block evl*ppi contribution in groups of consecutive l
@@ -207,19 +199,7 @@ C   ... evl*sig contribution requires explicit knowledge of l
             wk(k,ilmb) = wk(k,ilmb) - evl*sighp(ik,k,l)*evec(i)
           enddo
         enddo
-C   ... ppi contribution: loop over largest blocks possible
-c$$$        if (blks(io) .ne. 0 .and. lcplxp .eq. 0) then
-c$$$          nlm2 = nlm1 + blks(io)-1
-c$$$          i  = offl(io)
-c$$$          do  ilmb = nlm1, nlm2
-c$$$            i = i+1
-c$$$            do  ilma = 1, nlma
-c$$$              do  k = 0, kmax
-c$$$                wk(k,ilma) = wk(k,ilma) + ppihp(ik,k,ilmb,ilma)*evec(i)
-c$$$              enddo
-c$$$            enddo
-c$$$          enddo
-c$$$        endif
+!   ... ppi contribution: loop over largest blocks possible
         if (blks(io) .ne. 0) then ! .and. lcplxp .eq. 1) then
           nlm2 = nlm1 + blks(io)-1
           i  = offl(io)
@@ -233,39 +213,19 @@ c$$$        endif
           enddo
         endif
       enddo
-
-C ... Add Pkl*Pkl block of ppi-evl*sig times cPkL
-c$$$      if (lcplxp .eq. 0) then
-c$$$        do  ilm = 1, nlma
-c$$$          l = ll(ilm)
-c$$$          do  k1 = 0, kmax
-c$$$            do  jlm = 1, nlma
-c$$$              do  k2 = 0, kmax
-c$$$                wk(k1,ilm) = wk(k1,ilm) +ppipp(k1,k2,ilm,jlm)*cPkL(k2,jlm)
-c$$$              enddo
-c$$$            enddo
-c$$$            do  k2 = 0, kmax
-c$$$              wk(k1,ilm) = wk(k1,ilm) - evl*sigpp(k1,k2,l)*cPkL(k2,ilm)
-c$$$            enddo
-c$$$          enddo
-c$$$        enddo
-c$$$
-c$$$      else
-        do  ilm = 1, nlma
-          l = ll(ilm)
-          do  k1 = 0, kmax
+! ... Add Pkl*Pkl block of ppi-evl*sig times cPkL
+      do  ilm = 1, nlma
+         l = ll(ilm)
+         do  k1 = 0, kmax
             do  jlm = 1, nlma
-              do  k2 = 0, kmax
-                wk(k1,ilm) = wk(k1,ilm)+ppippz(k1,k2,ilm,jlm)*cPkL(k2,jlm)
-              enddo
+               do  k2 = 0, kmax
+                  wk(k1,ilm) = wk(k1,ilm)+ppippz(k1,k2,ilm,jlm)*cPkL(k2,jlm)
+               enddo
             enddo
             do  k2 = 0, kmax
-              wk(k1,ilm) = wk(k1,ilm) - evl*sigpp(k1,k2,l)*cPkL(k2,ilm)
+               wk(k1,ilm) = wk(k1,ilm) - evl*sigpp(k1,k2,l)*cPkL(k2,ilm)
             enddo
-          enddo
-        enddo
-c$$$      endif
-
-
+         enddo
+      enddo
       end
 

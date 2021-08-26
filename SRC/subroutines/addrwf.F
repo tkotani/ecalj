@@ -40,15 +40,9 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer l,ndg,n1,nr,mode
-#define USEOPTIONAL
-#ifdef USEOPTIONAL
       real(8):: fac,rofi(nr),rwgt(nr),
      .gadd(ndg,2),g(ndg,2),s
       real(8),optional:: z,v(nr),ev,eadd
-#else
-      double precision fac,z,rofi(nr),rwgt(nr),v(nr),ev,eadd,
-     .gadd(ndg,2),g(ndg,2),s
-#endif
 C ... Local parameters
       integer ir
       double precision cc,vi,fllp1,gf11,gf22,gf12,r,tmc

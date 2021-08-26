@@ -255,12 +255,12 @@ C ----------------------------------------------------------------------
       parameter (nlmbx=25,  nkap0=3, n0=10) !npmx=32,
       integer kmaxx,nlmax,igetss,nglob,nlmto !mp,
       double precision alat,qlat(3,3)
-      integer ia,isa,ivec,kmax,lmxa,nlma,oxf,lmxha,nlmha,ispc,ksp
+      integer ia,isa,ivec,kmax,lmxa,nlma,lmxha,nlmha,ispc,ksp
       integer:: ob , odb
       double precision pa(3),rsma,pi,tpiba
       complex(8),allocatable:: cPkL(:),da(:),wk(:)
       integer ::iwdummy, iaini,iaend
-      complex(8),allocatable::w_ob(:),w_odb(:),w_oxf(:)
+      complex(8),allocatable::w_ob(:),w_odb(:),force(:)
       if (nevec .le. 0) return
       call tcn('rlocbl')
 c      nkaph = globalvariables%nkaph
@@ -287,8 +287,8 @@ C ... Find maximum sizes needed to allocate strux; allocate them
       if (kmaxx .gt. ktop0) call rxi('rlocbl: ktop0.lt.kmax=',kmax)
       allocate(w_ob(ndimh*nlmax*(kmaxx+1)), w_odb(ndimh*nlmax*(kmaxx+1)*3))
       if (lfrce .ne. 0) then
-        allocate(w_oxf(3*nbas))
-        w_oxf=0d0
+        allocate(force(3*nbas))
+        force=0d0
       endif
 !! Loop over augmentation sites ---
       do ia = 1,nbas ! iaini,iaend
@@ -312,8 +312,7 @@ C ... Find maximum sizes needed to allocate strux; allocate them
         OPPIHP => sv_p_oppi(2,ia)%v 
         OSIGHP => sv_p_osig(2,ia)%v 
 C   --- Strux to expand all orbitals and their gradients at site ia ---
-        call bstrux ( 1 , ia , pa , rsma , q , 
-     .      kmax , nlma , ndimh , napw , igvapw , w_ob , w_odb )
+        call bstrux(1, ia, pa, rsma, q, kmax, nlma, ndimh, napw, igvapw, w_ob , w_odb )
 C   --- Loop over eigenstates ---
 C       In noncollinear case, isp=1 always => need internal ispc=1..2
 C       ksp is the current spin index in both cases:
@@ -326,8 +325,7 @@ C       whereas ispc is spin index in the noncoll case, but 1 for coll.
 !!  ... Pkl expansion of eigenvector
             call rlocb1(ndimh,nlma,kmax, evec(1,ispc,ivec), w_ob, cPkL)
 !!  ... Add to local density coefficients for one state
-            call prlcb3 ( job=0 , kmax=kmax , nlma=nlma , isp=ksp ,
-     .        cpkl=cpkl, ewgt=ewgt(ivec),                                qpp=OQPP)
+            call prlcb3 ( job=0 , kmax=kmax , nlma=nlma , isp=ksp , cpkl=cpkl, ewgt=ewgt(ivec),   qpp=OQPP)
             call prlcb2 ( job=0 , ia=ia , nkaph=nkaph , iprmb=iprmb ,
      .         nlmha=nlmha , kmax=kmax, nlma=nlma, isp=ksp , cpkl=cpkl, nlmto=nlmto , 
      .         evec=evec(1,ispc,ivec), ewgt=ewgt(ivec),    qhh=OQHH, qhp=OQHP)
@@ -337,21 +335,19 @@ C       whereas ispc is spin index in the noncoll case, but 1 for coll.
      .              evec(1,ispc,ivec), ewgt(ivec),  evl ( ivec , isp ) , OEQHH , OEQHP)
             endif
 !! ... Contribution to forces
-            if (lfrce .ne. 0) then
+            if (lfrce/=0) then
               call rxx(nspc.ne.1,'forces not implemented in noncoll case')
-              call flocbl ( nbas , ia , kmax , nkaph , lmxha , nlmha , nlma 
-     .            , lmxa , nlmto , ndimh , iprmb , ksp , evl ( ivec , isp ) , evec 
-     .            ( 1 , ispc , ivec ) , ewgt (ivec ) ,  cpkl , w_odb
-     .            , da , wk , OPPIPP , OPPIPP , OSIGPP , OPPIHP
-     .            , OPPIHP , OSIGHP  , w_oxf ) !, lcplxp
+              call flocbl ( nbas , ia , kmax , nkaph , lmxha , nlmha , nlma,
+     .             lmxa, nlmto, ndimh, iprmb, ksp, evl(ivec, isp), evec(1, ispc, ivec), ewgt (ivec ), cpkl , w_odb, !, da , wk
+     .             OSIGPP, OSIGHP , OPPIPP, OPPIHP, force ) !, lcplxp
             endif
         enddo
         enddo
 c   10   continue
       enddo !end loop over ia
-      if (lfrce .ne. 0) call daxpy(3*nbas,1d0,w_oxf,1,f,1)
+      if (lfrce .ne. 0) call daxpy(3*nbas,1d0,force,1,f,1)
       deallocate(cPkL,da,wk,w_ob,w_odb)
-      if(lfrce /=0) deallocate(w_oxf)
+      if(lfrce /=0) deallocate(force)
       call tcx('rlocbl')
       end subroutine rlocbl
 
