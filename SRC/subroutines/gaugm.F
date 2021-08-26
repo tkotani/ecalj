@@ -77,7 +77,7 @@ Co   ppi   :augmentation potential integrals
 Co         :NB: tau is added to pi, so ppi = (kinetic energy + potential)
 Co         :ppi is returned real if lcplxp=0, complex if lcplxp=1
 Co         :In the noncollinear case:
-Co         :ppi(:,:,:,:,isp,1,1) = spin-diagonal part of potential ! last argment 1.or.2 means real or imag parts.
+Co         :ppi(:,:,:,:,isp,1,1) = spin-diagonal part of potential ! last argment=2 means impart or work area?, a little confusing.
 Co         :ppi(:,:,:,:,1,2,1) = up-down   (12) block of potential
 Co         :ppi(:,:,:,:,2,2,1) = down-down (21) block of potential
 Co         :In the SO case: the SO hamiltonian is added to ppi
@@ -212,7 +212,7 @@ c      use m_globalvariables
      .f2(nr,0:lmx2,nf2s),v2(0:lmx2,nf2s),d2(0:lmx2,nf2s),
      .x1(nr,0:lmx1,nf1s),x2(nr,0:lmx2,nf2s),
      .sig(nf1,nf2,0:lmux,nsp),tau(nf1,nf2,0:lmux,nsp),
-     .ppi(nf1,nf2,nlx1,nlx2,nsp,1),vum(0:lmxa,0:lmxa,nlml,6,nsp)
+     .ppi(nf1,nf2,nlx1,nlx2,nsp,*),vum(0:lmxa,0:lmxa,nlml,6,nsp)
 C     Spin-Orbit related
       double precision sodb(nab,n0,nsp,2)
 C ... Local parameters
@@ -396,37 +396,34 @@ C 320         format(2i3,2i5,f15.10)
         endif
 
       enddo
-
-!! Convert to complex form when complex potential (lcplxp/=0) 
-      if (lso==3) call rx('fix dim of ppi to add so')
-c   call ppi2z(1,nsp,nspc,nf1,nf2,nlx1,nlx2,ppiz,ppi,ppi)
-      if(lcplxp /=0 ) then !convert ppi to complex form (SO or LDA+U case).
-         block
-         complex(8):: tmp(nf1,nf2,nlx1,nlx2,nsp)
-         i1 = nf1*nf2*nlx1*nlx2
-         tmp=0d0
-         call dcopy(i1*nsp,ppi,1,tmp,2) !tmp in complex form
-         ppi=0d0
-         call zcopy(i1*nsp,tmp,1,ppi,1)
-         end block
-      endif
       
-! Add SO contribution to ppi     
+!---------------------------------
+      if (lso==3) call rx('fix dim of ppi to add so')
+      block
+      complex(8):: pp2(nf1,nf2,nlx1,nlx2,nsp,nspc)
+      complex(8):: tmp(nf1,nf2,nlx1,nlx2,nsp)
+      real(8):: sz
+!! Convert ppi(:,:,:,:,nsp,ispc=1) to complex form when (lcplxp/=0), SO=1 or LDA+U case. 
+      if(lcplxp /= 0 ) then   
+        i1 = nf1*nf2*nlx1*nlx2
+        tmp = 0d0
+        call dcopy(i1*nsp,ppi,1,tmp,2)   ! tmp in complex form
+        call dpzero(ppi,2*i1*nsp*nspc)   ! ppi(:,:,:,:,isp,ispc)=0
+        call dcopy(2*i1*nsp,tmp,1,ppi,1) ! complex(ppi(:,:,:,:,1:nsp,ispc=1)= ppi 
+      endif
+!! Add SO contribution to ppi     
       if (lso/=0) then
-         block
-         complex(8):: pp2(nf1,nf2,nlx1,nlx2,nsp,nspc)
-         real(8):: sz
          i1 = nf1*nf2*nlx1*nlx2
-         pp2 = hso
-         do  i = 1, nsp
+         call dcopy(2*i1*nsp*nspc,hso,1,pp2(1,1,1,1,1,1),1)
+         do i = 1, nsp !nspc=1 part
             sz = 1.5d0 - i
-            pp2(:,:,:,:,i,1)=sz*hso(:,:,:,:,i,1)
+            call dpcopy(hso(1,1,1,1,i,1),pp2(1,1,1,1,i,1),1,i1*2,sz)
          enddo
-         call daxpy(2*i1*nsp*nspc,1d0,pp2,1,ppi,1)
-         end block
-      endif 
-c     call ppi2z(12,nsp,nspc,nf1,nf2,nlx1,nlx2,hso,ppi,ppi)
-
+         call daxpy(2*i1*nsp*nspc,1d0,pp2,1,ppi,1) 
+      endif
+      end block
+c     if (lso/=0) call ppi2z(12,nsp,nspc,nf1,nf2,nlx1,nlx2,hso,ppi,ppi)
+      
 ! Add U contribituon to ppi      
       if(lldau/=0) call zaxpy(nf1*nf2*nlx1*nlx2*nsp*nspc,1d0,ppiz,1,ppi,1)
       
@@ -1600,152 +1597,153 @@ C  43           format(5i5,3f12.6)
 
       end
 
-      subroutine ppi2z(job,nsp,nspc,nf1,nf2,nlx1,nlx2,hso,ppir,ppiz)
-C- Copies pi matrix to/from complex form, possibly with SO part
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   job   : 0  do nothing
-Ci         : 10's digit for copying into ppiz(2).  This step done first.
-Ci         : 1  ppiz(:,:,:,:,isp,1,2) <- (3/2-isp)*hso(:,:,:,:,isp,1)
-Ci         :    for isp=1..nsp, and if nspc=2:
-Ci         :    ppiz(:,:,:,:,isp,2,2) <- hso(:,:,:,:,isp,2)
-Ci         : 2  hso(:,:,:,:,isp,jsp) <- ppiz(:,:,:,:,isp,jsp,2)
-Ci         :    for isp=1..nsp and jsp=1..nspc (reverse of 1)
-Ci         :    (never checked)
-Ci
-Ci         : 1s digit for copying (or addition) into ppiz(1)
-Ci         : 1  ppiz(:,:,:,:,isp,1,1) <- ppir(:,:,:,:,isp)
-Ci         :    for isp=1..nsp
-Ci         : 2  ppiz(:,:,:,:,isp,jsp,1) <-
-Ci         :    ppir(:,:,:,:,isp) + ppiz(:,:,:,:,isp,jsp,2)
-Ci         :    for isp=1..nsp and jsp=1..nspc
-Ci         :    (Note: this copy is made after 10's digit copy)
-Ci         : 3  ppir(:,:,:,:,isp) <- ppiz(:,:,:,:,isp,1,1)
-Ci         :    for isp=1..nsp  (reverse of 1)
-Ci         : 4  ppir(:,:,:,:,isp) <-
-Ci         :    ppiz(:,:,:,:,isp,1,1) - ppiz(:,:,:,:,isp,1,2)
-Ci         :    for isp=1..nsp and jsp=1..nspc (reverse of 2)
-Ci         : 5  ppiz(:,:,:,:,isp,jsp,1) += ppiz(:,:,:,:,isp,jsp,2)
-Ci         :    for isp=1..nsp and jsp=1..nspc
-Ci         : 6  ppiz(:,:,:,:,isp,jsp,1) -= ppiz(:,:,:,:,isp,jsp,2)
-Ci         :    for isp=1..nsp and jsp=1..nspc (reverse of 5)
-Ci         : 7  ppiz(:,:,:,:,isp,jsp,1) += hso(:,:,:,:,isp,jsp)
-Ci         :    for isp=1..nsp and jsp=1..nspc
-Ci         : 8  ppiz(:,:,:,:,isp,jsp,1) -= hso(:,:,:,:,isp,jsp)
-Ci         :    for isp=1..nsp and jsp=1..nspc (reverse of 7)
-Ci   nsp   :2 for spin-polarized case, otherwise 1
-Ci   nspc  :2 if spin-up and spin-down channels are coupled; else 1.
-Ci   nf1   :dimensions ppi
-Ci   nf2   :dimensions ppi
-Ci   nlx1  :dimensions ppi
-Ci   nlx2  :dimensions ppi
-Cio Inputs/Outputs
-Cio  hso   :spin-orbit hamiltonian, or some complex potential
-Cio        :Used only for 10's digit mode nonzero
-Cio  ppir  :real potential matrix
-Cio  ppiz  :complex potential matrix + SO hamiltonian
-Cio        :ppiz(:,:,:,:,isp,1,1) = spin-diagonal part of potential
-Cio        :ppiz(:,:,:,:,1,2,1) = up-down   (12) block of potential
-Cio        :ppiz(:,:,:,:,2,2,1) = down-down (21) block of potential
-Cio        :ppiz(:,:,:,:,isp,jsp,2) : like ppiz(:,:,:,:,isp,jsp,1)
-Cio                                 : but holds just hso
-Cl Local variables
-Cl         :
-Cr Remarks
-Cr   ppi and ppiz may occupy the same address space
-Cr
-Cu Updates
-Cu   29 Jun 05  First created
-C ----------------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
-      integer job,nsp,nspc,nf1,nf2,nlx1,nlx2
-      double precision ppir(nf1,nf2,nlx1,nlx2,nsp)
-      double complex   ppiz(nf1,nf2,nlx1,nlx2,nsp,nspc,2)
-      double complex    hso(nf1,nf2,nlx1,nlx2,nsp,nspc)
-C ... Local parameters
-      integer i1,i
-      double precision sz
-      double complex tmp(nf1,nf2,nlx1,nlx2,4)
-
-      i1 = nf1*nf2*nlx1*nlx2
-      
-!  job=12 hso(,...) -->ppiz(...,1,2)
-!!   ppiz = ppir + hso
-      
-C ... Copy SO hamiltonian to/from ppiz(:,:,:,:,:,:,2)
-      if (mod(job/10,10) .eq. 1) then
-C       call zprm('hso',2,hso,i1,i1,nsp*nspc)
-        call dcopy(2*i1*nsp*nspc,hso,1,ppiz(1,1,1,1,1,1,2),1)
-C       if (mod(job/10,10) .eq. 1) then
-        do  i = 1, nsp
-          sz = 1.5d0 - i
-          call dpcopy(hso(1,1,1,1,i,1),ppiz(1,1,1,1,i,1,2),1,i1*2,sz)
-        enddo
-C       endif
-C       call zprm('ppiz(2)',2,ppiz(1,1,1,1,1,1,2),i1,i1,nsp*nspc)
-
-      elseif (mod(job/10,10) .eq. 2) then
-C       call zprm('ppiz(2)',2,ppiz(1,1,1,1,1,1,2),i1,i1,nsp*nspc)
-        call dcopy(2*i1*nsp*nspc,ppiz(1,1,1,1,1,1,2),1,hso,1)
-        do  i = 1, nsp
-          sz = 1.5d0 - i
-          call dpcopy(ppiz(1,1,1,1,i,1,2),hso(1,1,1,1,i,1),1,i1*2,1/sz)
-        enddo
-C       call zprm('hso',2,hso,i1,i1,nsp*nspc)
-      endif
-
-C ... ppiz <- ppir  or ppir + ppiz(:,:,:,:,:,:,2)
-      if (mod(job,10) .eq. 1 .or. mod(job,10) .eq. 2) then
-C       call prmx('ppir',ppir,i1,i1,nsp)
-        call dpzero(tmp,2*i1*nsp)
-C       Copy in two steps to avoid possible overwrite of ppi
-        call dcopy(i1*nsp,ppir,1,tmp,2)
-        call dpzero(ppiz,2*i1*nsp*nspc)
-        call dcopy(2*i1*nsp,tmp,1,ppiz,1)
-        if (mod(job,10) .eq. 2) then !ppiz = ppir +ppiz(...,2)
-          call daxpy(2*i1*nsp*nspc,1d0,ppiz(1,1,1,1,1,1,2),1,ppiz,1)
-C         call zprm('ppiz+so',2,ppiz,i1,i1,nsp*nspc)
-        endif
-
-C        call zprm('ppiz(1)',2,ppiz,nf1*nf2,nf1*nf2,nlx1*nlx2)
-C        call zprm('ppiz(2)',2,ppiz(1,1,1,1,2,1,1),
-C     .    nf1*nf2,nf1*nf2,nlx1*nlx2)
-
-C ... ppir <- ppiz or ppir - ppiz(:,:,:,:,:,:,2)
-      elseif (mod(job,10) .eq. 3 .or. mod(job,10) .eq. 4) then
-
-C       call zprm('ppiz',2,ppiz,i1,i1,nsp*nspc)
-C       Copy in two steps to avoid possible overwrite of ppi
-        call dcopy(2*i1*nsp,ppiz,1,tmp,1)
-        call dcopy(i1*nsp,tmp,2,ppir,1)
-
-C       subtract Re(hso), spin-diagonal blocks
-        if (mod(job,10) .eq. 4) then
-          call daxpy(i1*nsp,-1d0,ppiz(1,1,1,1,1,1,2),2,ppir,1)
-        endif
-C       call prmx('ppir',ppir,i1,i1,nsp)
-
-      elseif (mod(job,10) .eq. 5 .or. mod(job,10) .eq. 6) then
-C       call zprm('starting ppiz',2,ppiz,i1,i1,nsp*nspc)
-        sz = 1
-        if (mod(job,10) .eq. 6) sz = -1
-        call daxpy(2*i1*nsp*nspc,sz,ppiz(1,1,1,1,1,1,2),1,ppiz,1)
-C       call zprm('ending ppiz',2,ppiz,i1,i1,nsp*nspc)
-
-      elseif (mod(job,10) .eq. 7 .or. mod(job,10) .eq. 8) then
-C       call zprm('starting ppiz',2,ppiz,i1,i1,nsp*nspc)
-        sz = 1
-        if (mod(job,10) .eq. 6) sz = -1
-        call daxpy(2*i1*nsp*nspc,sz,hso,1,ppiz,1)
-
-C        call zprm('ppiz(1)',2,ppiz,nf1*nf2,nf1*nf2,nlx1*nlx2)
-C        call zprm('ppiz(2)',2,ppiz(1,1,1,1,2,1,1),
-C     .    nf1*nf2,nf1*nf2,nlx1*nlx2)
-
-      endif
-
-      end
+c$$$      subroutine ppi2z(job,nsp,nspc,nf1,nf2,nlx1,nlx2,hso,ppir,ppiz)
+c$$$C- Copies pi matrix to/from complex form, possibly with SO part
+c$$$C ----------------------------------------------------------------------
+c$$$Ci Inputs
+c$$$Ci   job   : 0  do nothing
+c$$$Ci         : 10's digit for copying into ppiz(2).  This step done first.
+c$$$Ci         : 1  ppiz(:,:,:,:,isp,1,2) <- (3/2-isp)*hso(:,:,:,:,isp,1)
+c$$$Ci         :    for isp=1..nsp, and if nspc=2:
+c$$$Ci         :    ppiz(:,:,:,:,isp,2,2) <- hso(:,:,:,:,isp,2)
+c$$$Ci         : 2  hso(:,:,:,:,isp,jsp) <- ppiz(:,:,:,:,isp,jsp,2)
+c$$$Ci         :    for isp=1..nsp and jsp=1..nspc (reverse of 1)
+c$$$Ci         :    (never checked)
+c$$$Ci
+c$$$Ci         : 1s digit for copying (or addition) into ppiz(1)
+c$$$Ci         : 1  ppiz(:,:,:,:,isp,1,1) <- ppir(:,:,:,:,isp)
+c$$$Ci         :    for isp=1..nsp
+c$$$Ci         : 2  ppiz(:,:,:,:,isp,jsp,1) <-
+c$$$Ci         :    ppir(:,:,:,:,isp) + ppiz(:,:,:,:,isp,jsp,2)
+c$$$Ci         :    for isp=1..nsp and jsp=1..nspc
+c$$$Ci         :    (Note: this copy is made after 10's digit copy)
+c$$$Ci         : 3  ppir(:,:,:,:,isp) <- ppiz(:,:,:,:,isp,1,1)
+c$$$Ci         :    for isp=1..nsp  (reverse of 1)
+c$$$Ci         : 4  ppir(:,:,:,:,isp) <-
+c$$$Ci         :    ppiz(:,:,:,:,isp,1,1) - ppiz(:,:,:,:,isp,1,2)
+c$$$Ci         :    for isp=1..nsp and jsp=1..nspc (reverse of 2)
+c$$$Ci         : 5  ppiz(:,:,:,:,isp,jsp,1) += ppiz(:,:,:,:,isp,jsp,2)
+c$$$Ci         :    for isp=1..nsp and jsp=1..nspc
+c$$$Ci         : 6  ppiz(:,:,:,:,isp,jsp,1) -= ppiz(:,:,:,:,isp,jsp,2)
+c$$$Ci         :    for isp=1..nsp and jsp=1..nspc (reverse of 5)
+c$$$Ci         : 7  ppiz(:,:,:,:,isp,jsp,1) += hso(:,:,:,:,isp,jsp)
+c$$$Ci         :    for isp=1..nsp and jsp=1..nspc
+c$$$Ci         : 8  ppiz(:,:,:,:,isp,jsp,1) -= hso(:,:,:,:,isp,jsp)
+c$$$Ci         :    for isp=1..nsp and jsp=1..nspc (reverse of 7)
+c$$$Ci   nsp   :2 for spin-polarized case, otherwise 1
+c$$$Ci   nspc  :2 if spin-up and spin-down channels are coupled; else 1.
+c$$$Ci   nf1   :dimensions ppi
+c$$$Ci   nf2   :dimensions ppi
+c$$$Ci   nlx1  :dimensions ppi
+c$$$Ci   nlx2  :dimensions ppi
+c$$$Cio Inputs/Outputs
+c$$$Cio  hso   :spin-orbit hamiltonian, or some complex potential
+c$$$Cio        :Used only for 10's digit mode nonzero
+c$$$Cio  ppir  :real potential matrix
+c$$$Cio  ppiz  :complex potential matrix + SO hamiltonian
+c$$$Cio        :ppiz(:,:,:,:,isp,1,1) = spin-diagonal part of potential
+c$$$Cio        :ppiz(:,:,:,:,1,2,1) = up-down   (12) block of potential
+c$$$Cio        :ppiz(:,:,:,:,2,2,1) = down-down (21) block of potential
+c$$$Cio        :ppiz(:,:,:,:,isp,jsp,2) : like ppiz(:,:,:,:,isp,jsp,1)
+c$$$Cio                                 : but holds just hso
+c$$$Cl Local variables
+c$$$Cl         :
+c$$$Cr Remarks
+c$$$Cr   ppi and ppiz may occupy the same address space
+c$$$Cr
+c$$$Cu Updates
+c$$$Cu   29 Jun 05  First created
+c$$$C ----------------------------------------------------------------------
+c$$$C     implicit none
+c$$$C ... Passed parameters
+c$$$      integer job,nsp,nspc,nf1,nf2,nlx1,nlx2
+c$$$      double precision ppir(nf1,nf2,nlx1,nlx2,nsp)
+c$$$      double complex   ppiz(nf1,nf2,nlx1,nlx2,nsp,nspc,2)
+c$$$      double complex    hso(nf1,nf2,nlx1,nlx2,nsp,nspc)
+c$$$C ... Local parameters
+c$$$      integer i1,i
+c$$$      double precision sz
+c$$$      double complex tmp(nf1,nf2,nlx1,nlx2,4)
+c$$$
+c$$$      i1 = nf1*nf2*nlx1*nlx2
+c$$$      
+c$$$!  job=12 hso(,...) -->ppiz(...,1,2)
+c$$$!!   ppiz = ppir + hso
+c$$$      
+c$$$C ... Copy SO hamiltonian to/from ppiz(:,:,:,:,:,:,2)
+c$$$      if (mod(job/10,10) .eq. 1) then
+c$$$C       call zprm('hso',2,hso,i1,i1,nsp*nspc)
+c$$$        call dcopy(2*i1*nsp*nspc,hso,1,ppiz(1,1,1,1,1,1,2),1)
+c$$$C       if (mod(job/10,10) .eq. 1) then
+c$$$        do  i = 1, nsp
+c$$$          sz = 1.5d0 - i
+c$$$          call dpcopy(hso(1,1,1,1,i,1),ppiz(1,1,1,1,i,1,2),1,i1*2,sz)
+c$$$        enddo
+c$$$C       endif
+c$$$C       call zprm('ppiz(2)',2,ppiz(1,1,1,1,1,1,2),i1,i1,nsp*nspc)
+c$$$
+c$$$      elseif (mod(job/10,10) .eq. 2) then
+c$$$C       call zprm('ppiz(2)',2,ppiz(1,1,1,1,1,1,2),i1,i1,nsp*nspc)
+c$$$        call dcopy(2*i1*nsp*nspc,ppiz(1,1,1,1,1,1,2),1,hso,1)
+c$$$        do  i = 1, nsp
+c$$$          sz = 1.5d0 - i
+c$$$          call dpcopy(ppiz(1,1,1,1,i,1,2),hso(1,1,1,1,i,1),1,i1*2,1/sz)
+c$$$        enddo
+c$$$C       call zprm('hso',2,hso,i1,i1,nsp*nspc)
+c$$$      endif
+c$$$     
+c$$$
+c$$$C ... ppiz <- ppir  or ppir + ppiz(:,:,:,:,:,:,2)
+c$$$      if (mod(job,10) .eq. 1 .or. mod(job,10) .eq. 2) then
+c$$$C       call prmx('ppir',ppir,i1,i1,nsp)
+c$$$        call dpzero(tmp,2*i1*nsp)
+c$$$C       Copy in two steps to avoid possible overwrite of ppi
+c$$$        call dcopy(i1*nsp,ppir,1,tmp,2)
+c$$$        call dpzero(ppiz,2*i1*nsp*nspc)
+c$$$        call dcopy(2*i1*nsp,tmp,1,ppiz,1)
+c$$$        if (mod(job,10) .eq. 2) then !ppiz = ppir +ppiz(...,2)
+c$$$          call daxpy(2*i1*nsp*nspc,1d0,ppiz(1,1,1,1,1,1,2),1,ppiz,1)
+c$$$C         call zprm('ppiz+so',2,ppiz,i1,i1,nsp*nspc)
+c$$$        endif
+c$$$
+c$$$C        call zprm('ppiz(1)',2,ppiz,nf1*nf2,nf1*nf2,nlx1*nlx2)
+c$$$C        call zprm('ppiz(2)',2,ppiz(1,1,1,1,2,1,1),
+c$$$C     .    nf1*nf2,nf1*nf2,nlx1*nlx2)
+c$$$
+c$$$C ... ppir <- ppiz or ppir - ppiz(:,:,:,:,:,:,2)
+c$$$      elseif (mod(job,10) .eq. 3 .or. mod(job,10) .eq. 4) then
+c$$$
+c$$$C       call zprm('ppiz',2,ppiz,i1,i1,nsp*nspc)
+c$$$C       Copy in two steps to avoid possible overwrite of ppi
+c$$$        call dcopy(2*i1*nsp,ppiz,1,tmp,1)
+c$$$        call dcopy(i1*nsp,tmp,2,ppir,1)
+c$$$
+c$$$C       subtract Re(hso), spin-diagonal blocks
+c$$$        if (mod(job,10) .eq. 4) then
+c$$$          call daxpy(i1*nsp,-1d0,ppiz(1,1,1,1,1,1,2),2,ppir,1)
+c$$$        endif
+c$$$C       call prmx('ppir',ppir,i1,i1,nsp)
+c$$$
+c$$$      elseif (mod(job,10) .eq. 5 .or. mod(job,10) .eq. 6) then
+c$$$C       call zprm('starting ppiz',2,ppiz,i1,i1,nsp*nspc)
+c$$$        sz = 1
+c$$$        if (mod(job,10) .eq. 6) sz = -1
+c$$$        call daxpy(2*i1*nsp*nspc,sz,ppiz(1,1,1,1,1,1,2),1,ppiz,1)
+c$$$C       call zprm('ending ppiz',2,ppiz,i1,i1,nsp*nspc)
+c$$$
+c$$$      elseif (mod(job,10) .eq. 7 .or. mod(job,10) .eq. 8) then
+c$$$C       call zprm('starting ppiz',2,ppiz,i1,i1,nsp*nspc)
+c$$$        sz = 1
+c$$$        if (mod(job,10) .eq. 6) sz = -1
+c$$$        call daxpy(2*i1*nsp*nspc,sz,hso,1,ppiz,1)
+c$$$
+c$$$C        call zprm('ppiz(1)',2,ppiz,nf1*nf2,nf1*nf2,nlx1*nlx2)
+c$$$C        call zprm('ppiz(2)',2,ppiz(1,1,1,1,2,1,1),
+c$$$C     .    nf1*nf2,nf1*nf2,nlx1*nlx2)
+c$$$
+c$$$      endif
+c$$$
+c$$$      end
 
 C      subroutine pvagm4(nf1,lx1,nf2,lx2,tau)
 CC- Symmetrize kinetic energy matrix

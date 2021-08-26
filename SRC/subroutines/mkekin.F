@@ -158,9 +158,7 @@ c lso,isw
       double precision qum1,qum2,sraugm,srhov,srmesh,sum1,sum2,sumh,
      .sumq,sumt,vol,xx
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-#if DEBUG
-      integer fopna
-#endif
+      real(8),pointer:: oppihh
 #if (MPI|MPIK)
        include 'mpif.h'
        integer:: procid=0,ier=0
@@ -174,11 +172,6 @@ c lso,isw
       call getpr(ipr)
       ngabc=lat_nabc
       vol=lat_vol
-#if DEBUG
-      call info0(0,0,0,' rewinding pi file ...')
-      is = fopna('ppi',-1,4)
-      rewind is
-#endif
 
 C --- Integral n0(out) (Ves0~ + Vxc0), contribution from mesh ---
 C     Note that it does not include the term (n0~-n0) Ves0~
@@ -292,32 +285,12 @@ C ... Local parameters
       double precision sumt,sumq,sumh,xx
       integer io1,io2,l1,l2
 
-
-C ... Remove SO part from potential
-      if (lso .ne. 0) then
-C     io1 = nkaph*nkaph*nlmh*nlmh
-C     call zprm('ppiz+so',2,ppihhz,io1,io1,nsp*nspc)
-        call ppi2z(6,nsp,nspc,nkaph,nkaph,nlmh,nlmh,xx,ppihhz,ppihhz)
-        call ppi2z(6,nsp,nspc,nkaph,1+kmax,nlmh,nlma,xx,ppihpz,ppihpz)
-        call ppi2z(6,nsp,nspc,1+kmax,1+kmax,nlma,nlma,xx,ppippz,ppippz)
+! ... Remove SO part from potential
+      if (lso ==1) then !.ne. 0) then
+        call ppi2z2(6,nsp,nspc,nkaph,nkaph,nlmh,nlmh,  ppihhz)
+        call ppi2z2(6,nsp,nspc,nkaph,1+kmax,nlmh,nlma, ppihpz)
+        call ppi2z2(6,nsp,nspc,1+kmax,1+kmax,nlma,nlma,ppippz)
       endif
-
-#if DEBUG
-      integer fopna
-      i = fopna('ppi',-1,4)
-      call info0(0,0,0,' PVGTKN reading ppi')
-      read (i) ppihh
-      read (i) ppipp
-      read (i) ppihp
-#endif
-
-C      print *, '!!'
-C      ppihh = 0
-C      tauhh = 0
-C      ppihp = 0
-C      tauhp = 0
-C      ppipp = 0
-C      taupp = 0
 
       sumt = 0d0
       sumq = 0d0
@@ -439,9 +412,19 @@ C       k1,l1 = k and starting l index for this block
           endif
         enddo
       enddo
-      if (lso .ne. 0) then
-        call ppi2z(5,nsp,nspc,nkaph,nkaph,nlmh,nlmh,xx,ppihhz,ppihhz)
-        call ppi2z(5,nsp,nspc,nkaph,1+kmax,nlmh,nlma,xx,ppihpz,ppihpz)
-        call ppi2z(5,nsp,nspc,1+kmax,1+kmax,nlma,nlma,xx,ppippz,ppippz)
+      if (lso==1) then ! .ne. 0) then
+        call ppi2z2(5,nsp,nspc,nkaph,nkaph,nlmh,nlmh,ppihhz)
+        call ppi2z2(5,nsp,nspc,nkaph,1+kmax,nlmh,nlma,ppihpz)
+        call ppi2z2(5,nsp,nspc,1+kmax,1+kmax,nlma,nlma,ppippz)
       endif
       end subroutine pvgtkn
+
+      subroutine ppi2z2(job,nsp,nspc,nf1,nf2,nlx1,nlx2,ppiz)
+      integer job,nsp,nspc,nf1,nf2,nlx1,nlx2
+      double complex  ppiz(nf1,nf2,nlx1,nlx2,nsp,nspc,2)
+      integer i1,i
+      real(8):: sz
+      if (job==5) sz =  1d0
+      if (job==6) sz = -1d0
+      call daxpy(2*nf1*nf2*nlx1*nlx2*nsp*nspc,sz,ppiz(1,1,1,1,1,1,2),1,ppiz,1)
+      end
