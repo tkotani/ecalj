@@ -1,13 +1,10 @@
-CSFCPP#define F90 1
       subroutine gaugm(nr,nsp,lso,rofi,rwgt,lmxa,lmxl,nlml,vsm, !lcplxp,
      .gpotb,gpot0,hab,vab,sab,sodb,qum,vum,cg,jcg,indxcg,
      .nf1,nf1s,lmx1,lx1,f1,x1,v1,d1,
      .nf2,nf2s,lmx2,lx2,f2,x2,v2,d2,
      .lmux,sig,tau,nlx1,nlx2,ppi,
      .lmaxu,vumm,lldau,idu)
-      use m_lmfinit,only: nspc
-
-
+      use m_lmfinit,only: nspc,nab,n0
 C- Generic routine to make augmentation matrices
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -196,14 +193,11 @@ Cu             inside augmentation sphere
 Cu   14 Sep 01 Extended to local orbitals.  Altered argument list.
 Cu   17 May 00 Adapted from nfp gaugm.f
 C ----------------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
-c      use m_globalvariables
+      implicit none
       integer nr,nsp,lmxa,lmxl,nlml,lmux,lso,!lcplxp,
-     .nf1,nf1s,lmx1,nlx1,lx1(nf1),jcg(1),indxcg(1),n0,nab,
+     .nf1,nf1s,lmx1,nlx1,lx1(nf1),jcg(1),indxcg(1),
      .nf2,nf2s,lmx2,nlx2,lx2(nf2)
       integer lmaxu,lldau,idu(4)
-      parameter (n0=10,nab=9)
       double complex vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,nab,2,0:lmaxu)
       double precision rofi(nr),rwgt(nr),vsm(nr,nlml,nsp),cg(1),
      .qum(0:lmxa,0:lmxa,0:lmxl,6,nsp),gpotb(1),gpot0(1),
@@ -213,67 +207,23 @@ c      use m_globalvariables
      .x1(nr,0:lmx1,nf1s),x2(nr,0:lmx2,nf2s),
      .sig(nf1,nf2,0:lmux,nsp),tau(nf1,nf2,0:lmux,nsp),
      .ppi(nf1,nf2,nlx1,nlx2,nsp,*),vum(0:lmxa,0:lmxa,nlml,6,nsp)
-C     Spin-Orbit related
-      double precision sodb(nab,n0,nsp,2)
-C ... Local parameters
+      double precision sodb(nab,n0,nsp,2) !Spin-Orbit related
       integer ilm1,ilm2
       integer i1,i2,ilm,l,ll,nlm,nlm1,nlm2,i,iprint,stdo,lgunit
-      double precision pi,y0
-      double precision vsms(nr),ppi0(nf1*nf2*(lmux+1)),
-     .qm(nf1*nf2*(lmx1+1)*(lmx2+1)*(lmxl+1)),
-     .sum((lmx1+1)*(lmx2+1)*nlml)
-CSFCPP#if F90
+      real(8),parameter:: pi= 4d0*datan(1d0),y0= 1d0/dsqrt(4d0*pi)
+      real(8):: vsms(nr),ppi0(nf1*nf2*(lmux+1)),
+     .qm(nf1*nf2*(lmx1+1)*(lmx2+1)*(lmxl+1)), sum((lmx1+1)*(lmx2+1)*nlml)
       complex(8),allocatable:: hso(:,:,:,:,:,:),ppiz(:,:,:,:,:,:)
-CSFCPP#else
-CSFCPP      double complex hso(nf1,nf2,nlx1,nlx2,2,2)
-CSFCPP      double complex ppiz(nf1,nf2,nlx1,nlx2,2,2)
-CSFCPP#endif
-c#if DEBUG
-c      integer fopna
-c      integer kount
-c      save kount
-c      data kount /0/
-c      kount = kount + 1
-c#endif
-
       stdo = lgunit(1)
-      pi = 4d0*datan(1d0)
-      y0 = 1d0/dsqrt(4d0*pi)
-Changenglob      nspc = nglob('nspc')
-c      nspc = globalvariables%nspc
-
-CSFCPP#if F90
       allocate(hso(nf1,nf2,nlx1,nlx2,2,2),ppiz(nf1,nf2,nlx1,nlx2,2,2))
-CSFCPP#endif
-C     for now, ppi is complex only if S.O coupling
-c      if ((lso .ne. 0 .or. lldau .ne. 0) .and. lcplxp .eq. 0)
-c     .call rx('gaugm: incompatible lso,lcplxp')
-      if (lso .ne. 0) then
-        call dpzero(hso,nf1*nf2*nlx1*nlx2*2*2)
-      endif
-      if (lldau .ne. 0) then
-        call dpzero(ppiz,2*nf1*nf2*nlx1*nlx2*2*2)
-      endif
-      do  i = 1, nsp
-
-C     Spherical part of the smooth potential
-        call dpcopy(vsm(1,1,i),vsms,1,nr,y0)
-
-
+      if(lso/=0)  hso=0d0
+      if(lldau/=0) ppiz=0d0
+      do i = 1, nsp
+        call dpcopy(vsm(1,1,i),vsms,1,nr,y0) !Spherical part of the smooth potential
 C --- Make sig, tau, ppi0 = spherical part of ppi ---
 C     pvagm2: smooth f1^*f2^ part of sig and corresponding tau, ppi0
         call pvagm2(nf1,lmx1,lx1,f1,x1,nf2,lmx2,lx2,f2,x2,
      .  nr,rofi,rwgt,vsms,lmux,sig(1,1,0,i),tau(1,1,0,i),ppi0)
-C     print *, '!! zero ppi0 (sm), sig(sm)'
-C     ppi0 = 0
-C     sig(1:nf1,1:nf2,0:lmux,i) = 0
-
-cccccccccccccccccccccccccccccccccccccccccccccccc
-!! this means adding kinetic energy for 2nd component (like gauge fixing term).
-!! jan2013takao
-c      tau(:,:,:,i)=0.999999*tau(:,:,:,i)
-cccccccccccccccccccccccccccccccccccccccccccccccc
-
 C     pvagm1: augm. f1~f2~ part of sig and corresponding tau,ppi0
 C     for orbitals constructed out of (u,s)
         call pvagm1(nf1,nf1s,lmx1,lx1,nlx1,v1,d1,i,
@@ -290,45 +240,27 @@ C     for local orbitals
      .  sodb(1,1,i,1),sodb(1,1,i,2),
      .  lmux,sig(1,1,0,i),tau(1,1,0,i),ppi0,
      .  hso(1,1,1,1,i,1),hso(1,1,1,1,i,2))
-
-C     Symmetrize tau,sig,ppi0 (debugging)
-C     call pvagm4(nf1,lx1,nf2,lx2,tau(1,1,0,i))
-C     call pvagm4(nf1,lx1,nf2,lx2,sig(1,1,0,i))
-C     call pvagm4(nf1,lx1,nf2,lx2,ppi0)
-
-
-
 C --- Contribution to ppi from non-spherical potential ---
         call dpzero(ppi(1,1,1,1,i,1),nf1*nf2*nlx1*nlx2)
 C     paug2: smooth integral f1^ (-vsm) f2^ for nonspherical part of vsm
 C     Also include local orbitals; require f=0 if no smooth part.
         call paug2(nr,nlml,vsm(1,1,i),rwgt,cg,jcg,indxcg,nf1,nf1,lmx1,
      .  lx1,f1,nf2,nf2,lmx2,lx2,f2,sum,nlx1,nlx2,ppi(1,1,1,1,i,1))
-C     print *, '!! zero ppi (sm)'
-C     ppi(:,:,:,:,i) = 0
 C     paug1: augm integral f1~ vtrue f2~ for nonspherical part of vtrue
         call paug1(nf1,nf1s,lmx1,lx1,v1,d1,nf2,nf2s,lmx2,lx2,v2,d2,lmxa,
      .  nlml,cg,jcg,indxcg,vum(0,0,1,1,i),nlx1,nlx2,ppi(1,1,1,1,i,1))
-
 C --- Moments qm = (f1~*f2~ - f1^*f2^) r^m Y_m ---
 C     Needed for the term qm * (gpot0-gpotb) added to ppi
         call pvagm3(nf1,nf1s,lmx1,lx1,f1,v1,d1,nf2,nf2s,lmx2,lx2,f2,v2,d2,
      .  nr,rofi,rwgt,lmxa,qum(0,0,0,1,i),lmxl,qm)
-C     print *, '!! qm=0'
-C     qm=0
-
 C --- Add any LDA+U contribution that exists
         if (lldau .ne. 0) then
           call paugnl(nf1,nf1s,lmx1,lx1,v1,d1,nf2,nf2s,lmx2,lx2,v2,d2,
      .    lmaxu,vumm,nlx1,nlx2,ppiz(1,1,1,1,i,1),i,idu)
         endif
-
 C --- Assemble ppi from ppi0, non-spherical part and multipole contr ---
         call paug3(nf1,lmx1,lx1,nf2,lmx2,lx2,lmxl,nlml,cg,jcg,
      .  indxcg,qm,gpotb,gpot0,lmux,ppi0,nlx1,nlx2,ppi(1,1,1,1,i,1))
-
-C     if (kount .eq. 16) call snut(nf1,nlx1,ppi)
-
 C --- Add tau into ppi ---
         do  i1 = 1, nf1
           do  i2 = 1, nf2
@@ -342,22 +274,11 @@ C --- Add tau into ppi ---
             enddo
           enddo
         enddo
-
-C     call pshpr(70)
-C     stdo = 88
-
-c#if DEBUG
-c        call info2(0,0,0,
-c     .  ' GAUGM dumping ppi: %ix%i radial functions',nf1,nf2)
-c        i1 = fopna('ppi',-1,4)
-c        write(i1) ppi
-c#endif
-
-C --- Print diagonal augmentation matrices ---
-        if (iprint() .ge. 70) then
+C --- debug Print diagonal augmentation matrices ---
+        if(iprint() >=80) then
           write(stdo,501) i
           do  i1 = 1, nf1
-            do  i2 = 1, nf2
+          do  i2 = 1, nf2
               nlm1 = (lx1(i1)+1)**2
               nlm2 = (lx2(i2)+1)**2
               nlm = min0(nlm1,nlm2)
@@ -370,28 +291,24 @@ C --- Print diagonal augmentation matrices ---
   501           format(/'# diagonal aug matrices spin',i2,':'
      .          /'# i1  i2   ilm',8x,'sig',11x,'tau',11x,'ham')
               enddo
-            enddo
           enddo
-        endif
-
+          enddo
 C ... Print LL' potential matrix (which includes tau)
-        if (iprint() .ge. 80) then
           write(stdo,'(''#pi matrix:'')')
           write(stdo,'(''#i1 i2  ilm1 ilm2     ham'')')
           do  i1 = 1, nf1
-            do  i2 = 1, nf2
+          do  i2 = 1, nf2
               nlm1 = (lx1(i1)+1)**2
               nlm2 = (lx2(i2)+1)**2
               do  ilm1 = 1, nlm1
                 do  ilm2 = 1, nlm2
                   if (dabs(ppi(i1,i2,ilm1,ilm2,i,1)) .ge. 1d-8)
      .            write(stdo,320) i1,i2,ilm1,ilm2,ppi(i1,i2,ilm1,ilm2,i,1)
-C 320         format(2i3,2i5,f15.10)
   320             format(2i3,2i5,f14.8)
 
                 enddo
               enddo
-            enddo
+          enddo
           enddo
         endif
       enddo
@@ -402,13 +319,12 @@ C 320         format(2i3,2i5,f15.10)
       complex(8):: tmp(nf1,nf2,nlx1,nlx2,nsp)
       real(8):: sz
 !! Convert ppi(:,:,:,:,nsp,ispc=1) to complex form when (lcplxp/=0), SO=1 or LDA+U case. 
-c      if(lcplxp /= 0 ) then   
-        i1 = nf1*nf2*nlx1*nlx2
-        tmp = 0d0
-        call dcopy(i1*nsp,ppi,1,tmp,2)   ! tmp in complex form
-        call dpzero(ppi,2*i1*nsp*nspc)   ! ppi(:,:,:,:,isp,ispc)=0
-        call dcopy(2*i1*nsp,tmp,1,ppi,1) ! complex(ppi(:,:,:,:,1:nsp,ispc=1)= ppi 
-c      endif
+! lcplxp=1 only now
+      i1 = nf1*nf2*nlx1*nlx2
+      tmp = 0d0
+      call dcopy(i1*nsp,ppi,1,tmp,2) ! tmp in complex form
+      call dpzero(ppi,2*i1*nsp*nspc) ! ppi(:,:,:,:,isp,ispc)=0
+      call dcopy(2*i1*nsp,tmp,1,ppi,1) ! complex(ppi(:,:,:,:,1:nsp,ispc=1)= ppi 
 !! Add SO contribution to ppi     
       if (lso/=0) then
          i1 = nf1*nf2*nlx1*nlx2
@@ -420,17 +336,16 @@ c      endif
          call daxpy(2*i1*nsp*nspc,1d0,pp2,1,ppi,1) 
       endif
       end block
-c     if (lso/=0) call ppi2z(12,nsp,nspc,nf1,nf2,nlx1,nlx2,hso,ppi,ppi)
 ! Add U contribituon to ppi      
       if(lldau/=0) call zaxpy(nf1*nf2*nlx1*nlx2*nsp*nspc,1d0,ppiz,1,ppi,1)
-      
       deallocate(hso,ppiz)
       end
 
       subroutine pvagm1(nf1,nf1s,lmx1,lx1,nlx1,v1,d1,isp,
      .nf2,nf2s,lmx2,lx2,nlx2,v2,d2,lso,
      .hab,vab,sab,sodb,sondb,lmux,sig,tau,ppi,
-     .hsozz,hsopm)
+     .     hsozz,hsopm)
+      use m_lmfinit,only: n0,nab
 C- Add augmentation part of sig and tau and ppi (spherical pot)
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -498,9 +413,9 @@ Cr   See Remarks for routine gaugm, above.
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer lmux,lmx1,lmx2,nf1,nf2,nf1s,nf2s,lx1(nf1),lx2(nf2),n0,nab,
+      integer lmux,lmx1,lmx2,nf1,nf2,nf1s,nf2s,lx1(nf1),lx2(nf2),!n0,nab,
      .nlx1,nlx2,isp
-      parameter (n0=10,nab=9)
+c      parameter (n0=10,nab=9)
       double precision hab(nab,0:n0-1),sab(nab,0:n0-1),vab(nab,0:n0-1),
      .v1(0:lmx1,nf1),d1(0:lmx1,nf1),
      .v2(0:lmx2,nf2),d2(0:lmx2,nf2),
@@ -855,6 +770,7 @@ C      stop
      .nf2,nf2s,lmx2,lx2,nlx2,v2,d2,lso,
      .hab,vab,sab,sodb,sondb,
      .lmux,sig,tau,ppi,hsozz,hsopm)
+      use m_lmfinit,only: n0,nab
 C- Augmentation part of sig and tau and ppi, loc. orbitals (spher. pot)
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -930,9 +846,8 @@ Cu   26 Sep 05 (A. Chantis) added matrix elements for SO coupling
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer lmux,lmx1,lmx2,nf1,nf2,nf1s,nf2s,lx1(nf1),lx2(nf2),n0,nab,
+      integer lmux,lmx1,lmx2,nf1,nf2,nf1s,nf2s,lx1(nf1),lx2(nf2),!n0,nab,
      .isp,nlx1,nlx2
-      parameter (n0=10,nab=9)
       double precision hab(nab,0:n0-1),sab(nab,0:n0-1),vab(nab,0:n0-1),
      .v1(0:lmx1,nf1),d1(0:lmx1,nf1),
      .v2(0:lmx2,nf2),d2(0:lmx2,nf2),

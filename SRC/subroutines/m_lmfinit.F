@@ -25,7 +25,7 @@ Ci          functions are less than tol.
 !!---- initial settings read from ctrl and processed -------
       logical,parameter::  T=.true., F=.false.
       integer,parameter::  NULLI=-99999,nkap0=3,mxspec=256,lstrn=10000
-      integer,parameter::  n0=10,nppn=12, nab=9 !bndfp
+      integer,parameter::  n0=10,nppn=12, nab=9, nrmx=1501,nlmx=64 !bndfp
       real(8),parameter::  NULLR =-99999, fs = 20.67098d0, degK = 6.3333d-6 ! defaults for MD
       integer,protected:: io_show=0,io_help=0,nvario=0
       integer(2),protected:: nono
@@ -268,7 +268,7 @@ C ... basis
 c      logical,parameter:: T=.true.,F=.false.
       logical::  debug=.false.
 
-      integer:: lp1,lpzi,nrmx=1501
+      integer:: lp1,lpzi
 c      integer,parameter:: mxspec=256
       real(8):: xxx
       real(8)::  avwsr

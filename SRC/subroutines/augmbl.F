@@ -5,34 +5,16 @@
       use m_lmfinit,only: rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy
       use m_lmfinit,only: nbas,nkaph,lat_alat
       use m_lattic,only: lat_qlat, lat_vol
-      use m_bstrux,only: bstr,bstrux_set !,iq_bstrux
-
-C- Adds augmentation part of H and S
+      use m_bstrux,only: Bstrux_set, bstr 
+!- Adds augmentation part of H and S
 C ----------------------------------------------------------------------
 Ci Inputs
-Ci   mode  :1s digit
-Ci         :0 compute both hamiltonian and overlap
-Ci         :  otherwise, compute overlap only.
-Ci         :  In this case, vavg is not used
-Ci         :10s digit
-Ci         :  0 do not compute hso
+Ci   mode1 :  0 do not compute hso
 Ci         :  1 compute hso.
 Ci         :    Note: only a portion of hso is computed for a
 Ci         :    particular isp.  The total hso is assembled
 Ci         :    after isp loops from 1..2.  hso should not be
 Ci         :    initialized between isp=1 and isp=2 loops.
-Ci   ssite :struct for site-specific information; see routine usite
-Ci     Elts read: spec pos
-Ci     Stored:    *
-Ci     Passed to: *
-Ci   sspec :struct for species-specific information; see routine uspec
-Ci     Elts read: lmxa lmxb kmxt rsma
-Ci     Stored:    *
-Ci     Passed to: uspecb
-Ci   slat  :struct for lattice information; see routine ulat
-Ci     Elts read: ocg ojcg oidxcg ocy
-Ci     Stored:    *
-Ci     Passed to: hxpbl
 Ci   isp   :current spin channel
 Ci   q     :Bloch wave number
 Ci   osig  :overlap matrix of P_kL
@@ -83,15 +65,15 @@ Cu   18 May 00 Adapted from nfp augm_q.f
 Cu   1998      (DLN) parallel version for SGI
 C ----------------------------------------------------------------------
       implicit none
-      integer:: isp , ndimh , napw , igapw(3,napw), iprmb(ndimh),i_copy_size,numprocs !lcplxp , 
       type(s_rv1) :: sv_p_oppi(3,1)
       type(s_rv1) :: sv_p_otau(3,1)
       type(s_rv1) :: sv_p_osig(3,1)
-      real(8):: q(3)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
+      integer:: isp , ndimh , napw , igapw(3,napw), iprmb(ndimh),i_copy_size,numprocs !lcplxp , 
+      real(8):: q(3)
       double complex h(ndimh,ndimh),s(ndimh,ndimh),hso(ndimh,ndimh)
-      integer nlmbx,nlmax,ktop0,lofb,mode0
+      integer nlmbx,nlmax,ktop0,lofb!,mode0
       parameter (ktop0=20, nlmbx=49, nlmax=49, lofb=(ktop0+1)*nlmax)
       complex(8),allocatable:: b(:,:,:),bx(:,:,:),bb(:,:,:)
       double complex g(lofb)
@@ -103,19 +85,15 @@ C ----------------------------------------------------------------------
       complex(8):: zxx(1)
 C--------------------------
       call tcn ('augmbl')
-      mode0 = 0 ! mod(mode,10)
-c      mode1 = mod(mode/10,10)
       nlmto = ndimh-napw
       alat=lat_alat
       qlat=lat_qlat
       vol=lat_vol
-c      allocate (b(lofb*ndimh))
-!! no MPI now
       initbas=1
       endbas=nbas
       do  ia = initbas, endbas
-        isa=ssite(ia)%spec
-        pa=ssite(ia)%pos
+        isa =ssite(ia)%spec
+        pa  =ssite(ia)%pos
         lmxa=sspec(isa)%lmxa !max l of augmentation
         lmxb=sspec(isa)%lmxb !max l of basis
         kmax=sspec(isa)%kmxt !max of radial k
@@ -124,177 +102,33 @@ c      allocate (b(lofb*ndimh))
         nlma = (lmxa+1)**2
         if (lmxa .eq. -1) cycle
 C   --- Make strux to expand all orbitals at site ia ---
-c        call rxx((kmax+1)*nlma .gt. lofb, 'augmbl: increase lofb')
-cccccccall bstrux ( 0 ,  ia , pa , rsma , q ,
-c        if(allocated(b)) deallocate(b)
-c        if(allocated(bx)) deallocate(bx)
-c        allocate( bx(ndimh,nlma,0:kmax),b(0:kmax,nlma,ndimh))
-c        call bstrux ( 2 ,  ia , pa , rsma , q , 
-c     .       kmax , nlma , ndimh , napw , igapw , bx , zxx )
-c        do lm=1,nlma
-c           b(:,lm,:) = transpose(bx(:,lm,:))
-c        enddo
         call bstrux_set(ia,q)
         if(allocated(b)) deallocate(b)
         allocate( b(0:kmax,nlma,ndimh) )
         do lm=1,nlma
            b(:,lm,:) = transpose(bstr(:,lm,:)) !-b(:,lm,:)
         enddo
-        if(debug) print *,'end of bstrux'
 C   --- Add 1-center and 2-center terms ---
-c$$$        if (lcplxp .eq. 0) then
-c$$$          call augq12 ( mode0 , ia , isp , nkaph , iprmb , lmxb , nlmb 
-c$$$     .      , kmax , nlma , sv_p_osig ( 3 , ia ) %v , sv_p_oppi( 3 , ia )%v 
-c$$$     .      , sv_p_osig ( 2 , ia ) %v , sv_p_oppi( 2 , ia )%v , b , ndimh 
-c$$$     .      , nlmto , s , h )
-c$$$        else
-        call augq2z ( mode0 , mode1 , ia , isp , nkaph , iprmb , lmxb 
+        call augq2z ( mode1 , ia , isp , nkaph , iprmb , lmxb 
      .       , nlmb , kmax , nlma , sv_p_osig ( 3 , ia ) %v , sv_p_oppi( 3 , ia )%v 
      .       , sv_p_osig ( 2 , ia ) %v , sv_p_oppi( 2 , ia )%v , b , ndimh 
      .       , nlmto , s , h , hso )
-c$$$        endif
 C   --- Add B+ sig B to S and B+ ppi B to H ---
-        call augqs3( kmax, lmxa, nlma, ndimh, isp, g, sv_p_osig( 1, ia )%v, b, s)
-c$$$        if (mode0 .eq. 0 .and. lcplxp .eq. 0) then
-c$$$          call augqp3( kmax, nlma, ndimh, isp, g, sv_p_oppi( 1, ia )%v, b, h )
-c$$$        elseif (mode0 .eq. 0 .and. lcplxp .ne. 0) then
-        if(mode0==0) call augq3z( mode1, kmax, nlma, ndimh, isp, g, sv_p_oppi( 1, ia )%v, b, h, hso)
+        call augqs3(  kmax, lmxa, nlma, ndimh, isp, g, sv_p_osig( 1, ia )%v, b, s)
+        call augq3z( mode1, kmax, nlma, ndimh, isp, g, sv_p_oppi( 1, ia )%v, b, h, hso)
         deallocate(b)
-        if(debug) print *,'augg 222222 ia=',ia
       enddo
-c      deallocate (b)
       call tcx ('augmbl')
       end subroutine augmbl
 
-      subroutine augq12(mode,ia,isp,nkaph,iprmb,lmxb,nlmb,kmax,
-     .nlma,sighh,ppihh,sighp,ppihp,b,ndimh,nlmto,s,h)
-C- Add one and two-center terms to hamiltonian and overlap matrix
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   mode  :0 compute both hamiltonian and overlap
-Ci         :  otherwise, compute overlap only.
-Ci         :  In this case, vavg is not used
-Ci   ia    :augmentation site about which strux are expanded
-Ci   isp   :current spin channel
-Ci   nkaph :dimensions augmentation matrices
-Ci   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
-Ci   nlmb :dimensions augmentation potential matrix at site a
-Ci   lmxb :dimensions sighh at site a
-Ci   kmax  :polynomial cutoff
-Ci   nlma  :augmentation L-cutoff
-Ci   sighh :augmentation head-head overlap matrix
-Ci   ppihh :augmentation head-head potential matrix
-Ci   sighp :augmentation head-Pkl overlap matrix
-Ci   ppihp :augmentation head-Pkl potential matrix
-Ci   b     :Bloch strux connecting site ia to all sites
-Ci   ndimh :hamiltonian dimension
-Ci   nlmto :Number of lmto basis functions
-Co Outputs
-Co   h     :1- and 2- center augmentation part of ham. added to h
-Co   s     :1- and 2- center augmentation part of ovlp added to s
-Cr Remarks
-Cr  In this implementation, the augmentation matrices and the row
-Cr  dimension of the structure constants b follow normal L order.
-Cr  The column dimension of b is permuted in iprmb order.
-Cu Updates
-Cu   01 Sep 04 folded so into complex potential
-Cu   29 Jun 04 (A. Chantis) added 1- and 2- center spherical so*Lz*Sz
-Cu   14 Aug 02 Added overlap-only option
-C ----------------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
-      integer mode,ia,isp,kmax,nkaph,ndimh,nlma,lmxb,nlmb,iprmb(1)
-      integer nlmto
-      double precision
-     .sighh(nkaph,nkaph,0:lmxb,1), ppihh(nkaph,nkaph,nlmb,nlmb,1),
-     .sighp(nkaph,0:kmax,0:lmxb,1),ppihp(nkaph,0:kmax,nlmb,nlma,1)
-      double complex b(0:kmax,nlma,ndimh),s(ndimh,ndimh),h(ndimh,ndimh)
-C ... Local parameters
-      integer iorb,ik1,j,k,ilma,i1,i2,ilm1,ilm2,l1,n0,nkap0,jorb,ik2,l2
-      parameter (n0=10,nkap0=3)
-      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),norb
-      double precision xx
-      double complex cadd
-
-C     call zprm('strux',2,b,(kmax+1)*nlma,(kmax+1)*nlma,ndimh)
-
-C --- Loop over basis functions at site ia (augentation index) ---
-      call orbl(ia,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
-      do  iorb = 1, norb
-C       l1,ik1 = l and kaph indices, needed for sigma
-        l1  = ltab(iorb)
-        ik1 = ktab(iorb)
-C       i1 = orbital index in iprmb order; ilm1 = augm. index in L order
-        i1 = offl(iorb)
-        do  ilm1 = l1**2+1, (l1+1)**2
-          i1 = i1+1
-
-C     ... Two-center terms
-C         Loop over basis functions 1..ndimh from all sites
-          if (mode .eq. 0) then
-            do  j = 1, ndimh
-              do  k = 0, kmax
-                cadd = sighp(ik1,k,l1,isp)*b(k,ilm1,j)
-                s(i1,j) = s(i1,j) + cadd
-                s(j,i1) = s(j,i1) + dconjg(cadd)
-                do  ilma = 1, nlma
-                  cadd = ppihp(ik1,k,ilm1,ilma,isp)*b(k,ilma,j)
-                  h(i1,j) = h(i1,j) + cadd
-                  h(j,i1) = h(j,i1) + dconjg(cadd)
-                enddo
-              enddo
-            enddo
-
-C     ... One-center terms
-            do  jorb = 1, norb
-              l2  = ltab(jorb)
-              ik2 = ktab(jorb)
-              i2 = offl(jorb)
-              do  ilm2 = l2**2+1, (l2+1)**2
-                i2 = i2+1
-                h(i1,i2) = h(i1,i2) + ppihh(ik1,ik2,ilm1,ilm2,isp)
-                if (ilm1 .eq. ilm2)
-     .          s(i1,i2) = s(i1,i2) + sighh(ik1,ik2,l1,isp)
-              enddo
-            enddo
-          else
-
-            do  j = 1, ndimh
-              do  k = 0, kmax
-                cadd = sighp(ik1,k,l1,isp)*b(k,ilm1,j)
-                s(i1,j) = s(i1,j) + cadd
-                s(j,i1) = s(j,i1) + dconjg(cadd)
-              enddo
-            enddo
-
-C     ... One-center terms
-            do  jorb = 1, norb
-              l2  = ltab(jorb)
-              ik2 = ktab(jorb)
-              i2 = offl(jorb)
-              do  ilm2 = l2**2+1, (l2+1)**2
-                i2 = i2+1
-                if (ilm1 .eq. ilm2)
-     .          s(i1,i2) = s(i1,i2) + sighh(ik1,ik2,l1,isp)
-              enddo
-            enddo
-          endif
-
-        enddo
-      enddo
-
-      end subroutine augq12
-
-
-      subroutine augq2z(mode,mode1,ia,isp,nkaph,iprmb,lmxb,nlmb,kmax,
+      subroutine augq2z(mode1,ia,isp,nkaph,iprmb,lmxb,nlmb,kmax,
      .nlma,sighh,ppihh,sighp,ppihp,b,ndimh,nlmto,s,h,hso)
-
 C- Add one and two-center terms to h,s for complex potential
 C ----------------------------------------------------------------------
 Ci Inputs
-Ci   mode  :0 compute both hamiltonian and overlap
-Ci         :  otherwise, compute overlap only.
-Ci         :  In this case, vavg is not used
+Cix   mode  :0 compute both hamiltonian and overlap
+Cix         :  otherwise, compute overlap only.
+Cix         :  In this case, vavg is not used
 Ci   mode1 :0 do not compute hso
 Ci         :1 compute hso
 Ci   ia    :augmentation site about which strux are expanded
@@ -374,10 +208,8 @@ C       i1 = orbital index in iprmb order; ilm1 = augm. index in L order
         i1 = offl(iorb)
         do  ilm1 = l1**2+1, (l1+1)**2
           i1 = i1+1
-
 C     ... Two-center terms
 C         Loop over basis functions 1..ndimh from all sites
-          if (mode .eq. 0) then
             do  j = 1, ndimh
               do  k = 0, kmax
                 cadd = sighp(ik1,k,l1,isp)*b(k,ilm1,j)
@@ -421,40 +253,14 @@ C        ...  Make 1c LxSx+LySy part of SO
      .          + sighh(ik1,ik2,l1,isp)
               enddo
             enddo
-          else
-
-            do  j = 1, ndimh
-              do  k = 0, kmax
-                cadd = sighp(ik1,k,l1,isp)*b(k,ilm1,j)
-                s(i1,j) = s(i1,j) + cadd
-                s(j,i1) = s(j,i1) + dconjg(cadd)
-              enddo
-            enddo
-
-C     ... One-center terms
-            do  jorb = 1, norb
-              l2  = ltab(jorb)
-              ik2 = ktab(jorb)
-              i2 = offl(jorb)
-              do  ilm2 = l2**2+1, (l2+1)**2
-                i2 = i2+1
-                if (ilm1 .eq. ilm2)
-     .          s(i1,i2) = s(i1,i2) + sighh(ik1,ik2,l1,isp)
-              enddo
-            enddo
-          endif
 
         enddo
       enddo
-
       if (mode1 .eq. 1) then
-c        call dpadd(hso(1,1),tso(1,1,1,2),1,2*ndimh*ndimh,1d0)
         hso = hso + tso(:,:,1,2)
         deallocate (tso)
       endif
-
       end subroutine augq2z
-
 
       subroutine augqs3(kmax,lmxa,nlma,ndimh,isp,g,sig,b,s)
 C- Add B+ sig B to s for L-diagonal sig
@@ -516,64 +322,6 @@ C     call tcx('augqs3')
       end subroutine augqs3
 
 
-      subroutine augqp3(kmax,nlma,ndimh,isp,g,ppi,b,h)
-C- Add B+ ppi B to H for non-L-diagonal matrix ppi
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   kmax  :polynomial cutoff
-Ci   nlma  :augmentation L-cutoff
-Ci   ndimh :hamiltonian dimension
-Ci   isp   :current spin channel
-Ci   g     :complex work array of dimension (kmax+1)*nlma
-Ci   ppi   :augmentation Pkl-Pkl potential matrix
-Ci   b     :Bloch structure constants (hxpbl)
-Co Outputs
-Co   h     :3-center from this augmentation site added to h
-Cr Remarks
-Cu Updates
-Cu 01 Sep 04 folded so into complex potential
-Cu 29 Jun 04 (A. Chantis) added 3- center so*Sz*Lz (spherical part)
-C ----------------------------------------------------------------------
-      implicit none
-C ... Passed parameters
-      integer kmax,nlma,ndimh,isp
-      double precision ppi(0:kmax,0:kmax,nlma,nlma,isp)
-      double complex b(0:kmax,nlma,ndimh),h(ndimh,ndimh),
-     .g(0:kmax,nlma),csum
-C ... Local parameters
-      integer i1,i2,jlm1,jlm2,k1,k2,kjlm !,kjtop
-
-C     call tcn('augqp3')
-c      kjtop = nlma*(kmax+1)
-      do  i2 = 1, ndimh
-C   ... g <- ppi*b
-c        call dpzero(g,2*kjtop)
-        g=0d0
-        do  jlm1 = 1, nlma
-          do  jlm2 = 1, nlma
-            do  k2 = 0, kmax
-              do  k1 = 0, kmax
-                g(k1,jlm1) = g(k1,jlm1) +
-     .          ppi(k1,k2,jlm1,jlm2,isp)*b(k2,jlm2,i2)
-              enddo
-            enddo
-          enddo
-        enddo
-cC   ... Make dot products with vectors i1
-        do  i1 = 1, i2
-cC         csum=zdotc(kjtop,b(0,1,i1),1,g,1)
-c          csum = (0d0,0d0)
-c          do  kjlm = 0, kjtop-1
-c            csum = csum + dconjg(b(kjlm,1,i1))*g(kjlm,1)
-c          enddo
-c          h(i1,i2) = h(i1,i2) + csum
-          h(i1,i2) = h(i1,i2) + sum(dconjg(b(:,:,i1))*g(:,:))
-        enddo
-      enddo
-C     call tcx('augqp3')
-      end subroutine augqp3
-
-
       subroutine augq3z(mode1,kmax,nlma,ndimh,isp,g,ppi,b,h,hso)
 C- Add B+ ppi B to H for non-L-diagonal, complex matrix ppi
 C ----------------------------------------------------------------------
@@ -595,20 +343,16 @@ Cu 01 Sep 04 folded so into complex potential
 Cu 29 Jun 04 (A. Chantis) added 3- center so*Sz*Lz (spherical part)
 C ----------------------------------------------------------------------
       implicit none
-C ... Passed parameters
       integer kmax,nlma,ndimh,isp,mode1
-      double complex ppi(0:kmax,0:kmax,nlma,nlma,isp+2*mode1)
-      double complex b(0:kmax,nlma,ndimh),h(ndimh,ndimh),
-     .g(0:kmax,nlma),csum,gso(0:kmax,nlma),csum1,hso(ndimh,ndimh)
-C ... Local parameters
+      complex(8):: ppi(0:kmax,0:kmax,nlma,nlma,isp+2*mode1),
+     & b(0:kmax,nlma,ndimh),h(ndimh,ndimh),
+     & g(0:kmax,nlma),csum,gso(0:kmax,nlma),csum1,hso(ndimh,ndimh)
       integer i1,i2,jlm1,jlm2,k1,k2,kjlm !,kjtop
-
-C     call tcn('augqp3')
-c      kjtop = nlma*(kmax+1)
+c      call tcn('augq3z')
       do  i2 = 1, ndimh
 C   ... g <- ppi*b
-        g=0d0   !call dpzero(g,2*kjtop)
-        gso=0d0 !call dpzero(gso,2*kjtop)
+        g = 0d0   
+        gso=0d0 
         do  jlm1 = 1, nlma
           do  jlm2 = 1, nlma
             do  k2 = 0, kmax
@@ -623,26 +367,15 @@ C     ...  Make LxSx+LySy part of SO
             enddo
           enddo
         enddo
-
 C   ... Make dot products with vectors i1
-        do  i1 = 1, ndimh
-cC         csum=zdotc(kjtop,b(0,1,i1),1,g,1)
-c          csum = (0d0,0d0)
-c          if (mode1 .eq. 1 .and. isp .eq. 2) csum1 = (0d0,0d0)
-c          do  kjlm = 0, kjtop-1
-c            csum = csum + dconjg(b(kjlm,1,i1))*g(kjlm,1)
-cC     ...  Make LxSx+LySy part of SO
-c            if (mode1 .eq. 1 .and. isp .eq. 2)
-c     .      csum1 = csum1 + dconjg(b(kjlm,1,i1))*gso(kjlm,1)
-c          enddo
-c          h(i1,i2) = h(i1,i2) + csum
+        do i1 = 1, ndimh
           h(i1,i2) = h(i1,i2) + sum(dconjg(b(:,:,i1))*g(:,:))
 C     ...  Make LxSx+LySy part of SO
-          if (mode1 .eq. 1 .and. isp .eq. 2) 
+          if (mode1==1 .and. isp==2) 
      .      hso(i1,i2) = hso(i1,i2) + .5d0*sum(dconjg(b(:,:,i1))*gso(:,:)) !+ 0.5d0*csum1
         enddo
       enddo
-C     call tcx('augqp3')
+c      call tcx('augq3z')
       end subroutine augq3z
 
 
