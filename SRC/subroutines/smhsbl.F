@@ -1,14 +1,9 @@
-CSFCPP#define F90 1
-      subroutine smhsbl(mode,ssite,sspec,vavg,q,ndimh,iprmb, !,slat
+      subroutine smhsbl(ssite,sspec,vavg,q,ndimh,iprmb, !,slat mode,
      .napw,igapw,h,s)
       use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
-
-
       use m_lmfinit,only: lat_alat,nbas,nkaphh,lhh
       use m_lattic,only: lat_vol
       use m_uspecb,only:uspecb
-
-
       use m_struc_def
       use m_lattic,only:lat_plat      
 C- Smoothed Bloch Hamiltonian (constant potential) and overlap matrix
@@ -139,29 +134,11 @@ Cu   19 May 00 Adapted from nfp smhs_q.f
 C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
-#if MPI
-      include "mpif.h"
-      integer numprocs, ierr, status(MPI_STATUS_SIZE)
-      integer MAX_PROCS
-      parameter (MAX_PROCS = 100)
-      integer resultlen
-      character*(MPI_MAX_PROCESSOR_NAME) name
-      character*10 shortname(0:MAX_PROCS-1)
-      character*20 ext
-      character*26 datim
-      integer namelen(0:MAX_PROCS-1)
-      double precision starttime, endtime
-      logical mlog,cmdopt
-      integer i,lgunit
-      character*120 strn
-#endif
       integer procid,master
       integer mode,ndimh,iprmb(1),napw,igapw(3,napw)
       real(8):: q(3) , vavg
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-c      type(s_lat)::slat
-
       double complex h(ndimh,ndimh),s(ndimh,ndimh)
 C ... Local parameters
       integer nlms,kdim,n0,nkap0
@@ -176,327 +153,164 @@ C ... Local parameters
       double precision e1(n0,nkap0),rsm1(n0,nkap0),p1(3),
      .e2(n0,nkap0),rsm2(n0,nkap0),p2(3),xx
       double complex s0(nlms,nlms,0:kdim,nkap0,nkap0)
-C     Debugging
-C     double complex ds(nlms,nlms,0:6)
 C ... for PW part
       integer lmxax,lmxa,nlmax
       double precision qpg2,alat,plat(3,3),qlat(3,3),vol,srvol,tpiba,pi,
      .denom,gam,fpi,ddot
-CSFCPP#if F90
       real(8),allocatable:: yl(:),ylv(:,:),qpgv(:,:),qpg2v(:)
       complex(8),allocatable:: srm1l(:)
       complex(8):: ovl,srm1,phase,fach
       parameter (srm1=(0d0,1d0))
-CSFCPP#endif
-#if MPI
-      double complex, dimension(:,:), allocatable :: hbuf, sbuf
-      integer, dimension(:,:), allocatable :: index
-      complex(8),allocatable::w_obuff(:)
-c      integer obuff
-#endif
       integer:: iloop,iloopmx
       call tcn('smhsbl')
-#if MPI
-      call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
-      call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
-      call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
-      call strcop(shortname(procid),name,10,'.',i)
-      namelen(procid) = i-1
-      master = 0
-      mlog = cmdopt('--mlog',6,0,strn)
-#else
       procid = 0
       master = 0
-#endif
 C --- Setup ---
       nlmto = ndimh-napw
-c      nbas  = globalvariables%nbas
+      
 C ... Setup below needed for PWs
-      if (napw .gt. 0) then
-        alat=lat_alat
-c        i_copy_size=size(lat_plat)
-c     call dcopy(i_copy_size,lat_plat,1,plat,1)
-        plat=lat_plat
-        vol=lat_vol
-        pi = 4d0*datan(1d0)
-        tpiba = 2d0*pi/alat
-        srvol = dsqrt(vol)
-        fpi = 4*pi
-        call dinv33(plat,1,qlat,vol)
-        vol = dabs(vol)*(alat**3)
-C       Find largest lmxa ... should be made elsewhere
-        lmxax = -1
-        do  ib1 = 1, nbas
-          is1=ssite(ib1)%spec
-          lmxa=sspec(is1)%lmxa
-          lmxax = max(lmxax,lmxa)
-        enddo
-        nlmax=(lmxax+1)**2
-        allocate(ylv(napw,nlmax),yl(nlmax),qpgv(3,napw),qpg2v(napw))
-C       Note: rearrange order
-        do  ig = 1, napw
-          qpgv(:,ig) = tpiba * (q + matmul(qlat, igapw(:,ig)))
-        enddo
-        call ropyln(napw,qpgv(1,1:napw),qpgv(2,1:napw),qpgv(3,1:napw),
-     .  lmxax,napw,ylv,qpg2v)
-        allocate(srm1l(0:lmxax))
-        srm1l(0) = 1d0
-        do  l1 = 1, lmxax
-          srm1l(l1) = (srm1)**l1
-        enddo
-CSFCPP#else
-CSFCPP        call rx('PW branch requires F90')
-CSFCPP#endif
+      if (napw > 0) then
+         alat=lat_alat
+         plat=lat_plat
+         vol=lat_vol
+         pi = 4d0*datan(1d0)
+         tpiba = 2d0*pi/alat
+         srvol = dsqrt(vol)
+         fpi = 4*pi
+         call dinv33(plat,1,qlat,vol)
+         vol = dabs(vol)*(alat**3)
+C     Find largest lmxa ... should be made elsewhere
+         lmxax = -1
+         do  ib1 = 1, nbas
+            is1=ssite(ib1)%spec
+            lmxa=sspec(is1)%lmxa
+            lmxax = max(lmxax,lmxa)
+         enddo
+         nlmax=(lmxax+1)**2
+         allocate(ylv(napw,nlmax),yl(nlmax),qpgv(3,napw),qpg2v(napw))
+C     Note: rearrange order
+         do  ig = 1, napw
+            qpgv(:,ig) = tpiba * (q + matmul(qlat, igapw(:,ig)))
+         enddo
+         call ropyln(napw,qpgv(1,1:napw),qpgv(2,1:napw),qpgv(3,1:napw),
+     .        lmxax,napw,ylv,qpg2v)
+         allocate(srm1l(0:lmxax))
+         srm1l(0) = 1d0
+         do  l1 = 1, lmxax
+            srm1l(l1) = (srm1)**l1
+         enddo
       endif
 
-C --- Loop over first and second site indices ---
-C$DOACROSS LOCAL(i1,i2,ib1,ib2,ilm1,ilm2,io1,io2,is1,is2,nlm1,nlm2,
-C$&              lh1,lh2,nkap1,nkap2,
-C$&              ltab1,ktab1,offl1,norb1,ik1,
-C$&              ltab2,ktab2,offl2,norb2,ik2,l1,l2,
-C$&              p1,p2,s0,
-C$&              e1,rsm1,
-C$&              e2,rsm2,xx)
-C$&        SHARED(ssite,sspec,slat,vavg,q,ndimh,iprmb,h,s,nbas,nsp)
-C$&        MP_SCHEDTYPE=RUNTIME
-      if (nlmto .ne. 0) then
-c$$$#if MPI
-c$$$        allocate (hbuf(ndimh,ndimh), stat=ierr)
-c$$$        allocate (sbuf(ndimh,ndimh), stat=ierr)
-c$$$        call dcopy(2*ndimh*ndimh,0d0,0,hbuf,1)
-c$$$        call dcopy(2*ndimh*ndimh,0d0,0,sbuf,1)
-c$$$        allocate (index(0:numprocs-1,0:nbas-1), stat=ierr)
-c$$$        call dstrbp(nbas,numprocs,-1,index(0,0))
-c$$$cccccccccccccccccccc
-c$$$c      do  iloop = 1, index(procid,0)
-c$$$c        ib1 = index(procid,iloop)
-c$$$c        print *,'iloop, procid ib1=',iloop,procid,ib1
-c$$$c      enddo
-c$$$c      call MPI_abort(MPI_COMM_WORLD,ierr)
-c$$$cccccccccccccccccccc
-c$$$ccccccccccccccccccccccc
-c$$$c      print *,'aaaaaaaaaaaa111111111'
-c$$$c      call uspecb(0,2,sspec,1,1,lh1,rsm1,e1,nkap1)
-c$$$c      print *,'aaaaaaaaaaaa222222222222'
-c$$$c      call MPI_abort(MPI_COMM_WORLD,ierr)
-c$$$cccccccccccccccccccccc
-c$$$c      print *,'procid=',procid,index(procid,0)
-c$$$ccccccccccccccccccccc
-c$$$        iloopmx= index(procid,0)
-c$$$#else
-c        iloopmx= nbas
-c#endif
-c        do iloop = 1,iloopmx
-c$$$#if MPI
-c$$$          ib1 = index(procid,iloop)
-c$$$          if (mlog) then
-c$$$            call gettime(datim)
-c$$$            call awrit4(' smhsbl '//datim//' Process %i of %i on '
-c$$$     .      //shortname(procid)(1:namelen(procid))//
-c$$$     .      ' starting atom %i of %i',' ',256,lgunit(3),
-c$$$     .      procid,numprocs,ib1,index(procid,0))
-c$$$          endif
-c$$$#else
-c          ib1=iloop
-c     #endif
+      if (nlmto >0 ) then
          do ib1=1,nbas
-          is1=ssite(ib1)%spec
-c          i_copy_size=size(ssite(ib1)%pos)
-c          call dcopy(i_copy_size,ssite(ib1)%pos,1,p1,1)
-          p1=ssite(ib1)%pos
-          call uspecb(is1,rsm1,e1)
-C       Row info telling smhsbl where to poke s0 made by hhibl
-          call orbl(ib1,0,nlmto,iprmb,norb1,ltab1,ktab1,xx,offl1,xx)
-          call gtbsl1(8+16,norb1,ltab1,ktab1,rsm1,e1,ntab1,blks1)
-          do  ib2 = ib1, nbas
-            is2=ssite(ib2)%spec
-c            i_copy_size=size(ssite(ib2)%pos)
-c            call dcopy(i_copy_size,ssite(ib2)%pos,1,p2,1)
-            p2=ssite(ib2)%pos
-            call uspecb(is2,rsm2,e2)
-C         Column info telling smhsbl where to poke s0 made by hhibl
-            call orbl(ib2,0,nlmto,iprmb,norb2,ltab2,ktab2,xx,offl2,xx)
-            call gtbsl1(8+16,norb2,ltab2,ktab2,rsm2,e2,ntab2,blks2)
-C     ... M.E. <1> and <T> between all envelopes connecting ib1 and ib2
-            do  i1 = 1, nkaphh(is1) !nkap1
-              do  i2 = 1, nkaphh(is2) !nkap2
-                nlm1 = (lhh(i1,is1)+1)**2
-                nlm2 = (lhh(i2,is2)+1)**2
-                if (nlm1 .gt. nlms .or. nlm2 .gt. nlms)
-     .          call rx('smhsbl: increase nlms')
-                call hhibl ( 11 , p1 , p2 , q , rsm1 ( 1 , i1 ) , rsm2 ( 1 , 
-     .              i2 ) , e1 ( 1 , i1 ) , e2 ( 1 , i2 ) , nlm1 , nlm2 , 1 , nlms
-     .              , nlms , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy !, slat 
-     .              , s0 ( 1 , 1 , 0 , i1 , i2 ) )
-              enddo
-            enddo
-c      print *,'hamblvvv sumcheck =',sum(abs(s)),sum(abs(h))
-c      stop 'xxxxxxxxxxxxxxxxvvvv'
-
-C     ... Loop over orbital indices, poke block of integrals into s,h
-            do  io2 = 1, norb2
-              if (blks2(io2) .ne. 0) then
-C           l2,ik2 = l and kaph indices, needed to locate block in s0
-                l2  = ltab2(io2)
-                ik2 = ktab2(io2)
-C           i2 = orbital index in iprmb order
-                i2 = offl2(io2)
-                do  ilm2 = l2**2+1, (l2+1)**2
-                  i2 = i2+1
-                  if (mode .eq. 0) then
-                    do  io1 = 1, norb1
-                      if (blks1(io1) .ne. 0) then
-C               l1,ik1 = l and kaph indices, needed to locate block in s0
-                        l1  = ltab1(io1)
-                        ik1 = ktab1(io1)
-C               i1 = orbital index in iprmb order
-                        i1 = offl1(io1)
-                        do  ilm1 = l1**2+1, (l1+1)**2
-                          i1 = i1+1
-c$$$#if MPI
-c$$$                          sbuf(i1,i2) = sbuf(i1,i2) + s0(ilm1,ilm2,0,ik1,ik2)
-c$$$                          hbuf(i1,i2) = hbuf(i1,i2) - s0(ilm1,ilm2,1,ik1,ik2)
-c$$$     .                    + vavg*s0(ilm1,ilm2,0,ik1,ik2)
-c$$$#else
-                          s(i1,i2) = s(i1,i2) + s0(ilm1,ilm2,0,ik1,ik2)
-                          h(i1,i2) = h(i1,i2) - s0(ilm1,ilm2,1,ik1,ik2)
-     .                    + vavg*s0(ilm1,ilm2,0,ik1,ik2)
-c#endif
+            is1=ssite(ib1)%spec
+            p1=ssite(ib1)%pos
+            call uspecb(is1,rsm1,e1)
+!     Row info telling smhsbl where to poke s0 made by hhibl
+            call orbl(ib1,0,nlmto,iprmb,norb1,ltab1,ktab1,xx,offl1,xx)
+            call gtbsl1(8+16,norb1,ltab1,ktab1,rsm1,e1,ntab1,blks1)
+            do  ib2 = ib1, nbas
+               is2=ssite(ib2)%spec
+               p2=ssite(ib2)%pos
+               call uspecb(is2,rsm2,e2)
+!     Column info telling smhsbl where to poke s0 made by hhibl
+               call orbl(ib2,0,nlmto,iprmb,norb2,ltab2,ktab2,xx,offl2,xx)
+               call gtbsl1(8+16,norb2,ltab2,ktab2,rsm2,e2,ntab2,blks2)
+!     ... M.E. <1> and <T> between all envelopes connecting ib1 and ib2
+               do  i1 = 1, nkaphh(is1) !nkap1
+                  do  i2 = 1, nkaphh(is2) !nkap2
+                     nlm1 = (lhh(i1,is1)+1)**2
+                     nlm2 = (lhh(i2,is2)+1)**2
+                     if (nlm1 .gt. nlms .or. nlm2 .gt. nlms)
+     .                    call rx('smhsbl: increase nlms')
+                     call hhibl ( 11 , p1 , p2 , q , rsm1 ( 1 , i1 ) , rsm2 ( 1 , 
+     .                    i2 ) , e1 ( 1 , i1 ) , e2 ( 1 , i2 ) , nlm1 , nlm2 , 1 , nlms
+     .                    , nlms , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy !, slat 
+     .                    , s0 ( 1 , 1 , 0 , i1 , i2 ) )
+                  enddo
+               enddo
+!     ... Loop over orbital indices, poke block of integrals into s,h
+               do  io2 = 1, norb2
+                  if (blks2(io2) .ne. 0) then
+C     l2,ik2 = l and kaph indices, needed to locate block in s0
+                     l2  = ltab2(io2)
+                     ik2 = ktab2(io2)
+C     i2 = orbital index in iprmb order
+                     i2 = offl2(io2)
+                     do  ilm2 = l2**2+1, (l2+1)**2
+                        i2 = i2+1
+c     if (mode .eq. 0) then
+                        do  io1 = 1, norb1
+                           if (blks1(io1) .ne. 0) then
+C     l1,ik1 = l and kaph indices, needed to locate block in s0
+                              l1  = ltab1(io1)
+                              ik1 = ktab1(io1)
+C     i1 = orbital index in iprmb order
+                              i1 = offl1(io1)
+                              do  ilm1 = l1**2+1, (l1+1)**2
+                                 i1 = i1+1
+                                 s(i1,i2) = s(i1,i2) + s0(ilm1,ilm2,0,ik1,ik2)
+                                 h(i1,i2) = h(i1,i2) - s0(ilm1,ilm2,1,ik1,ik2)
+     .                                + vavg*s0(ilm1,ilm2,0,ik1,ik2)
+                              enddo
+                           endif
                         enddo
-                      endif
-                    enddo
-                  else
-                    do  io1 = 1, norb1
-                      if (blks1(io1) .ne. 0) then
-C               l1,ik1 = l and kaph indices, needed to locate block in s0
-                        l1  = ltab1(io1)
-                        ik1 = ktab1(io1)
-C               i1 = orbital index in iprmb order
-                        i1 = offl1(io1)
-                        do  ilm1 = l1**2+1, (l1+1)**2
-                          i1 = i1+1
-c$$$#if MPI
-c$$$                          sbuf(i1,i2) = sbuf(i1,i2) + s0(ilm1,ilm2,0,ik1,ik2)
-c$$$#else
-                          s(i1,i2) = s(i1,i2) + s0(ilm1,ilm2,0,ik1,ik2)
-c#endif
-                        enddo
-                      endif
-                    enddo
+                     enddo
                   endif
-
-                enddo
-              endif
+               enddo
+C     ... end loop over ib2
             enddo
-C ... end loop over ib2
-          enddo
-
-C   ... Hsm (i1) \times PW (i2)  Takao. Similar logic in fsmbl
-CSFCPP#if F90
-          do  ig = 1, napw
-            i2 = ig + nlmto
-            qpg2 = qpg2v(ig)
-            phase = exp(srm1*alat*ddot(3,qpgv(1,ig),1,p1,1))
-C         phase = exp( srm1 * sum(qpgv(:,ig)*p1)*alat  )
-            do  io1 = 1, norb1
-              if (blks1(io1) == 0) cycle
-              l1  = ltab1(io1)
-              ik1 = ktab1(io1)
-              i1  = offl1(io1)
-              denom = e1(l1+1,ik1) - qpg2
-              gam   = 1d0/4d0*rsm1(l1+1,ik1)**2
-C           Note: fach depends on l.
-              fach  = -fpi/denom * phase * srm1l(l1) * exp(gam*denom)
-              do  ilm1 = l1**2+1, (l1+1)**2
-                i1 = i1+1
-C             <Hsm^bloch | exp(i q+G r)/srvol > and
-C             <Hsm^bloch | nabla + vavg |  exp(i q+G r)/srvol > in a cell.
-                ovl = fach * ylv(ig,ilm1)/srvol ! JMP Eq.(9.4)
-C             gradient of ovl
-C             ovl = srm1*qpgv(1,ig) * ovl
-c#if MPI
-c                sbuf(i1,i2) = sbuf(i1,i2) + ovl
-c                hbuf(i1,i2) = hbuf(i1,i2) + qpg2*ovl + vavg*ovl
-c#else
-                s(i1,i2) = s(i1,i2) + ovl
-                h(i1,i2) = h(i1,i2) + qpg2*ovl + vavg*ovl
-c#endif
-              enddo
+C     ... Hsm (i1) \times PW (i2)  Takao. Similar logic in fsmbl
+            do  ig = 1, napw
+               i2 = ig + nlmto
+               qpg2 = qpg2v(ig)
+               phase = exp(srm1*alat*ddot(3,qpgv(1,ig),1,p1,1))
+C     phase = exp( srm1 * sum(qpgv(:,ig)*p1)*alat  )
+               do  io1 = 1, norb1
+                  if (blks1(io1) == 0) cycle
+                  l1  = ltab1(io1)
+                  ik1 = ktab1(io1)
+                  i1  = offl1(io1)
+                  denom = e1(l1+1,ik1) - qpg2
+                  gam   = 1d0/4d0*rsm1(l1+1,ik1)**2
+C     Note: fach depends on l.
+                  fach  = -fpi/denom * phase * srm1l(l1) * exp(gam*denom)
+                  do  ilm1 = l1**2+1, (l1+1)**2
+                     i1 = i1+1
+C     <Hsm^bloch | exp(i q+G r)/srvol > and
+C     <Hsm^bloch | nabla + vavg |  exp(i q+G r)/srvol > in a cell.
+                     ovl = fach * ylv(ig,ilm1)/srvol ! JMP Eq.(9.4)
+C     gradient of ovl
+C     ovl = srm1*qpgv(1,ig) * ovl
+c     #if MPI
+c     sbuf(i1,i2) = sbuf(i1,i2) + ovl
+c     hbuf(i1,i2) = hbuf(i1,i2) + qpg2*ovl + vavg*ovl
+                     s(i1,i2) = s(i1,i2) + ovl
+                     h(i1,i2) = h(i1,i2) + qpg2*ovl + vavg*ovl
+                  enddo
+               enddo
             enddo
-          enddo
-CSFCPP#endif
-C ... end loop over ib1
-        enddo
-
-#if MPI
-        call MPI_BARRIER(MPI_COMM_WORLD,ierr)
-        if (mode .eq. 0) then
-c          call defcc(obuff, ndimh*ndimh)
-          allocate(w_obuff(ndimh*ndimh))
-          call MPI_ALLREDUCE(hbuf,w_obuff,2*ndimh*ndimh,
-     .    MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
-          if (mlog) then
-            call gettime(datim)
-            call awrit3(' smhsbl '//datim//' Process %i of %i on '
-     .      //shortname(procid)(1:namelen(procid))//
-     .      ' allreduce h ndimh=%i',' ',256,lgunit(3),
-     .      procid,numprocs,ndimh)
-          endif
-          call daxpy(2*ndimh*ndimh,1d0,w_obuff,1,h,1)
-        endif
-        call MPI_ALLREDUCE(sbuf,w_obuff,2*ndimh*ndimh,
-     .  MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
-        if (mlog) then
-          call gettime(datim)
-          call awrit3(' smhsbl '//datim//' Process %i of %i on '
-     .    //shortname(procid)(1:namelen(procid))//
-     .    ' allreduce s ndimh=%i',' ',256,lgunit(3),
-     .    procid,numprocs,ndimh)
-        endif
-        call daxpy(2*ndimh*ndimh,1d0,w_obuff,1,s,1)
-        deallocate(w_obuff)
-c        call rlse(obuff)
-        deallocate(index, stat=ierr)
-        deallocate(hbuf, stat=ierr)
-        deallocate(sbuf, stat=ierr)
-#endif
+C     ... end loop over ib1
+         enddo
       endif
-
-
-
+      
 C ... PW x PW part (diagonal matrix)
       do  ig = 1, napw
         i2 = ig + nlmto
         s(i2,i2) = s(i2,i2) + 1
         h(i2,i2) = h(i2,i2) + qpg2v(ig) + vavg
       enddo
-
-CSFCPP#if F90
       if (napw .gt. 0) then
         deallocate(yl,ylv,qpgv,qpg2v,srm1l)
       endif
-CSFCPP#endif
-
 C ... Occupy second half of matrix
-      if (mode .eq. 0) then
-        do  i1 = 1, ndimh
-          do  i2 = i1, ndimh
+      do  i1 = 1, ndimh
+         do  i2 = i1, ndimh
             h(i2,i1) = dconjg(h(i1,i2))
             s(i2,i1) = dconjg(s(i1,i2))
-          enddo
-        enddo
-      else
-        do  i1 = 1, ndimh
-          do  i2 = i1, ndimh
-            s(i2,i1) = dconjg(s(i1,i2))
-          enddo
-        enddo
-      endif
-
+         enddo
+      enddo
       call tcx('smhsbl')
-
-C      call zprm('h-warp',2,h,ndimh,ndimh,ndimh)
-C      call zprm('s-warp',2,s,ndimh,ndimh,ndimh)
       end subroutine smhsbl
 
 

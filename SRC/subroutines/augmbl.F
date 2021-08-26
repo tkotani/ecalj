@@ -1,4 +1,4 @@
-      subroutine augmbl ( mode , ssite , sspec ,  isp !, lcplxp  !slat ,
+      subroutine augmbl ( mode1 , ssite , sspec ,  isp !, lcplxp  !slat ,
      .   , q , sv_p_osig , sv_p_otau , sv_p_oppi , iprmb , ndimh , napw 
      .   , igapw , h , hso , s )
       use m_struc_def           
@@ -83,7 +83,7 @@ Cu   18 May 00 Adapted from nfp augm_q.f
 Cu   1998      (DLN) parallel version for SGI
 C ----------------------------------------------------------------------
       implicit none
-      integer:: mode , isp , ndimh , napw , igapw(3,napw), iprmb(ndimh),i_copy_size,numprocs !lcplxp , 
+      integer:: isp , ndimh , napw , igapw(3,napw), iprmb(ndimh),i_copy_size,numprocs !lcplxp , 
       type(s_rv1) :: sv_p_oppi(3,1)
       type(s_rv1) :: sv_p_otau(3,1)
       type(s_rv1) :: sv_p_osig(3,1)
@@ -103,8 +103,8 @@ C ----------------------------------------------------------------------
       complex(8):: zxx(1)
 C--------------------------
       call tcn ('augmbl')
-      mode0 = mod(mode,10)
-      mode1 = mod(mode/10,10)
+      mode0 = 0 ! mod(mode,10)
+c      mode1 = mod(mode/10,10)
       nlmto = ndimh-napw
       alat=lat_alat
       qlat=lat_qlat

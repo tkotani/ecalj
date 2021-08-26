@@ -28,7 +28,7 @@ Ci   ppihp :local head-tail potential matrix
 Ci   ppihpz:local head-tail potential matrix, complex form
 Ci         :NB: only ppihp or ppihpz is used, depending on lcplxp
 Ci   sighp :local head-tail overlap matrix
-Ci   lcplxp=1 only now: 0 if ppi is real; 1 if ppi is complex
+Ci   lcplxp=1 only now: ppi is complex
 Co Outputs
 Co   f     :local contribution to forces is added
 Cr Remarks
@@ -162,7 +162,7 @@ Ci   ppihp :local head-tail potential matrix
 Ci   ppihpz:local head-tail potential matrix, complex form
 Ci         :NB: only ppihp or ppihpz is used, depending on lcplxp
 Ci   sighp :local head-tail overlap matrix
-Ci   lcplxp=1 only now:0 if ppi is real; 1 if ppi is complex
+Ci   lcplxp=1 only now: ppi is complex
 Ci   cPkL  :PkL expansion eigenvector at site ia.
 Co Outputs
 Co   wk    :(ppi-evl*sig)*evec
