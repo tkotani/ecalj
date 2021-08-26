@@ -1,7 +1,6 @@
       module m_addrwf
       contains
-      subroutine addrwf(mode,z,l,v,ndg,n1,nr,rofi,rwgt,eadd,ev,fac,gadd,
-     .g,s)
+      subroutine addrwf(mode,z,l,v,ndg,n1,nr,rofi,rwgt,eadd,ev,fac,gadd, g,s)
 C- Add constant * radial wave function to another radial wave function
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -47,21 +46,16 @@ C ... Local parameters
       integer ir
       double precision cc,vi,fllp1,gf11,gf22,gf12,r,tmc
       common /cc/ cc
-
       fllp1 = l*(l+1)
       s = 0
       if (n1 .gt. 0 .and. n1 .lt. nr) rwgt(n1) = 2*rwgt(n1)
-
       if (mode .eq. 0) then
-
         do  ir = 2, nr
           r = rofi(ir)
-
           if (fac .ne. 0) then
             g(ir,1) = g(ir,1) + fac*gadd(ir,1)
             g(ir,2) = g(ir,2) + fac*gadd(ir,2)
           endif
-
 C       Rest of the loop computes overlap between new g and gadd
           vi = v(ir) - 2d0*z/r
           tmc = cc - (vi-ev)/cc
@@ -69,10 +63,8 @@ C       Rest of the loop computes overlap between new g and gadd
           tmc = cc - (vi-eadd)/cc
           gf22 = 1d0 + fllp1/(tmc*r)**2
           gf12 = (gf11 + gf22)/2
-
           s = s + rwgt(ir)*(gf12*g(ir,1)*gadd(ir,1) + g(ir,2)*gadd(ir,2))
         enddo
-
       else
         do  ir = 2, nr
           r = rofi(ir)
@@ -82,7 +74,6 @@ C       Rest of the loop computes overlap between new g and gadd
           s = s + rwgt(ir)*g(ir,1)*gadd(ir,1)
         enddo
       endif
-
       if (n1 .gt. 0 .and. n1 .lt. nr) rwgt(n1) = rwgt(n1)/2
       end subroutine addrwf
       end module m_addrwf
@@ -135,16 +126,13 @@ C ... Local parameters
       parameter (nrmx=1501)
       double precision det,au,bu,as,bs,fac,x,xx
       double precision gzbig(nrmx*2)
-
       k = l+1
       lpzi = 0
       if (pnz(k) .gt.  0) lpzi = 1
       if (pnz(k) .ge. 10) lpzi = 2
       if (pnz(k) .ge. 20) lpzi = 3
-
       if (lpzi .eq. 0) then
         return
-
       elseif (lpzi .eq. 1) then
         det = phi*dphip - dphi*phip
         au = dphip/det
@@ -153,27 +141,11 @@ C ... Local parameters
         bs = phi/det
         fac = phz*au + dphz*as
         x = 0
-#ifdef USEOPTIONAL
-        call addrwf(mode=1,l=l,ndg=nr,n1=0,nr=nr,rofi=rofi,rwgt=rwgt,fac=-fac,gadd=g0(1,2),g=gz(1,2),
-     .  s=xx)
+        call addrwf(mode=1,l=l,ndg=nr,n1=0,nr=nr,rofi=rofi,rwgt=rwgt,fac=-fac,gadd=g0(1,2),g=gz(1,2),s=xx)
         call addrwf(mode=1,l=l,ndg=nr,n1=0,nr=nr,rofi=rofi,rwgt=rwgt,fac=-fac,gadd=g0,g=gz,s=xx)
-#else
-        call addrwf(1,x,l,x,nr,0,nr,rofi,rwgt,x,x,-fac,g0(1,2),gz(1,2),
-     .  xx)
-        call addrwf(1,x,l,x,nr,0,nr,rofi,rwgt,x,x,-fac,g0,gz,xx)
-#endif
-
         fac = phz*bu + dphz*bs
-#ifdef USEOPTIONAL
-        call addrwf(mode=1,l=l,ndg=nr,n1=0,nr=nr,rofi=rofi,rwgt=rwgt,fac=-fac,gadd=g1(1,2),g=gz(1,2),
-     .  s=xx)
+        call addrwf(mode=1,l=l,ndg=nr,n1=0,nr=nr,rofi=rofi,rwgt=rwgt,fac=-fac,gadd=g1(1,2),g=gz(1,2),s=xx)
         call addrwf(mode=1,l=l,ndg=nr,n1=0,nr=nr,rofi=rofi,rwgt=rwgt,fac=-fac,gadd=g1,g=gz,s=xx)
-#else
-        call addrwf(1,x,l,x,nr,0,nr,rofi,rwgt,x,x,-fac,g1(1,2),gz(1,2),
-     .  xx)
-        call addrwf(1,x,l,x,nr,0,nr,rofi,rwgt,x,x,-fac,g1,gz,xx)
-#endif
-
       elseif (lpzi .eq. 2 .or. lpzi .eq. 3) then
         call dcopy(nr,gz,1,gzbig,1)
         call dcopy(nr,gz(1,2),1,gzbig(1+nr),1)
@@ -190,12 +162,9 @@ C       If rwftai scales gzbig, rescale phz,gz
           call dscal(nr,xx,gz(1,2),1)
         endif
       endif
-
-C     call prrmsh('local orbital',rofi,gz,nr,nr,2)
       end
-
-      subroutine ortrwf(mode,z,l,v,ng,n1,nr,rofi,rwgt,e0,e1,ez,g0,g1,gz,
-     .D)
+      
+      subroutine ortrwf(mode,z,l,v,ng,n1,nr,rofi,rwgt,e0,e1,ez,g0,g1,gz,D)
 C- Orthogonalize a radial wave function gz to a pair of other functions
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -247,10 +216,8 @@ C ... Passed parameters
 C ... Local parameters
       integer mode0,mode1
       double precision s00,s01,s11,s0z,s1z,szz,x,s01hat,s11hat,s1zhat
-
       mode0 = mod(mode,10)
       mode1 = mod(mode/10,10)
-
 C --- mode 2 : orthonormalize g0 and g1 ---
       if (mode0 .eq. 2) then
 C       <g0 g0>
@@ -265,13 +232,11 @@ C       <g1 g1>
         call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e1,e1,0d0,g1,g1,s11)
         call dscal(nr,1/sqrt(s11),g1(1,1),1)
         call dscal(nr,1/sqrt(s11),g1(1,2),1)
-
 C       Check
 C        call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,e0,0d0,g0,g0,s00)
 C        call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,e1,0d0,g0,g1,s01)
 C        call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e1,e1,0d0,g1,g1,s11)
         return
-
 C --- mode 3 : orthogonalize g1 to g0 ---
       elseif (mode0 .eq. 3) then
         call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,e0,0d0,g0,g0,s00)
@@ -284,55 +249,35 @@ C       Check
         call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e1,e1,0d0,g1,g1,s11)
         return
       endif
-
       call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,e0,0d0,g0,g0,s00)
       call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e1,e1,0d0,g1,g1,s11)
       call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,e1,0d0,g0,g1,s01)
       call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,ez,ez,0d0,gz,gz,szz)
       call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,ez,0d0,g0,gz,s0z)
       call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e1,ez,0d0,g1,gz,s1z)
-
 C --- mode 4 : orthogonalize g0 and g1 to gz ---
       if (mode0 .eq. 4) then
         call daxpy(nr,-s0z/szz,gz(1,1),1,g0(1,1),1)
         call daxpy(nr,-s0z/szz,gz(1,2),1,g0(1,2),1)
         call daxpy(nr,-s1z/szz,gz(1,1),1,g1(1,1),1)
         call daxpy(nr,-s1z/szz,gz(1,2),1,g1(1,2),1)
-
 C       Check
 C        call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e1,ez,0d0,g0,gz,s0z)
 C        call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e1,ez,0d0,g1,gz,s1z)
         return
       endif
-
-
       s01hat = s01/sqrt(s00)
       s11hat = s11 - s01hat**2
       s1zhat = s1z - s01*s0z/s00
-
 C     Scaling factor that normalizes the orthogonalized gz
 C     D = sqrt(szz - s0z**2/s00 - s1z**2/s11)
       D = sqrt(szz - s0z**2/s00 - s1zhat**2/s11hat)
-
       if (mode0 .eq. 0) return
-
 C     Orthogonalize
       call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,ez,-s0z/s00,g0,gz,x)
       call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,ez,-s1z/s11,g1,gz,x)
 C     Normalize
       call dscal(nr,1/D,gz(1,1),1)
       call dscal(nr,1/D,gz(1,2),1)
-
-C     check
-C     call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,ez,0d0,g0,gz,x)
-C     call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,ez,0d0,g1,gz,x)
-C     call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,ez,ez,0d0,gz,gz,x)
-C     print '('' Normalization of gz is now 1 + '',1pe10.3)', x-1
-C     pause
-
-C     check normalization from file
-C     mc -qr out.ext -e2 x1 'x2*x2' -av:nr,1 rmax -int 0 rmax
-C     call prrmsh('gz',rofi,gz,nr,nr,1)
-
       end
 

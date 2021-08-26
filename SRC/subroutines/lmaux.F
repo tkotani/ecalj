@@ -560,7 +560,6 @@ C     ----------------------------------------------------------------------
       enddo
       nsp = 1
       end
-c     #define ONE_ATOM_UNIT 1
       
       subroutine aiocls(lio,mode,sspec,ic1,ic2) !sctrl,sham,,slat spot,sarray,
       use m_clsprm,only: iv_a_oipqx,

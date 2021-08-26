@@ -33,9 +33,6 @@
       real(8),allocatable:: rnorm(:)
       integer:: noutmx
       integer:: nlatout(3,noutmx)
-c     real(8):: rlatp(3,3),xmx2(3)
-      
-      
       rmax2 = sum(pin*matmul(rlatp,pin)) + eps  ! eps is to make degeneracy safe.
       nrmax(:) =  sqrt(rmax2*xmx2(:))+abs(pin(:)) ! range of ix
       nmax =  nrmax
@@ -95,25 +92,8 @@ C we are looking for shortest vectors
 !!o xmx2(i)  Maximum of x_i**2
 !!==========================================
       implicit none
-#define NOTARGET
-#ifdef NOTARGET
-      real(8):: nn(3,3)
-#else
       real(8),target:: nn(3,3)
-#endif
       real(8):: v2(2),ainv(2,2), rmax2, xmx2(3),det,fac,nv2(2)
-#ifdef NOTARGET
-      real(8)::n11,n12,n13,n21,n22,n23,n31,n32,n33
-      n11=nn(1,1)
-      n12=nn(1,2)
-      n13=nn(1,3)
-      n21=nn(2,1)
-      n22=nn(2,2)
-      n23=nn(2,3)
-      n31=nn(3,1)
-      n32=nn(3,2)
-      n33=nn(3,3)
-#else
       real(8),pointer::n11,n12,n13,n21,n22,n23,n31,n32,n33
       n11=>nn(1,1)
       n12=>nn(1,2)
@@ -124,9 +104,6 @@ C we are looking for shortest vectors
       n31=>nn(3,1)
       n32=>nn(3,2)
       n33=>nn(3,3)
-#endif
-      !print *,'nn=',nn
-c
       det= n22*n33-n23*n32
       ainv(1,1)=  n33/det
       ainv(2,2)=  n22/det
@@ -158,9 +135,7 @@ c
       end subroutine
       end module
 
-
-
-#undef NOTARGET
+      
       subroutine shorbz(p,pout,plat,qlat)
 C- Shortens vector to equivalent in first Brillouin zone.
 C ----------------------------------------------------------------

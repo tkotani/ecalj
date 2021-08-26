@@ -1,10 +1,7 @@
-#define USEOPTIONAL 1
       module m_pvioeu
       contains
       subroutine pvioeu(mode,ssite,eula,nbas,neul)
-
-      use m_struc_def  !Cgetarg
-
+      use m_struc_def  
 C- Writes the Euler angles to a file or to stdout
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -32,26 +29,17 @@ C     implicit none
 C ... Passed parameters
       integer mode,nbas,neul
       real(8):: eula(nbas,neul,3)
-#ifdef USEOPTIONAL
       type(s_site),optional::ssite(*)
-#else
-      type(s_site)::ssite(*)
-#endif
-
 C ... Local parameters
       integer i,j,k,lgunit,stdo,mode0,mode1,lbl
       double precision rotm(3,3)
       character*72 outs, clabl*8
       character*255:: formatc(344:346),lbll
-
       mode0 = mod(mode,10)
       mode1 = mod(mode/10,10)
       stdo = lgunit(1)
       clabl = ' '
       if (mode0 .ne. 0) then
-c        assign 344 to lbl
-c        if (mode1 .ne. 0) assign 345 to lbl
-c        if (mode1 .eq. 0 .and. mode0 .ne. 0) assign 346 to lbl
         lbl=344
         if (mode1 .ne. 0) lbl=345
         if (mode1 .eq. 0 .and. mode0 .ne. 0) lbl=346
@@ -103,7 +91,6 @@ c        endif
       end module m_pvioeu
 
       subroutine ioeula(nbas,nl,eula,neul,xsi,ifi)
-
 C- I/O of Euler angles
 C ----------------------------------------------------------------
 Ci Inputs
@@ -226,11 +213,7 @@ C   ... Read the data, 1 atom at a time ...
      .      'ioeula:  bad file')
             call dmcpy(tmp,neul,1,eula(i,1,1),nbas*neul,nbas,neul,nc)
    20     continue
-#ifdef USEOPTIONAL
           if (ipr .ge. 50) call pvioeu(mode=1,eula=eula,nbas=nbas,neul=neul)
-#else
-          if (ipr .ge. 50) call pvioeu(1,0d0,eula,nbas,neul)
-#endif
         endif
       endif
       end subroutine ioeula

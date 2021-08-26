@@ -1,6 +1,3 @@
-
-#define USEOPTIONAL
-
       module m_xxsho
       contains
       subroutine xxsho(npr,nbas,plat,bas,iax,ipc,dclabl,nlstc,lstc,lves,
@@ -10,12 +7,8 @@ C- Kernel called by shoshl
 C  nlstc,lstc:  a list of classes to include as pairs (nlstc>0)
 C     implicit none
       logical lves,leul
-#ifdef USEOPTIONAL
       integer npr,nbas,niax,ipc(*),nlstc
       integer,optional::lstc(nlstc)
-#else
-      integer npr,nbas,niax,ipc(*),nlstc,lstc(nlstc)
-#endif
       parameter (niax=10)
       integer iax(niax,*)
       double precision plat(3,3),bas(3,*),ves(*),eula(nbas,3),z(32)
@@ -435,11 +428,6 @@ C ... Local parameters
 
       parameter (niax=10)
       character dc*1
-C ... Heap
-c      integer w(1)
-c      common /w/ w
-C ... External calls
-ckino defdr,defi,rlse
       external nghbor,nwordg,pvang1,pvang2,rxs
 
 C ... Setup

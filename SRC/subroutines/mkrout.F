@@ -2,7 +2,8 @@
       use m_struc_def
       use m_uspecb,only:uspecb
       use m_lmfinit,only:nkapii,lhh
-      public:: orhoat_out, frcbandsym, qbyl_rv,hbyl_rv, m_mkrout_init,sumec,sumtc,sumt0
+      
+      public:: m_Mkrout_init, orhoat_out, frcbandsym, qbyl_rv,hbyl_rv, sumec,sumtc,sumt0
       
       type(s_rv1),protected,allocatable :: orhoat_out(:,:)
       real(8),allocatable,protected::  frcbandsym(:,:), hbyl_rv(:,:,:), qbyl_rv(:,:,:)
@@ -252,8 +253,6 @@ C   ... Site charge and eigenvalue sum decomposed by l
 !!This is because above codes to give hbyl is wrong. So, we need to go though anothe pass with lekkl=1
 !! (OPTION_PFLOAT=1). In future, code above to generate hbyl will be removed.
 ckino Jan.04.2012:           rv_p_oqhh => sv_p_oeqkkl(3,ib)%v
-c #define OQHH sv_p_oeqkkl(3,ib)%v,  #define OQHP sv_p_oeqkkl(2,ib)%v,
-c #define OQPP sv_p_oeqkkl(1,ib)%v
           if(lekkl .ne. 0) then
             nlml1 = 1
             call dpzero( dmatl_rv , ( lmxa + 1 ) * * 2 * nlml1 * nsp * 9 )

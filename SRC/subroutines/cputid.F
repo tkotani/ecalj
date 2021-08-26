@@ -1,22 +1,3 @@
-c Time routines -------------------------------------------------------------
-c This dummy time routine
-#ifdef ETIME_DUMMY
-      real*4 function etime(ar)
-      real*4 ar(2)
-      ar = 0.0
-      end
-#endif
-c
-c       subroutine fdate(s)
-c       character(*) s
-c       s = ' '
-c       end
-c----------------------------------------------------------------------------
-
-
-
-
-
 c----------------------------------------------------------------------
       double precision function cpumin(ifile,cpu0)
       implicit real*8(a-h,o-z)
@@ -50,7 +31,6 @@ c     cpusec   = mclock()/100.d0 - cpu0
 c     return
 c     end
 c----------------------------------------------------------------------
-#define REALTIME
       subroutine cputid(ifile)
       implicit none
       include 'mpif.h'
@@ -66,14 +46,11 @@ c ifile = 0 ==> screen (id=6)
       character*(*):: message
       real(4):: cpusec,cpumax,cpumin
       integer:: ierr,rank ,ifile
-#ifdef REALTIME
       logical,save::firsttime=.true.
       integer,save::i1
       integer:: i2,irate,imax
       real(4)::diff
-#endif
       if(ifile .lt. 0)call rx( 'cputid: negative unit number')
-#ifdef REALTIME
       if (firsttime) then 
          call system_clock(i1)
          firsttime=.false.
@@ -87,12 +64,6 @@ c ifile = 0 ==> screen (id=6)
          cpusec=diff
          cpumin=cpusec/60.d0
       endif
-#else
-      cpuetime = etime(etw)
-      if (cpu0 .lt. 0.d0) cpu0 = cpuetime
-      cpusec   = cpuetime - cpu0
-      cpumin   = cpusec/60.d0
-#endif
       if(ifile .eq. 0)then
         write(6,6400)cpusec,cpumin
       else
@@ -103,7 +74,6 @@ c ifile = 0 ==> screen (id=6)
 !!
       entry cputid2(message,ifile)
       if(ifile .lt. 0)call rx( 'cputid: negative unit number')
-#ifdef REALTIME
       if (firsttime) then 
          call system_clock(i1)
          firsttime=.false.
@@ -117,12 +87,6 @@ c ifile = 0 ==> screen (id=6)
          cpusec=diff
          cpumin=cpusec/60.d0
       endif
-#else
-      cpuetime = etime(etw)
-      if (cpu0 .lt. 0.d0) cpu0 = cpuetime
-      cpusec   = cpuetime - cpu0
-      cpumin   = cpusec/60.d0
-#endif
       if(ifile .eq. 0)then
         write(6,6401)trim(message),cpusec,cpumin
       else
@@ -183,8 +147,6 @@ c ifile = 0 ==> screen (id=6)
       real(8):: diff
       integer:: i2,imax
       character(20):: errmsg
-#define USEMPIWTIME 
-#ifdef USEMPIWTIME
       real(8):: mpi_wtime
 
       if (id<=0 .or. id>nmax) then 
@@ -203,19 +165,6 @@ c ifile = 0 ==> screen (id=6)
         msg(id)=msg0
         elapse(id)=elapse(id)+diff-start(id)
       endif
-#else
-      if (mode.eq.0) then 
-        call system_clock(i1(id))
-      else
-        msg(id)=msg0
-        call system_clock(i2,irate,imax)
-        diff = i2-i1(id)
-        if (i1(id)>i2) diff=imax-i1(id)+i2
-        diff= dble(i2-i1(id))/dble(irate)  ! real time
-       ! write(6,*)'mpi=',str_rank,trim(msg),diff
-        elapse(id)=elapse(id)+diff  
-      endif 
-#endif
 
       end subroutine realtimediff
 

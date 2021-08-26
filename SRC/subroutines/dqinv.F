@@ -1,9 +1,4 @@
-CSFCPP#define F90 1
-CSFCPP#ifndef F90
-CSFCPP      subroutine dqinv(cs,a,lda,nlev,n,w,ldw,ierr)
-CSFCPP#else
       recursive subroutine dqinv(cs,a,lda,nlev,n,w,ldw,ierr)
-CSFCPP#endif
 C- Inversion of a real matrix using Strassen's algorithm
 C ----------------------------------------------------------------
 Ci Inputs:
@@ -39,18 +34,9 @@ C     implicit none
       character*1 cs
       integer nmin,m1,m2,i,j,isw,nmin0
       save nmin
-#if DEBUG
-      character*10 fmt
-      data fmt /'(8f16.10)'/
-#endif
       data nmin /32/
-
-#if DEBUG
-      print *, 'entering dqinv cs=',cs,' nlev,n=',nlev,n
-#endif
       m1 = n/2
       m2 = n-m1
-
 C --- Straight dgefa,di if n lt nmin ---
       if (n .le. nmin) then
         if (cs .ne. 's' .or. n .le. 2) then
@@ -73,13 +59,9 @@ C --- Straight dgefa,di if n lt nmin ---
         endif
         return
       endif
-
       if (lda .lt. n) call rx('dqinv: lda lt n')
-
 C --- R1 = a11^-1 in a11 ---
-CSFCPP#if RECUR | F90
       if (m1 .lt. nmin .or. nlev .eq. 0) then
-CSFCPP#endif
         if (cs .eq. 's') then
           call dsifa(a,lda,m1,w,ierr)
           if (ierr .ne. 0) return
@@ -89,58 +71,31 @@ CSFCPP#endif
                a(i,j) = a(j,i)
             enddo
           enddo
-         
         else
           call dgefa(a,lda,m1,w,ierr)
           if (ierr .ne. 0) return
           call dgedi(a,lda,m1,w,xx,w(1,2),1)
         endif
-CSFCPP#if RECUR | F90
       else
-#if DEBUG
-        print *, 'recursive call to dqinv n,m1,m2=',n,m1,m2
-#endif
-#if AIX | SUN_ULTRA 
-        call dqinv(cs,a,lda,nlev-1,(m1),w,ldw,ierr)
-        m1 = n/2
-        m2 = n-m1
-#else
         call dqinv(cs,a,lda,nlev-1,m1,w,ldw,ierr)
-#endif
-#if DEBUG
-        print *, 'recursive call exit dqinv n,m1,m2=',n,m1,m2
-#endif
         if (ierr .ne. 0) return
       endif
-CSFCPP#endif
-*     call ywrm(0,'R1',1,6,fmt,a,1,lda,m1,m1)
-
 C --- R3 = R1 a12 in w  ---
-      call dgemm('N','N',m1,m2,m1,1d0,a,lda,a(1,1+m1),lda,0d0,
-     .w,ldw)
-*     call ywrm(0,'R3',1,6,fmt,w,1,ldw,m1,m2)
-
+      call dgemm('N','N',m1,m2,m1,1d0,a,lda,a(1,1+m1),lda,0d0, w,ldw)
 C --- R4 = a21 R3 = a21 a11^-1 a12 in w21  ---
       if (cs .eq. 's') then
         call dsmpy(m2,m1,a(1+m1,1),lda,w,ldw,0d0,w(1+m1,1),ldw)
       else
-        call dgemm('N','N',m2,m2,m1,1d0,a(1+m1,1),lda,w,ldw,
-     .  0d0,w(1+m1,1),ldw)
+        call dgemm('N','N',m2,m2,m1,1d0,a(1+m1,1),lda,w,ldw, 0d0,w(1+m1,1),ldw)
       endif
-*     call ywrm(0,'R4',1,6,fmt,w(1+m1,1),1,ldw,m2,m2)
-
 C --- -R5 = a22 - R4 = a22 - a21 a11^-1 a12 in a22 ---
       do    j = 1, m2
         do  i = 1, m2
            a(i+m1,j+m1) = a(i+m1,j+m1) - w(i+m1,j)
         enddo
       enddo
-*     call ywrm(0,'-R5',1,6,fmt,a(1+m1,1+m1),1,lda,m2,m2)
-
 C --- c22 = -R6 = -R5^-1 = (a22 - a21 a11^-1 a12)^-1 in a22 ---
-CSFCPP#if RECUR | F90
       if (m2 .lt. nmin .or. nlev .eq. 0) then
-CSFCPP#endif
         if (cs .eq. 's') then
           call dsifa(a(1+m1,1+m1),lda,m2,w(1+m1,1),ierr)
           if (ierr .ne. 0) return
@@ -155,31 +110,12 @@ CSFCPP#endif
           if (ierr .ne. 0) return
           call dgedi(a(1+m1,1+m1),lda,m2,w(1+m1,1),xx,w(1+m1,2),1)
         endif
-CSFCPP#if RECUR | F90
       else
-#if DEBUG
-        print *, 'recursive call to dqinv n,m1,m2=',n,m1,m2
-#endif
-#if AIX | SUN_ULTRA 
-        call dqinv(cs,a(1+m1,1+m1),lda,nlev-1,(m2),w(1+m1,1),ldw,ierr)
-        m1 = n/2
-        m2 = n-m1
-#else
         call dqinv(cs,a(1+m1,1+m1),lda,nlev-1,m2,w(1+m1,1),ldw,ierr)
-#endif
-#if DEBUG
-        print *, 'recursive call exit dqinv n,m1,m2=',n,m1,m2
-#endif
         if (ierr .ne. 0) return
       endif
-CSFCPP#endif
-*     call ywrm(0,'-R6',1,6,fmt,a(1+m1,1+m1),1,lda,m2,m2)
-
 C --- c12 = R3 * R6 = -a11^-1 a12 c22 in a12 ---
-      call dgemm('N','N',m1,m2,m2,-1d0,w,ldw,a(1+m1,1+m1),lda,
-     .0d0,a(1,1+m1),lda)
-*     call ywrm(0,'c12',1,6,fmt,a(1,1+m1),1,lda,m1,m2)
-
+      call dgemm('N','N',m1,m2,m2,-1d0,w,ldw,a(1+m1,1+m1),lda,0d0,a(1,1+m1),lda)
 C --- Symmetric case: R2 = R3+ and c21=c12+ ---
       if (cs .eq. 's') then
         do    j = 1, m1
@@ -187,45 +123,23 @@ C --- Symmetric case: R2 = R3+ and c21=c12+ ---
              a(i+m1,j) = a(j,i+m1)
           enddo
         enddo
-
 C   ... a11 -= R3 * R6 * R2 = R3 * c21
-        call dgemm('N','N',m1,m1,m2,-1d0,w,ldw,
-     .  a(1+m1,1),lda,1d0,a,lda)
-
+        call dgemm('N','N',m1,m1,m2,-1d0,w,ldw, a(1+m1,1),lda,1d0,a,lda)
 C --- Nonsymmetric case ---
       else
-
 C   --- R2 = a21 * R1 in w(2,1) ---
-        call dgemm('N','N',m2,m1,m1,1d0,a(1+m1,1),lda,a,lda,0d0,
-     .  w(1+m1,1),ldw)
-*       call ywrm(0,'R2',1,6,fmt,w(1+m1,1),1,ldw,m2,m1)
-
+        call dgemm('N','N',m2,m1,m1,1d0,a(1+m1,1),lda,a,lda,0d0, w(1+m1,1),ldw)
 C   --- c21 = R6 * R2 = -c22 a21 a11^-1 ---
-        call dgemm('N','N',m2,m1,m2,-1d0,a(1+m1,1+m1),lda,
-     .  w(1+m1,1),ldw,0d0,a(1+m1,1),lda)
-*       call ywrm(0,'c21',1,6,fmt,a(1+m1,1),1,lda,m2,m1)
-
+        call dgemm('N','N',m2,m1,m2,-1d0,a(1+m1,1+m1),lda,w(1+m1,1),ldw,0d0,a(1+m1,1),lda)
 C   --- c11 = R1 - R3 * R6 * R2 = a11^-1 - c12 * R2 ---
-        call dgemm('N','N',m1,m1,m2,-1d0,a(1,1+m1),lda,
-     .  w(1+m1,1),ldw,1d0,a,lda)
-*       call ywrm(0,'c11',1,6,fmt,a,1,lda,m1,m1)
+        call dgemm('N','N',m1,m1,m2,-1d0,a(1,1+m1),lda, w(1+m1,1),ldw,1d0,a,lda)
       endif
-
-
-#if DEBUG
-      call yprm(.false.,'a^-1',1,6,fmt,ar,lda,n,lda,n)
-      print *, 'exiting dqinv',n,m1,m2
-#endif
-
       return
-
       entry dqinv0(nmin0,isw)
       if (isw .gt. 0) then
         nmin = nmin0
       else
         nmin0 = nmin
       endif
-
-
       end
 

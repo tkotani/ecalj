@@ -1,4 +1,3 @@
-#define USEOPTIONAL
       module m_sigflg
       contains
       subroutine sigflg(dc,sio,strn,ledit,lwsig,lrot,lfbz,lnwmsh,lonesp,
@@ -50,18 +49,12 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       character dc*1,sio*(4)
-#ifdef USEOPTIONAL
       character strn*(*)
       character,optional::rots*(*)
       integer,optional:: ledit,lwsig,lrot
       integer::lonesp
       logical lfbz
       logical,optional::lnwmsh
-#else
-      character strn*(*),rots*(*)
-      integer ledit,lwsig,lrot,lonesp
-      logical lfbz,lnwmsh
-#endif
       double precision qpoff(3)
 C ... Local parameters
       integer parg

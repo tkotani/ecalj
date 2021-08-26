@@ -31,15 +31,9 @@ C ----------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nl,nsp,lmx,ncmx,nvmx,kcor,lcor
-#define USEOPTIONAL
-#ifdef USEOPTIONAL
       double precision pnu(nl,nsp),qnu(3,nl,nsp),qcor(2),
      .qc,qt,dq,z
       real(8),optional:: ec(*),ev(*)
-#else
-      double precision pnu(nl,nsp),qnu(3,nl,nsp),qcor(2),
-     .qc,qt,dq,z,ec(*),ev(*)
-#endif
 C ... Local parameters
       integer l,k,konf,konfig,konfg(0:10),isp,lmaxc,ncore,nval
       integer iprint
@@ -142,13 +136,8 @@ C ... Local parameters
           is = ics(ic)
           call gtpcor(sspec,is,kcor,lcor,qcor)
         endif
-#ifdef USEOPTIONAL
         call getqvc(nsp,nl,lmx(ic),z(ic),pnu(1,1,ic),qnu(1,1,1,ic),0,0,
      .  kcor,lcor,qcor,qc(ic),qt(ic),dq(ic))
-#else
-        call getqvc(nsp,nl,lmx(ic),z(ic),pnu(1,1,ic),qnu(1,1,1,ic),0,0,
-     .  kcor,lcor,qcor,qc(ic),qt(ic),dq(ic),0d0,0d0)
-#endif
       enddo
 
       end

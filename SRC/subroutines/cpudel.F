@@ -42,7 +42,6 @@ C      if (unit .ge. 0 .and. tnew .gt. 0d0)
 C     .  write(unit,333) strn,delt,tnew,timeu
   333 format(' cpudel',a25,'  time(s):',g10.3,'  total:',f8.3,a1)
       end
-#if 1
       double precision function cpusec()
       implicit none
       logical,save::firsttime=.true.
@@ -64,25 +63,3 @@ C     .  write(unit,333) strn,delt,tnew,timeu
         ! cpumin=cpusec/60.d0
       endif
       end function cpusec
-#else
-      double precision function cpusec()
-C- process cputime, in seconds
-C ----------------------------------------------------------------------
-Ci Inputs:
-Ci   none
-Co Outputs:
-Co   returns cpu time, in seconds
-Cr  Remarks
-Cr    On the Apollo: time (in 4 microsecond units) is
-Cr    (time(1)*65536 + time(2))*65536 + time(3)
-C ----------------------------------------------------------------------
-      implicit real*8(a-h,o-z)
-      real*4 cpuetime, etw(2), etime
-      data cpu0 /-1.d0/
-      save cpu0
-      cpuetime = etime(etw)
-      if (cpu0 .lt. 0.d0) cpu0 = cpuetime
-      cpusec   = cpuetime - cpu0
-      cpumin   = cpusec/60.d0
-      end
-#endif
