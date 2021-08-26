@@ -151,7 +151,7 @@ c      enddo
 !!
       subroutine rlocbl ( ssite , sspec , lfrce , nbas , isp  ! slat ,
      .     , q , ndham , ndimh , nspc , napw , igvapw , iprmb , nevec 
-     .     , evec , ewgt , evl , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp 
+     .     , evec , ewgt , evl , sv_p_osig , sv_p_otau , sv_p_oppi !, lcplxp 
      .     , lekkl , sv_p_oqkkl , sv_p_oeqkkl , f )
       use m_struc_def,only: s_site,s_spec,s_rv1
       use m_prlcb,only:   prlcb2,prlcb3
@@ -190,7 +190,7 @@ Ci   evl   :eigenvalues
 Ci   osig  :overlap matrix of P_kL
 Ci   otau  :kinetic energy matrix of P_kL (not used here)
 Ci   oppi  :potential matrix of P_kL
-Ci   lcplxp:0 if ppi is real; 1 if ppi is complex
+Ci   lcplxp=1 only now  :0 if ppi is real; 1 if ppi is complex
 Ci   lekkl :0 do not accumulate oeqkkl; 1 do accumulate oeqkkl
 Co Outputs
 Co   oqkkl :local density-matrix; see Remarks
@@ -241,7 +241,7 @@ Cu   17 Jun 00 spin polarized
 Cu   25 May 00 Adapted from nfp rloc_q.f
 C ----------------------------------------------------------------------
       implicit none
-      integer lfrce,nbas,isp,ndimh,nspc,nevec,lcplxp,lekkl,
+      integer lfrce,nbas,isp,ndimh,nspc,nevec,lekkl, !lcplxp,
      .iprmb(1),ndham,napw,igvapw(3,napw)
       type(s_rv1),target:: sv_p_oppi(3,1), sv_p_otau(3,1), sv_p_osig(3,1),
      &                     sv_p_oeqkkl(3,1), sv_p_oqkkl(3,1)
@@ -343,7 +343,7 @@ C       whereas ispc is spin index in the noncoll case, but 1 for coll.
      .            , lmxa , nlmto , ndimh , iprmb , ksp , evl ( ivec , isp ) , evec 
      .            ( 1 , ispc , ivec ) , ewgt (ivec ) ,  cpkl , w_odb
      .            , da , wk , OPPIPP , OPPIPP , OSIGPP , OPPIHP
-     .            , OPPIHP , OSIGHP , lcplxp , w_oxf )
+     .            , OPPIHP , OSIGHP  , w_oxf ) !, lcplxp
             endif
         enddo
         enddo

@@ -1,11 +1,11 @@
       subroutine dfaugm ( sv_p_osig, sv_p_otau , sv_p_oppi )
       use m_struc_def,only:s_rv1
-      use m_lmfinit,only: nkaph,nsp,nspc,nbas,lso,lcplxp,ssite=>v_ssite,sspec=>v_sspec
+      use m_lmfinit,only: nkaph,nsp,nspc,nbas,lso,ssite=>v_ssite,sspec=>v_sspec !lcplxp,
 C- Allocate augmentation matrices sigma,tau,pi for all atoms
 C ----------------------------------------------------------------------
 Ci Inputs
 Ci   nbas  :size of basis
-Ci   lcplxp:if nonzero allocate space for complex ppi
+Ci   lcplxp=1 only :if nonzero allocate space for complex ppi
 Ci   lso   :flag for SO coupling
 Ci   ssite :struct for site-specific information; see routine usite
 Ci   sspec :struct for species-specific information; see routine uspec
@@ -60,32 +60,32 @@ C   ... Case Pkl*Pkl
         nelt2 = (kmax+1)*(kmax+1)*nlma*nlma*nsp*nspc*nso
         allocate(sv_p_osig(1,ib)%v(abs(nelt1)))
         allocate(sv_p_otau(1,ib)%v(abs(nelt1)))
-        if (lcplxp .eq. 0) then
-          allocate(sv_p_oppi(1,ib)%v(abs(nelt2)))
-        else
-          allocate(sv_p_oppi(1,ib)%v(abs(nelt2*2)))
-        endif
+c        if (lcplxp .eq. 0) then
+c          allocate(sv_p_oppi(1,ib)%v(abs(nelt2)))
+c        else
+          allocate(sv_p_oppi(1,ib)%v(nelt2*2))
+c        endif
 C   ... Case Hsm*Hsm
         nelt1 = nkaph*nkaph*(lmxh+1)*nsp
         nelt2 = nkaph*nkaph*nlmh*nlmh*nsp*nspc*nso
         allocate(sv_p_osig(3,ib)%v(abs(nelt1)))
         allocate(sv_p_otau(3,ib)%v(abs(nelt1)))
-        if (lcplxp .eq. 0) then
-          allocate(sv_p_oppi(3,ib)%v(abs(nelt2)))
-        else
-          allocate(sv_p_oppi(3,ib)%v(abs(nelt2*2)))
-        endif
+c        if (lcplxp .eq. 0) then
+c          allocate(sv_p_oppi(3,ib)%v(abs(nelt2)))
+c        else
+          allocate(sv_p_oppi(3,ib)%v(nelt2*2))
+c        endif
 C   ...  Case Hsm*Pkl
         if (lmxh.gt.lmxa) call rx('dfaugm: lmxh.gt.lmxa unexpected')
         nelt1 = nkaph*(kmax+1)*(lmxh+1)*nsp
         nelt2 = nkaph*(kmax+1)*nlmh*nlma*nsp*nspc*nso
         allocate(sv_p_osig(2,ib)%v(abs(nelt1)))
         allocate(sv_p_otau(2,ib)%v(abs(nelt1)))
-        if (lcplxp .eq. 0) then
-          allocate(sv_p_oppi(2,ib)%v(abs(nelt2)))
-        else
-          allocate(sv_p_oppi(2,ib)%v(abs(nelt2*2)))
-        endif
+c        if (lcplxp .eq. 0) then
+c          allocate(sv_p_oppi(2,ib)%v(abs(nelt2)))
+c        else
+          allocate(sv_p_oppi(2,ib)%v(nelt2*2))
+c        endif
    10   continue
       enddo
       end subroutine dfaugm

@@ -1,7 +1,7 @@
       subroutine augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax 
      .   , nlml , a , nr , nsp , lso , rofi , rwgt , cg , jcg , indxcg 
      .   , v0 , v1 , v2 , gpotb , gpot0 , nkaph , nkapi , lmxh , lh , 
-     .   eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp , lmaxu , vorb , 
+     .   eh , rsmh , ehl , rsml , rs3 , vmtz ,  lmaxu , vorb ,  !lcplxp ,
      .   lldau , iblu , idu , sv_p_osig , sv_p_otau , sv_p_oppi , ppnl 
      .   , hab , vab , sab )
       use m_struc_def, only: s_rv1
@@ -307,7 +307,7 @@ Cu   17 May 00 Adapted from nfp augmats.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer lmxa,kmax,nlml,nr,nsp,nkaph,nkapi,lmxh,lso,lcplxp
+      integer lmxa,kmax,nlml,nr,nsp,nkaph,nkapi,lmxh,lso!,lcplxp
       integer n0,nkap0,nppn,nab
       integer lmaxu,lldau,iblu,idu(4)
       double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
@@ -396,7 +396,7 @@ C     at this site and store in vumm
 C --- Augmentation matrices for cases P*P, H*H, H*P ---
 
 C ... Hsm*Hsm
-      call gaugm ( nr , nsp , lso , lcplxp , rofi , rwgt , lmxa , lmxl 
+      call gaugm ( nr , nsp , lso ,  rofi , rwgt , lmxa , lmxl !lcplxp ,
      .   , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , 
      .   vum , cg , jcg , indxcg , nkaph , nkapi , lmxh , lh , fh , xh 
      .   , vh , dh , nkaph , nkapi , lmxh , lh , fh , xh , vh , dh , lmxh 
@@ -407,7 +407,7 @@ C ... Hsm*Hsm
 
 
 C ... Pkl*Pkl
-      call gaugm ( nr , nsp , lso , lcplxp , rofi , rwgt , lmxa , lmxl 
+      call gaugm ( nr , nsp , lso , rofi , rwgt , lmxa , lmxl !lcplxp , 
      .   , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , 
      .   vum , cg , jcg , indxcg , kmax + 1 , kmax + 1 , lmxa , lxa , 
      .   fp , xp , vp , dp , kmax + 1 , kmax + 1 , lmxa , lxa , fp , xp 
@@ -418,7 +418,7 @@ C ... Pkl*Pkl
 
 
 C ... Hsm*Pkl
-      call gaugm ( nr , nsp , lso , lcplxp , rofi , rwgt , lmxa , lmxl 
+      call gaugm ( nr , nsp , lso ,  rofi , rwgt , lmxa , lmxl !lcplxp ,
      .   , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , 
      .   vum , cg , jcg , indxcg , nkaph , nkapi , lmxh , lh , fh , xh 
      .   , vh , dh , kmax + 1 , kmax + 1 , lmxa , lxa , fp , xp , vp , 

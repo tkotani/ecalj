@@ -1,6 +1,6 @@
       subroutine mkekin(sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,smpot,smrho,sumev, sumtv)
       use m_struc_def  
-      use m_lmfinit,only:lso,nkaph,nsp,nspc,stdo,nbas,ssite=>v_ssite,sspec=>v_sspec,lcplxp,ham_ldham,iprmb
+      use m_lmfinit,only:lso,nkaph,nsp,nspc,stdo,nbas,ssite=>v_ssite,sspec=>v_sspec,ham_ldham,iprmb !lcplxp,
       use m_lattic,only: lat_vol
       use m_supot,only: lat_nabc,k1,k2,k3
 C- Evaluate the valence kinetic energy
@@ -24,7 +24,7 @@ Ci   sham  :struct for parameters defining hamiltonian; see routine uham
 Ci     Elts read: oindxo
 Ci     Stored:    *
 Ci     Passed to: lgors
-Ci   lcplxp:0 if ppi is real; 1 if ppi is complex
+Ci   lcplxp=1 only now: 0 if ppi is real; 1 if ppi is complex
 Ci   osig  :augmentation overlap integrals
 Ci   otau  :augmentation kinetic energy integrals
 Ci   oppi  :augmentation kinetic + potential integrals
@@ -208,7 +208,7 @@ C       Block into groups of consecutive l
         call pvgtkn ( kmax , lmxa , nlma , nkaph , norb , ltab , ktab
      .              , blks , lmxh , nlmh , OTAUHH , OSIGHH , OPPIHH
      .              , OPPIHH , OTAUHP , OSIGHP , OPPIHP , OPPIHP
-     .              , OTAUPP , OSIGPP , OPPIPP , OPPIPP , lcplxp
+     .              , OTAUPP , OSIGPP , OPPIPP , OPPIPP !, lcplxp
      .              , lso , OQHH , OQHP , OQPP , nsp , nspc , sumt 
      .              , sumq , sumh )
 C       Add site augmentation contribution to rhout * (ham - ke)
@@ -224,7 +224,7 @@ C       Add site augmentation contribution to rhout * (ham - ke)
 
       subroutine pvgtkn(kmax,lmxa,nlma,nkaph,norb,ltab,ktab,blks,lmxh,
      .nlmh,tauhh,sighh,ppihh,ppihhz,tauhp,sighp,ppihp,ppihpz,
-     .taupp,sigpp,ppipp,ppippz,lcplxp,lso,qhh,qhp,qpp,nsp,nspc,
+     .taupp,sigpp,ppipp,ppippz,lso,qhh,qhp,qpp,nsp,nspc, !lcplxp,
      .sumt,sumq,sumh)
 
 C- Local contribution to kinetic energy for one site
@@ -249,7 +249,7 @@ Ci   ppihp :head-tail kinetic + potential integrals (augmat.f)
 Ci   taupp :tail-tail kinetic energy integrals (augmat.f)
 Ci   sigpp :tail-tail overlap integrals (augmat.f)
 Ci   ppipp :tail-tail potential integrals (augmat.f)
-Ci   lcplxp:0 if ppi is real; 1 if ppi is complex
+Ci   lcplxp=1 only:0 if ppi is real; 1 if ppi is complex
 Ci   lso   :1 include L.S coupling; 2 include LzSz part only
 Ci   qhh   :head-head density matrix for this site
 Ci   qhp   :head-tail density matrix for this site
@@ -267,7 +267,7 @@ Cu   28 Aug 01 Extended to local orbitals.
 C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
-      integer kmax,lmxa,nlma,lmxh,nlmh,nsp,nspc,lcplxp,lso
+      integer kmax,lmxa,nlma,lmxh,nlmh,nsp,nspc,lso !lcplxp,
       integer nkaph,norb,ltab(norb),ktab(norb),blks(norb)
       double precision
      .tauhh(nkaph,nkaph,0:lmxh,1),sighh(nkaph,nkaph,0:lmxh,1),
@@ -300,17 +300,17 @@ C ... Pkl*Pkl
       do  i = 1, nsp
         do  k1 = 0, kmax
           do  k2 = 0, kmax
-            if (lcplxp .eq. 0) then
-              do  ilm1 = 1, nlma
-                l1 = ll(ilm1)
-                sumt = sumt + qpp(k1,k2,ilm1,ilm1,i)*taupp(k1,k2,l1,i)
-                sumq = sumq + qpp(k1,k2,ilm1,ilm1,i)*sigpp(k1,k2,l1,i)
-                do  ilm2 = 1, nlma
-                  sumh = sumh + qpp(k1,k2,ilm1,ilm2,i)*ppipp(k1,k2,ilm1,ilm2,i)
-                enddo
-              enddo
-
-            else
+c$$$            if (lcplxp .eq. 0) then
+c$$$              do  ilm1 = 1, nlma
+c$$$                l1 = ll(ilm1)
+c$$$                sumt = sumt + qpp(k1,k2,ilm1,ilm1,i)*taupp(k1,k2,l1,i)
+c$$$                sumq = sumq + qpp(k1,k2,ilm1,ilm1,i)*sigpp(k1,k2,l1,i)
+c$$$                do  ilm2 = 1, nlma
+c$$$                  sumh = sumh + qpp(k1,k2,ilm1,ilm2,i)*ppipp(k1,k2,ilm1,ilm2,i)
+c$$$                enddo
+c$$$              enddo
+c$$$
+c$$$            else
               do  ilm1 = 1, nlma
                 l1 = ll(ilm1)
                 sumt = sumt + qpp(k1,k2,ilm1,ilm1,i)*taupp(k1,k2,l1,i)
@@ -319,7 +319,7 @@ C ... Pkl*Pkl
                   sumh = sumh + qpp(k1,k2,ilm1,ilm2,i)*ppippz(k1,k2,ilm1,ilm2,i)
                 enddo
               enddo
-            endif
+c$$$            endif
           enddo
         enddo
 
@@ -338,19 +338,19 @@ C         k1,l1 = k and starting l index for this block
                 k1 = ktab(io1)
                 nlm11 = l1**2+1
                 nlm12 = nlm11 + blks(io1)-1
-                if (lcplxp .eq. 0) then
-                  do  ilm1 = nlm11, nlm12
-                    l1 = ll(ilm1)
-                    do  ilm2 = nlm21, nlm22
-                      if (ilm1 .eq. ilm2) then
-                        sumt = sumt + qhh(k1,k2,ilm1,ilm2,i)*tauhh(k1,k2,l1,i)
-                        sumq = sumq + qhh(k1,k2,ilm1,ilm2,i)*sighh(k1,k2,l1,i)
-                      endif
-                      sumh = sumh+ qhh(k1,k2,ilm1,ilm2,i)*ppihh(k1,k2,ilm1,ilm2,i)
-                    enddo
-                  enddo
-
-                else
+c$$$                if (lcplxp .eq. 0) then
+c$$$                  do  ilm1 = nlm11, nlm12
+c$$$                    l1 = ll(ilm1)
+c$$$                    do  ilm2 = nlm21, nlm22
+c$$$                      if (ilm1 .eq. ilm2) then
+c$$$                        sumt = sumt + qhh(k1,k2,ilm1,ilm2,i)*tauhh(k1,k2,l1,i)
+c$$$                        sumq = sumq + qhh(k1,k2,ilm1,ilm2,i)*sighh(k1,k2,l1,i)
+c$$$                      endif
+c$$$                      sumh = sumh+ qhh(k1,k2,ilm1,ilm2,i)*ppihh(k1,k2,ilm1,ilm2,i)
+c$$$                    enddo
+c$$$                  enddo
+c$$$
+c$$$                else
                   do  ilm1 = nlm11, nlm12
                     l1 = ll(ilm1)
                     do  ilm2 = nlm21, nlm22
@@ -361,7 +361,7 @@ C         k1,l1 = k and starting l index for this block
                       sumh = sumh+qhh(k1,k2,ilm1,ilm2,i)*ppihhz(k1,k2,ilm1,ilm2,i)
                     enddo
                   enddo
-                endif
+c$$$                endif
 C          Needs to be checked ...
 C          if (nspc .eq. 2) then
 C            call pvgtk1(nkaph,nlmh,k1,k2,nlm11,nlm12,nlm21,nlm22,
@@ -384,18 +384,18 @@ C       k1,l1 = k and starting l index for this block
             nlm12 = nlm11 + blks(io1)-1
             do  k2 = 0, kmax
 
-              if (lcplxp .eq. 0) then
-                do  ilm1 = nlm11, nlm12
-                  l1 = ll(ilm1)
-                  do  ilm2 = 1, nlma
-                    if (ilm1 .eq. ilm2) then
-                      sumt = sumt + qhp(k1,k2,ilm1,ilm2,i)*tauhp(k1,k2,l1,i)
-                      sumq = sumq + qhp(k1,k2,ilm1,ilm2,i)*sighp(k1,k2,l1,i)
-                    endif
-                    sumh = sumh+qhp(k1,k2,ilm1,ilm2,i)*ppihp(k1,k2,ilm1,ilm2,i)
-                  enddo
-                enddo
-              else
+c$$$              if (lcplxp .eq. 0) then
+c$$$                do  ilm1 = nlm11, nlm12
+c$$$                  l1 = ll(ilm1)
+c$$$                  do  ilm2 = 1, nlma
+c$$$                    if (ilm1 .eq. ilm2) then
+c$$$                      sumt = sumt + qhp(k1,k2,ilm1,ilm2,i)*tauhp(k1,k2,l1,i)
+c$$$                      sumq = sumq + qhp(k1,k2,ilm1,ilm2,i)*sighp(k1,k2,l1,i)
+c$$$                    endif
+c$$$                    sumh = sumh+qhp(k1,k2,ilm1,ilm2,i)*ppihp(k1,k2,ilm1,ilm2,i)
+c$$$                  enddo
+c$$$                enddo
+c$$$              else
                 do  ilm1 = nlm11, nlm12
                   l1 = ll(ilm1)
                   do  ilm2 = 1, nlma
@@ -406,7 +406,7 @@ C       k1,l1 = k and starting l index for this block
                     sumh = sumh+qhp(k1,k2,ilm1,ilm2,i)*ppihpz(k1,k2,ilm1,ilm2,i)
                   enddo
                 enddo
-              endif
+c$$$              endif
 
             enddo
           endif

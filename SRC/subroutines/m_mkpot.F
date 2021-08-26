@@ -124,7 +124,7 @@ Co         xcore  = rhoc * total potential
 Co         valvef = smrhov * vsm + sum_ib valvef_ib
 Co           valvef_ib = rhov * vtrue - smrhov * vsm)_ib
 Co         amom   = system magnetic moment
-      use m_lmfinit,only:lso,nbas, ssite=>v_ssite, sspec=>v_sspec, lcplxp,nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex
+      use m_lmfinit,only:lso,nbas, ssite=>v_ssite, sspec=>v_sspec, nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex !lcplxp,
       use m_lattic,only: lat_plat,lat_qlat, lat_vol
       use m_supot,only: k1,k2,k3,lat_nabc
       use m_MPItk,only: master_mpi
@@ -140,7 +140,7 @@ Ci   sspec :struct containing species-specific information
 Ci     Elts read:
 Ci     Passed to: rhomom smves smvxcm locpot
 Ci   lfrce :nonzero =>  contribution to forces
-Ci   lcplxp:0 if ppi is real; 1 if ppi is complex
+Ci   lcplxp=1 only ::0 if ppi is real; 1 if ppi is complex
 Ci   k1,k2,k3 dimensions of smrho for smooth crystal density
 Ci   smrho :smooth crystal density, on a uniform mesh
 Ci   orhoat:local atomic densities (true and smooth parts)
@@ -330,8 +330,8 @@ C    If problems, Maybe even look at sm part only, or local part only.
 
       ipr = iprint()
       ipl = ipr
-      if (lso/=0 .and. lcplxp==0) call rx('mkpot: incompatible lso,lcplxp')
-      if (isum(nbas,lldau,1)/=0 .and. lcplxp==0) call rx('mkpot: incompatible ldau,lcplxp')
+c      if (lso/=0 .and. lcplxp==0) call rx('mkpot: incompatible lso,lcplxp')
+c      if (isum(nbas,lldau,1)/=0 .and. lcplxp==0) call rx('mkpot: incompatible ldau,lcplxp')
       lxcfun = lxcf 
       pi   = 4d0*datan(1d0)
       ngabc=lat_nabc
@@ -441,7 +441,7 @@ C --- Make parameters for extended local orbitals ---
 
 C --- Make local potential at atomic sites and augmentation matrices ---
       rhobg=qbg/vol
-      call locpot ( nbas , nsp , lso , lcplxp , ssite , sspec !, slat 
+      call locpot ( nbas , nsp , lso ,  ssite , sspec !, slat lcplxp ,
      .    , sv_p_orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau , 
      .    sv_p_oppi , ppnl_rv , hab_rv , vab_rv , sab_rv , vvesat , cpnvsa , repat , 
      .    repatx , repatc , rmuat , rvepva , rvexva , rvecva , rvvxva , 

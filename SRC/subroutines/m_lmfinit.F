@@ -125,7 +125,7 @@ Ci          functions are less than tol.
      &     lat_dist0(1:9)=0d0,lat_gam(1:4)=[0d0,0d0,1d0,1d0], !no deformation. See lattic
      &     ctrl_mdprm(6),
      &     bz_doswin(2) 
-      integer,protected:: lekkl,lcplxp
+      integer,protected:: lekkl!,lcplxp !now we fix lcplxp=1 and removed from m_lmfinit 
       integer,protected:: lmaxu,nlibu
       integer,allocatable,protected::lldau(:)
       logical,protected:: lpztail=.false.
@@ -2172,10 +2172,6 @@ c      print *,' mpipid=',procid
 c      lcplxp = 0
 c      if (lso .ne. 0)    lcplxp = 1
 c      if (sum(lldau)/=0) lcplxp = 1
-     
-ccccccccccccccccccccccccccccccccccccc
-c      lcplxp = 1
-ccccccccccccccccccccccccccccccccccccc
       lekkl  = ctrl_pfloat
             
 ! lhh, nkapii, nkaphh (nkaphh = nkapii(1 or 2) +1) if extented local orbital exist)

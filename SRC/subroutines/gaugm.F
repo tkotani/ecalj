@@ -1,5 +1,5 @@
 CSFCPP#define F90 1
-      subroutine gaugm(nr,nsp,lso,lcplxp,rofi,rwgt,lmxa,lmxl,nlml,vsm,
+      subroutine gaugm(nr,nsp,lso,rofi,rwgt,lmxa,lmxl,nlml,vsm, !lcplxp,
      .gpotb,gpot0,hab,vab,sab,sodb,qum,vum,cg,jcg,indxcg,
      .nf1,nf1s,lmx1,lx1,f1,x1,v1,d1,
      .nf2,nf2s,lmx2,lx2,f2,x2,v2,d2,
@@ -63,7 +63,7 @@ Ci   lmux  :l-cutoff for sigma,tau, and spherical part of ppi
 Ci   nlx1  :dimensions ppi
 Ci   nlx2  :dimensions ppi
 Ci   lso   :if 2 calculate LzSz matrix elements, if 1 calculate LS
-Ci  lcplxp :0 if ppi is real; 1 if ppi is complex
+Ci  lcplxp=1 only now :0 if ppi is real; 1 if ppi is complex
 Ci   ...   The following are associated with LDA+U
 Ci   lmaxu :dimensioning parameter for U matrix
 Ci   vumm  : orbital dependent pot matrix in (u,s) representation
@@ -75,7 +75,7 @@ Co   sig   :augmentation overlap integrals; see Remarks.
 Co   tau   :augmentation kinetic energy integrals
 Co   ppi   :augmentation potential integrals
 Co         :NB: tau is added to pi, so ppi = (kinetic energy + potential)
-Co         :ppi is returned real if lcplxp=0, complex if lcplxp=1
+Co         :ppi is returned complex (lcplxp=1)
 Co         :In the noncollinear case:
 Co         :ppi(:,:,:,:,isp,1,1) = spin-diagonal part of potential ! last argment=2 means impart or work area?, a little confusing.
 Co         :ppi(:,:,:,:,1,2,1) = up-down   (12) block of potential
@@ -199,7 +199,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
 c      use m_globalvariables
-      integer nr,nsp,lmxa,lmxl,nlml,lmux,lso,lcplxp,
+      integer nr,nsp,lmxa,lmxl,nlml,lmux,lso,!lcplxp,
      .nf1,nf1s,lmx1,nlx1,lx1(nf1),jcg(1),indxcg(1),n0,nab,
      .nf2,nf2s,lmx2,nlx2,lx2(nf2)
       integer lmaxu,lldau,idu(4)
@@ -246,8 +246,8 @@ CSFCPP#if F90
       allocate(hso(nf1,nf2,nlx1,nlx2,2,2),ppiz(nf1,nf2,nlx1,nlx2,2,2))
 CSFCPP#endif
 C     for now, ppi is complex only if S.O coupling
-      if ((lso .ne. 0 .or. lldau .ne. 0) .and. lcplxp .eq. 0)
-     .call rx('gaugm: incompatible lso,lcplxp')
+c      if ((lso .ne. 0 .or. lldau .ne. 0) .and. lcplxp .eq. 0)
+c     .call rx('gaugm: incompatible lso,lcplxp')
       if (lso .ne. 0) then
         call dpzero(hso,nf1*nf2*nlx1*nlx2*2*2)
       endif
@@ -394,23 +394,21 @@ C 320         format(2i3,2i5,f15.10)
             enddo
           enddo
         endif
-
       enddo
       
 !---------------------------------
-      if (lso==3) call rx('fix dim of ppi to add so')
       block
       complex(8):: pp2(nf1,nf2,nlx1,nlx2,nsp,nspc)
       complex(8):: tmp(nf1,nf2,nlx1,nlx2,nsp)
       real(8):: sz
 !! Convert ppi(:,:,:,:,nsp,ispc=1) to complex form when (lcplxp/=0), SO=1 or LDA+U case. 
-      if(lcplxp /= 0 ) then   
+c      if(lcplxp /= 0 ) then   
         i1 = nf1*nf2*nlx1*nlx2
         tmp = 0d0
         call dcopy(i1*nsp,ppi,1,tmp,2)   ! tmp in complex form
         call dpzero(ppi,2*i1*nsp*nspc)   ! ppi(:,:,:,:,isp,ispc)=0
         call dcopy(2*i1*nsp,tmp,1,ppi,1) ! complex(ppi(:,:,:,:,1:nsp,ispc=1)= ppi 
-      endif
+c      endif
 !! Add SO contribution to ppi     
       if (lso/=0) then
          i1 = nf1*nf2*nlx1*nlx2
@@ -423,7 +421,6 @@ C 320         format(2i3,2i5,f15.10)
       endif
       end block
 c     if (lso/=0) call ppi2z(12,nsp,nspc,nf1,nf2,nlx1,nlx2,hso,ppi,ppi)
-      
 ! Add U contribituon to ppi      
       if(lldau/=0) call zaxpy(nf1*nf2*nlx1*nlx2*nsp*nspc,1d0,ppiz,1,ppi,1)
       

@@ -1,5 +1,5 @@
       subroutine hambl(lso,isp,qin, smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi, h, s, hso)
-      use m_lmfinit,only: nbas , ssite=>v_ssite , sspec=>v_sspec,lcplxp ,nsp,iprmb
+      use m_lmfinit,only: nbas , ssite=>v_ssite , sspec=>v_sspec,nsp,iprmb !lcplxp ,
       use m_igv2x,only: napw, igvapwin=>igv2x, ndimh
       use m_supot,only: k1,k2,k3
       use m_struc_def,only: s_rv1
@@ -104,7 +104,7 @@ C ... Skip LDA H, S
       if (mode0 .gt. 1) goto 100
 C --- Augmentation part of hamiltonian and overlap ---
       call augmbl ( mode0 + 10 * mode1 , ssite , sspec , isp !slat , 
-     .    , lcplxp , q , sv_p_osig , sv_p_otau , sv_p_oppi , iprmb 
+     .    ,  q , sv_p_osig , sv_p_otau , sv_p_oppi , iprmb  !lcplxp ,
      .    , ndimh , napw , igvapw , h , hso , s )
 C --- Add alfa S+ S ---
 c      if (dabs(alfa) .gt. 1d-10 .and. mode0 .eq. 0)  then

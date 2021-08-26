@@ -15,7 +15,7 @@
       use m_struc_def 
       use m_suham,only: 
      &     ndham=>ham_ndham,ndhamx=>ham_ndhamx,nspx=>ham_nspx
-      use m_lmfinit,only:alat=>lat_alat,nbas, ssite=>v_ssite,sspec=>v_sspec,nsp,nspc,lmet=>bz_lmet,lekkl,lcplxp,
+      use m_lmfinit,only:alat=>lat_alat,nbas, ssite=>v_ssite,sspec=>v_sspec,nsp,nspc,lmet=>bz_lmet,lekkl, !lcplxp,
      &     zbak !,ldos=>ctrl_ldos!,bz_dosw
       use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol
       use m_supot,only: lat_nabc,k1,k2,k3
@@ -68,7 +68,7 @@ Ci   emin  :energy lower bound when adding to sampling dos
 Ci   emax  :energy upper bound when adding to sampling dos
 Ci   ndos  :number of energy mesh points
 Ci   osig,otau,oppi  augmentation matrices
-ci   lcplxp:0 if ppi is real; 1 if ppi is complex
+cixxx   lcplxp=1 only now !lcplxp:0 if ppi is real; 1 if ppi is complex
 Ci   lekkl :0 do not accumulate oeqkkl; 1 do accumulate oeqkkl
 Co Outputs
 Co   sumqv :integrated charge, resolved by spin
@@ -175,7 +175,7 @@ C ... Add to smooth density
 C ... Add to local density coefficients
       call rlocbl ( ssite , sspec , lfrce , nbas , isp , q ,
      .        ndham , ndimh , nspc , napw , igapw , iprmb ,  nevec 
-     .        , evec , ewgt , evl , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp 
+     .        , evec , ewgt , evl , sv_p_osig , sv_p_otau , sv_p_oppi  !,lcplxp 
      .        , lekkl , sv_p_oqkkl , sv_p_oeqkkl , f )
 C ... Weights for spin moments
       if (lswtk>0 .and. nspc==2) then

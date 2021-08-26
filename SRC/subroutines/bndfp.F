@@ -48,7 +48,7 @@
      &     ham_scaledsigma,ham_pmin,ham_pmax, !
      &     alat=>lat_alat,stdo,stdl,procid,master, !bz_doswin, 
      &     nkaph,nlmax,nl,nbas,nsp, ham_frzwf, bz_dosmax,
-     &     lcplxp ,  lekkl,lmaxu,nlibu,lldau,sspec=>v_sspec, lpztail,leks,lrout
+     &     lekkl,lmaxu,nlibu,lldau,sspec=>v_sspec, lpztail,leks,lrout
      &     ,  nchan=>pot_nlma, nvl=>pot_nlml,nspc
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
       use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
@@ -108,7 +108,6 @@ Co   frc   :forces.  Only calculated if lfrce>0.
 Co         :If leks<2, forces are HF  forces
 Co         :If leks>1, forces are HKS forces
 Cl   k1,k2,k3: dimensions smrho,smpot. 
-Cl   lcplxp:0 if ppi is real; 1 if ppi is complex
 !!      nspx: number of independent spin channels
 !!      nspc is now avoided (memo:nspc=2 for lso==1, nspc=1 for lso/=1 See m_lmfinit)
 !!      ndhamx: maximum size of hamiltonian  

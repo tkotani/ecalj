@@ -1,6 +1,6 @@
       subroutine flocbl(nbas,ia,kmax,nkaph,lmxha,nlmha,nlma,lmxa,nlmto,
      .ndimh,iprmb,isp,evl,evec,ewgt,cPkL,db,da,wk,ppipp,ppippz,
-     .sigpp,ppihp,ppihpz,sighp,lcplxp,f)
+     .sigpp,ppihp,ppihpz,sighp,f) !lcplxp,
 C- Force contribution from augmentation at site ia.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -28,7 +28,7 @@ Ci   ppihp :local head-tail potential matrix
 Ci   ppihpz:local head-tail potential matrix, complex form
 Ci         :NB: only ppihp or ppihpz is used, depending on lcplxp
 Ci   sighp :local head-tail overlap matrix
-Ci   lcplxp:0 if ppi is real; 1 if ppi is complex
+Ci   lcplxp=1 only now: 0 if ppi is real; 1 if ppi is complex
 Co Outputs
 Co   f     :local contribution to forces is added
 Cr Remarks
@@ -40,7 +40,7 @@ Cu   25 May 00 Adapted from nfp floc_q.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer ia,kmax,lmxa,nkaph,nbas,nlmto,ndimh,nlma,lmxha,lcplxp,
+      integer ia,kmax,lmxa,nkaph,nbas,nlmto,ndimh,nlma,lmxha,!lcplxp,
      .nlmha,isp,iprmb(1)
       double precision evl,f(3,nbas),ewgt,
      .sigpp(0:kmax,0:kmax,0:lmxa,isp),sighp(nkaph,0:kmax,0:lmxha,isp),
@@ -64,7 +64,7 @@ C ... Make (ppi-evl*sig)*psi in wk
       call flocb2(ia,nlmto,iprmb,kmax,nkaph,nlmha,nlma,evl,evec,
      .ppipp(0,0,1,1,isp),ppippz(0,0,1,1,isp),sigpp(0,0,0,isp),
      .ppihp(1,0,1,1,isp),ppihpz(1,0,1,1,isp),sighp(1,0,0,isp),
-     .lcplxp,cPkL,wk)
+     .cPkL,wk) !lcplxp,
 
 C ... Loop over ib, virtual shift of wavefct part centered there
       do  ib = 1, nbas
@@ -141,7 +141,7 @@ C ... Force term is (grad psi_kL) * (ppi-evl*sig)*evec
       end
 
       subroutine flocb2(ia,nlmto,iprmb,kmax,nkaph,nlmha,nlma,evl,evec,
-     .ppipp,ppippz,sigpp,ppihp,ppihpz,sighp,lcplxp,cPkL,wk)
+     .ppipp,ppippz,sigpp,ppihp,ppihpz,sighp,cPkL,wk)!lcplxp,
 C- Make (ppi-evl*sig)*evec
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -162,7 +162,7 @@ Ci   ppihp :local head-tail potential matrix
 Ci   ppihpz:local head-tail potential matrix, complex form
 Ci         :NB: only ppihp or ppihpz is used, depending on lcplxp
 Ci   sighp :local head-tail overlap matrix
-Ci   lcplxp:0 if ppi is real; 1 if ppi is complex
+Ci   lcplxp=1 only now:0 if ppi is real; 1 if ppi is complex
 Ci   cPkL  :PkL expansion eigenvector at site ia.
 Co Outputs
 Co   wk    :(ppi-evl*sig)*evec
@@ -171,7 +171,7 @@ Cu Updates
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer ia,kmax,lcplxp,nkaph,nlma,nlmha,nlmto,iprmb(*)
+      integer ia,kmax,nkaph,nlma,nlmha,nlmto,iprmb(*) !,lcplxp
       double precision
      .evl,sighp(nkaph,0:kmax,0:*),ppihp(nkaph,0:kmax,nlmha,nlma),
      .sigpp(0:kmax,0:kmax,0:*),ppipp(0:kmax,0:kmax,nlma,nlma)
@@ -208,19 +208,19 @@ C   ... evl*sig contribution requires explicit knowledge of l
           enddo
         enddo
 C   ... ppi contribution: loop over largest blocks possible
-        if (blks(io) .ne. 0 .and. lcplxp .eq. 0) then
-          nlm2 = nlm1 + blks(io)-1
-          i  = offl(io)
-          do  ilmb = nlm1, nlm2
-            i = i+1
-            do  ilma = 1, nlma
-              do  k = 0, kmax
-                wk(k,ilma) = wk(k,ilma) + ppihp(ik,k,ilmb,ilma)*evec(i)
-              enddo
-            enddo
-          enddo
-        endif
-        if (blks(io) .ne. 0 .and. lcplxp .eq. 1) then
+c$$$        if (blks(io) .ne. 0 .and. lcplxp .eq. 0) then
+c$$$          nlm2 = nlm1 + blks(io)-1
+c$$$          i  = offl(io)
+c$$$          do  ilmb = nlm1, nlm2
+c$$$            i = i+1
+c$$$            do  ilma = 1, nlma
+c$$$              do  k = 0, kmax
+c$$$                wk(k,ilma) = wk(k,ilma) + ppihp(ik,k,ilmb,ilma)*evec(i)
+c$$$              enddo
+c$$$            enddo
+c$$$          enddo
+c$$$        endif
+        if (blks(io) .ne. 0) then ! .and. lcplxp .eq. 1) then
           nlm2 = nlm1 + blks(io)-1
           i  = offl(io)
           do  ilmb = nlm1, nlm2
@@ -235,22 +235,22 @@ C   ... ppi contribution: loop over largest blocks possible
       enddo
 
 C ... Add Pkl*Pkl block of ppi-evl*sig times cPkL
-      if (lcplxp .eq. 0) then
-        do  ilm = 1, nlma
-          l = ll(ilm)
-          do  k1 = 0, kmax
-            do  jlm = 1, nlma
-              do  k2 = 0, kmax
-                wk(k1,ilm) = wk(k1,ilm) +ppipp(k1,k2,ilm,jlm)*cPkL(k2,jlm)
-              enddo
-            enddo
-            do  k2 = 0, kmax
-              wk(k1,ilm) = wk(k1,ilm) - evl*sigpp(k1,k2,l)*cPkL(k2,ilm)
-            enddo
-          enddo
-        enddo
-
-      else
+c$$$      if (lcplxp .eq. 0) then
+c$$$        do  ilm = 1, nlma
+c$$$          l = ll(ilm)
+c$$$          do  k1 = 0, kmax
+c$$$            do  jlm = 1, nlma
+c$$$              do  k2 = 0, kmax
+c$$$                wk(k1,ilm) = wk(k1,ilm) +ppipp(k1,k2,ilm,jlm)*cPkL(k2,jlm)
+c$$$              enddo
+c$$$            enddo
+c$$$            do  k2 = 0, kmax
+c$$$              wk(k1,ilm) = wk(k1,ilm) - evl*sigpp(k1,k2,l)*cPkL(k2,ilm)
+c$$$            enddo
+c$$$          enddo
+c$$$        enddo
+c$$$
+c$$$      else
         do  ilm = 1, nlma
           l = ll(ilm)
           do  k1 = 0, kmax
@@ -264,7 +264,7 @@ C ... Add Pkl*Pkl block of ppi-evl*sig times cPkL
             enddo
           enddo
         enddo
-      endif
+c$$$      endif
 
 
       end

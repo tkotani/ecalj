@@ -1,4 +1,4 @@
-      subroutine augmbl ( mode , ssite , sspec ,  isp , lcplxp  !slat ,
+      subroutine augmbl ( mode , ssite , sspec ,  isp !, lcplxp  !slat ,
      .   , q , sv_p_osig , sv_p_otau , sv_p_oppi , iprmb , ndimh , napw 
      .   , igapw , h , hso , s )
       use m_struc_def           
@@ -83,7 +83,7 @@ Cu   18 May 00 Adapted from nfp augm_q.f
 Cu   1998      (DLN) parallel version for SGI
 C ----------------------------------------------------------------------
       implicit none
-      integer:: mode , lcplxp , isp , ndimh , napw , igapw(3,napw), iprmb(ndimh),i_copy_size,numprocs
+      integer:: mode , isp , ndimh , napw , igapw(3,napw), iprmb(ndimh),i_copy_size,numprocs !lcplxp , 
       type(s_rv1) :: sv_p_oppi(3,1)
       type(s_rv1) :: sv_p_otau(3,1)
       type(s_rv1) :: sv_p_osig(3,1)
@@ -125,8 +125,6 @@ c      allocate (b(lofb*ndimh))
         if (lmxa .eq. -1) cycle
 C   --- Make strux to expand all orbitals at site ia ---
 c        call rxx((kmax+1)*nlma .gt. lofb, 'augmbl: increase lofb')
-
-        
 cccccccall bstrux ( 0 ,  ia , pa , rsma , q ,
 c        if(allocated(b)) deallocate(b)
 c        if(allocated(bx)) deallocate(bx)
@@ -136,37 +134,31 @@ c     .       kmax , nlma , ndimh , napw , igapw , bx , zxx )
 c        do lm=1,nlma
 c           b(:,lm,:) = transpose(bx(:,lm,:))
 c        enddo
-        
         call bstrux_set(ia,q)
         if(allocated(b)) deallocate(b)
         allocate( b(0:kmax,nlma,ndimh) )
-c        print *,'bbbbbbbbb '
-c        print *,'bbbbbbbbb ',q
         do lm=1,nlma
            b(:,lm,:) = transpose(bstr(:,lm,:)) !-b(:,lm,:)
-c           print *,'bbbbbbbbb lm sum=',lm,sum(abs(bb(:,lm,:))),sum(abs(b(:,lm,:)))
         enddo
-        
         if(debug) print *,'end of bstrux'
 C   --- Add 1-center and 2-center terms ---
-        if (lcplxp .eq. 0) then
-          call augq12 ( mode0 , ia , isp , nkaph , iprmb , lmxb , nlmb 
-     .      , kmax , nlma , sv_p_osig ( 3 , ia ) %v , sv_p_oppi( 3 , ia )%v 
-     .      , sv_p_osig ( 2 , ia ) %v , sv_p_oppi( 2 , ia )%v , b , ndimh 
-     .      , nlmto , s , h )
-        else
-          call augq2z ( mode0 , mode1 , ia , isp , nkaph , iprmb , lmxb 
-     .      , nlmb , kmax , nlma , sv_p_osig ( 3 , ia ) %v , sv_p_oppi( 3 , ia )%v 
-     .      , sv_p_osig ( 2 , ia ) %v , sv_p_oppi( 2 , ia )%v , b , ndimh 
-     .      , nlmto , s , h , hso )
-        endif
+c$$$        if (lcplxp .eq. 0) then
+c$$$          call augq12 ( mode0 , ia , isp , nkaph , iprmb , lmxb , nlmb 
+c$$$     .      , kmax , nlma , sv_p_osig ( 3 , ia ) %v , sv_p_oppi( 3 , ia )%v 
+c$$$     .      , sv_p_osig ( 2 , ia ) %v , sv_p_oppi( 2 , ia )%v , b , ndimh 
+c$$$     .      , nlmto , s , h )
+c$$$        else
+        call augq2z ( mode0 , mode1 , ia , isp , nkaph , iprmb , lmxb 
+     .       , nlmb , kmax , nlma , sv_p_osig ( 3 , ia ) %v , sv_p_oppi( 3 , ia )%v 
+     .       , sv_p_osig ( 2 , ia ) %v , sv_p_oppi( 2 , ia )%v , b , ndimh 
+     .       , nlmto , s , h , hso )
+c$$$        endif
 C   --- Add B+ sig B to S and B+ ppi B to H ---
         call augqs3( kmax, lmxa, nlma, ndimh, isp, g, sv_p_osig( 1, ia )%v, b, s)
-        if (mode0 .eq. 0 .and. lcplxp .eq. 0) then
-          call augqp3( kmax, nlma, ndimh, isp, g, sv_p_oppi( 1, ia )%v, b, h )
-        elseif (mode0 .eq. 0 .and. lcplxp .ne. 0) then
-          call augq3z( mode1, kmax, nlma, ndimh, isp, g, sv_p_oppi( 1, ia )%v, b, h, hso)
-        endif
+c$$$        if (mode0 .eq. 0 .and. lcplxp .eq. 0) then
+c$$$          call augqp3( kmax, nlma, ndimh, isp, g, sv_p_oppi( 1, ia )%v, b, h )
+c$$$        elseif (mode0 .eq. 0 .and. lcplxp .ne. 0) then
+        if(mode0==0) call augq3z( mode1, kmax, nlma, ndimh, isp, g, sv_p_oppi( 1, ia )%v, b, h, hso)
         deallocate(b)
         if(debug) print *,'augg 222222 ia=',ia
       enddo

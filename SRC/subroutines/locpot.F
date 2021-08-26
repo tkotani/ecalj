@@ -1,4 +1,4 @@
-      subroutine locpot ( nbas , nsp , lso , lcplxp , ssite , sspec 
+      subroutine locpot ( nbas , nsp , lso , ssite , sspec !lcplxp , 
      .    , sv_p_orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau  !slat , 
      .    , sv_p_oppi , ppnl , hab , vab , sab , vvesat , cpnvsa , rhoexc 
      .    , rhoex , rhoec , rhovxc , rvepsv , rvexv , rvecv , rvvxcv , 
@@ -47,7 +47,7 @@ Ci         :100000s digit
 Ci         :1 write sphere density for site ib to file rhoMT.ib
 Ci  rhobg  :compensating background density
 Ci  lso    :if nonzero, calculate LzSz matrix elements
-Ci  lcplxp :0 if ppi is real; 1 if ppi is complex
+Ci  lcplxp=1 only now :0 if ppi is real; 1 if ppi is complex
 Ci  nlibu  : max number of lda+u blocks
 Ci  lmaxu  : max l for U
 Ci  vorb   : orbital dependent potential matrices
@@ -123,7 +123,7 @@ Cu   17 Jun 98 Adapted from DLN to run parallel on SGI
 C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
-      integer:: nbas , nsp , job , n0 , nppn , nab , lso , lcplxp,i_copy_size,ibx,ir,isp,l,lm
+      integer:: nbas , nsp , job , n0 , nppn , nab , lso , i_copy_size,ibx,ir,isp,l,lm !lcplxp,
       type(s_rv1) :: sv_p_orhoat(3,nbas)
       type(s_rv1) :: sv_p_oppi(3,nbas)
       type(s_rv1) :: sv_p_otau(3,nbas)
@@ -483,7 +483,7 @@ C     ... Use effective potentials with modified xc
           call augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax , nlml
      .           , a , nr , nsp , lso , rofi , rwgt , rv_a_ocg, iv_a_ojcg, iv_a_oidxcg
      .           , ssite(ib)%rv_a_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , 
-     .           lmxb , lhh(:,is) , eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp , lmaxu 
+     .           lmxb , lhh(:,is) , eh , rsmh , ehl , rsml , rs3 , vmtz ,  lmaxu !lcplxp ,
      .           , vorb , lldau ( ib ) , iblu , idu , sv_p_osig ( 1 , ib ) , sv_p_otau 
      .           ( 1 , ib ) , sv_p_oppi ( 1 , ib ) , ppnl ( 1 , 1 , 1 , ib ) , 
      .           hab ( 1 , 1 , 1 , ib ) , vab ( 1 , 1 , 1 , ib ) , sab ( 1 , 1 

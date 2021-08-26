@@ -8,7 +8,7 @@
       use m_suham,only: ndham=>ham_ndham
       use m_lmfinit, only: 
      &     ham_pwmode,pwemin,pwemax,ham_oveps,lrsig=>ham_lsig,stdl,ham_ldham,iprmb,
-     &     ham_scaledsigma,lat_alat,mxorb,nkaph,nsp,nspc,nl,mxorb,ssite=>v_ssite,sspec=>v_sspec,nbas,lcplxp,n0,nppn,nkap0
+     &     ham_scaledsigma,lat_alat,mxorb,nkaph,nsp,nspc,nl,mxorb,ssite=>v_ssite,sspec=>v_sspec,nbas,n0,nppn,nkap0 !lcplxp,
       use m_lattic,only: lat_plat, lat_qlat
       use m_supot,only: lat_nabc, lat_gmax
       use m_rdsigm2,only: getsenex, senex,dsene
