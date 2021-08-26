@@ -589,6 +589,7 @@ C     Flags representing how cd is represented: default values
      .     '%N%3f1 for scalar relativistic Schrodinger equation'//
      .     '%N%3f2 for Dirac equation')
 C     Fully relativistic => spin-orbit coupling
+!! lso  =0 (no so): =1(L.S): =2(LzSz).
       if (lrel==2) lso=1
       if (nsp==2 .or. io_help/=0) then
          if (io_help /= 0) call info0(1,0,0,' * To read the magnetic '//
@@ -600,7 +601,7 @@ C     Fully relativistic => spin-orbit coupling
      .        '%N%3f1 : Add L.S to hamiltonian'//
      .        '%N%3f2 : Add Lz.Sz only to hamiltonian') !//
 c     .        '%N%3f3 : Like 2, but also compute <L.S-LzSz> by perturbation')
-         if (io_help==0) l_dummy_isanrg=isanrg(lso,0,3,' rdctrl:','SO',T)
+         if (io_help==0) l_dummy_isanrg=isanrg(lso,0,2,' rdctrl:','SO',T)
       endif
       sw = tksw(prgnam,'HAM_GMAX')
       if (sw/=2) then
@@ -2167,11 +2168,16 @@ c      print *,' mpipid=',procid
         enddo
       enddo
       if (master_mpi.and.nlibu/=0) write(stdo,"(' LDA+U: block(s) lmaxu =',2i4)") nlibu,lmaxu
-!! lso  =0 (no so): =1(L.S): =2(LzSz).
-      lcplxp = 0
+!! aug2012 we now fix lcplxp=1 (complex ppi integral)      
+c      lcplxp = 0
+c      if (lso .ne. 0)    lcplxp = 1
+c      if (sum(lldau)/=0) lcplxp = 1
+     
+ccccccccccccccccccccccccccccccccccccc
+c      lcplxp = 1
+ccccccccccccccccccccccccccccccccccccc
       lekkl  = ctrl_pfloat
-      if (lso .ne. 0)    lcplxp = 1
-      if (sum(lldau)/=0) lcplxp = 1
+            
 ! lhh, nkapii, nkaphh (nkaphh = nkapii(1 or 2) +1) if extented local orbital exist)
       allocate(lhh(nkap0,nspec))
       lhh=-1
