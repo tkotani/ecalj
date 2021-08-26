@@ -215,7 +215,7 @@ C ----------------------------------------------------------------------
      .qm(nf1*nf2*(lmx1+1)*(lmx2+1)*(lmxl+1)), sum((lmx1+1)*(lmx2+1)*nlml)
       complex(8),allocatable:: hso(:,:,:,:,:,:),ppiz(:,:,:,:,:,:)
       stdo = lgunit(1)
-      allocate(hso(nf1,nf2,nlx1,nlx2,2,2),ppiz(nf1,nf2,nlx1,nlx2,2,2))
+      allocate(hso(nf1,nf2,nlx1,nlx2,nsp,2),ppiz(nf1,nf2,nlx1,nlx2,nsp,2))
       if(lso/=0)  hso=0d0
       if(lldau/=0) ppiz=0d0
       do i = 1, nsp

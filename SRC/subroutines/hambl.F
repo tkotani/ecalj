@@ -2,7 +2,7 @@
       use m_lmfinit,only: nbas , ssite=>v_ssite , sspec=>v_sspec,nsp,iprmb !lcplxp ,
       use m_igv2x,only: napw, igvapwin=>igv2x, ndimh
       use m_supot,only: k1,k2,k3
-      use m_struc_def,only: s_rv1
+      use m_struc_def,only: s_rv1,s_cv1
       use m_lattic,only:plat=>lat_plat,qlat=>lat_qlat
 C- Make the LDA hamiltonian and overlap for one k-point.
 C ----------------------------------------------------------------------
@@ -62,7 +62,7 @@ Cu   18 May 00 Adapted from nfp mk_hamiltonian.f
 C     ----------------------------------------------------------------------
       implicit none
       integer mode,igvapw(3,napw),isp
-      type(s_rv1) :: sv_p_oppi(3,nbas)
+      type(s_cv1) :: sv_p_oppi(3,nbas)
       type(s_rv1) :: sv_p_otau(3,nbas)
       type(s_rv1) :: sv_p_osig(3,nbas)
 c      double precision alfa

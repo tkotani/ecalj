@@ -5,17 +5,17 @@
      & ,lfrce=>ctrl_lfrce,stdl
       use m_lmfinit,only: nchan=>pot_nlma, nvl=>pot_nlml
       use m_MPItk,only: master_mpi,mlog
-      use m_struc_def,only: s_rv1
+      use m_struc_def,only: s_rv1,s_cv1
       use m_density,only: osmrho, orhoat !main input density
       use m_elocp,only: elocp
       use m_bstrux,only: m_bstrux_init
 !! output ------------------------------------------------------------------      
-      type(s_rv1),allocatable,protected  :: sv_p_oppi(:,:) !pi-integral Eq.(C.6)
+      type(s_cv1),allocatable,protected  :: sv_p_oppi(:,:) !pi-integral Eq.(C.6)
       type(s_rv1),allocatable,protected  :: sv_p_otau(:,:) !tau            (C.5)
       type(s_rv1),allocatable,protected  :: sv_p_osig(:,:) !sigma          (C.4)
       complex(8),allocatable,protected   :: osmpot(:,:,:,:)!0th component of Eq.(34)
 
-      type(s_rv1),allocatable,protected  :: sv_p_oppix(:,:) !pi-integral without xc term
+      type(s_cv1),allocatable,protected  :: sv_p_oppix(:,:) !pi-integral without xc term
       type(s_rv1),allocatable,protected  :: sv_p_otaux(:,:) !tau
       type(s_rv1),allocatable,protected  :: sv_p_osigx(:,:)
       complex(8),allocatable,protected   :: spotx(:,:,:,:)
@@ -263,7 +263,7 @@ C    If problems, Maybe even look at sm part only, or local part only.
       implicit none
       integer job,i1,i2,i3,ispec
       type(s_rv1) :: sv_p_orhoat(3,nbas)
-      type(s_rv1) :: sv_p_oppi(nbas)
+      type(s_cv1) :: sv_p_oppi(nbas)
       type(s_rv1) :: sv_p_otau(nbas)
       type(s_rv1) :: sv_p_osig(nbas)
       real(8)::  fes(3,nbas) 

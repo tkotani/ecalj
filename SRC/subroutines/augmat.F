@@ -3,8 +3,9 @@
      .   , v0 , v1 , v2 , gpotb , gpot0 , nkaph , nkapi , lmxh , lh , 
      .   eh , rsmh , ehl , rsml , rs3 , vmtz ,  lmaxu , vorb ,  !lcplxp ,
      .   lldau , iblu , idu , sv_p_osig , sv_p_otau , sv_p_oppi , ppnl 
-     .   , hab , vab , sab )
-      use m_struc_def, only: s_rv1
+     .     , hab , vab , sab )
+      use m_lmfinit,only: n0,nkap0,nppn,nab
+      use m_struc_def, only: s_rv1,s_cv1
 C- Make augmentation matrices sig,tau,pi for one site
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -308,18 +309,15 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer lmxa,kmax,nlml,nr,nsp,nkaph,nkapi,lmxh,lso!,lcplxp
-      integer n0,nkap0,nppn,nab
+c      integer n0,nkap0,nppn,nab
       integer lmaxu,lldau,iblu,idu(4)
       double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
-      parameter (n0=10,nkap0=3,nppn=12,nab=9)
+c      parameter (n0=10,nkap0=3,nppn=12,nab=9)
       double precision z,rmt,rsma,a
       integer:: jcg(1) , indxcg(1) , lh(nkap0)
-      type(s_rv1) :: sv_p_oppi(3)
-
+      type(s_cv1) :: sv_p_oppi(3)
       type(s_rv1) :: sv_p_otau(3)
-
       type(s_rv1) :: sv_p_osig(3)
-
       double precision rofi(nr),rwgt(nr),v0(nr,nsp),cg(1),
      .pnu(n0,nsp),pnz(n0,nsp),ppnl(nppn,n0,2),
      .v1(nr,nlml,nsp),v2(nr,nlml,nsp),gpot0(nlml),gpotb(nlml),
@@ -339,38 +337,23 @@ C ... Local parameters
      .dh((lmxh+1)*nkap0),xp(nr*(lmxa+1)*(kmax+1)),
      .vp((lmxa+1)*(kmax+1)),dp((lmxa+1)*(kmax+1))
       double complex vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,nab,2,0:lmaxu)
-C ... Heap
-
       call tcn('augmat')
       pi   = 4d0*datan(1d0)
       y0   = 1d0/dsqrt(4d0*pi)
       nlma = (lmxa+1)**2
       lmxl = ll(nlml)
       if (lmxl.gt.lmxx) call rxi('augmat: increase lmxx to',lmxl)
-
 C --- Make hab,vab,sab and potential parameters pp ---
       do  i = 1, nsp
         call dpcopy(v1(1,1,i),vdif(1+nr*(i-1)),1,nr,y0)
-c        call dpadd(vdif(1+nr*(i-1)),v0(1,i),1,nr,-1d0)
         vdif(1+nr*(i-1):1+nr*i)=vdif(1+nr*(i-1):1+nr*i)-v0(1:nr,i)
       enddo
 C     NB:rofi MUST be dimensioned rofi(1..nrx) if V is to be extrapol.
       call potpus(z,rmt,lmxa,v0,vdif,a,nr,nsp,lso,rofi,pnu,pnz,ehl,rsml,
      .rs3,vmtz,nab,n0,pp,ppnl,hab,vab,sab,sodb)
-
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-cctest
-c         if(z<0.5) then
-c            v1(1:nr,1,1:nsp)=v1(1:nr,1,1:nsp)+10d0
-c            print *,' hhhhhhhhhhh highvvv v1 --> no charge in z=',z
-c         endif   
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-
 C --- Moments and potential integrals of ul*ul, ul*sl, sl*sl ---
       call momusl(z,rmt,lmxa,pnu,pnz,rsml,ehl,lmxl,nlml,a,nr,nsp,rofi,
      .rwgt,v0,v1,qum,vum)
-
 C --- Set up all radial head and tail functions, and their BC's ---
       do  k = 0, kmax
         lxa(k) = lmxa
@@ -381,54 +364,36 @@ C     Debugging check; see description of rsmh above
      .  rsmh(k,nkapi+1) .ne. 0)
      .  call rx1('augmat: illegal value for rsmh',rsmh(k,nkapi+1))
       enddo
-
       nlmh = (lmxh+1)**2
       call dpzero(fh,nr*(lmxh+1)*nkap0)
       call fradhd(nkaph,eh,rsmh,lh,lmxh,nr,rofi,fh,xh,vh,dh)
       call fradpk(kmax,rsma,lmxa,nr,rofi,fp,xp,vp,dp)
-
 C ... LDA+U: rotate vorb from (phi,phidot) to (u,s) for all l with U
 C     at this site and store in vumm
-      if (lldau .ne. 0) then
+      if (lldau > 0) then
         call vlm2us(lmaxu,rmt,idu,lmxa,iblu,vorb,ppnl,vumm)
       endif
-
 C --- Augmentation matrices for cases P*P, H*H, H*P ---
-
 C ... Hsm*Hsm
       call gaugm ( nr , nsp , lso ,  rofi , rwgt , lmxa , lmxl !lcplxp ,
      .   , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , 
      .   vum , cg , jcg , indxcg , nkaph , nkapi , lmxh , lh , fh , xh 
      .   , vh , dh , nkaph , nkapi , lmxh , lh , fh , xh , vh , dh , lmxh 
-     .   , sv_p_osig ( 3 ) %v , sv_p_otau ( 3 ) %v , nlmh , nlmh , sv_p_oppi( 3 )%v 
+     .   , sv_p_osig ( 3 ) %v , sv_p_otau ( 3 ) %v , nlmh , nlmh , sv_p_oppi( 3 )%cv 
      .   , lmaxu , vumm , lldau , idu )
-
-
-
-
 C ... Pkl*Pkl
       call gaugm ( nr , nsp , lso , rofi , rwgt , lmxa , lmxl !lcplxp , 
      .   , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , 
      .   vum , cg , jcg , indxcg , kmax + 1 , kmax + 1 , lmxa , lxa , 
      .   fp , xp , vp , dp , kmax + 1 , kmax + 1 , lmxa , lxa , fp , xp 
      .   , vp , dp , lmxa , sv_p_osig ( 1 ) %v , sv_p_otau ( 1 ) %v , 
-     .   nlma , nlma , sv_p_oppi( 1 )%v , lmaxu , vumm , lldau , idu )
-
-
-
-
+     .   nlma , nlma , sv_p_oppi( 1 )%cv , lmaxu , vumm , lldau , idu )
 C ... Hsm*Pkl
       call gaugm ( nr , nsp , lso ,  rofi , rwgt , lmxa , lmxl !lcplxp ,
      .   , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , 
      .   vum , cg , jcg , indxcg , nkaph , nkapi , lmxh , lh , fh , xh 
      .   , vh , dh , kmax + 1 , kmax + 1 , lmxa , lxa , fp , xp , vp , 
      .   dp , lmxh , sv_p_osig ( 2 ) %v , sv_p_otau ( 2 ) %v , nlmh , 
-     .   nlma , sv_p_oppi( 2 )%v , lmaxu , vumm , lldau , idu )
-
-
-
-
+     .   nlma , sv_p_oppi( 2 )%cv , lmaxu , vumm , lldau , idu )
       call tcx('augmat')
-
       end
-

@@ -65,7 +65,7 @@ Cu   18 May 00 Adapted from nfp augm_q.f
 Cu   1998      (DLN) parallel version for SGI
 C ----------------------------------------------------------------------
       implicit none
-      type(s_rv1) :: sv_p_oppi(3,1)
+      type(s_cv1) :: sv_p_oppi(3,1)
       type(s_rv1) :: sv_p_otau(3,1)
       type(s_rv1) :: sv_p_osig(3,1)
       type(s_site)::ssite(*)
@@ -110,12 +110,12 @@ C   --- Make strux to expand all orbitals at site ia ---
         enddo
 C   --- Add 1-center and 2-center terms ---
         call augq2z ( mode1 , ia , isp , nkaph , iprmb , lmxb 
-     .       , nlmb , kmax , nlma , sv_p_osig ( 3 , ia ) %v , sv_p_oppi( 3 , ia )%v 
-     .       , sv_p_osig ( 2 , ia ) %v , sv_p_oppi( 2 , ia )%v , b , ndimh 
+     .       , nlmb , kmax , nlma , sv_p_osig ( 3 , ia ) %v , sv_p_oppi( 3 , ia )%cv 
+     .       , sv_p_osig ( 2 , ia ) %v , sv_p_oppi( 2 , ia )%cv , b , ndimh 
      .       , nlmto , s , h , hso )
 C   --- Add B+ sig B to S and B+ ppi B to H ---
         call augqs3(  kmax, lmxa, nlma, ndimh, isp, g, sv_p_osig( 1, ia )%v, b, s)
-        call augq3z( mode1, kmax, nlma, ndimh, isp, g, sv_p_oppi( 1, ia )%v, b, h, hso)
+        call augq3z( mode1, kmax, nlma, ndimh, isp, g, sv_p_oppi( 1, ia )%cv, b, h, hso)
         deallocate(b)
       enddo
       call tcx ('augmbl')

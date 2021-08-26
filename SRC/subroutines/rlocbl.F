@@ -153,7 +153,7 @@ c      enddo
      .     , q , ndham , ndimh , nspc , napw , igvapw , iprmb , nevec 
      .     , evec , ewgt , evl , sv_p_osig , sv_p_otau , sv_p_oppi !, lcplxp 
      .     , lekkl , sv_p_oqkkl , sv_p_oeqkkl , f )
-      use m_struc_def,only: s_site,s_spec,s_rv1
+      use m_struc_def,only: s_site,s_spec,s_rv1,s_cv1
       use m_prlcb,only:   prlcb2,prlcb3
       use m_lmfinit,only: iv_a_oidxcg,iv_a_ojcg,rv_a_ocy,rv_a_ocg,lat_alat,nkaph
       use m_lattic,only: lat_qlat
@@ -243,10 +243,11 @@ C ----------------------------------------------------------------------
       implicit none
       integer lfrce,nbas,isp,ndimh,nspc,nevec,lekkl, !lcplxp,
      .iprmb(1),ndham,napw,igvapw(3,napw)
-      type(s_rv1),target:: sv_p_oppi(3,1), sv_p_otau(3,1), sv_p_osig(3,1),
+      type(s_cv1),target:: sv_p_oppi(3,1)
+      type(s_rv1),target:: sv_p_otau(3,1), sv_p_osig(3,1),
      &                     sv_p_oeqkkl(3,1), sv_p_oqkkl(3,1)
-      real(8),pointer:: OQPP(:), OQHP(:),OQHH(:),OEQPP(:),OEQHP(:),OEQHH(:),OPPIPP(:)
-     &     ,OSIGPP(:),OPPIHP(:), OSIGHP(:)
+      real(8),pointer:: OQPP(:), OQHP(:),OQHH(:),OEQPP(:),OEQHP(:),OEQHH(:),OSIGPP(:), OSIGHP(:)
+      complex(8),pointer:: OPPIPP(:),OPPIHP(:)
       real(8):: q(3), ewgt(nevec) , evl(ndham,isp) , f(3,nbas)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -307,9 +308,9 @@ C ... Find maximum sizes needed to allocate strux; allocate them
          OEQPP => sv_p_oeqkkl(1,ia)%v
          OEQHP => sv_p_oeqkkl(2,ia)%v
          OEQHH => sv_p_oeqkkl(3,ia)%v
-        OPPIPP => sv_p_oppi(1,ia)%v 
+        OPPIPP => sv_p_oppi(1,ia)%cv 
+        OPPIHP => sv_p_oppi(2,ia)%cv 
         OSIGPP => sv_p_osig(1,ia)%v 
-        OPPIHP => sv_p_oppi(2,ia)%v 
         OSIGHP => sv_p_osig(2,ia)%v 
 C   --- Strux to expand all orbitals and their gradients at site ia ---
         call bstrux(1, ia, pa, rsma, q, kmax, nlma, ndimh, napw, igvapw, w_ob , w_odb )

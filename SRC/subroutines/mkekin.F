@@ -210,8 +210,8 @@ C       Block into groups of consecutive l
         OPPIPP =>sv_p_oppi(1,ib)%v
         call pvgtkn ( kmax , lmxa , nlma , nkaph , norb , ltab , ktab
      .              , blks , lmxh , nlmh , OTAUHH , OSIGHH , OPPIHH
-     .              , OPPIHH , OTAUHP , OSIGHP , OPPIHP , OPPIHP
-     .              , OTAUPP , OSIGPP , OPPIPP , OPPIPP !, lcplxp
+     .              , OTAUHP , OSIGHP , OPPIHP
+     .              , OTAUPP , OSIGPP , OPPIPP !, lcplxp
      .              , lso , OQHH , OQHP , OQPP , nsp , nspc , sumt 
      .              , sumq , sumh )
 C       Add site augmentation contribution to rhout * (ham - ke)
@@ -226,8 +226,8 @@ C       Add site augmentation contribution to rhout * (ham - ke)
 
 
       subroutine pvgtkn(kmax,lmxa,nlma,nkaph,norb,ltab,ktab,blks,lmxh,
-     .nlmh,tauhh,sighh,ppihh,ppihhz,tauhp,sighp,ppihp,ppihpz,
-     .taupp,sigpp,ppipp,ppippz,lso,qhh,qhp,qpp,nsp,nspc, !lcplxp,
+     .nlmh,tauhh,sighh,ppihhz,tauhp,sighp,ppihpz,
+     .taupp,sigpp,ppippz,lso,qhh,qhp,qpp,nsp,nspc, !lcplxp,
      .sumt,sumq,sumh)
 
 C- Local contribution to kinetic energy for one site
@@ -276,9 +276,9 @@ C ... Passed parameters
      .tauhh(nkaph,nkaph,0:lmxh,1),sighh(nkaph,nkaph,0:lmxh,1),
      .tauhp(nkaph,0:kmax,0:lmxh,1),sighp(nkaph,0:kmax,0:lmxh,1),
      .taupp(0:kmax,0:kmax,0:lmxa,1),sigpp(0:kmax,0:kmax,0:lmxa,1),
-     .ppihh(nkaph,nkaph,nlmh,nlmh,1),qhh(nkaph,nkaph,nlmh,nlmh,1),
-     .ppihp(nkaph,0:kmax,nlmh,nlma,1),qhp(nkaph,0:kmax,nlmh,nlma,1),
-     .ppipp(0:kmax,0:kmax,nlma,nlma,1),qpp(0:kmax,0:kmax,nlma,nlma,1)
+     .qhh(nkaph,nkaph,nlmh,nlmh,1),
+     .qhp(nkaph,0:kmax,nlmh,nlma,1),
+     .qpp(0:kmax,0:kmax,nlma,nlma,1)
       double complex
      .ppihhz(nkaph,nkaph,nlmh,nlmh,1),
      .ppihpz(nkaph,0:kmax,nlmh,nlma,1),
@@ -288,13 +288,19 @@ C ... Local parameters
       double precision sumt,sumq,sumh,xx
       integer io1,io2,l1,l2
 
-! ... Remove SO part from potential
-      if (lso ==1) then !.ne. 0) then
-        call ppi2z2(6,nsp,nspc,nkaph,nkaph,nlmh,nlmh,  ppihhz)
-        call ppi2z2(6,nsp,nspc,nkaph,1+kmax,nlmh,nlma, ppihpz)
-        call ppi2z2(6,nsp,nspc,1+kmax,1+kmax,nlma,nlma,ppippz)
-      endif
-
+!   ... Remove SO part from potential.
+! 26gau2021 takao: I don't exactly know why I can skip this.
+! From the beginnig definition of ppi only includes z-axis contribution (25aug2021).
+! Since ppi is the pi integral plus LzSz part), do we need to remove LzSz contribution from ppihhz?
+! But, anyway, it seems that skiping 'call ppi2z2' passs old tests'. I don't know why...      
+c    
+c      if ( lso .ne. 0) then
+c        call ppi2z2(6,nsp,nspc,nkaph,nkaph,nlmh,nlmh,  ppihhz)
+c        call ppi2z2(6,nsp,nspc,nkaph,1+kmax,nlmh,nlma, ppihpz)
+c        call ppi2z2(6,nsp,nspc,1+kmax,1+kmax,nlma,nlma,ppippz)
+c      endif
+ccccccccccccccccccccccccccccccccccccccc
+      
       sumt = 0d0
       sumq = 0d0
       sumh = 0d0
@@ -415,19 +421,19 @@ c$$$              endif
           endif
         enddo
       enddo
-      if (lso==1) then ! .ne. 0) then
-        call ppi2z2(5,nsp,nspc,nkaph,nkaph,nlmh,nlmh,ppihhz)
-        call ppi2z2(5,nsp,nspc,nkaph,1+kmax,nlmh,nlma,ppihpz)
-        call ppi2z2(5,nsp,nspc,1+kmax,1+kmax,nlma,nlma,ppippz)
-      endif
+c      if (.false.) then !lso==1) then ! .ne. 0) then
+c        call ppi2z2(5,nsp,nspc,nkaph,nkaph,nlmh,nlmh,ppihhz)
+c        call ppi2z2(5,nsp,nspc,nkaph,1+kmax,nlmh,nlma,ppihpz)
+c        call ppi2z2(5,nsp,nspc,1+kmax,1+kmax,nlma,nlma,ppippz)
+c      endif
       end subroutine pvgtkn
 
-      subroutine ppi2z2(job,nsp,nspc,nf1,nf2,nlx1,nlx2,ppiz)
-      integer job,nsp,nspc,nf1,nf2,nlx1,nlx2
-      double complex  ppiz(nf1,nf2,nlx1,nlx2,nsp,nspc,2)
-      integer i1,i
-      real(8):: sz
-      if (job==5) sz =  1d0
-      if (job==6) sz = -1d0
-      call daxpy(2*nf1*nf2*nlx1*nlx2*nsp*nspc,sz,ppiz(1,1,1,1,1,1,2),1,ppiz,1)
-      end
+c$$$      subroutine ppi2z2(job,nsp,nspc,nf1,nf2,nlx1,nlx2,ppiz)
+c$$$      integer job,nsp,nspc,nf1,nf2,nlx1,nlx2
+c$$$      double complex  ppiz(nf1,nf2,nlx1,nlx2,nsp,nspc,2)
+c$$$      integer i1,i
+c$$$      real(8):: sz
+c$$$      if (job==5) sz =  1d0
+c$$$      if (job==6) sz = -1d0
+c$$$      call daxpy(2*nf1*nf2*nlx1*nlx2*nsp*nspc,sz,ppiz(1,1,1,1,1,1,2),1,ppiz,1)
+c$$$      end
