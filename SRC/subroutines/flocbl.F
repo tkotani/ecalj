@@ -43,9 +43,9 @@ C ... Passed parameters
       integer ia,kmax,lmxa,nkaph,nbas,nlmto,ndimh,nlma,lmxha,!lcplxp,
      .nlmha,isp,iprmb(1)
       double precision evl,f(3,nbas),ewgt,
-     .sigpp(0:kmax,0:kmax,0:lmxa,isp),sighp(nkaph,0:kmax,0:lmxha,isp),
-     .ppihp(nkaph,0:kmax,nlmha,nlma,isp),
-     .ppipp(0:kmax,0:kmax,nlma,nlma,isp)
+     .sigpp(0:kmax,0:kmax,0:lmxa,isp),sighp(nkaph,0:kmax,0:lmxha,isp)
+c     .ppihp(nkaph,0:kmax,nlmha,nlma,isp)
+c     .ppipp(0:kmax,0:kmax,nlma,nlma,isp)
       double complex db(ndimh,nlma,0:kmax,3),da(0:kmax,nlma,3),
      .evec(ndimh),cPkL(0:kmax,nlma),wk(0:kmax,nlma)
       double complex ppihpz(nkaph,0:kmax,nlmha,nlma,isp)
@@ -61,9 +61,9 @@ C ... Local parameters
       call tcn('flocbl')
 C ... Make (ppi-evl*sig)*psi in wk
       call flocb2(ia,nlmto,iprmb,kmax,nkaph,nlmha,nlma,evl,evec,
-     .ppipp(0,0,1,1,isp),ppippz(0,0,1,1,isp),sigpp(0,0,0,isp),
-     .ppihp(1,0,1,1,isp),ppihpz(1,0,1,1,isp),sighp(1,0,0,isp),
-     .cPkL,wk) !lcplxp,
+     . ppippz(0,0,1,1,isp),sigpp(0,0,0,isp),
+     . ppihpz(1,0,1,1,isp),sighp(1,0,0,isp),
+     . cPkL,wk) !lcplxp,
 
 C ... Loop over ib, virtual shift of wavefct part centered there
       do  ib = 1, nbas
@@ -136,7 +136,8 @@ C ... Force term is (grad psi_kL) * (ppi-evl*sig)*evec
       end
 
       subroutine flocb2(ia,nlmto,iprmb,kmax,nkaph,nlmha,nlma,evl,evec,
-     .ppipp,ppippz,sigpp,ppihp,ppihpz,sighp,cPkL,wk)!lcplxp,
+c     .ppipp,ppippz,sigpp,ppihp,ppihpz,sighp,cPkL,wk)!lcplxp,
+     .ppippz,sigpp,ppihpz,sighp,cPkL,wk)!lcplxp,
 C- Make (ppi-evl*sig)*evec
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -168,8 +169,8 @@ C     implicit none
 C ... Passed parameters
       integer ia,kmax,nkaph,nlma,nlmha,nlmto,iprmb(*) !,lcplxp
       double precision
-     .evl,sighp(nkaph,0:kmax,0:*),ppihp(nkaph,0:kmax,nlmha,nlma),
-     .sigpp(0:kmax,0:kmax,0:*),ppipp(0:kmax,0:kmax,nlma,nlma)
+     .evl,sighp(nkaph,0:kmax,0:*),!ppihp(nkaph,0:kmax,nlmha,nlma),
+     .sigpp(0:kmax,0:kmax,0:*)!,ppipp(0:kmax,0:kmax,nlma,nlma)
       double complex wk(0:kmax,nlma),evec(1),cPkL(0:kmax,nlma)
       double complex ppihpz(nkaph,0:kmax,nlmha,nlma)
       double complex ppippz(0:kmax,0:kmax,nlma,nlma)
