@@ -141,14 +141,14 @@ C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
       integer ndimh,i_copy_size
-      type(s_rv1),target :: sv_p_oppi(3,nbas)
+      type(s_cv1),target :: sv_p_oppi(3,nbas)
       type(s_rv1),target :: sv_p_otau(3,1)
       type(s_rv1),target :: sv_p_osig(3,1)
       type(s_rv1),target :: sv_p_oqkkl(3,nbas)
       real(8),pointer:: OQPP(:), OQHP(:),OQHH(:),
      &       OSIGHH(:),OSIGHP(:),OSIGPP(:),
-     &       OTAUHH(:),OTAUHP(:),OTAUPP(:),
-     &       OPPIHH(:),OPPIHP(:),OPPIPP(:)
+     &       OTAUHH(:),OTAUHP(:),OTAUPP(:)
+      complex(8),pointer:: OPPIHH(:),OPPIHP(:),OPPIPP(:)
       real(8):: sumev , sumtv , vconst
       double complex smpot(k1,k2,k3,2),smrho(k1,k2,k3,2)
 C ... Local parameters
@@ -205,9 +205,9 @@ C       Block into groups of consecutive l
         OSIGHH =>sv_p_osig(3,ib)%v
         OSIGHP =>sv_p_osig(2,ib)%v
         OSIGPP =>sv_p_osig(1,ib)%v
-        OPPIHH =>sv_p_oppi(3,ib)%v
-        OPPIHP =>sv_p_oppi(2,ib)%v
-        OPPIPP =>sv_p_oppi(1,ib)%v
+        OPPIHH =>sv_p_oppi(3,ib)%cv
+        OPPIHP =>sv_p_oppi(2,ib)%cv
+        OPPIPP =>sv_p_oppi(1,ib)%cv
         call pvgtkn ( kmax , lmxa , nlma , nkaph , norb , ltab , ktab
      .              , blks , lmxh , nlmh , OTAUHH , OSIGHH , OPPIHH
      .              , OTAUHP , OSIGHP , OPPIHP

@@ -205,8 +205,7 @@ C ----------------------------------------------------------------------
      .f1(nr,0:lmx1,nf1s),v1(0:lmx1,nf1s),d1(0:lmx1,nf1s),
      .f2(nr,0:lmx2,nf2s),v2(0:lmx2,nf2s),d2(0:lmx2,nf2s),
      .x1(nr,0:lmx1,nf1s),x2(nr,0:lmx2,nf2s),
-     .sig(nf1,nf2,0:lmux,nsp),tau(nf1,nf2,0:lmux,nsp),
-     .ppi(nf1,nf2,nlx1,nlx2,nsp,*),vum(0:lmxa,0:lmxa,nlml,6,nsp)
+     .sig(nf1,nf2,0:lmux,nsp),tau(nf1,nf2,0:lmux,nsp),vum(0:lmxa,0:lmxa,nlml,6,nsp)
       double precision sodb(nab,n0,nsp,2) !Spin-Orbit related
       integer ilm1,ilm2
       integer i1,i2,ilm,l,ll,nlm,nlm1,nlm2,i,iprint,stdo,lgunit
@@ -214,10 +213,13 @@ C ----------------------------------------------------------------------
       real(8):: vsms(nr),ppi0(nf1*nf2*(lmux+1)),
      .qm(nf1*nf2*(lmx1+1)*(lmx2+1)*(lmxl+1)), sum((lmx1+1)*(lmx2+1)*nlml)
       complex(8),allocatable:: hso(:,:,:,:,:,:),ppiz(:,:,:,:,:,:)
+      complex(8):: ppi(nf1,nf2,nlx1,nlx2,nsp,nspc)
+      real(8)::   ppir(nf1,nf2,nlx1,nlx2,nsp)
       stdo = lgunit(1)
       allocate(hso(nf1,nf2,nlx1,nlx2,nsp,2),ppiz(nf1,nf2,nlx1,nlx2,nsp,2))
       if(lso/=0)  hso=0d0
       if(lldau/=0) ppiz=0d0
+      ppir=0d0
       do i = 1, nsp
         call dpcopy(vsm(1,1,i),vsms,1,nr,y0) !Spherical part of the smooth potential
 C --- Make sig, tau, ppi0 = spherical part of ppi ---
@@ -241,14 +243,13 @@ C     for local orbitals
      .  lmux,sig(1,1,0,i),tau(1,1,0,i),ppi0,
      .  hso(1,1,1,1,i,1),hso(1,1,1,1,i,2))
 C --- Contribution to ppi from non-spherical potential ---
-        call dpzero(ppi(1,1,1,1,i,1),nf1*nf2*nlx1*nlx2)
 C     paug2: smooth integral f1^ (-vsm) f2^ for nonspherical part of vsm
 C     Also include local orbitals; require f=0 if no smooth part.
         call paug2(nr,nlml,vsm(1,1,i),rwgt,cg,jcg,indxcg,nf1,nf1,lmx1,
-     .  lx1,f1,nf2,nf2,lmx2,lx2,f2,sum,nlx1,nlx2,ppi(1,1,1,1,i,1))
+     .  lx1,f1,nf2,nf2,lmx2,lx2,f2,sum,nlx1,nlx2,ppir(1,1,1,1,i))
 C     paug1: augm integral f1~ vtrue f2~ for nonspherical part of vtrue
         call paug1(nf1,nf1s,lmx1,lx1,v1,d1,nf2,nf2s,lmx2,lx2,v2,d2,lmxa,
-     .  nlml,cg,jcg,indxcg,vum(0,0,1,1,i),nlx1,nlx2,ppi(1,1,1,1,i,1))
+     .  nlml,cg,jcg,indxcg,vum(0,0,1,1,i),nlx1,nlx2,ppir(1,1,1,1,i))
 C --- Moments qm = (f1~*f2~ - f1^*f2^) r^m Y_m ---
 C     Needed for the term qm * (gpot0-gpotb) added to ppi
         call pvagm3(nf1,nf1s,lmx1,lx1,f1,v1,d1,nf2,nf2s,lmx2,lx2,f2,v2,d2,
@@ -260,7 +261,7 @@ C --- Add any LDA+U contribution that exists
         endif
 C --- Assemble ppi from ppi0, non-spherical part and multipole contr ---
         call paug3(nf1,lmx1,lx1,nf2,lmx2,lx2,lmxl,nlml,cg,jcg,
-     .  indxcg,qm,gpotb,gpot0,lmux,ppi0,nlx1,nlx2,ppi(1,1,1,1,i,1))
+     .  indxcg,qm,gpotb,gpot0,lmux,ppi0,nlx1,nlx2,ppir(1,1,1,1,i))
 C --- Add tau into ppi ---
         do  i1 = 1, nf1
           do  i2 = 1, nf2
@@ -269,7 +270,7 @@ C --- Add tau into ppi ---
             nlm = min0(nlm1,nlm2)
             do  ilm = 1, nlm
               l = ll(ilm)
-              ppi(i1,i2,ilm,ilm,i,1) = ppi(i1,i2,ilm,ilm,i,1)
+              ppir(i1,i2,ilm,ilm,i) = ppir(i1,i2,ilm,ilm,i)
      .        + tau(i1,i2,l,i)
             enddo
           enddo
@@ -286,7 +287,7 @@ C --- debug Print diagonal augmentation matrices ---
               do  ilm = 1, nlm
                 l=ll(ilm)
                 write(stdo,500) i1,i2,ilm,sig(i1,i2,l,i),tau(i1,i2,l,i),
-     .          ppi(i1,i2,ilm,ilm,i,1)
+     .          ppir(i1,i2,ilm,ilm,i)
   500           format(2i4,i6,3f14.8)
   501           format(/'# diagonal aug matrices spin',i2,':'
      .          /'# i1  i2   ilm',8x,'sig',11x,'tau',11x,'ham')
@@ -302,8 +303,8 @@ C ... Print LL' potential matrix (which includes tau)
               nlm2 = (lx2(i2)+1)**2
               do  ilm1 = 1, nlm1
                 do  ilm2 = 1, nlm2
-                  if (dabs(ppi(i1,i2,ilm1,ilm2,i,1)) .ge. 1d-8)
-     .            write(stdo,320) i1,i2,ilm1,ilm2,ppi(i1,i2,ilm1,ilm2,i,1)
+                  if (dabs(ppir(i1,i2,ilm1,ilm2,i)) .ge. 1d-8)
+     .            write(stdo,320) i1,i2,ilm1,ilm2,ppir(i1,i2,ilm1,ilm2,i)
   320             format(2i3,2i5,f14.8)
 
                 enddo
@@ -314,17 +315,13 @@ C ... Print LL' potential matrix (which includes tau)
       enddo
       
 !---------------------------------
+!! Convert ppi(:,:,:,:,nsp,ispc=1) to complex form when (lcplxp/=0), SO=1 or LDA+U case. 
+      ppi(:,:,:,:,:,1) = ppir   !ispc=1
+      if(nspc==2) ppi(:,:,:,:,:,2) = 0d0 !ispc=2
+      
       block
       complex(8):: pp2(nf1,nf2,nlx1,nlx2,nsp,nspc)
-      complex(8):: tmp(nf1,nf2,nlx1,nlx2,nsp)
       real(8):: sz
-!! Convert ppi(:,:,:,:,nsp,ispc=1) to complex form when (lcplxp/=0), SO=1 or LDA+U case. 
-! lcplxp=1 only now
-      i1 = nf1*nf2*nlx1*nlx2
-      tmp = 0d0
-      call dcopy(i1*nsp,ppi,1,tmp,2) ! tmp in complex form
-      call dpzero(ppi,2*i1*nsp*nspc) ! ppi(:,:,:,:,isp,ispc)=0
-      call dcopy(2*i1*nsp,tmp,1,ppi,1) ! complex(ppi(:,:,:,:,1:nsp,ispc=1)= ppi 
 !! Add SO contribution to ppi     
       if (lso/=0) then
          i1 = nf1*nf2*nlx1*nlx2
@@ -336,6 +333,7 @@ C ... Print LL' potential matrix (which includes tau)
          call daxpy(2*i1*nsp*nspc,1d0,pp2,1,ppi,1) 
       endif
       end block
+      
 ! Add U contribituon to ppi      
       if(lldau/=0) call zaxpy(nf1*nf2*nlx1*nlx2*nsp*nspc,1d0,ppiz,1,ppi,1)
       deallocate(hso,ppiz)
