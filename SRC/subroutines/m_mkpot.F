@@ -3,7 +3,7 @@
       use m_supot,only: k1,k2,k3
       use m_lmfinit,only: nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nab,nppn
      & ,lfrce=>ctrl_lfrce,stdl
-      use m_lmfinit,only: nchan=>pot_nlma, nvl=>pot_nlml
+      use m_lmfinit,only: nchan=>pot_nlma, nvl=>pot_nlml,nkaph
       use m_MPItk,only: master_mpi,mlog
       use m_struc_def,only: s_rv1,s_cv1
       use m_density,only: osmrho, orhoat !main input density
@@ -11,7 +11,8 @@
       use m_bstrux,only: m_bstrux_init
 !! output ------------------------------------------------------------------
       public::  m_Mkpot_init, m_Mkpot_deallocate, m_Mkpot_energyterms, m_Mkpot_novxc
-
+      type(s_cv1),allocatable,protected,public  :: ohsozz(:,:),ohsopm(:,:) !SOC matrix 
+                                                   !generated at mkpot-locpot-augmat-gaugm
       type(s_cv1),allocatable,protected,public  :: sv_p_oppi(:,:) !pi-integral Eq.(C.6)
       type(s_rv1),allocatable,protected,public  :: sv_p_otau(:,:) !tau            (C.5)
       type(s_rv1),allocatable,protected,public  :: sv_p_osig(:,:) !sigma          (C.4)
@@ -33,11 +34,12 @@
       contains
       subroutine m_mkpot_novxc()
       integer:: i,lfrzw
+      type(s_cv1),allocatable  :: ohsozzx(:,:),ohsopmx(:,:) 
       write(stdo,"(a)")' m_mkpot_novxc: Making one-particle potential without XC part ...'
       allocate( sv_p_osigx(3,nbas), sv_p_otaux(3,nbas), sv_p_oppix(3,nbas))
+      allocate( ohsozzx(3,nbas), ohsopmx(3,nbas)) !dummy
       allocate( spotx(k1,k2,k3,nsp)) !smooth potential without XC
-      call dfaugm(sv_p_osigx, sv_p_otaux, sv_p_oppix) !for sig,tau,ppi without XC(LDA)
-
+      call dfaugm(sv_p_osigx, sv_p_otaux, sv_p_oppix, ohsozzx,ohsopmx)!for sig,tau,ppi without XC(LDA)
       allocate( vesrmt(nbas))
       allocate(  qmom(nvl)) !rhomom
       allocate( ppnl_rv(nppn,n0,nsp,nbas))
@@ -53,12 +55,13 @@
       i = 1 + 10*lfrzw + 100    ! Adding 100 means excluding XC(LDA) part. nolxc=T
 !     We obtain sv_p_osigx, sv_p_otaux, sv_p_oppix, smpotx  without XC
       call mkpot (i, osmrho , orhoat , 
-     o     spotx, sv_p_osigx , sv_p_otaux , sv_p_oppix, fes1_rv)
+     o     spotx, sv_p_osigx , sv_p_otaux , sv_p_oppix, fes1_rv, ohsozzx,ohsopmx)
       deallocate(vesrmt,qmom,ppnl_rv,hab_rv,vab_rv,sab_rv,gpot0,vval,fes1_rv)
       end subroutine 
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine m_mkpot_init(llmfgw)
-      integer:: i,lfrzw!,lfrce
+      use m_lmfinit,only: lso,nbas, ssite=>v_ssite, sspec=>v_sspec, nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex 
+      integer:: i,lfrzw,is,ib,kmax,lmxa,lmxh,nelt2,nlma,nlmh!,lfrce
       real(8) ::qbz
       logical :: llmfgw,fsmode,fullmesh,cmdopt0
 c      lfrce=ctrl_lfrce
@@ -89,9 +92,10 @@ c      if(cmdopt0('--band').or.fullmesh) lfrce = 0
       allocate( fes1_rv(3*nbas))
       call togpr()
       allocate( sv_p_osig(3,nbas), sv_p_otau(3,nbas), sv_p_oppi(3,nbas))
-      call dfaugm(sv_p_osig, sv_p_otau, sv_p_oppi ) !allocation for sig,tau,ppi integrals
+      allocate( ohsozz(3,nbas), ohsopm(3,nbas))
+      call dfaugm(sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm) !allocation for sig,tau,ppi integrals
       call mkpot (i, osmrho , orhoat, 
-     o     osmpot, sv_p_osig , sv_p_otau , sv_p_oppi, fes1_rv)
+     o     osmpot, sv_p_osig , sv_p_otau , sv_p_oppi, fes1_rv, ohsozz,ohsopm)
       call togpr()
       end subroutine
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssss      
@@ -102,19 +106,19 @@ c      if(cmdopt0('--band').or.fullmesh) lfrce = 0
       if(allocated(fes2_rv)) deallocate(fes2_rv)
       allocate( fes2_rv(3*nbas))
          call mkpot (0, smrho_out , orhoat_out , 
-     o     osmpot, sv_p_osig , sv_p_otau , sv_p_oppi, fes2_rv)
+     o     osmpot, sv_p_osig , sv_p_otau , sv_p_oppi, fes2_rv, ohsozz,ohsopm)
       end subroutine
 !!------------------------------------------------------
       subroutine m_mkpot_deallocate()
       if (allocated(vesrmt)) then
          deallocate(vesrmt,fes1_rv,ppnl_rv,sab_rv,vab_rv,hab_rv,vval,gpot0,qmom,
-     &    sv_p_oppi,sv_p_otau,sv_p_osig,osmpot)
+     &    sv_p_oppi,sv_p_otau,sv_p_osig,osmpot,ohsozz,ohsopm)
       endif
       end
 !!------------------------------------------------------
       subroutine mkpot (
      i    job, smrho, sv_p_orhoat,  
-     o    smpot, sv_p_osig, sv_p_otau, sv_p_oppi, fes ) 
+     o    smpot, sv_p_osig, sv_p_otau, sv_p_oppi, fes, ohsozz,ohsopm ) 
 !Note other output in module area
 c for job=0      
 Co         utot   = total electrostatic energy
@@ -264,10 +268,10 @@ C 6. Make <vxc_nn> and compare to integrals made here.
 C    If problems, Maybe even look at sm part only, or local part only.
       implicit none
       integer job,i1,i2,i3,ispec
-      type(s_rv1) :: sv_p_orhoat(3,nbas)
-      type(s_cv1) :: sv_p_oppi(nbas)
-      type(s_rv1) :: sv_p_otau(nbas)
-      type(s_rv1) :: sv_p_osig(nbas)
+      type(s_rv1) :: sv_p_orhoat(*)
+      type(s_cv1) :: sv_p_oppi(*),ohsozz(*),ohsopm(*)
+      type(s_rv1) :: sv_p_otau(*)
+      type(s_rv1) :: sv_p_osig(*)
       real(8)::  fes(3,nbas) 
       complex(8):: smrho(k1,k2,k3,nsp),smpot(k1,k2,k3,nsp)
       logical cmdopt0
@@ -445,7 +449,7 @@ C --- Make local potential at atomic sites and augmentation matrices ---
       rhobg=qbg/vol
       call locpot ( !nbas , nsp , lso ,  ssite , sspec !, slat lcplxp ,
      .    sv_p_orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau , 
-     .    sv_p_oppi , ppnl_rv , hab_rv , vab_rv , sab_rv , vvesat , cpnvsa , repat , 
+     .    sv_p_oppi,ohsozz,ohsopm, ppnl_rv , hab_rv , vab_rv , sab_rv , vvesat , cpnvsa , repat , 
      .    repatx , repatc , rmuat , rvepva , rvexva , rvecva , rvvxva , 
      .    rvepsa , rvvxca , valvfa , xcore , fcexca , fcexa , fceca , fcvxca 
      .    , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , 

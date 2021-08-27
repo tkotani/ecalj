@@ -1,6 +1,6 @@
       subroutine locpot (  !lcplxp , 
      .      sv_p_orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau  !slat , 
-     .    , sv_p_oppi , ppnl , hab , vab , sab , vvesat , cpnvsa , rhoexc 
+     .    , sv_p_oppi, ohsozz,ohsopm, ppnl , hab , vab , sab , vvesat , cpnvsa , rhoexc 
      .    , rhoex , rhoec , rhovxc , rvepsv , rvexv , rvecv , rvvxcv , 
      .    rveps , rvvxc , valvef , xcore , focexc , focex , focec , focvxc 
      .    , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , 
@@ -116,7 +116,7 @@ C ----------------------------------------------------------------------
       implicit none
       integer::  job , i_copy_size,ibx,ir,isp,l,lm !lcplxp,
       type(s_rv1) :: sv_p_orhoat(3,nbas)
-      type(s_cv1) :: sv_p_oppi(3,nbas)
+      type(s_cv1) :: sv_p_oppi(3,nbas),ohsozz(3,nbas),ohsopm(3,nbas)
       type(s_rv1) :: sv_p_otau(3,nbas)
       type(s_rv1) :: sv_p_osig(3,nbas)
       integer nlibu,lmaxu,lldau(nbas),iblu
@@ -426,7 +426,7 @@ C     ... Use effective potentials with modified xc
      .           , ssite(ib)%rv_a_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , 
      .           lmxb , lhh(:,is) , eh , rsmh, ehl , rsml , rs3 , vmtz ,  lmaxu !lcplxp ,
      .         , vorb, lldau(ib), iblu, idu, sv_p_osig(1,ib) , sv_p_otau(1,ib),
-     &           sv_p_oppi (1,ib), ppnl(1,1,1,ib) , 
+     &           sv_p_oppi(1,ib),ohsozz(1,ib),ohsopm(1,ib), ppnl(1,1,1,ib) , 
      .           hab(1,1,1,ib),vab (1,1,1,ib), sab(1,1,1,ib) )
         endif
         j1 = j1+nlml

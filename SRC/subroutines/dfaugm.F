@@ -1,4 +1,4 @@
-      subroutine dfaugm ( sv_p_osig, sv_p_otau , sv_p_oppi )
+      subroutine dfaugm ( sv_p_osig, sv_p_otau , sv_p_oppi,ohsozz,ohsopm )
       use m_struc_def,only:s_rv1,s_cv1
       use m_lmfinit,only: nkaph,nsp,nspc,nbas,ssite=>v_ssite,sspec=>v_sspec !lcplxp,
 C- Allocate augmentation matrices sigma,tau,pi for all atoms
@@ -21,7 +21,7 @@ Cr   For sig(Hsm,Hsm), nf1=nf2=nkaph; lmax = lmxh
 Cl   nkaph :number of orbital types for a given L quantum no. in basis
 C ----------------------------------------------------------------------
       implicit none
-      type(s_cv1) :: sv_p_oppi(3,nbas)
+      type(s_cv1) :: sv_p_oppi(3,nbas),ohsozz(3,nbas),ohsopm(3,nbas)
       type(s_rv1) :: sv_p_otau(3,nbas), sv_p_osig(3,nbas)
       integer ib,igetss,is,kmax,lmxa,lmxh,nelt1,nelt2,nglob,nlma,nlmh!,nso
       do  ib = 1, nbas
@@ -51,5 +51,14 @@ C   ...  Case Hsm*Pkl
         allocate(sv_p_osig(2,ib)%v(abs(nelt1)))
         allocate(sv_p_otau(2,ib)%v(abs(nelt1)))
         allocate(sv_p_oppi(2,ib)%cv(nelt2))
+!        
+c      if(lso/=0) then !spin-orbit copling matrix elements
+        nelt2 = (kmax+1)*(kmax+1)*nlma*nlma*nsp
+        allocate(ohsozz(1,ib)%cv(nelt2), ohsopm(1,ib)%cv(nelt2)) ! Pkl*Pkl zz and pm component
+        nelt2 = nkaph*nkaph*nlmh*nlmh*nsp
+        allocate(ohsozz(3,ib)%cv(nelt2), ohsopm(3,ib)%cv(nelt2)) ! Hsm*Hsm
+        nelt2 = nkaph*(kmax+1)*nlmh*nlma*nsp
+        allocate(ohsozz(2,ib)%cv(nelt2), ohsopm(2,ib)%cv(nelt2)) ! Hsm*Pkl
+c      endif
       enddo
       end subroutine dfaugm

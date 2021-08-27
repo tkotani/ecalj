@@ -2,7 +2,7 @@
      .gpotb,gpot0,hab,vab,sab,sodb,qum,vum,cg,jcg,indxcg,
      .nf1,nf1s,lmx1,lx1,f1,x1,v1,d1,
      .nf2,nf2s,lmx2,lx2,f2,x2,v2,d2,
-     .lmux,sig,tau,nlx1,nlx2,ppi,
+     .lmux,sig,tau,nlx1,nlx2,ppi,hsozz,hsopm,
      .lmaxu,vumm,lldau,idu)
       use m_lmfinit,only: nspc,nab,n0
 C- Generic routine to make augmentation matrices
@@ -213,11 +213,15 @@ C ----------------------------------------------------------------------
       real(8):: vsms(nr),ppi0(nf1*nf2*(lmux+1)),
      .qm(nf1*nf2*(lmx1+1)*(lmx2+1)*(lmxl+1)), sum((lmx1+1)*(lmx2+1)*nlml)
       complex(8),allocatable:: hso(:,:,:,:,:,:),ppiz(:,:,:,:,:,:)
-      complex(8):: ppi(nf1,nf2,nlx1,nlx2,nsp,nspc)
+      complex(8):: ppi  (nf1,nf2,nlx1,nlx2,nsp,nspc)
+      complex(8):: hsozz(nf1,nf2,nlx1,nlx2,nsp) !nspc)
+      complex(8):: hsopm(nf1,nf2,nlx1,nlx2,nsp) !nspc)
       real(8)::   ppir(nf1,nf2,nlx1,nlx2,nsp)
       stdo = lgunit(1)
-      allocate(hso(nf1,nf2,nlx1,nlx2,nsp,2),ppiz(nf1,nf2,nlx1,nlx2,nsp,2))
-      if(lso/=0)  hso=0d0
+c      allocate(hso(nf1,nf2,nlx1,nlx2,nsp,2),ppiz(nf1,nf2,nlx1,nlx2,nsp,2))
+      allocate(ppiz(nf1,nf2,nlx1,nlx2,nsp,2))
+      if(lso/=0)  hsozz=0d0
+      if(lso/=0)  hsopm=0d0
       if(lldau/=0) ppiz=0d0
       ppir=0d0
       do i = 1, nsp
@@ -233,7 +237,8 @@ C     for orbitals constructed out of (u,s)
      .  hab(1,1,i),vab(1,1,i),sab(1,1,i),
      .  sodb(1,1,i,1),sodb(1,1,i,2),lmux,
      .  sig(1,1,0,i),tau(1,1,0,i),ppi0,
-     .  hso(1,1,1,1,i,1),hso(1,1,1,1,i,2))
+c     .  hso(1,1,1,1,i,1),hso(1,1,1,1,i,2))
+     .  hsozz(1,1,1,1,i),hsopm(1,1,1,1,i))
 C     pvagm1: augm. f1~f2~ part of sig and corresponding tau,ppi0
 C     for local orbitals
         call pvaglc(nf1,nf1s,lmx1,lx1,nlx1,v1,d1,i,
@@ -241,7 +246,9 @@ C     for local orbitals
      .  hab(1,1,i),vab(1,1,i),sab(1,1,i),
      .  sodb(1,1,i,1),sodb(1,1,i,2),
      .  lmux,sig(1,1,0,i),tau(1,1,0,i),ppi0,
-     .  hso(1,1,1,1,i,1),hso(1,1,1,1,i,2))
+c     .  hso(1,1,1,1,i,1),hso(1,1,1,1,i,2))
+     .  hsozz(1,1,1,1,i),hsopm(1,1,1,1,i))
+        
 C --- Contribution to ppi from non-spherical potential ---
 C     paug2: smooth integral f1^ (-vsm) f2^ for nonspherical part of vsm
 C     Also include local orbitals; require f=0 if no smooth part.
@@ -313,30 +320,34 @@ C ... Print LL' potential matrix (which includes tau)
           enddo
         endif
       enddo
-      
 !---------------------------------
 !! Convert ppi(:,:,:,:,nsp,ispc=1) to complex form when (lcplxp/=0), SO=1 or LDA+U case. 
       ppi(:,:,:,:,:,1) = ppir   !ispc=1
       if(nspc==2) ppi(:,:,:,:,:,2) = 0d0 !ispc=2
-      
-      block
-      complex(8):: pp2(nf1,nf2,nlx1,nlx2,nsp,nspc)
-      real(8):: sz
-!! Add SO contribution to ppi     
-      if (lso/=0) then
-         i1 = nf1*nf2*nlx1*nlx2
-         call dcopy(2*i1*nsp*nspc,hso,1,pp2(1,1,1,1,1,1),1)
-         do i = 1, nsp !nspc=1 part
-            sz = 1.5d0 - i
-            call dpcopy(hso(1,1,1,1,i,1),pp2(1,1,1,1,i,1),1,i1*2,sz)
-         enddo
-         call daxpy(2*i1*nsp*nspc,1d0,pp2,1,ppi,1) 
-      endif
-      end block
-      
 ! Add U contribituon to ppi      
       if(lldau/=0) call zaxpy(nf1*nf2*nlx1*nlx2*nsp*nspc,1d0,ppiz,1,ppi,1)
-      deallocate(hso,ppiz)
+      deallocate(ppiz)
+!!      
+c      block
+c      complex(8):: pp2(nf1,nf2,nlx1,nlx2,nsp,nspc)
+c      real(8):: sz
+!! Add SO contribution to ppi
+      if (lso/=0) then
+c         i1 = nf1*nf2*nlx1*nlx2
+c         pp2(:,:,:,:,:,1)= hsozz ! call zcopy(i1*nsp,hsozz,1,pp2(1,1,1,1,1,1),1)
+c         do i = 1, nsp !nspc=1 part
+c            sz = 1.5d0 - i
+c            call dpcopy(hsozz(1,1,1,1,i),pp2(1,1,1,1,i,1),1,i1*2,sz)
+c         enddo
+c     call zaxpy(i1*nsp*nspc,1d0,pp2,1,ppi,1)
+c         pp2(:,:,:,:,1, 1)=  0.5d0* hsozz(:,:,:,:, 1)
+c         pp2(:,:,:,:,2, 1)= -0.5d0* hsozz(:,:,:,:, 2)
+c         if(nspc==2) pp2(:,:,:,:,:, 2)= hsopm
+         ppi(:,:,:,:,1, 1)= ppi(:,:,:,:,1, 1) +  0.5d0* hsozz(:,:,:,:,1)
+         ppi(:,:,:,:,2, 1)= ppi(:,:,:,:,2, 1) -  0.5d0* hsozz(:,:,:,:,2)
+         if(nspc==2) ppi(:,:,:,:,:, 2)= hsopm(:,:,:,:,:)
+      endif
+c      end block
       end
 
       subroutine pvagm1(nf1,nf1s,lmx1,lx1,nlx1,v1,d1,isp,
