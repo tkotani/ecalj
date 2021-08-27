@@ -91,7 +91,7 @@ C--------------------------
       vol=lat_vol
       initbas=1
       endbas=nbas
-      do  ia = initbas, endbas
+      do ia = initbas, endbas
         isa =ssite(ia)%spec
         pa  =ssite(ia)%pos
         lmxa=sspec(isa)%lmxa !max l of augmentation
@@ -106,16 +106,19 @@ C   --- Make strux to expand all orbitals at site ia ---
         if(allocated(b)) deallocate(b)
         allocate( b(0:kmax,nlma,ndimh) )
         do lm=1,nlma
-           b(:,lm,:) = transpose(bstr(:,lm,:)) !-b(:,lm,:)
+           b(:,lm,:) = transpose(bstr(:,lm,:)) 
         enddo
 C   --- Add 1-center and 2-center terms ---
-        call augq2z ( mode1 , ia , isp , nkaph , iprmb , lmxb 
-     .       , nlmb , kmax , nlma , sv_p_osig ( 3 , ia ) %v , sv_p_oppi( 3 , ia )%cv 
-     .       , sv_p_osig ( 2 , ia ) %v , sv_p_oppi( 2 , ia )%cv , b , ndimh 
-     .       , nlmto , s , h , hso )
+        call augq2z ( 0 , ia , isp , nkaph , iprmb , lmxb, nlmb , kmax , nlma ,
+     &       sv_p_osig(3,ia)%v, sv_p_oppi(3, ia)%cv, sv_p_osig(2, ia)%v, sv_p_oppi(2,ia)%cv,
+     &       b, ndimh, nlmto,                                                   s,h, hso )
+        if(mode1==1) call augq2zhso(ia , isp , nkaph , iprmb , lmxb, nlmb , kmax , nlma ,
+     &       sv_p_osig(3,ia)%v, sv_p_oppi(3, ia)%cv, sv_p_osig(2, ia)%v, sv_p_oppi(2,ia)%cv,
+     &       b, ndimh, nlmto,                                                        hso )
 C   --- Add B+ sig B to S and B+ ppi B to H ---
-        call augqs3(  kmax, lmxa, nlma, ndimh, isp, g, sv_p_osig( 1, ia )%v, b, s)
-        call augq3z( mode1, kmax, nlma, ndimh, isp, g, sv_p_oppi( 1, ia )%cv, b, h, hso)
+        call augqs3( kmax, lmxa, nlma, ndimh, isp, g, sv_p_osig( 1, ia )%v, b,          s)
+        call augq3z( kmax, nlma, ndimh, isp, sv_p_oppi(1,ia)%cv, b,                     h)
+        if(mode1==1.and.isp==2) call augq3zhso(kmax,nlma,ndimh,sv_p_oppi( 1, ia )%cv,b, hso)
         deallocate(b)
       enddo
       call tcx ('augmbl')
@@ -126,9 +129,6 @@ C   --- Add B+ sig B to S and B+ ppi B to H ---
 C- Add one and two-center terms to h,s for complex potential
 C ----------------------------------------------------------------------
 Ci Inputs
-Cix   mode  :0 compute both hamiltonian and overlap
-Cix         :  otherwise, compute overlap only.
-Cix         :  In this case, vavg is not used
 Ci   mode1 :0 do not compute hso
 Ci         :1 compute hso
 Ci   ia    :augmentation site about which strux are expanded
@@ -173,8 +173,7 @@ Cu   01 Sep 04 folded so into complex potential
 Cu   29 Jun 04 (A. Chantis) added 1- and 2- center spherical so*Lz*Sz
 Cu   14 Aug 02 Added overlap-only option
 C ----------------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
+      implicit none
       integer mode,mode1,ia,isp,kmax,nkaph,nlma,lmxb,nlmb,iprmb(1),
      .ndimh,nlmto
       double precision
@@ -236,7 +235,6 @@ C           ... Make 2c term LxSx+LySy part of SO
                 enddo
               enddo
             enddo
-
 C     ... One-center terms
             do  jorb = 1, norb
               l2  = ltab(jorb)
@@ -260,7 +258,113 @@ C        ...  Make 1c LxSx+LySy part of SO
         deallocate (tso)
       endif
       end subroutine augq2z
-
+c
+      subroutine augq2zhso(ia,isp,nkaph,iprmb,lmxb,nlmb,kmax,
+     .nlma,sighh,ppihh,sighp,ppihp,b,ndimh,nlmto,        hso)
+C- Add one and two-center terms to h,s for complex potential
+C ----------------------------------------------------------------------
+Ci Inputs
+Ci   mode1 :0 do not compute hso
+Ci         :1 compute hso
+Ci   ia    :augmentation site about which strux are expanded
+Ci   isp   :current spin channel
+Ci   nkaph :dimensions augmentation matrices
+Ci   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
+Ci   nlmb :dimensions augmentation potential matrix at site a
+Ci   lmxb :dimensions sighh at site a
+Ci   kmax  :polynomial cutoff
+Ci   nlma  :augmentation L-cutoff
+Ci   sighh :augmentation head-head overlap matrix
+Ci   ppihh :augmentation head-head potential matrix
+Ci   sighp :augmentation head-Pkl overlap matrix
+Ci   ppihp :augmentation head-Pkl potential matrix
+Ci   b     :Bloch strux connecting site ia to all sites
+Ci   ndimh :hamiltonian dimension
+Co Outputs
+Co   hso   :1- and 2- center spin up-down spin orbit block
+Cr Remarks
+Cr  In this implementation, the augmentation matrices and the row
+Cr  dimension of the structure constants b follow normal L order.
+Cr  The column dimension of b is permuted in iprmb order.
+Cr  The ppihh(i,i,i,i,3), ppihh(i,i,i,i,4) are the head-head matrix
+Cr  elements of LxSx+LySy. The ppihp(i,i,i,i,3), ppihp(i,i,i,i,4) are
+Cr  the corresponding head-tail elements.
+c
+!!takao  NOTE: LzSz is alreay added h by locpot-augmat-gaugm
+c
+Cr  The 2c term has the form h_{i,j} = Sum_kL(conjg(b_{i;k,L})*p_{j;k,L})+
+Cr   Sum_kL(p_{i;k,L}*p_{j;k,L}); To get the second term for spin orbit
+Cr   we rely on the hermicity of the ppi_{LxSx+LySy} block.
+Cr   Symbolically:
+Cr   hso_{i,j,u,d} =  Sum_kL[p_{i,j,u,d}*b_{j} + conjg(p_{j,i,d,u}*b_{i})]
+Cr   where u = spin-up and d = spin-down.
+Cr   If the structure constants become noncollinear, additional terms have
+Cr   to be added in the matrix element above.
+Cu Updates
+Cu   03 Feb 05 (A. Chantis) added 1- and 2- center spherical so*(LxSx+LySy)
+Cu   01 Sep 04 folded so into complex potential
+Cu   29 Jun 04 (A. Chantis) added 1- and 2- center spherical so*Lz*Sz
+Cu   14 Aug 02 Added overlap-only option
+C ----------------------------------------------------------------------
+      implicit none
+      integer mode,mode1,ia,isp,kmax,nkaph,nlma,lmxb,nlmb,iprmb(1),
+     .ndimh,nlmto
+      double precision
+     .sighh(nkaph,nkaph,0:lmxb,1),sighp(nkaph,0:kmax,0:lmxb,1)
+      double complex
+     .ppihh(nkaph,nkaph,nlmb,nlmb,isp+2*mode1),
+     .ppihp(nkaph,0:kmax,nlmb,nlma,isp+2*mode1)
+      double complex b(0:kmax,nlma,ndimh),s(ndimh,ndimh),
+     . hso(ndimh,ndimh)
+C ... Local parameters
+      integer iorb,ik1,j,k,ilma,i1,i2,ilm1,ilm2,l1,n0,nkap0,jorb,ik2,l2,
+     .jsp,ksp
+      parameter (n0=10,nkap0=3)
+      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),norb
+      double precision xx
+      double complex cadd,cadd1
+      complex(8),allocatable:: tso(:,:,:,:)
+      allocate (tso(ndimh,ndimh,2,2))
+      tso=0d0                   !call dpzero(tso,ndimh*ndimh*4*2)
+C --- Loop over basis functions at site ia (augentation index) ---
+      call orbl(ia,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
+      do iorb = 1, norb
+        l1  = ltab(iorb)
+        ik1 = ktab(iorb)
+        i1 = offl(iorb)
+        do  ilm1 = l1**2+1, (l1+1)**2
+          i1 = i1+1
+          do  j = 1, ndimh
+          do  k = 0, kmax
+          do  ilma = 1, nlma
+C           ... Make 2c term LxSx+LySy part of SO 
+!     ! NOTE: LzSz is alreay added h by locpot-augmat-gaugm
+             jsp= 3-isp
+             ksp = 2*isp + jsp - 1
+             cadd1 = ppihp(ik1,k,ilm1,ilma,ksp)*b(k,ilma,j)
+             tso(i1,j,isp,jsp) = tso(i1,j,isp,jsp) + 0.5d0*cadd1
+             tso(j,i1,jsp,isp) = tso(j,i1,jsp,isp) + 0.5d0*dconjg(cadd1)
+          enddo
+          enddo
+          enddo
+C     ... One-center terms
+          do  jorb = 1, norb
+              l2  = ltab(jorb)
+              ik2 = ktab(jorb)
+              i2 = offl(jorb)
+              do  ilm2 = l2**2+1, (l2+1)**2
+                i2 = i2+1
+C        ...  Make 1c LxSx+LySy part of SO
+!! NOTE: LzSz is alreay added h by locpot-augmat-gaugm
+                if(isp ==2) hso(i1,i2) = hso(i1,i2) + 0.5d0*ppihh(ik1,ik2,ilm1,ilm2,3)
+              enddo
+          enddo
+        enddo
+      enddo
+      hso = hso + tso(:,:,1,2)
+      deallocate (tso)
+      end subroutine augq2zhso
+      
       subroutine augqs3(kmax,lmxa,nlma,ndimh,isp,g,sig,b,s)
 C- Add B+ sig B to s for L-diagonal sig
 C ----------------------------------------------------------------------
@@ -300,8 +404,7 @@ C   ... Make dot products with vectors i1
       enddo
       end subroutine augqs3
 
-
-      subroutine augq3z(mode1,kmax,nlma,ndimh,isp,g,ppi,b,h,hso)
+      subroutine augq3z(kmax,nlma,ndimh,isp,ppi,b,h)
 C- Add B+ ppi B to H for non-L-diagonal, complex matrix ppi
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -309,7 +412,7 @@ Ci   kmax  :polynomial cutoff
 Ci   nlma  :augmentation L-cutoff
 Ci   ndimh :hamiltonian dimension
 Ci   isp   :current spin channel
-Ci   g     :complex work array of dimension (kmax+1)*nlma
+Cix   g     :complex work array of dimension (kmax+1)*nlma
 Ci   ppi   :augmentation Pkl-Pkl potential matrix
 Ci   b     :Bloch structure constants (hxpbl)
 Co Outputs
@@ -322,26 +425,19 @@ Cu 01 Sep 04 folded so into complex potential
 Cu 29 Jun 04 (A. Chantis) added 3- center so*Sz*Lz (spherical part)
 C ----------------------------------------------------------------------
       implicit none
-      integer kmax,nlma,ndimh,isp,mode1
-      complex(8):: ppi(0:kmax,0:kmax,nlma,nlma,isp+2*mode1),
+      integer kmax,nlma,ndimh,isp!,mode1
+      complex(8):: ppi(0:kmax,0:kmax,nlma,nlma,2),
      & b(0:kmax,nlma,ndimh),h(ndimh,ndimh),
-     & g(0:kmax,nlma),csum,gso(0:kmax,nlma),csum1,hso(ndimh,ndimh)
+     & g(0:kmax,nlma),csum,csum1 !,hso(ndimh,ndimh),gso(0:kmax,nlma)
       integer i1,i2,jlm1,jlm2,k1,k2,kjlm !,kjtop
-c      call tcn('augq3z')
       do  i2 = 1, ndimh
-C   ... g <- ppi*b
         g = 0d0   
-        gso=0d0 
         do  jlm1 = 1, nlma
           do  jlm2 = 1, nlma
             do  k2 = 0, kmax
               do  k1 = 0, kmax
                 g(k1,jlm1) = g(k1,jlm1) +
      .          ppi(k1,k2,jlm1,jlm2,isp)*b(k2,jlm2,i2)
-C     ...  Make LxSx+LySy part of SO
-                if (mode1 .eq. 1 .and. isp .eq. 2)
-     .          gso(k1,jlm1) = gso(k1,jlm1) + 
-     .          ppi(k1,k2,jlm1,jlm2,3)*b(k2,jlm2,i2)
               enddo
             enddo
           enddo
@@ -349,12 +445,52 @@ C     ...  Make LxSx+LySy part of SO
 C   ... Make dot products with vectors i1
         do i1 = 1, ndimh
           h(i1,i2) = h(i1,i2) + sum(dconjg(b(:,:,i1))*g(:,:))
-C     ...  Make LxSx+LySy part of SO
-          if (mode1==1 .and. isp==2) 
-     .      hso(i1,i2) = hso(i1,i2) + .5d0*sum(dconjg(b(:,:,i1))*gso(:,:)) !+ 0.5d0*csum1
         enddo
       enddo
-c      call tcx('augq3z')
       end subroutine augq3z
 
-
+      subroutine augq3zhso(kmax,nlma,ndimh,ppi,b,hso)
+C- Add B+ ppi B to H for non-L-diagonal, complex matrix ppi
+C ----------------------------------------------------------------------
+Ci Inputs
+Ci   kmax  :polynomial cutoff
+Ci   nlma  :augmentation L-cutoff
+Ci   ndimh :hamiltonian dimension
+Ci   isp   :current spin channel
+Cix   g     :complex work array of dimension (kmax+1)*nlma
+Ci   ppi   :augmentation Pkl-Pkl potential matrix
+Ci   b     :Bloch structure constants (hxpbl)
+Co Outputs
+Co   h     :3-center from this augmentation site added to h
+Co   hso   :3-center from this augmentation site added to hso
+Cr Remarks
+Cu Updates
+Cu 03 Feb 05 (A. Chantis) added 3- center spherical so*(LxSx+LySy)
+Cu 01 Sep 04 folded so into complex potential
+Cu 29 Jun 04 (A. Chantis) added 3- center so*Sz*Lz (spherical part)
+C ----------------------------------------------------------------------
+      implicit none
+      integer kmax,nlma,ndimh,isp!,mode1
+      complex(8):: ppi(0:kmax,0:kmax,nlma,nlma,3),
+     & b(0:kmax,nlma,ndimh),!h(ndimh,ndimh),
+     & csum,gso(0:kmax,nlma),csum1,hso(ndimh,ndimh)
+      integer i1,i2,jlm1,jlm2,k1,k2,kjlm !,kjtop
+      do i2 = 1, ndimh
+        gso=0d0 
+        do  jlm1 = 1, nlma
+        do  jlm2 = 1, nlma
+          do  k2 = 0, kmax
+          do  k1 = 0, kmax
+C     ...  Make LxSx+LySy part of SO
+            gso(k1,jlm1) = gso(k1,jlm1) + ppi(k1,k2,jlm1,jlm2,3)*b(k2,jlm2,i2)
+          enddo
+          enddo
+        enddo
+        enddo
+C   ... Make dot products with vectors i1
+        do i1 = 1, ndimh
+C     ...  Make LxSx+LySy part of SO
+           hso(i1,i2) = hso(i1,i2) + .5d0*sum(dconjg(b(:,:,i1))*gso(:,:)) 
+        enddo
+      enddo
+      end subroutine augq3zhso
