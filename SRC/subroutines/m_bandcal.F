@@ -11,8 +11,8 @@
      &     pwmode=>ham_pwmode,pwemax,stdl
       use m_MPItk,only: mlog, master_mpi, procid,strprocid, numprocs=>nsize, mlog_MPIiq
       use m_subzi, only: m_subzi_init, nevmx,lswtk,rv_a_owtkb
-      use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate,k1,k2,k3,
-     o    osmpot, vconst, sv_p_osig, sv_p_otau, sv_p_oppi
+      use m_supot, only: k1,k2,k3
+      use m_mkpot,only: m_Mkpot_init,m_Mkpot_deallocate, osmpot,vconst, sv_p_osig, sv_p_otau, sv_p_oppi
       use m_rdsigm2,only: senex,getsenex,dsene
       use m_procar,only: m_procar_init,m_procar_closeprocar
       use m_clsmode,only: m_clsmode_set1

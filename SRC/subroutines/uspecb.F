@@ -4,6 +4,9 @@
       use m_lmfinit,only: nkaph,nspec,nkapii,n0,nkap0,
      &     rsmh1ss=>rsmh1,rsmh2ss=>rsmh2,eh1ss=>eh1,eh2ss=>eh2,lhh,lpzex,sspec=>v_sspec 
       use m_elocp,only: rsml,ehl
+      implicit none
+      intent(in)::     is
+      intent(out)::        rsmh,eh
 C output only -----------------------------------------------------------------
 Ci         :1,2,3: parameters consist of rsmh,eh, where:
 Ci         rsmh,eh         first orbital in basis
@@ -19,7 +22,6 @@ Ci         rsmhl,ehl       if extended local orbitals
 !  eh    :eh(1..l+1,1..nkape,is1..is2), eh(1..l+1,nkaph,is1..is2)
 !        :energies of envelope functions and extended local orbitals
 C ----------------------------------------------------------------------
-      implicit none
       integer is 
       real(8):: rsmh(n0,nkap0,is:is) , eh(n0,nkap0,is:is)
       eh  = 0d0

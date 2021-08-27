@@ -59,7 +59,7 @@
       use m_struc_def,only : s_rv1
       use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
       use m_lmfgw,only: m_lmfgw_init !,jobgw !,sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx
-      use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, m_mkpot_energyterms,
+      use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, m_mkpot_energyterms,m_mkpot_novxc,
      o    osmpot, qmom, vconst, sv_p_osig, sv_p_otau, sv_p_oppi 
      o  , ppnl_rv , hab_rv , sab_rv , qval , qsc , fes1_rv , fes2_rv
       use m_clsmode,only: m_clsmode_init,m_clsmode_set1,m_clsmode_finalize
@@ -76,7 +76,6 @@
       use m_addrbl,only: m_addrbl_allocate_swtk,swtk
       use m_sugw,only: m_sugw_init
       use m_mkehkf,only: m_mkehkf_etot1,m_mkehkf_etot2
-      use m_mkpot,only: m_mkpot_novxc
 Ci   nbas  : size of basis
 Ci   nsp   : number of spins
 Ci   nlibu : total number of LDA+U blocks (used to dimension dmatu and vorb)

@@ -9,25 +9,27 @@
       use m_density,only: osmrho, orhoat !main input density
       use m_elocp,only: elocp
       use m_bstrux,only: m_bstrux_init
-!! output ------------------------------------------------------------------      
-      type(s_cv1),allocatable,protected  :: sv_p_oppi(:,:) !pi-integral Eq.(C.6)
-      type(s_rv1),allocatable,protected  :: sv_p_otau(:,:) !tau            (C.5)
-      type(s_rv1),allocatable,protected  :: sv_p_osig(:,:) !sigma          (C.4)
-      complex(8),allocatable,protected   :: osmpot(:,:,:,:)!0th component of Eq.(34)
+!! output ------------------------------------------------------------------
+      public::  m_Mkpot_init, m_Mkpot_deallocate, m_Mkpot_energyterms, m_Mkpot_novxc
 
-      type(s_cv1),allocatable,protected  :: sv_p_oppix(:,:) !pi-integral without xc term
-      type(s_rv1),allocatable,protected  :: sv_p_otaux(:,:) !tau
-      type(s_rv1),allocatable,protected  :: sv_p_osigx(:,:)
-      complex(8),allocatable,protected   :: spotx(:,:,:,:)
+      type(s_cv1),allocatable,protected,public  :: sv_p_oppi(:,:) !pi-integral Eq.(C.6)
+      type(s_rv1),allocatable,protected,public  :: sv_p_otau(:,:) !tau            (C.5)
+      type(s_rv1),allocatable,protected,public  :: sv_p_osig(:,:) !sigma          (C.4)
+      complex(8),allocatable,protected ,public  :: osmpot(:,:,:,:)!0th component of Eq.(34)
 
-      real(8),protected:: utot,rhoexc,xcore,valvef,amom,  valves,cpnves,rhovxc !energy terms
-      real(8),allocatable,protected:: fes1_rv(:), fes2_rv(:) !force terms
-      real(8),allocatable,protected :: hab_rv(:), sab_rv(:), ppnl_rv(:,:,:,:), qmom(:),vesrmt(:)
-      real(8),protected:: qval,vconst,qsc
+      type(s_cv1),allocatable,protected,public  :: sv_p_oppix(:,:) !pi-integral without xc term
+      type(s_rv1),allocatable,protected,public  :: sv_p_otaux(:,:) !tau
+      type(s_rv1),allocatable,protected,public  :: sv_p_osigx(:,:)
+      complex(8),allocatable,protected ,public  :: spotx(:,:,:,:)
+
+      real(8),protected,public:: utot,rhoexc,xcore,valvef,amom,  valves,cpnves,rhovxc !energy terms
+      real(8),allocatable,protected,public:: fes1_rv(:), fes2_rv(:) !force terms
+      real(8),allocatable,protected,public :: hab_rv(:), sab_rv(:), ppnl_rv(:,:,:,:), qmom(:),vesrmt(:)
+      real(8),protected,public:: qval,vconst,qsc
 !!---------------------------------------------------------------------------      
 !! private
       real(8),allocatable,protected,private :: gpot0(:),vval(:),vab_rv(:)
-      private:: mkpot
+      private
       contains
       subroutine m_mkpot_novxc()
       integer:: i,lfrzw
@@ -124,7 +126,7 @@ Co         xcore  = rhoc * total potential
 Co         valvef = smrhov * vsm + sum_ib valvef_ib
 Co           valvef_ib = rhov * vtrue - smrhov * vsm)_ib
 Co         amom   = system magnetic moment
-      use m_lmfinit,only:lso,nbas, ssite=>v_ssite, sspec=>v_sspec, nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex !lcplxp,
+      use m_lmfinit,only: lso,nbas, ssite=>v_ssite, sspec=>v_sspec, nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex 
       use m_lattic,only: lat_plat,lat_qlat, lat_vol
       use m_supot,only: k1,k2,k3,lat_nabc
       use m_MPItk,only: master_mpi
@@ -441,13 +443,13 @@ C --- Make parameters for extended local orbitals ---
 
 C --- Make local potential at atomic sites and augmentation matrices ---
       rhobg=qbg/vol
-      call locpot ( nbas , nsp , lso ,  ssite , sspec !, slat lcplxp ,
-     .    , sv_p_orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau , 
+      call locpot ( !nbas , nsp , lso ,  ssite , sspec !, slat lcplxp ,
+     .    sv_p_orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau , 
      .    sv_p_oppi , ppnl_rv , hab_rv , vab_rv , sab_rv , vvesat , cpnvsa , repat , 
      .    repatx , repatc , rmuat , rvepva , rvexva , rvecva , rvvxva , 
      .    rvepsa , rvvxca , valvfa , xcore , fcexca , fcexa , fceca , fcvxca 
-     .    , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , nlibu , 
-     .    lmaxu , vorb , lldau )
+     .    , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , 
+     .    nlibu , lmaxu , vorb , lldau )
 !!
       if(cmdopt0('--density').and.master_mpi.and.secondcall) then
         return

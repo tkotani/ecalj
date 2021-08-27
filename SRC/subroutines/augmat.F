@@ -374,26 +374,26 @@ C     at this site and store in vumm
         call vlm2us(lmaxu,rmt,idu,lmxa,iblu,vorb,ppnl,vumm)
       endif
 C --- Augmentation matrices for cases P*P, H*H, H*P ---
-C ... Hsm*Hsm
-      call gaugm ( nr , nsp , lso ,  rofi , rwgt , lmxa , lmxl !lcplxp ,
-     .   , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , 
-     .   vum , cg , jcg , indxcg , nkaph , nkapi , lmxh , lh , fh , xh 
-     .   , vh , dh , nkaph , nkapi , lmxh , lh , fh , xh , vh , dh , lmxh 
-     .   , sv_p_osig ( 3 ) %v , sv_p_otau ( 3 ) %v , nlmh , nlmh , sv_p_oppi( 3 )%cv 
-     .   , lmaxu , vumm , lldau , idu )
-C ... Pkl*Pkl
+C ... Pkl*Pkl !tail x tail
       call gaugm ( nr , nsp , lso , rofi , rwgt , lmxa , lmxl !lcplxp , 
      .   , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , 
      .   vum , cg , jcg , indxcg , kmax + 1 , kmax + 1 , lmxa , lxa , 
      .   fp , xp , vp , dp , kmax + 1 , kmax + 1 , lmxa , lxa , fp , xp 
-     .   , vp , dp , lmxa , sv_p_osig ( 1 ) %v , sv_p_otau ( 1 ) %v , 
-     .   nlma , nlma , sv_p_oppi( 1 )%cv , lmaxu , vumm , lldau , idu )
-C ... Hsm*Pkl
+     .   , vp , dp , lmxa , sv_p_osig(1)%v , sv_p_otau (1)%v , 
+     .   nlma , nlma , sv_p_oppi(1)%cv , lmaxu , vumm , lldau , idu )
+C ... Hsm*Pkl !head x tail
       call gaugm ( nr , nsp , lso ,  rofi , rwgt , lmxa , lmxl !lcplxp ,
      .   , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , 
      .   vum , cg , jcg , indxcg , nkaph , nkapi , lmxh , lh , fh , xh 
      .   , vh , dh , kmax + 1 , kmax + 1 , lmxa , lxa , fp , xp , vp , 
-     .   dp , lmxh , sv_p_osig ( 2 ) %v , sv_p_otau ( 2 ) %v , nlmh , 
-     .   nlma , sv_p_oppi( 2 )%cv , lmaxu , vumm , lldau , idu )
+     .   dp , lmxh , sv_p_osig(2)%v , sv_p_otau(2) %v , nlmh , 
+     .   nlma , sv_p_oppi(2)%cv , lmaxu , vumm , lldau , idu )
+C ... Hsm*Hsm !head x head
+      call gaugm ( nr , nsp , lso ,  rofi , rwgt , lmxa , lmxl !lcplxp ,
+     .   , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , 
+     .   vum , cg , jcg , indxcg , nkaph , nkapi , lmxh , lh , fh , xh 
+     .   , vh , dh , nkaph , nkapi , lmxh , lh , fh , xh , vh , dh , lmxh 
+     .   , sv_p_osig(3)%v , sv_p_otau(3) %v , nlmh , nlmh , sv_p_oppi( 3 )%cv 
+     .   , lmaxu , vumm , lldau , idu )
       call tcx('augmat')
       end

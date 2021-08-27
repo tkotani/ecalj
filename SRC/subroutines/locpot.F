@@ -1,27 +1,18 @@
-      subroutine locpot ( nbas , nsp , lso , ssite , sspec !lcplxp , 
-     .    , sv_p_orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau  !slat , 
+      subroutine locpot (  !lcplxp , 
+     .      sv_p_orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau  !slat , 
      .    , sv_p_oppi , ppnl , hab , vab , sab , vvesat , cpnvsa , rhoexc 
      .    , rhoex , rhoec , rhovxc , rvepsv , rvexv , rvecv , rvvxcv , 
      .    rveps , rvvxc , valvef , xcore , focexc , focex , focec , focvxc 
-     .    , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , nlibu , 
-     .     lmaxu , vorb , lldau )
+     .    , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , 
+     .     nlibu , lmaxu , vorb , lldau )
       use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkaph,stdo,lxcf,lhh,nkapii,nkaphh
-      use m_lmfinit,only: n0,nppn,nab,nrmx,nkap0,nlmx
+      use m_lmfinit,only: n0,nppn,nab,nrmx,nkap0,nlmx,nbas, nsp, lso, ssite=>v_ssite , sspec=>v_sspec
       use m_MPItk,only: master_mpi
       use m_struc_def  
       use m_uspecb,only:uspecb
 C- Make the potential at the atomic sites and augmentation matrices.
 C ----------------------------------------------------------------------
 Ci Inputs
-Ci   nbas  :size of basis
-Ci   nsp   :number of spin channels
-Ci   ssite :struct for site-specific information; see routine usite
-Ci     Elts read: spec pnu ov0 ov1 pnz
-Ci   sspec :struct for species-specific information; see routine uspec
-Ci     Elts read: z qc idmod rg a nr rmt rsma lmxa lmxl lmxb kmxt
-Ci     Passed to: uspecb corprm
-Ci   slat  :struct for lattice information; see routine ulat
-Ci     Elts read: ocg ojcg oidxcg
 Ci   orhoat:vector of offsets containing site density
 Ci   qmom  :multipole moments of on-site densities (rhomom.f)
 Ci   vval  :electrostatic potential at MT boundary; needed
@@ -123,7 +114,7 @@ Cu    1 May 00 Adapted from nfp locpot.f
 Cu   17 Jun 98 Adapted from DLN to run parallel on SGI
 C ----------------------------------------------------------------------
       implicit none
-      integer:: nbas , nsp , job , lso , i_copy_size,ibx,ir,isp,l,lm !lcplxp,
+      integer::  job , i_copy_size,ibx,ir,isp,l,lm !lcplxp,
       type(s_rv1) :: sv_p_orhoat(3,nbas)
       type(s_cv1) :: sv_p_oppi(3,nbas)
       type(s_rv1) :: sv_p_otau(3,nbas)
@@ -132,8 +123,8 @@ C ----------------------------------------------------------------------
       double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
 c      parameter (n0=10,nppn=12,nab=9)
       real(8):: qmom(1) , vval(1)
-      type(s_site)::ssite(nbas)
-      type(s_spec)::sspec(*)
+c      type(s_site)::ssite(nbas)
+c      type(s_spec)::sspec(*)
       double precision cpnvsa,rhoexc(2),rhoex(2),rhoec(2),rhovxc(2),
      .focexc(2),focex(2),focec(2),focvxc(2),qval,sqloc,sqlocc,saloc,
      .valvef,vvesat,rvepsv,rvexv,rvecv,rvvxcv,xcore,rveps,rvvxc,
@@ -433,11 +424,10 @@ C     ... Use effective potentials with modified xc
           call augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax , nlml
      .           , a , nr , nsp , lso , rofi , rwgt , rv_a_ocg, iv_a_ojcg, iv_a_oidxcg
      .           , ssite(ib)%rv_a_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , 
-     .           lmxb , lhh(:,is) , eh , rsmh , ehl , rsml , rs3 , vmtz ,  lmaxu !lcplxp ,
-     .           , vorb , lldau ( ib ) , iblu , idu , sv_p_osig ( 1 , ib ) , sv_p_otau 
-     .           ( 1 , ib ) , sv_p_oppi ( 1 , ib ) , ppnl ( 1 , 1 , 1 , ib ) , 
-     .           hab ( 1 , 1 , 1 , ib ) , vab ( 1 , 1 , 1 , ib ) , sab ( 1 , 1 
-     .           , 1 , ib ) )
+     .           lmxb , lhh(:,is) , eh , rsmh, ehl , rsml , rs3 , vmtz ,  lmaxu !lcplxp ,
+     .         , vorb, lldau(ib), iblu, idu, sv_p_osig(1,ib) , sv_p_otau(1,ib),
+     &           sv_p_oppi (1,ib), ppnl(1,1,1,ib) , 
+     .           hab(1,1,1,ib),vab (1,1,1,ib), sab(1,1,1,ib) )
         endif
         j1 = j1+nlml
 c   10   continue

@@ -253,7 +253,6 @@ C        ...  Make 1c LxSx+LySy part of SO
      .          + sighh(ik1,ik2,l1,isp)
               enddo
             enddo
-
         enddo
       enddo
       if (mode1 .eq. 1) then
@@ -276,28 +275,16 @@ Ci   sig   :augmentation Pkl-Pkl overlap matrix
 Ci   b     :Bloch structure constants (hxpbl)
 Co Outputs
 Co   s     :overlap matrix
-Cr Remarks
-Cu Updates
 C ----------------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
+      implicit none
       integer kmax,lmxa,nlma,ndimh,isp
       double precision sig(0:kmax,0:kmax,0:lmxa,isp)
-      double complex b(0:kmax,nlma,ndimh),s(ndimh,ndimh),
-     .g(0:kmax,nlma),csum
-C ... Local parameters
-c      integer nlmax
-c      parameter (nlmax=49)
-      integer i1,i2,ilm,k1,k2,l,kjlm !,lla(nlmax) !kjtop,
-c      data lla/0,3*1,5*2,7*3,9*4,11*5,13*6/
+      double complex b(0:kmax,nlma,ndimh),s(ndimh,ndimh),g(0:kmax,nlma),csum
+      integer i1,i2,ilm,k1,k2,l,kjlm 
       integer :: ll
-c      if (nlma .gt. nlmax) call rxi('augqs3: increase nlmax to',nlma)
-C     call tcn('augqs3')
-c      kjtop = nlma*(kmax+1)
       do  i2 = 1, ndimh
 C   ... Make sig*b in g
         do  ilm = 1, nlma
-c          l = lla(ilm)
           l = ll(ilm)
           do  k1 = 0, kmax
             g(k1,ilm) = 0d0
@@ -308,17 +295,9 @@ c          l = lla(ilm)
         enddo
 C   ... Make dot products with vectors i1
         do  i1 = 1, i2
-c         csum=zdotc(kjtop,b(0,1,i1),1,g,1)
-ctakao
-c          csum = (0d0,0d0)
-c          do  kjlm = 0, kjtop-1
-c            csum = csum + dconjg(b(kjlm,1,i1))*g(kjlm,1)
-c          enddo
-c          s(i1,i2) = s(i1,i2) + csum
           s(i1,i2) = s(i1,i2) + sum( dconjg(b(:,:,i1))*g(:,:) )
         enddo
       enddo
-C     call tcx('augqs3')
       end subroutine augqs3
 
 
