@@ -1,38 +1,33 @@
       module m_mkpot ! http://dx.doi.org/10.7566/JPSJ.84.034702
-      use m_ldau,only: vorb !input. 'U-V_LDA(couter term)' of LDA+U 
-      use m_supot,only: k1,k2,k3
       use m_lmfinit,only: nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nab,nppn
-     & ,lfrce=>ctrl_lfrce,stdl
-      use m_lmfinit,only: nchan=>pot_nlma, nvl=>pot_nlml,nkaph
-      use m_MPItk,only: master_mpi,mlog
+     & ,lfrce=>ctrl_lfrce,stdl, nchan=>pot_nlma, nvl=>pot_nlml,nkaph
       use m_struc_def,only: s_rv1,s_cv1
-      use m_density,only: osmrho, orhoat !main input density
-      use m_elocp,only: elocp
-      use m_bstrux,only: m_bstrux_init
+      use m_MPItk,only: master_mpi,mlog
 !! output ------------------------------------------------------------------
       public::  m_Mkpot_init, m_Mkpot_deallocate, m_Mkpot_energyterms, m_Mkpot_novxc
       type(s_cv1),allocatable,protected,public  :: ohsozz(:,:),ohsopm(:,:) !SOC matrix 
-                                                   !generated at mkpot-locpot-augmat-gaugm
+                              ! Generated at mkpot-locpot-augmat-gaugm
       type(s_cv1),allocatable,protected,public  :: sv_p_oppi(:,:) !pi-integral Eq.(C.6)
       type(s_rv1),allocatable,protected,public  :: sv_p_otau(:,:) !tau            (C.5)
       type(s_rv1),allocatable,protected,public  :: sv_p_osig(:,:) !sigma          (C.4)
       complex(8),allocatable,protected ,public  :: osmpot(:,:,:,:)!0th component of Eq.(34)
-
+!
       type(s_cv1),allocatable,protected,public  :: sv_p_oppix(:,:) !pi-integral without xc term
       type(s_rv1),allocatable,protected,public  :: sv_p_otaux(:,:) !tau
       type(s_rv1),allocatable,protected,public  :: sv_p_osigx(:,:)
       complex(8),allocatable,protected ,public  :: spotx(:,:,:,:)
-
+!
       real(8),protected,public:: utot,rhoexc,xcore,valvef,amom,  valves,cpnves,rhovxc !energy terms
       real(8),allocatable,protected,public:: fes1_rv(:), fes2_rv(:) !force terms
-      real(8),allocatable,protected,public :: hab_rv(:), sab_rv(:), ppnl_rv(:,:,:,:), qmom(:),vesrmt(:)
+      real(8),allocatable,protected,public:: hab_rv(:), sab_rv(:), ppnl_rv(:,:,:,:), qmom(:),vesrmt(:)
       real(8),protected,public:: qval,vconst,qsc
 !!---------------------------------------------------------------------------      
-!! private
-      real(8),allocatable,protected,private :: gpot0(:),vval(:),vab_rv(:)
       private
+      real(8),allocatable,protected,private :: gpot0(:),vval(:),vab_rv(:)
       contains
       subroutine m_mkpot_novxc()
+      use m_supot,only: k1,k2,k3
+      use m_density,only: osmrho, orhoat !main input density
       integer:: i,lfrzw
       type(s_cv1),allocatable  :: ohsozzx(:,:),ohsopmx(:,:) 
       write(stdo,"(a)")' m_mkpot_novxc: Making one-particle potential without XC part ...'
@@ -60,6 +55,8 @@
       end subroutine 
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine m_mkpot_init(llmfgw)
+      use m_supot,only: k1,k2,k3
+      use m_density,only: osmrho, orhoat !main input density
       use m_lmfinit,only: lso,nbas, ssite=>v_ssite, sspec=>v_sspec, nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex 
       integer:: i,lfrzw,is,ib,kmax,lmxa,lmxh,nelt2,nlma,nlmh!,lfrce
       real(8) ::qbz
@@ -119,6 +116,14 @@ c      if(cmdopt0('--band').or.fullmesh) lfrce = 0
       subroutine mkpot (
      i    job, smrho, sv_p_orhoat,  
      o    smpot, sv_p_osig, sv_p_otau, sv_p_oppi, fes, ohsozz,ohsopm ) 
+      use m_lmfinit,only: lso,nbas, ssite=>v_ssite, sspec=>v_sspec, nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex 
+      use m_lattic,only: lat_plat,lat_qlat, lat_vol
+      use m_supot,only: k1,k2,k3,lat_nabc
+      use m_MPItk,only: master_mpi
+      use m_struc_def  
+      use m_ldau,only: vorb !input. 'U-V_LDA(couter term)' of LDA+U 
+      use m_bstrux,only: m_bstrux_init
+      use m_elocp,only: elocp
 !Note other output in module area
 c for job=0      
 Co         utot   = total electrostatic energy
@@ -130,11 +135,7 @@ Co         xcore  = rhoc * total potential
 Co         valvef = smrhov * vsm + sum_ib valvef_ib
 Co           valvef_ib = rhov * vtrue - smrhov * vsm)_ib
 Co         amom   = system magnetic moment
-      use m_lmfinit,only: lso,nbas, ssite=>v_ssite, sspec=>v_sspec, nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex 
-      use m_lattic,only: lat_plat,lat_qlat, lat_vol
-      use m_supot,only: k1,k2,k3,lat_nabc
-      use m_MPItk,only: master_mpi
-      use m_struc_def  
+!      
 !! documents below are under construction.
 C- Make the potential from the density.
 C ----------------------------------------------------------------------
@@ -556,9 +557,73 @@ C --- Printout ---
         write (stdl,721) rhoex,rhoec
   721   format('fp pot  rex ',f18.7,'  rec ',f19.7)
       endif
-      if (dabs(dq) .gt. 1d-3 .and. iprint() .gt. 0) call awrit1(
-     .' (warning) system not neutral, dq=%d',' ',80,lgunit(1),dq)
+      if (dabs(dq)>1d-3) write(stdo,"(a,f13.6)")
+     .     ' (warning) system not neutral, dq=',dq
       call tcx('mkpot')
       end subroutine mkpot
      
+      subroutine dfaugm ( sv_p_osig, sv_p_otau , sv_p_oppi, ohsozz,ohsopm )
+      use m_struc_def,only:s_rv1,s_cv1
+      use m_lmfinit,only: lso,nkaph,nsp,nspc,nbas,ssite=>v_ssite,sspec=>v_sspec 
+C- Allocate augmentation matrices sigma,tau,pi for all atoms
+C ----------------------------------------------------------------------
+Co Outputs
+Co   osig  :memory allocated
+Co   otau  :memory allocated
+Co   oppi  :memory allocated
+Cr Remarks
+Cr   Pointers are specified as osig(itype,ibas) where
+Cr     type=1: case Pkl*Pkl
+Cr     type=2: case Pkl*Hsm
+Cr     type=3: case Hsm*Hsm
+Cr   sig and tau are l diagonal, ppi is full matrix
+Cr   Thus integral (P~_kL P~_k'L' - P_kL P_k'L') is diagonal in LL',
+Cr       sig(nf1,nf2,0..lmax) with lmax the l-cutoff
+Cr   For sig(Pkl,Pkl), nf1=nf2==1+kmax; lmax=lmxa
+Cr   For sig(Hsm,Pkl), nf1=nkaph and nf2=1+kmax; lmax=lmxh
+Cr   For sig(Hsm,Hsm), nf1=nf2=nkaph; lmax = lmxh
+Cl   nkaph :number of orbital types for a given L quantum no. in basis
+C ----------------------------------------------------------------------
+      implicit none
+      type(s_cv1) :: sv_p_oppi(3,nbas),ohsozz(3,nbas),ohsopm(3,nbas)
+      type(s_rv1) :: sv_p_otau(3,nbas), sv_p_osig(3,nbas)
+      integer ib,igetss,is,kmax,lmxa,lmxh,nelt1,nelt2,nglob,nlma,nlmh!,nso
+      do  ib = 1, nbas
+        is = int(ssite(ib)%spec)
+        lmxa=sspec(is)%lmxa
+        lmxh=sspec(is)%lmxb
+        kmax=sspec(is)%kmxt
+        nlma = (lmxa+1)**2
+        nlmh = (lmxh+1)**2
+        if (lmxa .eq. -1) cycle
+C   ... Case Pkl*Pkl
+        nelt1 = (kmax+1)*(kmax+1)*(lmxa+1)*nsp
+        nelt2 = (kmax+1)*(kmax+1)*nlma*nlma*nsp*nspc!*nso
+        allocate(sv_p_osig(1,ib)%v(abs(nelt1)))
+        allocate(sv_p_otau(1,ib)%v(abs(nelt1)))
+        allocate(sv_p_oppi(1,ib)%cv(nelt2))
+C   ... Case Hsm*Hsm
+        nelt1 = nkaph*nkaph*(lmxh+1)*nsp
+        nelt2 = nkaph*nkaph*nlmh*nlmh*nsp*nspc !*nso
+        allocate(sv_p_osig(3,ib)%v(abs(nelt1)))
+        allocate(sv_p_otau(3,ib)%v(abs(nelt1)))
+        allocate(sv_p_oppi(3,ib)%cv(nelt2))
+C   ...  Case Hsm*Pkl
+        if (lmxh.gt.lmxa) call rx('dfaugm: lmxh.gt.lmxa unexpected')
+        nelt1 = nkaph*(kmax+1)*(lmxh+1)*nsp
+        nelt2 = nkaph*(kmax+1)*nlmh*nlma*nsp*nspc !*nso
+        allocate(sv_p_osig(2,ib)%v(abs(nelt1)))
+        allocate(sv_p_otau(2,ib)%v(abs(nelt1)))
+        allocate(sv_p_oppi(2,ib)%cv(nelt2))
+!        
+        if(lso/=0) then         !spin-orbit copling matrix elements
+           nelt2 = (kmax+1)*(kmax+1)*nlma*nlma*nsp
+           allocate(ohsozz(1,ib)%cv(nelt2), ohsopm(1,ib)%cv(nelt2)) ! Pkl*Pkl zz and pm component
+           nelt2 = nkaph*nkaph*nlmh*nlmh*nsp
+           allocate(ohsozz(3,ib)%cv(nelt2), ohsopm(3,ib)%cv(nelt2)) ! Hsm*Hsm
+           nelt2 = nkaph*(kmax+1)*nlmh*nlma*nsp
+           allocate(ohsozz(2,ib)%cv(nelt2), ohsopm(2,ib)%cv(nelt2)) ! Hsm*Pkl
+        endif
+      enddo
+      end subroutine dfaugm
       end module m_mkpot

@@ -212,14 +212,14 @@ C ----------------------------------------------------------------------
       real(8),parameter:: pi= 4d0*datan(1d0),y0= 1d0/dsqrt(4d0*pi)
       real(8):: vsms(nr),ppi0(nf1*nf2*(lmux+1)),
      .qm(nf1*nf2*(lmx1+1)*(lmx2+1)*(lmxl+1)), sum((lmx1+1)*(lmx2+1)*nlml)
-      complex(8),allocatable:: hso(:,:,:,:,:,:),ppiz(:,:,:,:,:,:)
+      complex(8),allocatable:: hso(:,:,:,:,:,:),ppiz(:,:,:,:,:)
       complex(8):: ppi  (nf1,nf2,nlx1,nlx2,nsp,nspc)
-      complex(8):: hsozz(nf1,nf2,nlx1,nlx2,nsp) !nspc)
-      complex(8):: hsopm(nf1,nf2,nlx1,nlx2,nsp) !nspc)
+      complex(8):: hsozz(nf1,nf2,nlx1,nlx2,nsp) 
+      complex(8):: hsopm(nf1,nf2,nlx1,nlx2,nsp) 
       real(8)::   ppir(nf1,nf2,nlx1,nlx2,nsp)
       stdo = lgunit(1)
 c      allocate(hso(nf1,nf2,nlx1,nlx2,nsp,2),ppiz(nf1,nf2,nlx1,nlx2,nsp,2))
-      allocate(ppiz(nf1,nf2,nlx1,nlx2,nsp,2))
+      allocate(ppiz(nf1,nf2,nlx1,nlx2,nsp))
       if(lso/=0)  hsozz=0d0
       if(lso/=0)  hsopm=0d0
       if(lldau/=0) ppiz=0d0
@@ -264,7 +264,7 @@ C     Needed for the term qm * (gpot0-gpotb) added to ppi
 C --- Add any LDA+U contribution that exists
         if (lldau .ne. 0) then
           call paugnl(nf1,nf1s,lmx1,lx1,v1,d1,nf2,nf2s,lmx2,lx2,v2,d2,
-     .    lmaxu,vumm,nlx1,nlx2,ppiz(1,1,1,1,i,1),i,idu)
+     .    lmaxu,vumm,nlx1,nlx2,ppiz(1,1,1,1,i),i,idu)
         endif
 C --- Assemble ppi from ppi0, non-spherical part and multipole contr ---
         call paug3(nf1,lmx1,lx1,nf2,lmx2,lx2,lmxl,nlml,cg,jcg,
@@ -321,33 +321,18 @@ C ... Print LL' potential matrix (which includes tau)
         endif
       enddo
 !---------------------------------
-!! Convert ppi(:,:,:,:,nsp,ispc=1) to complex form when (lcplxp/=0), SO=1 or LDA+U case. 
-      ppi(:,:,:,:,:,1) = ppir   !ispc=1
-      if(nspc==2) ppi(:,:,:,:,:,2) = 0d0 !ispc=2
+! Convert ppi(:,:,:,:,nsp,ispc=1) to complex form 
+      ppi(:,:,:,:,:,1) = ppir            !ispc=1
+      if(nspc==2) ppi(:,:,:,:,:,2) = 0d0 !ispc=2 !Set imag part=0
 ! Add U contribituon to ppi      
-      if(lldau/=0) call zaxpy(nf1*nf2*nlx1*nlx2*nsp*nspc,1d0,ppiz,1,ppi,1)
+      if(lldau/=0) call zaxpy(nf1*nf2*nlx1*nlx2*nsp,1d0,ppiz,1,ppi,1)
       deallocate(ppiz)
-!!      
-c      block
-c      complex(8):: pp2(nf1,nf2,nlx1,nlx2,nsp,nspc)
-c      real(8):: sz
-!! Add SO contribution to ppi
+c!! Add SO contribution to ppi
       if (lso/=0) then
-c         i1 = nf1*nf2*nlx1*nlx2
-c         pp2(:,:,:,:,:,1)= hsozz ! call zcopy(i1*nsp,hsozz,1,pp2(1,1,1,1,1,1),1)
-c         do i = 1, nsp !nspc=1 part
-c            sz = 1.5d0 - i
-c            call dpcopy(hsozz(1,1,1,1,i),pp2(1,1,1,1,i,1),1,i1*2,sz)
-c         enddo
-c     call zaxpy(i1*nsp*nspc,1d0,pp2,1,ppi,1)
-c         pp2(:,:,:,:,1, 1)=  0.5d0* hsozz(:,:,:,:, 1)
-c         pp2(:,:,:,:,2, 1)= -0.5d0* hsozz(:,:,:,:, 2)
-c         if(nspc==2) pp2(:,:,:,:,:, 2)= hsopm
          ppi(:,:,:,:,1, 1)= ppi(:,:,:,:,1, 1) +  0.5d0* hsozz(:,:,:,:,1)
          ppi(:,:,:,:,2, 1)= ppi(:,:,:,:,2, 1) -  0.5d0* hsozz(:,:,:,:,2)
          if(nspc==2) ppi(:,:,:,:,:, 2)= hsopm(:,:,:,:,:)
       endif
-c      end block
       end
 
       subroutine pvagm1(nf1,nf1s,lmx1,lx1,nlx1,v1,d1,isp,

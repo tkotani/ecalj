@@ -1,5 +1,5 @@
-      subroutine augmbl ( mode1 , ssite , sspec ,  isp !, lcplxp  !slat ,
-     .   , q , sv_p_osig , sv_p_otau , sv_p_oppi , iprmb , ndimh , napw 
+      subroutine augmbl (lso, ssite , sspec ,  isp !, lcplxp  !slat ,
+     .   , q , sv_p_osig , sv_p_otau , sv_p_oppi,ohsozz,ohsopm, iprmb , ndimh , napw 
      .   , igapw , h , s, hso )
       use m_struc_def           
       use m_lmfinit,only: rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy
@@ -65,9 +65,9 @@ Cu   18 May 00 Adapted from nfp augm_q.f
 Cu   1998      (DLN) parallel version for SGI
 C ----------------------------------------------------------------------
       implicit none
-      type(s_cv1) :: sv_p_oppi(3,1)
-      type(s_rv1) :: sv_p_otau(3,1)
-      type(s_rv1) :: sv_p_osig(3,1)
+      type(s_cv1) :: sv_p_oppi(3,nbas),ohsozz(3,nbas),ohsopm(3,nbas)
+      type(s_rv1) :: sv_p_otau(3,nbas)
+      type(s_rv1) :: sv_p_osig(3,nbas)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       integer:: isp , ndimh , napw , igapw(3,napw), iprmb(ndimh),i_copy_size,numprocs !lcplxp , 
@@ -77,7 +77,7 @@ C ----------------------------------------------------------------------
       parameter (ktop0=20, nlmbx=49, nlmax=49)
       complex(8),allocatable:: b(:,:,:),bx(:,:,:),bb(:,:,:)
       integer:: ia , isa , kmax , lmxa , lmxb ,  nglob , nlma 
-     .    , nlmb ,  mode1 , nlmto
+     .    , nlmb ,   nlmto ,lso
       double precision rsma,pa(3),xx,alat,qlat(3,3),vol
       integer:: initbas, endbas,lm,iq
       logical:: debug=.false.
@@ -111,12 +111,17 @@ C   --- Add 1-center and 2-center terms ---
      &       b, ndimh, nlmto,                                                     s,h )
 C   --- , and 
         call augqs3( kmax, lmxa, nlma, ndimh, isp, sv_p_osig(1,ia)%v, b,          s) !B+ sig B to s
-        call augq3z( kmax, nlma, ndimh, isp,       sv_p_oppi(1,ia)%cv,b,          h) !B+ ppi B to h 
+        call augq3z(1d0,kmax,nlma,ndimh,isp,       sv_p_oppi(1,ia)%cv,b,          h) !B+ ppi B to h 
 !! SO part hso
-        if(mode1==1) call augq2zhso(ia,isp,nkaph,iprmb,lmxb,nlmb,kmax,nlma ,
-     &       sv_p_osig(3,ia)%v,sv_p_oppi(3,ia)%cv,sv_p_osig(2,ia)%v,sv_p_oppi(2,ia)%cv,
-     &       b, ndimh, nlmto,                                                         hso)
-        if(mode1==1.and.isp==2) call augq3z(kmax,nlma,ndimh, 3, sv_p_oppi(1,ia)%cv,b, hso)
+c!! Add SO contribution to ppi
+        if(lso==1) then ! LxSx+LySy
+          call augq2zhso(ia,isp,nkaph,iprmb,lmxb,nlmb,kmax,nlma ,
+     &       ohsopm(3,ia)%cv, ohsopm(2,ia)%cv, b, ndimh, nlmto,            hso)
+c          call augq2zhso(ia,isp,nkaph,iprmb,lmxb,nlmb,kmax,nlma ,
+c     &       sv_p_oppi(3,ia)%cv, sv_p_oppi(2,ia)%cv, b, ndimh, nlmto,            hso)
+c          if(isp==2) call augq3z(kmax,nlma,ndimh, 3, sv_p_oppi(1,ia)%cv,b,    hso)
+           if(isp==2) call augq3z(0.5d0,kmax,nlma,ndimh, 1, ohsopm(1,ia)%cv,b,    hso)
+        endif  
         deallocate(b)
       enddo
       call tcx ('augmbl')
@@ -157,7 +162,7 @@ Cr  The 2c term has the form h_{i,j} = Sum_kL(conjg(b_{i;k,L})*p_{j;k,L})+
 Cr   Sum_kL(p_{i;k,L}*p_{j;k,L})
 C ----------------------------------------------------------------------
       implicit none
-      integer mode,mode1,ia,isp,kmax,nkaph,nlma,lmxb,nlmb,iprmb(1),ndimh,nlmto
+      integer mode,ia,isp,kmax,nkaph,nlma,lmxb,nlmb,iprmb(1),ndimh,nlmto
       double precision
      .     sighh(nkaph,nkaph,0:lmxb,1),sighp(nkaph,0:kmax,0:lmxb,1)
       double complex
@@ -206,11 +211,11 @@ C --- Loop over basis functions at site ia (augentation index) ---
       end subroutine augq2z
 !ssssssssssssssssssssssssss
       subroutine augq2zhso(ia,isp,nkaph,iprmb,lmxb,nlmb,kmax,
-     .nlma,sighh,ppihh,sighp,ppihp,b,ndimh,nlmto,        hso)
+     .nlma, hsopmhh, hsopmhp,b,ndimh,nlmto,        hso)
 C- Add one and two-center terms to h,s for complex potential
 Co   hso   :1- and 2- center spin up-down spin orbit block
 Cr Remarks
-Cr  The ppihh(i,i,i,i,3), ppihh(i,i,i,i,4) are the head-head matrix
+Cr  The hsopmhh(i,i,i,i,1), hsopmhh(i,i,i,i,2) are the head-head matrix
 Cr  elements of LxSx+LySy. The ppihp(i,i,i,i,3), ppihp(i,i,i,i,4) are
 Cr  the corresponding head-tail elements.
 c
@@ -226,12 +231,12 @@ Cr   If the structure constants become noncollinear, additional terms have
 Cr   to be added in the matrix element above.
 C ----------------------------------------------------------------------
       implicit none
-      integer mode,mode1,ia,isp,kmax,nkaph,nlma,lmxb,nlmb,iprmb(1),ndimh,nlmto
-      double precision
-     .     sighh(nkaph,nkaph,0:lmxb,1),sighp(nkaph,0:kmax,0:lmxb,1)
-      double complex
-     .     ppihh(nkaph,nkaph,nlmb,nlmb,isp+2*mode1),
-     .     ppihp(nkaph,0:kmax,nlmb,nlma,isp+2*mode1)
+      integer mode,ia,isp,kmax,nkaph,nlma,lmxb,nlmb,iprmb(1),ndimh,nlmto
+c      double precision
+c     .     sighh(nkaph,nkaph,0:lmxb,1),sighp(nkaph,0:kmax,0:lmxb,1)
+      complex(8)::
+     .     hsopmhh(nkaph,nkaph,nlmb,nlmb,*), !isp+2*mode1),
+     .     hsopmhp(nkaph,0:kmax,nlmb,nlma,*) !isp+2*mode1)
       double complex b(0:kmax,nlma,ndimh), hso(ndimh,ndimh)
 C ... Local parameters
       integer iorb,ik1,j,k,ilma,i1,i2,ilm1,ilm2,l1,n0,nkap0,jorb,ik2,l2,jsp,ksp
@@ -254,9 +259,11 @@ c      tso=0d0
           do  ilma = 1, nlma
 C           ... Make 2c term LxSx+LySy part of SO 
 !! NOTE: LzSz is alreay added h by locpot-augmat-gaugm
-             jsp= 3-isp ! isp,jsp,ksp = 1,2; 2,1; 3,4
-             ksp = 2*isp + jsp - 1 !
-             cadd1 = ppihp(ik1,k,ilm1,ilma,ksp)*b(k,ilma,j)
+c             jsp= 3-isp ! isp,jsp,ksp = 1,2; 2,1; 3,4
+c             ksp = 2*isp + jsp - 1 !
+c             cadd1 = ppihp(ik1,k,ilm1,ilma,ksp)*b(k,ilma,j)
+             cadd1 = hsopmhp(ik1,k,ilm1,ilma,isp)*b(k,ilma,j)
+c             cadd1 = hsopmhp(ik1,k,ilm1,ilma,ksp)*b(k,ilma,j)
              if(isp==1) hso(i1,j) = hso(i1,j) + 0.5d0*cadd1 !         isp=1,jsp=2) only adding
              if(isp==2) hso(j,i1) = hso(j,i1) + 0.5d0*dconjg(cadd1) ! jsp=1,isp=2
           enddo
@@ -270,7 +277,9 @@ C           ... Make 2c term LxSx+LySy part of SO
                 i2 = i2+1
 C        ...  Make 1c LxSx+LySy part of SO
 !! NOTE: LzSz is alreay added h by locpot-augmat-gaugm
-                if(isp ==2) hso(i1,i2) = hso(i1,i2) + 0.5d0*ppihh(ik1,ik2,ilm1,ilm2,3)
+c                if(isp ==2) hso(i1,i2) = hso(i1,i2) + 0.5d0*ppihh(ik1,ik2,ilm1,ilm2,3)
+                if(isp ==2) hso(i1,i2) = hso(i1,i2) + 0.5d0*hsopmhh(ik1,ik2,ilm1,ilm2,1)
+c                if(isp ==2) hso(i1,i2) = hso(i1,i2) + 0.5d0*hsopmhh(ik1,ik2,ilm1,ilm2,3)
               enddo
           enddo
         enddo
@@ -310,7 +319,7 @@ C ----------------------------------------------------------------------
       enddo
       end subroutine augqs3
 
-      subroutine augq3z(kmax,nlma,ndimh,isp,ppi,b,h)
+      subroutine augq3z(fac,kmax,nlma,ndimh,isp,ppi,b,h)
 C- Add B+ ppi B to H for non-L-diagonal, complex matrix ppi
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -337,8 +346,8 @@ C ----------------------------------------------------------------------
      & g(0:kmax,nlma),csum,csum1 !,hso(ndimh,ndimh),gso(0:kmax,nlma)
       integer i1,i2,jlm1,jlm2,k1,k2,kjlm !,kjtop
       real(8):: fac
-      fac=1d0
-      if(isp==3) fac=0.5d0 !so=1 case
+c      fac=1d0
+c      if(isp==3) fac=0.5d0 !so=1 case
       do  i2 = 1, ndimh
         g = 0d0   
         do  jlm1 = 1, nlma

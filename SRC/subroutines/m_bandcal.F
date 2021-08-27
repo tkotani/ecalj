@@ -12,7 +12,8 @@
       use m_MPItk,only: mlog, master_mpi, procid,strprocid, numprocs=>nsize, mlog_MPIiq
       use m_subzi, only: m_subzi_init, nevmx,lswtk,rv_a_owtkb
       use m_supot, only: k1,k2,k3
-      use m_mkpot,only: m_Mkpot_init,m_Mkpot_deallocate, osmpot,vconst, sv_p_osig, sv_p_otau, sv_p_oppi
+      use m_mkpot,only: m_Mkpot_init,m_Mkpot_deallocate, osmpot,vconst,
+     &     sv_p_osig, sv_p_otau, sv_p_oppi,ohsozz,ohsopm
       use m_rdsigm2,only: senex,getsenex,dsene
       use m_procar,only: m_procar_init,m_procar_closeprocar
       use m_clsmode,only: m_clsmode_set1
@@ -123,9 +124,9 @@ ccccccccccccccc
             hamm=0d0
             ovlm=0d0
             if(lso==1) then !L.S case nspc=2
-              call hambl(lso,1,qp,   osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,
+              call hambl(lso,1,qp,   osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm,
      &              hamm(1,1,   1),ovlm(1,1, 1),hamm(1,1, 3)) !isp=1
-              call hambl(lso,2,qp,   osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,
+              call hambl(lso,2,qp,   osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm,
      &              hamm(1,1,   2),ovlm(1,1, 2),hamm(1,1, 3)) !isp=2 note readme in hambl
               call sopert2 ( hamm , hamm ) !SO case re-ordering.
               call sopert2 ( ovlm , ovlm ) !SO case re-ordering.
@@ -137,7 +138,7 @@ ccccccccccccccc
                  call dsene()
               endif
             else ! No SO or Lz.Sz case (spin diagonal) nspc=1
-              call hambl(lso,isp,qp, osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,
+              call hambl(lso,isp,qp, osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm,
      &           hamm(1,1, 1),ovlm(1,1, 1),hamm(1,1, 3)) ! hamm(1,1,3) is dummy
               if(sigmamode) then !!Add  Vxc(QSGW)-Vxc
                  call getsenex(qp,isp,ndimh,ovlm(1,1, 1))
