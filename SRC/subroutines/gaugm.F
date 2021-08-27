@@ -4,7 +4,7 @@
      .nf2,nf2s,lmx2,lx2,f2,x2,v2,d2,
      .lmux,sig,tau,nlx1,nlx2,ppi,hsozz,hsopm,
      .lmaxu,vumm,lldau,idu)
-      use m_lmfinit,only: nspc,nab,n0
+      use m_lmfinit,only: nab,n0
 C- Generic routine to make augmentation matrices
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -213,7 +213,7 @@ C ----------------------------------------------------------------------
       real(8):: vsms(nr),ppi0(nf1*nf2*(lmux+1)),
      .qm(nf1*nf2*(lmx1+1)*(lmx2+1)*(lmxl+1)), sum((lmx1+1)*(lmx2+1)*nlml)
       complex(8),allocatable:: hso(:,:,:,:,:,:),ppiz(:,:,:,:,:)
-      complex(8):: ppi  (nf1,nf2,nlx1,nlx2,nsp,nspc)
+      complex(8):: ppi  (nf1,nf2,nlx1,nlx2,nsp)
       complex(8):: hsozz(nf1,nf2,nlx1,nlx2,nsp) 
       complex(8):: hsopm(nf1,nf2,nlx1,nlx2,nsp) 
       real(8)::   ppir(nf1,nf2,nlx1,nlx2,nsp)
@@ -322,17 +322,15 @@ C ... Print LL' potential matrix (which includes tau)
       enddo
 !---------------------------------
 ! Convert ppi(:,:,:,:,nsp,ispc=1) to complex form 
-      ppi(:,:,:,:,:,1) = ppir            !ispc=1
-      if(nspc==2) ppi(:,:,:,:,:,2) = 0d0 !ispc=2 !Set imag part=0
+      ppi = ppir  
 ! Add U contribituon to ppi      
       if(lldau/=0) call zaxpy(nf1*nf2*nlx1*nlx2*nsp,1d0,ppiz,1,ppi,1)
       deallocate(ppiz)
-c!! Add SO contribution to ppi
-      if (lso/=0) then
-         ppi(:,:,:,:,1, 1)= ppi(:,:,:,:,1, 1) +  0.5d0* hsozz(:,:,:,:,1)
-         ppi(:,:,:,:,2, 1)= ppi(:,:,:,:,2, 1) -  0.5d0* hsozz(:,:,:,:,2)
-         if(nspc==2) ppi(:,:,:,:,:, 2)= hsopm(:,:,:,:,:)
-      endif
+cc!! Add SO contribution to ppi
+c      if (lso/=0) then
+c         ppi(:,:,:,:,1)= ppi(:,:,:,:,1) +  0.5d0* hsozz(:,:,:,:,1)!isp=1
+c         ppi(:,:,:,:,2)= ppi(:,:,:,:,2) -  0.5d0* hsozz(:,:,:,:,2)!isp=2
+c      endif
       end
 
       subroutine pvagm1(nf1,nf1s,lmx1,lx1,nlx1,v1,d1,isp,

@@ -564,7 +564,7 @@ C --- Printout ---
      
       subroutine dfaugm ( sv_p_osig, sv_p_otau , sv_p_oppi, ohsozz,ohsopm )
       use m_struc_def,only:s_rv1,s_cv1
-      use m_lmfinit,only: lso,nkaph,nsp,nspc,nbas,ssite=>v_ssite,sspec=>v_sspec 
+      use m_lmfinit,only: lso,nkaph,nsp,nbas,ssite=>v_ssite,sspec=>v_sspec 
 C- Allocate augmentation matrices sigma,tau,pi for all atoms
 C ----------------------------------------------------------------------
 Co Outputs
@@ -598,20 +598,20 @@ C ----------------------------------------------------------------------
         if (lmxa .eq. -1) cycle
 C   ... Case Pkl*Pkl
         nelt1 = (kmax+1)*(kmax+1)*(lmxa+1)*nsp
-        nelt2 = (kmax+1)*(kmax+1)*nlma*nlma*nsp*nspc!*nso
+        nelt2 = (kmax+1)*(kmax+1)*nlma*nlma*nsp!*nspc!*nso
         allocate(sv_p_osig(1,ib)%v(abs(nelt1)))
         allocate(sv_p_otau(1,ib)%v(abs(nelt1)))
         allocate(sv_p_oppi(1,ib)%cv(nelt2))
 C   ... Case Hsm*Hsm
         nelt1 = nkaph*nkaph*(lmxh+1)*nsp
-        nelt2 = nkaph*nkaph*nlmh*nlmh*nsp*nspc !*nso
+        nelt2 = nkaph*nkaph*nlmh*nlmh*nsp!*nspc !*nso
         allocate(sv_p_osig(3,ib)%v(abs(nelt1)))
         allocate(sv_p_otau(3,ib)%v(abs(nelt1)))
         allocate(sv_p_oppi(3,ib)%cv(nelt2))
 C   ...  Case Hsm*Pkl
         if (lmxh.gt.lmxa) call rx('dfaugm: lmxh.gt.lmxa unexpected')
         nelt1 = nkaph*(kmax+1)*(lmxh+1)*nsp
-        nelt2 = nkaph*(kmax+1)*nlmh*nlma*nsp*nspc !*nso
+        nelt2 = nkaph*(kmax+1)*nlmh*nlma*nsp!*nspc !*nso
         allocate(sv_p_osig(2,ib)%v(abs(nelt1)))
         allocate(sv_p_otau(2,ib)%v(abs(nelt1)))
         allocate(sv_p_oppi(2,ib)%cv(nelt2))

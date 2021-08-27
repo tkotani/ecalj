@@ -15,7 +15,8 @@
       use m_mksym,only: lat_npgrp,lat_nsgrp
 c      use m_shortn3,only: shortn3_initialize,shortn3
       use m_mkpot,only: 
-     &     smpot=>osmpot, sv_p_osig, sv_p_otau, sv_p_oppi, vconst, vesrmt, sv_p_osig, sv_p_otau, sv_p_oppi,
+     &     smpot=>osmpot, sv_p_osig, sv_p_otau, sv_p_oppi, vconst, vesrmt,
+     &     sv_p_osig, sv_p_otau, sv_p_oppi,ohsozz,ohsopm,
      &     ppn=>ppnl_rv
       use m_mkpot,only: sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx
       use m_MPItk,only: numproc=>nsize,procid,master,master_mpi
@@ -416,8 +417,8 @@ ccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         qp  = qplist(:,iq) !  ... For this qp, G vectors for PW basis and hamiltonian dimension
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-          call hambl(lso,isp,qp, spotx,vconst,sv_p_osigx,sv_p_otaux,sv_p_oppix, vxc,ovl,w) !H(LDA) wihout vxc
-          call hambl(lso,isp,qp, smpot,vconst,sv_p_osig, sv_p_otau, sv_p_oppi,  ham,ovl,w) !H(LDA) and O
+          call hambl(lso,isp,qp, spotx,vconst,sv_p_osigx,sv_p_otaux,sv_p_oppix,ohsozz,ohsopm, vxc,ovl,w) !H(LDA) wihout vxc
+          call hambl(lso,isp,qp, smpot,vconst,sv_p_osig, sv_p_otau, sv_p_oppi,ohsozz,ohsopm,  ham,ovl,w) !H(LDA) and O
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         qp  = qplist(:,iq)-[1d-6,2d-6,3d-6] !  ... For this qp, G vectors for PW basis and hamiltonian dimension
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

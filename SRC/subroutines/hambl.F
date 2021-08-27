@@ -6,7 +6,8 @@
       use m_struc_def,only: s_rv1,s_cv1
       use m_lattic,only:plat=>lat_plat,qlat=>lat_qlat
 C- Make the LDA hamiltonian and overlap for one k-point.
-C ----------------------------------------------------------------------
+C     ----------------------------------------------------------------------
+! ohsozz,ohsopm are for Lz and for L+,L-      
 Ci Inputs
 Ci   mode  :1s digit specifies LDA matrix elements
 Ci         :  0 compute LDA hamiltonian and overlap

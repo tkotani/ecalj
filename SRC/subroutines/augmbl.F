@@ -1,6 +1,7 @@
       subroutine augmbl (lso, ssite , sspec ,  isp !, lcplxp  !slat ,
      .   , q , sv_p_osig , sv_p_otau , sv_p_oppi,ohsozz,ohsopm, iprmb , ndimh , napw 
      .   , igapw , h , s, hso )
+      use m_lmfinit,only: nsp
       use m_struc_def           
       use m_lmfinit,only: rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy
       use m_lmfinit,only: nbas,nkaph,lat_alat
@@ -65,7 +66,7 @@ Cu   18 May 00 Adapted from nfp augm_q.f
 Cu   1998      (DLN) parallel version for SGI
 C ----------------------------------------------------------------------
       implicit none
-      type(s_cv1) :: sv_p_oppi(3,nbas),ohsozz(3,nbas),ohsopm(3,nbas)
+      type(s_cv1),target :: sv_p_oppi(3,nbas), ohsozz(3,nbas),ohsopm(3,nbas)
       type(s_rv1) :: sv_p_otau(3,nbas)
       type(s_rv1) :: sv_p_osig(3,nbas)
       type(s_site)::ssite(*)
@@ -76,21 +77,22 @@ C ----------------------------------------------------------------------
       integer nlmbx,nlmax,ktop0
       parameter (ktop0=20, nlmbx=49, nlmax=49)
       complex(8),allocatable:: b(:,:,:),bx(:,:,:),bb(:,:,:)
-      integer:: ia , isa , kmax , lmxa , lmxb ,  nglob , nlma 
+      integer:: ibas , isa , kmax , lmxa , lmxb ,  nglob , nlma 
      .    , nlmb ,   nlmto ,lso
       double precision rsma,pa(3),xx,alat,qlat(3,3),vol
-      integer:: initbas, endbas,lm,iq
+      integer:: initbas, endbas,lm,iq,nh,np
       logical:: debug=.false.
       complex(8):: zxx(1)
+      complex(8),pointer:: ppi1(:),ppi2(:),ppi3(:),Lm1(:),Lm2(:),Lm3(:),Lz1(:),Lz2(:),Lz3(:)
 C--------------------------
       call tcn ('augmbl')
       nlmto = ndimh-napw
       alat=lat_alat
       qlat=lat_qlat
       vol=lat_vol
-      do ia = 1,nbas 
-        isa =ssite(ia)%spec
-        pa  =ssite(ia)%pos
+      do ibas = 1,nbas 
+        isa =ssite(ibas)%spec
+        pa  =ssite(ibas)%pos
         lmxa=sspec(isa)%lmxa !max l of augmentation
         lmxb=sspec(isa)%lmxb !max l of basis
         kmax=sspec(isa)%kmxt !max of radial k
@@ -99,36 +101,57 @@ C--------------------------
         nlma = (lmxa+1)**2
         if (lmxa .eq. -1) cycle
 C   --- Make strux to expand all orbitals at site ia ---
-        call bstrux_set(ia,q)
+        call bstrux_set(ibas,q)
         if(allocated(b)) deallocate(b)
         allocate( b(0:kmax,nlma,ndimh) )
         do lm=1,nlma
            b(:,lm,:) = transpose(bstr(:,lm,:)) 
         enddo
-C   --- Add 1-center and 2-center terms ---
-        call augq2z ( ia , isp , nkaph , iprmb , lmxb, nlmb , kmax , nlma ,
-     &       sv_p_osig(3,ia)%v,sv_p_oppi(3,ia)%cv,sv_p_osig(2,ia)%v,sv_p_oppi(2,ia)%cv,
-     &       b, ndimh, nlmto,                                                     s,h )
-C   --- , and 
-        call augqs3( kmax, lmxa, nlma, ndimh, isp, sv_p_osig(1,ia)%v, b,          s) !B+ sig B to s
-        call augq3z(1d0,kmax,nlma,ndimh,isp,       sv_p_oppi(1,ia)%cv,b,          h) !B+ ppi B to h 
-!! SO part hso
-c!! Add SO contribution to ppi
-        if(lso==1) then ! LxSx+LySy
-          call augq2zhso(ia,isp,nkaph,iprmb,lmxb,nlmb,kmax,nlma ,
-     &       ohsopm(3,ia)%cv, ohsopm(2,ia)%cv, b, ndimh, nlmto,            hso)
-c          call augq2zhso(ia,isp,nkaph,iprmb,lmxb,nlmb,kmax,nlma ,
-c     &       sv_p_oppi(3,ia)%cv, sv_p_oppi(2,ia)%cv, b, ndimh, nlmto,            hso)
-c          if(isp==2) call augq3z(kmax,nlma,ndimh, 3, sv_p_oppi(1,ia)%cv,b,    hso)
-           if(isp==2) call augq3z(0.5d0,kmax,nlma,ndimh, 1, ohsopm(1,ia)%cv,b,    hso)
+!! Add LzSz contribution, spin diagonal part
+        if(lso==0) then
+           ppi3=>sv_p_oppi(3,ibas)%cv
+           ppi2=>sv_p_oppi(2,ibas)%cv
+           ppi1=>sv_p_oppi(1,ibas)%cv
+        else !Add LzSz contribution to pi-integral ppi (moved from gaugm).
+           nh=nkaph*nlmb
+           np=(kmax+1)*nlma
+           Lz1 => ohsozz(1,ibas)%cv ! Lz block  P*P
+           Lz2 => ohsozz(2,ibas)%cv !           H*P
+           Lz3 => ohsozz(3,ibas)%cv !           H*H
+           Lm1 => ohsopm(1,ibas)%cv ! L- for isp=1 , L+ for isp=2. See gaugm.F, pvagm1,pvaglc
+           Lm2 => ohsopm(2,ibas)%cv !
+           Lm3 => ohsopm(3,ibas)%cv !
+           allocate(ppi3(nh**2*nsp),ppi2(nh*np*nsp),ppi1(np**2*nsp)) 
+           call hsozzadd(np**2, sv_p_oppi(1,ibas)%cv,Lz1,nsp,isp, ppi1)
+           call hsozzadd(nh*np, sv_p_oppi(2,ibas)%cv,Lz2,nsp,isp, ppi2)
+           call hsozzadd(nh**2, sv_p_oppi(3,ibas)%cv,Lz3,nsp,isp, ppi3)
+        endif
+!!  --- Add 1-center and 2-center terms ---
+        call augq2z(ibas , isp , nkaph , iprmb , lmxb, nlmb , kmax , nlma ,
+     &       b, ndimh, nlmto,                                                 
+     &       sv_p_osig(3,ibas)%v, sv_p_osig(2,ibas)%v, ppi3, ppi2,         s,h)
+        call augq3z(1d0,kmax,nlma,ndimh,isp,  ppi1,b,                        h) !B+ ppi B to h
+        call augqs3( kmax, lmxa, nlma, ndimh, isp, sv_p_osig(1,ibas)%v, b,   s) !B+ sig B to s
+        if(lso/=0) deallocate(ppi1,ppi2,ppi3)
+!! Add LxSx+LySy  off diagonal parts to hso=H(isp=1,isp=2) block
+        if(lso==1) then 
+           call augq2zhso(ibas,isp,nkaph,iprmb,lmxb,nlmb,kmax,nlma,b,ndimh,nlmto,
+     &          Lm3, Lm2,                                               hso)
+           if(isp==2) call augq3z(0.5d0,kmax,nlma,ndimh, 1, Lm1,b,      hso)
         endif  
         deallocate(b)
       enddo
       call tcx ('augmbl')
       end subroutine augmbl
 
+      subroutine hsozzadd(nx,ppi,hsozz,nsp,isp,ppiz)
+      integer:: nx,isp,nsp
+      complex(8):: ppi(nx,nsp),hsozz(nx,nsp),ppiz(nx,nsp)
+      ppiz(:,isp) = ppi(:,isp)+(1.5d0-isp)*hsozz(:,isp)
+      end
+
       subroutine augq2z(ia,isp,nkaph,iprmb,lmxb,nlmb,kmax,
-     .nlma,sighh,ppihh,sighp,ppihp,b,ndimh,nlmto,s,h)
+     .nlma,b,ndimh,nlmto,sighh,sighp,ppihh,ppihp,s,h)
 C- Add one and two-center terms to h,s for complex potential
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -211,7 +234,7 @@ C --- Loop over basis functions at site ia (augentation index) ---
       end subroutine augq2z
 !ssssssssssssssssssssssssss
       subroutine augq2zhso(ia,isp,nkaph,iprmb,lmxb,nlmb,kmax,
-     .nlma, hsopmhh, hsopmhp,b,ndimh,nlmto,        hso)
+     .nlma,b,ndimh,nlmto,  hsopmhh, hsopmhp,      hso)
 C- Add one and two-center terms to h,s for complex potential
 Co   hso   :1- and 2- center spin up-down spin orbit block
 Cr Remarks
@@ -244,9 +267,6 @@ C ... Local parameters
       integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),norb
       double precision xx
       double complex cadd,cadd1
-c      complex(8),allocatable:: tso(:,:,:,:)
-c      allocate (tso(ndimh,ndimh,2,2))
-c      tso=0d0     
       call orbl(ia,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
       do iorb = 1, norb
         l1  = ltab(iorb)
@@ -257,15 +277,10 @@ c      tso=0d0
           do  j = 1, ndimh
           do  k = 0, kmax
           do  ilma = 1, nlma
-C           ... Make 2c term LxSx+LySy part of SO 
-!! NOTE: LzSz is alreay added h by locpot-augmat-gaugm
-c             jsp= 3-isp ! isp,jsp,ksp = 1,2; 2,1; 3,4
-c             ksp = 2*isp + jsp - 1 !
-c             cadd1 = ppihp(ik1,k,ilm1,ilma,ksp)*b(k,ilma,j)
+C... Make 2c term LxSx+LySy part of SO 
              cadd1 = hsopmhp(ik1,k,ilm1,ilma,isp)*b(k,ilma,j)
-c             cadd1 = hsopmhp(ik1,k,ilm1,ilma,ksp)*b(k,ilma,j)
-             if(isp==1) hso(i1,j) = hso(i1,j) + 0.5d0*cadd1 !         isp=1,jsp=2) only adding
-             if(isp==2) hso(j,i1) = hso(j,i1) + 0.5d0*dconjg(cadd1) ! jsp=1,isp=2
+             if(isp==1) hso(i1,j) = hso(i1,j) + 0.5d0*cadd1          !I think L- See pvagm1
+             if(isp==2) hso(j,i1) = hso(j,i1) + 0.5d0*dconjg(cadd1)  !I think dconjg(L+)
           enddo
           enddo
           enddo
@@ -276,16 +291,11 @@ c             cadd1 = hsopmhp(ik1,k,ilm1,ilma,ksp)*b(k,ilma,j)
               do  ilm2 = l2**2+1, (l2+1)**2
                 i2 = i2+1
 C        ...  Make 1c LxSx+LySy part of SO
-!! NOTE: LzSz is alreay added h by locpot-augmat-gaugm
-c                if(isp ==2) hso(i1,i2) = hso(i1,i2) + 0.5d0*ppihh(ik1,ik2,ilm1,ilm2,3)
                 if(isp ==2) hso(i1,i2) = hso(i1,i2) + 0.5d0*hsopmhh(ik1,ik2,ilm1,ilm2,1)
-c                if(isp ==2) hso(i1,i2) = hso(i1,i2) + 0.5d0*hsopmhh(ik1,ik2,ilm1,ilm2,3)
               enddo
           enddo
         enddo
       enddo
-c      hso = hso + tso(:,:,1,2)
-c      deallocate (tso)
       end subroutine augq2zhso
       
       subroutine augqs3(kmax,lmxa,nlma,ndimh,isp,sig,b,s)
