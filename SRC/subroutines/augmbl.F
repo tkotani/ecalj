@@ -113,13 +113,15 @@ C   --- Make strux to expand all orbitals at site ia ---
          facz = 1.5d0-isp ! isp=1 for up, isp=2 for dn diagonal block of Lz
          call augq2z(ibas , isp , nkaph , lmxb, nlmb , kmax , nlma ,b,ndimh, 
      &       sv_p_osig(3,ibas)%v,sv_p_osig(2,ibas)%v, facz*Lzz(3)%cv,facz*Lzz(2)%cv, s, hso(:,:,isp))
+c         call augq2zhso(ibas,nkaph,lmxb,nlmb,kmax,nlma,b,ndimh,
+c     &        facz*Lzz(3)%cv,facz*Lzz(2)%cv, isp,isp,isp, hso(:,:,isp))
          call augq3z(1d0,kmax,nlma,ndimh,isp,  b,     facz*Lzz(1)%cv,                   hso(:,:,isp)) 
         enddo
 !! Add LxSx+LySy  off diagonal parts to hso=H(isp=1=up,isp=2=dn) block
         if(lso==1) then
-           facm = 1d0 !for spin-offdiagonal elements (1,2)
-           call augq2zhso(ibas,nkaph,lmxb,nlmb,kmax,nlma,b,ndimh, facm*Lmm(3)%cv,facm*Lmm(2)%cv, hso(:,:,3))
-           call augq3z(0.5d0,kmax,nlma,ndimh, 1, b,                              facm*Lmm(1)%cv, hso(:,:,3))
+         facm = .5d0 !for spin-offdiagonal elements (1,2)
+         call augq2zhso(ibas,nkaph,lmxb,nlmb,kmax,nlma,b,ndimh,facm*Lmm(3)%cv,facm*Lmm(2)%cv, 1,2,1, hso(:,:,3))
+         call augq3z(1d0,kmax,nlma,ndimh, 1, b,                             facm*Lmm(1)%cv, hso(:,:,3))
         endif  
         deallocate(b)
       enddo
@@ -356,7 +358,7 @@ C --- Loop over basis functions at site ia (augentation index) ---
       end subroutine augq2z
 !ssssssssssssssssssssssssss
       subroutine augq2zhso(ia,nkaph,lmxb,nlmb,kmax,
-     .nlma,b,ndimh, hsopmhh, hsopmhp,      hso)
+     .nlma,b,ndimh, hsopmhh, hsopmhp, isp1,isp2,isp3, hso)
       use m_lmfinit,only: nlmto,iprmb
 C- Add one and two-center terms to h,s for complex potential
 Co   hso   :1- and 2- center spin up-down spin orbit block
@@ -385,11 +387,11 @@ c     .     sighh(nkaph,nkaph,0:lmxb,1),sighp(nkaph,0:kmax,0:lmxb,1)
      .     hsopmhp(nkaph,0:kmax,nlmb,nlma,*) !isp+2*mode1)
       double complex b(0:kmax,nlma,ndimh), hso(ndimh,ndimh)
 C ... Local parameters
-      integer iorb,ik1,j,k,ilma,i1,i2,ilm1,ilm2,l1,n0,nkap0,jorb,ik2,l2,jsp,ksp
+      integer iorb,ik1,j,k,ilma,i1,i2,ilm1,ilm2,l1,n0,nkap0,jorb,ik2,l2,jsp,ksp,isp1,isp2,isp3
       parameter (n0=10,nkap0=3)
       integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),norb
       double precision xx
-      double complex cadd,cadd1
+      double complex cadd,cadd1,fac
       call orbl(ia,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
       do iorb = 1, norb
         l1  = ltab(iorb)
@@ -397,17 +399,17 @@ C ... Local parameters
         i1 = offl(iorb)
         do  ilm1 = l1**2+1, (l1+1)**2
           i1 = i1+1
-          do  j = 1, ndimh
+          do  j = 1, ndimh  
           do  k = 0, kmax
           do  ilma = 1, nlma
 C... Make 2c term LxSx+LySy part of SO 
 c             cadd1 = hsopmhp(ik1,k,ilm1,ilma,isp)*b(k,ilma,j)
 c             if(isp==1) hso(i1,j) = hso(i1,j) + 0.5d0*cadd1          !I think L- See pvagm1
 c             if(isp==2) hso(j,i1) = hso(j,i1) + 0.5d0*dconjg(cadd1)  !I think dconjg(L+)
-             cadd1 = hsopmhp(ik1,k,ilm1,ilma, 1)*b(k,ilma,j)
-             hso(i1,j) = hso(i1,j) + 0.5d0*cadd1          !I think L- See pvagm1
-             cadd1 = hsopmhp(ik1,k,ilm1,ilma, 2)*b(k,ilma,j)
-             hso(j,i1) = hso(j,i1) + 0.5d0*dconjg(cadd1)  !I think dconjg(L+)
+             cadd1 = hsopmhp(ik1,k,ilm1,ilma, isp1)*b(k,ilma,j)
+             hso(i1,j) = hso(i1,j) + cadd1          !I think L- See pvagm1
+             cadd1 = hsopmhp(ik1,k,ilm1,ilma, isp2)*b(k,ilma,j)
+             hso(j,i1) = hso(j,i1) + dconjg(cadd1)  !I think dconjg(L+)
           enddo
           enddo
           enddo
@@ -419,7 +421,7 @@ c             if(isp==2) hso(j,i1) = hso(j,i1) + 0.5d0*dconjg(cadd1)  !I think d
                 i2 = i2+1
 C        ...  Make 1c LxSx+LySy part of SO
 c                if(isp ==2) hso(i1,i2) = hso(i1,i2) + 0.5d0*hsopmhh(ik1,ik2,ilm1,ilm2,1)
-                hso(i1,i2) = hso(i1,i2) + 0.5d0*hsopmhh(ik1,ik2,ilm1,ilm2,1)
+                hso(i1,i2) = hso(i1,i2) + hsopmhh(ik1,ik2,ilm1,ilm2,isp3)
               enddo
           enddo
         enddo
