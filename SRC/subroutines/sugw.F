@@ -160,7 +160,7 @@ c      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, O
       real(8):: rlatp(3,3),xmx2(3)
       real(8):: qqq(3)
       integer:: mode,iwdummy,lso,jx
-      complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),ovlmtoi(:,:),ovliovl(:,:) 
+      complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),ovlmtoi(:,:),ovliovl(:,:) ,hammhso(:,:,:)
       integer,allocatable:: iantiferro(:)
 
       integer:: lpdiag=0,stdo
@@ -406,6 +406,8 @@ c     call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
         allocate(ham(ndimh,ndimh),ovl(ndimh,ndimh),evec(ndimh,ndimh))
         allocate(vxc(ndimh,ndimh))
         allocate(cphi(ndima,ndimh,nsp),cphin(2,ndimh,nsp))
+!!        
+        
         do 1002 isp = 1, nsp
 ccccccccccccccc
            if(iq==iqini.and.ispini==2.and.isp==1) cycle
@@ -413,15 +415,20 @@ ccccccccccccccc
 ccccccccccccccc           
           lso=0
           if(lso==1) call rx('sugw:lso=1 is not yet')
+          if(lso/=0.and.(.not.allocated(hammhso))) then !aug2021 Hso matrix
+             allocate(hammhso(ndimh,ndimh,3))
+             call aughso(qp, sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm, ndimh, hammhso)
+          endif
 !! LDA Hamiltonian and overlap matrices for this qp ---
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-        qp  = qplist(:,iq) !  ... For this qp, G vectors for PW basis and hamiltonian dimension
+          qp  = qplist(:,iq)    !  ... For this qp, G vectors for PW basis and hamiltonian dimension
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-          call hambl(lso,isp,qp, spotx,vconst,sv_p_osigx,sv_p_otaux,sv_p_oppix,ohsozz,ohsopm, vxc,ovl,w) !H(LDA) wihout vxc
-          call hambl(lso,isp,qp, smpot,vconst,sv_p_osig, sv_p_otau, sv_p_oppi,ohsozz,ohsopm,  ham,ovl,w) !H(LDA) and O
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-        qp  = qplist(:,iq)-[1d-6,2d-6,3d-6] !  ... For this qp, G vectors for PW basis and hamiltonian dimension
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+          call hambl(0,isp,qp,spotx,vconst,sv_p_osigx,sv_p_otaux,sv_p_oppix,ohsozz,ohsopm,vxc,ovl)!H(LDA) wihout vxc
+          call hambl(0,isp,qp,smpot,vconst,sv_p_osig, sv_p_otau, sv_p_oppi,ohsozz,ohsopm, ham,ovl)!H(LDA) and O
+          if(lso==2) ham(:,:) = ham(:,:) + hammhso(:,:,isp) !aug2021
+ccccccccccccccccccccccccccccccccccccccccccc
+          qp  = qplist(:,iq)-[1d-6,2d-6,3d-6] !A trick to shift qp 
+ccccccccccccccccccccccccccccccccccccccccccc
           vxc = ham - vxc ! vxc(LDA) part 
           if (lwvxc) then
             write(ifiv) ndimh,ldim,qp 
@@ -679,6 +686,7 @@ c          if (isp .eq. nsp) deallocate(ngvecp) !takao feb2012 ,ngvecc)
           write(ifigw2) qp, (evl(i,isp),i=1,ndimh)
           deallocate(testc)
  1002  continue             ! Loop over spins
+       if(allocated(hammhso)) deallocate(hammhso)
         deallocate(ham,ovl,evec,vxc,cphi,cphin)!,igv2)
  1001 continue ! ===== Loop over qp ===============================
       call fclr(' ',ifiqg)

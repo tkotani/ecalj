@@ -124,20 +124,18 @@ ccccccccccccccc
 ! hso
             if(lso/=0.and.(.not.allocated(hammhso))) then
               allocate(hammhso(ndimh,ndimh,3))
-              call augmblhso(qp, sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm, ndimh, hammhso)
+              call aughso(qp, sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm, ndimh, hammhso)!aug2021 Hso matrix
             endif
             
             hamm=0d0
             ovlm=0d0
             if(lso==1) then !L.S case nspc=2
-              call hambl(0, 1,qp,   osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm,
-     &              hamm(1,1,  1),ovlm(1,1, 1),hamm(1,1, 3)) !isp=1
-              call hambl(0, 2,qp,   osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm,
-     &             hamm(1,1,   2),ovlm(1,1, 2),hamm(1,1, 3)) !isp=2 note readme in hambl
+              call hambl(0,1,qp,osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm, hamm(1,1,1),ovlm(1,1,1))
+              call hambl(0,2,qp,osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm, hamm(1,1,2),ovlm(1,1,2))
               hamm(:,:, 1:2) = hamm(:,:, 1:2) + hammhso(:,:,1:2) !spin-diagonal SOC elements (1,1), (2,2) added
               hamm(:,:, 3)   = hammhso(:,:,3) !spin-off-diagonal SOC elements (1,2) added
-              call sopert2 ( hamm , hamm ) !SO case re-ordering.
-              call sopert2 ( ovlm , ovlm ) !SO case re-ordering.
+              call sopert2 ( hamm , hamm ) !L.S case. re-ordered to be 2x2 spin matrix.
+              call sopert2 ( ovlm , ovlm ) 
               if(sigmamode) then
                  call getsenex(qp, 1, ndimh,ovlm(1,1, 1))
                  hamm(:,:,1) = hamm(:,:,1) + ham_scaledsigma*senex !senex_up= Vxc(QSGW)-Vxc(LDA)
@@ -145,31 +143,29 @@ ccccccccccccccc
                  hamm(:,:,2) = hamm(:,:,2) + ham_scaledsigma*senex !senex_dn= Vxc(QSGW)-Vxc(LDA)
                  call dsene()
               endif
-            else ! No SO or Lz.Sz case (spin diagonal)
-              call hambl(0,isp,qp, osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm,
-     &           hamm(1,1, 1),ovlm(1,1, 1),hamm(1,1, 3)) ! hamm(1,1,3) is dummy
-              if(lso>0) hamm(:,:, 1) = hamm(:,:, 1) + hammhso(:,:,isp)
+            else ! lso=0 (No SO) or lso=2(Lz.Sz)  Spin Diagonal case.spin diagonal) 
+              call hambl(0,isp,qp,osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm,hamm(1,1,1),ovlm(1,1,1))
+              if(lso==2) hamm(:,:, 1) = hamm(:,:, 1) + hammhso(:,:,isp)
               if(sigmamode) then !!Add  Vxc(QSGW)-Vxc
-                 call getsenex(qp,isp,ndimh,ovlm(1,1, 1))
+                 call getsenex(qp,isp,ndimh,ovlm(1,1,1))
                  hamm(:,:, 1) = hamm(:,:, 1) + ham_scaledsigma*senex !senex= Vxc(QSGW)-Vxc(LDA)
                  call dsene()
               endif
             endif
             nmx=min(nevmx,ndimhx) !nmx: max number of eigenfunctions we will obtain. Smaller is faster.
             
-            if(iprint()>=30) 
-     &      write(stdo,'(" bndfp: kpt ",i5," of ",i5, " k=",3f8.4," ndimh = nmto+napw = ",3i5,f13.5)')
-     &           iq,nkp,qp,ndimh,ndimh-napw,napw
+            if(iprint()>=30) write(stdo,'(" bndfp: kpt ",i5," of ",i5, " k=",3f8.4,
+     &         " ndimh = nmto+napw = ",3i5,f13.5)') iq,nkp,qp,ndimh,ndimh-napw,napw
             if(writeham) then 
-c                write(stdo,"(a,3f9.5)") "Hamiltonian: Writing hamm and ovlm for qp= ",qp
-                write(ifih) qp,ndimhx,lso,epsovl,jsp
-                if(lso==1) then !L.S case ndimhx=ndimh*nspc nspc=2
+c              write(stdo,"(a,3f9.5)") "Hamiltonian: Writing hamm and ovlm for qp= ",qp
+               write(ifih) qp,ndimhx,lso,epsovl,jsp
+               if(lso==1) then  !L.S case ndimhx=ndimh*nspc nspc=2
                   write(ifih) ovlm !Note sopert2. When you read, use ovlm(1:ndimhx, 1:ndimhx)
                   write(ifih) hamm 
-                else  !spin diagonal case nspc=1 ndimhx=ndimh
+               else             !spin diagonal case nspc=1 ndimhx=ndimh
                   write(ifih) ovlm ! When you read, use ovlm(1:ndimhx, 1:ndimhx)
                   write(ifih) hamm
-                endif
+               endif
             endif
              
             allocate(evec(ndimhx,nmx))

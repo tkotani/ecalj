@@ -1,5 +1,5 @@
       subroutine hambl(lso,isp,qin, smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm,
-     &     h, s, hso)
+     &     h, s) !, hso)
       use m_lmfinit,only: nbas , ssite=>v_ssite , sspec=>v_sspec,nsp,iprmb!,nlmto
       use m_igv2x,only: napw, igvapwin=>igv2x, ndimh
       use m_supot,only: k1,k2,k3
@@ -14,11 +14,11 @@ Ci         :  0 compute LDA hamiltonian and overlap
 Ci         :  1 compute the overlap only
 Ci         :10s digit
 Ci         :  0 do not compute hso
-Ci         :  1 compute hs0
-Ci         :    Note: only a portion of hso is computed for a
-Ci         :    particular isp.  The total hso is assembled
-Ci         :    after isp loops from 1..2.  hso should not be
-Ci         :    initialized between isp=1 and isp=2 loops.
+Cix         :  1 compute hs0
+Cix         :    Note: only a portion of hso is computed for a
+Cix         :    particular isp.  The total hso is assembled
+Cix         :    after isp loops from 1..2.  hso should not be
+Cix         :    initialized between isp=1 and isp=2 loops.
 Ci   nbas  :size of basis
 Ci   ssite :struct for site-specific information; see routine usite
 Ci     Elts read: *
@@ -48,7 +48,7 @@ Ci   ndimh :dimension of hamiltonian and ovrlap h,s
 Co Outputs
 Co   h     :Hamiltonian matrix
 Co   s     :overlap matrix
-Co   hso   :spin off-diagonal block of spin-orbit hamiltonian
+Cox   hso   :spin off-diagonal block of spin-orbit hamiltonian
 Cr Remarks
 Cu Updates
 Cu   04 Jul 08 (T. Kotani) New PW addition to basis
@@ -69,7 +69,7 @@ C     ----------------------------------------------------------------------
       type(s_rv1) :: sv_p_osig(3,nbas)
 c      double precision alfa
       real(8):: q(3), vconst
-      complex(8):: smpot(k1,k2,k3,nsp), h(ndimh,ndimh),s(ndimh,ndimh),hso(ndimh,ndimh)
+      complex(8):: smpot(k1,k2,k3,nsp), h(ndimh,ndimh),s(ndimh,ndimh)!,hso(ndimh,ndimh)
       integer mode1,ipr,inn(3),ig,lso
       double precision vavg
       real(8):: qin(3),qlatinv(3,3)
@@ -98,9 +98,9 @@ c      if(lso==1) mode1 = 1
 C ... Initialization of quantities to be computed
       h = 0d0
       s = 0d0
-      if(lso==1 .and. isp==1) hso=0d0 !LdotS
+c      if(lso==1 .and. isp==1) hso=0d0 !LdotS
 C     --- Augmentation part of hamiltonian and overlap ---
-      call augmbl(lso,ssite,sspec,isp,q, sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm,ndimh, h,s,hso)
+      call augmbl(lso,ssite,sspec,isp,q, sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm,ndimh, h,s) !,hso)
 C ... Optionally set average istl potential to zero
       vavg = 0
       call smhsbl(ssite,sspec, vavg+vconst, q, ndimh, iprmb, napw, igvapw, h,s)
