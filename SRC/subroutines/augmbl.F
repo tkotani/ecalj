@@ -1,4 +1,4 @@
-      subroutine aughso(qp,sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm, ndimh, hso)
+      subroutine aughso(qp,sv_p_oppi,ohsozz,ohsopm, ndimh, hso)
       use m_struc_def,only: s_cv1,s_rv1           
       use m_lmfinit,only: rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy,iprmb,nsp,nlmto,lso
       use m_lmfinit,only: nbas,nkaph,lat_alat,ssite=>v_ssite,sspec=>v_sspec  
@@ -106,22 +106,23 @@ C   --- Make strux to expand all orbitals at site ia ---
         do lm=1,nlma
            b(:,lm,:) = transpose(bstr(:,lm,:)) 
         enddo
-        Lzz => ohsozz(:,ibas) ! Lz block  P*P,H*P, H*H
-        Lmm => ohsopm(:,ibas) ! L- for isp=1 , L+ for isp=2. See gaugm.F, pvagm1,pvaglc
-!!  --- Add 1-center and 2-center terms ---
-        do isp=1,nsp
-         facz = 1.5d0-isp ! isp=1 for up, isp=2 for dn diagonal block of Lz
-         call augq2z(ibas , isp , nkaph , lmxb, nlmb , kmax , nlma ,b,ndimh, 
-     &       sv_p_osig(3,ibas)%v,sv_p_osig(2,ibas)%v, facz*Lzz(3)%cv,facz*Lzz(2)%cv, s, hso(:,:,isp))
-c         call augq2zhso(ibas,nkaph,lmxb,nlmb,kmax,nlma,b,ndimh,
-c     &        facz*Lzz(3)%cv,facz*Lzz(2)%cv, isp,isp,isp, hso(:,:,isp))
-         call augq3z(1d0,kmax,nlma,ndimh,isp,  b,     facz*Lzz(1)%cv,                   hso(:,:,isp)) 
+        Lzz => ohsozz(:,ibas) ! Lz block  1:P*P, 2:H*P, 3:H*H
+        Lmm => ohsopm(:,ibas)   ! L- for isp=1 , L+ for isp=2. See gaugm.F, pvagm1,pvaglc
+        Lpp => ohsopm(:,ibas) !xxx
+        do isp=1,nsp !diagonal block of Lz
+           if(isp==1) facz= 1d0  
+           if(isp==2) facz=-1d0
+c           facdia = [1d0, 0d0,0d0]  ! isp=1 for up, weight for (Lz,L-,L+)
+           call augq2zhso(ibas,nkaph,lmxb,nlmb,kmax,nlma,b,ndimh,
+     &            facz*Lzz(3)%cv, facz*Lzz(2)%cv, isp,isp,                   hso(:,:,isp))
+           call augq3z(.5d0,kmax,nlma,ndimh,isp,  b,     facz*Lzz(1)%cv,  hso(:,:,isp)) 
         enddo
 !! Add LxSx+LySy  off diagonal parts to hso=H(isp=1=up,isp=2=dn) block
         if(lso==1) then
-         facm = .5d0 !for spin-offdiagonal elements (1,2)
-         call augq2zhso(ibas,nkaph,lmxb,nlmb,kmax,nlma,b,ndimh,facm*Lmm(3)%cv,facm*Lmm(2)%cv, 1,2,1, hso(:,:,3))
-         call augq3z(1d0,kmax,nlma,ndimh, 1, b,                             facm*Lmm(1)%cv, hso(:,:,3))
+           facm = 1d0          !for spin-offdiagonal elements (1,2)
+           call augq2zhso(ibas,nkaph,lmxb,nlmb,kmax,nlma,b,ndimh,
+     &          facm*Lmm(3)%cv,facm*Lmm(2)%cv, 1,2,                    hso(:,:,3))
+           call augq3z(.5d0,kmax,nlma,ndimh, 1, b,     facm*Lmm(1)%cv, hso(:,:,3))
         endif  
         deallocate(b)
       enddo
@@ -358,7 +359,7 @@ C --- Loop over basis functions at site ia (augentation index) ---
       end subroutine augq2z
 !ssssssssssssssssssssssssss
       subroutine augq2zhso(ia,nkaph,lmxb,nlmb,kmax,
-     .nlma,b,ndimh, hsopmhh, hsopmhp, isp1,isp2,isp3, hso)
+     .nlma,b,ndimh, hsopmhh, hsopmhp, isp1,isp2, hso)
       use m_lmfinit,only: nlmto,iprmb
 C- Add one and two-center terms to h,s for complex potential
 Co   hso   :1- and 2- center spin up-down spin orbit block
@@ -387,7 +388,7 @@ c     .     sighh(nkaph,nkaph,0:lmxb,1),sighp(nkaph,0:kmax,0:lmxb,1)
      .     hsopmhp(nkaph,0:kmax,nlmb,nlma,*) !isp+2*mode1)
       double complex b(0:kmax,nlma,ndimh), hso(ndimh,ndimh)
 C ... Local parameters
-      integer iorb,ik1,j,k,ilma,i1,i2,ilm1,ilm2,l1,n0,nkap0,jorb,ik2,l2,jsp,ksp,isp1,isp2,isp3
+      integer iorb,ik1,j,k,ilma,i1,i2,ilm1,ilm2,l1,n0,nkap0,jorb,ik2,l2,jsp,ksp,isp1,isp2
       parameter (n0=10,nkap0=3)
       integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),norb
       double precision xx
@@ -403,13 +404,10 @@ C ... Local parameters
           do  k = 0, kmax
           do  ilma = 1, nlma
 C... Make 2c term LxSx+LySy part of SO 
-c             cadd1 = hsopmhp(ik1,k,ilm1,ilma,isp)*b(k,ilma,j)
-c             if(isp==1) hso(i1,j) = hso(i1,j) + 0.5d0*cadd1          !I think L- See pvagm1
-c             if(isp==2) hso(j,i1) = hso(j,i1) + 0.5d0*dconjg(cadd1)  !I think dconjg(L+)
              cadd1 = hsopmhp(ik1,k,ilm1,ilma, isp1)*b(k,ilma,j)
-             hso(i1,j) = hso(i1,j) + cadd1          !I think L- See pvagm1
+             hso(i1,j) = hso(i1,j) + .5d0*cadd1          !I think L- See pvagm1
              cadd1 = hsopmhp(ik1,k,ilm1,ilma, isp2)*b(k,ilma,j)
-             hso(j,i1) = hso(j,i1) + dconjg(cadd1)  !I think dconjg(L+)
+             hso(j,i1) = hso(j,i1) + .5d0*dconjg(cadd1)  !I think dconjg(L+)
           enddo
           enddo
           enddo
@@ -420,8 +418,7 @@ c             if(isp==2) hso(j,i1) = hso(j,i1) + 0.5d0*dconjg(cadd1)  !I think d
               do  ilm2 = l2**2+1, (l2+1)**2
                 i2 = i2+1
 C        ...  Make 1c LxSx+LySy part of SO
-c                if(isp ==2) hso(i1,i2) = hso(i1,i2) + 0.5d0*hsopmhh(ik1,ik2,ilm1,ilm2,1)
-                hso(i1,i2) = hso(i1,i2) + hsopmhh(ik1,ik2,ilm1,ilm2,isp3)
+                hso(i1,i2) = hso(i1,i2) + .5d0*hsopmhh(ik1,ik2,ilm1,ilm2,isp1)
               enddo
           enddo
         enddo

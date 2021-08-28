@@ -100,7 +100,7 @@ C ... Initialization of quantities to be computed
       s = 0d0
 c      if(lso==1 .and. isp==1) hso=0d0 !LdotS
 C     --- Augmentation part of hamiltonian and overlap ---
-      call augmbl(lso,ssite,sspec,isp,q, sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm,ndimh, h,s) !,hso)
+      call augmbl(lso,ssite,sspec,isp,q, sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm,ndimh, h,s)
 C ... Optionally set average istl potential to zero
       vavg = 0
       call smhsbl(ssite,sspec, vavg+vconst, q, ndimh, iprmb, napw, igvapw, h,s)

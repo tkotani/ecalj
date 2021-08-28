@@ -124,7 +124,7 @@ ccccccccccccccc
 ! hso
             if(lso/=0.and.(.not.allocated(hammhso))) then
               allocate(hammhso(ndimh,ndimh,3))
-              call aughso(qp, sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm, ndimh, hammhso)!aug2021 Hso matrix
+              call aughso(qp, sv_p_oppi,ohsozz,ohsopm,ndimh, hammhso)!aug2021 Hso matrix
             endif
             
             hamm=0d0
