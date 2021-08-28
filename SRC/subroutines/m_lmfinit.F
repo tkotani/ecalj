@@ -129,7 +129,9 @@ Ci          functions are less than tol.
       integer,protected:: lmaxu,nlibu
       integer,allocatable,protected::lldau(:)
       logical,protected:: lpztail=.false.
-      integer,protected:: leks,lrout,plbnd,  pot_nlma,  pot_nlml,ham_nspx,ham_ldham(16),ldham(16)
+      integer,protected:: leks,lrout,plbnd,  pot_nlma,  pot_nlml,ham_nspx,ham_ldham(16)
+      integer,protected,target::ldham(16)
+      integer,protected,pointer:: nlmto !total number of MTOs
       
 !! sspec and ssite are unprotected (be careful)
       type(s_spec),allocatable:: v_sspec(:) !(nspec: number of species in the cell)
@@ -1996,7 +1998,7 @@ c$$$  112  continue
  1121     continue
   110 continue
       ldham(1) = indx
-        
+      nlmto   => ldham(1)
 C     Default value for hamiltonian dimension
 c      ham_ndham= ldham(1)
 C ... Make rest of ldham

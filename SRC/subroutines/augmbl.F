@@ -1,7 +1,149 @@
-      subroutine augmbl (lso, ssite , sspec ,  isp !, lcplxp  !slat ,
-     .   , q , sv_p_osig , sv_p_otau , sv_p_oppi,ohsozz,ohsopm, iprmb , ndimh , napw 
-     .   , igapw , h , s, hso )
-      use m_lmfinit,only: nsp
+      subroutine hsozzadd(nx,ppi,hsozz,nsp,isp,ppiz)
+      integer:: nx,isp,nsp
+      complex(8):: ppi(nx,nsp),hsozz(nx,nsp),ppiz(nx,nsp)
+      ppiz(:,isp) = ppi(:,isp)+(1.5d0-isp)*hsozz(:,isp)
+      end
+      subroutine hsozzadd2(nx,ppi,hsozz,nsp,ppiz)
+      integer:: nx,isp,nsp
+      complex(8):: ppi(nx,nsp),hsozz(nx,nsp),ppiz(nx,nsp)
+      do isp=1,nsp
+         ppiz(:,isp) = ppi(:,isp)+(1.5d0-isp)*hsozz(:,isp)
+      enddo
+      end
+      
+      subroutine augmblhso(qp,sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm, ndimh, hso)
+      use m_struc_def,only: s_cv1,s_rv1           
+      use m_lmfinit,only: rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy,iprmb,nsp,nlmto,lso
+      use m_lmfinit,only: nbas,nkaph,lat_alat,ssite=>v_ssite,sspec=>v_sspec  
+      use m_lattic,only: lat_qlat, lat_vol
+      use m_bstrux,only: Bstrux_set, bstr 
+      use m_lattic,only:plat=>lat_plat,qlat=>lat_qlat
+!- Adds augmentation part of H and S
+C ----------------------------------------------------------------------
+Ci Inputs
+Ci   mode1 :  0 do not compute hso
+Ci         :  1 compute hso.
+Ci         :    Note: only a portion of hso is computed for a
+Ci         :    particular isp.  The total hso is assembled
+Ci         :    after isp loops from 1..2.  hso should not be
+Ci         :    initialized between isp=1 and isp=2 loops.
+Ci   isp   :current spin channel
+Ci   q     :Bloch wave number
+Ci   osig  :overlap matrix of P_kL
+Ci         :NB: also head-head, head-tail contributions; see augmat.f
+Ci   otau  :kinetic energy matrix of P_kL
+Ci         :NB: also head-head, head-tail contributions; see augmat.f
+Ci         (otau is not needed because folded into ppi already)
+Ci   oppi  :kinetic energy + potential matrix of P_kL
+Ci         :NB: also head-head, head-tail contributions; see augmat.f
+Ci   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
+Ci   ndimh :dimension of h and s
+Ci   napw  :number of PWs in APW part of basis
+Ci   igapw :PWs in units of reciprocal lattice vectors
+Co Outputs
+Co   h     :augmentation part of hamiltonian matrix added to h
+Co   hso   :spin off-diagonal block of spin-orbit hamiltonian
+Co   s     :augmentation part of overlap matrix added to s
+Cl Local variables
+Cl   nkaph :number of orbital types for a given L quantum no. in basis
+Cl         :at augmentation site ia, including local orbitals
+Cl   nlmto :number of lmto basis functions
+Cr Remarks
+Cr   Some expressions labelled JMP refer to J.Math.Phys39, 3393 (1998)
+Cb Bugs
+Cb   Not really a bug, but an inefficiency:
+Cb   Right now, strux are kept for all orbitals in the basis, including
+Cb   expansions coffs for local orbitals (which are set to zero).
+Cb   Better to condense strux to reduce computational effort for 2-
+Cb   and 3-center terms.
+Cm MPI
+Cm   See remarks in hsibl. Buffers for h and s are taken from the heap.
+Cm   In addition a buffer the same size as as h and s for ALLREDUCE.
+Cu Updates
+Cu   05 Jul 08 (T. Kotani) output density for new PW part
+Cu             Option to accumulate energy-weighted output density
+Cu   08 Sep 06 (WRL) updated MPI to work with SO coupling
+Cu   01 Jul 05 handle sites with lmxa=-1 -> no augmentation
+Cu   03 Feb 05 (A. Chantis) calculate hso
+Cu    1 Sep 04 Adapted to handle complex ppi.  S.O. folded into ppi
+Cu   25 Aug 04 Adapted to extended local orbitals
+Cu   29 Jun 04 (A. Chantis) Include LzSz spin-orbit coupling
+Cu   14 Aug 02 Added overlap-only option
+Cu   15 Feb 02 (ATP) Added MPI parallelization
+Cu   11 Jan 02 Adapted for f90 constructs
+Cu   27 Aug 01 Extended to local orbitals.
+Cu   17 Jun 00 spin polarized
+Cu   18 May 00 Adapted from nfp augm_q.f
+Cu   1998      (DLN) parallel version for SGI
+C ----------------------------------------------------------------------
+      implicit none
+      type(s_cv1),target :: sv_p_oppi(3,nbas), ohsozz(3,nbas),ohsopm(3,nbas)
+      type(s_rv1) :: sv_p_otau(3,nbas)
+      type(s_rv1) :: sv_p_osig(3,nbas)
+c      type(s_site)::ssite(*)
+c      type(s_spec)::sspec(*)
+      integer:: isp , ndimh , napw ,i_copy_size,numprocs !lcplxp , , iprmb(ndimh)
+      real(8):: q(3),qp(3)
+      double complex h(ndimh,ndimh),s(ndimh,ndimh),hso(ndimh,ndimh,3)
+      integer nlmbx,nlmax,ktop0
+      parameter (ktop0=20, nlmbx=49, nlmax=49)
+      complex(8),allocatable:: b(:,:,:),bx(:,:,:),bb(:,:,:)
+      integer:: ibas , isa , kmax , lmxa , lmxb ,  nglob , nlma 
+     .    , nlmb 
+      double precision rsma,pa(3),xx,alat,vol !,qlat(3,3)
+      integer:: initbas, endbas,lm,iq,nh,np
+      logical:: debug=.false.
+      complex(8):: zxx(1)
+      complex(8),pointer:: ppi1(:),ppi2(:),ppi3(:),Lm1(:),Lm2(:),Lm3(:),Lz1(:),Lz2(:),Lz3(:)
+C--------------------------
+      call tcn ('augmblhso')
+      hso=0d0
+      call shorbz(qp,q,qlat,plat) !is this fine?
+      alat=lat_alat
+      vol=lat_vol
+      do ibas = 1,nbas 
+        isa =ssite(ibas)%spec
+        pa  =ssite(ibas)%pos
+        lmxa=sspec(isa)%lmxa !max l of augmentation
+        lmxb=sspec(isa)%lmxb !max l of basis
+        kmax=sspec(isa)%kmxt !max of radial k
+        rsma=sspec(isa)%rsma
+        nlmb = (lmxb+1)**2
+        nlma = (lmxa+1)**2
+        if (lmxa .eq. -1) cycle
+C   --- Make strux to expand all orbitals at site ia ---
+        call bstrux_set(ibas,q)
+        if(allocated(b)) deallocate(b)
+        allocate( b(0:kmax,nlma,ndimh) )
+        do lm=1,nlma
+           b(:,lm,:) = transpose(bstr(:,lm,:)) 
+        enddo
+        Lz1 => ohsozz(1,ibas)%cv ! Lz block  P*P
+        Lz2 => ohsozz(2,ibas)%cv !           H*P
+        Lz3 => ohsozz(3,ibas)%cv !           H*H
+        Lm1 => ohsopm(1,ibas)%cv ! L- for isp=1 , L+ for isp=2. See gaugm.F, pvagm1,pvaglc
+        Lm2 => ohsopm(2,ibas)%cv !
+        Lm3 => ohsopm(3,ibas)%cv !
+!!  --- Add 1-center and 2-center terms ---
+        do isp=1,nsp
+         call augq2z(ibas , isp , nkaph , lmxb, nlmb , kmax , nlma ,b,ndimh, 
+     &       sv_p_osig(3,ibas)%v,sv_p_osig(2,ibas)%v, (1.5d0-isp)*Lz3,(1.5d0-isp)*Lz2, s, hso(:,:,isp))
+         call augq3z(1d0,kmax,nlma,ndimh,isp,  b,               (1.5d0-isp)*Lz1,          hso(:,:,isp)) 
+        enddo
+!! Add LxSx+LySy  off diagonal parts to hso=H(isp=1,isp=2) block
+        if(lso==1) then 
+           call augq2zhso(ibas,nkaph,lmxb,nlmb,kmax,nlma,b,ndimh,Lm3,Lm2, hso(:,:,3))
+           call augq3z(0.5d0,kmax,nlma,ndimh, 1, b,                  Lm1, hso(:,:,3))
+        endif  
+        deallocate(b)
+      enddo
+      call tcx ('augmblhso')
+      end subroutine augmblhso
+
+      subroutine augmbl(lso,ssite,sspec,  isp,
+     .   q , sv_p_osig , sv_p_otau , sv_p_oppi,ohsozz,ohsopm, ndimh , 
+     .   h , s, hso )
+      use m_lmfinit,only: nsp,nlmto
       use m_struc_def           
       use m_lmfinit,only: rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy
       use m_lmfinit,only: nbas,nkaph,lat_alat
@@ -71,14 +213,14 @@ C ----------------------------------------------------------------------
       type(s_rv1) :: sv_p_osig(3,nbas)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-      integer:: isp , ndimh , napw , igapw(3,napw), iprmb(ndimh),i_copy_size,numprocs !lcplxp , 
+      integer:: isp , ndimh , napw ,i_copy_size,numprocs !lcplxp , 
       real(8):: q(3)
       double complex h(ndimh,ndimh),s(ndimh,ndimh),hso(ndimh,ndimh)
       integer nlmbx,nlmax,ktop0
       parameter (ktop0=20, nlmbx=49, nlmax=49)
       complex(8),allocatable:: b(:,:,:),bx(:,:,:),bb(:,:,:)
       integer:: ibas , isa , kmax , lmxa , lmxb ,  nglob , nlma 
-     .    , nlmb ,   nlmto ,lso
+     .    , nlmb ,   lso
       double precision rsma,pa(3),xx,alat,qlat(3,3),vol
       integer:: initbas, endbas,lm,iq,nh,np
       logical:: debug=.false.
@@ -86,7 +228,6 @@ C ----------------------------------------------------------------------
       complex(8),pointer:: ppi1(:),ppi2(:),ppi3(:),Lm1(:),Lm2(:),Lm3(:),Lz1(:),Lz2(:),Lz3(:)
 C--------------------------
       call tcn ('augmbl')
-      nlmto = ndimh-napw
       alat=lat_alat
       qlat=lat_qlat
       vol=lat_vol
@@ -109,7 +250,7 @@ C   --- Make strux to expand all orbitals at site ia ---
         enddo
 !! Add LzSz contribution, spin diagonal part
         if(lso==0) then
-           ppi3=>sv_p_oppi(3,ibas)%cv
+           ppi3=>sv_p_oppi(3,ibas)%cv !pi integral
            ppi2=>sv_p_oppi(2,ibas)%cv
            ppi1=>sv_p_oppi(1,ibas)%cv
         else !Add LzSz contribution to pi-integral ppi (moved from gaugm).
@@ -127,31 +268,26 @@ C   --- Make strux to expand all orbitals at site ia ---
            call hsozzadd(nh**2, sv_p_oppi(3,ibas)%cv,Lz3,nsp,isp, ppi3)
         endif
 !!  --- Add 1-center and 2-center terms ---
-        call augq2z(ibas , isp , nkaph , iprmb , lmxb, nlmb , kmax , nlma ,
-     &       b, ndimh, nlmto,                                                 
-     &       sv_p_osig(3,ibas)%v, sv_p_osig(2,ibas)%v, ppi3, ppi2,         s,h)
-        call augq3z(1d0,kmax,nlma,ndimh,isp,  ppi1,b,                        h) !B+ ppi B to h
-        call augqs3( kmax, lmxa, nlma, ndimh, isp, sv_p_osig(1,ibas)%v, b,   s) !B+ sig B to s
+        call augq2z(ibas , isp , nkaph , lmxb, nlmb , kmax , nlma ,
+     &       b, ndimh,                                                  
+     &       sv_p_osig(3,ibas)%v, sv_p_osig(2,ibas)%v, ppi3,ppi2,         s,h)
+        call augq3z(1d0,kmax,nlma,ndimh,isp,  b,            ppi1,           h) !B+ ppi B to h
+        call augqs3( kmax, lmxa, nlma, ndimh, isp, b, sv_p_osig(1,ibas)%v,  s) !B+ sig B to s
         if(lso/=0) deallocate(ppi1,ppi2,ppi3)
 !! Add LxSx+LySy  off diagonal parts to hso=H(isp=1,isp=2) block
-        if(lso==1) then 
-           call augq2zhso(ibas,isp,nkaph,iprmb,lmxb,nlmb,kmax,nlma,b,ndimh,nlmto,
-     &          Lm3, Lm2,                                               hso)
-           if(isp==2) call augq3z(0.5d0,kmax,nlma,ndimh, 1, Lm1,b,      hso)
+        if(lso==1.and.isp==2) then 
+           call augq2zhso(ibas,nkaph,lmxb,nlmb,kmax,nlma,b,ndimh,Lm3,Lm2, hso)
+           call augq3z(0.5d0,kmax,nlma,ndimh, 1, b,                  Lm1, hso)
         endif  
         deallocate(b)
       enddo
       call tcx ('augmbl')
       end subroutine augmbl
 
-      subroutine hsozzadd(nx,ppi,hsozz,nsp,isp,ppiz)
-      integer:: nx,isp,nsp
-      complex(8):: ppi(nx,nsp),hsozz(nx,nsp),ppiz(nx,nsp)
-      ppiz(:,isp) = ppi(:,isp)+(1.5d0-isp)*hsozz(:,isp)
-      end
 
-      subroutine augq2z(ia,isp,nkaph,iprmb,lmxb,nlmb,kmax,
-     .nlma,b,ndimh,nlmto,sighh,sighp,ppihh,ppihp,s,h)
+      subroutine augq2z(ia,isp,nkaph,lmxb,nlmb,kmax,
+     .nlma,b,ndimh,sighh,sighp,ppihh,ppihp,s,h)
+      use m_lmfinit,only: nlmto,iprmb
 C- Add one and two-center terms to h,s for complex potential
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -185,7 +321,7 @@ Cr  The 2c term has the form h_{i,j} = Sum_kL(conjg(b_{i;k,L})*p_{j;k,L})+
 Cr   Sum_kL(p_{i;k,L}*p_{j;k,L})
 C ----------------------------------------------------------------------
       implicit none
-      integer mode,ia,isp,kmax,nkaph,nlma,lmxb,nlmb,iprmb(1),ndimh,nlmto
+      integer mode,ia,isp,kmax,nkaph,nlma,lmxb,nlmb,ndimh
       double precision
      .     sighh(nkaph,nkaph,0:lmxb,1),sighp(nkaph,0:kmax,0:lmxb,1)
       double complex
@@ -233,8 +369,9 @@ C --- Loop over basis functions at site ia (augentation index) ---
       enddo
       end subroutine augq2z
 !ssssssssssssssssssssssssss
-      subroutine augq2zhso(ia,isp,nkaph,iprmb,lmxb,nlmb,kmax,
-     .nlma,b,ndimh,nlmto,  hsopmhh, hsopmhp,      hso)
+      subroutine augq2zhso(ia,nkaph,lmxb,nlmb,kmax,
+     .nlma,b,ndimh, hsopmhh, hsopmhp,      hso)
+      use m_lmfinit,only: nlmto,iprmb
 C- Add one and two-center terms to h,s for complex potential
 Co   hso   :1- and 2- center spin up-down spin orbit block
 Cr Remarks
@@ -254,7 +391,7 @@ Cr   If the structure constants become noncollinear, additional terms have
 Cr   to be added in the matrix element above.
 C ----------------------------------------------------------------------
       implicit none
-      integer mode,ia,isp,kmax,nkaph,nlma,lmxb,nlmb,iprmb(1),ndimh,nlmto
+      integer mode,ia,isp,kmax,nkaph,nlma,lmxb,nlmb,ndimh
 c      double precision
 c     .     sighh(nkaph,nkaph,0:lmxb,1),sighp(nkaph,0:kmax,0:lmxb,1)
       complex(8)::
@@ -278,9 +415,13 @@ C ... Local parameters
           do  k = 0, kmax
           do  ilma = 1, nlma
 C... Make 2c term LxSx+LySy part of SO 
-             cadd1 = hsopmhp(ik1,k,ilm1,ilma,isp)*b(k,ilma,j)
-             if(isp==1) hso(i1,j) = hso(i1,j) + 0.5d0*cadd1          !I think L- See pvagm1
-             if(isp==2) hso(j,i1) = hso(j,i1) + 0.5d0*dconjg(cadd1)  !I think dconjg(L+)
+c             cadd1 = hsopmhp(ik1,k,ilm1,ilma,isp)*b(k,ilma,j)
+c             if(isp==1) hso(i1,j) = hso(i1,j) + 0.5d0*cadd1          !I think L- See pvagm1
+c             if(isp==2) hso(j,i1) = hso(j,i1) + 0.5d0*dconjg(cadd1)  !I think dconjg(L+)
+             cadd1 = hsopmhp(ik1,k,ilm1,ilma, 1)*b(k,ilma,j)
+             hso(i1,j) = hso(i1,j) + 0.5d0*cadd1          !I think L- See pvagm1
+             cadd1 = hsopmhp(ik1,k,ilm1,ilma, 2)*b(k,ilma,j)
+             hso(j,i1) = hso(j,i1) + 0.5d0*dconjg(cadd1)  !I think dconjg(L+)
           enddo
           enddo
           enddo
@@ -291,14 +432,15 @@ C... Make 2c term LxSx+LySy part of SO
               do  ilm2 = l2**2+1, (l2+1)**2
                 i2 = i2+1
 C        ...  Make 1c LxSx+LySy part of SO
-                if(isp ==2) hso(i1,i2) = hso(i1,i2) + 0.5d0*hsopmhh(ik1,ik2,ilm1,ilm2,1)
+c                if(isp ==2) hso(i1,i2) = hso(i1,i2) + 0.5d0*hsopmhh(ik1,ik2,ilm1,ilm2,1)
+                hso(i1,i2) = hso(i1,i2) + 0.5d0*hsopmhh(ik1,ik2,ilm1,ilm2,1)
               enddo
           enddo
         enddo
       enddo
       end subroutine augq2zhso
       
-      subroutine augqs3(kmax,lmxa,nlma,ndimh,isp,sig,b,s)
+      subroutine augqs3(kmax,lmxa,nlma,ndimh,isp,b,sig,s)
 C- Add B+ sig B to s for L-diagonal sig
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -329,7 +471,7 @@ C ----------------------------------------------------------------------
       enddo
       end subroutine augqs3
 
-      subroutine augq3z(fac,kmax,nlma,ndimh,isp,ppi,b,h)
+      subroutine augq3z(fac,kmax,nlma,ndimh,isp,b,ppi, h)
 C- Add B+ ppi B to H for non-L-diagonal, complex matrix ppi
 C ----------------------------------------------------------------------
 Ci Inputs

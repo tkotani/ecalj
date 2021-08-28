@@ -1,6 +1,6 @@
       subroutine hambl(lso,isp,qin, smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm,
      &     h, s, hso)
-      use m_lmfinit,only: nbas , ssite=>v_ssite , sspec=>v_sspec,nsp,iprmb !lcplxp ,
+      use m_lmfinit,only: nbas , ssite=>v_ssite , sspec=>v_sspec,nsp,iprmb!,nlmto
       use m_igv2x,only: napw, igvapwin=>igv2x, ndimh
       use m_supot,only: k1,k2,k3
       use m_struc_def,only: s_rv1,s_cv1
@@ -99,16 +99,12 @@ C ... Initialization of quantities to be computed
       h = 0d0
       s = 0d0
       if(lso==1 .and. isp==1) hso=0d0 !LdotS
-C --- Augmentation part of hamiltonian and overlap ---
-      call augmbl(lso, ssite , sspec , isp !slat , 
-     .    ,  q , sv_p_osig , sv_p_otau , sv_p_oppi,ohsozz,ohsopm, iprmb  !lcplxp ,
-     .    , ndimh , napw , igvapw , h ,  s, hso )
+C     --- Augmentation part of hamiltonian and overlap ---
+      call augmbl(lso,ssite,sspec,isp,q, sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm,ndimh, h,s,hso)
 C ... Optionally set average istl potential to zero
       vavg = 0
-      call smhsbl ( ssite , sspec ,  vavg + vconst , !slat ,
-     . q , ndimh , iprmb , napw , igvapw , h , s )
-      call hsibl ( ssite , sspec ,  k1 , k2 , k3 , smpot , isp !slat ,
-     . , q , ndimh , iprmb , napw , igvapw , h )
+      call smhsbl(ssite,sspec, vavg+vconst, q, ndimh, iprmb, napw, igvapw, h,s)
+      call hsibl (ssite,sspec, k1,k2,k3,smpot,isp,q,ndimh,iprmb,napw,igvapw, h)
       call z2herm('U',ndimh,ndimh,h)
       call z2herm('U',ndimh,ndimh,s)
       call tcx('hambl')

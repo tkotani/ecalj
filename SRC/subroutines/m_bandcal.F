@@ -2,13 +2,13 @@
       use m_struc_def,only: s_rv1
       use m_suham,  only: ndhamx=>ham_ndhamx,nspx=>ham_nspx 
       use m_qplist, only: nkp
-      use m_lmfinit,only: nsp,nlibu,lmaxu,nbas,nl
+      use m_lmfinit,only: nsp,nlibu,lmaxu,nbas,nl!,nlmto
       use m_mkqp,only: ntet=> bz_ntet
       use m_qplist,only: qplist
       use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_setiq
       use m_lmfinit,only: lrsig=>ham_lsig, lso,ham_scaledsigma,lekkl,
      &     lmet=>bz_lmet,stdo,nbas,epsovl=>ham_oveps,nspc,plbnd,lfrce=>ctrl_lfrce,
-     &     pwmode=>ham_pwmode,pwemax,stdl
+     &     pwmode=>ham_pwmode,pwemax,stdl,iprmb
       use m_MPItk,only: mlog, master_mpi, procid,strprocid, numprocs=>nsize, mlog_MPIiq
       use m_subzi, only: m_subzi_init, nevmx,lswtk,rv_a_owtkb
       use m_supot, only: k1,k2,k3
@@ -33,9 +33,9 @@
 ! Set up Hamiltonian, diagonalization
       subroutine m_bandcal_init(iqini,iqend,ispini,ispend,lrout,ef0,ifih,lwtkb) 
       implicit none
-      complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:)!Hamiltonian,Overlapmatrix
+      complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),hammhso(:,:,:) !Hamiltonian,Overlapmatrix
       integer:: iq,nmx,ispinit,isp,jsp,nev,ifih,lwtkb,iqini,iqend,lrout,ifig,ispini,ispend,ispendx
-      real(8):: qp(3),ef0,def=0d0,xv(3)
+      real(8):: qp(3),ef0,def=0d0,xv(3),q(3)
       real(8),allocatable:: evl(:,:) !eigenvalue
       complex(8),allocatable :: evec(:,:) !eigenvector
       integer::  iprint,i,ibas
@@ -120,14 +120,22 @@ ccccccccccccccc
 !     ! Main output sene. See m_seneinterp
 
 !! See Eq.(36) and appendix in http://dx.doi.org/10.7566/JPSJ.84.034702
-!! Hamm and ovlm are made from smooth part and augmentation part.           
+!     ! Hamm and ovlm are made from smooth part and augmentation part.
+! hso
+            if(lso/=0.and.(.not.allocated(hammhso))) then
+              allocate(hammhso(ndimh,ndimh,3))
+              call augmblhso(qp, sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm, ndimh, hammhso)
+            endif
+            
             hamm=0d0
             ovlm=0d0
             if(lso==1) then !L.S case nspc=2
-              call hambl(lso,1,qp,   osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm,
-     &              hamm(1,1,   1),ovlm(1,1, 1),hamm(1,1, 3)) !isp=1
-              call hambl(lso,2,qp,   osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm,
-     &              hamm(1,1,   2),ovlm(1,1, 2),hamm(1,1, 3)) !isp=2 note readme in hambl
+              call hambl(0, 1,qp,   osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm,
+     &              hamm(1,1,  1),ovlm(1,1, 1),hamm(1,1, 3)) !isp=1
+              call hambl(0, 2,qp,   osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm,
+     &             hamm(1,1,   2),ovlm(1,1, 2),hamm(1,1, 3)) !isp=2 note readme in hambl
+              hamm(:,:, 1:2) = hamm(:,:, 1:2) + hammhso(:,:,1:2) !spin-diagonal SOC elements (1,1), (2,2) added
+              hamm(:,:, 3)   = hammhso(:,:,3) !spin-off-diagonal SOC elements (1,2) added
               call sopert2 ( hamm , hamm ) !SO case re-ordering.
               call sopert2 ( ovlm , ovlm ) !SO case re-ordering.
               if(sigmamode) then
@@ -137,15 +145,16 @@ ccccccccccccccc
                  hamm(:,:,2) = hamm(:,:,2) + ham_scaledsigma*senex !senex_dn= Vxc(QSGW)-Vxc(LDA)
                  call dsene()
               endif
-            else ! No SO or Lz.Sz case (spin diagonal) nspc=1
-              call hambl(lso,isp,qp, osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm,
+            else ! No SO or Lz.Sz case (spin diagonal)
+              call hambl(0,isp,qp, osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm,
      &           hamm(1,1, 1),ovlm(1,1, 1),hamm(1,1, 3)) ! hamm(1,1,3) is dummy
+              if(lso>0) hamm(:,:, 1) = hamm(:,:, 1) + hammhso(:,:,isp)
               if(sigmamode) then !!Add  Vxc(QSGW)-Vxc
                  call getsenex(qp,isp,ndimh,ovlm(1,1, 1))
                  hamm(:,:, 1) = hamm(:,:, 1) + ham_scaledsigma*senex !senex= Vxc(QSGW)-Vxc(LDA)
                  call dsene()
               endif
-            endif 
+            endif
             nmx=min(nevmx,ndimhx) !nmx: max number of eigenfunctions we will obtain. Smaller is faster.
             
             if(iprint()>=30) 
@@ -207,6 +216,7 @@ c               call readindensitymodesetting() !dummy
             if(PROCARon) call m_procar_init(iq,isp,ef0,evl,ndimh,jsp,qp,nev,evec,ndimhx,nmx)
             if(allocated(evec)) deallocate(evec)
  2005    continue !== end loop over isp (main loop in parallel mode)==
+         if(allocated(hammhso)) deallocate(hammhso)
          if(allocated(hamm)) deallocate(hamm,ovlm)
          ndimhx_(iq)= ndimhx
          nev_(iq)   = nev
