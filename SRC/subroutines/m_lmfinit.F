@@ -283,7 +283,7 @@ c      integer,parameter:: mxspec=256
       integer:: ii,sw
       real(8):: dasum!,dglob
       character(128) :: nm
-      real(8):: nullrv(256)
+      real(8):: nullrv(256),d2,sxx(3)
       integer:: nulliv(256),jj(2) !,nkapsi
       logical:: noelind
 
@@ -326,23 +326,9 @@ c      if (cmdopt0('--input')) io_help = 1
         write(stdo,"(/' Token',t19,'Input   cast  (size,min,read,def)     result')")
       endif
       
-!! SOC Spin-block matrix Aug2021 ---
-!  Mixing matrix for Spin-block. (Lz,L-,L+)
-! (001)              Lz   L-   L+
-      facso(:,1) = [ 1d0, 0d0, 0d0]  ! diagonal part isp=1,isp=1 
-      facso(:,2) = [-1d0, 0d0, 0d0]  ! diagonal part isp=2,isp=2
-      facso(:,3) = [ 0d0, 1d0, 0d0]  ! off-diag part isp=1,isp=2
-c! (110)                Lz      L-          L+  ! Taken from (A8) in Ke.Liqin2019,PhysRevB.99.054418
-c      d2= dsqrt(2d0)/4d0
-c      facso(:,1) = [  0d0,  d2+d2/img,  d2-d2/img]  
-c      facso(:,2) = [  0d0, -d2-d2/img, -d2-d2/img]  
-c      facso(:,3) = [ -1d0, -d2*img+d2, -d2*img+d2]  
-!! pre factor 1/2 
-      facso=0.5d0* facso ! prefactor 1/2
-      
 !! IO ---
-      nm='IO_SHOW'; call gtv(trim(nm),tksw(prgnam,nm),io_show,def_i4=
-     .     0,note='Echo data as it is read from input file')
+      nm='IO_SHOW'; call gtv(trim(nm),tksw(prgnam,nm),io_show,def_i4=0,
+     .     note='Echo data as it is read from input file')
       if (cmdopt0('--show')     ) io_show = 1
       if (procid .ne. master    ) io_show = 0
       if (io_help == 1      ) io_show = 1
@@ -583,6 +569,29 @@ C     Flags representing how cd is represented: default values
 c     .        '%N%3f3 : Like 2, but also compute <L.S-LzSz> by perturbation')
          if (io_help==0) l_dummy_isanrg=isanrg(lso,0,2,' rdctrl:','SO',T)
       endif
+      
+cccccccccccccccccccccccccccccccccccccccccccc      
+!! SOC Spin-block matrix Aug2021 ! Taken from (A8) in Ke.Liqin2019,PhysRevB.99.054418
+      nm='HAM_SOCAXIS'; call gtv(trim(nm),tksw(prgnam,nm),sxx,nmin=3,nout=nout, def_r8v=[0d0,0d0,1d0],
+     .     note='Soc axis! 0,0,1(default) or 1,1,0') !need to set HAM_SOCAXIS in toksw_init
+      if( sum(abs(sxx-[0d0,0d0,1d0]))  < 1d-6) then
+!  Mixing matrix for Spin-block. (Lz,L-,L+)
+! (001)                              Lz   L-   L+
+         facso(:,1) = [complex(8)::  1d0, 0d0, 0d0] ! diagonal part isp=1,isp=1 
+         facso(:,2) = [complex(8):: -1d0, 0d0, 0d0] ! diagonal part isp=2,isp=2
+         facso(:,3) = [complex(8)::  0d0, 1d0, 0d0] ! off-diag part isp=1,isp=2
+      elseif( sum(abs(sxx-[1d0,1d0,0d0])) <1d-6) then
+         d2= dsqrt(2d0)/4d0
+! (110)                               Lz         L-          L+  
+         facso(:,1) = [complex(8)::  0d0,  d2+d2/img,  d2-d2/img ]
+         facso(:,2) = [complex(8)::  0d0, -d2-d2/img, -d2-d2/img ]  
+         facso(:,3) = [complex(8):: -1d0, -d2*img+d2, -d2*img+d2 ]
+      elseif(io_help==0) then
+          call rx('Given HAM_SOCAXIS is not yet implemented')
+      endif
+      facso=0.5d0* facso ! prefactor 1/2
+cccccccccccccccccccccccccccccccccccccccccccc      
+!      
       sw = tksw(prgnam,'HAM_GMAX')
       if (sw/=2) then
          nm='HAM_GMAX'; call gtv(trim(nm),sw,lat_gmaxin,nmin=1,nout=nout,
