@@ -1,4 +1,4 @@
-      subroutine hambl(lso,isp,qin, smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm,
+      subroutine hambl(isp,qin, smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi, !,ohsozz,ohsopm,
      &     h, s) !, hso)
       use m_lmfinit,only: nbas , ssite=>v_ssite , sspec=>v_sspec,nsp,iprmb!,nlmto
       use m_igv2x,only: napw, igvapwin=>igv2x, ndimh
@@ -64,13 +64,14 @@ Cu   18 May 00 Adapted from nfp mk_hamiltonian.f
 C     ----------------------------------------------------------------------
       implicit none
       integer mode,igvapw(3,napw),isp
-      type(s_cv1) :: sv_p_oppi(3,nbas),ohsozz(3,nbas),ohsopm(3,nbas)
+      type(s_cv1) :: sv_p_oppi(3,nbas)
+c      type(s_sblock):: ohsozz(3,nbas),ohsopm(3,nbas)
       type(s_rv1) :: sv_p_otau(3,nbas)
       type(s_rv1) :: sv_p_osig(3,nbas)
 c      double precision alfa
       real(8):: q(3), vconst
       complex(8):: smpot(k1,k2,k3,nsp), h(ndimh,ndimh),s(ndimh,ndimh)!,hso(ndimh,ndimh)
-      integer mode1,ipr,inn(3),ig,lso
+      integer mode1,ipr,inn(3),ig !,lso
       double precision vavg
       real(8):: qin(3),qlatinv(3,3)
 !! ---------------------------------------------------
@@ -100,7 +101,7 @@ C ... Initialization of quantities to be computed
       s = 0d0
 c      if(lso==1 .and. isp==1) hso=0d0 !LdotS
 C     --- Augmentation part of hamiltonian and overlap ---
-      call augmbl(lso,ssite,sspec,isp,q, sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm,ndimh, h,s)
+      call augmbl(ssite,sspec,isp,q, sv_p_osig,sv_p_otau,sv_p_oppi,ndimh, h,s) !,ohsozz,ohsopm
 C ... Optionally set average istl potential to zero
       vavg = 0
       call smhsbl(ssite,sspec, vavg+vconst, q, ndimh, iprmb, napw, igvapw, h,s)

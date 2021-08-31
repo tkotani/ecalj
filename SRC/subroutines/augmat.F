@@ -5,7 +5,7 @@
      .   lldau , iblu , idu , sv_p_osig , sv_p_otau , sv_p_oppi,ohsozz,ohsopm, ppnl 
      .     , hab , vab , sab )
       use m_lmfinit,only: n0,nkap0,nppn,nab
-      use m_struc_def, only: s_rv1,s_cv1
+      use m_struc_def, only: s_rv1,s_cv1,s_sblock
 C- Make augmentation matrices sig,tau,pi for one site
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -315,7 +315,8 @@ c      integer n0,nkap0,nppn,nab
 c      parameter (n0=10,nkap0=3,nppn=12,nab=9)
       double precision z,rmt,rsma,a
       integer:: jcg(1) , indxcg(1) , lh(nkap0)
-      type(s_cv1) :: sv_p_oppi(3),ohsozz(3),ohsopm(3)
+      type(s_cv1) :: sv_p_oppi(3)
+      type(s_sblock):: ohsozz(3),ohsopm(3)
       type(s_rv1) :: sv_p_otau(3)
       type(s_rv1) :: sv_p_osig(3)
       double precision rofi(nr),rwgt(nr),v0(nr,nsp),cg(1),
@@ -373,27 +374,49 @@ C     at this site and store in vumm
       if (lldau > 0) then
         call vlm2us(lmaxu,rmt,idu,lmxa,iblu,vorb,ppnl,vumm)
       endif
-C --- Augmentation matrices for cases P*P, H*H, H*P ---
+      
+! --- Augmentation matrices for cases P*P, H*H, H*P ---
+! NOTE for SO
+!     We calculate limited parts of SO interaction. H(head),P(tail)
+!     
+!     ohsozz(3,ib)%sdiag(:,isp) = <H isp | Lz(diag)|H isp>
+!     ohsozz(2,ib)%sdiag(:,isp) = <H isp | Lz(diag)|P isp>
+!     ohsozz(1,ib)%sdiag(:,isp) = <P isp | Lz(diag)|P isp>
+!      
+!     ohsopm is desined for (1,2) element of LdotS matrix.
+!     ohsopm(1,ib)%soffd(:,isp) = <P isp | L-|P ispo> ;ispo=2 for isp=1, ispo=1 for isp=2
+!                                  (ispo means opposite spin to isp), (up:isp=1,dn:isp=2)
+!     ohsopm(2,ib)%soffd(:,isp) = <H isp | L-|P ispo>, this means
+!        > ohsopm(2,ib)%soffd(:,1)= <H isp=1|L-|P isp=2>
+!        > ohsopm(2,ib)%soffd(:,2)= <H isp=2|L+|P isp=1> => dagger(soffd(:,2))=<P isp=1|L-|H isp=2>
+!     ohsopm(3,ib)%soffd(:,isp) = <H isp | L-(diag)|H ispo> ;ispo=2 for isp=1, ispo=1 for isp=2
+!
+!   For SO=1 with spin=001 axis (liqinPRB2019 001 case),
+!   we neither use ohsopm(1,ib)%soffd(:,isp=2) and ohsopm(3,ib)%soffd(:,isp=2).
+!      
+!     Generally speaking, we may need to calculate all blocks ohsozz%soffd, ohsopm%sdiag, ohsopp
+!      
+      
 C ... Pkl*Pkl !tail x tail
       call gaugm ( nr , nsp , lso , rofi , rwgt , lmxa , lmxl !lcplxp , 
      .   , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , 
      .   vum , cg , jcg , indxcg , kmax + 1 , kmax + 1 , lmxa , lxa , 
      .   fp , xp , vp , dp , kmax + 1 , kmax + 1 , lmxa , lxa , fp , xp, vp , dp , lmxa ,  
      .   sv_p_osig(1)%v , sv_p_otau (1)%v , nlma , nlma ,
-     .   sv_p_oppi(1)%cv,ohsozz(1)%cv,ohsopm(1)%cv , lmaxu , vumm , lldau , idu )
+     .   sv_p_oppi(1)%cv,ohsozz(1)%sdiag,ohsopm(1)%soffd , lmaxu , vumm , lldau , idu )
 C ... Hsm*Pkl !head x tail
       call gaugm ( nr , nsp , lso ,  rofi , rwgt , lmxa , lmxl !lcplxp ,
      .   , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , 
      .   vum , cg , jcg , indxcg , nkaph , nkapi , lmxh , lh , fh , xh 
      .   , vh , dh , kmax + 1 , kmax + 1 , lmxa , lxa , fp , xp , vp , dp , lmxh , 
      .   sv_p_osig(2)%v , sv_p_otau(2) %v , nlmh , nlma,
-     &   sv_p_oppi(2)%cv,ohsozz(2)%cv,ohsopm(2)%cv, lmaxu , vumm , lldau , idu )
+     &   sv_p_oppi(2)%cv,ohsozz(2)%sdiag,ohsopm(2)%soffd, lmaxu , vumm , lldau , idu )
 C ... Hsm*Hsm !head x head
       call gaugm ( nr , nsp , lso ,  rofi , rwgt , lmxa , lmxl !lcplxp ,
      .   , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , 
      .   vum , cg , jcg , indxcg , nkaph , nkapi , lmxh , lh , fh , xh 
      .   , vh , dh , nkaph , nkapi , lmxh , lh , fh , xh , vh , dh , lmxh,
      .   sv_p_osig(3)%v, sv_p_otau(3)%v, nlmh,nlmh,
-     &   sv_p_oppi(3)%cv,ohsozz(3)%cv,ohsopm(3)%cv, lmaxu , vumm , lldau , idu )
+     &   sv_p_oppi(3)%cv,ohsozz(3)%sdiag,ohsopm(3)%soffd, lmaxu , vumm , lldau , idu )
       call tcx('augmat')
       end

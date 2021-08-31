@@ -116,7 +116,8 @@ C ----------------------------------------------------------------------
       implicit none
       integer::  job , i_copy_size,ibx,ir,isp,l,lm !lcplxp,
       type(s_rv1) :: sv_p_orhoat(3,nbas)
-      type(s_cv1) :: sv_p_oppi(3,nbas),ohsozz(3,nbas),ohsopm(3,nbas)
+      type(s_cv1) :: sv_p_oppi(3,nbas)
+      type(s_sblock):: ohsozz(3,nbas),ohsopm(3,nbas)
       type(s_rv1) :: sv_p_otau(3,nbas)
       type(s_rv1) :: sv_p_osig(3,nbas)
       integer nlibu,lmaxu,lldau(nbas),iblu

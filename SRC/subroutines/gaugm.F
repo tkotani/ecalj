@@ -215,7 +215,7 @@ C ----------------------------------------------------------------------
       complex(8),allocatable:: hso(:,:,:,:,:,:),ppiz(:,:,:,:,:)
       complex(8):: ppi  (nf1,nf2,nlx1,nlx2,nsp)
       complex(8):: hsozz(nf1,nf2,nlx1,nlx2,nsp) 
-      complex(8):: hsopm(nf1,nf2,nlx1,nlx2,nsp) 
+      complex(8):: hsopm(nf1,nf2,nlx1,nlx2,nsp) !offdiag parts for <isp|ispo> (see sodb(*,2))
       real(8)::   ppir(nf1,nf2,nlx1,nlx2,nsp)
       stdo = lgunit(1)
 c      allocate(hso(nf1,nf2,nlx1,nlx2,nsp,2),ppiz(nf1,nf2,nlx1,nlx2,nsp,2))
@@ -582,7 +582,7 @@ C             Case m=0
      .                -img*a1*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
                     endif
 
-C         ... Spin down-up block <l,m|L+|l,m'>
+C         ... Spin down-up block ((2,1) block) <l,m|L+|l,m'>
                   else
 C               Case A
                     if (abs(m2) .gt. 1 .and. (abs(m2)+1) .le. l) then

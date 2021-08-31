@@ -1,6 +1,6 @@
 !! explanations are old, some are obsolate 
       module m_struc_def
-      public s_rv1, s_nv2, s_cv1, s_cv2,s_cv3,s_cv4,s_spec, s_site
+      public s_rv1, s_nv2, s_cv1, s_cv2,s_cv3,s_cv4,s_spec, s_site,s_sblock
       private
       
       type s_rv1
@@ -10,6 +10,11 @@
       type s_cv1
       complex(8),allocatable:: cv(:)
       end type s_cv1
+      
+      type s_sblock
+      complex(8),allocatable:: sdiag(:,:) !(1,1) and (2,2) spin block as sdiag(:,isp)
+      complex(8),allocatable:: soffd(:,:) !(1,2) and (2,1) spin block as soffd(:,isp)
+      end type s_sblock
       
       type s_nv2
       integer,allocatable:: nv2(:,:)

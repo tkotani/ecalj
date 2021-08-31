@@ -1,11 +1,11 @@
       module m_mkpot ! http://dx.doi.org/10.7566/JPSJ.84.034702
       use m_lmfinit,only: nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nab,nppn
      & ,lfrce=>ctrl_lfrce,stdl, nchan=>pot_nlma, nvl=>pot_nlml,nkaph
-      use m_struc_def,only: s_rv1,s_cv1
+      use m_struc_def,only: s_rv1,s_cv1,s_sblock
       use m_MPItk,only: master_mpi,mlog
 !! output ------------------------------------------------------------------
       public::  m_Mkpot_init, m_Mkpot_deallocate, m_Mkpot_energyterms, m_Mkpot_novxc
-      type(s_cv1),allocatable,protected,public  :: ohsozz(:,:),ohsopm(:,:) !SOC matrix 
+      type(s_sblock),allocatable,protected,public  :: ohsozz(:,:),ohsopm(:,:) !SOC matrix 
                               ! Generated at mkpot-locpot-augmat-gaugm
       type(s_cv1),allocatable,protected,public  :: sv_p_oppi(:,:) !pi-integral Eq.(C.6)
       type(s_rv1),allocatable,protected,public  :: sv_p_otau(:,:) !tau            (C.5)
@@ -29,7 +29,7 @@
       use m_supot,only: k1,k2,k3
       use m_density,only: osmrho, orhoat !main input density
       integer:: i,lfrzw
-      type(s_cv1),allocatable  :: ohsozzx(:,:),ohsopmx(:,:) 
+      type(s_sblock),allocatable  :: ohsozzx(:,:),ohsopmx(:,:) 
       write(stdo,"(a)")' m_mkpot_novxc: Making one-particle potential without XC part ...'
       allocate( sv_p_osigx(3,nbas), sv_p_otaux(3,nbas), sv_p_oppix(3,nbas))
       allocate( ohsozzx(3,nbas), ohsopmx(3,nbas)) !dummy
@@ -270,7 +270,8 @@ C    If problems, Maybe even look at sm part only, or local part only.
       implicit none
       integer job,i1,i2,i3,ispec
       type(s_rv1) :: sv_p_orhoat(*)
-      type(s_cv1) :: sv_p_oppi(*),ohsozz(*),ohsopm(*)
+      type(s_cv1) :: sv_p_oppi(*)
+      type(s_sblock) :: ohsozz(*),ohsopm(*)
       type(s_rv1) :: sv_p_otau(*)
       type(s_rv1) :: sv_p_osig(*)
       real(8)::  fes(3,nbas) 
@@ -563,7 +564,7 @@ C --- Printout ---
       end subroutine mkpot
      
       subroutine dfaugm ( sv_p_osig, sv_p_otau , sv_p_oppi, ohsozz,ohsopm )
-      use m_struc_def,only:s_rv1,s_cv1
+      use m_struc_def,only:s_rv1,s_cv1,s_sblock
       use m_lmfinit,only: lso,nkaph,nsp,nbas,ssite=>v_ssite,sspec=>v_sspec 
 C- Allocate augmentation matrices sigma,tau,pi for all atoms
 C ----------------------------------------------------------------------
@@ -585,9 +586,10 @@ Cr   For sig(Hsm,Hsm), nf1=nf2=nkaph; lmax = lmxh
 Cl   nkaph :number of orbital types for a given L quantum no. in basis
 C ----------------------------------------------------------------------
       implicit none
-      type(s_cv1) :: sv_p_oppi(3,nbas),ohsozz(3,nbas),ohsopm(3,nbas)
+      type(s_cv1) :: sv_p_oppi(3,nbas)
+      type(s_sblock):: ohsozz(3,nbas),ohsopm(3,nbas)
       type(s_rv1) :: sv_p_otau(3,nbas), sv_p_osig(3,nbas)
-      integer ib,igetss,is,kmax,lmxa,lmxh,nelt1,nelt2,nglob,nlma,nlmh!,nso
+      integer ib,igetss,is,kmax,lmxa,lmxh,nelt1,nelt2,nglob,nlma,nlmh,nelt !,nso
       do  ib = 1, nbas
         is = int(ssite(ib)%spec)
         lmxa=sspec(is)%lmxa
@@ -617,12 +619,18 @@ C   ...  Case Hsm*Pkl
         allocate(sv_p_oppi(2,ib)%cv(nelt2))
 !        
         if(lso/=0) then         !spin-orbit copling matrix elements
-           nelt2 = (kmax+1)*(kmax+1)*nlma*nlma*nsp
-           allocate(ohsozz(1,ib)%cv(nelt2), ohsopm(1,ib)%cv(nelt2)) ! Pkl*Pkl zz and pm component
-           nelt2 = nkaph*nkaph*nlmh*nlmh*nsp
-           allocate(ohsozz(3,ib)%cv(nelt2), ohsopm(3,ib)%cv(nelt2)) ! Hsm*Hsm
-           nelt2 = nkaph*(kmax+1)*nlmh*nlma*nsp
-           allocate(ohsozz(2,ib)%cv(nelt2), ohsopm(2,ib)%cv(nelt2)) ! Hsm*Pkl
+c           nelt2 = (kmax+1)*(kmax+1)*nlma*nlma*nsp
+           nelt = (kmax+1)*(kmax+1)*nlma*nlma !ohsopm (L- and L+) is irrelevant for lso=2
+           allocate(ohsozz(1,ib)%sdiag(nelt,nsp), ohsopm(1,ib)%soffd(nelt,nsp)) ! Pkl*Pkl zz and pm component
+c         nelt2 = nkaph*nkaph*nlmh*nlmh*nsp
+           nelt = nkaph*nkaph*nlmh*nlmh !*nsp
+           allocate(ohsozz(3,ib)%sdiag(nelt,nsp), ohsopm(3,ib)%soffd(nelt,nsp)) ! Hsm*Hsm
+c           nelt2 = nkaph*(kmax+1)*nlmh*nlma*nsp
+           nelt = nkaph*(kmax+1)*nlmh*nlma !*nsp
+           allocate(ohsozz(2,ib)%sdiag(nelt,nsp), ohsopm(2,ib)%soffd(nelt,nsp)) !
+!     ohsozz(2,ib): Hsm*Pkl for Lz(diag)
+!     ohsopm(2,ib): Hsm*Pkl soffd(:,1) = <H|L-(isp=1,isp=2)|P>, soffd(:,2)     = <H|L+(isp=2,isp=1)|P>
+!                                                            dagger(soffd(:,2))= <P|L-(isp=1,isp=2)|H>
         endif
       enddo
       end subroutine dfaugm

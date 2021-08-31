@@ -423,8 +423,8 @@ ccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           qp  = qplist(:,iq)    !  ... For this qp, G vectors for PW basis and hamiltonian dimension
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-          call hambl(0,isp,qp,spotx,vconst,sv_p_osigx,sv_p_otaux,sv_p_oppix,ohsozz,ohsopm,vxc,ovl)!H(LDA) wihout vxc
-          call hambl(0,isp,qp,smpot,vconst,sv_p_osig, sv_p_otau, sv_p_oppi,ohsozz,ohsopm, ham,ovl)!H(LDA) and O
+          call hambl(isp,qp,spotx,vconst,sv_p_osigx,sv_p_otaux,sv_p_oppix, vxc,ovl)!H(LDA) wihout vxc
+          call hambl(isp,qp,smpot,vconst,sv_p_osig, sv_p_otau, sv_p_oppi , ham,ovl)!H(LDA) and O
           if(lso==2) ham(:,:) = ham(:,:) + hammhso(:,:,isp) !aug2021
 ccccccccccccccccccccccccccccccccccccccccccc
           qp  = qplist(:,iq)-[1d-6,2d-6,3d-6] !A trick to shift qp 

@@ -130,8 +130,8 @@ ccccccccccccccc
             hamm=0d0
             ovlm=0d0
             if(lso==1) then !L.S case nspc=2
-              call hambl(0,1,qp,osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm, hamm(1,1,1),ovlm(1,1,1))
-              call hambl(0,2,qp,osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm, hamm(1,1,2),ovlm(1,1,2))
+              call hambl(1,qp,osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi, hamm(1,1,1),ovlm(1,1,1))
+              call hambl(2,qp,osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi, hamm(1,1,2),ovlm(1,1,2))
               hamm(:,:, 1:2) = hamm(:,:, 1:2) + hammhso(:,:,1:2) !spin-diagonal SOC elements (1,1), (2,2) added
               hamm(:,:, 3)   = hammhso(:,:,3) !spin-off-diagonal SOC elements (1,2) added
               call sopert2 ( hamm , hamm ) !L.S case. re-ordered to be 2x2 spin matrix.
@@ -144,7 +144,7 @@ ccccccccccccccc
                  call dsene()
               endif
             else ! lso=0 (No SO) or lso=2(Lz.Sz)  Spin Diagonal case.spin diagonal) 
-              call hambl(0,isp,qp,osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm,hamm(1,1,1),ovlm(1,1,1))
+              call hambl(isp,qp,osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,hamm(1,1,1),ovlm(1,1,1))
               if(lso==2) hamm(:,:, 1) = hamm(:,:, 1) + hammhso(:,:,isp)
               if(sigmamode) then !!Add  Vxc(QSGW)-Vxc
                  call getsenex(qp,isp,ndimh,ovlm(1,1,1))
