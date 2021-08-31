@@ -1,6 +1,6 @@
       subroutine aughso(qp,ohsozz,ohsopm, ndimh, hso)
       use m_struc_def,only: s_cv1,s_rv1,s_sblock
-      use m_lmfinit,only: nsp, lso, nbas, nkaph, ssite=>v_ssite, sspec=>v_sspec!,facso
+      use m_lmfinit,only: nsp, lso, nbas, nkaph, ssite=>v_ssite, sspec=>v_sspec,facso
       use m_bstrux,only: Bstrux_set, bstr 
       use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat
 !!- Spin-orbit couping matrix hso
@@ -21,15 +21,19 @@
       complex(8),pointer:: ppi1(:),ppi2(:),ppi3(:)
       type(s_sblock),pointer:: Lzz(:),Lmp(:)
       complex(8),allocatable:: SSbPP(:),SSbHP(:),SSbPH(:),SSbHH(:) !tailtail, headtail, headhead
-      complex(8):: facso(3,3),img=(0d0,1d0)
+      complex(8):: img=(0d0,1d0) !facso(3,3),
       complex(8):: f1,f2,f3
       real(8)::d2
+      logical,save:: init=.true.
 c$$$  c   call tcn ('aughso')
-
-      
 c$$$  Moved to m_lmfinit.
 c$$$  Repeat 'compiling m_lmfinit' is time consuming. So we can use followings for developing code.
       
+c$$$  !! Mixing matrix for Spin-block. (Lz,L-,L+)
+!     Lx= 1/2 (L- + L+), Ly=1/2i (-L- + L+)
+!     Lx+Ly = (1/2-1/2i)L-  + (1/2+1/2i)L+
+!     Lx-Ly = (1/2+1/2i)L-  + (1/2-1/2i)L+
+
 c     so=0  sumev=      -27.066983
 c      facso(:,1) = [complex(8)::  0d0,  0d0,0d0 ]! 1/2, 1/2] !d2-d2/img,  d2+d2/img]  
 c      facso(:,2) = [complex(8)::  0d0, 0d0,0d0 ]!-1/2,-1/2]
@@ -44,81 +48,30 @@ c      facso(:,3) = [complex(8)::  0d0,  0d0, 0d0]
 c      facso=0.5d0* facso        ! prefactor 1/2
 c sumev=      -27.074354  val*vef=    -388.462096   sumtv=     361.387743
       
-c SO (001)          Lz   L-   L+
-      facso(:,1) = [ 1d0, 0d0, 0d0]  ! diagonal part isp=1,isp=1 
-      facso(:,2) = [-1d0, 0d0, 0d0]  ! diagonal part isp=2,isp=2
-      facso(:,3) = [ 0d0, 1d0, 0d0]  ! off-diag part isp=1,isp=2
-      facso=0.5d0* facso        ! prefactor 1/2
-c sumev=      -27.089234  val*vef=    -388.462096   sumtv=     361.372862
-c
-c SO (001) minum         Lz   L-   L+
-c      facso(:,1) = [ complex(8):: -1d0, 0d0, 0d0]  ! diagonal part isp=1,isp=1 
-c      facso(:,2) = [ complex(8)::  1d0, 0d0, 0d0]  ! diagonal part isp=2,isp=2
-c      facso(:,3) = [ complex(8)::  0d0, 0d0, 1d0]  ! off-diag part isp=1,isp=2
+c so=1 SO (001)          Lz   L-   L+
+c      facso(:,1) = [ 1d0, 0d0, 0d0]  ! diagonal part isp=1,isp=1 
+c      facso(:,2) = [-1d0, 0d0, 0d0]  ! diagonal part isp=2,isp=2
+c      facso(:,3) = [ 0d0, 1d0, 0d0]  ! off-diag part isp=1,isp=2
 c      facso=0.5d0* facso        ! prefactor 1/2
 c sumev=      -27.089234  val*vef=    -388.462096   sumtv=     361.372862
-      
 
-cc Sz*-Ly      
-c      facso(:,1) = [ complex(8):: 0d0,  0.5d0/img,  -0.5d0/img]  ! diagonal part isp=1,isp=1 
-c      facso(:,2) = [ complex(8):: 0d0,  -0.5d0/img, 0.5d0/img]  ! diagonal part isp=2,isp=2
-c      facso(:,3) = [ complex(8):: 0d0, 0d0, 0d0]  ! off-diag part isp=1,isp=2
-c      facso=0.5d0* facso        ! prefactor 1/2
-c     sumev=      -27.075204  val*vef=    -388.462096   sumtv=     361.386892
-c      
-c Sz*-Ly      
-c      facso(:,1) = [ complex(8):: 0d0,  -0.5d0/img,  0.5d0/img]  ! diagonal part isp=1,isp=1 
-c      facso(:,2) = [ complex(8):: 0d0,   0.5d0/img, -0.5d0/img]  ! diagonal part isp=2,isp=2
-c      facso(:,3) = [ complex(8):: 0d0, 0d0, 0d0]  ! off-diag part isp=1,isp=2
-c      facso=0.5d0* facso        ! prefactor 1/2
-c sumev=      -27.075204  val*vef=    -388.462096   sumtv=     361.386892
-      
-
-c     Sz*Lx      
-c      facso(:,1) = [ complex(8):: 0d0, 0.5d0,   0.5d0]  ! diagonal part isp=1,isp=1 
-c      facso(:,2) = [ complex(8):: 0d0, -0.5d0, -0.5d0]  ! diagonal part isp=2,isp=2
-c      facso(:,3) = [ complex(8):: 0d0, 0d0, 0d0]  ! off-diag part isp=1,isp=2
-c      facso=0.5d0* facso        ! prefactor 1/2
-c sumev=      -27.073140  val*vef=    -388.462096   sumtv=     361.388956
-c     Sz*-Lx      
-c      facso(:,1) = [ complex(8):: 0d0, -0.5d0, -0.5d0]  ! diagonal part isp=1,isp=1 
-c      facso(:,2) = [ complex(8):: 0d0,  0.5d0,  0.5d0]  ! diagonal part isp=2,isp=2
-c      facso(:,3) = [ complex(8):: 0d0, 0d0, 0d0]  ! off-diag part isp=1,isp=2
-c      facso=0.5d0* facso        ! prefactor 1/2
-c sumev=      -27.073140  val*vef=    -388.462096   sumtv=     361.388956
-      
-
-c$$$  !! Mixing matrix for Spin-block. (Lz,L-,L+)
-!     Lx= 1/2 (L- + L+), Ly=1/2i (-L- + L+)
-!     Lx+Ly = (1/2-1/2i)L-  + (1/2+1/2i)L+
-!     Lx-Ly = (1/2+1/2i)L-  + (1/2-1/2i)L+
-cc$$$  ! (110)             Lz      L-          L+  ! Taken from (A8) in Liqin2019,PhysRevB.99.054418
+c so=1 BZ_SOCAXIS=1,1,0 
+c (110)             Lz      L-          L+  ! Taken from (A8) in Liqin2019,PhysRevB.99.054418
 c      d2= dsqrt(2d0)/4d0
 c      facso(:,1) = [complex(8)::  0d0,  d2-d2/img, d2+d2/img]  
 c      facso(:,2) = [complex(8)::  0d0, -d2+d2/img,-d2-d2/img]  
 c      facso(:,3) = [complex(8):: -1d0,  d2*img+d2, d2*img-d2]
 c      facso=0.5d0* facso        ! prefactor 1/2
+c sumev=      -27.088951  val*vef=    -388.462096   sumtv=     361.373145
 
-ccccccccc      
-c     facso(:,1) = [complex(8)::  0d0,  .5d0, .5d0] !d2-d2/img,  d2+d2/img]  
-c      facso(:,2) = [complex(8)::  0d0, -.5d0,-.5d0]
-c      facso(:,3) = [complex(8)::  0d0,  0d0, 0d0]
-c      facso=0.5d0* facso        ! prefactor 1/2
-c sumev=      -27.073140  val*vef=    -388.462096   sumtv=     361.388956
-
-      
-c      facso(:,1) = [complex(8)::  0d0,  -.5d0/img,  .5d0/img] !d2-d2/img,  d2+d2/img]  
-c      facso(:,2) = [complex(8)::  0d0,   .5d0/img, -.5d0/img]
-c      facso(:,3) = [complex(8)::  0d0,  0d0, 0d0]
-c      facso=0.5d0* facso        ! prefactor 1/2
-c sumev=      -27.075204  val*vef=    -388.462096   sumtv=     361.386892
-
-c$$$  !! -------------------------------
 ccccccccccccccccccccccccccccccccccccccccccccccccccc
-      write(6,*)'lso=',lso
-      write(6,"('facso 1=',6(2f9.4,2x))")facso(:,1)
-      write(6,"('facso 2=',6(2f9.4,2x))")facso(:,2)
-      write(6,"('facso 3=',6(2f9.4,2x))")facso(:,3)
+      if(init) then
+      write(6,*)'fff lso=',lso
+      write(6,"('fff facso 1=',6(2f9.4,2x))")facso(:,1)
+      write(6,"('fff facso 2=',6(2f9.4,2x))")facso(:,2)
+      write(6,"('fff facso 3=',6(2f9.4,2x))")facso(:,3)
+      init=.false.
+      endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccc      
       hso=0d0
       call shorbz(qp,q,qlat,plat) !is this fine?

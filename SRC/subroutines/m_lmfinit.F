@@ -580,16 +580,21 @@ cccccccccccccccccccccccccccccccccccccccccccc
          facso(:,1) = [complex(8)::  1d0, 0d0, 0d0] ! diagonal part isp=1,isp=1 
          facso(:,2) = [complex(8):: -1d0, 0d0, 0d0] ! diagonal part isp=2,isp=2
          facso(:,3) = [complex(8)::  0d0, 1d0, 0d0] ! off-diag part isp=1,isp=2
+         facso=0.5d0* facso     ! prefactor 1/2
       elseif( sum(abs(sxx-[1d0,1d0,0d0])) <1d-6) then
-         d2= dsqrt(2d0)/4d0
 ! (110)                               Lz         L-          L+  
-         facso(:,1) = [complex(8)::  0d0,  d2+d2/img,  d2-d2/img ]
-         facso(:,2) = [complex(8)::  0d0, -d2-d2/img, -d2-d2/img ]  
-         facso(:,3) = [complex(8):: -1d0, -d2*img+d2, -d2*img+d2 ]
+c$$$  !! Mixing matrix for Spin-block. (Lz,L-,L+)
+!     Lx= 1/2 (L- + L+), Ly=1/2i (-L- + L+)
+!     Lx+Ly = (1/2-1/2i)L-  + (1/2+1/2i)L+
+!     Lx-Ly = (1/2+1/2i)L-  + (1/2-1/2i)L+
+         d2= dsqrt(2d0)/4d0
+         facso(:,1) = [complex(8)::  0d0,  d2-d2/img,  d2+d2/img ]
+         facso(:,2) = [complex(8)::  0d0, -d2+d2/img, -d2-d2/img ]  
+         facso(:,3) = [complex(8):: -1d0,  d2*img+d2,  d2*img-d2 ]
+         facso=0.5d0* facso     ! prefactor 1/2
       elseif(io_help==0) then
           call rx('Given HAM_SOCAXIS is not yet implemented')
       endif
-      facso=0.5d0* facso ! prefactor 1/2
 cccccccccccccccccccccccccccccccccccccccccccc      
 !      
       sw = tksw(prgnam,'HAM_GMAX')
