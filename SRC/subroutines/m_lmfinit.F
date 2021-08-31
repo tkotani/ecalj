@@ -133,8 +133,8 @@ Ci          functions are less than tol.
       integer,protected,target::ldham(16)
       integer,protected,pointer:: nlmto !total number of MTOs
 !! For SOC 
-      complex(8):: facso(3,3),img=(0d0,1d0)
-      real(8)::d2
+      real(8),protected:: socaxis(3)
+     
       
 !! sspec and ssite are unprotected (be careful)
       type(s_spec),allocatable:: v_sspec(:) !(nspec: number of species in the cell)
@@ -283,7 +283,7 @@ c      integer,parameter:: mxspec=256
       integer:: ii,sw
       real(8):: dasum!,dglob
       character(128) :: nm
-      real(8):: nullrv(256),d2,sxx(3)
+      real(8):: nullrv(256),d2
       integer:: nulliv(256),jj(2) !,nkapsi
       logical:: noelind
 
@@ -572,29 +572,8 @@ c     .        '%N%3f3 : Like 2, but also compute <L.S-LzSz> by perturbation')
       
 cccccccccccccccccccccccccccccccccccccccccccc      
 !! SOC Spin-block matrix Aug2021 ! Taken from (A8) in Ke.Liqin2019,PhysRevB.99.054418
-      nm='HAM_SOCAXIS'; call gtv(trim(nm),tksw(prgnam,nm),sxx,nmin=3,nout=nout, def_r8v=[0d0,0d0,1d0],
+      nm='HAM_SOCAXIS'; call gtv(trim(nm),tksw(prgnam,nm),socaxis,nmin=3,nout=nout, def_r8v=[0d0,0d0,1d0],
      .     note='Soc axis! 0,0,1(default) or 1,1,0') !need to set HAM_SOCAXIS in toksw_init
-      if( sum(abs(sxx-[0d0,0d0,1d0]))  < 1d-6) then
-!  Mixing matrix for Spin-block. (Lz,L-,L+)
-! (001)                              Lz   L-   L+
-         facso(:,1) = [complex(8)::  1d0, 0d0, 0d0] ! diagonal part isp=1,isp=1 
-         facso(:,2) = [complex(8):: -1d0, 0d0, 0d0] ! diagonal part isp=2,isp=2
-         facso(:,3) = [complex(8)::  0d0, 1d0, 0d0] ! off-diag part isp=1,isp=2
-         facso=0.5d0* facso     ! prefactor 1/2
-      elseif( sum(abs(sxx-[1d0,1d0,0d0])) <1d-6) then
-! (110)                               Lz         L-          L+  
-c$$$  !! Mixing matrix for Spin-block. (Lz,L-,L+)
-!     Lx= 1/2 (L- + L+), Ly=1/2i (-L- + L+)
-!     Lx+Ly = (1/2-1/2i)L-  + (1/2+1/2i)L+
-!     Lx-Ly = (1/2+1/2i)L-  + (1/2-1/2i)L+
-         d2= dsqrt(2d0)/4d0
-         facso(:,1) = [complex(8)::  0d0,  d2-d2/img,  d2+d2/img ]
-         facso(:,2) = [complex(8)::  0d0, -d2+d2/img, -d2-d2/img ]  
-         facso(:,3) = [complex(8):: -1d0,  d2*img+d2,  d2*img-d2 ]
-         facso=0.5d0* facso     ! prefactor 1/2
-      elseif(io_help==0) then
-          call rx('Given HAM_SOCAXIS is not yet implemented')
-      endif
 cccccccccccccccccccccccccccccccccccccccccccc      
 !      
       sw = tksw(prgnam,'HAM_GMAX')

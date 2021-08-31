@@ -120,11 +120,12 @@ ccccccccccccccc
 !     ! Main output sene. See m_seneinterp
 
 !! See Eq.(36) and appendix in http://dx.doi.org/10.7566/JPSJ.84.034702
-!     ! Hamm and ovlm are made from smooth part and augmentation part.
-! hso
+!! Hamm and ovlm are made from smooth part and augmentation part.
+            
+! SOC Hamiltonian hammhso is calculated.
             if(lso/=0.and.(.not.allocated(hammhso))) then
               allocate(hammhso(ndimh,ndimh,3))
-              call aughso(qp, ohsozz,ohsopm,ndimh, hammhso)!aug2021 Hso matrix
+              call aughso(qp, ohsozz,ohsopm,ndimh, hammhso)!aug2021 Hso 
             endif
             
             hamm=0d0
@@ -132,8 +133,8 @@ ccccccccccccccc
             if(lso==1) then !L.S case nspc=2
               call hambl(1,qp,osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi, hamm(1,1,1),ovlm(1,1,1))
               call hambl(2,qp,osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi, hamm(1,1,2),ovlm(1,1,2))
-              hamm(:,:, 1:2) = hamm(:,:, 1:2) + hammhso(:,:,1:2) !spin-diagonal SOC elements (1,1), (2,2) added
-              hamm(:,:, 3)   = hammhso(:,:,3) !spin-off-diagonal SOC elements (1,2) added
+              hamm(:,:,1:2)=hamm(:,:,1:2)+hammhso(:,:,1:2) !spin-diag SOC elements (1,1), (2,2) added
+              hamm(:,:, 3)   = hammhso(:,:,3) !spin-offdiagonal SOC elements (1,2) added
               call sopert2 ( hamm , hamm ) !L.S case. re-ordered to be 2x2 spin matrix.
               call sopert2 ( ovlm , ovlm ) 
               if(sigmamode) then

@@ -1,6 +1,6 @@
       subroutine aughso(qp,ohsozz,ohsopm, ndimh, hso)
       use m_struc_def,only: s_cv1,s_rv1,s_sblock
-      use m_lmfinit,only: nsp, lso, nbas, nkaph, ssite=>v_ssite, sspec=>v_sspec,facso
+      use m_lmfinit,only: nsp, lso, nbas, nkaph, ssite=>v_ssite, sspec=>v_sspec,socaxis
       use m_bstrux,only: Bstrux_set, bstr 
       use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat
 !!- Spin-orbit couping matrix hso
@@ -21,40 +21,54 @@
       complex(8),pointer:: ppi1(:),ppi2(:),ppi3(:)
       type(s_sblock),pointer:: Lzz(:),Lmp(:)
       complex(8),allocatable:: SSbPP(:),SSbHP(:),SSbPH(:),SSbHH(:) !tailtail, headtail, headhead
-      complex(8):: img=(0d0,1d0) !facso(3,3),
-      complex(8):: f1,f2,f3
+      complex(8):: img=(0d0,1d0), facso(3,3), f1,f2,f3
       real(8)::d2
       logical,save:: init=.true.
-c$$$  c   call tcn ('aughso')
-c$$$  Moved to m_lmfinit.
-c$$$  Repeat 'compiling m_lmfinit' is time consuming. So we can use followings for developing code.
-      
-c$$$  !! Mixing matrix for Spin-block. (Lz,L-,L+)
+c     call tcn ('aughso')
+
+      if(lso==1) then
+         if( sum(abs(socaxis-[0d0,0d0,1d0]))  < 1d-6) then
+!     Mixing matrix for Spin-block facso based on (Lz,L-,L+)
+!     (001)                              Lz   L-   L+
+            facso(:,1) = [complex(8)::  1d0, 0d0, 0d0] ! diagonal part isp=1,isp=1 
+            facso(:,2) = [complex(8):: -1d0, 0d0, 0d0] ! diagonal part isp=2,isp=2
+            facso(:,3) = [complex(8)::  0d0, 1d0, 0d0] ! off-diag part isp=1,isp=2
+            facso=0.5d0* facso  ! prefactor 1/2
+         elseif( sum(abs(socaxis-[1d0,1d0,0d0])) <1d-6) then
+!     (110)                               Lz         L-          L+  
 !     Lx= 1/2 (L- + L+), Ly=1/2i (-L- + L+)
 !     Lx+Ly = (1/2-1/2i)L-  + (1/2+1/2i)L+
 !     Lx-Ly = (1/2+1/2i)L-  + (1/2-1/2i)L+
-
-c     so=0  sumev=      -27.066983
-c      facso(:,1) = [complex(8)::  0d0,  0d0,0d0 ]! 1/2, 1/2] !d2-d2/img,  d2+d2/img]  
-c      facso(:,2) = [complex(8)::  0d0, 0d0,0d0 ]!-1/2,-1/2]
-c      facso(:,3) = [complex(8)::  0d0,  0d0, 0d0]
-c     facso=0.5d0* facso        ! prefactor 1/2
+            d2= dsqrt(2d0)/4d0
+            facso(:,1) = [complex(8)::  0d0,  d2-d2/img,  d2+d2/img ]
+            facso(:,2) = [complex(8)::  0d0, -d2+d2/img, -d2-d2/img ]  
+            facso(:,3) = [complex(8):: -1d0,  d2*img+d2,  d2*img-d2 ]
+            facso=0.5d0* facso  ! prefactor 1/2
+         else
+            call rx('Given HAM_SOCAXIS is not yet implemented')
+         endif
+c     if(init) then
+c     write(6,*)'fff lso=',lso
+c     write(6,"('fff facso 1=',6(2f9.4,2x))")facso(:,1)
+c     write(6,"('fff facso 2=',6(2f9.4,2x))")facso(:,2)
+c     write(6,"('fff facso 3=',6(2f9.4,2x))")facso(:,3)
+c     init=.false.
+c     endif
+      endif
+      
+c so=0  sumev=      -27.066983
 c sumev=      -27.066983  val*vef=    -388.462096   sumtv=     361.395114
-      
+c      
 c so=2 ==> sumev=      -27.074354  val*vef=    -388.462096   sumtv=     361.387743
-c      facso(:,1) = [complex(8)::   1d0, 0d0,  0d0] !d2-d2/img,  d2+d2/img]  
-c      facso(:,2) = [complex(8)::  -1d0, 0d0,  0d0]
-c      facso(:,3) = [complex(8)::  0d0,  0d0, 0d0]
-c      facso=0.5d0* facso        ! prefactor 1/2
 c sumev=      -27.074354  val*vef=    -388.462096   sumtv=     361.387743
-      
+c      
 c so=1 SO (001)          Lz   L-   L+
 c      facso(:,1) = [ 1d0, 0d0, 0d0]  ! diagonal part isp=1,isp=1 
 c      facso(:,2) = [-1d0, 0d0, 0d0]  ! diagonal part isp=2,isp=2
 c      facso(:,3) = [ 0d0, 1d0, 0d0]  ! off-diag part isp=1,isp=2
 c      facso=0.5d0* facso        ! prefactor 1/2
 c sumev=      -27.089234  val*vef=    -388.462096   sumtv=     361.372862
-
+c
 c so=1 BZ_SOCAXIS=1,1,0 
 c (110)             Lz      L-          L+  ! Taken from (A8) in Liqin2019,PhysRevB.99.054418
 c      d2= dsqrt(2d0)/4d0
@@ -64,15 +78,6 @@ c      facso(:,3) = [complex(8):: -1d0,  d2*img+d2, d2*img-d2]
 c      facso=0.5d0* facso        ! prefactor 1/2
 c sumev=      -27.088951  val*vef=    -388.462096   sumtv=     361.373145
 
-ccccccccccccccccccccccccccccccccccccccccccccccccccc
-      if(init) then
-      write(6,*)'fff lso=',lso
-      write(6,"('fff facso 1=',6(2f9.4,2x))")facso(:,1)
-      write(6,"('fff facso 2=',6(2f9.4,2x))")facso(:,2)
-      write(6,"('fff facso 3=',6(2f9.4,2x))")facso(:,3)
-      init=.false.
-      endif
-ccccccccccccccccccccccccccccccccccccccccccccccccccc      
       hso=0d0
       call shorbz(qp,q,qlat,plat) !is this fine?
       do ibas = 1,nbas 
@@ -90,7 +95,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
            b(:,lm,:) = transpose(bstr(:,lm,:)) 
         enddo
         nh= nkaph*nlmb     ! size of head nh
-        np= (kmax+1)*nlma       ! size of tail np
+        np= (kmax+1)*nlma  ! size of tail np
 !! Get Lzz,Lmp,Lmp(spinfliped)= (Lz,L-,L+)  See mkpot-locpot-augmat-gaugm-pvagm1,pvaglc to generate hsozz,hsopm
         Lzz => ohsozz(:,ibas)   ! Lz block  1:P*P, 2:H*P, 3:H*H for up and dn 
         if(lso==1) Lmp => ohsopm(:,ibas) ! <up|L-|dn> for isp=1 , <dn|L+|up> for isp=2. See gaugm.F, pvagm1,pvaglc
@@ -406,11 +411,8 @@ C ... Local parameters
           do  j = 1, ndimh  
           do  k = 0, kmax
           do  ilma = 1, nlma
-C... Make 2c term LxSx+LySy part of SO 
-             cadd1 =  hsohp(ik1,k,ilm1,ilma)*b(k,ilma,j)
-             hso(i1,j) = hso(i1,j) + cadd1
-             cadd1 = dconjg(b(k,ilma,j))*hsoph(ik1,k,ilm1,ilma)
-             hso(j,i1) = hso(j,i1) + cadd1
+             hso(i1,j) = hso(i1,j) + hsohp(ik1,k,ilm1,ilma)*b(k,ilma,j)
+             hso(j,i1) = hso(j,i1) + dconjg(b(k,ilma,j))*hsoph(ik1,k,ilm1,ilma)
           enddo
           enddo
           enddo
@@ -420,39 +422,11 @@ C... Make 2c term LxSx+LySy part of SO
               i2 = offl(jorb)
               do  ilm2 = l2**2+1, (l2+1)**2
                 i2 = i2+1
-C        ...  Make 1c LxSx+LySy part of SO
                 hso(i1,i2) = hso(i1,i2) + hsohh(ik1,ik2,ilm1,ilm2)
               enddo
           enddo
         enddo
       enddo
-c      end subroutine augq2zhso
-c      subroutine augq3z(kmax,nlma,ndimh,isp,b,ppi, h)
-C- Add B+ ppi B to H for non-L-diagonal, complex matrix ppi
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   kmax  :polynomial cutoff
-Ci   nlma  :augmentation L-cutoff
-Ci   ndimh :hamiltonian dimension
-Ci   isp   :current spin channel
-Cix   g     :complex work array of dimension (kmax+1)*nlma
-Ci   ppi   :augmentation Pkl-Pkl potential matrix
-Ci   b     :Bloch structure constants (hxpbl)
-Co Outputs
-Co   h     :3-center from this augmentation site added to h
-Co   hso   :3-center from this augmentation site added to hso
-Cr Remarks
-Cu Updates
-Cu 03 Feb 05 (A. Chantis) added 3- center spherical so*(LxSx+LySy)
-Cu 01 Sep 04 folded so into complex potential
-Cu 29 Jun 04 (A. Chantis) added 3- center so*Sz*Lz (spherical part)
-C ----------------------------------------------------------------------
-c      implicit none
-c      integer kmax,nlma,ndimh,isp!,mode1
-c      complex(8):: ppi(0:kmax,0:kmax,nlma,nlma,*),
-c     & b(0:kmax,nlma,ndimh),h(ndimh,ndimh),
-c     & g(0:kmax,nlma),csum,csum1 !,hso(ndimh,ndimh),gso(0:kmax,nlma)
-c      integer i1,i2,jlm1,jlm2,k1,k2,kjlm !,kjtop
       do  i2 = 1, ndimh
         g = 0d0   
         do  jlm1 = 1, nlma
@@ -465,6 +439,7 @@ c      integer i1,i2,jlm1,jlm2,k1,k2,kjlm !,kjtop
         enddo
       enddo
       end subroutine augq2zhso
+
       
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine augq3z(kmax,nlma,ndimh,isp,b,ppi, h)
