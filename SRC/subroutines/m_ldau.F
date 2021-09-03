@@ -8,6 +8,7 @@
       subroutine m_ldau_init()
       use m_lmfinit,only: nlibu,nsp,lmaxu,lmaxu,nsp,nlibu
       integer:: i,idmatu
+      logical:: mmtargetx
       idmatu=nsp*nlibu*(lmaxu*2+1)**2
       if(init) then
       allocate( dmato(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu))
@@ -15,7 +16,10 @@
       init=.false.
       endif
       call sudmtu(dmato, vorb)  !read dmatu from dmatu.ext and generate vorbdmat from dmatu.ext
-      end 
+      inquire(file='mmtarget.aftest',exist=mmtargetx)
+      if(mmtargetx) call vorbmodifyaftest()
+      end
+      
 !! vorb LDA+U mixing
       subroutine m_ldau_vorbset(eks,dmatu)
       use m_chkdmu,only: Chkdmu
@@ -24,21 +28,26 @@
       complex(8):: dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
       complex(8):: vorbav(-lmaxu:lmaxu,-lmaxu:lmaxu)
       real(8):: eks
-
       integer,parameter:: nx=1000
       logical:: mmtargetx
       real(8):: alpha,mmtarget, uhhist(nx),uhx,sss(1),fac,mmsite(nbas),mmhist(nx)
       integer:: nit,ibas,ifx,ncount=0,iblu,i
-
       call chkdmu(eks,dmatu, dmato, vorb)
       dmato=dmatu
-
-
+      inquire(file='mmtarget.aftest',exist=mmtargetx)
+      if(mmtargetx) call vorbmodifyaftest()
+      end
+      
+      subroutine vorbmodifyaftest()
+      use m_lmfinit,only: nlibu,nsp,lmaxu,lmaxu,nsp,nlibu,nbas,stdo
+      use m_MPItk,only: master_mpi
+      complex(8):: vorbav(-lmaxu:lmaxu,-lmaxu:lmaxu)
+      integer,parameter:: nx=1000
+      real(8):: alpha,mmtarget, uhhist(nx),uhx,sss(1),fac,mmsite(nbas),mmhist(nx)
+      integer:: nit,ibas,ifx,ncount=0,iblu,i
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc   
 !! Experimental block to add magnetic field to vorb to keep given size of magnetic moment
 !! Need fixing. This is only for ibas=1 and ibas=2 are antiferro pair.
-       inquire(file='mmtarget.aftest',exist=mmtargetx)
-       if(mmtargetx) then
           if(master_mpi) then
              open(newunit=ifx,file='mmtarget.aftest')
              alpha  = .1d0
@@ -88,7 +97,6 @@ c          call MPI_Bcast(uhx, 1, MPI_REAL8, 0, MPI_COMM_WORLD, ierr)
              if(iblu==2) fac=-1d0 !>3) fac=-1d0
              vorb(:,:,1,iblu) = vorb(:,:,1,iblu) - uhx*fac*vorbav(:,:) 
           enddo
-       endif
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       end
 

@@ -268,27 +268,27 @@ C ... Make Vorb (ldau requires spherical harmonics)
         havesh = 1
       endif
 
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc       
-!! experimental block to keep magnetic moment for AF.
-       inquire(file='mmtarget.aftest',exist=mmtargetx)
-       inquire(file='mmagfield.aftest',exist=eee)
-       if(mmtargetx.and. (procid==master)) then
-          uhx=0d0
-          open(newunit=ifx,file='mmagfield.aftest')
-          do
-             read(ifx,*,end=1112,err=1112) uhxx,aaa
-             uhx=uhxx
-             if(trim(aaa)=='!Magfield') uhx=uhxx
-          enddo
- 1112     continue
-          close(ifx)
-          write(stdo,"('sudmtu: mmtarget mode. Readin Magfield from mmagfield.aftest=',f10.6)")uhx
-          open(newunit=ifx,file='mmagfield.aftest')
-          write(ifx,"(d23.15,1x,'!Magfield is read from previous mmagfield.aftest')") uhx
-          close(ifx)
-       endif
-       call mpibc1_real(uhx,1,'sudmtu_uhx')
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc       
+c$$$!! experimental block to keep magnetic moment for AF.
+c$$$       inquire(file='mmtarget.aftest',exist=mmtargetx)
+c$$$       inquire(file='mmagfield.aftest',exist=eee)
+c$$$       if(mmtargetx.and. (procid==master)) then
+c$$$          uhx=0d0
+c$$$          open(newunit=ifx,file='mmagfield.aftest')
+c$$$          do
+c$$$             read(ifx,*,end=1112,err=1112) uhxx,aaa
+c$$$             uhx=uhxx
+c$$$             if(trim(aaa)=='!Magfield') uhx=uhxx
+c$$$          enddo
+c$$$ 1112     continue
+c$$$          close(ifx)
+c$$$          write(stdo,"('sudmtu: mmtarget mode. Readin Magfield from mmagfield.aftest=',f10.6)")uhx
+c$$$          open(newunit=ifx,file='mmagfield.aftest')
+c$$$          write(ifx,"(d23.15,1x,'!Magfield is read from previous mmagfield.aftest')") uhx
+c$$$          close(ifx)
+c$$$       endif
+c$$$       call mpibc1_real(uhx,1,'sudmtu_uhx')
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       iblu = 0
       do  20  ib = 1, nbas
