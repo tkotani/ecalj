@@ -43,12 +43,14 @@
       use m_MPItk,only: master_mpi
       complex(8):: vorbav(-lmaxu:lmaxu,-lmaxu:lmaxu)
       integer,parameter:: nx=1000
-      real(8):: alpha,mmtarget, uhhist(nx),uhx,sss(1),fac,mmsite(nbas),mmhist(nx)
+      real(8):: alpha,mmtarget, uhhist(nx),uhx,sss(1),fac,mmsite(nbas),mmhist(0:nx)
       integer:: nit,ibas,ifx,ncount=0,iblu,i
+      logical:: init=.true.
+      character(3):: stat
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc   
 !! Experimental block to add magnetic field to vorb to keep given size of magnetic moment
 !! Need fixing. This is only for ibas=1 and ibas=2 are antiferro pair.
-          if(master_mpi) then
+      if(master_mpi) then
              open(newunit=ifx,file='mmtarget.aftest')
              alpha  = .1d0
              read(ifx,*) mmtarget !,alpha
@@ -58,32 +60,36 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
              mmsite=0d0
              mmhist=mmtarget !this gives we use uhx when mmsite are not read
              uhx=0d0
-             do
+c             do
                 read(ifx,*,end=1112,err=1112) uhx 
                 read(ifx,*,end=1112,err=1112) (mmsite(ibas),ibas=1,nbas)
                 nit=nit+1
                 mmhist(nit)=(mmsite(1)-mmsite(2))/2d0
                 uhhist(nit)=uhx
-             enddo
+c             enddo
  1112        continue
              close(ifx)
              write(stdo,"('mmaftest: ',i5,f10.6,2x,12f10.6)")nit,uhx,(mmsite(ibas),ibas=1,nbas)
 !     ! Generate new uhx based on the  history of uhx mmsites for given mm
 !     ! test uh          
-             uhx= uhx + alpha*(mmhist(nit)-mmtarget)**2 - 2d0*(mmhist(nit)-mmtarget)
+             if(nit>0) uhx= uhx + alpha*(mmhist(nit)-mmtarget)**2 - 2d0*(mmhist(nit)-mmtarget)
              write(stdo,"('mmhist0: MagF MMom ',i5, 2d13.4)" ) nit,uhx,mmhist(nit)
              sss(1)=uhx
-             call mixmag(sss)
-             uhx=sss(1)
-             write(stdo,"('mmhist:  MagF MMom ',i5, 2d13.4)") nit,uhx,mmhist(nit)
              if(ncount==0) then
                 open(newunit=ifx,file="mixmag.aftest")
                 close(ifx,status='delete')
                 ncount=1
              endif
-             open(newunit=ifx,file='mmagfield.aftest',position='append')
+             call mixmag(sss)
+             uhx=sss(1)
+             write(stdo,"('mmhist:  MagF MMom ',i5, 2d13.4)") nit,uhx,mmhist(nit)
+c             stat='old'
+c             if(init) stat='new'
+c             open(newunit=ifx,file='mmagfield.aftest',position='append',status='new') !stat)
+             open(newunit=ifx,file='mmagfield.aftest',status='unknown') !stat)
              write(ifx,"(d23.15,' !Magfield')") uhx 
              close(ifx)
+             if(init) init=.false.
           endif
 !! broadcast uhx       
 c          call MPI_Bcast(uhx, 1, MPI_REAL8, 0, MPI_COMM_WORLD, ierr)
@@ -153,7 +159,8 @@ c      logical lsigin
   901 continue
       nitr = 0
  902  continue
-      a(:,0,1) = sss      !output
+      a(:,0,1) = sss   !output
+      if(.not.fexist) a(:,0,2) = sss !input
 C     if input sigma available, use it instead of file a(:,0,2)
 c      if (lsigin) then
 c        write(6,*)'... using input sigma read from sigm file'
