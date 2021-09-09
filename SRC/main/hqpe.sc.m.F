@@ -916,7 +916,7 @@ C             Add mixnit as parameter
       implicit none
       logical lsigin
       integer nda,nmix,mmix
-      integer(4),parameter:: mxsav=3
+      integer(4),parameter:: mxsav=10
       double precision rms2,tj(mxsav),beta
       integer im,imix,jmix,amix,onorm,okpvt,oa
       integer iprintxx,ifi,nitr,ndaf
