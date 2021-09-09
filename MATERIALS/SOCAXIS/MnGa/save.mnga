@@ -1,0 +1,6 @@
+c so=0 mmom=2.4082439 ehf=-6195.6056894 ehk=-6195.6056905
+i so=0 mmom=2.4082689 ehf=-6195.6056905 ehk=-6195.6056917
+i so=1 soa1=1 soa2=1 soa3=0 mmom=2.4091936 ehf=-6195.6071208 ehk=-6195.607122
+i so=1 soa1=0 soa2=0 soa3=1 mmom=2.4094348 ehf=-6195.6071509 ehk=-6195.607152
+
+This is in previous version current version show in eV.

@@ -1,0 +1,8 @@
+See socaxis.org
+i so=0 mmom=3.2521771 ehf(eV)=-535698.5395781 ehk(eV)=-535698.5396042 sev(eV)=-367.9734238
+c so=0 mmom=3.2521968 ehf(eV)=-535698.5395703 ehk(eV)=-535698.5395982 sev(eV)=-367.9715004
+
+! here change SYMGRP and NOINV
+i so=0 mmom=3.2522553 ehf(eV)=-535698.5395688 ehk(eV)=-535698.5395972 sev(eV)=-367.9707584
+i so=1 soa1=0 soa2=0 soa3=1 mmom=3.2189814 ehf(eV)=-535698.8432677 ehk(eV)=-535698.8338371 sev(eV)=-368.2744573
+i so=1 soa1=1 soa2=1 soa3=0 mmom=3.2216341 ehf(eV)=-535698.8404701 ehk(eV)=-535698.8316219 sev(eV)=-368.2716597
