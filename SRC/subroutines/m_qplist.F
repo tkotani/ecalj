@@ -279,10 +279,8 @@ c 1013       continue
       ispini = mod(iqsi+1,nspx)+1
       ispend = mod(iqse+1,nspx)+1
       
-c      write(stdo,"(a,3i5)") 'm_qplist_qspdivider: rank iqini  iqend =', procid,iqini,iqend
-c      write(stdo,"(a,3i5)") 'm_qplist_qspdivider: rank ispini ispend=', procid,ispini,ispend
-      write(stdo,'(a,i5, ", (",i5,i5,"), "," (",i5,i2,")")' )
-     & 'm_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=', procid,iqini,ispini,iqend,iqend
+      write(stdo,'(a,i5, ", (",i5,i2,"), "," (",i5,i2,")")' )
+     & 'm_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=', procid,iqini,ispini,iqend,ispend
       
 !     !--- write lmfgw_divider ---------
        

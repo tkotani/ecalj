@@ -125,7 +125,7 @@ ccccccccccccccc
 ! SOC Hamiltonian hammhso is calculated.
             if(lso/=0.and.(.not.allocated(hammhso))) then
               allocate(hammhso(ndimh,ndimh,3))
-              call aughso(qp, ohsozz,ohsopm,ndimh, hammhso)!aug2021 Hso 
+              call aughsoc(qp, ohsozz,ohsopm,ndimh, hammhso)!aug2021 Hso 
             endif
             
             hamm=0d0

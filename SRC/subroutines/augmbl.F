@@ -1,4 +1,4 @@
-      subroutine aughso(qp,ohsozz,ohsopm, ndimh, hso)
+      subroutine aughsoc(qp,ohsozz,ohsopm, ndimh, hso)
       use m_struc_def,only: s_cv1,s_rv1,s_sblock
       use m_lmfinit,only: nsp, lso, nbas, nkaph, ssite=>v_ssite, sspec=>v_sspec,socaxis
       use m_bstrux,only: Bstrux_set, bstr 
@@ -24,9 +24,11 @@
       complex(8):: img=(0d0,1d0), facso(3,3), f1,f2,f3
       real(8)::d2
       logical,save:: init=.true.
-c     call tcn ('aughso')
+c     call tcn ('aughsoc')
 
       if(lso==1) then
+            
+            
          if( sum(abs(socaxis-[0d0,0d0,1d0]))  < 1d-6) then
 !     Mixing matrix for Spin-block facso based on (Lz,L-,L+)
 !     (001)                              Lz   L-   L+
@@ -108,8 +110,8 @@ c sumev=      -27.088951  val*vef=    -388.462096   sumtv=     361.373145
 ! hso(:,:,isp=3) is (1,2) block  =L- in the case of 001 spin axis.
            if(isp/=3)  isp1=isp
            if(isp==3)  isp1=1
-           if(isp1==1) isp2=2
-           if(isp1==2) isp2=1
+c           if(isp1==1) isp2=2
+c           if(isp1==2) isp2=1
            if(lso==1) then      !P*P, H*P, H*H,
 ! WARN!  Except 001 case, we need to assume --phispinsym (radial functions are the same in both spins).
 !     We currently calculate only spin-diagonal Sz, and <up|L-|dn>, <dn|L+|up> (See text arount the
@@ -119,11 +121,11 @@ c sumev=      -27.088951  val*vef=    -388.462096   sumtv=     361.373145
 ! SSb* is the atomic site contribution from ibas (augmentation parts. see m_bandcal_init->hambl->augmbl)
               f1=facso(1,isp); f2=facso(2,isp); f3=facso(3,isp)
 !                                Lz                      L-                          L+                     
-              SSbPP(:)= f1*Lzz(1)%sdiag(:,isp1) +f2*Lmp(1)%soffd(:,isp1)  + f3*Lmp(1)%soffd(:,isp2)
-              SSbHP(:)= f1*Lzz(2)%sdiag(:,isp1) +f2*Lmp(2)%soffd(:,isp1)  + f3*Lmp(2)%soffd(:,isp2)
+              SSbPP(:)= f1*Lzz(1)%sdiag(:,isp1) +f2*Lmp(1)%soffd(:,1)  + f3*Lmp(1)%soffd(:,2)
+              SSbHP(:)= f1*Lzz(2)%sdiag(:,isp1) +f2*Lmp(2)%soffd(:,1)  + f3*Lmp(2)%soffd(:,2)
               SSbPH(:)= f1*dconjg(Lzz(2)%sdiag(:,isp1))
-     &                           +f2*dconjg(Lmp(2)%soffd(:,isp2)) + f3*dconjg(Lmp(2)%soffd(:,isp1))
-              SSbHH(:)= f1*Lzz(3)%sdiag(:,isp1) +f2*Lmp(3)%soffd(:,isp1)  + f3*Lmp(3)%soffd(:,isp2)
+     &                              +     f2*dconjg(Lmp(2)%soffd(:,2)) + f3*dconjg(Lmp(2)%soffd(:,1))
+              SSbHH(:)= f1*Lzz(3)%sdiag(:,isp1) +f2*Lmp(3)%soffd(:,1)  + f3*Lmp(3)%soffd(:,2)
            else
               fac = 1.5d0-isp
               SSbPP(:) = fac*Lzz(1)%sdiag(:,isp)
@@ -135,8 +137,8 @@ c sumev=      -27.088951  val*vef=    -388.462096   sumtv=     361.373145
         enddo
         deallocate(b,SSbPP,SSbHP,SSbPH,SSbHH)
       enddo
-c      call tcx ('aughso')
-      end subroutine aughso
+c      call tcx ('aughsoc')
+      end subroutine aughsoc
       
       subroutine lmlps(n,din,dout)
       integer:: n

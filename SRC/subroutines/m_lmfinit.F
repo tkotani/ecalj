@@ -570,11 +570,20 @@ c     .        '%N%3f3 : Like 2, but also compute <L.S-LzSz> by perturbation')
          if (io_help==0) l_dummy_isanrg=isanrg(lso,0,2,' rdctrl:','SO',T)
       endif
       
-cccccccccccccccccccccccccccccccccccccccccccc      
+cccccccccccccccccccccccccccccccccccccccccccccccccccc      
 !! SOC Spin-block matrix Aug2021 ! Taken from (A8) in Ke.Liqin2019,PhysRevB.99.054418
-      nm='HAM_SOCAXIS'; call gtv(trim(nm),tksw(prgnam,nm),socaxis,nmin=3,nout=nout, def_r8v=[0d0,0d0,1d0],
-     .     note='Soc axis! 0,0,1(default) or 1,1,0') !need to set HAM_SOCAXIS in toksw_init
-cccccccccccccccccccccccccccccccccccccccccccc      
+      nm='HAM_SOCAXIS'; call gtv(trim(nm),tksw(prgnam,nm),socaxis,nmin=3,nout=nout,
+     &     def_r8v=[0d0,0d0,1d0], !default
+     &     note='SOC axis! 0,0,1(default) or 1,1,0 only effective for HAM_SO=1')
+! note:  We register HAM_SOCAXIS~ in toksw_init (extention ~ means optional token)
+! Sanity check      
+!  In general cases (except 001), we nees spin-symmetirc radial functions because we
+!  use  <up|Lz|up> for the place of <up|Lz|dn>, for example.
+!  If we like to take into account spin-dependent radial functions,
+!  We need to calculate ohsozz%soffd, ohsopm%sdiag. See 'call gaugm' at the end of augmat.
+         if( sum(abs(socaxis-[0d0,0d0,1d0])) >1d-6 .and. (.not.cmdopt0('--phispinsym')))
+     &     call rx('We need --phispinsym for SO=1 and HAM_SOCAXIS/=001')
+cccccccccccccccccccccccccccccccccccccccccccccccccccc      
 !      
       sw = tksw(prgnam,'HAM_GMAX')
       if (sw/=2) then

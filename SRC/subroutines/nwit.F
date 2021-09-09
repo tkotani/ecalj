@@ -1,7 +1,6 @@
       subroutine nwit(nvario,iter,maxit,lhf,lhk,etol,qtol,
-     .qdiff,svflg,amom,etot,lsc)
+     .qdiff,svflg,amom,etot,sev,lsc)
       use m_lmfinit,only: nsp,stdo
-
 C- Add to save file, determine whether to continue execution
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -40,7 +39,7 @@ C ... Passed parameters
 C ... Local parameters
       integer lgunit,lbl
       logical more,letol,lqtol
-      double precision ehf1,ehk1,diffe
+      double precision ehf1,ehk1,diffe,sev
       character flg*3
       save ehf1,ehk1
 
@@ -106,27 +105,10 @@ C ... Save for future iterations
 
 C --- Write out to save file --
       flg = svflg(lsc+1:lsc+1) // '67'
-      call nwitsv(1+2,nvario,flg,nsp,amom,etot)
-
-C      xv(1) = amom
-C      call dcopy(2,etot,1,xv(2),1)
-C      call awrit1('%?;n;mmom,;;ehf,ehk',sout,len(sout),0,nsp-1)
-C      i = 1
-C      if (nsp .eq. 1) i = 2
-C      ifi = fopna('SAVE',-1,0)
-C      call poseof(ifi)
-C      flg = svflg(lsc+1:lsc+1)
-C      call iosave(flg,sout,xv(i),-ifi,nvario)
-C      call fclr('SAVE',ifi)
-C      call iosave(flg,sout,xv(i),-stdo,nvario)
-
-C      iter = iter+1
-C      if (more) call query('max it=',2,maxit)
-C      if (iter .ge. maxit+1) lsc = 1
-
+      call nwitsv(1+2,nvario,flg,nsp,amom,etot,sev)
       end
 
-      subroutine nwitsv(iflst,nvario,flg,nsp,amom,etot)
+      subroutine nwitsv(iflst,nvario,flg,nsp,amom,etot,sev)
 C- Write to save file
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -153,8 +135,8 @@ C ... Passed parameters
       double precision amom,etot(2)
 C ... Local parameters
       integer fopna,ifi,i,lgunit,getdig
-      double precision xv(3)
-      character*80 sout
+      double precision xv(4),sev,rydberg
+      character*180 sout
 
       i = 0
       sout = ' '
@@ -165,17 +147,23 @@ C ... Local parameters
       endif
       if (etot(1) .ne. 0) then
         i = i+1
-        xv(i) = etot(1)
-        call awrit0('%a,ehf',sout,len(sout),0)
+        xv(i) = etot(1)*rydberg()
+        call awrit0('%a,ehf(eV)',sout,len(sout),0)
       endif
       if (etot(2) .ne. 0) then
         i = i+1
-        xv(i) = etot(2)
-        call awrit0('%a,ehk',sout,len(sout),0)
+        xv(i) = etot(2)*rydberg()
+        call awrit0('%a,ehk(eV)',sout,len(sout),0)
+      endif
+
+      if (sev .ne. 0) then
+        i = i+1
+        xv(i) = sev*rydberg()
+        call awrit0('%a,sev(eV)',sout,len(sout),0)
       endif
 
 C ... Write to file list
-      do  i = 1, 3
+      do  i = 1, 4!3
         if (getdig(iflst,i-1,2) .ne. 0) then
           if (i .eq. 1) ifi = fopna('SAVE',-1,0)
           if (i .eq. 1) call poseof(ifi)

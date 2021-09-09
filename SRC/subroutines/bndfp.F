@@ -17,12 +17,13 @@
 !!--- key quntities --------------     
 !  evlall  : eigenvalues
 !  eferm   : Fermi energy
+!  sev     : sum of band energy     
 !     eksham   : DFT(Kohn-Sham)  total energy
 !     eharris  : Harris foulkner total energy      
       module m_bndfp
       use m_density,only: orhoat,osmrho     !input/output unprotected
-      real(8),protected:: ham_ehf, ham_ehk  !output
-      real(8),protected:: eferm, qdiff !output
+      real(8),protected:: ham_ehf, ham_ehk, sev  !output
+      real(8),protected:: eferm, qdiff  !output
       real(8),allocatable:: force(:,:)
 !! other ouput are in modules m_mkpot, m_bandcal       
       logical,private:: binit=.true.,initd=.true.
@@ -138,7 +139,7 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
       logical,save:: siginit=.true. 
       integer:: iter,i,ifi,ipr,iq,isp,jsp,iprint,ipts
       integer:: idummy, unlink,ifih,ifii,ib
-      real(8):: sev,sumtv,eharris,eksham,  dosw(2),elind,dum,evtop,ecbot,qp(3)
+      real(8):: sumtv,eharris,eksham,  dosw(2),elind,dum,evtop,ecbot,qp(3),rydberg
       real(8):: fh_rv(3,nbas),vnow,eee,dosi(2),dee,efermxxx,emin,qvalm(2)
       real(8),allocatable:: dosi_rv(:,:),dos_rv(:,:),qmom_in(:)
       real(8),parameter::  NULLR =-99999,pi=4d0*datan(1d0)
@@ -274,9 +275,10 @@ c         continue
          write(ifi,"(d24.16, ' # (Ry) Top of Valence')") evtop
          write(ifi,"(d24.16, ' # (Ry) Bottom of conduction')") ecbot
          write(ifi,"(d24.16,d24.16 ' #before: number of electrons total at sites:qval, backg:qbg=')") qval,qbg
-         write(ifi,"(d24.16, ' #band: charge(nup+nspin), mag.mom(nup-ndown)=')")qvalm(1), qvalm(2)
+         write(ifi,"(2d24.16, ' # band: charge(nup+nspin), mag.mom(nup-ndown)')")qvalm(1), qvalm(2)
+         write(ifi,"(f24.9 , ' # band: band energy sum (eV)=')") sev*rydberg()
          write(ifi,"(3i10,'    # Used k point to determine Ef')") nkabc
-         write(ifi,"('# NOTE: This file is overwritten by lmf-MPIK SC loop')")
+         write(ifi,"(i6,'# iter CAUTION! This file is overwritten by lmf-MPIK SC loop')")iter
          close(ifi)             
       endif
       

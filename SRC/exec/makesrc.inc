@@ -1,6 +1,7 @@
 #NOTE: when you add your foobar.F, choose one of *_list.
 
 ELIB_list=\
+rydberg.o \
 mkppovl2.o\
 m_density.o\
 m_ldau.o\
@@ -602,7 +603,6 @@ ppbafp.fal.o \
 psi2b_v2.o \
 psi2b_v3.o \
 wfacx.o \
-rydberg.o \
 efsimplef.o \
 extension.o \
 rdpp.o \

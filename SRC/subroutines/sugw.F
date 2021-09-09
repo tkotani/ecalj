@@ -417,7 +417,7 @@ ccccccccccccccc
           if(lso==1) call rx('sugw:lso=1 is not yet')
           if(lso/=0.and.(.not.allocated(hammhso))) then !aug2021 Hso matrix
              allocate(hammhso(ndimh,ndimh,3))
-             call aughso(qp, sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm, ndimh, hammhso)
+             call aughsoc(qp, sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm, ndimh, hammhso)
           endif
 !! LDA Hamiltonian and overlap matrices for this qp ---
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

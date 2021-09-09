@@ -14,7 +14,7 @@
       use m_iors,only: Iors
       use m_supot,only: m_supot_init,k1,k2,k3
       use m_suham,only: m_suham_init
-      use m_bndfp,only: Bndfp,   ham_ehf,ham_ehk,qdiff,force
+      use m_bndfp,only: Bndfp,   ham_ehf,ham_ehk,qdiff,force,sev
       use m_ldau,only: m_ldau_init,m_ldau_vorbset
       use m_chkdmu,only: eorb
       use m_bandcal,only: dmatu
@@ -262,7 +262,7 @@ C    +10 -> invoke smshft(1) after file read.
 !     :2 Harris energy from overlap of free atoms (iter=1 and lhf=t)
 !     :3 otherwise
                call nwit( int(ctrl_nvario), iter, maxit, lhf.or.irs1x==0.and.iter==1,
-     &              leks+i, etol, qtol, qdiff, 'cxhi', amom, etot, lsc)
+     &              leks+i, etol, qtol, qdiff, 'cxhi', amom, etot, sev,lsc)
 c     &              leks+i, etol, qtol, qdiff dmxp(11), 'cxhi', amom, etot, lsc)
             endif
             call mpibc1_int(lsc,1,'lmfp_lsc')
