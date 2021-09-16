@@ -1,4 +1,5 @@
       subroutine sudmtu(dmatu,vorb)
+      use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
       use m_lmfinit,only: nbas,nsp,nlibu,lmaxu,lldau,ssite=>v_ssite,sspec=>v_sspec,stdo
       use m_mksym,only: g=>rv_a_osymgr,istab=>iv_a_oistab, ng =>lat_nsgrp
 C- Initialize site density matrix and vorb  for LDA+U
@@ -63,7 +64,7 @@ C     integer nglob,stdo
 C ... MPI
       include "mpif.h"
       integer procid,master,mpipid,ierr
-      logical mlog
+      logical mlog,occe
 
 !!
       real(8)::sss
@@ -88,9 +89,8 @@ C     ipr = 55
       endif
 
 C --- Read in dmatu if file  dmats.ext  exists ---
-!!
-      if (procid .eq. master) then
-        if (fxst('dmats') .eq. 1) then
+      if(procid .eq. master) then
+        if(fxst('dmats') .eq. 1) then
           idmat = fopna('dmats',-1,1)
           rewind idmat
   825     continue
@@ -131,57 +131,58 @@ C --- Read in dmatu if file  dmats.ext  exists ---
 
 C --- Otherwise read in occnumbers and construct diagonal dmatu ---
         else
-          call info0(20,1,0,
-     .    ' sudmtu:  initial (diagonal) density-matrix from occ numbers')
-          foccn = fopna('occnum',-1,1)
-          rewind foccn
-          havesh = 1
-   12     if (.not. rdstrn(foccn,str,len(str),.false.)) goto 99
-          if (str(1:1) .eq. '#') goto 12
-          if (str(1:1) .eq. '%') then
-            i = 0
-            if (parstr(str,'real ',len(str)-5,4,' ',i,m)) havesh = 0
-          else
-            backspace foccn
-          endif
-          iblu = 0
-          do  ib = 1, nbas
-            if (lldau(ib) .ne. 0) then
-              is = int(ssite(ib)%spec)
-
-
-              lmxa=sspec(is)%lmxa
-              i_copy_size=size(sspec(is)%idu)
-              call icopy(i_copy_size,sspec(is)%idu,1,idu,1)
-
-              do l = 0,min(lmxa,3)
-                if (idu(l+1) .ne. 0) then
-                  iblu = iblu+1
-                  do  isp = 1, 2
-   11               continue
-                    if (.not. rdstrn(foccn,str,len(str),.false.)) goto 99
-C             Skip comment lines
-                    if (str(1:1) .eq. '#') goto 11
-                    i = 0
-                    m = a2vec(str,len(str),i,4,', ',2,3,2*l+1,iv,nocc(-l,isp))
-                    if (m .lt. 0) goto 99
-                  enddo
-                  call info8(20,0,0,' occ numbers, site %i l=%i:  '//
-     .            '%n:1d (spin 1)  %n:1d (spin 2)',
-     .            ib,l,2*l+1,nocc(-l,1),2*l+1,nocc(-l,2),0,0)
-                  do  isp = 1, 2
-                    do  m = -l, l
-                      do  m2 = -l, l
-                        dmatu(m,m2,isp,iblu) = dcmplx(0d0,0d0)
-                      enddo
-                      dmatu(m,m,isp,iblu) = dcmplx(nocc(m,isp),0d0)
-                    enddo
-                  enddo
+          inquire(file='occnum.'//trim(sname),exist=occe)
+          if(occe) then !if no occunum.* initial dmatu=0 
+             call info0(20,1,0,' sudmtu:  initial (diagonal) density-matrix from occ numbers')
+             foccn = fopna('occnum',-1,1)
+             rewind foccn
+             havesh = 1
+ 12          if (.not. rdstrn(foccn,str,len(str),.false.)) goto 99
+             if (str(1:1) .eq. '#') goto 12
+             if (str(1:1) .eq. '%') then
+                i = 0
+                if (parstr(str,'real ',len(str)-5,4,' ',i,m)) havesh = 0
+             else
+                backspace foccn
+             endif
+             iblu = 0
+             do  ib = 1, nbas
+                if (lldau(ib) .ne. 0) then
+                   is = int(ssite(ib)%spec)
+                   lmxa=sspec(is)%lmxa
+                   i_copy_size=size(sspec(is)%idu)
+                   call icopy(i_copy_size,sspec(is)%idu,1,idu,1)
+                   do l = 0,min(lmxa,3)
+                      if (idu(l+1) .ne. 0) then
+                         iblu = iblu+1
+                         do  isp = 1, 2
+ 11                         continue
+                            if (.not. rdstrn(foccn,str,len(str),.false.)) goto 99
+C     Skip comment lines
+                            if (str(1:1) .eq. '#') goto 11
+                            i = 0
+                            m = a2vec(str,len(str),i,4,', ',2,3,2*l+1,iv,nocc(-l,isp))
+                            if (m .lt. 0) goto 99
+                         enddo
+                         call info8(20,0,0,' occ numbers, site %i l=%i:  '//
+     .                        '%n:1d (spin 1)  %n:1d (spin 2)',
+     .                        ib,l,2*l+1,nocc(-l,1),2*l+1,nocc(-l,2),0,0)
+                         do isp = 1, 2
+                         do m = -l, l
+                         do m2 = -l, l
+                            dmatu(m,m2,isp,iblu) = dcmplx(0d0,0d0)
+                         enddo
+                            dmatu(m,m,isp,iblu) = dcmplx(nocc(m,isp),0d0)
+                         enddo
+                         enddo
+                      endif
+                   enddo
                 endif
-              enddo
-            endif
-          enddo
-          call fclose(foccn)
+             enddo
+             call fclose(foccn)
+          else
+             dmatu=0d0
+          endif
         endif
       endif
 !!

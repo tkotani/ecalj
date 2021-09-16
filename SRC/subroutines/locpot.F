@@ -159,7 +159,7 @@ C ... for core hole
       integer:: i , nglob , ipr , iprint , j1 , ib , is , lmxl 
      .     , lmxa , nr , lmxb , kmax , lfoc , nrml , nlml,ifivesint,ifi
       logical,save:: secondcall=.false.
-      logical :: phispinsym,cmdopt0,readov0,v0fix
+      logical :: phispinsym,cmdopt0,readov0,v0fix,v0write
       character*20::strib
       character strn*120
       real(8):: ov0mean,pmean
@@ -335,22 +335,27 @@ ccccccccccccccccccc experimental case --v0fix
               enddo
               end block
            else
-              do ir=1,nr
-                ov0mean = 0d0
-                do isp=1,nsp
-                 ov0mean = ov0mean + ssite(ib)%rv_a_ov0( ir + nr*(isp-1) )
-                enddo
-                ov0mean = ov0mean/nsp !spin averaged
-                do isp=1,nsp
-                 ssite(ib)%rv_a_ov0(ir + nr*(isp-1))= ov0mean
-                enddo
-              enddo
-              open(newunit=ifi,file='v0pot.'//char(48+ib),form='unformatted')
-              write(ifi) ssite(ib)%rv_a_ov0(1:nr)
-              close(ifi)
-              if(ib==nbas) readov0=.true.
+              call rx('no v0pot files')
            endif
         endif   
+cccccccc
+        v0write= cmdopt0('--v0write')
+        if(v0write) then
+        do ir=1,nr
+           ov0mean = 0d0
+           do isp=1,nsp
+              ov0mean = ov0mean + ssite(ib)%rv_a_ov0( ir + nr*(isp-1) )
+           enddo
+           ov0mean = ov0mean/nsp !spin averaged
+           do isp=1,nsp
+              ssite(ib)%rv_a_ov0(ir + nr*(isp-1))= ov0mean
+           enddo
+        enddo
+        open(newunit=ifi,file='v0pot.'//char(48+ib),form='unformatted')
+        write(ifi) ssite(ib)%rv_a_ov0(1:nr)
+        close(ifi)
+        if(ib==nbas) readov0=.true.
+        endif      
 ccccccccccccccccccccccccccccccccccccccc
         
         if(master_mpi.and.nsp==2)then

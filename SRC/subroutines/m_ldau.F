@@ -98,11 +98,19 @@ c          call MPI_Bcast(uhx, 1, MPI_REAL8, 0, MPI_COMM_WORLD, ierr)
           do i=-lmaxu,lmaxu
              vorbav(i,i) =  1d0
           enddo
-          do iblu =1,2 !6
-             fac=1d0
-             if(iblu==2) fac=-1d0 !>3) fac=-1d0
-             vorb(:,:,1,iblu) = vorb(:,:,1,iblu) - uhx*fac*vorbav(:,:) 
-          enddo
+          if(nlibu==6) then
+             do iblu =1,6
+                fac=1d0
+                if(iblu>3) fac=-1d0
+                vorb(:,:,1,iblu) = vorb(:,:,1,iblu) - uhx*fac*vorbav(:,:) 
+             enddo
+          else
+             do iblu =1,2       !6
+                fac=1d0
+                if(iblu==2) fac=-1d0 !>3) fac=-1d0
+                vorb(:,:,1,iblu) = vorb(:,:,1,iblu) - uhx*fac*vorbav(:,:) 
+             enddo
+          endif
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       end
 
