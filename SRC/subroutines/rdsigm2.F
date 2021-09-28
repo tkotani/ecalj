@@ -482,7 +482,7 @@ C ... Write points to disk, shifting by qoffo
 #endif
       complex(8),allocatable:: sfz(:,:,:,:,:,:),wgtq(:,:,:,:,:),sfzx(:,:,:,:,:,:),sfzmto(:,:,:,:,:,:)
       integer:: ldim,ierr,ifi,ndimh_dummy,nk1,nk2,nk3,nqps,ifile_handle
-      logical:: laf,mlog,cmdopt, mtosigmaonly
+      logical:: laf,mlog,cmdopt, mtosigmaonly,cmdopt0
       character strn*120
       real(8),allocatable:: qsmesh2(:,:,:,:)
       ldim  = ham_ldham(1)
@@ -510,32 +510,24 @@ C ... Write points to disk, shifting by qoffo
          call rdsigm2(nbas,nspsigm,ifi,
      &        nk1,nk2,nk3,ldim,qsmesh2,sfz,  nqps, mtosigmaonly(),ndimsig) 
          close(ifi) 
-c$$$!! --- write sig_fbz for SYMGRP e
-c$$$            if(.not.cmdopt('--wsig_fbz',10,0,strn).and.oncewrite(10)) then
-c$$$               write(6,"(a)")' ---> writing sigm_fbz.* which is in full bz'
-c$$$               ifis2 = fopna('sigm_fbz',-1,4)
-c$$$c$$$               if(pdos) then
-c$$$c$$$                  read(ifis2) nspsigm,ndimsig,nk1,nk2,nk3
-c$$$c$$$               else  
-c$$$               write(ifis2) nspsigm,ndimsig,nk1,nk2,nk3,nk1*nk2*nk3,0,0,0
-c$$$c$$$               endif  
-c$$$               do is=1,nspsigm
-c$$$                  do ik1=1,nk1
-c$$$                     do ik2=1,nk2
-c$$$                        do ik3=1,nk3
-c$$$c$$$                           if(pdos) then
-c$$$c$$$                              read(ifis2) qsmesh(1:3,ik1,ik2,ik3)
-c$$$c$$$                              read(ifis2) sfz(ik1,ik2,ik3,1:ndimsig,1:ndimsig,is)
-c$$$c$$$                           else
-c$$$                           write(ifis2) qsmesh(1:3,ik1,ik2,ik3),is
-c$$$                           write(ifis2) sfz(ik1,ik2,ik3,1:ndimsig,1:ndimsig,is)
-c$$$c$$$                           endif
-c$$$                        enddo
-c$$$                     enddo
-c$$$                  enddo
-c$$$               enddo
-c$$$               call fclose(ifis2)
-c$$$            endif
+!! --- write sig_fbz for SYMGRP e
+c            if(.not.cmdopt('--wsig_fbz',10,0,strn).and.oncewrite(10)) then
+         if(cmdopt0('--wsig_fbz')) then
+           open(newunit=ifis2,file='sigm_fbz.'//trim(sname),form='unformatted')
+           write(6,"(a)")' Writing sigm_fbz.* for SYMGRP e --wsig_fbz'
+           write(ifis2) nspsigm,ndimsig,nk1,nk2,nk3,nk1*nk2*nk3,0,0,0
+           do is=1,nspsigm
+           do ik1=1,nk1
+           do ik2=1,nk2
+           do ik3=1,nk3
+              write(ifis2) qsmesh2(1:3,ik1,ik2,ik3),is
+              write(ifis2) sfz(ik1,ik2,ik3,1:ndimsig,1:ndimsig,is)
+           enddo
+           enddo
+           enddo
+           enddo
+           close(ifis2) !call fclose(ifis2)
+         endif
 c
           
 !! mesh generator.  Unused yet...->in future, we will use this.
@@ -565,6 +557,7 @@ c$$$            deallocate(pos,npair)
             close(ifi) 
             deallocate(sfz,qsmesh2) !,nlat,nqwgt)
       endif                  !procid==master
+      if(cmdopt0('--wsig_fbz')) call rx0('end of --wsig_fbz mode')
 #ifdef MPIK
       mlog     = cmdopt('--mlog',6,0,strn) !--mlog here is taken by getarg.
       call senebroadcast(procid,master,mlog) !broadcast self-energy to all procid
