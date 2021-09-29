@@ -101,7 +101,9 @@ c sumev=      -27.088951  val*vef=    -388.462096   sumtv=     361.373145
 !! Get Lzz,Lmp,Lmp(spinfliped)= (Lz,L-,L+)  See mkpot-locpot-augmat-gaugm-pvagm1,pvaglc to generate hsozz,hsopm
         Lzz => ohsozz(:,ibas)   ! Lz block  1:P*P, 2:H*P, 3:H*H for up and dn 
         if(lso==1) Lmp => ohsopm(:,ibas) ! <up|L-|dn> for isp=1 , <dn|L+|up> for isp=2. See gaugm.F, pvagm1,pvaglc
-        allocate(SSbPP(np*np*nsp),SSbHP(np*nh*nsp),SSbPH(np*nh*nsp),SSbHH(nh*nh*nsp)) 
+c        print *,' np nh nsp=',np,nh,nsp,np*np*nsp
+c        allocate(SSbPP(np*np*nsp),SSbHP(np*nh*nsp),SSbPH(np*nh*nsp),SSbHH(nh*nh*nsp)) 
+        allocate(SSbPP(np*np),SSbHP(np*nh),SSbPH(np*nh),SSbHH(nh*nh)) 
         nspx=nsp
         if(lso==1) nspx=3
         do isp=1,nspx  
@@ -120,7 +122,7 @@ c           if(isp1==2) isp2=1
 
 ! SSb* is the atomic site contribution from ibas (augmentation parts. see m_bandcal_init->hambl->augmbl)
               f1=facso(1,isp); f2=facso(2,isp); f3=facso(3,isp)
-!                                Lz                      L-                          L+                     
+!                                Lz                      L-                          L+      
               SSbPP(:)= f1*Lzz(1)%sdiag(:,isp1) +f2*Lmp(1)%soffd(:,1)  + f3*Lmp(1)%soffd(:,2)
               SSbHP(:)= f1*Lzz(2)%sdiag(:,isp1) +f2*Lmp(2)%soffd(:,1)  + f3*Lmp(2)%soffd(:,2)
               SSbPH(:)= f1*dconjg(Lzz(2)%sdiag(:,isp1))

@@ -133,17 +133,18 @@ ccccccccccccccc
             if(lso==1) then !L.S case nspc=2
               call hambl(1,qp,osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi, hamm(1,1,1),ovlm(1,1,1))
               call hambl(2,qp,osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi, hamm(1,1,2),ovlm(1,1,2))
-              hamm(:,:,1:2)=hamm(:,:,1:2)+hammhso(:,:,1:2) !spin-diag SOC elements (1,1), (2,2) added
-              hamm(:,:, 3)   = hammhso(:,:,3) !spin-offdiagonal SOC elements (1,2) added
+              hamm(:,:,1:2)= hamm(:,:,1:2)+hammhso(:,:,1:2) !spin-diag SOC elements (1,1), (2,2) added
+              hamm(:,:, 3) = hammhso(:,:,3) !spin-offdiagonal SOC elements (1,2) added
+              if(sigmamode) then
+                call getsenex(qp, 1, ndimh,ovlm(1,1, 1))
+                hamm(:,:,1) = hamm(:,:,1) + ham_scaledsigma*senex !senex_up= Vxc(QSGW)-Vxc(LDA)
+                call dsene()
+                call getsenex(qp, 2, ndimh,ovlm(1,1, 2))
+                hamm(:,:,2) = hamm(:,:,2) + ham_scaledsigma*senex !senex_dn= Vxc(QSGW)-Vxc(LDA)
+                call dsene()
+              endif
               call sopert2 ( hamm , hamm ) !L.S case. re-ordered to be 2x2 spin matrix.
               call sopert2 ( ovlm , ovlm ) 
-              if(sigmamode) then
-                 call getsenex(qp, 1, ndimh,ovlm(1,1, 1))
-                 hamm(:,:,1) = hamm(:,:,1) + ham_scaledsigma*senex !senex_up= Vxc(QSGW)-Vxc(LDA)
-                 call getsenex(qp, 2, ndimh,ovlm(1,1, 2))
-                 hamm(:,:,2) = hamm(:,:,2) + ham_scaledsigma*senex !senex_dn= Vxc(QSGW)-Vxc(LDA)
-                 call dsene()
-              endif
             else ! lso=0 (No SO) or lso=2(Lz.Sz)  Spin Diagonal case.spin diagonal) 
               call hambl(isp,qp,osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,hamm(1,1,1),ovlm(1,1,1))
               if(lso==2) hamm(:,:, 1) = hamm(:,:, 1) + hammhso(:,:,isp)
