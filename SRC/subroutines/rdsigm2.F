@@ -481,7 +481,7 @@ C ... Write points to disk, shifting by qoffo
       include "mpif.h"
 #endif
       complex(8),allocatable:: sfz(:,:,:,:,:,:),wgtq(:,:,:,:,:),sfzx(:,:,:,:,:,:),sfzmto(:,:,:,:,:,:)
-      integer:: ldim,ierr,ifi,ndimh_dummy,nk1,nk2,nk3,nqps,ifile_handle
+      integer:: ldim,ierr,ifi,ndimh_dummy,nk1,nk2,nk3,nqps,ifile_handle,ifis2,ik1,ik2,ik3,is
       logical:: laf,mlog,cmdopt, mtosigmaonly,cmdopt0
       character strn*120
       real(8),allocatable:: qsmesh2(:,:,:,:)

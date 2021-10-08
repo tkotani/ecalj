@@ -294,7 +294,7 @@ C     ... Exit when relaxation converged or maximum number of iterations
          if(icom==1) then !takao 
             if(master_mpi) then
                flg = 'C67' !what? 
-               call nwitsv(1+2,ctrl_nvario,flg,nsp,amom,etot)
+               call nwitsv(1+2,ctrl_nvario,flg,nsp,amom,etot,sev)
                write(stdo,"(a,i5)")' LMFP: relaxation converged after iteration(s) of ',itrlx
             endif
             exit
