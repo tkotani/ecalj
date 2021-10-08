@@ -41,12 +41,12 @@ define test1.check
 		'etot=' -t > $(comp)
 	@$(bindir)/comp \
 		$1 $2 \
-		'1st  iter ehf           ' $(dehf1tol1) \
-		'ehf=' -v '^   it' >> $(comp)
+		'1st  iter ehf.eV       ' $(dehf1tol1) \
+		'ehf\(eV\)=' -v '^   it' >> $(comp)
 	@$(bindir)/comp \
 		$1 $2 \
-		'1st  iter ehk           ' $(dehf1tol1) \
-		'ehk=' -v '^   it' >> $(comp)
+		'1st  iter ehk.eV       ' $(dehf1tol1) \
+		'ehk\(eV\)=' -v '^   it' >> $(comp)
 	@$(bindir)/comp \
 		$1 $2 \
 		'1st  iter max force     ' $(dfmax1tol1) \
@@ -57,20 +57,20 @@ define test1.check
 		'mmom=' >> $(comp)
 	@$(bindir)/comp \
 		$1 $2 \
-		'last iter ehf           ' $(dehf1toln) \
-		'ehf=' -v '^   it' -t >> $(comp)
+		'last iter ehf.eV       ' $(dehf1toln) \
+		'ehf\(eV\)=' -v '^   it' -t >> $(comp)
 	@$(bindir)/comp \
 		$1 $2 \
-		'last iter ehk           ' $(dehf1toln) \
-		'ehk=' -v '^   it' -t >> $(comp)
+		'last iter ehk.eV       ' $(dehf1toln) \
+		'ehk\(eV\)=' -v '^   it' -t >> $(comp)
 	@$(bindir)/comp \
 		$1 $2 \
-		'last iter E(LDA+U)      ' $(dehf1toln) \
+		'last iter E(LDA+U).eV   ' $(dehf1toln) \
 		'Etot.*LDA.*=' -t >> $(comp)
 	@$(bindir)/comp \
 		$1 $2 \
-		'last iter E(MTO+PW)     ' $(dehf1toln) \
-		'pwmode=[^0].*ehf=' -t >> $(comp)
+		'last iter E(MTO+PW).eV  ' $(dehf1toln) \
+		'pwmode=[^0].*ehf\(eV\)=' -t >> $(comp)
 	@$(bindir)/comp \
 		$1 $2 \
 		'last iter max force     ' $(dfmax1tol1) \
@@ -128,12 +128,12 @@ define test3.check
 		'etot=' -t > $(comp)
 	@$(bindir)/comp \
 		$1 $2 \
-		'1st  iter ehf           ' $(dehf1tol1) \
-		'ehf=' -v '^   it' >> $(comp)
+		'1st  iter ehf.eV       ' $(dehf1tol1) \
+		'ehf\(eV\)=' -v '^   it' >> $(comp)
 	@$(bindir)/comp \
 		$1 $2 \
-		'1st  iter ehk           ' $(dehf1tol1) \
-		'ehk=' -v '^   it' >> $(comp)
+		'1st  iter ehk.eV       ' $(dehf1tol1) \
+		'ehk\(eV\)=' -v '^   it' >> $(comp)
 	@$(bindir)/comp \
 		$1 $2 \
 		'1st  iter max force     ' $(dfmax1tol1) \
@@ -148,12 +148,12 @@ define test3.check
 		'mmom=' >> $(comp)
 	@$(bindir)/comp \
 		$1 $2 \
-		'last iter ehf           ' $(dehf1toln) \
-		'ehf=' -v '^   it' -t >> $(comp)
+		'last iter ehf.eV       ' $(dehf1toln) \
+		'ehf\(eV\)=' -v '^   it' -t >> $(comp)
 	@$(bindir)/comp \
 		$1 $2 \
-		'last iter ehk           ' $(dehf1toln) \
-		'ehk=' -v '^   it' -t >> $(comp)
+		'last iter ehk.eV       ' $(dehf1toln) \
+		'ehk\(eV\)=' -v '^   it' -t >> $(comp)
 	@$(bindir)/comp \
 		$1 $2 \
 		'last iter max force     ' $(dfmax1tol1) \
@@ -195,20 +195,20 @@ define test4a.check
 		'total orbital moment   1:' -t > $(comp)
 	@$(bindir)/comp \
 		$1 $2 \
-		'last iter ehf           ' $(dehf1toln) \
-		'ehf=' -v '^   it' -t >> $(comp)
+		'last iter ehf.eV       ' $(dehf1toln) \
+		'ehf\(eV\)=' -v '^   it' -t >> $(comp)
 	@$(bindir)/comp \
 		$1 $2 \
-		'last iter ehk           ' $(dehf1toln) \
-		'ehk=' -v '^   it' -t >> $(comp)
+		'last iter ehk.eV       ' $(dehf1toln) \
+		'ehk\(eV\)=' -v '^   it' -t >> $(comp)
 	@$(bindir)/comp \
 		$1 $2 \
-		'last iter ehf E(MTO+PW)  ' $(dehf1toln) \
-		'pwmode=[^0].*ehf=' -t >> $(comp)
+		'last iter ehf.eV E(MTO+PW)' $(dehf1toln) \
+		'pwmode=[^0].*ehf\(eV\)=' -t >> $(comp)
 	@$(bindir)/comp \
 		$1 $2 \
 		'last iter ehk E(MTO+PW)  ' $(dehf1toln) \
-		'pwmode=[^0].*ehk=' -t >> $(comp)
+		'pwmode=[^0].*ehk\(eV\)=' -t >> $(comp)
 	@cat $(comp)
 	@-grep 'ERR' $(comp) > /dev/null && \
 	echo '$(TARGET) TEST 4a FAILED comparison $1 $2' || \
