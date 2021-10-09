@@ -163,7 +163,7 @@ C --- Possible warning or error exit ---
         else
           write(*,816) l,nod,abs(de),e
   816     format(' RSEQ (warning) eval for l=',i1,' node=',i1,
-     .    ' did not converge: de=',1pd8.2,' e=',1pd11.4)
+     .    ' did not converge: de=',1pd9.2,' e=',1pd11.4)
 !(this number 7836 is not used anywhere else? takao).
           open(7836,file='RSEQ_ERROR')
           write(7836,816) l,nod,abs(de),e

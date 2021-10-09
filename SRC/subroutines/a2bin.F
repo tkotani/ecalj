@@ -1,4 +1,4 @@
-#define FORMATTED_READ 1
+c#define FORMATTED_READ 1
       logical function a2bin(instr,res,cast,count,term,j,jmaxi)
 C- Convert ASCII to logical, integer, real, double
 C ----------------------------------------------------------------
@@ -495,13 +495,13 @@ C     implicit none
       logical   lskp
       character*1       t,strn(0:*),term
       double precision res,sgn
-#if FORMATTED_READ
-#else
-      logical isfrac,neg,ok
-      integer e,e1
-#endif
+c#if FORMATTED_READ
+c#else
+c      logical isfrac,neg,ok
+c      integer e,e1
+c#endif
 
-#if FORMATTED_READ | UNFORMATTED_READ
+c#if FORMATTED_READ | UNFORMATTED_READ
       integer maxs,strs
       parameter (maxs=72)
       character*(maxs) strn2
@@ -535,85 +535,81 @@ C --- Copy strn to strn2 for FORTRAN read ---
       strs = j-j0
       strn2 =  ' '
       call strcop(strn2(maxs+1-strs:maxs),strn(j0),strs,'z',i)
-#if FORMATTED_READ
-      read(strn2,'(E72.0)',err=99) res
-#else
+c#if FORMATTED_READ
+c      read(strn2,'(E72.0)',err=99) res
+c#else
       read(strn2,*,err=99) res
-#endif
+c#endif
       a2d = .true.
       if (iprint() .ge. 130) print 333, strn2(maxs+1-strs:maxs), res
   333 format(' a2d: converted ', a,' to',g24.16)
       return
 C --- Error handling ---
    99 continue
-#if APOLLO_BUG
-      if (iprint() .ge. 60) print 332, (strn(i), i=0, j-1)
-#else
       if (iprint() .ge. 60) print 332, (strn(i), i=j0, j-1)
-#endif
   332 format(' a2d: parse error for string ',72a1)
-#else 
-c #else  (! FORMATTED_READ | UNFORMATTED_READ) <---takao think this is wrong.
-C --- Generic parser: initialization ---
-      sgn = 1
-      res = 0
-      e = 0
-      e1 = 0
-      isfrac = .false.
-      ok = .false.
-      j0 = j
-      if (lskp) call skipbl(strn,1000,j0)
-      j = j0
-      a2d = .false.
-C --- Parse mantissa ---
-   10 t = strn(j)
-      if (lskp .and. t .eq. ' ') goto 20
-      if (t .eq. '.') then
-        if (isfrac) return
-        isfrac = .true.
-        goto 20
-      elseif (j.eq.j0 .and. t.eq.'-') then
-        sgn = -1
-        goto 20
-      elseif (j.eq.j0 .and. t.eq.'+') then
-        goto 20
-      endif
-      if ((t.lt.'0') .or. (t.gt.'9')) goto 30
-      ok = .true.
-      res = res*10D0 + ichar(t)-ichar('0')
-      if (isfrac) e1 = e1-1
-   20 j = j+1
-      goto 10
-C --- Parse exponent ---
-   30 continue
-      if (.not. ok) return
-      ok = .false.
-      if ((t.eq.'d').or.(t.eq.'D').or.(t.eq.'e').or.(t.eq.'E')) then
-        j = j+1
-        if (lskp) call skipbl(strn,1000,j0)
-        if ((strn(j).eq.'+') .or. (strn(j).eq.'-')) then
-          neg = strn(j) .eq. '-'
-          j = j+1
-          if (lskp) call skipbl(strn,1000,j0)
-        else
-          neg = .false.
-        endif
-   35   t = strn(j)
-        if ((t.lt.'0') .or. (t.gt.'9')) goto 38
-        ok = .true.
-        e = e*10 + ichar(t)-ichar('0')
-        j = j+1
-        if (lskp) call skipbl(strn,1000,j0)
-        goto 35
-   38   continue
-        if (.not. ok) return
-        if (neg) e= -e
-      endif
-      res = sgn*res*(10D0**(e+e1))
-      a2d = .true.
-
-      print *, 'a2d: converted ',(strn(i),i=j0,j-1), ' to ',res
-#endif
+c$$$#else 
+c$$$c #else  (! FORMATTED_READ | UNFORMATTED_READ) <---takao think this is wrong.
+c$$$C --- Generic parser: initialization ---
+c$$$      sgn = 1
+c$$$      res = 0
+c$$$      e = 0
+c$$$      e1 = 0
+c$$$      isfrac = .false.
+c$$$      ok = .false.
+c$$$      j0 = j
+c$$$      if (lskp) call skipbl(strn,1000,j0)
+c$$$      j = j0
+c$$$      a2d = .false.
+c$$$C --- Parse mantissa ---
+c$$$   10 t = strn(j)
+c$$$      if (lskp .and. t .eq. ' ') goto 20
+c$$$      if (t .eq. '.') then
+c$$$        if (isfrac) return
+c$$$        isfrac = .true.
+c$$$        goto 20
+c$$$      elseif (j.eq.j0 .and. t.eq.'-') then
+c$$$        sgn = -1
+c$$$        goto 20
+c$$$      elseif (j.eq.j0 .and. t.eq.'+') then
+c$$$        goto 20
+c$$$      endif
+c$$$      if ((t.lt.'0') .or. (t.gt.'9')) goto 30
+c$$$      ok = .true.
+c$$$      res = res*10D0 + ichar(t)-ichar('0')
+c$$$      if (isfrac) e1 = e1-1
+c$$$   20 j = j+1
+c$$$      goto 10
+c$$$C --- Parse exponent ---
+c$$$   30 continue
+c$$$      if (.not. ok) return
+c$$$      ok = .false.
+c$$$      if ((t.eq.'d').or.(t.eq.'D').or.(t.eq.'e').or.(t.eq.'E')) then
+c$$$        j = j+1
+c$$$        if (lskp) call skipbl(strn,1000,j0)
+c$$$        if ((strn(j).eq.'+') .or. (strn(j).eq.'-')) then
+c$$$          neg = strn(j) .eq. '-'
+c$$$          j = j+1
+c$$$          if (lskp) call skipbl(strn,1000,j0)
+c$$$        else
+c$$$          neg = .false.
+c$$$        endif
+c$$$   35   t = strn(j)
+c$$$        if ((t.lt.'0') .or. (t.gt.'9')) goto 38
+c$$$        ok = .true.
+c$$$        e = e*10 + ichar(t)-ichar('0')
+c$$$        j = j+1
+c$$$        if (lskp) call skipbl(strn,1000,j0)
+c$$$        goto 35
+c$$$   38   continue
+c$$$        if (.not. ok) return
+c$$$        if (neg) e= -e
+c$$$      endif
+c$$$      res = sgn*res*(10D0**(e+e1))
+c$$$      a2d = .true.
+c$$$
+c$$$      print *, 'a2d: converted ',(strn(i),i=j0,j-1), ' to ',res
+c$$$#endif
       end
 
       logical function gettok(str,j,term,jmax)

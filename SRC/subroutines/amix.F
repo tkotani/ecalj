@@ -189,7 +189,7 @@ c     .  '%1;6d  rmsdel=%1;3e',' ',80,i1mach(2),
 c     .  nmix,mmix,nelts,beta,tm,rmsdel)
       write(*,133) nmix,mmix,nelts,beta,tm,rmsdel
   133 format(' AMIX: nmix=',i1,' mmix=',i1,'  nelts=',i6,
-     .       '  beta=',f7.5,'  tm=',f8.5,'  rmsdel=',1pd8.2)
+     .       '  beta=',f7.5,'  tm=',f8.5,'  rmsdel=',1pd9.2)
       if (nmix .gt. 0) write(*,134) (t(j), j=1,nmix)
   134 format(3x,'tj:',7(f8.5,2x))
 

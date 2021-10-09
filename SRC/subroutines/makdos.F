@@ -69,6 +69,6 @@ C     implicit none
     7 continue
   100 format(/1x,'MAKDOS :  range of gaussians is ',f5.2,
      .'W (',i4,' bins).'
-     ./11x,'Error estimate in DOS : ',1pe8.2,' per state.')
+     ./11x,'Error estimate in DOS : ',1pe9.2,' per state.')
       end
 

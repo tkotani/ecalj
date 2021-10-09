@@ -363,7 +363,7 @@ end function get_reclen
 
  write(unit,'(a)')' DATA TYPE INFORMATION: '
 
- write(unit,'(a,/,2(a,i6,/),2(a,e14.8,/),a,e14.8)')&
+ write(unit,'(a,/,2(a,i6,/),2(a,e15.8,/),a,e15.8)')&
 & ' REAL:      Data type name: REAL(DP) ',&
 & '            Kind value: ',KIND(0.0_dp),&
 & '            Precision:  ',PRECISION(0.0_dp),&

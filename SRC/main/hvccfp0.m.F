@@ -302,7 +302,7 @@ c default values ok?
       nkdest =4.18879*(r0+radd)**3/vol0+.5
       nkrest =4.18879*(q0+qadd)**3*vol0+.5
       write(6,340) as,tol,lmax,awald,vol0,alat1,nkdest,nkrest
-  340 format(/' lattc:  as=',f6.3,'   tol=',1p,e8.2,'   lmax=',i2,
+  340 format(/' lattc:  as=',f6.3,'   tol=',1p,e9.2,'   lmax=',i2,
      .  '   awald=',0p,f7.4,'   v0=',f10.3/' alat1=',f9.5,
      .  '   estimates:   nkd',i6,'   nkr',i6)
       call lgen(plat,r0+radd,nkd,nkdmx,dlv,work)
