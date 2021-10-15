@@ -28,7 +28,7 @@
 !! SUBROUTINES
       public:: Get_zmel_init, Get_zmel_modex0,
      &         Dconjg_zmel, Deallocate_zmel, 
-     &         Setppovlz, Setppovlz_chipm,  Mptauof_zmel 
+     &         Setppovlz, Setppovlz_chipm,  Mptauof_zmel ,GramSchmidt_zmel
 !! OUTPUT:  zmel for exchange=F, zmeltt for exchange=T.
       complex(8),allocatable,protected,public :: zmel(:,:,:)   !for  Get_zmel
 !!------------------------------------------------------
@@ -48,10 +48,36 @@
       logical:: debug=.false.
 
       contains
-!----------------------------------------------------
+!!!!!!!!!!!!!!!!!!!!!!      
+      subroutine GramSchmidt_zmel() !oct15 2021
+!!  allocate( zmel(ngb,     nmtot,    nqtot) )
+!     !                  q,   k occ it, q+k unocc itp
+      integer:: igb=1,it,itt
+      complex(8):: ov(nmtot),vec(nqtot),dnorm2(nmtot)
+      real(8):: dnorm
+c$$$      do it = 1,nmtot        ! occ
+c$$$         vec(:)= zmel(igb,it,:)
+c$$$         do itt= 30,nqtot
+c$$$            vec(itt)=0d0
+c$$$         enddo
+c$$$         zmel(igb,it,:) = vec
+c$$$      enddo
+      do it = 1,nmtot        ! occ
+         vec(:)= zmel(igb,it,:) 
+         do itt = 1,it-1
+            ov(itt) = sum( dconjg(zmel(igb,itt,:))*vec(:))/dnorm2(itt)
+         enddo
+         vec = vec - matmul(ov(1:it-1),zmel(igb,1:it-1,:))
+         dnorm2(it) = sum(dconjg(vec)*vec)
+         zmel(igb,it,:) = vec
+      enddo
+      end
+      
+!!!!!!!!!!!!!!!!!!!!!!      
       subroutine Dconjg_zmel()
       zmel = dconjg(zmel)
       end
+      
       subroutine Deallocate_zmel()
       deallocate(zmel)
       end
@@ -160,7 +186,7 @@ c     i                 ppbrd)           !radial integrals
 !! Right after call get_zmel_init, we get zmel defined in this module.
 !! kvec is in the IBZ, rk = Rot_irot(kvec)
 !! \parameter all inputs
-!! \parameter matrix <MPB psi|psi>
+!     ! \parameter matrix <MPB psi|psi>
       logical:: exchange
       logical,optional:: iprx
       integer:: isp,nmmax,nqmax,irot,ispq,ispm,nmini,nqini, nctot,ncc
@@ -359,12 +385,12 @@ c      if(verbose()>50) call timeshowx("5 after drvmelp")
       if(debug) write(6,"('sum of rmelt cmelt=',4d23.16)")sum(rmelt),sum(cmelt)
 ! INPUT rmelt,cmelt,ppovlz
       block
-      complex(8),allocatable :: zmeltt(:,:,:)   !for  Get_zmel
+      complex(8),allocatable :: zmeltt(:,:,:) !for  Get_zmel
       allocate(zmeltt(ngb, nmtot, nqtot))
       zmeltt= dcmplx (rmelt,-cmelt) !zmeltt= <itp|it,ib>
       deallocate(rmelt,cmelt)
-!! zmel(igb,it,itp) = C(ppovlz)*N(zmeltt(:,it*itp))
-!! C means Hermitian conjugate, N means normal
+!     ! zmel(igb,it,itp) = C(ppovlz)*N(zmeltt(:,it*itp))
+!     ! C means Hermitian conjugate, N means normal
       allocate( zmel (ngb, nmtot, nqtot) )
       call zgemm('C','N',ngb, nmtot*nqtot,ngb,(1d0,0d0),
      .     ppovlz, ngb, zmeltt,ngb, (0d0,0d0),zmel,ngb)

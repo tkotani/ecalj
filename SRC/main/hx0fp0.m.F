@@ -186,7 +186,7 @@ c      integer:: nbcut,nbcut2
       complex(8),allocatable:: UU0(:,:),VT0(:,:)
 
       logical ::  chipm=.false.,nolfco=.false. !sergeyv only ngczero=.false.,
-     &  ,epsmode=.false.,normalm=.false., crpa=.false. 
+     &  ,epsmode=.false.,normalm=.false., crpa=.false. ,epsPPmode=.false.
       integer::  ife, idum4 !ifchipmn,ifchipm,
       real(8):: qs,qt,ww,muu, ddq(3)
       character*11 ::ttt
@@ -634,9 +634,11 @@ c     nblochpmx = nbloch + ngcmx !rdpp \in mptauof_zmel \in m_zmel
           enddo
           call gettetwt(q,iq,is,isf,nwgt(:,iq),ekxx1,ekxx2,nband,eibzmode) 
 !! == x0kf_v4hz is the main routine to accumalte imaginary part of x0 into rcxq ==
+          epsppmode=  epsmode.and.nolfco
           ierr = x0kf_v4hz_init(0, q, is, isf, iq, nmbas_in, eibzmode, nwgt(:,iq),crpa)
           ierr = x0kf_v4hz_init(1, q, is, isf, iq, nmbas_in, eibzmode, nwgt(:,iq),crpa)
-          call   x0kf_v4hz     (   q, is, isf, iq, nmbas_in, eibzmode, nwgt(:,iq),crpa, rcxq) 
+          write(6,*)'epsppmode=',epsppmode
+          call   x0kf_v4hz     (   q, is, isf, iq, nmbas_in, eibzmode, nwgt(:,iq),crpa, rcxq, epsppmode) 
                !  rcxq is the accumulating variable for spins 
 !!    Symmetrize and convert to Enu basis by dconjg(tranpsoce(zcousq)*rcxq8zcousq if eibzmode
           if(is==nspinmx.or.chipm) then !Apr2015. TK think ".or.chipm" is required for chipm mode

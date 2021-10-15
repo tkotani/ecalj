@@ -1,7 +1,7 @@
       module m_x0kf
       use m_keyvalue,only : Getkeyvalue
       use m_pkm4crpa,only : Readpkm4crpa
-      use m_zmel,only     : Get_zmel_init,Dconjg_zmel,Deallocate_zmel, zmel ,get_zmel_modex0
+      use m_zmel,only     : Get_zmel_init,Dconjg_zmel,Deallocate_zmel, zmel ,get_zmel_modex0, GramSchmidt_zmel
       use m_freq,only:  npm, nwhis
       use m_genallcf_v3,only:  nsp=>nspin ,nlmto,nctot,ngrp
       use m_read_bzdata,only:  nqbz,qbas,ginv,nqibz,  rk=>qbz,wk=>wbz
@@ -31,7 +31,7 @@
 !! Call job=0 and job=1 successively.      
 !!   ncount, ngb and nqibz are the key to estimate computational efforts.
 !! See x0kf_v4hz.
-!! We have OUTPUT to private variables nkmin ... jpmc.
+!     ! We have OUTPUT to private variables nkmin ... jpmc.
       integer::  irot=1,ierr         !, ntqxx,nbmax!,nctot
       integer:: k,isp_k,isp_kq, iq, jpm, ibib, iw,igb2,igb1,it,itp,job,icount, nmbas
       integer::  nwgt(nqbz) 
@@ -170,9 +170,9 @@ c                write(6,"(a,6i5,d13.5)")'uuuuu k it itp iw jpm whw=',icount,k,i
       end function x0kf_v4hz_init
 
 !! --------------------------------------------------------------------------------
-      subroutine X0kf_v4hz ( q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt, crpa, rcxq)
+      subroutine X0kf_v4hz ( q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt, crpa, rcxq,epsppmode)
 c      function X0kf_v4hz ( q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt, crpa,rcxq) result(rcxq)!not rxcq to bothI/O
-      intent(in)   ::        q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt, crpa 
+      intent(in)   ::        q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt, crpa,epsppmode 
 !! === calculate chi0, or chi0_pm ===
 !! We calculate imaginary part of chi0 along real axis.
 !!
@@ -196,6 +196,7 @@ c      function X0kf_v4hz ( q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt, crpa,rcx
 !! nlmto   = total number of atomic basis functions within MT
 !! nqbz    = number of k-points in the 1st BZ
 !!
+      logical,optional ::epsppmode
       integer:: k,isp_k,isp_kq,iq, jpm, ibib, iw,igb2,igb1,it,itp
       real(8):: q(3)
       complex(8):: rcxq (nmbas,nmbas,nwhis,npm)
@@ -216,6 +217,8 @@ c      function X0kf_v4hz ( q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt, crpa,rcx
       integer::  irot=1         !, ntqxx,nbmax!,nctot
       integer::  neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele!,ngbb !eibzsym(ngrp,-1:1),
       integer:: ieqbz,kold,nxxxx !igx(ngrp*2,nqbz),igxt(ngrp*2,nqbz),
+      integer::nkmin_,nkqmin_,nkoff,nkqoff
+      
 c      integer,allocatable:: it_(:,:,:),itp_(:,:,:)
 !!-----------------------------------------------------------
 !! Main loop over k-points ---------------------------------------------------------
@@ -257,19 +260,40 @@ c
       do 1000 icount = 1,ncount
         if(debug) call cputid(0)
         k = kc(icount)
+! oct15 2021
+        nkmin_  = nkmin(k)
+        nkqmin_ = nkqmin(k)
+        nkoff  = 0
+        nkqoff = 0
+        if(present(epsppmode))then
+        if(epsppmode) then
+           nkmin_  = 1
+           nkqmin_ = 1
+           nkoff = nkmin (k)-1
+           nkqoff= nkqmin(k)-1
+        endif
+        endif
+c        write(6,*)'ooooooooffffffff ',nkoff,nkqoff
+! This gives matrix element zmel(igb q,  k it occ,   q+k itp unocc)
         if(kold/=k) then 
-!     this gives matrix element zmel(igb,it,itp)
-           call Get_zmel_modex0(nkmin(k),nkqmin(k),isp_k,isp_kq)
+           call Get_zmel_modex0(nkmin_,nkqmin_,isp_k,isp_kq) !oct15 2021 (nkmin(k),nkqmin(k),isp_k,isp_kq)
            call Get_zmel_init(exchange, q+rk(:,k), q, irot, q, nxxxx, nkmax(k),nkqmax(k),nctot,ncc)
            call Dconjg_zmel() !zmel = dconjg(zmel)
            kold=k
+           if(present(epsppmode)) then
+              if(epsppmode) then
+                 write(6,*)"GramSchmidt m_zmel"
+                 call GramSchmidt_zmel() ! oct15 2021 orthogonalization, assuming ngb=1 MPB=exp(iqr)
+              endif   
+           endif   
         endif
+        
 c----------------------------
 !!  z1p = <M_ibg1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
 !!  zxq(iw,ibg1,igb2) = sum_ibib wwk(iw,ibib)* z1p(ibib, igb1,igb2)
 !! n1b,n2b --> core after valence.  it,itp --> valence after core
-        it  = itc(icount)  !occ      
-        itp = itpc(icount) !unocc       
+        it  = itc(icount)  +nkoff   !occ      k
+        itp = itpc(icount) +nkqoff !unocc    q+k
         iw  = iwc(icount)  !omega-bin
         jpm = jpmc(icount)      ! \pm omega
         do igb2=1,nmbas  !this part dominates cpu time most time consuming...........
