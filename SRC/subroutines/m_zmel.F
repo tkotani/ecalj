@@ -70,6 +70,10 @@ c$$$      enddo
          vec = vec - matmul(ov(1:it-1),zmel(igb,1:it-1,:))
          dnorm2(it) = sum(dconjg(vec)*vec)
          zmel(igb,it,:) = vec
+cccccccccccccccccccccc
+c         zmel(igb,it,nmtot+1:) = 0d0
+cccccccccccccccccccccc
+
       enddo
       end
       

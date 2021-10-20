@@ -260,7 +260,6 @@ c      real(8),allocatable:: qbze(:,:),qibze(:,:)
       pi       = 4d0*datan(1d0)
       fourpi   = 4d0*pi
       sqfourpi = sqrt(fourpi)
-
 !! computational mode select ! takao keeps only the Sergey mode.
       write(6,"(a)") '--- Type numbers #1 #2 #3 [#2 and #3 are options] ---'
       write(6,"(a)") ' #1:run mode'
@@ -275,6 +274,7 @@ c      write(6,"(a)") '    12  : total energy Miyake: developint'
       if( MPI__root ) read(5,*) ixc
       call MPI__Broadcast(ixc)
       call cputid(0)
+      
 
 !! Set switches: ---
 !!  normalm: normal eps mode

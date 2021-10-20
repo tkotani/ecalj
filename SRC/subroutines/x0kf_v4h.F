@@ -218,6 +218,7 @@ c      function X0kf_v4hz ( q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt, crpa,rcx
       integer::  neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele!,ngbb !eibzsym(ngrp,-1:1),
       integer:: ieqbz,kold,nxxxx !igx(ngrp*2,nqbz),igxt(ngrp*2,nqbz),
       integer::nkmin_,nkqmin_,nkoff,nkqoff
+      logical:: interbandonly,intrabandonly,cmdopt0
       
 c      integer,allocatable:: it_(:,:,:),itp_(:,:,:)
 !!-----------------------------------------------------------
@@ -256,6 +257,11 @@ c
 !! zmel(ngb, nctot+nt0,ncc+ntp0) in m_zmel
 !        nkmin:nt0,           nkqmin:ntp0
 !     nt0=nkmax-nkmin+1  , ntp0=nkqmax-nkqmin+1
+
+!!
+      interbandonly=cmdopt0('--interbandonly')
+      intrabandonly=cmdopt0('--intrabandonly')
+      
       kold = -999
       do 1000 icount = 1,ncount
         if(debug) call cputid(0)
@@ -265,14 +271,14 @@ c
         nkqmin_ = nkqmin(k)
         nkoff  = 0
         nkqoff = 0
-        if(present(epsppmode))then
-        if(epsppmode) then
-           nkmin_  = 1
-           nkqmin_ = 1
-           nkoff = nkmin (k)-1
-           nkqoff= nkqmin(k)-1
-        endif
-        endif
+c$$$        if(present(epsppmode))then
+c$$$        if(epsppmode) then
+c$$$           nkmin_  = 1
+c$$$           nkqmin_ = 1
+c$$$           nkoff = nkmin (k)-1
+c$$$           nkqoff= nkqmin(k)-1
+c$$$        endif
+c$$$        endif
 c        write(6,*)'ooooooooffffffff ',nkoff,nkqoff
 ! This gives matrix element zmel(igb q,  k it occ,   q+k itp unocc)
         if(kold/=k) then 
@@ -280,12 +286,12 @@ c        write(6,*)'ooooooooffffffff ',nkoff,nkqoff
            call Get_zmel_init(exchange, q+rk(:,k), q, irot, q, nxxxx, nkmax(k),nkqmax(k),nctot,ncc)
            call Dconjg_zmel() !zmel = dconjg(zmel)
            kold=k
-           if(present(epsppmode)) then
-              if(epsppmode) then
-                 write(6,*)"GramSchmidt m_zmel"
-                 call GramSchmidt_zmel() ! oct15 2021 orthogonalization, assuming ngb=1 MPB=exp(iqr)
-              endif   
-           endif   
+c$$$           if(present(epsppmode)) then
+c$$$              if(epsppmode) then
+c$$$                 write(6,*)"GramSchmidt m_zmel"
+c$$$                 call GramSchmidt_zmel() ! oct15 2021 orthogonalization, assuming ngb=1 MPB=exp(iqr)
+c$$$              endif   
+c$$$           endif   
         endif
         
 c----------------------------
@@ -294,6 +300,9 @@ c----------------------------
 !! n1b,n2b --> core after valence.  it,itp --> valence after core
         it  = itc(icount)  +nkoff   !occ      k
         itp = itpc(icount) +nkqoff !unocc    q+k
+!        
+        if(intrabandonly.and.(itp+nkqmin(k)-1 >  it+nkmin(k)-1)) cycle
+        if(interbandonly.and.(itp+nkqmin(k)-1 <= it+nkmin(k)-1)) cycle
         iw  = iwc(icount)  !omega-bin
         jpm = jpmc(icount)      ! \pm omega
         do igb2=1,nmbas  !this part dominates cpu time most time consuming...........
