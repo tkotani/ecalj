@@ -237,14 +237,15 @@ c      integer,allocatable:: neibz(:),nwgt(:,:),ngrpt(:),igx(:,:,:),igxt(:,:,:),
       logical:: eibz4x0,tiii,iprintx,symmetrize,eibzmode
       real(8):: qread(3),imagweight
 
-      character(128):: vcoudfile,aaax
+      character(128):: vcoudfile,aaax,itag
       integer:: src,dest
       logical:: lqall
       integer,allocatable ::  invgx(:) !iclasst(:),
       integer:: ificlass,ifile_handle,k
       complex(8),allocatable:: ppovl_(:,:)
 
-      logical:: readw0w0itest=.false.,hx0
+      logical:: readw0w0itest=.false.,hx0,cmdopt0
+      
 
 c      real(8)::ebmx
       integer:: ifq0p,ifwc,ifif,ierr !nbmx,mtet(3),
@@ -550,7 +551,11 @@ c     nblochpmx = nbloch + ngcmx !rdpp \in mptauof_zmel \in m_zmel
         nmbas1 = nmbas_in
         nmbas2 = nmbas1
 
-!! Open output files for epsilon mode =====
+!     ! Open output files for epsilon mode =====
+        itag=''
+        if(cmdopt0('--interbandonly')) itag='.interbandonly'
+        if(cmdopt0('--intrabandonly')) itag='.intrabandonly'
+        
         if(epsmode) then 
           iqixc2 = iq- (nqibz+nq0ix)
           if((.not.chipm).and.nolfco) then
@@ -558,10 +563,10 @@ c     nblochpmx = nbloch + ngcmx !rdpp \in mptauof_zmel \in m_zmel
             x0mean=0d0
           endif  
           if((.not.chipm).and.wqt(iq-nqibz)==0d0) then
-            open(newunit=ifepsdatnolfc,file='EPS'//charnum4(iqixc2)//'.nlfc.dat')
+            open(newunit=ifepsdatnolfc,file=trim('EPS'//charnum4(iqixc2)//'.nlfc.dat'//itag))
             write(ifepsdatnolfc,"(a)")' q(1:3)   w(Ry)   eps    epsi  --- NO LFC'
             if(.not.nolfco) then 
-              open(newunit=ifepsdat,file='EPS'//charnum4(iqixc2)//'.dat')
+              open(newunit=ifepsdat,file=trim('EPS'//charnum4(iqixc2)//'.dat'//itag))
               write(ifepsdat,"(a)") ' q(1:3)   w(Ry)   eps  epsi --- LFC included. '
             endif
           endif
