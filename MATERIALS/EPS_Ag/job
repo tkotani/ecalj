@@ -1,0 +1,6 @@
+#!/bin/bash
+lmfa ag >llmfa
+mpirun -np 4 lmf-MPIK ag >&llmf
+epsPP_lmfh_intra -np 4 ag >& out
+gnuplot -p epsinter.glt
+gnuplot -p epsintra.glt
