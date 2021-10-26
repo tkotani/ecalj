@@ -1243,8 +1243,8 @@ C     'Hard Core' radius entering into strux
            enddo  
         endif
         call mpibc1_int(idu(:,j),4,'m_lmfinit_idu')
-        call mpibc1_int(uh(:,j),4,'m_lmfinit_uh')
-        call mpibc1_int(jh(:,j),4,'m_lmfinit_jh')
+        call mpibc1_real(uh(:,j),4,'m_lmfinit_uh')
+        call mpibc1_real(jh(:,j),4,'m_lmfinit_jh')
 
         nm='SPEC_ATOM_PBAS'; call gtv(trim(nm),tksw(prgnam,nm),pb1(j),
      .       nmin=10,cindx=jj,note='product basis for GW')
