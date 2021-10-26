@@ -167,7 +167,7 @@ clean:
 cleanall:
 	rm -rf $(progslm) $(progsgw) $(progsw) $(obj_path) moduledepends.* 
 install: 
-	cp $(script) $(progslm) $(progsgw) $(progsw) ctrlgenM1.py job* run_arg run_arg2 $(BINDIR)
+	cp $(script) $(progslm) $(progsgw) $(progsw) ctrlgenM1.py job* run_arg* $(BINDIR)
 dep:
 	@echo 'This generate a call-caller data set for lmv7.F fp/*.F and subs/\*.F subs/*.F90 slatsm/*.F .'
 	@echo 'No arguments required. This drives ../TOOLS/f_calltree.py '
