@@ -33,6 +33,7 @@ C External calls:
       external  daxpy,dcopy,dmpy,errmsg,iprint,lgunit
 C Intrinsic functions:
       intrinsic  idnint
+      character(200)::aaa
 
       tol1 = tol
       if (tol .eq. 0) tol1 = 1d-5
@@ -69,19 +70,18 @@ C --- If no atom of same spec at the rotated site, add it ---
    10 continue
 
 C --- Printout ---
-      if (nbasnw .gt. nbas) then
-        if (ipr .ge. 10) then
-          call awrit2('%N ADDBAS: The basis was enlarged from %i'//
-     .    ' to %i sites%N         The additional sites are: %N',
-     .    ' ',120,stdo,nbas,nbasnw)
-          write(stdo,301) (clabl(ips(ibas)),(bas(i,ibas),i=1,3),
-     .    ibas=nbas+1,nbasnw)
+      if (nbasnw > nbas) then
+        if (ipr >= 10) then
+c          call awrit2('%N ADDBAS: The basis was enlarged from %i'//
+c     .    ' to %i sites%N         The additional sites are: %N',
+          write(stdo,"(/,' ADDBAS: The basis was enlarged from ',i0,
+     &     ' to ',i0,' sites',/,'         The additional sites are: ')") nbas,nbasnw
+          write(stdo,301) (clabl(ips(ibas)),(bas(i,ibas),i=1,3), ibas=nbas+1,nbasnw)
           write(stdo,'(a)') ' '
         endif
         nbas = nbasnw
       else
-        if (ipr .gt. 40) write(stdo,
-     .  '('' ADDBAS: basis is already complete --- no sites added'')')
+        if (ipr>40) write(stdo,'('' ADDBAS: basis is already complete --- no sites added'')')
       endif
 
 C --- Error whether atoms are sitting on same position ---
@@ -100,9 +100,11 @@ C --- Error whether atoms are sitting on same position ---
           endif
    50   continue
    40 continue
-      if (novlp .gt. 0) call fexit(-1,111,' Exit -1 ADDBAS: '//
-     .'basis has %i overlapping site(s)',novlp)
-
+      if (novlp>0) then
+         write(aaa,"(' ADDBAS: basis has ',i0,' overlapping site(s)')")novlp
+         call rx(aaa)
+      endif   
+c     call fexit(-1,111,' Exit -1 ADDBAS: basis has %i overlapping site(s)',novlp)
   301 format(8x,'ATOM=',a4,1x,'POS=',3f12.7)
   303 format(10x,a4,2x,i3,2x,'-> ',i3,3x,5x,a)
   304 format(/' ADDBAS: Spec   Atom  New_atom     Operation'/9x,35('-'))

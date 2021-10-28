@@ -86,9 +86,7 @@ c      parameter (scrwid=300)
         i = mod(iopt,10) !getdig(iopt,0,10) 
         if (i .ne. 0) then
            if (i .eq. 9) then
-              write(i1mach(2),"(a)") "Exit "//trim(charext(retval))//' '//trim(strng)
-c              strn = ' Exit %i '//strng
-c              call awrit1(strn,' ',len_trim(strn),i1mach(2),retval)
+              write(i1mach(2),"(a,i0,a)")'Exit ',retval,' '//trim(strng)
            else
              call awrit3(strng,strn,-len_trim(strn),i1mach(2),args,arg2,arg3)
            endif
@@ -113,7 +111,7 @@ c              call awrit1(strn,' ',len_trim(strn),i1mach(2),retval)
           if (fhndl('LOG') .ge. 0)  then
             if (isopen(fhndl('LOG'),.false.))
      .      write (fhndl('LOG'),10) tnew,timeu,datim,trim(adjustl(hostnm))
-   10       format(' CPU time:', f9.3,a1,5x,a26,' on ',a)
+   10       format('CPU time:', f9.3,a1,5x,a26,' on ',a)
           endif
         endif
       endif

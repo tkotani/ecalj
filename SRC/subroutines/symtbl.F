@@ -28,6 +28,7 @@ C Passed parameters
 C Local variables
       integer ib,ic,ig,jb,jc,mode1,mode10 !,oiwk
       double precision tol0,tol1
+      character(200)::aaa
       parameter (tol0=1d-5)
 C ... Heap
 c      integer w(1)
@@ -40,19 +41,27 @@ c      common /w/ w
       tol1 = tol
       if (tol .eq. 0) tol1 = tol0
 
-C --- Make atom transformation table ---
+C     --- Make atom transformation table ---
       do  20  ig = 1, ng
         do  10  ib = 1, nbas
           call grpfnd(tol1,g,ag,ig,pos,nbas,qlat,ib,jb)
-          if (jb .eq. 0)
-     .    call fexit2(-1,111,' Exit -1 SYMTBL: no map for atom '//
-     .    'ib=%i, ig=%i',ib,ig)
+          if (jb .eq. 0) then
+c     .    call fexit2(-1,111,' Exit -1 SYMTBL: no map for atom '//
+c     .    'ib=%i, ig=%i',ib,ig)
+            write(aaa,"('SYMTBL: no map for atom ib=',i0,' ig=',i0)") ib,ig
+            call rx(aaa)
+          endif
           if (mode10 .ne. 0) then
             ic = ipc(ib)
             jc = ipc(jb)
-            if (ic .ne. jc) call fexit3(-1,111,' Exit -1 SYMTBL: '//
-     .      'site %i not in same class as mapped site %i, ig=%i',
-     .      ib,jb,ig)
+            if (ic .ne. jc) then
+               write(aaa,"('SYMTBL: site ',i0,' not in same class as mapped site ',i0,', ig=',i0)")
+     &              ib,jb,ig
+               call rx(aaa)
+c               call fexit3(-1,111,' Exit -1 SYMTBL: '//
+c     .      'site %i not in same class as mapped site %i, ig=%i',
+c     .      ib,jb,ig)
+           endif    
           endif
           if (mode1 .eq. 0) then
             istab(ib,ig) = jb
