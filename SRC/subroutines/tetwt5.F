@@ -178,7 +178,9 @@ c      real(8):: fermi_dS(3,3) !not yet used...
       integer:: nbmx,ifile_handle
       logical,optional:: wan
       !!! tetrakbt
-      real(8):: temperature ![K], temporally
+      real(8):: temperature     ![K], temporally
+      
+      logical:: interbandonly,intrabandonly,cmdopt0
 c---------------------------------------------------------------------
       call getkeyvalue("GWinput","tetrakbt",usetetrakbt,default=.false.)
       write(6,"(' tetwt5: job efermi usetetrakbt:=',i2,d13.6,l)") job,efermi,usetetrakbt
@@ -334,7 +336,10 @@ c     efermib = efermi + dmub
 c      write(6,*) "defermia, defermib:", dmua,dmub
 c      write(6,*) " efermia,  efermib:", efermia,efermib
       efermia = efermi 
-      efermib = efermi 
+      efermib = efermi
+      
+      interbandonly=cmdopt0('--interbandonly')
+      intrabandonly=cmdopt0('--intrabandonly')
 
 !! === Loop over tetrahedron ===
       do 1000 itet = 1, ntetf !;
@@ -437,6 +442,10 @@ c          if(chkwrt.and.job==1) write(6,*) '****** ib jb=',ib,jb
                 else
                   jb = jbx - noccx_kq + nband
                 endif
+cccccccccccccccccccccccccccccccccccccc
+                if(intrabandonly.and.(ib/=jb)) cycle
+                if(interbandonly.and.(ib==jb)) cycle
+ccccccccccccccccccccccccccccccccccccccc
 !! This mechanism treat ek_ and ekq_ as occpied or unoccupied.
                 if(jpm==1) then
 c           ibxmx = noccx_k + nctot
@@ -449,7 +458,6 @@ c           jbxmx = noccx_kq + nctot
                   eunocc => ek_ (ib,0:3)
                   eocc   => ekq_(jb,0:3)
                 endif
-
                 if( minval(eocc  ) <= efermia .and. 
      &              maxval(eunocc) >= efermib ) then
                   !if( maxval(eunocc(:)-eocc(:)) <dmub-dmua ) cycle ! this makes a bit effective.

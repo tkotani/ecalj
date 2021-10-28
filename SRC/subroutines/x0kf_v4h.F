@@ -218,7 +218,7 @@ c      function X0kf_v4hz ( q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt, crpa,rcx
       integer::  neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele!,ngbb !eibzsym(ngrp,-1:1),
       integer:: ieqbz,kold,nxxxx !igx(ngrp*2,nqbz),igxt(ngrp*2,nqbz),
       integer::nkmin_,nkqmin_,nkoff,nkqoff
-      logical:: interbandonly,intrabandonly,cmdopt0
+c      logical:: interbandonly,intrabandonly,cmdopt0
       
 c      integer,allocatable:: it_(:,:,:),itp_(:,:,:)
 !!-----------------------------------------------------------
@@ -259,8 +259,8 @@ c
 !     nt0=nkmax-nkmin+1  , ntp0=nkqmax-nkqmin+1
 
 !!
-      interbandonly=cmdopt0('--interbandonly')
-      intrabandonly=cmdopt0('--intrabandonly')
+c      interbandonly=cmdopt0('--interbandonly')
+c      intrabandonly=cmdopt0('--intrabandonly')
       
       kold = -999
       do 1000 icount = 1,ncount
@@ -301,8 +301,8 @@ c----------------------------
         it  = itc(icount)  +nkoff   !occ      k
         itp = itpc(icount) +nkqoff !unocc    q+k
 !        
-        if(intrabandonly.and.(itp+nkqmin(k)-1 >  it+nkmin(k)-1)) cycle
-        if(interbandonly.and.(itp+nkqmin(k)-1 <= it+nkmin(k)-1)) cycle
+c        if(intrabandonly.and.(itp+nkqmin(k)-1 >  it+nkmin(k)-1)) cycle
+c        if(interbandonly.and.(itp+nkqmin(k)-1 <= it+nkmin(k)-1)) cycle
         iw  = iwc(icount)  !omega-bin
         jpm = jpmc(icount)      ! \pm omega
         do igb2=1,nmbas  !this part dominates cpu time most time consuming...........
