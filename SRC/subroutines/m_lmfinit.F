@@ -1240,12 +1240,13 @@ C     'Hard Core' radius entering into strux
            endif
            do lxx=0+1,3+1
               idu(lxx,j) = mod(idu(lxx,j),10)
-           enddo  
+           enddo
         endif
         call mpibc1_int(idu(:,j),4,'m_lmfinit_idu')
-        call mpibc1_real(uh(:,j),4,'m_lmfinit_uh')
+        call mpibc1_real(uh(:,j),4,'m_lmfinit_uh') !bug fix at oct26 2021 (it was _int-->not passed )
         call mpibc1_real(jh(:,j),4,'m_lmfinit_jh')
-
+        write(stdo,"('idu uh jh=',4i4,4f6.2,' ',4f6.2)") idu(:,j),uh(:,j),jh(:,j)
+        
         nm='SPEC_ATOM_PBAS'; call gtv(trim(nm),tksw(prgnam,nm),pb1(j),
      .       nmin=10,cindx=jj,note='product basis for GW')
         nm='SPEC_ATOM_PBAS2'; call gtv(trim(nm),tksw(prgnam,nm),
