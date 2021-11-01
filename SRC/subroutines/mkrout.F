@@ -148,6 +148,7 @@ C ----------------------------------------------------------------------
       double precision pnu(n0,2),pnz(n0,2),qcorg,qcorh,qsc,cofg,cofh
       integer ::iwdummy,i_copy_size,ifx,nlmto
       real(8):: dat(6,nbas)
+      logical:: mmtargetx=.false.
       nlmto= ham_ldham(1)
       ipr  = iprint()
       pi   = 4d0*datan(1d0)
@@ -157,6 +158,7 @@ C ----------------------------------------------------------------------
       sumtc = 0d0
       sumec = 0d0
       sumt0 = 0d0
+      if(procid==master) inquire(file='mmtarget.aftest',exist=mmtargetx)
       do  ib = 1, nbas
         is = int(ssite(ib)%spec)
         rsma=sspec(is)%rsma
@@ -288,7 +290,7 @@ c 200      format(i4,3f12.6,2x,3f12.6)
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! experimental block to keep magnetic moment for AF.controlled by uhval.aftest file. See elsewhere.
-          if( nsp==2.and.procid==master) then
+          if( nsp==2.and.procid==master.and.mmtargetx) then
              if(ib==1) then
                 open(newunit=ifx,file='mmagfield.aftest',position='append')
                 write(ifx,"('          ',f23.15)",advance='no') -sums1

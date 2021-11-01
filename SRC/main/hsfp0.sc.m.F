@@ -363,7 +363,7 @@ c$$$ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
 c$$$            write (663,"(2f14.6)") qm/qfermi, qfermi
 c$$$          end do
 c$$$        endif
-        if(eibz4sig())call zsecsym(zsec,ntq,nq,nband,nbandmx,nspinmx, eibzsym,ngrp,tiii,q,is)
+        if(eibz4sig())call zsecsym(zsec,ntq,nq,nband,nbandmx,nspinmx, nspin,eibzsym,ngrp,tiii,q,is)
  2000 continue   !end of spin-loop
 !!      
       call MPI__reduceSum(root=0, data=zsecall, sizex=ntq*ntq*nq*nspinmx )
@@ -433,6 +433,7 @@ c$$$        endif
 !SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
       subroutine HsWriteResult() !only write out files
       implicit none
+      integer:: iii,ixx,iyy
       if(exchange) then
          if(is==1.and.ixc==1) then
             open(newunit=ifsex(1),file='SEXU') !//xt(nz))
@@ -443,6 +444,9 @@ c$$$        endif
          elseif(is==1.and.ixc==3) then
             open(newunit=ifsex(1),file='SEXcoreU') !//xt(nz))
             open(newunit=ifsex2(1),file='SEXcore2U',form='unformatted') !out SEXcore_nn'
+cccccccccccccccccccccccccc            
+c            open(newunit=iii,file='SEXxxx') !out SEX_nn'
+cccccccccccccccccccccccccc            
          elseif(is == 2.and.ixc==3) then
             open(newunit=ifsex(2),file='SEXcoreD') !//xt(nz))
             open(newunit=ifsex2(2),file='SEXcore2D',form='unformatted') !out SEXcore_nn'
@@ -470,6 +474,15 @@ c$$$        endif
                endif
             enddo
             write(ifsex2(is)) is, q(1:3,ip), zsec(1:ntq,1:ntq,ip) !SEC_nn' out
+ccccccccccccccccccccccccccccc
+c            if(is==1) then
+c            do ixx=1,ntq
+c            do iyy=1,ntq
+c               write(iii,"('zsec:',i2, 3f6.3,x,2i4,2x,9(2f8.3,x))") is, q(1:3,ip),ixx,iyy,zsec(ixx,iyy,ip)
+c            enddo
+c            enddo
+c            endif
+ccccccccccccccccccccccccccccc            
          enddo
          close(ifsex(is))
          close(ifsex2(is))
@@ -515,7 +528,7 @@ c$$$        endif
       end program hsfp0_sc
       
 !SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
-      subroutine zsecsym(zsec,ntq,nq,nband,nbandmx,nspinmx, eibzsym,ngrp,tiii,q,is)
+      subroutine zsecsym(zsec,ntq,nq,nband,nbandmx,nspinmx,nspin, eibzsym,ngrp,tiii,q,is)
 !! --- symmetrize zsec for eibz4sig mode. -----------------
 !! Read a file lmfgw_kdivider, which contains info for vxc and evec (they are in separated files in MPI)
 !!
@@ -523,7 +536,7 @@ c      use m_mpi,only: MPI__AllreduceSum
       use m_readeigen,only: READEVAL
       implicit none 
       complex(8),intent(inout)::zsec(ntq,ntq,nq)
-      integer,intent(in)::ntq,nq,nspinmx,nband,nbandmx(nq,nspinmx),is
+      integer,intent(in)::ntq,nq,nspinmx,nband,nbandmx(nq,nspinmx),is,nspin
       integer,intent(in):: ngrp,eibzsym(ngrp,-1:1,nq)
       logical,intent(in):: tiii !time reversal switch
       real(8),intent(in):: q(3,nq)
@@ -587,7 +600,7 @@ c      if(allocated(extp)) deallocate(extp,ifvxc__,ifevec__)
       iqq=0                     !iqq is to read multiple vxc.* evec.*
       do 3020 iq=1,nq           !nq means iq for which we will calculate sigma
         iqq=iqq+1
-        do 3030 ispx=1,nspinmx  !ispx loop is to find isx=is
+        do 3030 ispx=1,nspin !nspinmx  bugfix!!! at 2021-11-01 !ispx loop is to find isx=is
           ifvxc_  = ifvxc__ (iprocq(iqq,ispx)) 
           ifevec_ = ifevec__(iprocq(iqq,ispx)) 
           if(ispx==is) then 
