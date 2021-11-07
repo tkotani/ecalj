@@ -80,7 +80,7 @@ c     ntp0  = nkqmax(k) - nkqmin(k) +1
           write(6,*)' npm==2 nkqmin nkqmax  nkmin nkmax=',nkqmin,nkqmax,nkmin,nkmax
           call rx( " When npm==2, nkqmin==1 should be.")
         endif
-        if(nkmin(k)/=1) call rx( " nkmin==1 should be.")
+c        if(nkmin(k)/=1) call rx( " nkmin==1 should be.") !nov 2021 commneted out for --intraband only
 !      ib_k =[1:nctot]              core
 !      ib_k =[nctot+nkmin:nctot+nkmax]  valence
 !      ib_kq =[1:ncc]             core

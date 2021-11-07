@@ -163,7 +163,7 @@ c-devided tet
       real(8)::qdummy(3)
 
       integer(4)::isp1,isp2,iq,nqibz,mtet(3),  iqx,ispx, ix1,iy1,iz1,verbose,iqindx
-      logical ::mtett !,readgwinput
+c      logical ::mtett !,readgwinput
 
       real(8):: kkv(3,0:3)
       logical :: matrix_linear
@@ -180,7 +180,7 @@ c      real(8):: fermi_dS(3,3) !not yet used...
       !!! tetrakbt
       real(8):: temperature     ![K], temporally
       
-      logical:: interbandonly,intrabandonly,cmdopt0
+      logical:: interbandonly=.false.,intrabandonly=.false.,cmdopt0
 c---------------------------------------------------------------------
       call getkeyvalue("GWinput","tetrakbt",usetetrakbt,default=.false.)
       write(6,"(' tetwt5: job efermi usetetrakbt:=',i2,d13.6,l)") job,efermi,usetetrakbt
@@ -200,64 +200,53 @@ c$$$
 c$$$!! multitet=T ==> micro tetrahedron method (divided-tetrahedron). Not used so much now...
 c$$$      mtet=(/1,1,1/)
 c$$$      call getkeyvalue("GWinput","multitet",mtet,3,default=(/1,1,1/))
-      if(sum(abs(mtet))/=3) then
-        mtett=.true.
-        if(sum(abs(mtet))<3) 
-     &  print *, ' we use devided-tetrahedron scheme mtet=',mtet
-      else
-        mtett=.false.
-      endif
-c      print *,'xxxxxx mtett=',mtett
-!! read mtet or not.
-      if(mtett) then
-        ifmtet=ifile_handle()
-        open (ifmtet, file='mtet',form='unformatted')
-        read(ifmtet) nmtet,nqbzwm,nqbzm,ntetfm !,n_index_qbzm
-        allocate( 
-     &       idtetfm(0:3,nmtet,ntetf), qbzwm(3,nqbzwm),
-        ! Index for tetrahedron;    qbzmw(idtetfm) gives extended q vector.
-     &       ib1bzm(nqbzwm), qbzm(3,nqbzm) !,index_qbzm(n_index_qbzm,n_index_qbzm,n_index_qbzm)
-        ! qbzm(1:3,ib1bz(iq)) gives q vector within the 1st bz.
-     &       , wtet(0:3,nmtet,ntetf) )
-        read(ifmtet) idtetfm,ib1bzm,qbzm,qbzwm,wtet  !,index_qbzm
-        close(ifmtet)
-        ifeig=501
-        open (ifeig,file='eigmtet',form='unformatted')
-        read(ifeig) nband_x,nqnumm,nsp
-        print *,'readin eigmtet ', nband_x,nqnumm,nsp
-        if(nband_x /=nband ) then
-          call rx( 'tetwt5: nband_x /=nband')
-        endif
-        allocate( eigtet(nband,nqnumm,nsp) )
-        do iqx=1,nqnumm
-          do ispx=1,nsp
-            read (ifeig) eigtet(1:nband,iqx,ispx)
-            if(verbose()>150) write(6,"('iq=',i3,'  eig(1:5)=',5f10.4)")iqx,eigtet(1:5,iqx,ispx)
-          enddo
-        enddo
-        close(ifeig)
-      else
+c      if(sum(abs(mtet))/=3) then
+c        mtett=.true.
+c        if(sum(abs(mtet))<3) 
+c     &  print *, ' we use devided-tetrahedron scheme mtet=',mtet
+c      else
+c        mtett=.false.
+c      endif
+c$$$      if(mtett) then
+c$$$        ifmtet=ifile_handle()
+c$$$        open (ifmtet, file='mtet',form='unformatted')
+c$$$        read(ifmtet) nmtet,nqbzwm,nqbzm,ntetfm !,n_index_qbzm
+c$$$        allocate( 
+c$$$     &       idtetfm(0:3,nmtet,ntetf), qbzwm(3,nqbzwm),
+c$$$        ! Index for tetrahedron;    qbzmw(idtetfm) gives extended q vector.
+c$$$     &       ib1bzm(nqbzwm), qbzm(3,nqbzm) !,index_qbzm(n_index_qbzm,n_index_qbzm,n_index_qbzm)
+c$$$        ! qbzm(1:3,ib1bz(iq)) gives q vector within the 1st bz.
+c$$$     &       , wtet(0:3,nmtet,ntetf) )
+c$$$        read(ifmtet) idtetfm,ib1bzm,qbzm,qbzwm,wtet  !,index_qbzm
+c$$$        close(ifmtet)
+c$$$        ifeig=501
+c$$$        open (ifeig,file='eigmtet',form='unformatted')
+c$$$        read(ifeig) nband_x,nqnumm,nsp
+c$$$        print *,'readin eigmtet ', nband_x,nqnumm,nsp
+c$$$        if(nband_x /=nband ) then
+c$$$          call rx( 'tetwt5: nband_x /=nband')
+c$$$        endif
+c$$$        allocate( eigtet(nband,nqnumm,nsp) )
+c$$$        do iqx=1,nqnumm
+c$$$          do ispx=1,nsp
+c$$$            read (ifeig) eigtet(1:nband,iqx,ispx)
+c$$$            if(verbose()>150) write(6,"('iq=',i3,'  eig(1:5)=',5f10.4)")iqx,eigtet(1:5,iqx,ispx)
+c$$$          enddo
+c$$$        enddo
+c$$$        close(ifeig)
+c$$$      else
         nmtet = 1
         nqbzwm= nqbzw
         nqbzm = nqbz
-c        print *,'nqbzw,nqbz=',nqbz,nqbzw
-        allocate( 
-     &       idtetfm(0:3,nmtet,ntetf), qbzwm(3,nqbzwm),
+        allocate( idtetfm(0:3,nmtet,ntetf), qbzwm(3,nqbzwm),
      &       ib1bzm(nqbzwm),           qbzm(3,nqbzm) , wtet(0:3,nmtet,ntetf) )
-c        print *,'sumsssssssssssssss',qbzw
-
         idtetfm(:,1,:)=idtetf
-c        print *,'sum(qbzw))=',sum(qbzw),qbzw
-        
         qbzwm =qbzw
-c        print *,'ssssssss'
-c        print *,'sum(ib1bz)=',sum(ib1bz)
         ib1bzm=ib1bz
         wtet=0.25d0
-      endif
+c$$$      endif
 
 !!
-c      print *,'xxxxxx 22222222 mtett=',mtett
       nbnc = nband+nctot
       nb1  = nband+1
       allocate( ekxx1(nband+nctot,nqbz),ekxx2(nband+nctot,nqbz))
@@ -271,48 +260,40 @@ c      print *,'xxxxxx 22222222 mtett=',mtett
 !!  ekzz1 for k
 !!  ekzz2 for q+k.
       allocate( ekzz1(nband+nctot,nqbzm),ekzz2(nband+nctot,nqbzm))
-      if(mtett) then
-        print *, ' mtett mode nqbzm nqibz=',nqbzm,nqibz
-        do kx = 1, nqbzm
-          ekzz1( 1:nband, kx)              = eigtet(1:nband,kx,isp1)
-          ekzz1( nband+1: nband+nctot, kx) = ecore(1:nctot)
-          ekzz2( nband+1: nband+nctot, kx) = ecore(1:nctot)
-        enddo
-        if(iq<=nqibz) then
-          do kx = 1, nqbzm
-            kqxxm = iqindx(q(1:3)+qbzm(1:3,kx),ginv,qbzm,nqbzm)
-            ekzz2(1:nband, kx) = eigtet(1:nband,kqxxm,isp2) !ekzz1(1:nband, kqxxm)
-          enddo
-        else
-          do kx = 1, nqbzm
-            kp  = nqbzm *(iq - nqibz) + kx
-            ekzz2(1:nband, kx)= eigtet(1:nband,kp,isp2)
-          enddo
-        endif
-        deallocate( eigtet)!,index_qbzm)
-      else
+c$$$      if(mtett) then
+c$$$        print *, ' mtett mode nqbzm nqibz=',nqbzm,nqibz
+c$$$        do kx = 1, nqbzm
+c$$$          ekzz1( 1:nband, kx)              = eigtet(1:nband,kx,isp1)
+c$$$          ekzz1( nband+1: nband+nctot, kx) = ecore(1:nctot)
+c$$$          ekzz2( nband+1: nband+nctot, kx) = ecore(1:nctot)
+c$$$        enddo
+c$$$        if(iq<=nqibz) then
+c$$$          do kx = 1, nqbzm
+c$$$            kqxxm = iqindx(q(1:3)+qbzm(1:3,kx),ginv,qbzm,nqbzm)
+c$$$            ekzz2(1:nband, kx) = eigtet(1:nband,kqxxm,isp2) !ekzz1(1:nband, kqxxm)
+c$$$          enddo
+c$$$        else
+c$$$          do kx = 1, nqbzm
+c$$$            kp  = nqbzm *(iq - nqibz) + kx
+c$$$            ekzz2(1:nband, kx)= eigtet(1:nband,kp,isp2)
+c$$$          enddo
+c$$$        endif
+c$$$        deallocate( eigtet)!,index_qbzm)
+c$$$      else
         ekzz1=ekxx1
         ekzz2=ekxx2
-      endif
+c$$$      endif
 
 !! Add eigenvalue shift. scissors_x0() is defined in switch.F
-!!         call getkeyvalue("GWinput","ScaledGapX0",sciss,default=1d0)
       if(scissors_x0()/=0d0) then
-        call addsciss(scissors_x0(),efermi,(nband+nctot)*nqbzm, 
-     o   ekzz1)
-        call addsciss(scissors_x0(),efermi,(nband+nctot)*nqbzm, 
-     o   ekzz2)
+        call addsciss(scissors_x0(),efermi,(nband+nctot)*nqbzm,    ekzz1)
+        call addsciss(scissors_x0(),efermi,(nband+nctot)*nqbzm,    ekzz2)
       endif
 
 !! Check
       volt = 0d0
       do itet = 1, ntetf
         do im   = 1, nmtet
-ccccccccccccccccccccc
-c          print *,'iiiiiii111',im,itet
-c          print *,'iiiiiii222',idtetfm(0:3,im,itet)
-c          print *,'iiiiiii333',qbzwm (1:3, idtetfm(0:3,im,itet) )
-cccccccccccccccccccccc
           kvec(1:3,0:3) = qbzwm (1:3, idtetfm(0:3,im,itet) )
           do i = 1,3
             kvec(1:3,i) = kvec(1:3,i) - kvec(1:3,0)
@@ -327,7 +308,6 @@ c      if(abs(volt-voltot)>1d-10) call rx( ' tetwt: abs(volt-voltot)>1d-10')
         demin=  1d10
         demax= - 1d10
       endif
-
 c     call getkeyvalue("GWinput","defermia",dmua,default=0d0)
 c     call getkeyvalue("GWinput","defermib",dmub,default=0d0)
 c     call getkeyvalue("GWinput","exband",exb,default=.false.)
@@ -337,71 +317,39 @@ c      write(6,*) "defermia, defermib:", dmua,dmub
 c      write(6,*) " efermia,  efermib:", efermia,efermib
       efermia = efermi 
       efermib = efermi
-      
       interbandonly=cmdopt0('--interbandonly')
       intrabandonly=cmdopt0('--intrabandonly')
-
 !! === Loop over tetrahedron ===
       do 1000 itet = 1, ntetf !;
-c        print *,'do 1000 tetwt5 ',itet
         kk (0:3) = ib1bz( idtetf(0:3,itet) )     !  k
-!! may2013 for eizbmode 
         if(eibzmode) then
            if(sum(nwgt(kk(0:3)))==0) cycle 
         endif
         kkv(1:3, 0:3) = qbzw (1:3, idtetf(0:3,itet) )
-c        if(mod(itet,1000)==1.and.verbose()>=150) write(6,*)' tetwt5: itet out of ntetf=',itet ,ntetf
         do 1100 im = 1,nmtet
           kkm (0:3)       = ib1bzm( idtetfm(0:3,im,itet) ) !  k   in micro-tet
           kvec(1:3, 0:3) = qbzwm ( 1:3, idtetfm(0:3,im,itet) )
-!!
           do i = 1,3
              am(1:3,i) = kvec(1:3,i-1) - kvec(1:3,3)
           enddo
           voltet = abs(det33(am)/6d0)
-
-c$$$ccccccccccccccccccccccc
-c$$$          if(kkm(0)==1) goto 1105
-c$$$          if(kkm(1)==1) goto 1105
-c$$$          if(kkm(2)==1) goto 1105
-c$$$          if(kkm(3)==1) goto 1105
-c$$$          cycle
-c$$$ 1105     continue
-c$$$          write(6,"('kkkkk  kkm list=',4i5)") kkm(0:3)
-c$$$          do i=0,3
-c$$$             write(6,"('kkkkk ', i5,x,i6,' kvec=',3f9.4)") i, itet, kvec(1:3, i)-kvec(1:3, 1)
-c$$$          enddo
-c$$$cccccccccccccccccccccc
-
           !!! exchange band ea <--> eb for lindtet6
-          if (exb) then
-             ek_ ( 1:nband+nctot, 0:3) = ekzz2( 1:nband+nctot, kkm(0:3)) ! k
-             ekq_( 1:nband+nctot, 0:3) = ekzz1( 1:nband+nctot, kkm(0:3)) ! k+q
-          else
+c          if (exb) then
+c             ek_ ( 1:nband+nctot, 0:3) = ekzz2( 1:nband+nctot, kkm(0:3)) ! k
+c             ekq_( 1:nband+nctot, 0:3) = ekzz1( 1:nband+nctot, kkm(0:3)) ! k+q
+c          else
              ek_ ( 1:nband+nctot, 0:3) = ekzz1( 1:nband+nctot, kkm(0:3)) ! k
              ekq_( 1:nband+nctot, 0:3) = ekzz2( 1:nband+nctot, kkm(0:3)) ! k+q
-          endif
-
-cccccccccccccccccccccc
-c          write(6,*)'eeeeeeeeek'
-c          write(6,"('kkkkkv ',3f9.5,i4)") kvec(1:3, 0),kkm(0)
-c          write(6,"('kkkkkv ',3f9.5,i4)") kvec(1:3, 1),kkm(1)
-c          write(6,"('kkkkkv ',3f9.5,i4)") kvec(1:3, 2),kkm(2)
-c          write(6,"('kkkkkv ',3f9.5,i4)") kvec(1:3, 3),kkm(3)
-c          write(6,"('kkkkk  ',10f9.5)") ek_  ( 1:nband+nctot, 0:3)
-c          write(6,"('kkkkk  ',10f9.5)") ekq_ ( 1:nband+nctot, 0:3)
-ccccccccccccccccccccccc
-
+c          endif
           noccx_k  = noccx1 ( ek_(1:nband, 0:3),4,nband, efermi)  
                     !the highest number of occupied states (HNOS)
           noccx_kq = noccx1 (ekq_(1:nband, 0:3),4,nband, efermi)
           nbandmx_k   = nband
           nbandmx_kq  = nband
-
 !! exclude wannier model: (okumura, 2017/06/13)
 !! ebmx band cutoff 2016Jun
           if (present(wan) .and. wan) then
-c          elseif (nbmx/=nband) then
+             continue
           else
              do i=1,nbmx
                 if( maxval(ek_(i, 0:3)) >ebmx) then
@@ -416,150 +364,93 @@ c          elseif (nbmx/=nband) then
                 endif
              enddo
           endif
-
-c  write(*,'("2  before n & np cycles",$)')   !   call cputid(0)
-          do jpm = 1,npm !feb2006
+!!
+          do jpm = 1,npm 
             if(jpm==1) then
               ibxmx = noccx_k + nctot
-              jbxmx = nbandmx_kq !nband  Apr2009takao
+              jbxmx = nbandmx_kq 
             else
-              ibxmx = nbandmx_k  !nband  Apr2009takao
+              ibxmx = nbandmx_k  
               jbxmx = noccx_kq + nctot
             endif
             do ibx  = 1, ibxmx !noccx_k + nctot  !   occupied
-              do jbx  = 1, jbxmx !nband             ! unoccupied
-c$$$cccccccccccccccccccc
-c$$$                 if(jbx/=1) cycle
-c$$$cccccccccccccccccccc
-c          if(chkwrt.and.job==1) write(6,*) '****** ib jb=',ib,jb
-                if(ibx<=noccx_k .or. jpm==2  ) then
+            do jbx  = 1, jbxmx !nband             ! unoccupied
+              if(ibx<=noccx_k .or. jpm==2  ) then
                   ib = ibx
-                else
+              else
                   ib = ibx - noccx_k + nband
-                endif
-                if(jbx<=noccx_kq .or. jpm==1  ) then
-                  jb = jbx
-                else
-                  jb = jbx - noccx_kq + nband
-                endif
-cccccccccccccccccccccccccccccccccccccc
-                if(intrabandonly.and.(ib/=jb)) cycle
-                if(interbandonly.and.(ib==jb)) cycle
-ccccccccccccccccccccccccccccccccccccccc
+              endif
+              if(jbx<=noccx_kq .or. jpm==1  ) then
+                 jb = jbx
+              else
+                 jb = jbx - noccx_kq + nband
+              endif
+!! --intraband mode  takao@nov2021
+              if(intrabandonly.and.(ib/=jb).and.job==1) cycle
+              if(interbandonly.and.(ib==jb).and.job==1) cycle
 !! This mechanism treat ek_ and ekq_ as occpied or unoccupied.
-                if(jpm==1) then
-c           ibxmx = noccx_k + nctot
-c           jbxmx = nband
-                  eocc   => ek_ (ib,0:3)
-                  eunocc => ekq_(jb,0:3)
-                else
-c           ibxmx = nband
-c           jbxmx = noccx_kq + nctot
-                  eunocc => ek_ (ib,0:3)
-                  eocc   => ekq_(jb,0:3)
-                endif
-                if( minval(eocc  ) <= efermia .and. 
-     &              maxval(eunocc) >= efermib ) then
-                  !if( maxval(eunocc(:)-eocc(:)) <dmub-dmua ) cycle ! this makes a bit effective.
-                  if( maxval(eunocc(:)-eocc(:)) <0 ) cycle ! this makes a bit effective.
-                  if(job==0 ) then    !takao
-                    iwgt(ib,jb,kk(0:3),jpm)= .true.
-                    x(0:3) = .5d0*(eocc-eunocc)     ! + omg !Denominator. unit in Hartree.
-                    demax_ =  maxval(-x(0:3))  ! in Hartree
-                    demin_ =  minval(-x(0:3))  ! in Hartree
-                    do ixx=0,3
-                      demax(ib,jb,kk(ixx),jpm) = max(demax_, demax(ib,jb,kk(ixx),jpm))
-                      demin(ib,jb,kk(ixx),jpm) = min(demin_, demin(ib,jb,kk(ixx),jpm))
-                    enddo
-                  else
-                    x(0:3) = .5d0*(eocc-eunocc)  ! + omg !Denominator. unit in Hartree.
-                    wtthis2 = 0d0
-                    if(chkwrt) then
-                      write(6,"('### Goto lindtet6: itet ib jb Ef='
-     &                    ,i8,2i5,d12.4,' ###')" ) itet,ib,jb,efermi
-                      write(6,"('  eocc  - Ef= ',4f10.3)") eocc  -efermi
-                      write(6,"('  eunocc- Ef= ',4f10.3)") eunocc-efermi
-                      write(6,"('  -x(a.u.)= ',4f10.3)") -x(0:3)
+              if(jpm==1) then
+                 eocc   => ek_ (ib,0:3)
+                 eunocc => ekq_(jb,0:3)
+              else
+                 eunocc => ek_ (ib,0:3)
+                 eocc   => ekq_(jb,0:3)
+              endif
+              if( minval(eocc) <= efermia .and.  maxval(eunocc) >= efermib ) then
+                 continue
+              else
+                 cycle
+              endif
+!if( maxval(eunocc(:)-eocc(:)) <dmub-dmua ) cycle ! this makes a bit effective.
+              if( maxval(eunocc(:)-eocc(:)) <0d0 ) cycle ! this makes a bit effective.
+              if(job==0 ) then  !takao
+                 iwgt(ib,jb,kk(0:3),jpm)= .true.
+                 x(0:3) = .5d0*(eocc-eunocc) ! + omg !Denominator. unit in Hartree.
+                 demax_ =  maxval(-x(0:3)) ! in Hartree
+                 demin_ =  minval(-x(0:3)) ! in Hartree
+                 do ixx=0,3
+                    demax(ib,jb,kk(ixx),jpm) = max(demax_, demax(ib,jb,kk(ixx),jpm))
+                    demin(ib,jb,kk(ixx),jpm) = min(demin_, demin(ib,jb,kk(ixx),jpm))
+                 enddo
+                 cycle
+              endif
+              x(0:3) = .5d0*(eocc-eunocc) ! + omg !Denominator. unit in Hartree.
+              wtthis2 = 0d0
+              if(chkwrt) then
+                 write(6,"('### Goto lindtet6: itet ib jb Ef=',i8,2i5,d12.4,' ###')" ) itet,ib,jb,efermi
+                 write(6,"('  eocc  - Ef= ',4f10.3)") eocc  -efermi
+                 write(6,"('  eunocc- Ef= ',4f10.3)") eunocc-efermi
+                 write(6,"('  -x(a.u.)= ',4f10.3)") -x(0:3)
+              endif
+              if(usetetrakbt) then
+                 call tetrakbt(eunocc-efermib, eocc-efermia, x, voltet, frhis,nwhis,   wtthis2)
+              else
+                 call lindtet6( kkv,kvec,eocc,eunocc, x, efermia,efermib,frhis,nwhis,  wtthis2) 
+              endif
+              if(chkwrt) then
+                 write(6,"('  sum nwhis wtthis2=',i5,d13.5)") nwhis,sum(wtthis2)
+                 write(6,"('  === ihis [range(a.u.)] wtthis2(0:3) ===')")
+                 do ihis = 1,nwhis
+                    ddw = frhis(ihis+1)-frhis(ihis)
+                    if(chkwrt.and.sum(abs(wtthis2(ihis,:)))/=0d0) then
+                       write(6,"('ttt',3i4,f10.5,4d12.4)")
+     &                      itet,ib,jb,(frhis(ihis)+frhis(ihis+1))/2d0,wtthis2(ihis,:)/ddw
                     endif
-
-                    if(usetetrakbt) then
-                       call tetrakbt(
-     i                      eunocc-efermib, eocc-efermia, x, voltet,
-     i                      frhis, nwhis,
-     o                      wtthis2)
-                    else
-                       call lindtet6( 
-     i                      kkv,kvec,eocc,eunocc,
-     i                      x, efermia, efermib, 
-     i                      frhis, nwhis,  
-     o                      wtthis2) 
-!     ! kvec(1:3, 0:3), ea(0:3), x(0:3) !  wgt(ib,jb,kk(0:3)) = wgt(ib,jb,kk(0:3)) + wttx/4d0/voltot
-                    endif
-
-                    if(chkwrt) then
-                      write(6,"('  sum nwhis wtthis2=',i5,d13.5)") nwhis,sum(wtthis2)
-                    endif
-
-                    if(chkwrt) then
-                      write(6,"('  === ihis [range(a.u.)] wtthis2(0:3) ===')")
-                      do ihis = 1,nwhis
-                        ddw = frhis(ihis+1)-frhis(ihis)
-                        if(chkwrt.and.sum(abs(wtthis2(ihis,:)))/=0d0) then
-c                   if(frhis(ihis)>0.15d0/2d0.and.frhis(ihis+1)<.20d0/2d0) then
-c                  write(6,"(i4,' [',2f8.3,'] ',4d12.4)") ihis,frhis(ihis),frhis(ihis+1),wtthis2(ihis,:)/ddw
-                          write(6,"('ttt',3i4,f10.5,4d12.4)") itet,ib,jb,(frhis(ihis)+frhis(ihis+1))/2d0, wtthis2(ihis,:)/ddw
-c                   endif
-                        endif
-c$$$                        do ikx =0,3
-c$$$                          ibib = ibjb(ib,jb,kk(ikx),jpm)
-c$$$                          if(ihis< ihw(ibib,kk(ikx),jpm).or.
-c$$$     &                     ihis> ihw(ibib,kk(ikx),jpm)- 1 + nhw(ibib,kk(ikx),jpm) ) then
-c$$$                            if(sum(abs(wtthis2(ihis,0:3)))/=0d0) 
-c$$$     &                       call rx( 'tetwt5:wtthis2/=0 for out of range')
-c$$$                          endif
-c$$$                        enddo
-                      enddo
-                    endif
-!
-
-c$$$ccccccccccccccccccccccccccccccccccc
-c$$$                  if(ib>6.and.jb<13.and.job==1) then
-c$$$                    write(6,"('ttttt ef x(0:3)=',12d13.5)") efermi,x(0:3)
-c$$$                    do ikx = 0,3
-c$$$                      ibib = ibjb(ib,jb,kk(ikx),jpm)
-c$$$                      jini = jhw(ibib,kk(ikx),jpm)
-c$$$                      iini = ihw(ibib,kk(ikx),jpm)
-c$$$                      nnn =  nhw(ibib,kk(ikx),jpm)
-c$$$                      write(6,"('ttttt ')")
-c$$$                      write(6,"('ttttt  sum nwhis wtthis2=',d13.5)") sum(wtthis2(iini:iini+nnn-1,ikx))
-c$$$                      do ixx=iini,iini+nnn-1
-c$$$                        write(6,"('ttttt ', 4i5,x,2d13.5)") ib,jb,ixx,kk(ikx),wtthis2(ixx,ikx)
-c$$$                      enddo
-c$$$                    enddo
-c$$$c                    stop 'qqqqqqqqqqqqqqq'
-c$$$                  endif
-c$$$c cccccccccccccccccccccccccccccccccc
-
-
-                    do ikx = 0,3
-                      ibib = ibjb(ib,jb,kk(ikx),jpm)
-                      jini = jhw(ibib,kk(ikx),jpm)
-                      iini = ihw(ibib,kk(ikx),jpm)
-                      nnn =  nhw(ibib,kk(ikx),jpm)
-
-                      if(matrix_linear()) then
-                        whw(jini:jini+nnn-1) = 
-     &          whw(jini:jini+nnn-1) + wtthis2(iini:iini+nnn-1,ikx) * piofvoltot
-                      else
-                        whw(jini:jini+nnn-1) = 
-     &          whw(jini:jini+nnn-1) + wtthis2(iini:iini+nnn-1,0) * piofvoltot*4*wtet(ikx,im,itet) ! piofvoltot= pi/voltot/4
-                      endif
-                    enddo
-
-                  endif
-                endif
-
+                 enddo
+              endif
+              do ikx = 0,3
+                 ibib = ibjb(ib,jb,kk(ikx),jpm)
+                 jini = jhw(ibib,kk(ikx),jpm)
+                 iini = ihw(ibib,kk(ikx),jpm)
+                 nnn =  nhw(ibib,kk(ikx),jpm)
+                 if(matrix_linear()) then
+                    whw(jini:jini+nnn-1)=whw(jini:jini+nnn-1) + wtthis2(iini:iini+nnn-1,ikx) *piofvoltot
+                 else
+                    whw(jini:jini+nnn-1)=whw(jini:jini+nnn-1) + wtthis2(iini:iini+nnn-1,0) *piofvoltot
+     &                   * 4*wtet(ikx,im,itet) ! piofvoltot= pi/voltot/4
+                 endif
               enddo
+            enddo
             enddo
           enddo
  1100   continue
@@ -630,7 +521,7 @@ Cstop2rx 2013.08.09 kino                  stop 'tetwt5: isum srrange---1'
                     ied = ihw(ibib,kx,jpm)+ nhw(ibib,kx,jpm)-1
                     ioff= jhw(ibib,kx,jpm)
                     wtthis(ini:ied) = 
-     &        wtthis(ini:ied) + whw(ioff:ioff+nhw(ibib,kx,jpm)-1)
+     &                   wtthis(ini:ied) + whw(ioff:ioff+nhw(ibib,kx,jpm)-1)
                   enddo
                 enddo
                 wtthis = wtthis/((ixe1-ixi1+1)*(ixe2-ixi2+1) )

@@ -1,0 +1,26 @@
+#!/bin/bash -eu
+if [ $# -ne 3 ] || [ $1 != "-np" ] ; then
+    echo "An example of usage: epsPP -np 4 si"
+    echo "epsPP gives interband and intraband contributions"
+    exit 101
+fi
+nfpgw=`dirname $0`
+TARGET=$3
+MPI_SIZE=$2
+
+######## THIS IS for no lfc mode. See hbasfp0 and hx0fp0 c2 case.
+echo "### START epsPP@"$nfpgw,' $MPI_SIZE= '$MPI_SIZE, ' $TARGET= '$TARGET
+set -v
+echo 0|$nfpgw/lmfgw-MPIK --novxc $TARGET >& llmfgw00 #generate information files
+echo 2|$nfpgw/qg4gw >& lqg4gw02   #Generate q points for GW
+echo 1|mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK $TARGET >& llmfgw01 #generate eigenfunctions for GW.
+$nfpgw/lmf2gw   >&  llmf2gw  #Reformat data for gw
+rm gwa.$TARGET* gwb.$TARGET* gw1.$TARGET* gw2.$TARGET*
+echo 0|$nfpgw/rdata4gw_v2 >& lrdata4gw_v2 # Prepare all files for GW
+rm VXCFP.chk CphiGeig
+echo 1|$nfpgw/heftet  >& leftet # A file EFERMI for hx0fp0 generated
+echo 4|$nfpgw/hbasfp0 >& lbas   # Product basis generation mode=4
+echo 202 |mpirun -np $MPI_SIZE $nfpgw/hvccfp0 >& lvcc # Coulomb matrix for lbas 
+echo 202 |mpirun -np $MPI_SIZE $nfpgw/hx0fp0 --intrabandonly >& lx0_intraband #EPS for intraband
+echo 202 |mpirun -np $MPI_SIZE $nfpgw/hx0fp0 --interbandonly >& lx0_interband #EPS for interband
+:OK! ==== All calclation finished for epsPP ====
