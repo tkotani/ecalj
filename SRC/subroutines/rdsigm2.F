@@ -1,6 +1,7 @@
       module m_rdsigm2
       public:: m_rdsigm2_init, getsenex, senex, dsene !getsenex returns the self-energy term.
-
+      public:: ndimsig,sene
+      
       private
       complex(8),allocatable,protected:: sene(:,:),senex(:,:)
       real(8), allocatable,protected ::  rv_a_ohrs (:)
@@ -27,11 +28,11 @@
       deallocate(ovlmtoi)
       allocate(senex(ndimh,ndimh))
       senex = matmul(transpose(dconjg(ovliovl)), matmul(sene,ovliovl))
-      deallocate(ovliovl,sene)
+      deallocate(ovliovl)
       end subroutine
 !sssssssssssssssssssssssssssssssssssssssss      
       subroutine dsene()
-      deallocate(senex)
+      deallocate(senex,sene)
       end subroutine
 !sssssssssssssssssssssssssssssssssssssssss      
       subroutine getsene(qp,isp) !(lrsig,qp,isp) !call after sigmainit
@@ -176,7 +177,7 @@ C     For offset q mesh
       real(8):: rv_dummy(1)
       integer:: i_copy_size,nhrss,sigswitch,ibas,ifile_handle
       real(8),allocatable::hrss(:)
-      logical:: l_dummy_isanrg, isanrg, debug=.false.
+      logical:: l_dummy_isanrg, isanrg, debug=.false.,cmdopt0
 !!
       qk(k,jj1,jj2,jj3) = (jj1*ifac(1)-1)*qb(k,1) + (jj2*ifac(2)-1)*qb(k,2) +
      .(jj3*ifac(3)-1)*qb(k,3)
@@ -354,12 +355,13 @@ C ... FT sfz and copy sfz(T) to hrs
       if (lssym .ge. 4) j1 = 2
       call dpzero(tmp,3)
       if(debug) print *,'a8 22222222222 goto chksgr'
-!     ! --- chksgr read again sigm file---> but it is not for generating new quantities, just for check.
+!! --- chksgr read again sigm file---> but it is not for generating new quantities, just for check.
       call chksgr ( j1 , ltrans , kcplx , plat , nsp , ndimh , ifis
      .     , hreal , iprmb , nttabs , iv_a_oiaxs , rv_a_ohrs , ndhrs 
      .     , rsstol , i , rv_p_oqp , nbas , 0 , rotm , iwdummy )
+      
       if(debug) print *,' a8 end of chksgr 3333333333'
-      if ( .not. ( cmdopt ( '--wsig' , 6 , 0 , outs ) .or.cmdopt ( '-wsig' , 5 , 0 , outs ) ) ) then
+      if ( .not.( cmdopt0('--wsig') .or. cmdopt0('-wsig')) ) then
          if (allocated(rv_p_oqp)) deallocate(rv_p_oqp)
       endif
       if(debug) print *,' a8 3333333333'

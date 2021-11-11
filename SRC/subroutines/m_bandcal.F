@@ -4,6 +4,9 @@
       use m_qplist, only: nkp
       use m_lmfinit,only: nsp,nlibu,lmaxu,nbas,nl!,nlmto
       use m_mkqp,only: ntet=> bz_ntet
+ccccccccccccc
+      use m_mkqp,only: bz_nabc
+ccccccccccccc
       use m_qplist,only: qplist
       use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_setiq
       use m_lmfinit,only: lrsig=>ham_lsig, lso,ham_scaledsigma,lekkl,
@@ -14,7 +17,7 @@
       use m_supot, only: k1,k2,k3
       use m_mkpot,only: m_Mkpot_init,m_Mkpot_deallocate, osmpot,vconst,
      &     sv_p_osig, sv_p_otau, sv_p_oppi,ohsozz,ohsopm
-      use m_rdsigm2,only: senex,getsenex,dsene
+      use m_rdsigm2,only: senex,sene,getsenex,dsene,ndimsig
       use m_procar,only: m_procar_init,m_procar_closeprocar
       use m_clsmode,only: m_clsmode_set1
       use m_addrbl,only: addrbl,swtk
@@ -38,8 +41,9 @@
       real(8):: qp(3),ef0,def=0d0,xv(3),q(3)
       real(8),allocatable:: evl(:,:) !eigenvalue
       complex(8),allocatable :: evec(:,:) !eigenvector
-      integer::  iprint,i,ibas
-      logical:: ltet,cmdopt0,dmatuinit=.true.
+      integer::  iprint,i,ibas,iwsene
+      logical:: ltet,cmdopt0,dmatuinit=.true.,wsene
+      character(3):: charnum3
       if(master_mpi) write(stdo,*)' m_bandcal_init: start'
       sigmamode = mod(lrsig,10)/=0
       writeham= cmdopt0('--writeham')
@@ -127,6 +131,13 @@ ccccccccccccccc
               allocate(hammhso(ndimh,ndimh,3))
               call aughsoc(qp, ohsozz,ohsopm,ndimh, hammhso)!aug2021 Hso 
             endif
+!!           
+            wsene = cmdopt0('--writesene')
+            if(wsene) then 
+               open(newunit=iwsene,file='sene.isp:'//charnum3(isp)//'_iq:'//charnum3(iq)
+     &              ,form='unformatted')
+               if(iq==1.and.isp==1) write(iwsene) nsp,ndimsig,bz_nabc,nkp,0,0,0
+            endif
             
             hamm=0d0
             ovlm=0d0
@@ -138,9 +149,13 @@ ccccccccccccccc
               if(sigmamode) then
                 call getsenex(qp, 1, ndimh,ovlm(1,1, 1))
                 hamm(:,:,1) = hamm(:,:,1) + ham_scaledsigma*senex !senex_up= Vxc(QSGW)-Vxc(LDA)
+                if(wsene) write(iwsene) qp,1
+                if(wsene) write(iwsene) sene
                 call dsene()
                 call getsenex(qp, 2, ndimh,ovlm(1,1, 2))
                 hamm(:,:,2) = hamm(:,:,2) + ham_scaledsigma*senex !senex_dn= Vxc(QSGW)-Vxc(LDA)
+                if(wsene) write(iwsene) qp,2
+                if(wsene) write(iwsene) sene
                 call dsene()
               endif
               call sopert2 ( hamm , hamm ) !L.S case. re-ordered to be 2x2 spin matrix.
@@ -151,10 +166,13 @@ ccccccccccccccc
               if(sigmamode) then !!Add  Vxc(QSGW)-Vxc
                  call getsenex(qp,isp,ndimh,ovlm(1,1,1))
                  hamm(:,:, 1) = hamm(:,:, 1) + ham_scaledsigma*senex !senex= Vxc(QSGW)-Vxc(LDA)
+                 if(wsene) write(iwsene) qp,isp
+                 if(wsene) write(iwsene) sene
                  call dsene()
               endif
             endif
-            nmx=min(nevmx,ndimhx) !nmx: max number of eigenfunctions we will obtain. Smaller is faster.
+            if(wsene) close(iwsene)
+            nmx=min(nevmx,ndimhx)!nmx: max number of eigenfunctions we will obtain. Smaller is faster.
             
             if(iprint()>=30) write(stdo,'(" bndfp: kpt ",i5," of ",i5, " k=",3f8.4,
      &         " ndimh = nmto+napw = ",3i5,f13.5)') iq,nkp,qp,ndimh,ndimh-napw,napw

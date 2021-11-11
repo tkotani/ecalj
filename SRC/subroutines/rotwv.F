@@ -262,7 +262,7 @@ c      subroutine rotsig(qin,qout,ndimh,napw_in,plat,qlat,ldim,sig,sigout,ierr)
       platt=transpose(plat) !this is inverse of qlat
 
 !! find symops(3,3,ig),
-      if(debugmode()>0) print *,' rotsig: qin qout=',qin,qout
+      if(debugmode()>0) write(6,"('rotsig: qin qout=',3f9.4,x,3f9.4)") qin,qout
       qtarget= qin
       q      = qout  ! we find q
 
@@ -291,6 +291,7 @@ c        qx=matmul(platt,(qtarget-matmul(symops(:,:,igx),q)))
 c        if(sum(abs(qx-anint(qx)))<1d-8) then
         if(sum(abs(qx))<1d-6) then
           igg=igx
+c          write(6,"('ttttttt: qtarget=',3f9.3,2x,3f9.3)") qtarget,q
           if(debugmode()>0) then
             print *,'ttt: q      =',q
             print *,'ttt: qtarget=',qtarget

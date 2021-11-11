@@ -600,19 +600,14 @@ c      external isanrg
       dimy = 0
       offx = is1-1
       twopi = 8*datan(1d0)
-
 C --- Make -(connecting vector) = rtab = (pos(ia=field)-pos(ib=src)) ---
 C     NB : Connecting vector is pos(src)-pos(field) = -rtab
       do   is = is1, is2
       do   ix = 1, 3
         rtab(ix,is-offx) = pos(ix,ia) - pos(ix,ib)
-     .    + plat(ix,1)*iax(3,is)
-     .    + plat(ix,2)*iax(4,is)
-     .        + plat(ix,3)*iax(5,is)
+     .    + plat(ix,1)*iax(3,is) + plat(ix,2)*iax(4,is) + plat(ix,3)*iax(5,is)
       enddo
       enddo
-C     call prmx('rtab',rtab,3,3,is2-is1+1)
-
 C --- Loop through list of R vectors ---
       nhit = 0
       nmiss = 0
@@ -625,16 +620,13 @@ C --- Loop through list of R vectors ---
         v(1) = -(gv(ig,1) - tau(1))
         v(2) = -(gv(ig,2) - tau(2))
         v(3) = -(gv(ig,3) - tau(3))
-
 C   ... If a match in the iax table is found, copy hij there
         do  20  is = is1, is2
-          if (ia .ne. iax(2,is)) goto 20
+          if (ia .ne. iax(2,is)) cycle 
           if (abs(v(1)+rtab(1,is-offx)) .lt. tol) then
             if (abs(v(2)+rtab(2,is-offx)) .lt. tol) then
               if (abs(v(3)+rtab(3,is-offx)) .lt. tol) then
-
                 nhit = nhit+1
-
 C            if (iax(1,is).eq.1 .and. iax(2,is).eq.1 .and. mode0 .ne. 0)
 C     .        then
 CC              print 335, 'ok',is,ig,i1,i2,i3,v,dble(hij(i1,i2,i3,1,1))
@@ -654,12 +646,9 @@ C            if (is.ge.65 .and. is .le. 65+9 .and. iax(2,is).eq.1 .and.
 C     .        mode0.ne.0) then
 C              print 335, 'ok',is,ig,i1,i2,i3,v,dble(hij(i1,i2,i3,1,1))
 C            endif
-
                 if (mode0 .eq. 0) then
                   iax(8,is) = -1
-
                 else
-
                   TdotK = 0
                   do  j = 1, 3
                   do   k = 1, 3
@@ -667,13 +656,11 @@ C            endif
                   enddo
                   enddo
                   phase = cdexp(dcmplx(0d0,TdotK))
-
                   if (mode1 .eq. 0) then
                     if (ltrans) then
                       do  icol = 1, nlmb
                         do  irow = 1, nlma
-                          hrs(icol,irow,isp,is) = hij(i1,i2,i3,irow,icol)
-     .                    *phase
+                          hrs(icol,irow,isp,is) = hij(i1,i2,i3,irow,icol) *phase
                           dimx = max(dimx,abs(dble(hij(i1,i2,i3,irow,icol))))
                           dimy = max(dimy,abs(dimag(hij(i1,i2,i3,irow,icol))))
                         enddo
@@ -681,8 +668,7 @@ C            endif
                     else
                       do  icol = 1, nlmb
                         do  irow = 1, nlma
-                          hrs(irow,icol,isp,is) = hij(i1,i2,i3,irow,icol)
-     .                    *phase
+                          hrs(irow,icol,isp,is) = hij(i1,i2,i3,irow,icol) *phase
                           dimx = max(dimx,abs(dble(hij(i1,i2,i3,irow,icol))))
                           dimy = max(dimy,abs(dimag(hij(i1,i2,i3,irow,icol))))
                         enddo
@@ -692,8 +678,7 @@ C            endif
                     if (ltrans) then
                       do  icol = 1, nlmb
                         do  irow = 1, nlma
-                          hrsr(icol,irow,isp,is) = hij(i1,i2,i3,irow,icol)
-     .                    *phase
+                          hrsr(icol,irow,isp,is) = hij(i1,i2,i3,irow,icol) *phase
                           dimx = max(dimx,abs(dble(hij(i1,i2,i3,irow,icol))))
                           dimy = max(dimy,abs(dimag(hij(i1,i2,i3,irow,icol))))
                         enddo
@@ -701,8 +686,7 @@ C            endif
                     else
                       do  icol = 1, nlmb
                         do  irow = 1, nlma
-                          hrsr(irow,icol,isp,is) = hij(i1,i2,i3,irow,icol)
-     .                    *phase
+                          hrsr(irow,icol,isp,is) = hij(i1,i2,i3,irow,icol) *phase
                           dimx = max(dimx,abs(dble(hij(i1,i2,i3,irow,icol))))
                           dimy = max(dimy,abs(dimag(hij(i1,i2,i3,irow,icol))))
                         enddo
@@ -715,20 +699,11 @@ C            endif
             endif
           endif
    20   continue
-C       print 335, 'NO',is,ig,i1,i2,i3,v
         nmiss = nmiss+1
    30   continue
-
-C        call cwrite(' quit (q) ',0,9,0)
-C        read(*,'(a20)',err=99,end=99) strn
-C        if (strn .eq. 'x') stop
-C        if (strn .eq. 'q') goto 99
    10 continue
-C  99 continue
-
       dmx(1) = dimx
       dmx(2) = dimy
-
       end
 
       subroutine hft2r3(ib1,ib2,iwk,ntab,iax,nttab,mxcsiz)

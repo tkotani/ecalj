@@ -893,16 +893,19 @@ else :
 
 tail = tail + """      #For Molecule, you may also need to set FSMOM=n_up-n_dn, and FSMOMMETHOD=1 below.
 
-
-      #NOINV=T (for inversion symmetry)
-      #  Suppress the automatic addition of the inversion to the list of point group operations. 
-      #  Usually the inversion symmetry can be included in the determination of the irreducible 
-      #  part of the BZ because of time reversal symmetry. There may be cases where this symmetry 
-      #  is broken: e.g. when spin-orbit coupling is included or when the (beyond LDA) 
-      #  self-energy breaks time-reversal symmetry. In most cases, lmf program will automatically 
-      #  disable this addition in cases that knows the symmetry is broken
+      # NOINV=F (If F, we enfoce |psi_\sigma^\bfk|^2=|psi_\sigma^{-\bfk}|^2)
+      #    usually judged automatically. So this is for debugging).
+      # If NOINV=F, we assume H=H^* for each spin (k <-> -k symmetry). 
+      #   This is the case in DFT without spin-orbit coupling.
+      #   Then we use |psi_\sigma^\bfk|^2=|psi_\sigma^{-\bfk}|^2 to reduce comutational time.
+      # If so/=0, lmf automatically sets NOINV=T.
+      # You must get correct results evenif NOINV=T in the case of DFT without SO (for debug).
       #
-    
+      # WARN: Even if sigm exist, we use NOINV=F; exactly speaking, this is not correct.
+      #       sigm without SO can cause orbital moments, that is, breaking time-reversal symmetry.
+      # NOTE: because of inversion in space-group symmetry, we may have 
+      #       |phi_sigm^\bfk|^2 = |phi_sigm^{-\bfk}|^2. This is not for NOINV.
+
 ITER MIX=A2,b=.3,n=3 CONV=1e-5 CONVC=1e-5 NIT={nit}
 #ITER MIX=B CONV=1e-6 CONVC=1e-6 NIT={nit}
                 # MIX=A: Anderson mixing.

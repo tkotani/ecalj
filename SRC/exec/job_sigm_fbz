@@ -1,0 +1,33 @@
+#!/bin/bash -eu
+# This gives better numerical results than --wsig_fbz, because this generates sigm.$TARGET.nk which
+# is for irreducile k points for nk1nk2nk3 specified by ctrl file.
+# Then we run --wsig_fbz to create sigm file for all k points nk1nk2nk3.
+echo $0 $@ 
+if [ $# -le 2 ] || [ $2 != "-np" ]; then
+  echo " An example of usage: job_senefbz si -np 4 "
+  echo " This generates sigm_fbz.si. This is only for given nk1,nk2,nk3 in ctrl file."
+  echo " sigm_fbz.si can be used as sigm.si with SYMOPS e"
+  echo " CAUTION! current version is with --phispinsym. Thus we assume converged with --phispinsym "
+  echo " CAUTION! Without rst with good spacegroup-symmetry(by fine convergence), we may have poor result"
+  exit
+else
+  MPI_SIZE=$3
+fi
+
+TARGET=$1
+nfpgw=`dirname $0`
+
+echo "### START job_sigm_fbz@"$nfpgw,' $MPI_SIZE= '$MPI_SIZE, ' $TARGET= '$TARGET, ' dir=',$nfpgw
+set -v
+rm sene.isp* && :
+mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK $TARGET --phispinsym --quit=band --writesene >& llmf_sigmnk
+cat sene.isp* > sigm.$TARGET.nk
+cp sigm.$TARGET.nk sigm.$TARGET
+$nfpgw/lmf-MPIK $TARGET --wsig_fbz --phispinsym >& llmf_wsig_fbz
+set +v
+echo OK! ==== All calclation finished for job_sigm_fbz ====
+
+# After finished. How to check sigm_fbz?
+#  Set SYMOPS e
+#  >cp sigm_fbz.$TARGET sigm.$TARGET
+#  >mpirun -np 4 lmf-MPIK $TARGET --phispinsym --quit=band

@@ -1873,14 +1873,14 @@ ccccccccccccccc
 !     !     Switches that automatically turn of all symops
 !     ! --pdos mar2003 added. Also in lmv7.F
       lstsym = 0
-      if ((mdprm(1) .ge. 1 .and. mdprm(1) .le. 3) .or.   
-     .     cmdopt('--cls',5,0,strn) .or. cmdopt('--nosym',7,0,strn).or.cmdopt('--pdos',6,0,strn)) then
+      if ((mdprm(1)>=1.and.mdprm(1)<=3) .or.   
+     &     cmdopt0('--cls') .or. cmdopt0('--nosym').or.cmdopt0('--pdos')) then
          symg = 'e'
          lstsym = 2             !lstsym=2: turn off symops
          ctrl_noinv=1
       endif
       sstrnsymg=trim(symg)
-      if (cmdopt('--rdbasp',8,0,strn)) call rx('not support --rdbasp')
+      if (cmdopt0('--rdbasp')) call rx('not support --rdbasp')
 
 !!  Add dalat to alat
 !!   lat_alat=(lat_alat)+dalat !this is a bug; this should be commented out. This

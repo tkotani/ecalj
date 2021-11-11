@@ -298,8 +298,6 @@ dpcopy.o \
 dpdump.o \
 dpsadd.o \
 dpscop.o \
-dqinv.o \
-dqinvb.o \
 dsbak.o \
 dschd.o \
 dsev1.o \

@@ -3,8 +3,6 @@
      .iprmb,nttabs,iaxs,hrs,ndhrs,tols,nqp,qplst,nbas,lrot,rotm,
      .delT)
       use m_lmfinit,only: nl,mxorb
-
-
       use m_hamindex,only : symops_af
 C- Compare Bloch summed sigma against file sigma(k)
 C ----------------------------------------------------------------------
@@ -79,76 +77,58 @@ C     integer os
       double precision qp(3),errmxx,errmx,err,qpr(3),xx
       double complex hwk(ndhrs,ndhrs)
       complex(8),allocatable:: sq(:,:),sq1(:,:),uz(:,:)
-C ... Heap
       integer ::iwdummy
-
       integer ii,jj
       integer:: ndimhr !Read from sigm. This can be different from ndimh in the case of PMT, 
                        ! that is, ndimh< ndimhr=nlmto+napw !apr2012takao
       complex(8),allocatable:: sqr(:,:)
-
       integer:: lb1,lb2 !mar2014takao
       logical:: laf !jun2015takao
 
       call getpr(ipr)
       laf=allocated(symops_af) !jun2015takao
       stdo = lgunit(1)
-c      nl = globalvariables%nl
-c      mxorb = globalvariables%mxorb
       opt01 = mod(mod(opt,10),2)
       opt0  = mod(opt,10)
       nscnts = 0
-
       allocate(sq(ndimh,ndimh),sq1(ndimh,ndimh))
-
 C --- Rotate hrs if switch set ---
       if (opt01 .ne. 0 .and. mod(lrot,2) .ne. 0) then
         allocate(uz(ndimh,ndimh))
-c        call rothrm(2,0,ndimh,iprmb,rotm,1,nbas,ndimh,uz,uz)
         call rothrm(2,ndimh,iprmb,rotm,1,nbas,ndimh,uz,uz)
-C       call zprm('Uz',2,uz,ndimh,ndimh,ndimh)
-C       Table of hamiltonian offsets and site dimensions
         do  ib = 1, nbas
           call orbl(ib,0,ndimh,iprmb,norb,ltab,ktab,j,offl,ndim(ib))
           offh(ib) = j+1
         enddo
-
 C       For each pair and spin, rotate hrs to U(ib) hrs U(jb)+
-        do  is = 1, nttabs
+        do is = 1, nttabs
           ib = iaxs(1,is)
           jb = iaxs(2,is)
           offi = offh(ib)
           offj = offh(jb)
           ndi = ndim(ib)
           ndj = ndim(jb)
-
           do  isp = 1, nsp
-
 C           U1 sigm(unrotated) U2+
             if (ltrans) then
 C             ltrans: use (U1 h+ U2+)+ = (U1 (U2 h)+)+ = U2 h U1+
               call zgemm('N','N',ndj,ndi,ndj,(1D0,0D0),Uz(offj,offj),
      .        ndimh,hrs(1,1,isp,is),ndhrs,(0D0,0D0),hwk,ndhrs)
-C              call zprm('U S',2,hwk,ndhrs,ndj,ndi)
 C             U sigm(unrotated) U+
               call zgemm('N','C',ndj,ndi,ndi,(1D0,0D0),hwk,ndhrs,
      .        Uz(offi,offi),ndimh,(0D0,0D0),hrs(1,1,isp,is),ndhrs)
-C              call zprm('U S U+',2,hrs(1,1,isp,is),ndhrs,ndhrs,ndhrs)
             else
 C             Make U1 h U2+
               call zgemm('N','N',ndi,ndj,ndi,(1D0,0D0),Uz(offi,offi),
      .        ndimh,hrs(1,1,isp,is),ndhrs,(0D0,0D0),hwk,ndhrs)
-C             call zprm('U S',2,hwk,ndhrs,ndi,ndj)
 C             U sigm(unrotated) U+
               call zgemm('N','C',ndi,ndj,ndj,(1D0,0D0),hwk,ndhrs,
      .        Uz(offj,offj),ndimh,(0D0,0D0),hrs(1,1,isp,is),ndhrs)
-C             call zprm('U S U+',2,hrs(1,1,isp,is),ndhrs,ndhrs,ndhrs)
             endif
 
           enddo
         enddo
       endif
-
 C ... Read header data
       lsplts = .false.
       if (opt01 .eq. 0) then
@@ -158,7 +138,6 @@ C ... Read header data
           call iosigh(2,0,i,ndimhr,nk1,nk2,nk3,nqp,
      .    lshft(1),lshft(2),lshft(3),ifis)
         endif
-
         if (i .eq. nsp) then
           lsplts = .false.
         elseif (i .gt. nsp) then
@@ -168,38 +147,27 @@ C ... Read header data
           lsplts = .true.
         endif
       endif
-
       do  isp = 1, nsp
         if(laf.and.isp==2) cycle !jun2015takao
         errmxx = 0
-
 C     If sigma file not spin polarized, use sigma from spin 1
         if (isp .eq. 2 .and. lsplts) then
           call iosigh(1,nscnts,1,ndimhr,nk1,nk2,nk3,nqp,
      .    lshft(1),lshft(2),lshft(3),ifis)
         endif
-
 C ... For each q, compare Bloch sum of hrs against file's s(q)
 C     or write to file
         do  iq1 = 1, nqp
-
-C       print *, 'starting iq=',iq1
-
           if (opt01 .eq. 0) then
             read(ifis) qp
             if (opt0 .eq. 2) call dcopy(3,qplst(1,iq1),1,qp,1)
             if (nscnts .eq. 5) call dpdump(xx,1,ifis)
-!! readin sq
-c            call dpdump(sq,ndimh**2*2,ifis)
             allocate(sqr(ndimhr,ndimhr))
             if(ndimhr<ndimh) call rx('chksgr :ndimhr<ndimh')
             call dpdump(sqr,ndimhr**2*2,ifis)
-            sq = sqr(1:ndimh,1:ndimh)
+            sq = sqr(1:ndimh,1:ndimh) !!! readin sq
             deallocate(sqr)
-!!
             call ztoyy(sq,ndimh,ndimh,ndimh,ndimh,kcplx,1)
-C          print *, iq1
-C          call zprm('sq',2,sq,ndimh,ndimh,ndimh)
           else
             call dcopy(3,qplst(1,iq1),1,qp,1)
           endif
@@ -209,11 +177,7 @@ C       Call bloch : 104010=perm orb, transpose, c*16
           call bloch ( i , qp , nl , plat , mxorb , iprmb , 1 , nttabs 
      .     , iaxs , hrs , ndhrs , isp , nsp , ndimh , ndimh , 0 , ndimh 
      .     , 0 , ndimh , 0 , sq1 , iwdummy , iwdummy )
-
-C        print *, 'iq=',iq1,'qp=',sngl(qp)
-C        call zprm('sigm',2,sq1,ndimh,ndimh,ndimh)
           errmx = 0
-
 C       Compare Bloch sum of hrs against file's s(q)
           if (opt01 .eq. 0) then
             ii = 1
@@ -240,38 +204,16 @@ C       Compare Bloch sum of hrs against file's s(q)
   332       format(' comparing s(iq) to interpolated sq for iq=',i4,
      .      '  errmx=',1pe8.1:' at i,j=',2i4)
             errmxx = max(errmxx,errmx)
-
-C   ... Write to s(q)
           else
-
-C     ...  Rotation of sigma(k) (no longer needed, because hrs(T) was rotated)
-C          if (mod(lrot,2) .ne. 0) then
-C
-CC           call zprm('unrotated S',2,sq1,ndimh,ndimh,ndimh)
-C
-CC           U sigm(unrotated)
-C            call zgemm('N','N',ndimh,ndimh,ndimh,(1D0,0D0),
-C     .        Uz,ndimh,sq1,ndimh,(0D0,0D0),sq,ndimh)
-CC           call zprm('U S',2,sq,ndimh,ndimh,ndimh)
-CC           U sigm(unrotated) U+
-C            call zgemm('N','C',ndimh,ndimh,ndimh,(1D0,0D0),
-C     .        sq,ndimh,Uz,ndimh,(0D0,0D0),sq1,ndimh)
-C            call zprm('U S U+',2,sq1,ndimh,ndimh,ndimh)
-C
-C          endif
-
+C ...  Here we had 'Rotation of sigma(k)" but no longer needed, because hrs(T) was rotated now.
+C   ... Write to s(q)
 C         Additional scaling by phase shifts
             if (lrot .ge. 2) then
-C           call zprm('unscaled S',2,sq1,ndimh,ndimh,ndimh)
               call dgemm('T','N',3,1,3,1d0,plat,3,qp,3,0d0,qpr,3)
-C           call prmx('q in units of qlat',qpr,3,3,1)
               call rothph(02,qpr,delT,ndimh,iprmb,1,nbas,ndimh,sq1)
-C           call zprm('scale S by phase',2,sq1,ndimh,ndimh,ndimh)
             endif
-
 C         Rotate qp to new coordinate system
             if (mod(lrot,2) .ne. 0) then
-
 C           In-line multiply avoids bug in DEC fort compiler
               do  i = 1, 3
                 qpr(i) = rotm(i,1)*qp(1) +
@@ -280,30 +222,22 @@ C           In-line multiply avoids bug in DEC fort compiler
               enddo
               call dcopy(3,qpr,1,qp,1)
             endif
-
 C         Write qp, sigm for this qp
             write(ifis) qp
             call dpdump(sq1,ndimh**2*2,-ifis)
 C         call zprm('sigm',2,sq1,ndimh,ndimh,ndimh)
           endif
         enddo
-
         if (opt01 .eq. 0)
      .  call info5(20,0,0,' check FT s(R) against s(q) ... '//
      .  'maximum error = %;2g%?#n>0# < tol (%;2g)#%j#%?#n==2# spin 2##',
      .  errmxx,isw(tols.ne.0),tols,isp,0)
-
       enddo
-
       deallocate(sq,sq1)
-      if (opt01 .ne. 0 .and. mod(lrot,2) .ne. 0) then
-        deallocate(uz)
-      endif
-
+      if (opt01 .ne. 0 .and. mod(lrot,2) .ne. 0) deallocate(uz)
       end subroutine chksgr
-
-
-c      subroutine rothrm(opt,ldmpa,ldima,iprmb,rotm,ib1,ib2,ldU,U,Uz)
+      
+!!sssssssssssssssssssssssssssssssssssss
       subroutine rothrm(opt,ldima,iprmb,rotm,ib1,ib2,ldU,U,Uz)
 C- Generate rotation matrix for hamiltonian
 C ----------------------------------------------------------------------
