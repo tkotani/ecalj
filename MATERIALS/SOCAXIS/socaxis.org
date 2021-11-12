@@ -1,5 +1,6 @@
 * MAE calculation based on FePt and MnGa. Force theorem Liqin PhysRevB.99.054418,
-** implementation of SOC axis
+** implement
+ion of SOC axis
 I recommend you to see ovarall calling flow  lmfp->bndfp->m_band_cal and m_subze_bzintegration.
 sev is the band energy.
 At m_bandcal_init, we set up Hamiltonian at m_bandcal.F@L142
@@ -65,8 +66,45 @@ i so=1 soa1=0 soa2=0 soa3=1 mmom=2.4094348 ehf=-6195.607 1509 ehk=-6195.607152  
 i so=1 soa1=1 soa2=1 soa3=0 mmom=2.4091936 ehf=-6195.607 1208 ehk=-6195.607122  sumev=  -32.995 459
 Gives 421 micro eV (xcfun=1).
 
-** extend sigm file to sigm_fbz I'm trying to ge MAE with QSGW.
-# For this purpose I did
+
+
+** extend sigm file to sigm_fbz 
+Use job_sigm_fbz instead of --wsig_fbz
+
+
+* script for MAE
+#$ -N copt
+#$ -pe smp 32
+#$ -cwd
+#$ -M takaokotani@gmail.com
+#$ -m be
+#$ -V
+#$ -S /bin/bash
+
+export OMP_NUM_THREADS=1
+EXEPATH=/home/takao/bin/
+mpirun -np 32 $EXEPATH/lmf-MPIK  --phispinsym copt >& llmf1
+mpirun -np 32 $EXEPATH/lmf-MPIK  --phispinsym --quit=band copt >& llmf_so00
+
+$EXEPATH/job_sigm_fbz copt -np 32 >&outfbz
+cp sigm_fbz.copt sigm.copt
+
+cp ctrl.copt.e ctrl.copt
+mpirun -np 32 $EXEPATH/lmf-MPIK --phispinsym -vso=0 --quit=band copt  >& llmf_so0
+
+cp ctrl.copt.so ctrl.copt
+mpirun -np 32 $EXEPATH/lmf-MPIK --phispinsym --quit=band -vso=1 -vsoa1=0 -vsoa2=0 -vsoa3=1 copt >& llmf_so001
+mpirun -np 32 $EXEPATH/lmf-MPIK --phispinsym --quit=band -vso=1 -vsoa1=1 -vsoa2=1 -vsoa3=0 copt >& llmf_so110
+
+** GWinput setting for metal
+HistBin_dw    1d-5 ! 1d-5 is fine mesh (good for metal?) !(a.u.) BinWidth along real axis at omega=0.
+HistBin_ratio 1.03 ! 1.03 maybe safer. frhis(iw)= b*(exp(a*(iw-1))-1), where a=ratio-1.0 and dw=b*a
+GaussianFilterX0 0.01 
+
+
+*** old memo Q&A with yongbin
+*****  --- from yongbin,----
+# I'm trying to ge MAE with QSGW. For this purpose I did
 # I ran "gwsc 20  -np 32 nife" with so=0 in ctrl.feni.
 # After the calculation was done,  I created a new directory "SO".
 # I copied, ctrl.feni, rst.feni and sigm.feni files into the new directory.
@@ -81,7 +119,8 @@ Gives 421 micro eV (xcfun=1).
 # Exit / rdsigm unexpected value 60 for file sigm nqp ... expected 384
 #  CPU time:    3.883s     Sun Sep 26 20:45:16 2021   on
 # ERROR: fexit, error code=   -1 "
-Hi Yongbin, This is because you set
+***** my reply to Yongbin, 
+This is because you set
 >SYMGRP e
 Then we do not assume space-group symmetry of crystal.
 It requires 8x8x6=384 k points while we only have 60 irreducible k points
@@ -106,27 +145,12 @@ Let me know if you have another trouble.
 
 
 
-** GWinput setting for metal
-HistBin_dw    1d-5 ! 1d-5 is fine mesh (good for metal?) !(a.u.) BinWidth along real axis at omega=0.
-HistBin_ratio 1.03 ! 1.03 maybe safer. frhis(iw)= b*(exp(a*(iw-1))-1), where a=ratio-1.0 and dw=b*a
-GaussianFilterX0 0.01 
 
 
-* x0 spin q point.
-  k1-k2 = q
-* Space-group rotaion of eigenfuncitons 
-  Sigma rotation.
-* SW how to from Okumura
-  CrI3
-
-
-FGT unified --------
-Ferro uniaxil c-axis.
-DFT --> af
-DFT
-QSGW ferro axis.
-
-
-MAE ------------
-CoPt
+** Need good convergence 
+We use --phispinsym (the same orbital for up and dn) for lmf-MPIK.
+We need good convergence (at least for lmf-MPIK with --phispinsym).
+gwsc_sym0 can perform this automatically.
+Good congergence of lmf-MPIK should assure numerically accurate space-group symmetry
+of rst file, as well as sigm file.
 
