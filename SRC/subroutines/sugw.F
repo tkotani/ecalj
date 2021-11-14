@@ -18,7 +18,7 @@ c      use m_shortn3,only: shortn3_initialize,shortn3
      &     smpot=>osmpot, sv_p_osig, sv_p_otau, sv_p_oppi, vconst, vesrmt,
      &     sv_p_osig, sv_p_otau, sv_p_oppi,ohsozz,ohsopm,
      &     ppn=>ppnl_rv
-      use m_mkpot,only: sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx
+      use m_mkpot,only: sv_p_oppix,spotx !sv_p_osigx,sv_p_otaux: these are the same as sv_p_osig, sv_p_otau
       use m_MPItk,only: numproc=>nsize,procid,master,master_mpi
       use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_setiq
       use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
@@ -423,11 +423,11 @@ ccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           qp  = qplist(:,iq)    !  ... For this qp, G vectors for PW basis and hamiltonian dimension
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-          call hambl(isp,qp,spotx,vconst,sv_p_osigx,sv_p_otaux,sv_p_oppix, vxc,ovl)!H(LDA) wihout vxc
-          call hambl(isp,qp,smpot,vconst,sv_p_osig, sv_p_otau, sv_p_oppi , ham,ovl)!H(LDA) and O
+          call hambl(isp,qp,spotx,vconst,sv_p_osig, sv_p_otau,sv_p_oppix, vxc,ovl)!H(LDA) wihout vxc
+          call hambl(isp,qp,smpot,vconst,sv_p_osig, sv_p_otau, sv_p_oppi, ham,ovl)!H(LDA) and O
           if(lso==2) ham(:,:) = ham(:,:) + hammhso(:,:,isp) !aug2021
 ccccccccccccccccccccccccccccccccccccccccccc
-          qp  = qplist(:,iq)-[1d-6,2d-6,3d-6] !A trick to shift qp 
+          qp  = qplist(:,iq)-[1d-6,2d-6,3d-6] !A trick to shift qp to avoid ambiguity of degeneracy
 ccccccccccccccccccccccccccccccccccccccccccc
           vxc = ham - vxc ! vxc(LDA) part 
           if (lwvxc) then

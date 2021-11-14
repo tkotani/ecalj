@@ -252,6 +252,8 @@ c      real(8)::ebmx
       real(8),allocatable:: ekxx1(:,:),ekxx2(:,:)
 c      integer:: nqbze,nqibze
 c      real(8),allocatable:: qbze(:,:),qibze(:,:)
+      logical:: cmdopt2
+      character(20):: outs=''
 !! -------------------------------------------------------------------
       call MPI__Initialize()
       call MPI__consoleout('hx0fp0')
@@ -272,7 +274,11 @@ c      real(8),allocatable:: qbze(:,:),qibze(:,:)
       write(6,"(a)") '    222 : chi^+- NoLFC'
 c      write(6,"(a)") '    12  : total energy Miyake: developint'
       write(6,"(a)")  '-------------------------------------------------------'
-      if( MPI__root ) read(5,*) ixc
+      if(cmdopt2('--job=',outs)) then
+         read(outs,*) ixc
+      elseif(MPI__root) then 
+         read(5,*) ixc
+      endif
       call MPI__Broadcast(ixc)
       call cputid(0)
       

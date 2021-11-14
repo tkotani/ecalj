@@ -60,13 +60,19 @@
       integer(4):: iq0pinxxx ,ifile_handle,n1,n2,n3
       integer:: gammacellctrl=0
       logical:: lmagnon = .false.
+      logical:: cmdopt2
+      character(20):: outs=''
       call MPI__Initialize()
       pi= 4d0* atan(1d0)
 c      write(6,*)'        Generate Q0P->101(old offset Gamma)'
       call cputid (0)
       write(6,"(a)")'qg4gw: Generate Q0P->1; Readin Q0P->2; SW(chipm)->4'
       write(6,"(a)")'       Generate Q0P and Q0P for xyz ->201 '
-      read (5,*) iq0pin
+      if( cmdopt2('--job=',outs) ) then 
+         read(outs,*) iq0pin
+      else   
+         read (5,*) iq0pin
+      endif   
       write(6,*) ' mode iq0pin = ',iq0pin
       if(iq0pin==1.or.iq0pin==2) then
          iq0pinxxx=iq0pin

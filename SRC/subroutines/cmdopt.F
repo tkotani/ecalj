@@ -53,7 +53,7 @@ C Local parameters
          strlnx = len_trim(argstr) !override input strln
          if(strn(1:strlnx)==trim(argstr)) then
             cmdopt2 = .true.
-            outstr = strn
+            outstr = strn(strlnx+1:)
             return
          endif
       enddo 

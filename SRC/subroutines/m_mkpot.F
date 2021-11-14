@@ -13,8 +13,6 @@
       complex(8),allocatable,protected ,public  :: osmpot(:,:,:,:)!0th component of Eq.(34)
 !
       type(s_cv1),allocatable,protected,public  :: sv_p_oppix(:,:) !pi-integral without xc term
-      type(s_rv1),allocatable,protected,public  :: sv_p_otaux(:,:) !tau
-      type(s_rv1),allocatable,protected,public  :: sv_p_osigx(:,:)
       complex(8),allocatable,protected ,public  :: spotx(:,:,:,:)
 !
       real(8),protected,public:: utot,rhoexc,xcore,valvef,amom,  valves,cpnves,rhovxc !energy terms
@@ -24,6 +22,8 @@
 !!---------------------------------------------------------------------------      
       private
       real(8),allocatable,protected,private :: gpot0(:),vval(:),vab_rv(:)
+      type(s_rv1),allocatable,protected,private  :: sv_p_otaux(:,:) 
+      type(s_rv1),allocatable,protected,private  :: sv_p_osigx(:,:)
       contains
       subroutine m_mkpot_novxc()
       use m_supot,only: k1,k2,k3
@@ -49,9 +49,9 @@
       if(ham_frzwf) lfrzw = 1   !freeze all augmentation wave
       i = 1 + 10*lfrzw + 100    ! Adding 100 means excluding XC(LDA) part. nolxc=T
 !     We obtain sv_p_osigx, sv_p_otaux, sv_p_oppix, smpotx  without XC
-      call mkpot (i, osmrho , orhoat , 
-     o     spotx, sv_p_osigx , sv_p_otaux , sv_p_oppix, fes1_rv, ohsozzx,ohsopmx)
-      deallocate(vesrmt,qmom,ppnl_rv,hab_rv,vab_rv,sab_rv,gpot0,vval,fes1_rv)
+      call mkpot(i, osmrho , orhoat , 
+     o     spotx,sv_p_osigx,sv_p_otaux,sv_p_oppix,  fes1_rv,ohsozzx,ohsopmx)
+      deallocate(vesrmt,qmom,ppnl_rv,hab_rv,vab_rv,sab_rv,gpot0,vval,fes1_rv,ohsozzx,ohsopmx)
       end subroutine 
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine m_mkpot_init(llmfgw)
@@ -449,7 +449,7 @@ C --- Make parameters for extended local orbitals ---
 
 C --- Make local potential at atomic sites and augmentation matrices ---
       rhobg=qbg/vol
-      call locpot ( !nbas , nsp , lso ,  ssite , sspec !, slat lcplxp ,
+      call locpot ( 
      .    sv_p_orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau , 
      .    sv_p_oppi,ohsozz,ohsopm, ppnl_rv , hab_rv , vab_rv , sab_rv , vvesat , cpnvsa , repat , 
      .    repatx , repatc , rmuat , rvepva , rvexva , rvecva , rvvxva , 
@@ -617,15 +617,11 @@ C   ...  Case Hsm*Pkl
         allocate(sv_p_osig(2,ib)%v(abs(nelt1)))
         allocate(sv_p_otau(2,ib)%v(abs(nelt1)))
         allocate(sv_p_oppi(2,ib)%cv(nelt2))
-!        
         if(lso/=0) then         !spin-orbit copling matrix elements
-c           nelt2 = (kmax+1)*(kmax+1)*nlma*nlma*nsp
            nelt = (kmax+1)*(kmax+1)*nlma*nlma !ohsopm (L- and L+) is irrelevant for lso=2
            allocate(ohsozz(1,ib)%sdiag(nelt,nsp), ohsopm(1,ib)%soffd(nelt,nsp)) ! Pkl*Pkl zz and pm component
-c         nelt2 = nkaph*nkaph*nlmh*nlmh*nsp
            nelt = nkaph*nkaph*nlmh*nlmh !*nsp
            allocate(ohsozz(3,ib)%sdiag(nelt,nsp), ohsopm(3,ib)%soffd(nelt,nsp)) ! Hsm*Hsm
-c           nelt2 = nkaph*(kmax+1)*nlmh*nlma*nsp
            nelt = nkaph*(kmax+1)*nlmh*nlma !*nsp
            allocate(ohsozz(2,ib)%sdiag(nelt,nsp), ohsopm(2,ib)%soffd(nelt,nsp)) !
 !     ohsozz(2,ib): Hsm*Pkl for Lz(diag)

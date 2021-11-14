@@ -258,19 +258,19 @@ c      logical :: ippovlc_test
       character(8),allocatable:: spid(:)
       integer:: nggg,ngcgp,nq0iadd,ixyz !q independent 
 
+      logical:: cmdopt2
+      character(20):: outs=''
 c---------------------------------------------------
 !! MPI dummy
       call MPI__Initialize()
       pi = 4d0*datan(1d0)
       if(verbose()>50 ) debug=.true.
-c      if(zvztest()==1) then
-c        ippovlc_test = .true.
-c      endif
-c      if(ippovlc_test) open (ippovlc,form='unformatted',file='PPOVLC')
-c      ippovl0=ifile_handle()
       if(ppovl0l) open(newunit=ippovl0,form='unformatted',file='PPOVL0')
-      call readin6(ix1,idum2,idum3,idum4) ! ingczero)
-c      call headver('rdata4gw_v2',ix1)
+      if(cmdopt2('--job=',outs)) then
+         read(outs,*) ix1
+      else
+         call readin6(ix1,idum2,idum3,idum4)
+      endif
       mmm=normcheck()
       if(mmm==0) then
         checknorm=.false.

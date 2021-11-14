@@ -84,13 +84,16 @@ c      integer(4),allocatable:: iqok(:)
       real(8),allocatable:: wqfac(:),qbzwww(:,:)
       integer:: ifiwqfac,iqbz,iqbzx,nnn,ixyz,ifq0p,ifile_handle,incwfin
       character(128) :: ixcc
-     
+      logical:: cmdopt2
+      character(20):: outs=''
 !!------------------------------------------------------------
       call MPI__Initialize()
       pi  = 4d0*datan(1d0)
       fpi = 4d0*pi
       if( mpi__root) write(6,"(' mode=0,3,202 (0 and 3 give the same results for given bas)' )")
-      if( mpi__root ) then
+      if(cmdopt2('--job=',outs)) then
+         read(outs,*) imode
+      elseif( mpi__root ) then
          read(5,*) imode
       endif
       call MPI__Broadcast(imode)

@@ -38,6 +38,8 @@ c      use m_mpi,only: MPI__Initialize
       logical :: checkdid ,anfexist
       integer(4):: iread, idummy,ifile_handle
       real(8),allocatable:: cutbasex(:)
+      logical:: cmdopt2
+      character(20):: outs=''
 c--------------------------------------------------------------------------
 !! MPI dummy
 c      call MPI__Initialize()
@@ -45,7 +47,12 @@ c      call MPI__Initialize()
       write(6,'(a)') ' --- Input normal(=0); coremode(=3);'//
      & ' ptest(=4); Excore(=5); for core-valence Ex(=6);'//
      & ' val-val Ex(7);  normal+<rho_spin|B> (8); version(-9999) ?'
-      call readin5(ix,iread,idummy)
+      if(cmdopt2('--job=',outs)) then
+         read(outs,*) ix
+         iread=0
+      else
+         call readin5(ix,iread,idummy)
+      endif   
 c      call headver('hbasfp0',ix)
       if(ix==3) then
         write(6,*)'  ### coremode; Product basis for SEXcore ### '

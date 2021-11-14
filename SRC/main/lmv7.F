@@ -44,8 +44,8 @@
       if(master_mpi) write(stdl,*) 'mpisize=',nsize
       
 !! Set iprint(); the verbosity from cmd line      
-      if(cmdopt2('--pr',outs).or.cmdopt2('-pr',outs)) then 
-        read(outs(5:),*) k
+      if(cmdopt2('--pr=',outs)) then 
+        read(outs,*) k
         call Setpr(k) 
       endif
       if(.not.master_mpi) call setpr(-100) !iprint() is negative except master

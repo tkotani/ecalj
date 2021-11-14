@@ -214,8 +214,8 @@
       master=0
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
-      i_data_size=size(struc%bfield) ! bfield(3)
-      call mpi_bcast(struc%bfield, i_data_size,MPI_REAL8 , master, MPI_COMM_WORLD,ierr)
+c      i_data_size=size(struc%bfield) ! bfield(3)
+c      call mpi_bcast(struc%bfield, i_data_size,MPI_REAL8 , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%clabel, 1,MPI_REAL8 , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%class, 1,MPI_INTEGER , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%eula) ! eula(3)

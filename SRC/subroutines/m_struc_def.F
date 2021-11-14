@@ -23,9 +23,11 @@
       type s_cv2
       complex(8),allocatable:: cv2(:,:)
       end type s_cv2
+      
       type s_cv3
       complex(8),allocatable:: cv3(:,:,:)
       end type s_cv3
+      
       type s_cv4
       complex(8),allocatable:: cv4(:,:,:,:)
       end type s_cv4
@@ -94,7 +96,7 @@ Cr  pb2    second product basis for linear response
 Cr  pz     log derivative parameter, semicore states
 Cr  q      starting q's (charges)
 Cr  qc     core charge
-Cr  qpol   (tbe) 10 polarisability parameters
+Crxxx  qpol   (tbe) 10 polarisability parameters
 Cr  radxbs radius of atom (for graphics)
 Cr  rcfa   renormalization radius of free atom density, and width
 Cr  rcut   range over which true, smoothed Hankels differ---may
@@ -215,7 +217,7 @@ Cr   vshft   constant potential shift for this site
       type s_site
       integer  :: iantiferro !may2015
 c      real(8)  ::   size
-      real(8)   ::   bfield(3)
+c      real(8)   ::   bfield(3)
       character(8)   ::   clabel !string
       integer   ::   class
       real(8)   ::   eula(3)

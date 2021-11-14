@@ -66,6 +66,8 @@ c      complex(8),allocatable::vorbdmat(:),dmatu(:),dmatoa(:) !LDA+U
       character(10):: i2char
       logical:: writeham
       integer:: jobgw
+      logical:: cmdopt2
+      character(20):: outs=''
 c#if (MPI |MPIK)
       integer:: ierr
       include "mpif.h"
@@ -77,7 +79,9 @@ c#endif
       
 !!Get jobgw for lmfgw mode. Quit for job=0
       jobgw=0
-      if(master_mpi.and.llmfgw) then
+      if( cmdopt2('--job=',outs) ) then 
+         read(outs,*) jobgw
+      elseif(master_mpi.and.llmfgw) then
          write(stdo,*)
          write(stdo,*) '=== lmfgw-MPIK: Choose one of following jobs: ==='
          write(stdo,*) '   0 : init mode; creates files SYMOPS, LATTC, CLASS, NLAindx, ldima'

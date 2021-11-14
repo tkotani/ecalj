@@ -120,38 +120,29 @@ c
       real(8), allocatable:: dos_kbt(:), dosef_kbt
       real(8) :: efermi_kbt, e11, e22
       logical:: usetetrakbt
+      logical:: cmdopt2
+      character(20):: outs=''
 !! MPI dummy
       call MPI__Initialize()
 
 c---------------------------------------
-      write(6,*) 'mode=(1-5)?'
-      read(5,*) imode
-c      call headver('heftet',imode)
+      if(cmdopt2('--job=',outs)) then
+         read(outs,*) imode
+      else
+         write(6,*) 'mode=(1-5)?'
+         read(5,*) imode
+      endif
       write(6,*) '--- heftet: calculation mode =',imode
       if(imode<1.or.imode>5) call rx( 'mode out of range(1-4)')
-c---------------------------------------
-
 c---  readin BZDATA. See gwsrc/rwbzdata.f
-c--------readin data set when you call read_BZDATA ---------------
       call read_BZDATA()
       write(6,*)' nqbz qbz =',nqbz
-c      write(6,*)  qbz
       write(6,*)' nqibz ngrp=',nqibz,ngrp2
-c      write(6,*)' irk=',irk
       write(6,*)' #### idtetf: ####'
-c      write(6,*) idtetf
-
-
-cccc set up work array
-cccc      call wkinit (iwksize)
-
 c-------------------------------
 c generate all quantities needed
 c-------------------------------
       incwfin= -1  !use 7th colmn for core at the end section of GWIN
-c      nwin   = -999    !Not read NW
-c      ifphiv(1)=-999 ! not readin ifphi
-c      efin =-999d0     ! not readin ef
 C--- readin GWIN and LMTO, then allocate and set datas.
       call genallcf_v3(incwfin) !in module m_genallcf_v3
       if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
