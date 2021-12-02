@@ -241,18 +241,20 @@ cold  nbmax -->nmmax
 !                    middle state| end state
 !
 !! NOTE: dimension
-!!  nmtot = nctot+ nmmax-mnini+1
-!!  nqtot = ncc  + ntqxx-nqini+1
-!! <rkvec,1:ngb   q-rkvec, 1:nmtot | q, 1:nqtot>
+!!   nmtot = nctot+ nmmax-mnini+1
+!!   nqtot = ncc  + ntqxx-nqini+1
+!!   <q 1:ngb,      q-rkvec, 1:nmtot | rkvec, 1:nqtot>
+!!   <end state,       middle state  |  MPB          >
+!!   rkvec =mutmul(symops(:,:,irot),kvec)
 !! ----------------------------------------
       subroutine get_zmelt2(exchange,
-     &   kvec,irot,rkvec,          !  ngcxxx,ngbxxx,  !MPB for       MPB_rkvec
-     &   nmini,nmmax,ispm,nctot,   !middle for    phi_{q-rkvec}
-     &    q,nqini,nqmax,ispq,ncc)  !end state for phi_q
+     &   kvec,irot,rkvec,          ! rkvec MPB  ngcxxx,ngbxxx,  MPB_rkvec
+     &   nmini,nmmax,ispm,nctot,   ! q-rkvec middle for    phi_{q-rkvec}
+     &    q,nqini,nqmax,ispq,ncc)  ! end state for phi_q
       intent(in)::          exchange,
-     &   kvec,irot,rkvec,          !  ngcxxx,ngbxxx,  !MPB for       MPB_rkvec
-     &   nmini,nmmax,ispm,nctot,   !middle for    phi_{q-rkvec}
-     &    q,nqini,nqmax,ispq,ncc   !end state for phi_q
+     &   kvec,irot,rkvec,          
+     &   nmini,nmmax,ispm,nctot,   
+     &    q,nqini,nqmax,ispq,ncc   
 !! \parameter all inputs
 !! \parameter output=rmelt,clemt  matrix <MPB psi|psi>
       logical:: exchange
@@ -280,8 +282,9 @@ cold  nbmax -->nmmax
          allocate( cphiq(nlmto,nband), cphim(nlmto,nband), cphitemp(nlmto,nband))
          init=.false.
       endif
-
-      if(sum(abs(q-q_bk))>tolq) then
+!! q
+cc      if(sum(abs(q-q_bk))>tolq .or. ispq/=ispq_bk)  then
+      if(sum(abs(q-q_bk))>tolq .or. ispq/=ispq_bk)  then
          cphitemp= readcphif(q,ispq)
          cphiq(1:nlmto,1:ntq) = cphitemp(1:nlmto,itq(1:ntq))
          q_bk=q
