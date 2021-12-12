@@ -536,7 +536,22 @@ c         enddo
 c         write(6,*)'sss=',sss
          omgd = omgd + wbb(ibb)*rtmp
       enddo
-
+!     !
+      if(iprint) then
+        do in = 1,nwf
+         r2n=0d0
+         do ibb = 1,nbb
+           brn = sum(bb(:,ibb)*rn(:,in))
+           do iq = 1,nqbz
+             r2n = r2n + 
+     &       wbz(iq)*wbb(ibb)* ( (1d0-abs(mmn(in,in,ibb,iq))**2) + (dimag(log(mmn(in,in,ibb,iq))))**2 )
+           enddo
+         enddo
+         write(6,"('dddd spread: iwf r2n(bohr^2) rn(bohr)=',i3,f13.6,3x,3(f9.4))")
+     &        in,(alat/(2d0*pi))**2*(r2n-sum(rn(:,in)**2)), alat/(2d0*pi)*rn(:,in)
+        enddo
+      endif
+      
 c sum up
       omgdod = omgd + omgod
       omgidod = omgi + omgdod
@@ -853,9 +868,10 @@ c         enddo
 c         do ib = iko_ix,iko_fx
 c            write(*,"('ib iq winsubspace=',2i4,f10.5)")
 c     &      ib,iq, sum(abs(dnk(ib,1:nwf,iq))**2)
-c         enddo
-         write(*,"(' iq sumcheck winsub=',i4,f10.5)")
-     &      iq, sum(abs(dnk(iko_ix:iko_fx,1:nwf,iq))**2)
+c     enddo
+         
+c         write(*,"(' iq sumcheck winsub=',i4,f10.5)")
+c     &      iq, sum(abs(dnk(iko_ix:iko_fx,1:nwf,iq))**2)
 
 c$$$         do ib = iko_ix,iko_fx
 c$$$            write(ifi,"(f19.15, 2i8, 3f13.6 )")

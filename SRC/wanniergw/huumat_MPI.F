@@ -113,7 +113,7 @@ ctm
      &              ifq0p,ifuu(2),
      &              ifbb,nbb,iko_ixs(2),iko_fxs(2),noxs(2),
      &              iqibz,iqbz,ibb,itmp,itmp2,iti,itf,
-     &              nqibz2,nqbz2,iqb,ibb2,iqtmp,ibbtmp,ndg(3),
+     &              nqibz2,nqbz2,iqb,ibb2,iqtmp,ibbtmp,ndg(3),ndg1(3),ndg2(3),
      &              nb1d,iq0i,nq
       integer(4),allocatable:: ikidx(:),ikbidx(:,:),
      &              ibidx(:,:),ibidxs(:,:),ibidx0(:,:,:),
@@ -135,7 +135,7 @@ ctm, ixc=6
 ctm, MPI
 !      include 'mpif.h'
 !      integer(4):: ierr,istatus(MPI_STATUS_SIZE),iclose,input3(3)
-      integer(4):: ierr,iclose,input3(3),n1,n2
+      integer(4):: ierr,iclose,input3(3),n1,n2,ig
       integer(4):: myproc,nproc,nproc1,nproc2,nq_proc,ii,jj,kk,iftmp,if101
       integer(4),allocatable:: iq_proc(:)
       character*8 xt
@@ -203,7 +203,7 @@ c$$$      endif
       if (myproc.eq.0) then
       write(6,*)' ======== nqbz qbz  =',nqbz
       write(6,*)' ======== nqibz ngrp=',nqibz,ngrp
-      write(6,*)  qbz 
+c      write(6,*)  qbz 
       write(6,*)'============================'
       write(6,*)
       endif
@@ -640,7 +640,7 @@ c         if (bzcase()==2) nbbloop = nq0i+2
 
          elseif (ixc.eq.2) then
 
-            if (myproc.eq.0)write(*,*)'ibb  =',ibb, 'out of',nbb
+c            if (myproc.eq.0)write(*,*)'ibb  =',ibb, 'out of',nbb
 
             iqb = ikbidx(ibb,iqbz)
             q1(:) = qbz(:,iqbz)
@@ -668,10 +668,10 @@ c            q2 = qbz(:,iqb)
 
          elseif (ixc.eq.3) then
 
-            if (myproc.eq.0)write(*,*)'ibb  =',ibb, 'out of',nbb
+c            if (myproc.eq.0)write(*,*)'ibb  =',ibb, 'out of',nbb
 
             q1(:) = qbz(:,iqbz)
-c            q2 = qbz(:,iqb)
+c     q2 = qbz(:,iqb)
             q2(:) = q1(:) + q0i(:,ibb)
 
          elseif (ixc.eq.4) then
@@ -804,20 +804,25 @@ c end of ixc-if
 
 C --- q1x and q2x
       call readqg0('QGpsi',q1,  q1x, ngp1)
-      call readqg0('QGpsi',q2,  q2x, ngp2)
+      call readqg0('QGpsi',q2,  q2x, ngp2) 
+c      call readqg0('QGpsi',q1,  q2x, ngp2)
+      
 c      call checkagree(q1,q1x,' q1 ne q1x')
 c      call checkagree(q2,q2x,' q2 ne q2x')
-!      write(6,"('q1 q1x=',3f9.4,3x,3f9.4)") q1,q1x
-!      write(6,"('q2 q2x=',3f9.4,3x,3f9.4)") q2,q2x
+      write(6,"('uuuiq q1 q1x=',3f9.4,3x,3f9.4,i5)") q1,q1x,ngp1
+      write(6,"('uuuiq q2 q2x=',3f9.4,3x,3f9.4,i5)") q2,q2x,ngp2
 
 c ... dq 
-      dqx = q1x-q2x
-      call q2q0(dqx,plat,dqx0)
-      call q02q0g0(dqx0,dq0,ndg)
-      ndg = -ndg
-      call q02q(dq0,qbas,dq)
-      dg = dq - dqx
-
+c      dqx = q1x-q2x
+c      call q2q0(dqx,plat,dqx0)
+c      call q02q0g0(dqx0,dq0,ndg)
+c      ndg = -ndg
+c      call q02q(dq0,qbas,dq)
+c      dg = dq - dqx
+cccccccccccccccccccccccccccccccccccc
+      dq=q1-q2
+cccccccccccccccccccccccccccccccccccc
+      
       if(sum(abs(dq))<1d-8) dq=(/1d-10,0d0,0d0/)
 
       absdq = sqrt(sum(dq**2))
@@ -828,20 +833,19 @@ C --- ppovl= <P_{q1+G1}|P_{q2+G2}>
       allocate( ngvecpf1(3,ngp1), ngvecpf2(3,ngp2), ppovl(ngp1,ngp2) )
       call readqg('QGpsi',q1, q1x, ngp1, ngvecpf1)
       call readqg('QGpsi',q2, q2x, ngp2, ngvecpf2)
-c      call checkagree(q1,q1x,' q1 ne q1x xxx2')
-c      call checkagree(q2,q2x,' q2 ne q2x xxx2')
-c      write(6,*)' ngp1,ngp2 sum check=',ngp1,ngp2,sum(abs(ngvecpf1)),sum(abs(ngvecpf2))
-c 19June2004 T.Miyake  ccccccccccccccccccccccccccccccc
+      ndg1= nint(matmul((q1x-q1),plat(:,:)))
+      ndg2= nint(matmul((q2x-q2),plat(:,:)))
+c write(6,*)' ngp1,ngp2 sum check=',ngp1,ngp2,sum(abs(ngvecpf1)),sum(abs(ngvecpf2))
+! bugfix t.kotani 2021dec
       do i = 1,3
-      ngvecpf2(i,1:ngp2) = ngvecpf2(i,1:ngp2) + ndg(i)
+       ngvecpf1(i,1:ngp1) = ngvecpf1(i,1:ngp1) + ndg1(i)
+       ngvecpf2(i,1:ngp2) = ngvecpf2(i,1:ngp2) + ndg2(i)
       enddo
-cccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      call mkppovl2(alat,plat,qbas, !22April2004 
+      call mkppovl2(alat,plat,qbas, 
      &    ngp1, ngvecpf1, 
      &    ngp2, ngvecpf2, 
      &    nbas, rmax, pos,  
      o    ppovl)
-c      write(6,*)' end of mkppovl2'
 
 c ... lxx and allocations
       lxx=2*(nl-1)
@@ -958,7 +962,7 @@ c            do j2= j2min,j2max
             do j1= iko_ixs(ispin),iko_fxs(ispin)
             do j2= iko_ixs(ispin),iko_fxs(ispin)
              uum(j1,j2,ispin) = 
-     &       uum(j1,j2,ispin) + dconjg(cphi1(ia1,j1))*cphi2(ia2,j2)
+     &              uum(j1,j2,ispin) + dconjg(cphi1(ia1,j1))*cphi2(ia2,j2)
      &                        * ppj
             enddo
             enddo
@@ -973,11 +977,21 @@ c            do j2= j2min,j2max
          enddo
  1010  continue
  1020  continue
-
+cccccccccccccccccccccc
+c       uum=0d0
+c       deallocate(cphi1, cphi2)
+c       goto 884
+cccccccccccccccccccccc
+       
 c ... Interstitial Plane Wave part
        geig1=readgeigf(q1,ispin) !call readgeig(q1, ngpmx, ispin, quu, geig1)
 c       call checkagree(q1,quu,' q1 ne quu eig')
        geig2=readgeigf(q2,ispin) !call readgeig(q2, ngpmx, ispin, quu, geig2)
+ccccccccccccccccccccccccccccc
+c       do ig=1,ngp1
+c          write(6,"('ggggg geig=',i4,2f9.4,2x,2f9.4)") ig,geig1(ig,1),geig2(ig,1)
+c       enddo
+ccccccccccccccccccccccccc       
 c       call checkagree(q2,quu,' q1 ne quu eig')
        if (ixc.eq.5.or.ixc.eq.6) then
          do j1= j1min_c(ispin),j1max_c(ispin)
@@ -987,14 +1001,13 @@ c       call checkagree(q2,quu,' q1 ne quu eig')
      &    * matmul(ppovl,geig2(1:ngp2,j2)) )
          enddo
          enddo
-       elseif (ixc.ne.4) then
+      elseif (ixc.ne.4) then
 c         do j1=j1min,j1max
 c         do j2=j2min,j2max
          do j1= iko_ixs(ispin),iko_fxs(ispin)
          do j2= iko_ixs(ispin),iko_fxs(ispin)
           uum(j1,j2,ispin)= uum(j1,j2,ispin) +
-     &      sum( dconjg(geig1(1:ngp1,j1))
-     &    * matmul(ppovl,geig2(1:ngp2,j2)) )
+     &      sum( dconjg(geig1(1:ngp1,j1))* matmul(ppovl,geig2(1:ngp2,j2)) )
          enddo
          enddo
        else
@@ -1009,6 +1022,7 @@ c         do j2=j2min,j2max
        deallocate(cphi1, cphi2)
  1050 continue
 
+ 884  continue
 ctm
       do ispin = 1,nspin
          iti = iko_ixs(ispin)
@@ -1053,6 +1067,19 @@ check write
 !      endif
 
 c--- write resutlt 
+c--- write resutlt 
+      write(6,*)' ============ result --- diagonal --- ==============',nspin,j1min,j1max,j2min,j2max
+      do ispin = 1,nspin
+      do j1=j1min,j1max
+      do j2=j2min,j2max
+       if(j1==j2) then
+       write(6,"('uuuiq isp=',i5,i2,' j1j2=',2i2,' q1 q2-q1=',3f8.4,x,3f8.4,' <u|u>=',2f9.4,x,f9.3)") 
+     &         iqbz,ispin,j1,j2,q1,q1-q2,uum(j1,j2,ispin),abs(uum(j1,j2,ispin))
+c       stop 'xxxxxxxxxxxxxxxx'
+       endif
+      enddo
+      enddo
+      enddo
 c      write(6,*)' ============ result --- diagonal --- =============='
 c      do ispin = 1,nspin
 c      do j1=j1min,j1max

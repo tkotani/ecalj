@@ -510,7 +510,6 @@ ccc end okumura
       r0g = 2d0
       wphi = 1d0
 
-
 !! Read parameters in GWinput. expand wan_input
 c      call wan_input(leout,lein,lbin,ieo_swt,iei_swt,
 c     &    eomin,eomax,itout_i,itout_f,nbbelow,nbabove,
@@ -619,7 +618,7 @@ c index for k and k+bb
            endif
          enddo
          eeee= (eqt(nwf+inii-1)-ef)*rydberg()
-         write(6,"('elist: q iq is nwfi nwfe e(nwf)= ',3f9.4,i5,i2,2i5,f10.3)") qxx,iq,is,inii,nwf+inii-1, eeee
+c         write(6,"('elist: q iq is nwfi nwfe e(nwf)= ',3f9.4,i5,i2,2i5,f10.3)") qxx,iq,is,inii,nwf+inii-1, eeee
          if (enwfmax < eeee) enwfmax  = eeee
          if (enwfmaxi >eeee) enwfmaxi = eeee
       enddo   
@@ -692,9 +691,9 @@ c energy window
 !      call chk_ewindow(ifbb,is,nspin,nqbz,nbb,iko_ix,iko_fx)
 
 ccccccccccccccccccccccc
-      do iq=1,nqbz
-      write(6,"('iiii: iq and internal window region=',3i5)")iq,iki_i(iq),iki_f(iq)
-      enddo
+c      do iq=1,nqbz
+c      write(6,"('iiii: iq and internal window region=',3i5)")iq,iki_i(iq),iki_f(iq)
+c      enddo
 cccccccccccccccccccccc
 
 c read uu-matrix
@@ -1120,7 +1119,7 @@ c         write(*,*)'goto get_hrotkp_ws iq=',iq,nqbze
      i                 iq,qbze(1:3,iq),umnk,cnk,eunk,evecc,eval,
      i                 iko_ix,iko_fx,iko_i,iko_f,
      d                 nwf,nqbz)
-          write(6,*)"iq is",iq,is
+c          write(6,*)"iq is",iq,is
        enddo
 c      write(6,*)'eeeeeeeee'
       deallocate(qbze)
@@ -1180,7 +1179,8 @@ c      close(ifh)
       write(6,*) 
       if (is==1) allocate(eval_w(nwf,nqbz,nspin),evecc_w(nwf,nwf,nqbz,nspin))
       do iq = 1,nqbz
-         write(6,*)' got get_hrotkp_ws iq =',iq
+         if(iq<5.or.iq>nqbz-3)write(6,*)' got get_hrotkp_ws iq =',iq
+         if(iq==5)write(6,*)' ...'
          call get_hrotkp_ws(hrotr,rws,drws,irws,qbz(:,iq),
      d                     nwf,nqbz,nrws,
      o                     hrotkp)

@@ -1193,7 +1193,7 @@ c-----------------------------------------------------------------------
       allocate(psigread(iti2:itf2,nwf2,nqbz2))
       do iqbz = 1,nqbz
 ccccccccccccccc
-         print *,'readpsig:',iti2,itf2,nwf,iqbz
+c         print *,'readpsig:',iti2,itf2,nwf,iqbz
 ccccccccccccccc
          read(ifpsig)iqbz2
          if(iqbz2 .ne. iqbz) call rx('readpsig: iqbz error')
