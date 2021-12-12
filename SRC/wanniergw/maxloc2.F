@@ -481,13 +481,14 @@ c U = U * exp(W)
 c-----------------------------------------------------------------------
       subroutine getOmg(mmn,rn,bb,wbb,wbz,
      d                  nwf,nqbz,nbb,
-     o                  omgi,omgd,omgod,omgdod,omgidod)
+     o     omgi,omgd,omgod,omgdod,omgidod,
+     i     alat,iprint)
       implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       complex(8) :: mmn(nwf,nwf,nbb,nqbz)
-      real(8) :: bb(3,nbb),wbb(nbb),wbz(nqbz),rn(3,nwf),sss
-
+      real(8) :: bb(3,nbb),wbb(nbb),wbz(nqbz),rn(3,nwf),sss,r2n,alat,pi=4d0*atan(1d0)
+      logical :: iprint
 c omgi ([1] eq.34) 
       omgi = 0d0
       do iq = 1,nqbz

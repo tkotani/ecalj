@@ -195,7 +195,7 @@ c ixc=3
 
       real(8):: enwfmax,qxx(3),eeee,enwfmaxi, ef
       integer:: inii,if102
-      logical:: leauto,leinauto
+      logical:: leauto,leinauto,iprint
 
 cccccccccccccccccccccccccccccccccccccccccxxxxxxx
 c      open(1107,file='xxx1')
@@ -948,16 +948,18 @@ c update Mmn ([1] eq.61)
      d                 nwf,nqbz,nbb,
      u                 mmn)
 
-c (2-6) Omeg_I, Omega_D and Omega_OD ([1] eq.34,35,36)
+c     (2-6) Omeg_I, Omega_D and Omega_OD ([1] eq.34,35,36)
+         iprint=.false.
          call getOmg(mmn,rn,bb,wbb,wbz,
      d               nwf,nqbz,nbb,
-     o               omgi,omgd,omgod,omgdod,omgidod)
+     o               omgi,omgd,omgod,omgdod,omgidod,alat,iprint)
 
 c check self-consistency
 c         write(*,*)'#SC-loop, conv.',isc,omgdod
 c         write(*,950)'Omg: I, OD, D ',omgi,omgod,omgd
-         write(*,"('#SC-loop, conv.',i6,e13.5,' Omg:_I,_OD,_D= ',3f17.10)")
-     &   isc,omgdod,omgi,omgod,omgd
+         write(*,"('#SC-loop, spread(bohr**2)',i6,' Omg_I Omg_OD Omg_D=',3f17.10)")
+c     &   isc,omgdod,omgi,omgod,omgd
+     &   isc, omgi/tpia**2,omgod/tpia**2,omgd/tpia**2
          if (isc.ge.2) then
             domgdod = dabs((omgdodold - omgdod) / omgdodold)
             if (domgdod .lt. conv2) then
@@ -971,6 +973,10 @@ c end of self-consistent loop
       enddo
       write(*,*)'step2: not converged'
  820  continue
+      iprint=.true.
+      call getOmg(mmn,rn,bb,wbb,wbz,
+     d     nwf,nqbz,nbb,
+     o     omgi,omgd,omgod,omgdod,omgidod,alat,iprint)
 
 !      call chk_dnk(is,eunk,qbz,
 !     i             umnk,cnk,
