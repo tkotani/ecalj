@@ -89,7 +89,7 @@ read_BZDATA:ginv=   0.5000   0.5000   1.0000   0.5000   1.0000   0.5000   1.0000
   read ECORE : ic=           3
   read ECORE : ic=           4
   symgrp==UseSYMOPSfile
- CPU=       0.0000 secs    0.0 mins
+  CPU:       0.0000 secs =     0.0 mins
  genallcf_v3
   nbmx ebmx from GWinput=     99999 0.200000D+01
   hsfp0: end of genallcf2
@@ -105,14 +105,14 @@ read_BZDATA:ginv=   0.5000   0.5000   1.0000   0.5000   1.0000   0.5000   1.0000
          3         3
          4         3
  goto mptauof
- tiat=   4.2439915824246103E-314   8.4879831653432862E-314   4.2439915824246103E-314   6.3659873748720795E-314   4.2439915824246103E-314   8.4879831653432862E-314   4.2439915824246103E-314   6.3659873748720795E-314   4.2439915824246103E-314   8.4879831653432862E-314  -6.2500000000000003E-003   5.7756273998841721E-321           0
+ tiat=   2.1219936694635465E-308   6.3664814380475925E-314   2.1219936689694843E-308   2.1219936694635465E-308   2.1219936694635465E-308   2.1219936694635465E-308   2.1219936694635465E-308   2.1219936694635465E-308   2.1219936694635465E-308   2.1219936694635465E-308   4.0552908210649516E-320   5.7706867434257596E-321           0
  Read EF from BNDS
-  Ef=   2.2460000000000001E-002
-  wgt nocc=   2.0000000000000000        31.891072495977539     
-  ef    =   2.2460000000000001E-002
+  Ef=   2.2440000000000002E-002
+  wgt nocc=   2.0000000000000000        31.892817626888590     
+  ef    =   2.2440000000000002E-002
   esmr  =   3.0000000000000001E-003
   valn  =   0.0000000000000000     
-  ntot  =   31.891072495977539     
+  ntot  =   31.892817626888590     
   end of readin @MNLA_CPHI: norbtx=          40
  init_readeigen2: table for rotation of cphi
   KeepEigen=T; readin geig and cphi into m_readeigen
@@ -121,14 +121,7 @@ read_BZDATA:ginv=   0.5000   0.5000   1.0000   0.5000   1.0000   0.5000   1.0000
   size geig=         117          96          93           2         200     2089152     3571200
  eeeee end of init_readeigen2 eeeee for keepeig=T
  Read k points for bands from SYML
-  ifmloc ret=          14           4
- 1 Niup   5 6 7 8 9                                                                                                                                                                                                                                              
- 2 Nidn   5 6 7 8 9                                                                                                                                                                                                                                              
- !  3 O   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16                                                                                                                                                                                                                 
- !  4 O   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16                                                                                                                                                                                                                 
- </Worb>                                                                                                                                                                                                                                                         
- nline           4
- nclass_mlwf           2
+nline nclass mlwf=    4    2
  nbasclass_mlwf=           5           5           5
  output:           1          10 Niup           5           6           7           8           9
  checkorb: iiwf,idorb(iiwf)           1           2
@@ -142,827 +135,191 @@ read_BZDATA:ginv=   0.5000   0.5000   1.0000   0.5000   1.0000   0.5000   1.0000
  checkorb: iiwf,idorb(iiwf)           8           2
  checkorb: iiwf,idorb(iiwf)           9           2
  checkorb: iiwf,idorb(iiwf)          10           2
-           0           0           0           0           0           0           0           0           0           0
-           0           0           0           0           0           0           0           0           0           0
- l_number, iclassin(iclass)           2           1
-  iphi_tmp, nnv(j,iclass2)           2           2
-  iphi_tmp, nnv(j,iclass2)           8           2
- correction           4
- l_number, iclassin(iclass)           2           1
-  iphi_tmp, nnv(j,iclass2)           2           2
-  iphi_tmp, nnv(j,iclass2)           8           2
- correction           4
- l_number, iclassin(iclass)           2           1
-  iphi_tmp, nnv(j,iclass2)           2           2
-  iphi_tmp, nnv(j,iclass2)           8           2
- correction           4
- l_number, iclassin(iclass)           2           1
-  iphi_tmp, nnv(j,iclass2)           2           2
-  iphi_tmp, nnv(j,iclass2)           8           2
- correction           4
- l_number, iclassin(iclass)           2           1
-  iphi_tmp, nnv(j,iclass2)           2           2
-  iphi_tmp, nnv(j,iclass2)           8           2
- correction           4
- l_number, iclassin(iclass)           2           2
-  iphi_tmp, nnv(j,iclass2)           2           2
-  iphi_tmp, nnv(j,iclass2)           8           2
-  iphi_tmp, nnv(j,iclass2)          18           2
-  iphi_tmp, nnv(j,iclass2)          32           2
-  iphi_tmp, nnv(j,iclass2)          50           2
-  iphi_tmp, nnv(j,iclass2)          52           2
-  iphi_tmp, nnv(j,iclass2)          58           2
- correction           4
- l_number, iclassin(iclass)           2           2
-  iphi_tmp, nnv(j,iclass2)           2           2
-  iphi_tmp, nnv(j,iclass2)           8           2
-  iphi_tmp, nnv(j,iclass2)          18           2
-  iphi_tmp, nnv(j,iclass2)          32           2
-  iphi_tmp, nnv(j,iclass2)          50           2
-  iphi_tmp, nnv(j,iclass2)          52           2
-  iphi_tmp, nnv(j,iclass2)          58           2
- correction           4
- l_number, iclassin(iclass)           2           2
-  iphi_tmp, nnv(j,iclass2)           2           2
-  iphi_tmp, nnv(j,iclass2)           8           2
-  iphi_tmp, nnv(j,iclass2)          18           2
-  iphi_tmp, nnv(j,iclass2)          32           2
-  iphi_tmp, nnv(j,iclass2)          50           2
-  iphi_tmp, nnv(j,iclass2)          52           2
-  iphi_tmp, nnv(j,iclass2)          58           2
- correction           4
- l_number, iclassin(iclass)           2           2
-  iphi_tmp, nnv(j,iclass2)           2           2
-  iphi_tmp, nnv(j,iclass2)           8           2
-  iphi_tmp, nnv(j,iclass2)          18           2
-  iphi_tmp, nnv(j,iclass2)          32           2
-  iphi_tmp, nnv(j,iclass2)          50           2
-  iphi_tmp, nnv(j,iclass2)          52           2
-  iphi_tmp, nnv(j,iclass2)          58           2
- correction           4
- l_number, iclassin(iclass)           2           2
-  iphi_tmp, nnv(j,iclass2)           2           2
-  iphi_tmp, nnv(j,iclass2)           8           2
-  iphi_tmp, nnv(j,iclass2)          18           2
-  iphi_tmp, nnv(j,iclass2)          32           2
-  iphi_tmp, nnv(j,iclass2)          50           2
-  iphi_tmp, nnv(j,iclass2)          52           2
-  iphi_tmp, nnv(j,iclass2)          58           2
- correction           4
- iphi =            9          10          11          12          13          59          60          61          62          63
- iphidot =           14          15          16          17          18          64          65          66          67          68
  mloc.heps    0.0000000000000000     
   ***
     2 205  10  nspin  nq  ntq
- spin = 0   nbloch ngp ngc=   0   0   0  nqbz =    64  nqibz =    13   ef=    0.0225 Rydberg
+ spin = 0   nbloch ngp ngc=   0   0   0  nqbz =    64  nqibz =    13   ef=    0.0224 Rydberg
  0.2000000000000000D-01 <= deltaw(Hartree)
  0.7880000000000000D+01 <= alat
- 0.2246000000000000D-01 <= ef 
+ 0.2244000000000000D-01 <= ef 
  0.3000000000000000D-02 <= esmr
   sum of nonzero iirk=          64          64
  getbb: non-orthorhombic
-elist: q iq is nwfi nwfe e(nwf)=    0.0000   0.0000   0.0000    1 1    6   15    -0.619
-elist: q iq is nwfi nwfe e(nwf)=   -0.1250  -0.1250   0.3750    2 1    8   17     0.790
-elist: q iq is nwfi nwfe e(nwf)=   -0.2500  -0.2500   0.7500    3 1    9   18     1.051
-elist: q iq is nwfi nwfe e(nwf)=   -0.3750  -0.3750   1.1250    4 1    8   17     0.790
-elist: q iq is nwfi nwfe e(nwf)=   -0.1250   0.3750  -0.1250    5 1    8   17     0.790
-elist: q iq is nwfi nwfe e(nwf)=   -0.2500   0.2500   0.2500    6 1    9   18     1.037
-elist: q iq is nwfi nwfe e(nwf)=   -0.3750   0.1250   0.6250    7 1    9   18     1.387
-elist: q iq is nwfi nwfe e(nwf)=   -0.5000   0.0000   1.0000    8 1    9   18     1.716
-elist: q iq is nwfi nwfe e(nwf)=   -0.2500   0.7500  -0.2500    9 1    9   18     1.051
-elist: q iq is nwfi nwfe e(nwf)=   -0.3750   0.6250   0.1250   10 1    9   18     1.387
-elist: q iq is nwfi nwfe e(nwf)=   -0.5000   0.5000   0.5000   11 1    7   16    -0.092
-elist: q iq is nwfi nwfe e(nwf)=   -0.6250   0.3750   0.8750   12 1    9   18     1.387
-elist: q iq is nwfi nwfe e(nwf)=   -0.3750   1.1250  -0.3750   13 1    8   17     0.790
-elist: q iq is nwfi nwfe e(nwf)=   -0.5000   1.0000   0.0000   14 1    9   18     1.716
-elist: q iq is nwfi nwfe e(nwf)=   -0.6250   0.8750   0.3750   15 1    9   18     1.387
-elist: q iq is nwfi nwfe e(nwf)=   -0.7500   0.7500   0.7500   16 1    9   18     1.037
-elist: q iq is nwfi nwfe e(nwf)=    0.3750  -0.1250  -0.1250   17 1    8   17     0.790
-elist: q iq is nwfi nwfe e(nwf)=    0.2500  -0.2500   0.2500   18 1    9   18     1.037
-elist: q iq is nwfi nwfe e(nwf)=    0.1250  -0.3750   0.6250   19 1    9   18     1.387
-elist: q iq is nwfi nwfe e(nwf)=    0.0000  -0.5000   1.0000   20 1    9   18     1.716
-elist: q iq is nwfi nwfe e(nwf)=    0.2500   0.2500  -0.2500   21 1    9   18     1.037
-elist: q iq is nwfi nwfe e(nwf)=    0.1250   0.1250   0.1250   22 1    6   15    -0.660
-elist: q iq is nwfi nwfe e(nwf)=    0.0000   0.0000   0.5000   23 1    7   16    -0.185
-elist: q iq is nwfi nwfe e(nwf)=   -0.1250  -0.1250   0.8750   24 1    9   18     1.434
-elist: q iq is nwfi nwfe e(nwf)=    0.1250   0.6250  -0.3750   25 1    9   18     1.387
-elist: q iq is nwfi nwfe e(nwf)=    0.0000   0.5000   0.0000   26 1    7   16    -0.185
-elist: q iq is nwfi nwfe e(nwf)=   -0.1250   0.3750   0.3750   27 1    9   18     1.446
-elist: q iq is nwfi nwfe e(nwf)=   -0.2500   0.2500   0.7500   28 1    9   18     1.019
-elist: q iq is nwfi nwfe e(nwf)=    0.0000   1.0000  -0.5000   29 1    9   18     1.716
-elist: q iq is nwfi nwfe e(nwf)=   -0.1250   0.8750  -0.1250   30 1    9   18     1.434
-elist: q iq is nwfi nwfe e(nwf)=   -0.2500   0.7500   0.2500   31 1    9   18     1.019
-elist: q iq is nwfi nwfe e(nwf)=   -0.3750   0.6250   0.6250   32 1    9   18     1.434
-elist: q iq is nwfi nwfe e(nwf)=    0.7500  -0.2500  -0.2500   33 1    9   18     1.051
-elist: q iq is nwfi nwfe e(nwf)=    0.6250  -0.3750   0.1250   34 1    9   18     1.387
-elist: q iq is nwfi nwfe e(nwf)=    0.5000  -0.5000   0.5000   35 1    7   16    -0.092
-elist: q iq is nwfi nwfe e(nwf)=    0.3750  -0.6250   0.8750   36 1    9   18     1.387
-elist: q iq is nwfi nwfe e(nwf)=    0.6250   0.1250  -0.3750   37 1    9   18     1.387
-elist: q iq is nwfi nwfe e(nwf)=    0.5000   0.0000   0.0000   38 1    7   16    -0.185
-elist: q iq is nwfi nwfe e(nwf)=    0.3750  -0.1250   0.3750   39 1    9   18     1.446
-elist: q iq is nwfi nwfe e(nwf)=    0.2500  -0.2500   0.7500   40 1    9   18     1.019
-elist: q iq is nwfi nwfe e(nwf)=    0.5000   0.5000  -0.5000   41 1    7   16    -0.092
-elist: q iq is nwfi nwfe e(nwf)=    0.3750   0.3750  -0.1250   42 1    9   18     1.446
-elist: q iq is nwfi nwfe e(nwf)=    0.2500   0.2500   0.2500   43 1    9   18     1.044
-elist: q iq is nwfi nwfe e(nwf)=    0.1250   0.1250   0.6250   44 1    9   18     1.446
-elist: q iq is nwfi nwfe e(nwf)=    0.3750   0.8750  -0.6250   45 1    9   18     1.387
-elist: q iq is nwfi nwfe e(nwf)=    0.2500   0.7500  -0.2500   46 1    9   18     1.019
-elist: q iq is nwfi nwfe e(nwf)=    0.1250   0.6250   0.1250   47 1    9   18     1.446
-elist: q iq is nwfi nwfe e(nwf)=    0.0000   0.5000   0.5000   48 1    7   16    -0.185
-elist: q iq is nwfi nwfe e(nwf)=    1.1250  -0.3750  -0.3750   49 1    8   17     0.790
-elist: q iq is nwfi nwfe e(nwf)=    1.0000  -0.5000   0.0000   50 1    9   18     1.716
-elist: q iq is nwfi nwfe e(nwf)=    0.8750  -0.6250   0.3750   51 1    9   18     1.387
-elist: q iq is nwfi nwfe e(nwf)=    0.7500  -0.7500   0.7500   52 1    9   18     1.037
-elist: q iq is nwfi nwfe e(nwf)=    1.0000   0.0000  -0.5000   53 1    9   18     1.716
-elist: q iq is nwfi nwfe e(nwf)=    0.8750  -0.1250  -0.1250   54 1    9   18     1.434
-elist: q iq is nwfi nwfe e(nwf)=    0.7500  -0.2500   0.2500   55 1    9   18     1.019
-elist: q iq is nwfi nwfe e(nwf)=    0.6250  -0.3750   0.6250   56 1    9   18     1.434
-elist: q iq is nwfi nwfe e(nwf)=    0.8750   0.3750  -0.6250   57 1    9   18     1.387
-elist: q iq is nwfi nwfe e(nwf)=    0.7500   0.2500  -0.2500   58 1    9   18     1.019
-elist: q iq is nwfi nwfe e(nwf)=    0.6250   0.1250   0.1250   59 1    9   18     1.446
-elist: q iq is nwfi nwfe e(nwf)=    0.5000   0.0000   0.5000   60 1    7   16    -0.185
-elist: q iq is nwfi nwfe e(nwf)=    0.7500   0.7500  -0.7500   61 1    9   18     1.037
-elist: q iq is nwfi nwfe e(nwf)=    0.6250   0.6250  -0.3750   62 1    9   18     1.434
-elist: q iq is nwfi nwfe e(nwf)=    0.5000   0.5000   0.0000   63 1    7   16    -0.185
-elist: q iq is nwfi nwfe e(nwf)=    0.3750   0.3750   0.3750   64 1    6   15    -0.660
-elist: q iq is nwfi nwfe e(nwf)=    0.0000   0.0000   0.0000    1 2    6   15    -0.617
-elist: q iq is nwfi nwfe e(nwf)=   -0.1250  -0.1250   0.3750    2 2    8   17     0.791
-elist: q iq is nwfi nwfe e(nwf)=   -0.2500  -0.2500   0.7500    3 2    9   18     1.053
-elist: q iq is nwfi nwfe e(nwf)=   -0.3750  -0.3750   1.1250    4 2    8   17     0.791
-elist: q iq is nwfi nwfe e(nwf)=   -0.1250   0.3750  -0.1250    5 2    8   17     0.791
-elist: q iq is nwfi nwfe e(nwf)=   -0.2500   0.2500   0.2500    6 2    9   18     1.039
-elist: q iq is nwfi nwfe e(nwf)=   -0.3750   0.1250   0.6250    7 2    9   18     1.388
-elist: q iq is nwfi nwfe e(nwf)=   -0.5000   0.0000   1.0000    8 2    9   18     1.717
-elist: q iq is nwfi nwfe e(nwf)=   -0.2500   0.7500  -0.2500    9 2    9   18     1.053
-elist: q iq is nwfi nwfe e(nwf)=   -0.3750   0.6250   0.1250   10 2    9   18     1.388
-elist: q iq is nwfi nwfe e(nwf)=   -0.5000   0.5000   0.5000   11 2    7   16    -0.091
-elist: q iq is nwfi nwfe e(nwf)=   -0.6250   0.3750   0.8750   12 2    9   18     1.388
-elist: q iq is nwfi nwfe e(nwf)=   -0.3750   1.1250  -0.3750   13 2    8   17     0.791
-elist: q iq is nwfi nwfe e(nwf)=   -0.5000   1.0000   0.0000   14 2    9   18     1.717
-elist: q iq is nwfi nwfe e(nwf)=   -0.6250   0.8750   0.3750   15 2    9   18     1.388
-elist: q iq is nwfi nwfe e(nwf)=   -0.7500   0.7500   0.7500   16 2    9   18     1.039
-elist: q iq is nwfi nwfe e(nwf)=    0.3750  -0.1250  -0.1250   17 2    8   17     0.791
-elist: q iq is nwfi nwfe e(nwf)=    0.2500  -0.2500   0.2500   18 2    9   18     1.039
-elist: q iq is nwfi nwfe e(nwf)=    0.1250  -0.3750   0.6250   19 2    9   18     1.388
-elist: q iq is nwfi nwfe e(nwf)=    0.0000  -0.5000   1.0000   20 2    9   18     1.717
-elist: q iq is nwfi nwfe e(nwf)=    0.2500   0.2500  -0.2500   21 2    9   18     1.039
-elist: q iq is nwfi nwfe e(nwf)=    0.1250   0.1250   0.1250   22 2    6   15    -0.659
-elist: q iq is nwfi nwfe e(nwf)=    0.0000   0.0000   0.5000   23 2    7   16    -0.184
-elist: q iq is nwfi nwfe e(nwf)=   -0.1250  -0.1250   0.8750   24 2    9   18     1.435
-elist: q iq is nwfi nwfe e(nwf)=    0.1250   0.6250  -0.3750   25 2    9   18     1.388
-elist: q iq is nwfi nwfe e(nwf)=    0.0000   0.5000   0.0000   26 2    7   16    -0.184
-elist: q iq is nwfi nwfe e(nwf)=   -0.1250   0.3750   0.3750   27 2    9   18     1.447
-elist: q iq is nwfi nwfe e(nwf)=   -0.2500   0.2500   0.7500   28 2    9   18     1.021
-elist: q iq is nwfi nwfe e(nwf)=    0.0000   1.0000  -0.5000   29 2    9   18     1.717
-elist: q iq is nwfi nwfe e(nwf)=   -0.1250   0.8750  -0.1250   30 2    9   18     1.435
-elist: q iq is nwfi nwfe e(nwf)=   -0.2500   0.7500   0.2500   31 2    9   18     1.021
-elist: q iq is nwfi nwfe e(nwf)=   -0.3750   0.6250   0.6250   32 2    9   18     1.435
-elist: q iq is nwfi nwfe e(nwf)=    0.7500  -0.2500  -0.2500   33 2    9   18     1.053
-elist: q iq is nwfi nwfe e(nwf)=    0.6250  -0.3750   0.1250   34 2    9   18     1.388
-elist: q iq is nwfi nwfe e(nwf)=    0.5000  -0.5000   0.5000   35 2    7   16    -0.091
-elist: q iq is nwfi nwfe e(nwf)=    0.3750  -0.6250   0.8750   36 2    9   18     1.388
-elist: q iq is nwfi nwfe e(nwf)=    0.6250   0.1250  -0.3750   37 2    9   18     1.388
-elist: q iq is nwfi nwfe e(nwf)=    0.5000   0.0000   0.0000   38 2    7   16    -0.184
-elist: q iq is nwfi nwfe e(nwf)=    0.3750  -0.1250   0.3750   39 2    9   18     1.447
-elist: q iq is nwfi nwfe e(nwf)=    0.2500  -0.2500   0.7500   40 2    9   18     1.021
-elist: q iq is nwfi nwfe e(nwf)=    0.5000   0.5000  -0.5000   41 2    7   16    -0.091
-elist: q iq is nwfi nwfe e(nwf)=    0.3750   0.3750  -0.1250   42 2    9   18     1.447
-elist: q iq is nwfi nwfe e(nwf)=    0.2500   0.2500   0.2500   43 2    9   18     1.045
-elist: q iq is nwfi nwfe e(nwf)=    0.1250   0.1250   0.6250   44 2    9   18     1.447
-elist: q iq is nwfi nwfe e(nwf)=    0.3750   0.8750  -0.6250   45 2    9   18     1.388
-elist: q iq is nwfi nwfe e(nwf)=    0.2500   0.7500  -0.2500   46 2    9   18     1.021
-elist: q iq is nwfi nwfe e(nwf)=    0.1250   0.6250   0.1250   47 2    9   18     1.447
-elist: q iq is nwfi nwfe e(nwf)=    0.0000   0.5000   0.5000   48 2    7   16    -0.184
-elist: q iq is nwfi nwfe e(nwf)=    1.1250  -0.3750  -0.3750   49 2    8   17     0.791
-elist: q iq is nwfi nwfe e(nwf)=    1.0000  -0.5000   0.0000   50 2    9   18     1.717
-elist: q iq is nwfi nwfe e(nwf)=    0.8750  -0.6250   0.3750   51 2    9   18     1.388
-elist: q iq is nwfi nwfe e(nwf)=    0.7500  -0.7500   0.7500   52 2    9   18     1.039
-elist: q iq is nwfi nwfe e(nwf)=    1.0000   0.0000  -0.5000   53 2    9   18     1.717
-elist: q iq is nwfi nwfe e(nwf)=    0.8750  -0.1250  -0.1250   54 2    9   18     1.435
-elist: q iq is nwfi nwfe e(nwf)=    0.7500  -0.2500   0.2500   55 2    9   18     1.021
-elist: q iq is nwfi nwfe e(nwf)=    0.6250  -0.3750   0.6250   56 2    9   18     1.435
-elist: q iq is nwfi nwfe e(nwf)=    0.8750   0.3750  -0.6250   57 2    9   18     1.388
-elist: q iq is nwfi nwfe e(nwf)=    0.7500   0.2500  -0.2500   58 2    9   18     1.021
-elist: q iq is nwfi nwfe e(nwf)=    0.6250   0.1250   0.1250   59 2    9   18     1.447
-elist: q iq is nwfi nwfe e(nwf)=    0.5000   0.0000   0.5000   60 2    7   16    -0.184
-elist: q iq is nwfi nwfe e(nwf)=    0.7500   0.7500  -0.7500   61 2    9   18     1.039
-elist: q iq is nwfi nwfe e(nwf)=    0.6250   0.6250  -0.3750   62 2    9   18     1.435
-elist: q iq is nwfi nwfe e(nwf)=    0.5000   0.5000   0.0000   63 2    7   16    -0.184
-elist: q iq is nwfi nwfe e(nwf)=    0.3750   0.3750   0.3750   64 2    6   15    -0.659
-elist max enwf enwfmaxi=      1.71736     -0.66008
+elist max enwf enwfmaxi=      1.71660     -0.66044
  is =           1   out of           2
  Outer energy window, on
  eomin, eomax =  -4.0000000000000000        2.0000000000000000     
  Inner energy window, off
-iiii: iq and internal window region=    1    0   -1
-iiii: iq and internal window region=    2    0   -1
-iiii: iq and internal window region=    3    0   -1
-iiii: iq and internal window region=    4    0   -1
-iiii: iq and internal window region=    5    0   -1
-iiii: iq and internal window region=    6    0   -1
-iiii: iq and internal window region=    7    0   -1
-iiii: iq and internal window region=    8    0   -1
-iiii: iq and internal window region=    9    0   -1
-iiii: iq and internal window region=   10    0   -1
-iiii: iq and internal window region=   11    0   -1
-iiii: iq and internal window region=   12    0   -1
-iiii: iq and internal window region=   13    0   -1
-iiii: iq and internal window region=   14    0   -1
-iiii: iq and internal window region=   15    0   -1
-iiii: iq and internal window region=   16    0   -1
-iiii: iq and internal window region=   17    0   -1
-iiii: iq and internal window region=   18    0   -1
-iiii: iq and internal window region=   19    0   -1
-iiii: iq and internal window region=   20    0   -1
-iiii: iq and internal window region=   21    0   -1
-iiii: iq and internal window region=   22    0   -1
-iiii: iq and internal window region=   23    0   -1
-iiii: iq and internal window region=   24    0   -1
-iiii: iq and internal window region=   25    0   -1
-iiii: iq and internal window region=   26    0   -1
-iiii: iq and internal window region=   27    0   -1
-iiii: iq and internal window region=   28    0   -1
-iiii: iq and internal window region=   29    0   -1
-iiii: iq and internal window region=   30    0   -1
-iiii: iq and internal window region=   31    0   -1
-iiii: iq and internal window region=   32    0   -1
-iiii: iq and internal window region=   33    0   -1
-iiii: iq and internal window region=   34    0   -1
-iiii: iq and internal window region=   35    0   -1
-iiii: iq and internal window region=   36    0   -1
-iiii: iq and internal window region=   37    0   -1
-iiii: iq and internal window region=   38    0   -1
-iiii: iq and internal window region=   39    0   -1
-iiii: iq and internal window region=   40    0   -1
-iiii: iq and internal window region=   41    0   -1
-iiii: iq and internal window region=   42    0   -1
-iiii: iq and internal window region=   43    0   -1
-iiii: iq and internal window region=   44    0   -1
-iiii: iq and internal window region=   45    0   -1
-iiii: iq and internal window region=   46    0   -1
-iiii: iq and internal window region=   47    0   -1
-iiii: iq and internal window region=   48    0   -1
-iiii: iq and internal window region=   49    0   -1
-iiii: iq and internal window region=   50    0   -1
-iiii: iq and internal window region=   51    0   -1
-iiii: iq and internal window region=   52    0   -1
-iiii: iq and internal window region=   53    0   -1
-iiii: iq and internal window region=   54    0   -1
-iiii: iq and internal window region=   55    0   -1
-iiii: iq and internal window region=   56    0   -1
-iiii: iq and internal window region=   57    0   -1
-iiii: iq and internal window region=   58    0   -1
-iiii: iq and internal window region=   59    0   -1
-iiii: iq and internal window region=   60    0   -1
-iiii: iq and internal window region=   61    0   -1
-iiii: iq and internal window region=   62    0   -1
-iiii: iq and internal window region=   63    0   -1
-iiii: iq and internal window region=   64    0   -1
  Step 1: Hilbert space branch
   iko_ix iko_fx=           6          18
  goto readpsig
  readpsig:
- readpsig:           6          18          10           1
- readpsig:           6          18          10           2
- readpsig:           6          18          10           3
- readpsig:           6          18          10           4
- readpsig:           6          18          10           5
- readpsig:           6          18          10           6
- readpsig:           6          18          10           7
- readpsig:           6          18          10           8
- readpsig:           6          18          10           9
- readpsig:           6          18          10          10
- readpsig:           6          18          10          11
- readpsig:           6          18          10          12
- readpsig:           6          18          10          13
- readpsig:           6          18          10          14
- readpsig:           6          18          10          15
- readpsig:           6          18          10          16
- readpsig:           6          18          10          17
- readpsig:           6          18          10          18
- readpsig:           6          18          10          19
- readpsig:           6          18          10          20
- readpsig:           6          18          10          21
- readpsig:           6          18          10          22
- readpsig:           6          18          10          23
- readpsig:           6          18          10          24
- readpsig:           6          18          10          25
- readpsig:           6          18          10          26
- readpsig:           6          18          10          27
- readpsig:           6          18          10          28
- readpsig:           6          18          10          29
- readpsig:           6          18          10          30
- readpsig:           6          18          10          31
- readpsig:           6          18          10          32
- readpsig:           6          18          10          33
- readpsig:           6          18          10          34
- readpsig:           6          18          10          35
- readpsig:           6          18          10          36
- readpsig:           6          18          10          37
- readpsig:           6          18          10          38
- readpsig:           6          18          10          39
- readpsig:           6          18          10          40
- readpsig:           6          18          10          41
- readpsig:           6          18          10          42
- readpsig:           6          18          10          43
- readpsig:           6          18          10          44
- readpsig:           6          18          10          45
- readpsig:           6          18          10          46
- readpsig:           6          18          10          47
- readpsig:           6          18          10          48
- readpsig:           6          18          10          49
- readpsig:           6          18          10          50
- readpsig:           6          18          10          51
- readpsig:           6          18          10          52
- readpsig:           6          18          10          53
- readpsig:           6          18          10          54
- readpsig:           6          18          10          55
- readpsig:           6          18          10          56
- readpsig:           6          18          10          57
- readpsig:           6          18          10          58
- readpsig:           6          18          10          59
- readpsig:           6          18          10          60
- readpsig:           6          18          10          61
- readpsig:           6          18          10          62
- readpsig:           6          18          10          63
- readpsig:           6          18          10          64
-#SC-loop, conv.    1  0.68520D+02
-#SC-loop, conv.    2  0.66333D+02
-#SC-loop, conv.    3  0.64363D+02
-#SC-loop, conv.    4  0.62588D+02
-#SC-loop, conv.    5  0.60990D+02
-#SC-loop, conv.    6  0.59550D+02
-#SC-loop, conv.    7  0.58254D+02
-#SC-loop, conv.    8  0.57087D+02
-#SC-loop, conv.    9  0.56036D+02
-#SC-loop, conv.   10  0.55090D+02
-#SC-loop, conv.   11  0.54238D+02
-#SC-loop, conv.   12  0.53470D+02
-#SC-loop, conv.   13  0.52780D+02
-#SC-loop, conv.   14  0.52158D+02
-#SC-loop, conv.   15  0.51598D+02
-#SC-loop, conv.   16  0.51094D+02
-#SC-loop, conv.   17  0.50640D+02
-#SC-loop, conv.   18  0.50232D+02
-#SC-loop, conv.   19  0.49864D+02
-#SC-loop, conv.   20  0.49533D+02
-#SC-loop, conv.   21  0.49235D+02
-#SC-loop, conv.   22  0.48966D+02
-#SC-loop, conv.   23  0.48725D+02
-#SC-loop, conv.   24  0.48508D+02
-#SC-loop, conv.   25  0.48312D+02
-#SC-loop, conv.   26  0.48136D+02
-#SC-loop, conv.   27  0.47977D+02
-#SC-loop, conv.   28  0.47834D+02
-#SC-loop, conv.   29  0.47706D+02
-#SC-loop, conv.   30  0.47590D+02
-#SC-loop, conv.   31  0.47486D+02
-#SC-loop, conv.   32  0.47392D+02
-#SC-loop, conv.   33  0.47308D+02
-#SC-loop, conv.   34  0.47232D+02
-#SC-loop, conv.   35  0.47164D+02
-#SC-loop, conv.   36  0.47102D+02
-#SC-loop, conv.   37  0.47047D+02
-#SC-loop, conv.   38  0.46997D+02
-#SC-loop, conv.   39  0.46952D+02
-#SC-loop, conv.   40  0.46912D+02
-#SC-loop, conv.   41  0.46875D+02
-#SC-loop, conv.   42  0.46843D+02
-#SC-loop, conv.   43  0.46813D+02
-#SC-loop, conv.   44  0.46787D+02
-#SC-loop, conv.   45  0.46763D+02
-#SC-loop, conv.   46  0.46742D+02
-#SC-loop, conv.   47  0.46722D+02
-#SC-loop, conv.   48  0.46705D+02
-#SC-loop, conv.   49  0.46689D+02
-#SC-loop, conv.   50  0.46675D+02
-#SC-loop, conv.   51  0.46662D+02
-#SC-loop, conv.   52  0.46651D+02
-#SC-loop, conv.   53  0.46641D+02
-#SC-loop, conv.   54  0.46631D+02
-#SC-loop, conv.   55  0.46623D+02
-#SC-loop, conv.   56  0.46616D+02
-#SC-loop, conv.   57  0.46609D+02
-#SC-loop, conv.   58  0.46603D+02
-#SC-loop, conv.   59  0.46597D+02
-#SC-loop, conv.   60  0.46592D+02
-#SC-loop, conv.   61  0.46588D+02
-#SC-loop, conv.   62  0.46584D+02
-#SC-loop, conv.   63  0.46580D+02
-#SC-loop, conv.   64  0.46577D+02
-#SC-loop, conv.   65  0.46574D+02
-#SC-loop, conv.   66  0.46572D+02
-#SC-loop, conv.   67  0.46569D+02
-#SC-loop, conv.   68  0.46567D+02
-#SC-loop, conv.   69  0.46565D+02
-#SC-loop, conv.   70  0.46564D+02
-#SC-loop, conv.   71  0.46562D+02
-#SC-loop, conv.   72  0.46561D+02
-#SC-loop, conv.   73  0.46559D+02
-#SC-loop, conv.   74  0.46558D+02
-#SC-loop, conv.   75  0.46557D+02
-#SC-loop, conv.   76  0.46556D+02
-#SC-loop, conv.   77  0.46556D+02
-#SC-loop, conv.   78  0.46555D+02
-#SC-loop, conv.   79  0.46554D+02
-#SC-loop, conv.   80  0.46554D+02
-#SC-loop, conv.   81  0.46553D+02
-#SC-loop, conv.   82  0.46553D+02
-#SC-loop, conv.   83  0.46552D+02
+#SC-loop, conv.    1  0.48222D+02
+#SC-loop, conv.    2  0.45865D+02
+#SC-loop, conv.    3  0.43742D+02
+#SC-loop, conv.    4  0.41830D+02
+#SC-loop, conv.    5  0.40107D+02
+#SC-loop, conv.    6  0.38555D+02
+#SC-loop, conv.    7  0.37158D+02
+#SC-loop, conv.    8  0.35899D+02
+#SC-loop, conv.    9  0.34766D+02
+#SC-loop, conv.   10  0.33745D+02
+#SC-loop, conv.   11  0.32826D+02
+#SC-loop, conv.   12  0.31998D+02
+#SC-loop, conv.   13  0.31252D+02
+#SC-loop, conv.   14  0.30581D+02
+#SC-loop, conv.   15  0.29976D+02
+#SC-loop, conv.   16  0.29432D+02
+#SC-loop, conv.   17  0.28942D+02
+#SC-loop, conv.   18  0.28501D+02
+#SC-loop, conv.   19  0.28104D+02
+#SC-loop, conv.   20  0.27746D+02
+#SC-loop, conv.   21  0.27424D+02
+#SC-loop, conv.   22  0.27134D+02
+#SC-loop, conv.   23  0.26873D+02
+#SC-loop, conv.   24  0.26638D+02
+#SC-loop, conv.   25  0.26426D+02
+#SC-loop, conv.   26  0.26236D+02
+#SC-loop, conv.   27  0.26064D+02
+#SC-loop, conv.   28  0.25910D+02
+#SC-loop, conv.   29  0.25771D+02
+#SC-loop, conv.   30  0.25646D+02
+#SC-loop, conv.   31  0.25533D+02
+#SC-loop, conv.   32  0.25432D+02
+#SC-loop, conv.   33  0.25341D+02
+#SC-loop, conv.   34  0.25259D+02
+#SC-loop, conv.   35  0.25185D+02
+#SC-loop, conv.   36  0.25118D+02
+#SC-loop, conv.   37  0.25058D+02
+#SC-loop, conv.   38  0.25004D+02
+#SC-loop, conv.   39  0.24956D+02
+#SC-loop, conv.   40  0.24912D+02
+#SC-loop, conv.   41  0.24872D+02
+#SC-loop, conv.   42  0.24837D+02
+#SC-loop, conv.   43  0.24805D+02
+#SC-loop, conv.   44  0.24776D+02
+#SC-loop, conv.   45  0.24751D+02
+#SC-loop, conv.   46  0.24727D+02
+#SC-loop, conv.   47  0.24706D+02
+#SC-loop, conv.   48  0.24688D+02
+#SC-loop, conv.   49  0.24671D+02
+#SC-loop, conv.   50  0.24655D+02
+#SC-loop, conv.   51  0.24642D+02
+#SC-loop, conv.   52  0.24629D+02
+#SC-loop, conv.   53  0.24618D+02
+#SC-loop, conv.   54  0.24608D+02
+#SC-loop, conv.   55  0.24599D+02
+#SC-loop, conv.   56  0.24591D+02
+#SC-loop, conv.   57  0.24584D+02
+#SC-loop, conv.   58  0.24577D+02
+#SC-loop, conv.   59  0.24571D+02
+#SC-loop, conv.   60  0.24566D+02
+#SC-loop, conv.   61  0.24561D+02
+#SC-loop, conv.   62  0.24557D+02
+#SC-loop, conv.   63  0.24553D+02
+#SC-loop, conv.   64  0.24549D+02
+#SC-loop, conv.   65  0.24546D+02
+#SC-loop, conv.   66  0.24543D+02
+#SC-loop, conv.   67  0.24541D+02
+#SC-loop, conv.   68  0.24538D+02
+#SC-loop, conv.   69  0.24536D+02
+#SC-loop, conv.   70  0.24535D+02
+#SC-loop, conv.   71  0.24533D+02
+#SC-loop, conv.   72  0.24531D+02
+#SC-loop, conv.   73  0.24530D+02
+#SC-loop, conv.   74  0.24529D+02
+#SC-loop, conv.   75  0.24528D+02
+#SC-loop, conv.   76  0.24527D+02
+#SC-loop, conv.   77  0.24526D+02
+#SC-loop, conv.   78  0.24525D+02
+#SC-loop, conv.   79  0.24524D+02
+#SC-loop, conv.   80  0.24524D+02
+#SC-loop, conv.   81  0.24523D+02
+#SC-loop, conv.   82  0.24523D+02
+#SC-loop, conv.   83  0.24522D+02
+#SC-loop, conv.   84  0.24522D+02
+#SC-loop, conv.   85  0.24521D+02
+#SC-loop, conv.   86  0.24521D+02
+#SC-loop, conv.   87  0.24521D+02
+#SC-loop, conv.   88  0.24520D+02
+#SC-loop, conv.   89  0.24520D+02
+#SC-loop, conv.   90  0.24520D+02
  step1: converged!
  Step 2: Wannier fn. branch
-#SC-loop, conv.     1  0.11874E+01 Omg:_I,_OD,_D=     46.5482274473     1.1874363563     0.0000000000
-#SC-loop, conv.     2  0.11824E+01 Omg:_I,_OD,_D=     46.5482274473     1.1824269176     0.0000000000
-#SC-loop, conv.     3  0.11782E+01 Omg:_I,_OD,_D=     46.5482274473     1.1781927213     0.0000000000
-#SC-loop, conv.     4  0.11746E+01 Omg:_I,_OD,_D=     46.5482274473     1.1745911673     0.0000000000
-#SC-loop, conv.     5  0.11715E+01 Omg:_I,_OD,_D=     46.5482274473     1.1715089010     0.0000000000
-#SC-loop, conv.     6  0.11689E+01 Omg:_I,_OD,_D=     46.5482274473     1.1688554294     0.0000000000
-#SC-loop, conv.     7  0.11666E+01 Omg:_I,_OD,_D=     46.5482274473     1.1665581807     0.0000000000
-#SC-loop, conv.     8  0.11646E+01 Omg:_I,_OD,_D=     46.5482274473     1.1645586752     0.0000000000
-#SC-loop, conv.     9  0.11628E+01 Omg:_I,_OD,_D=     46.5482274473     1.1628095508     0.0000000000
-#SC-loop, conv.    10  0.11613E+01 Omg:_I,_OD,_D=     46.5482274473     1.1612722476     0.0000000000
-#SC-loop, conv.    11  0.11599E+01 Omg:_I,_OD,_D=     46.5482274473     1.1599152009     0.0000000000
-#SC-loop, conv.    12  0.11587E+01 Omg:_I,_OD,_D=     46.5482274473     1.1587124273     0.0000000000
-#SC-loop, conv.    13  0.11576E+01 Omg:_I,_OD,_D=     46.5482274473     1.1576424162     0.0000000000
-#SC-loop, conv.    14  0.11567E+01 Omg:_I,_OD,_D=     46.5482274473     1.1566872570     0.0000000000
-#SC-loop, conv.    15  0.11558E+01 Omg:_I,_OD,_D=     46.5482274473     1.1558319508     0.0000000000
-#SC-loop, conv.    16  0.11551E+01 Omg:_I,_OD,_D=     46.5482274473     1.1550638647     0.0000000000
-#SC-loop, conv.    17  0.11544E+01 Omg:_I,_OD,_D=     46.5482274473     1.1543722987     0.0000000000
-#SC-loop, conv.    18  0.11537E+01 Omg:_I,_OD,_D=     46.5482274473     1.1537481400     0.0000000000
-#SC-loop, conv.    19  0.11532E+01 Omg:_I,_OD,_D=     46.5482274473     1.1531835860     0.0000000000
-#SC-loop, conv.    20  0.11527E+01 Omg:_I,_OD,_D=     46.5482274473     1.1526719218     0.0000000000
-#SC-loop, conv.    21  0.11522E+01 Omg:_I,_OD,_D=     46.5482274473     1.1522073398     0.0000000000
-#SC-loop, conv.    22  0.11518E+01 Omg:_I,_OD,_D=     46.5482274473     1.1517847945     0.0000000000
-#SC-loop, conv.    23  0.11514E+01 Omg:_I,_OD,_D=     46.5482274473     1.1513998825     0.0000000000
-#SC-loop, conv.    24  0.11510E+01 Omg:_I,_OD,_D=     46.5482274473     1.1510487456     0.0000000000
-#SC-loop, conv.    25  0.11507E+01 Omg:_I,_OD,_D=     46.5482274473     1.1507279902     0.0000000000
-#SC-loop, conv.    26  0.11504E+01 Omg:_I,_OD,_D=     46.5482274473     1.1504346207     0.0000000000
-#SC-loop, conv.    27  0.11502E+01 Omg:_I,_OD,_D=     46.5482274473     1.1501659841     0.0000000000
-#SC-loop, conv.    28  0.11499E+01 Omg:_I,_OD,_D=     46.5482274473     1.1499197239     0.0000000000
-#SC-loop, conv.    29  0.11497E+01 Omg:_I,_OD,_D=     46.5482274473     1.1496937409     0.0000000000
-#SC-loop, conv.    30  0.11495E+01 Omg:_I,_OD,_D=     46.5482274473     1.1494861605     0.0000000000
-#SC-loop, conv.    31  0.11493E+01 Omg:_I,_OD,_D=     46.5482274473     1.1492953045     0.0000000000
-#SC-loop, conv.    32  0.11491E+01 Omg:_I,_OD,_D=     46.5482274473     1.1491196676     0.0000000000
-#SC-loop, conv.    33  0.11490E+01 Omg:_I,_OD,_D=     46.5482274473     1.1489578966     0.0000000000
-#SC-loop, conv.    34  0.11488E+01 Omg:_I,_OD,_D=     46.5482274473     1.1488087729     0.0000000000
-#SC-loop, conv.    35  0.11487E+01 Omg:_I,_OD,_D=     46.5482274473     1.1486711974     0.0000000000
-#SC-loop, conv.    36  0.11485E+01 Omg:_I,_OD,_D=     46.5482274473     1.1485441770     0.0000000000
-#SC-loop, conv.    37  0.11484E+01 Omg:_I,_OD,_D=     46.5482274473     1.1484268134     0.0000000000
-#SC-loop, conv.    38  0.11483E+01 Omg:_I,_OD,_D=     46.5482274473     1.1483182926     0.0000000000
-#SC-loop, conv.    39  0.11482E+01 Omg:_I,_OD,_D=     46.5482274473     1.1482178764     0.0000000000
-#SC-loop, conv.    40  0.11481E+01 Omg:_I,_OD,_D=     46.5482274473     1.1481248945     0.0000000000
-#SC-loop, conv.    41  0.11480E+01 Omg:_I,_OD,_D=     46.5482274473     1.1480387372     0.0000000000
-#SC-loop, conv.    42  0.11480E+01 Omg:_I,_OD,_D=     46.5482274473     1.1479588501     0.0000000000
-#SC-loop, conv.    43  0.11479E+01 Omg:_I,_OD,_D=     46.5482274473     1.1478847279     0.0000000000
-#SC-loop, conv.    44  0.11478E+01 Omg:_I,_OD,_D=     46.5482274473     1.1478159101     0.0000000000
-#SC-loop, conv.    45  0.11478E+01 Omg:_I,_OD,_D=     46.5482274473     1.1477519763     0.0000000000
-#SC-loop, conv.    46  0.11477E+01 Omg:_I,_OD,_D=     46.5482274473     1.1476925427     0.0000000000
-#SC-loop, conv.    47  0.11476E+01 Omg:_I,_OD,_D=     46.5482274473     1.1476372585     0.0000000000
-#SC-loop, conv.    48  0.11476E+01 Omg:_I,_OD,_D=     46.5482274473     1.1475858027     0.0000000000
-#SC-loop, conv.    49  0.11475E+01 Omg:_I,_OD,_D=     46.5482274473     1.1475378816     0.0000000000
-#SC-loop, conv.    50  0.11475E+01 Omg:_I,_OD,_D=     46.5482274473     1.1474932260     0.0000000000
-#SC-loop, conv.    51  0.11475E+01 Omg:_I,_OD,_D=     46.5482274473     1.1474515894     0.0000000000
-#SC-loop, conv.    52  0.11474E+01 Omg:_I,_OD,_D=     46.5482274473     1.1474127454     0.0000000000
-#SC-loop, conv.    53  0.11474E+01 Omg:_I,_OD,_D=     46.5482274473     1.1473764863     0.0000000000
-#SC-loop, conv.    54  0.11473E+01 Omg:_I,_OD,_D=     46.5482274473     1.1473426214     0.0000000000
-#SC-loop, conv.    55  0.11473E+01 Omg:_I,_OD,_D=     46.5482274473     1.1473109752     0.0000000000
-#SC-loop, conv.    56  0.11473E+01 Omg:_I,_OD,_D=     46.5482274473     1.1472813866     0.0000000000
-#SC-loop, conv.    57  0.11473E+01 Omg:_I,_OD,_D=     46.5482274473     1.1472537071     0.0000000000
-#SC-loop, conv.    58  0.11472E+01 Omg:_I,_OD,_D=     46.5482274473     1.1472278000     0.0000000000
-#SC-loop, conv.    59  0.11472E+01 Omg:_I,_OD,_D=     46.5482274473     1.1472035394     0.0000000000
-#SC-loop, conv.    60  0.11472E+01 Omg:_I,_OD,_D=     46.5482274473     1.1471808092     0.0000000000
-#SC-loop, conv.    61  0.11472E+01 Omg:_I,_OD,_D=     46.5482274473     1.1471595023     0.0000000000
-#SC-loop, conv.    62  0.11471E+01 Omg:_I,_OD,_D=     46.5482274473     1.1471395199     0.0000000000
-#SC-loop, conv.    63  0.11471E+01 Omg:_I,_OD,_D=     46.5482274473     1.1471207705     0.0000000000
-#SC-loop, conv.    64  0.11471E+01 Omg:_I,_OD,_D=     46.5482274473     1.1471031699     0.0000000000
-#SC-loop, conv.    65  0.11471E+01 Omg:_I,_OD,_D=     46.5482274473     1.1470866400     0.0000000000
-#SC-loop, conv.    66  0.11471E+01 Omg:_I,_OD,_D=     46.5482274473     1.1470711086     0.0000000000
-#SC-loop, conv.    67  0.11471E+01 Omg:_I,_OD,_D=     46.5482274473     1.1470565089     0.0000000000
-#SC-loop, conv.    68  0.11470E+01 Omg:_I,_OD,_D=     46.5482274473     1.1470427789     0.0000000000
-#SC-loop, conv.    69  0.11470E+01 Omg:_I,_OD,_D=     46.5482274473     1.1470298612     0.0000000000
-#SC-loop, conv.    70  0.11470E+01 Omg:_I,_OD,_D=     46.5482274473     1.1470177027     0.0000000000
-#SC-loop, conv.    71  0.11470E+01 Omg:_I,_OD,_D=     46.5482274473     1.1470062539     0.0000000000
+#SC-loop, spread(bohr**2)     1 Omg_I Omg_OD Omg_D=    38.5633066079     2.0085948265     0.0000000004
+#SC-loop, spread(bohr**2)     2 Omg_I Omg_OD Omg_D=    38.5633066079     2.0044891985     0.0000000003
+#SC-loop, spread(bohr**2)     3 Omg_I Omg_OD Omg_D=    38.5633066079     2.0008911919     0.0000000003
+#SC-loop, spread(bohr**2)     4 Omg_I Omg_OD Omg_D=    38.5633066079     1.9977280869     0.0000000003
+#SC-loop, spread(bohr**2)     5 Omg_I Omg_OD Omg_D=    38.5633066079     1.9949393902     0.0000000003
+#SC-loop, spread(bohr**2)     6 Omg_I Omg_OD Omg_D=    38.5633066079     1.9924744669     0.0000000002
+#SC-loop, spread(bohr**2)     7 Omg_I Omg_OD Omg_D=    38.5633066079     1.9902906819     0.0000000002
+#SC-loop, spread(bohr**2)     8 Omg_I Omg_OD Omg_D=    38.5633066079     1.9883519321     0.0000000002
+#SC-loop, spread(bohr**2)     9 Omg_I Omg_OD Omg_D=    38.5633066079     1.9866274818     0.0000000002
+#SC-loop, spread(bohr**2)    10 Omg_I Omg_OD Omg_D=    38.5633066079     1.9850910331     0.0000000002
+#SC-loop, spread(bohr**2)    11 Omg_I Omg_OD Omg_D=    38.5633066079     1.9837199800     0.0000000002
+#SC-loop, spread(bohr**2)    12 Omg_I Omg_OD Omg_D=    38.5633066079     1.9824948052     0.0000000002
+#SC-loop, spread(bohr**2)    13 Omg_I Omg_OD Omg_D=    38.5633066079     1.9813985912     0.0000000001
+#SC-loop, spread(bohr**2)    14 Omg_I Omg_OD Omg_D=    38.5633066079     1.9804166199     0.0000000001
+#SC-loop, spread(bohr**2)    15 Omg_I Omg_OD Omg_D=    38.5633066079     1.9795360436     0.0000000001
+#SC-loop, spread(bohr**2)    16 Omg_I Omg_OD Omg_D=    38.5633066079     1.9787456130     0.0000000001
+#SC-loop, spread(bohr**2)    17 Omg_I Omg_OD Omg_D=    38.5633066079     1.9780354510     0.0000000001
+#SC-loop, spread(bohr**2)    18 Omg_I Omg_OD Omg_D=    38.5633066079     1.9773968635     0.0000000001
+#SC-loop, spread(bohr**2)    19 Omg_I Omg_OD Omg_D=    38.5633066079     1.9768221797     0.0000000001
+#SC-loop, spread(bohr**2)    20 Omg_I Omg_OD Omg_D=    38.5633066079     1.9763046179     0.0000000001
+#SC-loop, spread(bohr**2)    21 Omg_I Omg_OD Omg_D=    38.5633066079     1.9758381710     0.0000000001
+#SC-loop, spread(bohr**2)    22 Omg_I Omg_OD Omg_D=    38.5633066079     1.9754175089     0.0000000001
+#SC-loop, spread(bohr**2)    23 Omg_I Omg_OD Omg_D=    38.5633066079     1.9750378946     0.0000000001
+#SC-loop, spread(bohr**2)    24 Omg_I Omg_OD Omg_D=    38.5633066079     1.9746951127     0.0000000001
+#SC-loop, spread(bohr**2)    25 Omg_I Omg_OD Omg_D=    38.5633066079     1.9743854065     0.0000000001
+#SC-loop, spread(bohr**2)    26 Omg_I Omg_OD Omg_D=    38.5633066079     1.9741054245     0.0000000001
+#SC-loop, spread(bohr**2)    27 Omg_I Omg_OD Omg_D=    38.5633066079     1.9738521734     0.0000000001
+#SC-loop, spread(bohr**2)    28 Omg_I Omg_OD Omg_D=    38.5633066079     1.9736229768     0.0000000001
+#SC-loop, spread(bohr**2)    29 Omg_I Omg_OD Omg_D=    38.5633066079     1.9734154400     0.0000000001
+#SC-loop, spread(bohr**2)    30 Omg_I Omg_OD Omg_D=    38.5633066079     1.9732274178     0.0000000001
+#SC-loop, spread(bohr**2)    31 Omg_I Omg_OD Omg_D=    38.5633066079     1.9730569879     0.0000000001
+#SC-loop, spread(bohr**2)    32 Omg_I Omg_OD Omg_D=    38.5633066079     1.9729024253     0.0000000001
+#SC-loop, spread(bohr**2)    33 Omg_I Omg_OD Omg_D=    38.5633066079     1.9727621821     0.0000000001
+#SC-loop, spread(bohr**2)    34 Omg_I Omg_OD Omg_D=    38.5633066079     1.9726348678     0.0000000001
+#SC-loop, spread(bohr**2)    35 Omg_I Omg_OD Omg_D=    38.5633066079     1.9725192323     0.0000000001
+#SC-loop, spread(bohr**2)    36 Omg_I Omg_OD Omg_D=    38.5633066079     1.9724141519     0.0000000001
+#SC-loop, spread(bohr**2)    37 Omg_I Omg_OD Omg_D=    38.5633066079     1.9723186151     0.0000000001
+#SC-loop, spread(bohr**2)    38 Omg_I Omg_OD Omg_D=    38.5633066079     1.9722317115     0.0000000001
+#SC-loop, spread(bohr**2)    39 Omg_I Omg_OD Omg_D=    38.5633066079     1.9721526209     0.0000000001
+#SC-loop, spread(bohr**2)    40 Omg_I Omg_OD Omg_D=    38.5633066079     1.9720806042     0.0000000001
+#SC-loop, spread(bohr**2)    41 Omg_I Omg_OD Omg_D=    38.5633066079     1.9720149953     0.0000000001
+#SC-loop, spread(bohr**2)    42 Omg_I Omg_OD Omg_D=    38.5633066079     1.9719551930     0.0000000001
+#SC-loop, spread(bohr**2)    43 Omg_I Omg_OD Omg_D=    38.5633066079     1.9719006549     0.0000000000
+#SC-loop, spread(bohr**2)    44 Omg_I Omg_OD Omg_D=    38.5633066079     1.9718508915     0.0000000000
+#SC-loop, spread(bohr**2)    45 Omg_I Omg_OD Omg_D=    38.5633066079     1.9718054605     0.0000000000
+#SC-loop, spread(bohr**2)    46 Omg_I Omg_OD Omg_D=    38.5633066079     1.9717639624     0.0000000000
+#SC-loop, spread(bohr**2)    47 Omg_I Omg_OD Omg_D=    38.5633066079     1.9717260361     0.0000000000
+#SC-loop, spread(bohr**2)    48 Omg_I Omg_OD Omg_D=    38.5633066079     1.9716913550     0.0000000000
+#SC-loop, spread(bohr**2)    49 Omg_I Omg_OD Omg_D=    38.5633066079     1.9716596236     0.0000000000
+#SC-loop, spread(bohr**2)    50 Omg_I Omg_OD Omg_D=    38.5633066079     1.9716305748     0.0000000000
+#SC-loop, spread(bohr**2)    51 Omg_I Omg_OD Omg_D=    38.5633066079     1.9716039664     0.0000000000
+#SC-loop, spread(bohr**2)    52 Omg_I Omg_OD Omg_D=    38.5633066079     1.9715795794     0.0000000000
+#SC-loop, spread(bohr**2)    53 Omg_I Omg_OD Omg_D=    38.5633066079     1.9715572150     0.0000000000
+#SC-loop, spread(bohr**2)    54 Omg_I Omg_OD Omg_D=    38.5633066079     1.9715366935     0.0000000000
+#SC-loop, spread(bohr**2)    55 Omg_I Omg_OD Omg_D=    38.5633066079     1.9715178516     0.0000000000
  step2: converged!
+dddd spread: iwf r2n(bohr^2) rn(bohr)=  1     3.194050     -0.0000   0.0000  -0.0000
+dddd spread: iwf r2n(bohr^2) rn(bohr)=  2     3.194042      0.0000  -0.0000   0.0000
+dddd spread: iwf r2n(bohr^2) rn(bohr)=  3     6.392621     -0.0000   0.0000  -0.0000
+dddd spread: iwf r2n(bohr^2) rn(bohr)=  4     3.194044      0.0000  -0.0000  -0.0000
+dddd spread: iwf r2n(bohr^2) rn(bohr)=  5     6.392446      0.0000   0.0000   0.0000
+dddd spread: iwf r2n(bohr^2) rn(bohr)=  6     2.925247      7.8800   7.8800   7.8800
+dddd spread: iwf r2n(bohr^2) rn(bohr)=  7     2.925260      7.8800   7.8800   7.8800
+dddd spread: iwf r2n(bohr^2) rn(bohr)=  8     4.695730      7.8800   7.8800   7.8800
+dddd spread: iwf r2n(bohr^2) rn(bohr)=  9     2.925267      7.8800   7.8800   7.8800
+dddd spread: iwf r2n(bohr^2) rn(bohr)= 10     4.696118      7.8800   7.8800   7.8800
  ---------- wlaxloc isp =           1
- iq sumcheck winsub=   1  10.00000
- iq sumcheck winsub=   2  10.00000
- iq sumcheck winsub=   3  10.00000
- iq sumcheck winsub=   4  10.00000
- iq sumcheck winsub=   5  10.00000
- iq sumcheck winsub=   6  10.00000
- iq sumcheck winsub=   7  10.00000
- iq sumcheck winsub=   8  10.00000
- iq sumcheck winsub=   9  10.00000
- iq sumcheck winsub=  10  10.00000
- iq sumcheck winsub=  11  10.00000
- iq sumcheck winsub=  12  10.00000
- iq sumcheck winsub=  13  10.00000
- iq sumcheck winsub=  14  10.00000
- iq sumcheck winsub=  15  10.00000
- iq sumcheck winsub=  16  10.00000
- iq sumcheck winsub=  17  10.00000
- iq sumcheck winsub=  18  10.00000
- iq sumcheck winsub=  19  10.00000
- iq sumcheck winsub=  20  10.00000
- iq sumcheck winsub=  21  10.00000
- iq sumcheck winsub=  22  10.00000
- iq sumcheck winsub=  23  10.00000
- iq sumcheck winsub=  24  10.00000
- iq sumcheck winsub=  25  10.00000
- iq sumcheck winsub=  26  10.00000
- iq sumcheck winsub=  27  10.00000
- iq sumcheck winsub=  28  10.00000
- iq sumcheck winsub=  29  10.00000
- iq sumcheck winsub=  30  10.00000
- iq sumcheck winsub=  31  10.00000
- iq sumcheck winsub=  32  10.00000
- iq sumcheck winsub=  33  10.00000
- iq sumcheck winsub=  34  10.00000
- iq sumcheck winsub=  35  10.00000
- iq sumcheck winsub=  36  10.00000
- iq sumcheck winsub=  37  10.00000
- iq sumcheck winsub=  38  10.00000
- iq sumcheck winsub=  39  10.00000
- iq sumcheck winsub=  40  10.00000
- iq sumcheck winsub=  41  10.00000
- iq sumcheck winsub=  42  10.00000
- iq sumcheck winsub=  43  10.00000
- iq sumcheck winsub=  44  10.00000
- iq sumcheck winsub=  45  10.00000
- iq sumcheck winsub=  46  10.00000
- iq sumcheck winsub=  47  10.00000
- iq sumcheck winsub=  48  10.00000
- iq sumcheck winsub=  49  10.00000
- iq sumcheck winsub=  50  10.00000
- iq sumcheck winsub=  51  10.00000
- iq sumcheck winsub=  52  10.00000
- iq sumcheck winsub=  53  10.00000
- iq sumcheck winsub=  54  10.00000
- iq sumcheck winsub=  55  10.00000
- iq sumcheck winsub=  56  10.00000
- iq sumcheck winsub=  57  10.00000
- iq sumcheck winsub=  58  10.00000
- iq sumcheck winsub=  59  10.00000
- iq sumcheck winsub=  60  10.00000
- iq sumcheck winsub=  61  10.00000
- iq sumcheck winsub=  62  10.00000
- iq sumcheck winsub=  63  10.00000
- iq sumcheck winsub=  64  10.00000
  Step 3: reduced Hamiltonian branch
- iq is           1           1
- iq is           2           1
- iq is           3           1
- iq is           4           1
- iq is           5           1
- iq is           6           1
- iq is           7           1
- iq is           8           1
- iq is           9           1
- iq is          10           1
- iq is          11           1
- iq is          12           1
- iq is          13           1
- iq is          14           1
- iq is          15           1
- iq is          16           1
- iq is          17           1
- iq is          18           1
- iq is          19           1
- iq is          20           1
- iq is          21           1
- iq is          22           1
- iq is          23           1
- iq is          24           1
- iq is          25           1
- iq is          26           1
- iq is          27           1
- iq is          28           1
- iq is          29           1
- iq is          30           1
- iq is          31           1
- iq is          32           1
- iq is          33           1
- iq is          34           1
- iq is          35           1
- iq is          36           1
- iq is          37           1
- iq is          38           1
- iq is          39           1
- iq is          40           1
- iq is          41           1
- iq is          42           1
- iq is          43           1
- iq is          44           1
- iq is          45           1
- iq is          46           1
- iq is          47           1
- iq is          48           1
- iq is          49           1
- iq is          50           1
- iq is          51           1
- iq is          52           1
- iq is          53           1
- iq is          54           1
- iq is          55           1
- iq is          56           1
- iq is          57           1
- iq is          58           1
- iq is          59           1
- iq is          60           1
- iq is          61           1
- iq is          62           1
- iq is          63           1
- iq is          64           1
- iq is          65           1
- iq is          66           1
- iq is          67           1
- iq is          68           1
- iq is          69           1
- iq is          70           1
- iq is          71           1
- iq is          72           1
- iq is          73           1
- iq is          74           1
- iq is          75           1
- iq is          76           1
- iq is          77           1
- iq is          78           1
- iq is          79           1
- iq is          80           1
- iq is          81           1
- iq is          82           1
- iq is          83           1
- iq is          84           1
- iq is          85           1
- iq is          86           1
- iq is          87           1
- iq is          88           1
- iq is          89           1
- iq is          90           1
- iq is          91           1
- iq is          92           1
- iq is          93           1
- iq is          94           1
- iq is          95           1
- iq is          96           1
- iq is          97           1
- iq is          98           1
- iq is          99           1
- iq is         100           1
- iq is         101           1
- iq is         102           1
- iq is         103           1
- iq is         104           1
- iq is         105           1
- iq is         106           1
- iq is         107           1
- iq is         108           1
- iq is         109           1
- iq is         110           1
- iq is         111           1
- iq is         112           1
- iq is         113           1
- iq is         114           1
- iq is         115           1
- iq is         116           1
- iq is         117           1
- iq is         118           1
- iq is         119           1
- iq is         120           1
- iq is         121           1
- iq is         122           1
- iq is         123           1
- iq is         124           1
- iq is         125           1
- iq is         126           1
- iq is         127           1
- iq is         128           1
- iq is         129           1
- iq is         130           1
- iq is         131           1
- iq is         132           1
- iq is         133           1
- iq is         134           1
- iq is         135           1
- iq is         136           1
- iq is         137           1
- iq is         138           1
- iq is         139           1
- iq is         140           1
- iq is         141           1
- iq is         142           1
- iq is         143           1
- iq is         144           1
- iq is         145           1
- iq is         146           1
- iq is         147           1
- iq is         148           1
- iq is         149           1
- iq is         150           1
- iq is         151           1
- iq is         152           1
- iq is         153           1
- iq is         154           1
- iq is         155           1
- iq is         156           1
- iq is         157           1
- iq is         158           1
- iq is         159           1
- iq is         160           1
- iq is         161           1
- iq is         162           1
- iq is         163           1
- iq is         164           1
- iq is         165           1
- iq is         166           1
- iq is         167           1
- iq is         168           1
- iq is         169           1
- iq is         170           1
- iq is         171           1
- iq is         172           1
- iq is         173           1
- iq is         174           1
- iq is         175           1
- iq is         176           1
- iq is         177           1
- iq is         178           1
- iq is         179           1
- iq is         180           1
- iq is         181           1
- iq is         182           1
- iq is         183           1
- iq is         184           1
- iq is         185           1
- iq is         186           1
- iq is         187           1
- iq is         188           1
- iq is         189           1
- iq is         190           1
- iq is         191           1
- iq is         192           1
 
   got get_hrotkp_ws iq =           1
   got get_hrotkp_ws iq =           2
   got get_hrotkp_ws iq =           3
   got get_hrotkp_ws iq =           4
-  got get_hrotkp_ws iq =           5
-  got get_hrotkp_ws iq =           6
-  got get_hrotkp_ws iq =           7
-  got get_hrotkp_ws iq =           8
-  got get_hrotkp_ws iq =           9
-  got get_hrotkp_ws iq =          10
-  got get_hrotkp_ws iq =          11
-  got get_hrotkp_ws iq =          12
-  got get_hrotkp_ws iq =          13
-  got get_hrotkp_ws iq =          14
-  got get_hrotkp_ws iq =          15
-  got get_hrotkp_ws iq =          16
-  got get_hrotkp_ws iq =          17
-  got get_hrotkp_ws iq =          18
-  got get_hrotkp_ws iq =          19
-  got get_hrotkp_ws iq =          20
-  got get_hrotkp_ws iq =          21
-  got get_hrotkp_ws iq =          22
-  got get_hrotkp_ws iq =          23
-  got get_hrotkp_ws iq =          24
-  got get_hrotkp_ws iq =          25
-  got get_hrotkp_ws iq =          26
-  got get_hrotkp_ws iq =          27
-  got get_hrotkp_ws iq =          28
-  got get_hrotkp_ws iq =          29
-  got get_hrotkp_ws iq =          30
-  got get_hrotkp_ws iq =          31
-  got get_hrotkp_ws iq =          32
-  got get_hrotkp_ws iq =          33
-  got get_hrotkp_ws iq =          34
-  got get_hrotkp_ws iq =          35
-  got get_hrotkp_ws iq =          36
-  got get_hrotkp_ws iq =          37
-  got get_hrotkp_ws iq =          38
-  got get_hrotkp_ws iq =          39
-  got get_hrotkp_ws iq =          40
-  got get_hrotkp_ws iq =          41
-  got get_hrotkp_ws iq =          42
-  got get_hrotkp_ws iq =          43
-  got get_hrotkp_ws iq =          44
-  got get_hrotkp_ws iq =          45
-  got get_hrotkp_ws iq =          46
-  got get_hrotkp_ws iq =          47
-  got get_hrotkp_ws iq =          48
-  got get_hrotkp_ws iq =          49
-  got get_hrotkp_ws iq =          50
-  got get_hrotkp_ws iq =          51
-  got get_hrotkp_ws iq =          52
-  got get_hrotkp_ws iq =          53
-  got get_hrotkp_ws iq =          54
-  got get_hrotkp_ws iq =          55
-  got get_hrotkp_ws iq =          56
-  got get_hrotkp_ws iq =          57
-  got get_hrotkp_ws iq =          58
-  got get_hrotkp_ws iq =          59
-  got get_hrotkp_ws iq =          60
-  got get_hrotkp_ws iq =          61
+  ...
   got get_hrotkp_ws iq =          62
   got get_hrotkp_ws iq =          63
   got get_hrotkp_ws iq =          64
@@ -970,609 +327,177 @@ iiii: iq and internal window region=   64    0   -1
  Outer energy window, on
  eomin, eomax =  -4.0000000000000000        2.0000000000000000     
  Inner energy window, off
-iiii: iq and internal window region=    1    0   -1
-iiii: iq and internal window region=    2    0   -1
-iiii: iq and internal window region=    3    0   -1
-iiii: iq and internal window region=    4    0   -1
-iiii: iq and internal window region=    5    0   -1
-iiii: iq and internal window region=    6    0   -1
-iiii: iq and internal window region=    7    0   -1
-iiii: iq and internal window region=    8    0   -1
-iiii: iq and internal window region=    9    0   -1
-iiii: iq and internal window region=   10    0   -1
-iiii: iq and internal window region=   11    0   -1
-iiii: iq and internal window region=   12    0   -1
-iiii: iq and internal window region=   13    0   -1
-iiii: iq and internal window region=   14    0   -1
-iiii: iq and internal window region=   15    0   -1
-iiii: iq and internal window region=   16    0   -1
-iiii: iq and internal window region=   17    0   -1
-iiii: iq and internal window region=   18    0   -1
-iiii: iq and internal window region=   19    0   -1
-iiii: iq and internal window region=   20    0   -1
-iiii: iq and internal window region=   21    0   -1
-iiii: iq and internal window region=   22    0   -1
-iiii: iq and internal window region=   23    0   -1
-iiii: iq and internal window region=   24    0   -1
-iiii: iq and internal window region=   25    0   -1
-iiii: iq and internal window region=   26    0   -1
-iiii: iq and internal window region=   27    0   -1
-iiii: iq and internal window region=   28    0   -1
-iiii: iq and internal window region=   29    0   -1
-iiii: iq and internal window region=   30    0   -1
-iiii: iq and internal window region=   31    0   -1
-iiii: iq and internal window region=   32    0   -1
-iiii: iq and internal window region=   33    0   -1
-iiii: iq and internal window region=   34    0   -1
-iiii: iq and internal window region=   35    0   -1
-iiii: iq and internal window region=   36    0   -1
-iiii: iq and internal window region=   37    0   -1
-iiii: iq and internal window region=   38    0   -1
-iiii: iq and internal window region=   39    0   -1
-iiii: iq and internal window region=   40    0   -1
-iiii: iq and internal window region=   41    0   -1
-iiii: iq and internal window region=   42    0   -1
-iiii: iq and internal window region=   43    0   -1
-iiii: iq and internal window region=   44    0   -1
-iiii: iq and internal window region=   45    0   -1
-iiii: iq and internal window region=   46    0   -1
-iiii: iq and internal window region=   47    0   -1
-iiii: iq and internal window region=   48    0   -1
-iiii: iq and internal window region=   49    0   -1
-iiii: iq and internal window region=   50    0   -1
-iiii: iq and internal window region=   51    0   -1
-iiii: iq and internal window region=   52    0   -1
-iiii: iq and internal window region=   53    0   -1
-iiii: iq and internal window region=   54    0   -1
-iiii: iq and internal window region=   55    0   -1
-iiii: iq and internal window region=   56    0   -1
-iiii: iq and internal window region=   57    0   -1
-iiii: iq and internal window region=   58    0   -1
-iiii: iq and internal window region=   59    0   -1
-iiii: iq and internal window region=   60    0   -1
-iiii: iq and internal window region=   61    0   -1
-iiii: iq and internal window region=   62    0   -1
-iiii: iq and internal window region=   63    0   -1
-iiii: iq and internal window region=   64    0   -1
  Step 1: Hilbert space branch
   iko_ix iko_fx=           6          18
  goto readpsig
  readpsig:
- readpsig:           6          18          10           1
- readpsig:           6          18          10           2
- readpsig:           6          18          10           3
- readpsig:           6          18          10           4
- readpsig:           6          18          10           5
- readpsig:           6          18          10           6
- readpsig:           6          18          10           7
- readpsig:           6          18          10           8
- readpsig:           6          18          10           9
- readpsig:           6          18          10          10
- readpsig:           6          18          10          11
- readpsig:           6          18          10          12
- readpsig:           6          18          10          13
- readpsig:           6          18          10          14
- readpsig:           6          18          10          15
- readpsig:           6          18          10          16
- readpsig:           6          18          10          17
- readpsig:           6          18          10          18
- readpsig:           6          18          10          19
- readpsig:           6          18          10          20
- readpsig:           6          18          10          21
- readpsig:           6          18          10          22
- readpsig:           6          18          10          23
- readpsig:           6          18          10          24
- readpsig:           6          18          10          25
- readpsig:           6          18          10          26
- readpsig:           6          18          10          27
- readpsig:           6          18          10          28
- readpsig:           6          18          10          29
- readpsig:           6          18          10          30
- readpsig:           6          18          10          31
- readpsig:           6          18          10          32
- readpsig:           6          18          10          33
- readpsig:           6          18          10          34
- readpsig:           6          18          10          35
- readpsig:           6          18          10          36
- readpsig:           6          18          10          37
- readpsig:           6          18          10          38
- readpsig:           6          18          10          39
- readpsig:           6          18          10          40
- readpsig:           6          18          10          41
- readpsig:           6          18          10          42
- readpsig:           6          18          10          43
- readpsig:           6          18          10          44
- readpsig:           6          18          10          45
- readpsig:           6          18          10          46
- readpsig:           6          18          10          47
- readpsig:           6          18          10          48
- readpsig:           6          18          10          49
- readpsig:           6          18          10          50
- readpsig:           6          18          10          51
- readpsig:           6          18          10          52
- readpsig:           6          18          10          53
- readpsig:           6          18          10          54
- readpsig:           6          18          10          55
- readpsig:           6          18          10          56
- readpsig:           6          18          10          57
- readpsig:           6          18          10          58
- readpsig:           6          18          10          59
- readpsig:           6          18          10          60
- readpsig:           6          18          10          61
- readpsig:           6          18          10          62
- readpsig:           6          18          10          63
- readpsig:           6          18          10          64
-#SC-loop, conv.    1  0.67901D+02
-#SC-loop, conv.    2  0.65704D+02
-#SC-loop, conv.    3  0.63726D+02
-#SC-loop, conv.    4  0.61944D+02
-#SC-loop, conv.    5  0.60339D+02
-#SC-loop, conv.    6  0.58894D+02
-#SC-loop, conv.    7  0.57593D+02
-#SC-loop, conv.    8  0.56421D+02
-#SC-loop, conv.    9  0.55366D+02
-#SC-loop, conv.   10  0.54416D+02
-#SC-loop, conv.   11  0.53560D+02
-#SC-loop, conv.   12  0.52790D+02
-#SC-loop, conv.   13  0.52097D+02
-#SC-loop, conv.   14  0.51472D+02
-#SC-loop, conv.   15  0.50910D+02
-#SC-loop, conv.   16  0.50404D+02
-#SC-loop, conv.   17  0.49948D+02
-#SC-loop, conv.   18  0.49538D+02
-#SC-loop, conv.   19  0.49169D+02
-#SC-loop, conv.   20  0.48837D+02
-#SC-loop, conv.   21  0.48537D+02
-#SC-loop, conv.   22  0.48268D+02
-#SC-loop, conv.   23  0.48025D+02
-#SC-loop, conv.   24  0.47807D+02
-#SC-loop, conv.   25  0.47611D+02
-#SC-loop, conv.   26  0.47434D+02
-#SC-loop, conv.   27  0.47275D+02
-#SC-loop, conv.   28  0.47131D+02
-#SC-loop, conv.   29  0.47002D+02
-#SC-loop, conv.   30  0.46886D+02
-#SC-loop, conv.   31  0.46782D+02
-#SC-loop, conv.   32  0.46687D+02
-#SC-loop, conv.   33  0.46603D+02
-#SC-loop, conv.   34  0.46527D+02
-#SC-loop, conv.   35  0.46458D+02
-#SC-loop, conv.   36  0.46396D+02
-#SC-loop, conv.   37  0.46341D+02
-#SC-loop, conv.   38  0.46291D+02
-#SC-loop, conv.   39  0.46245D+02
-#SC-loop, conv.   40  0.46205D+02
-#SC-loop, conv.   41  0.46168D+02
-#SC-loop, conv.   42  0.46136D+02
-#SC-loop, conv.   43  0.46106D+02
-#SC-loop, conv.   44  0.46079D+02
-#SC-loop, conv.   45  0.46056D+02
-#SC-loop, conv.   46  0.46034D+02
-#SC-loop, conv.   47  0.46015D+02
-#SC-loop, conv.   48  0.45997D+02
-#SC-loop, conv.   49  0.45981D+02
-#SC-loop, conv.   50  0.45967D+02
-#SC-loop, conv.   51  0.45954D+02
-#SC-loop, conv.   52  0.45943D+02
-#SC-loop, conv.   53  0.45933D+02
-#SC-loop, conv.   54  0.45923D+02
-#SC-loop, conv.   55  0.45915D+02
-#SC-loop, conv.   56  0.45908D+02
-#SC-loop, conv.   57  0.45901D+02
-#SC-loop, conv.   58  0.45895D+02
-#SC-loop, conv.   59  0.45889D+02
-#SC-loop, conv.   60  0.45884D+02
-#SC-loop, conv.   61  0.45880D+02
-#SC-loop, conv.   62  0.45876D+02
-#SC-loop, conv.   63  0.45872D+02
-#SC-loop, conv.   64  0.45869D+02
-#SC-loop, conv.   65  0.45866D+02
-#SC-loop, conv.   66  0.45863D+02
-#SC-loop, conv.   67  0.45861D+02
-#SC-loop, conv.   68  0.45859D+02
-#SC-loop, conv.   69  0.45857D+02
-#SC-loop, conv.   70  0.45855D+02
-#SC-loop, conv.   71  0.45854D+02
-#SC-loop, conv.   72  0.45852D+02
-#SC-loop, conv.   73  0.45851D+02
-#SC-loop, conv.   74  0.45850D+02
-#SC-loop, conv.   75  0.45849D+02
-#SC-loop, conv.   76  0.45848D+02
-#SC-loop, conv.   77  0.45847D+02
-#SC-loop, conv.   78  0.45847D+02
-#SC-loop, conv.   79  0.45846D+02
-#SC-loop, conv.   80  0.45845D+02
-#SC-loop, conv.   81  0.45845D+02
-#SC-loop, conv.   82  0.45844D+02
-#SC-loop, conv.   83  0.45844D+02
+#SC-loop, conv.    1  0.48221D+02
+#SC-loop, conv.    2  0.45864D+02
+#SC-loop, conv.    3  0.43741D+02
+#SC-loop, conv.    4  0.41829D+02
+#SC-loop, conv.    5  0.40106D+02
+#SC-loop, conv.    6  0.38555D+02
+#SC-loop, conv.    7  0.37157D+02
+#SC-loop, conv.    8  0.35899D+02
+#SC-loop, conv.    9  0.34765D+02
+#SC-loop, conv.   10  0.33744D+02
+#SC-loop, conv.   11  0.32825D+02
+#SC-loop, conv.   12  0.31997D+02
+#SC-loop, conv.   13  0.31252D+02
+#SC-loop, conv.   14  0.30580D+02
+#SC-loop, conv.   15  0.29976D+02
+#SC-loop, conv.   16  0.29432D+02
+#SC-loop, conv.   17  0.28942D+02
+#SC-loop, conv.   18  0.28500D+02
+#SC-loop, conv.   19  0.28103D+02
+#SC-loop, conv.   20  0.27745D+02
+#SC-loop, conv.   21  0.27423D+02
+#SC-loop, conv.   22  0.27134D+02
+#SC-loop, conv.   23  0.26872D+02
+#SC-loop, conv.   24  0.26637D+02
+#SC-loop, conv.   25  0.26426D+02
+#SC-loop, conv.   26  0.26235D+02
+#SC-loop, conv.   27  0.26064D+02
+#SC-loop, conv.   28  0.25910D+02
+#SC-loop, conv.   29  0.25771D+02
+#SC-loop, conv.   30  0.25646D+02
+#SC-loop, conv.   31  0.25533D+02
+#SC-loop, conv.   32  0.25432D+02
+#SC-loop, conv.   33  0.25340D+02
+#SC-loop, conv.   34  0.25258D+02
+#SC-loop, conv.   35  0.25184D+02
+#SC-loop, conv.   36  0.25118D+02
+#SC-loop, conv.   37  0.25058D+02
+#SC-loop, conv.   38  0.25004D+02
+#SC-loop, conv.   39  0.24955D+02
+#SC-loop, conv.   40  0.24911D+02
+#SC-loop, conv.   41  0.24872D+02
+#SC-loop, conv.   42  0.24837D+02
+#SC-loop, conv.   43  0.24805D+02
+#SC-loop, conv.   44  0.24776D+02
+#SC-loop, conv.   45  0.24750D+02
+#SC-loop, conv.   46  0.24727D+02
+#SC-loop, conv.   47  0.24706D+02
+#SC-loop, conv.   48  0.24687D+02
+#SC-loop, conv.   49  0.24670D+02
+#SC-loop, conv.   50  0.24655D+02
+#SC-loop, conv.   51  0.24641D+02
+#SC-loop, conv.   52  0.24629D+02
+#SC-loop, conv.   53  0.24618D+02
+#SC-loop, conv.   54  0.24608D+02
+#SC-loop, conv.   55  0.24599D+02
+#SC-loop, conv.   56  0.24590D+02
+#SC-loop, conv.   57  0.24583D+02
+#SC-loop, conv.   58  0.24577D+02
+#SC-loop, conv.   59  0.24571D+02
+#SC-loop, conv.   60  0.24565D+02
+#SC-loop, conv.   61  0.24561D+02
+#SC-loop, conv.   62  0.24556D+02
+#SC-loop, conv.   63  0.24552D+02
+#SC-loop, conv.   64  0.24549D+02
+#SC-loop, conv.   65  0.24546D+02
+#SC-loop, conv.   66  0.24543D+02
+#SC-loop, conv.   67  0.24540D+02
+#SC-loop, conv.   68  0.24538D+02
+#SC-loop, conv.   69  0.24536D+02
+#SC-loop, conv.   70  0.24534D+02
+#SC-loop, conv.   71  0.24532D+02
+#SC-loop, conv.   72  0.24531D+02
+#SC-loop, conv.   73  0.24530D+02
+#SC-loop, conv.   74  0.24528D+02
+#SC-loop, conv.   75  0.24527D+02
+#SC-loop, conv.   76  0.24526D+02
+#SC-loop, conv.   77  0.24525D+02
+#SC-loop, conv.   78  0.24525D+02
+#SC-loop, conv.   79  0.24524D+02
+#SC-loop, conv.   80  0.24523D+02
+#SC-loop, conv.   81  0.24523D+02
+#SC-loop, conv.   82  0.24522D+02
+#SC-loop, conv.   83  0.24522D+02
+#SC-loop, conv.   84  0.24521D+02
+#SC-loop, conv.   85  0.24521D+02
+#SC-loop, conv.   86  0.24520D+02
+#SC-loop, conv.   87  0.24520D+02
+#SC-loop, conv.   88  0.24520D+02
+#SC-loop, conv.   89  0.24520D+02
+#SC-loop, conv.   90  0.24519D+02
  step1: converged!
  Step 2: Wannier fn. branch
-#SC-loop, conv.     1  0.11546E+01 Omg:_I,_OD,_D=     45.8398706630     1.1545591035     0.0000000000
-#SC-loop, conv.     2  0.11500E+01 Omg:_I,_OD,_D=     45.8398706630     1.1499881497     0.0000000000
-#SC-loop, conv.     3  0.11462E+01 Omg:_I,_OD,_D=     45.8398706630     1.1461606173     0.0000000000
-#SC-loop, conv.     4  0.11429E+01 Omg:_I,_OD,_D=     45.8398706630     1.1429360743     0.0000000000
-#SC-loop, conv.     5  0.11402E+01 Omg:_I,_OD,_D=     45.8398706630     1.1402033013     0.0000000000
-#SC-loop, conv.     6  0.11379E+01 Omg:_I,_OD,_D=     45.8398706630     1.1378738585     0.0000000000
-#SC-loop, conv.     7  0.11359E+01 Omg:_I,_OD,_D=     45.8398706630     1.1358771182     0.0000000000
-#SC-loop, conv.     8  0.11342E+01 Omg:_I,_OD,_D=     45.8398706630     1.1341564213     0.0000000000
-#SC-loop, conv.     9  0.11327E+01 Omg:_I,_OD,_D=     45.8398706630     1.1326660981     0.0000000000
-#SC-loop, conv.    10  0.11314E+01 Omg:_I,_OD,_D=     45.8398706630     1.1313691530     0.0000000000
-#SC-loop, conv.    11  0.11302E+01 Omg:_I,_OD,_D=     45.8398706630     1.1302354624     0.0000000000
-#SC-loop, conv.    12  0.11292E+01 Omg:_I,_OD,_D=     45.8398706630     1.1292403672     0.0000000000
-#SC-loop, conv.    13  0.11284E+01 Omg:_I,_OD,_D=     45.8398706630     1.1283635720     0.0000000000
-#SC-loop, conv.    14  0.11276E+01 Omg:_I,_OD,_D=     45.8398706630     1.1275882798     0.0000000000
-#SC-loop, conv.    15  0.11269E+01 Omg:_I,_OD,_D=     45.8398706630     1.1269005124     0.0000000000
-#SC-loop, conv.    16  0.11263E+01 Omg:_I,_OD,_D=     45.8398706630     1.1262885721     0.0000000000
-#SC-loop, conv.    17  0.11257E+01 Omg:_I,_OD,_D=     45.8398706630     1.1257426161     0.0000000000
-#SC-loop, conv.    18  0.11253E+01 Omg:_I,_OD,_D=     45.8398706630     1.1252543176     0.0000000000
-#SC-loop, conv.    19  0.11248E+01 Omg:_I,_OD,_D=     45.8398706630     1.1248165951     0.0000000000
-#SC-loop, conv.    20  0.11244E+01 Omg:_I,_OD,_D=     45.8398706630     1.1244233957     0.0000000000
-#SC-loop, conv.    21  0.11241E+01 Omg:_I,_OD,_D=     45.8398706630     1.1240695202     0.0000000000
-#SC-loop, conv.    22  0.11238E+01 Omg:_I,_OD,_D=     45.8398706630     1.1237504822     0.0000000000
-#SC-loop, conv.    23  0.11235E+01 Omg:_I,_OD,_D=     45.8398706630     1.1234623932     0.0000000000
-#SC-loop, conv.    24  0.11232E+01 Omg:_I,_OD,_D=     45.8398706630     1.1232018689     0.0000000000
-#SC-loop, conv.    25  0.11230E+01 Omg:_I,_OD,_D=     45.8398706630     1.1229659524     0.0000000000
-#SC-loop, conv.    26  0.11228E+01 Omg:_I,_OD,_D=     45.8398706630     1.1227520512     0.0000000000
-#SC-loop, conv.    27  0.11226E+01 Omg:_I,_OD,_D=     45.8398706630     1.1225578841     0.0000000000
-#SC-loop, conv.    28  0.11224E+01 Omg:_I,_OD,_D=     45.8398706630     1.1223814382     0.0000000000
-#SC-loop, conv.    29  0.11222E+01 Omg:_I,_OD,_D=     45.8398706630     1.1222209319     0.0000000000
-#SC-loop, conv.    30  0.11221E+01 Omg:_I,_OD,_D=     45.8398706630     1.1220747844     0.0000000000
-#SC-loop, conv.    31  0.11219E+01 Omg:_I,_OD,_D=     45.8398706630     1.1219415894     0.0000000000
-#SC-loop, conv.    32  0.11218E+01 Omg:_I,_OD,_D=     45.8398706630     1.1218200935     0.0000000000
-#SC-loop, conv.    33  0.11217E+01 Omg:_I,_OD,_D=     45.8398706630     1.1217091770     0.0000000000
-#SC-loop, conv.    34  0.11216E+01 Omg:_I,_OD,_D=     45.8398706630     1.1216078378     0.0000000000
-#SC-loop, conv.    35  0.11215E+01 Omg:_I,_OD,_D=     45.8398706630     1.1215151777     0.0000000000
-#SC-loop, conv.    36  0.11214E+01 Omg:_I,_OD,_D=     45.8398706630     1.1214303902     0.0000000000
-#SC-loop, conv.    37  0.11214E+01 Omg:_I,_OD,_D=     45.8398706630     1.1213527503     0.0000000000
-#SC-loop, conv.    38  0.11213E+01 Omg:_I,_OD,_D=     45.8398706630     1.1212816052     0.0000000000
-#SC-loop, conv.    39  0.11212E+01 Omg:_I,_OD,_D=     45.8398706630     1.1212163664     0.0000000000
-#SC-loop, conv.    40  0.11212E+01 Omg:_I,_OD,_D=     45.8398706630     1.1211565029     0.0000000000
-#SC-loop, conv.    41  0.11211E+01 Omg:_I,_OD,_D=     45.8398706630     1.1211015352     0.0000000000
-#SC-loop, conv.    42  0.11211E+01 Omg:_I,_OD,_D=     45.8398706630     1.1210510295     0.0000000000
-#SC-loop, conv.    43  0.11210E+01 Omg:_I,_OD,_D=     45.8398706630     1.1210045933     0.0000000000
-#SC-loop, conv.    44  0.11210E+01 Omg:_I,_OD,_D=     45.8398706630     1.1209618710     0.0000000000
-#SC-loop, conv.    45  0.11209E+01 Omg:_I,_OD,_D=     45.8398706630     1.1209225404     0.0000000000
-#SC-loop, conv.    46  0.11209E+01 Omg:_I,_OD,_D=     45.8398706630     1.1208863089     0.0000000000
-#SC-loop, conv.    47  0.11209E+01 Omg:_I,_OD,_D=     45.8398706630     1.1208529113     0.0000000000
-#SC-loop, conv.    48  0.11208E+01 Omg:_I,_OD,_D=     45.8398706630     1.1208221062     0.0000000000
-#SC-loop, conv.    49  0.11208E+01 Omg:_I,_OD,_D=     45.8398706630     1.1207936745     0.0000000000
-#SC-loop, conv.    50  0.11208E+01 Omg:_I,_OD,_D=     45.8398706630     1.1207674167     0.0000000000
-#SC-loop, conv.    51  0.11207E+01 Omg:_I,_OD,_D=     45.8398706630     1.1207431513     0.0000000000
-#SC-loop, conv.    52  0.11207E+01 Omg:_I,_OD,_D=     45.8398706630     1.1207207130     0.0000000000
-#SC-loop, conv.    53  0.11207E+01 Omg:_I,_OD,_D=     45.8398706630     1.1206999511     0.0000000000
-#SC-loop, conv.    54  0.11207E+01 Omg:_I,_OD,_D=     45.8398706630     1.1206807282     0.0000000000
-#SC-loop, conv.    55  0.11207E+01 Omg:_I,_OD,_D=     45.8398706630     1.1206629192     0.0000000000
-#SC-loop, conv.    56  0.11206E+01 Omg:_I,_OD,_D=     45.8398706630     1.1206464096     0.0000000000
-#SC-loop, conv.    57  0.11206E+01 Omg:_I,_OD,_D=     45.8398706630     1.1206310949     0.0000000000
-#SC-loop, conv.    58  0.11206E+01 Omg:_I,_OD,_D=     45.8398706630     1.1206168798     0.0000000000
-#SC-loop, conv.    59  0.11206E+01 Omg:_I,_OD,_D=     45.8398706630     1.1206036769     0.0000000000
-#SC-loop, conv.    60  0.11206E+01 Omg:_I,_OD,_D=     45.8398706630     1.1205914066     0.0000000000
-#SC-loop, conv.    61  0.11206E+01 Omg:_I,_OD,_D=     45.8398706630     1.1205799958     0.0000000000
-#SC-loop, conv.    62  0.11206E+01 Omg:_I,_OD,_D=     45.8398706630     1.1205693775     0.0000000000
+#SC-loop, spread(bohr**2)     1 Omg_I Omg_OD Omg_D=    38.5625756559     2.0084302575     0.0000000004
+#SC-loop, spread(bohr**2)     2 Omg_I Omg_OD Omg_D=    38.5625756559     2.0043261775     0.0000000003
+#SC-loop, spread(bohr**2)     3 Omg_I Omg_OD Omg_D=    38.5625756559     2.0007295370     0.0000000003
+#SC-loop, spread(bohr**2)     4 Omg_I Omg_OD Omg_D=    38.5625756559     1.9975676419     0.0000000003
+#SC-loop, spread(bohr**2)     5 Omg_I Omg_OD Omg_D=    38.5625756559     1.9947800201     0.0000000003
+#SC-loop, spread(bohr**2)     6 Omg_I Omg_OD Omg_D=    38.5625756559     1.9923160548     0.0000000002
+#SC-loop, spread(bohr**2)     7 Omg_I Omg_OD Omg_D=    38.5625756559     1.9901331257     0.0000000002
+#SC-loop, spread(bohr**2)     8 Omg_I Omg_OD Omg_D=    38.5625756559     1.9881951423     0.0000000002
+#SC-loop, spread(bohr**2)     9 Omg_I Omg_OD Omg_D=    38.5625756559     1.9864713797     0.0000000002
+#SC-loop, spread(bohr**2)    10 Omg_I Omg_OD Omg_D=    38.5625756559     1.9849355492     0.0000000002
+#SC-loop, spread(bohr**2)    11 Omg_I Omg_OD Omg_D=    38.5625756559     1.9835650526     0.0000000002
+#SC-loop, spread(bohr**2)    12 Omg_I Omg_OD Omg_D=    38.5625756559     1.9823403795     0.0000000002
+#SC-loop, spread(bohr**2)    13 Omg_I Omg_OD Omg_D=    38.5625756559     1.9812446185     0.0000000002
+#SC-loop, spread(bohr**2)    14 Omg_I Omg_OD Omg_D=    38.5625756559     1.9802630564     0.0000000001
+#SC-loop, spread(bohr**2)    15 Omg_I Omg_OD Omg_D=    38.5625756559     1.9793828504     0.0000000001
+#SC-loop, spread(bohr**2)    16 Omg_I Omg_OD Omg_D=    38.5625756559     1.9785927551     0.0000000001
+#SC-loop, spread(bohr**2)    17 Omg_I Omg_OD Omg_D=    38.5625756559     1.9778828970     0.0000000001
+#SC-loop, spread(bohr**2)    18 Omg_I Omg_OD Omg_D=    38.5625756559     1.9772445852     0.0000000001
+#SC-loop, spread(bohr**2)    19 Omg_I Omg_OD Omg_D=    38.5625756559     1.9766701515     0.0000000001
+#SC-loop, spread(bohr**2)    20 Omg_I Omg_OD Omg_D=    38.5625756559     1.9761528170     0.0000000001
+#SC-loop, spread(bohr**2)    21 Omg_I Omg_OD Omg_D=    38.5625756559     1.9756865767     0.0000000001
+#SC-loop, spread(bohr**2)    22 Omg_I Omg_OD Omg_D=    38.5625756559     1.9752661024     0.0000000001
+#SC-loop, spread(bohr**2)    23 Omg_I Omg_OD Omg_D=    38.5625756559     1.9748866591     0.0000000001
+#SC-loop, spread(bohr**2)    24 Omg_I Omg_OD Omg_D=    38.5625756559     1.9745440328     0.0000000001
+#SC-loop, spread(bohr**2)    25 Omg_I Omg_OD Omg_D=    38.5625756559     1.9742344685     0.0000000001
+#SC-loop, spread(bohr**2)    26 Omg_I Omg_OD Omg_D=    38.5625756559     1.9739546158     0.0000000001
+#SC-loop, spread(bohr**2)    27 Omg_I Omg_OD Omg_D=    38.5625756559     1.9737014825     0.0000000001
+#SC-loop, spread(bohr**2)    28 Omg_I Omg_OD Omg_D=    38.5625756559     1.9734723936     0.0000000001
+#SC-loop, spread(bohr**2)    29 Omg_I Omg_OD Omg_D=    38.5625756559     1.9732649550     0.0000000001
+#SC-loop, spread(bohr**2)    30 Omg_I Omg_OD Omg_D=    38.5625756559     1.9730770226     0.0000000001
+#SC-loop, spread(bohr**2)    31 Omg_I Omg_OD Omg_D=    38.5625756559     1.9729066746     0.0000000001
+#SC-loop, spread(bohr**2)    32 Omg_I Omg_OD Omg_D=    38.5625756559     1.9727521871     0.0000000001
+#SC-loop, spread(bohr**2)    33 Omg_I Omg_OD Omg_D=    38.5625756559     1.9726120125     0.0000000001
+#SC-loop, spread(bohr**2)    34 Omg_I Omg_OD Omg_D=    38.5625756559     1.9724847609     0.0000000001
+#SC-loop, spread(bohr**2)    35 Omg_I Omg_OD Omg_D=    38.5625756559     1.9723691830     0.0000000001
+#SC-loop, spread(bohr**2)    36 Omg_I Omg_OD Omg_D=    38.5625756559     1.9722641553     0.0000000001
+#SC-loop, spread(bohr**2)    37 Omg_I Omg_OD Omg_D=    38.5625756559     1.9721686668     0.0000000001
+#SC-loop, spread(bohr**2)    38 Omg_I Omg_OD Omg_D=    38.5625756559     1.9720818075     0.0000000001
+#SC-loop, spread(bohr**2)    39 Omg_I Omg_OD Omg_D=    38.5625756559     1.9720027576     0.0000000001
+#SC-loop, spread(bohr**2)    40 Omg_I Omg_OD Omg_D=    38.5625756559     1.9719307783     0.0000000001
+#SC-loop, spread(bohr**2)    41 Omg_I Omg_OD Omg_D=    38.5625756559     1.9718652036     0.0000000001
+#SC-loop, spread(bohr**2)    42 Omg_I Omg_OD Omg_D=    38.5625756559     1.9718054328     0.0000000001
+#SC-loop, spread(bohr**2)    43 Omg_I Omg_OD Omg_D=    38.5625756559     1.9717509237     0.0000000001
+#SC-loop, spread(bohr**2)    44 Omg_I Omg_OD Omg_D=    38.5625756559     1.9717011870     0.0000000001
+#SC-loop, spread(bohr**2)    45 Omg_I Omg_OD Omg_D=    38.5625756559     1.9716557806     0.0000000000
+#SC-loop, spread(bohr**2)    46 Omg_I Omg_OD Omg_D=    38.5625756559     1.9716143051     0.0000000000
+#SC-loop, spread(bohr**2)    47 Omg_I Omg_OD Omg_D=    38.5625756559     1.9715763996     0.0000000000
+#SC-loop, spread(bohr**2)    48 Omg_I Omg_OD Omg_D=    38.5625756559     1.9715417377     0.0000000000
+#SC-loop, spread(bohr**2)    49 Omg_I Omg_OD Omg_D=    38.5625756559     1.9715100241     0.0000000000
+#SC-loop, spread(bohr**2)    50 Omg_I Omg_OD Omg_D=    38.5625756559     1.9714809916     0.0000000000
+#SC-loop, spread(bohr**2)    51 Omg_I Omg_OD Omg_D=    38.5625756559     1.9714543983     0.0000000000
+#SC-loop, spread(bohr**2)    52 Omg_I Omg_OD Omg_D=    38.5625756559     1.9714300252     0.0000000000
+#SC-loop, spread(bohr**2)    53 Omg_I Omg_OD Omg_D=    38.5625756559     1.9714076737     0.0000000000
+#SC-loop, spread(bohr**2)    54 Omg_I Omg_OD Omg_D=    38.5625756559     1.9713871642     0.0000000000
+#SC-loop, spread(bohr**2)    55 Omg_I Omg_OD Omg_D=    38.5625756559     1.9713683333     0.0000000000
  step2: converged!
+dddd spread: iwf r2n(bohr^2) rn(bohr)=  1     2.925345     -0.0000   0.0000  -0.0000
+dddd spread: iwf r2n(bohr^2) rn(bohr)=  2     2.925357      0.0000  -0.0000   0.0000
+dddd spread: iwf r2n(bohr^2) rn(bohr)=  3     4.695960      0.0000   0.0000  -0.0000
+dddd spread: iwf r2n(bohr^2) rn(bohr)=  4     2.925364      0.0000  -0.0000  -0.0000
+dddd spread: iwf r2n(bohr^2) rn(bohr)=  5     4.696349      0.0000   0.0000   0.0000
+dddd spread: iwf r2n(bohr^2) rn(bohr)=  6     3.193855      7.8800   7.8800   7.8800
+dddd spread: iwf r2n(bohr^2) rn(bohr)=  7     3.193847      7.8800   7.8800   7.8800
+dddd spread: iwf r2n(bohr^2) rn(bohr)=  8     6.392096      7.8800   7.8800   7.8800
+dddd spread: iwf r2n(bohr^2) rn(bohr)=  9     3.193849      7.8800   7.8800   7.8800
+dddd spread: iwf r2n(bohr^2) rn(bohr)= 10     6.391921      7.8800   7.8800   7.8800
  ---------- wlaxloc isp =           2
- iq sumcheck winsub=   1  10.00000
- iq sumcheck winsub=   2  10.00000
- iq sumcheck winsub=   3  10.00000
- iq sumcheck winsub=   4  10.00000
- iq sumcheck winsub=   5  10.00000
- iq sumcheck winsub=   6  10.00000
- iq sumcheck winsub=   7  10.00000
- iq sumcheck winsub=   8  10.00000
- iq sumcheck winsub=   9  10.00000
- iq sumcheck winsub=  10  10.00000
- iq sumcheck winsub=  11  10.00000
- iq sumcheck winsub=  12  10.00000
- iq sumcheck winsub=  13  10.00000
- iq sumcheck winsub=  14  10.00000
- iq sumcheck winsub=  15  10.00000
- iq sumcheck winsub=  16  10.00000
- iq sumcheck winsub=  17  10.00000
- iq sumcheck winsub=  18  10.00000
- iq sumcheck winsub=  19  10.00000
- iq sumcheck winsub=  20  10.00000
- iq sumcheck winsub=  21  10.00000
- iq sumcheck winsub=  22  10.00000
- iq sumcheck winsub=  23  10.00000
- iq sumcheck winsub=  24  10.00000
- iq sumcheck winsub=  25  10.00000
- iq sumcheck winsub=  26  10.00000
- iq sumcheck winsub=  27  10.00000
- iq sumcheck winsub=  28  10.00000
- iq sumcheck winsub=  29  10.00000
- iq sumcheck winsub=  30  10.00000
- iq sumcheck winsub=  31  10.00000
- iq sumcheck winsub=  32  10.00000
- iq sumcheck winsub=  33  10.00000
- iq sumcheck winsub=  34  10.00000
- iq sumcheck winsub=  35  10.00000
- iq sumcheck winsub=  36  10.00000
- iq sumcheck winsub=  37  10.00000
- iq sumcheck winsub=  38  10.00000
- iq sumcheck winsub=  39  10.00000
- iq sumcheck winsub=  40  10.00000
- iq sumcheck winsub=  41  10.00000
- iq sumcheck winsub=  42  10.00000
- iq sumcheck winsub=  43  10.00000
- iq sumcheck winsub=  44  10.00000
- iq sumcheck winsub=  45  10.00000
- iq sumcheck winsub=  46  10.00000
- iq sumcheck winsub=  47  10.00000
- iq sumcheck winsub=  48  10.00000
- iq sumcheck winsub=  49  10.00000
- iq sumcheck winsub=  50  10.00000
- iq sumcheck winsub=  51  10.00000
- iq sumcheck winsub=  52  10.00000
- iq sumcheck winsub=  53  10.00000
- iq sumcheck winsub=  54  10.00000
- iq sumcheck winsub=  55  10.00000
- iq sumcheck winsub=  56  10.00000
- iq sumcheck winsub=  57  10.00000
- iq sumcheck winsub=  58  10.00000
- iq sumcheck winsub=  59  10.00000
- iq sumcheck winsub=  60  10.00000
- iq sumcheck winsub=  61  10.00000
- iq sumcheck winsub=  62  10.00000
- iq sumcheck winsub=  63  10.00000
- iq sumcheck winsub=  64  10.00000
  Step 3: reduced Hamiltonian branch
- iq is           1           2
- iq is           2           2
- iq is           3           2
- iq is           4           2
- iq is           5           2
- iq is           6           2
- iq is           7           2
- iq is           8           2
- iq is           9           2
- iq is          10           2
- iq is          11           2
- iq is          12           2
- iq is          13           2
- iq is          14           2
- iq is          15           2
- iq is          16           2
- iq is          17           2
- iq is          18           2
- iq is          19           2
- iq is          20           2
- iq is          21           2
- iq is          22           2
- iq is          23           2
- iq is          24           2
- iq is          25           2
- iq is          26           2
- iq is          27           2
- iq is          28           2
- iq is          29           2
- iq is          30           2
- iq is          31           2
- iq is          32           2
- iq is          33           2
- iq is          34           2
- iq is          35           2
- iq is          36           2
- iq is          37           2
- iq is          38           2
- iq is          39           2
- iq is          40           2
- iq is          41           2
- iq is          42           2
- iq is          43           2
- iq is          44           2
- iq is          45           2
- iq is          46           2
- iq is          47           2
- iq is          48           2
- iq is          49           2
- iq is          50           2
- iq is          51           2
- iq is          52           2
- iq is          53           2
- iq is          54           2
- iq is          55           2
- iq is          56           2
- iq is          57           2
- iq is          58           2
- iq is          59           2
- iq is          60           2
- iq is          61           2
- iq is          62           2
- iq is          63           2
- iq is          64           2
- iq is          65           2
- iq is          66           2
- iq is          67           2
- iq is          68           2
- iq is          69           2
- iq is          70           2
- iq is          71           2
- iq is          72           2
- iq is          73           2
- iq is          74           2
- iq is          75           2
- iq is          76           2
- iq is          77           2
- iq is          78           2
- iq is          79           2
- iq is          80           2
- iq is          81           2
- iq is          82           2
- iq is          83           2
- iq is          84           2
- iq is          85           2
- iq is          86           2
- iq is          87           2
- iq is          88           2
- iq is          89           2
- iq is          90           2
- iq is          91           2
- iq is          92           2
- iq is          93           2
- iq is          94           2
- iq is          95           2
- iq is          96           2
- iq is          97           2
- iq is          98           2
- iq is          99           2
- iq is         100           2
- iq is         101           2
- iq is         102           2
- iq is         103           2
- iq is         104           2
- iq is         105           2
- iq is         106           2
- iq is         107           2
- iq is         108           2
- iq is         109           2
- iq is         110           2
- iq is         111           2
- iq is         112           2
- iq is         113           2
- iq is         114           2
- iq is         115           2
- iq is         116           2
- iq is         117           2
- iq is         118           2
- iq is         119           2
- iq is         120           2
- iq is         121           2
- iq is         122           2
- iq is         123           2
- iq is         124           2
- iq is         125           2
- iq is         126           2
- iq is         127           2
- iq is         128           2
- iq is         129           2
- iq is         130           2
- iq is         131           2
- iq is         132           2
- iq is         133           2
- iq is         134           2
- iq is         135           2
- iq is         136           2
- iq is         137           2
- iq is         138           2
- iq is         139           2
- iq is         140           2
- iq is         141           2
- iq is         142           2
- iq is         143           2
- iq is         144           2
- iq is         145           2
- iq is         146           2
- iq is         147           2
- iq is         148           2
- iq is         149           2
- iq is         150           2
- iq is         151           2
- iq is         152           2
- iq is         153           2
- iq is         154           2
- iq is         155           2
- iq is         156           2
- iq is         157           2
- iq is         158           2
- iq is         159           2
- iq is         160           2
- iq is         161           2
- iq is         162           2
- iq is         163           2
- iq is         164           2
- iq is         165           2
- iq is         166           2
- iq is         167           2
- iq is         168           2
- iq is         169           2
- iq is         170           2
- iq is         171           2
- iq is         172           2
- iq is         173           2
- iq is         174           2
- iq is         175           2
- iq is         176           2
- iq is         177           2
- iq is         178           2
- iq is         179           2
- iq is         180           2
- iq is         181           2
- iq is         182           2
- iq is         183           2
- iq is         184           2
- iq is         185           2
- iq is         186           2
- iq is         187           2
- iq is         188           2
- iq is         189           2
- iq is         190           2
- iq is         191           2
- iq is         192           2
 
   got get_hrotkp_ws iq =           1
   got get_hrotkp_ws iq =           2
   got get_hrotkp_ws iq =           3
   got get_hrotkp_ws iq =           4
-  got get_hrotkp_ws iq =           5
-  got get_hrotkp_ws iq =           6
-  got get_hrotkp_ws iq =           7
-  got get_hrotkp_ws iq =           8
-  got get_hrotkp_ws iq =           9
-  got get_hrotkp_ws iq =          10
-  got get_hrotkp_ws iq =          11
-  got get_hrotkp_ws iq =          12
-  got get_hrotkp_ws iq =          13
-  got get_hrotkp_ws iq =          14
-  got get_hrotkp_ws iq =          15
-  got get_hrotkp_ws iq =          16
-  got get_hrotkp_ws iq =          17
-  got get_hrotkp_ws iq =          18
-  got get_hrotkp_ws iq =          19
-  got get_hrotkp_ws iq =          20
-  got get_hrotkp_ws iq =          21
-  got get_hrotkp_ws iq =          22
-  got get_hrotkp_ws iq =          23
-  got get_hrotkp_ws iq =          24
-  got get_hrotkp_ws iq =          25
-  got get_hrotkp_ws iq =          26
-  got get_hrotkp_ws iq =          27
-  got get_hrotkp_ws iq =          28
-  got get_hrotkp_ws iq =          29
-  got get_hrotkp_ws iq =          30
-  got get_hrotkp_ws iq =          31
-  got get_hrotkp_ws iq =          32
-  got get_hrotkp_ws iq =          33
-  got get_hrotkp_ws iq =          34
-  got get_hrotkp_ws iq =          35
-  got get_hrotkp_ws iq =          36
-  got get_hrotkp_ws iq =          37
-  got get_hrotkp_ws iq =          38
-  got get_hrotkp_ws iq =          39
-  got get_hrotkp_ws iq =          40
-  got get_hrotkp_ws iq =          41
-  got get_hrotkp_ws iq =          42
-  got get_hrotkp_ws iq =          43
-  got get_hrotkp_ws iq =          44
-  got get_hrotkp_ws iq =          45
-  got get_hrotkp_ws iq =          46
-  got get_hrotkp_ws iq =          47
-  got get_hrotkp_ws iq =          48
-  got get_hrotkp_ws iq =          49
-  got get_hrotkp_ws iq =          50
-  got get_hrotkp_ws iq =          51
-  got get_hrotkp_ws iq =          52
-  got get_hrotkp_ws iq =          53
-  got get_hrotkp_ws iq =          54
-  got get_hrotkp_ws iq =          55
-  got get_hrotkp_ws iq =          56
-  got get_hrotkp_ws iq =          57
-  got get_hrotkp_ws iq =          58
-  got get_hrotkp_ws iq =          59
-  got get_hrotkp_ws iq =          60
-  got get_hrotkp_ws iq =          61
+  ...
   got get_hrotkp_ws iq =          62
   got get_hrotkp_ws iq =          63
   got get_hrotkp_ws iq =          64
- CPU=       2.9690 secs    0.0 mins
-
- ---- hmaxloc: ixc=2 ok
+  CPU:       3.4890 secs =     0.1 mins
