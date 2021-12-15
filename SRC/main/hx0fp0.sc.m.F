@@ -53,7 +53,7 @@ c     & laf,ibasf !,ldima,pos,natom
       use m_qbze,only:    Setqbze, nqbze,nqibze,qbze,qibze
       use m_readhbe,only: Readhbe, nband !, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
       use m_eibz,only:    Seteibz, nwgt,neibz,igx,igxt,eibzsym
-      use m_x0kf,only:    X0kf_v4hz, X0kf_v4hz_symmetrize, X0kf_v4hz_init
+      use m_x0kf,only:    X0kf_v4hz, X0kf_v4hz_symmetrize, X0kf_v4hz_init,x0kf_v4hz_init_write,x0kf_v4hz_init_read
       use m_llw,only:     WVRllwR,WVIllwI,w4pmode,MPI__sendllw
 !! MPI
       use m_mpi,only: MPI__hx0fp0_rankdivider2Q, MPI__Qtask, 
@@ -168,6 +168,46 @@ c      logical,allocatable:: MPI__Qtask(:)
 !!     !note The pair (it,itp) gives very limited range of allowed iw.
 !!           
       if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
+      do 1101 iq = iqxini,iqxend
+        if( .not. MPI__Qtask(iq) ) cycle
+        call cputid (0)
+        qp = qibze(:,iq)
+        write(6,"('do 1001: iq q=',i5,3f9.4)")iq,qp
+!! Read Coulomb matrix 
+c        call Readvcoud(qp,iq,NoVcou=.false.) ! Readin vcousq,zcousq ngb ngc for the Coulomb matrix for given q
+c        if(iq > nqibz .and. (.not.localfieldcorrectionllw())  ) then 
+c           nolfco =.true.
+c           nmbas_in = 1 
+c        else          ! We usually use localfieldcorrectionllw()=T
+c           nolfco = .false.
+c           nmbas_in = ngb
+c        endif
+c        nmbas1 = nmbas_in !We (will) use nmbas1 and nmbas2 for block division of matrices.
+c        nmbas2 = nmbas_in
+c!! We set ppovlz for calling get_zmelt (get matrix elements) \in m_zmel \in subroutine x0kf_v4hz
+c        call Setppovlz(qp,matz=.not.eibz4x0())
+c        allocate( rcxq(nmbas1,nmbas2,nwhis,npm)) 
+c        rcxq = 0d0
+        do 1103 is = MPI__Ss,MPI__Se !is=1,nspin
+           write(6,"(' ### ',2i4,' out of nqibz+n0qi+nq0iadd nsp=',2i4,' ### ')")iq,is,nqibz+nq0i+nq0iadd,nspin
+           if(debug) write(6,*)' niw nw=',niw,nw
+           isf = is
+           do kx = 1, nqbz
+              ekxx1(1:nband,kx) = readeval(qbz(:,kx),    is ) ! read eigenvalue
+              ekxx2(1:nband,kx) = readeval(qp+qbz(:,kx), isf) !
+           enddo
+           call gettetwt(qp,iq,is,isf,nwgt(:,iq),ekxx1,ekxx2,nband=nband,eibzmode=eibzmode) ! Tetrahedron weight for x0kf_v4hz
+           ierr=x0kf_v4hz_init(0, qp, is,isf, iq, nmbas_in, eibzmode=eibzmode, nwgt=nwgt(:,iq),crpa=crpa)
+           ierr=x0kf_v4hz_init(1, qp, is,isf, iq, nmbas_in, eibzmode=eibzmode, nwgt=nwgt(:,iq),crpa=crpa)
+           call X0kf_v4hz_init_write(iq,is)
+c         call x0kf_v4hz(        qp, is,isf, iq, nmbas_in, eibzmode=eibzmode, nwgt=nwgt(:,iq),crpa=crpa, rcxq=rcxq)
+c                !  rcxq is accumulating for spins 
+           call tetdeallocate()
+ 1103   continue
+ 1101 continue
+      print *,'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee goto 1001'
+      
+!! -------------------           
       do 1001 iq = iqxini,iqxend
         if( .not. MPI__Qtask(iq) ) cycle
         call cputid (0)
@@ -192,13 +232,14 @@ c      logical,allocatable:: MPI__Qtask(:)
            write(6,"(' ### ',2i4,' out of nqibz+n0qi+nq0iadd nsp=',2i4,' ### ')")iq,is,nqibz+nq0i+nq0iadd,nspin
            if(debug) write(6,*)' niw nw=',niw,nw
            isf = is
-           do kx = 1, nqbz
-              ekxx1(1:nband,kx) = readeval(qbz(:,kx),    is ) ! read eigenvalue
-              ekxx2(1:nband,kx) = readeval(qp+qbz(:,kx), isf) !
-           enddo
-           call gettetwt(qp,iq,is,isf,nwgt(:,iq),ekxx1,ekxx2,nband=nband,eibzmode=eibzmode) ! Tetrahedron weight for x0kf_v4hz
-           ierr=x0kf_v4hz_init(0, qp, is,isf, iq, nmbas_in, eibzmode=eibzmode, nwgt=nwgt(:,iq),crpa=crpa)
-           ierr=x0kf_v4hz_init(1, qp, is,isf, iq, nmbas_in, eibzmode=eibzmode, nwgt=nwgt(:,iq),crpa=crpa)
+c           do kx = 1, nqbz
+c              ekxx1(1:nband,kx) = readeval(qbz(:,kx),    is ) ! read eigenvalue
+c              ekxx2(1:nband,kx) = readeval(qp+qbz(:,kx), isf) !
+c           enddo
+c           call gettetwt(qp,iq,is,isf,nwgt(:,iq),ekxx1,ekxx2,nband=nband,eibzmode=eibzmode) ! Tetrahedron weight for x0kf_v4hz
+c           ierr=x0kf_v4hz_init(0, qp, is,isf, iq, nmbas_in, eibzmode=eibzmode, nwgt=nwgt(:,iq),crpa=crpa)
+c           ierr=x0kf_v4hz_init(1, qp, is,isf, iq, nmbas_in, eibzmode=eibzmode, nwgt=nwgt(:,iq),crpa=crpa)
+           call X0kf_v4hz_init_read(iq,is)
            call x0kf_v4hz(        qp, is,isf, iq, nmbas_in, eibzmode=eibzmode, nwgt=nwgt(:,iq),crpa=crpa, rcxq=rcxq)
                 !  rcxq is accumulating for spins 
            call tetdeallocate()

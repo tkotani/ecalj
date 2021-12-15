@@ -15,13 +15,33 @@
       use m_tetwt,only:     whw,ihw,nhw,jhw,n1b,n2b,nbnb,nbnbx,nhwtot
       implicit none
       
-      public:: X0kf_v4hz_init, X0kf_v4hz, X0kf_v4hz_symmetrize
+      public:: X0kf_v4hz_init, X0kf_v4hz, X0kf_v4hz_symmetrize,X0kf_v4hz_init_write,X0kf_v4hz_init_read
       private
       integer:: ncc, ncount
       integer,allocatable:: nkmin(:), nkmax(:),nkqmin(:),nkqmax(:)
       real(8),allocatable:: whwc(:)
       integer,allocatable:: kc(:),iwc(:),itc(:),itpc(:),jpmc(:)
       contains
+!--------------------------------------------------------------------------      
+      subroutine X0kf_v4hz_init_write(iq,is) 
+      integer:: iq,is,ix0
+      character*8 :: charext
+      open(newunit=ix0,file='x0icount.'//charext(iq)//'_'//charext(is))
+      write(ix0)ncount
+      write(ix0) whwc, kc, iwc, itc,itpc, jpmc
+      close(ix0)
+      end subroutine
+
+      subroutine X0kf_v4hz_init_read(iq,is)
+      integer:: iq,is,ix0
+      character*8 :: charext
+      open(newunit=ix0,file='x0icount.'//charext(iq)//'_'//charext(is))
+      read(ix0)ncount
+      deallocate( whwc, kc, iwc, itc, itpc, jpmc )
+      allocate( whwc(ncount), kc(ncount), iwc(ncount), itc(ncount), itpc(ncount), jpmc(ncount) )
+      read(ix0) whwc, kc, iwc, itc,itpc, jpmc
+      close(ix0)
+      end subroutine
       
 !--------------------------------------------------------------------------      
       function X0kf_v4hz_init(job,q,isp_k,isp_kq, iq, nmbas,eibzmode, nwgt, crpa) result(ierr)
