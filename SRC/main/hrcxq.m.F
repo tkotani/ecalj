@@ -1,12 +1,9 @@
       program hrcxq
-!!  Calculate W-V for QSGW mode. Cleaned up jun2020. 
-!!  We calculate dielectric chi0 by the follwoing three steps.
-!!    gettetwt: tetrahedron weights
-!!    x0kf_v4hz: Accumlate Im part of the Lindhard function. Im(chi0)
-!!    dpsion5: calculate real part by the Hilbert transformation from the Im part
-!!      LLW: wing part of dielectric function. See Eq.(40) in PRB81 125102
-!!    W0W0i: Rewrite W-V at q=0. We have to define effective W(q=0) to avoid divergece.
-!!
+!  Calculate Im(chi0), writint to rcxq.* files.
+!  Output: rxcq.iq files.      
+!   After set up a kind of enviromental variables, by calling module functions,
+!   we read tetrahedron weight via 'call X0kf_v4hz_init_read(iq,is)'. 
+!   Then we calculate Im(chi0) by x0kf_v4hz.   
 !  Module coding rule:
 !    (1) Read files and readin data are stored in modules. All data in modules are protected.
 !    (2) To set Enviromental variables before main loop (for exaple, do 1001 in this code),
@@ -82,8 +79,7 @@ c     & laf,ibasf !,ldima,pos,natom
       hartree= 2d0*rydberg()
       call Genallcf_v3(incwfx=0) !Basic data. incwfin= 0 takes 'ForX0 for core' in GWinput
       call Read_BZDATA(hx0)      !Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
-!!!!  CAUTION: WE ASSUME iclass(iatom)= iatom,  nclass = natom.  !!!!!!!!!!!!!!!!!!!!!!!!!
-      if(nclass /= natom) call Rx( ' hx0fp0_sc: nclass /= natom ')
+      if(nclass /= natom) call Rx( ' hx0fp0_sc: nclass /= natom ') !WE ASSUME iclass(iatom)= iatom
       call Readefermi() !Readin EFERMI
       call Readhbe()    !Read dimensions 
       call ReadGWinputKeys() !Readin dataset in GWinput
@@ -108,27 +104,10 @@ c     & laf,ibasf !,ldima,pos,natom
       realomega = .true.
       imagomega = .true.
       call Getfreq2(.false.,realomega,imagomega,ua,iprintx)!tetra,
-      if(realomega .and. mpi__root) then  ! Write freq_r (real omega). Read from hsfp0.
-         open(newunit=ifif,file='freq_r') ! Write number of frequency points nwp and frequensies 
-         write(ifif,"(2i8,'  !(a.u.=2Ry)')") nw+1, nw_i
-         do iw= nw_i,-1
-            write(ifif,"(d23.15,2x,i6)") -freq_r(-iw),iw !negative frequecncies for x0
-         enddo
-         do iw= 0,nw
-            write(ifif,"(d23.15,2x,i6)") freq_r(iw),iw    !positive frequecncies for x0
-         enddo
-         close(ifif)
-      endif
 !! We first accumulate Imaginary parts. Then do K-K transformation to get real part.
 ! nblochpmx = nbloch + ngcmx ! Maximum of MPB = PBpart +  IPWpartforMPB 
       iqxini = 1 
       iqxend = nqibz + nq0i + nq0iadd ! [iqxini:iqxend] range of q points.
-      if(MPI__root) then  ! I think it is not so meaningful to give a subroutine for writing WV.d.
-        open(newunit=ifwd, file='WV.d', action='write')
-        write (ifwd,"(1x,10i14)") nprecx, mrecl, nblochpmx, nw+1,niw, nqibz + nq0i-1, nw_i
-        close(ifwd)
-      endif
-      allocate(ekxx1(nband,nqbz),ekxx2(nband,nqbz)) ! For eigenvalues.
       eibzmode = eibz4x0()                ! EIBZ mode
       call Seteibz(iqxini,iqxend,iprintx) ! EIBZ mode
 !!    call Setw4pmode() !W4phonon. !still developing...
@@ -137,29 +116,14 @@ c     & laf,ibasf !,ldima,pos,natom
       MPI__Ss = 1
       MPI__Se = nspin
       
-!! == Calculate x0(q,iw) and W == main loop 1001 for iq. 
-!! NOTE:o iq=1 (q=0,0,0) write 'EPS0inv', which is used for iq>nqibz for ixc=11 mode
-!! Thus it is necessary to do iq=1 in advance to performom iq >nqibz. 
-!! (or need to modify do 1001 loop).
-!! ---------------------------------------------------------------
-!! === do 1001 loop over iq ============================================
-!     ! ---------------------------------------------------------------
-!! We have to do sum for iq,is,k,it,itp,jpm,iw,igb1,igb2      
-!!   iq (q vector IBZ), is (spin)> k (k vector BZ)> it,itp (band)
-!!      > jpm,iw (omega) >igb1,igb2 (MPB index)
-!!   (usually, we only use jpm=1 only--- This meand no negative omega needed).
-!! I think, iq,igb1,igb2,(it,itp) are suitable for decomposition (computation, and memory distribution).
-!!     !note The pair (it,itp) gives very limited range of allowed iw.
-!!
-      if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
 !! Obtain rcxq -------------------           
+      if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
       do 1001 iq = iqxini,iqxend
         if( .not. MPI__Qtask(iq) ) cycle
         call cputid (0)
         qp = qibze(:,iq)
         write(6,"('do 1001: iq q=',i5,3f9.4)")iq,qp
-!! Read Coulomb matrix 
-        call Readvcoud(qp,iq,NoVcou=.false.) !Readin vcousq,zcousq ngb ngc for the Coulomb matrix for given q
+        call Readvcoud(qp,iq,NoVcou=.false.) !Readin vcousq,zcousq ngb ngc for the Coulomb matrix
         if(iq > nqibz .and. (.not.localfieldcorrectionllw())  ) then 
            nolfco =.true.
            nmbas_in = 1 
@@ -175,9 +139,8 @@ c     & laf,ibasf !,ldima,pos,natom
         rcxq = 0d0
         do 1003 is = MPI__Ss,MPI__Se !is=1,nspin. rcxq is acuumulated for spins
            write(6,"(' ### ',2i4,' out of nqibz+n0qi+nq0iadd nsp=',2i4,' ### ')")iq,is,nqibz+nq0i+nq0iadd,nspin
-           if(debug) write(6,*)' niw nw=',niw,nw
            isf = is
-           call X0kf_v4hz_init_read(iq,is)
+           call X0kf_v4hz_init_read(iq,is) !readin icount data (index sets and tetrahedron weight)
            call x0kf_v4hz(qp, is,isf, iq, nmbas_in, eibzmode=eibzmode, nwgt=nwgt(:,iq),rcxq=rcxq)
                 !  rcxq is accumulating for spins 
  1003   continue
@@ -188,6 +151,7 @@ c     & laf,ibasf !,ldima,pos,natom
      i       nolfco, zzr, nmbas_in, chipm, eibzmode=eibzmode, eibzsym=eibzsym(:,:,iq),
      o       rcxq=rcxq)              !  crystal symmetry of rcxq is recovered for EIBZ mode.
         endif
+!! only output in this program        
         open(newunit=ircxq,file='rcxq.'//trim(charext(iq)),form='unformatted')
         write(ircxq) nmbas1,nmbas2
         write(ircxq) rcxq
@@ -196,5 +160,5 @@ c     & laf,ibasf !,ldima,pos,natom
  1001 continue 
       write(6,*) '--- end of hrcxq --- irank=',MPI__rank
       call cputid(0)
-      call rx0( ' OK! hcxq')
+      call rx0( ' OK! hrcxq')
       end program hrcxq
