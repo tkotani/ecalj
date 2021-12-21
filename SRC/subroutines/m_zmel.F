@@ -28,7 +28,7 @@
 !! SUBROUTINES
       public:: Get_zmel_init, Get_zmel_modex0,
      &         Dconjg_zmel, Deallocate_zmel, 
-     &         Setppovlz, Setppovlz_chipm,  Mptauof_zmel ,GramSchmidt_zmel
+     &         Setppovlz, Setppovlz_chipm,  Mptauof_zmel ,GramSchmidt_zmel,rwzmel
 !! OUTPUT:  zmel for exchange=F, zmeltt for exchange=T.
       complex(8),allocatable,protected,public :: zmel(:,:,:)   !for  Get_zmel
 !!------------------------------------------------------
@@ -173,6 +173,25 @@ c     i                 ppbrd)           !radial integrals
       enddo  
       end subroutine ppbafp_v2_zmel
 
+!! ------------------------------------
+      subroutine rwzmel(iq,k,isp_k,rw)
+      intent(in)::        iq,k,isp_k
+      integer:: iq,k,isp_k,izmel,nmtot_,nqtot_
+      character(1):: rw
+      character*8 :: charext
+      open(newunit=izmel,file='zmel.'//trim(charext(iq))//'_'
+     &     //trim(charext(k))//'_'//trim(charext(isp_k)),form='unformatted')
+      if(rw=='r') then
+         read(izmel) nmtot_,nqtot_
+         if(allocated(zmel)) deallocate(zmel)
+         allocate(zmel(1:ngb,1:nmtot_,1:nqtot_))
+         read(izmel) zmel
+      else
+         write(izmel) nmtot,nqtot
+         write(izmel) zmel
+      endif
+      close(izmel)
+      end
 !! ------------------------------------
       subroutine get_zmel_modex0(n1,n2,n3,n4)
       integer:: n1,n2,n3,n4

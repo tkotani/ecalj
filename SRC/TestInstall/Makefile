@@ -28,7 +28,7 @@ LM_PROG  = lmfa lmf2gw lmf-MPIK lmfgw-MPIK run_arg job_pdos job_tdos
 
 # programs under fpgw dir, required in the tests
 GW_DIR   = $(ecalroot)/SRC/exec
-GW_PROG  = gwsc qg4gw hvccfp0 hsfp0_sc hx0fp0_sc hqpe_sc hmaxloc hpsig_MPI huumat_MPI hwmatK_MPI hx0init hhilbert hrcxq
+GW_PROG  = gwsc qg4gw hvccfp0 hsfp0_sc hx0fp0_sc hqpe_sc hmaxloc hpsig_MPI huumat_MPI hwmatK_MPI hx0init hhilbert hrcxq hx0zmel
 GW_PROG += rdata4gw_v2 heftet hbasfp0 dqpu
 GW_PROG += gw_lmfh hx0fp0 hsfp0 hqpe eps_lmfh epsPP_lmfh epsPP_lmfh_chipm 
 

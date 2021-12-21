@@ -1,7 +1,7 @@
       module m_x0kf
       use m_keyvalue,only : Getkeyvalue
       use m_pkm4crpa,only : Readpkm4crpa
-      use m_zmel,only     : Get_zmel_init,Dconjg_zmel,Deallocate_zmel, zmel ,get_zmel_modex0, GramSchmidt_zmel
+      use m_zmel,only     : Get_zmel_init,Dconjg_zmel,Deallocate_zmel, zmel ,get_zmel_modex0, GramSchmidt_zmel,rwzmel
       use m_freq,only:  npm, nwhis
       use m_genallcf_v3,only:  nsp=>nspin ,nlmto,nctot,ngrp
       use m_read_bzdata,only:  nqbz,qbas,ginv,nqibz,  rk=>qbz,wk=>wbz
@@ -15,7 +15,7 @@
       use m_tetwt,only:     whw,ihw,nhw,jhw,n1b,n2b,nbnb,nbnbx,nhwtot
       implicit none
       
-      public:: X0kf_v4hz_init, X0kf_v4hz, X0kf_v4hz_symmetrize,X0kf_v4hz_init_write,X0kf_v4hz_init_read
+      public:: X0kf_v4hz_init, X0kf_v4hz, X0kf_v4hz_symmetrize,X0kf_v4hz_init_write,X0kf_v4hz_init_read,x0kf_zmel
       private
       integer:: ncc, ncount
       integer,allocatable:: nkmin(:), nkmax(:),nkqmin(:),nkqmax(:)
@@ -41,12 +41,14 @@
       character*8 :: charext
       open(newunit=ix0,file='x0icount.'//trim(charext(iq))//'_'//trim(charext(is)),form='unformatted')
       read(ix0)ncount
+      if(allocated(whwc)) deallocate( whwc, kc, iwc, itc, itpc, jpmc, nkmin,nkmax,nkqmin,nkqmax)
       allocate( whwc(ncount), kc(ncount), iwc(ncount), itc(ncount), itpc(ncount), jpmc(ncount) )
       allocate( nkmin(nqbz),nkmax(nqbz),nkqmin(nqbz),nkqmax(nqbz))
       read(ix0) whwc, kc, iwc, itc,itpc, jpmc
       read(ix0) nkmin,nkmax,nkqmin,nkqmax
       close(ix0)
       end subroutine
+
 !--------------------------------------------------------------------------      
       function X0kf_v4hz_init(job,q,isp_k,isp_kq, iq, nmbas,eibzmode, nwgt, crpa) result(ierr)
       intent(in)::            job,q,isp_k,isp_kq, iq, nmbas,eibzmode, nwgt, crpa
@@ -188,7 +190,73 @@ c        write(6,"(a,6i5,d13.5)")'uuuuu k it itp iw jpm whw=',icount,k,it,itp,iw
       ierr=0
       if(job==0) write(6,"('x0kf_v4hz_init: job=0 ncount ngb nqibz=',3i8)") ncount, ngb, nqibz
       end function x0kf_v4hz_init
-
+!! --------------------------------------------------------------------------------
+      subroutine X0kf_zmel ( q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt, rcxq,epsppmode)
+      intent(in)   ::        q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt,      epsppmode 
+!! === calculate chi0, or chi0_pm ===
+!! We calculate imaginary part of chi0 along real axis.
+!!
+!! NOTE: rcxq is i/o variable for accumulation. We use E_mu basis when chipm=F.
+!!  
+!!
+!! ppovl= <I|J> = O , V_IJ=<I|v|J>
+!! (V_IJ - vcoud_mu O_IJ) Zcousq(J, mu)=0, where Z is normalized with O_IJ.
+!! <I|v|J>= \sum_mu ppovl*zcousq(:,mu) v^mu (Zcousq^*(:,mu) ppovl)     
+!!
+!! zmelt contains O^-1=<I|J>^-1 factor. Thus zmelt(phi phi J)= <phi |phi I> O^-1_IJ
+!! ppovlz(I, mu) = \sum_J O_IJ Zcousq(J, mu)
+!!
+!! OUTPUT:
+!!  rcxq (nmbas,nmbas,nwhis,npm): for given q,
+!!       rcxq(I,J,iw,ipm) = 
+!!       Im (chi0(omega))= \sum_k <I_q psi_k|psi_(q+k)> <psi_(q+k)|psi_k> \delta(\omega- (e_i-ej))
+!!      When npm=2 we calculate negative energy part. (time-reversal asymmetry)
+!!
+!!note: zmel: matrix element <phi phi |M>
+!! nlmto   = total number of atomic basis functions within MT
+!! nqbz    = number of k-points in the 1st BZ
+!!
+      logical,optional ::epsppmode
+      integer:: k,isp_k,isp_kq,iq, jpm, ibib, iw,igb2,igb1,it,itp
+      real(8):: q(3)
+      complex(8):: rcxq (nmbas,nmbas,nwhis,npm)
+      complex(8) :: imag=(0d0,1d0),trc,aaa 
+      integer::   nadd(3), igc !nband,!ngpmx, ngcmx,nqbze, ngc,
+      complex(8),allocatable :: zmelt(:,:,:)
+      complex(8),allocatable::  z1p(:,:)
+      logical,parameter:: debug=.false.
+      real(8) :: imagweight 
+      integer:: nmbas !, imb1,imb2, imb verbose,
+      logical :: iww2=.true.
+      complex(8):: img=(0d0,1d0),zmelt2 !,zzz(ngbb)
+      integer ::  nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb !nkqmin, nkqmax,
+      logical :: eibzmode  
+      integer::  nwgt(nqbz) 
+      logical::  exchange=.false. !eibz4x0,
+      real(8)::  wpw_k,wpw_kq
+      integer::  irot=1, neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele
+      integer:: ieqbz,kold,nxxxx 
+      integer::nkmin_,nkqmin_,nkoff,nkqoff,ispold,izmel,nmini,nqini,nmtot,nqtot!,ispold2
+      kold = -999
+      do 1000 icount = 1,ncount
+        k = kc(icount)
+        nkmin_  = nkmin(k)
+        nkqmin_ = nkqmin(k)
+        nmini= nkmin_ 
+        nqini= nkqmin_
+        if(kold/=k .or. ispold/=isp_k ) then !.or. ispold2/=isp_kq) then  
+           call Get_zmel_modex0(nkmin_,nkqmin_,isp_k,isp_kq)!oct-2021(nkmin(k),nkqmin(k),isp_k,isp_kq)
+           call Get_zmel_init(exchange, q+rk(:,k), q, irot, q, nxxxx, nkmax(k),nkqmax(k),nctot,ncc)
+           call Dconjg_zmel()   !zmel = dconjg(zmel)
+           write(6,*) 'k zmel writing...',iq,k,isp_k
+           call rwzmel(iq,k,isp_k,'w')
+           kold = k
+           ispold=isp_k
+        endif
+ 1000 continue
+      call Deallocate_zmel()
+      end subroutine x0kf_zmel
+      
 !! --------------------------------------------------------------------------------
       subroutine X0kf_v4hz ( q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt, rcxq,epsppmode)
       intent(in)   ::        q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt,      epsppmode 
@@ -236,7 +304,7 @@ c        write(6,"(a,6i5,d13.5)")'uuuuu k it itp iw jpm whw=',icount,k,it,itp,iw
       integer::  irot=1         !, ntqxx,nbmax!,nctot
       integer::  neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele!,ngbb !eibzsym(ngrp,-1:1),
       integer:: ieqbz,kold,nxxxx !igx(ngrp*2,nqbz),igxt(ngrp*2,nqbz),
-      integer::nkmin_,nkqmin_,nkoff,nkqoff
+      integer::nkmin_,nkqmin_,izmel,ispold,nmini,nqini,nmtot,nqtot !,ispold2
 c      logical:: interbandonly,intrabandonly,cmdopt0
       
 c      integer,allocatable:: it_(:,:,:),itp_(:,:,:)
@@ -283,21 +351,25 @@ c
 ! oct15 2021
         nkmin_  = nkmin(k)
         nkqmin_ = nkqmin(k)
-        nkoff  = 0
-        nkqoff = 0
+        nmini= nkmin_ 
+        nqini= nkqmin_
 ! This gives matrix element zmel(igb q,  k it occ,   q+k itp unocc)
-        if(kold/=k) then 
-           call Get_zmel_modex0(nkmin_,nkqmin_,isp_k,isp_kq)!oct-2021(nkmin(k),nkqmin(k),isp_k,isp_kq)
-           call Get_zmel_init(exchange, q+rk(:,k), q, irot, q, nxxxx, nkmax(k),nkqmax(k),nctot,ncc)
-           call Dconjg_zmel() !zmel = dconjg(zmel)
+        if(kold/=k.or.isp_k/=ispold ) then !.or. ispold2/=isp_kq) then  
+c         call Get_zmel_modex0(nkmin_,nkqmin_,isp_k,isp_kq)!oct-2021(nkmin(k),nkqmin(k),isp_k,isp_kq)
+c         call Get_zmel_init(exchange, q+rk(:,k), q, irot, q, nxxxx, nkmax(k),nkqmax(k),nctot,ncc)
+c         call Dconjg_zmel() !zmel = dconjg(zmel)
+cc           nmtot = nctot + nkmax(k)  -nmini+1 ! = phi_middle
+cc           nqtot = ncc   + nkqmax(k) -nqini+1 ! = phi_end
+           call rwzmel(iq,k,isp_k,'r') !,nmbas,nmtot,nqtot)
            kold=k
+           ispold=isp_k
         endif
 c----------------------------
 !!  z1p = <M_ibg1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
 !!  zxq(iw,ibg1,igb2) = sum_ibib wwk(iw,ibib)* z1p(ibib, igb1,igb2)
 !! n1b,n2b --> core after valence.  it,itp --> valence after core
-        it  = itc(icount)  +nkoff   !occ      k
-        itp = itpc(icount) +nkqoff !unocc    q+k
+        it  = itc(icount)  !occ      k
+        itp = itpc(icount) !unocc    q+k
         iw  = iwc(icount)  !omega-bin
         jpm = jpmc(icount)      ! \pm omega
         do igb2=1,nmbas  !this part dominates cpu time most time consuming...........

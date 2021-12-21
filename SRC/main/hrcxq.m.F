@@ -50,7 +50,7 @@ c     & laf,ibasf !,ldima,pos,natom
       use m_qbze,only:    Setqbze, nqbze,nqibze,qbze,qibze
       use m_readhbe,only: Readhbe, nband !, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
       use m_eibz,only:    Seteibz, nwgt,neibz,igx,igxt,eibzsym
-      use m_x0kf,only:    X0kf_v4hz, X0kf_v4hz_symmetrize, X0kf_v4hz_init,x0kf_v4hz_init_write,x0kf_v4hz_init_read
+      use m_x0kf,only:    X0kf_v4hz, X0kf_v4hz_symmetrize, X0kf_v4hz_init,x0kf_v4hz_init_write,x0kf_v4hz_init_read,x0kf_zmel
       use m_llw,only:     WVRllwR,WVIllwI,w4pmode,MPI__sendllw
 !! MPI
       use m_mpi,only: MPI__hx0fp0_rankdivider2Q, MPI__Qtask, 
@@ -141,6 +141,7 @@ c     & laf,ibasf !,ldima,pos,natom
            write(6,"(' ### ',2i4,' out of nqibz+n0qi+nq0iadd nsp=',2i4,' ### ')")iq,is,nqibz+nq0i+nq0iadd,nspin
            isf = is
            call X0kf_v4hz_init_read(iq,is) !readin icount data (index sets and tetrahedron weight)
+           call x0kf_zmel(qp, is,isf, iq, nmbas_in, eibzmode=eibzmode, nwgt=nwgt(:,iq),rcxq=rcxq)
            call x0kf_v4hz(qp, is,isf, iq, nmbas_in, eibzmode=eibzmode, nwgt=nwgt(:,iq),rcxq=rcxq)
                 !  rcxq is accumulating for spins 
  1003   continue
