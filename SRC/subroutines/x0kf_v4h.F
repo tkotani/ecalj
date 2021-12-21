@@ -26,22 +26,29 @@
       subroutine X0kf_v4hz_init_write(iq,is) 
       integer:: iq,is,ix0
       character*8 :: charext
-      open(newunit=ix0,file='x0icount.'//charext(iq)//'_'//charext(is))
+      open(newunit=ix0,file='x0icount.'//trim(charext(iq))//'_'//trim(charext(is)),form='unformatted')
       write(ix0)ncount
       write(ix0) whwc, kc, iwc, itc,itpc, jpmc
+      write(ix0) nkmin,nkmax,nkqmin,nkqmax
+      deallocate(nkmin,nkmax,nkqmin,nkqmax)!,skipk)
+      deallocate( whwc, kc, iwc, itc, itpc, jpmc )
       close(ix0)
       end subroutine
 
       subroutine X0kf_v4hz_init_read(iq,is)
       integer:: iq,is,ix0
       character*8 :: charext
-      open(newunit=ix0,file='x0icount.'//charext(iq)//'_'//charext(is))
+      open(newunit=ix0,file='x0icount.'//trim(charext(iq))//'_'//trim(charext(is)),form='unformatted')
       read(ix0)ncount
-      deallocate( whwc, kc, iwc, itc, itpc, jpmc )
       allocate( whwc(ncount), kc(ncount), iwc(ncount), itc(ncount), itpc(ncount), jpmc(ncount) )
+      allocate( nkmin(nqbz),nkmax(nqbz),nkqmin(nqbz),nkqmax(nqbz))
       read(ix0) whwc, kc, iwc, itc,itpc, jpmc
+      read(ix0) nkmin,nkmax,nkqmin,nkqmax
       close(ix0)
       end subroutine
+c      subroutine deread()
+c      deallocate(whwc,kc,iwc,itc,itpc,jpmc)
+c      end subroutine
       
 !--------------------------------------------------------------------------      
       function X0kf_v4hz_init(job,q,isp_k,isp_kq, iq, nmbas,eibzmode, nwgt, crpa) result(ierr)
@@ -190,9 +197,9 @@ c                write(6,"(a,6i5,d13.5)")'uuuuu k it itp iw jpm whw=',icount,k,i
       end function x0kf_v4hz_init
 
 !! --------------------------------------------------------------------------------
-      subroutine X0kf_v4hz ( q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt, crpa, rcxq,epsppmode)
+      subroutine X0kf_v4hz ( q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt, rcxq,epsppmode)
 c      function X0kf_v4hz ( q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt, crpa,rcxq) result(rcxq)!not rxcq to bothI/O
-      intent(in)   ::        q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt, crpa,epsppmode 
+      intent(in)   ::        q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt, epsppmode 
 !! === calculate chi0, or chi0_pm ===
 !! We calculate imaginary part of chi0 along real axis.
 !!
@@ -232,7 +239,7 @@ c      function X0kf_v4hz ( q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt, crpa,rcx
       integer ::  nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb !nkqmin, nkqmax,
       logical :: eibzmode  
       integer::  nwgt(nqbz) 
-      logical::  crpa, exchange=.false. !eibz4x0,
+      logical::  exchange=.false. !eibz4x0,
       real(8)::  wpw_k,wpw_kq!, vec_kcrpa(3),vec_kqcrpa(3)
       integer::  irot=1         !, ntqxx,nbmax!,nctot
       integer::  neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele!,ngbb !eibzsym(ngrp,-1:1),

@@ -1,4 +1,4 @@
-      program hx0fp0_sc
+      program hx0init
 !!  Calculate W-V for QSGW mode. Cleaned up jun2020. 
 !!  We calculate dielectric chi0 by the follwoing three steps.
 !!    gettetwt: tetrahedron weights
@@ -66,7 +66,7 @@ c     & laf,ibasf !,ldima,pos,natom
       integer:: iq,isf,kx,ixc,iqxini,iqxend,is,iw,ifwd,ngrpx,verbose,nmbas1,nmbas2,nmbas_in,ifif
       real(8):: ua=1d0, qp(3), quu(3), hartree, rydberg, schi=-9999
       real(8),allocatable :: symope(:,:), ekxx1(:,:),ekxx2(:,:)
-      complex(8),allocatable:: zxq(:,:,:),zxqi(:,:,:),zzr(:,:), rcxq(:,:,:,:)
+      complex(8),allocatable:: zxq(:,:,:),zxqi(:,:,:), rcxq(:,:,:,:)
       logical :: debug=.false. , realomega, imagomega, nolfco=.false.
       logical :: hx0, eibzmode, crpa, eibz4x0,iprintx=.false.,chipm=.false., localfieldcorrectionllw
       integer:: i_red_npm, i_red_nwhis,  i_red_nmbas2,ierr,ircxq,npmx
@@ -80,7 +80,7 @@ c     & laf,ibasf !,ldima,pos,natom
       call cputid (0)
       if(verbose()>=100) debug=.true.
       write(6,*) ' --- hx0fp0_sc Choose modes below ----------------'
-      write(6,*) '  ixc= 11,10011' !,or 1011 '
+      write(6,*) '  ixc= 11,10011' 
       if(cmdopt2('--job=',outs)) then
         read(outs,*) ixc
       else
@@ -89,9 +89,6 @@ c     & laf,ibasf !,ldima,pos,natom
         endif
         call MPI__Broadcast(ixc)
       endif
-c      irr = cmdopt2('--part=',outs)
-      
-      if(MPI__root) iprintx=.true.
       crpa = .false.
       if(ixc==11) then
          write(6,*) " OK ixc=11 normal mode "
@@ -102,7 +99,7 @@ c      irr = cmdopt2('--part=',outs)
          write(6,*)'we only allow ixc==11 or 10011. Given ixc=',ixc
          call Rx( 'error: give allowed arg for hx0fp0_sc.')
       endif
-      allocate(zzr(1,1))  !dummy !zzr is required for chi^+- mode for hx0fp0
+      if(MPI__root) iprintx=.true.
       hartree= 2d0*rydberg()
       call Genallcf_v3(incwfx=0) !Basic data. incwfin= 0 takes 'ForX0 for core' in GWinput
       call Read_BZDATA(hx0)      !Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
@@ -198,95 +195,8 @@ c      irr = cmdopt2('--part=',outs)
            call tetdeallocate()
  1103   continue
  1101 continue
-      
-      
-!! Obtain rcxq -------------------           
-      do 1001 iq = iqxini,iqxend
-        if( .not. MPI__Qtask(iq) ) cycle
-        call cputid (0)
-        qp = qibze(:,iq)
-        write(6,"('do 1001: iq q=',i5,3f9.4)")iq,qp
-!! Read Coulomb matrix 
-        call Readvcoud(qp,iq,NoVcou=.false.) !Readin vcousq,zcousq ngb ngc for the Coulomb matrix for given q
-        if(iq > nqibz .and. (.not.localfieldcorrectionllw())  ) then 
-           nolfco =.true.
-           nmbas_in = 1 
-        else          ! We usually use localfieldcorrectionllw()=T
-           nolfco = .false.
-           nmbas_in = ngb
-        endif
-        nmbas1 = nmbas_in !We (will) use nmbas1 and nmbas2 for block division of matrices.
-        nmbas2 = nmbas_in
-!! We set ppovlz for calling get_zmelt (get matrix elements) \in m_zmel \in subroutine x0kf_v4hz
-        call Setppovlz(qp,matz=.not.eibz4x0())
-        allocate( rcxq(nmbas1,nmbas2,nwhis,npm)) 
-        rcxq = 0d0
-        do 1003 is = MPI__Ss,MPI__Se !is=1,nspin. rcxq is acuumulated for spins
-           write(6,"(' ### ',2i4,' out of nqibz+n0qi+nq0iadd nsp=',2i4,' ### ')")iq,is,nqibz+nq0i+nq0iadd,nspin
-           if(debug) write(6,*)' niw nw=',niw,nw
-           isf = is
-           call X0kf_v4hz_init_read(iq,is)
-           call x0kf_v4hz(qp, is,isf, iq, nmbas_in, eibzmode=eibzmode, nwgt=nwgt(:,iq),rcxq=rcxq)
-                !  rcxq is accumulating for spins 
- 1003   continue
-!! Symmetrize and convert to Enu basis (diagonalized basis for the Coulomb matrix).
-!!   That is, we get dconjg(tranpsoce(zcousq))*rcxq*zcousq for eibzmode
-        if(eibzmode)  then
-           call x0kf_v4hz_symmetrize( qp, iq, 
-     i       nolfco, zzr, nmbas_in, chipm, eibzmode=eibzmode, eibzsym=eibzsym(:,:,iq),
-     o       rcxq=rcxq)              !  crystal symmetry of rcxq is recovered for EIBZ mode.
-        endif
-        open(newunit=ircxq,file='rcxq.'//trim(charext(iq)),form='unformatted')
-        write(ircxq) nmbas1,nmbas2
-        write(ircxq) rcxq
-        close(ircxq)
-        deallocate(rcxq)
- 1001 continue 
-     
-      
-!!-Hilbert transformation -----------
-      do 1201 iq = iqxini,iqxend
-        if( .not. MPI__Qtask(iq) ) cycle
-        open(newunit=ircxq,file='rcxq.'//trim(charext(iq)),form='unformatted')
-        read(ircxq) nmbas1,nmbas2
-        if(allocated(rcxq)) deallocate(rcxq)
-        allocate( rcxq(nmbas1,nmbas2,nwhis,npm))
-        read(ircxq) rcxq
-        close(ircxq)
-!! Hilbert transform . Genrerate Real part from Imaginary part. ======
-        if(realomega) allocate( zxq(nmbas1,nmbas2,nw_i:nw) )
-        if(imagomega) allocate( zxqi(nmbas1,nmbas2,niw)    )
-        write(6,'("goto dpsion5: nwhis nw_i niw nw_w nmbas1 nmbas2=",6i5)') nwhis,nw_i,nw,niw,nmbas1,nmbas2
-        call dpsion5(           ! frhis,nwhis, freq_r, nw, freq_i,niw,
-     i   realomega, imagomega, 
-     i   rcxq, nmbas1,nmbas2,   ! rcxq is alterd---used as work npm,nw_i, 
-     o   zxq, zxqi,
-     i   chipm, schi,is,  ecut,ecuts)
-        if(allocated(rcxq) ) deallocate(rcxq)
-!! ===  RealOmega === W-V: WVR and WVI. Wing elemments: llw, llwi LLWR, LLWI
-        if(debug) print *,'sumchk zxq=',sum(zxq),sum(zxqi),sum(abs(zxq)),sum(abs(zxqi))
-        if (realomega) then
-           call WVRllwR(qp,iq,zxq,nmbas1,nmbas2)
-           deallocate(zxq)
-        endif 
-!! === ImagOmega ===
-        if (imagomega) then
-           call WVIllwI(qp,iq,zxqi,nmbas1,nmbas2)
-           deallocate(zxqi)
-        endif 
-!! === ImagOmega end ===
- 1201 continue 
-
-      
-!! == Divergent part and non-analytic constant part of W(0) ==
-      call MPI__barrier()
-      call MPI__sendllw(iqxend) !!! Send all LLW data to mpi_root.
-!! Get effective W0,W0i, and L(omega=0) matrix. Modify WVR WVI
-!!  With w0 and w0i, we modify W0W0i. Files WVI and WVR are modified. jun2020
-      if(MPI__rank==0) call W0w0i(nw_i,nw,nq0i,niw,q0i)
-!      
-      write(6,*) '--- end of hx0fp0_sc --- irank=',MPI__rank
+      write(6,*) '--- end of hx0init --- irank=',MPI__rank
       call cputid(0)
-      if(ixc==11     ) call rx0( ' OK! hx0fp0_sc ixc=11 Sergey F. mode')
-      if(ixc==10011  ) call rx0( ' OK! hx0fp0_sc ixc=10011 Sergey F. mode')
-      end program hx0fp0_sc 
+      if(ixc==11     ) call rx0( ' OK! hx0init ixc=11 ')
+      if(ixc==10011  ) call rx0( ' OK! hx0init ixc=10011')
+      end program hx0init

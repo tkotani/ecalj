@@ -1,4 +1,4 @@
-      program hx0fp0_sc
+      program hrcxq
 !!  Calculate W-V for QSGW mode. Cleaned up jun2020. 
 !!  We calculate dielectric chi0 by the follwoing three steps.
 !!    gettetwt: tetrahedron weights
@@ -68,7 +68,7 @@ c     & laf,ibasf !,ldima,pos,natom
       real(8),allocatable :: symope(:,:), ekxx1(:,:),ekxx2(:,:)
       complex(8),allocatable:: zxq(:,:,:),zxqi(:,:,:),zzr(:,:), rcxq(:,:,:,:)
       logical :: debug=.false. , realomega, imagomega, nolfco=.false.
-      logical :: hx0, eibzmode, crpa, eibz4x0,iprintx=.false.,chipm=.false., localfieldcorrectionllw
+      logical :: hx0, eibzmode, eibz4x0,iprintx=.false.,chipm=.false., localfieldcorrectionllw
       integer:: i_red_npm, i_red_nwhis,  i_red_nmbas2,ierr,ircxq,npmx
       character*8 :: charext
       character(20):: outs=''
@@ -79,30 +79,6 @@ c     & laf,ibasf !,ldima,pos,natom
       call MPI__consoleout('hx0fp0_sc')
       call cputid (0)
       if(verbose()>=100) debug=.true.
-      write(6,*) ' --- hx0fp0_sc Choose modes below ----------------'
-      write(6,*) '  ixc= 11,10011' !,or 1011 '
-      if(cmdopt2('--job=',outs)) then
-        read(outs,*) ixc
-      else
-        if( MPI__root ) then
-        read(5,*) ixc 
-        endif
-        call MPI__Broadcast(ixc)
-      endif
-c      irr = cmdopt2('--part=',outs)
-      
-      if(MPI__root) iprintx=.true.
-      crpa = .false.
-      if(ixc==11) then
-         write(6,*) " OK ixc=11 normal mode "
-      elseif(ixc==10011) then
-         write(6,*) " OK ixc=10011 crpa mode "
-         crpa=.true.
-      else
-         write(6,*)'we only allow ixc==11 or 10011. Given ixc=',ixc
-         call Rx( 'error: give allowed arg for hx0fp0_sc.')
-      endif
-      allocate(zzr(1,1))  !dummy !zzr is required for chi^+- mode for hx0fp0
       hartree= 2d0*rydberg()
       call Genallcf_v3(incwfx=0) !Basic data. incwfin= 0 takes 'ForX0 for core' in GWinput
       call Read_BZDATA(hx0)      !Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
@@ -175,31 +151,7 @@ c      irr = cmdopt2('--part=',outs)
 !! I think, iq,igb1,igb2,(it,itp) are suitable for decomposition (computation, and memory distribution).
 !!     !note The pair (it,itp) gives very limited range of allowed iw.
 !!
-      
       if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
-!! do 1101 is for whw and index for x0kf_v4hz
-      do 1101 iq = iqxini,iqxend
-        if( .not. MPI__Qtask(iq) ) cycle
-        call cputid (0)
-        qp = qibze(:,iq)
-        write(6,"('do 1001: iq q=',i5,3f9.4)")iq,qp
-        do 1103 is = MPI__Ss,MPI__Se !is=1,nspin
-           write(6,"(' ### ',2i4,' out of nqibz+n0qi+nq0iadd nsp=',2i4,' ### ')")iq,is,nqibz+nq0i+nq0iadd,nspin
-           if(debug) write(6,*)' niw nw=',niw,nw
-           isf = is
-           do kx = 1, nqbz
-              ekxx1(1:nband,kx) = readeval(qbz(:,kx),    is ) ! read eigenvalue
-              ekxx2(1:nband,kx) = readeval(qp+qbz(:,kx), isf) !
-           enddo
-           call gettetwt(qp,iq,is,isf,nwgt(:,iq),ekxx1,ekxx2,nband=nband,eibzmode=eibzmode) ! Tetrahedron weight for x0kf_v4hz
-           ierr=x0kf_v4hz_init(0,qp,is,isf,iq,nmbas_in, eibzmode=eibzmode, nwgt=nwgt(:,iq),crpa=crpa)
-           ierr=x0kf_v4hz_init(1,qp,is,isf,iq,nmbas_in, eibzmode=eibzmode, nwgt=nwgt(:,iq),crpa=crpa)
-           call X0kf_v4hz_init_write(iq,is)
-           call tetdeallocate()
- 1103   continue
- 1101 continue
-      
-      
 !! Obtain rcxq -------------------           
       do 1001 iq = iqxini,iqxend
         if( .not. MPI__Qtask(iq) ) cycle
@@ -242,51 +194,7 @@ c      irr = cmdopt2('--part=',outs)
         close(ircxq)
         deallocate(rcxq)
  1001 continue 
-     
-      
-!!-Hilbert transformation -----------
-      do 1201 iq = iqxini,iqxend
-        if( .not. MPI__Qtask(iq) ) cycle
-        open(newunit=ircxq,file='rcxq.'//trim(charext(iq)),form='unformatted')
-        read(ircxq) nmbas1,nmbas2
-        if(allocated(rcxq)) deallocate(rcxq)
-        allocate( rcxq(nmbas1,nmbas2,nwhis,npm))
-        read(ircxq) rcxq
-        close(ircxq)
-!! Hilbert transform . Genrerate Real part from Imaginary part. ======
-        if(realomega) allocate( zxq(nmbas1,nmbas2,nw_i:nw) )
-        if(imagomega) allocate( zxqi(nmbas1,nmbas2,niw)    )
-        write(6,'("goto dpsion5: nwhis nw_i niw nw_w nmbas1 nmbas2=",6i5)') nwhis,nw_i,nw,niw,nmbas1,nmbas2
-        call dpsion5(           ! frhis,nwhis, freq_r, nw, freq_i,niw,
-     i   realomega, imagomega, 
-     i   rcxq, nmbas1,nmbas2,   ! rcxq is alterd---used as work npm,nw_i, 
-     o   zxq, zxqi,
-     i   chipm, schi,is,  ecut,ecuts)
-        if(allocated(rcxq) ) deallocate(rcxq)
-!! ===  RealOmega === W-V: WVR and WVI. Wing elemments: llw, llwi LLWR, LLWI
-        if(debug) print *,'sumchk zxq=',sum(zxq),sum(zxqi),sum(abs(zxq)),sum(abs(zxqi))
-        if (realomega) then
-           call WVRllwR(qp,iq,zxq,nmbas1,nmbas2)
-           deallocate(zxq)
-        endif 
-!! === ImagOmega ===
-        if (imagomega) then
-           call WVIllwI(qp,iq,zxqi,nmbas1,nmbas2)
-           deallocate(zxqi)
-        endif 
-!! === ImagOmega end ===
- 1201 continue 
-
-      
-!! == Divergent part and non-analytic constant part of W(0) ==
-      call MPI__barrier()
-      call MPI__sendllw(iqxend) !!! Send all LLW data to mpi_root.
-!! Get effective W0,W0i, and L(omega=0) matrix. Modify WVR WVI
-!!  With w0 and w0i, we modify W0W0i. Files WVI and WVR are modified. jun2020
-      if(MPI__rank==0) call W0w0i(nw_i,nw,nq0i,niw,q0i)
-!      
-      write(6,*) '--- end of hx0fp0_sc --- irank=',MPI__rank
+      write(6,*) '--- end of hrcxq --- irank=',MPI__rank
       call cputid(0)
-      if(ixc==11     ) call rx0( ' OK! hx0fp0_sc ixc=11 Sergey F. mode')
-      if(ixc==10011  ) call rx0( ' OK! hx0fp0_sc ixc=10011 Sergey F. mode')
-      end program hx0fp0_sc 
+      call rx0( ' OK! hcxq')
+      end program hrcxq

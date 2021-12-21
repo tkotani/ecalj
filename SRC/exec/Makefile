@@ -17,7 +17,8 @@ moddir= $(obj_path)
 tags  = ..
 
 progslm = lmf-MPIK lmfgw-MPIK lmfa lmchk lmf2gw lmfham mkhamloc plotmodel initmlo mkinput
-progsgw = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hqpe_qsgw qg4gw gwinit heftet hmergewv rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2 hmagnon hhomogas
+progsgw = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hqpe_qsgw qg4gw gwinit heftet hmergewv rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2 hmagnon hhomogas \
+hx0init hhilbert hrcxq
 progsw  = huumat hpsig hmaxloc huumat_MPI hpsig_MPI wanplot hwmatK hwmatK_MPI htbplot #hx0fp0_mlw 
 script  = cleargw* dqpu eps* gw_* gwg* gws* gwp*  mkG* chipm_mat genMLWF genMLWF_vw genMLWF2 genMLWFmod RPAWannier* FLEX_interaction.py
 
@@ -221,6 +222,17 @@ hvccfp0: $(obj_path)/hvccfp0.m.o  $(MPI) $(ELIB) $(GWLIB)
 hx0fp0:	 $(obj_path)/hx0fp0.m.o  $(MPI) $(ELIB) $(GWLIB)
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $<  $(MPI) $(ELIB) $(GWLIB) $(LKFLAGS2) -o $@
+
+hx0init:	 $(obj_path)/hx0init.m.o  $(MPI) $(ELIB) $(GWLIB)
+	@echo $(LK) $@.o 'link with *.o'
+	@$(LK) $(LKFLAGS1) $<  $(MPI) $(ELIB) $(GWLIB) $(LKFLAGS2) -o $@
+hrcxq:	 $(obj_path)/hrcxq.m.o  $(MPI) $(ELIB) $(GWLIB)
+	@echo $(LK) $@.o 'link with *.o'
+	@$(LK) $(LKFLAGS1) $<  $(MPI) $(ELIB) $(GWLIB) $(LKFLAGS2) -o $@
+hhilbert:	 $(obj_path)/hhilbert.m.o  $(MPI) $(ELIB) $(GWLIB)
+	@echo $(LK) $@.o 'link with *.o'
+	@$(LK) $(LKFLAGS1) $<  $(MPI) $(ELIB) $(GWLIB) $(LKFLAGS2) -o $@
+
 hmagnon: $(obj_path)/hmagnon.m.o  $(MPI) $(ELIB) $(GWLIB)
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $<  $(MPI) $(ELIB) $(GWLIB) $(LKFLAGS2) -o $@
