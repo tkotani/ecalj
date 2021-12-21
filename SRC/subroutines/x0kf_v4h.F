@@ -236,7 +236,7 @@ c        write(6,"(a,6i5,d13.5)")'uuuuu k it itp iw jpm whw=',icount,k,it,itp,iw
       real(8)::  wpw_k,wpw_kq
       integer::  irot=1, neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele
       integer:: ieqbz,kold,nxxxx 
-      integer::nkmin_,nkqmin_,nkoff,nkqoff,ispold,izmel,nmini,nqini,nmtot,nqtot!,ispold2
+      integer::nkmin_,nkqmin_,nkoff,nkqoff,ispold,izmel,nmini,nqini,nmtot,nqtot,ispold2
       kold = -999
       do 1000 icount = 1,ncount
         k = kc(icount)
@@ -244,14 +244,15 @@ c        write(6,"(a,6i5,d13.5)")'uuuuu k it itp iw jpm whw=',icount,k,it,itp,iw
         nkqmin_ = nkqmin(k)
         nmini= nkmin_ 
         nqini= nkqmin_
-        if(kold/=k .or. ispold/=isp_k ) then !.or. ispold2/=isp_kq) then  
+        if(kold/=k .or. ispold/=isp_k .or. ispold2/=isp_kq ) then !.or. ispold2/=isp_kq) then  
            call Get_zmel_modex0(nkmin_,nkqmin_,isp_k,isp_kq)!oct-2021(nkmin(k),nkqmin(k),isp_k,isp_kq)
            call Get_zmel_init(exchange, q+rk(:,k), q, irot, q, nxxxx, nkmax(k),nkqmax(k),nctot,ncc)
            call Dconjg_zmel()   !zmel = dconjg(zmel)
-           write(6,*) 'k zmel writing...',iq,k,isp_k
-           call rwzmel(iq,k,isp_k,'w')
+c           write(6,*) 'k zmel writing...',iq,k,isp_k,isp_kq
+           call rwzmel(iq,k,isp_k,isp_kq,'w')
            kold = k
-           ispold=isp_k
+           ispold =isp_k
+           ispold2=isp_kq
         endif
  1000 continue
       call Deallocate_zmel()
@@ -304,7 +305,7 @@ c        write(6,"(a,6i5,d13.5)")'uuuuu k it itp iw jpm whw=',icount,k,it,itp,iw
       integer::  irot=1         !, ntqxx,nbmax!,nctot
       integer::  neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele!,ngbb !eibzsym(ngrp,-1:1),
       integer:: ieqbz,kold,nxxxx !igx(ngrp*2,nqbz),igxt(ngrp*2,nqbz),
-      integer::nkmin_,nkqmin_,izmel,ispold,nmini,nqini,nmtot,nqtot !,ispold2
+      integer::nkmin_,nkqmin_,izmel,ispold,nmini,nqini,nmtot,nqtot ,ispold2
 c      logical:: interbandonly,intrabandonly,cmdopt0
       
 c      integer,allocatable:: it_(:,:,:),itp_(:,:,:)
@@ -346,7 +347,7 @@ c
 !     nt0=nkmax-nkmin+1  , ntp0=nkqmax-nkqmin+1
       kold = -999
       do 1000 icount = 1,ncount
-        if(debug) call cputid(0)
+c        if(debug) call cputid(0)
         k = kc(icount)
 ! oct15 2021
         nkmin_  = nkmin(k)
@@ -354,15 +355,16 @@ c
         nmini= nkmin_ 
         nqini= nkqmin_
 ! This gives matrix element zmel(igb q,  k it occ,   q+k itp unocc)
-        if(kold/=k.or.isp_k/=ispold ) then !.or. ispold2/=isp_kq) then  
+        if(kold/=k.or.isp_k/=ispold.or. ispold2/=isp_kq) then  
 c         call Get_zmel_modex0(nkmin_,nkqmin_,isp_k,isp_kq)!oct-2021(nkmin(k),nkqmin(k),isp_k,isp_kq)
 c         call Get_zmel_init(exchange, q+rk(:,k), q, irot, q, nxxxx, nkmax(k),nkqmax(k),nctot,ncc)
 c         call Dconjg_zmel() !zmel = dconjg(zmel)
 cc           nmtot = nctot + nkmax(k)  -nmini+1 ! = phi_middle
 cc           nqtot = ncc   + nkqmax(k) -nqini+1 ! = phi_end
-           call rwzmel(iq,k,isp_k,'r') !,nmbas,nmtot,nqtot)
+           call rwzmel(iq,k,isp_k,isp_kq,'r') !,nmbas,nmtot,nqtot)
            kold=k
            ispold=isp_k
+           ispold2=isp_kq
         endif
 c----------------------------
 !!  z1p = <M_ibg1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >

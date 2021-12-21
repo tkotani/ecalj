@@ -174,13 +174,14 @@ c     i                 ppbrd)           !radial integrals
       end subroutine ppbafp_v2_zmel
 
 !! ------------------------------------
-      subroutine rwzmel(iq,k,isp_k,rw)
-      intent(in)::        iq,k,isp_k
-      integer:: iq,k,isp_k,izmel,nmtot_,nqtot_
+      subroutine rwzmel(iq,k,isp_k,isp_kq,rw)
+      intent(in)::      iq,k,isp_k,isp_kq,rw
+      integer:: iq,k,isp_k,isp_kq,izmel,nmtot_,nqtot_
       character(1):: rw
       character*8 :: charext
       open(newunit=izmel,file='zmel.'//trim(charext(iq))//'_'
-     &     //trim(charext(k))//'_'//trim(charext(isp_k)),form='unformatted')
+     &     //trim(charext(k))//'_'//trim(charext(isp_k))//trim(charext(isp_kq)),
+     &     form='unformatted')
       if(rw=='r') then
          read(izmel) nmtot_,nqtot_
          if(allocated(zmel)) deallocate(zmel)

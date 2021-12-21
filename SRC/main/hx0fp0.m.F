@@ -52,7 +52,7 @@ c     & nband,itq,ngcmx,ngpmx, ppovlz, ppbir,shtvg, miat,tiat , ntq
       use m_readq0p,only: Readq0p,
      &     wqt,q0i,nq0i ,nq0iadd,ixyz,nq0ix,neps
       use m_readVcoud,only: Readvcoud,vcousq,zcousq,ngb,ngc
-      use m_x0kf,only: X0kf_v4hz, X0kf_v4hz_symmetrize,X0kf_v4hz_init
+      use m_x0kf,only: X0kf_v4hz, X0kf_v4hz_symmetrize,X0kf_v4hz_init,x0kf_zmel
       use m_eibz,only:Seteibz, nwgt,neibz,igx,igxt,eibzsym
       use m_llw,only: WVRllwR,WVIllwI,MPI__sendllw2
       use m_w0w0i,only: w0w0i
@@ -649,7 +649,8 @@ c     nblochpmx = nbloch + ngcmx !rdpp \in mptauof_zmel \in m_zmel
           ierr = x0kf_v4hz_init(0, q, is, isf, iq, nmbas_in, eibzmode, nwgt(:,iq),crpa)
           ierr = x0kf_v4hz_init(1, q, is, isf, iq, nmbas_in, eibzmode, nwgt(:,iq),crpa)
           write(6,*)'epsppmode=',epsppmode
-          call   x0kf_v4hz     (   q, is, isf, iq, nmbas_in, eibzmode, nwgt(:,iq), rcxq, epsppmode) 
+          call x0kf_zmel(q, is,isf, iq, nmbas_in, eibzmode, nwgt=nwgt(:,iq),rcxq=rcxq)
+          call x0kf_v4hz(q, is,isf, iq, nmbas_in, eibzmode, nwgt(:,iq), rcxq, epsppmode) 
                !  rcxq is the accumulating variable for spins 
 !!    Symmetrize and convert to Enu basis by dconjg(tranpsoce(zcousq)*rcxq8zcousq if eibzmode
           if(is==nspinmx.or.chipm) then !Apr2015. TK think ".or.chipm" is required for chipm mode

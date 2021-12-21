@@ -141,7 +141,7 @@ c     & laf,ibasf !,ldima,pos,natom
            write(6,"(' ### ',2i4,' out of nqibz+n0qi+nq0iadd nsp=',2i4,' ### ')")iq,is,nqibz+nq0i+nq0iadd,nspin
            isf = is
            call X0kf_v4hz_init_read(iq,is) !readin icount data (index sets and tetrahedron weight)
-           call x0kf_zmel(qp, is,isf, iq, nmbas_in, eibzmode=eibzmode, nwgt=nwgt(:,iq),rcxq=rcxq)
+c           call x0kf_zmel(qp, is,isf, iq, nmbas_in, eibzmode=eibzmode, nwgt=nwgt(:,iq),rcxq=rcxq)
            call x0kf_v4hz(qp, is,isf, iq, nmbas_in, eibzmode=eibzmode, nwgt=nwgt(:,iq),rcxq=rcxq)
                 !  rcxq is accumulating for spins 
  1003   continue
