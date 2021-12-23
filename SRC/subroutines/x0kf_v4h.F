@@ -15,12 +15,16 @@
       use m_tetwt,only:     whw,ihw,nhw,jhw,n1b,n2b,nbnb,nbnbx,nhwtot
       implicit none
       
-      public:: X0kf_v4hz_init, X0kf_v4hz, X0kf_v4hz_symmetrize,X0kf_v4hz_init_write,X0kf_v4hz_init_read,x0kf_zmel
+      public:: X0kf_v4hz_init, X0kf_v4hz, X0kf_v4hz_symmetrize,
+     &     X0kf_v4hz_init_write,X0kf_v4hz_init_read,x0kf_zmel,kc,ncount
+      integer,allocatable:: kc(:)
+      integer:: ncount
+      
       private
-      integer:: ncc, ncount
+      integer:: ncc
       integer,allocatable:: nkmin(:), nkmax(:),nkqmin(:),nkqmax(:)
       real(8),allocatable:: whwc(:)
-      integer,allocatable:: kc(:),iwc(:),itc(:),itpc(:),jpmc(:)
+      integer,allocatable:: iwc(:),itc(:),itpc(:),jpmc(:)
       contains
 !--------------------------------------------------------------------------      
       subroutine X0kf_v4hz_init_write(iq,is) 
@@ -191,8 +195,8 @@ c        write(6,"(a,6i5,d13.5)")'uuuuu k it itp iw jpm whw=',icount,k,it,itp,iw
       if(job==0) write(6,"('x0kf_v4hz_init: job=0 ncount ngb nqibz=',3i8)") ncount, ngb, nqibz
       end function x0kf_v4hz_init
 !! --------------------------------------------------------------------------------
-      subroutine X0kf_zmel ( q, isp_k,isp_kq, iq)
-      intent(in)   ::        q, isp_k,isp_kq, iq
+      subroutine X0kf_zmel ( q,iq,k, isp_k,isp_kq)
+      intent(in)   ::        q,iq,k, isp_k,isp_kq
 !! === calculate chi0, or chi0_pm ===
 !! We calculate imaginary part of chi0 along real axis.
 !!
@@ -237,24 +241,24 @@ c      integer:: nmbas !, imb1,imb2, imb verbose,
       integer::  irot=1, neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele
       integer:: ieqbz,kold,nxxxx 
       integer::nkmin_,nkqmin_,nkoff,nkqoff,ispold,izmel,nmini,nqini,nmtot,nqtot,ispold2
-      kold = -999
-      do 1000 icount = 1,ncount
-        k = kc(icount)
+c      kold = -999
+c      do 1000 icount = 1,ncount
+c        k = kc(icount)
         nkmin_  = nkmin(k)
         nkqmin_ = nkqmin(k)
         nmini= nkmin_ 
         nqini= nkqmin_
-        if(kold/=k .or. ispold/=isp_k .or. ispold2/=isp_kq ) then !.or. ispold2/=isp_kq) then  
+c        if(kold/=k .or. ispold/=isp_k .or. ispold2/=isp_kq ) then !.or. ispold2/=isp_kq) then  
            call Get_zmel_modex0(nkmin_,nkqmin_,isp_k,isp_kq)!oct-2021(nkmin(k),nkqmin(k),isp_k,isp_kq)
            call Get_zmel_init(exchange, q+rk(:,k), q, irot, q, nxxxx, nkmax(k),nkqmax(k),nctot,ncc)
            call Dconjg_zmel()   !zmel = dconjg(zmel)
 c           write(6,*) 'k zmel writing...',iq,k,isp_k,isp_kq
            call rwzmel(iq,k,isp_k,isp_kq,'w')
-           kold = k
-           ispold =isp_k
-           ispold2=isp_kq
-        endif
- 1000 continue
+c           kold = k
+c           ispold =isp_k
+c           ispold2=isp_kq
+c        endif
+c 1000 continue
       call Deallocate_zmel()
       end subroutine x0kf_zmel
       
@@ -361,6 +365,8 @@ c         call Get_zmel_init(exchange, q+rk(:,k), q, irot, q, nxxxx, nkmax(k),nk
 c         call Dconjg_zmel() !zmel = dconjg(zmel)
 cc           nmtot = nctot + nkmax(k)  -nmini+1 ! = phi_middle
 cc           nqtot = ncc   + nkqmax(k) -nqini+1 ! = phi_end
+           
+!! Set 'call x0kf_zmel (see hx0zmel) instead of rwzmel if you like to skip hx0zmel.
            call rwzmel(iq,k,isp_k,isp_kq,'r') !,nmbas,nmtot,nqtot)
            kold=k
            ispold=isp_k

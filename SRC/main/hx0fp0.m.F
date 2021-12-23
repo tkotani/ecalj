@@ -52,7 +52,7 @@ c     & nband,itq,ngcmx,ngpmx, ppovlz, ppbir,shtvg, miat,tiat , ntq
       use m_readq0p,only: Readq0p,
      &     wqt,q0i,nq0i ,nq0iadd,ixyz,nq0ix,neps
       use m_readVcoud,only: Readvcoud,vcousq,zcousq,ngb,ngc
-      use m_x0kf,only: X0kf_v4hz, X0kf_v4hz_symmetrize,X0kf_v4hz_init,x0kf_zmel
+      use m_x0kf,only: X0kf_v4hz, X0kf_v4hz_symmetrize,X0kf_v4hz_init,x0kf_zmel,ncount,kc
       use m_eibz,only:Seteibz, nwgt,neibz,igx,igxt,eibzsym
       use m_llw,only: WVRllwR,WVIllwI,MPI__sendllw2
       use m_w0w0i,only: w0w0i
@@ -75,7 +75,7 @@ Cr      So n-index in "in" for valence electron is different from "inv".
 cccccccccccccccccccccccccccccccccccccccccccccccccc
       real(8):: q(3),  qgbin(3),qx(3)
       real(8):: ua=1d0 ! this is a dummy.
-      integer:: ifrb(2),ifcb(2),ifrhb(2),ifchb(2) !,ifev(2)
+      integer:: ifrb(2),ifcb(2),ifrhb(2),ifchb(2) ,icount,kold,isold
       integer:: ndble=8
 c      integer:: nwordr
       real(8),allocatable:: vxcfp(:,:),
@@ -628,6 +628,8 @@ c     nblochpmx = nbloch + ngcmx !rdpp \in mptauof_zmel \in m_zmel
           allocate( zw0(ngb,ngb), zxq (ngb,ngb,nw_i:nw), zxqi(ngb,ngb,niw) )
         endif
         zxq=0d0;  zxqi=0d0;  rcxq = 0d0
+        kold=-999
+        isold=-999
         do 1003 is = 1,nspinmx
           write(6,"(' ##### ',2i4,' out of nqibz+n0qi nsp=',2i4,' ##### ')")iq, is, nqibz + nq0i,nspin
           if(debug) write(6,*)' niw nw=',niw,nw
@@ -649,7 +651,14 @@ c     nblochpmx = nbloch + ngcmx !rdpp \in mptauof_zmel \in m_zmel
           ierr = x0kf_v4hz_init(0, q, is, isf, iq, nmbas_in, eibzmode, nwgt(:,iq),crpa)
           ierr = x0kf_v4hz_init(1, q, is, isf, iq, nmbas_in, eibzmode, nwgt(:,iq),crpa)
           write(6,*)'epsppmode=',epsppmode
-          call x0kf_zmel(q, is,isf, iq)
+          do icount = 1,ncount
+            k = kc(icount)
+            if(k/=kold.or.is/=isold) then
+               call x0kf_zmel(q,iq,k, is,isf)
+               kold=k
+               isold=is
+            endif   
+          enddo   
           call x0kf_v4hz(q, is,isf, iq, nmbas_in, eibzmode, nwgt(:,iq), rcxq, epsppmode) 
                !  rcxq is the accumulating variable for spins 
 !!    Symmetrize and convert to Enu basis by dconjg(tranpsoce(zcousq)*rcxq8zcousq if eibzmode

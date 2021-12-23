@@ -50,7 +50,8 @@ c     & laf,ibasf !,ldima,pos,natom
       use m_qbze,only:    Setqbze, nqbze,nqibze,qbze,qibze
       use m_readhbe,only: Readhbe, nband !, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
       use m_eibz,only:    Seteibz, nwgt,neibz,igx,igxt,eibzsym
-      use m_x0kf,only:    X0kf_v4hz, X0kf_v4hz_symmetrize, X0kf_v4hz_init,x0kf_v4hz_init_write,x0kf_v4hz_init_read,x0kf_zmel
+      use m_x0kf,only:    X0kf_v4hz, X0kf_v4hz_symmetrize, X0kf_v4hz_init,
+     &     X0kf_v4hz_init_write,X0kf_v4hz_init_read,X0kf_zmel, kc,ncount
       use m_llw,only:     WVRllwR,WVIllwI,w4pmode,MPI__sendllw
 !! MPI
       use m_mpi,only: MPI__hx0fp0_rankdivider2Q, MPI__Qtask, 
@@ -66,10 +67,10 @@ c     & laf,ibasf !,ldima,pos,natom
       complex(8),allocatable:: zxq(:,:,:),zxqi(:,:,:),zzr(:,:), rcxq(:,:,:,:)
       logical :: debug=.false. , realomega, imagomega, nolfco=.false.
       logical :: hx0, eibzmode, eibz4x0,iprintx=.false.,chipm=.false., localfieldcorrectionllw
-      integer:: i_red_npm, i_red_nwhis,  i_red_nmbas2,ierr,ircxq,npmx
+      integer:: i_red_npm, i_red_nwhis,  i_red_nmbas2,ierr,ircxq,npmx,kold,isold
       character*8 :: charext
       character(20):: outs=''
-      integer:: ipart
+      integer:: ipart,icount,k
       logical:: cmdopt2
 !-------------------------------------------------------------------------
       call MPI__Initialize()
@@ -117,8 +118,10 @@ c     & laf,ibasf !,ldima,pos,natom
       MPI__Se = nspin
 !! Obtain zmel
       if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
-      do 1501 iq = iqxini,iqxend
+      do 2501 iq = iqxini,iqxend
         if( .not. MPI__Qtask(iq) ) cycle
+        kold=-999
+        isold=-999
         qp = qibze(:,iq)
         write(6,"('do 1501: iq q=',i5,3f9.4)")iq,qp
         call Readvcoud(qp,iq,NoVcou=.false.) !Readin vcousq,zcousq ngb ngc for the Coulomb matrix
@@ -130,12 +133,19 @@ c     & laf,ibasf !,ldima,pos,natom
            nmbas_in = ngb
         endif
         call Setppovlz(qp,matz=.not.eibz4x0())
-        do 1003 is = MPI__Ss,MPI__Se !is=1,nspin. rcxq is acuumulated for spins
-           isf = is
-           call X0kf_v4hz_init_read(iq,is) !readin icount data (index sets and tetrahedron weight)
-           call x0kf_zmel(qp, is,isf, iq)
- 1003   continue
- 1501 continue 
+        do 2003 is = MPI__Ss,MPI__Se !is=1,nspin. rcxq is acuumulated for spins
+          isf = is
+          call X0kf_v4hz_init_read(iq,is) !readin icount data (index sets and tetrahedron weight)
+          do 2001 icount = 1,ncount
+            k = kc(icount)
+            if(k/=kold.or.is/=isold) then
+               call x0kf_zmel(qp,iq,k, is,isf)
+               kold=k
+               isold=is
+            endif   
+ 2001     continue
+ 2003   continue
+ 2501 continue 
       write(6,*) '--- end of hx0zmel --- irank=',MPI__rank
       call cputid(0)
       call rx0( ' OK! hx0zmel')
