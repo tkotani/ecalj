@@ -191,8 +191,8 @@ c        write(6,"(a,6i5,d13.5)")'uuuuu k it itp iw jpm whw=',icount,k,it,itp,iw
       if(job==0) write(6,"('x0kf_v4hz_init: job=0 ncount ngb nqibz=',3i8)") ncount, ngb, nqibz
       end function x0kf_v4hz_init
 !! --------------------------------------------------------------------------------
-      subroutine X0kf_zmel ( q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt, rcxq,epsppmode)
-      intent(in)   ::        q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt,      epsppmode 
+      subroutine X0kf_zmel ( q, isp_k,isp_kq, iq)
+      intent(in)   ::        q, isp_k,isp_kq, iq
 !! === calculate chi0, or chi0_pm ===
 !! We calculate imaginary part of chi0 along real axis.
 !!
@@ -216,17 +216,17 @@ c        write(6,"(a,6i5,d13.5)")'uuuuu k it itp iw jpm whw=',icount,k,it,itp,iw
 !! nlmto   = total number of atomic basis functions within MT
 !! nqbz    = number of k-points in the 1st BZ
 !!
-      logical,optional ::epsppmode
+c      logical,optional ::epsppmode
       integer:: k,isp_k,isp_kq,iq, jpm, ibib, iw,igb2,igb1,it,itp
       real(8):: q(3)
-      complex(8):: rcxq (nmbas,nmbas,nwhis,npm)
+c      complex(8):: rcxq (nmbas,nmbas,nwhis,npm)
       complex(8) :: imag=(0d0,1d0),trc,aaa 
       integer::   nadd(3), igc !nband,!ngpmx, ngcmx,nqbze, ngc,
       complex(8),allocatable :: zmelt(:,:,:)
       complex(8),allocatable::  z1p(:,:)
       logical,parameter:: debug=.false.
       real(8) :: imagweight 
-      integer:: nmbas !, imb1,imb2, imb verbose,
+c      integer:: nmbas !, imb1,imb2, imb verbose,
       logical :: iww2=.true.
       complex(8):: img=(0d0,1d0),zmelt2 !,zzz(ngbb)
       integer ::  nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb !nkqmin, nkqmax,

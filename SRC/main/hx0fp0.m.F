@@ -649,7 +649,7 @@ c     nblochpmx = nbloch + ngcmx !rdpp \in mptauof_zmel \in m_zmel
           ierr = x0kf_v4hz_init(0, q, is, isf, iq, nmbas_in, eibzmode, nwgt(:,iq),crpa)
           ierr = x0kf_v4hz_init(1, q, is, isf, iq, nmbas_in, eibzmode, nwgt(:,iq),crpa)
           write(6,*)'epsppmode=',epsppmode
-          call x0kf_zmel(q, is,isf, iq, nmbas_in, eibzmode, nwgt=nwgt(:,iq),rcxq=rcxq)
+          call x0kf_zmel(q, is,isf, iq)
           call x0kf_v4hz(q, is,isf, iq, nmbas_in, eibzmode, nwgt(:,iq), rcxq, epsppmode) 
                !  rcxq is the accumulating variable for spins 
 !!    Symmetrize and convert to Enu basis by dconjg(tranpsoce(zcousq)*rcxq8zcousq if eibzmode

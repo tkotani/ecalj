@@ -133,7 +133,7 @@ c     & laf,ibasf !,ldima,pos,natom
         do 1003 is = MPI__Ss,MPI__Se !is=1,nspin. rcxq is acuumulated for spins
            isf = is
            call X0kf_v4hz_init_read(iq,is) !readin icount data (index sets and tetrahedron weight)
-           call x0kf_zmel(qp, is,isf, iq, nmbas_in, eibzmode=eibzmode, nwgt=nwgt(:,iq),rcxq=rcxq)
+           call x0kf_zmel(qp, is,isf, iq)
  1003   continue
  1501 continue 
       write(6,*) '--- end of hx0zmel --- irank=',MPI__rank
