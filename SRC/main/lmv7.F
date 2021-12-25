@@ -73,11 +73,11 @@
 !! Read ctrl.* into m_rdfiln
 !! m_rdfiln is too complicated to maintain. We will use simple reader.
 !! 'math operation' and '-v substitution' may be convenient, but probably we will separate them away.
+!!    it allow expression like ALAT=7.88*1.1
       call m_rdfiln_init()
       
 !! Read recrd of ctrl file into m_lmfinit
 !!    Set all initial condition to the module m_lmfinit.
-!!    it allow expression like ALAT=7.88*1.1
       call m_lmfinit_init(prgnam) !--> all initianl data go into m_lmfinit
       
 !! Lattice and Symmetry

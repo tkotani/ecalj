@@ -1,20 +1,16 @@
       module m_hamindex
-      use NaNum,only: NaN       !not working well
+      use NaNum,only: NaN       !for NaN initialization, but not working well
       integer,protected:: ngrpaf,ngrp_original
-      integer,allocatable,protected:: iclasstaf(:)
-      integer, allocatable,protected ::  offH (:,:,:)
-      real(8),allocatable,protected:: symops_af(:,:,:), ag_af(:,:)
-! we have to protect them in future      
-      integer,allocatable:: !,protected::
+      integer,protected::  nqi=NaN, nqnum=NaN, ngrp=NaN, lxx=NaN, kxx=NaN,norbmto=NaN,
+     &     nqtt=NaN, ndimham=NaN, napwmx=NaN, lxxa=NaN, ngpmx=NaN, imx=NaN,nbas=NaN
+      real(8),protected:: plat(3,3)=NaN,qlat(3,3)=NaN 
+      integer,allocatable,protected:: iclasstaf(:), offH (:,:,:),
      &     ltab(:),ktab(:),offl(:),ispec(:), iclasst(:),offlrev(:,:,:),ibastab(:),
-     &     iqimap(:),iqmap(:),igmap(:),invgx(:),miat(:,:),ibasindex(:), !,ngvecp(:,:,:),ngvecprev(:,:,:,:)
+     &     iqimap(:),iqmap(:),igmap(:),invgx(:),miat(:,:),ibasindex(:),
      &     igv2(:,:,:),napwk(:),igv2rev(:,:,:,:)
-      real(8):: plat(3,3)=NaN,qlat(3,3)=NaN !,protected
-      real(8),allocatable:: symops(:,:,:),ag(:,:),tiat(:,:,:),shtvg(:,:), dlmm(:,:,:,:),qq(:,:),
-     &     qtt(:,:),qtti(:,:)   !,protected
-      integer::  nqi=NaN, nqnum=NaN, ngrp=NaN, lxx=NaN, kxx=NaN,norbmto=NaN,
-     &      nqtt=NaN, ndimham=NaN, napwmx=NaN, lxxa=NaN, ngpmx=NaN !, norbtx=NaN
-      integer:: imx=NaN,nbas=NaN !,protected
+      real(8),allocatable,protected:: symops_af(:,:,:), ag_af(:,:),
+     &     symops(:,:,:),ag(:,:),tiat(:,:,:),shtvg(:,:), dlmm(:,:,:,:),qq(:,:),
+     &     qtt(:,:),qtti(:,:)  
       logical,private:: debug=.false.
       contains
 cssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
