@@ -72,7 +72,7 @@
       
 !! Read ctrl.* into m_rdfiln
 !! m_rdfiln is too complicated to maintain. We will use simple reader.
-!! 'math operation and -v substitution' may be convenient, but probably we will separate them away.
+!! 'math operation' and '-v substitution' may be convenient, but probably we will separate them away.
       call m_rdfiln_init()
       
 !! Read recrd of ctrl file into m_lmfinit
