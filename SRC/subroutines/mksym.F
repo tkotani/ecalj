@@ -1,6 +1,4 @@
       module m_mksym
-c      iv_a_oipc,iv_a_oics,iv_a_onrc,rv_a_oclabl,iv_a_onrcp
-c     &     rv_a_oag,rv_a_osymgr, iv_a_oistab
       real(8) , allocatable,protected ::  rv_a_oag (:)
       character(8), allocatable,protected ::  rv_a_oclabl(:) !string
       integer , allocatable,protected ::  iv_a_oics (:)
@@ -192,6 +190,8 @@ C ... For memory allocation of class data, assume initially nclass=nbas
 C --- Generate space group ---
       nbas0 = nbas
       if (cmdopt('--fixpos',8,0,strn)) then
+         call Rx('fixpos is going to be removed. outside of lmf')
+ccccccccccccccccccccccccccccccc         
         j1 = 8+1
         if (strn(9:13) .eq. ':tol=') then
           j1 = 13
@@ -227,11 +227,14 @@ c      print *,' mmmmmm',nspec
 c        if (allocated(rv_a_oag)) deallocate(rv_a_oag)
         goto 5
       endif
+
+      
       if (fptol .ne. 0) then
-        do i_spackv=1,nbas
-           ssite( i_spackv )%pos = pos2_rv(:,i_spackv)
-          rv_a_opos(:,i_spackv)=ssite(i_spackv)%pos
-        enddo
+         call Rx('fptol=0 is assumed now')
+c        do i_spackv=1,nbas
+c          ssite( i_spackv )%pos = pos2_rv(:,i_spackv)
+c          rv_a_opos(:,i_spackv)=ssite(i_spackv)%pos
+c        enddo
       endif
       
 C --- Add inversion to point group ---

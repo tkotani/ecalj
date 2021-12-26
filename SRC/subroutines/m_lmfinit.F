@@ -51,7 +51,7 @@ Ci          functions are less than tol.
       real(8),protected:: rmines,rmaxes
       logical,protected :: lhf,lcd4
 !! ... STRUC 
-      real(8),protected:: lat_slat(3,3),dlat,alat=NULLR,plat(3,3),dalat,vol,avw
+      real(8),protected:: lat_slat(3,3),dlat,alat=NULLR,dalat,vol,avw
       integer,protected:: nbas=NULLI,nsite=NULLI,nspec 
 !! ... SPEC
       real(8),protected:: omax1(3),omax2(3),wsrmax,sclwsr
@@ -283,7 +283,7 @@ c      integer,parameter:: mxspec=256
       integer:: ii,sw
       real(8):: dasum!,dglob
       character(128) :: nm
-      real(8):: nullrv(256),d2
+      real(8):: nullrv(256),d2,plat(3,3)
       integer:: nulliv(256),jj(2) !,nkapsi
       logical:: noelind
 

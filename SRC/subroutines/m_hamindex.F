@@ -1,10 +1,10 @@
-      module m_hamindex
-      use NaNum,only: NaN       !for NaN initialization, but not working well
+      module m_hamindex !all protected now 
+      use NaNum,only: NaN       !for initialization, but not working well
       integer,protected:: ngrpaf,ngrp_original
-      integer,protected::  nqi=NaN, nqnum=NaN, ngrp=NaN, lxx=NaN, kxx=NaN,norbmto=NaN,
+      integer,protected:: nqi=NaN, nqnum=NaN, ngrp=NaN, lxx=NaN, kxx=NaN,norbmto=NaN,
      &     nqtt=NaN, ndimham=NaN, napwmx=NaN, lxxa=NaN, ngpmx=NaN, imx=NaN,nbas=NaN
       real(8),protected:: plat(3,3)=NaN,qlat(3,3)=NaN 
-      integer,allocatable,protected:: iclasstaf(:), offH (:,:,:),
+      integer,allocatable,protected:: iclasstaf(:), offH (:),
      &     ltab(:),ktab(:),offl(:),ispec(:), iclasst(:),offlrev(:,:,:),ibastab(:),
      &     iqimap(:),iqmap(:),igmap(:),invgx(:),miat(:,:),ibasindex(:),
      &     igv2(:,:,:),napwk(:),igv2rev(:,:,:,:)
@@ -17,8 +17,7 @@ csssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine m_hamindex_init(ljobgw)
       use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp, iclasstaf_,symops_af_,ag_af_,ngrpaf_
       use m_struc_def           !Cgetarg
-      use m_lmfinit,only:
-     &     ham_pwmode,pwemax,ham_ldham,
+      use m_lmfinit,only: ham_pwmode,pwemax,ham_ldham,
      &     alat=>lat_alat,nl,ctrl_nbas,ssite=>v_ssite,sspec=>v_sspec,n0,nkap0,iprmb
       use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
       use m_shortn3,only: shortn3_initialize,shortn3
@@ -49,16 +48,16 @@ c      enddo
       logical:: siginit, qpgexist,debug=.false., llmfgw,ljobgw, prpushed
       character(8),allocatable::  spid(:)
 !!      
-      ldim  = ham_ldham(1)
+      ldim  = ham_ldham(1) 
       nbas=ctrl_nbas !nbas_in
       ngrp=lat_nsgrp !note nsgrp given in mksym.F is without inversion.
       plat=lat_plat
       qlat=lat_qlat
       allocate( ltabx(n0nkap0,nbas),ktabx(n0nkap0,nbas),offlx(n0nkap0,nbas)) !,ispec(nbas))
 c      if(master_mpi) write(6,*) ' gen_hamindex: --- Hamiltonian index ---'
-c      if(master_mpi) write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
-!!--- MTO part ---
-!!---- obtain norbmto, lxx,kxx ----
+c     if(master_mpi) write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
+      
+!!--- MTO part ---- obtain norbmto, lxx,kxx ----
       norbmto=0
       kxx=-1
       lxx=-1
@@ -79,27 +78,26 @@ c      if(master_mpi) write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(
       allocate( spid(nbas))
       norbmto=0
       ndimham = 0 !dimension of mto part of hamiltonian
-      allocate(offH(n0h,nkap0,nbas+1))
+      allocate(offH(nbas+1)) !offH looks 
       offH=0
       do  ib = 1, nbas
         is=ssite(ib)%spec
         spid(ib)=sspec(is)%name
         call orbl(ib,0,ldim,iprmb,norb,ltabx(:,ib),ktabx(:,ib),off,offlx(:,ib),ndim) !iprmb
-        do  iorb = 1, norb
+        do  iorb = 1, norb !(ib,irob) specify a block of MTO part Hamiltonian
           norbmto=norbmto+1
           ibastab(norbmto)= ib
-          ltab(norbmto)   = ltabx(iorb,ib) !angular momentum l index
-          ktab(norbmto)   = ktabx(iorb,ib) !
-          offl(norbmto)   = offlx(iorb,ib)
-          nini = ndimham+ 1
-          ndimham = ndimham+ 2*ltabx(iorb,ib)+1
+          ltab(norbmto)   = ltabx(iorb,ib) !angular momentum l of (ib,iorb) block
+          ktab(norbmto)   = ktabx(iorb,ib) !radial index of (ib,iorb) block
+          offl(norbmto)   = offlx(iorb,ib) !offset to (ib,iorb) block
+          nini = ndimham+ 1 
+          ndimham = ndimham+ 2*ltab(norbmto)+1
           ibasindex(nini:ndimham) = ib
-c          write(6,"('offx ',3i3,2x,2i5,3x,a)") 
-c     &    ib,ltab(norbmto),ktab(norbmto), offl(norbmto)+1,ndimham,trim(spid(ib))
+c write(6,"('offx ',3i3,2x,2i5,3x,a)") ib,ltab(norbmto),ktab(norbmto), offl(norbmto)+1,ndimham,trim(spid(ib))
         enddo
-        offH(1,1,ib+1) = ndimham
+        offH(ib+1) = ndimham !'starting index'-1 of (ib) block
       enddo
-      offH(1,1,nbas+1) = ndimham
+      offH(nbas+1) = ndimham
 !!      
       ifatomlist=999
       open(ifatomlist,file="ATOM_LIST")
@@ -141,13 +139,12 @@ c ... reverse maping of offset-index for hamiltonian
       lxxa=nl-1
       allocate( dlmm( -lxxa:lxxa, -lxxa:lxxa, 0:lxxa, ngrp))
       call rotdlmm(symops,ngrp, nl, dlmm)
-
 !! No GW-related part
       if(ljobgw) then
-c      if((.not.llmfgw).or.(llmfgw.and.jobgw==0)) then
         if(master_mpi) print *,'gen_hamindex: not readin QGpsi.'
         return
       endif
+      
 !! --- PW part. info for eigenfunctions are expanded as MTpart+PWpart.!feb2012takao
       inquire(file='QGpsi',EXIST=qpgexist)  !feb2012takao
       if(.not.qpgexist) then

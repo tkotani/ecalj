@@ -27,8 +27,8 @@
 #else
       data prgnam /'LMF'/
 #endif
-      call m_ext_init()        ! Get sname, e.g. trim(sname)=si of ctrl.si
-      call m_MPItk_init(prgnam)
+      call M_ext_init()        ! Get sname, e.g. trim(sname)=si of ctrl.si
+      call M_MPItk_init(prgnam)
       stdo = lgunit(1)          !standard output stdo=6 usually
       stdl = lgunit(2)
       aaa=''
@@ -42,16 +42,15 @@
       if(master_mpi) write(stdl,"(a)") trim(aaa)
       if(master_mpi) write(stdo,*) 'mpisize=',nsize
       if(master_mpi) write(stdl,*) 'mpisize=',nsize
-      
-!! Set iprint(); the verbosity from cmd line      
+!! Set iprint() from cmd line ; the verbosity of console out put.
       if(cmdopt2('--pr=',outs)) then 
         read(outs,*) k
-        call Setpr(k) 
+        call Setpr(k)
       endif
       if(.not.master_mpi) call setpr(-100) !iprint() is negative except master
 !! help and quit      
       if (cmdopt0('--help')) then 
-         call m_lmfinit_init(prgnam) ! show help and quit for --input
+         call M_lmfinit_init(prgnam) ! show help and quit for --input
          call Rx0('end of help mode')
       endif   
 !! New pdos mode (use --mkprocar and --fullmesh together). and exit ===
@@ -69,24 +68,21 @@
          call Writedossawada()
          call Rx0('done: end of --wdsawada mode.')
       endif
-      
 !! Read ctrl.* into m_rdfiln
 !! m_rdfiln is too complicated to maintain. We will use simple reader.
 !! 'math operation' and '-v substitution' may be convenient, but probably we will separate them away.
 !!    it allow expression like ALAT=7.88*1.1
-      call m_rdfiln_init()
-      
+      call M_rdfiln_init()
 !! Read recrd of ctrl file into m_lmfinit
-!!    Set all initial condition to the module m_lmfinit.
-      call m_lmfinit_init(prgnam) !--> all initianl data go into m_lmfinit
-      
+!!  Set all the initial conditions in the module m_lmfinit.
+!!  All variables except v_sspec and v_ssite are protected.
+      call M_lmfinit_init(prgnam)
 !! Lattice and Symmetry
       call Latsym(prgnam) !---> all data go into m_lattic and m_mksym
 !! q points info     
       if(trim(prgnam) == 'LMF') then
-         call m_mkqp_init() !all data of BZ go into m_mkqp
+         call M_mkqp_init() !all data of BZ go into m_mkqp
       endif
-      
 !! Main part of lmf ------------------------------------
 !! Computations are started from variables in m_lmfinit, m_lattic, m_mksym, m_mkqp
       if(prgnam=='LMCHK') then
@@ -99,11 +95,10 @@
          if(prgnam =='LMFGWD') llmfgw=.true.
          call Lmfp(llmfgw)   !lmfp: self-consistent calculation. lmfgw for GW driver
       endif
-      
 !! Finalization ----      
       inquire(file='RSEQ_ERROR',exist=fileexist)
       if(fileexist) call rx('RSEQ_ERROR: maybe in phidx.F See takao comment in it.')
       call m_MPItk_finalize()
       if(master_mpi) write(6,"(a)") "OK! end of "//trim(prgnam)//" ======================"
-      call exit(0)
+      call Exit(0)
       end program Lmf

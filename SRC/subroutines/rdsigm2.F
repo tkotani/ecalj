@@ -36,8 +36,8 @@
       end subroutine
 !sssssssssssssssssssssssssssssssssssssssss      
       subroutine getsene(qp,isp) !(lrsig,qp,isp) !call after sigmainit
-      use m_lmfinit,only: plat,mxorb,nbas,nl,iprmb
-c      use m_suham,only:  iprmb
+      use m_lmfinit,only: mxorb,nbas,nl,iprmb
+      use m_lattic,only: plat=>lat_plat
       integer:: i, mode, isp, ispsigm,iwdummy,ival!lrsig
       real(8):: hreal,qp(3)
       logical:: debug=.false.
@@ -578,8 +578,9 @@ c$$$            deallocate(pos,npair)
       subroutine rdsigm2(nbas_dummy,nsp,ifis, 
      &     nk1,nk2,nk3,ldim,qsmesh,sfz     ,nqps,mtosigmaonly,ndimsig) !,qsfz,qqps are for test
       use m_mksym,only: rv_a_osymgr,lat_nsgrp
-      use m_hamindex,only : getikt,napwk,plat,   symops_af,ngrp_original,ngrpaf,symops,ngrp
+      use m_hamindex,only : getikt,napwk,   symops_af,ngrp_original,ngrpaf,symops,ngrp
       use m_lmfinit,only: nl,stdo
+      use m_lattic,only: plat=>lat_plat
 !! == Expand self-energy (read by ifis) to all the q point on mesh. In developing. ==
 !! nbas is in this structure
 !! input

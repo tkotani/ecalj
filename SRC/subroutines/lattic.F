@@ -2,10 +2,19 @@
       real(8) , allocatable,protected ::  rv_a_odlv (:)
       real(8) , allocatable,protected ::  rv_a_oqlv (:)
       real(8),protected:: lat_plat(3,3),lat_qlat(3,3),lat_awald,lat_vol
-      real(8), allocatable :: rv_a_opos(:,:)
+      real(8), allocatable,protected :: rv_a_opos(:,:)
       real(8),protected:: lat_dist(9) !unused because no deformation of cell allowed currently.
       integer,protected:: lat_nkd,lat_nkq
       contains
+      
+      subroutine Setopos() !called from lmfp to revise atomic position by reading rst file.
+      use m_lmfinit,only: ctrl_nbas,v_ssite
+      integer:: i
+      do i=1,ctrl_nbas
+         rv_a_opos(:,i)= v_ssite(i)%pos
+      enddo
+      end
+      
       subroutine m_lattic_init() !slat,nbas)
        use m_lmfinit,only: ctrl_nbas, !,v_sctrl,slat=>v_slat,
      &     lat_alat, lat_as, lat_tol,lat_rpad,lat_nkdmx,lat_nkqmx,lat_gam,v_ssite,
@@ -43,12 +52,10 @@ C ----------------------------------------------------------------------
       integer:: ldist , lmxst , nkd , nkdmx , nkq , nkqmx , nbas,i_data_size,i_spackv
       real(8),allocatable:: rv_a_tmp(:)
       integer nbaspp,npadl,npadr
-      double precision alat,awald,awald0,gam(4),gx,gy,gz,gt,tol,vol,
+      real(8):: alat,awald,awald0,gam(4),gx,gy,gz,gt,tol,vol,
      .xx1,xx2,dotprd,pi,rpad,
      .plat0(3,3),plat(3,3),qlat(3,3),dist(3,3) !platl(3,3),platr(3,3)
       equivalence (gam(1), gx), (gam(2), gy), (gam(3), gz), (gam(4), gt)
-      external daxpy,dcopy,lattc,lattdf,rdistn
-      
       alat=lat_alat
       awald0=lat_as
       tol=lat_tol

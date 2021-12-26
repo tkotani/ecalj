@@ -312,8 +312,6 @@ c sorting of ea
       module m_pairs
       contains
       subroutine pairs(nbas,nbasp,alat,plat,rmax,baspp,ipsp,nd,iltab,
-ckino Dec.14.2011:       .pltab,nttab,iv_p_ontab,iv_p_oiax,mxcsiz)
-ckino Dec.14.2011:       .pltab,nttab,iv_p_ontab,iv_a_oiax,mxcsiz)
      .pltab,nttab,iv_a_ontab,iv_a_oiax,mxcsiz)
 C- Allocate memory for and create neighbor table for a crystal
 C ----------------------------------------------------------------------

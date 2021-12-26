@@ -1,9 +1,8 @@
       module m_hft2rs
       contains
       subroutine hft2rs(mode,n1,n2,n3,k1,k2,k3,qoff,isp,nsp,nbas,g,ag,
-     .nsgrp,range,offH,ia1,ia2,idim,jdim,hq,plat,pos,iv_a_ontab,iv_a_oiax,ndhrs,
-     .hrs)
-      use m_pairs
+     .nsgrp,range,offH,ia1,ia2,idim,jdim,hq,plat,pos,iv_a_ontab,iv_a_oiax,ndhrs, hrs)
+      use m_pairs,only: pairs
 C- Fourier transform of a matrix to real-space representation
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -48,7 +47,7 @@ Ci   g       :point group operations
 Ci   ag      :translation part of space group
 Ci   nsgrp   :number of group operations
 Ci   range   :
-Ci   w(offH) :Offsets to hamiltonian matrix (makidx.f)
+Ci   offH :Offsets to hamiltonian matrix (makidx.f)
 Ci   idim    :hamiltonian dimension of ia1..ia2
 Ci   jdim    :hamiltonian dimension of ib1..ib2
 Ci   hq      :hamiltonian on uniform mesh of q-points
@@ -148,42 +147,26 @@ Cu    3 Oct 02 redesigned
 Cu   23 Jun 02 First written
 C ----------------------------------------------------------------------
       implicit none
-C ... Passed parameters
       integer mode,idim,jdim,nbas,n1,n2,n3,k1,k2,k3,isp,nsp,ndhrs,nsgrp,i_data_size
       integer ia1,ia2
       integer nkap0,n0H,niax
       parameter (nkap0=3,n0H=5,niax=10)
-      integer offH(n0H,nkap0,1)
-ckino Dec.14.2011:          integer,pointer :: iv_p_oiax(:)
+      integer offH(nbas+1)
       integer,allocatable :: iv_a_oiax(:)
-
-ckino Dec.14.2011:         integer,pointer :: iv_p_ontab(:)
       integer,allocatable :: iv_a_ontab(:)
-
       double precision plat(3,3),pos(3,*),range,g(9,*),ag(3,*),qoff(3)
       double complex hq(k1,k2,k3,idim,jdim,nsp)
       real(8):: hrs(ndhrs,ndhrs,nsp,1)
 C ... Local parameters
-      integer i,ipr,iset,mode0,mode1,mode2,mode3,mxcsiz,nttab,nviax,
-     .nvtot
+      integer i,ipr,iset,mode0,mode1,mode2,mode3,mxcsiz,nttab,nviax,nvtot
       integer ,allocatable :: iwk_iv(:),iv_a_tmp(:)
-
       double precision dmx(2)
-
       logical:: isanrg, l_dummy_isanrg
-#if DEBUG
-      integer iaxi(5)
-      double precision tau(3)
-#endif
-C ... Heap
+c#if DEBUG
+c      integer iaxi(5)
+c      double precision tau(3)
+c#endif
       integer ::iwdummy
-
-C ... External calls
-ckino      external defi,fftz3,getpr,hft2r1,hft2r3,info,poppr, !fftz3s,
-ckino     .ppair1,pshpr,redfi,rlse,tcn,tcx
-      external fftz3,getpr,hft2r1,hft2r3,info,poppr, !fftz3s,
-     .ppair1,pshpr,tcn,tcx
-
       call tcn('hft2rs')
       call getpr(ipr)
       mode0 = mod(mode,10)
@@ -191,27 +174,19 @@ ckino     .ppair1,pshpr,redfi,rlse,tcn,tcx
       mode2 = mod(mode/100,10)
       mode3 = mod(mode/1000,10)
       print *,'hft2rs: mode 0,1,2,3=',mode,mode0,mode1,mode2,mode3
-
-Ckino isanrg is logical function,       call isanrg(mode1,0,1,'hft2rs:a','10s digit mode',.true.)
       l_dummy_isanrg=isanrg(mode1,0,1,'hft2rs:a','10s digit mode',.true.)
-Ckino isanrg is logical function,       call isanrg(mode2,0,1,'hft2rs:b','100s digit mode',.true.)
       l_dummy_isanrg=isanrg(mode2,0,1,'hft2rs:b','100s digit mode',.true.)
-
 C --- Mode 0 (setup) make and reduce iax table ---
       if (mode0 .eq. 0) then
-
         call info(30,0,0,' hft2rs: make neighbor table for '//
      .  'r.s. hamiltonian using range = %;4d * alat',range,0)
-
 C   ... pair table for rs hamiltonian
         call pshpr(min(ipr-10,30))
         mxcsiz = 0
         call pairs ( nbas , nbas , 1d0 , plat , ( / range / 2 / ) , pos
      .   , ( / - 1 / ) , 3 , - 1 , (/iwdummy/) , nttab , iv_a_ontab , iv_a_oiax 
      .   , mxcsiz )
-
         call poppr
-
 C   ... Standard Bloch transform doesn't require mapping to mesh
         if (mode2 .eq. 0) then
            print *,' mode mode2=',mode,mode2
@@ -220,20 +195,14 @@ C     ... Mark all members in iax table with vector in sfz (for FFT)
           nvtot = 0
           call hft2r1 ( mode , n1 , n2 , n3 , k1 , k2 , k3 , isp , nsp 
      .      , ia1 , ia2 , 1 , nbas , offh , idim , jdim , hq , plat , pos
-     .      , iv_a_ontab , iv_a_oiax , qoff , ndhrs , hrs , nviax , nvtot 
-     .      , dmx )
+     .      , iv_a_ontab , iv_a_oiax , qoff , ndhrs , hrs , nviax , nvtot  , dmx )
           call info(30,0,0,' hft2rs: found %i connecting vectors out'//
      .    ' of %i possible for FFT',nviax,nvtot)
 C     ... Reduce iax table to elements on mesh in common with pairc
           allocate(iwk_iv((niax+1)*mxcsiz))
-C         nttabs = nttab
-          call hft2r3 ( 1 , nbas , iwk_iv , iv_a_ontab , iv_a_oiax , nttab 
-     .      , mxcsiz )
-C         call hft2r3(1,nbas,w(oiwk),w(ontab),w(oiax),nttab,mxcsiz)
+          call hft2r3 ( 1 , nbas , iwk_iv , iv_a_ontab , iv_a_oiax , nttab , mxcsiz )
           if (allocated(iwk_iv)) deallocate(iwk_iv)
         endif
-
-
 C   ... Add pairs so that any ri-rj has corresponding rj-ri
         if (mode3 .ne. 0) then
           i = 110
@@ -248,72 +217,42 @@ C         nttabs = nttab
           call symiax ( i , plat , nbas , pos , g , ag , nsgrp , iv_a_ontab
      .      , iv_a_oiax , nttab , mxcsiz )
           call poppr
-
 C     ... Fill out iax(6,7,10)
           call pshpr(0)
           call ppair1 ( 0 , 1 , nbas , nbas , - 1 , 1d0 , plat , pos ,
-ckino Dec.14.2011:       .      range / 2 , nttab , iv_p_ontab , iv_p_oiax , mxcsiz )
-ckino Dec.14.2011:       .      range / 2 , nttab , iv_p_ontab , iv_a_oiax , mxcsiz ) 
      .      range / 2 , nttab , iv_a_ontab , iv_a_oiax , mxcsiz )
-
           call poppr
         endif
-
-
 C   ... iax is now complete ... reallocate array
-ckino Dec.14.2011:           i_data_size=size(iv_p_oiax); allocate(iv_a_tmp(i_data_size))
         i_data_size=size(iv_a_oiax); allocate(iv_a_tmp(i_data_size))
-ckino Dec.14.2011:           iv_a_tmp=iv_p_oiax; deallocate(iv_p_oiax)
         iv_a_tmp=iv_a_oiax; deallocate(iv_a_oiax)
-ckino Dec.14.2011:           i_data_size=min(i_data_size,niax*nttab); allocate(iv_p_oiax(niax*nttab))
         i_data_size=min(i_data_size,niax*nttab); allocate(iv_a_oiax(niax*nttab))
-ckino Dec.14.2011:           iv_p_oiax(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
         iv_a_oiax(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
-
-
-C       Printout of pairs table
-C       ipr = 70
-C       call pshpr(ipr)
         if (ipr .gt. 40) then
           call pshpr(ipr-10)
           call ppair1 ( 20 , 1 , nbas , nbas , - 1 , 1d0 , plat , pos ,
-ckino Dec.14.2011:       .      range / 2 , nttab , iv_p_ontab , iv_p_oiax , mxcsiz )
-ckino Dec.14.2011:       .      range / 2 , nttab , iv_p_ontab , iv_a_oiax , mxcsiz ) 
      .      range / 2 , nttab , iv_a_ontab , iv_a_oiax , mxcsiz )
           call poppr
         endif
         goto 999
       endif
-
-
 C ... hq to real-space representation by FFT; copy hq to hrs
       if (mode0 .eq. 1 .and. mode2 .eq. 0) then
         iset = 0
-c        call fftz3s(n1,n2,n3,k1,k2,k3,iset)
-C       call yprm('hfbz',3,hq,0,k1*k2*k3,k1*k2*k3,idim*jdim)
         call fftz3(hq,n1,n2,n3,k1,k2,k3,idim*jdim,iset,-1)
-C       call yprm('hfbz(FT)',3,hq,0,k1*k2*k3,k1*k2*k3,idim*jdim)
-C       Scale by phase for offset k-mesh
-C        call hft2rp(0,lshft,n1,n2,n3,k1,k2,k3,idim,jdim,hq)
-C        call yprm('hfbz(FT)+phase',3,hq,0,k1*k2*k3,k1*k2*k3,idim*jdim)
         call hft2r1 ( mode , n1 , n2 , n3 , k1 , k2 , k3 , isp , nsp 
      .    , ia1 , ia2 , 1 , nbas , offh , idim , jdim , hq , plat , pos
-ckino Dec.14.2011:       .    , iv_p_ontab , iv_p_oiax , qoff , ndhrs , hrs , nviax , nvtot
-ckino Dec.14.2011:       .    , iv_p_ontab , iv_a_oiax , qoff , ndhrs , hrs , nviax , nvtot 
      .    , iv_a_ontab , iv_a_oiax , qoff , ndhrs , hrs , nviax , nvtot 
      .    , dmx )
         call info5(30,0,0,' hft2rs created hrs:  ndhrs=%i  '//
      .  'max Re(hrs) = %;3g  max Im(hrs) = %;3g',ndhrs,dmx,dmx(2),0,0)
       elseif (mode0 .eq. 1 .and. mode2 .eq. 1) then
         call rxi('hft2rs: not implemented',mode)
-C        call ibloch(11-mode1,isp,nsp,w(oqp),w(owtkp),iq,plat,w(offH),
-C     .    w(oidxsh),1,nitab,w(oiax),ldim,ldim,w(oh2),w(osigr),nl**2)
       else
         call rxi('hft2rs: bad mode',mode)
       endif
   999 continue
       call tcx('hft2rs')
-
 C$$$#if DEBUG
 C$$$#error, have return with len(w_varlist)>0 at line 282
 C$$$Cdelw1 w_varlist remains: oiax
@@ -348,7 +287,6 @@ C$$$      enddo
 C$$$  393 format(9f12.6)
 C$$$      goto 998
 C$$$#endif
-
       end subroutine hft2rs
       end module m_hft2rs
 
@@ -402,50 +340,22 @@ Cu   30 Mar 03 New switch for copying h(T) to transpose hrs
 Cu   23 Jun 02 Adapted from gfq2rs.f
 C ----------------------------------------------------------------------
       implicit none
-C ... Passed parameters
-      integer mode,idim,jdim,ia1,ia2,ib1,ib2,n1,n2,n3,k1,k2,k3,isp,nsp,
-     .niax,ndhrs,nviax,nvtot
-      integer nkap0,n0H
-      parameter (nkap0=3,n0H=5,niax=10)
-      integer offH(n0H,nkap0,1),iax(niax,1),ntab(ia2)
-      double precision plat(3,3),pos(3,*),dmx(2),qoff(3)
-      double complex hij(k1,k2,k3,idim,jdim),hrs(ndhrs,ndhrs,nsp,1)
-C ... Local parameters
-      logical ltrans
-      integer id,jd,i,ia,ib,ngmx,ng,is1,is2,nlma,nlmb,offi,offj,
-     .nhit,nmiss
-      double precision gmax,qlat(3,3),tau(3),dmx1(2)
-      real(8) ,allocatable :: rtab_rv(:)
-c      real(8) ,allocatable :: _rv(:)
-      real(8) ,allocatable :: gv_rv(:)
+      integer,parameter :: nkap0=3,n0H=5,niax=10
+      integer:: mode,idim,jdim,ia1,ia2,ib1,ib2,n1,n2,n3,k1,k2,k3,isp,nsp,ndhrs,nviax,nvtot,
+     & id,jd,i,ia,ib,ngmx,ng,is1,is2,nlma,nlmb,offi,offj,nhit,nmiss,
+     & offH(*),iax(niax,1),ntab(ia2),wdummy
+      real(8):: plat(3,3),pos(3,*),dmx(2),qoff(3),gmax,qlat(3,3),tau(3),dmx1(2)
+      complex(8):: hij(k1,k2,k3,idim,jdim),hrs(ndhrs,ndhrs,nsp,1)
+      real(8) ,allocatable :: rtab_rv(:), gv_rv(:)
       integer ,allocatable :: kv_iv(:)
-      integer :: wdummy
-C ... Heap
-c      integer w(1)
-c      common /w/ w
-C ... External calls
-ckino      external defi,defrr,dinv33,dpsadd,dpscop,gvlist,hft2r2,
-ckino     .poppr,pshpr,rlse
-      external dinv33,dpsadd,dpscop,hft2r2, !gvlist
-     .poppr,pshpr
-
-      logical:: isanrg, l_dummy_isanrg,debug=.false.
-
-c      allocate(_rv(1))
-c      if (1<0) _rv(:)=0.0d0
-
-      id = offH(1,1,ia2+1)-offH(1,1,ia1)
-      if(debug) print *,'idim id=',idim,id
-Ckino isanrg is logical function,       call isanrg(idim,id,id,'hft2rs:1 ','idim',.true.)
+      logical:: ltrans, isanrg, l_dummy_isanrg,debug=.false.
+      id = offH(ia2+1) - offH(ia1)
+      jd = offH(ib2+1) - offH(ib1)
       l_dummy_isanrg=isanrg(idim,id,id,'hft2rs:1 ','idim',.true.)
-      jd = offH(1,1,ib2+1) - offH(1,1,ib1)
-      if(debug) print *,'idim jd=',jdim,jd
-Ckino isanrg is logical function,       call isanrg(jdim,jd,jd,'hft2rs:2 ','jdim',.true.)
       l_dummy_isanrg=isanrg(jdim,jd,jd,'hft2rs:2 ','jdim',.true.)
       ltrans = mod(mode/10000,10) .ne. 0
       dmx(1) = 0
       dmx(2) = 0
-
       offi = 0
       do  10  ia = ia1, ia2
         offj = 0
@@ -453,44 +363,31 @@ Ckino isanrg is logical function,       call isanrg(jdim,jd,jd,'hft2rs:2 ','jdim
 
           is1 = ntab(ib)+1
           is2 = ntab(ib+1)
-
-          nlma = offH(1,1,ia+1) - offH(1,1,ia)
-          nlmb = offH(1,1,ib+1) - offH(1,1,ib)
-
+          nlma = offH(ia+1) - offH(ia)
+          nlmb = offH(ib+1) - offH(ib)
 C --- Make list for a dimensionless lattice (alat=1) ---
           call dinv33(plat,1,qlat,gmax)
           call dpscop(pos,tau,3,3*ib-2,1,1d0)
           call dpsadd(tau,pos,3,1,3*ia-2,-1d0)
-c     call gvctof(0,1d0,qlat,tau,n1,n2,n3,gmax,ngmx)
           ngmx = n1*n2*n3
           allocate(gv_rv(ngmx*3))
           allocate(kv_iv(ngmx*3))
-
-C     print *, 'ia,ib=',ia,ib
-C     call ogvlst(1d0,qlat,tau,n1,n2,n3,9d9,ngmx,ng,w(ogv),w(okv))
           call pshpr(80*0)
           i = 208 + 400*0
-c          call gvlist(1d0, qlat, tau , n1,n2,n3, 1d5,i, ngmx, ng ,     kv_iv,gv_rv,wdummy,wdummy)
           call gvlst2(1d0, qlat, -tau , n1,n2,n3, 0d0,1d5,0,i, ngmx,ng, kv_iv,gv_rv,wdummy,wdummy)
           call poppr
-
 C --- For each connecting vector, mark iax table or poke into hrs ---
           allocate(rtab_rv(3*(is2-is1+1)))
-
           if (ltrans) then
             call hft2r2 ( mode , k1 , k2 , k3 , ia , ib , jdim , idim , iax 
      .      , qoff , is1 , is2 , ndhrs , isp , nsp , nlmb , nlma , hij ( 
      .      1 , 1 , 1 , 1 + offj , 1 + offi ) , gv_rv , kv_iv , ng 
-     .      , tau , plat , pos , rtab_rv , hrs , hrs , nhit , nmiss , 
-     .      dmx1 )
-
+     .      , tau , plat , pos , rtab_rv , hrs , hrs , nhit , nmiss ,   dmx1 )
           else
             call hft2r2 ( mode , k1 , k2 , k3 , ia , ib , idim , jdim , iax 
      .      , qoff , is1 , is2 , ndhrs , isp , nsp , nlma , nlmb , hij ( 
      .      1 , 1 , 1 , 1 + offi , 1 + offj ) , gv_rv , kv_iv , ng 
-     .      , tau , plat , pos , rtab_rv , hrs , hrs , nhit , nmiss , 
-     .      dmx1 )
-
+     .      , tau , plat , pos , rtab_rv , hrs , hrs , nhit , nmiss ,   dmx1 )
           endif
           dmx(1) = max(dmx(1),dmx1(1))
           dmx(2) = max(dmx(2),dmx1(2))
@@ -499,16 +396,12 @@ C --- For each connecting vector, mark iax table or poke into hrs ---
           if (allocated(rtab_rv)) deallocate(rtab_rv)
           if (allocated(kv_iv)) deallocate(kv_iv)
           if (allocated(gv_rv)) deallocate(gv_rv)
-
-          offj = offj + offH(1,1,ib+1) - offH(1,1,ib)
+          offj = offj + offH(ib+1) - offH(ib)
    12   continue
-        offi = offi + offH(1,1,ia+1) - offH(1,1,ia)
+        offi = offi + offH(ia+1) - offH(ia)
    10 continue
-
-c      if (allocated(_rv)) deallocate(_rv)
-
       end
-
+!!
       subroutine hft2r2(mode,n1,n2,n3,ia,ib,idim,jdim,iax,qoff,is1,is2,
      .ndhrs,isp,nsp,nlma,nlmb,hij,gv,kv,ng,tau,plat,pos,rtab,hrs,hrsr,
      .nhit,nmiss,dmx)
@@ -572,26 +465,20 @@ Cu Updates
 Cu   30 Mar 03 New switch for copying h(T) to transpose hrs
 Cu   23 Jun 02  Adapted from pgfq2r
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
-      integer niax,idim,jdim,ia,ib,n1,n2,n3,ndhrs,isp,nsp,nlma,nlmb,is1,
-     .is2,mode,nhit,nmiss
+      integer niax,idim,jdim,ia,ib,n1,n2,n3,ndhrs,isp,nsp,nlma,nlmb,is1,is2,mode,nhit,nmiss
       parameter (niax=10)
       integer ng,kv(ng,3),iax(niax,1)
       double precision tau(3),gv(ng,3),rtab(3,*),pos(3,*),plat(3,3)
       double precision hrsr(ndhrs,ndhrs,nsp,is2),dmx(2),qoff(3)
       double complex hrs(ndhrs,ndhrs,nsp,is2),hij(n1,n2,n3,idim,jdim)
-C ... Local parameters
       logical ltrans
       integer ig,i1,i2,i3,is,ix,offx,irow,icol,mode0,mode1,j,k
       double precision v(3),tol,dimx,dimy,TdotK,twopi
       double complex phase
-C     character*20 strn
       parameter (tol=1d-5)
       logical:: debug=.false.
-C ... External calls
-c      external isanrg
-
       mode0 = mod(mode,10)
       mode1 = mod(mode/10,10)
       ltrans = mod(mode/10000,10) .ne. 0
@@ -627,25 +514,6 @@ C   ... If a match in the iax table is found, copy hij there
             if (abs(v(2)+rtab(2,is-offx)) .lt. tol) then
               if (abs(v(3)+rtab(3,is-offx)) .lt. tol) then
                 nhit = nhit+1
-C            if (iax(1,is).eq.1 .and. iax(2,is).eq.1 .and. mode0 .ne. 0)
-C     .        then
-CC              print 335, 'ok',is,ig,i1,i2,i3,v,dble(hij(i1,i2,i3,1,1))
-CC  335         format(1x,a,' connecting vector ib-ia ',2i4,2x,3i3,6f12.6)
-C              print 336,
-C     .          'ok',is,ig,i1,i2,i3,iax(3,is),iax(4,is),iax(5,is),
-CC     .          mod(i1,6)-1-iax(3,is),
-CC     .          mod(i2,6)-1-iax(4,is),
-CC     .          mod(i3,6)-1-iax(5,is)
-C     .          mod(iax(3,is)+6,6)+1-i1,
-C     .          mod(iax(4,is)+6,6)+1-i2,
-C     .          mod(iax(5,is)+6,6)+1-i3,
-C     .          hij(i1,i2,i3,6,6)
-C  336         format(1x,a,2i4,2x,3i3,2x,3i3,2x,3i3,6f12.6)
-C            endif
-C            if (is.ge.65 .and. is .le. 65+9 .and. iax(2,is).eq.1 .and.
-C     .        mode0.ne.0) then
-C              print 335, 'ok',is,ig,i1,i2,i3,v,dble(hij(i1,i2,i3,1,1))
-C            endif
                 if (mode0 .eq. 0) then
                   iax(8,is) = -1
                 else
@@ -734,15 +602,9 @@ C ... Passed parameters
       integer niax,ib1,ib2,ntab(*),iwk(*),nttab,mxcsiz
       parameter (niax=10)
       integer iax(niax,1)
-C ... Local parameters
       integer is1,is2,ib,nstart,i,nib
-C     integer iprint,lgunit,stdo
-C ... External calls
-      external icopy,ivheap,ivprm
-
 C --- Reorder iax table site-by-site ---
       do  ib = ib1, ib2
-
         is1 = ntab(ib)+1
         is2 = ntab(ib+1)
         nstart = is2-is1+1
@@ -753,7 +615,6 @@ C       Sort, using iwk(1) as permutation array
 C       Rearrange iax, putting marked ones at top
         call ivprm(niax,nstart,iax(1,is1),iwk(1+nstart),iwk,.true.)
       enddo
-
 C --- Condense iax table and ntab ---
       mxcsiz = 0
       nttab = ntab(ib1)
@@ -788,16 +649,5 @@ C --- Zero out iax(6..10) ---
         iax(9,i) = 0
         iax(10,i) = 0
       enddo
-C     print 369, ib2+1, ntab(ib2+1)
-
-C ... Printout
-C      if (iprint() .ge. 30) then
-C        stdo = lgunit(1)
-C        call awrit4(' hft2rs (%i sites): neighbor table reduced from '//
-C     .    '%i to %i pairs (%i/site)',' ',80,stdo,ib2-ib1+1,is2,
-C     .    ntab(ib2+1)-ntab(ib1),(ntab(ib2+1)-ntab(ib1))/(ib2-ib1+1))
-C        call info(70,0,0,' ntab: %n:1i',ib2-ib1+2,ntab)
-C      endif
-
       end
 

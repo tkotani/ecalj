@@ -2,7 +2,7 @@
       use m_struc_def,only: s_nv2
       public:: m_igv2xall_init, m_igv2x_setiq
       integer,protected,pointer,public :: igv2x(:,:)
-      integer,protected,pointer,public ::napw,ndimh,ndimhx
+      integer,protected,pointer,public :: napw,ndimh,ndimhx
       
       private
       integer,protected,private,target ::napw_z,ndimh_z,ndimhx_z

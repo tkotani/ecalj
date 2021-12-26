@@ -7,25 +7,23 @@
      &     sspec=>v_sspec, ssite=>v_ssite, 
      &     sstrnsymg, symgaf, nat, lldau,nlibu,lmaxu,stdo,lrout,leks,plbnd,lpzex
       use m_lattic,only: lat_dist,lat_plat,qlat=>lat_qlat,rv_a_opos,rv_a_odlv,rv_a_oqlv,
-     &     lat_vol,lat_nkd,lat_awald,lat_nkq
-      use m_mksym,only: rv_a_oag,rv_a_osymgr,iv_a_oistab,lat_nsgrp
-      use m_ext,only: sname
-      use m_MPItk,only: mlog,master_mpi
-      use m_iors,only: Iors
-      use m_supot,only: m_supot_init,k1,k2,k3
-      use m_suham,only: m_suham_init
-      use m_bndfp,only: Bndfp,   ham_ehf,ham_ehk,qdiff,force,sev
-      use m_ldau,only: m_ldau_init,m_ldau_vorbset
-      use m_chkdmu,only: eorb
+     &     lat_vol,lat_nkd,lat_awald,lat_nkq,Setopos
+      use m_ext,only:     sname
+      use m_chkdmu,only:  eorb
       use m_bandcal,only: dmatu
-      use m_qplist,only: m_qplist_init,m_qplist_qspdivider
-      use m_mkpot,only: amom 
+      use m_mkpot,only:   amom 
+      use m_bndfp,only: Bndfp, ham_ehf,ham_ehk,qdiff,force,sev
+      use m_iors,only:  Iors
+      use m_MPItk,only: mlog,master_mpi
+      use m_supot,only: m_supot_init
+      use m_suham,only: m_suham_init
+      use m_ldau,only:  m_ldau_init,m_ldau_vorbset
+      use m_qplist,only:   m_qplist_init,m_qplist_qspdivider
       use m_writeham,only: m_writeham_init, m_writeham_write
-      use m_lmfgw,only: m_lmfgw_init
+      use m_lmfgw,only:    m_lmfgw_init
       use m_hamindex,only: m_hamindex_init
-      use m_bstrux,only: m_bstrux_init
-      use m_igv2x,only: m_igv2xall_init
-c      use m_uspecb,only:uspecb
+      use m_bstrux,only:   m_bstrux_init
+      use m_igv2x,only:    m_igv2xall_init
 !! = Main routine of lmf = (following document is roughly checked at May2021)
 !! lmfp contains two loops after initialization
 !!   1  outer  loop do 2000 is for molecular dynamics (relaxiation).
@@ -60,7 +58,6 @@ c      use m_uspecb,only:uspecb
       integer, allocatable :: indrx_iv(:,:) ! for relaxation
       real(8), allocatable :: pos_move(:,:),  ftot_rv(:), wk_rv(:), p_rv(:),w_rv(:)
       real(8), allocatable :: rv_a_omad (:) !  Madelung matrix if necessary
-c      complex(8),allocatable::vorbdmat(:),dmatu(:),dmatoa(:) !LDA+U
       integer,parameter:: nm=3
       character(512):: aaachar
       character(10):: i2char
@@ -68,15 +65,12 @@ c      complex(8),allocatable::vorbdmat(:),dmatu(:),dmatoa(:) !LDA+U
       integer:: jobgw
       logical:: cmdopt2
       character(20):: outs=''
-c#if (MPI |MPIK)
       integer:: ierr
       include "mpif.h"
-c#endif
 !! --rs=3 mode is removed. (--rs=3 meand fixed density Harris-foukner MD).
 !! --rs=3 => always read from atom file 
 !! Sep2020 comment " Shorten site positions" removed. (we are useing shortn3 mainly now)
       call tcn('lmfp')
-      
 !!Get jobgw for lmfgw mode. Quit for job=0
       jobgw=0
       if( cmdopt2('--job=',outs) ) then 
@@ -94,32 +88,10 @@ c#endif
       call m_hamindex_init(jobgw==0) 
       if(llmfgw.and.jobgw==0) call m_lmfgw_init() ! Get LATTIC and so on.
       if(llmfgw.and.jobgw==0) call rx0(' OK! '//'lmfgw mode=0 generated LATTC CLASS NLAindx ldima')
-!!      
       etot(1) = 0 ! Total energy mode --etot ==>moved to m_lmfinit ---
       ipr=iprint() !call getpr(ipr) !ipr is pring verbose control
       maxit = ctrl_maxit
-      irs1x = irs1
       if(ipr>=30) call praugm(sspec,0) !Printout only: properties of species
-!! Atomic position Relaxation setup (MD mode)
-      itrlx = 1
-      nitrlx= ctrl_nitmv  ! num of iteration cycle for atomic relaxiation (outer loop)
-      mdprm = ctrl_mdprm  ! MD(relxation) condition setup
-      if( nint(mdprm(1))== 0) nitrlx = 0 !no relaxiation. Only sc calculation for given atomic position.
-      if( nint(mdprm(1))>0 .and. nint(mdprm(1))<4 ) call rx('lmf not set up for MD yet')
-      if( nitrlx>0 ) then   !nitrlx >0 is for atomic position relaxiation
-        allocate(indrx_iv(2,3*nbas))
-        call rlxstp(natrlx, nvrelx, indrx_iv,  xyzfrz, pdim )
-        icom = 0
-        if (nvrelx .ne. 0) then
-          allocate(w_rv(nvrelx*nvrelx))
-          allocate(p_rv(pdim))
-        endif
-        if(master_mpi) then
-           open(newunit=ifipos,file='AtomPos.'//trim(sname),form='unformatted',status='new')
-           write(ifipos) nbas
-           write(ifipos) itrlx,rv_a_opos
-        endif   
-      endif
 !! Array allocated in supot rhoat smrho. We have to store all fixed quantites in modules.
       call m_supot_init()    ! get G vectors for charge
       call sugcut( 1, sspec) ! modify sspec%ngcut
@@ -127,7 +99,6 @@ c#endif
       writeham= cmdopt0('--writeham')
       if(writeham.and.master_mpi) call m_writeham_init()
       if(writeham.and.master_mpi) call m_writeham_write()
-      
       if( cmdopt0('--quit=ham') ) call rx0('quit = ham')
       if (lrout == 0 .and. ctrl_lfrce /= 0) then
         write(stdo,"(a)") 'Error: output density required when forces sought.\n'//
@@ -143,10 +114,9 @@ c#endif
 !! LDA+U initialization
       if(nlibu>0) call m_ldau_init()
       if(cmdopt0('--quit=dmat')) call rx0('--quit=dmat')
-      
 !!=== NOTE: shear mode is currently commented out.
 !!   (probably shear mode should be recovered outside of fortran).
-
+c
 c     if(.false.) then 
 c        allocate(rv_a_omad(nbas**2))
 c        call madmat (rv_a_omad ) !Monopole Madelung matrix (kept for future).
@@ -160,6 +130,7 @@ C     1    read from binary     rst
 C     2    read from ascii      rsta
 C    +10 -> invoke smshft(1) after file read.
       write(6,*) 'goto end of reading rst or atm',irs1x
+      irs1x = irs1
       if (irs1x == 0) then ! read overlap free-atom densities
          call rdovfa()     ! superposition of spherical atomic densities by lmfa.
          nit1 = 0
@@ -175,9 +146,7 @@ C    +10 -> invoke smshft(1) after file read.
          k = iors(nit1 , lbin , ifi ) ! read rst file. sspec ssite modified  !bz_w in iros removed
          if (master_mpi) close(ifi) 
          call mpibc1_int(k,1,'lmfp_k')
-         do ibas=1,nbas 
-            rv_a_opos(:,ibas) = ssite(ibas)%pos
-         enddo
+         call Setopos() !set pos read in iors into rv_a_opos
          if(k<0) then !initial potential from atm file if rst can not read
             irs1x = 0
             call rdovfa() 
@@ -187,12 +156,11 @@ C    +10 -> invoke smshft(1) after file read.
          endif
       endif
       write(6,*) 'end of reading rst or atm'
-           
 !!  tolerances for convergence check. q charge and e energy
       qtol = ctrl_tol(1)
       etol = ctrl_tol(3)
-!!      
-      if(cmdopt0('--vbmonly')) then !Get VBM and CBM relative to vaccum (a simple approximaiton. Need fixing if necessary.).
+!! (a simple approximaiton. Need fixing if necessary).
+      if(cmdopt0('--vbmonly')) then !Get VBM and CBM relative to vaccum
          if(master_mpi) call vbmmode()
          call rx0('--vbmonly mode done')
       endif
@@ -200,12 +168,30 @@ C    +10 -> invoke smshft(1) after file read.
          if(master_mpi) call getqmode()
          call rx0('--getq mode done')
       endif
-      
 !! Get q point list at which we do band calculations
       call m_qplist_init(plbnd,llmfgw)
       call m_qplist_qspdivider()  !generate iqini:iqend,isini,isend  for each rank
 !! G vectors for qplist
       call m_igv2xall_init()
+!! Atomic position Relaxation setup (MD mode)
+      nitrlx= ctrl_nitmv  ! num of iteration cycle for atomic relaxiation (outer loop)
+      mdprm = ctrl_mdprm  ! MD(relxation) condition setup
+      if( nint(mdprm(1))== 0) nitrlx = 0 !no relaxiation. Only sc calculation for given atomic position.
+      if( nint(mdprm(1))>0 .and. nint(mdprm(1))<4 ) call rx('lmf not set up for MD yet')
+      if( nitrlx>0 ) then   !nitrlx >0 is for atomic position relaxiation
+        allocate(indrx_iv(2,3*nbas))
+        call rlxstp(natrlx, nvrelx, indrx_iv,  xyzfrz, pdim )
+        icom = 0
+        if (nvrelx .ne. 0) then
+          allocate(w_rv(nvrelx*nvrelx))
+          allocate(p_rv(pdim))
+        endif
+        if(master_mpi) then
+           open(newunit=ifipos,file='AtomPos.'//trim(sname),form='unformatted',status='new')
+           write(ifipos) nbas
+           write(ifipos) 0,rv_a_opos
+        endif   
+      endif
       
 !! === Main iteration loops ===
       if( nitrlx>=1 ) allocate(pos_move(3,nbas))
