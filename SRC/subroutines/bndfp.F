@@ -64,7 +64,6 @@
      o    osmpot, qmom, vconst, sv_p_osig, sv_p_otau, sv_p_oppi 
      o  , ppnl_rv , hab_rv , sab_rv , qval , qsc , fes1_rv , fes2_rv
       use m_clsmode,only: m_clsmode_init,m_clsmode_set1,m_clsmode_finalize
-      use m_writeham,only: m_writeham_init, m_writeham_write
       use m_qplist,only:  qplist,nkp,xdatt,labeli,labele,dqsyml,etolc,etolv,
      &     nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml,
      &  iqini,iqend,ispini,ispend,kpproc    ! MPIK divider. iqini:iqend are node-dependent
@@ -197,8 +196,6 @@ c      if(master_mpi) write(stdo,"(a)") 'bndfp:start'
 !! OUTPUTs by sigmainit are stored in m_seneinterp
 !! In future, we should make this block to a subroutine which shows clear i/o.
       sigmamode = (lrsig/=0)
-c      if( llmfgw.and.jobgw==0 ) then
-c         continue
       if( sigmamode.and.siginit ) then
          call m_rdsigm2_init()
          siginit=.false. !this is equivalent to broad casting.
@@ -284,8 +281,9 @@ c         continue
       
 !! Generate total DOS  emin=dosw(1) emax=dosw(2) dos range
       if(master_mpi.and.(tdos.or.ldos/=0)) then
+         emin = ecbot-0.01d0 
          dosw(1)= emin -0.5d0   ! lowest energy limit to plot dos
-         dosw(2)= eferm+bz_dosmax ! lowest energy limit to plot dos
+         dosw(2)= eferm+bz_dosmax 
          write(stdo,"(a,3f9.4)") 'Generating TDOS: efermi, and dos window= ',eferm,dosw
          allocate( dosi_rv(ndos,nspx),dos_rv(ndos,nspx)) !for xxxdif
          if(cmdopt0('--tdostetf')) ltet=.false. ! Set tetrahedron=F 

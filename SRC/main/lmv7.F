@@ -27,7 +27,7 @@
       character:: outs*20,aaa*512,sss*128,uuu*128
       character prgnam*8
       character*8 charext
-      integer:: fext,iarg,jobgw,iprint,nit1,ifi,irs1x,ifile_handle
+      integer:: iarg,jobgw,iprint,nit1,ifi,irs1x,ifile_handle
 #if LMFGWD
       data prgnam /'LMFGWD'/
 #elif LMFA

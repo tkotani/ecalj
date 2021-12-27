@@ -3,7 +3,8 @@
       public:: m_sugw_init
       
       contains
-      subroutine m_sugw_init () !jobgw) 
+      subroutine m_sugw_init () 
+      use m_ext,only:   sname
       use m_struc_def,only: s_rv1, s_spec, s_site 
       use m_suham,only: ndham=>ham_ndham
       use m_lmfinit, only: 
@@ -84,7 +85,7 @@ c      use m_shortn3,only: shortn3_initialize,shortn3
       integer:: jobgw=1 , lh(n0)
       real(8):: rsml(n0), ehl(n0) 
       logical :: lwvxc,cmdopt0
-      integer fopna,fopnx,i,i1,i2,iat,ib,ibr,icore,ierr,ifeigen,!ifi,
+      integer i,i1,i2,iat,ib,ibr,icore,ierr,ifeigen,!ifi,
      .ifiqg,iflband(2),ifqeigen,ifsyml,igets,igetss,iix,iline, 
      .im1,im2,ipb(nbas),ipqn,ipr,iprint,iq,is,isp,ispc,j,job,k1,
      .k2,k3,konf,konfig(0:n0),l,lchk,ldim,loldpw, ldham(8,2),
@@ -92,7 +93,7 @@ c      use m_shortn3,only: shortn3_initialize,shortn3
      .ncore,ndima,nevl,nev,nglob,ngp,ngp_p, 
      .ngpmx,nline,nlinemax,nlmax,nmx,nn1,nn2,nnn,npgrp,
      .nphimx,npqn,nqbz,nqibz,nqnum,nqnumx,nqtot,nr,nsgrp,iqibz,imx, 
-     & ifigwb,ifigwa,ifinormchk,ifinlaindx,ifigw1,ifildima,ifigwn,
+     & ifigwb,ifigwa,ifinormchk,ifigw1,ifildima,ifigwn,
      & ificlass,ifievec,ifievecx,ifigw2,ifiqbz,ifievv
       complex(8) ,allocatable :: aus_zv(:)
       real(8) ,allocatable :: ww_rv(:)
@@ -114,12 +115,6 @@ c      use m_shortn3,only: shortn3_initialize,shortn3
       integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),norb
       integer ndhamx,nspx,nnnx,ifiv
       character strn*120
-c#if SIGNN
-c      complex(8),allocatable:: sig(:,:)
-c#endif
-C ... For PW basis
-c      integer:: oigv2
-c      integer ,allocatable :: kv_iv(:)
       integer pwmode
       double precision pwgmin,pwgmax,eomin
 
@@ -148,7 +143,7 @@ c      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, O
       integer:: nbalance,nrr,ifiproc,iproc,iadd,ldw
       integer:: iqq
       logical:: rank0
-      character*256:: ext
+      character*256:: ext,sprocid,extn
 
       logical ::nexist,magexist  !! june2013 magfield is added for fsmom mode.
       real(8):: vnow
@@ -177,7 +172,7 @@ c      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, O
       sigmamode = mod(lrsig,10) .ne. 0
 
 !! june2013 magfield is added
-      open(ifimag,file='MagField',status='old',err=112)
+      open(newunit=ifimag,file='MagField',status='old',err=112)
       read(ifimag,*,err=112) vnow
       close(ifimag)
       magexist=.true.
@@ -239,21 +234,20 @@ c      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, O
 
 !! ==== Read file NLAindx ====
       allocate(nlindx(3,0:lmxax,nat))
-      ifinlaindx = fopnx('NLAindx',2,1,-1)
-      call ioaindx(3,lmxax,nat,ndima,nlindx,ifinlaindx)
+      call ioaindx(3,lmxax,nat,ndima,nlindx)
 !! ... Read QGpsi !takao feb2012 ---> Not QGcou now
-      ifiqg  = fopnx('QGpsi',2,4,-1)
+      open(newunit=ifiqg,file='QGpsi',form='unformatted')
       read(ifiqg ) nqnum, ngpmx ,QpGcut_psi,nqbz,nqi,imx,nqibz
 c      endif
 !! ==== Write, or read past header information, file gwb ====
-      ifigwb = fopna('gwb',-1,4)
-      rewind ifigwb
-      
-      ef0 = 1d99                !dummy
-      ifigwn = fopna('gw1',-1,4)
-      rewind ifigwn
-      ifigwn = fopna('gw2',-1,4)
-      rewind ifigwn
+      write(extn,"(i10)") procid
+      sprocid = trim(sname)
+      if(procid>0) sprocid=trim(sname)//'_'//trim(adjustl(extn))
+      open(newunit=ifigwb,file='gwb.'//trim(sprocid),form='unformatted')
+      open(newunit=ifigw1,file='gw1.'//trim(sprocid),form='unformatted')
+      open(newunit=ifigw2,file='gw2.'//trim(sprocid),form='unformatted')
+      if(master_mpi) open(newunit=ifigwa,file='gwa.'//trim(sprocid),form='unformatted')
+      ef0 = 1d99        !dummy
       if(master_mpi) write(ifigwb) nat,nsp,ndima,ndham,alat,qlat,ef0,nqbz,plat,nqnum,nqi
       allocate(ips(nbas),lmxa(nat),bas(3,nat),iantiferro(nat))
       iat = 0
@@ -293,8 +287,6 @@ c      endif
       
 !! Atom data (gwa)
       call info(30,1,1,' ... Generate core wave functions (file gwa)', 0,0)
-      if(master_mpi) ifigwa = fopna('gwa',-1,4)
-      if(master_mpi) rewind ifigwa
       do  ib = 1, nbas
          is=ssite(ib)%spec
          i_copy_size=size(ssite(ib)%pnu)
@@ -315,7 +307,7 @@ c     print *,' ssssssss spid='//spid//'###'
      .           , w ,nmcore)
             allocate(rofi(nr),rwgt(nr),gcore(nr,2,ncore))
             allocate(gval(nr,2,0:lmaxa,nphimx,nsp))
-            call dpzero(gval,nr*2*(1+lmaxa)*nphimx*nsp)
+            gval=0d0
 !     !         Create augmented wave functions for this atom
 c     call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
             rsml=rsmlss(:,is)
@@ -358,47 +350,32 @@ c     call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
          endif
       enddo
       if(master_mpi) write(ifigwa) iantiferro(1:nat) !iantiferro may2015
-      if(master_mpi) call fclr('gwa',ifigwa)
-
+      if(master_mpi) close(ifigwa) !call fclr('gwa',ifigwa)
 !! == GW setup loop over k-points ==
       if (lchk>=1 ) then
-        ifinormchk = fopna('normchk',-1,0)
-        rewind ifinormchk
-        write(ifinormchk,849)
-  849   format('#     eval          IPW        IPW(diag)    Onsite(tot)   Onsite(phi)      Total')
+        open(newunit=ifinormchk,file='normchk.'//trim(sprocid))
+        write(ifinormchk,"(a)")
+     &   '#     eval          IPW        IPW(diag)    Onsite(tot)   Onsite(phi)      Total'
       endif
-
-!! Write, or read ngpmx
-      if(master_mpi) then
-         ifigwb = fopna('gwb',-1,4)
-         write(ifigwb) ngpmx
-      endif
-
+      if(master_mpi) write(ifigwb) ngpmx
 !! --- Evecs and matrix elements of vxc for irr qp ---
 !!    Note: this routine should use only irr qp.
       if (lsig > 0) then
         if (.not. cmdopt0('--novxc')) then
-           nnn=nqibz      !!! mar2012 rotwv mode. on regular mesh, only eigenfunctions for nqibz are required.
-           ifievec = fopna('evec',-1,4)
-           rewind ifievec
+           nnn=nqibz ! rotwv mode. on regular mesh, only eigenfunctions for nqibz are required.
+           open(newunit=ifievec,file='evec.'//trim(sprocid),form='unformatted')
+           open(newunit=ifiv,file='vxc.'//trim(sprocid),form='unformatted')
            if(master_mpi) write(ifievec) ndham, nsp, nnn !, nqnum
-           ifiv = fopna('vxc',-1,4)
-           rewind ifiv
            if(master_mpi) write(ifiv) ndham, nsp, nnn
         endif
       endif
-
 !! == Main loop for eigenfunction generation ==
-      if (ipr .ge. 20) then
-         if(ham_scaledsigma/=1d0.and.sigmamode) then
-           write(6,*)' Scaled Sigma method: ScaledSigma=',ham_scaledsigma
-         endif   
+      if(ham_scaledsigma/=1d0.and.sigmamode) then
+         write(stdo,*)' Scaled Sigma method: ScaledSigma=',ham_scaledsigma
       endif
-
       if(debug)print *,' goto 1001 procid=',procid
       do 1001 iq = iqini,iqend ! iqini:iqend for this procid 
         qp  = qplist(:,iq)     !  ... For this qp, G vectors for PW basis and hamiltonian dimension
-         
         ngp = ngplist(iq)
         lwvxc = lsig>0 .and. iq<=iqibzmax
         if (cmdopt0('--novxc')) lwvxc = .false.
@@ -406,8 +383,6 @@ c     call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
         allocate(ham(ndimh,ndimh),ovl(ndimh,ndimh),evec(ndimh,ndimh))
         allocate(vxc(ndimh,ndimh))
         allocate(cphi(ndima,ndimh,nsp),cphin(2,ndimh,nsp))
-!!        
-        
         do 1002 isp = 1, nsp
 ccccccccccccccc
            if(iq==iqini.and.ispini==2.and.isp==1) cycle
@@ -448,7 +423,6 @@ ccccccccccccccccccccccccccccccccccccccccccc
           evec=-1d99
           evl(:,isp)=1d99
           call zhev_tk4(ndimh,ham,ovl,ndimh,nev,evl(1,isp),evec,epsovl)
-c     if(iq==1)write(stdl,"('fp evl',8f8.4)")(evl(i,isp),i=1,nev)
           write(6,"(' sugw:  kpt isp=',i8,i2,' of ',i8, ' k= ',3f9.5, ' ndimh= ',i5,
      &    ' irank=',i4, ' lwvxc=',l,' nev=',i5)")  iq,isp,nqnum,qp,ndimh,procid,lwvxc,nev
           call prtev(evec,ndimh,evl(1,isp),ndimh,nev)
@@ -456,7 +430,6 @@ c     if(iq==1)write(stdl,"('fp evl',8f8.4)")(evl(i,isp),i=1,nev)
           if(mod(iq,10) .ne. 1) call poppr
           if(debug) write(6,"(' sugw:procid iq isp lwvxc= ',3i3,' ',l)")procid, iq,isp,lwvxc 
           if (lwvxc) then
-             ifievec = fopna('evec',-1,4)
              write(ifievec) qp, evec(1:ndimh,1:ndimh),nev
           endif
           if(magexist) then
@@ -535,14 +508,11 @@ c     nlmax = globalvariables%mxorb / globalvariables%nkaph
           nlmax = mxorb / nkaph
           allocate(aus_zv(nlmax*ndham*3*nsp*nbas))
           aus_zv(:)=0.0d0
-          if(debug) write(6,"(' ppppppp goto makusq')")
           call makusq ( 1 ,  nbas,0, nev,  isp, 1 , qp , evec , aus_zv )
           call gwcphi ( ssite , sspec , isp , nsp , nlmax , ndham , nev 
      .         , nbas , ipb , lmxax , nlindx , ndima , ppn , aus_zv , cphi 
      .         ( 1 , 1 , isp ) , cphin ( 1 , 1 , isp ) )
           if (allocated(aus_zv)) deallocate(aus_zv)
-          if(debug) write(6,"(' ppppppp end of gwcphi')")
-
 !     ! We keep note in the followings, but be careful (may contain bugs)...
 !     !  --- Overlap of IPWs, PW expansion of eigenfunctions pwz ---
 !     !      The IPW basis consisting of PWs with holes knocked out of spheres,
@@ -571,7 +541,7 @@ C     PZOVL_G1,n = <IPW(G1) psi_n> = sum_G2 O_G1_G2 PWZ_G2,n
 C     PZOVL = O * PWZ (matrix form) <--- old
 C     Note: pzovl is only used as an intermediate construction, old branch
           if(debug) print *,'ppppppppppp ngp=',ngp
-          if (ngp .gt. 0) then
+          if(ngp .gt. 0) then
              allocate(ppovl(ngp,ngp),pwz(ngp,ndimh))
              allocate(phovl(ngp,ndimh))
 C     Pass qx to pwmat (or pwmat2):
@@ -615,17 +585,14 @@ c             if(sum(abs(qp-q))>1d-8) stop 'sugw:qp/=q; qp=p sep2012'
           endif
           if(debug) print *,' goto gwb write...'
 C     --- File output, jobgw=1 ---
-          ifigwb = fopna('gwb',-1,4)
-          write (ifigwb) qp, ndimh, iq
+          write(ifigwb) qp, ndimh, iq
           if(debug) write (6,"('q ndimh=',3f10.5,i10)") qp, ndimh
-          write (ifigwb) evl(1:ndimh,isp),cphi(:,:,isp)
-          write (ifigwb) ngp 
+          write(ifigwb) evl(1:ndimh,isp),cphi(:,:,isp)
+          write(ifigwb) ngp 
           if(ngp >0 ) write (ifigwb) ngvecp(1:3,1:ngp,iq), pwz 
           if(ngp ==0) write (ifigwb) ngvecp(1:3,1:ngp,iq)
-          ifigw1 = fopna('gw1',-1,4)
           write(ifigw1) qp, (evl(i,isp),i=1,ndimh)
-C     call prmx('e(H+sigma-vxc)',evl,ndimh,ndimh,1)
-          
+C  call prmx('e(H+sigma-vxc)',evl,ndimh,ndimh,1)
 C     ... Overlap checking.   Define:
 C     Interstitial part of eigenfunction overlap:
 C     <psi_n||psi_n'>
@@ -646,7 +613,6 @@ C     xx(1) = sum over all augmentation w.f.  cphi+ ovl cphi
 C     xx(2) = sum over augmentation phi only.
 C     xx(3) = IPW contribution to phi+ phi
 C     xx(4) = IPW contribution to phi+ phi, using diagonal part only
-             ifinormchk = fopna('normchk',-1,0)
 c             if (abs(sum(q-qp)) .gt. 1d-10) then
 c                write(ifinormchk,555) iq,qp,qp
 c             else
@@ -682,79 +648,51 @@ c          if (isp .eq. nsp) deallocate(ngvecp) !takao feb2012 ,ngvecc)
                 evl(i1,isp) = evl(i1,isp) - testc(i1,i2) * evec(i2,i1)
              end do
           end do
-          ifigw2 = fopna('gw2',-1,4)
           write(ifigw2) qp, (evl(i,isp),i=1,ndimh)
           deallocate(testc)
  1002  continue             ! Loop over spins
        if(allocated(hammhso)) deallocate(hammhso)
-        deallocate(ham,ovl,evec,vxc,cphi,cphin)!,igv2)
+       deallocate(ham,ovl,evec,vxc,cphi,cphin)!,igv2)
  1001 continue ! ===== Loop over qp ===============================
-      call fclr(' ',ifiqg)
-        ifigwb = fopna('gwb',-1,4)
-        call fclose(ifigwb)
       deallocate(evl,nlindx)
-      call fclr('gw1',fopna('gw1',-1,4))
-      call fclr('gw2',fopna('gw2',-1,4))
-      call fclr('gwb',fopna('gwb',-1,4))
-      if (.not. cmdopt0('--novxc')) then
-        if (lsig .gt. 0) then
-          call fclr('vxc',fopna('vxc',-1,4))
-          call fclr('evec',fopna('evec',-1,4))
-        endif
+      close(ifiqg)
+      close(ifigwb)
+      close(ifigw1)
+      close(ifigw2)
+      if ((.not. cmdopt0('--novxc')).and. lsig>0) then
+         close(ifiv)
+         close(ifievec)
       endif
       call tcx('m_sugw_init')
       end subroutine m_sugw_init
 
-
-
-      subroutine ioaindx(npqn,lmxax,nbas,ndima,nlindx,ifi)
-C-  File I/O of NlAindx
+      subroutine ioaindx(npqn,lmxax,nbas,ndima,nlindx)
+C-  read NlAindx
 C ----------------------------------------------------------------------
 Ci Inputs
 Ci   npqn  :leading dimension of nlindx
 Ci   lmxax :second dimension of nlindx
 Ci   nbas  :size of basis
 Ci   ndima :number of augmentation channels
-Ci   ifi   :file logical unit, but >0 for read, <0 for write
-Co Inputs/Outputs
-Cio  nlindx:pointer to augmentation channels by site
-Cio        :(ifi>0) input
-Cio        :(ifi<0) output
-Cr Remarks
-Cr
-Cu Updates
-C ----------------------------------------------------------------------
+Ci   nlindx:pointer to augmentation channels by site
       implicit none
-C ... Passed parameters
       integer npqn,lmxax,nbas,ndima,ifi,nlindx(npqn,0:lmxax,nbas)
-C ... Local parameters
       character outs*80
       integer i,ipqn,l,ib,ii
-
-C --- File read ---
-      if (ifi .gt. 0) then
-        nlindx = -1
-        rewind ifi
-        read(ifi,'(a)') outs
-        read(ifi,*) i
-C       If passed ndima>0, check that it matches file value
-        if (ndima .gt. 0 .and. i .ne. ndima)
+      open(newunit=ifi,file='NLAindx')
+      nlindx = -1
+      read(ifi,'(a)') outs
+      read(ifi,*) i
+      if (ndima .gt. 0 .and. i .ne. ndima)
      .  call rx('ioaindx: file mismatch NLAindx')
-        ndima = i
-        do  i = 1, ndima
+      ndima = i
+      do  i = 1, ndima
           read(ifi,'(a)',err=101,end=101) outs
           read(outs,*) ipqn,l,ib,ii
           nlindx(ipqn,l,ib) = ii
-        enddo
-  101   continue
-
-C --- File write ---
-      else
-        call rx('ioaindx: file write not implemented')
-      endif
-
+       enddo
+ 101   continue
+      close(ifi)
       end subroutine ioaindx
-
-
 
       end module 

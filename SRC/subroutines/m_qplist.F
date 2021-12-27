@@ -2,6 +2,7 @@
 !! control all q points list (but still only for lmf part now june2021). 
 
       integer,allocatable,protected:: ngplist(:),iprocq(:,:),ispp(:),ngvecp(:,:,:) !rank divider
+c      character*256,allocatable:: extp(:)
       real(8),allocatable,protected:: qplist(:,:)
       
       integer,parameter,private:: nsymlmax=100
@@ -212,20 +213,15 @@ c 1013       continue
       call mpibc1_int( onesp,1,'qplist_onesp')
       if(.not.master_mpi) allocate(qplist(3,nkp))
       call mpibc1_real(qplist, 3*nkp , 'qplist_qp'  )
-      print *,'eeeeeee111 qplist'
 ! !
       if(llmfgw) then
          if(.not.master_mpi) allocate(ngplist(nkp))
          call mpibc1_int(ngpmx,1,      'qplist_ngpmx')
          if(.not.master_mpi) allocate(ngvecp(3,ngpmx,nkp))
-c      print *,'eeeeeee111aaa qplist'
          call mpibc1_int(ngplist, nkp, 'qplist_ngp' )
-      print *,'eeeeeee111vvv qplist',ngpmx,nkp,sum(ngvecp)
          call mpibc1_int( ngvecp,  3*ngpmx*nkp,  'qplist_ngvecp' )
-c      print *,'eeeeeee111bbb qplist'
          call mpibc1_int( iqibzmax,1, 'qplist_iqibzmax')
       endif
-c      print *,'eeeeeee222 qplist'
 !!      
       if (master_mpi.and.nsyml>0) then !plbnd mode
          open(newunit=ifqplist,file='QPLIST')
@@ -244,7 +240,6 @@ c      print *,'eeeeeee222 qplist'
          enddo
          close(ifqplist)
       endif 
-      print *,'eeeeeee333 qplist'
       if(procaron.and.nsyml==0.and.master_mpi) then !xdatt is dummy
         if(allocated(xdatt)) deallocate(xdatt)
         allocate(xdatt(nkp))
@@ -254,7 +249,6 @@ c      print *,'eeeeeee222 qplist'
         if(.not.master_mpi) allocate(xdatt(nkp))
         call mpibc1( xdatt, nkp , 4 , .false. , 'bndfp' , 'xdatt'  )
       endif
-      print *,'eeeeeee555 qplist'
       end subroutine
       
 !sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
@@ -277,20 +271,15 @@ c      print *,'eeeeeee222 qplist'
 !     ! range for the procid
       iqsi = kpproc(procid)
       iqse = kpproc(procid+1)-1
-      
       iqini = iqsi
       if(nspx==2) iqini = (iqsi+1)/nspx
       iqend = iqse
       if(nspx==2) iqend = (iqse+1)/nspx
       ispini = mod(iqsi+1,nspx)+1
       ispend = mod(iqse+1,nspx)+1
-      
       write(stdo,'(a,i5, ", (",i5,i2,"), "," (",i5,i2,")")' )
      & 'm_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=', procid,iqini,ispini,iqend,ispend
-      
-!     !--- write lmfgw_divider ---------
-       
-
+!!--- write lmfgw_divider ---------
       icount = 0
       do iprocid = 0,numprocs-1
          do iqs     = kpproc(iprocid),kpproc(iprocid+1)-1
@@ -303,7 +292,6 @@ c      print *,'eeeeeee222 qplist'
       enddo
       ncount=icount
       do icount=1,ncount
-c     if(master_mpi) write(6,*)'mmmmmmmmm111 ',icount, iqvec(icount),ispin(icount),iproc(icount)
          iprocq(iqvec(icount),ispin(icount)) = iproc(icount)
       enddo
       if(master_mpi) then
@@ -317,7 +305,53 @@ c     if(master_mpi) write(6,*)'mmmmmmmmm111 ',icount, iqvec(icount),ispin(icoun
          enddo
          close(ifiproc)
       endif    
+c!! for mpi files.
+c      allocate(extp(0:nrank-1))
+c      if(procid==0) then
+c         extp(0) = trim(ext)
+c      else
+c        write(extn,"(i10)") procid
+c        extp(procid)=trim(adjustl(ext))//'_'//trim(adjustl(extn))
+c      endif  
+c      write(6,"(i3,' ext= ',a,a)") procid,trim(extp(procid)),' ----------'
       end subroutine
-      
+!!
       end module m_qplist
+
+!mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+      module read_lmfgw_kdivider
+      character*256,allocatable:: extp(:)
+      integer,allocatable,protected:: iprocq(:,:)
+      contains
+      subroutine readlmfgw_kdivider()
+      integer:: ifiproc,nqixx, nspxx, nrank,ispiqq,iqqxx,ispxx,ixxx,procid,iqq,isp
+      character*256:: ext,extn
+!! === readin lmfgw_kdivider, and get extensions 
+      open(newunit=ifiproc,file= 'lmfgw_kdivider')
+      read(ifiproc,*) ext  !extension is read here
+      read(ifiproc,*) nqixx, nspxx, nrank
+      allocate(iprocq(nqixx,nspxx))
+      do isp=1,nspxx
+      do iqq=1,nqixx
+        read(ifiproc,*) iqqxx, ispxx, ixxx
+        if(iqqxx/=iqq) stop 'iqqxx/=iqq'
+        if(ispxx/=isp) stop 'ispxx/=isp'
+        iprocq(iqq,isp) = ixxx
+        write(6,"('iqq isp irank=',i8,i2,i6)") iqq,isp, iprocq(iqq,isp)
+      enddo
+      enddo
+      close(ifiproc)
+!! for mpi files.
+      allocate(extp(0:nrank-1))
+      extp(0) = trim(ext)
+      write(6,"('  0 ext= ',a,a)") trim(extp(0)),' ----------'
+      do procid=1,nrank-1
+        write(extn,"(i10)") procid
+        extp(procid)=trim(adjustl(ext))//'_'//trim(adjustl(extn))
+        write(6,"(i3,' ext= ',a,a)") procid,trim(extp(procid)),' ----------'
+      enddo
+      end
+      end module
+!! --------------------------------------
+      
       
