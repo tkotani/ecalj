@@ -212,7 +212,7 @@ c         continue
       endif
 !! Set up Hamiltonian and diagonalization in m_bandcal_init
 !! To know outputs, see 'use m_bandcal,only:'. The outputs are evlall, and so on.
-!     ! ndimhx_ is protected, but allows writing to other nodes because MPI_BCAST is f77, assumed-size array
+!! ndimhx_ is protected, but allows writing to other nodes because MPI_BCAST is f77, assumed-size array
       if(.not.(lwtkb==-1.or.lwtkb==0.or.lwtkb==1)) call rx('bndfp: something wrong lwtkb')
 ! lwtkb=1 accumulate weight
 ! lwtkb=0 no weight
