@@ -407,23 +407,39 @@ c        if(lfrce>0 ) call dfrce (lfrce,orhoat,orhoat_out,elind,qmom,osmrho,smrh
       call tcx('bndfp')
       end subroutine bndfp
 
-
-      subroutine writeqpyl()
-      use m_ext,only: sname
-      use m_lmfinit,only:nbas,ssite=>v_ssite,sspec=>v_sspec,nsp
-      use m_mkrout,only: qbyl_rv
-      integer::ib,ispec,ifqbyl,il
-      open(newunit=ifqbyl,file='qbyl.'//trim(sname))
-      write(ifqbyl,"(i5)") nbas
-      do  ib = 1, nbas
-         ispec=ssite(ib)%spec
-         write(ifqbyl,"(i4, i3,i2,10f12.6)")
-     &   ib,ispec,sspec(ispec)%lmxa,( sum(qbyl_rv(il,1:nsp,ib)), il=1,sspec(ispec)%lmxa+1)
+      subroutine xxxdif(emin,emax,npts,ndos,mode,dosi,dos)
+!! Differentiate Number of States to make DOS
+      implicit none
+      integer npts,ndos,mode
+      real(8):: dosi(npts,ndos), dos(npts,ndos),emin,emax
+      integer ip,idos,k
+      double precision bin
+      bin = 2*(emax-emin)/dble(npts-1)
+      do  idos = 1, ndos
+        do ip = 2, npts-1
+           dos(ip,idos) = (dosi(ip+1,idos) - dosi(ip-1,idos)) / bin
+        enddo   
+        dos(1,idos)    = dos(2,idos)
+        dos(npts,idos) = dos(npts-1,idos)
       enddo  
-      close(ifqbyl)
       end
+c$$$!!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+c$$$      subroutine writeqpyl()
+c$$$      use m_ext,only: sname
+c$$$      use m_lmfinit,only:nbas,ssite=>v_ssite,sspec=>v_sspec,nsp
+c$$$      use m_mkrout,only: qbyl_rv
+c$$$      integer::ib,ispec,ifqbyl,il
+c$$$      open(newunit=ifqbyl,file='qbyl.'//trim(sname))
+c$$$      write(ifqbyl,"(i5)") nbas
+c$$$      do  ib = 1, nbas
+c$$$         ispec=ssite(ib)%spec
+c$$$         write(ifqbyl,"(i4, i3,i2,10f12.6)")
+c$$$     &   ib,ispec,sspec(ispec)%lmxa,( sum(qbyl_rv(il,1:nsp,ib)), il=1,sspec(ispec)%lmxa+1)
+c$$$      enddo  
+c$$$      close(ifqbyl)
+c$$$      end
 !sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
-      subroutine readindensitymodesetting()
+c      subroutine readindensitymodesetting()
 !! If necessary, need to recover this but it should be much simpler.
 !! By chaningt wtkb, this will give density for given iq ib.
 !!  We have electron density plot by '--density' mode
@@ -461,26 +477,9 @@ c$$$               if(abs(rv_a_owtkb(ib,jsp,iq))>1d-3) write(stdo,"('ib wtkb=',i
 c$$$            enddo
 c$$$         endif
 c$$$      endif   
-      end
-
-      subroutine xxxdif(emin,emax,npts,ndos,mode,dosi,dos)
-!! Differentiate Number of States to make DOS
-      implicit none
-      integer npts,ndos,mode
-      real(8):: dosi(npts,ndos), dos(npts,ndos),emin,emax
-      integer ip,idos,k
-      double precision bin
-      bin = 2*(emax-emin)/dble(npts-1)
-      do  idos = 1, ndos
-        do ip = 2, npts-1
-           dos(ip,idos) = (dosi(ip+1,idos) - dosi(ip-1,idos)) / bin
-        enddo   
-        dos(1,idos)    = dos(2,idos)
-        dos(npts,idos) = dos(npts-1,idos)
-      enddo  
-      end
-      
+c      end
       end module m_bndfp
+      
 
 !sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine xmpbnd2(kpproc,ndham,nkp,nspx,eb)
@@ -514,7 +513,7 @@ C ----------------------------------------------------------------------
       enddo
       ista = kpproc(procid)
       allocate(buf_rv(ndham*nkp*nspx))
-      call mpi_allgatherv ( eb(1,ista) , length( procid ), mpi_double_precision, buf_rv , length , offset 
+      call mpi_allgatherv(eb(1,ista),length(procid),mpi_double_precision,buf_rv,length,offset 
      ., mpi_double_precision , mpi_comm_world , ierr )
       call dcopy ( ndham * nspx * nkp , buf_rv , 1 , eb , 1 )
       if (allocated(buf_rv)) deallocate(buf_rv)

@@ -88,7 +88,7 @@
 !!  All variables except v_sspec and v_ssite are protected.
       call M_lmfinit_init(prgnam) ! Computational settings go into m_lmfinit
 !! Lattice and Symmetry
-      call Latsym(prgnam) !---> lattice and symmetry go into m_lattic and m_mksym
+      call Latsym(prgnam) !---> lattice(for ewald sum) and symmetry go into m_lattic and m_mksym
 !! q points info     
       if(trim(prgnam) == 'LMF') then
          call M_mkqp_init() ! data of BZ go into m_mkqp
@@ -135,7 +135,7 @@
       if(writeham.and.master_mpi) call m_writeham_init()
       if(writeham.and.master_mpi) call m_writeham_write()
       if( cmdopt0('--quit=ham') ) call rx0('quit = ham')
-c$$$!! LDA+U initialization
+!! LDA+U initialization
       if(nlibu>0) call m_ldau_init()
       if(cmdopt0('--quit=dmat')) call rx0('--quit=dmat')
       write(6,*) 'end of reading rst or atm'
@@ -191,7 +191,7 @@ c
          if(master_mpi) call getqmode()
          call rx0('--getq mode done')
       endif
-!! After module initialization, call lmfp      
+!! After module initializations, call lmfp      
       call Lmfp(llmfgw,irs1x)
       call finalizelmv7()
       stop

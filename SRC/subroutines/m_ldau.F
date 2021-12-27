@@ -38,6 +38,7 @@
       if(mmtargetx) call vorbmodifyaftest()
       end
       
+!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine vorbmodifyaftest()
       use m_lmfinit,only: nlibu,nsp,lmaxu,lmaxu,nsp,nlibu,nbas,stdo
       use m_MPItk,only: master_mpi

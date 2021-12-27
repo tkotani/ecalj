@@ -1,30 +1,20 @@
       subroutine lmfp(llmfgw,irs1x)
-      use m_lmfinit,only: irs1,irs2,lhf,bz_nevmx,bz_lmet, irs1x10, 
-     &     ctrl_mdprm,ctrl_maxit,nbas,nl,nspec,nsp,
-     &     qbg=>zbak,ctrl_ldos,ctrl_nitmv,ctrl_nvario,ctrl_tol,
-     &     ham_seref,ctrl_lfrce,
-     &     lat_gam,lat_alat, lat_ldist,
+      use m_lmfinit,only: irs2,lhf, irs1x10, 
+     &     ctrl_mdprm,ctrl_maxit,nbas,nsp,
+     &     ctrl_ldos,ctrl_nitmv,ctrl_nvario,ctrl_tol,
+     &     ham_seref,ctrl_lfrce,  
      &     sspec=>v_sspec, ssite=>v_ssite, 
-     &     sstrnsymg, symgaf, nat, lldau,nlibu,lmaxu,stdo,lrout,leks,plbnd,lpzex
-      use m_lattic,only: lat_dist,lat_plat,qlat=>lat_qlat,rv_a_opos,rv_a_odlv,rv_a_oqlv,
-     &     lat_vol,lat_nkd,lat_awald,lat_nkq,Setopos
-      use m_mksym,only: rv_a_oag,rv_a_osymgr,iv_a_oistab,lat_nsgrp
-      use m_ext,only: sname
-      use m_MPItk,only: mlog,master_mpi
-      use m_iors,only: Iors
-      use m_supot,only: m_supot_init,k1,k2,k3
-      use m_suham,only: m_suham_init
-      use m_bndfp,only: Bndfp,   ham_ehf,ham_ehk,qdiff,force,sev
-      use m_ldau,only: m_ldau_init,m_ldau_vorbset
-      use m_chkdmu,only: eorb
+     &     nlibu,stdo,lrout,leks,plbnd,lpzex
+      use m_lattic,only: qlat=>lat_qlat,rv_a_opos
+      use m_chkdmu,only:  eorb
       use m_bandcal,only: dmatu
-      use m_qplist,only: m_qplist_init,m_qplist_qspdivider
-      use m_mkpot,only: amom 
-      use m_writeham,only: m_writeham_init, m_writeham_write
-      use m_lmfgw,only: m_lmfgw_init
-      use m_hamindex,only: m_hamindex_init
+      use m_mkpot,only:   amom 
+      use m_ext,only:     sname
+      use m_iors,only:   Iors
+      use m_MPItk,only:  mlog,master_mpi
+      use m_bndfp,only:  Bndfp,   ham_ehf,ham_ehk,qdiff,force,sev
+      use m_ldau,only:   m_ldau_vorbset
       use m_bstrux,only: m_bstrux_init
-      use m_igv2x,only: m_igv2xall_init
 !! = Main routine of lmf = (following document is roughly checked at May2021)
 !! lmfp contains two loops after initialization
 !!   1  outer  loop do 2000 is for molecular dynamics (relaxiation).
@@ -33,12 +23,12 @@
 !! (Most of) all data in modules are 'protected'.
 !! Thus data in m_lmfinit, m_lattic, m_mksy, m_ext, ... are fixed during iteration.
 !! Currently rhoat, smrho, smpot in m_supot are iterated. ham_ehf _ehk changed by iterations.      
-!! We don't maintain the share mode.
+!! We currently don't maintain the share (of crystal structure) mode.
 !     sspec :struct for species-specific information; see routine uspec
 !     ssite :struct for site-specific information; see routine usite
 !     sspec and ssite are not protecetd ---> iors can modify it.
 !     But, these are fixed before going into do 2000/1000 loop (I think).      
-! Memo for LDA+U
+! Memo for LDA+U. See m_ldau module.
 !     lmaxu : max l for a U (used for dimensioning)
 !     nlibu : total number of U blocks
 !     lldau(ib) : U on site ib with dmat beginning at dmats(*,lldau(ib))
@@ -62,7 +52,6 @@
       integer,parameter:: nm=3
       character(512):: aaachar
       character(10):: i2char
-      logical:: writeham
       logical:: cmdopt2
       character(20):: outs=''
       integer:: ierr
@@ -91,7 +80,7 @@
 !! Atomic position Relaxation setup (MD mode)
       nitrlx= ctrl_nitmv  ! num of iteration cycle for atomic relaxiation (outer loop)
       mdprm = ctrl_mdprm  ! MD(relxation) condition setup
-      if( nint(mdprm(1))== 0) nitrlx = 0 !no relaxiation. Only sc calculation for given atomic position.
+      if( nint(mdprm(1))==0) nitrlx=0 !no relaxiation. Only sc calculation for given atomic position.
       if( nint(mdprm(1))>0 .and. nint(mdprm(1))<4 ) call rx('lmf not set up for MD yet')
       if( nitrlx>0 ) then   !nitrlx >0 is for atomic position relaxiation
         allocate(indrx_iv(2,3*nbas))
