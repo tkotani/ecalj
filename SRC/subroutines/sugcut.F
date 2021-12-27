@@ -1,6 +1,6 @@
-      subroutine sugcut(mode,sspec)
-      use m_struc_def       
-      use m_lmfinit,only: nspec,alat=>lat_alat,tol=>lat_tolft,n0,nkap0,nkaphh,lhh,nkapii
+      subroutine sugcut(mode) !,sspec)
+c      use m_struc_def,only: s_spec
+      use m_lmfinit,only: nspec,alat=>lat_alat,tol=>lat_tolft,n0,nkap0,nkaphh,lhh,nkapii,sspec=>v_sspec
       use m_supot,only: gv=>rv_a_ogv,ng=>lat_ng
       use m_uspecb,only:uspecb
 C- Find max recip for each spec and orbital block, store in struct.
@@ -20,7 +20,7 @@ C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
       integer mode,i_copy_size
-      type(s_spec)::sspec(*)
+c      type(s_spec)::sspec(*)
 C ... Local parameters
 c      integer nkap0,n0
 c      parameter (nkap0=3,n0=10)

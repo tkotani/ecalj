@@ -1,4 +1,4 @@
-      subroutine lmfp(llmfgw)
+      subroutine lmfp(llmfgw,irs1x)
       use m_lmfinit,only: irs1,irs2,lhf,bz_nevmx,bz_lmet, irs1x10, 
      &     ctrl_mdprm,ctrl_maxit,nbas,nl,nspec,nsp,
      &     qbg=>zbak,ctrl_ldos,ctrl_nitmv,ctrl_nvario,ctrl_tol,
@@ -8,22 +8,23 @@
      &     sstrnsymg, symgaf, nat, lldau,nlibu,lmaxu,stdo,lrout,leks,plbnd,lpzex
       use m_lattic,only: lat_dist,lat_plat,qlat=>lat_qlat,rv_a_opos,rv_a_odlv,rv_a_oqlv,
      &     lat_vol,lat_nkd,lat_awald,lat_nkq,Setopos
-      use m_ext,only:     sname
-      use m_chkdmu,only:  eorb
-      use m_bandcal,only: dmatu
-      use m_mkpot,only:   amom 
-      use m_bndfp,only: Bndfp, ham_ehf,ham_ehk,qdiff,force,sev
-      use m_iors,only:  Iors
+      use m_mksym,only: rv_a_oag,rv_a_osymgr,iv_a_oistab,lat_nsgrp
+      use m_ext,only: sname
       use m_MPItk,only: mlog,master_mpi
-      use m_supot,only: m_supot_init
+      use m_iors,only: Iors
+      use m_supot,only: m_supot_init,k1,k2,k3
       use m_suham,only: m_suham_init
-      use m_ldau,only:  m_ldau_init,m_ldau_vorbset
-      use m_qplist,only:   m_qplist_init,m_qplist_qspdivider
+      use m_bndfp,only: Bndfp,   ham_ehf,ham_ehk,qdiff,force,sev
+      use m_ldau,only: m_ldau_init,m_ldau_vorbset
+      use m_chkdmu,only: eorb
+      use m_bandcal,only: dmatu
+      use m_qplist,only: m_qplist_init,m_qplist_qspdivider
+      use m_mkpot,only: amom 
       use m_writeham,only: m_writeham_init, m_writeham_write
-      use m_lmfgw,only:    m_lmfgw_init
+      use m_lmfgw,only: m_lmfgw_init
       use m_hamindex,only: m_hamindex_init
-      use m_bstrux,only:   m_bstrux_init
-      use m_igv2x,only:    m_igv2xall_init
+      use m_bstrux,only: m_bstrux_init
+      use m_igv2x,only: m_igv2xall_init
 !! = Main routine of lmf = (following document is roughly checked at May2021)
 !! lmfp contains two loops after initialization
 !!   1  outer  loop do 2000 is for molecular dynamics (relaxiation).
@@ -62,117 +63,31 @@
       character(512):: aaachar
       character(10):: i2char
       logical:: writeham
-      integer:: jobgw
       logical:: cmdopt2
       character(20):: outs=''
       integer:: ierr
       include "mpif.h"
-!! --rs=3 mode is removed. (--rs=3 meand fixed density Harris-foukner MD).
-!! --rs=3 => always read from atom file 
-!! Sep2020 comment " Shorten site positions" removed. (we are useing shortn3 mainly now)
+!! --rs=3, always read from atom file, mode is removed. (--rs=3 is for fixed density Harris-foukner MD).
+!! Sep2020 comment " Shorten site positions" removed. (we are using shortn3 mainly now)
       call tcn('lmfp')
-!!Get jobgw for lmfgw mode. Quit for job=0
-      jobgw=0
-      if( cmdopt2('--job=',outs) ) then 
-         read(outs,*) jobgw
-      elseif(master_mpi.and.llmfgw) then
-         write(stdo,*)
-         write(stdo,*) '=== lmfgw-MPIK: Choose one of following jobs: ==='
-         write(stdo,*) '   0 : init mode; creates files SYMOPS, LATTC, CLASS, NLAindx, ldima'
-         write(stdo,*) '   1 : GW setup mode'
-         write(stdo,*) ' job 0 or 1?'
-         read (5,*) jobgw
-      endif
-      call mpibc1_int(jobgw,1,'lmfp_jobgw')
-!index for hamiltonian gen_hamindex      
-      call m_hamindex_init(jobgw==0) 
-      if(llmfgw.and.jobgw==0) call m_lmfgw_init() ! Get LATTIC and so on.
-      if(llmfgw.and.jobgw==0) call rx0(' OK! '//'lmfgw mode=0 generated LATTC CLASS NLAindx ldima')
-      etot(1) = 0 ! Total energy mode --etot ==>moved to m_lmfinit ---
-      ipr=iprint() !call getpr(ipr) !ipr is pring verbose control
-      maxit = ctrl_maxit
+      ipr = iprint() !call getpr(ipr) !ipr is pring verbose control
       if(ipr>=30) call praugm(sspec,0) !Printout only: properties of species
-!! Array allocated in supot rhoat smrho. We have to store all fixed quantites in modules.
-      call m_supot_init()    ! get G vectors for charge
-      call sugcut( 1, sspec) ! modify sspec%ngcut
-      call m_suham_init()    ! Get estimated dimension of Hamiltonian (probably simplified in future).
-      writeham= cmdopt0('--writeham')
-      if(writeham.and.master_mpi) call m_writeham_init()
-      if(writeham.and.master_mpi) call m_writeham_write()
-      if( cmdopt0('--quit=ham') ) call rx0('quit = ham')
-      if (lrout == 0 .and. ctrl_lfrce /= 0) then
+      if(lrout == 0 .and. ctrl_lfrce /= 0) then
         write(stdo,"(a)") 'Error: output density required when forces sought.\n'//
      &              '      To make output density turn off HF=t and/or NEVMX<0'
         call rx('incompatible input. see the end of console output')
       endif
-      if (lrout == 0 .and. cmdopt0('--etot')) then
+      if(lrout == 0 .and. cmdopt0('--etot')) then
         write(stdo,"(a)") 'Error: output density required with --etot switch.\n'//
      &              '      To make output density turn off HF=t and/or NEVMX<0'
         call rx('incompatible input. see the end of console output')
       endif
-      if (lrout == 0 ) maxit = 1
-!! LDA+U initialization
-      if(nlibu>0) call m_ldau_init()
-      if(cmdopt0('--quit=dmat')) call rx0('--quit=dmat')
-!!=== NOTE: shear mode is currently commented out.
-!!   (probably shear mode should be recovered outside of fortran).
-c
-c     if(.false.) then 
-c        allocate(rv_a_omad(nbas**2))
-c        call madmat (rv_a_omad ) !Monopole Madelung matrix (kept for future).
-c     endif
-      
-!! Initial density Read atm.* or rst.*   rhoat smrho in supot
-!!  --- Read restart file or overlap free atom densities ---
-!!    irs1x tells what to read and whether to invoke smshft.
-C     0    read from atom file  atm
-C     1    read from binary     rst 
-C     2    read from ascii      rsta
-C    +10 -> invoke smshft(1) after file read.
-      write(6,*) 'goto end of reading rst or atm',irs1x
-      irs1x = irs1
-      if (irs1x == 0) then ! read overlap free-atom densities
-         call rdovfa()     ! superposition of spherical atomic densities by lmfa.
-         nit1 = 0
-      elseif( mod(irs1x,4)==1 .or. mod(irs1x,4)==2 ) then 
-         lbin = (irs1x==1) ! lbin=T:rst for --rs=1, or lbin=F:rsta for --rs=2,
-         k = -1
-         if(master_mpi) then
-            ifi=ifile_handle() 
-            if(lbin)       open(ifi,file='rst.'//trim(sname),form='unformatted')
-            if(.not. lbin) open(ifi,file='rsta.'//trim(sname)) 
-         endif
-         call mpibc1_int(ifi,1,'lmfp_ifi')
-         k = iors(nit1 , lbin , ifi ) ! read rst file. sspec ssite modified  !bz_w in iros removed
-         if (master_mpi) close(ifi) 
-         call mpibc1_int(k,1,'lmfp_k')
-         call Setopos() !set pos read in iors into rv_a_opos
-         if(k<0) then !initial potential from atm file if rst can not read
-            irs1x = 0
-            call rdovfa() 
-            nit1 = 0
-         elseif (irs1x10) then  
-            call smshft(1)
-         endif
-      endif
-      write(6,*) 'end of reading rst or atm'
 !!  tolerances for convergence check. q charge and e energy
       qtol = ctrl_tol(1)
       etol = ctrl_tol(3)
-!! (a simple approximaiton. Need fixing if necessary).
-      if(cmdopt0('--vbmonly')) then !Get VBM and CBM relative to vaccum
-         if(master_mpi) call vbmmode()
-         call rx0('--vbmonly mode done')
-      endif
-      if(cmdopt0('--getq')) then ! Current version is not for spin dependent, with many restrictions.
-         if(master_mpi) call getqmode()
-         call rx0('--getq mode done')
-      endif
-!! Get q point list at which we do band calculations
-      call m_qplist_init(plbnd,llmfgw)
-      call m_qplist_qspdivider()  !generate iqini:iqend,isini,isend  for each rank
-!! G vectors for qplist
-      call m_igv2xall_init()
+      etot(1) = 0 ! Total energy mode --etot ==>moved to m_lmfinit ---
+      maxit = ctrl_maxit
+      if(lrout == 0 ) maxit = 1
 !! Atomic position Relaxation setup (MD mode)
       nitrlx= ctrl_nitmv  ! num of iteration cycle for atomic relaxiation (outer loop)
       mdprm = ctrl_mdprm  ! MD(relxation) condition setup
@@ -182,17 +97,13 @@ C    +10 -> invoke smshft(1) after file read.
         allocate(indrx_iv(2,3*nbas))
         call rlxstp(natrlx, nvrelx, indrx_iv,  xyzfrz, pdim )
         icom = 0
-        if (nvrelx .ne. 0) then
-          allocate(w_rv(nvrelx*nvrelx))
-          allocate(p_rv(pdim))
-        endif
+        if(nvrelx /= 0) allocate(w_rv(nvrelx*nvrelx),p_rv(pdim))
         if(master_mpi) then
            open(newunit=ifipos,file='AtomPos.'//trim(sname),form='unformatted',status='new')
            write(ifipos) nbas
            write(ifipos) 0,rv_a_opos
         endif   
       endif
-      
 !! === Main iteration loops ===
       if( nitrlx>=1 ) allocate(pos_move(3,nbas))
       do 2000 itrlx = 1,max(1,nitrlx) ! loop for atomic position relaxiation (molecular dynamics) ===

@@ -1,15 +1,7 @@
       module m_lmfgw
+      public:: m_lmfgw_init
       private
-      public:: m_lmfgw_init !,m_lmfgw_setjobgw
-c      integer,public,protected:: jobgw=-999
-      
       contains
-c      subroutine m_lmfgw_setjobgw(ijob)
-c      integer:: ijob
-c      jobgw=ijob
-c      if(.not.( jobgw==0.or.jobgw==1)) call rx(' lmf-MPIK is only for jobgw=0,1 now')
-c      end
-      
       subroutine m_lmfgw_init() !writing files for GW calculaiton
       use m_lmfinit,only:nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nab,nppn,sspec=>v_sspec,ssite=>v_ssite,
      & nkap0,alat=>lat_alat,ham_ldham,iprmb

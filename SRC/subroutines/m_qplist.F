@@ -76,7 +76,7 @@ ccccccccccccccccccccccccccccccccccccccc
             read(ifiqg) ngvecp(1:3,1:ngp,nkp)
             write(ifqplist,"(i5,3f23.15)")nkp, qplist(:,nkp) !,ngplist(nkp)
          enddo
-c         print *,' nqibz iqibzmax=',nqibz,iqibzmax
+c         print *,' qplist: nqibz iqibzmax=',nqibz,iqibzmax
          close(ifiqg)
          close(ifqplist)
 !! self-consistent calculaiton      
@@ -206,22 +206,26 @@ c 1013       continue
          endif
          if (nkp <= 0) call rx('bndfp: nkp<=0') ! quit if nkp==0
       endif
-
       
 !! broadcase nkp and qplist
       call mpibc1_int( nkp,1,  'qplit_nkp')
       call mpibc1_int( onesp,1,'qplist_onesp')
       if(.not.master_mpi) allocate(qplist(3,nkp))
       call mpibc1_real(qplist, 3*nkp , 'qplist_qp'  )
+      print *,'eeeeeee111 qplist'
 ! !
       if(llmfgw) then
          if(.not.master_mpi) allocate(ngplist(nkp))
          call mpibc1_int(ngpmx,1,      'qplist_ngpmx')
          if(.not.master_mpi) allocate(ngvecp(3,ngpmx,nkp))
+c      print *,'eeeeeee111aaa qplist'
          call mpibc1_int(ngplist, nkp, 'qplist_ngp' )
+      print *,'eeeeeee111vvv qplist',ngpmx,nkp,sum(ngvecp)
          call mpibc1_int( ngvecp,  3*ngpmx*nkp,  'qplist_ngvecp' )
+c      print *,'eeeeeee111bbb qplist'
          call mpibc1_int( iqibzmax,1, 'qplist_iqibzmax')
       endif
+c      print *,'eeeeeee222 qplist'
 !!      
       if (master_mpi.and.nsyml>0) then !plbnd mode
          open(newunit=ifqplist,file='QPLIST')
@@ -240,6 +244,7 @@ c 1013       continue
          enddo
          close(ifqplist)
       endif 
+      print *,'eeeeeee333 qplist'
       if(procaron.and.nsyml==0.and.master_mpi) then !xdatt is dummy
         if(allocated(xdatt)) deallocate(xdatt)
         allocate(xdatt(nkp))
@@ -249,6 +254,7 @@ c 1013       continue
         if(.not.master_mpi) allocate(xdatt(nkp))
         call mpibc1( xdatt, nkp , 4 , .false. , 'bndfp' , 'xdatt'  )
       endif
+      print *,'eeeeeee555 qplist'
       end subroutine
       
 !sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss

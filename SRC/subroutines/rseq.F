@@ -38,7 +38,7 @@ C ... Passed parameters
       double precision eb1,eb2,e,tol,z,val,slo,v(nr),g(nr,2),q,rofi(nr),
      .a,b
 C ... Local parameters
-      integer ipr,k,k2,kc,nctp,nctp0,nit,nitmax,nod1,nod2,node
+      integer ipr,k,k2,kc,nctp,nctp0,nit,nitmax,nod1,nod2,node,irsq
       double precision c,de,e1,e2,fac,fllp1,r,ratio,re,rhok,slo1,slo2,
      .slop,tmcr,val1,val2,valu,wgt
 C ... Speed of light, or infinity in nonrelativistic case
@@ -164,10 +164,9 @@ C --- Possible warning or error exit ---
           write(*,816) l,nod,abs(de),e
   816     format(' RSEQ (warning) eval for l=',i1,' node=',i1,
      .    ' did not converge: de=',1pd9.2,' e=',1pd11.4)
-!(this number 7836 is not used anywhere else? takao).
-          open(7836,file='RSEQ_ERROR')
-          write(7836,816) l,nod,abs(de),e
-          close(7836)
+          open(newunit=irsq,file='RSEQ_ERROR')
+          write(irsq,816) l,nod,abs(de),e
+          close(irsq)
         endif
       endif
 C     ec = e
@@ -175,6 +174,7 @@ C     valc = val
 C     sloc = slo
 C     call zseq(ec,tol,z,l,nod,valc,sloc,v,gc,q,a,b,rofi,nr,nre)
       end
+      
       subroutine rsq1(i0,e,l,z,v,kr,g,val,slo,nn,a,b,rofi,nr)
 C- Integrate the scalar relativistic eqn outward to rofi(kr)
 C ----------------------------------------------------------------
