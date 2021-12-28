@@ -47,24 +47,19 @@
       use m_keyvalue,only: getkeyvalue
       use m_mpi,only: MPI__Initialize
       implicit none
-      integer(4) ::n1q,n2q,n3q,ifiqg,ifiqgc,ifigw0,ngrp,ifi,i,ig,iq0pin
-      real(8) ::  alat,QpGcut_psi, QpGcut_Cou,dummy ,plat(3,3)
-      real(8) :: volum,q0(3),qlat0(3,3),QpGx2,a1,a2,pi,unit !,QpGx1
+      integer(4) :: ifiqg,ifiqgc,ifigw0,ngrp,ifi,i,ig,iq0pin
+      real(8) :: alat,QpGcut_psi, QpGcut_Cou,dummy ,plat(3,3),volum,q0(3),qlat0(3,3),QpGx2,a1,a2,unit
+      real(8),parameter:: pi=4d0* atan(1d0)  
       real(8),allocatable :: symops(:,:,:)
       character(len=150):: recrdxxx
       character(len=10) :: keyw1='unit_2pioa',keyw2
       logical ::unit2=.false. !  readgwinput,
-      integer(4)::nnn(3),ret
-      integer(4):: verbose,q0pchoice,wgtq0p    !,normcheck !version,
+      integer(4)::nnn(3),ret,verbose,q0pchoice,wgtq0p,iq0pinxxx ,ifile_handle,n1,n2,n3
       logical:: GaussSmear,KeepEigen,core_orth,ldummy, lnq0iadd=.false. !keepppovl,
-      integer(4):: iq0pinxxx ,ifile_handle,n1,n2,n3
       integer:: gammacellctrl=0
-      logical:: lmagnon = .false.
-      logical:: cmdopt2
+      logical:: lmagnon = .false., cmdopt2
       character(20):: outs=''
       call MPI__Initialize()
-      pi= 4d0* atan(1d0)
-c      write(6,*)'        Generate Q0P->101(old offset Gamma)'
       call cputid (0)
       write(6,"(a)")'qg4gw: Generate Q0P->1; Readin Q0P->2; SW(chipm)->4'
       write(6,"(a)")'       Generate Q0P and Q0P for xyz ->201 '
@@ -93,7 +88,7 @@ c      write(6,*)'        Generate Q0P->101(old offset Gamma)'
       else
          call rx( 'Not allowed iq0pin')
       endif
-!!      
+!! primitive vectors in unit of alat(a.u.).     
       write(6,"('  q0pchoice() = ',i4)")  q0pchoice()
       open (newunit=ifi, file='LATTC')
       read(ifi,*) alat
@@ -114,21 +109,8 @@ c      write(6,*)'        Generate Q0P->101(old offset Gamma)'
         enddo
       enddo
       close(ifi)
-!! --- check write
-c      write(6,"('  --- primitive vectors ---')")
-c      write(6,"(' primitive_1 =',3f13.6)") plat(1:3,1)
-c      write(6,"(' primitive_2 =',3f13.6)") plat(1:3,2)
-c      write(6,"(' primitive_3 =',3f13.6)") plat(1:3,3)
-c      write(6,"(' --- point group operations --- ')")
-c      do ig = 1,ngrp
-c        write(6,"('  ig=',i3)") ig
-c        do i=1,3
-c          write(6,"(3f14.6)") symops(i,1:3,ig)
-c        enddo
-c      enddo
 !! --- Readin GWinput
       call getkeyvalue("GWinput", "n1n2n3", nnn,3)
-      n1q=nnn(1); n2q=nnn(2); n3q = nnn(3)
       call getkeyvalue("GWinput", "QpGcut_psi",QpGx2)
       call getkeyvalue("GWinput", "QpGcut_cou",QpGcut_Cou)
       call getkeyvalue("GWinput", "unit_2pioa",unit2)

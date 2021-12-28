@@ -6,7 +6,6 @@
 !!       EPSwklm: Sperical integration weitht. But currently only l=0 is used to keep positive definitness.
 !!
       implicit none
-
       integer,protected:: nq0i,nq0itrue,nq0iadd ! Number of Q0P
       integer,protected,allocatable:: ixyz(:)  ! ixyz(1:nq0i+nq0iadd) q0i for x,y,z directions
       real(8),allocatable,protected:: q0i(:,:),wt(:)  ! Q0P and its weight.
@@ -188,27 +187,23 @@
       integer :: nnn(3),nstbz(*),nqbz,nqibz,ngcxx,ngcx(nqbz),ngrp 
       real(8) :: alat,qlat(3,3),alp,alpv(3),plat(3,3)
      & ,qbz(3,nqbz),qibz(3,nqibz),symops(3,3,ngrp)
-      integer ::ngvect(3,ngcxx,nqbz)
-
-      integer::nq00ix,nx0,nq00i, xyz2lm(3)!,nnnt
+      real(8):: deltaq,deltaq_scale,delta8,delta5,emat(3,3), pi=4d0*atan(1d0)
+      real(8):: rrr(3),r2s,qxx(3),voltot,tripl
+      integer ::ngvect(3,ngcxx,nqbz),nq00ix,nx0,nq00i, xyz2lm(3)!,nnnt
       real(8):: xn !,www,wgtq0
       logical:: noq0p,timereversal
       real(8),allocatable:: q0x(:,:),wt0(:)
-      real(8):: deltaq,deltaq_scale,delta8,delta5,emat(3,3)
-      real(8):: pi=4d0*atan(1d0)
       real(8),allocatable:: wti(:),qi(:,:),epinv(:,:,:),cg(:,:,:),matxxl(:,:,:),
      &     dmlx(:,:),cy(:),yl(:),epinvq0i(:,:),wklm(:) !,norq0x(:) !,wqfac(:)
       integer:: bzcase=1,i,iq0i,ifidmlx,lmxax,lx,lxklm,j,iclose,llxxx
-      real(8):: rrr(3),r2s,qxx(3),voltot,tripl
       integer,allocatable::irrx(:)
       real(8),allocatable:: funa(:,:),wsumau(:),yll(:,:),alpqg2,qg2,tpiba,wtrue00
       real(8):: qg(3)
       integer:: ig,lm,iq!,ifile_handle !,n1q,n2q,n3q
       integer:: nq0x,nmm ,iq0,iqx!not output
       real(8):: tolq=1d-8
-
-      write(6,"('getq0p: offset Gamma method by T.Kotani,JPSJ83,094711,(2014)')")
-      write(6,"(a)")'  We use only wklm(lm=0) so as to keep positive definite weight (from 14mar2016)'
+      write(6,"(    'getq0p: offset Gamma method by T.Kotani,JPSJ83,094711,(2014)')")
+      write(6,"(a)")'        We use only wklm(lm=0) so as to keep positive definite weight(from mar2016)'
       voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
       
 c      n1q=nnn(1)

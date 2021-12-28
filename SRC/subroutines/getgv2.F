@@ -1,5 +1,8 @@
       subroutine getgv2(alat,plat,qlat,q, QpGcut,job,
-     o                 ng, ngvec)
+     o              ng, ngvec)
+      implicit none 
+      intent(in)::      alat,plat,qlat,q, QpGcut,job
+      intent(out):: ng, ngvec
 !! == Set up a list of recip vectors within cutoff |Q+G| < QpGcut a.u. ==
 !! job==1 -> return ng (number of G ) and imx(as ngvec(1,1));mar2012takao add imx.
 !! job==2 -> return ng and ngvec
@@ -14,7 +17,6 @@
 !! The plane is normal to the external product $Q_2 \times Q_3$.
 !! After ranges (as well as n_2 and n_3) are given, we simply check |q+G|< QpGcut or not
 !! -------------------------------------------------------------
-      implicit none
       integer(4) :: ng
       real(8):: s_lat(1),q(3),plat(3,3),qlat(3,3),qpg(3),enor(3)
      & ,pi,alat,tpiba,QpGmax,QpGmax2,QpGcut,Qenor

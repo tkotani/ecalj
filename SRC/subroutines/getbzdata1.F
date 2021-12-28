@@ -1,41 +1,3 @@
-      real(8) function xqconv(x)
-!!! x --> xqconv : uniform to non uniform mesh converter
-!! x is [0,1] --> xqcon = [0,1]
-!! x can be -1 <= x =< 1
-      use m_keyvalue,only: getkeyvalue
-      real(8),intent(in)::x
-      real(8),parameter:: pi=3.1415926535897932d0
-      real(8),save:: adiv,bdiv
-      logical,save:: oncew=.true.
-      logical:: ggg
-!! BZ division setting.
-      if(oncew) then
-         inquire(file='GWinput',exist=ggg)
-         if(.not.ggg) then
-            adiv=1d0
-         else
-            call getkeyvalue("GWinput","BZadiv",adiv,default=1d0)
-         endif   
-         write(6,"('  BZadiv= ',f6.3)") adiv
-         bdiv = (1d0 -adiv)/2d0
-         oncew=.false.
-      endif
-!!   adiv+2b=1
-      xqconv           = adiv*x + bdiv*(1-cos(pi*x))
-      if(x>1d0) xqconv = adiv*x + bdiv*(1-cos(pi*(x-1d0))+2d0)
-      if(x<0d0) xqconv = adiv*x + bdiv*(1-cos(pi*(x+1d0))-2d0)
-c      print *,'x xqconv=',x,xqconv
-      end function xqconv
-
-      subroutine xconvv(xin,xout)
-!!! xin is converted to xout (uniformmesh to non-uniform mesh).
-      real(8)::xin(3),xout(3),xqconv
-      integer:: i
-      do i=1,3
-        xout(i)=xqconv(xin(i))
-      enddo
-      end subroutine xconvv
-
 !! ------------------------------------------------------------------------------------------------
       module m_get_bzdata1
 !! In addition to these variables, this also write mtet file (search ifmtet) for mtet mode.
@@ -48,18 +10,16 @@ c------------------------------------------------------------
       real(8),protected::             dq_(3)!,qbasmc(3,3) !,dq_bzcase2(3),
       integer,allocatable,protected:: idtetf(:,:),ib1bz(:),idteti(:,:),irk(:,:),nstar(:),nstbz(:)
       real(8),allocatable,protected:: qbzm(:,:),qbzwm(:,:)
-
       private:: nkstar
 c------------------------------------------------------------
       contains
-
       subroutine getbzdata1(qlat,nnn, 
-     &    symops,ngrp,tetrai,tetraf,mtet,gammacellctrl) 
+     &    symops,ngrp,tetrai,mtet,gammacellctrl) 
       use m_keyvalue,only: getkeyvalue
-!! all arguments are inputs. getbzdata1 returns all variables in the module m_get_bzdata1
       implicit none
       intent(in)::          qlat,nnn, 
-     &    symops,ngrp,tetrai,tetraf,mtet,gammacellctrl 
+     &    symops,ngrp,tetrai,mtet,gammacellctrl 
+!! all arguments are inputs. getbzdata1 returns all variables in the module m_get_bzdata1
       logical :: tetrai,tetraf,multet,qbzreg
       integer :: ngrp,nnn(3), mtet(3),n1qm,n2qm,n3qm,nnnx(3), !n1q,n2q,n3q,
      &    itet,ix,im,ifiqmtet,iq,icase,n1qtet,n2qtet,n3qtet,IMC(0:1,0:1,0:1)
@@ -79,7 +39,7 @@ c------------------------------------------------------------
       integer::kount,i1,i2,i3,n2,nnnv(3),ig,ir,j1,j2,j3,jj(3),k,m,i1x,i2x,i3x,ic,k1,k2,k3,kountw,ndx,
      &  ibtr(3,3),kcut(3,4,6),ngcell,i,ii,j,igamma
       real(8):: xvec(3),xvecc(3),xvecs(3),xvece(3),vv(3),xvv(3),xv(3),diff(3),diff2(3),swgt,v1(3),wfac
-      real(8):: tolq=1d-6
+      real(8):: aaa, tolq=1d-6
       logical,allocatable::usediqig(:,:)
 !! icase=1
 c-------------------------------------------------------
@@ -326,6 +286,15 @@ c            write(6,*) 'iq igrp irk=',iqi,igrp,irk(iqi,igrp)
       nteti=-1
 
 !! Full bz divided into tetrahedron
+!! we usually use negative delta (tetrahedron).
+      call getkeyvalue("GWinput","delta",aaa,default=-1d0)
+      if(aaa<0d0) then
+         write(6,"(a)")'  GWinput delta<0: tetrahedron method for x0'
+         tetraf=.true.
+      else
+         write(6,"(a)")'  GWinput delta>0: not use tetrahedron method for x0'
+         tetraf=.false.
+      endif
       if(tetraf) then 
         skipgammacell=.false.
         if(gammacellctrl==1) skipgammacell=.true.
@@ -758,3 +727,42 @@ c         write(6,"(' itet wtet=',i5,5f8.3)")itet,wtet(:,itet),sum(wtet(:,itet))
         call rx( ' tetdvide: only 2 2 2 has already implimented.')
       endif
       end
+      
+      real(8) function xqconv(x)
+!!! x --> xqconv : uniform to non uniform mesh converter
+!! x is [0,1] --> xqcon = [0,1]
+!! x can be -1 <= x =< 1
+      use m_keyvalue,only: getkeyvalue
+      real(8),intent(in)::x
+      real(8),parameter:: pi=4d0*atan(1d0) !3.1415926535897932d0
+      real(8),save:: adiv,bdiv
+      logical,save:: oncew=.true.
+      logical:: ggg
+!! BZ division setting.
+      if(oncew) then
+         inquire(file='GWinput',exist=ggg)
+         if(.not.ggg) then
+            adiv=1d0
+         else
+            call getkeyvalue("GWinput","BZadiv",adiv,default=1d0)
+         endif   
+         write(6,"('  BZadiv= ',f6.3)") adiv
+         bdiv = (1d0 -adiv)/2d0
+         oncew=.false.
+      endif
+!!   adiv+2b=1
+      xqconv           = adiv*x + bdiv*(1-cos(pi*x))
+      if(x>1d0) xqconv = adiv*x + bdiv*(1-cos(pi*(x-1d0))+2d0)
+      if(x<0d0) xqconv = adiv*x + bdiv*(1-cos(pi*(x+1d0))-2d0)
+c      print *,'x xqconv=',x,xqconv
+      end function xqconv
+
+      subroutine xconvv(xin,xout)
+!!! xin is converted to xout (uniformmesh to non-uniform mesh).
+      real(8)::xin(3),xout(3),xqconv
+      integer:: i
+      do i=1,3
+        xout(i)=xqconv(xin(i))
+      enddo
+      end subroutine xconvv
+

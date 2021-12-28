@@ -1,3 +1,4 @@
+!!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
 C---- get size
       subroutine getngbpomat(nqibze
      o  ,nnmx,nomx)
@@ -48,6 +49,7 @@ c$$$         qsavel(:,imx) = sum(qi**2)
 c$$$      enddo
 c$$$      end
 
+!!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine qqsave (qi,nmax,ginv, qsave,imx)
 C---accumulate q into qsave imx
 c        if(allocated(qsave)) deallocate(qsave)
@@ -66,6 +68,7 @@ c     imx=0
       qsave(:,imx) = qi
       end
 
+!!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine readd_iSigma_en(ifinin,iSigma_en)
       use m_keyvalue,only:getkeyvalue
       integer(4):: iSigma_en,ifinin
@@ -90,7 +93,7 @@ c        is=iclose('GWIN_V2')
 c      endif
       write(6,*)' iSigma_en=',iSigma_en
       end
-c--------------------------
+!!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine getnemx(nbmx,ebmx,im,ipr)
 C- Readin nbmx ebmx for hxofp0 hscfp0
       use m_keyvalue,only: getkeyvalue
@@ -110,7 +113,7 @@ c      if(readgwinput()) then
       return
       end
 
-c--------------------------
+!!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine getnemx8(nbmx,ebmx)
 C- Readin nbmx ebmx for hscfp0
       use m_keyvalue,only: getkeyvalue
@@ -124,8 +127,7 @@ c      character(len=100):: recxxx=' '
       write(6,*)' status 2=',ret
       return
       end
-
-c---------
+!!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine readin5(i0,i1,i2)
 c     ! readin i0,i1,i2; these defaults value are 0 0 0 if these are not given.
       integer:: i0,i1,i2
@@ -184,3 +186,6 @@ c-------------
       if(num>99999) xxt = char(48+mod(num/100000,10))//xxt
       if(num>999999) call rx( ' xxt:can not produce')
       end
+
+
+      

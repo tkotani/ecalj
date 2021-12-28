@@ -226,7 +226,7 @@ c$$$     &  ,WGT,nqibz,mxkp,0,(/0d0,0d0,0d0/))
 c$$$      deallocate(IPQ,WGT)
       call minv33tp(plat,qlat) !it was dinv33(plat,1,qlat) by Ferdi
       call getbzdata1(qlat,(/n1q,n2q,n3q/), !n1q,n2q,n3q
-     &    symops,ngrp,tetrai=.false.,tetraf=.false.,mtet=(/1,1,1/),gammacellctrl=0) 
+     &    symops,ngrp,tetrai=.false.,mtet=(/1,1,1/),gammacellctrl=0) 
 
 
 c$$$c      ifiqibz = 6661

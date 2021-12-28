@@ -22,7 +22,7 @@
       character,intent(in)::  prgnam*(*)
       integer:: ibas,lc,j,iprint
       integer,parameter::recln=511
-      logical ::cmdopt,ipr10=.false.
+      logical ::cmdopt0,ipr10=.false.
       character strn*(recln),strn2*(recln),outs(recln)
 !! lattice set up      
       call m_lattic_init() 
@@ -33,11 +33,11 @@
 !! mksym may correct atomic position slightly (not tested well).
       strn = 'find'
       if(len_trim(sstrnsymg)>0) strn=trim(sstrnsymg)
-      if (cmdopt('--nosym',7,0,outs).or.cmdopt('--pdos',6,0,outs)) strn = ' '
+      if(cmdopt0('--nosym').or.cmdopt0('--pdos')) strn = ' '
 !! when lmfgw, 1st digit of lc is zero--> no inversion added in mksym.
       lc = 10
-      if (.not. prgnam == 'LMFGWD') lc = 12 ! add inversion for (not lmfgw)
-      if (prgnam=='LMFA'.or.prgnam=='LMCHK') then
+      if(.not. prgnam == 'LMFGWD') lc = 12 ! add inversion for (not lmfgw)
+      if(prgnam=='LMFA'.or.prgnam=='LMCHK') then
          lc=20
          if(ctrl_noinv /=1 ) lc = lc+1  !+1 means add inversion 
       endif
@@ -50,7 +50,7 @@
            write(6,"(a)")       ' AF: Antiferro mode: SPGGRAF='//trim(symgaf)
            write(6,"(a)")       ' AF:  (neglct waring in GENSYM) '
            do j=1,nbas
-              write(6,"(a,2i3)") ' AF:  ibas,AF=',j,v_ssite(j)%iantiferro
+           write(6,"(a,2i3)")   ' AF:  ibas,AF=',j,v_ssite(j)%iantiferro
            enddo
         endif
         strn2=trim(strn)//' '//trim(symgaf)
