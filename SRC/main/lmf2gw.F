@@ -18,8 +18,7 @@ c  DATA4GW_V2 :
 Cu Updates
 Cu             Uses CLASS rather than EFCLASSin
 c------------------------------------------------------------------
-C     implicit none
-C     implicit real*8 (a-h,o-z)
+      implicit none
       integer icor1,icorex,nphimx,i,i1,i2,ibas,ibasx,ibx,ic,icore,
      .ifichkv,ifigw0,ifigwa,ifigwb,ifigwx1,ifigwx2,ifigwx3,isp,ispx,
      .ispxx,ix,kkk,kkkdummy,l,ldummy,lmxa,lxx,n1q,n2q,n3q,nclassx,m,n,
@@ -49,7 +48,6 @@ c----------------------------------------------
      &nclass,   ! Number of atomic class (or type) for in the primitive cell
      &nrmx,     ! = maxval(nr(1:nclass))  Maximum number of nr
      &ncoremx,  ! = maxval(ncore(1:nclass))
-c
      &lmxamx,   ! = maxval(lmxa(1:nclass))
      &ngpmx,    ! Maximum number of G vector.
      &nband,    ! Number of bands given by GWIN0
@@ -86,10 +84,7 @@ c
       integer:: ifiproc,nqixx,nspxx,numprocxx,ixxx
       integer,allocatable:: iprocq(:,:),iantiferro(:)
       character(8),allocatable:: spid(:)
-!!
-#if MPI | MPIK
       include "mpif.h"
-c      integer fext
       integer numprocs, ierr, status(MPI_STATUS_SIZE)
       integer MAX_PROCS
       parameter (MAX_PROCS = 100)
@@ -97,22 +92,17 @@ c      integer fext
       character*(MPI_MAX_PROCESSOR_NAME) name
       character*10 shortname(0:MAX_PROCS-1)
       character*26 datim
-c      integer namelen(0:MAX_PROCS-1)
       double precision starttime, endtime
       logical mlog
       integer  id,nsizex,iqqxx
-c      integer  nsize, id
-
 !! =================================================================
       call mpi_init(ierr)
       call mpi_comm_size(MPI_COMM_WORLD, nsizex,ierr)
       call mpi_comm_rank(MPI_COMM_WORLD, id,ierr)
       if(id==0) write(*,*) 'mpi size=',nsizex
-#endif
-!!
       if(nsizex/=1) call rx('lmf2gw.F allows only -np 1!')
       call show_programinfo(6)
-
+      
 !! === readin lmfgw_kdivider, and get extensions === apr2013
       open(newunit=ifiproc,file= 'lmfgw_kdivider')
       read(ifiproc,*) ext  !extension is read here
@@ -139,15 +129,13 @@ c      integer  nsize, id
         write(6,"(i3,' ext= ',a,a)") procid,trim(extp(procid)),' ----------'
       enddo
 !! --------------------------------------
-
       nocore=.false.
-      ifichkv = 8485
       call setpr(30)
       ifigwa = fopna('gwa',-1,4)
       ifigwb = fopna('gwb',-1,4)
       ifigwx1 = fopna('gw1',-1,4)
       ifigwx2 = fopna('gw2',-1,4)
-      open(ifichkv,file='VXCFP.chk')
+      open(newunit=ifichkv,file='VXCFP.chk')
       write(ifichkv,"(a)") '### LDA exchange correlation ###'
       write(ifichkv,"(a)")'#   qvec                 ikp iband    eigen VXC(ntotal)     VXC(nvalence)'
       read (ifigwb) nbas,nsp,ldim2,ndimh,alat,qlat,ef0,nqbz,plat(1:3,1:3),nqbze, nqirr !feb2012takao
@@ -159,28 +147,25 @@ c      integer  nsize, id
       allocate( iclass(nbas) )
 
 !! readin CLASS
-      ifefclass = 321
-      open(ifefclass,file='CLASS')
+      open(newunit=ifefclass,file='CLASS')
       nclass=0
       do ibas = 1,nbas
         read(ifefclass,*)  ibasx,  nclassx
         if(nclassx>nclass) nclass= nclassx
       enddo
-
       write(6,'('' File CLASS:  nclass ='',i4)') nclass
       allocate( qbze(3,nqbze), lmxa_d(nclass), nr(nclass),
      &  ncore_d(nclass), konf_d(0:lmxamx,nclass), zz(nclass),
      &  aa(nclass), bb(nclass) )
-!!
-      open(newunit=ificg,file='CphiGeig',form='unformatted')
       rewind ifefclass
       do ibas=1,nbas
         read(ifefclass,*) ix,iclass(ibas)
         lmxa_d(iclass(ibas)) =lmxaa(ibas)
       enddo
-      close(321)
-
+      close(ifefclass)
+      
 !! Band Part
+      open(newunit=ificg,file='CphiGeig',form='unformatted')
       nbandmx = ndimh
       write(6,'(" nqbze nqpz ndimh(max)=",3i5)') nqbze,nqbz,ndimh
       allocate( evl_d (nbandmx, nqbze, nsp),vxclda(nbandmx, nqbze, nsp),
@@ -353,7 +338,6 @@ c          write(6,'("  geig sumcheck= ",2d13.6)') sum(geig(1:ngp,1:nband))
  3001 continue
       allocate(iantiferro(nbas))
       read(ifigwa)iantiferro(1:nbas)      !iantiferro may2015
-
       ifi=501
       open (ifi,file='DATA4GW_V2',form='unformatted')
       call gwinput_v2xx(-ifi,
@@ -381,10 +365,7 @@ c          write(6,'("  geig sumcheck= ",2d13.6)') sum(geig(1:ngp,1:nband))
      &iclass,lmxa,nr,konf,ncore,
      &zz,aa,bb,bas,alat,plat,
      &qbze,efermi,ec,evl,vxclda,gx,gcore,cphi,geig,nocore)
-c
-c     &  ifomit ) !If ifomit=T, omit to store cphi and geig
 c- Read and Write the informations required for GW calculations.
-c
 cr When you write these data, you first have to open a file DATA4GW with the file handle ifi>0.
 cr ,e.g,  open(ifi ,file='DATA4GW',form='unformatted')
 cr
@@ -399,7 +380,6 @@ cr----NLAindx start---------------
 cr     ldim2
 cr     n l ibas for each line --- Repeat this line for the number of ldim2.
 cr                            --- nphimx=maximum value of n.
-cr
 c----------------------------------------------------------------------------------------------
       implicit none
       integer :: ifi, !File handle. Write for ifi<0. Read for ifi>0.
@@ -408,13 +388,10 @@ c-------------------------------------------------------------------------------
      &nclass,   ! Number of atomic class (or type) for in the primitive cell
      &nrmx,     ! = maxval(nr(1:nclass))  Maximum number of nr
      &ncoremx,  ! = maxval(ncore(1:nclass))
-c
      &lmxamx,   ! = maxval(lmxa(1:nclass))
      &ngpmx,    ! Maximum number of G vector.
      &nband,    ! Number of bands given by GWIN0
-cv2     &  ldim,     ! = sum ( (lmxa(1:nbas)+1)**2 )
      &nqbze,    ! = nqbz*(1+nq0i). Number of q points given by qg4gw
-c----
      &iclass(nbas),   ! class is starting from 1.
      &lmxa  (nclass), ! Maximum l number for each atom for augmentation.
      &nr(nclass),     ! Size of radial mesh.
@@ -427,8 +404,6 @@ c                              !   3, 4,... konf(2)-1 for d, and so on.
 c                              !
      &ncore(nclass)   ! ncore = \sum_l  (konf(l)-1) - l
 c                        ! Number of different core orbitals for each atom.
-c
-cv2
       integer:: nphi,          ! number of augmentation nRl channels, as distinct from:
      &ldim2,         ! number of nRLm channels = 2*ldim for phi+phidot case.
      &nphimx,        ! Maxmum number of phi for all l ---  2 for phi+phidot case.
@@ -448,14 +423,8 @@ c----
      &ec(ncoremx, nclass, nsp),   ! Eigenvalues for core
      &evl    (nband, nqbze, nsp), ! Eigenvalues
      &vxclda (nband, nqbze, nsp), ! Lda XC potential <psi|Vxc(n_total)  |psi>
-c                                    !  or   <psi|Vxc(n_valence)|psi>. See nocore.
-c
-cv2     &  gx (nrmx, 0:lmxamx, 2,  nclass,nsp), ! Radial function. gx (nrmx, lmxamx, 1, nclass,nsp) is phi
-cv2                                          !                  gx (nrmx, lmxaxm, 2, nclass,nsp) is phidot
      &gx (nrmx, 0:lmxamx, nphimx, nclass,nsp), ! Radial function. gx (nrmx, lmxamx, 1, nclass,nsp) is phi
-c                                          !                  gx (nrmx, lmxaxm, 2, nclass,nsp) is phidot
      &gcore(nrmx, ncoremx, nclass,nsp)  ! Core radial function.
-c
 c     These radial functions are only the major part given by the scalar relativistic calculations.
 c     gx and gcore = r \phi(r) = u(r), where \phi is the major part of the true radial functions.
 c     gx is normalized as 1 = \int dr gx**2
