@@ -36,8 +36,7 @@ C Local parameters
       double precision dd(3),dd1,dd2,sumrs,summt,ovlprs,ovlpmt,
      .ctrs,ctmt,ddot,dlat(3),xx,avwsr,vol
       double precision qlat(3,3),volspp
-      integer ibas,jbas,ic,jc,kc,m,ipr,i1mach,m1,m2,m3,isw,lgunit,stdo,
-     &istdo,fopna
+      integer ibas,jbas,ic,jc,kc,m,ipr,i1mach,m1,m2,m3,isw,lgunit,stdo,istdo
       character*80 a, ch*1
       logical lterse,cmdopt,lrmt
       character*8 clabl,clablj

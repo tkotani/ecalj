@@ -40,7 +40,7 @@ c      enddo
       integer:: nkabc(3),nkp,lshft(3),pwmode,napwx,ig,nini,nk1,nk2,nk3,ik1,ik2,ik3,ikt,nkt
       integer:: i_copy_size,i_spacks,i_spackv,ifi,nbas_in,ifisym,i,ifiqibz,igg,iqq,iqi,irr,iqi_,jobgw
       integer:: iout,nout,nlatout(3,noutmx),iapw ,iprint,ngadd,igadd,igaf
-      integer:: ngp, ifiqg,iq,fopnx,nnn(3),ixx,ndummy,nqbz___ ,ifatomlist
+      integer:: ngp, ifiqg,iq,nnn(3),ixx,ndummy,nqbz___ ,ifatomlist
       integer,allocatable:: ltabx(:,:),ktabx(:,:),offlx(:,:),iqtt(:), kv(:)
       real(8):: pwgmax, pwgmin, QpGcut_psi,qxx(3),qtarget(3),platt(3,3),q(3),qx(3),qqx(3)
       real(8):: dum,qb(3,3),ddd(3),ppin(3), tolq, rlatp(3,3),xmx2(3),qqq(3),diffs,ddf

@@ -4,7 +4,7 @@
       contains
       subroutine m_ext_init()
       logical master
-      integer:: ifi,ipos,fopn,i,na
+      integer:: ifi,ipos,i,na
       character*256:: sss,s222,argv
 !! Get the extension of ctrlfile. It is stored to trim(sname).
       na= iargc()

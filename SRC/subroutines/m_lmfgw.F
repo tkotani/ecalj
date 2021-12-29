@@ -20,7 +20,6 @@
       integer,allocatable:: lmxa(:),konft(:,:,:),ipc(:),ipcx(:)
       real(8) ::xx(5),pnu(n0,2),pnz(n0,2)
       character lsym(0:n0-1)*1, lorb(3)*1, dig(9)*1, strn4*4
-      integer:: fopnx
       data lsym /'s','p','d','f','g','5','6','7','8','9'/
       data lorb /'p','d','l'/
       data dig /'1','2','3','4','5','6','7','8','9'/
@@ -126,9 +125,7 @@ c     .            call chcase(0,1,strn4(2:2))
         enddo
         close(ifinlaindx)
 !! CLASS
-c        ificlass = fopnx('CLASS',2,2,-1)
         open(newunit=ificlass,file="CLASS")
-c        rewind ificlass
         allocate(ipc(nbas),ipcx(nbas))
         do ib=1,nbas
            ipc(ib) = ssite(ib)%class 
@@ -241,7 +238,7 @@ C ... Passed parameters
       integer nbas,nat,nsp,lmxax,lmxa(nbas),konf(0:lmxax,nbas,nsp)
       integer ipb(nbas)
       real(8) :: plat(3,3),alat
-      integer ifi,ib,isp,fopnx
+      integer ifi,ib,isp
       open(newunit=ifi,file='LATTC')
       write(ifi,"(e24.16)") alat
       write(ifi,"(3e24.16)") plat(1:3,1)

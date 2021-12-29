@@ -41,7 +41,7 @@ C Passed Parameters
 
 C Local Variables
       integer i,j,j1,j2,iprmin,nblst,ib,is,l,n,ifi,p,q
-      integer iprint,lgunit,igetss,fopna
+      integer iprint,lgunit,igetss
       character clabl*8,fn*16,dc*1,outstr*64,cc2*2
       logical a2bin
 
@@ -63,7 +63,7 @@ C   ... Return here to resume parsing for arguments
           if (j1+3 .gt. j2) call rx('suclst: bad file name')
           fn = clsopt(j1+3:j2)
 C   ... read in data from file
-          open(newunit=ifi,file=trim(fn)//'.'//trim(sname)) !ifi = fopna(fn,-1,1)
+          open(newunit=ifi,file=trim(fn)//'.'//trim(sname)) 
           i = 0
     2     continue
           read (ifi,*,end=3,err=3) isite(i+1),iclsl(i+1),iclsn(i+1)

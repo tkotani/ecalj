@@ -164,7 +164,7 @@ c      type(s_lat)::slat
       double precision ceh,cofg,cofh,dgetss,hsum,pi,qcorg,qcorh,qsc,
      .rfoc,rmt,s1,s2,sbar,srfpi,sumx,sum1,sum2,u00,u0g,ugg,usm,vbar,
      .vcnsto,vol,y0,z,R,eint
-      integer ::iwdummy, ifivsmconst,fopna
+      integer ::iwdummy, ifivsmconst
 C ... Setup
       call tcn('smves')
       ipr   = iprint()

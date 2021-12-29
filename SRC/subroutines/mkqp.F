@@ -27,7 +27,7 @@
       logical gettet
       integer::  lgstar=-2,lreduc=1, i_copy_size,i_data_size
       logical:: lgors,ltet,lnoirr=.false.,llshft(3),lipq !lsx,
-      integer:: fopna , mxkp , nfilqp , nkp , nkxyz(3) , nsgrp , npgrp 
+      integer:: mxkp , nfilqp , nkp , nkxyz(3) , nsgrp , npgrp 
      .       , lshft(3) , lpbc , ntet , i , iprint , igets 
       integer,allocatable :: iv_a_owk(:)
       integer,allocatable :: iv_a_tmp(:)
@@ -150,13 +150,6 @@ C --- Pack new info into structures ---
       if (.not.allocated(iv_a_oidtet))then
         write(*,*)'warnig in mkqp: iv_a_oidtet is not allocated. but continue.'
       endif
-c$$$C --- Write q-points to disc ---
-c$$$      if ( iand(2,int(sbz%lio)) .ne.0 ) then
-c$$$        nfilqp = fopna('QPTS',-1,0)
-c$$$        call getqp ( 2 , - nfilqp , nkp , nkxyz , lshft , ntet , sbz%rv_p_oqp
-c$$$     .     , sbz%rv_a_owtkp , sbz%iv_a_oidtet )
-c$$$        call fclose(nfilqp)
-c$$$      endif
       end subroutine m_mkqp_init
       end module m_mkqp
 

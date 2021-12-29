@@ -358,7 +358,7 @@ C   ... (optional) Tabulate specific heat in file for list of T's
 
               if (it .ne. itmax) call rx('bzwts: bug in mkdlst')
               ifi = ifile_handle()
-              open(ifi,file='cv.'//trim(sname)) !fopna('cv',-1,0)
+              open(ifi,file='cv.'//trim(sname)) 
               rewind ifi
               call awrit1('%% rows %i cols 4%N'//
      .        '#    T(K)    T(Ry)   S(k_B)   TdS/dT(k_B)',' ',80,ifi,it)
