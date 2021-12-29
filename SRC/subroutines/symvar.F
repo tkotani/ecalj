@@ -156,7 +156,7 @@ C Passed parameters
       character*1 recrd(0:*)
 C Local parameters
       double precision dum,dum2
-      integer j,nextop,i0,ndecl,k,ifi,fopnx,m
+      integer j,nextop,i0,ndecl,k,ifi,m
       logical a2bin,lrd
       character*1 aops(7)
       character*255 a,aa,tmpdir

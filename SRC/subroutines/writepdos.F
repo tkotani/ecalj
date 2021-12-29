@@ -2,7 +2,7 @@
 !! == readin pdosinput, and print out pdos files. ==
       implicit none
       integer:: ifip,ndhamx,nsp,nspx,nevmin,nchanp,nbas,nkk1,nkk2,nkk3,ntete,ndos,nkp
-     & ,ibas,jsp,ifi,init,iend,ipts,fopna,fopnn,j,ndos_,ichan,isp,itet,ksp,i,ib
+     & ,ibas,jsp,ifi,init,iend,ipts,j,ndos_,ichan,isp,itet,ksp,i,ib
       integer,allocatable::idtete(:,:),ipqe(:,:,:)
       real(8),allocatable:: evlall(:,:,:),dwgtall(:,:,:,:,:),pdosp(:,:),pdosalla(:,:,:,:)
       real(8)::eminp,emaxp,ef0,eee,eminp_,emaxp_

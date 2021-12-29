@@ -160,7 +160,7 @@ c$$$      double precision efermi,qp(3),evl(nband)
 c$$$C ... Local variables
 c$$$      character strn*120, strn2*120, dc*1, fn*120, prfmt*40
 c$$$      logical rdstrn,fmlong
-c$$$      integer fopno,i,iprint,j,j1,j2,k,nglob,fopnn,rdm,
+c$$$      integer i,iprint,j,j1,j2,k,nglob,rdm,
 c$$$     .parg,a2vec,iv(7),stdo,jsp,op1
 c$$$      double precision xx,xx1,xx2,sclp,plndst,xxv(7)
 c$$$      integer iblst(100),ifib,ifiq,iq,mode,nblst,nevn,nqx,nqy
@@ -905,30 +905,30 @@ c$$$      call rxi('suqlsr: failed to read bands file, nq=',nql)
 c$$$
 c$$$      end
 c$$$
-      subroutine xxxbnd(evl,nbnd,nqx,nqy,ifib)
-C     implicit none
-      integer nbnd,nqx,nqy,ifib,ix,iy,ib,ifi,fopna
-      double precision evl(nbnd,nqy,nqx)
-      character*10 strn
-
-      do  10  ib = 1, nbnd
-        ifi = ifib
-        if (nbnd .ne. 1) then
-          strn = ' '
-          call awrit1('bnd%i',strn,10,0,ib)
-          ifi = fopna(strn,30,0)
-        endif
-        write(ifi,337) nqx,nqy
-  337   format('% rows ',i5,' cols ',i5)
-        do  20  ix = 1, nqx
-          write(ifi,333) (evl(ib,iy,ix), iy=1,nqy)
-  333     format(6f12.6)
-   20   continue
-        if (nbnd .ne. 1) call fclose(ifi)
-   10 continue
-      end
-      double precision function sclp(v1,v2)
-      double precision v1(3),v2(3)
-      sclp  = v1(1)*v2(1) + v1(2)*v2(2) + v1(3)*v2(3)
-      end
-
+c$$$      subroutine xxxbnd(evl,nbnd,nqx,nqy,ifib)
+c$$$C     implicit none
+c$$$      integer nbnd,nqx,nqy,ifib,ix,iy,ib,ifi,fopna
+c$$$      double precision evl(nbnd,nqy,nqx)
+c$$$      character*10 strn
+c$$$
+c$$$      do  10  ib = 1, nbnd
+c$$$        ifi = ifib
+c$$$        if (nbnd .ne. 1) then
+c$$$          strn = ' '
+c$$$          call awrit1('bnd%i',strn,10,0,ib)
+c$$$          ifi = fopna(strn,30,0)
+c$$$        endif
+c$$$        write(ifi,337) nqx,nqy
+c$$$  337   format('% rows ',i5,' cols ',i5)
+c$$$        do  20  ix = 1, nqx
+c$$$          write(ifi,333) (evl(ib,iy,ix), iy=1,nqy)
+c$$$  333     format(6f12.6)
+c$$$   20   continue
+c$$$        if (nbnd .ne. 1) call fclose(ifi)
+c$$$   10 continue
+c$$$      end
+c$$$      double precision function sclp(v1,v2)
+c$$$      double precision v1(3),v2(3)
+c$$$      sclp  = v1(1)*v2(1) + v1(2)*v2(2) + v1(3)*v2(3)
+c$$$      end
+c$$$

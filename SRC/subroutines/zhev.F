@@ -168,7 +168,7 @@ c      logical ipr
       integer:: i,j,ni,ik,ik2,k
       real(8):: epsovl,epsx,e(n),emx,eee,fac,vldummy,vudummy,abstol
       real(8),allocatable:: rwork(:) 
-      integer:: ier,lwork,ix,ifi,fopna,ifig,nmx0,ifail(n),nevx
+      integer:: ier,lwork,ix,ifi,ifig,nmx0,ifail(n),nevx
       integer,allocatable:: iwork(:)
       character*1:: jobz
       logical ::nexist
@@ -227,7 +227,7 @@ c      logical ipr
       integer:: i,j,ni,ik,ik2,k
       real(8):: epsovl,epsx,e(n),emx,eee,fac,vldummy,vudummy,abstol
       real(8),allocatable:: rwork(:) 
-      integer:: ier,lwork,ix,ifi,fopna,ifig,nmx0,ifail(n),nevx
+      integer:: ier,lwork,ix,ifi,ifig,nmx0,ifail(n),nevx
       integer,allocatable:: iwork(:)
       character*1:: jobz
       logical ::nexist

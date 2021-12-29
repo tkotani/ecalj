@@ -6,7 +6,6 @@
       use m_ext,only: sname     !extention for file
       use m_lmfinit,only: bz_ndos,bz_dosmax
       use m_elocp,only: rsmlss=>rsml,ehlss=>ehl
-      
 C- Valence-core dipole matrix elements
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -54,7 +53,7 @@ c      type(s_lat)::slat
 C Local Variables
       integer n0,lmxax
       parameter (n0=10,lmxax=10)
-      integer ifi,fopna,isp,ib,is,lcls,ncls,nl,i,j, 
+      integer ifi,isp,ib,is,lcls,ncls,nl,i,j, 
      .nr,lmxa,iq,nlma,igets,igetss,i1mach,nfstg,nchan
       integer lh(10)
       real(8) ,allocatable :: rofi_rv(:)
@@ -187,11 +186,9 @@ c     enddo
       call dostet ( ndham , nsp , nspx , nbandx , nchan ,
      &     bz_nabc(1),bz_nabc(2),bz_nabc(3), bz_ntet , iv_a_oidtet, evl
      .     , s_rv(1:nchan*nbandx,1:nsp,1:nq), npts, emin, emax, lidos , wk_rv , dos_rv )
-c     print *,'end of dostet xxxxx', npts,nsp,nchan
       del = 0d0
       call dosio ( dos_rv , npts * ( 1 + nsp - i ) , nchan , npts 
      .     , nchan , emin , emax , i , ef , del , 1 , - fopnn ('DOS-VCDMEL') )
-c$$$ccccccccccccccccccccccccc
       if (allocated(s_rv)) deallocate(s_rv)
       call tcx ('vcdmel')
       end subroutine vcdmel
