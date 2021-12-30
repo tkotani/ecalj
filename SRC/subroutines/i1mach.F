@@ -11,6 +11,54 @@
          call rx('i1mach not defined')
       endif   
       end function i1mach
+c$$$#define RIEEE 1
+c$$$      double precision function d1mach(i)
+c$$$C- Machine constants, C-version
+c$$$C ----------------------------------------------------------------------
+c$$$Ci Inputs: i
+c$$$Ci   
+c$$$Co Outputs:
+c$$$Co       Returns machine constant values, called as d1mach or dmach
+c$$$Cr Remarks
+c$$$C   dmach(1-3) are as returned by the BLAS subroutine dmach and are
+c$$$C   defined as follows.
+c$$$C        b = base of arithmetic
+c$$$C        t = number of base b digits
+c$$$C        l = smallest possible exponent
+c$$$C        u = largest possible exponent
+c$$$C   dmach(1): eps = b**(1-t)
+c$$$C   dmach(2): tiny = 100.0*b**(-l+t)
+c$$$C   dmach(3): huge = 0.01*b**(u-t)
+c$$$C
+c$$$C   d1mach(1-5) are as returned by the BLAS subroutine d1mach and are
+c$$$C   defined as follows.
+c$$$C   d1mach(1) = b**(l-1), the smallest positive magnitude.
+c$$$C   d1mach(2) = b**(u*(1 - b**(-t))), the largest magnitude.
+c$$$C   d1mach(3) = b**(-t), the smallest relative spacing.
+c$$$C   d1mach(4) = b**(1-t), the largest relative spacing.
+c$$$C   d1mach(5) = log10(b)
+c$$$C   d1mach and dmach call the C segment mkcon found in fsubs.c
+c$$$C ----------------------------------------------------------------------
+c$$$C     implicit none
+c$$$C Passed Parameters
+c$$$      integer i
+c$$$C Local variables
+c$$$      double precision dmach,dm(3),d1m(5)
+c$$$      if (i .lt. 1  .or.  i .gt. 5) then
+c$$$        call rx ('d1mach i out of bounds')
+c$$$      endif
+c$$$      call mkdcon(dm,d1m)
+c$$$      d1mach = d1m(i)
+c$$$      return
+c$$$!!      
+c$$$      entry dmach(i)
+c$$$      call mkdcon(dm,d1m)
+c$$$      if (i .lt. 1  .or.  i .gt. 3) then
+c$$$        call rx ('dmach i out of bounds')
+c$$$      endif
+c$$$      dmach = dm(i)
+c$$$      end
+      
 
       function d1mach(i) result(s)
       implicit none
@@ -30,3 +78,30 @@
       s = dm(i)
       return
       end function d1mach
+
+      function dmach(i) result(s)
+      implicit none
+      integer:: i
+      double precision s,dm(5)
+      logical :: beg = .true.
+      real(8):: t,b,l,u,dlamch,eps
+      save dm
+      if(i.lt.1.or.i.gt.5)stop 'DMACH(arg < 1 or arg > 5)'
+      if(beg)then
+         beg=.false.
+c     machine constant from lapack routine
+         b = dlamch('b')        !base
+         eps = dlamch('p')      !eps*base
+         l = dlamch('m')        !emin
+         u = dlamch('l')        !emax
+         t = int(1.0-(log(eps)/log(b)))
+         dm(1) = b**(1.-t)
+         dm(2) = 100.*b**(l+t)
+         dm(3) = (b**(u-t))/100.0
+         dm(4) = epsilon(0d0)
+         dm(5) = log10(2d0)
+      endif
+      s = dm(i)
+      return
+      end function dmach
+      
