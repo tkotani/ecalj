@@ -277,7 +277,6 @@ cplxdm.o \
 cpstr.o \
 cpudel.o \
 cross.o \
-d1mach.o \
 dbesj.o \
 dcabsr.o \
 derfc.o \
