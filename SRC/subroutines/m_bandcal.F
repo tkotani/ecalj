@@ -20,7 +20,7 @@ ccccccccccccc
       use m_rdsigm2,only: senex,sene,getsenex,dsene,ndimsig
       use m_procar,only: m_procar_init,m_procar_closeprocar
       use m_clsmode,only: m_clsmode_set1
-      use m_addrbl,only: addrbl,swtk
+      use m_addrbl,only: Addrbl,swtk,Swtkzero
 !! outputs ---------------------------
       integer,allocatable,protected::     ndimhx_(:),nev_(:),nevls(:,:)
       real(8),allocatable,protected::     evlall(:,:,:),frcband(:,:), orbtm_rv(:,:,:)
@@ -86,7 +86,7 @@ ccccccccccccc
       if(nlibu>0)  dmatu=0d0    !density matrix for U initialization
       sumev = 0d0
       sumqv = 0d0
-      if (lswtk==1)  swtk=0d0
+      if (lswtk==1)  call swtkzero()
       do 2010 iq = iqini, iqend !This is a big iq loop
          qp = qplist(:,iq)
          if(debug) print *,' do 2010 iq procid=',iq,procid,iq,iqini,iqend
@@ -264,7 +264,7 @@ c               call readindensitymodesetting() !dummy
       call dfqkkl( sv_p_oqkkl ) !zero clear 
       if(lekkl==1) call dfqkkl( sv_p_oeqkkl ) !zero clear
       if (lfrce>0)  frcband  = 0d0
-      if (lswtk==1) swtk=0d0
+      if (lswtk==1) call swtkzero()
       if(lso/=0) orbtm_rv=0d0
       if(allocated(smrho_out)) deallocate(smrho_out)
       allocate( smrho_out(k1*k2*k3*nsp) )

@@ -1,11 +1,16 @@
       module m_addrbl
-      real(8),allocatable:: swtk(:,:,:)
-      
+      real(8),allocatable,protected:: swtk(:,:,:)
+      public:: swtk, swtkzero, addrbl,m_addrbl_allocate_swtk
+      private
       contains
       subroutine m_addrbl_allocate_swtk(ndham,nsp,nkp)
       integer::ndham,nsp,nkp
       if(allocated(swtk)) deallocate(swtk)
       allocate(swtk(ndham,nsp,nkp))
+      end
+      
+      subroutine swtkzero()
+      swtk=0d0
       end
       
       subroutine addrbl ( isp,q, 

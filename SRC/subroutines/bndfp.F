@@ -54,28 +54,28 @@
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
       use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
       use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
-      use m_rdsigm2,only: m_rdsigm2_init
-      use m_subzi, only: m_subzi_init, lwtkb,rv_a_owtkb,m_subzi_setlwtkb,m_subzi_bzintegration
-      use m_rsibl_ev, only : rsibl_ev ! to plot wavefunction in the fat band mode
+      use m_rdsigm2,only: M_rdsigm2_init
+      use m_subzi, only: M_subzi_init, lwtkb,rv_a_owtkb,M_subzi_setlwtkb,M_subzi_bzintegration
+      use m_rsibl_ev, only : Rsibl_ev ! to plot wavefunction in the fat band mode
       use m_struc_def,only : s_rv1
       use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
-      use m_lmfgw,only: m_lmfgw_init !,jobgw !,sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx
-      use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, m_mkpot_energyterms,m_mkpot_novxc,
+      use m_lmfgw,only: M_lmfgw_init !,jobgw !,sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx
+      use m_mkpot,only: M_mkpot_init,M_mkpot_deallocate, M_mkpot_energyterms,M_mkpot_novxc,
      o    osmpot, qmom, vconst, sv_p_osig, sv_p_otau, sv_p_oppi 
      o  , ppnl_rv , hab_rv , sab_rv , qval , qsc , fes1_rv , fes2_rv
       use m_clsmode,only: m_clsmode_init,m_clsmode_set1,m_clsmode_finalize
       use m_qplist,only:  qplist,nkp,xdatt,labeli,labele,dqsyml,etolc,etolv,
      &     nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml,
      &  iqini,iqend,ispini,ispend,kpproc    ! MPIK divider. iqini:iqend are node-dependent
-      use m_shortn3,only: shortn3, shortn3_initialize
+      use m_shortn3,only: Shortn3, Shortn3_initialize
       use m_igv2x,only: napw,ndimh,ndimhx,igv2x
-      use m_procar,only: m_procar_init,dwgtall,nchanp,m_procar_closeprocar,m_procar_writepdos
-      use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce,
+      use m_procar,only: M_procar_init,dwgtall,nchanp,m_procar_closeprocar,m_procar_writepdos
+      use m_bandcal,only: M_bandcal_init,M_bandcal_2nd,M_bandcal_clean,M_bandcal_allreduce,
      o     evlall,smrho_out,sv_p_oqkkl,sv_p_oeqkkl, ndimhx_,nev_,nevls,m_bandcal_symsmrho
-      use m_mkrout,only: m_mkrout_init,orhoat_out,frcbandsym,hbyl_rv,qbyl_rv
-      use m_addrbl,only: m_addrbl_allocate_swtk,swtk
-      use m_sugw,only: m_sugw_init
-      use m_mkehkf,only: m_mkehkf_etot1,m_mkehkf_etot2
+      use m_mkrout,only: M_mkrout_init,orhoat_out,frcbandsym,hbyl_rv,qbyl_rv
+      use m_addrbl,only: M_addrbl_allocate_swtk,swtk
+      use m_sugw,only: M_sugw_init
+      use m_mkehkf,only: M_mkehkf_etot1,M_mkehkf_etot2
 Ci   nbas  : size of basis
 Ci   nsp   : number of spins
 Ci   nlibu : total number of LDA+U blocks (used to dimension dmatu and vorb)
@@ -152,7 +152,6 @@ c      if(master_mpi) write(stdo,"(a)") 'bndfp:start'
       ipr    = iprint() ! for procid/=master, we set iprint=0 at lmv7.F
       ltet = ntet>0 !tetrahedron method or not
       idummy = unlink('RSEQ_ERROR') ! Clean RSEQ_ERROR.
-      
 !! FermiEnergy eferm is from ctrl.*, rst.* or efermi.lmf.
       if(binit) then 
          eferm = bz_ef0 !! eferm is from ctrl file when m_bndfp_ef_set in not called (binit=T)
@@ -166,7 +165,6 @@ c      if(master_mpi) write(stdo,"(a)") 'bndfp:start'
          close(ifi)             
          call mpibc1_real(eferm,1,'bndfp_eferm')
       endif
-      
 !! Set spin-symmetrized pnu. aug2019. See also in pnunew and locpot
       if(cmdopt0('--phispinsym')) call phispinsym_ssite_set() !pnu,pz are spin symmetrized      
 !! Write out Hamiltonian HamiltonianPMT.* 
@@ -211,7 +209,7 @@ c      if(master_mpi) write(stdo,"(a)") 'bndfp:start'
 !! To know outputs, see 'use m_bandcal,only:'. The outputs are evlall, and so on.
 !! ndimhx_ is protected, but allows writing to other nodes because MPI_BCAST is f77, assumed-size array
       if(.not.(lwtkb==-1.or.lwtkb==0.or.lwtkb==1)) call rx('bndfp: something wrong lwtkb')
-! lwtkb=1 accumulate weight
+! lwtkb=1 accumulate weight, 
 ! lwtkb=0 no weight
 ! lwtkb=-1      
       sttime = MPI_WTIME()
@@ -222,7 +220,6 @@ c      if(master_mpi) write(stdo,"(a)") 'bndfp:start'
       sttime = MPI_WTIME()
       if(writeham) close(ifih)
       if(writeham) call rx0('Done --writeham: --fullmesh may be needed. HamiltonianMTO* genereted')
-      
 !! Broadcast. Use allreduce to avoid knowing which node to which node.
 !! Because mpi is f77, ndimhx_ and so on are not protected.
       call mpibc2_int(ndimhx_,size(ndimhx_),'bndfp_ndimhx_') !all reduce (instead of which node to which node).
@@ -259,9 +256,8 @@ c      if(master_mpi) write(stdo,"(a)") 'bndfp:start'
        write(stdo,"(a)")'Caution: Mag.field is written in MagField. But it is not used for --band mode!'
       endif
       if(plbnd/=0.and.fsmode) call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
-      if(plbnd/=0)            call rx0('plot band mode done')
-!! end of band plbnd/=0, that is, band plot mode.
-      
+      if(plbnd/=0)            call rx0('plot band mode done') 
+      !  end of band plbnd/=0, that is, band plot mode.
 !! New eferm and wtkb determined from evlall 
       call m_subzi_bzintegration(evlall,swtk,  eferm,sev,qvalm,vnow) !Get eferm, and wtkb...
       if(lmet==0) eferm = (evtop+ecbot)/2d0 !for metal
@@ -278,7 +274,6 @@ c      if(master_mpi) write(stdo,"(a)") 'bndfp:start'
          write(ifi,"(i6,'# iter CAUTION! This file is overwritten by lmf-MPIK SC loop')")iter
          close(ifi)             
       endif
-      
 !! Generate total DOS  emin=dosw(1) emax=dosw(2) dos range
       if(master_mpi.and.(tdos.or.ldos/=0)) then
          emin = ecbot-0.01d0 
@@ -311,7 +306,6 @@ c      if(master_mpi) write(stdo,"(a)") 'bndfp:start'
          close(ifii)
       endif
       if(tdos) call rx0('Done tdos mode:')
-      
 !! AllReduce band quantities.  
       if(lrout/=0) call m_bandcal_allreduce(lwtkb)
       emin=1d9
@@ -327,7 +321,6 @@ c      if(master_mpi) write(stdo,"(a)") 'bndfp:start'
           emin= min(minval( evlall(1:nevls(iq,jsp),jsp,iq)),emin)
          enddo
       enddo
-      
 !! Accumurate sum in BZ for wtkb
       if(lmet>0 .and. lwtkb==-1 .and. lrout>0) then 
          call m_subzi_setlwtkb(1)
@@ -335,16 +328,13 @@ c      if(master_mpi) write(stdo,"(a)") 'bndfp:start'
          call m_bandcal_2nd(iqini,iqend,ispini,ispend,lrout, eferm) !accumulate smrho_out and so on.
          call m_bandcal_allreduce(lwtkb)
       endif
-      
 !! Core-level spectroscopy --- m_clsmode_set1 is called in m_bandcal
-!!    dos window
       if(cmdopt0('--cls')) then
          dosw(1)= emin  - 0.5d0    ! lowest energy limit to plot dos  
          dosw(2)= eferm + bz_dosmax ! highest energy limit to plot dos 
          if (master_mpi) call m_clsmode_finalize(eferm,ndimh,ndhamx,nspx,nkp,dosw,evlall)
         call rx0('Done cls mode:')
       endif
-      
 !! write out orbital moment      
       if(lwtkb==1 .and. lso/=0) call iorbtm() !write out orbital moment
 !! Assemble output density, energies and forces ===============================
@@ -357,7 +347,6 @@ c$$$  if(master_mpi) call writeqpyl() !if you like to print writeqbyl
 !! Evaluate Harris-foukner energy 
 !     (note: we now use NonMagneticCORE mode as default)
       call m_mkehkf_etot1(sev, eharris)
-      
 !! Evaluate KS total energy and Force ---
       if(lrout/=0) then
         allocate(qmom_in(nvl))
@@ -404,7 +393,7 @@ c        if(lfrce>0 ) call dfrce (lfrce,orhoat,orhoat_out,elind,qmom,osmrho,smrh
       call m_bandcal_clean()
       call tcx('bndfp')
       end subroutine bndfp
-
+!!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine xxxdif(emin,emax,npts,ndos,mode,dosi,dos)
 !! Differentiate Number of States to make DOS
       implicit none
