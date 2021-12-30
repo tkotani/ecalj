@@ -91,9 +91,7 @@ c   '\n'=10
       endif
 #endif
 c        intel ifort accepts both
-
       end subroutine nlchar
-
 
       subroutine locase(ps)
       character(*) ps
@@ -134,36 +132,36 @@ c$$$      write(*,*) 'ptenv() is called with ',pnam
 c$$$      write(*,*) 'ptenv() not supported, but continue.'
 c$$$      end subroutine ptenv 
 
-      subroutine mkdcon(dmach,d1mach)
-      implicit none
-      real(8) :: dmach(0:2), d1mach(0:4)
-      real(8) eps,ubt,bubt
-      real(8):: t,b,l,u
-      real(8):: dlamch
-c machine constant from lapack routine
-c base
-      b = dlamch('b')
-c eps*base
-      eps = dlamch('p')
-c emin
-      l = dlamch('m')
-c emax
-      u = dlamch('l')
-c        write(*,*) b,eps,l,u
-
-      t = int(1.0-(log(eps)/log(b)))
-c         write(*,*) 't=',t
-      dmach(0) = b**(1.-t)
-      dmach(1) = 100.*b**(l+t)
-      dmach(2) = (b**(u-t))/100.0
-      d1mach(0) = (b**(l-1.))
-      ubt = u*(1.0-(b**(-t)))
-      bubt = b*b**(ubt-1.0)
-      d1mach(1) = bubt
-      d1mach(2) = (b**(-t))
-      d1mach(3) = (b**(1.0-t))
-      d1mach(4) = log(b)/log(10.0)
-      end subroutine mkdcon
+c$$$      subroutine mkdcon(dmach,d1mach)
+c$$$      implicit none
+c$$$      real(8) :: dmach(0:2), d1mach(0:4)
+c$$$      real(8) eps,ubt,bubt
+c$$$      real(8):: t,b,l,u
+c$$$      real(8):: dlamch
+c$$$c machine constant from lapack routine
+c$$$c base
+c$$$      b = dlamch('b')
+c$$$c eps*base
+c$$$      eps = dlamch('p')
+c$$$c emin
+c$$$      l = dlamch('m')
+c$$$c emax
+c$$$      u = dlamch('l')
+c$$$c        write(*,*) b,eps,l,u
+c$$$
+c$$$      t = int(1.0-(log(eps)/log(b)))
+c$$$c         write(*,*) 't=',t
+c$$$      dmach(0) = b**(1.-t)
+c$$$      dmach(1) = 100.*b**(l+t)
+c$$$      dmach(2) = (b**(u-t))/100.0
+c$$$      d1mach(0) = (b**(l-1.))
+c$$$      ubt = u*(1.0-(b**(-t)))
+c$$$      bubt = b*b**(ubt-1.0)
+c$$$      d1mach(1) = bubt
+c$$$      d1mach(2) = (b**(-t))
+c$$$      d1mach(3) = (b**(1.0-t))
+c$$$      d1mach(4) = log(b)/log(10.0)
+c$$$      end subroutine mkdcon
       
 c$$$      integer function unlink(filename)
 c$$$      integer:: id

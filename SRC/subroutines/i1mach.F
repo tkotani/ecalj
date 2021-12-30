@@ -11,14 +11,6 @@
          call rx('i1mach not defined')
       endif   
       end function i1mach
-c$$$#define RIEEE 1
-c$$$      double precision function d1mach(i)
-c$$$C- Machine constants, C-version
-c$$$C ----------------------------------------------------------------------
-c$$$Ci Inputs: i
-c$$$Ci   
-c$$$Co Outputs:
-c$$$Co       Returns machine constant values, called as d1mach or dmach
 c$$$Cr Remarks
 c$$$C   dmach(1-3) are as returned by the BLAS subroutine dmach and are
 c$$$C   defined as follows.
@@ -58,8 +50,6 @@ c$$$        call rx ('dmach i out of bounds')
 c$$$      endif
 c$$$      dmach = dm(i)
 c$$$      end
-      
-
       function d1mach(i) result(s)
       implicit none
       integer:: i
@@ -78,7 +68,7 @@ c$$$      end
       s = dm(i)
       return
       end function d1mach
-
+!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       function dmach(i) result(s)
       implicit none
       integer:: i
@@ -86,7 +76,7 @@ c$$$      end
       logical :: beg = .true.
       real(8):: t,b,l,u,dlamch,eps
       save dm
-      if(i.lt.1.or.i.gt.5)stop 'DMACH(arg < 1 or arg > 5)'
+      if(i.lt.1.or.i.gt.3)stop 'DMACH(arg < 1 or arg > 3)'
       if(beg)then
          beg=.false.
 c     machine constant from lapack routine
@@ -94,14 +84,11 @@ c     machine constant from lapack routine
          eps = dlamch('p')      !eps*base
          l = dlamch('m')        !emin
          u = dlamch('l')        !emax
-         t = int(1.0-(log(eps)/log(b)))
-         dm(1) = b**(1.-t)
-         dm(2) = 100.*b**(l+t)
-         dm(3) = (b**(u-t))/100.0
-         dm(4) = epsilon(0d0)
-         dm(5) = log10(2d0)
+         t = int(1d0-(log(eps)/log(b)))
+         dm(1) = b**(1d0-t)
+         dm(2) = 100d0*b**(l+t)
+         dm(3) = (b**(u-t))/100d0
       endif
       s = dm(i)
       return
       end function dmach
-      
