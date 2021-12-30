@@ -56,7 +56,7 @@ C Passed parameters
       double precision norm(mmix,mmix),wk(nelts,0:mmix+1,2),t(mmix),
      .  beta,tm,rmsdel
 C Local parameters
-      integer i,j,nwk,inert(3),nmix,kelt,nmake,ido,iprint,i1mach
+      integer i,j,nwk,inert(3),nmix,kelt,nmake,ido,iprint
       double precision ddot,det(2),sumsqr,sing,sinmax
       parameter (sinmax=100000d0)
 
@@ -184,9 +184,6 @@ C --  Calculate rms change --
 
 C --- Printout ---
       if (ipr .lt. 30) goto 60
-c      call awrit6(' AMIX: nmix=%i mmix=%i  nelts=%i  beta=%1;6d  tm='//
-c     .  '%1;6d  rmsdel=%1;3e',' ',80,i1mach(2),
-c     .  nmix,mmix,nelts,beta,tm,rmsdel)
       write(*,133) nmix,mmix,nelts,beta,tm,rmsdel
   133 format(' AMIX: nmix=',i1,' mmix=',i1,'  nelts=',i6,
      .       '  beta=',f7.5,'  tm=',f8.5,'  rmsdel=',1pd9.2)

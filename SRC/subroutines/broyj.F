@@ -1,4 +1,4 @@
-#define AWRITE 1
+c#define AWRITE 1
       integer function broyj(n,xin,gin,ir,isw,ipr,beta,dxmx,xtol,gtol,
      .wc,wk,ndw,xnew)
 C- One Broyden step in finding gin = f[xin]-xin = 0
@@ -62,24 +62,24 @@ C --- First iteration: simple mixing ---
            gmax = max(gmax,abs(gin(k)))
         enddo   
 
-#if AWRITE
-        if (ipr .ge. 30) then
-          j = isw3
-          call awrit8(' broyj:  start'//
-     .    '%?#(n==2|n==3|n==4)#  xtol=%1;2g#%j#'//
-     .    '%?#(n==1|n==3|n==4)#  gtol=%1;2g#%j#  beta=%1;2g'//
-     .    '  w0=%1;2g  isw=%i  gmax=%1;2g',' ',80,i1mach(2),
-     .    j,xtol,j,gtol,beta,w0,isw,gmax)
-        endif
-#endif
+c$$$c#if AWRITE
+c$$$        if (ipr .ge. 30) then
+c$$$          j = isw3
+c$$$          call awrit8(' broyj:  start'//
+c$$$     .    '%?#(n==2|n==3|n==4)#  xtol=%1;2g#%j#'//
+c$$$     .    '%?#(n==1|n==3|n==4)#  gtol=%1;2g#%j#  beta=%1;2g'//
+c$$$     .    '  w0=%1;2g  isw=%i  gmax=%1;2g',' ',80,i1mach(2),
+c$$$     .    j,xtol,j,gtol,beta,w0,isw,gmax)
+c$$$        endif
+c$$$c#endif
 
-        if (dxmx .gt. 0d0 .and. gmax .gt. dxmx) then
+        If (dxmx .gt. 0d0 .and. gmax .gt. dxmx) then
           betx = beta*dxmx/gmax
-#if AWRITE
-          call awrit3(' broyj:  max shift = %1;3g'//
-     .    ' is larger than dxmx = %1;3g.  Scale by %1;3g',
-     .    ' ',80,i1mach(2),gmax,dxmx,dxmx/gmax)
-#endif
+c$$$c#if AWRITE
+c$$$          call awrit3(' broyj:  max shift = %1;3g'//
+c$$$     .    ' is larger than dxmx = %1;3g.  Scale by %1;3g',
+c$$$     .    ' ',80,i1mach(2),gmax,dxmx,dxmx/gmax)
+c$$$c#endif
         endif
         do    k = 1, n
            xnew(k) = xin(k) + betx*gin(k)
@@ -184,11 +184,11 @@ C   ... Cap to maximum allowed shift xnew-xin
           enddo   
           if (diff .gt. dxmx) then
             betx = dxmx/diff
-#if AWRITE
-            call awrit3(' broyj:  max shift = %1;3g'//
-     .      ' is larger than dxmx = %1;3g.  Scale by %1;3g',
-     .      ' ',80,i1mach(2),diff,dxmx,dxmx/diff)
-#endif
+c$$$c#if AWRITE
+c$$$            call awrit3(' broyj:  max shift = %1;3g'//
+c$$$     .      ' is larger than dxmx = %1;3g.  Scale by %1;3g',
+c$$$     .      ' ',80,i1mach(2),diff,dxmx,dxmx/diff)
+c$$$c#endif
             do   k = 1, n
                xnew(k) = xin(k) + betx*(xnew(k)-xin(k))
             enddo   
@@ -216,16 +216,16 @@ C --- Cleanup, setup for next call ---
      .gmax .lt. gtol .and. (isw3.eq.1 .or. isw3.eq.3)  .or.
      .xmax .lt. xtol .and. (isw3.eq.2 .or. isw3.eq.3)  .or.
      .gmax .lt. gtol .and. (isw3.eq.1 .or. isw3.eq.3))) j = 0
-#if AWRITE
-      if (ipr .ge. 20 .and. j .eq. 0) then
-        call awrit3(' broyj: converged to max dx'//
-     .  '=%1;2g, gmax=%1;2g using %i iterations',' ',80,
-     .  i1mach(2),xmax,gmax,ir)
-      elseif (ipr .ge. 30 .and. ir .ne. 1) then
-        call awrit4(' broyj:  ir=%i  dxmax=%1;2g  gmax=%1;2g'//
-     .  '  wc=%1;2g',' ',80,i1mach(2),ir,xmax,gmax,wc)
-      endif
-#endif
+c$$$c#if AWRITE
+c$$$      if (ipr .ge. 20 .and. j .eq. 0) then
+c$$$        call awrit3(' broyj: converged to max dx'//
+c$$$     .  '=%1;2g, gmax=%1;2g using %i iterations',' ',80,
+c$$$     .  i1mach(2),xmax,gmax,ir)
+c$$$      elseif (ipr .ge. 30 .and. ir .ne. 1) then
+c$$$        call awrit4(' broyj:  ir=%i  dxmax=%1;2g  gmax=%1;2g'//
+c$$$     .  '  wc=%1;2g',' ',80,i1mach(2),ir,xmax,gmax,wc)
+c$$$      endif
+c$$$c#endif
       broyj = j
       end
 

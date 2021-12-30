@@ -118,9 +118,9 @@ C     Force coupled spins: find range
         bmap_iv(:)=0
 
         allocate(wk_rv(nevx*nsp))
-#ifdef KINODEBUG
-        write(*,*) 'kino allocate bmap_iv, wk_rv',nevx*nsp*nkp/nbpw+1,nevx*nsp
-#endif
+c#ifdef KINODEBUG
+c        write(*,*) 'kino allocate bmap_iv, wk_rv',nevx*nsp*nkp/nbpw+1,nevx*nsp
+c#endif
 
         call ebcpl ( 0 , nbmx , nevx , nsp , nspc , nkp , nbpw , bmap_iv 
      .  , wk_rv , eb )
