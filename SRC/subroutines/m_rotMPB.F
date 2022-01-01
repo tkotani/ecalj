@@ -1,4 +1,4 @@
-      module m_rotMPB !WARN. rotMPB looks work OK. Used in eibz4x0()=T in switch.F  However,
+      module m_rotMPB2 !WARN. rotMPB looks work OK. Used in eibz4x0()=T in switch.F  However,
 !!---------------------------------------------------
 !! == Mixed product basis rotator. ==
 !! a curious strange segmention fault occurs in a Si444 case when we test a code qout= matmul(symops(:,:,igx),qin). 
@@ -60,7 +60,7 @@
       call iqindx2(qin,ginv,qtt_,nqnum, iqin,qu) !iqindx2 is slow. If required, speed it up in a manner as iqindx2_.
       if(debug) write(6,*)' end of iqindx2rotmto2 '
 Cstop2rx 2013.08.09 kino      if(sum(abs(qin-qu))>1d-6) stop 'rotMPB:qin is not included in QGcou'
-      if(sum(abs(qin-qu))>tolq) call rx( 'rotMPB:qin is not included in QGcou')
+      if(sum(abs(qin-qu))>tolq) call rx( 'rotMPB2:qin is not included in QGcou')
       sss=1d0
       if(igxt==-1) sss=-1d0
       if(debug) write(6,*)' iqindx2 111111111111 sss=',sss,igx,qin
@@ -95,4 +95,4 @@ c      if(igxt<0) then !time-reversal
 c        zcousqr = dconjg(zcousqr)
 c      endif  
       end subroutine rotMPB2
-      end module m_rotMPB 
+      end module m_rotMPB2 

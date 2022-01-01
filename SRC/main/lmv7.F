@@ -20,6 +20,7 @@
       use m_igv2x,only:    m_igv2xall_init
       use m_ldau,only:     m_ldau_init
       use m_iors,only:  Iors
+      use m_lmaux,only: lmaux
       implicit none
       integer:: k,lgunit,stdo,stdl
       logical:: fileexist,cmdopt,llmfgw=.false.,cmdopt0,cmdopt2
@@ -93,6 +94,7 @@
       if(trim(prgnam) == 'LMF') then
          call M_mkqp_init() ! data of BZ go into m_mkqp
       endif
+      
 !! lmchk and lmfa and quit.     
       if(prgnam=='LMCHK') then
         if(nsize/=1) call rx('Current lmchk is only for single core')
@@ -104,7 +106,8 @@
         call finalizelmv7()
       endif
       
-!! Main program. lmf-MPIK or lmfgw-MPIK. 'call lmfp'---------------------
+!!======================================================================      
+!! Main program. lmf-MPIK/lmfgw-MPIK. 'call lmfp'---------------------
 !! --rs=3 mode is removed. (--rs=3 meand fixed density Harris-foukner MD).
 !! Sep2020 comment " Shorten site positions" removed. (we are useing shortn3 mainly now)
 !!Get jobgw for lmfgw mode. Quit for job=0
@@ -197,6 +200,7 @@ c
       stop
 !!=================== end =========================================================      
       contains
+      
       subroutine finalizelmv7()
       inquire(file='RSEQ_ERROR',exist=fileexist)
       if(fileexist) call rx('RSEQ_ERROR: maybe in phidx.F See takao comment in it.')

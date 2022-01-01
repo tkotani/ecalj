@@ -101,21 +101,3 @@ C ... Rotate or shear plat
       if (allocated(bwk_rv)) deallocate(bwk_rv)
 
       end
-C      subroutine rotp(rotm,np,p,prot)
-CC- Rotates a vector of points by a rotation matrix
-CC  Returns prot = rotm*p.  prot may point to the same address space as p
-C      implicit none
-C      integer np
-C      double precision p(3,np),prot(3,np),rotm(3,3),h(3)
-C      integer i,j,ip
-C
-C      do  10  ip = 1, np
-C        do  1  i = 1, 3
-C        h(i) = 0
-C        do  1  j = 1, 3
-C    1   h(i) = h(i) + rotm(i,j)*p(j,ip)
-C        do  2  i = 1, 3
-C    2   prot(i,ip) = h(i)
-C   10 continue
-C      end
-

@@ -48,7 +48,7 @@ c------------------------------------------------------------
       use m_genallcf_v3,niwg=>niw
       use m_keyvalue,only: getkeyvalue
       use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-
+      use m_zmel,only: ppbafp_v2
 c RS: MPI module
       use rsmpi
       use rsmpi_rotkindex

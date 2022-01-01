@@ -92,7 +92,8 @@ c      if(lso==1) mode1 = 1
 !! qlat*igapw = qlat*igqwin + (qin-q) ---> igvapw = igvapwin + matmul(qlatinv,qin-q)
       qlatinv = transpose(plat)
       call shorbz(qin,q,qlat,plat) !is this fine?
-      call rtoint(matmul(qlatinv,qin-q),inn,3)
+c      call rtoint(matmul(qlatinv,qin-q),inn,3)
+      inn=nint(matmul(qlatinv,qin-q))
       do ig=1,napw
         igvapw(:,ig) = inn + igvapwin(:,ig)
       enddo  

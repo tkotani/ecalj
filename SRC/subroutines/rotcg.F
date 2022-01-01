@@ -16,7 +16,7 @@
      &   symops(9,ng)        ,sumr
       real(8),allocatable:: cg(:),dlmm(:,:,:,:),cgn(:,:,:)
       integer(4),allocatable :: jcg(:),indxcg(:)
-      integer:: ll1,ll2
+      integer:: ll1,ll2,lxm
 c --- CG coefficienets. <LM3|lm1 lm2>
 c inxcg = lm1(lm1-1)/2 + lm2 (lm1>lm2)
 c Injcg = indxcg(inxcg) to indxcg(inxcg)-1
@@ -65,9 +65,26 @@ c----
           enddo
         enddo
       enddo
+      
+!! --- no Rotation case
+      if(ng==1.and.sum(abs(symops(:,ig)-[1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0]))<1d-12) then
+         do lm =  1, (2*lmxax+1)**2
+            l = ll(lm)
+            m = lm - l**2 -l -1
+            lxm = l**2 +l +1 +m
+            ig  = 1
+            do lm2 = 1, nlmxa
+            do lm1 = 1, nlmxa
+               cgr(lm1,lm2,lm,1) = cgn(lxm,lm1,lm2)
+            enddo
+            enddo
+         enddo
+         deallocate( cg,cgn,jcg,indxcg)
+         return
+      endif
+      
 !! --- Rotation matrix
-      allocate(
-     & dlmm( -2*lmxax:2*lmxax, -2*lmxax:2*lmxax, 0:2*lmxax,ng))
+      allocate(dlmm( -2*lmxax:2*lmxax, -2*lmxax:2*lmxax, 0:2*lmxax,ng))
       call rotdlmm(symops, ng, 2*lmxax+1,dlmm)
 !! --- Rotated CG
       do lm =  1, (2*lmxax+1)**2

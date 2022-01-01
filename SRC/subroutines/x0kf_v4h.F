@@ -410,7 +410,7 @@ c----------------------------
 !! --------------------------------------------------------------------------------
       subroutine X0kf_v4hz_symmetrize(q, iq, nolfco, zzr,nmbas, chipmzzr, eibzmode, eibzsym, rcxq)
       use m_readqgcou,only: qtt_, nqnum
-      use m_rotMPB,only:  rotMPB2 
+      use m_rotMPB2,only:  rotMPB2 
       intent(in)::                    q, iq, nolfco, zzr,nmbas, chipmzzr, eibzmode, eibzsym
 !! === symmetrization for EPIBZ mode ===
       integer(4):: nnc,iq,iatom,nctot,nbmx,iopen 

@@ -1,9 +1,6 @@
-CSFCPP#define F90 1
       subroutine symdmu(dmatu,dmatw,nbas,nsp,lmaxu,sspec,ssite,ng,g,
      .istab,lldau,rms)
-
-      use m_struc_def  !Cgetarg
-
+      use m_struc_def  
 C- Symmetrize LDA+U density matrix dmatu
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -59,15 +56,7 @@ C ... Local parameters
 C ... for spinor rotations
       logical cmdopt0
       double precision eula(3),ddet33,xx
-CSFCPP#if F90 | AUTO_ARRAY
-C      integer i,j
       double complex u(2,2,ng)
-C     double complex s11,s12,s21,s22,su(2,2),usu(2,2)
-CSFCPP#else
-CSFCPP      integer ngmx
-CSFCPP      parameter(ngmx=48)
-CSFCPP      double complex u(2,2,ngmx)
-CSFCPP#endif
       character *40 str
 
       rms = 0
@@ -265,7 +254,12 @@ C     RMS change in dmatu
       call daxpy(2*is,-1d0,dmatu,1,dmatw,1)
       rms = dsqrt(ddot(2*is,dmatw,1,dmatw,1)/(2*is))
       call daxpy(2*is,1d0,dmatu,1,dmatw,1)
-
       end subroutine symdmu
 
 
+      double precision function ddet33(matrix)
+C- Calculates the determinant of a 3X3 matrix
+      double precision matrix(9),ddot,m1cm2(3)
+      call cross(matrix(4),matrix(7),m1cm2)
+      ddet33 = ddot(3,matrix(1),1,m1cm2,1)
+      end

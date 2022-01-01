@@ -7,4 +7,3 @@ C     implicit none
       V1(3) = G(3,1,I)*V(1) + G(3,2,I)*V(2) + G(3,3,I)*V(3)
       RETURN
       END
-

@@ -17,7 +17,56 @@
       real(8) , allocatable ::  rv_a_ovintr (:)
       real(8) , allocatable ::  rv_a_ovrmax (:)
       contains
-      subroutine clsprm(mode,sspec)!,slat)!,sbz)!,sstr) !,sstrn)sctrl,sham,spot,,sarray
+
+C================================================================
+      subroutine ioqpp(lio)     !,spot)!,sctrl
+c      use m_clsprm,only:rv_a_oqpp
+      use m_struc_def           !Cgetarg
+      use m_lmfinit,only:   ctrl_nl,ctrl_nspin,ctrl_nbas
+      use m_ext,only:sname
+C     - File i/o for phi-phi, phi-dot, dot-dot products
+C     ----------------------------------------------------------------------
+C     i Inputs:
+C     i   lio: true for write, false for read
+C     i          <0 write
+C     u Updates
+C     u   08 Nov 07 (J. Xu) qpp is complex
+C     ----------------------------------------------------------------------
+      implicit none
+C     ... Passed parameters
+      logical lio
+C     getarg       double precision sctrl(1),spot(1)
+c      type(s_ctrl)::sctrl
+c      type(s_pot)::spot
+C     ... Local parameters
+      integer:: i1 , i2 , nbas , nl , nsp , igets , ifi , rdm 
+     .     , ipr ,ifile_handle
+      call getpr(ipr)
+      nbas=ctrl_nbas
+      nl=ctrl_nl
+      nsp=ctrl_nspin
+      i1 = nl**2*(nl**2+1)
+      i2 = 4*nsp*nbas
+      ifi= ifile_handle()
+      open(ifi,file='qpp.'//trim(sname),form='unformatted')
+      if (lio) then
+         call ywrm ( 1 , 'lmasa' , 1 , ifi , ' ' , rv_a_oqpp , 1 , i1 
+     .        , i1 , i2 ) 
+         if (ipr .ge. 30) print *, 'IOQPP:  wrote qpp to disk'
+      else
+         if (ipr .ge. 30) print *, 'IOQPP:  reading qpp from disk ...'
+         call pshpr(0)
+         if ( rdm ( ifi , 2 , i1 * i2 , ' ' , rv_a_oqpp , i1 , i2 ) .lt. 
+     .        0 ) then 
+            if (ipr .ge. 0) print *,'IOQPP:  (warning) failed to qpp file'
+            call dvset ( rv_a_oqpp , 1 , 1 , - 1d0 ) 
+         endif
+         call poppr
+      endif
+      close(ifi)
+      end subroutine ioqpp 
+
+      subroutine clsprm(mode,sspec) !,slat)!,sbz)!,sstr) !,sstrn)sctrl,sham,spot,,sarray
       use m_struc_def           !Cgetarg
       use m_mksym,only: iv_a_oics,ctrl_nclass
       use m_lmfinit,only: lso,  ctrl_nl,ctrl_nspin,ctrl_nl,ctrl_nspec,ctrl_nbas,

@@ -204,6 +204,7 @@ C     implicit none
       call skpblb(outs,len(outs),i)
       call rx(outs(1:i+1))
       end
+      
       subroutine rxs4(string,msg,msg2,msg3,msg4)
 C- Error exit with extra string messages
 C     implicit none
@@ -215,10 +216,19 @@ C     implicit none
       call rx(outs(1:i+1))
       end
       subroutine rxx(test,string)
-C- Test for error exit
-C     implicit none
       logical test
       character*(*) string
-
       if (test) call rx(string)
+      end
+      
+      subroutine rx_(string) !error exit routine
+      character*(*) string
+      write(6,892) string
+      write(6,890)
+  890 format(' ---- Error exit')
+  892 format(/' ---- ',a)
+c ... write to log file also
+      write(71,710) string
+  710 format('++ ',a)
+      call exit(-1)
       end

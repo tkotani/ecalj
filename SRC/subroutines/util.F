@@ -1,4 +1,3 @@
-!! ----------------------------------------------------
       integer function ifile_handle()
 !! find unused file handle
       implicit none
@@ -26,7 +25,7 @@ c         print *,'mpipid i=',mpipid(1),i,trim(nnn)
       enddo
       call rx('ifile_handle: we did not find open file handle')
       end
-
+!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       character(10) function i2char(num)
 !! convert num>0 to char. See charnum3 to understand this.
       implicit none
@@ -37,9 +36,8 @@ c         print *,'mpipid i=',mpipid(1),i,trim(nnn)
         if(num>=iten) i2char=trim(i2char)//char(48+mod(num/iten,10))
       enddo
       i2char = trim(i2char)//char(48+mod(num,10)) !1st digit
-c      print *,'num ',num,' i2char= ',i2char,' xxx',48+mod(num,10)
-c      print *,'i2char ',char(48+mod(num,10)) , 'xxx',iii//char(48+mod(num,10)) 
       end
+!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       character(3) function charnum3(num)
       integer(4) ::num
       charnum3 = 
@@ -47,21 +45,7 @@ c      print *,'i2char ',char(48+mod(num,10)) , 'xxx',iii//char(48+mod(num,10))
      &           char(48+mod(num/10,10))//
      &           char(48+mod(num,10))
       end
-
-c$$$  character(3) function charnum3(num) !3digit.
-c$$$      integer(4) ::num
-c$$$      charnum3 = 
-c$$$     &           char(48+mod(num/100,10))//
-c$$$     &           char(48+mod(num/10,10))//
-c$$$     &           char(48+mod(num,10))
-c$$$      end
-c$$$      character(26) function f2char(adat)
-c$$$      real(8):: adat
-c$$$      character(38):: bbb
-c$$$      write(bbb,"(f38.16)")adat
-c$$$      f2char=adjustl(bbb)
-c$$$      end
-
+!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       integer function ichangesign(a,n)
       implicit none
       integer:: i,n
@@ -73,4 +57,17 @@ c$$$      end
           exit
         endif
       enddo
+      end
+      
+!!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
+      subroutine rangedq(qin, qout) !renewed jun2015
+      implicit none! qout is in [-0.5d0,0.5d0)
+      intent(in)::       qin
+      intent(out)::           qout
+      integer :: ix
+      real(8):: qin(3),qout(3),tol=1d-12 
+      qout= qin-nint(qin)
+      do ix=1,3
+        if(qout(ix)>0.5d0-tol) qout(ix)=-0.5d0 !this is needed to distinguish 0.5d0 and -0.5d0.
+      enddo 
       end

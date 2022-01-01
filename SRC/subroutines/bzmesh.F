@@ -108,7 +108,6 @@ C ... Passed parameters
      .is(3),iwgt,j1,j2,j3,lgunit,lpbc01,lpbc2,lstar,m1,m2,m3,ndmx,nn1,
      .nn2,nn3,stdo,nsgrp,mxxyz
       double precision w0,x1,x2,x3,swgt,v(3),v1(3),rb(3,3)
-      external asymop,awrit5,awrit6,bzmsh0,dinv33,dpzero,fexit,getpr,grpop,iinit,projql,rx,rxx
       character*1 chr(0:2)
       call getpr(ipr)
       stdo = lgunit(1)

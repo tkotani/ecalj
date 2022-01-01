@@ -10,6 +10,7 @@
       use m_genallcf_v3,nctot2=>nctot,niwg=>niw
       use m_keyvalue,only: getkeyvalue
       use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+      use m_zmel,only: ppbafp_v2
 
       implicit none
       real(8),parameter :: 

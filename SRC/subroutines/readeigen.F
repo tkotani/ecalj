@@ -211,7 +211,8 @@ c      endif
       do ig = 1,ngp(iqq)
         qpg = qtt(:,iqq) + matmul( qlat(:,:),ngvecp(:,ig,iqq)) !q+G
         qpgr = matmul(symops(:,:,igg),qpg)             !rotated q+G
-        call conv2int( matmul(platt,qpgr-qtarget),nnn,3 )
+c        call conv2int( matmul(platt,qpgr-qtarget),nnn,3 )
+        nnn=nint(matmul(platt,qpgr-qtarget))
         ig2 = ngvecprev(nnn(1),nnn(2),nnn(3),iq)
         geigen(ig2,:)= geigenr(ig,:) * exp( -img2pi*sum(qpgr*shtvg(:,igg)) )
       enddo
@@ -1673,14 +1674,3 @@ c ---
 
       
       
-      subroutine rx_(string) !error exit routine
-      character*(*) string
-      write(6,892) string
-      write(6,890)
-  890 format(' ---- Error exit')
-  892 format(/' ---- ',a)
-c ... write to log file also
-      write(71,710) string
-  710 format('++ ',a)
-      call exit(-1)
-      end

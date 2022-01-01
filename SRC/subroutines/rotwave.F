@@ -27,6 +27,12 @@ c$$$!! ------------
      i  norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl,
      i  ginv,sym,shtvg,dlmm,lxxa,miat,tiat,igxt,nbas,
      o  cphiout)
+      implicit none
+      intent(in)::
+     i  norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl,
+     i  ginv,sym,shtvg,dlmm,lxxa,miat,tiat,igxt,nbas
+      intent(out)::
+     o cphiout
 !!== Rotation of a function of ProductBasis or MT part of wave function.
 !! (then MTO itself is rotated. a little diffent from here).
 !! See also mto part of lm7K/subs/rotwv.F
@@ -40,41 +46,23 @@ c$$$!! ------------
 !! miat   miat(ibas,igg)
 !!
 !!  cphin (iqq) ---> cphiout (iq)
-      implicit none
 ! input variables
-      integer,intent(in):: nbloch,nband,norbt,nbas
-      integer,intent(in):: ibas_tbl(norbt),l_tbl(norbt),k_tbl(norbt),offset_tbl(norbt)
-      integer,intent(in):: miat(nbas),lxxa
-      real(8),intent(in):: tiat(3,nbas)
-      complex(8),intent(in):: cphiin(nbloch,1:nband)
-
-      real(8),intent(in):: sym(3,3), qin(3),shtvg(3)
-      real(8),intent(in):: dlmm(-lxxa:lxxa,-lxxa:lxxa,0:lxxa),ginv(3,3)
-      integer,intent(in):: max_ibas_tbl,max_l_tbl,max_k_tbl,igxt
-      integer,intent(in)::  offset_rev_tbl(max_ibas_tbl, 0:max_l_tbl, max_k_tbl)
-
-! output variables
-      complex(8),intent(out):: cphiout(nbloch,1:nband)
-
-! local variables
-      real(8) :: qrot(3)
+      integer:: nbloch,nband,norbt,nbas, ibas_tbl(norbt),l_tbl(norbt),k_tbl(norbt),offset_tbl(norbt)
+      integer:: miat(nbas),lxxa
       integer :: ibas,ibaso,l,k,ini1,iend1,ini2,iend2,iorb
-      complex(8) :: phase
-
-      complex(8),parameter:: img=(0d0,1d0)
-      complex(8):: img2pi
-
-      img2pi = 2d0*4d0*datan(1d0)*img ! MIZUHO-IR
-
+      real(8):: tiat(3,nbas)
+      complex(8),intent(in):: cphiin(nbloch,1:nband)
+      real(8):: sym(3,3), qin(3),shtvg(3), dlmm(-lxxa:lxxa,-lxxa:lxxa,0:lxxa),ginv(3,3)
+      integer:: max_ibas_tbl,max_l_tbl,max_k_tbl,igxt,offset_rev_tbl(max_ibas_tbl, 0:max_l_tbl, max_k_tbl)
+      complex(8):: cphiout(nbloch,1:nband),phase
+      real(8) :: qrot(3)
+      complex(8),parameter:: img=(0d0,1d0), img2pi = 2d0*4d0*datan(1d0)*img 
       qrot = matmul(sym,qin)
       if(igxt==-1) qrot=-qrot !july2012takao
       ibaso=-999
       do iorb=1,norbt !orbital-blocks
-c         write(6,*)'iorb=',iorb
         ibas = ibas_tbl(iorb)
         if(ibas/=ibaso) then
-c          print *,' xxx111=',qrot,ibas
-c          print *,' xxx phase=',tiat
           phase = exp( -img2pi*sum(qrot*tiat(:,ibas))) 
         endif   
         ibaso=ibas
@@ -84,23 +72,13 @@ c          print *,' xxx phase=',tiat
         iend1 = ini1+2*l
         ini2 = offset_rev_tbl(miat(ibas),l,k)+1
         iend2 = ini2+2*l
-c     write(6,"(' === PBs index: iorb ibas l k ini1 ini2',10i4)")iorb,ibas,miat(ibas),l,k,ini1,ini2
-c        write(6,*)'yyyyyyy ',iorb,norbt, ini2,iend2,miat(ibas),l,k,offset_rev_tbl(miat(ibas),l,k)
-c        write(6,*)'xxx1',sum( dlmm(-l:l,-l:l,l))
-c        write(6,*)'xxx2', phase
-c        write(6,*)'xxx3', sum(cphiin(ini1:iend1,:))
-c        write(6,*)'xxx4444443'
-c        write(6,*)'xxxxxxxxxx4444443', size(cphiout)
         cphiout(ini2:iend2,:)= matmul(dlmm(-l:l,-l:l,l),cphiin(ini1:iend1,:))*phase
       enddo  
       end subroutine rotmto
-      
 !! ------------------------------------------------------
-c      subroutine rotmto2(qin,cphiin,nbloch,nband,
       subroutine rotmto2(qin,nbloch,nband,
      i  norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl,
      i  ginv,sym,shtvg,dlmm,lxxa,miat,tiat,igxt,nbas,
-c     o  cphiout)
      o  zrotm)
 !!== Rotation of a function of ProductBasis or MT part of wave function.
 !! (then MTO itself is rotated. a little diffent from here).
@@ -113,29 +91,21 @@ c     o  cphiout)
 !! tiat   tiat(:,ibas,igg)
 !! shtvg  shtvg(:,igg)
 !! miat   miat(ibas,igg)
-!!
 !!  output: zrotm is the rotation matrix. c.f. cphiout in rotmto
       implicit none
       integer:: ibas,ibaso,nbloch,nband,norbt,iorb,nbas
       integer:: ibas_tbl(norbt),l_tbl(norbt),k_tbl(norbt),offset_tbl(norbt)
       integer:: l,k,ini1,iend1,ini2,iend2,miat(nbas),lxxa
       real(8):: tiat(3,nbas)
-c      complex(8):: cphiin(nbloch,1:nband),cphiout(nbloch,1:nband),phaseq,phase,ddd
       complex(8):: phase,ddd
       real(8):: sym(3,3), qin(3),qrot(3),shtvg(3) !shtvg
       real(8):: dlmm(-lxxa:lxxa,-lxxa:lxxa,0:lxxa),ginv(3,3)
-!      complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img ! MIZUHO-IR
-      complex(8),parameter:: img=(0d0,1d0) ! MIZUHO-IR
+      complex(8),parameter:: img=(0d0,1d0)
       integer:: max_ibas_tbl,max_l_tbl,max_k_tbl,igxt
       integer::  offset_rev_tbl(max_ibas_tbl, 0:max_l_tbl, max_k_tbl),m1,m2
-!!
-c      integer:: nrotm,irotm1(nrotmmx),irotm2(nrotmx)
       integer:: nrotm,irotm1,irotm2
       complex(8):: zrotm(nbloch,nbloch)
-
-      complex(8):: img2pi ! MIZUHO-IR
-      img2pi = 2d0*4d0*datan(1d0)*img ! MIZUHO-IR
-
+      complex(8),parameter:: img2pi = 2d0*4d0*datan(1d0)*img 
       qrot = matmul(sym,qin)
       if(igxt==-1) qrot=-qrot !july2012takao
       ibaso=-999
@@ -151,10 +121,6 @@ c      integer:: nrotm,irotm1(nrotmmx),irotm2(nrotmx)
         iend1 = ini1+2*l
         ini2 = offset_rev_tbl(miat(ibas),l,k)+1
         iend2 = ini2+2*l
-c        write(6,"(' === PBs index: iorb ibas l k ini1 ini2',10i4)")iorb,ibas,miat(ibas),l,k,ini1,ini2
-!! this is the case ofr rotmto
-c        cphiout(ini2:iend2,:)= matmul(dlmm(-l:l,-l:l,l),cphiin(ini1:iend1,:))*phase*phaseq
-
 !! We can get rotated rcxq as
 !!      Rotated(rcxq)=  dconjg(chpiin(xx)) *  dconjg(zrotm)*rcxq(xx,irotm2) * zrotm(irotm2,irotm1)  * chpiin(irotm1)
         do m1=-l,l
@@ -165,53 +131,8 @@ c        cphiout(ini2:iend2,:)= matmul(dlmm(-l:l,-l:l,l),cphiin(ini1:iend1,:))*p
         enddo
         enddo
       enddo
-c      nrotm=ix
       end subroutine rotmto2
-
-      
 !! --------------------------------
-      subroutine rotipw2(qin,qtarget,ngp,nband,
-     &  platt,qlat,sym,ngvecp,ngvecprev,shtvg,igxt,imx,
-c     o  geigenout)
-     o  zrotm)
-!! == Rotation of Plane wave part. by sym==
-!!
-!! Mapped from qtt(:,iqq) to qtt(:,iq)
-!!   qtt(:,iq)= matmul(sym(igg),qtt(:,iqq))+some G vector
-!!  geigenin (iqq) ---> geigenout (iq)
-!!
-!! output: zrotm, c.f.   geigenout(ig2,:) in rotipw
-      
-      implicit none
-      real(8):: sym(3,3),qlat(3,3),platt(3,3)
-     &  ,shtvg(3)
-      integer:: ngp,imx,nband,
-     &          ngvecp(3,ngp), !,iqq),
-     &          ngvecprev(-imx:imx,-imx:imx,-imx:imx) !,iq)
-      real(8):: qin(3),qpg(3),qpgr(3),qtarget(3)
-      integer:: ig,ig2,nnn(3),igxt
-c      complex(8):: geigenin(ngp,nband), geigenout(ngp,nband)
-!      complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img ! MIZUHO-IR
-      complex(8),parameter:: img=(0d0,1d0) ! MIZUHO-IR
-      complex(8):: zrotm(ngp,ngp)
-
-      complex(8):: img2pi ! MIZUHO-IR
-      img2pi = 2d0*4d0*datan(1d0)*img ! MIZUHO-IR
-
-!!     qout = matmul(sym,qin)+some Gvector !qout \equiv qtt(:,iq) , qin=qtt(:,iqq)
-      do ig = 1,ngp !ngp(iqq)
-        qpg = qin + matmul( qlat(:,:),ngvecp(:,ig)) !iqq !q+G     qin=qtt(:,iqq)
-        qpgr = matmul(sym,qpg)             !rotated q+G
-        if(igxt==-1) qpgr=-qpgr !july2012
-        call conv2int( matmul(platt,qpgr-qtarget),nnn,3 )
-c        if(maxval(abs(nnn))>imx) stop 'rotipw:maxval(abs(nnn))>imx'
-        ig2 = ngvecprev(nnn(1),nnn(2),nnn(3))  !,iq)
-c        geigenout(ig2,:)= geigenin(ig,:) * exp( -img2pi*sum(qpgr*shtvg) )
-        zrotm(ig2,ig)= exp( -img2pi*sum(qpgr*shtvg) )
-      enddo
-      end subroutine rotipw2
-
-
 !> Rotation of Plane wave part. by sym
 !! Mapped from qtt(:,iqq) to qtt(:,iq)
 !!   qtt(:,iq)= matmul(sym(igg),qtt(:,iqq))+some G vector
@@ -220,35 +141,55 @@ c        geigenout(ig2,:)= geigenin(ig,:) * exp( -img2pi*sum(qpgr*shtvg) )
      &  platt,qlat,sym,ngvecp,ngvecprev,shtvg,igxt,imx,
      o  geigenout)
       implicit none
-
       real(8), intent(in) :: sym(3,3),qlat(3,3),platt(3,3),shtvg(3)
       integer, intent(in) :: ngp,imx,igxt,nband,
      &   ngvecp(3,ngp),ngvecprev(-imx:imx,-imx:imx,-imx:imx)
       real(8), intent(in) :: qin(3),qtarget(3)
       complex(8), intent(in) :: geigenin(ngp,nband)
       complex(8), intent(out) :: geigenout(ngp,nband)
-
       real(8):: qpg(3),qpgr(3)
       integer:: ig,ig2,nnn(3)
-!      complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img ! MIZUHO-IR
-      complex(8),parameter:: img=(0d0,1d0) ! MIZUHO-IR
-
-      complex(8):: img2pi ! MIZUHO-IR
-      img2pi = 2d0*4d0*datan(1d0)*img ! MIZUHO-IR
-
+      complex(8),parameter:: img=(0d0,1d0),img2pi = 2d0*4d0*datan(1d0)*img 
+!!     qout = matmul(sym,qin)+some Gvector !qout \equiv qtt(:,iq) , qin=qtt(:,iqq)
+      do ig = 1,ngp 
+        qpg = qin + matmul( qlat(:,:),ngvecp(:,ig)) !iqq !q+G     qin=qtt(:,iqq)
+        qpgr = matmul(sym,qpg)             !rotated q+G
+        if(igxt==-1) qpgr=-qpgr 
+        nnn= nint( matmul(platt,qpgr-qtarget))
+        ig2 = ngvecprev(nnn(1),nnn(2),nnn(3))
+        geigenout(ig2,:)= geigenin(ig,:) * exp( -img2pi*sum(qpgr*shtvg) )
+      enddo
+      end subroutine rotipw
+!! --------------------------------
+      subroutine rotipw2(qin,qtarget,ngp,nband,
+     &  platt,qlat,sym,ngvecp,ngvecprev,shtvg,igxt,imx,
+     o  zrotm)
+!! == Rotation of Plane wave part. by sym==
+!!
+!! Mapped from qtt(:,iqq) to qtt(:,iq)
+!!   qtt(:,iq)= matmul(sym(igg),qtt(:,iqq))+some G vector
+!!  geigenin (iqq) ---> geigenout (iq)
+!!
+!! output: zrotm, c.f.   geigenout(ig2,:) in rotipw
+      implicit none
+      real(8):: sym(3,3),qlat(3,3),platt(3,3),shtvg(3)
+      integer:: ngp,imx,nband,
+     &          ngvecp(3,ngp), !,iqq),
+     &          ngvecprev(-imx:imx,-imx:imx,-imx:imx) !,iq)
+      real(8):: qin(3),qpg(3),qpgr(3),qtarget(3)
+      integer:: ig,ig2,nnn(3),igxt
+      complex(8),parameter:: img=(0d0,1d0),img2pi = 2d0*4d0*datan(1d0)*img
+      complex(8):: zrotm(ngp,ngp)
 !!     qout = matmul(sym,qin)+some Gvector !qout \equiv qtt(:,iq) , qin=qtt(:,iqq)
       do ig = 1,ngp !ngp(iqq)
         qpg = qin + matmul( qlat(:,:),ngvecp(:,ig)) !iqq !q+G     qin=qtt(:,iqq)
         qpgr = matmul(sym,qpg)             !rotated q+G
         if(igxt==-1) qpgr=-qpgr !july2012
-        call conv2int( matmul(platt,qpgr-qtarget),nnn,3 )
-c        if(maxval(abs(nnn))>imx) stop 'rotipw:maxval(abs(nnn))>imx'
-        ig2 = ngvecprev(nnn(1),nnn(2),nnn(3))  !,iq)
-        geigenout(ig2,:)= geigenin(ig,:) * exp( -img2pi*sum(qpgr*shtvg) )
+        nnn= nint( matmul(platt,qpgr-qtarget))
+        ig2 = ngvecprev(nnn(1),nnn(2),nnn(3))  
+        zrotm(ig2,ig)= exp( -img2pi*sum(qpgr*shtvg) )
       enddo
-      end subroutine rotipw
-
-
+      end subroutine rotipw2
 !!------------------------------------------------------
       subroutine rotwvigg(igg,q,qtarget,ndimh,napw_in,nband,evec,evecout,ierr)
       use m_hamindex,only: symops,invgx,miat,tiat,shtvg,qlat,plat,dlmm,ngrp,norbmto,
@@ -309,8 +250,9 @@ c      write(6,*)' ibastab=',ibastab
         endif
         do ig = 1,napw_in
           qpg = q + matmul( qlat(:,:),igv2(:,ig,ikt))      !q+G
-          qpgr = matmul(symops(:,:,igg),qpg)              !rotated q+G
-          call conv2int( matmul(platt,qpgr-qtarget),nnn,3 )
+          qpgr = matmul(symops(:,:,igg),qpg) !rotated q+G
+          nnn= nint(matmul(platt,qpgr-qtarget))
+c          call conv2int( matmul(platt,qpgr-qtarget),nnn,3 )
           ig2 = igv2rev(nnn(1),nnn(2),nnn(3),ikt2)
           if(ig2>=999999) then !See igv2rev=999999 in L354 in lm7K/subs/suham.F
              write(6,*)'rotwvigg: q  =',q
@@ -325,3 +267,4 @@ c      write(6,*)' ibastab=',ibastab
       ierr=0
       end
       
+

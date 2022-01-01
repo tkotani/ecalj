@@ -38,7 +38,6 @@ m_psigd.o \
 m_hamindex.o \
 m_struc_def.o \
 m_gtv.o \
-addbas.o \
 addrwf.o \
 aiocor.o \
 aiogen.o \
@@ -84,18 +83,12 @@ dvdos.o \
 efrng2.o \
 fermi.o \
 fixef0.o \
-fixpos.o \
 fovlp.o \
 freeat.o \
 fswgts.o \
-gengrp.o \
-gensym.o \
 getbzp.o \
 getq.o \
 getqp.o \
-groupg.o \
-grpfnd.o \
-grpgen.o \
 grpop.o \
 gtbsl1.o \
 gtbvec.o \
@@ -104,7 +97,6 @@ gvctof.o \
 gvlist.o \
 gvlst2.o \
 gvmtch.o \
-hamfb3.o \
 hanr.o \
 hansmd.o \
 hansmr.o \
@@ -143,10 +135,10 @@ makrot.o \
 makrwf.o \
 mchan.o \
 mkcond.o \
-mkplat.o \
 mkqp.o \
 mkrtab.o \
-mksym.o \
+m_mksym.o \
+m_mksym_util.o \
 mshsiz.o \
 mtchae.o \
 mxmymz.o \
@@ -167,7 +159,6 @@ prjpos.o \
 prmx.o \
 projql.o \
 prrmsh.o \
-psymop.o \
 qdist.o \
 radgkl.o \
 radmsh.o \
@@ -204,7 +195,6 @@ siteid.o \
 slinz.o \
 slist.o \
 soprm.o \
-spcgrp.o \
 splcls.o \
 splwts.o \
 strx00.o \
@@ -222,8 +212,6 @@ sylmnc.o \
 symcry.o \
 symdmu.o \
 symfor.o \
-symiax.o \
-symlat.o \
 symprj.o \
 symq.o \
 symstr.o \
@@ -238,13 +226,11 @@ vldau.o \
 volsph.o \
 vxc0sp.o \
 xlgen.o \
-xxxdif.o \
 ylmrtg.o \
 writebasis.o \
 switch.o \
 rdsigm.o\
 rdsigm2.o\
-rotwv.o \
 dpdbyl.o \
 dpdftr.o \
 pvsms2.o \
@@ -333,7 +319,6 @@ huntx.o \
 i1mach.o \
 icopy.o \
 idmxmn.o \
-iinear.o \
 imtql2.o \
 imtqlv.o \
 imxmn.o \
@@ -415,7 +400,6 @@ augmbl.o \
 bndfp.o \
 bstrux.o \
 corprm.o \
-dfaugm.o \
 dfqkkl.o \
 dfrce.o \
 efldos.o \
@@ -503,7 +487,6 @@ sopert.o \
 splrho.o \
 suphas.o \
 supot.o \
-surho.o \
 suylg.o \
 symrho.o \
 tbhsi.o \
@@ -551,7 +534,6 @@ mymath.o\
 myYlm.o\
 wfn2dx_2.o\
 m_MLWF.o\
-wmatK.o \
 wansub.o \
 cubeformat.o\
 xsfformat2.o\
@@ -597,7 +579,6 @@ keyvalue.o \
 rppovl.o \
 nocctotg.o \
 ppbafp.fal.o \
-psi2b_v2.o \
 psi2b_v3.o \
 wfacx.o \
 efsimplef.o \
