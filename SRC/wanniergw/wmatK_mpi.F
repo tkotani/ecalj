@@ -573,55 +573,37 @@ c---test
       allocate( rmelt3(ngb,nwf,nwf,nrws2),cmelt3(ngb,nwf,nwf,nrws2))
       rmelt3 = 0d0
       cmelt3 = 0d0
-
 !! loop over FBZ
       do iq = 1,nqbz 
-      q(:) = qbz(:,iq)
+        q(:) = qbz(:,iq)
 !!  read eval and eigen
 !!  qk = q - rk, rk is inside 1st BZ, not restricted to the irreducible BZ
 !! note call init_readeigen_mlw_noeval(nwf,nband,mrecb,mrecg), not for eigenvalues.
 c      call readeval (qbz(:,iq), isp, eq)
-      call readcphiW (qbz(:,iq), nlmto,isp, quu, cphiq)
-      qk =  q - qbz_kr          ! qbz(:,kr)
-c      call readeval(qk, isp, ekq)
-c      ekc(nctot+1:nctot+nband) = ekq (1:nband)
-c      write(6,*)'nnnnnnn nctot, nband=',nctot,nband
-c      write(6,*)'nnnnnnnn ekc=',ekc
-      call  readcphiW(qk, nlmto,isp, quu, cphikq)
-ctm debug
-c        write(6,*)'qqq ',iq
-c        write(6,*)'qqq ',q
-c        write(6,*)'qqq ',qk
-c        write(6,*)'quu=',quu
-c        write(6,*)'qqq sum(chiq)',sum(abs(cphiq)),sum(abs(cphikq))
-c        write(6,*)'qqq sum(chiq)',sum(cphiq),sum(cphikq)
-
+        call readcphiW (qbz(:,iq), nlmto,isp, quu, cphiq)
+        qk =  q - qbz_kr          ! qbz(:,kr)
+        call  readcphiW(qk, nlmto,isp, quu, cphikq)
 c====================================================
 c matrix elements <psi(q,t') | psi(q-rk,t) B(rk,R,i)>
 c including the phase factor exp(ik.T)
 c B(rot*k,r) = B(k,invrot*r)
 c====================================================
-
 c> phase factors exp(ik.T(R))
 c        call cv      (tpi,qibz(1,k),3,qfbz)
 c        call expkt   (qfbz,tr,natom,
 c     o              w(icoskt),w(isinkt))
 c equivalent with above phase
-      do ia = 1,natom
+        do ia = 1,natom
          expikt(ia) = exp(img*tpi* sum(qibz_k*tr(:,ia)) ) !  write(6,'(" phase ",i3,2d12.4)')ia,expikt(ia)
-      end do
-c
-      if(debug) write(6,*) ' sxcf: tr=',tr
-      if(debug) write(6,*) ' sxcf: goto psicb2'
-c> matrix elements
-c>> core
-      nbmax = nwf
-      nt   = nctot + nbmax      ! = nstate for the case of correlation
-      ntp0 = nwf
-      allocate( zzmel(nbloch,nt,ntp0)) ! rk,ibloch  q-rk,it  q,itp
-      zzmel = 0d0
-c>>   valence    zzmel = <psi_q,itp |psi_q-rk,it  B_rk(ibloch)>
-      call psi2b_v2 (nbmax, ntp0, iclass,
+        end do
+        if(debug) write(6,*) ' sxcf: tr=',tr
+        if(debug) write(6,*) ' sxcf: goto psicb2'
+        nbmax = nwf
+        nt   = nctot + nbmax      ! = nstate for the case of correlation
+        ntp0 = nwf
+        allocate( zzmel(nbloch,nt,ntp0)) ! rk,ibloch  q-rk,it  q,itp
+        zzmel = 0d0
+        call psi2b_v2 (nbmax, ntp0, iclass,
      i     dreal(expikt(1:natom)),dimag(expikt(1:natom)),
      i     cphikq,              !rbkq,cbkq,rhbkq,chbkq, !  q-rk nko
      i     cphiq,               !rbq,cbq,rhbq,chbq,     !  q    nko
@@ -631,29 +613,10 @@ c>>   valence    zzmel = <psi_q,itp |psi_q-rk,it  B_rk(ibloch)>
      d     mdimx,nlmto,nbloch,nlnmx, nband, nt,ntp0,
      d     natom,nclass,
      o     zzmel)               ! rmel,cmel)
-
-      if(debug) write(6,"('sum of zmel abszmel=',4d23.16)")
+        if(debug) write(6,"('sum of zmel abszmel=',4d23.16)")
      &                 sum(zzmel),sum(abs(zzmel) )
-
-c-plane
-c        allocate( rmelt(ngb, nctot+nbmax, ntp0), ! nstate= nctot+nband
-c     &            cmelt(ngb, nctot+nbmax, ntp0))
         allocate( zmelt(ngb, nctot+nbmax, ntp0) ) ! rk,ibloch  q-rk,it  q,itp
         if(debug) write(6,*) ' sxcf_fal2: goto drvmelp xxxxx1',ngb,nctot,nbmax,ntp0
-c        call drvmelp( iq,   ntp0, ! q in FBZ
-c     i                kp, nbmax,  ! q-rk
-c     i                k,          ! k in IBZ for e-product basis
-
-
-c        call drvmelp2( q,   ntp0, ! q in FBZ
-c     i                 q-qbz_kr, nbmax,  ! q-rk
-c     i                 qibz_k,           ! k in IBZ for e-product basis
-c     i                 isp,ginv,   
-c     i       ngc,ngcmx,ngpmx,nband,itq, 
-c     i       symope, shtv, qbas, qbasinv,qibz,qbz,nqbz,nqibz,
-c     i       dreal(zzmel), dimag(zzmel), nbloch, nt,nctot,
-c     o       rmelt,cmelt) 
-
         call drvmelp3( q,   ntp0, ! q in FBZ  q,itp
      i                 q-qbz_kr, nbmax,  ! q-rk,it
      i                 qibz_k,           ! k in IBZ for e-product basis
@@ -662,58 +625,31 @@ c     o       rmelt,cmelt)
      i       symope, shtv, qbas, qbasinv,qibz,qbz,nqbz,nqibz,
      i       dreal(zzmel), dimag(zzmel), nbloch, nt,nctot,
      o       zmelt) 
-
         deallocate(zzmel) !rmel,cmel)
-c
         if(debug) write(6,*) ' sxcf: goto wtt'
         if(debug) write(6,"('sum of rmelt cmelt=',4d23.16)") sum(zmelt)
-
         do ir2=1,nrws2
          expiqR2 = exp( img*tpi* sum(q(:)*rws2(:,ir2)))
-c rmelt3,cmelt3
-         rmelt3(:,:,:,ir2) = rmelt3(:,:,:,ir2)
-     &                     + wk(iq) * dreal(zmelt(:,:,:)*expiqR2)
-         cmelt3(:,:,:,ir2) = cmelt3(:,:,:,ir2)
-     &                     + wk(iq) * dimag(zmelt(:,:,:)*expiqR2)
+         rmelt3(:,:,:,ir2) = rmelt3(:,:,:,ir2) + wk(iq) * dreal(zmelt(:,:,:)*expiqR2)
+         cmelt3(:,:,:,ir2) = cmelt3(:,:,:,ir2) + wk(iq) * dimag(zmelt(:,:,:)*expiqR2)
         enddo  ! ir2
         deallocate(zmelt)
-
 c end of loop over FBZ
       end do
-
-c$$$        if(bzcase()==2)then 
-c$$$          if(kx<=nqibz) then
-c$$$            wtt = wk(kr)
-c$$$            if(nstbz(kr)/=0) wtt = wk(kr)*(1d0-wgtq0p()/nstbz(kr))
-c$$$ctm nqibz            wtt = wik(kx)*0.5d0
-c$$$ctm nqibz            if(nstbz(kr)/=0) wtt = wtt*(1d0-wgtq0p()/nstbz(kr))
-c$$$          elseif(kx>nqibz) then  !   wtx= wgt0(kx-nqibz,irot)/dble(nqbz)
-c$$$            wtt= wgt0(kx-nqibz,irot)
-c$$$ctm nqibz            wtt= wqt(kx-nqibz)*wgtq0p()/dble(nqbz)
-c$$$          endif   
-c$$$        else
-          if(kx<= nqibz) then 
-            wtt = wk(kr)                   !         wtx = 1d0
-ctm nqibz            wtt = wik(kx)*0.5d0             !
-          else  
-            wtt = wk(1)*wgt0(kx-nqibz,irot) ! wtx = wgt0(kx-nqibz,irot)
-ctm nqibz            wtt = wk(1)*wqt(kx-nqibz)  !
-            if(abs(wk(1)-1d0/dble(nqbz))>1d-10) stop 'sxcf:wk(1) inconsistent'
-          endif
-c$$$        endif  
-        weight = wtt
-ctm        weight = weight * wik(kx) * 0.5d0 / wk(kr)
-        if(debug) then
-           write(6,"(' kx wtt=',i4,f12.8)") kx,wtt
-        endif
-
-ctm, phase factor arising from off-site W
-c        weight = weight
-c        weightc = weight
-        do ir1=1,nrws1
-           weightc(ir1) = weight*expiqR1(ir1)
-        enddo
-
+      if(kx<= nqibz) then 
+         wtt = wk(kr)           !         wtx = 1d0
+      else  
+         wtt = wk(1)*wgt0(kx-nqibz,irot) ! wtx = wgt0(kx-nqibz,irot)
+         if(abs(wk(1)-1d0/dble(nqbz))>1d-10) stop 'sxcf:wk(1) inconsistent'
+      endif
+      weight = wtt
+      if(debug) then
+         write(6,"(' kx wtt=',i4,f12.8)") kx,wtt
+      endif
+      do ir1=1,nrws1
+         weightc(ir1) = weight*expiqR1(ir1)
+      enddo
+      
 c--------------------------------------------------------
 c --- bare Coulomb section ---
 c--------------------------------------------------------
@@ -806,7 +742,6 @@ c            deallocate(vcoult)
          if(allocated(rmelt3)) deallocate(rmelt3,cmelt3,zmel1, zmel)
          if (debug) write(*,*) 'bare coulomb section finished'
 !! --- End of bare-Coulomb section --------------
-
       else
 c--------------------------------------------------------------------------
 c--- screening effect section----------------------------------------------
@@ -832,8 +767,6 @@ c--------------------------------------------------------------
         enddo
         deallocate(rmelt3,cmelt3,zmelcc)
         if(debug) write(6,*)' end of zmel'
-
-
 c====================================================================
 c Wc(qt,w) along the imaginary axis
 c====================================================================
@@ -904,15 +837,6 @@ c zwz = S[i,j] <psi(q,t) |psi(q-rk,n) B(rk,i)> Wc(k,iw')(i,j) > <B(rk,j) psi(q-r
           enddo ! ir1
           enddo ! ir2
           enddo ! ir3
-c debug: >
-c          write(*,*)'nw,nrw=',nw,nrw
-c          write(*,*)'ix=',ix
-c          write(*,*)'nrws=',nrws
-c          do i=1,5
-c          write(*,*)i,rw_w(i,i,i,i,1,ix)
-c          enddo
-c          stop 'debug: 1'
-c debug: <             
         enddo
         ifrcw = iclose('WVR.'//charnum5(kx))
         deallocate(zmelc,zw,zw2)
@@ -921,8 +845,12 @@ c end of if (exchange)
       endif
  1100 continue  ! end of k-loop
       return
-c      end subroutine wmatqk_mpi
+c     end subroutine wmatqk_mpi
+
+!!-------------------------------------------------------------------------------      
       contains
+     
+!! psi2b_v2 and psicb_v2 are older versions of psi2b_v3 and psicb_v3 in m_zmel
       subroutine psi2b_v2(nt0,ntp0,iclass,coskt,sinkt,
      i                   cphik, !rbk,cbk,rhbk,chbk,
      i                   cphikq,!rbkq,cbkq,rhbkq,chbkq,
@@ -980,11 +908,10 @@ c zppb is used as work array for ppb(:,:,i,ic) and for zpsi2b(ib,:,:).
       allocate( zz(nlnmx,ntp) )
       allocate( zppb(nzppb1,nzppb2) )
       beta=0d0  ; alpha=1d0
-c      allocate(rr(nlnmx,ntp),cc(nlnmx,ntp))
 
 c check dimensions
       if (ntp0 .gt. ntp) call rx( 'psi2bc: ntp exceeded')
-      if (mdimx .ne. maxim(mdim,nclass)) call rx( 'psi2bc: wrong mdimx')
+      if (mdimx .ne. maxval(mdim)) call rx( 'psi2bc: wrong mdimx')
       if (nctot+nt0 .gt. nt) call rx( 'psi2bc: nt exceeded')
       if (nt0 .gt. noccxv) call rx( 'psi2bc: noccxv exceeded')
       if ( sum(mdim(iclass(1:natom)))/= nbloch ) call rx( 'psi2b_v2: wrong nbloch')
@@ -994,16 +921,13 @@ c check dimensions
         iasx(ia) = ias
         ias = ias + nlnmv(iclass(ia))
       enddo
-Cstop2rx 2013.08.09 kino      if(ias-1/=nlmto) stop ' psi2b_v2:sum(nlnmv)/= nlmto'
       if(ias-1/=nlmto) call rx( ' psi2b_v2:sum(nlnmv)/= nlmto')
-
 c loop over atoms
       do  ia = 1,natom
         ic   = iclass(ia)
         nc   = nlnmc(ic)
         nv   = nlnmv(ic)
         nc1  = nc + 1
-Cstop2rx 2013.08.09 kino        if (nc+ nlnmv(ic) .gt. nlnmx) stop 'psi2b_v2: nlnmx exceeded'
         if (nc+ nlnmv(ic) .gt. nlnmx) call rx( 'psi2b_v2: nlnmx exceeded')
         phase= dcmplx(coskt(ia),sinkt(ia))
         ias  = iasx(ia)

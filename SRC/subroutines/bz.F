@@ -411,90 +411,6 @@ c     ig         = g1 + dsign(4.999d0,g1)
 
       return
       end
-      subroutine gentran (plat,tmax,nshell,
-     o t,xt,ntsh,nt )
-
-c generates translational lattice vectors
-c may be used for both real and reciprocal space
-
-c plat   = primitive translation lattice vectors
-c tmax   = maximum length, in the same unit as plat
-c nshell = minimum integer to cover tmax, from notrans.f
-
-c t      = list of translational vectors to neighbouring cells
-c          in increasing magnitude, dimension=2*(2*nshell+1)**3
-c xt     = lengths, dimension (2*nshell+1)**3
-c nt     = no. translational vectors
-c ntsh(ishell) = no. translational vectors in a given shell
-c                i.e. of the same length, no necessarily
-c                related by symmetry operations
-
-      implicit real*8(a-h,o-z)
-      integer::nshell,nt,i,ishell,its,j,k,it
-
-      dimension plat(3,3),xt(*)
-      dimension t(3,1)
-      integer:: ntsh(*)
-
-c generate neighbouring clusters
-      tmax2      = tmax*tmax
-      it         = 0
-      do       i = -nshell,nshell
-        do       j = -nshell,nshell
-          do       k = -nshell,nshell
-            t1         = i*plat(1,1) + j*plat(1,2) + k*plat(1,3)
-            t2         = i*plat(2,1) + j*plat(2,2) + k*plat(2,3)
-            t3         = i*plat(3,1) + j*plat(3,2) + k*plat(3,3)
-            xl         = t1*t1 + t2*t2 + t3*t3
-            if(xl .le. tmax2)then
-              it         = it + 1
-              t(1,it)    = t1
-              t(2,it)    = t2
-              t(3,it)    = t3
-              xt(it)     = xl
-            end if
-          end do
-        end do
-      end do
-      call dcopy(3*it,t(1,1),1,t(1,it+1),1)
-
-c search for the shortest length
-      nt         = 0
-      ishell     = 0
-      j          = 0
- 1111 xmin       = 1.d20
-      do       i = 1,it
-        if(xt(i) .lt. xmin) xmin = xt(i)
-      end do
-
-c .search for other vectors of the same length
-      its         = 0
-      do        i = 1,it
-        if(xt(i) - xmin .lt. 1.d-5)then
-          its         = its + 1
-          j           = j + 1
-          t(1,j)      = t(1,it+i)
-          t(2,j)      = t(2,it+i)
-          t(3,j)      = t(3,it+i)
-          xt(i)       = 1.d30
-        endif
-      end do
-
-c .count the number of shells and store the number of
-c  lattice vectors of a given shell i.e. of the same length
-      ishell       = ishell + 1
-      ntsh(ishell) = its
-      nt           = nt + its
-      if(j .lt. it)goto 1111
-
-c calculate the lengths
-      do         i = 1,it
-        xl           = vdv(t(1,i),t(1,i),3)
-        xt(i)        = dsqrt(xl)
-      end do
-
-      return
-      end
 c------------------------------------------------------------------
       subroutine invgrp (g,ng,
      o invg)
@@ -517,8 +433,9 @@ c        the inverse of g
         call minv33(g(1,i),ginv)
 !! find g = ginv
         do       j = 1,ng
-          call vminv   (g(1,j),ginv,9,w1)
-          diff       = vdv (w1,w1,9)
+c           call vminv   (g(1,j),ginv,9,w1)
+          w1=g(:,j)-ginv
+          diff       = sum(w1**2) !vdv (w1,w1,9)
           if (diff .lt. tol) goto 1111
         end do
  1111   invg(i)    = j
@@ -526,146 +443,13 @@ c        the inverse of g
       end do
       return
       end
-c---------------------------------------------------------------------
-      integer function invrot (irot,invg,ngrp)
 
-c 92.02.26
-c given a rotation labelled by irot, invrot gives the label for
-c the inverse of the rotation
-
-c irot = label for R
-c invg(R) = R^(-1)
-c ngrp = no. rotation matrices
-      implicit real*8 (a-h,o-z)
-      integer:: irot,ngrp, invg(ngrp)
-      invrot     = invg(irot)
-      return
-      end
-c------------------------------------------------------------------
-
-
-c$$$
-c$$$
-c$$$c------------------------------------------------------------------
-c$$$      subroutine nkstar_old (qibz,qbz,grp,ginv,
-c$$$     w iw1,
-c$$$     d nqibz,nqbz,ngrp,
-c$$$     o nstar,irotk)
-c$$$
-c$$$c 92.02.22
-c$$$c generates the no. stars of k
-c$$$c i.e. the no. times k appears in the FBZ
-c$$$
-c$$$c qibz  = k { IBZ
-c$$$c qbz   = k { FBZ
-c$$$c grp   = rotation matrices
-c$$$c nqibz = no. k { IBZ
-c$$$c nqbz  = no. k { FBZ
-c$$$c ngrp  = no. rotation matrices
-c$$$
-c$$$c nstar(k) = no. times k appears in the FBZ
-c$$$c irotk(k{IBZ,R) = index to k{FBZ
-c$$$
+c$$$      integer function invrot (irot,invg,ngrp)
+c$$$c irot = label for R
+c$$$c invg(R) = R^(-1)
+c$$$c ngrp = no. rotation matrices
 c$$$      implicit real*8 (a-h,o-z)
-c$$$      dimension qibz(3,nqibz),qbz(3,nqbz),grp(9,ngrp),ginv(9),
-c$$$     w          iw1(nqbz)
-c$$$      dimension nstar(nqibz),irotk(nqibz,ngrp)
-c$$$      dimension w1(3),w2(3),w3(3)
-c$$$      data      tol/1.d-5/
-c$$$
-c$$$c initialise index
-c$$$      call iinit   (irotk,nqibz*ngrp)
-c$$$      call iinit   (iw1,nqbz)
-c$$$      call iinit   (nstar,nqibz)
-c$$$
-c$$$c loop over  k { IBZ
-c$$$      do       k = 1,nqibz
-c$$$ccccccccccccccccccccccccccccccccccccccc
-c$$$c         print *,' k =',k,' qibz=',qibz(:,k)
-c$$$ccccccccccccccccccccccccccccccccccccccc
-c$$$
-c$$$c loop over rotations
-c$$$        do      ir = 1,ngrp
-c$$$
-c$$$cccccccccccccccccccccccc
-c$$$c         print *,' grp='
-c$$$c         print *, grp(:,ir)
-c$$$cccccccccccccccccccccccc
-c$$$
-c$$$c rotate k { IBZ
-c$$$          call mv      (grp(1,ir),qibz(1,k),
-c$$$     d              3,3,3,
-c$$$     o              w1)
-c$$$
-c$$$c identify the rotated k with k { FBZ
-c$$$          kp         = 0
-c$$$
-c$$$c> check if k{FBZ has not been identified
-c$$$ 1111     kp         = kp + 1
-c$$$          if (iw1(kp) .eq. 0) then
-c$$$cccccccccccccccccccccccccccccccccc
-c$$$c         print *,' k ir kp=',k,ir,kp,' qibz=',qibz(:,k)
-c$$$c         print *,' grp='
-c$$$c         print *, grp(:,ir)
-c$$$c         print *,' ginv '
-c$$$c         print *, ginv
-c$$$c         print *,' qbz '
-c$$$c         print *, qbz(:,kp)
-c$$$cccccccccccccccccccccccccccccccccc
-c$$$c> check if the rotated k is connected to k{FBZ by a G
-c$$$            call vminv   (qbz(1,kp),w1,3,w2)
-c$$$            call mv      (ginv,w2,
-c$$$     d              3,3,3, 
-c$$$     o              w3)
-c$$$            xsign      = .001d0*dsign(1.d0,w3(1))
-c$$$            ysign      = .001d0*dsign(1.d0,w3(2))
-c$$$            zsign      = .001d0*dsign(1.d0,w3(3))
-c$$$            w2(1)      = w3(1) - dble(idint((w3(1)+xsign)))
-c$$$            w2(2)      = w3(2) - dble(idint((w3(2)+ysign)))
-c$$$            w2(3)      = w3(3) - dble(idint((w3(3)+zsign)))
-c$$$
-c$$$            if ( vdv(w2,w2,3) .lt. tol ) then
-c$$$              nstar(k)   = nstar(k) + 1
-c$$$              irotk(k,ir)= kp
-c$$$              iw1(kp)    = 1
-c$$$            endif
-c$$$          endif
-c$$$cccccccccccccccccccccccccccccccccccc
-c$$$c      print *,' qbz='
-c$$$c      print *, qbz(:,kp)
-c$$$c      print *,' w3='
-c$$$c      print *, w3
-c$$$c      print *,' w2='
-c$$$c      print *, w2
-c$$$cccccccccccccccccccccccccccccccccccc
-c$$$          if (kp .lt. nqbz) goto 1111
-c$$$
-c$$$c end of rotation-loop
-c$$$cccccccccccccccccccccccccccc
-c$$$c      print *,' nstar(k) =',nstar(k)
-c$$$cccccccccccccccccccccccccccc
-c$$$        end do
-c$$$
-c$$$c end of k { IBZ -loop
-c$$$      end do
-c$$$
-c$$$c check that the sum of stars equal to the no. k{FBZ
-c$$$      nsum       = ivsum (nstar,nqibz)
-c$$$      if (nsum .ne. nqbz) stop 'nkstar: wrong no. stars'
-c$$$
-c$$$c write k { IBZ and no. stars to file KPNT
-c$$$      ifkpnt     = ifile('KPNT')
-c$$$      if (ifkpnt .gt. 0) then
-c$$$        write (ifkpnt,*) 'irreducible k-points and no. stars'
-c$$$        write (ifkpnt,*) 'k, k-vector, nstar '
-c$$$        do       k = 1,nqibz
-c$$$          write (ifkpnt,6000) k,qibz(1,k),qibz(2,k),qibz(3,k),nstar(k)
-c$$$        end do
-c$$$      endif
-c$$$
-c$$$c formats
-c$$$ 6000 format (1x,i5,3f8.5,i3)
-c$$$
+c$$$      integer:: irot,ngrp, invg(ngrp)
+c$$$      invrot     = invg(irot)
 c$$$      return
 c$$$      end
-c$$$

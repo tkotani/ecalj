@@ -981,132 +981,6 @@ c#ifdef USE_GEMM_FOR_SUM
       if(verbose()>=100) write(6,*)' melpln2t: end'
       end subroutine melpln2t
       
-!sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-      subroutine drvmelp3( q, ntp0, q_rk,nt0, qik, isp,ginv,
-     i        ngc,ngcmx,ngpmx,nband,itp0, 
-     i        symope, shtv, qbas, qbasinv,qibz,qbz,nqbz,nqibz,
-     i       rmel, cmel, nbloch,noccx,nctot,
-     o       zmelt) 
-      use m_readqg,only: readqg
-      use m_readeigen,only:readgeigw
-c ! q1=q    ---> iq 1:ntp0 q-point
-c ! q2=q-rk ---> kp 1:nt0  occupied                        
-c- Contributions to matrix elements <psi |psi Plane> from interstitial plane wave.
-c  zmelpl
-c-----------------------------------------------------
-      implicit none
-      real(8):: q(3),q_rk(3),qik(3),ginv(3,3)
-      integer(4):: ngp1, ngp2, ngpmx,nqbz,nqibz,  !iq,kp,k,
-     &      ngcmx ,nctot,nband,
-     &      ntp0,nt0,nbloch,noccx,  itx, ngc,nnum,inum,ig1,ig2,igc,
-     &             ngvecpB1(3,ngpmx),  
-     &             ngvecpB2(3,ngpmx),  
-     &             ngveccBr(3,ngcmx), itp0(ntp0),
-     &     nadd(3),isp  !,ngpn(nqbz)
-      complex(8),allocatable::  zmelpl(:,:,:),geigq(:,:)
-      real(8):: qbas(3,3),shtv(3),qdiff(3),add(3)
-     &         ,qibz(3,nqibz),qbz(3,nqbz),qbasinv(3,3),symope(3,3)
-     &         ,rmel(nbloch,noccx,ntp0) 
-     &         ,cmel(nbloch,noccx,ntp0) 
-c     &         ,rmelt(1:nbloch+ngc,1:nctot+nt0,1:ntp0)
-c     &         ,cmelt(1:nbloch+ngc,1:nctot+nt0,1:ntp0)
-     & ,pi=3.1415926535897932D0 
-!      complex(8) :: geigB  (ngpmx,nband,nqbz)
-      complex(8):: geig1(ngpmx,nband),geig2(ngpmx,nband)
-     &            ,zmelt(1:nbloch+ngc,1:nctot+nt0,1:ntp0)
-      real(8):: q_rkt(3),qt(3),qu1(3),qu2(3)
-      integer(4)::verbose
-c
-c      write(6,*)' drvmelp',ngpn(iq),ngpn(kp),ngc
-      if(verbose()>50) write(6,*)' drvmelp2:'
-c      ngp1 = ngpn(iq)  ! q        in FBZ 
-c      ngp2 = ngpn(kp)  ! q-rk     in FBZ
-      call readqg('QGpsi', q,    qt,   ngp1, ngvecpB1)
-      call readqg('QGpsi', q_rk, q_rkt,ngp2, ngvecpB2)
-      call readgeigW(q,    ngpmx, isp, qu1, geig1)
-      call readgeigW(q_rk, ngpmx, isp, qu2, geig2)
-c debug
-c      geig1=0d0
-c      geig2=0d0
-
-      if(sum(abs(qt-qu1))>1d-10) stop 'drvmelp2;qu1/=qu1x'
-      if(sum(abs(q_rkt-qu2))>1d-10) stop 'drvmelp2;qu2/=qu2x'
-      if(verbose()>=100) write(6,*)' end of read geig '
-
-c     ngc  = ngcni(k)  ! k-points in IBZ
-c      allocate( geigq(ngp1,ntp0) )
-c      do itx = 1,ntp0
-c        geigq(1:ngp1,itx) = geigB(1:ngp1,itp0(itx), iq)
-c      enddo
-
-c     write(6,*)' drvmelp x1',symope,qibz(1:3,k),qbz(:,iq),qbz(:,kp)
-c      qdiff = matmul(symope,qibz(1:3,k)) - qbz(:,iq) + qbz(:,kp) 
-      qdiff = matmul(symope,qik)  - qt + q_rkt 
-                           ! rk    -q  +(q-rk) is not zero.
-      add  = matmul(qbasinv,qdiff)
-      nadd = idint( add + dsign(.5d0,add))
-      if(sum(abs(add-nadd))>1d-7) then
-        write(6,*)' drvmelp qdiff',qdiff
-        write(6,'(" add nadd diff =",3f12.5,3i12,3d13.6)') 
-     &  add,nadd,abs(add-nadd)
-        call rx( "drvmlp3: abs(add-nadd))>1d-10")
-      endif
-c     write(6,*)' drvmelp qdiff',qdiff
-c      write(6,'(" add nadd diff =",3f12.5,3i12,d13.6)') 
-c     &  add,nadd,abs(add-nadd)
-
-      allocate( zmelpl(ngc,nt0,ntp0) )
-c      write(6,*)' zzzzzzz zmelpl',ngc,nt0,ntp0
-
-cccccccccccccccccccccccccccccccccccccccccccccccc
-c      if(.false.) then !old version
-c      call melpln( ngp1, ngvecpB  (:,1:ngp1, iq)
-c     &           , ngp2, ngvecpB  (:,1:ngp2, kp)
-c     &           , ngc,  ngveccBr (:,1:ngc , k ), nadd,
-c     &       geigq, ntp0,                   ! q1=q    ---> iq ngp1 1:ntp0 q-point
-c     &       geigB(1:ngp2,1:nt0, kp), nt0,  ! q2=q-rk ---> kp ngp2 1:nt0  occupied                        
-c     i       shtv, matmul(symope,qibz(1:3,k)), qbas, 
-c     o       zmelpl)
-c      else             !new version from Sep-10 2000
-c       call melpln2( ngp1, ngvecpB  (:,1:ngp1, iq)
-c     &           ,  ngp2, ngvecpB  (:,1:ngp2, kp)
-c     &           ,  ngc,  ngveccBr (:,1:ngc , k ), nadd,
-c     &       geigq, ntp0,                   ! q1=q    ---> iq ngp1 1:ntp0 q-point
-c     &       geigB(1:ngp2,1:nt0, kp), nt0,  ! q2=q-rk ---> kp ngp2 1:nt0  occupied                        
-c     i       shtv, matmul(symope,qibz(1:3,k)),qibz(1:3,k), symope, qbas, 
-c     o       zmelpl)
-c       endif
-      if (nt0 .ne. ntp0) stop 'drvmelp3: nt0 .ne. ntp0'
-c      write(6,*)'wmat.F: drvmelp3: goto melpln2t',nt0,itp0(1:nt0)
-       call melpln2t( ngp1, ngvecpB1
-     &           ,   ngp2, ngvecpB2 
-c     &           ,   ngc,  ngveccBr, nadd,
-     &           ,   ngc,  nadd,
-     &       geig1(1:ngp1,itp0(1:ntp0)), ntp0,  ! q1=q    ---> iq ngp1 1:ntp0 q-point
-     &       geig2(1:ngp2,itp0(1:nt0)), nt0,     ! q2=q-rk ---> kp ngp2 1:nt0  occupied                        
-     i       shtv, matmul(symope,qik),qik, symope, qbas, qt, !qt is dummy...
-     o       zmelpl)
-c      deallocate(geig1,geig2)
-c      rmelt=0d0
-c      cmelt=0d0
-      zmelt=0d0
-c      rmelt(1:nbloch, 1:nctot+nt0, 1:ntp0) = 
-c     &rmel (1:nbloch, 1:nctot+nt0, 1:ntp0)  
-c      cmelt(1:nbloch, 1:nctot+nt0, 1:ntp0) =  
-c     &cmel (1:nbloch, 1:nctot+nt0, 1:ntp0)
-       zmelt(1:nbloch, 1:nctot+nt0, 1:ntp0) = dcmplx
-     &(rmel (1:nbloch, 1:nctot+nt0, 1:ntp0),  
-     & cmel (1:nbloch, 1:nctot+nt0, 1:ntp0))
-c extensiton to nbloch+ngc   
-c      rmelt (nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,1:ntp0)
-c     & = dreal( zmelpl(1:ngc,         1:nt0,    
-** eigenfunciton rotation PMT basis for self-ener    1:ntp0) )  
-c      cmelt (nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,1:ntp0)
-c     & = dimag( zmelpl(1:ngc,         1:nt0,        1:ntp0) )  
-       zmelt (nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,1:ntp0)
-     &=zmelpl(1:ngc,               1:nt0,            1:ntp0) 
-      deallocate(zmelpl) 
-      end
       subroutine psi2b_v3(nctot,ncc,nt0,ntp0,iclass,phase,
      i                   cphik, !rbk,cbk,rhbk,chbk,
      i                   cphikq,!rbkq,cbkq,rhbkq,chbkq,
@@ -1360,4 +1234,73 @@ c end of atom-loop
         ics   = ics + ncore(ic)
       enddo
       end
+!sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+      subroutine drvmelp3( q, ntp0, q_rk,nt0, qik, isp,ginv,
+     i        ngc,ngcmx,ngpmx,nband,itp0, 
+     i        symope, shtv, qbas, qbasinv,qibz,qbz,nqbz,nqibz,
+     i       rmel, cmel, nbloch,noccx,nctot,
+     o       zmelt) 
+      use m_readqg,only: readqg
+      use m_readeigen,only:readgeigw
+! this is for Wanner (readeigW, drvmelp3)      
+c ! q1=q    ---> iq 1:ntp0 q-point
+c ! q2=q-rk ---> kp 1:nt0  occupied                        
+c- Contributions to matrix elements <psi |psi Plane> from interstitial plane wave.
+c  zmelpl
+c-----------------------------------------------------
+      implicit none
+      real(8):: q(3),q_rk(3),qik(3),ginv(3,3)
+      integer(4):: ngp1, ngp2, ngpmx,nqbz,nqibz,  !iq,kp,k,
+     &      ngcmx ,nctot,nband,
+     &      ntp0,nt0,nbloch,noccx,  itx, ngc,nnum,inum,ig1,ig2,igc,
+     &             ngvecpB1(3,ngpmx),  
+     &             ngvecpB2(3,ngpmx),  
+     &             ngveccBr(3,ngcmx), itp0(ntp0),
+     &     nadd(3),isp  !,ngpn(nqbz)
+      complex(8),allocatable::  zmelpl(:,:,:),geigq(:,:)
+      real(8):: qbas(3,3),shtv(3),qdiff(3),add(3)
+     &         ,qibz(3,nqibz),qbz(3,nqbz),qbasinv(3,3),symope(3,3)
+     &         ,rmel(nbloch,noccx,ntp0) 
+     &         ,cmel(nbloch,noccx,ntp0) 
+     & ,pi=3.1415926535897932D0 
+      complex(8):: geig1(ngpmx,nband),geig2(ngpmx,nband)
+     &            ,zmelt(1:nbloch+ngc,1:nctot+nt0,1:ntp0)
+      real(8):: q_rkt(3),qt(3),qu1(3),qu2(3)
+      integer(4)::verbose
+      if(verbose()>50) write(6,*)' drvmelp2:'
+      call readqg('QGpsi', q,    qt,   ngp1, ngvecpB1)
+      call readqg('QGpsi', q_rk, q_rkt,ngp2, ngvecpB2)
+      call readgeigW(q,    ngpmx, isp, qu1, geig1)
+      call readgeigW(q_rk, ngpmx, isp, qu2, geig2)
+      if(sum(abs(qt-qu1))>1d-10) stop 'drvmelp2;qu1/=qu1x'
+      if(sum(abs(q_rkt-qu2))>1d-10) stop 'drvmelp2;qu2/=qu2x'
+      if(verbose()>=100) write(6,*)' end of read geig '
+      qdiff = matmul(symope,qik)  - qt + q_rkt 
+                           ! rk    -q  +(q-rk) is not zero.
+      add  = matmul(qbasinv,qdiff)
+      nadd = idint( add + dsign(.5d0,add))
+      if(sum(abs(add-nadd))>1d-7) then
+        write(6,*)' drvmelp qdiff',qdiff
+        write(6,'(" add nadd diff =",3f12.5,3i12,3d13.6)') 
+     &  add,nadd,abs(add-nadd)
+        call rx( "drvmlp3: abs(add-nadd))>1d-10")
+      endif
+      allocate( zmelpl(ngc,nt0,ntp0) )
+      if (nt0 .ne. ntp0) stop 'drvmelp3: nt0 .ne. ntp0'
+       call melpln2t( ngp1, ngvecpB1
+     &           ,   ngp2, ngvecpB2 
+     &           ,   ngc,  nadd,
+     &       geig1(1:ngp1,itp0(1:ntp0)), ntp0,  ! q1=q    ---> iq ngp1 1:ntp0 q-point
+     &       geig2(1:ngp2,itp0(1:nt0)), nt0,     ! q2=q-rk ---> kp ngp2 1:nt0  occupied                        
+     i       shtv, matmul(symope,qik),qik, symope, qbas, qt, !qt is dummy...
+     o       zmelpl)
+      zmelt=0d0
+       zmelt(1:nbloch, 1:nctot+nt0, 1:ntp0) = dcmplx
+     &(rmel (1:nbloch, 1:nctot+nt0, 1:ntp0),  
+     & cmel (1:nbloch, 1:nctot+nt0, 1:ntp0))
+       zmelt (nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,1:ntp0)
+     &=zmelpl(1:ngc,               1:nt0,            1:ntp0) 
+      deallocate(zmelpl) 
+      end
+      
       end module m_zmel

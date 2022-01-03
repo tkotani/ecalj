@@ -617,7 +617,7 @@ c      print *,'cccccc icc sum=',iccc,sum(irotk)
 ccccccccccc
 
 !! check that the sum of stars equal to the no. k{FBZ
-      nsum = ivsum (nstar,nqibz)
+      nsum = sum(nstar)
       if (nsum .ne. nqbz) then
         print *,' nums nqbz=',nsum,nqbz
         do k  = 1,nqibz

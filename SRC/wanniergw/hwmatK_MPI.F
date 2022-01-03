@@ -1001,8 +1001,8 @@ c RS: this should not happen... see gwsrc/RSMPI_rotindex_mod.F
         call cputid (0)
 
 c rotate atomic positions invrot*R = R' + T
-        invr       = invrot (irot,invg,ngrp)
-
+c        invr       = invrot (irot,invg,ngrp)
+        invr     = invg(irot)
 c -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)> 
         call ppbafp_v2 (irot,ngrp,is,nspin,
      i              il,in,im, nlnm,
@@ -1202,14 +1202,13 @@ c     &           cw_iw(nwf,nwf,nwf,nwf,nrws,niw)
 
       hartree=2d0*rydberg()
  
-      call cv      (hartree,freq,nw,freq2)
-c      call cv      (hartree,freqw,niw,freqw2)
-      call cv      (hartree,rw_w,nwf*nwf*nwf*nwf*nrws*nw,rw_w)
-      call cv      (hartree,cw_w,nwf*nwf*nwf*nwf*nrws*nw,cw_w)
-c      call cv      (hartree,rw_iw,nwf*nwf*nwf*nwf*nrws*niw,rw_iw)
-c      call cv      (hartree,cw_iw,nwf*nwf*nwf*nwf*nrws*niw,cw_iw)
-
-
+c      call cv      (hartree,freq,nw,freq2)
+c      call cv      (hartree,rw_w,nwf*nwf*nwf*nwf*nrws*nw,rw_w)
+c      call cv      (hartree,cw_w,nwf*nwf*nwf*nwf*nrws*nw,cw_w)
+      freq2 = hartree*freq
+      rw_w  = hartree*rw_w
+      cw_w  = hartree*cw_w
+      
       write(ifwmat,*)'*** nwf,nw,alat'
       write(ifwmat,*)nwf,nw,alat
       write(ifwmat,*)'*** rcut1,rcut2'
@@ -1300,8 +1299,10 @@ c-----------------------------------------------------------------------
  
       hartree=2d0*rydberg()
 
-      call cv      (hartree,rw_w,nwf*nwf*nwf*nwf*nrws,rw_w)
-      call cv      (hartree,cw_w,nwf*nwf*nwf*nwf*nrws,cw_w)
+c      call cv      (hartree,rw_w,nwf*nwf*nwf*nwf*nrws,rw_w)
+c      call cv      (hartree,cw_w,nwf*nwf*nwf*nwf*nrws,cw_w)
+      rw_w= hartree*rw_w
+      cw_w= hartree*cw_w
 
       write(ifwmat,*)'*** nwf,alat'
       write(ifwmat,*)nwf,alat

@@ -6,7 +6,6 @@ mkppovl2.o\
 m_density.o\
 m_ldau.o\
 boltztrap.o\
-m_bzintegration.o\
 m_bandcal.o\
 m_procar.o\
 m_igv2x.o\
@@ -578,8 +577,6 @@ readpomat.o \
 keyvalue.o \
 rppovl.o \
 nocctotg.o \
-ppbafp.fal.o \
-psi2b_v3.o \
 wfacx.o \
 efsimplef.o \
 extension.o \
@@ -591,7 +588,6 @@ cputid.o \
 rw.o \
 ext2.o \
 mate.o \
-mate1.o \
 bib1.o \
 index.o \
 idxk.o \
