@@ -549,6 +549,7 @@ ent_MPI.o\
 wmatK_mpi.o
 
 GWLIB_list=\
+zsecsym.o \
 hilbertmat.o\
 dpsion5.o\
 nwordr.o\
