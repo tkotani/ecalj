@@ -29,7 +29,7 @@ C Passed Parameters
       integer indrlx(2,*),nvar,natrlx,nitrlx,pdim
       double precision mdprm(6),defm(6)
       integer nbas,i,j,k,iprint,i1mach,ifrlx(3),igets,lrlx !,ltb
-      logical force,md,bittst
+      logical force,md
       nbas=ctrl_nbas
       nitrlx=ctrl_nitmv
       call dcopy(size(ctrl_mdprm),ctrl_mdprm,1,mdprm,1)

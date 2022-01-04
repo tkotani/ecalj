@@ -39,7 +39,7 @@
       use m_lmfinit,only: mxorb,nbas,nl,iprmb
       use m_lattic,only: plat=>lat_plat
       integer:: i,  isp, ispsigm,iwdummy,ival!lrsig
-      real(8):: hreal,qp(3)
+      real(8):: qp(3)
       logical:: debug=.false.
       if(debug) print *,'ndimsig=',ndimsig
       allocate(sene(ndimsig,ndimsig))
@@ -139,14 +139,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! seneinterp is used in hambls.F case (store real-space sigma to ham_rv_a_ohrs)
       integer mode,nbas,ifis,ndimh,lwsig
       double precision rsrnge
-      logical llshft(3),cmdopt,ltrans,lphase,lsplts,lnwmsh,
+      logical llshft(3),cmdopt,ltrans,lsplts,lnwmsh,
      .latvec,lfbzin,lfbzout
       integer parg,isw,lonesp
       character outs*80,out2*80,dc*1,rots*120
-      integer i,j,ifis2,ifiz,isp,nsp,nglob,ival,ldham(16),hreal,lrsig,
+      integer i,j,ifis2,ifiz,isp,nsp,nglob,ival,ldham(16),lrsig,
      .moditp,nttabs,nkxyz(3),nk1,nk2,nk3,nsgrp,nsgrps,mxkp,nqp,nqps,
      .ndhrs,j1,k1,k2,k3,iq1,nspc,nqsig,!modsgp,nmin,nmax,
-     .kcplx,lrot,iprint,lssym,ledit,niax,nscnts,
+     .lrot,iprint,ledit,niax,nscnts,
      .ndims,ndimz,iq,n123(4),lcore,lhigh
       parameter (niax=10)
       integer:: ohrss
@@ -189,21 +189,16 @@ c
       lwsig=0
       tolq = 1d-6
       ledit = 0
-      lrsig = mod(mode,10)
+      lrsig = 2  ! mod(mode,10)
       lwsig = 0
-      moditp = mod(mode/10,10)
+      moditp = 1 ! mod(mode/10,10)
       nscnts = 0
       lqoffo = 0
       lfbzout = .false.
-      hreal = 0 !real or complex
-      if (lrsig .eq. 0) return
+c      hreal = 0 !real or complex
       ltrans = .true. !mod(mode/1000,10) .eq. 0
-      kcplx = 1
-      if (mod(mode/1000,10) .eq. 1) kcplx = 0
-      lphase = mod(mode/1000,10) .eq. 0
-      lssym = mod(mode/10000,10)
-      l_dummy_isanrg=isanrg(lssym,0,7,'rdsigm:','10000s digit mode',.true.)
-      
+c      lphase = .false. !mod(mode/1000,10) .eq. 0
+c      lssym = 0 !mod(mode/10000,10)
 !! Command-line switches for input sigma and defaults
       call sigflg (dc= ' ' , sio='rsig' , strn=' ', lfbz=lfbzin  , lonesp=lonesp , qpoff=qoffi  )
       if (cmdopt('--rsig',6,0,outs)) then
@@ -211,16 +206,11 @@ c
         dc = out2(1:1)
         call sigflg ( dc=dc , sio='rsig' , strn=out2, lfbz=lfbzin  ,lonesp= lonesp , qpoff=qoffi  )
       endif
-      if ( lfbzin .or. mod(lssym,2).eq.1 ) then
-        lfbzin = .true.
-      else
-        lfbzin = .false.
-      endif
       if (cmdopt('--mixsig=',9,0,outs)) then
          call rx('rdsigm: not support --mixsig anymore')
       endif
-      call info(10,1,0,' RDSIGM: read file sigm and create '//
-     .'%?#n#REAL#COMPLEX# sigma(R) by FT ...',hreal,0)
+c      call info(10,1,0,' RDSIGM: read file sigm and create '//
+c     .'%?#n#REAL#COMPLEX# sigma(R) by FT ...',hreal,0)
       ldham =ham_ldham
       rsstol=ham_rsstol
 
@@ -267,8 +257,7 @@ c
       k3=nk3
 
 C ... Number of group operations for input file sigma
-      if (mod(lssym,2) .eq. 0) nsgrps = nsgrp
-      if (mod(lssym,2) .eq. 1) nsgrps = 1
+      nsgrps = nsgrp
       if (lfbzin) nsgrps = 1
 C ... Make is,ifac,qb,qlat,qoff
       do i = 1, 3
@@ -282,24 +271,18 @@ C ... Make is,ifac,qb,qlat,qoff
       enddo
       if(debug) print *,'seneinterp: debug FFFFFFF 2222'
 C ... Setup for r.s. hamiltonian: allocate and create iax,ntab; allocate hrs
-      i = 1000 + 10*hreal + 0
-      if (mod(lssym,4) .ge. 2) i = 10*hreal + 0
-      if (ltrans) i = i + 10000
+c      i = 1000 + 10*hreal + 0
+      i = 1000             + 0
+      i = i + 10000
       call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , 1 ,
      .    nsp , nbas , rv_a_osymgr , rv_a_oag , nsgrp , rsrnge , offH
      .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , rv_a_opos ,  iv_a_ontabs ,
      .    iv_a_oiaxs , ndhrs , rv_dummy )
       nttabs = ival ( iv_a_ontabs , nbas + 1 )
       if(debug) print *,'seneinterp: FFFFFFF size iv_p_ontabls ndhrs=',size(iv_a_ontabs),ndhrs,nttabs
-      if(hreal .eq. 1) then
-        if (allocated(rv_a_ohrs)) deallocate(rv_a_ohrs)
-        allocate(rv_a_ohrs(ndhrs**2*nttabs*nsp))
-        rv_a_ohrs(:)=0d0
-      else
-        if (allocated(rv_a_ohrs)) deallocate(rv_a_ohrs)
-        allocate(rv_a_ohrs(2*ndhrs**2*nttabs*nsp))
-        rv_a_ohrs(:)=0d0
-      endif
+      if (allocated(rv_a_ohrs)) deallocate(rv_a_ohrs)
+      allocate(rv_a_ohrs(2*ndhrs**2*nttabs*nsp))
+      rv_a_ohrs(:)=0d0
 
 C --- Get list of irreducible k-points, and ipq and gstar arrays ---
       mxkp = nk1*nk2*nk3
@@ -337,8 +320,7 @@ C --- Get list of irreducible k-points, and ipq and gstar arrays ---
              read(ifis)
           endif
 C ... FT sfz and copy sfz(T) to hrs
-          i = 10*hreal + 1
-          if (ltrans) i = i + 10000
+          i = 1 + 10000
           call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , isp
      .         , nsp , nbas , rv_a_osymgr , rv_a_oag , nsgrps , rsrnge , offH      
      .         , 1 , nbas , ndimh , ndimh , sfz ( 1 , 1 , 1 , 1 , 1 , isp )
@@ -353,12 +335,11 @@ C ... FT sfz and copy sfz(T) to hrs
       if (allocated(gstar_iv)) deallocate(gstar_iv)
       ham_ndhrs=ndhrs
       j1 = 0
-      if (lssym .ge. 4) j1 = 2
       call dpzero(tmp,3)
       if(debug) print *,'a8 22222222222 goto chksgr'
 !! --- chksgr read again sigm file---> but it is not for generating new quantities, just for check.
-      call chksgr ( j1 , ltrans , kcplx , plat , nsp , ndimh , ifis
-     .     , hreal , iprmb , nttabs , iv_a_oiaxs , rv_a_ohrs , ndhrs 
+      call chksgr ( j1 , ltrans , plat , nsp , ndimh , ifis
+     .     , iprmb , nttabs , iv_a_oiaxs , rv_a_ohrs , ndhrs 
      .     , rsstol , i , rv_p_oqp , nbas , 0 , rotm , iwdummy )
       
       if(debug) print *,' a8 end of chksgr 3333333333'
@@ -377,7 +358,7 @@ C     increase if nsgrp>nsgrps.  This branch will fail in that case.
         hrss = rv_a_ohrs
 C       10s digit distributes ri-rj pairs to avg (ri-rj),(rj-ri) pairs
 C       Use 10*2 for hermitian matrices, 10*1 for symmetric ones
-        i = 1-hreal + 10*2 + 100*(1-hreal) + 100000
+        i = 1 + 10*2 + 100*1 + 100000
         allocate(istb2_iv(nsgrp*nbas))
         call istbpm ( iv_a_oistab , nbas , nsgrp , istb2_iv )
         call rsmsym ( i , plat , mxorb , iprmb , ndimh , nbas ,
@@ -388,8 +369,8 @@ C       Use 10*2 for hermitian matrices, 10*1 for symmetric ones
 C   ... Check how well symmetrized FT replicates sigma(k) at file qp
 c        if (procid .eq. master) then
           rsstol = 0
-            call chksgr ( 0 , ltrans , kcplx , plat , nsp , ndimh , ifis
-     .          , hreal , iprmb , nttabs , iv_a_oiaxs , rv_a_ohrs , ndhrs 
+            call chksgr ( 0 , ltrans ,  plat , nsp , ndimh , ifis
+     .          , iprmb , nttabs , iv_a_oiaxs , rv_a_ohrs , ndhrs 
      .          , rsstol , i , 0 , nbas , 0 , rotm , iwdummy )
 C   ... Broadcast R.S. sigma after symmetrization
       endif
@@ -716,13 +697,11 @@ Cl         :       rotevs.  However, they are not used.  lhigh is
 Cl         :       determined from constraint ndims+lccore+lhigh = ndimz
 Cl
 Cl   hreal :0 allow sigm(R) to be complex
-Cl         :1 assume sigm(R) is real
+Cl         :xxx1 assume sigm(R) is real
 Cl  ltrans :specifies indexing of sigm(T)_RL,R'L'L
 Cl         : ltrans = F taken from sigm(k)_RL,R'L'
 Cl         : ltrans = T taken from sigm(k)_RL,R'L'
-Cl  kcplx  :0 sigm(k) has real, imaginary separated
-Cl         :1 sigm(k) is in complex*16 format:
-Cl         :2 sigm(k) has real, imaginary separated by columns
+Cl  sigm(k) is in complex*16 format:
 Cl  lphase :T if phase convention phi = q * [(g R_j + a) - R_i]
 Cl         :  for rotations should be scaled by -1
 Cl  lssym  :10000s digit mode
@@ -774,10 +753,10 @@ c      type(s_bz)::sbz
      .latvec,lfbzin,lfbzout
       integer parg,isw,lonesp
       character outs*80,out2*80,dc*1,rots*120
-      integer i,j,ifis2,ifiz,isp,nsp,nglob,ival,ldham(16),hreal,lrsig,
+      integer i,j,ifis2,ifiz,isp,nsp,nglob,ival,ldham(16),lrsig,
      .moditp,nttabs,nkxyz(3),nk1,nk2,nk3,nsgrp,nsgrps,mxkp,nqp,nqps,
      .ndhrs,j1,k1,k2,k3,iq1,nspc,mxorb,nqsig, !modsgp,nmin,nmax,
-     .kcplx,lrot,iprint,lssym,ledit,niax,nscnts,
+     .lrot,iprint,lssym,ledit,niax,nscnts,
      .ndims,ndimz,iq,n123(4),lcore,lhigh
       parameter (niax=10)
 c      equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
@@ -848,9 +827,9 @@ c      alf(1) = 1
 c      alf(2) = 0
       nscnts = 0
       lfbzout = .false.
-      hreal = 0 
+c      hreal = 0 
       ltrans=.true.
-      kcplx = 0
+c      kcplx = 0
       lphase = .true.
       lssym  = 0
       lonesp = 0
@@ -1837,7 +1816,7 @@ C        call zprm('Uz',2,Uz,ldU,ldU,ldU)
 C      endif
       end subroutine rothrm
       
-      subroutine chksgr(opt,ltrans,kcplx,plat,nsp,ndimh,ifis,hreal,
+      subroutine chksgr(opt,ltrans,plat,nsp,ndimh,ifis, !hreal, !kcplx
      .iprmb,nttabs,iaxs,hrs,ndhrs,tols,nqp,qplst,nbas,lrot,rotm,
      .delT)
       use m_lmfinit,only: nl,mxorb
@@ -1857,7 +1836,7 @@ Ci   nsp   :2 for spin-polarized case, otherwise 1
 Ci   ndimh :dimension of hamiltonian
 Ci   ifis  :file logical unit for sigma
 Ci   hreal :0 sigm(R) is complex
-Ci         :1 sigm(R) is real
+Cixxx         :1 sigm(R) is real
 Ci   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
 Ci   nttabs:number of site pairs in sigm(R)
 Ci   iaxs  :neighbor table for sigm(R)
@@ -1895,7 +1874,7 @@ Cu   09 May 03 First created
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer opt,kcplx,hreal,ifis,ndimh,nsp,nttabs,ndhrs,nqp,lrot
+      integer opt,ifis,ndimh,nsp,nttabs,ndhrs,nqp,lrot
       integer niax,n0,nkap0
       parameter (niax=10, n0=10, nkap0=3)
       integer iprmb(*),iaxs(niax,*),nbas
@@ -2005,7 +1984,7 @@ C     or write to file
             call dpdump(sqr,ndimhr**2*2,ifis)
             sq = sqr(1:ndimh,1:ndimh) !!! readin sq
             deallocate(sqr)
-            call ztoyy(sq,ndimh,ndimh,ndimh,ndimh,kcplx,1)
+            call ztoyy(sq,ndimh,ndimh,ndimh,ndimh,1,1) !kcplx,1)
           else
             call dcopy(3,qplst(1,iq1),1,qp,1)
           endif

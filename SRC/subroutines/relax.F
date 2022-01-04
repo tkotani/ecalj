@@ -60,7 +60,7 @@ C Local Variables
       integer i,j,ipr,ifi,fopna,ix,lgunit,nbas,ltb,ifrlx(3),
      .ir,iprint,isw,rdm,lrlx,is,idamax,stdo,stdl,nd,ns,nkill
       parameter (nd=4,ns=6)
-      logical rdhess,bittst,lpp,cmdopt,a2bin,lshr !U,
+      logical rdhess,lpp,cmdopt,a2bin,lshr !U,
       double precision mdprm(6),step,xtol,gtol,xtoll,grfac,wkg(28),ddot,
      .xv(10)
       equivalence (step,mdprm(5)), (xtol,mdprm(3)), (gtol,mdprm(4))
