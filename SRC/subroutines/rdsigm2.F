@@ -561,13 +561,13 @@ c$$$            deallocate(pos,npair)
             deallocate(sfz,qsmesh2) !,nlat,nqwgt)
       endif                  !procid==master
       if(cmdopt0('--wsig_fbz')) call rx0('end of --wsig_fbz mode')
-#ifdef MPIK
+c#ifdef MPIK
       mlog     = cmdopt('--mlog',6,0,strn) !--mlog here is taken by getarg.
       call senebroadcast(procid,master,mlog) !broadcast self-energy to all procid
       call mpibc1(ham_ndhrs,1,2,mlog,'bndfp','ndhrs')
       call mpibc1(nspsigm,1,2,mlog,'bndfp','nspsigm')
       call mpi_barrier(MPI_COMM_WORLD,ierr) 
-#endif
+c#endif
       if(procid==master) write(6,*)' --- end of sigmainit: rdsigm2 initialization section ---'
       return
 
@@ -923,7 +923,7 @@ C --- Get list of irreducible k-points, and ipq and gstar arrays ---
       if (-mxkp<0) wgt_rv(:)=0.0d0
       if(debug) print *,'rdsigm2: debug2222'
       call info(20,1,0,' q-points in full BZ where sigma calculable ...',0,0)
-      call bzmesh ( plat, qb, nk1,nk2,nk3, llshft,iwdummy,0, ipq,rv_p_oqsig, wgt_rv, nqsig, mxkp, 0, 0)
+      call bzmesh(plat, qb, nk1,nk2,nk3, llshft,iwdummy,0, ipq,rv_p_oqsig, wgt_rv, nqsig, mxkp, 0, 0)
       ham_nqsig=nqsig
       call dpzero ( wgt_rv , mxkp )
       call info2(20,0,0,' Irr. qp for which sigma is calculated ...',0,0)

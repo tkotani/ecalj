@@ -3,44 +3,46 @@
 C- Bloch transform of real-space matrix
 C ----------------------------------------------------------------------
 Ci Inputs
+c      lbloch = 100000 + 4000 + 40*1 + 10   is fixed.
+c      lblchi = 4000 + 40*1 + 10
 Ci   lbloch:1s digit pertains to storage of Bloch summed hamiltonian
 Ci           0: s is stored in unpacked form
-Ci           1: s is stored in banded form (see Remarks)
+Cixxx           1: s is stored in banded form (see Remarks)
 Ci
 Ci          10s digit distinguishes how complex arithmetic is handled
-Ci           0: sll has real, imaginary separated
-Ci              sll = sll(ldl,ldl2,2), with sll(*,*,1..2) = real..imag
+Cixxx           0: sll has real, imaginary separated
+Cixxx              sll = sll(ldl,ldl2,2), with sll(*,*,1..2) = real..imag
 Ci           1: sll is returned complex*16 format:
 Ci              sll = sll(2,ldl,ldl2), with sll(1..2,*,*) = real..imag
-Ci           2: sll has real, imaginary separated by columns
-Ci              sll = sll(ldl,2,ldl2), with sll(*,1..2,*) = real..imag
-Ci              By default, input s is real
-Ci           4: Input s is in complex*16 format:
-Ci              This bit can be taken in combination with bits 1,2
-Ci              NB: these conventions apply to sll, sil, sii
+Cixxx           2: sll has real, imaginary separated by columns
+Cixxx              sll = sll(ldl,2,ldl2), with sll(*,1..2,*) = real..imag
+Cixxx              By default, input s is real
+Cixxx           4: Input s is in complex*16 format:
+Cixxx              This bit can be taken in combination with bits 1,2
+Cixxx              NB: these conventions apply to sll, sil, sii
 Ci
 Ci        100s digit:
 Ci           0 copy to sll, sil or sii (ie initialize array to zero)
-Ci           1 add to sll, sil or sii (ie do not initialize to zero)
-Ci           2 Make Bloch transform of (-s)
-Ci           4 scale Bloch phase factor (i k . T) by -1
-Ci             Any combination of the above is allowed
+Cixx           1 add to sll, sil or sii (ie do not initialize to zero)
+Cixx           2 Make Bloch transform of (-s)
+Cixx           4 scale Bloch phase factor (i k . T) by -1
+Cixx             Any combination of the above is allowed
 Ci
 Ci       1000s digit:
-Ci           1 if to convert s to spherical harmonics
-Ci           2 to restrict s to ib=jb, no translation vector
+Cixx           1 if to convert s to spherical harmonics
+Cixx           2 to restrict s to ib=jb, no translation vector
 Ci           4 if to use transpose of s(r1,l1,T+r2,l2) in place of s
 Ci             Any combination of the above is allowed
 Ci
 Ci      10000s digit pertains to which of sll,sil,sii are generated
 Ci           0 generate sll, sil, sii
-Ci           1 suppress generation of sll
-Ci           2 suppress generation of sil
-Ci           4 suppress generation of sii
+Cixx           1 suppress generation of sll
+Cixx           2 suppress generation of sil
+Cixx           4 suppress generation of sii
 Ci             switches 1,2,4 may be combined
 Ci
 Ci     100000s digit pertains to whether s has permuted orbital order
-Ci           0 if s has normal order
+Cixxx           0 if s has normal order
 Ci           1 if s has a permuted orbital order.
 Ci             In this case, the first row (column) in each R' (R)
 Ci             block of s corresponds to the first (permuted) orbital
@@ -152,117 +154,63 @@ C ... Passed parameters
 C     real + imaginary storage mode
       double precision sll(ldl,ldl2,2),sil(ldi,ldl2,2),sii(ldi,ldi,2)
 C ... Local parameters
-      logical bittst,maskii,maskil,maskll,onsite,ltrans,lsph
       integer ia,ib,iprint,isite,j,k,kcplx,ksite,ld11,
-     .ld12,ld13,ld21,ld22,ld23,lidim,nds1,ndss,offa,offb,oi,scplx
-      double precision twopi,TdotK,cosT,sinT
+     .ld12,ld13,ld21,ld22,ld23,lidim,nds1,ndss,offa,offb !,oi,scplx
+      double precision TdotK,cosT,sinT
       double precision sc(nds,2,nds),swk(nds,2,nds)
-c      external cplxdm,dpzero,pblch1,rx,s2sph,tcn,tcx,yprm,zmscop,ztoy
       logical:: debug=.false.
+      real(8),parameter:: twopi = 8*datan(1d0)
 C --- Setup ---
       call tcn('bloch')
-      if(debug) print *,' gggggggggg bloch gggggggggggg'
-c      lbloch = 100000 + 4000 + 40*1 + 10
-c      lblchi = 4000 + 40*1 + 10
       ndss = nds
-      twopi = 8*datan(1d0)
-      lsph   = .false. !mod(mod(lblchi/1000,10),2) .ne. 0
-      onsite = .false. !mod(mod(lblchi/1000,10),4) .ge. 2
-      ltrans = .true. !mod(lblchi/1000,10) .ge. 4
-c      j = 0 !mod(lbloch/10000,10)
-c      maskll = .false.!bittst(j,1)
-c      maskil = .false. !bittst(j,2)
-c      maskii = .false. !bittst(j,4)
+      nds1 = ndss
       lidim = ldima+idim
       sll=0d0
       sil=0d0
       sii=0d0
-c      if (mod(mod(lblchi/100,10),2) .eq. 0) then
-c        if (.not. maskll) sll=0d0 !call dpzero(sll,2*ldl*ldl2)
-c        if (.not. maskil) sil=0d0 !call dpzero(sil,2*ldi*ldl2)
-c        if (.not. maskii) sii=0d0 !call dpzero(sii,2*ldi**2)
-c      endif
-c      if(debug) print *,' gggggggggg bloch gggggggggggg 2222'
-C     Pick up true dimensions of sll,sil,sii from formal ones
-      kcplx = 1 !mod(mod(lblchi/10,10),4)
-      scplx = 1 !mod(lblchi/10,10)/4
-      call cplxdm(kcplx,ldl,ldl2,ld11,ld21,oi,oi)
-      call cplxdm(kcplx,ldi,ldl2,ld12,ld22,oi,oi)
-      call cplxdm(kcplx,ldi,ldi,ld13,ld23,oi,oi)
-C     lblchp passed to pblch1. s cplx -> shift lblchi flag 40->1000
-c      lblchp = mod(lblchi,1000)
-c      lblchp = lblchp - 40
-c      lblchp = lblchp + 1000
-C     s has permuted orbital order
-c      j = 1 !mod(lbloch/100000,10)
-c      lblchp = 101010 !lblchp + j*100000
-
-C     Leading and second dimension of s as used by pblch1
-c      if (mod(mod(lblchp/1000,10),2) .ne. 0) then
-C       If pblch1 uses sc, it's ndss
-        nds1 = ndss
-c      else
-cC       If pblch1 uses s, it's nds
-c        nds1 = nds
-c      endif
-
+      ld11 = 2
+      ld21 = ldl
+      ld12 = 2
+      ld22 = ldi
+      ld13 = 2
+      ld23 = ldi
 C --- For each RR' pair, add contribution to Bloch sum ---
       do  100  isite = is1, is2
-
         ia = iax(2,isite)
         ib = iax(1,isite)
 C       Any nonpositive site indices are excluded from sum
         if (ia .le. 0 .or. ib .le. 0) goto 100
-        if (onsite) then
-          if (ia .ne. ib .or. iax(3,isite) .ne. 0 .or.
-     .    iax(4,isite) .ne. 0 .or. iax(5,isite) .ne. 0) goto 100
-        endif
         TdotK = 0
-        do   j = 1, 3
-        do   k = 1, 3
+        do j = 1, 3
+        do k = 1, 3
            TdotK = TdotK + twopi*qp(j)*plat(j,k)*iax(2+k,isite)
         enddo
         enddo
-c        if (mod(lblchi/100,10) .ge. 4) then
-c          TdotK = -TdotK
-c        endif
         cosT = dcos(TdotK)
         sinT = dsin(TdotK)
-c        if (mod(mod(lblchi/100,10),4) .ge. 2) then
-c          cosT = -cosT
-c          sinT = -sinT
-c        endif
 C   ... Use equivalent of isite to some other site, if it exists
         ksite = isite
         if (iax(8,isite) .ne. 0) ksite = iax(8,isite)
-C   --- Handle all cases when s is to be copied to sc ---
-C   ... Input s is complex
+C   --- Handle all cases when s is to be copied to sc --- ... Input s is complex
         j = 2*ksite-1
         call zmscop(0,nds,nds,nds,ndss,0,0,0,0,s(1,1,2*isp-1,j),sc)
         call ztoy(sc,ndss,nds,nds,0)
-C     ... Take transpose of sc
         sc(:,1,:)=transpose(sc(:,1,:))
         sc(:,2,:)=transpose(sc(:,2,:))
-C   --- Lower-lower block ---
+C   --- Lower-lower block  Sll ---
         if (ldima .ne. 0 ) then 
-          offb = mxorb*(ib-1)
-          offa = mxorb*(ia-1)
-          if (ltrans) then
-            offa = mxorb*(ib-1)
+            offa = mxorb*(ib-1) !ltrans mode
             offb = mxorb*(ia-1)
-          endif
           call pblch1(mxorb,offa,offb,ld11,ld21,klu,iprmb,0,
      .    ldima,0,ldimb,s(1,1,isp,ksite),sc,nds1,cosT,sinT,sll)
         endif
-C   --- Intermediate-lower block ---
+C   --- Intermediate-lower block  Sil ---
         if (idim .ne. 0 ) then
           offb = mxorb*(ib-1)
           offa = mxorb*(ia-1)
           call pblch1(mxorb,offa,offb,ld12,ld22,klu,iprmb,ldima,
      .    lidim,0,ldimb,s(1,1,isp,ksite),sc,nds1,cosT,sinT,sil)
-        endif
-C   --- Intermediate-intermediate block ---
-        if (idim .ne. 0 ) then
+C   --- Intermediate-intermediate block Sii ---
           offb = mxorb*(ib-1)
           offa = mxorb*(ia-1)
           call pblch1(mxorb,offa,offb,ld13,ld23,klu,iprmb,ldima,
@@ -270,10 +218,9 @@ C   --- Intermediate-intermediate block ---
         endif
   100 continue
       if (iprint() .ge. 110) then
-c         k = mod(mod(lblchi/10,10),4)
         k=1
         call yprm('bloch: Sll',12+k,sll,ldima*ldimb,ldl,ldima,ldimb)
-        if (idim .gt. 0) then
+        if (idim >0) then
          call yprm('bloch: Sil',2+k,sil,idim*ldimb,ldi,idim,ldimb)
          call yprm('bloch: Sii',12+k,sii,idim*idim,ldi,idim,idim)
         endif
@@ -371,7 +318,7 @@ C ----------------------------------------------------------------------
       integer ipa,ipb,kcplx,lma1,lma2,lma,lmb,ndima,ndimb,ofbnd,offa0
       integer isa,isb,offra,offrb
       lbnd   = .false. !mod(lblchp,10) .ne. 0
-      kcplx  =  1 !mod(lblchp/10,10)
+c      kcplx  =  1 !mod(lblchp/10,10)
       rcmplx = .true. !mod(mod(lblchp/1000,10),2) .ne. 0
       ldiag  = .false. !mod(lblchp/10000,10) .ne. 0
       lprmr  = .true. !mod(lblchp/100000,10) .ne. 0
