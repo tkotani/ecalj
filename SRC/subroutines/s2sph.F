@@ -57,12 +57,9 @@ Cb   Not checked for the case nla ne nlb
 Cu Updates
 Cu   10 Oct 03 Extended to s being complex (s in kcplx mode 0)
 C ----------------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
+      implicit none
       integer opt,nla,nlb,nds1,nds2,ndss1,ndss2
       double precision s(nds1,nds2,2),sph(ndss1,ndss2,2)
-C ... Local parameters
-C     logical lhaveu
       logical lscplx
       integer l,lma,lmb,nl2,lc,m,ndwk,ladd
       double precision sr2,sm2,spmr,spmi,sppr,sppi
@@ -70,13 +67,10 @@ C     logical lhaveu
       double precision wk(ndwk,ndwk,2)
       m = max(nla*nla,nlb*nlb)
       if (m .gt. ndwk) call rxi('s2sph: increase ndwk to ge',m)
-
       sr2 = dsqrt(0.5d0)
       lscplx = mod(opt/10,10).ne.0
-C     if (mod(opt/10,10).ne.0) call rx('s2sph complex not implemented')
       ladd = 0
       if (mod(opt/100,10) .ne. 0) ladd = 1
-
 C ... Make us = u*s, where u is defined as in cb2sph
       nl2 = nlb*nlb
       do  10  l = 0, nla-1
@@ -101,7 +95,6 @@ C ... Make us = u*s, where u is defined as in cb2sph
    12     continue
    14   continue
    10 continue
-
 C ... Overwrite wk with u*s*u+, where u is defined as in cb2wk
       nl2 = nla*nla
       do  20  l = 0, nlb-1
@@ -123,32 +116,24 @@ C ... Overwrite wk with u*s*u+, where u is defined as in cb2wk
    22     continue
    24   continue
    20 continue
-
-C      call yprm('u s u+',2,wk,ndwk*ndwk,ndwk,nla**2,nlb**2)
-
       if (mod(opt,10) .eq. 0) then
-        call ymscop(0,nla*nla,nlb*nlb,ndwk,ndss1,0,0,0,0,
-     .  wk,ndwk*ndwk,sph,ndss1*ndss2)
+        call ymscop0(nla*nla,nlb*nlb,ndwk,ndss1,  wk,ndwk*ndwk,sph,ndss1*ndss2)
       elseif (mod(opt,10) .eq. 1) then
         call rx('s2sph not ready for complex*16 format')
       else
-        call ymscop(0,nla*nla,nlb*nlb,ndwk,ndss1*2,0,0,0,0,
-     .  wk,ndwk*ndwk,sph,ndss1)
+        call ymscop0(nla*nla,nlb*nlb,ndwk,ndss1*2,wk,ndwk*ndwk,sph,ndss1)
       endif
-
-C       m = 2+mod(opt,10)
-C       call yprm('u s u+ from s2sph',m,sph,ndss1**2,ndss1,nla*nla,
-C     .   nlb*nlb)
-
-C     Debugging check
-C      call yprm('u s u+',2,sph,ndss1*ndss2,ndss1,nla**2,nla**2)
-CC      call defrr(ou,nds**2*2)
-CC      call defrr(owk,nds**2*2)
-C      lhaveu = .false.
-C      call cb2sph(lhaveu,u,ndss1,s,ndss1,ndss1,wk,ndss1,sph)
-C      call yprm('u s u+ from cb2sph',2,
-C     .  sph,ndss1*ndss2,ndss1,nla**2,nla**2)
-CC      call rlse(ou)
-
       end
-
+      
+      subroutine ymscop0(nlma,nlmb,ndas,ndad, src,offsi,dest,offdi)
+      implicit none
+      integer:: nlma,nlmb,ndas,ndad,offsi,offdi,ia,ib
+      real(8):: src(ndas,1),dest(ndad,1)
+       if (nlma .le. 0 .or. nlmb .le. 0) return
+       do  ib = 1, nlmb
+       do  ia = 1, nlma
+           dest(ia, ib) = src(ia, ib)
+           dest(ia+offdi,ib) = src(ia+offsi,ib)
+       enddo
+       enddo
+      end

@@ -1,4 +1,4 @@
-      subroutine bloch(lbloch,qp,nl,plat,mxorb,iprmb,is1,is2,iax,s,
+      subroutine bloch(qp,nl,plat,mxorb,iprmb,is1,is2,iax,s,
      .nds,isp,nsp,ldima,ldimb,idim,ldl,ldi,ldl2,klu,sll,sil,sii)
 C- Bloch transform of real-space matrix
 C ----------------------------------------------------------------------
@@ -153,57 +153,58 @@ C     real + imaginary storage mode
       double precision sll(ldl,ldl2,2),sil(ldi,ldl2,2),sii(ldi,ldi,2)
 C ... Local parameters
       logical bittst,maskii,maskil,maskll,onsite,ltrans,lsph
-      integer ia,ib,iprint,isite,j,k,kcplx,ksite,lblchi,lblchp,ld11,
+      integer ia,ib,iprint,isite,j,k,kcplx,ksite,ld11,
      .ld12,ld13,ld21,ld22,ld23,lidim,nds1,ndss,offa,offb,oi,scplx
       double precision twopi,TdotK,cosT,sinT
       double precision sc(nds,2,nds),swk(nds,2,nds)
-      external cplxdm,dpzero,pblch1,rx,s2sph,tcn,tcx,yprm,zmscop,ztoy
+c      external cplxdm,dpzero,pblch1,rx,s2sph,tcn,tcx,yprm,zmscop,ztoy
       logical:: debug=.false.
 C --- Setup ---
-      if(debug) print *,' gggggggggg bloch gggggggggggg'
       call tcn('bloch')
+      if(debug) print *,' gggggggggg bloch gggggggggggg'
+c      lbloch = 100000 + 4000 + 40*1 + 10
+c      lblchi = 4000 + 40*1 + 10
       ndss = nds
       twopi = 8*datan(1d0)
-      lblchi = mod(lbloch,10000)
-      lsph   = mod(mod(lblchi/1000,10),2) .ne. 0
-      onsite = mod(mod(lblchi/1000,10),4) .ge. 2
-      ltrans = mod(lblchi/1000,10) .ge. 4
-      j = mod(lbloch/10000,10)
-      maskll = bittst(j,1)
-      maskil = bittst(j,2)
-      maskii = bittst(j,4)
+      lsph   = .false. !mod(mod(lblchi/1000,10),2) .ne. 0
+      onsite = .false. !mod(mod(lblchi/1000,10),4) .ge. 2
+      ltrans = .true. !mod(lblchi/1000,10) .ge. 4
+c      j = 0 !mod(lbloch/10000,10)
+c      maskll = .false.!bittst(j,1)
+c      maskil = .false. !bittst(j,2)
+c      maskii = .false. !bittst(j,4)
       lidim = ldima+idim
-      if(debug) print *,' gggggggggg bloch gggggggggggg 11111',ldl,ldl2,ldi,size(sll),size(sil),size(sii)
-      if (mod(mod(lblchi/100,10),2) .eq. 0) then
-        if (.not. maskll) sll=0d0 !call dpzero(sll,2*ldl*ldl2)
-        if (.not. maskil) sil=0d0 !call dpzero(sil,2*ldi*ldl2)
-        if (.not. maskii) sii=0d0 !call dpzero(sii,2*ldi**2)
-      endif
-      if(debug) print *,' gggggggggg bloch gggggggggggg 2222'
-
+      sll=0d0
+      sil=0d0
+      sii=0d0
+c      if (mod(mod(lblchi/100,10),2) .eq. 0) then
+c        if (.not. maskll) sll=0d0 !call dpzero(sll,2*ldl*ldl2)
+c        if (.not. maskil) sil=0d0 !call dpzero(sil,2*ldi*ldl2)
+c        if (.not. maskii) sii=0d0 !call dpzero(sii,2*ldi**2)
+c      endif
+c      if(debug) print *,' gggggggggg bloch gggggggggggg 2222'
 C     Pick up true dimensions of sll,sil,sii from formal ones
-      kcplx = mod(mod(lblchi/10,10),4)
-      scplx = mod(lblchi/10,10)/4
+      kcplx = 1 !mod(mod(lblchi/10,10),4)
+      scplx = 1 !mod(lblchi/10,10)/4
       call cplxdm(kcplx,ldl,ldl2,ld11,ld21,oi,oi)
       call cplxdm(kcplx,ldi,ldl2,ld12,ld22,oi,oi)
       call cplxdm(kcplx,ldi,ldi,ld13,ld23,oi,oi)
-
 C     lblchp passed to pblch1. s cplx -> shift lblchi flag 40->1000
-      lblchp = mod(lblchi,1000)
-      if (scplx .eq. 1) lblchp = lblchp - 40
-      if (scplx .eq. 1 .or. ltrans .or. lsph) lblchp = lblchp + 1000
+c      lblchp = mod(lblchi,1000)
+c      lblchp = lblchp - 40
+c      lblchp = lblchp + 1000
 C     s has permuted orbital order
-      j = mod(lbloch/100000,10)
-      lblchp = lblchp + j*100000
+c      j = 1 !mod(lbloch/100000,10)
+c      lblchp = 101010 !lblchp + j*100000
 
 C     Leading and second dimension of s as used by pblch1
-      if (mod(mod(lblchp/1000,10),2) .ne. 0) then
+c      if (mod(mod(lblchp/1000,10),2) .ne. 0) then
 C       If pblch1 uses sc, it's ndss
         nds1 = ndss
-      else
-C       If pblch1 uses s, it's nds
-        nds1 = nds
-      endif
+c      else
+cC       If pblch1 uses s, it's nds
+c        nds1 = nds
+c      endif
 
 C --- For each RR' pair, add contribution to Bloch sum ---
       do  100  isite = is1, is2
@@ -216,129 +217,94 @@ C       Any nonpositive site indices are excluded from sum
           if (ia .ne. ib .or. iax(3,isite) .ne. 0 .or.
      .    iax(4,isite) .ne. 0 .or. iax(5,isite) .ne. 0) goto 100
         endif
-
         TdotK = 0
         do   j = 1, 3
         do   k = 1, 3
            TdotK = TdotK + twopi*qp(j)*plat(j,k)*iax(2+k,isite)
         enddo
         enddo
-        if (mod(lblchi/100,10) .ge. 4) then
-          TdotK = -TdotK
-        endif
+c        if (mod(lblchi/100,10) .ge. 4) then
+c          TdotK = -TdotK
+c        endif
         cosT = dcos(TdotK)
         sinT = dsin(TdotK)
-        if (mod(mod(lblchi/100,10),4) .ge. 2) then
-          cosT = -cosT
-          sinT = -sinT
-        endif
-
+c        if (mod(mod(lblchi/100,10),4) .ge. 2) then
+c          cosT = -cosT
+c          sinT = -sinT
+c        endif
 C   ... Use equivalent of isite to some other site, if it exists
         ksite = isite
         if (iax(8,isite) .ne. 0) ksite = iax(8,isite)
-
 C   --- Handle all cases when s is to be copied to sc ---
 C   ... Input s is complex
-        if (scplx .eq. 1) then
-          if (mod(lblchp/1000,10) .ne. 1) call rx('oops!')
-          j = 2*ksite-1
-C         Rotate complex s to spherical harmonics
-          if (lsph) then
-            call zmscop(0,nds,nds,nds,ndss,0,0,0,0,s(1,1,2*isp-1,j),swk)
-            call ztoyy(swk,ndss,ndss,ndss,ndss,1,0)
-            if (nl**2.ne.ndss) call rx('bloch not ready for sph. harm')
-            call s2sph(12,nl,nl,swk,nds,nds,ndss,ndss,sc)
-          else
-            call zmscop(0,nds,nds,nds,ndss,0,0,0,0,s(1,1,2*isp-1,j),sc)
-            call ztoy(sc,ndss,nds,nds,0)
-          endif
-C   ... Rotate s to spherical harmonics
-        else if (lsph) then
-          if (mod(lblchp/1000,10) .ne. 1) call rx('oops!')
-          call s2sph(2,nl,nl,s(1,1,isp,ksite),nds,nds,ndss,ndss,sc)
-
-C   ... If otherwise to use transpose of s
-        else if (ltrans) then
-          if (mod(lblchp/1000,10) .ne. 1) call rx('oops!')
-          print *,' ltrans=',ltrans,scplx
-          call rx('bloch not ready for scplx=1 and ltrans')
-        endif
-C   ... Take transpose of sc
-        if (ltrans) then
-c          call ymscop(0,nds,nds,2*ndss,2*ndss,0,0,0,0,sc,ndss,swk,ndss)
-c          call ymtrns(1,swk,2*ndss,1,ndss,sc,2*ndss,1,ndss,1,nds,1,nds)
-           sc(:,1,:)=transpose(sc(:,1,:))
-           sc(:,2,:)=transpose(sc(:,2,:))
-        endif
-
+        j = 2*ksite-1
+        call zmscop(0,nds,nds,nds,ndss,0,0,0,0,s(1,1,2*isp-1,j),sc)
+        call ztoy(sc,ndss,nds,nds,0)
+C     ... Take transpose of sc
+        sc(:,1,:)=transpose(sc(:,1,:))
+        sc(:,2,:)=transpose(sc(:,2,:))
 C   --- Lower-lower block ---
-        if (ldima .ne. 0 .and. .not. maskll) then
+        if (ldima .ne. 0 ) then 
           offb = mxorb*(ib-1)
           offa = mxorb*(ia-1)
           if (ltrans) then
             offa = mxorb*(ib-1)
             offb = mxorb*(ia-1)
           endif
-          call pblch1(lblchp,mxorb,offa,offb,ld11,ld21,klu,iprmb,0,
+          call pblch1(mxorb,offa,offb,ld11,ld21,klu,iprmb,0,
      .    ldima,0,ldimb,s(1,1,isp,ksite),sc,nds1,cosT,sinT,sll)
         endif
-
 C   --- Intermediate-lower block ---
-        if (idim .ne. 0 .and. .not. maskil) then
+        if (idim .ne. 0 ) then
           offb = mxorb*(ib-1)
           offa = mxorb*(ia-1)
-          call pblch1(lblchp,mxorb,offa,offb,ld12,ld22,klu,iprmb,ldima,
+          call pblch1(mxorb,offa,offb,ld12,ld22,klu,iprmb,ldima,
      .    lidim,0,ldimb,s(1,1,isp,ksite),sc,nds1,cosT,sinT,sil)
         endif
-
 C   --- Intermediate-intermediate block ---
-        if (idim .ne. 0 .and. .not. maskii) then
+        if (idim .ne. 0 ) then
           offb = mxorb*(ib-1)
           offa = mxorb*(ia-1)
-          call pblch1(lblchp,mxorb,offa,offb,ld13,ld23,klu,iprmb,ldima,
+          call pblch1(mxorb,offa,offb,ld13,ld23,klu,iprmb,ldima,
      .    lidim,ldimb,lidim,s(1,1,isp,ksite),sc,nds1,cosT,sinT,sii)
         endif
   100 continue
       if (iprint() .ge. 110) then
-        k = mod(mod(lblchi/10,10),4)
-        if (.not. maskll)
-     .  call yprm('bloch: Sll',12+k,sll,ldima*ldimb,ldl,ldima,ldimb)
+c         k = mod(mod(lblchi/10,10),4)
+        k=1
+        call yprm('bloch: Sll',12+k,sll,ldima*ldimb,ldl,ldima,ldimb)
         if (idim .gt. 0) then
-          if (.not. maskil)
-     .    call yprm('bloch: Sil',2+k,sil,idim*ldimb,ldi,idim,ldimb)
-          if (.not. maskii)
-     .    call yprm('bloch: Sii',12+k,sii,idim*idim,ldi,idim,idim)
+         call yprm('bloch: Sil',2+k,sil,idim*ldimb,ldi,idim,ldimb)
+         call yprm('bloch: Sii',12+k,sii,idim*idim,ldi,idim,idim)
         endif
       endif
       call tcx('bloch')
       end subroutine bloch
 
-
-      subroutine pblch1(lblchp,mxorb,offa,offb,lds,ld2,klu,iprmb,
+      subroutine pblch1(mxorb,offa,offb,lds,ld2,klu,iprmb,!lblchp,
      .hdpa,hdna,hdpb,hdnb,s,sc,nds,cosT,sinT,sk)
-
 C- Contribution of one pair to Bloch sum of strux
 C ----------------------------------------------------------------------
-Ci Inputs
+Ci Inputs 101010
 Ci   lblchp: 1s digit concerns storage of Bloch summed sk
-Ci           0: sk is stored in normal, unpacked form
-Ci           1: sk is stored in banded form (see Remarks)
-Ci              The band form follows LAPACK band storage conventions:
-Ci              sk(i,j) is stored in location (kl+ku+1+i-j,j)
-Ci              with kl,ku = size of sub- and super-diagonal.
-Ci              Here we take kl=ku=klu.
+Cix           0: sk is stored in normal, unpacked form
+Cix           1: sk is stored in banded form (see Remarks)
+Cix              The band form follows LAPACK band storage conventions:
+Cix              sk(i,j) is stored in location (kl+ku+1+i-j,j)
+Cix              with kl,ku = size of sub- and super-diagonal.
+Cix              Here we take kl=ku=klu.
 Ci          10s digit distinguishes how complex arithmetic is handled
-Ci           0: sk has real, imaginary separated
-Ci              sk = sk(ldl,ldl2,2), with sk(*,*,1..2) = real..imag
-Ci           1: sk is returned complex*16 format:
-Ci              sk = sk(2,ldl,ldl2), with sk(1..2,*,*) = real..imag
-Ci           2: sk has real, imaginary separated by columns
-Ci              sk = sk(ldl,2,ldl2), with sk(*,1..2,*) = real..imag
-Ci        100s digit is not used
-Ci       1000s digit 1 if real-space s is complex
-Ci             In this case, sc is used in place of s.
-Ci      10000s digit 1 if s(or sc) is diagonal.
-Ci     100000s digit 1 if s(or sc) has a permuted orbital order
+Cixxx           0: sk has real, imaginary separated
+Cixxx              sk = sk(ldl,ldl2,2), with sk(*,*,1..2) = real..imag
+Ci on          1: sk is returned complex*16 format:
+Ci               sk = sk(2,ldl,ldl2), with sk(1..2,*,*) = real..imag
+Cixxx            2: sk has real, imaginary separated by columns
+Cixxx                sk = sk(ldl,2,ldl2), with sk(*,1..2,*) = real..imag
+Cixxx            100s digit is not used
+Ci on  1000s digit 1 if real-space s is complex
+Ci              In this case, sc is used in place of s.
+Cixxx          10000s digit 1 if s(or sc) is diagonal.
+Ci on 100000s digit 1 if s(or sc) has a permuted orbital order
 Ci   mxorb :number of orbital channels for this pair, including
 Ci         :lower, intermediate and high blocks.  Only orbitals in the
 Ci         :appropriate subblock (defined by set hdpa,hdna,hdpb,hdnb)
@@ -397,33 +363,26 @@ Cu Updates
 Cu   18 Jul 02 Various changes to accomodate fp input.  New argument list
 Cu   23 Jun 02 Various changes to accomodate fp input.  New argument list
 C ----------------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
+      implicit none
       integer lblchp,mxorb,lds,ld2,offa,offb,nds,klu,iprmb(*),hdpa,
      .hdna,hdpb,hdnb
       double precision cosT,sinT,sk(lds,ld2,2),s(nds,1),sc(nds,2,1)
-C ... Local parameters
       logical rcmplx,lbnd,ldiag,lprmr
       integer ipa,ipb,kcplx,lma1,lma2,lma,lmb,ndima,ndimb,ofbnd,offa0
       integer isa,isb,offra,offrb
-
-      lbnd   = mod(lblchp,10) .ne. 0
-      kcplx  = mod(lblchp/10,10)
-      rcmplx = mod(mod(lblchp/1000,10),2) .ne. 0
-      ldiag  = mod(lblchp/10000,10) .ne. 0
-      lprmr  = mod(lblchp/100000,10) .ne. 0
-      if (ldiag .and. lprmr)
-     .call rx('pblch1 not ready for ldiag and lprmr')
+      lbnd   = .false. !mod(lblchp,10) .ne. 0
+      kcplx  =  1 !mod(lblchp/10,10)
+      rcmplx = .true. !mod(mod(lblchp/1000,10),2) .ne. 0
+      ldiag  = .false. !mod(lblchp/10000,10) .ne. 0
+      lprmr  = .true. !mod(lblchp/100000,10) .ne. 0
+      if (ldiag .and. lprmr) call rx('pblch1 not ready for ldiag and lprmr')
       ndimb = hdnb - hdpb
       ndima = hdna - hdpa
       offa0 = offa
       ofbnd = 0
-C     Range of lma when s is not diagonal
       lma1 = 1
       lma2 = mxorb
-
 C     Case permute orbital order in s: offr[ab] = offset to orbitals
-      if (lprmr) then
         do  3  lmb = 1, mxorb
           offrb = iprmb(offb+lmb)
           if (offrb.gt.0 .and. offrb.le.ndimb) goto 4
@@ -436,140 +395,28 @@ C       No columns, nothing to copy
           offra = iprmb(offa+lma)
           if (offra.gt.0 .and. offra.le.ndima) goto 6
     5   continue
-C       No rows, nothing to copy
         return
     6   continue
         offra = offra-1
-      endif
-
-      if (kcplx .eq. 0) then
-
-C --- For each basis orbital, do (complex storage mode 0) ---
-        do  10  lmb = 1, mxorb
-          offb = offb+1
-          ipb = iprmb(offb) - hdpb
-          if (ipb .le. 0 .or. ipb .gt. ndimb) goto 10
-          isb = lmb
-          if (lprmr) isb = iprmb(offb) - offrb
-          if (lbnd) ofbnd = 2*klu+1-ipb
-          if (ldiag) then
-            lma1 = lmb
-            lma2 = lmb
-          endif
-          offa = offa0 + lma1-1
-C   ... Loop over augmentation orbitals, case real-space s is complex
-          if (rcmplx) then
-            do  12  lma = lma1, lma2
-              offa = offa+1
-              ipa = iprmb(offa) - hdpa
-              if (ipa .le. 0 .or. ipa .gt. ndima) goto 12
-              isa = lma
-              if (lprmr) isa = iprmb(offa) - offra
-              sk(ipa+ofbnd,ipb,1) = sk(ipa+ofbnd,ipb,1) +
-     .        sc(isa,1,isb)*cosT - sc(isa,2,isb)*sinT
-              sk(ipa+ofbnd,ipb,2) = sk(ipa+ofbnd,ipb,2) +
-     .        sc(isa,1,isb)*sinT + sc(isa,2,isb)*cosT
-   12       continue
-C   ... Loop over augmentation orbitals, case real-space s is real
-          else
-            do  14  lma = lma1, lma2
-              offa = offa+1
-              ipa = iprmb(offa) - hdpa
-              if (ipa .le. 0 .or. ipa .gt. ndima) goto 14
-              isa = lma
-              if (lprmr) isa = iprmb(offa) - offra
-              sk(ipa+ofbnd,ipb,1) = sk(ipa+ofbnd,ipb,1) + s(isa,isb)*cosT
-              sk(ipa+ofbnd,ipb,2) = sk(ipa+ofbnd,ipb,2) + s(isa,isb)*sinT
-   14       continue
-          endif
-   10   continue
-
-      elseif (kcplx .eq. 1) then
-
 C --- For each basis orbital, do (complex storage mode 1) ---
         do  110  lmb = 1, mxorb
           offb = offb+1
           ipb = iprmb(offb) - hdpb
           if (ipb .le. 0 .or. ipb .gt. ndimb) goto 110
-          isb = lmb
-          if (lprmr) isb = iprmb(offb) - offrb
-          if (lbnd) ofbnd = 2*klu+1-ipb
-          if (ldiag) then
-            lma1 = lmb
-            lma2 = lmb
-          endif
+          isb = iprmb(offb) - offrb
           offa = offa0 + lma1-1
 C   ... Loop over augmentation orbitals, case real-space s is complex
-          if (rcmplx) then
             do  112  lma = lma1, lma2
               offa = offa+1
               ipa = iprmb(offa) - hdpa
               if (ipa .le. 0 .or. ipa .gt. ndima) goto 112
-              isa = lma
-              if (lprmr) isa = iprmb(offa) - offra
+              isa = iprmb(offa) - offra
               sk(1,ipa+ofbnd,ipb) = sk(1,ipa+ofbnd,ipb) +
      .        sc(isa,1,isb)*cosT - sc(isa,2,isb)*sinT
               sk(2,ipa+ofbnd,ipb) = sk(2,ipa+ofbnd,ipb) +
      .        sc(isa,1,isb)*sinT + sc(isa,2,isb)*cosT
   112       continue
-C   ... Loop over augmentation orbitals, case real-space s is real
-          else
-            do  114  lma = lma1, lma2
-              offa = offa+1
-              ipa = iprmb(offa) - hdpa
-              if (ipa .le. 0 .or. ipa .gt. ndima) goto 114
-              isa = lma
-              if (lprmr) isa = iprmb(offa) - offra
-              sk(1,ipa+ofbnd,ipb) = sk(1,ipa+ofbnd,ipb) + s(isa,isb)*cosT
-              sk(2,ipa+ofbnd,ipb) = sk(2,ipa+ofbnd,ipb) + s(isa,isb)*sinT
-  114       continue
-          endif
   110   continue
-
-      elseif (kcplx .eq. 2) then
-
-C --- For each basis orbital, do (complex storage mode 2) ---
-        do  210  lmb = 1, mxorb
-          offb = offb+1
-          ipb = iprmb(offb) - hdpb
-          if (ipb .le. 0 .or. ipb .gt. ndimb) goto 210
-          isb = lmb
-          if (lprmr) isb = iprmb(offb) - offrb
-          if (lbnd) ofbnd = 2*klu+1-ipb
-          if (ldiag) then
-            lma1 = lmb
-            lma2 = lmb
-          endif
-          offa = offa0 + lma1-1
-C   ... Loop over augmentation orbitals, case real-space s is complex
-          if (rcmplx) then
-            do  212  lma = lma1, lma2
-              offa = offa+1
-              ipa = iprmb(offa) - hdpa
-              if (ipa .le. 0 .or. ipa .gt. ndima) goto 212
-              isa = lma
-              if (lprmr) isa = iprmb(offa) - offra
-              sk(ipa+ofbnd,1,ipb) = sk(ipa+ofbnd,1,ipb) +
-     .        sc(isa,1,isb)*cosT - sc(isa,2,isb)*sinT
-              sk(ipa+ofbnd,2,ipb) = sk(ipa+ofbnd,2,ipb) +
-     .        sc(isa,1,isb)*sinT + sc(isa,2,isb)*cosT
-  212       continue
-C   ... Loop over augmentation orbitals, case real-space s is real
-          else
-            do  214  lma = lma1, lma2
-              offa = offa+1
-              ipa = iprmb(offa) - hdpa
-              if (ipa .le. 0 .or. ipa .gt. ndima) goto 214
-              isa = lma
-              if (lprmr) isa = iprmb(offa) - offra
-              sk(ipa+ofbnd,1,ipb) = sk(ipa+ofbnd,1,ipb) + s(isa,isb)*cosT
-              sk(ipa+ofbnd,2,ipb) = sk(ipa+ofbnd,2,ipb) + s(isa,isb)*sinT
-  214       continue
-          endif
-  210   continue
-
-      endif
-
       end subroutine pblch1
 
 

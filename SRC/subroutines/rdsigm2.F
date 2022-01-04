@@ -38,22 +38,23 @@
       subroutine getsene(qp,isp) !(lrsig,qp,isp) !call after sigmainit
       use m_lmfinit,only: mxorb,nbas,nl,iprmb
       use m_lattic,only: plat=>lat_plat
-      integer:: i, mode, isp, ispsigm,iwdummy,ival!lrsig
+      integer:: i,  isp, ispsigm,iwdummy,ival!lrsig
       real(8):: hreal,qp(3)
       logical:: debug=.false.
       if(debug) print *,'ndimsig=',ndimsig
       allocate(sene(ndimsig,ndimsig))
 c      i = lrsig*10
-      hreal = 0
+c      hreal = 0
 c      if (mod(i/10,10) >= 4) hreal = 1 !this is lrsig in hambles.
-      mode = 100000 + 4000 + 40*(1-hreal) + 000 + 10 !hreal=1 -> sig(T) is real
+c      mode = 100000 + 4000 + 40*(1-hreal) + 000 + 10 !hreal=1 -> sig(T) is real
+c      mode = 100000 + 4000 + 40*(1) + 000 + 10 !hreal=1 -> sig(T) is real
       if(isp>nspsigm) then
          ispsigm = nspsigm
       else
          ispsigm=isp
       endif
 !! bloch: we need hrs(means real space) and iaxs(pair table) for FFT.
-      call bloch (mode,qp,nl,plat,mxorb,iprmb,1
+      call bloch (qp,nl,plat,mxorb,iprmb,1
      &           , ival ( iv_a_ontabs , nbas + 1 )
      &           , iv_a_oiaxs , rv_a_ohrs, ham_ndhrs, ispsigm, nspsigm , ndimsig , ndimsig 
      &           , 0 , ndimsig, 0 , ndimsig , 0 , sene, iwdummy, iwdummy )
@@ -196,7 +197,7 @@ c
       lfbzout = .false.
       hreal = 0 !real or complex
       if (lrsig .eq. 0) return
-      ltrans = mod(mode/1000,10) .eq. 0
+      ltrans = .true. !mod(mode/1000,10) .eq. 0
       kcplx = 1
       if (mod(mode/1000,10) .eq. 1) kcplx = 0
       lphase = mod(mode/1000,10) .eq. 0
@@ -2008,10 +2009,11 @@ C     or write to file
           else
             call dcopy(3,qplst(1,iq1),1,qp,1)
           endif
-C       Call bloch : 104010=perm orb, transpose, c*16
-          i = 100000 + 4000 + 40*(1-hreal) + 10
+C     Call bloch : 104010=perm orb, transpose, c*16
+c          if(hreal/=0) call rx('going to bloch. We allow only hreal=0 but not')
+c          i = 100000 + 4000 + 40*(1-hreal) + 10
           if (.not. ltrans) i = i - 4000
-          call bloch ( i , qp , nl , plat , mxorb , iprmb , 1 , nttabs 
+          call bloch (qp , nl , plat , mxorb , iprmb , 1 , nttabs 
      .     , iaxs , hrs , ndhrs , isp , nsp , ndimh , ndimh , 0 , ndimh 
      .     , 0 , ndimh , 0 , sq1 , iwdummy , iwdummy )
           errmx = 0
