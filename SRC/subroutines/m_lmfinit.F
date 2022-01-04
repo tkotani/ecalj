@@ -73,7 +73,7 @@ Ci          functions are less than tol.
       character*(8),allocatable,protected::pb1(:),pb2(:), coreh(:)
 !! ... SITE
       character(8),protected:: alabl
-      real(8),allocatable,protected :: pos(:,:),vel(:,:),eula(:,:),vshft(:)
+      real(8),allocatable,protected :: pos(:,:),vel(:,:),vshft(:)
       integer,allocatable,protected :: ips(:),irlx(:,:),ndelta(:) !,ipl(:),plv(:)
       real(8),allocatable,protected :: delta(:,:),mpole(:),dpole(:,:)
       integer,allocatable,protected ::iantiferro(:) !reserved
@@ -115,7 +115,7 @@ Ci          functions are less than tol.
 !!      
       integer,protected:: ham_pwmode,ham_nkaph,ham_nlibu,
      &     ctrl_noinv,nlmax,mxorb,ctrl_lfrce,bz_nevmx,
-     &     ham_neula,ham_nbf,ham_lsig,ctrl_lmet,bz_nabcin(3)=NULLI,
+     &     ham_nbf,ham_lsig,ctrl_lmet,bz_nabcin(3)=NULLI,
      &     bz_ndos,              !bndfp
      &     lat_ldist=0
       logical,protected:: irs1x10,irsrot !(irsrot is not tested)
@@ -1301,12 +1301,12 @@ c         if(master_mpi) write('ispec: nkaphh = nkapii+ lpzex(j)',i3,3i2)") j,nk
          nbas = 1
          nsite =2
       endif
-      allocate(pos(3,nsite),vel(3,nsite),eula(3,nsite),vshft(nsite),
+      allocate(pos(3,nsite),vel(3,nsite),vshft(nsite),
      .     ips(nsite),irlx(3,nsite), !,ipl(nsite),plv(nsite)
      .     iantiferro(nsite))   !mpole(nsite),dpole(3,nsite),
 C     Default values
       vel  = 0d0
-      eula = 0d0
+c      eula = 0d0
       vshft = 0d0
       irlx = 0
 C     Should always be set, if used
@@ -1375,22 +1375,22 @@ c     dpole = 0d0
      .        def_r8=0d0,cindx=jj,
      .        note='Constant potential shift for this site')
 
-         nm='SITE_ATOM_ROT'; call gtv(trim(nm),tksw(prgnam,nm),outs,nmin=
-     .        10,cindx=jj,nout=nout,note=
-     .        'Rotation of spin quantization axis at this site')
-         if (io_help .ne. 1 .and. nout .eq. 1) then
-            call numsyv(i0)
-            call lodsyv('ib',0,dble(j),ii)
-            call lodsyv('x', 0,pos(1,j),ii)
-            call lodsyv('y', 0,pos(2,j),ii)
-            call lodsyv('z', 0,pos(3,j),ii)
-            call a2rotm(outs,F,iprint()-10,xv)
-            call clrsyv(i0)
-            call rm2eua(xv,eula(1,j),eula(2,j),eula(3,j))
-            if (io_show>0) call info5(0,0,0,
-     .           '%15pROT= : Euler alpha = %1;6d  beta = %1;6d'//
-     .           '  gamma = %1;6d',eula(1,j),eula(2,j),eula(3,j),0,0)
-         endif
+c$$$         nm='SITE_ATOM_ROT'; call gtv(trim(nm),tksw(prgnam,nm),outs,nmin=
+c$$$     .        10,cindx=jj,nout=nout,note=
+c$$$     .        'Rotation of spin quantization axis at this site')
+c$$$         if (io_help .ne. 1 .and. nout .eq. 1) then
+c$$$            call numsyv(i0)
+c$$$            call lodsyv('ib',0,dble(j),ii)
+c$$$            call lodsyv('x', 0,pos(1,j),ii)
+c$$$            call lodsyv('y', 0,pos(2,j),ii)
+c$$$            call lodsyv('z', 0,pos(3,j),ii)
+c$$$            call a2rotm(outs,F,iprint()-10,xv)
+c$$$            call clrsyv(i0)
+c$$$            call rm2eua(xv,eula(1,j),eula(2,j),eula(3,j))
+c$$$            if (io_show>0) call info5(0,0,0,
+c$$$     .           '%15pROT= : Euler alpha = %1;6d  beta = %1;6d'//
+c$$$     .           '  gamma = %1;6d',eula(1,j),eula(2,j),eula(3,j),0,0)
+c$$$         endif
          nm='SITE_ATOM_AF'; call gtv(trim(nm),tksw(prgnam,nm),iantiferro(j),
      .        cindx=jj,def_i4=0,
      .        note='antiferro ID:=i and -i should be af-pair, we look for space-group operation with spin-flip')
@@ -1864,7 +1864,7 @@ ccccccccccccccc
           v_ssite(j)%vel=vel(1:3,j)
           v_ssite(j)%vshft=vshft(j)
           v_ssite(j)%relax=irlx(:,j)
-          v_ssite(j)%eula=eula(:,j)
+c          v_ssite(j)%eula=eula(:,j)
           v_ssite(j)%iantiferro=iantiferro(j)
       enddo
       sstrnmix=trim(iter_mix)
@@ -1996,7 +1996,7 @@ c      deallocate(wowk,pnu,qnu,pz,amom,idmod,rsmh,eh,rsmh2,eh2,pb1,pb2,
      .     rmt,idu,uh,jh,dv,grp,grp2,mxcst1,mxcst2,mxcst4,kmxv,  !kmxt,
      .     lfoca,eref,lmxl,lxi,coreh,          spec_a,z,nr,rsmv,
 c    .     lfoca,eref,lmxl,lxi,coreh,lmxa,lmxb,spec_a,z,nr,rsmv,
-     .     pos,vel,eula,vshft,ips,irlx) 
+     .     pos,vel,vshft,ips,irlx) 
 
 c$$$!! --- Printout ---
 c$$$          if (iprint() .ge. 20 .and. procid .eq. master) then
@@ -2428,7 +2428,7 @@ Cr  nbf    number of channels for magnetic field
 Crxxxx  ndham  Largest dimension of lmto+PW basis
 Cr  ndhrs  dimension of site block for r.s. h or sigma
 Cr  ndofH  leading dimension to ooffH
-Cr  neula  number of channels for euler angles
+Crxxx  neula  number of channels for euler angles
 Cr         0 -> No euler angles defined
 Cr  nkaph  number of repetitions of one l-quant.n. in basis
 Cr  nlibu  Number of LDA+U blocks
@@ -2440,7 +2440,7 @@ Crxxx         and subtracted from min basis dimension
 Crxxx         (PW basis is q-dependent; max size not known a priori)
 Cr  nqsig  Number of k-points for which self-energy known          <-Removable(probably)
 Cr         (Used for interpolating between qpoints)
-Cr  eula  Euler angles
+Crxxx  eula  Euler angles
 Cr  hrs   r.s. h or sigma 
 Cr  iaxs  neighbor table 
 Cr  indxo orbital permutation table (pointer in w array)

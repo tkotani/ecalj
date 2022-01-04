@@ -108,7 +108,7 @@ c !lncol,
      .ngmx,nsgrp
       integer:: oeold  , olmx , opold , owk2 , orham , oamsh 
      .                       , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl , mxclas
-      real(8),allocatable:: eula(:,:)
+c      real(8),allocatable:: eula(:,:)
       integer,allocatable :: iv_a_ontab(:)
       integer,allocatable :: iv_a_oiax(:)
       real(8),allocatable :: rv_a_og(:),rv_a_ormax(:)
@@ -517,7 +517,7 @@ C     ----------------------------------------------------------------------
       
       subroutine aiocls(lio,mode,sspec,ic1,ic2) !sctrl,sham,,slat spot,sarray,
       use m_clsprm,only: iv_a_oipqx,
-     &     rv_a_obxc , rv_a_ogrrme ,  rv_a_opmpol , rv_a_opnu , rv_a_opp , rv_a_opprel,
+     &     rv_a_ogrrme ,  rv_a_opmpol , rv_a_opnu , rv_a_opp , rv_a_opprel,
      &     rv_a_oqnu , rv_a_oqpp , rv_a_oqt , rv_a_orhrmx ,rv_a_opnu,
      &     rv_a_osop , rv_a_ovdif , rv_a_oves , rv_a_ovintr , rv_a_ovrmax 
       use m_mksym,only: rv_a_oclabl,iv_a_oics,ctrl_nclass

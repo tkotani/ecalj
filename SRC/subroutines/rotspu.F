@@ -1,67 +1,67 @@
-      subroutine rotspu(mode,nbas,nl,eula,neul,u)
-C- Sets up rotation matrices for all sites
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   mode  :1s digit
-Ci           1 if to reverse the sense of rotation
-Ci   nbas  :size of basis
-Ci   nl    :(global maximum l) + 1
-Ci   eula  :Euler angles for noncollinear spins
-Ci   neul  :1  if Euler angles are l-independent
-Ci          nl if Euler angles are l-dependent
-Ci          nl*nl if Euler angles are lm-dependent
-Co Outputs
-Co   u     :spinor rotation matrices
-C ----------------------------------------------------------------------
-C     implicit none
-      integer mode,nbas,neul,nl
-      double complex u(2,2,nl*nl,nbas)
-      double precision eula(nbas,neul,3)
-C Local variables
-      double precision xxc,xxs,alpha,gamma
-      integer ib,il,im,ilm
-
-C --- Spinor rotation matrices for all sites ---
-      do  102  ib = 1, nbas
-C ... Assume initially Euler angles are not l-dependent
-        xxc = dcos(eula(ib,1,2)/2)
-        xxs = dsin(eula(ib,1,2)/2)
-        alpha = eula(ib,1,1)
-        gamma = eula(ib,1,3)
-        ilm = 0
-      do  101  il = 1, nl
-C   ... If euler angles are l dependent
-        if (neul .eq. nl) then
-          xxc = dcos(eula(ib,il,2)/2)
-          xxs = dsin(eula(ib,il,2)/2)
-          alpha = eula(ib,il,1)
-          gamma = eula(ib,il,3)
-        endif
-      do  10  im = -il+1, il-1
-        ilm = ilm+1
-C   ... If euler angles are lm dependent
-        if (neul .eq. nl*nl) then
-          xxc = dcos(eula(ib,ilm,2)/2)
-          xxs = dsin(eula(ib,ilm,2)/2)
-          alpha = eula(ib,ilm,1)
-          gamma = eula(ib,ilm,3)
-        endif
-        if (mode .eq. 1) then
-          u(1,1,ilm,ib) =  xxc*cdexp(dcmplx(0d0,(alpha+gamma)/2))
-          u(1,2,ilm,ib) =  xxs*cdexp(dcmplx(0d0,(-alpha+gamma)/2))
-          u(2,1,ilm,ib) = -xxs*cdexp(dcmplx(0d0,(alpha-gamma)/2))
-          u(2,2,ilm,ib) =  xxc*cdexp(dcmplx(0d0,-(alpha+gamma)/2))
-        else
-          u(1,1,ilm,ib) =  xxc*cdexp(dcmplx(0d0,-(alpha+gamma)/2))
-          u(2,1,ilm,ib) =  xxs*cdexp(dcmplx(0d0,(alpha-gamma)/2))
-          u(1,2,ilm,ib) = -xxs*cdexp(dcmplx(0d0,(-alpha+gamma)/2))
-          u(2,2,ilm,ib) =  xxc*cdexp(dcmplx(0d0,(alpha+gamma)/2))
-        endif
-C        print *, ilm,ib
-C        if (ilm .eq. 1 .and. iprint() .ge. 100)
-C     .    call zprm('u in rotspu',2,u(1,1,ilm,ib),2,2,2)
-   10 continue
- 101  continue
- 102  continue
-      end
-
+c$$$      subroutine rotspu(mode,nbas,nl,eula,neul,u)
+c$$$C- Sets up rotation matrices for all sites
+c$$$C ----------------------------------------------------------------------
+c$$$Ci Inputs
+c$$$Ci   mode  :1s digit
+c$$$Ci           1 if to reverse the sense of rotation
+c$$$Ci   nbas  :size of basis
+c$$$Ci   nl    :(global maximum l) + 1
+c$$$Ci   eula  :Euler angles for noncollinear spins
+c$$$Ci   neul  :1  if Euler angles are l-independent
+c$$$Ci          nl if Euler angles are l-dependent
+c$$$Ci          nl*nl if Euler angles are lm-dependent
+c$$$Co Outputs
+c$$$Co   u     :spinor rotation matrices
+c$$$C ----------------------------------------------------------------------
+c$$$C     implicit none
+c$$$      integer mode,nbas,neul,nl
+c$$$      double complex u(2,2,nl*nl,nbas)
+c$$$      double precision eula(nbas,neul,3)
+c$$$C Local variables
+c$$$      double precision xxc,xxs,alpha,gamma
+c$$$      integer ib,il,im,ilm
+c$$$
+c$$$C --- Spinor rotation matrices for all sites ---
+c$$$      do  102  ib = 1, nbas
+c$$$C ... Assume initially Euler angles are not l-dependent
+c$$$        xxc = dcos(eula(ib,1,2)/2)
+c$$$        xxs = dsin(eula(ib,1,2)/2)
+c$$$        alpha = eula(ib,1,1)
+c$$$        gamma = eula(ib,1,3)
+c$$$        ilm = 0
+c$$$      do  101  il = 1, nl
+c$$$C   ... If euler angles are l dependent
+c$$$        if (neul .eq. nl) then
+c$$$          xxc = dcos(eula(ib,il,2)/2)
+c$$$          xxs = dsin(eula(ib,il,2)/2)
+c$$$          alpha = eula(ib,il,1)
+c$$$          gamma = eula(ib,il,3)
+c$$$        endif
+c$$$      do  10  im = -il+1, il-1
+c$$$        ilm = ilm+1
+c$$$C   ... If euler angles are lm dependent
+c$$$        if (neul .eq. nl*nl) then
+c$$$          xxc = dcos(eula(ib,ilm,2)/2)
+c$$$          xxs = dsin(eula(ib,ilm,2)/2)
+c$$$          alpha = eula(ib,ilm,1)
+c$$$          gamma = eula(ib,ilm,3)
+c$$$        endif
+c$$$        if (mode .eq. 1) then
+c$$$          u(1,1,ilm,ib) =  xxc*cdexp(dcmplx(0d0,(alpha+gamma)/2))
+c$$$          u(1,2,ilm,ib) =  xxs*cdexp(dcmplx(0d0,(-alpha+gamma)/2))
+c$$$          u(2,1,ilm,ib) = -xxs*cdexp(dcmplx(0d0,(alpha-gamma)/2))
+c$$$          u(2,2,ilm,ib) =  xxc*cdexp(dcmplx(0d0,-(alpha+gamma)/2))
+c$$$        else
+c$$$          u(1,1,ilm,ib) =  xxc*cdexp(dcmplx(0d0,-(alpha+gamma)/2))
+c$$$          u(2,1,ilm,ib) =  xxs*cdexp(dcmplx(0d0,(alpha-gamma)/2))
+c$$$          u(1,2,ilm,ib) = -xxs*cdexp(dcmplx(0d0,(-alpha+gamma)/2))
+c$$$          u(2,2,ilm,ib) =  xxc*cdexp(dcmplx(0d0,(alpha+gamma)/2))
+c$$$        endif
+c$$$C        print *, ilm,ib
+c$$$C        if (ilm .eq. 1 .and. iprint() .ge. 100)
+c$$$C     .    call zprm('u in rotspu',2,u(1,1,ilm,ib),2,2,2)
+c$$$   10 continue
+c$$$ 101  continue
+c$$$ 102  continue
+c$$$      end
+c$$$

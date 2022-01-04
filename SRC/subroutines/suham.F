@@ -37,7 +37,7 @@ C ----------------------------------------------------------------------
       real(8),allocatable :: rv_a_ogvx(:)
       integer ,allocatable :: kv_iv(:)
       integer ,allocatable :: igv2_iv(:)
-      integer:: obas , oo , opp , oeula , opti , obs , omagf,i_copy_size
+      integer:: obas , oo , opp ,  opti , obs , omagf,i_copy_size
 C --- Hamiltonian offsets, orbital permutation table ---
       if (mod(pwmode,10)==2.and.master_mpi) write(stdo,"(a)")' suham: no MTO basis'
 C   ... PW setup : estimate upper bound to number of G vectors

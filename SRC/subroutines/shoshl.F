@@ -1,135 +1,135 @@
-      module m_xxsho_unused
-      private
-      contains
-      subroutine xxsho(npr,nbas,plat,bas,iax,ipc,dclabl,nlstc,lstc,lves,
-     .ves,leul,eula,z)
-C- Kernel called by shoshl
-C  nlstc,lstc:  a list of classes to include as pairs (nlstc>0)
-C     implicit none
-      logical lves,leul
-      integer npr,nbas,niax,ipc(*),nlstc
-      integer,optional::lstc(nlstc)
-      parameter (niax=10)
-      integer iax(niax,*)
-      double precision plat(3,3),bas(3,*),ves(*),eula(nbas,3),z(32)
-      character(8):: dclabl(*)
-      integer ih(2,120),scrwid
-      parameter (scrwid=120)
-      integer i,l,ishell,nshell,j,k,ii,kk,ic,jc,i1,lgunit,awrite,iclbsj,
-     .ib
-      double precision dr(3),d,drr2,dshell,fuzz,z1(3),z2(3),alfa,beta,
-     .angle,pi,ddot
-      character*8 clabl,outs1*25,outs2*(scrwid),outsv*(scrwid),
-     .outse*(scrwid)
-
-      pi = 4*datan(1d0)
-      fuzz = 1d-3
-      dshell = 0
-      nshell = 0
-      ishell = 1
-      if (leul) then
-        alfa = eula(iax(1,1),1)
-        beta = eula(iax(1,1),2)
-        z1(1) = dcos(alfa)*dsin(beta)
-        z1(2) = dsin(alfa)*dsin(beta)
-        z1(3) = dcos(beta)
-      endif
-      ic = ipc(iax(1,1))
-c      call r8tos8(dclabl(ic),clabl)
-      clabl=dclabl(ic)
-      print 302, clabl, ic, nint(z(ic))
-  302 format(/' Shell decomposition for class ',a,
-     .'  class',i4,'  z=',i2/
-     .' shell   d     nsh csiz  class ...')
-
-      do  10  i = 1, npr
-        d = dsqrt(drr2(plat,bas(1,iax(1,i)),bas(1,iax(2,i)),
-     .  iax(3,i),iax(4,i),iax(5,i),dr))
-C   ... new shell, or close of last shell
-        if (dabs(d-dshell) .gt. fuzz .or. i .eq. npr) then
-          i1 = i-1
-          if (i .eq. npr) i1 = i
-          nshell = nshell+1
-          write (outs1,301) nshell, dshell, i1+1-ishell, i1
-  301     format(i4,f10.6,i4,i5,2x)
-          call iinit(ih,2*(i-ishell))
-C     ... ii is the number of different classes in this shell
-          ii = 0
-          do  12  j = ishell, i1
-            ic = ipc(iax(2,j))
-C       ... See whether already found one of these or if not in list
-            kk = 0
-            if (nlstc .gt. 0) then
-              kk = -1
-              do  15  jc = 1, nlstc
-                if (lstc(jc) .gt. ic) goto 17
-                if (lstc(jc) .eq. ic) kk = 0
-   15         continue
-   17         continue
-            endif
-            if (kk .eq. 0) then
-              do  14  k = 1, ii
-                if (ih(2,k) .ne. ic) goto 14
-                kk = k
-   14         continue
-            endif
-C       ... We haven't --- increment ii and add this one
-            if (kk .eq. 0) then
-              ii = ii+1
-              kk = ii
-              ih(2,kk) = ic
-            endif
-C       ... Increment number of occurrences of this species
-            ih(1,kk) = ih(1,kk)+1
-   12     continue
-
-C     ... Setup for printout
-          outs2 = ' '
-          outsv = ' '
-          outse = ' '
-          kk = 0
-          do  16  k = 1, ii
-            kk = kk+1
-c            call r8tos8(dclabl(ih(2,k)),clabl)
-            clabl=dclabl(ih(2,k))
-            l = awrite('%a  %np%i:'//clabl//
-     .      '%a%?;n>1;(%i);%j;',outs2,len(outs2),0,
-     .      (kk-1)*14,ih(2,k),ih(1,k),ih(1,k),0,0,0,0)
-            if (lves) call awrit2('%np%d',outsv,len(outsv),0,
-     .      (kk-1)*14,ves(ih(2,k)))
-            ib = iclbsj(ih(2,k),ipc,-nbas,1)
-            if (leul .and. ib .gt. 0) then
-              alfa = eula(ib,1)
-              beta = eula(ib,2)
-              z2(1) = dcos(alfa)*dsin(beta)
-              z2(2) = dsin(alfa)*dsin(beta)
-              z2(3) = dcos(beta)
-              angle = dacos(max(-1d0,min(1d0,ddot(3,z1,1,z2,1))))
-              if (angle .gt. pi) angle = angle - 2*pi
-              call awrit2('%np%d',outse,len(outse),0,(kk-1)*14,angle)
-            endif
-            if (l .gt. scrwid-35) then
-              call awrit0(outs1//outs2,' ',-scrwid,lgunit(1))
-              if(lves) call awrit0('v%26f'//outsv,' ',-scrwid,lgunit(1))
-              if(leul) call awrit0('e%26f'//outse,' ',-scrwid,lgunit(1))
-              kk = 0
-              outs2 = ' '
-              outsv = ' '
-            endif
-   16     continue
-          if (outs2 .ne. ' ') then
-            call awrit0(outs1//outs2,' ',-scrwid,lgunit(1))
-            if (lves) call awrit0('v%26f'//outsv,' ',-scrwid,lgunit(1))
-            if (leul) call awrit0('e%26f'//outse,' ',-scrwid,lgunit(1))
-          endif
-          outs1 = ' '
-
-          ishell = i
-          dshell = d
-        endif
-   10 continue
-      end subroutine xxsho
-      end module m_xxsho_unused
+c$$$      module m_xxsho_unused
+c$$$      private
+c$$$      contains
+c$$$      subroutine xxsho(npr,nbas,plat,bas,iax,ipc,dclabl,nlstc,lstc,lves,
+c$$$     .ves,leul,eula,z)
+c$$$C- Kernel called by shoshl
+c$$$C  nlstc,lstc:  a list of classes to include as pairs (nlstc>0)
+c$$$C     implicit none
+c$$$      logical lves,leul
+c$$$      integer npr,nbas,niax,ipc(*),nlstc
+c$$$      integer,optional::lstc(nlstc)
+c$$$      parameter (niax=10)
+c$$$      integer iax(niax,*)
+c$$$      double precision plat(3,3),bas(3,*),ves(*),eula(nbas,3),z(32)
+c$$$      character(8):: dclabl(*)
+c$$$      integer ih(2,120),scrwid
+c$$$      parameter (scrwid=120)
+c$$$      integer i,l,ishell,nshell,j,k,ii,kk,ic,jc,i1,lgunit,awrite,iclbsj,
+c$$$     .ib
+c$$$      double precision dr(3),d,drr2,dshell,fuzz,z1(3),z2(3),alfa,beta,
+c$$$     .angle,pi,ddot
+c$$$      character*8 clabl,outs1*25,outs2*(scrwid),outsv*(scrwid),
+c$$$     .outse*(scrwid)
+c$$$
+c$$$      pi = 4*datan(1d0)
+c$$$      fuzz = 1d-3
+c$$$      dshell = 0
+c$$$      nshell = 0
+c$$$      ishell = 1
+c$$$      if (leul) then
+c$$$        alfa = eula(iax(1,1),1)
+c$$$        beta = eula(iax(1,1),2)
+c$$$        z1(1) = dcos(alfa)*dsin(beta)
+c$$$        z1(2) = dsin(alfa)*dsin(beta)
+c$$$        z1(3) = dcos(beta)
+c$$$      endif
+c$$$      ic = ipc(iax(1,1))
+c$$$c      call r8tos8(dclabl(ic),clabl)
+c$$$      clabl=dclabl(ic)
+c$$$      print 302, clabl, ic, nint(z(ic))
+c$$$  302 format(/' Shell decomposition for class ',a,
+c$$$     .'  class',i4,'  z=',i2/
+c$$$     .' shell   d     nsh csiz  class ...')
+c$$$
+c$$$      do  10  i = 1, npr
+c$$$        d = dsqrt(drr2(plat,bas(1,iax(1,i)),bas(1,iax(2,i)),
+c$$$     .  iax(3,i),iax(4,i),iax(5,i),dr))
+c$$$C   ... new shell, or close of last shell
+c$$$        if (dabs(d-dshell) .gt. fuzz .or. i .eq. npr) then
+c$$$          i1 = i-1
+c$$$          if (i .eq. npr) i1 = i
+c$$$          nshell = nshell+1
+c$$$          write (outs1,301) nshell, dshell, i1+1-ishell, i1
+c$$$  301     format(i4,f10.6,i4,i5,2x)
+c$$$          call iinit(ih,2*(i-ishell))
+c$$$C     ... ii is the number of different classes in this shell
+c$$$          ii = 0
+c$$$          do  12  j = ishell, i1
+c$$$            ic = ipc(iax(2,j))
+c$$$C       ... See whether already found one of these or if not in list
+c$$$            kk = 0
+c$$$            if (nlstc .gt. 0) then
+c$$$              kk = -1
+c$$$              do  15  jc = 1, nlstc
+c$$$                if (lstc(jc) .gt. ic) goto 17
+c$$$                if (lstc(jc) .eq. ic) kk = 0
+c$$$   15         continue
+c$$$   17         continue
+c$$$            endif
+c$$$            if (kk .eq. 0) then
+c$$$              do  14  k = 1, ii
+c$$$                if (ih(2,k) .ne. ic) goto 14
+c$$$                kk = k
+c$$$   14         continue
+c$$$            endif
+c$$$C       ... We haven't --- increment ii and add this one
+c$$$            if (kk .eq. 0) then
+c$$$              ii = ii+1
+c$$$              kk = ii
+c$$$              ih(2,kk) = ic
+c$$$            endif
+c$$$C       ... Increment number of occurrences of this species
+c$$$            ih(1,kk) = ih(1,kk)+1
+c$$$   12     continue
+c$$$
+c$$$C     ... Setup for printout
+c$$$          outs2 = ' '
+c$$$          outsv = ' '
+c$$$          outse = ' '
+c$$$          kk = 0
+c$$$          do  16  k = 1, ii
+c$$$            kk = kk+1
+c$$$c            call r8tos8(dclabl(ih(2,k)),clabl)
+c$$$            clabl=dclabl(ih(2,k))
+c$$$            l = awrite('%a  %np%i:'//clabl//
+c$$$     .      '%a%?;n>1;(%i);%j;',outs2,len(outs2),0,
+c$$$     .      (kk-1)*14,ih(2,k),ih(1,k),ih(1,k),0,0,0,0)
+c$$$            if (lves) call awrit2('%np%d',outsv,len(outsv),0,
+c$$$     .      (kk-1)*14,ves(ih(2,k)))
+c$$$            ib = iclbsj(ih(2,k),ipc,-nbas,1)
+c$$$            if (leul .and. ib .gt. 0) then
+c$$$              alfa = eula(ib,1)
+c$$$              beta = eula(ib,2)
+c$$$              z2(1) = dcos(alfa)*dsin(beta)
+c$$$              z2(2) = dsin(alfa)*dsin(beta)
+c$$$              z2(3) = dcos(beta)
+c$$$              angle = dacos(max(-1d0,min(1d0,ddot(3,z1,1,z2,1))))
+c$$$              if (angle .gt. pi) angle = angle - 2*pi
+c$$$              call awrit2('%np%d',outse,len(outse),0,(kk-1)*14,angle)
+c$$$            endif
+c$$$            if (l .gt. scrwid-35) then
+c$$$              call awrit0(outs1//outs2,' ',-scrwid,lgunit(1))
+c$$$              if(lves) call awrit0('v%26f'//outsv,' ',-scrwid,lgunit(1))
+c$$$              if(leul) call awrit0('e%26f'//outse,' ',-scrwid,lgunit(1))
+c$$$              kk = 0
+c$$$              outs2 = ' '
+c$$$              outsv = ' '
+c$$$            endif
+c$$$   16     continue
+c$$$          if (outs2 .ne. ' ') then
+c$$$            call awrit0(outs1//outs2,' ',-scrwid,lgunit(1))
+c$$$            if (lves) call awrit0('v%26f'//outsv,' ',-scrwid,lgunit(1))
+c$$$            if (leul) call awrit0('e%26f'//outse,' ',-scrwid,lgunit(1))
+c$$$          endif
+c$$$          outs1 = ' '
+c$$$
+c$$$          ishell = i
+c$$$          dshell = d
+c$$$        endif
+c$$$   10 continue
+c$$$      end subroutine xxsho
+c$$$      end module m_xxsho_unused
 
 
 c$$$      subroutine shoshl(sopts,nbas,bas,plat,mxnbr0,z,slabl,dclabl,ips,

@@ -1383,234 +1383,234 @@ C ... Local parameters
       sum = sum*a/3
       end subroutine gintsl
 
-      subroutine asprjq(mode,clabl,nl,nsp,eula,neul,pnu,qnu,
-     .pnuloc,qnuloc,bhat,amom)
-
-C- Find average magnetization axis and project ASA moments onto it
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   mode  :1s digit affects bhat
-Ci         :0 use bhat as input
-Ci         :1 Print out mag. dir. from eula and qnu; make amom
-Ci         :2 make bhat from eula and qnu; make amom
-Ci         :3 combination of 1+2
-Ci         :10s digit affects qnuloc,pnuloc
-Ci         :0 do nothing to qnuloc,pnuloc
-Ci         :1 copy pnu->pnuloc and qnu->qnuloc
-Ci         :2 copy and rotate to bhat coordinates
-Ci         :10s digit affects B,qnuloc when magnetization < 0
-Ci         :1 scale B by -1 when
-Ci   mode  :0 do nothing; just return
-Ci   clabl :class name (for printout only)
-Ci   nl    :(global maximum l) + 1
-Ci   nsp   :2 for spin-polarized case, otherwise 1
-Ci   eula  :Euler angles for noncollinear spins
-Ci   neul  :1, nl, or nl**2 if Euler angles are: l-independent,
-Ci         :l-dependent, or lm-dependent, respectively
-Ci   pnu   :boundary conditions.  If Dl = log. deriv. at rmax,
-Ci          pnu = .5 - atan(Dl)/pi + (princ.quant.number).
-Ci   qnu   :energy-weighted moments of the sphere charges
-Cio Inputs/Outputs
-Cio  bhat  :direction vector for B-field; see 1s digit mode
-Co Outputs
-Co   amom  :projection of magnetization onto bhat
-Co   pnuloc:projection of pnu onto bhat
-Co   qnuloc:projection of qnu onto bhat
-Cr Remarks
-Cr   If asprjq computes the B-field, it is taken to be parallel to
-Cr   the average magnetization, which is computed by summing the
-Cr   (vector) magnetization over all orbitals.
-Cu Updates
-Cu   06 Apr 04 First created
-C ----------------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
-      integer mode,nl,nsp,neul
-      double precision pnu(nl,nsp),qnu(3,nl,nsp),eula(neul,3),
-     .amom,bhat(3),pnuloc(nl,nsp),qnuloc(3,nl,nsp)
-      character clabl*8
-C ... Local parameters
-      logical lwrite
-      integer i,k,l,m,ilm,stdo,lgunit,ipr,PRT1,PRT2,mode0,mode1,mode2
-      double precision ql,al,alpha,beta,gamma,hatm(3),ploc,qloc(3),
-     .dploc,aloc(3),dotp,ddot,dsqrt,rotm(3,3),sal
-      character strn*5
-      parameter (PRT1=40,PRT2=50)
-
-      stdo = lgunit(1)
-      call getpr(ipr)
-
-C --- Construct the average magnetization (direction, amplitude) ---
-      mode0 = mod(mode,10)
-      mode2 = mod(mode/100,10)
-      if (mode0 .ne. 0 .and. nsp .eq. 2) then
-        lwrite = .true.
-        if (mod(mode0,2) .eq. 0 .or. ipr .lt. PRT2) lwrite = .false.
-        if (neul .le. 1) lwrite = .false.
-        strn = '    l'
-        if (neul .eq. nl*nl) strn = '  ilm'
-        if (lwrite .and. mode0 .ge. 2) write(stdo,345) strn
-        if (lwrite .and. mode0 .lt. 2) write(stdo,345) strn,'mhat.bxc'
-  345   format(a,'     ql       mom',9x,'alpha     beta      gamma',
-     .  19x,'mhat':17x,a)
-
-        ilm = 0
-        call dpzero(aloc,3)
-        sal = 0
-        do  l = 0, nl-1
-          do   m = -l, l
-            ilm = ilm+1
-            if (neul .eq. nl) then
-              alpha = eula(l+1,1)
-              beta  = eula(l+1,2)
-              gamma = eula(l+1,3)
-            elseif (neul .eq. nl*nl) then
-              alpha = eula(ilm,1)
-              beta  = eula(ilm,2)
-              gamma = eula(ilm,3)
-            elseif (neul .eq. 1) then
-              alpha = eula(1,1)
-              beta  = eula(1,2)
-              gamma = eula(1,3)
-            else
-              call rxi('atscpp: bad value neul=',neul)
-            endif
-
-C         Charge, magnetic moments, quantization axis for these angles
-            ql = qnu(1,l+1,1)+qnu(1,l+1,2)
-            al = qnu(1,l+1,1)-qnu(1,l+1,2)
-            sal = sal + al/(2*l+1)
-C         The local magnetization points along V = zhat(loc).
-C         In global coordinates V = rotm^-1 zhat(loc) because
-C         rotm*V = zhat(loc) when V points along M as
-C         described in eua2rm.  V is then
-C         hatm(1) = dcos(alpha)*dsin(beta)
-C         hatm(2) = dsin(alpha)*dsin(beta)
-C         hatm(3) = dcos(beta)
-            call eua2rm(alpha,beta,gamma,rotm)
-            hatm(1) = rotm(3,1)
-            hatm(2) = rotm(3,2)
-            hatm(3) = rotm(3,3)
-
-C         Add to total magnetization
-            call daxpy(3,al/(2*l+1),hatm,1,aloc,1)
-
-C         Printout
-            if (neul .eq. nl**2 .and. lwrite .and. mode0 .ge. 2) then
-              write(stdo,'(i5,2f10.6,3x,3f10.6,3x,3f10.6,3x,f10.6)')
-     .        ilm, ql/(2*l+1), al/(2*l+1), alpha, beta, gamma, hatm
-            elseif (neul .eq. nl**2 .and. lwrite .and. mode0 .lt. 2) then
-              write(stdo,'(i5,2f10.6,3x,3f10.6,3x,3f10.6,3x,f10.6)')
-     .        ilm, ql/(2*l+1), al/(2*l+1), alpha, beta, gamma, hatm,
-     .        ddot(3,hatm,1,bhat,1)
-            elseif (neul .eq. nl .and. lwrite .and. mode0 .ge. 2) then
-              write(stdo,'(i5,2f10.6,3x,3f10.6,3x,3f10.6,3x,f10.6)')
-     .        l, ql, al, alpha, beta, gamma, hatm
-              lwrite = .false.
-            elseif (neul .eq. nl .and. lwrite .and. mode0 .lt. 2) then
-              write(stdo,'(i5,2f10.6,3x,3f10.6,3x,3f10.6,3x,f10.6)')
-     .        l, ql, al, alpha, beta, gamma, hatm, ddot(3,hatm,1,bhat,1)
-              lwrite = .false.
-            endif
-
-          enddo
-          lwrite = .true.
-          if (mod(mode0,2) .eq. 0 .or. ipr .lt. PRT2) lwrite = .false.
-        enddo
-        amom = dsqrt(ddot(3,aloc,1,aloc,1))
-
-        if (amom .ne. 0) then
-C       Assign bhat to point along magnetization direction
-          if (mode0 .ge. 2) call dpcopy(aloc,bhat,1,3,1/amom)
-
-C       If sum moments < 0, optionally reverse B
-          if (sal .lt. 0 .and. mode2 .eq. 1 .and. mode0 .ge. 2) then
-            if (mode0 .ge. 2) call dpcopy(aloc,bhat,1,3,-1/amom)
-          endif
-
-C       Printout of bhat, moment, angle
-          call info5(PRT1,0,0,' ATOM='//clabl//
-     .    '%a  bhat=%3;10,6D  |M|=%;6,6d  bhat.M/|M|=%;6d',bhat,
-     .    amom,ddot(3,aloc,1,bhat,1)/amom,0,0)
-
-        else
-          bhat(1) = 0
-          bhat(2) = 0
-          bhat(3) = 1
-        endif
-
-C     End of block to contruct bhat
-      endif
-
-C --- Rotate the qnu along projection bhat ---
-      mode1 = mod(mode/10,10)
-      if (mode1 .eq. 0) return
-
-      if (nsp .eq. 1 .or. mode1 .eq. 1 .or.
-     .ddot(3,bhat,1,bhat,1) .eq. 0d0) then
-        call dcopy(3*nl*nsp,qnu,1,qnuloc,1)
-        call dcopy(1*nl*nsp,pnu,1,pnuloc,1)
-        return
-      endif
-
-      call dpzero(qnuloc,3*nl*nsp)
-      ilm = 0
-      do  l = 0, nl-1
-        call dpzero(aloc,3)
-        dploc = 0
-        do   m = -l, l
-          ilm = ilm+1
-          if (neul .eq. nl) then
-            alpha = eula(l+1,1)
-            beta  = eula(l+1,2)
-C           gamma = eula(l+1,3)
-          elseif (neul .eq. nl*nl) then
-            alpha = eula(ilm,1)
-            beta  = eula(ilm,2)
-C           gamma = eula(ilm,3)
-          elseif (neul .eq. 1) then
-            alpha = eula(1,1)
-            beta  = eula(1,2)
-C           gamma = eula(1,3)
-          else
-            call rxi('atscpp: bad value neul=',neul)
-          endif
-
-C         Charge, magnetic moments, quantization axis for these angles
-          hatm(1) = dcos(alpha)*dsin(beta)
-          hatm(2) = dsin(alpha)*dsin(beta)
-          hatm(3) = dcos(beta)
-          dotp = hatm(1)*bhat(1) + hatm(2)*bhat(2) + hatm(3)*bhat(3)
-
-          do  i = 1, 3
-            aloc(i) = aloc(i) + (qnu(i,l+1,1)-qnu(i,l+1,2))/(2*l+1)*dotp
-          enddo
-          dploc = dploc + (pnu(l+1,1)-pnu(l+1,2))/(2*l+1)*dotp
-
-        enddo
-
-        do  i = 1, 3
-          qloc(i) = qnu(i,l+1,1) + qnu(i,l+1,2)
-C         aloc(i) = qnu(i,l+1,1) - qnu(i,l+1,2)
-          qnuloc(i,l+1,1) = (qloc(i) + aloc(i))/2
-          qnuloc(i,l+1,2) = (qloc(i) - aloc(i))/2
-        enddo
-        ploc = pnu(l+1,1) + pnu(l+1,2)
-        pnuloc(l+1,1) = (ploc + dploc)/2
-        pnuloc(l+1,2) = (ploc - dploc)/2
-
-      enddo
-
-      if (ipr .ge. PRT2) then
-        write(stdo,'(''  l isp'',19x,''qnu'',37x,''qloc'')')
-        do  k = 1, 2
-          do  l = 0, nl-1
-            write(stdo,'(2i3,1x,3f13.7:1x,3f13.7)')
-     .      l,k,(qnu(i,l+1,k),i=1,3),(qnuloc(i,l+1,k),i=1,3)
-          enddo
-        enddo
-      endif
-
-      end subroutine asprjq
-
-
+c$$$      subroutine asprjq(mode,clabl,nl,nsp,eula,neul,pnu,qnu,
+c$$$     .pnuloc,qnuloc,bhat,amom)
+c$$$
+c$$$C- Find average magnetization axis and project ASA moments onto it
+c$$$C ----------------------------------------------------------------------
+c$$$Ci Inputs
+c$$$Ci   mode  :1s digit affects bhat
+c$$$Ci         :0 use bhat as input
+c$$$Ci         :1 Print out mag. dir. from eula and qnu; make amom
+c$$$Ci         :2 make bhat from eula and qnu; make amom
+c$$$Ci         :3 combination of 1+2
+c$$$Ci         :10s digit affects qnuloc,pnuloc
+c$$$Ci         :0 do nothing to qnuloc,pnuloc
+c$$$Ci         :1 copy pnu->pnuloc and qnu->qnuloc
+c$$$Ci         :2 copy and rotate to bhat coordinates
+c$$$Ci         :10s digit affects B,qnuloc when magnetization < 0
+c$$$Ci         :1 scale B by -1 when
+c$$$Ci   mode  :0 do nothing; just return
+c$$$Ci   clabl :class name (for printout only)
+c$$$Ci   nl    :(global maximum l) + 1
+c$$$Ci   nsp   :2 for spin-polarized case, otherwise 1
+c$$$Ci   eula  :Euler angles for noncollinear spins
+c$$$Ci   neul  :1, nl, or nl**2 if Euler angles are: l-independent,
+c$$$Ci         :l-dependent, or lm-dependent, respectively
+c$$$Ci   pnu   :boundary conditions.  If Dl = log. deriv. at rmax,
+c$$$Ci          pnu = .5 - atan(Dl)/pi + (princ.quant.number).
+c$$$Ci   qnu   :energy-weighted moments of the sphere charges
+c$$$Cio Inputs/Outputs
+c$$$Cio  bhat  :direction vector for B-field; see 1s digit mode
+c$$$Co Outputs
+c$$$Co   amom  :projection of magnetization onto bhat
+c$$$Co   pnuloc:projection of pnu onto bhat
+c$$$Co   qnuloc:projection of qnu onto bhat
+c$$$Cr Remarks
+c$$$Cr   If asprjq computes the B-field, it is taken to be parallel to
+c$$$Cr   the average magnetization, which is computed by summing the
+c$$$Cr   (vector) magnetization over all orbitals.
+c$$$Cu Updates
+c$$$Cu   06 Apr 04 First created
+c$$$C ----------------------------------------------------------------------
+c$$$C     implicit none
+c$$$C ... Passed parameters
+c$$$      integer mode,nl,nsp,neul
+c$$$      double precision pnu(nl,nsp),qnu(3,nl,nsp),eula(neul,3),
+c$$$     .amom,bhat(3),pnuloc(nl,nsp),qnuloc(3,nl,nsp)
+c$$$      character clabl*8
+c$$$C ... Local parameters
+c$$$      logical lwrite
+c$$$      integer i,k,l,m,ilm,stdo,lgunit,ipr,PRT1,PRT2,mode0,mode1,mode2
+c$$$      double precision ql,al,alpha,beta,gamma,hatm(3),ploc,qloc(3),
+c$$$     .dploc,aloc(3),dotp,ddot,dsqrt,rotm(3,3),sal
+c$$$      character strn*5
+c$$$      parameter (PRT1=40,PRT2=50)
+c$$$
+c$$$      stdo = lgunit(1)
+c$$$      call getpr(ipr)
+c$$$
+c$$$C --- Construct the average magnetization (direction, amplitude) ---
+c$$$      mode0 = mod(mode,10)
+c$$$      mode2 = mod(mode/100,10)
+c$$$      if (mode0 .ne. 0 .and. nsp .eq. 2) then
+c$$$        lwrite = .true.
+c$$$        if (mod(mode0,2) .eq. 0 .or. ipr .lt. PRT2) lwrite = .false.
+c$$$        if (neul .le. 1) lwrite = .false.
+c$$$        strn = '    l'
+c$$$        if (neul .eq. nl*nl) strn = '  ilm'
+c$$$        if (lwrite .and. mode0 .ge. 2) write(stdo,345) strn
+c$$$        if (lwrite .and. mode0 .lt. 2) write(stdo,345) strn,'mhat.bxc'
+c$$$  345   format(a,'     ql       mom',9x,'alpha     beta      gamma',
+c$$$     .  19x,'mhat':17x,a)
+c$$$
+c$$$        ilm = 0
+c$$$        call dpzero(aloc,3)
+c$$$        sal = 0
+c$$$        do  l = 0, nl-1
+c$$$          do   m = -l, l
+c$$$            ilm = ilm+1
+c$$$            if (neul .eq. nl) then
+c$$$              alpha = eula(l+1,1)
+c$$$              beta  = eula(l+1,2)
+c$$$              gamma = eula(l+1,3)
+c$$$            elseif (neul .eq. nl*nl) then
+c$$$              alpha = eula(ilm,1)
+c$$$              beta  = eula(ilm,2)
+c$$$              gamma = eula(ilm,3)
+c$$$            elseif (neul .eq. 1) then
+c$$$              alpha = eula(1,1)
+c$$$              beta  = eula(1,2)
+c$$$              gamma = eula(1,3)
+c$$$            else
+c$$$              call rxi('atscpp: bad value neul=',neul)
+c$$$            endif
+c$$$
+c$$$C         Charge, magnetic moments, quantization axis for these angles
+c$$$            ql = qnu(1,l+1,1)+qnu(1,l+1,2)
+c$$$            al = qnu(1,l+1,1)-qnu(1,l+1,2)
+c$$$            sal = sal + al/(2*l+1)
+c$$$C         The local magnetization points along V = zhat(loc).
+c$$$C         In global coordinates V = rotm^-1 zhat(loc) because
+c$$$C         rotm*V = zhat(loc) when V points along M as
+c$$$C         described in eua2rm.  V is then
+c$$$C         hatm(1) = dcos(alpha)*dsin(beta)
+c$$$C         hatm(2) = dsin(alpha)*dsin(beta)
+c$$$C         hatm(3) = dcos(beta)
+c$$$            call eua2rm(alpha,beta,gamma,rotm)
+c$$$            hatm(1) = rotm(3,1)
+c$$$            hatm(2) = rotm(3,2)
+c$$$            hatm(3) = rotm(3,3)
+c$$$
+c$$$C         Add to total magnetization
+c$$$            call daxpy(3,al/(2*l+1),hatm,1,aloc,1)
+c$$$
+c$$$C         Printout
+c$$$            if (neul .eq. nl**2 .and. lwrite .and. mode0 .ge. 2) then
+c$$$              write(stdo,'(i5,2f10.6,3x,3f10.6,3x,3f10.6,3x,f10.6)')
+c$$$     .        ilm, ql/(2*l+1), al/(2*l+1), alpha, beta, gamma, hatm
+c$$$            elseif (neul .eq. nl**2 .and. lwrite .and. mode0 .lt. 2) then
+c$$$              write(stdo,'(i5,2f10.6,3x,3f10.6,3x,3f10.6,3x,f10.6)')
+c$$$     .        ilm, ql/(2*l+1), al/(2*l+1), alpha, beta, gamma, hatm,
+c$$$     .        ddot(3,hatm,1,bhat,1)
+c$$$            elseif (neul .eq. nl .and. lwrite .and. mode0 .ge. 2) then
+c$$$              write(stdo,'(i5,2f10.6,3x,3f10.6,3x,3f10.6,3x,f10.6)')
+c$$$     .        l, ql, al, alpha, beta, gamma, hatm
+c$$$              lwrite = .false.
+c$$$            elseif (neul .eq. nl .and. lwrite .and. mode0 .lt. 2) then
+c$$$              write(stdo,'(i5,2f10.6,3x,3f10.6,3x,3f10.6,3x,f10.6)')
+c$$$     .        l, ql, al, alpha, beta, gamma, hatm, ddot(3,hatm,1,bhat,1)
+c$$$              lwrite = .false.
+c$$$            endif
+c$$$
+c$$$          enddo
+c$$$          lwrite = .true.
+c$$$          if (mod(mode0,2) .eq. 0 .or. ipr .lt. PRT2) lwrite = .false.
+c$$$        enddo
+c$$$        amom = dsqrt(ddot(3,aloc,1,aloc,1))
+c$$$
+c$$$        if (amom .ne. 0) then
+c$$$C       Assign bhat to point along magnetization direction
+c$$$          if (mode0 .ge. 2) call dpcopy(aloc,bhat,1,3,1/amom)
+c$$$
+c$$$C       If sum moments < 0, optionally reverse B
+c$$$          if (sal .lt. 0 .and. mode2 .eq. 1 .and. mode0 .ge. 2) then
+c$$$            if (mode0 .ge. 2) call dpcopy(aloc,bhat,1,3,-1/amom)
+c$$$          endif
+c$$$
+c$$$C       Printout of bhat, moment, angle
+c$$$          call info5(PRT1,0,0,' ATOM='//clabl//
+c$$$     .    '%a  bhat=%3;10,6D  |M|=%;6,6d  bhat.M/|M|=%;6d',bhat,
+c$$$     .    amom,ddot(3,aloc,1,bhat,1)/amom,0,0)
+c$$$
+c$$$        else
+c$$$          bhat(1) = 0
+c$$$          bhat(2) = 0
+c$$$          bhat(3) = 1
+c$$$        endif
+c$$$
+c$$$C     End of block to contruct bhat
+c$$$      endif
+c$$$
+c$$$C --- Rotate the qnu along projection bhat ---
+c$$$      mode1 = mod(mode/10,10)
+c$$$      if (mode1 .eq. 0) return
+c$$$
+c$$$      if (nsp .eq. 1 .or. mode1 .eq. 1 .or.
+c$$$     .ddot(3,bhat,1,bhat,1) .eq. 0d0) then
+c$$$        call dcopy(3*nl*nsp,qnu,1,qnuloc,1)
+c$$$        call dcopy(1*nl*nsp,pnu,1,pnuloc,1)
+c$$$        return
+c$$$      endif
+c$$$
+c$$$      call dpzero(qnuloc,3*nl*nsp)
+c$$$      ilm = 0
+c$$$      do  l = 0, nl-1
+c$$$        call dpzero(aloc,3)
+c$$$        dploc = 0
+c$$$        do   m = -l, l
+c$$$          ilm = ilm+1
+c$$$          if (neul .eq. nl) then
+c$$$            alpha = eula(l+1,1)
+c$$$            beta  = eula(l+1,2)
+c$$$C           gamma = eula(l+1,3)
+c$$$          elseif (neul .eq. nl*nl) then
+c$$$            alpha = eula(ilm,1)
+c$$$            beta  = eula(ilm,2)
+c$$$C           gamma = eula(ilm,3)
+c$$$          elseif (neul .eq. 1) then
+c$$$            alpha = eula(1,1)
+c$$$            beta  = eula(1,2)
+c$$$C           gamma = eula(1,3)
+c$$$          else
+c$$$            call rxi('atscpp: bad value neul=',neul)
+c$$$          endif
+c$$$
+c$$$C         Charge, magnetic moments, quantization axis for these angles
+c$$$          hatm(1) = dcos(alpha)*dsin(beta)
+c$$$          hatm(2) = dsin(alpha)*dsin(beta)
+c$$$          hatm(3) = dcos(beta)
+c$$$          dotp = hatm(1)*bhat(1) + hatm(2)*bhat(2) + hatm(3)*bhat(3)
+c$$$
+c$$$          do  i = 1, 3
+c$$$            aloc(i) = aloc(i) + (qnu(i,l+1,1)-qnu(i,l+1,2))/(2*l+1)*dotp
+c$$$          enddo
+c$$$          dploc = dploc + (pnu(l+1,1)-pnu(l+1,2))/(2*l+1)*dotp
+c$$$
+c$$$        enddo
+c$$$
+c$$$        do  i = 1, 3
+c$$$          qloc(i) = qnu(i,l+1,1) + qnu(i,l+1,2)
+c$$$C         aloc(i) = qnu(i,l+1,1) - qnu(i,l+1,2)
+c$$$          qnuloc(i,l+1,1) = (qloc(i) + aloc(i))/2
+c$$$          qnuloc(i,l+1,2) = (qloc(i) - aloc(i))/2
+c$$$        enddo
+c$$$        ploc = pnu(l+1,1) + pnu(l+1,2)
+c$$$        pnuloc(l+1,1) = (ploc + dploc)/2
+c$$$        pnuloc(l+1,2) = (ploc - dploc)/2
+c$$$
+c$$$      enddo
+c$$$
+c$$$      if (ipr .ge. PRT2) then
+c$$$        write(stdo,'(''  l isp'',19x,''qnu'',37x,''qloc'')')
+c$$$        do  k = 1, 2
+c$$$          do  l = 0, nl-1
+c$$$            write(stdo,'(2i3,1x,3f13.7:1x,3f13.7)')
+c$$$     .      l,k,(qnu(i,l+1,k),i=1,3),(qnuloc(i,l+1,k),i=1,3)
+c$$$          enddo
+c$$$        enddo
+c$$$      endif
+c$$$
+c$$$      end subroutine asprjq
+c$$$
+c$$$

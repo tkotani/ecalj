@@ -1,7 +1,7 @@
       module m_clsprm
       integer , allocatable ::  iv_a_oipqx(:) !for lmchk only
       real(8) , allocatable ::  rv_a_ormax(:)
-      real(8) , allocatable ::  rv_a_obxc (:) !lmaux clsprm
+c      real(8) , allocatable ::  rv_a_obxc (:) !lmaux clsprm
       real(8) , allocatable ::  rv_a_ogrrme (:)
       real(8) , allocatable ::  rv_a_opmpol (:)
       real(8) , allocatable ::  rv_a_opnu (:)
@@ -70,7 +70,7 @@ C     ... Local parameters
       use m_struc_def           !Cgetarg
       use m_mksym,only: iv_a_oics,ctrl_nclass
       use m_lmfinit,only: lso,  ctrl_nl,ctrl_nspin,ctrl_nl,ctrl_nspec,ctrl_nbas,
-     &     ham_neula,ham_nbf,ham_nlibu
+     &     ham_nbf,ham_nlibu !ham_neula,
       use m_lattic,only: rv_a_opos
 C     - Allocate memory for, and try to read, class-related data
 C     ----------------------------------------------------------------------
@@ -141,7 +141,7 @@ C     Local variables
       integer:: ogroup , oifrlx , oivso , oipc , opos , ozos , n0 
       parameter (n0=10)
       integer nbas,nclass,nspec,nl,nsp,nlspc,igets,nclasp,i1,i2,nmap,ic,
-     .     is,ib,iclbsj,idmod(n0),iprint,lmx,nclspp,nqpp,lnsph,isw,neula,
+     .     is,ib,iclbsj,idmod(n0),iprint,lmx,nclspp,nqpp,lnsph,isw, !neula,
      .     nbf,nrhos,nlibu
       double precision plat(9),z,xx,dval
       integer,allocatable:: ics(:)
@@ -183,20 +183,20 @@ C     ... Allocate ASA arrays
          allocate(rv_a_ormax(nclspp))
          call dcopy ( nclspp , sspec ( ics ( 1:nclspp ) ) %rmt , 1 , rv_a_ormax, 1 ) 
 C     Even in collinear case, bxc might be written to
-         allocate(rv_a_obxc(abs(-3*nclasp)))
-         rv_a_obxc(:)=0.0d0
-         nrhos=0 
-         if ( lso /=0 ) then 
-            neula=ham_neula
-            nbf=ham_nbf
-            nrhos = max(nl,neula,nbf)
-            if (allocated(rv_a_obxc)) deallocate(rv_a_obxc)
-            allocate(rv_a_osop(nlspc*nsp*9))
-            rv_a_osop(:)=0.0d0
-            allocate(rv_a_obxc(3*nclasp))
-            rv_a_obxc(:)=0.0d0
-            nrhos=nrhos 
-         endif
+c         allocate(rv_a_obxc(abs(-3*nclasp)))
+c         rv_a_obxc(:)=0.0d0
+c$$$         nrhos=0 
+c$$$         if ( lso /=0 ) then 
+c$$$            neula=ham_neula
+c$$$            nbf=ham_nbf
+c$$$            nrhos = max(nl,neula,nbf)
+c$$$            if (allocated(rv_a_obxc)) deallocate(rv_a_obxc)
+c$$$            allocate(rv_a_osop(nlspc*nsp*9))
+c$$$            rv_a_osop(:)=0.0d0
+c$$$            allocate(rv_a_obxc(3*nclasp))
+c$$$            rv_a_obxc(:)=0.0d0
+c$$$            nrhos=nrhos 
+c$$$         endif
          if (allocated(rv_a_ogrrme)) deallocate(rv_a_ogrrme)
 c         if ( iand(3,int(ctrl_lsx)) .ne.0 .or. iand(-1,int(ctrl_lscr)) .ne.0 ) then 
 c            allocate(rv_a_ovintr(abs(-nclasp*(nl*nsp)**2)))

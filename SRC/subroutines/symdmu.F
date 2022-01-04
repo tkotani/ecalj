@@ -55,8 +55,9 @@ C ... Local parameters
       double complex sdmat(-3:3,-3:3,2,2)
 C ... for spinor rotations
       logical cmdopt0
-      double precision eula(3),ddet33,xx
-      double complex u(2,2,ng)
+      real(8):: ddet33,xx
+c      double precision eula(3),ddet33,xx
+c      double complex u(2,2,ng)
       character *40 str
 
       rms = 0
@@ -72,9 +73,9 @@ C       Extract to rdmat pure rotation part of g; make Euler angles
         else
           call dpcopy(g(1,ig),rmat,1,9,-1d0)
         endif
-        call dvset(eula,1,3,0d0)
-        call rm2eua(rmat,eula(1),eula(2),eula(3))
-        call rotspu(0,1,1,eula,1,u(1,1,ig))
+c        call dvset(eula,1,3,0d0)
+c        call rm2eua(rmat,eula(1),eula(2),eula(3))
+c        call rotspu(0,1,1,eula,1,u(1,1,ig))
 
 C       For debugging
 C        call asymop(rmat,eula,' ',str)
