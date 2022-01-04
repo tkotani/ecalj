@@ -1,4 +1,3 @@
-c#define FORMATTED_READ 1
       logical function a2bin(instr,res,cast,count,term,j,jmaxi)
 C- Convert ASCII to logical, integer, real, double
 C ----------------------------------------------------------------
@@ -852,4 +851,3 @@ C -------------------------------------------------------------------
      ..false.,8*.true.,.false.,.true.,.false.,.true.,
      .10*.false.,10*.true.,.false.,.true./
       end
-

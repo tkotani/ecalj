@@ -587,8 +587,8 @@ c      type(s_ham)::sham
 c      type(s_pot)::spot
 C     Local variables
       character*8 clabl,alabel, outs1*20, outs2*20, outs3*20, outs*80
-      logical sw,aiomom,aiopar,aiopot,aiova,lpot,lcor,scat,lgors,
-     .     aiogen,aiosop,aiorme,aiocor,aiomp,lrell,lgen
+      logical sw,aiomom,aiopar,aiopot,lpot,lcor,scat,lgors,
+     .     aiogen,aiocor,lrell,lgen
       logical havepq,havepp,haveso,haveop,haveva,havemp,
      .     readpq,readpp,readso,readop,readva,readmp
       integer::  onrc , n0 , nglob !olpp , olppr , olsop , olgrme , olva , olmp , opot  , ocor ,
@@ -1366,5 +1366,385 @@ C         if (.not. latvec(1,tol,qlat,dpos)) then
       end subroutine psho1
 
 
+      logical function aiomp(alabl,pmpol,nl,lmxv,nsp,ifi)
+C- File I/O for ASA multipole moments integrals
+C ----------------------------------------------------------------
+Ci Inputs/Outputs
+Ci   alabl,nl,lmxv,nsp
+Ci   ifi:    logical unit: positive for read, negative for write
+Cio  pmpol: intra-atomic density-density response matrix
+Cr Remarks
+Cr Bugs
+Cr   Input not checked when file nsp mismatches passed nsp
+C ----------------------------------------------------------------
+C     implicit none
+C Passed parameters
+      character*8 alabl
+      integer nl,lmxv,nsp,ifi
+      double precision pmpol(nl,nl,0:lmxv,3,nsp)
+C Local parameters
+      double precision x2(10),damax
+      integer i,n,ip,k,a2vec,ix2(10),ipr,nl2,nsp2,l1,l2,lf,idamax
+      logical scat,rdstrn,pars1v
+      character*100 s
 
+      aiomp = .false.
+      call getpr(ipr)
+C --- File READ ---
+      if (ifi .gt. 0) then
+C   ... return unless file has PMPOL: category
+        if (.not. scat(ifi,'PMPOL:',':',.true.)) return
+C   ... read nl and nsp ... abort if missing
+        backspace ifi
+        read(ifi,'(a72)') s
+        if (.not. pars1v(s,len(s),'nl=','=',2,nl2)) goto 18
+        if (nl .ne. nl2 .and. ipr .ge. 10)
+     .  print *, 'aiomp (warning) mismatch in nl, class '//alabl
+        if (.not. pars1v(s,len(s),'nsp=','=',2,nsp2)) goto 18
+        if (nsp .ne. nsp2 .and. ipr .ge. 10)
+     .  print *, 'aiomp (warning) mismatch in nsp, class '//alabl
+C   ... For now, abort
+        if (nsp .ne. nsp2 .or. nl .ne. nl2) goto 18
+        call dpzero(pmpol,nl*nl*(lmxv+1)*3*nsp)
+C   ... read pmpol
+        n = min(nsp,nsp2)
+        do  100  i = 1, n
+        do  10  k = 1, 3
+
+          do  120  l1 = 0, nl-1
+          do  12  l2 = 0, nl-1
+
+   16       if (.not. rdstrn(ifi,s,len(s),.false.)) goto 18
+            if (s .eq. ' ') goto 16
+            ip = 0
+C    ...  Abort if fail to read lmxv+1 numbers
+            ip = a2vec(s,len(s),ip,4,' ',1,-2,-(lmxv+3),ix2,x2)
+            if (ip .ne. lmxv+3) call rxs('AIOMP: failed to parse ',s)
+            call dcopy(lmxv+1,x2(3),1,pmpol(l1+1,l2+1,0,k,i),nl**2)
+   12     continue
+ 120      continue
+   10   continue
+ 100    continue
+        aiomp = .true.
+        return
+   18   continue
+        print *, 'aiomp: (input skipped) bad syntax, class '//alabl
+        return
+
+C --- File WRITE ---
+      else
+        write(-ifi,21) alabl, nl, nsp
+        do  121  i = 1, nsp
+        do  20  k = 1, 3
+
+          do  122  l1 = 0, nl-1
+          do  22  l2 = 0, nl-1
+C           x2(1) = damax(lmxv+1,pmpol(l1+1,l2+1,0,k,i),nl*nl)
+            ip = idamax(lmxv+1,pmpol(l1+1,l2+1,0,k,i),nl*nl)
+            x2(1) = pmpol(l1+1,l2+1,ip-1,k,i)
+            if (x2(1) .gt. 9999d0 .or. x2(1) .lt. -999d0) then
+              call dcopy(lmxv+1,pmpol(l1+1,l2+1,0,k,i),nl*nl,x2,1)
+C             call awrit4('%,4i%,4i %n:1g',' ',100,6,l1,l2,lmxv+1,x2)
+              call awrit4('%,4i%,4i %n:1;11F',' ',100,-ifi,l1,l2,lmxv+1,
+     .            x2)
+            else
+              write(-ifi,333) l1,l2,(pmpol(l1+1,l2+1,lf,k,i),lf=0,lmxv)
+            endif
+   22     continue
+  122     continue
+  333     format(2i4,10f12.6)
+          if (i .ne. nsp .or. k .ne. 3) write(-ifi,333)
+
+   20   continue
+  121   continue
+        aiomp = .true.
+      endif
+   21 format('PMPOL: ',a4,'  nl=',i1,'  nsp=',i1)
+
+      end
+
+
+      logical function aiorme(alabl,radme,nl,nsp,ifi)
+C- File I/O for matrix elements of radial gradients of w.f.
+C ----------------------------------------------------------------
+Ci Inputs/Outputs
+Ci   alabl,nl,nsp
+Ci   ifi:  logical unit: positive for read, negative for write
+Cio  radme(4,2,nl,2,nsp):  <g2_l grad g1_l'> with l' = l +/- 1
+Cio        i = 1 for g1=phi,    g2=phidot
+Cio            2 for g1=phidot, g2=phi
+Cio            3 for g1=phi,    g2=phidot
+Cio            4 for g1=phidot, g2=phidot
+Cio        j = 1 for <g2 | grad g1> - (l+1) < g2 | 1/r g1 >
+Cio            2 for <g2 | grad g1> +    l  < g2 | 1/r g1 >
+Cio       ll = 1 for l' = l-1  for l' = l+1
+Cr Remarks
+C ----------------------------------------------------------------
+C     implicit none
+C Passed parameters
+      character*8 alabl
+      integer nl,nsp,ifi
+      double precision radme(4,2,nl,2,nsp)
+C Local parameters
+      integer is1,nl2,nsp2,ipr
+      logical scat,pars1v,lfdmp
+      character s*72
+
+      aiorme = .false.
+      call getpr(ipr)
+      if (ifi .gt. 0) then
+C   ... return unless file has RGRAD category
+        if (.not. scat(ifi,'RGRAD:',':',.true.)) return
+C   ... read nl and nsp ... abort if missing
+        backspace ifi
+        read(ifi,'(a72)') s
+        if (.not. pars1v(s,len(s),'nl=','=',2,nl2)) goto 18
+        if (.not. pars1v(s,len(s),'nsp=','=',2,nsp2)) goto 18
+        if (nl .ne. nl2 .or. nsp .ne. nsp2)
+     .  call rxs('AIORME: mismatch in nl or nsp, class ',alabl)
+        call dpzero(radme,4*2*nl*2*nsp)
+        do  10  is1 = 1, nsp
+          aiorme = lfdmp(radme(1,1,1,1,is1),4*2*nl*2,ifi)
+   10   continue
+        return
+   18   continue
+        print *, 'aiorme: (input skipped) bad syntax, class '//alabl
+      else
+        write(-ifi,21) alabl, nl, nsp
+        do  20  is1 = 1, nsp
+          aiorme = lfdmp(radme(1,1,1,1,is1),4*2*nl*2,ifi)
+   20   continue
+      endif
+
+   21 format('RGRAD: ',a4,'  nl=',i1,'  nsp=',i1)
+      end
+      
+      logical function aiosop(alabl,sop,nl,lmax,nsp,ifi)
+C- File I/O for spin-orbit coupling parameters.
+C ----------------------------------------------------------------------
+Ci Inputs
+Ci   alabl :class label
+Ci   nl    :(global maximum l) + 1
+Ci   lmax  :maximum l for a given site
+Ci   nsp   :2 for spin-polarized case, otherwise 1
+Ci   ifi   :file logical unit, but >0 for read, <0 for write
+Cio Inputs/Outputs
+Cio  sop   :spin-orbit coupling parameters (made in soprm.f)
+Cio        :sop(l+1,is1,is2,i) are matrix elts between spins is1 and is2
+Cio        :for quantum number l. Six types of integrals are stored.
+Cio        :(i=1) <phi so phi> (i=2) <phi so dot> (i=3) <dot so dot>
+Cio        :(i=4) <phi || phi> (i=5) <phi || dot> (i=6) <dot || dot>
+Cio        :The first three are the terms need to make SO perturbation
+Cio        :the last three are used when external field is applied.
+Cr Remarks
+Cr
+Cu Updates
+Cu    4 Apr 04 Extended  to include matrix elements for XC field
+Cu   07 Feb 03 Extended  to include matrix elements for applied field
+C ----------------------------------------------------------------------
+C     implicit none
+C Passed parameters
+      character*8 alabl
+      integer nl,lmax,nsp,ifi
+      double precision sop(0:nl-1,nsp,nsp,9)
+C Local parameters
+      integer l,is1,is2,ks1,ks2,j,k,lmx,nl2,nsp2,ipr,lmxf
+      logical scat,pars1v
+      character s*72,nam*8
+
+      aiosop = .false.
+      call getpr(ipr)
+      if (ifi .gt. 0) then
+C   ... return unless file has SO category
+        if (.not. scat(ifi,'SO:',':',.true.)) return
+C   ... read nl and nsp ... abort if missing
+        backspace ifi
+        read(ifi,'(a72)') s
+        call word(s,2,is1,is2)
+        nam = s(is1:is2)
+        if (.not. pars1v(s,len(s),'nl=','=',2,nl2)) goto 18
+        if (min(nl,lmax+1) .ne. nl2 .and. ipr .ge. 10)
+     .  print *, 'aiosop (warning) mismatch in nl, class '//alabl
+        if (.not. pars1v(s,len(s),'nsp=','=',2,nsp2)) goto 18
+        if (nsp .ne. nsp2 .and. ipr .ge. 10)
+     .  print *, 'aiosop (warning) mismatch in nsp, class '//alabl
+        read(ifi,'(a72)') s
+        call dpzero(sop,nl*nsp*nsp*9)
+        lmx = min(nl,nl2)-1
+        lmxf = nl2-1
+C   ... read SO parms
+        do  10  l = 1, lmxf
+          do  1101  is2 = 1, min(nsp,nsp2)
+          do  11  is1 = 1, min(nsp,nsp2)
+            if (l .le. lmx) then
+              read(ifi,*) k,ks1,ks2,(sop(l,is1,is2,j), j=1,3)
+            else
+              read(ifi,*) k,ks1,ks2
+            endif
+            if (ks1 .ne. is1 .or. ks2 .ne. is2)
+     .        call rx('aiosop: spin mismatch')
+   11     continue
+ 1101     continue
+   10   continue
+        read(ifi,'(a72)') s
+        do  100  l = 0, lmxf
+          do  1111  is2 = 1, min(nsp,nsp2)
+          do  111  is1 = 1, min(nsp,nsp2)
+            if (l .le. lmx) then
+              read(ifi,*) k,ks1,ks2,(sop(l,is1,is2,j), j=4,6)
+            else
+              read(ifi,*) k,ks1,ks2
+            endif
+            if (ks1 .ne. is1 .or. ks2 .ne. is2)
+     .        call rxs('aiosop: spin mismatch, class ',nam)
+  111     continue
+ 1111  continue
+  100   continue
+        read(ifi,'(a72)') s
+        do  110  l = 0, lmxf
+          do  1156  is2 = 1, min(nsp,nsp2)
+          do  115  is1 = 1, min(nsp,nsp2)
+            if (l .le. lmx) then
+              read(ifi,*) k,ks1,ks2,(sop(l,is1,is2,j), j=7,9)
+            else
+              read(ifi,*) k,ks1,ks2
+            endif
+            if (ks1 .ne. is1 .or. ks2 .ne. is2)
+     .        call rxs('aiosop: spin mismatch, class ',nam)
+  115     continue
+ 1156     continue
+  110   continue
+
+        if (nsp2 .lt. nsp) then
+          do   j = 1, 9
+          do   is2 = 1, nsp
+          do   is1 = 1, nsp
+          do   l = 0, nl-1
+             sop(l,is1,is2,j) = sop(l,1,1,j)
+          enddo   
+          enddo   
+          enddo   
+          enddo   
+        endif
+
+        aiosop = .true.
+        return
+   18   continue
+        print *, 'aiosop: (input skipped) bad syntax, class '//alabl
+      else
+        write(-ifi,21) alabl, lmax+1, nsp
+        do   l = 1, lmax
+        do   is2 = 1, nsp
+        do   is1 = 1, nsp
+          write(-ifi,333) l,is1,is2,(sop(l,is1,is2,j), j=1,3)
+  333     format(i4,2i3,3f15.10)
+        enddo   
+        enddo   
+        enddo   
+C       write(-ifi,'(''   matrix elements of phi and phidot'')')
+        write(-ifi,121)
+        do  l = 0, lmax
+        do  is2 = 1, nsp
+        do  is1 = 1, nsp
+          write(-ifi,333) l,is1,is2,(sop(l,is1,is2,j), j=4,6)
+        enddo   
+        enddo   
+        enddo   
+C       write(-ifi,'(''   matrix elements of phi B phidot'')')
+        write(-ifi,221)
+        do   l = 0, lmax
+        do   is2 = 1, nsp
+        do   is1 = 1, nsp
+          write(-ifi,333) l,is1,is2,(sop(l,is1,is2,j), j=7,9)
+        enddo   
+        enddo   
+        enddo   
+
+        aiosop = .true.
+      endif
+
+   21 format('SO: ',a4,'  nl=',i1,'  nsp=',i1/
+     .'   l is js  < phi so phi>  < phi so dot>  < dot so dot>')
+  121 format(
+     .'   l is js  < phi || phi>  < phi || dot>  < dot || dot>')
+  221 format(
+     .'   l is js  <phi|Bxc|phi>  <phi|Bxc|dot>  <dot|Bxc|dot>')
+      end
+
+      logical function aiova(alabl,vintra,nl,lmax,nsp,ifi)
+C- File I/O for ASA intra-atomic density-density response matrix
+C ----------------------------------------------------------------
+Ci Inputs/Outputs
+Ci   alabl,nl,lmax,nsp
+Ci   ifi:    logical unit: positive for read, negative for write
+Cio  vintra: intra-atomic density-density response matrix
+Cr Remarks
+Cr Bugs
+Cr   Input not checked when file nsp mismatches passed nsp
+C ----------------------------------------------------------------
+C     implicit none
+C Passed parameters
+      character*8 alabl
+      integer nl,lmax,nsp,ifi
+      double precision vintra(nl,nl,nsp,nsp)
+C Local parameters
+      double precision x2(0:10)
+      integer i,i2,l,n,ip,k,a2vec,ix2(7),ipr,nl2,nsp2,lmx
+      logical scat,rdstrn,pars1v
+      character*120 s
+
+      aiova = .false.
+      call getpr(ipr)
+C --- File READ ---
+      if (ifi .gt. 0) then
+C   ... return unless file has VINTRA: category
+        if (.not. scat(ifi,'VINTRA:',':',.true.)) return
+C   ... read nl and nsp ... abort if missing
+        backspace ifi
+        read(ifi,'(a120)') s
+        if (.not. pars1v(s,len(s),'nl=','=',2,nl2)) goto 18
+        if (lmax+1 .ne. nl2 .and. ipr .ge. 10)
+     .  print *, 'aiova (warning) mismatch in nl, class '//alabl
+        if (.not. pars1v(s,len(s),'nsp=','=',2,nsp2)) goto 18
+        if (nsp .ne. nsp2 .and. ipr .ge. 10)
+     .  print *, 'aiova (warning) mismatch in nsp, class '//alabl
+        call dpzero(vintra,nl*nl*nsp*nsp)
+        lmx = min(nl,nl2)-1
+C   ... read vintra
+        n = min(nsp,nsp2)
+        do   i = 1, n
+        do   l = 0, lmx
+          if (.not. rdstrn(ifi,s,len(s),.false.)) goto 18
+          ip = 0
+          k = a2vec(s,len(s),ip,4,' ',1,-2,-(lmx+1)*n-1,ix2,x2)
+C    ...  Abort if failed to read lmx+2 numbers
+          if (k .ne. (lmx+1)*n+1) call rx('AIOVA: failed to parse '//s)
+          call dcopy(lmx+1,x2(1),1,vintra(l+1,1,i,1),nl)
+          if (n.eq.2) call dcopy(lmx+1,x2(lmx+2),1,vintra(l+1,1,i,2),nl)
+          if (nsp2 .lt. nsp) then
+            call dcopy(lmx+1,x2(1),1,vintra(l+1,1,2,2),nl)
+            call dcopy(lmx+1,x2(1),1,vintra(l+1,1,1,2),nl)
+            call dcopy(lmx+1,x2(1),1,vintra(l+1,1,2,1),nl)
+          endif
+        enddo
+        enddo
+        aiova = .true.
+        return
+   18   continue
+        print *, 'aiova: (input skipped) bad syntax, class '//alabl
+        return
+
+C --- File WRITE ---
+      else
+        write(-ifi,21) alabl, lmax+1, nsp
+        do  i = 1, nsp
+        do  l = 0, lmax
+          write(-ifi,333) l,((vintra(l+1,k,i,i2), k=1,1+lmax), i2=1,nsp)
+ 333      format(i4,8f12.6)
+        enddo
+        enddo
+        aiova = .true.
+      endif
+   21 format('VINTRA: ',a4,'  nl=',i1,'  nsp=',i1)
+      end
       end module m_lmaux

@@ -44,9 +44,6 @@ aiomom.o \
 aiomp.o \
 aiopar.o \
 aiopot.o \
-aiorme.o \
-aiosop.o \
-aiova.o \
 asymop.o \
 atomsr.o \
 atwf.o \
@@ -172,10 +169,6 @@ ropcsm.o \
 roplat.o \
 ropyln1.o \
 ropyln.o \
-rothrm.o \
-rotpnt.o \
-rotspu.o \
-rotycs.o \
 rseq.o \
 rsmsym.o \
 rsort.o \

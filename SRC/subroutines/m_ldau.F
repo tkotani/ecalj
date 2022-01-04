@@ -1,12 +1,15 @@
       module m_ldau
-      complex(8),allocatable,protected::  vorb(:,:,:,:)
-
+      public:: m_ldau_init,m_ldau_vorbset
+      complex(8),allocatable,protected,public::  vorb(:,:,:,:)
+!!
+      private
       complex(8),allocatable,private::  dmato(:,:,:,:)
       logical,private:: init=.true.
       contains
 !! LDA+U initialization
       subroutine m_ldau_init()
       use m_lmfinit,only: nlibu,nsp,lmaxu,lmaxu,nsp,nlibu
+      use m_chkdmu,only: sudmtu
       integer:: i,idmatu
       logical:: mmtargetx
       idmatu=nsp*nlibu*(lmaxu*2+1)**2
@@ -33,7 +36,7 @@
       real(8):: alpha,mmtarget, uhhist(nx),uhx,sss(1),fac,mmsite(nbas),mmhist(nx)
       integer:: nit,ibas,ifx,ncount=0,iblu,i
       call chkdmu(eks,dmatu, dmato, vorb)
-      dmato=dmatu
+      dmato=dmatu !dmato is kept in this module as previous dmat
       inquire(file='mmtarget.aftest',exist=mmtargetx)
       if(mmtargetx) call vorbmodifyaftest()
       end
@@ -216,4 +219,4 @@ c ...
       close(ifi)
       end
 !sssssssssssssssssssssssssssssssssssssssssssssssssss
-      end module
+      end module m_ldau
