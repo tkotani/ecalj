@@ -28,7 +28,8 @@
 !! SUBROUTINES
       public:: Get_zmel_init, Get_zmel_modex0,
      &         Dconjg_zmel, Deallocate_zmel, 
-     &         Setppovlz, Setppovlz_chipm,  Mptauof_zmel ,GramSchmidt_zmel,rwzmel, drvmelp3,ppbafp_v2
+     &         Setppovlz, Setppovlz_chipm,  Mptauof_zmel ,GramSchmidt_zmel,rwzmel,
+     &   drvmelp3,ppbafp_v2 !for old-fashioned codes in wannier/ 
 !! OUTPUT:  zmel for exchange=F, zmeltt for exchange=T.
       complex(8),allocatable,protected,public :: zmel(:,:,:)   !for  Get_zmel
 !!------------------------------------------------------

@@ -1,4 +1,6 @@
       program hecor
+!! this is probably not working well. need fixing 2022jan t.kotani
+      
 c-------------------------------------------------------------
 cm revised for fpgw025, May 07, 2002, Takashi Miyake
 c

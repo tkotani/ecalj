@@ -73,6 +73,7 @@ c------------------------------------------------
       read(ifi,*) plat(1:3,2)
       read(ifi,*) plat(1:3,3)
       close(ifi)
+      
       open (newunit=ifi, file='SYMOPS')
       read(ifi,*) ngrp
       allocate(symops(3,3,ngrp))
@@ -83,6 +84,7 @@ c------------------------------------------------
         enddo
       enddo
       close(ifi)
+      
       call getkeyvalue("GWinput", "n1n2n3", nnn,3)
       call getkeyvalue("GWinput", "QpGcut_psi",QpGx2)
       call getkeyvalue("GWinput", "QpGcut_cou",QpGcut_Cou)
@@ -97,12 +99,12 @@ c------------------------------------------------
          QpGcut_psi=0d0
          QpGcut_Cou=0d0
       endif
-      open(newunit=ifiqg ,file='QGpsi',form='unformatted')
-      open(newunit=ifiqgc,file='QGcou',form='unformatted')
+     
       qreduce0 = qreduce()
       newoffsetG=.true. 
       call minv33tp(plat,qlat)
       ginv = transpose(plat)
+      
 !! NOTE: we use only mtet=[1,1,1]. If we like to recover general case, examine code again.
       call getkeyvalue("GWinput","multitet",mtet,3,default=[1,1,1])
       write(6,"('  SYMOPS ngrp=',i3)") ngrp
@@ -118,7 +120,10 @@ c      imat33(3,3)=1d0
 c      if(sum(abs(matmul(transpose(qlat),plat)-imat33))>tolq()) call rx('qlat*plat err')
 c      if(sum(abs(ginv-transpose(plat)))       >tolq()) call rx('ginv=transpose(qlat) err')
       
-!! gammacellctrl=2 is a special mode. We only consider tetrahedron method within the Gammacell.
+      open(newunit=ifiqg ,file='QGpsi',form='unformatted')
+      open(newunit=ifiqgc,file='QGcou',form='unformatted')
+
+!     ! gammacellctrl=2 is a special mode. We only consider tetrahedron method within the Gammacell.
 !! The Gammacell is a part of BZ made from three vectors following qlatbz=(qlat(:,1)/n1q,...)
 !! Then the Gamma point is in the middle of micro_qlat = (qlat(:,1)/n1q,qlat(:,2)/n2q,...)
 !! To get qbz which is in the Gamma cell, we use shift in the getbzdata1 for gammacellctrl=2.
@@ -148,7 +153,6 @@ c      if(sum(abs(ginv-transpose(plat)))       >tolq()) call rx('ginv=transpose(
       
 !! Get BZ data by 'call Getbzdata1'. See m_get_bzdata1 
       call Getbzdata1(qlatbz,nnn,symops,ngrp,tetrai,mtet,gammacellctrl) !all inputs
-      
 !! Write BZDATA
       print *,' Writing BZDATA...'
       open (newunit=ifbz, file='BZDATA')
