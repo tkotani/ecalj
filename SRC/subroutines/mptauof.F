@@ -178,10 +178,10 @@ c$$$     &  w0(iw), (wklm(1)*fpi**1.5*(1d0/llw(iw,iq0i)-1d0)/wbz,iq0i=1,nq0i)
 c$$$      enddo
       end
 
-
       subroutine eibzgen(nqibz,symgg,ngrp,qibze,iqxini,iqxend,qbz,nqbz,timereversal,ginv,iprintx,
      o nwgt,igx,igxt,eibzsym,timerout)
       use m_shortn3,only: shortn3_initialize,shortn3
+      use m_genallcf_v3,only:  plat 
       implicit none
 !! === Obtain info for eibz symmetrization. See PRB81,125102-9 ===
 !! For GaAs 4x4x4 (with timereversal), we have IBZxBZ=10x640 is reduced to be IBZxEBZ=286.
@@ -204,31 +204,16 @@ c$$$      enddo
       integer,allocatable:: key(:,:),kk1(:),kk2(:),kk3(:),iqkkk(:,:,:)
       real(8),allocatable:: qbzl(:,:)
       logical :: inotime,nexist,debug=.false.
-!!
-
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-cnnn
-      real(8):: alatx, plat(3,3)
       integer,parameter:: noutmx=48
       integer:: iout,nout,nlatout(3,noutmx),iapw
       real(8)::ppin(3)
       real(8):: rlatp(3,3),xmx2(3),tolq=1d-8
-      open (newunit=ifi, file='LATTC')
-      read(ifi,*) alatx
-      read(ifi,*) plat(1:3,1)
-      read(ifi,*) plat(1:3,2)
-      read(ifi,*) plat(1:3,3)
-      close(ifi)
       call minv33tp(plat,qlat)
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-c ginvtest
 ccccccccccccccccccccc
 c      print *,'ginv test'
 c      ginv=ginv/2d0
 c      write(6,"('ginv=',3f9.4)")ginv(:,:)
 ccccccccccccccccccccc
-
       if(iprintx) write(6,"('eibzgen: TimeReversalSwitch ngrp= ',l,i3)") timereversal,ngrp
       ntimer=1
       if(timereversal) ntimer=-1

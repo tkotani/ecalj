@@ -53,7 +53,7 @@ c     &     idteti, nstar,irk,nstbz
      &    ,igxt(1,1,iqxini:iqxendx), eibzsym(1,1,iqxini:iqxendx)) !dummy
       endif
       end subroutine
-      end module
+      end module m_eibz
       
 !! ------------------------------------------------------------------
       module m_eibzhs
