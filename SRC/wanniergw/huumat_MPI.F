@@ -1,5 +1,4 @@
       program h_uumatrix 
-
 c-------------------------------------------------
 c  Calculate <u|u> matrix . u_kj(r) is the perodic part of eigencuntion.
 c
@@ -24,10 +23,7 @@ c      use m_read_bzdata,ngrp2=>ngrp
      & dq_,wbz,qibz,wibz,qbzw, qbz,
      & idtetf,ib1bz,idteti,
      & nstar,irk,nstbz
-
-c      use m_genallcf_v3
-      use m_genallcf_v3,ncore2=>ncore
-
+      use m_genallcf_v3,ncore2=>ncore,nrxx=>nrx
       use m_keyvalue,only: getkeyvalue
 
 c RS: MPI module

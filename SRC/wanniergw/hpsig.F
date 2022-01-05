@@ -17,7 +17,7 @@ c-------------------------------------------------
       use m_readeigen,only:init_readeigen,init_readeigen2,readcphif,readgeigf
       use m_read_bzdata,ngrp2=>ngrp
 
-      use m_genallcf_v3,ncore2=>ncore
+      use m_genallcf_v3,ncore2=>ncore,nrxx=>nrx
       use m_keyvalue,only: getkeyvalue
       use m_read_Worb,only: s_read_Worb, s_cal_Worb,
      &  nwf, nclass_mlwf, cbas_mlwf, nbasclass_mlwf, 

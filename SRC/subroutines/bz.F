@@ -172,10 +172,11 @@ C ------------------
       end subroutine fermi2
 c-------------------------------------------------------------
       subroutine fermi_kbt(
-     i     qval,dos,ndos,emin,emax,
-     i     kbt, eferm_init,
-     o     eferm_kbt)!,e1,e2,dosef_kbt)
-
+     i               qval,dos,ndos,emin,emax, kbt, eferm_init,
+     o               eferm_kbt)
+      implicit none
+      intent(in)::   qval,dos,ndos,emin,emax, kbt, eferm_init
+      intent(out)::  eferm_kbt
 C- Makes fermi energy from integrated density
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -189,14 +190,11 @@ Co   dosef_kbt:  density of states at fermi level
 Cr Remarks
 Cr   emin and e1 (and emax and e2) may point to the same address.
 C ----------------------------------------------------------------------
-      implicit none
-C Passed parameters
       integer ndos
       real(8):: qval,dos,emin,emax,ddos,eferm_old,efermi_init
       real(8):: eferm_init,eferm_kbt,e0,e1,e2,dosef_kbt
       real(8):: kbt, ec
-C Local parameters
-      integer:: i1,ie,ii,nii=100, ii_conv, i
+      integer:: i1,ie,ii,nii=100, ii_conv=-999, i
       real(8):: de,q,q1,q2,d1mach
       real(8):: idos, idos_old, idos_l, rydberg
       real(8):: eferm_i(4) !!Efermi(i+1),Efermi(i),Efermi(i-1),Efermi(i-2)

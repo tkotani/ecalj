@@ -246,13 +246,12 @@ C --------------------------------
    25 continue
       END
 
-
-c -------------------------------------
-c modified a bit from LMTO3 /ferdi/lmto/bndasa2.f/efrang
-c e1=e2 is just middle of HOMO and LUMO for insulator
-      subroutine efrang3(nsp,nkp,nbmax,nband,zval,e1,e2,eband,
-     .                  ebbot,ebtop,ebbott,ebtopp,elo,ehi,bandgap)
+      subroutine efrang3(nsp,nkp,nband,zval,eband, e1,e2,elo,ehi,bandgap)
+      implicit none
+      intent(in) ::      nsp,nkp,nband,zval,eband
+      intent(out)::                                      e1,e2,elo,ehi,bandgap
 C- Find range of Fermi energy.
+! e1=e2 is just middle of HOMO and LUMO for insulator
 C ----------------------------------------------------------------------
 Ci Inputs
 Ci   nsp,nkp,nbmax,nband,eband
@@ -272,37 +271,26 @@ Cr                       If the bottom is higher that the top then
 Cr                       we have an insulator and e1=e2.
 Cr    If nsp is zero, the upper and lower band limits are returned
 C ----------------------------------------------------------------------
-      implicit none
-C Passed parameters
-      integer nsp,nkp,nbmax,nband
-      double precision zval,e1,e2,eband(nbmax,nsp,nkp),ebbot(nband,nsp),
-     .                 ebtop(nband,nsp),ebbott(*),ebtopp(*),elo,ehi,em
-C Local parameters
+      integer nsp,nkp,nband
+      real(8):: zval,e1,e2,eband(nband,nsp,nkp),
+     .     ebbot(nband*nsp),ebtop(nband*nsp),elo,ehi,em
       double precision e,d1mach
       integer i,j,ikp,isp,iba,nval,nbbot,nbtop
       logical ::  zvalisinteger
-C External calls:
-      external d1mach
       real(8):: bandgap
-      elo = d1mach(2)
+      elo = 1d99
       ehi = -elo
-c      nval = zval + 1d-4
       nval = nint(zval)
-
       if ( nval .eq. zval ) then
         zvalisinteger=.true.
       else
         zvalisinteger=.false.
         write(*,*) 'efrang3, comment:  zval is not an integer'
       endif
-
       if(nsp==1) goto 1
       if(nsp==2) goto 2
-
 C --- nsp = 1 ---
     1 continue
-c      if( (nval/2) * 2 .eq. nval ) then
-cmod Apr.21.1999
       if ( zvalisinteger ) then
         if (nval.eq.0) then
           nbtop = 1
@@ -323,17 +311,12 @@ c e2 is for top of valence.  for insulator.
 c e1<e2 for metal
       e1 = eband(nbbot,1,1)
       e2 = eband(nbtop,1,1)
-      elo = eband(1,1,1)
-      ehi = eband(nband,1,1)
       do  20  ikp = 2 , nkp
         if( eband(1,1,ikp) .lt. elo ) elo = eband(1,1,ikp)
         if( eband(nband,1,ikp) .gt. ehi ) ehi = eband(nband,1,ikp)
         if( eband(nbbot,1,ikp) .lt. e1 ) e1 = eband(nbbot,1,ikp)
         if( eband(nbtop,1,ikp) .gt. e2 ) e2 = eband(nbtop,1,ikp)
    20 continue
-cxxx
-c      print *,' xxxxxx efrang: e1 e2=',e1,e2
-c      if( e1 .gt. e2 ) e1 = e2
 c if e1>e2 . This is insulator case.
       if( e1 > e2 ) then
         bandgap = e1-e2
@@ -344,64 +327,61 @@ c if e1>e2 . This is insulator case.
         bandgap=0d0
       endif
       return
-cxxx
-
 C --- nsp = 2 ---
     2 continue
       if (zvalisinteger) then
         do  isp = 1, nsp
         do  iba = 1, nband
-          ebbot(iba,isp) = eband(iba,isp,1)
-          ebtop(iba,isp) = eband(iba,isp,1)
+          ebbot(iba+(isp-1)*nband) = eband(iba,isp,1)
+          ebtop(iba+(isp-1)*nband) = eband(iba,isp,1)
         enddo
         enddo
       else
         do   isp = 1, nsp
         do   iba = 1, nband
-          ebbot(iba,isp) = minval(eband(iba,isp,1:nkp))
-          ebtop(iba,isp) = maxval(eband(iba,isp,1:nkp))
+          ebbot(iba+(isp-1)*nband) = minval(eband(iba,isp,1:nkp))
+          ebtop(iba+(isp-1)*nband) = maxval(eband(iba,isp,1:nkp))
          enddo
          enddo
       endif
-
+!      
       do   ikp = 1, nkp
       do   isp = 1, nsp
       do   iba = 1, nband
         if( eband(1,isp,ikp) .lt. elo ) elo = eband(1,isp,ikp)
         if( eband(nband,isp,ikp) .gt. ehi ) ehi = eband(nband,isp,ikp)
-        if( eband(iba,isp,ikp) .lt. ebbot(iba,isp) )
-     .                ebbot(iba,isp) =  eband(iba,isp,ikp)
-        if( eband(iba,isp,ikp) .gt. ebtop(iba,isp) )
-     .       ebtop(iba,isp) =  eband(iba,isp,ikp)
+        if( eband(iba,isp,ikp) .lt. ebbot(iba+(isp-1)*nband) )
+     .       ebbot(iba+(isp-1)*nband) =  eband(iba,isp,ikp)
+        if( eband(iba,isp,ikp) .gt. ebtop(iba+(isp-1)*nband) )
+     .       ebtop(iba+(isp-1)*nband) =  eband(iba,isp,ikp)
       enddo
       enddo
       enddo
+!!      
       do  i = 1, nband*nsp - 1
       do  j = 1, nband*nsp - i
-        if( ebbott(j) .gt. ebbott(j+1) ) then
-          e = ebbott(j)
-          ebbott(j) = ebbott(j+1)
-          ebbott(j+1) = e
+        if( ebbot(j) .gt. ebbot(j+1) ) then
+          e = ebbot(j)
+          ebbot(j) = ebbot(j+1)
+          ebbot(j+1) = e
         endif
-        if( ebtopp(j) .gt. ebtopp(j+1) ) then
-          e = ebtopp(j)
-          ebtopp(j) = ebtopp(j+1)
-          ebtopp(j+1) = e
+        if( ebtop(j) .gt. ebtop(j+1) ) then
+          e = ebtop(j)
+          ebtop(j) = ebtop(j+1)
+          ebtop(j+1) = e
        endif
       enddo
       enddo
-
+      
       if (zvalisinteger) then
-        e1 = ebbott(nval+1)
-        if( nval+1 .gt. nband*nsp ) e1 = ebbott(nval)
-        e2 = ebtopp(nval)
+        e1 = ebbot(nval+1)
+        if( nval+1 .gt. nband*nsp ) e1 = ebbot(nval)
+        e2 = ebtop(nval)
       else
-        e1 = ebbott(nval+1)
-        e2 = ebtopp(nval+1)
+        e1 = ebbot(nval+1)
+        e2 = ebtop(nval+1)
       endif
-
-cxxx
-c      if( e1 .gt. e2 ) e1 = e2
+!!      
       if( e1 > e2 ) then !insulator case
         bandgap = e1-e2
         em = 0.5d0*(e1+e2)
@@ -410,7 +390,6 @@ c      if( e1 .gt. e2 ) e1 = e2
       else
         bandgap=0d0
       endif
-cxxx
       end
 
 c--------------------------------------------------

@@ -1,460 +1,186 @@
-      module m_rgwinf_v3
-      integer,protected:: nclass,natom,nspin,nl,nnv,nnc,lcutmx,nrx
-      real(8),protected:: alat
-      integer,allocatable,protected:: 
-     &   iclass(:)
-     &  ,nindxv(:,:),nindxc(:,:)
-     &  ,occv(:,:,:),unoccv(:,:,:),ooo(:,:,:)
-     &  ,occc(:,:,:),unoccc(:,:,:)
-     &  ,ncwf(:,:,:)
-      real(8),allocatable,protected:: z(:),cutbase(:)
-
-      contains
-
-      subroutine rgwinf_v3 (iflmto,ifinin,incwfx) 
-      implicit real*8(a-h,o-z)
-      implicit integer(i-n)
-      intent(in)::          iflmto,ifinin,incwfx
-C- readin GWIN_V2 and LMTO(crystal) data.
-C all the output are given in the declear section
-C!
-Cr Return iclass=ibas.
-Cr nwin,efin,incwfx, are used as switches.
-C--------------------------------------------------------
-c      character(120):: symgrp
-c      character(120):: symgrpt
-      integer(4):: infwfx,nwin,iflmto,ifiniin,incwfx
-      logical :: nocore
-      integer(4),allocatable::ncwf2(:,:,:),nrofi(:)
-      real(8)::efin
-      character(6)::clablxxx
-      ifi = iflmto
-      ef  = -999d0 ! not readin efermi
-      nw  = -999 !Not readin NW file
-
-c---------
-c SYMMETRY
-c---------
-c      write(6,*)' goto sym'
-c      read(ifi,*);  read(ifi,*)
-c      read(ifi,*)symgrpt
-c      j           = 0
-c      call rmvbl   (symgrpt,120,j)
-c      symgrp(1:2) = '  '
-c      symgrp(3:120) = symgrpt(j+1:120)
-      read(ifi,*)
-      read(ifi,*)
-      read(ifi,*)
-
-c----------
-c STRUCTURE
-c----------
-c      write(6,*)' goto structure'
-c> lattice constant
-      read(ifi,*);  read(ifi,*); read(ifi,*)
-      read(ifi,*)alat
-
-c> primitive lattice vectors
-c      allocate(plat(3,3))
-      read(ifi,*)
-      read(ifi,*)!plat(1:3,1)
-      read(ifi,*)!plat(1:3,2)
-      read(ifi,*)!plat(1:3,3)
-
-c> no. atoms
-      read(ifi,*)
-      read(ifi,*)natom
-
-c We assume nclass=natom
-      nclass = natom
-
-c> positions of atoms
-c      allocate(pos(3,natom))
-      read(ifi,*)
-      do n = 1,natom
-        read(ifi,*) !pos(1,n),pos(2,n),pos(3,n)
-      end do
-
-c-----
-c LMTO
-c-----
-      write(6,*)' goto lmto'
-c> spin (1=paramagnetic  2=ferromagnetic)
-      read(ifi,*)
-      read(ifi,*)
-      read(ifi,*)
-      read(ifi,*)nspin
-c      write(6,*)' nspin=',nspin
-
-c> max. no. valence and core l
-      read(ifi,*)
-      read(ifi,*)nl
-c      write(6,*)' ispin nl =',ispin,nl
-
-c> max. no. valence and core n
-      read(ifi,*)
-      read(ifi,*)nnv,nnc
-
-ccccccccccccccccccccccccccc
-      if(nnv==1) nnv=2 ! for backword compatibility!takao apr 2002
-ccccccccccccccccccccccccccc
-
-c> max. no. radial mesh points
-      read(ifi,*)
-      read(ifi,*)nrx
-
-c> class-label, z, no. radial points
-      read(ifi,*)
-      allocate(z(nclass),nrofi(nclass))
-      do      ic = 1,nclass
-        read(ifi,*)clablxxx,z(ic),nrofi(ic)
-      end do
-
-c> atom and its class
-      allocate(iclass(natom))
-      do n = 1,natom
-        iclass(n)=n
-      end do
-
-      allocate(nindxv(nl,nclass),nindxc(nl,nclass),
-     &        occv(nl,nnv,nclass),unoccv(nl,nnv,nclass),
-     &        ooo(nl,nnv,nclass),
-     &        occc(nl,nnc,nclass),unoccc(nl,nnc,nclass))
-      allocate(ncwf2(nl,nnc,nclass),ncwf(nl,nnc,nclass))
-      allocate( cutbase(0:2*(nl-1)) )
-ctakao
-      call rgwinaf    (ifi,ifinin,nl,nnv,nnc,nclass,
-c> BZ
-     o                  n1,n2,n3,ef,
-c> frequencies
-     o                  niw,diw,nw,dw,delta,deltaw,esmr,imagw,
-c> coulomb
-c     o                  tolvc,alp,alptx,h,ng,
-c> product basis
-     o                  cutbase,lcutmx,nindxv,nindxc,
-     o                  occv,unoccv, occc,unoccc,
-c> core
-     o                  ncwf,ncwf2 )
-c----
-c      cutbase = tolbas
-      inquire(file='NoCore',exist=nocore)
-      if(nocore) then
-        occc=0    
-        unoccc=0  
-        ncfw  =0  
-      elseif( incwfx==-1 ) then
-        write(6,*)' ### incwf=-1 Use ForSxc for core'
-        ncwf = ncwf2  
-      elseif( incwfx==-2 ) then
-        write(6,*)' ### incwf=-2 Use NOT(ForSxc) for core and Pro-basis '
-        call notbit(nl*nnc*nclass, ncwf2)
-        ncwf  = ncwf2 
-        occc= ncwf  
-        unoccc= 0     
-cccccccccccccccccccccccccccccccccc
-c 31May2006
-        ooo=0
-        call ibitand(nl*nnv*nclass, unoccv,occv, ooo)
-        unoccv = ooo
-cccccccccccccccccccccccccccccccccc
-      elseif( incwfx==-3 ) then
-        call ibiton(nclass,nl,nnc,nindxc, occc, ncwf)
-        unoccc= 0     ! call iclear(nl*nnc*nclass, w(iunoccc))
-        write(6,*)' ### incwf=-3  occ=1 unocc=0 incwf=1 for all core '
-      elseif( incwfx==-4 ) then
-        write(6,*)' ### incwf=-4  occ=0 and unocc=0 for all core '
-        occc=0  !call iclear(nl*nnc*nclass, w(ioccc))
-        unoccc=0  !call iclear(nl*nnc*nclass, w(iunoccc))
-        ncwf  =0  !call iclear(nl*nnc*nclass, w(incwf))
-      elseif(incwfx==0) then
-        write(6,*)' ### Use unocc occ ForX0 for core'
-      else
-        call rx( ' ### proper incwf is not given for genallcf2:rgwinf ')
-      endif
-      deallocate(ncwf2)
-      end subroutine
-      end module
-
-c--------------------------------------------------------------------
-      subroutine rgwinaf (ifix,ifinin,nl,nnv,nnc,nclass,
-c> BZ
-     o                  n1,n2,n3,ef,
-c> frequencies
-     o                  niw,diw,nw,dw,delta,deltaw,esmr, imagw,
-c> product basis
-     o                  tolbas,lcutmx,nindxv,nindxc,
-     o                  noccv,nunoccv,noccc,nunoccc,
-c> core
-     o                  ncwf,ncwf2)
-      use m_keyvalue,only: getkeyvalue
-
-c read the rest of GW input data
-      implicit real*8(a-h,o-z)
-      implicit integer(i-n)
-      dimension 
-     o          nindxv(0:nl-1,nclass),
-     o          nindxc(0:nl-1,nclass),
-     o          noccv(0:nl-1,nnv,nclass),
-     o          noccc(0:nl-1,nnc,nclass),
-     o          nunoccv(0:nl-1,nnv,nclass),
-     o          nunoccc(0:nl-1,nnc,nclass),
-     o          ncwf(0:nl-1,nnc,nclass),
-     o          ncwf2(0:nl-1,nnc,nclass),
-     o  tolbas(0:2*(nl-1))
-c      logical :: readgwinput
-      integer(4):: ret ,ncc
-      real(8)::tolbas0
-      logical::readon
-      character*1000 tolchar
-c---------------
-c BRILLOUIN ZONE
-c---------------
-      ifi=ifix
-c> divisions along reciprocal base vectors G1 G2 G3
-      read(ifi,6000)blank
-      read(ifi,6000)blank
-      read(ifi,6000)blank
-      read(ifi,*)n1,n2,n3
-      write(6,"(a,3i5)")' divisions along reciprocal base vectors G1 G2 G3=',
-     & n1,n2,n3
-
-c$$$c--- EFERMI
-c$$$      if(ef/=-999d0) then
-c$$$        open( 1101,file='EFERMI')
-c$$$        read( 1101,*) ef
-c$$$        close(1101)
-c$$$        write(6,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
+c$$$      module m_rgwinf_v3
+c$$$      integer,protected:: nclass,natom,nspin,nl,nnv,nnc,lcutmx,nrx
+c$$$      real(8),protected:: alat
+c$$$      integer,allocatable,protected:: 
+c$$$     &   iclass(:)
+c$$$     &  ,nindxv(:,:),nindxc(:,:)
+c$$$     &  ,occv(:,:,:),unoccv(:,:,:),ooo(:,:,:)
+c$$$     &  ,occc(:,:,:),unoccc(:,:,:)
+c$$$     &  ,ncwf(:,:,:)
+c$$$      real(8),allocatable,protected:: z(:),cutbase(:)
+c$$$
+c$$$      contains
+c$$$
+c$$$      subroutine rgwinf_v3 (iflmto,incwfx) 
+c$$$      implicit real*8(a-h,o-z)
+c$$$      implicit integer(i-n)
+c$$$      intent(in)::          iflmto,incwfx
+c$$$C- readin GWIN_V2 and LMTO(crystal) data.
+c$$$C all the output are given in the declear section
+c$$$C!
+c$$$Cr Return iclass=ibas.
+c$$$Cr nwin,efin,incwfx, are used as switches.
+c$$$C--------------------------------------------------------
+c$$$c      character(120):: symgrp
+c$$$c      character(120):: symgrpt
+c$$$      integer(4):: infwfx,nwin,iflmto,ifiniin,incwfx
+c$$$      logical :: nocore
+c$$$      integer(4),allocatable::ncwf2(:,:,:),nrofi(:)
+c$$$      real(8)::efin
+c$$$      character(6)::clablxxx
+c$$$      ifi = iflmto
+c$$$      ef  = -999d0 ! not readin efermi
+c$$$      nw  = -999 !Not readin NW file
+c$$$
+c$$$c---------
+c$$$c SYMMETRY
+c$$$c---------
+c$$$c      write(6,*)' goto sym'
+c$$$c      read(ifi,*);  read(ifi,*)
+c$$$c      read(ifi,*)symgrpt
+c$$$c      j           = 0
+c$$$c      call rmvbl   (symgrpt,120,j)
+c$$$c      symgrp(1:2) = '  '
+c$$$c      symgrp(3:120) = symgrpt(j+1:120)
+c$$$      read(ifi,*)
+c$$$      read(ifi,*)
+c$$$      read(ifi,*)
+c$$$
+c$$$c----------
+c$$$c STRUCTURE
+c$$$c----------
+c$$$c      write(6,*)' goto structure'
+c$$$c> lattice constant
+c$$$      read(ifi,*);  read(ifi,*); read(ifi,*)
+c$$$      read(ifi,*)alat
+c$$$
+c$$$c> primitive lattice vectors
+c$$$c      allocate(plat(3,3))
+c$$$      read(ifi,*)
+c$$$      read(ifi,*)!plat(1:3,1)
+c$$$      read(ifi,*)!plat(1:3,2)
+c$$$      read(ifi,*)!plat(1:3,3)
+c$$$
+c$$$c> no. atoms
+c$$$      read(ifi,*)
+c$$$      read(ifi,*)natom
+c$$$
+c$$$c We assume nclass=natom
+c$$$      nclass = natom
+c$$$
+c$$$c> positions of atoms
+c$$$c      allocate(pos(3,natom))
+c$$$      read(ifi,*)
+c$$$      do n = 1,natom
+c$$$        read(ifi,*) !pos(1,n),pos(2,n),pos(3,n)
+c$$$      end do
+c$$$
+c$$$c-----
+c$$$c LMTO
+c$$$c-----
+c$$$      write(6,*)' goto lmto'
+c$$$c> spin (1=paramagnetic  2=ferromagnetic)
+c$$$      read(ifi,*)
+c$$$      read(ifi,*)
+c$$$      read(ifi,*)
+c$$$      read(ifi,*)nspin
+c$$$c      write(6,*)' nspin=',nspin
+c$$$
+c$$$c> max. no. valence and core l
+c$$$      read(ifi,*)
+c$$$      read(ifi,*)nl
+c$$$c      write(6,*)' ispin nl =',ispin,nl
+c$$$
+c$$$c> max. no. valence and core n
+c$$$      read(ifi,*)
+c$$$      read(ifi,*)nnv,nnc
+c$$$
+c$$$ccccccccccccccccccccccccccc
+c$$$      if(nnv==1) nnv=2 ! for backword compatibility!takao apr 2002
+c$$$ccccccccccccccccccccccccccc
+c$$$
+c$$$c> max. no. radial mesh points
+c$$$      read(ifi,*)
+c$$$      read(ifi,*)nrx
+c$$$
+c$$$c> class-label, z, no. radial points
+c$$$      read(ifi,*)
+c$$$      allocate(z(nclass),nrofi(nclass))
+c$$$      do      ic = 1,nclass
+c$$$        read(ifi,*)clablxxx,z(ic),nrofi(ic)
+c$$$      end do
+c$$$
+c$$$c> atom and its class
+c$$$      allocate(iclass(natom))
+c$$$      do n = 1,natom
+c$$$        iclass(n)=n
+c$$$      end do
+c$$$
+c$$$      allocate(nindxv(nl,nclass),nindxc(nl,nclass),
+c$$$     &        occv(nl,nnv,nclass),unoccv(nl,nnv,nclass),
+c$$$     &        ooo(nl,nnv,nclass),
+c$$$     &        occc(nl,nnc,nclass),unoccc(nl,nnc,nclass))
+c$$$      allocate(ncwf2(nl,nnc,nclass),ncwf(nl,nnc,nclass))
+c$$$      allocate( cutbase(0:2*(nl-1)) )
+c$$$ctakao
+c$$$      call rgwinaf    (ifi,nl,nnv,nnc,nclass,
+c$$$c> BZ
+c$$$     o                  n1,n2,n3,ef,
+c$$$c> frequencies
+c$$$     o                  niw,diw,nw,dw,delta,deltaw,esmr,imagw,
+c$$$c> coulomb
+c$$$c     o                  tolvc,alp,alptx,h,ng,
+c$$$c> product basis
+c$$$     o                  cutbase,lcutmx,nindxv,nindxc,
+c$$$     o                  occv,unoccv, occc,unoccc,
+c$$$c> core
+c$$$     o                  ncwf,ncwf2 )
+c$$$c----
+c$$$c      cutbase = tolbas
+c$$$      inquire(file='NoCore',exist=nocore)
+c$$$      if(nocore) then
+c$$$        occc=0    
+c$$$        unoccc=0  
+c$$$        ncfw  =0  
+c$$$      elseif( incwfx==-1 ) then
+c$$$        write(6,*)' ### incwf=-1 Use ForSxc for core'
+c$$$        ncwf = ncwf2  
+c$$$      elseif( incwfx==-2 ) then
+c$$$        write(6,*)' ### incwf=-2 Use NOT(ForSxc) for core and Pro-basis '
+c$$$        call notbit(nl*nnc*nclass, ncwf2)
+c$$$        ncwf  = ncwf2 
+c$$$        occc= ncwf  
+c$$$        unoccc= 0     
+c$$$cccccccccccccccccccccccccccccccccc
+c$$$c 31May2006
+c$$$        ooo=0
+c$$$        call ibitand(nl*nnv*nclass, unoccv,occv, ooo)
+c$$$        unoccv = ooo
+c$$$cccccccccccccccccccccccccccccccccc
+c$$$      elseif( incwfx==-3 ) then
+c$$$        call ibiton(nclass,nl,nnc,nindxc, occc, ncwf)
+c$$$        unoccc= 0     ! call iclear(nl*nnc*nclass, w(iunoccc))
+c$$$        write(6,*)' ### incwf=-3  occ=1 unocc=0 incwf=1 for all core '
+c$$$      elseif( incwfx==-4 ) then
+c$$$        write(6,*)' ### incwf=-4  occ=0 and unocc=0 for all core '
+c$$$        occc=0  !call iclear(nl*nnc*nclass, w(ioccc))
+c$$$        unoccc=0  !call iclear(nl*nnc*nclass, w(iunoccc))
+c$$$        ncwf  =0  !call iclear(nl*nnc*nclass, w(incwf))
+c$$$      elseif(incwfx==0) then
+c$$$        write(6,*)' ### Use unocc occ ForX0 for core'
+c$$$      else
+c$$$        call rx( ' ### proper incwf is not given for genallcf2:rgwinf ')
 c$$$      endif
-c$$$c--- NW
-c$$$      if(nw/=-999) then
-c$$$        open( 1101,file='NW')
-c$$$        read( 1101,*) nw
-c$$$        close(1101)
-c$$$        write(6,"(a,i5)")' --- READIN nw from NW. nw=',nw
-c$$$      endif
-
-c------------
-c FREQUENCIES
-c------------
-c      if(readgwinput()) then
-c      call getkeyvalue("GWinput","dw",    dw  )
-      call getkeyvalue("GWinput","niw",   niw )
-      call getkeyvalue("GWinput","delta", delta )
-      call getkeyvalue("GWinput","deltaw",deltaw )
-      call getkeyvalue("GWinput","esmr",  esmr )
-c      else
-c       ifi=ifinin
-cc> no. frequencies along Re axis and mesh size (Hartree)
-c       read(ifi,6000)blank
-c       read(ifi,6000)blank
-c       read(ifi,*) dw
-cc> no. frequencies along Im axis and mesh size (Hartree)
-c       read(ifi,6000)blank
-c       read(ifi,*)niw !,diw
-cc> broadening of the delta function in the response function (Hartree)
-c       read(ifi,6000)blank
-c       read(ifi,*) delta
-c       read(ifi,6000)blank
-c       read(ifi,*) deltaw
-c       read(ifi,6000)blank
-c       read(ifi,*) esmr
-cc> Re (0), Im (1) or both (2) frequencies
-c       read(ifi,6000)blank
-c       read(ifi,6000)blank
-c      endif
-c      diw=1d90 !dummy never used.
-      imagw=-999999 ! dummy
-      write(6,*)' --- Freq ---'
-c      write(6,"(a,f12.6)")'    dw   =',dw
-      write(6,"(a,i6)")'    niw  =',niw
-      write(6,"(a,f12.6)")'    delta=',delta
-      write(6,"(a,f12.6)")'    esmr =',esmr
-
-c--------------
-c PRODUCT BASIS
-c--------------
-ctakao
-      ncwf  =99 !This is for counting the number of nctot in gencor.
-      ncwf2 =99
-      write(6,*)' reading <PRODUCT_BASIS> section'
-c      if(readgwinput()) then
-      call getkeyvalue("GWinput","<PRODUCT_BASIS>",unit=ifi,status=ret)
-      write(6,*)'<... > '
-c      else
-c       read(ifi,6000)blank
-c       read(ifi,6000)blank
-c      endif
-
-c> tolerance in percentage for optimal product basis
-c  sum of lowest overlap eigenvalues / total eigenvalues
-      read(ifi,6000)blank
-
-c... readin tlerance for each l jun2004
-      read(ifi,"(a)") tolchar
-      readon=.false.
-      lx=0
-      do ix=1,1000
-        if(.not.readon.and.tolchar(ix:ix)/=' ') then
-          readon=.true.
-          ixoff=ix
-        endif
-        if(readon.and.tolchar(ix:ix)==' ') then
-          read(tolchar(ixoff:ix),*,err=1097) tolbas(lx)
-          if(lx==2*(nl-1)) goto 1098
-          readon=.false.
-          lx=lx+1
-        endif
-      enddo
- 1097 continue
-      tolbas(lx:)=tolbas(lx-1)
- 1098 continue
-      do lx=0,2*(nl-1)
-        write(6,"(' lx=',i3,' readin tolerance=',d11.3)") lx, tolbas(lx)
-      enddo
-ccccccccccccccccccccccccccccc
-c      read(ifi,*)tolbas0
-c      tolbas(:)=tolbas0
-ccccccccccccccccccccccccccccc
-
-c> check completeness of optimal product basis
-      read(ifi,6000)blank
-      read(ifi,*)lcutmx
-      write(6,"(' --- prod section: lcutmx tolbas='i3,100d11.3)") lcutmx,tolbas
-c      write(6,*)' nclass nl-1=',nclass,nl-1
-c> n index for valence and core
-      read(ifi,6000)blank
-      do      ic = 1,nclass
-        do       l = 0,nl-1
-          read(ifi,*) ict,lt,nindxv(l,ic),nindxc(l,ic)
-ccccccccc
-c      write(6,*) ict,ic,lt,nindxv(l,ic),nindxc(l,ic)
-cccccccccccccc
-c      if(ict .ne. ic) then
-c       stop 'rgwina: 1st wrong class '
-c      endif
-Cstop2rx 2013.08.09 kino          if(lt  .ne. l ) stop 'rgwina: 1st wrong l '
-          if(lt  .ne. l ) call rx( 'rgwina: 1st wrong l ')
-        end do
-      end do
-      write(6,*)' --- valence product basis section'
-c      stop 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-c> criteria for product basis
-c>> valence
-
-ccccccccccccccccccccccccccc
-c      noccv=0;nunoccv=0
-c      goto 1099
-ccccccccccccccccccccccccccccccc
-      read(ifi,6000)blank
-      do      ic = 1,nclass
-        do       l = 0,nl-1
-          do       n = 1,nindxv(l,ic)
-            read(ifi,*)ict,lt,nt,noccv(l,n,ic),nunoccv(l,n,ic)
-            write(6,"(100i3)") ict,lt,nt,noccv(l,n,ic),nunoccv(l,n,ic)
-c      if(ict .ne. ic)stop 'rgwina: 2nd wrong class valence'
-Cstop2rx 2013.08.09 kino            if(lt  .ne. l )stop 'rgwina: 2nd wrong l valence'
-            if(lt  .ne. l )call rx( 'rgwina: 2nd wrong l valence')
-Cstop2rx 2013.08.09 kino            if(nt  .ne. n )stop 'rgwina: wrong n valence'
-            if(nt  .ne. n )call rx( 'rgwina: wrong n valence')
-          end do
-        end do
-      end do
- 1099 continue
-c      write(6,*)' goto prod 3'
-c>> core
-      write(6,*)' --- core product basis section'
-      read(ifi,6000)blank
-      do      ic = 1,nclass
-        do       l = 0,nl-1
-          do       n = 1,nindxc(l,ic)
-            read(ifi,*)ict,lt,nt,noccc(l,n,ic),nunoccc(l,n,ic),ncwf(l,n,ic)
-     & ,ncwf2(l,n,ic) !ncwf2 is for Sigma calcuation
-            write(6,"(100i3)") 
-     & ict,lt,nt,noccc(l,n,ic),nunoccc(l,n,ic),ncwf(l,n,ic)
-     & ,ncwf2(l,n,ic) !ncwf2 is for Sigma calcuation
-c      if(ict .ne. ic)stop 'rgwina: 2nd wrong class core'
-Cstop2rx 2013.08.09 kino            if(lt  .ne. l )stop 'rgwina: 2nd wrong l core'
-            if(lt  .ne. l )call rx( 'rgwina: 2nd wrong l core')
-Cstop2rx 2013.08.09 kino            if(nt  .ne. n )stop 'rgwina: wrong n core'
-            if(nt  .ne. n )call rx( 'rgwina: wrong n core')
-          end do
-        end do
-      end do
-c      write(6,*)' goto prod 4'
- 6000 format(a)
-      close(ifi)
-      return
-      end
+c$$$      deallocate(ncwf2)
+c$$$      end subroutine
+c$$$      end module
+c$$$
+c$$$c--------------------------------------------------------------------
 c
-
-      subroutine bit99to0(n,idat)
-      integer(4) :: idat(n),i,n
-      do i=1,n
-        if(idat(i)==99) idat(i)=0
-      enddo
-      end
-c
-      subroutine notbit(n,idat)
-      integer(4) :: idat(n),i,n,ix
-      do i=1,n
-        ix =  idat(i)
-        if(idat(i)==0) then
-          idat(i)=1
-        elseif(idat(i)==1) then
-          idat(i)=0
-        endif
-c       write(6,*)'notbit=',i,ix,idat(i)
-      enddo
-      end
-      subroutine iclear(n,idat)
-      integer(4) :: idat(n),n
-      idat=0
-      end
-      subroutine ibiton(nclass,nl,nnc,nindxc, noccc,ncwf)
-      integer(4) ::nclass,nl,nnc,noccc(0:nl-1,nnc,nclass),nindxc(0:nl-1,nclass)
-      integer(4) ::ncwf(0:nl-1,nnc,nclass),ic,l,n
-      noccc=0
-      ncwf=0
-      do      ic = 1,nclass
-        do       l = 0,nl-1
-          do       n = 1,nindxc(l,ic)
-            noccc(l,n,ic)=1
-            ncwf(l,n,ic) =1
-          end do
-        end do
-      end do
-      end
-
-      subroutine ibitand(n,a,b,c)
-      integer(4) :: n, a(n),b(n),c(n),i
-      do i = 1,n
-        if( a(i)==1.or.b(i)==1 ) c(i)=1
-        write (6,"('ibitand:: ',4i3)")i,a(i),b(i),c(i)
-      enddo
-      end
-
-c$$$      subroutine writeemesh(ifi,freqi,niw,freqr,nnw,delta)
-c$$$c Write energy mesh along imag axis and real axis. -----------------------
-c$$$      implicit none
-c$$$      integer(4):: iw,ifi,niw,nnw
-c$$$      real(8) :: freqi(niw),freqr(0:nnw-1),delta
-c$$$      complex(8):: fff,img =(0d0,1d0)
-c$$$      write(6,*)" writeemesh: ifi=",ifi
-c$$$      write(ifi,"(' iw   omega(Ry) on Imag-axis  niw=', i8)")niw
-c$$$      do iw = 1,niw
-c$$$        fff = img * freqi(iw)            ! along img axis
-c$$$        write(ifi,"(i3,2d15.6)")iw,fff*2d0
-c$$$      enddo
-c$$$      write(ifi,"('  0   0.000000D+00   0.000000D+00  ! This line is a dummy not in niw.')")
-c$$$      write(ifi,"(' iw   omega(Ry) on Real-axis  nw=', i8)") nnw
-c$$$      do iw= 0,nnw-1
-c$$$        fff = freqr(iw) + img*delta ! delta is in a.u.  ! along real axis
-c$$$        write(ifi,"(i3,2d15.6)")iw,fff*2d0
-c$$$      enddo
-c$$$      end
-
-
-
-
-
-
+c$$$
+c$$$
+c$$$
+c$$$
+c$$$
+c$$$
+c$$$

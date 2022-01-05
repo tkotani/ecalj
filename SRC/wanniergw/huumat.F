@@ -22,7 +22,7 @@ c-------------------------------------------------
      & idtetf,ib1bz,idteti,
      & nstar,irk,nstbz
 
-      use m_genallcf_v3,ncore2=>ncore
+      use m_genallcf_v3,ncore2=>ncore,nrxx=>nrx
       use m_keyvalue,only: getkeyvalue
       use m_lldata,only: ll
       use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg

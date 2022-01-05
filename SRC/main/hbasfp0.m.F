@@ -1,8 +1,7 @@
-      program hbasfp0_v2
+      program hbasfp0
 c-- Generates orthonormal optimal product basis and required radial integrals in each MT.
 c input files
 c  GWinput : input data for GW
-c  LMTO   : fundamental data for crystal
 c  PHICV  : radial functions Valence and Core
 c
 c output files
@@ -10,40 +9,31 @@ c  BASFP//ibas :: product basis for each ibas
 c  PPBRD_V2_//ibas :: radial <ppb> integrals. Note indexing of ppbrd
 c
 c The main part of this routine is in the subroutine basnfp_v2
-      use m_rgwinf_v3,only:rgwinf_v3, 
+c     use m_rgwinf_v3,only:rgwinf_v3,
+      use m_genallcf_v3,only: Genallcf_v3,
      & alat,nclass,natom,nspin,nl,nnv,nnc,nrx, cutbase,lcutmx,nindxc,
      & nindxv,occv,unoccv,occc,unoccc,iclass
       use m_keyvalue,only: getkeyvalue
       use m_anf,only: ibasf,laf,anfcond !may2015takao
 c      use m_mpi,only: MPI__Initialize
       implicit none
-      real(8):: qbas(3,3),ginv(3,3)
-      integer(4)::
+      integer::
      l ifphiv(2),ifphic(2), iphiv(2),iphivd(2),iphic(2),iphi(2),iphidot(2),
-     l ifev(2),ifevf(2),ibas,ibas1,ic,icx,ifaln,ifinin,iflmto,ifphi,
-     l ii,ir,irad,isp,ix,lmx,lmx2,n,nbas,ncoremx,l,nn,icore,ifianf,nphi,nradmx,nsp,iopen,maxnn,iclose
-      integer(4),allocatable:: lcutmxa(:)
-      character(12) :: aaa
-      integer(4),allocatable::nrofi(:), nocc(:,:),nunocc(:,:),nindx(:,:)
-      logical :: ptest=.false. !See ptest in hvccfp0.f
-      real(8),allocatable :: bb(:),zz(:), phic(:,:)
-      integer(4) :: ndat
-      integer(4),allocatable:: ncindx(:,:),lcindx(:,:),
-     &           nrad(:), nindx_r(:,:), lindx_r(:,:),
-     &           nc_max(:,:),ncore(:)
+     l ifev(2),ifevf(2),ibas,ibas1,ic,icx,ifaln,iflmto,ifphi,
+     l ii,ir,irad,isp,ix,lmx,lmx2,n,nbas,ncoremx,l,nn,icore,ifianf,nphi,nradmx,nsp,maxnn,
+     l iread, idummy,ifinin,incwfin,ret,ndat
+      integer,allocatable:: lcutmxa(:),nrofi(:), nocc(:,:),nunocc(:,:),nindx(:,:),
+     & ncindx(:,:),lcindx(:,:), nrad(:), nindx_r(:,:), lindx_r(:,:), nc_max(:,:),ncore(:)
+      real(8):: qbas(3,3),ginv(3,3)
       real(8),allocatable:: phitoto(:,:,:,:,:), aa(:),rr(:,:),phitotr(:,:,:,:,:)
+      real(8),allocatable:: cutbasex(:), bb(:),zz(:), phic(:,:)
+      logical :: checkdid ,anfexist, cmdopt2, ptest=.false. !See ptest in hvccfp0.f
+      character(12) :: aaa
       character*11 :: ffaln
-      integer(4)::incwfin,ret
-      integer(4),allocatable:: idid(:)
-      logical :: checkdid ,anfexist
-      integer(4):: iread, idummy,ifile_handle
-      real(8),allocatable:: cutbasex(:)
-      logical:: cmdopt2
       character(20):: outs=''
 c--------------------------------------------------------------------------
 !! MPI dummy
 c      call MPI__Initialize()
-      ifinin=-99999 !dummy
       write(6,'(a)') ' --- Input normal(=0); coremode(=3);'//
      & ' ptest(=4); Excore(=5); for core-valence Ex(=6);'//
      & ' val-val Ex(7);  normal+<rho_spin|B> (8); version(-9999) ?'
@@ -87,20 +77,11 @@ c      call headver('hbasfp0',ix)
         write(6,*)' hbasfp: input is out of range'
         call rx( ' hbasfp: input is out of range')
       endif
-
-!! read data in m_rgwinf_v3
-!! Output are allocated and data are setted as above.
-c     iflmto = iopen('LMTO',1,0,0)
-      iflmto=ifile_handle()
-      open(iflmto,file='LMTO')
-      if (iflmto <= 0) call rx( 'unit file for LMTO <= 0')
-      call rgwinf_v3 (iflmto,ifinin,incwfin) ! readin inputs. See use use m_rgwinf_v3,only: ... at the begining.
-c      iflmto= iclose('LMTO')
-      close(iflmto)
+!! incwfin gives the setting of Product basis
+      call Genallcf_v3(incwfin)
       nsp=nspin
-      write(6,*)'end of rgwinf'
 !! readin lcutmxa ------------
-      call getkeyvalue("GWinput","<PRODUCT_BASIS>",unit=ifinin,status=ret)
+      call Getkeyvalue("GWinput","<PRODUCT_BASIS>",unit=ifinin,status=ret)
       allocate(lcutmxa(1:natom))
       do
         read(ifinin,*,err=980) aaa
@@ -114,19 +95,16 @@ c          write(6, '(" lcutmxa=",20i3)' ) lcutmxa(1:natom)
       lcutmxa=lcutmx
   990 continue
       close(ifinin)
-
       if(ix==8) then
          write(6,*)' Enfoece lcutmx=0 for all atoms'
          lcutmxa=0
       endif
-
       write(6,"(' lcutmxa=',$)")
       write(6,'(20i3)') lcutmxa(1:natom)
       lmx        = 2*(nl-1)
       lmx2       = (lmx+1)**2
       nn         = maxnn (nindxv,nindxc,nl,nclass)
       nphi       = nrx*nl*nn*nclass
-
 
 c -optimal orthonormal product basis
 c> reindex nocc,nunocc,nindx
@@ -149,13 +127,10 @@ c> reindex nocc,nunocc,nindx
      d              nl,nn,nnv,nnc,nclass,
      o              nocc,nunocc,nindx)
       write(6,*)' --- end of reindx ---'
-
 c-----------
 c read PHIVC  and reserve it to phitot
 c----------
-c      ifphi  = iopen('PHIVC', 0,-1,0)     ! PHIV+PHIC augmentation wave and core
-      ifphi=ifile_handle()
-      open(ifphi,file='PHIVC',form='unformatted')
+      open(newunit=ifphi,file='PHIVC',form='unformatted')
       read(ifphi) nbas, nradmx, ncoremx
       allocate(  ncindx(ncoremx,nbas),
      &           lcindx(ncoremx,nbas),
@@ -200,12 +175,8 @@ c      ifphi  = iopen('PHIVC', 0,-1,0)     ! PHIV+PHIC augmentation wave and cor
       enddo
       close(ifphi)
 c-----------
-
 !! check write
-      ffaln ='PHIV.chk'
-      ifaln = ifile_handle()
-      open(ifaln,file=trim(ffaln))
-c      ifaln = iopen(ffaln,1,-1,0)
+      open(newunit=ifaln,file='PHIV.chk')
       do ibas = 1,nbas
         ic = ibas
         do irad = 1, nrad(ic)
@@ -217,7 +188,6 @@ c      ifaln = iopen(ffaln,1,-1,0)
           enddo
         enddo
       enddo
-c      ifaln = iclose(ffaln)
       close(ifaln)
 !!  excore mode ---------
       if(ix==5 ) then
@@ -227,13 +197,11 @@ c      ifaln = iclose(ffaln)
      &    aa,bb,nrofi,rr)
         goto 998
       endif
-
 !! antiferro or not. 
 !! For AF case, we have laf=.true. and we have data set for 'call anfsig', stored in m_anf.
       call anfcond()
       if(laf) then
 !!      Check iclass =ibas ; CLASS file contains true classs information.
-c        allocate(idid(natom)) 
         write(6,*) '--- Antiferro mode --- '
         do ibas=1,natom
           if(iclass(ibas)/=ibas) call rx( ' iclass(ibas)/=ibas: ')
@@ -247,11 +215,7 @@ c        allocate(idid(natom))
      &       '  radial functions: phi(ibasf)=phi(ibas): ibasf ibas=',ibasf(ibas),ibas
           endif  
         enddo
-c        if( sum (idid(1:ii)) /= natom*(natom+1)/2) 
-c     &    call rx( 'hbasfp0:sum (idid(1:ii)) /= n(n+1)/2')
-c        write(6,*)' end of anf section...'
       endif
-
 !! override cutbase to make epsPP_lmfh safer. may2013takao
       allocate( cutbasex(0:2*(nl-1)) )
       cutbasex=cutbase
@@ -259,7 +223,6 @@ c        write(6,*)' end of anf section...'
          write(6,*)' !!! set tolerance for PB to be 1d-6 ---'
          cutbasex=1d-6
       endif
-      
       do ic = 1,nclass
         call basnfp_v2(nocc(1,ic),nunocc(1,ic),nindx(1,ic), ! Product Basis functions
      &    nl,nn,nrx, nrofi(ic),rr(1,ic),aa(ic),bb(ic),ic,
@@ -275,21 +238,3 @@ c        write(6,*)' end of anf section...'
       if(ix==8) call rx0s( ' OK! hbasfp0 ix=8 normal(ix==0) + <B|spin den>. Enforce lcutmx=0.')
  998  if(ix==5) call rx0s( ' OK! hbasfp0 ix=5 ex core mode  ')
       end
-
-
-c      logical function checkdid (idid,ii, ibas)
-c      integer(4):: idid(ii),ix
-c      checkdid=.true.
-c      do ix=1,ii
-c        if(idid(ix)==ibas) return
-c      enddo
-c      checkdid=.false.
-c      end
-
-
-
-
-
-
-
-

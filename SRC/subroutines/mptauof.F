@@ -210,12 +210,10 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cnnn
       real(8):: alatx, plat(3,3)
       integer,parameter:: noutmx=48
-      integer:: iout,nout,nlatout(3,noutmx),iapw,ifile_handle
+      integer:: iout,nout,nlatout(3,noutmx),iapw
       real(8)::ppin(3)
       real(8):: rlatp(3,3),xmx2(3),tolq=1d-8
-
-      ifi = ifile_handle()
-      open (ifi, file='LATTC')
+      open (newunit=ifi, file='LATTC')
       read(ifi,*) alatx
       read(ifi,*) plat(1:3,1)
       read(ifi,*) plat(1:3,2)
