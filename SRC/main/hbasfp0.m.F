@@ -21,7 +21,7 @@ c      use m_mpi,only: MPI__Initialize
      l ifphiv(2),ifphic(2), iphiv(2),iphivd(2),iphic(2),iphi(2),iphidot(2),
      l ifev(2),ifevf(2),ibas,ibas1,ic,icx,ifaln,iflmto,ifphi,
      l ii,ir,irad,isp,ix,lmx,lmx2,n,nbas,ncoremx,l,nn,icore,ifianf,nphi,nradmx,nsp,maxnn,
-     l iread, idummy,ifinin,incwfin,ret,ndat
+     l idummy,ifinin,incwfin,ret,ndat
       integer,allocatable:: lcutmxa(:),nrofi(:), nocc(:,:),nunocc(:,:),nindx(:,:),
      & ncindx(:,:),lcindx(:,:), nrad(:), nindx_r(:,:), lindx_r(:,:), nc_max(:,:),ncore(:)
       real(8):: qbas(3,3),ginv(3,3)
@@ -31,19 +31,18 @@ c      use m_mpi,only: MPI__Initialize
       character(12) :: aaa
       character*11 :: ffaln
       character(20):: outs=''
-c--------------------------------------------------------------------------
-!! MPI dummy
-c      call MPI__Initialize()
+      
       write(6,'(a)') ' --- Input normal(=0); coremode(=3);'//
      & ' ptest(=4); Excore(=5); for core-valence Ex(=6);'//
      & ' val-val Ex(7);  normal+<rho_spin|B> (8); version(-9999) ?'
       if(cmdopt2('--job=',outs)) then
          read(outs,*) ix
-         iread=0
+c         iread=0
       else
-         call readin5(ix,iread,idummy)
+c         call readin5(ix,iread,idummy)
+         read(5,*) ix
+c         iread=0
       endif   
-c      call headver('hbasfp0',ix)
       if(ix==3) then
         write(6,*)'  ### coremode; Product basis for SEXcore ### '
         incwfin = -2
@@ -200,8 +199,7 @@ c-----------
 !! antiferro or not. 
 !! For AF case, we have laf=.true. and we have data set for 'call anfsig', stored in m_anf.
       call anfcond()
-      if(laf) then
-!!      Check iclass =ibas ; CLASS file contains true classs information.
+      if(laf) then ! Check iclass =ibas ; CLASS file contains true classs information.
         write(6,*) '--- Antiferro mode --- '
         do ibas=1,natom
           if(iclass(ibas)/=ibas) call rx( ' iclass(ibas)/=ibas: ')
@@ -227,7 +225,7 @@ c-----------
         call basnfp_v2(nocc(1,ic),nunocc(1,ic),nindx(1,ic), ! Product Basis functions
      &    nl,nn,nrx, nrofi(ic),rr(1,ic),aa(ic),bb(ic),ic,
      &    phitoto,phitotr,nsp,nclass,
-     i    cutbasex, lcutmxa(ic),ix,iread,alat
+     i    cutbasex, lcutmxa(ic),ix,alat !,iread
      i  ,nc_max(0,ic) )
       end do
       if(ix==0) call rx0s( ' OK! hbasfp0 ix=0 normal mode ')

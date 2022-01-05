@@ -2,7 +2,7 @@
 ! Q0Pchoice=1: qzerolimit. (not too small because of numerical reason.)
 ! Q0Pchoice=2: =1d0/3.0**.5d0/Q is the mean value of \int_{|q|<Q} d^3 q <1/q^2> for a sphere.
       use m_keyvalue,only: getkeyvalue
-      integer,save :: ttt
+      integer,save :: ttt=1
       logical,save:: init=.true.
       if(init) then
         call getkeyvalue("GWinput","Q0Pchoice",ttt,default=1)

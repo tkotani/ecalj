@@ -48,12 +48,10 @@
       use m_mpi,only: MPI__Initialize
       implicit none
       integer(4) :: ifiqg,ifiqgc,ifigw0,ngrp,ifi,i,ig,iq0pin
-      real(8) :: alat,QpGcut_psi, QpGcut_Cou,dummy ,plat(3,3),volum,q0(3),qlat0(3,3),QpGx2,a1,a2,unit
-      real(8),parameter:: pi=4d0* atan(1d0)  
+      real(8) :: alat,QpGcut_psi, QpGcut_Cou,dummy ,plat(3,3),volum,q0(3),qlat0(3,3),a1,a2,unit
       real(8),allocatable :: symops(:,:,:)
       character(len=150):: recrdxxx
-      character(len=10) :: keyw1='unit_2pioa',keyw2
-      logical ::unit2=.false. !  readgwinput,
+c      character(len=10) :: keyw1='unit_2pioa',keyw2
       integer(4)::nnn(3),ret,verbose,q0pchoice,wgtq0p,iq0pinxxx ,ifile_handle,n1,n2,n3
       logical:: GaussSmear,KeepEigen,core_orth,ldummy, lnq0iadd=.false. !keepppovl,
       integer:: gammacellctrl=0
@@ -88,48 +86,7 @@
       else
          call rx( 'Not allowed iq0pin')
       endif
-!! primitive vectors in unit of alat(a.u.).     
-      write(6,"('  q0pchoice() = ',i4)")  q0pchoice()
-      open (newunit=ifi, file='LATTC')
-      read(ifi,*) alat
-      read(ifi,*) plat(1:3,1)
-      read(ifi,*) plat(1:3,2)
-      read(ifi,*) plat(1:3,3)
-      close(ifi)
-!! point group operations. r'=matmul(symops(:,:),r) for any ig.
-      open (newunit=ifi, file='SYMOPS')
-      read(ifi,*) ngrp
-      write(6,"('  SYMOPS ngrp=',i3)") ngrp
-      write(6,"('  unit(a.u.) alat  =',f13.6 )") alat
-      allocate(symops(3,3,ngrp))
-      do ig = 1,ngrp
-        read(ifi,*)
-        do i=1,3
-          read(ifi,*) symops(i,1:3,ig)
-        enddo
-      enddo
-      close(ifi)
-!! --- Readin GWinput
-      call getkeyvalue("GWinput", "n1n2n3", nnn,3)
-      call getkeyvalue("GWinput", "QpGcut_psi",QpGx2)
-      call getkeyvalue("GWinput", "QpGcut_cou",QpGcut_Cou)
-      call getkeyvalue("GWinput", "unit_2pioa",unit2)
-      if(unit2) then
-        unit = 2d0*pi/alat
-        QpGx2     = QpGx2      *unit
-        QpGcut_cou= QpGcut_cou *unit
-      endif
-      QpGcut_psi = QpGx2
-      if(iq0pin==4) then
-         QpGcut_psi=0d0
-         QpGcut_Cou=0d0
-      endif
-      write(6,"('  --- k points for GW from GWinput =',3i3)") nnn(1:3) 
-      write(6,"('  ---  |k+G| < QpG(psi) QpG(Cou)=',2d13.6)") QpGcut_psi, QpGcut_Cou
-      open(newunit=ifiqg ,file='QGpsi',form='unformatted')
-      open(newunit=ifiqgc,file='QGcou',form='unformatted')
-      call mkQG2(alat,plat,symops,ngrp,nnn,iq0pinxxx, 
-     &     QpGcut_psi, QpGcut_Cou, ifiqg, ifiqgc, gammacellctrl,lnq0iadd,lmagnon)
+      call mkQG2(iq0pinxxx, gammacellctrl,lnq0iadd,lmagnon)
       write(6,*) ' OK! End of qg4gw '
       if(iq0pin ==1)     call rx0( ' OK! qg4gw mode=1 normal mode')
       if(iq0pin ==2)     call rx0( ' OK! qg4gw mode=2 Readin Q0P mode')

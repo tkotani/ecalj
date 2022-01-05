@@ -12,14 +12,14 @@
 
       contains
       subroutine getallq0p(iq0pin,newoffsetG,alat,plat,qlat,nnn,alp,alpv,
-     &     ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect,lnq0iadd) !! All arguments are input.
+     &     nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,lnq0iadd) !! All arguments are input.
       use m_keyvalue,only: getkeyvalue 
       intent(in)           iq0pin,newoffsetG,alat,plat,qlat,nnn,alp,alpv,
-     &     ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect,lnq0iadd
+     &     nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,lnq0iadd
       integer:: iq0pin
       logical:: newoffsetG
       integer:: nnn(3),nstbz(*),nqbz,nqibz,ngcxx,ngcx(nqbz),ngrp !n1q,n2q,n3q,
-      integer::ngvect(3,ngcxx,nqbz)
+c      integer::ngvect(3,ngcxx,nqbz)
       real(8):: alat,qlat(3,3),alp,alpv(3),plat(3,3)
      &     ,qbz(3,nqbz),qibz(3,nqibz),symops(3,3,ngrp)
 
@@ -33,23 +33,38 @@
      &     dmlx(:,:),cy(:),yl(:),epinvq0i(:,:),wklm(:) !,norq0x(:) !,wqfac(:)
       integer:: bzcase=1,i,iq0i,ifidmlx,lmxax,lx,lxklm,j,iclose,llxxx
       real(8):: rrr(3),r2s,qxx(3),voltot,tripl
-      integer,allocatable::irrx(:)
+      integer,allocatable::irrx(:),ngvect(:,:,:)
 
       real(8),allocatable:: funa(:,:),wsumau(:),yll(:,:),alpqg2,qg2,tpiba,wtrue00
-      real(8):: qg(3), qdum(6)
+      real(8):: qg(3), qdum(6),alpm,QpGcut,q(3)
       integer:: ig,lm,iq!,ifile_handle
       integer:: nmm !not output
-
       integer:: ifi0,ifi00,il,ix,ni,ifinin
       integer:: nq0i0,nq0i00,nany,ifqpnt,ret
-
       integer,allocatable :: ndiv(:)
       real(8),allocatable:: qsave(:,:),   qmin(:,:),qmax(:,:)
       real(8),allocatable:: qany(:,:)
       logical:: anyq,ibzqq,lnq0iadd
       integer,allocatable:: epslgroup(:)
-
+      integer:: dummyia(1,1)
+      
+      alpm = minval(alpv)
+      if(alpm<=0d0) call rx( 'alpha_offG or alpha_offG_vec <=0')
+c      if(debug) write(6,"('  alpm=',3f12.6)") alpm
       if(iq0pin==1) then
+!! Determine G vectors for q points set by getgv2
+         QpGcut = sqrt(25d0/alpm) !a.u. !exp( -alp*QpGcut**2) !alp * QpGcut**2 = 22
+         ngcx=1
+         do iq = 1, nqbz
+            q   = qbz(1:3,iq)
+            call getgv2(alat,plat,qlat,q, QpGcut, 1, ngcx(iq), dummyia)
+         enddo
+         ngcxx = maxval(ngcx)
+         allocate( ngvect(3,ngcxx,nqbz) )
+         do iq = 1, nqbz
+            q  = qbz(1:3,iq)
+            call getgv2(alat,plat,qlat,q, QpGcut, 2, ngcx(iq), ngvect(1:3,1:ngcx(iq),iq) )
+         enddo
 !! Normal mode. all inputs
          call getq0p(newoffsetG,alat,plat,qlat,nnn,alp,alpv, !apr2015
      i    ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect,lnq0iadd)

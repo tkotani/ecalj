@@ -1,7 +1,7 @@
       subroutine basnfp_v2 (nocc,nunocc,nindx,      !phi,
      &    nl,nn,nrx,nrofi,r,aa,bb,ic, 
      i    phitoto,phitotr,nsp,nclass,
-     i    cutbase,lcutmx,ixx,iread,alat,nc_max)
+     i    cutbase,lcutmx,ixx,alat,nc_max) !,iread
       use m_keyvalue,only:getkeyvalue
       use m_lldata,only: ll
 c takao kotani Apr 2002.
@@ -47,15 +47,12 @@ c
      &        ,ovvc(:,:,:),oc(:,:,:),wk(:),tc(:) !,ovvco(:,:,:)
       real(8),parameter:: fpi = 4d0*3.14159265358979323846d0
       real(8),parameter::  pi =     3.14159265358979323846d0
-      integer(4):: nb,ngmx,ig,ificrb,kmx,isx,k,ic,iopen,iclose,nblocha
+      integer(4):: nb,ngmx,ig,ificrb,kmx,isx,k,ic,nblocha
       integer(4),allocatable:: iwk(:)
       character*7 filename
       character*11 filenamep
       integer(4),allocatable:: iprlc(:),lprc(:),ibo(:)
-
-      real(8),allocatable::
-     &     rprodx(:,:,:),rprodx2(:,:,:),rprod(:,:)
-
+      real(8),allocatable::  rprodx(:,:,:),rprodx2(:,:,:),rprod(:,:)
       logical newbase2
       real(8) :: bbase(nrofi),absqg2,aaa,aaa12,rphiphi(nrofi)
       real(8),allocatable ::phij(:),psij(:)
@@ -64,32 +61,18 @@ c
       real(8) :: phitoto(nrx,0:nl-1,nn,nclass, nsp)
       real(8) :: phitotr(nrx,0:nl-1,nn,nclass, nsp)
       real(8),allocatable :: ppbrd(:,:,:,:,:,:)
-ctest 
      &  ,wqt(:), q0i(:,:),absqg2x(:)
-
       real(8),allocatable :: phiav(:,:,:)
       real(8) :: rnormphi(0:nl-1,nn) ,alat,sss
       integer(4) :: irx,noo,nuu      ,nq0i, neps, nq0ix,ix
-cccccccccccccccccccccccc
       integer(4):: zvztest,nlmlsp
       real(8):: ovvs,rrr(nrx)
-cccccccccccccccccccccccc
-
 C---for mode 8
       integer(4):: nr_r,nlml_r,nsp_r,ifv,ibas,ilmx,isp1,isp2,kxx,ixx,nxx_i
       real(8),allocatable:: rofi_r(:),rho1(:,:,:),rspin(:),den(:,:),r11(:)
       real(8):: spinvec,spinvec0,sumc(2),sqrtfpi,const
       character(3):: charnum3,charnum3n
       logical:: valmt=.false.
-
-c$$$#ifdef COMMONLL
-c$$$      integer(4)::ll(51**2)
-c$$$      common/llblock/ll
-c$$$#else
-c$$$      integer(4) :: ll
-c$$$      external ll
-c$$$#endif
-
       logical :: smbasis,newaniso,addbasnew
       character*15 rprodf
       integer(4) :: ifprodmt, smbasiscut,l1l2p,l1l2m,inn
@@ -98,31 +81,17 @@ c$$$#endif
      &   prodmt (:,:,:)
       real(8):: prr(3),derie,derie2,ddd,derie3
       integer(4):: nc_max(0:nl-1),nnn, smbasis_case
-
-
       character(len=100):: recxxx
       character(len=160):: recxxx2
       integer(4):: npbasmax(0:2*(nl-1)),ifinin,iax,izz,naxx,verbose
-      !29jan2006
       integer(4),allocatable:: ipx(:,:)
-
       real(8):: bb1,bb1s,aa_in,bb_in
-      integer(4):: iread,nl2m1,nrofi_in,ifq0p,ifile_handle
+      integer(4):: nl2m1,nrofi_in,ifq0p,ifile_handle
 c-------------------------------------------
       print *,' basnfp_v2: ********** start ******** nrofi=',nrofi
-      if(iread==1) goto 2001
-
+c      if(iread==1) goto 2001
       allocate(phiav(nrx,0:nl-1,nn),rprod(1:nrx, npradmx),ipx(0:2*(nl-1),nxxmx))
-c      do l1 = 0, nl-1
-c      do n1 = 1, nindx(l1)
-c      do irx= 1,nrx
-c        phiav(irx, l1, n1) =
-c     &  sum(phitotr(irx, l1, n1, ic, 1:nsp))/dble(nsp)
-c      enddo
-c      enddo
-c      enddo
-c ! 12Aug2004  ! To make the sign of phitotr safer; but I may already added
-c                some safety net before it, right?
+! To make the sign of phitotr safer; but I may already added something for keeping sss=1d0, right?
       do l1 = 0, nl-1
         do n1 = 1, nindx(l1)
           if(nsp==1) then
@@ -134,33 +103,26 @@ c                some safety net before it, right?
           endif
         enddo
       enddo
-c
-
-cccccccccc ptest. Better mesh points for ptest because of its behevior near r=rmax.
-      if(.false.) then
-        aa = 0.2d0*aa
-        bb = r(nrofi)/( exp(aa*(nrofi-1))-1d0)
-        r(1)=0d0
-        do i =2,nrofi
-          r(i)=bb*( exp(aa*(i-1))-1d0)
-        enddo
-      endif
-cccccccc
+c$$$! ptest. Better mesh points for ptest because of its behevior near r=rmax.
+c$$$      if(.false.) then
+c$$$        aa = 0.2d0*aa
+c$$$        bb = r(nrofi)/( exp(aa*(nrofi-1))-1d0)
+c$$$        r(1)=0d0
+c$$$        do i =2,nrofi
+c$$$          r(i)=bb*( exp(aa*(i-1))-1d0)
+c$$$        enddo
+c$$$      endif
       if(ixx==4) goto 1212
-cccccccccc end of ptest ccccccccccc
-
-
-c---norm check
+!-norm check
       do l1 = 0, nl-1
-        do n1 = 1, nindx(l1)
+      do n1 = 1, nindx(l1)
           call gintxx(phiav(1,l1,n1),phiav(1,l1,n1),aa,bb,nrofi,ovv)
           write(6,"(' norm check for phi='2i3,d13.6)") l1,n1,ovv
           if(abs(ovv) <1d-10 ) ovv  = 0d0
           rnormphi(l1,n1) = ovv
-        enddo
       enddo
-
-C--- product basis construction
+      enddo
+!! product basis construction
       lxlnln=0
       npr    = 0
       nprpd  = 0
@@ -172,10 +134,7 @@ C--- product basis construction
       do 202 n1 = 1, nindx(l1)  ; noo = nocc  (l1,n1)
       do 201 l2 = 0, nl-1
       do 20 n2 = 1, nindx(l2)  ; nuu = nunocc(l2,n2)
-c
-c        write(6,"('l1 n1 l2 n2 noo nuu=',6i4)") l1, n1, l2, n2,noo,nuu
-c
-c-----  phiav * phiav ----
+!!  phiav * phiav ----
         if( noo>=1 .and. nuu>=1 ) then
           if( npr(l1,n1,l2,n2) == 0 ) then
             iprad = iprad + 1
@@ -192,31 +151,17 @@ c-----  phiav * phiav ----
             enddo
             rprod(1,iprad) = 0d0
             rprod(2:nrofi,iprad)=phiav(2:,l1,n1)*phiav(2:,l2,n2)/r(2:) ! phi = u = r \phi
-ccccccccccccccccccccccccc
-c          call gintxx(phiav(1,l1,n1), phiav(1,l2,n2),aa,bb,nrofi,
-c     &        sss )
+c          call gintxx(phiav(1,l1,n1), phiav(1,l2,n2),aa,bb,nrofi, sss )
 c          write(6,"(' normchk phiav*phiav=',4i3,d13.6)") l1,n1,l2,n2,sss
-cccccccccccccccccccccccc
           endif
         endif
    20 continue
  201  continue
  202  continue
  203  continue
-
-cccccccccccccccccccccccccccccc
-c      do l1=0,nl-1
-c      do n1=1, nindx(l1)
-c      print *,' sumchk rprod=',l1,n1,sum(abs(phiav(1:nrofi,l1,n1)))
-c      enddo
-c      enddo
-c      stop 'test enx xxxxxxxxxx'
-cccccccccccccccccccccccccccccc
-
-C--- Additional product bais for smbais()=T.
-
+      
+!! Additional product bais for smbais()=T.
       if(smbasis()) then ! Dec2005
-
 c$$$!!--- CASE1. Add r^l r^(l+2) anyway. ---
         if(smbasis_case()==1) then
           do 110 lx  = 0, 2*(nl-1)
@@ -297,14 +242,11 @@ c      enddo
 c      print *, '--- test end ---------'
 c      return
       endif
-
-
-
 !! === Add a PW like product basis  ===
 c Here you can add any functions in the same way.
       if(smbasis().and.smbasis_case()==1) goto 113
-ctakao
-      if(.not. addbasnew().and.zvztest()/=2) then !oct2004. Add one s product basis.
+!!      
+      if(.not.addbasnew().and.zvztest()/=2) then !Add one s product basis.
         iprad  = iprad  + 1 ! radial function index
         nxx(0) = nxx(0) + 1 ! nxx(l) is the number index of the radial functions for l.
         ipx(0, nxx(0)) = iprad ! the radial function index for each l and nxx(l).
@@ -323,13 +265,10 @@ ctakao
           rprod(1:nrofi,iprad) = r(1:nrofi)*r(1:nrofi)**(lx+1)
         enddo
       endif
-
 c ---
  113  continue
       nprad = iprad
       print *,' number of radial basis: nprad=', nprad
-c-------------------------------------
-
 
 
 ccccccccccc start of ptest cccccccccccccccccccccccccccccccccccccccccccc
@@ -429,175 +368,94 @@ cccccccccccccccccccc
       endif
 ccccccccccc end of ptest ccccccccccccccccccccccccccccccccccccccccccccccc
 
-c--- check array overflow
-      if(maxval(nxx(0:2*(nl-1))) > nxxmx) 
-Cstop2rx 2013.08.09 kino     & stop ' basnfp: nxx >nxxmx --- Enlarge nxxmx in basnfp.f'
-     & call rx( ' basnfp: nxx >nxxmx --- Enlarge nxxmx in basnfp.f')
-      if(nprad > npradmx)  
-Cstop2rx 2013.08.09 kino     & stop ' basnfp: nprad > npradmx --- Enlarge npradmx in basnfp.f'
-     & call rx( ' basnfp: nprad > npradmx --- Enlarge npradmx in basnfp.f')
+      
+! sanity check
+      if(maxval(nxx(0:2*(nl-1)))>nxxmx) call rx(' basnfp: nxx >nxxmx --- Enlarge nxxmx in basnfp.f')
+      if(nprad > npradmx)call rx( ' basnfp: nprad > npradmx --- Enlarge npradmx in basnfp.f')
 
-c---- nprod
+!! nprod
       nprod = 0
       do lx = 0, 2*(nl-1)
-c        ibas=ic
-c        rprodf='rProd'//charnum3(ibas)//'_l'//char(48+lx)//'.chk'
-c        open(lx+800,file=rprodf)
         do nx = 1, nxx(lx)
           nprod = nprod + 2*lx+1
           write(6,"('lx nx number ipx=',4i4)") lx, nx, 2*lx+1, ipx(lx,nx)
-c        write(lx+800,"('lx nx num ipx=',4i4)")lx, nx,2*lx+1, ipx(lx,nx)
-c        write(lx+800,"(2d18.10)" )(r(i),rprod(i, ipx(lx,nx)),i=1,nrofi)
-c        write(lx+800,*)
         enddo
       enddo
       print *,' *** total number of product basis nprod=', nprod
-
-c---- ovmt
+!! ovmt
       kmax = 2*(nl-1)
       allocate( ovmt  (nprad,nprad,0:2*(nl-1))  )
       do lx  = 0, 2*(nl-1)
         do nx1 = 1, nxx(lx) ;  ib1 = ipx(lx,nx1)
           do nx2 = 1, nxx(lx) ;  ib2 = ipx(lx,nx2)
             call gintxx(rprod(1,ib1),rprod(1,ib2),aa,bb,nrofi, ovv)
-            ovmt  (ib1,ib2, lx) = ovv
-c        write(6,"(' qqq: ib1 ib2 lx ovv=',3i3,2d13.6) ")ib1,ib2,lx,ovv
+            ovmt(ib1,ib2, lx) = ovv !radial overlap matrix of rprod 
           enddo
         enddo
       enddo
-
-C- orthonormal basis functions.--------------------
+!! orthonormal basis functions.--------------------
       allocate(rprodx(nrofi,maxval(nxx(0:2*(nl-1))),0:2*(nl-1)))
-
       do lx = 0, 2*(nl-1)
         nb = nxx(lx)
         if(nb==0) cycle
         print *
-c        print *,' *** lx  *** nb =',lx,nb
-c
-        allocate( ovvc(nb,nb,2), zz(nb,nb,2),eb(nb),
-     &   ibo(nb) )   !wk(11*nb),iwk(nb),oc(nb,nb,2),oxx(nb,nb)ovvco(nb,nb,2),
-        ovvc = 0d0;  zz = 0d0; eb = 0d0  !; oc = 0d0 !ovvco = 0d0;
-
-c        ovvc(:,:,1) = ovmt(ipx(lx,:),ipx(lx,:),lx)
+        allocate( ovvc(nb,nb,2), zz(nb,nb,2),eb(nb),ibo(nb) ) 
+        ovvc = 0d0;  zz = 0d0; eb = 0d0  
         do ib1 = 1,nb
           do ib2 = 1,nb
             ovvc(ib1,ib2,1) = ovmt(ipx(lx,ib1),ipx(lx,ib2),lx)
           enddo
         enddo
-
-c        do i = 1, nb
-c          oc (i,i,1) = 1d0
-c        enddo
-cc        ovvco = ovvc
-c        call diagno(nb, ovvc, oc, wk,iwk, zz, eb) !  eb(ib) -> zz(1:nb,ib)
-c
-c      print *,' Use rs diagonalization for real symmetric'
         call rs(nb, ovvc(:,:,1), eb, zz(:,:,1),ierr)
-Cstop2rx 2013.08.09 kino        if(ierr/=0) stop ' basnfp: rs error'
         if(ierr/=0) call rx( ' basnfp: rs error')
-
-c        oxx = matmul( matmul(transpose(zz(:,:,1)), ovvco(:,:,1)),
-c     &                zz(:,:,1) )
-
-c       print *
-c        do ib1=1,nb
-c          print *,' eb=',eb(ib1)
-c        do i=1,nb
-c          print *,
-c     &    sum(ovvco(i,1:nb,1)*zz(1:nb,ib1,1)), eb(ib1)*zz(i,ib1,1)
-c        enddo
-c        enddo
-
-c        print *,' ovvco matrix'
-c        do ib1=1,nb
-c          write(6,"(20f8.4)") (ovvco(ib1,ib2,1),ib2=1,nb)
-c        enddo
-c        do ib1=1,nb; do ib2=1,nb
-c          if(oxx(ib1,ib2)>1d-10)
-c     &    write(6,"(' ib1 ib2 ovv=',2i3,d18.10,' eb='d18.10)" )
-c     &    ib1,ib2, oxx(ib1,ib2)/eb(ib1), eb(ib1)
-c        enddo; enddo
-c        oxx =  matmul( transpose(zz(1:nb,1:nb,1)), zz(1:nb,1:nb,1) )
-c        do ib1=1,nb; do ib2=1,nb
-c          print *,' ib1 ib2 zz * zz=',ib1,ib2,oxx(ib1,ib2)
-c        enddo; enddo
-cxx     rprodx(1, ib1,lx)=0d0
-c        do ib1 = 1, nb
-c          print *,' ib1 nb=',ib1,nb, eb(ib1)
-c        enddo
-
-
-C jan2006 --------------------------------------------------
-        npbasmax=100
-        if(ixx==0.or.ixx==8) then
-c          write(6,*)'==== Readin <PBASMAX> === '
-          call getkeyvalue("GWinput","<PBASMAX>", unit=ifinin,status=naxx,errstop='off')
-c          if(naxx>0) print *,' Read PBASMX', naxx, ifinin
-          if(naxx<0) goto 1250
-          do izz = 1, naxx
-            read(ifinin,"(a100)",end=1100) recxxx
-            recxxx2=recxxx//
-     &      " 100 100 100 100 100 100 100 100 100 100 100 100 100 100"
-            read(recxxx2,*) iax, npbasmax(0:2*(nl-1))
-            if(iax==ic) then
-              write(6,"('<PBASMAX> gives l npbas=',2i3)") lx, npbasmax(lx)
-              goto 1200
-            endif
-          enddo
- 1100     continue
-          npbasmax=100
- 1200     continue
-          close(ifinin)
- 1250     continue  !march2006 see L1421 takao---input_close() when no <PBASMAX>
-        endif
-ccccccccccccccccccccccccccccc
-c        write(6,*)"npbasmax=",npbasmax
-ccccccccccccccccccccccccccccc
+c$$$! PMASMAX option. rarely used now.
+c$$$        npbasmax=100
+c$$$        if(ixx==0.or.ixx==8) then
+c$$$          call getkeyvalue("GWinput","<PBASMAX>", unit=ifinin,status=naxx,errstop='off')
+c$$$          if(naxx<0) goto 1250
+c$$$          do izz = 1, naxx
+c$$$            read(ifinin,"(a100)",end=1100) recxxx
+c$$$            recxxx2=recxxx//
+c$$$     &      " 100 100 100 100 100 100 100 100 100 100 100 100 100 100"
+c$$$            read(recxxx2,*) iax, npbasmax(0:2*(nl-1))
+c$$$            if(iax==ic) then
+c$$$              write(6,"('<PBASMAX> gives l npbas=',2i3)") lx, npbasmax(lx)
+c$$$              goto 1200
+c$$$            endif
+c$$$          enddo
+c$$$ 1100     continue
+c$$$          npbasmax=100
+c$$$ 1200     continue
+c$$$          close(ifinin)
+c$$$ 1250     continue  
+c$$$        endif
         ibx=0
         do ib1 = nb,1,-1
-          write(6,"(a,i5,d13.6,a,d13.6)")
-     &    '    ib eb=',ib1,eb(ib1),'  ecut=',cutbase(lx)
-          if(npbasmax(lx)/=100) then !jan2006
-            if(ibx+1>npbasmax(lx)) then
-              if(smbasis()) then
-                if(ibx+1>2) cycle
-              else
-                cycle
-              endif
-            endif
-          else
-            if(smbasis().and.ib1>=nb-1) then
+          write(6,"(a,i5,d13.6,a,d13.6)")'    ib eb=',ib1,eb(ib1),'  ecut=',cutbase(lx)
+c          if(npbasmax(lx)/=100) then 
+c            if(ibx+1>npbasmax(lx)) then
+c              if(smbasis()) then
+c                if(ibx+1>2) cycle
+c              else
+c                cycle
+c              endif
+c            endif
+c          else
+          if(smbasis().and.ib1>=nb-1) then
               continue
-            elseif(eb(ib1)<cutbase(lx)) then
+          elseif(eb(ib1)<cutbase(lx)) then !this is mainly used now 2022jan
               cycle
-            endif
           endif
+c          endif
           ibx = ibx+1
           ibo(ibx) = ib1
-          rprodx(1:nrofi,ibx,lx) = 
-     &     matmul( rprod(1:nrofi,ipx(lx,1:nb)), zz(1:nb,ib1,1) )
-          rprodx(1:nrofi,ibx,lx) =rprodx(1:nrofi,ibx,lx)/sqrt(eb(ib1))
+          rprodx(1:nrofi,ibx,lx) = matmul( rprod(1:nrofi,ipx(lx,1:nb)), zz(1:nb,ib1,1) )
+          rprodx(1:nrofi,ibx,lx) = rprodx(1:nrofi,ibx,lx)/sqrt(eb(ib1))
         enddo
         nb     =ibx
         nxx(lx)=ibx
-c        write(6,*) " cutbase lx nxx(lx)=", cutbase(lx),lx,nxx(lx)
-ccccccccccccccccccccccccccc
-c        do ib1=1,nb
-c         write(6,"(' ppp: sum lx ib eb zz prod0 prod=',2i4,5d13.6)")
-c     &  lx,ib1,eb(ib1),sum(abs(zz(1:nb,ib1,1))),
-c     &  sum( matmul( rprod(1:nrofi,ipx(lx,1:nb)), zz(1:nb,ib1,1) )),
-c     &  sum(abs(rprodx(1:nrofi,ib1,lx)))
-c         if(lx==2.and.ib1==1) then
-c          do ir=1, nrofi
-c          write(6,*)ir,'aaa=',matmul( rprod(ir,ipx(lx,1:nb)), zz(1:nb,ib1,1))),
-c     &    ,matmul( rprod(ir,ipx(lx,1:nb)), zz(1:nb,ib1,1)))    rprodx(1:nrofi,ibx,lx)/sqrt(eb(ib1))
-c          enddo
-c         endif
-c        enddo
-ccccccccccccccccccccccccccc
-
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c debug        
 c      if(lx==2) then
 c        ibx =1
 c        print *,' ibx=', ibx, eb(ibx)
@@ -613,56 +471,20 @@ c        print *,' norm=',sum(zz(1:nb,ibx,1)**2)
 c      stop
 c      endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
         do ib1=1,nb
-          do ib2=1,nb
+        do ib2=1,nb
             call gintxx(rprodx(1,ib1,lx),rprodx(1,ib2,lx),aa,bb,nrofi,ovv)
-            if( ib1==ib2 ) then
-cccccccccccccccccccccccc
-c          call gintxx(rprodx(1,ib1,lx),r,aa,bb,nrofi,ovvs)
-c          write(6,"(' int r*rprodx <phi*psi B>=',i3,d14.6,' ',d14.6)")ib1
-c     &    ,ovvs, 1d0/ovvs/sqrt(4d0*3.1415926)
-cccccccccccccccccccccccc
-
-ccccccccccccccccccccccccccccccccccccccccccccccc
-c       write(6,"(' sumchk ovv=',2i3,d14.6)")ib1,lx,sum(abs(rprodx(1:nrofi,ib1,lx)))
-c       if(ib1==1.and.lx==2) then
-c          do ir=1,nrofi
-c             write(6,*)ir,rprodx(ir,ib1,lx)
-c           enddo
-c       endif
-cccccccccccccccccccccccccccccccccccccccccccccccc
-
-              write(6,"('    Diag ibx ovv=',i3,d23.16
-     &      ,' eb= ',d18.10,' nod= ',i3)")
-     &      ib1,ovv, eb(ibo(ib1)), nodnum(rprodx(1,ib1,lx),nrofi)
+            if(ib1==ib2 ) then
+              write(6,"('    Diag ibx ovv=',i3,d23.16,' eb= ',d18.10,' nod= ',i3)")
+     &              ib1,ovv, eb(ibo(ib1)), nodnum(rprodx(1,ib1,lx),nrofi)
             elseif( ovv>1d-10 ) then
-              write(6,"('      offdiag ib1 ib2 ovv=',2i3,d23.16
-     &      ,' eb=',d18.10)")
-     &      ib1,ib2,ovv, eb(ibo(ib1))
+              write(6,"('      offdiag ib1 ib2 ovv=',2i3,d23.16,' eb=',d18.10)")
+     &              ib1,ib2,ovv, eb(ibo(ib1))
             endif
-          enddo
         enddo
-        print *,' *** lx  *** Used nb =',lx,nb
-
-c renomalization for numerical accuracy. (This procedure affect little, because ovv equals alomost 1.)
-cc        do ib1 = 1,nb
-cc          call gintxx(rprodx(1,ib1,lx),rprodx(1,ib1,lx),aa,bb,nrofi,ovv)
-cc          rprodx(1:nrofi,ib1,lx) = rprodx(1:nrofi,ib1,lx)/sqrt(ovv)
-cc        enddo
-ccccc        do nx = 1, nxx(lx)
-ccccc          write(lx+500,*) ; write(lx+500,"('lx nx =',4i4)")lx, nx
-ccccc          write(lx+500,"(2d18.10)" ) (r(i),rprodx(i,nx,lx),i=1,nrofi)
-ccccc        enddo
-c        if(lx==1.and.nrofi==77) then
-c          do nx = 1, nxx(lx)
-c          write(lx+nx*10+5000,*) ;
-c          write(lx+nx*10+5000,"('lx nx =',4i4)")lx, nx
-c          write(lx+nx*10+5000,"(2d18.10)" )
-c     &          (r(i),rprodx(i,nx,lx),i=1,nrofi)
-c          enddo
-c        endif
-        deallocate( ovvc, zz, eb,ibo) ! oc,,wk,iwk,oxx,ovvco
+        enddo
+        write(6,"(' *** lx  *** Used nb =',2i5)") lx,nb
+        deallocate( ovvc, zz, eb,ibo)
       enddo
 
 cccccccccccccc test2 ccccccccccccccccccccccccccccccccccccccccccc
@@ -680,9 +502,7 @@ c       if(n==2) absqg2 = 2.598177**2
           enddo
         enddo
         do l   = 0, lxx
-c       rprodx2(1:nrofi,1,l)=
-c     &     rprodx2(1:nrofi,1,l)
-c     &   + rprodx2(1:nrofi,2,l)
+c       rprodx2(1:nrofi,1,l)= rprodx2(1:nrofi,1,l)  + rprodx2(1:nrofi,2,l)
           n = 1
           call gintxx(rprodx2(1,n,l),rprodx2(1,n,l)
      &    ,aa,bb,nrofi, aaa )
@@ -702,8 +522,8 @@ c     &   + rprodx2(1:nrofi,2,l)
           rprodx2(1:nrofi,n,l)= aaa*rprodx2(1:nrofi,n,l)
         enddo
       endif
-cccccccccccccc end of test2 ccccccccccccccccccccccccccccccccccccccccccc
-
+ccccccccccccccend of test2 ccccccccccccccccccccccccccccccccccccccccccc
+      
 C- Reserve rprodx
 C      real(8):: crbase(nrx,kmxx,nclass)
 C      integer(4):: kmxx,kmx(nclass),iprlc(kmxx,nclass),lprc(kmxx,nclass)
@@ -729,10 +549,10 @@ c----------------------------------------------
       elseif(kmx==0 ) then
         nblocha = 0
       endif
-c------------------------
+!------------------------
       print *,' reserve rprodx...'
       filename = 'BASFP'//char( 48+ic/10 )//char( 48+mod(ic,10) )
-      ificrb   = iopen ( filename,1,3,0)
+      open(newunit=ificrb,file=trim(filename))
       write(ificrb,"(4i6,2d24.16)") 2*(nl-1), kmx, nblocha,nrofi,aa,bb
       write(ificrb,"(i5)") nxx(0:2*(nl-1))
       k = 0
@@ -743,15 +563,14 @@ c------------------------
           write(ificrb,"(d23.15)") (rprodx(i,nx,lx),i=1,nrofi)
         enddo
       enddo
-      isx = iclose(filename)
+      close(ificrb)
       deallocate(rprodx,iprlc,lprc)
- 2001 continue
-!April2007
+c 2001 continue
 !  Write and Read even for iread==0,
 !  in order to have the exact match on PPB* when iread=1 for the same BASFP* file.
       print *,' read rprodx...'
       filename = 'BASFP'//char( 48+ic/10 )//char( 48+mod(ic,10) )
-      ificrb   = iopen( filename,1,3,0)
+      open(newunit=ificrb,file=trim(filename))
       read(ificrb,"(4i6,2d24.16)") nl2m1, kmx,nblocha,nrofi_in,aa_in,bb_in
       if( nl /= nl2m1/2 +1)   call rx( 'wrong 2*(nl-1) in readin BASNFP')
       if(nrofi_in /= nrofi)   call rx( 'nrofi_in/=nrofi in readin BASNFP')
@@ -769,8 +588,7 @@ c------------------------
           read(ificrb,"(d23.15)") (rprodx(i,nx,lx),i=1,nrofi)
         enddo
       enddo
-      isx = iclose(filename)
-
+      close(ificrb)
 c$$$      if(iread==1) then
 c$$$        print *,' read rprodx...'
 c$$$        filename = 'BASFP'//char( 48+ic/10 )//char( 48+mod(ic,10) )
@@ -811,13 +629,13 @@ c$$$        enddo
 c$$$        isx = iclose(filename)
 c$$$      endif
 
-c --- Calculate radial matrix elements.
+! Calculate radial matrix elements.
       print *,' Calculate radial matrix elements...'
       allocate( ppbrd(0:nl-1,nn,0:nl-1,nn,0:2*(nl-1)
      &           ,maxval(nxx(0:2*(nl-1))) ) )
       ppbrd =.9999999999999d99 !for safe
       filenamep = 'PPBRD_V2_'//char( 48+ic/10 )//char(48+mod(ic,10))
-      ifppb    = iopen(filenamep,0,-1,0)
+      open(ifppb,file=trim(filenamep),form='unformatted')
       write(ifppb) nblocha, 2*(nl-1), nxx(0:2*(nl-1))
       do isp= 1,nsp
         isp1=isp
@@ -839,8 +657,7 @@ c --- Calculate radial matrix elements.
           rphiphi(1)       = 0d0
           rphiphi(2:nrofi) = phitoto(2:nrofi,l1,n1,ic,isp2)
      &                      *phitoto(2:nrofi,l2,n2,ic,isp1)/r(2:) ! phi = u = r \phi
-          call gintxx( rprodx(1,nx,lx), rphiphi,aa,bb,nrofi,
-     &         ppbrd(l1, n1,l2, n2, lx,nx) )
+          call gintxx(rprodx(1,nx,lx), rphiphi,aa,bb,nrofi, ppbrd(l1,n1,l2,n2,lx,nx) )
         enddo  
         enddo  
         enddo  
@@ -850,9 +667,9 @@ c --- Calculate radial matrix elements.
         write(ifppb) ppbrd
       enddo
       deallocate(ppbrd)
-      ix= iclose(filenamep)
-
-C... prodmt proddmt (value and slope of the product at MT). !oct2005
+      close(ifppb)
+      
+! prodmt proddmt (value and slope of the product at MT). !oct2005
 !    Stored into the tail of PPBRD* files.
       if(smbasis()) then
         allocate( prodmt (2,maxval(nxx(0:2*(nl-1))),0:2*(nl-1)))
@@ -864,19 +681,19 @@ C... prodmt proddmt (value and slope of the product at MT). !oct2005
           enddo
         enddo
         filenamep = 'PRODMT_'//charnum3(ic)
-        ifprodmt  = iopen(filenamep,0,-1,0)
+        open(newunit=ifprodmt,file=trim(filenamep),form='unformatted')
         write(ifprodmt) nl
         write(ifprodmt) maxval(nxx(0:2*(nl-1)))
         write(ifprodmt) nxx(0:2*(nl-1))
         write(ifprodmt) prodmt
-        isx = iclose(filenamep)
+        close(ifprodmt)
         deallocate(prodmt)
       endif
-
-C --- MixSpin= <rho_up - rho_down | B> matrix calculation. May2005
-Cr1  Suppose  "ibas==iclass"--- it is already checked in hbasfp0.m.f
-Cr2  ValMT.* is written with subroutine savemtval(ib,rho1,rofi,nr,nlml,nsp)
-Cr    in fp/locpot.f just befor locpt2 in lmto (lmf).
+      
+! --- MixSpin= <rho_up - rho_down | B> matrix calculation. May2005
+!r1  Suppose  "ibas==iclass"--- it is already checked in hbasfp0.m.f
+!r2  ValMT.* is written with subroutine savemtval(ib,rho1,rofi,nr,nlml,nsp)
+!r    in fp/locpot.f just befor locpt2 in lmto (lmf).
       if(ixx==8) then
         sqrtfpi = sqrt(fpi)
         ifv = ifile_handle()
@@ -903,16 +720,13 @@ Cr    in fp/locpot.f just befor locpt2 in lmto (lmf).
           read (ifv) nr_r,nlmlsp,kxx,kxx,nsp_r
           write(6,*)' rho1 xxx=', nr_r,nlmlsp,kxx,kxx,nsp_r
           nlml_r = nlmlsp/nsp_r
-          allocate( rho1(nr_r,nlml_r,nsp_r),rspin(nrofi)
-     &  ,den(nrofi,nsp),r11(nrofi))
+          allocate( rho1(nr_r,nlml_r,nsp_r),rspin(nrofi),den(nrofi,nsp),r11(nrofi))
           r11(1:nrofi)= 1d0
           read (ifv) rho1
         endif
-c        print *, 'sum rho1=', sum (abs(rho1(1:nr_r,1:nlml_r,1:nsp_r)))
         if(nsp_r/=nsp) call rx( " ReadinError: ValMT: nspr/= nsp")
         if(nsp/=2    ) call rx( " This mode is only for nsp==2")
         rho1= sqrtfpi*rho1  !rho1 is not including sqrt(fpi) Right?
-
         open(ifv,file='MixSpin.'//charnum3(ibas))
         write(ifv,"(2i10,' ! ibas, max l of product basis' )") ibas,2*(nl-1)
         write(ifv,"(i10,'           ! nxx(lx)'  )") nxx(0:2*(nl-1))
@@ -924,17 +738,13 @@ c        print *, 'sum rho1=', sum (abs(rho1(1:nr_r,1:nlml_r,1:nsp_r)))
               den(ir,1)=  polinta(r(ir), rofi_r,rho1(:,ilmx,1),nr_r)
               den(ir,2)=  polinta(r(ir), rofi_r,rho1(:,ilmx,2),nr_r)
               rspin(ir)  = (den(ir,1) -den(ir,2) )/r(ir)
-cccccccccccccccccccc
-c          write(6,"(' den=',3d13.6)") r(ir),den(ir,1:2)
-cccccccccccccccccccc
             enddo
             den(1,1:2)=0d0
           else
             rspin=0d0
             den=0d0
           endif
-c den = 4 pi r^2 * rho_true(r)
-c rspin = 4 pi r * rho_true(r)
+! den = 4 pi r^2 * rho_true(r)  !  rspin = 4 pi r * rho_true(r)
           if( nxx(lx)/=0) then
             do isp=1,nsp
               call gintxx( den(1,isp), r11, aa,bb,nrofi, sumc(isp) )
@@ -943,20 +753,16 @@ c rspin = 4 pi r * rho_true(r)
           endif
           bb1s=0d0
           do nx = 1, nxx(lx)
-            call gintxx( rprodx(1,nx,lx), rspin,aa,bb,nrofi,
-     &        spinvec0 )
+            call gintxx( rprodx(1,nx,lx), rspin,aa,bb,nrofi,  spinvec0 )
             spinvec = spinvec0/sqrtfpi
 ! const = <1|B> where 1 is normalized within the sphere 2007
             if(lx==0) then
-              call gintxx( rprodx(1,nx,lx), r,aa,bb,nrofi,
-     &        const )
-c              call gintxx( r, r,aa,bb,nrofi,
-c     &        const )
+              call gintxx( rprodx(1,nx,lx), r,aa,bb,nrofi, const )
+c             call gintxx( r, r,aa,bb,nrofi, const )
             else
               const=0d0
             endif
             const= const *  sqrtfpi !/((fpi/3d0)*r(nrofi)**3)
-
 ! Now spinvec = <B_I(\bfr) | m_true(\bfr) >
             if(abs(spinvec)<1d-10 ) spinvec=0d0
             write(ifv,"(     2i6,d24.16,2x,f13.10,2x,f13.10,d24.16
@@ -965,20 +771,6 @@ c     &        const )
             write(6,"('ttt:',2i6, d24.16,2x, 2f14.10,d24.16
      &       ' ! I=(ilm, nx), <spin|B(I)>, intrho(1:nsp) <1|B(I)>')")
      &       ilmx, nx, spinvec, sumc(1:nsp),const
-
-cCase2 tested--- too bad result -------
-c            call gintxx( rprodx(1,nx,lx), r,aa,bb,nrofi,
-c     &        bb1)
-c            bb1= bb1*sqrt(4*pi) ! bb1= bb1/sqrt(1d0/3d0*r(nrofi)**3)
-c            if(lx/=0) bb1=0d0
-c            bb1s=  bb1s+bb1*bb1 !spinvec
-c            write(6,"('ttt:',2i6, d24.16,2x, 2f14.10,
-c     &       ' ! I=(ilm, nx), <1|B(I)>, sum of <1|B(I)> ')")
-c     &      ilmx, nx, bb1, bb1s
-c           write(ifv,"(2i6,d24.16,2x,f13.10,2x,f13.10,
-c     &       ' ! I=(ilm, nx), <1|B(I)> intrho(1:nsp)')")
-c     &       ilmx, nx, bb1, sumc(1:nsp)
-c        print *,' test: basn: <1|B> ------ '
           enddo
         enddo
         deallocate(rofi_r,rho1,rspin)
@@ -988,7 +780,6 @@ c        print *,' test: basn: <1|B> ------ '
         enddo
         close(ifv)
       endif !ixc==8 end
-      print *,' basnfp_v2: end  '
       if (allocated(rprod))   deallocate(rprod)
       if (allocated(phiav))   deallocate(phiav)
       if (allocated(phij))    deallocate(phij)
