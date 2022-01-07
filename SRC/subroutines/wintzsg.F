@@ -31,6 +31,7 @@ c      endif !(i==j)
       end
 c -----------------------------------
       complex(8) function alagr3zwgt (x,xi,wgt)
+      implicit real*8 (a-h,o-z)
 c complex version of fi
 c 92.03.02
 c three-point interpolation with arbitrary mesh
@@ -43,7 +44,6 @@ c
 c x  = the point at which the function is to be interpolated
 c xi(3) = points where the function is given
 c fi(3) = the function at xi
-      implicit real*8 (a-h,o-z)
       real(8):: xi(3),wgt(3)
       complex(8) :: fi(3)
       xx1        = x-xi(1)
@@ -676,12 +676,8 @@ c nx      = no. x points
       integer:: nx,i
       real(8):: x(nx),wt(nx),expa(nx)
       complex(8) ::v(nx),v0,sum
-      real(8) :: rmax=2d0 !rmax =2 is by ferdi. Is it optimum? See wintz
-      data pi/3.1415926535897932d0/,
-cmod 93.06.23
-c    d     tol/1.d-6/
-     d     tol/1.d-8/
-
+      real(8),parameter :: rmax=2d0 !rmax =2 is by ferdi. Is it optimum? See wintz
+      real(8),parameter :: tol=1d-8,pi=4d0*atan(1d0)
 c if w = e the integral = -v(0)/2
 cmod 93.06.23
 c     if (dabs(we) .lt. tol) then
@@ -689,8 +685,7 @@ c     wintz       = -0.5d0*v0
 c     return
 c     endif
       if (dabs(we) .lt. tol) then
-        print *, ' we=',we
-Cstop2rx 2013.08.09 kino        stop 'wintz: |w-e| < tol'
+c        print *, ' we=',we
         call rx( 'wintz: |w-e| < tol')
       endif
 c frequency integral
@@ -723,6 +718,7 @@ c frequency integral
 c--------------------------------------------------------------------
       complex(8) function alagr3z_even (x,xi,fi)
       implicit real*8 (a-h,o-z)
+      intent(in)::                           x,xi,fi
 c evne function version of alagr3z
 c return the interpolated value on x for fi(xi).
 c We assume even function.
@@ -733,14 +729,12 @@ c     Imag part is corrected to be >0
       real(8) :: amatinv(3,3),amat(3,3),ratio
 
 c--- Assure that dimag(fi) is positive.
-Cstop2rx 2013.08.09 kino      if(x<0d0) stop ' alagr3z: x<0d0'
       if(x<0d0) call rx( ' alagr3z: x<0d0')
       do i=1,3
         if(dimag(fi(i))>1d-8) then
           ratio= abs(dimag(fi(i))/dreal(fi(i)))
           if( ratio >1d-6) then !jan2004. I added a bit of alloance
-            print *,' alagr3z: error! dimag(fi(i)) is positive',i,xi,fi
-Cstop2rx 2013.08.09 kino            stop    ' alagr3z: error! dimag(fi(i)) is positive'
+c            print *,' alagr3z: error! dimag(fi(i)) is positive',i,xi,fi
             call rx( ' alagr3z: error! dimag(fi(i)) is positive')
           endif
         endif

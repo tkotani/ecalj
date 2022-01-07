@@ -192,15 +192,15 @@ c seach for inverse  ig->igd
         end do
  16     continue
 c
-        if(iprintx .ge.46) then
-          print *,' '
-          print *,' '
-          print *,' **** group ops no. ig (igd)= ', ig, invg(ig)
-          write(6,1731)symops(1,ig),symops(4,ig),symops(7,ig)
-          write(6,1731)symops(2,ig),symops(5,ig),symops(8,ig)
-          write(6,1731)symops(3,ig),symops(6,ig),symops(9,ig)
- 1731     format (' ',3f9.4)
-        endif
+c$$$        if(iprintx .ge.46) then
+c$$$          print *,' '
+c$$$          print *,' '
+c$$$          print *,' **** group ops no. ig (igd)= ', ig, invg(ig)
+c$$$          write(6,1731)symops(1,ig),symops(4,ig),symops(7,ig)
+c$$$          write(6,1731)symops(2,ig),symops(5,ig),symops(8,ig)
+c$$$          write(6,1731)symops(3,ig),symops(6,ig),symops(9,ig)
+c$$$ 1731     format (' ',3f9.4)
+c$$$        endif
 
         do i=1,3
           do j=1,3
@@ -432,13 +432,13 @@ c  msc mcs conversion matrix generation 2->m 1->-m for m>0
 c
       if(debugmode()>1) print * ,' goto do 123'
       do 123 is=1,ng
-        if(.false.) then
-c        if(iprint().ge.150) then
-          print *; print *,' **** group ops no. ig=', is
-          write(6,1731) symops(1,is),symops(4,is),symops(7,is)
-          write(6,1731) symops(2,is),symops(5,is),symops(8,is)
-          write(6,1731) symops(3,is),symops(6,is),symops(9,is)
-        endif
+c$$$        if(.false.) then
+c$$$c        if(iprint().ge.150) then
+c$$$          print *; print *,' **** group ops no. ig=', is
+c$$$          write(6,1731) symops(1,is),symops(4,is),symops(7,is)
+c$$$          write(6,1731) symops(2,is),symops(5,is),symops(8,is)
+c$$$          write(6,1731) symops(3,is),symops(6,is),symops(9,is)
+c$$$        endif
 c convert to cubic rep.
       do 23   l =0,nl-1
         do  m2=-l,l

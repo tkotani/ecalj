@@ -639,7 +639,8 @@ m_llw.o\
 m_readfreq_r.o\
 m_readepswklm.o\
 qpe1.qsgw.o\
-mptauof.o\
+eibzgen.o \
+getw0.o
 
 MLO_list=\
 m_hamMTO.o

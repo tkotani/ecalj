@@ -37,45 +37,41 @@ c      use m_mpi,only: MPI__Initialize
      & ' val-val Ex(7);  normal+<rho_spin|B> (8); version(-9999) ?'
       if(cmdopt2('--job=',outs)) then
          read(outs,*) ix
-c         iread=0
       else
-c         call readin5(ix,iread,idummy)
          read(5,*) ix
-c         iread=0
-      endif   
-      if(ix==3) then
+      endif
+      
+      selectcase(ix)
+      case(3)
         write(6,*)'  ### coremode; Product basis for SEXcore ### '
         incwfin = -2
-      elseif(ix==0) then
+      case(0)
         write(6,*)'  ### usual mode use occ and unocc for core ### '
         incwfin = 0
-      elseif(ix==4) then
-        write(6,*)
-     & ' ### ptest mode. now special for Q0P. GWIN_V2 is neglected ### '
+      case(4)
+        write(6,*) ' ### ptest mode. now special for Q0P. GWIN_V2 is neglected ### '
         write(6,*) '  See basnfp.f of ptest section.'
         incwfin = 0
-      elseif(ix==5) then
-        write(6,*)
-     &  '  ### calculate core exchange energy ### ix==5'
+      case(5)
+        write(6,*) '  ### calculate core exchange energy ### ix==5'
         incwfin = 0
-      elseif(ix==6) then
-        write(6,*)
-     &  '  ### calculate p-basis for core-valence Ex ix==6'
+      case(6)
+        write(6,*) '  ### calculate p-basis for core-valence Ex ix==6'
         write(6,*) ' occ=1:unocc=0 for all core'
         incwfin = -3
-      elseif(ix==7) then
-        write(6,*)
-     &  '  ### calculate p-basis for val-val Ex ix==7'
+      case(7)
+        write(6,*) '  ### calculate p-basis for val-val Ex ix==7'
         write(6,*) ' occ=0:unocc=0 for all core'
         incwfin = -4
-      elseif(ix==8) then !May2005
+      case(8) 
         write(6,"('  ### usual mode use occ and unocc for core',
      &            ' and <rho_spin |B(I)> ### ')")
         incwfin = 0
-      else
+      case default
         write(6,*)' hbasfp: input is out of range'
         call rx( ' hbasfp: input is out of range')
-      endif
+      endselect
+      
 !! incwfin gives the setting of Product basis
       call Genallcf_v3(incwfin)
       nsp=nspin
