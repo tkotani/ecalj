@@ -59,6 +59,8 @@ c-----------------------------------------------------------------------
       end
       
       subroutine genallcf_v3(incwfx)
+      use m_keyvalue,only: getkeyvalue
+      implicit none
       intent(in)::           incwfx
 !! Readin GWIN_V2 and LMTO(crystal) data and allocate all required.
 !! Return iclass=ibas.
@@ -69,13 +71,13 @@ c-----------------------------------------------------------------------
 !! --------------------------------------------------------
       integer::incwfx,ifec,i,j,
      & lmx, lmx2,nlmto2,nprodxc,nlnaxc,nlnaxv,nprodx,ifi,ig,is
-     & ,nprodxv,nlnax
+     & ,nprodxv,nlnax,ix,ixoff,lx
      & ,noflmto,maxnn
-      integer(4):: infwfx
-      integer(4):: n1,n2,n3,imagw,n,ic
-      logical :: nocore
+      integer:: infwfx,ret, n1,n2,n3,imagw,n,ic
+      logical :: nocore,readon
       real(8)::efin
       character(120):: symgrpt
+      character*1000 tolchar
       real(8),   allocatable:: ecoret(:,:,:,:)
       integer(4),allocatable::ncwf2(:,:,:)
       integer:: ia,l,m,ic1,isp,lt,nt,nsp,nr,ncorex,ifix
@@ -133,7 +135,31 @@ c--------------------------
       do ic = 1,nclass
         read(ifi,*) clabl(ic),z(ic) !,nrofi is not readin
       end do
-
+      read(ifi,*)
+      read(ifi,*)
+      read(ifi,*)
+      read(ifi,*)n1,n2,n3
+      write(6,"(a,3i5)")' divisions along reciprocal base vectors G1 G2 G3=', n1,n2,n3
+      allocate(iantiferro(1:natom),spid(1:natom))
+      read(ifi,*)
+      read(ifi,*)iantiferro(1:natom) !may2015
+      read(ifi,*)
+      read(ifi,*)spid(1:natom)
+      close(ifi)
+      
+c------------
+c FREQUENCIES
+c------------
+      call getkeyvalue("GWinput","niw",   niw )
+      call getkeyvalue("GWinput","delta", delta )
+      call getkeyvalue("GWinput","deltaw",deltaw )
+      call getkeyvalue("GWinput","esmr",  esmr )
+      imagw=-999999 ! dummy
+      write(6,*)' --- Freq ---'
+      write(6,"(a,i6)")'    niw  =',niw
+      write(6,"(a,f12.6)")'    delta=',delta
+      write(6,"(a,f12.6)")'    esmr =',esmr
+!
       allocate(iclass(natom)) !atom and its class.
       do n = 1,natom          !!We set nclass = natom through the GW calculations
         iclass(n)=n
@@ -146,7 +172,43 @@ c--------------------------
       
       allocate(ncwf2(nl,nnc,nclass),ncwf(nl,nnc,nclass))
       allocate(cutbase(0:2*(nl-1)))
-c      ifix=ifi
+      
+c--------------
+c PRODUCT BASIS
+c--------------
+      ncwf  =99 !This is for counting the number of nctot in gencor.
+      ncwf2 =99
+      write(6,*)' reading <PRODUCT_BASIS> section'
+      call getkeyvalue("GWinput","<PRODUCT_BASIS>",unit=ifi,status=ret) !this open GWinput and locate file position.c> tolerance in percentage for optimal product basis
+c  sum of lowest overlap eigenvalues / total eigenvalues
+      read(ifi,*)
+c... readin tlerance for each l jun2004
+      read(ifi,"(a)") tolchar
+      readon=.false.
+      lx=0
+      do ix=1,1000
+        if(.not.readon.and.tolchar(ix:ix)/=' ') then
+          readon=.true.
+          ixoff=ix
+        endif
+        if(readon.and.tolchar(ix:ix)==' ') then
+          read(tolchar(ixoff:ix),*,err=1097) cutbase(lx)
+          if(lx==2*(nl-1)) goto 1098
+          readon=.false.
+          lx=lx+1
+        endif
+      enddo
+ 1097 continue
+      cutbase(lx:)=cutbase(lx-1)
+ 1098 continue
+      do lx=0,2*(nl-1)
+        write(6,"(' lx=',i3,' readin tolerance=',d11.3)") lx, cutbase(lx)
+      enddo
+c> check completeness of optimal product basis
+      read(ifi,*)
+      read(ifi,*)lcutmx
+      write(6,"(' --- prod section: lcutmx cutbase='i3,100d11.3)") lcutmx,cutbase
+      
       call rgwinaf    (ifi,nl,nnv,nnc,nclass, !ifi can be changed.
 c> BZ
      o                  n1,n2,n3,efdummy,
@@ -158,13 +220,6 @@ c> product basis
 c> core
      o                  ncwf,ncwf2 )
 c----
-      allocate(iantiferro(1:natom),spid(1:natom))
-      read(ifi,*)
-      read(ifi,*)iantiferro(1:natom) !may2015
-      read(ifi,*)
-      read(ifi,*)spid(1:natom)
-      close(ifi)
-      
       inquire(file='NoCore',exist=nocore)
       if(nocore) then
         occc=0      
@@ -328,140 +383,6 @@ c           write(6,"(' read ecore=',3i4,2d13.5)")l,n,ic,ecoret(l,n,1:nspin,ic)
       call cputid(0)
       write(6,*) 'genallcf_v3'
       end subroutine genallcf_v3
-!ssssssssssssssssssssssssssssssssssssssssssss
-      subroutine rgwinaf (ifix,nl,nnv,nnc,nclass,
-c> BZ
-     o                  n1,n2,n3,ef,
-c> frequencies
-     o                  niw,diw,nw,dw,delta,deltaw,esmr, imagw,
-c> product basis
-     o                  tolbas,lcutmx,nindxv,nindxc,
-     o                  noccv,nunoccv,noccc,nunoccc,
-c> core
-     o                  ncwf,ncwf2)
-      use m_keyvalue,only: getkeyvalue
-c read the rest of GW input data
-      implicit real*8(a-h,o-z)
-      implicit integer(i-n)
-      dimension 
-     o          nindxv(0:nl-1,nclass),
-     o          nindxc(0:nl-1,nclass),
-     o          noccv(0:nl-1,nnv,nclass),
-     o          noccc(0:nl-1,nnc,nclass),
-     o          nunoccv(0:nl-1,nnv,nclass),
-     o          nunoccc(0:nl-1,nnc,nclass),
-     o          ncwf(0:nl-1,nnc,nclass),
-     o          ncwf2(0:nl-1,nnc,nclass),
-     o  tolbas(0:2*(nl-1))
-c      logical :: readgwinput
-      integer(4):: ret ,ncc
-      real(8)::tolbas0
-      logical::readon
-      character*1000 tolchar
-c---------------
-c BRILLOUIN ZONE
-c---------------
-      ifi=ifix
-c> divisions along reciprocal base vectors G1 G2 G3
-      read(ifi,6000)blank
-      read(ifi,6000)blank
-      read(ifi,6000)blank
-      read(ifi,*)n1,n2,n3
-      write(6,"(a,3i5)")' divisions along reciprocal base vectors G1 G2 G3=', n1,n2,n3
-c------------
-c FREQUENCIES
-c------------
-      call getkeyvalue("GWinput","niw",   niw )
-      call getkeyvalue("GWinput","delta", delta )
-      call getkeyvalue("GWinput","deltaw",deltaw )
-      call getkeyvalue("GWinput","esmr",  esmr )
-      imagw=-999999 ! dummy
-      write(6,*)' --- Freq ---'
-      write(6,"(a,i6)")'    niw  =',niw
-      write(6,"(a,f12.6)")'    delta=',delta
-      write(6,"(a,f12.6)")'    esmr =',esmr
-c--------------
-c PRODUCT BASIS
-c--------------
-      ncwf  =99 !This is for counting the number of nctot in gencor.
-      ncwf2 =99
-      write(6,*)' reading <PRODUCT_BASIS> section'
-      call getkeyvalue("GWinput","<PRODUCT_BASIS>",unit=ifi,status=ret)
-      write(6,*)'<... > '
-c> tolerance in percentage for optimal product basis
-c  sum of lowest overlap eigenvalues / total eigenvalues
-      read(ifi,6000)blank
-c... readin tlerance for each l jun2004
-      read(ifi,"(a)") tolchar
-      readon=.false.
-      lx=0
-      do ix=1,1000
-        if(.not.readon.and.tolchar(ix:ix)/=' ') then
-          readon=.true.
-          ixoff=ix
-        endif
-        if(readon.and.tolchar(ix:ix)==' ') then
-          read(tolchar(ixoff:ix),*,err=1097) tolbas(lx)
-          if(lx==2*(nl-1)) goto 1098
-          readon=.false.
-          lx=lx+1
-        endif
-      enddo
- 1097 continue
-      tolbas(lx:)=tolbas(lx-1)
- 1098 continue
-      do lx=0,2*(nl-1)
-        write(6,"(' lx=',i3,' readin tolerance=',d11.3)") lx, tolbas(lx)
-      enddo
-c> check completeness of optimal product basis
-      read(ifi,6000)blank
-      read(ifi,*)lcutmx
-      write(6,"(' --- prod section: lcutmx tolbas='i3,100d11.3)") lcutmx,tolbas
-c      write(6,*)' nclass nl-1=',nclass,nl-1
-c> n index for valence and core
-      read(ifi,6000)blank
-      do      ic = 1,nclass
-        do       l = 0,nl-1
-          read(ifi,*) ict,lt,nindxv(l,ic),nindxc(l,ic)
-          if(lt  .ne. l ) call rx( 'rgwina: 1st wrong l ')
-        end do
-      end do
-      write(6,*)' --- valence product basis section'
-c> criteria for product basis
-c>> valence
-      read(ifi,6000)blank
-      do      ic = 1,nclass
-        do       l = 0,nl-1
-          do       n = 1,nindxv(l,ic)
-            read(ifi,*)ict,lt,nt,noccv(l,n,ic),nunoccv(l,n,ic)
-            write(6,"(100i3)") ict,lt,nt,noccv(l,n,ic),nunoccv(l,n,ic)
-            if(lt  .ne. l )call rx( 'rgwina: 2nd wrong l valence')
-            if(nt  .ne. n )call rx( 'rgwina: wrong n valence')
-          end do
-        end do
-      end do
- 1099 continue
-c      write(6,*)' goto prod 3'
-c>> core
-      write(6,*)' --- core product basis section'
-      read(ifi,6000)blank
-      do      ic = 1,nclass
-        do       l = 0,nl-1
-          do       n = 1,nindxc(l,ic)
-            read(ifi,*)ict,lt,nt,noccc(l,n,ic),nunoccc(l,n,ic),ncwf(l,n,ic)
-     & ,ncwf2(l,n,ic) !ncwf2 is for Sigma calcuation
-            write(6,"(100i3)") 
-     & ict,lt,nt,noccc(l,n,ic),nunoccc(l,n,ic),ncwf(l,n,ic)
-     & ,ncwf2(l,n,ic) !ncwf2 is for Sigma calcuation
-            if(lt  .ne. l )call rx( 'rgwina: 2nd wrong l core')
-            if(nt  .ne. n )call rx( 'rgwina: wrong n core')
-          end do
-        end do
-      end do
- 6000 format(a)
-      close(ifi)
-      return
-      end
 !sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine bit99to0(n,idat)
       integer(4) :: idat(n),i,n

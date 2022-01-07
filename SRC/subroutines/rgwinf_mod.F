@@ -1,3 +1,78 @@
+!ssssssssssssssssssssssssssssssssssssssssssss
+      subroutine rgwinaf (ifi,nl,nnv,nnc,nclass,
+c> BZ
+     o                  n1,n2,n3,ef,
+c> frequencies
+     o                  niw,diw,nw,dw,delta,deltaw,esmr, imagw,
+c> product basis
+     o                  cutbase,lcutmx,nindxv,nindxc,
+     o                  noccv,nunoccv,noccc,nunoccc,
+c> core
+     o                  ncwf,ncwf2)
+      use m_keyvalue,only: getkeyvalue
+c read the rest of GW input data
+      implicit real*8(a-h,o-z)
+      implicit integer(i-n)
+      dimension 
+     o          nindxv(0:nl-1,nclass),
+     o          nindxc(0:nl-1,nclass),
+     o          noccv(0:nl-1,nnv,nclass),
+     o          noccc(0:nl-1,nnc,nclass),
+     o          nunoccv(0:nl-1,nnv,nclass),
+     o          nunoccc(0:nl-1,nnc,nclass),
+     o          ncwf(0:nl-1,nnc,nclass),
+     o          ncwf2(0:nl-1,nnc,nclass),
+     o  cutbase(0:2*(nl-1))
+c      logical :: readgwinput
+      integer(4):: ret ,ncc
+c      real(8)::cutbase0
+      logical::readon
+c      write(6,*)' nclass nl-1=',nclass,nl-1
+c> n index for valence and core
+      read(ifi,6000)blank
+      do      ic = 1,nclass
+        do       l = 0,nl-1
+          read(ifi,*) ict,lt,nindxv(l,ic),nindxc(l,ic)
+          if(lt  .ne. l ) call rx( 'rgwina: 1st wrong l ')
+        end do
+      end do
+      write(6,*)' --- valence product basis section'
+c> criteria for product basis
+c>> valence
+      read(ifi,6000)blank
+      do      ic = 1,nclass
+        do       l = 0,nl-1
+          do       n = 1,nindxv(l,ic)
+            read(ifi,*)ict,lt,nt,noccv(l,n,ic),nunoccv(l,n,ic)
+            write(6,"(100i3)") ict,lt,nt,noccv(l,n,ic),nunoccv(l,n,ic)
+            if(lt  .ne. l )call rx( 'rgwina: 2nd wrong l valence')
+            if(nt  .ne. n )call rx( 'rgwina: wrong n valence')
+          end do
+        end do
+      end do
+ 1099 continue
+c      write(6,*)' goto prod 3'
+c>> core
+      write(6,*)' --- core product basis section'
+      read(ifi,6000)blank
+      do      ic = 1,nclass
+        do       l = 0,nl-1
+          do       n = 1,nindxc(l,ic)
+            read(ifi,*)ict,lt,nt,noccc(l,n,ic),nunoccc(l,n,ic),ncwf(l,n,ic)
+     & ,ncwf2(l,n,ic) !ncwf2 is for Sigma calcuation
+            write(6,"(100i3)") 
+     & ict,lt,nt,noccc(l,n,ic),nunoccc(l,n,ic),ncwf(l,n,ic)
+     & ,ncwf2(l,n,ic) !ncwf2 is for Sigma calcuation
+            if(lt  .ne. l )call rx( 'rgwina: 2nd wrong l core')
+            if(nt  .ne. n )call rx( 'rgwina: wrong n core')
+          end do
+        end do
+      end do
+ 6000 format(a)
+      close(ifi)
+      return
+      end
+      
 c$$$      module m_rgwinf_v3
 c$$$      integer,protected:: nclass,natom,nspin,nl,nnv,nnc,lcutmx,nrx
 c$$$      real(8),protected:: alat
