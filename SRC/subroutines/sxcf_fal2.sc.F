@@ -307,17 +307,17 @@ c      if (.not.(jobsw==1.or.jobsw==3.or.jobsw==5)) call rx('sxcf_scz: jobsw=1or
             qk =  q - qbz_kr        
             ekq = readeval(qk, isp) 
             ekc(nctot+1:nctot+nband) = ekq (1:nband)
-            nt0 = nocc (ekc,ef,.true.,nstatetot)
+            nt0 = count(ekc<ef) !nocc (ekc,ef,nstatetot)! !
             ddw= 10d0
             efp= ef+ddw*esmr
             efm= ef-ddw*esmr
-            nt0p = nocc (ekq,efp,.true.,nstatetot)+ nctot
-            nt0m = nocc (ekq,efm,.true.,nstatetot)+ nctot
+            nt0p = count(ekq<efp) +nctot !nocc(ekq,efp,nstatetot)+ nctot !
+            nt0m = count(ekq<efm) +nctot !nocc(ekq,efm,nstatetot)+ nctot !
             if(exchange) then
               nbmax = nt0p-nctot
             else
               ebmx=1d10 !this is needed probably because to fill 1d99 for ekc(i) above boundary.
-              nbmxe = nocc (ekc,ebmx,.true.,nstatetot)-nctot
+              nbmxe = count(ekc<ebmx)-nctot !nocc (ekc,ebmx,nstatetot)-nctot!
               nbmax  = min(nband,nbmxe) !nbmx_sig,
             endif
 !! ntqxx is number of bands for <i|sigma|j>.
@@ -649,6 +649,8 @@ c          close(ifvcoud)
         enddo     
       enddo
       end subroutine weightset4intreal
+      
+      
       end module m_sxcfsc
       
 !SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS

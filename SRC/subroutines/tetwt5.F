@@ -106,7 +106,7 @@ C- For tetrahedra
      &   kvec(3,0:3), ea(0:3), eb(0:3) ,x(0:3),am(3,3)
       complex(8):: wtt(0:3,3)
 c
-      integer(4):: noccx_kxx, noccx_k, noccx_kq, noccx1
+      integer(4):: noccx_kxx, noccx_k, noccx_kq !, noccx1
 c      real(8),parameter:: eps=0d0 !1d-12 ! cutoff check to determine cancellation.
       logical ::prt=.false.
       real(8),target :: ek_(nband+nctot,0:3), ekq_(nband+nctot,0:3)
@@ -333,17 +333,13 @@ c      write(6,*) " efermia,  efermib:", efermia,efermib
              am(1:3,i) = kvec(1:3,i-1) - kvec(1:3,3)
           enddo
           voltet = abs(det33(am)/6d0)
-          !!! exchange band ea <--> eb for lindtet6
-c          if (exb) then
-c             ek_ ( 1:nband+nctot, 0:3) = ekzz2( 1:nband+nctot, kkm(0:3)) ! k
-c             ekq_( 1:nband+nctot, 0:3) = ekzz1( 1:nband+nctot, kkm(0:3)) ! k+q
-c          else
-             ek_ ( 1:nband+nctot, 0:3) = ekzz1( 1:nband+nctot, kkm(0:3)) ! k
-             ekq_( 1:nband+nctot, 0:3) = ekzz2( 1:nband+nctot, kkm(0:3)) ! k+q
-c          endif
-          noccx_k  = noccx1 ( ek_(1:nband, 0:3),4,nband, efermi)  
-                    !the highest number of occupied states (HNOS)
-          noccx_kq = noccx1 (ekq_(1:nband, 0:3),4,nband, efermi)
+          ek_ ( 1:nband+nctot, 0:3) = ekzz1( 1:nband+nctot, kkm(0:3)) ! k
+          ekq_( 1:nband+nctot, 0:3) = ekzz2( 1:nband+nctot, kkm(0:3)) ! k+q
+c          noccx_k = noccx1 ( ek_(1:nband, 0:3),4,nband, efermi)!the highest number of occupied states
+c          noccx_kq= noccx1 (ekq_(1:nband, 0:3),4,nband, efermi)
+!     the highest number of occupied states
+          noccx_k = maxval(count( ek_(1:nband, 0:3)<efermi,dim=1) )
+          noccx_kq= maxval(count( ekq_(1:nband,0:3)<efermi,dim=1) )
           nbandmx_k   = nband
           nbandmx_kq  = nband
 !! exclude wannier model: (okumura, 2017/06/13)
@@ -596,8 +592,6 @@ c       write(6,*)' tetwt4: end '; call cputid  (0)
       if (allocated(wtet)) deallocate(wtet)
       end
 c------------------------------------------------------------------------
-
-
 
 
 

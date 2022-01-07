@@ -567,14 +567,14 @@ c qk = q - rk, rk is inside 1st BZ, not restricted to the irreducible BZ
             qk =  q - qbz_kr    ! qbz(:,kr)
             ekq = readeval(qk, isp)
             ekc(nctot+1:nctot+nband) = ekq (1:nband)
-            nt0 = nocc (ekc,ef,.true.,nstatetot)
+            nt0 = count(ekc<ef) !nocc(ekc,ef,nstatetot)!
             ddw= .5d0
 c        if(GaussSmear) ddw= 10d0
             ddw=10d0
             efp= ef+ddw*esmr
             efm= ef-ddw*esmr
-            nt0p = nocc (ekc,efp,.true.,nstatetot)
-            nt0m = nocc (ekc,efm,.true.,nstatetot)
+            nt0p = count(ekc<efp) !nocc(ekc,efp,nstatetot)!
+            nt0m = count(ekc<efm) !nocc(ekc,efm,nstatetot)!
 !! nbmx1 ebmx1: to set how many bands of <i|sigma|j>  do you calculate.
 !! nbmx2 ebmx2: to restrict num of bands of G to calculate G \times W
             if(exchange) then
@@ -582,7 +582,7 @@ c        if(GaussSmear) ddw= 10d0
               if(debug) write(6,*)' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
             else
               nbmax = nband
-              nbmxe = nocc (ekc,ebmx,.true.,nstatetot)-nctot
+              nbmxe = count(ekc<ebmx)-nctot !nocc(ekc,ebmx,nstatetot)-nctot!
               nbmax  = min(nband,nbmx,nbmxe)
               if(onceww(3)) write(6,*)' nbmax=',nbmax
             endif

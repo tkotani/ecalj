@@ -71,8 +71,8 @@ c-----------------------------------------------------------------------
 !! --------------------------------------------------------
       integer::incwfx,ifec,i,j,
      & lmx, lmx2,nlmto2,nprodxc,nlnaxc,nlnaxv,nprodx,ifi,ig,is
-     & ,nprodxv,nlnax,ix,ixoff,lx
-     & ,noflmto,maxnn
+     & ,nprodxv,nlnax,ix,ixoff,lx,maxnn
+c     & ,noflmto
       integer:: infwfx,ret, n1,n2,n3,imagw,n,ic
       logical :: nocore,readon
       real(8)::efin
@@ -82,7 +82,7 @@ c-----------------------------------------------------------------------
       integer(4),allocatable::ncwf2(:,:,:)
       integer:: ia,l,m,ic1,isp,lt,nt,nsp,nr,ncorex,ifix
       real(8)::a,b,zz, efdummy,dw,diw,pi
-      integer:: nwdummy,ifile_handle
+      integer:: nwdummy,ifile_handle,ict
       if(done_genallcf_v3) call rx('genallcf_v3 is already called')
       done_genallcf_v3=.true.
 c--- rgwinf ---
@@ -98,7 +98,6 @@ c--- rgwinf ---
       read(ifi,*)alat           !lattice constant
       pi=4d0*datan(1d0)
       tpioa=2d0*pi/alat
-      
       allocate(plat(3,3))          !primitive lattice vectors
       read(ifi,*)
       read(ifi,*)plat(1:3,1)
@@ -146,44 +145,32 @@ c--------------------------
       read(ifi,*)
       read(ifi,*)spid(1:natom)
       close(ifi)
-      
-c------------
-c FREQUENCIES
-c------------
+! FREQUENCIES
       call getkeyvalue("GWinput","niw",   niw )
       call getkeyvalue("GWinput","delta", delta )
       call getkeyvalue("GWinput","deltaw",deltaw )
       call getkeyvalue("GWinput","esmr",  esmr )
-      imagw=-999999 ! dummy
       write(6,*)' --- Freq ---'
       write(6,"(a,i6)")'    niw  =',niw
       write(6,"(a,f12.6)")'    delta=',delta
       write(6,"(a,f12.6)")'    esmr =',esmr
-!
+! class = ibas setting
       allocate(iclass(natom)) !atom and its class.
       do n = 1,natom          !!We set nclass = natom through the GW calculations
         iclass(n)=n
       end do
-
+! Read PRODUCT BASIS section
       allocate(nindxv(nl,nclass), nindxc(nl,nclass),
-     &        occv(nl,nnv,nclass),unoccv(nl,nnv,nclass),
-     &     occc(nl,nnc,nclass),unoccc(nl,nnc,nclass),
-     &        ooo(nl,nnv,nclass))
-      
+     &     occv(nl,nnv,nclass),unoccv(nl,nnv,nclass),
+     &     occc(nl,nnc,nclass),unoccc(nl,nnc,nclass), ooo(nl,nnv,nclass))
       allocate(ncwf2(nl,nnc,nclass),ncwf(nl,nnc,nclass))
       allocate(cutbase(0:2*(nl-1)))
-      
-c--------------
-c PRODUCT BASIS
-c--------------
       ncwf  =99 !This is for counting the number of nctot in gencor.
       ncwf2 =99
       write(6,*)' reading <PRODUCT_BASIS> section'
-      call getkeyvalue("GWinput","<PRODUCT_BASIS>",unit=ifi,status=ret) !this open GWinput and locate file position.c> tolerance in percentage for optimal product basis
-c  sum of lowest overlap eigenvalues / total eigenvalues
+      call getkeyvalue("GWinput","<PRODUCT_BASIS>",unit=ifi,status=ret)!open GWinput and locate file position 
       read(ifi,*)
-c... readin tlerance for each l jun2004
-      read(ifi,"(a)") tolchar
+      read(ifi,"(a)") tolchar !tolerance in percentage for optimal product basis
       readon=.false.
       lx=0
       do ix=1,1000
@@ -204,28 +191,46 @@ c... readin tlerance for each l jun2004
       do lx=0,2*(nl-1)
         write(6,"(' lx=',i3,' readin tolerance=',d11.3)") lx, cutbase(lx)
       enddo
-c> check completeness of optimal product basis
       read(ifi,*)
       read(ifi,*)lcutmx
       write(6,"(' --- prod section: lcutmx cutbase='i3,100d11.3)") lcutmx,cutbase
-      
-      call rgwinaf    (ifi,nl,nnv,nnc,nclass, !ifi can be changed.
-c> BZ
-     o                  n1,n2,n3,efdummy,
-c> frequencies
-     o                  niw,diw,nwdummy,dw,delta,deltaw,esmr,imagw,
-c> product basis
-     o                  cutbase,lcutmx,nindxv,nindxc,
-     o                  occv,unoccv, occc,unoccc,
-c> core
-     o                  ncwf,ncwf2 )
-c----
-      inquire(file='NoCore',exist=nocore)
-      if(nocore) then
-        occc=0      
-        unoccc=0    
-        ncwf  =0    
-      elseif( incwfx==-1 ) then
+      read(ifi,*)
+      do      ic = 1,nclass
+        do       l = 0,nl-1
+          read(ifi,*) ict,lt,nindxv(l+1,ic),nindxc(l+1,ic)
+          if(lt  .ne. l ) call rx( 'rgwina: 1st wrong l ')
+        end do
+      end do
+      write(6,*)' --- valence product basis section'
+! valence
+      read(ifi,*)
+      do      ic = 1,nclass
+      do       l = 0,nl-1
+      do       n = 1,nindxv(l+1,ic)
+            read(ifi,*)ict,lt,nt,occv(l+1,n,ic),unoccv(l+1,n,ic)
+            write(6,"(100i3)") ict,lt,nt,occv(l+1,n,ic),unoccv(l+1,n,ic)
+            if(lt  .ne. l )call rx( 'rgwina: 2nd wrong l valence')
+            if(nt  .ne. n )call rx( 'rgwina: wrong n valence')
+      enddo
+      enddo
+      enddo
+! core
+      write(6,*)' --- core product basis section'
+      read(ifi,*)
+      do      ic = 1,nclass
+      do       l = 0,nl-1
+      do       n = 1,nindxc(l+1,ic)
+         read(ifi,*)ict,lt,nt,occc(l+1,n,ic),unoccc(l+1,n,ic),ncwf(l+1,n,ic),ncwf2(l+1,n,ic) 
+         write(6,"(100i3)") ict,lt,nt,occc(l+1,n,ic),unoccc(l+1,n,ic),ncwf(l+1,n,ic)
+     &        ,ncwf2(l+1,n,ic)  !ncwf2 is for Sigma calcuation
+            if(lt  .ne. l )call rx( 'rgwina: 2nd wrong l core')
+            if(nt  .ne. n )call rx( 'rgwina: wrong n core')
+      enddo
+      enddo
+      enddo
+      close(ifi)
+!----- product basis setting      
+      if( incwfx==-1 ) then
         write(6,*)' ### incwf=-1 Use ForSxc for core'
         ncwf = ncwf2 
       elseif( incwfx==-2 ) then
@@ -254,15 +259,13 @@ cccccccccccccccccccccccccccccccccc
         call rx( ' ### proper incwf is not given for genallcf_v3:rgwinf ')
       endif
       deallocate(ncwf2)
-C...  End of rgwinf section ----------------------------
-      
+            
 !! dimensions and constants
       lmx        = 2*(nl-1)
       lmx2       = (lmx+1)**2
       nlmto      = noflmto(nindxv,iclass,nl,nclass,natom)
       nlmto2     = nlmto*nlmto
       nn         = maxnn (nindxv,nindxc,nl,nclass)
-
 !! combine nocc,nunocc,nindx
       allocate(nindx(nl,nclass))
       allocate(nocc(nl,nn,nclass),nunocc(nl,nn,nclass))
@@ -276,7 +279,6 @@ C...  End of rgwinf section ----------------------------
      o              nprodxv,nlnxv,nlnmxv,nlnaxv)
       call maxdim  (nocc,nunocc,nindx,nl,nn,nclass,
      o              nprodx,nlnx,nlnmx,nlnax)
-
 !! index for allowed core states
       allocate(icore(nl**2*nnc,nclass),ncore(nclass))
       icore=9999999
@@ -284,7 +286,6 @@ C...  End of rgwinf section ----------------------------
       call incor   (ncwf,nindxc,iclass,
      d              nl,nnc,nclass,natom,
      o              icore,ncore,nctot )
-
 !! core energies
       open(newunit=ifec,file='ECORE')
       allocate(konf(nl,nclass),ecore(nctot,2))
@@ -384,13 +385,73 @@ c           write(6,"(' read ecore=',3i4,2d13.5)")l,n,ic,ecoret(l,n,1:nspin,ic)
       write(6,*) 'genallcf_v3'
       end subroutine genallcf_v3
 !sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
+      subroutine nolnma  (nindx,nl,nclass,
+     o nlnm )
+c 92.jan.07
+c number of l,n,m for all classes
+      implicit real*8(a-h,o-z)
+      integer:: ic,nclass,noflnm,l,nl,
+     &     nindx(0:nl-1,nclass), nlnm(nclass)
+      do     ic = 1,nclass
+        noflnm    = 0
+        do 1    l = 0,nl-1
+          noflnm    = noflnm + nindx(l,ic)*(2*l+1)
+    1   continue
+        nlnm(ic)  = noflnm
+      end do
+      return
+      end
+!sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
+      subroutine incor  (ncwf,nindxc,iclass,
+     d                   nl,nnc,nclass,natom,
+     o                   icore,ncore,nctot)
+c 92.03.18
+c sorts out allowed core states and count the number of core states
+c ncwf(l,n,cl) = 1 ==> allowed, 0 ==> not allowed
+c nindxc(l,cl)  = no. core states/l,class
+c nl,nnc = max. no. l,n
+c icore(i,cl) = index for allowed core states
+c ncore(cl)   = no. allowed core states
+c nctot       = total no. allowed core states
+      implicit real*8 (a-h,o-z)
+      implicit integer(i-n)
+      dimension ncwf(0:nl-1,nnc,nclass),nindxc(0:nl-1,nclass),
+     i          iclass(natom)
+      dimension icore(nl*nl*nnc,nclass),ncore(nclass)
+      ncx        = nl*nl*nnc
+      do      ic = 1,nclass
+        i          = 0
+        j          = 0
+        do       l = 0,nl-1
+          do       n = 1,nindxc(l,ic)
+            do       m = -l,l
+              j          = j + 1
+              if (ncwf(l,n,ic) .eq. 1) then
+                i          = i + 1
+                if (i .gt. ncx) call rx( 'incore: wrong ncx')
+                icore(i,ic)= j
+              endif
+            end do
+          end do
+        end do
+        ncore(ic)  = i
+      end do
+c total no. allowed core states
+      nctot      = 0
+      do       i = 1,natom
+        ic         = iclass(i)
+        nctot      = nctot + ncore(ic)
+      end do
+      return
+      end
+!ssssssssssssssssssssssssssssssssssssssssssssssssssss     
       subroutine bit99to0(n,idat)
       integer(4) :: idat(n),i,n
       do i=1,n
         if(idat(i)==99) idat(i)=0
       enddo
       end
-c
+!ssssssssssssssssssssssssssssssssssssssssssssssssssss     
       subroutine notbit(n,idat)
       integer(4) :: idat(n),i,n,ix
       do i=1,n
@@ -403,10 +464,12 @@ c
 c       write(6,*)'notbit=',i,ix,idat(i)
       enddo
       end
+!ssssssssssssssssssssssssssssssssssssssssssssssssssss     
       subroutine iclear(n,idat)
       integer(4) :: idat(n),n
       idat=0
       end
+!ssssssssssssssssssssssssssssssssssssssssssssssssssss     
       subroutine ibiton(nclass,nl,nnc,nindxc, noccc,ncwf)
       integer(4) ::nclass,nl,nnc,noccc(0:nl-1,nnc,nclass),nindxc(0:nl-1,nclass)
       integer(4) ::ncwf(0:nl-1,nnc,nclass),ic,l,n
@@ -421,7 +484,6 @@ c       write(6,*)'notbit=',i,ix,idat(i)
         end do
       end do
       end
-      
 !ssssssssssssssssssssssssssssssssssssssssssss
       subroutine ibitand(n,a,b,c)
       integer(4) :: n, a(n),b(n),c(n),i
@@ -430,7 +492,6 @@ c       write(6,*)'notbit=',i,ix,idat(i)
         write (6,"('ibitand:: ',4i3)")i,a(i),b(i),c(i)
       enddo
       end
-
 c$$$      subroutine writeemesh(ifi,freqi,niw,freqr,nnw,delta)
 c$$$c Write energy mesh along imag axis and real axis. -----------------------
 c$$$      implicit none
@@ -450,10 +511,8 @@ c$$$        fff = freqr(iw) + img*delta ! delta is in a.u.  ! along real axis
 c$$$        write(ifi,"(i3,2d15.6)")iw,fff*2d0
 c$$$      enddo
 c$$$      end
-      
-      end module m_genallcf_v3
-      
 !!
+!ssssssssssssssssssssssssssssssssssssssssssssssssssss     
       subroutine idxlnmc(nindxv,nindxc,
      d                   nl,nn,nnv,nnc,nlnmx,nlnmxv,nlnmxc,nclass,
      o                   il,in,im,ilnm,
@@ -468,7 +527,6 @@ c ilnm(n,lm) = index of n,l,m
 c lm = l*l + l + m + 1
 c NOTE: the indexing starts with core first and then valence on top
 c       of core (not the same as index generated from nindx)
-      implicit real*8(a-h,o-z)
       implicit integer(i-n)
       dimension nindxv(0:nl-1,nclass),nindxc(0:nl-1,nclass)
       dimension ilnm(nn,nl*nl,nclass),
@@ -502,18 +560,18 @@ c valence
         indv      = 0
         do      l = 0,nl-1
           l2        = l*l
-          ncore     = nindxc(l,ic)
+          ncorex     = nindxc(l,ic)
           do      n = 1,nindxv(l,ic)
-            if (ncore+n .gt. nn) call rx( 'idxlnmc: ncore+n > nn')
+            if (ncorex+n .gt. nn) call rx( 'idxlnmc: ncore+n > nn')
             do      m = 1,2*l+1
               ind       = ind + 1
               indv      = indv + 1
               if (ind .gt. nlnmx) call rx( 'idxlnmc: ind > nlnmx')
               lm        = l2 + m
               il(ind,ic)= l
-              in(ind,ic)= ncore + n
+              in(ind,ic)= ncorex + n
               im(ind,ic)= m - l - 1
-              ilnm(ncore+n,lm,ic) = ind
+              ilnm(ncorex+n,lm,ic) = ind
               ilv(indv,ic)= l
               inv(indv,ic)= n
               imv(indv,ic)= m - l - 1
@@ -524,7 +582,83 @@ c valence
       end do
       return
       end
-
+!sssssssssssssssssssssssssssssssssssssssssssssssssssssss
+      subroutine maxdim (nocc,nunocc,nindx,nl,nn,nclass,
+     o nprodx,nlnx,nlnmx,nlnax)
+c largest number of product basis, (l,n) and (l,n,m)
+      implicit real*8(a-h,o-z)
+      integer:: nocc(nl*nn,nclass),
+     i          nunocc(nl*nn,nclass),
+     i     nindx(0:nl-1,nclass),ic,nclass,nn,nl,nln,nlnm,nlna,
+     i     nprodx,nlnmx,nlnx,nlnax,nprod!,noflnm !,nalwln!,nofln !,nallow
+      nprodx     = 0
+      nlnx       = 0
+      nlnmx      = 0
+      nlnax      = 0
+      do      ic = 1,nclass
+        nprod      = nallow (nocc(1,ic),nunocc(1,ic),
+     .                     nindx(0,ic),nl,nn)
+        nln        = nofln(nindx(0,ic),nl)
+        nlnm       = noflnm(nindx(0,ic),nl)
+        nlna       = nalwln (nocc(1,ic),nunocc(1,ic),
+     .                     nindx(0,ic),nl,nn)
+        if(nprod .gt. nprodx) nprodx = nprod
+        if(nln   .gt. nlnx)   nlnx   = nln
+        if(nlnm  .gt. nlnmx)  nlnmx  = nlnm
+        if(nlna  .gt. nlnax)  nlnax  = nlna
+      end do
+      return
+      end
+      
+!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+      integer function nallow (nocc,nunocc,nindx,nl,nn)
+c gives the number of allowed product basis
+c nocc(n,l) = 0,1 ==> unoccupied, occupied
+c nallow    = number of allowed product basis
+      implicit real*8(a-h,o-z)
+      implicit integer(i-n)
+      parameter (lmax=6,nnx=10)
+      dimension nocc(0:nl-1,nn),nunocc(0:nl-1,nn),
+     i          nindx(0:nl-1)
+      dimension icheck(0:lmax,nnx,0:lmax,nnx)
+      if(nl-1 .gt. lmax) call rx( 'nallow: increase lmax')
+      if(nn .gt. nnx) call rx( 'nallow: increase nnx')
+      icheck=0
+      do      l1 = 0,nl-1
+        do      n1 = 1,nindx(l1)
+          do      l2 = 0,nl-1
+            do      n2 = 1,nindx(l2)
+              icheck(l1,n1,l2,n2) = nocc(l1,n1)*nunocc(l2,n2)
+              if (l1 .ne. l2 .or. n1 .ne. n2) then
+                if (icheck(l1,n1,l2,n2)*icheck(l2,n2,l1,n1) .ne. 0)
+     . icheck(l1,n1,l2,n2) = 0
+              endif
+            end do
+          end do
+        end do
+      end do
+      nallow     = 0
+      do    l1 = 0,nl-1
+      do    n1 = 1,nindx(l1)
+      do    m1 = 1,2*l1+1
+      do    l2 = 0,nl-1
+      do    n2 = 1,nindx(l2)
+      do    m2 = 1,2*l2+1
+c     if (nocc(l1,n1) .eq. 0)goto 10
+c     if (nunocc(l2,n2) .eq. 0)goto 10
+        if (icheck(l1,n1,l2,n2) .eq. 0) cycle
+c temporary
+        if (l1 .eq. l2 .and. n1.eq.n2 .and. m1.lt.m2) cycle
+        nallow     = nallow + 1
+      enddo  
+      enddo  
+      enddo  
+      enddo  
+      enddo  
+      enddo  
+      return
+      end
+      
       integer function noflmto(nindx,iclass,nl,nclass,natom)
 c total number of LMTO basis functions
       implicit real*8(a-h,o-z)
@@ -596,96 +730,7 @@ c number of l,n,m
       return
       end
 
-      integer function nallow (nocc,nunocc,nindx,nl,nn)
-c gives the number of allowed product basis
-c nocc(n,l) = 0,1 ==> unoccupied, occupied
-c nallow    = number of allowed product basis
-      implicit real*8(a-h,o-z)
-      implicit integer(i-n)
-      parameter (lmax=6,nnx=10)
-      dimension nocc(0:nl-1,nn),nunocc(0:nl-1,nn),
-     i          nindx(0:nl-1)
-      dimension icheck(0:lmax,nnx,0:lmax,nnx)
-      if(nl-1 .gt. lmax) call rx( 'nallow: increase lmax')
-      if(nn .gt. nnx) call rx( 'nallow: increase nnx')
-      icheck=0
-      do      l1 = 0,nl-1
-        do      n1 = 1,nindx(l1)
-          do      l2 = 0,nl-1
-            do      n2 = 1,nindx(l2)
-              icheck(l1,n1,l2,n2) = nocc(l1,n1)*nunocc(l2,n2)
-              if (l1 .ne. l2 .or. n1 .ne. n2) then
-                if (icheck(l1,n1,l2,n2)*icheck(l2,n2,l1,n1) .ne. 0)
-     . icheck(l1,n1,l2,n2) = 0
-              endif
-            end do
-          end do
-        end do
-      end do
-      nallow     = 0
-      do    l1 = 0,nl-1
-      do    n1 = 1,nindx(l1)
-      do    m1 = 1,2*l1+1
-      do    l2 = 0,nl-1
-      do    n2 = 1,nindx(l2)
-      do    m2 = 1,2*l2+1
-c     if (nocc(l1,n1) .eq. 0)goto 10
-c     if (nunocc(l2,n2) .eq. 0)goto 10
-        if (icheck(l1,n1,l2,n2) .eq. 0) cycle
-c temporary
-        if (l1 .eq. l2 .and. n1.eq.n2 .and. m1.lt.m2) cycle
-        nallow     = nallow + 1
-      enddo  
-      enddo  
-      enddo  
-      enddo  
-      enddo  
-      enddo  
-      return
-      end
-
-      subroutine incor  (ncwf,nindxc,iclass,
-     d                   nl,nnc,nclass,natom,
-     o                   icore,ncore,nctot)
-c 92.03.18
-c sorts out allowed core states and count the number of core states
-c ncwf(l,n,cl) = 1 ==> allowed, 0 ==> not allowed
-c nindxc(l,cl)  = no. core states/l,class
-c nl,nnc = max. no. l,n
-c icore(i,cl) = index for allowed core states
-c ncore(cl)   = no. allowed core states
-c nctot       = total no. allowed core states
-      implicit real*8 (a-h,o-z)
-      implicit integer(i-n)
-      dimension ncwf(0:nl-1,nnc,nclass),nindxc(0:nl-1,nclass),
-     i          iclass(natom)
-      dimension icore(nl*nl*nnc,nclass),ncore(nclass)
-      ncx        = nl*nl*nnc
-      do      ic = 1,nclass
-        i          = 0
-        j          = 0
-        do       l = 0,nl-1
-          do       n = 1,nindxc(l,ic)
-            do       m = -l,l
-              j          = j + 1
-              if (ncwf(l,n,ic) .eq. 1) then
-                i          = i + 1
-                if (i .gt. ncx) call rx( 'incore: wrong ncx')
-                icore(i,ic)= j
-              endif
-            end do
-          end do
-        end do
-        ncore(ic)  = i
-      end do
-c total no. allowed core states
-      nctot      = 0
-      do       i = 1,natom
-        ic         = iclass(i)
-        nctot      = nctot + ncore(ic)
-      end do
-      return
-      end
+      end module m_genallcf_v3
 
       
 !------------------------    
@@ -699,9 +744,8 @@ c      integer:: nband !not yet protected!
       read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
       close(ifhbe)
       end subroutine
-      end module
-c----------------------------------
- 
+      end module m_readhbe
+      
 !------------------------
       module m_ReadEfermi
       real(8),protected:: bandgap, ef, ef_kbt
@@ -715,7 +759,7 @@ c----------------------------------
       close(ifief)
       write(6,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
       end subroutine
-!------------------------------------
+!---
       subroutine readefermi_kbt()
       implicit none
       integer:: ifief_kbt,ifile_handle
@@ -726,9 +770,8 @@ c----------------------------------
       write(6,"(a,f12.6)")' --- READIN ef from EFERMI_kbt. ef=',ef_kbt
       end subroutine
       end module m_ReadEfermi
-   
       
-c----------------------------------------------------------
+!----------------------------------------------------------
 !! we neede module reading m_genallfc_v3 should be here after it is dedined in this file
       module m_readclasst
       use m_genallcf_v3,only: natom
@@ -746,4 +789,3 @@ c----------------------------------------------------------
       close(ificlass)
       end subroutine
       end module m_readclasst
-
