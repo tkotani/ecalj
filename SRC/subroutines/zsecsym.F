@@ -4,6 +4,7 @@
 !!
 c      use m_mpi,only: MPI__AllreduceSum
       use m_readeigen,only: READEVAL
+      use m_rotwave,only: Rotwvigg
       implicit none 
       complex(8),intent(inout)::zsec(ntq,ntq,nq)
       integer,intent(in)::ntq,nq,nspinmx,nband,nbandmx(nq,nspinmx),is,nspin
