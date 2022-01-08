@@ -37,9 +37,7 @@
       ibaso=-999
       do iorb=1,norbt !orbital-blocks
         ibas = ibas_tbl(iorb)
-        if(ibas/=ibaso) then
-          phase = exp( -img2pi*sum(qrot*tiat(:,ibas))) 
-        endif   
+        if(ibas/=ibaso) phase = exp( -img2pi*sum(qrot*tiat(:,ibas))) 
         ibaso=ibas
         l = l_tbl(iorb)
         k = k_tbl(iorb)
@@ -74,7 +72,7 @@
       real(8):: tiat(3,nbas)
       complex(8):: phase,ddd
       real(8):: sym(3,3), qin(3),qrot(3),shtvg(3) !shtvg
-      real(8):: dlmm(-lxxa:lxxa,-lxxa:lxxa,0:lxxa),ginv(3,3)
+      real(8):: dlmm(-lxxa:lxxa,-lxxa:lxxa,0:lxxa)
       complex(8),parameter:: img=(0d0,1d0)
       integer:: max_ibas_tbl,max_l_tbl,max_k_tbl,igxt
       integer::  offset_rev_tbl(max_ibas_tbl, 0:max_l_tbl, max_k_tbl),m1,m2
@@ -86,9 +84,7 @@
       ibaso=-999
       do iorb=1,norbt !orbital-blocks
         ibas = ibas_tbl(iorb)
-        if(ibas/=ibaso) then
-          phase = exp( -img2pi*sum(qrot*tiat(:,ibas))) 
-        endif   
+        if(ibas/=ibaso) phase = exp( -img2pi*sum(qrot*tiat(:,ibas))) 
         ibaso=ibas
         l = l_tbl(iorb)
         k = k_tbl(iorb)
@@ -96,15 +92,7 @@
         iend1 = ini1+2*l
         ini2 = offset_rev_tbl(miat(ibas),l,k)+1
         iend2 = ini2+2*l
-!! We can get rotated rcxq as
-!!      Rotated(rcxq)=  dconjg(chpiin(xx)) *  dconjg(zrotm)*rcxq(xx,irotm2) * zrotm(irotm2,irotm1)  * chpiin(irotm1)
-        do m1=-l,l
-        do m2=-l,l
-          irotm1= ini1+m1+l
-          irotm2= ini2+m2+l
-          zrotm(irotm2,irotm1) = dlmm(m2,m1,l)*phase
-        enddo
-        enddo
+        zrotm(ini2:iend2,ini1:iend1) = dlmm(-l:l,-l:l,l)*phase
       enddo
       end subroutine rotmto2
 !! --------------------------------
