@@ -1,6 +1,7 @@
       program hsfp0
       use m_ReadEfermi,only: Readefermi,ef_read=>ef
       use m_readqg,only: Readqg0,Readngmx2,ngpmx,ngcmx
+      use m_hamindex,only:   Readhamindex
       use m_readeigen,only: Init_readeigen,Readeval,Lowesteval,Init_readeigen2
       use m_read_bzdata,only: Read_bzdata,
      &  ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv,
@@ -335,6 +336,7 @@ c     write(6,'("    ua      =",f13.6)') ua
       write(6,'("    alat voltot =",2f13.6)') alat, voltot
       call Readhbe()    !Read dimensions of h,hb
       if (nprecb == 4) call rx( 'hsfp0: b,hb in single precision')
+      call Readhamindex()
       call init_readeigen()!nband,mrece) !initialization of readEigen
       call Mptauof_zmel(symgg,ngrp) !Get space-group transformation information. in m_zmel
       call Readngmx2() !return ngpmx and ngcmx in m_readqg

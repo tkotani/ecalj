@@ -5,6 +5,7 @@
       program hx0fp0
       use m_ReadEfermi,only: Readefermi,ef
       use m_readqg,only: Readqg,Readngmx2,ngpmx,ngcmx
+      use m_hamindex,only:   Readhamindex
       use m_readeigen,only: Readeval,Init_readeigen,Init_readeigen2
       use m_read_bzdata,only: Read_bzdata,
      &     ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv,
@@ -338,12 +339,9 @@ c$$$        ecorr_on=901
       else
         call rx( ' hx0fp0: given mode ixc is not appropriate')
       endif
-      
-!! Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
-!! Read Bzdata; See use m_read_bzdata,only:... at the beginning of this routine.
+!      
       call Read_BZDATA(hx0)
       write(6,"(' nqbz nqibz ngrp=',3i5)") nqbz,nqibz,ngrp
-!! check write
       if(MPI__root) then
          do i=1,nqbz
             if(i<10.or.i>nqbz-10) write(6,"('i qbz=',i8,3f8.4)") i,qbz(:,i)
@@ -351,36 +349,24 @@ c$$$        ecorr_on=901
          enddo
          write(6,*)' nqbz nqibz =',nqbz,nqibz
       endif
-!! EFERMI
       call Readefermi()
       write(6,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
       call genallcf_v3(incwfx=0) !use 'ForX0 for core' in GWIN
-c      if(ngrp/=ngrp2       ) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
       if(chipm.and.nspin==1) call rx( 'chipm mode is for nspin=2')
       if(debug) write(6,*)' end of genallc'
-!!!! WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!  We assume nclass = natom.     !!!!!!!!!!!!!!!!!!!!!!!!!
-      if(nclass /= natom) call rx( ' nclass /= natom ')
-
-!! --- Read dimensions 
+      if(nclass /= natom) call rx( ' nclass /= natom ') !! WE ASSUME iclass(iatom)= iatom
       call Readhbe()   
       if(nqbz /=nqbzt ) call rx( ' hx0fp0_sc: nqbz /=nqbzt  in hbe.d')
       if(nlmto/=nlmtot) call rx('hx0fp0: nlmto/=nlmtot in hbe.d')
-!!
       call ReadGWinputKeys()    !Readin GWinput
-      
-!! --- Readin Offset Gamma --------
+!! Readin Offset Gamma --------
       call ReadQ0P()
       write( 6,*) ' num of zero weight q0p=',neps
       write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
-
 !! Readin q+G. nqbze and nqibze are for adding Q0P related points to nqbz and nqibz.
       call Readngmx2() !return ngpmx and ngcmx in m_readqg
       write(6,"(' ngcmx ngpmx= ',2i8)") ngcmx,ngpmx 
       call Setqbze()    ! extented BZ points list
-
-!! This check write was required to pass check for commit 299baa Tue Jun 23 21:16:02 2020 +0900
-!!    gfortran gcc version 7.5.0 (Ubuntu 7.5.0-3ubuntu1~18.04) 
       do i = 1,nq0i+1
         ini = nqbz*(i-1)
         do ix=1,nqbz
@@ -388,7 +374,6 @@ c      if(ngrp/=ngrp2       ) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_
          enddo
          write(6,*)
       enddo
-      
 !! Get space-group transformation information. See header of mptaouof. 
 !! Here we use ngrpx=1 ==> "no symmetry operation in hx0fp0", c.f. hsfp0.sc.m.F case.
 !! ngrpx=1 (no symmetry operation in hx0fp0), whereas we use ngrp in eibzmode=T.
@@ -409,9 +394,10 @@ c     nblochpmx = nbloch + ngcmx !rdpp \in mptauof_zmel \in m_zmel
       allocate(ngveccB(3,ngcmx)) ! work arry
       iqxend = nqibz + nq0i
       write(6,*) ' nqibz nqibze=',nqibz,nqibze
-!! Initialization of readEigen !readin m_hamindex
-      call init_readeigen()!nband,mrece)!EVU EVD are read in init_readeigen
-      call init_readeigen2()!(mrecb,nlmto,mrecg)
+!! Initialization of readEigen 
+      call Readhamindex()
+      call init_readeigen() !EVU EVD are read in init_readeigen
+      call init_readeigen2()
       if(verbose()>50) print *,'eeee exit of init_readeigen2'
 !! Frequency      
       call Getfreq3(lqall,epsmode,realomega,imagomega,ua,mpi__root)

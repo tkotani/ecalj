@@ -128,9 +128,8 @@ c      ngpmx = ngpmx_in
       module m_selectqp
       use m_keyvalue,only: GETKEYVALUE
       implicit none
-      
       integer,protected:: nq
-      real(8),allocatable,protected ::q(:,:)
+      real(8),allocatable,protected ::qvec(:,:)
 
       contains
       subroutine getqpoint(selectqp,nqibz,qibz)
@@ -148,28 +147,24 @@ c      ngpmx = ngpmx_in
         call readx   (ifqpnt,100)
         if (lqall) then         !all q-points case
           nq         = nqibz
-          allocate(q(3,nq))
-          call dcopy   (3*nqibz,qibz,1,q,1)
+          allocate(qvec(3,nq))
+          call dcopy   (3*nqibz,qibz,1,qvec,1)
         else
           call readx   (ifqpnt,100)
           read (ifqpnt,*) nq
-          allocate(q(3,nq))
+          allocate(qvec(3,nq))
           do       k = 1,nq
-            read (ifqpnt,*) i,q(1,k),q(2,k),q(3,k)
+            read (ifqpnt,*) i,qvec(1,k),qvec(2,k),qvec(3,k)
           enddo
         endif
-c        nspinmx = nspin
-c        if (laff) nspinmx =1
         close(ifqpnt)
-c        nspinmx = nspin
       else
-!!     q-points. bzcase()=1
         nq = nqibz
-        allocate(q(3,nq))
-        q(:,1:nq) = qibz(:,1:nq) !call dcopy   (3*nqibz,qibz,1,q,1)
+        allocate(qvec(3,nq))
+        qvec(:,1:nq) = qibz(:,1:nq) 
       endif
       do iq=1,nq
-        write(6,'(" Target iq q=",i6,3f9.4)')iq,q(:,iq)
+        write(6,'(" Target iq q=",i6,3f9.4)')iq,qvec(:,iq)
       enddo
       end subroutine
       end module

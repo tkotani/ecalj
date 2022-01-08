@@ -1,16 +1,19 @@
       module m_hamindex !all protected now 
       use NaNum,only: NaN       !for initialization, but not working well
-      integer,protected:: ngrpaf,ngrp_original
-      integer,protected:: nqi=NaN, nqnum=NaN, ngrp=NaN, lxx=NaN, kxx=NaN,norbmto=NaN,
+      integer,protected,public:: ngrpaf,ngrp_original
+      integer,protected,public:: nqi=NaN, nqnum=NaN, ngrp=NaN, lxx=NaN, kxx=NaN,norbmto=NaN,
      &     nqtt=NaN, ndimham=NaN, napwmx=NaN, lxxa=NaN, ngpmx=NaN, imx=NaN,nbas=NaN
-      real(8),protected:: plat(3,3)=NaN,qlat(3,3)=NaN 
-      integer,allocatable,protected:: iclasstaf(:), offH (:),
+      integer,allocatable,protected,public:: iclasstaf(:), offH (:),
      &     ltab(:),ktab(:),offl(:),ispec(:), iclasst(:),offlrev(:,:,:),ibastab(:),
      &     iqimap(:),iqmap(:),igmap(:),invgx(:),miat(:,:),ibasindex(:),
      &     igv2(:,:,:),napwk(:),igv2rev(:,:,:,:)
-      real(8),allocatable,protected:: symops_af(:,:,:), ag_af(:,:),
+      real(8),allocatable,protected,public:: symops_af(:,:,:), ag_af(:,:),
      &     symops(:,:,:),ag(:,:),tiat(:,:,:),shtvg(:,:), dlmm(:,:,:,:),qq(:,:),
      &     qtt(:,:),qtti(:,:)  
+      real(8),protected,public:: plat(3,3)=NaN,qlat(3,3)=NaN 
+      public:: m_hamindex_init, Readhamindex, getikt
+
+      private
       logical,private:: debug=.false.
       contains
 cssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
@@ -26,7 +29,7 @@ csssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
 !!  Generated index are stored into m_hamindex
 !!  Only include q-point information for GW (QGpsi).
 !!#Inputs
-Cr As you see in subroutine rotwv, the index for Hamiltonian reads as;
+Cr As you see in subroutine rotwvigg, the index for Hamiltonian reads as;
 c      do iorb=1,norbmto             !orbital-blocks are specified by ibas, l, and k.
 c        ibas  = ibastab(iorb)
 c         l    = ltab(iorb)
@@ -47,16 +50,12 @@ c      enddo
       real(8),allocatable:: symtmp(:,:,:)
       logical:: siginit, qpgexist,debug=.false., llmfgw,ljobgw, prpushed
       character(8),allocatable::  spid(:)
-!!      
       ldim  = ham_ldham(1) 
       nbas=ctrl_nbas !nbas_in
       ngrp=lat_nsgrp !note nsgrp given in mksym.F is without inversion.
       plat=lat_plat
       qlat=lat_qlat
       allocate( ltabx(n0nkap0,nbas),ktabx(n0nkap0,nbas),offlx(n0nkap0,nbas)) !,ispec(nbas))
-c      if(master_mpi) write(6,*) ' gen_hamindex: --- Hamiltonian index ---'
-c     if(master_mpi) write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
-      
 !!--- MTO part ---- obtain norbmto, lxx,kxx ----
       norbmto=0
       kxx=-1
@@ -415,7 +414,7 @@ c      if(debug) print *,'nkt=',nkt
       call rx( ' getikt can not find ikt for given q')
       end function
 
-!> write info for wave rotation. 
+!> write info for wave rotation. (internal subroutine)
       subroutine writehamindex()
       integer(4):: ifi
       logical::pmton
@@ -437,7 +436,7 @@ c      if(debug) print *,'nkt=',nkt
       close(ifi)
       end subroutine writehamindex
 
-!> read info for wave rotation. 
+!> Read info of PMT Hamiltoninan
       subroutine readhamindex()
 !! == read info for wave rotation. feb2012takao ==
       integer(4):: ifi,nkt

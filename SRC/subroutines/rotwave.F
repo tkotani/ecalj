@@ -1,28 +1,3 @@
-c$$$      module m_spacegrouprot
-c$$$      integer(4),allocatable :: invgx(:), miat(:,:)
-c$$$      real(8),allocatable    :: tiat(:,:,:),shtvg(:,:)
-c$$$      contains !-------------------------------------------
-c$$$      subroutine Spacegrouprot(symgg,ngrp,plat,natom,pos) !all input
-c$$$      implicit none
-c$$$      real(8)::symgg(*),plat(*),pos(*)
-c$$$      integer::ngrp,natom,ificlass,iopen,ibas,ibasx,iclose
-c$$$      integer,allocatable:: iclasst(:)
-c$$$!!  Get data for space-group transformation. See header of mptaouof.
-c$$$      ificlass   = iopen('CLASS',1,-1,0)
-c$$$      allocate(iclasst(natom))
-c$$$      write(6,*)'  --- Spacegrouprot: Readingin true CLASS info ---'
-c$$$      do ibas = 1,natom
-c$$$        read(ificlass,*) ibasx, iclasst(ibas)
-c$$$        write(6, "(2i10)") ibasx, iclasst(ibas)
-c$$$      enddo
-c$$$      ificlass= iclose('CLASS')
-c$$$      allocate( invgx(ngrp),miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
-c$$$      call mptauof(symgg,ngrp,plat,natom,pos,iclasst
-c$$$     o     ,miat,tiat,invgx,shtvg )
-c$$$      end subroutine
-c$$$      end module 
-c$$$!! ------------
-
       subroutine rotmto(qin,cphiin,nbloch,nband,
      i  norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl,
      i  ginv,sym,shtvg,dlmm,lxxa,miat,tiat,igxt,nbas,
@@ -78,7 +53,7 @@ c$$$!! ------------
 !! ------------------------------------------------------
       subroutine rotmto2(qin,nbloch,nband,
      i  norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl,
-     i  ginv,sym,shtvg,dlmm,lxxa,miat,tiat,igxt,nbas,
+     i  sym,shtvg,dlmm,lxxa,miat,tiat,igxt,nbas,
      o  zrotm)
 !!== Rotation of a function of ProductBasis or MT part of wave function.
 !! (then MTO itself is rotated. a little diffent from here).

@@ -26,6 +26,8 @@ c      use m_MLWF
 c      use m_wfrho_abc 
       use m_keyvalue,only: getkeyvalue
       use m_readqg,only: readqg,readngmx
+      use m_hamindex,only:   Readhamindex
+      
       use m_readeigen,only: init_readeigen,init_readeigen2,readeval,lowesteval,readcphif,readgeigf,readcphifq
       use m_read_bzdata,only: read_bzdata, nqbz,nqibz,nqbzw,nteti,ntetf
      &     ,n1,n2,n3,qbas,ginv,qbz,wbz,qibz,wibz,qbzw,idtetf,ib1bz,idteti !qbasmc,
@@ -103,6 +105,7 @@ c      use m_wfrho_abc
       incwfin= -1  !use 7th colmn for core at the end section of GWIN
       call genallcf_v3(incwfin) !in module m_genallcf_v3
       call Readhbe()
+      call Readhamindex()
       call init_readeigen()!nband,mrece) !initialization of readEigen
       call init_readeigen2()!mrecb,ldim2,mrecg) !initialize m_readeigen
 

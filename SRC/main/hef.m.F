@@ -2,6 +2,7 @@
 c-------------------------------------------------------------
 c hef is from hsfp0 but it is only to calcuate ef and Ex test.
 c so this routine contains unused things so much.
+      use m_hamindex,only:   Readhamindex
       use m_readeigen,only:init_readeigen,readeval
       use m_read_bzdata,ngrp2=>ngrp
       use m_genallcf_v3,only: genallcf_v3,
@@ -122,121 +123,24 @@ c     &    ,nstar(:),irk(:,:),index_qbz(:,:,:)
 c-----------------------------------------------------------------
       call read_BZDATA()
       write(6,*)' nqbz qbz =',nqbz
-c      write(6,*)  qbz
       write(6,*)' nqibz ngrp=',nqibz,ngrp2
-c      write(6,*)' irk=',irk
-c      write(6,*)' #### idtetf: ####'
-c      write(6,*) idtetf
-
-c set up work array
-c      call wkinit (iwksize)
       call pshprt(60)
 c-------------------------------
 c generate all quantities needed
 c-------------------------------
-c      nwin   = -999   ! dummy
       incwfin=  0     ! dummy
-c      efin=  -999d0   ! dummy
-C--- readin GWIN and LMTO, then allocate and set datas.
       call genallcf_v3(incwfin) !in module m_genallcf_v3
       if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
-c------------------------------
-c      integer(4)::
-c     o  nclass,natom,nspin,nl,nn,nnv,nnc,
-c     o  ngrp,
-c     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc,
-c     o  nctot,
-c     o  niw,nw
-c      real(8) :: alat,ef, diw,dw,delta,deltaw,esmr
-c      character(120):: symgrp
-c      character(6),pointer :: clabl(:)
-c      integer(4),pointer::
-c     &   iclass(:)
-c     &  ,nindxv(:,:),nindxc(:,:)
-c     &  ,ncwf(:,:,:) ,
-c     o    invg(:),
-c     o    il(:,:), in(:,:), im(:,:),   ilnm(:),  nlnm(:),
-c     o    ilv(:),inv(:),imv(:),  ilnmv(:), nlnmv(:),
-c     o    ilc(:),inc(:),imc(:),  ilnmc(:), nlnmc(:),
-c     o    nindx(:,:),konf(:,:),icore(:,:),ncore(:),
-c     &    occv(:,:,:),unoccv(:,:,:)
-c     &   ,occc(:,:,:),unoccc(:,:,:),
-c     o    nocc(:,:,:),nunocc(:,:,:)
-c      real(8), pointer::
-c     o  plat(:,:),pos(:,:),z(:), symgg(:,:,:), !w(igrp)
-c     o  ecore(:,:), freq(:)
-c--------------------------------
-c
-c$$$      call genallcf_v2x(
-c$$$c> structure
-c$$$     o                   plat,alat,natom,nclass,ipos,
-c$$$c> symmetry
-c$$$     o                   symgrp,gen,ngnmax,ngrp,igrp,
-c$$$c> BZ
-c$$$c     o                   n1,n2,n3,qbas,ginv,iqibz,iwibz,nqibz,
-c$$$c     o                   iqbz,iwbz,nqbz,   iindxk,
-c$$$c     o                   iinvg,  instar,iirk,   ef,
-c$$$     o                   iinvg,ef,
-c$$$c>> file units
-c$$$c     o                   ifphiv,ifphic,ifec,
-c$$$c>> l,n and dimensions
-c$$$     o                   clabl,nspin,nl,nn,nnv,nnc,
-c$$$     o                   inindx,inindxv,inindxc,iiclass,
-c$$$     d                   nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc,
-c$$$c z value
-c$$$     o                   iz,
-c$$$c>> l,n,m indices for Phi
-c$$$     o                   iil,iin,iim,iilnm,inlnm,
-c$$$     o                   iilv,iinv,iimv,iilnmv,inlnmv,
-c$$$     o                   iilc,iinc,iimc,iilnmc,inlnmc,
-c$$$c>> core
-c$$$     o                   incwf,iecore,ikonf,iicore,incore,nctot,
-c$$$c> frequency
-c$$$     o                   imagw,niw,diw,nw,dw,delta,deltaw,esmr,ifreq )
-c$$$c
-
-c      allocate(ecore(nctot,nspin)) !core energies
-c      do is = 1,nspin
-c        if (nctot > 0) call catch1 (w(iecore),is,nctot,2,ecore(:,is)) !core energies
-c      enddo
-
 c-------------------------------------------------------------------
-c      if (nclass > mxclass) stop ' hsfp0: increase mxclass'
-c!!!! WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
-Cstop2rx 2013.08.09 kino      if (nclass /= natom ) stop ' hsfp0: nclass /= natom ' ! We assume nclass = natom.
       if (nclass /= natom ) call rx( ' hsfp0: nclass /= natom ')
       write(6,*)' hsfp0: end of genallcf2'
-c
       call pshprt(30)
       pi   = 4d0*datan(1d0)
       tpia = 2d0*pi/alat
-
-c      shtw = 0d0
-c      if(esmr<1d-5) shtw=0.01d0 ! Ferdi's shift to avoid resonance effect(maybe)
-c
-c      call dinv33(plat,1,xxx,vol)
-c      voltot = dabs(vol)*(alat**3)
       voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
-
-c>> read dimensions of wc,b,hb
-c      ifhbed     = iopen('hbe.d',1,0,0)
-c      ifhbed=ifile_handle()
-c      open(ifhbed,file='hbe.d')
-c      read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband
-c      close(ifhbed)
-cCstop2rx 2013.08.09 kino      if (nprecb == 4) stop 'hsfp0: b,hb in single precision'
-c      if (nprecb == 4) call rx( 'hsfp0: b,hb in single precision')
       call Readhbe()
-
-
+      call Readhamindex()
       call init_readeigen()!nband,mrece) !initialization of readEigen
-
-c------------
-c open files
-c------------
-c eigen functions
-c      ifev(1)   = iopen('EVU', 0,0,mrece)
-c      if (nspin == 2) ifev(2) = iopen('EVD', 0,0,mrece)
 
 c --- determine Fermi energy ef for given valn (legas case) or corresponding charge given by z and konf.
 ! When esmr is negative, esmr is geven automatically by efsimplef.

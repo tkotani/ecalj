@@ -15,6 +15,7 @@ c Takashi Miyake, Mar 2008, parallelized
 c Takashi Miyake, Jun 2004
 c-------------------------------------------------
       use m_readqg,only: Readngmx,ngcmx,Readqg0,Readqg
+      use m_hamindex,only:   Readhamindex
       use m_readeigen,only:init_readeigen,init_readeigen2,readcphif,readgeigf
       use m_read_bzdata,ngrp2=>ngrp
       use m_genallcf_v3,ncore2=>ncore,nrxx=>nrx
@@ -288,7 +289,8 @@ c--- cg coefficient.  y = cg y y ; y is the real spherical harmonics
       cg = 0d0 !for sanity check
       call rotcg(nl-1,symope,ngrpx,cg)
 
-c --- initiallization to get eigenfunctions
+!! initiallization to get eigenfunctions
+      call Readhamindex()
       call init_readeigen()!nband,mrece) !initialization of readEigen
       call init_readeigen2()!mrecb,nlmto,mrecg)
       call readngmx('QGpsi',ngpmx)

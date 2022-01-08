@@ -10,6 +10,7 @@ c      use m_readeps,only: read_eps, epsinv, w_mu, llmat2=>llmat,deallocate_eps
 
       use m_ReadEfermi,only: readefermi,ef
       use m_readqg,only: readngmx,readqg
+      use m_hamindex,only:   Readhamindex
       use m_readeigen,only: init_readeigen,init_readeigen2,readeval
       use m_read_bzdata,only: read_bzdata, !<--- 'call read_bzdata' sets up following data.
      &   ngrp2=>ngrp,nqbz,nqibz,n1,n2,n3,qbas,ginv,
@@ -228,12 +229,10 @@ c--- EFERMI
       enddo
       iqxend = nqibz + nq0i + nq0iadd
       write(6,*) ' nqibz nqibze=',nqibz,nqibze
-
 !TIME1_13001 "mptauof"
 !TIME0_14001 init_readeigen
-!!... initialization of readEigen !readin m_hamindex
-      call init_readeigen()!ginv,nspin,nband,mrece)!EVU EVD are read in init_readeigen
-c      call init_readeigen2(mrecb,nlmto,mrecg)
+      call Readhamindex()
+      call init_readeigen()
 
 !! We get frhis,freq_r,freq_i, nwhis,nw,npm  by getfreq
       realomega = .true.

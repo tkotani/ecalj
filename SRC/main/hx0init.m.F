@@ -17,6 +17,7 @@
 !      
       use m_ReadEfermi,only: Readefermi,ef
       use m_readqg,only: Readngmx2,ngpmx,ngcmx
+      use m_hamindex,only:   Readhamindex
       use m_readeigen,only: Init_readeigen,Init_readeigen2,Readeval
       use m_read_bzdata,only: Read_bzdata, !<--- 'call read_bzdata' sets up following data.
      &   ngrp2=>ngrp,nqbz,nqibz,n1,n2,n3,qbas,ginv,
@@ -122,9 +123,10 @@ c     & laf,ibasf !,ldima,pos,natom
       call Mptauof_zmel(symope,ngrpx) 
 !! Rdpp gives ppbrd: radial integrals and cgr = rotated cg coeffecients.
 !!       --> call Rdpp(ngrpx,symope) is moved to Mptauof_zmel \in m_zmel
-      call Setitq()         ! Set itq in m_zmel
+      call Setitq()             ! Set itq in m_zmel
+      call Readhamindex()
       call Init_readeigen() ! Initialization of readEigen !readin m_hamindex
-      call Init_readeigen2() 
+c      call Init_readeigen2() 
 !! Getfreq gives frhis,freq_r,freq_i, nwhis,nw,npm 
       realomega = .true.
       imagomega = .true.

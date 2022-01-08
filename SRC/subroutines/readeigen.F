@@ -6,7 +6,7 @@
 !!----------------
       module m_readeigen
       use m_iqindx_qtt,only: Iqindx2_, Init_iqindx_qtt
-      use m_hamindex,only:   Readhamindex, ngpmx, nqtt, nqi, nqnum, qtt,iqimap,
+      use m_hamindex,only:   ngpmx, nqtt, nqi, nqnum, qtt,iqimap,
      &     iqmap,igmap,shtvg,qlat,symops,plat,invgx,
      &     miat,tiat,dlmm,shtvg,symops,lxxa,nbas 
       use m_read_bzdata,only: ginv
@@ -449,7 +449,7 @@ c      mrece = mrece_in
 c      write(6,*) 'init_readeigen:1'
 
 !!--- store requied index
-      call readhamindex()
+c      call readhamindex()
 c      write(*,*)ngrp,nbas,kxx,lxx
       write(*,*)'nqi=',nqi!,nqnum
 c      write(*,*)'imx=',imx,ngpmx

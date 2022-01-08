@@ -4,6 +4,7 @@
 !! See note in hmatK_MPI.F
 !!------------------------------------------------------------
       use m_readqg,only: Readngmx2,ngcmx,ngpmx,Readqg0,Readqg
+      use m_hamindex,only:   Readhamindex
       use m_readeigen,only: onoff_write_pkm4crpa,init_readeigen
      & ,init_readeigen2, init_readeigen_mlw_noeval, init_readeigen_phi_noeval,  nwf
       use m_read_bzdata,ngrp2=>ngrp
@@ -314,7 +315,8 @@ c      ifhbed     = iopen('hbe.d',1,0,0)
 c      read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband,mrecg
 c      if (nprecb == 4) stop 'hsfp0: b,hb in single precision'
       call Readhbe()
-      call init_readeigen()!nband,mrece) !initialization of readEigen
+      call Readhamindex()
+      call init_readeigen()     !nband,mrece) !initialization of readEigen
 
 c --- get space group information ---------------------------------
 c true class information in order to determine the space group -----------

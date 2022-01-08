@@ -41,6 +41,7 @@ c Apr 2002 takao kotani. multiple argumentation wave per l.
 c This hsfp0 is build from hsec10.f by F.Aryasetiawan.
 c------------------------------------------------------------
       use m_readqg,only: Readngmx2,ngcmx,ngpmx,Readqg0,Readqg
+      use m_hamindex,only:   Readhamindex
       
       use m_readeigen,only: onoff_write_pkm4crpa,init_readeigen,init_readeigen2,
      &     init_readeigen_mlw_noeval,init_readeigen_phi_noeval,  nwf
@@ -443,6 +444,7 @@ c      read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband,mrecg
 c      if (nprecb == 4)
 c     & call RSMPI_Stop( 'hsfp0: b,hb in single precision')
       call Readhbe()
+      call Readhamindex()
       call init_readeigen()!nband,mrece) !initialization of readEigen
 
 c --- get space group information ---------------------------------

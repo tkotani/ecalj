@@ -8,6 +8,7 @@ c Calculates the RPA correlation part in the total energy
 c from gwsrc/hsfp0.f, July 05, 2001, Takashi Miyake
 c------------------------------------------------------------
 c      implicit real*8(a-h,o-z)
+      use m_hamindex,only:   Readhamindex
       use m_readeigen,only: init_readeigen,init_readeigen2,readeval,lowesteval
       use m_readqg,only: Readngmx,Readqg
       use m_read_bzdata,ngrp2=>ngrp
@@ -283,7 +284,8 @@ c      read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband
 cCstop2rx 2013.08.09 kino      if (nprecb == 4) stop 'hecor: b,hb in single precision'
 c      if (nprecb == 4) call rx( 'hecor: b,hb in single precision')
       call Readhbe()
-      call init_readeigen()!nband,mrece) !initialization of readEigen
+      call Readhamindex()
+      call init_readeigen()     !nband,mrece) !initialization of readEigen
 
 c --- get space group information ---------------------------------
 c true class information in order to determine the space group -----------

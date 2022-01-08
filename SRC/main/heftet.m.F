@@ -11,6 +11,7 @@ c-------------------------------------------------------------
      & alat, delta,deltaw,esmr,symgrp,clabl,iclass,!diw,dw,
      & invg, il,in,im,nlnm, 
      & plat, pos,z,ecore, symgg, konf,nlnx
+      use m_hamindex,only:   Readhamindex
       use m_readeigen,only: init_readeigen,readeval
       use m_tetrakbt,only: tetrakbt_init, kbt
       use m_keyvalue,only: getkeyvalue
@@ -125,6 +126,7 @@ c--------------------
       close(ifi)
 !      
       if(imode==1 .or. imode==5) then
+        call Readhamindex()
         call init_readeigen() !initialization of readEigen
         nbandx= nband
         nkp   = nqibz
