@@ -269,10 +269,10 @@
             ekc(nctot+1:nctot+nband) = ekq (1:nband)
             nt0 = count(ekc<ef) !nocc (ekc,ef,nstatetot)! !
             ddw= 10d0
-            efp= ef+ddw*esmr
-            efm= ef-ddw*esmr
-            nt0p = count(ekq<efp) +nctot !nocc(ekq,efp,nstatetot)+ nctot !
-            nt0m = count(ekq<efm) +nctot !nocc(ekq,efm,nstatetot)+ nctot !
+c            efp= ef+ddw*esmr
+c            efm= ef-ddw*esmr
+            nt0p = count(ekq<ef+ddw*esmr) +nctot !nocc(ekq,efp,nstatetot)+ nctot !
+            nt0m = count(ekq<ef-ddw*esmr) +nctot !nocc(ekq,efm,nstatetot)+ nctot !
             if(exchange) then
               nbmax = nt0p-nctot
             else
@@ -287,26 +287,16 @@
 !!  Get zmel(it,ib,itpp) = <phi(q,it) B(qbz_kr,ib) |phi(ittp,q-qbz_kr)>
             call Get_zmel_init(exchange,q,qibz_k,irot,qbz_kr,isp, nbmax,ntqxx,nctot,ncc=0,iprx=debug)
             wtt = wk(kr)
-            if(eibz4sig()) then
-              wtt=wtt*nrkip(kx,irot,ip) 
-            endif   
-!!--------------------------------------------------------
-! --- exchange section ---
-!  S[i,j=1,nbloch] <psi(q,itp) |psi(q-rk,n) B(rk,i)> v(k)(i,j) <B(rk,j) psi(q-rk,n) |psi(q,itpp)>
-!!--------------------------------------------------------
+            if(eibz4sig()) wtt=wtt*nrkip(kx,irot,ip) 
+!! exchange S[i,j=1,nbloch] <psi(q,itp) |psi(q-rk,n) B(rk,i)> v(k)(i,j) <B(rk,j) psi(q-rk,n) |psi(q,itpp)>
             if(exchange) then   !At the bottom of this block, cycle do 1000 irot.
               allocate(vcoud_(ngb),wtff(nctot+nbmax),w3p(nctot+nbmax)) 
               vcoud_= vcoud
               if(kx == iqini) vcoud_(1) = wklm(1)* fpi*sqrt(fpi) /wk(kx)
-              do it=1,nctot+nbmax
-                 wtff(it)= wfacx(-1d99, ef, ekc(it), esmr)
-              enddo   
+              wtff= [(wfacx(-1d99, ef, ekc(it), esmr),it=1,nctot+nbmax)]
               do 8010 itpp= 1,ntqxx
               do 8011 itp = 1,ntqxx !S[j=1,nbloch]  z1p(j,t,n) <B(rk,j) psi(q-rk,n) |psi(q,t')>
-                do it = 1, nctot+nbmax
-                   w3p(it)= sum(dconjg(zmel(:,it,itp)) * vcoud_(:)* zmel(:,it,itpp))
-                   w3pp= sum(dconjg(zmel(:,it,itp)) * zmel(:,it,itpp))
-                enddo
+                w3p = [(sum(dconjg(zmel(:,it,itp)) * vcoud_(:)* zmel(:,it,itpp)),it=1,nctot+nbmax)]
                 w3p(nctot+1:nctot+nbmax) = w3p(nctot+1:nctot+nbmax) * wtff(nctot+1:nctot+nbmax)
                 if(corehole) w3p(1:nctot) = w3p(1:nctot) * wcorehole(1:nctot,isp) 
                 zsec(itp,itpp,ip) = zsec(itp,itpp,ip) - wtt * sum( w3p(:) )
