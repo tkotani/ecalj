@@ -22,7 +22,6 @@ c      complex(8) :: wwz,wintz_npm, img=(0d0,1d0),sum,   wintzsg1
       sig  = .5d0*esmr
       sig2 = 2d0*sig**2
       we2  = we**2
-c      sum  = 0d0
       wgtim=0d0
 !! simple integration scheme.
       do  i = 1,nx
@@ -61,8 +60,8 @@ c        sum  = sum + we*cons*( v(i)-v0*expa(i) ) *wt(i)/(x(i)**2)
      &                 (1d0 - 11d0/2d0/aw2 
      &     ))))))
       endif
-c      wintzsg_npm = -sum/pi  + sumgauss
       end
+      
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine wintz_npm_wgtim(npm,x,wt,a,expa,we,nx, wgtim)
 c takao complex version of wint by ferdi
@@ -132,11 +131,7 @@ c frequency integral
          enddo
       endif
       end
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-      
-      
-!     > gaussian smeared-pole version of wintz.
+!> gaussian smeared-pole version of wintz.
 !! takao developed from wintz by ferdi.
 !! Assume that each eigenvale, and w-e as a result, has the width of esmr( Ry).
       complex(8) function wintzsg_npm(npm,v,v0,x,wt,a,expa,we, 
@@ -158,53 +153,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer(4) ix,verbose
       logical :: test
       complex(8)::sumgauss,sumgauss1,sumgauss2
-c      logical ::  test_symmetric_W
-
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c      print *,' wintzsg: start!'
-c      sig= 1d0 ! sig is in Ry.
-c      ee = 2d0
-c      do ix=1,2
-c        omg= 0.1d0*(ix-1)
-c        write(6,"(' omg smear=',f8.3, 2d23.15)")
-c     &  omg, smxowx(omg,ee,sig), ee/(omg**2+ee**2)
-c! smeared ee/(ww^2 + ee^2)
-c      enddo
-c      stop ' wintzsg: test end----------'
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-c      we=1d0
-c      do  i = 1,50
-c        xx   = 1d-6*2**i
-c        print *, ' i=',i,xx
-c        sig2 =0.01d0
-c        omd2w= sig2 *xx
-c        cons1=(1d0 - exp (- omd2w/sig2))*we/omd2w
-c        cons2 = we*( 1d0/sig2 - omd2w/sig2**2/2d0
-c     &               + omd2w**2/sig2**3/6d0 - omd2w**3/sig2**4/24d0
-c     &               + omd2w**4/sig2**5/120d0
-c     &               - omd2w**5/sig2**6/720d0 )
-c        write(6,"(' cons1=',3d25.16)")xx,cons1
-c        write(6,"(' cons2=',3d25.16)")xx,cons2, cons2-cons1
-c        write(6,*)
-c      enddo
-c      stop 'test end'
-
-
-c- check part by direct integration by wintz.
-c- this procedure is equivalent to whole of this routine. But time-consuming.
-c      wwz =0d0
-c      do ie = 1, nav
-c        wex = we + 0.5d0*esmr*(-0.5d0 + dble(ie-1)/(nav-1))
-c        www=1d0
-c        if(ie==1.or.ie==nav) www=0.5d0
-c        wwz = wwz+ www*wintz(v,v0,x,wt,a,expa,wex,nx)
-cxx       write(1112,"(4d24.16)") wex,wintz(v,v0,x,wt,a,expa,wex,nx)
-c      enddo
-c      wintzsg1=wwz/(nav-1)
-c      wintzsg=wintzsg1
-c      return
-
       if(esmr==0d0) then
         wintzsg_npm = wintz_npm(npm,v,v0,x,wt,a,expa,we,nx)
         return
@@ -235,7 +183,6 @@ c        else
           endif
 c        endif
       enddo
-
 !! --- Gaussian part -------------------------------------
 c      if(version()==-1) then !       print *,' version=',version()
 c        sumgauss=
@@ -258,8 +205,6 @@ c        sumgauss1=sumgauss
      &               (1d0 - 9d0/2d0/aw2*
      &                 (1d0 - 11d0/2d0/aw2 
      &     ))))))
-cc       sumgauss2=sumgauss
-c        endif
       endif
       wintzsg_npm = -sum/pi  + sumgauss
       if(verbose()>90) 
@@ -282,12 +227,7 @@ c---test code
       write(6, "(' wintzsg_npm chk3=',2f8.3, 4d18.10)" )we,sig,sumgauss2
       return
       end
-
-
-
-
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c--------------------------------------------------------------------------
+      
       real(8) function smxowx(ww,ee,sig)
       implicit none
       real(8),parameter:: pi=3.1415926535897932d0
@@ -319,12 +259,8 @@ c--------------------------------------------------------------------------
       real(8):: mu
       sqpi= sqrt(pi)
       mu  = 1d0/sqrt(2d0)
-c      print *, '----------------beta*mu=',beta*mu
       s2int = sqpi/mu - pi*beta*exp(beta**2/2d0)*derfc(beta*mu)
       end
-
-
-c -------------------------------------------------------------------
 c --------------------------------------------------------------------
       complex(8) function wintzav(v,v0,x,wt,a,expa,we, 
      i                                nx,esmr)
@@ -341,27 +277,10 @@ c
       integer(4) :: ie,nav = 2000
       real(8)    :: pi=3.1415926535897932d0, rmax=2d0 !rmax =2 is by ferdi. Is it optimum? See wintz
      &
-c---------------------------------------------------
-c      print *,' wintzav:'
       if(esmr==0d0) then
         wintzav=wintz(v,v0,x,wt,a,expa,we,nx)
         return
       endif
-c-----------------------------------------------------
-c- check part by direct integration by wintz.
-c- this procedure is equivalent to whole of this routine. But time-consuming.
-c      wwz =0d0
-c      do ie = 1, nav
-c        wex = we + 0.5d0*esmr*(-0.5d0 + dble(ie-1)/(nav-1))
-c        www=1d0
-c        if(ie==1.or.ie==nav) www=0.5d0
-c        wwz = wwz+ www*wintz(v,v0,x,wt,a,expa,wex,nx)
-cxx       write(1112,"(4d24.16)") wex,wintz(v,v0,x,wt,a,expa,wex,nx)
-c      enddo
-c      wintzav1=wwz/(nav-1)
-c      wintzav=wintzav1
-c      return
-
 c frequency integral
       we2  = we**2
       weh  = we + 0.25d0*esmr !because we is in a.u and esmr is in Ry.
@@ -369,10 +288,6 @@ c frequency integral
       weh2 = weh**2
       wel2 = wel**2
       sum  = 0d0
-c
-c      sum2 = 0d0
-c      wintzav2 = 0d0
-
 ccase1 --------------------
       if ( max(dabs(weh),dabs(wel)) < rmax/a) then
 ccase2 --------------------
@@ -385,15 +300,7 @@ c   We smear each pole with a pole distribution between wel ans weh,
 c   So  it means \int_wel^weh dwe [ wt(i)/(x(i)**2) * we/(we2 + omd**2)]
           cons  = 0.5d0*log( (weh2+omd2)/(wel2+ omd2)) /(x(i)**2)
           sum   = sum + wt(i)*(v(i) - v0*expa(i))*cons
-ccccccccccccccccccccccccccccccccccccccccccccccccc
-c        sum2  = sum2 + wt(i)*v(i) *cons
-c      write(6,"(d15.6,2x,2d15.6,2x,2d15.6)")
-c     & x(i), v(i)*cons,v0*expa(i)*cons
-c      write(6,"(d15.6,2x,2d16.6,2x,2d16.6)")
-c     & x(i), v(i),v0*expa(i)
-ccccccccccccccccccccccccccccccccccccccccccccccccc
         enddo
-
         if(abs(weh)>abs(wel)) then
           sss = 1d0
           rup = abs(weh)
@@ -404,16 +311,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccc
           rdn = abs(weh) !;   iix=11
         endif
         wintzav  = - sum/pi - 0.5d0*v0* sss* wintsf(a*rdn,a*rup)/a
-c       wintzav2 = - sum2/pi
-ccccccccccccccccccccccccccccccccccccccccccccccccc
-c      xxx=0d0
-c      write(6,"(d15.6,2x,2d16.6,2x,2d16.6)")
-c     & xxx, v0 ,v0
-c      write(6,"(' - sum/pi =',2d13.6)") -sum/pi
-c      write(6,"(' wintzav  =',2d13.6)")   wintzav
-c      write(6,"(' - sum2/pi =',2d13.6)") -sum2/pi
-c      stop ' ==== test end of wintz ========'
-ccccccccccccccccccccccccccccccccccccccccccccccccc
       else
 c simple integration scheme.
         do  i = 1,nx
@@ -425,24 +322,6 @@ c simple integration scheme.
         wintzav = -sum/pi  !;   iix =2
       endif
       wintzav = wintzav/(0.5d0*esmr) !because esmr is in Ry.
-
-cccccccccccccccccccccccccccc
-c      write(1116, "(' wel weh wintzav =',2f8.3,4f14.6)" )wel,weh,wintzav
-ccccccccccccccccccccccccccc
-
-c      wintzav2 = wintzav2/(0.5d0*esmr)
-c      write(1116, "(' wintzav diff =',4d13.6,f10.6)" ) wintzav,wintzav2
-c     &   ,abs(wintzav2-wintzav)/abs(wintzav)
-cccccccc
-c      stop ' ==== test end of wintz ========'
-c      if(wintzav/=0d0 ) then
-c        err = abs(wintzav-wintzav1)
-c        if(err>1d-6) then
-c          write(3302,"(3d24.16, i3,' err= ',2d13.5)")
-c     &    we, wintzav, iix, err
-c        endif
-c     endif
-cccccccccccccccccccccccccccc
       end
 
 c----------------------------------------------------
@@ -455,10 +334,7 @@ c up to x <rmax<15 which is limited by the range of derfc(x).
       real(8) :: polinta, rmax=14.9d0,rdn,rup,sumx,x,x0,xm,derfc
       real(8),save :: eeint(nd),xval(nd)
       logical :: init=.true.
-c--------------
-Cstop2rx 2013.08.09 kino      if(rup>rmax) stop 'wintsf: too large rup'
       if(rup>rmax) call rx( 'wintsf: too large rup')
-Cstop2rx 2013.08.09 kino      if(rup<rdn ) stop 'wintsf: rup<rdn'
       if(rup<rdn ) call rx( 'wintsf: rup<rdn')
       if(init) then
         eeint(1) = 0d0
@@ -472,24 +348,18 @@ Cstop2rx 2013.08.09 kino      if(rup<rdn ) stop 'wintsf: rup<rdn'
      &         + 4/6d0 * exp(xm**2)*derfc(xm)
      &         + 1/6d0 * exp(x **2)*derfc(x )
           eeint(ix) = eeint(ix-1) + rmax/(nd-1) * sumx
-ccccccccccccccccccccccc
-c        write(1113,"(4d24.16)") x,derfc(x),exp(x**2)*derfc(x),eeint(ix)
-ccccccccccccccccccccccc
         enddo
         init=.false.
       endif
       wintsf = polinta(rup,xval,eeint,nd) - polinta(rdn,xval,eeint,nd)
       end
 
-
-c--------------------------------------------------------------------
 c--------------------------------------------------------------------
       complex(8) function wintz_npm(npm,v,v0,x,wt,a,expa,we,
      d                                nx)
 c takao complex version of wint by ferdi
 c 92.02.24
 c wintz = < [w'=-inf,inf] (i/2pi) v(w')/(w+w'-e) >
-
 c the integration is done along the imaginary axis
 c w' ==> iw', w' is now real
 c wintz = - < [w'=0,inf] v(iw') (1/pi) (w-e)/{(w-e)^2 + w'^2} >
@@ -504,10 +374,10 @@ c                   *(1/pi) (w-e)/{(w-e)^2 + w'^2}x^2 >
 c        - (1/2) v(0) sgn(w-e) exp(a^2 (w-e)^2) erfc(a|w-e|)
 c the second term of the integral can be done analytically, which
 c results in the last term
-
+c
 c when we=w-e ==> 0, (1/pi) (w-e)/{(w-e)^2 + w'^2} ==> delta(w')
 c the integral becomes -v(0)/2
-
+c
 c v       = v(iw')
 c v0      = v(0)
 c x       = s.o.
@@ -516,7 +386,6 @@ c a       = a constant determining the range of exp(-a^2 w'^2)
 c expa(x) = exp(-a^2 w'^2)
 c we      = w - e
 c nx      = no. x points
-
       implicit real*8 (a-h,o-z)
       integer:: nx,i,npm
       real(8):: x(nx),wt(nx),expa(nx)
@@ -526,16 +395,8 @@ c nx      = no. x points
 cmod 93.06.23
 c    d     tol/1.d-6/
      d     tol/1.d-8/
-
-c if w = e the integral = -v(0)/2
-cmod 93.06.23
-c     if (dabs(we) .lt. tol) then
-c     wintz       = -0.5d0*v0
-c     return
-c     endif
       if (dabs(we) .lt. tol) then
         print *, ' we=',we
-Cstop2rx 2013.08.09 kino        stop 'wintz: |w-e| < tol'
         call rx( 'wintz: |w-e| < tol')
       endif
 c frequency integral
@@ -566,10 +427,8 @@ c frequency integral
             sum  = sum - cons* v(i+nx)*omd*wt(i)
           endif
         enddo
-
         wintz      = -sum/pi
       endif
-
       wintz_npm= wintz
       return
       end
@@ -607,27 +466,15 @@ c a       = a constant determining the range of exp(-a^2 w'^2)
 c expa(x) = exp(-a^2 w'^2)
 c we      = w - e
 c nx      = no. x points
-
       implicit real*8 (a-h,o-z)
       integer:: nx,i
       real(8):: x(nx),wt(nx),expa(nx)
       complex(8) ::v(nx),v0,sum
       real(8),parameter :: rmax=2d0 !rmax =2 is by ferdi. Is it optimum? See wintz
       real(8),parameter :: tol=1d-8,pi=4d0*atan(1d0)
-c if w = e the integral = -v(0)/2
-cmod 93.06.23
-c     if (dabs(we) .lt. tol) then
-c     wintz       = -0.5d0*v0
-c     return
-c     endif
-      if (dabs(we) .lt. tol) then
-c        print *, ' we=',we
-        call rx( 'wintz: |w-e| < tol')
-      endif
-c frequency integral
+      if (dabs(we) .lt. tol) call rx( 'wintz: |w-e| < tol')
       we2        = we*we
       sum        = 0.d0
-
       if (dabs(we) < rmax/a) then
         do       i = 1,nx
           onemx      = 1.d0 - x(i)
@@ -644,10 +491,8 @@ c frequency integral
           cons       = we/(we2*x(i)*x(i) + onemx*onemx)
           sum        = sum + cons*v(i)*wt(i)
         enddo
-
         wintz      = -sum/pi
       endif
-
       return
       end
 
@@ -674,16 +519,9 @@ c-------------------------------
       real(8):: ratio,freqw, freqx(niw), expa_(niw),ua_  !, ua_min=1d0
       ix=niw
       freqw = (1d0 - freqx(ix))/ freqx(ix)
-
-c      if( log(ratio) > -1d0/freqw/ua_min**2) then
-c         print *,' ratio =',ratio
-c         print 'gen_ua: ratio >1 strange ratio...'
-c         stop  'gen_ua: ratio >1 strange ratio...'
-c        ua_ = ua_min
       if( ratio > 1d0 ) then
         print *, ' ratio =',ratio
         print *, ' gen_ua: ratio >1 strange ratio...'
-Cstop2rx 2013.08.09 kino        stop  ' gen_ua: ratio >1 strange ratio...'
         call rx( ' gen_ua: ratio >1 strange ratio...')
       else
         ua_ = sqrt(-1d0/freqw*log(ratio))
@@ -709,6 +547,7 @@ Cstop2rx 2013.08.09 kino        stop  ' gen_ua: ratio >1 strange ratio...'
       endif
       end
 
+!sssssssssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine gen_expa(niw,freqx,ua_,  expa_)
       implicit none
       integer(4), intent(in)  :: niw
@@ -722,7 +561,7 @@ Cstop2rx 2013.08.09 kino        stop  ' gen_ua: ratio >1 strange ratio...'
       enddo
       end
 
-c-------------------------------------------------------------------
+!sssssssssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine matzwz2(iSigma_en ,zw,zmel, ntq,nstate,ngb, zwz) !sf 23May02
       use m_mpi, only: mpi__rank
       implicit none
@@ -730,31 +569,13 @@ c-------------------------------------------------------------------
       complex(8), intent(in) :: zw(ngb,ngb),zmel(ngb,nstate,ntq)
       integer(4), intent(in) :: nstate,ntq,ngb
       complex(8), intent(out) :: zwz(nstate,ntq,ntq)
-
       integer(4) :: itp,itpp,it
       complex(8) :: zdotc
       complex(8), allocatable :: CC(:,:,:)
       complex(8),allocatable:: z1r(:,:),z2r(:,:), zwzi(:,:)
       integer :: ivc,verbose
-
-c      integer(4) :: nstate,ntq,itp,itpp,it,ngb,iSigma_en
-c      complex(8) :: zw(ngb,ngb),zmel(ngb,nstate,ntq)
-c      complex(8) :: zwz(nstate,ntq,ntq) ,zdotc                   !sf 23May02
-c      complex(8), allocatable :: CC(:,:,:)
       allocate(CC(ngb,nstate,ntq) )
-      !write(*,'("10.1 matzwz begin ",$)')
-      !call cputid(0)
-c      write(6,'(i3,a,10i7)')mpi__rank,'matzwz2 enter',ngb,ngb,ngb,nstate*ntq,ngb,nstate*ntq
       call matm(zw,zmel,cc, ngb, ngb, nstate*ntq) !most time consuming part
-c      write(6,*)mpi__rank,'matzwz2 after matm'
-      !write(*,'("10.2 matzwz after matm ",$)')
-      !call cputid(0)
-
-c!$OMP parallel
-c!$OMP master
-c!$      write(6,'(2i4,1x,a,1x,3i4)')mpi__rank,omp_get_num_threads(),'OPENMP divide: iSigma_en,ntq,nstate=',iSigma_en,ntq,nstate
-c!$OMP end master
-c!$OMP end parallel
       if (iSigma_en==1.or.iSigma_en==5) then                                       !sf 23May02
         zwz=0d0
         do itp = 1,ntq
