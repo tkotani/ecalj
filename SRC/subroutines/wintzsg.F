@@ -807,9 +807,7 @@ c      + [ { (x-x1)(x-x3) } / { (x2-x1)(x2-x3) } ] f2
 c      + [ { (x-x1)(x-x2) } / { (x3-x1)(x3-x2) } ] f3
 c x  = the point at which the function is to be interpolated
 c xi(3) = points where the function is given
-c fi(3) = the function at xi
       real(8):: xi(3),wgt(3)
-      complex(8) :: fi(3)
       xx1        = x-xi(1)
       xx2        = x-xi(2)
       xx3        = x-xi(3)
@@ -818,7 +816,7 @@ c fi(3) = the function at xi
       x23        = xi(2)-xi(3)
       wgt(1)     =   xx2*xx3/(x12*x13)
       wgt(2)     = - xx1*xx3/(x12*x23)
-      wgt(3)     =   xx1*xx2*fi(3)/(x13*x23)
+      wgt(3)     =   xx1*xx2/(x13*x23)
       return
       end
 !> even function version of alagr3z2wgt
