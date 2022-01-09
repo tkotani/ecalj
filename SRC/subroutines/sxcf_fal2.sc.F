@@ -299,11 +299,10 @@
               cycle             ! next irot do 1000 loop
             endif               ! end of if(exchange)
             if(timemix) call timeshow("33333 k-cycle")
-!!----------------------------------------------------------
-!!---  correlation section ---------------------------------
-!!----------------------------------------------------------
+            
+!! correlation section
 !!================================================================
-!! Foloiwng note is very old. keep this just for hits.
+!! Foloiwng note is very old. keep this just for hints.
 !!     The correlated part of the self-energy:
 !!     S[n=all] S[i,j=1,nbloch]
 !!     <psi(q,t) |psi(q-rk,n) B(rk,i)>
@@ -329,8 +328,7 @@
 !! omega integlation along im axis.
 !! zwzi(istate,itqxx1,itqxx2)=\int_ImAxis d\omega' zwz(omega',istate,itqxx1,itqxx2) 1/(omt-omega')
 !! ,where omt=omegat is given in the following 1385-1386 loop.
-!!================================================================
-
+!
 ! Contribution to SEc(qt,w) from integration along the imaginary axis
 !     loop over w' = (1-x)/x, frequencies in Wc(k,w')
 !     {x} are gaussian-integration points between (0,1)
@@ -376,7 +374,7 @@ c            allocate( zwz0(        nstate,ntqxx,ntqxx))
             do itp = 1,ntqxx
             do  it = 1,nstate
                we = .5d0*(omegat(itp)-ekc(it))
-               call wintzsg_npm_wgtim(npm,freqx,wx,ua_,expa_,we,niw,esmrx(it), wgtim(:,itp,it))
+               call wintzsg_npm_wgtim(npm, ua_,expa_, we,esmrx(it), wgtim(:,itp,it))
             enddo
             enddo
             do 1400 itpp= 1,ntqxx
@@ -388,7 +386,7 @@ c            allocate( zwz0(        nstate,ntqxx,ntqxx))
             deallocate(zwz) 
 !! -------------------------------------------------------------------
 !!  Contribution to SEc(qt,w) from the poles of G (integral along real axis)
-!!    Currently, jobsw =1,3,5 are allowed...
+!!    Currently, jobsw = 3 only
 !!    The variable we means \omega_epsilon in Eq.(55) in PRB76,165106 (2007)
 !! -------------------------------------------------------------------
             if(debug)write(6,*)'GOTO contribution to SEc(qt,w) from the poles of G'
@@ -420,12 +418,12 @@ c            allocate( zwz0(        nstate,ntqxx,ntqxx))
                  real(8)::wgt3(3)
                  complex(8)::zadd(ntqxx),zaddx,zw33(ngb,ngb)
                   if(ititpskip(it,itp)) cycle
-                  ixs=  ixss(it,itp)
-                  we =  we_(it,itp) 
+                  ixs= ixss(it,itp)
+                  we = we_(it,itp) 
                   if(npm==1) call alagr3z2wgt(we,freq_r(ixs-1),wgt3(:))
                   if(npm==2) call alagr3zwgt (we,freq_r(ixs-1),wgt3(:))
                   ixs=  ixss(it,itp)
-                  zw33 = wgt3(1)*zw3(:,:,iirx(itp)*(ixs+1-2))  !zw33(ib,ib,it,itp)
+                  zw33 = wgt3(1)*zw3(:,:,iirx(itp)*(ixs+1-2))  
      &                 + wgt3(2)*zw3(:,:,iirx(itp)*(ixs+2-2)) 
      &                 + wgt3(3)*zw3(:,:,iirx(itp)*(ixs+3-2)) 
                   zadd(:) = matmul(matmul(dconjg(zmel(:,it,itp)),zw33),zmel(:,it,:))

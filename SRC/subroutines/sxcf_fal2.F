@@ -305,7 +305,7 @@ c                ! where the last index is 3*itq+iw-1,itq=1,ntq,iw=-1,1
 c     logical    :: tetraex
 cccccczzcccccc
 
-      complex(8) :: wintzav,wintzsg_npm,wintzsg
+      complex(8) :: wintzsg_npm
 
       integer(4) :: ibl,iii,ivsumxxx,ifexsp ,iopen
       integer(4),save::ifzwz=-999

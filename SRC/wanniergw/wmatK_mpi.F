@@ -166,9 +166,6 @@ c
      &  qbasinv(3,3),qdiff(3),add(3),symope(3,3),
      &  qxx(3),q0i(1:3,1:nq0i),shtv(3),alat,ecore(nctot),
      &   ppb(1) !pdb(1),dpb(1),ddb(1)
-      complex(8)::   alagr3z,wintz !geigB  (ngpmx,nband,nqbz),
-
-c
       real(8),allocatable:: !rmel(:,:,:),cmel(:,:,:),
      &                      rmelt(:,:,:),cmelt(:,:,:), 
      &                      rmelt2(:,:,:),cmelt2(:,:,:), 
@@ -182,19 +179,9 @@ c for exchange --------------------
       real(8),allocatable:: 
      &   w1p(:,:,:),w2p(:,:,:)
       complex(8),allocatable :: z1p(:,:,:),vcoul(:,:),vcoult(:,:)
-    
+   
 c- debug write ---------------------
       logical :: debug=.false.
-cccccccccccccc
-c tetra
-c      integer(4) :: ntqx
-c      integer(4) :: ibzx(nqbz)
-c      real(8)    :: wtet  (nband,nqibz,1:ntqx), wtetef(nband,nqibz) 
-c                ! where the last index is 3*itq+iw-1,itq=1,ntq,iw=-1,1
-c     logical    :: tetraex
-cccccczzcccccc
-
-      complex(8) :: wintzav,wintzsg
 
       integer(4) :: ibl,iii,ivsumxxx,ifexsp ,iopen
       integer(4),save::ifzwz=-999
