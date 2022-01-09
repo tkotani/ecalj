@@ -800,12 +800,11 @@ C         call zprm('z2r',z2r,ngb,ngb,ntq)
       complex(8) function alagr3zwgt (x,xi,wgt)
       implicit real*8 (a-h,o-z)
 c three-point interpolation with arbitrary mesh
-c given a function fi at three points xi, the routine interpolates
-c the function at x
 c f(x) = [ { (x-x2)(x-x3) } / { (x1-x2)(x1-x3) } ] f1
 c      + [ { (x-x1)(x-x3) } / { (x2-x1)(x2-x3) } ] f2
 c      + [ { (x-x1)(x-x2) } / { (x3-x1)(x3-x2) } ] f3
-c x  = the point at which the function is to be interpolated
+c      = wg1(1)* f1+ wgt(2)*f2 +wgt(3)*f3
+c x     = the point at which the function is to be interpolated
 c xi(3) = points where the function is given
       real(8):: xi(3),wgt(3)
       xx1        = x-xi(1)
@@ -815,9 +814,8 @@ c xi(3) = points where the function is given
       x13        = xi(1)-xi(3)
       x23        = xi(2)-xi(3)
       wgt(1)     =   xx2*xx3/(x12*x13)
-      wgt(2)     = - xx1*xx3/(x12*x23)
+      wgt(2)     =   xx1*xx3/(-x12*x23)
       wgt(3)     =   xx1*xx2/(x13*x23)
-      return
       end
 !> even function version of alagr3z2wgt
       subroutine alagr3z2wgt(x,xi, wgt) 
