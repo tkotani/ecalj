@@ -1,5 +1,4 @@
-!> this module is only because name=name argument binding. No data
-      module m_sxcfsc
+      module m_sxcfsc !self-energy calculation 
       use m_readqg,only   : readqg0
       use m_readeigen,only: readeval
       use m_keyvalue,only   : getkeyvalue
@@ -35,12 +34,17 @@
 !!   - S_ij= <i|Re[S](e_i)|j>
 !!   - Note that S_ij itself is not Hermite becasue it includes e_i.
 !!     i and j are band indexes
-!! \param screen dummy 
 !!
 !! \remark
+!! jobsw switch. We now support only mode=3-----------------
+!!  1,3,5scGW mode.
+!!   diag+@EF      jobsw==1 SE_nn'(ef)+delta_nn'(SE_nn(e_n)-SE_nn(ef))
+!!   modeB (Not Available now)  jobsw==2 SE_nn'((e_n+e_n')/2) 
+!!   mode A        jobsw==3 (SE_nn'(e_n)+SE_nn'(e_n'))/2 (Usually usued in QSGW).
+!!   diagonly      jobsw==5 delta_nn' SE_nn(e_n) (not efficient memoryuse; but we don't use this mode so often).
 !!
 !! \verbatim
-!! Jan2013: eftrue is added.
+!!  eftrue is added. !Jan2013
 !!   ef=eftrue(true fermi energy) for valence exchange and correlation mode.
 !!   but ef is not the true fermi energy for core-exchange mode.
 !!
@@ -62,12 +66,6 @@
 !!
 !!     NOTE: matrix element is given by "call get_zmelt". It returns  zmelt or zmeltt.
 !!
-!! jobsw switch
-!!  1,3,5scGW mode.
-!!   diag+@EF      jobsw==1 SE_nn'(ef)+delta_nn'(SE_nn(e_n)-SE_nn(ef))
-!!   xxx modeB (Not Available now)  jobsw==2 SE_nn'((e_n+e_n')/2)  !we need to recover comment out for jobsw==2, and test.
-!!   mode A        jobsw==3 (SE_nn'(e_n)+SE_nn'(e_n'))/2 (Usually usued in QSGW).
-!!   diagonly      jobsw==5 delta_nn' SE_nn(e_n) (not efficient memoryuse; but we don't use this mode so often).
 !!
 !! Output file in hsfp0 should contain hermitean part of SE
 !!    ( hermitean of SE_nn'(e_n) means SE_n'n(e_n')^* )
@@ -143,7 +141,6 @@
 !!
 !!   nqibz   = number of k-points in the irreducible BZ
 !!   nqbz    =                           full BZ
-!!    natom   = number of atoms
 !!    nctot   = total no. of allowed core states
 !!    nbloch  = total number of Bloch basis functions
 !!    nlmto   = total number of MTO+lo basis functions
@@ -171,9 +168,9 @@
       integer :: invrot,nocc,nlmtobnd,nt0,verbose,ififr, istate,  nt_max ,noccx
       real(8) :: ekc(nctot+nband),ekq(nband), det, q(3),ua_
       real(8) :: expa_(niw), qxx(3), symope(3,3),shtv(3) 
-      real(8) :: efp,efm,wtt,wfac,we,esmrx,qbasinv(3,3)
+      real(8) :: wtt,wfac,we,esmrx,qbasinv(3,3)
       real(8) :: qvv(3),eq(nband),omega(ntq),quu(3),freqw,ratio
-      real(8) :: qibz_k(3),qbz_kr(3),ddw,vc,omega0,omg
+      real(8) :: qibz_k(3),qbz_kr(3),vc,omega0,omg
       complex(8) :: zwzs0,zz2,zwz3(3)
       real(8),allocatable :: drealzzzmel(:,:,:), dimagzzzmel(:,:,:),uaa(:,:)
       complex(8),allocatable :: vcoul(:,:) 
@@ -200,7 +197,7 @@
       real(8),allocatable:: wcorehole(:,:),vcoud_(:),wfft(:)
       logical:: corehole,iprx,cmdopt0
       integer:: ifcorehole,ixx
-      real(8),parameter:: pi=4d0*datan(1d0), fpi=4d0*pi, tpi=8d0*datan(1d0)
+      real(8),parameter:: pi=4d0*datan(1d0), fpi=4d0*pi, tpi=8d0*datan(1d0),ddw=10d0
 !!----------------------------------------------------------------
       if (.not.jobsw==3) call rx('sxcf_scz: only for jobsw=3')
       if(verbose()>=90) debug=.true.
@@ -267,12 +264,9 @@
             qk =  q - qbz_kr        
             ekq = readeval(qk, isp) 
             ekc(nctot+1:nctot+nband) = ekq (1:nband)
-            nt0 = count(ekc<ef) !nocc (ekc,ef,nstatetot)! !
-            ddw= 10d0
-c            efp= ef+ddw*esmr
-c            efm= ef-ddw*esmr
-            nt0p = count(ekq<ef+ddw*esmr) +nctot !nocc(ekq,efp,nstatetot)+ nctot !
-            nt0m = count(ekq<ef-ddw*esmr) +nctot !nocc(ekq,efm,nstatetot)+ nctot !
+            nt0 = count(ekc<ef) 
+            nt0p = count(ekq<ef+ddw*esmr) +nctot 
+            nt0m = count(ekq<ef-ddw*esmr) +nctot 
             if(exchange) then
               nbmax = nt0p-nctot
             else
@@ -280,11 +274,10 @@ c            efm= ef-ddw*esmr
               nbmxe = count(ekc<ebmx)-nctot !nocc (ekc,ebmx,nstatetot)-nctot!
               nbmax  = min(nband,nbmxe) !nbmx_sig,
             endif
-!! ntqxx is number of bands for <i|sigma|j>.
-            ntqxx = nbandmx(ip) !mar2015
+            ntqxx = nbandmx(ip) ! ntqxx is number of bands for <i|sigma|j>.
             if(debug) write(6,*)' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
             nstate = nctot + nbmax ! = nstate for the case of correlation
-!!  Get zmel(it,ib,itpp) = <phi(q,it) B(qbz_kr,ib) |phi(ittp,q-qbz_kr)>
+!! Get zmel(it,ib,itpp) = <phi(q,it) B(qbz_kr,ib) |phi(ittp,q-qbz_kr)>
             call Get_zmel_init(exchange,q,qibz_k,irot,qbz_kr,isp, nbmax,ntqxx,nctot,ncc=0,iprx=debug)
             wtt = wk(kr)
             if(eibz4sig()) wtt=wtt*nrkip(kx,irot,ip) 
@@ -376,12 +369,10 @@ c            allocate( zwz0(        nstate,ntqxx,ntqxx))
             block
             real(8):: esmrx(nstate),omegat(ntqxx)
             real(8):: wgtim(0:npm*niw,ntqxx,nstate)
-!     , wintzsg_npm_wgtim(0:npm*niw),wintzsg_npm_wgtimxxx(0:npm*niw)
             esmrx(1:nctot)=0d0
             esmrx(nctot+1:nstate)=esmr
             omegat(1:ntqxx) = omega(1:ntqxx)
-c            if (jobsw==1) omegat = ef
-!     ! Gaussian smearing. Integration weight wgtim along im axis for zwz(0:niw*npm) 
+!! Gaussian smearing. Integration weight wgtim along im axis for zwz(0:niw*npm) 
             do itp = 1,ntqxx
             do  it = 1,nstate
                we = .5d0*(omegat(itp)-ekc(it))
@@ -390,7 +381,6 @@ c            if (jobsw==1) omegat = ef
             enddo
             do 1400 itpp= 1,ntqxx
             do 1410 itp = 1,ntqxx
-c               if((jobsw==5).and.(itpp/=itp)) cycle
                zsec(itp,itpp,ip) = zsec(itp,itpp,ip) + wtt*sum(wgtim(:,itp,:)*zwz(:,:,itp,itpp))
  1410       continue  
  1400       continue
@@ -413,8 +403,7 @@ c               if((jobsw==5).and.(itpp/=itp)) cycle
      o       we_,wfac_,ixss,ititpskip,iirx)
 !! We need zw3, the Hermitian part, because we need only hermitean part of Sigma_nn'
 !! This can be large array; nwx-nwxi+1 \sim 400 or so...
-            allocate( zw3(ngb,ngb,nwxi:nwx)) 
-            allocate( zw(nblochpmx,nblochpmx))
+            allocate( zw3(ngb,ngb,nwxi:nwx), zw(nblochpmx,nblochpmx))
             do ix = nwxi,nwx
               nrec = ix-nw_i+1  !freq_r(ix is in nw_i:nx)
               read(ifrcw,rec=nrec) zw ! direct access Wc(omega) = W(omega) - v
@@ -535,31 +524,28 @@ c               if((jobsw==5).and.(itpp/=itp)) cycle
         enddo     
       enddo
       end subroutine weightset4intreal
-      
-      
-      end module m_sxcfsc
-      
 !SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
       subroutine get_nwx(omega,ntq,ntqxx,nt0p,nt0m,nstate,freq_r,
      i nw_i,nw,esmr,ef,ekc,wfaccut,nctot,nband,debug,
      o nwxi,nwx,nt_max)
-!> Determine indexes of a range for calculation.
-!! It is better to clean this up...
       implicit none
-      integer,intent(in) :: nctot,nw_i,nw,nstate,nt0p,nt0m,ntq,
-     & nband,ntqxx
-      real(8),intent(in):: omega(ntq),esmr,ef,ekc(nctot+nband),wfaccut,
-     & freq_r(nw_i:nw)
-      integer,intent(out) :: nt_max,nwxi,nwx
-
-      integer:: itp,it,itini,itend,iwp,ixs,ixsmin,ixsmx,verbose
-      real(8):: omg,wfac,wfacx2,we,weavx2,esmrx,wexx
+      intent(in)::       omega,ntq,ntqxx,nt0p,nt0m,nstate,freq_r,
+     i     nw_i,nw,esmr,ef,ekc,wfaccut,nctot,nband,debug
+      intent(out)::
+     o nwxi,nwx,nt_max
+!> Determine indexes of a range for calculation. !! It is better to clean this up...
+      integer:: nctot,nw_i,nw,nstate,nt0p,nt0m,ntq, nband,ntqxx
+      real(8):: esmr,ef,ekc(nctot+nband),wfaccut,freq_r(nw_i:nw)
+      real(8):: wfac,wfacx2,we,weavx2,esmrx,wexx
+      real(8),pointer::omg
+      real(8),target:: omega(ntq)
+      integer:: nt_max,nwxi,nwx,itp,it,itini,itend,iwp,ixs,ixsmin,ixsmx,verbose
       logical::debug
 !!     maximum ixs reqired.
       ixsmx =0
       ixsmin=0
       do 301 itp = 1,ntqxx
-        omg  = omega(itp) 
+        omg => omega(itp) 
         if (omg < ef) then
           itini= 1
           itend= nt0p
@@ -573,10 +559,6 @@ c               if((jobsw==5).and.(itpp/=itp)) cycle
           wfac = wfacx2(omg,ef, ekc(it),esmrx)
           if(wfac<wfaccut) cycle !Gaussian case
           we = .5d0*(weavx2(omg,ef,ekc(it),esmr)-omg)
-cc Gaussian=F case  keep here just as a memo
-c           if(wfac==0d0) cycle ! next it
-c           if(omg>=ef) we = max( .5d0*(omg-ekc(it)), 0d0) ! positive
-c           if(omg< ef) we = min( .5d0*(omg-ekc(it)), 0d0) ! negative
           if(it<=nctot) then
             if(wfac>wfaccut) call rx( "sxcf: it<=nctot.and.wfac/=0")
           endif
@@ -584,49 +566,38 @@ c           if(omg< ef) we = min( .5d0*(omg-ekc(it)), 0d0) ! negative
             ixs=iwp
             if(freq_r(iwp)>abs(we)) exit
           enddo
-c     This change is because G(omega-omg') W(omg') !may2006
-c     if(ixs>ixsmx  .and. omg<=ef ) ixsmx  = ixs
-c     if(ixs>ixsmin .and. omg> ef ) ixsmin = ixs
           if(ixs>ixsmx  .and. omg>=ef ) ixsmx  = ixs
           if(ixs>ixsmin .and. omg< ef ) ixsmin = ixs
           wexx  = we
           if(ixs+1 > nw) then
-            write (*,*) ' nw_i ixsmin',nw_i, ixsmin
-            write (*,*) ' wexx ',wexx
-            write (*,*) ' omg ekc(it) ef ', omg,ekc(it),ef
+            write (*,*)'nw_i ixsmin wexx',nw_i,ixsmin,wexx,' omg ekc(it) ef ', omg,ekc(it),ef
             call rx( ' sxcf 222: |w-e| out of range')
           endif
  311    continue
- 301  continue                  !end of SEc w and qt -loop
-!!
+ 301  continue               
       if(nw_i==0) then          !time reversal
         nwxi = 0
         nwx  = max(ixsmx+1,ixsmin+1)
-      else                      !no time revarsal
+      else                      !no time revarsal working?
         nwxi = -ixsmin-1
         nwx  =  ixsmx+1
       endif
-      if (nwx > nw   ) then
-        call rx( ' sxcf_fal3_sc nwx check : |w-e| > max(w)')
-      endif
-      if (nwxi < nw_i) then
-        call rx( ' sxcf_fal3_sc nwxi check: |w-e| > max(w)')
-      endif
-      if(debug) write(6,*)'nw, nwx=',nw,nwx
+      if(nwx > nw .or. nwxi < nw_i ) call rx( ' get_nwx : |w-e| > max(w)')
       if(verbose()>50)call timeshow("10before alagr3z iw,itp,it ")
-!!  Find nt_max 
       nt_max=nt0p               !initial nt_max
       do 401 itp = 1,ntqxx
-        omg     = omega(itp)
+        omg => omega(itp)
         if (omg > ef) then
           do  it = nt0m+1,nstate ! nt0m corresponds to efm
             wfac = wfacx2 (ef,omg, ekc(it),esmr)
-c                        if( (GaussSmear().and.wfac>wfaccut)
-c     &                       .or.(.not.GaussSmear().and.wfac/=0d0)) then
             if(wfac>wfaccut) then
               if (it > nt_max) nt_max=it ! nt_max is  unocc. state
             endif               ! that ekc(it>nt_max)-omega > 0
           enddo                 ! so it > nt_max does not contribute to omega pole integral
         endif
- 401  continue                  !end of  w and qt -loop
+ 401  continue               
       end subroutine get_nwx
+
+      end module m_sxcfsc
+
+      

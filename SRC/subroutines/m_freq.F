@@ -139,7 +139,6 @@ c      nw=nw2-1      ! nw+1 is how many points of real omega we use
                      ! and one more point omg=dw*(nw-1) needed for extrapolation.
                      ! Now, frhis_m(nw-1)> all relevent frequensies for Wc(omg)
                      ! and one more point omg=frhis_m(nw) needed for extropolation
-                     ! used in subroutine alagr3z in  sxcf.f.
 !! Determine freq_r
       if(epsmode) then
         nw  = nwhis-1

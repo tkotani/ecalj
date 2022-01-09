@@ -1,66 +1,3 @@
-!> even function version of alagr3z2wgt
-!! return the interpolated value on x for fi(xi).
-!! We assume even function.
-!! Imag part is corrected to be >0
-      subroutine alagr3z2wgt(x,xi, wgt) !mar2015  i,j) -->ieqj)
-      implicit none
-c      integer(4), intent(in) :: i,j
-      logical:: ieqj
-      real(8),    intent(in) ::  x, xi(3)
-c      complex(8), intent(in) :: fi(3)
-      integer(4) :: n
-      real(8) :: amatinv(3,3),amat(3,3),ratio,detxx,wgt(3)
-c--- Assure that dimag(fi) is positive.
-      if(x<0d0) call rx( ' alagr3z2: x<0d0')
-      amat(1:3,1) = 1d0
-      amat(1:3,2) = xi(1:3)**2
-      amat(1:3,3) = xi(1:3)**4
-      call minv33(amat,amatinv)
-c      alagr3z2 = dcmplx (
-c     &          sum (matmul(amatinv,dreal(fi)) * (/1d0,x**2,x**4/) ),
-c     &          sum (matmul(amatinv,dimag(fi)) * (/1d0,x**2,x**4/) ) )
-      wgt=matmul([1d0,x**2,x**4], amatinv)
-c--- imag part of alagr3z is positive because interpolation could give
-c    negative values even if all fi(i) <0.
-c
-c      if(ieqj) then !mar2015 if(i==j) then
-c        if(dimag(alagr3z2)>0d0 ) then
-c          alagr3z2 = dcmplx( dreal(alagr3z2),0d0)
-c        endif
-c      endif !(i==j)
-      end
-c -----------------------------------
-      complex(8) function alagr3zwgt (x,xi,wgt)
-      implicit real*8 (a-h,o-z)
-c complex version of fi
-c 92.03.02
-c three-point interpolation with arbitrary mesh
-c given a function fi at three points xi, the routine interpolates
-c the function at x
-c f(x) = [ { (x-x2)(x-x3) } / { (x1-x2)(x1-x3) } ] f1
-c      + [ { (x-x1)(x-x3) } / { (x2-x1)(x2-x3) } ] f2
-c      + [ { (x-x1)(x-x2) } / { (x3-x1)(x3-x2) } ] f3
-c
-c x  = the point at which the function is to be interpolated
-c xi(3) = points where the function is given
-c fi(3) = the function at xi
-      real(8):: xi(3),wgt(3)
-      complex(8) :: fi(3)
-      xx1        = x-xi(1)
-      xx2        = x-xi(2)
-      xx3        = x-xi(3)
-      x12        = xi(1)-xi(2)
-      x13        = xi(1)-xi(3)
-      x23        = xi(2)-xi(3)
-      wgt(1)     = xx2*xx3/(x12*x13)
-      wgt(2)     = - xx1*xx3/(x12*x23)
-      wgt(3)     = xx1*xx2*fi(3)/(x13*x23)
-c      alagr3z    = xx2*xx3*fi(1)/(x12*x13)
-c     .           - xx1*xx3*fi(2)/(x12*x23)
-c     .           + xx1*xx2*fi(3)/(x13*x23)
-      return
-      end
-
       subroutine wintzsg_npm_wgtim(npm,x,wt,a,expa,we,nx,esmr, wgtim)
       implicit none
       integer(4),intent(in)::npm,nx
@@ -113,7 +50,6 @@ c        sum  = sum + we*cons*( v(i)-v0*expa(i) ) *wt(i)/(x(i)**2)
         if(aw<6d0) then
           eee = we**2/sig2
           wgtim(0)=wgtim(0)+ dsign(1d0,we)*.5d0*exp(aw2)*( derfcx(sqrt(aw2+eee)) -derfcx(aw) )
-c        sumgauss1=sumgauss
         else !April2004
           wgtim(0)= wgtim(0) -.5d0* (2d0/(a*we)/pi)*
      &    sqrt(pi)/2d0*
@@ -715,49 +651,6 @@ c frequency integral
       return
       end
 
-c--------------------------------------------------------------------
-      complex(8) function alagr3z_even (x,xi,fi)
-      implicit real*8 (a-h,o-z)
-      intent(in)::                           x,xi,fi
-c evne function version of alagr3z
-c return the interpolated value on x for fi(xi).
-c We assume even function.
-c     Imag part is corrected to be >0
-      integer:: i
-      real(8)::  xi(3)
-      complex(8) :: fi(3) ,alagr3z
-      real(8) :: amatinv(3,3),amat(3,3),ratio
-
-c--- Assure that dimag(fi) is positive.
-      if(x<0d0) call rx( ' alagr3z: x<0d0')
-      do i=1,3
-        if(dimag(fi(i))>1d-8) then
-          ratio= abs(dimag(fi(i))/dreal(fi(i)))
-          if( ratio >1d-6) then !jan2004. I added a bit of alloance
-c            print *,' alagr3z: error! dimag(fi(i)) is positive',i,xi,fi
-            call rx( ' alagr3z: error! dimag(fi(i)) is positive')
-          endif
-        endif
-      enddo
-c
-      amat(1:3,1) = 1d0
-      amat(1:3,2) = xi(1:3)**2
-      amat(1:3,3) = xi(1:3)**4
-c      call dinv33(amat,0,amatinv,detxx)
-      call minv33(amat,amatinv)
-      alagr3z = dcmplx (
-     &          sum (matmul(amatinv,dreal(fi)) * (/1d0,x**2,x**4/) ),
-     &          sum (matmul(amatinv,dimag(fi)) * (/1d0,x**2,x**4/) ) )
-
-c--- imag part of alagr3z is positive because interpolation could give
-c    negative values even if all fi(i) <0.
-c
-      if(dimag(alagr3z)>0d0 ) then
-        alagr3z = dcmplx( dreal(alagr3z),0d0)
-      endif
-      alagr3z_even=alagr3z
-      end
-
 c
 c-------------------------------------
       subroutine matzwz(zw,zmel, ntp0,nstate,ngb, zwz)
@@ -895,185 +788,27 @@ C         call zprm('z2r',z2r,ngb,ngb,ntq)
         call rx( "sxcf, matzwz2: iSigma_en /= 0,1,2,3")
       endif
       deallocate(CC)
-c      write(6,*)mpi__rank,'matzwz2 end'
       end subroutine matzwz2
-
-
-!> even function version of alagr3z
-!! return the interpolated value on x for fi(xi).
-!! We assume even function.
-!! Imag part is corrected to be >0
-      complex(8) function alagr3z2(x,xi,fi, ieqj) !mar2015  i,j) -->ieqj)
-      implicit none
-c      integer(4), intent(in) :: i,j
-      logical:: ieqj
-      real(8),    intent(in) ::  x, xi(3)
-      complex(8), intent(in) :: fi(3)
-      integer(4) :: n
-      real(8) :: amatinv(3,3),amat(3,3),ratio,detxx
-c--- Assure that dimag(fi) is positive.
-      if(x<0d0) call rx( ' alagr3z2: x<0d0')
-!! takao think fi(i) is a bug. --- march2015. But no effect to old results, since we supply real fi.
-c$$$      if (i==j) then  !sf 24 May02 only diagonal Im[Sigma_ii] should be negative
-c$$$        do n=1,3
-c$$$          if(dimag(fi(n))>1d-8) then
-c$$$            ratio= abs(dimag(fi(i))/dreal(fi(i))) 
-c$$$            if( ratio >1d-8) then !jan2004. I added a bit of alloance
-c$$$              print *,' alagr3z: error! dimag(fi(i)) is positive',i,xi,fi
-c$$$              call rx( ' alagr3z: error! dimag(fi(i)) is positive')
-c$$$            endif
-c$$$          endif
-c$$$        enddo
-c$$$      endif !(i=j)
-c
-      amat(1:3,1) = 1d0
-      amat(1:3,2) = xi(1:3)**2
-      amat(1:3,3) = xi(1:3)**4
-      call minv33(amat,amatinv)
-      alagr3z2 = dcmplx (
-     &          sum (matmul(amatinv,dreal(fi)) * (/1d0,x**2,x**4/) ),
-     &          sum (matmul(amatinv,dimag(fi)) * (/1d0,x**2,x**4/) ) )
-
-c--- imag part of alagr3z is positive because interpolation could give
-c    negative values even if all fi(i) <0.
-c
-      if(ieqj) then !mar2015 if(i==j) then
-        if(dimag(alagr3z2)>0d0 ) then
-          alagr3z2 = dcmplx( dreal(alagr3z2),0d0)
-        endif
-      endif !(i==j)
-      end
 
       subroutine timeshow(info)
       character*(*) :: info
       write(*,'(a,$)')info
       call cputid(0)
       end
-
-
-
-
-c======================================================================
-      subroutine matzwz_notusedx(zw,zmel, ntp0,nstate,ngb, zwz)
-      implicit none
-      integer(4) :: nstate,ntp0,itp,it,ngb
-      complex(8) :: zw(ngb,ngb),zmel(ngb,nstate,ntp0),zwz(nstate,ntp0)
-c     & ,wx(ngb)
-c --- This routine is really time consuming! ---
-      do itp = 1,ntp0
-        do  it = 1,nstate
-          zwz(it,itp) = sum( 
-     &   dconjg(zmel(:,it,itp))*matmul(zw(1:ngb,1:ngb),zmel(:,it,itp)))
-c           wx = matmul(zw(1:ngb,1:ngb),zmel(1:ngb,it,itp))
-c         zwz(it,itp) = sum( dconjg(zmel(:,it,itp)) * wx )
-        enddo
-      enddo
-      end
-c---------------------------------------------
-      subroutine matzwzs_notused(zw,zmel, ntq,nstate,ngb, zwz) !sf 23May02
-c I have not checked it yet...
-      implicit none
-      integer(4) :: nstate,ntq,itp,itpp,it,ngb,iSigma_en,igb,igb2
-      complex(8) :: zw(ngb,ngb),zwx(ngb,ngb),zmel(ngb,nstate,ntq)
-      complex(8) :: zwz(nstate,ntq,ntq) ,zdotc,zz3(ntq),zz2
-      complex(8), allocatable :: CC(:,:,:),zwzx(:,:,:),zmel1_(:,:,:)
-      allocate(zwzx(nstate,ntq,ntq),zmel1_(ntq,ngb,nstate))
-      do itpp= 1,ntq
-        do it  = 1,nstate
-          zmel1_(itpp,1:ngb,it) = zmel(1:ngb,it,itpp)
-        enddo
-      enddo
-      zwx = zw
-      do igb=1,ngb
-        zwx(igb,igb)=.5d0*zwx(igb,igb)
-      enddo
-      do itp=1,ntq
-        do it =1,nstate
-c        zmel1(:)=dconjg(zmel(:,it,itp))
-          zz3=0d0
-          do igb2=1,ngb
-            zz2 = zdotc(igb2, zmel(1,it,itp),1,zwx(1,igb2),1 )
-            call zaxpy(ntq,zz2,zmel1_(1,igb2,it),1,zz3,1)
-          enddo
-          zwzx(it,itp,:)= zz3(:)
-        enddo
-      enddo
-      do itpp=1,ntq
-        do itp =1,ntq
-          do it  =1,nstate
-            zwz(it,itp,itpp)=zwzx(it,itp,itpp)+dconjg(zwzx(it,itpp,itp))
-          enddo
-        enddo
-      enddo
-      deallocate(zwzx,zmel1_)
-      return
-c-----------------------------------------------
-      Allocate(CC(ngb,nstate,ntq) )
-      call matm(zw,zmel,cc, ngb, ngb, nstate*ntq) !most time consuming part
-      !write(*,'("10.2 matzwz after matm ",$)')
-      !call cputid(0)
-      do itpp= 1,ntq
-        do itp = 1,ntq
-          do  it = 1,nstate
-            zwz(it,itp,itpp)=
-     &    zdotc(ngb,zmel(1,it,itp),1,CC(1,it,itpp),1 )
-          enddo
-        enddo
-      enddo
-      deallocate(CC)
-      end
-c      subroutine matzwz(zw,zmel, ntq,nstate,ngb, zwz)
-c      implicit none
-c      integer(4) :: nstate,ntq,itp,it,ngb
-c      complex(8) :: zw(ngb,ngb),zmel(ngb,nstate,ntq),zwz(nstate,ntq)
-c      complex(8), allocatable :: CC(:,:,:)
-c      allocate(CC(ngb,nstate,ntq) )
-c
-c      call matm(zw,zmel,cc, ngb, ngb, nstate*ntq)
-c
-c      do itp = 1,ntq
-c      do  it = 1,nstate
-c        zwz(it,itp) = sum( dconjg(zmel(1:ngb,it,itp))*CC(1:ngb,it,itp))
-c      enddo
-c      enddo
-c
-c      deallocate(CC)
-c      end
-
-c-------------------------------------
-c   This does not work.
-c      subroutine matzwz(zw,zmel, ntp0,nstate,ngb, zwz)
-c      implicit none
-c      integer(4) :: nstate,ntp0,itp,it,ngb
-c      complex(8) :: zw(ngb,ngb),zmel(ngb,nstate,ntp0),zwz(nstate,ntp0)
-c     & ,wx(ngb)
-c --- This routine is really time consuming! ---
-c        do itp = 1,ntp0
-c        do  it = 1,nstate
-c        call mml(zw(1:ngb,1:ngb),zmel(1:ngb,it,itp), wx(1:ngb))
-c         zwz(it,itp) = sum( dconjg(zmel(:,it,itp))*wx )
-c           wx = matmul(zw(1:ngb,1:ngb),zmel(1:ngb,it,itp))
-c         zwz(it,itp) = sum( dconjg(zmel(:,it,itp)) * wx )
-c        enddo
-c        enddo
-c      end
-
-c -----------------------------------
-      complex(8) function alagr3z (x,xi,fi)
-c complex version of fi
-c 92.03.02
+     
+!sssssssssssssssssssssssssssssssssssssssssssssssssssssss      
+      complex(8) function alagr3zwgt (x,xi,wgt)
+      implicit real*8 (a-h,o-z)
 c three-point interpolation with arbitrary mesh
 c given a function fi at three points xi, the routine interpolates
 c the function at x
 c f(x) = [ { (x-x2)(x-x3) } / { (x1-x2)(x1-x3) } ] f1
 c      + [ { (x-x1)(x-x3) } / { (x2-x1)(x2-x3) } ] f2
 c      + [ { (x-x1)(x-x2) } / { (x3-x1)(x3-x2) } ] f3
-c
 c x  = the point at which the function is to be interpolated
 c xi(3) = points where the function is given
 c fi(3) = the function at xi
-      implicit real*8 (a-h,o-z)
-      real(8):: xi(3)
+      real(8):: xi(3),wgt(3)
       complex(8) :: fi(3)
       xx1        = x-xi(1)
       xx2        = x-xi(2)
@@ -1081,18 +816,27 @@ c fi(3) = the function at xi
       x12        = xi(1)-xi(2)
       x13        = xi(1)-xi(3)
       x23        = xi(2)-xi(3)
-      alagr3z    = xx2*xx3*fi(1)/(x12*x13)
-     .           - xx1*xx3*fi(2)/(x12*x23)
-     .           + xx1*xx2*fi(3)/(x13*x23)
+      wgt(1)     =   xx2*xx3/(x12*x13)
+      wgt(2)     = - xx1*xx3/(x12*x23)
+      wgt(3)     =   xx1*xx2*fi(3)/(x13*x23)
       return
       end
-
-c--------------------------------------------------------------------
-      complex(8) function alagr3zz(x,xi,fi)  !jan 2008 takao. starting from alagr3z2
-c evne function version of alagr3z !
-c return the interpolated value on x for fi(xi).
-c We assume even function.
-c Imag part is corrected to be >0
+!> even function version of alagr3z2wgt
+      subroutine alagr3z2wgt(x,xi, wgt) 
+      implicit none
+      intent(in) ::          x,xi
+      logical:: ieqj
+      real(8) :: amatinv(3,3),amat(3,3),ratio,detxx,wgt(3),x,xi(3)
+      if(x<0d0) call rx( ' alagr3z2: x<0d0')
+      amat(1:3,1) = 1d0
+      amat(1:3,2) = xi(1:3)**2
+      amat(1:3,3) = xi(1:3)**4
+      call minv33(amat,amatinv)
+      wgt=matmul([1d0,x**2,x**4], amatinv)
+      end
+      complex(8) function alagr3zz(x,xi,fi) 
+! even function version of alagr3z ! return the interpolated value on x for fi(xi).
+! Imag part is corrected to be >0
       implicit none
       real(8)::  xi(3), amatinv(3,3),amat(3,3),x,detxx
       complex(8) :: fi(3)
@@ -1103,9 +847,5 @@ c Imag part is corrected to be >0
       alagr3zz = dcmplx (
      &          sum (matmul(amatinv,dreal(fi)) * (/1d0,x**2,x**4/) ),
      &          sum (matmul(amatinv,dimag(fi)) * (/1d0,x**2,x**4/) ) )
-c      write(6,"(' coeff amatinv = ',9d11.3)") matmul(amatinv,dimag(fi))
-c      write(6,"(' coeff    x    = ',9d11.3)") x**2,x**4
-c--- imag part of alagr3z is positive because interpolation could give
-c    negative values even if all fi(i) <0.
       if(dimag(alagr3zz)>0d0) alagr3zz = dcmplx( dreal(alagr3zz),0d0)
       end
