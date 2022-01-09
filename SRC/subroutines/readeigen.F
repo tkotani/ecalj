@@ -257,9 +257,34 @@ c$$$      end subroutine
      & iopen,iclose,isx,ikpisp,verbose,ifoc, !mrecg_in,mrecb_in,
      & i1,i2,i3,i4,i5,iorb,iorbold
       logical :: keepeigen
+      call readmnla_cphi()
       keepeig = keepeigen()
       init2=.false.
+      if(Keepeig     ) write(6,*)' KeepEigen=T; readin geig and cphi into m_readeigen'
+      if(.not.Keepeig) write(6,*)' KeepEigen=F; not keep geig and cphi in m_readeigen'
+      open(newunit=ifgeig,file='GEIG',form='unformatted',access='direct',recl=mrecg)
+      open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
+      if(.not.keepeig) return
+      allocate(geig(ngpmx,nband,nqi,nsp))
+      allocate(cphi(ldim2,nband,nqi,nsp))
+c      write(6,*)' size geig=',ngpmx,nband,nqi,nsp,ldim2,size(geig),size(cphi)
+      do ikp= 1,nqi
+        do is= 1,nsp
+          ikpisp= is + nsp*(ikp-1)
+          if(ngpmx/=0) read(ifgeig, rec=ikpisp) geig(1:ngpmx,1:nband,ikp,is) !add ngpmx/=0 Aug2005
+          read(ifcphi, rec=ikpisp) cphi(1:ldim2,1:nband,ikp,is)
+        enddo
+      enddo
+      close(ifgeig)
+      close(ifcphi)
+      end subroutine
+      
+      subroutine readmnla_cphi()
 !! === readin @MNLA_CPHI for rotation of MTO part of eigenfunction cphi ===
+      implicit none
+      integer:: iq,is,ifiqg,nnnn,ikp, !ldim2_in, 
+     & iopen,iclose,isx,ikpisp,verbose,ifoc, !mrecg_in,mrecb_in,
+     & i1,i2,i3,i4,i5,iorb,iorbold
       open(newunit=ifoc,file='@MNLA_CPHI')
       read(ifoc,*)
       norbtx=0
@@ -290,23 +315,6 @@ c$$$      end subroutine
         offset_rev_tbl(ibas_tbl(iorb),l_tbl(iorb),k_tbl(iorb))= offset_tbl(iorb)
       enddo
       close(ifoc)
-      if(Keepeig     ) write(6,*)' KeepEigen=T; readin geig and cphi into m_readeigen'
-      if(.not.Keepeig) write(6,*)' KeepEigen=F; not keep geig and cphi in m_readeigen'
-      open(newunit=ifgeig,file='GEIG',form='unformatted',access='direct',recl=mrecg)
-      open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
-      if(.not.keepeig) return
-      allocate(geig(ngpmx,nband,nqi,nsp))
-      allocate(cphi(ldim2,nband,nqi,nsp))
-c      write(6,*)' size geig=',ngpmx,nband,nqi,nsp,ldim2,size(geig),size(cphi)
-      do ikp= 1,nqi
-        do is= 1,nsp
-          ikpisp= is + nsp*(ikp-1)
-          if(ngpmx/=0) read(ifgeig, rec=ikpisp) geig(1:ngpmx,1:nband,ikp,is) !add ngpmx/=0 Aug2005
-          read(ifcphi, rec=ikpisp) cphi(1:ldim2,1:nband,ikp,is)
-        enddo
-      enddo
-      close(ifgeig)
-      close(ifcphi)
       end subroutine
 !ssssssssssssssssssssssssssssssssssssssssssssss
 
