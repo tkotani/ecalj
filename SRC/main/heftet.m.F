@@ -4,13 +4,13 @@ c This routine is from hsfp0
 c So it contains many unused variables.
 c-------------------------------------------------------------
       use m_read_bzdata,only: read_bzdata,
-     & ngrp2=>ngrp,idteti,qbz,qibz,dq_,nqibz,ntetf,nteti,ginv,nqbz
+     & idteti,qbz,qibz,dq_,nqibz,ntetf,nteti,ginv,nqbz
       use m_genallcf_v3,only: genallcf_v3,
-     & nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
+     & nclass,natom,nspin,nl,nn,nnv,nnc, 
      & nlmto,nlnmx, nctot,niw,!,nw_input=>nw,
-     & alat, delta,deltaw,esmr,symgrp,clabl,iclass,!diw,dw,
-     & invg, il,in,im,nlnm, 
-     & plat, pos,z,ecore, symgg, konf,nlnx
+     & alat, delta,deltaw,esmr,clabl,iclass,!diw,dw,
+     & il,in,im,nlnm, 
+     & plat, pos,z,ecore, konf,nlnx
       use m_hamindex,only:   Readhamindex
       use m_readeigen,only: init_readeigen,readeval
       use m_tetrakbt,only: tetrakbt_init, kbt
@@ -91,8 +91,8 @@ c-------------------------------------------------------------
       call read_BZDATA()
       call genallcf_v3(incwfx=-1) !in module m_genallcf_v3
       call Readhbe()
-      write(6,"(' nqbz nqibz ngrp=',3i8)") nqbz,nqibz,ngrp2
-      if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
+c      write(6,"(' nqbz nqibz ngrp=',3i8)") nqbz,nqibz,ngrp
+c      if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
       if(nclass /= natom ) call rx( ' hsfp0: nclass /= natom ')
       tpia = 2d0*pi/alat
       voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))

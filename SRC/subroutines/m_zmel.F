@@ -3,14 +3,15 @@
 !!  All dependencies (use foobar below ) are inputs (must be protected).
       module m_zmel 
       use m_genallcf_v3,only:  
-     i     nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
+     i     nclass,natom,nspin,nl,nn,nnv,nnc, 
      i     nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, niw,
-     i     alat,delta,deltaw,esmr,symgrp,iclass,nlnmv, !,diw,dw
-     i     invg, nlnmc,         !nindx,konf
+     i     alat,delta,deltaw,esmr,iclass,nlnmv, !,diw,dw
+     i     nlnmc,         !nindx,konf
      i     icore,ncore,occv,unoccv ,
-     i     occc,unoccc, nocc, nunocc, plat, pos,z,ecore,  symgg,
+     i     occc,unoccc, nocc, nunocc, plat, pos,z,ecore,  
      i     done_genallcf_v3,
      &     il, in, im, mnl=>nlnm , nl,nn,nlnmx
+      use m_hamindex,only: ngrp, symgg=>symops,invg=>invgx
       use m_rdpp,only: Rdpp,    !"call rdpp" generate following data.
      &     nxx,lx,nx,mdimx,nbloch,cgr,ppbrd,nblocha,done_rdpp
       use m_readeigen,only: Readcphif !,Readgeigf

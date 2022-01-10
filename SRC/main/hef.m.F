@@ -4,13 +4,13 @@ c hef is from hsfp0 but it is only to calcuate ef and Ex test.
 c so this routine contains unused things so much.
       use m_hamindex,only:   Readhamindex
       use m_readeigen,only:init_readeigen,readeval
-      use m_read_bzdata,ngrp2=>ngrp
+      use m_read_bzdata,only: Read_bzdata,ginv,nqibz,nqbz,qibz,wibz,qbz,wbz
       use m_genallcf_v3,only: genallcf_v3,
-     & nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
+     & nclass,natom,nspin,nl,nn,nnv,nnc, 
      & nlmto,nlnmx, nctot,niw,!nw_input=>nw,ef
-     & alat, delta,deltaw,esmr,symgrp,clabl,iclass, !diw,dw,
-     & invg, il,in,im,nlnm, 
-     & plat, pos,z,ecore, symgg, konf,nlnx
+     & alat, delta,deltaw,esmr,clabl,iclass, !diw,dw,
+     & il,in,im,nlnm, 
+     & plat, pos,z,ecore,konf,nlnx
       use m_keyvalue,only: getkeyvalue
       use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
 
@@ -123,14 +123,14 @@ c     &    ,nstar(:),irk(:,:),index_qbz(:,:,:)
 c-----------------------------------------------------------------
       call read_BZDATA()
       write(6,*)' nqbz qbz =',nqbz
-      write(6,*)' nqibz ngrp=',nqibz,ngrp2
+c      write(6,*)' nqibz ngrp=',nqibz,ngrp2
       call pshprt(60)
 c-------------------------------
 c generate all quantities needed
 c-------------------------------
       incwfin=  0     ! dummy
       call genallcf_v3(incwfin) !in module m_genallcf_v3
-      if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
+c      if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
 c-------------------------------------------------------------------
       if (nclass /= natom ) call rx( ' hsfp0: nclass /= natom ')
       write(6,*)' hsfp0: end of genallcf2'

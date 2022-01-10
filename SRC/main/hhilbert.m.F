@@ -22,10 +22,9 @@
      &     ntetf,idtetf,ib1bz, qbzw,nqbzw !for tetrahedron
 c     &     idteti, nstar,irk,nstbz
       use m_genallcf_v3,only: Genallcf_v3,
-     &     nclass,natom,nspin,nl,nn,ngrp,
-     &     nlmto,nlnmx, nctot,!niw, !nw_input=>nw,
-     &     alat, symgrp,clabl,iclass, !diw,dw,delta,deltaw,
-     &     invg, il, in, im, nlnm, plat, pos, ecore, symgg 
+     &     nclass,natom,nspin,nl,nn,
+     &     nlmto,nlnmx, nctot, alat, clabl,iclass, 
+     &     il, in, im, nlnm, plat, pos, ecore
 !! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
       use m_rdpp,only: Rdpp,      !"call rdpp" generate following data.
      &     nxx,lx,nx,mdimx,nbloch,cgr,ppbrd ,nblochpmx,mrecl,nprecx

@@ -4,6 +4,7 @@
      &  qbz,wbz,qibz,wibz, qbzw, idtetf, ib1bz, idteti, irk, nstar, nstbz, qbzm, qbzwm
       use m_q0p,only: Getallq0p, q0i,wt,nq0i,nq0itrue, nq0iadd
       use m_keyvalue,only: getkeyvalue
+c      use m_hamindex,only:   Readhamindex, symops, ngrp
       implicit none
       intent(in)::     iq0pin, gammacellctrl,lnq0iadd,lmagnon
 !! == Make required q and G in the expansion of GW. ==
@@ -18,7 +19,7 @@
 !!     See the end of console output.
 !! ---------------------------------------------------
       integer ::nnn(3),ifiqg,ifiqgc,ngcxx,
-     &     ngrp,i,j,iq,iq00,ngp,ngpmx,ngc,ngcmx,nqnum,iq0pin,
+     &     i,j,iq,iq00,ngp,ngpmx,ngc,ngcmx,nqnum,iq0pin,
      &     nline,nlinemax,ifsyml,iqq,is,nk,ix,nqnumx,i1,ifkpt
       integer :: mxkp,ifiqibz,iqibz,ifigwin,mtet(3),nm1,nm2,nm3
       integer:: nqnumm,ifiqmtet,verbose,nn1,nn2,ifiqbz,iqbz !,auxfunq0p
@@ -47,7 +48,7 @@ c     logical :: readgwinput
       integer:: imxc,nnn3(3),imx0c,imx11(1,1)
       real(8):: deltaq,delta5,delta8,deltaq_scale!=1d0/3.0**.5d0 
       integer:: nqi,ifix,ig,iq0i,lm,ifi
-      real(8),allocatable:: wti(:),qi(:,:),symops(:,:,:)
+      real(8),allocatable:: wti(:),qi(:,:) ,symops(:,:,:)
       integer:: ifidml!,iclose,iopen !,ifiwqfac
       integer:: llxxx,lm1,lm2
       real(8),allocatable:: funa(:,:),wsumau(:),yll(:,:)
@@ -59,7 +60,7 @@ c     logical :: readgwinput
       real(8),allocatable:: wt0(:)
       integer,allocatable::irr(:)
       real(8):: dq_(3),qlatbz(3,3)
-      integer:: gammacellctrl,nnng(3),ifi0,itet
+      integer:: gammacellctrl,nnng(3),ifi0,itet, ngrp
       real(8)::imat33(3,3),unit,QpGx2
       logical:: lnq0iadd, lmagnon
       logical ::unit2=.false. 
@@ -84,6 +85,7 @@ c------------------------------------------------
         enddo
       enddo
       close(ifi)
+c      call readhamindex()
       
       call getkeyvalue("GWinput", "n1n2n3", nnn,3)
       call getkeyvalue("GWinput", "QpGcut_psi",QpGx2)

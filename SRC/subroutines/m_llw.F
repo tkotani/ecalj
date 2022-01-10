@@ -3,11 +3,11 @@
      &     wqt,q0i,nq0i ,nq0iadd,ixyz
       use m_rdpp,only: nblochpmx
       use m_genallcf_v3,only: 
-     &     nclass,natom,nspin,nl,nn,ngrp,
+     &     nclass,natom,nspin,nl,nn,
      &     nlmto,nlnmx, nctot,!niw, !nw_input=>nw,
-     &     alat, deltaw,symgrp,clabl,iclass, !diw,dw,delta,
-     &     invg, il, in, im, nlnm, 
-     &     plat, pos, ecore, symgg , tpioa
+     &     alat, deltaw,clabl,iclass, !diw,dw,delta,
+     &     il, in, im, nlnm, 
+     &     plat, pos, ecore, tpioa
       use m_freq,only: 
      &     frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,niw !output of getfreq
       use m_qbze,only: Setqbze,

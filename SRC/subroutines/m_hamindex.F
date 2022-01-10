@@ -122,7 +122,7 @@ c ... reverse maping of offset-index for hamiltonian
 !!---- get space group information ---- translation informations also in miat tiat invgx, shtvg
       call mptauof ( symops , ngrp , plat , nbas , rv_a_opos , iclasst 
      . , miat , tiat , invgx , shtvg )
-!!---- write SYMOPS ---- mar2012takao
+!!---- write SYMOPS.chk 2022jan
       if (master_mpi) then
       open(newunit=ifisym,file='SYMOPS')
       write(ifisym,*) ngrp

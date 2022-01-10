@@ -4,10 +4,10 @@
 !! See note in hmatK_MPI.F
 !!------------------------------------------------------------
       use m_readqg,only: Readngmx2,ngcmx,ngpmx,Readqg0,Readqg
-      use m_hamindex,only:   Readhamindex
+      use m_hamindex,only:   Readhamindex,ngrp,symgg=>symops,invg=>invgx
+      use m_read_bzdata,only: Read_bzdata,qibz,irk,ginv,n1,n2,n3,nqbz,nqibz,nstar,nstbz,qbas,qbz,wibz,wbz
       use m_readeigen,only: onoff_write_pkm4crpa,init_readeigen
      & ,init_readeigen2, init_readeigen_mlw_noeval, init_readeigen_phi_noeval,  nwf
-      use m_read_bzdata,ngrp2=>ngrp
       use m_genallcf_v3,nctot2=>nctot,niwg=>niw
       use m_keyvalue,only: getkeyvalue
       use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
@@ -208,7 +208,7 @@ c      efin =-999d0  !not readin EFERMI
       incwfin= -1  !use 7th colmn for core at the end section of GWIN
       call genallcf_v3(incwfin) !in module m_genallcf_v3
       niw=niwg
-      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
+c      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
       ef=1d99
 c---  These are allocated and setted.
 c      integer(4)::  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
@@ -738,7 +738,7 @@ c initialise secq and kount
 
 c loop over rotations -------------------------------
 ctm
-      call chkrot(ngrp)
+      call chkrot() !ngrp)
       do 1000 irot = 1,ngrp
 c      do 1000 irot = 1,1
 	if( sum(abs( irk(:,irot) )) ==0 .and.
@@ -987,31 +987,30 @@ c-----------------------------------------------------------------------
       return
       end
 c-----------------------------------------------------------------------
-      subroutine chkrot (ngrp)
-
+      subroutine chkrot () !ngrp)
+      use m_hamindex,only:   Readhamindex, symops, ngrp
       implicit real*8(a-h,o-z)
       implicit integer (i-n)
       parameter (eps = 1d-6)
       real(8) :: symope(3,3,ngrp)
-
-      ifi = ifile_handle()
-      open(ifi,file='SYMOPS')
-      read(ifi,*)ngrp2
-      if (ngrp .ne. ngrp2) stop 'chkrot: ngrp error'
-
-      do ig = 1,ngrp
-         read(ifi,*)ig2
-         do i = 1,3
-            read(ifi,*)symope(i,1:3,ig)
-         enddo
-      enddo
-
-      close(ifi)
-
+c$$$      call readhamindex()
+c$$$      ifi = ifile_handle()
+c$$$      open(ifi,file='SYMOPS')
+c$$$      read(ifi,*)ngrp2
+c$$$      if (ngrp .ne. ngrp2) stop 'chkrot: ngrp error'
+c$$$
+c$$$      do ig = 1,ngrp
+c$$$         read(ifi,*)ig2
+c$$$         do i = 1,3
+c$$$            read(ifi,*)symope(i,1:3,ig)
+c$$$         enddo
+c$$$      enddo
+c$$$
+c$$$      close(ifi)
+      symope=symops
       do i = 1,3
          symope(i,i,1) = symope(i,i,1) - 1d0
       enddo
-
       do i = 1,3
       do j = 1,3
          as = dabs(symope(i,j,1))

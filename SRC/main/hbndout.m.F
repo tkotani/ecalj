@@ -1,6 +1,7 @@
       program hbndout
 C- Write band data for QP and GW from QPNT file.
 c QPNT points in agreemnet with SYML are used for QP bands.
+      use m_hamindex,only:   Readhamindex, symgg=>symops, ngrp
       implicit none
       integer(4) :: iopenxx,nq,ntq, iq,it, iftote,ifsyml,
      &  nline,iline,nqnum,nqnumx,iflband,iqq,nqqmx,ilinex,
@@ -155,18 +156,19 @@ Cstop2rx 2013.08.09 kino        stop 'hbndout: nqnum of LBAND and SYML is incons
         call rx( 'hbndout: nqnum of LBAND and SYML is inconsistent')
       endif
 
-c ---- Readin symops(3,3,ng)
-      write(6,*)'--- Readin SYMOPS'
-      ifi= iopenxx('SYMOPS')
-      read(ifi,*) ngrp
-      allocate( symops(3,3,ngrp) )
-      do ig = 1,ngrp
-        read(ifi,*) igx
-        do i=1,3
-          read(ifi,*) symops(i,1:3,ig)
-        enddo
-      enddo
-      close(ifi)
+c$$$c ---- Readin symops(3,3,ng)
+c$$$      write(6,*)'--- Readin SYMOPS'
+c$$$      ifi= iopenxx('SYMOPS')
+c$$$      read(ifi,*) ngrp
+c$$$      allocate( symops(3,3,ngrp) )
+c$$$      do ig = 1,ngrp
+c$$$        read(ifi,*) igx
+c$$$        do i=1,3
+c$$$          read(ifi,*) symops(i,1:3,ig)
+c$$$        enddo
+c$$$      enddo
+c$$$      close(ifi)
+      call readhamindex()
 c
 c      write(6,*)' xxx1 ngrp=',ngrp
       nxx = ngrp

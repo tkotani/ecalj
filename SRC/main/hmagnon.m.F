@@ -14,16 +14,16 @@ c      use m_readqg,only: readqg,readngmx
       use m_readeigen,only: readeval,init_readeigen,init_readeigen2
       use m_hamindex,only:qtt,nqtt
       use m_read_bzdata,only: read_bzdata,
-     & ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv,
+     & nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv,
      & dq_,qbz,wbz,qibz,wibz,qbzw,
      & idtetf,ib1bz,idteti,
      & nstar,irk,nstbz
       use m_genallcf_v3,only: genallcf_v3,
-     & nclass,natom,nspin,nl,nn, ngrp,
-     & nlmto,nlnmx, nctot,niw_in=>niw, !nw_input=>nw,
-     & alat, delta,deltaw,esmr,symgrp,clabl,iclass, !diw,dw,
-     & invg, il,in,im,nlnm, 
-     & plat, pos,ecore, symgg 
+     & nclass,natom,nspin,nl,nn, 
+     & nlmto,nlnmx, nctot,niw_in=>niw, 
+     & alat, delta,deltaw,esmr,clabl,iclass, 
+     & il,in,im,nlnm, 
+     & plat, pos,ecore
       use m_keyvalue,only: getkeyvalue
       use m_mpi,only: MPI__task,MPI__Initialize,MPI__Finalize,MPI__root,
      & MPI__hx0fp0_rankdivider2,
@@ -264,8 +264,8 @@ cc need for gettetwt; automatically read file(okumura) OK
       call genallcf_v3(incwfin) !in module m_genallcf_v3
 !     ! incwfin is for core handling
 c     write(6,*)' ncore nw_input delta=', ncore,nw_input,delta
-      write(6,"(' nqbz nqibz ngrp=',3i5)") nqbz,nqibz,ngrp
-      if(ngrp/=ngrp2       ) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
+      write(6,"(' nqbz nqibz =',2i5)") nqbz,nqibz
+c      if(ngrp/=ngrp2       ) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
       if(chipm.and.nspin==1) call rx( 'chipm mode is for nspin=2')
 
       tpioa=2d0*pi/alat

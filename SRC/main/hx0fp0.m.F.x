@@ -15,8 +15,8 @@ c     &     idteti, nstar,irk,nstbz
       use m_genallcf_v3,only: Genallcf_v3,
      &     nclass,natom,nspin,nl,nn,ngrp,
      &     nlmto,nlnmx, nctot,niw, !nw_input=>nw,
-     &     alat, deltaw,symgrp,clabl,iclass, !diw,dw,delta,
-     &     invg, il, in, im, nlnm, 
+     &     alat, deltaw,clabl,iclass, !diw,dw,delta,
+     &     il, in, im, nlnm, 
      &     plat, pos, ecore, symgg 
       use m_pbindex,only: PBindex !,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
       use m_readqgcou,only: Readqgcou

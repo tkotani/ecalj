@@ -41,11 +41,10 @@ c Apr 2002 takao kotani. multiple argumentation wave per l.
 c This hsfp0 is build from hsec10.f by F.Aryasetiawan.
 c------------------------------------------------------------
       use m_readqg,only: Readngmx2,ngcmx,ngpmx,Readqg0,Readqg
-      use m_hamindex,only:   Readhamindex
-      
+      use m_hamindex,only:   Readhamindex,symgg=>symops,ngrp,invg=>invgx
+      use m_read_bzdata,only: Read_bzdata,qibz,irk,ginv,n1,n2,n3,nqbz,nqibz,nstar,nstbz,qbas,qbz,wibz,wbz
       use m_readeigen,only: onoff_write_pkm4crpa,init_readeigen,init_readeigen2,
      &     init_readeigen_mlw_noeval,init_readeigen_phi_noeval,  nwf
-      use m_read_bzdata,ngrp2=>ngrp
       use m_genallcf_v3,niwg=>niw
       use m_keyvalue,only: getkeyvalue
       use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
@@ -296,8 +295,8 @@ c      efin =-999d0  !not readin EFERMI
       call genallcf_v3(incwfin) !in module m_genallcf_v3
       niw=niwg
       ef=1d99
-      if(ngrp/= ngrp2)
-     &  call RSMPI_Stop( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
+c      if(ngrp/= ngrp2)
+c     &  call RSMPI_Stop( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
 c---  These are allocated and setted.
 c      integer(4)::  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
 c     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw, !not readin nw
@@ -990,7 +989,7 @@ c initialise secq and kount
 
 c loop over rotations -------------------------------
 ctm
-      call chkrot(ngrp)
+      call chkrot() !ngrp)
       do 1000 irot_local = 1,nrot_local_rotk
         irot = irot_index_rotk(irot_local)
 	if( sum(abs( irk(:,irot) )) ==0 .and.
@@ -1352,27 +1351,28 @@ c      call cv      (hartree,cw_w,nwf*nwf*nwf*nwf*nrws,cw_w)
       return
       end
 c-----------------------------------------------------------------------
-      subroutine chkrot (ngrp)
+      subroutine chkrot ()
+      use m_hamindex,only:   Readhamindex, symops, ngrp
       implicit integer (i-n)
       implicit real*8(a-h,o-z)
       integer:: ifile_handle
       parameter (eps = 1d-6)
       real(8) :: symope(3,3,ngrp)
 
-      ifi = ifile_handle()
-      open(ifi,file='SYMOPS')
-      read(ifi,*)ngrp2
-      if (ngrp .ne. ngrp2) stop 'chkrot: ngrp error'
-
-      do ig = 1,ngrp
-         read(ifi,*)ig2
-         do i = 1,3
-            read(ifi,*)symope(i,1:3,ig)
-         enddo
-      enddo
-
-      close(ifi)
-
+c$$$      ifi = ifile_handle()
+c$$$      open(ifi,file='SYMOPS')
+c$$$      read(ifi,*)ngrp2
+c$$$      if (ngrp .ne. ngrp2) stop 'chkrot: ngrp error'
+c$$$
+c$$$      do ig = 1,ngrp
+c$$$         read(ifi,*)ig2
+c$$$         do i = 1,3
+c$$$            read(ifi,*)symope(i,1:3,ig)
+c$$$         enddo
+c$$$      enddo
+c$$$
+c$$$      close(ifi)
+      symope=symops
       do i = 1,3
          symope(i,i,1) = symope(i,i,1) - 1d0
       enddo

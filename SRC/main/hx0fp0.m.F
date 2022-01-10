@@ -13,11 +13,12 @@
      &     idtetf,ib1bz,idteti,
      &     nstar,irk,nstbz
       use m_genallcf_v3,only: Genallcf_v3,
-     &     nclass,natom,nspin,nl,nn, ngrp,
+     &     nclass,natom,nspin,nl,nn, 
      &     nlmto,nlnmx, nctot, !niw_in=>niw, !nw_input=>nw,
-     &     alat, esmr,symgrp,clabl,iclass, !diw,dw,delta,deltaw,
-     &     invg, il,in,im,nlnm, 
-     &     plat, pos,ecore, symgg ,tpioa
+     &     alat, esmr,clabl,iclass, !diw,dw,delta,deltaw,
+     &     il,in,im,nlnm, 
+     &     plat, pos,ecore, tpioa
+      use m_hamindex,only: ngrp
 c      use m_keyvalue,only: getkeyvalue
       use m_pbindex,only: PBindex !,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
       use m_readqgcou,only: readqgcou

@@ -15,6 +15,7 @@ c      implicit real*8(a-h,o-z)
       use m_genallcf_v3
       use m_keyvalue,only: getkeyvalue
       use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+      use m_hamindex,only: ngrp, symgg=>symops
 
       implicit none
 c parameter

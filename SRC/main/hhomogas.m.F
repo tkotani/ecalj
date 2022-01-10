@@ -5,8 +5,9 @@ c      use m_readqg,only: readqg,readngmx
 c      use m_readeigen,only: readeval,init_readeigen,init_readeigen2
 c      use m_hamindex,only:qtt,nqtt
 
+      use m_hamindex,only:   Readhamindex, symgg=>symops, ngrp
       use m_read_bzdata,only: read_bzdata,
-     & ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv,
+     & nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv,
      & dq_,qbz,wbz,qibz,wibz,qbzw,
      & idtetf,ib1bz,idteti,
      & nstar,irk,nstbz
@@ -48,9 +49,9 @@ c      use m_lldata,only: ll
       use m_shortn3,only: shortn3_initialize,shortn3
       implicit none
 
-      integer::nctot=0,nspin=1,niw,ngrp
+      integer::nctot=0,nspin=1,niw
       real(8):: alat,plat(3,3),det33
-      real(8),allocatable:: symgg(:,:,:)
+c      real(8),allocatable:: symgg(:,:,:)
 !! ------------------------------------------------
 !! We calculate chi0 by the follwoing three steps.
 !!  gettetwt: tetrahedron weights
@@ -314,18 +315,19 @@ c      call genallcf_v3(incwfin) !in module m_genallcf_v3
 c      write(6,"(' nqbz nqibz ngrp=',3i5)") nqbz,nqibz,ngrp
 c      if(ngrp/=ngrp2 ) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
 
-      ifi = ifile_handle()
-      open (ifi, file='SYMOPS')
-      read(ifi,*) ngrp
-      allocate(symgg(3,3,ngrp))
-      do ig = 1,ngrp
-        read(ifi,*)
-        do i=1,3
-          read(ifi,*) symgg(i,1:3,ig)
-        enddo
-c        print *,'ssssssss',ig,symgg(:,:,ig)
-      enddo
-      close(ifi)
+c$$$      ifi = ifile_handle()
+c$$$      open (ifi, file='SYMOPS')
+c$$$      read(ifi,*) ngrp
+c$$$      allocate(symgg(3,3,ngrp))
+c$$$      do ig = 1,ngrp
+c$$$        read(ifi,*)
+c$$$        do i=1,3
+c$$$          read(ifi,*) symgg(i,1:3,ig)
+c$$$        enddo
+c$$$c        print *,'ssssssss',ig,symgg(:,:,ig)
+c$$$      enddo
+c$$$  close(ifi)
+      call readhamindex()
       ifi = ifile_handle()
       open(ifi,file='LATTC')
       read(ifi,*) alat

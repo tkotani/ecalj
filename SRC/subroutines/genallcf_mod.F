@@ -27,7 +27,7 @@
       integer,allocatable,protected,public::
      &     iclass(:),
      &     nindxv(:,:),nindxc(:,:),ncwf(:,:,:) ,
-     o     invg(:), il(:,:), in(:,:), im(:,:),   ilnm(:),  nlnm(:),
+     o     il(:,:), in(:,:), im(:,:),   ilnm(:),  nlnm(:), !invg(:),
      o     ilv(:),inv(:),imv(:),  ilnmv(:), nlnmv(:),
      o     ilc(:),inc(:),imc(:),  ilnmc(:), nlnmc(:),
      o     nindx(:,:),konf(:,:),icore(:,:),ncore(:),
@@ -35,17 +35,17 @@
      &     ,occc(:,:,:),unoccc(:,:,:),
      o     nocc(:,:,:),nunocc(:,:,:),   iantiferro(:),ooo(:,:,:)
       integer,protected,public::
-     o     nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
+     o     nclass,natom,nspin,nl,nn,nnv,nnc, !ngrp,
      o     nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw 
       real(8),protected,public::
      &     alat,deltaw,esmr,delta,tpioa
       real(8), allocatable,protected,public:: 
-     &     plat(:,:),pos(:,:),z(:),symgg(:,:,:),ecore(:,:)
+     &     plat(:,:),pos(:,:),z(:),ecore(:,:) !,symgg(:,:,:)
       logical,protected,public::
      &     done_genallcf_v3=.false.
       character(8),allocatable,protected,public::
      &     spid(:)
-      character(120),protected,public:: symgrp
+c      character(120),protected,public:: symgrp
       character(6),allocatable,protected,public :: clabl(:)
       
       private
@@ -90,8 +90,8 @@ c--- rgwinf ---
       read(ifi,*);  read(ifi,*)
       read(ifi,*)symgrpt        !SYMMETRY
       j = 0
-      symgrp='  '//trim(adjustl(symgrpt))
-      write(6,*)' symgrp=', symgrp
+c      symgrp='  '//trim(adjustl(symgrpt))
+c      write(6,*)' symgrp=', symgrp
       read(ifi,*)
       read(ifi,*)
       read(ifi,*)
@@ -363,24 +363,24 @@ c           write(6,"(' read ecore=',3i4,2d13.5)")l,n,ic,ecoret(l,n,1:nspin,ic)
      o              nlnmc )
       call nolnma  (nindx,nl,nclass,
      o              nlnm )
-      i=2 !see previous definition of symgrp
-      if(symgrp(i+1:i+13)/= 'UseSYMOPSfile') then
-        call rx( " Not: UseSYMOPSfile in LMTO file")
-      endif
-      write(6,*) ' symgrp==UseSYMOPSfile'
-      open (newunit=ifi, file='SYMOPS')
-      read(ifi,*) ngrp
-      allocate(symgg(3,3,ngrp))
-      do ig = 1,ngrp
-        read(ifi,*)
-        do i=1,3
-          read(ifi,"(3d24.16)") symgg(i,1:3,ig)
-        enddo
-      enddo
-      allocate(invg(ngrp))
-      call invgrp  (symgg,ngrp,
-     o              invg)
-      close(ifi)
+c$$$c      i=2 !see previous definition of symgrp
+c$$$      if(symgrp(i+1:i+13)/= 'UseSYMOPSfile') then
+c$$$        call rx( " Not: UseSYMOPSfile in LMTO file")
+c$$$      endif
+c$$$      write(6,*) ' symgrp==UseSYMOPSfile'
+c$$$      open (newunit=ifi, file='SYMOPS')
+c$$$      read(ifi,*) ngrp
+c$$$      allocate(symgg(3,3,ngrp))
+c$$$      do ig = 1,ngrp
+c$$$        read(ifi,*)
+c$$$        do i=1,3
+c$$$          read(ifi,"(3d24.16)") symgg(i,1:3,ig)
+c$$$        enddo
+c$$$      enddo
+c$$$      allocate(invg(ngrp))
+c$$$      call invgrp  (symgg,ngrp,
+c$$$     o              invg)
+c$$$      close(ifi)
       call cputid(0)
       write(6,*) 'genallcf_v3'
       end subroutine genallcf_v3

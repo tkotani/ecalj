@@ -17,20 +17,20 @@ cm Aug 2007 Takashi Miyake, berry connection in the Wannier gauge
 c  May 2004 Takashi Miyake, from hwmat.f
 c------------------------------------------------------------
 c     use m_readqg,only: readngmx,readqg
-      use m_hamindex,only:   Readhamindex
+      use m_hamindex,only:   Readhamindex,symgg=>symops,ngrp
       use m_readeigen,only: init_readeigen,init_readeigen2,readeval
       use m_hamindex,only: qtt,nqtt
       use m_read_bzdata,only: read_bzdata,
-     &     ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv, !qbasmc,
+     &     nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv, !qbasmc,
      &     dq_,qbz,wbz,qibz,wibz,qbzw,
      &     idtetf,ib1bz,idteti,
      &     nstar,irk,nstbz
       use m_genallcf_v3,only: genallcf_v3,
-     &     nclass,natom,nspin,nl,nn,ngrp,
+     &     nclass,natom,nspin,nl,nn,
      &     nlmto,nlnmx, nctot,niw, !nw_input=>nw,ef
-     &     alat,delta,deltaw,esmr,symgrp,clabl,iclass,!,diw,dw
-     &     invg, il, in, im, nlnm, 
-     &     plat, pos, ecore, symgg , konf,z,
+     &     alat,delta,deltaw,esmr,clabl,iclass,!,diw,dw
+     &     il, in, im, nlnm, 
+     &     plat, pos, ecore, konf,z,
      &     spid
       use m_read_Worb,only: s_read_Worb, s_cal_Worb,
      &  nwf, nclass_mlwf, cbas_mlwf, nbasclass_mlwf, 
@@ -38,7 +38,6 @@ c     use m_readqg,only: readngmx,readqg
      &  iphi, iphidot, nphi, nphix
       use m_keyvalue,only: getkeyvalue
       use m_readhbe,only:Readhbe,nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-
       implicit none
 c------------------------------------
       real(8),allocatable:: r0g(:,:), wphi(:,:)
@@ -247,7 +246,7 @@ c      efin = 0d0    !readin EFERMI
 c      call readefermi()
       incwfin= -1  !use 7th colmn for core at the end section of GWIN
       call genallcf_v3(incwfin) !in module m_genallcf_v3
-      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
+c      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
 c---  These are allocated and setted.
 c      integer(4)::  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
 c     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw, !not readin nw

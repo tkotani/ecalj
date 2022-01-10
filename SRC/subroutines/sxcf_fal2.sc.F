@@ -4,7 +4,7 @@
       use m_keyvalue,only   : getkeyvalue
       use m_zmel,only : Get_zmel_init, Setppovlz, Setppovlz_chipm, Deallocate_zmel, zmel
       use m_itq,only: itq,ntq
-      use m_genallcf_v3,only: nlmto,nsp=>nspin,nctot,ngrp,niw,ecore !,symgg
+      use m_genallcf_v3,only: nlmto,nsp=>nspin,nctot,niw,ecore !,symgg
       use m_READ_BZDATA,only: qbas,ginv,nstbz,qibz,qbz,wk=>wbz,nqibz,nqbz
       use m_readVcoud,only:   Readvcoud, vcoud,vcousq,zcousq,ngb,ngc
       use m_readfreq_r,only: freq_r, nw_i,nw,freqx,wx=>wwx,nblochpmx
@@ -15,6 +15,8 @@
       use m_readhbe,only: nband,mrecg
       use m_readepswklm,only: wklm,lxklm
       use m_readfreq_r,only: mrecl,expa_,npm
+      use m_hamindex,only: ngrp
+      
       implicit none
 !---------------------------------      
       public sxcf_scz

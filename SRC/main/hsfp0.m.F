@@ -4,16 +4,17 @@
       use m_hamindex,only:   Readhamindex
       use m_readeigen,only: Init_readeigen,Readeval,Lowesteval,Init_readeigen2
       use m_read_bzdata,only: Read_bzdata,
-     &  ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv,
+     &  nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv,
      &  dq_,qbz,wbz,qibz,wibz,qbzw,
      &  idtetf,ib1bz,idteti,
-     &  nstar,irk,nstbz
+     &     nstar,irk,nstbz
+      use m_hamindex,only: ngrp, symgg=>symops
       use m_genallcf_v3,only: Genallcf_v3,
-     &     nclass,natom,nspin,nl,nn,ngrp,
+     &     nclass,natom,nspin,nl,nn,
      &     nlmto,nlnmx, nctot,niw,
-     &     alat,delta,deltaw,esmr_in=>esmr,symgrp,clabl,iclass, ! diw,dw,
-     &     invg,  il,in,im,nlnm, 
-     &     plat, pos,z,ecore, symgg, konf,nlnx
+     &     alat,delta,deltaw,esmr_in=>esmr,clabl,iclass, ! diw,dw,
+     &     il,in,im,nlnm, 
+     &     plat, pos,z,ecore,  konf,nlnx
       use m_keyvalue,only: Getkeyvalue
       use m_rdpp,only: Rdpp, !"call rdpp" generate following data set.
      &   nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx
@@ -199,8 +200,7 @@ c      if(MPI__root) call headver('hsfp0',ixc)
 !! ===  readin BZDATA. See gwsrc/rwbzdata.f ===
 !! See use m_read_bzdata,only: at the top of this routine
       call read_BZDATA()
-      write(6,*)' nqbz  =',nqbz
-      write(6,*)' nqibz ngrp=',nqibz,ngrp
+      write(6,*)' nqbz nqibz =',nqbz,nqibz
       call pshprt(60)
 
 !! === readin GWIN and LMTO, then allocate and set datas. ===
@@ -213,7 +213,6 @@ c      efin =-999d0              !not readin EFERMI
       else               ;  incwfin= -1 !use 7th colmn for core at the end section of GWIN
       endif
       call genallcf_v3(incwfin) ! module m_genallcf_v3. See use m_genallcf in this rouitine
-      if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
 
 !! Get maximums 
       call getnemx8(nbmx,ebmx)
@@ -323,26 +322,22 @@ c        call rx('need to test this mode again')
         write(6,*) ' --- CORE Exx mode core-valence --- '
         ifexx = iopen('TEEXXcv',1,-1,0)
         call rx('need to test this mode again')
+        write(6,'("    esmr2    =",f13.6)') esmr2
       else
         call rx( ' hsfp0: Need input (std input) 1-6!')
       endif
-
       write(6, *) ' --- computational conditions --- '
       write(6,'("    deltaw  =",f13.6)') deltaw
-c     write(6,'("    ua      =",f13.6)') ua
       write(6,'("    esmr    =",f13.6)') esmr
-      if(ixc==6) write(6,'("    esmr2    =",f13.6)') esmr2
-      
       write(6,'("    alat voltot =",2f13.6)') alat, voltot
       call Readhbe()    !Read dimensions of h,hb
-      if (nprecb == 4) call rx( 'hsfp0: b,hb in single precision')
       call Readhamindex()
       call init_readeigen()!nband,mrece) !initialization of readEigen
       call Mptauof_zmel(symgg,ngrp) !Get space-group transformation information. in m_zmel
       call Readngmx2() !return ngpmx and ngcmx in m_readqg
-      write(6,*) ' max number of G for QGpsi and QGcou: ngcmx ngpmx=',ngcmx,ngpmx
       call readqg0('QGpsi',qibz(1:3,1), quu,ngpn1)
       call readqg0('QGcou',qibz(1:3,1), quu,ngcn1)
+      write(6,*) ' max number of G for QGpsi and QGcou: ngcmx ngpmx=',ngcmx,ngpmx
       if(debug) write(6,*) ' end of read QGcou'
 !! === readin plane wave parts, and Radial integrals ppbrd. ===
 !     ppbrd = radial integrals

@@ -61,18 +61,18 @@
 !!!! ----------------------------------------
       use m_readefermi,only: READEFERMI,ef_read=>ef
       use m_readqg,only: READQG0,READNGMX2, ngpmx,ngcmx
-      use m_hamindex,only:   Readhamindex
+      use m_hamindex,only:   Readhamindex, symgg=>symops 
       use m_readeigen,only: INIT_READEIGEN,INIT_READEIGEN2,READEVAL,LOWESTEVAL
       use m_READ_BZDATA,only: READ_BZDATA,
      &     nqbz,nqibz,nqbzw,nteti,ntetf
      &     ,n1,n2,n3,qbas,ginv,qbz,wbz,qibz,wibz,qbzw,idtetf,ib1bz,idteti
-     &     ,nstar,irk,nstbz,ngrp2=>ngrp 
+     &     ,nstar,irk,nstbz
       use m_genallcf_v3,only: GENALLCF_V3,Setesmr,
-     &     nclass,natom,nspin,nl,nn, ngrp,
+     &     nclass,natom,nspin,nl,nn, 
      &     nlmto,nlnmx, nctot,niw, !nw_input=>nw,
-     &     alat, deltaw,symgrp,clabl,iclass,esmr_in=>esmr, !diw,dw, delta,
-     &     invg, il,in,im,nlnm, 
-     &     plat, pos,z,ecore, symgg, konf,nlnx, iantiferro
+     &     alat, deltaw,clabl,iclass,esmr_in=>esmr, !diw,dw, delta,
+     &     il,in,im,nlnm, 
+     &     plat, pos,z,ecore, konf,nlnx, iantiferro
 !! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
       use m_rdpp,only: Rdpp,    !"call rdpp" generate following data.
      &     nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx
@@ -95,13 +95,14 @@ c     &                          !ppbir,miat,tiat,shtvg,
      &     MPI__Finalize,MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum,
      &     MPI__consoleout,
      &     MPI__barrier, MPI__reduceSum
-      use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+      use m_readhbe,only: Readhbe, nband !nprecb,mrecb,mrece,nlmtot,nqbzt,,mrecg
       use m_readfreq_r,only: Readfreq_r, nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i,nw, freq_r
       use m_readq0p,only: ReadQ0P, nq0i, wqt,q0i
       use m_selectqp,only:Getqpoint,qvec,nq
       use m_eibzhs,only: Seteibzhs,  eibzsym,irkip_all,nrkip_all,tiii
       use m_readgwinput,only: ReadGwinputKeys,SetIsigMode, ebmx_sig,nbmx_sig,ISigMode
-      use m_readepswklm,only: Readepswklm!,wklm,lxklm
+      use m_readepswklm,only: Readepswklm !,wklm,lxklm
+      use m_hamindex,only:ngrp
       implicit none
 !! -----------------------------------------------------------------------------------
 !!real(8),parameter :: ua  = 1d0 ! constant in w(0)exp(-ua^2*w'^2) to take care of peak around w'=0
@@ -171,7 +172,7 @@ c---------------------------------------
       call READ_BZDATA() ! Readin BZ data. See gwsrc/rwbzdata.f ===
 !!CAUTION!!  WE currently ASSUME iclass(iatom)= iatom (because of historical reason)
       if(nclass /= natom ) call rx('hsfp0_sc: nclass /= natom ')
-      if(ngrp/= ngrp2)     call rx('ngrp inconsistent: BZDATA and LMTO GWIN_V2')
+c      if(ngrp/= ngrp2)     call rx('ngrp inconsistent: BZDATA and LMTO GWIN_V2')
       write(6,"(' nqbz nqibz ngrp=',3i12)") nqbz,nqibz,ngrp
       esmr  = esmr_in !read from GWinput
       esmref= esmr

@@ -3,13 +3,14 @@
       use m_pkm4crpa,only : Readpkm4crpa
       use m_zmel,only     : Get_zmel_init,Dconjg_zmel,Deallocate_zmel, zmel ,get_zmel_modex0, GramSchmidt_zmel,rwzmel
       use m_freq,only:  npm, nwhis
-      use m_genallcf_v3,only:  nsp=>nspin ,nlmto,nctot,ngrp
+      use m_genallcf_v3,only:  nsp=>nspin ,nlmto,nctot
       use m_read_bzdata,only:  nqbz,qbas,ginv,nqibz,  rk=>qbz,wk=>wbz
       use m_rdpp,only: nbloch
       use m_readqg,only: ngpmx,ngcmx
       use m_qbze,only: nqbze 
       use m_readhbe,only: nband
       use m_readgwinput,only: nbcut,nbcut2
+      use m_hamindex,only: ngrp
 !! q-dependent quantities
       use m_readVcoud,only: zcousq,ngc,ngb
       use m_tetwt,only:     whw,ihw,nhw,jhw,n1b,n2b,nbnb,nbnbx,nhwtot

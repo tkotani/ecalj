@@ -43,14 +43,15 @@ Cr    True_q(1:3)     = 2*pi/alat * q(1:3)
 Cr  True G is given by
 Cr    True_G(1:3,igp) = 2*pi/alat * matmul(qlat * ngvec(1:3,igp)) ,igp=1,ngp
 !! -----------------------------------------------------------
+      use m_hamindex,only:   Readhamindex, symops, ngrp
       use m_get_bzdata1,only:  getbzdata1, 
      &  nqbz, nqibz, qbz,wbz,qibz,wibz
       implicit none
-      integer ::n1q,n2q,n3q,ifiqg,ifiqgc,ifigw0,ngrp,ifi,i,ig
+      integer ::n1q,n2q,n3q,ifiqg,ifiqgc,ifigw0,ifi,i,ig
       real(8) :: plat(3,3), alat,alp,QpGcut_psi, QpGcut_Cou,dummy
       real(8) :: volum,q0(3),qlat0(3,3),QpGx1,QpGx2,
      & dw,delta,deltaw,esmr,tolopt,qm(3,3)
-      real(8),allocatable :: symops(:,:,:) !,qibz(:,:)
+c      real(8),allocatable :: symops(:,:,:) !,qibz(:,:)
 
       integer :: nbas,lmxax,ibas,l,ixxx,lmxa,ibasx,ifigw0t,mxkp,
      &  irs,niw,ic,iclass,
@@ -144,20 +145,20 @@ cc----------------------------------
         enddo
       enddo
       close(ifi)
-
-C --- Readin SYMOPS.
-      ifi = ifile_handle()
-      open (ifi, file='SYMOPS')
-      read(ifi,*) ngrp
-      write(6,*) ' SYMOPS ngrp=',ngrp
-      allocate(symops(3,3,ngrp))
-      do ig = 1,ngrp
-        read(ifi,*)
-        do i=1,3
-          read(ifi,*) symops(i,1:3,ig)
-        enddo
-      enddo
-      close(ifi)
+      call readhamindex()
+c$$$C --- Readin SYMOPS.
+c$$$      ifi = ifile_handle()
+c$$$      open (ifi, file='SYMOPS')
+c$$$      read(ifi,*) ngrp
+c$$$      write(6,*) ' SYMOPS ngrp=',ngrp
+c$$$      allocate(symops(3,3,ngrp))
+c$$$      do ig = 1,ngrp
+c$$$        read(ifi,*)
+c$$$        do i=1,3
+c$$$          read(ifi,*) symops(i,1:3,ig)
+c$$$        enddo
+c$$$      enddo
+c$$$      close(ifi)
 
 C --- Check write
       write(6,"(' alat      =',f13.6 )") alat

@@ -1,15 +1,16 @@
       module m_eibz
       use m_read_bzdata,only: Read_bzdata, !<--- 'call read_bzdata' sets up following data.
-     &   ngrp2=>ngrp,nqbz,nqibz,n1,n2,n3,qbas,ginv,
+     &   nqbz,nqibz,n1,n2,n3,qbas,ginv,
      &   dq_,qbz,wbz,qibz,wibz,
      &     ntetf,idtetf,ib1bz, qbzw,nqbzw !for tetrahedron
 c     &     idteti, nstar,irk,nstbz
       use m_genallcf_v3,only: Genallcf_v3,
-     &     nclass,natom,nspin,nl,nn,ngrp,
-     &     nlmto,nlnmx, nctot,!niw, !nw_input=>nw,
-     &     alat, deltaw,symgrp,clabl,iclass, !diw,dw,delta,
-     &     invg, il, in, im, nlnm, 
-     &     plat, pos, ecore, symgg 
+     &     nclass,natom,nspin,nl,nn,
+     &     nlmto,nlnmx, nctot,
+     &     alat, deltaw,clabl,iclass, 
+     &     il, in, im, nlnm, 
+     &     plat, pos, ecore
+      use m_hamindex,only: symgg =>symops
       use m_qbze,only: Setqbze,
      &     nqbze,nqibze,qbze,qibze
       use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
@@ -17,6 +18,7 @@ c     &     idteti, nstar,irk,nstbz
      &     nxx,lx,nx,mdimx,nbloch,cgr,ppbrd 
       use m_pbindex,only: PBindex !,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
       use m_readqgcou,only: Readqgcou
+      use m_hamindex,only: ngrp
       implicit none
 
       integer,allocatable,protected:: nwgt(:,:)
@@ -58,7 +60,7 @@ c     &     idteti, nstar,irk,nstbz
 !! ------------------------------------------------------------------
       module m_eibzhs
       use m_read_bzdata,only: qbz,nqibz,ginv,irk,nqbz
-      use m_genallcf_v3,only: ngrp, symgg 
+      use m_hamindex,only: ngrp, symgg=>symops
       use m_readhbe,only: nband
       use m_rdpp,only:  nbloch
       implicit none

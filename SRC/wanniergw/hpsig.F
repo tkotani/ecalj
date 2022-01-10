@@ -16,7 +16,7 @@ c-------------------------------------------------
       use m_readqg,only: Readngmx,ngcmx,Readqg0,Readqg
       use m_hamindex,only:   Readhamindex
       use m_readeigen,only:init_readeigen,init_readeigen2,readcphif,readgeigf
-      use m_read_bzdata,ngrp2=>ngrp
+      use m_read_bzdata
 
       use m_genallcf_v3,ncore2=>ncore,nrxx=>nrx
       use m_keyvalue,only: getkeyvalue
@@ -151,7 +151,7 @@ c      nwin = -999    !readin condition. Not readin NW file
       incwfin= 0     !readin condition. use ForX0 for core in GWIN
 c      efin =  -999d0 !readin condition. Not readin EFERMI
       call genallcf_v3(incwfin) !in module m_genallcf_v3
-      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
+c      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
 c---  These are allocated and setted by genallcf_v3
 c      integer(4)::  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
 c     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw,nw
