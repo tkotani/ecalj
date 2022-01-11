@@ -21,8 +21,8 @@ Ci   indrlx(2,i) points to the corresponding site (see rlxstp)
 Ci   natrlx:    # of relaxing degrees of freedom for atoms or shear
 Ci   natrlx:      # of relaxing degrees of freedom for atoms or shear
 Ci   f:         forces
-Ci   p:         work array for gradzr (dimensioned in rlxstp)
-Ci   w:         work array for the hessian
+Ci   p:         for gradzr (dimensioned in rlxstp)
+Ci   w:         the hessian
 Ci   delta,nelts used for printout only, if U[L] turned on (TBE)
 Cio Inputs/Outputs
 Cio  bas        atom positions or shear coordinates; se Remarks

@@ -48,7 +48,7 @@
       real(8) :: gam(4),gam1,bstim,pletot(6,2)
       real(8) :: plat(3,3),xvcart(3),xvfrac(3)
       real(8):: seref,etot(2),qtol,etol
-      real(8), allocatable :: pos_move(:,:),  ftot_rv(:), wk_rv(:), p_rv(:),w_rv(:)
+      real(8), allocatable :: pos_move(:,:),  ftot_rv(:), wk_rv(:), p_rv(:),hess(:,:)
       real(8), allocatable :: rv_a_omad (:) !  Madelung matrix if necessary
       integer,parameter:: nm=3
       character(512):: aaachar
@@ -70,7 +70,7 @@
 !! Atomic position Relaxation setup (MD mode)
       if( nitrlx>0 ) then 
         icom = 0
-        if(natrlx /= 0) allocate(w_rv(natrlx*natrlx),p_rv(pdim))
+        if(natrlx /= 0) allocate(hess(natrlx,natrlx),p_rv(pdim))
         if(master_mpi) then
            open(newunit=ifipos,file='AtomPos.'//trim(sname),form='unformatted',status='new')
            write(ifipos) nbas
@@ -130,14 +130,12 @@
             call mpi_barrier(MPI_COMM_WORLD,ierr)
             if(master_mpi) then
                i = 0
-!     nwit : kino's memo
-!     lsc   :0 self-consistency achieved (diffe<=etol, qdiff=dmxp(11)<=qtol)
+! lsc   :0 self-consistency achieved (diffe<=etol, qdiff=dmxp(11)<=qtol)
 !     :1 if not self-consistent, but encountered max. no. iter.
 !     :2 Harris energy from overlap of free atoms (iter=1 and lhf=t)
 !     :3 otherwise
                call nwit( int(ctrl_nvario), iter, maxit, lhf.or.irs1x==0.and.iter==1,
      &              leks+i, etol, qtol, qdiff, 'cxhi', amom, etot, sev,lsc)
-c     &              leks+i, etol, qtol, qdiff dmxp(11), 'cxhi', amom, etot, lsc)
             endif
             call mpibc1_int(lsc,1,'lmfp_lsc')
             if (lsc==2 .and. (.not. lhf) .and. maxit>1) lsc = 3
@@ -157,12 +155,12 @@ c     &              leks+i, etol, qtol, qdiff dmxp(11), 'cxhi', amom, etot, lsc
 c         mdprm = ctrl_mdprm !MD setting
 !! Relax atomic positions.   !--> shear mode removed. probably outside of fortran code if necessary
          call relax( ssite , sspec , itrlx , indrx_iv 
-     .        , natrlx, force , p_rv , w_rv , 0 , 0d0 , pos_move, icom )
+     .        , natrlx, force , p_rv , hess , 0 , 0d0 , pos_move, icom )
 !!  warn: Updating positions in ssite structure ==> t.kotani think this is confusing because
 !!        'positions written in ctrl' and 'positions written in rst' can be different.
          if(master_mpi) write(ifipos) itrlx,pos_move
          do ibas=1,nbas
-            ssite(ibas)%pos = pos_move(:,ibas) !warn
+            ssite(ibas)%pos = pos_move(:,ibas) 
          enddo
 C     ... Exit when relaxation converged or maximum number of iterations
          if(icom==1) then !takao 
@@ -181,9 +179,9 @@ C     ... Restore minimum gradient positions if this is last step
                ssite(ibas)%pos = pos_move(:,ibas)
             enddo
          endif
-!! New density after atom shifts 
-!! If explicitly told to read from atom files after atom movmment
-         call smshft(ctrl_lfrce) !sctrl,sham,slat,
+!! New density after atom shifts.  
+!! If explicitly told to read from atom files after atom movement
+         call smshft(ctrl_lfrce) 
 !! Write restart file (to include new positions)
          if (master_mpi) then ! .and. .not. lshr) then
             ifi = ifile_handle()
@@ -202,7 +200,6 @@ C     ... Restore minimum gradient positions if this is last step
  9998 continue
       if(master_mpi.and.nitrlx>0) close(ifipos)
       if(allocated(p_rv)) deallocate(p_rv)
-      if(allocated(w_rv)) deallocate(w_rv)
-c      if(allocated(indrx_iv)) deallocate(indrx_iv)
+      if(allocated(hess)) deallocate(hess)
       call tcx('lmfp')
       end subroutine lmfp

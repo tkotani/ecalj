@@ -107,7 +107,7 @@
         endif
         call mpibc1_int(jobgw,1,'lmfp_jobgw')
       endif
-!! Index for hamiltonian gen_hamindex      
+!! Index for hamiltonian gen_hamindex
       call m_hamindex_init(jobgw==0) 
       if(llmfgw.and.jobgw==0) call m_lmfgw_init() 
       if(llmfgw.and.jobgw==0) call rx0(' OK! '//'lmfgw mode=0 generated LATTC CLASS NLAindx ldima')

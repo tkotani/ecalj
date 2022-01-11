@@ -161,7 +161,6 @@ radmsh.o \
 radpkl.o \
 rdeq.o \
 relax.o \
-rlxstp.o \
 rmesh.o \
 rnatm.o \
 ropbes.o \

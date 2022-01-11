@@ -2162,59 +2162,58 @@ c      if (sum(lldau)/=0) lcplxp = 1
       if( nint(mdprm(1))>0 .and. nint(mdprm(1))<4 ) call rx('lmf not set up for MD yet')
       if( nitrlx>0 ) then       !nitrlx >0 is for atomic position relaxiation
          allocate(indrx_iv(2,3*nbas))
-ccc      call rlxstp(natrlx, indrx_iv,  xyzfrz, pdim )
-      block   
-      integer:: i,j,k,ifrlx(3),lrlx 
-      logical:: force,mdxx
-      force = int(ctrl_lfrce) .gt. 0
-      if (.not. force .or. nint(mdprm(1)) .eq. 0) goto 9299
-      mdxx = nint(mdprm(1)) .le. 3
-      lrlx = mod(nint(mdprm(1)),100)
-      j = 0
-      if (mdxx) then
-        xyzfrz = .false.
-        goto 9299
-      elseif (force .and. mdprm(1) .ge. 100) then
-        do  i = 1, 6
-          if (defm(i) .eq. 1) then
-            j = j+1
-            indrx_iv(1,j) = i
-          endif
-        enddo
-      elseif (force) then
-        do  i = 1, nbas
-          ifrlx=v_ssite(i)%relax
-          do  k = 1, 3
-            if (ifrlx(k) .eq. 1) then
-              j = j + 1
-              indrx_iv(1,j) = k
-              indrx_iv(2,j) = i
-              xyzfrz(k) = .false.
+         block  ! call rlxstp(natrlx, indrx_iv,  xyzfrz, pdim )
+         integer:: i,j,k,ifrlx(3),lrlx 
+         logical:: force,mdxx
+         force = int(ctrl_lfrce) .gt. 0
+         if (.not. force .or. nint(mdprm(1)) .eq. 0) goto 9299
+         mdxx = nint(mdprm(1)) .le. 3
+         lrlx = mod(nint(mdprm(1)),100)
+         j = 0
+         if (mdxx) then
+            xyzfrz = .false.
+            goto 9299
+         elseif (force .and. mdprm(1) .ge. 100) then
+            do  i = 1, 6
+               if (defm(i) .eq. 1) then
+                  j = j+1
+                  indrx_iv(1,j) = i
+               endif
+            enddo
+         elseif (force) then
+            do  i = 1, nbas
+               ifrlx=v_ssite(i)%relax
+               do  k = 1, 3
+                  if (ifrlx(k) .eq. 1) then
+                     j = j + 1
+                     indrx_iv(1,j) = k
+                     indrx_iv(2,j) = i
+                     xyzfrz(k) = .false.
+                  endif
+               enddo
+            enddo
+         endif
+         natrlx = j
+         if (natrlx .eq. 0) goto 9299
+         pdim = 0
+         if (.not. mdxx) then
+            if (lrlx .eq. 4) pdim = natrlx*7
+            if (lrlx .eq. 5) pdim = natrlx*(7+natrlx)
+            if (lrlx .eq. 6) pdim = natrlx*(12+2*natrlx)
+         endif
+         if (iprint() .ge. 30) then
+            if (lrlx .eq. 4) then
+               call info(0,1,0,' m_lmfinit RLXSTP: Molecular statics (conjugate gradients) ..',0,0)
+            elseif (lrlx .eq. 5) then
+               call info(0,1,0,' m_lmfinit RLXSTP: Molecular statics (Fletcher-Powell) ..',0,0)
+            else
+               call info(0,1,0,' m_lmfinit RLXSTP: Molecular statics (Broyden) ..',0,0)
             endif
-          enddo
-        enddo
-      endif
-      natrlx = j
-      if (natrlx .eq. 0) goto 9299
-      pdim = 0
-      if (.not. mdxx) then
-        if (lrlx .eq. 4) pdim = natrlx*7
-        if (lrlx .eq. 5) pdim = natrlx*(7+natrlx)
-        if (lrlx .eq. 6) pdim = natrlx*(12+2*natrlx)
-      endif
-      if (iprint() .ge. 30) then
-        if (lrlx .eq. 4) then
-          call info(0,1,0,' m_lmfinit RLXSTP: Molecular statics (conjugate gradients) ..',0,0)
-        elseif (lrlx .eq. 5) then
-          call info(0,1,0,' m_lmfinit RLXSTP: Molecular statics (Fletcher-Powell) ..',0,0)
-        else
-          call info(0,1,0,' m_lmfinit RLXSTP: Molecular statics (Broyden) ..',0,0)
-        endif
-        call info2(0,0,0, '     relaxing %i variables, %i iterations',natrlx,nitrlx)
-        write(stdo,"('    x-tol g-tol step=',4d13.6)") mdprm(3),mdprm(4),mdprm(5)
-      endif
- 9299 continue
-      end block
+            call info2(0,0,0, '     relaxing %i variables, %i iterations',natrlx,nitrlx)
+            write(stdo,"('    x-tol g-tol step=',4d13.6)") mdprm(3),mdprm(4),mdprm(5)
+         endif
+ 9299    continue
+         end block
       endif
       end subroutine m_lmfinit_init
 !ssssssssssssssssssssss      
