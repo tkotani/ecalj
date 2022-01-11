@@ -4,8 +4,8 @@
      &     ctrl_ldos,ctrl_nitmv,ctrl_nvario,ctrl_tol,
      &     ham_seref,ctrl_lfrce,  
      &     sspec=>v_sspec, ssite=>v_ssite, 
-     &     nlibu,stdo,lrout,leks,plbnd,lpzex, nitrlx, mdprm
-c     &     natrlx, indrx_iv,  xyzfrz, pdim
+     &     nlibu,stdo,lrout,leks,plbnd,lpzex, nitrlx
+     &     , indrx_iv,natrlx,xyzfrz,pdim
       use m_lattic,only: qlat=>lat_qlat,rv_a_opos
       use m_chkdmu,only:  eorb
       use m_bandcal,only: dmatu
@@ -42,11 +42,7 @@ c     &     natrlx, indrx_iv,  xyzfrz, pdim
       character strn*120, alabl*8, flg*3
       logical :: cmdopt,llmfgw,lbin,cmdopt0 !,lshr=.false.
       integer :: i,ifi,ipr,irs1x, k, nit1,numq, lsc
-      integer :: icom,  nvrelx , itrlx, irlxsh=0 !, nitrlx
-      
-      integer :: natrlx ,pdim
-      logical::  xyzfrz(3)
-      integer, allocatable :: indrx_iv(:,:) ! for relaxation
+      integer :: icom,  nvrelx , itrlx, irlxsh=0 
       
       integer:: ibas,unlink,ifipos,ifile_handle, maxit,iter,j,idmatu,iprint
       real(8) :: gam(4),gam1,bstim,pletot(6,2)
@@ -65,17 +61,6 @@ c     &     natrlx, indrx_iv,  xyzfrz, pdim
 !! Sep2020 comment " Shorten site positions" removed. (we are using shortn3 mainly now)
       call tcn('lmfp')
       ipr = iprint() !call getpr(ipr) !ipr is pring verbose control
-      if(ipr>=30) call praugm(sspec,0) !Printout only: properties of species
-      if(lrout == 0 .and. ctrl_lfrce /= 0) then
-        write(stdo,"(a)") 'Error: output density required when forces sought.\n'//
-     &              '      To make output density turn off HF=t and/or NEVMX<0'
-        call rx('incompatible input. see the end of console output')
-      endif
-      if(lrout == 0 .and. cmdopt0('--etot')) then
-        write(stdo,"(a)") 'Error: output density required with --etot switch.\n'//
-     &              '      To make output density turn off HF=t and/or NEVMX<0'
-        call rx('incompatible input. see the end of console output')
-      endif
 !!  tolerances for convergence check. q charge and e energy
       qtol = ctrl_tol(1)
       etol = ctrl_tol(3)
@@ -83,13 +68,7 @@ c     &     natrlx, indrx_iv,  xyzfrz, pdim
       maxit = ctrl_maxit
       if(lrout == 0 ) maxit = 1
 !! Atomic position Relaxation setup (MD mode)
-c      nitrlx= ctrl_nitmv  ! num of iteration cycle for atomic relaxiation (outer loop)
-c      mdprm = ctrl_mdprm  ! MD(relxation) condition setup
-c      if( nint(mdprm(1))==0) nitrlx=0 !no relaxiation. Only sc calculation for given atomic position.
-c      if( nint(mdprm(1))>0 .and. nint(mdprm(1))<4 ) call rx('lmf not set up for MD yet')
-      if( nitrlx>0 ) then   !nitrlx >0 is for atomic position relaxiation
-        allocate(indrx_iv(2,3*nbas))
-        call rlxstp(natrlx, indrx_iv,  xyzfrz, pdim )
+      if( nitrlx>0 ) then 
         icom = 0
         if(natrlx /= 0) allocate(w_rv(natrlx*natrlx),p_rv(pdim))
         if(master_mpi) then

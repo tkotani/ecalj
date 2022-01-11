@@ -133,13 +133,13 @@ Ci          functions are less than tol.
       integer,protected,target::ldham(16)
       integer,protected,pointer:: nlmto !total number of MTOs
       
-      integer,protected:: nitrlx,pdim,natrlx
-      logical,protected:: xyzfrz(3)
-      integer,allocatable:: indrx_iv(:,:)
-      
 !! For SOC 
       real(8),protected:: socaxis(3)
      
+      integer,protected:: nitrlx,natrlx,pdim
+      logical,protected:: xyzfrz(3)
+      integer,allocatable:: indrx_iv(:,:)
+      real(8),protected:: defm(6)
       
 !! sspec and ssite are unprotected (be careful)
       type(s_spec),allocatable:: v_sspec(:) !(nspec: number of species in the cell)
@@ -2157,81 +2157,67 @@ c      if (sum(lldau)/=0) lcplxp = 1
 !! Atomic position Relaxation setup (MD mode)
       nitrlx= ctrl_nitmv  ! num of iteration cycle for atomic relaxiation (outer loop)
       mdprm = ctrl_mdprm  ! MD(relxation) condition setup
+      defm  = ctrl_defm   !call dcopy(size(ctrl_defm),ctrl_defm,1,defm,1)
       if( nint(mdprm(1))==0) nitrlx=0 !no relaxiation. Only sc calculation for given atomic position.
       if( nint(mdprm(1))>0 .and. nint(mdprm(1))<4 ) call rx('lmf not set up for MD yet')
       if( nitrlx>0 ) then       !nitrlx >0 is for atomic position relaxiation
-        allocate(indrx_iv(2,3*nbas))
-c        call rlxstp(natrlx, indrx_iv,  xyzfrz, pdim )
-c     icom = 0
-c     if(natrlx /= 0) allocate(w_rv(natrlx*natrlx),p_rv(pdim))
-c     if(master_mpi) then
-c     open(newunit=ifipos,file='AtomPos.'//trim(sname),form='unformatted',status='new')
-c     write(ifipos) nbas
-c     write(ifipos) 0,site_position
-c     endif   
-c     allocate(pos_move(3,nbas))
-c     nbas=ctrl_nbas
-c     nitrlx=ctrl_nitmv
-c     call dcopy(size(ctrl_mdprm),ctrl_mdprm,1,mdprm,1)
-c     call dcopy(size(ctrl_defm),ctrl_defm,1,defm,1)
-         
-c$$$         block
-c$$$         integer i,j,k,i1mach,ifrlx(3),lrlx
-c$$$         logical force,md
-c$$$         force = int(ctrl_lfrce) .gt. 0
-c$$$         if (.not. force .or. nint(mdprm(1)) .eq. 0) return
-c$$$         md = nint(mdprm(1)) .le. 3
-c$$$         lrlx = mod(nint(mdprm(1)),100)
-c$$$         j = 0
-c$$$         if (md) then
-c$$$            xyzfrz = .false.
-c$$$         elseif (force .and. mdprm(1) .ge. 100) then
-c$$$            do  i = 1, 6
-c$$$               if (ctrl_defm(i) .eq. 1) then
-c$$$                  j = j+1
-c$$$                  indrx_iv(1,j) = i
-c$$$               endif
-c$$$            enddo
-c$$$         elseif (force) then
-c$$$            do  i = 1, nbas
-c$$$               ifrlx=v_ssite(i)%relax
-c$$$               do  k = 1, 3
-c$$$                  if (ifrlx(k) .eq. 1) then
-c$$$                     j = j + 1
-c$$$                     indrx_iv(1,j) = k
-c$$$                     indrx_iv(2,j) = i
-c$$$                     xyzfrz(k) = .false.
-c$$$                  endif
-c$$$               enddo
-c$$$            enddo
-c$$$         endif
-c$$$         if(.not.md) then
-c$$$           natrlx = j
-c$$$           if (natrlx /=0) then
-c$$$            pdim = 0
-c$$$            if (.not. md) then
-c$$$              if (lrlx .eq. 4) pdim = natrlx*7
-c$$$              if (lrlx .eq. 5) pdim = natrlx*(7+natrlx)
-c$$$              if (lrlx .eq. 6) pdim = natrlx*(12+2*natrlx)
-c$$$            endif
-c$$$            if (iprint() .ge. 30) then
-c$$$            if (lrlx .eq. 4) then
-c$$$               call info(0,1,0,' RLXSTP: Molecular statics (conjugate gradients) ..',0,0)
-c$$$            elseif (lrlx .eq. 5) then
-c$$$               call info(0,1,0, ' RLXSTP: Molecular statics (Fletcher-Powell) ..',0,0)
-c$$$            else
-c$$$               call info(0,1,0, ' RLXSTP: Molecular statics (Broyden) ..',0,0)
-c$$$            endif
-c$$$            call info2(0,0,0, '         relaxing %i variables, %i iterations',natrlx,nitrlx)
-c$$$            call awrit4('    x-tol=%d, g-tol=%d, step=%d (pdim=%i)',
-c$$$     .           ' ',120,i1mach(2),mdprm(3),mdprm(4),mdprm(5),pdim)
-c$$$            endif
-c$$$           endif
-c$$$         endif
-c$$$         end block
+         allocate(indrx_iv(2,3*nbas))
+ccc      call rlxstp(natrlx, indrx_iv,  xyzfrz, pdim )
+      block   
+      integer:: i,j,k,ifrlx(3),lrlx 
+      logical:: force,mdxx
+      force = int(ctrl_lfrce) .gt. 0
+      if (.not. force .or. nint(mdprm(1)) .eq. 0) goto 9299
+      mdxx = nint(mdprm(1)) .le. 3
+      lrlx = mod(nint(mdprm(1)),100)
+      j = 0
+      if (mdxx) then
+        xyzfrz = .false.
+        goto 9299
+      elseif (force .and. mdprm(1) .ge. 100) then
+        do  i = 1, 6
+          if (defm(i) .eq. 1) then
+            j = j+1
+            indrx_iv(1,j) = i
+          endif
+        enddo
+      elseif (force) then
+        do  i = 1, nbas
+          ifrlx=v_ssite(i)%relax
+          do  k = 1, 3
+            if (ifrlx(k) .eq. 1) then
+              j = j + 1
+              indrx_iv(1,j) = k
+              indrx_iv(2,j) = i
+              xyzfrz(k) = .false.
+            endif
+          enddo
+        enddo
+      endif
+      natrlx = j
+      if (natrlx .eq. 0) goto 9299
+      pdim = 0
+      if (.not. mdxx) then
+        if (lrlx .eq. 4) pdim = natrlx*7
+        if (lrlx .eq. 5) pdim = natrlx*(7+natrlx)
+        if (lrlx .eq. 6) pdim = natrlx*(12+2*natrlx)
+      endif
+      if (iprint() .ge. 30) then
+        if (lrlx .eq. 4) then
+          call info(0,1,0,' m_lmfinit RLXSTP: Molecular statics (conjugate gradients) ..',0,0)
+        elseif (lrlx .eq. 5) then
+          call info(0,1,0,' m_lmfinit RLXSTP: Molecular statics (Fletcher-Powell) ..',0,0)
+        else
+          call info(0,1,0,' m_lmfinit RLXSTP: Molecular statics (Broyden) ..',0,0)
+        endif
+        call info2(0,0,0, '     relaxing %i variables, %i iterations',natrlx,nitrlx)
+        write(stdo,"('    x-tol g-tol step=',4d13.6)") mdprm(3),mdprm(4),mdprm(5)
+      endif
+ 9299 continue
+      end block
       endif
       end subroutine m_lmfinit_init
-      
+!ssssssssssssssssssssss      
       subroutine getiout(a,iin,iout) !a(1:iout) can be nonzero.
       integer:: iin,iout,i
       real(8):: a(iin)
@@ -2242,6 +2228,7 @@ c$$$         end block
          endif
       enddo
       end
+!ssssssssssssssssssssss      
       subroutine getiout10(a,iin,iout) !a(1:iout-1) can be >10
       real(8):: a(iin)
       integer:: iin,iout,i
@@ -2252,8 +2239,6 @@ c$$$         end block
          endif
       enddo
       end
-
-      
       end module m_lmfinit
 
 
