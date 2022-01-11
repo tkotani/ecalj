@@ -192,7 +192,6 @@ splwts.o \
 strx00.o \
 subzi.o \
 suclst.o \
-sudmtu.o \
 sugcut.o \
 suham.o \
 suldau.o \
@@ -354,7 +353,6 @@ rdm.o \
 rdtok.o \
 rfalsi.o \
 ropylg.o \
-s8tor8.o \
 setfac.o \
 strings.o \
 strip.o \
