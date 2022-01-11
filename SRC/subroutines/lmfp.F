@@ -4,7 +4,8 @@
      &     ctrl_ldos,ctrl_nitmv,ctrl_nvario,ctrl_tol,
      &     ham_seref,ctrl_lfrce,  
      &     sspec=>v_sspec, ssite=>v_ssite, 
-     &     nlibu,stdo,lrout,leks,plbnd,lpzex
+     &     nlibu,stdo,lrout,leks,plbnd,lpzex, nitrlx, mdprm
+c     &     natrlx, indrx_iv,  xyzfrz, pdim
       use m_lattic,only: qlat=>lat_qlat,rv_a_opos
       use m_chkdmu,only:  eorb
       use m_bandcal,only: dmatu
@@ -39,14 +40,18 @@
 !!      Probably, we need to re-design it (maybe outside of fortran code).
       implicit none
       character strn*120, alabl*8, flg*3
-      logical :: cmdopt,llmfgw,xyzfrz(3),lbin,cmdopt0 !,lshr=.false.
-      integer :: i,ifi,ipr,irs1x, k, nit1,numq, pdim,lsc
-      integer :: icom, natrlx , nvrelx , itrlx, irlxsh=0, nitrlx 
+      logical :: cmdopt,llmfgw,lbin,cmdopt0 !,lshr=.false.
+      integer :: i,ifi,ipr,irs1x, k, nit1,numq, lsc
+      integer :: icom,  nvrelx , itrlx, irlxsh=0 !, nitrlx
+      
+      integer :: natrlx ,pdim
+      logical::  xyzfrz(3)
+      integer, allocatable :: indrx_iv(:,:) ! for relaxation
+      
       integer:: ibas,unlink,ifipos,ifile_handle, maxit,iter,j,idmatu,iprint
-      real(8) :: mdprm(6),gam(4),gam1,bstim,pletot(6,2)
+      real(8) :: gam(4),gam1,bstim,pletot(6,2)
       real(8) :: plat(3,3),xvcart(3),xvfrac(3)
       real(8):: seref,etot(2),qtol,etol
-      integer, allocatable :: indrx_iv(:,:) ! for relaxation
       real(8), allocatable :: pos_move(:,:),  ftot_rv(:), wk_rv(:), p_rv(:),w_rv(:)
       real(8), allocatable :: rv_a_omad (:) !  Madelung matrix if necessary
       integer,parameter:: nm=3
@@ -78,15 +83,15 @@
       maxit = ctrl_maxit
       if(lrout == 0 ) maxit = 1
 !! Atomic position Relaxation setup (MD mode)
-      nitrlx= ctrl_nitmv  ! num of iteration cycle for atomic relaxiation (outer loop)
-      mdprm = ctrl_mdprm  ! MD(relxation) condition setup
-      if( nint(mdprm(1))==0) nitrlx=0 !no relaxiation. Only sc calculation for given atomic position.
-      if( nint(mdprm(1))>0 .and. nint(mdprm(1))<4 ) call rx('lmf not set up for MD yet')
+c      nitrlx= ctrl_nitmv  ! num of iteration cycle for atomic relaxiation (outer loop)
+c      mdprm = ctrl_mdprm  ! MD(relxation) condition setup
+c      if( nint(mdprm(1))==0) nitrlx=0 !no relaxiation. Only sc calculation for given atomic position.
+c      if( nint(mdprm(1))>0 .and. nint(mdprm(1))<4 ) call rx('lmf not set up for MD yet')
       if( nitrlx>0 ) then   !nitrlx >0 is for atomic position relaxiation
         allocate(indrx_iv(2,3*nbas))
-        call rlxstp(natrlx, nvrelx, indrx_iv,  xyzfrz, pdim )
+        call rlxstp(natrlx, indrx_iv,  xyzfrz, pdim )
         icom = 0
-        if(nvrelx /= 0) allocate(w_rv(nvrelx*nvrelx),p_rv(pdim))
+        if(natrlx /= 0) allocate(w_rv(natrlx*natrlx),p_rv(pdim))
         if(master_mpi) then
            open(newunit=ifipos,file='AtomPos.'//trim(sname),form='unformatted',status='new')
            write(ifipos) nbas
@@ -170,10 +175,10 @@ c     &              leks+i, etol, qtol, qdiff dmxp(11), 'cxhi', amom, etot, lsc
             ssite(ibas)%pos0 = ssite(ibas)%pos
             pos_move(:,ibas) = ssite(ibas)%pos
          enddo
-         mdprm = ctrl_mdprm !MD setting
+c         mdprm = ctrl_mdprm !MD setting
 !! Relax atomic positions.   !--> shear mode removed. probably outside of fortran code if necessary
          call relax( ssite , sspec , itrlx , indrx_iv 
-     .        , natrlx, nvrelx, force , p_rv , w_rv , 0 , 0d0 , pos_move, icom )
+     .        , natrlx, force , p_rv , w_rv , 0 , 0d0 , pos_move, icom )
 !!  warn: Updating positions in ssite structure ==> t.kotani think this is confusing because
 !!        'positions written in ctrl' and 'positions written in rst' can be different.
          if(master_mpi) write(ifipos) itrlx,pos_move
@@ -192,7 +197,7 @@ C     ... Exit when relaxation converged or maximum number of iterations
 C     ... Restore minimum gradient positions if this is last step
          if (itrlx==nitrlx) then
             write(stdo,"(a)")' lmfp: restore positions for minimum g'
-            call prelx1(1 , nm , .false. , natrlx , nvrelx , indrx_iv , p_rv, pos_move )
+            call prelx1(1 , nm , .false. , natrlx , indrx_iv , p_rv, pos_move )
             do ibas=1,nbas !updated positions in site structure
                ssite(ibas)%pos = pos_move(:,ibas)
             enddo
@@ -219,6 +224,6 @@ C     ... Restore minimum gradient positions if this is last step
       if(master_mpi.and.nitrlx>0) close(ifipos)
       if(allocated(p_rv)) deallocate(p_rv)
       if(allocated(w_rv)) deallocate(w_rv)
-      if(allocated(indrx_iv)) deallocate(indrx_iv)
+c      if(allocated(indrx_iv)) deallocate(indrx_iv)
       call tcx('lmfp')
       end subroutine lmfp

@@ -1,4 +1,4 @@
-      subroutine relax(ssite,sspec,it,indrlx,natrlx,nvar,f, !,sctrl prgnam,
+      subroutine relax(ssite,sspec,it,indrlx,natrlx,f, !,sctrl prgnam,
      .p,w,nelts,delta,bas,icom)
       use m_struc_def  !Cgetarg
       use m_lmfinit,only:ctrl_nbas,ctrl_nitmv,ctrl_mdprm
@@ -19,7 +19,7 @@ Ci   it:        iteration number
 Ci   indrlx(1,i) points to the ith relaxing component and
 Ci   indrlx(2,i) points to the corresponding site (see rlxstp)
 Ci   natrlx:    # of relaxing degrees of freedom for atoms or shear
-Ci   nvar:      # of relaxing degrees of freedom for atoms or shear
+Ci   natrlx:      # of relaxing degrees of freedom for atoms or shear
 Ci   f:         forces
 Ci   p:         work array for gradzr (dimensioned in rlxstp)
 Ci   w:         work array for the hessian
@@ -38,7 +38,7 @@ Cl   wkg:       work array used by gradzr.
 Cl              It should not be modified between iterations
 Cr Remarks:
 Cr   At version 6.10 volume and shear relaxations have been removed;
-Cr   hence nvar=natrlx.
+Cr   hence natrlx=natrlx.
 Cr   When ctrl->mdprm(1) > 100, bas are shear coords
 Cu Updates
 Cu   21 Mar 06 mdprm(1)>100 signifies shear relaxation
@@ -48,9 +48,9 @@ C ----------------------------------------------------------------------
       implicit none
 C Passed Parameters
 c      character prgnam*8
-      integer it,nit,natrlx,nvar,nelts,icom,procid,master,mpipid
+      integer it,nit,natrlx,nelts,icom,procid,master,mpipid
       integer indrlx(2,natrlx)
-      real(8):: f(3,*) , w(nvar,nvar) , p(nvar,6) , delta(nelts,*) 
+      real(8):: f(3,*) , w(natrlx,natrlx) , p(natrlx,6) , delta(nelts,*) 
      ., bas(3,*)
 c      type(s_ctrl)::sctrl
       type(s_site)::ssite(*)
@@ -100,26 +100,26 @@ C --- Make vector of positions and gradients ---
 C --- Initialization ---
       if (it .eq. 1) then
         ir = 0
-        call dcopy(nvar*nvar,0d0,0,w,1)
-        call dcopy(nvar,1d0,0,w,nvar+1)
+        call dcopy(natrlx*natrlx,0d0,0,w,1)
+        call dcopy(natrlx,1d0,0,w,natrlx+1)
 C   ... Read Hessian from disc
         if (rdhess) then
           if (procid .eq. master) then
             ifi = fopna('HSSN',-1,4)
             rewind ifi
 C     ... Hessian written in rdm-compatible format
-            if (rdm(ifi,2,nvar*nvar,' ',w,nvar,nvar) .lt. 0) then
+            if (rdm(ifi,2,natrlx*natrlx,' ',w,natrlx,natrlx) .lt. 0) then
 C       ... Attempt to read Hessian failed.  Make it unity
               call info0(-20,0,0,
      .        ' RELAX: (warning) failed to read Hessian; set to unity')
-              call dcopy(nvar*nvar,0d0,0,w,1)
-              call dcopy(nvar,1d0,0,w,nvar+1)
+              call dcopy(natrlx*natrlx,0d0,0,w,1)
+              call dcopy(natrlx,1d0,0,w,natrlx+1)
             else
               call info0(-20,0,0,' RELAX: Hessian read from disc')
             endif
             call fclose(ifi)
           endif
-          call mpibc1(w,nvar*nvar,4,.false.,'relax','hssn')
+          call mpibc1(w,natrlx*natrlx,4,.false.,'relax','hssn')
         else
           call info0(-30,0,0,' RELAX: no Hessian read from disc')
         endif
@@ -152,7 +152,7 @@ C ... the user sets xtol _and_ gtol.
         if (gtol .eq. 0) isw = isw-10
         if (xtol .eq. 0) isw = isw-20
       endif
-      call gradzr(nvar,p,w,xtoll,step,xtol,gtol,grfac,wkg,isw,ir)
+      call gradzr(natrlx,p,w,xtoll,step,xtol,gtol,grfac,wkg,isw,ir)
       if (ir .gt. 0) then
         call rx1('RELAX: gradzr returned ir=%i ... aborting',ir)
       endif
@@ -167,8 +167,8 @@ C ... the user sets xtol _and_ gtol.
      .    '%-1j%?#n==-5#extrap ln ##'//
      .    '%-1j%?#n==-6#trouble!!##'//
      .    '  dxmx=%;7F  |g|=%1;3g',' ',80,stdl,wkg(19),ir,
-     .    wkg(1)*p(idamax(nvar,p(1,nd),1),nd),
-     .    dsqrt(ddot(nvar,p(1,2),1,p(1,2),1)))
+     .    wkg(1)*p(idamax(natrlx,p(1,nd),1),nd),
+     .    dsqrt(ddot(natrlx,p(1,2),1,p(1,2),1)))
           if (ipr .ge. 20) call awrit4(' RELAX line %d:  %1j'//
      .    '%-1j%?#n==-0#converged to tolerance##'//
      .    '%-1j%?#n==-1#new line minimization##'//
@@ -178,43 +178,43 @@ C ... the user sets xtol _and_ gtol.
      .    '%-1j%?#n==-5#extrapolated along this line##'//
      .    '%-1j%?#n==-6#is in trouble##'//
      .    ';  max shift=%;7F  |g|=%1;3g',' ',80,stdo,wkg(19),ir,
-     .    wkg(1)*p(idamax(nvar,p(1,nd),1),nd),
-     .    dsqrt(ddot(nvar,p(1,2),1,p(1,2),1)))
+     .    wkg(1)*p(idamax(natrlx,p(1,nd),1),nd),
+     .    dsqrt(ddot(natrlx,p(1,2),1,p(1,2),1)))
         endif
       elseif (lrlx .eq. 6) then
         if (procid .eq. master) then
           call awrit3(' fp rlx Br '//
      .    '%?#n==0#cnvg#%-1jit %i#  dxmx=%;7F  |g|=%1;3g',' ',
-     .    80,stdl,-ir,p(idamax(nvar,p(1,ns),1),ns),
-     .    dsqrt(ddot(nvar,p(1,2),1,p(1,2),1)))
+     .    80,stdl,-ir,p(idamax(natrlx,p(1,ns),1),ns),
+     .    dsqrt(ddot(natrlx,p(1,2),1,p(1,2),1)))
           if (ipr .ge. 20) call awrit4(' RELAX:  %1j'//
      .    '%-1j%?#n==-0#converged to tolerance##'//
      .    '%-1j%?#n<0#completed Broyden iter %i#%j#'//
      .    ';  max shift=%;7F  |g|=%1;3g',' ',80,stdo,
-     .    ir,-ir,p(idamax(nvar,p(1,ns),1),ns),
-     .    dsqrt(ddot(nvar,p(1,2),1,p(1,2),1)))
+     .    ir,-ir,p(idamax(natrlx,p(1,ns),1),ns),
+     .    dsqrt(ddot(natrlx,p(1,2),1,p(1,2),1)))
         endif
       endif
       if (ir .eq. 0) icom = 1
 C --- Printout  ---
       if (ipr .ge. 40) then
         call info0(-40,0,0,'        Gradients:')
-        print 100, (p(i,2), i = 1, nvar)
+        print 100, (p(i,2), i = 1, natrlx)
         if (lrlx .ne. 4 .and. (it .ne. 1 .or. xtol .ne. 0)) then
           call info0(-40,0,0,'      Diagonal inverse Hessian:')
-          print 100, (w(i,i), i = 1,nvar)
+          print 100, (w(i,i), i = 1,natrlx)
         endif
       endif
   100 format(10f8.3)
 C --- Update atom positions ---
-      call prelx1(1,1,lshr,natrlx,nvar,indrlx,p,bas)
+      call prelx1(1,1,lshr,natrlx,indrlx,p,bas)
 C --- Write Hessian to disc ---
       if (rdhess .and. (icom .eq. 1 .or. it .eq. nit) .or. .true.) then
         if (procid .eq. master) then
           ifi = fopna('HSSN',-1,4)
 C   ... Hessian written in rdm-compatible format
           rewind ifi
-          write(ifi) nvar,nvar,11
+          write(ifi) natrlx,natrlx,11
           write(ifi) w
           call fclose(ifi)
         endif
@@ -228,8 +228,8 @@ C --- Periodically remove hessian ---
      .    '   ...  resetting hessian : iter=%i nkill=%i',it,nkill)
           ifi = fopna('HSSN',-1,4)
           call dfclos(ifi)
-          call dcopy(nvar*nvar,0d0,0,w,1)
-          call dcopy(nvar,1d0,0,w,nvar+1)
+          call dcopy(natrlx*natrlx,0d0,0,w,1)
+          call dcopy(natrlx,1d0,0,w,natrlx+1)
         endif
       endif
 C --- Printout ---
@@ -237,7 +237,7 @@ C --- Printout ---
       lpp = (icom .eq. 1 .or. it .eq. nit) .and. ipr .ge. 30 .or.ipr .ge. 31
       if (natrlx .gt. 0 .and. lpp .and. lshr) then
         call dpzero(xv,6)
-        call grdep2(1,nvar,indrlx,bas,xv)
+        call grdep2(1,natrlx,indrlx,bas,xv)
         call info2(-20,0,0,' Update shear%N   PDEF=%6;8,4D%N STRAIN=%6;8,4D',bas,xv)
       elseif (natrlx .gt. 0 .and. lpp) then
         print 120
@@ -273,7 +273,7 @@ C ... Write new atom positions to LOG file, for use in CTRL file
       call tcx('relax')
       end subroutine relax
 
-      subroutine prelx1(mode,nm,lshr,natrlx,nvar,indrlx,p,bas)
+      subroutine prelx1(mode,nm,lshr,natrlx,indrlx,p,bas)
 C- Copy vector of variables to be minimized from/to bas
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -294,8 +294,8 @@ Cu   09 Mar 06 Extracted from relax.f for use by other routines
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer mode,nm,natrlx,nvar,indrlx(2,natrlx)
-      double precision p(nvar,nm),bas(3,*)
+      integer mode,nm,natrlx,indrlx(2,natrlx)
+      double precision p(natrlx,nm),bas(3,*)
       logical lshr
 C ... Local parameters
       integer i,j,iat,ix
