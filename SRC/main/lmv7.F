@@ -144,17 +144,16 @@ c
       if (irs1x == 0) then ! read overlap free-atom densities
          call rdovfa()     ! superposition of spherical atomic densities by lmfa.
          nit1 = 0
-      elseif( mod(irs1x,4)==2 ) then 
-         call rx('we donot support rsta mode anymore')
-      elseif( mod(irs1x,4)==1 ) then 
-         lbin = .true. !(irs1x==1) ! lbin=T:rst for --rs=1, or lbin=F:rsta for --rs=2,
+      elseif( mod(irs1x,4)==1 .or. mod(irs1x,4)==2 ) then 
+         lbin = (irs1x==1) ! lbin=T:rst for --rs=1, or lbin=F:rsta for --rs=2,
          k = -1
          if(master_mpi) then
-           ifi=ifile_handle() 
-           open(ifi,file='rst.'//trim(sname),form='unformatted')
+            ifi=ifile_handle() 
+            if(lbin)       open(ifi,file='rst.'//trim(sname),form='unformatted')
+            if(.not. lbin) open(ifi,file='rsta.'//trim(sname)) 
          endif
          call mpibc1_int(ifi,1,'lmfp_ifi')
-         k = iors(nit1 , lbin=.true. , ifi=ifi )! read rst file. sspec ssite maybe modified 
+         k = iors(nit1 , lbin, ifi=ifi )! read rst file. sspec ssite maybe modified 
          if (master_mpi) close(ifi) 
          call mpibc1_int(k,1,'lmfp_k')
          call Setopos() !set pos read in iors into rv_a_opos
