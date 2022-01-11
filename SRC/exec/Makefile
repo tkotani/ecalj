@@ -94,10 +94,10 @@ VERSIONFLAGS = -D___UNAME_A___="\"$(result_uname_a)\""   \
 ########################################
 # Generate o of main routines for lmf 
 ########################################
-$(obj_path)/lmfa.o: $(main)lmv7.F 
-	$(FC) $(FFLAGS_NONE) -DLMFA -c $< -o $@
-$(obj_path)/lmchk.o: $(main)lmv7.F 
-	$(FC) $(FFLAGS_NONE) -DLMCHK -c $< -o $@
+$(obj_path)/lmfa.o: $(main)lmfa.F 
+	$(FC) $(FFLAGS_NONE) -c $< -o $@
+$(obj_path)/lmchk.o: $(main)lmchk.F 
+	$(FC) $(FFLAGS_NONE) -c $< -o $@
 $(obj_path)/lmf2gw.o: $(main)lmf2gw.F 
 	$(FC) $(FFLAGS_NONE) -c $< -o $@
 $(obj_path)/lmfham.o: $(main)lmfham.F
