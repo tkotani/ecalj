@@ -191,14 +191,14 @@ c------------------------------------------------------------------------
 
 c      if (nspin == 2) stop 'nspin=2 require some change!'
 c
-      inquire(file='NoCore',exist=nocore)
-      if(nocore) then
-        ifvxcfp  = iopen('VXCFPV',0,0,0)
-        write(6,*)' OPEN VXCFPV = valence only Vxc'
-      else
+c      inquire(file='NoCore',exist=nocore)
+c      if(nocore) then
+c        ifvxcfp  = iopen('VXCFPV',0,0,0)
+c        write(6,*)' OPEN VXCFPV = valence only Vxc'
+c      else
         write(6,*)' OPEN VXCFP '
         ifvxcfp  = iopen('VXCFP',0,0,0)
-      endif
+c      endif
       read(ifvxcfp) ldim,nqbz
       write(6,*)' rsexx ldim,nqbz',ldim,nqbz
       allocate(qqq(3,nqbz),vxcfpx(ldim,nqbz,nspin))

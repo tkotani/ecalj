@@ -122,12 +122,13 @@ c----------------------------------------------
       open(newunit=ifichkv,file='VXCFP.chk')
       write(ifichkv,"(a)") '### LDA exchange correlation ###'
       write(ifichkv,"(a)")'#   qvec                 ikp iband    eigen VXC(ntotal)     VXC(nvalence)'
-      open(newunit=ifigwb,file='gwb'//trim(ext),form='unformatted')
-      read (ifigwb) nbas,nsp,ldim2,ndimh,alat,qlat,ef0,nqbz,plat(1:3,1:3),nqbze, nqirr !feb2012takao
-      nqbze=nqirr    !nqbze means number of calculated bands (irreducible only)         feb2012takao
+      open(newunit=ifigwb,file='gwb.head',form='unformatted')
+      read (ifigwb) nbas,nsp,ldim2,ndimh,alat,qlat,ef0,nqbz,plat(1:3,1:3),nqbze, nqirr 
+      nqbze=nqirr    !nqbze means number of calculated bands (irreducible only)        
       allocate(lmxaa(1:nbas), bas(1:3,1:nbas))
       read (ifigwb) lmxaa(1:nbas), bas(1:3,1:nbas)
-      read (ifigwb) ngpmx !, ngcmx
+      read (ifigwb) ngpmx       !, ngcmx
+      close(ifigwb)
       lmxamx = maxval(lmxaa(1:nbas))
       allocate( iclass(nbas) )
 

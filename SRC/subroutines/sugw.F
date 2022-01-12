@@ -93,7 +93,7 @@ c      use m_shortn3,only: shortn3_initialize,shortn3
      .ncore,ndima,nevl,nev,nglob,ngp,ngp_p, 
      .ngpmx,nline,nlinemax,nlmax,nmx,nn1,nn2,nnn,npgrp,
      .nphimx,npqn,nqbz,nqibz,nqnum,nqnumx,nqtot,nr,nsgrp,iqibz,imx, 
-     & ifigwb,ifigwa,ifinormchk,ifigw1,ifildima,ifigwn,
+     & ifigwb,ifigwa,ifinormchk,ifigw1,ifildima,ifigwn,ifigwbhead,
      & ificlass,ifievec,ifievecx,ifigw2,ifiqbz,ifievv
       complex(8) ,allocatable :: aus_zv(:)
       real(8) ,allocatable :: ww_rv(:)
@@ -248,7 +248,6 @@ c      endif
       open(newunit=ifigw2,file='gw2.'//trim(sprocid),form='unformatted')
       if(master_mpi) open(newunit=ifigwa,file='gwa.'//trim(sprocid),form='unformatted')
       ef0 = 1d99        !dummy
-      if(master_mpi) write(ifigwb) nat,nsp,ndima,ndham,alat,qlat,ef0,nqbz,plat,nqnum,nqi
       allocate(ips(nbas),lmxa(nat),bas(3,nat),iantiferro(nat))
       iat = 0
       do  i = 1, nbas
@@ -261,7 +260,13 @@ c      endif
             iantiferro(iat)=ssite(i)%iantiferro
          endif
       enddo
-      if(master_mpi) write(ifigwb) lmxa(1:nat), bas(1:3,1:nat)
+      if(master_mpi) then
+         open(newunit=ifigwbhead,file='gwb.head',form='unformatted')
+         write(ifigwbhead) nat,nsp,ndima,ndham, alat,qlat,ef0,nqbz,plat,nqnum,nqi
+         write(ifigwbhead) lmxa(1:nat), bas(1:3,1:nat)
+         write(ifigwbhead) ngpmx
+         close(ifigwbhead)
+      endif 
       print *,'iantiferro=',iantiferro
       deallocate(ips,lmxa)
 
@@ -357,7 +362,6 @@ c     call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
         write(ifinormchk,"(a)")
      &   '#     eval          IPW        IPW(diag)    Onsite(tot)   Onsite(phi)      Total'
       endif
-      if(master_mpi) write(ifigwb) ngpmx
 !! --- Evecs and matrix elements of vxc for irr qp ---
 !!    Note: this routine should use only irr qp.
       if (lsig > 0) then

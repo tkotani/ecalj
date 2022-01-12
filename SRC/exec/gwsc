@@ -83,7 +83,7 @@ do
     #run_arg  '---' $NO_MPI   $nfpgw /lmf2gw     llmf2gw  #reform data for gw
 
     ##### main stage of gw ################
-    argin=0; run_arg $argin $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files
+    run_arg $argin $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files
     mv normchk* STDOUT
     rm gw1* gw2* gwa* gwb*
     
