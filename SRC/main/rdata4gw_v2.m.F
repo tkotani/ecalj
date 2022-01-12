@@ -1,16 +1,16 @@
       program rdata4gw_v2
-C- Generate input files for GW calculations from DATA4GW_V2 and so.
+      use m_lmf2gw,only:Lmf2gw
+C- Generate input files used in GW calculations
 C-------------------------------------------------------------------------
-Ci Input files
-Ci  QIBZ      : irreducible q point.  Given by qg4gw.
-Ci  QGpsi     : q and G vector for the Coulomb matrix. Given by qg4gw.
-Ci  QGcou     : q and G vector for the Coulomb matrix. Given by qg4gw.
-Ci  Q0P       : q points near q=0 instead of q=0. Given by qg4gw.
-Ci  GWIN0     : required inputs for GW only read its nband.
-Ci  SYMOPS    : points group operation.
-Ci  DATA4GW_V2:  main input, which contains eigenfunctions, radial functions...
-Ci
-Co Output files  *U means for upper spin. *D means for down spin.
+!!Input files
+!!  QIBZ      : irreducible q point.  Given by qg4gw.
+!!  QGpsi     : q and G vector for the Coulomb matrix. Given by qg4gw.
+!!  QGcou     : q and G vector for the Coulomb matrix. Given by qg4gw.
+!!  Q0P       : q points near q=0 instead of q=0. Given by qg4gw.
+!!  GWinput   :
+!!  lmfgw      
+!!Output files  *U means for upper spin. *D means for down spin.
+!!  VXCFP.chk : for check      
 Co  hbe.d   :  datasize
 Co  CPHI    :  Coefficients of eigenfun for augmentation wave in each MT
 Co  EV[UD]  : valence eigen value
