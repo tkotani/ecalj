@@ -175,9 +175,9 @@ c----------------------------------------------
           read (ifigwb_) ngp !,ngc
           allocate( geig(ngp, nbandmx), ngvecp(3,ngp) )
           geig=1d20
-          read(ifigwb_) ngvecp,geig(:,1:nband)
+          read(ifigwb_) geig(:,1:nband) !ngvecp,
           write(ificg)  ngp
-          write(ificg)  geig(1:ngp,1:nbandmx)
+          if(ngp>0) write(ificg)  geig(1:ngp,1:nbandmx)
           deallocate(geig,ngvecp) !takao feb2012 ,ngvecc )
           fname='gw1'//trim(extp(iprocq(iqq,isp)))
           inquire(file=trim(fname),opened=iopen,number=ifigwx1_)

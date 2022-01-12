@@ -7,7 +7,7 @@ Ci  QGpsi     : q and G vector for the Coulomb matrix. Given by qg4gw.
 Ci  QGcou     : q and G vector for the Coulomb matrix. Given by qg4gw.
 Ci  Q0P       : q points near q=0 instead of q=0. Given by qg4gw.
 Ci  GWIN0     : required inputs for GW only read its nband.
-Ci  SYMOPS    : points group operation.
+Cixxx  SYMOPS    : points group operation.
 Ci  DATA4GW_V2:  main input, which contains eigenfunctions, radial functions...
 Ci
 Co Output files  *U means for upper spin. *D means for down spin.
@@ -1586,7 +1586,7 @@ c      ifiqibz = 6662
       write(ifhvccfp) qibz(1:3,1:nqibz)
       write(6,*)
       write(6,"('  ngrp   = ',i3)")ngrp
-      write(6,"('  symops = ',a30)")symgrpo
+c      write(6,"('  symops = ',a30)")symgrpo
       write(6,'("  qibz=",i3,3f12.5)')(i,qibz(1:3,i),i=1,nqibz)
 !!
 c      ifnqibz = 888

@@ -1,4 +1,7 @@
       module m_hamindex !all protected now 
+      use m_lmfinit,only: ham_pwmode,pwemax,ham_ldham,
+     &     alat=>lat_alat,nl,ctrl_nbas,ssite=>v_ssite,sspec=>v_sspec,n0,nkap0,iprmb
+      use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
       use NaNum,only: NaN       !for initialization, but not working well
       integer,protected,public:: ngrpaf,ngrp_original
       integer,protected,public:: nqi=NaN, nqnum=NaN, ngrp=NaN, lxx=NaN, kxx=NaN,norbmto=NaN,
@@ -20,9 +23,6 @@ csssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine m_hamindex_init(ljobgw)
       use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp, iclasstaf_,symops_af_,ag_af_,ngrpaf_
       use m_struc_def           !Cgetarg
-      use m_lmfinit,only: ham_pwmode,pwemax,ham_ldham,
-     &     alat=>lat_alat,nl,ctrl_nbas,ssite=>v_ssite,sspec=>v_sspec,n0,nkap0,iprmb
-      use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
       use m_shortn3,only: shortn3_initialize,shortn3
       use m_MPItk,only: master_mpi
 !!-- Set up m_hamiltonian. Index for Hamiltonian. --
@@ -431,8 +431,10 @@ c      if(debug) print *,'nkt=',nkt
       write(ifi)plat,qlat,napwmx
       if(napwmx/=0) then !for APW rotation used in rotwvigg
          write(ifi) igv2,napwk,igv2rev
-      endif   
-      write(ifi)plat,qlat,napwmx
+      endif
+!xxx      
+      write(ifi) alat,rv_a_opos
+      
       close(ifi)
       end subroutine writehamindex
 
