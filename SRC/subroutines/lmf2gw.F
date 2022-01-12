@@ -64,7 +64,7 @@
      &lmxamx,   ! = maxval(lmxa(1:nclass))
      &ngpmx,    ! Maximum number of G vector.
      &ldim2,    ! = total number of augmentation functions nRlm
-     &nphi,     ! = total number of augmentation functions nRl
+c     &nphi,     ! = total number of augmentation functions nRl
      &nqbze     ! = nqbz*(1+nq0i). Number of q points given by qg4gw
       character(8),allocatable,protected:: spid(:)
       integer,allocatable::
@@ -130,6 +130,7 @@ c----------------------------------------------
       nqbze=nqirr    !nqbze means number of calculated bands (irreducible only)         feb2012takao
       allocate(lmxaa(1:nbas), bas(1:3,1:nbas))
       read (ifigwb) lmxaa(1:nbas), bas(1:3,1:nbas)
+      read (ifigwb) ncoremx,nrmx
       close(ifigwb)
       lmxamx = maxval(lmxaa(1:nbas))
       allocate( iclass(nbas) )
@@ -253,10 +254,12 @@ c          close(ifigwx1_),  close(ifigwx2_),   close(ifigwb_)
       close(ificg)
       deallocate( cphi,evl, vvv1,vvv2,vvv3)
 !! ATOMIC PART ic = ibas scheme ==,  GET nrxx and ncoremx ----------------------
-      nrmx    = 0
-      ncoremx = 0
+c      nrmx    = 0
+c      ncoremx = 0
       open(newunit=ifigwa,file='gwa'//trim(ext),form='unformatted')
       allocate(nncx(0:lmxamx,nbas),konf(lmxamx+1,nbas),spid(nbas))
+      allocate(ec_d(ncoremx, nclass, nsp),gx_d (nrmx, 0:lmxamx, nphimx,  nclass,nsp),
+     & gcore_d(nrmx, ncoremx, nclass,nsp)  )
       do ibas = 1, nbas
         read(ifigwa) z, nr_A, a_A, b_A, rofi_Anr
      &  ,lmxa,nspdummy,ncore,spid(ibas)
@@ -283,13 +286,11 @@ c          close(ifigwx1_),  close(ifigwx2_),   close(ifigwb_)
           enddo
         enddo
         deallocate(rofi_A,ec_A)
-        if(nr_A   >nrmx   ) nrmx    = nr_A
-        if(ncore  >ncoremx) ncoremx = ncore
+c        if(nr_A   >nrmx   ) nrmx    = nr_A
+c        if(ncore  >ncoremx) ncoremx = ncore
       enddo
-      nphi = ldim2
-      ncoremx = ncoremx/nsp
-      allocate(ec_d(ncoremx, nclass, nsp),gx_d (nrmx, 0:lmxamx, nphimx,  nclass,nsp),
-     & gcore_d(nrmx, ncoremx, nclass,nsp)  )
+c      nphi = ldim2
+c      ncoremx = ncoremx/nsp
       gx_d = 0
       rewind ifigwa
       nnc =0
