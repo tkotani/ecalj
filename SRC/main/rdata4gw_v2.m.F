@@ -389,8 +389,7 @@ c
             ! kkk is the usual quantum principle number in text book
             do mmm=-l,l
               inum = inum+1
-              write(ifnlax,'(10i5)')
-     &                 mmm, n, l, icore, ibas
+              write(ifnlax,'(10i5)') mmm, n, l, icore, ibas
             enddo
           enddo
         enddo
@@ -886,6 +885,8 @@ C ... norm check
       enddo    ! end of ibas loop
 ! --- end of atomic part --------------------------------------------
 
+      
+!! ------------------------------------------------------
       if(checknorm) then
         open(newunit=inorm, file = "normchk.dia")
         open(newunit=inormo,file = "normchk.off")
@@ -898,7 +899,6 @@ C ... norm check
      .        '      Total  #check in rdata4gw ')
         allocate(sumc(nband,nband,nsp))
       endif
-c-------------------------------------------------------------------------------
       write(6,*) '########## goto Eigfun part ############## '
       allocate( cphix(ldim2,nband), !ngveccf(3,ngcmx,nqtti) ,ngcx(nqtti),
      &     cphir(ldim2,nband),geigr(1:ngpmx,1:nband,1:nsp))
@@ -909,7 +909,7 @@ c-------------------------------------------------------------------------------
       open(newunit=ificg,file='CphiGeig',form='unformatted')
       do 1200 ikp = 1,nqtti  !irreducible points.
         if(mod(ikp,10)==1.or.ikp>nqtti-5) write(6,*) ' ikp=',ikp
-C... determined nbandx, 1:nbandx is meaningful.
+! determined nbandx, 1:nbandx is meaningful.
         nbandx = nband
         isp=1
         do iband=1,nband
@@ -918,19 +918,16 @@ C... determined nbandx, 1:nbandx is meaningful.
             exit
           endif
         enddo
-        print *,' nbandx=',nbandx
         write(ifnband,"(2i12)")nbandx,ikp
-
         do isp =1,nsp
           read(ificg) cphir(1:ldim2,1:nband)
-C ---  reduced cphi corresponding to normaliztion in gx_in.
           do ibas=1,nbas
             do ix = 1,ldim2
               if(ibasindx(ix)==ibas)
      &          cphir (ix,1:nbandx)= cphir(ix, 1:nbandx)/sqrt(1d0+0.1d0*nindx(ix))
             enddo
           enddo
-c---  Augmentation wave part
+!  Augmentation wave part
           cphix=0d0
           do iband = 1,nbandx
             do ix= 1,ldim2
@@ -941,124 +938,28 @@ c---  Augmentation wave part
               ic = iclass(ib)
               nm = nvmax(l,ic)
               cphix(iord(m,1:nm,l,ib),iband) =
-     &                 cphix(iord(m,1:nm,l,ib),iband)
-     &                 +  zzpi(1:nm,n,l,ic,isp) * cphir(ix,iband)
+     &        cphix(iord(m,1:nm,l,ib),iband) +  zzpi(1:nm,n,l,ic,isp) * cphir(ix,iband)
             enddo
           enddo
           ikpisp= isp + nsp*(ikp-1)
           write(ifcphi, rec=ikpisp) cphix(1:ldim2,1:nband) !cphi(1:ldim2,1:nband,ikp,isp)
-ccccccccccccccccccccc          
-          if(.false.) then
-            isp_given=1
-            l_given  =1
-            m_given  =0
-            ic_given =1
-c     ic=ic_given
-            allocate(rofi(nr(ic)),gg(nr(ic)))
-            do ir=1,nr(ic)
-              rofi(ir) = bb(ic)*(exp((ir-1)*aa(ic))-1d0)
-            enddo
-            do ib= 1, nbandx
-              gg=0d0
-              open(newunit=iffr,file='radial_ib'//xt(ib))
-              write(6,*) " radial_ib=", ib
-              do ix= 1,ldim2
-                l  = lindx(ix)
-                n  = nindx(ix)
-                m  = mindx(ix)
-                ibas = ibasindx(ix)
-                ic   = iclass(ibas)
-                ixx  = iord(m,n,l,ibas)
-                if (l   /= l_given) cycle
-                if (m   /= m_given) cycle
-                if (ic  /= ic_given) cycle
-                if (isp /= isp_given) cycle
-                if(abs(cphix(ixx,ib))>1d-2) then
-                  write(6,"('ixx  m n l  cphix=',4i5,2d13.4)") ixx,m,n,l,cphix(ixx,ib)
-                endif
-                gg = gg +  cphix(ixx,ib)*gx_orth(1:nr(ic), l,n,ic,isp)
-              enddo
-
-              do ir=1,nr(ic)
-                write(iffr,"(4d15.6)") rofi(ir),abs(gg(ir))**2,gg(ir)
-              enddo
-              close(iffr)
-            enddo
-            call rx( 'test end. radial function plot ###########')
-          endif
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c     nc -------------------------------
           if(checknorm) then
             do ib1=1,nbandx
-              do ib2=1,nbandx
-                if(ib1/=ib2.and.checkdia) cycle
-                sumc(ib1,ib2,isp) = sum(dconjg(cphix(1:ldim2,ib1))*cphix(1:ldim2,ib2))
-              enddo
+            do ib2=1,nbandx
+              if(ib1/=ib2.and.checkdia) cycle
+              sumc(ib1,ib2,isp) = sum(dconjg(cphix(1:ldim2,ib1))*cphix(1:ldim2,ib2))
             enddo
-          endif
-c----------------------------------
-
-C ---  check weight
-          if(.false.) then
-            allocate( www(-lmxamx:lmxamx,0:lmxamx,nbas))
-            www=0d0
-            do ix =1,ldim2
-              l  = lindx(ix)
-              n  = nindx(ix)
-              m  = mindx(ix)
-              ibas = ibasindx(ix)
-              ic   = iclass(ibas)
-              ixx  = iord(m,n,l,ibas)
-              do ib1=1,nbandx
-                www(m,l,ibas)=www(m,l,ibas)+abs(cphix(ixx,ib1))**2
-              enddo
-            enddo
-            do ibas = 1,nbas;    ic = iclass(ibas)
-              do lx = 0,lmxa(ic)
-                write(6,*)'     ---------'
-                do mx = -lx,lx
-                  write(6,"('     mnlam=',3i3, ' weight=',f10.6)") mx,lx,ibas,www(mx,lx,ibas)
-                enddo
-              enddo
-              write(6,*)
-            enddo
-            deallocate(www)
-          endif
-          if(ikp==1) then
-            iband=1
-            write(ife0,*)
-            write(ife0,"(' q=0 1st eigen --- sum =',f23.16)")
-c     &           sum(abs(cphi(1:ldim2,1,ikp,isp))**2)
-     &              sum(abs(cphir(1:ldim2,1))**2)
-            write(ife0,"('  m  n  l  ib  weight')")
-            do ix=1,ldim2
-              l  = lindx(ix)
-              ib = ibasindx(ix)
-              n  = nindx(ix)
-              m  = mindx(ix)
-              write(ife0,"(4i4,f14.6)") m,n,l,ib
-     &                 , abs(cphir(ix,iband))**2
             enddo
           endif
           geigr(1:ngpmx,1:nband,isp)=0d0
           read(ificg) ngp
-ccccccccccccccccc
-          print *,'  ikp ngp=',ikp,ngp
-ccccccccccccccccc
           read(ificg) geigr(1:ngp,1:nband,isp)
-c     write(6,*) ' xxx3 '
-
-c          endif
-
         enddo                  !end of spin loop
-        if(verbose()>50) write(6,*) ' goto GEIG'
-
 !!--- Plane wave part ---
         iread=0
-        do           !irr is the flag to judge to check irreducible point or not.
+        do  !irr is the flag to judge to check irreducible point or not.
           read (ifiqg, err=1012,end=1012) qqqa, ngp !, irr
           read (ifiqgc         ) qqqb, ngc
-c          print *,'zzzz qqqa=',qqqa
           allocate( ngvecp(3,ngp),ngvecc(3,ngc) )
           read (ifiqg ) ngvecp
           read (ifiqgc) ngvecc
@@ -1078,22 +979,19 @@ c          print *,'zzzz qqqa=',qqqa
         if(debug) print *,' ikp ngp ngc qtti =',ikp,ngp,qtti(:,ikp)
         if(debug) print *,' ikp ngp ngc qqqa=',ikp,ngp,qqqa
         if(debug) print *,' ikp ngp ngc qqqb=',ikp,ngp,qqqb
-!!#feb2012takao
 !!  qtti: irreducible q point only(eigenvalue, eigenfunctions are given).
 !!  ifiqg contains all q points in full bz (irr=1 means irreducible point.)
-!! thus the following check before feb2012 should not now.
         do isp=1,nsp
           ikpisp= isp + nsp*(ikp-1)
           if(ngpmx/=0) write(ifgeig, rec=ikpisp) geigr(1:ngpmx,1:nband,isp)
-          if(verbose()>40) then
-            write(6,'("geig sumcheck ",i5,3f9.4,"  ",2i5,2d13.6)')ikp,qqqa,ngpmx,ngp,sum(geigr(1:ngp,1:nbandx,isp))
-            do ix=1,nbandx
-            write(6,'("geig sumcheck ",i5,2d13.6)') ix,sum(geigr(1:ngp,ix,isp))
-            enddo
-          endif
+c          if(verbose()>40) then
+c            write(6,'("geig sumcheck ",i5,3f9.4,"  ",2i5,2d13.6)')ikp,qqqa,ngpmx,ngp,sum(geigr(1:ngp,1:nbandx,isp))
+c            do ix=1,nbandx
+c            write(6,'("geig sumcheck ",i5,2d13.6)') ix,sum(geigr(1:ngp,ix,isp))
+c            enddo
+c          endif
         enddo
         write(ifv) qtti(1:3,ikp), vxclda(1:nband,ikp,1:nsp) ! VXCFP
-c     nc takao normalization check cccccccccccccccccccccccccccccccccc
         if(checknorm) then
           xx=0d0
           qx   = qtti(1:3,ikp)
@@ -1101,29 +999,28 @@ c     nc takao normalization check cccccccccccccccccccccccccccccccccc
 !     ppovl = <exp (i (q+G')) | exp (i (q+G))>
 !     I think P_{k+G} for eieigenfunction is completele zero (no high-l contribution)
 !     Thus we need to use mkppovl2 for normalization check.
-            call mkppovl2(alat,plat,qlat, !22April2004 
-     &              ngp, ngvecp, 
-     &              ngp, ngvecp, 
-     &              nbas, rmax, bas,  
-     o              ppovl)
+          call mkppovl2(alat,plat,qlat, !22April2004 
+     &         ngp, ngvecp, 
+     &         ngp, ngvecp, 
+     &         nbas, rmax, bas,  
+     o         ppovl)
           do isp=1,nsp
-            do ib1=1,nbandx
-              do ib2=1,nbandx
-                if(ib1/=ib2.and.checkdia) cycle
-                xx(3)=sum( dconjg(  geigr(1:ngp,ib1,isp))*
-     &                    matmul(ppovl,geigr(1:ngp,ib2,isp)) )
-                xx(1)=sumc(ib1,ib2,isp)
-                if(ib1==ib2) write(inorm, '(5f14.6)') xx(3),xx(4),xx(1),xx(2),xx(1)+xx(3)
-                if(ib1/=ib2) write(inormo,'(2i4,5f14.6)') ib1,ib2,xx(3),xx(1),xx(1)+xx(3)
-              enddo
-            enddo
+          do ib1=1,nbandx
+          do ib2=1,nbandx
+             if(ib1/=ib2.and.checkdia) cycle
+             xx(3)=sum( dconjg(  geigr(1:ngp,ib1,isp))*
+     &            matmul(ppovl,geigr(1:ngp,ib2,isp)) )
+             xx(1)=sumc(ib1,ib2,isp)
+             if(ib1==ib2) write(inorm, '(5f14.6)') xx(3),xx(4),xx(1),xx(2),xx(1)+xx(3)
+             if(ib1/=ib2) write(inormo,'(2i4,5f14.6)') ib1,ib2,xx(3),xx(1),xx(1)+xx(3)
+          enddo
+          enddo
           enddo
           write(inorm,*)
           write(inormo,*)
           deallocate(ppovl)
         endif
         deallocate( ngvecp,ngvecc )
-c     nc---------------------------------------------
  1200 continue
       print *,' end of eigensection-----'
       print *
@@ -1131,8 +1028,7 @@ c     nc---------------------------------------------
       open(newunit=ifhvccfp,file='HVCCIN',form='unformatted')
       write(ifhvccfp) alat, plat,qlat,nqtti, nbas,nband
       write(ifhvccfp) qtti(:,1:nqtti), bas, rmax
-      ifi = 6661
-C ... Readin qibz form QIBZ
+!!    Readin qibz form QIBZ
       open(newunit=ifiqibz, file='QIBZ') !write q-points in IBZ.
       read (ifiqibz,*) nqibz
       allocate(qibz(3,nqibz))
@@ -1149,7 +1045,7 @@ C ... Readin qibz form QIBZ
       write(6,"('  ngrp   = ',i3)")ngrp
       write(6,"('  symops = ',a30)")symgrpo
       write(6,'("  qibz=",i3,3f12.5)')(i,qibz(1:3,i),i=1,nqibz)
-!!
+!!---
       open(newunit=ifnqibz,file='NQIBZ')
       write(ifnqibz,"(3i10,'  ! nqibz nq0i nqibz+nq0i+nq0iadd')") nqibz,nq0i,nqibz+nq0i+nq0iadd
       close(ifnqibz)
@@ -1172,8 +1068,7 @@ C ... Readin qibz form QIBZ
       enddo
       nqnumt= nqibz+nq0i+nq0iadd+iadd
       write(6,"(' nqnumt nqibz nq0i+nq0iadd iadd =',4i6)")nqnumt,nqibz,nq0i+nq0iadd,iadd
-
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       QpGcutggg = (2d0+1d-2)*QpGcut_psi + QpGcut_cou+ 2d0*pi/alat*dQpG 
       if(QpGcutggg<1d-9) QpGcutggg=0d0
       dQQ=0d0
@@ -1193,14 +1088,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       allocate( nvggg(3,nggg) )
       allocate(nvgcgp(3,ngcgp))
 !! Here the range of G for nvggg is |Gc+Gp+Gp|< |Gcou|+ |Gphi|+ |Gphi| !triangle inequality.
-c      do iqi =1, nqnumt         !nqibz + nq0i +iadd
-         qx = 0d0
-         call getgv2( alat,plat,qlat,qx, QpGcutggg,  2, nggg,  nvggg  )
-         call getgv2( alat,plat,qlat,qx, QpGcutgcgp, 2, ngcgp, nvgcgp )
-         write(6,"(' getgv2--> iqi qx nggg ngcgp=',i5,3f9.3,2i7)") iqi,qx,nggg,ngcgp
-c      enddo
-        allocate(ggg(nggg))
-        call mkppovl2(alat,plat,qlat, 
+      qx = 0d0
+      call getgv2( alat,plat,qlat,qx, QpGcutggg,  2, nggg,  nvggg  )
+      call getgv2( alat,plat,qlat,qx, QpGcutgcgp, 2, ngcgp, nvgcgp )
+      write(6,"(' getgv2--> iqi qx nggg ngcgp=',i5,3f9.3,2i7)") iqi,qx,nggg,ngcgp
+      allocate(ggg(nggg))
+      call mkppovl2(alat,plat,qlat, 
      &        1,  (/0,0,0/),          !dummy 
      &        nggg,  nvggg, 
      &        nbas, rmax, bas,  
@@ -1283,12 +1176,10 @@ c          print *,'iqi,qqqa,ngp=',iqi,qqqa,ngp
         deallocate(ppovl)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! ggg= < exp(i G r) > integral in the interstitial region.
-c        write(6,"(' iqi qx nggg ngcgp ngc=',i5,3f8.4,4i7)" ) iqi,qx,nggg,ngcgp,ngc
         if(ngc/=0) write(ippovlg) ngvecc(1:3,1:ngc)
         if(ngc/=0) write(ippovli) ppovlinv(1:ngc,1:ngc) 
         if(debug) print *,' ttt4 ...'
         deallocate(ppovlinv,ngvecc,ngvecp)
-c        print *,'end do 2010'
       close(ippovlg)
       close(ippovli)
  2010 continue
@@ -1297,12 +1188,10 @@ c        print *,'end do 2010'
       print *
       write(6,*) " --- Write LMTO file(crystal structure and so on) ---"
       open(newunit=ifigwin,file='LMTO')
-!     > SYMMETRY
       write(ifigwin,*)"SYMMETRY---------------------------------------"
       write(ifigwin,*)"symmetry group (symgrp)"
       write(ifigwin,"(a30)") symgrpo
       write(ifigwin,*)
-c     > STRUCTURE
       write(ifigwin,*)"STRUCTURE---------------------------------------"
       write(ifigwin,*)"lattice constant in a.u. (alat)"
       write(ifigwin,*) alat
@@ -1310,12 +1199,6 @@ c     > STRUCTURE
       write(ifigwin,"(3d24.16)") plat(1,1),plat(2,1),plat(3,1)
       write(ifigwin,"(3d24.16)") plat(1,2),plat(2,2),plat(3,2)
       write(ifigwin,"(3d24.16)") plat(1,3),plat(2,3),plat(3,3)
-c     write(ifigwin,"(a)") " number of classes (nclass)
-c     &  WARN! We assume nclass=natom! the CLASS file contains
-c     & the numbers to identify the equivalent atoms
-c     & (true class information)."
-c     nclass = nbas
-c     write(ifigwin,*) nclass
       write(ifigwin,*)"number of atoms (natom)"
       write(ifigwin,*) nbas
       write(ifigwin,*)"positions of atoms (pos(3,natom))"
@@ -1323,7 +1206,6 @@ c     write(ifigwin,*) nclass
         write(ifigwin,"(3d24.16)") bas(1,ibas), bas(2,ibas), bas(3,ibas)
       enddo
       write(ifigwin,*)
-c     LMTO
       write(ifigwin,*)"LMTO ------------------------------"
       write(ifigwin,*)"spin (1=paramagnetic  2=ferromagnetic)"
       write(ifigwin,*) nsp
@@ -1341,7 +1223,6 @@ c     LMTO
         write(ifigwin,*) " "//trim(clablx(ibas))//" ",zz(iclass(ibas)),nr(iclass(ibas))
       enddo
       write(ifigwin,*)
-c     BZ
       write(ifigwin,*)"BZ----------------------------------------------"
       write(ifigwin,*)"divisions along G1 G2 G3 (n1 n2 n3)"
       write(ifigwin,"(4i5)") n1q,n2q,n3q
@@ -1350,6 +1231,7 @@ c     BZ
       write(ifigwin,*)"Atom label (1:nbas) ----------------------"
       write(ifigwin,"(2000(a8,x))")spid(1:nbas)
       close(ifigwin)
+      
       print *, " OK! end of rdata4gw_v2 "
       call rx0( ' OK! rdata4gw_v2')
       end
@@ -1359,7 +1241,7 @@ c     BZ
      o          gn )
       implicit none
       integer(4):: nro,nrn,ir
-      real(8):: polinta,rofio(*),rofin(*),go(*),gn(*) ! MIZUHO-IR
+      real(8):: polinta,rofio(*),rofin(*),go(*),gn(*)
       do ir=1, nrn
         gn(ir) = polinta(rofin(ir), rofio,go,nro)
       enddo
