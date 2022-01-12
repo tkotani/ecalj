@@ -158,7 +158,7 @@ c      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, O
       complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),ovlmtoi(:,:),ovliovl(:,:) ,hammhso(:,:,:)
       integer,allocatable:: iantiferro(:)
 
-      integer:: lpdiag=0,stdo
+      integer:: lpdiag=0,stdo,nrmx,ncoremx
       character spid*8
 
 #if MPI | MPIK
@@ -260,15 +260,7 @@ c      endif
             iantiferro(iat)=ssite(i)%iantiferro
          endif
       enddo
-      if(master_mpi) then
-         open(newunit=ifigwbhead,file='gwb.head',form='unformatted')
-         write(ifigwbhead) nat,nsp,ndima,ndham, alat,qlat,ef0,nqbz,plat,nqnum,nqi
-         write(ifigwbhead) lmxa(1:nat), bas(1:3,1:nat)
-         write(ifigwbhead) ngpmx
-         close(ifigwbhead)
-      endif 
       print *,'iantiferro=',iantiferro
-      deallocate(ips,lmxa)
 
 !     !   ... Determine nphimx
       nphimx = 0
@@ -292,6 +284,8 @@ c      endif
       
 !! Atom data (gwa)
       call info(30,1,1,' ... Generate core wave functions (file gwa)', 0,0)
+      ncoremx=0
+      nrmx=0
       do  ib = 1, nbas
          is=ssite(ib)%spec
          i_copy_size=size(ssite(ib)%pnu)
@@ -320,6 +314,8 @@ c     call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
             call atwf ( 03 , a , lmaxa , nr , nsp , pnu , pnz , rsml , ehl
      .           , rmt ( ib ) , z , ssite(ib)%rv_a_ov0 , nphimx , ncore , konfig , ecore 
      .           , gcore , gval ,nmcore)
+            if(nr     >nrmx   ) nrmx    = nr
+            if(ncore  >ncoremx) ncoremx = ncore
 !     !         Header data for this atom
             b = rmt(ib)/(dexp(a*nr-a)-1d0)
             call radmsh(rmt(ib),a,nr,rofi)
@@ -356,6 +352,16 @@ c     call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
       enddo
       if(master_mpi) write(ifigwa) iantiferro(1:nat) !iantiferro may2015
       if(master_mpi) close(ifigwa) !call fclr('gwa',ifigwa)
+!! 
+      if(master_mpi) then
+         open(newunit=ifigwbhead,file='gwb.head',form='unformatted')
+         write(ifigwbhead) nat,nsp,ndima,ndham, alat,qlat,ef0,nqbz,plat,nqnum,nqi
+         write(ifigwbhead) lmxa(1:nat), bas(1:3,1:nat)
+         write(ifigwbhead) ncoremx/nsp,nrmx
+         close(ifigwbhead)
+      endif 
+      deallocate(ips,lmxa)
+      
 !! == GW setup loop over k-points ==
       if (lchk>=1 ) then
         open(newunit=ifinormchk,file='normchk.'//trim(sprocid))
