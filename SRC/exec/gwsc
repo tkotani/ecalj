@@ -80,21 +80,14 @@ do
     # 	mv eigval eigmtet
     # fi
     argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmfgw-MPIK llmfgw01 $TARGET
-    run_arg  '---' $NO_MPI   $nfpgw /lmf2gw     llmf2gw  #reform data for gw
-
-    mv normchk* STDOUT
+    #run_arg  '---' $NO_MPI   $nfpgw /lmf2gw     llmf2gw  #reform data for gw
 
     ##### main stage of gw ################
     argin=0; run_arg $argin $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files
+    mv normchk* STDOUT
     rm gw1* gw2* gwa* gwb*
-    if [ $ix == 0 ]; then 
-	cp evec.$TARGET evec0  # used in hqpe_sc for isigma_en==5
-    fi
-    if [ -e ANFcond ]; then
-	cp EVU EVD  # This is for ANFcond. Rarely used recently
-    fi
+    
     argin=1; run_arg $argin $NO_MPI $nfpgw   /heftet leftet # A file EFERMI for hx0fp0
-#    argin=1; run_arg $argin $NO_MPI $nfpgw   /hchknw lchknw # A file NW, containing nw 
     ### Core part of the self-energy (exchange only) ###
     argin=3; run_arg $argin $NO_MPI $nfpgw   /hbasfp0 lbasC  # Product basis generation 
     argin=3; run_arg $argin $MPI_SIZE $nfpgw /hvccfp0 lvccC # Coulomb matrix for lbasC 

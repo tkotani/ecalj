@@ -16,7 +16,7 @@ maxloc= ../wanniergw/
 moddir= $(obj_path)
 tags  = ..
 
-progslm = lmf-MPIK lmfgw-MPIK lmfa lmchk lmf2gw lmfham mkhamloc plotmodel initmlo mkinput
+progslm = lmf-MPIK lmfgw-MPIK lmfa lmchk lmfham mkhamloc plotmodel initmlo mkinput
 progsgw = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hqpe_qsgw qg4gw gwinit heftet hmergewv rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2 hmagnon hhomogas \
 hx0init hhilbert hrcxq hx0zmel
 progsw  = huumat hpsig hmaxloc huumat_MPI hpsig_MPI wanplot hwmatK_MPI htbplot #hx0fp0_mlw hwmatK 
@@ -98,8 +98,8 @@ $(obj_path)/lmfa.o: $(main)lmfa.F
 	$(FC) $(FFLAGS_NONE) -c $< -o $@
 $(obj_path)/lmchk.o: $(main)lmchk.F 
 	$(FC) $(FFLAGS_NONE) -c $< -o $@
-$(obj_path)/lmf2gw.o: $(main)lmf2gw.F 
-	$(FC) $(FFLAGS_NONE) -c $< -o $@
+#$(obj_path)/lmf2gw.o: $(main)lmf2gw.F 
+#	$(FC) $(FFLAGS_NONE) -c $< -o $@
 $(obj_path)/lmfham.o: $(main)lmfham.F
 	$(FC) $(FFLAGS_NONE) -c $< -o $@
 $(obj_path)/mkhamloc.o: $(main)mkhamloc.F
@@ -130,9 +130,9 @@ lmfa:	$(obj_path)/lmfa.o $(ELIB)  $(MPI)
 lmchk:	$(obj_path)/lmchk.o $(ELIB) $(MPI) 
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB)  $(MPI) $(LIBLOC) $(LKFLAGS2) -o $@
-lmf2gw:	$(obj_path)/lmf2gw.o 
-	@echo $(LK) $@.o 'link with *.o'
-	@$(FC) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB)  $(MPI) $(LIBLOC) $(LKFLAGS2) -o $@
+#lmf2gw:	$(obj_path)/lmf2gw.o 
+#	@echo $(LK) $@.o 'link with *.o'
+#	@$(FC) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB)  $(MPI) $(LIBLOC) $(LKFLAGS2) -o $@
 lmfham: $(obj_path)/lmfham.o $(ELIB)  $(MPI) $(MLO)
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB)  $(MPI) $(LIBLOC) $(LKFLAGS2) $(MLO) -o $@
