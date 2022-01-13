@@ -64,11 +64,10 @@
      &lmxamx,   ! = maxval(lmxa(1:nclass))
      &ngpmx,    ! Maximum number of G vector.
      &ldim2,    ! = total number of augmentation functions nRlm
-c     &nphi,     ! = total number of augmentation functions nRl
      &nqbze     ! = nqbz*(1+nq0i). Number of q points given by qg4gw
       character(8),allocatable,protected:: spid(:)
       integer,allocatable::
-     &     iclass(:),lmxa_d  (:),nr(:),konf_d(:,:),ncore_d(:)
+     &     iclass(:),lmxa_d  (:),nr(:),konf_d(:,:),ncore_d(:),ibasf(:)
       real(8),allocatable ::
      &     zz(:),aa(:),bb(:),ec_d (:,:,:),evl_d(:,:,:),vxclda (:,:,:),
      &     gx_d(:,:,:,:,:),gcore_d(:,:,:,:)
@@ -76,7 +75,7 @@ c     &nphi,     ! = total number of augmentation functions nRl
       complex(8),allocatable:: cphi_d(:,:,:,:)
       complex(8),allocatable:: geig_d(:,:,:,:)
       real(8),allocatable :: qbze(:,:), bas(:,:)
-c      logical :: nocore         ! Flag file NoCore exist or not.
+      logical,protected:: laf !! - laf: antiferro switch
 
       contains
       subroutine lmf2gw()
@@ -171,7 +170,7 @@ c----------------------------------------------
         lmxa_d(iclass(ibas)) =lmxaa(ibas)
       enddo
       close(ifefclass)
-!! Get extp(procid)
+!! Get ext and extp(procid)
       open(newunit=ifiproc,file= 'lmfgw_kdivider')
       read(ifiproc,*) ext  !extension is read here
       read(ifiproc,*) nqixx, nspxx, nrank
@@ -194,6 +193,95 @@ c----------------------------------------------
         extp(procid)=trim(adjustl(ext))//'_'//trim(adjustl(extn))
         write(6,"(i3,' ext= ',a,a)") procid,trim(extp(procid)),' ----------'
       enddo
+!! ATOMIC PART ic = ibas scheme ==,  GET nrxx and ncoremx ----------------------
+      open(newunit=ifigwa,file='gwa'//trim(ext),form='unformatted')
+      allocate(nncx(0:lmxamx,nbas),konf(lmxamx+1,nbas),spid(nbas))
+      allocate(ec_d(ncoremx, nclass, nsp),gx_d (nrmx, 0:lmxamx, nphimx,  nclass,nsp),
+     & gcore_d(nrmx, ncoremx, nclass,nsp)  )
+      do 3001 ibas = 1, nbas
+        read(ifigwa) z, nr_A, a_A, b_A, rofi_Anr,lmxa,nspdummy,ncore,spid(ibas)
+        allocate(rofi_A(nr_A), gcore_A(nr_A,ncore),ec_A(ncore))
+        read(ifigwa) konf(1:lmxa+1,ibas)
+        read(ifigwa) rofi_A(1:nr_A)
+        write(6,"(' site',i3,'  z=',f5.1,'  rmax=',f8.5,'  lmax=',i1,'  konf=',10i1)")
+     &       ibas,z,rofi_A(nr_A),lmxa,konf(1:lmxa+1,ibas)
+        ic = iclass(ibas)
+        zz(ic)= z
+        aa(ic)= a_A
+        bb(ic)= b_A
+        nr(ic)= nr_A
+        ncore_d(ic) = ncore/nsp
+        konf_d(0:lmxa,ic) = konf(1:lmxa+1,ibas)
+        write(6,"('  l    g(rmax)    gp(rmax)',4x,'<g g>',9x,'<gp gp>',9x,'<g gp>')")
+        do  l = 0, lmxa
+        do  isp = 1, nsp
+           read(ifigwa) lxx,ispxx  
+           if(lxx /= l .or. isp /=ispxx) call rx('lmf2gw:lxx or isp wrong')
+           read(ifigwa) gx_d(1:nr_A,l,1,ic,isp) !phi
+           read(ifigwa) gx_d(1:nr_A,l,2,ic,isp) !phidot
+           if (konf_d(l,ic) .ge. 10) read(ifigwa) gx_d(1:nr_A,l,3,ic,isp) !phiz
+           m = 2
+           if (konf_d(l,ic) .ge. 10) m = 3
+           n = 0
+           do  i1 = 1, m
+           do  i2 = 1, i1
+             n = n+1
+             call gintxx(gx_d(1,l,i1,ic,isp),gx_d(1,l,i2,ic,isp),a_A,b_A,nr_A,ovv(n))
+           enddo
+           enddo
+           write(6,'(i3,2f11.5,2f15.10,f12.6)')l,gx_d(nr_A,l,1,ic,isp),gx_d(nr_A,l,2,ic,isp),
+     &          ovv(1),ovv(3),ovv(2)
+           if (m .eq. 3) write(6,"('  gz(rmax); <gz gz> <gz g> <gz gp> = ',f8.5,f15.10,2f12.7)")
+     &          gx_d(nr_A,l,3,ic,isp), ovv(6),ovv(4),ovv(5)
+        enddo
+        enddo
+!! core part
+        if (ncore .ne. 0) write(6,'(''  l  k isp       ecore      gc(rmax)     <gc gc>'')')
+        icore = 0
+        icors = 0
+        do isp = 1, nsp
+          do l = 0, lmxa
+            nncx(l,ibas) = mod(konf(l+1,ibas),10)-1 -(l+1) +1
+            nnc          = max(nnc,nncx(l,ibas))
+            do  kkk = l+1, mod(konf(l+1,ibas),10)-1
+              icore = icore+1
+              icors(isp) = icors(isp) +1
+              icor1=icors(isp)
+              read(ifigwa) icorex,ldummy,ispx,kkkdummy,ec_A(icore)
+              if(icore/=icorex)  stop 'lmf2gw:icore/=icorex'
+              read(ifigwa) gcore_A(1:nr_A,icore) ! gcore
+              ec_d(icor1, ic, isp) = ec_A(icore)
+              gcore_d(1:nr_A,icor1,ic,isp)  = gcore_A(1:nr_A,icore)
+              call gintxx(gcore_A(1,icore),gcore_A(1,icore), a_A,b_A,nr_A,ovv(1))
+              write(6,'(3i3,f15.6,f12.6,f15.10,3i3)')
+     &        l,kkk,isp,ec_A(icore),gcore_A(nr_A,icore),ovv(1),icore,icor1
+            enddo
+          enddo
+        enddo
+        deallocate(rofi_A,gcore_A,ec_A)
+ 3001 continue
+      allocate(iantiferro(nbas))
+      read(ifigwa)iantiferro(1:nbas) !iantiferro may2015
+      close(ifigwa)
+      allocate(ibasf(nbas)) !AF pair
+      ibasf=-999
+      do ibas=1,nbas
+        do ibasx=ibas+1,nbas !is this fine?
+        if(abs(iantiferro(ibas))/=0 .and. iantiferro(ibas)+iantiferro(ibasx)==0) then
+           ibasf(ibas)=ibasx
+           exit
+        endif
+        enddo
+        if(ibasf(ibas)/=-999) write(6,"(a,2i5)")' AF pair: ibas ibasf(ibas)=',ibas,ibasf(ibas)
+      enddo
+      laf=.false.
+      if(sum(abs(iantiferro))/=0) laf=.true. 
+!
+      write(6,"(a,100i4)") ' antiferro index=',iantiferro(1:nbas)
+      do ibas=1,nbas
+        write(6,"(a,i4,a)") ' i spid=',ibas,' '//trim(spid(ibas))
+      enddo
+     
 !! Band part
       open(newunit=ifichkv,file='VXCFP.chk')
       write(ifichkv,"(a)") '### LDA exchange correlation ###'
@@ -253,84 +341,5 @@ c          close(ifigwx1_),  close(ifigwx2_),   close(ifigwb_)
       close(ificg)
       deallocate( cphi,evl, vvv1,vvv2,vvv3)
       
-!! ATOMIC PART ic = ibas scheme ==,  GET nrxx and ncoremx ----------------------
-      open(newunit=ifigwa,file='gwa'//trim(ext),form='unformatted')
-      allocate(nncx(0:lmxamx,nbas),konf(lmxamx+1,nbas),spid(nbas))
-      allocate(ec_d(ncoremx, nclass, nsp),gx_d (nrmx, 0:lmxamx, nphimx,  nclass,nsp),
-     & gcore_d(nrmx, ncoremx, nclass,nsp)  )
-      do 3001 ibas = 1, nbas
-        read(ifigwa) z, nr_A, a_A, b_A, rofi_Anr,lmxa,nspdummy,ncore,spid(ibas)
-        allocate(rofi_A(nr_A),
-     &  gcore_A(nr_A,ncore),ec_A(ncore))
-        read(ifigwa) konf(1:lmxa+1,ibas)
-        read(ifigwa) rofi_A(1:nr_A)
-        write(6,"(' site',i3,'  z=',f5.1,'  rmax=',f8.5,'  lmax=',i1,'  konf=',10i1)")
-     &       ibas,z,rofi_A(nr_A),lmxa,konf(1:lmxa+1,ibas)
-!!       A bit rough treatment
-        ic    = iclass(ibas)
-        zz(ic)= z
-        aa(ic)= a_A
-        bb(ic)= b_A
-        nr(ic)= nr_A
-        ncore_d(ic) = ncore/nsp
-        konf_d(0:lmxa,ic) = konf(1:lmxa+1,ibas)
-        write(6,"('  l    g(rmax)    gp(rmax)',4x,'<g g>',9x,'<gp gp>',9x,'<g gp>')")
-!! --- PHIU
-        do  l = 0, lmxa
-          do  isp = 1, nsp
-            read(ifigwa) lxx,ispxx  !!!ibas==ic,l,n=1
-            if(lxx /= l .or. isp /=ispxx) stop 'hhbecfp:lxx or isp wrong'
-            read(ifigwa) gx_d(1:nr_A,l,1,ic,isp)
-            read(ifigwa) gx_d(1:nr_A,l,2,ic,isp)
-            if (konf_d(l,ic) .ge. 10) read(ifigwa) gx_d(1:nr_A,l,3,ic,isp)
-            m = 2
-            if (konf_d(l,ic) .ge. 10) m = 3
-            n = 0
-            do  i1 = 1, m
-              do  i2 = 1, i1
-                n = n+1
-                call gintxx(gx_d(1:nr_A,l,i1,ic,isp),
-     .          gx_d(1:nr_A,l,i2,ic,isp),a_A,b_A,nr_A,ovv(n))
-              enddo
-            enddo
-            write(6,'(i3,2f11.5,2f15.10,f12.6)')
-     .      l,gx_d(nr_A,l,1,ic,isp),gx_d(nr_A,l,2,ic,isp),  ovv(1),ovv(3),ovv(2)
-            if (m .eq. 3) write(6,321) gx_d(nr_A,l,3,ic,isp), ovv(6),ovv(4),ovv(5)
-  321       format('  gz(rmax); <gz gz> <gz g> <gz gp> = ',f8.5,f15.10,2f12.7)
-          enddo
-        enddo
-!! --- ECORE PHICU
-        if (ncore .ne. 0) write(6,'(''  l  k isp       ecore      gc(rmax)     <gc gc>'')')
-        icore = 0
-        icors = 0
-        do isp = 1, nsp
-          do l = 0, lmxa
-            nncx(l,ibas) = mod(konf(l+1,ibas),10)-1 -(l+1) +1
-            nnc          = max(nnc,nncx(l,ibas))
-            do  kkk = l+1, mod(konf(l+1,ibas),10)-1
-              icore = icore+1
-              icors(isp) = icors(isp) +1
-              icor1=icors(isp)
-              read(ifigwa) icorex,ldummy,ispx,kkkdummy,ec_A(icore)
-              if(icore/=icorex)  stop 'lmf2gw:icore/=icorex'
-              read(ifigwa) gcore_A(1:nr_A,icore)
-              ec_d(icor1, ic, isp) = ec_A(icore)
-              gcore_d(1:nr_A,icor1,ic,isp)  = gcore_A(1:nr_A,icore)
-              call gintxx(gcore_A(1,icore),gcore_A(1,icore), a_A,b_A,nr_A,ovv(1))
-              write(6,'(3i3,f15.6,f12.6,f15.10,3i3)')
-     &        l,kkk,isp,ec_A(icore),gcore_A(nr_A,icore),ovv(1),icore,icor1
-            enddo
-          enddo
-        enddo
-        deallocate(rofi_A,gcore_A,ec_A)
- 3001 continue
-      allocate(iantiferro(nbas))
-      read(ifigwa)iantiferro(1:nbas) !iantiferro may2015
-      close(ifigwa)
-      write(6,"(a,100i4)") ' antiferro index=',iantiferro(1:nbas)
-      do ibas=1,nbas
-        write(6,"(a,i4,a)") ' i spid=',ibas,' '//trim(spid(ibas))
-      enddo
-      close(ifi)
       end subroutine lmf2gw
       end module m_lmf2gw

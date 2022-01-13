@@ -4,7 +4,7 @@
      &  nsp,nbas,nclass,ncoremx,lmxamx,ldim2,nqtti=>nqbze,  
      &  iantiferro,spid,iclass,lmxa=>lmxa_d,nr,konf=>konf_d,ncore=>ncore_d,
      &  zz,aa,bb,ec=>ec_d,evl=>evl_d,vxclda, gx_raw=>gx_d,gcore=>gcore_d,plat, alat, efermi,
-     &  qtti=>qbze, bas !, nocore
+     &  qtti=>qbze, bas,laf,ibasf !, nocore
 !xxx nphi,        ! number of augmentation nRl channels, as distinct from:
 ! ldim2,       ! number of nRLm channels = 2*ldim for phi+phidot case.
 ! nphimx       ! Maxmum number of phi for all l ---  2 for phi+phidot case.
@@ -82,7 +82,7 @@ Cr
       use m_keyvalue,only: getkeyvalue
       use m_mpi,only: MPI__Initialize
       implicit none
-      integer(4) ::
+      integer ::
      &     ifigw0,n1q,n2q,n3q,ifiqg,ifiqc,nqnum,nq0i,i,ifi
      &     ,nxx,lxx,ibxx
      &     ,ifnlax,inum,ibas,ic,k,icore,kkkmx,kkk,n,mmm,ix,irr,nradmx,irad
@@ -92,132 +92,92 @@ Cr
      &     ,nqibz,iqibz,ifnqibz,iqi,iq,ifigwin  !,ippovl,ngc2mx,ngc2
      &     ,ifiqgc,nqnumc,ngcmx,l,ifoc,ir,isp,  iqi2 !,iopen
       real(8):: qpgcut_psi,qpgcut_cou,ovvxx,ovvx,qpgcut_psi2,dummy
-      integer(4),parameter:: nspx=2
+      integer,parameter:: nspx=2
       real(8) :: qlat(3,3) ,qm(3,3),ginv(3,3)
-      character*30 :: symgrpo='UseSYMOPSfile'
+c      character*30 :: symgrpo='UseSYMOPSfile'
       real(8):: qqq(3),qqqa(3),qqqb(3),qx(3),qxx(3),ecx(2)
-      integer(4)::              !ifrb (nspx),ifcb(nspx),ifrhb(nspx),ifchb(nspx)
-     &     ifphi,ifev !ifev(nspx)
-     &     ,ifv,ifplane
-      character*8,allocatable:: clablx(:)
+      integer::              !ifrb (nspx),ifcb(nspx),ifrhb(nspx),ifchb(nspx)
+     &     ifphi,ifev,ifv,ifplane
+c      character(8),allocatable:: clablx(:)
       real(8),allocatable:: rofi(:)
-      integer(4),allocatable:: lmxaa(:),nncx(:,:),nrGG(:)
+      integer,allocatable:: lmxaa(:),nncx(:,:),nrGG(:)
      &     ,ngvecp(:,:),ngvecc(:,:),indxk(:),ipq(:)
      &     ,lcutmx(:) !,ngcx(:),ngveccf(:,:,:),ngc2x(:),ngvecc2(:,:,:)
       real(8),allocatable :: rmax(:),gen(:,:),wgt(:)
      &     ,symgr(:,:,:),qibze(:,:)
-      integer(4) :: idxk,nwordr
+      integer :: idxk,nwordr
       complex(8),allocatable :: ppovl(:,:),ppx(:,:),ppovlinv(:,:)
       real(8),allocatable :: wt(:),q0i(:,:)
       real(8),allocatable :: qibz(:,:)
-
-      integer(4):: nqbz ,icore1,nnn(3),nnnn, mrecg,nqi
+      integer:: nqbz ,icore1,nnn(3),nnnn, mrecg,nqi
       integer,allocatable:: invgx(:)
       real(8),allocatable:: shtvg(:,:)
-c
-      integer(4),allocatable::
-     &     vkonf(:,:), !ckonf(:,:),konf(:,:), 
-     &     mindx(:)
+      integer,allocatable::
+     &     vkonf(:,:),     mindx(:)
       real(8),allocatable ::
-     &     gxcopy (:,:,:,:,:),
-     &     gx_orth (:,:,:,:,:),  gx_in(:,:,:,:,:), 
+     &     gxcopy (:,:,:,:,:), gx_orth (:,:,:,:,:),  gx_in(:,:,:,:,:), 
      &     ovv(:,:,:,:,:),zzp(:,:,:,:,:),zzpi(:,:,:,:,:),eb(:)
-      complex(8),allocatable::
-     &     cphi(:,:,:,:),
+      complex(8),allocatable::  cphi(:,:,:,:),
      &     geig(:,:,:,:), cphix(:,:),zzpx(:,:)
-c
-      integer(4),allocatable::
-     &     nrad(:),nindx_r(:,:),lindx_r(:,:),ncindx(:),lcindx(:)
-
-      integer(4),allocatable::
-     &     iord(:,:,:,:),nvmax(:,:)
-
+      integer,allocatable:: nrad(:),nindx_r(:,:),lindx_r(:,:),ncindx(:),lcindx(:)
+      integer,allocatable::  iord(:,:,:,:),nvmax(:,:)
       logical:: core_orth,cccxxx !readgwinput,
       real(8)::ovcv
       character*20 fcore
       character*3 charnum3
-      integer(4),allocatable:: ifcore(:)
-
-c     nc takao
-c      integer(4),allocatable::ngvecpf(:,:,:),ngpcx(:) ,ngpx(:)
+      integer,allocatable:: ifcore(:)
       real(8)::xx(5)
-!     for normcheck on eigenfunctions.
       real(8),allocatable:: sumc(:,:,:)
-      integer(4):: inorm ,ib1,ib2,itest,inormo
+      integer:: inorm ,ib1,ib2,itest,inormo
       logical ::checknorm=.true. !Write normchk.* or not. 
      &     , checkdia=.true.    !only write normchk.dia This is relevant only for checknorm=T
-
-c      logical :: cphigeigmode,cphigeig_mode
       complex(8),allocatable:: cphir(:,:),geigr(:,:,:)
       integer(4)::ificg
-
-c     logical:: ifgeigb
       integer(4)::iff,iffx
       integer(4),allocatable:: iffg(:)
-
-
       integer(4):: ifgeig,iadd,normcheck,verbose !,bzcase
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c     complex(8)::ddd
-c     itest= 225
-c     open(itest, file = "eigtest")
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
       integer(4)::version
-
-c     gg test
       character(8):: xt
       integer(4):: l_given,m_given,ic_given,isp_given,iffr,ixx
       complex(8),allocatable :: gg(:)
-
-c     reduced weight
       real(8),allocatable:: www(:,:,:)
-c
       logical(8):: ppovl0l=.true.
       integer:: ippovl0,ifile_handle,iq0p
-
       logical::  ngczero=.false.,qreduce
-      integer(4):: nqnumt,imx     ,ix1     ,idum1,idum2,idum3, idum4 !ingczero
+      integer:: nqnumt,imx     ,ix1     ,idum1,idum2,idum3, idum4 !ingczero
       real(8),allocatable::qsave(:,:)
       logical :: debug=.false.
-
-      integer(4):: nqini,iq0pin
-c      logical :: ippovlc_test
+      integer:: nqini,iq0pin
       integer:: ippovlc=501, zvztest
-
       logical:: rmeshrefine
-      integer(4):: nr_n
+      integer:: nr_n
       real(8):: aa_n,bb_n,rmaxx,ab_n,delr,delrset,qu(3)
       real(8),allocatable:: rofi_n(:), gx_raw_n (:,:,:,:,:), 
      &     gcore_n  (:,:,:,:) , aann(:)
-      integer(4),allocatable:: nrnn(:)
-
-      integer(4):: igp1,igp2,   icold,nbandx,ifnband,iread
+      integer,allocatable:: nrnn(:)
+      integer:: igp1,igp2,   icold,nbandx,ifnband,iread
       real(8),allocatable:: qtt(:,:)
       integer:: nqtt,igg,iorb, igc
       real(8):: platt(3,3),qtarget(3)
       logical:: newaniso, noo
       integer:: ngcB,iqx,iqindx,iq0i
-      real(8):: quu(3),pi,dQpG,abq0i,dQQ
+      real(8):: quu(3),dQpG,abq0i,dQQ
       integer,allocatable:: ngveccB(:,:)
       integer:: idummy11(1,1)
-
       integer:: nxxx(1:3)=0,ngggmx,ngcgpmx,ippovlg,ippovli,ippovlgg
       real(8):: QpGcutggg,QpGcutgcgp,tolq=1d-8
       complex(8),allocatable:: ggg(:)
-      integer,allocatable:: nvggg(:,:),nvgcgp(:,:) !,iantiferro(:)
-c      character(8),allocatable:: spid(:)
+      integer,allocatable:: nvggg(:,:),nvgcgp(:,:) 
       integer:: nggg,ngcgp,nq0iadd,ixyz !q independent 
-
       logical:: cmdopt2
       character(20):: outs=''
-      integer:: ngpmx,nrmx
-c---------------------------------------------------
+      integer:: ngpmx,nrmx,nl
+      real(8),parameter:: pi = 4d0*datan(1d0)
+!!
       call MPI__Initialize()
       call lmf2gw() !set variables, and CphiGeig
-      pi = 4d0*datan(1d0)
+      
       if(verbose()>50 ) debug=.true.
-      if(ppovl0l) open(newunit=ippovl0,form='unformatted',file='PPOVL0')
       mmm=normcheck()
       if(mmm==0) then
         checknorm=.false.
@@ -301,6 +261,7 @@ c---------------------------------------------------
           call rx( ' rdata xxx1: ncore(ic)/=icore')
         endif
       enddo
+      close(ifnlax)
 !! -------------------------------------------------------------
       inum=0 
       allocate(mindx(ldim2))
@@ -332,6 +293,7 @@ c---------------------------------------------------
      &           irad, nindx_r(irad,ibas), lindx_r(irad,ibas)
         enddo
       enddo
+!      
       open(newunit=ifhbed,file='hbe.d')
       nqbz  = n1q*n2q*n3q
       ndble = 8
@@ -479,8 +441,8 @@ c---------------------------------------------------
       write(6,*) '########## goto atomic part ##############'
       nnc = 0
       lmxax = lmxamx
-      allocate(clablx(nbas))
-      clablx=spid
+c      allocate(clablx(nbas))
+c      clablx=spid
       allocate( zzp (nmax,nmax,0:lmxax,nclass,nsp),
      &     zzpi(nmax,nmax,0:lmxax,nclass,nsp),
      &     eb(nmax))
@@ -511,7 +473,7 @@ c---------------------------------------------------
         write(6,"(4i4,2d14.6)")  nr(ic),lmxa(ic), nsp
      &        , ncore(ic), aa(ic), bb(ic)
         write(ifec,*)          !ECORE
-        write(ifec,*) clablx(ibas) !ECORE
+        write(ifec,*) spid(ibas) !ECORE
         write(ifec,*) ' z,atom=class,nr,a,b,nsp ' !ECORE
         write(ifec,6200) zz(ic),ic1,nr(ic),aa(ic),bb(ic),nsp !ECORE
  6200   format(1x,f5.1,2i10,f13.5,d14.6,i4) !ECORE 31jan2006 a and b can be negative
@@ -946,7 +908,7 @@ c          endif
       write(ifhvccfp) qibz(1:3,1:nqibz)
       write(6,*)
       write(6,"('  ngrp   = ',i3)")ngrp
-      write(6,"('  symops = ',a30)")symgrpo
+c      write(6,"('  symops = ',a30)")symgrpo
       write(6,'("  qibz=",i3,3f12.5)')(i,qibz(1:3,i),i=1,nqibz)
 !!---
       open(newunit=ifnqibz,file='NQIBZ')
@@ -1024,6 +986,7 @@ c          endif
       read(ifiqgc ) nqnumc, ngcmx, QpGcut_Cou
       print *
       print *,' --- Write PPOVLG ----'
+      if(ppovl0l) open(newunit=ippovl0,form='unformatted',file='PPOVL0')
       do 2010 iqi = nqini, nqnumt    !nqibz + nq0i + iadd
         open(newunit=ippovlg,file= "PPOVLG."//charnum3(iqi),form='unformatted')
         open(newunit=ippovli,file= "PPOVLI."//charnum3(iqi),form='unformatted')
@@ -1077,7 +1040,6 @@ c          print *,'iqi,qqqa,ngp=',iqi,qqqa,ngp
         call matcinv(ngc,ppovlinv)
         if(debug) print *,' ttt3 ...'
         deallocate(ppovl)
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! ggg= < exp(i G r) > integral in the interstitial region.
         if(ngc/=0) write(ippovlg) ngvecc(1:3,1:ngc)
         if(ngc/=0) write(ippovli) ppovlinv(1:ngc,1:ngc) 
@@ -1087,65 +1049,24 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       close(ippovli)
  2010 continue
       if(ppovl0l) close(ippovl0)
-!! ===  Write LMTO file ===
-      print *
-      write(6,*) " --- Write LMTO file(crystal structure and so on) ---"
-      open(newunit=ifigwin,file='LMTO')
-      write(ifigwin,*)"SYMMETRY---------------------------------------"
-      write(ifigwin,*)"symmetry group (symgrp)"
-      write(ifigwin,"(a30)") symgrpo
-      write(ifigwin,*)
-      write(ifigwin,*)"STRUCTURE---------------------------------------"
-      write(ifigwin,*)"lattice constant in a.u. (alat)"
-      write(ifigwin,*) alat
-      write(ifigwin,*)"primitive lattice vectors (plat)"
-      write(ifigwin,"(3d24.16)") plat(1,1),plat(2,1),plat(3,1)
-      write(ifigwin,"(3d24.16)") plat(1,2),plat(2,2),plat(3,2)
-      write(ifigwin,"(3d24.16)") plat(1,3),plat(2,3),plat(3,3)
-      write(ifigwin,*)"number of atoms (natom)"
-      write(ifigwin,*) nbas
-      write(ifigwin,*)"positions of atoms (pos(3,natom))"
-      do ibas =1,nbas
-        write(ifigwin,"(3d24.16)") bas(1,ibas), bas(2,ibas), bas(3,ibas)
-      enddo
-      write(ifigwin,*)
-      write(ifigwin,*)"LMTO ------------------------------"
-      write(ifigwin,*)"spin (1=paramagnetic  2=ferromagnetic)"
-      write(ifigwin,*) nsp
-      write(ifigwin,*)"maximum number of valence and core l (l+1)"
-      write(ifigwin,*) lmxax+1
-      write(ifigwin,"(a)") 
-     &     " Maximum number radial functions"//
-     &     " per l-channel (nnv nnc)"
-      write(ifigwin,*) nnv, nnc
-      write(ifigwin,*)" max. number of radial mesh (nrx)"
-      write(ifigwin,*) nrmx
-      write(ifigwin,*)"atom          z                   nr "
-!     ibas = ic
-      do ibas =1,nbas
-        write(ifigwin,*) " "//trim(clablx(ibas))//" ",zz(iclass(ibas)),nr(iclass(ibas))
-      enddo
-      write(ifigwin,*)
-      write(ifigwin,*)"BZ----------------------------------------------"
-      write(ifigwin,*)"divisions along G1 G2 G3 (n1 n2 n3)"
-      write(ifigwin,"(4i5)") n1q,n2q,n3q
-      write(ifigwin,*)"AFcond-------------------------"
-      write(ifigwin,"(2000i6)")iantiferro(1:nbas)
-      write(ifigwin,*)"Atom label (1:nbas) ----------------------"
-      write(ifigwin,"(2000(a8,x))")spid(1:nbas)
-      close(ifigwin)
       
+      write(6,*) " --- Write LMTO file(crystal structure and so on) ---"
+      nl=lmxax+1
+      open(newunit=ifigwin,file='LMTO',form='unformatted')
+      write(ifigwin) nbas,alat,plat,nsp,nl,nnv,nnc,nrmx,n1q,n2q,n3q
+      write(ifigwin) bas,spid, zz(iclass(1:nbas)),spid(1:nbas)
+      write(ifigwin) laf,ibasf
+      close(ifigwin)
       print *, " OK! end of rdata4gw_v2 "
       call rx0( ' OK! rdata4gw_v2')
       end
 !sssssssssssssssssssssssssssssssssssssssssssssssssssss
-      subroutine rrefine(rofio,nro,rofin,nrn,
-     i          go,
-     o          gn )
+      subroutine rrefine(rofio,nro,rofin,nrn,go, gn )
       implicit none
-      integer(4):: nro,nrn,ir
-      real(8):: polinta,rofio(*),rofin(*),go(*),gn(*)
-      do ir=1, nrn
-        gn(ir) = polinta(rofin(ir), rofio,go,nro)
-      enddo
+      integer:: nro,nrn,ir
+      real(8):: polinta,rofio(nro),rofin(nrn),go(nro),gn(nrn)
+      gn = [(polinta(rofin(ir), rofio,go,nro),ir=1,nrn)]
+c      do ir=1, nrn
+c        gn(ir) = polinta(rofin(ir), rofio,go,nro)
+c      enddo
       end

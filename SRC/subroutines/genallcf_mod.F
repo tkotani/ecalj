@@ -38,15 +38,15 @@
      o     nclass,natom,nspin,nl,nn,nnv,nnc, !ngrp,
      o     nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw 
       real(8),protected,public::
-     &     alat,deltaw,esmr,delta,tpioa
+     &     plat(3,3),alat,deltaw,esmr,delta,tpioa
       real(8), allocatable,protected,public:: 
-     &     plat(:,:),pos(:,:),z(:),ecore(:,:) !,symgg(:,:,:)
+     &     pos(:,:),z(:),ecore(:,:) !,symgg(:,:,:)
       logical,protected,public::
      &     done_genallcf_v3=.false.
       character(8),allocatable,protected,public::
      &     spid(:)
 c      character(120),protected,public:: symgrp
-      character(6),allocatable,protected,public :: clabl(:)
+      character(8),allocatable,protected,public :: clabl(:)
       
       private
 c-----------------------------------------------------------------------
@@ -76,7 +76,7 @@ c     & ,noflmto
       integer:: infwfx,ret, n1,n2,n3,imagw,n,ic
       logical :: nocore,readon
       real(8)::efin
-      character(120):: symgrpt
+c      character(120):: symgrpt
       character*1000 tolchar
       real(8),   allocatable:: ecoret(:,:,:,:)
       integer(4),allocatable::ncwf2(:,:,:)
@@ -85,66 +85,16 @@ c     & ,noflmto
       integer:: nwdummy,ifile_handle,ict
       if(done_genallcf_v3) call rx('genallcf_v3 is already called')
       done_genallcf_v3=.true.
-c--- rgwinf ---
-      open(newunit=ifi,file='LMTO')
-      read(ifi,*);  read(ifi,*)
-      read(ifi,*)symgrpt        !SYMMETRY
-      j = 0
-c      symgrp='  '//trim(adjustl(symgrpt))
-c      write(6,*)' symgrp=', symgrp
-      read(ifi,*)
-      read(ifi,*)
-      read(ifi,*)
-      read(ifi,*)alat           !lattice constant
+      open(newunit=ifi,file='LMTO',form='unformatted')
+      read(ifi) natom,alat,plat,nspin,nl,nnv,nnc,nrx,n1,n2,n3
+      allocate(pos(3,natom))    !positions of atoms
+      nclass = natom  !We set nclass = natom through the GW calculations
+      allocate(clabl(natom),z(natom),iantiferro(1:natom),spid(1:natom))
+      read(ifi)pos,clabl(1:natom),z(1:natom),spid(1:natom)
+      read(ifi)iantiferro(1:natom)
+      close(ifi)
       pi=4d0*datan(1d0)
       tpioa=2d0*pi/alat
-      allocate(plat(3,3))          !primitive lattice vectors
-      read(ifi,*)
-      read(ifi,*)plat(1:3,1)
-      read(ifi,*)plat(1:3,2)
-      read(ifi,*)plat(1:3,3)
-      read(ifi,*)
-      read(ifi,*) natom            !Number of atoms
-!!
-      nclass = natom  !We set nclass = natom through the GW calculations
-      write(6,*)'genalloc: alat natom=',alat,natom
-      allocate(pos(3,natom))       !positions of atoms
-      read(ifi,*)
-      do n = 1,natom
-        read(ifi,*) pos(1,n),pos(2,n),pos(3,n)
-      end do
-      read(ifi,*)
-      read(ifi,*)
-      read(ifi,*)
-      read(ifi,*)nspin           !spin (1=paramagnetic  2=ferromagnetic)
-      read(ifi,*)
-      read(ifi,*)nl              !max. no. valence and core l
-      read(ifi,*)
-      read(ifi,*)nnv,nnc   !max. no. valence and core n
-      write(6,*)' nspin nl nnv nnc =',nspin,nl,nnv,nnc
-c--------------------------
-      if(nnv==1) nnv=2 ! for backword compatibility!takao apr 2002
-      ! nnv=2 corresponds to phi and phidot
-      ! nnv=3 corresponds to
-c--------------------------
-      read(ifi,*)
-      read(ifi,*)  nrx !is not readin
-      read(ifi,*)
-      allocate(clabl(nclass),z(nclass)) !class-label, z
-      do ic = 1,nclass
-        read(ifi,*) clabl(ic),z(ic) !,nrofi is not readin
-      end do
-      read(ifi,*)
-      read(ifi,*)
-      read(ifi,*)
-      read(ifi,*)n1,n2,n3
-      write(6,"(a,3i5)")' divisions along reciprocal base vectors G1 G2 G3=', n1,n2,n3
-      allocate(iantiferro(1:natom),spid(1:natom))
-      read(ifi,*)
-      read(ifi,*)iantiferro(1:natom) !may2015
-      read(ifi,*)
-      read(ifi,*)spid(1:natom)
-      close(ifi)
 ! FREQUENCIES
       call getkeyvalue("GWinput","niw",   niw )
       call getkeyvalue("GWinput","delta", delta )
