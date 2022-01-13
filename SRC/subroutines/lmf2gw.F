@@ -291,11 +291,11 @@ c        if(ncore  >ncoremx) ncoremx = ncore
       enddo
 c      nphi = ldim2
 c      ncoremx = ncoremx/nsp
-      gx_d = 0
+c      gx_d = 0
       rewind ifigwa
-      nnc =0
-      konf =0
-      write(6,'(/'' File gwa: reading atom data'')')
+c      nnc =0
+c      konf =0
+c      write(6,'(/'' File gwa: reading atom data'')')
       do 3001 ibas = 1, nbas
         read(ifigwa) z, nr_A, a_A, b_A, rofi_Anr,lmxa,nspdummy,ncore
         allocate(rofi_A(nr_A),
