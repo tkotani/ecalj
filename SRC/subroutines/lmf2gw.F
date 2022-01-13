@@ -171,7 +171,7 @@ c----------------------------------------------
         lmxa_d(iclass(ibas)) =lmxaa(ibas)
       enddo
       close(ifefclass)
-!! Band Part
+!! Get extp(procid)
       open(newunit=ifiproc,file= 'lmfgw_kdivider')
       read(ifiproc,*) ext  !extension is read here
       read(ifiproc,*) nqixx, nspxx, nrank
@@ -194,7 +194,7 @@ c----------------------------------------------
         extp(procid)=trim(adjustl(ext))//'_'//trim(adjustl(extn))
         write(6,"(i3,' ext= ',a,a)") procid,trim(extp(procid)),' ----------'
       enddo
-!!      
+!! Band part
       open(newunit=ifichkv,file='VXCFP.chk')
       write(ifichkv,"(a)") '### LDA exchange correlation ###'
       write(ifichkv,"(a)")'#   qvec                 ikp iband    eigen VXC(ntotal)     VXC(nvalence)'
@@ -240,10 +240,9 @@ c      open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=m
           vxclda (1:nband, ikp,isp)= vvv1(1:nband)-vvv2(1:nband)
           vvv3=vvv2
           do ibx =1,nband
-             write(ifichkv,"(3f8.4,2i3,6f16.8)") qqq,ikp,ibx,
-     &            vvv1(ibx),vvv1(ibx)-vvv2(ibx),vvv3(ibx)-vvv2(ibx),
-     &            rydberg*vvv1(ibx),rydberg*(vvv1(ibx)-vvv2(ibx)),
-     &            rydberg*(vvv3(ibx)-vvv2(ibx))
+            write(ifichkv,"(3f8.4,2i3,6f16.8)") qqq,ikp,ibx,
+     &      vvv1(ibx),vvv1(ibx)-vvv2(ibx),vvv3(ibx)-vvv2(ibx),rydberg*vvv1(ibx),rydberg*(vvv1(ibx)-vvv2(ibx)),
+     &      rydberg*(vvv3(ibx)-vvv2(ibx))
           enddo
  888      continue
 c we can not close here because extp(iprocq(iqq,isp)) can be the same for different iqq,isp
@@ -253,57 +252,20 @@ c          close(ifigwx1_),  close(ifigwx2_),   close(ifigwb_)
       close(ifichkv)
       close(ificg)
       deallocate( cphi,evl, vvv1,vvv2,vvv3)
+      
 !! ATOMIC PART ic = ibas scheme ==,  GET nrxx and ncoremx ----------------------
-c      nrmx    = 0
-c      ncoremx = 0
       open(newunit=ifigwa,file='gwa'//trim(ext),form='unformatted')
       allocate(nncx(0:lmxamx,nbas),konf(lmxamx+1,nbas),spid(nbas))
       allocate(ec_d(ncoremx, nclass, nsp),gx_d (nrmx, 0:lmxamx, nphimx,  nclass,nsp),
      & gcore_d(nrmx, ncoremx, nclass,nsp)  )
-      do ibas = 1, nbas
-        read(ifigwa) z, nr_A, a_A, b_A, rofi_Anr
-     &  ,lmxa,nspdummy,ncore,spid(ibas)
-        allocate(rofi_A(nr_A),ec_A(ncore))
-        read(ifigwa) konf(1:lmxa+1,ibas)
-        read(ifigwa) rofi_A(1:nr_A)
-        do  l = 0, lmxa
-          do  isp = 1, nsp
-            read(ifigwa) lxx,ispx  !!!ibas==ic,l,n=1
-            read(ifigwa)
-            read(ifigwa)
-            if (konf(l+1,ibas) .ge. 10) read(ifigwa)
-          enddo
-        enddo
-        do  l = 0, lmxa
-          do  isp = 1, nsp
-            nncx(l,ibas) = mod(konf(l+1,ibas),10)-1 -(l+1) +1
-            nnc          = max(nnc,nncx(l,ibas))
-            do  kkk = l+1, mod(konf(l+1,ibas),10)-1
-              icore = icore+1
-              read(ifigwa) icore,ldummy,ispx,kkkdummy,ec_A(icore)
-              read(ifigwa)
-            enddo
-          enddo
-        enddo
-        deallocate(rofi_A,ec_A)
-c        if(nr_A   >nrmx   ) nrmx    = nr_A
-c        if(ncore  >ncoremx) ncoremx = ncore
-      enddo
-c      nphi = ldim2
-c      ncoremx = ncoremx/nsp
-c      gx_d = 0
-      rewind ifigwa
-c      nnc =0
-c      konf =0
-c      write(6,'(/'' File gwa: reading atom data'')')
       do 3001 ibas = 1, nbas
-        read(ifigwa) z, nr_A, a_A, b_A, rofi_Anr,lmxa,nspdummy,ncore
+        read(ifigwa) z, nr_A, a_A, b_A, rofi_Anr,lmxa,nspdummy,ncore,spid(ibas)
         allocate(rofi_A(nr_A),
      &  gcore_A(nr_A,ncore),ec_A(ncore))
         read(ifigwa) konf(1:lmxa+1,ibas)
         read(ifigwa) rofi_A(1:nr_A)
-        write(6,369) ibas,z,rofi_A(nr_A),lmxa,konf(1:lmxa+1,ibas)
-  369   format(' site',i3,'  z=',f5.1,'  rmax=',f8.5,'  lmax=',i1,'  konf=',10i1)
+        write(6,"(' site',i3,'  z=',f5.1,'  rmax=',f8.5,'  lmax=',i1,'  konf=',10i1)")
+     &       ibas,z,rofi_A(nr_A),lmxa,konf(1:lmxa+1,ibas)
 !!       A bit rough treatment
         ic    = iclass(ibas)
         zz(ic)= z
@@ -312,8 +274,7 @@ c      write(6,'(/'' File gwa: reading atom data'')')
         nr(ic)= nr_A
         ncore_d(ic) = ncore/nsp
         konf_d(0:lmxa,ic) = konf(1:lmxa+1,ibas)
-        write(6,371)
-  371   format('  l    g(rmax)    gp(rmax)',4x,'<g g>',9x,'<gp gp>',9x,'<g gp>')
+        write(6,"('  l    g(rmax)    gp(rmax)',4x,'<g g>',9x,'<gp gp>',9x,'<g gp>')")
 !! --- PHIU
         do  l = 0, lmxa
           do  isp = 1, nsp
@@ -333,18 +294,13 @@ c      write(6,'(/'' File gwa: reading atom data'')')
               enddo
             enddo
             write(6,'(i3,2f11.5,2f15.10,f12.6)')
-     .      l,gx_d(nr_A,l,1,ic,isp),gx_d(nr_A,l,2,ic,isp),
-     .      ovv(1),ovv(3),ovv(2)
-            if (m .eq. 3) write(6,321) gx_d(nr_A,l,3,ic,isp),
-     .      ovv(6),ovv(4),ovv(5)
-  321       format('  gz(rmax); <gz gz> <gz g> <gz gp> = ',f8.5,
-     .      f15.10,2f12.7)
-
+     .      l,gx_d(nr_A,l,1,ic,isp),gx_d(nr_A,l,2,ic,isp),  ovv(1),ovv(3),ovv(2)
+            if (m .eq. 3) write(6,321) gx_d(nr_A,l,3,ic,isp), ovv(6),ovv(4),ovv(5)
+  321       format('  gz(rmax); <gz gz> <gz g> <gz gp> = ',f8.5,f15.10,2f12.7)
           enddo
         enddo
 !! --- ECORE PHICU
-        if (ncore .ne. 0)
-     .  write(6,'(''  l  k isp       ecore      gc(rmax)     <gc gc>'')')
+        if (ncore .ne. 0) write(6,'(''  l  k isp       ecore      gc(rmax)     <gc gc>'')')
         icore = 0
         icors = 0
         do isp = 1, nsp

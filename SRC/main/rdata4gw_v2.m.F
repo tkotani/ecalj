@@ -498,7 +498,7 @@ c---------------------------------------------------
       write(ifphi) nbas, nradmx,ncoremx,nrmx
       write(ifphi) nrad(1:nbas)
       write(ifphi) nindx_r(1:nradmx,1:nbas),lindx_r(1:nradmx,1:nbas)
-      do ibas = 1,nbas
+      do 1010 ibas = 1,nbas
         ic   = iclass(ibas)
         ic1   = ibas
         allocate(rofi(nr(ic)))
@@ -785,7 +785,7 @@ C ... norm check
           enddo
         enddo  ! end of isp loop
         deallocate(rofi)
-      enddo    ! end of ibas loop
+ 1010 continue                    ! end of ibas loop
 ! --- end of atomic part --------------------------------------------
 
       
