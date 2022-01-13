@@ -100,8 +100,8 @@ c      character*30 :: symgrpo='UseSYMOPSfile'
      &     ifphi,ifev,ifv,ifplane
 c      character(8),allocatable:: clablx(:)
       real(8),allocatable:: rofi(:)
-      integer,allocatable:: lmxaa(:),nncx(:,:),nrGG(:)
-     &     ,ngvecp(:,:),ngvecc(:,:),indxk(:),ipq(:)
+      integer,allocatable:: lmxaa(:),nncx(:,:),nrGG(:),
+     &     indxk(:),ipq(:)
      &     ,lcutmx(:) !,ngcx(:),ngveccf(:,:,:),ngc2x(:),ngvecc2(:,:,:)
       real(8),allocatable :: rmax(:),gen(:,:),wgt(:)
      &     ,symgr(:,:,:),qibze(:,:)
@@ -171,8 +171,10 @@ c      character(8),allocatable:: clablx(:)
       integer:: nggg,ngcgp,nq0iadd,ixyz !q independent 
       logical:: cmdopt2
       character(20):: outs=''
-      integer:: ngpmx,nrmx,nl
+      integer:: ngpmx,nrmx,nl,iqtt
       real(8),parameter:: pi = 4d0*datan(1d0)
+      integer,pointer:: ngvecp(:,:),ngvecc(:,:)
+      integer,allocatable,target:: ngvecptt(:,:,:),ngvecctt(:,:,:),ngptt(:),ngctt(:)
 !!
       call MPI__Initialize()
       call lmf2gw() !set variables, and CphiGeig
@@ -191,19 +193,23 @@ c      character(8),allocatable:: clablx(:)
 !-------------------------------------
       open(newunit=ifiqg ,file='QGpsi',form='unformatted')
       open(newunit=ifiqgc,file='QGcou',form='unformatted')
-      read(ifiqg  ) nqnum , ngpmx, QpGcut_psi,nnnn
-      read(ifiqgc ) nqnumc, ngcmx, QpGcut_Cou
-      nqtt=nqnum
-      allocate(qtt(3,nqtt))
+      read(ifiqg ) nqnum, ngpmx,QpGcut_psi,nqbz,nqi,imx,nqibz
+      read(ifiqgc) nqnumc,ngcmx,QpGcut_cou
+      nqtt = nqnum
+      allocate(qtt(3,nqtt),ngvecptt(3,ngpmx,nqtt),ngvecctt(3,ngpmx,nqtt),ngptt(nqtt),ngctt(nqtt))
       do iq=1,nqtt
-        read(ifiqg) qtt(1:3,iq)
-        read(ifiqg)
-        write(*,"(' qtt =',i4,3f9.5)")iq, qtt(1:3,iq)
+         read (ifiqg)  qtt(1:3,iq), ngptt(iq) !, irr
+         read (ifiqg)  ngvecptt(1:3,1:ngptt(iq),iq)
+         read (ifiqgc) qxx, ngctt(iq)
+         read (ifiqgc) ngvecctt(1:3,1:ngctt(iq),iq)
+         if(sum(abs(qtt(:,iq)-qxx))>1d-8) call rx('QGpsi QGcou q/=q')
+         write(*,"(' qtt =',i4,3f9.5)")iq, qtt(1:3,iq)
       enddo
-      rewind ifiqg
-      read(ifiqg  ) nqnum , ngpmx, QpGcut_psi,nnnn,nqi,imx,nqibz
-      write(6,*)'QpGcut_psi QpGcutCou nnnn nqi=',QpGcut_psi,QpGcut_Cou ,nnnn,nqi
-      print *, 'reading QOP'
+      close(ifiqg)
+      close(ifiqgc)
+      write(6,*)'QpGcut_psi QpGcutCou nqbz nqi=',QpGcut_psi,QpGcut_Cou ,nqbz,nqi
+!---------
+      write(6,*)'reading QOP'
       open (newunit=iq0p,file='Q0P')
       read (iq0p,*) nq0i,iq0pin,nq0iadd
       allocate( wt(nq0i+nq0iadd),q0i(1:3,nq0i+nq0iadd) )
@@ -743,18 +749,15 @@ C ... norm check
         open(newunit=inormo,file = "normchk.off")
         write(inorm,849)
         write(inormo,849)
- 849    format('#       IPW    ',
-     .        '     IPW(diag)',
-     .        '   Onsite(tot)',
-     .        '   Onsite(phi)',
-     .        '      Total  #check in rdata4gw ')
+ 849    format('#       IPW         IPW(diag)   Onsite(tot)',
+     .        '   Onsite(phi)      Total  #check in rdata4gw ')
         allocate(sumc(nband,nband,nsp))
       endif
       allocate(cphix(ldim2,nband), cphir(ldim2,nband),geigr(1:ngpmx,1:nband,1:nsp))
       open(newunit=ifnband,file='NBANDikp')
       write(ifnband,"(2i12,' !nband(larger than any)  nqtti')")nband,nqtti
       write(ifnband,"('------ nband ------  ikp ---')")
-      
+!      
       open(newunit=ifev,file='EValue',form='unformatted')
       write(ifev) nband, nqtti, nsp
       write(ifev) qtti(1:3,1:nqtti) !qtti
@@ -815,26 +818,16 @@ C ... norm check
           read(ificg) geigr(1:ngp,1:nband,isp)
         enddo                  !end of spin loop
 !!--- Plane wave part ---
-        iread=0
-        do  !irr is the flag to judge to check irreducible point or not.
-          read (ifiqg, err=1012,end=1012) qqqa, ngp !, irr
-          read (ifiqgc         ) qqqb, ngc
-          allocate( ngvecp(3,ngp),ngvecc(3,ngc) )
-          read (ifiqg ) ngvecp
-          read (ifiqgc) ngvecc
-          if(sum(abs(qtti(:,ikp)-qqqa))<tolq) exit
-          deallocate(ngvecp,ngvecc)
-          cycle
- 1012     continue
-          if(iread==1) call rx('rdata4gw_v2:readin error on QGpsi QGcou')
-          iread=1
-          rewind ifiqg
-          rewind ifiqgc
-          read(ifiqg  ) nqnum , ngpmx, QpGcut_psi,nnnn
-          read(ifiqgc ) nqnumc, ngcmx, QpGcut_Cou
-        enddo
-        if(sum(abs(qtti(:,ikp)-qqqa))>tolq) call rx( 'rdata4gw_v2:qtti/=qqq wrong QpGphi?')
-        if(sum(abs(qtti(:,ikp)-qqqb))>tolq) call rx( 'rdata4gw_v2:qtti/=qqq wrong QpGcou?')
+        do iqtt=1,nqtt  
+          if(sum(abs(qtti(:,ikp)-qtt(:,iqtt)))<tolq) then
+             iqx=iqtt
+             exit
+          endif   
+        enddo   
+        ngvecp =>ngvecptt(1:3,1:ngptt(iqx),iqx)
+        ngvecc =>ngvecctt(1:3,1:ngctt(iqx),iqx)
+        ngp=ngptt(iqx)
+        ngc=ngctt(iqx)
         if(debug) print *,' ikp ngp ngc qtti =',ikp,ngp,qtti(:,ikp)
         if(debug) print *,' ikp ngp ngc qqqa=',ikp,ngp,qqqa
         if(debug) print *,' ikp ngp ngc qqqb=',ikp,ngp,qqqb
@@ -879,7 +872,7 @@ c          endif
           write(inormo,*)
           deallocate(ppovl)
         endif
-        deallocate( ngvecp,ngvecc )
+c        deallocate( ngvecp,ngvecc )
  1200 continue
       print *,' end of eigensection-----'
       print *
@@ -902,7 +895,6 @@ c          endif
       write(ifhvccfp) qibz(1:3,1:nqibz)
       write(6,*)
       write(6,"('  ngrp   = ',i3)")ngrp
-c      write(6,"('  symops = ',a30)")symgrpo
       write(6,'("  qibz=",i3,3f12.5)')(i,qibz(1:3,i),i=1,nqibz)
 !!---
       open(newunit=ifnqibz,file='NQIBZ')
@@ -964,7 +956,7 @@ c      write(6,"('  symops = ',a30)")symgrpo
       do ix=1,nqtti
         write(6,"(' qtti  = ',3f10.4)") qtti(1:3,ix)
       enddo
-!! PPOVLGG,PPOVLG oct2012
+!      
       if(debug) print *,' --- goto PPOVLG section ---',nggg,ngcgp,nqnumt-nqini+1
       open(newunit=ippovlgg,file= "PPOVLGG",form='unformatted')
       write(ippovlgg) nggg, ngcgp, nqnumt-nqini+1,nqini,nqnumt
@@ -973,12 +965,6 @@ c      write(6,"('  symops = ',a30)")symgrpo
       write(ippovlgg) ggg(1:nggg)
       deallocate(ggg,nvggg,nvgcgp)
       close(ippovlgg)
-!! ==  New version. apr2013takao . Not use ngveccf. ==
-      rewind ifiqg
-      rewind ifiqgc
-      read(ifiqg  ) nqnum , ngpmx, QpGcut_psi,nnnn
-      read(ifiqgc ) nqnumc, ngcmx, QpGcut_Cou
-      print *
       print *,' --- Write PPOVLG ----'
       if(ppovl0l) open(newunit=ippovl0,form='unformatted',file='PPOVL0')
       do 2010 iqi = nqini, nqnumt    !nqibz + nq0i + iadd
@@ -986,36 +972,22 @@ c      write(6,"('  symops = ',a30)")symgrpo
         open(newunit=ippovli,file= "PPOVLI."//charnum3(iqi),form='unformatted')
         qx  = qibze(1:3,iqi)
         if(debug) write(*,"('init do 2010 qx=',3f13.5)")qx
-!!      iq is removed at apr2013takao   --> iq=idxk(qibze(1:3,iqi), qtti,nqtti) !feb2012takao
-        iread=0
-!!      do loop to readin ngc,ngp,ngvecp,ngvecc for give qx. apr2013takao
-        do           !irr is the flag to judge to check irreducible point or not.
-          read (ifiqg, err=1013,end=1013) qqqa, ngp !, irr
-          if(debug) write(*,"('qqqa=',3f13.5)")qqqa
-          read (ifiqgc         ) qqqb, ngc
-c          print *,'iqi,qqqa,ngp=',iqi,qqqa,ngp
-          allocate( ngvecp(3,ngp),ngvecc(3,ngc) )
-          read (ifiqg ) ngvecp
-          read (ifiqgc) ngvecc
-          if(sum(abs(qx-qqqa))<tolq) exit
-          deallocate(ngvecp,ngvecc)
-          cycle
- 1013     continue
-          if(iread==1) call rx('rdata4gw_v2:readin error on QGpsi QGcou 22222')
-          iread=1
-          rewind ifiqg
-          rewind ifiqgc
-          read(ifiqg  ) nqnum , ngpmx, QpGcut_psi,nnnn
-          read(ifiqgc ) nqnumc, ngcmx, QpGcut_Cou
-        enddo
-        if(sum(abs(qx-qqqa))>tolq) call rx( 'rdata4gw_v2:qx/=qqq wrong QpGphi?')
-        if(sum(abs(qx-qqqb))>tolq) call rx( 'rdata4gw_v2:qx/=qqq wrong QpGcou?')
+        do iqtt=1,nqtt  
+          if(sum(abs(qx(:)-qtt(:,iqtt)))<tolq) then
+             iqx=iqtt
+             exit
+          endif   
+        enddo   
+        ngvecp =>ngvecptt(1:3,1:ngptt(iqx),iqx)
+        ngvecc =>ngvecctt(1:3,1:ngctt(iqx),iqx)
+        ngp=ngptt(iqx)
+        ngc=ngctt(iqx)
         write(ippovli) qx,ngc
         write(ippovlg) qx,ngc
         write(6,"(' iqi qx ngc=',i5,3f8.4,4i5)" ) iqi,qx,ngc
         if(ppovl0l) write(ippovl0)   qx,ngc
         if(ngc==0) then
-          deallocate(ngvecc,ngvecp)
+c          deallocate(ngvecc,ngvecp)
           cycle
         endif  
         allocate(ppovl(ngc,ngc),ppovlinv(ngc,ngc)) !This is necessary for matcinv
@@ -1030,20 +1002,16 @@ c          print *,'iqi,qqqa,ngp=',iqi,qqqa,ngp
 !     call cinvrx(ppovl,ppovlinv,ngc,1,1)   ! inverse of ppovl
 !     Note the size of ppovlinv and ppovl are the same
         ppovlinv = ppovl
-        if(debug) print *,' ttt222 ...'
         call matcinv(ngc,ppovlinv)
-        if(debug) print *,' ttt3 ...'
         deallocate(ppovl)
 !! ggg= < exp(i G r) > integral in the interstitial region.
         if(ngc/=0) write(ippovlg) ngvecc(1:3,1:ngc)
         if(ngc/=0) write(ippovli) ppovlinv(1:ngc,1:ngc) 
-        if(debug) print *,' ttt4 ...'
-        deallocate(ppovlinv,ngvecc,ngvecp)
-      close(ippovlg)
-      close(ippovli)
+        deallocate(ppovlinv)!,ngvecc,ngvecp)
+        close(ippovlg)
+        close(ippovli)
  2010 continue
       if(ppovl0l) close(ippovl0)
-      
       write(6,*) " --- Write LMTO file(crystal structure and so on) ---"
       nl=lmxax+1
       open(newunit=ifigwin,file='LMTO',form='unformatted')
