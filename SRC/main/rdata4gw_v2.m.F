@@ -4,7 +4,7 @@
      &  nsp,nbas,nclass,ncoremx,lmxamx,ldim2,nqtti=>nqbze,  
      &  iantiferro,spid,iclass,lmxa=>lmxa_d,nr,konf=>konf_d,ncore=>ncore_d,
      &  zz,aa,bb,ec=>ec_d,evl=>evl_d,vxclda, gx_raw=>gx_d,gcore=>gcore_d,plat, alat, efermi,
-     &  qtti=>qbze, bas,laf,ibasf !, nocore
+     &  qtti=>qbze, bas,laf,ibasf,n1q,n2q,n3q !, nocore
 !xxx nphi,        ! number of augmentation nRl channels, as distinct from:
 ! ldim2,       ! number of nRLm channels = 2*ldim for phi+phidot case.
 ! nphimx       ! Maxmum number of phi for all l ---  2 for phi+phidot case.
@@ -83,7 +83,7 @@ Cr
       use m_mpi,only: MPI__Initialize
       implicit none
       integer ::
-     &     ifigw0,n1q,n2q,n3q,ifiqg,ifiqc,nqnum,nq0i,i,ifi
+     &     ifigw0,ifiqg,ifiqc,nqnum,nq0i,i,ifi
      &     ,nxx,lxx,ibxx
      &     ,ifnlax,inum,ibas,ic,k,icore,kkkmx,kkk,n,mmm,ix,irr,nradmx,irad
      &     ,ifhbed,ndble,mrecb,mrece,ifcphi,ifec,ife0,if0c,nmax,lx,nx
@@ -109,7 +109,7 @@ c      character(8),allocatable:: clablx(:)
       complex(8),allocatable :: ppovl(:,:),ppx(:,:),ppovlinv(:,:)
       real(8),allocatable :: wt(:),q0i(:,:)
       real(8),allocatable :: qibz(:,:)
-      integer:: nqbz ,icore1,nnn(3),nnnn, mrecg,nqi
+      integer:: nqbz ,icore1,nnnn, mrecg,nqi
       integer,allocatable:: invgx(:)
       real(8),allocatable:: shtvg(:,:)
       integer,allocatable::
@@ -188,9 +188,7 @@ c      character(8),allocatable:: clablx(:)
         checknorm=.true.
         checkdia=.false.
       endif
-      call getkeyvalue("GWinput", "n1n2n3", nnn,3) !Readin nx ny nz for k-points for GW 
-      n1q=nnn(1); n2q=nnn(2); n3q = nnn(3)
-!
+!-------------------------------------
       open(newunit=ifiqg ,file='QGpsi',form='unformatted')
       open(newunit=ifiqgc,file='QGcou',form='unformatted')
       read(ifiqg  ) nqnum , ngpmx, QpGcut_psi,nnnn
@@ -304,23 +302,10 @@ c      character(8),allocatable:: clablx(:)
       write(ifhbed,"(1x,i3,6i12)") ndble,mrecb,mrece,ldim2,nqbz,nband,mrecg
       write(ifhbed,*)' precision, mrecl of b, mrecl of eval, ldim2(p+d+l)  nqbz  nband mrecg'
       close(ifhbed)
-!!--- save eigenvalues to EValue, qtti, nqtti also ---
-      open(newunit=ifev,file='EValue',form='unformatted')
-      write(ifev) nband, nqtti, nsp
-      write(ifev) qtti(1:3,1:nqtti) !qtti
-      write(ifev) evl(1:nband, 1:nqtti, 1:nsp )
-      close(ifev)
+
       open(newunit=ifec, file='ECORE')
       open(newunit=ifphi,file='PHIVC',form='unformatted')
-      open(newunit=ife0,file='eig0.chk')
-      open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
-      if(mrecg>0) then
-        open(newunit=ifgeig,file='GEIG',form='unformatted',access='direct',recl=mrecg)
-      else
-        open(newunit=ifgeig,file='GEIG',form='unformatted') !this is dummy
-      endif
-      open(newunit=ifv,file='VXCFP',form='unformatted')
-      write(ifv) nband,nqi ! mar2012takao  write(ifv) nband,nqtti    !feb2012takao
+      
 !! --- augmentation wave numbering--- idxnlmc in index.f order
 !     m,n,l,ic order. On the other hand, fplmto gives m l n ic  for valence!
 !     This ordering is important for psi2b_v2 and psibc_v2 in x0kf_v2 and sxcf_v2, and so on.
@@ -752,6 +737,7 @@ C ... norm check
 
       
 !! ------------------------------------------------------
+      write(6,*) '########## goto Eigfun part ############## '
       if(checknorm) then
         open(newunit=inorm, file = "normchk.dia")
         open(newunit=inormo,file = "normchk.off")
@@ -764,13 +750,21 @@ C ... norm check
      .        '      Total  #check in rdata4gw ')
         allocate(sumc(nband,nband,nsp))
       endif
-      write(6,*) '########## goto Eigfun part ############## '
-      allocate( cphix(ldim2,nband), !ngveccf(3,ngcmx,nqtti) ,ngcx(nqtti),
-     &     cphir(ldim2,nband),geigr(1:ngpmx,1:nband,1:nsp))
+      allocate(cphix(ldim2,nband), cphir(ldim2,nband),geigr(1:ngpmx,1:nband,1:nsp))
       open(newunit=ifnband,file='NBANDikp')
       write(ifnband,"(2i12,' !nband(larger than any)  nqtti')")nband,nqtti
       write(ifnband,"('------ nband ------  ikp ---')")
-!!----------------------------------------------------------------------
+      
+      open(newunit=ifev,file='EValue',form='unformatted')
+      write(ifev) nband, nqtti, nsp
+      write(ifev) qtti(1:3,1:nqtti) !qtti
+      write(ifev) evl(1:nband, 1:nqtti, 1:nsp )
+      close(ifev)
+!
+      open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
+      open(newunit=ifgeig,file='GEIG',form='unformatted',access='direct',recl=mrecg)
+      open(newunit=ifv,file='VXCFP',form='unformatted')
+      write(ifv) nband,nqi ! mar2012takao  write(ifv) nband,nqtti    !feb2012takao
       open(newunit=ificg,file='CphiGeig',form='unformatted')
       do 1200 ikp = 1,nqtti  !irreducible points.
         if(mod(ikp,10)==1.or.ikp>nqtti-5) write(6,*) ' ikp=',ikp

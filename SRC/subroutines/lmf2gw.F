@@ -55,7 +55,7 @@
       
       module m_lmf2gw
       integer,allocatable,protected:: nindx(:),lindx(:),ibasindx(:),iantiferro(:)
-      integer,protected :: nbandmx,nphimx,
+      integer,protected :: nbandmx,nphimx,n1q,n2q,n3q,
      &nsp,      ! =1 or 2, corresponding to para or ferro.
      &nbas,     ! Number of atom in the primitive cell
      &nclass,   ! Number of atomic class (or type) for in the primitive cell
@@ -87,13 +87,14 @@
 !!   gw2.* : <psi|H(without Vxc)|psi>
 !!   CLASS, lmfgw_kdivider, NLAindx
 c------------------------------------------------------------------
+      use m_keyvalue,only: getkeyvalue
       implicit none
       integer::
      &ldim,     ! = sum ( (lmxa(1:nbas)+1)**2 )
      &nband    ! Number of bands given by GWIN0
       integer icor1,icorex,i,i1,i2,ibas,ibasx,ibx,ic,icore,
      .ifichkv,ifigw0,ifigwa,ifigwb,ifigwx1,ifigwx2,ifigwx3,isp,ispx,
-     .ispxx,ix,kkk,kkkdummy,l,ldummy,lmxa,lxx,n1q,n2q,n3q,nclassx,m,n,
+     .ispxx,ix,kkk,kkkdummy,l,ldummy,lmxa,lxx,nclassx,m,n,
      .ncore,ndimh,ngp,nnc,nq0i,nqbz,nspdummy,IKP,NR_A !takao feb2012 ngc,ngcmx,
       real(8) qlat(3,3),ovv(20),ef0,qpgcut_phi,qpgcut_cou,z,
      .a_a,b_a,rofi_anr
@@ -121,9 +122,12 @@ c----------------------------------------------
       integer:: ifiproc,nqixx,nspxx,numprocxx,ixxx
       integer,allocatable:: iprocq(:,:)
       logical:: iopen
-      integer  id,nsizex,iqqxx,ifile_handle,ib,ii,ipqn,nn
+      integer::  id,nsizex,iqqxx,ifile_handle,ib,ii,ipqn,nn,nnn(3)
 !! =================================================================
       call setpr(30)
+      call getkeyvalue("GWinput", "n1n2n3", nnn,3) !Readin nx ny nz for k-points for GW 
+      n1q=nnn(1); n2q=nnn(2); n3q = nnn(3)
+      
       open(newunit=ifigwb,file='gwb.head',form='unformatted')
       read (ifigwb) nbas,nsp,ldim2,ndimh,alat,qlat,ef0,nqbz,plat(1:3,1:3),nqbze, nqirr !feb2012takao
       nqbze=nqirr    !nqbze means number of calculated bands (irreducible only)         feb2012takao

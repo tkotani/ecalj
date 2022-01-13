@@ -1,7 +1,6 @@
 #NOTE: when you add your foobar.F, choose one of *_list.
 
 ELIB_list=\
-lmf2gw.o\
 rydberg.o \
 mkppovl2.o\
 m_density.o\
@@ -540,6 +539,7 @@ ent_MPI.o\
 wmatK_mpi.o
 
 GWLIB_list=\
+lmf2gw.o\
 zsecsym.o \
 hilbertmat.o\
 dpsion5.o\
