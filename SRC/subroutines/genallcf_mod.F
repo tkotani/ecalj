@@ -86,7 +86,7 @@ c      character(120):: symgrpt
       if(done_genallcf_v3) call rx('genallcf_v3 is already called')
       done_genallcf_v3=.true.
       open(newunit=ifi,file='LMTO',form='unformatted')
-      read(ifi) natom,alat,plat,nspin,nl,nnv,nnc,nrx,n1,n2,n3
+      read(ifi) natom,alat,plat,nspin,nl,nnv,nnc,nrx!,n1,n2,n3
       allocate(pos(3,natom))    !positions of atoms
       nclass = natom  !We set nclass = natom through the GW calculations
       allocate(clabl(natom),z(natom),iantiferro(1:natom),spid(1:natom))

@@ -1,13 +1,13 @@
 !! Generate input files used in GW calculations
       program rdata4gw_v2
       use m_lmf2gw,only:Lmf2gw, nindx,lindx,ibasindx,nband=>nbandmx,nphimx,
-     &  nsp,nbas,nclass,ncoremx,lmxamx,ldim2,nqtti=>nqbze,  
+     &  nsp,nbas,nclass,ncoremx,lmxamx,ldim2,
      &  iantiferro,spid,iclass,lmxa=>lmxa_d,nr,konf=>konf_d,ncore=>ncore_d,
      &  zz,aa,bb,ec=>ec_d,evl=>evl_d,vxclda, gx_raw=>gx_d,gcore=>gcore_d,plat, alat, efermi,
-     &  qtti=>qbze, bas,laf,ibasf,n1q,n2q,n3q,
+     &  nqirr,qirr, bas,laf,ibasf,nqbz,!n1q,n2q,n3q,
      &  nqnum,ngpmx,ngcmx,nqnumc,nqtt,nq0i,iq0pin,nq0iadd,
-     & QpGcut_psi,QpGcut_cou,qtt,
-     & wt,q0i, ngvecptt,ngvecctt,ngptt,ngctt,nqi
+     &  QpGcut_psi,QpGcut_cou,qtt,
+     &  wt,q0i, ngvecptt,ngvecctt,ngptt,ngctt
 !xxx nphi,        ! number of augmentation nRl channels, as distinct from:
 ! ldim2,       ! number of nRLm channels = 2*ldim for phi+phidot case.
 ! nphimx       ! Maxmum number of phi for all l ---  2 for phi+phidot case.
@@ -111,7 +111,7 @@ c      character(8),allocatable:: clablx(:)
       integer :: idxk,nwordr
       complex(8),allocatable :: ppovl(:,:),ppx(:,:),ppovlinv(:,:)
       real(8),allocatable :: qibz(:,:)
-      integer:: nqbz ,icore1,nnnn, mrecg!,nqi
+      integer:: icore1,nnnn, mrecg!,nqi
       integer,allocatable:: invgx(:)
       real(8),allocatable:: shtvg(:,:)
       integer,allocatable::
@@ -264,7 +264,7 @@ c      character(8),allocatable:: clablx(:)
       enddo
 !      
       open(newunit=ifhbed,file='hbe.d')
-      nqbz  = n1q*n2q*n3q
+c      nqbz  = n1q*n2q*n3q
       ndble = 8
       write(6,'( " ldim2 nband=",3i5)') ldim2, nband
       mrecb = 2*ldim2*nband *ndble/nwordr()
@@ -694,22 +694,22 @@ C ... norm check
       endif
       allocate(cphix(ldim2,nband), cphir(ldim2,nband),geigr(1:ngpmx,1:nband,1:nsp))
       open(newunit=ifnband,file='NBANDikp')
-      write(ifnband,"(2i12,' !nband(larger than any)  nqtti')")nband,nqtti
+      write(ifnband,"(2i12,' !nband(larger than any)  nqirr')")nband,nqirr
       write(ifnband,"('------ nband ------  ikp ---')")
 !!      
       open(newunit=ifev,file='EValue',form='unformatted')
-      write(ifev) nband, nqtti, nsp
-      write(ifev) qtti(1:3,1:nqtti) !qtti
-      write(ifev) evl(1:nband, 1:nqtti, 1:nsp )
+      write(ifev) nband, nqirr, nsp
+      write(ifev) qirr(1:3,1:nqirr) !qirr
+      write(ifev) evl(1:nband, 1:nqirr, 1:nsp )
       close(ifev)
 !!
       open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
       open(newunit=ifgeig,file='GEIG',form='unformatted',access='direct',recl=mrecg)
       open(newunit=ifv,file='VXCFP',form='unformatted')
-      write(ifv) nband,nqi ! mar2012takao  write(ifv) nband,nqtti    !feb2012takao
+      write(ifv) nband,nqirr ! mar2012takao  write(ifv) nband,nqirr    !feb2012takao
       open(newunit=ificg,file='CphiGeig',form='unformatted')
-      do 1200 ikp = 1,nqtti  !irreducible points.
-        if(mod(ikp,10)==1.or.ikp>nqtti-5) write(6,*) ' ikp=',ikp
+      do 1200 ikp = 1,nqirr  !irreducible points.
+        if(mod(ikp,10)==1.or.ikp>nqirr-5) write(6,*) ' ikp=',ikp
 ! determined nbandx, 1:nbandx is meaningful.
         nbandx = nband
         isp=1
@@ -759,7 +759,7 @@ C ... norm check
 !!--- Plane wave part ---
         iqx=-99999
         do iqtt=1,nqtt  
-          if(sum(abs(qtti(:,ikp)-qtt(:,iqtt)))<tolq) then
+          if(sum(abs(qirr(:,ikp)-qtt(:,iqtt)))<tolq) then
              iqx=iqtt
              exit
           endif   
@@ -768,10 +768,10 @@ C ... norm check
         ngvecc =>ngvecctt(1:3,1:ngctt(iqx),iqx)
         ngp=ngptt(iqx)
         ngc=ngctt(iqx)
-        if(debug) print *,' ikp ngp ngc qtti =',ikp,ngp,qtti(:,ikp)
+        if(debug) print *,' ikp ngp ngc qirr =',ikp,ngp,qirr(:,ikp)
         if(debug) print *,' ikp ngp ngc qqqa=',ikp,ngp,qqqa
         if(debug) print *,' ikp ngp ngc qqqb=',ikp,ngp,qqqb
-!!  qtti: irreducible q point only(eigenvalue, eigenfunctions are given).
+!!  qirr: irreducible q point only(eigenvalue, eigenfunctions are given).
 !!  ifiqg contains all q points in full bz (irr=1 means irreducible point.)
         do isp=1,nsp
           ikpisp= isp + nsp*(ikp-1)
@@ -783,10 +783,10 @@ c            write(6,'("geig sumcheck ",i5,2d13.6)') ix,sum(geigr(1:ngp,ix,isp))
 c            enddo
 c          endif
         enddo
-        write(ifv) qtti(1:3,ikp), vxclda(1:nband,ikp,1:nsp) ! VXCFP
+        write(ifv) qirr(1:3,ikp), vxclda(1:nband,ikp,1:nsp) ! VXCFP
         if(checknorm) then
           xx=0d0
-          qx   = qtti(1:3,ikp)
+          qx   = qirr(1:3,ikp)
           allocate(ppovl(ngp,ngp))
 !     ppovl = <exp (i (q+G')) | exp (i (q+G))>
 !     I think P_{k+G} for eieigenfunction is completele zero (no high-l contribution)
@@ -818,8 +818,8 @@ c        deallocate( ngvecp,ngvecc )
       print *
 !! --- required Input for hvccfp0 ---
       open(newunit=ifhvccfp,file='HVCCIN',form='unformatted')
-      write(ifhvccfp) alat, plat,qlat,nqtti, nbas,nband
-      write(ifhvccfp) qtti(:,1:nqtti), bas, rmax
+      write(ifhvccfp) alat, plat,qlat,nqirr, nbas,nband
+      write(ifhvccfp) qirr(:,1:nqirr), bas, rmax
 !!    Readin qibz form QIBZ
       open(newunit=ifiqibz, file='QIBZ') !write q-points in IBZ.
       read (ifiqibz,*) nqibz
@@ -893,8 +893,8 @@ c        deallocate( ngvecp,ngvecc )
       nqini =1
       if(iq0pin==2) nqini=nqibz+1
       write(6,*)
-      do ix=1,nqtti
-        write(6,"(' qtti  = ',3f10.4)") qtti(1:3,ix)
+      do ix=1,nqirr
+        write(6,"(' qirr  = ',3f10.4)") qirr(1:3,ix)
       enddo
 !      
       if(debug) print *,' --- goto PPOVLG section ---',nggg,ngcgp,nqnumt-nqini+1
@@ -956,7 +956,7 @@ c          deallocate(ngvecc,ngvecp)
       write(6,*) " --- Write LMTO file(crystal structure and so on) ---"
       nl=lmxax+1
       open(newunit=ifigwin,file='LMTO',form='unformatted')
-      write(ifigwin) nbas,alat,plat,nsp,nl,nnv,nnc,nrmx,n1q,n2q,n3q
+      write(ifigwin) nbas,alat,plat,nsp,nl,nnv,nnc,nrmx!,n1q,n2q,n3q
       write(ifigwin) bas,spid, zz(iclass(1:nbas)),spid(1:nbas)
       write(ifigwin) laf,ibasf
       close(ifigwin)

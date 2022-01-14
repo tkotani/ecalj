@@ -62,11 +62,11 @@ c      readeferm=.false.
          iqibz=0
          do iq=1,nqnum
             read(ifiqg) q,ngp,irr
-            if(irr==0) then
+            if(irr==0) then 
                read(ifiqg)
                cycle
             endif   
-            nkp = nkp+1
+            nkp = nkp+1 !we count only irr=1 case, that is, nkp=nqirr is returned.
 ccccccccccccccccccccccccccccccccccccccc            
 c            qplist(:,nkp) = q
             qplist(:,nkp) = q + [1d-6,2d-6,3d-6]

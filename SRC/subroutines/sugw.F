@@ -137,7 +137,7 @@ c      data dig /'1','2','3','4','5','6','7','8','9'/
 c      integer,allocatable:: igv2(:,:)
       logical:: l_dummy_isanrg,isanrg,oncewrite,newsigmasw,sigmamode !,noshorbz
 
-      integer(4)::   irr,nqi, nmcore !feb2012takao nk1,nk2,nk3, 
+      integer(4)::   irr,nqirr, nmcore !feb2012takao nk1,nk2,nk3, 
 c      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, OK?
 
       integer:: nbalance,nrr,ifiproc,iproc,iadd,ldw
@@ -237,7 +237,7 @@ c      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, O
       call ioaindx(3,lmxax,nat,ndima,nlindx)
 !! ... Read QGpsi !takao feb2012 ---> Not QGcou now
       open(newunit=ifiqg,file='QGpsi',form='unformatted')
-      read(ifiqg ) nqnum, ngpmx ,QpGcut_psi,nqbz,nqi,imx,nqibz
+      read(ifiqg ) nqnum, ngpmx ,QpGcut_psi,nqbz,nqirr,imx,nqibz
 c      endif
 !! ==== Write, or read past header information, file gwb ====
       write(extn,"(i10)") procid
@@ -355,9 +355,8 @@ c     call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
 !! 
       if(master_mpi) then
          open(newunit=ifigwbhead,file='gwb.head',form='unformatted')
-         write(ifigwbhead) nat,nsp,ndima,ndham, alat,qlat,ef0,nqbz,plat,nqnum,nqi
-         write(ifigwbhead) lmxa(1:nat), bas(1:3,1:nat)
-         write(ifigwbhead) ncoremx/nsp,nrmx
+         write(ifigwbhead) nat,nsp,ndima,ndham, maxval(lmxa(1:nat)),ncoremx/nsp,nrmx,plat,alat
+         write(ifigwbhead) bas,lmxa
          close(ifigwbhead)
       endif 
       deallocate(ips,lmxa)
