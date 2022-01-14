@@ -594,12 +594,11 @@ c             if(sum(abs(qp-q))>1d-8) stop 'sugw:qp/=q; qp=p sep2012'
           endif
           if(debug) print *,' goto gwb write...'
 C     --- File output, jobgw=1 ---
-          write(ifigwb) qp, ndimh, iq
+          write(ifigwb) qp, ndimh, iq,ngp
           if(debug) write (6,"('q ndimh=',3f10.5,i10)") qp, ndimh
-          write(ifigwb) evl(1:ndimh,isp),cphi(:,:,isp)
-          write(ifigwb) ngp 
-          if(ngp >0 ) write (ifigwb)  pwz !ngvecp(1:3,1:ngp,iq),
-          if(ngp ==0) write (ifigwb)      !ngvecp(1:3,1:ngp,iq)
+          write(ifigwb) evl(1:ndimh,isp),cphi(:,:,isp),pwz
+c          if(ngp >0 ) write (ifigwb)  pwz !ngvecp(1:3,1:ngp,iq),
+c          if(ngp ==0) write (ifigwb)      !ngvecp(1:3,1:ngp,iq)
           write(ifigw1) qp, (evl(i,isp),i=1,ndimh)
 C  call prmx('e(H+sigma-vxc)',evl,ndimh,ndimh,1)
 C     ... Overlap checking.   Define:

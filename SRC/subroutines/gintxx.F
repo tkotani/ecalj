@@ -24,7 +24,7 @@ c      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       SUM = (2*SUM+ G1(1)*G2(1)*(A*B) + G1(NR)*G2(NR)*(A*RMPB))/3d0
       END
 
-      function gintegral(G1,G2,A,B,NR,SUM) result(sum)
+      function gintegral(G1,G2,A,B,NR) result(sum)
 C- Integrate product of two wave functions, Simpson rule
 C ----------------------------------------------------------------
 c takao \sum_i g(i)*g(i) drdi

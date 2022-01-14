@@ -197,6 +197,7 @@ c      n1q=nnn(1); n2q=nnn(2); n3q = nnn(3)
         extp(procid)=trim(adjustl(ext))//'_'//trim(adjustl(extn))
         write(6,"(i3,' ext= ',a,a)") procid,trim(extp(procid)),' ----------'
       enddo
+      
 !! ATOMIC PART ic = ibas scheme ==,  GET nrxx and ncoremx ----------------------
       open(newunit=ifigwa,file='gwa'//trim(ext),form='unformatted')
       allocate(nncx(0:lmxamx,nbas),konf(lmxamx+1,nbas),spid(nbas))
@@ -224,19 +225,19 @@ c      n1q=nnn(1); n2q=nnn(2); n3q = nnn(3)
            read(ifigwa) gx_d(1:nr_A,l,1,ic,isp) !phi
            read(ifigwa) gx_d(1:nr_A,l,2,ic,isp) !phidot
            if (konf_d(l,ic) .ge. 10) read(ifigwa) gx_d(1:nr_A,l,3,ic,isp) !phiz
-           m = 2
-           if (konf_d(l,ic) .ge. 10) m = 3
-           n = 0
-           do  i1 = 1, m
-           do  i2 = 1, i1
-             n = n+1
-             call gintxx(gx_d(1,l,i1,ic,isp),gx_d(1,l,i2,ic,isp),a_A,b_A,nr_A,ovv(n))
-           enddo
-           enddo
-           write(6,'(i3,2f11.5,2f15.10,f12.6)')l,gx_d(nr_A,l,1,ic,isp),gx_d(nr_A,l,2,ic,isp),
-     &          ovv(1),ovv(3),ovv(2)
-           if (m .eq. 3) write(6,"('  gz(rmax); <gz gz> <gz g> <gz gp> = ',f8.5,f15.10,2f12.7)")
-     &          gx_d(nr_A,l,3,ic,isp), ovv(6),ovv(4),ovv(5)
+c$$$           m = 2
+c$$$           if (konf_d(l,ic) .ge. 10) m = 3
+c$$$           n = 0
+c$$$           do  i1 = 1, m
+c$$$           do  i2 = 1, i1
+c$$$             n = n+1
+c$$$             call gintxx(gx_d(1,l,i1,ic,isp),gx_d(1,l,i2,ic,isp),a_A,b_A,nr_A,ovv(n))
+c$$$           enddo
+c$$$           enddo
+c$$$           write(6,'(i3,2f11.5,2f15.10,f12.6)')l,gx_d(nr_A,l,1,ic,isp),gx_d(nr_A,l,2,ic,isp),
+c$$$     &          ovv(1),ovv(3),ovv(2)
+c$$$           if (m .eq. 3) write(6,"('  gz(rmax); <gz gz> <gz g> <gz gp> = ',f8.5,f15.10,2f12.7)")
+c$$$     &          gx_d(nr_A,l,3,ic,isp), ovv(6),ovv(4),ovv(5)
         enddo
         enddo
 !! core part
@@ -244,23 +245,23 @@ c      n1q=nnn(1); n2q=nnn(2); n3q = nnn(3)
         icore = 0
         icors = 0
         do isp = 1, nsp
-          do l = 0, lmxa
+        do l = 0, lmxa
             nncx(l,ibas) = mod(konf(l+1,ibas),10)-1 -(l+1) +1
             nnc          = max(nnc,nncx(l,ibas))
-            do  kkk = l+1, mod(konf(l+1,ibas),10)-1
+            do kkk = l+1, mod(konf(l+1,ibas),10)-1
               icore = icore+1
               icors(isp) = icors(isp) +1
               icor1=icors(isp)
               read(ifigwa) icorex,ldummy,ispx,kkkdummy,ec_A(icore)
-              if(icore/=icorex)  stop 'lmf2gw:icore/=icorex'
+              if(icore/=icorex)  call rx('lmf2gw:icore/=icorex')
               read(ifigwa) gcore_A(1:nr_A,icore) ! gcore
               ec_d(icor1, ic, isp) = ec_A(icore)
               gcore_d(1:nr_A,icor1,ic,isp)  = gcore_A(1:nr_A,icore)
-              call gintxx(gcore_A(1,icore),gcore_A(1,icore), a_A,b_A,nr_A,ovv(1))
-              write(6,'(3i3,f15.6,f12.6,f15.10,3i3)')
-     &        l,kkk,isp,ec_A(icore),gcore_A(nr_A,icore),ovv(1),icore,icor1
+c        call gintxx(gcore_A(1,icore),gcore_A(1,icore), a_A,b_A,nr_A,ovv(1))
+c        write(6,'(3i3,f15.6,f12.6,f15.10,3i3)')
+c  &     l,kkk,isp,ec_A(icore),gcore_A(nr_A,icore),ovv(1),icore,icor1
             enddo
-          enddo
+        enddo
         enddo
         deallocate(rofi_A,gcore_A,ec_A)
  3001 continue
@@ -280,7 +281,6 @@ c      n1q=nnn(1); n2q=nnn(2); n3q = nnn(3)
       enddo
       laf=.false.
       if(sum(abs(iantiferro))/=0) laf=.true. 
-!
       write(6,"(a,100i4)") ' antiferro index=',iantiferro(1:nbas)
       do ibas=1,nbas
         write(6,"(a,i4,a)") ' i spid=',ibas,' '//trim(spid(ibas))
@@ -324,18 +324,16 @@ c      open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=m
           fname='gwb'//trim(extp(iprocq(iqq,isp)))
           inquire(file=trim(fname),opened=iopen,number=ifigwb_)
           if(.not.iopen) open(newunit=ifigwb_,file=trim(fname),form='unformatted')
-          read (ifigwb_) qirr(:,ikp),nband,iq
+          read (ifigwb_) qirr(:,ikp),nband,iq,ngp
           write(6,"(a,3i6,3x,3f11.6)") 'ikp isp nband q=',ikp,isp,nband, qirr(:,ikp)
           evl =1d20
           cphi=1d20
-          read (ifigwb_) evl(1:nband), cphi(:,1:nband)
+          allocate( geig(ngp, nbandmx), ngvecp(3,ngp) )
+          geig=1d20
+          read (ifigwb_) evl(1:nband),cphi(:,1:nband),geig(:,1:nband) !ngvecp,
           write(ificg) cphi(1:ldim2,1:nbandmx)
           evl_d (1:nband, ikp,isp) = evl (1:nband)
 !! Plane wave part
-          read (ifigwb_) ngp !,ngc
-          allocate( geig(ngp, nbandmx), ngvecp(3,ngp) )
-          geig=1d20
-          read(ifigwb_) geig(:,1:nband) !ngvecp,
           write(ificg)  ngp
           if(ngp>0) write(ificg)  geig(1:ngp,1:nbandmx)
           deallocate(geig,ngvecp) !takao feb2012 ,ngvecc )
