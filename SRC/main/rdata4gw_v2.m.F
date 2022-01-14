@@ -4,7 +4,10 @@
      &  nsp,nbas,nclass,ncoremx,lmxamx,ldim2,nqtti=>nqbze,  
      &  iantiferro,spid,iclass,lmxa=>lmxa_d,nr,konf=>konf_d,ncore=>ncore_d,
      &  zz,aa,bb,ec=>ec_d,evl=>evl_d,vxclda, gx_raw=>gx_d,gcore=>gcore_d,plat, alat, efermi,
-     &  qtti=>qbze, bas,laf,ibasf,n1q,n2q,n3q !, nocore
+     &  qtti=>qbze, bas,laf,ibasf,n1q,n2q,n3q,
+     &  nqnum,ngpmx,ngcmx,nqnumc,nqtt,nq0i,iq0pin,nq0iadd,
+     & QpGcut_psi,QpGcut_cou,qtt,
+     & wt,q0i, ngvecptt,ngvecctt,ngptt,ngctt,nqi
 !xxx nphi,        ! number of augmentation nRl channels, as distinct from:
 ! ldim2,       ! number of nRLm channels = 2*ldim for phi+phidot case.
 ! nphimx       ! Maxmum number of phi for all l ---  2 for phi+phidot case.
@@ -83,19 +86,19 @@ Cr
       use m_mpi,only: MPI__Initialize
       implicit none
       integer ::
-     &     ifigw0,ifiqg,ifiqc,nqnum,nq0i,i,ifi
+     &     ifigw0,ifiqc,i,ifi
      &     ,nxx,lxx,ibxx
      &     ,ifnlax,inum,ibas,ic,k,icore,kkkmx,kkk,n,mmm,ix,irr,nradmx,irad
      &     ,ifhbed,ndble,mrecb,mrece,ifcphi,ifec,ife0,if0c,nmax,lx,nx
      &     ,mx,nnc,lmxax,ic1,irad1,irad2,l1,n1,l2,n2,nn,ierr,i1,i2,nnv,ikp
      &     ,iband,ib,m,nm,ikpisp,ngp,ngc,ifhvccfp,ngrp,ig,ifiqibz
      &     ,nqibz,iqibz,ifnqibz,iqi,iq,ifigwin  !,ippovl,ngc2mx,ngc2
-     &     ,ifiqgc,nqnumc,ngcmx,l,ifoc,ir,isp,  iqi2 !,iopen
-      real(8):: qpgcut_psi,qpgcut_cou,ovvxx,ovvx,qpgcut_psi2,dummy
+     &     ,l,ifoc,ir,isp,  iqi2 !,iopen
+      real(8):: ovvxx,ovvx,qpgcut_psi2,dummy
       integer,parameter:: nspx=2
-      real(8) :: qlat(3,3) ,qm(3,3),ginv(3,3)
+      real(8) :: qlat(3,3) ,qm(3,3)!,ginv(3,3)
 c      character*30 :: symgrpo='UseSYMOPSfile'
-      real(8):: qqq(3),qqqa(3),qqqb(3),qx(3),qxx(3),ecx(2)
+      real(8):: qqq(3),qqqa(3),qqqb(3),qx(3),ecx(2)
       integer::              !ifrb (nspx),ifcb(nspx),ifrhb(nspx),ifchb(nspx)
      &     ifphi,ifev,ifv,ifplane
 c      character(8),allocatable:: clablx(:)
@@ -107,9 +110,8 @@ c      character(8),allocatable:: clablx(:)
      &     ,symgr(:,:,:),qibze(:,:)
       integer :: idxk,nwordr
       complex(8),allocatable :: ppovl(:,:),ppx(:,:),ppovlinv(:,:)
-      real(8),allocatable :: wt(:),q0i(:,:)
       real(8),allocatable :: qibz(:,:)
-      integer:: nqbz ,icore1,nnnn, mrecg,nqi
+      integer:: nqbz ,icore1,nnnn, mrecg!,nqi
       integer,allocatable:: invgx(:)
       real(8),allocatable:: shtvg(:,:)
       integer,allocatable::
@@ -142,12 +144,12 @@ c      character(8),allocatable:: clablx(:)
       complex(8),allocatable :: gg(:)
       real(8),allocatable:: www(:,:,:)
       logical(8):: ppovl0l=.true.
-      integer:: ippovl0,ifile_handle,iq0p
+      integer:: ippovl0,ifile_handle
       logical::  ngczero=.false.,qreduce
       integer:: nqnumt,imx     ,ix1     ,idum1,idum2,idum3, idum4 !ingczero
       real(8),allocatable::qsave(:,:)
       logical :: debug=.false.
-      integer:: nqini,iq0pin
+      integer:: nqini
       integer:: ippovlc=501, zvztest
       logical:: rmeshrefine
       integer:: nr_n
@@ -156,8 +158,7 @@ c      character(8),allocatable:: clablx(:)
      &     gcore_n  (:,:,:,:) , aann(:)
       integer,allocatable:: nrnn(:)
       integer:: igp1,igp2,   icold,nbandx,ifnband,iread
-      real(8),allocatable:: qtt(:,:)
-      integer:: nqtt,igg,iorb, igc
+      integer:: igg,iorb, igc
       real(8):: platt(3,3),qtarget(3)
       logical:: newaniso, noo
       integer:: ngcB,iqx,iqindx,iq0i
@@ -168,13 +169,12 @@ c      character(8),allocatable:: clablx(:)
       real(8):: QpGcutggg,QpGcutgcgp,tolq=1d-8
       complex(8),allocatable:: ggg(:)
       integer,allocatable:: nvggg(:,:),nvgcgp(:,:) 
-      integer:: nggg,ngcgp,nq0iadd,ixyz !q independent 
+      integer:: nggg,ngcgp,ixyz !q independent 
       logical:: cmdopt2
       character(20):: outs=''
-      integer:: ngpmx,nrmx,nl,iqtt
+      integer:: nrmx,nl,iqtt
       real(8),parameter:: pi = 4d0*datan(1d0)
       integer,pointer:: ngvecp(:,:),ngvecc(:,:)
-      integer,allocatable,target:: ngvecptt(:,:,:),ngvecctt(:,:,:),ngptt(:),ngctt(:)
 !!
       call MPI__Initialize()
       call lmf2gw() !set variables, and CphiGeig
@@ -190,46 +190,11 @@ c      character(8),allocatable:: clablx(:)
         checknorm=.true.
         checkdia=.false.
       endif
-!-------------------------------------
-      open(newunit=ifiqg ,file='QGpsi',form='unformatted')
-      open(newunit=ifiqgc,file='QGcou',form='unformatted')
-      read(ifiqg ) nqnum, ngpmx,QpGcut_psi,nqbz,nqi,imx,nqibz
-      read(ifiqgc) nqnumc,ngcmx,QpGcut_cou
-      nqtt = nqnum
-      allocate(qtt(3,nqtt),ngvecptt(3,ngpmx,nqtt),ngvecctt(3,ngpmx,nqtt),ngptt(nqtt),ngctt(nqtt))
-      do iq=1,nqtt
-         read (ifiqg)  qtt(1:3,iq), ngptt(iq) !, irr
-         read (ifiqg)  ngvecptt(1:3,1:ngptt(iq),iq)
-         read (ifiqgc) qxx, ngctt(iq)
-         read (ifiqgc) ngvecctt(1:3,1:ngctt(iq),iq)
-         if(sum(abs(qtt(:,iq)-qxx))>1d-8) call rx('QGpsi QGcou q/=q')
-         write(*,"(' qtt =',i4,3f9.5)")iq, qtt(1:3,iq)
-      enddo
-      close(ifiqg)
-      close(ifiqgc)
-      write(6,*)'QpGcut_psi QpGcutCou nqbz nqi=',QpGcut_psi,QpGcut_Cou ,nqbz,nqi
-!---------
-      write(6,*)'reading QOP'
-      open (newunit=iq0p,file='Q0P')
-      read (iq0p,*) nq0i,iq0pin,nq0iadd
-      allocate( wt(nq0i+nq0iadd),q0i(1:3,nq0i+nq0iadd) )
-      do i=1,nq0i+nq0iadd
-         read (iq0p,*) wt(i),q0i(1:3,i)
-      enddo
-      close(iq0p)
-!      
-      print *,' iclass=',iclass
-      print *,' nqtti nbas',nqtti,nbas
-      write(6,"(a,100i4)") ' iantiferro=',iantiferro(1:nbas)
-      do iq=1,nqtti
-        write(*,"(' qtti=',i4,3f9.5)")iq, qtti(1:3,iq)
-      enddo
 !      
       allocate( vkonf(0:lmxamx,nclass),   ovv(nphimx,nphimx,0:lmxamx, nclass,nsp) )
-      call minv33tp(plat,qlat)
-      call minv33(qlat,ginv)
       allocate(lmxaa(1:nbas))
       lmxaa(1:nbas) = lmxa(iclass(1:nbas))
+      call minv33tp(plat,qlat)
 !! Make index-file @MLNA  ------------------------------------
       nxx= -999; lxx= -999; ibxx=-999
       allocate(nrad(nbas), nindx_r(ldim2,nbas),lindx_r(ldim2,nbas))
@@ -432,12 +397,9 @@ c      character(8),allocatable:: clablx(:)
       write(6,*) '########## goto atomic part ##############'
       nnc = 0
       lmxax = lmxamx
-c      allocate(clablx(nbas))
-c      clablx=spid
       allocate( zzp (nmax,nmax,0:lmxax,nclass,nsp),
-     &     zzpi(nmax,nmax,0:lmxax,nclass,nsp),
-     &     eb(nmax))
-      allocate(nncx(0:lmxax,nbas),rmax(nbas))
+     &          zzpi(nmax,nmax,0:lmxax,nclass,nsp),
+     &     eb(nmax),nncx(0:lmxax,nbas),rmax(nbas))
       do ibas=1,nbas
         ic   = iclass(ibas)
         do l  = 0,lmxa(ic)
@@ -489,7 +451,6 @@ c      clablx=spid
         write(ifphi) ncindx,lcindx !core
         write(ifphi) ic1,zz(ic),nr(ic),aa(ic),bb(ic)
         write(ifphi) rofi(1:nr(ic))
-c==========================================
         print *,' gx_raw normcheck ======================'
         ovv=0d0
         do isp = 1, nsp
@@ -501,14 +462,11 @@ c==========================================
               n2 = nindx_r (irad2,ibas)
               if(l1/=l2) cycle
               call gintxx( gx_raw(1, l1, n1, ic,isp), 
-     &                 gx_raw(1, l1, n2, ic,isp),
-     &                 aa(ic),bb(ic), nr(ic), ovvxx )
+     &                 gx_raw(1, l1, n2, ic,isp),aa(ic),bb(ic), nr(ic), ovvxx )
               if(n1==n2) then
-                write(6,"(' l isp n1 n2 = ',4i3,' ',d14.6)")
-     &                    l1, isp,n1,n2,ovvxx
+                write(6,"(' l isp n1 n2 = ',4i3,' ',d14.6)") l1, isp,n1,n2,ovvxx
               else
-                write(6,"(' l isp n1 n2 = ',4i3,' ',14x,d14.6)")
-     &                    l1, isp,n1,n2,ovvxx
+                write(6,"(' l isp n1 n2 = ',4i3,' ',14x,d14.6)") l1, isp,n1,n2,ovvxx
               endif
             enddo
           enddo
@@ -519,13 +477,11 @@ c     (mainly in the case of orthnormalized input)
         do isp = 1, nsp
           do l1  = 0,lmxa(ic)
             do nn = 1, nvmax(l1,ic)
-              gx_in (1:nr(ic),l1,nn,ic,isp) =
-     &                 gx_raw(1:nr(ic),l1,nn,ic,isp)      * sqrt(1d0+0.1d0*nn)
+              gx_in (1:nr(ic),l1,nn,ic,isp)=gx_raw(1:nr(ic),l1,nn,ic,isp)*sqrt(1d0+0.1d0*nn)
             enddo
           enddo
         enddo
 C ... Get overlap matrix ovv of radial functions.
-c     write(6,*) ' --- norm for given  radial functions devided by 1+0.1n --- '
         ovv=0d0
         do isp = 1, nsp
           do irad1 = 1,nrad(ibas)
@@ -536,8 +492,7 @@ c     write(6,*) ' --- norm for given  radial functions devided by 1+0.1n --- '
               n2 = nindx_r (irad2,ibas)
               if(l1/=l2) cycle
               call gintxx( gx_in(1, l1, n1, ic,isp), 
-     &                 gx_in(1, l1, n2, ic,isp),
-     &                 aa(ic),bb(ic), nr(ic), ovv(n1,n2,l1,ic,isp) )
+     &             gx_in(1, l1, n2, ic,isp),aa(ic),bb(ic), nr(ic), ovv(n1,n2,l1,ic,isp) )
             enddo
           enddo
         enddo
@@ -601,12 +556,10 @@ C ... check
      &                 gcore(1:nr(ic),icore, ic,isp), !gx_orth(1:nr(ic), l1, n2, ic,isp),
      &                 aa(ic),bb(ic), nr(ic), ovvx)
               if(icore==icore1) then
-                write(6,"(' ---',
-     &                    ' isp l=',2i3,' icore1 icore = ',2i3,' ',d14.6)")
+                write(6,"(' ---',' isp l=',2i3,' icore1 icore = ',2i3,' ',d14.6)")
      &                    isp, l1, icore1, icore, ovvx
               else
-                write(6,"(' ---',
-     &                    ' isp l=',2i3,' icore1 icore = ',2i3,' ',14x,d14.6)")
+                write(6,"(' ---',' isp l=',2i3,' icore1 icore = ',2i3,' ',14x,d14.6)")
      &                    isp, l1, icore1, icore, ovvx
               endif
             enddo
@@ -625,8 +578,7 @@ C ... norm check: <gx_orth|core>
               call gintxx( gx_orth(1:nr(ic), l1, n1, ic,isp), 
      &                 gcore(1:nr(ic),icore, ic,isp), !gx_orth(1:nr(ic), l1, n2, ic,isp),
      &                 aa(ic),bb(ic), nr(ic), ovcv)
-              write(6,"(' ---',
-     &                 ' isp  l1 n1=',3i3,' icore = ',i3,' ',d14.6)")
+              write(6,"(' ---',' isp  l1 n1=',3i3,' icore = ',i3,' ',d14.6)")
      &                 isp, l1, n1, icore, ovcv
             enddo
           enddo
@@ -642,21 +594,17 @@ C ... Renormalization of gcore (orthogonalized to gx_orth)
                 l1 = lindx_r (irad1,ibas)
                 n1 = nindx_r (irad1,ibas)
                 if(l1/=l2) cycle
-                call gintxx( gx_orth(1:nr(ic), l1, n1, ic,isp), 
-     &                    gcore(1:nr(ic),icore, ic,isp), !gx_orth(1:nr(ic), l1, n2, ic,isp),
+                call gintxx( gx_orth(1:nr(ic), l1, n1, ic,isp),
+     &               gcore(1:nr(ic),icore, ic,isp), !gx_orth(1:nr(ic), l1, n2, ic,isp),
      &                    aa(ic),bb(ic), nr(ic), ovcv)
-                gcore(  1:nr(ic),icore, ic,isp)=  
-     &                    gcore(1:nr(ic),icore, ic,isp)  
-     &                    - ovcv* gx_orth(1:nr(ic),l1, n1, ic,isp)
+                gcore( 1:nr(ic),icore, ic,isp)=  
+     &               gcore(1:nr(ic),icore, ic,isp)- ovcv* gx_orth(1:nr(ic),l1, n1, ic,isp)
               enddo
-              call gintxx( gcore(1:nr(ic),icore, ic,isp),
-     &                 gcore(1:nr(ic),icore, ic,isp),
+              call gintxx( gcore(1:nr(ic),icore, ic,isp), gcore(1:nr(ic),icore, ic,isp),
      &                 aa(ic),bb(ic), nr(ic), ovcv)
-              gcore(1:nr(ic),icore, ic,isp)=1d0/sqrt(ovcv)*
-     &                 gcore(1:nr(ic),icore, ic,isp)
+              gcore(1:nr(ic),icore, ic,isp)=1d0/sqrt(ovcv)* gcore(1:nr(ic),icore, ic,isp)
             enddo
           enddo               !end of isp loop
-
 C ... norm check new gx_orth x core once more -----------
           write(6,*)' -- norm check: <gx_orth| renormalized gcore> ------ '
           do isp = 1, nsp
@@ -670,9 +618,7 @@ C ... norm check new gx_orth x core once more -----------
                 call gintxx( gx_orth(1:nr(ic), l1, n1, ic,isp), 
      &                    gcore(1:nr(ic),icore, ic,isp), !gx_orth(1:nr(ic), l1, n2, ic,isp),
      &                    aa(ic),bb(ic), nr(ic), ovcv)
-                write(6,"(' ---',
-     &                    ' isp  l1 n1=',3i3,' icore = ',i3,' ',d14.6)")
-     &                    isp, l1, n1, icore, ovcv
+                write(6,"(' ---',' isp  l1 n1=',3i3,' icore = ',i3,' ',d14.6)")isp, l1, n1, icore, ovcv
               enddo
             enddo
           enddo               !end of isp loop
@@ -684,7 +630,6 @@ C ... norm check new gx_orth x core once more -----------
           n2= ncindx(icore)
           l2= lcindx(icore)
           if(ifcore(l2)==-99) then
-c            ifcore(l2)=9022 +l2
             fcore='Core_ibas'//charnum3(ibas)//'_l'//char(48+l2)//'.chk'
             open(newunit=ifcore(l2),file=fcore)
           endif
@@ -697,8 +642,6 @@ c            ifcore(l2)=9022 +l2
           if(ifcore(l2)/=-99) close(ifcore(l2))
         enddo
         deallocate(ifcore)
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
 c----------------------------------------------------------------------
         do isp = 1, nsp
           do icore = 1, ncore(ic)
@@ -712,7 +655,6 @@ c----------------------------------------------------------------------
           enddo
           nnv = maxval(nindx(1:ldim2))
         enddo
-
 C ... norm check
         write(6,*)
         write(6,*)' --- norm check: normalized  gx_orth --- '
@@ -724,15 +666,12 @@ C ... norm check
               l2 = lindx_r (irad2,ibas)
               n2 = nindx_r (irad2,ibas)
               if(l1/=l2) cycle
-              call gintxx( gx_orth(1:nr(ic), l1, n1, ic,isp), 
-     &                 gx_orth(1:nr(ic), l1, n2, ic,isp),
+              call gintxx( gx_orth(1:nr(ic),l1,n1,ic,isp), gx_orth(1:nr(ic),l1,n2,ic,isp),
      &                 aa(ic),bb(ic), nr(ic), ovvx)
               if(n1==n2) then
-                write(6,"(' l isp n1 n2 = ',4i3,' ',d14.6)")
-     &                    l1, isp,n1,n2,ovvx
+                write(6,"(' l isp n1 n2 = ',4i3,' ',d14.6)") l1, isp,n1,n2,ovvx
               else
-                write(6,"(' l isp n1 n2 = ',4i3,' ',14x,d14.6)")
-     &                    l1, isp,n1,n2,ovvx
+                write(6,"(' l isp n1 n2 = ',4i3,' ',14x,d14.6)")l1, isp,n1,n2,ovvx
               endif
             enddo
           enddo
@@ -757,13 +696,13 @@ C ... norm check
       open(newunit=ifnband,file='NBANDikp')
       write(ifnband,"(2i12,' !nband(larger than any)  nqtti')")nband,nqtti
       write(ifnband,"('------ nband ------  ikp ---')")
-!      
+!!      
       open(newunit=ifev,file='EValue',form='unformatted')
       write(ifev) nband, nqtti, nsp
       write(ifev) qtti(1:3,1:nqtti) !qtti
       write(ifev) evl(1:nband, 1:nqtti, 1:nsp )
       close(ifev)
-!
+!!
       open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
       open(newunit=ifgeig,file='GEIG',form='unformatted',access='direct',recl=mrecg)
       open(newunit=ifv,file='VXCFP',form='unformatted')
@@ -818,6 +757,7 @@ C ... norm check
           read(ificg) geigr(1:ngp,1:nband,isp)
         enddo                  !end of spin loop
 !!--- Plane wave part ---
+        iqx=-99999
         do iqtt=1,nqtt  
           if(sum(abs(qtti(:,ikp)-qtt(:,iqtt)))<tolq) then
              iqx=iqtt
@@ -972,6 +912,7 @@ c        deallocate( ngvecp,ngvecc )
         open(newunit=ippovli,file= "PPOVLI."//charnum3(iqi),form='unformatted')
         qx  = qibze(1:3,iqi)
         if(debug) write(*,"('init do 2010 qx=',3f13.5)")qx
+        iqx=-99999
         do iqtt=1,nqtt  
           if(sum(abs(qx(:)-qtt(:,iqtt)))<tolq) then
              iqx=iqtt

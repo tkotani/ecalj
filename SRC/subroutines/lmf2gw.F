@@ -75,7 +75,12 @@
       complex(8),allocatable:: cphi_d(:,:,:,:)
       complex(8),allocatable:: geig_d(:,:,:,:)
       real(8),allocatable :: qbze(:,:), bas(:,:)
-      logical,protected:: laf !! - laf: antiferro switch
+      logical,protected:: laf   !! - laf: antiferro switch
+      integer:: ngcmx,nqnum,nqnumc,nqtt,nq0i,iq0pin,nq0iadd,nqi
+      real(8):: QpGcut_psi,QpGcut_cou
+      real(8),allocatable :: wt(:),q0i(:,:)
+      integer,allocatable,target:: ngvecptt(:,:,:),ngvecctt(:,:,:),ngptt(:),ngctt(:)
+      real(8),allocatable:: qtt(:,:)
 
       contains
       subroutine lmf2gw()
@@ -89,17 +94,17 @@
 c------------------------------------------------------------------
       use m_keyvalue,only: getkeyvalue
       implicit none
+      integer:: iq0p
       integer::
      &ldim,     ! = sum ( (lmxa(1:nbas)+1)**2 )
      &nband    ! Number of bands given by GWIN0
       integer icor1,icorex,i,i1,i2,ibas,ibasx,ibx,ic,icore,
      .ifichkv,ifigw0,ifigwa,ifigwb,ifigwx1,ifigwx2,ifigwx3,isp,ispx,
      .ispxx,ix,kkk,kkkdummy,l,ldummy,lmxa,lxx,nclassx,m,n,
-     .ncore,ndimh,ngp,nnc,nq0i,nqbz,nspdummy,IKP,NR_A !takao feb2012 ngc,ngcmx,
-      real(8) qlat(3,3),ovv(20),ef0,qpgcut_phi,qpgcut_cou,z,
-     .a_a,b_a,rofi_anr
+     .ncore,ndimh,ngp,nnc,nqbz,nspdummy,IKP,NR_A !takao feb2012 ngc,ngcmx,
+      real(8) qlat(3,3),ovv(20),ef0,z,a_a,b_a,rofi_anr
       character*120  ext0*256, ext*256
-      real(8):: qqq(3)
+      real(8):: qqq(3),qxx(3)
       integer:: ifi,ifefclass,icors(2)
       complex(8),allocatable:: zegf(:,:) ,geig(:,:)
       complex(8),allocatable:: cphi(:,:)
@@ -111,7 +116,6 @@ c------------------------------------------------------------------
       ! If nocore exist. you have to supply
       !  <psi|Vxc(n_valence)|psi>  to  vxclda (nband, nqbze).
       ! If not, <psi|Vxc(n_total)|psi>  to  vxclda.
-      real(8),allocatable :: wt(:),q0i(:,:)
 c----------------------------------------------
       integer:: ificg
       integer:: procid,nrank,ifigwb_,ifigwx1_,ifigwx2_
@@ -122,15 +126,15 @@ c----------------------------------------------
       integer:: ifiproc,nqixx,nspxx,numprocxx,ixxx
       integer,allocatable:: iprocq(:,:)
       logical:: iopen
-      integer::  id,nsizex,iqqxx,ifile_handle,ib,ii,ipqn,nn,nnn(3)
+      integer::  id,nsizex,iqqxx,ifile_handle,ib,ii,ipqn,nn,nnn(3),ifiqg,ifiqgc,nnnn
 !! =================================================================
       call setpr(30)
       call getkeyvalue("GWinput", "n1n2n3", nnn,3) !Readin nx ny nz for k-points for GW 
       n1q=nnn(1); n2q=nnn(2); n3q = nnn(3)
-      
+!      
       open(newunit=ifigwb,file='gwb.head',form='unformatted')
-      read (ifigwb) nbas,nsp,ldim2,ndimh,alat,qlat,ef0,nqbz,plat(1:3,1:3),nqbze, nqirr !feb2012takao
-      nqbze=nqirr    !nqbze means number of calculated bands (irreducible only)         feb2012takao
+      read (ifigwb) nbas,nsp,ldim2,ndimh,alat,qlat,ef0,nqbz,plat(1:3,1:3),nqbze, nqirr 
+      nqbze=nqirr    !nqbze means number of calculated bands (irr. See lqg4gw)        
       allocate(lmxaa(1:nbas), bas(1:3,1:nbas))
       read (ifigwb) lmxaa(1:nbas), bas(1:3,1:nbas)
       read (ifigwb) ncoremx,nrmx
@@ -332,18 +336,51 @@ c      open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=m
           vxclda (1:nband, ikp,isp)= vvv1(1:nband)-vvv2(1:nband)
           vvv3=vvv2
           do ibx =1,nband
-            write(ifichkv,"(3f8.4,2i3,6f16.8)") qqq,ikp,ibx,
-     &      vvv1(ibx),vvv1(ibx)-vvv2(ibx),vvv3(ibx)-vvv2(ibx),rydberg*vvv1(ibx),rydberg*(vvv1(ibx)-vvv2(ibx)),
-     &      rydberg*(vvv3(ibx)-vvv2(ibx))
+            write(ifichkv,"(3f8.4,2i3,6f16.8)") qqq,ikp,ibx,vvv1(ibx),vvv1(ibx)-vvv2(ibx),vvv3(ibx)-vvv2(ibx),
+     &      rydberg*vvv1(ibx),rydberg*(vvv1(ibx)-vvv2(ibx)),rydberg*(vvv3(ibx)-vvv2(ibx))
           enddo
  888      continue
-c we can not close here because extp(iprocq(iqq,isp)) can be the same for different iqq,isp
-c          close(ifigwx1_),  close(ifigwx2_),   close(ifigwb_)
+! we can not close ifigwx1_ ifigwx2_ ifigwb_ here because different iqq,isp may give the same extp(iprocq(iqq,isp)
         enddo
       enddo
       close(ifichkv)
       close(ificg)
       deallocate( cphi,evl, vvv1,vvv2,vvv3)
-      
+!
+!------
+      open(newunit=ifiqg ,file='QGpsi',form='unformatted')
+      open(newunit=ifiqgc,file='QGcou',form='unformatted')
+      read(ifiqg ) nqnum, ngpmx,QpGcut_psi,nnnn,nqi
+      read(ifiqgc) nqnumc,ngcmx,QpGcut_cou
+      nqtt = nqnum
+      allocate(qtt(3,nqtt),ngvecptt(3,ngpmx,nqtt),ngvecctt(3,ngpmx,nqtt),ngptt(nqtt),ngctt(nqtt))
+      do iq=1,nqtt
+         read (ifiqg)  qtt(1:3,iq), ngptt(iq) !, irr
+         read (ifiqg)  ngvecptt(1:3,1:ngptt(iq),iq)
+         read (ifiqgc) qxx, ngctt(iq)
+         read (ifiqgc) ngvecctt(1:3,1:ngctt(iq),iq)
+         if(sum(abs(qtt(:,iq)-qxx))>1d-8) call rx('QGpsi QGcou q/=q')
+         write(*,"(' qtt =',i4,3f9.5)")iq, qtt(1:3,iq)
+      enddo
+      close(ifiqg)
+      close(ifiqgc)
+      write(6,*)'QpGcut_psi QpGcutCou =',QpGcut_psi,QpGcut_Cou 
+!---------
+      write(6,*)'reading QOP'
+      open (newunit=iq0p,file='Q0P')
+      read (iq0p,*) nq0i,iq0pin,nq0iadd
+      allocate( wt(nq0i+nq0iadd),q0i(1:3,nq0i+nq0iadd) )
+      do i=1,nq0i+nq0iadd
+         read (iq0p,*) wt(i),q0i(1:3,i)
+      enddo
+      close(iq0p)
+!      
+      print *,' iclass=',iclass
+      print *,' nqbze nbas',nqbze,nbas
+      write(6,"(a,100i4)") ' iantiferro=',iantiferro(1:nbas)
+      do iq=1,nqbze
+        write(*,"(' qbze=',i4,3f9.5)")iq, qbze(1:3,iq)
+      enddo
+!!      
       end subroutine lmf2gw
       end module m_lmf2gw
