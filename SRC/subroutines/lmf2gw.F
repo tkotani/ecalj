@@ -317,22 +317,20 @@ c      open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=m
      &  vvv1(nbandmx),vvv2(nbandmx),vvv3(nbandmx),cphi(ldim2, nbandmx), evl(nbandmx) )
       evl_d =1d20
       vxclda=1d20
-      iqq=0
-      do ikp = 1,nqirr
-        iqq=iqq+1
+      do iqq = 1,nqirr !q point for irreducible points, irr=1 only (console output)
         do isp = 1, nsp
           fname='gwb'//trim(extp(iprocq(iqq,isp)))
           inquire(file=trim(fname),opened=iopen,number=ifigwb_)
           if(.not.iopen) open(newunit=ifigwb_,file=trim(fname),form='unformatted')
-          read (ifigwb_) qirr(:,ikp),nband,iq,ngp
-          write(6,"(a,3i6,3x,3f11.6)") 'ikp isp nband q=',ikp,isp,nband, qirr(:,ikp)
+          read (ifigwb_) qirr(:,iqq),nband,iq,ngp !iq=iqq
+          write(6,"(a,3i6,3x,3f11.6)") 'iqq isp nband q=',iqq,isp,nband, qirr(:,iqq)
           evl =1d20
           cphi=1d20
           allocate( geig(ngp, nbandmx), ngvecp(3,ngp) )
           geig=1d20
           read (ifigwb_) evl(1:nband),cphi(:,1:nband),geig(:,1:nband) !ngvecp,
           write(ificg) cphi(1:ldim2,1:nbandmx)
-          evl_d (1:nband, ikp,isp) = evl (1:nband)
+          evl_d (1:nband, iqq,isp) = evl (1:nband)
 !! Plane wave part
           write(ificg)  ngp
           if(ngp>0) write(ificg)  geig(1:ngp,1:nbandmx)
@@ -345,10 +343,10 @@ c      open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=m
           if(.not.iopen) open(newunit=ifigwx2_,file=trim(fname),form='unformatted')
           read(ifigwx1_ ) qqq, (vvv1(i),i=1,nband)
           read(ifigwx2_ ) qqq, (vvv2(i),i=1,nband)
-          vxclda (1:nband, ikp,isp)= vvv1(1:nband)-vvv2(1:nband)
+          vxclda (1:nband, iqq,isp)= vvv1(1:nband)-vvv2(1:nband)
           vvv3=vvv2
           do ibx =1,nband
-            write(ifichkv,"(3f8.4,2i3,6f16.8)") qqq,ikp,ibx,vvv1(ibx),vvv1(ibx)-vvv2(ibx),vvv3(ibx)-vvv2(ibx),
+            write(ifichkv,"(3f8.4,2i3,6f16.8)") qqq,iqq,ibx,vvv1(ibx),vvv1(ibx)-vvv2(ibx),vvv3(ibx)-vvv2(ibx),
      &      rydberg*vvv1(ibx),rydberg*(vvv1(ibx)-vvv2(ibx)),rydberg*(vvv3(ibx)-vvv2(ibx))
           enddo
  888      continue

@@ -21,7 +21,7 @@ c      use m_shortn3,only: shortn3_initialize,shortn3
      &     ppn=>ppnl_rv
       use m_mkpot,only: sv_p_oppix,spotx !sv_p_osigx,sv_p_otaux: these are the same as sv_p_osig, sv_p_otau
       use m_MPItk,only: numproc=>nsize,procid,master,master_mpi
-      use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_setiq
+      use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_setiq,ndimhall
       use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
       use m_qplist,only: qplist,ngplist,ngvecp, iqini,iqend,ispini,ispend,iqibzmax      !for current rank iprocq,
       implicit none
@@ -355,8 +355,8 @@ c     call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
 !! 
       if(master_mpi) then
          open(newunit=ifigwbhead,file='gwb.head',form='unformatted')
-         write(ifigwbhead) nat,nsp,ndima,ndham, maxval(lmxa(1:nat)),ncoremx/nsp,nrmx,plat,alat
-         write(ifigwbhead) bas,lmxa
+         write(ifigwbhead) nat,nsp,ndima,ndham, maxval(lmxa(1:nat)),ncoremx/nsp,nrmx,plat,alat,nqirr
+         write(ifigwbhead) bas,lmxa,qplist,ngplist,ndimhall
          close(ifigwbhead)
       endif 
       deallocate(ips,lmxa)

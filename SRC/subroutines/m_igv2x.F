@@ -3,11 +3,12 @@
       public:: m_igv2xall_init, m_igv2x_setiq
       integer,protected,pointer,public :: igv2x(:,:)
       integer,protected,pointer,public :: napw,ndimh,ndimhx
+      integer,allocatable,target,protected,public:: ndimhall(:)
       
       private
       integer,protected,private,target ::napw_z,ndimh_z,ndimhx_z
       type(s_nv2),allocatable,target,protected,private:: igv2xall(:)
-      integer,allocatable,target,protected,private:: napwall(:),ndimhall(:),ndimhxall(:),igv2x_z(:,:)
+      integer,allocatable,target,protected,private:: napwall(:),ndimhxall(:),igv2x_z(:,:)
       logical,private:: init=.true.
       contains
       
@@ -81,7 +82,6 @@ c      print *,'mmmmmmm master_mpi=',master_mpi,procid,master
          call shortn3_initialize(qlat)
          init=.false.
       endif
-      
       if(pwmode>0.and.pwmode<10) then
          ppin=matmul(transpose(plat),qp) !basis on the qlat coordinate. qp in Cartesian.
          call shortn3(ppin,noutmx, nout,nlatout)
@@ -93,7 +93,6 @@ c      print *,'mmmmmmm master_mpi=',master_mpi,procid,master
             enddo
          endif
       endif
-      
       if(allocated(igv2x_z)) deallocate(igv2x_z)
       if (pwemax>0 .and. mod(pwmode,10)>0) then
          pwgmin = pwemin**.5d0
@@ -112,10 +111,6 @@ c      print *,'mmmmmmm master_mpi=',master_mpi,procid,master
             enddo
          endif
          deallocate(kv_iv)      !we only keep 
-c         ndimh = ldim + napw    !ndimh is iq-dependent for pwmode >=10
-c         if (ndimh .gt. ndham) then
-c            call rx('bndfp:something wrong ndimh>ndham')
-c         endif
       else
          napw_z=0 
          allocate(igv2x_z(1,1))   !dummy
@@ -123,14 +118,5 @@ c         endif
       ndimh_z = ldham(1)+napw_z     ! ldim+napw
       if (mod(pwmode,10)==2) ndimh_z = napw_z !APW-only mode
       ndimhx_z = ndimh_z*nspc       !this is iq-dependent.
-
-
-cccccccccccccccccccccc
-c      if(allocated(igv2x)) deallocate(igv2x)
-c      allocate(igv2x(3,napw_z))
-c      igv2x=igv2x_z !xall(iq)%nv2
-ccccccccccccccccccccc
-
-      
       end
       end module
