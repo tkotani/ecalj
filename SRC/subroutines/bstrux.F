@@ -4,7 +4,6 @@
       public:: bstrux_set, bstr, dbstr, m_bstrux_init
       complex(8),pointer,protected::  bstr(:,:,:)
       complex(8),pointer,protected:: dbstr(:,:,:,:)
-      
       type(s_cv3),allocatable,protected,private,target:: p_bstr(:,:)
       type(s_cv4),allocatable,protected,private,target:: p_dbstr(:,:)
       real(8),allocatable,private:: qall(:,:)
@@ -16,6 +15,10 @@
       implicit none
       real(8):: q(3),eps=1d-10
       integer:: iq,iqx,ia
+c      write(6,*)'bbb=',qall
+c      do iqx=iqini,iqend
+c         write(6,*)'aaa',qall(:,iqx)
+c      enddo
       iq=-999
       do iqx=iqini,iqend
          if( sum( (q-qall(:,iqx))**2 )<eps) then
@@ -27,27 +30,22 @@ c      print *,' bbbbbbbbbb iq q=',iq,q
       if(iq==-999) call rx('err:bstrux_set')
       bstr => p_bstr(ia,iq)%cv3
       if(lfrce/=0) dbstr=> p_dbstr(ia,iq)%cv4
-c      write(6,*) q
       end
-         
+!ssssssssssssssssssssssssssssssssssssssss         
       subroutine m_bstrux_init() !q for qplist --> not yet for sugw.
       use m_qplist,only: qplist,iqini,iqend
       use m_lmfinit,only: lfrce=>ctrl_lfrce,nlmax,kmxt,nspec,nbas,ssite=>v_ssite,sspec=>v_sspec
       use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat
       use m_igv2x,only: napw, igvapwin=>igv2x, ndimh,m_Igv2x_setiq
       integer:: kmaxx,ia,isa,lmxa,lmxb,kmax,nlmb,nlma,mode,inn(3),ig,iq,ndimhmax
-      real(8):: pa(3),qin(3),q(3),qlatinv(3,3),rsma
+      real(8):: pa(3),qin(3),q(3),qlatinv(3,3),rsma,qss(3)
       integer,allocatable:: igvapw(:,:)
-      
       if(allocated(qall)) deallocate(qall,p_bstr,p_dbstr)
       allocate(qall(3,iqini:iqend),p_bstr(nbas,iqini:iqend),p_dbstr(nbas,iqini:iqend)) !iqini:iqend for each rank
-      
       do 1200 iq = iqini, iqend !This is a big iq loop
-        qin = qplist(:,iq) !qin
+        qin = qplist(:,iq)  
         call m_Igv2x_setiq(iq) ! Get napw,ndimh, and so on for given iq
         allocate(igvapw(3,napw))
-c        print *,'iqini,iqend=',iqini,iqend,napw
-ccccccccccccccccccccccccccccccccccccc
 !! See hambl.F calling augmbl, calling bstrux_set
 !! input and output
 !!   qpg(ig) = tpiba * ( qin + matmul(qlat,igapwin(1:3,ig))) for h,o,hso
@@ -58,11 +56,9 @@ ccccccccccccccccccccccccccccccccccccc
         qlatinv = transpose(plat)
         call shorbz(qin,q,qlat,plat) !Get q. Is this fine?
         inn = nint(matmul(qlatinv,qin-q))
-c        call rtoint(matmul(qlatinv,qin-q),inn,3) 
         do ig=1,napw
            igvapw(:,ig) = inn + igvapwin(:,ig)
         enddo  
-ccccccccccccccccccccccccccccccccccccc
         do ia=1,nbas
            isa=ssite(ia)%spec
            pa=ssite(ia)%pos
@@ -74,14 +70,16 @@ ccccccccccccccccccccccccccccccccccccc
            allocate(                p_bstr(ia,iq)%cv3(ndimh,nlma,0:kmax) )
            if(lfrce/=0) allocate(  p_dbstr(ia,iq)%cv4(ndimh,nlma,0:kmax,3) )
 !  --- Make strux to expand all orbitals at site ia ---
-           qall(:,iq)=q
            mode = 2
            if(lfrce/=0) mode=1
-           call bstrux (mode,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igvapw, p_bstr(ia,iq)%cv3,p_dbstr(ia,iq)%cv4)
+           qss = q+ [1d-8,2d-8,3d-8] !this trick is for stabilizing deneracy ordering (this works well?)
+           call bstrux (mode,ia,pa,rsma,qss,kmax,nlma,ndimh,napw,igvapw, p_bstr(ia,iq)%cv3,p_dbstr(ia,iq)%cv4)
+           qall(:,iq)=q
         enddo 
         deallocate(igvapw)
  1200 continue
       end
+!ssssssssssssssssssssssssssssssssssssssss         
       subroutine bstrux(mode,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igapw,  b,                db)
       use m_struc_def  
       use m_lmfinit,only:alat=>lat_alat,lhh,nkaphh,nkapii,ssite=>v_ssite,sspec=>v_sspec,cg=>rv_a_ocg,

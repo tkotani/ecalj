@@ -15,7 +15,7 @@
       use m_hamindex,only: m_hamindex_init
       use m_supot,only:    m_supot_init
       use m_suham,only:    m_suham_init
-      use m_qplist,only:   m_qplist_init,m_qplist_qspdivider
+      use m_qplist,only:   m_qplist_init,m_qplist_qspdivider,nkp
       use m_igv2x,only:    m_igv2xall_init
       use m_ldau,only:     m_ldau_init
       use m_iors,only:  Iors
@@ -127,7 +127,7 @@
       call m_qplist_init(plbnd,llmfgw)
       call m_qplist_qspdivider()  !generate iqini:iqend,isini,isend  for each rank
 !! G vectors for qplist
-      call m_igv2xall_init()
+      call m_igv2xall_init(1,nkp)  !(iqini,iqend)   !(1,nkp) is needed for gwb.head
 !! madelung mode may need to be recovered.      
 !! allocate(rv_a_omad(nbas**2)); call madmat (rv_a_omad ) !Monopole Madelung matrix (kept for future).
 c      

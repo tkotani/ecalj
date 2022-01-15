@@ -67,10 +67,7 @@ c      readeferm=.false.
                cycle
             endif   
             nkp = nkp+1 !we count only irr=1 case, that is, nkp=nqirr is returned.
-ccccccccccccccccccccccccccccccccccccccc            
-c            qplist(:,nkp) = q
-            qplist(:,nkp) = q + [1d-6,2d-6,3d-6]
-ccccccccccccccccccccccccccccccccccccccc     
+            qplist(:,nkp) = q 
             ngplist(nkp)  = ngp
             iqibz=iqibz+1
             if(iqibz==nqibz) iqibzmax=nkp
@@ -250,7 +247,6 @@ c 1013       continue
         call mpibc1( xdatt, nkp , 4 , .false. , 'bndfp' , 'xdatt'  )
       endif
       end subroutine
-      
 !sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine m_qplist_qspdivider()
 !! MPIK k point divider. From iqini to iqend for each processor.
@@ -305,17 +301,7 @@ c 1013       continue
          enddo
          close(ifiproc)
       endif    
-c!! for mpi files.
-c      allocate(extp(0:nrank-1))
-c      if(procid==0) then
-c         extp(0) = trim(ext)
-c      else
-c        write(extn,"(i10)") procid
-c        extp(procid)=trim(adjustl(ext))//'_'//trim(adjustl(extn))
-c      endif  
-c      write(6,"(i3,' ext= ',a,a)") procid,trim(extp(procid)),' ----------'
       end subroutine
-!!
       end module m_qplist
 
 !mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
@@ -351,7 +337,7 @@ c      write(6,"(i3,' ext= ',a,a)") procid,trim(extp(procid)),' ----------'
         write(6,"(i3,' ext= ',a,a)") procid,trim(extp(procid)),' ----------'
       enddo
       end
-      end module
+      end module read_lmfgw_kdivider
 !! --------------------------------------
       
       

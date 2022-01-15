@@ -88,10 +88,10 @@ ccccccccccccc
       sumqv = 0d0
       if (lswtk==1)  call swtkzero()
       do 2010 iq = iqini, iqend !This is a big iq loop
-         qp = qplist(:,iq)
+         qp = qplist(:,iq) 
          if(debug) print *,' do 2010 iq procid=',iq,procid,iq,iqini,iqend
          if(iq==iqini) call mlog_MPIiq(iq,iqini,iqend)
-         call m_Igv2x_setiq(iq) !qp)   ! Get napw and so on for given qp
+         call m_Igv2x_setiq(iq)    ! Get napw and so on for given qp
          if(lso==1) then
             allocate(hamm(ndimh,ndimh,4),ovlm(ndimh,ndimh,4)) !spin offdiagonal included
          else   
@@ -199,7 +199,6 @@ c              write(stdo,"(a,3f9.5)") "Hamiltonian: Writing hamm and ovlm for q
 !! nev: out number of obtained eigenfvalues(funcitons)
             call zhev_tk4(ndimhx, hamm, ovlm, nmx, nev, evl(1, jsp ), evec, epsovl)
             if(writeham.and.master_mpi) call prtev(evec, ndimhx , evl(1, jsp ) , nmx , nev )
-             
             if(call_m_bandcal_2nd) then
                 write(ifig) nev,nmx,ndimhx
                 write(ifig) evl(1:nev,jsp)

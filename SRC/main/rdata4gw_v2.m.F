@@ -178,7 +178,6 @@ c      character(8),allocatable:: clablx(:)
 !!
       call MPI__Initialize()
       call lmf2gw() !set variables, and CphiGeig
-      
       if(verbose()>50 ) debug=.true.
       mmm=normcheck()
       if(mmm==0) then
@@ -191,7 +190,8 @@ c      character(8),allocatable:: clablx(:)
         checkdia=.false.
       endif
 !      
-      allocate( vkonf(0:lmxamx,nclass),   ovv(nphimx,nphimx,0:lmxamx, nclass,nsp) )
+c      write(6,*)lmxamx,nclass,nphimx,nsp
+      allocate(vkonf(0:lmxamx,nclass), ovv(nphimx,nphimx,0:lmxamx, nclass,nsp) )
       allocate(lmxaa(1:nbas))
       lmxaa(1:nbas) = lmxa(iclass(1:nbas))
       call minv33tp(plat,qlat)

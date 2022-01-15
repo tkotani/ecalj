@@ -43,10 +43,10 @@ c$$$      ndimhx=> ndimhxall(iq)
 c$$$      igv2x => igv2xall(iq)%n
 c$$$      end
 !!-----------------------------      
-      subroutine m_igv2xall_init()
-      use m_qplist,only: qplist,iqini,iqend
+      subroutine m_igv2xall_init(iqini,iqend) !iqini,iqend)
+      use m_qplist,only: qplist !,iqini,iqend
       use m_MPItk,only: master_mpi,procid,master
-      integer:: iq
+      integer:: iqini,iqend,iq
       real(8):: qp(3)
       allocate(igv2xall(iqini:iqend),napwall(iqini:iqend),ndimhall(iqini:iqend),ndimhxall(iqini:iqend))
       do iq = iqini, iqend !This is a big iq loop
@@ -57,8 +57,6 @@ c$$$      end
          napwall(iq) = napw_z
          ndimhall(iq)= ndimh_z
          ndimhxall(iq)=ndimhx_z
-c         write(6,*) 'xxxiiiiiiiiiqqqqqqqq',iqini,iqend,procid
-cc         write(6,*) 'xxxiiiiiiiiiqqqqqqqq',iq,napw,ndimh,ndimhx
       enddo
       end subroutine
       

@@ -127,14 +127,16 @@ c----------------------------------------------
       integer,allocatable:: iprocq(:,:)
       logical:: iopen
       integer::  id,nsizex,iqqxx,ifile_handle,ib,ii,ipqn,nn,nnn(3),ifiqg,ifiqgc
+      real(8),allocatable:: qplist(:,:)
+      integer,allocatable:: ngplist(:),ndimhall(:)
 !! =================================================================
       call setpr(30)
 c      call getkeyvalue("GWinput", "n1n2n3", nnn,3) !Readin nx ny nz for k-points for GW 
-c      n1q=nnn(1); n2q=nnn(2); n3q = nnn(3)
+c     n1q=nnn(1); n2q=nnn(2); n3q = nnn(3)
       open(newunit=ifigwb,file='gwb.head',form='unformatted')
-      read (ifigwb) nbas,nsp,ldim2,ndimh,lmxamx,ncoremx,nrmx,plat,alat
-      allocate(bas(3,nbas),lmxaa(nbas))
-      read(ifigwb) bas,lmxaa
+      read (ifigwb) nbas,nsp,ldim2,ndimh,lmxamx,ncoremx,nrmx,plat,alat,nqirr
+      allocate(bas(3,nbas),lmxaa(nbas),qplist(3,nqirr),ngplist(nqirr),ndimhall(nqirr))
+      read(ifigwb) bas,lmxaa,qplist,ngplist,ndimhall
       close(ifigwb)
       allocate( iclass(nbas) )
 !! NLAindx augmentation indexing !  call rdibasindx2(ldim2,nphi,nphimx,nindx,lindx,ibasindx,ifi)
@@ -322,8 +324,16 @@ c      open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=m
           fname='gwb'//trim(extp(iprocq(iqq,isp)))
           inquire(file=trim(fname),opened=iopen,number=ifigwb_)
           if(.not.iopen) open(newunit=ifigwb_,file=trim(fname),form='unformatted')
-          read (ifigwb_) qirr(:,iqq),nband,iq,ngp !iq=iqq
-          write(6,"(a,3i6,3x,3f11.6)") 'iqq isp nband q=',iqq,isp,nband, qirr(:,iqq)
+          nband     =  ndimhall(iqq)
+          ngp       =  ngplist(iqq)
+          qirr(:,iqq)= qplist(:,iqq)
+          write(6,"(a,3d13.6,3i6,3x,3f11.6)") 'uuuv1 iqq isp nband q=',qirr(:,iqq)!,iqq,isp,nband !, qirr(:,iqq)
+c          read (ifigwb_) qqq    !qirr(:,iqq) !,nband !,iq,ngp !iq=iqq
+c          if(sum(abs(qirr(:,iqq)-qqq))>1d-6) then
+c            write(6,"(a,3d13.6,3i6,3x,3f11.6)") 'uuuv2 iqq isp nband q=',qqq !iqq,isp,nband !, qirr(:,iqq)
+c            call rx('qirr/=qqq')
+c         endif
+         
           evl =1d20
           cphi=1d20
           allocate( geig(ngp, nbandmx), ngvecp(3,ngp) )

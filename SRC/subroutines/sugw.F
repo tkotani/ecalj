@@ -354,6 +354,8 @@ c     call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
       if(master_mpi) close(ifigwa) !call fclr('gwa',ifigwa)
 !! 
       if(master_mpi) then
+c        use m_igv2x,only: m_igv2xall_init,ndimhall
+c         call m_igv2xall_init(1,nqirr)
          open(newunit=ifigwbhead,file='gwb.head',form='unformatted')
          write(ifigwbhead) nat,nsp,ndima,ndham, maxval(lmxa(1:nat)),ncoremx/nsp,nrmx,plat,alat,nqirr
          write(ifigwbhead) bas,lmxa,qplist,ngplist,ndimhall
@@ -404,15 +406,10 @@ ccccccccccccccc
              call aughsoc(qp, sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm, ndimh, hammhso)
           endif
 !! LDA Hamiltonian and overlap matrices for this qp ---
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-          qp  = qplist(:,iq)    !  ... For this qp, G vectors for PW basis and hamiltonian dimension
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+          qp  = qplist(:,iq) ! ... For this qp, G vectors for PW basis and hamiltonian dimension
           call hambl(isp,qp,spotx,vconst,sv_p_osig, sv_p_otau,sv_p_oppix, vxc,ovl)!H(LDA) wihout vxc
           call hambl(isp,qp,smpot,vconst,sv_p_osig, sv_p_otau, sv_p_oppi, ham,ovl)!H(LDA) and O
           if(lso==2) ham(:,:) = ham(:,:) + hammhso(:,:,isp) !aug2021
-ccccccccccccccccccccccccccccccccccccccccccc
-          qp  = qplist(:,iq)-[1d-6,2d-6,3d-6] !A trick to shift qp to avoid ambiguity of degeneracy
-ccccccccccccccccccccccccccccccccccccccccccc
           vxc = ham - vxc ! vxc(LDA) part 
           if (lwvxc) then
             write(ifiv) ndimh,ldim,qp 
@@ -594,7 +591,7 @@ c             if(sum(abs(qp-q))>1d-8) stop 'sugw:qp/=q; qp=p sep2012'
           endif
           if(debug) print *,' goto gwb write...'
 C     --- File output, jobgw=1 ---
-          write(ifigwb) qp, ndimh, iq,ngp
+c          write(ifigwb) qp, ndimh, iq,ngp
           if(debug) write (6,"('q ndimh=',3f10.5,i10)") qp, ndimh
           write(ifigwb) evl(1:ndimh,isp),cphi(:,:,isp),pwz
 c          if(ngp >0 ) write (ifigwb)  pwz !ngvecp(1:3,1:ngp,iq),
