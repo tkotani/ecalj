@@ -1,6 +1,8 @@
-===START LMFA   =====================================
+=== START LFMA ===
  mpisize=           1
  HEADER ZrO_2 fluorite in tetragonal setting, with tetragonal distortion dc is the shift of the oxygens in units of the c-axis
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
 
 mmm === MTO setting ===
 mmm ispec lmxb lpzex nkapii nkaphh=    1    2    0    2    2
@@ -17,41 +19,6 @@ mmm rsmh2    2  0.90  0.90  0.90
 mmm  eh2     2 -1.00 -1.00 -1.00
 mmm pz       2  0.00  0.00  0.00
 mmm lh       2  2  2
-
-                Plat                                  Qlat
-   1.000000   0.000000   0.000000        1.000000   0.000000   0.000000
-   0.000000   1.000000   0.000000        0.000000   1.000000   0.000000
-   0.000000   0.000000   1.414214        0.000000   0.000000   0.707107
-  Cell vol= 428.242360
-
- LATTC:  as= 2.000   tol=1.00E-08   alat= 6.71519   awald= 0.265
-         r1=  3.227   nkd= 105      q1=  3.040   nkg= 157
-
- SGROUP: 1 symmetry operations from 0 generators
- ADDBAS: basis is already complete --- no sites added
- SYMLAT: Bravais system is tetragonal with 16 symmetry operations.
- SYMCRY: crystal invariant under 16 symmetry operations for tol=1e-5
- ig  group op
-   1  i*i                                
-   2  i(-1/2,-1/2,-0.7071068)            
-   3  r2z                                
-   4  mz(-1/2,-1/2,-0.7071068)           
-   5  r4z(-1/2,-1/2,0.7071068)           
-   6  i*r4z                              
-   7  r4(0,0,-1)(-1/2,-1/2,0.7071068)    
-   8  i*r4(0,0,-1)                       
-   9  r2(1,1,-0)                         
-  10  m(1,1,-0)(-1/2,1/2,0.7071068)      
-  11  r2y(1/2,-1/2,-0.7071068)           
-  12  my                                 
-  13  r2(1,-1,-0)                        
-  14  m(1,-1,-0)(-1/2,-1/2,0.7071068)    
-  15  r2x(-1/2,-1/2,-0.7071068)          
-  16  mx                                 
- GROUPG: the following are sufficient to generate the space group:
- Generator(cart): r4z:(-1/2,-1/2,0.7071068) i:(-1/2,-1/2,-0.7071068) r2(1,1,-0)
- Generator(frac): r4z::(1/2,1/2,1/2) i::(1/2,1/2,-1/2) r2(1,1,-0)
- MKSYM:  found 16 space group operations ... includes inversion
  goto freats
 
 ttt: pnu qat=  1  0     5.800     2.000
@@ -140,9 +107,17 @@ conf:   rmt=1.800000  rmax=23.776997  a=0.03  nr=231  nr(rmax)=317
 conf: Core rhoc(rmt)= 0.000000 spillout= 0.000000
  end of freats: spid nmcore=O                  0
 OK! end of LMFA ======================
-===START LMF   =====================================
+===START LMF   ===
  mpisize=           4
  HEADER ZrO_2 fluorite in tetragonal setting, with tetragonal distortion dc is the shift of the oxygens in units of the c-axis
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
   bndfp (warning): no sigm file found ... LDA calculation only
 
 mmm === MTO setting ===
@@ -167,7 +142,7 @@ mmm lh       2  2  2
    0.000000   0.000000   1.414214        0.000000   0.000000   0.707107
   Cell vol= 428.242360
 
- LATTC:  as= 2.000   tol=1.00E-08   alat= 6.71519   awald= 0.265
+ LATTC:  as= 2.000   tol= 1.00E-08   alat= 6.71519   awald= 0.265
          r1=  3.227   nkd= 105      q1=  3.040   nkg= 157
 
  SGROUP: 1 symmetry operations from 0 generators
@@ -197,19 +172,11 @@ mmm lh       2  2  2
  MKSYM:  found 16 space group operations ... includes inversion
  
  BZMESH:      6 irreducible QP from    4   4   4 shift=TTT
- >> level: 1  CPUsec=      0.03  enter lmfp
  gen_hamindex: not readin QGpsi.
-
- species data:  augmentation                           density
- spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
- Zr       2.100  0.700    2    4         2  0.525  1.050    15    1   0.840
- O        1.800  0.600    2    4         2  0.450  0.900    15    0   0.720
- goto end of reading rst or atm           1
- goto end of reading rst or atm           1
+ end of reading rst or atm
 
  GVLST2: gmax = 7.939 a.u. created 3579 vectors of 13824 (25%)
          (input) mesh has 24 x 24 x 24 divisions; length 0.280, 0.280, 0.396
- goto end of reading rst or atm           1
  SGVSYM: 312 symmetry stars found for 3579 reciprocal lattice vectors
 
  sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-08
@@ -226,12 +193,24 @@ mmm lh       2  2  2
   O        0*   0.90  -1.00   9.538    3.42E-06    3579*
   O        1*   0.90  -1.00  10.119    2.69E-05    3579*
   O        2    0.90  -1.00  10.694    2.12E-04    3579*
- goto end of reading rst or atm           1
+ end of reading rst or atm
+ m_qplistinit:start
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    2, (    4 1),  (    5 1)
+ goto end of reading rst or atm           0
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    0, (    1 1),  (    1 1)
+ goto end of reading rst or atm           0
 
  iors  : read restart file (binary, mesh density) 
  iors  : empty file ... nothing read
+ >> level: 1  CPUsec=      0.03  enter rdovfa
 
  rdovfa: read and overlap free-atom densities (mesh density) ...
+ end of reading rst or atm
+ end of reading rst or atm
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    1, (    2 1),  (    3 1)
+ goto end of reading rst or atm           0
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    3, (    6 1),  (    6 1)
+ goto end of reading rst or atm           0
  rdovfa: expected Zr,      read Zr       with rmt=  2.1000  mesh   343  0.030
  rdovfa: expected O,       read O        with rmt=  1.8000  mesh   231  0.030
 
@@ -241,8 +220,6 @@ mmm lh       2  2  2
     2    1.190012    1.270547    1.512593    1.593129   -0.080536
     3    5.011584    3.770627    5.392143    4.151186    1.240957
     4    5.011584    3.770627    5.392143    4.151186    1.240957
- end of reading rst or atm
- end of reading rst or atm
     5    5.011584    3.770627    5.392143    4.151186    1.240957
  end of reading rst or atm
     6    5.011584    3.770627    5.392143    4.151186    1.240957
@@ -254,12 +231,16 @@ mmm lh       2  2  2
  Sum of nuclear charges:        -112.000000
  Homogeneous background:           0.000000
  Deviation from neutrality:       -0.000001
+ >>      0.06   exit  rdovfa          0.03
  end of reading rst or atm
- m_qplistinit:start
-m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    1, (    2 1),  (    3 1)
-m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    2, (    4 1),  (    5 1)
-m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    0, (    1 1),  (    1 1)
-m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    3, (    6 1),  (    6 1)
+
+ species data:  augmentation                           density
+ spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
+ Zr       2.100  0.700    2    4         2  0.525  1.050    15    1   0.840
+ O        1.800  0.600    2    4         2  0.450  0.900    15    0   0.720
+ >> level: 1  CPUsec=      0.06  enter lmfp
+ end of reading rst or atm
+ end of reading rst or atm
 
  Basis, after reading restart file
  site spec        pos (Cartesian coordinates)         pos (multiples of plat)
@@ -314,13 +295,14 @@ m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    3, (    6 1),  (    
     hom background     0.00000   deviation from neutrality:     -0.00000
   m_bandcal_init: start
  bndfp: kpt     1 of     6 k=  0.1250  0.1250  0.0884 ndimh = nmto+napw =   108  108    0
- ... Done MPI k-loop: elapsed time=   0.1591
+ ... Done MPI k-loop: elapsed time=   0.1535
 
  BZWTS : --- Non-metal sampling ---
  Fermi energy: -0.062678;  32 electrons;  Sum occ. bands: -15.015887
  VBmax = -0.062678  CBmin = 0.566273  gap = 0.628951 Ry = 8.55373 eV
  HOMO; Ef; LUMO =  -0.062678   0.251797   0.566273
-Generating TDOS: efermi, and dos window=    0.2518  -0.5000   1.7518
+Generating TDOS: efermi, and dos window=    0.2518   0.0563   1.7518
+
 
 
  getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
@@ -335,8 +317,8 @@ Generating TDOS: efermi, and dos window=    0.2518  -0.5000   1.7518
 
 
 
- getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
 
+ getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
  sum q= 2.00  sum ec=   -73.86805  sum tc=   115.26778  rho(rmax) 0.00000
 
 
@@ -349,9 +331,9 @@ Generating TDOS: efermi, and dos window=    0.2518  -0.5000   1.7518
    1    0.511689    0.556378   -0.044689
    2    0.511689    0.556378   -0.044689
    3    6.362468    4.346503    2.015965
-   4    6.388095    4.353745    2.034351
+   4    6.388095    4.353744    2.034351
    5    6.362468    4.346503    2.015965
-   6    6.388095    4.353745    2.034351
+   6    6.388095    4.353744    2.034351
 
  Symmetrize density..
 
@@ -366,7 +348,6 @@ Generating TDOS: efermi, and dos window=    0.2518  -0.5000   1.7518
 
  site    1   species   1:Zr      
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
-
  0     0    0.059060   -0.457999    5.800000    5.123719    5.500000    5.500000
  1     0    0.082552   -0.421670    5.800000    5.025814    5.250000    5.250000
  2     0    0.370077   -0.329887    4.100000    4.464700    4.147584    4.464700
@@ -406,13 +387,13 @@ Generating TDOS: efermi, and dos window=    0.2518  -0.5000   1.7518
  sumec=     -295.472216  cor*vef=    -756.629116   ttcor=   15276.039407
  rhoeps=    -505.473671     utot=  -29917.558059    ehar=  -14979.485787
 
- srhov:    -61.310141   -124.372934   -185.683075 sumev=  -15.015887   sumtv=  170.667188
+ srhov:    -61.310138   -124.372935   -185.683073 sumev=  -15.015887   sumtv=  170.667186
  esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.527201  avg sphere pot= 0.301141  vconst=-0.527201
 
- smooth rhoves    214.717495   charge    23.988747
+ smooth rhoves    214.717490   charge    23.988745
  smvxcm: all smrho_w is positive
- smooth rhoeps =  -45.903210   rhomu =  -60.029278  avg vxc =   -0.886132 
+ smooth rhoeps =  -45.903208   rhomu =  -60.029276  avg vxc =   -0.886132 
 
  locpot:
 
@@ -431,21 +412,21 @@ Generating TDOS: efermi, and dos window=    0.2518  -0.5000   1.7518
  site  6  z=  8.0  rmt= 1.80000  nr=231   a=0.030  nlml= 9  rg=0.450  Vfloat=F
 
  Energy terms:             smooth           local           total
-   rhoval*vef            -47.977945      -118.544215      -166.522160
-   rhoval*ves            -63.382289       -53.013776      -116.396065
-   psnuc*ves             492.817278    -60209.029449    -59716.212171
-   utot                  214.717495    -30131.021613    -29916.304118
-   rho*exc               -45.903210      -461.840476      -507.743686
-   rho*vxc               -60.029278      -612.244143      -672.273421
-   valence chg            23.988747         8.011253        32.000000
+   rhoval*vef            -47.977943      -118.544215      -166.522158
+   rhoval*ves            -63.382291       -53.013772      -116.396063
+   psnuc*ves             492.817271    -60209.029440    -59716.212169
+   utot                  214.717490    -30131.021606    -29916.304116
+   rho*exc               -45.903208      -461.840477      -507.743686
+   rho*vxc               -60.029276      -612.244145      -672.273421
+   valence chg            23.988745         8.011255        32.000000
    core charge            80.000000        -0.000001        79.999999
 
  Charges:  valence    32.00000   cores    80.00000   nucleii  -112.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
 
  Kohn-Sham energy:
- sumtv=      170.667188  sumtc=     15275.953625   ekin=    15446.620813
- rhoep=     -507.743686   utot=    -29916.304118   ehks=   -14977.426991
+ sumtv=      170.667186  sumtc=     15275.953625   ekin=    15446.620811
+ rhoep=     -507.743686   utot=    -29916.304116   ehks=   -14977.426991
  smvxcm: all smrho_w is positive
  smvxcm: all smrho_w is positive
  smvxcm: all smrho_w is positive
@@ -476,21 +457,29 @@ Generating TDOS: efermi, and dos window=    0.2518  -0.5000   1.7518
  mixrealsmooth= T
  wgtsmooth=   8.5051727179971462E-003
  mixrho:  sought 1 iter from file mixm; read 0.  RMS DQ=2.57e-2
- AMIX: nmix=0 mmix=8  nelts= 18016  beta=1.00000  tm= 5.00000  rmsdel=2.57D-02
- mixrho: add corrections to qcell smrho = -0.13143D-06 -0.30690D-09
+ AMIX: nmix=0 mmix=8  nelts= 18016  beta=1.00000  tm= 5.00000  rmsdel= 2.57D-02
+ mixrho: add corrections to qcell smrho = -0.12972D-06 -0.30290D-09
  unscreened rms difference:  smooth  0.021912   local  0.045568
    screened rms difference:  smooth  0.021912   local  0.045568   tot  0.025673
 
  iors  : write restart file (binary, mesh density) 
 
    it  1  of  1    ehf=  -14979.485787   ehk=  -14977.426991
-h nitq=1 force=1 fp=1 ehf(eV)=-203807.8877258 ehk(eV)=-203779.8761529 sev(eV)=-204.3031519
- >>      0.69   exit  lmfp            0.66
+h nitq=1 force=1 fp=1 ehf(eV)=-203807.8877263 ehk(eV)=-203779.8761543 sev(eV)=-204.3031524
+ >>      0.54   exit  lmfp            0.48
 OK! end of LMF ======================
-===START LMF   =====================================
+===START LMF   ===
  mpisize=           4
  HEADER ZrO_2 fluorite in tetragonal setting, with tetragonal distortion dc is the shift of the oxygens in units of the c-axis
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
   bndfp (warning): no sigm file found ... LDA calculation only
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
 
 mmm === MTO setting ===
 mmm ispec lmxb lpzex nkapii nkaphh=    1    2    0    2    2
@@ -514,7 +503,7 @@ mmm lh       2  2  2
    0.000000   0.000000   1.414214        0.000000   0.000000   0.707107
   Cell vol= 428.242360
 
- LATTC:  as= 2.000   tol=1.00E-08   alat= 6.71519   awald= 0.265
+ LATTC:  as= 2.000   tol= 1.00E-08   alat= 6.71519   awald= 0.265
          r1=  3.227   nkd= 105      q1=  3.040   nkg= 157
 
  SGROUP: 1 symmetry operations from 0 generators
@@ -544,14 +533,7 @@ mmm lh       2  2  2
  MKSYM:  found 16 space group operations ... includes inversion
  
  BZMESH:      6 irreducible QP from    4   4   4 shift=TTT
- >> level: 1  CPUsec=      0.06  enter lmfp
  gen_hamindex: not readin QGpsi.
-
- species data:  augmentation                           density
- spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
- Zr       2.100  0.700    2    4         2  0.525  1.050    15    1   0.840
- O        1.800  0.600    2    4         2  0.450  0.900    15    0   0.720
- goto end of reading rst or atm           1
 
  GVLST2: gmax = 7.939 a.u. created 3579 vectors of 13824 (25%)
          (input) mesh has 24 x 24 x 24 divisions; length 0.280, 0.280, 0.396
@@ -571,22 +553,33 @@ mmm lh       2  2  2
   O        0*   0.90  -1.00   9.538    3.42E-06    3579*
   O        1*   0.90  -1.00  10.119    2.69E-05    3579*
   O        2    0.90  -1.00  10.694    2.12E-04    3579*
- goto end of reading rst or atm           1
+ end of reading rst or atm
+ m_qplistinit:start
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    0, (    1 1),  (    1 1)
+ goto end of reading rst or atm           0
 
  iors  : read restart file (binary, mesh density) 
- goto end of reading rst or atm           1
- goto end of reading rst or atm           1
+ end of reading rst or atm
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    2, (    4 1),  (    5 1)
+ goto end of reading rst or atm           0
+ end of reading rst or atm
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    1, (    2 1),  (    3 1)
+ goto end of reading rst or atm           0
+ end of reading rst or atm
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    3, (    6 1),  (    6 1)
+ goto end of reading rst or atm           0
          use from  restart file: ef window, positions, pnu 
          ignore in restart file: *
  end of reading rst or atm
  end of reading rst or atm
  end of reading rst or atm
  end of reading rst or atm
- m_qplistinit:start
-m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    1, (    2 1),  (    3 1)
-m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    3, (    6 1),  (    6 1)
-m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    2, (    4 1),  (    5 1)
-m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    0, (    1 1),  (    1 1)
+
+ species data:  augmentation                           density
+ spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
+ Zr       2.100  0.700    2    4         2  0.525  1.050    15    1   0.840
+ O        1.800  0.600    2    4         2  0.450  0.900    15    0   0.720
+ >> level: 1  CPUsec=      0.07  enter lmfp
 
  Basis, after reading restart file
  site spec        pos (Cartesian coordinates)         pos (multiples of plat)
@@ -598,12 +591,20 @@ m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    0, (    1 1),  (    
    6  O         0.500000   0.000000   1.018234    0.500000   0.000000   0.720000
 
  iors  : write restart file (ascii, mesh density) 
- >>      0.14   exit  lmfp            0.08
+ >>      0.11   exit  lmfp            0.04
 OK! end of LMF ======================
-===START LMF   =====================================
+===START LMF   ===
  mpisize=           4
  HEADER ZrO_2 fluorite in tetragonal setting, with tetragonal distortion dc is the shift of the oxygens in units of the c-axis
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
   bndfp (warning): no sigm file found ... LDA calculation only
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
 
 mmm === MTO setting ===
 mmm ispec lmxb lpzex nkapii nkaphh=    1    2    0    2    2
@@ -627,7 +628,7 @@ mmm lh       2  2  2
    0.000000   0.000000   1.414214        0.000000   0.000000   0.707107
   Cell vol= 428.242360
 
- LATTC:  as= 2.000   tol=1.00E-08   alat= 6.71519   awald= 0.265
+ LATTC:  as= 2.000   tol= 1.00E-08   alat= 6.71519   awald= 0.265
          r1=  3.227   nkd= 105      q1=  3.040   nkg= 157
 
  SGROUP: 1 symmetry operations from 0 generators
@@ -657,13 +658,9 @@ mmm lh       2  2  2
  MKSYM:  found 16 space group operations ... includes inversion
  
  BZMESH:      6 irreducible QP from    4   4   4 shift=TTT
- >> level: 1  CPUsec=      0.10  enter lmfp
  gen_hamindex: not readin QGpsi.
-
- species data:  augmentation                           density
- spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
- Zr       2.100  0.700    2    4         2  0.525  1.050    15    1   0.840
- O        1.800  0.600    2    4         2  0.450  0.900    15    0   0.720
+ end of reading rst or atm
+ end of reading rst or atm
 
  GVLST2: gmax = 7.939 a.u. created 3579 vectors of 13824 (25%)
          (input) mesh has 24 x 24 x 24 divisions; length 0.280, 0.280, 0.396
@@ -683,23 +680,31 @@ mmm lh       2  2  2
   O        0*   0.90  -1.00   9.538    3.42E-06    3579*
   O        1*   0.90  -1.00  10.119    2.69E-05    3579*
   O        2    0.90  -1.00  10.694    2.12E-04    3579*
- goto end of reading rst or atm           1
+ end of reading rst or atm
+ m_qplistinit:start
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    0, (    1 1),  (    1 1)
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    1, (    2 1),  (    3 1)
+ goto end of reading rst or atm           0
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    3, (    6 1),  (    6 1)
+ goto end of reading rst or atm           0
+ goto end of reading rst or atm           0
 
  iors  : read restart file (binary, mesh density) 
- goto end of reading rst or atm           1
- goto end of reading rst or atm           1
- goto end of reading rst or atm           1
+ end of reading rst or atm
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    2, (    4 1),  (    5 1)
+ goto end of reading rst or atm           0
          use from  restart file: ef window, positions, pnu 
          ignore in restart file: *
  end of reading rst or atm
- m_qplistinit:start
+
+ species data:  augmentation                           density
+ spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
+ Zr       2.100  0.700    2    4         2  0.525  1.050    15    1   0.840
+ O        1.800  0.600    2    4         2  0.450  0.900    15    0   0.720
  end of reading rst or atm
  end of reading rst or atm
  end of reading rst or atm
-m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    2, (    4 1),  (    5 1)
-m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    0, (    1 1),  (    1 1)
-m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    3, (    6 1),  (    6 1)
-m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    1, (    2 1),  (    3 1)
+ >> level: 1  CPUsec=      0.07  enter lmfp
 
  Basis, after reading restart file
  site spec        pos (Cartesian coordinates)         pos (multiples of plat)
@@ -714,9 +719,9 @@ m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    1, (    2 1),  (    
  esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.512870  avg sphere pot= 0.301141  vconst=-0.512870
 
- smooth rhoves    212.318525   charge    23.988747
+ smooth rhoves    212.318520   charge    23.988745
  smvxcm: all smrho_w is positive
- smooth rhoeps =  -45.445618   rhomu =  -59.427014  avg vxc =   -0.904352 
+ smooth rhoeps =  -45.445616   rhomu =  -59.427012  avg vxc =   -0.904352 
 
  locpot:
 
@@ -741,52 +746,58 @@ m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    1, (    2 1),  (    
  potential shift to crystal energy zero:    0.004299
 
  Energy terms:             smooth           local           total
-   rhoval*vef            -53.564708      -121.377551      -174.942259
-   rhoval*ves            -73.690284       -52.428109      -126.118394
-   psnuc*ves             498.327334    -60209.442715    -59711.115381
-   utot                  212.318525    -30130.935412    -29918.616888
-   rho*exc               -45.445618      -461.641945      -507.087563
-   rho*vxc               -59.427014      -611.981528      -671.408542
-   valence chg            23.988747         8.011253        32.000000
+   rhoval*vef            -53.564706      -121.377552      -174.942258
+   rhoval*ves            -73.690287       -52.428106      -126.118393
+   psnuc*ves             498.327326    -60209.442706    -59711.115380
+   utot                  212.318520    -30130.935406    -29918.616886
+   rho*exc               -45.445616      -461.641947      -507.087563
+   rho*vxc               -59.427012      -611.981530      -671.408541
+   valence chg            23.988745         8.011255        32.000000
    core charge            80.000000        -0.000001        79.999999
 
  Charges:  valence    32.00000   cores    80.00000   nucleii  -112.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
   m_bandcal_init: start
  bndfp: kpt     1 of     6 k=  0.1250  0.1250  0.0884 ndimh = nmto+napw =   108  108    0
- ... Done MPI k-loop: elapsed time=   0.2115
+ ... Done MPI k-loop: elapsed time=   0.1832
 
  BZWTS : --- Non-metal sampling ---
  Fermi energy: 0.344997;  32 electrons;  Sum occ. bands: -4.660890
  VBmax = 0.344997  CBmin = 0.439674  gap = 0.094677 Ry = 1.28760 eV
  HOMO; Ef; LUMO =   0.344997   0.392336   0.439674
-Generating TDOS: efermi, and dos window=    0.3923  -0.5000   1.8923
-
-
- getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
- sum q= 2.00  sum ec=   -71.85399  sum tc=   115.04370  rho(rmax) 0.00000
-
-
- getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
- sum q= 2.00  sum ec=   -71.85399  sum tc=   115.04370  rho(rmax) 0.00000
+Generating TDOS: efermi, and dos window=    0.3923  -0.0703   1.8923
 
 
 
 
  getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
  sum q= 2.00  sum ec=   -71.85399  sum tc=   115.04370  rho(rmax) 0.00000
+
+
+
+ getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
+
+ sum q= 2.00  sum ec=   -71.85399  sum tc=   115.04370  rho(rmax) 0.00000
+
+
+ getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
+
+ sum q= 2.00  sum ec=   -71.85399  sum tc=   115.04370  rho(rmax) 0.00000
+
+
+
 
 
  getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
  sum q= 2.00  sum ec=   -71.85399  sum tc=   115.04370  rho(rmax) 0.00000
 
  mkrout:  Qtrue      sm,loc       local
-   1    1.877225    1.525460    0.351764
-   2    1.877225    1.525460    0.351764
-   3    5.043794    3.860056    1.183737
-   4    5.068510    3.868163    1.200347
-   5    5.043794    3.860056    1.183737
-   6    5.068510    3.868163    1.200347
+   1    1.877224    1.525461    0.351763
+   2    1.877224    1.525461    0.351763
+   3    5.043794    3.860056    1.183738
+   4    5.068510    3.868162    1.200347
+   5    5.043794    3.860055    1.183738
+   6    5.068509    3.868162    1.200347
 
  Symmetrize density..
 
@@ -801,15 +812,13 @@ Generating TDOS: efermi, and dos window=    0.3923  -0.5000   1.8923
 
  site    1   species   1:Zr      
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
-
-
- 0     0    0.104731   -0.135726    5.500000    5.162392    5.500000    5.500000
+ 0     0    0.104731   -0.135727    5.500000    5.162392    5.500000    5.500000
  1     0    0.146032   -0.099231    5.250000    5.056252    5.250000    5.250000
  2     0    1.626461    0.030302    4.464700    4.726970    4.147584    4.726970
 
  site    2   species   1:Zr      
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
- 0     0    0.104731   -0.135726    5.500000    5.162392    5.500000    5.500000
+ 0     0    0.104731   -0.135727    5.500000    5.162392    5.500000    5.500000
  1     0    0.146032   -0.099231    5.250000    5.056252    5.250000    5.250000
  2     0    1.626461    0.030302    4.464700    4.726970    4.147584    4.726970
 
@@ -838,19 +847,15 @@ Generating TDOS: efermi, and dos window=    0.3923  -0.5000   1.8923
  2     0    0.029344    0.074540    3.181812    3.190261    3.147584    3.190261
 
  Harris energy:
- sumev=       -4.660890  val*vef=    -174.942259   sumtv=     170.281370
+ sumev=       -4.660890  val*vef=    -174.942258   sumtv=     170.281368
  sumec=     -287.415949  cor*vef=    -748.486336   ttcor=   15275.952894
- rhoeps=    -507.087563     utot=  -29918.616888    ehar=  -14979.470188
+ rhoeps=    -507.087563     utot=  -29918.616886    ehar=  -14979.470188
 
- srhov:    -54.205401   -106.420764   -160.626165 sumev=   -4.660890   sumtv=  155.965276
-
-
-
-
+ srhov:    -54.205419   -106.420742   -160.626161 sumev=   -4.660890   sumtv=  155.965271
  esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.567051  avg sphere pot= 0.299828  vconst=-0.567051
 
- smooth rhoves    224.013133   charge    26.528304
+ smooth rhoves    224.013130   charge    26.528303
  smvxcm: all smrho_w is positive
  smooth rhoeps =  -47.407289   rhomu =  -61.981043  avg vxc =   -0.938346 
 
@@ -871,21 +876,21 @@ Generating TDOS: efermi, and dos window=    0.3923  -0.5000   1.8923
  site  6  z=  8.0  rmt= 1.80000  nr=231   a=0.030  nlml= 9  rg=0.450  Vfloat=F
 
  Energy terms:             smooth           local           total
-   rhoval*vef            -67.191660      -109.965721      -177.157381
-   rhoval*ves            -90.038037       -42.861412      -132.899449
-   psnuc*ves             538.064303    -60212.708470    -59674.644167
-   utot                  224.013133    -30127.784941    -29903.771808
-   rho*exc               -47.407289      -456.470744      -503.878033
+   rhoval*vef            -67.191671      -109.965706      -177.157377
+   rhoval*ves            -90.038036       -42.861409      -132.899445
+   psnuc*ves             538.064297    -60212.708459    -59674.644163
+   utot                  224.013130    -30127.784934    -29903.771804
+   rho*exc               -47.407289      -456.470744      -503.878032
    rho*vxc               -61.981043      -605.183547      -667.164590
-   valence chg            26.528304         5.471696        32.000000
+   valence chg            26.528303         5.471697        32.000000
    core charge            80.000000        -0.000001        79.999999
 
  Charges:  valence    32.00000   cores    80.00000   nucleii  -112.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
 
  Kohn-Sham energy:
- sumtv=      155.965276  sumtc=     15275.057293   ekin=    15431.022568
- rhoep=     -503.878033   utot=    -29903.771808   ehks=   -14976.627272
+ sumtv=      155.965271  sumtc=     15275.057293   ekin=    15431.022564
+ rhoep=     -503.878032   utot=    -29903.771804   ehks=   -14976.627273
  smvxcm: all smrho_w is positive
  smvxcm: all smrho_w is positive
  smvxcm: all smrho_w is positive
@@ -898,7 +903,7 @@ Generating TDOS: efermi, and dos window=    0.3923  -0.5000   1.8923
    4   -0.00   -0.00   60.94    -0.00    0.00   -0.76     0.00   -0.00  -60.19
    5   -0.00    0.00  -60.94    -0.00    0.00    0.76     0.00   -0.00   60.19
    6    0.00   -0.00  -60.94     0.00   -0.00    0.76    -0.00    0.00   60.19
- shift forces to make zero average correction:            0.00    0.00   -0.00
+ shift forces to make zero average correction:            0.00    0.00    0.00
 
  Forces, with eigenvalue correction
   ib           estatic                  eigval                    total
@@ -916,21 +921,29 @@ Generating TDOS: efermi, and dos window=    0.3923  -0.5000   1.8923
  mixrealsmooth= T
  wgtsmooth=   8.5051727179971462E-003
  mixrho:  sought 1 iter from file mixm; read 1.  RMS DQ=2.85e-2
- AMIX: nmix=1 mmix=8  nelts= 18016  beta=1.00000  tm= 5.00000  rmsdel=2.85D-02
+ AMIX: nmix=1 mmix=8  nelts= 18016  beta=1.00000  tm= 5.00000  rmsdel= 2.85D-02
    tj: 0.52762
- mixrho: add corrections to qcell smrho = -0.96100D-07 -0.22441D-09
+ mixrho: add corrections to qcell smrho = -0.93474D-07 -0.21827D-09
  unscreened rms difference:  smooth  0.011535   local  0.048179
    screened rms difference:  smooth  0.011535   local  0.048179   tot  0.028505
 
  iors  : write restart file (binary, mesh density) 
 
-   it  1  of  1    ehf=  -14979.470188   ehk=  -14976.627272
-x nitq=1 force=1 fp=1 ehf(eV)=-203807.6754786 ehk(eV)=-203768.9953436 sev(eV)=-63.4151347
- >>      1.08   exit  lmfp            0.99
+   it  1  of  1    ehf=  -14979.470188   ehk=  -14976.627273
+x nitq=1 force=1 fp=1 ehf(eV)=-203807.6754804 ehk(eV)=-203768.9953452 sev(eV)=-63.4151389
+ >>      0.86   exit  lmfp            0.79
 OK! end of LMF ======================
-===START LMF   =====================================
+===START LMF   ===
  mpisize=           4
  HEADER ZrO_2 fluorite in tetragonal setting, with tetragonal distortion dc is the shift of the oxygens in units of the c-axis
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
   bndfp (warning): no sigm file found ... LDA calculation only
 
 mmm === MTO setting ===
@@ -955,7 +968,7 @@ mmm lh       2  2  2
    0.000000   0.000000   1.414214        0.000000   0.000000   0.707107
   Cell vol= 428.242360
 
- LATTC:  as= 2.000   tol=1.00E-08   alat= 6.71519   awald= 0.265
+ LATTC:  as= 2.000   tol= 1.00E-08   alat= 6.71519   awald= 0.265
          r1=  3.227   nkd= 105      q1=  3.040   nkg= 157
 
  SGROUP: 1 symmetry operations from 0 generators
@@ -985,19 +998,10 @@ mmm lh       2  2  2
  MKSYM:  found 16 space group operations ... includes inversion
  
  BZMESH:      6 irreducible QP from    4   4   4 shift=TTT
- >> level: 1  CPUsec=      0.04  enter lmfp
  gen_hamindex: not readin QGpsi.
-
- species data:  augmentation                           density
- spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
- Zr       2.100  0.700    2    4         2  0.525  1.050    15    1   0.840
- O        1.800  0.600    2    4         2  0.450  0.900    15    0   0.720
- goto end of reading rst or atm           2
- goto end of reading rst or atm           2
 
  GVLST2: gmax = 7.939 a.u. created 3579 vectors of 13824 (25%)
          (input) mesh has 24 x 24 x 24 divisions; length 0.280, 0.280, 0.396
- goto end of reading rst or atm           2
  SGVSYM: 312 symmetry stars found for 3579 reciprocal lattice vectors
 
  sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-08
@@ -1014,20 +1018,33 @@ mmm lh       2  2  2
   O        0*   0.90  -1.00   9.538    3.42E-06    3579*
   O        1*   0.90  -1.00  10.119    2.69E-05    3579*
   O        2    0.90  -1.00  10.694    2.12E-04    3579*
- goto end of reading rst or atm           2
+ end of reading rst or atm
+ m_qplistinit:start
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    0, (    1 1),  (    1 1)
+ goto end of reading rst or atm           0
 
  iors  : read restart file (ascii, mesh density) 
+ end of reading rst or atm
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    2, (    4 1),  (    5 1)
+ goto end of reading rst or atm           0
+ end of reading rst or atm
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    1, (    2 1),  (    3 1)
+ goto end of reading rst or atm           0
+ end of reading rst or atm
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    3, (    6 1),  (    6 1)
+ goto end of reading rst or atm           0
          use from  restart file: ef window, positions, pnu 
          ignore in restart file: *
  end of reading rst or atm
  end of reading rst or atm
  end of reading rst or atm
  end of reading rst or atm
- m_qplistinit:start
-m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    2, (    4 1),  (    5 1)
-m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    0, (    1 1),  (    1 1)
-m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    1, (    2 1),  (    3 1)
-m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    3, (    6 1),  (    6 1)
+
+ species data:  augmentation                           density
+ spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
+ Zr       2.100  0.700    2    4         2  0.525  1.050    15    1   0.840
+ O        1.800  0.600    2    4         2  0.450  0.900    15    0   0.720
+ >> level: 1  CPUsec=      0.07  enter lmfp
 
  Basis, after reading restart file
  site spec        pos (Cartesian coordinates)         pos (multiples of plat)
@@ -1042,9 +1059,9 @@ m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    3, (    6 1),  (    
  esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.512870  avg sphere pot= 0.301141  vconst=-0.512870
 
- smooth rhoves    212.318525   charge    23.988747
+ smooth rhoves    212.318520   charge    23.988745
  smvxcm: all smrho_w is positive
- smooth rhoeps =  -45.445618   rhomu =  -59.427014  avg vxc =   -0.904352 
+ smooth rhoeps =  -45.445616   rhomu =  -59.427012  avg vxc =   -0.904352 
 
  locpot:
 
@@ -1069,29 +1086,32 @@ m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    3, (    6 1),  (    
  potential shift to crystal energy zero:    0.004299
 
  Energy terms:             smooth           local           total
-   rhoval*vef            -53.564708      -121.377551      -174.942259
-   rhoval*ves            -73.690284       -52.428109      -126.118394
-   psnuc*ves             498.327334    -60209.442715    -59711.115381
-   utot                  212.318525    -30130.935412    -29918.616888
-   rho*exc               -45.445618      -461.641945      -507.087563
-   rho*vxc               -59.427014      -611.981528      -671.408542
-   valence chg            23.988747         8.011253        32.000000
+   rhoval*vef            -53.564706      -121.377552      -174.942258
+   rhoval*ves            -73.690287       -52.428106      -126.118393
+   psnuc*ves             498.327326    -60209.442706    -59711.115380
+   utot                  212.318520    -30130.935406    -29918.616886
+   rho*exc               -45.445616      -461.641947      -507.087563
+   rho*vxc               -59.427012      -611.981530      -671.408541
+   valence chg            23.988745         8.011255        32.000000
    core charge            80.000000        -0.000001        79.999999
 
  Charges:  valence    32.00000   cores    80.00000   nucleii  -112.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
   m_bandcal_init: start
  bndfp: kpt     1 of     6 k=  0.1250  0.1250  0.0884 ndimh = nmto+napw =   108  108    0
- ... Done MPI k-loop: elapsed time=   0.2932
+ ... Done MPI k-loop: elapsed time=   0.1521
 
  BZWTS : --- Non-metal sampling ---
  Fermi energy: 0.344997;  32 electrons;  Sum occ. bands: -4.660890
  VBmax = 0.344997  CBmin = 0.439674  gap = 0.094677 Ry = 1.28760 eV
  HOMO; Ef; LUMO =   0.344997   0.392336   0.439674
-Generating TDOS: efermi, and dos window=    0.3923  -0.5000   1.8923
+Generating TDOS: efermi, and dos window=    0.3923  -0.0703   1.8923
 
 
 
+
+ getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
+ sum q= 2.00  sum ec=   -71.85399  sum tc=   115.04370  rho(rmax) 0.00000
 
 
 
@@ -1102,25 +1122,22 @@ Generating TDOS: efermi, and dos window=    0.3923  -0.5000   1.8923
 
 
 
-
-
-
  getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
  sum q= 2.00  sum ec=   -71.85399  sum tc=   115.04370  rho(rmax) 0.00000
 
- getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
- sum q= 2.00  sum ec=   -71.85399  sum tc=   115.04370  rho(rmax) 0.00000
+
 
  getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
+
  sum q= 2.00  sum ec=   -71.85399  sum tc=   115.04370  rho(rmax) 0.00000
 
  mkrout:  Qtrue      sm,loc       local
-   1    1.877225    1.525460    0.351764
-   2    1.877225    1.525460    0.351764
-   3    5.043794    3.860056    1.183737
-   4    5.068510    3.868163    1.200347
-   5    5.043794    3.860056    1.183737
-   6    5.068510    3.868163    1.200347
+   1    1.877224    1.525461    0.351763
+   2    1.877224    1.525461    0.351763
+   3    5.043794    3.860056    1.183738
+   4    5.068510    3.868162    1.200347
+   5    5.043794    3.860055    1.183738
+   6    5.068509    3.868162    1.200347
 
  Symmetrize density..
 
@@ -1135,13 +1152,13 @@ Generating TDOS: efermi, and dos window=    0.3923  -0.5000   1.8923
 
  site    1   species   1:Zr      
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
- 0     0    0.104731   -0.135726    5.500000    5.162392    5.500000    5.500000
+ 0     0    0.104731   -0.135727    5.500000    5.162392    5.500000    5.500000
  1     0    0.146032   -0.099231    5.250000    5.056252    5.250000    5.250000
  2     0    1.626461    0.030302    4.464700    4.726970    4.147584    4.726970
 
  site    2   species   1:Zr      
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
- 0     0    0.104731   -0.135726    5.500000    5.162392    5.500000    5.500000
+ 0     0    0.104731   -0.135727    5.500000    5.162392    5.500000    5.500000
  1     0    0.146032   -0.099231    5.250000    5.056252    5.250000    5.250000
  2     0    1.626461    0.030302    4.464700    4.726970    4.147584    4.726970
 
@@ -1170,15 +1187,15 @@ Generating TDOS: efermi, and dos window=    0.3923  -0.5000   1.8923
  2     0    0.029344    0.074540    3.181812    3.190261    3.147584    3.190261
 
  Harris energy:
- sumev=       -4.660890  val*vef=    -174.942259   sumtv=     170.281370
+ sumev=       -4.660890  val*vef=    -174.942258   sumtv=     170.281368
  sumec=     -287.415949  cor*vef=    -748.486336   ttcor=   15275.952894
- rhoeps=    -507.087563     utot=  -29918.616888    ehar=  -14979.470188
+ rhoeps=    -507.087563     utot=  -29918.616886    ehar=  -14979.470188
 
- srhov:    -54.205401   -106.420764   -160.626165 sumev=   -4.660890   sumtv=  155.965276
+ srhov:    -54.205419   -106.420742   -160.626161 sumev=   -4.660890   sumtv=  155.965271
  esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.567051  avg sphere pot= 0.299828  vconst=-0.567051
 
- smooth rhoves    224.013133   charge    26.528304
+ smooth rhoves    224.013130   charge    26.528303
  smvxcm: all smrho_w is positive
  smooth rhoeps =  -47.407289   rhomu =  -61.981043  avg vxc =   -0.938346 
 
@@ -1199,21 +1216,21 @@ Generating TDOS: efermi, and dos window=    0.3923  -0.5000   1.8923
  site  6  z=  8.0  rmt= 1.80000  nr=231   a=0.030  nlml= 9  rg=0.450  Vfloat=F
 
  Energy terms:             smooth           local           total
-   rhoval*vef            -67.191660      -109.965721      -177.157381
-   rhoval*ves            -90.038037       -42.861412      -132.899449
-   psnuc*ves             538.064303    -60212.708470    -59674.644167
-   utot                  224.013133    -30127.784941    -29903.771808
-   rho*exc               -47.407289      -456.470744      -503.878033
+   rhoval*vef            -67.191671      -109.965706      -177.157377
+   rhoval*ves            -90.038036       -42.861409      -132.899445
+   psnuc*ves             538.064297    -60212.708459    -59674.644163
+   utot                  224.013130    -30127.784934    -29903.771804
+   rho*exc               -47.407289      -456.470744      -503.878032
    rho*vxc               -61.981043      -605.183547      -667.164590
-   valence chg            26.528304         5.471696        32.000000
+   valence chg            26.528303         5.471697        32.000000
    core charge            80.000000        -0.000001        79.999999
 
  Charges:  valence    32.00000   cores    80.00000   nucleii  -112.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
 
  Kohn-Sham energy:
- sumtv=      155.965276  sumtc=     15275.057293   ekin=    15431.022568
- rhoep=     -503.878033   utot=    -29903.771808   ehks=   -14976.627272
+ sumtv=      155.965271  sumtc=     15275.057293   ekin=    15431.022564
+ rhoep=     -503.878032   utot=    -29903.771804   ehks=   -14976.627273
  smvxcm: all smrho_w is positive
  smvxcm: all smrho_w is positive
  smvxcm: all smrho_w is positive
@@ -1222,11 +1239,11 @@ Generating TDOS: efermi, and dos window=    0.3923  -0.5000   1.8923
   ib         delta-n dVes             delta-n dVxc               total
    1    0.00    0.00   -0.00     0.00    0.00    0.00    -0.00   -0.00   -0.00
    2    0.00   -0.00    0.00    -0.00   -0.00   -0.00     0.00    0.00    0.00
-   3    0.00   -0.00   60.94     0.00   -0.00   -0.76    -0.00    0.00  -60.19
+   3   -0.00   -0.00   60.94     0.00   -0.00   -0.76    -0.00    0.00  -60.19
    4   -0.00   -0.00   60.94    -0.00    0.00   -0.76     0.00   -0.00  -60.19
-   5   -0.00   -0.00  -60.94    -0.00    0.00    0.76     0.00   -0.00   60.19
-   6    0.00   -0.00  -60.94     0.00   -0.00    0.76    -0.00    0.00   60.19
- shift forces to make zero average correction:           -0.00   -0.00   -0.00
+   5    0.00    0.00  -60.94    -0.00    0.00    0.76     0.00   -0.00   60.19
+   6   -0.00   -0.00  -60.94     0.00   -0.00    0.76    -0.00    0.00   60.19
+ shift forces to make zero average correction:            0.00    0.00   -0.00
 
  Forces, with eigenvalue correction
   ib           estatic                  eigval                    total
@@ -1244,13 +1261,13 @@ Generating TDOS: efermi, and dos window=    0.3923  -0.5000   1.8923
  mixrealsmooth= T
  wgtsmooth=   8.5051727179971462E-003
  mixrho:  sought 1 iter from file mixm; read 1.  RMS DQ=2.85e-2
- AMIX: nmix=1 mmix=8  nelts= 18016  beta=1.00000  tm= 5.00000  rmsdel=2.85D-02
+ AMIX: nmix=1 mmix=8  nelts= 18016  beta=1.00000  tm= 5.00000  rmsdel= 2.85D-02
    tj: 0.52762
- mixrho: add corrections to qcell smrho = -0.96100D-07 -0.22441D-09
+ mixrho: add corrections to qcell smrho = -0.93474D-07 -0.21827D-09
  unscreened rms difference:  smooth  0.011535   local  0.048179
    screened rms difference:  smooth  0.011535   local  0.048179   tot  0.028505
 
-   it  1  of  1    ehf=  -14979.470188   ehk=  -14976.627272
-x nitq=1 force=1 fp=1 ehf(eV)=-203807.6754786 ehk(eV)=-203768.9953436 sev(eV)=-63.4151347
- >>      0.79   exit  lmfp            0.75
+   it  1  of  1    ehf=  -14979.470188   ehk=  -14976.627273
+x nitq=1 force=1 fp=1 ehf(eV)=-203807.6754804 ehk(eV)=-203768.9953452 sev(eV)=-63.4151389
+ >>      0.56   exit  lmfp            0.50
 OK! end of LMF ======================

@@ -1,6 +1,8 @@
-===START LMFA   =====================================
+=== START LFMA ===
  mpisize=           1
  HEADER CoPt (l12)
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
 
 mmm === MTO setting ===
 mmm ispec lmxb lpzex nkapii nkaphh=    1    2    0    2    2
@@ -17,29 +19,6 @@ mmm rsmh2    2  0.00  0.00  0.00
 mmm  eh2     2  0.00  0.00  0.00
 mmm pz       2  0.00  0.00  0.00
 mmm lh       2  2 -1
-
-                Plat                                  Qlat
-   1.000000   0.000000   0.000000        1.000000   0.000000   0.000000
-   0.000000   1.000000   0.000000        0.000000   1.000000   0.000000
-   0.000000   0.000000   1.000000        0.000000   0.000000   1.000000
-  Cell vol= 371.167908
-
- LATTC:  as= 2.000   tol=1.00E-08   alat= 7.18660   awald= 0.278
-         r1=  2.896   nkd=  93      q1=  3.440   nkg= 171
-
- SGROUP: 1 symmetry operations from 0 generators
- ADDBAS: basis is already complete --- no sites added
- SYMLAT: Bravais system is cubic with 48 symmetry operations.
- SYMCRY: crystal invariant under 1 symmetry operations for tol=1e-5
- GROUPG: the following are sufficient to generate the space group:
- MKSYM:  found 1 space group operations; adding inversion generated 2 ops
-
- SPLCLS:  2 species split into 4 classes
- Species  Class      Sites...
- Co       1:Co       2
-          3:Co2      3
-          4:Co3      4
- Pt       2:Pt       1
  goto freats
 
 ttt: pnu qat=  1  0     4.660     2.000
@@ -489,9 +468,17 @@ conf: Core rhoc(rmt)= 0.019220 spillout= 0.029522
  write free atom data for species  Pt
 Sum of reference energies:                 -45150.436099999999
 OK! end of LMFA ======================
-===START LMF   =====================================
+===START LMF   ===
  mpisize=           4
  HEADER CoPt (l12)
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
   bndfp (warning): no sigm file found ... LDA calculation only
 
 mmm === MTO setting ===
@@ -516,13 +503,18 @@ mmm lh       2  2 -1
    0.000000   0.000000   1.000000        0.000000   0.000000   1.000000
   Cell vol= 371.167908
 
- LATTC:  as= 2.000   tol=1.00E-08   alat= 7.18660   awald= 0.278
+ LATTC:  as= 2.000   tol= 1.00E-08   alat= 7.18660   awald= 0.278
          r1=  2.896   nkd=  93      q1=  3.440   nkg= 171
 
  SGROUP: 1 symmetry operations from 0 generators
  ADDBAS: basis is already complete --- no sites added
  SYMLAT: Bravais system is cubic with 48 symmetry operations.
  warnig in mkqp: iv_a_oidtet is not allocated. but continue.
+ warnig in mkqp: iv_a_oidtet is not allocated. but continue.
+ warnig in mkqp: iv_a_oidtet is not allocated. but continue.
+ end of reading rst or atm
+ end of reading rst or atm
+ end of reading rst or atm
  SYMCRY: crystal invariant under 1 symmetry operations for tol=1e-5
  GROUPG: the following are sufficient to generate the space group:
  MKSYM:  found 1 space group operations; adding inversion generated 2 ops
@@ -532,24 +524,15 @@ mmm lh       2  2 -1
  Co       1:Co       2
           3:Co2      3
           4:Co3      4
- warnig in mkqp: iv_a_oidtet is not allocated. but continue.
- warnig in mkqp: iv_a_oidtet is not allocated. but continue.
  Pt       2:Pt       1
  
  BZMESH:      4 irreducible QP from    2   2   2 shift=TTT
  warnig in mkqp: iv_a_oidtet is not allocated. but continue.
- >> level: 1  CPUsec=      0.03  enter lmfp
  gen_hamindex: not readin QGpsi.
-
- species data:  augmentation                           density
- spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
- Co       2.500  1.000    3    4         3  0.625  1.250    15    1   1.000
- Pt       2.443  0.977    4    5         4  0.611  1.222    15    1   0.977
 
  GVLST2: gmax = 6.994 a.u. created 2103 vectors of 4096 (51%)
          (input) mesh has 16 x 16 x 16 divisions; length 0.449, 0.449, 0.449
  SGVSYM: 2103 symmetry stars found for 2103 reciprocal lattice vectors
- goto end of reading rst or atm           0
 
  sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-07
  spec      l    rsm    eh     gmax    last term    cutoff
@@ -560,11 +543,25 @@ mmm lh       2  2 -1
   Pt       0*   2.25  -0.05   3.569    1.90E-07     257 
   Pt       1    2.25  -0.05   3.711    1.02E-07     341 
   Pt       2    0.95  -0.15   9.563    1.08E-03    2103*
+ end of reading rst or atm
+ m_qplistinit:start
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    3, (    4 1),  (    4 2)
  goto end of reading rst or atm           0
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    2, (    3 1),  (    3 2)
+ goto end of reading rst or atm           0
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    1, (    2 1),  (    2 2)
+ goto end of reading rst or atm           0
+ DSTRBP, single:  nloop = 8  np = 4  times = 2  rem2 = 0
+ DSTRBP: i   inode   xnode   block=    1
+         0      0      2
+         1      2      2
+         2      4      2
+         3      6      2
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    0, (    1 1),  (    1 2)
+ goto end of reading rst or atm           0
+ >> level: 1  CPUsec=      0.04  enter rdovfa
 
  rdovfa: read and overlap free-atom densities (mesh density) ...
- goto end of reading rst or atm           0
- goto end of reading rst or atm           0
  rdovfa: expected Co,      read Co       with rmt=  2.4996  mesh   329  0.030
  rdovfa: expected Pt,      read Pt       with rmt=  2.4434  mesh   397  0.030
 
@@ -590,20 +587,16 @@ mmm lh       2  2 -1
  Sum of nuclear charges:        -159.000000
  Homogeneous background:           0.000000
  Deviation from neutrality:       -0.000001
+ >>      0.05   exit  rdovfa          0.01
  end of reading rst or atm
- m_qplistinit:start
-m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    2, (    3 1),  (    3 2)
- DSTRBP, single:  nloop = 8  np = 4  times = 2  rem2 = 0
- DSTRBP: i   inode   xnode   block=    1
-         0      0      2
-         1      2      2
-         2      4      2
-         3      6      2
-m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    0, (    1 1),  (    1 2)
+
+ species data:  augmentation                           density
+ spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
+ Co       2.500  1.000    3    4         3  0.625  1.250    15    1   1.000
+ Pt       2.443  0.977    4    5         4  0.611  1.222    15    1   0.977
+ >> level: 1  CPUsec=      0.05  enter lmfp
  end of reading rst or atm
-m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    1, (    2 1),  (    2 2)
  end of reading rst or atm
-m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    3, (    4 1),  (    4 2)
 
  Basis, after reading restart file
  site spec        pos (Cartesian coordinates)         pos (multiples of plat)
@@ -918,18 +911,18 @@ m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    3, (    4 1),  (    
   m_bandcal_init: start
  bndfp: kpt     1 of     4 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    45   45    0
  bndfp: kpt     1 of     4 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    45   45    0
- ... Done MPI k-loop: elapsed time=   0.0410
+ ... Done MPI k-loop: elapsed time=   0.0392
 
  BZWTS : --- Brillouin Zone sampling; N=-1, W=.005 ---
- Fermi energy, -0.05883 found after 43 bisections, 37 electrons, DOS(E_f)=20.98
+ Fermi energy, -0.05883 found after 44 bisections, 37 electrons, DOS(E_f)=20.98
  Writing CV(T) to file for 2 vals of T: 158,790 (K)
  T=789.5K, E_F=-0.05883, sumev=-8.908339, TS=0.0026, 37 electrons
  Entropy S=0.519851 k_B,  specific heat TdS/dT=1.593702 k_B (Fermi-Dirac)
          Mag. moment:      -4.899583
-Generating TDOS: efermi, and dos window=   -0.0588  -0.5000   1.4412
+Generating TDOS: efermi, and dos window=   -0.0588  -0.6108   1.4412
 
  MAKDOS :  range of gaussians is  6.00W (  12 bins).
-           Error estimate in DOS : 6.96E-05 per state.
+           Error estimate in DOS :  6.96E-05 per state.
  bndfp: kpt    1 of    4 k isp=  0.2500  0.2500  0.2500 1 ndimh nev=   45   33
  -0.5230 -0.3190 -0.3185 -0.2929 -0.2592 -0.2580 -0.2347 -0.1916 -0.1630
  -0.1587 -0.1575 -0.1383 -0.1355 -0.0999 -0.0943 -0.0902 -0.0431 -0.0406
@@ -977,14 +970,14 @@ Generating TDOS: efermi, and dos window=   -0.0588  -0.5000   1.4412
        contr. to mm extrapolated for r>rmt:  -0.073061 est. true mm =-0.977957
 
  mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
-   1    5.856797    4.973257    0.883540     -0.904896   -0.634458   -0.270439
-   2    9.190922    3.361590    5.829332     -1.311497   -0.157962   -1.153535
+   1    5.856797    4.973257    0.883539     -0.904896   -0.634458   -0.270439
+   2    9.190922    3.361590    5.829332     -1.311496   -0.157962   -1.153535
    3    9.178493    3.373229    5.805264     -1.330918   -0.161453   -1.169466
-   4    9.179981    3.371995    5.807986     -1.329075   -0.161298   -1.167777
+   4    9.179981    3.371996    5.807986     -1.329075   -0.161298   -1.167777
 
  Symmetrize density..
                 qbyl        hbyl        ebar   
-ib=  2 l= 0    0.253950   -0.102499   -0.403620   spin 2    0.273931   -0.111124   -0.405664
+ib=  2 l= 0    0.253950   -0.102499   -0.403620   spin 2    0.273932   -0.111124   -0.405664
 ib=  2 l= 1    0.260325   -0.068392   -0.262718   spin 2    0.271656   -0.075101   -0.276455
 ib=  2 l= 2    3.413192   -0.585887   -0.171654   spin 2    4.691047   -1.214636   -0.258926
 ib=  2 l= 3    0.012245   -0.002367   -0.193322   spin 2    0.014575   -0.003160   -0.216796
@@ -1031,7 +1024,7 @@ ib=  4 l= 3    0.012560   -0.002420   -0.192689   spin 2    0.014926   -0.003215
  site    2   species   1:Co      
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
  0     0    0.253950   -0.403620    4.660000    4.650234    4.500000    4.650234
- spn 2 0    0.273931   -0.405664    4.660000    4.674377    4.500000    4.674377
+ spn 2 0    0.273932   -0.405664    4.660000    4.674377    4.500000    4.674377
  1     0    0.260325   -0.262718    4.410000    4.383885    4.250000    4.383885
  spn 2 0    0.271656   -0.276455    4.410000    4.397078    4.250000    4.397078
  2     0    3.413192   -0.171654    3.830000    3.824313    3.147584    3.824313
@@ -1062,19 +1055,19 @@ ib=  4 l= 3    0.012560   -0.002420   -0.192689   spin 2    0.014926   -0.003215
  spn 2 0    0.014926   -0.215364    4.130000    4.123506    4.102416    4.123506
 
  Harris energy:
- sumev=       -8.908339  val*vef=    -498.202542   sumtv=     489.294203
+ sumev=       -8.908339  val*vef=    -498.202542   sumtv=     489.294202
  sumec=        0.000000  cor*vef=       0.000000   ttcor=   49805.961065
- rhoeps=   -1034.784909     utot=  -94413.170158    ehar=  -45152.699799
+ rhoeps=   -1034.784909     utot=  -94413.170158    ehar=  -45152.699800
 
- srhov:    -37.909136   -453.968711   -491.877847 sumev=   -8.908339   sumtv=  482.969508
+ srhov:    -37.909139   -453.968712   -491.877851 sumev=   -8.908339   sumtv=  482.969512
 
  rhomom:   ib   ilm      qmom        Qval       Qc        Z
-            1     1    0.249242    0.883540    68.00    78.00
+            1     1    0.249242    0.883539    68.00    78.00
             1     2   -0.006561
             1     3   -0.018729
             1     4   -0.002918
             1     5    0.000009
-            1     6   -0.000281
+            1     6   -0.000282
             1     7   -0.000431
             1     8   -0.000203
             1     9   -0.000019
@@ -1089,14 +1082,14 @@ ib=  4 l= 3    0.012560   -0.002420   -0.192689   spin 2    0.014926   -0.003215
             1    18   -0.001507
             1    19   -0.000401
             1    20    0.000637
-            1    21   -0.017205
+            1    21   -0.017206
             1    22    0.000087
             1    23   -0.000364
             1    24    0.000666
             1    25   -0.012070
             2     1    1.644424    5.829332    18.00    27.00
             2     2    0.001938
-            2     3    0.000291
+            2     3    0.000290
             2     4   -0.001220
             2     5   -0.000076
             2     6    0.000347
@@ -1112,28 +1105,28 @@ ib=  4 l= 3    0.012560   -0.002420   -0.192689   spin 2    0.014926   -0.003215
             2    16   -0.000815
             3     1    1.637635    5.805264    18.00    27.00
             3     2    0.001771
-            3     3    0.009249
+            3     3    0.009250
             3     4    0.001576
             3     5   -0.000111
             3     6   -0.001315
             3     7   -0.007537
             3     8    0.000589
             3     9    0.014789
-            3    10   -0.003003
+            3    10   -0.003004
             3    11   -0.000002
             3    12    0.004291
             3    13   -0.003837
             3    14    0.001403
             3    15   -0.010967
             3    16    0.000745
-            4     1    1.638403    5.807986    18.00    27.00
+            4     1    1.638402    5.807986    18.00    27.00
             4     2    0.002870
-            4     3    0.009291
+            4     3    0.009292
             4     4    0.002572
             4     5    0.000181
             4     6    0.000095
             4     7   -0.007241
-            4     8   -0.001201
+            4     8   -0.001202
             4     9   -0.014775
             4    10    0.000304
             4    11   -0.000012
@@ -1143,12 +1136,12 @@ ib=  4 l= 3    0.012560   -0.002420   -0.192689   spin 2    0.014926   -0.003215
             4    15    0.011008
             4    16    0.001558
 
- vesgcm: smooth density G=0 term =  -0.050311   0.000000   Q =   -18.673878
+ vesgcm: smooth density G=0 term =  -0.050311   0.000000   Q =   -18.673879
 
  after vesgcomp: forces are:
-   1    0.080439    0.194345    0.753436
-   2    0.022499   -0.065882    0.006177
-   3   -0.034121   -0.066936   -0.380016
+   1    0.080439    0.194345    0.753435
+   2    0.022499   -0.065882    0.006178
+   3   -0.034121   -0.066936   -0.380017
    4   -0.068817   -0.061527   -0.379597
  esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.678056  avg sphere pot= 0.696744  vconst=-0.678056
@@ -1162,10 +1155,10 @@ ib=  4 l= 3    0.012560   -0.002420   -0.192689   spin 2    0.014926   -0.003215
          2      2      1
          3      3      1
 
- smooth rhoves     86.371423   charge    18.673877
+ smooth rhoves     86.371425   charge    18.673878
  smvxcm: all smrho_w is positive
- smooth rhoeps =  -15.006769 (  -7.045717,  -7.961052)
-         rhomu =  -19.543728 (  -9.037676, -10.506051)
+ smooth rhoeps =  -15.006770 (  -7.045717,  -7.961052)
+         rhomu =  -19.543729 (  -9.037677, -10.506052)
        avg vxc =   -0.847028 (  -0.839183,  -0.854872)
 
  locpot:
@@ -1179,13 +1172,13 @@ ib=  4 l= 3    0.012560   -0.002420   -0.192689   spin 2    0.014926   -0.003215
   total:         -909.423560      -684.999127       73.827274
  exchange for smooth density, foca=1:
  mesh:   nth,nph= -62   0   gives  62  angular points,   nrad= 397
- vxcnsp: loc rmu=  -3.140021  rep=  -2.471271  q =   2.876011
+ vxcnsp: loc rmu=  -3.140022  rep=  -2.471271  q =   2.876012
  spin 2:           -4.025845        -3.021647        3.510469
-  total:           -7.165866        -5.492918        6.386480
+  total:           -7.165867        -5.492918        6.386481
 
  ilm                   rho*vtrue                              rho*vsm
              spin1       spin2       tot           spin1       spin2       tot
-   1     -39.599189  -56.770436  -96.369625    -10.179756  -13.713218  -23.892973
+   1     -39.599190  -56.770437  -96.369628    -10.179757  -13.713219  -23.892976
    2      -0.000013    0.000006   -0.000007     -0.000046   -0.000007   -0.000053
    3       0.000226    0.000276    0.000502      0.000117    0.000247    0.000364
    4      -0.000005   -0.000000   -0.000005     -0.000013   -0.000003   -0.000016
@@ -1202,11 +1195,11 @@ ib=  4 l= 3    0.012560   -0.002420   -0.192689   spin 2    0.014926   -0.003215
 
  local terms:     true           smooth         local
  rhoeps:      -684.999127      -5.492918    -679.506209
- rhomu:       -453.594111      -3.140021    -450.454090
+ rhomu:       -453.594111      -3.140022    -450.454090
  spin2:       -455.829449      -4.025845    -451.803604
- total:       -909.423560      -7.165866    -902.257694
- val*vef       -96.368753     -37.795881     -58.572872
- val chg:        5.856797       4.973257       0.883540
+ total:       -909.423560      -7.165867    -902.257694
+ val*vef       -96.368756     -37.795880     -58.572876
+ val chg:        5.856797       4.973257       0.883539
  val mom:       -0.904896      -0.634458      -0.270439    core:   0.000000
  core chg:      67.970478      67.970478      -0.000000
   ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   6.65414   6.64086   0.00000   0.00000
@@ -1221,16 +1214,16 @@ ib=  4 l= 3    0.012560   -0.002420   -0.192689   spin 2    0.014926   -0.003215
  mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 329
  vxcnsp: loc rmu= -74.612089  rep= -56.746401  q =  12.937422
  spin 2:          -79.169044       -59.459403       14.249119
-  total:         -153.781133      -116.205804       27.186540
+  total:         -153.781134      -116.205804       27.186540
  exchange for smooth density, foca=1:
  mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 329
  vxcnsp: loc rmu=  -1.517124  rep=  -1.178769  q =   1.730390
- spin 2:           -1.701332        -1.294102        1.888351
-  total:           -3.218456        -2.472871        3.618741
+ spin 2:           -1.701332        -1.294102        1.888352
+  total:           -3.218456        -2.472872        3.618742
 
  ilm                   rho*vtrue                              rho*vsm
              spin1       spin2       tot           spin1       spin2       tot
-   1     -50.906463  -74.631150 -125.537613     -2.062648   -2.392040   -4.454688
+   1     -50.906464  -74.631150 -125.537614     -2.062649   -2.392040   -4.454689
    2      -0.000049   -0.000064   -0.000113     -0.000076   -0.000094   -0.000170
    3      -0.000014   -0.000084   -0.000099     -0.000005   -0.000097   -0.000102
    4      -0.000002    0.000000   -0.000002     -0.000005   -0.000000   -0.000005
@@ -1242,13 +1235,13 @@ ib=  4 l= 3    0.012560   -0.002420   -0.192689   spin 2    0.014926   -0.003215
   16      -0.000001   -0.000001   -0.000001     -0.000001   -0.000001   -0.000002
 
  local terms:     true           smooth         local
- rhoeps:      -116.205804      -2.472871    -113.732933
+ rhoeps:      -116.205804      -2.472872    -113.732933
  rhomu:        -74.612089      -1.517124     -73.094965
- spin2:        -79.169044      -1.701332     -77.467713
- total:       -153.781133      -3.218456    -150.562678
- val*vef      -125.543402     -28.629939     -96.913463
+ spin2:        -79.169044      -1.701332     -77.467712
+ total:       -153.781134      -3.218456    -150.562678
+ val*vef      -125.543403     -28.629940     -96.913463
  val chg:        9.190922       3.361590       5.829332
- val mom:       -1.311497      -0.157962      -1.153535    core:  -0.000200
+ val mom:       -1.311496      -0.157962      -1.153535    core:  -0.000200
  core chg:      17.995618      17.995618      -0.000000
   ibas l=  2  0 pnu(1:nsp) pnz(1:nsp)=   4.65023   4.67438   0.00000   0.00000
   ibas l=  2  1 pnu(1:nsp) pnz(1:nsp)=   4.38389   4.39708   0.00000   0.00000
@@ -1261,12 +1254,12 @@ ib=  4 l= 3    0.012560   -0.002420   -0.192689   spin 2    0.014926   -0.003215
  mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 329
  vxcnsp: loc rmu= -74.546999  rep= -56.702155  q =  12.921496
  spin 2:          -79.167482       -59.453147       14.252615
-  total:         -153.714482      -116.155302       27.174111
+  total:         -153.714481      -116.155302       27.174111
  exchange for smooth density, foca=1:
  mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 329
- vxcnsp: loc rmu=  -1.521858  rep=  -1.182682  q =   1.734464
- spin 2:           -1.710134        -1.300566        1.895916
-  total:           -3.231992        -2.483247        3.630380
+ vxcnsp: loc rmu=  -1.521859  rep=  -1.182682  q =   1.734464
+ spin 2:           -1.710134        -1.300566        1.895917
+  total:           -3.231992        -2.483247        3.630381
 
  ilm                   rho*vtrue                              rho*vsm
              spin1       spin2       tot           spin1       spin2       tot
@@ -1286,10 +1279,10 @@ ib=  4 l= 3    0.012560   -0.002420   -0.192689   spin 2    0.014926   -0.003215
 
  local terms:     true           smooth         local
  rhoeps:      -116.155302      -2.483247    -113.672054
- rhomu:        -74.546999      -1.521858     -73.025141
+ rhomu:        -74.546999      -1.521859     -73.025141
  spin2:        -79.167482      -1.710134     -77.457348
- total:       -153.714482      -3.231992    -150.482489
- val*vef      -125.452226     -28.892084     -96.560142
+ total:       -153.714481      -3.231992    -150.482489
+ val*vef      -125.452226     -28.892085     -96.560141
  val chg:        9.178493       3.373229       5.805264
  val mom:       -1.330918      -0.161453      -1.169466    core:  -0.000200
  core chg:      17.995618      17.995618      -0.000000
@@ -1309,7 +1302,7 @@ ib=  4 l= 3    0.012560   -0.002420   -0.192689   spin 2    0.014926   -0.003215
  mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 329
  vxcnsp: loc rmu=  -1.521332  rep=  -1.182260  q =   1.733925
  spin 2:           -1.709366        -1.299995        1.895222
-  total:           -3.230698        -2.482255        3.629147
+  total:           -3.230699        -2.482255        3.629147
 
  ilm                   rho*vtrue                              rho*vsm
              spin1       spin2       tot           spin1       spin2       tot
@@ -1330,11 +1323,11 @@ ib=  4 l= 3    0.012560   -0.002420   -0.192689   spin 2    0.014926   -0.003215
 
  local terms:     true           smooth         local
  rhoeps:      -116.161638      -2.482255    -113.679383
- rhomu:        -74.554455      -1.521332     -73.033123
+ rhomu:        -74.554455      -1.521332     -73.033122
  spin2:        -79.168391      -1.709366     -77.459024
- total:       -153.722845      -3.230698    -150.492147
- val*vef      -125.464927     -28.861626     -96.603301
- val chg:        9.179981       3.371995       5.807986
+ total:       -153.722845      -3.230699    -150.492147
+ val*vef      -125.464927     -28.861627     -96.603300
+ val chg:        9.179981       3.371996       5.807986
  val mom:       -1.329075      -0.161298      -1.167777    core:  -0.000200
  core chg:      17.995618      17.995618      -0.000000
   ibas l=  4  0 pnu(1:nsp) pnz(1:nsp)=   4.65101   4.67536   0.00000   0.00000
@@ -1345,9 +1338,9 @@ ib=  4 l= 3    0.012560   -0.002420   -0.192689   spin 2    0.014926   -0.003215
  Electric Field Gradient:
  Site      Tensor axes     esu/cm^2    V/m^2      eta    line splitting
                             x10^13     x10^19                (mm/s)
-   1   -1.832 0.926 9.420    -27.43    -82.30      0.360      0.00000
-       63.021************    -12.91    -38.74
-       -0.082 0.043 0.406     40.35    121.04
+   1   -1.832 0.926 9.421    -27.43    -82.30      0.360      0.00000
+       62.635************    -12.92    -38.75
+       -0.082 0.043 0.406     40.35    121.05
 
    2    0.005 0.012 0.461    -93.75   -281.24      0.051      0.00000
         5.019 9.569******     44.49    133.46
@@ -1357,19 +1350,19 @@ ib=  4 l= 3    0.012560   -0.002420   -0.192689   spin 2    0.014926   -0.003215
        -0.056 0.806 3.888     37.57    112.72
        -0.109 1.085 5.207     58.10    174.30
 
-   4   -3.353-1.627******    -94.26   -282.79      0.215      0.00000
+   4   -3.352-1.627******    -94.26   -282.79      0.215      0.00000
         0.134-0.077 0.313     37.00    110.99
        -0.332 0.101-1.075     57.27    171.80
 
 
  Energy terms:             smooth           local           total
-   rhoval*vef            -39.985897      -435.372374      -475.358270
-   rhoval*ves           -109.665614      -290.039440      -399.705054
-   psnuc*ves             282.408460   -188687.246705   -188404.838246
-   utot                   86.371423    -94488.643073    -94402.271650
-   rho*exc               -15.006769     -1020.590579     -1035.597348
-   rho*vxc               -19.543728     -1353.795008     -1373.338736
-   valence chg            18.673877        18.326122        36.999999
+   rhoval*vef            -39.985901      -435.372374      -475.358274
+   rhoval*ves           -109.665614      -290.039443      -399.705057
+   psnuc*ves             282.408464   -188687.246715   -188404.838250
+   utot                   86.371425    -94488.643079    -94402.271654
+   rho*exc               -15.006770     -1020.590579     -1035.597349
+   rho*vxc               -19.543729     -1353.795007     -1373.338736
+   valence chg            18.673878        18.326121        36.999999
    valence mag            -1.138365        -3.761217        -4.899582
    core charge           122.000000        -0.000000       122.000000
 
@@ -1377,8 +1370,8 @@ ib=  4 l= 3    0.012560   -0.002420   -0.192689   spin 2    0.014926   -0.003215
     hom background     0.00000   deviation from neutrality:     -0.00000
 
  Kohn-Sham energy:
- sumtv=      482.969508  sumtc=     49805.961065   ekin=    50288.930573
- rhoep=    -1035.597348   utot=    -94402.271650   ehks=   -45148.938425
+ sumtv=      482.969512  sumtc=     49805.961065   ekin=    50288.930577
+ rhoep=    -1035.597349   utot=    -94402.271654   ehks=   -45148.938425
  mag. mom=    -4.899582
  smvxcm: all smrho_w is positive
  smvxcm: all smrho_w is positive
@@ -1397,9 +1390,9 @@ ib=  4 l= 3    0.012560   -0.002420   -0.192689   spin 2    0.014926   -0.003215
    1   -8.31  -18.75  -64.18     1.21    4.82   31.37    -7.10  -13.93  -32.81
   KS   42.96  100.95  330.53   -35.60  -78.75 -217.84     7.36   22.20  112.69
    2   -4.21    1.87    7.33     2.23    0.51    4.84    -1.97    2.38   12.17
-  KS    4.58   -1.50 -146.82   -12.80   18.87   32.87    -8.22   17.37 -113.95
+  KS    4.58   -1.50 -146.82   -12.80   18.87   32.86    -8.22   17.37 -113.95
    3    7.88    2.24   28.47    -3.58    0.83  -18.21     4.30    3.07   10.26
-  KS  -49.77    0.02  -91.64    21.84   18.21   92.22   -27.93   18.24    0.59
+  KS  -49.77    0.02  -91.64    21.84   18.21   92.23   -27.93   18.24    0.59
    4    4.63   14.64   28.39     0.14   -6.16  -18.00     4.77    8.48   10.38
   KS    2.23  -99.47  -92.08    26.56   41.66   92.75    28.80  -57.81    0.68
  Maximum Harris force = 36.3 mRy/au (site 1)  Max eval correction = 265.4
@@ -1408,17 +1401,17 @@ ib=  4 l= 3    0.012560   -0.002420   -0.192689   spin 2    0.014926   -0.003215
  mixrealsmooth= T
  wgtsmooth=   1.5625000000000000E-002
  mixrho:  sought 8 iter from file mixm; read 0.  RMS DQ=5.90e-2
- AMIX: nmix=0 mmix=8  nelts= 16356  beta=0.30000  tm= 5.00000  rmsdel=2.95D-02
- mixrho: add corrections to qcell smrho =  0.77006D-06  0.10374D-08
+ AMIX: nmix=0 mmix=8  nelts= 16356  beta=0.30000  tm= 5.00000  rmsdel= 2.95D-02
+ mixrho: add corrections to qcell smrho =  0.77675D-06  0.10464D-08
  unscreened rms difference:  smooth  0.048308   local  0.049017
    screened rms difference:  smooth  0.047485   local  0.049017   tot  0.058964
 
  iors  : write restart file (binary, mesh density) 
          id -  
-         written by -  takao on  at: Fri Oct  8 18:42:32 2021
+         written by -  takao on  at: Sat Jan 15 14:46:10 2022
 
-   it  1  of  3    ehf=      -2.263699   ehk=       1.497675
-h nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.899582 ehf(eV)=-30.7994419 ehk(eV)=20.3770683 sev(eV)=-121.20508
+   it  1  of  3    ehf=      -2.263700   ehk=       1.497675
+h nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.899582 ehf(eV)=-30.7994441 ehk(eV)=20.3770617 sev(eV)=-121.2050822
 
  --- BNDFP:  begin iteration 2 of 3
 
@@ -1499,9 +1492,9 @@ h nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.899582 ehf(eV
  vesgcm: smooth density G=0 term =  -0.058607   0.000000   Q =   -21.753183
 
  after vesgcomp: forces are:
-   1    0.049997    0.124499    0.542289
-   2    0.028565   -0.074949    0.191433
-   3    0.008577   -0.077157   -0.367212
+   1    0.049997    0.124499    0.542290
+   2    0.028565   -0.074949    0.191434
+   3    0.008578   -0.077157   -0.367212
    4   -0.087139    0.027608   -0.366511
  esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.697316  avg sphere pot= 0.700513  vconst=-0.697316
@@ -1515,10 +1508,10 @@ h nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.899582 ehf(eV
          2      2      1
          3      3      1
 
- smooth rhoves     79.369323   charge    21.753183
+ smooth rhoves     79.369324   charge    21.753183
  smvxcm: all smrho_w is positive
  smooth rhoeps =  -19.182050 (  -8.987628, -10.194422)
-         rhomu =  -25.012874 ( -11.542111, -13.470764)
+         rhomu =  -25.012875 ( -11.542111, -13.470764)
        avg vxc =   -0.861098 (  -0.849078,  -0.873117)
 
  locpot:
@@ -1528,7 +1521,7 @@ h nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.899582 ehf(eV
  Exchange for true density:
  mesh:   nth,nph= -62   0   gives  62  angular points,   nrad= 397
  vxcnsp: loc rmu=-457.557987  rep=-344.718219  q =  38.015401
- spin 2:         -458.244248      -345.130179       38.281634
+ spin 2:         -458.244249      -345.130179       38.281634
   total:         -915.802235      -689.848397       76.297036
  exchange for smooth density, foca=1:
  mesh:   nth,nph= -62   0   gives  62  angular points,   nrad= 397
@@ -1538,7 +1531,7 @@ h nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.899582 ehf(eV
 
  ilm                   rho*vtrue                              rho*vsm
              spin1       spin2       tot           spin1       spin2       tot
-   1     -61.503339  -66.212835 -127.716174    -19.578219  -20.360003  -39.938221
+   1     -61.503339  -66.212835 -127.716174    -19.578219  -20.360003  -39.938222
    2      -0.000044   -0.000035   -0.000079     -0.000057   -0.000042   -0.000099
    3      -0.000500   -0.000431   -0.000931     -0.000614   -0.000503   -0.001116
    4      -0.000009   -0.000007   -0.000015     -0.000011   -0.000008   -0.000019
@@ -1552,9 +1545,9 @@ h nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.899582 ehf(eV
  local terms:     true           smooth         local
  rhoeps:      -689.848397      -9.221426    -680.626971
  rhomu:       -457.557987      -5.880491    -451.677496
- spin2:       -458.244248      -6.168037    -452.076211
+ spin2:       -458.244249      -6.168037    -452.076211
  total:       -915.802235     -12.048528    -903.753707
- val*vef      -127.717810     -47.132924     -80.584886
+ val*vef      -127.717811     -47.132924     -80.584887
  val chg:        8.326558       7.773789       0.552769
  val mom:       -0.266233      -0.185101      -0.081131    core:   0.000000
  core chg:      67.970478      67.970478      -0.000000
@@ -1568,7 +1561,7 @@ h nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.899582 ehf(eV
  potpus  spin 1 : pnu = 6.654144 6.278372 5.811343 5.139656 5.091081
 
  l,E        a      <phi phi>       a*D        a*Ddot      phi(a)      phip(a)
- 0      2.443392    1.000000    -1.285313   16.951376    0.475856   -0.115234
+ 0      2.443392    1.000000    -1.285312   16.951376    0.475856   -0.115234
  1      2.443392    1.000000     2.042485   27.193592    0.584694   -0.068000
  2      2.443392    1.000000    -3.628185    8.007313    0.253784   -0.338653
  3      2.443392    1.000000     5.207059   25.085875    0.683982   -0.073544
@@ -1578,7 +1571,7 @@ h nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.899582 ehf(eV
 
  l,E        a      <phi phi>       a*D        a*Ddot      phi(a)      phip(a)
  0      2.443392    1.000000    -1.157853   17.068086    0.479029   -0.114539
- 1      2.443392    1.000000     2.196464   27.683878    0.588160   -0.066708
+ 1      2.443392    1.000000     2.196464   27.683877    0.588160   -0.066708
  2      2.443392    1.000000    -4.573530    7.704208    0.234283   -0.347653
  3      2.443392    1.000000     5.399424   25.478784    0.690419   -0.072131
  4      2.443392    1.000000     8.444784   35.650572    0.813630   -0.045171
@@ -1592,13 +1585,13 @@ h nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.899582 ehf(eV
   total:         -151.386623      -114.386421       26.363454
  exchange for smooth density, foca=1:
  mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 329
- vxcnsp: loc rmu=  -1.446726  rep=  -1.148271  q =   1.641455
+ vxcnsp: loc rmu=  -1.446727  rep=  -1.148271  q =   1.641455
  spin 2:           -1.975426        -1.479834        2.080975
   total:           -3.422152        -2.628105        3.722430
 
  ilm                   rho*vtrue                              rho*vsm
              spin1       spin2       tot           spin1       spin2       tot
-   1     -45.036684  -76.741074 -121.777758     -3.101031   -4.544775   -7.645806
+   1     -45.036684  -76.741074 -121.777758     -3.101031   -4.544775   -7.645807
    2      -0.000010   -0.000009   -0.000019     -0.000011   -0.000010   -0.000021
    3      -0.000020   -0.000025   -0.000046     -0.000021   -0.000026   -0.000047
    4      -0.000014   -0.000012   -0.000026     -0.000015   -0.000013   -0.000028
@@ -1611,10 +1604,10 @@ h nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.899582 ehf(eV
 
  local terms:     true           smooth         local
  rhoeps:      -114.386421      -2.628105    -111.758316
- rhomu:        -72.773549      -1.446726     -71.326823
+ rhomu:        -72.773549      -1.446727     -71.326823
  spin2:        -78.613074      -1.975426     -76.637648
  total:       -151.386623      -3.422152    -147.964471
- val*vef      -121.778924     -34.476796     -87.302129
+ val*vef      -121.778925     -34.476796     -87.302129
  val chg:        8.367836       3.465279       4.902557
  val mom:       -1.778463      -0.439521      -1.338943    core:  -0.000200
  core chg:      17.995618      17.995618      -0.000000
@@ -1627,7 +1620,7 @@ h nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.899582 ehf(eV
  potpus  spin 1 : pnu = 4.650234 4.383885 3.824313 4.123179
 
  l,E        a      <phi phi>       a*D        a*Ddot      phi(a)      phip(a)
- 0      2.499562    1.000000    -1.275910   15.637778    0.444889   -0.132896
+ 0      2.499562    1.000000    -1.275909   15.637778    0.444889   -0.132896
  1      2.499562    1.000000     0.954524   19.814420    0.524948   -0.101005
  2      2.499562    1.000000    -4.059234    5.005409    0.165755   -0.665557
  3      2.499562    1.000000     6.133485   29.820312    0.705836   -0.059809
@@ -1635,7 +1628,7 @@ h nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.899582 ehf(eV
  potpus  spin 2 : pnu = 4.674377 4.397078 3.885877 4.123355
 
  l,E        a      <phi phi>       a*D        a*Ddot      phi(a)      phip(a)
- 0      2.499562    1.000000    -1.525014   15.292890    0.436207   -0.136313
+ 0      2.499562    1.000000    -1.525013   15.292890    0.436207   -0.136313
  1      2.499562    1.000000     0.837598   19.481943    0.520225   -0.103101
  2      2.499562    1.000000    -6.670418    4.717876    0.122372   -0.717567
  3      2.499562    1.000000     6.123781   29.687165    0.704705   -0.060219
@@ -1674,7 +1667,7 @@ h nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.899582 ehf(eV
  rhomu:        -72.763491      -1.454743     -71.308748
  spin2:        -78.622228      -1.985186     -76.637042
  total:       -151.385719      -3.439928    -147.945790
- val*vef      -121.755037     -34.530288     -87.224749
+ val*vef      -121.755037     -34.530289     -87.224748
  val chg:        8.375821       3.480484       4.895337
  val mom:       -1.784293      -0.440571      -1.343722    core:  -0.000200
  core chg:      17.995618      17.995618      -0.000000
@@ -1687,7 +1680,7 @@ h nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.899582 ehf(eV
  potpus  spin 1 : pnu = 4.651093 4.384854 3.822914 4.123305
 
  l,E        a      <phi phi>       a*D        a*Ddot      phi(a)      phip(a)
- 0      2.499562    1.000000    -1.284421   15.629040    0.444677   -0.132962
+ 0      2.499562    1.000000    -1.284420   15.629040    0.444677   -0.132962
  1      2.499562    1.000000     0.945819   19.800688    0.524726   -0.101075
  2      2.499562    1.000000    -4.019561    5.012739    0.166306   -0.665731
  3      2.499562    1.000000     6.126552   29.807503    0.705651   -0.059840
@@ -1695,7 +1688,7 @@ h nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.899582 ehf(eV
  potpus  spin 2 : pnu = 4.675479 4.397876 3.886026 4.123519
 
  l,E        a      <phi phi>       a*D        a*Ddot      phi(a)      phip(a)
- 0      2.499562    1.000000    -1.536911   15.280819    0.435902   -0.136410
+ 0      2.499562    1.000000    -1.536910   15.280819    0.435902   -0.136410
  1      2.499562    1.000000     0.830636   19.470497    0.520044   -0.103161
  2      2.499562    1.000000    -6.679944    4.717873    0.122113   -0.718487
  3      2.499562    1.000000     6.114807   29.669597    0.704454   -0.060262
@@ -1705,7 +1698,7 @@ h nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.899582 ehf(eV
  Exchange for true density:
  mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 329
  vxcnsp: loc rmu= -72.764668  rep= -55.445337  q =  12.293334
- spin 2:          -78.621419       -58.940772       14.077271
+ spin 2:          -78.621420       -58.940772       14.077271
   total:         -151.386088      -114.386109       26.370605
  exchange for smooth density, foca=1:
  mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 329
@@ -1731,7 +1724,7 @@ h nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.899582 ehf(eV
  local terms:     true           smooth         local
  rhoeps:      -114.386109      -2.640286    -111.745823
  rhomu:        -72.764668      -1.453866     -71.310803
- spin2:        -78.621419      -1.984177     -76.637242
+ spin2:        -78.621420      -1.984177     -76.637242
  total:       -151.386088      -3.438043    -147.948045
  val*vef      -121.758827     -34.524522     -87.234305
  val chg:        8.374987       3.478833       4.896153
@@ -1746,7 +1739,7 @@ h nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.899582 ehf(eV
  potpus  spin 1 : pnu = 4.651013 4.384732 3.823131 4.123301
 
  l,E        a      <phi phi>       a*D        a*Ddot      phi(a)      phip(a)
- 0      2.499562    1.000000    -1.283631   15.629898    0.444697   -0.132955
+ 0      2.499562    1.000000    -1.283630   15.629898    0.444697   -0.132955
  1      2.499562    1.000000     0.946910   19.802454    0.524754   -0.101066
  2      2.499562    1.000000    -4.025672    5.011563    0.166217   -0.665721
  3      2.499562    1.000000     6.126755   29.807750    0.705654   -0.059839
@@ -1754,7 +1747,7 @@ h nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.899582 ehf(eV
  potpus  spin 2 : pnu = 4.675362 4.397857 3.886028 4.123506
 
  l,E        a      <phi phi>       a*D        a*Ddot      phi(a)      phip(a)
- 0      2.499562    1.000000    -1.535645   15.282159    0.435935   -0.136399
+ 0      2.499562    1.000000    -1.535644   15.282160    0.435935   -0.136399
  1      2.499562    1.000000     0.830803   19.471010    0.520048   -0.103159
  2      2.499562    1.000000    -6.680051    4.717688    0.122133   -0.718376
  3      2.499562    1.000000     6.115498   29.670936    0.704473   -0.060259
@@ -1762,8 +1755,8 @@ h nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.899582 ehf(eV
  Electric Field Gradient:
  Site      Tensor axes     esu/cm^2    V/m^2      eta    line splitting
                             x10^13     x10^19                (mm/s)
-   1   -1.823 0.945 9.409     -8.12    -24.36      0.359      0.00000
-       26.509************     -3.83    -11.48
+   1   -1.823 0.946 9.410     -8.12    -24.36      0.359      0.00000
+       26.441************     -3.83    -11.48
        -0.080 0.045 0.409     11.95     35.84
 
    2    0.007 0.017 0.468    -19.65    -58.96      0.071      0.00000
@@ -1780,12 +1773,12 @@ h nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.899582 ehf(eV
 
 
  Energy terms:             smooth           local           total
-   rhoval*vef            -65.356446      -430.030813      -495.387258
+   rhoval*vef            -65.356447      -430.030812      -495.387259
    rhoval*ves           -130.910075      -289.525381      -420.435456
-   psnuc*ves             289.648721   -188693.235223   -188403.586502
-   utot                   79.369323    -94491.380302    -94412.010979
+   psnuc*ves             289.648723   -188693.235226   -188403.586503
+   utot                   79.369324    -94491.380304    -94412.010980
    rho*exc               -19.182050     -1015.875219     -1035.057269
-   rho*vxc               -25.012874     -1347.612014     -1372.624888
+   rho*vxc               -25.012875     -1347.612014     -1372.624888
    valence chg            21.753183        15.246817        37.000000
    valence mag            -1.562863        -4.107011        -5.669874
    core charge           122.000000        -0.000000       122.000000
@@ -1795,7 +1788,7 @@ h nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.899582 ehf(eV
   m_bandcal_init: start
  bndfp: kpt     1 of     4 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    45   45    0
  bndfp: kpt     1 of     4 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    45   45    0
- ... Done MPI k-loop: elapsed time=   0.0424
+ ... Done MPI k-loop: elapsed time=   0.0386
 
  BZWTS : --- Brillouin Zone sampling; N=-1, W=.005 ---
  Fermi energy, 0.057919 found after 46 bisections, 37 electrons, DOS(E_f)=44.71
@@ -1803,10 +1796,10 @@ h nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.899582 ehf(eV
  T=789.5K, E_F=0.057919, sumev=-6.830689, TS=0.00418, 37 electrons
  Entropy S=0.836166 k_B,  specific heat TdS/dT=1.285168 k_B (Fermi-Dirac)
          Mag. moment:      -4.999940
-Generating TDOS: efermi, and dos window=    0.0579  -0.5000   1.5579
+Generating TDOS: efermi, and dos window=    0.0579  -0.5150   1.5579
 
  MAKDOS :  range of gaussians is  6.00W (  12 bins).
-           Error estimate in DOS : 6.96E-05 per state.
+           Error estimate in DOS :  6.96E-05 per state.
  bndfp: kpt    1 of    4 k isp=  0.2500  0.2500  0.2500 1 ndimh nev=   45   33
  -0.5281 -0.3763 -0.3762 -0.3359 -0.3355 -0.3330 -0.2142 -0.1127 -0.0911
  -0.0903 -0.0447 -0.0285 -0.0266 -0.0020 -0.0008  0.0483  0.0708  0.0717
@@ -1853,8 +1846,8 @@ Generating TDOS: efermi, and dos window=    0.0579  -0.5000   1.5579
 
 
  mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
-   1    9.095348    7.214032    1.881315     -0.037561    0.055367   -0.092927
-   2    7.910331    3.331862    4.578469     -1.755736   -0.244358   -1.511378
+   1    9.095348    7.214033    1.881315     -0.037561    0.055367   -0.092927
+   2    7.910331    3.331862    4.578468     -1.755737   -0.244358   -1.511378
    3    8.048384    3.372786    4.675598     -1.675519   -0.219194   -1.456325
    4    8.032729    3.368479    4.664251     -1.685079   -0.222364   -1.462714
 
@@ -1865,7 +1858,7 @@ ib=  2 l= 1    0.285248   -0.062519   -0.219175   spin 2    0.244596   -0.070669
 ib=  2 l= 2    2.515235   -0.152265   -0.060537   spin 2    4.329103   -0.469444   -0.108439
 ib=  2 l= 3    0.016511   -0.002744   -0.166170   spin 2    0.016032   -0.003527   -0.220017
  -----------------------------------------------
-ib=  1 l= 0    0.294149   -0.121464   -0.412933   spin 2    0.269468   -0.122602   -0.454976
+ib=  1 l= 0    0.294149   -0.121464   -0.412934   spin 2    0.269468   -0.122602   -0.454976
 ib=  1 l= 1    0.254208   -0.038893   -0.152995   spin 2    0.196636   -0.045374   -0.230752
 ib=  1 l= 2    3.968069   -1.205888   -0.303898   spin 2    4.086241   -1.245381   -0.304774
 ib=  1 l= 3    0.010097   -0.000826   -0.081764   spin 2    0.011257   -0.001687   -0.149854
@@ -1893,7 +1886,7 @@ ib=  4 l= 3    0.016869   -0.002870   -0.170151   spin 2    0.016494   -0.003651
 
  site    1   species   2:Pt      
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
- 0     0    0.294149   -0.412933    6.654144    6.705208    6.500000    6.705208
+ 0     0    0.294149   -0.412934    6.654144    6.705208    6.500000    6.705208
  spn 2 0    0.269468   -0.454976    6.640861    6.692332    6.500000    6.692332
  1     0    0.254208   -0.152995    6.278372    6.339264    6.250000    6.339264
  spn 2 0    0.196636   -0.230752    6.266924    6.318873    6.250000    6.318873
@@ -1938,11 +1931,11 @@ ib=  4 l= 3    0.016869   -0.002870   -0.170151   spin 2    0.016494   -0.003651
  spn 2 0    0.016494   -0.221330    4.123506    4.122198    4.102416    4.122198
 
  Harris energy:
- sumev=       -6.830689  val*vef=    -495.387258   sumtv=     488.556570
+ sumev=       -6.830689  val*vef=    -495.387259   sumtv=     488.556571
  sumec=        0.000000  cor*vef=       0.000000   ttcor=   49805.961065
- rhoeps=   -1035.057269     utot=  -94412.010979    ehar=  -45152.550613
+ rhoeps=   -1035.057269     utot=  -94412.010980    ehar=  -45152.550613
 
- srhov:    -47.224913   -430.445503   -477.670416 sumev=   -6.830689   sumtv=  470.839728
+ srhov:    -47.224916   -430.445502   -477.670419 sumev=   -6.830689   sumtv=  470.839730
 
  rhomom:   ib   ilm      qmom        Qval       Qc        Z
             1     1    0.530709    1.881315    68.00    78.00
@@ -1970,7 +1963,7 @@ ib=  4 l= 3    0.016869   -0.002870   -0.170151   spin 2    0.016494   -0.003651
             1    23   -0.000053
             1    24    0.000454
             1    25    0.006469
-            2     1    1.291562    4.578469    18.00    27.00
+            2     1    1.291562    4.578468    18.00    27.00
             2     2    0.000650
             2     3   -0.000124
             2     4   -0.001883
@@ -1992,7 +1985,7 @@ ib=  4 l= 3    0.016869   -0.002870   -0.170151   spin 2    0.016494   -0.003651
             3     4    0.001991
             3     5   -0.000283
             3     6   -0.000230
-            3     7    0.003617
+            3     7    0.003616
             3     8    0.000141
             3     9   -0.007147
             3    10   -0.004417
@@ -2003,13 +1996,13 @@ ib=  4 l= 3    0.016869   -0.002870   -0.170151   spin 2    0.016494   -0.003651
             3    16    0.001406
             4     1    1.315761    4.664251    18.00    27.00
             4     2    0.003589
-            4     3    0.007317
+            4     3    0.007318
             4     4    0.002012
             4     5   -0.000092
             4     6   -0.000074
             4     7    0.003604
             4     8   -0.000034
-            4     9    0.007093
+            4     9    0.007094
             4    10    0.000407
             4    11   -0.000010
             4    12    0.000384
@@ -2018,13 +2011,13 @@ ib=  4 l= 3    0.016869   -0.002870   -0.170151   spin 2    0.016494   -0.003651
             4    15    0.013835
             4    16    0.002191
 
- vesgcm: smooth density G=0 term =  -0.057118   0.000000   Q =   -21.200367
+ vesgcm: smooth density G=0 term =  -0.057118   0.000000   Q =   -21.200368
 
  after vesgcomp: forces are:
    1    0.066035    0.159885    0.629268
-   2    0.053427   -0.065175    0.199241
-   3   -0.023166   -0.065921   -0.413996
-   4   -0.096296   -0.028789   -0.414513
+   2    0.053427   -0.065175    0.199243
+   3   -0.023166   -0.065922   -0.413998
+   4   -0.096296   -0.028788   -0.414514
  esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.762007  avg sphere pot= 0.694904  vconst=-0.762007
  average electrostatic potential at MT boundaries after shift
@@ -2037,10 +2030,10 @@ ib=  4 l= 3    0.016869   -0.002870   -0.170151   spin 2    0.016494   -0.003651
          2      2      1
          3      3      1
 
- smooth rhoves     83.970142   charge    21.200368
+ smooth rhoves     83.970145   charge    21.200368
  smvxcm: all smrho_w is positive
- smooth rhoeps =  -17.864398 (  -8.746357,  -9.118041)
-         rhomu =  -23.280340 ( -11.343301, -11.937039)
+ smooth rhoeps =  -17.864399 (  -8.746358,  -9.118041)
+         rhomu =  -23.280341 ( -11.343302, -11.937040)
        avg vxc =   -0.868749 (  -0.865731,  -0.871768)
 
  locpot:
@@ -2054,13 +2047,13 @@ ib=  4 l= 3    0.016869   -0.002870   -0.170151   spin 2    0.016494   -0.003651
   total:         -918.324149      -691.761618       77.065825
  exchange for smooth density, foca=1:
  mesh:   nth,nph= -62   0   gives  62  angular points,   nrad= 397
- vxcnsp: loc rmu=  -5.360798  rep=  -4.101174  q =   4.341311
+ vxcnsp: loc rmu=  -5.360799  rep=  -4.101174  q =   4.341311
  spin 2:           -5.296097        -4.060694        4.285945
   total:          -10.656895        -8.161868        8.627256
 
  ilm                   rho*vtrue                              rho*vsm
              spin1       spin2       tot           spin1       spin2       tot
-   1     -73.206819  -74.665802 -147.872621    -12.094918  -12.014195  -24.109113
+   1     -73.206819  -74.665803 -147.872621    -12.094919  -12.014196  -24.109115
    2      -0.000083   -0.000061   -0.000144     -0.000132   -0.000091   -0.000223
    3      -0.000718   -0.000579   -0.001297     -0.001046   -0.000794   -0.001840
    4      -0.000016   -0.000012   -0.000028     -0.000026   -0.000018   -0.000044
@@ -2075,11 +2068,11 @@ ib=  4 l= 3    0.016869   -0.002870   -0.170151   spin 2    0.016494   -0.003651
 
  local terms:     true           smooth         local
  rhoeps:      -691.761618      -8.161868    -683.599750
- rhomu:       -459.064883      -5.360798    -453.704085
+ rhomu:       -459.064883      -5.360799    -453.704085
  spin2:       -459.259266      -5.296097    -453.963169
  total:       -918.324149     -10.656895    -907.667254
- val*vef      -147.874182     -46.815551    -101.058631
- val chg:        9.095348       7.214032       1.881315
+ val*vef      -147.874183     -46.815550    -101.058632
+ val chg:        9.095348       7.214033       1.881315
  val mom:       -0.037561       0.055367      -0.092927    core:   0.000000
  core chg:      67.970478      67.970478      -0.000000
   ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   6.70521   6.69233   0.00000   0.00000
@@ -2103,7 +2096,7 @@ ib=  4 l= 3    0.016869   -0.002870   -0.170151   spin 2    0.016494   -0.003651
 
  ilm                   rho*vtrue                              rho*vsm
              spin1       spin2       tot           spin1       spin2       tot
-   1     -39.353163  -72.419780 -111.772943     -3.026217   -3.782725   -6.808942
+   1     -39.353162  -72.419781 -111.772942     -3.026218   -3.782725   -6.808943
    3       0.000002    0.000004    0.000005      0.000001    0.000004    0.000005
    4      -0.000023   -0.000011   -0.000034     -0.000034   -0.000015   -0.000049
    7       0.000271    0.000146    0.000417     -0.000089    0.000192    0.000103
@@ -2114,13 +2107,13 @@ ib=  4 l= 3    0.016869   -0.002870   -0.170151   spin 2    0.016494   -0.003651
   16      -0.000004   -0.000003   -0.000007     -0.000005   -0.000004   -0.000008
 
  local terms:     true           smooth         local
- rhoeps:      -112.577545      -2.437826    -110.139719
- rhomu:        -71.604425      -1.444435     -70.159991
+ rhoeps:      -112.577545      -2.437826    -110.139718
+ rhomu:        -71.604425      -1.444435     -70.159990
  spin2:        -77.393501      -1.728309     -75.665192
- total:       -148.997926      -3.172744    -145.825183
- val*vef      -111.772744     -37.100494     -74.672250
- val chg:        7.910331       3.331862       4.578469
- val mom:       -1.755736      -0.244358      -1.511378    core:  -0.000200
+ total:       -148.997926      -3.172744    -145.825182
+ val*vef      -111.772743     -37.100495     -74.672248
+ val chg:        7.910331       3.331862       4.578468
+ val mom:       -1.755737      -0.244358      -1.511378    core:  -0.000200
  core chg:      17.995618      17.995618      -0.000000
   ibas l=  2  0 pnu(1:nsp) pnz(1:nsp)=   4.65011   4.64196   0.00000   0.00000
   ibas l=  2  1 pnu(1:nsp) pnz(1:nsp)=   4.38289   4.37045   0.00000   0.00000
@@ -2131,18 +2124,18 @@ ib=  4 l= 3    0.016869   -0.002870   -0.170151   spin 2    0.016494   -0.003651
  sm core charge = 0.257152 (sphere) + 0.004382 (spillout) = 0.261533
  Exchange for true density:
  mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 329
- vxcnsp: loc rmu= -71.925752  rep= -54.787425  q =  12.184141
- spin 2:          -77.495321       -58.111539       13.859861
-  total:         -149.421074      -112.898964       26.044003
+ vxcnsp: loc rmu= -71.925753  rep= -54.787426  q =  12.184142
+ spin 2:          -77.495322       -58.111539       13.859861
+  total:         -149.421074      -112.898965       26.044003
  exchange for smooth density, foca=1:
  mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 329
  vxcnsp: loc rmu=  -1.481771  rep=  -1.156717  q =   1.705372
- spin 2:           -1.738770        -1.317774        1.924566
+ spin 2:           -1.738771        -1.317774        1.924566
   total:           -3.220542        -2.474491        3.629938
 
  ilm                   rho*vtrue                              rho*vsm
              spin1       spin2       tot           spin1       spin2       tot
-   1     -40.724752  -72.285776 -113.010528     -3.001075   -3.673519   -6.674593
+   1     -40.724753  -72.285776 -113.010530     -3.001075   -3.673519   -6.674594
    2       0.000001    0.000002    0.000003      0.000001    0.000002    0.000003
    3      -0.000219   -0.000172   -0.000391     -0.000307   -0.000256   -0.000563
    4      -0.000046   -0.000024   -0.000070     -0.000060   -0.000032   -0.000093
@@ -2157,11 +2150,11 @@ ib=  4 l= 3    0.016869   -0.002870   -0.170151   spin 2    0.016494   -0.003651
   16      -0.000002   -0.000002   -0.000004     -0.000003   -0.000003   -0.000006
 
  local terms:     true           smooth         local
- rhoeps:      -112.898964      -2.474491    -110.424474
- rhomu:        -71.925752      -1.481771     -70.443981
- spin2:        -77.495321      -1.738770     -75.756551
- total:       -149.421074      -3.220542    -146.200532
- val*vef      -113.010932     -36.625913     -76.385019
+ rhoeps:      -112.898965      -2.474491    -110.424474
+ rhomu:        -71.925753      -1.481771     -70.443982
+ spin2:        -77.495322      -1.738771     -75.756551
+ total:       -149.421074      -3.220542    -146.200533
+ val*vef      -113.010934     -36.625913     -76.385021
  val chg:        8.048384       3.372786       4.675598
  val mom:       -1.675519      -0.219194      -1.456325    core:  -0.000200
  core chg:      17.995618      17.995618      -0.000000
@@ -2175,17 +2168,17 @@ ib=  4 l= 3    0.016869   -0.002870   -0.170151   spin 2    0.016494   -0.003651
  Exchange for true density:
  mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 329
  vxcnsp: loc rmu= -71.888726  rep= -54.761315  q =  12.171534
- spin 2:          -77.484141       -58.101034       13.856813
-  total:         -149.372867      -112.862348       26.028347
+ spin 2:          -77.484142       -58.101034       13.856813
+  total:         -149.372868      -112.862349       26.028347
  exchange for smooth density, foca=1:
  mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 329
  vxcnsp: loc rmu=  -1.477615  rep=  -1.153757  q =   1.701633
  spin 2:           -1.737988        -1.316945        1.923997
-  total:           -3.215603        -2.470701        3.625630
+  total:           -3.215603        -2.470702        3.625630
 
  ilm                   rho*vtrue                              rho*vsm
              spin1       spin2       tot           spin1       spin2       tot
-   1     -40.568087  -72.303140 -112.871227     -3.004489   -3.686906   -6.691395
+   1     -40.568089  -72.303140 -112.871229     -3.004489   -3.686906   -6.691395
    2      -0.000142   -0.000074   -0.000216     -0.000189   -0.000097   -0.000286
    3      -0.000217   -0.000170   -0.000386     -0.000304   -0.000253   -0.000558
    4      -0.000009   -0.000005   -0.000014     -0.000015   -0.000009   -0.000023
@@ -2200,11 +2193,11 @@ ib=  4 l= 3    0.016869   -0.002870   -0.170151   spin 2    0.016494   -0.003651
   16      -0.000006   -0.000006   -0.000011     -0.000008   -0.000008   -0.000015
 
  local terms:     true           smooth         local
- rhoeps:      -112.862348      -2.470701    -110.391647
+ rhoeps:      -112.862349      -2.470702    -110.391647
  rhomu:        -71.888726      -1.477615     -70.411111
- spin2:        -77.484141      -1.737988     -75.746153
- total:       -149.372867      -3.215603    -146.157264
- val*vef      -112.871645     -36.683195     -76.188450
+ spin2:        -77.484142      -1.737988     -75.746153
+ total:       -149.372868      -3.215603    -146.157264
+ val*vef      -112.871646     -36.683194     -76.188452
  val chg:        8.032729       3.368479       4.664251
  val mom:       -1.685079      -0.222364      -1.462714    core:  -0.000200
  core chg:      17.995618      17.995618      -0.000000
@@ -2216,17 +2209,17 @@ ib=  4 l= 3    0.016869   -0.002870   -0.170151   spin 2    0.016494   -0.003651
  Electric Field Gradient:
  Site      Tensor axes     esu/cm^2    V/m^2      eta    line splitting
                             x10^13     x10^19                (mm/s)
-   1    0.389-1.294-1.448    -10.92    -32.76      0.441      0.00000
-        0.753-0.353-0.842     -4.24    -12.71
+   1    0.389-1.295-1.449    -10.92    -32.76      0.441      0.00000
+        0.753-0.354-0.842     -4.24    -12.71
         0.167 0.437 0.282     15.16     45.47
 
    2   ******************    -42.00   -125.99      0.073      0.00000
        -3.799-4.604******    -36.28   -108.83
         0.009 0.010 0.457     78.27    234.82
 
-   3    0.054-1.299-7.802    -58.63   -175.88      0.233      0.00000
+   3    0.054-1.299-7.803    -58.63   -175.88      0.233      0.00000
         0.015-0.442-2.660    -36.50   -109.51
-        0.539 4.63328.672     95.13    285.39
+        0.539 4.63228.671     95.13    285.39
 
    4    0.367 0.261 0.484    -58.70   -176.09      0.233      0.00000
         0.087 0.123-0.125    -36.51   -109.53
@@ -2234,13 +2227,13 @@ ib=  4 l= 3    0.016869   -0.002870   -0.170151   spin 2    0.016494   -0.003651
 
 
  Energy terms:             smooth           local           total
-   rhoval*vef            -46.947304      -441.217424      -488.164728
-   rhoval*ves           -139.233675      -276.754309      -415.987984
-   psnuc*ves             307.173959   -188683.112612   -188375.938653
-   utot                   83.970142    -94479.933460    -94395.963318
-   rho*exc               -17.864398     -1014.555590     -1032.419988
-   rho*vxc               -23.280340     -1345.850233     -1369.130574
-   valence chg            21.200368        15.799633        37.000000
+   rhoval*vef            -46.947308      -441.217422      -488.164730
+   rhoval*ves           -139.233674      -276.754312      -415.987985
+   psnuc*ves             307.173964   -188683.112621   -188375.938657
+   utot                   83.970145    -94479.933466    -94395.963321
+   rho*exc               -17.864399     -1014.555589     -1032.419988
+   rho*vxc               -23.280341     -1345.850233     -1369.130574
+   valence chg            21.200368        15.799632        37.000000
    valence mag            -0.476595        -4.523345        -4.999940
    core charge           122.000000        -0.000000       122.000000
 
@@ -2248,8 +2241,8 @@ ib=  4 l= 3    0.016869   -0.002870   -0.170151   spin 2    0.016494   -0.003651
     hom background     0.00000   deviation from neutrality:      0.00000
 
  Kohn-Sham energy:
- sumtv=      470.839728  sumtc=     49805.961065   ekin=    50276.800793
- rhoep=    -1032.419988   utot=    -94395.963318   ehks=   -45151.582513
+ sumtv=      470.839730  sumtc=     49805.961065   ekin=    50276.800796
+ rhoep=    -1032.419988   utot=    -94395.963321   ehks=   -45151.582513
  mag. mom=    -4.999940
  smvxcm: all smrho_w is positive
  smvxcm: all smrho_w is positive
@@ -2259,7 +2252,7 @@ ib=  4 l= 3    0.016869   -0.002870   -0.170151   spin 2    0.016494   -0.003651
   ib         delta-n dVes             delta-n dVxc               total
    1  -25.26  -54.80 -141.00    -1.75   -3.73   -9.75    27.01   58.53  150.74
    2  -14.97   -2.14   -0.31    -2.63   -1.21    0.67    17.60    3.35   -0.37
-   3   16.43   -2.22   37.48     3.24   -1.21    4.10   -19.67    3.42  -41.57
+   3   16.43   -2.21   37.48     3.24   -1.21    4.10   -19.67    3.42  -41.57
    4    9.88   29.68   37.47     0.97    5.90    4.12   -10.86  -35.57  -41.59
  shift forces to make zero average correction:            3.52    7.43   16.80
 
@@ -2278,20 +2271,20 @@ ib=  4 l= 3    0.016869   -0.002870   -0.170151   spin 2    0.016494   -0.003651
  mixing: mode=B  beta=.3  elind=1.44
  wgtsmooth=   1.5625000000000000E-002
  mixrho:  sought 8 iter from file mixm; read 1.  RMS DQ=3.93e-2  last it=5.90e-2
- AMIX: nmix=1 mmix=8  nelts= 16356  beta=0.30000  tm= 5.00000  rmsdel=1.96D-02
+ AMIX: nmix=1 mmix=8  nelts= 16356  beta=0.30000  tm= 5.00000  rmsdel= 1.96D-02
    tj: 0.25737
- mixrho: add corrections to qcell smrho =  0.16230D-06  0.21863D-09
+ mixrho: add corrections to qcell smrho =  0.16858D-06  0.22710D-09
  unscreened rms difference:  smooth  0.028590   local  0.052840
    screened rms difference:  smooth  0.028159   local  0.052840   tot  0.039292
 
  iors  : write restart file (binary, mesh density) 
          id -  
-         written by -  takao on  at: Fri Oct  8 18:42:32 2021
+         written by -  takao on  at: Sat Jan 15 14:46:10 2022
 
    it  2  of  3    ehf=      -2.114513   ehk=      -1.146413
- From last iter    ehf=      -2.263699   ehk=       1.497675
+ From last iter    ehf=      -2.263700   ehk=       1.497675
  diffe(q)=  0.149187 (0.039292)    tol= 0.000100 (0.000100)   more=T
-i nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.9999398 ehf(eV)=-28.7696382 ehk(eV)=-15.5978652 sev(eV)=-92.9369823
+i nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.9999398 ehf(eV)=-28.7696405 ehk(eV)=-15.5978689 sev(eV)=-92.9369822
 
  --- BNDFP:  begin iteration 3 of 3
 
@@ -2338,7 +2331,7 @@ i nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.9999398 ehf(e
             2    15   -0.000012
             2    16   -0.000454
             3     1    1.367139    4.846382    18.00    27.00
-            3     2    0.000538
+            3     2    0.000539
             3     3    0.003785
             3     4    0.000811
             3     5   -0.000089
@@ -2348,7 +2341,7 @@ i nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.9999398 ehf(e
             3     9    0.001856
             3    10   -0.001684
             3    12    0.002354
-            3    13   -0.002094
+            3    13   -0.002093
             3    14    0.000885
             3    15   -0.005639
             3    16    0.000487
@@ -2358,9 +2351,9 @@ i nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.9999398 ehf(e
             4     4    0.001048
             4     5    0.000022
             4     6    0.000006
-            4     7   -0.000885
+            4     7   -0.000886
             4     8   -0.000288
-            4     9   -0.001865
+            4     9   -0.001864
             4    10    0.000162
             4    11   -0.000005
             4    12    0.000149
@@ -2373,9 +2366,9 @@ i nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.9999398 ehf(e
 
  after vesgcomp: forces are:
    1    0.053398    0.132220    0.557821
-   2    0.032299   -0.072294    0.186353
+   2    0.032299   -0.072294    0.186354
    3    0.001198   -0.074075   -0.372314
-   4   -0.086896    0.014149   -0.371861
+   4   -0.086896    0.014150   -0.371861
  esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.706381  avg sphere pot= 0.699264  vconst=-0.706381
  average electrostatic potential at MT boundaries after shift
@@ -2388,10 +2381,10 @@ i nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.9999398 ehf(e
          2      2      1
          3      3      1
 
- smooth rhoves     80.059216   charge    21.630022
+ smooth rhoves     80.059218   charge    21.630023
  smvxcm: all smrho_w is positive
  smooth rhoeps =  -18.835634 (  -8.906806,  -9.928828)
-         rhomu =  -24.556839 ( -11.461310, -13.095530)
+         rhomu =  -24.556840 ( -11.461310, -13.095530)
        avg vxc =   -0.863001 (  -0.853109,  -0.872893)
 
  locpot:
@@ -2407,11 +2400,11 @@ i nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.9999398 ehf(e
  mesh:   nth,nph= -62   0   gives  62  angular points,   nrad= 397
  vxcnsp: loc rmu=  -5.649470  rep=  -4.340334  q =   4.404679
  spin 2:           -5.857781        -4.468662        4.536207
-  total:          -11.507251        -8.808996        8.940886
+  total:          -11.507251        -8.808997        8.940886
 
  ilm                   rho*vtrue                              rho*vsm
              spin1       spin2       tot           spin1       spin2       tot
-   1     -63.827106  -67.811373 -131.638479    -17.778601  -18.360390  -36.138991
+   1     -63.827106  -67.811373 -131.638479    -17.778602  -18.360390  -36.138992
    2      -0.000048   -0.000037   -0.000085     -0.000066   -0.000047   -0.000113
    3      -0.000523   -0.000440   -0.000964     -0.000675   -0.000538   -0.001213
    4      -0.000009   -0.000007   -0.000017     -0.000013   -0.000009   -0.000022
@@ -2422,11 +2415,11 @@ i nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.9999398 ehf(e
   25      -0.000114   -0.000066   -0.000180     -0.000111   -0.000065   -0.000176
 
  local terms:     true           smooth         local
- rhoeps:      -690.057551      -8.808996    -681.248554
+ rhoeps:      -690.057551      -8.808997    -681.248554
  rhomu:       -457.750987      -5.649470    -452.101517
  spin2:       -458.327762      -5.857781    -452.469981
  total:       -916.078749     -11.507251    -904.571498
- val*vef      -131.640135     -47.091475     -84.548661
+ val*vef      -131.640136     -47.091474     -84.548662
  val chg:        8.376416       7.527663       0.848753
  val mom:       -0.215287      -0.131528      -0.083759    core:   0.000000
  core chg:      67.970478      67.970478      -0.000000
@@ -2440,11 +2433,11 @@ i nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.9999398 ehf(e
  potpus  spin 1 : pnu = 6.705208 6.339264 5.876556 5.149368 5.094277
 
  l,E        a      <phi phi>       a*D        a*Ddot      phi(a)      phip(a)
- 0      2.443392    1.000000    -1.837051   16.486774    0.462542   -0.117988
+ 0      2.443392    1.000000    -1.837050   16.486775    0.462542   -0.117988
  1      2.443392    1.000000     1.350631   25.447482    0.568408   -0.073010
- 2      2.443392    1.000000    -5.981381    7.321059    0.211941   -0.354698
+ 2      2.443392    1.000000    -5.981381    7.321060    0.211941   -0.354698
  3      2.443392    1.000000     4.819045   24.355508    0.671285   -0.076249
- 4      2.443392    1.000000     8.007038   34.705666    0.800883   -0.046763
+ 4      2.443392    1.000000     8.007038   34.705667    0.800883   -0.046763
 
  potpus  spin 2 : pnu = 6.692332 6.318873 5.881500 5.145965 5.093139
 
@@ -2465,12 +2458,12 @@ i nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.9999398 ehf(e
  exchange for smooth density, foca=1:
  mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 329
  vxcnsp: loc rmu=  -1.490376  rep=  -1.178217  q =   1.684935
- spin 2:           -1.965884        -1.476231        2.080975
+ spin 2:           -1.965884        -1.476232        2.080976
   total:           -3.456260        -2.654449        3.765910
 
  ilm                   rho*vtrue                              rho*vsm
              spin1       spin2       tot           spin1       spin2       tot
-   1     -43.995631  -75.875182 -119.870814     -3.188816   -4.481974   -7.670790
+   1     -43.995631  -75.875183 -119.870813     -3.188816   -4.481974   -7.670790
    2      -0.000008   -0.000008   -0.000016     -0.000009   -0.000009   -0.000018
    3      -0.000017   -0.000023   -0.000040     -0.000017   -0.000024   -0.000042
    4      -0.000016   -0.000012   -0.000027     -0.000019   -0.000013   -0.000031
@@ -2507,10 +2500,10 @@ i nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.9999398 ehf(e
  potpus  spin 2 : pnu = 4.641958 4.370447 3.864557 4.122120
 
  l,E        a      <phi phi>       a*D        a*Ddot      phi(a)      phip(a)
- 0      2.499562    1.000000    -1.195040   15.511572    0.443190   -0.135059
+ 0      2.499562    1.000000    -1.195039   15.511573    0.443190   -0.135059
  1      2.499562    1.000000     1.077493   19.668124    0.525913   -0.102280
- 2      2.499562    1.000000    -5.515455    4.953849    0.128972   -0.740611
- 3      2.499562    1.000000     6.192376   29.766216    0.706294   -0.060057
+ 2      2.499562    1.000000    -5.515454    4.953849    0.128972   -0.740611
+ 3      2.499562    1.000000     6.192377   29.766216    0.706294   -0.060057
 
  site  3  z= 27.0  rmt= 2.49956  nr=329   a=0.030  nlml=16  rg=0.625  Vfloat=T
  sm core charge = 0.257152 (sphere) + 0.004382 (spillout) = 0.261533
@@ -2527,7 +2520,7 @@ i nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.9999398 ehf(e
 
  ilm                   rho*vtrue                              rho*vsm
              spin1       spin2       tot           spin1       spin2       tot
-   1     -44.199218  -75.873122 -120.072340     -3.176863   -4.456706   -7.633569
+   1     -44.199218  -75.873122 -120.072340     -3.176864   -4.456706   -7.633569
    2      -0.000010   -0.000010   -0.000021     -0.000011   -0.000012   -0.000023
    3      -0.000513   -0.000463   -0.000977     -0.000579   -0.000525   -0.001104
    4      -0.000014   -0.000010   -0.000024     -0.000018   -0.000011   -0.000029
@@ -2546,7 +2539,7 @@ i nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.9999398 ehf(e
  rhomu:        -72.645363      -1.492277     -71.153086
  spin2:        -78.444865      -1.962123     -76.482742
  total:       -151.090228      -3.454400    -147.635828
- val*vef      -120.075121     -34.879164     -85.195957
+ val*vef      -120.075122     -34.879165     -85.195957
  val chg:        8.354953       3.508571       4.846382
  val mom:       -1.760059      -0.391251      -1.368809    core:  -0.000200
  core chg:      17.995618      17.995618      -0.000000
@@ -2581,13 +2574,13 @@ i nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.9999398 ehf(e
   total:         -151.084624      -114.158435       26.348841
  exchange for smooth density, foca=1:
  mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 329
- vxcnsp: loc rmu=  -1.492111  rep=  -1.179215  q =   1.686983
+ vxcnsp: loc rmu=  -1.492111  rep=  -1.179215  q =   1.686984
  spin 2:           -1.962723        -1.474156        2.078902
   total:           -3.454834        -2.653371        3.765886
 
  ilm                   rho*vtrue                              rho*vsm
              spin1       spin2       tot           spin1       spin2       tot
-   1     -44.175676  -75.874381 -120.050057     -3.178323   -4.459882   -7.638205
+   1     -44.175677  -75.874381 -120.050058     -3.178323   -4.459882   -7.638205
    2      -0.000042   -0.000027   -0.000069     -0.000053   -0.000033   -0.000086
    3      -0.000509   -0.000460   -0.000968     -0.000575   -0.000521   -0.001096
    4      -0.000034   -0.000029   -0.000063     -0.000038   -0.000033   -0.000071
@@ -2618,25 +2611,25 @@ i nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.9999398 ehf(e
  potpus  spin 1 : pnu = 4.650789 4.384020 3.779718 4.123251
 
  l,E        a      <phi phi>       a*D        a*Ddot      phi(a)      phip(a)
- 0      2.499562    1.000000    -1.281405   15.556500    0.443452   -0.133927
+ 0      2.499562    1.000000    -1.281404   15.556501    0.443452   -0.133927
  1      2.499562    1.000000     0.953310   19.684173    0.524163   -0.101854
  2      2.499562    1.000000    -3.015998    5.261023    0.178395   -0.677246
- 3      2.499562    1.000000     6.129532   29.765034    0.705400   -0.059976
+ 3      2.499562    1.000000     6.129532   29.765033    0.705400   -0.059976
 
  potpus  spin 2 : pnu = 4.642743 4.371833 3.865790 4.122198
 
  l,E        a      <phi phi>       a*D        a*Ddot      phi(a)      phip(a)
- 0      2.499562    1.000000    -1.202625   15.516590    0.443235   -0.134944
+ 0      2.499562    1.000000    -1.202624   15.516590    0.443235   -0.134944
  1      2.499562    1.000000     1.064609   19.669116    0.525718   -0.102242
- 2      2.499562    1.000000    -5.572766    4.933165    0.129048   -0.737595
+ 2      2.499562    1.000000    -5.572767    4.933165    0.129048   -0.737595
  3      2.499562    1.000000     6.187970   29.768316    0.706252   -0.060044
 
  Electric Field Gradient:
  Site      Tensor axes     esu/cm^2    V/m^2      eta    line splitting
                             x10^13     x10^19                (mm/s)
-   1    1.068-1.537-4.262     -8.68    -26.05      0.447      0.00000
-       -0.977 0.495 1.314     -3.32     -9.95
-       -0.014 0.174 0.491     12.00     36.00
+   1    1.068-1.537-4.263     -8.68    -26.05      0.447      0.00000
+       -0.977 0.495 1.315     -3.32     -9.96
+       -0.014 0.174 0.491     12.00     36.01
 
    2   -0.638 0.994 3.383     -0.93     -2.78      0.000      0.00000
        -0.115 0.240 0.817     -0.27     -0.82
@@ -2652,13 +2645,13 @@ i nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.9999398 ehf(e
 
 
  Energy terms:             smooth           local           total
-   rhoval*vef            -61.495806      -432.536146      -494.031952
-   rhoval*ves           -132.450249      -287.147575      -419.597824
-   psnuc*ves             292.568681   -188691.399899   -188398.831218
-   utot                   80.059216    -94489.273737    -94409.214521
+   rhoval*vef            -61.495808      -432.536145      -494.031953
+   rhoval*ves           -132.450248      -287.147577      -419.597825
+   psnuc*ves             292.568684   -188691.399903   -188398.831219
+   utot                   80.059218    -94489.273740    -94409.214522
    rho*exc               -18.835634     -1015.732665     -1034.568299
-   rho*vxc               -24.556839     -1347.419924     -1371.976763
-   valence chg            21.630022        15.369978        37.000000
+   rho*vxc               -24.556840     -1347.419924     -1371.976763
+   valence chg            21.630023        15.369977        37.000000
    valence mag            -1.320856        -4.199765        -5.520621
    core charge           122.000000        -0.000000       122.000000
 
@@ -2667,18 +2660,18 @@ i nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.9999398 ehf(e
   m_bandcal_init: start
  bndfp: kpt     1 of     4 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    45   45    0
  bndfp: kpt     1 of     4 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    45   45    0
- ... Done MPI k-loop: elapsed time=   0.0434
+ ... Done MPI k-loop: elapsed time=   0.0403
 
  BZWTS : --- Brillouin Zone sampling; N=-1, W=.005 ---
- Fermi energy, -0.039256 found after 45 bisections, 37 electrons, DOS(E_f)=49.04
+ Fermi energy, -0.039256 found after 46 bisections, 37 electrons, DOS(E_f)=49.04
  Writing CV(T) to file for 2 vals of T: 158,790 (K)
  T=789.5K, E_F=-0.039256, sumev=-8.616479, TS=0.00452, 37 electrons
  Entropy S=0.903285 k_B,  specific heat TdS/dT=1.359624 k_B (Fermi-Dirac)
          Mag. moment:      -4.999165
-Generating TDOS: efermi, and dos window=   -0.0393  -0.5000   1.4607
+Generating TDOS: efermi, and dos window=   -0.0393  -0.6145   1.4607
 
  MAKDOS :  range of gaussians is  6.00W (  12 bins).
-           Error estimate in DOS : 6.96E-05 per state.
+           Error estimate in DOS :  6.96E-05 per state.
  bndfp: kpt    1 of    4 k isp=  0.2500  0.2500  0.2500 1 ndimh nev=   45   33
  -0.5364 -0.3675 -0.3675 -0.3192 -0.3183 -0.3139 -0.2550 -0.1801 -0.1372
  -0.1316 -0.1250 -0.1104 -0.1049 -0.0788 -0.0740 -0.0484 -0.0288 -0.0235
@@ -2726,13 +2719,13 @@ Generating TDOS: efermi, and dos window=   -0.0393  -0.5000   1.4607
 
  mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
    1    8.327345    6.626647    1.700698     -0.151962   -0.044837   -0.107125
-   2    8.585089    3.200092    5.384998     -1.479944   -0.133627   -1.346317
-   3    8.225105    3.144146    5.080959     -1.774237   -0.211947   -1.562291
-   4    8.273174    3.152510    5.120664     -1.734772   -0.201622   -1.533150
+   2    8.585090    3.200092    5.384998     -1.479943   -0.133627   -1.346316
+   3    8.225105    3.144146    5.080959     -1.774238   -0.211947   -1.562291
+   4    8.273174    3.152511    5.120663     -1.734772   -0.201622   -1.533150
 
  Symmetrize density..
                 qbyl        hbyl        ebar   
-ib=  2 l= 0    0.247728   -0.099381   -0.401172   spin 2    0.233446   -0.105131   -0.450342
+ib=  2 l= 0    0.247728   -0.099381   -0.401172   spin 2    0.233446   -0.105131   -0.450343
 ib=  2 l= 1    0.256286   -0.068615   -0.267728   spin 2    0.221760   -0.072889   -0.328685
 ib=  2 l= 2    3.033801   -0.424689   -0.139986   spin 2    4.562569   -0.953389   -0.208959
 ib=  2 l= 3    0.014758   -0.003033   -0.205544   spin 2    0.014741   -0.003737   -0.253496
@@ -2748,9 +2741,9 @@ ib=  3 l= 1    0.254434   -0.069293   -0.272342   spin 2    0.220332   -0.073316
 ib=  3 l= 2    2.706850   -0.378275   -0.139747   spin 2    4.529505   -0.895334   -0.197667
 ib=  3 l= 3    0.015656   -0.003202   -0.204519   spin 2    0.015178   -0.003897   -0.256728
  -----------------------------------------------
-ib=  4 l= 0    0.248425   -0.099543   -0.400695   spin 2    0.234502   -0.105246   -0.448807
+ib=  4 l= 0    0.248425   -0.099543   -0.400695   spin 2    0.234502   -0.105246   -0.448808
 ib=  4 l= 1    0.254510   -0.069192   -0.271864   spin 2    0.220619   -0.073260   -0.332064
-ib=  4 l= 2    2.750708   -0.383390   -0.139379   spin 2    4.533706   -0.901785   -0.198907
+ib=  4 l= 2    2.750707   -0.383389   -0.139378   spin 2    4.533706   -0.901785   -0.198907
 ib=  4 l= 3    0.015559   -0.003185   -0.204674   spin 2    0.015146   -0.003881   -0.256204
  -----------------------------------------------
 
@@ -2779,7 +2772,7 @@ ib=  4 l= 3    0.015559   -0.003185   -0.204674   spin 2    0.015146   -0.003881
  site    2   species   1:Co      
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
  0     0    0.247728   -0.401172    4.650109    4.642381    4.500000    4.642381
- spn 2 0    0.233446   -0.450342    4.641958    4.637265    4.500000    4.637265
+ spn 2 0    0.233446   -0.450343    4.641958    4.637265    4.500000    4.637265
  1     0    0.256286   -0.267728    4.382891    4.375378    4.250000    4.375378
  spn 2 0    0.221760   -0.328685    4.370447    4.365452    4.250000    4.365452
  2     0    3.033801   -0.139986    3.774126    3.807937    3.147584    3.807937
@@ -2801,20 +2794,20 @@ ib=  4 l= 3    0.015559   -0.003185   -0.204674   spin 2    0.015146   -0.003881
  site    4   species   1:Co      
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
  0     0    0.248425   -0.400695    4.650789    4.642085    4.500000    4.642085
- spn 2 0    0.234502   -0.448807    4.642743    4.637279    4.500000    4.637279
+ spn 2 0    0.234502   -0.448808    4.642743    4.637279    4.500000    4.637279
  1     0    0.254510   -0.271864    4.384020    4.373441    4.250000    4.373441
  spn 2 0    0.220619   -0.332064    4.371833    4.363713    4.250000    4.363713
- 2     0    2.750708   -0.139379    3.779718    3.793963    3.147584    3.793963
+ 2     0    2.750707   -0.139378    3.779718    3.793963    3.147584    3.793963
  spn 2 0    4.533706   -0.198907    3.865790    3.875453    3.147584    3.875453
  3     0    0.015559   -0.204674    4.123251    4.122429    4.102416    4.122429
  spn 2 0    0.015146   -0.256204    4.122198    4.121251    4.102416    4.121251
 
  Harris energy:
- sumev=       -8.616479  val*vef=    -494.031952   sumtv=     485.415473
+ sumev=       -8.616479  val*vef=    -494.031953   sumtv=     485.415474
  sumec=        0.000000  cor*vef=       0.000000   ttcor=   49805.961065
- rhoeps=   -1034.568299     utot=  -94409.214521    ehar=  -45152.406281
+ rhoeps=   -1034.568299     utot=  -94409.214522    ehar=  -45152.406281
 
- srhov:    -43.903665   -452.754730   -496.658395 sumev=   -8.616479   sumtv=  488.041916
+ srhov:    -43.903669   -452.754728   -496.658397 sumev=   -8.616479   sumtv=  488.041918
 
  rhomom:   ib   ilm      qmom        Qval       Qc        Z
             1     1    0.479758    1.700698    68.00    78.00
@@ -2822,7 +2815,7 @@ ib=  4 l= 3    0.015559   -0.003185   -0.204674   spin 2    0.015146   -0.003881
             1     3   -0.013802
             1     4   -0.002279
             1     5   -0.000027
-            1     6   -0.000498
+            1     6   -0.000499
             1     7   -0.000958
             1     8   -0.000293
             1     9    0.000044
@@ -2874,9 +2867,9 @@ ib=  4 l= 3    0.015559   -0.003185   -0.204674   spin 2    0.015146   -0.003881
             3    14    0.001679
             3    15   -0.011450
             3    16    0.001007
-            4     1    1.444513    5.120664    18.00    27.00
+            4     1    1.444512    5.120663    18.00    27.00
             4     2    0.002707
-            4     3    0.007603
+            4     3    0.007604
             4     4    0.002118
             4     5    0.000150
             4     6   -0.000034
@@ -2891,12 +2884,12 @@ ib=  4 l= 3    0.015559   -0.003185   -0.204674   spin 2    0.015146   -0.003881
             4    15    0.011463
             4    16    0.001686
 
- vesgcm: smooth density G=0 term =  -0.053110   0.000000   Q =   -19.712681
+ vesgcm: smooth density G=0 term =  -0.053110   0.000000   Q =   -19.712682
 
  after vesgcomp: forces are:
    1    0.065453    0.157011    0.627190
-   2    0.037286   -0.063654    0.141135
-   3   -0.017379   -0.068877   -0.386279
+   2    0.037286   -0.063653    0.141137
+   3   -0.017379   -0.068877   -0.386280
    4   -0.085360   -0.024481   -0.382047
  esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.705319  avg sphere pot= 0.699656  vconst=-0.705319
@@ -2910,10 +2903,10 @@ ib=  4 l= 3    0.015559   -0.003185   -0.204674   spin 2    0.015146   -0.003881
          2      2      1
          3      3      1
 
- smooth rhoves     78.164067   charge    19.712681
+ smooth rhoves     78.164071   charge    19.712682
  smvxcm: all smrho_w is positive
- smooth rhoeps =  -16.415124 (  -8.021143,  -8.393980)
-         rhomu =  -21.387712 ( -10.394661, -10.993050)
+ smooth rhoeps =  -16.415125 (  -8.021144,  -8.393981)
+         rhomu =  -21.387713 ( -10.394662, -10.993051)
        avg vxc =   -0.850778 (  -0.848327,  -0.853229)
 
  locpot:
@@ -2927,13 +2920,13 @@ ib=  4 l= 3    0.015559   -0.003185   -0.204674   spin 2    0.015146   -0.003881
   total:         -916.186957      -690.138100       76.297823
  exchange for smooth density, foca=1:
  mesh:   nth,nph= -62   0   gives  62  angular points,   nrad= 397
- vxcnsp: loc rmu=  -4.815364  rep=  -3.695543  q =   3.997517
- spin 2:           -4.903109        -3.749170        4.042353
-  total:           -9.718473        -7.444712        8.039870
+ vxcnsp: loc rmu=  -4.815365  rep=  -3.695543  q =   3.997517
+ spin 2:           -4.903109        -3.749170        4.042354
+  total:           -9.718474        -7.444713        8.039871
 
  ilm                   rho*vtrue                              rho*vsm
              spin1       spin2       tot           spin1       spin2       tot
-   1     -66.485601  -69.953415 -136.439016    -12.101328  -12.433064  -24.534392
+   1     -66.485601  -69.953415 -136.439016    -12.101329  -12.433065  -24.534394
    2      -0.000050   -0.000029   -0.000079     -0.000087   -0.000048   -0.000135
    3      -0.000633   -0.000457   -0.001090     -0.000955   -0.000659   -0.001613
    4      -0.000013   -0.000007   -0.000020     -0.000021   -0.000012   -0.000033
@@ -2946,11 +2939,11 @@ ib=  4 l= 3    0.015559   -0.003185   -0.204674   spin 2    0.015146   -0.003881
   25       0.000015    0.000014    0.000030     -0.000030   -0.000013   -0.000043
 
  local terms:     true           smooth         local
- rhoeps:      -690.138100      -7.444712    -682.693387
- rhomu:       -457.853316      -4.815364    -453.037951
+ rhoeps:      -690.138100      -7.444713    -682.693387
+ rhomu:       -457.853316      -4.815365    -453.037951
  spin2:       -458.333641      -4.903109    -453.430532
- total:       -916.186957      -9.718473    -906.468484
- val*vef      -136.440464     -46.408871     -90.031592
+ total:       -916.186957      -9.718474    -906.468483
+ val*vef      -136.440465     -46.408870     -90.031594
  val chg:        8.327345       6.626647       1.700698
  val mom:       -0.151962      -0.044837      -0.107125    core:   0.000000
  core chg:      67.970478      67.970478      -0.000000
@@ -2964,18 +2957,18 @@ ib=  4 l= 3    0.015559   -0.003185   -0.204674   spin 2    0.015146   -0.003881
  sm core charge = 0.257152 (sphere) + 0.004382 (spillout) = 0.261533
  Exchange for true density:
  mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 329
- vxcnsp: loc rmu= -73.334940  rep= -55.823020  q =  12.550282
+ vxcnsp: loc rmu= -73.334941  rep= -55.823021  q =  12.550282
  spin 2:          -78.467166       -58.880567       14.030426
-  total:         -151.802106      -114.703587       26.580708
+  total:         -151.802108      -114.703588       26.580708
  exchange for smooth density, foca=1:
  mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 329
  vxcnsp: loc rmu=  -1.435061  rep=  -1.114179  q =   1.661808
- spin 2:           -1.594931        -1.214199        1.795435
-  total:           -3.029992        -2.328378        3.457243
+ spin 2:           -1.594931        -1.214200        1.795435
+  total:           -3.029992        -2.328378        3.457244
 
  ilm                   rho*vtrue                              rho*vsm
              spin1       spin2       tot           spin1       spin2       tot
-   1     -46.627158  -74.515997 -121.143155     -2.439027   -2.813742   -5.252768
+   1     -46.627164  -74.515995 -121.143159     -2.439027   -2.813742   -5.252769
    2      -0.000007   -0.000010   -0.000017     -0.000010   -0.000015   -0.000025
    3      -0.000004   -0.000014   -0.000018     -0.000005   -0.000016   -0.000021
    4      -0.000018   -0.000009   -0.000027     -0.000024   -0.000011   -0.000036
@@ -2987,13 +2980,13 @@ ib=  4 l= 3    0.015559   -0.003185   -0.204674   spin 2    0.015146   -0.003881
   16      -0.000002   -0.000002   -0.000004     -0.000003   -0.000002   -0.000006
 
  local terms:     true           smooth         local
- rhoeps:      -114.703587      -2.328378    -112.375209
- rhomu:        -73.334940      -1.435061     -71.899879
+ rhoeps:      -114.703588      -2.328378    -112.375210
+ rhomu:        -73.334941      -1.435061     -71.899880
  spin2:        -78.467166      -1.594931     -76.872235
- total:       -151.802106      -3.029992    -148.772114
- val*vef      -121.143789     -32.848875     -88.294914
- val chg:        8.585089       3.200092       5.384998
- val mom:       -1.479944      -0.133627      -1.346317    core:  -0.000200
+ total:       -151.802108      -3.029992    -148.772116
+ val*vef      -121.143793     -32.848873     -88.294920
+ val chg:        8.585090       3.200092       5.384998
+ val mom:       -1.479943      -0.133627      -1.346316    core:  -0.000200
  core chg:      17.995618      17.995618      -0.000000
   ibas l=  2  0 pnu(1:nsp) pnz(1:nsp)=   4.64238   4.63726   0.00000   0.00000
   ibas l=  2  1 pnu(1:nsp) pnz(1:nsp)=   4.37538   4.36545   0.00000   0.00000
@@ -3004,9 +2997,9 @@ ib=  4 l= 3    0.015559   -0.003185   -0.204674   spin 2    0.015146   -0.003881
  sm core charge = 0.257152 (sphere) + 0.004382 (spillout) = 0.261533
  Exchange for true density:
  mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 329
- vxcnsp: loc rmu= -72.301523  rep= -55.106405  q =  12.223143
+ vxcnsp: loc rmu= -72.301522  rep= -55.106404  q =  12.223143
  spin 2:          -78.296204       -58.682744       13.997581
-  total:         -150.597727      -113.789149       26.220724
+  total:         -150.597726      -113.789149       26.220723
  exchange for smooth density, foca=1:
  mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 329
  vxcnsp: loc rmu=  -1.360495  rep=  -1.062745  q =   1.594676
@@ -3015,7 +3008,7 @@ ib=  4 l= 3    0.015559   -0.003185   -0.204674   spin 2    0.015146   -0.003881
 
  ilm                   rho*vtrue                              rho*vsm
              spin1       spin2       tot           spin1       spin2       tot
-   1     -42.366584  -75.697964 -118.064548     -2.590313   -3.188573   -5.778886
+   1     -42.366582  -75.697964 -118.064546     -2.590313   -3.188573   -5.778886
    2      -0.000008   -0.000012   -0.000021     -0.000011   -0.000018   -0.000029
    3      -0.000475   -0.000384   -0.000859     -0.000625   -0.000514   -0.001139
    4      -0.000003    0.000002   -0.000001     -0.000008    0.000001   -0.000007
@@ -3031,12 +3024,12 @@ ib=  4 l= 3    0.015559   -0.003185   -0.204674   spin 2    0.015146   -0.003881
 
  local terms:     true           smooth         local
  rhoeps:      -113.789149      -2.278740    -111.510409
- rhomu:        -72.301523      -1.360495     -70.941028
+ rhomu:        -72.301522      -1.360495     -70.941027
  spin2:        -78.296204      -1.604822     -76.691382
- total:       -150.597727      -2.965317    -147.632410
- val*vef      -118.067176     -35.030131     -83.037045
+ total:       -150.597726      -2.965317    -147.632409
+ val*vef      -118.067175     -35.030133     -83.037042
  val chg:        8.225105       3.144146       5.080959
- val mom:       -1.774237      -0.211947      -1.562291    core:  -0.000200
+ val mom:       -1.774238      -0.211947      -1.562291    core:  -0.000200
  core chg:      17.995618      17.995618      -0.000000
   ibas l=  3  0 pnu(1:nsp) pnz(1:nsp)=   4.64201   4.63727   0.00000   0.00000
   ibas l=  3  1 pnu(1:nsp) pnz(1:nsp)=   4.37322   4.36339   0.00000   0.00000
@@ -3047,18 +3040,18 @@ ib=  4 l= 3    0.015559   -0.003185   -0.204674   spin 2    0.015146   -0.003881
  sm core charge = 0.257152 (sphere) + 0.004382 (spillout) = 0.261533
  Exchange for true density:
  mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 329
- vxcnsp: loc rmu= -72.438534  rep= -55.201371  q =  12.266910
+ vxcnsp: loc rmu= -72.438533  rep= -55.201370  q =  12.266910
  spin 2:          -78.317724       -58.708163       14.001882
-  total:         -150.756258      -113.909534       26.268792
+  total:         -150.756257      -113.909533       26.268792
  exchange for smooth density, foca=1:
  mesh:   nth,nph= -32   0   gives  32  angular points,   nrad= 329
  vxcnsp: loc rmu=  -1.370902  rep=  -1.069975  q =   1.604020
- spin 2:           -1.604128        -1.216220        1.805642
+ spin 2:           -1.604129        -1.216220        1.805642
   total:           -2.975031        -2.286195        3.409662
 
  ilm                   rho*vtrue                              rho*vsm
              spin1       spin2       tot           spin1       spin2       tot
-   1     -42.949594  -75.535488 -118.485082     -2.573260   -3.139793   -5.713052
+   1     -42.949591  -75.535489 -118.485080     -2.573260   -3.139793   -5.713053
    2      -0.000025   -0.000002   -0.000027     -0.000045   -0.000006   -0.000052
    3      -0.000470   -0.000381   -0.000851     -0.000620   -0.000510   -0.001131
    4      -0.000045   -0.000033   -0.000078     -0.000059   -0.000044   -0.000103
@@ -3072,12 +3065,12 @@ ib=  4 l= 3    0.015559   -0.003185   -0.204674   spin 2    0.015146   -0.003881
   16      -0.000004   -0.000004   -0.000008     -0.000005   -0.000005   -0.000010
 
  local terms:     true           smooth         local
- rhoeps:      -113.909534      -2.286195    -111.623339
- rhomu:        -72.438534      -1.370902     -71.067632
- spin2:        -78.317724      -1.604128     -76.713595
- total:       -150.756258      -2.975031    -147.781227
- val*vef      -118.487610     -34.766828     -83.720781
- val chg:        8.273174       3.152510       5.120664
+ rhoeps:      -113.909533      -2.286195    -111.623338
+ rhomu:        -72.438533      -1.370902     -71.067631
+ spin2:        -78.317724      -1.604129     -76.713595
+ total:       -150.756257      -2.975031    -147.781226
+ val*vef      -118.487607     -34.766830     -83.720777
+ val chg:        8.273174       3.152511       5.120663
  val mom:       -1.734772      -0.201622      -1.533150    core:  -0.000200
  core chg:      17.995618      17.995618      -0.000000
   ibas l=  4  0 pnu(1:nsp) pnz(1:nsp)=   4.64208   4.63728   0.00000   0.00000
@@ -3088,9 +3081,9 @@ ib=  4 l= 3    0.015559   -0.003185   -0.204674   spin 2    0.015146   -0.003881
  Electric Field Gradient:
  Site      Tensor axes     esu/cm^2    V/m^2      eta    line splitting
                             x10^13     x10^19                (mm/s)
-   1   -0.277-2.299-5.811    -12.38    -37.15      0.135      0.00000
-       -0.012 3.01610.740     -9.44    -28.33
-        0.148 0.406 0.204     21.83     65.48
+   1   -0.277-2.299-5.814    -12.39    -37.16      0.135      0.00000
+       -0.011 3.01710.743     -9.45    -28.34
+        0.148 0.406 0.204     21.83     65.49
 
    2    5.892 9.591******    -53.63   -160.89      0.096      0.00000
         2.872 4.845******    -44.20   -132.60
@@ -3106,13 +3099,13 @@ ib=  4 l= 3    0.015559   -0.003185   -0.204674   spin 2    0.015146   -0.003881
 
 
  Energy terms:             smooth           local           total
-   rhoval*vef            -43.722105      -452.827721      -496.549826
-   rhoval*ves           -132.686472      -289.389073      -422.075545
-   psnuc*ves             289.014605   -188690.417658   -188401.403053
-   utot                   78.164067    -94489.903365    -94411.739299
-   rho*exc               -16.415124     -1018.202344     -1034.617468
-   rho*vxc               -21.387712     -1350.654235     -1372.041947
-   valence chg            19.712681        17.287319        37.000000
+   rhoval*vef            -43.722110      -452.827718      -496.549827
+   rhoval*ves           -132.686470      -289.389075      -422.075546
+   psnuc*ves             289.014612   -188690.417667   -188401.403055
+   utot                   78.164071    -94489.903371    -94411.739300
+   rho*exc               -16.415125     -1018.202343     -1034.617468
+   rho*vxc               -21.387713     -1350.654234     -1372.041947
+   valence chg            19.712682        17.287318        37.000000
    valence mag            -0.450283        -4.548882        -4.999165
    core charge           122.000000        -0.000000       122.000000
 
@@ -3120,8 +3113,8 @@ ib=  4 l= 3    0.015559   -0.003185   -0.204674   spin 2    0.015146   -0.003881
     hom background     0.00000   deviation from neutrality:     -0.00000
 
  Kohn-Sham energy:
- sumtv=      488.041916  sumtc=     49805.961065   ekin=    50294.002982
- rhoep=    -1034.617468   utot=    -94411.739299   ehks=   -45152.353785
+ sumtv=      488.041918  sumtc=     49805.961065   ekin=    50294.002983
+ rhoep=    -1034.617468   utot=    -94411.739300   ehks=   -45152.353785
  mag. mom=    -4.999165
  smvxcm: all smrho_w is positive
  smvxcm: all smrho_w is positive
@@ -3129,7 +3122,7 @@ ib=  4 l= 3    0.015559   -0.003185   -0.204674   spin 2    0.015146   -0.003881
 
  Harris correction to forces: screened shift in core+nuclear density  
   ib         delta-n dVes             delta-n dVxc               total
-   1  -18.99  -43.49 -124.53    -1.38   -3.18  -10.18    20.37   46.67  134.70
+   1  -18.99  -43.49 -124.52    -1.38   -3.18  -10.18    20.37   46.67  134.70
    2   -8.60    3.64   -1.07    -1.60    0.20    0.15    10.20   -3.84    0.91
    3    9.87    2.84   36.30     2.01    0.00    5.47   -11.88   -2.84  -41.78
    4    9.73   18.02   36.39     1.42    3.71    5.47   -11.14  -21.73  -41.85
@@ -3150,18 +3143,17 @@ ib=  4 l= 3    0.015559   -0.003185   -0.204674   spin 2    0.015146   -0.003881
  mixing: mode=B  beta=.3  elind=1.44
  wgtsmooth=   1.5625000000000000E-002
  mixrho:  sought 8 iter from file mixm; read 2.  RMS DQ=2.75e-2  last it=3.93e-2
- broyj:  ir=2  dxmax=0.078  gmax=0.26  wc=1
- mixrho: add corrections to qcell smrho =  0.90536D-07  0.12196D-09
+ mixrho: add corrections to qcell smrho =  0.97457D-07  0.13128D-09
  unscreened rms difference:  smooth  0.023466   local  0.035117
    screened rms difference:  smooth  0.023138   local  0.035117   tot  0.027453
 
  iors  : write restart file (binary, mesh density) 
          id -  
-         written by -  takao on  at: Fri Oct  8 18:42:32 2021
+         written by -  takao on  at: Sat Jan 15 14:46:11 2022
 
    it  3  of  3    ehf=      -1.970181   ehk=      -1.917685
  From last iter    ehf=      -2.114513   ehk=      -1.146413
  diffe(q)=  0.144332 (0.027453)    tol= 0.000100 (0.000100)   more=F
-x nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.9991651 ehf(eV)=-26.8058885 ehk(eV)=-26.0916402 sev(eV)=-117.2340921
- >>      1.28   exit  lmfp            1.25
+x nsp=2 met=3 tetra=0 nk1=2 lfrce=12 dist=1 nit=3 pwmode=0 mmom=-4.9991651 ehf(eV)=-26.8058911 ehk(eV)=-26.0916402 sev(eV)=-117.2340903
+ >>      2.03   exit  lmfp            1.98
 OK! end of LMF ======================

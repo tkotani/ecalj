@@ -1,6 +1,7 @@
-===START LMFA   =====================================
+=== START LFMA ===
  mpisize=           1
  HEADER Fe test spin pol, f-orbitals for cls and mull
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
 
 mmm === MTO setting ===
 mmm ispec lmxb lpzex nkapii nkaphh=    1    3    0    2    2
@@ -10,19 +11,6 @@ mmm rsmh2    1  1.16  1.16  1.16  0.00
 mmm  eh2     1 -1.10 -1.10 -1.10  0.00
 mmm pz       1  0.00  0.00  0.00  0.00
 mmm lh       1  3  2
-
-                Plat                                  Qlat
-   0.500000   0.500000   0.500000        0.000000   1.000000   1.000000
-   0.500000  -0.500000   0.500000        1.000000  -1.000000   0.000000
-   0.500000   0.500000  -0.500000        1.000000   0.000000  -1.000000
-  Cell vol= 79.765082
-
- LATTC:  as= 2.000   tol=1.00E-08   alat= 5.42352   awald= 0.465
-         r1=  2.466   nkd= 137      q1=  4.687   nkg= 201
-
- Generator 1 already in group as element 1
- SGROUP: 1 symmetry operations from 1 generators
- MKSYM:  found 1 space group operations; adding inversion generated 2 ops
  goto freats
 
 ttt: pnu qat=  1  0     4.660     2.000
@@ -90,10 +78,14 @@ conf: Core rhoc(rmt)= 0.010971 spillout= 0.014702
  Fit with Hankel e=-19.588292 coeff=750.846970
  end of freats: spid nmcore=Fe                 0
 OK! end of LMFA ======================
-===START LMF   =====================================
+===START LMF   ===
  mpisize=           4
  HEADER Fe test spin pol, f-orbitals for cls and mull
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
   bndfp (warning): no sigm file found ... LDA calculation only
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
 
 mmm === MTO setting ===
 mmm ispec lmxb lpzex nkapii nkaphh=    1    3    0    2    2
@@ -110,7 +102,7 @@ mmm lh       1  3  2
    0.500000   0.500000  -0.500000        1.000000   0.000000  -1.000000
   Cell vol= 79.765082
 
- LATTC:  as= 2.000   tol=1.00E-08   alat= 5.42352   awald= 0.465
+ LATTC:  as= 2.000   tol= 1.00E-08   alat= 5.42352   awald= 0.465
          r1=  2.466   nkd= 137      q1=  4.687   nkg= 201
 
  Generator 1 already in group as element 1
@@ -118,12 +110,7 @@ mmm lh       1  3  2
  MKSYM:  found 1 space group operations; adding inversion generated 2 ops
  
  BZMESH:     32 irreducible QP from    4   4   4 shift=TTT
- >> level: 1  CPUsec=      0.03  enter lmfp
  gen_hamindex: not readin QGpsi.
-
- species data:  augmentation                           density
- spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
- Fe       2.325  0.930    3    4         3  0.581  1.162    15    1   0.930
 
  MSHSIZ: mesh has 16 x 16 x 16 divisions; length 0.294, 0.294, 0.294
          generated from gmax = 13.0 a.u. : 2899 vectors of 4096 (70%)
@@ -131,8 +118,7 @@ mmm lh       1  3  2
  GVLST2: gmax = 13.0 a.u. created 2899 vectors of 4096 (70%)
          (input) mesh has 16 x 16 x 16 divisions; length 0.294, 0.294, 0.294
  SGVSYM: 2899 symmetry stars found for 2899 reciprocal lattice vectors
- goto end of reading rst or atm           2
- goto end of reading rst or atm           2
+ end of reading rst or atm
 
  sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-06
  spec      l    rsm    eh     gmax    last term    cutoff
@@ -141,23 +127,33 @@ mmm lh       1  3  2
   Fe       2*   1.16  -0.10   7.254    1.68E-06     531 
   Fe       3    1.16  -0.10   7.681    2.27E-06     603 
   Fe       0*   1.16  -1.10   6.395    1.24E-06     369 
- goto end of reading rst or atm           2
   Fe       1*   1.16  -1.10   6.825    1.36E-06     429 
   Fe       2    1.16  -1.10   7.254    1.68E-06     531 
- goto end of reading rst or atm           2
+ end of reading rst or atm
+ m_qplistinit:start
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    1, (    9 1),  (   16 2)
+ end of reading rst or atm
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    3, (   25 1),  (   32 2)
+ end of reading rst or atm
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    2, (   17 1),  (   24 2)
+ goto end of reading rst or atm           0
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    0, (    1 1),  (    8 2)
+ goto end of reading rst or atm           0
+ goto end of reading rst or atm           0
+ goto end of reading rst or atm           0
 
  iors  : read restart file (ascii, mesh density) 
          use from  restart file: ef window, positions, pnu 
          ignore in restart file: *
  end of reading rst or atm
  end of reading rst or atm
- m_qplistinit:start
  end of reading rst or atm
  end of reading rst or atm
-m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    3, (   25 1),  (   32 2)
-m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    1, (    9 1),  (   16 2)
-m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    2, (   17 1),  (   24 2)
-m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    0, (    1 1),  (    8 2)
+
+ species data:  augmentation                           density
+ spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
+ Fe       2.325  0.930    3    4         3  0.581  1.162    15    1   0.930
+ >> level: 1  CPUsec=      0.08  enter lmfp
 
  Basis, after reading restart file
  site spec        pos (Cartesian coordinates)         pos (multiples of plat)
@@ -213,7 +209,7 @@ m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    0, (    1 1),  (    
  bndfp: kpt     7 of    32 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
  bndfp: kpt     8 of    32 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
  bndfp: kpt     8 of    32 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
- ... Done MPI k-loop: elapsed time=   0.1494
+ ... Done MPI k-loop: elapsed time=   0.1392
 
  BZWTS : --- Tetrahedron Integration ---
  BZINTS: Fermi energy:      0.008910;   8.000000 electrons
@@ -227,8 +223,8 @@ m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    0, (    1 1),  (    
  BZINTS: Fermi energy:      0.016060;   8.000000 electrons
          Sum occ. bands:   -1.209573, incl. Bloechl correction: -0.005563
          Mag. moment:      -1.999936
- bzwtsf: Set Bias field -Vup+Vdn=   0.070325987691641
-Generating TDOS: efermi, and dos window=    0.0161  -0.5000   1.5161
+ bzwtsf: Set Bias field -Vup+Vdn=   0.070325993061948
+Generating TDOS: efermi, and dos window=    0.0161  -0.6155   1.5161
   mmmmm m_bandcal_2nd
 
  IORBTM:  orbital moments :
@@ -312,15 +308,15 @@ Generating TDOS: efermi, and dos window=    0.0161  -0.5000   1.5161
  mixrealsmooth= T
  wgtsmooth=   1.5625000000000000E-002
  mixrho:  sought 6 iter from file mixm; read 0.  RMS DQ=5.09e-3
- AMIX: nmix=0 mmix=8  nelts= 10052  beta=0.50000  tm= 5.00000  rmsdel=2.54D-03
- mixrho: add corrections to qcell smrho =  0.97226D-07  0.60945D-09
+ AMIX: nmix=0 mmix=8  nelts= 10052  beta=0.50000  tm= 5.00000  rmsdel= 2.54D-03
+ mixrho: add corrections to qcell smrho =  0.97204D-07  0.60931D-09
  unscreened rms difference:  smooth  0.001069   local  0.006368
    screened rms difference:  smooth  0.000275   local  0.006368   tot  0.005088
 
  iors  : write restart file (binary, mesh density) 
 
    it  1  of  3    ehf=   -2541.027553   ehk=   -2541.028470
-i rel=1 nit=3 so=2 fsmom=-2 mmom=-1.999936 ehf(eV)=-34572.7126841 ehk(eV)=-34572.7251593 sev(eV)=-17.4140521
+i rel=1 nit=3 so=2 fsmom=-2 mmom=-1.999936 ehf(eV)=-34572.712684 ehk(eV)=-34572.7251593 sev(eV)=-17.4140521
 
  --- BNDFP:  begin iteration 2 of 3
  esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
@@ -345,7 +341,7 @@ i rel=1 nit=3 so=2 fsmom=-2 mmom=-1.999936 ehf(eV)=-34572.7126841 ehk(eV)=-34572
  Energy terms:             smooth           local           total
    rhoval*vef             -4.940235       -86.686930       -91.627166
    rhoval*ves            -30.450755       -45.523647       -75.974402
-   psnuc*ves              52.955931     -9993.632980     -9940.677050
+   psnuc*ves              52.955931     -9993.632981     -9940.677050
    utot                   11.252588     -5019.578314     -5008.325726
    rho*exc                -2.827516      -104.407166      -107.234682
    rho*vxc                -3.679548      -138.216385      -141.895933
@@ -372,7 +368,7 @@ i rel=1 nit=3 so=2 fsmom=-2 mmom=-1.999936 ehf(eV)=-34572.7126841 ehk(eV)=-34572
  bndfp: kpt     7 of    32 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
  bndfp: kpt     8 of    32 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
  bndfp: kpt     8 of    32 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
- ... Done MPI k-loop: elapsed time=   0.1531
+ ... Done MPI k-loop: elapsed time=   0.1684
 
  BZWTS : --- Tetrahedron Integration ---
  BZINTS: Fermi energy:      0.006048;   8.000000 electrons
@@ -386,8 +382,8 @@ i rel=1 nit=3 so=2 fsmom=-2 mmom=-1.999936 ehf(eV)=-34572.7126841 ehk(eV)=-34572
  BZINTS: Fermi energy:      0.012049;   8.000000 electrons
          Sum occ. bands:   -1.231166, incl. Bloechl correction: -0.005578
          Mag. moment:      -1.999917
- bzwtsf: Set Bias field -Vup+Vdn=   0.061513407129401
-Generating TDOS: efermi, and dos window=    0.0120  -0.5000   1.5120
+ bzwtsf: Set Bias field -Vup+Vdn=   0.061513405919246
+Generating TDOS: efermi, and dos window=    0.0120  -0.6154   1.5120
   mmmmm m_bandcal_2nd
 
  IORBTM:  orbital moments :
@@ -429,7 +425,7 @@ Generating TDOS: efermi, and dos window=    0.0120  -0.5000   1.5120
  sumec=        0.000000  cor*vef=       0.000000   ttcor=    2484.196936
  rhoeps=    -107.234682     utot=   -5008.325726    ehar=   -2541.028985
 
- srhov:     -4.880197    -86.973860    -91.854057 sumev=   -1.292680   sumtv=   90.561377
+ srhov:     -4.880197    -86.973859    -91.854057 sumev=   -1.292680   sumtv=   90.561377
  esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.629457  avg sphere pot= 0.643645  vconst=-0.629457
 
@@ -470,9 +466,9 @@ Generating TDOS: efermi, and dos window=    0.0120  -0.5000   1.5120
  mixing: mode=A  nmix=6  beta=.5  elind=-1  kill=3
  wgtsmooth=   1.5625000000000000E-002
  mixrho:  sought 6 iter from file mixm; read 1.  RMS DQ=2.99e-3  last it=5.09e-3
- AMIX: nmix=1 mmix=8  nelts= 10052  beta=0.50000  tm= 5.00000  rmsdel=1.50D-03
+ AMIX: nmix=1 mmix=8  nelts= 10052  beta=0.50000  tm= 5.00000  rmsdel= 1.50D-03
    tj:-1.12722
- mixrho: add corrections to qcell smrho = -0.12577D-06 -0.78835D-09
+ mixrho: add corrections to qcell smrho = -0.12582D-06 -0.78867D-09
  unscreened rms difference:  smooth  0.000491   local  0.003829
    screened rms difference:  smooth  0.000419   local  0.003829   tot  0.002991
 
@@ -505,7 +501,7 @@ i rel=1 nit=3 so=2 fsmom=-2 mmom=-1.9999166 ehf(eV)=-34572.7321653 ehk(eV)=-3457
 
  Energy terms:             smooth           local           total
    rhoval*vef             -4.843540       -86.903593       -91.747133
-   rhoval*ves            -30.414138       -45.681032       -76.095171
+   rhoval*ves            -30.414139       -45.681032       -76.095171
    psnuc*ves              52.663741     -9993.563719     -9940.899978
    utot                   11.124801     -5019.622376     -5008.497574
    rho*exc                -2.800253      -104.441577      -107.241829
@@ -533,7 +529,7 @@ i rel=1 nit=3 so=2 fsmom=-2 mmom=-1.9999166 ehf(eV)=-34572.7321653 ehk(eV)=-3457
  bndfp: kpt     7 of    32 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
  bndfp: kpt     8 of    32 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
  bndfp: kpt     8 of    32 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
- ... Done MPI k-loop: elapsed time=   0.1543
+ ... Done MPI k-loop: elapsed time=   0.2125
 
  BZWTS : --- Tetrahedron Integration ---
  BZINTS: Fermi energy:      0.014390;   8.000000 electrons
@@ -547,8 +543,8 @@ i rel=1 nit=3 so=2 fsmom=-2 mmom=-1.9999166 ehf(eV)=-34572.7321653 ehk(eV)=-3457
  BZINTS: Fermi energy:      0.019905;   8.000000 electrons
          Sum occ. bands:   -1.183201, incl. Bloechl correction: -0.005605
          Mag. moment:      -1.999987
- bzwtsf: Set Bias field -Vup+Vdn=   0.050539086614285
-Generating TDOS: efermi, and dos window=    0.0199  -0.5000   1.5199
+ bzwtsf: Set Bias field -Vup+Vdn=   0.050539091181252
+Generating TDOS: efermi, and dos window=    0.0199  -0.6038   1.5199
   mmmmm m_bandcal_2nd
 
  IORBTM:  orbital moments :
@@ -590,7 +586,7 @@ Generating TDOS: efermi, and dos window=    0.0199  -0.5000   1.5199
  sumec=        0.000000  cor*vef=       0.000000   ttcor=    2484.196936
  rhoeps=    -107.241829     utot=   -5008.497574    ehar=   -2541.029075
 
- srhov:     -4.895771    -86.393140    -91.288912 sumev=   -1.233741   sumtv=   90.055171
+ srhov:     -4.895772    -86.393140    -91.288912 sumev=   -1.233741   sumtv=   90.055171
  esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.634546  avg sphere pot= 0.643312  vconst=-0.634546
 
@@ -613,7 +609,7 @@ Generating TDOS: efermi, and dos window=    0.0199  -0.5000   1.5199
    rhoval*vef             -4.915237       -86.507555       -91.422792
    rhoval*ves            -30.469436       -45.348105       -75.817541
    psnuc*ves              53.020022     -9993.371592     -9940.351570
-   utot                   11.275293     -5019.359848     -5008.084555
+   utot                   11.275293     -5019.359849     -5008.084556
    rho*exc                -2.824749      -104.371596      -107.196345
    rho*vxc                -3.675902      -138.168812      -141.844714
    valence chg             3.507635         4.492365         8.000000
@@ -624,17 +620,17 @@ Generating TDOS: efermi, and dos window=    0.0199  -0.5000   1.5199
     hom background     0.00000   deviation from neutrality:      0.00000
 
  Kohn-Sham energy:
- sumtv=       90.055171  sumtc=      2484.196936   ekin=     2574.252107
- rhoep=     -107.196345   utot=     -5008.084555   ehks=    -2541.028793
+ sumtv=       90.055171  sumtc=      2484.196936   ekin=     2574.252108
+ rhoep=     -107.196345   utot=     -5008.084556   ehks=    -2541.028793
  mag. mom=    -1.999987
   
  mixing: mode=A  nmix=6  beta=.5  elind=-1  kill=3
  wgtsmooth=   1.5625000000000000E-002
  mixrho:  sought 6 iter from file mixm; read 2.  RMS DQ=8.41e-4  last it=2.99e-3
  ...  deleting file mixm : nkill=3
- AMIX: nmix=2 mmix=8  nelts= 10052  beta=0.50000  tm= 5.00000  rmsdel=4.20D-04
+ AMIX: nmix=2 mmix=8  nelts= 10052  beta=0.50000  tm= 5.00000  rmsdel= 4.20D-04
    tj: 0.77887  -0.49726
- mixrho: add corrections to qcell smrho = -0.60554D-07 -0.37958D-09
+ mixrho: add corrections to qcell smrho = -0.60600D-07 -0.37986D-09
  unscreened rms difference:  smooth  0.000434   local  0.001079
    screened rms difference:  smooth  0.000367   local  0.001079   tot  0.000841
 
@@ -643,6 +639,6 @@ Generating TDOS: efermi, and dos window=    0.0199  -0.5000   1.5199
    it  3  of  3    ehf=   -2541.029075   ehk=   -2541.028793
  From last iter    ehf=   -2541.028985   ehk=   -2541.029196
  diffe(q)= -0.000090 (0.000841)    tol= 0.000100 (0.000100)   more=F
-x rel=1 nit=3 so=2 fsmom=-2 mmom=-1.9999874 ehf(eV)=-34572.7333907 ehk(eV)=-34572.7295488 sev(eV)=-16.7860267
- >>      1.17   exit  lmfp            1.15
+x rel=1 nit=3 so=2 fsmom=-2 mmom=-1.9999874 ehf(eV)=-34572.7333907 ehk(eV)=-34572.7295488 sev(eV)=-16.7860268
+ >>      1.38   exit  lmfp            1.30
 OK! end of LMF ======================

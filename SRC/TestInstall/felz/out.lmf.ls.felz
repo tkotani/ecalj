@@ -1,7 +1,11 @@
-===START LMF   =====================================
+===START LMF   ===
  mpisize=           4
  HEADER Fe test spin pol, f-orbitals for cls and mull
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
   bndfp (warning): no sigm file found ... LDA calculation only
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
+idu uh jh=   0   0   0   0  0.00  0.00  0.00  0.00   0.00  0.00  0.00  0.00
 
 mmm === MTO setting ===
 mmm ispec lmxb lpzex nkapii nkaphh=    1    3    0    2    2
@@ -18,7 +22,7 @@ mmm lh       1  3  2
    0.500000   0.500000  -0.500000        1.000000   0.000000  -1.000000
   Cell vol= 79.765082
 
- LATTC:  as= 2.000   tol=1.00E-08   alat= 5.42352   awald= 0.465
+ LATTC:  as= 2.000   tol= 1.00E-08   alat= 5.42352   awald= 0.465
          r1=  2.466   nkd= 137      q1=  4.687   nkg= 201
 
  Generator 1 already in group as element 1
@@ -26,12 +30,7 @@ mmm lh       1  3  2
  MKSYM:  found 1 space group operations; adding inversion generated 2 ops
  
  BZMESH:     32 irreducible QP from    4   4   4 shift=TTT
- >> level: 1  CPUsec=      0.02  enter lmfp
  gen_hamindex: not readin QGpsi.
-
- species data:  augmentation                           density
- spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
- Fe       2.325  0.930    3    4         3  0.581  1.162    15    1   0.930
 
  MSHSIZ: mesh has 16 x 16 x 16 divisions; length 0.294, 0.294, 0.294
          generated from gmax = 13.0 a.u. : 2899 vectors of 4096 (70%)
@@ -39,10 +38,10 @@ mmm lh       1  3  2
  GVLST2: gmax = 13.0 a.u. created 2899 vectors of 4096 (70%)
          (input) mesh has 16 x 16 x 16 divisions; length 0.294, 0.294, 0.294
  SGVSYM: 2899 symmetry stars found for 2899 reciprocal lattice vectors
- goto end of reading rst or atm           2
- goto end of reading rst or atm           2
+ end of reading rst or atm
+ end of reading rst or atm
+ end of reading rst or atm
 
- goto end of reading rst or atm           2
  sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-06
  spec      l    rsm    eh     gmax    last term    cutoff
   Fe       0*   1.16  -0.10   6.395    1.24E-06     369 
@@ -52,20 +51,29 @@ mmm lh       1  3  2
   Fe       0*   1.16  -1.10   6.395    1.24E-06     369 
   Fe       1*   1.16  -1.10   6.825    1.36E-06     429 
   Fe       2    1.16  -1.10   7.254    1.68E-06     531 
- goto end of reading rst or atm           2
+ end of reading rst or atm
+ m_qplistinit:start
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    1, (    9 1),  (   16 1)
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    3, (   25 1),  (   32 1)
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    2, (   17 1),  (   24 1)
+ goto end of reading rst or atm           0
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    0, (    1 1),  (    8 1)
+ goto end of reading rst or atm           0
+ goto end of reading rst or atm           0
+ goto end of reading rst or atm           0
 
  iors  : read restart file (ascii, mesh density) 
          use from  restart file: ef window, positions, pnu 
          ignore in restart file: *
  end of reading rst or atm
- m_qplistinit:start
+ end of reading rst or atm
+
+ species data:  augmentation                           density
+ spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
+ Fe       2.325  0.930    3    4         3  0.581  1.162    15    1   0.930
  end of reading rst or atm
  end of reading rst or atm
- end of reading rst or atm
-m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    1, (    9 1),  (   16 1)
-m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    0, (    1 1),  (    8 1)
-m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    3, (   25 1),  (   32 1)
-m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    2, (   17 1),  (   24 1)
+ >> level: 1  CPUsec=      0.05  enter lmfp
 
  Basis, after reading restart file
  site spec        pos (Cartesian coordinates)         pos (multiples of plat)
@@ -113,13 +121,13 @@ m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    2, (   17 1),  (   2
  bndfp: kpt     6 of    32 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    25   25    0
  bndfp: kpt     7 of    32 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
  bndfp: kpt     8 of    32 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
- ... Done MPI k-loop: elapsed time=   0.1561
+ ... Done MPI k-loop: elapsed time=   0.1579
 
  BZWTS : --- Tetrahedron Integration ---
  BZINTS: Fermi energy:      0.009041;   8.000000 electrons
          Sum occ. bands:   -1.284002, incl. Bloechl correction: -0.005976
          spin weights not available ... no spin moment calculated
-Generating TDOS: efermi, and dos window=    0.0090  -0.5000   1.5090
+Generating TDOS: efermi, and dos window=    0.0090  -0.5283   1.5090
   mmmmm m_bandcal_2nd
 
  IORBTM:  orbital moments :
@@ -203,15 +211,15 @@ Generating TDOS: efermi, and dos window=    0.0090  -0.5000   1.5090
  mixrealsmooth= T
  wgtsmooth=   1.5625000000000000E-002
  mixrho:  sought 6 iter from file mixm; read 1.  RMS DQ=1.65e-5
- AMIX: nmix=1 mmix=8  nelts= 10052  beta=0.50000  tm= 5.00000  rmsdel=8.26D-06
-   tj: 0.99392
- mixrho: add corrections to qcell smrho =  0.88462D-07  0.55451D-09
+ AMIX: nmix=1 mmix=8  nelts= 10052  beta=0.50000  tm= 5.00000  rmsdel= 8.26D-06
+   tj: 0.99386
+ mixrho: add corrections to qcell smrho =  0.88425D-07  0.55428D-09
  unscreened rms difference:  smooth  0.000067   local  0.000008
    screened rms difference:  smooth  0.000043   local  0.000008   tot  0.000017
 
  iors  : write restart file (binary, mesh density) 
 
    it  1  of  1    ehf=   -2541.031656   ehk=   -2541.031655
-x rel=1 nit=1 so=1 mmom=-2.2479067 ehf(eV)=-34572.7684999 ehk(eV)=-34572.7684972 sev(eV)=-17.4698679
- >>      0.39   exit  lmfp            0.37
+x rel=1 nit=1 so=1 mmom=-2.2479068 ehf(eV)=-34572.7684999 ehk(eV)=-34572.7684972 sev(eV)=-17.4698679
+ >>      0.41   exit  lmfp            0.36
 OK! end of LMF ======================
