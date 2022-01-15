@@ -1003,7 +1003,11 @@ C      if (iprint() .lt. 30) return
         write(ifi,'("      ",5x,"           ",5x," x10^13 ",2x,
      .  "  x10^19 ",4x,"   ",4x,"    (mm/s)")')
       enddo
-
+ccccccccccccccccccccccccccccccc      
+c       do  ic = 1, nc
+c         write(ifi,"('eeeefg ic z=',i3,f9.4,5f13.4)") ic,z(ic),efg1(1:5,ic)
+c       enddo
+ccccccccccccccccccccccccccccc        
       do  ic = 1, nc
 c      write(ifi,*) ' ic,z=',ic,z(ic)
         if (z(ic) .gt. 0.01d0) then
@@ -1045,7 +1049,12 @@ C      ex=efg1(5,ic)+efg2(5,ic)
             enddo
             tr(i,i) = 1d0
           enddo
-
+cccccccccccccccccccccc
+c          do  i = 1, 3
+c          write(ifi,"('eeeefg vvvvvvvvvvv' i4,3x,3f6.3)")  ic,(v(j,i),j=1,3)
+c          enddo
+cccccccccccccccccccc
+          
           n = 3
           call htridi(n,n,v,vi,d,e,e2,tau)
           call imtql2(n,n,d,e,tr,ier)
