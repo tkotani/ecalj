@@ -82,6 +82,9 @@
       integer,allocatable,target:: ngvecptt(:,:,:),ngvecctt(:,:,:),ngptt(:),ngctt(:)
       real(8),allocatable:: qtt(:,:)
 
+      integer,allocatable:: ngplist(:),ndimhall(:),iqindex(:)
+      real(8),allocatable:: qplist(:,:)
+
       contains
       subroutine lmf2gw()
 !! Files, gwa.* gwb.* gw1.* gw2.* are converted to DATA4GW and CphiGeig.
@@ -126,15 +129,13 @@ c----------------------------------------------
       integer:: ifiproc,nqixx,nspxx,numprocxx,ixxx
       integer,allocatable:: iprocq(:,:)
       logical:: iopen
-      integer::  id,nsizex,iqqxx,ifile_handle,ib,ii,ipqn,nn,nnn(3),ifiqg,ifiqgc
-      real(8),allocatable:: qplist(:,:)
-      integer,allocatable:: ngplist(:),ndimhall(:)
+      integer::  id,nsizex,iqqxx,ifile_handle,ib,ii,ipqn,nn,nnn(3),ifiqg,ifiqgc,irr,irrq
 !! =================================================================
       call setpr(30)
 c      call getkeyvalue("GWinput", "n1n2n3", nnn,3) !Readin nx ny nz for k-points for GW 
 c     n1q=nnn(1); n2q=nnn(2); n3q = nnn(3)
       open(newunit=ifigwb,file='gwb.head',form='unformatted')
-      read (ifigwb) nbas,nsp,ldim2,ndimh,lmxamx,ncoremx,nrmx,plat,alat,nqirr
+      read (ifigwb) nbas,nsp,ldim2,nbandmx,lmxamx,ncoremx,nrmx,plat,alat,nqirr
       allocate(bas(3,nbas),lmxaa(nbas),qplist(3,nqirr),ngplist(nqirr),ndimhall(nqirr))
       read(ifigwb) bas,lmxaa,qplist,ngplist,ndimhall
       close(ifigwb)
@@ -294,12 +295,17 @@ c  &     l,kkk,isp,ec_A(icore),gcore_A(nr_A,icore),ovv(1),icore,icor1
       read(ifiqg ) nqnum, ngpmx,QpGcut_psi,nqbz,nqirr
       read(ifiqgc) nqnumc,ngcmx,QpGcut_cou
       nqtt = nqnum
-      allocate(qtt(3,nqtt),ngvecptt(3,ngpmx,nqtt),ngvecctt(3,ngpmx,nqtt),ngptt(nqtt),ngctt(nqtt))
+      allocate(qtt(3,nqtt),ngvecptt(3,ngpmx,nqtt),ngvecctt(3,ngpmx,nqtt),ngptt(nqtt),ngctt(nqtt),iqindex(nqtt))
+      irrq=0
       do iq=1,nqtt
-         read (ifiqg)  qtt(1:3,iq), ngptt(iq) !, irr
+         read (ifiqg)  qtt(1:3,iq), ngptt(iq) , irr
          read (ifiqg)  ngvecptt(1:3,1:ngptt(iq),iq)
          read (ifiqgc) qxx, ngctt(iq)
          read (ifiqgc) ngvecctt(1:3,1:ngctt(iq),iq)
+         if(irr==1) then
+            irrq=irrq+1
+            iqindex(irrq)=iq
+         endif   
          if(sum(abs(qtt(:,iq)-qxx))>1d-8) call rx('QGpsi QGcou q/=q')
          write(*,"(' qtt =',i4,3f9.5)")iq, qtt(1:3,iq)
       enddo
@@ -313,44 +319,49 @@ c  &     l,kkk,isp,ec_A(icore),gcore_A(nr_A,icore),ovv(1),icore,icor1
       open(newunit=ificg,file='CphiGeig',form='unformatted')
 c      mrecb = 2*ldim2*nband *ndble/nwordr()
 c      open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
-      nbandmx = ndimh
-      write(6,'(" nqirr nqpz ndimh(max)=",3i5)') nqirr,nqbz,ndimh
+c      nbandmx = ndimh
+      write(6,'(" nqirr nqpz nbandmx=",3i5)') nqirr,nqbz,nbandmx
       allocate( qirr(3,nqirr),evl_d(nbandmx, nqirr, nsp),vxclda(nbandmx, nqirr, nsp),
-     &  vvv1(nbandmx),vvv2(nbandmx),vvv3(nbandmx),cphi(ldim2, nbandmx), evl(nbandmx) )
+     &   vvv1(nbandmx),vvv2(nbandmx),vvv3(nbandmx),cphi(ldim2, nbandmx), evl(nbandmx) )
+!! open files      
+c      do iqq = 1,nqirr !q point for irreducible points, irr=1 only (console output)
+c      do isp = 1, nsp
+c      enddo
+c      enddo
+!!      
       evl_d =1d20
       vxclda=1d20
       do iqq = 1,nqirr !q point for irreducible points, irr=1 only (console output)
-        do isp = 1, nsp
-          fname='gwb'//trim(extp(iprocq(iqq,isp)))
-          inquire(file=trim(fname),opened=iopen,number=ifigwb_)
-          if(.not.iopen) open(newunit=ifigwb_,file=trim(fname),form='unformatted')
+      do isp = 1, nsp
+cccccccccccccccccc
+        fname='gwb'//trim(extp(iprocq(iqq,isp)))
+        inquire(file=trim(fname),opened=iopen,number=ifigwb_)
+        if(.not.iopen) open(newunit=ifigwb_,file=trim(fname),form='unformatted')
+        fname='gw1'//trim(extp(iprocq(iqq,isp)))
+        inquire(file=trim(fname),opened=iopen,number=ifigwx1_)
+        if(.not.iopen) open(newunit=ifigwx1_,file=trim(fname),form='unformatted')
+        fname='gw2'//trim(extp(iprocq(iqq,isp)))
+        inquire(file=trim(fname),opened=iopen,number=ifigwx2_)
+        if(.not.iopen) open(newunit=ifigwx2_,file=trim(fname),form='unformatted')
+cccccccccccc          
           nband     =  ndimhall(iqq)
           ngp       =  ngplist(iqq)
           qirr(:,iqq)= qplist(:,iqq)
-          write(6,"(a,3d13.6,3i6,3x,3f11.6)") 'uuuv1 iqq isp nband q=',qirr(:,iqq)!,iqq,isp,nband !, qirr(:,iqq)
+c          write(6,"(a,3d13.6,3i6,3x,3f11.6)") 'uuuv1 iqq isp nband q=',qirr(:,iqq)!,iqq,isp,nband !, qirr(:,iqq)
 c          read (ifigwb_) qqq    !qirr(:,iqq) !,nband !,iq,ngp !iq=iqq
 c          if(sum(abs(qirr(:,iqq)-qqq))>1d-6) then
 c            write(6,"(a,3d13.6,3i6,3x,3f11.6)") 'uuuv2 iqq isp nband q=',qqq !iqq,isp,nband !, qirr(:,iqq)
 c            call rx('qirr/=qqq')
 c         endif
-         
-          evl =1d20
+          allocate( geig(ngp, nbandmx))!, ngvecp(3,ngp) )
           cphi=1d20
-          allocate( geig(ngp, nbandmx), ngvecp(3,ngp) )
           geig=1d20
-          read (ifigwb_) evl(1:nband),cphi(:,1:nband),geig(:,1:nband) !ngvecp,
-          write(ificg) cphi(1:ldim2,1:nbandmx)
-          evl_d (1:nband, iqq,isp) = evl (1:nband)
+          read (ifigwb_) evl_d (1:nband, iqq,isp),cphi(:,1:nband),geig(:,1:nband) !ngvecp,
+          write(ificg)              cphi(1:ldim2,1:nbandmx),geig(1:ngp,1:nbandmx)
 !! Plane wave part
-          write(ificg)  ngp
-          if(ngp>0) write(ificg)  geig(1:ngp,1:nbandmx)
-          deallocate(geig,ngvecp) !takao feb2012 ,ngvecc )
-          fname='gw1'//trim(extp(iprocq(iqq,isp)))
-          inquire(file=trim(fname),opened=iopen,number=ifigwx1_)
-          if(.not.iopen) open(newunit=ifigwx1_,file=trim(fname),form='unformatted')
-          fname='gw2'//trim(extp(iprocq(iqq,isp)))
-          inquire(file=trim(fname),opened=iopen,number=ifigwx2_)
-          if(.not.iopen) open(newunit=ifigwx2_,file=trim(fname),form='unformatted')
+c          write(ificg)  ngp
+c          if(ngp>0) write(ificg)  
+          deallocate(geig)!,ngvecp) !takao feb2012 ,ngvecc )
           read(ifigwx1_ ) qqq, (vvv1(i),i=1,nband)
           read(ifigwx2_ ) qqq, (vvv2(i),i=1,nband)
           vxclda (1:nband, iqq,isp)= vvv1(1:nband)-vvv2(1:nband)
