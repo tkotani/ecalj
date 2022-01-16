@@ -92,7 +92,7 @@ c------------------------------------
 
       logical :: exchange, legas, tote
       real(8) ::  rydberg,hartree
-      real(8):: qreal(3), ntot,nocctotg2,tripl,xxx(3,3)
+      real(8):: qreal(3), ntot,tripl,xxx(3,3) !nocctotg2,
       logical ::nocore
       real(8),allocatable :: qz(:,:),qbzxx(:),wbzxx(:),wtet(:,:,:,:),
      &     eband(:,:,:), ene(:) !,ecore(:,:)
@@ -414,11 +414,11 @@ c     --- determine Fermi energy ef for given valn (legas case) or corresponding
         ef = efnew
         if (ixc==5) ef2 = ef
 c     - check total ele number -------
-        ntot  = nocctotg2(nspin, ef,esmr, qbz,wbz, nband,nqbz) !wbz
+c        ntot  = nocctotg2(nspin, ef,esmr, qbz,wbz, nband,nqbz) !wbz
         write(6,*)' ef    =',ef
         write(6,*)' esmr  =',esmr
         write(6,*)' valn  =',valn
-        write(6,*)' ntot  =',ntot
+c        write(6,*)' ntot  =',ntot
       endif
 !!      
  201  continue

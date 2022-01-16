@@ -76,7 +76,7 @@ c takao
       complex(8),allocatable:: geigB(:,:,:,:) ,zsec(:,:,:)
 c
       logical :: exchange, legas=.false.
-      real(8):: qreal(3), ntot,nocctotg2,tripl
+      real(8):: qreal(3), tripl !ntot,nocctotg2,
       logical ::nocore
 
 c space group infermation
@@ -153,11 +153,11 @@ c
      o       ,efnew)
       ef = efnew
 c- check total ele number -------
-      ntot  = nocctotg2(nspin, ef,esmr, qbz,wbz, nband,nqbz)
+c      ntot  = nocctotg2(nspin, ef,esmr, qbz,wbz, nband,nqbz)
       write(6,*)' ef    =',ef
       write(6,*)' esmr  =',esmr
       write(6,*)' valn  =',valn
-      write(6,*)' ntot  =',ntot
+c      write(6,*)' ntot  =',ntot
 c 2001 May
 c        if(abs(valn-ntot)>1d-6) stop ' abs(valn-ntot)>1d-6'
 

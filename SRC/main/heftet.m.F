@@ -46,7 +46,7 @@ c-------------------------------------------------------------
      &  eqx(:,:,:),eqx0(:,:,:),ekc(:),coh(:,:)
       complex(8),allocatable:: geigB(:,:,:,:) ,zsec(:,:,:)
       logical :: exchange, legas
-      real(8):: qreal(3), ntot,nocctotg2,tripl
+      real(8):: qreal(3), tripl!ntot,nocctotg2,
       logical ::nocore
       integer(4) ::ib,igp,iii,ivsumxxx,isx
       real(8),allocatable   :: eex1(:,:,:),exsp1(:,:,:),qqex1(:,:,:,:)

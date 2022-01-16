@@ -6,7 +6,7 @@
       subroutine m_sugw_init () 
       use m_ext,only:   sname
       use m_struc_def,only: s_rv1, s_spec, s_site 
-      use m_suham,only: ndham=>ham_ndham
+      use m_suham,only: ndham=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
       use m_lmfinit, only: 
      &     ham_pwmode,pwemin,pwemax,ham_oveps,lrsig=>ham_lsig,stdl,ham_ldham,iprmb,
      &     ham_scaledsigma,lat_alat,mxorb,nkaph,nsp,nspc,nl,mxorb,ssite=>v_ssite,sspec=>v_sspec,nbas,n0,nppn,nkap0 !lcplxp,
@@ -113,7 +113,7 @@ c      use m_shortn3,only: shortn3_initialize,shortn3
      .geig(:,:,:),geig_p(:,:,:),sene(:,:)
       integer::isize_ham(3)
       integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),norb
-      integer ndhamx,nspx,nnnx,ifiv
+      integer nspx,nnnx,ifiv
       character strn*120
       integer pwmode
       double precision pwgmin,pwgmax,eomin
@@ -138,7 +138,6 @@ c      integer,allocatable:: igv2(:,:)
       logical:: l_dummy_isanrg,isanrg,oncewrite,newsigmasw,sigmamode !,noshorbz
 
       integer(4)::   irr,nqirr, nmcore !feb2012takao nk1,nk2,nk3, 
-c      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, OK?
 
       integer:: nbalance,nrr,ifiproc,iproc,iadd,ldw
       integer:: iqq
@@ -158,7 +157,7 @@ c      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, O
       complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),ovlmtoi(:,:),ovliovl(:,:) ,hammhso(:,:,:)
       integer,allocatable:: iantiferro(:)
 
-      integer:: lpdiag=0,stdo,nrmx,ncoremx
+      integer:: lpdiag=0,stdo,nrmx,ncoremx!,ndham
       character spid*8
 
 #if MPI | MPIK
@@ -213,7 +212,6 @@ c      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, O
       call icopy(i_copy_size,ham_ldham,1,ldham,1)
       ldim=ldham(1,1)
       pwmode= ham_pwmode
-      allocate(evl(ndham,nsp))
 !! ndima
       ndima = 0
       lmxax = -1
@@ -353,15 +351,21 @@ c     call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
       if(master_mpi) write(ifigwa) iantiferro(1:nat) !iantiferro may2015
       if(master_mpi) close(ifigwa) !call fclr('gwa',ifigwa)
 !! 
+!     ndham= maxval(ndimhall) !some inconsistency if we assume this.
+!      See npwpad in suham.F I think npwpad=0 if essentially ok. but current version cause inconsistency.
       if(master_mpi) then
+c         write(6,*) 'nnnnn0 ndham=',ndham0
+c         write(6,*) 'nnnnn1 ndham=',ndham
+c         write(6,*) 'nnnnn2 ndham=',ndimhall
 c        use m_igv2x,only: m_igv2xall_init,ndimhall
 c         call m_igv2xall_init(1,nqirr)
          open(newunit=ifigwbhead,file='gwb.head',form='unformatted')
          write(ifigwbhead) nat,nsp,ndima,ndham, maxval(lmxa(1:nat)),ncoremx/nsp,nrmx,plat,alat,nqirr
          write(ifigwbhead) bas,lmxa,qplist,ngplist,ndimhall
          close(ifigwbhead)
-      endif 
+      endif
       deallocate(ips,lmxa)
+      allocate(evl(ndham,nsp))
       
 !! == GW setup loop over k-points ==
       if (lchk>=1 ) then
@@ -432,7 +436,7 @@ ccccccccccccccc
           write(6,"(' sugw:  kpt isp=',i8,i2,' of ',i8, ' k= ',3f9.5, ' ndimh= ',i5,
      &    ' irank=',i4, ' lwvxc=',l,' nev=',i5)")  iq,isp,nqnum,qp,ndimh,procid,lwvxc,nev
           call prtev(evec,ndimh,evl(1,isp),ndimh,nev)
-          if (ndham .gt. nev) evl(1+nev:ndham,isp)=1d20 !this is also given in lmf2gw nov2015. 
+          if (ndham>nev ) evl(1+nev:ndham,isp)=1d20 !this is also given in lmf2gw nov2015. 
           if(mod(iq,10) .ne. 1) call poppr
           if(debug) write(6,"(' sugw:procid iq isp lwvxc= ',3i3,' ',l)")procid, iq,isp,lwvxc 
           if (lwvxc) then
@@ -594,8 +598,6 @@ C     --- File output, jobgw=1 ---
 c          write(ifigwb) qp, ndimh, iq,ngp
           if(debug) write (6,"('q ndimh=',3f10.5,i10)") qp, ndimh
           write(ifigwb) evl(1:ndimh,isp),cphi(:,:,isp),pwz
-c          if(ngp >0 ) write (ifigwb)  pwz !ngvecp(1:3,1:ngp,iq),
-c          if(ngp ==0) write (ifigwb)      !ngvecp(1:3,1:ngp,iq)
           write(ifigw1) qp, (evl(i,isp),i=1,ndimh)
 C  call prmx('e(H+sigma-vxc)',evl,ndimh,ndimh,1)
 C     ... Overlap checking.   Define:
