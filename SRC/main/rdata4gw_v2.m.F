@@ -7,7 +7,7 @@
      &  nqirr,qirr, bas,laf,ibasf,nqbz,!n1q,n2q,n3q,
      &  nqnum,ngpmx,ngcmx,nqnumc,nqtt,nq0i,iq0pin,nq0iadd,
      &  QpGcut_psi,QpGcut_cou,qtt,
-     &  wt,q0i, ngvecptt,ngvecctt,ngptt,ngctt
+     &  wt,q0i, ngvecptt,ngvecctt,ngptt,ngctt, ngplist,ndimhall,iqindex,qplist
 !xxx nphi,        ! number of augmentation nRl channels, as distinct from:
 ! ldim2,       ! number of nRLm channels = 2*ldim for phi+phidot case.
 ! nphimx       ! Maxmum number of phi for all l ---  2 for phi+phidot case.
@@ -721,7 +721,9 @@ C ... norm check
         enddo
         write(ifnband,"(2i12)")nbandx,ikp
         do isp =1,nsp
-          read(ificg) cphir(1:ldim2,1:nband)
+          ngp       =  ngplist(ikp)
+          geigr(1:ngpmx,1:nband,isp)=0d0
+          read(ificg) cphir(1:ldim2,1:nband),geigr(1:ngp,1:nband,isp)
           do ibas=1,nbas
             do ix = 1,ldim2
               if(ibasindx(ix)==ibas)
@@ -752,9 +754,9 @@ C ... norm check
             enddo
             enddo
           endif
-          geigr(1:ngpmx,1:nband,isp)=0d0
-          read(ificg) ngp
-          read(ificg) geigr(1:ngp,1:nband,isp)
+c          geigr(1:ngpmx,1:nband,isp)=0d0
+c          read(ificg) ngp
+c          read(ificg) geigr(1:ngp,1:nband,isp)
         enddo                  !end of spin loop
 !!--- Plane wave part ---
         iqx=-99999

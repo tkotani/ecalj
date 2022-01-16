@@ -357,7 +357,7 @@ c         endif
           cphi=1d20
           geig=1d20
           read (ifigwb_) evl_d (1:nband, iqq,isp),cphi(:,1:nband),geig(:,1:nband) !ngvecp,
-          write(ificg)              cphi(1:ldim2,1:nbandmx),geig(1:ngp,1:nbandmx)
+          write(ificg)              cphi(1:ldim2,1:nbandmx) ,geig(1:ngp,1:nbandmx)
 !! Plane wave part
 c          write(ificg)  ngp
 c          if(ngp>0) write(ificg)  
