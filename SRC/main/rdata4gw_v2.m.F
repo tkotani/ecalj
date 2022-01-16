@@ -90,8 +90,8 @@ Cr
      &     ,nxx,lxx,ibxx
      &     ,ifnlax,inum,ibas,ic,k,icore,kkkmx,kkk,n,mmm,ix,irr,nradmx,irad
      &     ,ifhbed,ndble,mrecb,mrece,ifcphi,ifec,ife0,if0c,nmax,lx,nx
-     &     ,mx,nnc,lmxax,ic1,irad1,irad2,l1,n1,l2,n2,nn,ierr,i1,i2,nnv,ikp
-     &     ,iband,ib,m,nm,ikpisp,ngp,ngc,ifhvccfp,ngrp,ig,ifiqibz
+     &     ,mx,nnc,lmxax,ic1,irad1,irad2,l1,n1,l2,n2,nn,ierr,i1,i2,nnv
+     &     ,iband,ib,m,nm,iqqisp,ngp,ngc,ifhvccfp,ngrp,ig,ifiqibz
      &     ,nqibz,iqibz,ifnqibz,iqi,iq,ifigwin  !,ippovl,ngc2mx,ngc2
      &     ,l,ifoc,ir,isp,  iqi2 !,iopen
       real(8):: ovvxx,ovvx,qpgcut_psi2,dummy
@@ -157,7 +157,7 @@ c      character(8),allocatable:: clablx(:)
       real(8),allocatable:: rofi_n(:), gx_raw_n (:,:,:,:,:), 
      &     gcore_n  (:,:,:,:) , aann(:)
       integer,allocatable:: nrnn(:)
-      integer:: igp1,igp2,   icold,nbandx,ifnband,iread
+      integer:: igp1,igp2,   icold,nbandx,iread !ifnband,
       integer:: igg,iorb, igc
       real(8):: platt(3,3),qtarget(3)
       logical:: newaniso, noo
@@ -172,7 +172,7 @@ c      character(8),allocatable:: clablx(:)
       integer:: nggg,ngcgp,ixyz !q independent 
       logical:: cmdopt2
       character(20):: outs=''
-      integer:: nrmx,nl,iqtt
+      integer:: nrmx,nl,iqtt,iqq
       real(8),parameter:: pi = 4d0*datan(1d0)
       integer,pointer:: ngvecp(:,:),ngvecc(:,:)
 !!
@@ -693,9 +693,6 @@ C ... norm check
         allocate(sumc(nband,nband,nsp))
       endif
       allocate(cphix(ldim2,nband), cphir(ldim2,nband),geigr(1:ngpmx,1:nband,1:nsp))
-      open(newunit=ifnband,file='NBANDikp')
-      write(ifnband,"(2i12,' !nband(larger than any)  nqirr')")nband,nqirr
-      write(ifnband,"('------ nband ------  ikp ---')")
 !!      
       open(newunit=ifev,file='EValue',form='unformatted')
       write(ifev) nband, nqirr, nsp
@@ -708,20 +705,19 @@ C ... norm check
       open(newunit=ifv,file='VXCFP',form='unformatted')
       write(ifv) nband,nqirr ! mar2012takao  write(ifv) nband,nqirr    !feb2012takao
       open(newunit=ificg,file='CphiGeig',form='unformatted')
-      do 1200 ikp = 1,nqirr  !irreducible points.
-        if(mod(ikp,10)==1.or.ikp>nqirr-5) write(6,*) ' ikp=',ikp
-! determined nbandx, 1:nbandx is meaningful.
-        nbandx = nband
-        isp=1
-        do iband=1,nband
-          if( evl(iband, ikp, isp )>1d10 ) then  !<--- See lmf2gw.F evl=1d20 when iband> nbandx
-            nbandx=iband-1
-            exit
-          endif
-        enddo
-        write(ifnband,"(2i12)")nbandx,ikp
+      do 1200 iqq = 1,nqirr  !irreducible points.
+        if(mod(iqq,10)==1.or.iqq>nqirr-5) write(6,*) ' iqq=',iqq
         do isp =1,nsp
-          ngp       =  ngplist(ikp)
+!!          
+          nbandx = nband !nbandx is actually calculated number of eigenfunctions.
+          do iband=1,nband
+            if( evl(iband, iqq, isp )>1d10 ) then  
+               nbandx=iband-1
+               exit
+            endif
+          enddo
+!
+          ngp       =  ngplist(iqq)
           geigr(1:ngpmx,1:nband,isp)=0d0
           read(ificg) cphir(1:ldim2,1:nband),geigr(1:ngp,1:nband,isp)
           do ibas=1,nbas
@@ -744,8 +740,8 @@ C ... norm check
      &        cphix(iord(m,1:nm,l,ib),iband) +  zzpi(1:nm,n,l,ic,isp) * cphir(ix,iband)
             enddo
           enddo
-          ikpisp= isp + nsp*(ikp-1)
-          write(ifcphi, rec=ikpisp) cphix(1:ldim2,1:nband) !cphi(1:ldim2,1:nband,ikp,isp)
+          iqqisp= isp + nsp*(iqq-1)
+          write(ifcphi, rec=iqqisp) cphix(1:ldim2,1:nband) !cphi(1:ldim2,1:nband,iqq,isp)
           if(checknorm) then
             do ib1=1,nbandx
             do ib2=1,nbandx
@@ -761,7 +757,7 @@ c          read(ificg) geigr(1:ngp,1:nband,isp)
 !!--- Plane wave part ---
         iqx=-99999
         do iqtt=1,nqtt  
-          if(sum(abs(qirr(:,ikp)-qtt(:,iqtt)))<tolq) then
+          if(sum(abs(qirr(:,iqq)-qtt(:,iqtt)))<tolq) then
              iqx=iqtt
              exit
           endif   
@@ -770,25 +766,25 @@ c          read(ificg) geigr(1:ngp,1:nband,isp)
         ngvecc =>ngvecctt(1:3,1:ngctt(iqx),iqx)
         ngp=ngptt(iqx)
         ngc=ngctt(iqx)
-        if(debug) print *,' ikp ngp ngc qirr =',ikp,ngp,qirr(:,ikp)
-        if(debug) print *,' ikp ngp ngc qqqa=',ikp,ngp,qqqa
-        if(debug) print *,' ikp ngp ngc qqqb=',ikp,ngp,qqqb
+        if(debug) print *,' iqq ngp ngc qirr =',iqq,ngp,qirr(:,iqq)
+        if(debug) print *,' iqq ngp ngc qqqa=',iqq,ngp,qqqa
+        if(debug) print *,' iqq ngp ngc qqqb=',iqq,ngp,qqqb
 !!  qirr: irreducible q point only(eigenvalue, eigenfunctions are given).
 !!  ifiqg contains all q points in full bz (irr=1 means irreducible point.)
         do isp=1,nsp
-          ikpisp= isp + nsp*(ikp-1)
-          if(ngpmx/=0) write(ifgeig, rec=ikpisp) geigr(1:ngpmx,1:nband,isp)
+          iqqisp= isp + nsp*(iqq-1)
+          if(ngpmx/=0) write(ifgeig, rec=iqqisp) geigr(1:ngpmx,1:nband,isp)
 c          if(verbose()>40) then
-c            write(6,'("geig sumcheck ",i5,3f9.4,"  ",2i5,2d13.6)')ikp,qqqa,ngpmx,ngp,sum(geigr(1:ngp,1:nbandx,isp))
+c            write(6,'("geig sumcheck ",i5,3f9.4,"  ",2i5,2d13.6)')iqq,qqqa,ngpmx,ngp,sum(geigr(1:ngp,1:nbandx,isp))
 c            do ix=1,nbandx
 c            write(6,'("geig sumcheck ",i5,2d13.6)') ix,sum(geigr(1:ngp,ix,isp))
 c            enddo
 c          endif
         enddo
-        write(ifv) qirr(1:3,ikp), vxclda(1:nband,ikp,1:nsp) ! VXCFP
+        write(ifv) qirr(1:3,iqq), vxclda(1:nband,iqq,1:nsp) ! VXCFP
         if(checknorm) then
           xx=0d0
-          qx   = qirr(1:3,ikp)
+          qx   = qirr(1:3,iqq)
           allocate(ppovl(ngp,ngp))
 !     ppovl = <exp (i (q+G')) | exp (i (q+G))>
 !     I think P_{k+G} for eieigenfunction is completele zero (no high-l contribution)

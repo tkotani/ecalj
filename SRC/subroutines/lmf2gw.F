@@ -322,7 +322,7 @@ c      open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=m
 c      nbandmx = ndimh
       write(6,'(" nqirr nqpz nbandmx=",3i5)') nqirr,nqbz,nbandmx
       allocate( qirr(3,nqirr),evl_d(nbandmx, nqirr, nsp),vxclda(nbandmx, nqirr, nsp),
-     &   vvv1(nbandmx),vvv2(nbandmx),vvv3(nbandmx),cphi(ldim2, nbandmx), evl(nbandmx) )
+     &   vvv1(nbandmx),vvv2(nbandmx),vvv3(nbandmx),cphi(ldim2, nbandmx))!, evl(nbandmx) )
 !! open files      
 c      do iqq = 1,nqirr !q point for irreducible points, irr=1 only (console output)
 c      do isp = 1, nsp
@@ -333,7 +333,6 @@ c      enddo
       vxclda=1d20
       do iqq = 1,nqirr !q point for irreducible points, irr=1 only (console output)
       do isp = 1, nsp
-cccccccccccccccccc
         fname='gwb'//trim(extp(iprocq(iqq,isp)))
         inquire(file=trim(fname),opened=iopen,number=ifigwb_)
         if(.not.iopen) open(newunit=ifigwb_,file=trim(fname),form='unformatted')
@@ -343,25 +342,15 @@ cccccccccccccccccc
         fname='gw2'//trim(extp(iprocq(iqq,isp)))
         inquire(file=trim(fname),opened=iopen,number=ifigwx2_)
         if(.not.iopen) open(newunit=ifigwx2_,file=trim(fname),form='unformatted')
-cccccccccccc          
           nband     =  ndimhall(iqq)
           ngp       =  ngplist(iqq)
           qirr(:,iqq)= qplist(:,iqq)
-c          write(6,"(a,3d13.6,3i6,3x,3f11.6)") 'uuuv1 iqq isp nband q=',qirr(:,iqq)!,iqq,isp,nband !, qirr(:,iqq)
-c          read (ifigwb_) qqq    !qirr(:,iqq) !,nband !,iq,ngp !iq=iqq
-c          if(sum(abs(qirr(:,iqq)-qqq))>1d-6) then
-c            write(6,"(a,3d13.6,3i6,3x,3f11.6)") 'uuuv2 iqq isp nband q=',qqq !iqq,isp,nband !, qirr(:,iqq)
-c            call rx('qirr/=qqq')
-c         endif
           allocate( geig(ngp, nbandmx))!, ngvecp(3,ngp) )
           cphi=1d20
           geig=1d20
           read (ifigwb_) evl_d (1:nband, iqq,isp),cphi(:,1:nband),geig(:,1:nband) !ngvecp,
           write(ificg)              cphi(1:ldim2,1:nbandmx) ,geig(1:ngp,1:nbandmx)
-!! Plane wave part
-c          write(ificg)  ngp
-c          if(ngp>0) write(ificg)  
-          deallocate(geig)!,ngvecp) !takao feb2012 ,ngvecc )
+          deallocate(geig)
           read(ifigwx1_ ) qqq, (vvv1(i),i=1,nband)
           read(ifigwx2_ ) qqq, (vvv2(i),i=1,nband)
           vxclda (1:nband, iqq,isp)= vvv1(1:nband)-vvv2(1:nband)
@@ -371,12 +360,11 @@ c          if(ngp>0) write(ificg)
      &      rydberg*vvv1(ibx),rydberg*(vvv1(ibx)-vvv2(ibx)),rydberg*(vvv3(ibx)-vvv2(ibx))
           enddo
  888      continue
-! we can not close ifigwx1_ ifigwx2_ ifigwb_ here because different iqq,isp may give the same extp(iprocq(iqq,isp)
         enddo
       enddo
       close(ifichkv)
       close(ificg)
-      deallocate( cphi,evl, vvv1,vvv2,vvv3)
+      deallocate( cphi, vvv1,vvv2,vvv3)
 !
 !---------
       write(6,*)'reading QOP'
