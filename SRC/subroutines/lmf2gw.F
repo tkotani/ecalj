@@ -63,18 +63,17 @@
      &ncoremx,  ! = maxval(ncore(1:nclass))
      &lmxamx,   ! = maxval(lmxa(1:nclass))
      &ngpmx,    ! Maximum number of G vector.
-     &ldim2,    ! = total number of augmentation functions nRlm
-     &nqirr     ! = Number of q points for irr=1 (see m_qplist, output of qg4gw).
+     &ldim2    ! = total number of augmentation functions nRlm
       character(8),allocatable,protected:: spid(:)
       integer,allocatable::
      &     iclass(:),lmxa_d  (:),nr(:),konf_d(:,:),ncore_d(:),ibasf(:)
       real(8),allocatable ::
      &     zz(:),aa(:),bb(:),ec_d (:,:,:),evl_d(:,:,:),vxclda (:,:,:),
-     &     gx_d(:,:,:,:,:),gcore_d(:,:,:,:)
+     &     gx_d(:,:,:,:,:),gcore_d(:,:,:,:), bas(:,:)
       real(8):: plat(3,3), alat, efermi
       complex(8),allocatable:: cphi_d(:,:,:,:)
       complex(8),allocatable:: geig_d(:,:,:,:)
-      real(8),allocatable :: qirr(:,:), bas(:,:)
+c      real(8),allocatable :: qirr(:,:)
       logical,protected:: laf   !! - laf: antiferro switch
       integer:: ngcmx,nqnum,nqnumc,nqtt,nq0i,iq0pin,nq0iadd,nqbz
       real(8):: QpGcut_psi,QpGcut_cou
@@ -84,6 +83,10 @@
 
       integer,allocatable:: ngplist(:),ndimhall(:),iqindex(:)
       real(8),allocatable:: qplist(:,:)
+
+      character*256,allocatable:: extp(:)
+      integer,allocatable:: iprocq(:,:)
+      integer:: nqirr     ! = Number of q points for irr=1 (see m_qplist, output of qg4gw).
 
       contains
       subroutine lmf2gw()
@@ -124,10 +127,8 @@ c----------------------------------------------
       integer:: procid,nrank,ifigwb_,ifigwx1_,ifigwx2_
       integer:: iq,iqq,iqqx
       character*256:: extn,aaa,fname
-      character*256,allocatable:: extp(:)
       integer,parameter :: nsize= 1 000 000
       integer:: ifiproc,nqixx,nspxx,numprocxx,ixxx
-      integer,allocatable:: iprocq(:,:)
       logical:: iopen
       integer::  id,nsizex,iqqxx,ifile_handle,ib,ii,ipqn,nn,nnn(3),ifiqg,ifiqgc,irr,irrq
 !! =================================================================
@@ -313,58 +314,45 @@ c  &     l,kkk,isp,ec_A(icore),gcore_A(nr_A,icore),ovv(1),icore,icor1
       close(ifiqgc)
       write(6,*)'QpGcut_psi QpGcutCou =',QpGcut_psi,QpGcut_Cou 
 !! Band part
-      open(newunit=ifichkv,file='VXCFP.chk')
-      write(ifichkv,"(a)") '### LDA exchange correlation ###'
-      write(ifichkv,"(a)")'#   qvec                 ikp iband    eigen VXC(ntotal)     VXC(nvalence)'
-      open(newunit=ificg,file='CphiGeig',form='unformatted')
+c      open(newunit=ifichkv,file='VXCFP.chk')
+c      write(ifichkv,"(a)") '### LDA exchange correlation ###'
+c      write(ifichkv,"(a)")'#   qvec                 ikp iband    eigen VXC(ntotal)     VXC(nvalence)'
+c      open(newunit=ificg,file='CphiGeig',form='unformatted')
 c      mrecb = 2*ldim2*nband *ndble/nwordr()
 c      open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
 c      nbandmx = ndimh
-      write(6,'(" nqirr nqpz nbandmx=",3i5)') nqirr,nqbz,nbandmx
-      allocate( qirr(3,nqirr),evl_d(nbandmx, nqirr, nsp),vxclda(nbandmx, nqirr, nsp),
-     &   vvv1(nbandmx),vvv2(nbandmx),vvv3(nbandmx),cphi(ldim2, nbandmx))!, evl(nbandmx) )
+c      write(6,'(" nqirr nqpz nbandmx=",3i5)') nqirr,nqbz,nbandmx
+c      allocate( qirr(3,nqirr),evl_d(nbandmx, nqirr, nsp),vxclda(nbandmx, nqirr, nsp),
+c     &   vvv1(nbandmx),vvv2(nbandmx),vvv3(nbandmx),cphi(ldim2, nbandmx))!, evl(nbandmx) )
 !! open files      
 c      do iqq = 1,nqirr !q point for irreducible points, irr=1 only (console output)
 c      do isp = 1, nsp
 c      enddo
 c      enddo
 !!      
-      evl_d =1d20
-      vxclda=1d20
-      do iqq = 1,nqirr !q point for irreducible points, irr=1 only (console output)
-      do isp = 1, nsp
-        fname='gwb'//trim(extp(iprocq(iqq,isp)))
-        inquire(file=trim(fname),opened=iopen,number=ifigwb_)
-        if(.not.iopen) open(newunit=ifigwb_,file=trim(fname),form='unformatted')
-        fname='gw1'//trim(extp(iprocq(iqq,isp)))
-        inquire(file=trim(fname),opened=iopen,number=ifigwx1_)
-        if(.not.iopen) open(newunit=ifigwx1_,file=trim(fname),form='unformatted')
-        fname='gw2'//trim(extp(iprocq(iqq,isp)))
-        inquire(file=trim(fname),opened=iopen,number=ifigwx2_)
-        if(.not.iopen) open(newunit=ifigwx2_,file=trim(fname),form='unformatted')
-          nband     =  ndimhall(iqq)
-          ngp       =  ngplist(iqq)
-          qirr(:,iqq)= qplist(:,iqq)
-          allocate( geig(ngp, nbandmx))!, ngvecp(3,ngp) )
-          cphi=1d20
-          geig=1d20
-          read (ifigwb_) evl_d (1:nband, iqq,isp),cphi(:,1:nband),geig(:,1:nband) !ngvecp,
-          write(ificg)              cphi(1:ldim2,1:nbandmx) ,geig(1:ngp,1:nbandmx)
-          deallocate(geig)
-          read(ifigwx1_ ) qqq, (vvv1(i),i=1,nband)
-          read(ifigwx2_ ) qqq, (vvv2(i),i=1,nband)
-          vxclda (1:nband, iqq,isp)= vvv1(1:nband)-vvv2(1:nband)
-          vvv3=vvv2
-          do ibx =1,nband
-            write(ifichkv,"(3f8.4,2i3,6f16.8)") qqq,iqq,ibx,vvv1(ibx),vvv1(ibx)-vvv2(ibx),vvv3(ibx)-vvv2(ibx),
-     &      rydberg*vvv1(ibx),rydberg*(vvv1(ibx)-vvv2(ibx)),rydberg*(vvv3(ibx)-vvv2(ibx))
-          enddo
- 888      continue
-        enddo
-      enddo
-      close(ifichkv)
-      close(ificg)
-      deallocate( cphi, vvv1,vvv2,vvv3)
+c$$$      evl_d =1d20
+c$$$      vxclda=1d20
+c$$$      do iqq = 1,nqirr !q point for irreducible points, irr=1 only (console output)
+c$$$      do isp = 1, nsp
+c$$$          nband     =  ndimhall(iqq)
+c$$$          ngp       =  ngplist(iqq)
+c$$$          allocate( geig(ngp, nbandmx))!, ngvecp(3,ngp) )
+c$$$          cphi=1d20
+c$$$          geig=1d20
+c$$$          read (ifigwb_) evl_d (1:nband, iqq,isp),cphi(:,1:nband),geig(:,1:nband) !ngvecp,
+c$$$          write(ificg)              cphi(1:ldim2,1:nbandmx) ,geig(1:ngp,1:nbandmx)
+c$$$          deallocate(geig)
+c$$$          vvv3=vvv2
+c$$$          do ibx =1,nband
+c$$$            write(ifichkv,"(3f8.4,2i3,6f16.8)") qqq,iqq,ibx,vvv1(ibx),vvv1(ibx)-vvv2(ibx),vvv3(ibx)-vvv2(ibx),
+c$$$     &      rydberg*vvv1(ibx),rydberg*(vvv1(ibx)-vvv2(ibx)),rydberg*(vvv3(ibx)-vvv2(ibx))
+c$$$          enddo
+c$$$ 888      continue
+c$$$        enddo
+c$$$      enddo
+c      close(ifichkv)
+c      close(ificg)
+c      deallocate( cphi, vvv1,vvv2,vvv3)
 !
 !---------
       write(6,*)'reading QOP'
@@ -376,12 +364,12 @@ c      enddo
       enddo
       close(iq0p)
 !      
-      print *,' iclass=',iclass
-      print *,' nqirr nbas',nqirr,nbas
-      write(6,"(a,100i4)") ' iantiferro=',iantiferro(1:nbas)
-      do iq=1,nqirr
-        write(*,"(' qirr=',i4,3f9.5)")iq, qirr(1:3,iq)
-      enddo
+c      print *,' iclass=',iclass
+c      print *,' nqirr nbas',nqirr,nbas
+c      write(6,"(a,100i4)") ' iantiferro=',iantiferro(1:nbas)
+c      do iq=1,nqirr
+c        write(*,"(' qirr=',i4,3f9.5)")iq, qirr(1:3,iq)
+c      enddo
 !!      
       end subroutine lmf2gw
       end module m_lmf2gw
