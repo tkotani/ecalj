@@ -250,148 +250,6 @@ c       write(6,"(a100)")recordnla
       call rx( 'gwinit: can not readin recordnla')
  1041 continue
       write(6,*)'gwinit: 1041'
-!! Write GWIN_V2.tmp
-      open(newunit=ifigwinv2,file='GWIN_V2.tmp')
-!! PRODUCT BASIS section
-c      write(ifigwinv2,"(a)") "PRODUCT BASIS--------------------------------------------------"
-      write(ifigwinv2,"(a)") " tolerance to remove products due to poor linear-independency"
-      write(ifigwinv2,"(a)") 
-     & " 1d-3 ! =tolopt; larger gives smaller num. of product basis."//
-     & " See lbas and lbasC, which are output of hbasfp0."
-      write(ifigwinv2,"(a)") 
-     & " lcutmx(atom) = maximum l-cutoff for the product basis. "
-     & //" =4 is required for atoms with valence d, like Ni Ga"
-      allocate(lcutmx(nbas)); lcutmx=4
-      write(ifigwinv2,"(1000i3)") lcutmx(1:nbas)
-      write(ifigwinv2,"(a)")  "  atom   l  nnvv  nnc "
-     &  //"! nnvv: num. of radial functions (valence) on the "//
-     &   "augmentation-waves, nnc: num. for core."
-      do ibas =1,nbas
-        do lk   =0,lmxaa(ibas)
-          write(ifigwinv2,"(4i5)") ibas,lk, nnvv(lk,ibas), nncx(lk,ibas)
-        enddo
-      enddo
-      write(ifigwinv2,"(a)") "  atom   l    n  occ unocc  ! Valence(1=yes,0=no) "
-      do ibas= 1, nbas
-        do lk   = 0, lmxaa(ibas)
-          do izz = 1, izzn
-            if(iat(izz)==ibas.and.lk==lindx(izz)) then
-              nocc = 1; nunocc = 1
-              if(lindx(izz) >2 ) nocc   = 0
-              if(lindx(izz) >3 ) nunocc = 0
-              if(nindx(izz)==2) then
-                nocc   = 0
-                nunocc = 0
-              endif
-              seg1='';if(iat(izz)/=iatbk) seg1='----- '
-              iatbk=iat(izz)
-              write(ifigwinv2,"(5i5,3x,a )") iat(izz),lindx(izz),nindx(izz)
-     &                        , nocc,nunocc, '! '//caption(izz)//seg1
-            endif
-          enddo
-        enddo
-      enddo
-      write(ifigwinv2,"(a)") '  atom   l    n  occ unocc  ForX0 ForSxc ! Core (1=yes, 0=no)'
-      do ibas  = 1,nbas
-        do lk    = 0,lmxaa(ibas)
-          if(lk==0) seg2='S'
-          if(lk==1) seg2='P'
-          if(lk==2) seg2='D'
-          if(lk==3) seg2='F'
-          if(lk==4) seg2='G'
-          if(lk==5) seg2='H'
-          if(lk==6) seg2='I'
-          do kkk   = lk+1,konf(lk,ibas)-1
-            noccc=0; nunoccc=0; ncinc=0; ncinc2=0
-            seg1='';if(lk==0.and.kkk==lk+1) seg1=' -----'
-            write(ifigwinv2,"(5i5,2x,2i5,a)") 
-     &       ibas,lk,kkk-lk,noccc,nunoccc,ncinc,ncinc2,'    ! '//char(48+kkk)//seg2//seg1
-          enddo
-        enddo
-      enddo
-c      close(ifigwinv2)
-c      if(extsyml) then
-c        write(6,*) 
-c     & ' OK! gwinit_v2: generated GWIN_V2.tmp QPNT.tmp QPNTforSYML.tmp.'
-c      else
-c        write(6,*)  ' OK! gwinit_v2: generated GWIN_V2.tmp QPNT.tmp. '
-c      endif
-      rewind ifigwinv2
-c      ifig=ifigwinv2
-c      ifig    = ifile_handle()
-c      open(ifig,   file='GWIN_V2',status='old')
-
-c      call conv2gwinput(ifigwinv2)
-c
-c
-c      subroutine conv2gwinput(ifig)
-c      use m_keyvalue,only:getkeyvalue
-
-!! conv2gwinput.F ===============================================
-c -----------
-c      inquire(file='GWinput',exist= gwinputexist)
-c      write(*,*) 'gwinputexist=', gwinputexist
-c      if(gwinputexist) return
-
-c      if(gwinputexist) then
-c        call getkeyvalue("GWinput","n1n2n3",nnn,3)
-c        call getkeyvalue("GWinput","QpGcut_psi",QpGcut_psi)
-c        call getkeyvalue("GWinput","QpGcut_cou",QpGcut_cou)
-c        call getkeyvalue("GWinput","nband_sigm",nband_sigm,default=99999)
-c        call getkeyvalue("GWinput","nband_chi0",nband_chi0,default=99999)
-c        n1=nnn(1);n2=nnn(2);n3=nnn(3)
-c        call wGWIN0(n1,n2,n3,QpGcut_psi, QpGcut_Cou, max(nband_sigm,nband_chi0))
-c        return
-c      endif
-
-!      nwin = -999    !readin condition. Not readin NW file
-!      incwfin= -1     !readin condition. use ForX0 for core in GWIN
-!      efin =  -999d0 !readin condition. Not readin EFERMI
-!
-!      call genallcf_v3(nwin,efin,incwfin)
-
-!!  Write GWinput from GWIN0 GWIN_V2 QPNT.
-c      ifigw0  = ifile_handle()
-c      open(ifigw0, file='GWIN0',status='old')
-c      ifig    = ifile_handle()
-c      open(ifig,   file='GWIN_V2',status='old')
-c      ifigwinv2 = ifile_handle()
-
-c      write(6,*) " --- Convert data from GWIN0 to GWinput. --- "
-c      print *,ifigwinv2p,ifigw0,ifig
-c      open(ifigwinv2p,file='GWinput')
-
-c ... GWIN0
-c      nband_chi0=9999
-c      emax_chi0 =9999
-c      nband_sigm=9999
-c      emax_sigm = 2.0
-c      emax_sigm2=9999
-c      nband_sigm2=9999
-c      read(ifigw0,*)
-c      read(ifigw0,*) n1,n2,n3
-c      read(ifigw0,*)
-c
-c      read(ifigw0,"(150a)") recrdxxx
-c      read(recrdxxx,*) keyw2
-c      if(keyw1==keyw2) then
-c        read(recrdxxx,*) keyw2, QpGcut_psi, QpGcut_Cou
-c        write(6,*) ' unit_2pioa find: 2pi/alat  '
-c        ixx=1
-c      else
-c        read(recrdxxx,*) QpGcut_psi, QpGcut_Cou
-c        ixx=0
-c      endif
-
-c      read(ifigw0,*)
-c      read(ifigw0,*) alpha_OffG
-c      read(ifigw0,*,end=556)
-c      read(ifigw0,*,err=555,end=556) nband_chi0, emax_chi0
-c 555  read(ifigw0,*,err=556,end=556) nband_sigm, emax_sigm
-c 556  continue
-c      close(ifigw0)
-
-      
 !! Write GWinput.tmp
       ifigwinp= ifile_handle()
       open(ifigwinp,file='GWinput.tmp')
@@ -450,12 +308,73 @@ c      write(ifi,"(a,f10.3,a)") 'omg_c ', omg_c,' !(a.u.) energy-mesh is twiced 
       write(ifi,*)
       write(ifi,"(a)" ) '! ################################################# '
       write(ifi,"(a)")'<PRODUCT_BASIS> '
-      do
-        read(ifigwinv2,"(a)",end=755) pppx
-        write(ifi,"(a)")  trim(pppx)
+      ifigwinv2=ifi
+c!! Write GWIN_V2.tmp
+c      open(newunit=ifigwinv2,file='GWIN_V2.tmp')
+!! PRODUCT BASIS section
+      write(ifigwinv2,"(a)") " tolerance to remove products due to poor linear-independency"
+      write(ifigwinv2,"(a)") 
+     & " 1d-3 ! =tolopt; larger gives smaller num. of product basis."//
+     & " See lbas and lbasC, which are output of hbasfp0."
+      write(ifigwinv2,"(a)") 
+     & " lcutmx(atom) = maximum l-cutoff for the product basis. "
+     & //" =4 is required for atoms with valence d, like Ni Ga"
+      allocate(lcutmx(nbas)); lcutmx=4
+      write(ifigwinv2,"(1000i3)") lcutmx(1:nbas)
+      write(ifigwinv2,"(a)")  "  atom   l  nnvv  nnc "
+     &  //"! nnvv: num. of radial functions (valence) on the "//
+     &   "augmentation-waves, nnc: num. for core."
+      do ibas =1,nbas
+        do lk   =0,lmxaa(ibas)
+          write(ifigwinv2,"(4i5)") ibas,lk, nnvv(lk,ibas), nncx(lk,ibas)
+        enddo
       enddo
- 755  write(ifi,"(a)")'</PRODUCT_BASIS>'
-      close(ifigwinv2,status='delete')
+      write(ifigwinv2,"(a)") "  atom   l    n  occ unocc  ! Valence(1=yes,0=no) "
+      do ibas= 1, nbas
+        do lk   = 0, lmxaa(ibas)
+          do izz = 1, izzn
+            if(iat(izz)==ibas.and.lk==lindx(izz)) then
+              nocc = 1; nunocc = 1
+              if(lindx(izz) >2 ) nocc   = 0
+              if(lindx(izz) >3 ) nunocc = 0
+              if(nindx(izz)==2) then
+                nocc   = 0
+                nunocc = 0
+              endif
+              seg1='';if(iat(izz)/=iatbk) seg1='----- '
+              iatbk=iat(izz)
+              write(ifigwinv2,"(5i5,3x,a )") iat(izz),lindx(izz),nindx(izz)
+     &                        , nocc,nunocc, '! '//caption(izz)//seg1
+            endif
+          enddo
+        enddo
+      enddo
+      write(ifigwinv2,"(a)") '  atom   l    n  occ unocc  ForX0 ForSxc ! Core (1=yes, 0=no)'
+      do ibas  = 1,nbas
+        do lk    = 0,lmxaa(ibas)
+          if(lk==0) seg2='S'
+          if(lk==1) seg2='P'
+          if(lk==2) seg2='D'
+          if(lk==3) seg2='F'
+          if(lk==4) seg2='G'
+          if(lk==5) seg2='H'
+          if(lk==6) seg2='I'
+          do kkk   = lk+1,konf(lk,ibas)-1
+            noccc=0; nunoccc=0; ncinc=0; ncinc2=0
+            seg1='';if(lk==0.and.kkk==lk+1) seg1=' -----'
+            write(ifigwinv2,"(5i5,2x,2i5,a)") 
+     &       ibas,lk,kkk-lk,noccc,nunoccc,ncinc,ncinc2,'    ! '//char(48+kkk)//seg2//seg1
+          enddo
+        enddo
+      enddo
+      write(ifi,"(a)")'</PRODUCT_BASIS>'
+c      rewind ifigwinv2
+c      do
+c        read(ifigwinv2,"(a)",end=755) pppx
+c        write(ifi,"(a)")  trim(pppx)
+c      enddo
+c 755  write(ifi,"(a)")'</PRODUCT_BASIS>'
+c      close(ifigwinv2,status='delete')
 !! QPNT section
       write(ifi,*)
       write(ifi,"(a)" )'! ################################################# '
@@ -466,7 +385,6 @@ c      write(ifi,"(a,f10.3,a)") 'omg_c ', omg_c,' !(a.u.) energy-mesh is twiced 
       enddo
  756  write(ifi,"(a)")'</QPNT>'
       close(ifqpnt,status='delete')
-c      endif
 
 c ... EPScond
 c      inquire(file='EPScond',exist= qpntexist)

@@ -1,5 +1,5 @@
       module m_hamindex !all protected now 
-      use m_lmfinit,only: ham_pwmode,pwemax,ham_ldham,
+      use m_lmfinit,only: ham_pwmode,pwemax,ham_ldham,noutmx,nsp,
      &     alat=>lat_alat,nl,ctrl_nbas,ssite=>v_ssite,sspec=>v_sspec,n0,nkap0,iprmb,zbak_read=>zbak
       use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
       use NaNum,only: NaN       !for initialization, but not working well
@@ -20,7 +20,7 @@
       logical,private:: debug=.false.
       contains
 cssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
-      subroutine m_hamindex_init(ljobgw)
+      subroutine m_hamindex_init(jobgw)
       use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp, iclasstaf_,symops_af_,ag_af_,ngrpaf_
       use m_struc_def           !Cgetarg
       use m_shortn3,only: shortn3_initialize,shortn3
@@ -38,7 +38,6 @@ c        init1 = offl(iorb)+1      !starting index for the block iorb
 c        iend1 = offl(iorb)+2*l+1  !end of the block for the iorb
 c      enddo
       implicit none
-      integer,parameter:: noutmx=48, n0nkap0=30, n0H=5
       integer:: ibas,k,l,ndim,ipr,nglob,ldim,off,offs,specw,fieldw,iorb,offsi,ib,is, norb
       integer:: nkabc(3),nkp,lshft(3),napwx,ig,nini,nk1,nk2,nk3,ik1,ik2,ik3,ikt,nkt
       integer:: i_copy_size,i_spacks,i_spackv,ifi,nbas_in,ifisym,i,ifiqibz,igg,iqq,iqi,irr,iqi_,jobgw
@@ -48,23 +47,22 @@ c      enddo
       real(8):: pwgmax, pwgmin, QpGcut_psi,qxx(3),qtarget(3),platt(3,3),q(3),qx(3),qqx(3)
       real(8):: dum,qb(3,3),ddd(3),ppin(3), tolq, rlatp(3,3),xmx2(3),qqq(3),diffs,ddf
       real(8),allocatable:: symtmp(:,:,:)
-      logical:: siginit, qpgexist,debug=.false., llmfgw,ljobgw, prpushed
-      character(8),allocatable::  spid(:)
+      logical:: siginit, qpgexist,debug=.false., llmfgw,prpushed
+      character(8)::  spid(ctrl_nbas)
+      integer::ndima,lmxax,npqn,ificlass,nat,lmaxa,ipqn,ifinlaindx,isp,konf
+      integer,allocatable:: konft(:,:,:)
+      real(8) ::xx(5),pnu(n0,2),pnz(n0,2)
+      integer:: ipb(ctrl_nbas),lmxa(ctrl_nbas),ipc(ctrl_nbas),ipcx(ctrl_nbas),mxint
+      character lsym(0:n0-1)*1, lorb(3)*1, dig(9)*1, strn4*4
+      data dig /'1','2','3','4','5','6','7','8','9'/
+      data lsym /'s','p','d','f','g','5','6','7','8','9'/
+      data lorb /'p','d','l'/
       ldim  = ham_ldham(1) 
       nbas=ctrl_nbas !nbas_in
       ngrp=lat_nsgrp !note nsgrp given in mksym.F is without inversion.
       plat=lat_plat
       qlat=lat_qlat
-!!----------------      
-      open(newunit=ifatomlist,file="ATOM_LIST")
-      allocate( spid(nbas))
-      do ib=1,nbas
-        spid(ib)=sspec( ssite(ib)%spec )%name
-      enddo  
-      write(ifatomlist,*)nbas
-      write(ifatomlist,*)spid
-      close(ifatomlist)
-!!--- symmetry operation ---
+!! symmetry operation ---
       allocate(symops(3,3,ngrp),ag(3,ngrp))
       call dcopy ( ngrp * 9 , rv_a_osymgr , 1 , symops , 1 )
       call dcopy ( ngrp * 3 , rv_a_oag , 1 , ag , 1 )
@@ -72,24 +70,118 @@ c      enddo
       do ib=1,nbas
         iclasst(ib)=ssite(ib)%class
       enddo
-!!---- get space group information ---- translation informations also in miat tiat invgx, shtvg
-      call mptauof ( symops , ngrp , plat , nbas , rv_a_opos , iclasst 
-     . , miat , tiat , invgx , shtvg )
-!!---- write SYMOPS
-      if (master_mpi) then
-      open(newunit=ifisym,file='SYMOPS')
-      write(ifisym,*) ngrp
-      do ig = 1,ngrp
-        write(ifisym,"(2i4,3e24.16)") ig, invgx(ig), shtvg(1:3,ig)
-        do i=1,3
-          write(ifisym,"(3e24.16)") symops(i,1:3,ig)
-        enddo
-      enddo
-      close(ifisym)
+!! get space group information ---- translation informations also in miat tiat invgx, shtvg
+      call mptauof( symops , ngrp , plat , nbas , rv_a_opos, iclasst 
+     .   , miat , tiat , invgx , shtvg )
+      
+!! jobgw=0 mode ----------------------------------
+      if(master_mpi.and.jobgw==0) then
+         ndima = 0
+         do  ib = 1, nbas
+           is=ssite(ib)%spec
+           lmxa(ib) = sspec(is)%lmxa 
+           call dcopy(size(sspec(is)%pz),sspec(is)%pz,1,pnz,1)
+           if (lmxa(ib)> -1) then
+              do  l = 0, lmxa(ib)
+                npqn = 2
+                if (pnz(l+1,1) .ne. 0) npqn = 3
+                ndima = ndima + npqn*(2*l+1)
+              enddo
+           endif
+         enddo
+         lmxax = mxint(nbas,lmxa)
+!     ! LATTC
+         allocate(konft(0:lmxax,nbas,nsp))
+         do ib = 1, nbas
+           call dcopy(size(ssite(ib)%pnu), ssite(ib)%pnu,1,pnu,1)
+           call dcopy(size(ssite(ib)%pz),  ssite(ib)%pz, 1,pnz,1)
+           do  isp = 1, nsp
+             do  l  = 0, lmxa(ib)
+               konft(l,ib,isp) = pnu(l+1,isp)
+               if( mod(pnz(l+1,isp),10d0)<pnu(l+1,isp) .and. pnz(l+1,isp)>0) then
+                  konft(l,ib,isp) = mod(pnz(l+1,isp),10d0)
+               endif    
+             enddo
+           enddo
+         enddo
+         nat = 0
+         do  i = 1, nbas
+           is = ssite(i)%spec
+           lmaxa = int(sspec(is)%lmxa)
+           if (lmaxa .gt. -1) then
+              nat = nat + 1
+           endif
+           ipb(i) = nat
+         enddo
+         open(newunit=ifi,file='LATTC',form='unformatted')
+         write(ifi) alat,plat,nbas,lmxax,nsp
+         write(ifi) konft,lmxa
+         close(ifi)
+         call wkonfchk(alat,plat,nbas,ipb,lmxax,lmxa,nsp,konft)
+!     ! CLASS
+         open(newunit=ificlass,file="CLASS")
+         do ib=1,nbas
+           ipc(ib) = ssite(ib)%class 
+         enddo
+         call pvsug1(nbas,lmxa,ipc,ipcx)
+         do  i = 1, nbas
+           if(lmxa(i) .gt. -1) then
+              write(ificlass,'(2I4)') ipb(i), ipcx(i)
+           endif
+         enddo
+         close(ificlass)
+!     ! NLAindx
+         open(newunit=ifinlaindx,file='NLAindx')
+         write(ifinlaindx,'(''----NLAindx start---------------''/I6)') ndima
+         ndima = 0
+         do  ipqn = 1, 3
+           do  ib = 1, nbas
+             is =  ssite(ib)%spec
+             lmaxa=sspec(is)%lmxa
+             i_copy_size=size(ssite(ib)%pnu)
+             call dcopy(i_copy_size ,ssite(ib)%pnu,1,pnu,1)
+             i_copy_size=size(ssite(ib)%pnu)
+             call dcopy(i_copy_size,ssite(ib)%pz, 1,pnz,1)
+             if (lmaxa .gt. -1) then
+                do  l = 0, lmaxa
+                  npqn = 2
+                  if (pnz(l+1,1) .ne. 0) npqn = 3
+                  if (ipqn .le. npqn) then
+                     konf = pnu(l+1,1)
+                     if (ipqn .eq. 3) konf = mod(pnz(l+1,1),10d0)
+                     strn4 = dig(konf)//lsym(l)//'_'//lorb(ipqn)
+                     write(ifinlaindx,'(i6,i3,i4,i6,4x,a)')ipqn,l,ipb(ib),ndima,strn4
+                     ndima = ndima + (2*l+1)
+                  endif
+                enddo
+             endif
+           enddo
+         enddo
+         close(ifinlaindx)
+!! ATOM_LIST -------
+         open(newunit=ifatomlist,file="ATOM_LIST")
+         do ib=1,nbas
+           spid(ib)=sspec( ssite(ib)%spec )%name
+         enddo  
+         write(ifatomlist,*)nbas
+         write(ifatomlist,*)spid
+         close(ifatomlist)
+!!         
+         open(newunit=ifisym,file='SYMOPS')
+         write(ifisym,*) ngrp
+         do ig = 1,ngrp
+           write(ifisym,"(2i4,3e24.16)") ig, invgx(ig), shtvg(1:3,ig)
+           do i=1,3
+             write(ifisym,"(3e24.16)") symops(i,1:3,ig)
+           enddo
+         enddo
+         close(ifisym)
+         return
       endif
       
+!---------------------------------------------------------
 !!--- MTO part ---- obtain norbmto, lxx,kxx ----
-      allocate( ltabx(n0nkap0,nbas),ktabx(n0nkap0,nbas),offlx(n0nkap0,nbas)) !,ispec(nbas))
+      allocate( ltabx(n0*nkap0,nbas),ktabx(n0*nkap0,nbas),offlx(n0*nkap0,nbas))
       norbmto=0
       kxx=-1
       lxx=-1
@@ -142,15 +234,15 @@ c ... reverse maping of offset-index for hamiltonian
       allocate( dlmm( -lxxa:lxxa, -lxxa:lxxa, 0:lxxa, ngrp))
       call rotdlmm(symops,ngrp, nl, dlmm)
 
-!! No GW-related part ------------------------------------
-      if(ljobgw) return !for sigm mode, dlmm needed.
+!! Not GW mode ------------------------------------
+      if(jobgw<0) return !for sigm mode, dlmm needed.
 !---------------------------------------------------------
       
 !! --- PW part. info for eigenfunctions are expanded as MTpart+PWpart.!feb2012takao
       inquire(file='QGpsi',EXIST=qpgexist)  !feb2012takao
       if(.not.qpgexist) then
         call writehamindex()
-        goto 2001 !return !jun2015takao
+        goto 2001 
       endif
 !! q on mesh and shortened q.
       open(newunit=ifiqg,file='QGpsi',form='unformatted')
@@ -160,8 +252,6 @@ c ... reverse maping of offset-index for hamiltonian
       nqtt=nqnum !nqnum*2 !doubled. second series nqnum+1:2*nqnum are for shortened q.
       nkt=nqtt
       allocate( qtti(3,nqi), qq(3,nqtt),iqtt(nqtt) )
-      if(master_mpi) print *
-      if(master_mpi) print *,'gen_hamindex: Readin QGpsi. nqnum=',nqnum
       iqi=0
       do  iq = 1, nqnum
         read(ifiqg)  qxx,ngp,irr  ! q, and number of G vectors for
@@ -224,11 +314,12 @@ c ... reverse maping of offset-index for hamiltonian
         allocate(napwk(nkt))
         napwk=0
         napwmx=0
-        print *,'pwmode=0 writehamindex'
-        call writehamindex() !sep2012takao
+        if(master_mpi) then
+           print *,'pwmode=0 writehamindex'
+           call writehamindex() !sep2012takao
+        endif   
         return
       endif
-
 !! for APW rotation.  ! ... Get igv2(3,iapw,ikt). pwmode>=10 only
       if(master_mpi) print *,' gen_hamindex goto APW part: pwmode pwemax=',pwmode,pwemax !pwemin
       if(allocated(napwk)) deallocate(napwk,igv2,igv2rev)
@@ -288,8 +379,8 @@ C ... Reverse table of igv2 --->igv2rev
           igv2rev( nnn(1), nnn(2),nnn(3), ikt) = ig
         enddo
       enddo
-      call writehamindex() !sep2012takao
-      if(master_mpi) print *,' end of gen_hamindex: nkt,napwmx norbmto= ',nkt,napwmx,norbmto
+      if(master_mpi) call writehamindex()
+      
 !! Symmetry for AF. Order AF symmetry operation after normal one. jun2015takao
 !! Caution: symops,and so on are overwritten.
 !!          writehamindex() already wrote HAMindex which is just for SYMGRP.
@@ -316,15 +407,13 @@ C ... Reverse table of igv2 --->igv2rev
         enddo
         if(igadd/=ngrpaf) call rx('suham: strange. bug igadd/=ngrpaf')
         if(master_mpi) write(6,*) '-----SYMGRPAF mode ---- # of additional symmetry=',igadd
-!!---- get space group information ---- translation informations also in miat tiat invgx, shtvg
         deallocate(symops, invgx,miat,tiat,shtvg,  dlmm )
+!!---- get space group information ---- translation informations also in miat tiat invgx, shtvg
         ngrp_original=ngrp
-        ngrp      = ngrpaf ! Overwrite ngrp nby ngrpaf (larger, because we assume AF site are in
-                           ! the same class).
-        allocate(symops(3,3,ngrp))
-        symops = symtmp
+        ngrp      = ngrpaf ! Overwrite ngrp by ngrpaf (>ngrp because we treat AF pairs are in
+                           ! the same class.
         allocate(invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp))
-        call mptauof ( symops , ngrp, plat , nbas , rv_a_opos , iclasstaf
+        call mptauof ( symtmp , ngrp, plat , nbas , rv_a_opos , iclasstaf
      .   , miat , tiat , invgx , shtvg )
         if(master_mpi) then
           write(6,*)
@@ -333,10 +422,9 @@ C ... Reverse table of igv2 --->igv2rev
           write(6,"(a,i3,a,100i3)")'ig=',ig, ' miat=',miat(:,ig)
           enddo
         endif  
-!! Get rotation matrix dlmm.  We assume nl=lmxa+1.
         lxxa=nl-1
         allocate( dlmm( -lxxa:lxxa, -lxxa:lxxa, 0:lxxa, ngrp))
-        call rotdlmm(symops,ngrp, nl, dlmm)
+        call rotdlmm(symtmp,ngrp, nl, dlmm) !rotation matrix dlmm.  We assume nl=lmxa+1.
       endif
       end subroutine m_hamindex_init
       
@@ -347,7 +435,7 @@ C ... Reverse table of igv2 --->igv2rev
       intent(in)::            qin
       integer::i
       real(8):: qin(3)
-c      if(debug) print *,'nkt=',nkt
+      getikt=-99999
       do i=1, nqnum !*2 !nkt
         if(debug) print *,i,qin, qq(:,i)
         if(sum (abs(qin-qq(:,i)))<1d-8) then
@@ -422,6 +510,83 @@ c      allocate( ngvecp(3,ngpmx,nqnum) )
       endif  
       close(ifi)
       end subroutine readhamindex
+!sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
+      subroutine pvsug1(nbas,lmxa,ipc,ipcx)
+C- Remakes class table, expunging classes with floating orbitals.
+C ----------------------------------------------------------------------
+Ci Inputs
+Ci   nbas  :size of basis
+Ci   lmxa  :augmentation l-cutoff
+Ci   ipc   :class table: site ib belongs to class ipc(ib)
+Co Inputs/Outputs
+Co   ipcx  :expunged class table: classes with lmxa=-1 are expunged
+Co         :and the remaining classes are sequentially renumbered
+Co         :preserving the order of the remaining classes.
+Cl Local variables
+Cl         :
+Cr Remarks
+Cr
+Cu Updates
+Cu   27 Mar 07
+C ----------------------------------------------------------------------
+      implicit none
+C ... Passed parameters
+      integer nbas,lmxa(nbas),ipc(nbas),ipcx(nbas)
+C ... Local parameters
+      integer i,ip,ic,ipskip,nelim
+      integer prm(nbas)
+      call ivshel(1,nbas,ipc,prm,.true.)
+      nelim = 0
+      ipskip = 0
+      do  i = 1, nbas
+        ip = prm(i)+1
+        ic = ipc(ip)
+        if (lmxa(ip) .lt. 0) then
+          if (ipskip .ne. ic) nelim = nelim+1
+          ipskip = ic
+          ipcx(ip) = -1
+        else
+          ipcx(ip) = ic - nelim
+        endif
+      enddo
+      end subroutine pvsug1
+!!
+      subroutine wkonfchk(alat,plat,nbas,ipb,lmxax,lmxa,nsp,konf)
+C- Write LATTC file
+Ci   ipb   :index to true basis (excluding floating orbitals)
+Ci         :given site index including those orbitals
+Ci   lmxax :global maximum of lmxa
+Ci   lmxa  :augmentation l-cutoff
+Ci   nsp   :2 for spin-polarized case, otherwise 1
+Ci   konf  :principal quantum numbers
+Co Outputs
+Co   file LATTC is written to disk
+Cl Local variables
+Cl         :
+Cr Remarks
+Cr
+Cu Updates
+Cu   05 Jul 05 handle sites with lmxa=-1 -> no augmentation
+C ----------------------------------------------------------------------
+      implicit none
+      integer nbas,nsp,lmxax,lmxa(nbas),konf(0:lmxax,nbas,nsp)
+      integer ipb(nbas)
+      real(8) :: plat(3,3),alat
+      integer ifi,ib,isp
+      open(newunit=ifi,file='konf.chk')
+      write(ifi,*) ' ------------------------------------------- '
+      write(ifi,"(2i4,' ! nbas lmxax=(max l for augmentaion)')") nbas,lmxax
+      write(ifi,*) ' ------------------------------------------- '
+      do isp = 1, nsp
+        write(ifi,"(' -- ibas lmxa konf(s) konf(p) konf(d)... ', ' isp=',2i2)")isp
+        do  ib = 1, nbas
+          if (lmxa(ib) .gt. -1) then
+            write(ifi,"('   ',99i4)")ipb(ib),lmxa(ib),konf(0:lmxa(ib),ib,isp)
+          endif
+        enddo
+      enddo
+      close(ifi)
+      end subroutine 
       
       end module
 

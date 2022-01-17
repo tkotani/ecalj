@@ -22,7 +22,7 @@
       use m_lmaux,only: lmaux
       implicit none
       integer:: k,lgunit,stdo,stdl
-      logical:: fileexist,cmdopt,llmfgw=.false.,cmdopt0,cmdopt2
+      logical:: fileexist,cmdopt,cmdopt0,cmdopt2
       logical:: writeham,lbin
       character:: outs*20,aaa*512,sss*128
       character prgnam*8
@@ -92,11 +92,10 @@
 !! --rs=3 mode is removed. (--rs=3 meand fixed density Harris-foukner MD).
 !! Sep2020 comment " Shorten site positions" removed. (we are useing shortn3 mainly now)
 !!Get jobgw for lmfgw mode. Quit for job=0
-      if(prgnam =='LMFGWD') llmfgw=.true.
-      jobgw=0
-      if(llmfgw) then
-      if( cmdopt2('--job=',outs) ) then 
-        read(outs,*) jobgw
+      jobgw=-1
+      if(prgnam =='LMFGWD') then
+        if( cmdopt2('--job=',outs) ) then 
+         read(outs,*) jobgw
         elseif(master_mpi) then
          write(stdo,*)
          write(stdo,*) '=== lmfgw-MPIK: Choose one of following jobs: ==='
@@ -108,9 +107,8 @@
         call mpibc1_int(jobgw,1,'lmfp_jobgw')
       endif
 !! Index for hamiltonian gen_hamindex
-      call m_hamindex_init(jobgw==0) 
-      if(llmfgw.and.jobgw==0) call m_lmfgw_init() 
-      if(llmfgw.and.jobgw==0) call rx0(' OK! '//'lmfgw mode=0 generated LATTC CLASS NLAindx ldima')
+      call m_hamindex_init(jobgw) 
+      if(jobgw==0) call rx0(' OK! '//'lmfgw mode=0 generated LATTC CLASS NLAindx ldima')
 !! Array allocated in supot rhoat smrho. We have to store all fixed quantites in modules.
       call m_supot_init() ! get G vectors for charge
       call sugcut(1) 
@@ -124,7 +122,7 @@
       if(cmdopt0('--quit=dmat')) call rx0('--quit=dmat')
       write(6,*) 'end of reading rst or atm'
 !! Get q point list at which we do band calculations
-      call m_qplist_init(plbnd,llmfgw)
+      call m_qplist_init(plbnd,jobgw==1)
       call m_qplist_qspdivider()  !generate iqini:iqend,isini,isend  for each rank
 !! G vectors for qplist
       call m_igv2xall_init(1,nkp)  !(iqini,iqend)   !(1,nkp) is needed for gwb.head
@@ -188,7 +186,7 @@ c
         call rx('incompatible input. see the end of console output')
       endif
 !! Main rouitne. After module initializations, call lmfp  -----------------------
-      call Lmfp(llmfgw,irs1x)
+      call Lmfp(jobgw==1,irs1x)
 !! finalization      
       inquire(file='RSEQ_ERROR',exist=fileexist)
       if(fileexist) call rx('RSEQ_ERROR: maybe in phidx.F See takao comment in it.')

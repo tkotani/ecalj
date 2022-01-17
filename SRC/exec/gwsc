@@ -84,7 +84,7 @@ do
 
     ##### main stage of gw ################
     run_arg $argin $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files
-    mv normchk* STDOUT
+    mv norm* STDOUT
     rm gw1* gw2* gwa* gwb*
     
     argin=1; run_arg $argin $NO_MPI $nfpgw   /heftet leftet # A file EFERMI for hx0fp0

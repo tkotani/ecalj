@@ -23,6 +23,7 @@ Ci          functions are less than tol.
       implicit none
       
 !!---- initial settings read from ctrl and processed -------
+      integer,parameter:: noutmx=48
       logical,parameter::  T=.true., F=.false.
       integer,parameter::  NULLI=-99999,nkap0=3,mxspec=256,lstrn=10000
       integer,parameter::  n0=10,nppn=12, nab=9, nrmx=1501,nlmx=64 !bndfp
