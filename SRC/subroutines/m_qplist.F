@@ -57,7 +57,7 @@ c      readeferm=.false.
          read(ifiqg) nqnum, ngpmx ,QpGcut_psi,nqbz ,nqi ,imx,nqibz
          allocate(qplist(3,nqi), ngplist(nqi), ngvecp(3,ngpmx,nqi))
          ngvecp=0
-         open(newunit=ifqplist,file='QPLIST.lmfgw')
+         open(newunit=ifqplist,file='QPLIST.lmfgw.chk')
          nkp=0
          iqibz=0
          do iq=1,nqnum

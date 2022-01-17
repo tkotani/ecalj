@@ -6,6 +6,14 @@
 !    gwa.*
 !    QGpsi,QGcou,Q0P
 !      
+c--   From QGpsi
+Cr  QpGcut_psi  : Maxmum of |q+G| in a.u. for eigenfunction
+Cr  ngp         : the number of the IPW (it is k-dependent)
+Cr  ngvec
+c--   From QGcou
+Cr  QpGcut_cou  : Maxmum of |q+G| in a.u. for Coulomb matrix
+Cr  ngc         : the number of the IPW (it is k-dependent)
+c
 !cr Radial mesh is specified from, nr, aa, and bb; mesh is r(i) = bb*(exp(aa*(i-1)) -1) ,i=1,nr
 !!cr----NLAindx start---------------
 !!cr     ldim2

@@ -60,7 +60,7 @@ C     qlat = (plat+)^-1
       write (stdo,350) ((plat0(m,k),m=1,3),(qlat0(m,k),m=1,3),k=1,3)
 
       ifp=ifile_handle()
-      open(ifp,file='PlatQlat.lmchk')
+      open(ifp,file='PlatQlat.chk')
       write (ifp,350) ((plat0(m,k),m=1,3),(qlat0(m,k),m=1,3),k=1,3)
       write (ifp,"('             PLAT              and         QLAT    ')")
       close(ifp)

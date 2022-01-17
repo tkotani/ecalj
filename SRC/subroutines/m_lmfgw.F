@@ -61,19 +61,19 @@ c      endif
           enddo
         endif
       enddo
-!! === Make files SYMOPS, LATTC, CLASS, NLAindx, ldima ===
+!! === Make files SYMOPS, LATTC, CLASS, NLAindx ===
         call info(30,1,1,' Creating files SYMOPS, LATTC, CLASS, NLAindx, ldima',0,0)
         allocate(lmxa(nbas),bas(3,nbas)) 
 !! ldima
-        open(newunit= ifildima,file='ldima') 
+c        open(newunit= ifildima,file='ldima') 
         do  ib = 1, nbas
           lmxa(ib) = sspec(int(ssite(ib)%spec))%lmxa  !int(sspec(ips(ib))%lmxa)
           if (lmxa(ib) .gt. -1) then
             call orbl ( ib , 0 , ldim , iprmb , norb , ltab , ktab , xx , offl , i1 )
-            write(ifildima,"(3i10)") i1
+c            write(ifildima,"(3i10)") i1
           endif
        enddo
-       close(ifildima)
+c       close(ifildima)
 !! LATTC
         lmxax = mxint(nbas,lmxa)
         allocate(konft(0:lmxax,nbas,nsp))

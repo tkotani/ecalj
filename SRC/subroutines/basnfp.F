@@ -708,7 +708,7 @@ c$$$      endif
           read(ifv) rofi_r, rho1
           close(ifv)
         else
-          open(ifv,file='rhoMT.'//trim(charnum3n(ibas)),form='unformatted',status='old',err=1031)
+          open(ifv,file='rhoMT.'//trim(charnum3n(ibas))//'.chk',form='unformatted',status='old',err=1031)
           goto 1032
  1031     continue !bug fix for lmfgw---remove this path in future.
           if(ibas>9) call rx( 'rhoMT indexing is over 10')

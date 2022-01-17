@@ -42,22 +42,11 @@ c      use m_shortn3,only: shortn3_initialize,shortn3
 !!i         :1 create files gwb,gw1,gw2,gwa,vxc,evec,rhoMT.*,normchk
 !!o Outputs
 !!o   Files written according to jobgw
-!!o   The following shows what files are written for jobgw=1
-!!o   and the records stored in each file.
-!!o   gw1:  evals of Hlda+sigma-vxc
-!!o        *for each q-point and spin:
-!!o         q, evl(i:ndimh)
-!!o   gw2:  evals of Hlda+sigma-vxc-vxc
-!!o        *for each q-point and spin
-!!o         q, evl(i:ndimh)
-!!o   gwb:  Information about eigenfunctions, matrix elements
-!!o         nat,nsp,ndima,ndham,alat,qlat,ef0,nqbz,plat,nqnum 
-!!o         lmxa(1:nat), bas(1:3,1:nat)
-!!o         ngpmx,ngcmx  -- largest number of G vectors for psi, vcoul
-!!o        *for each q-point and spin:
-!!o           q, ndimh
-!!o           evec, evl, cphi, ngp, ngc
-!!o           ngvecp, ngvecc, pwz  (G vectors for psi,vcou; PW expansion of z)
+!!      
+!!o   gwb.head:  Information about eigenfunctions
+!!o   gwb.*:  Information about eigenfunctions
+!!        write(ifigwb) evl(1:ndimh,isp), cphi(:,:,isp), pwz, vxclda(1:ndimh), nev
+!!        pwz  (G vectors for psi,vcou; PW expansion of z)
 !!o   gwa:  site data.
 !!o        *for each site:
 !!o           z, nr, a, b, rmt, lmaxa, nsp, ncore
@@ -369,9 +358,9 @@ c         call m_igv2xall_init(1,nqirr)
       
 !! == GW setup loop over k-points ==
       if (lchk>=1 ) then
-        open(newunit=ifinormchk,file='normchk.'//trim(sprocid))
+        open(newunit=ifinormchk,file='norm.'//trim(sprocid)//'.chk')
         write(ifinormchk,"(a)")
-     &   '#     eval          IPW        IPW(diag)    Onsite(tot)   Onsite(phi)      Total'
+     &   '#     eval          IPW        IPW(diag)    Onsite(tot)   Onsite(phi)      Total ! lmfgw'
       endif
 !! --- Evecs and matrix elements of vxc for irr qp ---
 !!    Note: this routine should use only irr qp.

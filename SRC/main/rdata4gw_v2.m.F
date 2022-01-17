@@ -1,5 +1,26 @@
 !! Generate input files used in GW calculations
-!     Read module variables in m_lmf2gw, and gwb.*
+!!  Read gwb.* and module variables in m_lmf2gw (set by call lmf2gw() for inputs.
+!! Output files are
+!      open(newunit=ifnlax,file='@MNLA_core')
+!      open(newunit=ifhbed,file='hbe.d')
+!      open(newunit=ifec, file='ECORE')
+!      open(newunit=ifphi,file='PHIVC',form='unformatted')
+!      open(newunit=ifoc,file='@MNLA_CPHI')
+!            fcore='Core_ibas'//charnum3(ibas)//'_l'//char(48+l2)//'.chk'
+!            open(newunit=ifcore(l2),file=fcore)
+!            open(newunit=inorm, file = "normchk.dia.chk")
+!            open(newunit=inormo,file = "normchk.off.chk")
+!      open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
+!      open(newunit=ifgeig,file='GEIG',form='unformatted',access='direct',recl=mrecg)
+!      open(newunit=ifv,file='VXCFP',form='unformatted')
+!      open(newunit=ifev,file='EValue',form='unformatted')
+!      open(newunit=ifhvccfp,file='HVCCIN',form='unformatted')
+!      open(newunit=ifnqibz,file='NQIBZ')
+!      open(newunit=ippovlgg,file= "PPOVLGG",form='unformatted')
+!      open(newunit=ippovl0,form='unformatted',file='PPOVL0')
+!      open(newunit=ippovlg,file= "PPOVLG."//charnum3(iqi),form='unformatted')
+!      open(newunit=ippovli,file= "PPOVLI."//charnum3(iqi),form='unformatted')
+!      open(newunit=ifigwin,file='LMTO',form='unformatted')
       program rdata4gw_v2
       use m_lmf2gw,only:Lmf2gw, nindx,lindx,ibasindx,nbandmx,nphimx,
      &  nsp,nbas,nclass,ncoremx,lmxamx,ldim2,
@@ -13,22 +34,12 @@
 !xxx nphi,        ! number of augmentation nRl channels, as distinct from:
 ! ldim2,       ! number of nRLm channels = 2*ldim for phi+phidot case.
 ! nphimx       ! Maxmum number of phi for all l ---  2 for phi+phidot case.
-!!Input files
-!!  QIBZ      : irreducible q point.  Given by qg4gw.
-!!  QGpsi     : q and G vector for the Coulomb matrix. Given by qg4gw.
-!!  QGcou     : q and G vector for the Coulomb matrix. Given by qg4gw.
-!!  Q0P       : q points near q=0 instead of q=0. Given by qg4gw.
-!!  GWinput   :
-!!  lmfgw      
-!!Output files  *U means for upper spin. *D means for down spin.
-!!  VXCFP.chk : for check      
 Co  hbe.d   :  datasize
 Co  CPHI    :  Coefficients of eigenfun for augmentation wave in each MT
 Co  EV[UD]  : valence eigen value
 Co  PHIVC   : valence phi phidot, local core
 Co  ECORE   : core eigenvalue
 Co  VXCFP   : LDA Vxc. VXCFPV which contains Vxc(nval) is generated for NoCore case.
-Co  PLN     : Plane wave related parts for interstitial.
 Co  LMTO    : basic date for the crystal.
 Co  HVCCIN  : required inputs for hvccfp0. Informations in this files
 Co            are also in GWIN (duplicated--it shuold be improved in future.)
@@ -37,20 +48,8 @@ Co   NQIBZ             : number of q point ---used only for hparainfo.
 Co @MNLA_CPHI  : Checkwrite. check write. Ording of index for CPHI.
 Co @MNLA_core  : Checkwrite. index for core
 c
-c-------------------------------------------------------------------------
 c
-c--   From GWIN0.
-Cr  n1 n2 n3: give the BZ mesh
-c
-c--   From QGpsi
-Cr  QpGcut_psi  : Maxmum of |q+G| in a.u. for eigenfunction
-Cr  ngp         : the number of the IPW (it is k-dependent)
-Cr  ngvec
-c--   From QGcou
-Cr  QpGcut_cou  : Maxmum of |q+G| in a.u. for Coulomb matrix
-Cr  ngc         : the number of the IPW (it is k-dependent)
-c
-Cr--- From DATA4GW_V2 -----
+Cr--- From DATA4GW_V2 (old document)-----
 Cr   nbas            : the number atom in the primitive cell
 Cr   bas(1:3,1:nbas) : atomic posion in Cartesian coordinate (alat unit),.
 Cr   lmxa(1:nbas)    : maximum l number for each atom for augmentation.
@@ -129,8 +128,8 @@ c      character(8),allocatable:: clablx(:)
       real(8)::xx(5)
       real(8),allocatable:: sumc(:,:,:)
       integer:: inorm ,ib1,ib2,itest,inormo
-      logical ::checknorm=.true. !Write normchk.* or not. 
-     &     , checkdia=.true.    !only write normchk.dia This is relevant only for checknorm=T
+c      logical ::checknorm=.true. !Write normchk.* or not. 
+c     &     , checkdia=.true.    !only write normchk.dia This is relevant only for checknorm=T
       complex(8),allocatable:: cphir(:,:),geigr(:,:,:)
       integer(4)::ificg
       integer(4)::iff,iffx
@@ -173,7 +172,7 @@ c      character(8),allocatable:: clablx(:)
       integer:: nrmx,nl,iqtt,iqq
       real(8),parameter:: pi = 4d0*datan(1d0)
       integer,pointer:: ngvecp(:,:),ngvecc(:,:)
-      integer:: ifigwb_,ifigwx1_,ifigwx2_,ndimh
+      integer:: ifigwb_,ndimh !ifigwx1_,ifigwx2_,
       character*256:: extn,aaa,fname
       real(8),allocatable :: qirr(:,:),vxclda(:,:,:)
 
@@ -181,22 +180,22 @@ c      character(8),allocatable:: clablx(:)
       call MPI__Initialize()
       call lmf2gw() !set variables, and CphiGeig
       if(verbose()>50 ) debug=.true.
-      mmm=normcheck()
-      if(mmm==0) then
-        checknorm=.false.
-      elseif(mmm==1) then
-        checknorm=.true.
-        checkdia=.true.
-      elseif(mmm==2) then
-        checknorm=.true.
-        checkdia=.false.
-      endif
-!      
-c      write(6,*)lmxamx,nclass,nphimx,nsp
+c$$$      mmm=normcheck()
+c$$$      if(mmm==0) then
+c$$$        checknorm=.false.
+c$$$      elseif(mmm==1) then
+c$$$        checknorm=.true.
+c$$$        checkdia=.true.
+c$$$      elseif(mmm==2) then
+c$$$        checknorm=.true.
+c$$$        checkdia=.false.
+c$$$      endif
+      
       allocate(vkonf(0:lmxamx,nclass), ovv(nphimx,nphimx,0:lmxamx, nclass,nsp) )
       allocate(lmxaa(1:nbas))
       lmxaa(1:nbas) = lmxa(iclass(1:nbas))
       call minv33tp(plat,qlat)
+      
 !! Make index-file @MLNA  ------------------------------------
       nxx= -999; lxx= -999; ibxx=-999
       allocate(nrad(nbas), nindx_r(ldim2,nbas),lindx_r(ldim2,nbas))
@@ -264,9 +263,8 @@ c      write(6,*)lmxamx,nclass,nphimx,nsp
      &           irad, nindx_r(irad,ibas), lindx_r(irad,ibas)
         enddo
       enddo
-!      
+!!      
       open(newunit=ifhbed,file='hbe.d')
-c      nqbz  = n1q*n2q*n3q
       ndble = 8
       write(6,'( " ldim2 nbandmx=",3i5)') ldim2, nbandmx
       mrecb = 2*ldim2*nbandmx *ndble/nwordr()
@@ -275,7 +273,6 @@ c      nqbz  = n1q*n2q*n3q
       write(ifhbed,"(1x,i3,6i12)") ndble,mrecb,mrece,ldim2,nqbz,nbandmx,mrecg
       write(ifhbed,*)' precision, mrecl of b, mrecl of eval, ldim2(p+d+l)  nqbz  nbandmx mrecg'
       close(ifhbed)
-
       open(newunit=ifec, file='ECORE')
       open(newunit=ifphi,file='PHIVC',form='unformatted')
       
@@ -682,124 +679,71 @@ C ... norm check
  1010 continue                    ! end of ibas loop
 ! --- end of atomic part --------------------------------------------
 
-      
-!! ------------------------------------------------------
+!! Band part     
       write(6,*) '########## goto Eigfun part ############## '
-      if(checknorm) then
-      open(newunit=inorm, file = "normchk.dia")
-      open(newunit=inormo,file = "normchk.off")
-      write(inorm,849)
-      write(inormo,849)
- 849  format('#       IPW         IPW(diag)   Onsite(tot)',
-     .   '   Onsite(phi)      Total  #check in rdata4gw ')
-      allocate(sumc(nbandmx,nbandmx,nsp))
-      endif
+c$$$      if(checknorm) then
+c$$$         open(newunit=inorm, file = "normchk.dia.chk")
+c$$$         open(newunit=inormo,file = "normchk.off.chk")
+c$$$         write(inorm,849)
+c$$$         write(inormo,849)
+c$$$ 849     format('#       IPW         IPW(diag)   Onsite(tot)',
+c$$$     .      '   Onsite(phi)      Total  #check in rdata4gw ')
+c$$$         allocate(sumc(nbandmx,nbandmx,nsp))
+c$$$      endif
       allocate(cphix(ldim2,nbandmx), cphir(ldim2,nbandmx),geigr(1:ngpmx,1:nbandmx,1:nsp))
 !!      
       open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
       open(newunit=ifgeig,file='GEIG',form='unformatted',access='direct',recl=mrecg)
       open(newunit=ifv,file='VXCFP',form='unformatted')
-      write(ifv) nbandmx,nqirr ! mar2012takao  write(ifv) nbandmx,nqirr    !feb2012takao
-c      open(newunit=ificg,file='CphiGeig',form='unformatted')
+      write(ifv) nbandmx,nqirr 
       allocate( qirr(3,nqirr),evl(nbandmx, nqirr, nsp),vxclda(nbandmx, nqirr, nsp),
      &   vvv1(nbandmx),vvv2(nbandmx),vvv3(nbandmx)) !,cphi(ldim2, nbandmx))!, evl(nbandmx) )
       
-!! Band part
-c      open(newunit=ifichkv,file='VXCFP.chk')
-c      write(ifichkv,"(a)") '### LDA exchange correlation ###'
-c      write(ifichkv,"(a)")'#   qvec                 ikp iband    eigen VXC(ntotal)     VXC(nvalence)'
-c      open(newunit=ificg,file='CphiGeig',form='unformatted')
-c      mrecb = 2*ldim2*nband *ndble/nwordr()
-c      open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
-c      nbandmx = ndimh
-c      write(6,'(" nqirr nqpz nbandmx=",3i5)') nqirr,nqbz,nbandmx
-c      allocate( qirr(3,nqirr),evl_d(nbandmx, nqirr, nsp),vxclda(nbandmx, nqirr, nsp),
-c     &   vvv1(nbandmx),vvv2(nbandmx),vvv3(nbandmx),cphi(ldim2, nbandmx))!, evl(nbandmx) )
-!! open files      
-c      do iqq = 1,nqirr !q point for irreducible points, irr=1 only (console output)
-c      do isp = 1, nsp
-c      enddo
-c      enddo
-!!      
-c$$$      evl_d =1d20
-c$$$      vxclda=1d20
-c$$$      do iqq = 1,nqirr !q point for irreducible points, irr=1 only (console output)
-c$$$      do isp = 1, nsp
-c$$$          nband     =  ndimhall(iqq)
-c$$$          ngp       =  ngplist(iqq)
-c$$$          allocate( geig(ngp, nbandmx))!, ngvecp(3,ngp) )
-c$$$          cphi=1d20
-c$$$          geig=1d20
-c$$$          read (ifigwb_) evl_d (1:nband, iqq,isp),cphi(:,1:nband),geig(:,1:nband) !ngvecp,
-c$$$          write(ificg)              cphi(1:ldim2,1:nbandmx) ,geig(1:ngp,1:nbandmx)
-c$$$          deallocate(geig)
-c$$$          vvv3=vvv2
-c$$$          do ibx =1,nband
-c$$$            write(ifichkv,"(3f8.4,2i3,6f16.8)") qqq,iqq,ibx,vvv1(ibx),vvv1(ibx)-vvv2(ibx),vvv3(ibx)-vvv2(ibx),
-c$$$     &      rydberg*vvv1(ibx),rydberg*(vvv1(ibx)-vvv2(ibx)),rydberg*(vvv3(ibx)-vvv2(ibx))
-c$$$          enddo
-c$$$ 888      continue
-c$$$        enddo
-c$$$      enddo
-c      close(ifichkv)
-c      close(ificg)
-c      deallocate( cphi, vvv1,vvv2,vvv3)
-!
-      
-      do 1200 iqq = 1,nqirr  !irreducible points.
+      do 1200 iqq = 1,nqirr !irreducible points. At qirr, we calculated eigenfunctions.
         if(mod(iqq,10)==1.or.iqq>nqirr-5) write(6,*) ' iqq=',iqq
       do 1201 isp =1,nsp
         fname='gwb'//trim(extp(iprocq(iqq,isp)))
         inquire(file=trim(fname),opened=iopen,number=ifigwb_)
         if(.not.iopen) open(newunit=ifigwb_,file=trim(fname),form='unformatted')
-        fname='gw1'//trim(extp(iprocq(iqq,isp)))
-        inquire(file=trim(fname),opened=iopen,number=ifigwx1_)
-        if(.not.iopen) open(newunit=ifigwx1_,file=trim(fname),form='unformatted')
-c        fname='gw2'//trim(extp(iprocq(iqq,isp)))
-c        inquire(file=trim(fname),opened=iopen,number=ifigwx2_)
-c        if(.not.iopen) open(newunit=ifigwx2_,file=trim(fname),form='unformatted')
         ndimh  =  ndimhall(iqq)
         ngp       =  ngplist(iqq)
-        qirr(:,iqq)= qplist(:,iqq)
+        qirr(:,iqq)= qplist(:,iqq) 
         geigr(1:ngpmx,1:ndimh,isp)=0d0
         evl(:,iqq,isp)=1d20
-        read(ifigwb_)evl(1:ndimh,iqq,isp),cphir(1:ldim2,1:ndimh),geigr(1:ngp,1:ndimh,isp),vxclda (1:ndimh, iqq,isp),nev
-c        read(ifigwx1_)
+! Read band data.        
+        read(ifigwb_) evl(1:ndimh,iqq,isp),cphir(1:ldim2,1:ndimh),geigr(1:ngp,1:ndimh,isp),
+     &     vxclda(1:ndimh, iqq,isp),nev !nev is the obtained size of eigenfunctions.
         do ibas=1,nbas
           do ix = 1,ldim2
-              if(ibasindx(ix)==ibas)
-     &          cphir (ix,1:nev)= cphir(ix, 1:nev)/sqrt(1d0+0.1d0*nindx(ix))
+            if(ibasindx(ix)==ibas)
+     &         cphir (ix,1:nev)= cphir(ix, 1:nev)/sqrt(1d0+0.1d0*nindx(ix))
           enddo
         enddo
-!  Augmentation wave part
-          cphix=0d0
-          do iband = 1,nev
-            do ix= 1,ldim2
-              l  = lindx(ix)
-              ib = ibasindx(ix)
-              n  = nindx(ix)
-              m  = mindx(ix)
-              ic = iclass(ib)
-              nm = nvmax(l,ic)
-              cphix(iord(m,1:nm,l,ib),iband) =
-     &        cphix(iord(m,1:nm,l,ib),iband) +  zzpi(1:nm,n,l,ic,isp) * cphir(ix,iband)
-            enddo
+!     Augmentation wave part
+        cphix=0d0
+        do iband = 1,nev
+          do ix= 1,ldim2
+            l  = lindx(ix)
+            ib = ibasindx(ix)
+            n  = nindx(ix)
+            m  = mindx(ix)
+            ic = iclass(ib)
+            nm = nvmax(l,ic)
+            cphix(iord(m,1:nm,l,ib),iband) =
+     &         cphix(iord(m,1:nm,l,ib),iband) +  zzpi(1:nm,n,l,ic,isp) * cphir(ix,iband)
           enddo
-          iqqisp= isp + nsp*(iqq-1)
-          write(ifcphi, rec=iqqisp) cphix(1:ldim2,1:nbandmx) !cphi(1:ldim2,1:nband,iqq,isp)
-          if(checknorm) then
-            do ib1=1,nev
-            do ib2=1,nev
-              if(ib1/=ib2.and.checkdia) cycle
-              sumc(ib1,ib2,isp) = sum(dconjg(cphix(1:ldim2,ib1))*cphix(1:ldim2,ib2))
-            enddo
-            enddo
-          endif
-c          geigr(1:ngpmx,1:nband,isp)=0d0
-c          read(ificg) ngp
-c          read(ificg) geigr(1:ngp,1:nband,isp)
+        enddo
+        iqqisp= isp + nsp*(iqq-1)
+        write(ifcphi, rec=iqqisp) cphix(1:ldim2,1:nbandmx) !cphi(1:ldim2,1:nband,iqq,isp)
+c$$$        if(checknorm) then
+c$$$           do ib1=1,nev
+c$$$             do ib2=1,nev
+c$$$               if(ib1/=ib2.and.checkdia) cycle
+c$$$               sumc(ib1,ib2,isp) = sum(dconjg(cphix(1:ldim2,ib1))*cphix(1:ldim2,ib2))
+c$$$             enddo
+c$$$           enddo
+c$$$        endif
  1201   continue
-c        enddo                  !end of spin loop
 !!--- Plane wave part ---
         iqx=-99999
         do iqtt=1,nqtt  
@@ -813,50 +757,35 @@ c        enddo                  !end of spin loop
         ngp=ngptt(iqx)
         ngc=ngctt(iqx)
         if(debug) print *,' iqq ngp ngc qirr =',iqq,ngp,qirr(:,iqq)
-        if(debug) print *,' iqq ngp ngc qqqa=',iqq,ngp,qqqa
-        if(debug) print *,' iqq ngp ngc qqqb=',iqq,ngp,qqqb
-!!  qirr: irreducible q point only(eigenvalue, eigenfunctions are given).
-!!  ifiqg contains all q points in full bz (irr=1 means irreducible point.)
         do isp=1,nsp
           iqqisp= isp + nsp*(iqq-1)
           if(ngpmx/=0) write(ifgeig, rec=iqqisp) geigr(1:ngpmx,1:nbandmx,isp)
-c          if(verbose()>40) then
-c            write(6,'("geig sumcheck ",i5,3f9.4,"  ",2i5,2d13.6)')iqq,qqqa,ngpmx,ngp,sum(geigr(1:ngp,1:nev,isp))
-c            do ix=1,nev
-c            write(6,'("geig sumcheck ",i5,2d13.6)') ix,sum(geigr(1:ngp,ix,isp))
-c            enddo
-c          endif
         enddo
         write(ifv) qirr(1:3,iqq), vxclda(1:nbandmx,iqq,1:nsp) ! VXCFP
-        if(checknorm) then
-          xx=0d0
-          qx   = qirr(1:3,iqq)
-          allocate(ppovl(ngp,ngp))
-!     ppovl = <exp (i (q+G')) | exp (i (q+G))>
-!     I think P_{k+G} for eieigenfunction is completele zero (no high-l contribution)
-!     Thus we need to use mkppovl2 for normalization check.
-          call mkppovl2(alat,plat,qlat, !22April2004 
-     &         ngp, ngvecp, 
-     &         ngp, ngvecp, 
-     &         nbas, rmax, bas,  
-     o         ppovl)
-          do isp=1,nsp
-          do ib1=1,nev
-          do ib2=1,nev
-             if(ib1/=ib2.and.checkdia) cycle
-             xx(3)=sum( dconjg(  geigr(1:ngp,ib1,isp))*
-     &            matmul(ppovl,geigr(1:ngp,ib2,isp)) )
-             xx(1)=sumc(ib1,ib2,isp)
-             if(ib1==ib2) write(inorm, '(5f14.6)') xx(3),xx(4),xx(1),xx(2),xx(1)+xx(3)
-             if(ib1/=ib2) write(inormo,'(2i4,5f14.6)') ib1,ib2,xx(3),xx(1),xx(1)+xx(3)
-          enddo
-          enddo
-          enddo
-          write(inorm,*)
-          write(inormo,*)
-          deallocate(ppovl)
-        endif
-c        deallocate( ngvecp,ngvecc )
+c$$$        if(checknorm) then
+c$$$           xx=0d0
+c$$$           qx   = qirr(1:3,iqq)
+c$$$           allocate(ppovl(ngp,ngp))
+c$$$!     ppovl = <exp (i (q+G')) | exp (i (q+G))>
+c$$$!     I think P_{k+G} for eieigenfunction is completele zero (no high-l contribution)
+c$$$!     Thus we need to use mkppovl2 for normalization check.
+c$$$           call mkppovl2(alat,plat,qlat, 
+c$$$     &        ngp, ngvecp, ngp, ngvecp,  nbas, rmax, bas,     ppovl)
+c$$$           do isp=1,nsp
+c$$$           do ib1=1,nev
+c$$$           do ib2=1,nev
+c$$$             if(ib1/=ib2.and.checkdia) cycle
+c$$$             xx(3)=sum( dconjg(geigr(1:ngp,ib1,isp))*matmul(ppovl,geigr(1:ngp,ib2,isp)))
+c$$$             xx(1)=sumc(ib1,ib2,isp)
+c$$$             if(ib1==ib2) write(inorm, '(5f14.6)') xx(3),xx(4),xx(1),xx(2),xx(1)+xx(3)
+c$$$             if(ib1/=ib2) write(inormo,'(2i4,5f14.6)') ib1,ib2,xx(3),xx(1),xx(1)+xx(3)
+c$$$           enddo
+c$$$           enddo
+c$$$           enddo
+c$$$           write(inorm,*)
+c$$$           write(inormo,*)
+c$$$           deallocate(ppovl)
+c$$$        endif
  1200 continue
       print *,' end of eigensection-----'
       print *
@@ -868,12 +797,12 @@ c        deallocate( ngvecp,ngvecc )
       write(ifev) evl(1:nbandmx, 1:nqirr, 1:nsp )
       close(ifev)
 !      
-c      print *,' iclass=',iclass
-c      print *,' nqirr nbas',nqirr,nbas
-c      write(6,"(a,100i4)") ' iantiferro=',iantiferro(1:nbas)
-c      do iq=1,nqirr
-c        write(*,"(' qirr=',i4,3f9.5)")iq, qirr(1:3,iq)
-c      enddo
+      print *,' iclass=',iclass
+      print *,' nqirr nbas',nqirr,nbas
+      write(6,"(a,100i4)") ' iantiferro=',iantiferro(1:nbas)
+      do iq=1,nqirr
+        write(*,"(' qirr=',i4,3f9.5)")iq, qirr(1:3,iq)
+      enddo
 !!
 !! --- required Input for hvccfp0 ---
       open(newunit=ifhvccfp,file='HVCCIN',form='unformatted')
@@ -944,7 +873,7 @@ c      enddo
       do ix=1,nqirr
         write(6,"(' qirr  = ',3f10.4)") qirr(1:3,ix)
       enddo
-!      
+!----------------------      
       if(debug) print *,' --- goto PPOVLG section ---',nggg,ngcgp,nqnumt-nqini+1
       open(newunit=ippovlgg,file= "PPOVLGG",form='unformatted')
       write(ippovlgg) nggg, ngcgp, nqnumt-nqini+1,nqini,nqnumt
@@ -976,7 +905,6 @@ c      enddo
         write(6,"(' iqi qx ngc=',i5,3f8.4,4i5)" ) iqi,qx,ngc
         if(ppovl0l) write(ippovl0)   qx,ngc
         if(ngc==0) then
-c          deallocate(ngvecc,ngvecp)
           cycle
         endif  
         allocate(ppovl(ngc,ngc),ppovlinv(ngc,ngc)) !This is necessary for matcinv
@@ -996,7 +924,7 @@ c          deallocate(ngvecc,ngvecp)
 !! ggg= < exp(i G r) > integral in the interstitial region.
         if(ngc/=0) write(ippovlg) ngvecc(1:3,1:ngc)
         if(ngc/=0) write(ippovli) ppovlinv(1:ngc,1:ngc) 
-        deallocate(ppovlinv)!,ngvecc,ngvecp)
+        deallocate(ppovlinv)
         close(ippovlg)
         close(ippovli)
  2010 continue
@@ -1011,6 +939,7 @@ c          deallocate(ngvecc,ngvecp)
       print *, " OK! end of rdata4gw_v2 "
       call rx0( ' OK! rdata4gw_v2')
       end
+      
 !sssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine rrefine(rofio,nro,rofin,nrn,go, gn )
       implicit none
