@@ -317,7 +317,7 @@ c      if(ngrp/=ngrp2 ) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
 
 c$$$      ifi = ifile_handle()
 c$$$      open (ifi, file='SYMOPS')
-c$$$      read(ifi,*) ngrp
+c$$$      read(ifi,*) ngrpx
 c$$$      allocate(symgg(3,3,ngrp))
 c$$$      do ig = 1,ngrp
 c$$$        read(ifi,*)
@@ -328,12 +328,8 @@ c$$$c        print *,'ssssssss',ig,symgg(:,:,ig)
 c$$$      enddo
 c$$$  close(ifi)
       call readhamindex()
-      ifi = ifile_handle()
-      open(ifi,file='LATTC')
-      read(ifi,*) alat
-      read(ifi,*) plat(1:3,1)
-      read(ifi,*) plat(1:3,2)
-      read(ifi,*) plat(1:3,3)
+      open(newunit=ifi,file='LATTC',form='unformatted')
+      read(ifi,*) alat,plat
       close(ifi)
 
       tpioa=2d0*pi/alat

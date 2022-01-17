@@ -47,7 +47,7 @@ Cr    True_G(1:3,igp) = 2*pi/alat * matmul(qlat * ngvec(1:3,igp)) ,igp=1,ngp
       use m_get_bzdata1,only:  getbzdata1, 
      &  nqbz, nqibz, qbz,wbz,qibz,wibz
       implicit none
-      integer ::n1q,n2q,n3q,ifiqg,ifiqgc,ifigw0,ifi,i,ig
+      integer ::n1q,n2q,n3q,ifiqg,ifiqgc,ifigw0,ifi,i,ig,nsp
       real(8) :: plat(3,3), alat,alp,QpGcut_psi, QpGcut_Cou,dummy
       real(8) :: volum,q0(3),qlat0(3,3),QpGx1,QpGx2,
      & dw,delta,deltaw,esmr,tolopt,qm(3,3)
@@ -124,153 +124,28 @@ c      2  4   3 3 3 4 5 !
 c      3  4   1 2 3 4 5 !  empty spheres ---> nocore apparently.
 c      4  4   1 2 3 4 5 !
 cc----------------------------------
-      ifi = ifile_handle()
-      open (ifi, file='LATTC')
-      read(ifi,*) alat
-      read(ifi,*) plat(1:3,1)
-      read(ifi,*) plat(1:3,2)
-      read(ifi,*) plat(1:3,3)
-      read(ifi,*) QpGx1        !If QpGcut_psi is given by the code (LAPW case)
-      read(ifi,*)
-      read(ifi,*) nbas,lmxax
-      read(ifi,*)
-      read(ifi,*)
+      open (newunit=ifi, file='LATTC',form='unformatted')
+      read(ifi) alat,plat,nbas,lmxax,nsp
       allocate(lmxaa(nbas), konf(0:lmxax,nbas),nncx(0:lmxax,nbas) )
+      read(ifi)konf,lmxaa
+      close(ifi)
       do ibas = 1,nbas
-        read(ifi,*) ibasx, lmxaa(ibas), konf(0:lmxaa(ibas),ibas)
-        write(6,"(100i4)") ibasx, lmxaa(ibas), konf(0:lmxaa(ibas),ibas)
-        if(ibasx/=ibas       ) call rx( ' gwinit_v2: ibasx/=ibas')
-        do l    = 0,lmxaa(ibas)
+        write(6,"(100i4)") ibas, lmxaa(ibas), konf(0:lmxaa(ibas),ibas)
+        do l= 0,lmxaa(ibas)
           nncx(l,ibas) = konf(l,ibas) -1 -l   ! number of cores for each l ibas
         enddo
       enddo
       close(ifi)
       call readhamindex()
-c$$$C --- Readin SYMOPS.
-c$$$      ifi = ifile_handle()
-c$$$      open (ifi, file='SYMOPS')
-c$$$      read(ifi,*) ngrp
-c$$$      write(6,*) ' SYMOPS ngrp=',ngrp
-c$$$      allocate(symops(3,3,ngrp))
-c$$$      do ig = 1,ngrp
-c$$$        read(ifi,*)
-c$$$        do i=1,3
-c$$$          read(ifi,*) symops(i,1:3,ig)
-c$$$        enddo
-c$$$      enddo
-c$$$      close(ifi)
-
-C --- Check write
       write(6,"(' alat      =',f13.6 )") alat
       write(6,"(' plat a1   =',3f13.6)") plat(1:3,1)
       write(6,"(' plat a2   =',3f13.6)") plat(1:3,2)
       write(6,"(' plat a3   =',3f13.6)") plat(1:3,3)
-c      write(6,*) ' --- point group operation --- '
-c      do ig = 1,ngrp
-c        write(6,*) ' ig=',ig
-c        do i=1,3
-c          write(6,"(3f14.6)") symops(i,1:3,ig)
-c        enddo
-c      enddo
-
-C --- Readin GWIN0. nx ny nz for k-points for GW calculations.
-c      ifigw0 = ifile_handle()
-c      open(ifigw0,file='GWIN0')
-c      write(6,*) 'Reading GWIN0'
-c      read(ifigw0,*) n1q,n2q,n3q !GWIN0
-c      close(ifigw0)
-
-c$$$! ... Jun2002 it now recognize a keyword unit_2pioa.
-c$$$!       read(ifigw0,*) QpGx2, QpGcut_Cou  ! cut off for G. |k+G|< QpGcut in  (a.u.)
-c$$$!!! this is a false block not used now.
-c$$$      if(.false.) then
-c$$$        read(ifigw0,"(150a)") recrdxxx
-c$$$        read(recrdxxx,*) keyw2
-c$$$        if(keyw1==keyw2) then
-c$$$          read(recrdxxx,*) keyw2,a1,a2
-c$$$          unit = 2d0*pi/alat
-c$$$          write(6,*) ' unit_2pioa find: 2pi/alat = ',unit
-c$$$          QpGx2     = unit*a1
-c$$$          QpGcut_Cou= unit*a2               ! cut off for G. |k+G|< QpGcut in (2pi/alat)
-c$$$        else
-c$$$          read(recrdxxx,*) QpGx2, QpGcut_Cou ! cut off for G. |k+G|< QpGcut in  (a.u.)
-c$$$        endif
-c$$$!
-c$$$        read(ifigw0,*)
-c$$$        read(ifigw0,*) alp
-c$$$        if     ( QpGx1>=0d0 .and. QpGx2<0d0 ) then
-c$$$          QpGcut_psi = QpGx1
-c$$$          write(6,*) 'QpGcut_psi is given by GWIN0 =', QpGx1
-c$$$        elseif(  QpGx1< 0d0 .and. QpGx2>=0d0) then
-c$$$          QpGcut_psi = QpGx2
-c$$$          write(6,*) 'QpGcut_psi is given by GWIN0 =', QpGx2
-c$$$        else
-c$$$Cstop2rx 2013.08.09 kino          stop ' qg4gw: QpGcut_psi are given in both 
-c$$$Cstop2rx 2013.08.09 kino continue line
-c$$$          call rx(  ' qg4gw: QpGcut_psi are given in both 
-c$$$     &     GWIN0 and LATTC. One of them is used and
-c$$$     &    other one is the dummy. The dummy should 
-c$$$     &    have negative value.' )
-c$$$        endif
-c$$$        close(ifigw0)
-c$$$        write(6,"(' *** k points mesh for GW from GWIN0 =',3i4)") 
-c$$$     &     n1q,n2q,n3q
-c$$$        write(6,"(' *** |k+G| < QpG(psi) QpG(Cou)=',2d13.6)")
-c$$$     &             QpGcut_psi, QpGcut_Cou
-c$$$      endif
-
 C --- Make q-points in IBZ.
       mxkp   = n1q*n2q*n3q
-c$$$      allocate(qibz(3,mxkp),IPQ(mxkp),WGT(mxkp))
-c$$$      call bzmesh(plat,qm,n1q,n2q,n3q,symops,ngrp,IPQ,qibz
-c$$$     &  ,WGT,nqibz,mxkp,0,(/0d0,0d0,0d0/))
-c$$$      deallocate(IPQ,WGT)
       call minv33tp(plat,qlat) !it was dinv33(plat,1,qlat) by Ferdi
       call getbzdata1(qlat,(/n1q,n2q,n3q/), !n1q,n2q,n3q
      &    symops,ngrp,tetrai=.false.,mtet=(/1,1,1/),gammacellctrl=0) 
-
-
-c$$$c      ifiqibz = 6661
-c$$$c      open (ifiqibz, file='QIBZ') !write q-points in IBZ.
-c$$$c      write(ifiqibz,"(i10)") nqibz
-c$$$c      do iqibz = 1,nqibz
-c$$$c        write(ifiqibz,"(3d24.16)") qibz(1:3,iqibz)
-c$$$c      enddo
-c$$$c      close(ifiqibz)
-c$$$c      write(6,*)
-c$$$c      write(6,"( '  ngrp  = ',i3)")ngrp
-c$$$c      write(6,'("  qibz=",i3,3f12.5)')(i,qibz(1:3,i),i=1,nqibz)
-c$$$
-c$$$c --- readin SYML if it exists.
-c$$$      inquire(file='SYML',exist=extsyml)
-c$$$      write(6,*)'--- Readin SYML'
-c$$$      allocate(nqq(nlinemax),qq1(1:3,nlinemax),qq2(1:3,nlinemax)
-c$$$     & ,symlon(mxkp))
-c$$$
-c$$$      if(extsyml) then
-c$$$        ifsyml = iopenxx('SYML')
-c$$$        nline = 0
-c$$$        do
-c$$$          nline = nline + 1
-c$$$          read(ifsyml,*,err=602,end=601) 
-c$$$     &   nqq(nline),qq1(1:3,nline),qq2(1:3,nline)
-c$$$          write(6,"(' ndiv+1=',i4, ' qinit= ',3f10.6,' qend=',3f10.6)") 
-c$$$     &   nqq(nline),qq1(1:3,nline),qq2(1:3,nline)
-c$$$        enddo
-c$$$Cstop2rx 2013.08.09 kino  602   stop ' gwinit_v2: Error readin SYML; You follow correct format?'
-c$$$  602   call rx( ' gwinit_v2: Error readin SYML; You follow correct format?')
-c$$$  601   continue
-c$$$        close(ifsyml)
-c$$$        nline = nline - 1
-c$$$      endif
-c$$$
-c$$$C --- q in 1BZ KPT1BZ.
-c$$$      nnn = n1q*n2q*n3q
-c$$$      allocate ( qbz(3,nnn),qbzs(3,nnn),wbz(nnn),nstbz(nnn) )
-c$$$      call minv33tp(plat,qlat) !it was dinv33(plat,1,qlat) by Ferdi
-c$$$      call genqbz (qlat,n1q,n2q,n3q,
-c$$$     o  qbz,wbz,nstbz,0,(/0d0,0d0,0d0/) )
-
 
 !! Write to file KPNTin1BZ
       nnn = n1q*n2q*n3q

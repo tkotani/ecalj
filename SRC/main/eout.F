@@ -11,8 +11,8 @@ c------------------------------------------------------------
       call getexx('TEEXXvv',exxvv,ierr)
       call getexx('TEECORR',ecorr,ierr)
       ifx = ifile_handle()
-      open(ifx,file='LATTC')
-      read(ifx,*)alat
+      open(ifx,file='LATTC',form='unformatted')
+      read(ifx)alat
       close(ifx)
       open(ifx,file='ETOTLDA')
       read(ifx,*) eks

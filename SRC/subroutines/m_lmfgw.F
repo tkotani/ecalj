@@ -10,9 +10,9 @@
       use m_lmfinit,only: nchan=>pot_nlma, nvl=>pot_nlml
       use m_lattic,only: qlat=>lat_qlat, plat=>lat_plat
       use m_suham,only: ndham=>ham_ndham
-      integer:: i,lfrzw,i1,i_copy_size,ib,ifildima,ificlass,ipqn,is,isp,konf,l,ldim,lmaxa,ifilnlaindx,
-     & lmxax,ifinlaindx,ndima,npqn,mxint
-      integer:: ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),norb,nat,ipb(nbas)
+      integer:: i,lfrzw,i1,i_copy_size,ib,ifildima,ificlass,ipqn,is,isp,konf,l,lmaxa,ifilnlaindx,
+     & lmxax,ifinlaindx,ndima,npqn,mxint,nat
+      integer:: ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),norb,ipb(nbas)
       real(8) ::qbz,vconst,vrmt(nbas),qval,qsc
       complex(8),allocatable:: vorb(:,:,:,:)
       real(8) ,allocatable :: fes1_rv(:), gpot0_rv(:), hab_rv(:),ppnl_rv(:,:,:,:), qmom_rv(:)
@@ -35,22 +35,15 @@ c      endif
 !! jobgw=0      
 !!  Count number of atoms : exclude floating orbitals
       if(.not.master_mpi) return
-      nat = 0
-      do  i = 1, nbas
-        is = ssite(i)%spec
-        lmaxa = int(sspec(is)%lmxa)
-        if (lmaxa .gt. -1) then
-          nat = nat + 1
-        endif
-        ipb(i) = nat
-      enddo
-      ldim=ham_ldham(1)
+c      ldim=ham_ldham(1)
 !! ndima
+      allocate(lmxa(nbas),bas(3,nbas)) 
       ndima = 0
       lmxax = -1
       do  ib = 1, nbas
         is=ssite(ib)%spec
         lmaxa=sspec(is)%lmxa
+        lmxa(ib) = sspec(int(ssite(ib)%spec))%lmxa !int(sspec(ips(ib))%lmxa)
         call dcopy(size(sspec(is)%pz),sspec(is)%pz,1,pnz,1)
         lmxax = max(lmxax,lmaxa)
         if (lmaxa .gt. -1) then
@@ -62,102 +55,88 @@ c      endif
         endif
       enddo
 !! === Make files SYMOPS, LATTC, CLASS, NLAindx ===
-        call info(30,1,1,' Creating files SYMOPS, LATTC, CLASS, NLAindx, ldima',0,0)
-        allocate(lmxa(nbas),bas(3,nbas)) 
+      call info(30,1,1,' Creating files SYMOPS, LATTC, CLASS, NLAindx, ldima',0,0)
 !! ldima
 c        open(newunit= ifildima,file='ldima') 
-        do  ib = 1, nbas
-          lmxa(ib) = sspec(int(ssite(ib)%spec))%lmxa  !int(sspec(ips(ib))%lmxa)
-          if (lmxa(ib) .gt. -1) then
-            call orbl ( ib , 0 , ldim , iprmb , norb , ltab , ktab , xx , offl , i1 )
+c        do  ib = 1, nbas
+c          if (lmxa(ib) .gt. -1) then
+c            call orbl ( ib , 0 , ldim , iprmb , norb , ltab , ktab , xx , offl , i1 )
 c            write(ifildima,"(3i10)") i1
-          endif
-       enddo
+c          endif
+c       enddo
 c       close(ifildima)
 !! LATTC
-        lmxax = mxint(nbas,lmxa)
-        allocate(konft(0:lmxax,nbas,nsp))
-        do ib = 1, nbas
-           is = ssite(ib)%spec
-           call dcopy(size(ssite(ib)%pnu), ssite(ib)%pnu,1,pnu,1)
-           call dcopy(size(ssite(ib)%pz),  ssite(ib)%pz, 1,pnz,1)
-           do  isp = 1, nsp
-              do  l  = 0, lmxa(ib)
-                 konft(l,ib,isp) = pnu(l+1,isp)
-                 if( mod(pnz(l+1,isp),10d0) .lt. pnu(l+1,isp) .and. pnz(l+1,isp) .gt. 0) then
-                    konft(l,ib,isp) = mod(pnz(l+1,isp),10d0)
-                 endif    
-              enddo
-           enddo
+      lmxax = mxint(nbas,lmxa)
+      allocate(konft(0:lmxax,nbas,nsp))
+      do ib = 1, nbas
+c     is = ssite(ib)%spec
+        call dcopy(size(ssite(ib)%pnu), ssite(ib)%pnu,1,pnu,1)
+        call dcopy(size(ssite(ib)%pz),  ssite(ib)%pz, 1,pnz,1)
+        do  isp = 1, nsp
+          do  l  = 0, lmxa(ib)
+            konft(l,ib,isp) = pnu(l+1,isp)
+            if( mod(pnz(l+1,isp),10d0) .lt. pnu(l+1,isp) .and. pnz(l+1,isp) .gt. 0) then
+               konft(l,ib,isp) = mod(pnz(l+1,isp),10d0)
+            endif    
+          enddo
         enddo
-        call wlattc(alat,plat,nbas,nat,ipb,lmxax,lmxa,nsp,konft)
+      enddo
+      nat = 0
+      do  i = 1, nbas
+        is = ssite(i)%spec
+        lmaxa = int(sspec(is)%lmxa)
+        if (lmaxa .gt. -1) then
+          nat = nat + 1
+        endif
+        ipb(i) = nat
+      enddo
+      call wlattc(alat,plat,nbas,ipb,lmxax,lmxa,nsp,konft)
 !! NLAindx
-        open(newunit=ifinlaindx,file='NLAindx')
-        write(ifinlaindx,'(''----NLAindx start---------------''/I6)') ndima
-        ndima = 0
-!!    This loop order is backwardly compatible with prior versions
-        do  ipqn = 1, 3
-          do  ib = 1, nbas
-            is =  ssite(ib)%spec
-            lmaxa=sspec(is)%lmxa
-            i_copy_size=size(ssite(ib)%pnu)
-            call dcopy  (i_copy_size ,ssite(ib)%pnu,1,pnu,1)
-            i_copy_size=size(ssite(ib)%pnu)
-            call dcopy  (i_copy_size,ssite(ib)%pz, 1,pnz,1)
-c            call icopy(sspec(is)%idxdn,sspec(is)%idxdn,1,idxdn,1)
-            if (lmaxa .gt. -1) then
-              do  l = 0, lmaxa
-                npqn = 2
-                if (pnz(l+1,1) .ne. 0) npqn = 3
-                if (ipqn .le. npqn) then
+      open(newunit=ifinlaindx,file='NLAindx')
+      write(ifinlaindx,'(''----NLAindx start---------------''/I6)') ndima
+      ndima = 0
+      do  ipqn = 1, 3
+        do  ib = 1, nbas
+          is =  ssite(ib)%spec
+          lmaxa=sspec(is)%lmxa
+          i_copy_size=size(ssite(ib)%pnu)
+          call dcopy  (i_copy_size ,ssite(ib)%pnu,1,pnu,1)
+          i_copy_size=size(ssite(ib)%pnu)
+          call dcopy  (i_copy_size,ssite(ib)%pz, 1,pnz,1)
+          if (lmaxa .gt. -1) then
+             do  l = 0, lmaxa
+               npqn = 2
+               if (pnz(l+1,1) .ne. 0) npqn = 3
+               if (ipqn .le. npqn) then
                   konf = pnu(l+1,1)
                   if (ipqn .eq. 3) konf = mod(pnz(l+1,1),10d0)
                   strn4 = dig(konf)//lsym(l)//'_'//lorb(ipqn)
-c                  if (idxdn(l+1,1) .eq. 1 .or. idxdn(l+1,2) .eq. 1)
-c     .            call chcase(0,1,strn4(2:2))
                   write(ifinlaindx,'(i6,i3,i4,i6,4x,a)')
-     .            ipqn, l, ipb(ib), ndima, strn4
+     .               ipqn, l, ipb(ib), ndima, strn4
                   ndima = ndima + (2*l+1)
-                endif
-              enddo
-            endif
-          enddo
+               endif
+             enddo
+          endif
         enddo
-        close(ifinlaindx)
+      enddo
+      close(ifinlaindx)
 !! CLASS
-        open(newunit=ificlass,file="CLASS")
-        allocate(ipc(nbas),ipcx(nbas))
-        do ib=1,nbas
-           ipc(ib) = ssite(ib)%class 
-        enddo
-        call pvsug1(nbas,lmxa,ipc,ipcx)
-        do  i = 1, nbas
-           if(lmxa(i) .gt. -1) then
-              write(ificlass,'(2I4)') ipb(i), ipcx(i)
-           endif
-        enddo
-        deallocate(ipc,ipcx)
-        close(ificlass)
-c      call fclr(' ',ificlass)
-c      call fexit(0,1,' OK! '//'lmfgw mode=0 generated LATTC CLASS NLAindx ldima',0)
-!!================================================      
+      open(newunit=ificlass,file="CLASS")
+      allocate(ipc(nbas),ipcx(nbas))
+      do ib=1,nbas
+        ipc(ib) = ssite(ib)%class 
+      enddo
+      call pvsug1(nbas,lmxa,ipc,ipcx)
+      do  i = 1, nbas
+        if(lmxa(i) .gt. -1) then
+           write(ificlass,'(2I4)') ipb(i), ipcx(i)
+        endif
+      enddo
+      deallocate(ipc,ipcx)
+      close(ificlass)
       end subroutine
-      
-C      subroutine fmain
-CC- debugs pvsug1
-C      implicit none
-C
-C      integer nbas
-C      parameter (nbas=8)
-C      integer ipc(nbas),lmxa(nbas),ipcx(nbas)
-C      data ipc/3,1,4,3,2,6,5,1/
-C      data lmxa/-1,1,4,-1,2,6,-1,1/
-C
-C      call pvsug1(nbas,lmxa,ipc,ipcx)
-C
-C      end
+!sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine pvsug1(nbas,lmxa,ipc,ipcx)
-
 C- Remakes class table, expunging classes with floating orbitals.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -181,7 +160,6 @@ C ... Passed parameters
 C ... Local parameters
       integer i,ip,ic,ipskip,nelim
       integer prm(nbas)
-
       call ivshel(1,nbas,ipc,prm,.true.)
 C      do  i = 1, nbas
 C        prm(i) = prm(i)+1
@@ -209,15 +187,15 @@ C       Test whether this class should be purged
         endif
       enddo
       end subroutine pvsug1
-
-      subroutine wlattc(alat,plat,nbas,nat,ipb,lmxax,lmxa,nsp,konf)
+!!
+      subroutine wlattc(alat,plat,nbas,ipb,lmxax,lmxa,nsp,konf)
 C- Write LATTC file
 C ----------------------------------------------------------------------
 Ci Inputs
 Ci   alat  :length scale of lattice and basis vectors, a.u.
 Ci   plat  :primitive lattice vectors, in units of alat
 Ci   nbas  :size of basis, including floating orbitals sites
-Ci   nat   :size of true basis (exclude floating orbitals sites)
+Cixxx   nat   :size of true basis (exclude floating orbitals sites) ???? now nbas=nat
 Ci   ipb   :index to true basis (excluding floating orbitals)
 Ci         :given site index including those orbitals
 Ci   lmxax :global maximum of lmxa
@@ -234,32 +212,27 @@ Cu Updates
 Cu   05 Jul 05 handle sites with lmxa=-1 -> no augmentation
 C ----------------------------------------------------------------------
       implicit none
-C ... Passed parameters
-      integer nbas,nat,nsp,lmxax,lmxa(nbas),konf(0:lmxax,nbas,nsp)
+      integer nbas,nsp,lmxax,lmxa(nbas),konf(0:lmxax,nbas,nsp)
       integer ipb(nbas)
       real(8) :: plat(3,3),alat
       integer ifi,ib,isp
-      open(newunit=ifi,file='LATTC')
-      write(ifi,"(e24.16)") alat
-      write(ifi,"(3e24.16)") plat(1:3,1)
-      write(ifi,"(3e24.16)") plat(1:3,2)
-      write(ifi,"(3e24.16)") plat(1:3,3)
-      write(ifi,*) ' -1d10 ! This is dummy. True QpGcut_psi is in GWIN0'
+      open(newunit=ifi,file='LATTC',form='unformatted')
+      write(ifi) alat,plat,nbas,lmxax,nsp
+      write(ifi) konf,lmxa
+      close(ifi)
+!      
+      open(newunit=ifi,file='konf.chk')
       write(ifi,*) ' ------------------------------------------- '
-      write(ifi,"(2i4,' ! nbas lmxax (max l for argumentaion)')")
-     .nat,lmxax
+      write(ifi,"(2i4,' ! nbas lmxax=(max l for augmentaion)')") nbas,lmxax
       write(ifi,*) ' ------------------------------------------- '
-      do  isp = 1, nsp
-        write(ifi,"(' -- ibas lmxa konf(s) konf(p) konf(d)... '
-     .  , ' isp=',2i2)")isp
+      do isp = 1, nsp
+        write(ifi,"(' -- ibas lmxa konf(s) konf(p) konf(d)... ', ' isp=',2i2)")isp
         do  ib = 1, nbas
           if (lmxa(ib) .gt. -1) then
-            write(ifi,"('   ',99i4)")
-     .      ipb(ib),lmxa(ib),konf(0:lmxa(ib),ib,isp)
+            write(ifi,"('   ',99i4)")ipb(ib),lmxa(ib),konf(0:lmxa(ib),ib,isp)
           endif
         enddo
       enddo
       close(ifi)
       end subroutine wlattc
-      
       end module m_lmfgw

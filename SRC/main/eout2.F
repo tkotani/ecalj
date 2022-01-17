@@ -12,8 +12,8 @@ c------------------------------------------------------------
       call getexx2('TEEXXcv',exxcv,ierr)
       call getexx2('TEEXXvv',exxvv,ierr)
 
-      ifx = 101
-      open(ifx,file='TEECORR2')
+c      ifx = 101
+      open(newunit=ifx,file='TEECORR2')
       n=0
       do
         call getexx3(ifx,ecorr(n+1),ecut(n+1),ecuts(n+1),ierr)
@@ -22,30 +22,30 @@ c------------------------------------------------------------
 c        write(6,*) ' n ecorr=',n,ecorr(n),ecut(n),ecuts(n)
       enddo
  1111 continue
+      close(ifx)
 c       print *,' n=',n
 c      stop 'xxxxxxxxxxxxxxxxx test end xxxxxxxxxxxxxx'
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      ifx = 101
-      open(ifx,file='LATTC')
-      read(ifx,*)alat
+c      ifx = ifile_handle()
+      open(newunit=ifx,file='LATTC',form='unformatted')
+      read(ifx)alat
       close(ifx)
 
-      open(ifx,file='ETOTLDA')
+      open(newunit=ifx,file='ETOTLDA')
       read(ifx,*) eks
       read(ifx,*) exc_lda
       close(ifx)
 
-      open(ifx,file='RoVxcLDA')
+      open(newunit=ifx,file='RoVxcLDA')
       read(ifx,*) exc_lda2
       read(ifx,*) ex_lda
       read(ifx,*) ec_lda
       if(exc_lda /= exc_lda2) then
         write(6,*) exc_lda, exc_lda2
-Cstop2rx 2013.08.09 kino        stop ' eout:rhoexc in ETOTLDA and RoVxcLDA are not consistent'
         call rx( ' eout:rhoexc in ETOTLDA and RoVxcLDA are not consistent')
       endif
 c
-      open(ifx,file='ETOTeV.dat',access='append')
+      open(newunit=ifx,file='ETOTeV.dat',access='append')
 
       Ex = exxcc + 2d0*exxcv + exxvv
 ccccccccccccccccccccccc
@@ -76,8 +76,7 @@ c------------------------------------
       character*(*) tefil
       integer(4):: ifx,ierr
       real(8):: exx
-      ifx=198
-      open(ifx, file =tefil)
+      open(newunit=ifx, file =tefil)
       call readxx3(ifx,ierr)
       read (ifx,*) exx
       close(ifx)

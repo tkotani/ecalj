@@ -6,6 +6,7 @@
       use m_readeigen, only: readeval 
       use m_readhbe,only: nband
       use m_mpi, only: mpi__root 
+      use m_hamindex,only:   zbak
 !!== Calculate efermi for discrete sum. (not for tetrahedron method) ==
 !! You need to call init_reaeigen before you call this.
 !! user readeval (readeigen.f) to get eigenvalues.
@@ -42,8 +43,8 @@ c      real(8) :: efp,efm,wwgo,wfacef
       integer(4):: ifile_handle,if8301,if8302 !nqbz,
 c      integer(4):: n_index_qbz,index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)
 c     real(8)   :: qbz(3,nqbz)
-      integer:: ifzbak
-      real(8)::zbak
+c      integer:: ifzbak
+c      real(8)::zbak
 C--------------------------------------------------------------------
       autoew =.false.
       if(GaussSmear) then
@@ -68,10 +69,10 @@ c total valence charge
         end do
       endif
 !! read ZBAK file      
-      open(newunit=ifzbak,file='ZBAK')
-      read(ifzbak,*)zbak
+c      open(newunit=ifzbak,file='ZBAK')
+c      read(ifzbak,*)zbak
       valn=valn-zbak
-      close(ifzbak)
+c      close(ifzbak)
 c      valn = valn+zbak
 c      write(6,*)' valn=valn+zbak =',valn
 c
@@ -232,6 +233,7 @@ c----------------------------------------------------------------------------
      o             ef)
       use m_readeigen, only: readeval 
       use m_mpi, only: mpi__root 
+      use m_hamindex,only:   zbak
 !!== Calculate efermi for discrete sum. (not for tetrahedron method) ==
 !! You need to call init_reaeigen before you call this.
 !! user readeval (readeigen.f) to get eigenvalues.
@@ -268,8 +270,8 @@ c      real(8) :: efp,efm,wwgo,wfacef
       integer(4):: nqbz,if8301,if8302 !ifile_handle,
 c      integer(4):: n_index_qbz,index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)
       real(8)   :: qbz(3,nqbz)
-      integer:: ifzbak
-      real(8)::zbak
+c      integer:: ifzbak
+c      real(8)::zbak
 C--------------------------------------------------------------------
       autoew =.false.
       if(GaussSmear) then
@@ -298,10 +300,10 @@ c      valn=29d0
 cccccccccccccccccccccccccccccccccccccccccc
       write(6,*)' valn=',valn
 !! read ZBAK file      
-      open(newunit=ifzbak,file='ZBAK')
-      read(ifzbak,*)zbak
+c      open(newunit=ifzbak,file='ZBAK')
+c      read(ifzbak,*)zbak
       valn=valn-zbak
-      close(ifzbak)
+c      close(ifzbak)
 c      valn = valn+zbak
 c      write(6,*)' valn=vanl+zbak =',valn
 c

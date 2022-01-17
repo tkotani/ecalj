@@ -4,7 +4,7 @@
 !    CLASS
 !    lmfgw_kdivider
 !    gwa.*
-!    QGpsi,QGcou,Q0P
+!    QGpsi,QGcou,Q0P,QIBZ
 !      
 c--   From QGpsi
 Cr  QpGcut_psi  : Maxmum of |q+G| in a.u. for eigenfunction

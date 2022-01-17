@@ -814,9 +814,9 @@ c$$$        endif
       write(6,"('  ngrp   = ',i3)")ngrp
       write(6,'("  qibz=",i3,3f12.5)')(i,qibz(1:3,i),i=1,nqibz)
 !!---
-      open(newunit=ifnqibz,file='NQIBZ')
-      write(ifnqibz,"(3i10,'  ! nqibz nq0i nqibz+nq0i+nq0iadd')") nqibz,nq0i,nqibz+nq0i+nq0iadd
-      close(ifnqibz)
+c      open(newunit=ifnqibz,file='NQIBZ')
+c      write(ifnqibz,"(3i10,'  ! nqibz nq0i nqibz+nq0i+nq0iadd')") nqibz,nq0i,nqibz+nq0i+nq0iadd
+c      close(ifnqibz)
 !! === make <Gc-Gp1+Gp2> matrix ===
       iadd=0
       if(ix==1) nqibz=0

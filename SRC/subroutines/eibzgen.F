@@ -1,7 +1,8 @@
       subroutine eibzgen(nqibz,symgg,ngrp,qibze,iqxini,iqxend,qbz,nqbz,timereversal,ginv,iprintx,
      o nwgt,igx,igxt,eibzsym,timerout)
       use m_shortn3,only: shortn3_initialize,shortn3
-      use m_genallcf_v3,only:  plat 
+      use m_genallcf_v3,only:  plat
+      use m_hamindex,only: pwmode
       implicit none
 !! === Obtain info for eibz symmetrization. See PRB81,125102-9 ===
 !! For GaAs 4x4x4 (with timereversal), we have IBZxBZ=10x640 is reduced to be IBZxEBZ=286.
@@ -19,7 +20,7 @@
       integer,allocatable:: nxx(:,:,:),ibznxx(:,:),nww(:,:),igx_(:,:),igxt_(:,:)
 
       real(8)::    epd=1d-5
-      integer:: nkey(3),isig,kkk,kkk3(3),ik1,ik2,ik3,ix,ifi,pwmode,ifiese
+      integer:: nkey(3),isig,kkk,kkk3(3),ik1,ik2,ik3,ix,ifi,ifiese
       integer,allocatable:: ieord(:)
       integer,allocatable:: key(:,:),kk1(:),kk2(:),kk3(:),iqkkk(:,:,:)
       real(8),allocatable:: qbzl(:,:)
@@ -92,9 +93,9 @@ c               write(6,*)ix, ik,i, key(ix,ik), qbzl(ix,ieord(i))
       endif
       deallocate(qbzl)
 !! -----------------------------------------------------------
-      open(newunit=ifiese,file='PWMODE')
-      read(ifiese,*)pwmode
-      close(ifiese)
+c      open(newunit=ifiese,file='PWMODE')
+c      read(ifiese,*)pwmode
+c     close(ifiese)
       if(pwmode>0.and.pwmode<10) call shortn3_initialize(qlat)
 
 !! ===  main iq loop ===

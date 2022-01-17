@@ -1,9 +1,9 @@
       module m_hamindex !all protected now 
       use m_lmfinit,only: ham_pwmode,pwemax,ham_ldham,
-     &     alat=>lat_alat,nl,ctrl_nbas,ssite=>v_ssite,sspec=>v_sspec,n0,nkap0,iprmb
+     &     alat=>lat_alat,nl,ctrl_nbas,ssite=>v_ssite,sspec=>v_sspec,n0,nkap0,iprmb,zbak_read=>zbak
       use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
       use NaNum,only: NaN       !for initialization, but not working well
-      integer,protected,public:: ngrpaf,ngrp_original
+      integer,protected,public:: ngrpaf,ngrp_original,pwmode
       integer,protected,public:: nqi=NaN, nqnum=NaN, ngrp=NaN, lxx=NaN, kxx=NaN,norbmto=NaN,
      &     nqtt=NaN, ndimham=NaN, napwmx=NaN, lxxa=NaN, ngpmx=NaN, imx=NaN,nbas=NaN
       integer,allocatable,protected,public:: iclasstaf(:), offH (:),
@@ -13,7 +13,7 @@
       real(8),allocatable,protected,public:: symops_af(:,:,:), ag_af(:,:),
      &     symops(:,:,:),ag(:,:),tiat(:,:,:),shtvg(:,:), dlmm(:,:,:,:),qq(:,:),
      &     qtt(:,:),qtti(:,:)  
-      real(8),protected,public:: plat(3,3)=NaN,qlat(3,3)=NaN 
+      real(8),protected,public:: plat(3,3)=NaN,qlat(3,3)=NaN,zbak 
       public:: m_hamindex_init, Readhamindex, getikt
 
       private
@@ -40,7 +40,7 @@ c      enddo
       implicit none
       integer,parameter:: noutmx=48, n0nkap0=30, n0H=5
       integer:: ibas,k,l,ndim,ipr,nglob,ldim,off,offs,specw,fieldw,iorb,offsi,ib,is, norb
-      integer:: nkabc(3),nkp,lshft(3),pwmode,napwx,ig,nini,nk1,nk2,nk3,ik1,ik2,ik3,ikt,nkt
+      integer:: nkabc(3),nkp,lshft(3),napwx,ig,nini,nk1,nk2,nk3,ik1,ik2,ik3,ikt,nkt
       integer:: i_copy_size,i_spacks,i_spackv,ifi,nbas_in,ifisym,i,ifiqibz,igg,iqq,iqi,irr,iqi_,jobgw
       integer:: iout,nout,nlatout(3,noutmx),iapw ,iprint,ngadd,igadd,igaf
       integer:: ngp, ifiqg,iq,nnn(3),ixx,ndummy,nqbz___ ,ifatomlist
@@ -55,62 +55,15 @@ c      enddo
       ngrp=lat_nsgrp !note nsgrp given in mksym.F is without inversion.
       plat=lat_plat
       qlat=lat_qlat
-      allocate( ltabx(n0nkap0,nbas),ktabx(n0nkap0,nbas),offlx(n0nkap0,nbas)) !,ispec(nbas))
-!!--- MTO part ---- obtain norbmto, lxx,kxx ----
-      norbmto=0
-      kxx=-1
-      lxx=-1
-      ndimham = 0 !dimension of mto part of hamiltonian
-      do  ib = 1, nbas
-        is=ssite(ib)%spec
-        call orbl(ib,0,ldim,iprmb,norb,ltabx(:,ib),ktabx(:,ib),off,offlx(:,ib),ndim)!iprmb
-        do iorb = 1, norb
-          norbmto = norbmto+1
-          if(ltabx(iorb,ib)>lxx)  lxx = ltabx(iorb,ib)
-          if(ktabx(iorb,ib)>kxx)  kxx = ktabx(iorb,ib)
-          ndimham = ndimham+ 2*ltabx(iorb,ib)+1
-        enddo
-      enddo
-!!--- make index table :norbmto is the total number of different type of MTOs 
-      allocate( ibasindex(ndimham))
-      allocate( ltab(norbmto),ktab(norbmto),offl(norbmto),ibastab(norbmto) )
+!!----------------      
+      open(newunit=ifatomlist,file="ATOM_LIST")
       allocate( spid(nbas))
-      norbmto=0
-      ndimham = 0 !dimension of mto part of hamiltonian
-      allocate(offH(nbas+1)) !offH looks 
-      offH=0
-      do  ib = 1, nbas
-        is=ssite(ib)%spec
-        spid(ib)=sspec(is)%name
-        call orbl(ib,0,ldim,iprmb,norb,ltabx(:,ib),ktabx(:,ib),off,offlx(:,ib),ndim) !iprmb
-        do  iorb = 1, norb !(ib,irob) specify a block of MTO part Hamiltonian
-          norbmto=norbmto+1
-          ibastab(norbmto)= ib
-          ltab(norbmto)   = ltabx(iorb,ib) !angular momentum l of (ib,iorb) block
-          ktab(norbmto)   = ktabx(iorb,ib) !radial index of (ib,iorb) block
-          offl(norbmto)   = offlx(iorb,ib) !offset to (ib,iorb) block
-          nini = ndimham+ 1 
-          ndimham = ndimham+ 2*ltab(norbmto)+1
-          ibasindex(nini:ndimham) = ib
-c write(6,"('offx ',3i3,2x,2i5,3x,a)") ib,ltab(norbmto),ktab(norbmto), offl(norbmto)+1,ndimham,trim(spid(ib))
-        enddo
-        offH(ib+1) = ndimham !'starting index'-1 of (ib) block
-      enddo
-      offH(nbas+1) = ndimham
-!!      
-      ifatomlist=999
-      open(ifatomlist,file="ATOM_LIST")
+      do ib=1,nbas
+        spid(ib)=sspec( ssite(ib)%spec )%name
+      enddo  
       write(ifatomlist,*)nbas
       write(ifatomlist,*)spid
       close(ifatomlist)
-c ... reverse maping of offset-index for hamiltonian
-      allocate(offlrev(nbas,0:lxx,kxx))
-      do iorb=1,norbmto
-        ibas = ibastab(iorb)
-        l   = ltab(iorb)
-        k   = ktab(iorb)
-        offlrev(ibas,l,k)= offl(iorb)
-      enddo
 !!--- symmetry operation ---
       allocate(symops(3,3,ngrp),ag(3,ngrp))
       call dcopy ( ngrp * 9 , rv_a_osymgr , 1 , symops , 1 )
@@ -134,15 +87,64 @@ c ... reverse maping of offset-index for hamiltonian
       enddo
       close(ifisym)
       endif
+      
+!!--- MTO part ---- obtain norbmto, lxx,kxx ----
+      allocate( ltabx(n0nkap0,nbas),ktabx(n0nkap0,nbas),offlx(n0nkap0,nbas)) !,ispec(nbas))
+      norbmto=0
+      kxx=-1
+      lxx=-1
+      ndimham = 0 !dimension of mto part of hamiltonian
+      do  ib = 1, nbas
+        is=ssite(ib)%spec
+        call orbl(ib,0,ldim,iprmb,norb,ltabx(:,ib),ktabx(:,ib),off,offlx(:,ib),ndim)!iprmb
+        do iorb = 1, norb
+          norbmto = norbmto+1
+          if(ltabx(iorb,ib)>lxx)  lxx = ltabx(iorb,ib)
+          if(ktabx(iorb,ib)>kxx)  kxx = ktabx(iorb,ib)
+          ndimham = ndimham+ 2*ltabx(iorb,ib)+1
+        enddo
+      enddo
+!!--- make index table :norbmto is the total number of different type of MTOs 
+      allocate( ibasindex(ndimham))
+      allocate( ltab(norbmto),ktab(norbmto),offl(norbmto),ibastab(norbmto) )
+      norbmto=0
+      ndimham = 0 !dimension of mto part of hamiltonian
+      allocate(offH(nbas+1)) !offH looks 
+      offH=0
+      do  ib = 1, nbas
+        is=ssite(ib)%spec
+c        spid(ib)=sspec(is)%name
+        call orbl(ib,0,ldim,iprmb,norb,ltabx(:,ib),ktabx(:,ib),off,offlx(:,ib),ndim) !iprmb
+        do  iorb = 1, norb !(ib,irob) specify a block of MTO part Hamiltonian
+          norbmto=norbmto+1
+          ibastab(norbmto)= ib
+          ltab(norbmto)   = ltabx(iorb,ib) !angular momentum l of (ib,iorb) block
+          ktab(norbmto)   = ktabx(iorb,ib) !radial index of (ib,iorb) block
+          offl(norbmto)   = offlx(iorb,ib) !offset to (ib,iorb) block
+          nini = ndimham+ 1 
+          ndimham = ndimham+ 2*ltab(norbmto)+1
+          ibasindex(nini:ndimham) = ib
+c ib,ltab(norbmto),ktab(norbmto), offl(norbmto)+1,ndimham,trim(spid(ib))
+        enddo
+        offH(ib+1) = ndimham !'starting index'-1 of (ib) block
+      enddo
+      offH(nbas+1) = ndimham
+c ... reverse maping of offset-index for hamiltonian
+      allocate(offlrev(nbas,0:lxx,kxx))
+      do iorb=1,norbmto
+        ibas = ibastab(iorb)
+        l   = ltab(iorb)
+        k   = ktab(iorb)
+        offlrev(ibas,l,k)= offl(iorb)
+      enddo
 !! Get rotation matrix dlmm.  We assume nl=lmxa+1.
       lxxa=nl-1
       allocate( dlmm( -lxxa:lxxa, -lxxa:lxxa, 0:lxxa, ngrp))
       call rotdlmm(symops,ngrp, nl, dlmm)
-!! No GW-related part
-      if(ljobgw) then
-        if(master_mpi) print *,'gen_hamindex: not readin QGpsi.'
-        return
-      endif
+
+!! No GW-related part ------------------------------------
+      if(ljobgw) return !for sigm mode, dlmm needed.
+!---------------------------------------------------------
       
 !! --- PW part. info for eigenfunctions are expanded as MTpart+PWpart.!feb2012takao
       inquire(file='QGpsi',EXIST=qpgexist)  !feb2012takao
@@ -153,29 +155,7 @@ c ... reverse maping of offset-index for hamiltonian
 !! q on mesh and shortened q.
       open(newunit=ifiqg,file='QGpsi',form='unformatted')
       read(ifiqg) nqnum, ngpmx ,QpGcut_psi, nqbz___, nqi !,imx !,nqibz
-c$$$cccccccccccccccccccccccccccccc
-c$$$      nkt = 2*nqbz + 2*nkp
-c$$$      if(allocated(qq)) deallocate(qq)
-c$$$      allocate( qq(3,nkt) )
-c$$$      print *,'gen_hamindex: nkt nqbz=',nkt,nqbz
-c$$$      do  iq = 1, nqbz
-c$$$        read(ifiqg)  qxx  ! q, and number of G vectors for
-c$$$        read(ifiqg)
-c$$$        qq(:,iq)=qxx
-c$$$        call shorbz(qq(:,iq),qq(:,iq+nqbz+nkp),qlat,plat)
-c$$$        write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq(:,iq+nqbz+nkp)
-c$$$      enddo
-c$$$      print *
-c$$$      call fclr(' ',ifiqg)
-c$$$      do iq = nqbz+1, nqbz+nkp
-c$$$        qq(:,iq) = qplist(:,iq-nqbz)
-c$$$        call shorbz(qq(:,iq),qq(:,iq+nqbz+nkp),qlat,plat)
-c$$$        write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq(:,iq+nqbz+nkp)
-c$$$      enddo
-cccccccccccccccccccccccccccccc
-
 !! we have two set of data for original qxx in QGpsi and their shortened.
-c      nqnum2 = 2*nqnum !+ 2*nkp !takao feb2012 test xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
       if(allocated(qq)) deallocate(qq)
       nqtt=nqnum !nqnum*2 !doubled. second series nqnum+1:2*nqnum are for shortened q.
       nkt=nqtt
@@ -191,11 +171,7 @@ c      nqnum2 = 2*nqnum !+ 2*nkp !takao feb2012 test xxxxxxxxxxxxxxxxxxxxxxxxxxx
           iqtt(iqi)=iq
         endif
         read(ifiqg)
-c        read(ifiqg) ngvecp(1:3,1:ngp,iq), ngvecprev(-imx:imx,-imx:imx,-imx:imx,iq)
         qq(:,iq)=qxx
-cc comment out aug2012takao
-cc        call shorbz(qq(:,iq),qq(:,iq+nqnum),qlat,plat)
-cc        write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq(:,iq+nqnum)
         if(master_mpi)write(6,"(' qq=',i5,3f10.5)") iq,qq(:,iq)
       enddo
       close(ifiqg)
@@ -207,22 +183,14 @@ cc        write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq(:
       qtt(:,1:nqtt)=qq(:,1:nqtt)
       do i=1,nqtt
         qtarget(:)=qtt(:,i)
-c        print *,' i in nqtt=',i,qtarget
         do iqi=1,nqi
           q=qtti(:,iqi)
           iqq=iqtt(iqi)
           iqi_=iqi
-c          print *,' xxxxx qtti=',q
           do ig=1,ngrp
-c       print *, 'ddd=',matmul(platt,(qtarget-matmul(symops(:,:,ig),q)))
-c            qx=matmul(platt,(qtarget-matmul(symops(:,:,ig),q)) )
-c            if(sum(abs(qx-anint(qx)))<1d-8) then
             call rangedq( matmul(platt,(qtarget-matmul(symops(:,:,ig),q)) ), qx)
             if(sum(abs(qx))<tolq()) then
               igg=ig
-c              if(debug)print *,' q qtarget     =',q,qtarget,ig
-c              if(debug)print *,' matmul q =',matmul(symops(:,:,ig),q)
-c              if(debug)print *
               ddf=sum(abs(matmul(platt,(qtarget-matmul(symops(:,:,ig),q)))))
               if(ddf-nint(ddf) > 1d-8) then
               write(6,"('qqqqqxq ',3d16.8,2x,3d16.8,2x,3d16.8)") q, qtarget,qtarget-matmul(symops(:,:,ig),q)
@@ -243,7 +211,6 @@ c              if(debug)print *
            enddo
            call rx('gen_hamindex: you may need to repeat echo 1|qg4gw, when you changed SYMOPS.')
         endif
-
  2012   continue
         iqmap(i)=iqq
         iqimap(i)=iqi_
@@ -251,10 +218,7 @@ c              if(debug)print *
       enddo
 
 !! === rotation of APW. (not the IPW part for GW).===
-c$$$ 1012 continue
       pwmode=ham_pwmode
-c      pwemax=ham_pwemax
-c     pwemin=ham_pwemin
       if(pwmode==0.or.pwemax<1d-8) then
         if(allocated(napwk)) deallocate(napwk)
         allocate(napwk(nkt))
@@ -265,8 +229,7 @@ c     pwemin=ham_pwemin
         return
       endif
 
-!! for APW rotation. 
-C ... Get igv2(3,iapw,ikt). pwmode>=10 only
+!! for APW rotation.  ! ... Get igv2(3,iapw,ikt). pwmode>=10 only
       if(master_mpi) print *,' gen_hamindex goto APW part: pwmode pwemax=',pwmode,pwemax !pwemin
       if(allocated(napwk)) deallocate(napwk,igv2,igv2rev)
       allocate( napwk(nkt))
@@ -299,22 +262,14 @@ cnnn
           call pshpr(0)
           prpushed=.true.
         endif
-cnnn
         if(pwmode<10) then
-        ppin=matmul(transpose(plat),qq(:,ikt))
-        call shortn3(ppin,noutmx, nout,nlatout)
-c        do iout=1,nout
-c           write(*,"(a,3i5,f10.4,3f8.4)")'suham.gen_hamindex.F:rrrrn1 =',nlatout(:,iout),
-c     &         sum(matmul(qlat(:,:),ppin+nlatout(:,iout))**2),
-c     &         matmul(qlat(:,:),ppin+nlatout(:,iout))
-c        enddo
+           ppin=matmul(transpose(plat),qq(:,ikt))
+           call shortn3(ppin,noutmx, nout,nlatout)
         endif
-cnnn
         if (pwmode<10) then
            do iapw=1,napwk(ikt)
               igv2(:,iapw,ikt)=igv2(:,iapw,ikt)+nlatout(:,1)
            enddo
-           
         endif
       enddo
       deallocate(kv)
@@ -328,16 +283,9 @@ C ... Reverse table of igv2 --->igv2rev
       allocate( igv2rev(-imx:imx,-imx:imx,-imx:imx,nkt) )
       igv2rev=999999
       do ikt = 1,nkt
-cccccccccccccccccccccccc
-c          write(6,"(a,3f8.3,i4)")'rrrrrrr suham.gen_hamindex qq ikt: ',qq(:,ikt),ikt
-cccccccccccccccccccccccc
         do ig  = 1,napwk( ikt )
           nnn  = igv2(1:3, ig, ikt)
           igv2rev( nnn(1), nnn(2),nnn(3), ikt) = ig
-ccccccccccccccccccccccc
-c          write(6,"(a,3f8.3,4i4,i6,i6)")'suham.gen_hamindex: igv2rev: ',qq(:,ikt), nnn, ig, ikt
-c          write(6,"(a,i4,2x,3i4)")'suham.gen_hamindex: igv2: ', ig, nnn
-ccccccccccccccccccccccc
         enddo
       enddo
       call writehamindex() !sep2012takao
@@ -421,8 +369,9 @@ c      if(debug) print *,'nkt=',nkt
       logical,save:: done=.false.
       if(done) call rx('writehamindex is already done')
       done=.true.
+      zbak=zbak_read
       open(newunit=ifi,file='HAMindex',form='unformatted')
-      write(ifi)ngrp,nbas,kxx,lxx,nqtt,nqi,nqnum,imx,ngpmx,norbmto
+      write(ifi)ngrp,nbas,kxx,lxx,nqtt,nqi,nqnum,imx,ngpmx,norbmto,pwmode,zbak
       write(ifi)symops,ag,invgx,miat,tiat,shtvg,qtt,qtti,iqmap,igmap,iqimap
       write(ifi)lxxa
       write(ifi)dlmm
@@ -447,7 +396,7 @@ c      if(debug) print *,'nkt=',nkt
       if(done) call rx('readhamindex is already done')
       done=.true.
       open(newunit=ifi,file='HAMindex',form='unformatted')
-      read(ifi)ngrp,nbas,kxx,lxx,nqtt,nqi,nqnum,imx,ngpmx,norbmto
+      read(ifi)ngrp,nbas,kxx,lxx,nqtt,nqi,nqnum,imx,ngpmx,norbmto,pwmode,zbak
       allocate(symops(3,3,ngrp),ag(3,ngrp),qtt(3,nqtt),qtti(3,nqi))
       allocate(invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp))
       allocate(iqmap(nqtt),igmap(nqtt),iqimap(nqtt))

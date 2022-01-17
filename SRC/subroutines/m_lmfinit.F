@@ -1463,12 +1463,12 @@ c     .     ' 4 BZ integration with 3-point scheme')
      .     def_r8=0.05d0,note='Initial uncertainty in Fermi energy')
       nm='BZ_ZBAK'; call gtv(trim(nm),tksw(prgnam,nm),zbak,
      .     def_r8=0d0,note='Homogeneous background charge')
-!! Write zbak. sep2020
-      if(procid==master) then
-         open(newunit=ifzbak,file='ZBAK')
-         write(ifzbak,"(d23.5, ' ! zbak')") zbak
-         close(ifzbak)
-      endif
+c!! Write zbak. sep2020
+c      if(procid==master) then
+c         open(newunit=ifzbak,file='ZBAK')
+c         write(ifzbak,"(d23.5, ' ! zbak')") zbak
+c         close(ifzbak)
+c      endif
       nm='BZ_SAVDOS'; call gtv(trim(nm),tksw(prgnam,nm),ctrl_ldos,
      .     def_i4=0,note='Choose 0 or 1: %N%3f1 Write dos.tot.* file (settings are NPTS and DOS)')
 c      nm='BZ_DOS'; call gtv(trim(nm),tksw(prgnam,nm),bz_doswin,def_r8v=
@@ -1751,11 +1751,11 @@ c      call dcopy(i_copy_size,dabc,1,ham_dabc,1)
       ham_pwmode=pwmode
       ham_oveps=oveps
       ham_delta_stabilize=delta_stabilize !takao sep2010
-      if (procid==master) then
-         open(newunit=ifi,file='PWMODE')
-         write(ifi,"(i5)")pwmode
-         close(ifi)
-      endif 
+c      if (procid==master) then
+c         open(newunit=ifi,file='PWMODE')
+c         write(ifi,"(i5)")pwmode
+c         close(ifi)
+c      endif 
       
 C --- Allocate and copy input to sspec ---
       allocate(v_sspec(nspec))

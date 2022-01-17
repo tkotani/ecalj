@@ -68,11 +68,8 @@ c     logical :: readgwinput
 c------------------------------------------------
       write(6,"('mkqg2: ')")
 ! initial set up      
-      open (newunit=ifi, file='LATTC')
-      read(ifi,*) alat
-      read(ifi,*) plat(1:3,1)
-      read(ifi,*) plat(1:3,2)
-      read(ifi,*) plat(1:3,3)
+      open (newunit=ifi, file='LATTC',form='unformatted')
+      read(ifi) alat,plat
       close(ifi)
       
       open (newunit=ifi, file='SYMOPS')
