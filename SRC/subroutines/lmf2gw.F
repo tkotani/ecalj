@@ -1,4 +1,12 @@
-!!cr Radial mesh is specified from, nr, aa, and bb; mesh is r(i) = bb*(exp(aa*(i-1)) -1) ,i=1,nr
+!> lmf2gw() set variables to module variables by reading files from following input files.
+!    gwb.head
+!    NLAindx      
+!    CLASS
+!    lmfgw_kdivider
+!    gwa.*
+!    QGpsi,QGcou,Q0P
+!      
+!cr Radial mesh is specified from, nr, aa, and bb; mesh is r(i) = bb*(exp(aa*(i-1)) -1) ,i=1,nr
 !!cr----NLAindx start---------------
 !!cr     ldim2
 !!cr     n l ibas for each line --- Repeat this line for the number of ldim2.
@@ -68,14 +76,14 @@
       integer,allocatable::
      &     iclass(:),lmxa_d  (:),nr(:),konf_d(:,:),ncore_d(:),ibasf(:)
       real(8),allocatable ::
-     &     zz(:),aa(:),bb(:),ec_d (:,:,:),evl_d(:,:,:),vxclda (:,:,:),
+     &     zz(:),aa(:),bb(:),ec_d (:,:,:),evl_d(:,:,:),
      &     gx_d(:,:,:,:,:),gcore_d(:,:,:,:), bas(:,:)
       real(8):: plat(3,3), alat, efermi
       complex(8),allocatable:: cphi_d(:,:,:,:)
       complex(8),allocatable:: geig_d(:,:,:,:)
 c      real(8),allocatable :: qirr(:,:)
       logical,protected:: laf   !! - laf: antiferro switch
-      integer:: ngcmx,nqnum,nqnumc,nqtt,nq0i,iq0pin,nq0iadd,nqbz
+      integer:: ngcmx,nqnum,nqnumc,nqtt,nq0i,iq0pin,nq0iadd,nqbz,nqibz
       real(8):: QpGcut_psi,QpGcut_cou
       real(8),allocatable :: wt(:),q0i(:,:)
       integer,allocatable,target:: ngvecptt(:,:,:),ngvecctt(:,:,:),ngptt(:),ngctt(:)
@@ -87,6 +95,7 @@ c      real(8),allocatable :: qirr(:,:)
       character*256,allocatable:: extp(:)
       integer,allocatable:: iprocq(:,:)
       integer:: nqirr     ! = Number of q points for irr=1 (see m_qplist, output of qg4gw).
+      real(8),allocatable :: qibz(:,:)
 
       contains
       subroutine lmf2gw()
@@ -128,9 +137,9 @@ c----------------------------------------------
       integer:: iq,iqq,iqqx
       character*256:: extn,aaa,fname
       integer,parameter :: nsize= 1 000 000
-      integer:: ifiproc,nqixx,nspxx,numprocxx,ixxx
+      integer:: ifiproc,nqixx,nspxx,numprocxx,ixxx,ifiqibz
       logical:: iopen
-      integer::  id,nsizex,iqqxx,ifile_handle,ib,ii,ipqn,nn,nnn(3),ifiqg,ifiqgc,irr,irrq
+      integer::  id,nsizex,iqqxx,ifile_handle,ib,ii,ipqn,nn,nnn(3),ifiqg,ifiqgc,irr,irrq,iqibz
 !! =================================================================
       call setpr(30)
 c      call getkeyvalue("GWinput", "n1n2n3", nnn,3) !Readin nx ny nz for k-points for GW 
@@ -201,7 +210,6 @@ c     n1q=nnn(1); n2q=nnn(2); n3q = nnn(3)
         extp(procid)=trim(adjustl(ext))//'_'//trim(adjustl(extn))
         write(6,"(i3,' ext= ',a,a)") procid,trim(extp(procid)),' ----------'
       enddo
-      
 !! ATOMIC PART ic = ibas scheme ==,  GET nrxx and ncoremx ----------------------
       open(newunit=ifigwa,file='gwa'//trim(ext),form='unformatted')
       allocate(nncx(0:lmxamx,nbas),konf(lmxamx+1,nbas),spid(nbas))
@@ -261,9 +269,6 @@ c$$$     &          gx_d(nr_A,l,3,ic,isp), ovv(6),ovv(4),ovv(5)
               read(ifigwa) gcore_A(1:nr_A,icore) ! gcore
               ec_d(icor1, ic, isp) = ec_A(icore)
               gcore_d(1:nr_A,icor1,ic,isp)  = gcore_A(1:nr_A,icore)
-c        call gintxx(gcore_A(1,icore),gcore_A(1,icore), a_A,b_A,nr_A,ovv(1))
-c        write(6,'(3i3,f15.6,f12.6,f15.10,3i3)')
-c  &     l,kkk,isp,ec_A(icore),gcore_A(nr_A,icore),ovv(1),icore,icor1
             enddo
         enddo
         enddo
@@ -289,7 +294,6 @@ c  &     l,kkk,isp,ec_A(icore),gcore_A(nr_A,icore),ovv(1),icore,icor1
       do ibas=1,nbas
         write(6,"(a,i4,a)") ' i spid=',ibas,' '//trim(spid(ibas))
       enddo
-     
 !------
       open(newunit=ifiqg ,file='QGpsi',form='unformatted')
       open(newunit=ifiqgc,file='QGcou',form='unformatted')
@@ -313,48 +317,18 @@ c  &     l,kkk,isp,ec_A(icore),gcore_A(nr_A,icore),ovv(1),icore,icor1
       close(ifiqg)
       close(ifiqgc)
       write(6,*)'QpGcut_psi QpGcutCou =',QpGcut_psi,QpGcut_Cou 
-!! Band part
-c      open(newunit=ifichkv,file='VXCFP.chk')
-c      write(ifichkv,"(a)") '### LDA exchange correlation ###'
-c      write(ifichkv,"(a)")'#   qvec                 ikp iband    eigen VXC(ntotal)     VXC(nvalence)'
-c      open(newunit=ificg,file='CphiGeig',form='unformatted')
-c      mrecb = 2*ldim2*nband *ndble/nwordr()
-c      open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
-c      nbandmx = ndimh
-c      write(6,'(" nqirr nqpz nbandmx=",3i5)') nqirr,nqbz,nbandmx
-c      allocate( qirr(3,nqirr),evl_d(nbandmx, nqirr, nsp),vxclda(nbandmx, nqirr, nsp),
-c     &   vvv1(nbandmx),vvv2(nbandmx),vvv3(nbandmx),cphi(ldim2, nbandmx))!, evl(nbandmx) )
-!! open files      
-c      do iqq = 1,nqirr !q point for irreducible points, irr=1 only (console output)
-c      do isp = 1, nsp
-c      enddo
-c      enddo
-!!      
-c$$$      evl_d =1d20
-c$$$      vxclda=1d20
-c$$$      do iqq = 1,nqirr !q point for irreducible points, irr=1 only (console output)
-c$$$      do isp = 1, nsp
-c$$$          nband     =  ndimhall(iqq)
-c$$$          ngp       =  ngplist(iqq)
-c$$$          allocate( geig(ngp, nbandmx))!, ngvecp(3,ngp) )
-c$$$          cphi=1d20
-c$$$          geig=1d20
-c$$$          read (ifigwb_) evl_d (1:nband, iqq,isp),cphi(:,1:nband),geig(:,1:nband) !ngvecp,
-c$$$          write(ificg)              cphi(1:ldim2,1:nbandmx) ,geig(1:ngp,1:nbandmx)
-c$$$          deallocate(geig)
-c$$$          vvv3=vvv2
-c$$$          do ibx =1,nband
-c$$$            write(ifichkv,"(3f8.4,2i3,6f16.8)") qqq,iqq,ibx,vvv1(ibx),vvv1(ibx)-vvv2(ibx),vvv3(ibx)-vvv2(ibx),
-c$$$     &      rydberg*vvv1(ibx),rydberg*(vvv1(ibx)-vvv2(ibx)),rydberg*(vvv3(ibx)-vvv2(ibx))
-c$$$          enddo
-c$$$ 888      continue
-c$$$        enddo
-c$$$      enddo
-c      close(ifichkv)
-c      close(ificg)
-c      deallocate( cphi, vvv1,vvv2,vvv3)
-!
 !---------
+!!    Readin qibz form QIBZ
+      open(newunit=ifiqibz, file='QIBZ') !write q-points in IBZ.
+      read (ifiqibz,*) nqibz
+      allocate(qibz(3,nqibz))
+      do iqibz = 1,nqibz
+        read(ifiqibz,*) qibz(1:3,iqibz)
+      enddo
+      write(6,"( ' --- Readin QIBZ --- ')")
+      write(6,'("  qibz=",i3,3f12.5)')(i,qibz(1:3,i),i=1,nqibz)
+      close(ifiqibz)
+!!
       write(6,*)'reading QOP'
       open (newunit=iq0p,file='Q0P')
       read (iq0p,*) nq0i,iq0pin,nq0iadd
@@ -363,13 +337,5 @@ c      deallocate( cphi, vvv1,vvv2,vvv3)
          read (iq0p,*) wt(i),q0i(1:3,i)
       enddo
       close(iq0p)
-!      
-c      print *,' iclass=',iclass
-c      print *,' nqirr nbas',nqirr,nbas
-c      write(6,"(a,100i4)") ' iantiferro=',iantiferro(1:nbas)
-c      do iq=1,nqirr
-c        write(*,"(' qirr=',i4,3f9.5)")iq, qirr(1:3,iq)
-c      enddo
-!!      
       end subroutine lmf2gw
       end module m_lmf2gw

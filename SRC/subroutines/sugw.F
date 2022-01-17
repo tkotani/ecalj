@@ -105,7 +105,7 @@ c      use m_shortn3,only: shortn3_initialize,shortn3
      .nlindx(:,:,:),ngvecp_p(:,:) !takao feb2012 ,ngvecc(:,:) ,ngvecp(:,:)
       integer,allocatable :: konft(:,:,:),iiyf(:),ibidx(:,:),nqq(:)
       real(8) ,allocatable:: wk(:,:),
-     .bas(:,:),rofi(:),rwgt(:),gcore(:,:,:),gval(:,:,:,:,:),evl(:,:)
+     .bas(:,:),rofi(:),rwgt(:),gcore(:,:,:),gval(:,:,:,:,:),evl(:,:),vxclda(:)
       real(8),allocatable::  cphin(:,:,:) !!ovv(:,:),evl_p(:,:), qq1(:,:),qq2(:,:),
       complex(8),allocatable:: ham(:,:),ovl(:,:),evec(:,:),vxc(:,:),
      .ppovl(:,:),phovl(:,:),pwh(:,:),pwz(:,:),pzovl(:,:),
@@ -365,7 +365,7 @@ c         call m_igv2xall_init(1,nqirr)
          close(ifigwbhead)
       endif
       deallocate(ips,lmxa)
-      allocate(evl(ndham,nsp))
+      allocate(evl(ndham,nsp),vxclda(ndham))
       
 !! == GW setup loop over k-points ==
       if (lchk>=1 ) then
@@ -594,11 +594,11 @@ c             if(sum(abs(qp-q))>1d-8) stop 'sugw:qp/=q; qp=p sep2012'
              deallocate(ppovl)
           endif
           if(debug) print *,' goto gwb write...'
+c          write(ifigwb) evl(1:ndimh,isp),cphi(:,:,isp),pwz,nev
 C     --- File output, jobgw=1 ---
 c          write(ifigwb) qp, ndimh, iq,ngp
           if(debug) write (6,"('q ndimh=',3f10.5,i10)") qp, ndimh
-          write(ifigwb) evl(1:ndimh,isp),cphi(:,:,isp),pwz,nev
-          write(ifigw1) qp, (evl(i,isp),i=1,ndimh)
+c          write(ifigw1) qp, (evl(i,isp),i=1,ndimh)
 C  call prmx('e(H+sigma-vxc)',evl,ndimh,ndimh,1)
 C     ... Overlap checking.   Define:
 C     Interstitial part of eigenfunction overlap:
@@ -643,20 +643,15 @@ C     xx(2) = sum(dconjg(cphi(1:nchan,i1,isp))*cphi(1:nchan,i2,isp))
              deallocate(testc,testcd)
              write(ifinormchk,*)
           endif                 !------------- end of lchk=1
-          if (ngp .gt. 0) deallocate(pwz)
-c          if (isp .eq. nsp) deallocate(ngvecp) !takao feb2012 ,ngvecc)
-!     !   ... Subtract <psi|vxc|psi> from starting evl=e(lda+sigma-vxc)
-!     !       evl should contain e(lda+sigma-vxc)
           allocate(testc(ndimh,ndimh))
           call zgemm('C','N',ndimh,ndimh,ndimh,(1d0,0d0),
      .         evec,ndimh,vxc,ndimh,(0d0,0d0),testc,ndimh)
           do i1 = 1, ndimh
-             do i2 = 1, ndimh
-                evl(i1,isp) = evl(i1,isp) - testc(i1,i2) * evec(i2,i1)
-             end do
-          end do
-          write(ifigw2) qp, (evl(i,isp),i=1,ndimh)
-          deallocate(testc)
+            vxclda(i1) =  sum(testc(i1,1:ndimh) * evec(1:ndimh,i1))  !<i|Vxc^lda|i> 
+          enddo
+          write(ifigwb) evl(1:ndimh,isp),cphi(:,:,isp),pwz,vxclda(1:ndimh),nev
+c          write(ifigw1) vxclda(1:ndimh)
+          deallocate(testc,pwz)
  1002  continue             ! Loop over spins
        if(allocated(hammhso)) deallocate(hammhso)
        deallocate(ham,ovl,evec,vxc,cphi,cphin)!,igv2)
@@ -665,7 +660,7 @@ c          if (isp .eq. nsp) deallocate(ngvecp) !takao feb2012 ,ngvecc)
       close(ifiqg)
       close(ifigwb)
       close(ifigw1)
-      close(ifigw2)
+c      close(ifigw2)
       if ((.not. cmdopt0('--novxc')).and. lsig>0) then
          close(ifiv)
          close(ifievec)
