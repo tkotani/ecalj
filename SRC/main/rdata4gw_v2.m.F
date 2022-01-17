@@ -157,7 +157,7 @@ c      character(8),allocatable:: clablx(:)
       real(8),allocatable:: rofi_n(:), gx_raw_n (:,:,:,:,:), 
      &     gcore_n  (:,:,:,:) , aann(:)
       integer,allocatable:: nrnn(:)
-      integer:: igp1,igp2,   icold,nbandx,iread !ifnband,
+      integer:: igp1,igp2,   icold,nev,iread !ifnband,
       integer:: igg,iorb, igc
       real(8):: platt(3,3),qtarget(3)
       logical:: newaniso, noo
@@ -725,30 +725,29 @@ c      open(newunit=ificg,file='CphiGeig',form='unformatted')
 c        read (ifigwb_) evl(1:ndimh, iqq,isp),cphi(1:ldim2,1:ndimh),geig(1:ngp,1:ndimh) !ngvecp,
 c     write(ificg)              cphi(1:ldim2,1:nbandmx) ,geig(1:ngp,1:nbandmx)
         evl(:,iqq,isp)=1d20
-        read(ifigwb_) evl(1:ndimh, iqq,isp),cphir(1:ldim2,1:ndimh),geigr(1:ngp,1:ndimh,isp)
-        
-          nbandx = ndimh    !nbandx is actually calculated number of eigenfunctions.
-          do iband=1,nbandmx
-            if( evl(iband, iqq, isp )>1d10 ) then  
-               nbandx=iband-1
-               exit
-            endif
-          enddo
+        read(ifigwb_) evl(1:ndimh,iqq,isp),cphir(1:ldim2,1:ndimh),geigr(1:ngp,1:ndimh,isp),nev
+c        nev = ndimh             !nev is actually calculated number of eigenfunctions.
+c        do iband=1,nbandmx
+c          if( evl(iband, iqq, isp )>1d10 ) then  
+c             nev=iband-1
+c             exit
+c          endif
+c        enddo
 !------------
-          read(ifigwx1_ ) qqq, (vvv1(i),i=1,ndimh)
-          read(ifigwx2_ ) qqq, (vvv2(i),i=1,ndimh)
-          vxclda (1:ndimh, iqq,isp)= vvv1(1:ndimh)-vvv2(1:ndimh)
+          read(ifigwx1_ ) qqq, vvv1(1:ndimh)
+          read(ifigwx2_ ) qqq, vvv2(1:ndimh)
+          vxclda (1:nev, iqq,isp)= vvv1(1:nev)-vvv2(1:nev)
           
 c          read(ificg) cphir(1:ldim2,1:nband),geigr(1:ngp,1:nband,isp)
           do ibas=1,nbas
             do ix = 1,ldim2
               if(ibasindx(ix)==ibas)
-     &          cphir (ix,1:nbandx)= cphir(ix, 1:nbandx)/sqrt(1d0+0.1d0*nindx(ix))
+     &          cphir (ix,1:nev)= cphir(ix, 1:nev)/sqrt(1d0+0.1d0*nindx(ix))
             enddo
           enddo
 !  Augmentation wave part
           cphix=0d0
-          do iband = 1,nbandx
+          do iband = 1,nev
             do ix= 1,ldim2
               l  = lindx(ix)
               ib = ibasindx(ix)
@@ -763,8 +762,8 @@ c          read(ificg) cphir(1:ldim2,1:nband),geigr(1:ngp,1:nband,isp)
           iqqisp= isp + nsp*(iqq-1)
           write(ifcphi, rec=iqqisp) cphix(1:ldim2,1:nbandmx) !cphi(1:ldim2,1:nband,iqq,isp)
           if(checknorm) then
-            do ib1=1,nbandx
-            do ib2=1,nbandx
+            do ib1=1,nev
+            do ib2=1,nev
               if(ib1/=ib2.and.checkdia) cycle
               sumc(ib1,ib2,isp) = sum(dconjg(cphix(1:ldim2,ib1))*cphix(1:ldim2,ib2))
             enddo
@@ -796,8 +795,8 @@ c        enddo                  !end of spin loop
           iqqisp= isp + nsp*(iqq-1)
           if(ngpmx/=0) write(ifgeig, rec=iqqisp) geigr(1:ngpmx,1:nbandmx,isp)
 c          if(verbose()>40) then
-c            write(6,'("geig sumcheck ",i5,3f9.4,"  ",2i5,2d13.6)')iqq,qqqa,ngpmx,ngp,sum(geigr(1:ngp,1:nbandx,isp))
-c            do ix=1,nbandx
+c            write(6,'("geig sumcheck ",i5,3f9.4,"  ",2i5,2d13.6)')iqq,qqqa,ngpmx,ngp,sum(geigr(1:ngp,1:nev,isp))
+c            do ix=1,nev
 c            write(6,'("geig sumcheck ",i5,2d13.6)') ix,sum(geigr(1:ngp,ix,isp))
 c            enddo
 c          endif
@@ -816,8 +815,8 @@ c          endif
      &         nbas, rmax, bas,  
      o         ppovl)
           do isp=1,nsp
-          do ib1=1,nbandx
-          do ib2=1,nbandx
+          do ib1=1,nev
+          do ib2=1,nev
              if(ib1/=ib2.and.checkdia) cycle
              xx(3)=sum( dconjg(  geigr(1:ngp,ib1,isp))*
      &            matmul(ppovl,geigr(1:ngp,ib2,isp)) )

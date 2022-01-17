@@ -436,7 +436,7 @@ ccccccccccccccc
           write(6,"(' sugw:  kpt isp=',i8,i2,' of ',i8, ' k= ',3f9.5, ' ndimh= ',i5,
      &    ' irank=',i4, ' lwvxc=',l,' nev=',i5)")  iq,isp,nqnum,qp,ndimh,procid,lwvxc,nev
           call prtev(evec,ndimh,evl(1,isp),ndimh,nev)
-          if (ndham>nev ) evl(1+nev:ndham,isp)=1d20 !this is also given in lmf2gw nov2015. 
+          if (ndham>nev ) evl(1+nev:ndham,isp)=1d20 ! See rdata4gw_v2
           if(mod(iq,10) .ne. 1) call poppr
           if(debug) write(6,"(' sugw:procid iq isp lwvxc= ',3i3,' ',l)")procid, iq,isp,lwvxc 
           if (lwvxc) then
@@ -597,7 +597,7 @@ c             if(sum(abs(qp-q))>1d-8) stop 'sugw:qp/=q; qp=p sep2012'
 C     --- File output, jobgw=1 ---
 c          write(ifigwb) qp, ndimh, iq,ngp
           if(debug) write (6,"('q ndimh=',3f10.5,i10)") qp, ndimh
-          write(ifigwb) evl(1:ndimh,isp),cphi(:,:,isp),pwz
+          write(ifigwb) evl(1:ndimh,isp),cphi(:,:,isp),pwz,nev
           write(ifigw1) qp, (evl(i,isp),i=1,ndimh)
 C  call prmx('e(H+sigma-vxc)',evl,ndimh,ndimh,1)
 C     ... Overlap checking.   Define:
