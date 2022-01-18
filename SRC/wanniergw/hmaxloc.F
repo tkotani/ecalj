@@ -38,6 +38,7 @@ c     use m_readqg,only: readngmx,readqg
      &  iphi, iphidot, nphi, nphix
       use m_keyvalue,only: getkeyvalue
       use m_readhbe,only:Readhbe,nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+      use m_hamindex0,only: readhamindex0,iclasst
       implicit none
 c------------------------------------
       real(8),allocatable:: r0g(:,:), wphi(:,:)
@@ -87,7 +88,7 @@ c     okumura Sep,2017
       integer(4),allocatable::idorb(:),idorb_in(:) !check
       
 c space group infermation 
-      integer(4),allocatable :: iclasst(:), invgx(:), miat(:,:)
+      integer(4),allocatable ::  invgx(:), miat(:,:)
       real(8),allocatable    :: tiat(:,:,:),shtvg(:,:)
 
 c
@@ -312,16 +313,17 @@ c      if (nprecb == 4) stop 'hsfp0: b,hb in single precision'
 c --- get space group information ---------------------------------
 c true class information in order to determine the space group -----------
 c because the class in the generated GW file is dummy.(iclass(ibas)=ibas should be kept).
-      if102=ifile_handle()
-      open (if102,file='CLASS')
-      allocate(iclasst(natom),invgx(ngrp)
+c      if102=ifile_handle()
+c      open (if102,file='CLASS')
+      allocate(invgx(ngrp)
      &         ,miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
       write(6,*)'  --- Readingin CLASS info ---'
-      do ibas = 1,natom
-        read(if102,*) ibasx, iclasst(ibas)
-        write(6, "(2i10)") ibasx, iclasst(ibas)
-      enddo
-      close(if102)
+      call readhamindex0()
+c      do ibas = 1,natom
+c        read(if102,*) ibasx, iclasst(ibas)
+c        write(6, "(2i10)") ibasx, iclasst(ibas)
+c      enddo
+c      close(if102)
 
 c     Get space-group transformation information. See header of mptaouof.
       print *,'goto mptauof'

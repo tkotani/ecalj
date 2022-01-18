@@ -12,7 +12,8 @@
       use m_rdfiln,only:   m_Rdfiln_init
       use m_MPItk,only:    m_MPItk_init,m_MPItk_finalize,nsize,master_mpi
       use m_lmfgw,only:    m_lmfgw_init
-      use m_hamindex,only: m_hamindex_init
+      use m_hamindex, only: m_hamindex_init
+      use m_hamindex0,only: m_hamindex0_init
       use m_supot,only:    m_supot_init
       use m_suham,only:    m_suham_init
       use m_qplist,only:   m_qplist_init,m_qplist_qspdivider,nkp
@@ -98,17 +99,21 @@
          read(outs,*) jobgw
         elseif(master_mpi) then
          write(stdo,*)
-         write(stdo,*) '=== lmfgw-MPIK: Choose one of following jobs: ==='
-         write(stdo,*) '   0 : init mode; creates files SYMOPS, LATTC, CLASS, NLAindx, ldima'
-         write(stdo,*) '   1 : GW setup mode'
-         write(stdo,*) ' job 0 or 1?'
+         write(stdo,*) ' === lmfgw-MPIK: Choose one of following jobs: ==='
+         write(stdo,*) '  0 : init mode creates HAMindex0'
+         write(stdo,*) '  1 : GW setup for eigenfunctions: HAMindex gwa.* gwb.*'
+         write(stdo,*) '  jobgw 0 or 1?'
          read (5,*) jobgw
         endif
         call mpibc1_int(jobgw,1,'lmfp_jobgw')
       endif
 !! Index for hamiltonian gen_hamindex
-      call m_hamindex_init(jobgw) 
-      if(jobgw==0) call rx0(' OK! '//'lmfgw mode=0 generated LATTC CLASS NLAindx ldima')
+      if(jobgw==0) then
+         if(master_mpi) call m_hamindex0_init() 
+         call rx0(' OK! '//'lmfgw mode=0 generated HAMindex0')
+      else
+         call m_hamindex_init(jobgw) 
+      endif   
 !! Array allocated in supot rhoat smrho. We have to store all fixed quantites in modules.
       call m_supot_init() ! get G vectors for charge
       call sugcut(1) 

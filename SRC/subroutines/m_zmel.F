@@ -22,7 +22,8 @@
       use m_readhbe,only: nband
       use m_itq,only: itq,ntq
       use m_readQG,only: ngpmx,ngcmx
-      use m_readclasst,only: Readclasst,iclasst !iclass and iclasst is the same?
+c      use m_readclasst,only: Readclasst,iclasst !iclass and iclasst is the same?
+      use m_hamindex0,only: Readhamindex0,iclasst !iclass and iclasst is the same?
 !! q-dependent
       use m_readVcoud,only: zcousq,ngc,ngb !! zcousq is the eigenfuncition of the Coulomb matrix
 !!------------------------------------------------------
@@ -140,7 +141,8 @@ c         ppovlz= matmul(ppovl_,zcousq)
       integer:: ng
       real(8):: symops(9,ng)
       integer,allocatable ::  invgx(:)
-      call Readclasst() !true class from CLASS file (genalloc_v3 may contain iclass=iatom)
+c     call Readclasst() !true class from CLASS file (genalloc_v3 may contain iclass=iatom)
+      call readhamindex0()
       allocate(invgx(ng),miat(natom,ng),tiat(3,natom,ng),shtvg(3,ng))
       call mptauof(symops,ng,plat,natom,pos,iclasst
      o ,miat,tiat,invgx,shtvg ) !note: miat,tiat,shtvg are defined in m_zmel.

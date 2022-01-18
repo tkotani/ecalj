@@ -34,6 +34,7 @@ show_programinfo.o\
 util.o\
 m_toksw.o \
 m_psigd.o \
+m_hamindex0.o \
 m_hamindex.o \
 m_struc_def.o \
 m_gtv.o \

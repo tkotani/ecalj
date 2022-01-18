@@ -4,7 +4,7 @@
      &  qbz,wbz,qibz,wibz, qbzw, idtetf, ib1bz, idteti, irk, nstar, nstbz, qbzm, qbzwm
       use m_q0p,only: Getallq0p, q0i,wt,nq0i,nq0itrue, nq0iadd
       use m_keyvalue,only: getkeyvalue
-c      use m_hamindex,only:   Readhamindex, symops, ngrp
+      use m_hamindex0,only: Readhamindex0, symops,ngrp,alat,plat,qlat
       implicit none
       intent(in)::     iq0pin, gammacellctrl,lnq0iadd,lmagnon
 !! == Make required q and G in the expansion of GW. ==
@@ -23,9 +23,9 @@ c      use m_hamindex,only:   Readhamindex, symops, ngrp
      &     nline,nlinemax,ifsyml,iqq,is,nk,ix,nqnumx,i1,ifkpt
       integer :: mxkp,ifiqibz,iqibz,ifigwin,mtet(3),nm1,nm2,nm3
       integer:: nqnumm,ifiqmtet,verbose,nn1,nn2,ifiqbz,iqbz !,auxfunq0p
-      real(8)  :: plat(3,3),qlat(3,3),q(3),dummy,qp(3), 
+      real(8)  :: q(3),dummy,qp(3), 
      &     QpGcut_psi, QpGcut_Cou,QpGcut,alpv(3),q0smean,sumt,alp,
-     &     volum,voltot,q0(3),qlat0(3,3), alat,tripl,
+     &     volum,voltot,q0(3),qlat0(3,3),tripl,
      &     xx,qqx(3),alpm
       real(8)::aaij,bbij
       real(8) :: vol,ginv(3,3),dq(3) !,www
@@ -48,7 +48,7 @@ c     logical :: readgwinput
       integer:: imxc,nnn3(3),imx0c,imx11(1,1)
       real(8):: deltaq,delta5,delta8,deltaq_scale!=1d0/3.0**.5d0 
       integer:: nqi,ifix,ig,iq0i,lm,ifi
-      real(8),allocatable:: wti(:),qi(:,:) ,symops(:,:,:)
+      real(8),allocatable:: wti(:),qi(:,:) !,symops(:,:,:)
       integer:: ifidml!,iclose,iopen !,ifiwqfac
       integer:: llxxx,lm1,lm2
       real(8),allocatable:: funa(:,:),wsumau(:),yll(:,:)
@@ -60,7 +60,7 @@ c     logical :: readgwinput
       real(8),allocatable:: wt0(:)
       integer,allocatable::irr(:)
       real(8):: dq_(3),qlatbz(3,3)
-      integer:: gammacellctrl,nnng(3),ifi0,itet, ngrp
+      integer:: gammacellctrl,nnng(3),ifi0,itet !, ngrp
       real(8)::imat33(3,3),unit,QpGx2
       logical:: lnq0iadd, lmagnon
       logical ::unit2=.false. 
@@ -68,21 +68,21 @@ c     logical :: readgwinput
 c------------------------------------------------
       write(6,"('mkqg2: ')")
 ! initial set up      
-      open (newunit=ifi, file='LATTC',form='unformatted')
-      read(ifi) alat,plat
-      close(ifi)
-      
-      open (newunit=ifi, file='SYMOPS')
-      read(ifi,*) ngrp
-      allocate(symops(3,3,ngrp))
-      do ig = 1,ngrp
-        read(ifi,*)
-        do i=1,3
-          read(ifi,*) symops(i,1:3,ig)
-        enddo
-      enddo
-      close(ifi)
-c      call readhamindex()
+c      open (newunit=ifi, file='LATTC',form='unformatted')
+c      read(ifi) alat,plat
+c      close(ifi)
+c      
+c      open (newunit=ifi, file='SYMOPS')
+c      read(ifi,*) ngrp
+c      allocate(symops(3,3,ngrp))
+c      do ig = 1,ngrp
+c        read(ifi,*)
+c        do i=1,3
+c          read(ifi,*) symops(i,1:3,ig)
+c        enddo
+c      enddo
+c      close(ifi)
+      call readhamindex0()
       
       call getkeyvalue("GWinput", "n1n2n3", nnn,3)
       call getkeyvalue("GWinput", "QpGcut_psi",QpGx2)
@@ -101,7 +101,7 @@ c      call readhamindex()
      
       qreduce0 = qreduce()
       newoffsetG=.true. 
-      call minv33tp(plat,qlat)
+c      call minv33tp(plat,qlat)
       ginv = transpose(plat)
       
 !! NOTE: we use only mtet=[1,1,1]. If we like to recover general case, examine code again.

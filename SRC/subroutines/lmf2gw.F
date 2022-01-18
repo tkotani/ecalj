@@ -116,6 +116,8 @@ c      real(8),allocatable :: qirr(:,:)
 !!   CLASS, lmfgw_kdivider, NLAindx
 c------------------------------------------------------------------
       use m_keyvalue,only: getkeyvalue
+      use m_hamindex0,only: readhamindex0,nclass_in=>nclass,iclass_in=>iclasst,
+     &   nindx_in=>nindx,lindx_in=>lindx,ibasindx_in=>ibasindx,nphimx_in=>nphimx
       implicit none
       integer:: iq0p
       integer::
@@ -133,7 +135,7 @@ c------------------------------------------------------------------
       complex(8),allocatable:: cphi(:,:)
       real(8),allocatable:: evl(:), vvv1(:),vvv2(:),vvv3(:),rofi_A(:)
      &,gcore_A(:,:), ec_A(:)
-      integer,allocatable:: konf(:,:),lmxaa(:),nncx(:,:),ngvecp(:,:)
+      integer,allocatable:: konf(:,:),nncx(:,:),ngvecp(:,:),lmxaa(:)
       real(8),parameter ::  rydberg=13.6058d0
       ! nocore is obtained by inquire(file='NoCore',exist=nocore) in the upper routine.
       ! If nocore exist. you have to supply
@@ -157,44 +159,53 @@ c     n1q=nnn(1); n2q=nnn(2); n3q = nnn(3)
       allocate(bas(3,nbas),lmxaa(nbas),qplist(3,nqirr),ngplist(nqirr),ndimhall(nqirr))
       read(ifigwb) bas,lmxaa,qplist,ngplist,ndimhall
       close(ifigwb)
-      allocate( iclass(nbas) )
-!! NLAindx augmentation indexing !  call rdibasindx2(ldim2,nphi,nphimx,nindx,lindx,ibasindx,ifi)
-      open(newunit=ifi,file='NLAindx')
+      
+c$$$!! NLAindx augmentation indexing !  call rdibasindx2(ldim2,nphi,nphimx,nindx,lindx,ibasindx,ifi)
+c$$$      open(newunit=ifi,file='NLAindx')
+c$$$      allocate(nindx(ldim2),lindx(ldim2),ibasindx(ldim2))
+c$$$      read(ifi,*)
+c$$$      read(ifi,*) i
+c$$$      if (ldim2 /= i) call rx('lmf2gw: ldim2/=i')
+c$$$      nphimx = 0
+c$$$      nn = 0
+c$$$      do
+c$$$          read(ifi,*,err=101,end=101) ipqn,l,ib,ii
+c$$$          do m=1,2*l+1
+c$$$            nn = nn+1
+c$$$            nindx   (nn) = ipqn ! principle
+c$$$            lindx   (nn) = l    ! l 
+c$$$            ibasindx(nn) = ib   ! ibas
+c$$$          enddo
+c$$$          nphimx = max(nphimx,ipqn)
+c$$$       enddo
+c$$$ 101   continue
+c$$$       close(ifi)
+c$$$!! readin CLASS
+c$$$      open(newunit=ifefclass,file='CLASS')
+c$$$      nclass=0
+c$$$      do ibas = 1,nbas
+c$$$        read(ifefclass,*)  ibasx,  nclassx
+c$$$        if(nclassx>nclass) nclass= nclassx
+c$$$  enddo
+      call readhamindex0()
+      nclass=nclass_in
       allocate(nindx(ldim2),lindx(ldim2),ibasindx(ldim2))
-      read(ifi,*)
-      read(ifi,*) i
-      if (ldim2 /= i) call rx('lmf2gw: ldim2/=i')
-      nphimx = 0
-      nn = 0
-      do
-          read(ifi,*,err=101,end=101) ipqn,l,ib,ii
-          do m=1,2*l+1
-            nn = nn+1
-            nindx   (nn) = ipqn ! principle
-            lindx   (nn) = l    ! l 
-            ibasindx(nn) = ib   ! ibas
-          enddo
-          nphimx = max(nphimx,ipqn)
-       enddo
- 101   continue
-       close(ifi)
-!! readin CLASS
-      open(newunit=ifefclass,file='CLASS')
-      nclass=0
-      do ibas = 1,nbas
-        read(ifefclass,*)  ibasx,  nclassx
-        if(nclassx>nclass) nclass= nclassx
-      enddo
-      write(6,'('' File CLASS:  nclass ='',i4)') nclass
-      allocate( lmxa_d(nclass), nr(nclass),
-     &  ncore_d(nclass), konf_d(0:lmxamx,nclass), zz(nclass),
+      nindx=nindx_in
+      lindx=lindx_in
+      ibasindx=ibasindx_in
+      nphimx=nphimx_in
+      allocate( iclass(nbas) )
+      iclass=iclass_in
+c      write(6,'('' File CLASS:  nclass ='',i4)') nclass
+      allocate(lmxa_d(nclass), nr(nclass), ncore_d(nclass), konf_d(0:lmxamx,nclass), zz(nclass),
      &  aa(nclass), bb(nclass) )
-      rewind ifefclass
+c     rewind ifefclass
       do ibas=1,nbas
-        read(ifefclass,*) ix,iclass(ibas)
-        lmxa_d(iclass(ibas)) =lmxaa(ibas)
+c        read(ifefclass,*) ix,iclass(ibas)
+        lmxa_d(iclass(ibas)) = lmxaa(ibas)
+c        write(6,*)'lllll',ibas,lmxaa(ibas),iclass(ibas)
       enddo
-      close(ifefclass)
+c$$$  close(ifefclass)
 !! Get ext and extp(procid)
       open(newunit=ifiproc,file= 'lmfgw_kdivider')
       read(ifiproc,*) ext  !extension is read here

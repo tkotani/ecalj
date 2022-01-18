@@ -195,7 +195,6 @@ c$$$      endif
       allocate(lmxaa(1:nbas))
       lmxaa(1:nbas) = lmxa(iclass(1:nbas))
       call minv33tp(plat,qlat)
-      
 !! Make index-file @MLNA  ------------------------------------
       nxx= -999; lxx= -999; ibxx=-999
       allocate(nrad(nbas), nindx_r(ldim2,nbas),lindx_r(ldim2,nbas))

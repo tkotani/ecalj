@@ -24,6 +24,7 @@ c      use m_shortn3,only: shortn3_initialize,shortn3
       use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_setiq,ndimhall
       use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
       use m_qplist,only: qplist,ngplist,ngvecp, iqini,iqend,ispini,ispend,iqibzmax      !for current rank iprocq,
+      use m_hamindex0,only: Readhamindex0, nlindx
       implicit none
 !! == Driver for fpgw (to prepare eigenfuncitons for fpgw) ==
 !! NOTE: following documents are not carefully examined. Not believe everything.
@@ -91,7 +92,7 @@ c      use m_shortn3,only: shortn3_initialize,shortn3
      .alat,alfa,ef0,plat(3,3),qlat(3,3),qp(3),qpos,q_p(3), !,qx(3)
      .epsovl,dgets
       integer ,allocatable:: ips(:),ipc(:),ipcx(:),lmxa(:),
-     .nlindx(:,:,:),ngvecp_p(:,:) !takao feb2012 ,ngvecc(:,:) ,ngvecp(:,:)
+     .ngvecp_p(:,:) !takao feb2012 ,ngvecc(:,:) ,ngvecp(:,:)
       integer,allocatable :: konft(:,:,:),iiyf(:),ibidx(:,:),nqq(:)
       real(8) ,allocatable:: wk(:,:),
      .bas(:,:),rofi(:),rwgt(:),gcore(:,:,:),gval(:,:,:,:,:),evl(:,:),vxclda(:)
@@ -195,7 +196,8 @@ c      integer,allocatable:: igv2(:,:)
         endif
         ipb(i) = nat
       enddo
-
+      if(nat/=nbas) call rx('sugw: gw is only for no floating orbital case') !2022jan
+      
       lsig = 1
       i_copy_size=size(ham_ldham)
       call icopy(i_copy_size,ham_ldham,1,ldham,1)
@@ -220,8 +222,10 @@ c      integer,allocatable:: igv2(:,:)
       enddo
 
 !! ==== Read file NLAindx ====
-      allocate(nlindx(3,0:lmxax,nat))
-      call ioaindx(3,lmxax,nat,ndima,nlindx)
+c      allocate(nlindx(3,0:lmxax,nat))
+c     call ioaindx(3,lmxax,nat,ndima,nlindx)
+      call Readhamindex0()
+c      xxxxxxxxxxxx Exit -1 gwcphi: nlindx mismatch
 !! ... Read QGpsi !takao feb2012 ---> Not QGcou now
       open(newunit=ifiqg,file='QGpsi',form='unformatted')
       read(ifiqg ) nqnum, ngpmx ,QpGcut_psi,nqbz,nqirr,imx,nqibz
@@ -645,7 +649,7 @@ c          write(ifigw1) vxclda(1:ndimh)
        if(allocated(hammhso)) deallocate(hammhso)
        deallocate(ham,ovl,evec,vxc,cphi,cphin)!,igv2)
  1001 continue ! ===== Loop over qp ===============================
-      deallocate(evl,nlindx)
+      deallocate(evl)
       close(ifiqg)
       close(ifigwb)
       close(ifigw1)
@@ -657,33 +661,33 @@ c      close(ifigw2)
       call tcx('m_sugw_init')
       end subroutine m_sugw_init
 
-      subroutine ioaindx(npqn,lmxax,nbas,ndima,nlindx)
-C-  read NlAindx
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   npqn  :leading dimension of nlindx
-Ci   lmxax :second dimension of nlindx
-Ci   nbas  :size of basis
-Ci   ndima :number of augmentation channels
-Ci   nlindx:pointer to augmentation channels by site
-      implicit none
-      integer npqn,lmxax,nbas,ndima,ifi,nlindx(npqn,0:lmxax,nbas)
-      character outs*80
-      integer i,ipqn,l,ib,ii
-      open(newunit=ifi,file='NLAindx')
-      nlindx = -1
-      read(ifi,'(a)') outs
-      read(ifi,*) i
-      if (ndima .gt. 0 .and. i .ne. ndima)
-     .  call rx('ioaindx: file mismatch NLAindx')
-      ndima = i
-      do  i = 1, ndima
-          read(ifi,'(a)',err=101,end=101) outs
-          read(outs,*) ipqn,l,ib,ii
-          nlindx(ipqn,l,ib) = ii
-       enddo
- 101   continue
-      close(ifi)
-      end subroutine ioaindx
+c$$$      subroutine ioaindx(npqn,lmxax,nbas,ndima,nlindx)
+c$$$C-  read NlAindx
+c$$$C ----------------------------------------------------------------------
+c$$$Ci Inputs
+c$$$Ci   npqn  :leading dimension of nlindx
+c$$$Ci   lmxax :second dimension of nlindx
+c$$$Ci   nbas  :size of basis
+c$$$Ci   ndima :number of augmentation channels
+c$$$Ci   nlindx:pointer to augmentation channels by site
+c$$$      implicit none
+c$$$      integer npqn,lmxax,nbas,ndima,ifi,nlindx(npqn,0:lmxax,nbas)
+c$$$      character outs*80
+c$$$      integer i,ipqn,l,ib,ii
+c$$$      open(newunit=ifi,file='NLAindx')
+c$$$      nlindx = -1
+c$$$      read(ifi,'(a)') outs
+c$$$      read(ifi,*) i
+c$$$      if (ndima .gt. 0 .and. i .ne. ndima)
+c$$$     .  call rx('ioaindx: file mismatch NLAindx')
+c$$$      ndima = i
+c$$$      do  i = 1, ndima
+c$$$          read(ifi,'(a)',err=101,end=101) outs
+c$$$          read(outs,*) ipqn,l,ib,ii
+c$$$          nlindx(ipqn,l,ib) = ii
+c$$$       enddo
+c$$$ 101   continue
+c$$$      close(ifi)
+c$$$      end subroutine ioaindx
 
       end module 

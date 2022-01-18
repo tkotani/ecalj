@@ -127,10 +127,16 @@ C ... Passed parameters
       double complex aus(nlmax,ndham,3,nsp,*),cphi(ndima,nev)
 C ... Local parameters
       double precision lmat(3,3),pnu(n0,2),pnz(n0,2)
-      integer lmxa,ichan,ib,is,igetss,iv,ilm,l,im,k,ia
+      integer lmxa,ichan,ib,is,igetss,iv,ilm,l,im,k,ia,i,ibas
       double precision s00,s11,szz,s0z,s1z,D
       double complex au,as,az,sqrsz(3)
-
+cccccccccccccccccccccccccccccc
+c      do i=1,3
+c        do ibas=1,nbas
+c          write(6,*)'gggg222',nlindx(i,1:lmxax,ibas)
+c        enddo
+c      enddo
+cccccccccccccccccccccccccccccccc        
       call dpzero(lmat,9)
       call dpzero(cphin,2*nev)
 C     ichan0 = 0
