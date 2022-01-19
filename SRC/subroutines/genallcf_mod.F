@@ -33,7 +33,7 @@
      o     nindx(:,:),konf(:,:),icore(:,:),ncore(:),
      &     occv(:,:,:),unoccv(:,:,:)   
      &     ,occc(:,:,:),unoccc(:,:,:),
-     o     nocc(:,:,:),nunocc(:,:,:),   iantiferro(:),ooo(:,:,:)
+     o     nocc(:,:,:),nunocc(:,:,:)
       integer,protected,public::
      o     nclass,natom,nspin,nl,nn,nnv,nnc, !ngrp,
      o     nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw 
@@ -62,12 +62,13 @@ c-----------------------------------------------------------------------
       use m_keyvalue,only: getkeyvalue
       implicit none
       intent(in)::           incwfx
-!! Readin GWIN_V2 and LMTO(crystal) data and allocate all required.
 !! Return iclass=ibas.
-!! efin,incwfx, are used as switches.
+!    incwfx: product basis setting switch
 !! input: efin,incwfx,
-!!        GWIN_V2, LMTO
+!!        GWinput, LMTO, ECORE
 !! output: All the output are given in the declear section above.
+! Original idea of product basis is from F.Aryasetiawan. Some subroutines are written by him.
+! We may need to clean them up in modern fortran.      
 !! --------------------------------------------------------
       integer::incwfx,ifec,i,j,
      & lmx, lmx2,nlmto2,nprodxc,nlnaxc,nlnaxv,nprodx,ifi,ig,is
@@ -79,7 +80,7 @@ c     & ,noflmto
 c      character(120):: symgrpt
       character*1000 tolchar
       real(8),   allocatable:: ecoret(:,:,:,:)
-      integer(4),allocatable::ncwf2(:,:,:)
+      integer(4),allocatable::ncwf2(:,:,:),  ooo(:,:,:)
       integer:: ia,l,m,ic1,isp,lt,nt,nsp,nr,ncorex,ifix
       real(8)::a,b,zz, efdummy,dw,diw,pi
       integer:: nwdummy,ifile_handle,ict
@@ -89,10 +90,9 @@ c      character(120):: symgrpt
       read(ifi) natom,alat,plat,nspin,nl,nnv,nnc,nrx!,n1,n2,n3
       allocate(pos(3,natom))    !positions of atoms
       nclass = natom  !We set nclass = natom through the GW calculations
-      allocate(clabl(natom),z(natom),iantiferro(1:natom),spid(1:natom))
+      allocate(clabl(natom),z(natom),spid(1:natom))
       read(ifi)pos,z(1:natom),spid(1:natom)
       clabl=spid
-c      read(ifi)iantiferro(1:natom)
       close(ifi)
       pi=4d0*datan(1d0)
       tpioa=2d0*pi/alat
@@ -149,7 +149,7 @@ c      read(ifi)iantiferro(1:natom)
       do      ic = 1,nclass
         do       l = 0,nl-1
           read(ifi,*) ict,lt,nindxv(l+1,ic),nindxc(l+1,ic)
-          if(lt  .ne. l ) call rx( 'rgwina: 1st wrong l ')
+          if(lt  /= l ) call rx( 'genallcf_mod /=l ')
         end do
       end do
       write(6,*)' --- valence product basis section'
@@ -158,10 +158,10 @@ c      read(ifi)iantiferro(1:natom)
       do      ic = 1,nclass
       do       l = 0,nl-1
       do       n = 1,nindxv(l+1,ic)
-            read(ifi,*)ict,lt,nt,occv(l+1,n,ic),unoccv(l+1,n,ic)
+            read(ifi,*)        ict,lt,nt,occv(l+1,n,ic),unoccv(l+1,n,ic)
             write(6,"(100i3)") ict,lt,nt,occv(l+1,n,ic),unoccv(l+1,n,ic)
-            if(lt  .ne. l )call rx( 'rgwina: 2nd wrong l valence')
-            if(nt  .ne. n )call rx( 'rgwina: wrong n valence')
+            if(lt  /= l )call rx( 'genallcf: wrong l valence')
+            if(nt  /= n )call rx( 'genallcf: wrong n valence')
       enddo
       enddo
       enddo
@@ -171,9 +171,8 @@ c      read(ifi)iantiferro(1:natom)
       do      ic = 1,nclass
       do       l = 0,nl-1
       do       n = 1,nindxc(l+1,ic)
-         read(ifi,*)ict,lt,nt,occc(l+1,n,ic),unoccc(l+1,n,ic),ncwf(l+1,n,ic),ncwf2(l+1,n,ic) 
-         write(6,"(100i3)") ict,lt,nt,occc(l+1,n,ic),unoccc(l+1,n,ic),ncwf(l+1,n,ic)
-     &        ,ncwf2(l+1,n,ic)  !ncwf2 is for Sigma calcuation
+                 read(ifi,*)ict,lt,nt,occc(l+1,n,ic),unoccc(l+1,n,ic),ncwf(l+1,n,ic),ncwf2(l+1,n,ic) 
+         write(6,"(100i3)") ict,lt,nt,occc(l+1,n,ic),unoccc(l+1,n,ic),ncwf(l+1,n,ic),ncwf2(l+1,n,ic)  !ncwf2 is for Sigma calcuation
             if(lt  .ne. l )call rx( 'rgwina: 2nd wrong l core')
             if(nt  .ne. n )call rx( 'rgwina: wrong n core')
       enddo
@@ -190,11 +189,9 @@ c      read(ifi)iantiferro(1:natom)
         ncwf  = ncwf2
         occc= ncwf  
         unoccc= 0   
-cccccccccccccccccccccccccccccccccc
         ooo=0
         call ibitand(nl*nnv*nclass, unoccv,occv, ooo)
         unoccv = ooo
-cccccccccccccccccccccccccccccccccc
       elseif( incwfx==-3 ) then
         call ibiton(nclass,nl,nnc,nindxc, occc, ncwf)
         unoccc= 0   
@@ -218,8 +215,7 @@ cccccccccccccccccccccccccccccccccc
       nlmto2     = nlmto*nlmto
       nn         = maxnn (nindxv,nindxc,nl,nclass)
 !! combine nocc,nunocc,nindx
-      allocate(nindx(nl,nclass))
-      allocate(nocc(nl,nn,nclass),nunocc(nl,nn,nclass))
+      allocate(nindx(nl,nclass),nocc(nl,nn,nclass),nunocc(nl,nn,nclass))
       call reindx  (occv,unoccv,nindxv,
      i              occc,unoccc,nindxc,
      d              nl,nn,nnv,nnc,nclass,
@@ -234,8 +230,7 @@ cccccccccccccccccccccccccccccccccc
       allocate(icore(nl**2*nnc,nclass),ncore(nclass))
       icore=9999999
       ncore=9999999
-      call incor   (ncwf,nindxc,iclass,
-     d              nl,nnc,nclass,natom,
+      call incor   (ncwf,nindxc,iclass,nl,nnc,nclass,natom,
      o              icore,ncore,nctot )
 !! core energies
       open(newunit=ifec,file='ECORE')
@@ -314,27 +309,10 @@ c           write(6,"(' read ecore=',3i4,2d13.5)")l,n,ic,ecoret(l,n,1:nspin,ic)
      o              nlnmc )
       call nolnma  (nindx,nl,nclass,
      o              nlnm )
-c$$$c      i=2 !see previous definition of symgrp
-c$$$      if(symgrp(i+1:i+13)/= 'UseSYMOPSfile') then
-c$$$        call rx( " Not: UseSYMOPSfile in LMTO file")
-c$$$      endif
-c$$$      write(6,*) ' symgrp==UseSYMOPSfile'
-c$$$      open (newunit=ifi, file='SYMOPS')
-c$$$      read(ifi,*) ngrp
-c$$$      allocate(symgg(3,3,ngrp))
-c$$$      do ig = 1,ngrp
-c$$$        read(ifi,*)
-c$$$        do i=1,3
-c$$$          read(ifi,"(3d24.16)") symgg(i,1:3,ig)
-c$$$        enddo
-c$$$      enddo
-c$$$      allocate(invg(ngrp))
-c$$$      call invgrp  (symgg,ngrp,
-c$$$     o              invg)
-c$$$      close(ifi)
       call cputid(0)
       write(6,*) 'genallcf_v3'
       end subroutine genallcf_v3
+      
 !sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine nolnma  (nindx,nl,nclass,
      o nlnm )

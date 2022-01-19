@@ -338,15 +338,13 @@ c$$$     &          gx_d(nr_A,l,3,ic,isp), ovv(6),ovv(4),ovv(5)
       write(6,*)'QpGcut_psi QpGcutCou =',QpGcut_psi,QpGcut_Cou 
 !---------
 !!    Readin qibz form QIBZ
-      open(newunit=ifiqibz, file='QIBZ') !write q-points in IBZ.
-      read (ifiqibz,*) nqibz
+      open(newunit=ifiqibz, file='QIBZ',form='unformatted') !write q-points in IBZ.
+      read (ifiqibz) nqibz
       allocate(qibz(3,nqibz))
-      do iqibz = 1,nqibz
-        read(ifiqibz,*) qibz(1:3,iqibz)
-      enddo
+      read(ifiqibz) qibz(1:3,1:nqibz)
+      close(ifiqibz)
       write(6,"( ' --- Readin QIBZ --- ')")
       write(6,'("  qibz=",i3,3f12.5)')(i,qibz(1:3,i),i=1,nqibz)
-      close(ifiqibz)
 !!
       write(6,*)'reading QOP'
       open (newunit=iq0p,file='Q0P')

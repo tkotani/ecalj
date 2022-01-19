@@ -933,7 +933,7 @@ c      close(ifnqibz)
       open(newunit=ifigwin,file='LMTO',form='unformatted')
       write(ifigwin) nbas,alat,plat,nsp,nl,nnv,nnc,nrmx!,n1q,n2q,n3q
       write(ifigwin) bas,zz(iclass(1:nbas)),spid(1:nbas)
-c      write(ifigwin) laf,ibasf
+      write(ifigwin) laf,ibasf
       close(ifigwin)
       print *, " OK! end of rdata4gw_v2 "
       call rx0( ' OK! rdata4gw_v2')
