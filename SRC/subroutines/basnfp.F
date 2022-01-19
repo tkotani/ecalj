@@ -24,6 +24,7 @@ Co   BASFP//atom     :  product basis. used in hvccfp0.
 Co   PPBRD_V2_//atom : <phi phi |B> radial integral. Read in hx0fp0 hsfp0 through rdpp_v2.
 Co
       implicit none
+      character*8 xtxx
       integer(4),parameter:: nxxmx=300, npradmx=300
       integer(4):: nl,nn,nrx, 
      &  nocc(0:nl-1,nn), nunocc(0:nl-1,nn), nindx(0:nl-1),
@@ -71,7 +72,7 @@ C---for mode 8
       integer(4):: nr_r,nlml_r,nsp_r,ifv,ibas,ilmx,isp1,isp2,kxx,ixx,nxx_i
       real(8),allocatable:: rofi_r(:),rho1(:,:,:),rspin(:),den(:,:),r11(:)
       real(8):: spinvec,spinvec0,sumc(2),sqrtfpi,const
-      character(3):: charnum3,charnum3n
+      character(3):: charnum3
       logical:: valmt=.false.
       logical :: smbasis,newaniso,addbasnew
       character*15 rprodf
@@ -699,20 +700,18 @@ c$$$      endif
         ifv = ifile_handle()
         ibas=ic
         if(valmt) then
-          open(ifv,file='ValMT.'//charnum3(ibas),form='unformatted')
+          open(ifv,file='ValMT.'//charnum3(ibas)//'.chk',form='unformatted')
           read(ifv) nr_r,nlml_r,nsp_r
           write(6,"('readin nr nlml nsp=',3i5)") nr_r,nlml_r,nsp_r
-          allocate(rofi_r(nr_r),rho1(nr_r,nlml_r,nsp_r),rspin(nrofi)
-     &  ,den(nrofi,nsp),r11(nrofi))
+          allocate(rofi_r(nr_r),rho1(nr_r,nlml_r,nsp_r),rspin(nrofi),den(nrofi,nsp),r11(nrofi))
           r11(1:nrofi)= 1d0
           read(ifv) rofi_r, rho1
           close(ifv)
         else
-          open(ifv,file='rhoMT.'//trim(charnum3n(ibas))//'.chk',form='unformatted',status='old',err=1031)
+          open(ifv,file='rhoMT.'//xtxx(ibas),form='unformatted',status='old',err=1031)
           goto 1032
- 1031     continue !bug fix for lmfgw---remove this path in future.
-          if(ibas>9) call rx( 'rhoMT indexing is over 10')
-          open(ifv,file='rhoMT.'//char(48+ibas),form='unformatted')
+ 1031     continue 
+          call rx( 'rhoMT by locpot-wrhomt. open error')
  1032     continue
           read (ifv) nr_r
           allocate(rofi_r(nr_r))
@@ -774,10 +773,6 @@ c             call gintxx( r, r,aa,bb,nrofi, const )
           enddo
         enddo
         deallocate(rofi_r,rho1,rspin)
-        do ilmx = 1, (2*(nl-1)+1)**2
-          do nx = 1, nxx(lx)
-          enddo
-        enddo
         close(ifv)
       endif !ixc==8 end
       if (allocated(rprod))   deallocate(rprod)
@@ -792,8 +787,6 @@ c             call gintxx( r, r,aa,bb,nrofi, const )
       return
       end
 
-
-
 C ----------------------------------------------------------------
       subroutine bessl2x(y,lmax,phi,psi)
 cnote --- what the difference from nfpsrc/bessl? : I think essentially the same.
@@ -807,17 +800,15 @@ Co         for e -> 0 returns phi(l) = 1/(2l+1)!!
 Co   psi:  first (lmax+1) spherical hankel functions * r^(l+1)
 Co         for e -> 0 returns psi(l) = (2l-1)!!
 Cr Remarks
-Cr   Andersen's definition in the limit E->0:
-Cr   bessel phi(OKA) is phi * (2l-1)!!/2  and
-Cr   hankel psi(OKA) is psi / (2l-1)!!, making
-Cr   H(OKA) = r^-l-1 and  J(OKA) = r^l/(2(2l+1))
+Crxxx   Andersen's definition in the limit E->0:
+Crxxx   bessel phi(OKA) is phi * (2l-1)!!/2  and
+Crxxx   hankel psi(OKA) is psi / (2l-1)!!, making
+Crxxx   H(OKA) = r^-l-1 and  J(OKA) = r^l/(2(2l+1))
 C ----------------------------------------------------------------
 C     implicit none
-C Passed parameters
       integer lmax
       double precision y
       double precision phi(lmax+1),psi(lmax+1)
-C Local parameters
       integer i,isn,j1,j2,k,l,lmux,lmuxp1,lmuxp2,lp1,nf,tlp1,tmp1,tmp2
       double precision dt,dt1,dt2,exppr,my,srmy,t,t1,tol
       double precision dum(420)
@@ -828,7 +819,6 @@ c      data fac2l /1,1,3,15,105,945,10395,135135,2027025,34459425/
 cC#endif
       real(8):: fac2l
       lmux = max0(lmax,2)
-Cstop2rx 2013.08.09 kino      if (lmux .gt. 9) stop 'bessl2: lmax gt 9'
       if (lmux .gt. 9) call rx( 'bessl2: lmax gt 9')
       tol = 1.d-8
       my = -y
@@ -899,7 +889,6 @@ C#endif
       return
    10 write(*,11) y
    11 format(' BESSL2: power series not convergent, E*r**2=',e12.4)
-Cstop2rx 2013.08.09 kino      stop
       call rx( '')
       end
 
@@ -933,8 +922,6 @@ cc      dxdi2 = x(3) - x(2)
       dxdi = x(3) - x(2) + .5d0*(x(3)- 2*x(2) +x(1))
       dydi = y(3) - y(2) + .5d0*(y(3)- 2*y(2) +y(1))
       derie = dydi/dxdi
-c      write(6,"('derie err=',2d18.10)") deriei,deriei/derie -1d0
-c      stop 'xxxxxxxxxxxxxxxxxxxxxx'
       end
 
       real(8) function derie3 (x,y)
@@ -946,8 +933,6 @@ c      stop 'xxxxxxxxxxxxxxxxxxxxxx'
       deri2= (y(3)-y(2))/(x(3)-x(2))
       xx = x(3)
       derie3 = deri1 + (deri2-deri1)/(xm2-xm1) *(xx - xm1)
-c      write(6,"('derie err=',2d18.10)") deriei,deriei/derie -1d0
-c      stop 'xxxxxxxxxxxxxxxxxxxxxx'
       end
 
       real(8) function derie2 (x,y,n)
@@ -960,7 +945,6 @@ c     return derivative at n
       enddo
       derie2 = polinta(dble(n), ii,dydx,n-1)
       end
-
 
       subroutine addd(a1,a,n)
 ! a1 is choosed so that it is not in agreement with other a(n).
@@ -976,11 +960,11 @@ c     return derivative at n
       enddo
       end
 
-      character(3) function charnum3n(num)
-      integer(4) ::num
-      charnum3n=''
-      charnum3n = char(48+mod(num,10))
-      if(num>9)  charnum3n=char(48+mod(num/10,10))//charnum3n
-      if(num>99) charnum3n=char(48+mod(num/100,10))//charnum3n
-      end
-
+c$$$      character(3) function charnum3n(num)
+c$$$      integer(4) ::num
+c$$$      charnum3n=''
+c$$$      charnum3n = char(48+mod(num,10))
+c$$$      if(num>9)  charnum3n=char(48+mod(num/10,10))//charnum3n
+c$$$      if(num>99) charnum3n=char(48+mod(num/100,10))//charnum3n
+c$$$      end
+c$$$
