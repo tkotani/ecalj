@@ -20,7 +20,7 @@
       real(8),protected,public::alat
       integer,protected,public::lmxax,nsp,ndima,norb,npqn,nclass,nphimx
       integer,allocatable,public:: konft(:,:,:),iqnum(:,:),lmxa(:),nlindx(:,:,:)
-      character(4),allocatable:: strn4c(:)
+      character(9),allocatable,public:: caption(:)
       character(8),allocatable,public::  spid(:)
       integer,allocatable,public:: nindx(:),lindx(:),ibasindx(:)
       public:: M_hamindex0_init,Readhamindex0
@@ -60,10 +60,10 @@ c      enddo
       integer:: ificlass,nat,lmaxa,ipqn,ifinlaindx,isp,konf
       real(8) ::xx(5),pnu(n0,2),pnz(n0,2)
       integer:: ipb(ctrl_nbas),ipc(ctrl_nbas),ipcx(ctrl_nbas),mxint
-      character lsym(0:n0-1)*1, lorb(3)*1, dig(9)*1, strn4*4
+      character lsym(0:n0-1)*1, lorb(3)*6, dig(9)*1, strn4*9
       data dig /'1','2','3','4','5','6','7','8','9'/
       data lsym /'s','p','d','f','g','5','6','7','8','9'/
-      data lorb /'p','d','l'/
+      data lorb /'phi','phidot','phiz'/
 ! forget floating orbital case
       ldim  = ham_ldham(1) 
       nbas=ctrl_nbas !nbas_in
@@ -86,6 +86,7 @@ c      enddo
 !! get space group information ---- translation informations also in miat tiat invgx, shtvg
       call mptauof( symops, ngrp,plat,nbas,rv_a_opos, iclasst,miat,tiat,invgx,shtvg )
       ndima = 0
+      norb=0
       do  ib = 1, nbas
         is=ssite(ib)%spec
         call dcopy(size(sspec(is)%pz),sspec(is)%pz,1,pnz,1)
@@ -93,7 +94,8 @@ c     if (lmxa(ib)> -1) then
         do  l = 0, lmxa(ib)
           npqn = 2
           if (pnz(l+1,1) .ne. 0) npqn = 3
-          ndima = ndima + npqn*(2*l+1) 
+          ndima = ndima + npqn*(2*l+1)
+          norb= norb + npqn
         enddo
 c     endif
       enddo
@@ -117,7 +119,7 @@ c     endif
       write(ifinlaindx,'(''----NLAindx start---------------''/I6)') ndima
       npqn=3
 c      print *,'nnnnnnnn ndima=',ndima
-      allocate(nlindx(npqn,0:lmxax,nbas),nindx(ndima),lindx(ndima),ibasindx(ndima))
+      allocate(nlindx(npqn,0:lmxax,nbas),nindx(ndima),lindx(ndima),ibasindx(ndima),caption(ndima))
       iorb=0
       nlindx=-1
       ndima = 0
@@ -142,6 +144,7 @@ c               print *,'nnnnn',ndima+1,ndima+2*l+1,ipqn,l,ib
                nindx   (ndima+1:ndima+2*l+1)=ipqn
                lindx   (ndima+1:ndima+2*l+1)=l
                ibasindx(ndima+1:ndima+2*l+1)=ib
+               caption (ndima+1:ndima+2*l+1)=strn4
                nphimx=max(nphimx,ipqn)
               write(ifinlaindx,'(i6,i3,i4,i6,4x,a)')ipqn,l,ib,     ndima,strn4
                                                 !   ipqn,l,ipb(ib),ndima,strn4
@@ -153,7 +156,7 @@ c     endif
       enddo
       close(ifinlaindx)
 c      return
-      norb=iorb
+      if(norb/=iorb) call rx('m_hamindex0:norb/=iorb')
       alat=lat_alat
       npqn=3
       nclass=maxval(iclasst)
@@ -162,7 +165,7 @@ c      return
       write(ifi) alat,plat,qlat,nbas,lmxax,nsp,ngrp,ndima,norb,npqn,nclass,nphimx
       write(ifi) konft(0:lmxax,1:nbas,1:nsp),lmxa(1:nbas),nlindx(1:npqn,0:lmxax,1:nbas)
       write(ifi) iclasst(1:nbas),spid(1:nbas)
-      write(ifi)  nindx(1:ndima),lindx(1:ndima),ibasindx(1:ndima)
+      write(ifi)  nindx(1:ndima),lindx(1:ndima),ibasindx(1:ndima),caption(1:ndima)
       write(ifi) symops(1:3,1:3,1:ngrp),invgx(1:ngrp),shtvg(1:3,1:ngrp)
       close(ifi)
       end subroutine
@@ -176,8 +179,8 @@ c      return
       read(ifi) konft(0:lmxax,1:nbas,1:nsp),lmxa(1:nbas),nlindx(1:npqn,0:lmxax,1:nbas)
       allocate( iclasst(1:nbas),spid(1:nbas))
       read(ifi) iclasst(1:nbas),spid(1:nbas)
-      allocate( nindx(1:ndima),lindx(1:ndima),ibasindx(1:ndima))
-      read(ifi) nindx(1:ndima),lindx(1:ndima),ibasindx(1:ndima)
+      allocate( nindx(1:ndima),lindx(1:ndima),ibasindx(1:ndima),caption(1:ndima))
+      read(ifi) nindx(1:ndima),lindx(1:ndima),ibasindx(1:ndima),caption(1:ndima)
       allocate( symops(1:3,1:3,1:ngrp),invgx(1:ngrp),shtvg(1:3,1:ngrp))
       read(ifi) symops(1:3,1:3,1:ngrp),invgx(1:ngrp),shtvg(1:3,1:ngrp)
       close(ifi)

@@ -61,7 +61,7 @@ c     logical :: readgwinput
       integer,allocatable::irr(:)
       real(8):: dq_(3),qlatbz(3,3)
       integer:: gammacellctrl,nnng(3),ifi0,itet !, ngrp
-      real(8)::imat33(3,3),unit,QpGx2
+      real(8)::imat33(3,3),unit,QpGx2,aaa
       logical:: lnq0iadd, lmagnon
       logical ::unit2=.false. 
       real(8),parameter:: pi=4d0* atan(1d0)  
@@ -151,7 +151,16 @@ c      if(sum(abs(ginv-transpose(plat)))       >tolq()) call rx('ginv=transpose(
       if(sum(abs(dq_))>tolq()) write(6,'(" Shift vector (skip Gamma) by dq_=",3f9.4)')dq_
       
 !! Get BZ data by 'call Getbzdata1'. See m_get_bzdata1 
-      call Getbzdata1(qlatbz,nnn,symops,ngrp,tetrai,mtet,gammacellctrl) !all inputs
+!! we usually use negative delta (tetrahedron).
+      call getkeyvalue("GWinput","delta",aaa)
+      if(aaa<0d0) then
+         write(6,"(a)")'  GWinput delta<0: tetrahedron method for x0'
+         tetraf=.true.
+      else
+         write(6,"(a)")'  GWinput delta>0: not use tetrahedron method for x0'
+         tetraf=.false.
+      endif
+      call Getbzdata1(qlatbz,nnn,symops,ngrp,tetrai,tetraf,mtet,gammacellctrl) !all inputs
 !! Write BZDATA
       print *,' Writing BZDATA...'
       open (newunit=ifbz, file='BZDATA')

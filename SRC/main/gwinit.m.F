@@ -1,152 +1,92 @@
       program gwinit_v2
-!!  Generate GWinput.tmp
-C ----------------------------------------------------------------------
-Ci input file
-Ci  GWIN0: n1,n2,n3
-Ci           Then you have to edit it and save it as GWIN0, and do gwinit once more.
-Ci  LATTC: contains these lattice informations;
-Ci    alat       : lattice constant in a.u.
-Ci    QpGcut_psi : maxmum of |q+G| in a.u. in the expansion of the eigenfunction.
-Ci    QpGcut_Cou : maxmum of |q+G| in a.u. in the expansion of the Coulomb matrix.
-Ci    plat(1:3,1): 1st primitive translation vector in the unit of alat
-Ci    plat(1:3,2): 2nd primitive translation vector
-Ci    plat(1:3,3): 3rd primitive translation vector
-Ci    QpGcut_psi  = maxmum of |q+G| in a.u.
-Ci    nbas nclass
-Ci    iclass(1:nbas)
-Ci    lmax(1:nclass),konf(0:lmax,1:nclass)
-Ci
-Ci  SYMOPS : includes point group operation. See sample.
-Ci
-Ci  NLAindx: This specify the order of cphi(1:mnla,iband). See rdata4gw_v2 cphi stored in CPHI.
-Co Output files
-Co  GWIN_V2.tmp : Template for GWIN_V2
-Co  QPNT.tmp    : Template for QPNT, which specifies for which k-points
-Co                      we will calculate the self-enery.
-Co  KPNTin1BZ: k point in 1st BZ, it is for check.
-C
-Cr --------------------------
-Cr The total number of q points are nqnum=(n1q*n2q*n3q)*(1+ nq0i).
-Cr You can read q and G, for example, through
-Cr     open(ifiqg, file='QGpsi',)
-Cr     read(ifiqg ) nqnum, ngpmx, QpGcut_psi
-Cr     allocate( q(3,nqnum),ngp(nqnum),ngvecp(3,ngpmx,nqnum) )
-Cr     do  iq    = 1, nqnum
-Cr       read (ifiqg) q(1:3), ngp(iq)
-Cr       read (ifiqg) ngvecp(1:3,1:ngp(iq),iq)
-Cr     enddo
-Cr     enddo
-Cr     close(ifiqg)
-Cr --------------------------
+!!  Generate GWinput.tmp. 
+! ----------------------------------------------------------------------
+!Input file        (this doc touched at 2022jan)
+!i    HAMindex0 via readhamindex0
+!      
+!    alat       : unit in a.u. to measure plat and so on.
+!    plat(1:3,1): 1st primitive translation vector in the unit of alat
+!    plat(1:3,2): 2nd primitive translation vector
+!    plat(1:3,3): 3rd primitive translation vector
+!    QpGcut_psi : maxmum of |q+G| in a.u. in the expansion of the eigenfunction.
+!    QpGcut_Cou : maxmum of |q+G| in a.u. in the expansion of the Coulomb matrix.
+!      
+!    nbas nclass,  iclass(1:nbas)
+!    lmax(1:nclass),konf(0:lmax,1:nclass)
+!
+!  symops : includes point group operation. See sample.
+!  nindx,lindx,ibasindex(NLAindx group): These specify the order of cphi(1:mnla,iband). 
+!Output files
+!o  GWinput.tmp : Template for GWinput
+!o  QPNT.chk    : QPNT lists, among which we specify  q for the self-enery.
+!o  KPNTin1BZ.chk: k point in 1st BZ, it is for check.
 Cr True q is given by
 Cr    True_q(1:3)     = 2*pi/alat * q(1:3)
 Cr  True G is given by
 Cr    True_G(1:3,igp) = 2*pi/alat * matmul(qlat * ngvec(1:3,igp)) ,igp=1,ngp
 !! -----------------------------------------------------------
-      use m_hamindex,only:   Readhamindex, symops, ngrp
-      use m_get_bzdata1,only:  getbzdata1, 
-     &  nqbz, nqibz, qbz,wbz,qibz,wibz
+      use m_hamindex0,only: readhamindex0,alat,plat,nbas,lmxax,nsp,konft,lmxaa=>lmxa,
+     &   nindx,lindx,mnla=>ndima,iat=>ibasindx,caption,spid,symops, ngrp,npqn,qlat
+      use m_get_bzdata1,only:  getbzdata1, nqbz, nqibz, qbz,wbz,qibz,wibz
       implicit none
-      integer ::n1q,n2q,n3q,ifiqg,ifiqgc,ifigw0,ifi,i,ig,nsp
-      real(8) :: plat(3,3), alat,alp,QpGcut_psi, QpGcut_Cou,dummy
+      integer ::n1q,n2q,n3q,ifiqg,ifiqgc,ifigw0,ifi,i,ig
+      real(8) :: alp,QpGcut_psi, QpGcut_Cou,dummy
       real(8) :: volum,q0(3),qlat0(3,3),QpGx1,QpGx2,
      & dw,delta,deltaw,esmr,tolopt,qm(3,3)
-c      real(8),allocatable :: symops(:,:,:) !,qibz(:,:)
-
-      integer :: nbas,lmxax,ibas,l,ixxx,lmxa,ibasx,ifigw0t,mxkp,
+      integer :: ibas,l,ixxx,lmxa,ibasx,ifigw0t,mxkp,
      &  irs,niw,ic,iclass,
      &  ifiqibz,iqibz,ifqpnt,iqall,iaf,iii, ifigwinv2,lk, !nqibz,
      &  nocc,nunocc,
-     &  kkk,noccc,nunoccc,ncinc,ncinc2
-      integer,allocatable :: lmxaa(:), konf(:,:),nncx(:,:),lcutmx(:)
+     &  kkk,noccc,nunoccc,ncinc,ncinc2,isp
+      integer,allocatable :: nncx(:,:),lcutmx(:)
       logical :: gwin0exist
-      integer,allocatable:: IPQ(:)
+      integer,allocatable:: IPQ(:),konf(:,:)
       real(8),allocatable   :: WGT(:)
-      real(8):: qlat(3,3),qp(3)
-      integer:: nnn,ifkpt,i1,nlinemax=50,ifsyml,nline,iopenxx,nqs
+      real(8):: qp(3)
+      integer:: nnn,ifkpt,i1,nlinemax=50,ifsyml,nline,nqs
       integer,allocatable:: nqq(:),symlon(:)!,nstbz(:)
       real(8),allocatable:: qbzs(:,:),qq1(:,:),qq2(:,:)  !qbz(:,:),wbz(:),
       logical :: extsyml
       integer::checksymlon
       integer::ifinla,izz,izzn,izzz,iatbk
-      integer,allocatable::iat(:),lindx(:),nindx(:),nnvv(:,:)
-      integer:: mnla, mnla_,idummy
-      integer,parameter::       NLAindxmx=1000
-      character(len=6)::  caption(NLAindxmx)
-      character(len=100)::recordnla
-      character(len=104)::recordnlax
+      integer,allocatable::nnvv(:,:)
+      integer:: mnla_,idummy
       character(len=1)::seg2
       character(len=6)::seg1
-      character(len=150):: recrdxxx
       character(len=10) :: keyw1='unit_2pioa',keyw2
       real(8)::a1,a2,unit
       integer:: ibzcase,ifile_handle
-!! conv2gwinput
-      integer :: natom
-      character(8),allocatable::spid(:)
       character(len=550):: pppx
       character(len=10) :: add,esmr_char
       logical :: gwinputexist,qpntexist,anfexist
-      integer(4):: ifig,ifigwinp,nband_chi0,nband_sigm
+      integer:: ifig,ifigwinp,nband_chi0,nband_sigm
       integer:: ifatomlist,ifiq
-      integer(4):: nband_sigm2, iatom, nwin, incwfin
+      integer:: nband_sigm2, iatom, nwin, incwfin,nx
       real,parameter:: pi= 4d0* atan(1d0)
-      character*255:: readin
-!! Read ibzcase
-      write(6,"(a)")' === gwinit: ibzcase?: Regular BZ mesh -->1; Without q=0 ->2 + option(n1q,n2q,n3q)'
-      read (5,"(a)")  readin
-      read(readin,*) ibzcase
-c      call headver('gwinit',ibzcase)
-      read(readin,*,end=101) idummy,n1q,n2q,n3q
-      goto 102
- 101  continue
-      n1q=4 !defaultvalues 
+!      
+      n1q=4                     !defaultvalues 
       n2q=4
       n3q=4
- 102  continue
-      write(6,"(a,i3)")  ' Run mode ibzcase   = ',ibzcase
-      write(6,"(a,3i5)") ' Readin n1q n2q n3q = ',n1q,n2q,n3q
-!! Readin LATTC
-c----------------------------------
-c A sample LATTICE file for a Si case with empty sphere,
-c  konf should contains minimum principle quantum number for valence electron.
-c  In other words, konf(l)-1 for each l is taken as the maximum principle quantum number for core.
-c-----------------------------------
-c      10.26d0        ! alat        = lattice constant in a.u.
-c       0d0 .5d0 .5d0 ! plat(1:3,1) = 1st primitive translation vector in the unit of alat
-c      .5d0 .0d0 .5d0 ! plat(1:3,2)  = 2nd ...
-c      .5d0 .5d0 .0d0 ! plat(1:3,3)  = 3rd ...
-c      2.7d0          ! QpGcut_psi  = maxmum of |q+G| in a.u.
-c      ----------------
-c      4  4             ! nbas lmaxx
-c      1  4   3 3 3 4 5 ! ibas lmax(ibas) konf(l=0:lmax,ibas)
-c      2  4   3 3 3 4 5 !
-c      3  4   1 2 3 4 5 !  empty spheres ---> nocore apparently.
-c      4  4   1 2 3 4 5 !
-cc----------------------------------
-      open (newunit=ifi, file='LATTC',form='unformatted')
-      read(ifi) alat,plat,nbas,lmxax,nsp
-      allocate(lmxaa(nbas), konf(0:lmxax,nbas),nncx(0:lmxax,nbas) )
-      read(ifi)konf,lmxaa
-      close(ifi)
+      write(6,"(a,3i5)") ' Default n1q n2q n3q = ',n1q,n2q,n3q
+! readin HAMindx0      
+      call readhamindex0()
+      allocate(konf(0:lmxax,nbas),nncx(0:lmxax,nbas) )
+      isp=1 !konf is not spin-dependent
+      konf=konft(:,:,isp)
       do ibas = 1,nbas
         write(6,"(100i4)") ibas, lmxaa(ibas), konf(0:lmxaa(ibas),ibas)
         do l= 0,lmxaa(ibas)
           nncx(l,ibas) = konf(l,ibas) -1 -l   ! number of cores for each l ibas
         enddo
       enddo
-      close(ifi)
-      call readhamindex()
       write(6,"(' alat      =',f13.6 )") alat
       write(6,"(' plat a1   =',3f13.6)") plat(1:3,1)
       write(6,"(' plat a2   =',3f13.6)") plat(1:3,2)
       write(6,"(' plat a3   =',3f13.6)") plat(1:3,3)
 C --- Make q-points in IBZ.
       mxkp   = n1q*n2q*n3q
-      call minv33tp(plat,qlat) !it was dinv33(plat,1,qlat) by Ferdi
       call getbzdata1(qlat,(/n1q,n2q,n3q/), !n1q,n2q,n3q
-     &    symops,ngrp,tetrai=.false.,mtet=(/1,1,1/),gammacellctrl=0) 
-
+     &    symops,ngrp,tetrai=.false.,tetraf=.false.,mtet=(/1,1,1/),gammacellctrl=0) 
 !! Write to file KPNTin1BZ
       nnn = n1q*n2q*n3q
       ifkpt = ifile_handle()
@@ -154,103 +94,40 @@ C --- Make q-points in IBZ.
       open(ifkpt,file='KPTin1BZ.gwinit.chk')
       do      i1 = 1,nnn
         call shorbz(qbz(1,i1),qp,qlat,plat)
-c        if(extsyml) then
-c          symlon(i1) 
-c     &    = checksymlon(qbz(1,i1),qq1,qq2,nline,qlat,plat,ifkpt)
-c          write (ifkpt,"(1x,i4,4f10.5,2x,3f10.5,i3)") 
-c     &     i1,qbz(1,i1),qbz(2,i1),qbz(3,i1),wbz(i1),qp,symlon(i1)
-c          if(symlon(i1)/=0) then
-c            nqs=nqs+1
-c            qbzs(:,nqs)=qbz(:,i1)
-c          endif
-c        else
           write (ifkpt,"(1x,i4,4f10.5,2x,3f10.5,i3)") 
      &     i1,qbz(1,i1),qbz(2,i1),qbz(3,i1),wbz(i1),qp
-c        endif
       end do
       close (ifkpt)
-c      deallocate(wbz)
       write(6,"(' --- TOTAL num of q is n1*n2*n3=',i10)")nnn
-
-C --- Sample QPNT file ---------------
+! --- Sample QPNT file ---------------
       ifqpnt = ifile_handle()
-      open (ifqpnt,file='QPNT.tmp')
+      open (ifqpnt,file='QPNT.chk')
       write(ifqpnt,"(a,a)") " --- Specify the q and band indeces", 
      & " for which we evaluate the self-energy ---"
       write(ifqpnt,*)
-      write(ifqpnt,"(a)")
-     & "*** all q -->1, otherwise 0;  up only -->1, otherwise 0"
+      write(ifqpnt,"(a)")"*** all q -->1, otherwise 0;  up only -->1, otherwise 0"
       iqall = 0;      iaf   = 0
       write(ifqpnt,*)iqall,iaf
-      write(ifqpnt,"(a)") 
-     &  "*** no. states and band index for calculation."
+      write(ifqpnt,"(a)")"*** no. states and band index for calculation."
       iii = 2
       write(ifqpnt,*)  iii ! nband
       write(ifqpnt,"(99i3)") (i,i=4,5)
-      write(ifqpnt,"(a,a)") "*** q-points, which shoud be in qbz.", 
-     & ",See KPNTin1BZ."
+      write(ifqpnt,"(a)") "*** q-points, which shoud be in qbz. See KPNTin1BZ."
       write(ifqpnt,*) min(nqibz,3)
       write(ifqpnt,'(i3,3f23.16)')(i,qibz(1:3,i),i=1,nqibz)
       rewind ifqpnt
-c      close(ifqpnt)
-c
-c$$$      if(extsyml) then
-c$$$        ifqpnt = 888
-c$$$        open (ifqpnt,file='QPNT.forSYML.tmp')
-c$$$        write(ifqpnt,"(a)") " --- Specify the q and band indeces, 
-c$$$     & for which we evaluate the self-energy ---"
-c$$$        write(ifqpnt,*)
-c$$$        write(ifqpnt,"(a)")
-c$$$     & "*** all q -->1, otherwise 0;  up only -->1, otherwise 0"
-c$$$        iqall = 0;      iaf   = 0
-c$$$        write(ifqpnt,*)iqall,iaf
-c$$$        write(ifqpnt,"(a)") 
-c$$$     &  "*** no. states and band index for calculation."
-c$$$        iii = 2
-c$$$        write(ifqpnt,*)  iii ! nband
-c$$$        write(ifqpnt,"(99i3)") (i,i=4,5)
-c$$$        write(ifqpnt,"(a)") "*** q-points, which shoud be in qbz. 
-c$$$     & See KPNTin1BZ."
-c$$$        write(ifqpnt,*) nqs
-c$$$        write(ifqpnt,'(i3,3f23.16)')(i,qbzs(1:3,i),i=1,nqs)
-c$$$        close(ifqpnt)
-c$$$      endif
-
-!! Readin NLAindx.
-      ifinla = ifile_handle()
-      open(ifinla,file='NLAindx')
-      write(6,
-     & "(' --- readin NLAindx---[specify the order of cphi(1:mnla)]')")
-      write(6,"(' -- n    l    a -- ')")
-      read(ifinla,*)
-      read(ifinla,*) mnla
-      allocate(nindx(mnla),lindx(mnla),iat(mnla),nnvv(0:lmxax,nbas))
-      nnvv  = 0
-      mnla_ = 0
-      iatbk = 0
+      allocate(nnvv(0:lmxax,nbas))
+      nnvv = 0
+      mnla_=0
       do izz=1, mnla
-        read(ifinla,"(a100)",err=1039,end=1039) recordnla
-c       write(6,"(a100)")recordnla
-        recordnlax = recordnla//' $$$'
-        read(recordnlax,*,err=1040,end=1040) 
-     &   nindx(izz),lindx(izz),iat(izz),idummy,caption(izz)
-        write(6,"(4i5,2x,a)") 
-     &   nindx(izz),lindx(izz),iat(izz),idummy,caption(izz)
-        izzn = izz
+c        write(6,"(4i5,2x,'!',a)") izz,nindx(izz),lindx(izz),iat(izz),caption(izz)
         mnla_= mnla_ + 2*lindx(izz)+1
-        if(nnvv(lindx(izz),iat(izz))< nindx(izz)) then
-          nnvv(lindx(izz),iat(izz)) = nindx(izz)
+        if(nnvv(lindx(izz),iat(izz)) < nindx(izz)) then
+           nnvv(lindx(izz),iat(izz)) = nindx(izz)
         endif
       enddo
- 1039 continue
-      write(6,*)' --- end of readin NLAindx--- nla mnla=',izzn,mnla,mnla_
-      if(mnla /=mnla_) call rx( ' gwinit_v2:mnla/= mnla_ ')
-      goto 1041
- 1040 continue
-      call rx( 'gwinit: can not readin recordnla')
- 1041 continue
-      write(6,*)'gwinit: 1041'
-!! Write GWinput.tmp
+      
+!! Write GWinput.tmp ===============================================
       ifigwinp= ifile_handle()
       open(ifigwinp,file='GWinput.tmp')
       ifi = ifigwinp
@@ -263,9 +140,6 @@ c       write(6,"(a100)")recordnla
       write(ifi,"(a)")'!Verbose    0  ! 0-->default; 100--->debug '
       write(ifi,"(a)")'!LFC@Gamma off !(on is default) if on, eps with Local field correction is used at Gamma point'
       write(ifi,"(a)")'!Q0Pchoice 1 !1(default):qzerolimit(in practice, See generated Q0P), 2:1/q^2 average in Gamma region'
-c      write(ifi,"(a)")'!CoreOrth off ! off  --> Not enforce core to be orthogonalized with valence (default)'
-c      write(ifi,"(a)")'               ! on   --> Enforce cores orthogonalied to valence (this may give strange core functions!).'
-c      write(ifi,"(a)")'!multitet 2 2 2 ! tetrahedron is devided into micro tetrahedron. This probably now work'
       write(ifi,"(a)" )'! ##### From GWIN0 ################ '
       write(ifi,"(a,3i4,a)" )'n1n2n3',n1q,n2q,n3q,' ! for BZ meshing in GW, Wannier function and cRPA'
       write(ifi,"(a)") 'QpGcut_psi 4.0  !(See unit_2pioa for unit) |q+G| cutoff for eigenfunction.'
@@ -286,8 +160,6 @@ c     &       emax_sigm2,'  !(Ry)  (Optional) emax cutoff for Sigma (as in the n
 !!
       write(ifi,*)
       write(ifi,"(a)" ) '! ##### FREQUENCIES from GWIN_V2 ################ '
-c      write(ifi,"(a,f10.6,a)") 'dw    ', dw,   ' !(a.u.) energy-mesh (bin width size) along real axis.'
-c      write(ifi,"(a,f10.3,a)") 'omg_c ', omg_c,' !(a.u.) energy-mesh is twiced at omg_c'
       write(ifi,"(a)")  'HistBin_dw    2d-3 ! 1d-5 is fine mesh (good for metal?) !(a.u.) BinWidth along real axis at omega=0.'
       write(ifi,"(a)")  'HistBin_ratio 1.08 ! 1.03 maybe safer. frhis(iw)= b*(exp(a*(iw-1))-1), where a=ratio-1.0 and dw=b*a' 
       write(ifi,"(a)")  '                   ! This "ba mesh" is from 9Mar2016'
@@ -309,8 +181,6 @@ c      write(ifi,"(a,f10.3,a)") 'omg_c ', omg_c,' !(a.u.) energy-mesh is twiced 
       write(ifi,"(a)" ) '! ################################################# '
       write(ifi,"(a)")'<PRODUCT_BASIS> '
       ifigwinv2=ifi
-c!! Write GWIN_V2.tmp
-c      open(newunit=ifigwinv2,file='GWIN_V2.tmp')
 !! PRODUCT BASIS section
       write(ifigwinv2,"(a)") " tolerance to remove products due to poor linear-independency"
       write(ifigwinv2,"(a)") 
@@ -330,10 +200,12 @@ c      open(newunit=ifigwinv2,file='GWIN_V2.tmp')
         enddo
       enddo
       write(ifigwinv2,"(a)") "  atom   l    n  occ unocc  ! Valence(1=yes,0=no) "
+      iatbk=0
       do ibas= 1, nbas
-        do lk   = 0, lmxaa(ibas)
-          do izz = 1, izzn
-            if(iat(izz)==ibas.and.lk==lindx(izz)) then
+      do lk   = 0, lmxaa(ibas)
+      do nx = 1, npqn
+          do izz = 1, mnla 
+            if(iat(izz)==ibas.and.lk==lindx(izz).and.nx==nindx(izz)) then
               nocc = 1; nunocc = 1
               if(lindx(izz) >2 ) nocc   = 0
               if(lindx(izz) >3 ) nunocc = 0
@@ -341,13 +213,15 @@ c      open(newunit=ifigwinv2,file='GWIN_V2.tmp')
                 nocc   = 0
                 nunocc = 0
               endif
-              seg1='';if(iat(izz)/=iatbk) seg1='----- '
+              seg1='';if(iat(izz)/=iatbk) seg1=' -----'
               iatbk=iat(izz)
               write(ifigwinv2,"(5i5,3x,a )") iat(izz),lindx(izz),nindx(izz)
-     &                        , nocc,nunocc, '! '//caption(izz)//seg1
+     &           , nocc,nunocc, '! '//caption(izz)//trim(seg1)
+              exit
             endif
           enddo
-        enddo
+      enddo
+      enddo
       enddo
       write(ifigwinv2,"(a)") '  atom   l    n  occ unocc  ForX0 ForSxc ! Core (1=yes, 0=no)'
       do ibas  = 1,nbas
@@ -363,18 +237,11 @@ c      open(newunit=ifigwinv2,file='GWIN_V2.tmp')
             noccc=0; nunoccc=0; ncinc=0; ncinc2=0
             seg1='';if(lk==0.and.kkk==lk+1) seg1=' -----'
             write(ifigwinv2,"(5i5,2x,2i5,a)") 
-     &       ibas,lk,kkk-lk,noccc,nunoccc,ncinc,ncinc2,'    ! '//char(48+kkk)//seg2//seg1
+     &       ibas,lk,kkk-lk,noccc,nunoccc,ncinc,ncinc2,'    ! '//char(48+kkk)//seg2//trim(seg1)
           enddo
         enddo
       enddo
       write(ifi,"(a)")'</PRODUCT_BASIS>'
-c      rewind ifigwinv2
-c      do
-c        read(ifigwinv2,"(a)",end=755) pppx
-c        write(ifi,"(a)")  trim(pppx)
-c      enddo
-c 755  write(ifi,"(a)")'</PRODUCT_BASIS>'
-c      close(ifigwinv2,status='delete')
 !! QPNT section
       write(ifi,*)
       write(ifi,"(a)" )'! ################################################# '
@@ -385,16 +252,7 @@ c      close(ifigwinv2,status='delete')
       enddo
  756  write(ifi,"(a)")'</QPNT>'
       close(ifqpnt,status='delete')
-
-c ... EPScond
-c      inquire(file='EPScond',exist= qpntexist)
-c      if(qpntexist) then
-c        write(ifi,*)
-c        open(ifiq, file='EPScond',status='old')
-c        read(ifiq,*) epsrng, dwry !epsrng dw in Ry
-c        write(ifi,"(a,f8.3,a,a)") '!EPSrange ', epsrng*2d0,' !(Ry) [0,EPSrange] for dielectric function plot.'
-c        write(ifi,"(a,f8.3,a,a)") '!EPSdw    ', dwry,      ' !(Ry) energy mesh  for dielectric function plot.'
-c      else
+!      
       write(ifi,"(a,f8.3,a,a)") '!EPSrange  1    !(Ry) [0,EPSrange] for dielectric function plot.'
       write(ifi,"(a,f8.3,a,a)") '!EPSdw     0.05 !(Ry) energy mesh  for dielectric function plot.'
       write(ifi,*)
@@ -434,16 +292,10 @@ c      else
       write(ifi,"(a)")'!!! ------------------------ '
       write(ifi,"(a)")'!!! higher is lm ordered. See Ylm definition in lmto/fpgw doc.'
       write(ifi,"(a)")
-
-      ifatomlist = ifile_handle()
-      open(ifatomlist,file="ATOM_LIST")
-      read(ifatomlist,*)natom
-      allocate(spid(natom))
-      read(ifatomlist,*)spid
-      close(ifatomlist)
       write(ifi,"(a)")'<Worb> Site '
-      do iatom = 1,natom
-        write(ifi,"(1a,i3,1x,a,2x,a)") '!', iatom,trim(spid(iatom)),' 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16' 
+      do iatom = 1,nbas
+        write(ifi,"(1a,i3,1x,a,2x,a)")
+     &     '!', iatom,trim(spid(iatom)),' 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16' 
       enddo
       write(ifi,"(a)")'</Worb> '
       write(ifi,"(a)")
@@ -475,5 +327,5 @@ c      else
       write(ifi,"(a)")'!vis_wan_ubound 1.2  1.2 1.2    !real x 3, upper bound in alat or abc unit'
       write(ifi,"(a)")'!vis_wan_outputformat xsf       ! opendx, cube, xsf , default=xsf'
       write(ifi,"(a)" ) '! ################################################# '
-      call rx0s( ' OK! We have generated GWinput.tmp! ')
+      stop ' OK! We have generated GWinput.tmp! '
       end

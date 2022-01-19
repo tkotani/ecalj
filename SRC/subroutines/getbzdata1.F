@@ -14,11 +14,11 @@ c------------------------------------------------------------
 c------------------------------------------------------------
       contains
       subroutine getbzdata1(qlat,nnn, 
-     &    symops,ngrp,tetrai,mtet,gammacellctrl) 
+     &    symops,ngrp,tetrai,tetraf,mtet,gammacellctrl) 
       use m_keyvalue,only: getkeyvalue
       implicit none
       intent(in)::          qlat,nnn, 
-     &    symops,ngrp,tetrai,mtet,gammacellctrl 
+     &    symops,ngrp,tetrai,tetraf,mtet,gammacellctrl 
 !! all arguments are inputs. getbzdata1 returns all variables in the module m_get_bzdata1
       logical :: tetrai,tetraf,multet,qbzreg
       integer :: ngrp,nnn(3), mtet(3),n1qm,n2qm,n3qm,nnnx(3), !n1q,n2q,n3q,
@@ -39,7 +39,7 @@ c------------------------------------------------------------
       integer::kount,i1,i2,i3,n2,nnnv(3),ig,ir,j1,j2,j3,jj(3),k,m,i1x,i2x,i3x,ic,k1,k2,k3,kountw,ndx,
      &  ibtr(3,3),kcut(3,4,6),ngcell,i,ii,j,igamma
       real(8):: xvec(3),xvecc(3),xvecs(3),xvece(3),vv(3),xvv(3),xv(3),diff(3),diff2(3),swgt,v1(3),wfac
-      real(8):: aaa, tolq=1d-6
+      real(8):: tolq=1d-6
       logical,allocatable::usediqig(:,:)
 !! icase=1
 c-------------------------------------------------------
@@ -286,15 +286,6 @@ c            write(6,*) 'iq igrp irk=',iqi,igrp,irk(iqi,igrp)
       nteti=-1
 
 !! Full bz divided into tetrahedron
-!! we usually use negative delta (tetrahedron).
-      call getkeyvalue("GWinput","delta",aaa,default=-1d0)
-      if(aaa<0d0) then
-         write(6,"(a)")'  GWinput delta<0: tetrahedron method for x0'
-         tetraf=.true.
-      else
-         write(6,"(a)")'  GWinput delta>0: not use tetrahedron method for x0'
-         tetraf=.false.
-      endif
       if(tetraf) then 
         skipgammacell=.false.
         if(gammacellctrl==1) skipgammacell=.true.

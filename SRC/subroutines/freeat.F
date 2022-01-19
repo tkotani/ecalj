@@ -58,9 +58,9 @@ c      type(s_spec)::sspec(*)
       rewind ifi
       stdo  = lgunit(1)
       hfct = 0d0
-      open(newunit=ifives,file='vesintatm.'//trim(sname))
+      open(newunit=ifives,file='vesintatm.'//trim(sname)//'.chk')
       ifiwv = ifile_handle()
-      open(ifiwv,file='veswavatm.'//trim(sname))
+      open(ifiwv,file='veswavatm.'//trim(sname)//'.chk')
       do  is = 1, nspec ! Takao found that Li requires -0.5 to have positive smooth rho.
         if(sspec(is)%z<3.5) then !At least for Li, fitting is not good (negative smooth rho).
           exi(1) = -0.5
