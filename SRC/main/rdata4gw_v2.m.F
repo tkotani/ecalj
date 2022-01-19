@@ -1,6 +1,6 @@
 !! Generate input files used in GW calculations
 !!  Read gwb.* and module variables in m_lmf2gw (set by call lmf2gw() for inputs.
-!! Output files are
+!! Output files are (I think too much divided...)
 !      open(newunit=ifnlax,file='@MNLA_core')
 !      open(newunit=ifhbed,file='hbe.d')
 !      open(newunit=ifec, file='ECORE')
@@ -530,16 +530,16 @@ c     print *,' zzpi=',zzpi(1:n1,1:n1,l1,ic,isp)
             enddo
           enddo
         enddo
-! core normalization check ---
-        cccxxx=core_orth()
-        write(6,*)
-        write(6,*)' core_orth=', core_orth()
-        if(minval( abs(iclass(1:ibas-1)-ic))==0.and.core_orth()) then
-          write(6,*)
-          write(6,*)' ### core of ic=',ic,' is already renormalized. Skipped'
-          write(6,*)
-          goto 980
-        endif
+c$$$! core normalization check ---
+c$$$        cccxxx=core_orth()
+c$$$        write(6,*)
+c$$$        write(6,*)' core_orth=', core_orth()
+c$$$        if(minval( abs(iclass(1:ibas-1)-ic))==0.and.core_orth()) then
+c$$$          write(6,*)
+c$$$          write(6,*)' ### core of ic=',ic,' is already renormalized. Skipped'
+c$$$          write(6,*)
+c$$$          goto 980
+c$$$        endif
 C ... check
         write(6,*)' -- norm check: <core|core> ----------------- '
         do isp = 1, nsp
@@ -581,47 +581,47 @@ C ... norm check: <gx_orth|core>
             enddo
           enddo
         enddo                  !end of isp loop
-C ... Renormalization of gcore (orthogonalized to gx_orth)
-        if(core_orth()) then
-          write(6,*)' -- orthogonalize cores with gx_orth ------------ '
-          do isp = 1, nsp
-            do icore = 1,ncore(ic)
-              l2= lcindx(icore)
-              n2= ncindx(icore)
-              do irad1 = 1,nrad(ibas)
-                l1 = lindx_r (irad1,ibas)
-                n1 = nindx_r (irad1,ibas)
-                if(l1/=l2) cycle
-                call gintxx( gx_orth(1:nr(ic), l1, n1, ic,isp),
-     &               gcore(1:nr(ic),icore, ic,isp), !gx_orth(1:nr(ic), l1, n2, ic,isp),
-     &                    aa(ic),bb(ic), nr(ic), ovcv)
-                gcore( 1:nr(ic),icore, ic,isp)=  
-     &               gcore(1:nr(ic),icore, ic,isp)- ovcv* gx_orth(1:nr(ic),l1, n1, ic,isp)
-              enddo
-              call gintxx( gcore(1:nr(ic),icore, ic,isp), gcore(1:nr(ic),icore, ic,isp),
-     &                 aa(ic),bb(ic), nr(ic), ovcv)
-              gcore(1:nr(ic),icore, ic,isp)=1d0/sqrt(ovcv)* gcore(1:nr(ic),icore, ic,isp)
-            enddo
-          enddo               !end of isp loop
-C ... norm check new gx_orth x core once more -----------
-          write(6,*)' -- norm check: <gx_orth| renormalized gcore> ------ '
-          do isp = 1, nsp
-            do icore = 1,ncore(ic)
-              l2= lcindx(icore)
-              n2= ncindx(icore)
-              do irad1 = 1,nrad(ibas)
-                l1 = lindx_r (irad1,ibas)
-                n1 = nindx_r (irad1,ibas)
-                if(l1/=l2) cycle
-                call gintxx( gx_orth(1:nr(ic), l1, n1, ic,isp), 
-     &                    gcore(1:nr(ic),icore, ic,isp), !gx_orth(1:nr(ic), l1, n2, ic,isp),
-     &                    aa(ic),bb(ic), nr(ic), ovcv)
-                write(6,"(' ---',' isp  l1 n1=',3i3,' icore = ',i3,' ',d14.6)")isp, l1, n1, icore, ovcv
-              enddo
-            enddo
-          enddo               !end of isp loop
-        endif
- 980    continue
+c$$$C ... Renormalization of gcore (orthogonalized to gx_orth)
+c$$$        if(core_orth()) then
+c$$$          write(6,*)' -- orthogonalize cores with gx_orth ------------ '
+c$$$          do isp = 1, nsp
+c$$$            do icore = 1,ncore(ic)
+c$$$              l2= lcindx(icore)
+c$$$              n2= ncindx(icore)
+c$$$              do irad1 = 1,nrad(ibas)
+c$$$                l1 = lindx_r (irad1,ibas)
+c$$$                n1 = nindx_r (irad1,ibas)
+c$$$                if(l1/=l2) cycle
+c$$$                call gintxx( gx_orth(1:nr(ic), l1, n1, ic,isp),
+c$$$     &               gcore(1:nr(ic),icore, ic,isp), !gx_orth(1:nr(ic), l1, n2, ic,isp),
+c$$$     &                    aa(ic),bb(ic), nr(ic), ovcv)
+c$$$                gcore( 1:nr(ic),icore, ic,isp)=  
+c$$$     &               gcore(1:nr(ic),icore, ic,isp)- ovcv* gx_orth(1:nr(ic),l1, n1, ic,isp)
+c$$$              enddo
+c$$$              call gintxx( gcore(1:nr(ic),icore, ic,isp), gcore(1:nr(ic),icore, ic,isp),
+c$$$     &                 aa(ic),bb(ic), nr(ic), ovcv)
+c$$$              gcore(1:nr(ic),icore, ic,isp)=1d0/sqrt(ovcv)* gcore(1:nr(ic),icore, ic,isp)
+c$$$            enddo
+c$$$          enddo               !end of isp loop
+c$$$C ... norm check new gx_orth x core once more -----------
+c$$$          write(6,*)' -- norm check: <gx_orth| renormalized gcore> ------ '
+c$$$          do isp = 1, nsp
+c$$$            do icore = 1,ncore(ic)
+c$$$              l2= lcindx(icore)
+c$$$              n2= ncindx(icore)
+c$$$              do irad1 = 1,nrad(ibas)
+c$$$                l1 = lindx_r (irad1,ibas)
+c$$$                n1 = nindx_r (irad1,ibas)
+c$$$                if(l1/=l2) cycle
+c$$$                call gintxx( gx_orth(1:nr(ic), l1, n1, ic,isp), 
+c$$$     &                    gcore(1:nr(ic),icore, ic,isp), !gx_orth(1:nr(ic), l1, n2, ic,isp),
+c$$$     &                    aa(ic),bb(ic), nr(ic), ovcv)
+c$$$                write(6,"(' ---',' isp  l1 n1=',3i3,' icore = ',i3,' ',d14.6)")isp, l1, n1, icore, ovcv
+c$$$              enddo
+c$$$            enddo
+c$$$          enddo               !end of isp loop
+c$$$        endif
+c$$$ 980    continue
         allocate(ifcore(0:lmxa(ic)))
         ifcore=-99
         do icore = 1,ncore(ic)
@@ -932,8 +932,8 @@ c      close(ifnqibz)
       nl=lmxax+1
       open(newunit=ifigwin,file='LMTO',form='unformatted')
       write(ifigwin) nbas,alat,plat,nsp,nl,nnv,nnc,nrmx!,n1q,n2q,n3q
-      write(ifigwin) bas,spid, zz(iclass(1:nbas)),spid(1:nbas)
-      write(ifigwin) laf,ibasf
+      write(ifigwin) bas,zz(iclass(1:nbas)),spid(1:nbas)
+c      write(ifigwin) laf,ibasf
       close(ifigwin)
       print *, " OK! end of rdata4gw_v2 "
       call rx0( ' OK! rdata4gw_v2')

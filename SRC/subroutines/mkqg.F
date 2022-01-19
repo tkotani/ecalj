@@ -183,14 +183,14 @@ c      if(sum(abs(ginv-transpose(plat)))       >tolq()) call rx('ginv=transpose(
       close(ifbz)
 !! Write QIBZ
       write(6,*)' qibz are written in QIBZ file...'
-      open (newunit=ifiqibz, file='QIBZ') !write q-points in IBZ.
+      open (newunit=ifiqibz, file='QIBZ.chk') !write q-points in IBZ.
       write(ifiqibz,"(i10)") nqibz
       do iqibz = 1,nqibz
          write(ifiqibz,"(3d24.16,3x,d24.16)") qibz(1:3,iqibz),wibz(iqibz)
       enddo
       close(ifiqibz)
 !! Write QBZ
-      open (newunit=ifiqbz, file='QBZ') !write q-points in IBZ.
+      open (newunit=ifiqbz, file='QBZ.chk') !write q-points in IBZ.
       write(ifiqbz,"(i10)") nqbz
       do iqbz = 1,nqbz
          write(ifiqbz,"(3d24.16,3x,d24.16)") qbz(1:3,iqbz)

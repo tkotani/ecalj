@@ -72,7 +72,7 @@
      &     nlmto,nlnmx, nctot,niw, !nw_input=>nw,
      &     alat, deltaw,clabl,iclass,esmr_in=>esmr, !diw,dw, delta,
      &     il,in,im,nlnm, 
-     &     plat, pos,z,ecore, konf,nlnx, iantiferro
+     &     plat, pos,z,ecore, konf,nlnx
 !! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
       use m_rdpp,only: Rdpp,    !"call rdpp" generate following data.
      &     nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx

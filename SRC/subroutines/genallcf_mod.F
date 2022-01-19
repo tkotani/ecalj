@@ -90,8 +90,9 @@ c      character(120):: symgrpt
       allocate(pos(3,natom))    !positions of atoms
       nclass = natom  !We set nclass = natom through the GW calculations
       allocate(clabl(natom),z(natom),iantiferro(1:natom),spid(1:natom))
-      read(ifi)pos,clabl(1:natom),z(1:natom),spid(1:natom)
-      read(ifi)iantiferro(1:natom)
+      read(ifi)pos,z(1:natom),spid(1:natom)
+      clabl=spid
+c      read(ifi)iantiferro(1:natom)
       close(ifi)
       pi=4d0*datan(1d0)
       tpioa=2d0*pi/alat
@@ -721,21 +722,21 @@ c      integer:: nband !not yet protected!
       end subroutine
       end module m_ReadEfermi
       
-!----------------------------------------------------------
-!! we neede module reading m_genallfc_v3 should be here after it is dedined in this file
-      module m_readclasst
-      use m_genallcf_v3,only: natom
-      integer,allocatable,protected :: iclasst(:)!, invgx(:)
-      contains
-      subroutine Readclasst()
-      integer:: ibas,ibasx,ificlass
-      allocate(iclasst(natom))
-      write(6,*)'  --- Read true CLASS (crystalographyically equivalent sites) ---'
-      open(newunit=ificlass, file='CLASS', action='read')
-      do ibas = 1,natom
-        read(ificlass,*)  ibasx, iclasst(ibas)
-        write(6,"(2i10)") ibasx, iclasst(ibas)
-      enddo
-      close(ificlass)
-      end subroutine
-      end module m_readclasst
+c$$$!----------------------------------------------------------
+c$$$!! we neede module reading m_genallfc_v3 should be here after it is dedined in this file
+c$$$      module m_readclasst
+c$$$      use m_genallcf_v3,only: natom
+c$$$      integer,allocatable,protected :: iclasst(:)!, invgx(:)
+c$$$      contains
+c$$$      subroutine Readclasst()
+c$$$      integer:: ibas,ibasx,ificlass
+c$$$      allocate(iclasst(natom))
+c$$$      write(6,*)'  --- Read true CLASS (crystalographyically equivalent sites) ---'
+c$$$      open(newunit=ificlass, file='CLASS', action='read')
+c$$$      do ibas = 1,natom
+c$$$        read(ificlass,*)  ibasx, iclasst(ibas)
+c$$$        write(6,"(2i10)") ibasx, iclasst(ibas)
+c$$$      enddo
+c$$$      close(ificlass)
+c$$$      end subroutine
+c$$$      end module m_readclasst

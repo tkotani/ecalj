@@ -361,19 +361,16 @@ cc Use GWinput instead of GWIN0, GWIN_V2, QPNT
 c      readgwinput=.true.
 c      end
 
-      logical function core_orth()
-      use m_keyvalue,only: getkeyvalue
-      logical,save::init=.true.,core_orthx
-c      logical:: readgwinput
-      integer(4):: ret
-      if(init) then
-c       if(readgwinput()) then
-        call getkeyvalue("GWinput","CoreOrth",core_orthx,default=.false. )
-c       endif
-        init=.false.
-      endif
-      core_orth=core_orthx
-      end
+c$$$      logical function core_orth()
+c$$$      use m_keyvalue,only: getkeyvalue
+c$$$      logical,save::init=.true.,core_orthx
+c$$$      integer(4):: ret
+c$$$      if(init) then
+c$$$        call getkeyvalue("GWinput","CoreOrth",core_orthx,default=.false. )
+c$$$        init=.false.
+c$$$      endif
+c$$$      core_orth=core_orthx
+c$$$  end
 
       integer(4) function verbose()
       use m_keyvalue,only: getkeyvalue
