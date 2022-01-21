@@ -2,7 +2,10 @@
 !! 'call getbzdata1' gives all follwing data 
       use m_get_bzdata1,only: Getbzdata1, nqbz, nqibz, nqbzw,ntetf,nteti,nqbzm,
      &  qbz,wbz,qibz,wibz, qbzw, idtetf, ib1bz, idteti, irk, nstar, nstbz, qbzm, qbzwm
-      use m_q0p,only: Getallq0p, q0i,wt,nq0i,nq0itrue, nq0iadd
+      use m_q0p,only: Getallq0p,
+     &   nq0i,nq0itrue,nq0iadd,  q0i,wt, epslgroup, lxklm,
+     &   epinv,wklm, dmlx, epinvq0i,ixyz
+      
       use m_keyvalue,only: getkeyvalue
       use m_hamindex0,only: Readhamindex0, symops,ngrp,alat,plat,qlat
       implicit none
@@ -60,7 +63,7 @@ c     logical :: readgwinput
       real(8),allocatable:: wt0(:)
       integer,allocatable::irr(:)
       real(8):: dq_(3),qlatbz(3,3)
-      integer:: gammacellctrl,nnng(3),ifi0,itet !, ngrp
+      integer:: gammacellctrl,nnng(3),ifi0,itet,ifi00,ifidmlx
       real(8)::imat33(3,3),unit,QpGx2,aaa
       logical:: lnq0iadd, lmagnon
       logical ::unit2=.false. 
@@ -217,7 +220,25 @@ c      close(ifiqibz)
       do i=nq0i+1,nq0i+nq0iadd
         write(6,"('  q0iadd=  ', i3, 3f10.5)") i,q0i(:,i)
       enddo
-      if (lmagnon) return !! exit because we get QforEPSL data (21 Feb, 2020)
+      if(iq0pin==1) then
+         open (newunit=ifi0,file='Q0P')
+         write(ifi0,"(3i5,' !nq0i iq0pin nq0iadd; weight q0p(1:3) ix')") nq0i,iq0pin,nq0iadd
+         write(ifi0,"(d24.16,3x, 3d24.16,x,i1)" ) (wt(i),q0i(1:3,i),ixyz(i),i=1,nq0i+nq0iadd)
+         close(ifi0)
+         open(newunit=ifidmlx,file='EPSwklm',form='unformatted')
+         write(ifidmlx) nq0i,lxklm
+         write(ifidmlx) dmlx, epinv(1:3,1:3,1:nq0i),epinvq0i
+         write(ifidmlx) wklm
+         close(ifidmlx)
+      elseif(iq0pin==2) then
+         open (newunit=ifi00,file='Q0P')
+         write(ifi00,"(3i5,a)") nq0i,iq0pin,0, " !nq0i iq0pin ---"//
+     &        "This is readin Q0P from GWinput <QforEPS> ---"
+         write(ifi00,"(d24.16,3x, 3d24.16,2i3)") (wt(i),q0i(1:3,i),0,epslgroup(i),i=1,nq0i)
+         close(ifi00)
+      endif   
+!!
+         if (lmagnon) return    !! exit because we get QforEPSL data (21 Feb, 2020)
       
 !! Four kinds of mesh points setting. Q0P means offset Gamma (slightly different from Gamma).
 !! Which we need?
