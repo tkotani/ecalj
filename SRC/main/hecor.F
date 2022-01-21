@@ -11,7 +11,7 @@ c      implicit real*8(a-h,o-z)
       use m_hamindex,only:   Readhamindex
       use m_readeigen,only: init_readeigen,init_readeigen2,readeval,lowesteval
       use m_readqg,only: Readngmx,Readqg
-      use m_read_bzdata,ngrp2=>ngrp
+      use m_read_bzdata,ngrp2=>ngrp,wqt=>wt
       use m_genallcf_v3
       use m_keyvalue,only: getkeyvalue
       use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
@@ -38,7 +38,7 @@ c------------------------------------
      &   ibas,ibasx,ngpmx,nxx,ngcmx,nbloch,ifqpnt,ifwd,
      &   nprecx,mrecl,nblochpmx2,nwt,niwt, nqnum,mdimx,nblochpmx,
      &   ifrcw,ifrcwi,  noccxv,maxocc,noccx,ifvcfpout,iqall,iaf,ntq,
-     &   i,k,nspinmx, nq,is,ip,iq,idxk,ifoutsex,iclose,nq0i,ig,iimdim,
+     &   i,k,nspinmx, nq,is,ip,iq,idxk,ifoutsex,iclose,ig,iimdim,
      &   ifreqx,ifreqw,iwx,iexpa,mxkp,nqibzxx,ntet,nene,iqi, ix,iw,
      &   nlnx4,niwx,irot,invr,invrot,ivsum, ifoutsec,ntqx,
 c
@@ -73,7 +73,7 @@ c takao
      &  ngvecp(:,:), iqib(:),
      &  kount(:,:), nx(:,:),nblocha(:),lx(:)
       real(8),allocatable:: vxcfp(:,:,:),
-     &  wqt(:), wgt0(:,:),q0i(:,:),
+     &   wgt0(:,:),
      &  ppbrd (:,:,:,:,:,:,:),cgr(:,:,:,:),eqt(:),
      &  ppbrdx(:,:,:,:,:,:,:),aaa(:,:),symope(:,:), qibze(:,:),
      &  ppb(:),pdb(:),dpb(:),ddb(:), eq(:,:),
@@ -431,17 +431,17 @@ c      call winfo(6,nspin,nq,ntq,is,nbloch
 c     &    ,ngpn(1),ngcni(1),nqbz,nqibz,ef,deltaw,alat,esmr)
 
 c q near zero
-      print *, 'reading QOP'
-      open (101,file='Q0P')
-      read (101,"(i5)") nq0i
-      call checkeq(nqibz+nq0i-1, nqnum)
-      write(6,*) ' *** nqibz nq0i=', nqibz,nq0i
-      allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )
-      do i=1,nq0i
-        read (101,* ) wqt(i),q0i(1:3,i)
-      enddo
-      write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
-      close(101)
+c$$$      print *, 'reading QOP'
+c$$$      open (101,file='Q0P')
+c$$$      read (101,"(i5)") nq0i
+c$$$      call checkeq(nqibz+nq0i-1, nqnum)
+c$$$      write(6,*) ' *** nqibz nq0i=', nqibz,nq0i
+c$$$      allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )
+c$$$      do i=1,nq0i
+c$$$        read (101,* ) wqt(i),q0i(1:3,i)
+c$$$      enddo
+c$$$      write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
+c$$$      close(101)
 
 c --- qibze(3,nqbze)
       nqibze = nqibz + nq0i

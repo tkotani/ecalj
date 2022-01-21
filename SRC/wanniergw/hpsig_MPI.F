@@ -17,7 +17,7 @@ c-------------------------------------------------
       use m_readqg,only: Readngmx,ngcmx,Readqg0,Readqg
       use m_hamindex,only:   Readhamindex,ngrp
       use m_readeigen,only:init_readeigen,init_readeigen2,readcphif,readgeigf
-      use m_read_bzdata,only: Read_bzdata,qbz,nqbz,nqibz,nqbz,qbas=>qlat
+      use m_read_bzdata,only: Read_bzdata,qbz,nqbz,nqibz,nqbz,qbas=>qlat,nq0i
       use m_genallcf_v3,ncore2=>ncore,nrxx=>nrx
       use m_keyvalue,only: getkeyvalue
       use m_read_Worb,only: s_read_Worb, s_cal_Worb,
@@ -52,7 +52,7 @@ c     o   imagw_dummy,niw,idummy,
      &   nw_input,
 c     &   ifhbe,
 c     &   nprecb,mrecb,mrece,nlmtot,nqbzt,nband,
-     &   nq0i,i,nq0ix,neps,ngrpmx,mxx,nqbze,nqibze,ini,ix,ngrpx
+     &   i,nq0ix,neps,ngrpmx,mxx,nqbze,nqibze,ini,ix,ngrpx
      &  ,mdimx,nbloch,nblochpmx,ifvcfpout,ndummy1,ndummy2,ifcphi,is,nwp,
      &   ifepscond,nxx,ifvxcpout,ifgb0vec
      &   ,nw0,iw,nwhis,ifinin,nw2,iw0,ifwwk,noccxv,noccx
@@ -309,20 +309,20 @@ c --- Readin nlam index
 
 c ---  q near zero
       if (myproc.eq.0) write(6,*) 'reading QOP'
-      if101=ifile_handle()
-      open (if101,file='Q0P')
-      read (if101,"(i5)") nq0i
-!      if(.not.exchange) call checkeq(nqibz+nq0i-1, nqnum)
-      if (myproc.eq.0) write(6,*) ' *** nqibz nq0i_total=', nqibz,nq0i
-      nq0it = nq0i
-      allocate( q0i(1:3,1:nq0i) ) !wqt(1:nq0i),
-!      read (if101,"(d24.16,3x, 3d24.16)" )( wqt(i),q0i(1:3,i),i=1,nq0i)
-      nq0ix = nq0i
-      do i=1,nq0i
-      read (if101,* ) xxx,q0i(1:3,i)
-      if(xxx==0d0 ) nq0ix = i-1
-      enddo
-      nq0i = nq0ix ! New nq0i July 2001
+c$$$      if101=ifile_handle()
+c$$$      open (if101,file='Q0P')
+c$$$      read (if101,"(i5)") nq0i
+c$$$!      if(.not.exchange) call checkeq(nqibz+nq0i-1, nqnum)
+c$$$      if (myproc.eq.0) write(6,*) ' *** nqibz nq0i_total=', nqibz,nq0i
+c$$$      nq0it = nq0i
+c$$$      allocate( q0i(1:3,1:nq0i) ) !wqt(1:nq0i),
+c$$$!      read (if101,"(d24.16,3x, 3d24.16)" )( wqt(i),q0i(1:3,i),i=1,nq0i)
+c$$$      nq0ix = nq0i
+c$$$      do i=1,nq0i
+c$$$      read (if101,* ) xxx,q0i(1:3,i)
+c$$$      if(xxx==0d0 ) nq0ix = i-1
+c$$$      enddo
+c$$$      nq0i = nq0ix ! New nq0i July 2001
       if (myproc.eq.0) then
       write(6,*) ' Used k number in Q0P =', nq0i
       write(6,"(i3,2x, 3f14.6)" )(i,q0i(1:3,i),i=1,nq0i)

@@ -7,7 +7,9 @@
      &  nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,ginv,qlat,
      &  dq_,qbz,wbz,qibz,wibz,qbzw,
      &  idtetf,ib1bz,idteti,
-     &     nstar,irk,nstbz
+     &   nstar,irk,nstbz,
+     &   lxklm,dmlx,epinvq0i,wklm,
+     &   wqt=>wt,q0i,nq0i
       use m_hamindex,only: ngrp, symgg=>symops
       use m_genallcf_v3,only: Genallcf_v3,
      &     nclass,natom,nspin,nl,nn,
@@ -70,7 +72,7 @@ c------------------------------------
      &     nprecx,mrecl,nblochpmx2,nwp=0,niwt, nqnum,nblochpmx, !mdimx,
 !     nwp=0 for initialization March26-2007
      &     noccxv,maxocc2,noccx,ifvcfpout,iqall,iaf, !ntq, !ifrcw,ifrcwi,  
-     &     i,k,nspinmx, nq,is,ip,iq,idxk,ifoutsex,iclose,nq0i,ig,
+     &     i,k,nspinmx, nq,is,ip,iq,idxk,ifoutsex,iclose,ig,
      &     mxkp,nqibzxx,ntet,nene,iqi, ix,iw,
      &     nlnx4,niwx,irot,invr,invrot,ivsum, ifoutsec,
      &     ifsec(2),             !,ifcphi
@@ -83,7 +85,7 @@ c------------------------------------
       real(8),allocatable    :: q(:,:)
       integer,allocatable :: ngvecp(:,:), ngvecc(:,:),iqib(:), kount(:,:) 
       real(8),allocatable:: vxcfp(:,:,:),
-     &     wqt(:), wgt0(:,:),q0i(:,:),
+     &     wgt0(:,:),
      &     eqt(:), 
      &     ppbrdx(:,:,:,:,:,:,:),aaa(:,:), 
      &     ppb(:), eq(:),       
@@ -143,10 +145,10 @@ c      logical:: GaussSmear=.true.      !readgwinput,
       integer:: nw_i
       complex(8):: zseciip(-1:1)
       logical :: debug=.false.
-      real(8),allocatable:: vcousq(:),dmlx(:,:),epinvq0i(:,:),wklm(:),vcoud(:)
+      real(8),allocatable:: vcousq(:),vcoud(:)
       complex(8),allocatable:: zcousq(:,:)
 c      logical:: newaniso=.true.
-      integer:: ifvcoud,lxklm,ifidmlx,iqq
+      integer:: ifvcoud,ifidmlx,iqq
 
       integer,allocatable:: irkip_all(:,:,:,:),irkip(:,:,:,:)
       integer:: irank,nrank
@@ -568,25 +570,24 @@ c     end of spin-loop
         endif !MPI__root
         deallocate(vxcfp)
       endif
-!!  Offset Gamma point Q0P
-      write(6,*) 'reading QOP'
-      ifiq0p=ifile_handle()
-      open (ifiq0p,file='Q0P')
-      read (ifiq0p,"(i5)") nq0i
+c!!  Offset Gamma point Q0P
+c      write(6,*) 'reading QOP'
+c      ifiq0p=ifile_handle()
+c      open (ifiq0p,file='Q0P')
+c      read (ifiq0p,"(i5)") nq0i
       if(.not.exchange) call checkeq(nqibz+nq0i-1, nqnum)
       write(6,*) ' *** nqibz nq0i_total=', nqibz,nq0i
-      nq0it = nq0i
-      allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )
-c     read (101,"(d24.16,3x, 3d24.16)" )( wqt(i),q0i(1:3,i),i=1,nq0i)
-      nq0ix = nq0i
-      do i=1,nq0i
-        read (ifiq0p,* ) wqt(i),q0i(1:3,i)
-        if(wqt(i)==0d0 ) nq0ix = i-1
-      enddo
-      nq0i = nq0ix              ! New nq0i July 2001
+c      nq0it = nq0i
+c      allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )
+c      nq0ix = nq0i
+c      do i=1,nq0i
+c        read (ifiq0p,* ) wqt(i),q0i(1:3,i)
+c        if(wqt(i)==0d0 ) nq0ix = i-1
+c      enddo
+c      nq0i = nq0ix              ! New nq0i July 2001
       write(6,*) ' Used k number in Q0P =', nq0i
       write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
-      close(ifiq0p)
+c      close(ifiq0p)
       allocate( wgt0(nq0i,ngrp) )
       call getkeyvalue("GWinput","allq0i",allq0i,default=.false.) !S.F.Jan06
       call q0iwgt3(allq0i,symgg,ngrp,wqt,q0i,nq0i, !S.F.Jan06
@@ -604,18 +605,18 @@ C--------------------------
       iii=ivsumxxx(irk,nqibz*ngrp)
       write(6,*) " sum of nonzero iirk=",iii, nqbz
 !! === readin Vcoud and EPSwklm for newaniso()=T ===
-        open(newunit=ifidmlx,file='EPSwklm',form='unformatted')
-        read(ifidmlx) nq0ix,lxklm
-        if(nq0i/=nq0ix) then
-          write(6,*)'nq0i from EPSwklm /= nq0i',nq0i,nq0ix
-          call rx( 'nq0i from EPSwklm /= nq0i')
-        endif
-        allocate( dmlx(nq0i,9))
-        allocate( epinvq0i(nq0i,nq0i) )
-        allocate( wklm((lxklm+1)**2))
-        read(ifidmlx) dmlx, epinvq0i
-        read(ifidmlx) wklm
-        close(ifidmlx) !jan2013 bugfix ifidmlx)
+c        open(newunit=ifidmlx,file='EPSwklm',form='unformatted')
+c        read(ifidmlx) nq0ix,lxklm
+c        if(nq0i/=nq0ix) then
+c          write(6,*)'nq0i from EPSwklm /= nq0i',nq0i,nq0ix
+c          call rx( 'nq0i from EPSwklm /= nq0i')
+c        endif
+c        allocate( dmlx(nq0i,9))
+c        allocate( epinvq0i(nq0i,nq0i) )
+c        allocate( wklm((lxklm+1)**2))
+c        read(ifidmlx) dmlx, epinvq0i
+c        read(ifidmlx) wklm
+c        close(ifidmlx) !jan2013 bugfix ifidmlx)
 
 c------------------------------------------------------------------
 !! tetraex section. not checked well recentrly(sep2012) -------

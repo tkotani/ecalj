@@ -36,7 +36,8 @@ c     i     nbmx,ebmx, !takao 18June2003
      i     nwf,
      o          rw_w,cw_w,rw_iw,cw_iw)
       use m_zmel,only: drvmelp3
-c
+      
+c     
 c 2006 May Takashi Miyake, updated for new fpgw
 c 2004 Sep Takashi Miyake, off-site W
 c 2004 Jul Takashi Miyake,
@@ -127,6 +128,7 @@ c----------------------------------------------------------------------
       use m_readqg,only: readqg0
       use m_readeigen,only:readcphiw
       use m_keyvalue,only: getkeyvalue
+      use m_read_bzdata,only: wklm
 
 c RS: modules for MPI    
       use rsmpi
@@ -280,8 +282,8 @@ ctm
       logical :: newansisoW
       character(5):: charnum5
 
-      real(8),allocatable:: wklm(:),dmlx(:,:),epinvq0i(:,:)
-      integer:: ifidmlx,lxklm,nq0ix
+c      real(8),allocatable:: wklm(:),dmlx(:,:),epinvq0i(:,:)
+c      integer:: ifidmlx,lxklm,nq0ix
       complex(8)::w3p
 
       integer:: mrecl,nprecx,nwordr,il
@@ -294,23 +296,23 @@ c--------------------------------------------------------------------
       if(verbose()>=90) debug=.true.
 
 !     ! === readin Vcoud and EPSwklm for newansisoW()=T ===
-      if(newansisoW()) then
-         ifidmlx = iopen('EPSwklm',0,0,0)
-         read(ifidmlx) nq0ix,lxklm
-         if(nq0i/=nq0ix) then
-            write(6,*)'nq0i from EPSwklm /= nq0i',nq0i,nq0ix
-            call rx( 'nq0i from EPSwklm /= nq0i')
-         endif
-         allocate( dmlx(nq0i,9))
-         allocate( epinvq0i(nq0i,nq0i) )
-         allocate( wklm((lxklm+1)**2))
-         read(ifidmlx) dmlx, epinvq0i
-         read(ifidmlx) wklm
-c         do il=1,(lxklm+1)**2
-c         write(6,"('EPSwklm=', i5,3f12.5)") il,wklm(il)
-c         enddo
-         ifidmlx = iclose('EPSwklm')
-      endif
+c$$$      if(newansisoW()) then
+c$$$         ifidmlx = iopen('EPSwklm',0,0,0)
+c$$$         read(ifidmlx) nq0ix,lxklm
+c$$$         if(nq0i/=nq0ix) then
+c$$$            write(6,*)'nq0i from EPSwklm /= nq0i',nq0i,nq0ix
+c$$$            call rx( 'nq0i from EPSwklm /= nq0i')
+c$$$         endif
+c$$$         allocate( dmlx(nq0i,9))
+c$$$         allocate( epinvq0i(nq0i,nq0i) )
+c$$$         allocate( wklm((lxklm+1)**2))
+c$$$         read(ifidmlx) dmlx, epinvq0i
+c$$$         read(ifidmlx) wklm
+c$$$c         do il=1,(lxklm+1)**2
+c$$$c         write(6,"('EPSwklm=', i5,3f12.5)") il,wklm(il)
+c$$$c         enddo
+c$$$         ifidmlx = iclose('EPSwklm')
+c$$$      endif
 
 
 c oct2005

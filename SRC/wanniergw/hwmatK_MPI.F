@@ -42,7 +42,7 @@ c This hsfp0 is build from hsec10.f by F.Aryasetiawan.
 c------------------------------------------------------------
       use m_readqg,only: Readngmx2,ngcmx,ngpmx,Readqg0,Readqg
       use m_hamindex,only:   Readhamindex,symgg=>symops,ngrp,invg=>invgx
-      use m_read_bzdata,only: Read_bzdata,qibz,irk,ginv,n1,n2,n3,nqbz,nqibz,nstar,nstbz,qbas=>qlat,qbz,wibz,wbz
+      use m_read_bzdata,only: Read_bzdata,qibz,irk,ginv,n1,n2,n3,nqbz,nqibz,nstar,nstbz,qbas=>qlat,qbz,wibz,wbz,nq0i,wqt=>wt,q0i
       use m_readeigen,only: onoff_write_pkm4crpa,init_readeigen,init_readeigen2,
      &     init_readeigen_mlw_noeval,init_readeigen_phi_noeval,  nwf
       use m_genallcf_v3,niwg=>niw
@@ -77,7 +77,7 @@ c     o   imagw,niw,nw,ifreq,
      &   ibas,ibasx,nxx,nbloch,ifqpnt,ifwd,ifmloc,
      &   nprecx,mrecl,nblochpmx2,nwp,niwt, nqnum,mdimx,nblochpmx,
      &   ifrcw,ifrcwi,  noccxv,maxocc2,noccx,ifvcfpout,iqall,iaf,ntq,
-     &   i,k,nspinmx, nq,is,ip,iq,idxk,ifoutsex,iclose,nq0i,ig,
+     &   i,k,nspinmx, nq,is,ip,iq,idxk,ifoutsex,iclose,ig,
      &   mxkp,nqibzxx,ntet,nene,iqi, ix,iw,
      &   nlnx4,niwx,irot,invr,invrot,ivsum, ifoutsec,ntqx,!nwf,
 c
@@ -112,7 +112,7 @@ c takao
      &  ngvecp(:,:), ngvecc(:,:),iqib(:), !,ngpn(:)ngcni(:)
      &  kount(:), nx(:,:),nblocha(:),lx(:) !ngveccBr(:,:,:)
       real(8),allocatable:: vxcfp(:,:,:),
-     &  wqt(:), wgt0(:,:),q0i(:,:),
+     &  wgt0(:,:),
      &  ppbrd (:,:,:,:,:,:,:),cgr(:,:,:,:),eqt(:),
      &  ppbrdx(:,:,:,:,:,:,:),aaa(:,:), !symope(:,:,:)=symgg, ! qibz(:,:),
      &  ppb(:), eq(:), !,pdb(:),dpb(:),ddb(:)
@@ -775,28 +775,28 @@ ctm, 070814
       write(*,'(a7,i7)')'nrws  =',nrws
       endif
 
-c ---  q near zero
-      write(6,*) 'reading QOP'
-      if101=ifile_handle()
-      open (if101,file='Q0P')
-      read (if101,"(i5)") nq0i
-      if(.not.exchange) call checkeq(nqibz+nq0i-1, nqnum)
-      if (Is_IO_Root_RSMPI())
-     & write(6,*) ' *** nqibz nq0i_total=', nqibz,nq0i
-      nq0it = nq0i
-      allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )
-c      read (101,"(d24.16,3x, 3d24.16)" )( wqt(i),q0i(1:3,i),i=1,nq0i)
-      nq0ix = nq0i
-      do i=1,nq0i
-      read (if101,* ) wqt(i),q0i(1:3,i)
-      if(wqt(i)==0d0 ) nq0ix = i-1
-      enddo
-      nq0i = nq0ix ! New nq0i July 2001
-      if (Is_IO_Root_RSMPI()) then
-      write(6,*) ' Used k number in Q0P =', nq0i
-      write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
-      endif
-      close(if101)
+c$$$c ---  q near zero
+c$$$      write(6,*) 'reading QOP'
+c$$$      if101=ifile_handle()
+c$$$      open (if101,file='Q0P')
+c$$$      read (if101,"(i5)") nq0i
+c$$$      if(.not.exchange) call checkeq(nqibz+nq0i-1, nqnum)
+c$$$      if (Is_IO_Root_RSMPI())
+c$$$     & write(6,*) ' *** nqibz nq0i_total=', nqibz,nq0i
+c$$$      nq0it = nq0i
+c$$$      allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )
+c$$$c      read (101,"(d24.16,3x, 3d24.16)" )( wqt(i),q0i(1:3,i),i=1,nq0i)
+c$$$      nq0ix = nq0i
+c$$$      do i=1,nq0i
+c$$$      read (if101,* ) wqt(i),q0i(1:3,i)
+c$$$      if(wqt(i)==0d0 ) nq0ix = i-1
+c$$$      enddo
+c$$$      nq0i = nq0ix ! New nq0i July 2001
+c$$$      if (Is_IO_Root_RSMPI()) then
+c$$$      write(6,*) ' Used k number in Q0P =', nq0i
+c$$$      write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
+c$$$      endif
+c$$$      close(if101)
       allocate( wgt0(nq0i,ngrp) )
 C Sergey's 1stFeb2005
 c      call q0iwgt2(symgg,ngrp,wqt,q0i,nq0i, 
@@ -820,10 +820,10 @@ c$$$     &   write(6,"('bzcase=2:  sum(wgt0_modified )=',d14.6)")sum(wgt0)
 c$$$      endif
 
 c --- qbze(3,nqibze)
-      nqbze  = nqbz *(1 + nq0it)
+      nqbze  = nqbz *(1 + nq0i)
       allocate( qbze(3, nqbze) )
       call dcopy(3*nqbz, qbz, 1, qbze,1)
-      do i = 1,nq0it
+      do i = 1,nq0i
         ini = nqbz*(1 + i -1)
         do ix=1,nqbz
           qbze (:,ini+ix)   = q0i(:,i) + qbze(:,ix)

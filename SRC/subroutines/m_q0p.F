@@ -11,10 +11,10 @@
       integer,allocatable,public:: epslgroup(:)              !EPSwklm
       integer,public:: lxklm                  !EPSwklm
       real(8),allocatable,public:: epinv(:,:,:),wklm(:), dmlx(:,:), epinvq0i(:,:) !EPSwklm
-      public:: Getallq0p
-      
-      private
       integer,protected,allocatable,public:: ixyz(:) ! ixyz(1:nq0i+nq0iadd) q0i for x,y,z directions
+      public:: Getallq0p
+     
+      private
       
       contains
       subroutine getallq0p(iq0pin,newoffsetG,alat,plat,qlat,nnn,alp,alpv,

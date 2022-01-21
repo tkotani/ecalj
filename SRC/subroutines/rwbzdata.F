@@ -13,6 +13,12 @@
      &    , wibz(:),qbzw(:,:)
       real(8),protected,public :: qlat(3,3),ginv(3,3)
       logical,protected,public:: done_read_bzdata=.false.
+      integer,protected,public:: nq0i,nq0itrue,nq0iadd,iq0pin       ! Number of Q0P
+      real(8),allocatable,protected,public:: q0i(:,:),wt(:)  ! Q0P and its weight.
+      integer,allocatable,public:: epslgroup(:)              !EPSwklm
+      integer,public:: lxklm                  !EPSwklm
+      real(8),allocatable,public:: epinv(:,:,:),wklm(:), dmlx(:,:), epinvq0i(:,:) !EPSwklm
+      integer,protected,allocatable,public:: ixyz(:) ! ixyz(1:nq0i+nq0iadd) q0i for x,y,z directions
       private
       
 !! =====================================================
@@ -25,7 +31,6 @@
       logical,optional:: hx0
       logical:: qbzreg
       write(6,*)' ### readin BZDATA ###'
-c     allocate(,dq_(3),qbasinv(3,3)) !,qbasmc(3,3)
       open(newunit=ifbz, file='BZDATA',form='unformatted')
       read(ifbz) nqbz,nqibz, nqbzw, ntetf, nteti, ngrp, n1,n2,n3,qlat,ginv
       allocate( qibz(1:3,1:nqibz),wibz(1:nqibz),nstar(1:nqibz),irk(1:nqibz,1:ngrp))
@@ -39,17 +44,22 @@ c     allocate(,dq_(3),qbasinv(3,3)) !,qbasmc(3,3)
       allocate( idteti(0:4,1:nteti))
       read(ifbz)idteti(0:4,1:nteti)
       read(ifbz) dq_
+      read(ifbz) iq0pin,nq0i,iq0pin,nq0iadd
+      allocate(  wt(1:nq0i+nq0iadd),q0i(1:3,1:nq0i+nq0iadd))
+      read(ifbz) wt(1:nq0i+nq0iadd),q0i(1:3,1:nq0i+nq0iadd)
+      if(iq0pin==1) then
+         allocate(  ixyz(1:nq0i+nq0iadd))
+         read(ifbz) ixyz(1:nq0i+nq0iadd)
+         read(ifbz) lxklm
+         allocate(  dmlx(1:nq0i,1:9), epinv(1:3,1:3,1:nq0i), epinvq0i(1:nq0i,1:nq0i))
+         read(ifbz) dmlx(1:nq0i,1:9), epinv(1:3,1:3,1:nq0i), epinvq0i(1:nq0i,1:nq0i)
+         allocate(  wklm(1:(lxklm+1)**2))
+         read(ifbz) wklm(1:(lxklm+1)**2)
+      elseif(iq0pin==2) then
+         allocate(  epslgroup(1:nq0i))
+         read(ifbz) epslgroup(1:nq0i)
+      endif
       close(ifbz)
-c      allocate(n1,n2,n3,ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r)
-c      call rbzdata(ifbz, !1,
-c     &    ngrp,qbas,ginv, !qbasmc,
-c     i    qbz, wbz,nstbz,           nqbz, 
-c     i    qibz,wibz, nstar,irk,  nqibz,
-c     i    idtetf, ntetf, qbzw,ib1bz, nqbzw,
-c     i    idteti, nteti,dq_) !, qibz_r, nqibz_r )
-c      write(6,"(a,9f9.4)")'read_BZDATA:ginv=',ginv
-c      close(ifbz)
-c      call minv33(qbas,qlatinv)
       if(present(hx0) .and. (.not.qbzreg())) then ! set off-gamma mesh
          deltaq = qlat(:,1)/n1 + qlat(:,2)/n2 +qlat(:,3)/n3
          do i=1,nqbz
@@ -65,45 +75,7 @@ c      call minv33(qbas,qlatinv)
       write(6,*)' end of read_BZdata'
       end subroutine
       end module
-
-!! --------------------------------------------------------------------------
-      subroutine rbzdata(ifbz, !job,
-     x  ngrp,qlat,ginv, !qlatmc,
-     x  qbz, wbz  ,nstbz, nqbz, 
-     x  qibz,wibz, nstar,irk,  nqibz,
-     x  idtetf, ntetf, qbzw,ib1bz, nqbzw,
-     x  idteti, nteti,dq_) !, qibz_r,nqibz_r )
-!! Read  BZ mesh data reuired for GW 
-      implicit none
-      integer(4):: nqbz,n1q,n2q,n3q,ntetf,nteti,nqbzw,iqbz,ifbz
-     & ,nqibz,iqibz,itet,ngrp,job !,nqibz_r
-      real(8)   :: plat(3,3),vol !,qlatmc(3,3)
-      real(8):: qbz(3,nqbz),wbz(nqbz),qibz(3,nqibz),wibz(nqibz)
-     &         ,qbzw(3,nqbzw),qlat(3,3),ginv(3,3),dq_(3) !, qibz_r(3,nqibz_r)
-      integer,allocatable:: ipq(:),iw1(:)
-      integer:: idtetf(0:3,ntetf),ib1bz(nqbzw),idteti(0:4,nteti)
-     &       ,irk(nqibz,ngrp),nstar(nqibz),nstbz(nqbz),bzcase
-      logical tetraf,tetrai
-c      do iqibz = 1,nqibz
-c        read(ifbz,"(4d24.16,i9)") 
-c     &   qibz(1:3,iqibz),wibz(iqibz),nstar(iqibz)
-c        read(ifbz,"(100i8)") irk(iqibz,1:ngrp)
-c      enddo
-c      do iqbz = 1,nqbz
-c        read(ifbz, "(4d24.16,i10)") qbz(1:3,iqbz),wbz(iqbz),nstbz(iqbz)
-c! bug fix (kino); May 2004 it was write(ifbz,"(4d24.16)") read(ifbz,"(4d24.16)")
-c! But it was working in ifc
-c!   (the strange number in ifbz file was correctly recoverd to the original values!)
-c      enddo
-c      if(ntetf>0) then
-c        read(ifbz,"(4i10)") (idtetf(0:3,itet),itet=1,ntetf)
-c        read(ifbz,"(i9,3d24.16)") 
-c     &   (ib1bz(iqbz), qbzw(1:3,iqbz),iqbz=1,nqbzw)
-c      endif
-c      if(nteti>0) read(ifbz,"(5i10)") (idteti(0:4,itet),itet=1,nteti)
-c      read (ifbz,"(3d24.16)") dq_
-      end
-!!
+      
       subroutine checkrange(intq,n1,n2)
       integer:: intq,n1,n2
       if(intq<n1 .or. intq>n2) then
