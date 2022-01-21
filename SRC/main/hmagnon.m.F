@@ -17,7 +17,8 @@ c      use m_readqg,only: readqg,readngmx
      & nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,ginv,
      & dq_,qbz,wbz,qibz,wibz,qbzw,
      & idtetf,ib1bz,idteti,
-     & nstar,irk,nstbz
+     &   nstar,irk,nstbz
+     &     ,wqt=>wt,q0i,nq0i ,nq0iadd,ixyz,epslgroup,nq0ix,neps
       use m_genallcf_v3,only: genallcf_v3,
      & nclass,natom,nspin,nl,nn, 
      & nlmto,nlnmx, nctot,niw_in=>niw, 
@@ -64,7 +65,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
       integer:: ndble=8
       integer:: nwordr
       real(8),allocatable:: vxcfp(:,:),
-     &  wqt(:), wgt0(:,:),q0i(:,:)
+     &  wgt0(:,:) !,q0i(:,:) wqt(:), 
       complex(8),allocatable:: zxq(:,:,:),zxqi(:,:,:),zxq2(:,:,:),
      &     zxq_d(:,:)
 
@@ -79,7 +80,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
 
       integer::maxocc2,iclose,
      & ixc,iqxini,iqxend,iqxendx,
-     &   nq0i,i,mxx,ini,ix,is
+     &   i,mxx,ini,ix,is
      &   ,iw,noccxv,noccx,iq,ngb
      &   ,nprecx,nblochpmx,mrecl,ifwd,nspinmx,ibas
      &   ,kx,isf,job
@@ -129,10 +130,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
       integer:: nbmx,mtet(3)
 
 ! Feb2020 QforEPS mode
-      integer:: ifq0p, nq0ix, neps, nqbze, nqibze!, ngcmx, ngpmx
+      integer:: nqbze, nqibze!, ngcmx, ngpmx ifq0p, 
       real(8), allocatable:: qbze(:,:), qibze(:,:)
       integer:: idammy
-      integer, allocatable:: epslgroup(:)
+c      integer, allocatable:: epslgroup(:)
 
 !     okumura
       integer::iwf,jwf,inwf,kwf,lwf,ijwf,klwf,nnwf,ijwf_j
@@ -273,23 +274,23 @@ c      if(ngrp/=ngrp2       ) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_
 !! QforEPS mode: 19Feb, 2020
 ccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! --- Readin Offset Gamma --------
-      if(debug) write(6,*) 'reading QOP'
-      open (newunit=ifq0p,file='Q0P')
-      read (ifq0p,"(i5)") nq0i
-      write(6,*) ' ### nqibz nq0i=', nqibz,nq0i
-      allocate( wqt(1:nq0i),q0i(1:3,1:nq0i),epslgroup(nq0i) )
-      do i=1,nq0i
-        read (ifq0p, * ) wqt(i),q0i(1:3,i),idammy,epslgroup(i)
-      enddo
-      close(ifq0p)
-      nq0ix = nq0i
-      do i=1,nq0i
-        if(wqt(i)==0d0 ) then
-          nq0ix = i-1
-          exit
-        endif
-      enddo
-      neps = nq0i - nq0ix  ! number of zero weight q0p 
+c$$$      if(debug) write(6,*) 'reading QOP'
+c$$$      open (newunit=ifq0p,file='Q0P')
+c$$$      read (ifq0p,"(i5)") nq0i
+c$$$      write(6,*) ' ### nqibz nq0i=', nqibz,nq0i
+c$$$      allocate( wqt(1:nq0i),q0i(1:3,1:nq0i),epslgroup(nq0i) )
+c$$$      do i=1,nq0i
+c$$$        read (ifq0p, * ) wqt(i),q0i(1:3,i),idammy,epslgroup(i)
+c$$$      enddo
+c$$$      close(ifq0p)
+c$$$      nq0ix = nq0i
+c$$$      do i=1,nq0i
+c$$$        if(wqt(i)==0d0 ) then
+c$$$          nq0ix = i-1
+c$$$          exit
+c$$$        endif
+c$$$      enddo
+c$$$      neps = nq0i - nq0ix  ! number of zero weight q0p 
       write( 6,*) ' num of zero weight q0p=',neps
       write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
 

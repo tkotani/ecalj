@@ -6,6 +6,7 @@
       use m_readqg,only: Readngmx2,ngcmx,ngpmx,Readqg0,Readqg
       use m_hamindex,only:   Readhamindex,ngrp,symgg=>symops,invg=>invgx
       use m_read_bzdata,only: Read_bzdata,qibz,irk,ginv,n1,n2,n3,nqbz,nqibz,nstar,nstbz,qbas=>qlat,qbz,wibz,wbz
+    &  ,  nq0i=>nq0ix,q0i,wqt=>wt  
       use m_readeigen,only: onoff_write_pkm4crpa,init_readeigen
      & ,init_readeigen2, init_readeigen_mlw_noeval, init_readeigen_phi_noeval,  nwf
       use m_genallcf_v3,nctot2=>nctot,niwg=>niw
@@ -37,7 +38,7 @@ c     o   imagw,niw,nw,ifreq,
      &   ibas,ibasx,nxx,nbloch,ifqpnt,ifwd,ifmloc,
      &   nprecx,mrecl,nblochpmx2,nwp,niwt, nqnum,mdimx,nblochpmx,
      &   ifrcw,ifrcwi,  noccxv,maxocc2,noccx,ifvcfpout,iqall,iaf,ntq,
-     &   i,k,nspinmx, nq,is,ip,iq,idxk,ifoutsex,iclose,nq0i,ig,
+     &   i,k,nspinmx, nq,is,ip,iq,idxk,ifoutsex,iclose,ig,
      &   mxkp,nqibzxx,ntet,nene,iqi, ix,iw,
      &   nlnx4,niwx,irot,invr,invrot,ivsum, ifoutsec,ntqx,
 c
@@ -72,7 +73,7 @@ c takao
      &  ngvecp(:,:), ngvecc(:,:),iqib(:), !,ngpn(:)ngcni(:)
      &  kount(:), nx(:,:),nblocha(:),lx(:) !ngveccBr(:,:,:)
       real(8),allocatable:: vxcfp(:,:,:),
-     &  wqt(:), wgt0(:,:),q0i(:,:),
+     &   wgt0(:,:),
      &  ppbrd (:,:,:,:,:,:,:),cgr(:,:,:,:),eqt(:),
      &  ppbrdx(:,:,:,:,:,:,:),aaa(:,:), !symope(:,:,:)=symgg, ! qibz(:,:),
      &  ppb(:), eq(:), !,pdb(:),dpb(:),ddb(:)
@@ -111,7 +112,7 @@ c
       integer(4),allocatable:: nspex(:,:),ieord(:),itex1(:,:,:)
       real(8)    :: qqex(1:3), eex,exsp,eee, exwgt,deltax0
       integer(4) :: itmx,ipex,itpex,itex,nspexmx,nnex,isig,iex,ifexspx
-     & ,ifexspxx ,ifefsm, nq0ix,ifemesh,nz
+     & ,ifexspxx ,ifefsm, ifemesh,nz
       character(3)  :: charnum3,sss
       character(12) :: filenameex
       logical :: exspwrite=.false.
@@ -597,26 +598,26 @@ ctm, 070814
       write(*,'(a14,i5,f12.6)')'nrws2, rcut2 =',nrws2,rcut2
       write(*,'(a7,i7)')'nrws  =',nrws
 
-c ---  q near zero
-      write(6,*) 'reading QOP'
-      if101=ifile_handle()
-      open (if101,file='Q0P')
-      read (if101,"(i5)") nq0i
-      if(.not.exchange) call checkeq(nqibz+nq0i-1, nqnum)
-      write(6,*) ' *** nqibz nq0i_total=', nqibz,nq0i
-      nq0it = nq0i
-      allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )
-c      read (if101,"(d24.16,3x, 3d24.16)" )( wqt(i),q0i(1:3,i),i=1,nq0i)
-      nq0ix = nq0i
-      do i=1,nq0i
-      read (if101,* ) wqt(i),q0i(1:3,i)
-      if(wqt(i)==0d0 ) nq0ix = i-1
-      enddo
-      nq0i = nq0ix ! New nq0i July 2001
+c$$$c ---  q near zero
+c$$$      write(6,*) 'reading QOP'
+c$$$      if101=ifile_handle()
+c$$$      open (if101,file='Q0P')
+c$$$      read (if101,"(i5)") nq0i
+c$$$      if(.not.exchange) call checkeq(nqibz+nq0i-1, nqnum)
+c$$$      write(6,*) ' *** nqibz nq0i_total=', nqibz,nq0i
+c$$$      nq0it = nq0i
+c$$$      allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )
+c$$$c      read (if101,"(d24.16,3x, 3d24.16)" )( wqt(i),q0i(1:3,i),i=1,nq0i)
+c$$$      nq0ix = nq0i
+c$$$      do i=1,nq0i
+c$$$      read (if101,* ) wqt(i),q0i(1:3,i)
+c$$$      if(wqt(i)==0d0 ) nq0ix = i-1
+c$$$      enddo
+c$$$      nq0i = nq0ix ! New nq0i July 2001
       write(6,*) ' Used k number in Q0P =', nq0i
       write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
       close(if101)
-      allocate( wgt0(nq0i,ngrp) )
+c      allocate( wgt0(nq0i,ngrp) )
 C Sergey's 1stFeb2005
 c      call q0iwgt2(symgg,ngrp,wqt,q0i,nq0i, 
 c     o            wgt0)

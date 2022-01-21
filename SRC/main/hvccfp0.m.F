@@ -8,7 +8,7 @@ c    strx: structure constant for e=0 (means 1/|r-r'| )
 c
       use m_genallcf_v3,only: Genallcf_v3,  alat,nbas=>natom, bas=>pos
       use m_hamindex,only:    Readhamindex,plat,qlat
-      use m_read_bzdata,only: Read_bzdata, ginv,nqbz,qbz,nqibz,qibz
+      use m_read_bzdata,only: Read_bzdata, ginv,nqbz,qbz,nqibz,qibz,nq0i,wqt=>wt,q0i,nq0iadd
       use m_readqg,only:   readqg,readngmx
       use m_mpi,only: MPI__hx0fp0_rankdivider2,mpi__task,MPI__Initialize,MPI__Finalize,mpi__root,
      &   MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,mpi__rank,mpi__size,
@@ -31,8 +31,8 @@ c
      &  nx(:,:),ngvecp(:,:),ngvecc(:,:),ngvecci(:,:,:),iqibzx(:)
       real(8),allocatable :: rmax(:), !qbz(:,:),,bas(:,:),qibz(:,:)
      &  cg(:),rprodx(:,:,:,:),dlv(:,:),qlv(:,:),work(:),ngcn(:),
-     &  rojb(:,:,:), sgbb(:,:,:,:),aa(:),bb(:),rofit(:),phi(:),psi(:),
-     &  wqt(:), q0i(:,:)
+     &  rojb(:,:,:), sgbb(:,:,:,:),aa(:),bb(:),rofit(:),phi(:),psi(:)
+c     &  wqt(:), q0i(:,:)
       complex(8) ,allocatable :: vcoul(:,:),geig(:,:),strx(:,:,:,:),
      &  sgpb(:,:,:,:),sgpp(:,:,:,:),
      &  fouvb(:,:,:,:),fouvp(:,:,:,:),vcoul0(:,:),
@@ -45,7 +45,7 @@ c
       real(8),allocatable    :: eb(:)
       complex(8),allocatable :: matp(:),matp2(:)
       complex(8) :: xxx,trwv
-      integer(4) :: ngb,nev,nmx,iqx,ipl1,ipl2,nq0i,igx1,igx2
+      integer(4) :: ngb,nev,nmx,iqx,ipl1,ipl2,igx1,igx2
       logical checkeig
       logical:: besseltest=.false. !test
       real(8) :: sss1,sss2,dnorm
@@ -78,7 +78,7 @@ c      integer(4),allocatable:: iqok(:)
       complex(8):: pval,pslo,phasex
       real(8)::absqq,qqx(3), epsmx,aaaa
       integer(4):: nnmx ,ngcnn,ngbo
-      integer(4):: ifgb0vec_a,ifgb0vec_b , ifvcoud,idummy,nq0iadd
+      integer(4):: ifgb0vec_a,ifgb0vec_b , ifvcoud,idummy
       logical:: is_mix0vec,wvcc !,newaniso
       character(128):: vcoudfile
       real(8),allocatable:: wqfac(:),qbzwww(:,:)
@@ -358,16 +358,16 @@ c----------------
       vcoul  = 0d0
 
 C... q near zero
-      write(6,*) '--- readin Q0P -------'
-      open (newunit=ifq0p,file='Q0P')
-      read (ifq0p,*) nq0i,idummy,nq0iadd
-      if(allochk) write(*,*)'allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )'
-      allocate( wqt(1:nq0i+nq0iadd),q0i(1:3,1:nq0i+nq0iadd) )
-      do i=1,nq0i+nq0iadd
-         read (ifq0p,*) wqt(i),q0i(1:3,i)
-      enddo
-      write (6,"(d13.5,3x, 3d13.5)" )( wqt(i),q0i(1:3,i),i=1,nq0i+nq0iadd)
-      close(ifq0p)
+c$$$      write(6,*) '--- readin Q0P -------'
+c$$$      open (newunit=ifq0p,file='Q0P')
+c$$$      read (ifq0p,*) nq0i,idummy,nq0iadd
+c$$$      if(allochk) write(*,*)'allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )'
+c$$$      allocate( wqt(1:nq0i+nq0iadd),q0i(1:3,1:nq0i+nq0iadd) )
+c$$$      do i=1,nq0i+nq0iadd
+c$$$         read (ifq0p,*) wqt(i),q0i(1:3,i)
+c$$$      enddo
+c$$$      write (6,"(d13.5,3x, 3d13.5)" )( wqt(i),q0i(1:3,i),i=1,nq0i+nq0iadd)
+c$$$      close(ifq0p)
 
 c      wvcc=.false.
       write(6,'(a)') " Mix0vec.XXX is not empty only when"

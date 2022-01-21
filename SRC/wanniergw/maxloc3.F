@@ -1,118 +1,118 @@
-      subroutine get_nqbze(nqbz,nqbze)
-      implicit real*8(a-h,o-z)
-      implicit integer (i-n)
-      logical :: lq0p
-
-      inquire(file='Q0P',exist=lq0p)
-
-      if (lq0p) then
-         ifq0p = iopen('Q0P',1,0,0)
-         read (ifq0p,"(i5)") nq0i
-         ifq0P = iclose('Q0P')         
-         nqbze = nqbz*(nq0i+1)
-      else
-         nqbze = nqbz
-      endif
-
-      return
-      end
-c-----------------------------------------------------------------------
-      subroutine get_nqbze2(nqbz,nqbze)
-      implicit real*8(a-h,o-z)
-      implicit integer (i-n)
-      logical :: lq0p
-
-      inquire(file='Q0P',exist=lq0p)
-
-      if (lq0p) then
-         ifq0p = iopen('Q0P',1,0,0)
-         read (ifq0p,"(i5)") nq0i
-         ifq0P = iclose('Q0P')         
-         nqbze = nqbz*(nq0i+2)
-      else
-         nqbze = nqbz*2
-      endif
-
-      return
-      end
-c-----------------------------------------------------------------------
-      subroutine get_qbze(qbz,nqbz,
-     o                    qbze,nqbze)
-      implicit real*8(a-h,o-z)
-      implicit integer (i-n)
-      logical :: lq0p
-      real(8), allocatable :: wqt(:),q0i(:,:)
-      real(8) :: qbz(3,nqbz),qbze(3,nqbze)
-
-      inquire(file='Q0P',exist=lq0p)
-
-      if (lq0p) then
-         ifq0p = iopen('Q0P',1,0,0)
-         read (ifq0p,"(i5)") nq0i
-         allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )
-         do iq=1,nq0i
-           read (ifq0p, * ) wqt(iq),q0i(1:3,iq)
-         enddo
-         ifq0P = iclose('Q0P')         
-
-c         nqbze = nqbz*(nq0i+1)
-c         allocate(qbze(3,nqbze))
-         qbze(:,1:nqbz) = qbz(:,1:nqbz)
-         do iq = 1,nq0i
-           ini = nqbz*(1 + iq -1)
-           do ix=1,nqbz
-             qbze (:,ini+ix)   = q0i(:,iq) + qbz(:,ix)
-           enddo
-         enddo
-         deallocate(wqt,q0i)
-      else
-c         nqbze = nqbz
-c         allocate(qbze(3,nqbze))
-         qbze = qbz
-      endif
-
-      return
-      end
-c-----------------------------------------------------------------------
-      subroutine get_qbze2(qbz,qbzs,nqbz,
-     o                    qbze,nqbze)
-      implicit real*8(a-h,o-z)
-      implicit integer (i-n)
-      logical :: lq0p
-      real(8), allocatable :: wqt(:),q0i(:,:)
-      real(8) :: qbz(3,nqbz),qbzs(3,nqbz),qbze(3,nqbze)
-
-      inquire(file='Q0P',exist=lq0p)
-
-      if (lq0p) then
-         ifq0p = iopen('Q0P',1,0,0)
-         read (ifq0p,"(i5)") nq0i
-         allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )
-         do iq=1,nq0i
-           read (ifq0p, * ) wqt(iq),q0i(1:3,iq)
-         enddo
-         ifq0P = iclose('Q0P')         
-
-c         nqbze = nqbz*(nq0i+2)
-c         allocate(qbze(3,nqbze))
-         qbze(:,1:nqbz) = qbz(:,1:nqbz)
-         qbze(:,nqbz+1:2*nqbz) = qbzs(:,1:nqbz)
-         do iq = 1,nq0i
-           ini = nqbz*(2 + iq -1)
-           do ix=1,nqbz
-             qbze (:,ini+ix)   = q0i(:,iq) + qbz(:,ix)
-           enddo
-         enddo
-         deallocate(wqt,q0i)
-      else
-c         nqbze = nqbz*2
-c         allocate(qbze(3,nqbze))
-         qbze(:,1:nqbz) = qbz(:,1:nqbz)
-         qbze(:,nqbz+1:2*nqbz) = qbzs(:,1:nqbz)
-      endif
-
-      return
-      end
+c$$$      subroutine get_nqbze(nqbz,nqbze)
+c$$$      implicit real*8(a-h,o-z)
+c$$$      implicit integer (i-n)
+c$$$      logical :: lq0p
+c$$$
+c$$$      inquire(file='Q0P',exist=lq0p)
+c$$$
+c$$$      if (lq0p) then
+c$$$         ifq0p = iopen('Q0P',1,0,0)
+c$$$         read (ifq0p,"(i5)") nq0i
+c$$$         ifq0P = iclose('Q0P')         
+c$$$         nqbze = nqbz*(nq0i+1)
+c$$$      else
+c$$$         nqbze = nqbz
+c$$$      endif
+c$$$
+c$$$      return
+c$$$      end
+c$$$c-----------------------------------------------------------------------
+c$$$      subroutine get_nqbze2(nqbz,nqbze)
+c$$$      implicit real*8(a-h,o-z)
+c$$$      implicit integer (i-n)
+c$$$      logical :: lq0p
+c$$$
+c$$$      inquire(file='Q0P',exist=lq0p)
+c$$$
+c$$$      if (lq0p) then
+c$$$         ifq0p = iopen('Q0P',1,0,0)
+c$$$         read (ifq0p,"(i5)") nq0i
+c$$$         ifq0P = iclose('Q0P')         
+c$$$         nqbze = nqbz*(nq0i+2)
+c$$$      else
+c$$$         nqbze = nqbz*2
+c$$$      endif
+c$$$
+c$$$      return
+c$$$      end
+c$$$c-----------------------------------------------------------------------
+c$$$      subroutine get_qbze(qbz,nqbz,
+c$$$     o                    qbze,nqbze)
+c$$$      implicit real*8(a-h,o-z)
+c$$$      implicit integer (i-n)
+c$$$      logical :: lq0p
+c$$$      real(8), allocatable :: wqt(:),q0i(:,:)
+c$$$      real(8) :: qbz(3,nqbz),qbze(3,nqbze)
+c$$$
+c$$$      inquire(file='Q0P',exist=lq0p)
+c$$$
+c$$$      if (lq0p) then
+c$$$         ifq0p = iopen('Q0P',1,0,0)
+c$$$         read (ifq0p,"(i5)") nq0i
+c$$$         allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )
+c$$$         do iq=1,nq0i
+c$$$           read (ifq0p, * ) wqt(iq),q0i(1:3,iq)
+c$$$         enddo
+c$$$         ifq0P = iclose('Q0P')         
+c$$$
+c$$$c         nqbze = nqbz*(nq0i+1)
+c$$$c         allocate(qbze(3,nqbze))
+c$$$         qbze(:,1:nqbz) = qbz(:,1:nqbz)
+c$$$         do iq = 1,nq0i
+c$$$           ini = nqbz*(1 + iq -1)
+c$$$           do ix=1,nqbz
+c$$$             qbze (:,ini+ix)   = q0i(:,iq) + qbz(:,ix)
+c$$$           enddo
+c$$$         enddo
+c$$$         deallocate(wqt,q0i)
+c$$$      else
+c$$$c         nqbze = nqbz
+c$$$c         allocate(qbze(3,nqbze))
+c$$$         qbze = qbz
+c$$$      endif
+c$$$
+c$$$      return
+c$$$      end
+c$$$c-----------------------------------------------------------------------
+c$$$      subroutine get_qbze2(qbz,qbzs,nqbz,
+c$$$     o                    qbze,nqbze)
+c$$$      implicit real*8(a-h,o-z)
+c$$$      implicit integer (i-n)
+c$$$      logical :: lq0p
+c$$$      real(8), allocatable :: wqt(:),q0i(:,:)
+c$$$      real(8) :: qbz(3,nqbz),qbzs(3,nqbz),qbze(3,nqbze)
+c$$$
+c$$$      inquire(file='Q0P',exist=lq0p)
+c$$$
+c$$$      if (lq0p) then
+c$$$         ifq0p = iopen('Q0P',1,0,0)
+c$$$         read (ifq0p,"(i5)") nq0i
+c$$$         allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )
+c$$$         do iq=1,nq0i
+c$$$           read (ifq0p, * ) wqt(iq),q0i(1:3,iq)
+c$$$         enddo
+c$$$         ifq0P = iclose('Q0P')         
+c$$$
+c$$$c         nqbze = nqbz*(nq0i+2)
+c$$$c         allocate(qbze(3,nqbze))
+c$$$         qbze(:,1:nqbz) = qbz(:,1:nqbz)
+c$$$         qbze(:,nqbz+1:2*nqbz) = qbzs(:,1:nqbz)
+c$$$         do iq = 1,nq0i
+c$$$           ini = nqbz*(2 + iq -1)
+c$$$           do ix=1,nqbz
+c$$$             qbze (:,ini+ix)   = q0i(:,iq) + qbz(:,ix)
+c$$$           enddo
+c$$$         enddo
+c$$$         deallocate(wqt,q0i)
+c$$$      else
+c$$$c         nqbze = nqbz*2
+c$$$c         allocate(qbze(3,nqbze))
+c$$$         qbze(:,1:nqbz) = qbz(:,1:nqbz)
+c$$$         qbze(:,nqbz+1:2*nqbz) = qbzs(:,1:nqbz)
+c$$$      endif
+c$$$
+c$$$      return
+c$$$      end
 c-----------------------------------------------------------------------
       subroutine rot_hmnk(umnk,eunk,
      d                    nwf,nqbz,

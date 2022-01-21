@@ -23,14 +23,16 @@
 !      open(newunit=ifigwin,file='LMTO',form='unformatted')
       program rdata4gw_v2
       use m_lmf2gw,only:Lmf2gw, nindx,lindx,ibasindx,nbandmx,nphimx,
-     &  qibz,nqibz ,
      &  nsp,nbas,nclass,ncoremx,lmxamx,ldim2,
      &  iantiferro,spid,iclass,lmxa=>lmxa_d,nr,konf=>konf_d,ncore=>ncore_d,
      &  zz,aa,bb,ec=>ec_d, gx_raw=>gx_d,gcore=>gcore_d,plat, alat, efermi,
      &  bas,laf,ibasf,nqbz,!n1q,n2q,n3q,
-     &  nqnum,ngpmx,ngcmx,nqnumc,nqtt,nq0i,iq0pin,nq0iadd,
+     &  nqnum,ngpmx,ngcmx,nqnumc,nqtt,
      &  QpGcut_psi,QpGcut_cou,qtt,
-     &   wt,q0i, ngvecptt,ngvecctt,ngptt,ngctt, ngplist,ndimhall,iqindex,qplist,extp,iprocq,nqirr
+     &   ngvecptt,ngvecctt,ngptt,ngctt, ngplist,ndimhall,iqindex,qplist,extp,iprocq,nqirr
+      use m_read_bzdata,only: Read_bzdata,
+     &     nqibz,qibz, nq0i,nq0iadd,wt,q0i,iq0pin
+      
 !xxx nphi,        ! number of augmentation nRl channels, as distinct from:
 ! ldim2,       ! number of nRLm channels = 2*ldim for phi+phidot case.
 ! nphimx       ! Maxmum number of phi for all l ---  2 for phi+phidot case.
@@ -179,6 +181,7 @@ c     &     , checkdia=.true.    !only write normchk.dia This is relevant only f
 !!
       call MPI__Initialize()
       call lmf2gw() !set variables, and CphiGeig
+      call read_bzdata()
       if(verbose()>50 ) debug=.true.
 c$$$      mmm=normcheck()
 c$$$      if(mmm==0) then

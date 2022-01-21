@@ -42,7 +42,8 @@ c This hsfp0 is build from hsec10.f by F.Aryasetiawan.
 c------------------------------------------------------------
       use m_readqg,only: Readngmx2,ngcmx,ngpmx,Readqg0,Readqg
       use m_hamindex,only:   Readhamindex,symgg=>symops,ngrp,invg=>invgx
-      use m_read_bzdata,only: Read_bzdata,qibz,irk,ginv,n1,n2,n3,nqbz,nqibz,nstar,nstbz,qbas=>qlat,qbz,wibz,wbz,nq0i,wqt=>wt,q0i
+      use m_read_bzdata,only: Read_bzdata,qibz,irk,ginv,n1,n2,n3,nqbz,nqibz,nstar,nstbz,qbas=>qlat,qbz,wibz,wbz
+     & ,nq0i=>nq0ix,wqt=>wt,q0i
       use m_readeigen,only: onoff_write_pkm4crpa,init_readeigen,init_readeigen2,
      &     init_readeigen_mlw_noeval,init_readeigen_phi_noeval,  nwf
       use m_genallcf_v3,niwg=>niw
@@ -152,7 +153,7 @@ c
       integer(4),allocatable:: nspex(:,:),ieord(:),itex1(:,:,:)
       real(8)    :: qqex(1:3), eex,exsp,eee, exwgt,deltax0
       integer(4) :: itmx,ipex,itpex,itex,nspexmx,nnex,isig,iex,ifexspx
-     & ,ifexspxx ,ifefsm, nq0ix,ifemesh,nz
+     & ,ifexspxx ,ifefsm, ifemesh,nz
       character(3)  :: charnum3,sss
       character(12) :: filenameex
       logical :: exspwrite=.false.
@@ -793,8 +794,8 @@ c$$$      if(wqt(i)==0d0 ) nq0ix = i-1
 c$$$      enddo
 c$$$      nq0i = nq0ix ! New nq0i July 2001
 c$$$      if (Is_IO_Root_RSMPI()) then
-c$$$      write(6,*) ' Used k number in Q0P =', nq0i
-c$$$      write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
+      write(6,*) ' Used k number in Q0P =', nq0i
+      write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
 c$$$      endif
 c$$$      close(if101)
       allocate( wgt0(nq0i,ngrp) )

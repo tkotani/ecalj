@@ -4,6 +4,7 @@
      i    cutbase,lcutmx,ixx,alat,nc_max) !,iread
       use m_keyvalue,only:getkeyvalue
       use m_lldata,only: ll
+      use m_read_bzdata,only: Read_bzdata, q0i,nq0i,wqt=>wt
 c takao kotani Apr 2002.
 c gives an index for the allowed product basis
 c A new routine by t.kotani mod. from indxbas of fa.
@@ -62,10 +63,10 @@ c
       real(8) :: phitoto(nrx,0:nl-1,nn,nclass, nsp)
       real(8) :: phitotr(nrx,0:nl-1,nn,nclass, nsp)
       real(8),allocatable :: ppbrd(:,:,:,:,:,:)
-     &  ,wqt(:), q0i(:,:),absqg2x(:)
+     &  ,absqg2x(:) !,wqt(:), q0i(:,:)
       real(8),allocatable :: phiav(:,:,:)
       real(8) :: rnormphi(0:nl-1,nn) ,alat,sss
-      integer(4) :: irx,noo,nuu      ,nq0i, neps, nq0ix,ix
+      integer(4) :: irx,noo,nuu      ,ix !,nq0i, neps, nq0ix
       integer(4):: zvztest,nlmlsp
       real(8):: ovvs,rrr(nrx)
 C---for mode 8
@@ -74,7 +75,7 @@ C---for mode 8
       real(8):: spinvec,spinvec0,sumc(2),sqrtfpi,const
       character(3):: charnum3
       logical:: valmt=.false.
-      logical :: smbasis,newaniso,addbasnew
+      logical :: smbasis,newaniso,addbasnew, read_bzdata_done=.false.
       character*15 rprodf
       integer(4) :: ifprodmt, smbasiscut,l1l2p,l1l2m,inn
       integer(4) :: lxlnln(0:2*(nl-1), 0:nl-1,nn,0:nl-1,nn) ,nzz
@@ -87,7 +88,7 @@ C---for mode 8
       integer(4):: npbasmax(0:2*(nl-1)),ifinin,iax,izz,naxx,verbose
       integer(4),allocatable:: ipx(:,:)
       real(8):: bb1,bb1s,aa_in,bb_in
-      integer(4):: nl2m1,nrofi_in,ifq0p,ifile_handle
+      integer(4):: nl2m1,nrofi_in,ifile_handle
 c-------------------------------------------
       print *,' basnfp_v2: ********** start ******** nrofi=',nrofi
 c      if(iread==1) goto 2001
@@ -275,17 +276,21 @@ c ---
 ccccccccccc start of ptest cccccccccccccccccccccccccccccccccccccccccccc
  1212 continue
       if(ixx==4) then
-        print *, ' *** TEST case ***  rprodx is given by Bessel.'
+        if(.not.read_bzdata_done) then
+           call read_bzdata()
+           read_bzdata_done=.true.
+        endif   
+        print *, ' *** rprodx is given by Bessel.***'
         lxx   = 2*(nl-1)
 c      lxx  = 4
         allocate(phij(0:lxx),psij(0:lxx))
-c q near zero test
-c This section is just to set nxxx and absqg2x(1:nxxx).
-        write(6,*) '--- readin Q0P -------'
-        ifq0p=ifile_handle()
-        open (ifq0p,file='Q0P')
-        read (ifq0p,"(i5)") nq0i
-        allocate( wqt(1:nq0i),q0i(1:3,1:nq0i),absqg2x(nq0i) )
+c$$$c q near zero test
+c$$$c This section is just to set nxxx and absqg2x(1:nxxx).
+c$$$        write(6,*) '--- readin Q0P -------'
+c$$$        ifq0p=ifile_handle()
+c$$$        open (ifq0p,file='Q0P')
+c$$$        read (ifq0p,"(i5)") nq0i
+        allocate( absqg2x(nq0i) ) !wqt(1:nq0i),q0i(1:3,1:nq0i),
 c     nq0ix = nq0i
         nzz = max(2,nq0i)
         if( smbasis() ) then
@@ -294,7 +299,7 @@ c     nq0ix = nq0i
           do i=1,nzz !nq0i
             ix=ix+1
             if(i<= nq0i) then
-              read (ifq0p, * ) wqt(i),q0i(1:3,i)
+c              read (ifq0p, * ) wqt(i),q0i(1:3,i)
               absqg2x(ix) =sum( (2*pi/alat *q0i(1:3,i))**2) !bug 30jan2005 ---q0i(q:3,nq0i)
             else
               absqg2x(ix) = absqg2x(1)*i*2
@@ -312,7 +317,7 @@ cccccccccccccccccccccc
         else
           ix=0
           do i=1,nq0i
-            read (ifq0p, * ) wqt(i),q0i(1:3,i)
+c            read (ifq0p, * ) wqt(i),q0i(1:3,i)
             if(wqt(i)==0d0 ) then
               ix=ix+1
               absqg2x(ix) =sum( (2*pi/alat *q0i(1:3,i))**2) !nq0i ---> q0i
@@ -323,8 +328,8 @@ cccccccccccccccccccccc
         endif
 c      neps = nq0i - nq0ix
         nxxx = ix
-        deallocate(wqt,q0i)
-        close(ifq0p)
+c        deallocate(wqt,q0i)
+c        close(ifq0p)
 c      write(6,*)"----- read end of Q0P -----"
 ccccccccccccccccccccccc q near zero test end
 c     nxxx= 4

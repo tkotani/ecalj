@@ -5,15 +5,15 @@
       use m_zmel,only : Get_zmel_init, Setppovlz, Setppovlz_chipm, Deallocate_zmel, zmel
       use m_itq,only: itq,ntq
       use m_genallcf_v3,only: nlmto,nsp=>nspin,nctot,niw,ecore !,symgg
-      use m_READ_BZDATA,only: ginv,nstbz,qibz,qbz,wk=>wbz,nqibz,nqbz
+      use m_READ_BZDATA,only: ginv,nstbz,qibz,qbz,wk=>wbz,nqibz,nqbz,wklm,lxklm,nq0i, wqt=>wt,q0i
       use m_readVcoud,only:   Readvcoud, vcoud,vcousq,zcousq,ngb,ngc
       use m_readfreq_r,only: freq_r, nw_i,nw,freqx,wx=>wwx,nblochpmx
       use m_rdpp,only: Rdpp,    !"call rdpp" generate following data.
      &     nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx
       use m_readqg,only:  ngpmx,ngcmx
-      use m_readq0p,only: ReadQ0P, nq0i, wqt,q0i
+c      use m_readq0p,only: ReadQ0P, nq0i, wqt,q0i
       use m_readhbe,only: nband,mrecg
-      use m_readepswklm,only: wklm,lxklm
+c      use m_readepswklm,only: wklm,lxklm
       use m_readfreq_r,only: mrecl,expa_,npm
       use m_hamindex,only: ngrp
       

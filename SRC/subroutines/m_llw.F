@@ -1,6 +1,6 @@
       module m_llw
-      use m_readq0p,only: Readq0p,
-     &     wqt,q0i,nq0i ,nq0iadd,ixyz
+c      use m_readq0p,only: Readq0p,
+c     &     wqt,q0i,nq0i ,nq0iadd,ixyz
       use m_rdpp,only: nblochpmx
       use m_genallcf_v3,only: 
      &     nclass,natom,nspin,nl,nn,
@@ -15,11 +15,11 @@
       use m_read_bzdata,only: Read_bzdata, !<--- 'call read_bzdata' sets up following data.
      &   ngrp2=>ngrp,nqbz,nqibz,n1,n2,n3,ginv,
      &   dq_,qbz,wbz,qibz,wibz,
-     &     ntetf,idtetf,ib1bz, qbzw,nqbzw !for tetrahedron
+     &     ntetf,idtetf,ib1bz, qbzw,nqbzw, !for tetrahedron
+     &     q0i,nq0i ,nq0iadd,ixyz
       use m_readVcoud,only: 
      &     vcousq,zcousq,ngb
-      use m_readq0p,only: Readq0p,
-     &     wqt,q0i,nq0i ,nq0iadd,ixyz
+c      use m_readq0p,only: Readq0p,
       use m_rdpp,only: nbloch,mrecl
       implicit none
 !-----------------------------

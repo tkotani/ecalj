@@ -23,6 +23,7 @@
      &   nqbz,nqibz,n1,n2,n3,ginv,
      &   dq_,qbz,wbz,qibz,wibz,
      &     ntetf,idtetf,ib1bz, qbzw,nqbzw !for tetrahedron
+     &     ,wqt=>wt,q0i,nq0i ,nq0iadd,ixyz
 c     &     idteti, nstar,irk,nstbz
       use m_genallcf_v3,only: Genallcf_v3,
      &     nclass,natom,nspin,nl,nn,
@@ -47,7 +48,7 @@ c     & laf,ibasf !,ldima,pos,natom
       use m_tetwt,only: Tetdeallocate, Gettetwt, !followings are output of 'L871:call gettetwt')
      &                                   whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb 
       use m_w0w0i,only:       W0w0i,     w0,w0i,llmat
-      use m_readq0p,only:     Readq0p,   wqt,q0i,nq0i ,nq0iadd,ixyz
+c      use m_readq0p,only:     Readq0p,   wqt,q0i,nq0i ,nq0iadd,ixyz
       use m_readVcoud,only:   Readvcoud, vcousq,zcousq,ngb,ngc
       use m_readgwinput,only: ReadGwinputKeys,
      &                                   egauss,ecut,ecuts,nbcut,nbcut2,mtet,ebmx,nbmx,imbas
@@ -112,7 +113,7 @@ c      irr = cmdopt2('--part=',outs)
       call Readefermi() !Readin EFERMI
       call Readhbe()    !Read dimensions 
       call ReadGWinputKeys() !Readin dataset in GWinput
-      call Readq0p()    !Readin Offset Gamma 
+c      call Readq0p()    !Readin Offset Gamma 
       call Readngmx2()  !Get ngpmx and ngcmx in m_readqg
       call Setqbze()    ! extented BZ points list
 !  write(6,*)' ngcmx ngpmx=',ngcmx,ngpmx !ngcmx: max of PWs for W, ngpmx: max of PWs for phi

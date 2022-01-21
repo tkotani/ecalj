@@ -337,29 +337,29 @@ c$$$     &          gx_d(nr_A,l,3,ic,isp), ovv(6),ovv(4),ovv(5)
       close(ifiqgc)
       write(6,*)'QpGcut_psi QpGcutCou =',QpGcut_psi,QpGcut_Cou 
 !---------
-!     !    Readin qibz form QIBZ
-      open(newunit=ifibz, file='BZDATA',form='unformatted') !write q-points in IBZ.
-      read(ifibz) nqbzx,nqibz
-      allocate(  qibz(3,nqibz))
-      read(ifibz) qibz(1:3,1:nqibz)
-      close(ifibz)
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc!
-c      open(newunit=ifiqibz, file='QIBZ',form='unformatted') !write q-points in IBZ.
-c      read (ifiqibz) nqibz
-cc      allocate(qibz(3,nqibz))
-c      read(ifiqibz) qibz(1:3,1:nqibz)
-c      close(ifiqibz)
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc!
-      write(6,"( ' --- Readin QIBZ --- ')")
-      write(6,'("  qibz=",i3,3f12.5)')(i,qibz(1:3,i),i=1,nqibz)
-!!
-      write(6,*)'reading QOP'
-      open (newunit=iq0p,file='Q0P')
-      read (iq0p,*) nq0i,iq0pin,nq0iadd
-      allocate( wt(nq0i+nq0iadd),q0i(1:3,nq0i+nq0iadd) )
-      do i=1,nq0i+nq0iadd
-         read (iq0p,*) wt(i),q0i(1:3,i)
-      enddo
-      close(iq0p)
+c$$$!     !    Readin qibz form QIBZ
+c$$$      open(newunit=ifibz, file='BZDATA',form='unformatted') !write q-points in IBZ.
+c$$$      read(ifibz) nqbzx,nqibz
+c$$$      allocate(  qibz(3,nqibz))
+c$$$      read(ifibz) qibz(1:3,1:nqibz)
+c$$$      close(ifibz)
+c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc!
+c$$$c      open(newunit=ifiqibz, file='QIBZ',form='unformatted') !write q-points in IBZ.
+c$$$c      read (ifiqibz) nqibz
+c$$$cc      allocate(qibz(3,nqibz))
+c$$$c      read(ifiqibz) qibz(1:3,1:nqibz)
+c$$$c      close(ifiqibz)
+c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc!
+c$$$      write(6,"( ' --- Readin QIBZ --- ')")
+c$$$      write(6,'("  qibz=",i3,3f12.5)')(i,qibz(1:3,i),i=1,nqibz)
+c$$$!!
+c$$$      write(6,*)'reading QOP'
+c$$$      open (newunit=iq0p,file='Q0P')
+c$$$      read (iq0p,*) nq0i,iq0pin,nq0iadd
+c$$$      allocate( wt(nq0i+nq0iadd),q0i(1:3,nq0i+nq0iadd) )
+c$$$      do i=1,nq0i+nq0iadd
+c$$$         read (iq0p,*) wt(i),q0i(1:3,i)
+c$$$      enddo
+c$$$      close(iq0p)
       end subroutine lmf2gw
       end module m_lmf2gw

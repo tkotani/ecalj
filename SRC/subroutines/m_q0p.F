@@ -1,21 +1,19 @@
       module m_q0p 
-!!> Q0P (offset Gamma points) generator
-!! Read GWinput and variables from getallq0p
-!! output   Q0P: Q0P contains offset Gamma, or k points specified in GWinput
-!!   EPSwklm: Sperical integration weitht. But currently only l=0 is used to keep positive definitness.
-!     !
-      
+!> Q0P (offset Gamma points) generator
+!! All of them are outputs when getq0p is called.
+!! Read GWinput
+!! Write Q0P: Q0P contains offset Gamma, or k points specified in GWinput
+!!       EPSwklm: Sperical integration weitht. But currently only l=0 is used to keep positive definitness.
+!!
       implicit none
-      integer,protected,public:: nq0i,nq0itrue,nq0iadd       ! Number of Q0P
-      real(8),allocatable,protected,public:: q0i(:,:),wt(:)  ! Q0P and its weight.
-      integer,allocatable,public:: epslgroup(:)              !EPSwklm
-      integer,public:: lxklm                  !EPSwklm
-      real(8),allocatable,public:: epinv(:,:,:),wklm(:), dmlx(:,:), epinvq0i(:,:) !EPSwklm
-      integer,protected,allocatable,public:: ixyz(:) ! ixyz(1:nq0i+nq0iadd) q0i for x,y,z directions
+      integer,protected:: nq0i,nq0itrue,nq0iadd ! Number of Q0P
+      integer,protected,allocatable:: ixyz(:)  ! ixyz(1:nq0i+nq0iadd) q0i for x,y,z directions
+      real(8),allocatable,protected:: q0i(:,:),wt(:) ! Q0P and its weight.
+      integer,allocatable,public,protected:: epslgroup(:) !EPSwklm
+      integer,public,protected:: lxklm=6                  !EPSwklm
+      real(8),allocatable,public,protected:: epinv(:,:,:),wklm(:), dmlx(:,:), epinvq0i(:,:) !EPSwklm
       public:: Getallq0p
-     
-      private
-      
+
       contains
       subroutine getallq0p(iq0pin,newoffsetG,alat,plat,qlat,nnn,alp,alpv,
      &     nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,lnq0iadd) !! All arguments are input.
@@ -36,7 +34,7 @@ c      integer::ngvect(3,ngcxx,nqbz)
       real(8):: deltaq,deltaq_scale,delta8,delta5,emat(3,3)
       real(8):: pi=4d0*atan(1d0)
       real(8),allocatable:: wti(:),qi(:,:),cg(:,:,:),matxxl(:,:,:),
-     &     cy(:),yl(:)
+     &     cy(:),yl(:) !,norq0x(:) !,wqfac(:)
       integer:: bzcase=1,i,iq0i,ifidmlx,lmxax,lx,j,iclose,llxxx
       real(8):: rrr(3),r2s,qxx(3),voltot,tripl
       integer,allocatable::irrx(:),ngvect(:,:,:)
@@ -51,6 +49,7 @@ c      integer::ngvect(3,ngcxx,nqbz)
       real(8),allocatable:: qsave(:,:),   qmin(:,:),qmax(:,:)
       real(8),allocatable:: qany(:,:)
       logical:: anyq,ibzqq,lnq0iadd
+c      integer,allocatable:: epslgroup(:)
       integer:: dummyia(1,1)
       
       alpm = minval(alpv)
@@ -73,11 +72,6 @@ c      if(debug) write(6,"('  alpm=',3f12.6)") alpm
 !! Normal mode. all inputs
          call getq0p(newoffsetG,alat,plat,qlat,nnn,alp,alpv, !apr2015
      i    ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect,lnq0iadd)
-c         open (newunit=ifi0,file='Q0P')
-c         write(ifi0,"(3i5,' !nq0i iq0pin nq0iadd; weight q0p(1:3) ix')") nq0i,iq0pin,nq0iadd
-c         write(ifi0,"(d24.16,3x, 3d24.16,x,i1)" ) (wt(i),q0i(1:3,i),ixyz(i),i=1,nq0i+nq0iadd)
-c         close(ifi0)
-!!
 !! Get Q0P from GWinput
       elseif(iq0pin==2) then
          call getkeyvalue("GWinput","QforEPSIBZ",ibzqq,default=.false.)
@@ -139,11 +133,11 @@ c         close(ifi0)
          endif
          allocate( wt(nq0i) )
          wt = 0d0
-c         open (newunit=ifi00,file='Q0P')
-c         write(ifi00,"(3i5,a)") nq0i,iq0pin,0, " !nq0i iq0pin ---"//
-c     &        "This is readin Q0P from GWinput <QforEPS> ---"
-c         write(ifi00,"(d24.16,3x, 3d24.16,2i3)") (wt(i),q0i(1:3,i),0,epslgroup(i),i=1,nq0i)
-c         close(ifi00)
+c$$$         open (newunit=ifi00,file='Q0P')
+c$$$         write(ifi00,"(3i5,a)") nq0i,iq0pin,0, " !nq0i iq0pin ---"//
+c$$$     &        "This is readin Q0P from GWinput <QforEPS> ---"
+c$$$         write(ifi00,"(d24.16,3x, 3d24.16,2i3)") (wt(i),q0i(1:3,i),0,epslgroup(i),i=1,nq0i)
+c$$$         close(ifi00)
       endif
 
       print *,' end fo writing Q0P'
@@ -188,13 +182,13 @@ c         close(ifi00)
          nq0itrue=nq0i !nov2015
       endif
       end subroutine getallq0p
+      
 !! ==================================================================
-!>- Q0P data set is given for 'getq0p'
       subroutine getq0p(newoffsetG,alat,plat,qlat,nnn,alp,alpv,
-     &     ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect,lnq0iadd) !! All arguments are input.
+     &   ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect,lnq0iadd) !! All arguments are input.
       use m_keyvalue,only: getkeyvalue 
       intent(in)::      newoffsetG,alat,plat,qlat,nnn,alp,alpv,
-     &     ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect,lnq0iadd
+     &   ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect,lnq0iadd
 !! this is called in subroutine mkqg2 
 !!  output
 !!    q0i (offset Gamma point)
@@ -215,7 +209,7 @@ c         close(ifi00)
       real(8),allocatable:: q0x(:,:),wt0(:)
       real(8),allocatable:: wti(:),qi(:,:),cg(:,:,:),matxxl(:,:,:),
      &     cy(:),yl(:) !,norq0x(:) !,wqfac(:)
-      integer:: bzcase=1,i,iq0i,ifidmlx,lmxax,lx,lxklm,j,iclose,llxxx
+      integer:: bzcase=1,i,iq0i,ifidmlx,lmxax,lx,j,iclose,llxxx
       integer,allocatable::irrx(:)
       real(8),allocatable:: funa(:,:),wsumau(:),yll(:,:),alpqg2,qg2,tpiba,wtrue00
       real(8):: qg(3)
@@ -432,11 +426,12 @@ c     do lm=1,9; write(*,"('r lm=',3f8.3,i4,' ylm=',f8.3)") rrr,lm,cy(lm)*yl(lm)
           enddo
           enddo
           deallocate(cy,yl)
-          lxklm=6         !this is used for inversion procedure in hx0fp0.sc.m.f
+c          lxklm=6         !this is used for inversion procedure in hx0fp0.sc.m.f
 c          nnnt=n1q*n2q*n3q
           allocate(wklm((lxklm+1)**2)) !wklm-->Klm in Comp.Phys. Comm 176(1007)1-13
-          call getwklm(alat,voltot,plat,qlat,alp,qbz,nqbz,ngcx,ngcxx,ngvect, lxklm,nnn(1),nnn(2),nnn(3),
-     o     wklm)                !,wqfac)
+          call getwklm(alat,voltot,plat,qlat,alp,qbz,nqbz,ngcx,ngcxx,
+     &       ngvect,lxklm,nnn(1),nnn(2),nnn(3),
+     o       wklm)
 !! Takao think anisotropic treatment in Computer Phys. Comm 176(1007)1-13 
 !! (in our version with auxially function) can be numerically prorematic.
 !! We only keep wklm only up to l=2. (I observed high wklm(lm) components 
@@ -450,6 +445,7 @@ c     print *,' set wklm=0 for l>2. But lxklm(for inversion of epsioln)=',lxklm
           do i=1,(lxklm+1)**2
             if(abs(wklm(i))>1d-6 ) write(6,'("  l lm Wklm=",2i3,f9.4)')llxxx(i),i,wklm(i)
           enddo
+          
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !     ! spherical design des.3.12.5 check. Because of angular momentum synsesize,
 !     ! des.3.12.5 gives correct normalization of product up to l=2 (lm<=9)
@@ -524,12 +520,6 @@ c$$$     &         lm,llxxx(lm), wklm(lm), wsumau(lm), funa(lm,1)/dble(nqbz), wk
 c$$$            endif
 c$$$          enddo
 c$$$          stop 'xxxxxxxxxxxxxxxxxxxxxxxx'
-
-c          open(newunit=ifidmlx,file='EPSwklm',form='unformatted')
-c          write(ifidmlx) nq0i,lxklm
-c          write(ifidmlx) dmlx, epinv(:,:,1:nq0i),epinvq0i
-c          write(ifidmlx) wklm
-c          close(ifidmlx)
         else
           call setq0_2(bzcase, alat, voltot,plat, qlat,alpv, qbz, nstbz, nqbz,
      i     ngcx, ngcxx, ngvect,   nq0x,nx0,xn,nnn(1),nnn(2),nnn(3), !n1q,n2q,n3q,
@@ -541,7 +531,6 @@ c          close(ifidmlx)
         deallocate(irrx)
       endif
       write(6,"('  i wt(i) q0i(:,i)=',i3,f16.7,2x,3d23.15)")(i,wt(i),q0i(1:3,i),i=1,nq0i)
-
 !! Add q0
       nq0iadd=0
       allocate(ixyz(nq0i+3)) !nq0i+3 is large enough
@@ -562,10 +551,6 @@ c          close(ifidmlx)
           q0i(:,nq0i+nq0iadd)=q0x(:,iq)
  1011     continue
         enddo
-!! check write
-c        do iq=1,nq0i+nq0iadd
-c          write(6,"(' Q0P iq q ixyz ',i5,3f10.4,i3)") iq,q0i(:,iq),ixyz(iq)
-c        enddo
       endif
       end subroutine getq0p
       end module m_q0p

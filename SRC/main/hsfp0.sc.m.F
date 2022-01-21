@@ -66,7 +66,7 @@
       use m_READ_BZDATA,only: READ_BZDATA,
      &     nqbz,nqibz,nqbzw,nteti,ntetf
      &     ,n1,n2,n3,ginv,qbz,wbz,qibz,wibz,qbzw,idtetf,ib1bz,idteti
-     &     ,nstar,irk,nstbz
+     &     ,nstar,irk,nstbz, nq0i, wqt=>wt, q0i
       use m_genallcf_v3,only: GENALLCF_V3,Setesmr,
      &     nclass,natom,nspin,nl,nn, 
      &     nlmto,nlnmx, nctot,niw, !nw_input=>nw,
@@ -97,12 +97,13 @@ c     &                          !ppbir,miat,tiat,shtvg,
      &     MPI__barrier, MPI__reduceSum
       use m_readhbe,only: Readhbe, nband !nprecb,mrecb,mrece,nlmtot,nqbzt,,mrecg
       use m_readfreq_r,only: Readfreq_r, nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i,nw, freq_r
-      use m_readq0p,only: ReadQ0P, nq0i, wqt,q0i
+c      use m_readq0p,only: ReadQ0P, nq0i, wqt,q0i
       use m_selectqp,only:Getqpoint,qvec,nq
       use m_eibzhs,only: Seteibzhs,  eibzsym,irkip_all,nrkip_all,tiii
       use m_readgwinput,only: ReadGwinputKeys,SetIsigMode, ebmx_sig,nbmx_sig,ISigMode
-      use m_readepswklm,only: Readepswklm !,wklm,lxklm
+c      use m_readepswklm,only: Readepswklm    ! ,wklm,lxklm,dmlx,epinvq0i
       use m_hamindex,only:ngrp
+      
       implicit none
 !! -----------------------------------------------------------------------------------
 !!real(8),parameter :: ua  = 1d0 ! constant in w(0)exp(-ua^2*w'^2) to take care of peak around w'=0
@@ -126,7 +127,7 @@ c
      & ixc,  maxocc, iaf, ip, is, nspinmx, i, ifoutsex, ix, ifoutsec,
      & ifsec(2), ifxc(2),ifsex(2), ifsex2(2),ifsec2(2),  ifsecomg(2),
      & nq0ix, incwfin, ngpn1,ngcn1,
-     &  iqxend,iqxini, timevalues(8) , ret,dest ,irank
+     &  iqxend,iqxini, timevalues(8) , ret,dest ,irank,ifidmlx,iq0i
       real(8) :: voltot,valn,efnew, rydberg,hartree,qreal(3), tripl !rs,alpha,ntot,
       real(8) ::  wgtq0p,quu(3), eftrue,esmref,esmr,ef !,ecorem
       character(128) :: ixcc
@@ -288,8 +289,24 @@ c      ef = ef_read
          goto 9999
       endif
 !! Offset Gamma point Q0P (slightly shifted from Gamma)
-      call Readq0p()
-      call Readepswklm()
+c      call Readq0p()
+c      call Readepswklm()
+
+c$$$cccccccccccccccccccccccccccccccc
+c$$$      open(newunit=ifidmlx,file='EPSwklm222')
+c$$$      write(ifidmlx,*)'eeee2', nq0i,lxklm
+c$$$      do iq0i=1,nq0i
+c$$$      write(ifidmlx,*)'eeee2', iq0i, dmlx(iq0i,1:9)
+c$$$      enddo  
+c$$$      write(ifidmlx,*)'eeee2: einq',epinvq0i
+c$$$      write(ifidmlx,*)'eeee2: wklm',wklm
+c$$$      close(ifidmlx)
+c$$$      stop 'xxxxxxxxxxxxxxxxx'
+c$$$cccccccccccccccccccccccccccccc      
+      
+ccccccccccccccccccccccccccccccccccccc
+
+cccccccccccccccccccccccccccccccccccc      
 !! == irkip:  paralellization is contrlloed by irkip ==
 !! We have to distribute non-zero irkip to all ranks (irkip is dependent on rank).
 !! When irkip(nqibz,ngrp,nq,nspinmx)/=0, we expect grain-size 

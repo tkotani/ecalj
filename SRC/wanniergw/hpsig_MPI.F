@@ -17,7 +17,7 @@ c-------------------------------------------------
       use m_readqg,only: Readngmx,ngcmx,Readqg0,Readqg
       use m_hamindex,only:   Readhamindex,ngrp
       use m_readeigen,only:init_readeigen,init_readeigen2,readcphif,readgeigf
-      use m_read_bzdata,only: Read_bzdata,qbz,nqbz,nqibz,nqbz,qbas=>qlat,nq0i
+      use m_read_bzdata,only: Read_bzdata,qbz,nqbz,nqibz,nqbz,qbas=>qlat,nq0i,q0i
       use m_genallcf_v3,ncore2=>ncore,nrxx=>nrx
       use m_keyvalue,only: getkeyvalue
       use m_read_Worb,only: s_read_Worb, s_cal_Worb,
@@ -36,7 +36,7 @@ c RS: MPI module
      & , ngvecpf1(:,:), ngvecpf2(:,:), 
      &   nx(:,:),nblocha(:),ifppb(:) !ongveccBr(:,:,:)
       real(8),allocatable :: ppbrd (:,:,:,:,:,:,:),cg(:,:,:),symope(:,:),
-     &phij(:),psij(:),rprodx(:,:),rphiphi(:),q0i(:,:)
+     &phij(:),psij(:),rprodx(:,:),rphiphi(:)!,q0i(:,:)
       complex(8),parameter:: img=(0d0,1d0)
 c,nw,incwf,natom,nclass,ipos,igrp,
 c     & iinvg,nspin,nl,nn,nnv,nnc,
@@ -52,7 +52,7 @@ c     o   imagw_dummy,niw,idummy,
      &   nw_input,
 c     &   ifhbe,
 c     &   nprecb,mrecb,mrece,nlmtot,nqbzt,nband,
-     &   i,nq0ix,neps,ngrpmx,mxx,nqbze,nqibze,ini,ix,ngrpx
+     &   i,nq0ix,ngrpmx,mxx,nqbze,nqibze,ini,ix,ngrpx
      &  ,mdimx,nbloch,nblochpmx,ifvcfpout,ndummy1,ndummy2,ifcphi,is,nwp,
      &   ifepscond,nxx,ifvxcpout,ifgb0vec
      &   ,nw0,iw,nwhis,ifinin,nw2,iw0,ifwwk,noccxv,noccx

@@ -11,7 +11,9 @@
      &     ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,ginv,
      &     dq_,qbz,wbz,qibz,wibz,qbzw,
      &     idtetf,ib1bz,idteti,
-     &     nstar,irk,nstbz
+     &   nstar,irk,nstbz,
+     &     wqt=>wt,q0i,nq0i ,nq0iadd,ixyz,nq0ix,neps
+      
       use m_genallcf_v3,only: Genallcf_v3,
      &     nclass,natom,nspin,nl,nn, 
      &     nlmto,nlnmx, nctot, !niw_in=>niw, !nw_input=>nw,
@@ -51,8 +53,8 @@ c     & nband,itq,ngcmx,ngpmx, ppovlz, ppbir,shtvg, miat,tiat , ntq
      &     nqbze,nqibze,qbze,qibze
       use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
 !! q0p
-      use m_readq0p,only: Readq0p,
-     &     wqt,q0i,nq0i ,nq0iadd,ixyz,nq0ix,neps
+c      use m_readq0p,only: Readq0p,
+c     &     wqt,q0i,nq0i ,nq0iadd,ixyz,nq0ix,neps
       use m_readVcoud,only: Readvcoud,vcousq,zcousq,ngb,ngc
       use m_x0kf,only: X0kf_v4hz, X0kf_v4hz_symmetrize,X0kf_v4hz_init,x0kf_zmel,ncount,kc
       use m_eibz,only:Seteibz, nwgt,neibz,igx,igxt,eibzsym
@@ -361,7 +363,7 @@ c$$$        ecorr_on=901
       if(nlmto/=nlmtot) call rx('hx0fp0: nlmto/=nlmtot in hbe.d')
       call ReadGWinputKeys()    !Readin GWinput
 !! Readin Offset Gamma --------
-      call ReadQ0P()
+c      call ReadQ0P()
       write( 6,*) ' num of zero weight q0p=',neps
       write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
 !! Readin q+G. nqbze and nqibze are for adding Q0P related points to nqbz and nqibz.

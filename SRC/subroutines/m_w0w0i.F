@@ -1,6 +1,7 @@
       module m_w0w0i
       use m_llw,only: llw,llwI,wmuk,ngbq0,w4pmode
-      use m_readq0p,only: q0i,nq0i, ixyz
+      use m_read_bzdata,only: q0i,nq0i, ixyz
+c      use m_readq0p,only: q0i,nq0i, ixyz
       use m_genallcf_v3,only:  tpioa
 !! The algolizm is a little too compolcated.
 !! See the Friedlich's paper. 
@@ -38,13 +39,13 @@ c-------------------------------------------------------------
       subroutine w0w0i(nw_i,nw,nq0i,niw,q0i) !llw,llwI,
 !! Get w0 and w0i (diagonal element at Gamma point) for given llw and llwi
 !! Outputs w0,w0i,llmat. See use m_w0w0i at the begining of this routine.
-      use m_read_bzdata,only:  wbz
+      use m_read_bzdata,only:  wbz,lxklm,dmlx,epinvq0i,epinv,wklm
       intent(in)::     nw_i,nw,nq0i,niw,q0i !llw,llwI,
 c      complex(8):: llw(nw_i:nw,nq0i), llwI(niw,nq0i)
       real(8)   :: q0i(1:3,1:nq0i) 
-      integer:: nw_i,nw,nq0i,nq0ix,niw,ifidmlx ,ifile_handle,i,ifw0w0i,ixc,lxklm,nlxklm
-      real(8),allocatable:: wklm(:)
-      real(8),allocatable:: dmlx(:,:),epinvq0i(:,:),epinv(:,:,:) !,epinvq0i_m1(:,:),qeibz(:,:,:)
+      integer:: nw_i,nw,nq0i,nq0ix,niw,ifidmlx ,ifile_handle,i,ifw0w0i,ixc,nlxklm
+c      real(8),allocatable:: wklm(:)
+c      real(8),allocatable:: dmlx(:,:),epinvq0i(:,:),epinv(:,:,:) !,epinvq0i_m1(:,:),qeibz(:,:,:)
       logical:: readw0w0itest
       complex(8):: llmat_dummy(3,3)
       write(6,*) 'w0w0i:'
@@ -53,16 +54,16 @@ c      complex(8):: llw(nw_i:nw,nq0i), llwI(niw,nq0i)
 !! getw0 routine...
 c        ifidmlx = iopen('EPSwklm',0,0,0)
 c      ifidmlx=ifile_handle()
-      open(newunit=ifidmlx,file='EPSwklm',form='unformatted')
-      read(ifidmlx) nq0ix,lxklm
-      if(nq0i/=nq0ix) call rx('m_w0w0i: nq0i/= nq0i in EPSwklm')
-      allocate( dmlx(nq0i,9))
-      allocate( epinvq0i(nq0i,nq0i),epinv(3,3,nq0i))
-      nlxklm=(lxklm+1)**2
-      allocate( wklm(nlxklm))
-      read(ifidmlx) dmlx, epinv,epinvq0i
-      read(ifidmlx) wklm
-      close(ifidmlx) ! = iclose('EPSwklm') !jan2013 iclose(ifidmlx)
+c$$$      open(newunit=ifidmlx,file='EPSwklm',form='unformatted')
+c$$$      read(ifidmlx) nq0ix,lxklm
+c$$$      if(nq0i/=nq0ix) call rx('m_w0w0i: nq0i/= nq0i in EPSwklm')
+c$$$      allocate( dmlx(nq0i,9))
+c$$$      allocate( epinvq0i(nq0i,nq0i),epinv(3,3,nq0i))
+c$$$      nlxklm=(lxklm+1)**2
+c$$$      allocate( wklm(nlxklm))
+c$$$      read(ifidmlx) dmlx, epinv,epinvq0i
+c$$$      read(ifidmlx) wklm
+c$$$      close(ifidmlx) ! = iclose('EPSwklm') !jan2013 iclose(ifidmlx)
 !! starting from llw(iw,iq0),llwI(iw,iq0)
 !! === <e|L|e> (eq.36 in Friedrich paper) is expanded in YL -->stored in llwyl. ===
       allocate(w0(nw_i:nw),w0i(niw),llmat(3,3))

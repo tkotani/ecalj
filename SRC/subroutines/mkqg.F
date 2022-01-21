@@ -1,5 +1,4 @@
       subroutine mkQG2(iq0pin, gammacellctrl,lnq0iadd,lmagnon)
-!! 'call getbzdata1' gives all follwing data 
       use m_get_bzdata1,only: Getbzdata1, nqbz, nqibz, nqbzw,ntetf,nteti,nqbzm,
      &  qbz,wbz,qibz,wibz, qbzw, idtetf, ib1bz, idteti, irk, nstar, nstbz, qbzm, qbzwm
       use m_q0p,only: Getallq0p,
@@ -209,24 +208,24 @@ c      close(ifiqibz)
       do i=nq0i+1,nq0i+nq0iadd
         write(6,"('  q0iadd=  ', i3, 3f10.5)") i,q0i(:,i)
       enddo
-      if(iq0pin==1) then
-         open (newunit=ifi0,file='Q0P')
-         write(ifi0,"(3i5,' !nq0i iq0pin nq0iadd; weight q0p(1:3) ix')") nq0i,iq0pin,nq0iadd
-         write(ifi0,"(d24.16,3x, 3d24.16,x,i1)" ) (wt(i),q0i(1:3,i),ixyz(i),i=1,nq0i+nq0iadd)
-         close(ifi0)
-         open(newunit=ifidmlx,file='EPSwklm',form='unformatted')
-         write(ifidmlx) nq0i,lxklm
-         write(ifidmlx) dmlx, epinv(1:3,1:3,1:nq0i),epinvq0i
-         write(ifidmlx) wklm
-         close(ifidmlx)
-      elseif(iq0pin==2) then
-         open (newunit=ifi00,file='Q0P')
-         write(ifi00,"(3i5,a)") nq0i,iq0pin,0, " !nq0i iq0pin ---"//
-     &        "This is readin Q0P from GWinput <QforEPS> ---"
-         write(ifi00,"(d24.16,3x, 3d24.16,2i3)") (wt(i),q0i(1:3,i),0,epslgroup(i),i=1,nq0i)
-         close(ifi00)
-      endif   
-!!
+      
+c$$$      if(iq0pin==1) then
+c$$$         open (newunit=ifi0,file='Q0P')
+c$$$         write(ifi0,"(3i5,' !nq0i iq0pin nq0iadd; weight q0p(1:3) ix')") nq0i,iq0pin,nq0iadd
+c$$$         write(ifi0,"(d24.16,3x, 3d24.16,x,i1)" ) (wt(i),q0i(1:3,i),ixyz(i),i=1,nq0i+nq0iadd)
+c$$$         close(ifi0)
+c$$$         open(newunit=ifidmlx,file='EPSwklm',form='unformatted')
+c$$$         write(ifidmlx) nq0i,lxklm
+c$$$         write(ifidmlx) dmlx, epinv(1:3,1:3,1:nq0i),epinvq0i
+c$$$         write(ifidmlx) wklm
+c$$$         close(ifidmlx)
+c$$$      elseif(iq0pin==2) then
+c$$$         open (newunit=ifi00,file='Q0P')
+c$$$         write(ifi00,"(3i5,a)") nq0i,iq0pin,0, " !nq0i iq0pin ---"//
+c$$$     &        "This is readin Q0P from GWinput <QforEPS> ---"
+c$$$         write(ifi00,"(d24.16,3x, 3d24.16,2i3)") (wt(i),q0i(1:3,i),0,epslgroup(i),i=1,nq0i)
+c$$$         close(ifi00)
+c$$$      endif   
 !! Write BZDATA
       print *,' Writing BZDATA...'
       open (newunit=ifbz, file='BZDATA',form='unformatted')
@@ -241,14 +240,14 @@ c      close(ifiqibz)
       write(ifbz) wt(1:nq0i+nq0iadd),q0i(1:3,1:nq0i+nq0iadd)
       if(iq0pin==1) then
          write(ifbz) ixyz(1:nq0i+nq0iadd)
-         write(ifbz) lxklm
-         write(ifbz) dmlx(1:nq0i,1:9), epinv(1:3,1:3,1:nq0i), epinvq0i(1:nq0i,1:nq0i)
+         write(ifbz) lxklm,dmlx(1:nq0i,1:9),epinv(1:3,1:3,1:nq0i),epinvq0i(1:nq0i,1:nq0i)
          write(ifbz) wklm(1:(lxklm+1)**2)
       elseif(iq0pin==2) then
          write(ifbz) epslgroup(1:nq0i)
       endif
       close(ifbz)
-!!
+      
+!! ---------
       if (lmagnon) return       !! exit because we get QforEPSL data (21 Feb, 2020)
       
 !! Four kinds of mesh points setting. Q0P means offset Gamma (slightly different from Gamma).

@@ -24,7 +24,9 @@ c     use m_readqg,only: readngmx,readqg
      &     nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas=>qlat,ginv, !qbasmc,
      &     dq_,qbz,wbz,qibz,wibz,qbzw,
      &     idtetf,ib1bz,idteti,
-     &     nstar,irk,nstbz
+     &   nstar,irk,nstbz
+      use m_qbze,only: Setqbze,
+     &     nqbze,qbze
       use m_genallcf_v3,only: genallcf_v3,
      &     nclass,natom,nspin,nl,nn,
      &     nlmto,nlnmx, nctot,niw, !nw_input=>nw,ef
@@ -103,8 +105,8 @@ c
       character*8 xt
 
 
-      integer(4)::nqbze,ini,nq0it,idummy
-      real(8),allocatable:: qbze(:,:)
+      integer(4)::ini,nq0it,idummy
+c      real(8),allocatable:: qbze(:,:)
 
       real(8)   :: ebmx
       integer(4):: nbmx
@@ -231,6 +233,7 @@ c-----------------------------------------------------------------
       call read_Bzdata()
       write(6,*)' nqibz ngrp=',nqibz,ngrp
       write(6,*)' nqbz  =',nqbz
+      call Setqbze()    ! extented BZ points list
 c      write(6,*)  qbz 
 c      write(6,*)' irk=',irk
 c      write(6,*)' #### idtetf: ####'
@@ -1112,10 +1115,10 @@ c      write(*,*) 'xxxxxxxxxx2'
 
 !! ----------------------------------------------------------
 !! k-point mesh
-      call get_nqbze(nqbz,nqbze)
-      allocate(qbze(3,nqbze))
-      call get_qbze(qbz,nqbz,
-     o              qbze,nqbze)
+c      call get_nqbze(nqbz,nqbze)
+c      allocate(qbze(3,nqbze))
+c      call get_qbze(qbz,nqbz,
+c     o              qbze,nqbze)
       write(ifmlw(is))nqbze,nwf
       write(ifmlwe(is))nqbze,nwf
       do iq = 1,nqbze
@@ -1131,7 +1134,7 @@ c         write(*,*)'goto get_hrotkp_ws iq=',iq,nqbze
 c          write(6,*)"iq is",iq,is
        enddo
 c      write(6,*)'eeeeeeeee'
-      deallocate(qbze)
+c      deallocate(qbze)
 ccc          write(*,990)'iq =',iq,qbz(1:3,iq)
 cc          if (iq.le.nqbz) then
 cc          do iband = 1,nwf

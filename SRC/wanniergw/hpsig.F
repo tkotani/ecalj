@@ -47,7 +47,7 @@ c     o   imagw_dummy,niw,idummy,
      &   nw_input,
 c     &   ifhbe,
 c     &   nprecb,mrecb,mrece,nlmtot,nqbzt,nband,
-     &   i,nq0ix,neps,ngrpmx,mxx,nqbze,nqibze,ini,ix,ngrpx
+     &   i,ngrpmx,mxx,nqbze,nqibze,ini,ix,ngrpx
      &  ,mdimx,nbloch,nblochpmx,ifvcfpout,ndummy1,ndummy2,ifcphi,is,nwp,
      &   ifepscond,nxx,ifvxcpout,ifgb0vec
      &   ,nw0,iw,nwhis,ifinin,nw2,iw0,ifwwk,noccxv,noccx
