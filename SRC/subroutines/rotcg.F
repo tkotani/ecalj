@@ -67,6 +67,7 @@ c----
       enddo
       
 !! --- no Rotation case
+      ig=1
       if(ng==1.and.sum(abs(symops(:,ig)-[1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0]))<1d-12) then
          do lm =  1, (2*lmxax+1)**2
             l = ll(lm)

@@ -344,7 +344,7 @@ ccc these are dummy.
       symope(1:3,3) = (/0d0,0d0,1d0/)
       ngrp1=1
 ccc
-      call rdpp_v3(nxx, nl, ngrp1, nn, nclass, nspin,symope,qbas,
+      call rdpp_v3(nxx, nl, ngrp1, nn, nclass, nspin,symope,qlat,
      o      nblocha, lx, nx,  ppbrd , mdimx, nbloch, cgr)
       nblochpmx = nbloch + ngcmx
 

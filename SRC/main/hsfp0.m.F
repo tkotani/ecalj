@@ -4,7 +4,7 @@
       use m_hamindex,only:   Readhamindex
       use m_readeigen,only: Init_readeigen,Readeval,Lowesteval,Init_readeigen2
       use m_read_bzdata,only: Read_bzdata,
-     &  nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv,
+     &  nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,ginv,qlat,
      &  dq_,qbz,wbz,qibz,wibz,qbzw,
      &  idtetf,ib1bz,idteti,
      &     nstar,irk,nstbz
@@ -708,7 +708,7 @@ c     loop over spin ----------------------------------------------------
         if(ixc==3.and.nctot==0) goto 2001 !!make dummy SEXcore
         call sxcf_fal3z (kount, ixc,deltaw,shtw,q,itq,ntq,ef,ef2,esmr,esmr2,
      i   nspin,is,
-     i   qbas,ginv,qibz,qbz,wbz,nstbz, wibz, 
+     i   qlat,ginv,qibz,qbz,wbz,nstbz, wibz, 
      i   nstar,irkip(is,:,:,:),  
      i   freq_r,freqx, wwx,   
      i   dwdummy, ecore(:,is),

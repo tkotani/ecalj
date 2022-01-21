@@ -16,7 +16,7 @@
      &     nxx,lx,nx,mdimx,nbloch,cgr,ppbrd,nblocha,done_rdpp
       use m_readeigen,only: Readcphif !,Readgeigf
       use m_read_bzdata,only: 
-     i     nqbz,nqibz,  qbas,ginv,qbz,qibz,wbz,
+     i     nqbz,nqibz,  qlat,ginv,qbz,qibz,wbz,
      i     done_read_bzdata  
       use m_readgwinput,only:nbcutlow_sig
       use m_readhbe,only: nband
@@ -41,7 +41,7 @@ c      use m_readclasst,only: Readclasst,iclasst !iclass and iclasst is the same
       real(8),allocatable,private :: tiat(:,:,:),shtvg(:,:)  
       real(8),allocatable,private :: ppbir(:,:,:)  
       complex(8),allocatable,private :: ppovlz(:,:)        
-      real(8),private:: qbasinv(3,3),q_bk(3)=1d10,qk_bk(3)=1d10
+      real(8),private:: qlatinv(3,3),q_bk(3)=1d10,qk_bk(3)=1d10
       logical,private:: init=.true.
       complex(8),allocatable,private :: cphiq(:,:), cphim(:,:),cphitemp(:,:)
       real(8),allocatable,private :: rmelt(:,:,:),cmelt(:,:,:)
@@ -216,7 +216,7 @@ c     i                 ppbrd)           !radial integrals
 !! \parameter all inputs
 !     ! \parameter matrix <MPB psi|psi>
       logical:: exchange
-      logical,optional:: iprx
+      logical:: iprx
       integer:: isp,nmmax,nqmax,irot,ispq,ispm,nmini,nqini, nctot,ncc
       real(8) ::  quu(3),q(3), kvec(3),rkvec(3)
       ispq = isp
@@ -229,7 +229,7 @@ c     i                 ppbrd)           !radial integrals
          ispm = isp_k
          ispq = isp_kq
       endif
-      if(present(iprx).and.iprx) then
+      if(iprx) then
          print *,'ppp modex0',modex0
          write(6,"(a,l,10i4)")'pppp3:',exchange,irot,nmini,nmmax,ispm,nctot,nqini,nqmax,ispq,ncc
          write(6,"(a,10(3f9.3,x))") 'pppp3:',q, kvec,rkvec
@@ -302,7 +302,7 @@ cold  nbmax -->nmmax
       if(.not.done_read_bzdata) call rx('m_zmel: not yet call read_bzdata')
 
       if(init) then
-         call minv33(qbas,qbasinv)
+         call minv33(qlat,qlatinv)
          allocate( cphiq(nlmto,nband), cphim(nlmto,nband), cphitemp(nlmto,nband))
          init=.false.
       endif
@@ -387,7 +387,7 @@ c      call getsrdpp2( nclass,nl,nxx)
      i  kvec,        ! k in IBZ for mixed product basis. rk = symope(kvec) 
      i  ispq,ispm,ginv,
      i  ngc,ngcmx, ngpmx,nband,itq, 
-     i  symope, shtv, qbas, qbasinv,qibz,qbz,nqbz,nqibz,
+     i  symope, shtv, qlat, qlatinv,qibz,qbz,nqbz,nqibz,
      i  drealzzzmel, dimagzzzmel, nbloch, nctot,ncc,itps,
      o  rmelt,cmelt)
       if(debug) write(6,*) ' sxcf_fal1: end of drvmelp2 sum rmelt cmelt',sum(rmelt),sum(cmelt)
@@ -545,7 +545,7 @@ c--------------------------------------------------------------------
 c$$$c-------------------------------------------------------
 c$$$      subroutine drvmelp( iq, ntp0, kp,nt0, k,
 c$$$     i        ngc,ngcmx,ngpn, ngpmx,ngvecpB,ngveccBr,geigB,nband,itp0,
-c$$$     i        symope, shtv, qbas, qbasinv,qibz,qbz,nqbz,nqibz,
+c$$$     i        symope, shtv, qlat, qlatinv,qibz,qbz,nqbz,nqibz,
 c$$$     i       rmel, cmel, nbloch,noccx,nctot,
 c$$$     o       rmelt,cmelt)
 c$$$c ! q1=q    ---> iq 1:ntp0 q-point
@@ -561,8 +561,8 @@ c$$$     &             ngvecpB  (3,ngpmx,nqbz),
 c$$$     &             ngveccBr (3,ngcmx,nqibz), itp0(ntp0),
 c$$$     &     nadd(3),ngpn(nqbz)
 c$$$      complex(8),allocatable::  zmelpl(:,:,:),geigq(:,:)
-c$$$      real(8):: qbas(3,3),shtv(3),qdiff(3),add(3)
-c$$$     &         ,qibz(3,nqibz),qbz(3,nqbz),qbasinv(3,3),symope(3,3)
+c$$$      real(8):: qlat(3,3),shtv(3),qdiff(3),add(3)
+c$$$     &         ,qibz(3,nqibz),qbz(3,nqbz),qlatinv(3,3),symope(3,3)
 c$$$     &         ,rmel(nbloch,noccx,ntp0)
 c$$$     &         ,cmel(nbloch,noccx,ntp0)
 c$$$     &         ,rmelt(1:nbloch+ngc,1:nctot+nt0,1:ntp0)
@@ -581,7 +581,7 @@ c$$$c     write(6,*)' drvmelp x1',symope,qibz(1:3,k),qbz(:,iq),qbz(:,kp)
 c$$$      qdiff = matmul(symope,qibz(1:3,k)) - qbz(:,iq) + qbz(:,kp)
 c$$$      ! rk          -q          +(q-rk) is not zero.
 c$$$c     write(6,*)' drvmelp qdiff',qdiff
-c$$$      add  = matmul(qbasinv,qdiff)
+c$$$      add  = matmul(qlatinv,qdiff)
 c$$$      nadd = idint( add + dsign(.5d0,add))
 c$$$c      write(6,'(" add nadd diff =",3f12.5,3i12,d13.6)')
 c$$$c     &  add,nadd,abs(add-nadd)
@@ -593,7 +593,7 @@ c$$$c     &           , ngp2, ngvecpB  (:,1:ngp2, kp)
 c$$$c     &           , ngc,  ngveccBr (:,1:ngc , k ), nadd,
 c$$$c     &       geigq, ntp0,                   ! q1=q    ---> iq ngp1 1:ntp0 q-point
 c$$$c     &       geigB(1:ngp2,1:nt0, kp), nt0,  ! q2=q-rk ---> kp ngp2 1:nt0  occupied
-c$$$c     i       shtv, matmul(symope,qibz(1:3,k)), qbas,
+c$$$c     i       shtv, matmul(symope,qibz(1:3,k)), qlat,
 c$$$c     o       zmelpl)
 c$$$c      else             !new version from Sep-10 2000
 c$$$      call melpln2( ngp1, ngvecpB  (:,1:ngp1, iq)
@@ -601,7 +601,7 @@ c$$$     &           ,  ngp2, ngvecpB  (:,1:ngp2, kp)
 c$$$     &           ,  ngc,  ngveccBr (:,1:ngc , k ), nadd,
 c$$$     &       geigq, ntp0,                   ! q1=q    ---> iq ngp1 1:ntp0 q-point
 c$$$     &       geigB(1:ngp2,1:nt0, kp), nt0,  ! q2=q-rk ---> kp ngp2 1:nt0  occupied
-c$$$     i       shtv, matmul(symope,qibz(1:3,k)),qibz(1:3,k), symope, qbas,
+c$$$     i       shtv, matmul(symope,qibz(1:3,k)),qibz(1:3,k), symope, qlat,
 c$$$     o       zmelpl)
 c$$$c       endif
 c$$$      deallocate(geigq)
@@ -635,7 +635,7 @@ c$$$      end
 !!  zmelpl
       subroutine drvmelp( q, ntp0, q_rk,nt0, qik, ispq,ispq_rk,ginv,
      i        ngc,ngcmx,ngpmx_in,nband,itp0, 
-     i        symope, shtv, qbas, qbasinv,qibz,qbz,nqbz,nqibz,
+     i        symope, shtv, qlat, qlatinv,qibz,qbz,nqbz,nqibz,
      i       rmel, cmel, nbloch,nctot,ncc,itps,
      o       rmelt,cmelt)
       use m_readqg, only : readqg
@@ -645,8 +645,8 @@ c-----------------------------------------------------
       real(8),intent(in):: q(3),q_rk(3),qik(3),ginv(3,3)
       integer(4),intent(in):: ngpmx_in,nqbz,nqibz,ngcmx ,nctot,nband,
      &  ntp0,nt0,nbloch,ngc,itp0(ntp0),ispq,ispq_rk,itps,ncc
-      real(8),intent(in):: qbas(3,3),shtv(3),qibz(3,nqibz),qbz(3,nqbz),
-     &  qbasinv(3,3),symope(3,3),rmel(nbloch,nctot+nt0,ncc+ntp0),
+      real(8),intent(in):: qlat(3,3),shtv(3),qibz(3,nqibz),qbz(3,nqbz),
+     &  qlatinv(3,3),symope(3,3),rmel(nbloch,nctot+nt0,ncc+ntp0),
      &  cmel(nbloch,nctot+nt0,ncc+ntp0)
       real(8),intent(out):: rmelt(1:nbloch+ngc,1:nctot+nt0,1:ncc+ntp0)
       real(8),intent(out):: cmelt(1:nbloch+ngc,1:nctot+nt0,1:ncc+ntp0)
@@ -673,7 +673,7 @@ c      if(sum(abs(q_rkt-qu2))>1d-10) call rx( 'drvmelp2;qu2/=qu2x')
       qdiff = matmul(symope,qik)  - qt + q_rkt
       ! rk    -q  +(q-rk) is not zero.
 !! <rk q-rk |q>
-      add  = matmul(qbasinv,qdiff)
+      add  = matmul(qlatinv,qdiff)
       nadd = idint( add + dsign(.5d0,add))
       if(sum(abs(add-nadd))>tolq) then
         write(6,*)' drvmelp qdiff',qdiff
@@ -690,7 +690,7 @@ c      if(sum(abs(q_rkt-qu2))>1d-10) call rx( 'drvmelp2;qu2/=qu2x')
      &   ,   ngc,  nadd,
      &   geig1(1:ngp1,itps-1+itp0(1:ntp0)), ntp0, ! q1=(shifted q) ->iq ngp1 1:ntp0 q-point
      &   geig2(1:ngp2,1:nt0), nt0, ! q2=(shifted q-rk) -> kp ngp2 1:nt0  occupied 
-     i   shtv, matmul(symope,qik),qik, symope, qbas,
+     i   shtv, matmul(symope,qik),qik, symope, qlat,
      i   qt,                    !qt oct2013 means q1
      o   zmelpl)
       endif
@@ -761,7 +761,7 @@ c$$$      subroutine melpln
 c$$$     &       ( ngp1, ngvecp1, ngp2, ngvecp2, ngc,ngvecc, nadd,
 c$$$     &       geigq1, ntp0, ! q1=q    ---> iq 1:ntp0 q-point
 c$$$     &       geigq2, nt0,  ! q2=q-rk ---> kp 1:nt0  occupied                        
-c$$$     i       shtv,q, qbas, 
+c$$$     i       shtv,q, qlat, 
 c$$$     o       zmelp)
 c$$$      implicit none
 c$$$      integer(4):: ngp1, ngvecp1(3,ngp1), ngp2, ngvecp2(3,ngp2),
@@ -770,10 +770,10 @@ c$$$     &     nadd(3)
 c$$$      complex(8):: geigq1(ngp1,ntp0),
 c$$$     &             geigq2(ngp2,nt0), zmelp(ngc,nt0,ntp0),phase(ngc),
 c$$$     &             img=(0d0,1d0)
-c$$$      real(8)::  q(3),qg(3),qbas(3,3),shtv(3),qdummy(3)
+c$$$      real(8)::  q(3),qg(3),qlat(3,3),shtv(3),qdummy(3)
 c$$$     & ,pi=3.1415926535897932D0
 c$$$      do igc = 1,ngc
-c$$$        qg(1:3) = 2*pi * (q(1:3)+ matmul(qbas, ngvecc(1:3,igc)))
+c$$$        qg(1:3) = 2*pi * (q(1:3)+ matmul(qlat, ngvecc(1:3,igc)))
 c$$$        phase(igc) = exp(img*sum(qg*shtv))
 c$$$      enddo
 c$$$      zmelp=0d0
@@ -805,7 +805,7 @@ c$$$      end
      &       ( ngp1, ngvecp1, ngp2, ngvecp2, ngc, nadd,
      &       geigq1, ntp0, ! q1=q    ---> iq 1:ntp0 q-point
      &       geigq2, nt0,  ! q2=q-rk ---> kp 1:nt0  occupied                        
-     i       shtv,q, qi, symope, qbas, !
+     i       shtv,q, qi, symope, qlat, !
      i       qt, !qt oct2013 for G1
      o       zmelp)
 c      use m_mpi, only:mpi__rank
@@ -817,7 +817,7 @@ c      use m_mpi, only:mpi__rank
       integer(4),intent(in) :: ngp1, ngvecp1(3,ngp1), ngp2
       integer(4),intent(in) :: ngvecp2(3,ngp2), ngc,nadd(3),ntp0,nt0
       complex(8),intent(in) :: geigq1(ngp1,ntp0),geigq2(ngp2,nt0)
-      real(8),intent(in) :: shtv(3),q(3),qi(3), symope(3,3),qbas(3,3)
+      real(8),intent(in) :: shtv(3),q(3),qi(3), symope(3,3),qlat(3,3)
       real(8),intent(in) :: qt(3)
       complex(8),intent(out) :: zmelp(ngc,nt0,ntp0)
       complex(8),parameter :: img=(0d0,1d0)
@@ -837,11 +837,11 @@ c      use m_mpi, only:mpi__rank
       if(verbose()>=90) debug=.true.
       if(debug) write(6,*)' melpln2t: '
 !! getppx allocate and return ngc2, ppx(1:ngc,1:ngc2), ngvecc2(1:3,1:ngc2).
-!!      call getppx(qbas,  ngcx,qi,symope) ! rppovl.f
+!!      call getppx(qlat,  ngcx,qi,symope) ! rppovl.f
 
 !! allocate and return foobar decleared in use m_read_ppovl,only: foobar
       if(debug) write(6,*)' melpln2t: nadd=',nadd
-      call getppx2(qbas,qi) ! rppovl.f
+      call getppx2(qlat,qi) ! rppovl.f
       if(verbose()>=100) write(6,*)' melpln2t: end of getppx2'
       if(ngc/=ngcread) then
          write(6,*)qi,ngcread,ngc
@@ -881,7 +881,7 @@ c      use m_mpi, only:mpi__rank
       allocate(ngveccR(1:3,1:ngc))
       ngcs(1) = ngc
       if(verbose()>=100) write(6,*)' melpln2t: goto rotation of ngvecc xxxx'
-      call rotgvec(symope, 1, ngc, ngcs, qbas, ngvecc, 
+      call rotgvec(symope, 1, ngc, ngcs, qlat, ngvecc, 
      o    ngveccR) 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! simple case commented out. This worked (but slow) nov2013takao.
@@ -889,7 +889,7 @@ c$$$!!      write(6,*)'--- goto simple case for debug---'
 c$$$      write(6,*)'fffffff: ngc ngp1 ngp2=',ngc,ngp1,ngp2
 c$$$      zmelp0 = 0d0
 c$$$      do igc=1,ngc
-c$$$        phas =exp( img*2d0*pi*sum((q+matmul(qbas,ngveccR(:,igc)))*shtv) ) !conjg
+c$$$        phas =exp( img*2d0*pi*sum((q+matmul(qlat,ngveccR(:,igc)))*shtv) ) !conjg
 c$$$      do igp1=1,ngp1     !for ngp1
 c$$$      do igp2=1,ngp2
 c$$$c        nn = ngvecp1(:,igp1)-ngvecp2(:,igp2)-ngveccR(:,igc) - nadd 
@@ -949,7 +949,7 @@ c         write(6,*)'iggg=',iggg,nggg
 !! mapping of function g[f(\bfr)]= f(g^-1(\bfr)+\delta_{g^-1})
       allocate(gp2phas2(nt0),phase(ngc))
       do igc=1,ngc
-        phase(igc)=exp( img*2d0*pi*sum((q+matmul(qbas,ngveccR(:,igc)))*shtv) )
+        phase(igc)=exp( img*2d0*pi*sum((q+matmul(qlat,ngveccR(:,igc)))*shtv) )
       enddo  
 !! zmelp0(igc'(Gc'),it(G2),itp(G1)) = <G1|G2 Gc'> geig*(G1,itp)geig(G2,it) = <itp(G1)|it(G2) Gc'>
       allocate(zmelp0(ngc,nt0,ntp0))
@@ -1241,7 +1241,7 @@ c end of atom-loop
 !sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine drvmelp3( q, ntp0, q_rk,nt0, qik, isp,ginv,
      i        ngc,ngcmx,ngpmx,nband,itp0, 
-     i        symope, shtv, qbas, qbasinv,qibz,qbz,nqbz,nqibz,
+     i        symope, shtv, qlat, qlatinv,qibz,qbz,nqbz,nqibz,
      i       rmel, cmel, nbloch,noccx,nctot,
      o       zmelt) 
       use m_readqg,only: readqg
@@ -1262,8 +1262,8 @@ c-----------------------------------------------------
      &             ngveccBr(3,ngcmx), itp0(ntp0),
      &     nadd(3),isp  !,ngpn(nqbz)
       complex(8),allocatable::  zmelpl(:,:,:),geigq(:,:)
-      real(8):: qbas(3,3),shtv(3),qdiff(3),add(3)
-     &         ,qibz(3,nqibz),qbz(3,nqbz),qbasinv(3,3),symope(3,3)
+      real(8):: qlat(3,3),shtv(3),qdiff(3),add(3)
+     &         ,qibz(3,nqibz),qbz(3,nqbz),qlatinv(3,3),symope(3,3)
      &         ,rmel(nbloch,noccx,ntp0) 
      &         ,cmel(nbloch,noccx,ntp0) 
      & ,pi=3.1415926535897932D0 
@@ -1281,7 +1281,7 @@ c-----------------------------------------------------
       if(verbose()>=100) write(6,*)' end of read geig '
       qdiff = matmul(symope,qik)  - qt + q_rkt 
                            ! rk    -q  +(q-rk) is not zero.
-      add  = matmul(qbasinv,qdiff)
+      add  = matmul(qlatinv,qdiff)
       nadd = idint( add + dsign(.5d0,add))
       if(sum(abs(add-nadd))>1d-7) then
         write(6,*)' drvmelp qdiff',qdiff
@@ -1296,7 +1296,7 @@ c-----------------------------------------------------
      &           ,   ngc,  nadd,
      &       geig1(1:ngp1,itp0(1:ntp0)), ntp0,  ! q1=q    ---> iq ngp1 1:ntp0 q-point
      &       geig2(1:ngp2,itp0(1:nt0)), nt0,     ! q2=q-rk ---> kp ngp2 1:nt0  occupied                        
-     i       shtv, matmul(symope,qik),qik, symope, qbas, qt, !qt is dummy...
+     i       shtv, matmul(symope,qik),qik, symope, qlat, qt, !qt is dummy...
      o       zmelpl)
       zmelt=0d0
        zmelt(1:nbloch, 1:nctot+nt0, 1:ntp0) = dcmplx

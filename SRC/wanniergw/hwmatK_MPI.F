@@ -42,7 +42,7 @@ c This hsfp0 is build from hsec10.f by F.Aryasetiawan.
 c------------------------------------------------------------
       use m_readqg,only: Readngmx2,ngcmx,ngpmx,Readqg0,Readqg
       use m_hamindex,only:   Readhamindex,symgg=>symops,ngrp,invg=>invgx
-      use m_read_bzdata,only: Read_bzdata,qibz,irk,ginv,n1,n2,n3,nqbz,nqibz,nstar,nstbz,qbas,qbz,wibz,wbz
+      use m_read_bzdata,only: Read_bzdata,qibz,irk,ginv,n1,n2,n3,nqbz,nqibz,nstar,nstbz,qbas=>qlat,qbz,wibz,wbz
       use m_readeigen,only: onoff_write_pkm4crpa,init_readeigen,init_readeigen2,
      &     init_readeigen_mlw_noeval,init_readeigen_phi_noeval,  nwf
       use m_genallcf_v3,niwg=>niw

@@ -531,19 +531,19 @@ cccccccccccccc
          write(6,"(i4)",advance="no") ikp
          if(mod(ikp,10)==0) write(6,"(a,i4,a)") "  : ",idnint((dble(ikp)/dble(nkp)*1d2))," %"
          
-         if(debug)then
-            allocate(evl(1:NS),c_C(1:NS,1:NS))
-            if(epsovl<1.000001d-14) then !epsovl is the trancation to remove poor linear-dependency basis          
-               call zhev_tk2(NS,hamM,ovlM,NS,nev,evl,c_C,lprint,savez,getz,ifig)
-            else
-               call zhev_tk3(NS,hamM,ovlM,NS,nev,evl,c_C,lprint,savez,getz,ifig,epsovl)
-            endif
-            do i=1,nev
-               write(7777,"(2i4,4f13.7)") ikp,jsp,evl(i)
-            end do
-            write(7777,*) " "
-            deallocate(evl,c_C)
-         end if
+c$$$         if(debug)then
+c$$$            allocate(evl(1:NS),c_C(1:NS,1:NS))
+c$$$            if(epsovl<1.000001d-14) then !epsovl is the trancation to remove poor linear-dependency basis          
+c$$$               call zhev_tk2(NS,hamM,ovlM,NS,nev,evl,c_C,lprint,savez,getz,ifig)
+c$$$            else
+c$$$               call zhev_tk3(NS,hamM,ovlM,NS,nev,evl,c_C,lprint,savez,getz,ifig,epsovl)
+c$$$            endif
+c$$$            do i=1,nev
+c$$$               write(7777,"(2i4,4f13.7)") ikp,jsp,evl(i)
+c$$$            end do
+c$$$            write(7777,*) " "
+c$$$            deallocate(evl,c_C)
+c$$$         end if
          
 c         write(*,*) "jspin,jsp=",jspin,jsp
          do i=1,NS

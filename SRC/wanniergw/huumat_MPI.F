@@ -19,7 +19,7 @@ c-------------------------------------------------
       use m_hamindex,only:   Readhamindex,ngrp
       use m_readeigen,only:init_readeigen,init_readeigen2,readcphif,readgeigf,readeval
       use m_read_bzdata,only: read_bzdata,
-     & nqbz,nqibz,nqbzw,nteti,ntetf,qbas, ginv,
+     & nqbz,nqibz,nqbzw,nteti,ntetf,qbas=>qlat, ginv,
      & dq_,wbz,qibz,wibz,qbzw, qbz,
      & idtetf,ib1bz,idteti,
      & nstar,irk,nstbz

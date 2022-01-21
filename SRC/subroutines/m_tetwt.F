@@ -21,7 +21,7 @@
       use m_genallcf_v3,only: niw_in=>niw,ecore,nctot,nspin
       use m_freq,only: Getfreq2,
      &     frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,niw !output of getfreq
-      use m_read_bzdata,only: qbas,ginv, ntetf,idtetf,ib1bz,nqibz_mtet=>nqibz,
+      use m_read_bzdata,only: qlat,ginv, ntetf,idtetf,ib1bz,nqibz_mtet=>nqibz,
      &     nqbz,qbz,nqbzw,qbzw, !, qbzw,nqbzw,qbz, nqibz
      &     idtetf,ib1bz, qbzw,nqbzw !for tetrahedron
       use m_ReadEfermi,only: ef
@@ -53,11 +53,11 @@
 !! output data in returened in the module variables above.
 
 !! we assume read_bzdata is called already
-c      use m_read_bzdata,only: qbas,ginv, ntetf,idtetf,ib1bz !, qbzw,nqbzw,qbz, nqibz
+c      use m_read_bzdata,only: qlat,ginv, ntetf,idtetf,ib1bz !, qbzw,nqbzw,qbz, nqibz
 
 c      use m_readeigen,only:   readeval !we assume init_readeval is called already
 c      use m_genallcf_v3,only: ecore,nctot    !we assume genallcf_v3 called already.
-c      use m_read_bzdata,only: nqbz,qbas,ginv,nqbzw,nteti,ntetf,idtetf,qbzw,ib1bz,nqibz,qbz
+c      use m_read_bzdata,only: nqbz,qlat,ginv,nqbzw,nteti,ntetf,idtetf,qbzw,ib1bz,nqibz,qbz
 c      use m_freq,only:                   !we assume getfreq is called already.
 c     &   frhis, nwhis,npm !output of getfreq
 c      use m_zmel,only: nband
@@ -65,7 +65,7 @@ c      use m_ReadEfermi,only: readefermi,ef
 
       integer:: is,isf,iq,nwgt(:),nband
 c      integer:: ntetf,idtetf(0:3,ntetf),ib1bz(nqbzw)
-      real(8):: q(3) !,qbas(3,3),ginv(3,3),ef,qbz(3,nqbz),qbzw(3,nqbzw),ebmx
+      real(8):: q(3) !,qlat(3,3),ginv(3,3),ef,qbz(3,nqbz),qbzw(3,nqbzw),ebmx
       real(8):: ekxx1(nband,nqbz),ekxx2(nband,nqbz) !qbzw(:,: )
 c      real(8):: frhis(1:nwhis+1),ecore(nctot,2)
       real(4),allocatable :: demin(:,:,:,:),demax(:,:,:,:)
@@ -130,7 +130,7 @@ c      print *,'nqbz,nqbzw,nteti,ntetf,nqibz_mtet=',nqbz,nqbzw,nteti,ntetf,nqibz
          if(wan) wan1=.true.
       endif   
       call tetwt5x_dtet4(npm,ncc,  
-     i q, ekxx1, ekxx2, qbas,ginv,ef, 
+     i q, ekxx1, ekxx2, qlat,ginv,ef, 
      d ntetf,nqbzw, nband,nqbz,
      i nctot,ecore_(1,is),idtetf,qbzw,ib1bz, 
      i job,
@@ -249,7 +249,7 @@ C     --- METHOD (tetwt5) for the tetrahedron weight
          if(wan) wan1=.true.
       endif   
       call tetwt5x_dtet4(  npm,ncc, 
-     i q, ekxx1, ekxx2, qbas,ginv,ef, 
+     i q, ekxx1, ekxx2, qlat,ginv,ef, 
      d ntetf,nqbzw, nband,nqbz,
      i nctot,ecore_(1,is),idtetf,qbzw,ib1bz, 
      i job,

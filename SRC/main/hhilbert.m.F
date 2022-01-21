@@ -17,7 +17,7 @@
       use m_hamindex,only:   Readhamindex
       use m_readeigen,only: Init_readeigen,Init_readeigen2,Readeval
       use m_read_bzdata,only: Read_bzdata, !<--- 'call read_bzdata' sets up following data.
-     &   ngrp2=>ngrp,nqbz,nqibz,n1,n2,n3,qbas,ginv,
+     &   ngrp2=>ngrp,nqbz,nqibz,n1,n2,n3,ginv,
      &   dq_,qbz,wbz,qibz,wibz,
      &     ntetf,idtetf,ib1bz, qbzw,nqbzw !for tetrahedron
 c     &     idteti, nstar,irk,nstbz

@@ -8,7 +8,7 @@
       use m_hamindex,only:   Readhamindex
       use m_readeigen,only: Readeval,Init_readeigen,Init_readeigen2
       use m_read_bzdata,only: Read_bzdata,
-     &     ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv,
+     &     ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,ginv,
      &     dq_,qbz,wbz,qibz,wibz,qbzw,
      &     idtetf,ib1bz,idteti,
      &     nstar,irk,nstbz

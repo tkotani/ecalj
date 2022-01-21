@@ -91,7 +91,7 @@ c
       complex(8),allocatable:: geig_d(:,:,:,:)
 c      real(8),allocatable :: qirr(:,:)
       logical,protected:: laf   !! - laf: antiferro switch
-      integer:: ngcmx,nqnum,nqnumc,nqtt,nq0i,iq0pin,nq0iadd,nqbz,nqibz
+      integer,protected:: ngcmx,nqnum,nqnumc,nqtt,nq0i,iq0pin,nq0iadd,nqbz,nqibz,nqbzx
       real(8):: QpGcut_psi,QpGcut_cou
       real(8),allocatable :: wt(:),q0i(:,:)
       integer,allocatable,target:: ngvecptt(:,:,:),ngvecctt(:,:,:),ngptt(:),ngctt(:)
@@ -103,7 +103,7 @@ c      real(8),allocatable :: qirr(:,:)
       character*256,allocatable:: extp(:)
       integer,allocatable:: iprocq(:,:)
       integer:: nqirr     ! = Number of q points for irr=1 (see m_qplist, output of qg4gw).
-      real(8),allocatable :: qibz(:,:)
+      real(8),allocatable,protected :: qibz(:,:)
 
       contains
       subroutine lmf2gw()
@@ -129,7 +129,7 @@ c------------------------------------------------------------------
      .ncore,ndimh,ngp,nnc,nspdummy,IKP,NR_A !takao feb2012 ngc,ngcmx,
       real(8) qlat(3,3),ovv(20),ef0,z,a_a,b_a,rofi_anr
       character*120  ext0*256, ext*256
-      real(8):: qqq(3),qxx(3)
+      real(8):: qqq(3),qxx(3), vvvv(18)
       integer:: ifi,ifefclass,icors(2)
       complex(8),allocatable:: zegf(:,:) ,geig(:,:)
       complex(8),allocatable:: cphi(:,:)
@@ -144,7 +144,7 @@ c------------------------------------------------------------------
 c----------------------------------------------
       integer:: ificg
       integer:: procid,nrank,ifigwb_,ifigwx1_,ifigwx2_
-      integer:: iq,iqq,iqqx
+      integer:: iq,iqq,iqqx,nxxx,ifibz
       character*256:: extn,aaa,fname
       integer,parameter :: nsize= 1 000 000
       integer:: ifiproc,nqixx,nspxx,numprocxx,ixxx,ifiqibz
@@ -337,12 +337,19 @@ c$$$     &          gx_d(nr_A,l,3,ic,isp), ovv(6),ovv(4),ovv(5)
       close(ifiqgc)
       write(6,*)'QpGcut_psi QpGcutCou =',QpGcut_psi,QpGcut_Cou 
 !---------
-!!    Readin qibz form QIBZ
-      open(newunit=ifiqibz, file='QIBZ',form='unformatted') !write q-points in IBZ.
-      read (ifiqibz) nqibz
-      allocate(qibz(3,nqibz))
-      read(ifiqibz) qibz(1:3,1:nqibz)
-      close(ifiqibz)
+!     !    Readin qibz form QIBZ
+      open(newunit=ifibz, file='BZDATA',form='unformatted') !write q-points in IBZ.
+      read(ifibz) nqbzx,nqibz
+      allocate(  qibz(3,nqibz))
+      read(ifibz) qibz(1:3,1:nqibz)
+      close(ifibz)
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc!
+c      open(newunit=ifiqibz, file='QIBZ',form='unformatted') !write q-points in IBZ.
+c      read (ifiqibz) nqibz
+cc      allocate(qibz(3,nqibz))
+c      read(ifiqibz) qibz(1:3,1:nqibz)
+c      close(ifiqibz)
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc!
       write(6,"( ' --- Readin QIBZ --- ')")
       write(6,'("  qibz=",i3,3f12.5)')(i,qibz(1:3,i),i=1,nqibz)
 !!

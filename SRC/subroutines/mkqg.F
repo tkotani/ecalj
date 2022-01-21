@@ -163,30 +163,21 @@ c      if(sum(abs(ginv-transpose(plat)))       >tolq()) call rx('ginv=transpose(
       call Getbzdata1(qlatbz,nnn,symops,ngrp,tetrai,tetraf,mtet,gammacellctrl) !all inputs
 !! Write BZDATA
       print *,' Writing BZDATA...'
-      open (newunit=ifbz, file='BZDATA')
-      write(ifbz,"(10i10)")  nqbz,nqibz, nqbzw, ntetf, nteti,ngrp !,nqibz_r
-      write(ifbz,"(10i10)")  nnn(1:3) !n1q,n2q,n3q
-      write(ifbz,"(3d24.16)") qlat,ginv!,qbasmc
-      do iqibz = 1,nqibz
-        write(ifbz,"(4d24.16,i9)") qibz(1:3,iqibz),wibz(iqibz),nstar(iqibz)
-        write(ifbz,"(100i8)") irk(iqibz,1:ngrp)
-      enddo
-      do iqbz = 1,nqbz
-        write(ifbz,"(4d24.16,i10)") qbz(1:3,iqbz),wbz(iqbz),nstbz(iqbz)
-      enddo
-      if(ntetf>0) then
-        write(ifbz,"(4i10)") (idtetf(0:3,itet),itet=1,ntetf)
-        write(ifbz,"(i9,3d24.16)") (ib1bz(iqbz), qbzw(1:3,iqbz),iqbz=1,nqbzw)
-      endif
-      if(nteti>0) write(ifbz,"(5i10)") (idteti(0:4,itet),itet=1,nteti)
-      write(ifbz,"(3d24.16,' !dq_')") dq_
+      open (newunit=ifbz, file='BZDATA',form='unformatted')
+      write(ifbz) nqbz,nqibz, nqbzw, ntetf, nteti,ngrp,nnn ,qlat,ginv
+      write(ifbz) qibz(1:3,1:nqibz),wibz(1:nqibz),nstar(1:nqibz),irk(1:nqibz,1:ngrp)
+      write(ifbz) qbz(1:3,1:nqbz),wbz(1:nqbz),nstbz(1:nqbz)
+      write(ifbz) idtetf(0:3,1:ntetf)
+      write(ifbz) ib1bz(1:nqbzw), qbzw(1:3,1:nqbzw)
+      write(ifbz) idteti(0:4,1:nteti)
+      write(ifbz) dq_
       close(ifbz)
-!! Write QIBZ
-      write(6,*)' qibz are written in QIBZ file...'
-      open (newunit=ifiqibz, file='QIBZ',form='unformatted') !write q-points in IBZ.
-      write(ifiqibz) nqibz
-      write(ifiqibz) qibz(1:3,1:nqibz),wibz(1:nqibz)
-      close(ifiqibz)
+c!! Write QIBZ
+c      write(6,*)' qibz are written in QIBZ file...'
+c      open (newunit=ifiqibz, file='QIBZ',form='unformatted') !write q-points in IBZ.
+c      write(ifiqibz) nqibz
+c      write(ifiqibz) qibz(1:3,1:nqibz),wibz(1:nqibz)
+c      close(ifiqibz)
 !! Write QBZ
       open (newunit=ifiqbz, file='QBZ.chk') !write q-points in IBZ.
       write(ifiqbz,"(i10)") nqbz

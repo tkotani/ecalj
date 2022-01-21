@@ -18,7 +18,7 @@ c-------------------------------------------------
       use m_readeigen,only: Init_readeigen,Init_readeigen2,Readeval,Readcphif,Readgeigf
 
       use m_read_bzdata,only: read_bzdata,
-     & nqbz,nqibz,nqbzw,nteti,ntetf,qbas, ginv,
+     & nqbz,nqibz,nqbzw,nteti,ntetf,qbas=>qlat, ginv,
      & dq_,wbz,qibz,wibz,qbzw, qbz,
      & idtetf,ib1bz,idteti,
      & nstar,irk,nstbz

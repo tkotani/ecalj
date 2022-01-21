@@ -65,7 +65,7 @@
       use m_readeigen,only: INIT_READEIGEN,INIT_READEIGEN2,READEVAL,LOWESTEVAL
       use m_READ_BZDATA,only: READ_BZDATA,
      &     nqbz,nqibz,nqbzw,nteti,ntetf
-     &     ,n1,n2,n3,qbas,ginv,qbz,wbz,qibz,wibz,qbzw,idtetf,ib1bz,idteti
+     &     ,n1,n2,n3,ginv,qbz,wbz,qibz,wibz,qbzw,idtetf,ib1bz,idteti
      &     ,nstar,irk,nstbz
       use m_genallcf_v3,only: GENALLCF_V3,Setesmr,
      &     nclass,natom,nspin,nl,nn, 

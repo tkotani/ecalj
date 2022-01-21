@@ -636,7 +636,7 @@ c$$$      endif
      &           ,maxval(nxx(0:2*(nl-1))) ) )
       ppbrd =.9999999999999d99 !for safe
       filenamep = 'PPBRD_V2_'//char( 48+ic/10 )//char(48+mod(ic,10))
-      open(ifppb,file=trim(filenamep),form='unformatted')
+      open(newunit=ifppb,file=trim(filenamep),form='unformatted')
       write(ifppb) nblocha, 2*(nl-1), nxx(0:2*(nl-1))
       do isp= 1,nsp
         isp1=isp

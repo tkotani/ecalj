@@ -17,7 +17,7 @@ c-------------------------------------------------
       use m_readqg,only: Readngmx,ngcmx,Readqg0,Readqg
       use m_hamindex,only:   Readhamindex,ngrp
       use m_readeigen,only:init_readeigen,init_readeigen2,readcphif,readgeigf
-      use m_read_bzdata,only: Read_bzdata,qbz,nqbz,nqibz,nqbz,qbas
+      use m_read_bzdata,only: Read_bzdata,qbz,nqbz,nqibz,nqbz,qbas=>qlat
       use m_genallcf_v3,ncore2=>ncore,nrxx=>nrx
       use m_keyvalue,only: getkeyvalue
       use m_read_Worb,only: s_read_Worb, s_cal_Worb,

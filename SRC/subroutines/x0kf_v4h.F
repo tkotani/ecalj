@@ -4,7 +4,7 @@
       use m_zmel,only     : Get_zmel_init,Dconjg_zmel,Deallocate_zmel, zmel ,get_zmel_modex0, GramSchmidt_zmel,rwzmel
       use m_freq,only:  npm, nwhis
       use m_genallcf_v3,only:  nsp=>nspin ,nlmto,nctot
-      use m_read_bzdata,only:  nqbz,qbas,ginv,nqibz,  rk=>qbz,wk=>wbz
+      use m_read_bzdata,only:  nqbz,ginv,nqibz,  rk=>qbz,wk=>wbz
       use m_rdpp,only: nbloch
       use m_readqg,only: ngpmx,ngcmx
       use m_qbze,only: nqbze 
@@ -251,7 +251,7 @@ c        k = kc(icount)
         nqini= nkqmin_
 c        if(kold/=k .or. ispold/=isp_k .or. ispold2/=isp_kq ) then !.or. ispold2/=isp_kq) then  
            call Get_zmel_modex0(nkmin_,nkqmin_,isp_k,isp_kq)!oct-2021(nkmin(k),nkqmin(k),isp_k,isp_kq)
-           call Get_zmel_init(exchange, q+rk(:,k), q, irot, q, nxxxx, nkmax(k),nkqmax(k),nctot,ncc)
+           call Get_zmel_init(exchange, q+rk(:,k), q, irot, q, nxxxx, nkmax(k),nkqmax(k),nctot,ncc,iprx=.false.)
            call Dconjg_zmel()   !zmel = dconjg(zmel)
 c           write(6,*) 'k zmel writing...',iq,k,isp_k,isp_kq
            call rwzmel(iq,k,isp_k,isp_kq,'w')

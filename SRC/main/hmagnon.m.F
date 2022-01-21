@@ -14,7 +14,7 @@ c      use m_readqg,only: readqg,readngmx
       use m_readeigen,only: readeval,init_readeigen,init_readeigen2
       use m_hamindex,only:qtt,nqtt
       use m_read_bzdata,only: read_bzdata,
-     & nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv,
+     & nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,ginv,
      & dq_,qbz,wbz,qibz,wibz,qbzw,
      & idtetf,ib1bz,idteti,
      & nstar,irk,nstbz

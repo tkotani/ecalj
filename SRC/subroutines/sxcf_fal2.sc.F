@@ -5,7 +5,7 @@
       use m_zmel,only : Get_zmel_init, Setppovlz, Setppovlz_chipm, Deallocate_zmel, zmel
       use m_itq,only: itq,ntq
       use m_genallcf_v3,only: nlmto,nsp=>nspin,nctot,niw,ecore !,symgg
-      use m_READ_BZDATA,only: qbas,ginv,nstbz,qibz,qbz,wk=>wbz,nqibz,nqbz
+      use m_READ_BZDATA,only: ginv,nstbz,qibz,qbz,wk=>wbz,nqibz,nqbz
       use m_readVcoud,only:   Readvcoud, vcoud,vcousq,zcousq,ngb,ngc
       use m_readfreq_r,only: freq_r, nw_i,nw,freqx,wx=>wwx,nblochpmx
       use m_rdpp,only: Rdpp,    !"call rdpp" generate following data.
@@ -129,8 +129,8 @@
 !!   WVI, WVR: direct access files for W. along im axis (WVI) or along real axis (WVR)
 !!   freq_r(nw_i:nw)   = frequencies along real axis. freq_r(0)=0d0
 !!
-!!    qbas    = base reciprocal lattice vectors
-!!    ginv    = inverse of qbas s. indxrk.f
+!!    qlat    = base reciprocal lattice vectors
+!!    ginv    = inverse of qbas =transpose(plat)
 !!
 !!     wk     = weight for each k-point in the FBZ
 !!    qbz     = k-points in the 1st BZ
@@ -170,7 +170,7 @@
       integer :: invrot,nocc,nlmtobnd,nt0,verbose,ififr, istate,  nt_max ,noccx
       real(8) :: ekc(nctot+nband),ekq(nband), det, q(3),ua_
       real(8) :: expa_(niw), qxx(3), symope(3,3),shtv(3) 
-      real(8) :: wtt,wfac,we,esmrx,qbasinv(3,3)
+      real(8) :: wtt,wfac,we,esmrx
       real(8) :: qvv(3),eq(nband),omega(ntq),quu(3),freqw,ratio
       real(8) :: qibz_k(3),qbz_kr(3),vc,omega0,omg
       complex(8) :: zwzs0,zz2,zwz3(3)

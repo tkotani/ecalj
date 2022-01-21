@@ -23,14 +23,14 @@
 !      open(newunit=ifigwin,file='LMTO',form='unformatted')
       program rdata4gw_v2
       use m_lmf2gw,only:Lmf2gw, nindx,lindx,ibasindx,nbandmx,nphimx,
+     &  qibz,nqibz ,
      &  nsp,nbas,nclass,ncoremx,lmxamx,ldim2,
      &  iantiferro,spid,iclass,lmxa=>lmxa_d,nr,konf=>konf_d,ncore=>ncore_d,
      &  zz,aa,bb,ec=>ec_d, gx_raw=>gx_d,gcore=>gcore_d,plat, alat, efermi,
      &  bas,laf,ibasf,nqbz,!n1q,n2q,n3q,
      &  nqnum,ngpmx,ngcmx,nqnumc,nqtt,nq0i,iq0pin,nq0iadd,
      &  QpGcut_psi,QpGcut_cou,qtt,
-     &   wt,q0i, ngvecptt,ngvecctt,ngptt,ngctt, ngplist,ndimhall,iqindex,qplist,extp,iprocq,nqirr,
-     &  qibz,nqibz 
+     &   wt,q0i, ngvecptt,ngvecctt,ngptt,ngctt, ngplist,ndimhall,iqindex,qplist,extp,iprocq,nqirr
 !xxx nphi,        ! number of augmentation nRl channels, as distinct from:
 ! ldim2,       ! number of nRLm channels = 2*ldim for phi+phidot case.
 ! nphimx       ! Maxmum number of phi for all l ---  2 for phi+phidot case.
@@ -812,13 +812,14 @@ c$$$        endif
       write(6,*)
       write(6,"('  ngrp   = ',i3)")ngrp
       write(6,'("  qibz=",i3,3f12.5)')(i,qibz(1:3,i),i=1,nqibz)
+
+c      stop 'vvvvvvvvvvvvvvvvvvvvvvvv'
 !!---
 c      open(newunit=ifnqibz,file='NQIBZ')
 c      write(ifnqibz,"(3i10,'  ! nqibz nq0i nqibz+nq0i+nq0iadd')") nqibz,nq0i,nqibz+nq0i+nq0iadd
 c      close(ifnqibz)
 !! === make <Gc-Gp1+Gp2> matrix ===
       iadd=0
-      if(ix==1) nqibz=0
       dQpG=0d0
       do iq0i =1,nq0i+nq0iadd
         abq0i= sum(q0i(1:3,iq0i)**2)**.5
@@ -894,7 +895,10 @@ c      close(ifnqibz)
              iqx=iqtt
              exit
           endif   
-        enddo   
+        enddo
+cccccccccccccccccccccccccc        
+        print *,'vvvvv',iqx,qx(:),qibze(:,iqi)
+ccccccccccccccccccccccccccc
         ngvecp =>ngvecptt(1:3,1:ngptt(iqx),iqx)
         ngvecc =>ngvecctt(1:3,1:ngctt(iqx),iqx)
         ngp=ngptt(iqx)
