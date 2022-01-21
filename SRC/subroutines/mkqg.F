@@ -164,17 +164,6 @@ c      if(sum(abs(ginv-transpose(plat)))       >tolq()) call rx('ginv=transpose(
          tetraf=.false.
       endif
       call Getbzdata1(qlatbz,nnn,symops,ngrp,tetrai,tetraf,mtet,gammacellctrl) !all inputs
-!! Write BZDATA
-      print *,' Writing BZDATA...'
-      open (newunit=ifbz, file='BZDATA',form='unformatted')
-      write(ifbz) nqbz,nqibz, nqbzw, ntetf, nteti,ngrp,nnn ,qlat,ginv
-      write(ifbz) qibz(1:3,1:nqibz),wibz(1:nqibz),nstar(1:nqibz),irk(1:nqibz,1:ngrp)
-      write(ifbz) qbz(1:3,1:nqbz),wbz(1:nqbz),nstbz(1:nqbz)
-      write(ifbz) idtetf(0:3,1:ntetf)
-      write(ifbz) ib1bz(1:nqbzw), qbzw(1:3,1:nqbzw)
-      write(ifbz) idteti(0:4,1:nteti)
-      write(ifbz) dq_
-      close(ifbz)
 c!! Write QIBZ
 c      write(6,*)' qibz are written in QIBZ file...'
 c      open (newunit=ifiqibz, file='QIBZ',form='unformatted') !write q-points in IBZ.
@@ -238,7 +227,29 @@ c      close(ifiqibz)
          close(ifi00)
       endif   
 !!
-         if (lmagnon) return    !! exit because we get QforEPSL data (21 Feb, 2020)
+!! Write BZDATA
+      print *,' Writing BZDATA...'
+      open (newunit=ifbz, file='BZDATA',form='unformatted')
+      write(ifbz) nqbz,nqibz, nqbzw, ntetf, nteti,ngrp,nnn ,qlat,ginv
+      write(ifbz) qibz(1:3,1:nqibz),wibz(1:nqibz),nstar(1:nqibz),irk(1:nqibz,1:ngrp)
+      write(ifbz) qbz(1:3,1:nqbz),wbz(1:nqbz),nstbz(1:nqbz)
+      write(ifbz) idtetf(0:3,1:ntetf)
+      write(ifbz) ib1bz(1:nqbzw), qbzw(1:3,1:nqbzw)
+      write(ifbz) idteti(0:4,1:nteti)
+      write(ifbz) dq_
+      write(ifbz) iq0pin,nq0i,iq0pin,nq0iadd
+      write(ifbz) wt(1:nq0i+nq0iadd),q0i(1:3,1:nq0i+nq0iadd)
+      if(iq0pin==1) then
+         write(ifbz) ixyz(1:nq0i+nq0iadd)
+         write(ifbz) lxklm
+         write(ifbz) dmlx(1:nq0i,1:9), epinv(1:3,1:3,1:nq0i), epinvq0i(1:nq0i,1:nq0i)
+         write(ifbz) wklm(1:(lxklm+1)**2)
+      elseif(iq0pin==2) then
+         write(ifbz) epslgroup(1:nq0i)
+      endif
+      close(ifbz)
+!!
+      if (lmagnon) return       !! exit because we get QforEPSL data (21 Feb, 2020)
       
 !! Four kinds of mesh points setting. Q0P means offset Gamma (slightly different from Gamma).
 !! Which we need?
