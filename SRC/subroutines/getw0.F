@@ -1,5 +1,6 @@
       subroutine getw0(llw,ii,ie,nq0i,dmlx,epinvq0i,wklm,wbz,lmxax,q0i,epinv, w0,llmat)
-!! == Obtain effective screened Coulomnb interaction W-V at q=0 ==
+!! == Obtain effective screened Coulomnb interaction W-V(q,omega) at q=0 ==
+!! Roughly speaking, we average out W-V in the gamma cell (=microcell including Gamma point).
 !! Output
 !!     w0(ii:ie), others are inputs.
 !! INPUT
@@ -10,29 +11,18 @@
       real(8),intent(in)::  epinvq0i(nq0i,nq0i),dmlx(nq0i,9), wklm((lmxax+1)**2),wbz,epinv(3,3,nq0i),q0i(3,nq0i)
       complex(8),intent(in):: llw(ii:ie,nq0i)
       complex(8),intent(out):: w0(ii:ie),llmat(3,3)
-!!
       integer:: lm,lm1,lm2,nlklm,iw,ll,lm1x,lm2x
       complex(8):: llwyl(9,ii:ie),llw_invr(ii:ie,1:nq0i)
       real(8):: epinvq0i_m1(nq0i,nq0i)
-      real(8)::  cg((lmxax+1)**2,(lmxax+1)**2,(2*lmxax+1)**2)
+      real(8),allocatable::  cg(:,:,:)
       complex(8)::   cgllw((lmxax+1)**2,(lmxax+1)**2),sss,sss2
-      real(8):: fpi,pi,r2s,emat(3,3),rrr(3),qnorm2(nq0i),ylm,rrr2(3)
-      integer:: nlmm,lx,iq0i,iq0x, i
+      real(8):: r2s,emat(3,3),rrr(3),qnorm2(nq0i),ylm,rrr2(3)
+      integer:: nlmm,lx,iq0i,iq0x, i,lxx
       real(8),allocatable:: cy(:),yl(:),yl2(:)
-!!
-      pi  = 4d0*datan(1d0)
-      fpi = 4d0*pi
+      real(8),parameter:: pi  = 4d0*datan(1d0),fpi = 4d0*pi
+      write(6,"(' getw0 start:',4i3,d13.6)") nq0i,lmxax,ii,ie,sum(abs(llw(ii:ie,1:nq0i)))
       nlklm=(lmxax+1)**2
       epinvq0i_m1=epinvq0i
-c      write(6,"(' getw0 start1:',4i3,d13.6)") nq0i,lmxax,ii,ie
-      write(6,"(' getw0 start:',4i3,d13.6)") nq0i,lmxax,ii,ie,sum(abs(llw(ii:ie,1:nq0i)))
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c      nlm=(lmxax+1)**2
-c      do lm=1,nlm
-c        if(abs(wklm(lm))>1d-10) write(6,*)lm,ll(lm),wklm(lm)
-c      enddo
-c      stop 'test end vvvvvvvvvvvvvvvvvvvvvv'
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call matinv(nq0i,epinvq0i_m1)
       llwyl=0d0
       do iw= ii,ie
@@ -43,9 +33,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         do lm=5,9
           llwyl(lm,iw)= sum(dmlx(1:nq0i,lm)*llw_invr(iw,1:nq0i))
         enddo
-c   write(*,"('qqq iw llw',i3,3(2d12.4,x),3x,20(2d12.4,2x))")iw,llw(iw,1:nq0i),llwyl(1,iw),llwyl(5:9,iw)
       enddo
-
 !! omega=0 3x3 matrix, only when ii<= 0 <= nw (only when incluging iw=0 for omega=0)
       if(ii<=0) then
          iw=0
@@ -54,8 +42,9 @@ c   write(*,"('qqq iw llw',i3,3(2d12.4,x),3x,20(2d12.4,2x))")iw,llw(iw,1:nq0i),l
             llmat(1:3,1:3) = llmat(1:3,1:3) + llw_invr(iw,iq0i)*epinv(1:3,1:3,iq0i)
          enddo
       endif
-
-      call rotcg(lmxax,(/1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0/),1,cg) !no rotation
+      lxx=max(lmxax,2)
+      allocate( cg((lxx+1)**2,(lxx+1)**2,(2*lxx+1)**2))
+      call rotcg(lxx,(/1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0/),1,cg) !no rotation
 
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$      lx=2
@@ -110,7 +99,6 @@ c$$$      rrr=rrr/sqrt(sum(rrr**2))
 c$$$      call sylm(rrr,yl,lx,r2s) !spherical factor Y( q+G )
 c$$$      write(*,"(  ' test input: q=',3f10.5)") rrr
 
-!! ---
       w0=0d0
       do iw =ii,ie
         lm2x=0
@@ -125,7 +113,6 @@ c$$$      write(*,"(  ' test input: q=',3f10.5)") rrr
             cgllw(lm1x,lm2x) = cg(lm2,1,lm1)*llwyl(1,iw) + sum(cg(lm2,5:9,lm1)*llwyl(5:9,iw))
           enddo
         enddo
-
 !! === inversion of 1 = \sum_L1 llwyl(L1)Y_L1 * \sum_L2 K_L2 Y_L2===
 !! Both sides are multipled by Y_L and spherically integraled.
 !! warn: Klm should be not confused with wklm
@@ -143,9 +130,7 @@ c$$$      write(*,"(  ' test input: q=',3f10.5)") rrr
           if(lm1==1) w0(iw)= w0(iw) - wklm(lm1)*fpi**1.5d0/wbz   ! fpi**1.5 --> subtract Coulomb
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c          w0(iw)= wklm(1)*fpi**1.5*(1d0/llw(iw,1)-1d0)/wbz !test case of llw at q0i(:,iq0i=1).
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         enddo
-
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$        lx=lmxax
 c$$$        write(6,*)' lx=',lx
@@ -174,5 +159,6 @@ c$$$      stop ' --- test3 ttt vvvvvvvvvvvvvvvvv test end vvvvvvvvvvvvvvvvv ---'
 c$$$      do iw=ii,ie
 c$$$        write(6,"('w0 & w0(1:nq0i)=',2d11.3,10(1x,2d11.3))")
 c$$$     &  w0(iw), (wklm(1)*fpi**1.5*(1d0/llw(iw,iq0i)-1d0)/wbz,iq0i=1,nq0i)
-c$$$      enddo
+c$$$  enddo
+      deallocate(cg)
       end

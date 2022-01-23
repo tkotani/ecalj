@@ -1,16 +1,25 @@
       module m_q0p 
-!> Q0P (offset Gamma points) generator
+!> Q0P (offset Gamma points) and thir weight generator.
 !! All of them are outputs when getq0p is called.
 !! Read GWinput
 !! Write Q0P: Q0P contains offset Gamma, or k points specified in GWinput
 !!       EPSwklm: Sperical integration weitht. But currently only l=0 is used to keep positive definitness.
+!!note
+!! TKkotani think anisotropic treatment in Computer Phys. Comm 176(1007)1-13 
+!! (in our version with auxially function) can be numerically prorematic.
+!! We now take wklm for l=0 only because I observed high wklm(lm) components 
+!! can be negative--->it may cause numerical error.
+!! 
+!! From the begining, we can only excpect "virtual convergence on Nz" for 
+!! NxNyNz for Si100 slab model in the paper.
+!! (I still not understand why it does not show divergent behevior in the anisotropic case).
 !!
       implicit none
       integer,protected:: nq0i,nq0itrue,nq0iadd ! Number of Q0P
       integer,protected,allocatable:: ixyz(:)  ! ixyz(1:nq0i+nq0iadd) q0i for x,y,z directions
       real(8),allocatable,protected:: q0i(:,:),wt(:) ! Q0P and its weight.
       integer,allocatable,public,protected:: epslgroup(:) !EPSwklm
-      integer,public,protected:: lxklm=6                  !EPSwklm
+      integer,public,protected:: lxklm=0                  !EPSwklm
       real(8),allocatable,public,protected:: epinv(:,:,:),wklm(:), dmlx(:,:), epinvq0i(:,:) !EPSwklm
       public:: Getallq0p
 
@@ -432,15 +441,6 @@ c          nnnt=n1q*n2q*n3q
           call getwklm(alat,voltot,plat,qlat,alp,qbz,nqbz,ngcx,ngcxx,
      &       ngvect,lxklm,nnn(1),nnn(2),nnn(3),
      o       wklm)
-!! Takao think anisotropic treatment in Computer Phys. Comm 176(1007)1-13 
-!! (in our version with auxially function) can be numerically prorematic.
-!! We only keep wklm only up to l=2. (I observed high wklm(lm) components 
-!! are largely negative --->it may cause numerical error; I now use only l=0)
-!! 
-!! From the begining, we can only excpect "virtual convergence on Nz" for 
-!! NxNyNz for Si100 slab model in the paper.
-!! (I still not understand why it does not show divergent behevior in the anisotropic case).
-!!
 c     print *,' set wklm=0 for l>2. But lxklm(for inversion of epsioln)=',lxklm
           do i=1,(lxklm+1)**2
             if(abs(wklm(i))>1d-6 ) write(6,'("  l lm Wklm=",2i3,f9.4)')llxxx(i),i,wklm(i)
