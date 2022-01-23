@@ -658,13 +658,13 @@ c number of l,n,m
     1 continue
       return
       end
-
       end module m_genallcf_v3
 
       
 !------------------------    
       module m_readhbe
-      integer,protected:: nprecb,mrecb,mrece,nlmtot,nqbzt,mrecg,nband
+      integer,protected:: nprecb,nlmtot,nqbzt,nband
+      integer:: mrecb,mrece,mrecg !these can not be protected because of bug of ifort?
 c      integer:: nband !not yet protected!
       contains
       subroutine readhbe()

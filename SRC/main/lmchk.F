@@ -41,5 +41,4 @@
       call m_MPItk_finalize()
       if(master_mpi) write(6,"(a)") "OK! end of "//trim(prgnam)//" ======================"
       call Exit(0)
-      call finalizelmv7()
       end program Lmchk
