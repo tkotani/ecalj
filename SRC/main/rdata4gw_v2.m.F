@@ -183,17 +183,6 @@ c     &     , checkdia=.true.    !only write normchk.dia This is relevant only f
       call lmf2gw() !set variables, and CphiGeig
       call read_bzdata()
       if(verbose()>50 ) debug=.true.
-c$$$      mmm=normcheck()
-c$$$      if(mmm==0) then
-c$$$        checknorm=.false.
-c$$$      elseif(mmm==1) then
-c$$$        checknorm=.true.
-c$$$        checkdia=.true.
-c$$$      elseif(mmm==2) then
-c$$$        checknorm=.true.
-c$$$        checkdia=.false.
-c$$$      endif
-      
       allocate(vkonf(0:lmxamx,nclass), ovv(nphimx,nphimx,0:lmxamx, nclass,nsp) )
       allocate(lmxaa(1:nbas))
       lmxaa(1:nbas) = lmxa(iclass(1:nbas))
@@ -202,7 +191,7 @@ c$$$      endif
       nxx= -999; lxx= -999; ibxx=-999
       allocate(nrad(nbas), nindx_r(ldim2,nbas),lindx_r(ldim2,nbas))
       nrad = 0
-      open(newunit=ifnlax,file='@MNLA_core')
+      open(newunit=ifnlax,file='@MNLA_core.chk')
       write(ifnlax,"(a)") '    m    n    l  icore ibas   ' ! Index for core
       write(ifnlax,'(" ------- core ------------")')
       inum = 0
@@ -309,10 +298,7 @@ c$$$      endif
           enddo
         enddo
       enddo
-      if(ix/=ldim2) then
-        print *,ix,ldim2
-        call rx( 'rdata4gw_v2:ix/=ldim2')
-      endif
+      if(ix/=ldim2) call rx( 'rdata4gw_v2:ix/=ldim2')
 !! --- Mesh refining  ! nov2005
 !     Get new
 !     nrmx, gx_raw, gcore, aa(ic),bb(ic),nr(ic)

@@ -127,7 +127,7 @@ c------------------------------------------------------------------
      .ifichkv,ifigw0,ifigwa,ifigwb,ifigwx1,ifigwx2,ifigwx3,isp,ispx,
      .ispxx,ix,kkk,kkkdummy,l,ldummy,lmxa,lxx,nclassx,m,n,
      .ncore,ndimh,ngp,nnc,nspdummy,IKP,NR_A !takao feb2012 ngc,ngcmx,
-      real(8) qlat(3,3),ovv(20),ef0,z,a_a,b_a,rofi_anr
+      real(8) ovv(20),ef0,z,a_a,b_a,rofi_anr
       character*120  ext0*256, ext*256
       real(8):: qqq(3),qxx(3), vvvv(18)
       integer:: ifi,ifefclass,icors(2)
@@ -159,7 +159,7 @@ c     n1q=nnn(1); n2q=nnn(2); n3q = nnn(3)
       allocate(bas(3,nbas),lmxaa(nbas),qplist(3,nqirr),ngplist(nqirr),ndimhall(nqirr))
       read(ifigwb) bas,lmxaa,qplist,ngplist,ndimhall
       close(ifigwb)
-      
+     
 c$$$!! NLAindx augmentation indexing !  call rdibasindx2(ldim2,nphi,nphimx,nindx,lindx,ibasindx,ifi)
 c$$$      open(newunit=ifi,file='NLAindx')
 c$$$      allocate(nindx(ldim2),lindx(ldim2),ibasindx(ldim2))
@@ -196,39 +196,11 @@ c$$$  enddo
       nphimx=nphimx_in
       allocate( iclass(nbas) )
       iclass=iclass_in
-c      write(6,'('' File CLASS:  nclass ='',i4)') nclass
       allocate(lmxa_d(nclass), nr(nclass), ncore_d(nclass), konf_d(0:lmxamx,nclass), zz(nclass),
      &  aa(nclass), bb(nclass) )
-c     rewind ifefclass
       do ibas=1,nbas
-c        read(ifefclass,*) ix,iclass(ibas)
         lmxa_d(iclass(ibas)) = lmxaa(ibas)
-c        write(6,*)'lllll',ibas,lmxaa(ibas),iclass(ibas)
       enddo
-c$$$  close(ifefclass)
-c$$$!! Get ext and extp(procid)
-c$$$      open(newunit=ifiproc,file= 'lmfgw_kdivider')
-c$$$      read(ifiproc,*) ext  !extension is read here
-c$$$      read(ifiproc,*) nqixx, nspxx, nrank
-c$$$      allocate(iprocq(nqixx,nspxx))
-c$$$      do isp=1,nspxx
-c$$$      do iqq=1,nqixx
-c$$$        read(ifiproc,*) iqqxx, ispxx, ixxx
-c$$$        if(iqqxx/=iqq) stop 'iqqxx/=iqq'
-c$$$        if(ispxx/=isp) stop 'ispxx/=isp'
-c$$$        iprocq(iqq,isp) = ixxx
-c$$$        write(6,"('iqq isp irank=',i8,i2,i6)") iqq,isp, iprocq(iqq,isp)
-c$$$      enddo
-c$$$      enddo
-c$$$      close(ifiproc)
-c$$$      allocate(extp(0:nrank-1))
-c$$$      extp(0) = trim(ext)
-c$$$      write(6,"('  0 ext= ',a,a)") trim(extp(0)),' ----------'
-c$$$      do procid=1,nrank-1
-c$$$        write(extn,"(i10)") procid
-c$$$        extp(procid)=trim(adjustl(ext))//'_'//trim(adjustl(extn))
-c$$$        write(6,"(i3,' ext= ',a,a)") procid,trim(extp(procid)),' ----------'
-c$$$      enddo
 !! ATOMIC PART ic = ibas scheme ==,  GET nrxx and ncoremx ----------------------
       open(newunit=ifigwa,file='gwa',form='unformatted')
       allocate(nncx(0:lmxamx,nbas),konf(lmxamx+1,nbas),spid(nbas))
@@ -293,6 +265,7 @@ c$$$     &          gx_d(nr_A,l,3,ic,isp), ovv(6),ovv(4),ovv(5)
         enddo
         deallocate(rofi_A,gcore_A,ec_A)
  3001 continue
+!!      
       allocate(iantiferro(nbas))
       read(ifigwa)iantiferro(1:nbas) !iantiferro may2015
       close(ifigwa)
@@ -336,30 +309,5 @@ c$$$     &          gx_d(nr_A,l,3,ic,isp), ovv(6),ovv(4),ovv(5)
       close(ifiqg)
       close(ifiqgc)
       write(6,*)'QpGcut_psi QpGcutCou =',QpGcut_psi,QpGcut_Cou 
-!---------
-c$$$!     !    Readin qibz form QIBZ
-c$$$      open(newunit=ifibz, file='BZDATA',form='unformatted') !write q-points in IBZ.
-c$$$      read(ifibz) nqbzx,nqibz
-c$$$      allocate(  qibz(3,nqibz))
-c$$$      read(ifibz) qibz(1:3,1:nqibz)
-c$$$      close(ifibz)
-c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc!
-c$$$c      open(newunit=ifiqibz, file='QIBZ',form='unformatted') !write q-points in IBZ.
-c$$$c      read (ifiqibz) nqibz
-c$$$cc      allocate(qibz(3,nqibz))
-c$$$c      read(ifiqibz) qibz(1:3,1:nqibz)
-c$$$c      close(ifiqibz)
-c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc!
-c$$$      write(6,"( ' --- Readin QIBZ --- ')")
-c$$$      write(6,'("  qibz=",i3,3f12.5)')(i,qibz(1:3,i),i=1,nqibz)
-c$$$!!
-c$$$      write(6,*)'reading QOP'
-c$$$      open (newunit=iq0p,file='Q0P')
-c$$$      read (iq0p,*) nq0i,iq0pin,nq0iadd
-c$$$      allocate( wt(nq0i+nq0iadd),q0i(1:3,nq0i+nq0iadd) )
-c$$$      do i=1,nq0i+nq0iadd
-c$$$         read (iq0p,*) wt(i),q0i(1:3,i)
-c$$$      enddo
-c$$$      close(iq0p)
       end subroutine lmf2gw
       end module m_lmf2gw

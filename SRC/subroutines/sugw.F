@@ -323,8 +323,11 @@ c      integer,allocatable:: igv2(:,:)
             deallocate(rofi,rwgt,gcore,gval)
          endif
       enddo
-      if(master_mpi) write(ifigwa) iantiferro(1:nat) !iantiferro may2015
-      if(master_mpi) close(ifigwa) !call fclr('gwa',ifigwa)
+      if(master_mpi) then
+         write(ifigwa) iantiferro(1:nat) !iantiferro may2015
+         close(ifigwa)
+      endif
+      
 !     ndham= maxval(ndimhall) !some inconsistency if we assume this.
 !      See npwpad in suham.F I think npwpad=0 if essentially ok. but current version cause inconsistency.
       if(master_mpi) then
