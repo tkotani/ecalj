@@ -100,8 +100,8 @@ c      real(8),allocatable :: qirr(:,:)
       integer,allocatable:: ngplist(:),ndimhall(:),iqindex(:)
       real(8),allocatable:: qplist(:,:)
 
-      character*256,allocatable:: extp(:)
-      integer,allocatable:: iprocq(:,:)
+c      character*256,allocatable:: extp(:)
+c      integer,allocatable:: iprocq(:,:)
       integer:: nqirr     ! = Number of q points for irr=1 (see m_qplist, output of qg4gw).
       real(8),allocatable,protected :: qibz(:,:)
 
@@ -206,29 +206,29 @@ c        read(ifefclass,*) ix,iclass(ibas)
 c        write(6,*)'lllll',ibas,lmxaa(ibas),iclass(ibas)
       enddo
 c$$$  close(ifefclass)
-!! Get ext and extp(procid)
-      open(newunit=ifiproc,file= 'lmfgw_kdivider')
-      read(ifiproc,*) ext  !extension is read here
-      read(ifiproc,*) nqixx, nspxx, nrank
-      allocate(iprocq(nqixx,nspxx))
-      do isp=1,nspxx
-      do iqq=1,nqixx
-        read(ifiproc,*) iqqxx, ispxx, ixxx
-        if(iqqxx/=iqq) stop 'iqqxx/=iqq'
-        if(ispxx/=isp) stop 'ispxx/=isp'
-        iprocq(iqq,isp) = ixxx
-        write(6,"('iqq isp irank=',i8,i2,i6)") iqq,isp, iprocq(iqq,isp)
-      enddo
-      enddo
-      close(ifiproc)
-      allocate(extp(0:nrank-1))
-      extp(0) = trim(ext)
-      write(6,"('  0 ext= ',a,a)") trim(extp(0)),' ----------'
-      do procid=1,nrank-1
-        write(extn,"(i10)") procid
-        extp(procid)=trim(adjustl(ext))//'_'//trim(adjustl(extn))
-        write(6,"(i3,' ext= ',a,a)") procid,trim(extp(procid)),' ----------'
-      enddo
+c$$$!! Get ext and extp(procid)
+c$$$      open(newunit=ifiproc,file= 'lmfgw_kdivider')
+c$$$      read(ifiproc,*) ext  !extension is read here
+c$$$      read(ifiproc,*) nqixx, nspxx, nrank
+c$$$      allocate(iprocq(nqixx,nspxx))
+c$$$      do isp=1,nspxx
+c$$$      do iqq=1,nqixx
+c$$$        read(ifiproc,*) iqqxx, ispxx, ixxx
+c$$$        if(iqqxx/=iqq) stop 'iqqxx/=iqq'
+c$$$        if(ispxx/=isp) stop 'ispxx/=isp'
+c$$$        iprocq(iqq,isp) = ixxx
+c$$$        write(6,"('iqq isp irank=',i8,i2,i6)") iqq,isp, iprocq(iqq,isp)
+c$$$      enddo
+c$$$      enddo
+c$$$      close(ifiproc)
+c$$$      allocate(extp(0:nrank-1))
+c$$$      extp(0) = trim(ext)
+c$$$      write(6,"('  0 ext= ',a,a)") trim(extp(0)),' ----------'
+c$$$      do procid=1,nrank-1
+c$$$        write(extn,"(i10)") procid
+c$$$        extp(procid)=trim(adjustl(ext))//'_'//trim(adjustl(extn))
+c$$$        write(6,"(i3,' ext= ',a,a)") procid,trim(extp(procid)),' ----------'
+c$$$      enddo
 !! ATOMIC PART ic = ibas scheme ==,  GET nrxx and ncoremx ----------------------
       open(newunit=ifigwa,file='gwa',form='unformatted')
       allocate(nncx(0:lmxamx,nbas),konf(lmxamx+1,nbas),spid(nbas))

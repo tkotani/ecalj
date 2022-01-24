@@ -18,7 +18,7 @@ c      use m_mpi,only: MPI__AllreduceSum
      & isp,ixx,ixxx,nqixx,nspxx,ispxx,iqbz,i,igrp,iq
       character*256:: extn,ext
       character*256,allocatable:: extp(:)
-      integer,allocatable:: ifevec__(:),ifvxc__(:),iprocq(:,:)
+c      integer,allocatable:: ifevec__(:),ifvxc__(:),iprocq(:,:)
 
       integer:: nsym,nhdim,it,nblk,iband,napw,ldim,ierr,ispx,nbsize,nbsizemx
      & ,iblk1,iblk2,ii1,ii2,ie1,ie2,ne1,ne2,iqxx, ndimhx, nspx,nnnx
@@ -31,33 +31,33 @@ c      use m_mpi,only: MPI__AllreduceSum
       character(8):: xt
       write(6,*)'zsecsym:'
       allocate( zsect(ntq,ntq))
-!! === readin lmfgw_kdivider, and get extensions === apr2013
-      ifiproc=ifile_handle()
-      open(unit=ifiproc,file='lmfgw_kdivider',status='old')
-      read(ifiproc,*) ext
-      read(ifiproc,*) nqixx, nspxx, nrankv
-      if(allocated(iprocq)) deallocate(iprocq)
-      allocate(iprocq(nqixx,nspxx))
-      do isp=1,nspxx
-        do iqq=1,nqixx
-          read(ifiproc,*) iqqxx, ispxx, ixxx
-          if(iqqxx/=iqq) call rx( 'iqqxx/=iqq')
-          if(ispxx/=isp) call rx( 'ispxx/=isp')
-          iprocq(iqq,isp) = ixxx
-          write(6,"('iqq isp irank=',i8,i2,i6)") iqq,isp, iprocq(iqq,isp)
-        enddo
-      enddo
-      close(ifiproc)
+c$$$!! === readin lmfgw_kdivider, and get extensions === apr2013
+c$$$      ifiproc=ifile_handle()
+c$$$      open(unit=ifiproc,file='lmfgw_kdivider',status='old')
+c$$$      read(ifiproc,*) ext
+c$$$      read(ifiproc,*) nqixx, nspxx, nrankv
+c$$$      if(allocated(iprocq)) deallocate(iprocq)
+c$$$      allocate(iprocq(nqixx,nspxx))
+c$$$      do isp=1,nspxx
+c$$$        do iqq=1,nqixx
+c$$$          read(ifiproc,*) iqqxx, ispxx, ixxx
+c$$$          if(iqqxx/=iqq) call rx( 'iqqxx/=iqq')
+c$$$          if(ispxx/=isp) call rx( 'ispxx/=isp')
+c$$$          iprocq(iqq,isp) = ixxx
+c$$$          write(6,"('iqq isp irank=',i8,i2,i6)") iqq,isp, iprocq(iqq,isp)
+c$$$        enddo
+c$$$      enddo
+c$$$      close(ifiproc)
 !! for multiple files.
 c      if(allocated(extp)) deallocate(extp,ifvxc__,ifevec__)
-      allocate(extp(0:nrankv-1),ifvxc__(0:nrankv-1),ifevec__(0:nrankv-1))
-      extp(0) = trim(ext)
-      write(6,"('  0 ext= ',a,a)") trim(extp(0)),' ----------'
-      do procid=1,nrankv-1
-        write(extn,"(i10)") procid
-        extp(procid)=trim(adjustl(ext))//'_'//trim(adjustl(extn))
-        write(6,"(i3,' ext= ',a,a)") procid,trim(extp(procid)),' ----------'
-      enddo
+c$$$      allocate(extp(0:nrankv-1),ifvxc__(0:nrankv-1),ifevec__(0:nrankv-1))
+c$$$      extp(0) = trim(ext)
+c$$$      write(6,"('  0 ext= ',a,a)") trim(extp(0)),' ----------'
+c$$$      do procid=1,nrankv-1
+c$$$        write(extn,"(i10)") procid
+c$$$        extp(procid)=trim(adjustl(ext))//'_'//trim(adjustl(extn))
+c$$$        write(6,"(i3,' ext= ',a,a)") procid,trim(extp(procid)),' ----------'
+c$$$      enddo
 c      do procid=0,nrankv-1
 c        ifvxc__(procid) = ifile_handle()
 c        open( ifvxc__(procid), file='vxc'//extp(procid),form='unformatted')
@@ -184,10 +184,10 @@ c          close(ifvxc_)
           close(ifevec_)
  3030   continue                ! ispx
  3020 continue                  ! iq
-      do procid=0,nrankv-1
-        close(ifvxc__(procid) )
-        close(ifevec__(procid))
-      enddo
+c      do procid=0,nrankv-1
+c        close(ifvxc__(procid) )
+c        close(ifevec__(procid))
+c      enddo
       deallocate(iblki,iblke,evaliq)
-      deallocate(zsect,extp,ifevec__,ifvxc__,iprocq)
+      deallocate(zsect)
       end subroutine zsecsym

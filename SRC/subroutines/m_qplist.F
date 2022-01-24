@@ -275,32 +275,32 @@ c 1013       continue
       ispend = mod(iqse+1,nspx)+1
       write(stdo,'(a,i5, ", (",i5,i2,"), "," (",i5,i2,")")' )
      & 'm_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=', procid,iqini,ispini,iqend,ispend
-!!--- write lmfgw_divider ---------
-      icount = 0
-      do iprocid = 0,numprocs-1
-         do iqs     = kpproc(iprocid),kpproc(iprocid+1)-1
-            icount=icount+1
-            iqvec(icount) = iqs
-            if(nspx==2) iqvec(icount) =  (iqs+1)/nspx
-            ispin(icount) = mod(iqs+1,nspx)+1
-            iproc(icount) = iprocid
-         enddo
-      enddo
-      ncount=icount
-      do icount=1,ncount
-         iprocq(iqvec(icount),ispin(icount)) = iproc(icount)
-      enddo
-      if(master_mpi) then
-         open(newunit=ifiproc,file='lmfgw_kdivider')
-         write(ifiproc,"(a,'    ! extension ')") '.'//trim(sname)
-         write(ifiproc,"(3i10,'    ! nqi nspx numproc')") nkp, nspx, numprocs
-         do isp=1,nspx
-            do iqq=1,nkp        !nqi
-               write(ifiproc,"(3i9,'  ! iqq isp irank')") iqq, isp, iprocq(iqq,isp) 
-            enddo
-         enddo
-         close(ifiproc)
-      endif    
+c$$$!!--- write lmfgw_divider ---------
+c$$$      icount = 0
+c$$$      do iprocid = 0,numprocs-1
+c$$$         do iqs     = kpproc(iprocid),kpproc(iprocid+1)-1
+c$$$            icount=icount+1
+c$$$            iqvec(icount) = iqs
+c$$$            if(nspx==2) iqvec(icount) =  (iqs+1)/nspx
+c$$$            ispin(icount) = mod(iqs+1,nspx)+1
+c$$$            iproc(icount) = iprocid
+c$$$         enddo
+c$$$      enddo
+c$$$      ncount=icount
+c$$$      do icount=1,ncount
+c$$$         iprocq(iqvec(icount),ispin(icount)) = iproc(icount)
+c$$$      enddo
+c$$$      if(master_mpi) then
+c$$$         open(newunit=ifiproc,file='lmfgw_kdivider')
+c$$$         write(ifiproc,"(a,'    ! extension ')") '.'//trim(sname)
+c$$$         write(ifiproc,"(3i10,'    ! nqi nspx numproc')") nkp, nspx, numprocs
+c$$$         do isp=1,nspx
+c$$$            do iqq=1,nkp        !nqi
+c$$$               write(ifiproc,"(3i9,'  ! iqq isp irank')") iqq, isp, iprocq(iqq,isp) 
+c$$$            enddo
+c$$$         enddo
+c$$$         close(ifiproc)
+c$$$      endif    
       end subroutine
       end module m_qplist
 

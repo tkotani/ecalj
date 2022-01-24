@@ -29,7 +29,7 @@
      &  bas,laf,ibasf,nqbz,!n1q,n2q,n3q,
      &  nqnum,ngpmx,ngcmx,nqnumc,nqtt,
      &  QpGcut_psi,QpGcut_cou,qtt,
-     &   ngvecptt,ngvecctt,ngptt,ngctt, ngplist,ndimhall,iqindex,qplist,extp,iprocq,nqirr
+     &   ngvecptt,ngvecctt,ngptt,ngctt, ngplist,ndimhall,iqindex,qplist,nqirr
       use m_read_bzdata,only: Read_bzdata,
      &     nqibz,qibz, nq0i,nq0iadd,wt,q0i,iq0pin
       
