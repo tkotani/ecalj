@@ -704,9 +704,11 @@ c$$$      endif
       do 1200 iqq = 1,nqirr !irreducible points. At qirr, we calculated eigenfunctions.
         if(mod(iqq,10)==1.or.iqq>nqirr-5) write(6,*) ' iqq=',iqq
       do 1201 isp =1,nsp
-        fname='gwb'//trim(extp(iprocq(iqq,isp)))
-        inquire(file=trim(fname),opened=iopen,number=ifigwb_)
-        if(.not.iopen) open(newunit=ifigwb_,file=trim(fname),form='unformatted')
+         open(newunit=ifigwb_,file='gwb'//trim(xt(iqq))//trim(xt(isp)),form='unformatted')
+c        fname='gwb'//trim(extp(iprocq(iqq,isp)))
+c        inquire(file=trim(fname),opened=iopen,number=ifigwb_)
+c        if(.not.iopen) open(newunit=ifigwb_,file=trim(fname),form='unformatted')
+c        open(newunit=ifigwb_,file=trim(fname),form='unformatted')
         ndimh  =  ndimhall(iqq)
         ngp       =  ngplist(iqq)
         qirr(:,iqq)= qplist(:,iqq) 
@@ -744,7 +746,8 @@ c$$$               if(ib1/=ib2.and.checkdia) cycle
 c$$$               sumc(ib1,ib2,isp) = sum(dconjg(cphix(1:ldim2,ib1))*cphix(1:ldim2,ib2))
 c$$$             enddo
 c$$$           enddo
-c$$$        endif
+c$$$  endif
+        close(ifigwb_)
  1201   continue
 !!--- Plane wave part ---
         iqx=-99999

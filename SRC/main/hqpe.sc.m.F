@@ -14,12 +14,11 @@ c     xcLDA(k,t) = <psi(k,t)| vxc |psi(k,t)>
 c     SEx and xcLDA are in file SEX
 c     SEc is in file SEC
 c-----------------------------------------------------------------------
-      use m_keyvalue,only: getkeyvalue
-      use m_read_bzdata, only: read_bzdata, nstar, nqibz2=>nqibz
+      use m_keyvalue,only: Getkeyvalue
+      use m_read_bzdata, only: Read_bzdata, nstar, nqibz2=>nqibz
 !! laf is used (antiferro or not) after anfcond.
-      use m_anf,only: anfcond,
-     & laf
-
+      use m_anf,only: anfcond,laf
+      use m_hamindex,only: Readhamindex, nhq=>ndham
       implicit real*8 (a-h,o-z)
       implicit integer (i-n)
 c     local data
@@ -65,7 +64,7 @@ c----------------------------------------------
       real(8):: eseavrmean,eseadd,tolq=1d-8
       integer,allocatable:: nev(:,:)
       complex(8),allocatable:: ovl(:,:)
-
+      character(8):: xt
       hartree=2d0*rydberg()
 
 !! Shift quasiparticle energies (eV)
@@ -83,7 +82,7 @@ c      call headver('hqpe_sc',jin)
 !! antiferro or not. Only calculate up spin
 !! For AF case, we have laf=.true. and we have data set for 'call anfsig', stored in m_anf.
       call anfcond() 
-
+      call readhamindex()
 c$$$      inquire(file='ANFcond',EXIST=laf)
 c$$$      if(laf) then
 c$$$        ifianf = 211
@@ -137,7 +136,8 @@ c$$$      endif
 
       rewind (ifsex(1))
 
-c june209
+c     june209
+      write(6,*)'nq nspin=',nq,nspin
       allocate(eseavr(nq,nspin)) !,eseavr_in(nq,nspin))
 
 
@@ -183,7 +183,8 @@ c        read(ifse_out) nspin,ndimsigin,n1,n2,n3,nqx
       if(jin == -101) goto 9998
 
 c-----------reading self-energy mode parameter from file 'GWIN_V2'
-      call readd_iSigma_en(ifinin,iSigma_en) !sf..21May02
+c      call readd_iSigma_en(ifinin,iSigma_en) !sf..21May02
+      call getkeyvalue("GWinput","iSigMode",iSigma_en )
       if(isigma_en==5) then     !.or.core3ptest) then
 c     inquire(file='evec0',exist=evec0ex)
 cccccccccccccccccccccccccc
@@ -197,53 +198,57 @@ cccccccccccccccccccccccccc
         endif
       endif
 
-!! === readin lmfgw_kdivider, and get extensions === apr2013
-      ifiproc=ifile_handle()
-      open(unit=ifiproc,file='lmfgw_kdivider',status='old')
-      read(ifiproc,*) ext
-      read(ifiproc,*) nqixx, nspxx, nrank
-      allocate(iprocq(nqixx,nspxx))
-      do isp=1,nspxx
-      do iqq=1,nqixx
-        read(ifiproc,*) iqqxx, ispxx, ixxx
-        if(iqqxx/=iqq) call rx( 'iqqxx/=iqq')
-        if(ispxx/=isp) call rx( 'ispxx/=isp')
-        iprocq(iqq,isp) = ixxx
-        write(6,"('iqq isp irank=',i8,i2,i6)") iqq,isp, iprocq(iqq,isp)
-      enddo
-      enddo
-      close(ifiproc)
-!! for multiple files
-      allocate(extp(0:nrank-1),ifvxc__(0:nrank-1),ifevec__(0:nrank-1))
-      extp(0) = trim(ext)
-      write(6,"('  0 ext= ',a,a)") trim(extp(0)),' ----------'
-      do procid=1,nrank-1
-        write(extn,"(i10)") procid
-        extp(procid)=trim(adjustl(ext))//'_'//trim(adjustl(extn))
-        write(6,"(i3,' ext= ',a,a)") procid,trim(extp(procid)),' ----------'
-      enddo
-      do procid=0,nrank-1
-        ixx=ifile_handle()
-        open(ixx,file='vxc'//extp(procid),form='unformatted')
-        ifvxc__(procid)=ixx
-        ixx=ifile_handle()
-        open(ixx,file='evec'//extp(procid),form='unformatted')
-        ifevec__(procid)=ixx
-      enddo
+c$$$!! === readin lmfgw_kdivider, and get extensions === apr2013
+c$$$      ifiproc=ifile_handle()
+c$$$      open(unit=ifiproc,file='lmfgw_kdivider',status='old')
+c$$$      read(ifiproc,*) ext
+c$$$      read(ifiproc,*) nqixx, nspxx, nrank
+c$$$      allocate(iprocq(nqixx,nspxx))
+c$$$      do isp=1,nspxx
+c$$$      do iqq=1,nqixx
+c$$$        read(ifiproc,*) iqqxx, ispxx, ixxx
+c$$$        if(iqqxx/=iqq) call rx( 'iqqxx/=iqq')
+c$$$        if(ispxx/=isp) call rx( 'ispxx/=isp')
+c$$$        iprocq(iqq,isp) = ixxx
+c$$$        write(6,"('iqq isp irank=',i8,i2,i6)") iqq,isp, iprocq(iqq,isp)
+c$$$      enddo
+c$$$      enddo
+c$$$      close(ifiproc)
+c$$$!! for multiple files
+c$$$      allocate(extp(0:nrank-1),ifvxc__(0:nrank-1),ifevec__(0:nrank-1))
+c$$$      extp(0) = trim(ext)
+c$$$      write(6,"('  0 ext= ',a,a)") trim(extp(0)),' ----------'
+c$$$      do procid=1,nrank-1
+c$$$        write(extn,"(i10)") procid
+c$$$        extp(procid)=trim(adjustl(ext))//'_'//trim(adjustl(extn))
+c$$$        write(6,"(i3,' ext= ',a,a)") procid,trim(extp(procid)),' ----------'
+c$$$      enddo
+c$$$      do procid=0,nrank-1
+c$$$        ixx=ifile_handle()
+c$$$c        open(ixx,file='vxc'//extp(procid),form='unformatted')
+c$$$        ifvxc__(procid)=ixx
+c$$$        ixx=ifile_handle()
+c$$$c        open(ixx,file='evec'//extp(procid),form='unformatted')
+c$$$        ifevec__(procid)=ixx
+c$$$      enddo
+      
+      call read_BZDATA()
+      write(6,*)' read from bzdata nqibz2; nqibz nq nhq=',nqibz2,nq,nhq
 !!---------------------------------------------------------------------
-      ifvxc_ = ifvxc__(0)
-      ifevec_= ifevec__(0)
-      read(ifvxc_) ndimh, nsp,nnn !sf.beg
-      if(evec0ex) read(ifevec0) ndimhx0, nspx0,nnnx0
-      read(ifevec_) ndimhx, nspx,nnnx
-      nhq=ndimh
-
+c      ifvxc_ = ifvxc__(0)
+c      ifevec_= ifevec__(0)
+c      read(ifvxc_) ndimh, nsp,nnn !sf.beg
+c      if(evec0ex) read(ifevec0) ndimhx0, nspx0,nnnx0
+c      read(ifevec_) ndimhx, nspx,nnnx
+c      nhq=ndimhx
+      nsp=nspin
+      nnn=nqibz2
       write(6,*)' ndimh ntq nsp nnn =',nhq,ntq,nsp,nnn !NOTE this ndimh is the maximum dimention of Hamiltonian.
       !In PMT, ndimh is q-dependent. See lm*/gwd/sugw.F  june2009 takao
-      if (nspin .ne. nsp)   call rx( 'hqpe: wrong nspin v_xc')
-      if (nspin .ne. nspx)  call rx( 'hqpe: wrong nspin evec')
-      if (ndimhx /= ndimh)   call rx( 'hqpe: SC ndimhx/= ndimx')
-      if (nnn .ne. nnnx) call rx( 'hqpe: wrong nnn evec or v_xc')
+c      if (nspin .ne. nsp)   call rx( 'hqpe: wrong nspin v_xc')
+c      if (nspin .ne. nspx)  call rx( 'hqpe: wrong nspin evec')
+c      if (ndimhx /= ndimh)   call rx( 'hqpe: SC ndimhx/= ndimx')
+c      if (nnn .ne. nnnx) call rx( 'hqpe: wrong nnn evec or v_xc')
       allocate(qqq(3,nnn,nspin)) !,se_in(ntq,ntq))                 !sf.beg
       allocate(v_xc(nhq,nhq,nnn,nspin),evec(nhq,nhq,nnn,nspin),nev(nnn,nspin))
       if(evec0ex) allocate(evec00(nhq,nhq,nnn,nspin))
@@ -255,22 +260,27 @@ c     write(6,*)' nnn =',nnn
         iqq=iqq+1
         do is=1,nspin
 !!
-          ifvxc_  = ifvxc__ (iprocq(iqq,is)) 
-          ifevec_ = ifevec__(iprocq(iqq,is)) 
-
-          read(ifvxc_) nz,nmto    ! june209 takao nhqx is true dimension which is dependent on q. 
+c          ifvxc_  = ifvxc__ (iprocq(iqq,is)) 
+c          ifevec_ = ifevec__(iprocq(iqq,is)) 
+          open(newunit=ifvxc_,    file='vxc'//trim(xt(iq))//trim(xt(is)),form='unformatted')
+          open(newunit=ifevec_,  file='evec'//trim(xt(iq))//trim(xt(is)),form='unformatted')
+          read(ifvxc_ ) ndimh, nsp,nnn ,nnnx,nmto
+          nz=ndimh
+          read(ifevec_) ndimhx, nspx,nnnx
+c          read(ifvxc_) nz,nmto    ! june209 takao nhqx is true dimension which is dependent on q. 
                                   ! nmto(not iq,is is dependent) is MTO dimension.!2012sep
           write(6,*) ' reading v_xc ... iq is nz=',iq,is,nz
           nhqx(iq,is) = nz   !nz is introduced instead of nhq
-          read(ifvxc_) qqq(1:3,iq,is),v_xc(1:nz,1:nz,iq,is)
-          read(ifevec_) qqqx(1:3),    evec(1:nz,1:nz,iq,is), nev(iq,is) !nev number of true bands nov2015
+          read(ifvxc_) v_xc(1:nz,1:nz,iq,is)
+          read(ifevec_) qqq(1:3,iq,is),evec(1:nz,1:nz,iq,is), nev(iq,is) !nev number of true bands nov2015
           if(evec0ex) read(ifevec0) qqqx0(1:3), evec00(1:nz,1:nz,iq,is)
-          if (sum(abs( qqq(:,iq,is )-qqqx(:) )) .gt. tolq)
-Cstop2rx 2013.08.09 kino     &           stop 'hqpe: qqq/=qqqx'
-     &           call rx( 'hqpe: qqq/=qqqx')
-        enddo
+c          if (sum(abs( qqq(:,iq,is )-qqqx(:) )) .gt. tolq)
+c     &         call rx( 'hqpe: qqq/=qqqx')
+          close(ifvxc_)
+          close(ifevec_)
+         enddo
       enddo                     !sf.end
-
+      print *,' end of reading vxc evec'
 c      allocate(sigmv(nhq,nhq,nq))
       if(mtosigmaonly()) then
            ndimsig = nmto
@@ -303,8 +313,6 @@ c     &    ,wibz(:),qbzw(:,:)
 c     integer(4),allocatable:: idtetf(:,:),ib1bz(:),idteti(:,:)
 c     &    ,nstar(:),irk(:,:),nstbz(:)          !,index_qbz(:,:,:)
 c-----------------------------------------------------------------
-      call read_BZDATA()
-      write(6,*)' read from bzdata nqibz2; nqibz nq=',nqibz2,nqibz,nq
       nstarsum= sum(nstar(:))
       write(6,*)' nstarsum=',nstarsum
 Cstop2rx 2013.08.09 kino      if( nstarsum/= nqbz ) stop ' nstarsum/= nqbz'

@@ -111,13 +111,12 @@
       if(jobgw==0) then
          if(master_mpi) call m_hamindex0_init() 
          call rx0(' OK! '//'lmfgw mode=0 generated HAMindex0')
-      else
-         call m_hamindex_init(jobgw) 
       endif   
 !! Array allocated in supot rhoat smrho. We have to store all fixed quantites in modules.
       call m_supot_init() ! get G vectors for charge
       call sugcut(1) 
       call m_suham_init() ! Get estimated dimension of Hamiltonian (probably simplified in future).
+      call m_hamindex_init(jobgw) 
       writeham= cmdopt0('--writeham')
       if(writeham.and.master_mpi) call m_writeham_init()
       if(writeham.and.master_mpi) call m_writeham_write()

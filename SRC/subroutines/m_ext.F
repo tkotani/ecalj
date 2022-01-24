@@ -73,3 +73,45 @@ c      character*(*) add
       real(8):: arg
       write(ftoa9,"(1x,f8.3)") arg
       end
+
+c-------------
+      character*8 function xt(num)
+      integer :: num
+      if(num==0) then
+        xt=''
+        return
+      endif
+      xt = char(48+mod(num,10))
+      if(num>9)     xt = char(48+mod(num/10,10))//xt
+      if(num>99)    xt = char(48+mod(num/100,10))//xt
+      if(num>999)   xt = char(48+mod(num/1000,10))//xt
+      if(num>9999)  xt = char(48+mod(num/10000,10))//xt
+      if(num>99999) xt = char(48+mod(num/100000,10))//xt
+      if(num>999999) call rx( ' xt:can not produce')
+      xt='.'//xt
+      end
+c-------------
+      character*20 function xxt(num1,num2)
+      integer :: num,num1,num2
+      num = num2
+      xxt = char(48+mod(num,10))
+      if(num>9)     xxt = char(48+mod(num/10,10))//xxt
+      if(num>99)    xxt = char(48+mod(num/100,10))//xxt
+      if(num>999)   xxt = char(48+mod(num/1000,10))//xxt
+      if(num>9999)  xxt = char(48+mod(num/10000,10))//xxt
+      if(num>99999) xxt = char(48+mod(num/100000,10))//xxt
+      if(num>999999) call rx( ' xxt:can not produce')
+      xxt ='to'//xxt
+      num = num1
+      xxt = char(48+mod(num,10))//xxt
+      if(num>9)     xxt = char(48+mod(num/10,10))//xxt
+      if(num>99)    xxt = char(48+mod(num/100,10))//xxt
+      if(num>999)   xxt = char(48+mod(num/1000,10))//xxt
+      if(num>9999)  xxt = char(48+mod(num/10000,10))//xxt
+      if(num>99999) xxt = char(48+mod(num/100000,10))//xxt
+      if(num>999999) call rx( ' xxt:can not produce')
+      end
+
+
+      
+      

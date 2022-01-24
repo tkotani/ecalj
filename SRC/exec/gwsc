@@ -85,7 +85,7 @@ do
     ##### main stage of gw ################
     run_arg $argin $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files
     mv norm* STDOUT
-    rm gw1* gw2* gwa* gwb*
+    rm gwa gwb*
     
     argin=1; run_arg $argin $NO_MPI $nfpgw   /heftet leftet # A file EFERMI for hx0fp0
     ### Core part of the self-energy (exchange only) ###
@@ -113,7 +113,7 @@ do
     argin=0;  run_arg $argin $NO_MPI $nfpgw   /hqpe_sc lqpe #all Sigma are combined.
     $echo_run echo -n 'OK! --> '
     ### final part of iteration loop. Manupulate files ###
-    cp evec.$TARGET evec_prev_iter
+    cp evec.* evec_prev_iter
     ln -s -f sigm sigm.$TARGET
     mv SEX* SEC* XC* SEBK
     for file in sigm QPU QPD TOTE.UP TOTE.DN lqpe lsc lsx lx0 llmfgw01 evecfix.chk llmf ESEAVR 

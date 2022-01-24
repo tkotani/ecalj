@@ -230,7 +230,7 @@ c$$$  close(ifefclass)
         write(6,"(i3,' ext= ',a,a)") procid,trim(extp(procid)),' ----------'
       enddo
 !! ATOMIC PART ic = ibas scheme ==,  GET nrxx and ncoremx ----------------------
-      open(newunit=ifigwa,file='gwa'//trim(ext),form='unformatted')
+      open(newunit=ifigwa,file='gwa',form='unformatted')
       allocate(nncx(0:lmxamx,nbas),konf(lmxamx+1,nbas),spid(nbas))
       allocate(ec_d(ncoremx, nclass, nsp),gx_d (nrmx, 0:lmxamx, nphimx,  nclass,nsp),
      & gcore_d(nrmx, ncoremx, nclass,nsp)  )

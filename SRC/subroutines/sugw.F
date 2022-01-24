@@ -149,17 +149,15 @@ c      integer,allocatable:: igv2(:,:)
 
       integer:: lpdiag=0,stdo,nrmx,ncoremx!,ndham
       character spid*8
-
+      character*8 xt
 #if MPI | MPIK
       include "mpif.h"
 #endif
-
 !! --- Setup ---
       call tcn ('m_sugw_init')
       stdo = lgunit(1)
       if(master_mpi) write(stdo,"(a)") 'm_sugw_init: start'
       sigmamode = mod(lrsig,10) .ne. 0
-
 !! june2013 magfield is added
       open(newunit=ifimag,file='MagField',status='old',err=112)
       read(ifimag,*,err=112) vnow
@@ -170,7 +168,6 @@ c      integer,allocatable:: igv2(:,:)
  112  continue
       magexist=.false.
  113  continue
-
 !!--------------------      
       call getpr(ipr)
       alat=lat_alat
@@ -185,7 +182,6 @@ c      integer,allocatable:: igv2(:,:)
       call fftz30(n1,n2,n3,k1,k2,k3)
       lchk = 1
       lwvxc = .not. cmdopt0('--novxc')
-
 !!  Count number of atoms : exclude floating orbitals
       nat = 0
       do  i = 1, nbas
@@ -197,7 +193,7 @@ c      integer,allocatable:: igv2(:,:)
         ipb(i) = nat
       enddo
       if(nat/=nbas) call rx('sugw: gw is only for no floating orbital case') !2022jan
-      
+!      
       lsig = 1
       i_copy_size=size(ham_ldham)
       call icopy(i_copy_size,ham_ldham,1,ldham,1)
@@ -220,24 +216,13 @@ c      integer,allocatable:: igv2(:,:)
           enddo
         endif
       enddo
-
 !! ==== Read file NLAindx ====
-c      allocate(nlindx(3,0:lmxax,nat))
-c     call ioaindx(3,lmxax,nat,ndima,nlindx)
       call Readhamindex0()
-c      xxxxxxxxxxxx Exit -1 gwcphi: nlindx mismatch
-!! ... Read QGpsi !takao feb2012 ---> Not QGcou now
       open(newunit=ifiqg,file='QGpsi',form='unformatted')
       read(ifiqg ) nqnum, ngpmx ,QpGcut_psi,nqbz,nqirr,imx,nqibz
-c      endif
 !! ==== Write, or read past header information, file gwb ====
-      write(extn,"(i10)") procid
-      sprocid = trim(sname)
-      if(procid>0) sprocid=trim(sname)//'_'//trim(adjustl(extn))
-      open(newunit=ifigwb,file='gwb.'//trim(sprocid),form='unformatted')
-      open(newunit=ifigw1,file='gw1.'//trim(sprocid),form='unformatted')
-      open(newunit=ifigw2,file='gw2.'//trim(sprocid),form='unformatted')
-      if(master_mpi) open(newunit=ifigwa,file='gwa.'//trim(sprocid),form='unformatted')
+      sprocid='procid'//trim(xt(procid))
+      if(master_mpi) open(newunit=ifigwa,file='gwa',form='unformatted')
       ef0 = 1d99        !dummy
       allocate(ips(nbas),lmxa(nat),bas(3,nat),iantiferro(nat))
       iat = 0
@@ -288,9 +273,7 @@ c      endif
          z=sspec(is)%z
          rmt(ib)=sspec(is)%rmt
          lmaxa = int(sspec(is)%lmxa)
-c     call spacks_copy('u',sspec(is)%name,is,is,spid,is)
          spid=sspec(is)%name
-c     print *,' ssssssss spid='//spid//'###'
          if (lmaxa .gt. -1) then
             call atwf ( 0 , a , lmaxa , nr , nsp , pnu , pnz , rsml , ehl
      .           , rmt ( ib ) , z , ssite(ib)%rv_a_ov0 , i1 , ncore , konfig , ecore , w 
@@ -299,7 +282,6 @@ c     print *,' ssssssss spid='//spid//'###'
             allocate(gval(nr,2,0:lmaxa,nphimx,nsp))
             gval=0d0
 !     !         Create augmented wave functions for this atom
-c     call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
             rsml=rsmlss(:,is)
             ehl= ehlss(:,is)
             call atwf ( 03 , a , lmaxa , nr , nsp , pnu , pnz , rsml , ehl
@@ -343,15 +325,9 @@ c     call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
       enddo
       if(master_mpi) write(ifigwa) iantiferro(1:nat) !iantiferro may2015
       if(master_mpi) close(ifigwa) !call fclr('gwa',ifigwa)
-!! 
 !     ndham= maxval(ndimhall) !some inconsistency if we assume this.
 !      See npwpad in suham.F I think npwpad=0 if essentially ok. but current version cause inconsistency.
       if(master_mpi) then
-c         write(6,*) 'nnnnn0 ndham=',ndham0
-c         write(6,*) 'nnnnn1 ndham=',ndham
-c         write(6,*) 'nnnnn2 ndham=',ndimhall
-c        use m_igv2x,only: m_igv2xall_init,ndimhall
-c         call m_igv2xall_init(1,nqirr)
          open(newunit=ifigwbhead,file='gwb.head',form='unformatted')
          write(ifigwbhead) nat,nsp,ndima,ndham, maxval(lmxa(1:nat)),ncoremx/nsp,nrmx,plat,alat,nqirr
          write(ifigwbhead) bas,lmxa,qplist,ngplist,ndimhall
@@ -368,20 +344,8 @@ c         call m_igv2xall_init(1,nqirr)
       endif
 !! --- Evecs and matrix elements of vxc for irr qp ---
 !!    Note: this routine should use only irr qp.
-      if (lsig > 0) then
-        if (.not. cmdopt0('--novxc')) then
-           nnn=nqibz ! rotwv mode. on regular mesh, only eigenfunctions for nqibz are required.
-           open(newunit=ifievec,file='evec.'//trim(sprocid),form='unformatted')
-           open(newunit=ifiv,file='vxc.'//trim(sprocid),form='unformatted')
-           if(master_mpi) write(ifievec) ndham, nsp, nnn !, nqnum
-           if(master_mpi) write(ifiv) ndham, nsp, nnn
-        endif
-      endif
 !! == Main loop for eigenfunction generation ==
-      if(ham_scaledsigma/=1d0.and.sigmamode) then
-         write(stdo,*)' Scaled Sigma method: ScaledSigma=',ham_scaledsigma
-      endif
-      if(debug)print *,' goto 1001 procid=',procid
+      if(ham_scaledsigma/=1d0.and.sigmamode) write(stdo,*)' Scaled Sigma method: ScaledSigma=',ham_scaledsigma
       do 1001 iq = iqini,iqend ! iqini:iqend for this procid 
         qp  = qplist(:,iq)     !  ... For this qp, G vectors for PW basis and hamiltonian dimension
         ngp = ngplist(iq)
@@ -396,6 +360,14 @@ ccccccccccccccc
            if(iq==iqini.and.ispini==2.and.isp==1) cycle
            if(iq==iqend.and.ispend==1.and.isp==2) cycle
 ccccccccccccccc           
+          open(newunit=ifigwb,file='gwb'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
+          if(lwvxc) then !lsig>0 .and. (.not.cmdopt0('--novxc'))) then
+             nnn=nqibz          ! rotwv mode. on regular mesh, only eigenfunctions for nqibz are required.
+             open(newunit=ifievec,file='evec'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
+             open(newunit=ifiv,    file='vxc'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
+             write(ifievec) ndimh, nsp,nnn,ndham,ldim
+             write(ifiv)    ndimh, nsp,nnn,ndham,ldim
+          endif
           lso=0
           if(lso==1) call rx('sugw:lso=1 is not yet')
           if(lso/=0.and.(.not.allocated(hammhso))) then !aug2021 Hso matrix
@@ -408,10 +380,7 @@ ccccccccccccccc
           call hambl(isp,qp,smpot,vconst,sv_p_osig, sv_p_otau, sv_p_oppi, ham,ovl)!H(LDA) and O
           if(lso==2) ham(:,:) = ham(:,:) + hammhso(:,:,isp) !aug2021
           vxc = ham - vxc ! vxc(LDA) part 
-          if (lwvxc) then
-            write(ifiv) ndimh,ldim,qp 
-            write(ifiv) qp,vxc
-          endif
+          if (lwvxc) write(ifiv) vxc
 !! LDA + sigma Hamiltonian for this qp ---
           if(sigmamode) then ! See m_bandcal.F
              call getsenex(qp, isp, ndimh,ovl)
@@ -432,9 +401,7 @@ ccccccccccccccc
           if (ndham>nev ) evl(1+nev:ndham,isp)=1d20 ! See rdata4gw_v2
           if(mod(iq,10) .ne. 1) call poppr
           if(debug) write(6,"(' sugw:procid iq isp lwvxc= ',3i3,' ',l)")procid, iq,isp,lwvxc 
-          if (lwvxc) then
-             write(ifievec) qp, evec(1:ndimh,1:ndimh),nev
-          endif
+          if (lwvxc) write(ifievec) qp, evec(1:ndimh,1:ndimh),nev
           if(magexist) then
              if(isp==1) evl(1:ndimh,isp)=evl(1:ndimh,isp) - vnow/2d0
              if(isp==2) evl(1:ndimh,isp)=evl(1:ndimh,isp) + vnow/2d0
@@ -627,10 +594,8 @@ C     xx(1) = sum(dconjg(cphi(1:ndima,i1,isp))*cphi(1:ndima,i2,isp))
 C     xx(2) = sum(dconjg(cphi(1:nchan,i1,isp))*cphi(1:nchan,i2,isp))
                    xx(3) = testc(i1,i2)
                    xx(4) = testcd(i1)
-                   if (i1 .eq. i2) then
-                      write(ifinormchk,'(f12.5,5f14.6)')
+                   if (i1==i2) write(ifinormchk,'(f12.5,5f14.6)')
      .                     evl(i1,isp),xx(3),xx(4),xx(1),xx(2),xx(1)+xx(3)
-                   endif
                 enddo
              enddo
              deallocate(testc,testcd)
@@ -645,19 +610,21 @@ C     xx(2) = sum(dconjg(cphi(1:nchan,i1,isp))*cphi(1:nchan,i2,isp))
           write(ifigwb) evl(1:ndimh,isp),cphi(:,:,isp),pwz,vxclda(1:ndimh),nev
 c          write(ifigw1) vxclda(1:ndimh)
           deallocate(testc,pwz)
+          close(ifigwb)
+          if (lsig>0 .and. (.not.cmdopt0('--novxc'))) then
+             close(ifiv)
+             close(ifievec)
+          endif
  1002  continue             ! Loop over spins
        if(allocated(hammhso)) deallocate(hammhso)
        deallocate(ham,ovl,evec,vxc,cphi,cphin)!,igv2)
  1001 continue ! ===== Loop over qp ===============================
       deallocate(evl)
       close(ifiqg)
-      close(ifigwb)
-      close(ifigw1)
+c      close(ifigw1)
 c      close(ifigw2)
-      if ((.not. cmdopt0('--novxc')).and. lsig>0) then
-         close(ifiv)
-         close(ifievec)
-      endif
+c      if ((.not. cmdopt0('--novxc')).and. lsig>0) then
+c      endif
       call tcx('m_sugw_init')
       end subroutine m_sugw_init
 

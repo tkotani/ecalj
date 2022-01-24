@@ -27,7 +27,8 @@ c      use m_mpi,only: MPI__AllreduceSum
       real(8),allocatable::evaliq(:)
       real(8)::tolry=1d-4,qqqx(3),qtarget(3),tolq=1d-8
       complex(8),allocatable:: ovl(:,:)
-      integer::nev,j
+      integer::nev,j,nxx
+      character(8):: xt
       write(6,*)'zsecsym:'
       allocate( zsect(ntq,ntq))
 !! === readin lmfgw_kdivider, and get extensions === apr2013
@@ -57,34 +58,37 @@ c      if(allocated(extp)) deallocate(extp,ifvxc__,ifevec__)
         extp(procid)=trim(adjustl(ext))//'_'//trim(adjustl(extn))
         write(6,"(i3,' ext= ',a,a)") procid,trim(extp(procid)),' ----------'
       enddo
-      do procid=0,nrankv-1
-        ifvxc__(procid) = ifile_handle()
-        open( ifvxc__(procid), file='vxc'//extp(procid),form='unformatted')
-        ifevec__(procid)= ifile_handle()
-        open( ifevec__(procid), file='evec'//extp(procid),form='unformatted')
-      enddo
-      ifvxc_ = ifvxc__(0)       !0 is root
-      ifevec_= ifevec__(0)
-      read(ifevec_)  ndimhx, nspx,nnnx 
-      read(ifvxc_)              !skip ndimh, nsp,nnn
+c      do procid=0,nrankv-1
+c        ifvxc__(procid) = ifile_handle()
+c        open( ifvxc__(procid), file='vxc'//extp(procid),form='unformatted')
+c        ifevec__(procid)= ifile_handle()
+c        open( ifevec__(procid), file='evec'//extp(procid),form='unformatted')
+c      enddo
+c      ifvxc_ = ifvxc__(0)       !0 is root
+c      ifevec_= ifevec__(0)
+c      read(ifevec_)  ndimhx, nspx,nnnx 
+c      read(ifvxc_)              !skip ndimh, nsp,nnn
       allocate(evaliq(nband),iblki(nband),iblke(nband))
       iqq=0                     !iqq is to read multiple vxc.* evec.*
       do 3020 iq=1,nq           !nq means iq for which we will calculate sigma
         iqq=iqq+1
         do 3030 ispx=1,nspin !nspinmx  bugfix!!! at 2021-11-01 !ispx loop is to find isx=is
-          ifvxc_  = ifvxc__ (iprocq(iqq,ispx)) 
-          ifevec_ = ifevec__(iprocq(iqq,ispx)) 
+c          ifvxc_  = ifvxc__ (iprocq(iqq,ispx)) 
+c          ifevec_ = ifevec__(iprocq(iqq,ispx)) 
+c          open(newunit=ifvxc_,    file='vxc'//trim(xt(iq))//trim(xt(ispx)),form='unformatted')
           if(ispx==is) then 
 !this if-block is due to evec and v_xc file-->they shall be divieded into spin files.
-            read(ifvxc_)  nhdim,ldim
-            read(ifvxc_)
+            open(newunit=ifevec_,  file='evec'//trim(xt(iq))//trim(xt(is)),form='unformatted')
+c            read(ifvxc_)  nhdim,ldim
+c            read(ifvxc_)
+            read(ifevec_) nhdim, nspx,nnnx,nxx,ldim
             allocate( evec(nhdim,nhdim),evecrot(nhdim,nhdim))
             read(ifevec_) qqqx(1:3), evec(1:nhdim,1:nhdim),nev !nev number of true bands nov2015
             zsect = 0d0
           else                  !skip isx/=is. Need to get access sequential files evec and v_xc.
-            read(ifvxc_)  
-            read(ifvxc_)  
-            read(ifevec_)
+c            read(ifvxc_)  
+c            read(ifvxc_)  
+c            read(ifevec_)
             cycle
           endif  
           do i=1,nnnx           !nq     !qqqx from evec v_xc.
@@ -175,7 +179,9 @@ c            write(6,*)'evec orth=',i,j,sum(dconjg(evec(:,i)*evec(:,j)))
           enddo                 ! it
           deallocate(evec, evec_inv, evecrot)
           zsec(:,:,iqxx) = zsect(:,:)/dble(nsym)
-c          call MPI__AllreduceSum( zsec(:,:,iqxx),ntq*ntq ) ! MIZUHO-IR
+c     call MPI__AllreduceSum( zsec(:,:,iqxx),ntq*ntq ) ! MIZUHO-IR
+c          close(ifvxc_)
+          close(ifevec_)
  3030   continue                ! ispx
  3020 continue                  ! iq
       do procid=0,nrankv-1

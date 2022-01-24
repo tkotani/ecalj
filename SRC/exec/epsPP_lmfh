@@ -37,7 +37,7 @@ argin=2; run_arg $argin $NO_MPI  $nfpgw  /qg4gw lqg4gw02   #Generate requied q+G
 argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmfgw-MPIK llmfgw01 $TARGET
 #run_arg  '---' $NO_MPI   $nfpgw /lmf2gw     llmf2gw  #reform data for gw
 run_arg $argin $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files
-rm gwa.$TARGET gwb.$TARGET gw1.$TARGET gw2.$TARGET
+rm gwa gwb.*
 argin=1;   run_arg $argin $NO_MPI $nfpgw   /heftet leftet # A file EFERMI for hx0fp0
 argin=4;   run_arg $argin $NO_MPI $nfpgw   /hbasfp0 lbas   # Product basis generation mode=4 ptest
 argin=202; run_arg $argin $MPI_SIZE $nfpgw /hvccfp0 lvcc # Coulomb matrix for lbas 

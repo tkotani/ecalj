@@ -3,7 +3,8 @@
      &     alat=>lat_alat,nl,ctrl_nbas,ssite=>v_ssite,sspec=>v_sspec,n0,nkap0,iprmb,zbak_read=>zbak
       use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
       use NaNum,only: NaN       !for initialization, but not working well
-      integer,protected,public:: ngrpaf,ngrp_original,pwmode
+      use m_suham,only: ndham_read=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
+      integer,protected,public:: ngrpaf,ngrp_original,pwmode,ndham
       integer,protected,public:: nqi=NaN, nqnum=NaN, ngrp=NaN, lxx=NaN, kxx=NaN,norbmto=NaN,
      &     nqtt=NaN, ndimham=NaN, napwmx=NaN, lxxa=NaN, ngpmx=NaN, imx=NaN,nbas=NaN
       integer,allocatable,protected,public:: iclasstaf(:), offH (:),
@@ -440,8 +441,9 @@ C ... Reverse table of igv2 --->igv2rev
       if(done) call rx('writehamindex is already done')
       done=.true.
       zbak=zbak_read
+      ndham=ndham_read
       open(newunit=ifi,file='HAMindex',form='unformatted')
-      write(ifi)ngrp,nbas,kxx,lxx,nqtt,nqi,nqnum,imx,ngpmx,norbmto,pwmode,zbak
+      write(ifi)ngrp,nbas,kxx,lxx,nqtt,nqi,nqnum,imx,ngpmx,norbmto,pwmode,zbak,ndham
       write(ifi)symops,ag,invgx,miat,tiat,shtvg,qtt,qtti,iqmap,igmap,iqimap
       write(ifi)lxxa
       write(ifi)dlmm
@@ -466,7 +468,7 @@ C ... Reverse table of igv2 --->igv2rev
       if(done) call rx('readhamindex is already done')
       done=.true.
       open(newunit=ifi,file='HAMindex',form='unformatted')
-      read(ifi)ngrp,nbas,kxx,lxx,nqtt,nqi,nqnum,imx,ngpmx,norbmto,pwmode,zbak
+      read(ifi)ngrp,nbas,kxx,lxx,nqtt,nqi,nqnum,imx,ngpmx,norbmto,pwmode,zbak,ndham
       allocate(symops(3,3,ngrp),ag(3,ngrp),qtt(3,nqtt),qtti(3,nqi))
       allocate(invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp))
       allocate(iqmap(nqtt),igmap(nqtt),iqimap(nqtt))
