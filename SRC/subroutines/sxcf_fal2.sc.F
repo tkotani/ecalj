@@ -319,7 +319,7 @@ c          do 1001 ip = 1,nq kr=irkip(isp,kx,irot,ip)!index for rotated kr in th
             if(debug) write(6,*)' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
             nstate = nctot + nbmax ! = nstate for the case of correlation
 !! Get zmel(it,ib,itpp) = <phi(q,it) B(qbz_kr,ib) |phi(ittp,q-qbz_kr)>
-            call Get_zmel_init(exchange,q,qibz_k,irot,qbz_kr,isp, nbmax,ntqxx,nctot,ncc=0,iprx=debug)
+            call Get_zmel_init(q,qibz_k,irot,qbz_kr,isp, nbmax,ntqxx,nctot,ncc=0,iprx=debug)
             wtt = wk(kr)
             if(eibz4sig()) wtt=wtt*nrkip(isp,kx,irot,ip) 
 !! exchange S[i,j=1,nbloch] <psi(q,itp) |psi(q-rk,n) B(rk,i)> v(k)(i,j) <B(rk,j) psi(q-rk,n) |psi(q,itpp)>

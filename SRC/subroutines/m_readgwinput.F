@@ -2,7 +2,7 @@
       implicit none
 !! Read values from GWinput
       real(8),protected:: egauss,ecut,ecuts,ebmx ,ebmx_sig,ua_
-      integer,protected:: nbcut,nbcut2,nbmx,nbcutlow_sig,nbmx_sig,iSigmode
+      integer,protected:: nbcut,nbcut2,nbmx,nbmx_sig,iSigmode !,nbcutlow_sig
       integer,protected:: mtet(3),nmbas
       integer,protected,allocatable:: imbas(:)
       logical,protected:: keeppositivecou
@@ -30,7 +30,7 @@ c      integer:: nband
       call getkeyvalue("GWinput","emax_chi0", ebmx, default=1d10  )
       call getkeyvalue("GWinput","multitet",mtet,3,default=(/1,1,1/)) 
       call getkeyvalue("GWinput","GaussianFilterX0", egauss, default=0d0 )
-      call getkeyvalue("GWinput","nbcutlow_sig",nbcutlow_sig, default=0 )
+c      call getkeyvalue("GWinput","nbcutlow_sig",nbcutlow_sig, default=0 )
 
       call getkeyvalue("GWinput","iSigMode"  ,iSigMode, default=3 )
       call getkeyvalue("GWinput","nband_sigm",nbmx_sig, default=9999999)

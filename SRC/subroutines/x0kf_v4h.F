@@ -67,7 +67,7 @@
       integer:: k,isp_k,isp_kq, iq, jpm, ibib, iw,igb2,igb1,it,itp,job,icount, nmbas
       integer::  nwgt(nqbz) 
       real(8):: q(3), imagweight, wpw_k, wpw_kq
-      logical :: iww2=.true., eibzmode, crpa, exchange=.false.
+      logical :: iww2=.true., eibzmode, crpa
 !!
       write(6,'(" x0kf_v4hz_init: job q=",i3,3f8.4)') job,q
       if(npm==1) then
@@ -237,7 +237,6 @@ c      integer:: nmbas !, imb1,imb2, imb verbose,
       integer ::  nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb !nkqmin, nkqmax,
       logical :: eibzmode  
       integer::  nwgt(nqbz) 
-      logical::  exchange=.false. !eibz4x0,
       real(8)::  wpw_k,wpw_kq
       integer::  irot=1, neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele
       integer:: ieqbz,kold,nxxxx 
@@ -251,7 +250,7 @@ c        k = kc(icount)
         nqini= nkqmin_
 c        if(kold/=k .or. ispold/=isp_k .or. ispold2/=isp_kq ) then !.or. ispold2/=isp_kq) then  
            call Get_zmel_modex0(nkmin_,nkqmin_,isp_k,isp_kq)!oct-2021(nkmin(k),nkqmin(k),isp_k,isp_kq)
-           call Get_zmel_init(exchange, q+rk(:,k), q, irot, q, nxxxx, nkmax(k),nkqmax(k),nctot,ncc,iprx=.false.)
+           call Get_zmel_init(q+rk(:,k), q, irot, q, nxxxx, nkmax(k),nkqmax(k),nctot,ncc,iprx=.false.)
            call Dconjg_zmel()   !zmel = dconjg(zmel)
 c           write(6,*) 'k zmel writing...',iq,k,isp_k,isp_kq
            call rwzmel(iq,k,isp_k,isp_kq,'w')
@@ -305,7 +304,6 @@ c 1000 continue
       integer ::  nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb !nkqmin, nkqmax,
       logical :: eibzmode  
       integer::  nwgt(nqbz) 
-      logical::  exchange=.false. !eibz4x0,
       real(8)::  wpw_k,wpw_kq!, vec_kcrpa(3),vec_kqcrpa(3)
       integer::  irot=1         !, ntqxx,nbmax!,nctot
       integer::  neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele!,ngbb !eibzsym(ngrp,-1:1),
@@ -362,7 +360,7 @@ c        if(debug) call cputid(0)
 ! This gives matrix element zmel(igb q,  k it occ,   q+k itp unocc)
         if(kold/=k.or.isp_k/=ispold.or. ispold2/=isp_kq) then  
 c         call Get_zmel_modex0(nkmin_,nkqmin_,isp_k,isp_kq)!oct-2021(nkmin(k),nkqmin(k),isp_k,isp_kq)
-c         call Get_zmel_init(exchange, q+rk(:,k), q, irot, q, nxxxx, nkmax(k),nkqmax(k),nctot,ncc)
+c         call Get_zmel_init(q+rk(:,k), q, irot, q, nxxxx, nkmax(k),nkqmax(k),nctot,ncc)
 c         call Dconjg_zmel() !zmel = dconjg(zmel)
 cc           nmtot = nctot + nkmax(k)  -nmini+1 ! = phi_middle
 cc           nqtot = ncc   + nkqmax(k) -nqini+1 ! = phi_end
@@ -442,7 +440,6 @@ c----------------------------
       integer,allocatable:: i1(:,:),i2(:,:),nrotm(:)
       complex(8),allocatable:: zrotm(:,:),zrr(:,:),zrrc(:,:),zrr_(:,:,:),zrrc_(:,:,:),zmmm(:), 
      & zrrx(:,:),rcxq_core(:,:), zcousqr(:,:,:),rcxq0(:,:),rcxq00(:,:),rcxq000(:,:),rcxqwww(:,:)
-      logical :: exchange=.false.
       integer:: irot=1
       integer:: ntqxx,nbmax
 !! == Symmetrizer of EIBZ PRB.81,125102(2010) Eq.(51) july2012takao ==

@@ -18,7 +18,7 @@
       use m_read_bzdata,only: 
      i     nqbz,nqibz,  qlat,ginv,qbz,qibz,wbz,
      i     done_read_bzdata  
-      use m_readgwinput,only:nbcutlow_sig
+c      use m_readgwinput,only:nbcutlow_sig
       use m_readhbe,only: nband
       use m_itq,only: itq,ntq
       use m_readQG,only: ngpmx,ngcmx
@@ -208,14 +208,14 @@ c     i                 ppbrd)           !radial integrals
       end
       
 !! ------------------------------------
-      subroutine get_zmel_init(exchange,q,kvec,irot,rkvec,isp, nmmax,nqmax, nctot,ncc,iprx)
-      intent(in)::             exchange,q,kvec,irot,rkvec,isp, nmmax,nqmax, nctot,ncc,iprx
+      subroutine get_zmel_init(q,kvec,irot,rkvec,isp, nmmax,nqmax, nctot,ncc,iprx)
+      intent(in)::             q,kvec,irot,rkvec,isp, nmmax,nqmax, nctot,ncc,iprx
 !! Get <phiq(q,ncc+nqmax,ispq) |phim(q-rkvec,nctot+nmmax,ispm) MPB(rkvec,ngb)> ZO^-1
 !! Right after call get_zmel_init, we get zmel defined in this module.
 !! kvec is in the IBZ, rk = Rot_irot(kvec)
 !! \parameter all inputs
 !     ! \parameter matrix <MPB psi|psi>
-      logical:: exchange
+c      logical:: exchange
       logical:: iprx
       integer:: isp,nmmax,nqmax,irot,ispq,ispm,nmini,nqini, nctot,ncc
       real(8) ::  quu(3),q(3), kvec(3),rkvec(3)
@@ -231,10 +231,10 @@ c     i                 ppbrd)           !radial integrals
       endif
       if(iprx) then
          print *,'ppp modex0',modex0
-         write(6,"(a,l,10i4)")'pppp3:',exchange,irot,nmini,nmmax,ispm,nctot,nqini,nqmax,ispq,ncc
+         write(6,"(a,l,10i4)")'pppp3:',irot,nmini,nmmax,ispm,nctot,nqini,nqmax,ispq,ncc
          write(6,"(a,10(3f9.3,x))") 'pppp3:',q, kvec,rkvec
       endif         
-      call get_zmelt2(exchange,  
+      call get_zmelt2(  
      &    kvec,irot,rkvec,          ! MPB_rkvec
      &    nmini,nmmax,ispm ,nctot,  ! middle-phi for  phi_{q-rkvec}
      &    q,nqini,nqmax,ispq ,ncc  )! end-phi    for  phi_q
@@ -271,17 +271,17 @@ cold  nbmax -->nmmax
 !!   <end state,       middle state  |  MPB          >
 !!   rkvec =mutmul(symops(:,:,irot),kvec)
 !! ----------------------------------------
-      subroutine get_zmelt2(exchange,
+      subroutine get_zmelt2(
      &   kvec,irot,rkvec,          ! rkvec MPB  ngcxxx,ngbxxx,  MPB_rkvec
      &   nmini,nmmax,ispm,nctot,   ! q-rkvec middle for    phi_{q-rkvec}
      &    q,nqini,nqmax,ispq,ncc)  ! end state for phi_q
-      intent(in)::          exchange,
+      intent(in)::          
      &   kvec,irot,rkvec,          
      &   nmini,nmmax,ispm,nctot,   
      &    q,nqini,nqmax,ispq,ncc   
 !! \parameter all inputs
 !! \parameter output=rmelt,clemt  matrix <MPB psi|psi>
-      logical:: exchange
+c      logical:: exchange
       integer:: invr,nxx,itp,irot,isp,kr,no,nmmax,nqmax !, ngbxxx,ngcxxx!,nbcut !ngc,ngb,
       integer:: iatomp(natom),nmini,nqini,nctot,ncc
       real(8) :: symope(3,3),shtv(3),tr(3,natom),qk(3),det
@@ -393,12 +393,12 @@ c      call getsrdpp2( nclass,nl,nxx)
       if(debug) write(6,*) ' sxcf_fal1: end of drvmelp2 sum rmelt cmelt',sum(rmelt),sum(cmelt)
       deallocate(drealzzzmel,dimagzzzmel)
 c      if(verbose()>50) call timeshowx("5 after drvmelp")
-      if(nbcutlow_sig/=0.and.(.not.exchange)) then
-         do it= nctot+1,nctot+min(nbcutlow_sig,nmmax)
-            rmelt(:, it,:) =0d0
-            cmelt(:, it,:) =0d0
-         enddo
-      endif
+c$$$      if(nbcutlow_sig/=0.and.(.not.exchange)) then
+c$$$         do it= nctot+1,nctot+min(nbcutlow_sig,nmmax)
+c$$$            rmelt(:, it,:) =0d0
+c$$$            cmelt(:, it,:) =0d0
+c$$$         enddo
+c$$$      endif
 !! NOTE:=========================================
 !! zmelt = rmelt(igb(rkvec), iocc(q), iunocc(q-rkvec)) + i* cmelt
 !! iunocc: band index at target  q.
