@@ -1,3 +1,6 @@
+!     loop over w' = (1-x)/x, frequencies in Wc(k,w')
+!     {x} are gaussian-integration points between (0,1)
+!---------------------------------------------------------------------
       subroutine wintzsg_npm_wgtim(npm,a,expa,we,esmr, wgtim)
       use m_genallcf_v3,only: nx=>niw
       use m_readfreq_r,only: wt=>wwx,x=>freqx
