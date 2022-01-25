@@ -136,7 +136,7 @@ c
       integer,allocatable:: irkip(:,:,:,:), nrkip(:,:,:,:)
       real(8),allocatable:: vxcfp(:,:,:), eqt(:), eq(:), eqx(:,:,:),eqx0(:,:,:)
       complex(8),pointer::zsec(:,:,:)
-c---------------------------------------
+!!
       call MPI__Initialize() 
       call date_and_time(values=timevalues)
       write(6,"('mpirank=',i5,' YYYY.MM.DD.HH.MM.msec=',9i4)")mpi__rank,timevalues(1:3),timevalues(5:8)
@@ -163,16 +163,14 @@ c---------------------------------------
       write(ixcc,"('.mode=',i4.4)")ixc
       call MPI__consoleout('hsfp0_sc'//trim(ixcc)) !Open console output stdout.irank.hsfp0_sc.mode 
       call pshprt(60)
-!! === Readin GWIN and LMTO, then allocate and set datas. ===
-!! See use m_genallcf_v3 at the top of this routine
+!      
       if(ixc==3) then; incwfin= -2 !core exchange mode
       else           ; incwfin= -1 !use 7th colmn for core at the end section of GWIN
       endif
       call GENALLCF_V3(incwfin)    ! readin basic data
       call READ_BZDATA() ! Readin BZ data. See gwsrc/rwbzdata.f ===
 !!CAUTION!!  WE currently ASSUME iclass(iatom)= iatom (because of historical reason)
-      if(nclass /= natom ) call rx('hsfp0_sc: nclass /= natom ')
-c      if(ngrp/= ngrp2)     call rx('ngrp inconsistent: BZDATA and LMTO GWIN_V2')
+      if(nclass /= natom ) call rx('hsfp0_sc: sanitiy check nclass /= natom ')
       write(6,"(' nqbz nqibz ngrp=',3i12)") nqbz,nqibz,ngrp
       esmr  = esmr_in !read from GWinput
       esmref= esmr
@@ -180,28 +178,6 @@ c      if(ngrp/= ngrp2)     call rx('ngrp inconsistent: BZDATA and LMTO GWIN_V2'
       if(diagonly) call SetIsigMode(5)
       call pshprt(30)
       voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3))) ! primitive cell volume
-c$$$!! ef is taken as rs for the empty-sphere test case of legas=T case 
-c$$$!! HOMOGENIOUS GAS code. Usually not used. Need fixing if necessary.
-c$$$!! Keep this just as a memo.
-c$$$      legas = .false.
-c$$$      if(.false.) then
-c$$$        INQUIRE (FILE = 'LEGAS', EXIST = legas)
-c$$$        if(legas) then          !!! test for electron gas case.
-c$$$          write(6,*)' find LEGAS. legas =',legas
-c$$$          iflegas = 2101
-c$$$          open (iflegas,file='LEGAS')
-c$$$          read(iflegas,*)rs
-c$$$          close(iflegas)
-c$$$          alpha = (9*pi/4d0)**(1d0/3d0)
-c$$$          qfermi = alpha/rs
-c$$$          efx  = qfermi**2
-c$$$          valn = efx**1.5d0*voltot/3d0/pi**2
-c$$$          write (6,*)'  #### egas test mode  legas=T #### given rs =',rs
-c$$$          write (6,*)' egas  Exact Fermi momentum  qf  =', qfermi
-c$$$          write (6,*)' egas  Exact Fermi energy    Ef  =', efx
-c$$$          if(tetra) call rx( 'legas You have to give ef of  tetrahedron')
-c$$$        endif
-c$$$      endif
 !!
       if(ixc==1) then
         exchange = .true.
@@ -278,10 +254,6 @@ c      ef = ef_read
       enddo
       deallocate(eqt)
       call Hswriteinit()        !internal subroutine.  Write initial part of output files
-c      if(ixc==3.and.nctot==0) then !make dummy SEXcore
-c         zsecall = 0d0
-c         goto 9999
-c      endif
 !! == irkip:  paralellization is contrlloed by irkip ==
 !! We have to distribute non-zero irkip to all ranks (irkip is dependent on rank).
 !! When irkip(nqibz,ngrp,nq,nspinmx)/=0, we expect grain-size 
@@ -293,57 +265,15 @@ c      endif
       call MPI__sxcf_rankdivider(irkip,irkip_all,nspinmx,nqibz,ngrp,nq) ! MIZUHO-IR
       nrkip = nrkip_all         ! we don't need to change this for MPI case. 
 ! ----> We need to distribute non-zero irkip to ranks.
-!! Main loop to calculate the the self-energy SEx(ip) or SEc(ip)
       if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
       if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')
-c      zsecall = 0d0
-c      do 2000 is = 1,nspinmx
-c        zsec => zsecall(:,:,:,is)
       if (.not.iSigMode==3) call rx('sxcf_scz: only for jobsw=3')
       call sxcf_scz (qip= qvec, ef= ef,esmr= esmr, !isp= is,   
-c     i   irkip= irkip(is,:,:,:),nrkip= nrkip(is,:,:,:),nq= nq,
      i   irkip= irkip,nrkip= nrkip,nq= nq,
      i   exchange= exchange, 
      i   hermitianW= hermitianW,
-c     i   jobsw= iSigMode, nbandmx= nbandmx(1:nq,is),ixc) !nbandmx is input mar2015
      i   jobsw= iSigMode, nbandmx=nbandmx,ixc=ixc,nspinmx=nspinmx) !nbandmx is input mar2015
-c     o   zsecall )!= zsec) 
-c$$$!!  electron gas bare exchange (exact)
-c$$$        if (legas.and.exchange) then
-c$$$          efz=(ntot*3*pi**2/voltot)**(2d0/3d0) ! ef is calculated from ntot.
-c$$$          pi         = 4.d0*datan(1.d0)
-c$$$          tpia       = 2.d0*pi/alat
-c$$$          qfermi= dsqrt(efz)
-c$$$          alpha = (9*pi/4d0)**(1d0/3d0)
-c$$$          write (6,*)' --- exact electron gas bare exchange --- '
-c$$$          write (6,*)' density parameter rs= ', alpha/qfermi
-c$$$          write (6,*)' kf= ',qfermi
-c$$$          do      ip = 1,nq
-c$$$            qreal =  tpia*q(1:3,ip)
-c$$$            qm    = dsqrt ( sum(qreal**2) )
-c$$$            xsex  = hartree * egex (qm,efz)
-c$$$            write (6,*)
-c$$$            write (6,"(' True qm-ef Sx=',2f14.6,' q/qf=',f14.6)")
-c$$$     &       rydberg()*(qm**2-efz), xsex, qm/qfermi
-c$$$            write (6,"(' Num  qm-ef Sx=',2f14.6)") 
-c$$$     &       eqx(1,ip,is),        hartree*dreal(zsec(1,1,ip)) !sf 21May02
-c$$$            write (6,"(' === diff     =',2f14.6)") 
-c$$$     &       rydberg()*(qm**2-efz)-eqx(1,ip,is)
-c$$$     &       , xsex - hartree*dreal(zsec(1,1,ip)) !sf 21May02
-c$$$            write (661,"(' qm True qm-ef Sx=',3f14.6)") 
-c$$$     &       qm,rydberg()*(qm**2-efz), xsex
-c$$$            write (662,"(' qm Num  qm-ef Sx=',3f14.6)") 
-c$$$     &       qm,eqx(1,ip,is),     hartree*dreal(zsec(1,1,ip)) !sf 21May02
-c$$$ccc   write (ifsex(is),6600) qreal(1),qreal(2),qreal(3),xsex
-c$$$ccc   write (6,6600) qreal(1),qreal(2),qreal(3),xsex
-c$$$ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
-c$$$            write (663,"(2f14.6)") qm/qfermi, qfermi
-c$$$          end do
-c$$$        endif
-c        if(eibz4sig())call zsecsym(zsec,ntq,nq,nband,nbandmx,nspinmx, nspin,eibzsym,ngrp,tiii,qvec,is)
-c 2000 continue   !end of spin-loop
       call MPI__reduceSum(root=0, data=zsecall, sizex=ntq*ntq*nq*nspinmx )
-c 9999 continue
       if(MPI__root) then
         do is=1,nspinmx
         zsec => zsecall(:,:,:,is)

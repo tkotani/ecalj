@@ -1,25 +1,24 @@
       module m_sxcfsc !self-energy calculation 
-      use m_readqg,only   : readqg0
-      use m_readeigen,only: readeval
-      use m_keyvalue,only   : getkeyvalue
+      use m_readqg,only   : Readqg0
+      use m_readeigen,only: Readeval
+      use m_keyvalue,only   : Getkeyvalue
       use m_zmel,only : Get_zmel_init, Setppovlz, Setppovlz_chipm, Deallocate_zmel, zmel
       use m_itq,only: itq,ntq
       use m_genallcf_v3,only: nlmto,nspin,nctot,niw,ecore !,symgg
       use m_READ_BZDATA,only: ginv,nstbz,qibz,qbz,wk=>wbz,nqibz,nqbz,wklm,lxklm,nq0i, wqt=>wt,q0i
       use m_readVcoud,only:   Readvcoud, vcoud,vcousq,zcousq,ngb,ngc
-      use m_readfreq_r,only: freq_r, nw_i,nw,freqx,wx=>wwx,nblochpmx
-      use m_rdpp,only: Rdpp,    !"call rdpp" generate following data.
-     &     nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx
+      use m_readfreq_r,only: freq_r, nw_i,nw,freqx,wx=>wwx,nblochpmx,mrecl,expa_,npm,nprecx
+      use m_rdpp,only: Rdpp, nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx
       use m_readqg,only:  ngpmx,ngcmx
       use m_readhbe,only: nband,mrecg
-      use m_readfreq_r,only: mrecl,expa_,npm
       use m_hamindex,only: ngrp
       use m_eibzhs,only: eibzsym,tiii
-      
+      use m_readgwinput,only: ua_
       implicit none
 !---------------------------------      
       public sxcf_scz, zsecall
       complex(8),allocatable,target:: zsecall(:,:,:,:)
+      private
       contains
       
       subroutine sxcf_scz(qip,ef,esmr,irkip,nrkip,nq,exchange,jobsw,hermitianW,nbandmx,ixc,nspinmx)
@@ -163,13 +162,13 @@ c     complex(8),optional :: zsec(ntq,ntq,nq)
       integer :: ip, it, itp, i, ix, kx, irot, kr
       integer :: nt0p, nt0m,nstate , nbmax, ntqxx 
       integer :: nt,ixs,iw,ivc,ifvcoud,ngb0
-      integer :: nprecx,mrecl,ifwd,nrot,nwp,ierr 
+      integer :: ifwd,nrot,nwp,ierr 
       integer :: nstatetot,iqini,iqend
-      integer :: invr,ia,nn,ntp0,no,itpp,nrec,npm,itini,itend,nbmxe
+      integer :: invr,ia,nn,ntp0,no,itpp,nrec,itini,itend,nbmxe
       integer :: iwp,nwxi,nwx,iir, igb1,igb2,ix0,iii
       integer :: invrot,nocc,nlmtobnd,nt0,verbose,ififr, istate,  nt_max ,noccx
-      real(8) :: ekc(nctot+nband),ekq(nband), det, q(3),ua_
-      real(8) :: expa_(niw), qxx(3), symope(3,3),shtv(3) 
+      real(8) :: ekc(nctot+nband),ekq(nband), det, q(3) !,ua_
+      real(8) ::  qxx(3), symope(3,3),shtv(3) 
       real(8) :: wtt,wfac,we,esmrx
       real(8) :: qvv(3),eq(nband),omega(ntq),quu(3),freqw,ratio
       real(8) :: qibz_k(3),qbz_kr(3),vc,omega0,omg
@@ -190,7 +189,8 @@ c     complex(8),optional :: zsec(ntq,ntq,nq)
       complex(8) :: w3pp
       character(5) :: charnum5
       real(8)::polinta, wfacx, wfacx2, weavx2, wexx,ua2_(niw),freqw1,q_r(3),qk(3)
-      logical :: debug, debugp,debug2=.false.,  oncew, onceww, eibz4sig,  timemix=.false.
+      logical,parameter :: debug=.false.,timemix=.false.
+      logical ::   oncew, onceww, eibz4sig  
       integer,allocatable:: ixss(:,:),iirx(:)
       real(8),allocatable:: we_(:,:),wfac_(:,:)
       complex(8),allocatable:: zw3av(:,:),zmelw(:,:,:),w3p(:),wtff(:)
@@ -200,8 +200,8 @@ c     complex(8),optional :: zsec(ntq,ntq,nq)
       logical:: corehole,iprx,cmdopt0
       integer:: ifcorehole,ixx,ixc
       real(8),parameter:: pi=4d0*datan(1d0), fpi=4d0*pi, tpi=8d0*datan(1d0),ddw=10d0
+c      if(verbose()>=90) debug=.true.
 !!----------------------------------------------------------------
-      if(verbose()>=90) debug=.true.
       allocate(zsecall(ntq,ntq,nq,nspinmx)) !, coh(ntq,nq) ) kount(nqibz,nq),
       zsecall = 0d0
       if(ixc==3.and.nctot==0) return
@@ -216,30 +216,15 @@ c     complex(8),optional :: zsec(ntq,ntq,nq)
         close(ifcorehole)
         write(*,*) 'corehole mode: end of reading CoreHole' 
       endif
-!      
-      if(.not.exchange) then !correlation mode
-        open(newunit=ifwd,file='WV.d')
-        read(ifwd,*) nprecx,mrecl
-        close(ifwd) 
-        call getkeyvalue("GWinput","gauss_img",ua_,default=1d0) ! interpolation gaussion for W(i \omega).
-        do ix = 1,niw     ! Energy mesh; along im axis.
-          freqw     = (1d0 - freqx(ix))/ freqx(ix)
-          expa_(ix) = exp(-(ua_*freqw)**2)
-        enddo
-        npm=1             ! npm=1    Timeveversal case
-        if(nw_i/=0) npm=2 ! npm=2 No TimeReversal case. Need negative energy part of W(omega)
-      endif
-!      
+!! we only consider bzcase()==1 now
       nlmtobnd    = nlmto*nband
       nstatetot   = nctot + nband
-!! we only consider bzcase()==1 now
       if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
       if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')
-!!      
       iqini = 1
       iqend = nqibz             !no sum for offset-Gamma points.
       do 2000 isp = 1,nspinmx
-         if(nctot/=0) ekc(1:nctot)= ecore(1:nctot,isp) ! core
+        if(nctot/=0) ekc(1:nctot)= ecore(1:nctot,isp) ! core
         zsec => zsecall(:,:,:,isp)
       do 1100 kx = iqini,iqend 
           if(sum(irkip(isp,kx,:,:))==0) cycle ! next kx

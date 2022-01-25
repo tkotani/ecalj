@@ -584,5 +584,60 @@ ccccccccccccccccccccccccccccccccccccccccccccc
       call rx0( ' OK! homogas')
       end
 
+c$$$!!  electron gas bare exchange (exact)
+c$$$        if (legas.and.exchange) then
+c$$$          efz=(ntot*3*pi**2/voltot)**(2d0/3d0) ! ef is calculated from ntot.
+c$$$          pi         = 4.d0*datan(1.d0)
+c$$$          tpia       = 2.d0*pi/alat
+c$$$          qfermi= dsqrt(efz)
+c$$$          alpha = (9*pi/4d0)**(1d0/3d0)
+c$$$          write (6,*)' --- exact electron gas bare exchange --- '
+c$$$          write (6,*)' density parameter rs= ', alpha/qfermi
+c$$$          write (6,*)' kf= ',qfermi
+c$$$          do      ip = 1,nq
+c$$$            qreal =  tpia*q(1:3,ip)
+c$$$            qm    = dsqrt ( sum(qreal**2) )
+c$$$            xsex  = hartree * egex (qm,efz)
+c$$$            write (6,*)
+c$$$            write (6,"(' True qm-ef Sx=',2f14.6,' q/qf=',f14.6)")
+c$$$     &       rydberg()*(qm**2-efz), xsex, qm/qfermi
+c$$$            write (6,"(' Num  qm-ef Sx=',2f14.6)") 
+c$$$     &       eqx(1,ip,is),        hartree*dreal(zsec(1,1,ip)) !sf 21May02
+c$$$            write (6,"(' === diff     =',2f14.6)") 
+c$$$     &       rydberg()*(qm**2-efz)-eqx(1,ip,is)
+c$$$     &       , xsex - hartree*dreal(zsec(1,1,ip)) !sf 21May02
+c$$$            write (661,"(' qm True qm-ef Sx=',3f14.6)") 
+c$$$     &       qm,rydberg()*(qm**2-efz), xsex
+c$$$            write (662,"(' qm Num  qm-ef Sx=',3f14.6)") 
+c$$$     &       qm,eqx(1,ip,is),     hartree*dreal(zsec(1,1,ip)) !sf 21May02
+c$$$ccc   write (ifsex(is),6600) qreal(1),qreal(2),qreal(3),xsex
+c$$$ccc   write (6,6600) qreal(1),qreal(2),qreal(3),xsex
+c$$$ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
+c$$$            write (663,"(2f14.6)") qm/qfermi, qfermi
+c$$$          end do
+c$$$        endif
 
+c$$$!! ef is taken as rs for the empty-sphere test case of legas=T case 
+c$$$!! HOMOGENIOUS GAS code. Usually not used. Need fixing if necessary.
+c$$$!! Keep this just as a memo.
+c$$$      legas = .false.
+c$$$      if(.false.) then
+c$$$        INQUIRE (FILE = 'LEGAS', EXIST = legas)
+c$$$        if(legas) then          !!! test for electron gas case.
+c$$$          write(6,*)' find LEGAS. legas =',legas
+c$$$          iflegas = 2101
+c$$$          open (iflegas,file='LEGAS')
+c$$$          read(iflegas,*)rs
+c$$$          close(iflegas)
+c$$$          alpha = (9*pi/4d0)**(1d0/3d0)
+c$$$          qfermi = alpha/rs
+c$$$          efx  = qfermi**2
+c$$$          valn = efx**1.5d0*voltot/3d0/pi**2
+c$$$          write (6,*)'  #### egas test mode  legas=T #### given rs =',rs
+c$$$          write (6,*)' egas  Exact Fermi momentum  qf  =', qfermi
+c$$$          write (6,*)' egas  Exact Fermi energy    Ef  =', efx
+c$$$          if(tetra) call rx( 'legas You have to give ef of  tetrahedron')
+c$$$        endif
+c$$$      endif
+      
 
