@@ -4,28 +4,26 @@
       use m_keyvalue,only   : getkeyvalue
       use m_zmel,only : Get_zmel_init, Setppovlz, Setppovlz_chipm, Deallocate_zmel, zmel
       use m_itq,only: itq,ntq
-      use m_genallcf_v3,only: nlmto,nsp=>nspin,nctot,niw,ecore !,symgg
+      use m_genallcf_v3,only: nlmto,nspin,nctot,niw,ecore !,symgg
       use m_READ_BZDATA,only: ginv,nstbz,qibz,qbz,wk=>wbz,nqibz,nqbz,wklm,lxklm,nq0i, wqt=>wt,q0i
       use m_readVcoud,only:   Readvcoud, vcoud,vcousq,zcousq,ngb,ngc
       use m_readfreq_r,only: freq_r, nw_i,nw,freqx,wx=>wwx,nblochpmx
       use m_rdpp,only: Rdpp,    !"call rdpp" generate following data.
      &     nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx
       use m_readqg,only:  ngpmx,ngcmx
-c      use m_readq0p,only: ReadQ0P, nq0i, wqt,q0i
       use m_readhbe,only: nband,mrecg
-c      use m_readepswklm,only: wklm,lxklm
       use m_readfreq_r,only: mrecl,expa_,npm
       use m_hamindex,only: ngrp
+      use m_eibzhs,only: eibzsym,tiii
       
       implicit none
 !---------------------------------      
-      public sxcf_scz
+      public sxcf_scz, zsecall
+      complex(8),allocatable,target:: zsecall(:,:,:,:)
       contains
-!SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
-      subroutine sxcf_scz(qip,ef,esmr,isp,irkip,nrkip,nq,exchange,jobsw,hermitianW,nbandmx,
-     o zsec) 
-      intent(in)          qip,ef,esmr,isp,irkip,nrkip,nq,exchange,jobsw,hermitianW,nbandmx
-      intent(out) :: zsec 
+      
+      subroutine sxcf_scz(qip,ef,esmr,irkip,nrkip,nq,exchange,jobsw,hermitianW,nbandmx,ixc,nspinmx)
+      intent(in)          qip,ef,esmr,irkip,nrkip,nq,exchange,jobsw,hermitianW,nbandmx,ixc,nspinmx
 !> \brief
 !! Calcualte full simga_ij(e_i)= <i|Re[Sigma](e_i)|j> 
 !! ---------------------
@@ -154,11 +152,13 @@ c      use m_readepswklm,only: wklm,lxklm
 !! ----------------------------------------------
 !! \endverbatim
       logical :: exchange
-      integer :: nq,isp,irkip(nqibz,ngrp,nq),nrkip(nqibz,ngrp,nq), jobsw 
-      integer :: nbandmx(nq)
+      integer :: nq,isp,nspinmx,irkip(nspinmx,nqibz,ngrp,nq),nrkip(nspinmx,nqibz,ngrp,nq), jobsw 
+      integer :: nbandmx(nq,nspinmx)
       real(8) :: ef,esmr, qip(3,nq)
       real(8):: ebmx
-      complex(8),optional :: zsec(ntq,ntq,nq) 
+c     complex(8),optional :: zsec(ntq,ntq,nq)
+      complex(8),pointer::zsec(:,:,:)
+      
       integer :: ifrcw,ifrcwi
       integer :: ip, it, itp, i, ix, kx, irot, kr
       integer :: nt0p, nt0m,nstate , nbmax, ntqxx 
@@ -190,7 +190,7 @@ c      use m_readepswklm,only: wklm,lxklm
       complex(8) :: w3pp
       character(5) :: charnum5
       real(8)::polinta, wfacx, wfacx2, weavx2, wexx,ua2_(niw),freqw1,q_r(3),qk(3)
-      logical :: debug, debugp,debug2=.false.,  oncew, onceww, eibz4sig,  timemix
+      logical :: debug, debugp,debug2=.false.,  oncew, onceww, eibz4sig,  timemix=.false.
       integer,allocatable:: ixss(:,:),iirx(:)
       real(8),allocatable:: we_(:,:),wfac_(:,:)
       complex(8),allocatable:: zw3av(:,:),zmelw(:,:,:),w3p(:),wtff(:)
@@ -198,46 +198,51 @@ c      use m_readepswklm,only: wklm,lxklm
       logical:: tote=.false., hermitianW
       real(8),allocatable:: wcorehole(:,:),vcoud_(:),wfft(:)
       logical:: corehole,iprx,cmdopt0
-      integer:: ifcorehole,ixx
+      integer:: ifcorehole,ixx,ixc
       real(8),parameter:: pi=4d0*datan(1d0), fpi=4d0*pi, tpi=8d0*datan(1d0),ddw=10d0
 !!----------------------------------------------------------------
-      if (.not.jobsw==3) call rx('sxcf_scz: only for jobsw=3')
       if(verbose()>=90) debug=.true.
-      timemix=.false.
+      allocate(zsecall(ntq,ntq,nq,nspinmx)) !, coh(ntq,nq) ) kount(nqibz,nq),
+      zsecall = 0d0
+      if(ixc==3.and.nctot==0) return
+!      
       corehole = cmdopt0('--corehole')
       if(corehole) then
         open(newunit=ifcorehole,file='CoreHole') 
-        if(allocated(wcorehole)) deallocate(wcorehole)
-        allocate(wcorehole(nctot,nsp))
+        allocate(wcorehole(nctot,nspin))
         do it=1,nctot
-          read(ifcorehole,*) wcorehole(it,1:nsp)
+          read(ifcorehole,*) wcorehole(it,1:nspin)
         enddo
         close(ifcorehole)
-        write(*,*) 'end of reading CoreHole' 
+        write(*,*) 'corehole mode: end of reading CoreHole' 
       endif
-      if(.not.exchange) then
+!      
+      if(.not.exchange) then !correlation mode
         open(newunit=ifwd,file='WV.d')
         read(ifwd,*) nprecx,mrecl
         close(ifwd) 
-        call getkeyvalue("GWinput","gauss_img",ua_,default=1d0)
-        !     interpolation gaussion for W(i \omega).
-        do ix = 1,niw      ! Energy mesh; along im axis.
+        call getkeyvalue("GWinput","gauss_img",ua_,default=1d0) ! interpolation gaussion for W(i \omega).
+        do ix = 1,niw     ! Energy mesh; along im axis.
           freqw     = (1d0 - freqx(ix))/ freqx(ix)
           expa_(ix) = exp(-(ua_*freqw)**2)
         enddo
         npm=1             ! npm=1    Timeveversal case
         if(nw_i/=0) npm=2 ! npm=2 No TimeReversal case. Need negative energy part of W(omega)
-      endif 
-      if(nctot/=0) ekc(1:nctot)= ecore(1:nctot,isp)!-ecorem ! core
+      endif
+!      
       nlmtobnd    = nlmto*nband
       nstatetot   = nctot + nband
 !! we only consider bzcase()==1 now
       if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
       if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')
+!!      
       iqini = 1
       iqend = nqibz             !no sum for offset-Gamma points.
+      do 2000 isp = 1,nspinmx
+         if(nctot/=0) ekc(1:nctot)= ecore(1:nctot,isp) ! core
+        zsec => zsecall(:,:,:,isp)
       do 1100 kx = iqini,iqend 
-          if(sum(irkip(kx,:,:))==0) cycle ! next kx
+          if(sum(irkip(isp,kx,:,:))==0) cycle ! next kx
           qibz_k = qibz(:,kx)
           if(timemix) call timeshow("11111 k-cycle")
           call Readvcoud(qibz_k,kx,NoVcou=.false.)!Readin ngc,ngb,vcousq,zcousq ! Coulomb matrix
@@ -250,12 +255,12 @@ c      use m_readepswklm,only: wklm,lxklm
      &          status='unknown',access='direct',recl=mrecl)
           endif
         do 1000 irot = 1,ngrp !over rotations irot ===
-          if(sum(irkip(kx,irot,:))==0) cycle ! next ip
+          if(sum(irkip(isp,kx,irot,:))==0) cycle ! next ip
           write(6,*) ' ### do 1000-1100 start kx=',kx,irot
 !==  ip loop to spedify external q ==
 !! NOTE: kr(kx,irot,ip) makes all the k mesh points required for q(ip).
           do 1001 ip = 1,nq         
-            kr = irkip(kx,irot,ip) ! index for rotated kr in the FBZ
+            kr = irkip(isp,kx,irot,ip) ! index for rotated kr in the FBZ
             if(kr==0) cycle
             write (6,*) ip,'  out of ',nq,'  k-points(extrnal q) '
             q(1:3)= qip(1:3,ip)
@@ -276,13 +281,13 @@ c      use m_readepswklm,only: wklm,lxklm
               nbmxe = count(ekc<ebmx)-nctot !nocc (ekc,ebmx,nstatetot)-nctot!
               nbmax  = min(nband,nbmxe) !nbmx_sig,
             endif
-            ntqxx = nbandmx(ip) ! ntqxx is number of bands for <i|sigma|j>.
+            ntqxx = nbandmx(ip,isp) ! ntqxx is number of bands for <i|sigma|j>.
             if(debug) write(6,*)' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
             nstate = nctot + nbmax ! = nstate for the case of correlation
 !! Get zmel(it,ib,itpp) = <phi(q,it) B(qbz_kr,ib) |phi(ittp,q-qbz_kr)>
             call Get_zmel_init(exchange,q,qibz_k,irot,qbz_kr,isp, nbmax,ntqxx,nctot,ncc=0,iprx=debug)
             wtt = wk(kr)
-            if(eibz4sig()) wtt=wtt*nrkip(kx,irot,ip) 
+            if(eibz4sig()) wtt=wtt*nrkip(isp,kx,irot,ip) 
 !! exchange S[i,j=1,nbloch] <psi(q,itp) |psi(q-rk,n) B(rk,i)> v(k)(i,j) <B(rk,j) psi(q-rk,n) |psi(q,itpp)>
             if(exchange) then   !At the bottom of this block, cycle do 1000 irot.
               allocate(vcoud_(ngb),wtff(nctot+nbmax),w3p(nctot+nbmax)) 
@@ -301,7 +306,6 @@ c      use m_readepswklm,only: wklm,lxklm
               cycle             ! next irot do 1000 loop
             endif               ! end of if(exchange)
             if(timemix) call timeshow("33333 k-cycle")
-            
 !! correlation section
 !!================================================================
 !! Foloiwng note is very old. keep this just for hints.
@@ -452,7 +456,9 @@ c            allocate( zwz0(        nstate,ntqxx,ntqxx))
             close(ifrcw)
             close(ifrcwi)
           endif   
- 1100 continue                ! end of kx-loop
+ 1100  continue                 ! end of kx-loop
+       if(eibz4sig())call zsecsym(zsec,ntq,nq,nband,nbandmx,nspinmx, nspin,eibzsym,ngrp,tiii,qip,isp)
+ 2000 continue !spin loop for is
       end subroutine sxcf_scz
 
       

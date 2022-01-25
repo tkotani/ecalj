@@ -88,7 +88,7 @@ c     &                          !ppbir,miat,tiat,shtvg,
       use m_anf,only: Anfcond,
      &     laf
 !     ! subroutine only
-      use m_sxcfsc,only: Sxcf_scz
+      use m_sxcfsc,only: Sxcf_scz,zsecall
 !     ! MPI
       use m_mpi,only: 
      &     MPI__Initialize,MPI__real8send,MPI__real8recv,MPI__send_iv,MPI__recv_iv,MPI__sxcf_rankdivider,
@@ -135,7 +135,6 @@ c
       logical :: exchange, hermitianW, screen = .false. 
       integer,allocatable:: irkip(:,:,:,:), nrkip(:,:,:,:)
       real(8),allocatable:: vxcfp(:,:,:), eqt(:), eq(:), eqx(:,:,:),eqx0(:,:,:)
-      complex(8),allocatable,target:: zsecall(:,:,:,:)
       complex(8),pointer::zsec(:,:,:)
 c---------------------------------------
       call MPI__Initialize() 
@@ -279,34 +278,10 @@ c      ef = ef_read
       enddo
       deallocate(eqt)
       call Hswriteinit()        !internal subroutine.  Write initial part of output files
-      if(ixc==3.and.nctot==0) then !make dummy SEXcore
-         allocate(zsecall(ntq,ntq,nq,1)) !, coh(ntq,nq) ) kount(nqibz,nq),
-         zsecall = 0d0
-         do is=1,nspinmx
-            zsec => zsecall(:,:,:,1)
-            call HsWriteResult() !internal subroutine.
-         enddo
-         goto 9999
-      endif
-!! Offset Gamma point Q0P (slightly shifted from Gamma)
-c      call Readq0p()
-c      call Readepswklm()
-
-c$$$cccccccccccccccccccccccccccccccc
-c$$$      open(newunit=ifidmlx,file='EPSwklm222')
-c$$$      write(ifidmlx,*)'eeee2', nq0i,lxklm
-c$$$      do iq0i=1,nq0i
-c$$$      write(ifidmlx,*)'eeee2', iq0i, dmlx(iq0i,1:9)
-c$$$      enddo  
-c$$$      write(ifidmlx,*)'eeee2: einq',epinvq0i
-c$$$      write(ifidmlx,*)'eeee2: wklm',wklm
-c$$$      close(ifidmlx)
-c$$$      stop 'xxxxxxxxxxxxxxxxx'
-c$$$cccccccccccccccccccccccccccccc      
-      
-ccccccccccccccccccccccccccccccccccccc
-
-cccccccccccccccccccccccccccccccccccc      
+c      if(ixc==3.and.nctot==0) then !make dummy SEXcore
+c         zsecall = 0d0
+c         goto 9999
+c      endif
 !! == irkip:  paralellization is contrlloed by irkip ==
 !! We have to distribute non-zero irkip to all ranks (irkip is dependent on rank).
 !! When irkip(nqibz,ngrp,nq,nspinmx)/=0, we expect grain-size 
@@ -321,16 +296,18 @@ cccccccccccccccccccccccccccccccccccc
 !! Main loop to calculate the the self-energy SEx(ip) or SEc(ip)
       if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
       if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')
-      allocate(zsecall(ntq,ntq,nq,nspinmx)) !, coh(ntq,nq) ) kount(nqibz,nq),
-      zsecall = 0d0
-      do 2000 is = 1,nspinmx
-        zsec => zsecall(:,:,:,is)
-        call sxcf_scz (qip= qvec, ef= ef,esmr= esmr, isp= is,   
-     i   irkip= irkip(is,:,:,:),nrkip= nrkip(is,:,:,:),nq= nq,
+c      zsecall = 0d0
+c      do 2000 is = 1,nspinmx
+c        zsec => zsecall(:,:,:,is)
+      if (.not.iSigMode==3) call rx('sxcf_scz: only for jobsw=3')
+      call sxcf_scz (qip= qvec, ef= ef,esmr= esmr, !isp= is,   
+c     i   irkip= irkip(is,:,:,:),nrkip= nrkip(is,:,:,:),nq= nq,
+     i   irkip= irkip,nrkip= nrkip,nq= nq,
      i   exchange= exchange, 
      i   hermitianW= hermitianW,
-     i   jobsw= iSigMode, nbandmx= nbandmx(1:nq,is), !nbandmx is input mar2015
-     o   zsec= zsec) 
+c     i   jobsw= iSigMode, nbandmx= nbandmx(1:nq,is),ixc) !nbandmx is input mar2015
+     i   jobsw= iSigMode, nbandmx=nbandmx,ixc=ixc,nspinmx=nspinmx) !nbandmx is input mar2015
+c     o   zsecall )!= zsec) 
 c$$$!!  electron gas bare exchange (exact)
 c$$$        if (legas.and.exchange) then
 c$$$          efz=(ntot*3*pi**2/voltot)**(2d0/3d0) ! ef is calculated from ntot.
@@ -363,16 +340,16 @@ c$$$ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
 c$$$            write (663,"(2f14.6)") qm/qfermi, qfermi
 c$$$          end do
 c$$$        endif
-        if(eibz4sig())call zsecsym(zsec,ntq,nq,nband,nbandmx,nspinmx, nspin,eibzsym,ngrp,tiii,qvec,is)
- 2000 continue   !end of spin-loop
+c        if(eibz4sig())call zsecsym(zsec,ntq,nq,nband,nbandmx,nspinmx, nspin,eibzsym,ngrp,tiii,qvec,is)
+c 2000 continue   !end of spin-loop
       call MPI__reduceSum(root=0, data=zsecall, sizex=ntq*ntq*nq*nspinmx )
+c 9999 continue
       if(MPI__root) then
         do is=1,nspinmx
         zsec => zsecall(:,:,:,is)
         call HsWriteResult() !internal subroutine.
         enddo
       endif
- 9999 continue
       call cputid(0)
       if(ixc==1 ) call rx0( ' OK! hsfp0_sc: Exchange mode')
       if(ixc==2 ) call rx0( ' OK! hsfp0_sc: Correlation mode')
@@ -380,10 +357,9 @@ c$$$        endif
       stop 
 !-----------------------------------------------------------------------------
       contains
-
       
 !SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
-      subroutine Hswriteinit() !only write out files, no side effect
+      subroutine Hswriteinit() !contained in hsfp0_sc. Only write out files, no side effect
       implicit none
       write (6,*)' ***'
       call READQG0('QGpsi',qibz(1:3,1), quu,ngpn1)
@@ -430,7 +406,7 @@ c$$$        endif
       end subroutine Hswriteinit
       
 !SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
-      subroutine HsWriteResult() !only write out files, no side effect
+      subroutine HsWriteResult() !contained in hsfp0_sc. Only write out files, no side effect
       implicit none
       integer:: iii,ixx,iyy
       if(exchange) then

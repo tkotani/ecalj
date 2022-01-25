@@ -219,7 +219,13 @@ c      character(120):: symgrpt
       call reindx  (occv,unoccv,nindxv,
      i              occc,unoccc,nindxc,
      d              nl,nn,nnv,nnc,nclass,
-     o              nocc,nunocc,nindx)
+     o     nocc,nunocc,nindx)
+c      nocc  (:,1:ncore,:)= occc(:,1:ncore,:)
+c      nunocc(:,1:ncore,:)= unoccc(:,1:ncore,:)
+c      nocc  (:,nore+1:ncore+nval,:)= occv(:,1:nval,:)
+c      nunocc(:,nore+1:ncore+nval,:)= unoccv(:,1:nval,:)
+c      nindx= nindxc + nindxv
+      
       call maxdim  (occc,unoccc,nindxc,nl,nnc,nclass,
      o              nprodxc,nlnxc,nlnmxc,nlnaxc)
       call maxdim  (occv,unoccv,nindxv,nl,nnv,nclass,
@@ -394,10 +400,10 @@ c       write(6,*)'notbit=',i,ix,idat(i)
       enddo
       end
 !ssssssssssssssssssssssssssssssssssssssssssssssssssss     
-      subroutine iclear(n,idat)
-      integer(4) :: idat(n),n
-      idat=0
-      end
+c      subroutine iclear(n,idat)
+c      integer(4) :: idat(n),n
+c      idat=0
+c      end
 !ssssssssssssssssssssssssssssssssssssssssssssssssssss     
       subroutine ibiton(nclass,nl,nnc,nindxc, noccc,ncwf)
       integer(4) ::nclass,nl,nnc,noccc(0:nl-1,nnc,nclass),nindxc(0:nl-1,nclass)
