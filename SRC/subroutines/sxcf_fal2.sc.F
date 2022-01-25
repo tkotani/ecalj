@@ -191,10 +191,10 @@ c     complex(8),optional :: zsec(ntq,ntq,nq)
       real(8)::polinta, wfacx, wfacx2, weavx2, wexx,ua2_(niw),freqw1,q_r(3),qk(3)
       logical,parameter :: debug=.false.,timemix=.false.
       logical ::   oncew, onceww, eibz4sig  
-      integer,allocatable:: ixss(:,:),iirx(:)
+c      integer,allocatable:: ixss(:,:),iirx(:)
       real(8),allocatable:: we_(:,:),wfac_(:,:)
       complex(8),allocatable:: zw3av(:,:),zmelw(:,:,:),w3p(:),wtff(:)
-      logical,allocatable:: ititpskip(:,:)
+c      logical,allocatable:: ititpskip(:,:)
       logical:: tote=.false., hermitianW
       real(8),allocatable:: wcorehole(:,:),vcoud_(:),wfft(:)
       logical:: corehole,iprx,cmdopt0
@@ -377,7 +377,12 @@ c          do 1001 ip = 1,nq kr=irkip(isp,kx,irot,ip)!index for rotated kr in th
 ! Then get zwz0 and zwz
 ! zwz0 = (zmel*)*(W(*omega=0)   -v)*zmel
 ! zwz =  (zmel*)*(W(i*omega(ix))-v)*zmel
-c            allocate( zwz0(        nstate,ntqxx,ntqxx))
+c     allocate( zwz0(        nstate,ntqxx,ntqxx))
+!! Integration along imag axis for zwz(omega) for given it,itp,itpp
+!! itp  : left-hand end of expternal band index.
+!! itpp : right-hand end of expternal band index.
+!! it   : intermediate state of G.
+            block !Im-correlation section
             allocate( zwz(0:niw*npm,nstate,ntqxx,ntqxx)) 
             allocate( zw (nblochpmx,nblochpmx))
             do ixx=0,niw        !niw is usually ~10 points.
@@ -400,10 +405,6 @@ c            allocate( zwz0(        nstate,ntqxx,ntqxx))
                enddo   
             enddo
             deallocate(zw)
-!! Integration along imag axis for zwz(omega) for given it,itp,itpp
-!! itp  : left-hand end of expternal band index.
-!! itpp : right-hand end of expternal band index.
-!! it   : intermediate state of G.
             block
             real(8):: esmrx(nstate),omegat(ntqxx)
             real(8):: wgtim(0:npm*niw,ntqxx,nstate)
@@ -417,31 +418,36 @@ c            allocate( zwz0(        nstate,ntqxx,ntqxx))
                call wintzsg_npm_wgtim(npm, ua_,expa_, we,esmrx(it), wgtim(:,itp,it))
             enddo
             enddo
-            do 1400 itpp= 1,ntqxx
-            do 1410 itp = 1,ntqxx
+            do itpp= 1,ntqxx
+            do itp = 1,ntqxx
                zsec(itp,itpp,ip) = zsec(itp,itpp,ip) + wtt*sum(wgtim(:,itp,:)*zwz(:,:,itp,itpp))
- 1410       continue  
- 1400       continue
-            end block
-            deallocate(zwz) 
+            enddo
+            enddo
+            endblock
+            deallocate(zwz)
+            endblock            ! end of Im-correlation section
+            
 !! -------------------------------------------------------------------
 !!  Contribution to SEc(qt,w) from the poles of G (integral along real axis)
 !!    Currently, jobsw = 3 only
 !!    The variable we means \omega_epsilon in Eq.(55) in PRB76,165106 (2007)
-!! -------------------------------------------------------------------
+!     ! -------------------------------------------------------------------
+            block ! Re-correlation section
             if(debug)write(6,*)'GOTO contribution to SEc(qt,w) from the poles of G'
-!! Get index nwxi nwx nt_max. finish quickly. We can simplify this...
             call get_nwx(omega,ntq,ntqxx,nt0p,nt0m,nstate,freq_r,
      i       nw_i,nw,esmr,ef,ekc,wfaccut,nctot,nband,debug,
-     o       nwxi,nwx,nt_max)
-!! assemble small arrays first.
-            allocate(we_(nt_max,ntqxx),wfac_(nt_max,ntqxx),ixss(nt_max,ntqxx),ititpskip(nt_max,ntqxx),iirx(ntqxx))
+     o       nwxi,nwx,nt_max) ! Get index nwxi nwx nt_max.
+            block 
+            real(8)::wgt3(3),we_(nt_max,ntqxx),wfac_(nt_max,ntqxx)
+            complex(8)::zadd(ntqxx),zaddx,zw33(ngb,ngb),zw3(ngb,ngb,nwxi:nwx)
+            integer:: ixss(nt_max,ntqxx),iirx(ntqxx)
+            logical:: ititpskip(nt_max,ntqxx)
             call weightset4intreal(nctot,esmr,omega,ekc,freq_r,nw_i,nw,
      i       ntqxx,nt0m,nt0p,ef,nwx,nwxi,nt_max,wfaccut,wtt,
      o       we_,wfac_,ixss,ititpskip,iirx)
 !! We need zw3, the Hermitian part, because we need only hermitean part of Sigma_nn'
 !! This can be large array; nwx-nwxi+1 \sim 400 or so...
-            allocate( zw3(ngb,ngb,nwxi:nwx), zw(nblochpmx,nblochpmx))
+            allocate( zw(nblochpmx,nblochpmx))
             do ix = nwxi,nwx
               nrec = ix-nw_i+1  !freq_r(ix is in nw_i:nx)
               read(ifrcw(kx),rec=nrec) zw ! direct access Wc(omega) = W(omega) - v
@@ -454,9 +460,6 @@ c            allocate( zwz0(        nstate,ntqxx,ntqxx))
             deallocate(zw)
             do itp=1,ntqxx
             do it=1,nt_max
-               block
-                 real(8)::wgt3(3)
-                 complex(8)::zadd(ntqxx),zaddx,zw33(ngb,ngb)
                   if(ititpskip(it,itp)) cycle
                   ixs= ixss(it,itp)
                   we = we_(it,itp) 
@@ -473,10 +476,11 @@ c            allocate( zwz0(        nstate,ntqxx,ntqxx))
                      if(npm==1) zsec(itp,itpp,ip)=zsec(itp,itpp,ip)+ wfac_(it,itp)* zaddx
                      if(npm==2) zsec(itp,itpp,ip)=zsec(itp,itpp,ip)+ wfac_(it,itp)* zaddx
                   enddo
-               end block
             enddo
             enddo
-            deallocate(we_,wfac_,ixss,ititpskip,iirx,zw3)
+            endblock         
+            endblock        !end of Re-correlation section
+            
             call Deallocate_zmel()
             if(verbose()>50) call timeshow("11after alagr3z iw,itp,it cycles")
             if(debug) then
@@ -484,14 +488,6 @@ c            allocate( zwz0(        nstate,ntqxx,ntqxx))
                 write(6,'(" fffffff zsec=",i3,2d15.7)') itp,zsec(itp,itp,ip)
               enddo
             endif
-c 1001 continue                  ! end do ip
-c 1000 continue                  ! end do irot
-c          if(.not.exchange) then
-c            close(ifrcw)
-c            close(ifrcwi)
-c          endif   
-c 1100  continue                 ! end of kx-loop
-c 2000 continue !spin loop for is
  3030  continue
        if(eibz4sig())then
          do isp=1,nspinmx
