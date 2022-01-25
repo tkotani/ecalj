@@ -26,15 +26,12 @@
       logical:: fileexist,cmdopt,cmdopt0,cmdopt2
       logical:: writeham,lbin
       character:: outs*20,aaa*512,sss*128
-      character prgnam*8
+      character(8):: prgnam='LMF'
       character*8 charext
       integer:: iarg,jobgw,iprint,nit1,ifi,irs1x,ifile_handle
-#if LMFGWD
-      data prgnam /'LMFGWD'/
-#else
-      data prgnam /'LMF'/
-#endif
-      call M_ext_init()        ! Get sname, e.g. trim(sname)=si of ctrl.si
+!      
+      call M_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
+      if(cmdopt0('--jobgw')) prgnam='LMFGWD'
       call M_MPItk_init(prgnam)
       stdo = lgunit(1)          !standard output stdo=6 usually
       stdl = lgunit(2)

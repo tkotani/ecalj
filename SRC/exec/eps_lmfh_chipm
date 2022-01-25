@@ -31,7 +31,7 @@ rm -f NoCore QPU*
 #endif 
 
 ### Get LATTC and SYMOPS
-$echo_run echo 0 |$serial_run $nfpgw/lmfgw-MPIK --novxc  $argv[1] > llmfgw00
+$echo_run echo 0 |$serial_run $nfpgw/lmf-MPIK --novxc  $argv[1] --jobgw > llmfgw00
 
 
 ### Add q points  to Q0P file.  -----------------
@@ -41,7 +41,7 @@ $echo_run echo 2|$serial_run $nfpgw/qg4gw  >lqg4gw02
 #eigenvalues for micro-tetrahedron method.
 if(-e Qmtet) then
   mv Qmtet Qeigval 
-$echo_run echo 5 |$serial_run $nfpgw/lmfgw-MPIK --novxc  $argv[1] > llmfgw_eigval
+$echo_run echo 5 |$serial_run $nfpgw/lmf-MPIK --novxc  $argv[1] --jobgw > llmfgw_eigval
   mv eigval eigmtet
 endif
 
@@ -49,15 +49,15 @@ endif
 #echo 1 | $serial_run $nfpgw/ng0  >lng01
 #echo 2 | $serial_run $nfpgw/ng0  >lng02
 #$serial_run $nfpgw/nfp4gw        >lnfp4gw
-$echo_run echo 1 |$serial_run $nfpgw/lmfgw-MPIK --novxc  $argv[1] > llmfgw01
+$echo_run echo 1 |$serial_run $nfpgw/lmf-MPIK --novxc  $argv[1] --jobgw > llmfgw01
 #@ exinfo = `tail -3 llmfgw01 | head -1|awk '{print $2}'`
 #set exinfo = `echo $?`
 set exinfo = $?
 
 if($exinfo == 0 ) then
-$echo_run echo " OK! lmfgw-MPIK mode=1 "
+$echo_run echo " OK! lmf-MPIK mode=1 --jobgw"
 else
-$echo_run echo Error in echo 1\|lmfgw-MPIK $argv[1]
+$echo_run echo Error in echo 1\|lmf-MPIK $argv[1] --jobgw
 $echo_run echo  `tail -3 llmfgw01 `
   exit
 endif

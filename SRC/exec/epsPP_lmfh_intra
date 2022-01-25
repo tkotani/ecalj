@@ -25,7 +25,7 @@ echo "### START epsPP_lmfh: MPI size= " $MPI_SIZE, "TARGET= " $TARGET
 $echo_run echo $nfpgw
 $echo_run echo $TARGET
 
-argin=0; run_arg $argin $NO_MPI  $nfpgw  /lmfgw-MPIK  llmfgw00 $TARGET  --novxc
+argin=0; run_arg $argin $NO_MPI  $nfpgw  /lmf-MPIK  llmfgw00 $TARGET  --novxc --jobgw
 argin=2; run_arg $argin $NO_MPI  $nfpgw  /qg4gw lqg4gw02   #Generate requied q+G v
 
 # if [ -e Qmtet ]; then
@@ -34,7 +34,7 @@ argin=2; run_arg $argin $NO_MPI  $nfpgw  /qg4gw lqg4gw02   #Generate requied q+G
 #     mv eigval eigmtet
 # fi
 
-argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmfgw-MPIK llmfgw01 $TARGET
+argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmf-MPIK llmfgw01 $TARGET --jobgw
 run_arg  '---' $NO_MPI   $nfpgw /lmf2gw     llmf2gw  #reform data for gw
 rm gwa.$TARGET gwb.$TARGET gw1.$TARGET gw2.$TARGET
 argin=0; run_arg $argin $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files

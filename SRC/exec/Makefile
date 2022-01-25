@@ -16,7 +16,7 @@ maxloc= ../wanniergw/
 moddir= $(obj_path)
 tags  = ..
 
-progslm = lmf-MPIK lmfgw-MPIK lmfa lmchk 
+progslm = lmf-MPIK lmfa lmchk 
 progsgw = hbasfp0 hvccfp0 hx0fp0 hsfp0 hqpe qg4gw gwinit heftet rdata4gw_v2 hx0fp0_sc hsfp0_sc hqpe_sc hmagnon \
 hx0init hhilbert hrcxq hx0zmel
 progsw  = hmaxloc huumat_MPI hpsig_MPI wanplot hwmatK_MPI 
@@ -121,14 +121,10 @@ $(obj_path)/mkinput.o: $(main)mkinput.F
 	$(FC) $(FFLAGS_NONE) -c $< -o $@
 $(obj_path)/lmf-MPIK.o: $(main)lmv7.F $(ELIB)
 	$(FC) $(FFLAGS_NONE) -c $(main)lmv7.F -o $@
-$(obj_path)/lmfgw-MPIK.o: $(main)lmv7.F
-	$(FC) $(FFLAGS_NONE) -DLMFGWD -c $(main)lmv7.F -o $@
 #$(obj_path)/show_programinfo.o: $(subr)show_programinfo.F 
 #	$(FC) $(FFLAGS) $(VERSIONFLAGS) $(CPP_SW) -c $< -o $@
 $(obj_path)/lmf.o: $(main)lmv7.F $(ELIB)
 	$(FC) $(FFLAGS_NONE) -DLMF -c $< -o $@
-$(obj_path)/lmfgw.o: $(main)lmv7.F 
-	$(FC) $(FFLAGS_NONE) -DLMF -DLMFGWD -c $< -o $@
 
 ########################################
 # progslm
@@ -160,15 +156,6 @@ mkinput: $(obj_path)/mkinput.o $(ELIB)  $(MPI) $(MLO)
 lmf-MPIK: $(obj_path)/lmf-MPIK.o $(ELIB) $(MPI) 
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB) $(MPI)  $(LIBLOC) $(LKFLAGS2) -o $@
-lmfgw-MPIK: $(obj_path)/lmfgw-MPIK.o $(ELIB)  $(MPI) 
-	@echo $(LK) $@.o 'link with *.o'
-	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB) $(MPI)  $(LIBLOC) $(LKFLAGS2) -o $@
-lmf:	$(obj_path)/lmf.o $(ELIB) 
-	@echo $(LK) $@.o 'link with *.o'
-	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB) $(LIBLOC) $(LKFLAGS2) -o $@
-lmfgw:	$(obj_path)/lmfgw.o $(ELIB)
-	@echo $(LK) $@.o 'link with *.o'
-	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB) $(LIBLOC) $(LKFLAGS2) -o $@
 ###################################################
 progs: $(progslm) $(progsgw) $(progsw)
 

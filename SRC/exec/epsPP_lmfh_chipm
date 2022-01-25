@@ -25,13 +25,13 @@ $echo_run echo $TARGET
 #LMJOB= $TARGET
 
 
-argin=0; run_arg $argin $NO_MPI  $nfpgw  /lmfgw-MPIK  llmfgw00 $TARGET  --novxc
+argin=0; run_arg $argin $NO_MPI  $nfpgw  /lmf-MPIK  llmfgw00 $TARGET  --novxc --jobgw
 argin=4; run_arg $argin $NO_MPI  $nfpgw  /qg4gw lqg4gw04   #Generate requied q+G v
 
-argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmfgw-MPIK llmfgw01 $TARGET
+argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmf-MPIK llmfgw01 $TARGET --jobgw
 #run_arg  '---' $NO_MPI   $nfpgw /lmf2gw     llmf2gw  #reform data for gw
 run_arg $argin $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files
-rm gwa.$TARGET gwb.$TARGET gw1.$TARGET gw2.$TARGET
+rm gwa gwb.*
 argin=1;   run_arg $argin $NO_MPI $nfpgw   /heftet leftet # A file EFERMI for hx0fp0
 argin=8;   run_arg $argin $NO_MPI $nfpgw   /hbasfp0 lbas   # Product basis generation mode=8
 argin=222; run_arg $argin $MPI_SIZE $nfpgw /hx0fp0 lx0 $lx0_para_option #x0 part
