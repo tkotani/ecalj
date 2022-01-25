@@ -263,7 +263,7 @@ c      print *,'ncount=',ncount
       endif
       if(nctot/=0) ekc(1:nctot)= ecore(1:nctot,isp) ! core
       kxold=-9999
-      nccc= min(ncount/100,ncount)
+      nccc= max(ncount/50,1)
       print *,'goto do3030'
       do 3030 icount=1,ncount   !we only consider bzcase()==1 now
          isp =ispc(icount)
@@ -286,11 +286,10 @@ c      print *,'ncount=',ncount
          ntqxx = nbandmx(ip,isp) ! ntqxx is number of bands for <i|sigma|j>.
          wtt = wk(kr)
          if(eibz4sig()) wtt=wtt*nrkip(isp,kx,irot,ip)
+!         
          if(debug) write(6,*)' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
-         
-c         if(mod(icount,nccc)==1) 
-c     &        write(6,"('sxcf: isp kx ip',3i5,' icount of ncount=',2i5)") isp,kx,ip,icount,ncount
-         
+         if(mod(icount,nccc)==0) 
+     &     write(6,"('sxcf: isp kx ip',3i5,' icount of ncount=',2i5)") isp,kx,ip,icount,ncount
 !!         
          if(kxold/=kx) then
             call Readvcoud(qibz_k,kx,NoVcou=.false.) !Readin ngc,ngb,vcousq,zcousq ! Coulomb matrix
