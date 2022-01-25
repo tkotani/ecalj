@@ -270,46 +270,44 @@ c      print *,'ncount=',ncount
          kx  =kxc(icount)
          irot=irotc(icount)
          ip  =ipc(icount)
-         kr  =krc(icount)
+         kr  =krc(icount) ! NOTE: kr(kx,irot,ip) runs all the k mesh points required for q(ip).
          zsec => zsecall(:,:,:,isp)
          qibz_k = qibz(:,kx)
-c         if(mod(icount,nccc)==1) 
-c     &        write(6,"('sxcf: isp kx ip',3i5,' icount of ncount=',2i5)") isp,kx,ip,icount,ncount
-         if(timemix) call timeshow("11111 k-cycle")
-         if(kxold/=kx) then
-            call Readvcoud(qibz_k,kx,NoVcou=.false.) !Readin ngc,ngb,vcousq,zcousq ! Coulomb matrix
-            call Setppovlz(qibz_k,matz=.true.) !ppovlz overlap matrix
-            if(debug) write(6,*) ' sxcf_fal2sc: ngb ngc nbloch=',ngb,ngc,nbloch
-            kxold =kx
-         endif
-!==   ip loop to spedify external q ==
-!     ! NOTE: kr(kx,irot,ip) makes all the k mesh points required for q(ip).
-c         write (6,*) ip,'  out of ',nq,'  k-points(extrnal q) '
          q(1:3)= qip(1:3,ip)
          eq = readeval(q,isp)
          omega(:) = eq(itq(:))  !1:ntq
-!     !    When iqini=1 (Gamma point), we use effective W(q=0) defined in the paper.
          qbz_kr= qbz (:,kr)     !rotated qbz vector. 
          qk =  q - qbz_kr        
          ekq = readeval(qk, isp) 
          ekc(nctot+1:nctot+nband) = ekq (1:nband)
          nt0 = count(ekc<ef) 
          nt0p = count(ekq<ef+ddw*esmr) +nctot 
-         nt0m = count(ekq<ef-ddw*esmr) +nctot 
+         nt0m = count(ekq<ef-ddw*esmr) +nctot
+         ntqxx = nbandmx(ip,isp) ! ntqxx is number of bands for <i|sigma|j>.
+         wtt = wk(kr)
+         if(eibz4sig()) wtt=wtt*nrkip(isp,kx,irot,ip)
+         if(debug) write(6,*)' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
+         
+c         if(mod(icount,nccc)==1) 
+c     &        write(6,"('sxcf: isp kx ip',3i5,' icount of ncount=',2i5)") isp,kx,ip,icount,ncount
+         
+!!         
+         if(kxold/=kx) then
+            call Readvcoud(qibz_k,kx,NoVcou=.false.) !Readin ngc,ngb,vcousq,zcousq ! Coulomb matrix
+            call Setppovlz(qibz_k,matz=.true.) !ppovlz overlap matrix
+            if(debug) write(6,*) ' sxcf_fal2sc: ngb ngc nbloch=',ngb,ngc,nbloch
+            kxold =kx
+         endif
+!! Get zmel(it,ib,itpp) = <phi(q,it) B(qbz_kr,ib) |phi(ittp,q-qbz_kr)>
          if(exchange) then
             nbmax = nt0p-nctot
          else
-            ebmx=1d10           !this is needed probably because to fill 1d99 for ekc(i) above boundary.
+            ebmx=1d10  !this is needed probably because to fill 1d99 for ekc(i) above boundary.
             nbmxe = count(ekc<ebmx)-nctot !nocc (ekc,ebmx,nstatetot)-nctot!
-            nbmax  = min(nband,nbmxe) !nbmx_sig,
+            nbmax  = min(nband,nbmxe) 
          endif
-         ntqxx = nbandmx(ip,isp) ! ntqxx is number of bands for <i|sigma|j>.
-         if(debug) write(6,*)' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
          nstate = nctot + nbmax ! = nstate for the case of correlation
-!     ! Get zmel(it,ib,itpp) = <phi(q,it) B(qbz_kr,ib) |phi(ittp,q-qbz_kr)>
          call Get_zmel_init(q,qibz_k,irot,qbz_kr,isp, nbmax,ntqxx,nctot,ncc=0,iprx=debug)
-         wtt = wk(kr)
-         if(eibz4sig()) wtt=wtt*nrkip(isp,kx,irot,ip)
          
 !     !-----------            
          ExchangeSelfEnergy: block
@@ -334,7 +332,6 @@ c         write (6,*) ip,'  out of ',nq,'  k-points(extrnal q) '
          
          if(timemix) call timeshow("33333 k-cycle")
          
-!     !-------------            
 !     ! Integration along imag axis for zwz(omega) for given it,itp,itpp
 !     ! itp  : left-hand end of expternal band index.
 !     ! itpp : right-hand end of expternal band index.
@@ -352,7 +349,7 @@ c         write (6,*) ip,'  out of ',nq,'  k-points(extrnal q) '
                read(ifrcwi(kx),rec=ix) zw ! direct access read Wc(i*omega)=W(i*omega)-v
             endif
             call matzwz2(2,zw(1:ngb,1:ngb),zmel,ntqxx,nstate,ngb,zwz(ixx,:,:,:))
-!     zwz = zmel*(W(i w)-v)*zmel
+                           !   zwz = zmel*(W(i w)-v)*zmel
             do istate = 1,nstate
                block
                complex(8):: zwx(ntqxx,ntqxx)
@@ -369,7 +366,7 @@ c         write (6,*) ip,'  out of ',nq,'  k-points(extrnal q) '
          esmrx(1:nctot)=0d0
          esmrx(nctot+1:nstate)=esmr
          omegat(1:ntqxx) = omega(1:ntqxx)
-!     ! Gaussian smearing. Integration weight wgtim along im axis for zwz(0:niw*npm) 
+!        Gaussian smearing. Integration weight wgtim along im axis for zwz(0:niw*npm) 
          do itp = 1,ntqxx
             do  it = 1,nstate
                we = .5d0*(omegat(itp)-ekc(it))
@@ -384,7 +381,6 @@ c         write (6,*) ip,'  out of ',nq,'  k-points(extrnal q) '
          endblock
          deallocate(zwz)
          endblock CorrelationSelfEnergyImagAxis
-         
 !     !-------------            
          CorrelationSelfEnergyRealAxis: block 
          if(debug)write(6,*)'GOTO contribution to SEc(qt,w) from the poles of G'
@@ -400,8 +396,6 @@ c         write (6,*) ip,'  out of ',nq,'  k-points(extrnal q) '
          call weightset4intreal(nctot,esmr,omega,ekc,freq_r,nw_i,nw,
      i        ntqxx,nt0m,nt0p,ef,nwx,nwxi,nt_max,wfaccut,wtt,
      o        we_,wfac_,ixss,ititpskip,iirx)
-!     ! We need zw3, the Hermitian part, because we need only hermitean part of Sigma_nn'
-!     ! This can be large array; nwx-nwxi+1 \sim 400 or so...
          do ix = nwxi,nwx
             nrec = ix-nw_i+1    !freq_r(ix is in nw_i:nx)
             read(ifrcw(kx),rec=nrec) zw ! direct access Wc(omega) = W(omega) - v
