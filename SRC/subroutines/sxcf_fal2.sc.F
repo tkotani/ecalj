@@ -171,7 +171,7 @@ c     complex(8),optional :: zsec(ntq,ntq,nq)
       real(8) :: wtt,wfac,we,esmrx
       real(8) :: qvv(3),eq(nband),omega(ntq),quu(3),freqw,ratio
       real(8) :: qibz_k(3),qbz_kr(3),vc,omega0,omg
-      complex(8),allocatable:: zwz(:,:,:,:), zw (:,:)
+      complex(8),allocatable:: zwz(:,:,:), zw (:,:)
       real(8), parameter :: wfaccut=1d-8,tolq=1d-8
       complex(8), parameter :: img=(0d0,1d0)
       character(5) :: charnum5
@@ -228,7 +228,7 @@ c      if(verbose()>=90) debug=.true.
          kxc(icount)=kx
          irotc(icount)=irot
          ipc(icount)=ip
-         krc(icount)=kr
+c         krc(icount)=kr
          qibz_k = qibz(:,kx)
          q(1:3)= qip(1:3,ip)
          eq = readeval(q,isp)
@@ -279,13 +279,14 @@ c           nbmax = nt0p-nctot
 !  main loop do 3030    
       if(nctot/=0) ekc(1:nctot)= ecore(1:nctot,isp) ! core
       kxold=-9999
-      nccc= max(ncount/50,1)
+      nccc= max(ncount/50,1) !just for printing
       do 3030 icount=1,ncount   !we only consider bzcase()==1 now
          isp =ispc(icount)
-         kx  =kxc(icount)
+         kx  =kxc(icount) !for W(kx), kx is irreducible
          irot=irotc(icount)
          ip  =ipc(icount)
-         kr  =krc(icount) ! NOTE: kr(kx,irot,ip) runs all the k mesh points required for q(ip).
+         kr  =irkip(isp,kx,irot,ip) !krc(icount)
+!     NOTE: =kr(kx,irot,ip) runs all the k mesh points required for q(ip).
          nt_max=nt_maxc(icount)
          nwxi=nwxic(icount)
          nwx =nwxc(icount)
@@ -313,7 +314,7 @@ c         if(debug) write(6,*)' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
             if(debug) write(6,*) ' sxcf_fal2sc: ngb ngc nbloch=',ngb,ngc,nbloch
             kxold =kx
          endif
-!! Get zmel(it,ib,itpp) = <phi(q,it) B(qbz_kr,ib) |phi(ittp,q-qbz_kr)>
+!! Get zmel(ib,itpp,it) = <M(qbz_kr,ib) phi(itpp,q-qbz_kr) |phi(q(ip),it)> , qbz_kr= irot(qibz_k)
          if(exchange) then
             nbmax = nt0p-nctot
          else
@@ -323,7 +324,7 @@ c         if(debug) write(6,*)' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
          endif
          nstate = nctot + nbmax ! = nstate for the case of correlation
          call Get_zmel_init(q,qibz_k,irot,qbz_kr,isp, nbmax,ntqxx,nctot,ncc=0,iprx=debug)
-!!
+!!  
         ExchangeSelfEnergy: Block
          real(8):: wfacx
          if(exchange) then      !At the bottom of this block, cycle do 1000 irot.
@@ -351,47 +352,46 @@ c         if(debug) write(6,*)' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
 !     ! itpp : right-hand end of expternal band index.
 !     ! it   : intermediate state of G.
 !     !===  See Eq.(55) around of PRB76,165106 (2007)
-        CorrelationSelfEnergyImagAxis: Block 
-         allocate( zwz(0:niw*npm,nstate,ntqxx,ntqxx), zw (nblochpmx,nblochpmx))
-         do ixx=0,niw !niw is ~10. ixx=0 is for omega=0 nw_i=0 (Time reversal) or nw_i =-nw
-            if(ixx==0) then
-               ix = 1 + (0 - nw_i) !at omega=0 ! nw_i=0 (Time reversal) or nw_i =-nw
-               read(ifrcw(kx),rec=ix) zw ! direct access read Wc(0) = W(0) - v
-            elseif(ixx>0) then
-               ix = ixx
-               read(ifrcwi(kx),rec=ix) zw ! direct access read Wc(i*omega)=W(i*omega)-v
-            endif
-            call matzwz2(2,zw(1:ngb,1:ngb),zmel,ntqxx,nstate,ngb,zwz(ixx,:,:,:))
-                           !   zwz = zmel*(W(i w)-v)*zmel
-            do istate = 1,nstate
-               Block
-               complex(8):: zwx(ntqxx,ntqxx)
-               zwx = zwz(ix,istate,1:ntqxx,1:ntqxx)
-               zwz(ix,istate,:,:)=(zwx+dconjg(transpose(zwx)))/2d0 ! w(iw) + w(-iw) Harmitian part
-               if(npm==2)zwz(ix+niw,istate,:,:)=(zwx-dconjg(transpose(zwx)))/2d0/img!w(iw)-w(-iw) Anti
-               EndBlock
-            enddo   
-         enddo
-         deallocate(zw)
-         Block
+!!!!!!!!
+         if(npm==2) call rx('sxcf: npm=2 need to be examined')
+         CorrelationSelfEnergyImagAxis: Block
          real(8):: esmrx(nstate),omegat(ntqxx),wgtim(0:npm*niw,ntqxx,nstate)
          esmrx(1:nctot)=0d0
          esmrx(nctot+1:nstate)=esmr
          omegat(1:ntqxx) = omega(1:ntqxx)
          do itp = 1,ntqxx
-          do  it = 1,nstate
+         do  it = 1,nstate
             we = .5d0*(omegat(itp)-ekc(it))
             call wintzsg_npm_wgtim(npm, ua_,expa_, we,esmrx(it), wgtim(:,itp,it))
-          enddo   !Integration weight wgtim along im axis for zwz(0:niw*npm) 
-          zsec(itp,:)=zsec(itp,:)+[(wtt*sum(wgtim(:,itp,:)*zwz(:,:,itp,itpp)),itpp=1,ntqxx)]
+         enddo   !Integration weight wgtim along im axis for zwz(0:niw*npm) 
          enddo
-         Endblock
+         allocate( zwz(nstate,ntqxx,ntqxx), zw (nblochpmx,nblochpmx))
+         do ixx=0,niw !niw is ~10. ixx=0 is for omega=0 nw_i=0 (Time reversal) or nw_i =-nw
+            if(ixx==0) then ! at omega=0 ! nw_i=0 (Time reversal) or nw_i =-nw
+               read(ifrcw(kx),rec=1+(0-nw_i)) zw ! direct access read Wc(0) = W(0) - v
+            elseif(ixx>0) then ! 
+               read(ifrcwi(kx),rec=ixx) zw ! direct access read Wc(i*omega)=W(i*omega)-v
+            endif
+            call matzwz2(2,zw(1:ngb,1:ngb),zmel,ntqxx,nstate,ngb,zwz) !zwz = zmel*(W(i w)-v)*zmel
+            do istate = 1,nstate
+               Block
+               complex(8):: zwx(ntqxx,ntqxx)
+               zwx = zwz(istate,1:ntqxx,1:ntqxx)
+               zwz(istate,:,:)=(zwx+dconjg(transpose(zwx)))/2d0 ! w(iw) + w(-iw) Harmitian part
+c     if(npm==2)zwz(ix+niw,istate,:,:)=(zwx-dconjg(transpose(zwx)))/2d0/img!w(iw)-w(-iw) Anti
+               EndBlock
+            enddo
+            do itp = 1,ntqxx
+              zsec(itp,:)=zsec(itp,:)+ wtt*matmul(wgtim(ixx,itp,:),zwz(:,itp,:)) !itp,itpp
+            enddo
+         enddo
+         deallocate(zw)
          deallocate(zwz)
          EndBlock CorrelationSelfEnergyImagAxis
 !
          CorrelationSelfEnergyRealAxis: Block 
          real(8):: we_(nt_max,ntqxx),wfac_(nt_max,ntqxx)
-         complex(8):: zw3(ngb,ngb,nwxi:nwx)
+         complex(8):: zw3(ngb,ngb,0:2)
          integer:: ixss(nt_max,ntqxx),iirx(ntqxx)
          logical:: ititpskip(nt_max,ntqxx)
          complex(8):: zw(nblochpmx,nblochpmx),img=(0d0,1d0)
@@ -399,40 +399,59 @@ c         if(debug) write(6,*)' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
          call weightset4intreal(nctot,esmr,omega,ekc,freq_r,nw_i,nw,
      i        ntqxx,nt0m,nt0p,ef,nwx,nwxi,nt_max,wfaccut,wtt,
      o        we_,wfac_,ixss,ititpskip,iirx)
-         do ix = nwxi,nwx ! !freq_r(ix is in nw_i:nx)
-           read(ifrcw(kx),rec=ix-nw_i+1) zw ! direct access Wc(omega) = W(omega) - v
-           if(hermitianW) then
-              zw3(:,:,ix)=(zw(1:ngb,1:ngb)+transpose(dconjg(zw(1:ngb,1:ngb))))/2d0
-           else
-              zw3(:,:,ix)=zw(1:ngb,1:ngb)
-           endif
-         enddo
          Block
          real(8):: wgt3(3,nt_max,ntqxx)
          complex(8)::zadd(ntqxx),zw33(ngb,ngb)
+         integer:: iwgt3(3,nt_max,ntqxx),i1,i2,iw,ikeep,ix
+         iwgt3=0
          do itp=1,ntqxx
          do it=1,nt_max
             if(ititpskip(it,itp)) cycle
             ixs= ixss(it,itp)
             if(npm==1) call alagr3z2wgt(we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp))
             if(npm==2) call alagr3zwgt (we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp))
+            iwgt3(1,it,itp)=iirx(itp)*(ixs+1-2)
+            iwgt3(2,it,itp)=iirx(itp)*(ixs+2-2)
+            iwgt3(3,it,itp)=iirx(itp)*(ixs+3-2)
          enddo
+            if(iirx(itp)/=1) call rx('sxcf: iirx=-1(TR breaking) is not yet implemented')
          enddo
-         do itp=1,ntqxx
-         do it=1,nt_max
+!        ix-shift mechanism for reading zw(:,:,ix)      
+         ikeep=99999
+         do ix = nwxi,nwx       !Set zw3(:,:,0:2) for 0:ix,1:ix+1,2:ix+2
+           if(.not.(any(iwgt3(1,:,:)==ix))) cycle
+           i1=0
+           if(ikeep+1==ix) then
+              zw3(:,:,0)=zw3(:,:,1) 
+              zw3(:,:,1)=zw3(:,:,2) 
+              i1=2
+           elseif(ikeep+2==ix) then  
+              zw3(:,:,0)=zw3(:,:,2) 
+              i1=1
+           endif
+           ikeep=ix
+           do iw=i1,2
+             read(ifrcw(kx),rec=iw+ix-nw_i+1) zw ! direct access Wc(omega) = W(omega) - v
+             if(hermitianW) zw3(:,:,iw)=(zw(1:ngb,1:ngb)+transpose(dconjg(zw(1:ngb,1:ngb))))/2d0
+             if(.not.hermitianW) zw3(:,:,iw)=zw(1:ngb,1:ngb) 
+           enddo
+!           
+           do itp=1,ntqxx
+           do it=1,nt_max
             if(ititpskip(it,itp)) cycle
-            ixs= ixss(it,itp)
-            zw33 = wgt3(1,it,itp)*zw3(:,:,iirx(itp)*(ixs+1-2))  
-     &           + wgt3(2,it,itp)*zw3(:,:,iirx(itp)*(ixs+2-2)) 
-     &           + wgt3(3,it,itp)*zw3(:,:,iirx(itp)*(ixs+3-2)) 
-            zadd(:) = matmul(matmul(dconjg(zmel(:,it,itp)),zw33),zmel(:,it,:))
+            if(iwgt3(1,it,itp)/=ix) cycle
+            zw33 = wgt3(1,it,itp)*zw3(:,:,0) !iwgt3(1,it,itp))
+     &           + wgt3(2,it,itp)*zw3(:,:,1) !iwgt3(2,it,itp))
+     &           + wgt3(3,it,itp)*zw3(:,:,2) !iwgt3(3,it,itp))
+            zadd(:) = matmul(matmul(dconjg(zmel(:,it,itp)),zw33),zmel(:,it,:))!itpp
             zadd(itp)= dreal(zadd(itp))+img*min(dimag(zadd(itp)),0d0) !forced to be negative im part
             zsec(itp,:)=zsec(itp,:)+ zadd(:)* wfac_(it,itp) !itpp
-         enddo
+           enddo
+           enddo
          enddo
          Endblock         
          EndBlock CorrelationSelfEnergyRealAxis
-         
+!         
          call Deallocate_zmel()
          if(verbose()>50) call timeshow("11after alagr3z iw,itp,it cycles")
  3030 continue
