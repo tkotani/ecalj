@@ -38,7 +38,7 @@ fi
 ###ref2cmd.awk %CMD program=lmfgw echoinput=0  target=$argv[1] output=llmfgw00 
 #>>>
 
-argin=0; run_arg $argin $NO_MPI  $nfpgw  /lmfgw-MPIK  llmfgw00 $TARGET 
+argin=0; run_arg $argin $NO_MPI  $nfpgw  /lmf-MPIK llmfgw00 $TARGET --jobgw 
 argin=1; run_arg $argin $NO_MPI  $nfpgw  /qg4gw lqg4gw   #Generate requied q+G v
 
 ### eigenvalues for micro-tetrahedron method. Rarely used.
@@ -47,7 +47,7 @@ argin=1; run_arg $argin $NO_MPI  $nfpgw  /qg4gw lqg4gw   #Generate requied q+G v
 #   argin=5; run_arg $argin $MPI_SIZE $nfpgw /lmfgw-MPIK llmfgw_eigval $TARGET
 #   mv eigval eigmtet
 # fi
-argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmfgw-MPIK llmfgw01 $TARGET
+argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmf-MPIK llmfgw01 $TARGET --jobgw 
 #run_arg  '---' $NO_MPI   $nfpgw /lmf2gw     llmf2gw  #reform data for gw
 
 ##### main stage of gw ################
