@@ -254,7 +254,8 @@ c      ef = ef_read
       enddo
       deallocate(eqt)
       call Hswriteinit()        !internal subroutine.  Write initial part of output files
-!! == irkip:  paralellization is contrlloed by irkip ==
+      
+!! == irkip:  parallelization is controled by irkip ==
 !! We have to distribute non-zero irkip to all ranks (irkip is dependent on rank).
 !! When irkip(nqibz,ngrp,nq,nspinmx)/=0, we expect grain-size 
 !! on each job of (iqibz,igrp,iq,isp) is almost the same.
@@ -262,8 +263,9 @@ c      ef = ef_read
       call Seteibzhs(nspinmx,nq,qvec,iprintx=MPI__root)
       allocate(irkip(nspinmx,nqibz,ngrp,nq)) ! local
       allocate(nrkip(nspinmx,nqibz,ngrp,nq)) ! nrkip is weight correspoinding to irkip for a node.
-      call MPI__sxcf_rankdivider(irkip,irkip_all,nspinmx,nqibz,ngrp,nq) ! MIZUHO-IR
-      nrkip = nrkip_all         ! we don't need to change this for MPI case. 
+      call MPI__sxcf_rankdivider(irkip,irkip_all,nspinmx,nqibz,ngrp,nq) 
+      nrkip = nrkip_all         ! we don't need to change this for MPI case.
+      
 ! ----> We need to distribute non-zero irkip to ranks.
       if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
       if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')

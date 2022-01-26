@@ -627,23 +627,18 @@ c$$$      end subroutine MPI__AllreduceSumS
 C     !======================================================
       subroutine MPI__sxcf_rankdivider(irkip,irkip_all,nspinmx,nqibz,ngrp,nq)
       implicit none
-
       integer, intent(out) :: irkip    (nspinmx,nqibz,ngrp,nq)
       integer, intent(in)  :: irkip_all(nspinmx,nqibz,ngrp,nq)
       integer, intent(in)  :: nspinmx,nqibz,ngrp,nq
-      
       integer :: ispinmx,iqibz,igrp,iq
       integer :: total
       integer, allocatable :: vtotal(:)
       integer :: indexi, indexe
       integer :: p
-
       if( mpi__size == 1 ) then
          irkip = irkip_all
          return
       end if
-
-c$$$      write(6,*) "irkip_all", mpi__rank
       total = 0
       do ispinmx=1, nspinmx
          do iq=1, nq
@@ -658,27 +653,20 @@ c$$$                     write(6,*) ispinmx, iq, iqibz, igrp, irkip_all(ispinmx,
          end do
       end do
       write(6,"('MPI__sxcf_rankdivider:$')")
-      write(6,"('nspinmx,nqibz,ngrp,nq,total=',5i6)")
-     &     nspinmx,nqibz,ngrp,nq,total 
-      
+      write(6,"('nspinmx,nqibz,ngrp,nq,total=',5i6)") nspinmx,nqibz,ngrp,nq,total 
       allocate( vtotal(0:mpi__size-1) )
       vtotal(:) = total/mpi__size
-
       do p=1, mod(total,mpi__size)
          vtotal(p-1) = vtotal(p-1) + 1
       end do
-
       indexe=0
       do p=0, mpi__rank
          indexi = indexe+1
          indexe = indexi+vtotal(p)-1
       end do
       deallocate(vtotal)
-
       total = 0
       irkip(:,:,:,:) = 0
-
-c$$$      write(6,*) "irkip", mpi__rank
       do ispinmx=1, nspinmx
          do iq=1, nq
             do iqibz=1, nqibz
@@ -687,7 +675,6 @@ c$$$      write(6,*) "irkip", mpi__rank
                      total = total + 1
                      if( indexi<=total .and. total<=indexe ) then
                         irkip(ispinmx,iqibz,igrp,iq) = irkip_all(ispinmx,iqibz,igrp,iq)
-c$$$                        write(6,*) ispinmx, iq, iqibz, igrp, irkip(ispinmx,iqibz,igrp,iq)
                      end if
                   end if
                end do
