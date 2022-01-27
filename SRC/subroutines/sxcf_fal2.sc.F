@@ -396,9 +396,12 @@ c     if(npm==2)zwz(ix+niw,istate,:,:)=(zwx-dconjg(transpose(zwx)))/2d0/img!w(iw
      i        ntqxx,nt0m,nt0p,ef,nwx,nwxi,nt_max,wfaccut,wtt,
      o        we_,wfac_,ixss,ititpskip,iirx)
          Block
-         real(8):: wgt3(3,nt_max,ntqxx)    !     3-point interpolation weight for we_(it,itp)
+         real(8):: wgt3(0:2,nt_max,ntqxx)    !     3-point interpolation weight for we_(it,itp)
          complex(8)::zadd(ntqxx),zw33(ngb,ngb) ! ixss is starting index of omega
-         integer:: iwgt3(3,nt_max,ntqxx),i1,i2,iw,ikeep,ix
+         integer:: iwgt3(nt_max,ntqxx),i1,i2,iw,ikeep,ix
+         integer:: ncountp(nwxi:nwx),icountp,ncoumx
+         integer,allocatable:: itc(:,:),itpc(:,:)
+         real(8),allocatable:: wgt3p(:,:,:)
          iwgt3=0
          do itp=1,ntqxx
          do it=1,nt_max
@@ -406,16 +409,43 @@ c     if(npm==2)zwz(ix+niw,istate,:,:)=(zwx-dconjg(transpose(zwx)))/2d0/img!w(iw
             ixs= ixss(it,itp)
             if(npm==1) call alagr3z2wgt(we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp))
             if(npm==2) call alagr3zwgt (we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp))
-            iwgt3(1,it,itp)=iirx(itp)*(ixs+1-2) !omega index
-            iwgt3(2,it,itp)=iirx(itp)*(ixs+2-2) !omega index
-            iwgt3(3,it,itp)=iirx(itp)*(ixs+3-2) !omega index
+            iwgt3(it,itp)=iirx(itp)*(ixs+1-2) !omega index
+c            iwgt3(1,it,itp)=iirx(itp)*(ixs+2-2) !omega index
+c            iwgt3(2,it,itp)=iirx(itp)*(ixs+3-2) !omega index
          enddo
             if(iirx(itp)/=1) call rx('sxcf: iirx=-1(TR breaking) is not yet implemented')
          enddo
+!! icount mechanism for sum
+         do ix = nwxi,nwx 
+           icountp=0
+           do itp=1,ntqxx
+           do it=1,nt_max
+            if(ititpskip(it,itp)) cycle
+            if(iwgt3(it,itp)/=ix) cycle
+            icountp=icountp+1
+           enddo
+           enddo
+           ncountp(ix)=icountp
+         enddo
+         ncoumx=maxval(ncountp)
+         allocate(itc(ncoumx,nwxi:nwx),itpc(ncoumx,nwxi:nwx),wgt3p(0:2,ncoumx,nwxi:nwx))
+         do ix = nwxi,nwx 
+           icountp=0
+           do itp=1,ntqxx
+           do it=1,nt_max
+            if(ititpskip(it,itp)) cycle
+            if(iwgt3(it,itp)/=ix) cycle
+            icountp=icountp+1
+            itc (icountp,ix)=it
+            itpc(icountp,ix)=itp
+            wgt3p(:,icountp,ix)=wgt3(:,it,itp)
+           enddo
+           enddo
+         enddo   
 !   ix-shift mechanism for reading zw(:,:,ix). 
          ikeep=99999
          do ix = nwxi,nwx       !Set zw3(:,:,0:2) for 0:ix,1:ix+1,2:ix+2
-           if(.not.(any(iwgt3(1,:,:)==ix))) cycle
+           if(.not.(any(iwgt3(:,:)==ix))) cycle
            i1=0
            if(ikeep+1==ix) then
               zw3(:,:,0)=zw3(:,:,1) 
@@ -432,18 +462,16 @@ c     if(npm==2)zwz(ix+niw,istate,:,:)=(zwx-dconjg(transpose(zwx)))/2d0/img!w(iw
              if(.not.hermitianW) zw3(:,:,iw)=zw(1:ngb,1:ngb) 
            enddo
 !         ! zw3 should contain zw(ix+0:ix+2)
-           do itp=1,ntqxx
-           do it=1,nt_max
-            if(ititpskip(it,itp)) cycle
-            if(iwgt3(1,it,itp)/=ix) cycle
-            zw33 = wgt3(1,it,itp)*zw3(:,:,0) !iwgt3(1,it,itp))
-     &           + wgt3(2,it,itp)*zw3(:,:,1) !iwgt3(2,it,itp))
-     &           + wgt3(3,it,itp)*zw3(:,:,2) !iwgt3(3,it,itp))
-            zadd(:) = matmul(matmul(dconjg(zmel(:,it,itp)),zw33),zmel(:,it,:))!itpp
-            zadd(itp)= dreal(zadd(itp))+img*min(dimag(zadd(itp)),0d0) !forced to be negative im part
-            zsec(itp,:)=zsec(itp,:)+ zadd(:)* wfac_(it,itp) !itpp
-           enddo
-           enddo
+           do icountp=1,ncountp(ix)
+              itp=itpc(icountp,ix)
+              it =itc(icountp,ix)
+              zw33 = zw3(:,:,0)*wgt3p(0,icountp,ix) ! zw33 = wgt3(0,it,itp)*zw3(:,:,0)
+     &             + zw3(:,:,1)*wgt3p(1,icountp,ix) !    + wgt3(1,it,itp)*zw3(:,:,1)
+     &             + zw3(:,:,2)*wgt3p(2,icountp,ix) !    + wgt3(2,it,itp)*zw3(:,:,2)
+              zadd(:) = matmul(matmul(dconjg(zmel(:,it,itp)),zw33),zmel(:,it,:)) !itpp
+              zadd(itp)= dreal(zadd(itp))+img*min(dimag(zadd(itp)),0d0) !forced to be negative im part
+              zsec(itp,:)=zsec(itp,:)+ zadd(:)* wfac_(it,itp) !itpp
+            enddo
          enddo
          Endblock         
         EndBlock CorrelationSelfEnergyRealAxis
