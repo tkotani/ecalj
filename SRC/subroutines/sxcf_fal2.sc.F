@@ -211,8 +211,8 @@ c      if(verbose()>=90) debug=.true.
       iqini = 1
       iqend = nqibz             !no sum for offset-Gamma points.
       icount=0
-      do 1200 isp = 1,nspinmx !empty run to get index for icount ordering
       do 1300 kx = iqini,iqend 
+      do 1200 isp = 1,nspinmx !empty run to get index for icount ordering
          if(sum(irkip(isp,kx,:,:))==0) cycle ! next kx
       do 1400 irot = 1,ngrp !over rotations irot ===
          if(sum(irkip(isp,kx,irot,:))==0) cycle ! next ip
@@ -254,8 +254,8 @@ c           nbmax = nt0p-nctot
          write(6,*) icount, ispc(icount),kxc(icount),' irot ',irot,ip,kr
  1500 continue
  1400 continue
- 1300 continue
  1200 continue
+ 1300 continue
       if(icount/=count(irkip/=0)) call rx('sxcf: icount/=count(irkip/=0)')
       EndBlock IcountBlock
       

@@ -639,19 +639,7 @@ C     !======================================================
          irkip = irkip_all
          return
       end if
-      total = 0
-      do ispinmx=1, nspinmx
-         do iq=1, nq
-            do iqibz=1, nqibz
-               do igrp=1, ngrp
-                  if( irkip_all(ispinmx,iqibz,igrp,iq) /= 0 ) then
-                     total = total + 1
-c$$$                     write(6,*) ispinmx, iq, iqibz, igrp, irkip_all(ispinmx,iqibz,igrp,iq)
-                  end if
-               end do
-            end do
-         end do
-      end do
+      total = count(irkip_all>0)
       write(6,"('MPI__sxcf_rankdivider:$')")
       write(6,"('nspinmx,nqibz,ngrp,nq,total=',5i6)") nspinmx,nqibz,ngrp,nq,total 
       allocate( vtotal(0:mpi__size-1) )
@@ -667,20 +655,20 @@ c$$$                     write(6,*) ispinmx, iq, iqibz, igrp, irkip_all(ispinmx,
       deallocate(vtotal)
       total = 0
       irkip(:,:,:,:) = 0
+      do iq=1, nq
       do ispinmx=1, nspinmx
-         do iq=1, nq
-            do iqibz=1, nqibz
-               do igrp=1, ngrp
-                  if( irkip_all(ispinmx,iqibz,igrp,iq) /= 0 ) then
-                     total = total + 1
-                     if( indexi<=total .and. total<=indexe ) then
-                        irkip(ispinmx,iqibz,igrp,iq) = irkip_all(ispinmx,iqibz,igrp,iq)
-                     end if
-                  end if
-               end do
-            end do
-         end do
-      end do
+      do iqibz=1, nqibz
+      do igrp=1, ngrp
+         if( irkip_all(ispinmx,iqibz,igrp,iq) >0 ) then
+            total = total + 1
+            if( indexi<=total .and. total<=indexe ) then
+               irkip(ispinmx,iqibz,igrp,iq) = irkip_all(ispinmx,iqibz,igrp,iq)
+            endif
+         endif
+      enddo
+      enddo
+      enddo
+      enddo
 
       return
       end subroutine MPI__sxcf_rankdivider
