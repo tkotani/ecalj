@@ -12,7 +12,7 @@
       use m_readqg,only:  ngpmx,ngcmx
       use m_readhbe,only: nband,mrecg
       use m_hamindex,only: ngrp
-      use m_eibzhs,only: eibzsym,tiii,nrkip=>nrkip_all,irkip_all
+      use m_eibzhs,only: nrkip=>nrkip_all,irkip_all
       use m_readgwinput,only: ua_,  corehole,wcorehole
       use m_mpi,only: MPI__sxcf_rankdivider
       implicit none
@@ -322,7 +322,7 @@ c         if(debug) write(6,*)' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
 !---------
         ExchangeSelfEnergy: Block
          real(8):: wfacx
-         if(exchange) then      !At the bottom of this block, cycle do 1000 irot.
+         if(exchange) then      
             allocate(vcoud_(ngb),wtff(nctot+nbmax),w3p(nctot+nbmax)) 
             vcoud_= vcoud
             if(kx == iqini) vcoud_(1) = wklm(1)* fpi*sqrt(fpi) /wk(kx)
@@ -337,7 +337,7 @@ c         if(debug) write(6,*)' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
             enddo
             enddo
             deallocate(vcoud_,wtff,w3p)
-            cycle               ! next irot do 1000 loop
+            cycle               
          endif                  ! end of if(exchange)
         EndBlock ExchangeSelfEnergy
          
@@ -452,13 +452,6 @@ c     if(npm==2)zwz(ix+niw,istate,:,:)=(zwx-dconjg(transpose(zwx)))/2d0/img!w(iw
          if(verbose()>50) call timeshow("11after alagr3z iw,itp,it cycles")
  3030 continue
       
-      SymmetrizeZsec :Block
-      if(eibz4sig())then   
-       do isp=1,nspinmx
-        call zsecsym(zsecall(:,:,:,isp),ntq,nq,nband,nbandmx,nspinmx,nspin,eibzsym,ngrp,tiii,qip,isp)
-       enddo
-      endif 
-      EndBlock SymmetrizeZsec
       end subroutine sxcf_scz
 
       

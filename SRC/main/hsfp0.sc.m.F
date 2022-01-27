@@ -99,7 +99,7 @@ c     &                          !ppbir,miat,tiat,shtvg,
       use m_readfreq_r,only: Readfreq_r, nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i,nw, freq_r
 c      use m_readq0p,only: ReadQ0P, nq0i, wqt,q0i
       use m_selectqp,only:Getqpoint,qvec,nq
-      use m_eibzhs,only: Seteibzhs 
+      use m_eibzhs,only: Seteibzhs, eibzsym,tiii
       use m_readgwinput,only: ReadGwinputKeys,SetIsigMode, ebmx_sig,nbmx_sig,ISigMode
 c      use m_readepswklm,only: Readepswklm    ! ,wklm,lxklm,dmlx,epinvq0i
       use m_hamindex,only:ngrp
@@ -127,11 +127,11 @@ c
      & ixc,  maxocc, iaf, ip, is, nspinmx, i, ifoutsex, ix, ifoutsec,
      & ifsec(2), ifxc(2),ifsex(2), ifsex2(2),ifsec2(2),  ifsecomg(2),
      & nq0ix, incwfin, ngpn1,ngcn1,
-     &  iqxend,iqxini, timevalues(8) , ret,dest ,irank,ifidmlx,iq0i
+     &  iqxend,iqxini, timevalues(8) , ret,dest ,irank,isp
       real(8) :: voltot,valn,efnew, rydberg,hartree,qreal(3), tripl !rs,alpha,ntot,
       real(8) ::  wgtq0p,quu(3), eftrue,esmref,esmr,ef !,ecorem
       character(128) :: ixcc
-      logical :: legas, exonly, iprintx, eibz4sig, selectqp=.false.,diagonly=.false.
+      logical :: legas, exonly, iprintx, selectqp=.false.,diagonly=.false.
       logical :: exchange, hermitianW, screen = .false. 
       integer,allocatable:: irkip(:,:,:,:), nrkip(:,:,:,:)
       real(8),allocatable:: vxcfp(:,:,:), eqt(:), eq(:), eqx(:,:,:),eqx0(:,:,:)
@@ -262,14 +262,25 @@ c      ef = ef_read
 !! Our pupose is to calculate the self-energy zsec(itp,itpp,iq).
       call Seteibzhs(nspinmx,nq,qvec,iprintx=MPI__root)
       
-! ----> We need to distribute non-zero irkip to ranks.
+      Main4SelfEnergy: Block
       if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
       if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')
       if (.not.iSigMode==3) call rx('sxcf_scz: only for jobsw=3')
       call sxcf_scz (qip= qvec, ef= ef,esmr= esmr, nq= nq,
      i   exchange= exchange, hermitianW= hermitianW,
-     i   jobsw= iSigMode, nbandmx=nbandmx,ixc=ixc,nspinmx=nspinmx) !nbandmx is input mar2015
+     i     jobsw= iSigMode, nbandmx=nbandmx,ixc=ixc,nspinmx=nspinmx) !nbandmx is input mar2015
+      EndBlock Main4SelfEnergy
+      
+      SymmetrizeZsec :Block
+      logical:: eibz4sig
+      if(eibz4sig())then   
+       do isp=1,nspinmx
+        call zsecsym(zsecall(:,:,:,isp),ntq,nq,nband,nbandmx,nspinmx,nspin,eibzsym,ngrp,tiii,qvec,isp)
+       enddo
+      endif 
+      EndBlock SymmetrizeZsec
       call MPI__reduceSum(root=0, data=zsecall, sizex=ntq*ntq*nq*nspinmx )
+      
       if(MPI__root) then
         do is=1,nspinmx
         zsec => zsecall(:,:,:,is)
