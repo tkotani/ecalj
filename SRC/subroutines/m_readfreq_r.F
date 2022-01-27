@@ -4,7 +4,8 @@
 !     ! Readin WV.d (dimension file)
 !     direct access files WVR and WVI which include W-V.
       implicit none
-      integer,protected::nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i,nw,npm
+      integer:: mrecl
+      integer,protected::nprecx,nblochpmx,nwp,niwt, nqnum, nw_i,nw,npm
       real(8),allocatable,protected:: freq_r(:)
       real(8),protected,allocatable::freqx(:),freqw(:),wwx(:),expa_(:)
 
