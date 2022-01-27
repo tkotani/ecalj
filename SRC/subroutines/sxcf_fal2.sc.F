@@ -12,17 +12,18 @@
       use m_readqg,only:  ngpmx,ngcmx
       use m_readhbe,only: nband,mrecg
       use m_hamindex,only: ngrp
-      use m_eibzhs,only: eibzsym,tiii
-      use m_readgwinput,only: ua_
+      use m_eibzhs,only: eibzsym,tiii,nrkip=>nrkip_all,irkip_all
+      use m_readgwinput,only: ua_,  corehole,wcorehole
+      use m_mpi,only: MPI__sxcf_rankdivider
       implicit none
 !---------------------------------      
       public sxcf_scz, zsecall
-      complex(8),allocatable,target:: zsecall(:,:,:,:)
+      complex(8),allocatable,target:: zsecall(:,:,:,:) !output
       private
       contains
       
-      subroutine sxcf_scz(qip,ef,esmr,irkip,nrkip,nq,exchange,jobsw,hermitianW,nbandmx,ixc,nspinmx)
-      intent(in)          qip,ef,esmr,irkip,nrkip,nq,exchange,jobsw,hermitianW,nbandmx,ixc,nspinmx
+      subroutine sxcf_scz(qip,ef,esmr,nq,exchange,jobsw,hermitianW,nbandmx,ixc,nspinmx)
+      intent(in)          qip,ef,esmr,nq,exchange,jobsw,hermitianW,nbandmx,ixc,nspinmx
 !> \brief
 !! Calcualte full simga_ij(e_i)= <i|Re[Sigma](e_i)|j> 
 !! ---------------------
@@ -151,7 +152,7 @@
 !! ----------------------------------------------
 !! \endverbatim
       logical :: exchange
-      integer :: nq,isp,nspinmx,irkip(nspinmx,nqibz,ngrp,nq),nrkip(nspinmx,nqibz,ngrp,nq), jobsw 
+      integer :: nq,isp,nspinmx,jobsw 
       integer :: nbandmx(nq,nspinmx)
       real(8) :: ef,esmr, qip(3,nq)
       real(8):: ebmx
@@ -181,34 +182,29 @@ c     complex(8),optional :: zsec(ntq,ntq,nq)
       real(8),allocatable:: we_(:,:),wfac_(:,:)
       complex(8),allocatable:: w3p(:),wtff(:)
       logical:: tote=.false., hermitianW
-      real(8),allocatable:: wcorehole(:,:),vcoud_(:),wfft(:)
-      logical:: corehole,iprx,cmdopt0
-      integer:: ifcorehole,ixx,ixc,icount
+      real(8),allocatable:: vcoud_(:),wfft(:)
+      logical:: iprx,cmdopt0
+      integer:: ixx,ixc,icount
       real(8),parameter:: pi=4d0*datan(1d0), fpi=4d0*pi, tpi=8d0*datan(1d0),ddw=10d0
       integer:: ncount,kxold,nccc
       integer,allocatable:: ispc(:),kxc(:),irotc(:),ipc(:),krc(:)
-      integer,allocatable:: nwxic(:), nwxc(:), nt_maxc(:)
+      integer,allocatable:: nwxic(:), nwxc(:), nt_maxc(:),irkip(:,:,:,:)
 c      if(verbose()>=90) debug=.true.
 !!----------------------------------------------------------------
+!!!!!!!!!!!
+      if(npm==2) call rx('sxcf: npm=2 need to be examined')
+!!!!!!!!!!!
+
       allocate(zsecall(ntq,ntq,nq,nspinmx)) !, coh(ntq,nq) ) kount(nqibz,nq),
       zsecall = 0d0
       if(ixc==3.and.nctot==0) return
-!      
-      corehole = cmdopt0('--corehole')
-      if(corehole) then
-        open(newunit=ifcorehole,file='CoreHole') 
-        allocate(wcorehole(nctot,nspin))
-        do it=1,nctot
-          read(ifcorehole,*) wcorehole(it,1:nspin)
-        enddo
-        close(ifcorehole)
-        write(*,*) 'corehole mode: end of reading CoreHole' 
-      endif
       
+!  We divide irkip_all into irkip for nodes. irkip is dependent on rank.
+!  Total number of none zero irkip for all ranks is the number of nonzero irkip_all
+      allocate(irkip(nspinmx,nqibz,ngrp,nq)) ! nrkip is weight correspoinding to irkip for a node.
+      call MPI__sxcf_rankdivider(irkip_all,nspinmx,nqibz,ngrp,nq,  irkip)
 !  icount mechanism
       IcountBlock: Block
-      if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
-      if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')
       ncount=count(irkip/=0)
       allocate(ispc(ncount),kxc(ncount),irotc(ncount),ipc(ncount),krc(ncount))
       allocate(nwxic(ncount), nwxc(ncount), nt_maxc(ncount))
@@ -223,12 +219,12 @@ c      if(verbose()>=90) debug=.true.
       do 1500 ip = 1,nq         
          kr = irkip(isp,kx,irot,ip) ! index for rotated kr in the FBZ
          if(kr==0) cycle
-         icount=icount+1
-         ispc(icount)=isp
+         icount=icount+1  
+         ispc(icount)=isp !icount specify isp,kx,irot,iq. (kx,irot) gives kr in the all FZ.
          kxc(icount)=kx
          irotc(icount)=irot
          ipc(icount)=ip
-c         krc(icount)=kr
+         krc(icount)=kr
          qibz_k = qibz(:,kx)
          q(1:3)= qip(1:3,ip)
          eq = readeval(q,isp)
@@ -250,8 +246,8 @@ c           nbmax = nt0p-nctot
            nstate = nctot + nbmax ! = nstate for the case of correlation
            call get_nwx(omega,ntq,ntqxx,nt0p,nt0m,nstate,freq_r,
      i        nw_i,nw,esmr,ef,ekc,wfaccut,nctot,nband,debug,
-     o        nwxi,nwx,nt_max)  ! Get index nwxi nwx nt_max.
-           nwxic(icount)=nwxi
+     o        nwxi,nwx,nt_max)! Get index nwxi nwx nt_max. 
+           nwxic(icount)=nwxi ! get_nwx is not written clearly, but works and not time-consuming.
            nwxc(icount)=nwx
            nt_maxc(icount)=nt_max
          endif
@@ -267,7 +263,7 @@ c           nbmax = nt0p-nctot
       if(.not.exchange) then
          allocate(ifrcw(iqini:iqend),ifrcwi(iqini:iqend))
          do kx=iqini,iqend
-           if(any(kx==kxc)) then
+           if(any(kx==kxc)) then !only for requied files for this rank
            open(newunit=ifrcw(kx),  file='WVR.'//charnum5(kx), action='read',form='unformatted',
      &           status='unknown',access='direct',recl=mrecl)
            open(newunit=ifrcwi(kx), file='WVI.'//charnum5(kx), action='read',form='unformatted',
@@ -285,8 +281,7 @@ c           nbmax = nt0p-nctot
          kx  =kxc(icount) !for W(kx), kx is irreducible
          irot=irotc(icount)
          ip  =ipc(icount)
-         kr  =irkip(isp,kx,irot,ip) !krc(icount)
-!     NOTE: =kr(kx,irot,ip) runs all the k mesh points required for q(ip).
+         kr  =krc(icount) !=irkip(isp,kx,irot,ip) runs all the k mesh points required for q(ip).
          nt_max=nt_maxc(icount)
          nwxi=nwxic(icount)
          nwx =nwxc(icount)
@@ -324,13 +319,14 @@ c         if(debug) write(6,*)' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
          endif
          nstate = nctot + nbmax ! = nstate for the case of correlation
          call Get_zmel_init(q,qibz_k,irot,qbz_kr,isp, nbmax,ntqxx,nctot,ncc=0,iprx=debug)
-!!  
+!---------
         ExchangeSelfEnergy: Block
          real(8):: wfacx
          if(exchange) then      !At the bottom of this block, cycle do 1000 irot.
             allocate(vcoud_(ngb),wtff(nctot+nbmax),w3p(nctot+nbmax)) 
             vcoud_= vcoud
             if(kx == iqini) vcoud_(1) = wklm(1)* fpi*sqrt(fpi) /wk(kx)
+                    !voud_(1) is effective v(q=0) averaged in the Gamma cell.
             wtff= [(wfacx(-1d99, ef, ekc(it), esmr),it=1,nctot+nbmax)]
             do itpp= 1,ntqxx
             do itp = 1,ntqxx !S[j=1,nbloch]  z1p(j,t,n) <B(rk,j) psi(q-rk,n) |psi(q,t')>
@@ -352,9 +348,9 @@ c         if(debug) write(6,*)' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
 !     ! itpp : right-hand end of expternal band index.
 !     ! it   : intermediate state of G.
 !     !===  See Eq.(55) around of PRB76,165106 (2007)
-!!!!!!!!
-         if(npm==2) call rx('sxcf: npm=2 need to be examined')
-         CorrelationSelfEnergyImagAxis: Block
+!
+!---------
+        CorrelationSelfEnergyImagAxis: Block
          real(8):: esmrx(nstate),omegat(ntqxx),wgtim(0:npm*niw,ntqxx,nstate)
          esmrx(1:nctot)=0d0
          esmrx(nctot+1:nstate)=esmr
@@ -387,9 +383,9 @@ c     if(npm==2)zwz(ix+niw,istate,:,:)=(zwx-dconjg(transpose(zwx)))/2d0/img!w(iw
          enddo
          deallocate(zw)
          deallocate(zwz)
-         EndBlock CorrelationSelfEnergyImagAxis
-!
-         CorrelationSelfEnergyRealAxis: Block 
+        EndBlock CorrelationSelfEnergyImagAxis
+!---------
+        CorrelationSelfEnergyRealAxis: Block 
          real(8):: we_(nt_max,ntqxx),wfac_(nt_max,ntqxx)
          complex(8):: zw3(ngb,ngb,0:2)
          integer:: ixss(nt_max,ntqxx),iirx(ntqxx)
@@ -400,8 +396,8 @@ c     if(npm==2)zwz(ix+niw,istate,:,:)=(zwx-dconjg(transpose(zwx)))/2d0/img!w(iw
      i        ntqxx,nt0m,nt0p,ef,nwx,nwxi,nt_max,wfaccut,wtt,
      o        we_,wfac_,ixss,ititpskip,iirx)
          Block
-         real(8):: wgt3(3,nt_max,ntqxx)
-         complex(8)::zadd(ntqxx),zw33(ngb,ngb)
+         real(8):: wgt3(3,nt_max,ntqxx)    !     3-point interpolation weight for we_(it,itp)
+         complex(8)::zadd(ntqxx),zw33(ngb,ngb) ! ixss is starting index of omega
          integer:: iwgt3(3,nt_max,ntqxx),i1,i2,iw,ikeep,ix
          iwgt3=0
          do itp=1,ntqxx
@@ -410,13 +406,13 @@ c     if(npm==2)zwz(ix+niw,istate,:,:)=(zwx-dconjg(transpose(zwx)))/2d0/img!w(iw
             ixs= ixss(it,itp)
             if(npm==1) call alagr3z2wgt(we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp))
             if(npm==2) call alagr3zwgt (we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp))
-            iwgt3(1,it,itp)=iirx(itp)*(ixs+1-2)
-            iwgt3(2,it,itp)=iirx(itp)*(ixs+2-2)
-            iwgt3(3,it,itp)=iirx(itp)*(ixs+3-2)
+            iwgt3(1,it,itp)=iirx(itp)*(ixs+1-2) !omega index
+            iwgt3(2,it,itp)=iirx(itp)*(ixs+2-2) !omega index
+            iwgt3(3,it,itp)=iirx(itp)*(ixs+3-2) !omega index
          enddo
             if(iirx(itp)/=1) call rx('sxcf: iirx=-1(TR breaking) is not yet implemented')
          enddo
-!        ix-shift mechanism for reading zw(:,:,ix)      
+!   ix-shift mechanism for reading zw(:,:,ix). 
          ikeep=99999
          do ix = nwxi,nwx       !Set zw3(:,:,0:2) for 0:ix,1:ix+1,2:ix+2
            if(.not.(any(iwgt3(1,:,:)==ix))) cycle
@@ -435,7 +431,7 @@ c     if(npm==2)zwz(ix+niw,istate,:,:)=(zwx-dconjg(transpose(zwx)))/2d0/img!w(iw
              if(hermitianW) zw3(:,:,iw)=(zw(1:ngb,1:ngb)+transpose(dconjg(zw(1:ngb,1:ngb))))/2d0
              if(.not.hermitianW) zw3(:,:,iw)=zw(1:ngb,1:ngb) 
            enddo
-!           
+!         ! zw3 should contain zw(ix+0:ix+2)
            do itp=1,ntqxx
            do it=1,nt_max
             if(ititpskip(it,itp)) cycle
@@ -450,11 +446,12 @@ c     if(npm==2)zwz(ix+niw,istate,:,:)=(zwx-dconjg(transpose(zwx)))/2d0/img!w(iw
            enddo
          enddo
          Endblock         
-         EndBlock CorrelationSelfEnergyRealAxis
+        EndBlock CorrelationSelfEnergyRealAxis
 !         
          call Deallocate_zmel()
          if(verbose()>50) call timeshow("11after alagr3z iw,itp,it cycles")
  3030 continue
+      
       SymmetrizeZsec :Block
       if(eibz4sig())then   
        do isp=1,nspinmx

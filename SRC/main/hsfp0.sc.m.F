@@ -91,7 +91,7 @@ c     &                          !ppbir,miat,tiat,shtvg,
       use m_sxcfsc,only: Sxcf_scz,zsecall
 !     ! MPI
       use m_mpi,only: 
-     &     MPI__Initialize,MPI__real8send,MPI__real8recv,MPI__send_iv,MPI__recv_iv,MPI__sxcf_rankdivider,
+     &     MPI__Initialize,MPI__real8send,MPI__real8recv,MPI__send_iv,MPI__recv_iv,
      &     MPI__Finalize,MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum,
      &     MPI__consoleout,
      &     MPI__barrier, MPI__reduceSum
@@ -99,7 +99,7 @@ c     &                          !ppbir,miat,tiat,shtvg,
       use m_readfreq_r,only: Readfreq_r, nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i,nw, freq_r
 c      use m_readq0p,only: ReadQ0P, nq0i, wqt,q0i
       use m_selectqp,only:Getqpoint,qvec,nq
-      use m_eibzhs,only: Seteibzhs,  eibzsym,irkip_all,nrkip_all,tiii
+      use m_eibzhs,only: Seteibzhs 
       use m_readgwinput,only: ReadGwinputKeys,SetIsigMode, ebmx_sig,nbmx_sig,ISigMode
 c      use m_readepswklm,only: Readepswklm    ! ,wklm,lxklm,dmlx,epinvq0i
       use m_hamindex,only:ngrp
@@ -261,19 +261,13 @@ c      ef = ef_read
 !! on each job of (iqibz,igrp,iq,isp) is almost the same.
 !! Our pupose is to calculate the self-energy zsec(itp,itpp,iq).
       call Seteibzhs(nspinmx,nq,qvec,iprintx=MPI__root)
-      allocate(irkip(nspinmx,nqibz,ngrp,nq)) ! local
-      allocate(nrkip(nspinmx,nqibz,ngrp,nq)) ! nrkip is weight correspoinding to irkip for a node.
-      call MPI__sxcf_rankdivider(irkip,irkip_all,nspinmx,nqibz,ngrp,nq) 
-      nrkip = nrkip_all         ! we don't need to change this for MPI case.
       
 ! ----> We need to distribute non-zero irkip to ranks.
       if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
       if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')
       if (.not.iSigMode==3) call rx('sxcf_scz: only for jobsw=3')
-      call sxcf_scz (qip= qvec, ef= ef,esmr= esmr, !isp= is,   
-     i   irkip= irkip,nrkip= nrkip,nq= nq,
-     i   exchange= exchange, 
-     i   hermitianW= hermitianW,
+      call sxcf_scz (qip= qvec, ef= ef,esmr= esmr, nq= nq,
+     i   exchange= exchange, hermitianW= hermitianW,
      i   jobsw= iSigMode, nbandmx=nbandmx,ixc=ixc,nspinmx=nspinmx) !nbandmx is input mar2015
       call MPI__reduceSum(root=0, data=zsecall, sizex=ntq*ntq*nq*nspinmx )
       if(MPI__root) then

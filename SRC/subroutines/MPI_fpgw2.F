@@ -625,7 +625,7 @@ c$$$      end subroutine MPI__AllreduceSumS
 
 
 C     !======================================================
-      subroutine MPI__sxcf_rankdivider(irkip,irkip_all,nspinmx,nqibz,ngrp,nq)
+      subroutine MPI__sxcf_rankdivider(irkip_all,nspinmx,nqibz,ngrp,nq,irkip)
       implicit none
       integer, intent(out) :: irkip    (nspinmx,nqibz,ngrp,nq)
       integer, intent(in)  :: irkip_all(nspinmx,nqibz,ngrp,nq)

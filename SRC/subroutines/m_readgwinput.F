@@ -1,4 +1,5 @@
       module m_readgwinput
+      use m_genallcf_v3,only: nspin,nctot
       implicit none
 !! Read values from GWinput
       real(8),protected:: egauss,ecut,ecuts,ebmx ,ebmx_sig,ua_
@@ -6,6 +7,9 @@
       integer,protected:: mtet(3),nmbas
       integer,protected,allocatable:: imbas(:)
       logical,protected:: keeppositivecou
+      logical,protected,public:: corehole
+      real(8),allocatable:: wcorehole(:,:)
+
       contains
       subroutine SetIsigmode(ism)
       integer ism
@@ -15,10 +19,12 @@
       use m_keyvalue,only: Getkeyvalue
       use m_genallcf_v3,only: natom
       use m_readhbe,only: nband
+      logical:: cmdopt0
 c     use NaNum,only: NaN
 c      integer:: nband
       integer:: istat
       integer,allocatable:: imbasd(:)
+      integer :: ifcorehole,it,nctot,nspin
       call Getkeyvalue("GWinput","ecut_p" ,ecut, default=1d10 )
       call Getkeyvalue("GWinput","ecuts_p",ecuts,default=1d10 )
       
@@ -51,6 +57,18 @@ c      call GETKEYVALUE("GWinput","EXonly",wex,default=0d0)
       call getkeyvalue("GWinput","MagAtom", imbas,nmbas,status=istat,default=imbasd)
       nmbas = istat
       if(nmbas>0) write(6,"('Readin MagAtom nmbas =',i3,' imbas= ',10i3)") nmbas,imbas(1:nmbas)
+!
+      corehole = cmdopt0('--corehole')
+      if(corehole) then
+        open(newunit=ifcorehole,file='CoreHole') 
+        allocate(wcorehole(nctot,nspin))
+        do it=1,nctot
+          read(ifcorehole,*) wcorehole(it,1:nspin)
+        enddo
+        close(ifcorehole)
+        write(*,*) 'corehole mode: end of reading CoreHole' 
+      endif
+      
       end subroutine
       end module
 
