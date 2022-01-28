@@ -366,13 +366,15 @@ c         if(debug) write(6,*)' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
             elseif(ixx>0) then ! 
                read(ifrcwi(kx),rec=ixx) zw ! direct access read Wc(i*omega)=W(i*omega)-v
             endif
-            call matzwz2(2,zw(1:ngb,1:ngb),zmel,ntqxx,nstate,ngb,zwz) !zwz = zmel*(W(i w)-v)*zmel
-            do istate = 1,nstate
+c     call matzwz2(2,zw(1:ngb,1:ngb),zmel,ntqxx,nstate,ngb,zwz) 
+            do it = 1,nstate
+               zwz(it,:,:)=matmul( transpose(dconjg(zmel(1:ngb,it,:))),
+     &          matmul(zw(1:ngb,1:ngb),zmel(:,it,:))) !!zwz = zmel*(W(i w)-v)*zmel
                Block
                complex(8):: zwx(ntqxx,ntqxx)
-               zwx = zwz(istate,1:ntqxx,1:ntqxx)
-               zwz(istate,:,:)=(zwx+dconjg(transpose(zwx)))/2d0 ! w(iw) + w(-iw) Harmitian part
-c     if(npm==2)zwz(ix+niw,istate,:,:)=(zwx-dconjg(transpose(zwx)))/2d0/img!w(iw)-w(-iw) Anti
+               zwx = zwz(it,1:ntqxx,1:ntqxx)
+               zwz(it,:,:)=(zwx+dconjg(transpose(zwx)))/2d0 ! w(iw) + w(-iw) Harmitian part
+c     if(npm==2)zwz(ix+niw,it,:,:)=(zwx-dconjg(transpose(zwx)))/2d0/img!w(iw)-w(-iw) Anti
                EndBlock
             enddo
             do itp = 1,ntqxx

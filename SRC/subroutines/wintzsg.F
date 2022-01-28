@@ -253,54 +253,54 @@ c takao complex version of wint by ferdi
       enddo
       deallocate(CC)
       end
-!sssssssssssssssssssssssssssssssssssssssssssssssssssssss      
-      subroutine matzwz2(iSigma_en ,zw,zmel, ntq,nstate,ngb, zwz) 
-      use m_mpi, only: mpi__rank
-      implicit none
-      integer(4), intent(in) :: iSigma_en
-      complex(8), intent(in) :: zw(ngb,ngb),zmel(ngb,nstate,ntq)
-      integer(4), intent(in) :: nstate,ntq,ngb
-      complex(8), intent(out) :: zwz(nstate,ntq,ntq)
-      integer(4) :: itp,itpp,it
-      complex(8) :: zdotc
-      complex(8), allocatable :: CC(:,:,:)
-      complex(8),allocatable:: z1r(:,:),z2r(:,:), zwzi(:,:)
-      integer :: ivc,verbose
-      allocate(CC(ngb,nstate,ntq) )
-      call matm(zw,zmel,cc, ngb, ngb, nstate*ntq) !most time consuming part
-      if (iSigma_en==1.or.iSigma_en==5) then                      
-        zwz=0d0
-        do itp = 1,ntq
-          do  it = 1,nstate
-            zwz(it,itp,itp)=
-     &    zdotc(ngb,zmel(1,it,itp),1,CC(1,it,itp),1 )
-          enddo
-        enddo
-      elseif (iSigma_en==2 .or. iSigma_en==3 ) then
-        if(verbose()>39)write(*,*)'info: USE GEMM FOR SUM (zwz=zmel*cc)'
-        allocate(z1r(ntq,ngb),z2r(ngb,ntq),zwzi(ntq,ntq))
-        do  it = 1, nstate
-          do  itp = 1, ntq
-            do  ivc = 1, ngb
-              z1r(itp,ivc) = dconjg(zmel(ivc,it,itp))
-              z2r(ivc,itp) = CC(ivc,it,itp)
-            enddo
-          enddo
-          call zgemm('N','N',ntq,ntq,ngb,(1d0,0d0),z1r,ntq,
-     .      z2r,ngb,(0d0,0d0),zwzi,ntq)
-          do  itp = 1, ntq
-            do itpp = 1, ntq
-              zwz(it,itp,itpp) = zwzi(itp,itpp)
-            enddo
-          enddo
-        enddo
-        deallocate(z1r,z2r,zwzi)
-      else
-        call rx( "sxcf, matzwz2: iSigma_en /= 0,1,2,3")
-      endif
-      deallocate(CC)
-      end subroutine matzwz2
-!sssssssssssssssssssssssssssssssssssssssssssssssssssssss      
+c$$$!sssssssssssssssssssssssssssssssssssssssssssssssssssssss      
+c$$$      subroutine matzwz2(iSigma_en ,zw,zmel, ntq,nstate,ngb, zwz) 
+c$$$      use m_mpi, only: mpi__rank
+c$$$      implicit none
+c$$$      integer(4), intent(in) :: iSigma_en
+c$$$      complex(8), intent(in) :: zw(ngb,ngb),zmel(ngb,nstate,ntq)
+c$$$      integer(4), intent(in) :: nstate,ntq,ngb
+c$$$      complex(8), intent(out) :: zwz(nstate,ntq,ntq)
+c$$$      integer(4) :: itp,itpp,it
+c$$$      complex(8) :: zdotc
+c$$$      complex(8), allocatable :: CC(:,:,:)
+c$$$      complex(8),allocatable:: z1r(:,:),z2r(:,:), zwzi(:,:)
+c$$$      integer :: ivc,verbose
+c$$$      allocate(CC(ngb,nstate,ntq) )
+c$$$      call matm(zw,zmel,cc, ngb, ngb, nstate*ntq) !most time consuming part
+c$$$      if (iSigma_en==1.or.iSigma_en==5) then                      
+c$$$        zwz=0d0
+c$$$        do itp = 1,ntq
+c$$$          do  it = 1,nstate
+c$$$            zwz(it,itp,itp)=
+c$$$     &    zdotc(ngb,zmel(1,it,itp),1,CC(1,it,itp),1 )
+c$$$          enddo
+c$$$        enddo
+c$$$      elseif (iSigma_en==2 .or. iSigma_en==3 ) then
+c$$$        if(verbose()>39)write(*,*)'info: USE GEMM FOR SUM (zwz=zmel*cc)'
+c$$$        allocate(z1r(ntq,ngb),z2r(ngb,ntq),zwzi(ntq,ntq))
+c$$$        do  it = 1, nstate
+c$$$          do  itp = 1, ntq
+c$$$            do  ivc = 1, ngb
+c$$$              z1r(itp,ivc) = dconjg(zmel(ivc,it,itp))
+c$$$              z2r(ivc,itp) = CC(ivc,it,itp)
+c$$$            enddo
+c$$$          enddo
+c$$$          call zgemm('N','N',ntq,ntq,ngb,(1d0,0d0),z1r,ntq,
+c$$$     .      z2r,ngb,(0d0,0d0),zwzi,ntq)
+c$$$          do  itp = 1, ntq
+c$$$            do itpp = 1, ntq
+c$$$              zwz(it,itp,itpp) = zwzi(itp,itpp)
+c$$$            enddo
+c$$$          enddo
+c$$$        enddo
+c$$$        deallocate(z1r,z2r,zwzi)
+c$$$      else
+c$$$        call rx( "sxcf, matzwz2: iSigma_en /= 0,1,2,3")
+c$$$      endif
+c$$$      deallocate(CC)
+c$$$      end subroutine matzwz2
+c$$$!sssssssssssssssssssssssssssssssssssssssssssssssssssssss      
       complex(8) function alagr3zwgt (x,xi,wgt)
       implicit real*8 (a-h,o-z)
 c three-point interpolation with arbitrary mesh
