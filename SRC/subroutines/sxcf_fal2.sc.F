@@ -189,6 +189,7 @@ c     complex(8),optional :: zsec(ntq,ntq,nq)
       integer:: ncount,kxold,nccc
       integer,allocatable:: ispc(:),kxc(:),irotc(:),ipc(:),krc(:)
       integer,allocatable:: nwxic(:), nwxc(:), nt_maxc(:),irkip(:,:,:,:)
+      complex(8),allocatable:: zmelc(:,:,:)
 c      if(verbose()>=90) debug=.true.
 !!----------------------------------------------------------------
 !!!!!!!!!!!
@@ -316,7 +317,15 @@ c         if(debug) write(6,*)' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
             nbmax  = min(nband,nbmxe) 
          endif
          nstate = nctot + nbmax ! = nstate for the case of correlation
+         
+!! zmelc zmel         
          call Get_zmel_init(q,qibz_k,irot,qbz_kr,isp, nbmax,ntqxx,nctot,ncc=0,iprx=debug)
+         allocate(zmelc(1:ntqxx,1:nstate,1:ngb))
+         do itp=1,ntqxx
+            zmelc(itp,:,:)=transpose(dconjg(zmel(:,:,itp))) !zmelc
+         enddo
+         call Get_zmel_init(q,qibz_k,irot,qbz_kr,isp, nbmax,ntqxx,nctot,ncc=0,iprx=debug) !zmel
+         
 !---------
         ExchangeSelfEnergy: Block
          real(8):: wfacx
@@ -328,13 +337,13 @@ c         if(debug) write(6,*)' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
             wtff= [(wfacx(-1d99, ef, ekc(it), esmr),it=1,nctot+nbmax)]
             do itpp= 1,ntqxx
             do itp = 1,ntqxx !S[j=1,nbloch]  z1p(j,t,n) <B(rk,j) psi(q-rk,n) |psi(q,t')>
-               w3p = [(sum(dconjg(zmel(:,it,itp)) * vcoud_(:)* zmel(:,it,itpp)),it=1,nctot+nbmax)]
+               w3p = [(sum(zmelc(itp,it,:) * vcoud_(:)* zmel(:,it,itpp)),it=1,nctot+nbmax)]
                w3p(nctot+1:nctot+nbmax) = w3p(nctot+1:nctot+nbmax) * wtff(nctot+1:nctot+nbmax)
                if(corehole) w3p(1:nctot) = w3p(1:nctot) * wcorehole(1:nctot,isp) 
                zsec(itp,itpp) = zsec(itp,itpp) - wtt * sum( w3p(:) )
             enddo
             enddo
-            deallocate(vcoud_,wtff,w3p)
+            deallocate(vcoud_,wtff,w3p,zmelc)
             cycle               
          endif                  ! end of if(exchange)
         EndBlock ExchangeSelfEnergy
@@ -368,7 +377,7 @@ c         if(debug) write(6,*)' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
             endif
 c     call matzwz2(2,zw(1:ngb,1:ngb),zmel,ntqxx,nstate,ngb,zwz) 
             do it = 1,nstate
-               zwz(it,:,:)=matmul( transpose(dconjg(zmel(1:ngb,it,:))),
+               zwz(it,:,:)=matmul( zmelc(:,it,:),            !transpose(dconjg(zmel(:,it,:))),
      &          matmul(zw(1:ngb,1:ngb),zmel(:,it,:))) !!zwz = zmel*(W(i w)-v)*zmel
                Block
                complex(8):: zwx(ntqxx,ntqxx)
@@ -453,7 +462,7 @@ c     if(npm==2)zwz(ix+niw,it,:,:)=(zwx-dconjg(transpose(zwx)))/2d0/img!w(iw)-w(
               else
                  read(ifrcw(kx),rec=iw+ix-nw_i+1) zw ! direct access Wc(omega) = W(omega) - v
                  if(hermitianW) zw3(:,:,iw)=(zw(1:ngb,1:ngb)+transpose(dconjg(zw(1:ngb,1:ngb))))/2d0
-                 if(.not.hermitianW) zw3(:,:,iw)=zw(1:ngb,1:ngb)
+                 if(.not.hermitianW) zw3(:,:,iw)=zw(:,:)
               endif   
            enddo
            ikeep=ix
@@ -464,7 +473,7 @@ c     if(npm==2)zwz(ix+niw,it,:,:)=(zwx-dconjg(transpose(zwx)))/2d0/img!w(iw)-w(
               zw33 = zw3(:,:,0)*wgt3p(0,icountp,ix) 
      &             + zw3(:,:,1)*wgt3p(1,icountp,ix) 
      &             + zw3(:,:,2)*wgt3p(2,icountp,ix) 
-              zadd(:) = matmul(matmul(dconjg(zmel(:,it,itp)),zw33),zmel(:,it,:)) !itpp
+              zadd(:) = matmul(matmul(zmelc(itp,it,:),zw33),zmel(:,it,:)) !itpp
               zadd(itp)= dreal(zadd(itp))+img*min(dimag(zadd(itp)),0d0) !forced to be negative im part
               zsec(itp,:)=zsec(itp,:)+ zadd(:)* wfac_(it,itp) !itpp
             enddo
@@ -472,7 +481,8 @@ c     if(npm==2)zwz(ix+niw,it,:,:)=(zwx-dconjg(transpose(zwx)))/2d0/img!w(iw)-w(
          Endblock         
         EndBlock CorrelationSelfEnergyRealAxis
 !         
-         call Deallocate_zmel()
+        call Deallocate_zmel()
+        deallocate(zmelc)
          if(verbose()>50) call timeshow("11after alagr3z iw,itp,it cycles")
  3030 continue
       

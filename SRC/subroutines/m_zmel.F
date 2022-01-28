@@ -1030,14 +1030,7 @@ C----------------------------------------------------------
      i          imdim(natom),iatomp(natom)
       real(8)::  ppb(nlnmx,nlnmx,mdimx,nclass)
       complex(8),allocatable :: zz(:,:), zwork(:,:),zppb(:,:)
-      complex(8) :: alpha,beta
-
-c zwork is used as work array for ppb(:,:,i,ic) and for zpsi2b(ib,:,:).
-      allocate( zppb(nlnmx,nlnmx),zz(nlnmx,ntp0), zwork(nt0,ntp0) ) !Work areas
-      beta=0d0  ; alpha=1d0
-c      allocate(rr(nlnmx,ntp),cc(nlnmx,ntp))
-
-c check dimensions
+      allocate( zppb(nlnmx,nlnmx),zz(nlnmx,ntp0))
       if(mdimx /= maxval(mdim) ) call rx( 'psi2b_v3: wrong mdimx')
       if( sum(mdim(iclass(1:natom)))/= nbloch ) call rx( 'psi2b_v3: wrong nbloch')
       allocate(iasx(natom))
@@ -1046,81 +1039,25 @@ c check dimensions
         iasx(ia) = ias
         ias = ias + nlnmv(iclass(ia))
       enddo
-Cstop2rx 2013.08.09 kino      if(ias-1/=nlmto) stop ' psi2b_v3:sum(nlnmv)/= nlmto'
       if(ias-1/=nlmto) call rx( ' psi2b_v3:sum(nlnmv)/= nlmto')
-
-c loop over atoms
       do  ia = 1,natom
-        ic   = iclass(ia)
-        nc   = nlnmc(ic)
-        nv   = nlnmv(ic)
-        nc1  = nc + 1
-Cstop2rx 2013.08.09 kino        if (nc+ nlnmv(ic) > nlnmx) stop 'psi2b_v3: nlnmx exceeded'
-        if (nc+ nlnmv(ic) > nlnmx) call rx( 'psi2b_v3: nlnmx exceeded')
-c        phase= dcmplx(coskt(ia),sinkt(ia))
-        ias  = iasx(ia)
-        iap  = iatomp(ia)
-        icp  = iclass(iap)
-        do   i = 1,mdim(icp) ! loop over optimal product basis
-c---------------------------------------------------
-cc sum(Ln) bkq(Ln,t') * <phi(Ln) phi(L'n') B(i)>
-cc for a given i, for all L'n' and t'
-cc bkq is complex but < > is real
-c1      do     itp = 1,ntp0
-c1      do      jp = 1,nlnmv(ic)
-c1      zz (jp,itp)=dconjg(
-c1     &    sum(cphikq(ias:ias+nv-1,itp)*ppb(nc1:nc+nv,nc+jp,i,icp)) )
-c1      end do
-c1      end do
-c
-c2      zz(1:nv,1:ntp0) =dconjg(
-c2     & matmul(  transpose(ppb(nc1:nc+nv,nc1:nc+nv,i,icp))
-c2     &         ,cphikq(ias:ias+nv-1,1:ntp0)) )
-c
-c3        call dgemm('T','N',nv,ntp0,nv,
-c3     &   1d0, ppb(nc1:nc+nv,nc1:nc+nv,i,icp),     nv,
-c3     &          dreal(cphikq(ias:ias+nv-1,1:ntp0)), nv,
-c3     &          0d0,
-c3     &   rr, nlnmx )
-c3        call dgemm('T','N',nv,ntp0,nv,
-c3     &   1d0, ppb(nc1:nc+nv,nc1:nc+nv,i,icp),     nv,
-c3     &          dimag(cphikq(ias:ias+nv-1,1:ntp0)), nv,
-c3     &          0d0,
-c3     &   cc, nlnmx )
-          zppb(1:nv,1:nv) = ppb(nc+1:nc+nv,nc+1:nc+nv,i,icp)
-          call zgemm('T','N',nv,ntp0,nv,
-     &   alpha, zppb,nlnmx, cphikq(ias,1), nlmto,  beta,
-     &   zz,  nlnmx )
-          do itp = 1,ntp0
-            do jp = 1,nv
-              zz(jp,itp)= dconjg(zz(jp,itp) )
-            enddo
-          enddo
-c----------------------------------------------------
-c <psi(k+q,t') | psi(k,t) B(i)>
-c1      do      it = 1,nt0
-c1      do     itp = 1,ntp0
-c1       zpsi2b(ib,nctot+it,itp)=
-c1     &   phase * sum( zz(1:nv,itp)*cphik(ias:ias+nv-1,it) )
-c1c end of t'(unoccupied)-loop
-c1      end do
-c1c end of t(occupied)-loop
-c1      end do
-c3        call zgemm('T','N',nt0,ntp0,nv,
-c3     &   phase, cphik(ias:ias+nv-1,1:nt0),  nv,
-c3     &          dcmplx(rr(1:nv,1:ntp0),-cc(1:nv,1:ntp0)),  nv,
-c3     &          0d0,
-c3    &   zpsi2b(imdim(iap)-1+i,nctot+1:nctot+nt0,1:ntp0), nt0)
-          call zgemm('T','N', nt0,ntp0,nv,
-     &   phase(ia), cphik(ias,1),nlmto, zz,nlnmx, beta,
-     &   zwork, nt0 )
-          ib = imdim(iap)-1+i
-          zpsi2b(ib,nctot+1:nctot+nt0,ncc+1:ncc+ntp0)=zwork
-c------------------------------------------------------
-        end do !end of optimal product basis-loop
+         ic   = iclass(ia)
+         nc   = nlnmc(ic)
+         nv   = nlnmv(ic)
+         nc1  = nc + 1
+         if (nc+ nlnmv(ic) > nlnmx) call rx( 'psi2b_v3: nlnmx exceeded')
+         ias  = iasx(ia)
+         iap  = iatomp(ia)
+         icp  = iclass(iap)
+         do   i = 1,mdim(icp)   ! loop over optimal product basis
+!     sum(Ln) bkq(Ln,t') * <phi(Ln) phi(L'n') B(i)> !bkq is complex but < > is real
+            ib = imdim(iap)-1+i
+            zpsi2b(ib,nctot+1:nctot+nt0,ncc+1:ncc+ntp0)= phase(ia) * !!     <psi(k+q,t') | psi(k,t) B(i)>
+     &        matmul(transpose(cphik(ias:ias+nv-1,1:nt0)), 
+     &        dconjg(matmul(transpose(ppb(nc1:nc+nv,nc1:nc+nv,i,icp)),cphikq(ias:ias+nv-1,1:ntp0)))) !zz
+         end do                 !end of optimal product basis-loop
       end do !end of atom-loop
-c      deallocate(rr,cc,iasx)
-      deallocate(zz,zppb,zwork,iasx)
+      deallocate(zz,zppb,iasx)
       end
 
 
