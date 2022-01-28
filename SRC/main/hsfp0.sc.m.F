@@ -204,8 +204,6 @@ c
       if(.not.exchange.or.(exchange.and.screen)) then !screen means screened exchange case
          call readfreq_r() !Readin WV.d and freq_r 
       endif
-c      call READEFERMI() !! efermi by tetrahedron. 
-c      ef = ef_read
 !! Determine Fermi energy ef for given valn (legas=T), or Get charge given by z and konf.==
       legas=.false. ! if legas=T, homogenius electron gas test case.
       call efsimplef2ax(legas, esmref, 

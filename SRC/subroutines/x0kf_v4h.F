@@ -198,33 +198,13 @@ c        write(6,"(a,6i5,d13.5)")'uuuuu k it itp iw jpm whw=',icount,k,it,itp,iw
 !! --------------------------------------------------------------------------------
       subroutine X0kf_zmel ( q,iq,k, isp_k,isp_kq)
       intent(in)   ::        q,iq,k, isp_k,isp_kq
-!! === calculate chi0, or chi0_pm ===
-!! We calculate imaginary part of chi0 along real axis.
-!!
-!! NOTE: rcxq is i/o variable for accumulation. We use E_mu basis when chipm=F.
-!!  
-!!
-!! ppovl= <I|J> = O , V_IJ=<I|v|J>
-!! (V_IJ - vcoud_mu O_IJ) Zcousq(J, mu)=0, where Z is normalized with O_IJ.
-!! <I|v|J>= \sum_mu ppovl*zcousq(:,mu) v^mu (Zcousq^*(:,mu) ppovl)     
-!!
-!! zmelt contains O^-1=<I|J>^-1 factor. Thus zmelt(phi phi J)= <phi |phi I> O^-1_IJ
-!! ppovlz(I, mu) = \sum_J O_IJ Zcousq(J, mu)
-!!
-!! OUTPUT:
-!!  rcxq (nmbas,nmbas,nwhis,npm): for given q,
-!!       rcxq(I,J,iw,ipm) = 
-!!       Im (chi0(omega))= \sum_k <I_q psi_k|psi_(q+k)> <psi_(q+k)|psi_k> \delta(\omega- (e_i-ej))
-!!      When npm=2 we calculate negative energy part. (time-reversal asymmetry)
-!!
-!!note: zmel: matrix element <phi phi |M>
+!! === calculate zmel for chi0, or chi0_pm ===
+!! note: zmel: matrix element <phi phi |M_I> 
 !! nlmto   = total number of atomic basis functions within MT
 !! nqbz    = number of k-points in the 1st BZ
 !!
-c      logical,optional ::epsppmode
       integer:: k,isp_k,isp_kq,iq, jpm, ibib, iw,igb2,igb1,it,itp
       real(8):: q(3)
-c      complex(8):: rcxq (nmbas,nmbas,nwhis,npm)
       complex(8) :: imag=(0d0,1d0),trc,aaa 
       integer::   nadd(3), igc !nband,!ngpmx, ngcmx,nqbze, ngc,
       complex(8),allocatable :: zmelt(:,:,:)
@@ -241,24 +221,14 @@ c      integer:: nmbas !, imb1,imb2, imb verbose,
       integer::  irot=1, neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele
       integer:: ieqbz,kold,nxxxx 
       integer::nkmin_,nkqmin_,nkoff,nkqoff,ispold,izmel,nmini,nqini,nmtot,nqtot,ispold2
-c      kold = -999
-c      do 1000 icount = 1,ncount
-c        k = kc(icount)
-        nkmin_  = nkmin(k)
-        nkqmin_ = nkqmin(k)
-        nmini= nkmin_ 
-        nqini= nkqmin_
-c        if(kold/=k .or. ispold/=isp_k .or. ispold2/=isp_kq ) then !.or. ispold2/=isp_kq) then  
-           call Get_zmel_modex0(nkmin_,nkqmin_,isp_k,isp_kq)!oct-2021(nkmin(k),nkqmin(k),isp_k,isp_kq)
-           call Get_zmel_init(q+rk(:,k), q, irot, q, nxxxx, nkmax(k),nkqmax(k),nctot,ncc,iprx=.false.)
-           call Dconjg_zmel()   !zmel = dconjg(zmel)
-c           write(6,*) 'k zmel writing...',iq,k,isp_k,isp_kq
-           call rwzmel(iq,k,isp_k,isp_kq,'w')
-c           kold = k
-c           ispold =isp_k
-c           ispold2=isp_kq
-c        endif
-c 1000 continue
+      nkmin_  = nkmin(k)
+      nkqmin_ = nkqmin(k)
+      nmini= nkmin_ 
+      nqini= nkqmin_
+      call Get_zmel_modex0(nkmin_,nkqmin_,isp_k,isp_kq) !oct-2021(nkmin(k),nkqmin(k),isp_k,isp_kq)
+      call Get_zmel_init(q+rk(:,k), q, irot, q, nxxxx, nkmax(k),nkqmax(k),nctot,ncc,iprx=.false.)
+      call Dconjg_zmel()        !zmel = dconjg(zmel)
+      call rwzmel(iq,k,isp_k,isp_kq,'w')
       call Deallocate_zmel()
       end subroutine x0kf_zmel
       
