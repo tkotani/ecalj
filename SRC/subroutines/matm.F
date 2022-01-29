@@ -97,6 +97,13 @@ c        call zaxpy(n,zz(i)*cc(iy,i),aa(1,i),1,zout(1,iy),1)
      &             dcmplx(0d0,0d0), c, n1 )
       end
 
+      subroutine matmc(a,b,c,n1,n2,n3)
+      integer(4), intent(in) :: n1,n2,n3
+      complex(8), intent(in) :: a(n1,n2), b(n2,n3)
+      complex(8), intent(out) :: c(n1,n3)
+      c=matmul(dconjg(transpose(a)),b)
+      end
+
       subroutine matcinv(n,a)
       implicit none
       integer(4) :: n, info, ipiv(n)

@@ -1,7 +1,7 @@
       module m_x0kf
       use m_keyvalue,only : Getkeyvalue
       use m_pkm4crpa,only : Readpkm4crpa
-      use m_zmel,only     : Get_zmel_init,Dconjg_zmel,Deallocate_zmel, zmel ,get_zmel_modex0, GramSchmidt_zmel,rwzmel
+      use m_zmel,only : Get_zmel_init,Dconjg_zmel,Deallocate_zmel, zmel ,get_zmel_modex0, rwzmel !GramSchmidt_zmel,
       use m_freq,only:  npm, nwhis
       use m_genallcf_v3,only:  nsp=>nspin ,nlmto,nctot
       use m_read_bzdata,only:  nqbz,ginv,nqibz,  rk=>qbz,wk=>wbz
