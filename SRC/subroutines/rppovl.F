@@ -8,7 +8,7 @@
       complex(8),protected,allocatable:: ggg(:),ppovlinv(:,:)
       integer,protected,allocatable:: nvggg(:,:),nvgcgp2(:,:),ngvecc(:,:)
       integer,protected:: nggg,ngcgp,ngcread
-!!
+!     !
       integer(4),private:: iqix=-1, ippovl=0, ngcmx, ngc2mx, nqq, ngggmx, ngcgpmx,nqini,nqnumt
       logical,private:: ppovlclosed=.true.,init=.true.
       integer(4),allocatable,private :: ngcx_s(:),ngc2_s(:) ,ngvecc2_0_s(:,:,:)
@@ -17,7 +17,6 @@
       logical,private:: debug=.false.
       real(8),allocatable,private:: qxtable(:,:)
       integer(4), private:: loopnum = 0, iex,gex
-
       contains
       subroutine getppx2(qbas,qi) 
 !! This return nvggg,nvgcgp2,ngvecc,  nggg,ngcgp,ngcread, ggg,ppovlinv
@@ -29,13 +28,11 @@
       integer:: ngcread2,ippovlgg
       character*3 charnum3
       integer:: verbose
-
       logical:: init=.true.
       integer:: iqi0
       if(verbose()>=100) debug=.true.
-      ippovlgg=ifile_handle()
       if(ippovlggooo) then
-         open(ippovlgg,file= "PPOVLGG",form='unformatted')
+         open(newunit=ippovlgg,file= "PPOVLGG",form='unformatted')
          read(ippovlgg) nggg, ngcgp, nqq, nqini,nqnumt
          write(6,"('Readin getppx2: nggg ngcgp nqq=',3i10)") nggg, ngcgp, nqq
          allocate(nvggg(1:3,1:nggg),ggg(1:nggg),nvgcgp2(1:3,ngcgp))
@@ -45,7 +42,6 @@
          close(ippovlgg)
          ippovlggooo=.false.
       endif
-
 !! cache qx for finding a file for given qi. dec2017
       if(init) then
          init=.false.
@@ -79,20 +75,19 @@
       if(loopnum .eq. 1000) write(6,"('iqi=,loop num=',i10,i10)") iqi,loopnum
       if(loopnum .eq. 5000) write(6,"('iqi=,loop num=',i10,i10)") iqi,loopnum
       if(loopnum .eq. 10000) write(6,"('iqi=,loop num=',i10,i10)") iqi,loopnum
+      
       gex=access("PPOVLG."//charnum3(iqi),' ')
       iex=access("PPOVLI."//charnum3(iqi),' ')
       if(gex .ne. 0)then
          write(6,"('PPOVLG.00... does not exist! in iqi=)',i4,'( in loop ',i4)") iqi,loopnum
          call rx('some PPOLVG. file does not exist')
-      end if
+      endif
       if(iex .ne. 0)then
          write(6,"('PPOVLI.00... does not exist! in iqi=)',i4,'( in loop ',i4)") iqi,loopnum
          call rx('some PPOLVI. file does not exist')
-      end if
-
-      ippovlg=ifile_handle()
-!      write(*,*) "lg,li",ippovlg,ippovli
-      open(ippovlg,file= "PPOVLG."//charnum3(iqi),form='unformatted')
+      endif
+      
+      open(newunit=ippovlg,file= "PPOVLG."//charnum3(iqi),form='unformatted')
       ippovli=ifile_handle()
       open(ippovli,file= "PPOVLI."//charnum3(iqi),form='unformatted') 
       read(ippovlg) qx, ngcread !, ngcx_s(iqi),ngc2_s(iqi)
