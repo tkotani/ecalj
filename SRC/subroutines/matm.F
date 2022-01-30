@@ -91,18 +91,20 @@ c        call zaxpy(n,zz(i)*cc(iy,i),aa(1,i),1,zout(1,iy),1)
       integer(4), intent(in) :: n1,n2,n3
       complex(8), intent(in) :: a(n1,n2), b(n2,n3)
       complex(8), intent(out) :: c(n1,n3)
-      call ZGEMM ( "N", "N", n1, n3, n2, dcmplx(1d0,0d0), 
-     &             a, n1, 
-     &             b, n2,
-     &             dcmplx(0d0,0d0), c, n1 )
+      c=matmul(a,b)
       end
-
-      subroutine matmc(a,b,c,n1,n2,n3)
-      integer(4), intent(in) :: n1,n2,n3
-      complex(8), intent(in) :: a(n1,n2), b(n2,n3)
-      complex(8), intent(out) :: c(n1,n3)
-      c=matmul(dconjg(transpose(a)),b)
-      end
+c$$$      call ZGEMM ( "N", "N", n1, n3, n2, dcmplx(1d0,0d0), 
+c$$$     &             a, n1, 
+c$$$     &             b, n2,
+c$$$     &             dcmplx(0d0,0d0), c, n1 )
+c$$$      end
+c$$$
+c$$$      subroutine matmc(a,b,c,n1,n2,n3)
+c$$$      integer(4), intent(in) :: n1,n2,n3
+c$$$      complex(8), intent(in) :: a(n1,n2), b(n1,n3)
+c$$$      complex(8), intent(out) :: c(n2,n3)
+c$$$      c=matmul(dconjg(transpose(a)),b)
+c$$$      end
 
       subroutine matcinv(n,a)
       implicit none

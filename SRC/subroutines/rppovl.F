@@ -8,6 +8,8 @@
       complex(8),protected,allocatable:: ggg(:),ppovlinv(:,:)
       integer,protected,allocatable:: nvggg(:,:),nvgcgp2(:,:),ngvecc(:,:)
       integer,protected:: nggg,ngcgp,ngcread
+      integer,allocatable,protected:: igggi(:,:,:),igcgp2i(:,:,:)
+      integer,protected:: nxi,nxe,nyi,nye,nzi,nze
 !     !
       integer(4),private:: iqix=-1, ippovl=0, ngcmx, ngc2mx, nqq, ngggmx, ngcgpmx,nqini,nqnumt
       logical,private:: ppovlclosed=.true.,init=.true.
@@ -17,6 +19,7 @@
       logical,private:: debug=.false.
       real(8),allocatable,private:: qxtable(:,:)
       integer(4), private:: loopnum = 0, iex,gex
+      integer,private:: nnxi,nnxe,nnyi,nnye,nnzi,nnze
       contains
       subroutine getppx2(qbas,qi) 
 !! This return nvggg,nvgcgp2,ngvecc,  nggg,ngcgp,ngcread, ggg,ppovlinv
@@ -29,7 +32,7 @@
       character*3 charnum3
       integer:: verbose
       logical:: init=.true.
-      integer:: iqi0
+      integer:: iqi0,igcgp2,iggg
       if(verbose()>=100) debug=.true.
       if(ippovlggooo) then
          open(newunit=ippovlgg,file= "PPOVLGG",form='unformatted')
@@ -40,6 +43,30 @@
          read(ippovlgg) nvggg(1:3,1:nggg)
          read(ippovlgg) ggg(1:nggg)
          close(ippovlgg)
+!!  Make igggi inversion table
+         nxi =minval(nvggg(1,1:nggg))
+         nxe =maxval(nvggg(1,1:nggg))
+         nyi =minval(nvggg(2,1:nggg))
+         nye =maxval(nvggg(2,1:nggg))
+         nzi =minval(nvggg(3,1:nggg))
+         nze =maxval(nvggg(3,1:nggg))
+         allocate( igggi(nxi:nxe,nyi:nye,nzi:nze))
+         igggi = -100000
+         do iggg =1,nggg
+            igggi(nvggg(1,iggg),nvggg(2,iggg),nvggg(3,iggg)) = iggg
+         enddo
+!     ! inversion table for nvgcgp2
+         nnxi = minval(nvgcgp2(1,1:ngcgp)) 
+         nnxe = maxval(nvgcgp2(1,1:ngcgp))
+         nnyi = minval(nvgcgp2(2,1:ngcgp))
+         nnye = maxval(nvgcgp2(2,1:ngcgp))
+         nnzi = minval(nvgcgp2(3,1:ngcgp))
+         nnze = maxval(nvgcgp2(3,1:ngcgp))
+         allocate(igcgp2i(nnxi:nnxe,nnyi:nnye,nnzi:nnze))
+         igcgp2i = -100000
+         do igcgp2 =1,ngcgp
+            igcgp2i(nvgcgp2(1,igcgp2),nvgcgp2(2,igcgp2),nvgcgp2(3,igcgp2))=igcgp2
+         enddo
          ippovlggooo=.false.
       endif
 !! cache qx for finding a file for given qi. dec2017

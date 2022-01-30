@@ -554,34 +554,22 @@ c---test
         if(exchange) deallocate(vcoul)
         cycle
       endif
-
 !! phase factor for off-site W
       do ir1=1,nrws1
          expiqR1(ir1) = exp(-img*tpi* sum(qbz_kr(:)*rws1(:,ir1)))
       enddo
+
+      
+!! ===================================================================
       allocate( rmelt3(ngb,nwf,nwf,nrws2),cmelt3(ngb,nwf,nwf,nrws2))
       rmelt3 = 0d0
       cmelt3 = 0d0
 !! loop over FBZ
       do iq = 1,nqbz 
         q(:) = qbz(:,iq)
-!!  read eval and eigen
-!!  qk = q - rk, rk is inside 1st BZ, not restricted to the irreducible BZ
-!! note call init_readeigen_mlw_noeval(nwf,nband,mrecb,mrecg), not for eigenvalues.
-c      call readeval (qbz(:,iq), isp, eq)
         call readcphiW (qbz(:,iq), nlmto,isp, quu, cphiq)
         qk =  q - qbz_kr          ! qbz(:,kr)
         call  readcphiW(qk, nlmto,isp, quu, cphikq)
-c====================================================
-c matrix elements <psi(q,t') | psi(q-rk,t) B(rk,R,i)>
-c including the phase factor exp(ik.T)
-c B(rot*k,r) = B(k,invrot*r)
-c====================================================
-c> phase factors exp(ik.T(R))
-c        call cv      (tpi,qibz(1,k),3,qfbz)
-c        call expkt   (qfbz,tr,natom,
-c     o              w(icoskt),w(isinkt))
-c equivalent with above phase
         do ia = 1,natom
          expikt(ia) = exp(img*tpi* sum(qibz_k*tr(:,ia)) ) !  write(6,'(" phase ",i3,2d12.4)')ia,expikt(ia)
         end do
@@ -623,8 +611,11 @@ c equivalent with above phase
          cmelt3(:,:,:,ir2) = cmelt3(:,:,:,ir2) + wk(iq) * dimag(zmelt(:,:,:)*expiqR2)
         enddo  ! ir2
         deallocate(zmelt)
-c end of loop over FBZ
-      end do
+      enddo
+!! ===================================================================
+
+
+      
       if(kx<= nqibz) then 
          wtt = wk(kr)           !         wtx = 1d0
       else  
