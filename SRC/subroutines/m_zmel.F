@@ -82,7 +82,7 @@ c      use m_readclasst,only: Readclasst,iclasst !iclass and iclasst is the same
       real(8) :: q(3)
       complex(8),allocatable :: ppovl_(:,:),ppovl(:,:)!,ppovlzinv(:,:)
       logical:: eibz4x0,matz
-      integer:: i!,nbloch
+      integer:: i
       if(allocated(ppovlz)) deallocate(ppovlz)
       if(allocated(ppovl)) deallocate(ppovl)
       allocate( ppovl(ngc,ngc),ppovlz(ngb,ngb))!,   ppovlzinv(ngb,ngb))
@@ -124,17 +124,14 @@ c      use m_readclasst,only: Readclasst,iclasst !iclass and iclasst is the same
       call ppbafp_v2_zmel(ng)
       end subroutine mptauof_zmel
 !----------------------------------------------------
-      subroutine ppbafp_v2_zmel(ng) !nspin,
+      subroutine ppbafp_v2_zmel(ng)
       intent(in)::              ng 
-      integer :: ng 
-      integer:: is,irot
+      integer :: ng,is,irot
       allocate( ppbir(nlnmx*nlnmx*mdimx*nclass,ng,nspin))
       do irot = 1,ng
       do is = 1,nspin
-!! -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
-!! This is general for rotated CG coefficient
-!! ppbafp_v2 generates ppbir
-         call ppbafp_v2 (irot,ng,is,nspin,
+!! ppbir is rotated <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)> by rotated cg coefficients cgr
+         call ppbafp_v2 (irot,ng,is,nspin, 
      i                 il,in,im, mnl,
      d                 nl,nn,nclass,nlnmx,!mnlx,
      i                 mdimx,lx,nx,nxx, !Bloch wave    
@@ -144,6 +141,54 @@ c      use m_readclasst,only: Readclasst,iclasst !iclass and iclasst is the same
       enddo  
       enddo  
       end subroutine ppbafp_v2_zmel
+!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
+      subroutine ppbafp_v2 (ig,ng,isp,nspin,
+     i                 il,in,im, mnl,
+     d                 nl,nn,nclass,mnlx,
+     i                 mdimx,lx,nx,nxx, !Bloch wave    
+     i                 cgr,lmxax,   !rotated CG
+     i                 ppbrd,           !radial integrals
+     o  ppb)
+! <Phi(RLn) Phi(RL'n') B(R,i)>. Atomic part of MPB
+!  n differenciates core phi phidot localOrbital.
+!  in,il,im      = index for n,l,m s. indxlnm.f
+!   ppb            = <Phi(RLn) Phi(RL'n') B(R,i)>
+      implicit none
+      integer(4),intent(in) :: ig,ng,isp,nspin,nclass,mnlx,mdimx
+      integer(4),intent(in) :: il(mnlx,nclass),in(mnlx,nclass),im(mnlx,nclass)
+      integer(4),intent(in) :: lx(nclass),nx(0: 2*(nl-1),nclass)
+      integer(4),intent(in) :: nxx,lmxax
+      real(8), intent(out) :: ppb(mnlx,mnlx,mdimx,nclass)
+      real(8), intent(in) :: cgr((lmxax+1)**2,(lmxax+1)**2,(2*lmxax+1)**2,ng)
+      real(8), intent(in) :: ppbrd(0:nl-1,nn,0:nl-1,nn,0:2*(nl-1),nxx,nclass*nspin)
+      integer(4) :: ic,nl,nn, i,lb,nb,mb,lmb,i1,ibas,i2
+      integer(4) :: np,lp,mp,lmp,n,l,m,lm, mnl(nclass)
+      do ic  = 1, nclass
+        ibas = ic
+        i = 0 !i = product basis index.
+        do lb  = 0, lx (ibas)
+        do nb  = 1, nx (lb,ibas)
+        do mb  = -lb, lb
+           i    = i+1           !The number of product basis is  =(i at the end of loop).
+           lmb  = lb*lb + lb + mb + 1
+           do  i2 = 1,mnl(ic) !phi2 index
+              np   = in(i2,ic)
+              lp   = il(i2,ic)
+              mp   = im(i2,ic)
+              lmp  = lp*lp + lp + mp + 1
+              do  i1 = 1,mnl(ic) !phi1 index
+                 n    = in(i1,ic)
+                 l    = il(i1,ic)
+                 m    = im(i1,ic)
+                 lm   = l*l + l + m + 1
+                 ppb(i1,i2,i,ic)=cgr(lm,lmp,lmb,ig)*ppbrd(l,n,lp,np,lb,nb,isp+nspin*(ic-1))
+              enddo
+           enddo
+        enddo
+        enddo
+        enddo
+      enddo
+      end
 !! ------------------------------------
       subroutine rwzmel(iq,k,isp_k,isp_kq,rw)
       intent(in)::      iq,k,isp_k,isp_kq,rw
@@ -203,10 +248,9 @@ c      use m_readclasst,only: Readclasst,iclasst !iclass and iclasst is the same
          ispm = isp_k
          ispq = isp_kq
       endif
-      
       ZmeltMain: Block
       use m_readeigen,only : readgeigf
-      integer:: it,ia,kx,verbose,nstate,imdim(natom),nt0,ntp0,itps, invr, iatomp(natom),ispq_rk
+      integer:: it,ia,kx,verbose,nstate,imdim(natom),nt0,ntp0,invr, iatomp(natom),ispq_rk
       real(8):: symope(3,3),shtv(3),tr(3,natom),qk(3)
       real(8),allocatable :: ppb(:)
       real(8),parameter::tolq=1d-8
@@ -215,7 +259,7 @@ c      use m_readclasst,only: Readclasst,iclasst !iclass and iclasst is the same
       complex(8),allocatable::  zmelt(:,:,:)
       integer(4) :: ngp1, ngp2
       integer(4) :: ngvecpB1(3,ngpmx),ngvecpB2(3,ngpmx),nadd(3)
-      real(8):: q_rkt(3),qt(3),q_rk(3),qik(3)
+      real(8):: q_rkt(3),qt(3),q_rk(3)!,qik(3)
       real(8) :: qdiff(3)
       complex(8) :: geig1(ngpmx,nband),geig2(ngpmx,nband)
 c      integer(4)::verbose
@@ -286,25 +330,21 @@ c      integer(4)::verbose
      o              zmelt(1:nbloch,:,:))
       endif  
 !! IPW part
-      itps = nqini
       q_rk=qk
       ispq_rk=ispm
-      qik=kvec
       call readqg('QGpsi',q,    qt,   ngp1, ngvecpB1) !qt is used q in practice.
       call readqg('QGpsi',q_rk, q_rkt,ngp2, ngvecpB2)
       geig1= readgeigf(q,ispq)       !call readgeig(q,    ngpmx_in, ispq, qu1, geig1)
       geig2= readgeigf(q_rk,ispq_rk) !call readgeig(q_rk, ngpmx_in, ispq_rk, qu2, geig2)
-      qdiff = matmul(symope,qik)  - qt + q_rkt ! rk    -q  +(q-rk) is not zero. <rk q-rk |q>
+      qdiff = matmul(symope,kvec)  - qt + q_rkt ! rk    -q  +(q-rk) is not zero. <rk q-rk |q>
       nadd = nint(matmul(qlatinv,qdiff)) !c  if(sum(abs(add-nadd))>tolq) call rx('drvmelp add/=nadd')
       call melpln2t(ngp1, ngvecpB1
      &   ,  ngp2, ngvecpB2,   ngc,  nadd,
-     &   geig1(1:ngp1,itps-1+itq(1:ntp0)), ntp0, ! q1=(shifted q) ->iq ngp1 1:ntp0 q-point
+     &   geig1(1:ngp1,nqini-1+itq(1:ntp0)), ntp0, ! q1=(shifted q) ->iq ngp1 1:ntp0 q-point
      &   geig2(1:ngp2,1:nt0), nt0, ! q2=(shifted q-rk) -> kp ngp2 1:nt0  occupied 
-     i   shtv, matmul(symope,qik),qik, symope, qlat,
+     i   shtv, matmul(symope,kvec),kvec, symope, qlat,
      i   qt,                    !qt oct2013 means q1
-c     o   zmelpl)
      o     zmelt(nbloch+1:nbloch+ngc,nctot+1:nctot+nt0,ncc+1:ncc+ntp0))
-
 c      call drvmelp( q, nqmax-nqini+1, ! q     nt0 (in FBZ)
 c     i  qk,  nmmax-nmini+1,            ! q-rk  ntp0
 c     i  kvec,        ! k in IBZ for mixed product basis. rk = symope(kvec) 
@@ -319,109 +359,53 @@ c     o     zmelt(nbloch+1:nbloch+ngc,nctot+1:nctot+nt0,ncc+1:ncc+ntp0))
       EndBlock ZmeltMain
       end subroutine get_zmel_init
       
-      
-!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
-      subroutine ppbafp_v2 (ig,ng,isp,nspin,
-     i                 il,in,im, mnl,
-     d                 nl,nn,nclass,mnlx,
-     i                 mdimx,lx,nx,nxx, !Bloch wave    
-     i                 cgr,lmxax,   !rotated CG
-     i                 ppbrd,           !radial integrals
-     o  ppb)
-c <Phi(RLn) Phi(RL'n') B(R,i)>
-c   n differenciate core phi phidot localOrbital.
-c iln            = s. indxln.f
-c nn,nl          = number of n and l
-c
-c mdim           = dimension of orthonormal basis
-c mnl   =  (m,n,l) composite idex --- numbering.
-c in,il,im      = index for n,l,m s. indxlnm.f
-c
-c ppb            = <Phi(RLn) Phi(RL'n') B(R,i)>
-!! this rouitne show index system (ibas,l,m,n)
-      implicit none
-      integer(4),intent(in) :: ig,ng,isp,nspin,nclass,mnlx,mdimx
-      integer(4),intent(in) :: il(mnlx,nclass),in(mnlx,nclass),im(mnlx,nclass)
-      integer(4),intent(in) :: lx(nclass),nx(0: 2*(nl-1),nclass)
-      integer(4),intent(in) :: nxx,lmxax
-      real(8), intent(out) :: ppb(mnlx,mnlx,mdimx,nclass)
-      real(8), intent(in) :: cgr((lmxax+1)**2,(lmxax+1)**2,(2*lmxax+1)**2,ng)
-      real(8), intent(in) :: ppbrd(0:nl-1,nn,0:nl-1,nn,0:2*(nl-1),nxx,nclass*nspin)
-      integer(4) :: ic,nl,nn, i,lb,nb,mb,lmb,i1,ibas,i2
-      integer(4) :: np,lp,mp,lmp,n,l,m,lm, mnl(nclass)
-      do ic  = 1, nclass
-        ibas = ic
-        i = 0 !i = product basis index.
-        do lb  = 0, lx (ibas)
-        do nb  = 1, nx (lb,ibas)
-        do mb  = -lb, lb
-           i    = i+1           !The number of product basis is  =(i at the end of loop).
-           lmb  = lb*lb + lb + mb + 1
-           do  i2 = 1,mnl(ic) !phi2 index
-              np   = in(i2,ic)
-              lp   = il(i2,ic)
-              mp   = im(i2,ic)
-              lmp  = lp*lp + lp + mp + 1
-              do  i1 = 1,mnl(ic) !phi1 index
-                 n    = in(i1,ic)
-                 l    = il(i1,ic)
-                 m    = im(i1,ic)
-                 lm   = l*l + l + m + 1
-                 ppb(i1,i2,i,ic)=cgr(lm,lmp,lmb,ig)*ppbrd(l,n,lp,np,lb,nb,isp+nspin*(ic-1))
-              enddo
-           enddo
-        enddo
-        enddo
-        enddo
-      enddo
-      end
-!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
-!> Contributions to matrix elements <psi |psi Plane> from interstitial plane wave.
-!! q1=q    ---> iq 1:ntp0 q-point
-!! q2=q-rk ---> kp 1:nt0  occupied
-!!  zmelpl
-      subroutine drvmelp( q, ntp0, q_rk,nt0, qik, ispq,ispq_rk,ginv,
-     i        ngc,ngcmx,ngpmx_in,nband,itp0, 
-     i        symope, shtv, qlat, qlatinv,qibz,qbz,nqbz,nqibz,
-     i        nbloch,nctot,ncc,itps,
-     o        zmelpl)
-      use m_readqg, only : readqg
-      use m_readeigen,only : readgeigf
-c-----------------------------------------------------
-      implicit none
-      real(8),intent(in):: q(3),q_rk(3),qik(3),ginv(3,3)
-      integer(4),intent(in):: ngpmx_in,nqbz,nqibz,ngcmx ,nctot,nband,
-     &  ntp0,nt0,nbloch,ngc,itp0(ntp0),ispq,ispq_rk,itps,ncc
-      real(8),intent(in):: qlat(3,3),shtv(3),qibz(3,nqibz),qbz(3,nqbz),
-     &     qlatinv(3,3),symope(3,3)
-      complex(8):: zmelpl(ngc,nt0,ntp0)  
-c      complex(8):: zzzmel(nbloch,nctot+nt0,ncc+ntp0)
-c     &  cmel(nbloch,nctot+nt0,ncc+ntp0)
-c      real(8),intent(out):: rmelt(1:nbloch+ngc,1:nctot+nt0,1:ncc+ntp0)
-c      real(8),intent(out):: cmelt(1:nbloch+ngc,1:nctot+nt0,1:ncc+ntp0)
-      integer(4) :: ngp1, ngp2
-      integer(4) :: ngvecpB1(3,ngpmx_in),ngvecpB2(3,ngpmx_in),nadd(3)
-      real(8):: q_rkt(3),qt(3)!,qu1(3),qu2(3)
-      real(8) :: qdiff(3),add(3),tolq=1d-5
-      complex(8) :: geig1(ngpmx_in,nband),geig2(ngpmx_in,nband)
-      integer(4)::verbose
-      logical:: debug=.false.
-c      if(verbose()>=90) debug=.true.
-c      if(verbose()>50) write(*,*) ' drvmelp: start'
-      call readqg('QGpsi',q,    qt,   ngp1, ngvecpB1) !qt is used q in practice.
-      call readqg('QGpsi',q_rk, q_rkt,ngp2, ngvecpB2)
-      geig1= readgeigf(q,ispq)       !call readgeig(q,    ngpmx_in, ispq, qu1, geig1)
-      geig2= readgeigf(q_rk,ispq_rk) !call readgeig(q_rk, ngpmx_in, ispq_rk, qu2, geig2)
-      qdiff = matmul(symope,qik)  - qt + q_rkt ! rk    -q  +(q-rk) is not zero. <rk q-rk |q>
-      nadd = nint(matmul(qlatinv,qdiff)) !c  if(sum(abs(add-nadd))>tolq) call rx('drvmelp add/=nadd')
-      call melpln2t(ngp1, ngvecpB1
-     &   ,  ngp2, ngvecpB2,   ngc,  nadd,
-     &   geig1(1:ngp1,itps-1+itp0(1:ntp0)), ntp0, ! q1=(shifted q) ->iq ngp1 1:ntp0 q-point
-     &   geig2(1:ngp2,1:nt0), nt0, ! q2=(shifted q-rk) -> kp ngp2 1:nt0  occupied 
-     i   shtv, matmul(symope,qik),qik, symope, qlat,
-     i   qt,                    !qt oct2013 means q1
-     o   zmelpl)
-      end
+c$$$!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
+c$$$!> Contributions to matrix elements <psi |psi Plane> from interstitial plane wave.
+c$$$!! q1=q    ---> iq 1:ntp0 q-point
+c$$$!! q2=q-rk ---> kp 1:nt0  occupied
+c$$$!!  zmelpl
+c$$$      subroutine drvmelp( q, ntp0, q_rk,nt0, qik, ispq,ispq_rk,ginv,
+c$$$     i        ngc,ngcmx,ngpmx_in,nband,itp0, 
+c$$$     i        symope, shtv, qlat, qlatinv,qibz,qbz,nqbz,nqibz,
+c$$$     i        nbloch,nctot,ncc,itps,
+c$$$     o        zmelpl)
+c$$$      use m_readqg, only : readqg
+c$$$      use m_readeigen,only : readgeigf
+c$$$c-----------------------------------------------------
+c$$$      implicit none
+c$$$      real(8),intent(in):: q(3),q_rk(3),qik(3),ginv(3,3)
+c$$$      integer(4),intent(in):: ngpmx_in,nqbz,nqibz,ngcmx ,nctot,nband,
+c$$$     &  ntp0,nt0,nbloch,ngc,itp0(ntp0),ispq,ispq_rk,itps,ncc
+c$$$      real(8),intent(in):: qlat(3,3),shtv(3),qibz(3,nqibz),qbz(3,nqbz),
+c$$$     &     qlatinv(3,3),symope(3,3)
+c$$$      complex(8):: zmelpl(ngc,nt0,ntp0)  
+c$$$c      complex(8):: zzzmel(nbloch,nctot+nt0,ncc+ntp0)
+c$$$c     &  cmel(nbloch,nctot+nt0,ncc+ntp0)
+c$$$c      real(8),intent(out):: rmelt(1:nbloch+ngc,1:nctot+nt0,1:ncc+ntp0)
+c$$$c      real(8),intent(out):: cmelt(1:nbloch+ngc,1:nctot+nt0,1:ncc+ntp0)
+c$$$      integer(4) :: ngp1, ngp2
+c$$$      integer(4) :: ngvecpB1(3,ngpmx_in),ngvecpB2(3,ngpmx_in),nadd(3)
+c$$$      real(8):: q_rkt(3),qt(3)!,qu1(3),qu2(3)
+c$$$      real(8) :: qdiff(3),add(3),tolq=1d-5
+c$$$      complex(8) :: geig1(ngpmx_in,nband),geig2(ngpmx_in,nband)
+c$$$      integer(4)::verbose
+c$$$      logical:: debug=.false.
+c$$$c      if(verbose()>=90) debug=.true.
+c$$$c      if(verbose()>50) write(*,*) ' drvmelp: start'
+c$$$      call readqg('QGpsi',q,    qt,   ngp1, ngvecpB1) !qt is used q in practice.
+c$$$      call readqg('QGpsi',q_rk, q_rkt,ngp2, ngvecpB2)
+c$$$      geig1= readgeigf(q,ispq)       !call readgeig(q,    ngpmx_in, ispq, qu1, geig1)
+c$$$      geig2= readgeigf(q_rk,ispq_rk) !call readgeig(q_rk, ngpmx_in, ispq_rk, qu2, geig2)
+c$$$      qdiff = matmul(symope,qik)  - qt + q_rkt ! rk    -q  +(q-rk) is not zero. <rk q-rk |q>
+c$$$      nadd = nint(matmul(qlatinv,qdiff)) !c  if(sum(abs(add-nadd))>tolq) call rx('drvmelp add/=nadd')
+c$$$      call melpln2t(ngp1, ngvecpB1
+c$$$     &   ,  ngp2, ngvecpB2,   ngc,  nadd,
+c$$$     &   geig1(1:ngp1,itps-1+itp0(1:ntp0)), ntp0, ! q1=(shifted q) ->iq ngp1 1:ntp0 q-point
+c$$$     &   geig2(1:ngp2,1:nt0), nt0, ! q2=(shifted q-rk) -> kp ngp2 1:nt0  occupied 
+c$$$     i   shtv, matmul(symope,qik),qik, symope, qlat,
+c$$$     i   qt,                    !qt oct2013 means q1
+c$$$     o   zmelpl)
+c$$$      end
 
 !ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
 !> Mattrix elements <Plane psi |psi> from interstitial plane wave.
@@ -626,7 +610,6 @@ c         if (nc+ nlnmv(ic) > nlnmx) call rx( 'psi2b_v3: nlnmx exceeded')
       end do !end of atom-loop
       deallocate(zz,zppb,iasx)
       end
-
 c------------------------------------------------------------------------------------
       subroutine psicb_v3 (nctot,ncc,nt0,ntp0,  iclass, phase, 
      i                   cphik,
