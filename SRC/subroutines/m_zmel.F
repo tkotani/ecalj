@@ -128,9 +128,9 @@
       do irot = 1,ng
       do is = 1,nspin
 !! ppbir is rotated <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)> by rotated cg coefficients cgr
-         call ppbafp_v2 (irot,ng,is,nspin, 
-     i                 il,in,im, mnl,
-     d                 nl,nn,nclass,nlnmx,!mnlx,
+         call ppbafp_v2 (irot,ng,is,!nspin, 
+c     i                 il,in,im, mnl,
+c     d                 nl,nn,nclass,nlnmx,!mnlx,
      i                 mdimx,lx,nx,nxx, !Bloch wave    
      i                 cgr,nl-1,       !rotated CG
      i                 ppbrd,           !radial integrals
@@ -139,9 +139,9 @@
       enddo  
       end subroutine ppbafp_v2_zmel
 !ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
-      subroutine ppbafp_v2 (ig,ng,isp,nspin,
-     i                 il,in,im, mnl,
-     d                 nl,nn,nclass,mnlx,
+      subroutine ppbafp_v2 (ig,ng,isp,!nspin,
+c     i                 il,in,im, mnl,
+c     d                 nl,nn,nclass,nlnmx,
      i                 mdimx,lx,nx,nxx, !Bloch wave    
      i                 cgr,lmxax,   !rotated CG
      i                 ppbrd,           !radial integrals
@@ -151,15 +151,15 @@
 !  in,il,im      = index for n,l,m s. indxlnm.f
 !   ppb            = <Phi(RLn) Phi(RL'n') B(R,i)>
       implicit none
-      integer(4),intent(in) :: ig,ng,isp,nspin,nclass,mnlx,mdimx
-      integer(4),intent(in) :: il(mnlx,nclass),in(mnlx,nclass),im(mnlx,nclass)
+      integer(4),intent(in) :: ig,ng,isp!,nspin,nclass,nlnmx,mdimx
+c      integer(4),intent(in) :: il(nlnmx,nclass),in(nlnmx,nclass),im(nlnmx,nclass)
       integer(4),intent(in) :: lx(nclass),nx(0: 2*(nl-1),nclass)
-      integer(4),intent(in) :: nxx,lmxax
-      real(8), intent(out) :: ppb(mnlx,mnlx,mdimx,nclass)
+      integer(4),intent(in) :: lmxax,nxx,mdimx
+      real(8), intent(out) :: ppb(nlnmx,nlnmx,mdimx,nclass)
       real(8), intent(in) :: cgr((lmxax+1)**2,(lmxax+1)**2,(2*lmxax+1)**2,ng)
       real(8), intent(in) :: ppbrd(0:nl-1,nn,0:nl-1,nn,0:2*(nl-1),nxx,nclass*nspin)
-      integer(4) :: ic,nl,nn, i,lb,nb,mb,lmb,i1,ibas,i2
-      integer(4) :: np,lp,mp,lmp,n,l,m,lm, mnl(nclass)
+      integer(4) :: ic, i,lb,nb,mb,lmb,i1,ibas,i2 !nl,nn,
+      integer(4) :: np,lp,mp,lmp,n,l,m,lm!, mnl(nclass)
       do ic  = 1, nclass
         ibas = ic
         i = 0 !i = product basis index.
@@ -308,7 +308,7 @@ c   matmul(symgg(:,:,irot),kvec)-rkvec can have difference of reciprocal vectors
      i              cphim(1,nmini),  !middle phi
      i              cphiq(1,nqini),  !end phi
      i              ppb,!ppb,            
-     i              nlnmv,nlnmc,nblocha, !mdim, 
+     i              nblocha, !mdim, 
      i              imdim,iatomp,
      i              mdimx,nlmto,nbloch,nlnmx,natom,nclass,
      i              icore,ncore,nl,nnc,
@@ -320,7 +320,7 @@ c   matmul(symgg(:,:,irot),kvec)-rkvec can have difference of reciprocal vectors
      i              cphim(1,nmini), 
      i              cphiq(1,nqini),
      i              ppb,! ppb,         
-     i              nlnmv, nlnmc,nblocha, !mdim,
+     i              nblocha, !mdim,
      i              imdim,iatomp,
      d              mdimx,nlmto,nbloch,nlnmx, natom,nclass,
      o              zmelt(1:nbloch,:,:))
@@ -448,7 +448,7 @@ c   matmul(symgg(:,:,irot),kvec)-rkvec can have difference of reciprocal vectors
      i                   cphik, !rbk,cbk,rhbk,chbk,
      i                   cphikq,!rbkq,cbkq,rhbkq,chbkq,
      i                   ppb, !pdb,dpb,ddb,
-     i                   nlnmv,nlnmc,mdim,imdim,iatomp,
+     i                   mdim,imdim,iatomp,
      d                   mdimx,nlmto,nbloch,nlnmx,
      d                   natom,nclass,
      o zpsi2b)
@@ -479,7 +479,7 @@ C----------------------------------------------------------
       implicit none
       integer :: nlmto,nctot,ncc,nt0,ntp0,nlnmx,natom,nbloch,
      &     ia,ic,nc,nv,nc1,ias,iap,icp,i,mdimx,nclass,itp,jp,ib,
-     &     nzwork1,nzwork2,nlnmv(nclass),nlnmc(nclass),mdim(nclass),iclass(natom),
+     &     nzwork1,nzwork2,mdim(nclass),iclass(natom),
      i     imdim(natom),iatomp(natom)
       integer,allocatable::iasx(:)
       real(8)::  ppb(nlnmx,nlnmx,mdimx,nclass)
@@ -519,7 +519,7 @@ c-------------------------------------------------------------------------------
      i                   cphik,
      i                   cphikq, 
      i                   ppb,
-     i                   nlnmv,nlnmc,mdim,
+     i                   mdim,
      i                   imdim,iatomp,
      i                   mdimx,nlmto,nbloch,nlnmx,natom,nclass,
      i                   icore,ncore,nl,nnc,  
@@ -529,7 +529,7 @@ c-------------------------------------------------------------------------------
      i                   cphik,
      i                   cphikq, 
      i                   ppb,
-     i                   nlnmv,nlnmc,mdim,
+     i                   mdim,
      i                   imdim,iatomp,
      i                   mdimx,nlmto,nbloch,nlnmx,natom,nclass,
      i                   icore,ncore,nl,nnc  
@@ -560,7 +560,7 @@ Cr
 C-------------------------------------------------------------------------
       integer:: nl,nlmto,nbloch,nclass,natom,nctot,ncc,nt0,ntp0,mdimx,nlnmx,nnc,
      & ib,ias,ics,ia,ic,nc,nv,nc1,iap,icp,i,itp,it,icr,icore(nl*nl*nnc,nclass),ncore(nclass),
-     & nlnmv(nclass),nlnmc(nclass),mdim(nclass),iclass(natom),imdim(natom),iatomp(natom),verbose,ixx
+     & mdim(nclass),iclass(natom),imdim(natom),iatomp(natom),verbose,ixx
       real(8)::   ppb(nlnmx,nlnmx,mdimx,nclass) !  coskt(natom),sinkt(natom)
       complex(8):: zpsi2b(nbloch,nt0+nctot,ntp0+ncc),
      &             cphikq(nlmto,*), cphik(nlmto,*),phase(natom)

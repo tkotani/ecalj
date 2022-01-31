@@ -1008,9 +1008,9 @@ c rotate atomic positions invrot*R = R' + T
 c        invr       = invrot (irot,invg,ngrp)
         invr     = invg(irot)
 c -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)> 
-        call ppbafp_v2 (irot,ngrp,is,nspin,
-     i              il,in,im, nlnm,
-     d                 nl,nn,nclass,nlnmx,
+        call ppbafp_v2 (irot,ngrp,is,!nspin,
+c     i              il,in,im, nlnm,
+c     d                 nl,nn,nclass,nlnmx,
      i                 mdimx,lx,nx,nxx,  !Bloch wave    
      i                 cgr, nl-1,        !rotated CG
      i                 ppbrd,            !radial integrals
