@@ -212,7 +212,11 @@ c      if(verbose()>=90) debug=.true.
       iqini = 1
       iqend = nqibz             !no sum for offset-Gamma points.
       icount=0
-      do 1300 kx = iqini,iqend 
+      do 1300 kx = iqini,iqend
+cccccccccccccccccccccccccccccccccccccccc
+c         do 1350 ibkL=1,nWblk(kx)
+c         do 1360 ibkR=1,nWblk(kx)
+ccccccccccccccccccccccccccccccccccccccccc               
       do 1200 isp = 1,nspinmx !empty run to get index for icount ordering
          if(sum(irkip(isp,kx,:,:))==0) cycle ! next kx
       do 1400 irot = 1,ngrp !over rotations irot ===
@@ -220,7 +224,15 @@ c      if(verbose()>=90) debug=.true.
       do 1500 ip = 1,nq         
          kr = irkip(isp,kx,irot,ip) ! index for rotated kr in the FBZ
          if(kr==0) cycle
-         icount=icount+1  
+         icount=icount+1
+         
+cccccccccccccccccccccccccccccc !block decomposition of zmelc(bLi:bLe, W(bLi:bLe,bRi:bRe) zmel(bRi:bRe, 
+c         bLic(icount)= WblockLi(ibkL) !ibkL is block index L of W(L,R)
+c         bLec(icount)= WblockLe(ibkL) !
+c         bRic(icount)= WblockRi(ibkR) !ibkR is block index R of W(L,R)
+c         bRec(icount)= WblockRe(ibkR)
+cccccccccccccccccccccccccccccc
+         
          ispc(icount)=isp !icount specify isp,kx,irot,iq. (kx,irot) gives kr in the all FZ.
          kxc(icount)=kx
          irotc(icount)=irot
@@ -324,7 +336,7 @@ c         if(debug) write(6,*)' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
          do itp=1,ntqxx
             zmelc(itp,:,:)=transpose(dconjg(zmel(:,:,itp))) !zmelc
          enddo
-         call Get_zmel_init(q,qibz_k,irot,qbz_kr,isp, nbmax,ntqxx,nctot,ncc=0,iprx=debug) !zmel
+c         call Get_zmel_init(q,qibz_k,irot,qbz_kr,isp, nbmax,ntqxx,nctot,ncc=0,iprx=debug) !zmel
          
 !---------
         ExchangeSelfEnergy: Block
@@ -379,6 +391,8 @@ c     call matzwz2(2,zw(1:ngb,1:ngb),zmel,ntqxx,nstate,ngb,zwz)
             do it = 1,nstate
                zwz(it,:,:)=matmul( zmelc(:,it,:),            !transpose(dconjg(zmel(:,it,:))),
      &          matmul(zw(1:ngb,1:ngb),zmel(:,it,:))) !!zwz = zmel*(W(i w)-v)*zmel
+c              wvz(:,it,itp)=            !transpose(dconjg(zmel(:,it,:))),
+c     &          matmul(zw(1:ngb,1:ngb),zmel(:,it,itp)) !!zwz = zmel*(W(i w)-v)*zmel
                Block
                complex(8):: zwx(ntqxx,ntqxx)
                zwx = zwz(it,1:ntqxx,1:ntqxx)
@@ -396,7 +410,7 @@ c     if(npm==2)zwz(ix+niw,it,:,:)=(zwx-dconjg(transpose(zwx)))/2d0/img!w(iw)-w(
 !---------
         CorrelationSelfEnergyRealAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
          real(8):: we_(nt_max,ntqxx),wfac_(nt_max,ntqxx)
-         complex(8):: zw3(ngb,ngb,0:2)
+         complex(8):: wv3(ngb,ngb,0:2)
          integer:: ixss(nt_max,ntqxx),iirx(ntqxx)
          logical:: ititpskip(nt_max,ntqxx)
          complex(8):: zw(nblochpmx,nblochpmx),img=(0d0,1d0)
@@ -406,7 +420,7 @@ c     if(npm==2)zwz(ix+niw,it,:,:)=(zwx-dconjg(transpose(zwx)))/2d0/img!w(iw)-w(
      o        we_,wfac_,ixss,ititpskip,iirx)
          Block
          real(8):: wgt3(0:2,nt_max,ntqxx)    ! 3-point interpolation weight for we_(it,itp) 
-         complex(8)::zadd(ntqxx),zw33(ngb,ngb) ! ixss is starting index of omega
+         complex(8)::zadd(ntqxx),wv33(ngb,ngb) ! ixss is starting index of omega
          integer:: iwgt3(nt_max,ntqxx),i1,i2,iw,ikeep,ix
          integer:: ncountp(nwxi:nwx),icountp,ncoumx
          integer,allocatable:: itc(:,:),itpc(:,:)
@@ -434,6 +448,7 @@ c     if(npm==2)zwz(ix+niw,it,:,:)=(zwx-dconjg(transpose(zwx)))/2d0/img!w(iw)-w(
            enddo
            enddo
            ncountp(ix)=icountp
+           write(6,*)'icount ix ncountp of nall=',icount,ix, ncountp(ix), ntqxx*nt_max
          enddo
          ncoumx=maxval(ncountp)
          allocate(itc(ncoumx,nwxi:nwx),itpc(ncoumx,nwxi:nwx),wgt3p(0:2,ncoumx,nwxi:nwx))
@@ -446,34 +461,36 @@ c     if(npm==2)zwz(ix+niw,it,:,:)=(zwx-dconjg(transpose(zwx)))/2d0/img!w(iw)-w(
             icountp=icountp+1
             itc (icountp,ix)=it
             itpc(icountp,ix)=itp
-            wgt3p(:,icountp,ix)=wgt3(:,it,itp)
+c            wgt3p(:,icountp,ix)=wgt3(:,it,itp)
            enddo
            enddo
          enddo   
 !   ix-shift mechanism for reading zw(:,:,ix)
          ikeep=99999
-         do ix = nwxi,nwx       !Set zw3(:,:,0:2) is for ix,ix+1,ix+2
-           if(.not.(any(iwgt3(:,:)==ix))) cycle
+         do ix = nwxi,nwx       !Set wv3(:,:,0:2) is for ix,ix+1,ix+2
+           if(ncountp(ix)==0) cycle
            do iw=0,2
               if(ikeep+1==ix.and.iw<2) then
-                 zw3(:,:,iw)=zw3(:,:,iw+1) 
+                 wv3(:,:,iw)=wv3(:,:,iw+1) 
               elseif(ikeep+2==ix.and.iw<1) then
-                 zw3(:,:,iw)=zw3(:,:,iw+2)
+                 wv3(:,:,iw)=wv3(:,:,iw+2)
               else
                  read(ifrcw(kx),rec=iw+ix-nw_i+1) zw ! direct access Wc(omega) = W(omega) - v
-                 if(hermitianW) zw3(:,:,iw)=(zw(1:ngb,1:ngb)+transpose(dconjg(zw(1:ngb,1:ngb))))/2d0
-                 if(.not.hermitianW) zw3(:,:,iw)=zw(:,:)
+                 if(hermitianW) wv3(:,:,iw)=(zw(1:ngb,1:ngb)+transpose(dconjg(zw(1:ngb,1:ngb))))/2d0
+                 if(.not.hermitianW) wv3(:,:,iw)=zw(:,:)
               endif   
            enddo
            ikeep=ix
-!         ! zw3 should contain zw(ix+0:ix+2)
+!         ! wv3 should contain zw(ix+0:ix+2)
            do icountp=1,ncountp(ix)
               itp=itpc(icountp,ix)
-              it =itc(icountp,ix)  !zw33 gives interpolated value of W(we_(it,itp))
-              zw33 = zw3(:,:,0)*wgt3p(0,icountp,ix) 
-     &             + zw3(:,:,1)*wgt3p(1,icountp,ix) 
-     &             + zw3(:,:,2)*wgt3p(2,icountp,ix) 
-              zadd(:) = matmul(matmul(zmelc(itp,it,:),zw33),zmel(:,it,:)) !itpp
+              it =itc(icountp,ix)  !wv33 gives interpolated value of W(we_(it,itp))
+              wv33 = wv3(:,:,0)*wgt3(0,it,itp) !wgt3p(0,icountp,ix) 
+     &             + wv3(:,:,1)*wgt3(1,it,itp) ! wgt3p(1,icountp,ix) 
+     &             + wv3(:,:,2)*wgt3(2,it,itp) ! wgt3p(2,icountp,ix) 
+c              wvz(:,it,itpp) = matmul(wv33,zmel(:,it,itpp)) !itpp
+c             wvz(:,it,ix) = wvz(:,it,ix)+matmul(zmelc(itp,it,:),wv33) 
+              zadd(:) = matmul(matmul(zmelc(itp,it,:),wv33),zmel(:,it,:)) !itpp
               zadd(itp)= dreal(zadd(itp))+img*min(dimag(zadd(itp)),0d0) !forced to be negative im part
               zsec(itp,:)=zsec(itp,:)+ zadd(:)* wfac_(it,itp) !itpp
             enddo
