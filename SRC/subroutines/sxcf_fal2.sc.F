@@ -387,12 +387,8 @@ c         call Get_zmel_init(q,qibz_k,irot,qbz_kr,isp, nbmax,ntqxx,nctot,ncc=0,i
             elseif(ixx>0) then ! 
                read(ifrcwi(kx),rec=ixx) zw ! direct access read Wc(i*omega)=W(i*omega)-v
             endif
-c     call matzwz2(2,zw(1:ngb,1:ngb),zmel,ntqxx,nstate,ngb,zwz) 
-            do it = 1,nstate
-               zwz(it,:,:)=matmul( zmelc(:,it,:),            !transpose(dconjg(zmel(:,it,:))),
-     &          matmul(zw(1:ngb,1:ngb),zmel(:,it,:))) !!zwz = zmel*(W(i w)-v)*zmel
-c              wvz(:,it,itp)=            !transpose(dconjg(zmel(:,it,:))),
-c     &          matmul(zw(1:ngb,1:ngb),zmel(:,it,itp)) !!zwz = zmel*(W(i w)-v)*zmel
+            do it = 1,nstate   !zwz = zmel*(W(i w)-v)*zmel
+               zwz(it,:,:)= matmul( zmelc(:,it,:),matmul(zw(1:ngb,1:ngb),zmel(:,it,:)))
                Block
                complex(8):: zwx(ntqxx,ntqxx)
                zwx = zwz(it,1:ntqxx,1:ntqxx)
@@ -422,8 +418,8 @@ c     if(npm==2)zwz(ix+niw,it,:,:)=(zwx-dconjg(transpose(zwx)))/2d0/img!w(iw)-w(
          real(8):: wgt3(0:2,nt_max,ntqxx)    ! 3-point interpolation weight for we_(it,itp) 
          complex(8)::zadd(ntqxx),wv33(ngb,ngb) ! ixss is starting index of omega
          integer:: iwgt3(nt_max,ntqxx),i1,i2,iw,ikeep,ix
-         integer:: ncountp(nwxi:nwx),icountp,ncoumx
-         integer,allocatable:: itc(:,:),itpc(:,:)
+         integer:: nit_(ntqxx,nwxi:nwx),icountp,ncoumx,iit
+         integer,allocatable:: itc(:,:,:),itpc(:,:)
          real(8),allocatable:: wgt3p(:,:,:)
          iwgt3=0
          do itp=1,ntqxx
@@ -439,36 +435,29 @@ c     if(npm==2)zwz(ix+niw,it,:,:)=(zwx-dconjg(transpose(zwx)))/2d0/img!w(iw)-w(
 !! icount mechanism for sum
 !  We take sum for ix,it,itp whereas W(we_(it,itp))=\sum_{i=0}^2 W(:,:,ix+i)*wgt3(i)         
          do ix = nwxi,nwx 
-           icountp=0
-           do itp=1,ntqxx
-           do it=1,nt_max
-            if(ititpskip(it,itp)) cycle
-            if(iwgt3(it,itp)/=ix) cycle
-            icountp=icountp+1
-           enddo
-           enddo
-           ncountp(ix)=icountp
-           write(6,*)'icount ix ncountp of nall=',icount,ix, ncountp(ix), ntqxx*nt_max
+         do itp=1,ntqxx
+           nit_(itp,ix)=count([((.not.ititpskip(it,itp)).and.iwgt3(it,itp)==ix,it=1,nt_max)])
+           if(nit_(itp,ix)/=0)write(6,"('icou ix itp ncou/nall=',10i5)")
+     &          icount,ix,itp,nit_(itp,ix), ntqxx*nt_max
          enddo
-         ncoumx=maxval(ncountp)
-         allocate(itc(ncoumx,nwxi:nwx),itpc(ncoumx,nwxi:nwx),wgt3p(0:2,ncoumx,nwxi:nwx))
+         enddo
+         ncoumx=maxval(nit_)
+         allocate(itc(ncoumx,nwxi:nwx,ntqxx))!,itpc(ncoumx,nwxi:nwx),wgt3p(0:2,ncoumx,nwxi:nwx))
          do ix = nwxi,nwx 
-           icountp=0
            do itp=1,ntqxx
+            iit=0
            do it=1,nt_max
-            if(ititpskip(it,itp)) cycle
-            if(iwgt3(it,itp)/=ix) cycle
-            icountp=icountp+1
-            itc (icountp,ix)=it
-            itpc(icountp,ix)=itp
-c            wgt3p(:,icountp,ix)=wgt3(:,it,itp)
+            if((.not.ititpskip(it,itp)).and.iwgt3(it,itp)==ix) then
+               iit=iit+1
+               itc(iit,ix,itp)=it !it for given ix,itp possible iit=1,nit_(itp,ix)
+            endif
            enddo
            enddo
          enddo   
 !   ix-shift mechanism for reading zw(:,:,ix)
          ikeep=99999
          do ix = nwxi,nwx       !Set wv3(:,:,0:2) is for ix,ix+1,ix+2
-           if(ncountp(ix)==0) cycle
+           if(sum(nit_(:,ix))==0) cycle
            do iw=0,2
               if(ikeep+1==ix.and.iw<2) then
                  wv3(:,:,iw)=wv3(:,:,iw+1) 
@@ -482,25 +471,27 @@ c            wgt3p(:,icountp,ix)=wgt3(:,it,itp)
            enddo
            ikeep=ix
 !         ! wv3 should contain zw(ix+0:ix+2)
-           do icountp=1,ncountp(ix)
-              itp=itpc(icountp,ix)
-              it =itc(icountp,ix)  !wv33 gives interpolated value of W(we_(it,itp))
-              wv33 = wv3(:,:,0)*wgt3(0,it,itp) !wgt3p(0,icountp,ix) 
-     &             + wv3(:,:,1)*wgt3(1,it,itp) ! wgt3p(1,icountp,ix) 
-     &             + wv3(:,:,2)*wgt3(2,it,itp) ! wgt3p(2,icountp,ix) 
-c              wvz(:,it,itpp) = matmul(wv33,zmel(:,it,itpp)) !itpp
-c             wvz(:,it,ix) = wvz(:,it,ix)+matmul(zmelc(itp,it,:),wv33) 
-              zadd(:) = matmul(matmul(zmelc(itp,it,:),wv33),zmel(:,it,:)) !itpp
-              zadd(itp)= dreal(zadd(itp))+img*min(dimag(zadd(itp)),0d0) !forced to be negative im part
-              zsec(itp,:)=zsec(itp,:)+ zadd(:)* wfac_(it,itp) !itpp
-            enddo
+           do itp=1,ntqxx
+             do iit=1,nit_(itp,ix) !for it for given itp,ix
+              it =itc(iit,ix,itp)  !wv33 gives interpolated value of W(we_(it,itp))
+              wv33 = wv3(:,:,0)*wgt3(0,it,itp) 
+     &             + wv3(:,:,1)*wgt3(1,it,itp) 
+     &             + wv3(:,:,2)*wgt3(2,it,itp) 
+c              zadd(:) = matmul(matmul(zmelc(itp,it,:),wv33),zmel(:,it,:)) !itpp
+c              zadd(itp)= dreal(zadd(itp))+img*min(dimag(zadd(itp)),0d0) !forced to be negative im part
+              zsec(itp,:)=zsec(itp,:) + wfac_(it,itp)*matmul(matmul(zmelc(itp,it,:),wv33),zmel(:,it,:)) 
+             enddo 
+           enddo
          enddo
          Endblock         
         EndBlock CorrelationSelfEnergyRealAxis
 !         
+        do itp=1,ntqxx
+         zsec(itp,itp)= dreal(zsec(itp,itp))+img*min(dimag(zsec(itp,itp)),0d0) !enforce Imzsec<0
+        enddo   
         call Deallocate_zmel()
         deallocate(zmelc)
-         if(verbose()>50) call timeshow("11after alagr3z iw,itp,it cycles")
+        if(verbose()>50) call timeshow("11after alagr3z iw,itp,it cycles")
  3030 continue
       
       end subroutine sxcf_scz
