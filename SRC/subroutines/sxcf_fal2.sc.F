@@ -369,9 +369,14 @@ c         call Get_zmel_init(q,qibz_k,irot,qbz_kr,isp, nbmax,ntqxx,nctot,ncc=0,i
 !     !===  See Eq.(55) around of PRB76,165106 (2007)
 !
 !---------
+        zmelcww: Block 
+        complex(8):: zmelcww(1:ntqxx,1:nstate,1:ngb)
+        zmelcww=0d0
+
         CorrelationSelfEnergyImagAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
         real(8):: esmrx(nstate),omegat(ntqxx),wgtim(0:npm*niw,ntqxx,nstate)
         complex(8),target:: zw(nblochpmx,nblochpmx),zwz(nstate,ntqxx,ntqxx)
+        logical:: init=.true.
          esmrx(1:nctot)=0d0
          esmrx(nctot+1:nstate)=esmr
          omegat(1:ntqxx) = omega(1:ntqxx)
@@ -381,7 +386,7 @@ c         call Get_zmel_init(q,qibz_k,irot,qbz_kr,isp, nbmax,ntqxx,nctot,ncc=0,i
             call wintzsg_npm_wgtim(npm, ua_,expa_, we,esmrx(it), wgtim(:,itp,it))
          enddo   !Integration weight wgtim along im axis for zwz(0:niw*npm) 
          enddo
-         do ixx=0,niw !niw is ~10. ixx=0 is for omega=0 nw_i=0 (Time reversal) or nw_i =-nw
+         do ixx=0,niw           !niw is ~10. ixx=0 is for omega=0 nw_i=0 (Time reversal) or nw_i =-nw
             if(ixx==0) then ! at omega=0 ! nw_i=0 (Time reversal) or nw_i =-nw
                read(ifrcw(kx),rec=1+(0-nw_i)) zw ! direct access read Wc(0) = W(0) - v
             elseif(ixx>0) then ! 
@@ -389,14 +394,23 @@ c         call Get_zmel_init(q,qibz_k,irot,qbz_kr,isp, nbmax,ntqxx,nctot,ncc=0,i
             endif
             ww=>zw(1:ngb,1:ngb)
             do it = lbound(zmelc,2),ubound(zmelc,2) !1,nstate   !zwz = zmel*(W(i w)-v)*zmel
-               zwz(it,:,:)= matmul( zmelc(:,it,:),matmul(ww,zmel(:,it,:)))
-               zwz(it,:,:)=(zwz(it,:,:)+dconjg(transpose(zwz(it,:,:))))/2d0 ! w(iw) + w(-iw) Harmitian part
-c     if(npm==2)zwz(ix+niw,it,:,:)=(zwx-dconjg(transpose(zwx)))/2d0/img!w(iw)-w(-iw) Anti
+            do itp = lbound(zsec,1),ubound(zsec,1) !1,nstate   !zwz = zmel*(W(i w)-v)*zmel
+c             zwz(it,:,:)= matmul( zmelc(:,it,:),matmul(ww,zmel(:,it,:)))
+c             zwz(it,:,:)=(zwz(it,:,:)+dconjg(transpose(zwz(it,:,:))))/2d0!w(iw)+w(-iw) Harmitian part
+cxx   if(npm==2)zwz(ix+niw,it,:,:)=(zwx-dconjg(transpose(zwx)))/2d0/img!w(iw)-w(-iw) Anti
+                zmelcww(itp,it,:)=zmelcww(itp,it,:)
+     &               + wtt* wgtim(ixx,itp,it)*matmul(zmelc(itp,it,:),ww) !
             enddo
-            do itp = lbound(zsec,1),ubound(zsec,1)
-              zsec(itp,:)=zsec(itp,:)+ wtt*matmul(wgtim(ixx,itp,:),zwz(:,itp,:)) !itp,itpp
             enddo
+c            do itp = lbound(zsec,1),ubound(zsec,1)
+c              zsec(itp,:)=zsec(itp,:)+ wtt*matmul(wgtim(ixx,itp,:),zwz(:,itp,:)) !itp,itpp
+c            enddo
          enddo
+c$$$         do itp = lbound(zsec,1),ubound(zsec,1)
+c$$$         do itpp= lbound(zsec,2),ubound(zsec,2)
+c$$$            zsec(itp,itpp)=zsec(itp,itpp)+ sum(zmelcww(itp,:,:)*transpose(zmel(:,:,itpp))) ! it,ib
+c$$$         enddo
+c$$$         enddo
         EndBlock CorrelationSelfEnergyImagAxis
 !---------
         CorrelationSelfEnergyRealAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
@@ -473,14 +487,23 @@ c            if(npm==2) call alagr3zwgt (we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp
               wv33 = wv3(:,:,0)*wgt3(0,it,itp) 
      &             + wv3(:,:,1)*wgt3(1,it,itp) 
      &             + wv3(:,:,2)*wgt3(2,it,itp) 
-              zsec(itp,:)=zsec(itp,:) + wfac_(it,itp)*matmul(matmul(zmelc(itp,it,:),wv33),zmel(:,it,:)) 
+c            zsec(itp,:)=zsec(itp,:)+wfac_(it,itp)*matmul(matmul(zmelc(itp,it,:),wv33),zmel(:,it,:)) 
+              zmelcww(itp,it,:)= zmelcww(itp,it,:)
+     &             + wfac_(it,itp)* matmul(zmelc(itp,it,:),wv33) !,zmel(:,it,:)) 
              enddo 
            enddo
          enddo
          Endblock         
         EndBlock CorrelationSelfEnergyRealAxis
 !         
-        do itp=lbound(zsec,1),ubound(zsec,1)
+         do itp = lbound(zsec,1),ubound(zsec,1)
+         do itpp= lbound(zsec,2),ubound(zsec,2)
+            zsec(itp,itpp)=zsec(itp,itpp)+ sum(zmelcww(itp,:,:)*transpose(zmel(:,:,itpp))) ! it,ib
+         enddo
+         enddo
+         EndBlock zmelcww
+         
+         do itp=lbound(zsec,1),ubound(zsec,1)
          zsec(itp,itp)= dreal(zsec(itp,itp))+img*min(dimag(zsec(itp,itp)),0d0) !enforce Imzsec<0
         enddo   
         call Deallocate_zmel()
