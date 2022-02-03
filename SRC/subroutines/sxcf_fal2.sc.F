@@ -22,8 +22,8 @@
       private
       contains
       
-      subroutine sxcf_scz(qip,ef,esmr,nq,exchange,jobsw,hermitianW,nbandmx,ixc,nspinmx)
-      intent(in)          qip,ef,esmr,nq,exchange,jobsw,hermitianW,nbandmx,ixc,nspinmx
+      subroutine sxcf_scz(qip,ef,esmr,nq,exchange,jobsw,nbandmx,ixc,nspinmx)
+      intent(in)          qip,ef,esmr,nq,exchange,jobsw,nbandmx,ixc,nspinmx
 !> \brief
 !! Calcualte full simga_ij(e_i)= <i|Re[Sigma](e_i)|j> 
 !! ---------------------
@@ -182,7 +182,7 @@ c     complex(8),optional :: zsec(ntq,ntq,nq)
       logical ::   oncew, onceww, eibz4sig  
       real(8),allocatable:: we_(:,:),wfac_(:,:)
       complex(8),allocatable:: w3p(:),wtff(:)
-      logical:: tote=.false., hermitianW
+      logical:: tote=.false.!, hermitianW
       real(8),allocatable:: vcoud_(:),wfft(:)
       logical:: iprx,cmdopt0
       integer:: ixx,ixc,icount
@@ -214,10 +214,6 @@ c      if(verbose()>=90) debug=.true.
       iqend = nqibz             !no sum for offset-Gamma points.
       icount=0
       do 1300 kx = iqini,iqend
-cccccccccccccccccccccccccccccccccccccccc
-c         do 1350 ibkL=1,nWblk(kx)
-c         do 1360 ibkR=1,nWblk(kx)
-ccccccccccccccccccccccccccccccccccccccccc               
       do 1200 isp = 1,nspinmx !empty run to get index for icount ordering
          if(sum(irkip(isp,kx,:,:))==0) cycle ! next kx
       do 1400 irot = 1,ngrp !over rotations irot ===
@@ -226,14 +222,6 @@ ccccccccccccccccccccccccccccccccccccccccc
          kr = irkip(isp,kx,irot,ip) ! index for rotated kr in the FBZ
          if(kr==0) cycle
          icount=icount+1
-         
-cccccccccccccccccccccccccccccc !block decomposition of zmelc(bLi:bLe, W(bLi:bLe,bRi:bRe) zmel(bRi:bRe, 
-c         bLic(icount)= WblockLi(ibkL) !ibkL is block index L of W(L,R)
-c         bLec(icount)= WblockLe(ibkL) !
-c         bRic(icount)= WblockRi(ibkR) !ibkR is block index R of W(L,R)
-c         bRec(icount)= WblockRe(ibkR)
-cccccccccccccccccccccccccccccc
-         
          ispc(icount)=isp !icount specify isp,kx,irot,iq. (kx,irot) gives kr in the all FZ.
          kxc(icount)=kx
          irotc(icount)=irot
@@ -313,13 +301,14 @@ cccccccccccccccccccccccccccccc
          wtt = wk(kr)
          if(eibz4sig()) wtt=wtt*nrkip(isp,kx,irot,ip)
 c         if(debug) write(6,*)' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
+         
+!! Get zmel(ib,itpp,it) = <M(qbz_kr,ib) phi(itpp,q-qbz_kr) |phi(q(ip),it)> , qbz_kr= irot(qibz_k)
          if(kxold/=kx) then
             call Readvcoud(qibz_k,kx,NoVcou=.false.) !Readin ngc,ngb,vcousq ! Coulomb matrix
             call Setppovlz(qibz_k,matz=.true.) !ppovlz overlap matrix
             if(debug) write(6,*) ' sxcf_fal2sc: ngb ngc nbloch=',ngb,ngc,nbloch
             kxold =kx
          endif
-!! Get zmel(ib,itpp,it) = <M(qbz_kr,ib) phi(itpp,q-qbz_kr) |phi(q(ip),it)> , qbz_kr= irot(qibz_k)
          if(exchange) then
             nbmax = nt0p-nctot
          else
@@ -329,14 +318,10 @@ c         if(debug) write(6,*)' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
          endif
          nstate = nctot + nbmax ! = nstate for the case of correlation
 !! zmelc zmel         
-         if(mod(icount,nccc)==0) 
-     &   write(6,"('sxcf: isp kx ip',i2,2i4,' icount/ncount ntqxx nstate ngb=',12i5)")isp,kx,ip,icount,ncount,ntqxx,nstate,ngb
+         if(mod(icount,nccc)==0)  write(6,"('sxcf: isp kx ip',i2,2i4,
+     &    ' icount/ncount ntqxx nstate ngb=',12i5)") isp,kx,ip,icount,ncount,ntqxx,nstate,ngb
          call Get_zmel_init(q,qibz_k,irot,qbz_kr,isp, nbmax,ntqxx,nctot,ncc=0,iprx=debug)
-         allocate(zmelc(1:ntqxx,1:nstate,1:ngb))
-         do itp=1,ntqxx
-            zmelc(itp,:,:)=transpose(dconjg(zmel(:,:,itp))) !zmelc
-         enddo
-c         call Get_zmel_init(q,qibz_k,irot,qbz_kr,isp, nbmax,ntqxx,nctot,ncc=0,iprx=debug) !zmel
+c        call Get_zmel_init(q,qibz_k,irot,qbz_kr,isp, nbmax,ntqxx,nctot,ncc=0,iprx=debug) !zmel
          
 !---------
         ExchangeSelfEnergy: Block
@@ -348,14 +333,14 @@ c         call Get_zmel_init(q,qibz_k,irot,qbz_kr,isp, nbmax,ntqxx,nctot,ncc=0,i
                     !voud_(1) is effective v(q=0) averaged in the Gamma cell.
             wtff= [(wfacx(-1d99, ef, ekc(it), esmr),it=1,nctot+nbmax)]
             do itpp= lbound(zsec,2),ubound(zsec,2)
-            do itp = lbound(zsec,1),ubound(zsec,1) !S[j=1,nbloch]  z1p(j,t,n) <B(rk,j) psi(q-rk,n) |psi(q,t')>
-               w3p = [(sum(zmelc(itp,it,:) * vcoud_(:)* zmel(:,it,itpp)),it=1,nctot+nbmax)]
+            do itp = lbound(zsec,1),ubound(zsec,1)
+               w3p =[(sum(dconjg(zmel(:,it,itp)) * vcoud_(:)* zmel(:,it,itpp)),it=1,nctot+nbmax)]
                w3p(nctot+1:nctot+nbmax) = w3p(nctot+1:nctot+nbmax) * wtff(nctot+1:nctot+nbmax)
                if(corehole) w3p(1:nctot) = w3p(1:nctot) * wcorehole(1:nctot,isp) 
                zsec(itp,itpp) = zsec(itp,itpp) - wtt * sum( w3p(:) )
             enddo
             enddo
-            deallocate(vcoud_,wtff,w3p,zmelc)
+            deallocate(vcoud_,wtff,w3p)!,zmelc)
             cycle               
          endif                  ! end of if(exchange)
         EndBlock ExchangeSelfEnergy
@@ -372,7 +357,11 @@ c         call Get_zmel_init(q,qibz_k,irot,qbz_kr,isp, nbmax,ntqxx,nctot,ncc=0,i
         zmelcww: Block 
         complex(8):: zmelcww(1:ntqxx,1:nstate,1:ngb)
         zmelcww=0d0
-
+        allocate(zmelc(1:ntqxx,1:nstate,1:ngb))
+        do itp=1,ntqxx
+           zmelc(itp,:,:)=transpose(dconjg(zmel(:,:,itp))) !zmelc
+        enddo
+!-----
         CorrelationSelfEnergyImagAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
         real(8):: esmrx(nstate),omegat(ntqxx),wgtim(0:npm*niw,ntqxx,nstate)
         complex(8),target:: zw(nblochpmx,nblochpmx),zwz(nstate,ntqxx,ntqxx)
@@ -393,26 +382,9 @@ c         call Get_zmel_init(q,qibz_k,irot,qbz_kr,isp, nbmax,ntqxx,nctot,ncc=0,i
                read(ifrcwi(kx),rec=ixx) zw ! direct access read Wc(i*omega)=W(i*omega)-v
             endif
             ww=>zw(1:ngb,1:ngb)
-            call matmaw(zmelc,ww,zmelcww, size(zmelc,1)*size(zmelc,2), size(ww,1), size(ww,2), wtt*wgtim(ixx,:,:))
-c$$$            do it = lbound(zmelc,2),ubound(zmelc,2) !1,nstate   !zwz = zmel*(W(i w)-v)*zmel
-c$$$            do itp = lbound(zsec,1),ubound(zsec,1) !1,nstate   !zwz = zmel*(W(i w)-v)*zmel
-c$$$c             zwz(it,:,:)= matmul( zmelc(:,it,:),matmul(ww,zmel(:,it,:)))
-c$$$c             zwz(it,:,:)=(zwz(it,:,:)+dconjg(transpose(zwz(it,:,:))))/2d0!w(iw)+w(-iw) Harmitian part
-c$$$cxx   if(npm==2)zwz(ix+niw,it,:,:)=(zwx-dconjg(transpose(zwx)))/2d0/img!w(iw)-w(-iw) Anti
-c$$$                zmelcww(itp,it,:)=zmelcww(itp,it,:)
-c$$$     &               + wtt* wgtim(ixx,itp,it)*matmul(zmelc(itp,it,:),ww) !
-c$$$            enddo
-c$$$            enddo
-c         
-c            do itp = lbound(zsec,1),ubound(zsec,1)
-c              zsec(itp,:)=zsec(itp,:)+ wtt*matmul(wgtim(ixx,itp,:),zwz(:,itp,:)) !itp,itpp
-c            enddo
+            call matmaw(zmelc,ww,zmelcww, size(zmelc,1)*size(zmelc,2), size(ww,1), size(ww,2),
+     &           wtt*wgtim(ixx,:,:))
          enddo
-c$$$         do itp = lbound(zsec,1),ubound(zsec,1)
-c$$$         do itpp= lbound(zsec,2),ubound(zsec,2)
-c$$$            zsec(itp,itpp)=zsec(itp,itpp)+ sum(zmelcww(itp,:,:)*transpose(zmel(:,:,itpp))) ! it,ib
-c$$$         enddo
-c$$$         enddo
         EndBlock CorrelationSelfEnergyImagAxis
 !---------
         CorrelationSelfEnergyRealAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
@@ -440,12 +412,12 @@ c$$$         enddo
             call alagr3z2wgt(we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp))
 c            if(npm==1) call alagr3z2wgt(we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp))
 c            if(npm==2) call alagr3zwgt (we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp))
+            wgt3(:,it,itp)=wfac_(it,itp)*wgt3(:,it,itp)
             iwgt3(it,itp)=iirx(itp)*(ixs+1-2) !starting omega index ix for it,itp
          enddo                                !iirx=1 for npm=1 I think
             if(iirx(itp)/=1) call rx('sxcf: iirx=-1(TR breaking) is not yet implemented')
          enddo
-!! icount mechanism for sum
-!  We take sum for ix,it,itp whereas W(we_(it,itp))=\sum_{i=0}^2 W(:,:,ix+i)*wgt3(i)         
+!! icount mechanism for sum ix,it,itp where W(we_(it,itp))=\sum_{i=0}^2 W(:,:,ix+i)*wgt3(i)         
          do ix = nwxi,nwx 
          do itp=lbound(zsec,1),ubound(zsec,1)
            nit_(itp,ix)=count([((.not.ititpskip(it,itp)).and.iwgt3(it,itp)==ix,it=1,nt_max)])
@@ -478,8 +450,9 @@ c            if(npm==2) call alagr3zwgt (we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp
               else
                  read(ifrcw(kx),rec=iw+ix-nw_i+1) zw ! direct access Wc(omega) = W(omega) - v
                  ww=>zw(1:ngb,1:ngb)
-                 if(hermitianW) wv3(:,:,iw)=(ww+transpose(dconjg(ww)))/2d0
-                 if(.not.hermitianW) wv3(:,:,iw)=ww(:,:)
+                 wv3(:,:,iw)=(ww+transpose(dconjg(ww)))/2d0 !hermite part
+c                 if(hermitianW) wv3(:,:,iw)=(ww+transpose(dconjg(ww)))/2d0
+c                 if(.not.hermitianW) wv3(:,:,iw)=ww(:,:)
               endif   
            enddo ! wv3 should contain zw(ix+0:ix+2) now
            ikeep=ix
@@ -489,26 +462,18 @@ c            if(npm==2) call alagr3zwgt (we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp
               wv33 = wv3(:,:,0)*wgt3(0,it,itp) 
      &             + wv3(:,:,1)*wgt3(1,it,itp) 
      &             + wv3(:,:,2)*wgt3(2,it,itp) 
-c            zsec(itp,:)=zsec(itp,:)+wfac_(it,itp)*matmul(matmul(zmelc(itp,it,:),wv33),zmel(:,it,:)) 
-              zmelcww(itp,it,:)= zmelcww(itp,it,:)
-     &             + wfac_(it,itp)* matmul(zmelc(itp,it,:),wv33) !,zmel(:,it,:)) 
+              zmelcww(itp,it,:)= zmelcww(itp,it,:) +  matmul(zmelc(itp,it,:),wv33)
              enddo 
            enddo
          enddo
          Endblock         
         EndBlock CorrelationSelfEnergyRealAxis
-!     -- zsec accumulated
+!  zsec accumulated
         call matma(zmelcww,[(transpose(zmel(:,:,itpp)),itpp=lbound(zmel,3),ubound(zmel,3))],zsec,
      &      size(zsec,1), size(zmelcww,2)*size(zmelcww,3), size(zsec,2))
-c         do itp = lbound(zsec,1),ubound(zsec,1)
-c         do itpp= lbound(zsec,2),ubound(zsec,2)
-c            zsec(itp,itpp)=zsec(itp,itpp)+ sum(zmelcww(itp,:,:)*transpose(zmel(:,:,itpp))) ! it,ib
-c         enddo
-c         enddo
-         EndBlock zmelcww
-         
-         do itp=lbound(zsec,1),ubound(zsec,1)
-         zsec(itp,itp)= dreal(zsec(itp,itp))+img*min(dimag(zsec(itp,itp)),0d0) !enforce Imzsec<0
+        EndBlock zmelcww
+        do itp=lbound(zsec,1),ubound(zsec,1)
+           zsec(itp,itp)= dreal(zsec(itp,itp))+img*min(dimag(zsec(itp,itp)),0d0) !enforce Imzsec<0
         enddo   
         call Deallocate_zmel()
         deallocate(zmelc)

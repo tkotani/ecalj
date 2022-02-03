@@ -132,7 +132,7 @@ c
       real(8) ::  wgtq0p,quu(3), eftrue,esmref,esmr,ef !,ecorem
       character(128) :: ixcc
       logical :: legas, exonly, iprintx, selectqp=.false.,diagonly=.false.
-      logical :: exchange, hermitianW, screen = .false. 
+      logical :: exchange, hermitianW=.true., screen = .false. 
       integer,allocatable:: irkip(:,:,:,:), nrkip(:,:,:,:)
       real(8),allocatable:: vxcfp(:,:,:), eqt(:), eq(:), eqx(:,:,:),eqx0(:,:,:)
       complex(8),pointer::zsec(:,:,:)
@@ -141,25 +141,25 @@ c
       call date_and_time(values=timevalues)
       write(6,"('mpirank=',i5,' YYYY.MM.DD.HH.MM.msec=',9i4)")mpi__rank,timevalues(1:3),timevalues(5:8)
       hartree=2d0*rydberg()
-      hermitianW=.true.
+      
       if(MPI__root) then
         write(6,*) ' --- Choose modes below ------------'
         write(6,*) '  Sx(1) Sc(2) ScoreX(3) '
         write(6,*) '  [option --- (+ QPNT.{number} ?)] '
-        write(6,*) '  Add 1000, eg, 1001 is diagonal only mode for one-shot Z=1'
+c        write(6,*) '  Add 1000, eg, 1001 is diagonal only mode for one-shot Z=1'
         write(6,*) ' --- Put number above ! ------------'
         read(5,*) ixc 
         write(6,*) ' ixc=', ixc !computational mode index
       endif
       call MPI__Broadcast(ixc)
-      if(ixc>1000) then         !selected QP
-        ixc=mod(ixc,1000)
-        selectqp  =.true.
-        diagonly  =.true.
-        hermitianW=.false.
-        write(6,*) "--- Diagonal-only mode. jobsw=5; see description at the top of sxcf_fal2.sc.F."
-        write(6,*) "--- This is the same as one-shot calculaiton with iSigMode5 in GWinput."
-      endif
+c      if(ixc>1000) then         !selected QP
+c        ixc=mod(ixc,1000)
+c        selectqp  =.true.
+c        diagonly  =.true.
+c        hermitianW=.false.
+c        write(6,*) "--- Diagonal-only mode. jobsw=5; see description at the top of sxcf_fal2.sc.F."
+c        write(6,*) "--- This is the same as one-shot calculaiton with iSigMode5 in GWinput."
+c      endif
       write(ixcc,"('.mode=',i4.4)")ixc
       call MPI__consoleout('hsfp0_sc'//trim(ixcc)) !Open console output stdout.irank.hsfp0_sc.mode 
       call pshprt(60)
@@ -175,7 +175,7 @@ c
       esmr  = esmr_in !read from GWinput
       esmref= esmr
       call ReadGwinputKeys()
-      if(diagonly) call SetIsigMode(5)
+c      if(diagonly) call SetIsigMode(5)
       call pshprt(30)
       voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3))) ! primitive cell volume
 !!
@@ -265,7 +265,7 @@ c
       if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')
       if (.not.iSigMode==3) call rx('sxcf_scz: only for jobsw=3')
       call sxcf_scz (qip= qvec, ef= ef,esmr= esmr, nq= nq,
-     i   exchange= exchange, hermitianW= hermitianW,
+     i   exchange= exchange, !hermitianW= hermitianW,
      i     jobsw= iSigMode, nbandmx=nbandmx,ixc=ixc,nspinmx=nspinmx) !nbandmx is input mar2015
       EndBlock Main4SelfEnergy
       
