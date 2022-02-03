@@ -93,6 +93,24 @@ c        call zaxpy(n,zz(i)*cc(iy,i),aa(1,i),1,zout(1,iy),1)
       complex(8), intent(out) :: c(n1,n3)
       c=matmul(a,b)
       end
+      subroutine matmaw(a,b,c,n1,n2,n3,ww)
+      integer(4), intent(in) :: n1,n2,n3
+      complex(8), intent(in) :: a(n1,n2), b(n2,n3)
+      real(8), intent(in) :: ww(n1)
+      complex(8), intent(out) :: c(n1,n3)
+      complex(8):: aa(n1,n2)
+      integer:: ix
+      do ix=1,n2
+         aa(:,ix) = ww(:)*a(:,ix)
+      enddo   
+      c= c+ matmul(aa,b)
+      end
+      subroutine matma(a,b,c,n1,n2,n3)
+      integer(4), intent(in) :: n1,n2,n3
+      complex(8), intent(in) :: a(n1,n2), b(n2,n3)
+      complex(8), intent(out) :: c(n1,n3)
+      c= c+ matmul(a,b)
+      end
 c$$$      call ZGEMM ( "N", "N", n1, n3, n2, dcmplx(1d0,0d0), 
 c$$$     &             a, n1, 
 c$$$     &             b, n2,

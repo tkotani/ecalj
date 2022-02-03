@@ -393,15 +393,17 @@ c         call Get_zmel_init(q,qibz_k,irot,qbz_kr,isp, nbmax,ntqxx,nctot,ncc=0,i
                read(ifrcwi(kx),rec=ixx) zw ! direct access read Wc(i*omega)=W(i*omega)-v
             endif
             ww=>zw(1:ngb,1:ngb)
-            do it = lbound(zmelc,2),ubound(zmelc,2) !1,nstate   !zwz = zmel*(W(i w)-v)*zmel
-            do itp = lbound(zsec,1),ubound(zsec,1) !1,nstate   !zwz = zmel*(W(i w)-v)*zmel
-c             zwz(it,:,:)= matmul( zmelc(:,it,:),matmul(ww,zmel(:,it,:)))
-c             zwz(it,:,:)=(zwz(it,:,:)+dconjg(transpose(zwz(it,:,:))))/2d0!w(iw)+w(-iw) Harmitian part
-cxx   if(npm==2)zwz(ix+niw,it,:,:)=(zwx-dconjg(transpose(zwx)))/2d0/img!w(iw)-w(-iw) Anti
-                zmelcww(itp,it,:)=zmelcww(itp,it,:)
-     &               + wtt* wgtim(ixx,itp,it)*matmul(zmelc(itp,it,:),ww) !
-            enddo
-            enddo
+            call matmaw(zmelc,ww,zmelcww, size(zmelc,1)*size(zmelc,2), size(ww,1), size(ww,2), wtt*wgtim(ixx,:,:))
+c$$$            do it = lbound(zmelc,2),ubound(zmelc,2) !1,nstate   !zwz = zmel*(W(i w)-v)*zmel
+c$$$            do itp = lbound(zsec,1),ubound(zsec,1) !1,nstate   !zwz = zmel*(W(i w)-v)*zmel
+c$$$c             zwz(it,:,:)= matmul( zmelc(:,it,:),matmul(ww,zmel(:,it,:)))
+c$$$c             zwz(it,:,:)=(zwz(it,:,:)+dconjg(transpose(zwz(it,:,:))))/2d0!w(iw)+w(-iw) Harmitian part
+c$$$cxx   if(npm==2)zwz(ix+niw,it,:,:)=(zwx-dconjg(transpose(zwx)))/2d0/img!w(iw)-w(-iw) Anti
+c$$$                zmelcww(itp,it,:)=zmelcww(itp,it,:)
+c$$$     &               + wtt* wgtim(ixx,itp,it)*matmul(zmelc(itp,it,:),ww) !
+c$$$            enddo
+c$$$            enddo
+c         
 c            do itp = lbound(zsec,1),ubound(zsec,1)
 c              zsec(itp,:)=zsec(itp,:)+ wtt*matmul(wgtim(ixx,itp,:),zwz(:,itp,:)) !itp,itpp
 c            enddo
@@ -495,12 +497,14 @@ c            zsec(itp,:)=zsec(itp,:)+wfac_(it,itp)*matmul(matmul(zmelc(itp,it,:)
          enddo
          Endblock         
         EndBlock CorrelationSelfEnergyRealAxis
-!         
-         do itp = lbound(zsec,1),ubound(zsec,1)
-         do itpp= lbound(zsec,2),ubound(zsec,2)
-            zsec(itp,itpp)=zsec(itp,itpp)+ sum(zmelcww(itp,:,:)*transpose(zmel(:,:,itpp))) ! it,ib
-         enddo
-         enddo
+!     -- zsec accumulated
+        call matma(zmelcww,[(transpose(zmel(:,:,itpp)),itpp=lbound(zmel,3),ubound(zmel,3))],zsec,
+     &      size(zsec,1), size(zmelcww,2)*size(zmelcww,3), size(zsec,2))
+c         do itp = lbound(zsec,1),ubound(zsec,1)
+c         do itpp= lbound(zsec,2),ubound(zsec,2)
+c            zsec(itp,itpp)=zsec(itp,itpp)+ sum(zmelcww(itp,:,:)*transpose(zmel(:,:,itpp))) ! it,ib
+c         enddo
+c         enddo
          EndBlock zmelcww
          
          do itp=lbound(zsec,1),ubound(zsec,1)
