@@ -19,7 +19,7 @@ if len(sys.argv)!=2:
 ### We have to improve lmchk, so that plinfo and siteinfo are directry written.
 os.system('lmchk '+sys.argv[1]+'> outlmchk')
 #os.system('grep Plat -A3 outlmchk > plinfo')
-plfile = open('PlatQlat.lmchk','r').read().split('\n')
+plfile = open('PlatQlat.chk','r').read().split('\n')
 i=0
 plat=['']*3
 for iline in plfile:

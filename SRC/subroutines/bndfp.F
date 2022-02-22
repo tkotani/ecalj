@@ -138,7 +138,7 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
       logical,save:: siginit=.true. 
       integer:: iter,i,ifi,ipr,iq,isp,jsp,iprint,ipts
       integer:: idummy, unlink,ifih,ifii,ib
-      real(8):: sumtv,eharris,eksham,  dosw(2),elind,dum,evtop,ecbot,qp(3),rydberg
+      real(8):: sumtv,eharris,eksham,  dosw(2),elind,dum,evtop,ecbot,qp(3),rydberg,xxx,eeem
       real(8):: fh_rv(3,nbas),vnow,eee,dosi(2),dee,efermxxx,emin,qvalm(2)
       real(8),allocatable:: dosi_rv(:,:),dos_rv(:,:),qmom_in(:)
       real(8),parameter::  NULLR =-99999,pi=4d0*datan(1d0)
@@ -228,12 +228,14 @@ c      if(master_mpi) write(stdo,"(a)") 'bndfp:start'
       call xmpbnd2(kpproc,ndhamx,nkp,nspx,evlall) !all eigenvalues broadcasted
       evtop=-9999
       ecbot=9999
+      eeem=9999
       do iq=1,nkp
       do jsp=1,nspx          !nspx=1 for SO=1
          if(lso==1) i = max(1,nint(qval-qbg))
          if(lso/=1) i = max(1,nint(qval-qbg)/2)
          evtop = max(evtop,evlall(i,jsp,iq))
          ecbot = min(ecbot,evlall(i+1,jsp,iq))
+         eeem = min(eeem,evlall(1,jsp,iq))
          if(master_mpi.and.iq==1)write(stdl,"('fp evl',8f8.4)")(evlall(i,jsp,iq),i=1,nev_(iq))
       enddo
       enddo
@@ -276,16 +278,16 @@ c      if(master_mpi) write(stdo,"(a)") 'bndfp:start'
       endif
 !! Generate total DOS  emin=dosw(1) emax=dosw(2) dos range
       if(master_mpi.and.(tdos.or.ldos/=0)) then
-         emin = ecbot-0.01d0 
-         dosw(1)= emin -0.5d0   ! lowest energy limit to plot dos
+         emin = eeem-0.01d0 !
+         dosw(1)= emin !-0.5d0   ! lowest energy limit to plot dos
          dosw(2)= eferm+bz_dosmax 
          write(stdo,"(a,3f9.4)") 'Generating TDOS: efermi, and dos window= ',eferm,dosw
          allocate( dosi_rv(ndos,nspx),dos_rv(ndos,nspx)) !for xxxdif
          if(cmdopt0('--tdostetf')) ltet=.false. ! Set tetrahedron=F 
          if(ltet) then 
             call bzints(nkabc(1),nkabc(2),nkabc(3), evlall 
-     &           , dum , nkp , ndhamx , ndhamx , nspx , dosw(1), dosw(2), dosi_rv , ndos , efermxxx ,
-     &           1, ntet , iv_a_oidtet , dum , dum ) !job=1 give IntegratedDos to dosi_rv
+     &        , dum , nkp , ndhamx , ndhamx , nspx , dosw(1),dosw(2), dosi_rv , ndos ,xxx ,
+     &         1, ntet , iv_a_oidtet , dum , dum ) !job=1 give IntegratedDos to dosi_rv
             call xxxdif(dosw(1),dosw(2),ndos,nspx,0,dosi_rv,dos_rv) ! 'integrated DOS dosi_rv -> DOS dos_rv'
          else
             call makdos (nkp, ndhamx, ndhamx, nspx, rv_a_owtkp, evlall,bz_n, bz_w
@@ -297,7 +299,7 @@ c      if(master_mpi) write(stdo,"(a)") 'bndfp:start'
          dee=(dosw(2)-dosw(1))/(ndos-1d0)
          dosi=0d0
          do ipts=1,ndos
-            eee= dosw(1)+ (ipts-1d0)*(dosw(2)-dosw(1))/(ndos-1d0)-efermxxx !I think efermxxx=eferm
+            eee= dosw(1)+ (ipts-1d0)*(dosw(2)-dosw(1))/(ndos-1d0)-eferm 
             dosi(1:nspx)= dosi(1:nspx) + dos_rv(ipts,1:nspx)*dee
             write(ifi,"(255(f13.5,x))") eee,  (dos_rv(ipts,isp),isp=1,nspx) !dos
             write(ifii,"(255(f13.5,x))") eee, (dosi(isp),isp=1,nspx)        !integrated dos
