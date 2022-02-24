@@ -19,6 +19,7 @@ c-----------------------------------------------------------------------
 !! laf is used (antiferro or not) after anfcond.
       use m_anf,only: anfcond,laf
       use m_hamindex,only: Readhamindex, nhq=>ndham
+      use m_mpi,only: MPI__Initialize,MPI__Finalize
       implicit real*8 (a-h,o-z)
       implicit integer (i-n)
 c     local data
@@ -65,6 +66,7 @@ c----------------------------------------------
       integer,allocatable:: nev(:,:)
       complex(8),allocatable:: ovl(:,:)
       character(8):: xt
+      call MPI__Initialize() !this is just for exit routine subroutine rx('...') works well.
       hartree=2d0*rydberg()
 
 !! Shift quasiparticle energies (eV)
@@ -329,19 +331,21 @@ Cstop2rx 2013.08.09 kino      if( nstarsum/= nqbz ) stop ' nstarsum/= nqbz'
         read (ifsex(is),*) alat
         read (ifsex(is),*) ef
         read (ifsex(is),*) esmr
-        write(6,*)' xxxxxxxxxxx111111111'
+c        write(6,*)' xxxxx111'
         call readx   (ifxc(is),50)
         read (ifxc(is),*) nspinxc,nqxc,ntqxc
         read(ifsex2(is))  nspinx2, nqx2, ntqx2, nqbz ,  nqibz,  n1,n2,n3 !sf.beg
 
         if( nstarsum/= nqbz ) call rx( ' nstarsum/= nqbz')
-
+c        write(6,*)' xxxxx222'
         if(.not.exonly)  then
           call readx(ifsec(is),50)
           read (ifsec(is),*) nspinc,nqc,ntqc
           read(ifsec2(is))  nspinc2, nqc2, ntqc2, nqbzc2, nqibzc2,n1,n2,n3 !sf.end
         endif
+c        write(6,*)' xxxxx333'
         read(ifsexcore2(is)) nspinxc2,nqxc2,ntqxc2,nqbzxc2,nqibzxc2
+c        write(6,*)' xxxxx444',is,nspinxc2,nqxc2,ntqxc2,nqbzxc2,nqibzxc2
         if (nspin .ne. nspinx)   call rx( 'hqpe: wrong nspin SEx')
         if (nspin .ne. nspinxc)  call rx( 'hqpe: wrong nspin vxc')
         if (nspin .ne. nspinx2)  call rx( 'hqpe: wrong nspin SEx2')
