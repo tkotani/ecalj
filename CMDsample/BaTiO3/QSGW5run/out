@@ -1,0 +1,127 @@
+NOTE: Use run_arg defined in /home/takao/bin/run_arg
+### START gwsc: ITER= 5, MPI size=  32, TARGET= batio3
+--- No sigm nor sigm.$TARGET files for starting ---
+ ---- goto sc calculation for given sigma-vxc --- ix=,0
+No sigm ---> LDA caculation for eigenfunctions 
+OK! --> Start echo --- | mpirun -np 32 /home/takao/bin/lmf-MPIK batio3 > llmf_lda 
+OK! --> Start echo 0 | /home/takao/bin/lmf-MPIK batio3 --jobgw > llmfgw00 
+OK! --> Start echo 1 | /home/takao/bin/qg4gw  > lqg4gw 
+OK! --> Start echo 1 | mpirun -np 32 /home/takao/bin/lmf-MPIK batio3 --jobgw > llmfgw01 
+OK! --> Start echo 1 | /home/takao/bin/rdata4gw_v2  > lrdata4gw_v2 
+OK! --> Start echo 1 | /home/takao/bin/heftet  > leftet 
+OK! --> Start echo 3 | /home/takao/bin/hbasfp0  > lbasC 
+OK! --> Start echo 3 | mpirun -np 32 /home/takao/bin/hvccfp0  > lvccC 
+OK! --> Start echo 3 | mpirun -np 32 /home/takao/bin/hsfp0_sc  > lsxC 
+OK! --> Start echo 0 | /home/takao/bin/hbasfp0  > lbas 
+OK! --> Start echo 0 | mpirun -np 32 /home/takao/bin/hvccfp0  > lvcc 
+OK! --> Start echo 1 | mpirun -np 32 /home/takao/bin/hsfp0_sc  > lsx 
+OK! --> Start echo 11 | mpirun -np 32 /home/takao/bin/hx0init  > lx0init 
+OK! --> Start echo --- | mpirun -np 32 /home/takao/bin/hx0zmel  > lx0zmel 
+OK! --> Start echo --- | mpirun -np 32 /home/takao/bin/hrcxq  > lrcxq 
+OK! --> Start echo --- | mpirun -np 32 /home/takao/bin/hhilbert  > lhilbert 
+OK! --> Start echo 2 | mpirun -np 32 /home/takao/bin/hsfp0_sc  > lsc 
+OK! --> Start echo 0 | /home/takao/bin/hqpe_sc  > lqpe 
+OK! --> OK! --> Start echo --- | mpirun -np 32 /home/takao/bin/lmf-MPIK batio3 > llmf_oneshot 
+== 0 iteration over ==
+ ---- goto sc calculation for given sigma-vxc --- ix=,1
+OK! --> Start echo --- | mpirun -np 32 /home/takao/bin/lmf-MPIK batio3 > llmf 
+OK! --> Start echo 0 | /home/takao/bin/lmf-MPIK batio3 --jobgw > llmfgw00 
+OK! --> Start echo 1 | /home/takao/bin/qg4gw  > lqg4gw 
+OK! --> Start echo 1 | mpirun -np 32 /home/takao/bin/lmf-MPIK batio3 --jobgw > llmfgw01 
+OK! --> Start echo 1 | /home/takao/bin/rdata4gw_v2  > lrdata4gw_v2 
+OK! --> Start echo 1 | /home/takao/bin/heftet  > leftet 
+OK! --> Start echo 3 | /home/takao/bin/hbasfp0  > lbasC 
+OK! --> Start echo 3 | mpirun -np 32 /home/takao/bin/hvccfp0  > lvccC 
+OK! --> Start echo 3 | mpirun -np 32 /home/takao/bin/hsfp0_sc  > lsxC 
+OK! --> Start echo 0 | /home/takao/bin/hbasfp0  > lbas 
+OK! --> Start echo 0 | mpirun -np 32 /home/takao/bin/hvccfp0  > lvcc 
+OK! --> Start echo 1 | mpirun -np 32 /home/takao/bin/hsfp0_sc  > lsx 
+OK! --> Start echo 11 | mpirun -np 32 /home/takao/bin/hx0init  > lx0init 
+OK! --> Start echo --- | mpirun -np 32 /home/takao/bin/hx0zmel  > lx0zmel 
+OK! --> Start echo --- | mpirun -np 32 /home/takao/bin/hrcxq  > lrcxq 
+OK! --> Start echo --- | mpirun -np 32 /home/takao/bin/hhilbert  > lhilbert 
+OK! --> Start echo 2 | mpirun -np 32 /home/takao/bin/hsfp0_sc  > lsc 
+OK! --> Start echo 0 | /home/takao/bin/hqpe_sc  > lqpe 
+OK! --> == 1 iteration over ==
+ ---- goto sc calculation for given sigma-vxc --- ix=,2
+OK! --> Start echo --- | mpirun -np 32 /home/takao/bin/lmf-MPIK batio3 > llmf 
+OK! --> Start echo 0 | /home/takao/bin/lmf-MPIK batio3 --jobgw > llmfgw00 
+OK! --> Start echo 1 | /home/takao/bin/qg4gw  > lqg4gw 
+OK! --> Start echo 1 | mpirun -np 32 /home/takao/bin/lmf-MPIK batio3 --jobgw > llmfgw01 
+OK! --> Start echo 1 | /home/takao/bin/rdata4gw_v2  > lrdata4gw_v2 
+OK! --> Start echo 1 | /home/takao/bin/heftet  > leftet 
+OK! --> Start echo 3 | /home/takao/bin/hbasfp0  > lbasC 
+OK! --> Start echo 3 | mpirun -np 32 /home/takao/bin/hvccfp0  > lvccC 
+OK! --> Start echo 3 | mpirun -np 32 /home/takao/bin/hsfp0_sc  > lsxC 
+OK! --> Start echo 0 | /home/takao/bin/hbasfp0  > lbas 
+OK! --> Start echo 0 | mpirun -np 32 /home/takao/bin/hvccfp0  > lvcc 
+OK! --> Start echo 1 | mpirun -np 32 /home/takao/bin/hsfp0_sc  > lsx 
+OK! --> Start echo 11 | mpirun -np 32 /home/takao/bin/hx0init  > lx0init 
+OK! --> Start echo --- | mpirun -np 32 /home/takao/bin/hx0zmel  > lx0zmel 
+OK! --> Start echo --- | mpirun -np 32 /home/takao/bin/hrcxq  > lrcxq 
+OK! --> Start echo --- | mpirun -np 32 /home/takao/bin/hhilbert  > lhilbert 
+OK! --> Start echo 2 | mpirun -np 32 /home/takao/bin/hsfp0_sc  > lsc 
+OK! --> Start echo 0 | /home/takao/bin/hqpe_sc  > lqpe 
+OK! --> == 2 iteration over ==
+ ---- goto sc calculation for given sigma-vxc --- ix=,3
+OK! --> Start echo --- | mpirun -np 32 /home/takao/bin/lmf-MPIK batio3 > llmf 
+OK! --> Start echo 0 | /home/takao/bin/lmf-MPIK batio3 --jobgw > llmfgw00 
+OK! --> Start echo 1 | /home/takao/bin/qg4gw  > lqg4gw 
+OK! --> Start echo 1 | mpirun -np 32 /home/takao/bin/lmf-MPIK batio3 --jobgw > llmfgw01 
+OK! --> Start echo 1 | /home/takao/bin/rdata4gw_v2  > lrdata4gw_v2 
+OK! --> Start echo 1 | /home/takao/bin/heftet  > leftet 
+OK! --> Start echo 3 | /home/takao/bin/hbasfp0  > lbasC 
+OK! --> Start echo 3 | mpirun -np 32 /home/takao/bin/hvccfp0  > lvccC 
+OK! --> Start echo 3 | mpirun -np 32 /home/takao/bin/hsfp0_sc  > lsxC 
+OK! --> Start echo 0 | /home/takao/bin/hbasfp0  > lbas 
+OK! --> Start echo 0 | mpirun -np 32 /home/takao/bin/hvccfp0  > lvcc 
+OK! --> Start echo 1 | mpirun -np 32 /home/takao/bin/hsfp0_sc  > lsx 
+OK! --> Start echo 11 | mpirun -np 32 /home/takao/bin/hx0init  > lx0init 
+OK! --> Start echo --- | mpirun -np 32 /home/takao/bin/hx0zmel  > lx0zmel 
+OK! --> Start echo --- | mpirun -np 32 /home/takao/bin/hrcxq  > lrcxq 
+OK! --> Start echo --- | mpirun -np 32 /home/takao/bin/hhilbert  > lhilbert 
+OK! --> Start echo 2 | mpirun -np 32 /home/takao/bin/hsfp0_sc  > lsc 
+OK! --> Start echo 0 | /home/takao/bin/hqpe_sc  > lqpe 
+OK! --> == 3 iteration over ==
+ ---- goto sc calculation for given sigma-vxc --- ix=,4
+OK! --> Start echo --- | mpirun -np 32 /home/takao/bin/lmf-MPIK batio3 > llmf 
+OK! --> Start echo 0 | /home/takao/bin/lmf-MPIK batio3 --jobgw > llmfgw00 
+OK! --> Start echo 1 | /home/takao/bin/qg4gw  > lqg4gw 
+OK! --> Start echo 1 | mpirun -np 32 /home/takao/bin/lmf-MPIK batio3 --jobgw > llmfgw01 
+OK! --> Start echo 1 | /home/takao/bin/rdata4gw_v2  > lrdata4gw_v2 
+OK! --> Start echo 1 | /home/takao/bin/heftet  > leftet 
+OK! --> Start echo 3 | /home/takao/bin/hbasfp0  > lbasC 
+OK! --> Start echo 3 | mpirun -np 32 /home/takao/bin/hvccfp0  > lvccC 
+OK! --> Start echo 3 | mpirun -np 32 /home/takao/bin/hsfp0_sc  > lsxC 
+OK! --> Start echo 0 | /home/takao/bin/hbasfp0  > lbas 
+OK! --> Start echo 0 | mpirun -np 32 /home/takao/bin/hvccfp0  > lvcc 
+OK! --> Start echo 1 | mpirun -np 32 /home/takao/bin/hsfp0_sc  > lsx 
+OK! --> Start echo 11 | mpirun -np 32 /home/takao/bin/hx0init  > lx0init 
+OK! --> Start echo --- | mpirun -np 32 /home/takao/bin/hx0zmel  > lx0zmel 
+OK! --> Start echo --- | mpirun -np 32 /home/takao/bin/hrcxq  > lrcxq 
+OK! --> Start echo --- | mpirun -np 32 /home/takao/bin/hhilbert  > lhilbert 
+OK! --> Start echo 2 | mpirun -np 32 /home/takao/bin/hsfp0_sc  > lsc 
+OK! --> Start echo 0 | /home/takao/bin/hqpe_sc  > lqpe 
+OK! --> == 4 iteration over ==
+ ---- goto sc calculation for given sigma-vxc --- ix=,5
+OK! --> Start echo --- | mpirun -np 32 /home/takao/bin/lmf-MPIK batio3 > llmf 
+OK! --> Start echo 0 | /home/takao/bin/lmf-MPIK batio3 --jobgw > llmfgw00 
+OK! --> Start echo 1 | /home/takao/bin/qg4gw  > lqg4gw 
+OK! --> Start echo 1 | mpirun -np 32 /home/takao/bin/lmf-MPIK batio3 --jobgw > llmfgw01 
+OK! --> Start echo 1 | /home/takao/bin/rdata4gw_v2  > lrdata4gw_v2 
+OK! --> Start echo 1 | /home/takao/bin/heftet  > leftet 
+OK! --> Start echo 3 | /home/takao/bin/hbasfp0  > lbasC 
+OK! --> Start echo 3 | mpirun -np 32 /home/takao/bin/hvccfp0  > lvccC 
+OK! --> Start echo 3 | mpirun -np 32 /home/takao/bin/hsfp0_sc  > lsxC 
+OK! --> Start echo 0 | /home/takao/bin/hbasfp0  > lbas 
+OK! --> Start echo 0 | mpirun -np 32 /home/takao/bin/hvccfp0  > lvcc 
+OK! --> Start echo 1 | mpirun -np 32 /home/takao/bin/hsfp0_sc  > lsx 
+OK! --> Start echo 11 | mpirun -np 32 /home/takao/bin/hx0init  > lx0init 
+OK! --> Start echo --- | mpirun -np 32 /home/takao/bin/hx0zmel  > lx0zmel 
+OK! --> Start echo --- | mpirun -np 32 /home/takao/bin/hrcxq  > lrcxq 
+OK! --> Start echo --- | mpirun -np 32 /home/takao/bin/hhilbert  > lhilbert 
+OK! --> Start echo 2 | mpirun -np 32 /home/takao/bin/hsfp0_sc  > lsc 
+OK! --> Start echo 0 | /home/takao/bin/hqpe_sc  > lqpe 
+OK! --> == 5 iteration over ==
+OK! --> Start echo --- | mpirun -np 32 /home/takao/bin/lmf-MPIK batio3 > llmf_gwscend.5 
+OK! ==== All calclation finished for gwsc ====
