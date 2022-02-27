@@ -279,9 +279,10 @@ c      integer:: nmbas !, imb1,imb2, imb verbose,
       integer::  neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele!,ngbb !eibzsym(ngrp,-1:1),
       integer:: ieqbz,kold,nxxxx !igx(ngrp*2,nqbz),igxt(ngrp*2,nqbz),
       integer::nkmin_,nkqmin_,izmel,ispold,nmini,nqini,nmtot,nqtot ,ispold2
-c     logical:: interbandonly,intrabandonly,cmdopt0
-      logical:: izmel0
+c     logical:: interbandonly,intrabandonly
+      logical:: izmel0,cmdopt0,zmel0mode
       
+      zmel0mode=cmdopt0('--zmel0')
 c      integer,allocatable:: it_(:,:,:),itp_(:,:,:)
 !!-----------------------------------------------------------
 !! Main loop over k-points ---------------------------------------------------------
@@ -338,7 +339,7 @@ cc           nqtot = ncc   + nkqmax(k) -nqini+1 ! = phi_end
            
 !! Set 'call x0kf_zmel (see hx0zmel) instead of rwzmel if you like to skip hx0zmel.
            call rwzmel(iq,    k,isp_k,isp_kq,'r') !,nmbas,nmtot,nqtot)
-           call rwzmel(iqxini,k,isp_k,isp_kq,'r',izmel0) !for zmel0
+           if(zmel0mode) call rwzmel(iqxini,k,isp_k,isp_kq,'r',izmel0) !for zmel0
            kold=k
            ispold=isp_k
            ispold2=isp_kq
@@ -353,14 +354,15 @@ c----------------------------
         jpm = jpmc(icount)      ! \pm omega
         do igb2=1,nmbas  !this part dominates cpu time most time consuming...........
         do igb1=1,igb2
-           rcxq(igb1,igb2,iw,jpm) =  rcxq(igb1,igb2,iw,jpm)
-!assume igb1=igb2           
-     &          + (abs(zmel(igb1,it,itp))-abs(zmel0(igb1,it,itp)))**2 * whwc(icount)
-             
-c     &          + dconjg(zmel(igb1,it,itp) )*zmel (igb2,it,itp) * whwc(icount)
-c             
-c     &          - dconjg(zmel0(igb1,it,itp))*zmel0(igb2,it,itp) * whwc(icount)
-!! NOTE                               whwc is the img weight given by tetrahedron method.
+           if(zmel0mode) then !feb2022
+              rcxq(igb1,igb2,iw,jpm) =  rcxq(igb1,igb2,iw,jpm)
+!assume igb1=igb2=1           
+     &             + (abs(zmel(igb1,it,itp))-abs(zmel0(igb1,it,itp)))**2 * whwc(icount)
+           else   
+              rcxq(igb1,igb2,iw,jpm) =  rcxq(igb1,igb2,iw,jpm)
+     &          + dconjg(zmel(igb1,it,itp) )*zmel (igb2,it,itp) * whwc(icount)
+!     ! NOTE                               whwc is the img weight given by tetrahedron method.
+           endif   
         enddo     
         enddo     
  1000 continue

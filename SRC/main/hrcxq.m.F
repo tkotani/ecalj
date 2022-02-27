@@ -143,7 +143,7 @@ c      call Readq0p()    !Readin Offset Gamma
            write(6,"(' ### ',2i4,' out of nqibz+n0qi+nq0iadd nsp=',2i4,' ### ')")iq,is,nqibz+nq0i+nq0iadd,nspin
            isf = is
            call X0kf_v4hz_init_read(iq,is) !readin icount data (index sets and tetrahedron weight)
-           call x0kf_v4hz(qp, is,isf, iq, nmbas_in, eibzmode=eibzmode, nwgt=nwgt(:,iq),rcxq=rcxq)
+           call x0kf_v4hz(qp, is,isf, iq, nmbas_in, eibzmode=eibzmode, nwgt=nwgt(:,iq),rcxq=rcxq,iqxini=iqxini)
                 !  rcxq is accumulating 
  1003   continue
 !! Symmetrize and convert to Enu basis (diagonalized basis for the Coulomb matrix).

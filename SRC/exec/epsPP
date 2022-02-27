@@ -21,6 +21,6 @@ $nfpgw/rdata4gw_v2 --job=0 >& lrdata4gw_v2 # Prepare all files for GW
 $nfpgw/heftet --job=1 >& leftet # A file EFERMI for hx0fp0 generated
 $nfpgw/hbasfp0 --job=4 >& lbas   # Product basis generation mode=4
 mpirun -np $MPI_SIZE $nfpgw/hvccfp0 --job=202 >& lvcc # Coulomb matrix for lbas 
-mpirun -np $MPI_SIZE $nfpgw/hx0fp0 --job=202 --intrabandonly >& lx0_intraband #EPS for intraband
-mpirun -np $MPI_SIZE $nfpgw/hx0fp0 --job=202 --interbandonly >& lx0_interband #EPS for interband
+mpirun -np $MPI_SIZE $nfpgw/hx0fp0 --job=202 --zmel0 --interbandonly >& lx0_interband #EPS for interband
+mpirun -np $MPI_SIZE $nfpgw/hx0fp0 --job=202 --zmel0 --intrabandonly >& lx0_intraband #EPS for intraband
 : OK! ==== All calclation finished for epsPP ====,$TARGET
