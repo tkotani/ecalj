@@ -1,7 +1,7 @@
       module m_x0kf
       use m_keyvalue,only : Getkeyvalue
       use m_pkm4crpa,only : Readpkm4crpa
-      use m_zmel,only : Get_zmel_init,Dconjg_zmel,Deallocate_zmel, zmel ,get_zmel_modex0, rwzmel !GramSchmidt_zmel,
+      use m_zmel,only:Get_zmel_init,Dconjg_zmel,Deallocate_zmel,zmel,get_zmel_modex0,rwzmel,zmel0 !GramSchmidt_zmel,
       use m_freq,only:  npm, nwhis
       use m_genallcf_v3,only:  nsp=>nspin ,nlmto,nctot
       use m_read_bzdata,only:  nqbz,ginv,nqibz,  rk=>qbz,wk=>wbz
@@ -233,8 +233,8 @@ c      integer:: nmbas !, imb1,imb2, imb verbose,
       end subroutine x0kf_zmel
       
 !! --------------------------------------------------------------------------------
-      subroutine X0kf_v4hz ( q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt, rcxq,epsppmode)
-      intent(in)   ::        q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt,      epsppmode 
+      subroutine X0kf_v4hz ( q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt, rcxq,epsppmode,iqxini)
+      intent(in)   ::        q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt,      epsppmode,iqxini
 !! === calculate chi0, or chi0_pm ===
 !! We calculate imaginary part of chi0 along real axis.
 !!
@@ -259,7 +259,7 @@ c      integer:: nmbas !, imb1,imb2, imb verbose,
 !! nqbz    = number of k-points in the 1st BZ
 !!
       logical,optional ::epsppmode
-      integer:: k,isp_k,isp_kq,iq, jpm, ibib, iw,igb2,igb1,it,itp
+      integer:: k,isp_k,isp_kq,iq, jpm, ibib, iw,igb2,igb1,it,itp,iqxini
       real(8):: q(3)
       complex(8):: rcxq (nmbas,nmbas,nwhis,npm)
       complex(8) :: imag=(0d0,1d0),trc,aaa 
@@ -279,7 +279,8 @@ c      integer:: nmbas !, imb1,imb2, imb verbose,
       integer::  neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele!,ngbb !eibzsym(ngrp,-1:1),
       integer:: ieqbz,kold,nxxxx !igx(ngrp*2,nqbz),igxt(ngrp*2,nqbz),
       integer::nkmin_,nkqmin_,izmel,ispold,nmini,nqini,nmtot,nqtot ,ispold2
-c      logical:: interbandonly,intrabandonly,cmdopt0
+c     logical:: interbandonly,intrabandonly,cmdopt0
+      logical:: izmel0
       
 c      integer,allocatable:: it_(:,:,:),itp_(:,:,:)
 !!-----------------------------------------------------------
@@ -336,7 +337,8 @@ cc           nmtot = nctot + nkmax(k)  -nmini+1 ! = phi_middle
 cc           nqtot = ncc   + nkqmax(k) -nqini+1 ! = phi_end
            
 !! Set 'call x0kf_zmel (see hx0zmel) instead of rwzmel if you like to skip hx0zmel.
-           call rwzmel(iq,k,isp_k,isp_kq,'r') !,nmbas,nmtot,nqtot)
+           call rwzmel(iq,    k,isp_k,isp_kq,'r') !,nmbas,nmtot,nqtot)
+           call rwzmel(iqxini,k,isp_k,isp_kq,'r',izmel0) !for zmel0
            kold=k
            ispold=isp_k
            ispold2=isp_kq
@@ -351,8 +353,13 @@ c----------------------------
         jpm = jpmc(icount)      ! \pm omega
         do igb2=1,nmbas  !this part dominates cpu time most time consuming...........
         do igb1=1,igb2
-             rcxq(igb1,igb2,iw,jpm) = 
-     &       rcxq(igb1,igb2,iw,jpm) + dconjg(zmel(igb1,it,itp))*zmel(igb2,it,itp) * whwc(icount)
+           rcxq(igb1,igb2,iw,jpm) =  rcxq(igb1,igb2,iw,jpm)
+!assume igb1=igb2           
+     &          + (abs(zmel(igb1,it,itp))-abs(zmel0(igb1,it,itp)))**2 * whwc(icount)
+             
+c     &          + dconjg(zmel(igb1,it,itp) )*zmel (igb2,it,itp) * whwc(icount)
+c             
+c     &          - dconjg(zmel0(igb1,it,itp))*zmel0(igb2,it,itp) * whwc(icount)
 !! NOTE                               whwc is the img weight given by tetrahedron method.
         enddo     
         enddo     

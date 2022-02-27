@@ -3,12 +3,12 @@
 !!! Each tag section in <...>... </...> has its own format. !!! 
 
 !EIBZmode off  !no symmetrization for hx0fp0* (default on);Only affects comp. effort. off may faster.
-chi_RegQbz off !Use no Gamma mesh for dielectric function. This automaticall set EIBZmode off.
+!chi_RegQbz off !Use no Gamma mesh for dielectric function. This automaticall set EIBZmode off.
 !Verbose    0  ! 0-->default; 100--->debug 
 !LFC@Gamma off !(on is default) if on, eps with Local field correction is used at Gamma point
 !Q0Pchoice 1 !1(default):qzerolimit(in practice, See generated Q0P), 2:1/q^2 average in Gamma region
 ! ##### From GWIN0 ################ 
-n1n2n3   16 16 16
+n1n2n3   3 3 3 
 QpGcut_psi 4.0  !(See unit_2pioa for unit) |q+G| cutoff for eigenfunction.
 QpGcut_cou 3.0  !(See unit_2pioa for unit) |q+G| cutoff for Coulomb and W.
 unit_2pioa off ! off --> a.u.; on--> unit of QpGcut_* are in 2*pi/alat 
@@ -112,9 +112,9 @@ GaussSmear on ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr for
  
 !QforEPSIBZ on ! Use all q in IBZ for the calculation of eps mode.
 <QforEPS>
+ 0d0 0d0 0.001d0
+ 0d0 0d0 0.005d0
  0d0 0d0 0.01d0
- 0d0 0d0 0.02d0
- 0d0 0d0 0.04d0
 </QforEPS>
 !<QforEPSL>
 ! 0d0 0d0 0d0   1d0   0d0  0d0 8
