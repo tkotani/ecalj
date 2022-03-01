@@ -518,6 +518,7 @@ c       write(6,*)'ttt= sumchk pmat(b)=',sum(abs(pmat(1:nbloch, 1:nbln)))
         else                  !       iq = iqx
           q  = qibz(:,iqx)
         endif
+        if(abs(sum(q))<1d-8) cycle
 !! q+G vector 
         call readqg('QGcou',q,  quu,ngc, ngvecc ) !qq-->q
         ngb = nbloch + ngc  !it was ngcnn(iq)

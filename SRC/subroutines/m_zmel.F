@@ -29,7 +29,8 @@
      &   drvmelp3,ppbafp_v2 !these are for old-fashioned codes in wannier/ 
 !! OUTPUT:  zmel for exchange=F, zmeltt for exchange=T.
       complex(8),allocatable,protected,public :: zmel(:,:,:),zmel0(:,:,:) !for  Get_zmel
-      integer:: nbb !1st dimension of zmel
+      integer,protected:: nbb             !1st dimension of zmel
+      real(8),protected,public:: qm0(3) !for zmel0
 !!------------------------------------------------------
 !! set by Mptauof_zmel in advance
       private
@@ -188,29 +189,30 @@ c      integer(4),intent(in) :: il(nlnmx,nclass),in(nlnmx,nclass),im(nlnmx,nclas
       enddo
       end
 !! ------------------------------------
-      subroutine rwzmel(iq,k,isp_k,isp_kq,rw,izmel0)
-      intent(in)::      iq,k,isp_k,isp_kq,rw,izmel0
+      subroutine rwzmel(iq,k,isp_k,isp_kq,rw,q,izmel0)
+      intent(in)::      iq,k,isp_k,isp_kq,rw,q,izmel0
       logical,optional::izmel0
       integer:: iq,k,isp_k,isp_kq,izmel,nmtot_,nqtot_
       character(1):: rw
       character*8 :: charext
+      real(8),optional:: q(3)
       open(newunit=izmel,file='zmel.'//trim(charext(iq))//'_'
      &     //trim(charext(k))//'_'//trim(charext(isp_k))//trim(charext(isp_kq)),
      &     form='unformatted')
       if(rw=='r'.and.present(izmel0)) then
          print *,'fff=',trim('zmel.'//trim(charext(iq))//'_'
      &     //trim(charext(k))//'_'//trim(charext(isp_k))//trim(charext(isp_kq)))
-         read(izmel) nbb,nmtot_,nqtot_
+         read(izmel) nbb,nmtot_,nqtot_,qm0
          if(allocated(zmel0)) deallocate(zmel0)
          allocate(zmel0(1:nbb,1:nmtot_,1:nqtot_))
          read(izmel) zmel0
       elseif(rw=='r') then
-         read(izmel) nbb,nmtot_,nqtot_
+         read(izmel) nbb,nmtot_,nqtot_,qm0
          if(allocated(zmel)) deallocate(zmel)
          allocate(zmel(1:nbb,1:nmtot_,1:nqtot_))
          read(izmel) zmel
       else
-         write(izmel) nbb,nmtot,nqtot
+         write(izmel) nbb,nmtot,nqtot,q
          write(izmel) zmel
       endif
       close(izmel)

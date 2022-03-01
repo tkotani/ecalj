@@ -1,7 +1,7 @@
       module m_x0kf
       use m_keyvalue,only : Getkeyvalue
       use m_pkm4crpa,only : Readpkm4crpa
-      use m_zmel,only:Get_zmel_init,Dconjg_zmel,Deallocate_zmel,zmel,get_zmel_modex0,rwzmel,zmel0 !GramSchmidt_zmel,
+      use m_zmel,only:Get_zmel_init,Dconjg_zmel,Deallocate_zmel,zmel,get_zmel_modex0,rwzmel,zmel0,qm0!GramSchmidt_zmel,
       use m_freq,only:  npm, nwhis
       use m_genallcf_v3,only:  nsp=>nspin ,nlmto,nctot
       use m_read_bzdata,only:  nqbz,ginv,nqibz,  rk=>qbz,wk=>wbz
@@ -228,7 +228,7 @@ c      integer:: nmbas !, imb1,imb2, imb verbose,
       call Get_zmel_modex0(nkmin_,nkqmin_,isp_k,isp_kq) !oct-2021(nkmin(k),nkqmin(k),isp_k,isp_kq)
       call Get_zmel_init(q+rk(:,k), q, irot, q, nxxxx, nkmax(k),nkqmax(k),nctot,ncc,iprx=.false.)
       call Dconjg_zmel()        !zmel = dconjg(zmel)
-      call rwzmel(iq,k,isp_k,isp_kq,'w')
+      call rwzmel(iq,k,isp_k,isp_kq,'w',q=q)
       call Deallocate_zmel()
       end subroutine x0kf_zmel
       
@@ -274,7 +274,7 @@ c      integer:: nmbas !, imb1,imb2, imb verbose,
       integer ::  nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb !nkqmin, nkqmax,
       logical :: eibzmode  
       integer::  nwgt(nqbz) 
-      real(8)::  wpw_k,wpw_kq!, vec_kcrpa(3),vec_kqcrpa(3)
+      real(8)::  wpw_k,wpw_kq,q1a,q2a,rfac00!, vec_kcrpa(3),vec_kqcrpa(3)
       integer::  irot=1         !, ntqxx,nbmax!,nctot
       integer::  neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele!,ngbb !eibzsym(ngrp,-1:1),
       integer:: ieqbz,kold,nxxxx !igx(ngrp*2,nqbz),igxt(ngrp*2,nqbz),
@@ -339,7 +339,12 @@ cc           nqtot = ncc   + nkqmax(k) -nqini+1 ! = phi_end
            
 !! Set 'call x0kf_zmel (see hx0zmel) instead of rwzmel if you like to skip hx0zmel.
            call rwzmel(iq,    k,isp_k,isp_kq,'r') !,nmbas,nmtot,nqtot)
-           if(zmel0mode) call rwzmel(iqxini,k,isp_k,isp_kq,'r',izmel0) !for zmel0
+           if(zmel0mode) then
+              q2a= sum(qm0**2)**0.5
+              call rwzmel(iqxini,k,isp_k,isp_kq,'r',izmel0=izmel0) !for zmel0
+              q1a= sum(qm0**2)**0.5
+              rfac00=q2a/(q2a-q1a)
+           endif    
            kold=k
            ispold=isp_k
            ispold2=isp_kq
@@ -355,9 +360,11 @@ c----------------------------
         do igb2=1,nmbas  !this part dominates cpu time most time consuming...........
         do igb1=1,igb2
            if(zmel0mode) then !feb2022
-              rcxq(igb1,igb2,iw,jpm) =  rcxq(igb1,igb2,iw,jpm)
 !assume igb1=igb2=1           
-     &             + (abs(zmel(igb1,it,itp))-abs(zmel0(igb1,it,itp)))**2 * whwc(icount)
+c              rcxq(igb1,igb2,iw,jpm) =  rcxq(igb1,igb2,iw,jpm)
+c     &             + (abs(zmel(igb1,it,itp))-abs(zmel0(igb1,it,itp)))**2 * whwc(icount)
+              rcxq(igb1,igb2,iw,jpm) =  rcxq(igb1,igb2,iw,jpm)
+     &             + rfac00**2*(abs(zmel(igb1,it,itp))-abs(zmel0(igb1,it,itp)))**2 * whwc(icount)
            else   
               rcxq(igb1,igb2,iw,jpm) =  rcxq(igb1,igb2,iw,jpm)
      &          + dconjg(zmel(igb1,it,itp) )*zmel (igb2,it,itp) * whwc(icount)
