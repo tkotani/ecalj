@@ -195,13 +195,16 @@ c      integer(4),intent(in) :: il(nlnmx,nclass),in(nlnmx,nclass),im(nlnmx,nclas
       integer:: iq,k,isp_k,isp_kq,izmel,nmtot_,nqtot_
       character(1):: rw
       character*8 :: charext
+      character*256::fff
       real(8),optional:: q(3)
+      integer::nnn
       open(newunit=izmel,file='zmel.'//trim(charext(iq))//'_'
      &     //trim(charext(k))//'_'//trim(charext(isp_k))//trim(charext(isp_kq)),
      &     form='unformatted')
       if(rw=='r'.and.present(izmel0)) then
-         print *,'fff=',trim('zmel.'//trim(charext(iq))//'_'
+         fff=trim('zmel.'//trim(charext(iq))//'_'
      &     //trim(charext(k))//'_'//trim(charext(isp_k))//trim(charext(isp_kq)))
+         print *,'fff=',trim(fff)
          read(izmel) nbb,nmtot_,nqtot_,qm0
          if(allocated(zmel0)) deallocate(zmel0)
          allocate(zmel0(1:nbb,1:nmtot_,1:nqtot_))
@@ -216,6 +219,7 @@ c      integer(4),intent(in) :: il(nlnmx,nclass),in(nlnmx,nclass),im(nlnmx,nclas
          write(izmel) zmel
       endif
       close(izmel)
+      if(rw=='r'.and.(.not.present(izmel0))) nnn=unlink(fff)
       end
 !! ------------------------------------
       subroutine get_zmel_modex0(n1,n2,n3,n4)

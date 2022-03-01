@@ -252,11 +252,11 @@ c      integer,allocatable:: neibz(:),nwgt(:,:),ngrpt(:),igx(:,:,:),igxt(:,:,:),
       
 
 c      real(8)::ebmx
-      integer:: ifq0p,ifwc,ifif,ierr !nbmx,mtet(3),
+      integer:: ifq0p,ifwc,ifif,ierr,iqxx !nbmx,mtet(3),
       real(8),allocatable:: ekxx1(:,:),ekxx2(:,:)
 c      integer:: nqbze,nqibze
 c      real(8),allocatable:: qbze(:,:),qibze(:,:)
-      logical:: cmdopt2
+      logical:: cmdopt2,zmel0mode
       character(20):: outs=''
 !! -------------------------------------------------------------------
       call MPI__Initialize()
@@ -520,6 +520,14 @@ c     nblochpmx = nbloch + ngcmx !rdpp \in mptauof_zmel \in m_zmel
       allocate( llw(nw_i:nw,nq0i), llwI(niw,nq0i) )
 !! ======== Loop over iq ================================
       if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
+      zmel0mode=cmdopt0('--zmel0')
+      do 1000 iqxx=1,2          !for iq=1 at first.
+         if((.not.zmel0mode).and.iqxx==2) exit
+         if(zmel0mode) then
+            call MPI__barrier()
+            if(.not.(iqxx==1.and.MPI__task(1))) cycle
+            if(      iqxx==2.and.MPI__task(1))  cycle
+         endif   
       do 1001 iq = iqxini,iqxend  ! NOTE: q=(0,0,0) is omitted when iqxini=2
         if(.not. MPI__task(iq) ) cycle
         call cputid (0)
@@ -807,6 +815,7 @@ c$$$  c     & q, 2*schi*frr, 1d0-vcmean*2*x0mean(iw,1,1)  !4*pi*alat**2/sum(q**2
           close(ifrcw)
         endif
  1001 continue 
+ 1000 continue
 !! =================== end of loop 1001 for q point ========================
       call MPI__barrier()
       if(.not.epsmode) call MPI__sendllw2(iqxend) !!! mpi send LLW to root.
