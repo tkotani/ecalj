@@ -239,7 +239,7 @@ c      integer,allocatable:: neibz(:),nwgt(:,:),ngrpt(:),igx(:,:,:),igxt(:,:,:),
       integer,allocatable:: aiktimer(:,:)
       integer:: l2nl
       logical:: eibz4x0,tiii,iprintx,symmetrize,eibzmode
-      real(8):: qread(3),imagweight
+      real(8):: qread(3),imagweight,q00(3),rfac00,q1a,q2a
 
       character(128):: vcoudfile,aaax,itag
       integer:: src,dest
@@ -521,17 +521,19 @@ c     nblochpmx = nbloch + ngcmx !rdpp \in mptauof_zmel \in m_zmel
 !! ======== Loop over iq ================================
       if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
       zmel0mode=cmdopt0('--zmel0')
-      do 1000 iqxx=1,2          !for iq=1 at first.
-         if((.not.zmel0mode).and.iqxx==2) exit
-         if(zmel0mode) then
-            call MPI__barrier()
-            if(.not.(iqxx==1.and.MPI__task(1))) cycle
-            if(      iqxx==2.and.MPI__task(1))  cycle
-         endif   
+c      do 1000 iqxx=1,2          !for iq=1 at first for zme0mode
+c         if(iqxx==2.and.(.not.zmel0mode)) exit
+c         if(zmel0mode) call MPI__barrier()
       do 1001 iq = iqxini,iqxend  ! NOTE: q=(0,0,0) is omitted when iqxini=2
+         if(zmel0mode) then
+            if(iq==iqxini) cycle
+c            if(iqxx==1.and.iq/=iqxini) cycle
+c            if(iqxx==2.and.iq==iqxini) cycle
+         endif   
         if(.not. MPI__task(iq) ) cycle
         call cputid (0)
-        q = qibze(:,iq)
+        q  = qibze(:,iq)
+        q00= qibze(:,iqxini)
 !! Readin diagonalized Coulomb interaction ===
 !! zcousq: E(\nu,I), Enu basis is given in PRB81,125102; vcousq: sqrt(v), as well.
         write(6,*)
@@ -648,15 +650,23 @@ c     nblochpmx = nbloch + ngcmx !rdpp \in mptauof_zmel \in m_zmel
           ierr = x0kf_v4hz_init(0, q, is, isf, iq, nmbas_in, eibzmode, nwgt(:,iq),crpa)
           ierr = x0kf_v4hz_init(1, q, is, isf, iq, nmbas_in, eibzmode, nwgt(:,iq),crpa)
           write(6,*)'epsppmode=',epsppmode
-          do icount = 1,ncount
-            k = kc(icount)
-            if(k/=kold.or.is/=isold) then
-               call x0kf_zmel(q,iq,k, is,isf)
-               kold=k
-               isold=is
-            endif   
-          enddo   
-          call x0kf_v4hz(q, is,isf, iq, nmbas_in, eibzmode, nwgt(:,iq), rcxq,  epsppmode,iqxini) 
+c$$$          do icount = 1,ncount
+c$$$            k = kc(icount)
+c$$$            if(k/=kold.or.is/=isold) then
+c$$$               call x0kf_zmel(q,      iq,k, is,isf)
+c$$$               if(zmel0mode) then
+c$$$                 call setzmel0()
+c$$$                 call x0kf_zmel(q00,iqxini,k, is,isf)
+c$$$                 call unsetzmel0()
+c$$$                 q1a=sum(q00**2)**.5
+c$$$                 q2a=sum(q**2)**.5
+c$$$                 rfac00=q2a/(q2a-q1a)
+c$$$               endif  
+c$$$               kold=k
+c$$$               isold=is
+c$$$            endif   
+c$$$          enddo   
+          call x0kf_v4hz(q,is,isf,iq,nmbas_in,eibzmode,nwgt(:,iq),rcxq,epsppmode,iqxini,rfac00=rfac00,q00=q00) 
                !  rcxq is the accumulating variable for spins 
 !!    Symmetrize and convert to Enu basis by dconjg(tranpsoce(zcousq)*rcxq8zcousq if eibzmode
           if(is==nspinmx.or.chipm) then !Apr2015. TK think ".or.chipm" is required for chipm mode
@@ -815,7 +825,7 @@ c$$$  c     & q, 2*schi*frr, 1d0-vcmean*2*x0mean(iw,1,1)  !4*pi*alat**2/sum(q**2
           close(ifrcw)
         endif
  1001 continue 
- 1000 continue
+c 1000 continue
 !! =================== end of loop 1001 for q point ========================
       call MPI__barrier()
       if(.not.epsmode) call MPI__sendllw2(iqxend) !!! mpi send LLW to root.
