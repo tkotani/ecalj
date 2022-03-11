@@ -94,6 +94,30 @@ c     print *,'jspp=',jspp
                      au = auspp(ilm,iband,1,jspp,ib)
                      as = auspp(ilm,iband,2,jspp,ib)
                      az = auspp(ilm,iband,3,jspp,ib)
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!     Note au,as,az are coefficients for phi1*Ylm phi2*Ylm phi3*Ylm. If --ylmc, Ylm(complex) is assumed.
+!          phi1:  linear combination of val funciton (phi and phidot) with val at MT is zero 
+!          phi2:  linear combination of slo funciton (phi and phidot) with slo at MT is zero 
+!          phi3:  LO  (phi + phidot) with slo at MT is zero 
+                     pdosc: Block 
+                     complex(8):: img=(0d0,1d0)
+                     integer:: ilmm
+                     real(8):: dsq=1d0/2d0**0.5d0
+                     logical:: cmdopt0
+                     if(cmdopt0('--ylmc').and.m/=0) then !feb 2022
+                        ilmm = ilm-2*m
+                        if(m>0) then  
+                           au = dsq*(-1)**m*(auspp(ilm,iband,1,jspp,ib) -img*auspp(ilmm,iband,1,jspp,ib))
+                           as = dsq*(-1)**m*(auspp(ilm,iband,2,jspp,ib) -img*auspp(ilmm,iband,2,jspp,ib))
+                           az = dsq*(-1)**m*(auspp(ilm,iband,3,jspp,ib) -img*auspp(ilmm,iband,3,jspp,ib))
+                        elseif(m<0) then
+                           au = dsq*(img*auspp(ilm,iband,1,jspp,ib) + auspp(ilmm,iband,1,jspp,ib))
+                           as = dsq*(img*auspp(ilm,iband,2,jspp,ib) + auspp(ilmm,iband,2,jspp,ib))
+                           az = dsq*(img*auspp(ilm,iband,3,jspp,ib) + auspp(ilmm,iband,3,jspp,ib))
+                        endif
+                     endif
+                     EndBlock pdosc
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc                     
                      s11 = dconjg(au)*au*ppnl_rv(2,l+1,jspp,ib)
                      s22 = dconjg(as)*as*ppnl_rv(7,l+1,jspp,ib)
                      s33 = dconjg(az)*az*ppnl_rv(8,l+1,jspp,ib)
