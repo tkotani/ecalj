@@ -327,55 +327,25 @@ c
 !     nt0=nkmax-nkmin+1  , ntp0=nkqmax-nkqmin+1
       kold = -999
       do 1000 icount = 1,ncount
-c        if(debug) call cputid(0)
         k = kc(icount)
-! oct15 2021
         nkmin_  = nkmin(k)
         nkqmin_ = nkqmin(k)
         nmini= nkmin_ 
         nqini= nkqmin_
-! This gives matrix element zmel(igb q,  k it occ,   q+k itp unocc)
-        if(kold/=k) then !.or.isp_k/=ispold.or. ispold2/=isp_kq) then  
-c         call Get_zmel_modex0(nkmin_,nkqmin_,isp_k,isp_kq)!oct-2021(nkmin(k),nkqmin(k),isp_k,isp_kq)
-c         call Get_zmel_init(q+rk(:,k), q, irot, q, nxxxx, nkmax(k),nkqmax(k),nctot,ncc)
-c         call Dconjg_zmel() !zmel = dconjg(zmel)
-cc           nmtot = nctot + nkmax(k)  -nmini+1 ! = phi_middle
-cc           nqtot = ncc   + nkqmax(k) -nqini+1 ! = phi_end
-           
-!! Set 'call x0kf_zmel (see hx0zmel) instead of rwzmel if you like to skip hx0zmel.
-c          do icount = 1,ncount
-c            k = kc(icount)
-c     if(k/=kold.or.is/=isold) then
-               call Deallocate_zmel()
-               call x0kf_zmel(q,      iq,k, isp_k,isp_kq) !zmel
-c        print *,'vvvvvvvvvv0001 sum',allocated(zmel)
-               if(zmel0mode) then
-                call setzmel0()
-                call Deallocate_zmel0()
-                call x0kf_zmel(q00,iqxini,k, isp_k,isp_kq) !zmel0
-                call unsetzmel0()
-                 q1a=sum(q00**2)**.5
-                 q2a=sum(q**2)**.5
-                 rfac00=q2a/(q2a-q1a)
-               endif  
-c               kold=k
-c               isold=is
-c            endif   
-c          enddo   
-           
-c         call rwzmel(iq,    k,isp_k,isp_kq,'r') !,nmbas,nmtot,nqtot)
-c           if(zmel0mode) then
-c              q2a= sum(qm0**2)**0.5
-c              call rwzmel(iqxini,k,isp_k,isp_kq,'r',izmel0=izmel0) !for zmel0
-c              q1a= sum(qm0**2)**0.5
-c              rfac00=q2a/(q2a-q1a)
-c           endif    
+        if(kold/=k) then 
+           call Deallocate_zmel()
+           call x0kf_zmel(q,      iq,k, isp_k,isp_kq) !zmel(igb q,  k it occ,   q+k itp unocc)
+           if(zmel0mode) then
+              call setzmel0()  !to zmel0 instead of zmel
+              call Deallocate_zmel0()
+              call x0kf_zmel(q00,iqxini,k, isp_k,isp_kq) !zmel0 because of setzmel0()
+              call unsetzmel0()
+              q1a=sum(q00**2)**.5
+              q2a=sum(q**2)**.5
+              rfac00=q2a/(q2a-q1a)
+           endif  
            kold=k
-c           ispold=isp_k
-c           ispold2=isp_kq
         endif
-c        print *,'vvvvvvvvvv1 sum',allocated(zmel)
-c        print *,'vvvvvvvvvv2 sum',sum(abs(zmel0))
 c----------------------------
 !!  z1p = <M_ibg1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
 !!  zxq(iw,ibg1,igb2) = sum_ibib wwk(iw,ibib)* z1p(ibib, igb1,igb2)
@@ -386,16 +356,12 @@ c----------------------------
         jpm = jpmc(icount)      ! \pm omega
         do igb2=1,nmbas  !this part dominates cpu time most time consuming...........
         do igb1=1,igb2
-           if(zmel0mode) then !feb2022
-!assume igb1=igb2=1           
-c              rcxq(igb1,igb2,iw,jpm) =  rcxq(igb1,igb2,iw,jpm)
-c     &             + (abs(zmel(igb1,it,itp))-abs(zmel0(igb1,it,itp)))**2 * whwc(icount)
+           if(zmel0mode) then !feb2022 assume igb1=igb2=1           
               rcxq(igb1,igb2,iw,jpm) =  rcxq(igb1,igb2,iw,jpm)
-     &             + rfac00**2*(abs(zmel(igb1,it,itp))-abs(zmel0(igb1,it,itp)))**2 * whwc(icount)
+     &          + rfac00**2*(abs(zmel(igb1,it,itp))-abs(zmel0(igb1,it,itp)))**2 * whwc(icount)
            else   
               rcxq(igb1,igb2,iw,jpm) =  rcxq(igb1,igb2,iw,jpm)
-     &          + dconjg(zmel(igb1,it,itp) )*zmel (igb2,it,itp) * whwc(icount)
-!     ! NOTE                               whwc is the img weight given by tetrahedron method.
+     &          + dconjg(zmel(igb1,it,itp) )*zmel (igb2,it,itp) * whwc(icount)! whwc is ImgWeight by tetrahedron method.
            endif   
         enddo     
         enddo     
