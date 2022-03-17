@@ -57,9 +57,9 @@ c      integer::ngvect(3,ngcxx,nqbz)
       integer,allocatable :: ndiv(:)
       real(8),allocatable:: qsave(:,:),   qmin(:,:),qmax(:,:)
       real(8),allocatable:: qany(:,:)
-      logical:: anyq,ibzqq,lnq0iadd
+      logical:: anyq,ibzqq,lnq0iadd,cmdopt0
 c      integer,allocatable:: epslgroup(:)
-      integer:: dummyia(1,1)
+      integer:: dummyia(1,1),nq0i00x
       
       alpm = minval(alpv)
       if(alpm<=0d0) call rx( 'alpha_offG or alpha_offG_vec <=0')
@@ -95,6 +95,7 @@ c      if(debug) write(6,"('  alpm=',3f12.6)") alpm
             nq0i00 =max(nq0i00,0)
             if(nq0i00>0) close(ifinin)
             print *,' end of reaing QforEPS nq0i00',nq0i00,ifinin
+            if(nq0i00>0.and.cmdopt0('--zmel0')) nq0i00=nq0i00+1     !new at 2022 for --zmel0 mode 
             call getkeyvalue("GWinput","<QforEPSL>",unit=ifinin,status=nq0i0,errstop='off')
             nq0i0  =max(nq0i0,0)
             print *,' end of reaing QforEPSL nq0i0',nq0i0,ifinin
@@ -113,9 +114,12 @@ c      if(debug) write(6,"('  alpm=',3f12.6)") alpm
             epslgroup=0
             allocate( q0i(3,nq0i) )
             print *,' nq0i=',nq0i
-            if(nq0i00>0) then
-               call getkeyvalue("GWinput","<QforEPS>",unit=ifinin,status=nq0i00)
-               do i=1,nq0i00
+            if(cmdopt0('--zmel0')) q0i(1:3,1)=0d0      !new at 2022 for --zmel0 mode
+            if(nq0i00>1) then   ! 0) then
+               call getkeyvalue("GWinput","<QforEPS>",unit=ifinin,status=nq0i00x)
+               ix=1
+               if(cmdopt0('--zmel0')) ix=2
+               do i=ix,nq0i00    !1,nq0i00
                   read (ifinin,*) q0i(1:3,i)
                   write (6,"('<QforEPS> ' 3f12.8)") q0i(:,i)
                enddo

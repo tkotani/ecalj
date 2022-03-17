@@ -1487,7 +1487,7 @@ c     .     (/-1d0,0d0/),note='Energy window over which DOS accumulated')
      .     def_i4=0,note='Find at most nevmx eigenvectors'//
      .     '%N%3fIf NEVMX=0, program uses internal default'//
      .     '%N%3fIf NEVMX<0, no eigenvectors are generated')
-      if( cmdopt0('--tdos').or.cmdopt0('--pdos')) bz_nevmx=999999
+      if( cmdopt0('--tdos').or.cmdopt0('--pdos').or.cmdopt0('--zmel0')) bz_nevmx=999999
       
       nm='BZ_NOINV'; call gtv(trim(nm),tksw(prgnam,nm),noinv,
      .     def_lg=F,note=
