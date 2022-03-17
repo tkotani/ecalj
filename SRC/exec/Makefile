@@ -30,15 +30,16 @@ progsw2  = huumat hpsig htbplot
 script  = cleargw* dqpu eps* gw_* gwg* gws* gwp*  mkG* chipm_mat genMLWF genMLWF_vw genMLWF2 genMLWFmod RPAWannier* FLEX_interaction.py
 
 all: mkobj progs tags
+
 mkobj:
 	@echo './$(obj_path)/ for .o and .mod '
 	@[ -d $(obj_path) ] || mkdir  $(obj_path) 
 moduledepends.$(PLATFORM).inc: moduledepends.inc
 	@echo 'Generate module-dependency file, moduledepends.$(PLATFORM).inc'
 	sed -e "s/\.\.\/\w*\//$(obj_path)\//g" moduledepends.inc |uniq >moduledepends.$(PLATFORM).inc
-moduledepends.inc: $(subr)*.F $(main)*.F $(maxloc)*.F
+moduledepends.inc: $(subr)*.F $(subr)*.F90 $(main)*.F $(maxloc)*.F
 	@echo 'init: Generate module-dependency file, moduledepends.$(PLATFORM).inc'
-	@[ -d moduledepends.inc ] || exec ../../TOOLS/checkmodule $(subr)*.F $(main)*.F $(maxloc)*.F 
+	@[ -d moduledepends.inc ] || exec ../../TOOLS/checkmodule $(subr)*.F90 $(subr)*.F $(main)*.F $(maxloc)*.F 
 
 prog2: $(progslm2) $(progsgw2) $(progsw2)
 
