@@ -18,9 +18,9 @@ mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK --job=1 $TARGET --jobgw >& llmfgw01 #genera
 #rm gwa.$TARGET* gwb.$TARGET* gw1.$TARGET* gw2.$TARGET*
 $nfpgw/rdata4gw_v2 --job=0 >& lrdata4gw_v2 # Prepare all files for GW
 #rm VXCFP.chk CphiGeig
-$nfpgw/heftet --job=1 >& leftet # A file EFERMI for hx0fp0 generated
+$nfpgw/heftet  --job=1 >& leftet # A file EFERMI for hx0fp0 generated
 $nfpgw/hbasfp0 --job=4 >& lbas   # Product basis generation mode=4
 mpirun -np $MPI_SIZE $nfpgw/hvccfp0 --job=202 >& lvcc # Coulomb matrix for lbas 
 mpirun -np $MPI_SIZE $nfpgw/hx0fp0 --job=202 --zmel0 --interbandonly >& lx0_interband #EPS for interband
-mpirun -np $MPI_SIZE $nfpgw/hx0fp0 --job=202 --zmel0 --intrabandonly >& lx0_intraband #EPS for intraband
-: OK! ==== All calclation finished for epsPP ====,$TARGET
+#mpirun -np $MPI_SIZE $nfpgw/hx0fp0 --job=202 --zmel0 --intrabandonly >& lx0_intraband #EPS for intraband
+echo OK! ==== All calclation finished for epsPP ====,$TARGET

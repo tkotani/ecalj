@@ -1,7 +1,9 @@
       module m_x0kf
       use m_keyvalue,only : Getkeyvalue
       use m_pkm4crpa,only : Readpkm4crpa
-      use m_zmel,only : Get_zmel_init,Dconjg_zmel,Deallocate_zmel, zmel ,get_zmel_modex0, rwzmel !GramSchmidt_zmel,
+      use m_zmel,only:Get_zmel_init,Dconjg_zmel,Deallocate_zmel,Deallocate_zmel0,zmel,get_zmel_modex0,rwzmel,zmel0
+     &     ,setzmel0,unsetzmel0
+ !,qm0                      !GramSchmidt_zmel,
       use m_freq,only:  npm, nwhis
       use m_genallcf_v3,only:  nsp=>nspin ,nlmto,nctot
       use m_read_bzdata,only:  nqbz,ginv,nqibz,  rk=>qbz,wk=>wbz
@@ -225,16 +227,17 @@ c      integer:: nmbas !, imb1,imb2, imb verbose,
       nkqmin_ = nkqmin(k)
       nmini= nkmin_ 
       nqini= nkqmin_
+c      call Deallocate_zmel()
       call Get_zmel_modex0(nkmin_,nkqmin_,isp_k,isp_kq) !oct-2021(nkmin(k),nkqmin(k),isp_k,isp_kq)
       call Get_zmel_init(q+rk(:,k), q, irot, q, nxxxx, nkmax(k),nkqmax(k),nctot,ncc,iprx=.false.)
       call Dconjg_zmel()        !zmel = dconjg(zmel)
-      call rwzmel(iq,k,isp_k,isp_kq,'w')
-      call Deallocate_zmel()
+c      call rwzmel(iq,k,isp_k,isp_kq,'w',q=q)
+c      call Deallocate_zmel()
       end subroutine x0kf_zmel
       
 !! --------------------------------------------------------------------------------
-      subroutine X0kf_v4hz ( q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt, rcxq,epsppmode)
-      intent(in)   ::        q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt,      epsppmode 
+      subroutine X0kf_v4hz ( q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt, rcxq,epsppmode,iqxini,rfac00,q00)
+      intent(in)   ::        q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt,      epsppmode,iqxini
 !! === calculate chi0, or chi0_pm ===
 !! We calculate imaginary part of chi0 along real axis.
 !!
@@ -257,9 +260,11 @@ c      integer:: nmbas !, imb1,imb2, imb verbose,
 !!note: zmel: matrix element <phi phi |M>
 !! nlmto   = total number of atomic basis functions within MT
 !! nqbz    = number of k-points in the 1st BZ
-!!
+!     !
+      real(8),optional:: rfac00,q00(3)
       logical,optional ::epsppmode
       integer:: k,isp_k,isp_kq,iq, jpm, ibib, iw,igb2,igb1,it,itp
+      integer,optional::iqxini
       real(8):: q(3)
       complex(8):: rcxq (nmbas,nmbas,nwhis,npm)
       complex(8) :: imag=(0d0,1d0),trc,aaa 
@@ -274,13 +279,15 @@ c      integer:: nmbas !, imb1,imb2, imb verbose,
       integer ::  nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb !nkqmin, nkqmax,
       logical :: eibzmode  
       integer::  nwgt(nqbz) 
-      real(8)::  wpw_k,wpw_kq!, vec_kcrpa(3),vec_kqcrpa(3)
+      real(8)::  wpw_k,wpw_kq,q1a,q2a!, vec_kcrpa(3),vec_kqcrpa(3)
       integer::  irot=1         !, ntqxx,nbmax!,nctot
       integer::  neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele!,ngbb !eibzsym(ngrp,-1:1),
       integer:: ieqbz,kold,nxxxx !igx(ngrp*2,nqbz),igxt(ngrp*2,nqbz),
       integer::nkmin_,nkqmin_,izmel,ispold,nmini,nqini,nmtot,nqtot ,ispold2
-c      logical:: interbandonly,intrabandonly,cmdopt0
+c     logical:: interbandonly,intrabandonly
+      logical:: izmel0,cmdopt0,zmel0mode
       
+      zmel0mode=cmdopt0('--zmel0')
 c      integer,allocatable:: it_(:,:,:),itp_(:,:,:)
 !!-----------------------------------------------------------
 !! Main loop over k-points ---------------------------------------------------------
@@ -328,7 +335,7 @@ c        if(debug) call cputid(0)
         nmini= nkmin_ 
         nqini= nkqmin_
 ! This gives matrix element zmel(igb q,  k it occ,   q+k itp unocc)
-        if(kold/=k.or.isp_k/=ispold.or. ispold2/=isp_kq) then  
+        if(kold/=k) then !.or.isp_k/=ispold.or. ispold2/=isp_kq) then  
 c         call Get_zmel_modex0(nkmin_,nkqmin_,isp_k,isp_kq)!oct-2021(nkmin(k),nkqmin(k),isp_k,isp_kq)
 c         call Get_zmel_init(q+rk(:,k), q, irot, q, nxxxx, nkmax(k),nkqmax(k),nctot,ncc)
 c         call Dconjg_zmel() !zmel = dconjg(zmel)
@@ -336,11 +343,39 @@ cc           nmtot = nctot + nkmax(k)  -nmini+1 ! = phi_middle
 cc           nqtot = ncc   + nkqmax(k) -nqini+1 ! = phi_end
            
 !! Set 'call x0kf_zmel (see hx0zmel) instead of rwzmel if you like to skip hx0zmel.
-           call rwzmel(iq,k,isp_k,isp_kq,'r') !,nmbas,nmtot,nqtot)
+c          do icount = 1,ncount
+c            k = kc(icount)
+c     if(k/=kold.or.is/=isold) then
+               call Deallocate_zmel()
+               call x0kf_zmel(q,      iq,k, isp_k,isp_kq) !zmel
+c        print *,'vvvvvvvvvv0001 sum',allocated(zmel)
+               if(zmel0mode) then
+                call setzmel0()
+                call Deallocate_zmel0()
+                call x0kf_zmel(q00,iqxini,k, isp_k,isp_kq) !zmel0
+                call unsetzmel0()
+                 q1a=sum(q00**2)**.5
+                 q2a=sum(q**2)**.5
+                 rfac00=q2a/(q2a-q1a)
+               endif  
+c               kold=k
+c               isold=is
+c            endif   
+c          enddo   
+           
+c         call rwzmel(iq,    k,isp_k,isp_kq,'r') !,nmbas,nmtot,nqtot)
+c           if(zmel0mode) then
+c              q2a= sum(qm0**2)**0.5
+c              call rwzmel(iqxini,k,isp_k,isp_kq,'r',izmel0=izmel0) !for zmel0
+c              q1a= sum(qm0**2)**0.5
+c              rfac00=q2a/(q2a-q1a)
+c           endif    
            kold=k
-           ispold=isp_k
-           ispold2=isp_kq
+c           ispold=isp_k
+c           ispold2=isp_kq
         endif
+c        print *,'vvvvvvvvvv1 sum',allocated(zmel)
+c        print *,'vvvvvvvvvv2 sum',sum(abs(zmel0))
 c----------------------------
 !!  z1p = <M_ibg1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
 !!  zxq(iw,ibg1,igb2) = sum_ibib wwk(iw,ibib)* z1p(ibib, igb1,igb2)
@@ -351,9 +386,17 @@ c----------------------------
         jpm = jpmc(icount)      ! \pm omega
         do igb2=1,nmbas  !this part dominates cpu time most time consuming...........
         do igb1=1,igb2
-             rcxq(igb1,igb2,iw,jpm) = 
-     &       rcxq(igb1,igb2,iw,jpm) + dconjg(zmel(igb1,it,itp))*zmel(igb2,it,itp) * whwc(icount)
-!! NOTE                               whwc is the img weight given by tetrahedron method.
+           if(zmel0mode) then !feb2022
+!assume igb1=igb2=1           
+c              rcxq(igb1,igb2,iw,jpm) =  rcxq(igb1,igb2,iw,jpm)
+c     &             + (abs(zmel(igb1,it,itp))-abs(zmel0(igb1,it,itp)))**2 * whwc(icount)
+              rcxq(igb1,igb2,iw,jpm) =  rcxq(igb1,igb2,iw,jpm)
+     &             + rfac00**2*(abs(zmel(igb1,it,itp))-abs(zmel0(igb1,it,itp)))**2 * whwc(icount)
+           else   
+              rcxq(igb1,igb2,iw,jpm) =  rcxq(igb1,igb2,iw,jpm)
+     &          + dconjg(zmel(igb1,it,itp) )*zmel (igb2,it,itp) * whwc(icount)
+!     ! NOTE                               whwc is the img weight given by tetrahedron method.
+           endif   
         enddo     
         enddo     
  1000 continue

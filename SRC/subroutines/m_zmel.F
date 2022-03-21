@@ -24,12 +24,13 @@
       use m_hamindex0,only: Readhamindex0,iclasst 
       use m_readVcoud,only: zcousq,ngc,ngb !! zcousq is the eigenfuncition of the Coulomb matrix
 !!------------------------------------------------------
-      public:: Get_zmel_init, Get_zmel_modex0,  Dconjg_zmel, Deallocate_zmel, 
+      public:: Get_zmel_init, Get_zmel_modex0,  Dconjg_zmel, Deallocate_zmel, Deallocate_zmel0,
      &         Setppovlz, Setppovlz_chipm,  Mptauof_zmel ,rwzmel, !GramSchmidt_zmel (test code)
-     &   drvmelp3,ppbafp_v2 !these are for old-fashioned codes in wannier/ 
+     &   drvmelp3,ppbafp_v2,setzmel0,unsetzmel0 !these are for old-fashioned codes in wannier/ 
 !! OUTPUT:  zmel for exchange=F, zmeltt for exchange=T.
-      complex(8),allocatable,protected,public :: zmel(:,:,:) !for  Get_zmel
-      integer:: nbb !1st dimension of zmel
+      complex(8),allocatable,protected,public :: zmel(:,:,:),zmel0(:,:,:) !for  Get_zmel
+      integer,protected:: nbb             !1st dimension of zmel
+      real(8),protected,public:: qm0(3) !for zmel0
 !!------------------------------------------------------
 !! set by Mptauof_zmel in advance
       private
@@ -42,7 +43,7 @@
       complex(8),allocatable,private :: cphiq(:,:), cphim(:,:),cphitemp(:,:)
       logical:: modex0=.false. 
       integer:: nkmin, nkqmin, isp_k, isp_kq,nmtot,nqtot,ispq_bk,ispm_bk
-      logical:: debug=.false.
+      logical:: debug=.false.,zzmel0=.false.
       integer:: nbbx=0
       contains
 !sssssssssssssssssssssssssssssssssss
@@ -62,11 +63,18 @@
       end
 !sssssssssssssssssssssssssssssssssss
       subroutine Dconjg_zmel()
-      zmel = dconjg(zmel)
+      if(zzmel0) then
+         zmel0 = dconjg(zmel0)
+      else   
+         zmel = dconjg(zmel)
+      endif   
       end
 !sssssssssssssssssssssssssssssssssss
       subroutine Deallocate_zmel()
-      deallocate(zmel)
+      if(allocated(zmel)) deallocate(zmel)
+      end
+      subroutine Deallocate_zmel0()
+      if(allocated(zmel0)) deallocate(zmel0)
       end
 !sssssssssssssssssssssssssssssssssss
       subroutine setppovlz(q,matz)
@@ -187,24 +195,37 @@ c      integer(4),intent(in) :: il(nlnmx,nclass),in(nlnmx,nclass),im(nlnmx,nclas
       enddo
       end
 !! ------------------------------------
-      subroutine rwzmel(iq,k,isp_k,isp_kq,rw)
-      intent(in)::      iq,k,isp_k,isp_kq,rw
+      subroutine rwzmel(iq,k,isp_k,isp_kq,rw,q,izmel0)
+      intent(in)::      iq,k,isp_k,isp_kq,rw,q,izmel0
+      logical,optional::izmel0
       integer:: iq,k,isp_k,isp_kq,izmel,nmtot_,nqtot_
       character(1):: rw
       character*8 :: charext
+      character*256::fff
+      real(8),optional:: q(3)
+      integer::nnn
       open(newunit=izmel,file='zmel.'//trim(charext(iq))//'_'
      &     //trim(charext(k))//'_'//trim(charext(isp_k))//trim(charext(isp_kq)),
      &     form='unformatted')
-      if(rw=='r') then
-         read(izmel) nbb,nmtot_,nqtot_
+      if(rw=='r'.and.present(izmel0)) then
+         fff=trim('zmel.'//trim(charext(iq))//'_'
+     &     //trim(charext(k))//'_'//trim(charext(isp_k))//trim(charext(isp_kq)))
+         print *,'fff=',trim(fff)
+         read(izmel) nbb,nmtot_,nqtot_,qm0
+         if(allocated(zmel0)) deallocate(zmel0)
+         allocate(zmel0(1:nbb,1:nmtot_,1:nqtot_))
+         read(izmel) zmel0
+      elseif(rw=='r') then
+         read(izmel) nbb,nmtot_,nqtot_,qm0
          if(allocated(zmel)) deallocate(zmel)
          allocate(zmel(1:nbb,1:nmtot_,1:nqtot_))
          read(izmel) zmel
       else
-         write(izmel) nbb,nmtot,nqtot
+         write(izmel) nbb,nmtot,nqtot,q
          write(izmel) zmel
       endif
       close(izmel)
+c      if(rw=='r'.and.(.not.present(izmel0))) nnn=unlink(fff)
       end
 !! ------------------------------------
       subroutine get_zmel_modex0(n1,n2,n3,n4)
@@ -236,7 +257,7 @@ c   matmul(symgg(:,:,irot),kvec)-rkvec can have difference of reciprocal vectors
       integer:: isp,nmmax,nqmax,irot,ispq,ispm,nmini,nqini, nctot,ncc
       real(8) ::  quu(3),q(3), kvec(3),rkvec(3)
       real(8),parameter::tolq=1d-8
-      if(allocated(zmel)) deallocate(zmel)
+c      if(allocated(zmel)) deallocate(zmel)
       ispq = isp
       ispm = isp
       nmini=1
@@ -343,12 +364,23 @@ c   matmul(symgg(:,:,irot),kvec)-rkvec can have difference of reciprocal vectors
      o     zmelt(nbloch+1:nbloch+ngc,nctot+1:nctot+nt0,ncc+1:ncc+ntp0))
       nbb=ngb
       if(nbbx/=0) nbb=nbbx
-      allocate( zmel(nbb,nmtot, nqtot))
-      call matm(dconjg(transpose(ppovlz)), dconjg(zmelt), zmel,nbb,ngb,nmtot*nqtot)
+      if(zzmel0) then
+         allocate( zmel0(nbb,nmtot, nqtot))
+         call matm(dconjg(transpose(ppovlz)), dconjg(zmelt), zmel0,nbb,ngb,nmtot*nqtot)
+      else
+         allocate( zmel(nbb,nmtot, nqtot))
+         call matm(dconjg(transpose(ppovlz)), dconjg(zmelt), zmel,nbb,ngb,nmtot*nqtot)
+      endif   
       deallocate(zmelt)
       EndBlock ZmeltMain
       end subroutine get_zmel_init
-
+      
+      subroutine setzmel0()
+      zzmel0=.true.
+      end
+      subroutine unsetzmel0()
+      zzmel0=.false.
+      end
 !ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
 !> Mattrix elements <Plane psi |psi> from interstitial plane wave.
 !! zmelp(igc(qi),it(q2),itp(q1)) = <itp(for q1+G1)| it(for q2+G2) igc> 
