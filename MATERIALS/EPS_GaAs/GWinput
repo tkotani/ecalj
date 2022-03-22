@@ -112,9 +112,9 @@ GaussSmear on ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr for
  
 !QforEPSIBZ on ! Use all q in IBZ for the calculation of eps mode.
 <QforEPS>
- 0d0 0d0 0.001d0
- 0d0 0d0 0.005d0
- 0d0 0d0 0.01d0
+ 0d0 0d0 0.002d0
+ 0d0 0d0 0.004d0
+ 0d0 0d0 0.008d0
 </QforEPS>
 !<QforEPSL>
 ! 0d0 0d0 0d0   1d0   0d0  0d0 8

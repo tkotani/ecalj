@@ -70,7 +70,7 @@ do
 	run_arg20 '---' $MPI_SIZE $nfpgw          /lmf-MPIK llmf $TARGET
     fi
     rm -f ewindow.${TARGET}* qbyl.${TARGET}* eigze*.${TARGET}* mixm.${TARGET}
-    argin=0; run_arg20 $argin $NO_MPI  $nfpgw  /lmfgw-MPIK  llmfgw00 $TARGET 
+    argin=0; run_arg20 $argin $NO_MPI  $nfpgw  /lmf-MPIK llmfgw00 $TARGET --jobgw
     argin=1; run_arg20 $argin $NO_MPI  $nfpgw  /qg4gw lqg4gw   #Generate requied q+G v
 
     ### eigenvalues for micro-tetrahedron method. Rarely used.
@@ -79,22 +79,17 @@ do
     # 	argin=5; run_arg20 $argin $MPI_SIZE $nfpgw /lmfgw-MPIK llmfgw_eigval $TARGET
     # 	mv eigval eigmtet
     # fi
-    argin=1; run_arg20 $argin $MPI_SIZE $nfpgw /lmfgw-MPIK llmfgw01 $TARGET
-    run_arg20  '---' $NO_MPI   $nfpgw /lmf2gw     llmf2gw  #reform data for gw
+    argin=1; run_arg20 $argin $MPI_SIZE $nfpgw /lmf-MPIK  llmfgw01 $TARGET --jobgw
+    #run_arg20  '---' $NO_MPI   $nfpgw /lmf2gw     llmf2gw  #reform data for gw
 
     mv normchk* STDOUT
 
     ##### main stage of gw ################
-    argin=0; run_arg20 $argin $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files
-    rm gw1* gw2* gwa* gwb*
-    if [ $ix == 0 ]; then 
-	cp evec.$TARGET evec0  # used in hqpe_sc for isigma_en==5
-    fi
-    if [ -e ANFcond ]; then
-	cp EVU EVD  # This is for ANFcond. Rarely used recently
-    fi
+    run_arg20 $argin $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files
+    mv norm* STDOUT
+    rm gwa gwb*
+    
     argin=1; run_arg20 $argin $NO_MPI $nfpgw   /heftet leftet # A file EFERMI for hx0fp0
-#    argin=1; run_arg20 $argin $NO_MPI $nfpgw   /hchknw lchknw # A file NW, containing nw 
     ### Core part of the self-energy (exchange only) ###
     argin=3; run_arg20 $argin $NO_MPI $nfpgw   /hbasfp0 lbasC  # Product basis generation 
     argin=3; run_arg20 $argin $MPI_SIZE $nfpgw /hvccfp0 lvccC # Coulomb matrix for lbasC 

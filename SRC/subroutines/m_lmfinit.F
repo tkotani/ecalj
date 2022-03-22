@@ -315,14 +315,12 @@ c      logical:: ltet
 c      lfp = 1
       nullrv = nullr
       nulliv  =nulli
-      debug = cmdopt('--debug',6,0,a)
+      debug = cmdopt0('--debug')
 !! --- Copy recrd to rcd in m_gtv 
       call gtv_setrcd(recrd,nrecs,recln,stdo,stdl,stde)
 C --- Initialize ---
       call toksw_init(debug)
       if (procid .ne. master) io_show = 0
-      if (cmdopt0('--show') ) io_show = 1 
-c      if (cmdopt0('--input')) io_help = 1 
       if (cmdopt0('--help') ) io_help = 1
       call gtv_setio(debug,io_show,io_help)
       if (io_help == 1) then
@@ -676,6 +674,7 @@ c      if (nout <  3) dabc(3) = dabc(2)
      .     oveps, def_r8=1d-7, nout=nout, note=
      .     'Diagonalize hamiltonian in reduced hilbert space,'//
      .     '%N%3fdiscarding part with evals of overlap < OVEPS')
+      if(cmdopt0('--zmel0')) OVEPS=0d0
       nm='HAM_STABILIZE'; call gtv(trim(nm),tksw(prgnam,nm),
      .     delta_stabilize, def_r8=-1d0, nout=nout,note=
      .     'Experimental. Stabilizer for Diagonalize hamiltonian (negative means unused),'//
@@ -1487,7 +1486,7 @@ c     .     (/-1d0,0d0/),note='Energy window over which DOS accumulated')
      .     def_i4=0,note='Find at most nevmx eigenvectors'//
      .     '%N%3fIf NEVMX=0, program uses internal default'//
      .     '%N%3fIf NEVMX<0, no eigenvectors are generated')
-      if( cmdopt0('--tdos').or.cmdopt0('--pdos')) bz_nevmx=999999
+      if( cmdopt0('--tdos').or.cmdopt0('--pdos').or.cmdopt0('--zmel0')) bz_nevmx=999999
       
       nm='BZ_NOINV'; call gtv(trim(nm),tksw(prgnam,nm),noinv,
      .     def_lg=F,note=
@@ -2084,7 +2083,7 @@ c      print *,' mpipid=',procid
       
 !! Stage 3: initial settings ===================================
 !!  Total energy mode setting
-      if (cmdopt('--etot',6,0,strn)) then
+      if (cmdopt0('--etot')) then
         mdprm=0 !!!  No forces or dynamics
         ctrl_lfrce=0
         ctrl_mdprm=0

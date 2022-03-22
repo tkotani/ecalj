@@ -368,6 +368,7 @@ c      if(allocated(zmel)) deallocate(zmel)
          allocate( zmel0(nbb,nmtot, nqtot))
          call matm(dconjg(transpose(ppovlz)), dconjg(zmelt), zmel0,nbb,ngb,nmtot*nqtot)
       else
+         if(allocated(zmel)) deallocate(zmel)
          allocate( zmel(nbb,nmtot, nqtot))
          call matm(dconjg(transpose(ppovlz)), dconjg(zmelt), zmel,nbb,ngb,nmtot*nqtot)
       endif   
