@@ -1,0 +1,16 @@
+#!/usr/bin/gnuplot -persist
+rydberg=13.605
+set title "Preliminary, optical conductivity of NiS basedon QSGW80 (with finite q)"
+set xlabel " eV "
+set ylabel " sigma= omega*eps (arbitrary unit)"
+set xzeroaxis
+set grid
+set datafile fortran
+#plot "EPS0001.nlfc.dat" u ($4*rydberg):($6)  w lp,\
+#     "EPS0002.nlfc.dat" u ($4*rydberg):($6)  w lp
+#set xrange [0:2]
+set yrange [0:10]
+set multiplot layout 2,1
+plot "EPS0002.nlfc.dat.interbandonly" u ($4*rydberg):($6*$4) w l,\
+     "EPS0003.nlfc.dat.interbandonly" u ($4*rydberg):($6*$4) w l,\
+     "EPS0004.nlfc.dat.interbandonly" u ($4*rydberg):($6*$4) w l

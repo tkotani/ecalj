@@ -1,0 +1,18 @@
+#TITLE epsPP0 mode setting (additional info to EPS_GaAs/README.org)
+epsPP0 test mar2022
+
+1. Get rst (and sigm) by a self-consistent calculaiton.
+2. Then Run epsPP0
+   We get EPS0002.... (EPS0001 is skipped)
+
+--- Setting of GWinput ---
+For example, set 
+#+begin_src
+<QforEPS> !all q points are parellel
+ 0d0 0d0 0.0001d0 !this is special line for epsPP0 (error cancellation mode)
+ 0d0 0d0 0.01d0
+ 0d0 0d0 0.02d0
+ 0d0 0d0 0.04d0
+</QforEPS>
+#+end_src
+
