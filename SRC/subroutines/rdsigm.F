@@ -1,137 +1,137 @@
-      module m_sigflg
-      contains
-      subroutine sigflg(dc,sio,strn,ledit,lwsig,lrot,lfbz,lnwmsh,lonesp,
-     .qpoff,rots)
-
-C- Reads flags for Sigma IO
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   dc:   separator for switches
-Ci  sio:   a string, which must be one of :
-Ci         'rsig' --- parse parameters for reading sigma:
-Ci                lfbz qpoff
-Ci         'wsig' --- parse parameters for writing a new sigma:
-Ci                ledit lwsig lrot lfbz lnwmsh lonesp qpoff rots
-Ci   strn: string containing switches
-Co Outputs
-Co   ledit :(wsig only)
-Co         :1  flag requesting sigma editor
-Co   lwsig :(wsig only)
-Co         :0 normal exit
-Co         :1  transformation of sigm from orbital to LDA basis
-Co         :-1 transformation of from LDA basis to orbital basis
-Co         :2  Same as 1, but high,low parts of sigm replaced by diagonal
-Co         :3  Write evals,evecs of LDA hamiltonian to file
-Co         :4  Write evals,evecs of total hamiltonian to file
-Co         : OLD; not used
-Co         :4  Make QP hamiltonian from Z^LDA and U with E(qp)
-Co         :5  Make orthogonalized QP hamiltonian from Z^LDA and U with E(qp)
-Co   lrot  :(wsig only)
-Co         :nonzero, flag to rotate sigma matrix
-Co   lfbz  :(rdsig and wsig)
-Co         :T, write sigma for qp in entire BZ
-Co   lnwmsh:(wsig only)
-Co         :T, write sigm for qp on new mesh
-Co   lonesp:(wsig only)
-Co         :nonzero, average up and down spins before writing
-Co   qpoff :(rdsig and wsig)
-Co         :k-point offset to be added to uniform mesh
-Co   rots  :(wsig only)
-Co         :string containing rotation matrix for sigma
-Cl Local variables
-Cl         :
-Cr Remarks
-Cr
-Cu Updates
-Cu   21 Jun 08
-Cu   15 Jan 07  First created
-C ----------------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
-      character dc*1,sio*(4)
-      character strn*(*)
-      character,optional::rots*(*)
-      integer,optional:: ledit,lwsig,lrot
-      integer::lonesp
-      logical lfbz
-      logical,optional::lnwmsh
-      double precision qpoff(3)
-C ... Local parameters
-      integer parg
-      integer i,j,j1,j2,iv(10)
-      logical lio
-
-      logical:: isanrg, l_dummy_isanrg
-
-      lio = sio .eq. 'wsig'
-      if (.not. lio) then
-        if (sio .ne. 'rsig') call rx('sigflg: bad argument '//sio)
-      endif
-      if (lio) then
-        ledit = 0
-        lwsig = 0
-        lrot = 0
-        lfbz = .false.
-        lnwmsh = .false.
-        lonesp = 0
-        rots = ' '
-        call dpzero(qpoff,3)
-      else
-        lfbz = .false.
-        lonesp = 0
-        call dpzero(qpoff,3)
-      endif
-
-      if (dc .ne. ' ') then
-C   ... Return here to resume parsing for arguments
-        j2 = 0
-   50   continue
-        j2 = j2+1
-        if (strn(j2:j2) .eq. dc) goto 50
-        j1 = min(len(strn),j2)
-        call nwordg(strn,0,dc//' ',1,j1,j2)
-        if (j2 .ge. j1) then
-          if (.false.) then
-          elseif (strn(j1:j1+3) .eq. 'edit'.and. lio) then
-            ledit = 1
-          elseif (strn(j1:j1+4) .eq. 'onesp') then
-            lonesp = 1
-          elseif ((strn(j1:j1+3) .eq. 'rot=' .or.
-     .    strn(j1:j1+3) .eq. 'ROT=') .and. lio) then
-            rots = strn(j1+4:j2)
-          elseif (strn(j1:j1+5) .eq. 'trans=' .and. lio) then
-            j = 0
-            if (parg('trans=',2,strn(j1:),j,len(strn(j1:)),
-     .      dc//' ',1,1,i,lwsig) .lt. 0) goto 999
-Ckino isanrg is logical function,             call isanrg(mod(lwsig,10),-1,5,'SIGFLG:','trans',.true.)
-            l_dummy_isanrg=isanrg(mod(lwsig,10),-1,5,'SIGFLG:','trans',.true.)
-            if (lwsig .ne. 0 .and. mod(lwsig,10) .eq. 0 .or.
-     .      lwsig .ge. 40)
-     .      call rxi('rdsigm: nonsensical trans',lwsig)
-          elseif (strn(j1:j1+4) .eq. 'phase'.and. lio) then
-            lrot = 2
-          elseif (strn(j1:j1+2) .eq. 'fbz') then
-            lfbz = .true.
-          elseif (strn(j1:j1+4) .eq. 'newkp'.and. lio) then
-            lnwmsh = .true.
-          elseif (strn(j1:j1+5) .eq. 'shftq=') then
-            j = 0
-            if (parg('shftq=',4,strn(j1:),j,len(strn(j1:)),
-     .      ', '//dc,2,3,iv,qpoff) .lt. 0) goto 999
-          elseif (strn(j1:j1+4) .eq. 'shftq') then
-            qpoff(1) = 4d0/4096
-            qpoff(2) = 5d0/4096
-            qpoff(3) = 7d0/4096
-          else
-            goto 59
-          endif
-          goto 50
-   59     continue
-  999     call rxs('rdsigm: failed to parse wsig option', strn)
-        endif
-      endif
-      end subroutine sigflg
-      end module m_sigflg
+c$$$      module m_sigflg
+c$$$      contains
+c$$$      subroutine sigflg(dc,sio,strn,ledit,lwsig,lrot,lfbz,lnwmsh,lonesp,
+c$$$     .qpoff,rots)
+c$$$
+c$$$C- Reads flags for Sigma IO
+c$$$C ----------------------------------------------------------------------
+c$$$Ci Inputs
+c$$$Ci   dc:   separator for switches
+c$$$Ci  sio:   a string, which must be one of :
+c$$$Ci         'rsig' --- parse parameters for reading sigma:
+c$$$Ci                lfbz qpoff
+c$$$Ci         'wsig' --- parse parameters for writing a new sigma:
+c$$$Ci                ledit lwsig lrot lfbz lnwmsh lonesp qpoff rots
+c$$$Ci   strn: string containing switches
+c$$$Co Outputs
+c$$$Co   ledit :(wsig only)
+c$$$Co         :1  flag requesting sigma editor
+c$$$Co   lwsig :(wsig only)
+c$$$Co         :0 normal exit
+c$$$Co         :1  transformation of sigm from orbital to LDA basis
+c$$$Co         :-1 transformation of from LDA basis to orbital basis
+c$$$Co         :2  Same as 1, but high,low parts of sigm replaced by diagonal
+c$$$Co         :3  Write evals,evecs of LDA hamiltonian to file
+c$$$Co         :4  Write evals,evecs of total hamiltonian to file
+c$$$Co         : OLD; not used
+c$$$Co         :4  Make QP hamiltonian from Z^LDA and U with E(qp)
+c$$$Co         :5  Make orthogonalized QP hamiltonian from Z^LDA and U with E(qp)
+c$$$Co   lrot  :(wsig only)
+c$$$Co         :nonzero, flag to rotate sigma matrix
+c$$$Co   lfbz  :(rdsig and wsig)
+c$$$Co         :T, write sigma for qp in entire BZ
+c$$$Co   lnwmsh:(wsig only)
+c$$$Co         :T, write sigm for qp on new mesh
+c$$$Co   lonesp:(wsig only)
+c$$$Co         :nonzero, average up and down spins before writing
+c$$$Co   qpoff :(rdsig and wsig)
+c$$$Co         :k-point offset to be added to uniform mesh
+c$$$Co   rots  :(wsig only)
+c$$$Co         :string containing rotation matrix for sigma
+c$$$Cl Local variables
+c$$$Cl         :
+c$$$Cr Remarks
+c$$$Cr
+c$$$Cu Updates
+c$$$Cu   21 Jun 08
+c$$$Cu   15 Jan 07  First created
+c$$$C ----------------------------------------------------------------------
+c$$$C     implicit none
+c$$$C ... Passed parameters
+c$$$      character dc*1,sio*(4)
+c$$$      character strn*(*)
+c$$$      character,optional::rots*(*)
+c$$$      integer,optional:: ledit,lwsig,lrot
+c$$$      integer::lonesp
+c$$$      logical lfbz
+c$$$      logical,optional::lnwmsh
+c$$$      double precision qpoff(3)
+c$$$C ... Local parameters
+c$$$      integer parg
+c$$$      integer i,j,j1,j2,iv(10)
+c$$$      logical lio
+c$$$
+c$$$      logical:: isanrg, l_dummy_isanrg
+c$$$
+c$$$      lio = sio .eq. 'wsig'
+c$$$      if (.not. lio) then
+c$$$        if (sio .ne. 'rsig') call rx('sigflg: bad argument '//sio)
+c$$$      endif
+c$$$      if (lio) then
+c$$$        ledit = 0
+c$$$        lwsig = 0
+c$$$        lrot = 0
+c$$$        lfbz = .false.
+c$$$        lnwmsh = .false.
+c$$$        lonesp = 0
+c$$$        rots = ' '
+c$$$        call dpzero(qpoff,3)
+c$$$      else
+c$$$        lfbz = .false.
+c$$$        lonesp = 0
+c$$$        call dpzero(qpoff,3)
+c$$$      endif
+c$$$
+c$$$      if (dc .ne. ' ') then
+c$$$C   ... Return here to resume parsing for arguments
+c$$$        j2 = 0
+c$$$   50   continue
+c$$$        j2 = j2+1
+c$$$        if (strn(j2:j2) .eq. dc) goto 50
+c$$$        j1 = min(len(strn),j2)
+c$$$        call nwordg(strn,0,dc//' ',1,j1,j2)
+c$$$        if (j2 .ge. j1) then
+c$$$          if (.false.) then
+c$$$          elseif (strn(j1:j1+3) .eq. 'edit'.and. lio) then
+c$$$            ledit = 1
+c$$$          elseif (strn(j1:j1+4) .eq. 'onesp') then
+c$$$            lonesp = 1
+c$$$          elseif ((strn(j1:j1+3) .eq. 'rot=' .or.
+c$$$     .    strn(j1:j1+3) .eq. 'ROT=') .and. lio) then
+c$$$            rots = strn(j1+4:j2)
+c$$$          elseif (strn(j1:j1+5) .eq. 'trans=' .and. lio) then
+c$$$            j = 0
+c$$$            if (parg('trans=',2,strn(j1:),j,len(strn(j1:)),
+c$$$     .      dc//' ',1,1,i,lwsig) .lt. 0) goto 999
+c$$$Ckino isanrg is logical function,             call isanrg(mod(lwsig,10),-1,5,'SIGFLG:','trans',.true.)
+c$$$            l_dummy_isanrg=isanrg(mod(lwsig,10),-1,5,'SIGFLG:','trans',.true.)
+c$$$            if (lwsig .ne. 0 .and. mod(lwsig,10) .eq. 0 .or.
+c$$$     .      lwsig .ge. 40)
+c$$$     .      call rxi('rdsigm: nonsensical trans',lwsig)
+c$$$          elseif (strn(j1:j1+4) .eq. 'phase'.and. lio) then
+c$$$            lrot = 2
+c$$$          elseif (strn(j1:j1+2) .eq. 'fbz') then
+c$$$            lfbz = .true.
+c$$$          elseif (strn(j1:j1+4) .eq. 'newkp'.and. lio) then
+c$$$            lnwmsh = .true.
+c$$$          elseif (strn(j1:j1+5) .eq. 'shftq=') then
+c$$$            j = 0
+c$$$            if (parg('shftq=',4,strn(j1:),j,len(strn(j1:)),
+c$$$     .      ', '//dc,2,3,iv,qpoff) .lt. 0) goto 999
+c$$$          elseif (strn(j1:j1+4) .eq. 'shftq') then
+c$$$            qpoff(1) = 4d0/4096
+c$$$            qpoff(2) = 5d0/4096
+c$$$            qpoff(3) = 7d0/4096
+c$$$          else
+c$$$            goto 59
+c$$$          endif
+c$$$          goto 50
+c$$$   59     continue
+c$$$  999     call rxs('rdsigm: failed to parse wsig option', strn)
+c$$$        endif
+c$$$      endif
+c$$$      end subroutine sigflg
+c$$$      end module m_sigflg
 
       subroutine iosigh(optio,mode,nsp,ndimh,nk1,nk2,nk3,nqp, lshft1,lshft2,lshft3,ifi)
 C- Read/write header information in sigma file

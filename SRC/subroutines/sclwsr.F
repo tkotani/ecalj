@@ -1,6 +1,6 @@
       subroutine sclwsr(opt,nbas,nbasp,nspec,alat,plat,basp,ips,modep,
      .slabl,z,lock,volfac,wsmax,omax1,omax2,wsr)
-
+      use m_pairs,only: pairc
 C- Scales sphere radii to specified volume, satisfying constraints.
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -131,8 +131,8 @@ C --- Make a neighbor table and adjust llock to freeze ES sites ---
 
       nttab = mxnbr
       call pshpr(ipr-20)
-      call pairc ( 1 , nbas , nbasp , modep , 20 , 0 , alat , plat 
-     ., basp , basp , range , - 1 , 1 , nttab , ntab_iv , iax_iv 
+      call pairc ( 1 , nbas , nbasp , modep , 20 , [0] , alat , plat 
+     ., basp , basp , range , - 1 , [1] , nttab , ntab_iv , iax_iv 
      ., wk_rv , k )
 
       call poppr

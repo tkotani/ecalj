@@ -308,8 +308,13 @@ c sorting of ea
       end
 !!-----------------------------------------
 
+
+
       
+!!----------------------------------------------------------------------      
       module m_pairs
+      public pairs,pairc,ppair1
+      private
       contains
       subroutine pairs(nbas,nbasp,alat,plat,rmax,baspp,ipsp,nd,iltab,
      .pltab,nttab,iv_a_ontab,iv_a_oiax,mxcsiz)
@@ -383,7 +388,6 @@ C ... Allocate iax to proper size
       iv_a_oiax(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
       if (allocated(wk_rv)) deallocate(wk_rv)
       end subroutine pairs
-      end module m_pairs
 
       subroutine pairc(ib1,ib2,nbasp,mode,isw,ips,alat,plat,pos,ctr,
      .range,iltab,pltabp,nttab,ntab,iax,rtab,mxcsiz)
@@ -946,114 +950,115 @@ C --- Set iax(7) to sort this cluster ---
         deallocate(iwk1_rv,wk2_rv)
    10 continue
       end
-      subroutine pair3c(offi,nvec,iaxc,iaxh,ntabh,ipiaxh)
-C- Find connecting vectors within a cluster linked by a pair table
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   offi :offset to starting point in iaxc for this cluster
-Ci   nvec :number of sites in cluster for which to find connecting vectors
-Ci   iaxc :cluster pair table.  Only iaxc(2) and iaxc(7) are used.
-Ci         iaxc(2,*) = field site index for this table
-Ci         iaxc(7,*) = list of permutations that orders sites
-Ci                     in iaxc and iaxh in the same way; see Remarks.
-Ci   iaxh :pair (eg hamiltonian) neighbor table (pairc.f).
-Ci         Only iaxh(2) and iaxh(7) are used. iaxh must consist of a
-Ci         series of clusters grouped by site index, as in the
-Ci         standard formed described in pairc.  The site index
-Ci         (kept in iaxh(1,*) in the standard form) and the site
-Ci         index iaxc(2,*) must refer to the same basis atom.
-Ci   ntabh:ntabh(ib)=number of pairs in iaxh preceding site ib.
-Co Outputs
-Co  ipiaxh:indices to connecting vectors within a cluster.
-Co         ipaxph(ip,kp) points to entry in iaxh table connecting
-Co         ip to kp. ipaxph(ip,kp)=0 => no such vector in iaxh exists.
-Cr Remarks
-Cr   pair3c generates in ipiaxh the information needed to connect
-Cr   three centers in a crystal.  For each pair of connecting vectors
-Cr   in iaxc, a third vector is sought in iaxh that connects the two.
-Cr
-Cr   A schematic depiction of association of variables with their sites:
-Cr
-Cr            . origin
-Cr
-Cr    .  jp=field point
-Cr    \
-Cr     \ <- connecting vector ipiaxh(jp,ip) = entry in iaxh
-Cr      \
-Cr       \.  ip, source point
-Cr
-Cr   For efficient implementation, this routine relies on sorting
-Cr   information in both iaxc and iaxh.  iaxc(7,*) and iaxh(7,*) must
-Cr   hold a list of permutations that sorts each cluster in a unique
-Cr   manner, so that connecting vectors common to different clusters are
-Cr   ordered in the same way in those two clusters; this is done in
-Cr   in ppair4, called with tol<0.
-C ----------------------------------------------------------------------
-      implicit none
-      integer offi,nvec,niax,ntabh(8),ipiaxh(nvec,nvec)
-      parameter (niax=10)
-      integer iaxc(niax,1),iaxh(niax,9)
-      integer ii,iii,jj,jjj,ip,jp,ib,nc,ich,icp,ic0
-      integer iiax(5)
-      call iinit(ipiaxh,nvec*nvec)
-C --- Loop over 3C pairs i,j in permuted order ---
-      ii = 0
-      do  30  iii = 1, nvec
-   31   ii = ii+1
-        ip = iaxc(7,ii+offi)
-        if (ip .gt. nvec) goto 31
-        ib = iaxc(2,ip+offi)
-C   ... ic0 = offset corresponding to iaxh(ic) = 1st pair for ib
-        ic0 = ntabh(ib)
-C   ... ich = current offset corresponding to iaxh.  Because we loop
-C       in sorted order, we need not reset ich for each new pair below.
-        ich = ic0+1
-        nc  = ntabh(ib+1)
-        jj = 0
-        do  40  jjj = 1, nvec
-   41     jj = jj+1
-          jp = iaxc(7,jj+offi)
-          if (jp .gt. nvec) goto 41
-C         Do upper triangle only
-C         if (lx6 .and. jp .lt. ip) goto 40
-          iiax(3) = iaxc(3,jp+offi) - iaxc(3,ip+offi)
-          iiax(4) = iaxc(4,jp+offi) - iaxc(4,ip+offi)
-          iiax(5) = iaxc(5,jp+offi) - iaxc(5,ip+offi)
+c$$$      subroutine pair3c(offi,nvec,iaxc,iaxh,ntabh,ipiaxh)
+c$$$C- Find connecting vectors within a cluster linked by a pair table
+c$$$C ----------------------------------------------------------------------
+c$$$Ci Inputs
+c$$$Ci   offi :offset to starting point in iaxc for this cluster
+c$$$Ci   nvec :number of sites in cluster for which to find connecting vectors
+c$$$Ci   iaxc :cluster pair table.  Only iaxc(2) and iaxc(7) are used.
+c$$$Ci         iaxc(2,*) = field site index for this table
+c$$$Ci         iaxc(7,*) = list of permutations that orders sites
+c$$$Ci                     in iaxc and iaxh in the same way; see Remarks.
+c$$$Ci   iaxh :pair (eg hamiltonian) neighbor table (pairc.f).
+c$$$Ci         Only iaxh(2) and iaxh(7) are used. iaxh must consist of a
+c$$$Ci         series of clusters grouped by site index, as in the
+c$$$Ci         standard formed described in pairc.  The site index
+c$$$Ci         (kept in iaxh(1,*) in the standard form) and the site
+c$$$Ci         index iaxc(2,*) must refer to the same basis atom.
+c$$$Ci   ntabh:ntabh(ib)=number of pairs in iaxh preceding site ib.
+c$$$Co Outputs
+c$$$Co  ipiaxh:indices to connecting vectors within a cluster.
+c$$$Co         ipaxph(ip,kp) points to entry in iaxh table connecting
+c$$$Co         ip to kp. ipaxph(ip,kp)=0 => no such vector in iaxh exists.
+c$$$Cr Remarks
+c$$$Cr   pair3c generates in ipiaxh the information needed to connect
+c$$$Cr   three centers in a crystal.  For each pair of connecting vectors
+c$$$Cr   in iaxc, a third vector is sought in iaxh that connects the two.
+c$$$Cr
+c$$$Cr   A schematic depiction of association of variables with their sites:
+c$$$Cr
+c$$$Cr            . origin
+c$$$Cr
+c$$$Cr    .  jp=field point
+c$$$Cr    \
+c$$$Cr     \ <- connecting vector ipiaxh(jp,ip) = entry in iaxh
+c$$$Cr      \
+c$$$Cr       \.  ip, source point
+c$$$Cr
+c$$$Cr   For efficient implementation, this routine relies on sorting
+c$$$Cr   information in both iaxc and iaxh.  iaxc(7,*) and iaxh(7,*) must
+c$$$Cr   hold a list of permutations that sorts each cluster in a unique
+c$$$Cr   manner, so that connecting vectors common to different clusters are
+c$$$Cr   ordered in the same way in those two clusters; this is done in
+c$$$Cr   in ppair4, called with tol<0.
+c$$$C ----------------------------------------------------------------------
+c$$$      implicit none
+c$$$      integer offi,nvec,niax,ntabh(8),ipiaxh(nvec,nvec)
+c$$$      parameter (niax=10)
+c$$$      integer iaxc(niax,1),iaxh(niax,9)
+c$$$      integer ii,iii,jj,jjj,ip,jp,ib,nc,ich,icp,ic0
+c$$$      integer iiax(5)
+c$$$      call iinit(ipiaxh,nvec*nvec)
+c$$$C --- Loop over 3C pairs i,j in permuted order ---
+c$$$      ii = 0
+c$$$      do  30  iii = 1, nvec
+c$$$   31   ii = ii+1
+c$$$        ip = iaxc(7,ii+offi)
+c$$$        if (ip .gt. nvec) goto 31
+c$$$        ib = iaxc(2,ip+offi)
+c$$$C   ... ic0 = offset corresponding to iaxh(ic) = 1st pair for ib
+c$$$        ic0 = ntabh(ib)
+c$$$C   ... ich = current offset corresponding to iaxh.  Because we loop
+c$$$C       in sorted order, we need not reset ich for each new pair below.
+c$$$        ich = ic0+1
+c$$$        nc  = ntabh(ib+1)
+c$$$        jj = 0
+c$$$        do  40  jjj = 1, nvec
+c$$$   41     jj = jj+1
+c$$$          jp = iaxc(7,jj+offi)
+c$$$          if (jp .gt. nvec) goto 41
+c$$$C         Do upper triangle only
+c$$$C         if (lx6 .and. jp .lt. ip) goto 40
+c$$$          iiax(3) = iaxc(3,jp+offi) - iaxc(3,ip+offi)
+c$$$          iiax(4) = iaxc(4,jp+offi) - iaxc(4,ip+offi)
+c$$$          iiax(5) = iaxc(5,jp+offi) - iaxc(5,ip+offi)
+c$$$
+c$$$C     ... Increment ich until no exhaust all pairs in iaxh for ib
+c$$$C          if (jp .eq. 74 .and. ip .eq. 7) then
+c$$$C            print *, 'test'
+c$$$C          endif
+c$$$          ich = ich-1
+c$$$   42     ich = ich+1
+c$$$C     ... Skip if no more vectors connecting this (ib,jb)
+c$$$          if (ich .gt. nc) goto 40
+c$$$          icp = ic0+iaxh(7,ich)
+c$$$
+c$$$C     ... Increment jp until iaxh is at least as large as iaxc
+c$$$C         and ich  until iaxc is at least as large as iaxh
+c$$$          if (iaxc(2,offi+jp) .gt. iaxh(2,icp)) goto 42
+c$$$          if (iaxc(2,offi+jp) .lt. iaxh(2,icp)) goto 40
+c$$$          if (iiax(3) .gt. iaxh(3,icp)) goto 42
+c$$$          if (iiax(3) .lt. iaxh(3,icp)) goto 40
+c$$$          if (iiax(4) .gt. iaxh(4,icp)) goto 42
+c$$$          if (iiax(4) .lt. iaxh(4,icp)) goto 40
+c$$$          if (iiax(5) .gt. iaxh(5,icp)) goto 42
+c$$$          if (iiax(5) .lt. iaxh(5,icp)) goto 40
+c$$$
+c$$$C     ... A match was found
+c$$$          ipiaxh(jp,ip) = icp
+c$$$   40   continue
+c$$$   30 continue
+c$$$
+c$$$C --- Construct lower triangle of table ---
+c$$$C      if (lx6) then
+c$$$C        do  50  i = 1, nvec
+c$$$C        do  50  j = i+1, nvec
+c$$$C          is = ipiaxh(i,j)
+c$$$C          if (is .gt. 0) ipiaxh(j,i) = iaxh(6,is)
+c$$$C   50   continue
+c$$$C      endif
+c$$$
+c$$$      end
 
-C     ... Increment ich until no exhaust all pairs in iaxh for ib
-C          if (jp .eq. 74 .and. ip .eq. 7) then
-C            print *, 'test'
-C          endif
-          ich = ich-1
-   42     ich = ich+1
-C     ... Skip if no more vectors connecting this (ib,jb)
-          if (ich .gt. nc) goto 40
-          icp = ic0+iaxh(7,ich)
-
-C     ... Increment jp until iaxh is at least as large as iaxc
-C         and ich  until iaxc is at least as large as iaxh
-          if (iaxc(2,offi+jp) .gt. iaxh(2,icp)) goto 42
-          if (iaxc(2,offi+jp) .lt. iaxh(2,icp)) goto 40
-          if (iiax(3) .gt. iaxh(3,icp)) goto 42
-          if (iiax(3) .lt. iaxh(3,icp)) goto 40
-          if (iiax(4) .gt. iaxh(4,icp)) goto 42
-          if (iiax(4) .lt. iaxh(4,icp)) goto 40
-          if (iiax(5) .gt. iaxh(5,icp)) goto 42
-          if (iiax(5) .lt. iaxh(5,icp)) goto 40
-
-C     ... A match was found
-          ipiaxh(jp,ip) = icp
-   40   continue
-   30 continue
-
-C --- Construct lower triangle of table ---
-C      if (lx6) then
-C        do  50  i = 1, nvec
-C        do  50  j = i+1, nvec
-C          is = ipiaxh(i,j)
-C          if (is .gt. 0) ipiaxh(j,i) = iaxh(6,is)
-C   50   continue
-C      endif
-
-      end
-
+      end module m_pairs

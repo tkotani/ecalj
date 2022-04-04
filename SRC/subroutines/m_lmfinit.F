@@ -584,9 +584,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccc
 !  In general cases (except 001), we nees spin-symmetirc radial functions because we
 !  use  <up|Lz|up> for the place of <up|Lz|dn>, for example.
 !  If we like to take into account spin-dependent radial functions,
-!  We need to calculate ohsozz%soffd, ohsopm%sdiag. See 'call gaugm' at the end of augmat.
+!     We need to calculate ohsozz%soffd, ohsopm%sdiag. See 'call gaugm' at the end of augmat.
+      if(io_help==0) then
          if( sum(abs(socaxis-[0d0,0d0,1d0])) >1d-6 .and. (.not.cmdopt0('--phispinsym')))
      &     call rx('We need --phispinsym for SO=1 and HAM_SOCAXIS/=001')
+      endif   
 cccccccccccccccccccccccccccccccccccccccccccccccccccc      
 !      
       sw = tksw(prgnam,'HAM_GMAX')

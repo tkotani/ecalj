@@ -6,10 +6,10 @@
 !     Set nk1=10 nk2=10 nk3=10 or someghing in ctrl.cubic
 !     Anything fine, because we just like to generate tetraf.dat qlistf.dat. Eg. ctrl.cubic I have.
 ! step 1.
-!    > job_pdos  cubic -np 4 --tetraf 
-!    gives tetraf.dat and qlistf.dat (-np 1 is fine)
+!    > job_pdos  cubic -np 4 --tetraw 
+!    gives tetradata.dat and qlistf.dat (-np 1 is fine)
 ! step 2.
-!     Caluluate eigenvalues for given qlisf.dat
+!     Caluluate eigenvalues for given qlistf.dat
 !       Write eigenf.dat. One line for eigenvalues for q in qplistf.dat
 !       First line is for 'dimension, minimum energy, maximum energy, division'
 !     See how to read eigenf.dat below.

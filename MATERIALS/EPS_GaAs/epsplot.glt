@@ -1,3 +1,7 @@
 set datafile fortran
-set xrange [0:20]
-plot "EPS0001.nlfc.dat" u ($4*13.605):($6) lt 1 pt 1 w lp,
+set xrange [0:120]
+set yran[0:1]
+plot "EPS0001.nlfc.dat.interbandonly" u ($4*13.605):($6) lt 1 pt 1 w lp,\
+ "EPS0002.nlfc.dat.interbandonly" u ($4*13.605):($6) lt 2 w l,\
+ "EPS0003.nlfc.dat.interbandonly" u ($4*13.605):($6) lt 3 w l,\
+ "EPS0004.nlfc.dat.interbandonly" u ($4*13.605):($6) lt 4 w l

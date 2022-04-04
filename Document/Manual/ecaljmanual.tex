@@ -274,39 +274,38 @@
 \abstract{
 \noindent \ecalj is an all-electron full-potential electronic-structure 
 calculation package, especially for GW/QSGW calculations, in addition to
-its unique one-body problem solver which uses both augmented plane wave (APW)
-and the Muffin-tin oribital (MTO) simultaneously.
-Available freely from github.
-
-This is based on the formulation in Refs.
+its unique one-body problem solver which uses both augmented plane waves (APWs)
+and the Muffin-tin oribitals (MTOs) simultaneously 
+(the PMT method =LA\underline{P}W+L\underline{MT}O).
+We try to make usage easier. In principle, we can perform calculations for given
+crystal structures without bothered with computational settings.
+For example, symmetry line for band plot is automatic.
+ecalj is based on the formulation in Refs.
 \cite{kotani2015pmt} and \cite{kotani_quasiparticle_2014}
 (See Kotani2114QSGWinPMT.pdf and KotaniKinoAkai2015FormulationPMT.pdf at
 ecalj/Document/Manual/) on top of developments \cite{kotani07a}.
-In \ecalj, we can do QSGW and related calculations
-based on the PMT=LA\underline{P}W+L\underline{MT}O
-method.
+%In \ecalj, we can do QSGW and related calculations 
+%based on the PMT=LA\underline{P}W+L\underline{MT}O
+%method.
 
-To get minimum usage for ecalj, read up to the Section.5
-or Sec.\ref{cautionusage}. 
+To get minimum usage for ecalj, read up to the Section.5 or Sec.\ref{cautionusage}. 
 (We can generate model Hamiltonian through
 Wannier functions(ecalj/MATERIALS/CuMLWF, and so on, 
 but not documented well yet...) 
 
-Be careful. 
-This document still contain many bugs...
+Be careful. This document still contain many bugs...
 Let me know bugs in this manual (try to fix things step by step).
 We need your help on this manual.\\
 
-\noindent ------------------------\\
 \noindent {\bf Requirement}\\
-\noindent To support of our ecalj activity, we need your acknowledgment to \ecalj 
-in your publications See ecalj/README.org at
+\noindent To support our ecalj activity, we need your acknowledgment to \ecalj 
+in your publications. See ecalj/README.org at
 \url{https://github.com/tkotani/ecalj/}.\\
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \noindent {\bf Contributions}\\
-There are many contributors to this package. T.Kotani currently maintain
-the ecalj package as a results of them.\\
+There are many contributors to this package during the collaboration with T.Kotani.
+T.Kotani currently maintain the ecalj package as a results of them.\\
 %\noindent Main contributors to the ecalj package are
 %(only a list of people who directly related to the code developments): \\
 %T.Kotani, Haruki Okumura, Hirofumi Sakakibara, Hiori Kino, Mark van Schilfgaarde,
@@ -333,20 +332,19 @@ mainly by van Schilfgaarde under O. Jepsen and O. K. Andersen\\
 \url{http://www2.fkf.mpg.de/andersen/LMTODOC/LMTODOC.html}.
 A FP-LMTO package is originally given by
 M.Methfessel, Mark van Schilfgaarde and their collaborators.
-T.Kotani developed an all-electron full-potential GW method on top of the FP-LMTO during his subbatical at 1999-2000 at the lab of M.Schilfgaarde. 
-Then the QSGW method has developed 
+T.Kotani developed an all-electron full-potential GW method on top of the FP-LMTO during his subbatical at 1999-2000 at the lab of M.Schilfgaarde. Then the QSGW method has developed 
 with the help of S.Faleev and M.Schilfgaarde, first published in 2004.
-Then T.Kotani was adding new functionality such as spin fluctuation,
-impact ionization.
-In year 2008, T.Kotani started the PMT=LMTO+LAPW method to remove
-problem of the FP-LMTO. 
+Then T.Kotani was adding new functionality such as spin fluctuation, impact ionization.
+In year 2008, T.Kotani started the PMT=LMTO+LAPW method to remove problem of the FP-LMTO. 
 After T.Kotani moved to Tottori-u at 2009, he spends time
 for the improvement of PMT method. 
-T.Kotani and H.Kino showed that the PMT method can describe even the
-diatomic molecules efficiently and accurately.It turns out very limited
-number of APWs can remove such problems.
+T.Kotani and H.Kino showed that PMT can describe even the
+diatomic molecules efficiently and accurately. 
+It turns out very limited number of APWs can remove such problems.
 Then T.Kotani have developed PMT-QSGW method. It is now stable, easy, 
-and reliable rather than the previous version of QSGW on top of FP-LMTO.}
+and reliable rather than the previous version of QSGW on top of FP-LMTO.
+We can perform calculations just from given crystal structures usually, but
+still some problem in cases with complicated electronic structures.}
 
 \tableofcontents
 \vspace{5mm}
@@ -368,23 +366,17 @@ and reliable rather than the previous version of QSGW on top of FP-LMTO.}
 
 %\input{ecaljmanual_part1.tex}
 
-\newpage
-\noindent {\Large Change LOG:}\\
-
-$\bullet$ Jan2017 Add minimum description for syml generator at Sec.\ref{sec:getsyml} \\
-$\bullet$ Aug2019 slight modification for CMD35
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\bibliographystyle{apsrev4-1}
 \newpage
 \section{Introduction}
-The \ecalj\ is an first-principles electronic-structure 
-calculations package with some unique features.
+%The \ecalj\ is an first-principles electronic-structure 
+%calculations package with some unique features.
 With \ecalj, we can do not only standard calculations
 (LDA/GGA/LDA+U, relaxation of atomic positions), but also 
 the quasiparticle self-consistent GW calculations(QSGW),
-linear responses (charge and spin), Wannier functions (and U of them).
+linear responses (charge and spin), Wannier functions (and effective interaction for them).
 
 This is base on an unique one-body problem solver, the PMT method 
 (=the Linearized APW+MTO method) \cite{kotani2015pmt}.
@@ -415,13 +407,13 @@ The QSGW code is version controlled by git.
 %Thus people can
 %easily reproduce obtained results 
 %(just need to specify version number and input files).
-
+%
 %simultaneously now. 
 %We also have a web site at \url{http://pmt.sakura.ne.jp/wiki/}, 
 %(most of all are in Japanese and not organized well).
-
-The \ecalj\ is related to a FP-LMTO package lmv7 seen at
-ecalj/Document/Manual/CategoryAndToken.org (or html).\\
+%
+\ecalj\ is related to a FP-LMTO package lmv7 seen at\\
+(ecalj/Document/Manual/CategoryAndToken.org (or html)).\\
 The lmv7 and ecalj are branched at year 2009.
 %main contributions are 
 %due to T.Kotani and Hiori Kino (NIMS) until now. 
@@ -429,10 +421,9 @@ After branched, we added new features: simple install and test;
 all codes are in f90 (no C compiler);
 new methods, especially PMT-QSGW; MPI parallelization for QSGW;
 simple usage with automatic setting of default files by python 3;
-a small tool to convert VASP POSCASR to ecalj, and so on.
+tools to convert cif, VASP-POSCASR to ecalj, symmetry-line generator, and so on.
 PMT-QSGW shows more stable convergence than the previous version, FP-LMTO-GW
-\footnote{In cases to treat magnetic
-systems which have intrinsic magnetic fluctuations, 
+\footnote{In cases to treat magnetic systems which have intrinsic magnetic fluctuations, 
 we may need to be careful about initial condition or mixing procedure
 to get convergence. In cases, we need to start from LDA+U results as initial
 condition from which we start QSGW. Let me know about such trouble.}.
@@ -441,12 +432,10 @@ condition from which we start QSGW. Let me know about such trouble.}.
 %With your ideas, we like to have collaborations and add newer
 %development on it. I may say \texttt{ecalj} itself is still in a research stage
 %(writing papers by applying to materials, and compare with experiments). 
-\ \\
-
 \ -------------------- \\
 \noindent \ecalj\ package mainly consists of two parts.
-One is \underline{one-body part(PMT part)} (in \io{ecalj/lm7K/}), 
-the other is \underline{many-body part(GW part)} (in \io{ecalj/fpgw/}).\\
+One is \underline{one-body part(PMT part)}, 
+the other is \underline{many-body part(GW part)}.\\
 
 
 \noindent{\bf One-body part (PMT part)}, based on \cite{kotani2015pmt}\\
@@ -459,7 +448,7 @@ exchange-correlation potential stored in a file \io{sigm.*}.
 total energy shown in the console output 
 (also in \io{save.*}) are just the indicator, not the meaningful total energy}.
 The QSGW calculation is performed by a script \exe{gwsc}, which
-has an iteration loop calling the one-body program (\exe{lmf}) and
+has an iteration loop calling the one-body program (\exe{lmf-MPIK}) and
 many-body part (GW part) alternatively. The many-body part generate
 the file \io{sigm.*}. See Fig.\ref{gwscpicture} and around.\\
 %The FPGW code itself is independent from how you prepare 
@@ -896,24 +885,24 @@ gas:epsPP_lmfh/                 : EPS*
 %\begin{mspace0}
 {\baselineskip=1mm
 \begin{verbatim}
-ecalj
-├── InstallAll.ifort, Install.gfortran ! install and test
-├── Document/
-├── fpgw/       ! full potential GW code
-├── fpgw/Wannier  ! MaxLoc Wannier and cRPA code.
-├── lm7K/       ! PMT method 
-├── MATERIALS/  !job_materials.py contains examples. 
-├── StructureTool/ ! POSCAR converter, and structure tool
-├── GetSyml/ ! Brillouin zone and symmetry lines generator and visualizer.
-├── TestInstall/   ! Install test; this is invoked from Install.*
-└── TOOLS/      !Tools for developers
+ecalj/
+ /InstallAll.ifort, Install.gfortran ! install and test
+ /CMDsample !CMD tutorial samples
+ /Document !
+ /GetSyml  ! Brillouin zone and symmetry lines generator and visualizer.
+ /MATERIALS !job_materials.py and examples.
+ /SRC  !source file, test, binaries.
+ /SRC/exec  !Makefile and scripts.
+ /SRC/TestInstall/   ! Install test; this is invoked from Install.*
+ /StructureTool ! POSCAR converter, and structure tool
+ /TOOLS !Tools for developers
 \end{verbatim}
 }
 %\end{mspace0}
 
 
 \newpage
-\section{Theory (note)}aaa
+\section{Theory (note)}
 Except the technical details, we need to know minimum for these theories.
 \begin{itemize}
 \item DFT in LDA/GGA.
@@ -2107,7 +2096,7 @@ An example setting for Nd case is
 \begin{verbatim}
 --------------------------
       ATOM=Nd Z=60 R=3.00
-      C-HOLE=4f C-HQ=-11 P=6.5,6.5,5.5,5.2　　<-- this line is added
+      C-HOLE=4f C-HQ=-11 P=6.5,6.5,5.5,5.2 <-- NOTE: this line is added
 --------------------------
 \end{verbatim}
 \begin{enumerate}
@@ -2116,15 +2105,14 @@ C-HOLE=4f means that 4f core is to set ``core hole''.
 \item 
   P=6.5,6.5,5.5,5.2 is to set principle (fractinal) quantum number
   explicitly for valence electrons.
-　To set this, try {\tt lmfa nd|grep conf} first. The you can see the
+  To set this, try {\tt lmfa nd|grep conf} first. The you can see the
   electronic configulation of an atom. Key point here is to set ``5.2''
       for f channel. Thus 4f is treated as core and 5f as valence.
       Fractional parts (0.2 of 5.2) means the radial funciton contains
       nodes as 5f and closer to the energy right on the change of 4f to 5f. 
       If 5.9, it is closer to the enrgy almost have noded of 6f.
 \item
-      C-HQ means that corehole is −１１. Thus we have only 14-11=3
-      electrons for 4f (spherically occupied). 
+C-HQ means that corehole is -11. Thus we have only 14-11=3 electrons for 4f (spherically occupied).
 \item
      Run lmfa. If it does not show that
      \verb#freeat (warning) atom not neutral#, it is the neutral atom.

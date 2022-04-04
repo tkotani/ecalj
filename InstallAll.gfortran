@@ -8,7 +8,12 @@ CORES=`nproc`
 echo $CORES
 
 # for ubuntu
+# sudo apt update
+# sudo apt install gfortran
+# sudo apt install intel-mkl
 MATH=-lmkl_rt
+
+#old procedures
 #'-lblas -llapack /usr/lib/x86_64-linux-gnu/libfftw3.so.3'
 #MATH='/usr/lib/x86_64-linux-gnu/libblas.so.3 /usr/lib/x86_64-linux-gnu/liblapack.so.3 /usr/lib/x86_64-linux-gnu/libfftw3.so.3'
 #MATH='/usr/local/lib/libblas.a /usr/local/lib/liblapack.a /usr/local/lib/libfftw3.a'

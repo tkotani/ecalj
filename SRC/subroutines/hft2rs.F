@@ -1,10 +1,87 @@
       module m_hft2rs
-      public:: hft2rs
+      public:: hft2rs,hft2rsinit
       private
       contains
+      subroutine hft2rsinit(n1,n2,n3,k1,k2,k3,qoff,isp,nsp,nbas,g,ag,
+     .     nsgrp,range,offH,plat,pos,iv_a_ontab,iv_a_oiax,ndimh) !,ndhrs, hrs)
+      use m_lmfinit,only: stdo
+      use m_pairs,only: pairs,ppair1
+      implicit none
+      integer mode,idim,jdim,nbas,n1,n2,n3,k1,k2,k3,isp,nsp,nsgrp,i_data_size
+      integer ia1,ia2,ndimh
+      integer nkap0,n0H,niax
+      parameter (nkap0=3,n0H=5,niax=10)
+      integer offH(nbas+1)
+      integer,allocatable :: iv_a_oiax(:)
+      integer,allocatable :: iv_a_ontab(:)
+      double precision plat(3,3),pos(3,*),range,g(9,*),ag(3,*),qoff(3)
+      double complex hq(1)
+      real(8):: hrs(1,1,1,1)    !ndhrs,ndhrs,nsp,1)
+      integer:: ndhrs=1
+C ... Local parameters
+      integer i,ipr,iset,mode0,mode1,mode2,mode3,mxcsiz,nttab,nviax,nvtot
+      integer ,allocatable :: iwk_iv(:),iv_a_tmp(:)
+      double precision dmx(2)
+      logical:: isanrg, l_dummy_isanrg
+      integer ::iwdummy
+      call tcn('hft2rsinit')
+      call getpr(ipr)
+C --- Mode 0 (setup) make and reduce iax table ---c     if (mode0 .eq. 0) then
+      write(6,*) ' hft2rs: make neighbor table for r.s. hamiltonian using range = alat*',range
+!  ... pair table for rs hamiltonian
+      call pshpr(min(ipr-10,30))
+      mxcsiz = 0
+      call pairs ( nbas , nbas , 1d0 , plat , ( / range / 2 / ) , pos
+     .     , ( / - 1 / ) , 3 , - 1 , (/iwdummy/) , nttab , iv_a_ontab , iv_a_oiax 
+     .     , mxcsiz )
+      call poppr
+C     ... Standard Bloch transform doesn't require mapping to mesh
+C     ... Mark all members in iax table with vector in sfz (for FFT)
+      nviax = 0
+      nvtot = 0
+      mode = 10000+1000
+      call hft2r1 ( mode , n1 , n2 , n3 , k1 , k2 , k3 , isp , nsp 
+     .     , 1 , nbas , 1 , nbas , offh , ndimh , ndimh , hq , plat , pos
+     .     , iv_a_ontab , iv_a_oiax , qoff , ndhrs , hrs , nviax , nvtot  , dmx )
+      write(stdo,"(' hft2rs: found ',i8,' connecting vectors out of ',i8,' possible for FFT')")nviax,nvtot
+!  ... Reduce iax table to elements on mesh in common with pairc
+      call hft2r3 ( nbas  , iv_a_ontab , iv_a_oiax , nttab , mxcsiz )
+!   ... Add pairs so that any ri-rj has corresponding rj-ri
+      i = 110
+      nttab = nttab*3
+      i_data_size=size(iv_a_oiax)
+      allocate(iv_a_tmp(i_data_size))
+      iv_a_tmp=iv_a_oiax
+      deallocate(iv_a_oiax)
+      i_data_size=min(i_data_size,niax*nttab)
+      allocate(iv_a_oiax(niax*nttab))
+      iv_a_oiax(:i_data_size)=iv_a_tmp(:i_data_size)
+      deallocate(iv_a_tmp)
+      call pshpr(ipr)
+      call symiax ( i , plat , nbas , pos , g , ag , nsgrp , iv_a_ontab, iv_a_oiax , nttab , mxcsiz )
+      call poppr
+C     ... Fill out iax(6,7,10)
+      call pshpr(0)
+      call ppair1 ( 0 , 1 , nbas , nbas , [- 1] , 1d0 , plat , pos ,
+     .     [range / 2] , nttab , iv_a_ontab , iv_a_oiax , mxcsiz )
+      call poppr
+C     ... iax is now complete ... reallocate array
+      i_data_size=size(iv_a_oiax); allocate(iv_a_tmp(i_data_size))
+      iv_a_tmp=iv_a_oiax; deallocate(iv_a_oiax)
+      i_data_size=min(i_data_size,niax*nttab); allocate(iv_a_oiax(niax*nttab))
+      iv_a_oiax(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
+c$$$  if (ipr .gt. 40) then
+c$$$  call pshpr(ipr-10)
+c$$$  call ppair1 ( 20 , 1 , nbas , nbas , [- 1] , 1d0 , plat , pos ,
+c$$$  .      [range / 2] , nttab , iv_a_ontab , iv_a_oiax , mxcsiz )
+c$$$  call poppr
+c$$$  endif
+      call tcx('hft2rsinit')
+      end subroutine hft2rsinit
+      
       subroutine hft2rs(mode,n1,n2,n3,k1,k2,k3,qoff,isp,nsp,nbas,g,ag,
      .nsgrp,range,offH,ia1,ia2,idim,jdim,hq,plat,pos,iv_a_ontab,iv_a_oiax,ndhrs, hrs)
-      use m_pairs,only: pairs
+c      use m_pairs,only: pairs,ppair1
 C- Fourier transform of a matrix to real-space representation
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -159,123 +236,22 @@ C ----------------------------------------------------------------------
       double precision plat(3,3),pos(3,*),range,g(9,*),ag(3,*),qoff(3)
       double complex hq(k1,k2,k3,idim,jdim,nsp)
       real(8):: hrs(ndhrs,ndhrs,nsp,1)
-C ... Local parameters
       integer i,ipr,iset,mode0,mode1,mode2,mode3,mxcsiz,nttab,nviax,nvtot
       integer ,allocatable :: iwk_iv(:),iv_a_tmp(:)
       double precision dmx(2)
       logical:: isanrg, l_dummy_isanrg
-c#if DEBUG
-c      integer iaxi(5)
-c      double precision tau(3)
-c#endif
       integer ::iwdummy
       call tcn('hft2rs')
       call getpr(ipr)
-      mode0 = mod(mode,10)
-      mode1 = mod(mode/10,10)
-      mode2 = mod(mode/100,10)
-      mode3 = mod(mode/1000,10)
-      print *,'hft2rs: mode 0,1,2,3=',mode,mode0,mode1,mode2,mode3
-      l_dummy_isanrg=isanrg(mode1,0,1,'hft2rs:a','10s digit mode',.true.)
-      l_dummy_isanrg=isanrg(mode2,0,1,'hft2rs:b','100s digit mode',.true.)
-C --- Mode 0 (setup) make and reduce iax table ---
-      if (mode0 .eq. 0) then
-        call info(30,0,0,' hft2rs: make neighbor table for '//
-     .  'r.s. hamiltonian using range = %;4d * alat',range,0)
-C   ... pair table for rs hamiltonian
-        call pshpr(min(ipr-10,30))
-        mxcsiz = 0
-        call pairs ( nbas , nbas , 1d0 , plat , ( / range / 2 / ) , pos
-     .   , ( / - 1 / ) , 3 , - 1 , (/iwdummy/) , nttab , iv_a_ontab , iv_a_oiax 
-     .   , mxcsiz )
-        call poppr
-C   ... Standard Bloch transform doesn't require mapping to mesh
-        if (mode2 .eq. 0) then
-           print *,' mode mode2=',mode,mode2
-C     ... Mark all members in iax table with vector in sfz (for FFT)
-          nviax = 0
-          nvtot = 0
-          call hft2r1 ( mode , n1 , n2 , n3 , k1 , k2 , k3 , isp , nsp 
-     .      , ia1 , ia2 , 1 , nbas , offh , idim , jdim , hq , plat , pos
-     .      , iv_a_ontab , iv_a_oiax , qoff , ndhrs , hrs , nviax , nvtot  , dmx )
-          call info(30,0,0,' hft2rs: found %i connecting vectors out'//
-     .    ' of %i possible for FFT',nviax,nvtot)
-C     ... Reduce iax table to elements on mesh in common with pairc
-          allocate(iwk_iv((niax+1)*mxcsiz))
-          call hft2r3 ( 1 , nbas , iwk_iv , iv_a_ontab , iv_a_oiax , nttab , mxcsiz )
-          if (allocated(iwk_iv)) deallocate(iwk_iv)
-        endif
-C   ... Add pairs so that any ri-rj has corresponding rj-ri
-        if (mode3 .ne. 0) then
-          i = 110
-          if (mode3 .eq. 2) i = 111
-C         nttabs = nttab
-          nttab = nttab*3
-          i_data_size=size(iv_a_oiax); allocate(iv_a_tmp(i_data_size))
-          iv_a_tmp=iv_a_oiax; deallocate(iv_a_oiax)
-          i_data_size=min(i_data_size,niax*nttab); allocate(iv_a_oiax(niax*nttab))
-          iv_a_oiax(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
-          call pshpr(ipr)
-          call symiax ( i , plat , nbas , pos , g , ag , nsgrp , iv_a_ontab
-     .      , iv_a_oiax , nttab , mxcsiz )
-          call poppr
-C     ... Fill out iax(6,7,10)
-          call pshpr(0)
-          call ppair1 ( 0 , 1 , nbas , nbas , - 1 , 1d0 , plat , pos ,
-     .      range / 2 , nttab , iv_a_ontab , iv_a_oiax , mxcsiz )
-          call poppr
-        endif
-C   ... iax is now complete ... reallocate array
-        i_data_size=size(iv_a_oiax); allocate(iv_a_tmp(i_data_size))
-        iv_a_tmp=iv_a_oiax; deallocate(iv_a_oiax)
-        i_data_size=min(i_data_size,niax*nttab); allocate(iv_a_oiax(niax*nttab))
-        iv_a_oiax(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
-        if (ipr .gt. 40) then
-          call pshpr(ipr-10)
-          call ppair1 ( 20 , 1 , nbas , nbas , - 1 , 1d0 , plat , pos ,
-     .      range / 2 , nttab , iv_a_ontab , iv_a_oiax , mxcsiz )
-          call poppr
-        endif
-        goto 999
-      endif
-C ... hq to real-space representation by FFT; copy hq to hrs
-      if (mode0 .eq. 1 .and. mode2 .eq. 0) then
-        iset = 0
-        call fftz3(hq,n1,n2,n3,k1,k2,k3,idim*jdim,iset,-1)
-        call hft2r1 ( mode , n1 , n2 , n3 , k1 , k2 , k3 , isp , nsp 
+      iset = 0
+      call fftz3(hq,n1,n2,n3,k1,k2,k3,idim*jdim,iset,-1)
+      call hft2r1 ( mode , n1 , n2 , n3 , k1 , k2 , k3 , isp , nsp 
      .    , ia1 , ia2 , 1 , nbas , offh , idim , jdim , hq , plat , pos
      .    , iv_a_ontab , iv_a_oiax , qoff , ndhrs , hrs , nviax , nvtot 
      .    , dmx )
-        call info5(30,0,0,' hft2rs created hrs:  ndhrs=%i  '//
+      call info5(30,0,0,' hft2rs created hrs:  ndhrs=%i  '//
      .  'max Re(hrs) = %;3g  max Im(hrs) = %;3g',ndhrs,dmx,dmx(2),0,0)
-      elseif (mode0 .eq. 1 .and. mode2 .eq. 1) then
-        call rxi('hft2rs: not implemented',mode)
-      else
-        call rxi('hft2rs: bad mode',mode)
-      endif
-  999 continue
       call tcx('hft2rs')
-C$$$#if DEBUG
-C$$$      if (mode0 .eq. 0) return
-C$$$  998 print *, 'is?'
-C$$$      read(*,*) iset
-C$$$      if (iset .eq. 0) return
-C$$$      call icopy(5,w(oiax-niax+niax*iset),1,iaxi,1)
-C$$$      do  i = 1, 3
-C$$$        tau(i) = pos(i,iaxi(2)) - pos(i,iaxi(1)) +
-C$$$     .    plat(i,1)*iaxi(3) + plat(i,2)*iaxi(4) + plat(i,3)*iaxi(5)
-C$$$      enddo
-C$$$      call info2(0,0,0,' iax(1:5,iset)=%5:2i %3:1,6;12D',iaxi,tau)
-C$$$      do  i = 1, min(ndhrs,9)
-C$$$        print 393, (dble(hrs(i,ipr,1,iset)), ipr=1,min(ndhrs,9))
-C$$$      enddo
-C$$$      print 393
-C$$$      do  i = 1, min(ndhrs,9)
-C$$$        print 393, (dimag(hrs(i,ipr,1,iset)), ipr=1,min(ndhrs,9))
-C$$$      enddo
-C$$$  393 format(9f12.6)
-C$$$      goto 998
-C$$$#endif
       end subroutine hft2rs
       
 !ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
@@ -939,14 +915,12 @@ C   ... If a match in the iax table is found, copy hij there
       end
 
 !sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-      subroutine hft2r3(ib1,ib2,iwk,ntab,iax,nttab,mxcsiz)
+      subroutine hft2r3(ib2,ntab,iax,nttab,mxcsiz)
 C- Reduce iax table to those marked
 C ----------------------------------------------------------------------
 Ci Inputs
-Ci   ib1   :compact iax starting at site ib1
+Cixx   ib1   :compact iax starting at site ib1
 Ci   ib2   :compact iax ending at site ib2
-Ci   iwk   :integer work array of dimension max cluster size for
-Ci         :any site.
 Cio Inputs/Outputs
 Cio  ntab  :ntab(ib)=offset to neighbor table for cluster ib (pairc.f)
 Cio  iax   :neighbor table containing pair information (pairc.f)
@@ -964,8 +938,8 @@ Cu   23 Jun 02  First created
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer niax,ib1,ib2,ntab(*),iwk(*),nttab,mxcsiz
-      parameter (niax=10)
+      integer,parameter:: niax=10
+      integer::ib1=1,ib2,ntab(*),iwk((niax+1)*mxcsiz),nttab,mxcsiz
       integer iax(niax,1)
       integer is1,is2,ib,nstart,i,nib
 C --- Reorder iax table site-by-site ---
@@ -974,7 +948,8 @@ C --- Reorder iax table site-by-site ---
         is2 = ntab(ib+1)
         nstart = is2-is1+1
 C       Copy iax(8) to iwk(1+nstart)
-        call icopy(nstart,iax(8,is1),niax,iwk(1+nstart),1)
+c        call icopy(nstart,iax(8,is1),niax,iwk(1+nstart),1)
+        iwk(1+nstart:2*nstart)=iax(8,is1:is1+nstart-1)
 C       Sort, using iwk(1) as permutation array
         call ivheap(1,nstart,iwk(1+nstart),iwk,101)
 C       Rearrange iax, putting marked ones at top
@@ -997,13 +972,10 @@ C       Count nib = number of marked pairs for this site
         mxcsiz = max(mxcsiz,nib)
 C       Append iax for this ib to the end of now shortened table
         if (is1 .ne. nttab+1) then
-C         print *, 'copy iax for site',ib
           call icopy(niax*nib,iax(1,is1),1,iax(1,nttab+1),1)
         endif
         ntab(ib) = nttab
         nttab = nttab+nib
-C       print 369, ib, nib, ntab(ib)
-C 369   format(3i5)
       enddo
       ntab(ib2+1) = nttab
 C --- Zero out iax(6..10) ---
@@ -1015,7 +987,7 @@ C --- Zero out iax(6..10) ---
         iax(10,i) = 0
       enddo
       end subroutine hft2r3
-
+cccccccccccccccccccccccccccccccccccccc
       subroutine rotpnt(p,q,g)
 C     implicit none
       double precision p(3),q(3),g(3,3),h(3)

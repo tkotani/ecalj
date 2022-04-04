@@ -113,7 +113,7 @@
       call m_supot_init() ! get G vectors for charge
       call sugcut(1) 
       call m_suham_init() ! Get estimated dimension of Hamiltonian (probably simplified in future).
-      call m_hamindex_init(jobgw) 
+c      call m_hamindex_init(jobgw) 
       writeham= cmdopt0('--writeham')
       if(writeham.and.master_mpi) call m_writeham_init()
       if(writeham.and.master_mpi) call m_writeham_write()
@@ -164,6 +164,8 @@ c
             call smshft(1)
          endif
       endif
+      call m_hamindex_init(jobgw) !bugfix. moved here 2022apr04
+      
       write(stdo,*) 'end of reading rst or atm'
 !! (we need check. a simple approximaiton to determine VBM and CBM. Need fixing if necessary).
       if(cmdopt0('--vbmonly')) then !Get VBM and CBM relative to vaccum

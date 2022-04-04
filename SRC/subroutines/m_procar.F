@@ -24,9 +24,9 @@
       if(nexist) close(iprocar2)
       end
       
-      subroutine m_procar_init(iq,isp,ef0,evl,ndimh,jsp,qp,nev,t_zv,ndimhx,nmx)
+      subroutine m_procar_init(iq,isp,ef0,evl,ndimh,jsp,qp,nev,evec,ndimhx,nmx)
       implicit none
-      complex(8):: t_zv(ndimhx,nmx)
+      complex(8):: evec(ndimhx,nmx)
       character*1000::ccc
       real(8):: ef0
       complex(8):: au,as,az
@@ -58,7 +58,7 @@
       
       allocate( auspp(nlmax,ndhamx,3,nsp,nbas) )
       auspp = 0d0
-      call makusq(1, nbas,0, nev,jsp,1,qp,t_zv, auspp )
+      call makusq(1, nbas,0, nev,jsp,1,qp,evec, auspp )
 c      if(nspx==1) then !spinoffdiagmode 
 c         jspini=1
 c         jspend=2
@@ -90,7 +90,7 @@ c     print *,'jspp=',jspp
                dwgt=0d0
                do  l = 0, sspec(is)%lmxa
                   do  m = -l, l
-                     ilm = ilm+1
+                     ilm = ilm+1 !ilm,ib --> evec(ix,
                      au = auspp(ilm,iband,1,jspp,ib)
                      as = auspp(ilm,iband,2,jspp,ib)
                      az = auspp(ilm,iband,3,jspp,ib)
@@ -102,7 +102,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                      pdosc: Block 
                      complex(8):: img=(0d0,1d0)
                      integer:: ilmm
-                     real(8):: dsq=1d0/2d0**0.5d0
+                     real(8),parameter:: dsq=1d0/2d0**0.5d0
                      logical:: cmdopt0
                      if(cmdopt0('--ylmc').and.m/=0) then !feb 2022
                         ilmm = ilm-2*m

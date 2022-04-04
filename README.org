@@ -10,9 +10,6 @@
 This is README.org (easy to read in org-mode in emacs) at https://github.com/tkotani/ecalj. 
 Email to takaokotani@gmail.com.
 
-At middle of aug2020, we reorganazed ecalj package. All source codes, make system and Tests are
-in ecalj/SRC/.
-------
 * What can we do in ecalj package?
 1. All electron full-potential PMT method, where the PMT method means 
    *A mixed basis method of two kinds of augmented waves, that is, LAPW+LMTO*.
@@ -26,8 +23,8 @@ in ecalj/SRC/.
    The PMT method is promising since it can connect physics and chemistry, and virtually it can
    be a very efficient method (currenty the ability is limited by the implementetion in ecalj).
 
-   In principle, it is possible to perform reasonable calculations just from atomic structures and
-   very minimum setting. (For QSGW for 4f electrons, automatically-generated ctrl file may not work).
+   In principle, it is possible to perform reasonable calculations just from crystal structures and
+   very minimum setting. (For QSGW for 4f electrons, automatically-generated ctrl file may not work. Currently, need to see our instruction).
    We have document included about how to confirm calculations to be publicaiton quality.
 
 2. The PMT-QSGW method, that is,
@@ -39,7 +36,7 @@ in ecalj/SRC/.
 
    For paralellized calculations, we currently mainly have k-paralell only. In addition, memory distribution
    is not yet so much. These may cause some problems to handle primitive cells including many atoms.
-   Roughly speaking, our current PMT-QSGW is applicable upto 16 atoms a cell (light atoms are easier to handle).
+   Roughly speaking, our current PMT-QSGW is applicable upto ~16 atoms a cell (light atoms are easier to handle).
    [[./Document/PAPERandPRESENTATION/Kotani2014QSGWinPMT.pdf]] (Formulation of PMT-QSGW method)
    [[./Document/PAPERandPRESENTATION/deguchi2016.pdf]] (PMT-QSGW applied to a variety of insulators)
 
@@ -57,19 +54,17 @@ in ecalj/SRC/.
 
 
 * Permission
-
 - For publications, make a citation cleary to this homepage such as;
 ---------------
 [1] ecalj package is availabe from https://github.com/tkotani/ecalj/. 
-Its one-body part is developed based on the LMTO part of Questaal a https://www.questaal.org/.
-Quastall took its GW part from ecalj.
+Its one-body part is developed based on the LMTO part of Questaal a https://www.questaal.org/,
+whereas Quastall takes its GW part from ecalj.
 ---------------
 in the references on the same footing of other papers. 
 
 - Except commercial uses, you can freely use and modify this package for your purpose. 
 You can re-distribute your modified package as long as you cite our ecalj package 
 and our contributions are clarified. For commercial use, ask to takaokotani.
-
 
 * Automatic installation script and test
 We have an automatic installer and test system, just by a command.
@@ -106,7 +101,7 @@ In Japanese, see http://gomisai.blog75.fc2.com/blog-entry-675.html (and others. 
 (2) conver ctrls.si to ctrl.si by ctrlgenM1.py si 
    (without argument, it gives a help). 
    Then you have default ctrl.si (rename ctrlgenM1.ctr.si to ctrl.si). 
-　　Edit number of k points, spin (nsp=0 or 1) and so on if necessary.
+   Edit number of k points, spin (nsp=0 or 1) and so on if necessary.
 
 (3) Run "lmfa si" to prepare atoms.Then run 'mpirun -np 4 lmf-MPIK si'.
     This generates rst.si, which contains self-consistent density in LDA.

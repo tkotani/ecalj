@@ -1,7 +1,7 @@
       subroutine makrm0(opt,nspec,nbas,alat,plat,pos,slabl,ips,modep,
      .lock,z,rmt)
       use m_lmfinit,only: nsp
-
+      use m_pairs,only:pairc
 
 C- Estimate muffin-tin radii overlapping atomic potentials
 C ----------------------------------------------------------------------
@@ -106,7 +106,7 @@ C     Relative positions
       character*1 sym(2)
 C ... External calls
       external dcopy,defpq,defwsr,dpcopy,dpzero,dscal,freats,getpr,
-     .iinit,info,pairc,polint,poppr,pshpr,psymq0,psymr0,rx,rxi,sumsro
+     .iinit,info,polint,poppr,pshpr,psymq0,psymr0,rx,rxi,sumsro
 C ... Heap
       data sym /' ','*'/
 
@@ -221,7 +221,7 @@ C --- For each site, find rmti = initial estimate for rmtl ---
 
 C   ... Neighbor table connecting sites to this one
         nttab = mxcsiz
-        call pairc(ib,ib,nbas,modep,20,0,alat,plat,pos,pos,range,-1,1,
+        call pairc(ib,ib,nbas,modep,20,[0],alat,plat,pos,pos,range,-1,[1],
      .  nttab,ntab,iax,rpos,k)
         if (nttab.gt.mxcsiz)
      .  call rxi('makrm0 : increase mxcsiz: need',nttab)
