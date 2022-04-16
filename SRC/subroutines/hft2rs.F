@@ -81,7 +81,6 @@ c$$$  endif
       
       subroutine hft2rs(n1,n2,n3,k1,k2,k3,qoff,isp,nsp,nbas,g,ag,
      .nsgrp,range,offH,ia1,ia2,idim,jdim,hq,plat,pos,iv_a_ontab,iv_a_oiax,ndhrs, hrs)
-c      use m_pairs,only: pairs,ppair1
 C- Fourier transform of a matrix to real-space representation
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -314,9 +313,6 @@ C ... Local parameters
       integer ldiaxb,ib,grow
       integer ,allocatable :: iaxib_iv(:)
       integer ,allocatable :: ntabb_iv(:)
-
-C ... Heap
-
 C ... Copy iax to fixed-basis format
 C     Assume no cluster in new iax table will not exceed 8x old one
       mxcsz = 0
@@ -324,40 +320,23 @@ C     Assume no cluster in new iax table will not exceed 8x old one
         mxcsz = max(mxcsz,ntab(ib+1)-ntab(ib))
       enddo
       ldiaxb = 8*mxcsz
-      allocate(iaxib_iv(abs(-ldiaxb*nbas*niax)))
-      if (-ldiaxb*nbas*niax<0) iaxib_iv(:)=0
-
+      allocate(iaxib_iv(ldiaxb*nbas*niax))
+      iaxib_iv=0
       allocate(ntabb_iv(nbas))
-
-C     call yprm('iax before copy',0,iax,0,10,10,nttab)
-      call iax2fd ( 0 , nbas , ntab , iax , ntabb_iv , iaxib_iv 
-     ., ldiaxb )
-
-
+      call iax2fd ( 0 , nbas , ntab , iax , ntabb_iv , iaxib_iv , ldiaxb )
 C ... Update the table
       if (ng .gt. 0) then
         call symia0 ( mode , plat , nbas , pos , g , ag , ng , ntabb_iv 
      .  , iaxib_iv , ldiaxb , grow )
-
         ib = ntab(nbas+1)+grow
-        if (ib .gt. nttab) call rxi(
-     .  'symiax: not enough memory for new iax table: need dim',ib)
+        if (ib .gt. nttab) call rxi('symiax: not enough memory for new iax table: need dim',ib)
       endif
-
 C ... Copy iax from fixed-basis format
-      call iax2fd ( 1 , nbas , ntab , iax , ntabb_iv , iaxib_iv 
-     ., nttab )
-
+      call iax2fd ( 1 , nbas , ntab , iax , ntabb_iv , iaxib_iv , nttab )
       mxcsz = 0
       do  ib = 1, nbas
         mxcsz = max(mxcsz,ntab(ib+1)-ntab(ib))
       enddo
-
-C     debugging: second pass shouldn't change table
-C      call iax2fd(0,nbas,ntab,iax,w(ontabb),w(oiaxib),ldiaxb)
-C      call symia0(mode,plat,nbas,pos,g,ag,ng,w(ontabb),w(oiaxib),ldiaxb,
-C     .  grow)
-C      call iax2fd(1,nbas,ntab,iax,w(ontabb),w(oiaxib),nttab)
       if (allocated(ntabb_iv)) deallocate(ntabb_iv)
       if (allocated(iaxib_iv)) deallocate(iaxib_iv)
       end
@@ -408,17 +387,15 @@ C Passed parameters:
       integer niax,nbas,ntabib(nbas),ng,ldiaxb,mode,grow
       parameter (niax=10)
       integer iaxib(niax,nbas,ldiaxb)
-      double precision pos(3,*),g(9,*),ag(3,*),plat(3,3)
+      double precision pos(3,*),g(3,3,*),ag(3,*),plat(3,3)
 C Local variables:
       integer ib,jb,ibas,isite,ig,ibp,jbp,ksite,ipr,ix,i,n,
      .change,nttab,nttabn,isum,mode0,mode1,mode2
       double precision qlat(3,3),v(3),rv(3),vk(3),dx,fuzz
 C ... ix-th component of connecting vector of pair i
       dx(ix,ibas,i) = pos(ix,iaxib(2,ibas,i)) - pos(ix,iaxib(1,ibas,i))
-     .+ plat(ix,1)*iaxib(3,ibas,i)
-     .+ plat(ix,2)*iaxib(4,ibas,i)
-     .+ plat(ix,3)*iaxib(5,ibas,i)
-
+     &     + sum(plat(ix,1:3)*iaxib(3:5,ibas,i))
+c     .+ plat(ix,1)*iaxib(3,ibas,i)+ plat(ix,2)*iaxib(4,ibas,i)+ plat(ix,3)*iaxib(5,ibas,i)
 C --- Setup ---
       if (ng .le. 0) return
       fuzz = 1d-5
@@ -430,88 +407,52 @@ C     stdo = lgunit(1)
       mode0 = mod(mode,10)
       mode1 = mod(mode/10,10)
       mode2 = mod(mode/100,10)
-C     call info(30,0,0,' symiax:  adjusting neighbor table for '//
-C    .  'compatibility with symmmetry group',0,0)
-
-C     call tcn('symiax')
-
 C --- For each symmetry operation, do ---
       do  10  ig = 1, ng
-
         if (ig .eq. 1 .and. mode1 .eq. 0) goto 10
-
 C       Re-entry point for restart in case some change made to table
    12   continue
         change = 0
-
 C   --- For each pair in the neighbor list, do ---
         do  20  ib = 1, nbas
           do  22  isite = 1, ntabib(ib)
-
 C         ib = iaxib(1,ib,isite)
             jb = iaxib(2,ib,isite)
             if (iaxib(1,ib,isite) .eq. 0 .or. jb .eq. 0) goto 22
-
             if (mode1 .ne. 1 .or. ig .ne. 1) then
 C       ... Find ibp and jbp = sites that ib,jb are rotated into
-C           call gpfndx(g(1,ig),ag(1,ig),ib,ibp,pos,nbas,plat,qlat)
-C           call gpfndx(g(1,ig),ag(1,ig),jb,jbp,pos,nbas,plat,qlat)
               call grpfnd(fuzz,g,ag,ig,pos,nbas,qlat,ib,ibp)
               call grpfnd(fuzz,g,ag,ig,pos,nbas,qlat,jb,jbp)
               if (jbp .eq. 0) call rx('bug in symiax')
 C       ... Original connecting vector v, and the rotated one rv
-              v(1) = dx(1,ib,isite)
-              v(2) = dx(2,ib,isite)
-              v(3) = dx(3,ib,isite)
-              call rotpnt(v,rv,g(1,ig))
-C            if (ib .eq. 1 .and. isite .eq. 3) then
-C              print *, ig, sngl(v)
-C            endif
+              v = [(dx(i,ib,isite),i=1,3)]
+              rv= matmul(g(:,:,ig),v) !call rotpnt(v,rv,g(1,ig))
             else
 C       ... Special case (ig=1) look for ri-rj inverse of rj-ri
               ibp = jb
               jbp = ib
-              v(1) = dx(1,ib,isite)
-              v(2) = dx(2,ib,isite)
-              v(3) = dx(3,ib,isite)
-              rv(1) = -v(1)
-              rv(2) = -v(2)
-              rv(3) = -v(3)
+              v = [(dx(i,ib,isite),i=1,3)]
+              rv(:) = -v(:)
             endif
-
 C     ... Find pair corresponding to ibp,jbp and rv
             do  40  ksite = 1, ntabib(ibp)
-
 C       ... This is the corresponding pair only if jb of this pair = jbp
               if (iaxib(1,ibp,ksite) .ne. ibp) goto 40
               if (iaxib(2,ibp,ksite) .ne. jbp) goto 40
 C       ... Also the connecting vector of ksite must be rv
-              vk(1) = dx(1,ibp,ksite)
-              vk(2) = dx(2,ibp,ksite)
-              vk(3) = dx(3,ibp,ksite)
-              if (abs(rv(1)-vk(1)) + abs(rv(2)-vk(2)) + abs(rv(3)-vk(3))
-     .        .lt. fuzz) goto 42
+              vk(:) = [(dx(i,ibp,ksite),i=1,3)]
+              if (sum(abs(rv(:)-vk(:)))<fuzz) goto 42 ! + abs(rv(2)-vk(2)) + abs(rv(3)-vk(3))
    40       continue
 C         No vector found.  Add a new element to the iax table
             if (mode0 .eq. 0) then
-              do  ix = 1, 3
-                rv(ix) = rv(ix) - (pos(ix,jbp) - pos(ix,ibp))
-              enddo
+              rv(:) = rv(:) - (pos(:,jbp) - pos(:,ibp))
               call dgemm('T','N',3,1,3,1d0,qlat,3,rv,3,0d0,vk,3)
               n = ntabib(ibp)+1
               grow = grow+1
               do  ix = 1, 3
                 i = idnint(vk(ix))
-C             if (abs(i-vk(ix)) .gt. fuzz) then
-C               call rotpnt(v,rv,g(1,ig))
-C               print *, 'oops'
-C               rv(1) = rv(1) - (pos(1,jbp) - pos(1,ibp))
-C               rv(2) = rv(2) - (pos(2,jbp) - pos(2,ibp))
-C               rv(3) = rv(3) - (pos(3,jbp) - pos(3,ibp))
-C             endif
                 if (abs(i-vk(ix)) .gt. fuzz) call rx('bug in symiax')
                 iaxib(2+ix,ibp,n) = i
-C             call ivset(iaxib(1,n),6,10,0)
               enddo
               iaxib(1,ibp,n) = ibp
               iaxib(2,ibp,n) = jbp
@@ -534,7 +475,6 @@ C         No vector found.  Remove element from the iax table
      .        //'site=%i, ibp,jbp=%i %i',ig,isite,ib,jb,ksite,ibp,jbp,0)
             endif
             goto 22
-
 C     ... Connecting vector found for rotated point
    42       continue
             if (ipr .ge. 110)
@@ -542,11 +482,9 @@ C     ... Connecting vector found for rotated point
      .      'site=%i, ibp,jbp=%i %i',ig,isite,ib,jb,ksite,ibp,jbp,0)
    22     continue
    20   continue
-
 C       Restart this loop if new pair added
         if (change .ne. 0) goto 12
    10 continue
-
       nttabn = isum(nbas,ntabib,1)
       if (grow .lt. 0) nttabn = nttabn + grow
       if (nttabn .gt. nttab) then
@@ -559,12 +497,10 @@ C       Restart this loop if new pair added
         call info(30,0,0,' symiax: '
      .  //'neighbor table is compatible with symops',0,0)
       endif
-
 C ... Sort enlarged table by increasing length
       if (grow .gt. 0 .and. mode2 .ne. 0)
      .call symia1(plat,nbas,pos,ntabib,iaxib,ldiaxb)
 C     call tcx('symiax')
-
       end
 
       subroutine symia1(plat,nbas,pos,ntabib,iaxib,ldiaxb)
@@ -710,30 +646,20 @@ C --- Make list for a dimensionless lattice (alat=1) ---
           call dpscop(pos,tau,3,3*ib-2,1,1d0)
           call dpsadd(tau,pos,3,1,3*ia-2,-1d0)
           ngmx = n1*n2*n3
-          allocate(gv_rv(ngmx*3))
-          allocate(kv_iv(ngmx*3))
+          allocate(gv_rv(ngmx*3),kv_iv(ngmx*3))
           call pshpr(80*0)
           i = 208 + 400*0
           call gvlst2(1d0, qlat, -tau , n1,n2,n3, 0d0,1d5,0,i, ngmx,ng, kv_iv,gv_rv,wdummy,wdummy)
           call poppr
 C --- For each connecting vector, mark iax table or poke into hrs ---
-          allocate(rtab_rv(3*(is2-is1+1)))
-          if (ltrans) then
             call hft2r2 ( mode , k1 , k2 , k3 , ia , ib , jdim , idim , iax 
      .      , qoff , is1 , is2 , ndhrs , isp , nsp , nlmb , nlma , hij ( 
      .      1 , 1 , 1 , 1 + offj , 1 + offi ) , gv_rv , kv_iv , ng 
-     .      , tau , plat , pos , rtab_rv , hrs , hrs , nhit , nmiss ,   dmx1 )
-          else
-            call hft2r2 ( mode , k1 , k2 , k3 , ia , ib , idim , jdim , iax 
-     .      , qoff , is1 , is2 , ndhrs , isp , nsp , nlma , nlmb , hij ( 
-     .      1 , 1 , 1 , 1 + offi , 1 + offj ) , gv_rv , kv_iv , ng 
-     .      , tau , plat , pos , rtab_rv , hrs , hrs , nhit , nmiss ,   dmx1 )
-          endif
+     .      , tau , plat , pos ,  hrs , hrs , nhit , nmiss ,   dmx1 )
           dmx(1) = max(dmx(1),dmx1(1))
           dmx(2) = max(dmx(2),dmx1(2))
           nviax = nviax + nhit
           nvtot = nvtot + nhit + nmiss
-          if (allocated(rtab_rv)) deallocate(rtab_rv)
           if (allocated(kv_iv)) deallocate(kv_iv)
           if (allocated(gv_rv)) deallocate(gv_rv)
           offj = offj + offH(ib+1) - offH(ib)
@@ -743,7 +669,7 @@ C --- For each connecting vector, mark iax table or poke into hrs ---
       end
 !sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine hft2r2(mode,n1,n2,n3,ia,ib,idim,jdim,iax,qoff,is1,is2,
-     .ndhrs,isp,nsp,nlma,nlmb,hij,gv,kv,ng,tau,plat,pos,rtab,hrs,hrsr,
+     .ndhrs,isp,nsp,nlma,nlmb,hij,gv,kv,ng,tau,plat,pos,hrs,hrsr,
      .nhit,nmiss,dmx)
 C- For each connecting vector in a list taken from a uniform mesh of
 C- translation vectors find corresponding place r.s neighbor table, and:
@@ -810,7 +736,7 @@ C ... Passed parameters
       integer niax,idim,jdim,ia,ib,n1,n2,n3,ndhrs,isp,nsp,nlma,nlmb,is1,is2,mode,nhit,nmiss
       parameter (niax=10)
       integer ng,kv(ng,3),iax(niax,1)
-      double precision tau(3),gv(ng,3),rtab(3,*),pos(3,*),plat(3,3)
+      double precision tau(3),gv(ng,3),pos(3,*),plat(3,3)
       double precision hrsr(ndhrs,ndhrs,nsp,is2),dmx(2),qoff(3)
       double complex hrs(ndhrs,ndhrs,nsp,is2),hij(n1,n2,n3,idim,jdim)
       logical ltrans
@@ -819,10 +745,11 @@ C ... Passed parameters
       double complex phase
       parameter (tol=1d-5)
       logical:: debug=.false.
+      real(8):: rtab(3,is2-is1+1)
       mode0 = mod(mode,10)
-      mode1 = 0 !mod(mode/10,10)
+c      mode1 = 0 !mod(mode/10,10)
       ltrans = .true. !mod(mode/10000,10) .ne. 0
-      if(debug) print *,'hft2r2: mode0 mode1 ltrans=',mode0,mode1,ltrans
+c      if(debug) print *,'hft2r2: mode0 mode1 ltrans=',mode0,mode1,ltrans
       dimx = 0
       dimy = 0
       offx = is1-1
@@ -844,67 +771,28 @@ C --- Loop through list of R vectors ---
           i2 = kv(ig,2)
           i3 = kv(ig,3)
         endif
-        v(1) = -(gv(ig,1) - tau(1))
-        v(2) = -(gv(ig,2) - tau(2))
-        v(3) = -(gv(ig,3) - tau(3))
+        v(:) = -(gv(ig,:) - tau(:))
 C   ... If a match in the iax table is found, copy hij there
         do  20  is = is1, is2
           if (ia .ne. iax(2,is)) cycle 
-          if (abs(v(1)+rtab(1,is-offx)) .lt. tol) then
-            if (abs(v(2)+rtab(2,is-offx)) .lt. tol) then
-              if (abs(v(3)+rtab(3,is-offx)) .lt. tol) then
+          if (sum(abs(v(:)+rtab(:,is-offx))) .lt. tol) then
+c            if (abs(v(2)+rtab(2,is-offx)) .lt. tol) then
+c              if (abs(v(3)+rtab(3,is-offx)) .lt. tol) then
                 nhit = nhit+1
                 if (mode0 .eq. 0) then
                   iax(8,is) = -1
                 else
-                  TdotK = 0
-                  do  j = 1, 3
-                  do   k = 1, 3
-                     TdotK = TdotK - twopi*qoff(j)*plat(j,k)*iax(2+k,is)
-                  enddo
-                  enddo
-                  phase = cdexp(dcmplx(0d0,TdotK))
-c$$$                  if (mode1 .eq. 0) then
-c$$$                    if (ltrans) then
                       do  icol = 1, nlmb
                         do  irow = 1, nlma
-                          hrs(icol,irow,isp,is) = hij(i1,i2,i3,irow,icol) !*phase
+                          hrs(icol,irow,isp,is) = hij(i1,i2,i3,irow,icol) 
                           dimx = max(dimx,abs(dble(hij(i1,i2,i3,irow,icol))))
                           dimy = max(dimy,abs(dimag(hij(i1,i2,i3,irow,icol))))
                         enddo
                       enddo
-c$$$                    else
-c$$$                      do  icol = 1, nlmb
-c$$$                        do  irow = 1, nlma
-c$$$                          hrs(irow,icol,isp,is) = hij(i1,i2,i3,irow,icol) *phase
-c$$$                          dimx = max(dimx,abs(dble(hij(i1,i2,i3,irow,icol))))
-c$$$                          dimy = max(dimy,abs(dimag(hij(i1,i2,i3,irow,icol))))
-c$$$                        enddo
-c$$$                      enddo
-c$$$                    endif
-c$$$                  else
-c$$$                    if (ltrans) then
-c$$$                      do  icol = 1, nlmb
-c$$$                        do  irow = 1, nlma
-c$$$                          hrsr(icol,irow,isp,is) = hij(i1,i2,i3,irow,icol) *phase
-c$$$                          dimx = max(dimx,abs(dble(hij(i1,i2,i3,irow,icol))))
-c$$$                          dimy = max(dimy,abs(dimag(hij(i1,i2,i3,irow,icol))))
-c$$$                        enddo
-c$$$                      enddo
-c$$$                    else
-c$$$                      do  icol = 1, nlmb
-c$$$                        do  irow = 1, nlma
-c$$$                          hrsr(irow,icol,isp,is) = hij(i1,i2,i3,irow,icol) *phase
-c$$$                          dimx = max(dimx,abs(dble(hij(i1,i2,i3,irow,icol))))
-c$$$                          dimy = max(dimy,abs(dimag(hij(i1,i2,i3,irow,icol))))
-c$$$                        enddo
-c$$$                      enddo
-c$$$                    endif
-c$$$                  endif
                 endif
                 goto 30
-              endif
-            endif
+c              endif
+c            endif
           endif
    20   continue
         nmiss = nmiss+1
@@ -987,19 +875,19 @@ C --- Zero out iax(6..10) ---
         iax(10,i) = 0
       enddo
       end subroutine hft2r3
-cccccccccccccccccccccccccccccccccccccc
-      subroutine rotpnt(p,q,g)
-C     implicit none
-      double precision p(3),q(3),g(3,3),h(3)
-      integer i,j
-      do  i=1,3
-        h(i)=0.d0
-      do  j=1,3
-         h(i)=h(i)+g(i,j)*p(j)
-      enddo
-      enddo
-      do 2 i=1,3
-        q(i)=h(i)
-    2 continue
-      end  subroutine
- 
+c$$$cccccccccccccccccccccccccccccccccccccc
+c$$$      subroutine rotpnt(p,q,g)
+c$$$C     implicit none
+c$$$      double precision p(3),q(3),g(3,3),h(3)
+c$$$      integer i,j
+c$$$      do  i=1,3
+c$$$        h(i)=0.d0
+c$$$      do  j=1,3
+c$$$         h(i)=h(i)+g(i,j)*p(j)
+c$$$      enddo
+c$$$      enddo
+c$$$      do 2 i=1,3
+c$$$        q(i)=h(i)
+c$$$    2 continue
+c$$$      end  subroutine
+c$$$ 

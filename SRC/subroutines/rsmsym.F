@@ -82,7 +82,7 @@ C Passed parameters:
       integer istab(nbas,1)
       parameter (niax=10)
       integer iax(niax,1),iprmb(mxorb,*)
-      double precision pos(3,*),g(9,*),plat(3,3),
+      double precision pos(3,*),g(3,3,*),plat(3,3),
      .s(nds,nds,nsp,*),syms(nds,nds,nsp,*)
 C     double precision ag(3,*)
 C     double complex symz(nds,nds,nsp,*)
@@ -173,7 +173,7 @@ C --- For each symmetry operation, do ---
       do ig=igini,igend
 c         print *,'zzzzzz proc',procid,ig,igini,igend
 C   ... Rotation matrix for this ig
-        call ylmrtg(nlm,g(1,ig),rmat)
+        call ylmrtg(nlm,g(1,1,ig),rmat)
 C       call prmx('rmat',rmat,nlm,nlm,nlm)
 
 C   --- For each site, do ---
@@ -211,10 +211,8 @@ C           korb = 0
           endif
 
 C     ... Original connecting vector v, and the rotated one rv
-          v(1) = dx(1,isite)
-          v(2) = dx(2,isite)
-          v(3) = dx(3,isite)
-          call rotpnt(v,rv,g(1,ig))
+          v = [(dx(i,isite),i=1,3)]
+          rv= matmul(g(:,:,ig),v) !   call rotpnt(v,rv,g(1,ig))
 
 C     ... Find ksite = pair corresponding to ibp,jbp and rv
           lmissi = .false.
