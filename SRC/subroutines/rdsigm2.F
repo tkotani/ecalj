@@ -323,8 +323,8 @@ c     .'relative to the above#%j# ',isw(ddot(3,qoffi,1,qoffi,1).ne.0),qoffi)
              read(ifis)
           endif
 C ... FT sfz and copy sfz(T) to hrs
-          i = 1 + 10000
-          call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , isp
+c          i = 1 + 10000
+          call hft2rs ( nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , isp
      .         , nsp , nbas , rv_a_osymgr , rv_a_oag , nsgrps , rsrnge , offH      
      .         , 1 , nbas , ndimh , ndimh , sfz ( 1 , 1 , 1 , 1 , 1 , isp )
      .         , plat , rv_a_opos ,iv_a_ontabs , iv_a_oiaxs , ndhrs , rv_a_ohrs )

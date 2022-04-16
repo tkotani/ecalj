@@ -39,7 +39,7 @@ C     ... Standard Bloch transform doesn't require mapping to mesh
 C     ... Mark all members in iax table with vector in sfz (for FFT)
       nviax = 0
       nvtot = 0
-      mode = 10000+1000
+      mode = 0 !1000
       call hft2r1 ( mode , n1 , n2 , n3 , k1 , k2 , k3 , isp , nsp 
      .     , 1 , nbas , 1 , nbas , offh , ndimh , ndimh , hq , plat , pos
      .     , iv_a_ontab , iv_a_oiax , qoff , ndhrs , hrs , nviax , nvtot  , dmx )
@@ -79,7 +79,7 @@ c$$$  endif
       call tcx('hft2rsinit')
       end subroutine hft2rsinit
       
-      subroutine hft2rs(mode,n1,n2,n3,k1,k2,k3,qoff,isp,nsp,nbas,g,ag,
+      subroutine hft2rs(n1,n2,n3,k1,k2,k3,qoff,isp,nsp,nbas,g,ag,
      .nsgrp,range,offH,ia1,ia2,idim,jdim,hq,plat,pos,iv_a_ontab,iv_a_oiax,ndhrs, hrs)
 c      use m_pairs,only: pairs,ppair1
 C- Fourier transform of a matrix to real-space representation
@@ -242,6 +242,7 @@ C ----------------------------------------------------------------------
       logical:: isanrg, l_dummy_isanrg
       integer ::iwdummy
       call tcn('hft2rs')
+      mode= 1 
       call getpr(ipr)
       iset = 0
       call fftz3(hq,n1,n2,n3,k1,k2,k3,idim*jdim,iset,-1)
@@ -642,9 +643,9 @@ Ci   mode    :1s digit specifies what is created.
 Ci           :  0 marks entries in row 8 of iax table; see iax below
 Ci           :    In this mode, hij and hrs are not used
 Ci           : >0 copy hij to hrs
-Ci           :10s digit specifies whether hrs is real
+Cixxx           :10s digit specifies whether hrs is real
 Ci           :  0 No assumption made about hrs being real
-Ci           :  1 Assume hrs is real (correct if hq is hermitian)
+Cixxx           :  1 Assume hrs is real (correct if hq is hermitian)
 Ci           :10000s digit specifies indexing of hrs_RL,R'L'
 Ci           :  0 poke h(T) into hrs_RL,R'L'
 Ci           :  1 poke h(T) into hrs_R'L',RL
@@ -693,14 +694,13 @@ C ----------------------------------------------------------------------
       jd = offH(ib2+1) - offH(ib1)
       l_dummy_isanrg=isanrg(idim,id,id,'hft2rs:1 ','idim',.true.)
       l_dummy_isanrg=isanrg(jdim,jd,jd,'hft2rs:2 ','jdim',.true.)
-      ltrans = mod(mode/10000,10) .ne. 0
+      ltrans = .true. !mod(mode/10000,10) .ne. 0
       dmx(1) = 0
       dmx(2) = 0
       offi = 0
       do  10  ia = ia1, ia2
         offj = 0
         do  12  ib = ib1, ib2
-
           is1 = ntab(ib)+1
           is2 = ntab(ib+1)
           nlma = offH(ia+1) - offH(ia)
@@ -754,9 +754,9 @@ Ci   mode    :1s digit specifies what is created.
 Ci           :  0 marks entries in row 8 of iax table; see iax below
 Ci           :    In this mode, hij and hrs are not used
 Ci           : >0 copy hij to hrs
-Ci           :10s digit specifies whether hrs is real
+Cixxx           :10s digit specifies whether hrs is real
 Ci           :  0 No assumption made about hrs being real
-Ci           :  1 Assume hrs is real
+Cixxx           :  1 Assume hrs is real
 Ci           :Other digits are not used.
 Ci   n1,..n3:number divisions in QP mesh
 Cr   ia    :site index for field point (or row or augmentation dim)
@@ -820,8 +820,8 @@ C ... Passed parameters
       parameter (tol=1d-5)
       logical:: debug=.false.
       mode0 = mod(mode,10)
-      mode1 = mod(mode/10,10)
-      ltrans = mod(mode/10000,10) .ne. 0
+      mode1 = 0 !mod(mode/10,10)
+      ltrans = .true. !mod(mode/10000,10) .ne. 0
       if(debug) print *,'hft2r2: mode0 mode1 ltrans=',mode0,mode1,ltrans
       dimx = 0
       dimy = 0
@@ -864,43 +864,43 @@ C   ... If a match in the iax table is found, copy hij there
                   enddo
                   enddo
                   phase = cdexp(dcmplx(0d0,TdotK))
-                  if (mode1 .eq. 0) then
-                    if (ltrans) then
+c$$$                  if (mode1 .eq. 0) then
+c$$$                    if (ltrans) then
                       do  icol = 1, nlmb
                         do  irow = 1, nlma
-                          hrs(icol,irow,isp,is) = hij(i1,i2,i3,irow,icol) *phase
+                          hrs(icol,irow,isp,is) = hij(i1,i2,i3,irow,icol) !*phase
                           dimx = max(dimx,abs(dble(hij(i1,i2,i3,irow,icol))))
                           dimy = max(dimy,abs(dimag(hij(i1,i2,i3,irow,icol))))
                         enddo
                       enddo
-                    else
-                      do  icol = 1, nlmb
-                        do  irow = 1, nlma
-                          hrs(irow,icol,isp,is) = hij(i1,i2,i3,irow,icol) *phase
-                          dimx = max(dimx,abs(dble(hij(i1,i2,i3,irow,icol))))
-                          dimy = max(dimy,abs(dimag(hij(i1,i2,i3,irow,icol))))
-                        enddo
-                      enddo
-                    endif
-                  else
-                    if (ltrans) then
-                      do  icol = 1, nlmb
-                        do  irow = 1, nlma
-                          hrsr(icol,irow,isp,is) = hij(i1,i2,i3,irow,icol) *phase
-                          dimx = max(dimx,abs(dble(hij(i1,i2,i3,irow,icol))))
-                          dimy = max(dimy,abs(dimag(hij(i1,i2,i3,irow,icol))))
-                        enddo
-                      enddo
-                    else
-                      do  icol = 1, nlmb
-                        do  irow = 1, nlma
-                          hrsr(irow,icol,isp,is) = hij(i1,i2,i3,irow,icol) *phase
-                          dimx = max(dimx,abs(dble(hij(i1,i2,i3,irow,icol))))
-                          dimy = max(dimy,abs(dimag(hij(i1,i2,i3,irow,icol))))
-                        enddo
-                      enddo
-                    endif
-                  endif
+c$$$                    else
+c$$$                      do  icol = 1, nlmb
+c$$$                        do  irow = 1, nlma
+c$$$                          hrs(irow,icol,isp,is) = hij(i1,i2,i3,irow,icol) *phase
+c$$$                          dimx = max(dimx,abs(dble(hij(i1,i2,i3,irow,icol))))
+c$$$                          dimy = max(dimy,abs(dimag(hij(i1,i2,i3,irow,icol))))
+c$$$                        enddo
+c$$$                      enddo
+c$$$                    endif
+c$$$                  else
+c$$$                    if (ltrans) then
+c$$$                      do  icol = 1, nlmb
+c$$$                        do  irow = 1, nlma
+c$$$                          hrsr(icol,irow,isp,is) = hij(i1,i2,i3,irow,icol) *phase
+c$$$                          dimx = max(dimx,abs(dble(hij(i1,i2,i3,irow,icol))))
+c$$$                          dimy = max(dimy,abs(dimag(hij(i1,i2,i3,irow,icol))))
+c$$$                        enddo
+c$$$                      enddo
+c$$$                    else
+c$$$                      do  icol = 1, nlmb
+c$$$                        do  irow = 1, nlma
+c$$$                          hrsr(irow,icol,isp,is) = hij(i1,i2,i3,irow,icol) *phase
+c$$$                          dimx = max(dimx,abs(dble(hij(i1,i2,i3,irow,icol))))
+c$$$                          dimy = max(dimy,abs(dimag(hij(i1,i2,i3,irow,icol))))
+c$$$                        enddo
+c$$$                      enddo
+c$$$                    endif
+c$$$                  endif
                 endif
                 goto 30
               endif
