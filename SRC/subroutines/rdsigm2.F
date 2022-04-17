@@ -326,7 +326,7 @@ C ... FT sfz and copy sfz(T) to hrs
 c          i = 1 + 10000
           call hft2rs ( nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , isp
      .         , nsp , nbas , rv_a_osymgr , rv_a_oag , nsgrps , rsrnge , offH      
-     .         , 1 , nbas , ndimh , ndimh , sfz ( 1 , 1 , 1 , 1 , 1 , isp )
+     .         , 1 , nbas , ndimh, sfz ( 1 , 1 , 1 , 1 , 1 , isp )
      .         , plat , rv_a_opos ,iv_a_ontabs , iv_a_oiaxs , ndhrs , rv_a_ohrs )
           print *,' seneinterp:do 1201 end i ndimh ndhrs=',i,ndimh,ndhrs
  1201  continue
