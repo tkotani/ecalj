@@ -190,7 +190,48 @@ C     ... Mark all members in iax table with vector in sfz (for FFT)
      .     , ntab , iax , qoff , ndhrs , hrs , nviax , nvtot  , dmx )
       write(stdo,"(' hft2rs: found ',i8,' connecting vectors out of ',i8,' possible for FFT')")nviax,nvtot
 !  ... Reduce iax table to elements on mesh in common with pairc
-      call hft2r3 ( nbas  , ntab , iax , nttab , mxcsiz )
+      
+!sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+c      call hft2r3 ( nbas  , ntab , iax , nttab , mxcsiz )
+c     subroutine hft2r3(nbas,ntab,iax,nttab,mxcsiz)
+      hft2r3: block
+c      integer,parameter:: niax=10
+c      integer iax(niax,1)
+      integer:: ib1=1,iwk((niax+1)*mxcsiz) !,nttab,mxcsiz !nbas,ntab(*)
+      integer:: is1,is2,ib,nstart,i,nib
+C --- Reorder iax table site-by-site ---
+      do  ib = ib1, nbas
+        is1 = ntab(ib)+1
+        is2 = ntab(ib+1)
+        nstart = is2-is1+1
+        iwk(1+nstart:2*nstart)=iax(8,is1:is1+nstart-1)
+        call ivheap(1,nstart,iwk(1+nstart),iwk,101) !Sort, using iwk(1) as permutation array
+        call ivprm(niax,nstart,iax(1,is1),iwk(1+nstart),iwk,.true.) !Rearrange iax, putting marked ones at top
+      enddo
+C --- Condense iax table and ntab ---
+      mxcsiz = 0
+      nttab = ntab(ib1)
+      do  ib = ib1, nbas !C       Count nib = number of marked pairs for this site
+        is1 = ntab(ib)+1
+        is2 = ntab(ib+1)
+        nib = 0
+        do  i = is1, is2
+          nib = i-is1
+          if (iax(8,i) .eq. 0) goto 201
+        enddo
+        nib = is2-is1+1
+ 201    continue
+        mxcsiz = max(mxcsiz,nib)
+        if(is1/= nttab+1)iax(:,nttab+1:nttab+nib)=iax(:,is1:is1+nib-1) ! ib to the end of now shortened table
+        ntab(ib) = nttab
+        nttab = nttab+nib
+      enddo
+      ntab(nbas+1) = nttab
+      iax(6:10,ntab(ib1)+1:nttab) = 0 !Zero out iax(6..10) ---
+c      end subroutine hft2r3
+      endblock hft2r3
+ccccccccccccccccccccccccccccccccccccccccccccccc
+      
 !   ... Add pairs so that any ri-rj has corresponding rj-ri
 c      i = 110 mode
       nttab = nttab*3
@@ -220,6 +261,7 @@ C     ... Fill out iax(6,7,10)
       deallocate(iv_a_tmp)
       call tcx('hft2rsinit')
       end subroutine hft2rsinit
+      
 cccccccccccccccccccccccccccc      
       subroutine hft2rs(n1,n2,n3,k1,k2,k3,qoff,isp,nsp,nbas,g,ag,
      .nsgrp,range,offH,ia1,ia2,idim,jdim,hq,plat,pos,ntab,iax,ndhrs, hrs)
@@ -539,14 +581,9 @@ C ----------------------------------------------------------------------
           is1 = ntab(ib)+1
           is2 = ntab(ib+1)
           nlmb = offH(ib+1) - offH(ib)
-C --- Make list for a dimensionless lattice (alat=1) ---
-c          call dpscop(pos,tau,3,3*ib-2,1,1d0)
-c          call dpsadd(tau,pos,3,1,3*ia-2,-1d0)
           tau=pos(:,ib)-pos(:,ia)
-c          call pshpr(80*0)
           i = 208 + 400*0
           call gvlst2(1d0, qlat, -tau , n1,n2,n3, 0d0,1d5,0,i, ngmx,ng, kv,gv,wdummy,wdummy)
-c          call poppr
 C --- For each connecting vector, mark iax table or poke into hrs ---
             call hft2r2( mode , k1 , k2 , k3 , ia , ib , jdim , idim , iax 
      .      , is1,is2,ndhrs , isp , nsp , nlmb , nlma , hij(1,1,1,1+offj,1+offi),gv,kv, ng 
@@ -563,17 +600,16 @@ C --- For each connecting vector, mark iax table or poke into hrs ---
       end
       
 !sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-      subroutine hft2r2(mode,n1,n2,n3,ia,ib,jdim,idim,iax,is1,is2,
-     .ndhrs,isp,nsp,nlmb,nlma,hij,gv,kv,ng,tau,plat,pos,hrs,!hrsr,
-     .nhit,nmiss,dmx1)
+      subroutine hft2r2(mode,k1,k2,k3,ia,ib,jdim,idim,iax,is1,is2,
+     .ndhrs,isp,nsp,nlmb,nlma,hij,gv,kv,ng,tau,plat,pos,hrs, nhit,nmiss,dmx1)
       implicit none
 C ... Passed parameters
-      integer niax,idim,jdim,ia,ib,n1,n2,n3,ndhrs,isp,nsp,nlma,nlmb,is1,is2,mode,nhit,nmiss
+      integer niax,idim,jdim,ia,ib,k1,k2,k3,ndhrs,isp,nsp,nlma,nlmb,is1,is2,mode,nhit,nmiss
       parameter (niax=10)
       integer:: ng,kv(ng,3),iax(niax,*)
       real(8):: tau(3),gv(ng,3),pos(3,*),plat(3,3)
       double precision dmx1(2)!,qoff(3) hrsr(ndhrs,ndhrs,nsp,is2),
-      double complex hrs(ndhrs,ndhrs,nsp,is2),hij(n1,n2,n3,jdim,idim)
+      double complex hrs(ndhrs,ndhrs,nsp,is2),hij(k1,k2,k3,jdim,idim)
       logical ltrans
       integer ig,i1,i2,i3,is,ix,offx,irow,icol,mode0,mode1,j,k
       double precision v(3),tol,dimx,dimy,TdotK
@@ -626,42 +662,42 @@ C   ... If a match in the iax table is found, copy hij there
       dmx1(1) = dimx
       dmx1(2) = dimy
       end
-!sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-      subroutine hft2r3(ib2,ntab,iax,nttab,mxcsiz)
-      integer,parameter:: niax=10
-      integer::ib1=1,ib2,ntab(*),iwk((niax+1)*mxcsiz),nttab,mxcsiz
-      integer iax(niax,1)
-      integer is1,is2,ib,nstart,i,nib
-C --- Reorder iax table site-by-site ---
-      do  ib = ib1, ib2
-        is1 = ntab(ib)+1
-        is2 = ntab(ib+1)
-        nstart = is2-is1+1
-        iwk(1+nstart:2*nstart)=iax(8,is1:is1+nstart-1)
-        call ivheap(1,nstart,iwk(1+nstart),iwk,101) !Sort, using iwk(1) as permutation array
-        call ivprm(niax,nstart,iax(1,is1),iwk(1+nstart),iwk,.true.) !Rearrange iax, putting marked ones at top
-      enddo
-C --- Condense iax table and ntab ---
-      mxcsiz = 0
-      nttab = ntab(ib1)
-      do  ib = ib1, ib2 !C       Count nib = number of marked pairs for this site
-        is1 = ntab(ib)+1
-        is2 = ntab(ib+1)
-        nib = 0
-        do  i = is1, is2
-          nib = i-is1
-          if (iax(8,i) .eq. 0) goto 20
-        enddo
-        nib = is2-is1+1
-   20   continue
-        mxcsiz = max(mxcsiz,nib)
-        if(is1/= nttab+1) iax(:,nttab+1:nttab+nib)=iax(:,is1:is1+nib-1) !Append iax for this ib to the end of now shortened table
-        ntab(ib) = nttab
-        nttab = nttab+nib
-      enddo
-      ntab(ib2+1) = nttab
-      iax(6:10,ntab(ib1)+1:nttab) = 0 !Zero out iax(6..10) ---
-      end subroutine hft2r3
+c$$$!sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+c$$$      subroutine hft2r3(nbas,ntab,iax,nttab,mxcsiz)
+c$$$      integer,parameter:: niax=10
+c$$$      integer::ib1=1,nbas,ntab(*),iwk((niax+1)*mxcsiz),nttab,mxcsiz
+c$$$      integer iax(niax,1)
+c$$$      integer is1,is2,ib,nstart,i,nib
+c$$$C --- Reorder iax table site-by-site ---
+c$$$      do  ib = ib1, nbas
+c$$$        is1 = ntab(ib)+1
+c$$$        is2 = ntab(ib+1)
+c$$$        nstart = is2-is1+1
+c$$$        iwk(1+nstart:2*nstart)=iax(8,is1:is1+nstart-1)
+c$$$        call ivheap(1,nstart,iwk(1+nstart),iwk,101) !Sort, using iwk(1) as permutation array
+c$$$        call ivprm(niax,nstart,iax(1,is1),iwk(1+nstart),iwk,.true.) !Rearrange iax, putting marked ones at top
+c$$$      enddo
+c$$$C --- Condense iax table and ntab ---
+c$$$      mxcsiz = 0
+c$$$      nttab = ntab(ib1)
+c$$$      do  ib = ib1, nbas !C       Count nib = number of marked pairs for this site
+c$$$        is1 = ntab(ib)+1
+c$$$        is2 = ntab(ib+1)
+c$$$        nib = 0
+c$$$        do  i = is1, is2
+c$$$          nib = i-is1
+c$$$          if (iax(8,i) .eq. 0) goto 20
+c$$$        enddo
+c$$$        nib = is2-is1+1
+c$$$   20   continue
+c$$$        mxcsiz = max(mxcsiz,nib)
+c$$$        if(is1/= nttab+1) iax(:,nttab+1:nttab+nib)=iax(:,is1:is1+nib-1) !Append iax for this ib to the end of now shortened table
+c$$$        ntab(ib) = nttab
+c$$$        nttab = nttab+nib
+c$$$      enddo
+c$$$      ntab(nbas+1) = nttab
+c$$$      iax(6:10,ntab(ib1)+1:nttab) = 0 !Zero out iax(6..10) ---
+c$$$      end subroutine hft2r3
 
 C- Reduce iax table to those marked
 C ----------------------------------------------------------------------
