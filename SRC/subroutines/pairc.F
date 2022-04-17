@@ -351,12 +351,12 @@ C ----------------------------------------------------------------------
       implicit none
       integer:: nbas , nbasp , ipsp(1) , pltab(1) , nttab , nd , iltab,i_data_size
       integer,allocatable :: iv_a_ontab(:)
-      integer,allocatable :: iv_a_oiax(:)
+      integer,allocatable :: iv_a_oiax(:,:)
       double precision alat,plat(9),rmax(1),baspp(3,1)
       double precision avw,avwsr,vol
       integer:: modep(3) , nbaspp , mxcsiz , mxnbr , i , niax , isw
       real(8) ,allocatable :: wk_rv(:)
-      integer,allocatable:: iv_a_tmp(:)
+      integer,allocatable:: iv_a_tmp(:,:)
       parameter (niax=10)
 C ... Set up input for call to pairc
       nbaspp = 2*nbasp - nbas
@@ -367,8 +367,8 @@ C ... Estimate an upper bound to the size of the neighbor table
       if (allocated(iv_a_ontab)) deallocate(iv_a_ontab)
       allocate(iv_a_ontab(abs(nbasp+1)))
       if (allocated(iv_a_oiax)) deallocate(iv_a_oiax)
-      allocate(iv_a_oiax(niax*mxnbr))
-      iv_a_oiax(:)=0
+      allocate(iv_a_oiax(niax,mxnbr))
+      iv_a_oiax=0
       allocate(wk_rv(3*mxnbr))
       do  10  i = 1, 3
         modep(i) = 2
@@ -382,10 +382,14 @@ C ... This makes the neighbor table
      .  plat , baspp , baspp , rmax , iltab , pltab , nttab , iv_a_ontab
      .  , iv_a_oiax , wk_rv , mxcsiz )
 C ... Allocate iax to proper size
-      i_data_size=size(iv_a_oiax); allocate(iv_a_tmp(i_data_size))
-      iv_a_tmp=iv_a_oiax; deallocate(iv_a_oiax)
-      i_data_size=min(i_data_size,niax*nttab); allocate(iv_a_oiax(niax*nttab))
-      iv_a_oiax(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
+      i_data_size=size(iv_a_oiax)
+      allocate(iv_a_tmp(niax,i_data_size/niax))
+      iv_a_tmp=iv_a_oiax
+      deallocate(iv_a_oiax)
+      i_data_size=min(i_data_size,niax*nttab)
+      allocate(iv_a_oiax(niax,nttab))
+      iv_a_oiax(:,:i_data_size/niax)=iv_a_tmp(:,:i_data_size/niax)
+      deallocate(iv_a_tmp)
       if (allocated(wk_rv)) deallocate(wk_rv)
       end subroutine pairs
 

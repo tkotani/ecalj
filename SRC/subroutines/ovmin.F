@@ -40,7 +40,7 @@ ckino Dec.14.2011:          integer,pointer :: iv_p_ontab(:)
       integer,allocatable :: iv_a_ontab(:)
 
 ckino Dec.14.2011:         integer,pointer :: iv_p_oiax(:)
-      integer,allocatable :: iv_a_oiax(:)
+      integer,allocatable :: iv_a_oiax(:,:)
 
 C     integer ntab(nbas+1),iax(niax,1)
       double precision plat(3,3),pos(3,nbasp),rmax(1),rmt(1),z(1),alat
@@ -265,7 +265,7 @@ ckino Dec.14.2011:          integer,pointer :: iv_p_ontabo(:)
       integer,allocatable :: iv_a_ontabo(:)
 
 ckino Dec.14.2011:         integer,pointer :: iv_p_oiaxo(:)
-      integer,allocatable :: iv_a_oiaxo(:)
+      integer,allocatable :: iv_a_oiaxo(:,:)
 
 cki
       real(8) :: w_ormax(:)

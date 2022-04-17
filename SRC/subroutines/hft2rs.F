@@ -149,7 +149,7 @@ C ----------------------------------------------------------------------
       private
       contains
       subroutine hft2rsinit(n1,n2,n3,k1,k2,k3,qoff,isp,nsp,nbas,g,ag,
-     .     nsgrp,range,offH,plat,pos,iv_a_ontab,iv_a_oiax,ndimh) !,ndhrs, hrs)
+     .     nsgrp,range,offH,plat,pos,ntab,iax,ndimh) !,ndhrs, hrs)
       use m_lmfinit,only: stdo
       use m_pairs,only: pairs,ppair1
       implicit none
@@ -158,15 +158,15 @@ C ----------------------------------------------------------------------
       integer nkap0,n0H,niax
       parameter (nkap0=3,n0H=5,niax=10)
       integer offH(nbas+1)
-      integer,allocatable :: iv_a_oiax(:)
-      integer,allocatable :: iv_a_ontab(:)
+      integer,allocatable :: iax(:,:) !niax,:)
+      integer,allocatable :: ntab(:)
       double precision plat(3,3),pos(3,*),range,g(9,*),ag(3,*),qoff(3)
       double complex hq(1)
       real(8):: hrs(1,1,1,1)    !ndhrs,ndhrs,nsp,1)
       integer:: ndhrs=1
 C ... Local parameters
       integer i,ipr,iset,mode0,mode1,mode2,mode3,mxcsiz,nttab,nviax,nvtot
-      integer ,allocatable :: iwk_iv(:),iv_a_tmp(:)
+      integer ,allocatable :: iwk_iv(:),iv_a_tmp(:,:)
       double precision dmx(2)
       logical:: isanrg, l_dummy_isanrg
       integer ::iwdummy
@@ -178,7 +178,7 @@ C --- Mode 0 (setup) make and reduce iax table ---c     if (mode0 .eq. 0) then
       call pshpr(min(ipr-10,30))
       mxcsiz = 0
       call pairs ( nbas , nbas , 1d0 , plat , ( / range / 2 / ) , pos
-     .     , ( / - 1 / ) , 3 , - 1 , (/iwdummy/) , nttab , iv_a_ontab , iv_a_oiax , mxcsiz )
+     .     , ( / - 1 / ) , 3 , - 1 , (/iwdummy/) , nttab , ntab , iax , mxcsiz )
       call poppr
 C     ... Standard Bloch transform doesn't require mapping to mesh
 C     ... Mark all members in iax table with vector in sfz (for FFT)
@@ -187,38 +187,42 @@ C     ... Mark all members in iax table with vector in sfz (for FFT)
       mode = 0 !1000
       call hft2r1 ( mode , n1 , n2 , n3 , k1 , k2 , k3 , isp , nsp 
      .     , 1 , nbas , 1 , nbas , offh , ndimh , ndimh , hq , plat , pos
-     .     , iv_a_ontab , iv_a_oiax , qoff , ndhrs , hrs , nviax , nvtot  , dmx )
+     .     , ntab , iax , qoff , ndhrs , hrs , nviax , nvtot  , dmx )
       write(stdo,"(' hft2rs: found ',i8,' connecting vectors out of ',i8,' possible for FFT')")nviax,nvtot
 !  ... Reduce iax table to elements on mesh in common with pairc
-      call hft2r3 ( nbas  , iv_a_ontab , iv_a_oiax , nttab , mxcsiz )
+      call hft2r3 ( nbas  , ntab , iax , nttab , mxcsiz )
 !   ... Add pairs so that any ri-rj has corresponding rj-ri
 c      i = 110 mode
       nttab = nttab*3
-      i_data_size=size(iv_a_oiax)
-      allocate(iv_a_tmp(i_data_size))
-      iv_a_tmp=iv_a_oiax
-      deallocate(iv_a_oiax)
+      i_data_size=size(iax)
+      allocate(iv_a_tmp(niax,i_data_size/niax))
+      iv_a_tmp=iax
+      deallocate(iax)
       i_data_size=min(i_data_size,niax*nttab)
-      allocate(iv_a_oiax(niax*nttab))
-      iv_a_oiax(:i_data_size)=iv_a_tmp(:i_data_size)
+      allocate(iax(niax,nttab))
+      iax(:,:i_data_size/niax)=iv_a_tmp(:,:i_data_size/niax)
       deallocate(iv_a_tmp)
       call pshpr(ipr)
-      call symiax (plat , nbas , pos , g , ag , nsgrp , iv_a_ontab, iv_a_oiax , nttab , mxcsiz )
+      call symiax (plat , nbas , pos , g , ag , nsgrp , ntab, iax , nttab , mxcsiz )
       call poppr
 C     ... Fill out iax(6,7,10)
       call pshpr(0)
       call ppair1 ( 0 , 1 , nbas , nbas , [- 1] , 1d0 , plat , pos ,
-     .     [range / 2] , nttab , iv_a_ontab , iv_a_oiax , mxcsiz )
+     .     [range / 2] , nttab , ntab , iax , mxcsiz )
       call poppr
-      i_data_size=size(iv_a_oiax); allocate(iv_a_tmp(i_data_size))
-      iv_a_tmp=iv_a_oiax; deallocate(iv_a_oiax)
-      i_data_size=min(i_data_size,niax*nttab); allocate(iv_a_oiax(niax*nttab))
-      iv_a_oiax(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
+      i_data_size=size(iax)
+      allocate(iv_a_tmp(niax,i_data_size/niax))
+      iv_a_tmp=iax
+      deallocate(iax)
+      i_data_size=min(i_data_size,niax*nttab)
+      allocate(iax(niax,nttab))
+      iax(:,:i_data_size)=iv_a_tmp(:,:i_data_size/niax)
+      deallocate(iv_a_tmp)
       call tcx('hft2rsinit')
       end subroutine hft2rsinit
 cccccccccccccccccccccccccccc      
       subroutine hft2rs(n1,n2,n3,k1,k2,k3,qoff,isp,nsp,nbas,g,ag,
-     .nsgrp,range,offH,ia1,ia2,idim,jdim,hq,plat,pos,iv_a_ontab,iv_a_oiax,ndhrs, hrs)
+     .nsgrp,range,offH,ia1,ia2,idim,jdim,hq,plat,pos,ntab,iax,ndhrs, hrs)
 C- Fourier transform of a matrix to real-space representation
       implicit none
       integer mode,idim,jdim,nbas,n1,n2,n3,k1,k2,k3,isp,nsp,ndhrs,nsgrp,i_data_size
@@ -226,13 +230,13 @@ C- Fourier transform of a matrix to real-space representation
       integer nkap0,n0H,niax
       parameter (nkap0=3,n0H=5,niax=10)
       integer offH(nbas+1)
-      integer,allocatable :: iv_a_oiax(:)
-      integer,allocatable :: iv_a_ontab(:)
+      integer,allocatable :: iax(:,:)
+      integer,allocatable :: ntab(:)
       double precision plat(3,3),pos(3,*),range,g(9,*),ag(3,*),qoff(3)
       double complex hq(k1,k2,k3,idim,jdim,nsp)
       real(8):: hrs(ndhrs,ndhrs,nsp,1)
       integer i,ipr,iset,mode0,mode1,mode2,mode3,mxcsiz,nttab,nviax,nvtot
-      integer ,allocatable :: iwk_iv(:),iv_a_tmp(:)
+      integer ,allocatable :: iwk_iv(:),iv_a_tmp(:,:)
       double precision dmx(2)
       logical:: isanrg, l_dummy_isanrg
       integer ::iwdummy
@@ -243,7 +247,7 @@ C- Fourier transform of a matrix to real-space representation
       call fftz3(hq,n1,n2,n3,k1,k2,k3,idim*jdim,iset,-1)
       call hft2r1 ( mode , n1 , n2 , n3 , k1 , k2 , k3 , isp , nsp 
      .    , ia1 , ia2 , 1 , nbas , offh , idim , jdim , hq , plat , pos
-     .    , iv_a_ontab , iv_a_oiax , qoff , ndhrs , hrs , nviax , nvtot 
+     .    , ntab , iax , qoff , ndhrs , hrs , nviax , nvtot 
      .    , dmx )
       call info5(30,0,0,' hft2rs created hrs:  ndhrs=%i  '//
      .  'max Re(hrs) = %;3g  max Im(hrs) = %;3g',ndhrs,dmx,dmx(2),0,0)

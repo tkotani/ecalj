@@ -110,7 +110,7 @@ c !lncol,
      .                       , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl , mxclas
 c      real(8),allocatable:: eula(:,:)
       integer,allocatable :: iv_a_ontab(:)
-      integer,allocatable :: iv_a_oiax(:)
+      integer,allocatable :: iv_a_oiax(:,:)
       real(8),allocatable :: rv_a_og(:),rv_a_ormax(:)
       real(8) ,allocatable :: pos2_rv(:,:)
       real(8) ,allocatable :: rmt_rv(:)

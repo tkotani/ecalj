@@ -5,7 +5,7 @@
       private
       complex(8),allocatable,protected:: sene(:,:),senex(:,:)
       real(8), allocatable,protected ::  rv_a_ohrs (:)
-      integer, allocatable,protected :: iv_a_oiaxs(:)
+      integer, allocatable,protected :: iv_a_oiaxs(:,:)
       integer, allocatable,protected :: iv_a_ontabs(:)
       integer,protected:: ndimsig,nspsigm,ham_ndhrs,ham_nqsig
       integer,private :: nsizeohrs,nsizeoiaxs,nsizeontabs,noqsig
@@ -435,6 +435,7 @@ C ... Write points to disk, shifting by qoffo
       
 !ssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine senebroadcast(procid,master,mlog)
+      integer,parameter::niax=10
       integer:: procid,master
       logical:: mlog
       call mpibc1(nsizeohrs,1,2,mlog,'bndfp','nsizeohrs')
@@ -444,7 +445,7 @@ C ... Write points to disk, shifting by qoffo
       if(procid/=master) then
          print *,'nnnnnn=',nsizeohrs,nsizeoiaxs,nsizeontabs,noqsig
          allocate( rv_a_ohrs(nsizeohrs) )
-         allocate( iv_a_oiaxs(nsizeoiaxs))       
+         allocate( iv_a_oiaxs(niax,nsizeoiaxs/niax))       
          allocate( iv_a_ontabs(nsizeontabs))       
          allocate( rv_p_oqsig(noqsig))
       endif   
@@ -759,9 +760,9 @@ c      type(s_bz)::sbz
       integer i,j,ifis2,ifiz,isp,nsp,nglob,ival,ldham(16),lrsig,
      .moditp,nttabs,nkxyz(3),nk1,nk2,nk3,nsgrp,nsgrps,mxkp,nqp,nqps,
      .ndhrs,j1,k1,k2,k3,iq1,nspc,mxorb,nqsig, !modsgp,nmin,nmax,
-     .lrot,iprint,lssym,ledit,niax,nscnts,
+     .lrot,iprint,lssym,ledit,nscnts,
      .ndims,ndimz,iq,n123(4),lcore,lhigh
-      parameter (niax=10)
+      integer,parameter::niax=10
 c      equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
       integer:: ohrss , osigm2 , odelt , oistb2
       integer ,allocatable :: gstar_iv(:)
