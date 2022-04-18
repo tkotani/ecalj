@@ -1,17 +1,15 @@
       module m_rdsigm2
       public:: M_rdsigm2_init, Getsenex, Dsene, senex !getsenex returns the self-energy term.
       public:: ndimsig,sene
-      
       private
       complex(8),allocatable,protected:: sene(:,:),senex(:,:)
-      real(8), allocatable,protected ::  rv_a_ohrs (:)
+      real(8), allocatable,protected :: rv_a_ohrs (:)
       integer, allocatable,protected :: iv_a_oiaxs(:,:)
       integer, allocatable,protected :: iv_a_ontabs(:)
       integer,protected:: ndimsig,nspsigm,ham_ndhrs,ham_nqsig
       integer,private :: nsizeohrs,nsizeoiaxs,nsizeontabs,noqsig
       real(8) , allocatable,private ::  rv_p_oqsig (:)  !not yet protected (rdsigm2 rewrite this)
       contains
-      
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine getsenex(qp,isp,ndimh,ovlm)
 !! this return self-energy senex, which is      
@@ -43,11 +41,6 @@
       logical:: debug=.false.
       if(debug) print *,'ndimsig=',ndimsig
       allocate(sene(ndimsig,ndimsig))
-c      i = lrsig*10
-c      hreal = 0
-c      if (mod(i/10,10) >= 4) hreal = 1 !this is lrsig in hambles.
-c      mode = 100000 + 4000 + 40*(1-hreal) + 000 + 10 !hreal=1 -> sig(T) is real
-c      mode = 100000 + 4000 + 40*(1) + 000 + 10 !hreal=1 -> sig(T) is real
       if(isp>nspsigm) then
          ispsigm = nspsigm
       else
@@ -61,70 +54,6 @@ c      mode = 100000 + 4000 + 40*(1) + 000 + 10 !hreal=1 -> sig(T) is real
                if(debug) print *,'end of bloch sene'
       end subroutine getsene
 !sssssssssssssssssssssssssssssssssssssssss      
-      
-! takao expected to replace bloch to be a simple version seneinterp2. But not yet...
-c     call seneinterp2(qp,nbas,nk1,nk2,nk3,plat, !npair,nlat,qwgt,npairmx,qsmesh,
-c     i        sfz(:,:,:,:,:,isp),ldim,ndimsig, 
-c     o        sene) 
-c$$$C--- This works OK for lmf mode when noshrbz=.true. because no interpolation is needed.
-c$$$C    Check comment out "sene=0" and "if(j1<=ldim.and.j2<=ldim) cycle" or not ---it depends on what you want to test.
-c$$$c          allocate(senex(ndimh,ndimh))
-c$$$          allocate(sene(ndimh,ndimh))
-c$$$c          senex=0d0
-c$$$          write(6,"(a,3f13.5)")'    qp=',qp
-c$$$          do ik1=1,nk1
-c$$$          do ik2=1,nk2
-c$$$          do ik3=1,nk3
-c$$$             write(6,"(a,3f13.5)")' qsmesh=',qsmesh(1:3,ik1,ik2,ik3)
-c$$$             if(sum(abs(qp-qsmesh(1:3,ik1,ik2,ik3)))<1d-6) goto 1013
-c$$$          enddo
-c$$$          enddo
-c$$$          enddo
-c$$$          stop 'xxxxx not qp=qsmesh xxxx'
-c$$$ 1013    continue
-c$$$          do j1=1,ndimh !ldim+napw
-c$$$          do j2=1,ndimh !ldim+napw
-c$$$c            if(j1<=ldim.and.j2<=ldim) cycle
-c$$$c            senex(j1,j2)= sfz(ik1,ik2,ik3,j1,j2,isp)
-c$$$            sene(j1,j2)= sfz(ik1,ik2,ik3,j1,j2,isp)
-c$$$          enddo
-c$$$          enddo
-c$$$c          print *,'ldim:abs and diff sene-senex=',sum(abs(sene(1:ldim,1:ldim)))
-c$$$c     &      ,sum(abs(sene(1:ldim,1:ldim)-senex(1:ldim,1g:ldim)))
-c$$$c          print *,'ndimh:abs and diff sene-senex=',sum(abs(sene))
-c$$$c     &      ,sum(abs(sene-senex))
-c$$$c          print *, 'end of test mode of sene newsigmasw=',newsigmasw()
-c$$$c          deallocate(senex)
-c$$$c          stop 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'
-c
-c$$$C--- This works OK for lmf mode when noshrbz=.true. for PMT
-c$$$C    Check comment out "sene=0" and "if(j1<=ldim.and.j2<=ldim) cycle" or not ---it depends on what you want to test.
-c$$$c          allocate(senex(ndimh,ndimh))
-c$$$          allocate(sene(ndimh,ndimh))
-c$$$c          senex=0d0
-c$$$          write(6,"(a,3f13.5)")'    qp=',qp
-c$$$          do ik1=1,nqps
-c$$$             write(6,"(a,i3,3f13.5)")' ik1 qsfz=',ik1,qsfz(1:3,ik1)
-c$$$             iq1=ik1
-c$$$            ii1=mod(iq1,2)+1
-c$$$            ii2=mod(iq1/2,2)+1
-c$$$            ii4=mod(iq1/4,2)+1
-c$$$            print *,' iq1 ii4,ii2,ii1 =',iq1,ii4,ii2,ii1
-c$$$             print *,' xxxxxxxxxxx this shows shorbz problem... xxxxxxxxx'
-c$$$             if(sum(abs(qp-qsfz(1:3,ik1)))<1d-6) goto 1013
-c$$$          enddo
-c$$$          stop 'xxxxx not qp=qsmesh xxxx'
-c$$$ 1013    continue
-c$$$          do j1=1,ndimh !ldim+napw
-c$$$          do j2=1,ndimh !ldim+napw
-c$$$c            if(j1<=ldim.and.j2<=ldim) cycle
-c$$$c            senex(j1,j2)= sfz(ik1,ik2,ik3,j1,j2,isp)
-c$$$            sene(j1,j2)= sfz(ii4,ii2,ii1,j1,j2,isp)
-c$$$          enddo
-c$$$          enddo
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      
-!sssssssssssssssssssssssssssssssssssssssss      
       subroutine seneinterp(nbas,nsp,ndimh,ifis,rsrnge, nk1,nk2,nk3,sfz)
       use m_hamindex,only: offH
       use m_mksym,only: rv_a_osymgr ,iv_a_oistab,rv_a_oag,lat_nsgrp
@@ -137,7 +66,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       use m_ext,only:sname
       implicit none
 !! seneinterp is used in hambls.F case (store real-space sigma to ham_rv_a_ohrs)
-      integer mode,nbas,ifis,ndimh,lwsig
+      integer mode,nbas,ifis,ndimh!,lwsig
       double precision rsrnge
       logical llshft(3),cmdopt,ltrans,lsplts,lnwmsh,
      .latvec,lfbzin,lfbzout
@@ -159,11 +88,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       complex(8) ,allocatable :: sigm2_zv(:)
       real(8) ,allocatable :: delt_rv(:)
       integer ,allocatable :: istb2_iv(:)
-      double precision tmp(3)
       real(8),allocatable:: evls(:),evlz(:),sigii(:)
       complex(8),allocatable:: siglda(:,:),z(:,:),sigo(:,:)
 C     For offset q mesh
-      integer is(3),lshft(3),ifac(3),lqoffo
+      integer is(3),lshft(3),ifac(3)!,lqoffo
       double precision rb(3,3),qb(3,3),qoffi(3),qoffo(3)
       double precision plat(3,3),qp(3),tolq,rsstol,qlat(3,3),rotm(3,3),qoff(3),ddot
 ! Given (j1,j2,j3) of ipq, q_k(j1,j2,j3) =  sum_i (j_i*ifac(i)-1)*qb(k,i)
@@ -179,58 +107,19 @@ C     For offset q mesh
       integer:: i_copy_size,nhrss,sigswitch,ibas,ifile_handle
       real(8),allocatable::hrss(:)
       logical:: l_dummy_isanrg, isanrg, debug=.false.,cmdopt0
-!!
       qk(k,jj1,jj2,jj3) = (jj1*ifac(1)-1)*qb(k,1) + (jj2*ifac(2)-1)*qb(k,2) +
      .(jj3*ifac(3)-1)*qb(k,3)
-c
       call tcn('seneinterp')
       if(master_mpi) write(stdo,*)'seneinterp: startxxx'
       mode=12 !lrsig=12
-      lwsig=0
       tolq = 1d-6
       ledit = 0
       lrsig = 2  ! mod(mode,10)
-      lwsig = 0
       moditp = 1 ! mod(mode/10,10)
       nscnts = 0
-      lqoffo = 0
-      lfbzout = .false.
-c      hreal = 0 !real or complex
       ltrans = .true. !mod(mode/1000,10) .eq. 0
-c      lphase = .false. !mod(mode/1000,10) .eq. 0
-c      lssym = 0 !mod(mode/10000,10)
-!! Command-line switches for input sigma and defaults
-c      call sigflg (dc= ' ' , sio='rsig' , strn=' ', lfbz=lfbzin  , lonesp=lonesp , qpoff=qoffi  )
-c      if (cmdopt('--rsig',6,0,outs)) then
-c        out2 = outs(7:)
-c        dc = out2(1:1)
-c        call sigflg ( dc=dc , sio='rsig' , strn=out2, lfbz=lfbzin  ,lonesp= lonesp , qpoff=qoffi  )
-c      endif
-c      if (cmdopt('--mixsig=',9,0,outs)) then
-c         call rx('rdsigm: not support --mixsig anymore')
-c      endif
-c      call info(10,1,0,' RDSIGM: read file sigm and create '//
-c     .'%?#n#REAL#COMPLEX# sigma(R) by FT ...',hreal,0)
-c      qoffi=0d0
-c      lfbzin=.false.
       ldham =ham_ldham
       rsstol=ham_rsstol
-
-c$$$      call info2(30,0,0,
-c$$$     .'%9fSigm will be approximated by:  '//
-c$$$     .'%?#(n==0)#Simple bloch sum##%-1j'//
-c$$$     .'%?#(n==1)#diagonal Sigma for high and low states##%-1j'//
-c$$$     .'%?#(n==2)#Perturbation for higher kappa blocks##%-1j'//
-c$$$     .'%?#(n==3)#Interpolation from known points##%-1j'//
-c$$$     .' ',moditp,0)
-c$$$
-c$$$      if (lfbzin .or. ddot(3,qoffi,1,qoffi,1).ne.0) then
-c$$$        call info5(30,0,0,'%?#(n==1)#%9fFile sigm in saved in FBZ: '//
-c$$$     .  'symmetrization suppressed##'//
-c$$$     .  '%?#(n==1)#%N%9fFile k-mesh is offset by:%3:2g#%j#'//
-c$$$     .  ' ',isw(lfbzin),isw(ddot(3,qoffi,1,qoffi,1).ne.0),qoffi,0,0)
-c$$$      endif
-
 !! --- Read header of sigma(orbital basis) from file ---
 !! ... Read k-mesh parameters
 !!     Require file contains sigm(orbital basis)
@@ -245,7 +134,6 @@ c$$$      endif
       else
         lsplts = .true.
       endif
-
       call info5(30,0,0,
      &   '%9fsigm file has %i irreducible QP: nk = ( %i %i %i )  shift=%3:1l',nqp,nk1,nk2,nk3,lshft)
       if (lsplts) call info0(30,0,0,
@@ -257,10 +145,8 @@ c$$$      endif
       k1=nk1
       k2=nk2
       k3=nk3
-
 C ... Number of group operations for input file sigma
       nsgrps = nsgrp
-c      if (lfbzin) nsgrps = 1
 C ... Make is,ifac,qb,qlat,qoff
       do i = 1, 3
         llshft(i) = lshft(i) .ne. 0
@@ -268,22 +154,7 @@ C ... Make is,ifac,qb,qlat,qoff
       call pshpr(0)
       call bzmsh0(plat,llshft,0,nk1,nk2,nk3,is,ifac,rb,qb)
       call poppr
-c      do i = 1, 3
-c        qoff(i) = qk(i,1,1,1) !+ qoffi(i)
-c     enddo
-c      qoff=0d0
       if(debug) print *,'seneinterp: debug FFFFFFF 2222'
-C ... Setup for r.s. hamiltonian: allocate and create pair table iax,ntab
-      call hft2rsinit ( nk1 , nk2 , nk3 , k1 , k2 , k3 ,  1 ,
-     .    nsp , nbas , rv_a_osymgr , rv_a_oag , nsgrp , rsrnge , offH
-     .    , plat , rv_a_opos ,  iv_a_ontabs ,
-     .    iv_a_oiaxs,ndimh)! , ndhrs , rv_dummy )
-      nttabs = ival ( iv_a_ontabs , nbas + 1 )
-      if(debug) print *,'seneinterp: FFFFFFF size iv_p_ontabls ndhrs=',size(iv_a_ontabs),ndhrs,nttabs
-      if (allocated(rv_a_ohrs)) deallocate(rv_a_ohrs)
-      allocate(rv_a_ohrs(2*ndhrs**2*nttabs*nsp))
-      rv_a_ohrs(:)=0d0
-
 C --- Get list of irreducible k-points, and ipq and gstar arrays ---
       mxkp = nk1*nk2*nk3
       if (allocated(rv_p_oqsig)) deallocate(rv_p_oqsig)
@@ -297,16 +168,23 @@ C --- Get list of irreducible k-points, and ipq and gstar arrays ---
       allocate(wgt_rv(mxkp))
       wgt_rv=0d0
       call info(20,1,0,' q-points in full BZ where sigma calculable ...',0,0)
-      call bzmesh(plat, qb, nk1, nk2, nk3, llshft, iwdummy, 0 , ipq_iv, rv_p_oqsig, wgt_rv, nqsig, mxkp, 0, 0 )
+      call bzmesh(plat,qb,nk1,nk2,nk3,llshft,iwdummy,0,ipq_iv,rv_p_oqsig,wgt_rv,nqsig,mxkp, 0, 0 )
       ham_nqsig=nqsig
       wgt_rv=0d0
       call info2(20,0,0,' Irr. qp for which sigma is calculated ...',0,0)
       call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_a_osymgr 
      .  , nsgrps , ipq_iv , rv_p_oqp , wgt_rv , nqps , mxkp , gstar_iv, 0 )
       l_dummy_isanrg=isanrg(nqp,nqps,nqps,'rdsigm','file sigm nqp',.true.)
-c      call info2(30,0,0,'%?#(n==1)#%1fFile sigm has k-offset=%3:2g '//
-c     .'relative to the above#%j# ',isw(ddot(3,qoffi,1,qoffi,1).ne.0),qoffi)
-
+! Create pair table iax,ntab
+      call hft2rsinit ( nk1 , nk2 , nk3 , k1 , k2 , k3 ,  1 ,
+     .    nsp , nbas , rv_a_osymgr , rv_a_oag , nsgrp , rsrnge , offH
+     .    , plat , rv_a_opos ,  iv_a_ontabs ,
+     .    iv_a_oiaxs,ndimh)! , ndhrs , rv_dummy )
+      nttabs = ival ( iv_a_ontabs , nbas + 1 )
+      if(debug) print *,'seneinterp: FFFFFFF size iv_p_ontabls ndhrs=',size(iv_a_ontabs),ndhrs,nttabs
+      if (allocated(rv_a_ohrs)) deallocate(rv_a_ohrs)
+      allocate(rv_a_ohrs(2*ndhrs**2*nttabs*nsp))
+      rv_a_ohrs(:)=0d0
 !! --- Generate hrs = sigma(T) from file sigma(k) ---
 !! ... Loop over spins, keeping sig in full BZ for only one spin
 !!     if (procid .eq. master) then
@@ -319,8 +197,7 @@ c     .'relative to the above#%j# ',isw(ddot(3,qoffi,1,qoffi,1).ne.0),qoffi)
              rewind ifis
              read(ifis)
           endif
-C ... FT sfz and copy sfz(T) to hrs
-c          i = 1 + 10000
+C ... FT sfz and copy sfz(T) to hrs (real space)
           call hft2rs ( nk1 , nk2 , nk3 , k1 , k2 , k3 , isp
      .         , nsp , nbas , rv_a_osymgr , rv_a_oag , nsgrps , rsrnge , offH      
      .         , 1 , nbas , ndimh, sfz ( 1 , 1 , 1 , 1 , 1 , isp )
@@ -335,19 +212,12 @@ c          i = 1 + 10000
       if (allocated(gstar_iv)) deallocate(gstar_iv)
       ham_ndhrs=ndhrs
       j1 = 0
-      call dpzero(tmp,3)
       if(debug) print *,'a8 22222222222 goto chksgr'
 !! --- chksgr read again sigm file---> but it is not for generating new quantities, just for check.
       call chksgr ( j1 , ltrans , plat , nsp , ndimh , ifis
      .     , iprmb , nttabs , iv_a_oiaxs , rv_a_ohrs , ndhrs 
      .     , rsstol , i , rv_p_oqp , nbas , 0 , rotm , iwdummy )
-      
       if(debug) print *,' a8 end of chksgr 3333333333'
-      if ( .not.( cmdopt0('--wsig') .or. cmdopt0('-wsig')) ) then
-         if (allocated(rv_p_oqp)) deallocate(rv_p_oqp)
-      endif
-      if(debug) print *,' a8 3333333333'
-      
 C --- Symmetrize hrs ---
 C     Best to use nsgrp here instead of nsgrps.
 C     However, neighbor table was generated for nsgrps, and may be
@@ -377,51 +247,6 @@ C   ... Broadcast R.S. sigma after symmetrization
       if(debug) print *,' a8 6666666666666'
 C ... Transformations done by caller: write qp list to disk
    99 continue
-      if (lwsig .ne. 0) then
-        call info0(30,0,0,' ')
-        if (lnwmsh) then
-           nkxyz=bz_nabc !sbz
-           lshft=bz_lshft
-           nqp=bz_nkp
-          call info2(20,0,0,
-     .    ' Transform sigma on new k-mesh:  '//
-     .    'nk=%3:1i  shft=%3:1l',nkxyz,lshft)
-        endif
-        if (lfbzout) then
-          mxkp = nk1*nk2*nk3
-          call info(20,0,0,' rdsigm: use full BZ (%i q-points)...',mxkp,0)
-          allocate(rv_p_oqp(abs(3*mxkp)))
-          allocate(ipq_iv(mxkp))
-          allocate(wgt_rv(mxkp))
-          wgt_rv=0d0
-          i_copy_size=size(lat_plat)
-          call dcopy(i_copy_size,lat_plat,1,plat,1)
-C   ... Make is,ifac,qb,qlat
-          do   i = 1, 3
-            llshft(i) = lshft(i) .ne. 0
-          enddo
-          call pshpr(0)
-          call bzmsh0(plat,llshft,0,nk1,nk2,nk3,is,ifac,rb,qb)
-          call poppr
-          call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , iwdummy 
-     .      , 0 , ipq_iv , rv_p_oqp , wgt_rv , nqp , mxkp , 0 , 0 )
-          if (allocated(delt_rv)) deallocate(delt_rv)
-          if (allocated(wgt_rv)) deallocate(wgt_rv)
-        endif
-C ... Write points to disk, shifting by qoffo
-        if (lqoffo .ne. 0) then
-          do  i = 1, nqp
-            call dmsadd ( rv_p_oqp , 1 , qoffo , 1 , 1 , 3 , 1 , 1 , 3 * 
-     .       i - 2 , 1 , 1d0 )
-          enddo
-        endif
-        if(master_mpi.and.iprint()>30) write(stdo,"(a)")' RDSIGM: writing data to file QPTS ...'
-        ifiz=ifile_handle()
-        open(ifiz,file='qpts.'//trim(sname))
-        call getqp(1, -ifiz, nqp , nkxyz , lshft , 0 , rv_p_oqp, iwdummy , iwdummy )
-        close(ifiz)
-        if (lfbzout.and.allocated(ipq_iv)) deallocate(ipq_iv)
-      endif
       nsizeohrs  = size( rv_a_ohrs )
       nsizeoiaxs = size( iv_a_oiaxs )
       nsizeontabs= size( iv_a_ontabs)
@@ -429,7 +254,6 @@ C ... Write points to disk, shifting by qoffo
       call tcx('seneinterp')
       if (allocated(gstar_iv)) deallocate(gstar_iv)
       end subroutine seneinterp
-      
 !ssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine senebroadcast(procid,master,mlog)
       integer,parameter::niax=10
@@ -451,10 +275,6 @@ C ... Write points to disk, shifting by qoffo
       call mpibc1(rv_a_ohrs,  nsizeohrs, 4,mlog,'bndfp','ohrs')
       call mpibc1(rv_p_oqsig, noqsig,4,mlog,'bndfp','noqsig')
       end subroutine senebroadcast
-
-      
-      
-      
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine m_rdsigm2_init()
       use m_lmfinit,only : rsrnge=>ham_rsrnge,nbas,pwmode=>ham_pwmode
@@ -496,7 +316,6 @@ C ... Write points to disk, shifting by qoffo
      &        nk1,nk2,nk3,ldim,qsmesh2,sfz,  nqps, mtosigmaonly(),ndimsig) 
          close(ifi) 
 !! --- write sig_fbz for SYMGRP e
-c            if(.not.cmdopt('--wsig_fbz',10,0,strn).and.oncewrite(10)) then
          if(cmdopt0('--wsig_fbz')) then
            open(newunit=ifis2,file='sigm_fbz.'//trim(sname),form='unformatted')
            write(6,"(a)")' Writing sigm_fbz.* for SYMGRP e --wsig_fbz'
@@ -513,7 +332,6 @@ c            if(.not.cmdopt('--wsig_fbz',10,0,strn).and.oncewrite(10)) then
            enddo
            close(ifis2) !call fclose(ifis2)
          endif
-c
           
 !! mesh generator.  Unused yet...->in future, we will use this.
 c$$$            allocate(npair(nbas,nbas),pos(3,nbas))
@@ -556,8 +374,7 @@ c#endif
  9995 continue
       call rx('sigmainit: readin error of sigm file')
       end subroutine m_rdsigm2_init
-      
-!!--------------------------------------------------------------------------------------------
+!!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine rdsigm2(nbas_dummy,nsp,ifis, 
      &     nk1,nk2,nk3,ldim,qsmesh,sfz     ,nqps,mtosigmaonly,ndimsig) !,qsfz,qqps are for test
       use m_mksym,only: rv_a_osymgr,lat_nsgrp
@@ -746,9 +563,6 @@ Cu   27 Jul 02 first created
 C ------------------------------------------------------------
       implicit none
       integer mode,ifis,ndimsig_r,lwsig, nbas_dummy!nbas,
-c      type(s_lat)::slat
-c      type(s_ham)::sham
-c      type(s_bz)::sbz
       double precision rsrnge
       logical llshft(3),cmdopt,ltrans,lphase,lsplts,lnwmsh,
      .latvec,lfbzin,lfbzout
@@ -760,7 +574,6 @@ c      type(s_bz)::sbz
      .lrot,iprint,lssym,ledit,nscnts,
      .ndims,ndimz,iq,n123(4),lcore,lhigh
       integer,parameter::niax=10
-c      equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
       integer:: ohrss , osigm2 , odelt , oistb2
       integer ,allocatable :: gstar_iv(:)
       integer ,allocatable,target :: ipq(:,:,:)
@@ -768,31 +581,12 @@ c      equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
       real(8) ,allocatable :: wgt_rv(:)
       complex(8) ,allocatable :: wk_zv(:)
       complex(8) ,allocatable :: sigm_zv(:,:)
-      double precision tmp(3)
       real(8),allocatable:: evls(:),evlz(:),sigii(:)
       complex(8),allocatable:: siglda(:,:),z(:,:),sigo(:,:)
-C     For offset q mesh
       integer is(3),lshft(3),ifac(3) !,lqoffo
       double precision rb(3,3),qb(3,3) !,qoffi(3),qoffo(3)
-C MPI
-c      logical mlog
-c      integer procid,mpipid,master
-C ... for mixing sigma files: Use alf1*sigm + alf2*sigm1
-c      double precision alf(2)
-C     integer os
       double precision qp(3),tolq,rsstol,rotm(3,3),ddot  !plat(3,3),qlat(3,3)
-c      double precision emin,emax,asig,bsig,efit !,qoff(3)
-c      equivalence (emin,sigp(3)),(emax,sigp(5)),sigp(10)
-c      equivalence (asig,sigp(6)),(bsig,sigp(7)),(efit,sigp(8))
-C Given (j1,j2,j3) of ipq, q_k(j1,j2,j3) =  sum_i (j_i*ifac(i)-1)*qb(k,i)
-c      double precision qk
       integer jj1,jj2,jj3,k
-C.....titus
-C      integer ib,ib1,ib2,nlmaa,lidim,ldh,osfz1,nsp1
-C      integer nkap0,n0H
-C      parameter  (nkap0=3,n0H=5)
-C      integer offH(n0H,nkap0,nbas)
-C.....titus
       integer ::iwdummy
       real(8):: qsmesh(3,nk1,nk2,nk3) !eseavr,
       integer:: i1,i2,i3,ikt,ldim,napw_in,debugmode
@@ -800,7 +594,6 @@ C.....titus
       complex(8)::sfz(nk1,nk2,nk3,ndimsig,ndimsig,nsp)
       integer:: i_copy_size,ix
       logical:: isanrg, l_dummy_isanrg,debug=.false.,mtosigmaonly,laf
-
       real(8):: qir(3),diffq(3),platt(3,3)
       integer:: ii1,ii2,ii4,ispr,iaf,ig
       character(300)::aaa
@@ -1045,26 +838,8 @@ c       write(6,"(a,3f13.5)")
       enddo
       if(debugmode()>0) print *, 'hamfb3k: end...'
       call tcx('hamfb3k')
-c      write(6,"(a,i3,3f13.5)")'end of hamfb3k: ierr qin=',ierr,qin
-c      if(sum(abs(qin-[0d0,0d0,0.03295d0]))<1d-3.and.ierr==1) stop 'test end xxxxxxxxxxxxxxxxxxxxxxxx'
-c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
-c$$$       isp=1
-c$$$       open(3013,file="sfz_gfbz")
-c$$$       do j1=1,ldima
-c$$$       do j2=1,ldimb
-c$$$        do ik1=1,k1
-c$$$        do ik2=1,k2
-c$$$        do ik3=1,k3
-c$$$          write(3013,"(6i4,2d13.5)")ik1,ik2,ik3,j1,j2,isp,gfbz(ik1,ik2,ik3,j1,j2)
-c$$$c           write(3012,"(6i4,2d13.5)")ik1,ik2,ik3,j1,j2,isp,sfz(ik1,ik2,ik3,j1,j2)
-c$$$        enddo
-c$$$        enddo
-c$$$        enddo
-c$$$       enddo
-c$$$       enddo
-c$$$       close(3013)
-c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
       end
+!!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
 !! See fpgw/gwsrc/readeigen.F. 
       subroutine rotsig(qin,qout,ndimh,napw_in,ldim,sig,sigout,ierr,iaf) !iaf is added @jun2015takao
       use m_hamindex,only: symops,invgx,miat,tiat,shtvg,qlat,plat,dlmm,ngrp,norbmto,
@@ -1078,7 +853,6 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
 !! (read from QGpsi).
 !! Used idea is   <base(qin)|sigma(qin)|base(qin)> = <g(base)|sigma |g(base)>.   
 !! where qin=g(qout).  qtarget=qin= g(q=qout)
-
       integer   :: ig,ndimh,napw_in,ibaso,iorb,nnn(3),igx,init1,init2,iend1,iend2,nlmto,ierr,igg,ikt2,ikt,l,ibas,ig2,k,ix
       real(8):: qin(3),qout(3)
       real(8)   :: q(3),delta(3),ddd(3),qpg(3),platt(3,3),qtarget(3),qx(3),det,qpgr(3),ddd2(3) !plat(3,3),qlat(3,3)
@@ -1229,7 +1003,7 @@ c          call conv2int( matmul(platt,qpgr-qtarget),nnn,3 )
       end subroutine rotsig
       end module m_rdsigm2
 
-
+!!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
 !!--- xxxx -----future version... hamfb3k, bloch will be replaced -----------------
       module m_seneinput_futureversion_unusedyet
       implicit none
@@ -1734,7 +1508,7 @@ C      else
 C        call zprm('Uz',2,Uz,ldU,ldU,ldU)
 C      endif
       end subroutine rothrm
-      
+!!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine chksgr(opt,ltrans,plat,nsp,ndimh,ifis, !hreal, !kcplx
      .iprmb,nttabs,iaxs,hrs,ndhrs,tols,nqp,qplst,nbas,lrot,rotm,
      .delT)
@@ -2072,3 +1846,67 @@ C   --- For all orbitals belonging to site ib, h->phase*h and/or h->h*phase+
         endif
       enddo
       end subroutine rothph
+
+      
+! takao expected to replace bloch to be a simple version seneinterp2. But not yet...
+c     call seneinterp2(qp,nbas,nk1,nk2,nk3,plat, !npair,nlat,qwgt,npairmx,qsmesh,
+c     i        sfz(:,:,:,:,:,isp),ldim,ndimsig, 
+c     o        sene) 
+c$$$C--- This works OK for lmf mode when noshrbz=.true. because no interpolation is needed.
+c$$$C    Check comment out "sene=0" and "if(j1<=ldim.and.j2<=ldim) cycle" or not ---it depends on what you want to test.
+c$$$c          allocate(senex(ndimh,ndimh))
+c$$$          allocate(sene(ndimh,ndimh))
+c$$$c          senex=0d0
+c$$$          write(6,"(a,3f13.5)")'    qp=',qp
+c$$$          do ik1=1,nk1
+c$$$          do ik2=1,nk2
+c$$$          do ik3=1,nk3
+c$$$             write(6,"(a,3f13.5)")' qsmesh=',qsmesh(1:3,ik1,ik2,ik3)
+c$$$             if(sum(abs(qp-qsmesh(1:3,ik1,ik2,ik3)))<1d-6) goto 1013
+c$$$          enddo
+c$$$          enddo
+c$$$          enddo
+c$$$          stop 'xxxxx not qp=qsmesh xxxx'
+c$$$ 1013    continue
+c$$$          do j1=1,ndimh !ldim+napw
+c$$$          do j2=1,ndimh !ldim+napw
+c$$$c            if(j1<=ldim.and.j2<=ldim) cycle
+c$$$c            senex(j1,j2)= sfz(ik1,ik2,ik3,j1,j2,isp)
+c$$$            sene(j1,j2)= sfz(ik1,ik2,ik3,j1,j2,isp)
+c$$$          enddo
+c$$$          enddo
+c$$$c          print *,'ldim:abs and diff sene-senex=',sum(abs(sene(1:ldim,1:ldim)))
+c$$$c     &      ,sum(abs(sene(1:ldim,1:ldim)-senex(1:ldim,1g:ldim)))
+c$$$c          print *,'ndimh:abs and diff sene-senex=',sum(abs(sene))
+c$$$c     &      ,sum(abs(sene-senex))
+c$$$c          print *, 'end of test mode of sene newsigmasw=',newsigmasw()
+c$$$c          deallocate(senex)
+c$$$c          stop 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'
+c
+c$$$C--- This works OK for lmf mode when noshrbz=.true. for PMT
+c$$$C    Check comment out "sene=0" and "if(j1<=ldim.and.j2<=ldim) cycle" or not ---it depends on what you want to test.
+c$$$c          allocate(senex(ndimh,ndimh))
+c$$$          allocate(sene(ndimh,ndimh))
+c$$$c          senex=0d0
+c$$$          write(6,"(a,3f13.5)")'    qp=',qp
+c$$$          do ik1=1,nqps
+c$$$             write(6,"(a,i3,3f13.5)")' ik1 qsfz=',ik1,qsfz(1:3,ik1)
+c$$$             iq1=ik1
+c$$$            ii1=mod(iq1,2)+1
+c$$$            ii2=mod(iq1/2,2)+1
+c$$$            ii4=mod(iq1/4,2)+1
+c$$$            print *,' iq1 ii4,ii2,ii1 =',iq1,ii4,ii2,ii1
+c$$$             print *,' xxxxxxxxxxx this shows shorbz problem... xxxxxxxxx'
+c$$$             if(sum(abs(qp-qsfz(1:3,ik1)))<1d-6) goto 1013
+c$$$          enddo
+c$$$          stop 'xxxxx not qp=qsmesh xxxx'
+c$$$ 1013    continue
+c$$$          do j1=1,ndimh !ldim+napw
+c$$$          do j2=1,ndimh !ldim+napw
+c$$$c            if(j1<=ldim.and.j2<=ldim) cycle
+c$$$c            senex(j1,j2)= sfz(ik1,ik2,ik3,j1,j2,isp)
+c$$$            sene(j1,j2)= sfz(ii4,ii2,ii1,j1,j2,isp)
+c$$$          enddo
+c$$$          enddo
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      

@@ -176,8 +176,8 @@ C --- Mode 0 (setup) make and reduce iax table ---c     if (mode0 .eq. 0) then
 !  ... pair table for rs hamiltonian
       call pshpr(min(ipr-10,30))
       mxcsiz = 0
-      call pairs ( nbas , nbas , 1d0 , plat , ( / range / 2 / ) , pos
-     .     , ( / - 1 / ) , 3 , - 1 , (/iwdummy/) , nttab , ntab , iax , mxcsiz )
+      call pairs ( nbas , nbas , 1d0 , plat , [ range/2d0 ] , pos,
+     .     [-1], 3, -1, [iwdummy], nttab , ntab , iax , mxcsiz )
       call poppr
 C     ... Standard Bloch transform doesn't require mapping to mesh
 C     ... Mark all members in iax table with vector in sfz (for FFT)
@@ -293,9 +293,9 @@ Ci Inputs: mode=110
 Ci   mode  :1s digit
 Ci         :0 enlarge table to make it compatible with symops
 Ci         :10s digit
-Ci         :0 Add or subtract pairs found from the group operations
-Ci         :  2..ng but do not require that each ri-rj has a
-Ci         :  matching pair rj-ri.
+Cixxx         :0 Add or subtract pairs found from the group operations
+Cixxx         :  2..ng but do not require that each ri-rj has a
+Cixxx         :  matching pair rj-ri.
 Ci         :1 also guarantee that any ri-rj in the table has a
 Ci         :  matching pair rj-ri
 Ci         :100s digit
@@ -327,15 +327,12 @@ Cu   26 Sep 03 Bug fix: use grpfnd instead of gpfndx
 Cu   29 Aug 02 First created
 C ---------------------------------------------------------------
       implicit none
-      integer niax,nbas,ntab(nbas+1),ng,nttab,mode,mxcsz,ibas,i
-      parameter (niax=10)
+      integer:: nbas,ntab(nbas+1),ng,nttab,mode,mxcsz,ibas,i
+      integer,parameter:: niax=10
       integer iax(niax,nttab)
-      double precision pos(3,*),g(3,3,*),ag(3,*),plat(3,3)
-
-      integer ldiaxb,ib,grow,ix
-      integer ,allocatable :: iaxib(:,:,:)
-      integer ,allocatable :: ntabib(:)
-      real(8):: dx
+      real(8):: pos(3,*),g(3,3,*),ag(3,*),plat(3,3),dx
+      integer:: ldiaxb,ib,grow,ix
+      integer,allocatable :: iaxib(:,:,:), ntabib(:)
       dx(ix,ibas,i) = pos(ix,iaxib(2,ibas,i)) - pos(ix,iaxib(1,ibas,i))
      &     + sum(plat(ix,1:3)*iaxib(3:5,ibas,i))
 C ... Copy iax to fixed-basis format
@@ -412,9 +409,9 @@ C     debugging check
                   goto 22
 C     ... Connecting vector found for rotated point
  42               continue
-                  if (ipr .ge. 110)
-     .                 call info8(90,0,0,' ig=%i isite=%i, ib,jb=%i %i  maps to '//
-     .                 'site=%i, ibp,jbp=%i %i',ig,isite,ib,jb,ksite,ibp,jbp,0)
+c                  if (ipr .ge. 110)
+c     .                 call info8(90,0,0,' ig=%i isite=%i, ib,jb=%i %i  maps to '//
+c     .                 'site=%i, ibp,jbp=%i %i',ig,isite,ib,jb,ksite,ibp,jbp,0)
  22            continue
  20         continue
 C     Restart this loop if new pair added
@@ -554,6 +551,7 @@ C     NB : Connecting vector is pos(src)-pos(field) = -rtab
                 if(ia==iax(2,is) .and. sum(abs(v(:)+rtab(:,is)))< tol) goto 309
              enddo   
              nmiss = nmiss+1
+             cycle
  309         continue
              nhit = nhit+1
              if (mode == 0) then
