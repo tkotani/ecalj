@@ -189,15 +189,15 @@ C ... Passed parameters
 C ... Local parameters
       integer jfi,i1,i2,i3,i4,i5,i6,i7,i8,i9,ivsn,modef
       logical:: isanrg, l_dummy_isanrg
-      if (ifi .lt. 0) then
-        ivsn = 1
-C       if (mode .eq. 0) ivsn = 0
-        jfi = -ifi
-        rewind jfi
-C       Write 0 => file contains version number (versions 1 and later)
-        if (ivsn .ne. 0) write(jfi) 0, ivsn, mode
-        write(jfi) nsp,ndimh,nk1,nk2,nk3,nqp,lshft1,lshft2,lshft3
-      elseif (optio .eq. 0) then
+      if (ifi .lt. 0) call rx('iosigh,ifi<0')
+c$$$        ivsn = 1
+c$$$C       if (mode .eq. 0) ivsn = 0
+c$$$        jfi = -ifi
+c$$$        rewind jfi
+c$$$C       Write 0 => file contains version number (versions 1 and later)
+c$$$        if (ivsn .ne. 0) write(jfi) 0, ivsn, mode
+c$$$        write(jfi) nsp,ndimh,nk1,nk2,nk3,nqp,lshft1,lshft2,lshft3
+      if (optio .eq. 0) then
         rewind ifi
 C       Read version, checking whether header is pre- version 1
         read(ifi,err=99,end=99) i1,ivsn,mode

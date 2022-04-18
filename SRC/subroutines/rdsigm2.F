@@ -54,7 +54,7 @@
                if(debug) print *,'end of bloch sene'
       end subroutine getsene
 !sssssssssssssssssssssssssssssssssssssssss      
-      subroutine seneinterp(nbas,nsp,ndimh,ifis,rsrnge, nk1,nk2,nk3,sfz)
+      subroutine seneinterp(nbas,nsp,ndimh,rsrnge, nk1,nk2,nk3,sfz)
       use m_hamindex,only: offH
       use m_mksym,only: rv_a_osymgr ,iv_a_oistab,rv_a_oag,lat_nsgrp
       use m_hft2rs
@@ -110,6 +110,7 @@ C     For offset q mesh
       qk(k,jj1,jj2,jj3) = (jj1*ifac(1)-1)*qb(k,1) + (jj2*ifac(2)-1)*qb(k,2) +
      .(jj3*ifac(3)-1)*qb(k,3)
       call tcn('seneinterp')
+      open(ifis,file='sigm.'//trim(sname),form='unformatted')
       if(master_mpi) write(stdo,*)'seneinterp: startxxx'
       mode=12 !lrsig=12
       tolq = 1d-6
@@ -123,22 +124,21 @@ C     For offset q mesh
 !! --- Read header of sigma(orbital basis) from file ---
 !! ... Read k-mesh parameters
 !!     Require file contains sigm(orbital basis)
-      call iosigh(0,nscnts,i,j,nk1,nk2,nk3,nqp,lshft(1),lshft(2),lshft(3),ifis)
-      if (nscnts .ne. 0 .and. nscnts .ne. 5) then
-         call iosigh(2,0,i,j,nk1,nk2,nk3,nqp,lshft(1),lshft(2),lshft(3),ifis)
-      endif
-      if (i .eq. nsp) then
-        lsplts = .false.
-      elseif (i .gt. nsp) then
-        call rx('rdsigm: sigm file spin polarized but calculation is not')
-      else
-        lsplts = .true.
-      endif
-      call info5(30,0,0,
-     &   '%9fsigm file has %i irreducible QP: nk = ( %i %i %i )  shift=%3:1l',nqp,nk1,nk2,nk3,lshft)
-      if (lsplts) call info0(30,0,0,
-     &   '%9f(warning) sigm file not spin pol .. splitting spins') !sanity check
-      if(debug) print *,'seneinterp: debug EEEEEEEEEE'
+c      call iosigh(0,nscnts,i,j,nk1,nk2,nk3,nqp,lshft(1),lshft(2),lshft(3),ifis)
+c      if (nscnts .ne. 0 .and. nscnts .ne. 5) then
+c         call iosigh(2,0,i,j,nk1,nk2,nk3,nqp,lshft(1),lshft(2),lshft(3),ifis)
+c      endif
+c      if (i .gt. nsp) call rx('rdsigm: sigm file spin polarized but calculation is not')
+c      if (i .eq. nsp) then
+c        lsplts = .false.
+c      else
+c        lsplts = .true.
+c      endif
+c      call info5(30,0,0,
+c     &   '%9fsigm file has %i irreducible QP: nk = ( %i %i %i )  shift=%3:1l',nqp,nk1,nk2,nk3,lshft)
+c      if (lsplts) call info0(30,0,0,
+c     &   '%9f(warning) sigm file not spin pol .. splitting spins') !sanity check
+c      if(debug) print *,'seneinterp: debug EEEEEEEEEE'
       plat = lat_plat
       nsgrp= lat_nsgrp
       call offshp ( iprmb , 1 , nbas , 2 , 0 , ndimh , 0 , ndhrs )
@@ -149,7 +149,7 @@ C ... Number of group operations for input file sigma
       nsgrps = nsgrp
 C ... Make is,ifac,qb,qlat,qoff
       do i = 1, 3
-        llshft(i) = lshft(i) .ne. 0
+        llshft(i) = .false. !lshft(i) .ne. 0
       enddo
       call pshpr(0)
       call bzmsh0(plat,llshft,0,nk1,nk2,nk3,is,ifac,rb,qb)
@@ -174,7 +174,7 @@ C --- Get list of irreducible k-points, and ipq and gstar arrays ---
       call info2(20,0,0,' Irr. qp for which sigma is calculated ...',0,0)
       call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_a_osymgr 
      .  , nsgrps , ipq_iv , rv_p_oqp , wgt_rv , nqps , mxkp , gstar_iv, 0 )
-      l_dummy_isanrg=isanrg(nqp,nqps,nqps,'rdsigm','file sigm nqp',.true.)
+c      l_dummy_isanrg=isanrg(nqp,nqps,nqps,'rdsigm','file sigm nqp',.true.)
 ! Create pair table iax,ntab
       call hft2rsinit ( nk1 , nk2 , nk3 , k1 , k2 , k3 ,  1 ,
      .    nsp , nbas , rv_a_osymgr , rv_a_oag , nsgrp , rsrnge , offH
@@ -189,11 +189,11 @@ C --- Get list of irreducible k-points, and ipq and gstar arrays ---
 !! ... Loop over spins, keeping sig in full BZ for only one spin
 !!     if (procid .eq. master) then
       do 1201 isp = 1, nsp
-          if(debug) print *,' seneinterp:do 1201 start isp lsplts=',isp,lsplts
-          if(debug) print *,'    ndimh nk1nk2nk3,nqp=', ndimh,nk1,nk2,nk3,nqp
+          if(debug) print *,' seneinterp:do 1201 start isp =',isp
+          if(debug) print *,'    ndimh nk1nk2nk3,nqp=', ndimh,nk1,nk2,nk3,nqps
           if(debug) print *,'    lshft,ifis=',lshft(1),lshft(2),lshft(3),ifis
 !!     If sigma file not spin polarized, use sigma from spin 1
-          if (isp .eq. 2 .and. lsplts) then
+          if (isp .eq. 2 ) then
              rewind ifis
              read(ifis)
           endif
@@ -253,6 +253,7 @@ C ... Transformations done by caller: write qp list to disk
       noqsig = size(     rv_p_oqsig)
       call tcx('seneinterp')
       if (allocated(gstar_iv)) deallocate(gstar_iv)
+      close(ifis)
       end subroutine seneinterp
 !ssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine senebroadcast(procid,master,mlog)
@@ -354,10 +355,9 @@ c$$$            deallocate(pos,npair)
 !!    which is used in the following 'call bloch' to obtain Sigm-Vxc for any q point by interpolation.
 !! NOTE: sigm file is read again within seneinterp-chksgr, and compared with FFT-sfz.
             ifi = ifile_handle()
-            open(ifi,file='sigm.'//trim(sname),form='unformatted')
-            call seneinterp(nbas,nspsigm,ndimsig,ifi,rsrnge, 
+            call seneinterp(nbas,nspsigm,ndimsig,rsrnge, 
      &        nk1,nk2,nk3,sfz)  !NOTE: output is stored in rv_a_ohrs in m_seneinterp
-            close(ifi) 
+c            close(ifi) 
             deallocate(sfz,qsmesh2) !,nlat,nqwgt)
       endif                  !procid==master
       if(cmdopt0('--wsig_fbz')) call rx0('end of --wsig_fbz mode')
@@ -595,7 +595,7 @@ C ------------------------------------------------------------
       integer:: i_copy_size,ix
       logical:: isanrg, l_dummy_isanrg,debug=.false.,mtosigmaonly,laf
       real(8):: qir(3),diffq(3),platt(3,3)
-      integer:: ii1,ii2,ii4,ispr,iaf,ig
+      integer:: ii1,ii2,ii4,ispr,iaf,ig,nsp_,ndimh_,nk1_,nk2_,nk3_,nqp_
       character(300)::aaa
       integer,allocatable,target:: ipqaf(:,:,:)
        integer,pointer:: ipq_pointer(:,:,:)
@@ -619,23 +619,22 @@ C     --- Read sigma(orbital basis) from file ---
       lssym  = 0
       lonesp = 0
       lfbzin = .false.
-      call iosigh(0,nscnts,i,j,nk1,nk2,nk3,nqp,lshft(1),lshft(2), lshft(3),ifis)
       lshft=0
-      if (i == nsp) then
-        lsplts = .false.
-      elseif (i > nsp) then
-         print *,'i,nsp=',i,nsp
-        call rx('rdsigm: sigm file spin polarized but ctrl is not')
-      else
-        lsplts = .true.
-      endif
-      if (lsplts) call info0(30,0,0,'%9f(warning) sigm file not spin pol .. splitting spins')
-      rewind ifis
+c$$$      if (i == nsp) then
+c$$$        lsplts = .false.
+c$$$      elseif (i > nsp) then
+c$$$         print *,'i,nsp=',i,nsp
+c$$$        call rx('rdsigm: sigm file spin polarized but ctrl is not')
+c$$$      else
+c$$$        lsplts = .true.
+c$$$      endif
+c$$$      if (lsplts) call info0(30,0,0,'%9f(warning) sigm file not spin pol .. splitting spins')
 !! takao add iosig optio=0 to get ndimsig_r.
-      call iosigh(0,nscnts,i,ndimsig_r,nk1,nk2,nk3,nqp,lshft(1),lshft(2),lshft(3),ifis)
-      call iosigh(3,nscnts,i,ndimsig_r,nk1,nk2,nk3,nqp,lshft(1),lshft(2),lshft(3),ifis)
-      call info5(30,0,0,'%9fsigm file has %i irreducible QP: nk ='//
-     .' ( %i %i %i )  shift=%3:1l',nqp,nk1,nk2,nk3,lshft)
+      rewind ifis
+      read(ifis) nsp_,ndimsig_r,nk1_,nk2_,nk3_,nqp_
+c      call iosigh(0,nscnts,i,ndimsig_r,nk1,nk2,nk3,nqp,lshft(1),lshft(2),lshft(3),ifis)
+c      call iosigh(3,nscnts,i,ndimsig_r,nk1,nk2,nk3,nqp,lshft(1),lshft(2),lshft(3),ifis)
+      write(stdo,"(' sigm file has ',i5,' irreducible QP: nk =',3i5)") nqp,nk1,nk2,nk3
       nsgrp=lat_nsgrp
       k1=nk1
       k2=nk2
@@ -644,7 +643,7 @@ C     --- Read sigma(orbital basis) from file ---
       print *,' lat_nsgrp=',lat_nsgrp
 C ... Make is,ifac,qb,qlat,qoff
       do i = 1, 3
-        llshft(i) = lshft(i) .ne. 0
+        llshft(i) = .false. !lshft(i) .ne. 0
       enddo
       call bzmsh0(plat,llshft,0,nk1,nk2,nk3,is,ifac,rb,qb)
 C --- Get list of irreducible k-points, and ipq and gstar arrays ---
@@ -665,7 +664,7 @@ C --- Get list of irreducible k-points, and ipq and gstar arrays ---
       call info2(20,0,0,' Irr. qp for which sigma is calculated ...',0,0)
       call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_a_osymgr 
      . , nsgrps , ipq, qp_rv , wgt_rv , nqps , mxkp , gstar_iv , 0 )
-      l_dummy_isanrg=isanrg(nqp,nqps,nqps,'rdsigm','file sigm nqp',.true.)
+      if(nqps/=nqp_) call rx('nqps/=nqp_ from sigm')
       platt=transpose(plat)
 !! qmesh
       do i1=1,nk1
@@ -708,9 +707,10 @@ c              print *,'symops(:,:,ig) diffq',symops(:,:,ig),diffq
       endif
 C --- Generate hrs = sigma(T) from file sigma(k) ---
       do  isp = 1, nsp
-C     If sigma file not spin polarized, use sigma from spin 1
-          if (isp==2 .and. lsplts) then
-            call iosigh(3,0,1,ndimsig_r,nk1,nk2,nk3,nqp, lshft(1),lshft(2),lshft(3),ifis)
+         if (isp==2.and.nsp_==1 ) then !If sigm file not spin polarized, use sigm from spin 1
+            rewind ifis
+            read(ifis)
+c            call iosigh(3,0,1,ndimsig_r,nk1,nk2,nk3,nqp, lshft(1),lshft(2),lshft(3),ifis)
           endif
           allocate(wk_zv(ndimsig_r**2))
           nspc = 1

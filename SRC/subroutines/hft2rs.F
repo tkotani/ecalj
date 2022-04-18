@@ -548,19 +548,18 @@ C     NB : Connecting vector is pos(src)-pos(field) = -rtab
              endif
              v(:) = -(gv(ig,:) - tau(:))
              do is = is1, is2   !If a match in the iax table is found, copy hij there
-                if(ia==iax(2,is) .and. sum(abs(v(:)+rtab(:,is)))< tol) goto 309
+                if(ia==iax(2,is) .and. sum(abs(v(:)+rtab(:,is)))< tol) then
+                   nhit = nhit+1
+                   if (mode == 0) then
+                      iax(8,is) = -1
+                   else
+                      hrs(1:nlma,1:nlmb,isp,is) = transpose(hij(i1,i2,i3,1+offj:nlmb+offj,1+offi:nlma+offi))
+                      dimx=maxval(dreal(hrs(1:nlma,1:nlmb,isp,is)))
+                      dimy=maxval(dimag(hrs(1:nlma,1:nlmb,isp,is)))
+                   endif
+                endif
              enddo   
              nmiss = nmiss+1
-             cycle
- 309         continue
-             nhit = nhit+1
-             if (mode == 0) then
-                iax(8,is) = -1
-             else
-                hrs(1:nlma,1:nlmb,isp,is) = transpose(hij(i1,i2,i3,1+offj:nlmb+offj,1+offi:nlma+offi))
-                dimx=maxval(dreal(hrs(1:nlma,1:nlmb,isp,is)))
-                dimy=maxval(dimag(hrs(1:nlma,1:nlmb,isp,is)))
-             endif
  109      continue
           dmx(1) = max(dmx(1),dimx) 
           dmx(2) = max(dmx(2),dimy)
