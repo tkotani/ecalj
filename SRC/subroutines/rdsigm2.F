@@ -271,13 +271,10 @@ C ... Make is,ifac,qb,qlat,qoff
 c      do i = 1, 3
 c        qoff(i) = qk(i,1,1,1) !+ qoffi(i)
 c     enddo
-      qoff=0d0
+c      qoff=0d0
       if(debug) print *,'seneinterp: debug FFFFFFF 2222'
-C ... Setup for r.s. hamiltonian: allocate and create iax,ntab; allocate hrs
-c      i = 1000 + 10*hreal + 0
-c      i = 1000             + 0
-c      i = i + 10000
-      call hft2rsinit ( nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , 1 ,
+C ... Setup for r.s. hamiltonian: allocate and create pair table iax,ntab
+      call hft2rsinit ( nk1 , nk2 , nk3 , k1 , k2 , k3 ,  1 ,
      .    nsp , nbas , rv_a_osymgr , rv_a_oag , nsgrp , rsrnge , offH
      .    , plat , rv_a_opos ,  iv_a_ontabs ,
      .    iv_a_oiaxs,ndimh)! , ndhrs , rv_dummy )
@@ -324,7 +321,7 @@ c     .'relative to the above#%j# ',isw(ddot(3,qoffi,1,qoffi,1).ne.0),qoffi)
           endif
 C ... FT sfz and copy sfz(T) to hrs
 c          i = 1 + 10000
-          call hft2rs ( nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , isp
+          call hft2rs ( nk1 , nk2 , nk3 , k1 , k2 , k3 , isp
      .         , nsp , nbas , rv_a_osymgr , rv_a_oag , nsgrps , rsrnge , offH      
      .         , 1 , nbas , ndimh, sfz ( 1 , 1 , 1 , 1 , 1 , isp )
      .         , plat , rv_a_opos ,iv_a_ontabs , iv_a_oiaxs , ndhrs , rv_a_ohrs )

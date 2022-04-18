@@ -147,7 +147,7 @@ C ----------------------------------------------------------------------
       public:: hft2rs,hft2rsinit
       private
       contains
-      subroutine hft2rsinit(n1,n2,n3,k1,k2,k3,qoff,isp,nsp,nbas,g,ag,
+      subroutine hft2rsinit(n1,n2,n3,k1,k2,k3,isp,nsp,nbas,g,ag,
      .     nsgrp,range,offH,plat,pos,ntab,iax,ndimh) !,ndhrs, hrs)
       use m_lmfinit,only: stdo
       use m_pairs,only: pairs,ppair1
@@ -159,7 +159,7 @@ C ----------------------------------------------------------------------
       integer offH(nbas+1)
       integer,allocatable :: iax(:,:) !niax,:)
       integer,allocatable :: ntab(:)
-      double precision plat(3,3),pos(3,*),range,g(9,*),ag(3,*),qoff(3)
+      double precision plat(3,3),pos(3,*),range,g(9,*),ag(3,*)!,qoff(3)
       double complex hq(1)
       real(8):: hrs(1,1,1,1)    !ndhrs,ndhrs,nsp,1)
       integer:: ndhrs=1
@@ -186,7 +186,7 @@ C     ... Mark all members in iax table with vector in sfz (for FFT)
       mode = 0 !1000
       call hft2r1 ( mode , n1 , n2 , n3 , k1 , k2 , k3 , isp , nsp 
      .     , 1 , nbas , 1 , nbas , offh , ndimh , hq , plat , pos
-     .     , ntab , iax , qoff , ndhrs , hrs , nviax , nvtot  , dmx )
+     .     , ntab , iax , ndhrs , hrs , nviax , nvtot  , dmx )
       write(stdo,"(' hft2rs: found ',i8,' connecting vectors out of ',i8,' possible for FFT')")nviax,nvtot
 !  ... Reduce iax table to elements on mesh in common with pairc
       hft2r3: block
@@ -252,7 +252,7 @@ C     ... Fill out iax(6,7,10)
       end subroutine hft2rsinit
       
 cccccccccccccccccccccccccccc      
-      subroutine hft2rs(n1,n2,n3,k1,k2,k3,qoff,isp,nsp,nbas,g,ag,
+      subroutine hft2rs(n1,n2,n3,k1,k2,k3,isp,nsp,nbas,g,ag,
      .nsgrp,range,offH,ia1,ia2,idim,hq,plat,pos,ntab,iax,ndhrs, hrs)
 C- Fourier transform of a matrix to real-space representation
       implicit none
@@ -263,7 +263,7 @@ C- Fourier transform of a matrix to real-space representation
       integer offH(nbas+1)
       integer,allocatable :: iax(:,:)
       integer,allocatable :: ntab(:)
-      double precision plat(3,3),pos(3,*),range,g(9,*),ag(3,*),qoff(3)
+      double precision plat(3,3),pos(3,*),range,g(9,*),ag(3,*)!,qoff(3)
       double complex hq(k1,k2,k3,idim,idim,nsp)
       real(8):: hrs(ndhrs,ndhrs,nsp,1)
       integer i,ipr,iset,mode0,mode1,mode2,mode3,mxcsiz,nttab,nviax,nvtot
@@ -278,7 +278,7 @@ C- Fourier transform of a matrix to real-space representation
       call fftz3(hq,n1,n2,n3,k1,k2,k3,idim*idim,iset,-1)
       call hft2r1 ( mode , n1 , n2 , n3 , k1 , k2 , k3 , isp , nsp 
      .    , ia1 , ia2 , 1 , nbas , offh , idim , hq , plat , pos
-     .    , ntab , iax , qoff , ndhrs , hrs , nviax , nvtot 
+     .    , ntab , iax , ndhrs , hrs , nviax , nvtot 
      .    , dmx )
       call info5(30,0,0,' hft2rs created hrs:  ndhrs=%i  '//
      .  'max Re(hrs) = %;3g  max Im(hrs) = %;3g',ndhrs,dmx,dmx(2),0,0)
@@ -286,7 +286,7 @@ C- Fourier transform of a matrix to real-space representation
       end subroutine hft2rs
       
 !ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
-      subroutine symiax(plat,nbas,pos,g,ag,ng,ntab,iax,nttab,mxcsz)
+      subroutine symiax(plat,nbas,pos,g,ag,ng, ntab,iax,nttab,mxcsz)
 C- Render a neighbor list compatible with symmetry operations
 C ----------------------------------------------------------------------
 Ci Inputs: mode=110
@@ -326,13 +326,12 @@ Cu Updates
 Cu   26 Sep 03 Bug fix: use grpfnd instead of gpfndx
 Cu   29 Aug 02 First created
 C ---------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
+      implicit none
       integer niax,nbas,ntab(nbas+1),ng,nttab,mode,mxcsz,ibas,i
       parameter (niax=10)
       integer iax(niax,nttab)
       double precision pos(3,*),g(3,3,*),ag(3,*),plat(3,3)
-C ... Local parameters
+
       integer ldiaxb,ib,grow,ix
       integer ,allocatable :: iaxib(:,:,:)
       integer ,allocatable :: ntabib(:)
@@ -470,7 +469,7 @@ C ... Copy iax from fixed-basis format
       
 !sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine hft2r1(mode,n1,n2,n3,k1,k2,k3,isp,nsp,ia1,ia2,ib1,ib2,
-     .offH,idim,hij,plat,pos,ntab,iax,qoff,ndhrs,hrs,nviax,nvtot,dmx)
+     .offH,idim,hij,plat,pos,ntab,iax,ndhrs,hrs,nviax,nvtot,dmx)
 C- Copy a R.S. hamiltonian subblock on a uniform mesh of translation
 C- vectors to a representation with a neighbor list,
 C  or just mark entries in the table that correspond to mesh points
@@ -508,7 +507,7 @@ C ----------------------------------------------------------------------
       integer:: mode,idim,ia1,ia2,ib1,ib2,n1,n2,n3,k1,k2,k3,isp,nsp,ndhrs,nviax,nvtot,
      & id,jd,i,ia,ib,ngmx,ng,is1,is2,nlma,nlmb,offi,offj,nhit,nmiss,
      & offH(*),iax(niax,*),ntab(ia2),wdummy
-      real(8):: plat(3,3),pos(3,*),dmx(2),qoff(3),gmax,qlat(3,3),tau(3),dmx1(2)
+      real(8):: plat(3,3),pos(3,*),dmx(2),gmax,qlat(3,3),tau(3),dmx1(2)
       complex(8):: hij(k1,k2,k3,idim,idim),hrs(ndhrs,ndhrs,nsp,*)
       real(8) ,allocatable :: gv(:,:)
       integer ,allocatable :: kv(:,:)
@@ -560,7 +559,7 @@ C     NB : Connecting vector is pos(src)-pos(field) = -rtab
              if (mode == 0) then
                 iax(8,is) = -1
              else
-                hrs(1:nlma,1:nlmb,isp,is) = transpose( hij(i1,i2,i3,1+offj:nlmb+offj,1+offi:nlma+offi))
+                hrs(1:nlma,1:nlmb,isp,is) = transpose(hij(i1,i2,i3,1+offj:nlmb+offj,1+offi:nlma+offi))
                 dimx=maxval(dreal(hrs(1:nlma,1:nlmb,isp,is)))
                 dimy=maxval(dimag(hrs(1:nlma,1:nlmb,isp,is)))
              endif
