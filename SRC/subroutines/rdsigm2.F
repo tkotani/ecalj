@@ -1003,6 +1003,10 @@ c          call conv2int( matmul(platt,qpgr-qtarget),nnn,3 )
       end subroutine rotsig
       end module m_rdsigm2
 
+
+
+
+      
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
 !!--- xxxx -----future version... hamfb3k, bloch will be replaced -----------------
       module m_seneinput_futureversion_unusedyet
@@ -1395,119 +1399,13 @@ c
       end
       end module m_seneinput_futureversion_unusedyet
 
-!!sssssssssssssssssssssssssssssssssssss
-      subroutine rothrm(opt,ldima,iprmb,rotm,ib1,ib2,ldU,U,Uz)
-C- Generate rotation matrix for hamiltonian
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   opt   :1s digit
-Ci         :  0 use real harmonics; output U is real
-Ci         :  1 use true spherical harmonics; output U is complex
-Ci         :  2 use real harmonics, but return U as complex
-Cixxx   ldmpa :offset to first orbital in downfolding block of h to rotate
-Ci   ldima :points to last orbital in  downfolding block of h to rotate
-Ci   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
-Ci   rotm  :3x3 cartesian rotation matrix
-Ci   ib1   :U  generated for (ib1..ib2) site subblock of h
-Ci   ib2   : -//-
-Ci   ldU  :leading dimension of U
-Co Outputs
-Co   U,Uz :Rotation matrix for (ib1..ib2) subblock of h
-Co        :U is the real form (opt=0); Uz is the complex form.
-Co        :Only of of (U,Uz) is returned.
-Cl Local variables
-Cl   rYL  :rotation matrix that rotates Y_lm
-Cr Remarks
-Cr   This routine generates rotation matrix U for the hamiltonian matrix
-Cr   which consists of blocks which transform in the row and colum indices
-Cr   as Y_lm.
-Cr
-Cr   The unrotated and rotated hamiltonians h and hr are related by :
-Cr      hr = U h U+
-Cr
-Cr   See also rothph, below
-Cb Bugs
-Cb   This routine has only been checked for ib1=1 and ib2=nbas
-Cu Updates
-Cu   17 Dec 04 First created
-C ----------------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
-      integer opt,ldU,iprmb(1),ldmpa,ldima,ib1,ib2
-      double precision rotm(3,3),U(ldU,ldU)
-      double complex Uz(ldU,ldU)
-C ... Local parameters
-      integer n0,nkap0,nlx,nl2,i,ibas,iorb,j,li,
-     .nlm,nlmi,norb,offri,offi
-      parameter (n0=10,nkap0=3,nlx=9,nl2=nlx*nlx)
-      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
-      double precision xx,rYL(nl2,nl2)
-      double complex rYLz(nl2,nl2)
 
-      if (opt .ne. 0 .and. opt .ne. 2)
-     .call rx('rothrm not ready for this opt')
 
-C ... Rotation matrix for spherical harmonics
-      call ylmrtg(nl2,rotm,rYL)
-C     call prmx('rothrm: rYL',rYL,nl2,nl2,nl2)
 
-      if (opt .eq. 1) then
-        call ylmrtg(nl2,rotm,rYL)
-        call s2sph(1,nlx,nlx,rYL,nl2,nl2,nl2,nl2,rYLz)
-C       call yprm('rYL',3,rYL,nl2*nl2,nl2,nl2,nl2)
-      endif
 
-C ... Initialize U
-      if (opt .eq. 0) then
-        call dpzero(U,ldU*ldU)
-      else
-        call dpzero(Uz,ldU*ldU*2)
-      endif
 
-C --- For each (ibas,l) block, poke rotation matrix rotating Ylm(block)
-      do  ibas = ib1, ib2
 
-C   ... Row, column offsets to h
-        call orbl(ibas,0,ldima,iprmb,norb,ltab,ktab,xx,offl,nlm)
-
-C   --- For each (ibas,l) block, poke rYL(i,j) into U(i,j) ---
-C   ... loop over pairs of orbital blocks
-        do  iorb = 1, norb
-          li = ltab(iorb)
-          nlmi = 2*li + 1
-          offi = offl(iorb) !- ldmpa
-          offri = li**2
-          if (li+1 .gt. nlx)
-     .    call rxi('rothrm: increase nlx, need nlx=',(li+1)**2)
-
-C     ... loop over pairs of m channels within this block
-          if (opt .eq. 0) then
-            do  j = 1, nlmi
-              do  i = 1, nlmi
-                U(i+offi,j+offi) = rYL(i+offri,j+offri)
-              enddo
-            enddo
-          elseif (opt .eq. 1) then
-            do  j = 1, nlmi
-              do  i = 1, nlmi
-                Uz(i+offi,j+offi) = rYLz(i+offri,j+offri)
-              enddo
-            enddo
-          else
-            do  j = 1, nlmi
-              do  i = 1, nlmi
-                Uz(i+offi,j+offi) = rYL(i+offri,j+offri)
-              enddo
-            enddo
-          endif
-        enddo
-      enddo
-C      if (opt .eq. 0) then
-C        call prmx('U',U,ldU,ldU,ldU)
-C      else
-C        call zprm('Uz',2,Uz,ldU,ldU,ldU)
-C      endif
-      end subroutine rothrm
+      
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine chksgr(opt,ltrans,plat,nsp,ndimh,ifis, !hreal, !kcplx
      .iprmb,nttabs,iaxs,hrs,ndhrs,tols,nqp,qplst,nbas,lrot,rotm,
@@ -1746,7 +1644,122 @@ C         call zprm('sigm',2,sq1,ndimh,ndimh,ndimh)
       enddo
       deallocate(sq,sq1)
       if (opt01 .ne. 0 .and. mod(lrot,2) .ne. 0) deallocate(uz)
-      end subroutine chksgr
+cccccccccccccccccccccccccc
+      contains
+      subroutine iosigh(optio,mode,nsp,ndimh,nk1,nk2,nk3,nqp, lshft1,lshft2,lshft3,ifi)
+C- Read/write header information in sigma file
+C ----------------------------------------------------------------------
+Ci Inputs
+Ci   optio :(read only) 1s digit
+Ci         :0 read header data into
+Ci            nsp,ndimh,nk1,nk2,nk3,nqp,lshft1,lshft2,lshft3
+Ci         :1 File data must passed matched value for
+Ci            nsp,ndimh,nk1,nk2,nk3,nqp,lshft1,lshft2,lshft3
+Ci         :2 file mode must passed matched value
+Ci         :These digits may be taken in any combination
+Ci   ifi   :File logical unit: ifi>0 for read; ifi<0 for write
+Cio Inputs/Outputs
+Cio  mode  : switches with information about the contents of sigma
+Cio        :1s digit:
+Cio        :0 file contains sigma in the orbital basis
+Cio        :1 file contains sigma in the lda basis, and LDA
+Cio           eigenvalues
+Cio        :2 file contains sigma in the lda basis, and LDA
+Cio           eigenvalues
+Cio        :3 file consists of LDA eigenvectors and eigenvalues
+Cio        :4 file consists of LDA eigenvectors and eigenvalues
+Cio        :5 file contains sigma in the orbital basis, and LDA
+Cio           eigenvalues
+Cio  nsp   :2 for spin-polarized case, otherwise 1
+Cio  ndimh :dimension of hamiltonian
+Cio  nk1..nk3 : number of divisions in 1st,2nd,3rd Qlat
+Cio  nqp   :number of irr. k-points
+Cio  lshft1:1 if offset BZ in Qlat(1), otherwise 0
+Cio  lshft2:1 if offset BZ in Qlat(2), otherwise 0
+Cio  lshft3:1 if offset BZ in Qlat(3), otherwise 0
+Cl Local variables
+Cr Remarks
+Cr   Reads or writes header file for sigma, with sanity checks
+Cr   sigm file contents: (1s digit mode = 0..3,5,6)
+Cr    1.  header
+Cr    2.  qp offset (version 2 and later)
+Cr    ... 3 and 4 are repeated for nqp points (nqp is contained in header)
+Cr    3.  qp
+Cr    4.  sigm(qp) or ham(qp)
+Cr   sigm file contents: (1s digit mode = 1 or 3)
+Cr    1.  header
+Cr    2.  qp offset (version 2 and later)
+Cr    ... 3..5 are repeated for nqp points (nqp is contained in header)
+Cr    3.  qp
+Cr    4.  eval(LDA)
+Cr    5.  sigm(LDA) (mode 1) or evec(LDA) (mode 3)
+Cu Updates
+Cu   27 Jun 08 Revised mode, and input checking.  Old optio=1 -> optio=3
+C ----------------------------------------------------------------------
+      implicit none
+C ... Passed parameters
+      integer nsp,ndimh,nk1,nk2,nk3,nqp,lshft1,lshft2,lshft3,ifi,optio, mode
+C ... Local parameters
+      integer jfi,i1,i2,i3,i4,i5,i6,i7,i8,i9,ivsn,modef
+      logical:: isanrg, l_dummy_isanrg
+      if (ifi .lt. 0) call rx('iosigh,ifi<0')
+c$$$        ivsn = 1
+c$$$C       if (mode .eq. 0) ivsn = 0
+c$$$        jfi = -ifi
+c$$$        rewind jfi
+c$$$C       Write 0 => file contains version number (versions 1 and later)
+c$$$        if (ivsn .ne. 0) write(jfi) 0, ivsn, mode
+c$$$        write(jfi) nsp,ndimh,nk1,nk2,nk3,nqp,lshft1,lshft2,lshft3
+      if (optio .eq. 0) then
+        rewind ifi
+C       Read version, checking whether header is pre- version 1
+        read(ifi,err=99,end=99) i1,ivsn,mode
+C       File header is pre-version 1; set version to zero
+        if (i1 .ne. 0) then
+          ivsn = 0
+          mode = 0
+          rewind ifi
+        endif
+        read(ifi,err=99,end=99)
+     .  nsp,ndimh,nk1,nk2,nk3,nqp,lshft1,lshft2,lshft3
+      else
+        rewind ifi
+C       Read version, checking whether header is pre- version 1
+        read(ifi,err=99,end=99) i1,ivsn,modef
+C       File header is pre-version 1; set version, modef to zero
+        if (i1 .ne. 0) then
+          ivsn = 0
+          modef = 0
+          rewind ifi
+        endif
+C       Assign mode or check with file correspondence
+        if (mod(optio/2,2) .ne. 0) then
+Ckino isanrg is logical function,           call isanrg(modef,mode,mode,'iosigh:','file''s mode',.true.)
+          l_dummy_isanrg=isanrg(modef,mode,mode,'iosigh:','file''s mode',.true.)
+        else
+          mode = modef
+        endif
+C       Assign header parameters or check with file correspondence
+        if (mod(optio,2) .ne. 0) then
+          read(ifi,err=99,end=99) i1,i2,i3,i4,i5,i6,i7,i8,i9
+          l_dummy_isanrg=isanrg(i1,nsp,nsp,'iosigh:','file''s nsp',.true.)
+          l_dummy_isanrg=isanrg(i2,ndimh,ndimh,'iosigh:','file''s ndimh',.true.)
+          l_dummy_isanrg=isanrg(i3,nk1,nk1,'iosigh:','file''s nk1',.true.)
+          l_dummy_isanrg=isanrg(i4,nk2,nk2,'iosigh:','file''s nk2',.true.)
+          l_dummy_isanrg=isanrg(i5,nk3,nk3,'iosigh:','file''s nk3',.true.)
+          l_dummy_isanrg=isanrg(i6,nqp,nqp,'iosigh:','file''s nqp',.true.)
+          l_dummy_isanrg=isanrg(i7,lshft1,lshft1,'iosigh:','file''s lshft1',.true.)
+          l_dummy_isanrg=isanrg(i8,lshft2,lshft2,'iosigh:','file''s lshft2',.true.)
+          l_dummy_isanrg=isanrg(i9,lshft3,lshft3,'iosigh:','file''s lshft3',.true.)
+        else
+          read(ifi,err=99,end=99)
+     .    nsp,ndimh,nk1,nk2,nk3,nqp,lshft1,lshft2,lshft3
+        endif
+      endif
+      return
+   99 continue
+      call rx('iosigh: failed to read header from file')
+      end subroutine iosigh
 !sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine rothph(opt,q,tbas,ldima,iprmb,ib1,ib2,ldH,H)
 C- Extra scaling of hamiltonian by a phase
@@ -1846,7 +1859,123 @@ C   --- For all orbitals belonging to site ib, h->phase*h and/or h->h*phase+
         endif
       enddo
       end subroutine rothph
+cccccccccccccccccccccccccccccccccc      
+      end subroutine chksgr
+!!sssssssssssssssssssssssssssssssssssss
+      subroutine rothrm(opt,ldima,iprmb,rotm,ib1,ib2,ldU,U,Uz)
+C- Generate rotation matrix for hamiltonian
+C ----------------------------------------------------------------------
+Ci Inputs
+Ci   opt   :1s digit
+Ci         :  0 use real harmonics; output U is real
+Ci         :  1 use true spherical harmonics; output U is complex
+Ci         :  2 use real harmonics, but return U as complex
+Cixxx   ldmpa :offset to first orbital in downfolding block of h to rotate
+Ci   ldima :points to last orbital in  downfolding block of h to rotate
+Ci   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
+Ci   rotm  :3x3 cartesian rotation matrix
+Ci   ib1   :U  generated for (ib1..ib2) site subblock of h
+Ci   ib2   : -//-
+Ci   ldU  :leading dimension of U
+Co Outputs
+Co   U,Uz :Rotation matrix for (ib1..ib2) subblock of h
+Co        :U is the real form (opt=0); Uz is the complex form.
+Co        :Only of of (U,Uz) is returned.
+Cl Local variables
+Cl   rYL  :rotation matrix that rotates Y_lm
+Cr Remarks
+Cr   This routine generates rotation matrix U for the hamiltonian matrix
+Cr   which consists of blocks which transform in the row and colum indices
+Cr   as Y_lm.
+Cr
+Cr   The unrotated and rotated hamiltonians h and hr are related by :
+Cr      hr = U h U+
+Cr
+Cr   See also rothph, below
+Cb Bugs
+Cb   This routine has only been checked for ib1=1 and ib2=nbas
+Cu Updates
+Cu   17 Dec 04 First created
+C ----------------------------------------------------------------------
+C     implicit none
+C ... Passed parameters
+      integer opt,ldU,iprmb(1),ldmpa,ldima,ib1,ib2
+      double precision rotm(3,3),U(ldU,ldU)
+      double complex Uz(ldU,ldU)
+C ... Local parameters
+      integer n0,nkap0,nlx,nl2,i,ibas,iorb,j,li,
+     .nlm,nlmi,norb,offri,offi
+      parameter (n0=10,nkap0=3,nlx=9,nl2=nlx*nlx)
+      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
+      double precision xx,rYL(nl2,nl2)
+      double complex rYLz(nl2,nl2)
 
+      if (opt .ne. 0 .and. opt .ne. 2)
+     .call rx('rothrm not ready for this opt')
+
+C ... Rotation matrix for spherical harmonics
+      call ylmrtg(nl2,rotm,rYL)
+C     call prmx('rothrm: rYL',rYL,nl2,nl2,nl2)
+
+      if (opt .eq. 1) then
+        call ylmrtg(nl2,rotm,rYL)
+        call s2sph(1,nlx,nlx,rYL,nl2,nl2,nl2,nl2,rYLz)
+C       call yprm('rYL',3,rYL,nl2*nl2,nl2,nl2,nl2)
+      endif
+
+C ... Initialize U
+      if (opt .eq. 0) then
+        call dpzero(U,ldU*ldU)
+      else
+        call dpzero(Uz,ldU*ldU*2)
+      endif
+
+C --- For each (ibas,l) block, poke rotation matrix rotating Ylm(block)
+      do  ibas = ib1, ib2
+
+C   ... Row, column offsets to h
+        call orbl(ibas,0,ldima,iprmb,norb,ltab,ktab,xx,offl,nlm)
+
+C   --- For each (ibas,l) block, poke rYL(i,j) into U(i,j) ---
+C   ... loop over pairs of orbital blocks
+        do  iorb = 1, norb
+          li = ltab(iorb)
+          nlmi = 2*li + 1
+          offi = offl(iorb) !- ldmpa
+          offri = li**2
+          if (li+1 .gt. nlx)
+     .    call rxi('rothrm: increase nlx, need nlx=',(li+1)**2)
+
+C     ... loop over pairs of m channels within this block
+          if (opt .eq. 0) then
+            do  j = 1, nlmi
+              do  i = 1, nlmi
+                U(i+offi,j+offi) = rYL(i+offri,j+offri)
+              enddo
+            enddo
+          elseif (opt .eq. 1) then
+            do  j = 1, nlmi
+              do  i = 1, nlmi
+                Uz(i+offi,j+offi) = rYLz(i+offri,j+offri)
+              enddo
+            enddo
+          else
+            do  j = 1, nlmi
+              do  i = 1, nlmi
+                Uz(i+offi,j+offi) = rYL(i+offri,j+offri)
+              enddo
+            enddo
+          endif
+        enddo
+      enddo
+C      if (opt .eq. 0) then
+C        call prmx('U',U,ldU,ldU,ldU)
+C      else
+C        call zprm('Uz',2,Uz,ldU,ldU,ldU)
+C      endif
+      end subroutine rothrm
+
+      
       
 ! takao expected to replace bloch to be a simple version seneinterp2. But not yet...
 c     call seneinterp2(qp,nbas,nk1,nk2,nk3,plat, !npair,nlat,qwgt,npairmx,qsmesh,
