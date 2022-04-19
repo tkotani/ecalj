@@ -1,5 +1,5 @@
-      subroutine bloch(qp,nl,plat,mxorb,iprmb,is1,is2,iax,s,
-     .nds,isp,nsp,ldima,ldimb,idim,ldl,ldi,ldl2,klu,sll,sil,sii)
+      subroutine bloch(qp,nl,plat,mxorb,iprmb,is2,iax,s,
+     .nds,isp,nsp, ldl, sll)!,sil,sii)
 C- Bloch transform of real-space matrix
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -152,7 +152,7 @@ C ... Passed parameters
       double precision qp(3),plat(3,3)
       double precision s(nds,nds,nsp,is2)
 C     real + imaginary storage mode
-      double precision sll(ldl,ldl2,2),sil(ldi,ldl2,2),sii(ldi,ldi,2)
+      double precision sll(ldl,ldl,2)!,sil(ldi,ldl2,2),sii(ldi,ldi,2)
 C ... Local parameters
       integer ia,ib,iprint,isite,j,k,kcplx,ksite,ld11,
      .ld12,ld13,ld21,ld22,ld23,lidim,nds1,ndss,offa,offb !,oi,scplx
@@ -164,72 +164,44 @@ C --- Setup ---
       call tcn('bloch')
       ndss = nds
       nds1 = ndss
-      lidim = ldima+idim
+c      lidim = ldima+idim
       sll=0d0
-      sil=0d0
-      sii=0d0
-      ld11 = 2
-      ld21 = ldl
-      ld12 = 2
-      ld22 = ldi
-      ld13 = 2
-      ld23 = ldi
+c      sil=0d0
+c      sii=0d0
+c      ld11 = 2
+c      ld21 = ldl
+c      ld12 = 2
+c      ld22 = ldi
+c      ld13 = 2
+c      ld23 = ldi
 C --- For each RR' pair, add contribution to Bloch sum ---
-      do  100  isite = is1, is2
+      do  100  isite = 1, is2
         ia = iax(2,isite)
         ib = iax(1,isite)
-C       Any nonpositive site indices are excluded from sum
-        if (ia .le. 0 .or. ib .le. 0) goto 100
-        TdotK = 0
-        do j = 1, 3
-        do k = 1, 3
-           TdotK = TdotK + twopi*qp(j)*plat(j,k)*iax(2+k,isite)
-        enddo
-        enddo
+        if (ia <0 .or. ib<0) goto 100
+        TdotK = twopi*sum(qp*matmul(plat,iax(3:5,isite)))
         cosT = dcos(TdotK)
         sinT = dsin(TdotK)
 C   ... Use equivalent of isite to some other site, if it exists
         ksite = isite
         if (iax(8,isite) .ne. 0) ksite = iax(8,isite)
-C   --- Handle all cases when s is to be copied to sc --- ... Input s is complex
+C-- Handle all cases when s is to be copied to sc --- ... Input s is complex
         j = 2*ksite-1
         call zmscop(0,nds,nds,nds,ndss,0,0,0,0,s(1,1,2*isp-1,j),sc)
         call ztoy(sc,ndss,nds,nds,0)
         sc(:,1,:)=transpose(sc(:,1,:))
         sc(:,2,:)=transpose(sc(:,2,:))
 C   --- Lower-lower block  Sll ---
-        if (ldima .ne. 0 ) then 
-            offa = mxorb*(ib-1) !ltrans mode
-            offb = mxorb*(ia-1)
-          call pblch1(mxorb,offa,offb,ld11,ld21,klu,iprmb,0,
-     .    ldima,0,ldimb,s(1,1,isp,ksite),sc,nds1,cosT,sinT,sll)
-        endif
-C   --- Intermediate-lower block  Sil ---
-        if (idim .ne. 0 ) then
-          offb = mxorb*(ib-1)
-          offa = mxorb*(ia-1)
-          call pblch1(mxorb,offa,offb,ld12,ld22,klu,iprmb,ldima,
-     .    lidim,0,ldimb,s(1,1,isp,ksite),sc,nds1,cosT,sinT,sil)
-C   --- Intermediate-intermediate block Sii ---
-          offb = mxorb*(ib-1)
-          offa = mxorb*(ia-1)
-          call pblch1(mxorb,offa,offb,ld13,ld23,klu,iprmb,ldima,
-     .    lidim,ldimb,lidim,s(1,1,isp,ksite),sc,nds1,cosT,sinT,sii)
-        endif
+        offa = mxorb*(ib-1)     !ltrans mode
+        offb = mxorb*(ia-1)
+        call pblch1(mxorb,offa,offb,2,ldl,0,iprmb,
+     .       ldl,sc,nds1,cosT,sinT,sll)
   100 continue
-      if (iprint() .ge. 110) then
-        k=1
-        call yprm('bloch: Sll',12+k,sll,ldima*ldimb,ldl,ldima,ldimb)
-        if (idim >0) then
-         call yprm('bloch: Sil',2+k,sil,idim*ldimb,ldi,idim,ldimb)
-         call yprm('bloch: Sii',12+k,sii,idim*idim,ldi,idim,idim)
-        endif
-      endif
       call tcx('bloch')
       end subroutine bloch
 
       subroutine pblch1(mxorb,offa,offb,lds,ld2,klu,iprmb,!lblchp,
-     .hdpa,hdna,hdpb,hdnb,s,sc,nds,cosT,sinT,sk)
+     .hdn,sc,nds,cosT,sinT,sk)
 C- Contribution of one pair to Bloch sum of strux
 C ----------------------------------------------------------------------
 Ci Inputs 101010
@@ -312,23 +284,23 @@ Cu   23 Jun 02 Various changes to accomodate fp input.  New argument list
 C ----------------------------------------------------------------------
       implicit none
       integer lblchp,mxorb,lds,ld2,offa,offb,nds,klu,iprmb(*),hdpa,
-     .hdna,hdpb,hdnb
-      double precision cosT,sinT,sk(lds,ld2,2),s(nds,1),sc(nds,2,1)
+     .hdna,hdpb,hdn
+      double precision cosT,sinT,sk(lds,ld2,2),sc(nds,2,1)
       logical rcmplx,lbnd,ldiag,lprmr
       integer ipa,ipb,kcplx,lma1,lma2,lma,lmb,ndima,ndimb,ofbnd,offa0
       integer isa,isb,offra,offrb
-      lbnd   = .false. !mod(lblchp,10) .ne. 0
+c      lbnd   = .false. !mod(lblchp,10) .ne. 0
 c      kcplx  =  1 !mod(lblchp/10,10)
-      rcmplx = .true. !mod(mod(lblchp/1000,10),2) .ne. 0
-      ldiag  = .false. !mod(lblchp/10000,10) .ne. 0
-      lprmr  = .true. !mod(lblchp/100000,10) .ne. 0
-      if (ldiag .and. lprmr) call rx('pblch1 not ready for ldiag and lprmr')
-      ndimb = hdnb - hdpb
-      ndima = hdna - hdpa
+c      rcmplx = .true. !mod(mod(lblchp/1000,10),2) .ne. 0
+c      ldiag  = .false. !mod(lblchp/10000,10) .ne. 0
+c      lprmr  = .true. !mod(lblchp/100000,10) .ne. 0
+c      if (ldiag .and. lprmr) call rx('pblch1 not ready for ldiag and lprmr')
+      ndimb = hdn !- hdpb
+      ndima = hdn !- hdpa
       offa0 = offa
-      ofbnd = 0
-      lma1 = 1
-      lma2 = mxorb
+c      ofbnd = 0
+c      lma1 = 1
+c      lma2 = mxorb
 C     Case permute orbital order in s: offr[ab] = offset to orbitals
         do  3  lmb = 1, mxorb
           offrb = iprmb(offb+lmb)
@@ -345,25 +317,22 @@ C       No columns, nothing to copy
         return
     6   continue
         offra = offra-1
+c        print *,'oooooffr=',offra,offrb
 C --- For each basis orbital, do (complex storage mode 1) ---
         do  110  lmb = 1, mxorb
           offb = offb+1
-          ipb = iprmb(offb) - hdpb
-          if (ipb .le. 0 .or. ipb .gt. ndimb) goto 110
+          ipb = iprmb(offb) !- hdpb
           isb = iprmb(offb) - offrb
-          offa = offa0 + lma1-1
+          if (ipb .le. 0 .or. ipb .gt. ndimb) cycle
+          offa = offa0 !+ lma1-1
 C   ... Loop over augmentation orbitals, case real-space s is complex
-            do  112  lma = lma1, lma2
+            do  112  lma = 1, mxorb
               offa = offa+1
-              ipa = iprmb(offa) - hdpa
-              if (ipa .le. 0 .or. ipa .gt. ndima) goto 112
+              ipa = iprmb(offa) !- hdpa
               isa = iprmb(offa) - offra
-              sk(1,ipa+ofbnd,ipb) = sk(1,ipa+ofbnd,ipb) +
-     .        sc(isa,1,isb)*cosT - sc(isa,2,isb)*sinT
-              sk(2,ipa+ofbnd,ipb) = sk(2,ipa+ofbnd,ipb) +
-     .        sc(isa,1,isb)*sinT + sc(isa,2,isb)*cosT
+              if (ipa .le. 0 .or. ipa .gt. ndima) cycle
+              sk(1,ipa,ipb) = sk(1,ipa,ipb) +  sc(isa,1,isb)*cosT - sc(isa,2,isb)*sinT
+              sk(2,ipa,ipb) = sk(2,ipa,ipb) +  sc(isa,1,isb)*sinT + sc(isa,2,isb)*cosT
   112       continue
   110   continue
       end subroutine pblch1
-
-

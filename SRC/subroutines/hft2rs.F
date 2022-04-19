@@ -160,7 +160,7 @@ C ----------------------------------------------------------------------
       integer,allocatable :: iax(:,:) !niax,:)
       integer,allocatable :: ntab(:)
       double precision plat(3,3),pos(3,*),range,g(9,*),ag(3,*)!,qoff(3)
-      double complex hq(1)
+      complex(8):: hq(1)
       real(8):: hrs(1,1,1,1)    !ndhrs,ndhrs,nsp,1)
       integer:: ndhrs=1
 C ... Local parameters
@@ -265,7 +265,7 @@ C- Fourier transform of a matrix to real-space representation
       integer,allocatable :: ntab(:)
       double precision plat(3,3),pos(3,*),range,g(9,*),ag(3,*)!,qoff(3)
       double complex hq(k1,k2,k3,idim,idim,nsp)
-      real(8):: hrs(ndhrs,ndhrs,nsp,1)
+      complex(8):: hrs(ndhrs,ndhrs,nsp,*)
       integer i,ipr,iset,mode0,mode1,mode2,mode3,mxcsiz,nttab,nviax,nvtot
       integer ,allocatable :: iwk_iv(:),iv_a_tmp(:,:)
       double precision dmx(2)
