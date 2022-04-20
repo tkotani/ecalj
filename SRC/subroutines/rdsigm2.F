@@ -4,8 +4,8 @@
       private
       complex(8),allocatable,protected:: sene(:,:),senex(:,:)
       complex(8), allocatable,protected :: hhrs (:,:,:,:)
-      integer, allocatable,protected :: iv_a_oiaxs(:,:)
-      integer, allocatable,protected :: iv_a_ontabs(:)
+      integer, allocatable,protected :: iaxs(:,:)
+      integer, allocatable,protected :: ntabs(:)
       integer,protected:: ndimsig,nspsigm,ndhrs,ham_nqsig
       integer,private :: nsizeohrs,nsizeoiaxs,nsizeontabs,noqsig,nttabs
       real(8) , allocatable,private ::  rv_p_oqsig (:)  !not yet protected (rdsigm2 rewrite this)
@@ -36,7 +36,7 @@
       subroutine getsene(qp,isp) !(lrsig,qp,isp) !call after sigmainit
       use m_lmfinit,only: mxorb,nbas,nl,iprmb
       use m_lattic,only: plat=>lat_plat
-      integer:: i,  isp, ispsigm,iwdummy,ival!lrsig
+      integer:: i,  isp, ispsigm,iwdummy!,ival!lrsig
       real(8):: qp(3)
       logical:: debug=.false.
       if(debug) print *,'ndimsig=',ndimsig
@@ -47,9 +47,8 @@
          ispsigm=isp
       endif
 !! bloch: we need hrs(means real space) and iaxs(pair table) for FFT.
-      call bloch (qp,nl,plat,mxorb,iprmb
-     &           , ival ( iv_a_ontabs , nbas + 1 )
-     &     , iv_a_oiaxs , hhrs, ndhrs, ispsigm, nspsigm ,
+      call bloch (qp,nl,plat,mxorb,iprmb,ntabs(nbas+1)
+     &     , iaxs , hhrs, ndhrs, ispsigm, nspsigm ,
      & ndimsig , sene)
       if(debug) print *,'end of bloch sene'
       end subroutine getsene
@@ -72,7 +71,7 @@
      .latvec,lfbzin,lfbzout
       integer parg,isw,lonesp
       character outs*80,out2*80,dc*1,rots*120
-      integer i,j,ifis2,ifiz,isp,nspsigm,nglob,ival,ldham(16),lrsig,
+      integer i,j,ifis2,ifiz,isp,nspsigm,nglob,ldham(16),lrsig,
      .moditp,nkxyz(3),nk1,nk2,nk3,nsgrp,nsgrps,mxkp,nqp,nqps,
      .j1,k1,k2,k3,iq1,nspc,nqsig,!modsgp,nmin,nmax,
      .lrot,iprint,ledit,niax,nscnts,
@@ -160,10 +159,10 @@ C --- Get list of irreducible k-points, and ipq and gstar arrays ---
 ! Create pair table iax,ntab
       call hft2rsinit ( nk1 , nk2 , nk3 , k1 , k2 , k3 ,  1 ,
      .    nspsigm , nbas , rv_a_osymgr , rv_a_oag , nsgrp , rsrnge , offH
-     .    , plat , rv_a_opos ,  iv_a_ontabs ,
-     .    iv_a_oiaxs,ndimsig)! , ndhrs , rv_dummy )
-      nttabs = ival ( iv_a_ontabs , nbas + 1 )
-      if(debug) print *,'seneinterp: FFFFFFF size iv_p_ontabls ndhrs=',size(iv_a_ontabs),ndhrs,nttabs
+     .    , plat , rv_a_opos ,  ntabs ,
+     .    iaxs,ndimsig)! , ndhrs , rv_dummy )
+      nttabs = ntabs( nbas + 1 )
+      if(debug) print *,'seneinterp: FFFFFFF size iv_p_ontabls ndhrs=',size(ntabs),ndhrs,nttabs
       if (allocated(hhrs)) deallocate(hhrs)
       allocate(hhrs(ndhrs,ndhrs,nspsigm,nttabs))
       hhrs=0d0
@@ -177,7 +176,7 @@ C ... FT sfz and copy sfz(T) to hrs (real space)
           call hft2rs ( nk1 , nk2 , nk3 , k1 , k2 , k3 , isp
      .         , nspsigm , nbas , rv_a_osymgr , rv_a_oag , nsgrps , rsrnge , offH      
      .         , 1 , nbas , ndimsig, sfz ( 1 , 1 , 1 , 1 , 1 , isp )
-     .         , plat , rv_a_opos ,iv_a_ontabs , iv_a_oiaxs , ndhrs , hhrs )
+     .         , plat , rv_a_opos ,ntabs , iaxs , ndhrs , hhrs )
           print *,' seneinterp:do 1201 end i ndimsig ndhrs=',i,ndimsig,ndhrs
  1201  continue
       if(debug) print *,' exit 1201 loop 111111111111111'
@@ -238,9 +237,6 @@ c      end subroutine seneinterp
       use m_MPItk,only: procid,master
       use m_ext,only:sname
       use m_lmfinit,only: ham_ldham
-#if MPI | MPIK
-      include "mpif.h"
-#endif
       complex(8),allocatable:: sfz(:,:,:,:,:,:),wgtq(:,:,:,:,:),sfzx(:,:,:,:,:,:),sfzmto(:,:,:,:,:,:)
       integer:: ldim,ierr,ifi,ndimh_dummy,nk1,nk2,nk3,nqps,ifile_handle,ifis2,ik1,ik2,ik3,is
       logical:: laf,mlog,cmdopt, mtosigmaonly,cmdopt0
@@ -321,14 +317,13 @@ c#ifdef MPIK
       call senebroadcast(procid,master,mlog) !broadcast self-energy to all procid
       call mpibc1(ndhrs,1,2,mlog,'bndfp','ndhrs')
       call mpibc1(nspsigm,1,2,mlog,'bndfp','nspsigm')
-      call mpi_barrier(MPI_COMM_WORLD,ierr) 
 c#endif
       if(procid==master) write(6,*)' --- end of sigmainit: rdsigm2 initialization section ---'
       return
  9995 continue
       call rx('sigmainit: readin error of sigm file')
       end subroutine m_rdsigm2_init
-      
+     
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine rdsigm2(nbas_dummy,nspsigm,ifis, 
      &     nk1,nk2,nk3,ldim,qsmesh,sfz     ,nqps,mtosigmaonly,ndimsig) !,qsfz,qqps are for test
@@ -523,7 +518,7 @@ C ------------------------------------------------------------
      .latvec,lfbzin,lfbzout
       integer parg,isw,lonesp
       character outs*80,out2*80,dc*1,rots*120
-      integer i,j,ifis2,ifiz,isp,nspsigm,nglob,ival,ldham(16),lrsig,
+      integer i,j,ifis2,ifiz,isp,nspsigm,nglob,ldham(16),lrsig,
      .moditp,nkxyz(3),nk1,nk2,nk3,nsgrp,nsgrps,mxkp,nqp,nqps,
      .j1,k1,k2,k3,iq1,nspc,mxorb,nqsig, !modsgp,nmin,nmax,
      .lrot,iprint,lssym,ledit,nscnts,
@@ -963,29 +958,25 @@ c          call conv2int( matmul(platt,qpgr-qtarget),nnn,3 )
       integer:: procid,master
       logical:: mlog
       nsizeohrs  = size( hhrs )*2
-      nsizeoiaxs = size( iv_a_oiaxs )
-      nsizeontabs= size( iv_a_ontabs)
+      nsizeoiaxs = size( iaxs )
+      nsizeontabs= size( ntabs)
       noqsig = size(     rv_p_oqsig)
       call mpibc1_int(ndhrs,1,'senebroadcast:ndhrs')
       call mpibc1_int(nspsigm,1,'senebroadcast:nspsigm')
       call mpibc1_int(nttabs,1,'senebroadcast:nttabs')
       
-      call mpibc1(nsizeohrs, 1,2,mlog,'bndfp','nsizeohrs')
       call mpibc1(nsizeoiaxs,1,2,mlog,'bndfp','nsizeoiaxs')
       call mpibc1(nsizeontabs,1,2,mlog,'bndfp','nsizeontabs')
       call mpibc1(noqsig,1,2,mlog,'bndfp','noqsig')
       if(procid/=master) then
-         print *,'nnnnnn=',nsizeohrs,nsizeoiaxs,nsizeontabs,noqsig
-         print *,'mmmmmm=',ndhrs,ndhrs,nspsigm,nttabs
+         print *,'nnnnnn=',nsizeoiaxs,nsizeontabs,noqsig,ndhrs,ndhrs,nspsigm,nttabs
          allocate(hhrs(ndhrs,ndhrs,nspsigm,nttabs))
-c      allocate( hhrs(nsizeohrs) )
-         allocate( iv_a_oiaxs(niax,nsizeoiaxs/niax))       
-         allocate( iv_a_ontabs(nsizeontabs))       
+         allocate( iaxs(niax,nsizeoiaxs/niax))       
+         allocate( ntabs(nsizeontabs))       
          allocate( rv_p_oqsig(noqsig))
       endif   
-      call mpibc1(iv_a_ontabs,nsizeontabs,2,mlog,'bndfp','ontabs')
-      call mpibc1(iv_a_oiaxs ,nsizeoiaxs,2,mlog,'bndfp','oiaxs')
-c      call mpibc1(hhrs,  size(hhrs), 6,mlog,'bndfp','ohrs')
+      call mpibc1(ntabs,nsizeontabs,2,mlog,'bndfp','ntabs')
+      call mpibc1_int(iaxs,     size(iaxs),'senebroadcast:iaxs')
       call mpibc1_complex(hhrs, size(hhrs),'senebroadcase:hhrs')
       call mpibc1(rv_p_oqsig, noqsig,4,mlog,'bndfp','noqsig')
       end subroutine senebroadcast

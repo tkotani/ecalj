@@ -253,7 +253,7 @@ C     ... Fill out iax(6,7,10)
       
 cccccccccccccccccccccccccccc      
       subroutine hft2rs(n1,n2,n3,k1,k2,k3,isp,nsp,nbas,g,ag,
-     .nsgrp,range,offH,ia1,ia2,idim,hq,plat,pos,ntab,iax,ndhrs, hrs)
+     .nsgrp,range,offH,ia1,ia2,idim,hq,plat,pos,ntab,iax,ndhrs, hhrs)
 C- Fourier transform of a matrix to real-space representation
       implicit none
       integer mode,idim,nbas,n1,n2,n3,k1,k2,k3,isp,nsp,ndhrs,nsgrp,i_data_size
@@ -265,7 +265,7 @@ C- Fourier transform of a matrix to real-space representation
       integer,allocatable :: ntab(:)
       double precision plat(3,3),pos(3,*),range,g(9,*),ag(3,*)!,qoff(3)
       double complex hq(k1,k2,k3,idim,idim,nsp)
-      complex(8):: hrs(ndhrs,ndhrs,nsp,*)
+      complex(8):: hhrs(ndhrs,ndhrs,nsp,*)
       integer i,ipr,iset,mode0,mode1,mode2,mode3,mxcsiz,nttab,nviax,nvtot
       integer ,allocatable :: iwk_iv(:),iv_a_tmp(:,:)
       double precision dmx(2)
@@ -278,9 +278,9 @@ C- Fourier transform of a matrix to real-space representation
       call fftz3(hq,n1,n2,n3,k1,k2,k3,idim*idim,iset,-1)
       call hft2r1 ( mode , n1 , n2 , n3 , k1 , k2 , k3 , isp , nsp 
      .    , ia1 , ia2 , 1 , nbas , offh , idim , hq , plat , pos
-     .    , ntab , iax , ndhrs , hrs , nviax , nvtot 
+     .    , ntab , iax , ndhrs , hhrs , nviax , nvtot 
      .    , dmx )
-      call info5(30,0,0,' hft2rs created hrs:  ndhrs=%i  '//
+      call info5(30,0,0,' hft2rs created hhrs:  ndhrs=%i  '//
      .  'max Re(hrs) = %;3g  max Im(hrs) = %;3g',ndhrs,dmx,dmx(2),0,0)
       call tcx('hft2rs')
       end subroutine hft2rs
@@ -466,19 +466,14 @@ C ... Copy iax from fixed-basis format
       
 !sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine hft2r1(mode,n1,n2,n3,k1,k2,k3,isp,nsp,ia1,ia2,ib1,ib2,
-     .offH,idim,hij,plat,pos,ntab,iax,ndhrs,hrs,nviax,nvtot,dmx)
+     .offH,idim,hij,plat,pos,ntab,iax,ndhrs,hhrs,nviax,nvtot,dmx)
 C- Copy a R.S. hamiltonian subblock on a uniform mesh of translation
 C- vectors to a representation with a neighbor list,
 C  or just mark entries in the table that correspond to mesh points
 C ----------------------------------------------------------------------
 Ci Inputs
-Ci   mode    :1s digit specifies what is created.
-Ci           :  0 marks entries in row 8 of iax table; see iax below
-Ci           :    In this mode, hij and hrs are not used
-Ci           : >0 copy hij to hrs
-Ci       :  No assumption made about hrs being real
-Ci       :  poke h(T) into hrs_R'L',RL <---- we use this mode
-Ci       :    (used when h(T) constructed for rj-ri rather than ri-rj)
+Ci    hij : hamiltonian on MTO basis
+Ci       
 Ci   n1,..n3 :number divisions in QP mesh
 Ci   ia1,ia2 :range of field point sites for which hij is tabulated
 Ci   ib1,ib2 :range of source point sites for which hij is tabulated
@@ -487,10 +482,10 @@ Ci   idim    :hamiltonian dimension
 Ci   hij     :hamiltonian on uniform mesh of q-points
 Ci   ntab    :ntab(ib)=offset to neighbor table for cluster ib (pairc.f)
 Ci   iax     :neighbor table containing pair information (pairc.f)
-Ci   ndhrs   :leading dimensions of hrs: must be at least as large as
+Ci   ndhrs   :leading dimensions of hhrs: must be at least as large as
 Ci           :the total number of orbitals of any atom.
 Co Outputs
-Co   hrs     :diagonal GF for this principal layer
+Co   hhrs     :diagonal GF for this principal layer
 Co   nviax   :number of connecting vectors found in iax table added to nviax
 Co   nvtot   :total number of connecting vectors added to nvtot
 Co   dmx     :dmx(1) = largest real element found in h
@@ -505,7 +500,7 @@ C ----------------------------------------------------------------------
      & id,jd,i,ia,ib,ngmx,ng,is1,is2,nlma,nlmb,offi,offj,nhit,nmiss,
      & offH(*),iax(niax,*),ntab(ia2),wdummy
       real(8):: plat(3,3),pos(3,*),dmx(2),gmax,qlat(3,3),tau(3),dmx1(2)
-      complex(8):: hij(k1,k2,k3,idim,idim),hrs(ndhrs,ndhrs,nsp,*)
+      complex(8):: hij(k1,k2,k3,idim,idim),hhrs(ndhrs,ndhrs,nsp,*)
       real(8) ,allocatable :: gv(:,:)
       integer ,allocatable :: kv(:,:)
       logical:: isanrg, l_dummy_isanrg,debug=.false.
@@ -529,6 +524,7 @@ C ----------------------------------------------------------------------
           tau=pos(:,ib)-pos(:,ia)
           i = 208 + 400*0
           call gvlst2(1d0, qlat, -tau , n1,n2,n3, 0d0,1d5,0,i, ngmx,ng, kv,gv,wdummy,wdummy)
+c          call gvlst2(1d0, qlat, tau , n1,n2,n3, 0d0,1d5,0,i, ngmx,ng, kv,gv,wdummy,wdummy)
 C     --- Make -(connecting vector) = rtab = (pos(ia=field)-pos(ib=src)) ---
 C     NB : Connecting vector is pos(src)-pos(field) = -rtab
           block
@@ -536,7 +532,7 @@ C     NB : Connecting vector is pos(src)-pos(field) = -rtab
           dimx = 0
           dimy = 0
           do  is = is1, is2
-             rtab(:,is)=pos(:,ia)-pos(:,ib) +matmul(plat(:,1:3),iax(3:5,is))
+             rtab(:,is)= matmul(plat(:,1:3),iax(3:5,is)) !pos(:,ia)-pos(:,ib) +
           enddo
           nhit = 0
           nmiss = 0
@@ -546,16 +542,16 @@ C     NB : Connecting vector is pos(src)-pos(field) = -rtab
                 i2 = kv(ig,2)
                 i3 = kv(ig,3)
              endif
-             v(:) = -(gv(ig,:) - tau(:))
+             v(:) = gv(ig,:) !+ tau(:)
              do is = is1, is2   !If a match in the iax table is found, copy hij there
-                if(ia==iax(2,is) .and. sum(abs(v(:)+rtab(:,is)))< tol) then
+                if(ia==iax(2,is) .and. sum(abs(v(:)-rtab(:,is)))< tol) then
                    nhit = nhit+1
                    if (mode == 0) then
                       iax(8,is) = -1
-                   else
-                      hrs(1:nlma,1:nlmb,isp,is) = transpose(hij(i1,i2,i3,1+offj:nlmb+offj,1+offi:nlma+offi))
-                      dimx=maxval(dreal(hrs(1:nlma,1:nlmb,isp,is)))
-                      dimy=maxval(dimag(hrs(1:nlma,1:nlmb,isp,is)))
+                   else !notranspose apr 2022 hhrs(Rb,Ra) Rb-Ra=  -rtab
+                      hhrs(1:nlmb,1:nlma,isp,is)= hij(i1,i2,i3,1+offj:nlmb+offj,1+offi:nlma+offi)
+                      dimx=maxval(dreal(hhrs(1:nlmb,1:nlma,isp,is)))
+                      dimy=maxval(dimag(hhrs(1:nlmb,1:nlma,isp,is)))
                    endif
                 endif
              enddo   
