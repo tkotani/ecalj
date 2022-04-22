@@ -111,13 +111,9 @@
       endif   
 !! Array allocated in supot rhoat smrho. We have to store all fixed quantites in modules.
       call m_supot_init() ! get G vectors for charge
-      call sugcut(1) 
+      call sugcut(1)
+      print *,'mmmmm goto m_suham_init'
       call m_suham_init() ! Get estimated dimension of Hamiltonian (probably simplified in future).
-c      call m_hamindex_init(jobgw) 
-      writeham= cmdopt0('--writeham')
-      if(writeham.and.master_mpi) call m_writeham_init()
-      if(writeham.and.master_mpi) call m_writeham_write()
-      if( cmdopt0('--quit=ham') ) call rx0('quit = ham')
 !! LDA+U initialization
       if(nlibu>0) call m_ldau_init()
       if(cmdopt0('--quit=dmat')) call rx0('--quit=dmat')
@@ -126,7 +122,8 @@ c      call m_hamindex_init(jobgw)
       call m_qplist_init(plbnd,jobgw==1)
       call m_qplist_qspdivider()  !generate iqini:iqend,isini,isend  for each rank
 !! G vectors for qplist
-      call m_igv2xall_init(1,nkp)  !(iqini,iqend)   !(1,nkp) is needed for gwb.head
+      call m_igv2xall_init(1,nkp) !(iqini,iqend)   !(1,nkp) is needed for gwb.head
+      
 !! madelung mode may need to be recovered.      
 !! allocate(rv_a_omad(nbas**2)); call madmat (rv_a_omad ) !Monopole Madelung matrix (kept for future).
 c      
@@ -165,6 +162,12 @@ c
          endif
       endif
       call m_hamindex_init(jobgw) !bugfix. moved here 2022apr04
+
+!! m_writeham_* is alfter m_hamindex_init 2022apr
+      writeham= cmdopt0('--writeham')
+      if(writeham.and.master_mpi) call m_writeham_init()
+      if(writeham.and.master_mpi) call m_writeham_write()
+      if( cmdopt0('--quit=ham') ) call rx0('quit = ham')
       
       write(stdo,*) 'end of reading rst or atm'
 !! (we need check. a simple approximaiton to determine VBM and CBM. Need fixing if necessary).
