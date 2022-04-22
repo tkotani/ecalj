@@ -521,9 +521,9 @@ C ----------------------------------------------------------------------
           is1 = ntab(ib)+1
           is2 = ntab(ib+1)
           nlmb = offH(ib+1) - offH(ib)
-          tau=pos(:,ib)-pos(:,ia)
+          tau = pos(:,ib)-pos(:,ia) ! ia-ib 
           i = 208 + 400*0
-          call gvlst2(1d0, qlat, -tau , n1,n2,n3, 0d0,1d5,0,i, ngmx,ng, kv,gv,wdummy,wdummy)
+          call gvlst2(1d0, qlat,  -tau , n1,n2,n3, 0d0,1d5,0,i, ngmx,ng, kv,gv,wdummy,wdummy)
 c          call gvlst2(1d0, qlat, tau , n1,n2,n3, 0d0,1d5,0,i, ngmx,ng, kv,gv,wdummy,wdummy)
 C     --- Make -(connecting vector) = rtab = (pos(ia=field)-pos(ib=src)) ---
 C     NB : Connecting vector is pos(src)-pos(field) = -rtab
@@ -552,6 +552,9 @@ C     NB : Connecting vector is pos(src)-pos(field) = -rtab
                       hhrs(1:nlmb,1:nlma,isp,is)= hij(i1,i2,i3,1+offj:nlmb+offj,1+offi:nlma+offi)
                       dimx=maxval(dreal(hhrs(1:nlmb,1:nlma,isp,is)))
                       dimy=maxval(dimag(hhrs(1:nlmb,1:nlma,isp,is)))
+c                      hhrs(1:nlma,1:nlmb,isp,is)= hij(i1,i2,i3,1+offi:nlma+offi,1+offj:nlmb+offj)
+c                      dimx=maxval(dreal(hhrs(1:nlma,1:nlmb,isp,is)))
+c                      dimy=maxval(dimag(hhrs(1:nlma,1:nlmb,isp,is)))
                    endif
                 endif
              enddo   

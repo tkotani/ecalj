@@ -1,30 +1,3 @@
-!!---  qplist.dat reader -----------------------------------
-      module m_readqplist     
-      integer,protected:: ndat
-      real(8),allocatable,protected:: xdat(:),qplistsy(:,:)
-      real(8),protected:: eferm !<-- temporary use. just as a memo.
-      contains
-      subroutine readqplistsy()
-      implicit none
-      integer:: ifqplistsy,nnn,ix
-      open(newunit=ifqplistsy,file='qplist.dat')
-      nnn=10000
-      if(allocated(xdat)) deallocate(xdat)
-      if(allocated(qplistsy)) deallocate(qplistsy)
-      allocate(xdat(nnn),qplistsy(1:3,nnn))
-      read(ifqplistsy,*) eferm
-      ix=0
-      do
-        ix=ix+1
-        read(ifqplistsy,*,end=1011) xdat(ix),qplistsy(1:3,ix)
-c        write(6,'(" qplist ix xdata q=",i5,f9.4,x,3f9.4)')ix,xdat(ix),qplistsy(:,ix)
-      enddo
- 1011 continue
-      ndat=ix-1
-      close(ifqplistsy)
-      return
-      end subroutine
-      end module m_readqplist      
 !! -----------------------------MAIN ROUTINES---------------------------------
       program plotmodel
       use m_HamMTO,only: plat,npair,nlat,nqwgt,nkp,qplist,ib_table,alat,ReadHamMTOInfo,npairmx,nsp,

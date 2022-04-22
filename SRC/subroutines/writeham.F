@@ -90,7 +90,7 @@ c     endif
 !--------------------------------------------      
       subroutine m_writeham_write() 
       use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,lso,nsp
-       use m_lmfinit,only: ldham
+       use m_lmfinit,only: ldham,stdo
 c      use m_hamindex, only: norbmto
       use m_hamindex, only: ngrp,symops,norbmto,ibastab,ltab,ktab,offl !, symops_af
       integer:: ldim,iorb,ib,is,i,jobgw
@@ -104,19 +104,22 @@ c      use m_hamindex, only: norbmto
 !!  ktab=  =1 for EH, =2 for EH2, =3 for lo
 !! SYMOPS
 c      if(.not.master_mpi) return
+      write(stdo,*)'mmmm m_writeham_init'
       if(.not.initset1  ) return
       initset1 = .false.
       ldim=ldham(1) !ham_ldham(1)
 c     write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
       allocate(ib_table(ldim),l_table(ldim),k_table(ldim))
-c      print *,'pppppppp',ldim,norbmto,ibastab
+      write(stdo,*)'mmmm m_writeham_init',ldim,norbmto,ibastab
 c      print *,'offl',offl
 c      print *,'ltab',ltab
-c      print *,'ktab',ktab
+c     print *,'ktab',ktab
+      print *,' norbmto mmmmmmmmmm',norbmto
       do iorb = 1, norbmto      !Total number of MTO's (without m)
          ib   = ibastab(iorb)
          is   = ssite(ib)%spec
          spid=sspec(is)%name
+         write(6,*)'ssssssssssss spid=',is,spid
          ib_table(offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ib
          l_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ltab(iorb)
          k_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ktab(iorb)

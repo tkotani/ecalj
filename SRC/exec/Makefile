@@ -112,6 +112,8 @@ $(obj_path)/lmchk.o: $(main)lmchk.F
 #	$(FC) $(FFLAGS_NONE) -c $< -o $@
 $(obj_path)/lmfham.o: $(main)lmfham.F
 	$(FC) $(FFLAGS_NONE) -c $< -o $@
+$(obj_path)/lmfham1.o: $(main)lmfham1.F
+	$(FC) $(FFLAGS_NONE) -c $< -o $@
 $(obj_path)/mkhamloc.o: $(main)mkhamloc.F
 	$(FC) $(FFLAGS_NONE) -c $< -o $@
 $(obj_path)/plotmodel.o: $(main)plotmodel.F
@@ -140,6 +142,9 @@ lmchk:	$(obj_path)/lmchk.o $(ELIB) $(MPI)
 #	@echo $(LK) $@.o 'link with *.o'
 #	@$(FC) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB)  $(MPI) $(LIBLOC) $(LKFLAGS2) -o $@
 lmfham: $(obj_path)/lmfham.o $(ELIB)  $(MPI) $(MLO)
+	@echo $(LK) $@.o 'link with *.o'
+	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB)  $(MPI) $(LIBLOC) $(LKFLAGS2) $(MLO) -o $@
+lmfham1: $(obj_path)/lmfham1.o $(ELIB)  $(MPI) $(MLO)
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB)  $(MPI) $(LIBLOC) $(LKFLAGS2) $(MLO) -o $@
 mkhamloc: $(obj_path)/mkhamloc.o $(ELIB)  $(MPI) $(MLO)

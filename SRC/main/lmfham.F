@@ -1,48 +1,3 @@
-      subroutine gsortho(vecIO,L,S) !Gram-Schmid(GS) orthogonalization
-      implicit none
-      logical(4) :: debug=.false.
-      integer(4),intent(in) :: L,S !L=large dim. S=Small dim
-      integer(4) i,j,n,m
-      complex(8) ,intent(inout):: vecIO(L,S)
-      real(8)     norm
-      complex(8) prefc
-      norm=0.0d0                !renormalization of the first vector
-      do n=1,L
-         norm = norm + dconjg(vecIO(n,1))*vecIO(n,1)
-      end do
-      norm=dsqrt(norm)      
-      
-      vecIO(:,1)=vecIO(:,1)/norm !normalization!         
-      do m=2,S                  ! m vectors containing nevMTO components
-         do i=1,m-1
-            prefc=0.0d0
-            do n=1,L
-               prefc = prefc + dconjg(vecIO(n,i))*vecIO(n,m)
-            end do                  
-            vecIO(:,m)=vecIO(:,m)-prefc*vecIO(:,i)
-         end do           
-c     !renormalization!
-         norm=0.0d0
-         do n=1,L
-            norm = norm + dconjg(vecIO(n,m))*vecIO(n,m)
-         end do
-         norm=dsqrt(norm)
-         vecIO(:,m)=vecIO(:,m)/norm
-c     !end renorm
-      end do
-
-      if(debug)then
-         write(*,*) "GS-ortho, "
-         do i=1,S
-            do n=1,L
-               if(i==n) write(*,"(f5.2,2x,f5.2,3x)",advance="no") dble(vecIO(i,n)),dimag(vecIO(i,n))              
-            end do
-            write(*,*) 
-         end do
-      end if
-      return
-      end subroutine gsortho
-!!-------------------------------------------------------------
       program lmfham
 !! Read HamiltonianMTO and generates MTO-only Hamiltonian
       use m_hamMTO,only: ReadHamMTOInfo,plat,pos,nlat,npair,ib_table,nqwgt,lso
@@ -195,3 +150,50 @@ ccccccccccccend of reduction step cccccccccccccccccccc
       write(6,*) "**************** end Reading Ham for iq **********"    
       stop "exiting lmfham  (return 0)"
       end program lmfham
+!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+      
+      subroutine gsortho(vecIO,L,S) !Gram-Schmid(GS) orthogonalization
+      implicit none
+      logical(4) :: debug=.false.
+      integer(4),intent(in) :: L,S !L=large dim. S=Small dim
+      integer(4) i,j,n,m
+      complex(8) ,intent(inout):: vecIO(L,S)
+      real(8)     norm
+      complex(8) prefc
+      norm=0.0d0                !renormalization of the first vector
+      do n=1,L
+         norm = norm + dconjg(vecIO(n,1))*vecIO(n,1)
+      end do
+      norm=dsqrt(norm)      
+      
+      vecIO(:,1)=vecIO(:,1)/norm !normalization!         
+      do m=2,S                  ! m vectors containing nevMTO components
+         do i=1,m-1
+            prefc=0.0d0
+            do n=1,L
+               prefc = prefc + dconjg(vecIO(n,i))*vecIO(n,m)
+            end do                  
+            vecIO(:,m)=vecIO(:,m)-prefc*vecIO(:,i)
+         end do           
+c     !renormalization!
+         norm=0.0d0
+         do n=1,L
+            norm = norm + dconjg(vecIO(n,m))*vecIO(n,m)
+         end do
+         norm=dsqrt(norm)
+         vecIO(:,m)=vecIO(:,m)/norm
+c     !end renorm
+      end do
+
+      if(debug)then
+         write(*,*) "GS-ortho, "
+         do i=1,S
+            do n=1,L
+               if(i==n) write(*,"(f5.2,2x,f5.2,3x)",advance="no") dble(vecIO(i,n)),dimag(vecIO(i,n))              
+            end do
+            write(*,*) 
+         end do
+      end if
+      return
+      end subroutine gsortho
+!!-------------------------------------------------------------

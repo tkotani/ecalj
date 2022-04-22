@@ -220,7 +220,7 @@ c      real(8)  ::   size
 c      real(8)   ::   bfield(3)
       character(8)   ::   clabel !string
       integer   ::   class
-      real(8)   ::   eula(3)
+c      real(8)   ::   eula(3)
       real(8)   ::   force(3)
       integer   ::   norb
       real(8) , allocatable ::  rv_a_ov0 (:)

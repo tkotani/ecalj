@@ -1,5 +1,5 @@
       module m_hamindex         !all protected now 
-      use m_lmfinit,only: ham_pwmode,pwemax,ham_ldham,noutmx,nsp_in=>nsp,
+      use m_lmfinit,only: ham_pwmode,pwemax,ham_ldham,noutmx,nsp_in=>nsp,stdo,
      &     alat=>lat_alat,nl,ctrl_nbas,ssite=>v_ssite,sspec=>v_sspec,n0,nkap0,iprmb,zbak_read=>zbak
       use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
       use NaNum,only: NaN       !for initialization, but not working well

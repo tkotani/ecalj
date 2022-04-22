@@ -52,6 +52,7 @@
      & ndimsig , sene)
       if(debug) print *,'end of bloch sene'
       end subroutine getsene
+      
 !sssssssssssssssssssssssssssssssssssssssss      
       subroutine seneinterp(nbas,nspsigm,ndimsig,rsrnge, nk1,nk2,nk3,sfz)
       use m_hamindex,only: offH

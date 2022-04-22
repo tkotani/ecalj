@@ -11,9 +11,6 @@
       complex(8):: sll(ldl,ldl)!,sil(ldi,ldl2,2),sii(ldi,ldi,2)
       integer ia,ib,iprint,isite,j,k,kcplx,ksite,ld11,
      .ld12,ld13,ld21,ld22,ld23,lidim,nds1,ndss,offa,offb !,oi,scplx
-c      double precision TdotK,cosT,sinT
-c      double precision sc(nds,nds),swk(nds,2,nds)
-c      logical:: debug=.false.
       real(8),parameter:: twopi = 8*datan(1d0)
       complex(8):: phase,img=(0d0,1d0)
       integer:: ipa,ipb,lma,lmb,offa0, isa,isb,offra,offrb
@@ -26,10 +23,8 @@ c      logical:: debug=.false.
          phase= exp (img*twopi*sum(qp*matmul(plat,iax(3:5,isite))) )
          ksite = isite          !Use equivalent of isite to some other site, if it exists
          if (iax(8,isite) .ne. 0) ksite = iax(8,isite)
-c         offa = mxorb*(ib-1)  
-c         offb = mxorb*(ia-1)
-         offb = mxorb*(ib-1)  !row
-         offa = mxorb*(ia-1)  !column
+         offb = mxorb*(ib-1)  !row !offa = mxorb*(ib-1)  
+         offa = mxorb*(ia-1)  !column   offb = mxorb*(ia-1)
 ccccccccccccccccccccccccccccccccccccccccccccccc
          offa0 = offa
          do  3  lmb = 1, mxorb
@@ -40,6 +35,7 @@ C     No columns, nothing to copy
          return
  4       continue
          offrb = offrb-1
+         
          do  5  lma = 1, mxorb
             offra = iprmb(offa+lma)
             if (offra.gt.0 .and. offra.le.ldl) goto 6
@@ -47,6 +43,7 @@ C     No columns, nothing to copy
          return
  6       continue
          offra = offra-1
+         
 c     print *,'oooooffr=',offra,offrb
          do  110  lmb = 1, mxorb
             offb = offb+1
