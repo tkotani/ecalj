@@ -166,7 +166,6 @@
       endif
       call m_hamindex_init(jobgw) !bugfix. moved here 2022apr04
 
-      if( cmdopt0('--quit=ham0') ) call rx0('quit = ham0')
 !! m_writeham_* is after m_hamindex_init 2022apr22
       inquire(file='sigm.'//trim(sname),exist=sigx)
       if(sigx) then
@@ -175,8 +174,6 @@
          close(ifi)
          call m_gennlat_init_sig([nk1,nk2,nk3])  !nlat for FFT of sigm
       endif
-      write(6,*)'sigm nk1 nk2 nk3=',nk1,nk2,nk3
-      if( cmdopt0('--quit=sig0') ) call rx0('quit = sig0')
 !!         
       writeham= cmdopt0('--writeham')
       if(writeham.and.master_mpi) call m_gennlat_init(bz_nabc) !for interpolation of Hamiltonian
