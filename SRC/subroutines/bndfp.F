@@ -45,7 +45,7 @@
       use m_lmfinit, only: n0,nab,nppn,ncutovl,lso,ndos=>bz_ndos,bz_ef0,bz_w,fsmom=>bz_fsmom,
      &     bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n,
      &     ctrl_nspec,ctrl_pfloat,ldos=>ctrl_ldos,qbg=>zbak,lfrce=>ctrl_lfrce,
-     &     pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps,ham_elind,ham_rsrnge,
+     &     pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps,ham_elind,
      &     ham_scaledsigma,ham_pmin,ham_pmax, !
      &     alat=>lat_alat,stdo,stdl,procid,master, !bz_doswin, 
      &     nkaph,nlmax,nl,nbas,nsp, ham_frzwf, bz_dosmax,
@@ -76,6 +76,7 @@
       use m_addrbl,only: M_addrbl_allocate_swtk,swtk
       use m_sugw,only: M_sugw_init
       use m_mkehkf,only: M_mkehkf_etot1,M_mkehkf_etot2
+      use m_gennlat_sig,only: m_gennlat_init_sig
 Ci   nbas  : size of basis
 Ci   nsp   : number of spins
 Ci   nlibu : total number of LDA+U blocks (used to dimension dmatu and vorb)
@@ -130,8 +131,8 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
       character*10 shortname(0:MAX_PROCS-1)
       double precision sttime,entime
 
-      integer:: plbnd
-      logical:: llmfgw
+      integer:: plbnd,nk1,nk2,nk3,nx,ny
+      logical:: llmfgw,sigx
       logical:: ltet,cmdopt0,sigmamode,tdos,debug=.false.  
       logical:: fullmesh,PROCARon,writeham=.false.
       logical:: fsmode !for --fermisurface for xcrysden.
@@ -188,16 +189,24 @@ c      if(master_mpi) write(stdo,"(a)") 'bndfp:start'
          if (lrout == 0) call rx('bndfp: need output density for cls')
          call m_clsmode_init()
       endif
-!! === \Sigma-Vxc to ham_rv_a_ohrs. Neighbor table ham_iv_a_oiaxs ====
+!! === \Sigma-Vxc to hrr
 !! ndimsig is the dimension of the self-energy. 
-!! ndimsig = ldim means we use only projection onto MTO spaces even when PMT. !aug2012takao
-!! OUTPUTs by sigmainit are stored in m_seneinterp
-!! In future, we should make this block to a subroutine which shows clear i/o.
+!  Current version is "ndimsig = ldim", which means we use only projection
+!  onto MTO spaces even when PMT. 
+!! OUTPUT of m_rdsigm2_init: ndimsig, nk1,nk2,nk3, and hrr.
+!! These are used in getsenex via bloch2.
       sigmamode = (lrsig/=0)
       if( sigmamode.and.siginit ) then
+         inquire(file='sigm.'//trim(sname),exist=sigx)
+         if(sigx) then
+            open(newunit=ifi,file='sigm.'//trim(sname),form='unformatted') 
+            read(ifi) nx,ny,nk1,nk2,nk3
+            close(ifi)
+            call m_gennlat_init_sig([nk1,nk2,nk3]) !nlat(real-space lattice vectors) for FFT of sigm
+         endif
          call m_rdsigm2_init()
          call mpi_barrier(MPI_COMM_WORLD,ierr) 
-         siginit=.false. !this is equivalent to broad casting.
+         siginit=.false. !only once
       endif
       if(sigmamode.and.master_mpi) write(stdo,*)' ScaledSigma=',ham_scaledsigma
 !! == GW driver and finish ==

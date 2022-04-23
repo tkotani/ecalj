@@ -2,7 +2,7 @@
       public:: M_rdsigm2_init, Getsenex, Dsene, senex !getsenex returns the self-energy term.
       public:: ndimsig, sene
       integer,protected,public :: nk1,nk2,nk3
-      complex(8),pointer,public:: hrr(:,:,:,:,:,:)
+      complex(8),pointer,public:: hrr(:,:,:,:,:,:) ! self-energy on real-space mesh points.
       private
       complex(8),allocatable,target :: sfz(:,:,:,:,:,:)
       complex(8),allocatable,protected:: sene(:,:),senex(:,:)
@@ -10,7 +10,7 @@
       integer, allocatable,protected :: iaxs(:,:)
       integer, allocatable,protected :: ntabs(:)
       integer,protected:: ndimsig,nspsigm,ndhrs,ham_nqsig
-      real(8) , allocatable,private ::  rv_p_oqsig (:)  !not yet protected (rdsigm2 rewrite this)
+      real(8),protected,allocatable ::  rv_p_oqsig (:)
       contains
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine getsenex(qp,isp,ndimh,ovlm)
@@ -21,12 +21,9 @@
       complex(8),allocatable:: ovlmtoi(:,:),ovliovl(:,:) 
       complex(8):: ovlm(ndimh,ndimh)
       allocate(sene(ndimsig,ndimsig))
-      if(isp>nspsigm) then
-         ispsigm = nspsigm
-      else
-         ispsigm=isp
-      endif
-      call bloch2(qp,ispsigm,sene)
+      ispsigm=isp
+      if(isp>nspsigm) ispsigm = nspsigm
+      call bloch2(qp,ispsigm,sene) !return self-energy for given qp,ispsigm
       allocate( ovlmtoi(ndimsig,ndimsig),ovliovl(ndimsig,ndimh))
       ovlmtoi = ovlm(1:ndimsig,1:ndimsig)
       call matcinv(ndimsig,ovlmtoi)
@@ -41,22 +38,22 @@
       deallocate(senex,sene)
       end subroutine
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-      subroutine m_rdsigm2_init()
-      use m_lmfinit,only : rsrnge=>ham_rsrnge,nbas,pwmode=>ham_pwmode,ham_ldham
+      subroutine m_rdsigm2_init() !get hrr (fourier transformation of self-energy in full BZ)
+      use m_lmfinit,only : nbas,pwmode=>ham_pwmode,ham_ldham,stdo
       use m_hamindex,only: symops_af,napwmx
       use m_MPItk,only: procid,master
       use m_ext,only:sname
-      integer:: ldim,ierr,ifi,ndimh_dummy,nqps,ifile_handle,ifis2,ik1,ik2,ik3,is,iset
+      integer:: ldim,ierr,ifi,ndimh_dummy,ifile_handle,ifis2,ik1,ik2,ik3,is,iset,nqp
       logical:: laf,mlog,cmdopt, mtosigmaonly,cmdopt0
       character strn*120
       real(8),allocatable:: qsmesh2(:,:,:,:)
       ldim  = ham_ldham(1)
       ndimsig= ldim             !if(mtosigmaonly()) mode. Dimension of sigm is the size of MTOs.
       if(procid==master) then
-         write(6,*)' --- goto sigmainit: rdsigm2 initialization section ---',rsrnge
          ifi=ifile_handle()
-         open(ifi,file='sigm.'//trim(sname),form='unformatted') !
-         read(ifi,err=9995,end=9995) nspsigm,ndimh_dummy,nk1,nk2,nk3
+         open(ifi,file='sigm.'//trim(sname),form='unformatted') 
+         read(ifi,err=9995,end=9995) nspsigm,ndimh_dummy,nk1,nk2,nk3,nqp
+         write(stdo,"(' sigm file has ',i5,' irreducible QP: nk =',3i5)") nqp,nk1,nk2,nk3
          laf=allocated(symops_af) !jun2015takao !reserved for future
          if(laf) nspsigm=2      ! we need recover laf mode
          allocate( qsmesh2(3,nk1,nk2,nk3) )
@@ -67,18 +64,17 @@
          endif
          rewind ifi
          if (mod(pwmode,10) ==0) then
-            write(6,"(a,2i5)")" --- ldim(=dim of lmto)= ",ldim
+            write(stdo,"(a,2i5)")" --- ldim(=dim of lmto)= ",ldim
          elseif(napwmx>0) then 
-            write(6,"(a,2i5)")" --- ldim(=dim of lmto), napwmx= ",ldim,napwmx
+            write(stdo,"(a,2i5)")" --- ldim(=dim of lmto), napwmx= ",ldim,napwmx
          endif   
 !! Get self-energy sfz in the full BZ.
-         call rdsigm2(nbas,nspsigm,ifi,
-     &        nk1,nk2,nk3,ldim,qsmesh2,  nqps, mtosigmaonly(),ndimsig) 
+         call rdsigm2(nbas,nspsigm,ifi,nk1,nk2,nk3,ldim,qsmesh2,mtosigmaonly(),ndimsig) 
          close(ifi) 
 !! Write sig_fbz 
          if(cmdopt0('--wsig_fbz')) then
            open(newunit=ifis2,file='sigm_fbz.'//trim(sname),form='unformatted')
-           write(6,"(a)")' Writing sigm_fbz.* for SYMGRP e --wsig_fbz'
+           write(stdo,"(a)")' Writing sigm_fbz.* for SYMGRP e --wsig_fbz'
            write(ifis2) nspsigm,ndimsig,nk1,nk2,nk3,nk1*nk2*nk3,0,0,0
            do is=1,nspsigm
            do ik1=1,nk1
@@ -97,7 +93,7 @@
          hrr => sfz ! rename sfz as hrr
       endif                  !procid==master
       if(cmdopt0('--wsig_fbz')) call rx0('end of --wsig_fbz mode')
-      mlog     = cmdopt('--mlog',6,0,strn) !--mlog here is taken by getarg.
+      mlog = cmdopt('--mlog',6,0,strn) !--mlog here is taken by getarg.
       call mpibc1_int(nspsigm,1,'senebr:nspsigm')
       call mpibc1_int(nk1,1,'senebr:nk1')
       call mpibc1_int(nk2,1,'senebr:nk2')
@@ -105,14 +101,14 @@
       if(procid/=master) allocate(sfz(nk1,nk2,nk3,ndimsig,ndimsig,nspsigm))
       call mpibc1_complex(sfz, size(sfz),'senebroadcase:sfz')
       if(procid/=master) hrr => sfz    ! rename sfz as hrr
-      if(procid==master) write(6,*)' --- end of sigmainit: rdsigm2 initialization section ---'
+      if(procid==master) write(stdo,*)' --- end of sigmainit: rdsigm2 initialization section ---'
       return
  9995 continue
       call rx('sigmainit: readin error of sigm file')
       end subroutine m_rdsigm2_init
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine rdsigm2(nbas_dummy,nspsigm,ifis, 
-     &     nk1,nk2,nk3,ldim,qsmesh    ,nqps,mtosigmaonly,ndimsig) !,qsfz,qqps are for test sfz
+     &     nk1,nk2,nk3,ldim,qsmesh    ,mtosigmaonly,ndimsig) !,qsfz,qqps are for test sfz
       use m_mksym,only: rv_a_osymgr,lat_nsgrp
       use m_hamindex,only : getikt,napwk,   symops_af,ngrp_original,ngrpaf,symops,ngrp
       use m_lmfinit,only: nl,stdo
@@ -136,16 +132,15 @@
 !!  Especially qsmesh (regular q mesh for self-energy.) is very problematic. It should be given at a place, and then
 !!  it should be used somewhere else.
       implicit none
-      integer mode,ifis,ndimsig_r,lwsig, nbas_dummy!nbas,
-      double precision rsrnge
-      logical llshft(3),cmdopt,ltrans,lphase,lsplts,lnwmsh,
+      integer:: ifis,ndimsig_r,lwsig, nbas_dummy!nbas,
+      logical llshft(3),cmdopt,lphase,lsplts,lnwmsh,
      .latvec,lfbzin,lfbzout
       integer parg,isw
       character outs*80,out2*80,dc*1,rots*120
       integer i,j,ifis2,ifiz,isp,nspsigm,nglob,ldham(16),lrsig,
      .nkxyz(3),nk1,nk2,nk3,nsgrp,nsgrps,mxkp,nqp,nqps,
      .j1,k1,k2,k3,iq1,nspc,mxorb,nqsig, !modsgp,nmin,nmax,
-     .lrot,iprint,lssym,ledit,nscnts,
+     .lrot,iprint,lssym,
      .ndims,ndimz,iq,n123(4),lcore,lhigh
       integer,parameter::niax=10
       integer:: ohrss , osigm2 , odelt , oistb2
@@ -179,15 +174,10 @@ C     --- Read sigma(orbital basis) from file ---
       print *,'rdsigm2:'
       sfz=1d99
       laf=allocated(symops_af) !jun2015takao
-      mode=12
       tolq = 1d-6
-      ledit = 0
-      nscnts = 0
-      ltrans=.true.
       lshft=0
       rewind ifis
       read(ifis) nsp_,ndimsig_r,nk1_,nk2_,nk3_,nqp_
-      write(stdo,"(' sigm file has ',i5,' irreducible QP: nk =',3i5)") nqp,nk1,nk2,nk3
       nsgrp=lat_nsgrp
       k1=nk1
       k2=nk2
@@ -208,13 +198,13 @@ C --- Get list of irreducible k-points, and ipq and gstar arrays ---
       gstar_iv = -2
       allocate(ipq(nk1,nk2,nk3))
       allocate(wgt_rv(mxkp))
-      wgt_rv(:)=0.0d0
+      wgt_rv=0d0
       if(debug) print *,'rdsigm2: debug2222'
-      call info(20,1,0,' q-points in full BZ where sigma calculable ...',0,0)
+      write(stdo,"(a)")' q-points in full BZ where sigma calculable ...'
       call bzmesh(plat, qb, nk1,nk2,nk3, llshft,iwdummy,0, ipq,rv_p_oqsig, wgt_rv, nqsig, mxkp, 0, 0)
       ham_nqsig=nqsig
-      call dpzero ( wgt_rv , mxkp )
-      call info2(20,0,0,' Irr. qp for which sigma is calculated ...',0,0)
+      wgt_rv=0d0
+      write(stdo,"(a)") ' Irr. qp for which sigma is calculated ...'
       call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_a_osymgr 
      . , nsgrps , ipq, qp_rv , wgt_rv , nqps , mxkp , gstar_iv , 0 )
       if(nqps/=nqp_) call rx('nqps/=nqp_ from sigm')
@@ -232,19 +222,16 @@ C --- Get list of irreducible k-points, and ipq and gstar arrays ---
       enddo
       if(debug) print *,'rdsigm2: debug111111'
       if(laf) then
-        if(iprint()>10) write(6,*)'rdsimg2: AF mode, mapping from irr points to regular mesh point'
+        if(iprint()>10) write(stdo,*)'rdsimg2: AF mode, mapping from irr points to regular mesh point'
         allocate(ipqaf(nk1,nk2,nk3))
         ipqaf=0
         do i1=1,nk1
         do i2=1,nk2
         do i3=1,nk3
-c          print *,'qmesh=',qsmesh(:,i1,i2,i3)
           do 1111 iq1=1,nqps
             qir = qp_rv(:,iq1)
-c            print *,'qir=',qir
             do ig= ngrp_original+1,ngrp !only AF symmetry (equivalent with symops_af)
               call rangedq( matmul(platt,(qsmesh(:,i1,i2,i3) - matmul(symops(:,:,ig),qir))), diffq)
-c              print *,'symops(:,:,ig) diffq',symops(:,:,ig),diffq
               if(sum(abs(diffq))<1d-6) then
                ipqaf(i1,i2,i3) = iq1    !iq1 is pointer to the irreducible q point = qp_rv(:,iq1)
                goto 1122
@@ -259,7 +246,7 @@ c              print *,'symops(:,:,ig) diffq',symops(:,:,ig),diffq
         enddo
       endif
 C --- Generate hrs = sigma(T) from file sigma(k) ---
-      do  isp = 1, nspsigm
+      do  2001 isp = 1, nspsigm
          if (isp==2.and.nsp_==1 ) then !If sigm file not spin polarized, use sigm from spin 1
             rewind ifis
             read(ifis)
@@ -267,7 +254,6 @@ C --- Generate hrs = sigma(T) from file sigma(k) ---
           allocate(wk_zv(ndimsig_r**2))
           nspc = 1
           allocate(sigm_zv(ndimsig_r,ndimsig_r))
-!! we now not expect ordered data on qp feb2013
           do iq1 = 1, nqps
 !! look for a tag qp in sigm, where qp=qp_rv(:,iq1)  for given iq1
             do ix=0,1
@@ -303,17 +289,16 @@ C --- Generate hrs = sigma(T) from file sigma(k) ---
               iaf=2
               ipq_pointer => ipqaf
             endif
-            write(6,"(a,2i5,' ',13f13.5)")' rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=', isp,iaf,qp
-            if(iprint()>60) write(6,"(a,13f13.5)")' rdsigm2:Goto hamfb3k  xxx input qp=', qp
+            write(stdo,"(a,2i5,' ',13f13.5)")' rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=', isp,iaf,qp
+            if(iprint()>60) write(stdo,"(a,13f13.5)")' rdsigm2:Goto hamfb3k  xxx input qp=', qp
             call hamfb3k ( qp , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , ipq_pointer,
      .       napw_in , ndimsig , ndimsig , ndimsig , qb , ldim , 
      .       ifac , gstar_iv , sigm_zv(1:ndimsig,1:ndimsig) , iaf, sfz(1,1,1,1,1,isp))
-            if(debugmode()>0) write(6,"(a,3f13.5)")'end of hamfbk3'
+            if(debugmode()>0) write(stdo,"(a,3f13.5)")'end of hamfbk3'
           enddo
           deallocate(sigm_zv)
           deallocate(wk_zv)
-C ... End loop over spins
-      enddo
+ 2001 continue
       call tcx('rdsigm2')
       if (allocated(wgt_rv)) deallocate(wgt_rv)
       if (allocated(ipq)) deallocate(ipq)
@@ -325,6 +310,7 @@ C ... End loop over spins
      i k1,k2,k3,ipq,napw_in,ndimh,ldima,ldimb,qb,ldim,ifac,igstar,
      i hq,iaf, !iaf at jun2015
      o gfbz)
+      use m_lmfinit,only: stdo
 !! Generate gfbz (full BZ) from hq (1st BZ).
 Ci q iq: q and index for q
 Ci   nk1,nk2,nk3:  no. divisions for the qp in 3 recip. latt. vecs
@@ -371,8 +357,8 @@ C Given (j1,j2,j3) of ipq, q_k(j1,j2,j3) =  sum_i (j_i*ifac(i)-1)*qb(k,i)
             q1(2) = qk(2,i1,i2,i3)
             q1(3) = qk(3,i1,i2,i3)
             if(debugmode()>0) print *,q1
-            if(debugmode()>0) write(6,"(a,3f13.5)")' input          qin = ', qin
-            if(debugmode()>0) write(6,"(a,3f13.5)")' target a        q1 = ', q1 ! qin = g(:,:,ig)^{-1}*q1
+            if(debugmode()>0) write(stdo,"(a,3f13.5)")' input          qin = ', qin
+            if(debugmode()>0) write(stdo,"(a,3f13.5)")' target a        q1 = ', q1 ! qin = g(:,:,ig)^{-1}*q1
             call rotsig(qin,q1,ndimh,napw_in,ldim,hq,gfbz(i1,i2,i3,:,:),ierr,iaf)
             if(ierr/=0) write(aaa,"(' qin=',3f13.6,' q1=',3f13.6)") qin,q1
             if(ierr/=0) call rx('hamfb3: rotsig do not map qin to q1;'//trim(aaa))
@@ -387,6 +373,7 @@ C Given (j1,j2,j3) of ipq, q_k(j1,j2,j3) =  sum_i (j_i*ifac(i)-1)*qb(k,i)
       use m_hamindex,only: symops,invgx,miat,tiat,shtvg,qlat,plat,dlmm,ngrp,norbmto,
      &  ibastab,ltab,ktab,offl,offlrev,getikt,igv2,igv2rev,napwk,
      &  ngrp_original
+      use m_lmfinit,only: stdo
       implicit none
 !!=== sigma rotator. sig at qin to sig at qout. ===
 !! obtain sigout for qout.
@@ -406,7 +393,7 @@ C Given (j1,j2,j3) of ipq, q_k(j1,j2,j3) =  sum_i (j_i*ifac(i)-1)*qb(k,i)
       ierr=1
       platt=transpose(plat) !this is inverse of qlat
 !! find symops(3,3,ig),
-      if(debugmode()>0) write(6,"('rotsig: qin qout=',3f9.4,x,3f9.4)") qin,qout
+      if(debugmode()>0) write(stdo,"('rotsig: qin qout=',3f9.4,x,3f9.4)") qin,qout
       qtarget= qin
       q      = qout  ! we find q
 ! we try to find qtrget = symops(igx) * q          (this means qin = symops(igc) qout).

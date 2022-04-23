@@ -22,7 +22,6 @@
       use m_iors,only:  Iors
       use m_lmaux,only: lmaux
       use m_gennlat,only: m_gennlat_init
-      use m_gennlat_sig,only: m_gennlat_init_sig
       implicit none
       integer:: k,lgunit,stdo,stdl
       logical:: fileexist,cmdopt,cmdopt0,cmdopt2
@@ -167,13 +166,6 @@
       call m_hamindex_init(jobgw) !bugfix. moved here 2022apr04
 
 !! m_writeham_* is after m_hamindex_init 2022apr22
-      inquire(file='sigm.'//trim(sname),exist=sigx)
-      if(sigx) then
-         open(newunit=ifi,file='sigm.'//trim(sname),form='unformatted') !
-         read(ifi) nx,ny,nk1,nk2,nk3
-         close(ifi)
-         call m_gennlat_init_sig([nk1,nk2,nk3])  !nlat for FFT of sigm
-      endif
 !!         
       writeham= cmdopt0('--writeham')
       if(writeham.and.master_mpi) call m_gennlat_init(bz_nabc) !for interpolation of Hamiltonian

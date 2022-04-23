@@ -26,10 +26,10 @@ c      use m_mpitk,only: master_mpi,procid
          nS=nlatS(ik1-1,ik2-1,ik3-1,ib1,ib2)
          nE=nlatE(ik1-1,ik2-1,ik3-1,ib1,ib2)
          phase=0d0
-         do ix=nS,nE
-         phase=phase+exp(-img*twopi*sum(qp*matmul(plat,nlat(:,ix,ib1,ib2))))
+         do ix=nS,nE !T=(ik1,ik2,ik3) is mapped to nlat(:,ix,ib1,ib2). ix=nS,nE are all shortest.
+         phase=phase+exp(-img*twopi*sum(qp*matmul(plat,nlat(:,ix,ib1,ib2)))) !backward
          enddo
-         phase= phase/(nE-nS+1) 
+         phase= phase/(nE-nS+1) !phase averaged
          sll(i,j) = sll(i,j) + hrr(ik1,ik2,ik3,i,j,isp)/nnn*phase
       enddo
       enddo

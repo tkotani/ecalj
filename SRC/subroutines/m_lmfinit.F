@@ -44,8 +44,8 @@ Ci          functions are less than tol.
       real(8),protected:: pmin(n0),pmax(n0),ham_pmax(10),ham_pmin(10),
      &     ctrl_defm(6), ctrl_wsrmax,ctrl_sdprm(5),ctrl_rmaxes,
      &     ctrl_omax1(3),ctrl_omax2(3),ctrl_sclwsr,ctrl_rmines, !ctrl_zbak,
-     &     tolft,elind,dqval,rsrnge,vmtz, scaledsigma  ,rsstol     
-     &     ,ham_elind,ham_oveps,ham_rsrnge,ham_rsstol,ham_scaledsigma
+     &     tolft,elind,dqval,vmtz, scaledsigma  ,rsstol     
+     &     ,ham_elind,ham_oveps,ham_rsstol,ham_scaledsigma
      &     ,ham_delta_stabilize 
 !! ... OPTIONS
       integer,protected ::lves, ctrl_smalit(2),smalit(2),nesabc(3), lstonr(3)=0,nl,lpfloat
@@ -646,9 +646,9 @@ c      if (nout <  3) dabc(3) = dabc(2)
      .     'local exchange correlation functional:'//
      .     '%N%3f   0: do not read Sigma'//
      .     '%N%3f   1(or not zero): read sigm=Sigma-Vxc. Default now')
-      nm='HAM_RSRNGE'; call gtv(trim(nm),tksw(prgnam,nm),rsrnge,
-     .     def_r8=5d0, note='Maximum range in connecting vectors for '//
-     .     'r.s. sigma (units of alat)')
+c      nm='HAM_RSRNGE'; call gtv(trim(nm),tksw(prgnam,nm),rsrnge,
+c     .     def_r8=5d0, note='Maximum range in connecting vectors for '//
+c     .     'r.s. sigma (units of alat)')
       nm='HAM_RSSTOL'; call gtv(trim(nm),tksw(prgnam,nm),
      .     rsstol, def_r8=5d-6, note=
      .     'Max tolerance in Bloch sum error for r.s. sigma ')
@@ -1747,7 +1747,6 @@ c      call dcopy(i_copy_size,dabc,1,ham_dabc,1)
       endif
       ham_lsig=lrsigx
       call mpibc1_int(ham_lsig,1,'bndfp_ham_lsig')
-      ham_rsrnge=rsrnge
       ham_rsstol=rsstol
       ham_udiag=ham_udiag
       ham_scaledsigma=scaledsigma
