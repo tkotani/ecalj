@@ -322,7 +322,6 @@ C ... End loop over spins
       end subroutine rdsigm2
 !!sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine hamfb3k(qin,iq,nk1,nk2,nk3,
-c    i k1,k2,k3,ipq,napw_in,ndimh,ldima,ldimb,qb,plat,qlat,ldim,ifac,igstar,
      i k1,k2,k3,ipq,napw_in,ndimh,ldima,ldimb,qb,ldim,ifac,igstar,
      i hq,iaf, !iaf at jun2015
      o gfbz)
