@@ -129,7 +129,6 @@ makdos.o \
 makidx.o \
 maknos.o \
 maknrs.o \
-makrm0.o \
 makrot.o \
 makrwf.o \
 mchan.o \
@@ -147,7 +146,6 @@ nwit.o \
 orbl.o \
 ovlchk.o \
 ovmin.o \
-pairc.o \
 parmxp.o \
 phidx.o \
 phvsfp.o \
@@ -177,7 +175,6 @@ rsort.o \
 rstr0.o \
 s2sph.o \
 scg.o \
-sclwsr.o \
 shear.o \
 shftpp.o \
 shoist.o \
@@ -222,7 +219,6 @@ xlgen.o \
 ylmrtg.o \
 writebasis.o \
 switch.o \
-rdsigm.o\
 rdsigm2.o\
 dpdbyl.o \
 dpdftr.o \
@@ -367,8 +363,6 @@ tqlrat.o \
 tred2.o \
 wordg.o \
 words.o \
-ymsadd.o \
-ymscop.o \
 ymtrns.o \
 yscal.o \
 ywrm.o \
@@ -505,7 +499,6 @@ smvxcm.o \
 vxcnsp.o \
 vxcnlm.o \
 w_psir.o \
-gwinput_v2.o \
 gintxx.o 
 
 
