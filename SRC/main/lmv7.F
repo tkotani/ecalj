@@ -8,7 +8,7 @@
       use m_writeham,only: m_writeham_init, m_writeham_write
       use m_ext,only:      m_Ext_init,sname
       use m_lattic,only:   m_Lattic_init, Setopos
-      use m_mkqp,only:     m_Mkqp_init
+      use m_mkqp,only:     m_Mkqp_init,bz_nabc
       use m_rdfiln,only:   m_Rdfiln_init
       use m_MPItk,only:    m_MPItk_init,m_MPItk_finalize,nsize,master_mpi
       use m_lmfgw,only:    m_lmfgw_init
@@ -21,14 +21,16 @@
       use m_ldau,only:     m_ldau_init
       use m_iors,only:  Iors
       use m_lmaux,only: lmaux
+      use m_gennlat,only: m_gennlat_init
       implicit none
       integer:: k,lgunit,stdo,stdl
       logical:: fileexist,cmdopt,cmdopt0,cmdopt2
-      logical:: writeham,lbin
+      logical:: writeham,lbin,sigx
       character:: outs*20,aaa*512,sss*128
       character(8):: prgnam='LMF'
       character*8 charext
-      integer:: iarg,jobgw,iprint,nit1,ifi,irs1x,ifile_handle
+      integer:: iarg,jobgw,iprint,nit1,ifi,irs1x,ifile_handle,nx,ny,
+     &  nk1,nk2,nk3
 !      
       call M_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
       if(cmdopt0('--jobgw')) prgnam='LMFGWD'
@@ -163,8 +165,17 @@ c
       endif
       call m_hamindex_init(jobgw) !bugfix. moved here 2022apr04
 
-!! m_writeham_* is alfter m_hamindex_init 2022apr
+!! m_writeham_* is after m_hamindex_init 2022apr22
+      inquire(file='sigm.'//trim(sname),exist=sigx)
+      if(sigx) then
+         open(newunit=ifi,file='sigm.'//trim(sname),form='unformatted') !
+         read(ifi) nx,ny,nk1,nk2,nk3
+         close(ifi)
+         call m_gennlat_init([nk1,nk2,nk3])  !nlat for FFT
+      endif
+!!         
       writeham= cmdopt0('--writeham')
+      if(writeham) call m_gennlat_init(bz_nabc) !nlat for FFT
       if(writeham.and.master_mpi) call m_writeham_init()
       if(writeham.and.master_mpi) call m_writeham_write()
       if( cmdopt0('--quit=ham') ) call rx0('quit = ham')

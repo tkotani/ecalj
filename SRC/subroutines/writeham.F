@@ -6,60 +6,60 @@
       contains
 !!
       subroutine m_writeham_init()
-      use m_mkqp,only: bz_nabc
       use m_MPItk,only: strprocid
       use m_lattic,only: qlat=>lat_qlat,pos=>rv_a_opos,plat=>lat_plat
-      use m_lmfinit,only: nbas,
-     &     alat=>lat_alat
-      integer:: nkp,iq,ik1,ik2,ik3,npairmx,ikpd,ni,ib1,ib2,ikp,ip,nkk1,nkk2,nkk3
-      integer,allocatable:: npair(:,:),nlat(:,:,:,:),nqwgt(:,:,:)
+      use m_lmfinit,only: nbas,  alat=>lat_alat
+      use m_gennlat,only: nlat,npair,nqwgt,npairmx
+      use m_mkqp,only: bz_nabc
+      integer:: nkp,iq,ik1,ik2,ik3,ikpd,ni,ib1,ib2,ikp,ip,nkk1,nkk2,nkk3
       real(8),allocatable:: qplist(:,:) !this should be taken from m_qplist in future
       real(8)::rrrr,posp(3),qp(3),pi=4d0*datan(1d0)
       complex(8):: aaaa,img=(0d0,1d0)
       character*4:: cccx
-      logical:: ok
 c      if(.not.master_mpi) return
       writeham=.true.
+c     if(master_mpi) then ! pair-table and weight generator.  nlat,qgt are not used yet...
       nkk1=bz_nabc(1)
       nkk2=bz_nabc(2)
       nkk3=bz_nabc(3)
-c     if(master_mpi) then ! pair-table and weight generator.  nlat,qgt are not used yet...
       nkp = nkk1*nkk2*nkk3
       allocate(qplist(3,nkp))
       iq=0
       do ik3=1,nkk3
-         do ik2=1,nkk2
-            do ik1=1,nkk1
-               iq=iq+1
-               qplist(:,iq) =  qlat(:,1)*dble(ik1-1)/nkk1
+      do ik2=1,nkk2
+      do ik1=1,nkk1
+         iq=iq+1
+         qplist(:,iq)=  qlat(:,1)*dble(ik1-1)/nkk1
      &              +   qlat(:,2)*dble(ik2-1)/nkk2
      &              +   qlat(:,3)*dble(ik3-1)/nkk3
-            enddo
-         enddo
+      enddo
+      enddo
       enddo
       do ip=1,nkp
          write(6,"(' qplist:',i9,3f10.4)")ip, qplist(:,ip)
       enddo
-      allocate(npair(nbas,nbas)) !,pos(3,nbas))
-      npairmx=nkk1*nkk2*nkk3*2  !initial size of npairmx
-      do                        !this loop is just to get reasonable npairmx satisfying npairmx >npair
-         npairmx = npairmx + (nkk1*nkk2*nkk3+1)*.5 !+1 added Feb2014 for 1x1x1
-         allocate( nlat(3,npairmx,nbas,nbas), nqwgt(npairmx,nbas,nbas) )
-         call gennlat(pos,nbas,plat,nkk1,nkk2,nkk3,npairmx,ok,npair,nlat,nqwgt)
-         if(ok) exit
-         deallocate( nlat, nqwgt )
-      enddo
-      print *,'We got nlat and nqwgt'
+!!      
+c$$$      allocate(npair(nbas,nbas)) !,pos(3,nbas))
+c$$$      npairmx=nkk1*nkk2*nkk3*2  !initial size of npairmx
+c$$$      do                        !this loop is just to get reasonable npairmx satisfying npairmx >npair
+c$$$         npairmx = npairmx + (nkk1*nkk2*nkk3+1)*.5 !+1 added Feb2014 for 1x1x1
+c$$$         allocate( nlat(3,npairmx,nbas,nbas), nqwgt(npairmx,nbas,nbas) )
+c$$$         call gennlat(pos,nbas,plat,nkk1,nkk2,nkk3,npairmx,ok,npair,nlat,nqwgt)
+c$$$         if(ok) exit
+c$$$         deallocate( nlat, nqwgt )
+c$$$      enddo
+c$$$      print *,'We got nlat and nqwgt'
+!! ---------------------------------------
       do ib1=1,nbas
-         do ib2=1,nbas
-            write(6,"(3i8,' !ib1 ib2 npair -------------')") ib1,ib2,npair(ib1,ib2)
+      do ib2=1,nbas
+         write(6,"(3i8,' !ib1 ib2 npair -------------')") ib1,ib2,npair(ib1,ib2)
 c     if(abs(sum(qwgt(1:npair(ib1,ib2),ib1,ib2))-1d0)>1d-8) call rx('buggg:qwgt sum is not unity')
-            do ni = 1,npair(ib1,ib2) 
-               posp =  pos(:,ib1)-pos(:,ib2) + matmul(plat,nlat(:,ni,ib1,ib2)) ! R_i+T - R_j
-               rrrr = sqrt(sum(posp**2))
-               write(6,"(i6,3x,3i4,i3,x,f8.3)") ni, nlat(1:3,ni,ib1,ib2),nqwgt(ni,ib1,ib2),rrrr
-            enddo
+         do ni = 1,npair(ib1,ib2) 
+            posp =  pos(:,ib1)-pos(:,ib2) + matmul(plat,nlat(:,ni,ib1,ib2)) ! R_i+T - R_j
+            rrrr = sqrt(sum(posp**2))
+            write(6,"(i6,3x,3i4,i3,x,f8.3)") ni, nlat(1:3,ni,ib1,ib2),nqwgt(ni,ib1,ib2),rrrr
          enddo
+      enddo
       enddo
       open(newunit=ififft,file='HamiltonianPMTInfo',form='unformatted')
       write(ififft) plat,nkk1,nkk2,nkk3,nbas,qlat
@@ -84,7 +84,7 @@ c     if(abs(sum(qwgt(1:npair(ib1,ib2),ib1,ib2))-1d0)>1d-8) call rx('buggg:qwgt 
             enddo
          enddo
       enddo
-      deallocate(npair)
+c      deallocate(npair)
 c     endif
       end subroutine
 !--------------------------------------------      
@@ -92,10 +92,10 @@ c     endif
       use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,lso,nsp
        use m_lmfinit,only: ldham,stdo
 c      use m_hamindex, only: norbmto
-      use m_hamindex, only: ngrp,symops,norbmto,ibastab,ltab,ktab,offl !, symops_af
+      use m_hamindex, only: ngrp,symops,norbmto,ibastab,ltab,ktab,offl,ib_table,k_table,l_table
+
       integer:: ldim,iorb,ib,is,i,jobgw
       character spid*8
-      integer,allocatable:: ib_table(:),k_table(:),l_table(:)
 !! --- get index for hamiltonian for m_hamindex takao june2009
 !! these are used in sigm mode(QSGW).
 !! memo:
@@ -109,21 +109,11 @@ c      if(.not.master_mpi) return
       initset1 = .false.
       ldim=ldham(1) !ham_ldham(1)
 c     write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
-      allocate(ib_table(ldim),l_table(ldim),k_table(ldim))
       write(stdo,*)'mmmm m_writeham_init',ldim,norbmto,ibastab
 c      print *,'offl',offl
 c      print *,'ltab',ltab
 c     print *,'ktab',ktab
       print *,' norbmto mmmmmmmmmm',norbmto
-      do iorb = 1, norbmto      !Total number of MTO's (without m)
-         ib   = ibastab(iorb)
-         is   = ssite(ib)%spec
-         spid=sspec(is)%name
-         write(6,*)'ssssssssssss spid=',is,spid
-         ib_table(offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ib
-         l_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ltab(iorb)
-         k_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ktab(iorb)
-      enddo
       write(6,*) ' i  ib l  k trim(spec)'
       if(writeham) open(newunit=ifspec,file="atmspc")
       if(writeham) write(ifspec,*) ldim,nsp

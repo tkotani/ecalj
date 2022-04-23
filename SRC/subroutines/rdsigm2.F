@@ -1,13 +1,15 @@
       module m_rdsigm2
       public:: M_rdsigm2_init, Getsenex, Dsene, senex !getsenex returns the self-energy term.
       public:: ndimsig,sene
+      integer,protected,public :: nsizeohrs,nsizeoiaxs,nsizeontabs,noqsig,nttabs,nk1,nk2,nk3
+      complex(8),pointer,public:: hrr(:,:,:,:,:,:)
+      complex(8),allocatable,target,public:: sfz(:,:,:,:,:,:)
       private
       complex(8),allocatable,protected:: sene(:,:),senex(:,:)
       complex(8), allocatable,protected :: hhrs (:,:,:,:)
       integer, allocatable,protected :: iaxs(:,:)
       integer, allocatable,protected :: ntabs(:)
       integer,protected:: ndimsig,nspsigm,ndhrs,ham_nqsig
-      integer,private :: nsizeohrs,nsizeoiaxs,nsizeontabs,noqsig,nttabs
       real(8) , allocatable,private ::  rv_p_oqsig (:)  !not yet protected (rdsigm2 rewrite this)
       contains
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssssss
@@ -46,15 +48,19 @@
       else
          ispsigm=isp
       endif
+c      write(6,*)'ssssssss sfz sumcheck=',sum(abs(sfz))
 !! bloch: we need hrs(means real space) and iaxs(pair table) for FFT.
-      call bloch (qp,nl,plat,mxorb,iprmb,ntabs(nbas+1)
-     &     , iaxs , hhrs, ndhrs, ispsigm, nspsigm ,
-     & ndimsig , sene)
+c      call bloch (qp,nl,plat,mxorb,iprmb,ntabs(nbas+1)
+c     &     , iaxs , hhrs, ndhrs, ispsigm, nspsigm ,
+c     & ndimsig , sene)
+c      sene=0d0
+      call bloch2 (qp,ispsigm,sene)
       if(debug) print *,'end of bloch sene'
       end subroutine getsene
+
       
 !sssssssssssssssssssssssssssssssssssssssss      
-      subroutine seneinterp(nbas,nspsigm,ndimsig,rsrnge, nk1,nk2,nk3,sfz)
+      subroutine seneinterp(nbas,nspsigm,ndimsig,rsrnge, nk1,nk2,nk3) !,sfz)
       use m_hamindex,only: offH
       use m_mksym,only: rv_a_osymgr ,iv_a_oistab,rv_a_oag,lat_nsgrp
       use m_hft2rs
@@ -99,7 +105,7 @@ C     For offset q mesh
       integer jj1,jj2,jj3,k
       integer ::iwdummy
       integer:: napw_in
-      complex(8)::sfz(nk1,nk2,nk3,ndimsig,ndimsig,nspsigm)
+c      complex(8)::sfz(nk1,nk2,nk3,ndimsig,ndimsig,nspsigm)
       real(8):: qin(3)
       integer:: ndhamx,debugmode
       complex(8):: sene(ndimsig,ndimsig),zv_dummy(1)
@@ -238,8 +244,9 @@ c      end subroutine seneinterp
       use m_MPItk,only: procid,master
       use m_ext,only:sname
       use m_lmfinit,only: ham_ldham
-      complex(8),allocatable:: sfz(:,:,:,:,:,:),wgtq(:,:,:,:,:),sfzx(:,:,:,:,:,:),sfzmto(:,:,:,:,:,:)
-      integer:: ldim,ierr,ifi,ndimh_dummy,nk1,nk2,nk3,nqps,ifile_handle,ifis2,ik1,ik2,ik3,is
+c      complex(8),allocatable:: sfz(:,:,:,:,:,:),wgtq(:,:,:,:,:),sfzx(:,:,:,:,:,:),sfzmto(:,:,:,:,:,:)
+      complex(8),allocatable:: wgtq(:,:,:,:,:),sfzx(:,:,:,:,:,:),sfzmto(:,:,:,:,:,:)
+      integer:: ldim,ierr,ifi,ndimh_dummy,nqps,ifile_handle,ifis2,ik1,ik2,ik3,is,iset
       logical:: laf,mlog,cmdopt, mtosigmaonly,cmdopt0
       character strn*120
       real(8),allocatable:: qsmesh2(:,:,:,:)
@@ -266,7 +273,7 @@ c      end subroutine seneinterp
          endif   
 !     ! sfz is the self-energy roteted in the full BZ.
          call rdsigm2(nbas,nspsigm,ifi,
-     &        nk1,nk2,nk3,ldim,qsmesh2,sfz,  nqps, mtosigmaonly(),ndimsig) 
+     &        nk1,nk2,nk3,ldim,qsmesh2,  nqps, mtosigmaonly(),ndimsig) 
          close(ifi) 
 !! --- write sig_fbz for SYMGRP e
          if(cmdopt0('--wsig_fbz')) then
@@ -285,49 +292,36 @@ c      end subroutine seneinterp
            enddo
            close(ifis2) !call fclose(ifis2)
          endif
-          
-!! mesh generator.  Unused yet...->in future, we will use this.
-c$$$            allocate(npair(nbas,nbas),pos(3,nbas))
-c$$$            call dcopy ( nbas * 3 , rv_a_opos , 1 , pos , 1 )
-c$$$            npairmx=nk1*nk2*nk3*2
-c$$$            if (allocated(nlat)) deallocate(nlat)
-c$$$            if (allocated(nqwgt)) deallocate(nqwgt)
-c$$$            do !this loop is just to determined npairmx
-c$$$              npairmx= npairmx + (nk1*nk2*nk3+1)*.5 !+1 added Feb2014 for 1x1x1
-c$$$              allocate( nlat(3,npairmx,nbas,nbas), nqwgt(npairmx,nbas,nbas) )
-c$$$              call gennlat(pos,nbas,plat,nk1,nk2,nk3,npairmx,ok,npair,nlat,nqwgt)
-c$$$              if(ok) exit
-c$$$              deallocate( nlat, nqwgt )
-c$$$            enddo
-c$$$            deallocate(pos,npair)
-
-!! -- We use ndimsig=ldim. This means sigm is projected on MTOs.
-!!    The main input of the subroutine seneinterp is sfz. 
-!!    The seneinterp stores real-space sigma to ham_hhrs (real space representation), 
-!!    which is used in the following 'call bloch' to obtain Sigm-Vxc for any q point by interpolation.
-!! NOTE: sigm file is read again within seneinterp-chksgr, and compared with FFT-sfz.
-            ifi = ifile_handle()
-            call seneinterp(nbas,nspsigm,ndimsig,rsrnge, 
-     &        nk1,nk2,nk3,sfz)  !NOTE: output is stored in hhrs in m_seneinterp
-c            close(ifi) 
-            deallocate(sfz,qsmesh2) !,nlat,nqwgt)
+cccccccccccccccccccccccccc
+!FFT hrr is on regular mesh points. For bloch2
+         do is=1,nspsigm
+            call fftz3(sfz(:,:,:,1:ndimsig,1:ndimsig,is)
+     &           ,nk1,nk2,nk3,nk1,nk2,nk3,ndimsig**2,iset,+1) !+1 backward
+         enddo
+         hrr => sfz ! rename sfz as hrr
+c$$$cccccccccccccccccccccccccc         
+c$$$!! -- We use ndimsig=ldim. This means sigm is projected on MTOs.
+c$$$!!    The main input of the subroutine seneinterp is sfz. 
+c$$$!!    The seneinterp stores real-space sigma to ham_hhrs (real space representation), 
+c$$$!!    which is used in the following 'call bloch' to obtain Sigm-Vxc for any q point by interpolation.
+c$$$!! NOTE: sigm file is read again within seneinterp-chksgr, and compared with FFT-sfz.
+c            call seneinterp(nbas,nspsigm,ndimsig,rsrnge, 
+c     &        nk1,nk2,nk3)!,sfz)  !NOTE: output is stored in hhrs in m_seneinterp
+         
       endif                  !procid==master
       if(cmdopt0('--wsig_fbz')) call rx0('end of --wsig_fbz mode')
-c#ifdef MPIK
       mlog     = cmdopt('--mlog',6,0,strn) !--mlog here is taken by getarg.
       call senebroadcast(procid,master,mlog) !broadcast self-energy to all procid
-      call mpibc1(ndhrs,1,2,mlog,'bndfp','ndhrs')
-      call mpibc1(nspsigm,1,2,mlog,'bndfp','nspsigm')
-c#endif
       if(procid==master) write(6,*)' --- end of sigmainit: rdsigm2 initialization section ---'
       return
+      
  9995 continue
       call rx('sigmainit: readin error of sigm file')
       end subroutine m_rdsigm2_init
      
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine rdsigm2(nbas_dummy,nspsigm,ifis, 
-     &     nk1,nk2,nk3,ldim,qsmesh,sfz     ,nqps,mtosigmaonly,ndimsig) !,qsfz,qqps are for test
+     &     nk1,nk2,nk3,ldim,qsmesh    ,nqps,mtosigmaonly,ndimsig) !,qsfz,qqps are for test sfz
       use m_mksym,only: rv_a_osymgr,lat_nsgrp
       use m_hamindex,only : getikt,napwk,   symops_af,ngrp_original,ngrpaf,symops,ngrp
       use m_lmfinit,only: nl,stdo
@@ -542,7 +536,7 @@ C ------------------------------------------------------------
       real(8):: qsmesh(3,nk1,nk2,nk3) !eseavr,
       integer:: i1,i2,i3,ikt,ldim,napw_in,debugmode
       integer::  ndimsig !sep2012
-      complex(8)::sfz(nk1,nk2,nk3,ndimsig,ndimsig,nspsigm)
+c      complex(8)::sfz(nk1,nk2,nk3,ndimsig,ndimsig,nspsigm)
       integer:: i_copy_size,ix
       logical:: isanrg, l_dummy_isanrg,debug=.false.,mtosigmaonly,laf
       real(8):: qir(3),diffq(3),platt(3,3)
@@ -958,28 +952,36 @@ c          call conv2int( matmul(platt,qpgr-qtarget),nnn,3 )
       integer,parameter::niax=10
       integer:: procid,master
       logical:: mlog
-      nsizeohrs  = size( hhrs )*2
-      nsizeoiaxs = size( iaxs )
-      nsizeontabs= size( ntabs)
-      noqsig = size(     rv_p_oqsig)
-      call mpibc1_int(ndhrs,1,'senebroadcast:ndhrs')
-      call mpibc1_int(nspsigm,1,'senebroadcast:nspsigm')
-      call mpibc1_int(nttabs,1,'senebroadcast:nttabs')
+c      nsizeohrs  = size( hhrs )*2
+c      nsizeoiaxs = size( iaxs )
+c      nsizeontabs= size( ntabs)
+c      noqsig = size(     rv_p_oqsig)
+c     call mpibc1_int(ndhrs,1,'senebr:ndhrs')
+c     call mpibc1_int(ndhrs,1,'senebr:ndhrs')
+      call mpibc1_int(nspsigm,1,'senebr:nspsigm')
+c      call mpibc1_int(nttabs,1,'senebr:nttabs')
+      call mpibc1_int(nk1,1,'senebr:nk1')
+      call mpibc1_int(nk2,1,'senebr:nk2')
+      call mpibc1_int(nk3,1,'senebr:nk3')
       
-      call mpibc1(nsizeoiaxs,1,2,mlog,'bndfp','nsizeoiaxs')
-      call mpibc1(nsizeontabs,1,2,mlog,'bndfp','nsizeontabs')
-      call mpibc1(noqsig,1,2,mlog,'bndfp','noqsig')
+c      call mpibc1(nsizeoiaxs,1,2,mlog,'bndfp','nsizeoiaxs')
+c      call mpibc1(nsizeontabs,1,2,mlog,'bndfp','nsizeontabs')
+c      call mpibc1(noqsig,1,2,mlog,'bndfp','noqsig')
       if(procid/=master) then
-         print *,'nnnnnn=',nsizeoiaxs,nsizeontabs,noqsig,ndhrs,ndhrs,nspsigm,nttabs
-         allocate(hhrs(ndhrs,ndhrs,nspsigm,nttabs))
-         allocate( iaxs(niax,nsizeoiaxs/niax))       
-         allocate( ntabs(nsizeontabs))       
-         allocate( rv_p_oqsig(noqsig))
+c print *,'nnnnnn=',nsizeoiaxs,nsizeontabs,noqsig,ndhrs,ndhrs,nspsigm,nttabs
+c         allocate(hhrs(ndhrs,ndhrs,nspsigm,nttabs))
+c         allocate( iaxs(niax,nsizeoiaxs/niax))       
+c         allocate( ntabs(nsizeontabs))       
+c         allocate( rv_p_oqsig(noqsig))
+         print *,'nnnnnx=',nk1,nk2,nk3,ndimsig,ndimsig,nspsigm
+         allocate(sfz(nk1,nk2,nk3,ndimsig,ndimsig,nspsigm))
       endif   
-      call mpibc1(ntabs,nsizeontabs,2,mlog,'bndfp','ntabs')
-      call mpibc1_int(iaxs,     size(iaxs),'senebroadcast:iaxs')
-      call mpibc1_complex(hhrs, size(hhrs),'senebroadcase:hhrs')
-      call mpibc1(rv_p_oqsig, noqsig,4,mlog,'bndfp','noqsig')
+c      call mpibc1(ntabs,nsizeontabs,2,mlog,'bndfp','ntabs')
+c      call mpibc1_int(iaxs,     size(iaxs),'senebroadcast:iaxs')
+c      call mpibc1_complex(hhrs, size(hhrs),'senebroadcase:hhrs')
+      call mpibc1_complex(sfz, size(sfz),'senebroadcase:sfz')
+      if(procid/=master) hrr => sfz    ! rename sfz as hrr
+c      call mpibc1(rv_p_oqsig, noqsig,4,mlog,'bndfp','noqsig')
       end subroutine senebroadcast
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccc      
       end module m_rdsigm2

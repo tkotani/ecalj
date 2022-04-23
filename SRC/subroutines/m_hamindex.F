@@ -4,6 +4,7 @@
       use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
       use NaNum,only: NaN       !for initialization, but not working well
       use m_suham,only: ndham_read=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
+      integer,allocatable,public:: ib_table(:),k_table(:),l_table(:)
       integer,protected,public:: ngrpaf,ngrp_original,pwmode,ndham
       integer,protected,public:: nqi=NaN, nqnum=NaN, ngrp=NaN, lxx=NaN, kxx=NaN,norbmto=NaN,
      &     nqtt=NaN, ndimham=NaN, napwmx=NaN, lxxa=NaN, ngpmx=NaN, imx=NaN,nbas=NaN
@@ -212,6 +213,19 @@ c ... reverse maping of offset-index for hamiltonian
         k   = ktab(iorb)
         offlrev(ibas,l,k)= offl(iorb)
       enddo
+!!---- additional table
+      allocate(ib_table(ldim),l_table(ldim),k_table(ldim))
+      do iorb = 1, norbmto      !Total number of MTO's (without m)
+         ib   = ibastab(iorb)
+         is   = ssite(ib)%spec
+         spid=sspec(is)%name
+c         write(6,*)'ssssssssssss spid=',is,ib,spid,iorb
+         ib_table(offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ib
+         l_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ltab(iorb)
+         k_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ktab(iorb)
+      enddo
+
+      
 !! Get rotation matrix dlmm.  We assume nl=lmxa+1.
       lxxa=nl-1
       allocate( dlmm( -lxxa:lxxa, -lxxa:lxxa, 0:lxxa, ngrp))

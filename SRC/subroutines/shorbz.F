@@ -1,12 +1,11 @@
       module m_shortn3
+!!== Find shortest vector in modulo of rlat ===
       public:: shortn3,shortn3_initialize
-      
       real(8),private:: rlatp(3,3),xmx2(3)
       contains
-!     !NOTE: shortn3 is better than shorbz. we will have to replace shorbz with shortn3.
+!!NOTE: shortn3 is better than shorbz. we will have to replace shorbz with shortn3.
 !!NOTE: In advance, we will need to check speed and convenience.
       subroutine shortn3(pin,noutmx, nout,nlatout)
-!!== Find shortest vector in modulo of rlat ===
 !! To call shortn3 for given rlat,
 !! we have to call shorn3_initialize in advane to obtain rlatp and xmx2, which are passed to shortn3.
 !!
@@ -134,6 +133,7 @@ c
       xmx2(3) = 1d0/fac
       end subroutine
       end module
+!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       
       subroutine shorbz(p,pout,plat,qlat)
