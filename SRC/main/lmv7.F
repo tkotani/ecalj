@@ -22,6 +22,7 @@
       use m_iors,only:  Iors
       use m_lmaux,only: lmaux
       use m_gennlat,only: m_gennlat_init
+      use m_gennlat_sig,only: m_gennlat_init_sig
       implicit none
       integer:: k,lgunit,stdo,stdl
       logical:: fileexist,cmdopt,cmdopt0,cmdopt2
@@ -128,10 +129,10 @@
       
 !! madelung mode may need to be recovered.      
 !! allocate(rv_a_omad(nbas**2)); call madmat (rv_a_omad ) !Monopole Madelung matrix (kept for future).
-c      
+      
 !!=== NOTE: shear mode is currently commented out.
 !!   (probably shear mode should be recovered outside of fortran).
-c
+
 !! Initial density Read atm.* or rst.*  rhoat smrho in supot
 !!  --- Read restart file or overlap free atom densities ---
 !!    irs1x tells what to read and whether to invoke smshft.
@@ -150,10 +151,10 @@ c
             if(lbin)       open(ifi,file='rst.'//trim(sname),form='unformatted')
             if(.not. lbin) open(ifi,file='rsta.'//trim(sname)) 
          endif
-         call mpibc1_int(ifi,1,'lmfp_ifi')
+         call mpibc1_int(ifi,1,'lmv7:lmfp_ifi')
          k = iors(nit1 , lbin, ifi=ifi )! read rst file. sspec ssite maybe modified 
          if (master_mpi) close(ifi) 
-         call mpibc1_int(k,1,'lmfp_k')
+         call mpibc1_int(k,1,'lmv7:lmfp_k')
          call Setopos() !set pos read in iors into rv_a_opos
          if(k<0) then !initial potential from atm file if rst can not read
             irs1x = 0
@@ -165,17 +166,20 @@ c
       endif
       call m_hamindex_init(jobgw) !bugfix. moved here 2022apr04
 
+      if( cmdopt0('--quit=ham0') ) call rx0('quit = ham0')
 !! m_writeham_* is after m_hamindex_init 2022apr22
       inquire(file='sigm.'//trim(sname),exist=sigx)
       if(sigx) then
          open(newunit=ifi,file='sigm.'//trim(sname),form='unformatted') !
          read(ifi) nx,ny,nk1,nk2,nk3
          close(ifi)
-         call m_gennlat_init([nk1,nk2,nk3])  !nlat for FFT
+         call m_gennlat_init_sig([nk1,nk2,nk3])  !nlat for FFT of sigm
       endif
+      write(6,*)'sigm nk1 nk2 nk3=',nk1,nk2,nk3
+      if( cmdopt0('--quit=sig0') ) call rx0('quit = sig0')
 !!         
       writeham= cmdopt0('--writeham')
-      if(writeham) call m_gennlat_init(bz_nabc) !nlat for FFT
+      if(writeham.and.master_mpi) call m_gennlat_init(bz_nabc) !for interpolation of Hamiltonian
       if(writeham.and.master_mpi) call m_writeham_init()
       if(writeham.and.master_mpi) call m_writeham_write()
       if( cmdopt0('--quit=ham') ) call rx0('quit = ham')

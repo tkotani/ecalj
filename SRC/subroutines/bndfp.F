@@ -198,7 +198,7 @@ c      if(master_mpi) write(stdo,"(a)") 'bndfp:start'
          call m_rdsigm2_init()
          call mpi_barrier(MPI_COMM_WORLD,ierr) 
          siginit=.false. !this is equivalent to broad casting.
-      endif              
+      endif
       if(sigmamode.and.master_mpi) write(stdo,*)' ScaledSigma=',ham_scaledsigma
 !! == GW driver and finish ==
       if(llmfgw) then
