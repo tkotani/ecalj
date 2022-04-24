@@ -2,6 +2,7 @@
      .p,w,nelts,delta,bas,icom)
       use m_struc_def  !Cgetarg
       use m_lmfinit,only:ctrl_nbas,ctrl_nitmv,ctrl_mdprm
+      use m_ext,only:     sname
 C- Relax atomic positions and volume using variable metric algorithm
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -57,7 +58,7 @@ c      type(s_ctrl)::sctrl
       type(s_spec)::sspec(*)
 
 C Local Variables
-      integer i,j,ipr,ifi,fopna,ix,lgunit,nbas,ltb,ifrlx(3),
+      integer i,j,ipr,ifi,ix,lgunit,nbas,ltb,ifrlx(3),
      .ir,iprint,isw,rdm,lrlx,is,idamax,stdo,stdl,nd,ns,nkill
       parameter (nd=4,ns=6)
       logical rdhess,lpp,cmdopt,a2bin,lshr !U,
@@ -105,19 +106,19 @@ C --- Initialization ---
 C   ... Read Hessian from disc
         if (rdhess) then
           if (procid .eq. master) then
-            ifi = fopna('HSSN',-1,4)
-            rewind ifi
+c            ifi = fopna('HSSN',-1,4)
+c     rewind ifi
+            open(newunit=ifi,file='hssn.'//trim(sname),form='unformatted')
 C     ... Hessian written in rdm-compatible format
             if (rdm(ifi,2,natrlx*natrlx,' ',w,natrlx,natrlx) .lt. 0) then
 C       ... Attempt to read Hessian failed.  Make it unity
-              call info0(-20,0,0,
-     .        ' RELAX: (warning) failed to read Hessian; set to unity')
+              call info0(-20,0,0,' RELAX: (warning) failed to read Hessian; set to unity')
               call dcopy(natrlx*natrlx,0d0,0,w,1)
               call dcopy(natrlx,1d0,0,w,natrlx+1)
             else
               call info0(-20,0,0,' RELAX: Hessian read from disc')
             endif
-            call fclose(ifi)
+            close(ifi) !call fclose(ifi)
           endif
           call mpibc1(w,natrlx*natrlx,4,.false.,'relax','hssn')
         else
@@ -211,12 +212,13 @@ C --- Update atom positions ---
 C --- Write Hessian to disc ---
       if (rdhess .and. (icom .eq. 1 .or. it .eq. nit) .or. .true.) then
         if (procid .eq. master) then
-          ifi = fopna('HSSN',-1,4)
+c          ifi = fopna('HSSN',-1,4)
 C   ... Hessian written in rdm-compatible format
-          rewind ifi
+c          rewind ifi
+          open(newunit=ifi,file='hssn.'//trim(sname),form='unformatted')
           write(ifi) natrlx,natrlx,11
           write(ifi) w
-          call fclose(ifi)
+          close(ifi) !call fclose(ifi)
         endif
       endif
       if (procid .eq. master) call poppr
@@ -224,10 +226,11 @@ C   ... Hessian written in rdm-compatible format
 C --- Periodically remove hessian ---
       if (nkill .gt. 0) then
         if (mod(it,nkill) .eq. 0) then
-          call info(-20,0,0,
-     .    '   ...  resetting hessian : iter=%i nkill=%i',it,nkill)
-          ifi = fopna('HSSN',-1,4)
-          call dfclos(ifi)
+          call info(-20,0,0,'   ...  resetting hessian : iter=%i nkill=%i',it,nkill)
+c          ifi = fopna('HSSN',-1,4)
+c     call dfclos(ifi)
+          open(newunit=ifi,file='hssn.'//trim(sname))
+          close(ifi,status="delete")
           call dcopy(natrlx*natrlx,0d0,0,w,1)
           call dcopy(natrlx,1d0,0,w,natrlx+1)
         endif

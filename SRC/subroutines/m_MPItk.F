@@ -47,7 +47,7 @@
 #endif      
       if(procid == master) ext=''
       if(procid /= master) ext='_'//trim(charext(procid))
-      ierr = fext('.'//trim(sname)//trim(ext)) !set ext for fopen
+c      ierr = fext('.'//trim(sname)//trim(ext)) !set ext for fopen
       master_mpi=.false.
       if(procid==master) master_mpi=.true.
       end

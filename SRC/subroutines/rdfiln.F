@@ -533,7 +533,7 @@ C ----------------------------------------------------------------
 C Local variables
       integer i,j,nlev,ja,jr,k,lvnam,ipr,nrd,nsyv,niff,iecho,j0,i1mach,
      .nchr,lunit,nkeepv,nelt,ival,i1,i2,nargf,ndir,ltrace,isw,nchr0,
-     .mxiff,fopnx
+     .mxiff
       parameter (ndir=31,mxiff=15)
       character cc1*1,cc2*1,cex*2,dir(ndir)*7,sdir(4)*5,tab*1
 C     liff  is the conditional read truth table for each nesting level
@@ -542,7 +542,7 @@ C     independently of the others.  It is needed to re-evaluate liff
 C     as the nesting level changes.
       logical liff(0:mxiff),liff0(0:mxiff)
       logical lcc,lex,a2bin,noskip,notab
-      logical lshow,ltmp,ltmp2,lsequ,namchr
+      logical lshow,ltmp,ltmp2,lsequ,namchr,eee
       integer unit0(10),filstk,nrdstk(10)
       double precision val,xx
       character fname*120,ctmp*1,aa*512,asbst*512,strn*512
@@ -726,8 +726,8 @@ C       ... Determine whether line results in T or F
             call nword(asbst,1,i1,i2)
             liff0(niff) = .false.
             if (i2 .ge. i1) then
-              i = fopnx(asbst(i1:i2),172,-1,-1)
-              liff0(niff) = i .eq. 1
+              inquire(file=asbst(i1:i2),exist=eee) !2022apr24 right?
+              liff0(niff) = eee !i .eq. 1
             endif
           else
             call rdfilx(asbst,ja,i.eq.LIF,j,nrd,ctbl,mxchr,nchr,

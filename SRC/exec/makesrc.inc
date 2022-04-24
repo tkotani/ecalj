@@ -47,7 +47,6 @@ aiomom.o \
 aiomp.o \
 aiopar.o \
 aiopot.o \
-asymop.o \
 atomsr.o \
 atwf.o \
 avwsr.o \
@@ -199,7 +198,6 @@ sumsro.o \
 suqlst.o \
 sylm.o \
 sylmnc.o \
-symcry.o \
 symdmu.o \
 symfor.o \
 symprj.o \

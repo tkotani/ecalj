@@ -144,7 +144,7 @@ c      call dpadd ( cgr_zv , cgs_zv , 1 , ng * 2 * nsp , 1d0 )
       call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,1)
 C --- Symmetrize the shifted density ---
       call symsmrho(smrho) !slat,nsp,k1,k2,k3,
-      if (iprint() .gt. 100) call zprm3('shifted smrho',0,smrho,k1,k2,k3*nsp)
+c      if (iprint() .gt. 100) call zprm3('shifted smrho',0,smrho,k1,k2,k3*nsp)
       if (allocated(cgs_zv)) deallocate(cgs_zv)
       if (allocated(cgr_zv)) deallocate(cgr_zv)
       call tcx('smshft')

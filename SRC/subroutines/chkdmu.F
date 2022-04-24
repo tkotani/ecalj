@@ -345,7 +345,7 @@ c      type(s_spec)::sspec(*)
       double complex Vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
 C ... Local parameters
       logical rdstrn,parstr,mmtargetx,eee
-      integer i,isp,ib,l,lmxa,m,m2,foccn,fopna,rdm,havesh,ivsiz,ipr,ifx
+      integer i,isp,ib,l,lmxa,m,m2,foccn,rdm,havesh,ivsiz,ipr,ifx
 C     integer nglob,stdo
       double precision nocc(-3:3,2),iv(7)
       integer idu(4),igetss,is,idmat,fxst,iblu,nlm,nlmu,a2vec,nn
@@ -356,7 +356,7 @@ C     integer nglob,stdo
 C ... MPI
       include "mpif.h"
       integer procid,master,mpipid,ierr
-      logical mlog,occe
+      logical mlog,occe,dexist
 
 !!
       real(8)::sss
@@ -382,8 +382,9 @@ C     ipr = 55
 
 C --- Read in dmatu if file  dmats.ext  exists ---
       if(procid .eq. master) then
-        if(fxst('dmats') .eq. 1) then
-          idmat = fopna('dmats',-1,1)
+        inquire(file='dmats.'//trim(sname),exist=dexist)
+        if(dexist) then
+          open(newunit=idmat,file='dmats.'//trim(sname)) 
           rewind idmat
   825     continue
           if (rdstrn(idmat,str,len(str),.false.)) then
@@ -426,8 +427,7 @@ C --- Otherwise read in occnumbers and construct diagonal dmatu ---
           inquire(file='occnum.'//trim(sname),exist=occe)
           if(occe) then !if no occunum.* initial dmatu=0 
              call info0(20,1,0,' sudmtu:  initial (diagonal) density-matrix from occ numbers')
-             foccn = fopna('occnum',-1,1)
-             rewind foccn
+             open(newunit=foccn,file='occnum.'//trim(sname))
              havesh = 1
  12          if (.not. rdstrn(foccn,str,len(str),.false.)) goto 99
              if (str(1:1) .eq. '#') goto 12
@@ -471,7 +471,7 @@ C     Skip comment lines
                    enddo
                 endif
              enddo
-             call fclose(foccn)
+             close(foccn) !call fclose(foccn)
           else
              dmatu=0d0
           endif

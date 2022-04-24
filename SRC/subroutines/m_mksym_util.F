@@ -1327,8 +1327,10 @@ C --- Rotational part ---
           sg = 'm'
           ip = 1
         else
-          ip = awrite('%?#n#i*##r%i',sg,len(sg),0,isw(li),nrot,
-     .    0,0,0,0,0,0)
+c          ip = awrite('%?#n#i*##r%i',sg,len(sg),0,isw(li),nrot,0,0,0,0,0,0)
+           if(  li   ) sg='i*r'//char(48+nrot)
+           if(.not.li) sg='r'//char(48+nrot)
+           ip =len(trim(sg))
         endif
         call rxx(.not. parsvc(2+fmtv,sg,ip,vecg),'bug in asymop')
       endif

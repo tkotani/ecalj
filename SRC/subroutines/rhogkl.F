@@ -109,16 +109,16 @@ C --- Loop over sites ---
   222   format(2x,'ib=',i3,i5,i6,10f12.6)
   220   format(9x,i4,i6,f12.6,10f12.6)
   221   format(/' rhogkl:    k   ilm      qkl (2l+1)!! ...')
-#if DEBUG
-        if (ib .eq. 1) then
-          print *, 'ib=',ib
-          call prtrkl ( mode , kmax , rg , nr , nlml , nsp , rofi_rv , 
-     .     sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v , sv_p_orhoat( 3 , ib )%v 
-     .     , qkl ( 0 , j1 ) )
-
-
-        endif
-#endif
+c$$$#if DEBUG
+c$$$        if (ib .eq. 1) then
+c$$$          print *, 'ib=',ib
+c$$$          call prtrkl ( mode , kmax , rg , nr , nlml , nsp , rofi_rv , 
+c$$$     .     sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v , sv_p_orhoat( 3 , ib )%v 
+c$$$     .     , qkl ( 0 , j1 ) )
+c$$$
+c$$$
+c$$$        endif
+c$$$#endif
         j1 = j1+nlml
    10   continue
       enddo
@@ -289,53 +289,53 @@ C ... Scale to get coefficients of the G_kL; see radpkl
 
       end subroutine pvrgkl
 
-#if DEBUG
-      subroutine prtrkl(opt,kmax,rg,nr,nlml,nsp,rofi,rho1,rho2,rhoc,qkl)
-
-C- Printout pkl expansion of rho, for debugging
-C  Example for integrating tabulated moment:
-C  mc out.te -e4 x1 x2 'x5*x1' 'x7*x1*x1' -int 0 2.113465
-      implicit none
-      integer opt,kmax,nr,nlml,nsp
-      double precision rg,rofi(nr),rho1(nr,nlml,nsp),rho2(nr,nlml,nsp),
-     .qkl(0:kmax,nlml),rhoc(nr,nsp)
-      integer lmxx,n0
-      parameter(lmxx=6)
-      double precision g(0:kmax,0:lmxx)
-      double precision ,allocatable:: p(:,:,:), rhop(:,:,:)
-      integer lmxl,ll,isp,ilm,ir,k,l,m
-      double precision wk(nr)
-
-C     call prrmsh('rhoc',rofi,rhoc,nr,nr,1)
-      if (mod(opt,10) .eq. 1) then
-        call daxpy(nr*nlml*nsp,-1d0,rho2,1,rho1,1)
-      endif
-      call prrmsh('given rho1-rho2',rofi,rho1,nr,nr,nlml)
-      lmxl = ll(nlml)
-
-      allocate (p(nr,0:kmax,0:lmxl),rhop(nr,nlml,nsp))
-      rhop = 0
-      isp = 1
-      do  ir = 1, nr
-C       call radpkl(rofi(ir),rg,kmax,lmxl,kmax,g)
-        call radgkl(rofi(ir),rg,kmax,lmxl,kmax,g)
-        ilm = 0
-        do  l = 0, lmxl
-          do  m = -l, l
-            ilm = ilm+1
-            do  k = 0, kmax
-              rhop(ir,ilm,1) = rhop(ir,ilm,1) +
-     .        qkl(k,ilm) * g(k,l) * rofi(ir)**(2+l)
-            enddo
-          enddo
-        enddo
-      enddo
-      call prrmsh('fit rho',rofi,rhop,nr,nr,nlml)
-      deallocate (p,rhop)
-      if (mod(opt,10) .eq. 1) then
-        call daxpy(nr*nlml*nsp,1d0,rho2,1,rho1,1)
-      endif
-      end subroutine prtrkl
-
-#endif
+c$$$#if DEBUG
+c$$$      subroutine prtrkl(opt,kmax,rg,nr,nlml,nsp,rofi,rho1,rho2,rhoc,qkl)
+c$$$
+c$$$C- Printout pkl expansion of rho, for debugging
+c$$$C  Example for integrating tabulated moment:
+c$$$C  mc out.te -e4 x1 x2 'x5*x1' 'x7*x1*x1' -int 0 2.113465
+c$$$      implicit none
+c$$$      integer opt,kmax,nr,nlml,nsp
+c$$$      double precision rg,rofi(nr),rho1(nr,nlml,nsp),rho2(nr,nlml,nsp),
+c$$$     .qkl(0:kmax,nlml),rhoc(nr,nsp)
+c$$$      integer lmxx,n0
+c$$$      parameter(lmxx=6)
+c$$$      double precision g(0:kmax,0:lmxx)
+c$$$      double precision ,allocatable:: p(:,:,:), rhop(:,:,:)
+c$$$      integer lmxl,ll,isp,ilm,ir,k,l,m
+c$$$      double precision wk(nr)
+c$$$
+c$$$C     call prrmsh('rhoc',rofi,rhoc,nr,nr,1)
+c$$$      if (mod(opt,10) .eq. 1) then
+c$$$        call daxpy(nr*nlml*nsp,-1d0,rho2,1,rho1,1)
+c$$$      endif
+c$$$      call prrmsh('given rho1-rho2',rofi,rho1,nr,nr,nlml)
+c$$$      lmxl = ll(nlml)
+c$$$
+c$$$      allocate (p(nr,0:kmax,0:lmxl),rhop(nr,nlml,nsp))
+c$$$      rhop = 0
+c$$$      isp = 1
+c$$$      do  ir = 1, nr
+c$$$C       call radpkl(rofi(ir),rg,kmax,lmxl,kmax,g)
+c$$$        call radgkl(rofi(ir),rg,kmax,lmxl,kmax,g)
+c$$$        ilm = 0
+c$$$        do  l = 0, lmxl
+c$$$          do  m = -l, l
+c$$$            ilm = ilm+1
+c$$$            do  k = 0, kmax
+c$$$              rhop(ir,ilm,1) = rhop(ir,ilm,1) +
+c$$$     .        qkl(k,ilm) * g(k,l) * rofi(ir)**(2+l)
+c$$$            enddo
+c$$$          enddo
+c$$$        enddo
+c$$$      enddo
+c$$$      call prrmsh('fit rho',rofi,rhop,nr,nr,nlml)
+c$$$      deallocate (p,rhop)
+c$$$      if (mod(opt,10) .eq. 1) then
+c$$$        call daxpy(nr*nlml*nsp,1d0,rho2,1,rho1,1)
+c$$$      endif
+c$$$      end subroutine prtrkl
+c$$$
+c$$$#endif
 

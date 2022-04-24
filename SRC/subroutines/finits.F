@@ -1,4 +1,6 @@
-      subroutine finits() !job,fcn,fcargs,iarg)
+      subroutine finits()       !job,fcn,fcargs,iarg)
+      use m_ext,only:sname
+      implicit none
 !!--- Set the numbr of iprint(), extension, and -vnam=val
 !!note: input arguments are      
 !!   [-vnam=val ...] [-pr# .or. --pr#] [switches] extens;
@@ -22,26 +24,12 @@
            call parsyv(strn,len(strn),999,0,i)
         endif
         if (lsequ(strn,'-',1,' ',n)) cycle 
-        if (.not. lext) then
-          i = fext('.'//extns)
-          lext = .true.
-          cycle 
-        endif
       enddo
-c$$$c     not here
-c$$$!! Set print verbose ( integer funciton iprint() return # of -pr# in command line arguments).
-c$$$      if (cmdopt('-pr',3,0,strn)) then
-c$$$c         print *,'uuuuuuuu'//trim(strn)//'@@@'
-c$$$         read(strn(4:),*) k
-c$$$         call setpr(k)
-c$$$      endif
-c$$$      if (cmdopt('--pr',4,0,strn)) then
-c$$$         read(strn(5:),*) k
-c$$$         call setpr(k)
-c$$$      endif
       end
 
       subroutine fexit(retval,iopt,strng,args)
+      use m_lmfinit,only:stdo,stdl
+      implicit none
 C- Machine and compiler-dependent program termination
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -58,13 +46,12 @@ Co Outputs
 Cr Remarks
 Cu Updates
 C ----------------------------------------------------------------------
-      implicit none
 C Passed parameters 
       integer retval,iopt
       character*(*) strng
       double precision args(1),arg2(1),arg3(1)
 C Local parameters 
-      integer fhndl,iprint,i,i2,getdig,i1mach,scrwid,mpipid
+      integer fhndl,iprint,i,i2,getdig,scrwid,mpipid
 c      parameter (scrwid=300)
       double precision cpusec,tnew
       character*1 timeu
@@ -86,9 +73,9 @@ c      parameter (scrwid=300)
         i = mod(iopt,10) !getdig(iopt,0,10) 
         if (i .ne. 0) then
            if (i .eq. 9) then
-              write(i1mach(2),"(a,i0,a)")'Exit ',retval,' '//trim(strng)
+              write(stdo,"(a,i0,a)")'Exit ',retval,' '//trim(strng)
            else
-             call awrit3(strng,strn,-len_trim(strn),i1mach(2),args,arg2,arg3)
+             call awrit3(strng,strn,-len_trim(strn),stdo,args,arg2,arg3)
            endif
         endif
         i = mod(iopt/10,10) !getdig(iopt,1,10)
@@ -107,15 +94,12 @@ c      parameter (scrwid=300)
           call ftime(datim)
           hostnm = ' '
           call get_environment_variable('HOST',hostnm)
-          write(i1mach(2),10) tnew,timeu,datim,trim(adjustl(hostnm))
-          if (fhndl('LOG') .ge. 0)  then
-            if (isopen(fhndl('LOG'),.false.))
-     .      write (fhndl('LOG'),10) tnew,timeu,datim,trim(adjustl(hostnm))
-   10       format('CPU time:', f9.3,a1,5x,a26,' on ',a)
-          endif
+          write(stdo,10) tnew,timeu,datim,trim(adjustl(hostnm))
+          write(stdl,10) tnew,timeu,datim,trim(adjustl(hostnm))
+ 10       format('CPU time:', f9.3,a1,5x,a26,' on ',a)
         endif
       endif
-      call tcprt(i1mach(2))
+      call tcprt(stdo) 
 #if MPI | MPIK
       if(retval/=0) then
          write(6,"(a,i5)")'ERROR: fexit, error code=',retval

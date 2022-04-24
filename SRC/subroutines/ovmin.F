@@ -443,28 +443,28 @@ C   ... Abort if a2bin can't parse expression
       call clrsyv(iv0)
       return
 
-C --- lstyle=3 ---
-c   30 continue
-      case(30)
-      nlist = 0
-      call skpblb(slist,ls,ls1)
-      call ffnam(slist(1:ls1+1),filnam)
-      do  44  ic = 1, nclass
-        call pshpr(0)
-c        call r8tos8(dclabl(ic),clabl)
-        clabl=dclabl(ic)
-        call ffnam(clabl,cnam)
-        call poppr
-        call awrit0('%xls ' // filnam //'%a|grep -s '
-     .    // cnam // '%a>/dev/null',strn,len(strn),0)
-        call locase(strn)
-        call fsystm(strn,j)
-        if (j .eq. 0) then
-          nlist = nlist+1
-          list(nlist) = ic
-        endif
-   44 continue
-
+c$$$C --- lstyle=3 ---
+c$$$c   30 continue
+c$$$      case(30)
+c$$$      nlist = 0
+c$$$      call skpblb(slist,ls,ls1)
+c$$$      call ffnam(slist(1:ls1+1),filnam)
+c$$$      do  44  ic = 1, nclass
+c$$$        call pshpr(0)
+c$$$c        call r8tos8(dclabl(ic),clabl)
+c$$$        clabl=dclabl(ic)
+c$$$        call ffnam(clabl,cnam)
+c$$$        call poppr
+c$$$        call awrit0('%xls ' // filnam //'%a|grep -s '
+c$$$     .    // cnam // '%a>/dev/null',strn,len(strn),0)
+c$$$        call locase(strn)
+c$$$        call fsystm(strn,j)
+c$$$        if (j .eq. 0) then
+c$$$          nlist = nlist+1
+c$$$          list(nlist) = ic
+c$$$        endif
+c$$$   44 continue
+c$$$
       case default
       call rxi('clist: bad style',lstyle)
       return

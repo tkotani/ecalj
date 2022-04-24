@@ -9,6 +9,7 @@
       use m_lmfinit,only: irs3,irs4,irs5,irsrot,lat_alat,nsp,lrel,nl,ssite=>v_ssite,sspec=>v_sspec,
      &    nbas,nat,nspec 
       use m_lattic,only: lat_dist, lat_plat
+      use m_ext,only:sname
 !!- I/O for charge density to rst or rsta. ssite sspec are readin 
 !! read write
 !!     smrho, rhoat
@@ -780,8 +781,9 @@ c        RWiors='write'
 C ...   Write header and general information
         fid0 = fid
         call strip(fid0,i0,i1)
-        i_dummy_fextg= fextg(datimp)
-        jobid = datimp(2:)
+c     i_dummy_fextg= fextg(datimp)
+c        datimp=sname
+        jobid = sname !datimp(2:)
         call ftime(datimp)
         hostnm = ' '
         usernm = ' '

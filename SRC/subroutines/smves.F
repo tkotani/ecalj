@@ -254,11 +254,11 @@ C ... Adjust vbar, vval, gpot0 by vconst
       enddo
       if (ipr .ge. 40) then
         write (stdo,233)
-  233   format(' average electrostatic potential at MT boundaries',
-     .  ' after shift')
-        call arrprt ( ' Site    ves' , '%,4i%:-3,6;6d' , 'Id' , nbas 
-     .   , 0 , 4 , 0 , '  | ' , iwdummy , vrmt , iwdummy , iwdummy , iwdummy 
-     .   , iwdummy , iwdummy , iwdummy )
+ 233    format(' average electrostatic potential at MT boundaries after shift')
+        write(stdo, "(a)") ' Site    ves'
+        do ib=1,nbas
+           write(stdo,"(i4, f12.6)")ib,vrmt(ib)
+        enddo   
       endif
 C ... Back transform of density and potential to real-space mesh
       call fftz3(smrho,n1,n2,n3,k1,k2,k3,1,0,1)

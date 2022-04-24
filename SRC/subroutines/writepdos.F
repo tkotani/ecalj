@@ -115,7 +115,7 @@ c     &  dwgtall, ndos, eminp+ef0, emaxp+ef0,.false.,wkd,pdosall)
           eee = eminp+ (ipts-1d0)*(emaxp-eminp)/(ndos-1d0)
           write(ifi,"(255(f13.5,x))")eee,pdosp(ipts,1:nchanp)
         enddo
-        call fclose(ifi)
+        close(ifi)
       enddo
       enddo   
       deallocate(pdosp,pdosalla)

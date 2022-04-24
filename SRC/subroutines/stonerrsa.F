@@ -28,7 +28,7 @@ C ... Passed parameters
       real(8) momsite(nmbas), mmnorm(nmbas),freq(nw),qp(3,nq)
       complex(8) eiqrm(nmbas,nq),x0et(nmbas,nmbas,nq,nw)
 C ... Local parameters
-      integer fopna,fopnx,i,ifi,ifi2,imax,imin,iq,iw,iwpola,iwpolf,ipr,
+      integer i,ifi,ifi2,imax,imin,iq,iw,iwpola,iwpolf,ipr,
      .ix,iy,j,jmax,jmin,nglob,nw_intp,nwx
       complex(8),allocatable :: qxq_intp(:,:),wk(:,:),
      .x0inv(:,:,:,:),xinv(:,:,:,:),x2et(:,:,:,:),
@@ -51,10 +51,7 @@ C     For calculating JMAT:
      .jjmat(nmbas,nmbas),jjmat2(nmbas,nmbas),mxi(nmbas,nmbas)
       integer:: nmx,nev
       parameter (rydberg=13.6058d0)
-
-C --- Setup ---
-Changenglob      stdo = nglob('stdo')
-c      stdo = globalvariables%stdo
+!
       call getpr(ipr)
       nwx = 400
       rymev = rydberg*1d3
@@ -68,8 +65,7 @@ c      stdo = globalvariables%stdo
       allocate(mxevl2_xinvh(nq,nwx) )
 
 #if DEBUG
-C     open(111, file='x0qw.allqb',form='unformatted')
-      ifi = fopnx('x0qw.allqb',2,2+4,-1)
+      open(ifi,file='x0qw.allqb',form='unformatted')
       write (ifi) nq,nmbas,nw,nwx,qp
       write (ifi) freq(1:nw)
       do  iq = 1, nq
@@ -78,6 +74,7 @@ C     open(111, file='x0qw.allqb',form='unformatted')
           write(ifi) dimag(x0et(1:nmbas,1:nmbas,iq,iw))
         enddo
       enddo
+      close(ifi)
 #endif
 
 C --- Determine <~e|U(w)|e~> by only using boundary condition at q=0 ---
@@ -99,12 +96,12 @@ C      write(stdo,"(i4, f13.5, d15.7)") iw,rymev*freq(iw),uu(1,iw)
 #if DEBUG
 C     open(112,file='etUet.allw')
 C     ifi = fopnx('etUet.allw',2,2,-1)
-      ifi = fopna('etUet',-1,0)
+      open(newunit=ifi,file='etUet')
       do  iw = 1, nwx
         write(ifi,'(f21.13,3x,255d18.10)')
      .  freq(iw),(uu(ix,iw),ix=1,nmbas)
       enddo
-      call fclose(ifi)
+      close(ifi)
 #endif
 
 C --- x2et=<~e|X(w)|e~>  &&  <eiqr|~e><~e|X|~e><eiqr|~e> ---
@@ -186,15 +183,16 @@ C     Liqin: these should be passed as arguments
 #if DEBUG
 C      open(106,file='qxqi.allq')
 C      open(107,file='qxqr.allq')
-      ifi  = fopna('qxqi',-1,0)
-      ifi2 = fopna('qxqr',-1,0)
+c      ifi  = fopna('qxqi',-1,0)
+c     ifi2 = fopna('qxqr',-1,0)
+      open(ifi,file='qxqi')
+      open(ifi2,file='qxqr')
       do  iw = 1, nw_intp
-        write(ifi,"( f13.5, 100d15.7)") rymev*e_intp(iw),
-     .  (-dimag(qxq_intp(iw,iq)),iq=1,nq)
-        write(ifi2,"( f13.5, 100d15.7)") rymev*e_intp(iw),
-     .  (-dble(qxq_intp(iw,iq)),iq=1,nq)
+        write(ifi,"( f13.5, 100d15.7)") rymev*e_intp(iw),(-dimag(qxq_intp(iw,iq)),iq=1,nq)
+        write(ifi2,"( f13.5, 100d15.7)") rymev*e_intp(iw),(-dble(qxq_intp(iw,iq)),iq=1,nq)
       enddo
-      call fclose(ifi); call fclose(ifi2)
+      close(ifi)
+      close(ifi2)
 #endif
 C ... Finished interpolation of <eiqr|X|eiqr>
 
@@ -209,12 +207,11 @@ C --- Eigenvalue of hermitian xinvh ---
       enddo
 
 #if DEBUG
-      ifi = fopnx('evl_xh.allq',2,2,-1)
+      open(ifi,file='evl_xh.allq')
       do  iw = 1, nwx
-        write(ifi,"( f13.5, 100d15.7)") rymev*freq(iw),
-     .  (mxevl_xinvh(iq,iw),iq=1,nq)
+        write(ifi,"( f13.5, 100d15.7)")rymev*freq(iw),(mxevl_xinvh(iq,iw),iq=1,nq)
       enddo
-      call fclose(ifi)
+      close(ifi)
 #endif
 C ... Finished finding eigenvalues
 
@@ -344,37 +341,28 @@ C --- Xinvh_w0  dxidw_et -> dxidw_ebar ---
       enddo
 
 #if DEBUG
-C     open(109,file='dxidw.allq')
-C     ifi = fopna('dxidw',-1,0)
-      ifi = fopnx('dxidw.allq',2,2,-1)
+      open(ifi,file='dxidw.allq')
       do  iw = 1, nwx
-        write(ifi,"(f8.2,100d15.7)") rymev*freqm(iw),
-     .  (dxidw_eb(1,1,iq,iw), iq=1,nq)
+        write(ifi,"(f8.2,100d15.7)") rymev*freqm(iw),(dxidw_eb(1,1,iq,iw), iq=1,nq)
       enddo
-      call fclose(ifi)
+      close(ifi)
 #endif
 
 C --- Make Jmat file for FM and AFM cases ---
-      call info0(20,1,0,'Writing files to disk: '//
-     .'Jmat.allq = J(q,w=intp FM pole), and  '//
-     .'Jmat_X2w0 = J(q,w=0)')
+      write(stdo,*)'Writing files to disk: Jmat.allq = J(q,w=intp FM pole), and  '//
+     .'Jmat_X2w0 = J(q,w=0)'
       nmx = nmbas
       nev = nmbas
-C     open(110,file='Jmat.allq')
-      ifi = fopnx('Jmat.allq',2,2,-1)
+      open(ifi,file='Jmat.allq')
       do  iq = 1, nq
-C       oo = 0d0
         mxi = 0d0
         do  i = 1, nmbas
-C         oo(i,i) = 1d0
           mxi(i,i) = 1d0
         enddo
         allocate(wk(11,nmbas))
         call zhev(nmbas,meffi_eb(1,1,iq),wk,
      .  .false.,.true.,nmx,1d99,nev,wk,.false.,-1,eval,evc)
         deallocate(wk)
-C       call diagcv(oo,meffi_eb(1,1,iq),evc, nmbas, eval,nmx,1d99,nev)
-
         oo = 0d0
         do  i = 1, nmbas
           if (eval(i) .ge. 0) then
@@ -382,51 +370,31 @@ C       call diagcv(oo,meffi_eb(1,1,iq),evc, nmbas, eval,nmx,1d99,nev)
           else
             oo(i,i) = 1d0/csqrt( cmplx(eval(i)) )
           endif
-C         oo(i,i)= 1d0/sqrt(eval(i))
         enddo
-C       write(stdo,"( 'oo', 100f13.7)") (oo(i,i),i=1,nmbas)
         sqm = matmul(evc, matmul(oo, transpose(dconjg(evc))) )
         jjmat = matmul(sqm, matmul(xinvh_w0eb(:,:,iq),sqm))
         jjmat2 = matmul(sqm, matmul(mxi, sqm))
-c       jjmat = xinvh_w0eb(:,:,iq)
         do  ix = 1, nmbas
           do  iy = 1, nmbas
             jjmat(ix,iy) = jjmat(ix,iy)/sqrt(momsite(ix)*momsite(iy))
           enddo
         enddo
-
-C        jjmat2 = xinvh_w0eb(:,:,iq)
-C        do  ix = 1, nmbas
-C          do  iy = 1, nmbas
-C            jjmat2(ix,iy)= jjmat2(ix,iy)/sqrt(momsite(ix)*momsite(iy))
-C          enddo
-C        enddo
-
-C         open(103,file='Jmat_X3w0.allq')
-C         write(103,"('sqmIsqm: ',3d18.10, 3x, 255d18.10)")
-C     .     qp(:,iq), (( jjmat2(ix,iy) ,ix=1,nmbas),iy=1,nmbas)
-
-
         write(ifi,"('JJMAT: ',3d18.10,3x,255d18.10)")
      .  qp(:,iq), ((jjmat(ix,iy), ix=1,nmbas),iy=1,nmbas)
         call zevl(nmbas,jjmat,eval)
-
-C         write(stdo,"('e sw  ', 3f8.4,2x,255d15.7)")
-C     .     qp(:,iq),(-momsite(1)*1d3*rydberg*eval(ix),ix=1,nmbas)
       enddo
-
+      close(ifi)
 C --- Save files: JJMAT: J=X0^(-1)  or J=X^(-1) at (w=0) ---
-C     open(104,file='Jmat_X0w0.allq')
-C     open(105,file='Jmat_X2w0.allq')
-      ifi  = fopnx('Jmat_X0w0.allq',2,2,-1)
-      ifi2 = fopnx('Jmat_X2w0.allq',2,2,-1)
+      open(ifi,file='Jmat_X0w0.allq')
+      open(ifi2,file='Jmat_X2w0.allq')
       do  iq = 1, nq
         write(ifi,"('JJMAT: ',3d18.10, 3x, 255d18.10)")
      .  qp(:,iq), (( x0inv(ix,iy,iq,1) ,ix=1,nmbas),iy=1,nmbas)
         write(ifi2,"('xinvh_w0eb: ',3d18.10, 3x, 255d18.10)")
      .  qp(:,iq), ((  xinvh_w0eb(:,:,iq) ,ix=1,nmbas),iy=1,nmbas)
       enddo
-
+      close(ifi)
+      close(ifi2)
       end subroutine stonerrsa
 
       subroutine zevl(n,h,eval)

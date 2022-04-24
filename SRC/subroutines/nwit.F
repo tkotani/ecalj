@@ -109,6 +109,7 @@ C --- Write out to save file --
       end
 
       subroutine nwitsv(iflst,nvario,flg,nsp,amom,etot,sev)
+      use m_ext,only:      sname
 C- Write to save file
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -128,13 +129,13 @@ Cr
 Cu Updates
 Cu   10 Mar 03 Cut out from nwit to make separately callable
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer iflst,nvario,nsp
       character flg*(*)
       double precision amom,etot(2)
 C ... Local parameters
-      integer fopna,ifi,i,lgunit,getdig
+      integer ifi,i,lgunit,getdig,ifile_handle
       double precision xv(4),sev,rydberg
       character*180 sout
 
@@ -161,19 +162,19 @@ C ... Local parameters
         xv(i) = sev*rydberg()
         call awrit0('%a,sev(eV)',sout,len(sout),0)
       endif
-
 C ... Write to file list
       do  i = 1, 4!3
         if (getdig(iflst,i-1,2) .ne. 0) then
-          if (i .eq. 1) ifi = fopna('SAVE',-1,0)
-          if (i .eq. 1) call poseof(ifi)
+          if (i .eq. 1) then
+             ifi = ifile_handle()
+             open(ifi,file='save.'//trim(sname),position='append')
+          endif    
           if (i .eq. 2) ifi = lgunit(1)
           if (i .eq. 3) ifi = lgunit(2)
           call iosave(flg,sout(2:),xv,-ifi,nvario)
-          if (i .eq. 1) call fclr('SAVE',ifi)
+          if (i .eq. 1) close(ifi)
         endif
       enddo
-
       end
 
 

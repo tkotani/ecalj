@@ -1,11 +1,11 @@
       subroutine rdovfa()
       use m_density,only: zv_a_osmrho=>osmrho,sv_p_orhoat=>orhoat 
-!!      
       use m_supot,only: lat_nabc,lat_ng,rv_a_ogv,iv_a_okv,rv_a_ogv
       use m_lmfinit,only:lat_alat,nsp,nbas,nspec,ssite=>v_ssite,sspec=>v_sspec,qbg=>zbak
       use m_lattic,only: lat_plat,lat_vol
       use m_struc_def,only: s_rv1
       use m_struc_func, only: mpibc1_s_spec
+      use m_ext,only: sname
 !!- Read and overlap free atom densities.
 C  allocates orhoca with free-atom core density. 
 C ----------------------------------------------------------------------
@@ -29,12 +29,11 @@ C ----------------------------------------------------------------------
       integer:: nxi(nspec)
       type(s_rv1) :: rv_a_orhofa(nspec)
       type(s_rv1) :: rv_a_ov0a(nspec)
-
       double precision rsmfa(nspec),pnu(n0,2),exi(n0,nspec),
      .hfc(n0,2,nspec),hfct(n0,2,nspec)
       character*8 spid(nspec),spidr
       integer:: ipr , iprint , ngabc(3) , n1 , n2 , n3 , k1 , k2 , 
-     .     k3 , lgunit , stdo , stdl , i , ifi , fopna , is 
+     .     k3 , lgunit , stdo , stdl , i , ifi , is 
      .     , nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ng 
      .     , iofa , kcor , lcor
       real(8) ,allocatable :: rwgt_rv(:)
@@ -46,13 +45,11 @@ C ----------------------------------------------------------------------
       character msg*23, strn*120
       logical mlog,cmdopt,lfail
       logical:: l_dummy_isanrg,isanrg
-      integer:: i_copy_size,i_spec
+      integer:: i_copy_size,i_spec,ifile_handle
       call tcn('rdovfa')
-c      qbg=qbg2(1)
       ipr   = iprint()
       stdo  = lgunit(1)
       stdl  = lgunit(2)
-c      nsp   = globalvariables%nsp
       msg   = '         File mismatch:'
       procid = mpipid(1)
       master = 0
@@ -60,23 +57,17 @@ c      nsp   = globalvariables%nsp
       if (ipr .ge. 10) write(stdo,700)
   700 format(/' rdovfa: read and overlap free-atom densities',' (mesh density) ...')
       alat=lat_alat
-c      i_copy_size=size(lat_plat)
-c      call dcopy(i_copy_size,lat_plat,1,plat,1)
-c      i_copy_size=size(lat_nabc)
-c     call icopy(i_copy_size,lat_nabc,1,ngabc,1)
       plat=lat_plat
       ngabc=lat_nabc
       vol=lat_vol
       call fftz30(n1,n2,n3,k1,k2,k3)
       call dpzero(hfc,n0*2*nspec)
       call dpzero(pnu,n0*2)
-
-C  --- Read free-atom density for all species ---
-C      if (ipr .ge. 30) write(stdo,*) ' '
+!! Read free-atom density for all species ---
       if (procid .eq. master) then
-        ifi = fopna('atm',-1,0)
-        rewind ifi
-      endif
+         ifi=ifile_handle()
+         open(ifi,file='atm.'//trim(sname))
+      endif   
       do  10  is = 1, nspec
         allocate(rv_a_orhofa(is)%v(abs(-nrmx*nsp)))
         rv_a_orhofa(is)%v(:)=0.0d0
@@ -92,7 +83,6 @@ C      if (ipr .ge. 30) write(stdo,*) ' '
         z=sspec(is)%z
         lfoc=sspec(is)%lfoca
         rfoc=sspec(is)%rfoca
-
         lfail = .false.
         if (procid .eq. master) then
           if (z .eq. 0 .and. rmt .eq. 0) then
@@ -181,9 +171,7 @@ cki      call mpibc1(sspec,nspec*nint(sspec(1)%size),4,0,'rdovfa','sspec')
         call mpibc1_s_spec(sspec(i_spec),'rdovfa_sspec')
       enddo
 
-      if (procid .eq. master) then
-        call fclose(ifi)
-      endif
+      if (procid .eq. master) close(ifi)
 
 C --- Define arrays for local densities rho1,rho2,rhoc and v0,v1 ---
       ztot = 0d0

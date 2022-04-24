@@ -43,10 +43,6 @@ C ... Passed parameters
 
       ipr    = iprint()
       stdo   = lgunit(1)
-Changenglob      nsp  = nglob('nsp')
-c      nsp  = globalvariables%nsp
-Changenglob      lrel = nglob('lrel')
-c      lrel = globalvariables%lrel
       msg  = '         File mismatch:'
       iofa   = -1
 

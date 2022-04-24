@@ -5,7 +5,7 @@
       use m_lattic,only: lat_vol
       use m_supot,only: lat_nabc, lat_ng
       use m_lmfinit, only:   mix_b,mix_bv,mix_w,mix_wc,mix_nsave,mix_mmix
-
+      use m_ext,only:      sname
 !!= Mix old and new charge densities =
 !!  Takao's version: real space mixing of smrho. It works OK. However,
 !!  we may need to fix it so that this is well-defined chi=|rho-f(rho)|**2 minimization mixing.
@@ -209,7 +209,7 @@ c      type(s_lat)::slat
 C ... Local parameters
       integer lgunit,i,i1,i2,i3,ib,ipl,ipr,is,k0,k9,kmxv,
      .lmxl,n1,n2,n3,ng,nglob,nlml,nr,nmixr,nmix,nda,mxsav,ifi,nlm0,
-     .kkk,nnnew,nnmix,ngabc(3),igetss,fopna,broy,nx,
+     .kkk,nnnew,nnmix,ngabc(3),igetss,broy,nx,
      .nkill,isw,naa,kmxr,kmxs,locmix,offx,off2
       integer:: ng0 !,  oa , oaa !, ocn ,owk , oqkl
       integer ,allocatable :: ips0_iv(:)
@@ -231,7 +231,7 @@ C ... Local parameters
       double complex xxc
       logical parmxp
       character sout*80,fnam*8
-      integer ::iwdummy ,isp,nnnx,ng02,ng2, iprint
+      integer ::iwdummy ,isp,nnnx,ng02,ng2, iprint,ifile_handle
       real(8):: smmin,sss,wgtsmooth
       complex(8),allocatable:: smrnewbk(:,:,:,:),w_owk(:)
       complex(8),allocatable:: w_oqkl(:)
@@ -618,63 +618,39 @@ c      if (locmix .ge. 2) call defcc(oqkl,-(kmxr+1)*nlm0*nsp*4*nbas)
 
 C --- 9. Read prior iterations from disk; update with current iter ---
       if (procid .eq. master) then
-        ifi = fopna(fnam,-1,4)
-        rewind ifi
+         ifi=ifile_handle()
+         open(ifi,file=trim(fnam)//'.'//trim(sname),form='unformatted')
+c        ifi = fopna(fnam,-1,4)
+c        rewind ifi
       endif
-#if MPI | MPIK
       call MPI_BCAST(ifi,1,MPI_INTEGER,master,MPI_COMM_WORLD,ierr)
       if (mlog) then
         call gettime(datim)
         call awrit3(' mixrho '//datim//' Process %i of %i on '
      .  //shortname(procid)(1:namelen(procid))//
-     .  ' bcast ifi = %i',' ',
-     .  256,lgunit(3),procid,numprocs,ifi)
+     .  ' bcast ifi = %i',' ',256,lgunit(3),procid,numprocs,ifi)
       endif
-#endif
-
 C     NB: For now, nx must be zero
       k9 = 10
       call pvmix5 ( nmix , mxsav , fnam , ifi , .true. , rmsdel , locmix 
      .  , k9 , nbas , kmxr , nlm0 , ssite , sspec , nsp , sv_p_orhold
-ckino 0 must be array     .  , sv_p_orhnew , co_rv , w_ocn , ng2 , ng02 , 0 , nda , w_oa , w_oqkl 
      .  , sv_p_orhnew , co_rv , w_ocn , ng2 , ng02 , (/0/) , nda , w_oa , w_oqkl 
-     .  , rms2 , nmixr )
-
-C     debugging check
-C      ib = 1
-C      is = igetss('site spec',ib,ssite)
-C      call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
-C      call upack('spec lmxl rsmv kmxv',sspec,is,lmxl,rsmv,kmxv,0)
-C      nlml = (lmxl+1)**2
-C      call defrr(orofi, nr)
-C      call defrr(orwgt, nr)
-C      call radmsh(rmt,a,nr,w(orofi))
-C      call radwgt(rmt,a,nr,w(orwgt))
-C      call upack2('spec rg',sspec,is,rg)
-C      call pkl2ro(1001,ib,rg,kmxr,nr,nlml,nsp,w(orofi),w(orwgt),
-C     .  kmxr,nlm0,w,w(oqkl),w(orhold(1,ib)),w,qmx)
-C      call prrmsh('rhots1',w(orofi),w(orhold(1,ib)),nr,nr,nlml*nsp)
-C      stop
-
+     .     , rms2 , nmixr )
       rmsdel = rms2
       nmix = min(nmix,nmixr)
 C ... Write this and prior iterations onto disk
       call pvmix5 ( nmix , mxsav , fnam , - ifi , .true. , rmsdel , 
      .  locmix , k9 , nbas , kmxr , nlm0 , ssite , sspec , nsp , sv_p_orhold
-ckino 0 must be array     .  , sv_p_orhnew , co_rv , w_ocn , ng , ng02 , 0 , nda , w_oa , w_oqkl 
      .  , sv_p_orhnew , co_rv , w_ocn , ng , ng02 , (/0/) , nda , w_oa , w_oqkl 
      .  , rms2 , nmixr )
-
-
-
       if (nkill .lt. 0) then
-        if (ipr .ge. 20) then
+        if(ipr>=20) then
           sout = ' ...  deleting file '//fnam
-          call awrit1('%a : nkill=%i',sout,80,-lgunit(1),-nkill)
+          write(stdo,"(a,i5)") trim(sout)//" nkill=",nkill
         endif
-        call dfclos(ifi)
-      else
-        call fclose(ifi)
+        close(ifi,status='delete')
+      else  
+        close(ifi)  
       endif
 
 C --- Printout smooth density mixing data ---

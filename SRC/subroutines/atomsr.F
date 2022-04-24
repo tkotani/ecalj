@@ -509,24 +509,24 @@ C ... Correction to core eigenvalues if sumec not obtained from this V
       vrmax(2) = 0
       if (nsp .eq. 2) vrmax(2) = v(nr,1)-v(nr,2)
 
-C --- write out rho if requested ---
-      if (cmdopt('--dumprho',8,0,strn)) then
-        call prrmsh('rho for atom ',rofi,rho,nr,nr,nsp)
-        call prrmsh('pot for atom ',rofi,v,nr,nr,nsp)
-        call prrmsh('rhoc for atom ',rofi,rhoc,nr,nr,nsp)
-        allocate(rho_rv(abs(-nr*nl*nsp)))
-        if (-nr*nl*nsp<0) rho_rv(:)=0.0d0
-
-        call newrho ( z , lrel , lgdd , nl , nl , lmax , a , b , nr , 
-     .  rofi , v , rho_rv , rhoc , kcor , lcor , qcor , pnu , qnu 
-     .  , sec , stc , sev , ec , ev , tl , nsp , lfrz , 000,plplus,qlplus,nmcore)
-
-        call prrmsh ( 'rhol for atom ' , rofi , rho_rv , nr , nr , 
-     .  nl * nsp )
-
-        if (allocated(rho_rv)) deallocate(rho_rv)
-
-      endif
+c$$$C --- write out rho if requested ---
+c$$$      if (cmdopt('--dumprho',8,0,strn)) then
+c$$$        call prrmsh('rho for atom ',rofi,rho,nr,nr,nsp)
+c$$$        call prrmsh('pot for atom ',rofi,v,nr,nr,nsp)
+c$$$        call prrmsh('rhoc for atom ',rofi,rhoc,nr,nr,nsp)
+c$$$        allocate(rho_rv(abs(-nr*nl*nsp)))
+c$$$        if (-nr*nl*nsp<0) rho_rv(:)=0.0d0
+c$$$
+c$$$        call newrho ( z , lrel , lgdd , nl , nl , lmax , a , b , nr , 
+c$$$     .  rofi , v , rho_rv , rhoc , kcor , lcor , qcor , pnu , qnu 
+c$$$     .  , sec , stc , sev , ec , ev , tl , nsp , lfrz , 000,plplus,qlplus,nmcore)
+c$$$
+c$$$        call prrmsh ( 'rhol for atom ' , rofi , rho_rv , nr , nr , 
+c$$$     .  nl * nsp )
+c$$$
+c$$$        if (allocated(rho_rv)) deallocate(rho_rv)
+c$$$
+c$$$      endif
       end subroutine atomsc
 
       subroutine addzbk(rofi,nr,nsp,rho,rhozbk,scale)
