@@ -682,7 +682,8 @@ C     call prmx('vorb',vorb(1,1,1,1),2*lmaxu+1,2*lmaxu+1,2*lmaxu+1)
 C --- Error exit ---
       return
    99 continue
-      call awrit2('bad occnum file, site %i, l=%i',str,len(str),0,ib,l)
+c      call awrit2('bad occnum file, site %i, l=%i',str,len(str),0,ib,l)
+      write(str,"('bad occnum file, site l= ',i5,i5)")ib,l
       call rx(str)
       end subroutine sudmtu
 

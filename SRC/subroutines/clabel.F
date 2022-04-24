@@ -9,10 +9,7 @@ Co   clabl:    class label
 C     implicit none
       integer is,idx
       character*8 slabl(is),clabl
-
       clabl = slabl(is)
-*      if (idx .gt. 1) call awrit1('%a_%i',clabl,8,0,idx)
-      if (idx .gt. 1) call awrit1('%a%i',clabl,8,0,idx)
-
+      if (idx .gt. 1) write(clabl,"(i5)") idx !call awrit1('%a%i',clabl,8,0,idx)
       end
 

@@ -173,8 +173,8 @@ C     --- Mark each qp in the star of q as equivalent to this qp ---
           j2 = idnint(x2)
           j3 = idnint(x3)
           if (max(dabs(x1-j1),dabs(x2-j2),dabs(x3-j3)) .gt. 1d-4) then
-            call awrit2(' qp%3:1,3;3d -> %3:1,3;3d is not'//
-     .      ' on k-mesh',' ',80,stdo,v,v1)
+c            call awrit2(' qp%3:1,3;3d -> %3:1,3;3d is not on k-mesh',' ',80,stdo,v,v1)
+            write(stdo,"(a,3f9.4,' ',3f9.4)") ' qp mapped to is not on k-mesh',v,v1
             call rx('BZMESH: symops incompatible with this mesh')
           endif
 C ..        scale shifted point or discard if shifted off mesh
@@ -236,10 +236,6 @@ C  20 continue
 C ... Done accumulating inequivalent qp
       if (ipr>= 20) then
          write(stdo,"(a,i5,a,3i4,a,3l)") " BZMESH:  ",nq," irreducible QP from ",n1,n2,n3," shift=",lshft
-c        call awrit6(' BZMESH:  %i irreducible QP from %i'//
-c     .  ' ( %i %i %i )  shift=%3:1l',' ',80,
-c     .  stdo,nq,n1*n2*n3,n1,n2,n3,lshft)
-        call awrit5('bz  nq %i ( %i %i %i )  shift %3:1l',' ',80,lgunit(2),nq,n1,n2,n3,lshft)
       endif
       if (lstar .ne. 0) igstar(0) = n1 + ndmx*n2 + ndmx**2*n3
       if (lstar .lt. 0) igstar(0) = -igstar(0)
