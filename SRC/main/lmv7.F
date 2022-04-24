@@ -29,8 +29,7 @@
       character:: outs*20,aaa*512,sss*128
       character(8):: prgnam='LMF'
       character*8 charext
-      integer:: iarg,jobgw,iprint,nit1,ifi,irs1x,ifile_handle,nx,ny,
-     &  nk1,nk2,nk3
+      integer:: iarg,jobgw,iprint,nit1,ifi,irs1x,ifile_handle,nx,ny,nk1,nk2,nk3
 !      
       call M_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
       if(cmdopt0('--jobgw')) prgnam='LMFGWD'
@@ -47,11 +46,7 @@
       if(master_mpi) write(stdl,"(a)") trim(aaa)
       if(master_mpi) write(stdo,*) 'mpisize=',nsize
       if(master_mpi) write(stdl,*) 'mpisize=',nsize
-      if(cmdopt2('--pr=',outs)) then ! Set iprint() from cmd line ; the verbosity of console out put.
-        read(outs,*) k
-        call Setpr(k)
-      endif
-      if(.not.master_mpi) call setpr(-100) !iprint() is negative except master
+!!      
       if (cmdopt0('--help')) then  !help and quit
          call M_lmfinit_init(prgnam) ! show help and quit for --input
          call Rx0('end of help mode')
@@ -127,17 +122,17 @@
       call m_igv2xall_init(1,nkp) !(iqini,iqend)   !(1,nkp) is needed for gwb.head
       
 !! madelung mode may need to be recovered.      
-!! allocate(rv_a_omad(nbas**2)); call madmat (rv_a_omad ) !Monopole Madelung matrix (kept for future).
+!! allocate(madelung(nbas**2)); call madmat(madelung) !Monopole Madelung matrix (kept for future).
       
-!!=== NOTE: shear mode is currently commented out.
-!!   (probably shear mode should be recovered outside of fortran).
+!!=== NOTE: shear mode here is currently commented out.
+!!   =>probably shear mode should be recovered outside of fortran.
 
 !! Initial density Read atm.* or rst.*  rhoat smrho in supot
 !!  --- Read restart file or overlap free atom densities ---
 !!    irs1x tells what to read and whether to invoke smshft.
 !!     0    read from atom file  atm;  1  read from binary  rst ;  2 read from ascii  rsta
 !!    +10 -> invoke smshft(1) after file read.
-      write(6,*) 'goto end of reading rst or atm',irs1x
+      write(6,*) ' reading rst or atm',irs1x
       irs1x = irs1
       if (irs1x == 0) then ! read overlap free-atom densities
          call rdovfa()     ! superposition of spherical atomic densities by lmfa.
@@ -164,9 +159,7 @@
          endif
       endif
       call m_hamindex_init(jobgw) !bugfix. moved here 2022apr04
-
 !! m_writeham_* is after m_hamindex_init 2022apr22
-!!         
       writeham= cmdopt0('--writeham')
       if(writeham.and.master_mpi) call m_gennlat_init(bz_nabc) !for interpolation of Hamiltonian
       if(writeham.and.master_mpi) call m_writeham_init()

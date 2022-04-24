@@ -105,12 +105,12 @@ C local
       if (n .eq. 1) then
         ax = x(1)
         cx = x(1)+h
-        call pshprt(0)
-        call togprt
+        call pshpr(0)
+c        call togprt
         call brentm(ax,x,cx,fa,fx,fc,f,1,t,eps,ipm,ir)
         if (ir .gt. 0 .and. (ir .le. ipm .or. ipm .eq. 0)) ir = 0
-        call togprt
-        call popprt
+c        call togprt
+        call poppr
         return
       endif
 

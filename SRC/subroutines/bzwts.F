@@ -78,13 +78,13 @@ C Local variables
       logical cmdopt,efrng2,lfill
       real(8) ,allocatable :: tlst_rv(:)
       parameter (nulli=-99999)
-      integer w(1)
+      integer:: iprint, w(1)
 
 C --- Locate band limits: lfill => insulator ---
       procid = mpipid(1)
       master = 0
       call tcn('bzwts')
-      call getpr(ipr)
+      ipr=iprint() !call getpr(ipr)
       qval(1) = 0
       qval(2) = 0
       ent = 0
@@ -287,7 +287,7 @@ C   ... Find Fermi level, sampling
           efermi = 0.5d0*(e1 + e2)
           itmax = 1000
           do  it = 1, itmax
-            call pshprt(0)
+            call pshpr(0)
             call splwts(nkp,nevxx,nbmxx,nspx,wtkp,eb,n,width,efermi,
      .      .true.,sumev,wtkb,qval,ent,dosef,cv)
             call poppr

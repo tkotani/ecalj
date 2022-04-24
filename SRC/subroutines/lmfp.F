@@ -95,7 +95,7 @@
            write(stdo,"(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)") i, alabl, xvcart,xvfrac
            enddo
          endif
-         do 1000 iter = 1,max(1,maxit) ! for electronic structure ===
+         do 1000 iter = 1,max(1,maxit) ! loop for electronic structure ===
 !     ! Make and diagonalize hamiltonian, make new charge density ---
             if(maxit/=0) then
                if (master_mpi) then

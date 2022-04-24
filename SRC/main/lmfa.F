@@ -22,13 +22,13 @@
       if(master_mpi) write(stdl,"(a)") trim(aaa)
       if(master_mpi) write(stdo,*) 'mpisize=',nsize
       if(master_mpi) write(stdl,*) 'mpisize=',nsize
-      if(cmdopt2('--pr=',outs)) then 
-        read(outs,*) k
-        call Setpr(k)
-      endif
-      if(.not.master_mpi) call setpr(-100) !iprint() is negative except master
       call M_rdfiln_init()        ! read ctrl file
       call M_lmfinit_init(prgnam) ! Computational settings. Set data from rdfiln.
+      if(cmdopt2('--pr=',outs)) then 
+        read(outs,*) k
+        call Setprint0(k)
+      endif
+      if(.not.master_mpi) call setprint0(-100) !iprint() is negative except master
       call Freeat()  !Spherical atom calculation
       inquire(file='RSEQ_ERROR',exist=fileexist) ! error file exist or not
       if(fileexist) call rx('RSEQ_ERROR: maybe in phidx.F See takao comment in it.')

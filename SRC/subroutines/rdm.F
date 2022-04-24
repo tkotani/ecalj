@@ -101,7 +101,7 @@ C     implicit none
       character*(*) filel
       double precision s(1)
 C Local variables
-      integer recl,nl,wantC,haveC,sw10,ncx,ioff
+      integer recl,nl,wantC,haveC,sw10,ncx,ioff,iprint
       integer mxchr,mxlev,lstsiz,ctlen
       parameter (mxchr=20,mxlev=4,lstsiz=200,recl=500,ctlen=120)
       character recrd*(recl), a*(recl)
@@ -122,7 +122,7 @@ C Local variables
      .'trans','sparse'/
 
 C --- Initialization ---
-      call getpr(ipr)
+      ipr=iprint()
       lpr = ipr .gt. 0
       ltrnsi = .false.
       ltrns = mod(sw/10000,10) .eq. 1

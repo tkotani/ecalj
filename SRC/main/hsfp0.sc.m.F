@@ -162,7 +162,7 @@ c        write(6,*) "--- This is the same as one-shot calculaiton with iSigMode5
 c      endif
       write(ixcc,"('.mode=',i4.4)")ixc
       call MPI__consoleout('hsfp0_sc'//trim(ixcc)) !Open console output stdout.irank.hsfp0_sc.mode 
-      call pshprt(60)
+      call pshpr(60)
 !      
       if(ixc==3) then; incwfin= -2 !core exchange mode
       else           ; incwfin= -1 !use 7th colmn for core at the end section of GWIN
@@ -176,7 +176,7 @@ c      endif
       esmref= esmr
       call ReadGwinputKeys()
 c      if(diagonly) call SetIsigMode(5)
-      call pshprt(30)
+      call pshpr(30)
       voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3))) ! primitive cell volume
 !!
       if(ixc==1) then
@@ -200,7 +200,7 @@ c      if(diagonly) call SetIsigMode(5)
       call Mptauof_zmel(symgg,ngrp) ! Put space-group transformation information to m_zmel
       call Readngmx2() !return ngpmx and ngcmx in m_readqg
       write(6,*)' max number of G for QGpsi and QGcou: ngcmx ngpmx=',ngcmx,ngpmx
-      call pshprt(60)
+      call pshpr(60)
       if(.not.exchange.or.(exchange.and.screen)) then !screen means screened exchange case
          call readfreq_r() !Readin WV.d and freq_r 
       endif

@@ -87,13 +87,13 @@ c      if(cmdopt0('--band').or.fullmesh) lfrce = 0
       allocate(  sab_rv(nab*n0*nsp*nbas))
       allocate( ppnl_rv(nppn,n0,nsp,nbas))
       allocate( fes1_rv(3*nbas))
-      call togpr()
+c      call togpr()
       allocate( sv_p_osig(3,nbas), sv_p_otau(3,nbas), sv_p_oppi(3,nbas))
       allocate( ohsozz(3,nbas), ohsopm(3,nbas))
       call dfaugm(sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm) !allocation for sig,tau,ppi integrals
       call mkpot (i, osmrho , orhoat, 
      o     osmpot, sv_p_osig , sv_p_otau , sv_p_oppi, fes1_rv, ohsozz,ohsopm)
-      call togpr()
+c      call togpr()
       end subroutine
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine m_mkpot_energyterms(smrho_out,orhoat_out)

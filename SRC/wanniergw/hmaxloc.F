@@ -241,7 +241,7 @@ c      write(6,*) idtetf
 
 c set up work array
 c      call wkinit (iwksize)
-      call pshprt(60)
+      call pshpr(60)
 
 C--- readin GWIN and LMTO, then allocate and set datas.
 c      nwin =-999    !not readin NW file
@@ -288,7 +288,7 @@ c!!!! WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
       if (nclass /= natom ) stop ' hsfp0: nclass /= natom ' ! We assume nclass = natom.
       write(6,*)' hsfp0: end of genallcf2'
 c
-      call pshprt(30)
+      call pshpr(30)
       pi   = 4d0*datan(1d0)
       tpia = 2d0*pi/alat
 
@@ -335,7 +335,7 @@ c     Get space-group transformation information. See header of mptaouof.
         write (*,*)  'tiat=', tiat(1:3,1:natom,invr),invr
       
 c----------------------------------------------
-      call pshprt(60)
+      call pshpr(60)
 
 c... Readin eigen functions
 c      ifev(1)   = iopen('EVU', 0,0,mrece)

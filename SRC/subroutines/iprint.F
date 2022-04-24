@@ -1,91 +1,96 @@
-C --- Verbosity stack functions ---
-C Functions are:
-C iprint(): return value from top of stack
-C pshprt(vb): push value onto top of stack
-C popprt:     pop verbosity stack
-C togprt:     exhanges position of top two values on stack
-C setpr(vb):  replace top of stack with vb
-C getpr(vb):  set vb to value at top of stack
-C iprt(istk): return verbosity istk levels down
-C sprt(istk,vb): sets verbosity istk levels down
-C --- iprint, iprt ---
       integer function iprint()
-C- get last integer off print priority stack
-Cu Updates
-Cu   28 Aug 04 Increase stack size to 7
-C     implicit none
+      implicit none
       integer nstack,istk,iprt,mpipid
-      parameter (nstack=7)
-      integer vstack(0:nstack-1),stackp
-      common /iprnt/ vstack,stackp
-#if MPI | MPIK
+      integer:: verbose_in,setprint,ix,set0,setprint0,vb
+      integer,save:: verbose0,verbose
       include "mpif.h"
-#endif
-      iprint = vstack(stackp)
+      iprint = verbose
       if(mpipid(1)>0) iprint=0 !write only at master node
       return
-
-      entry iprt(istk)
-      iprt = vstack(mod(stackp+istk,nstack))
-c      print*, istk,iprt,stackp,vstack
+      entry setprint0(verbose_in)!base
+      verbose0=verbose_in
+      verbose=verbose0
+      return
+      entry set0()
+      verbose=verbose0
+      return
+      entry setprint(ix)
+      verbose=ix
+      return
       end
-C --- pshprt, pshpr, setpr, getpr, popprt, poppr --
-      subroutine pshprt(vb)
-C     implicit none
-      entry pshpr(vb)
-      integer vb,istk,j
-      integer nstack
-      parameter (nstack=7)
-      integer vstack(0:nstack-1),stackp
-      common /iprnt/ vstack,stackp
-      stackp = mod(stackp+(nstack-1),nstack)
-
-      entry setpr(vb)
-      vstack(stackp) = vb
-      return
-
-      entry getpr(vb)
-      vb = vstack(stackp)
-      return
-
-      entry popprt
-      entry poppr
-      stackp = mod(stackp+1,nstack)
-      return
-
-      entry sprt(istk,vb)
-      vstack(mod(stackp+istk,nstack)) = vb
-      return
-
-      entry shopr
-      print 333, (vstack(mod(stackp+j,nstack)), j=0,nstack-1)
-  333 format(' vb stack',10i4)
+      
+      subroutine pshpr(vb)
+      integer:: setprint,vb,i
+      i=setprint(vb)
+      end
+      
+      subroutine poppr()
+      integer:: set0,i
+      i=set0()
       end
 
-C --- togprt ---
-      subroutine togprt
-C     implicit none
-      integer nstack
-      parameter (nstack=7)
-      integer vstack(0:nstack-1),stackp
-      common /iprnt/ vstack,stackp
-      integer itmp,jtmp
-
-      entry togpr
-      itmp = vstack(stackp)
-      call popprt
-      jtmp = vstack(stackp)
-      call popprt
-      call pshprt(itmp)
-      call pshprt(jtmp)
+      subroutine getpr(ix)
+      integer:: iprint,ix
+      ix=iprint()
       end
-C --- Defaults ---
-      block data iprntb
-C     implicit none
-      integer nstack
-      parameter (nstack=7)
-      integer vstack(0:nstack-1),stackp
-      common /iprnt/ vstack,stackp
-      data vstack /30,30,30,30,30,30,30/, stackp /0/
-      end
+      
+c$$$C --- pshprt, pshpr, setpr, getpr, popprt, poppr --
+c$$$      subroutine pshprt(vb)
+c$$$C     implicit none
+c$$$      entry pshpr(vb)
+c$$$      integer vb,istk,j
+c$$$      integer nstack
+c$$$      parameter (nstack=7)
+c$$$      integer vstack(0:nstack-1),stackp
+c$$$      common /iprnt/ vstack,stackp
+c$$$      stackp = mod(stackp+(nstack-1),nstack)
+c$$$
+c$$$      entry setpr(vb)
+c$$$      vstack(stackp) = vb
+c$$$      return
+c$$$
+c$$$      entry getpr(vb)
+c$$$      vb = vstack(stackp)
+c$$$      return
+c$$$
+c$$$      entry popprt
+c$$$      entry poppr
+c$$$      stackp = mod(stackp+1,nstack)
+c$$$      return
+c$$$
+c$$$      entry sprt(istk,vb)
+c$$$      vstack(mod(stackp+istk,nstack)) = vb
+c$$$      return
+c$$$
+c$$$      entry shopr
+c$$$      print 333, (vstack(mod(stackp+j,nstack)), j=0,nstack-1)
+c$$$  333 format(' vb stack',10i4)
+c$$$      end
 
+c$$$C --- togprt ---
+c$$$      subroutine togprt
+c$$$C     implicit none
+c$$$      integer nstack
+c$$$      parameter (nstack=7)
+c$$$      integer vstack(0:nstack-1),stackp
+c$$$      common /iprnt/ vstack,stackp
+c$$$      integer itmp,jtmp
+c$$$
+c$$$      entry togpr
+c$$$      itmp = vstack(stackp)
+c$$$      call popprt
+c$$$      jtmp = vstack(stackp)
+c$$$      call popprt
+c$$$      call pshprt(itmp)
+c$$$      call pshprt(jtmp)
+c$$$      end
+c$$$C --- Defaults ---
+c$$$      block data iprntb
+c$$$C     implicit none
+c$$$      integer nstack
+c$$$      parameter (nstack=7)
+c$$$      integer vstack(0:nstack-1),stackp
+c$$$      common /iprnt/ vstack,stackp
+c$$$      data vstack /30,30,30,30,30,30,30/, stackp /0/
+c$$$      end
+c$$$

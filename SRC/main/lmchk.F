@@ -29,13 +29,13 @@
       if(master_mpi) write(stdl,"(a)") trim(aaa)
       if(master_mpi) write(stdo,*) 'mpisize=',nsize
       if(master_mpi) write(stdl,*) 'mpisize=',nsize
-      if(cmdopt2('--pr=',outs)) then 
-        read(outs,*) k
-        call Setpr(k)
-      endif
-      if(.not.master_mpi) call setpr(-100) !iprint() is negative except master
       call M_rdfiln_init()
       call M_lmfinit_init(prgnam) ! Computational settings go into m_lmfinit
+      if(cmdopt2('--pr=',outs)) then 
+        read(outs,*) k
+        call Setprint(k)
+      endif
+      if(.not.master_mpi) call setprint(-100) !iprint() is negative except master
       call Latsym(prgnam) !---> lattice(for ewald sum) and symmetry go into m_lattic and m_mksym
       call Lmaux()      !check crystal structure
       call m_MPItk_finalize()

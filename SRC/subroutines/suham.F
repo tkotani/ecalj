@@ -48,8 +48,7 @@ C     to set up upper bound to hamiltonian dimension
         Gmin = dsqrt(pwemin)
         Gmax = dsqrt(pwemax)
         if (mod(pwmode/10,10) .eq. 1) then
-          call info0(70,1,0,' Estimate max size of PW basis from'//
-     .    'combinations of recip. lattice vectors ...')
+          write(stdo,*)' Estimate max size of PW basis fromcombinations of recip. lattice vectors ...'
           npwmax = -1
           npwmin = 99999
           do  j1 = 0, nqdiv
@@ -68,8 +67,8 @@ C     to set up upper bound to hamiltonian dimension
           enddo
           npwpad = max(nint((npwmax-npwmin)*0.2d0),3) !we need this for safe?
         else
-          call dpzero(q,3)
-          call pshpr(iprint()-40)
+          q=0d0
+          call pshpr(0)
           call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,xx,xx,xx)
           call poppr
           npwmin = npw
@@ -82,14 +81,7 @@ C     to set up upper bound to hamiltonian dimension
 !! Dimension maximum of Hamiltonian is ndhamx (ispx=1,nspx)
 !! Note spinoffdiag=T case: we use nspc,nsp,nspx,ndhamx (a little complicated, I think).
 !     nspx*nspc=nsp
-        if (mod(pwmode/10,10) .eq. 1) then
-          call info2(20,1,0,' suham:  q-dependent PW basis with'//
-     .    '  Emin = %d < E < %d.',pwemin,pwemax)
-        else
-          call info5(20,0,0,' suham:  PW basis with  %d < E < '//
-     .    '%d  =>  npw = %i,  ndham = %i',
-     .    pwemin,pwemax,npw,ndham,0)
-        endif
+        write(stdo,"(a,2f9.3,2i5)")' suham: PW basis Emin Emax npw ndham=',pwemin,pwemax,npw,ndham
 C    ...  Printout
         if (iprint() .ge. 40) then
           call pshpr(0)
@@ -97,15 +89,15 @@ C    ...  Printout
           call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,
      .    xx,xx,xx)
           call poppr
-          call info0(40,1,-1,' G vectors at the Gamma point:')
+          write(stdo,*)' G vectors at the Gamma point:'
           allocate(igv2_iv(3*npw))
           allocate(kv_iv(3*npw))
           allocate(rv_a_ogvx(abs(3*npw))); rv_a_ogvx(:)=0.0d0
-          call pshpr(iprint())
-          if (iprint() .ge. 50) call setpr(100)
+c          call pshpr(iprint())
+c          if (iprint() .ge. 50) call setpr(100)
           call gvlst2 ( alat , plat , q , 0 , 0 , 0 , gmin , gmax , 0 ,
      .     8 + 2 , npw , npw , kv_iv , rv_a_ogvx , xx , igv2_iv )
-          call poppr
+c          call poppr
           if (allocated(kv_iv)) deallocate(kv_iv)
           if (allocated(igv2_iv)) deallocate(igv2_iv)
           deallocate(rv_a_ogvx)

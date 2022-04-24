@@ -56,7 +56,7 @@ C ... Local parameters
           konfig = konfg(l)
           if (l .le. lmx) konfig = pnu(l+1,isp)
           if (konfig .le. 0) then
-            if (iprint() .eq. 0) call setpr(10)
+c            if (iprint() .eq. 0) call setpr(10)
             call fexit2(-1,1,' Exit -1 GETQVC: '//
      .      'bad pnu(l=%i) (%,1d)',l,pnu(l+1,isp))
           endif

@@ -244,7 +244,7 @@ C ----------------------------------------------------------------------
       character strn*(recln),strn2*(recln)
       integer:: i_spec
       character fileid*64
-      logical lgors,cmdopt,bittst,ltmp,ioorbp,noinv,cmdopt0
+      logical lgors,cmdopt,bittst,ltmp,ioorbp,noinv,cmdopt0,cmdopt2
       double precision dval,dglob,xx(n0*2),dgets !,ekap(6)
       integer a2vec,bitand,getdig,i,is,igets,iprint,
      .iprt,irs(5),isw,ifi,ix(n0*nkap0),j,k,l,!lbas, !noinv was iand(lqp,1)
@@ -268,7 +268,7 @@ C ... basis
       integer:: lmxcg,lmxcy,lnjcg,lnxcg,nlm
       
       integer::nout,nn,i0,ivec(10),iosite
-      integer:: io_tim(2),verbos(5)!io_iactive,
+      integer:: io_tim(2),verbos!io_iactive,
       character(256)::  a,outs
       logical::  mlog=.false.
       integer:: lmxbj,lmxaj,nlbj,nlbji,nlaj,nlaji
@@ -302,7 +302,7 @@ c      logical:: ltet
       integer:: ifzbak
       
       integer,allocatable :: iv_a_oips_bakup (:)
-      integer :: ctrl_nspec_bakup,inumaf,iin,iout,ik,iprior,ibp1,indx,iposn,m,nvi,nvl
+      integer :: ctrl_nspec_bakup,inumaf,iin,iout,ik,iprior,ibp1,indx,iposn,m,nvi,nvl,setprint0
       logical :: ipr10,fullmesh,lzz
       integer,parameter:: maxp=3
 !! Stage 1  read ctrl file ---------------------    
@@ -366,30 +366,32 @@ C --- Initialize ---
 
 !!  --- IO ---
       nm='IO_VERBOS'; call gtv(trim(nm),tksw(prgnam,nm),verbos,
-     .     note='Verbosity stack for printout'//
-     .     '%N   May also be set from the command-line: --pr#1[,#2]',
-     .     def_i4v=(/30/),nout=i0)
-!     ... Override verbos w/ -pr commmand-line arg
-      if ((cmdopt('--pr',4,0,a) .or. cmdopt('-pr',3,0,a)) ) then
-         i = 4
-         if (cmdopt('-pr',3,0,a)) i = 3
-         i = a2vec(a,len(a),i,2,', ',2,2,5,it,verbos)
-         if (i .lt. 0) call rxs('error parsing switch ',a)
-         i0 = max(i0,i)
-      endif
-!     Copy verbosities to print stack
-      if (i0 >= 1) then
-         do  i = 0, 5
-            call sprt(i,verbos(min(i+1,i0)))
-         enddo
-      endif
-      if (procid .ne. master) then
-         call pshpr(0)
-         call pshpr(0)
-         do  i = 1, 4
-            call sprt(i,0)
-         enddo
-      endif
+     .     note='Verbosity for printout. Set from the command-line with --pr=xxx',
+     .     def_i4=30,nout=nout)
+      if(cmdopt2('--pr=',outs)) read(outs,*) verbos ! Override verbos w/ --pr=xxx
+      i0=setprint0(verbos)
+      if(.not.master_mpi) i0=setprint0(-100) !iprint() is negative except master
+      
+c$$$      if ((cmdopt('--pr',4,0,a) .or. cmdopt('-pr',3,0,a)) ) then
+c$$$         i = 4
+c$$$         if (cmdopt('-pr',3,0,a)) i = 3
+c$$$         i = a2vec(a,len(a),i,2,', ',2,2,5,it,verbos)
+c$$$         if (i .lt. 0) call rxs('error parsing switch ',a)
+c$$$         i0 = max(i0,i)
+c$$$      endif
+c$$$!     Copy verbosities to print stack
+c$$$      if (i0 >= 1) then
+c$$$         do  i = 0, 5
+c$$$            call sprt(i,verbos(min(i+1,i0)))
+c$$$         enddo
+c$$$      endif
+c$$$      if (procid .ne. master) then
+c$$$         call pshpr(0)
+c$$$         call pshpr(0)
+c$$$         do  i = 1, 4
+c$$$            call sprt(i,0)
+c$$$         enddo
+c$$$      endif
       nm='IO_TIM'; call gtv(trim(nm),tksw(prgnam,nm),io_tim,
      .     note='Turns CPU timing log.  Value sets tree depth.'//
      .     '%N   Optional 2nd arg prints CPU times as routines execute.'//

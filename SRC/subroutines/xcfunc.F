@@ -236,7 +236,7 @@ C --- PW91, PBE ---
 
 C --- No local functional ---
   400 continue
-      call setpr(30)
+c      call setpr(30)
       call rxi('evxcv: no functional, lxcf =',lxcf)
       end
 

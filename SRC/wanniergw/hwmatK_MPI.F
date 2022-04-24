@@ -288,7 +288,7 @@ c      write(6,*) idtetf
 
 c set up work array
 c      call wkinit (iwksize)
-      call pshprt(60)
+      call pshpr(60)
 
 C--- readin GWIN and LMTO, then allocate and set datas.
 c      nwin =-999    !not readin NW file
@@ -330,7 +330,7 @@ c!!!! WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
       if (nclass /= natom ) call RSMPI_Stop( ' hsfp0: nclass /= natom ') ! We assume nclass = natom.
       if (Is_IO_Root_RSMPI()) write(6,*)' hsfp0: end of genallcf2'
 c
-      call pshprt(30)
+      call pshpr(30)
       pi   = 4d0*datan(1d0)
       tpia = 2d0*pi/alat
 
@@ -534,7 +534,7 @@ c      enddo
 c      stop "xxxxxx zzz"      
 cccccccccccccccccccccccccccccccccccccccccccccccccccc
 c----------------------------------------------
-      call pshprt(60)
+      call pshpr(60)
 
       if(ixc==10011) goto 1018
 
@@ -567,14 +567,7 @@ c          ifrcwi = iopen('WVI.maxloc',0,-1,mrecl)
 c          ifrcwi = iopen('WVI',0,-1,mrecl)
        endif
 C... reading general energy mesh from file 'freq_r'
-c        open(UNIT=3111,file='freq_r') !this is in a.u.
-c        read(3111,*)nwxx             !number of energy points
-c        if(nwxx/=nw) stop ' freq_r nw /=nw'
-c        allocate(freq_r(nw))       !freq_r(1)=0d0
-c        read(3111,*)freq_r
-c     close(3111)
-        if3111=ifile_handle()
-        open(if3111,file='freq_r') !this is in a.u.
+        open(newunit=if3111,file='freq_r') !this is in a.u.
         read(if3111,*)nwxx             !number of energy points
         if(nwxx/= nw+1) stop ' freq_r nw /=nw'
         allocate(freq_r(nw_i:nw))       !freq_r(1)=0d0
@@ -582,7 +575,6 @@ c     close(3111)
         read(if3111,*)freq_r(iw)
         enddo
         close(if3111)
-
       else 
        ifvcfpout = iopen('VCCFP',0,-1,0) 
        allocate(freq_r(1)); freq_r=1d99
@@ -1358,7 +1350,6 @@ c-----------------------------------------------------------------------
       use m_hamindex,only:   Readhamindex, symops, ngrp
       implicit integer (i-n)
       implicit real*8(a-h,o-z)
-      integer:: ifile_handle
       parameter (eps = 1d-6)
       real(8) :: symope(3,3,ngrp)
 

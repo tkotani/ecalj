@@ -46,7 +46,7 @@
      &     bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n,
      &     ctrl_nspec,ctrl_pfloat,ldos=>ctrl_ldos,qbg=>zbak,lfrce=>ctrl_lfrce,
      &     pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps,ham_elind,
-     &     ham_scaledsigma,ham_pmin,ham_pmax, !
+     &     ham_scaledsigma,
      &     alat=>lat_alat,stdo,stdl,procid,master, !bz_doswin, 
      &     nkaph,nlmax,nl,nbas,nsp, ham_frzwf, bz_dosmax,
      &     lekkl,lmaxu,nlibu,lldau,sspec=>v_sspec, lpztail,leks,lrout
@@ -57,7 +57,6 @@
       use m_rdsigm2,only: M_rdsigm2_init
       use m_subzi, only: M_subzi_init, lwtkb,rv_a_owtkb,M_subzi_setlwtkb,M_subzi_bzintegration
       use m_rsibl_ev, only : Rsibl_ev ! to plot wavefunction in the fat band mode
-      use m_struc_def,only : s_rv1
       use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
       use m_lmfgw,only: M_lmfgw_init !,jobgw !,sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx
       use m_mkpot,only: M_mkpot_init,M_mkpot_deallocate, M_mkpot_energyterms,M_mkpot_novxc,
@@ -370,7 +369,7 @@ c        if(lfrce>0 ) call dfrce (lfrce,orhoat,orhoat_out,elind,qmom,osmrho,smrh
 !!   ... Evaluate KS total energy and output magnetic moment
         eksham = 0d0
         if(leks>=1) then
-           call togpr()
+c           call togpr()
            call mkekin(sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,osmpot,smrho_out,sev,  sumtv)
            call m_mkpot_energyterms(smrho_out, orhoat_out) !qmom is revised for given orhoat_out
            if(cmdopt0('--density')) then
@@ -378,7 +377,7 @@ c        if(lfrce>0 ) call dfrce (lfrce,orhoat,orhoat_out,elind,qmom,osmrho,smrh
               call rx0('end of --density mode')
            endif  
            call m_mkehkf_etot2(sev,sumtv, eksham) 
-           call togpr()
+c           call togpr()
         endif
 !! --- Add together force terms ---
 !! fes1_rv: contribution to HF forces from estat + xc potential

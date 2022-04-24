@@ -49,7 +49,7 @@ C     implicit none
       call awrit3(strn2,strn,len(strn),0,i,i1,i2)
       if (lreqd) then
         call strip(strn,k1,k2)
-        call setpr(30)
+c        call setpr(30)
         call rx(strn(k1:k2))
       endif
       if (iprint() .gt. 0) call awrit0(strn,' ',-len(strn),lgunit(1))
@@ -101,7 +101,7 @@ C ... Local parameters
       call awrit3(strn2,strn,len(strn),0,f,f1,f2)
       if (lreqd) then
         call strip(strn,k1,k2)
-        call setpr(30)
+c        call setpr(30)
         call rx(strn(k1:k2))
       endif
       if (iprint() .gt. 0) call awrit0(strn,' ',-len(strn),lgunit(1))

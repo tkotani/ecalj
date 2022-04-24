@@ -203,7 +203,7 @@ c      if(MPI__root) call headver('hsfp0',ixc)
 !! See use m_read_bzdata,only: at the top of this routine
       call read_BZDATA()
       write(6,*)' nqbz nqibz =',nqbz,nqibz
-      call pshprt(60)
+      call pshpr(60)
 
 !! === readin GWIN and LMTO, then allocate and set datas. ===
 !! See use m_genallcf_v3,only: at the top of this routine
@@ -227,7 +227,7 @@ c      efin =-999d0              !not readin EFERMI
 
 !!!!  WE ASSUME iclass(iatom)= iatom (because of historical reason)
       if (nclass /= natom ) call rx( ' hsfp0: nclass /= natom ')
-      call pshprt(30)
+      call pshpr(30)
       pi   = 4d0*datan(1d0)
       tpia = 2d0*pi/alat
 c      call dinv33(plat,1,xxx,vol)
@@ -348,7 +348,7 @@ c        call rx('need to test this mode again')
 !     ngvecpB (in 1stBZ) contains G vector for eigen function.
 !     ngveccB (in IBZ)   contains G vector for Coulomb matrix.
 c      call Rdpp(ngrp,symgg) =>moved to m_zmel
-      call pshprt(60)
+      call pshpr(60)
 !! Readin WV.d
       if(.not.exchange.or.(exchange.and.screen)) then !screen means screened exchange case
         ifwd = iopen('WV.d',1,-1,0) !direct access files WVR and WVI which include W-V.

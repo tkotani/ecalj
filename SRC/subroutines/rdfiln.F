@@ -1860,7 +1860,7 @@ C- Error exit
       do  i = ii, min(reclr-jr,len(aa))
          aa(i:i) = recrd(i+jr-ii)
       enddo   
-      call setpr(20)
+c      call setpr(20)
       call fexit(-1,009,aa,0d0)
       end
       
