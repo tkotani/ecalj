@@ -293,8 +293,8 @@ C --- Print charges ---
      .  '   bg',f11.6,' mm',f11.6)
       endif
       if (dabs(dq) .gt. 1d-4 .and. ipr .gt. 0)
-     .call awrit1(' rdovfa (warning) overlapped'
-     .//' density not neutral'//', dq= %d',' ',80,stdo,dq)
+     .write(stdo,"(' rdovfa (warning) overlapped'
+     .//' density not neutral'//', dq= ',d13.5)") dq
       do is=1,nspec
         if (allocated(rv_a_ov0a(is)%v)) deallocate(rv_a_ov0a(is)%v)
         if (allocated(rv_a_orhofa(is)%v)) deallocate(rv_a_orhofa(is)%v)

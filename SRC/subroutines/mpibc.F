@@ -3,7 +3,7 @@
       use m_MPItk,only: mlog
       character funnam*(1), label*(*)
       integer::nnn,cast
-      real(8):: vec(*) 
+      integer:: vec(*) 
 c      print *,trim(label),nnn,vec(1)
       cast=2
       funnam=''
@@ -187,7 +187,7 @@ C     implicit none
       character*26 datim
       integer namelen(0:MAX_PROCS-1)
       character*256 strn
-      logical lgunit
+      integer:: lgunit
       integer procid,master
 #endif
 C ... Passed parameters
@@ -233,9 +233,10 @@ C ... Local parameters
         call strcop(shortname(procid),name,10,'.',ierr)
         namelen(procid) = ierr-1
         call gettime(datim)
-        strn = ' '//funnam//' '//datim//' Process %i of %i on '
-     .  //shortname(procid)(1:namelen(procid))//' allreduce '//label
-        call awrit2(strn,' ',-256,lgunit(3),procid,numprocs)
+c        call awrit2(strn,' ',-256,lgunit(3),procid,numprocs)
+        write(lgunit(3),"(a,i0,' of ',i0,' on ',a)")
+     &       ' '//funnam//' '//datim//' Process ',procid,numprocs,
+     &       shortname(procid)(1:namelen(procid))//' allreduce '//label
       endif
 #endif
       end

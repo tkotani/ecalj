@@ -550,14 +550,18 @@ C         rhoec(i) = rhoec(i) +
 
 C ... Printout, total potential
       if (iprint() .ge. 30) then
-        call awrit8('%x smooth'//
-     .  ' rhoeps =%;12,6D %?#n==2#(%;11,6D,%;11,6D)%N%7f#%2j#'//
-     .  '  rhomu =%;12,6D %?#n==2#(%;11,6D,%;11,6D)#%2j#',outs,120,
-     .  0,rhoeps(1)+rhoeps(2),nsp,rhoeps,rhoeps(2),rhomu(1)+rhomu(2),
-     .  nsp,rhomu,rhomu(2))
-        call awrit5('%a%?#n==2#%N%7f#  #'//
-     .  'avg vxc =%;12,6D %?#n==2#(%;11,6D,%;11,6D)',outs,len(outs),
-     .  -stdo,nsp,(vxcavg(1)+vxcavg(nsp))/2,nsp,vxcavg,vxcavg(2))
+c$$$        call awrit8('%x smooth'//
+c$$$     .  ' rhoeps =%;12,6D %?#n==2#(%;11,6D,%;11,6D)%N%7f#%2j#'//
+c$$$     .  '  rhomu =%;12,6D %?#n==2#(%;11,6D,%;11,6D)#%2j#',outs,120,
+c$$$     .  0,rhoeps(1)+rhoeps(2),nsp,rhoeps,rhoeps(2),rhomu(1)+rhomu(2),
+c$$$     .  nsp,rhomu,rhomu(2))
+c$$$        call awrit5('%a%?#n==2#%N%7f#  #'//
+c$$$     .  'avg vxc =%;12,6D %?#n==2#(%;11,6D,%;11,6D)',outs,len(outs),
+c$$$  .  -stdo,nsp,(vxcavg(1)+vxcavg(nsp))/2,nsp,vxcavg,vxcavg(2))
+        do i=1,nsp
+           write(stdo,"(a,i0,' ',3d18.10)")'smooth isp rhoeps rhomu vxcavg='
+     &          ,i,rhoeps(i),rhomu(i),vxcavg(i)
+        enddo   
       endif
 
 C      call zprm3('smvxc',0,smvxc,n1,n2,n3)

@@ -3,6 +3,7 @@
       use m_struc_def  !Cgetarg
       use m_lmfinit,only:ctrl_nbas,ctrl_nitmv,ctrl_mdprm
       use m_ext,only:     sname
+      use m_gradzr,only :Gradzr
 C- Relax atomic positions and volume using variable metric algorithm
 C ----------------------------------------------------------------------
 Ci Inputs:

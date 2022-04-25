@@ -584,6 +584,7 @@ C --- Save x^(m+2) into a(*,0,2) and exit ---
 
       end
       subroutine pqmixc(nda,nmix,mmix,mxsav,beta,rms2,a,xn)
+      use m_gradzr,only:drgrzr
 C- C. G. mixing of a vector
 C ------------------------------------------------------------------
 Ci  mmix: number of iterates available to mix
@@ -607,7 +608,7 @@ C ------------------------------------------------------------------
       real(8) ,allocatable :: p_rv(:)
       real(8) ,allocatable :: dx_rv(:)
       integer ir,imix,jmix,km,iprint,i1mach,i,idx,idamax
-      integer w(1) !dummy
+      real(8):: ww(1,1) !dummy
 C --- Allocate some arrays ---
       allocate(p_rv(nda*6))
       allocate(dx_rv(nda))
@@ -636,7 +637,7 @@ C --- Starting from iteration mmix, build the Jacobian matrix ---
         grfac = min(2d0,1/beta)
         call pshpr(80)
         wk(0) = xn
-        call drgrzr ( nda , a ( 1 , km , 2 ) , dx_rv , p_rv , w 
+        call drgrzr ( nda , a ( 1 , km , 2 ) , dx_rv , p_rv , ww 
      .  , xtoll , dxmx , 1d - 10 , 1d - 10 , grfac , wk , ' ' , 00040 
      .  , ir )
 

@@ -132,9 +132,12 @@ C       Adjust slope iteratively until ei(slope)-e is within tole
         do  i = 1, 5+5
           call rseq(eb1,eb2,ei,tol,z,l,nn,val,slo,v,g,sum,a,b,rofi,nr,nre)
           if (iprint() .gt. 0 .and. i .gt. 5) then
-            call awrit7(' PHIDX  Z=%d  l=%i  nod=%i  bc=%;4g %;4g'//
-     .      '  e(bc)=%;4g  e(bc)-e=%;4g',' ',80,stdo,z,l,nn,val(1),
-     .      slo(1),ei(1),ei(1)-e)
+c            call awrit7(' PHIDX  Z=%d  l=%i  nod=%i  bc=%;4g %;4g'//
+c     .      '  e(bc)=%;4g  e(bc)-e=%;4g',' ',80,stdo,z,l,nn,val(1),
+c     .      slo(1),ei(1),ei(1)-e)
+            write(stdo,"(' PHIDX  Z=',f9.4,'  l nod=',i0,x,i0,
+     &      ' val slo=',2f9.4,' e(bc)=',f9.4,' e(bc)-e=',f9.4)") z,l,nn,val(1),
+     .      slo(1),ei(1),ei(1)-e
           endif
 
           if (abs(ei(1)-e) .lt. tole) goto 2

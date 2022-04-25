@@ -40,12 +40,10 @@ C Local Variables
       elseif (io .gt. 0) then
         ichan = lchan(ilm,ib)
       else
-        call awrit1('%N mchan: channel table, %i sites',
-     .  ' ',256,lgunit(1),nsites)
+        write(lgunit(1),"(' mchan: channel table, ',i0,' sites')") nsites
         if (nsp .eq. 2)
-     .  call awrit0(' (each channel splits into two: up, down spin)',
-     .  ' ',256,lgunit(1))
-        call awrit0(' site  label          channels',' ',128,lgunit(1))
+     .  write(lgunit(1),"(' (each channel splits into two: up, down spin)')")
+        write(lgunit(1),"(' site  label          channels')")
         do  j = 1, nsites
           jb = lsites(j)
           js = int(ssite(jb)%spec)

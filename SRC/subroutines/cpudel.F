@@ -32,14 +32,14 @@ C Local parameters
           tnew = tnew/60
         endif
       endif
-      if (unit .ge. 0 .and. tnew .gt. 0d0) then
-        outs = ' '
-        write(outs,333) strn
-        call awrit2('%a  %1;3,3g%53ptotal:  %1,3;3g'//timeu,
-     .  outs,len(outs),-unit,delt,tnew)
-      endif
-C      if (unit .ge. 0 .and. tnew .gt. 0d0)
-C     .  write(unit,333) strn,delt,tnew,timeu
+c$$$      if (unit .ge. 0 .and. tnew .gt. 0d0) then
+c$$$        outs = ' '
+c$$$        write(outs,333) strn
+c$$$        call awrit2('%a  %1;3,3g%53ptotal:  %1,3;3g'//timeu,
+c$$$     .       outs,len(outs),-unit,delt,tnew)
+c$$$      endif
+      if (unit .ge. 0 .and. tnew .gt. 0d0)
+     .  write(unit,333) strn,delt,tnew,timeu
   333 format(' cpudel',a25,'  time(s):',g10.3,'  total:',f8.3,a1)
       end
       double precision function cpusec()

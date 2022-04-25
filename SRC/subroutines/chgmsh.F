@@ -29,17 +29,9 @@ C     implicit none
       integer iopt,n,m1,m2,m3,n1,n2,n3,l1,l2,l3,k1,k2,k3
       double precision plat(3,3)
       double complex f0(l1,l2,l3,n),f(k1,k2,k3,n)
-C Local variables
       integer ng1,ng2,ngmx,iprint,lgunit
-c      integer:: ogv1 , ogv2 , okv1 , okv2
       complex(8) ,allocatable :: cv1(:)
-c      complex(8) ,allocatable :: cv2(:)
-
       double precision gmax,gmax1,gmax2,tau(3)
-C ... External calls
-ckino      external defcc,defi,defrr,dpzero,fftz3,gvctof,gvgetf,
-ckino     .gvlist,gvmtch,gvputf,pchms2,pchmsh,poppr,pshpr,rlse,rx
-ckino del defcc,defi,defrr,gvmtch,rlse
       external dpzero,fftz3,gvctof,gvgetf,
      .gvlist,gvputf,pchms2,pchmsh,poppr,pshpr,rx
 

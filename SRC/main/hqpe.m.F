@@ -161,33 +161,13 @@ c
            write(*,*) i,ip,csec(2,i,ip)
           else
             read(ifsec(is),*)
-c "(3i5,3d24.16,3x,d24.16,3x,3d24.16,  3x,3d24.16,3x,d24.16)")
      &     itc(i),ipxxx,isxxx, qc(1:3,i,ip), eldac(i,ip), 
      &     rsec(1:3,i,ip),csec(1:3,i,ip),zfac(i,ip)
           endif  
-c
-c      write(6,*)" itc=",itc(i)
           enddo
         enddo
-
-c check that LDA eigenvalues are the same
-cmod 93.06.29
-c     chev       = compvv (w(ieldax),w(ieldac),ntq*nq,tol,'eLDA x,c')
-c     chev       = compvv (w(ieldax),w(ieldaxc),ntq*nq,tol,'eLDA x,xc')
-c     chq        = compvv (w(iqx),w(iqc),3*nq,tol,'q-vec x,c')
-c     chq        = compvv (w(iqx),w(iqxc),3*nq,tol,'q-vec x,xc')
-c-----
-c      itxc       = icompvv (w(iitx),w(iitc),ntq,'state-label x,c')
-c      itxc       = icompvv (w(iitx),w(iitxc),ntq,'state-label x,xc')
-        itxcxxx     = icompvv2 (itx, itc,ntq,' state-label x c')
-        itxcxxx     = icompvv2 (itx,itxc,ntq,'state-label x xc')
-
-c calculate quasiparticle energies and write them on file QPE
-c      call qpe     (ifqpe(is),iftote,w(iitc),w(iqc),
-c     i              w(ieldac),w(ivxc),w(isex),
-c     i              w(irsec),w(icsec),w(izfac),eshift,
-c     d              ntq,nq,is,
-c     o              w(ieqp),w(iwqp))
+        if (sum(abs(itx(1:ntq)-itc(1:ntq)))/=0)  call rx('hqpe itx /= itc ')
+        if (sum(abs(itx(1:ntq)-itxc(1:ntq)))/=0) call rx('hqpe itx /= itxc ')
         call qpe1     (ifqpe(is),iftote(is),iftote2(is),itc,qc,
      i              eldac,vxc,sex,sexcore,
      i              rsec,csec,zfac,jin,deltaw,alat,ef,

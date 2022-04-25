@@ -15,14 +15,14 @@
 !! (I still not understand why it does not show divergent behevior in the anisotropic case).
 !!
       implicit none
-      integer,protected:: nq0i,nq0itrue,nq0iadd ! Number of Q0P
-      integer,protected,allocatable:: ixyz(:)  ! ixyz(1:nq0i+nq0iadd) q0i for x,y,z directions
-      real(8),allocatable,protected:: q0i(:,:),wt(:) ! Q0P and its weight.
-      integer,allocatable,public,protected:: epslgroup(:) !EPSwklm
+      integer,public,protected:: nq0i,nq0itrue,nq0iadd ! Number of Q0P
+      integer,public,protected,allocatable:: ixyz(:)  ! ixyz(1:nq0i+nq0iadd) q0i for x,y,z directions
+      real(8),public,allocatable,protected:: q0i(:,:),wt(:) ! Q0P and its weight.
+      integer,public,allocatable,protected:: epslgroup(:) !EPSwklm
       integer,public,protected:: lxklm=0                  !EPSwklm
-      real(8),allocatable,public,protected:: epinv(:,:,:),wklm(:), dmlx(:,:), epinvq0i(:,:) !EPSwklm
+      real(8),public,allocatable,protected:: epinv(:,:,:),wklm(:), dmlx(:,:), epinvq0i(:,:) !EPSwklm
       public:: Getallq0p
-
+      private
       contains
       subroutine getallq0p(iq0pin,newoffsetG,alat,plat,qlat,nnn,alp,alpv,
      &     nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,lnq0iadd) !! All arguments are input.
@@ -44,7 +44,7 @@ c      integer::ngvect(3,ngcxx,nqbz)
       real(8):: pi=4d0*atan(1d0)
       real(8),allocatable:: wti(:),qi(:,:),cg(:,:,:),matxxl(:,:,:),
      &     cy(:),yl(:) !,norq0x(:) !,wqfac(:)
-      integer:: bzcase=1,i,iq0i,ifidmlx,lmxax,lx,j,iclose,llxxx
+      integer:: bzcase=1,i,iq0i,ifidmlx,lmxax,lx,j,iclose!,llxxx
       real(8):: rrr(3),r2s,qxx(3),voltot,tripl
       integer,allocatable::irrx(:),ngvect(:,:,:)
 
@@ -218,7 +218,7 @@ c$$$         close(ifi00)
       real(8),allocatable:: q0x(:,:),wt0(:)
       real(8),allocatable:: wti(:),qi(:,:),cg(:,:,:),matxxl(:,:,:),
      &     cy(:),yl(:) !,norq0x(:) !,wqfac(:)
-      integer:: bzcase=1,i,iq0i,ifidmlx,lmxax,lx,j,iclose,llxxx
+      integer:: bzcase=1,i,iq0i,ifidmlx,lmxax,lx,j,iclose!,llxxx
       integer,allocatable::irrx(:)
       real(8),allocatable:: funa(:,:),wsumau(:),yll(:,:),alpqg2,qg2,tpiba,wtrue00
       real(8):: qg(3)
@@ -553,4 +553,21 @@ c$$$          stop 'xxxxxxxxxxxxxxxxxxxxxxxx'
         enddo
       endif
       end subroutine getq0p
+      
+      integer function llxxx(ilm)
+      integer,parameter :: lmx=50
+      integer,save:: lla((lmx+1)**2)
+      logical:: init=.true.
+      integer:: ilm,l,lend,lini
+      if(ilm>(lmx+1)**2) call rx( 'll: ilm too large')
+      if(init) then
+         do l=0,lmx
+            lini= l**2 + 1
+            lend=(l+1)**2
+            lla(lini:lend)=l
+         enddo
+      endif
+      llxxx = lla(ilm)
+      return
+      end
       end module m_q0p

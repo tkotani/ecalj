@@ -112,7 +112,7 @@ C Local variables
       logical cmdopt
 #endif
       integer nlin(0:mxlev),list(lstsiz,mxlev),ilist(mxlev),
-     .nlist(0:mxlev),i1mach,i,ip,k,nelt,ic,ir,retval,ii,ilbl,nrx,ipr,
+     .nlist(0:mxlev),i,ip,k,nelt,ic,ir,retval,ii,ilbl,nrx,ipr,lgunit,
      .ndir,a2vec,ix(4),sw1
       double precision xwk(4),xx
       parameter (ndir=8)
@@ -448,9 +448,11 @@ C --- Cleanup.  If nr is zero, set nr and copy s-transpose to s ---
         ltrnsi = mxelt .ne. 0
       elseif (nelt .lt. nr*nc*haveC .and. .not. (qread .or. lsprse)
      ..and. lpr) then
-        call awrit4('# rdm (warning) expected %i elements (%i rows,'//
-     .  ' %i cols) but read %i',' ',80,i1mach(2),nr*nc*haveC,nr,nc,
-     .  nelt)
+c        call awrit4('# rdm (warning) expected %i elements (%i rows,'//
+c     .  ' %i cols) but read %i',' ',80,i1mach(2),nr*nc*haveC,nr,nc,
+c     .  nelt)
+        write(lgunit(1),"('# rdm (warning) expected ',i0,' elements (',i0,' rows',
+     .  i0,' cols) but read ',i0)") nr*nc*haveC,nr,nc, nelt
       endif
       ncx = nc
       if (ltrnsi .and. wantC .eq. 2) ncx = 2*nc

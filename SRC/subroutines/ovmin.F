@@ -1,7 +1,8 @@
       module m_ovmin
       contains
       subroutine ovmin(sovmin,nbas,nbasp,alat,plat,rmax,rmt,dclabl,
-     .ips,mode,z,iv_a_ontab,iv_a_oiax,pos,iprtbl)
+     .     ips,mode,z,iv_a_ontab,iv_a_oiax,pos,iprtbl)
+      use m_gradzr,only:gradzr
 C- Check volume and sphere overlaps, optionally minimizing them
 C ----------------------------------------------------------------
 Ci Inputs
@@ -59,8 +60,7 @@ ckino Dec.14.2011 manual correction       integer,pointer :: iv_p_oiaxo(:) =>NUL
 c      common /ovstat/ plato,alato,nbaso,nbaspo,nlst,ilst,opos,oz,
 c     .ormax,oips,modeo,ontabo,oiaxo
 
-C heap:
-      integer ::iwdummy
+      real(8) ::wdummy(1,1)
 
 C Local parameters
       double precision fovl,xtol,gtol,dxmn,dxmx,fovmx
@@ -206,7 +206,7 @@ ckino Dec.14.2011:       .  w_ormax,w_oips,modeo,iv_p_ontab,iv_a_oiax)
      .  w_ormax,w_oips,modeo,iv_a_ontab,iv_a_oiax)
 
         call pshpr(ipr-5)
- 22     call gradzr ( n , w_op , iwdummy , dxmn , dxmx , xtol , gtol 
+ 22     call gradzr ( n , w_op , wdummy , dxmn , dxmx , xtol , gtol 
      ., 1.0d0 , wk , isw , ir )
 
         xx = ovcall(n,0d0,w_op,ir,

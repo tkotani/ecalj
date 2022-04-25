@@ -44,8 +44,7 @@ C ... Find interval containing fermi energy
   90  continue
       i1 = i2-1
       if (i1 .lt. 0) then
-        call awrit0('efldos (warning): fermi energy lies below emin',
-     .  ' ',80,stdo)
+        write(stdo,'efldos (warning): fermi energy lies below emin')
         eferm = 0
         eband = 0
         return
@@ -71,14 +70,14 @@ C ... Calculate eigenvalue sum as ef*N(ef)-integral N(e)
       if (nsp .eq. 2) dferm =
      .dferm + dos(i1,1,2) + x*(dos(i2,1,2)-dos(i1,1,2))
 
-      if (iprint() .ge. 20) then
-        call awrit4(' efldos:  Ef = %,6;6d  sumev = %,6;6d  ebot = '//
-     .  '%,6;6d  DOS(Ef) = %;4g',' ',80,stdo,eferm,eband,ebot,dferm)
-      endif
-C      write(stdo,729) eferm,ebot,dferm,eband
-C  729 format(/' From DOS: fermi energy=',f10.5,
-C     .   /' dos starts at energy  ',f11.5
-C     .   /' dos at fermi energy=  ',f11.5,'    eband=',f11.5)
+c      if (iprint() .ge. 20) then
+c        write(stdo,"(' efldos:  Ef = ',f16.8,' sumev = ',f16.8,'  ebot =',f16.8,
+c     .  ' DOS(Ef) = ',f16.8)")eferm,eband,ebot,dferm
+c      endif
+      write(stdo,729) eferm,ebot,dferm,eband
+  729 format(/' efldos: fermi energy=',f10.5,
+     .   /' dos starts at energy  ',f11.5
+     .   /' dos at fermi energy=  ',f11.5,' sumev=eband=',f11.5)
 
       if (ipl .gt. 0) write(stdl,771) eferm,ebot,dferm,eband
   771 format('nf dos ef',f9.5,'  ebot',f7.3,'  d(ef)',f9.2,

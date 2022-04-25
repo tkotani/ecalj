@@ -62,7 +62,7 @@
       use m_mkpot,only: M_mkpot_init,M_mkpot_deallocate, M_mkpot_energyterms,M_mkpot_novxc,
      o    osmpot, qmom, vconst, sv_p_osig, sv_p_otau, sv_p_oppi 
      o  , ppnl_rv , hab_rv , sab_rv , qval , qsc , fes1_rv , fes2_rv
-      use m_clsmode,only: m_clsmode_init,m_clsmode_set1,m_clsmode_finalize
+      use m_clsmode,only: M_clsmode_init,m_clsmode_set1,m_clsmode_finalize
       use m_qplist,only:  qplist,nkp,xdatt,labeli,labele,dqsyml,etolc,etolv,
      &     nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml,
      &  iqini,iqend,ispini,ispend,kpproc    ! MPIK divider. iqini:iqend are node-dependent
@@ -75,7 +75,7 @@
       use m_addrbl,only: M_addrbl_allocate_swtk,swtk
       use m_sugw,only: M_sugw_init
       use m_mkehkf,only: M_mkehkf_etot1,M_mkehkf_etot2
-      use m_gennlat_sig,only: m_gennlat_init_sig
+      use m_gennlat_sig,only: M_gennlat_init_sig
 Ci   nbas  : size of basis
 Ci   nsp   : number of spins
 Ci   nlibu : total number of LDA+U blocks (used to dimension dmatu and vorb)

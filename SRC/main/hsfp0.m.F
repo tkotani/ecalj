@@ -177,7 +177,8 @@ C...  mode switch. --------------
         write(6,*) '  Sx_sf(11) Sc_sf(12) '
         write(6,*) '  [option --- (+ QPNT.{number} ?)] '
         write(6,*) ' --- Put number above ! -----------------'
-        call readin5(ixc,nz,idummy)
+        read(5,*) ixc           !call readin5(ixc,nz,idummy)
+        nz=0
       endif
       call MPI__Broadcast(ixc)
       call MPI__Broadcast(nz)

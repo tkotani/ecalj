@@ -47,11 +47,11 @@ C ... "Retirement-and-promotion phase"
       else
         irra = iprm(ir)
         iprm(ir) = iprm(1)
-*       call awrit3('ir%i: %n:1i',' ',180,6,ir,n,iprm)
+c*       call awrit3('ir%i: %n:1i',' ',180,6,ir,n,iprm)
         ir = ir-1
         if (ir .eq. 1) then
           iprm(1) = irra
-*         call awrit2('exit %n:1i',' ',180,6,n,iprm)
+c*         call awrit2('exit %n:1i',' ',180,6,n,iprm)
           goto 100
         endif
       endif
@@ -100,7 +100,7 @@ C   ... Demote rra to its level
           di = dsqrt(di)
           if (di-dl .gt. tol) then
             iprm(i) = iprm(j)
-*           call awrit4('%i,%i: %n:1i',' ',180,6,i,j,n,iprm)
+c*           call awrit4('%i,%i: %n:1i',' ',180,6,i,j,n,iprm)
             i = j
             j = j+j
 C     ... This is rra's level; set j to terminate the sift-down
@@ -113,7 +113,7 @@ C     ...   Skip over equal elements
             if (abs(vecs(mm,iprm(j))-vecs(mm,irra)) .le. tol) goto 36
             if (vecs(mm,iprm(j))-vecs(mm,irra) .gt. tol) then
               iprm(i) = iprm(j)
-*             call awrit4('%i,%i: %n:1i',' ',180,6,i,j,n,iprm)
+c*             call awrit4('%i,%i: %n:1i',' ',180,6,i,j,n,iprm)
               i = j
               j = j+j
 C     ... This is rra's level; set j to terminate the sift-down
@@ -130,7 +130,7 @@ C     ... Case rra = vec(iprm(j))
       endif
 C ... Put rra into its slot
       iprm(i) = irra
-*     call awrit3('%i: %n:1i',' ',180,6,i,n,iprm)
+c*     call awrit3('%i: %n:1i',' ',180,6,i,n,iprm)
       go to 10
 
 C --- For equal vectors, restore original ordering ---

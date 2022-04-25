@@ -1,71 +1,3 @@
-      integer function garg(tok,iarg,cast,sep,itrm,narg,nread,it,res)
-C- Returns vector numerical vals for a specified command-line argument
-C ----------------------------------------------------------------------
-Ci Inputs:
-Ci   iarg: index to command-line argument
-Ci         Use <=0 to call nxtarg
-Ci   cast: 0=logical, 1=char, 2=int, 3=real, 4=double
-Ci   sep:  string of chars that separate and/or terminate expressions.
-Ci   itrm: index to which of the separators in 'sep' to be treated as
-Ci         terminators.  garg stops looking for more arguments whenever
-Ci         any sep(i>=itrm) is encountered.
-Ci   narg: number of args to convert.  If NO args to convert,
-Ci         garg still distinguishes appropriate terminator.
-Co Outputs:
-Co   res:  Vector of numbers that were converted
-Co   it:   vector of indices, one for each entry in res, labelelling
-Co         which char in 'sep' terminated the expr. for that number
-Co   garg,nread: 0 if tok does not match with command-line arg.
-Co               1 if tok does match, AND narg=0 
-Co               n if token match and converted sans error narg numbers
-Co              -n if error on conversion of argument n
-Co            -999 if iarg missing from command line
-Cr Remarks
-Cr   Intended to parse command-line arguments like -x=1,3 or 1:3#4.
-Cr   The command-line argument is compared to tok (unless tok is blank).
-Cr   There is further parsing for the following numerical arguments 
-Cr   when the command-line argument starts with tok.
-C ----------------------------------------------------------------------
-C     implicit none
-C Passed Parameters
-      integer iarg,ip,cast,narg,itrm,it(1),nread
-      character*(*) tok,sep
-      double precision res(narg)
-C Local Variables
-      integer a2vec,nsep,nxargs
-      character strn*80
-      logical nxtarg,cmdstr,lsequ,ltmp
-
-      nsep = len(sep)
-C --- Read argument, possible error if missing ---
-      strn = ' '
-      nread = -999
-      if (iarg .le. 0) then
-        if (iarg .lt. 0) ltmp = nxargs(nxargs(-1)-1) .eq. 0
-        if (.not. nxtarg(strn)) goto 99
-      else
-        if (.not. cmdstr(iarg,strn)) goto 99
-      endif
-
-      ip = 0
-      nread = 0
-      ltmp = lsequ(strn,tok,len(tok),' ',ip) .or. tok .eq. ' '
-      if (.not. ltmp) then
-        goto 99
-      endif
-      ip = ip-1
-      if (tok .eq. ' ') ip = 0
-
-      if (narg .eq. 0) then
-        nread = -1
-        call chrps2(strn,sep,nsep,len(strn),ip,it)
-        if (it(1) .ne. 0) nread = 1
-        goto 99
-      endif
-      nread = a2vec(strn,len(strn),ip,cast,sep,nsep,itrm,narg,it,res)
-
-   99 garg = nread
-      end
       integer function parg(tok,cast,strn,ip,lstr,sep,itrm,narg,it,res)
 C- Returns vector of binary values from a string
 C ----------------------------------------------------------------------
@@ -147,5 +79,3 @@ C --- Parse for vector of binary values to convert
       parg = a2vec(strn,np,ip,cast,sep,nsep,itrm,narg,it,res)
 
       end
-
-

@@ -103,7 +103,7 @@
                   write(stdo,*)
                   write(stdo,"(a)") trim(" --- BNDFP:  begin iteration "//aaachar)
                endif
-               call bndfp(iter, llmfgw, plbnd) !Main part of band calculation. Get total energies ham_ehf and ham_ehk
+               call bndfp(iter,llmfgw,plbnd) !Main part of band calculation. Get total energies ham_ehf and ham_ehk
             endif
 !! Check convergence of dmatu (density matrix for LDA+U) and update it. Get vorbdmat (U potential)
             if(nlibu>0.and.lrout>0) call m_ldau_vorbset(ham_ehk,dmatu) !set new vorb from dmat by bndfp-mkpot

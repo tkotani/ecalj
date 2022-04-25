@@ -1,20 +1,5 @@
       subroutine zgesvdnn(ngb,zzz, SS,UU,VT)
-C--- SVD zzz= matmul(UU,matmul(SS,VT)) ------------
-c$$$C--- SVD of chipm test !SVD procedure is not required to calculate <m|chi|m>
-c$$$      lwork=4*ngb
-c$$$      allocate(work(LWORK),rwork(5*ngb),zzz(ngb,ngb),UU(ngb,ngb),VT(ngb,ngb),VTT(ngb,ngb),ss0(ngb))
-c$$$      zzz= matmul(transpose(conjg(ovlpi)), matmul(zxq(1:ngb,1:ngb,iw), ovlpi) )
-c$$$      call zgesvd('A','A',ngb,ngb,zzz,ngb,SS0,UU,ngb,VT,ngb,work,lwork,rwork,info)
-c$$$      write(6,*)' -------SVD: Oinv*chipm*Oinv ----------------'
-c$$$      aaax = 0d0
-c$$$      do i=1,ngb
-c$$$        addx= sum(svec(1:nbloch)*uu(1:nbloch,i)) *ss0(i)* sum(VT(i,1:nbloch)*svec(1:nbloch))
-c$$$        write(6,"(' SVD OcO: eig_k <m|chi|m>_k=',i4,2x, d13.5,2x,2d14.6)")i,SS0(i),addx
-c$$$        if(i<25) aaax= aaax+ addx
-c$$$      enddo
-c$$$      aaax= mmnorm**2/aaax
-c$$$      deallocate(work,rwork,zzz,uu,vt,vtt)
-c$$$      deallocate(ovlpi)
+! SVD zzz= matmul(UU,matmul(SS,VT)) ------------
       implicit none
       integer(4)::lwork,info,ngb,i
       complex(8):: zzz(ngb,ngb),UU(ngb,ngb),VT(ngb,ngb)
@@ -25,7 +10,6 @@ c$$$      deallocate(ovlpi)
       allocate(zw0bk(ngb,ngb))
       allocate(work(LWORK),rwork(5*ngb)) !,VTT(ngb,ngb))
       zw0bk = zzz
-!      print *,' zgesvdnn: singular value decomp '
       call zgesvd('A','A',ngb,ngb,zzz,ngb,SS,UU,ngb,VT,ngb,work,lwork,rwork,info)
 !      do i=1,ngb
 !         write(6,"(' i ss=',i4,' ', d13.5 )")i,SS(i) !    write(6,"(' i ss=',i4,'  ', d13.5,' ss0*ss=',d13.5 )")i,SS(i),ss(i)*ss0(ngb-i+1)

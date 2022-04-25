@@ -331,21 +331,17 @@ Cstop2rx 2013.08.09 kino      if( nstarsum/= nqbz ) stop ' nstarsum/= nqbz'
         read (ifsex(is),*) alat
         read (ifsex(is),*) ef
         read (ifsex(is),*) esmr
-c        write(6,*)' xxxxx111'
         call readx   (ifxc(is),50)
         read (ifxc(is),*) nspinxc,nqxc,ntqxc
         read(ifsex2(is))  nspinx2, nqx2, ntqx2, nqbz ,  nqibz,  n1,n2,n3 !sf.beg
 
         if( nstarsum/= nqbz ) call rx( ' nstarsum/= nqbz')
-c        write(6,*)' xxxxx222'
         if(.not.exonly)  then
           call readx(ifsec(is),50)
           read (ifsec(is),*) nspinc,nqc,ntqc
           read(ifsec2(is))  nspinc2, nqc2, ntqc2, nqbzc2, nqibzc2,n1,n2,n3 !sf.end
         endif
-c        write(6,*)' xxxxx333'
         read(ifsexcore2(is)) nspinxc2,nqxc2,ntqxc2,nqbzxc2,nqibzxc2
-c        write(6,*)' xxxxx444',is,nspinxc2,nqxc2,ntqxc2,nqbzxc2,nqibzxc2
         if (nspin .ne. nspinx)   call rx( 'hqpe: wrong nspin SEx')
         if (nspin .ne. nspinxc)  call rx( 'hqpe: wrong nspin vxc')
         if (nspin .ne. nspinx2)  call rx( 'hqpe: wrong nspin SEx2')
@@ -397,9 +393,6 @@ c
         enddo
 c
         allocate( sexcore(ntq,nq),sexcore2(ntq,ntq,nq) ) !sf..3June
-c     if(exonly) then !zero for exonly case
-c     write(6,*)' set sexcore=0 for exonly case'
-c     sexcore=0d0; sexcore2=0d0
         if(is==1) write(6,*)' ###  readin SEXcoreU'
         if(is==2) write(6,*)' ###  readin SEXcoreD'
         call readx   (ifsexcore(is),50)
@@ -425,45 +418,26 @@ c
           read(ifsec(is),*)
           do ip = 1,nq
             do i  = 1,ntq
-              read(ifsec(is),"(3i5,3d24.16,3x,d24.16,3x,d24.16, 
-     &                 3x,d24.16)") !sf13May2002     ,3x,d24.16)")
+              read(ifsec(is),"(3i5,3d24.16,3x,d24.16,3x,d24.16, 3x,d24.16)") 
      &                 itc(i),ipxxx,isxxx, qc(1:3,i,ip), eldac(i,ip), 
-     &                 rsec(i,ip),csec(i,ip) !sf..13May2002   ,zfac(i,ip)
+     &                 rsec(i,ip),csec(i,ip) 
             enddo
-            read(ifsec2(is)) isx,qx2,sec2(1:ntq,1:ntq,ip) !sf..3June
+            read(ifsec2(is)) isx,qx2,sec2(1:ntq,1:ntq,ip) 
           enddo
         endif
-
-c     check that LDA eigenvalues are the same
-c     mod 93.06.29
-c     chev       = compvv (w(ieldax),w(ieldac),ntq*nq,tol,'eLDA x,c')
-c     chev       = compvv (w(ieldax),w(ieldaxc),ntq*nq,tol,'eLDA x,xc')
-c     chq        = compvv (w(iqx),w(iqc),3*nq,tol,'q-vec x,c')
-c     chq        = compvv (w(iqx),w(iqxc),3*nq,tol,'q-vec x,xc')
-c-----
-c     itxc       = icompvv (w(iitx),w(iitc),ntq,'state-label x,c')
-c     itxc       = icompvv (w(iitx),w(iitxc),ntq,'state-label x,xc')
-        if(.not.exonly)itxcxxx=icompvv2(itx, itc,ntq,' state-label x c')
-        if(.not.exonly)itxcxxx=icompvv2(itx,itxc,ntq,' state-label x xc')
-
-c     calculate quasiparticle energies and write them on file QPE
-c     call qpe     (ifqpe(is),iftote,w(iitc),w(iqc),
-c     i              w(ieldac),w(ivxc),w(isex),
-c     i              w(irsec),w(icsec),w(izfac),eshift,
-c     d              ntq,nq,is,
-c     o              w(ieqp),w(iwqp))
+        if(.not.exonly) then
+        if (sum(abs(itx(1:ntq)-itc(1:ntq)))/=0)  call rx('hqpe.sc itx /= itc ')
+        if (sum(abs(itx(1:ntq)-itxc(1:ntq)))/=0) call rx('hqpe.sc itx /= itxc ')
+        endif
         call qpe1_sc  (ifqpe(is),iftote(is),iftote2(is),itx,qx, !itc,qc
-     i        eldax,vxc,sex,sexcore,
-     i        rsec,csec,jin,deltaw,alat,ef, !sf..13May |it was zfac after csec
+     i        eldax,vxc,sex,sexcore, rsec,csec,jin,deltaw,alat,ef, 
      d        ntq,nq,is,
      o        eshift0,eshift02,eshtlda)
-c     o              w(ieqp),w(iwqp))
         write(6,*)' end of qpe1'
         close(ifqpe(is))
         close(iftote(is))
         close(iftote2(is))
         if(jin==-101) cycle
-
 !------------------------------------------------------------------------------
 ccccccbegin making SE_ij-VXC_ij, ij are 'basis functions' indexes !sf..3June
 !------------------------------------------------------------------------------
@@ -479,20 +453,10 @@ ccccccbegin making SE_ij-VXC_ij, ij are 'basis functions' indexes !sf..3June
      &                    +.5d0*(sec2(itpp,itp,ip)+dconjg(sec2(itp,itpp,ip)))
               else
                 se(itpp,itp,ip)= wex*sex2(itpp,itp,ip)+sexcore2(itpp,itp,ip)
-ccc   se(itpp,itp,ip)= wex*sex2(itpp,itp,ip)
               endif
-cccccccccccccccccccccccc
-c     c takao test ex only test
-c     se(itpp,itp,ip)= 0.3*sex2(itpp,itp,ip)+ sexcore2(itpp,itp,ip)
-ccccccccccccccc
-c     c takao test2---reduce screen
-c     se(itpp,itp,ip)=sex2(itpp,itp,ip)+sexcore2(itpp,itp,ip)+
-c     &        .1d0*(sec2(itpp,itp,ip)+dconjg(sec2(itp,itpp,ip)))
-cccccccccccccc
             enddo
           enddo
         enddo
-c     write(6,*)' xxx1'
         do ip=1,nq
           do itp=1,ntq
             do itpp=1,ntq    !make Sigma hermitian
@@ -512,18 +476,6 @@ c     write(6,*)' xxx1'
            write(ifse_out) nspin,ndimsig,n1,n2,n3,nq,0,0,0
         endif
         do 2001 ip=1,nq
-c$$$c sep2013t ccccccccccccccccccccccccccccc
-c$$$           if(is==1) if_ntqxxd=iopenxx('NTQXXD.up.'//charnum5(ip))
-c$$$           if(is==2) if_ntqxxd=iopenxx('NTQXXD.dn.'//charnum5(ip))
-c$$$           read(if_ntqxxd,*) qttt(1:3),ntqxxd
-c$$$           close(if_ntqxxd)
-c$$$           if( sum((qx(1:3,1,ip)-qttt(1:3))**2 ) < 1d-10 ) then
-c$$$              continue
-c$$$           else
-c$$$              call rx('hqpe_sc:xxxx:sum((qx(1:3,1,ip)-qttt(1:3))**2')
-c$$$           endif
-c$$$           write(6,*)' ntqxxd=',ip,qttt(1:3),ntqxxd
-c$$$cccccccccccccccccccccccccccccccccccccccc
           do ikp=1,nnn        !nqbz
             if (sum ( (qqq(1:3,ikp,is)-qx(1:3,1,ip))**2 ) < tolq ) then
               ikpx=ikp      !qc(:,i,:) does not depents on band index i=1:ntq
@@ -532,61 +484,10 @@ c$$$cccccccccccccccccccccccccccccccccccccccc
           enddo               !ikp
           call rx( 'hqpe.sc: not find ikp 100')
  100      continue
-          nz = nhqx(ikpx,is) !june 2009 takao. we use nz instead of nhq
-c$$$          evec_inv(1:nz,1:nz)=evec(1:nz,1:nz,ikpx,is)
-c$$$          !evec(i,n), i-basis, n - band argumants
-c$$$c---  make inverse evec_inv(n,i) matrix \psi_n=sum_i evec(i,n)\phi_i,
-c$$$c---  where \psi is eigenfunction and \phi is basis function
-c$$$          call zgetrf(nz,nz,evec_inv,nhq,ipiv,info)  !nhq is leading dimension of evec_inv
-c$$$          if (info /= 0)  call rx( 'hqpe: zgetrf info/=0')
-c$$$          !inverse matrix evec_inv(n,i), i-basis, n - band argumants
-c$$$          call zgetri(nz,evec_inv,nhq,ipiv,work,nhq**2,info)
-c$$$          if (info /= 0)  call rx( 'hqpe: zgetri info/=0')
-
-C---  takao
+          nz = nhqx(ikpx,is) 
           if(evec0ex.and.iSigma_en==5) then
             call rx('Not support evec0ex.and.iSigma_en==5 now... sep2013')
-c$$$            evec00inv(1:nz,1:nz)=evec00(1:nz,1:nz,ikpx,is)
-c$$$            !evec(i,n), i-basis, n - band argumants
-c$$$            call zgetrf(nz,nz,evec00inv,nhq,ipiv,info)
-c$$$Cstop2rx 2013.08.09 kino            if (info /= 0)  stop 'hqpe: zgetrf 00 info/=0'
-c$$$            if (info /= 0)  call rx( 'hqpe: zgetrf 00 info/=0')
-c$$$            call zgetri(nz,evec00inv,nhq,ipiv,work,nhq**2,info)
-c$$$            !inverse matrix evec_inv(n,i), i-basis, n - band argumants
-c$$$Cstop2rx 2013.08.09 kino            if (info /= 0)  stop 'hqpe: zgetri 00 info/=0'
-c$$$            if (info /= 0)  call rx( 'hqpe: zgetri 00 info/=0')
-c$$$            itppxs=0
-c$$$            do itp=1,nz
-c$$$              sum0=0d0
-c$$$              sum1=0d0
-c$$$              do itpp=1,nz
-c$$$c     write(6,*)evec_inv(itp,itpp)
-c$$$                aaa=abs(sum(evec_inv(itp,1:nz)*evec00(1:nz,itpp,ikpx,is)))**2
-c$$$                if(aaa>sum1) then
-c$$$                  sum1 =aaa
-c$$$                  itppx=itpp
-c$$$                endif
-c$$$                sum0=sum0+aaa
-c$$$              enddo
-c$$$              evec_inv(itp,1:nz)    =  evec00inv(itppx,1:nz)
-c$$$              evec(1:nz,itp,ikpx,is)=  evec00(1:nz,itppx,ikpx,is)
-c$$$              itppxs = itppxs+itppx
-c$$$              write(ifevecchk,"(3i5,2d13.5)")itp,ikpx,is, sum0, sum1
-c$$$c     if(abs(sum0-1d0)>0.1) stop "!!! sum0 is not unity ==="
-c$$$            enddo
-c$$$            if(nz*(nz+1)/2 /= itppxs) then
-c$$$              write(6,*)'nz_sum itppxs=', nz*(nz+1)/2,itppxs
-c$$$Cstop2rx 2013.08.09 kino              stop "hqpe: nz*(nz+1)/2 /= itppxs"
-c$$$              call rx( "hqpe: nz*(nz+1)/2 /= itppxs")
-c$$$            endif
           endif
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c     takao test only diagonal
-c     call onlydiag(se(1:ntq,1:ntq,ip),ntq)
-c     do itp=1,ntq
-c     se(itp,itp,ip)=se(itp,itp,ip) - 0.5*vxc(itp,ip)/rydberg()
-c     enddo
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           ntqxx(ip)=ntq
           do itp=ntq,1,-1
             if(se(itp,itp,ip)/=0d0) then
@@ -608,7 +509,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
               if(itp/=itpp.and.isigma_en==5) then
                 se(itp,itpp,ip)= 0d0
               else
-c     Aug2004
                 if(.not.exonly) then
                   se(itp,itpp,ip)= se(itp,itpp,ip)
      &                       -.5d0* sum(dconjg(evec(1:nz,itp,ikpx,is))*
@@ -650,10 +550,6 @@ c     Aug2004
              eseavr02=0d0                           
            endif                                    
            eseavr(ip,is) = eseavr02/eavr2 !now eseavr is
-c          eseavr(ip,is) = eseavr0/eavr !now eseavr is
-cc           do itp = ntqxx+1,ntq
-cc              se(itp,itp,ip) = eseavr(ip,is)
-cc           enddo
            eseavr(ip,is) = 2d0*eseavr(ip,is) !in Ry.
            write(6,*)"### A correction takao2009June: find this in hqpe.se.m.F"
            write(6,*)"###   constant is added to sigm above threshold."
@@ -666,11 +562,7 @@ cc           enddo
         eseavrmean = eseavrmean/nqbz
         call getkeyvalue("GWinput","AddToESEAVR",eseadd,default=0d0,status=ret)
         eseavrmean=  eseavrmean+eseadd
-cccccccccccccccccccccccccccccccc
-c        eseavrmean = 0d0
-cccccccccccccccccccccccccccccccc
         write(if_eseavr,"(d23.15,i3,i8)") eseavrmean,is ,ntqxxmin
-c       write(if_eseavr,"(d23.15,i3)") 0d0,is
         write(6,"(' ESEAVRmean (used bands above emax_sigm) isp=',d13.6,i2)")eseavrmean,is
 !!-----------------------------------------------------------------
         do 2003 ip=1,nq
@@ -702,15 +594,6 @@ c            write(6,*)'evec orth=',i,j,sum(dconjg(evec(:,i)*evec(:,j)))
           call matcinv(nevv,ovl) !ovl --> ovlinv
           evec_inv(1:nevv,1:nz) = matmul(ovl(1:nevv,1:nevv),dconjg(transpose(evec(1:nz,1:nevv,ikpx,is)))) !note ovl means ovlinv
           deallocate(ovl)
-c!! ccccccccccccccccccccccccc before nov2015
-c          evec_inv(1:nz,1:nz) = evec(1:nz,1:nz,ikpx,is) !evec(i,n), i-basis, n - band argumants
-c          call zgetrf(nz,nz,evec_inv,nhq,ipiv,info)   !nhq is leading dimension of evec_inv
-c          if (info /= 0)  call rx( 'hqpe: zgetrf info/=0')
-c          !inverse matrix evec_inv(n,i), i-basis, n - band argumants
-c          call zgetri(nz,evec_inv,nhq,ipiv,work,nhq**2,info)
-c          if (info /= 0)  call rx( 'hqpe: zgetri info/=0')
-
-
 !!
           evec_invt(1:nz,1:nevv) = transpose(dconjg(evec_inv(1:nevv,1:nz)))
           if(mtosigmaonly()) then
@@ -763,27 +646,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           sigmv(1:ndimsig2,1:ndimsig2,ip) =  2d0*ev_se_ev(1:ndimsig2,1:ndimsig2) !in Ry.
           write(6,*) 'ssssss1=', sum(abs(sigmv(:,:,ip)))
           write(ifse_out) sigmv(:,:,ip)
-
 !!      2*ev_se_ev bacause v_xc in sugw.f was in rydberg while SE was in hartree
-c     endif !mixing_factor
-c$$$c--   check diagonal elements (SE-Vxc)_nn, where n is band index
-c$$$          allocate(sen(nhq,nhq),sen2(nhq,nhq),evec0(nhq,nhq))
-c$$$          evec0(1:ndimsig,1:ndimsig)=evec(1:ndimsig,1:ndimsig,ikpx,is)
-c$$$          do itp =1,ndimsig
-c$$$            do itpp=1,ndimsig
-c$$$              sen(itpp,itp)= ev_se_ev(itpp,itp)*hartree
-c$$$            enddo
-c$$$          enddo
-c$$$          call zgemm('n','n',ndimsig,ndimsig,ndimsig,(1d0,0d0),sen,
-c$$$     &           nhq,evec0,nhq,(0d0,0d0), sen2 ,nhq)
-c$$$          call zgemm('c','n',ndimsig,ndimsig,ndimsig,(1d0,0d0),evec0,
-c$$$     &           nhq,sen2,nhq,(0d0,0d0), sen ,nhq)
-c$$$          do i=1,ntq
-c$$$            del=abs(rsec(i,ip)+sex(i,ip)+sexcore(i,ip)-vxc(i,ip)-
-c$$$     &              sen(i,i))
-c$$$          enddo               !i
-c$$$          deallocate(sen,sen2,evec0)
-c$$$c--   end check diagonal elements
  2003   continue                    !ip
         write(6,*)
         deallocate(sex2,sexcore2,sec2,se,ipiv,work)

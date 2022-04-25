@@ -25,7 +25,7 @@ C     implicit none
       logical ipr
       character outs*80
       ipr = iprint() .ge. 30 .and. 6*n1*n2*n3 .gt. 1000.or. iprint() .ge. 40
-      write(stdo,"(' TETIRR: sorting ',i8,' tetrahedra ...')")6*n1*n2*n3
+      if(iprint()>29) write(stdo,"(' TETIRR: sorting ',i8,' tetrahedra ...')")6*n1*n2*n3
       call ccutup(qb,qb1,ibtr,kcut)
       ntet = 0
 C --- Start loop over microcells ----

@@ -65,12 +65,12 @@ C ...   Sanity checks
         if (nsp .eq. 2) read(jfi,*) (hfct(i,2),i=1,nxi)
         read (jfi,210) qc,ccof,ceh,stc
   210   format(5x,4f16.7)
-        call dfdump(rho,nr,ifi)
-        if (nsp .eq. 2) call dfdump(rho(1+nr),nr,ifi)
-        call dfdump(rhoc,nr,ifi)
-        if (nsp .eq. 2) call dfdump(rhoc(1+nr),nr,ifi)
-        call dfdump(v,nr,ifi)
-        if (nsp .eq. 2) call dfdump(v(1+nr),nr,ifi)
+        read(ifi,333) rho(1:nr) !call dfdump(rho,nr,ifi)
+        if (nsp .eq. 2) read(ifi,333) rho(nr+1:2*nr) !call dfdump(rho(1+nr),nr,ifi)
+        read(ifi,333) rhoc(1:nr) !call dfdump(rhoc,nr,ifi)
+        if (nsp .eq. 2) read(ifi,333) rhoc(nr+1:2*nr) !call dfdump(rhoc(1+nr),nr,ifi)
+        read(ifi,333) v(1:nr) !call dfdump(v,nr,ifi)
+        if (nsp .eq. 2) read(ifi,333) v(nr+1:2*nr) !call dfdump(v(1+nr),nr,ifi)
       endif
 
 C --- Output ---
@@ -91,12 +91,12 @@ C --- Output ---
   105   format(1p,5d16.8)
         write (jfi,110) qc,ccof,ceh,stc
   110   format(' core',4f16.7)
-        call dfdump(rho,nr,-jfi)
-        if (nsp .eq. 2) call dfdump(rho(1+nr),nr,-jfi)
-        call dfdump(rhoc,nr,-jfi)
-        if (nsp .eq. 2) call dfdump(rhoc(1+nr),nr,-jfi)
-        call dfdump(v,nr,-jfi)
-        if (nsp .eq. 2) call dfdump(v(1+nr),nr,-jfi)
+        write(jfi,333) rho(1:nr) !call dfdump(rho,nr,-jfi)
+        if (nsp .eq. 2) write(jfi,333) rho(nr+1:2*nr) !call dfdump(rho(1+nr),nr,-jfi)
+        write(jfi,333) rhoc(1:nr) !call dfdump(rhoc,nr,-jfi)
+        if (nsp .eq. 2) write(jfi,333) rhoc(nr+1:2*nr) !call dfdump(rhoc(1+nr),nr,-jfi)
+        write(jfi,333) v(1:nr)! call dfdump(v,nr,-jfi)
+        if (nsp .eq. 2) write(jfi,333) v(nr+1:2*nr) !call dfdump(v(1+nr),nr,-jfi)
         return
       endif
 
@@ -106,6 +106,6 @@ C --- Output ---
 C ... Error handling
   998 if (ipr .gt. 0)
      .write(stdo,'('' iofa  : missing species id ... nothing read'')')
-
+  333 format(1p,4e20.13)
       end
 

@@ -1,8 +1,6 @@
       subroutine zsecsym(zsec,ntq,nq,nband,nbandmx,nspinmx,nspin, eibzsym,ngrp,tiii,q,is)
 !! --- symmetrize zsec for eibz4sig mode. -----------------
 !! Read a file lmfgw_kdivider, which contains info for vxc and evec (they are in separated files in MPI)
-!!
-c      use m_mpi,only: MPI__AllreduceSum
       use m_readeigen,only: READEVAL
       use m_rotwave,only: Rotwvigg
       implicit none 
@@ -18,8 +16,6 @@ c      use m_mpi,only: MPI__AllreduceSum
      & isp,ixx,ixxx,nqixx,nspxx,ispxx,iqbz,i,igrp,iq
       character*256:: extn,ext
       character*256,allocatable:: extp(:)
-c      integer,allocatable:: ifevec__(:),ifvxc__(:),iprocq(:,:)
-
       integer:: nsym,nhdim,it,nblk,iband,napw,ldim,ierr,ispx,nbsize,nbsizemx
      & ,iblk1,iblk2,ii1,ii2,ie1,ie2,ne1,ne2,iqxx, ndimhx, nspx,nnnx
       integer,allocatable::iblki(:),iblke(:)
@@ -31,64 +27,18 @@ c      integer,allocatable:: ifevec__(:),ifvxc__(:),iprocq(:,:)
       character(8):: xt
       write(6,*)'zsecsym:'
       allocate( zsect(ntq,ntq))
-c$$$!! === readin lmfgw_kdivider, and get extensions === apr2013
-c$$$      ifiproc=ifile_handle()
-c$$$      open(unit=ifiproc,file='lmfgw_kdivider',status='old')
-c$$$      read(ifiproc,*) ext
-c$$$      read(ifiproc,*) nqixx, nspxx, nrankv
-c$$$      if(allocated(iprocq)) deallocate(iprocq)
-c$$$      allocate(iprocq(nqixx,nspxx))
-c$$$      do isp=1,nspxx
-c$$$        do iqq=1,nqixx
-c$$$          read(ifiproc,*) iqqxx, ispxx, ixxx
-c$$$          if(iqqxx/=iqq) call rx( 'iqqxx/=iqq')
-c$$$          if(ispxx/=isp) call rx( 'ispxx/=isp')
-c$$$          iprocq(iqq,isp) = ixxx
-c$$$          write(6,"('iqq isp irank=',i8,i2,i6)") iqq,isp, iprocq(iqq,isp)
-c$$$        enddo
-c$$$      enddo
-c$$$      close(ifiproc)
-!! for multiple files.
-c      if(allocated(extp)) deallocate(extp,ifvxc__,ifevec__)
-c$$$      allocate(extp(0:nrankv-1),ifvxc__(0:nrankv-1),ifevec__(0:nrankv-1))
-c$$$      extp(0) = trim(ext)
-c$$$      write(6,"('  0 ext= ',a,a)") trim(extp(0)),' ----------'
-c$$$      do procid=1,nrankv-1
-c$$$        write(extn,"(i10)") procid
-c$$$        extp(procid)=trim(adjustl(ext))//'_'//trim(adjustl(extn))
-c$$$        write(6,"(i3,' ext= ',a,a)") procid,trim(extp(procid)),' ----------'
-c$$$      enddo
-c      do procid=0,nrankv-1
-c        ifvxc__(procid) = ifile_handle()
-c        open( ifvxc__(procid), file='vxc'//extp(procid),form='unformatted')
-c        ifevec__(procid)= ifile_handle()
-c        open( ifevec__(procid), file='evec'//extp(procid),form='unformatted')
-c      enddo
-c      ifvxc_ = ifvxc__(0)       !0 is root
-c      ifevec_= ifevec__(0)
-c      read(ifevec_)  ndimhx, nspx,nnnx 
-c      read(ifvxc_)              !skip ndimh, nsp,nnn
       allocate(evaliq(nband),iblki(nband),iblke(nband))
       iqq=0                     !iqq is to read multiple vxc.* evec.*
       do 3020 iq=1,nq           !nq means iq for which we will calculate sigma
         iqq=iqq+1
         do 3030 ispx=1,nspin !nspinmx  bugfix!!! at 2021-11-01 !ispx loop is to find isx=is
-c          ifvxc_  = ifvxc__ (iprocq(iqq,ispx)) 
-c          ifevec_ = ifevec__(iprocq(iqq,ispx)) 
-c          open(newunit=ifvxc_,    file='vxc'//trim(xt(iq))//trim(xt(ispx)),form='unformatted')
           if(ispx==is) then 
-!this if-block is due to evec and v_xc file-->they shall be divieded into spin files.
             open(newunit=ifevec_,  file='evec'//trim(xt(iq))//trim(xt(is)),form='unformatted')
-c            read(ifvxc_)  nhdim,ldim
-c            read(ifvxc_)
             read(ifevec_) nhdim, nspx,nnnx,nxx,ldim
             allocate( evec(nhdim,nhdim),evecrot(nhdim,nhdim))
             read(ifevec_) qqqx(1:3), evec(1:nhdim,1:nhdim),nev !nev number of true bands nov2015
             zsect = 0d0
           else                  !skip isx/=is. Need to get access sequential files evec and v_xc.
-c            read(ifvxc_)  
-c            read(ifvxc_)  
-c            read(ifevec_)
             cycle
           endif  
           do i=1,nnnx           !nq     !qqqx from evec v_xc.
@@ -101,14 +51,11 @@ c            read(ifevec_)
           call rx( 'hsfp0_sc: bug:qqqx can not find ...')
  3011     continue
           if(tiii) call rx( 'timereversal is not yet implemented')
-
 !! evec_inv(ib1,iww)= \sum_ib2  ovlinv(ib1,ib2)*dconjg(evec(iww,ib2))  nov2015, we introduce nev. iww is for PMT basis. ib for band index.
 !! This is for converting rotated evec (=evecrot(ib)) in the representation of original evec(ib).
           allocate(ovl(nev,nev)) 
-c          print *,'nnnnnnnnn zsecsym: nband=',nhdim,nband,nev
           do i=1,nev
           do j=1,nev
-c            write(6,*)'evec orth=',i,j,sum(dconjg(evec(:,i)*evec(:,j)))
             ovl(i,j)=sum(dconjg(evec(:,i))*evec(:,j))
           enddo
           enddo
@@ -179,15 +126,9 @@ c            write(6,*)'evec orth=',i,j,sum(dconjg(evec(:,i)*evec(:,j)))
           enddo                 ! it
           deallocate(evec, evec_inv, evecrot)
           zsec(:,:,iqxx) = zsect(:,:)/dble(nsym)
-c     call MPI__AllreduceSum( zsec(:,:,iqxx),ntq*ntq ) ! MIZUHO-IR
-c          close(ifvxc_)
           close(ifevec_)
  3030   continue                ! ispx
  3020 continue                  ! iq
-c      do procid=0,nrankv-1
-c        close(ifvxc__(procid) )
-c        close(ifevec__(procid))
-c      enddo
       deallocate(iblki,iblke,evaliq)
       deallocate(zsect)
       end subroutine zsecsym

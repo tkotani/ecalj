@@ -349,7 +349,8 @@ C ... Local parameters
 C     integer nglob,stdo
       double precision nocc(-3:3,2),iv(7)
       integer idu(4),igetss,is,idmat,fxst,iblu,nlm,nlmu,a2vec,nn
-      double precision uh(4),jh(4),eorb,tmp(2,7,7),xx
+      double precision uh(4),jh(4),eorb,xx !tmp(2,7,7)
+      complex(8):: tmp(7,7)
       character str*80,spid*8,aaa*24
       complex(8) ,allocatable :: dmwk_zv(:)
       real(8):: uhx,uhxx
@@ -360,6 +361,7 @@ C ... MPI
 
 !!
       real(8)::sss
+      character(128):: bbb
       call rxx(nsp.ne.2,'LDA+U must be spin-polarized!')
       procid = mpipid(1)
       master = 0
@@ -391,13 +393,14 @@ C --- Read in dmatu if file  dmats.ext  exists ---
             if (str(1:1) .eq. '#') goto 825
             i = 0
             if (parstr(str,'sharm ',len(str)-6,5,' ',i,m)) then
-              havesh = 1
+               havesh = 1
             else
-              havesh = 0
+               havesh = 0
             endif
-          endif
-          call info2(20,0,0,' sudmtu:  reading density matrix from file'//
-     .    ' dmats in %?#n#spherical#real# harmonics',havesh,0)
+         endif
+         if(havesh ==1) bbb='spherical harmonics'
+         if(havesh ==0) bbb='real harmonics'
+         write(stdo,*)' sudmtu: reading density matrix from file dmats in '//trim(bbb)
           backspace idmat
           iblu = 0
           do  ib = 1, nbas
@@ -412,10 +415,10 @@ C --- Read in dmatu if file  dmats.ext  exists ---
                   nlm = 2*l+1
                   nlmu = 2*lmaxu+1
                   do  isp = 1, 2
-                    if (rdm(idmat,40,2*nlm**2,' ',tmp,nlm,nlm) .ne. 2)
+                    if (rdm(idmat,40,2*nlm**2,' ',tmp(1:nlm,1:nlm),nlm,nlm) .ne. 2)
      .              call rxi('sudmtu failed to read dmats for site',ib)
-                    call zmscop(0,nlm,nlm,nlm,nlmu,0,0,0,0,tmp,
-     .              dmatu(-l,-l,isp,iblu))
+c                    call zmscop(0,nlm,nlm,nlm,nlmu,0,0,0,0,tmp,dmatu(-l,-l,isp,iblu))
+                    dmatu(-l:l,-l:l,isp,iblu)=tmp(1:nlm,1:nlm)
                   enddo
                 endif
               enddo
@@ -426,7 +429,7 @@ C --- Otherwise read in occnumbers and construct diagonal dmatu ---
         else
           inquire(file='occnum.'//trim(sname),exist=occe)
           if(occe) then !if no occunum.* initial dmatu=0 
-             call info0(20,1,0,' sudmtu:  initial (diagonal) density-matrix from occ numbers')
+             write(stdo,*) ' sudmtu:  initial (diagonal) density-matrix from occ numbers'
              open(newunit=foccn,file='occnum.'//trim(sname))
              havesh = 1
  12          if (.not. rdstrn(foccn,str,len(str),.false.)) goto 99

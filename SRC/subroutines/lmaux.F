@@ -761,9 +761,11 @@ C     ... Scale wsr with z=0 sites locked at wsr=0
      .    , llock , volnes , dovl1 , dovl2 , wsr )
 
           if (ipr .ge. 30) then
-            call awrit2(' SCLWSR:  initial sphere packing = %;1d%%'//
-     .      ' scaled to %;1d%% (no empty spheres)',
-     .      ' ',120,stdo,100*volold,100*volnes)
+c            call awrit2(' SCLWSR:  initial sphere packing = %;1d%%'//
+c     .      ' scaled to %;1d%% (no empty spheres)',
+c     .      ' ',120,stdo,100*volold,100*volnes)
+             write(stdo,"(' SCLWSR:  Initial sphere packing = ',f10.5,
+     .       ' scaled to (no empty spheres)',f10.5)")  100*volold,100*volnes
           endif
 
 C     ... Restore wsr(Z=0)
@@ -806,10 +808,9 @@ C     .  '  sphere fraction=',f5.1,
 C     .  '%(initial)  ',f5.1,'%(scaled)')
 
       if (ipr .ge. 10) then
-        call awrit3(' SCLWSR:  vol = %,5g a.u..%3f'//
-     .  'Initial sphere packing = %;1d%%  '//
-     .  'scaled to %;1d%%',
-     .  ' ',120,stdo,vol,100*volold,100*volnew)
+        write(stdo,"(' SCLWSR:  vol = ',f10.5,' a.u.**3 ',
+     .  ' Initial sphere packing = ',f10.5,
+     .  ' scaled to ',f10.5)")   vol,100*volold,100*volnew
       endif
 
       if (ipr .ge. 30) then
@@ -1693,8 +1694,8 @@ C ...   Add to list if connecting vector within range
           rtab(3,nttab) = dpos(3) + lat(3,ilat)
           rr = rtab(1,nttab)**2+rtab(2,nttab)**2+rtab(3,nttab)**2
 
-*        call awrit5('try ib,jb,ilat= %i %i %i rr=%;4d: %l',' ',80,
-*     .    6,ib,jb,ilat,rr,rr.lt.rcut)
+c*        call awrit5('try ib,jb,ilat= %i %i %i rr=%;4d: %l',' ',80,
+c*     .    6,ib,jb,ilat,rr,rr.lt.rcut)
 
 C   --- Add to iax table if this pair in range ---
           if (rr .lt. rcutba) then

@@ -40,12 +40,14 @@ Cu   21 Jan 02 Added code to invoke LAPACK zhegv in place of diagno
 C ----------------------------------------------------------------
       implicit none
       logical linv,lx
-      integer lov,lh,lz
+      integer lov,lh,lz,nn
       integer n,nev,nmx
-      double precision h(*),s(*),e(n),wk(*),z(2),emx
+      double precision h(n,n),s(*),e(n),wk(*),emx
       integer ier,lwork
       character jobz
+      complex(8)::z(n,*)
       call tcn('zhevx')
+      if(lh/=n) call rx('zhevx: we assume lh=n now')
       if (nmx .le. 0) then
         jobz = 'N'
         lwork = 4*n
@@ -67,7 +69,9 @@ C ----------------------------------------------------------------
           call zheev(jobz,'U',n,h,lh,e,z,lwork,wk(1),ier)
           call rxx(ier.ne.0,'zhevx: zheev cannot find all evals')
         endif
-        call zmcpy('N',h,lh,1,z,lz,1,n,min(n,nmx))
+        nn=min(n,nmx)
+        z(1:n,1:nn)=h(1:n,1:nn)
+c        call zmcpy('N',h,lh,1,z,lz,1,n,min(n,nmx))
 C       call zprm('evecs',2,z,lz,n,nmx)
         nev = min(n,nmx)
       endif

@@ -1,5 +1,4 @@
-      subroutine suclst(nsitmx,nbas,nsp,ssite,sspec,clsopt,isite,iclsl,
-     .iclsn,nsites)
+      subroutine suclst(nsitmx,nbas,nsp,ssite,sspec,clsopt,isite,iclsl,iclsn,nsites)
       use m_struc_def
       use m_ext,only:sname
 C- Set up list of sites for core level spectra
@@ -44,7 +43,7 @@ C Local Variables
       integer iprint,lgunit,igetss
       character clabl*8,fn*16,dc*1,outstr*64,cc2*2
       logical a2bin
-
+      character(10)::i2char
       iprmin = 10
 
       dc = clsopt(1:1)
@@ -128,34 +127,32 @@ C   ... expect ,l,n at end of word; move pointer back to end of list
 C --- print table of sites, l and n
       if (nsites .gt. 0 .and. iprint() .ge. iprmin) then
         if (nsp .eq. 1) then
-          call awrit0('%N suclst: set up table of site, l and n for CLS'
-     .    //'%N   site   label     l  n   DOS channels',
-     .    ' ',256,lgunit(1))
+          write(lgunit(1),"(a,/,a)") ' suclst: set up table of site, l and n for CLS',
+     .    '   site   label     l  n   DOS channels'
         else
-          call awrit0('%N suclst: set up table of site, l and n for CLS'
-     .    //'%N   site   label     l  n   DOS channels up(down)',
-     .    ' ',256,lgunit(1))
+          write(lgunit(1),"(a,/,a)") ' suclst: set up table of site, l and n for CLS',
+     .    '   site   label     l  n   DOS channels up(down)'
         endif
         j = 1
         do  i = 1, nsites
           ib = isite(i)
           if (ib .gt. nbas) call rx('suclst: ib > nbas')
           is = int(ssite(ib)%spec)
-
-c          do i_spacks=is,is
-c            call spacks_copy('u',sspec(i_spacks)%name,is,is,clabl,i_spacks)
-c          enddo
           clabl=sspec(is)%name
-
           if (nsp .eq. 1) then
-            call awrit6('%:3,3i     '//clabl//'%,2i%:1,2i%3f%i,%i,%i',
-     .      ' ',128,lgunit(1),isite(i),iclsl(i),iclsn(i),j,j+1,j+2)
+c            call awrit6('%:3,3i     '//clabl//'%,2i%:1,2i%3f%i,%i,%i',
+c     .      ' ',128,lgunit(1),isite(i),iclsl(i),iclsn(i),j,j+1,j+2)
+             write(lgunit(1),"(a,2i3,2x,3i5)")
+     &            i2char(isite(i))//'     '//trim(clabl),iclsl(i),iclsn(i),j,j+1,j+2
           else
-            call awrit3('%:3,3i     '//clabl//'%,2i%:1,2i',
-     .      outstr,128,0,isite(i),iclsl(i),iclsn(i))
+c            call awrit3('%:3,3i     '//clabl//'%,2i%:1,2i',
+c     .      outstr,128,0,isite(i),iclsl(i),iclsn(i))
+             write(lgunit(1),"(a,2i3)")
+     &            i2char(isite(i))//'     '//trim(clabl),iclsl(i),iclsn(i)
             call strip(outstr,p,q)
-            call awrit6(outstr(1:q)//'%3f%i(%i),%i(%i),%i(%i)',' ',128,
-     .      lgunit(1),j,j+1,j+2,j+3,j+4,j+5)
+c            call awrit6(outstr(1:q)//'%3f%i(%i),%i(%i),%i(%i)',' ',128,
+c     .      lgunit(1),j,j+1,j+2,j+3,j+4,j+5)
+            write(lgunit(1),"(a,6i4)") outstr(1:q),j,j+1,j+2,j+3,j+4,j+5
           endif
           j = j + 3*nsp
         enddo
@@ -163,12 +160,10 @@ c          enddo
       return
     5 continue
 C --- bad list ERROR
-      call fexit(-1,119,
-     .'suclst: bad list, expecting --cls'//dc//'lst=list,l,n',0)
+      call fexit0(-1,'suclst: bad list, expecting --cls'//dc//'lst=list,l,n')
     6 continue
 C --- bad triple ERROR
-      call fexit(-1,119,
-     .'suclst: bad triple, expecting --cls'//dc//'site,l,n',0)
+      call fexit0(-1,'suclst: bad triple, expecting --cls'//dc//'site,l,n')
       end subroutine suclst
 
 

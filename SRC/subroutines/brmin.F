@@ -1,4 +1,5 @@
       subroutine brmin(n,x,g,isw,ipr,dxmx,xtol,gtol,hmax,w,diff,hess,ir)
+      use m_gradzr,only:pgradz,chkhss
 C- One Broyden step in finding the root of an n-dimensional function
 C ----------------------------------------------------------------
 Ci Inputs
@@ -79,7 +80,7 @@ C ... Local parameters
       parameter (beta=1d0, one=1d0, evtol=1d-10)
       double precision factor,fmin,a,b,ddot,dasum,gmax,evmin,scale
 C     double precision wk(n)
-      integer i,j,isw1,isw32,isw2,isw31,chkhss,npr
+      integer i,j,isw1,isw32,isw2,isw31,npr
 
       isw1 = mod(isw/10,10)
       isw2 = mod(isw/100,10)

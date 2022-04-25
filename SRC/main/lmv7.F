@@ -109,18 +109,16 @@
 !! Array allocated in supot rhoat smrho. We have to store all fixed quantites in modules.
       call m_supot_init() ! get G vectors for charge
       call sugcut(1)
-      print *,'mmmmm goto m_suham_init'
+c      print *,'mmmmm goto m_suham_init'
       call m_suham_init() ! Get estimated dimension of Hamiltonian (probably simplified in future).
 !! LDA+U initialization
       if(nlibu>0) call m_ldau_init()
       if(cmdopt0('--quit=dmat')) call rx0('--quit=dmat')
-      write(6,*) 'end of reading rst or atm'
-!! Get q point list at which we do band calculations
+c! Get q point list at which we do band calculations
       call m_qplist_init(plbnd,jobgw==1)
       call m_qplist_qspdivider()  !generate iqini:iqend,isini,isend  for each rank
 !! G vectors for qplist
       call m_igv2xall_init(1,nkp) !(iqini,iqend)   !(1,nkp) is needed for gwb.head
-      
 !! madelung mode may need to be recovered.      
 !! allocate(madelung(nbas**2)); call madmat(madelung) !Monopole Madelung matrix (kept for future).
       
@@ -132,7 +130,7 @@
 !!    irs1x tells what to read and whether to invoke smshft.
 !!     0    read from atom file  atm;  1  read from binary  rst ;  2 read from ascii  rsta
 !!    +10 -> invoke smshft(1) after file read.
-      write(6,*) ' reading rst or atm',irs1x
+c      write(stdo,*) ' reading rst or atm',irs1x
       irs1x = irs1
       if (irs1x == 0) then ! read overlap free-atom densities
          call rdovfa()     ! superposition of spherical atomic densities by lmfa.
@@ -166,7 +164,6 @@
       if(writeham.and.master_mpi) call m_writeham_write()
       if( cmdopt0('--quit=ham') ) call rx0('quit = ham')
       
-      write(stdo,*) 'end of reading rst or atm'
 !! (we need check. a simple approximaiton to determine VBM and CBM. Need fixing if necessary).
       if(cmdopt0('--vbmonly')) then !Get VBM and CBM relative to vaccum
          if(master_mpi) call vbmmode()
@@ -193,7 +190,7 @@
 !! finalization      
       inquire(file='RSEQ_ERROR',exist=fileexist)
       if(fileexist) call rx('RSEQ_ERROR: maybe in phidx.F See takao comment in it.')
-      call m_MPItk_finalize()
       if(master_mpi) write(6,"(a)") "OK! end of "//trim(prgnam)//" ======================"
+      call m_MPItk_finalize()
       call Exit(0)
       end program Lmf

@@ -1604,7 +1604,7 @@ c         mix_nitu = i0
          mdprm(1) = i0
          nm='DYN_MSTAT_HESS'; call gtv(trim(nm),tksw(prgnam,nm),ltmp,
      .        def_lg=T,note='Read hessian matrix')
-         mdprm(2) = isw(ltmp)
+         mdprm(2) = isw(ltmp)! T=>1 F=>0
          nm='DYN_MSTAT_XTOL'; call gtv(trim(nm),tksw(prgnam,nm),mdprm(3),
      .        def_r8=1d-3,note=
      .        'Convergence criterion in displacements'//
@@ -1998,51 +1998,12 @@ C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
       call suldau(nbas,v_sspec,v_ssite,nlibu,k,wowk)!Count LDA+U blocks (printout only)
       ham_nlibu=nlibu
       call poppr
-c      deallocate(wowk,pnu,qnu,pz,amom,idmod,rsmh,eh,rsmh2,eh2,pb1,pb2,
       deallocate(wowk,pnu,qnu    ,amom,idmod,                  pb1,pb2,
      .     lmxpb,qpol,stni,tbvso,iq1,ivso,rg,rsma,rfoca,rsmfa,rcfa,nxi,
      .     exi,rint,rcut,coreq,mass,colxbs,radxbs,rs3,rham,idxdn,hcr,
      .     rmt,idu,uh,jh,dv,grp,grp2,mxcst1,mxcst2,mxcst4,kmxv,  !kmxt,
      .     lfoca,eref,lmxl,lxi,coreh,          spec_a,z,nr,rsmv,
-c    .     lfoca,eref,lmxl,lxi,coreh,lmxa,lmxb,spec_a,z,nr,rsmv,
      .     pos,vel,vshft,ips,irlx) 
-
-c$$$!! --- Printout ---
-c$$$          if (iprint() .ge. 20 .and. procid .eq. master) then
-c$$$            do  90  k = 1, 2
-c$$$              strn = '  '//prgnam
-c$$$              lxcf=ctrl_lxcf
-c$$$c              lfrzw = isw ( iand(16,int(ctrl_lbas)) .ne.0 )
-c$$$              lfrzw = isw(frzwf)
-c$$$              call awrit8(' special:%10p'//
-c$$$     .         '%?;n; forces,;;'//
-c$$$     .         '%?;n==2; Dirac equation,;;'//
-c$$$     .         '%?;n; spherical-harmonics,;;'//
-c$$$     .         '%?;n>0; Im(eps(w)),;;%-1j%?;n<0; JDOS,;;'//
-c$$$     .         '%?;n==1; eps^-1,;;%-1j%?;(n>=2); scr-rho-out,;;'//
-c$$$     .         '%-1j%?;(n>=4);%b(model eps),;;'//
-c$$$     .         '%?;n; Order-N:?,;;%-1j'//
-c$$$     .         '%?;n==1;%2bEmbedded-Cluster,;;%-1j'//
-c$$$     .         '%?;n==2;%2bVanderbuilt,;;'//
-c$$$     .         '%?;n; APW basis,;;'//
-c$$$     .         '%?;n; oveps,;;'//
-c$$$     .         '%b %b',strn,scrwid,0,ctrl_lfrce,lrel,0,0, !ctrl_loptc,
-c$$$c     .         mod(lscr,10),0,pwmode,isw(oveps.ne.0))
-c$$$     .         0,0,pwmode,isw(oveps.ne.0))
-c$$$              if (strn .ne. ' special:') call awrit0(strn,' ',-80,lgunit(k))
-c$$$              if (prgnam .eq. 'LMF' .or. prgnam .eq. 'LMFA') then
-c$$$                if(lxcf/=1.and.lxcf/=2.and.lxcf/=103) then
-c$$$                  call rx('only XCFUN=1,2,103 are allowed now')
-c$$$                endif
-c$$$              endif
-c$$$              if (prgnam(1:3) .eq. 'LMF') then
-c$$$                call awrit1 ( ' special:%10p' // '%?;n==1; core-level-optics,;;' 
-c$$$     .      // '%b %b' , strn , scrwid , 0 , 0 )
-c$$$                if (strn .ne. ' special:') call awrit0(strn,' ',-80,lgunit(k))
-c$$$              endif
-c$$$   90       continue
-c$$$          endif
-
 !! --- takao embed contents in susite here. This is only for lmf and lmfgw.
       seref = 0d0
       do ib = 1, nsite

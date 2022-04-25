@@ -88,7 +88,7 @@ C Passed Parameters
       double precision xtol,ftol,dxmn,dxmx,xn,fn,wk(12)
       integer ir,isw
 C Local Variables
-      integer i1mach,ic,ipr,i,itol,ir0,lqua,ic4,scrwid,awrite,stdo
+      integer i1mach,ic,ipr,i,itol,ir0,lqua,ic4,scrwid,stdo
       parameter (scrwid=100)
       character*(scrwid) outs
       double precision f2x,xtl,x0,f0,f0x,x1,f1,x2,f2,f1x,xmin,xmax,
@@ -118,10 +118,11 @@ C     ipr = 55
       if (ic .eq. 2) ic = -1
       xtl = max(xtol,dxmn)
       if (ipr .gt. 40 .and. ir .eq. 0)
-     .call awrit8('  rfalsi: new start%?#n#  (c)##'//
-     .'%?#n# xtol=%1;3g#%j#%?#n==2# and##%-1j%?#n==3# or##'//
-     .'%?#n# ftol=%1;3g#%j#  dxmn=%1;3g  dxmx=%1;3g',
-     .' ',scrwid,stdo,ic,itol,xtl,itol,itol-1,ftol,dxmn,dxmx)
+     .write(stdo,*)'rfalsi newstart ic,itol,xtl,ftol,dxmn,dxmx',ic,itol,xtl,ftol,dxmn,dxmx
+c     .call awrit8('  rfalsi: new start%?#n#  (c)##'//
+c     .'%?#n# xtol=%1;3g#%j#%?#n==2# and##%-1j%?#n==3# or##'//
+c     .'%?#n# ftol=%1;3g#%j#  dxmn=%1;3g  dxmx=%1;3g',
+c     .' ',scrwid,stdo,ic,itol,xtl,itol,itol-1,ftol,dxmn,dxmx)
       if (ftol .le. 0 .and. itol .eq. 0 .or.
      .xtl .le. 0 .and. itol .eq. 1 .or.
      .(ftol .le. 0 .or. xtl .le. 0) .and. itol .eq. 2 .or.
@@ -218,8 +219,9 @@ C ... T if local extremum bracketed
       lextr = (f0-f1)*(x0-x1)*(f1-f2)*(x1-x2) .lt. 0 .and. fpp*f1 .ge. 0
       if (lextr .and. .not. (root1 .or. root2) .and. ipr .ge. 30) then
         write (stdo,*) 'rfalsi: local extremum bracketed without root:'
-        call awrit6('  x0,x1,x2 = %1;6g %1;6g %1;6g  f0,f1,f2 = '//
-     .  '%1;6g %1;6g %1;6g',' ',scrwid,stdo,x0,x1,x2,f0,f1,f2)
+c        call awrit6('  x0,x1,x2 = %1;6g %1;6g %1;6g  f0,f1,f2 = '//
+c     .  '%1;6g %1;6g %1;6g',' ',scrwid,stdo,x0,x1,x2,f0,f1,f2)
+        write(stdo,"(a,3d13.5,2x,3d13.5)")' x0,x1,x2: f0,f1,f2 = ',x0,x1,x2,f0,f1,f2
       endif
 
 C --- CASE I: root bracketed with possible constraint satisfied ---
@@ -379,14 +381,18 @@ C ... Exit ir=-5: suggest new point = max (min) given x +(-) abs(dxmx)
 C ... Get a new point
   998 continue
       if (ir0 .eq. 0 .and. ipr .gt. 30) then
-        call awrit2('  rfalsi ir=%,2i: seek xn=%1,8;8g',' ',
-     .  scrwid,stdo,ir,xn)
+c        call awrit2('  rfalsi ir=%,2i: seek xn=%1,8;8g',' ',scrwid,stdo,ir,xn)
+        write(stdo,"(a,i5,d13.5)")'  rfalsi ir: seek xn=',ir,xn
       elseif (ipr .gt. 30 .or. ipr .ge. 30 .and. ir .ge. 0) then
-        i = awrite('%x  rfalsi ir=%,2i x1=%1;4g f1=%1;4g x2=%1;4g'//
-     .  ' f2=%1;4g: %?#n#seek#est#',outs,scrwid,0,
-     .  ir,x0,f0,x1,f1,ir,0,0)
-        i = min(12,scrwid-3-i)
-        call awrit2('%a x=%;nF',outs,scrwid,-stdo,i,xn)
+c        i = awrite('%x  rfalsi ir=%,2i x1=%1;4g f1=%1;4g x2=%1;4g'//
+c     .  ' f2=%1;4g: %?#n#seek#est#',outs,scrwid,0,
+c     .  ir,x0,f0,x1,f1,ir,0,0)
+         write(stdo,"(a,i0,2d13.5,2x,2d13.5)")'rfalsi ir,x0,f0,x1,f1=', ir,x0,f0,x1,f1
+c         i = awrite('%x  rfalsi ir=%,2i x1=%1;4g f1=%1;4g x2=%1;4g'//
+c     .  ' f2=%1;4g: %?#n#seek#est#',outs,scrwid,0,
+c     .  ,0,0)
+c        i = min(12,scrwid-3-i)
+c        call awrit2('%a x=%;nF',outs,scrwid,-stdo,i,xn)
 C       continue
       endif
 

@@ -56,8 +56,8 @@ c        if (numq .ne. 1) call rxi('mkewgt: nonmetal but numq=',numq)
         fevec = qval/2d0
         nevec = fevec + 0.500001d0
         wtop = fevec-(nevec-1)
-        if (dabs(wtop-1d0) .gt. 1d-6) call awrit1(' mkewgt (warning):'//
-     .  ' uneven occupation for nonmet, top wgt=%d',' ',80,stdo,wtop)
+        if (dabs(wtop-1d0) .gt. 1d-6) write(stdo,"(' mkewgt (warning):'//
+     .  ' uneven occupation for nonmet, top wgt=',d15.7)")wtop
         do  i = 1, nevec
           ewgt(i) = 1d0
           if (i .eq. nevec) ewgt(i) = wtop

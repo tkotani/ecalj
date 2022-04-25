@@ -53,6 +53,16 @@ c         print *,'mpipid i=',mpipid(1),i,trim(nnn)
       if(numin<0) i2char = '-'//trim(i2char)//char(48+mod(num,10)) !1st digit
       end
 !ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+      character*8 function charext(num)
+      integer(4) ::num
+      charext = char(48+mod(num,10))
+      if(num>9)   charext= char(48+mod(num/10,10))//charext
+      if(num>99)  charext= char(48+mod(num/100,10))//charext
+      if(num>999) charext= char(48+mod(num/1000,10))//charext
+      if(num>9999)charext= char(48+mod(num/10000,10))//charext
+      if(num >99999) call rx( ' charext:can not produce')
+      end
+!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       integer function ichangesign(a,n)
       implicit none
       integer:: i,n
@@ -86,6 +96,11 @@ cssssssssssssssssssssssssssssssssssssssssssssssssssss
       character*9 function ftoa9(arg)
       real(8):: arg
       write(ftoa9,"(1x,f8.3)") arg
+      end
+cssssssssssssssssssssssssssssssssssssssssssssssssssss
+      character(15) function f2a(arg)
+      real(8):: arg
+      write(f2a,"(d13.5)") arg
       end
 cssssssssssssssssssssssssssssssssssssssssssssssssssss
       character*20 function xts(num1,num2)

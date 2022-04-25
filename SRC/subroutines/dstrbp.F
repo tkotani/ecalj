@@ -326,8 +326,7 @@ C     .  ,'rem2=',rem2
       endif
       if (sum1 .ne. sum2) then
         if (iprint() .gt. 0)
-     .  call awrit2('Bug in pdstlb: sum1=%i sum2=%i',' ',128,
-     .  lgunit(1),sum1,sum2)
+     .  write(lgunit(1),"('Bug in pdstlb: sum1=',i0,' sum2=',i0)") sum1,sum2
         call rx0(' ')
       endif
     1 format (/' PDSTLB:'/' proc   total    loop number')

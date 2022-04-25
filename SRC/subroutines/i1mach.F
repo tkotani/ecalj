@@ -31,25 +31,6 @@ c$$$C   d1mach(4) = b**(1-t), the largest relative spacing.
 c$$$C   d1mach(5) = log10(b)
 c$$$C   d1mach and dmach call the C segment mkcon found in fsubs.c
 c$$$C ----------------------------------------------------------------------
-c$$$C     implicit none
-c$$$C Passed Parameters
-c$$$      integer i
-c$$$C Local variables
-c$$$      double precision dmach,dm(3),d1m(5)
-c$$$      if (i .lt. 1  .or.  i .gt. 5) then
-c$$$        call rx ('d1mach i out of bounds')
-c$$$      endif
-c$$$      call mkdcon(dm,d1m)
-c$$$      d1mach = d1m(i)
-c$$$      return
-c$$$!!      
-c$$$      entry dmach(i)
-c$$$      call mkdcon(dm,d1m)
-c$$$      if (i .lt. 1  .or.  i .gt. 3) then
-c$$$        call rx ('dmach i out of bounds')
-c$$$      endif
-c$$$      dmach = dm(i)
-c$$$      end
       function d1mach(i) result(s)
       implicit none
       integer:: i

@@ -44,10 +44,6 @@ C ... Local parameters
       integer iqp,iband,isp,iprint,i1mach
       double precision e,s,d,wt,x,xx,dsdt,tdsdt
       logical fractional
-C      double precision sp,sm,dsdt,tdsdt,dsdt1,dsdt2
-
-Changenglob      stdo = nglob('stdo')
-c      stdo = globalvariables%stdo
       sumev = 0d0
       wtot = 0d0
       entrpy = 0d0
@@ -132,16 +128,18 @@ C ... Print out band weights, if only 1 kp
 C ... Print out various k-point integrations
       if (iprint() .ge. 10) then
         if (n .ge. 0) then
-          call awrit6(' N=%i, W=%d, E_F=%d, sumev=%d, entropy term:'
-     .    //' %d, %d electrons',' ',256,i1mach(2),
-     .    n,w,efermi,sumev,entrpy,wtot)
+c          call awrit6(' N=%i, W=%d, E_F=%d, sumev=%d, entropy term:'
+c     .    //' %d, %d electrons',' ',256,i1mach(2),
+c     .    n,w,efermi,sumev,entrpy,wtot)
+          write(stdo,"(a,i5,5d13.5)")'N W E_F sumev TS Nele=',
+     .    n,w,efermi,sumev,entrpy,wtot
         else
-          call awrit5(' T=%dK, E_F=%d, sumev=%d, TS=%;3g,'
-     .    //' %d electrons',' ',256,i1mach(2),
-     .    0.1579d6*w,efermi,sumev,entrpy,wtot)
-          call info5(30,0,0,
-     .    '%fEntropy S=%;6d k_B,  specific heat TdS/dT=%;6d k_B'//
-     .    ' (%?;n<0;Fermi-Dirac;sampling;)',entrpy/w,tdsdt,n,0,0)
+c          call awrit5(' T=%dK, E_F=%d, sumev=%d, TS=%;3g,'
+c     .          //' %d electrons',' ',256,i1mach(2),
+          write(stdo,"(a,5d13.5)")'T(K) E_F sumev TS Nele=',
+     .    0.1579d6*w,efermi,sumev,entrpy,wtot
+          write(stdo,"(a,2d13.5)")'Entropy S, specific heat TdS/dT=',entrpy/w,tdsdt
+          write(stdo,"(a)")'Fermi-Dirac;sampling'
         endif
 C      call info5(10,0,0,' SPLWTS: Fermi energy:%;6d;'//
 C     .  '  band energy=%;6d;  %;6d electrons  DOS(E_f)=%;4g',
