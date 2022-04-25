@@ -110,8 +110,7 @@ C --- Metals: make weights w1,w2,w3 for the three trial Ef's ---
   301 format(' magnetic moment:      ',3f12.5)
       if (dabs(q3-q1) .lt. 1d-8) then
         if (dabs(q2-qval) .gt. 1d-8) then
-          call awrit1('mshn3p: Input Fermi energy unusable, Q=%d',' ',
-     .    80,stdo,q2)
+          write(stdo,"('mshn3p: Input Fermi energy unusable, Q= ',f15.8)") q2
           sumev(1,1) = 0
           sumev(2,1) = 0
           lrep = 1
@@ -125,8 +124,8 @@ C --- Metals: make weights w1,w2,w3 for the three trial Ef's ---
   430   format(' weights (converged):  ',3f12.5)
         goto 90
       endif
-      if ((qval.gt.q3 .or. qval .lt. q1) .and. ipr .gt. 0) call awrit0(
-     .'mshn3p: qval outside window; extrapolating',' ',80,stdo)
+      if ((qval.gt.q3 .or. qval .lt. q1) .and. ipr .gt. 0)
+     &  write(stdo,"('mshn3p: qval outside window; extrapolating')")
       a = (q1+q3-2d0*q2)/(2d0*def*def)
       b = (q3-q1)/(2d0*def)
       c = q2-qval

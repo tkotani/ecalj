@@ -44,7 +44,7 @@ C ... Find interval containing fermi energy
   90  continue
       i1 = i2-1
       if (i1 .lt. 0) then
-        write(stdo,'efldos (warning): fermi energy lies below emin')
+        write(stdo,*)'efldos (warning): fermi energy lies below emin'
         eferm = 0
         eband = 0
         return

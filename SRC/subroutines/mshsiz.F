@@ -154,13 +154,10 @@ C ... Printout
         s1 = alat*sqrt(ddot(3,plat(1,1),1,plat(1,1),1))/i1
         s2 = alat*sqrt(ddot(3,plat(1,2),1,plat(1,2),1))/i2
         s3 = alat*sqrt(ddot(3,plat(1,3),1,plat(1,3),1))/i3
-        call awrit6('%x%N MSHSIZ: mesh has %i x %i x %i'//
-     .  ' divisions; length %,3;3d, %,3;3d, %,3;3d',outs,
-     .  len(outs),0,i1,i2,i3,s1,s2,s3)
-        call awrit4('%a%N%9fgenerated from gmax = %,1;3d'//
-     .  ' a.u. : %i vectors of %i (%i%%)',
-     .  outs,len(outs),0,gmax,ng,i1*i2*i3,(ng*100)/(i1*i2*i3))
-        call awrit0('%a',outs,len(outs),-stdo)
+        write(stdo,"('MSHSIZ: mesh has ',i0,' x ',i0,' x ',i0,
+     .  ' divisions; length =',3f10.3)")i1,i2,i3,s1,s2,s3
+        write(stdo,"('      generated from gmax (a.u.)=',f12.4,': ',i0,' vectors of ',
+     &  i0,' (',i0,'%)')")  gmax,ng,i1*i2*i3,(ng*100)/(i1*i2*i3)
       endif
       end
 

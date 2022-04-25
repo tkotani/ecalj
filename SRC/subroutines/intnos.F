@@ -40,11 +40,10 @@ C --- make band energy by partial integration ---
       sum = sum + .5d0 * (efermi - e1) * (qval + q1)
       eband = efermi * qval - sum
       if (iprint() .ge. 30) then
-        do  12  i = 1, 1
-          call awrit3(' INTNOS: Fermi energy=%;6d;'//
-     .    '  band energy=%;6d;  DOS(E_f)=%;4g',
-     .    ' ',80,lgunit(i),efermi, eband, dosef)
-   12   continue
+c        do  12  i = 1, 1
+         write(lgunit(1),"(' INTNOS: Fermi energy=,f15.8',
+     .    '  band energy=',f15.8,' DOS(E_f)=',f15.8)") efermi, eband, dosef
+c   12   continue
 C        write(*,10) efermi, eband, dosef
 C        write(fopn('LOG'),10) efermi, eband, dosef
 C   10 format(' INTNOS: Fermi energy =',f10.6,'; band energy =',f11.6/

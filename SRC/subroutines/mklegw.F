@@ -115,8 +115,8 @@ C --- Printout ---
       if (ipr .lt. 80) return
       print 333, mode
   333 format(' gausq: points and weights, mode=',i3)
-      i = -dlog(d1mach(3))/dlog(10d0)
-      call awrit2('%x(1x,2(1pe%i.%i))',fmt,len(fmt),0,i+10,i)
+c      i = -dlog(d1mach(3))/dlog(10d0)
+c      call awrit2('%x(1x,2(1pe%i.%i))',fmt,len(fmt),0,i+10,i)
       do  400  i = 1, n
         write(*,fmt) xp(i),wp(i)
   410   format(1x,2(1pe26.15))

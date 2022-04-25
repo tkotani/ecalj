@@ -25,31 +25,23 @@ C ... Local parameters
       integer i,iprint,stdo,lgunit,recl,awrite,mpipid
       parameter (recl=1024)
       character*(recl) lstr
-
       entry info0(jpr,l1,l2,string)
       entry info2(jpr,l1,l2,string,a1,a2)
       entry info5(jpr,l1,l2,string,a1,a2,a3,a4,a5)
       entry info8(jpr,l1,l2,string,a1,a2,a3,a4,a5,a6,a7,a8)
-
-
       if (iprint() .lt. iabs(jpr)) return
-
       if (jpr .lt. 0) then
         i = mpipid(1)
         if (i .ne. 0) return
       endif
       stdo = lgunit(1)
-
       do  10  i = 1, l1
          write(stdo,100)
  10   continue
-C     write(stdo,101) string
-C  101 format(1x,a)
       if (l2 .ge. 0) then
         call awrit8(string,' ',recl,stdo,a1,a2,a3,a4,a5,a6,a7,a8)
 C       call awrit2(string,' ',recl,stdo,a1,a2)
       else
-C       i = awrite(string,lstr,recl,0,a1,a2,i,i,i,i,i,i)
         i = awrite(string,lstr,recl,0,a1,a2,a3,a4,a5,a6,a7,a8)
         call cwrite(lstr,0,i-1,0)
       endif
@@ -58,21 +50,5 @@ C       i = awrite(string,lstr,recl,0,a1,a2,i,i,i,i,i,i)
  20   continue
   100 format(1x)
       return
-
-C      entry info8(jpr,l1,l2,string,a1,a2,a3,a4,a5,a6,a7,a8)
-CC- Same as info, but will handle up to 8 arguments.
-C      stdo = lgunit(1)
-C
-C      do  110  i = 1, l1
-C  110 write(stdo,100)
-C      if (l2 .ge. 0) then
-C        call awrit8(string,' ',recl,stdo,a1,a2,a3,a4,a5,a6,a7,a8)
-C      else
-C        i = awrite(string,lstr,recl,0,a1,a2,a3,a4,a5,a6,a7,a8)
-C        call cwrite(lstr,0,i-1,0)
-C      endif
-C      do  120  i = 1, l2
-C  120 write(stdo,100)
-
       end
 

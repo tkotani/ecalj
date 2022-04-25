@@ -245,12 +245,10 @@ C       Copy default to q
         q(l+1,nsp) = 0
       enddo
   100 continue
-      if (iprint() .ge. 100 .or. (iprint() .ge. 50 .and. lchange)) then
-        call awrit6(' DEFPQ, z=%d: P=%n;6,2D%?#n==2#;%n;6,2D##',
-     .  ' ',80,lgunit(1),z,lmax+1,p,nsp,lmax+1,p(1,2))
-        call awrit6('        z=%d: Q=%n;6,2D%?#n==2#;%n;6,2D##',
-     .  ' ',80,lgunit(1),z,lmax+1,q,nsp,lmax+1,q(1,2))
-      endif
+c      if (iprint() .ge. 100 .or. (iprint() .ge. 50 .and. lchange)) then
+c        call awrit6(' DEFPQ, z=%d: P=%n;6,2D%?#n==2#;%n;6,2D##',' ',80,lgunit(1),z,lmax+1,p,nsp,lmax+1,p(1,2))
+c        call awrit6('        z=%d: Q=%n;6,2D%?#n==2#;%n;6,2D##',' ',80,lgunit(1),z,lmax+1,q,nsp,lmax+1,q(1,2))
+c      endif
       end
       subroutine atmoms(k0,q0,z)
 C- Generate a default atomic configuration for specified nuclear charge

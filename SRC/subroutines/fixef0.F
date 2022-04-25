@@ -47,9 +47,8 @@ C ... Heap
         i1 = (zval + 0.001d0)/(3-nsp)
         w2 = zval/(3-nsp)-i1
         xx = (1-w2)*evl(i1)+w2*evl(i1+1)
-        if (ipr.ge.10) call awrit5(' Est Ef = %,3;3d < evl(%i)='//
-     .  '%,3;3d ... using qval=%,1;1d, revise to %,4;4d',
-     .  ' ',80,stdo,ef0,i,evl(i),zval,xx)
+        if (ipr.ge.10) write(stdo,"(' Est Ef = ',f15.8,' < evl(',f15.8,i0,')=',f15.8,
+     .  ' ... using qval=',f15.8,' revise to ',f15.8)") ef0,i,evl(i),zval,xx
         ef0 = xx
       endif
 
@@ -67,9 +66,8 @@ C ... Heap
         doso(2) = dosw(2)
         dosw(1) = evl(1) - 0.5d0
         dosw(2) = ef0  + 0.5d0
-        if (ipr.ge.10) call awrit4(' DOS window (%;3d,%;3d)'//
-     .  ' reset to (%,4;4d,%,4;4d)',' ',80,stdo,doso(1),doso(2),
-     .  dosw(1),dosw(2))
+        if (ipr.ge.10) write(stdo,"(' DOS window (',f15.7,x,f15.7,')',
+     .  ' reset to (',f15.7,x,f15.7,')')") doso(1),doso(2),dosw(1),dosw(2)
       endif
 
       end
