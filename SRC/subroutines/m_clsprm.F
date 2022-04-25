@@ -19,7 +19,7 @@ c      real(8) , allocatable ::  rv_a_obxc (:) !lmaux clsprm
       contains
 
 C================================================================
-      subroutine ioqpp(lio)     !,spot)!,sctrl
+      subroutine ioqpp()   
 c      use m_clsprm,only:rv_a_oqpp
       use m_struc_def           !Cgetarg
       use m_lmfinit,only:   ctrl_nl,ctrl_nspin,ctrl_nbas
@@ -49,20 +49,13 @@ C     ... Local parameters
       i2 = 4*nsp*nbas
       ifi= ifile_handle()
       open(ifi,file='qpp.'//trim(sname),form='unformatted')
-      if (lio) then
-         call ywrm ( 1 , 'lmasa' , 1 , ifi , ' ' , rv_a_oqpp , 1 , i1 
-     .        , i1 , i2 ) 
-         if (ipr .ge. 30) print *, 'IOQPP:  wrote qpp to disk'
-      else
-         if (ipr .ge. 30) print *, 'IOQPP:  reading qpp from disk ...'
-         call pshpr(0)
-         if ( rdm ( ifi , 2 , i1 * i2 , ' ' , rv_a_oqpp , i1 , i2 ) .lt. 
-     .        0 ) then 
-            if (ipr .ge. 0) print *,'IOQPP:  (warning) failed to qpp file'
-            call dvset ( rv_a_oqpp , 1 , 1 , - 1d0 ) 
-         endif
-         call poppr
+      if (ipr .ge. 30) print *, 'IOQPP:  reading qpp from disk ...'
+      call pshpr(0)
+      if ( rdm ( ifi , 2 , i1 * i2 , ' ' , rv_a_oqpp , i1 , i2 ) < 0 ) then 
+         if (ipr .ge. 0) print *,'IOQPP:  (warning) failed to qpp file'
+         call dvset ( rv_a_oqpp , 1 , 1 , - 1d0 ) 
       endif
+      call poppr
       close(ifi)
       end subroutine ioqpp 
 
@@ -211,7 +204,7 @@ C     ... Allocate memory for, attempt to read qpp from file
             nqpp = (i1*(i1+1))/2
             allocate(rv_a_oqpp(2*nqpp*4*nsp*nbas))
             call dvset ( rv_a_oqpp , 1 , 1 , - 1d0 ) 
-            call ioqpp(.false.)!,spot)!,sctrl
+            call ioqpp() 
          endif
       endif
       return

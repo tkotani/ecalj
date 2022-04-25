@@ -32,8 +32,8 @@
 !--------------------------------------------------------------------------      
       subroutine X0kf_v4hz_init_write(iq,is) 
       integer:: iq,is,ix0
-      character*8 :: charext
-      open(newunit=ix0,file='x0icount.'//trim(charext(iq))//'_'//trim(charext(is)),form='unformatted')
+      character(10) :: i2char
+      open(newunit=ix0,file='x0icount.'//trim(i2char(iq))//'_'//trim(i2char(is)),form='unformatted')
       write(ix0)ncount
       write(ix0) whwc, kc, iwc, itc,itpc, jpmc
       write(ix0) nkmin,nkmax,nkqmin,nkqmax
@@ -45,8 +45,8 @@
 !--------------------------------------------------------------------------      
       subroutine X0kf_v4hz_init_read(iq,is)
       integer:: iq,is,ix0
-      character*8 :: charext
-      open(newunit=ix0,file='x0icount.'//trim(charext(iq))//'_'//trim(charext(is)),form='unformatted')
+      character(10) :: i2char
+      open(newunit=ix0,file='x0icount.'//trim(i2char(iq))//'_'//trim(i2char(is)),form='unformatted')
       read(ix0)ncount
       if(allocated(whwc)) deallocate( whwc, kc, iwc, itc, itpc, jpmc, nkmin,nkmax,nkqmin,nkqmax)
       allocate( whwc(ncount), kc(ncount), iwc(ncount), itc(ncount), itpc(ncount), jpmc(ncount) )

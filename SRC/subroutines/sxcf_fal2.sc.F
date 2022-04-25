@@ -176,7 +176,7 @@ c     complex(8),optional :: zsec(ntq,ntq,nq)
       complex(8),allocatable,target:: zwz(:,:,:),zw(:,:)
       real(8), parameter :: wfaccut=1d-8,tolq=1d-8
       complex(8), parameter :: img=(0d0,1d0)
-      character(5) :: charnum5
+      character(10) :: i2char
       real(8)::polinta, wfacx, wfacx2, weavx2, wexx,ua2_(niw),freqw1,q_r(3),qk(3)
       logical,parameter :: debug=.false.,timemix=.false.
       logical ::   oncew, onceww, eibz4sig  
@@ -264,9 +264,9 @@ c      if(verbose()>=90) debug=.true.
          allocate(ifrcw(iqini:iqend),ifrcwi(iqini:iqend))
          do kx=iqini,iqend
            if(any(kx==kxc)) then !only for requied files for this rank
-           open(newunit=ifrcw(kx),  file='WVR.'//charnum5(kx), action='read',form='unformatted',
+           open(newunit=ifrcw(kx),  file='WVR.'//i2char(kx), action='read',form='unformatted',
      &           status='unknown',access='direct',recl=mrecl)
-           open(newunit=ifrcwi(kx), file='WVI.'//charnum5(kx), action='read',form='unformatted',
+           open(newunit=ifrcwi(kx), file='WVI.'//i2char(kx), action='read',form='unformatted',
      &           status='unknown',access='direct',recl=mrecl)
            endif
          enddo

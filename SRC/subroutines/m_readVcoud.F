@@ -24,12 +24,12 @@
       integer:: ngb0,ifvcoud
       real(8):: qvv(3)
       character(128):: vcoudfile
-      character(5) :: charnum5
+      character(10) :: i2char
       call Readqg0('QGcou',q,   quu,ngc) ! ngc: the number of IPW for the interaction matrix (in QGcou),
                                          ! quu: equivalent to q generated in qg4g4.
       ngb = ngc+nbloch
       if(NoVcou) return
-      vcoudfile='Vcoud.'//charnum5(iq) ! iq was iqqv this is closed at the end of do 1001
+      vcoudfile='Vcoud.'//trim(i2char(iq)) ! iq was iqqv this is closed at the end of do 1001
       open(newunit=ifvcoud, file=trim(vcoudfile), action='read',form='unformatted')
       read(ifvcoud) ngb0
       read(ifvcoud) qvv

@@ -392,7 +392,7 @@ c      logical :: newaniso !fixed to be T
 c      complex(8),allocatable:: ppovl(:,:)!,zcousq(:,:) !,ppovlz(:,:)
 c      real(8),allocatable::vcoud(:)!,vcousq(:)
       integer:: mrecl,nprecx,ifwd
-      character(5):: charnum5
+      character(10):: i2char
 
       integer:: ixc
       real(8):: qip(3,*),deltaw,shtw,eqx(nband),dwplot,tolq=1d-8
@@ -494,7 +494,7 @@ c          if(kx<=nqibz) qxx=qibz_k
 c          if(kx>nqibz ) qxx=q0i(:,kx-nqibz)
 c          qxx=qibz_k
 c          write(6,*) ' xxxxxxxxxxxx2222222222 sxcf: ngb=',ngb,nbloch
-c          ifvcoud = iopen('Vcoud.'//charnum5(kx),0,0,0)
+c          ifvcoud = iopen('Vcoud.'//i2char(kx),0,0,0)
 c          do
 c            read(ifvcoud) ngb0
 c            read(ifvcoud) qvv
@@ -532,8 +532,8 @@ c$$$          ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloc
 
 !! === open WVR,WVI for correlation mode ===
           if(.not.exchange) then
-            ifrcw  = iopen('WVR.'//charnum5(kx),0,-1,mrecl)
-            ifrcwi = iopen('WVI.'//charnum5(kx),0,-1,mrecl)
+            ifrcw  = iopen('WVR.'//i2char(kx),0,-1,mrecl)
+            ifrcwi = iopen('WVI.'//i2char(kx),0,-1,mrecl)
           endif
           nrot=0
           do irot = 1,ngrp
@@ -1130,11 +1130,11 @@ c three-point interpolation for Wc(we)
               deallocate(zwz)
             endif
  1000     continue
-c      if(newaniso) ifvcoud =iclose('Vcoud.'//charnum5(kx))
-          ifvcoud =iclose('Vcoud.'//charnum5(kx))
+c      if(newaniso) ifvcoud =iclose('Vcoud.'//i2char(kx))
+          ifvcoud =iclose('Vcoud.'//i2char(kx))
           if(.not.exchange) then
-            ifrcw  = iclose('WVR.'//charnum5(kx))
-            ifrcwi = iclose('WVI.'//charnum5(kx))
+            ifrcw  = iclose('WVR.'//i2char(kx))
+            ifrcwi = iclose('WVI.'//i2char(kx))
           endif
  1100   continue                ! end of k-loop
         if (tote) then

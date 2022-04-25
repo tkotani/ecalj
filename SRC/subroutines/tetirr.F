@@ -1,4 +1,5 @@
       subroutine tetirr(qb,n1,n2,n3,ipq,ntet,idtet)
+      use m_lmfinit,only: stdo
 C-  Finds inequivalent tetrahedra and counts them
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -14,25 +15,17 @@ Co         :the tetrahedron.
 Co   ntet  :number of different tetrahedra
 C ----------------------------------------------------------------------
 C     implicit none
-C Passed variables:
       integer n1,n2,n3,ntet,ipq(n1,n2,n3),idtet(0:4,*)
       double precision qb(3,3)
-C Local variables:
       integer:: i , j , i1 , i2 , i3 , j1 , j2 , j3 , k1 , k2 , k3 
      ., itet , mtet , ic , ii , ibtr(3,3) , kcut(3,4,6) , imc(0:1,0:1,0:1) 
-     ., iq(4) , iprint , awrite , i1mach
+     ., iq(4) , iprint , i1mach
       integer ,allocatable :: iwk_iv(:),iprm(:)
-
       double precision qb1(3,3)
       logical ipr
       character outs*80
-C Heap:
-
-      ipr = iprint() .ge. 30 .and. 6*n1*n2*n3 .gt. 1000
-     ..or. iprint() .ge. 40
-      i3 = awrite(' TETIRR: sorting %i tetrahedra ...',outs,80,0,
-     .6*n1*n2*n3,0,0,0,0,0,0,0)
-      if (ipr) call cwrite(outs,0,i3-1,0)
+      ipr = iprint() .ge. 30 .and. 6*n1*n2*n3 .gt. 1000.or. iprint() .ge. 40
+      write(stdo,"(' TETIRR: sorting ',i8,' tetrahedra ...')")6*n1*n2*n3
       call ccutup(qb,qb1,ibtr,kcut)
       ntet = 0
 C --- Start loop over microcells ----
@@ -79,24 +72,12 @@ C    ... Order the identifiers
  202  continue
 C --- Eliminate duplicate tetrahedra ---
       mtet = ntet
-c      print *,'mmmmmmmmm mtet=',mtet
-C ... Sort it with fast ivheap unless there is not enough memory
-c      call defask(i)
-c      if (i .gt. mtet*5) then
       allocate(iprm(mtet),iwk_iv(mtet*5))
       call ivheap(5, mtet,idtet,iprm,1)
       call ivprm (5, mtet , idtet , iwk_iv, iprm, .true. )
       deallocate(iwk_iv,iprm)
-
-*       call yprm('idtet',0,idtet,0,5,5,mtet)
-c      else
-c        call ivshel(5,mtet,idtet,ipq,.false.)
-c*       call yprm('idtet',0,idtet,0,5,5,mtet)
-c      endif
       ntet = 1
       do  30  i = 2, mtet
-C        print 337, i, idtet(1,i), idtet(2,i), idtet(3,i), idtet(4,i)
-C  337   format(i4,4i6)
         if (idtet(1,i) .eq. idtet(1,ntet)  .and.
      .  idtet(2,i) .eq. idtet(2,ntet)  .and.
      .  idtet(3,i) .eq. idtet(3,ntet)  .and.
@@ -110,8 +91,5 @@ C  337   format(i4,4i6)
           idtet(4,ntet) = idtet(4,i)
         endif
    30 continue
-
-      if (ipr) call awrit1(' %i inequivalent ones found',' ',
-     .80,i1mach(2),ntet)
+      if(ipr) write(stdo,"(i8,' inequivalent tetrahedron=')")ntet
       end
-

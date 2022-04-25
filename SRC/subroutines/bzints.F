@@ -1,5 +1,5 @@
       subroutine bzints(n1,n2,n3,ep,wp,nq,nband,nbmx,nsp,emin,emax,
-     .dos,nr,ef,job,ntet,idtet,sumev,sumwp)
+     .     dos,nr,ef,job,ntet,idtet,sumev,sumwp)
 C- BZ integrations by linear method
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -39,14 +39,13 @@ C Local parameters
       integer lgunit,ipr,stdo
       double precision ec(4),wc(4,2),ebot,etop,sev1,sev2,sumwm,
      .volwgt
-
+      character(10):: i2char
       call getpr(ipr)
       stdo = lgunit(1)
 C     stdl = lgunit(2)
       jjob = iabs(job)
-      if (job .lt. 0 .and. nsp .eq. 2 .or.
-     .jjob .ne. 1 .and. jjob .ne. 2) call fexit2(-1,111,
-     .' Exit -1 BZINTS: job=%i and nsp=%i not allowed',job,nsp)
+      if (job .lt. 0 .and. nsp .eq. 2 .or.jjob .ne. 1 .and. jjob .ne. 2)
+     & call rx('Exit -1 BZINTS: job='//trim(i2char(job))//' and nsp='//trim(i2char(nsp))//' not allowed')
       if (jjob .eq. 1) call dpzero(dos,nsp*nr)
       if (jjob .eq. 2) call dpzero(wp,nband*nsp*nq)
       sev1 = 0d0

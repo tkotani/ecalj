@@ -143,7 +143,7 @@ c          call defi(oiwk,nv)
 c          call dvshel(3,nv,vecs,w(oiwk),1)
           allocate(w_oiwk(nv))
           call dvshel(3,nv,vecs,w_oiwk,1)
-*       call awrit2('%n:1i',' ',80,6,nv,w(oiwk))
+c       call awrit2('%n:1i',' ',80,6,nv,w(oiwk))
           k = 0
 C   ... Mark any replica iv by iwk(i) -> -iv
           do  32  i = nv-1, 1, -1
@@ -218,17 +218,17 @@ c        call rlse(oiwk)
       endif
 
 C --- Printout ---
-      if (iprint() .le. 70) return
-      call awrit5(' xlgen: opts=%i  mode=%3:1i  rmax=%;4d  plat='//
-     .'%9:1;4d  nv=%i',' ',80,lgunit(1),opts,mode,rmax,plat,nv)
-      if (iprint() .lt. 110) return
-      print 345
-  345 format('  iv',6x,'px',8x,'py',8x,'pz',8x,'l')
-      do  40  i = 1, nv
-        v2 = vecs(1,i)**2 + vecs(2,i)**2 + vecs(3,i)**2
-        print 346, i, (vecs(m,i), m=1,3), dsqrt(v2)
-  346   format(i4,3f10.4,f10.3)
-   40 continue
+c$$$      if (iprint() .le. 70) return
+c$$$      call awrit5(' xlgen: opts=%i  mode=%3:1i  rmax=%;4d  plat='//
+c$$$     .'%9:1;4d  nv=%i',' ',80,lgunit(1),opts,mode,rmax,plat,nv)
+c$$$      if (iprint() .lt. 110) return
+c$$$      print 345
+c$$$  345 format('  iv',6x,'px',8x,'py',8x,'pz',8x,'l')
+c$$$      do  40  i = 1, nv
+c$$$        v2 = vecs(1,i)**2 + vecs(2,i)**2 + vecs(3,i)**2
+c$$$        print 346, i, (vecs(m,i), m=1,3), dsqrt(v2)
+c$$$  346   format(i4,3f10.4,f10.3)
+c$$$   40 continue
       end
 C      subroutine fmain
 C

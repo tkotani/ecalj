@@ -108,9 +108,11 @@ C   ... Fit for this spin
      .  , err )
 
 
-        if (isp .eq. 1 .and. ipr .ge. 20 .and. ipr .lt. 30)
-     .  call awrit3('%N tailsm:  fit tails to %i functions with'
-     .  //' rsm=%;7g.  rms error=%;7F',' ',80,stdo,nxi,rsm,err)
+c        if (isp .eq. 1 .and. ipr .ge. 20 .and. ipr .lt. 30)
+c     .  call awrit3('%N tailsm:  fit tails to %i functions with'
+c     .  //' rsm=%;7g.  rms error=%;7F',' ',80,stdo,nxi,rsm,err)
+        if (isp==1 .and. ipr>=20)  write(stdo,"(' tailsm:  fit tails to ',i8,' functions with'
+     .  //' rsm=',d13.5,' rms error=',d13.5)") nxi,rsm,err
 
 C   ... Fit a second time for the full density in rhot
         if (lrhot .ne. 0) then

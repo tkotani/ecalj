@@ -102,7 +102,6 @@ hansr4.o \
 hansr5.o \
 hansr.o \
 hansrz.o \
-hft2rs.o \
 hnsmft.o \
 hsmq.o \
 iax2fd.o \

@@ -13,15 +13,15 @@ c      complex(8),protected :: llmat(3,3)
       integer:: iq,iq_read,ngb_read
       real(8):: q_read(3),tolq=1d-8
       integer::ifw4p,ifw4pchk,ngbq0,ix
-      character(5)::charnum5
+      character(10)::i2char
       logical::ext
       open(newunit=ifw4pchk,file='checkW4PHONON',status='replace')
       iq=0
       do 
          iq=iq+1
-         inquire(file='W4PHONON.'//charnum5(iq),exist=ext)
+         inquire(file='W4PHONON.'//i2char(iq),exist=ext)
          if(ext) then
-            open(newunit=ifw4p,file='W4PHONON.'//charnum5(iq),form='unformatted',status='old')
+            open(newunit=ifw4p,file='W4PHONON.'//i2char(iq),form='unformatted',status='old')
             read(ifw4p) iq_read,q_read,ngb_read,ix !ix=0, or ix=1 for q=0 (iq=1)
             close(ifw4p)
             write(ifw4pchk,*) iq_read,q_read,ngb_read,ix !ix=0, or ix=1 for q=0 (iq=1)
@@ -40,14 +40,14 @@ c      complex(8),protected :: llmat(3,3)
       real(8):: q_read(3),tolq=1d-8
       integer::ifile_handle
       integer::ifw4p,ngbq0,ix
-      character(5)::charnum5
+      character(10)::i2char
       logical::ext
       iq=0
       do
          iq=iq+1
-         inquire(file='W4PHONON.'//charnum5(iq),exist=ext)
+         inquire(file='W4PHONON.'//i2char(iq),exist=ext)
          if(ext) then
-            open(newunit=ifw4p,file='W4PHONON.'//charnum5(iq),form='unformatted',status='old')
+            open(newunit=ifw4p,file='W4PHONON.'//i2char(iq),form='unformatted',status='old')
             read(ifw4p) iq_read,q_read,ngb_read,ix !ix=0, or ix=1 for q=0 (iq=1)
 c            if(iqx /=iq_read) call rx('m_readeps: iqx/=iqf')
             if(sum(abs(q-q_read)) <tolq) then
@@ -65,7 +65,7 @@ c               write(*,*) 'm_readeps: epsinv size',size(epsinv,1),size(epsinv,2
             close(ifw4p)
          else
             write(*,*) 'm_readeps err1: iq,q',iq,q
-            call rx('m_readeps: W4PHONON'//charnum5(iq)//' not found for given q.')
+            call rx('m_readeps: W4PHONON'//i2char(iq)//' not found for given q.')
          endif
       enddo
       inquire(file='W4PHONON.HeadWing',exist=ext)

@@ -76,8 +76,8 @@ C --- Printout ---
           call info(0,1,0, ' RLXSTP: Molecular statics (Broyden) ..',0,0)
         endif
         call info2(0,0,0, '         relaxing %i variables, %i iterations',natrlx,nitrlx)
-        call awrit4('         x-tol=%d, g-tol=%d, step=%d (pdim=%i)',
-     .  ' ',120,i1mach(2),mdprm(3),mdprm(4),mdprm(5),pdim)
+        write(stdo,"('        x-tol=',d13.5,' g-tol=',d13.5,' step=',d13.5,' pdim=',d13.5)")
+     .  mdprm(3),mdprm(4),mdprm(5),pdim
       endif
  9299 continue
       end subroutine rlxstp

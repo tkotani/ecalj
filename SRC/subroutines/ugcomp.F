@@ -1,4 +1,4 @@
-      subroutine ugcomp(nbas,ssite,sspec,qmom,gpot0,hpot0,ugg,f)!slat,
+      subroutine ugcomp(nbas,ssite,sspec,qmom,gpot0,hpot0,ugg,f) !slat,
       use m_struc_def  !Cgetarg
 C- Part of the smooth estatic energy from compensating G's alone.
 C ----------------------------------------------------------------------
@@ -148,10 +148,8 @@ c      do  ib = 1, nbas
 #if MPI |MPIK
         if (mlog .and. ib .eq. bproc(procid)) then
           call gettime(datim)
-          call awrit4(' ugcomp '//datim//' Process %i of %i on '
-     .    //shortname(procid)(1:namelen(procid))//
-     .    ' starting atoms %i to %i',' ',256,lgunit(3),
-     .    procid,numprocs,bproc(procid),bproc(procid+1)-1)
+          write(lgunit(3),"(a,i5,' of ',i5,a,i5,' to ',i5)")' ugcomp '//datim//' Process ',procid,numprocs,
+     &    ' on '//shortname(procid)(1:namelen(procid))//' starting atoms ',bproc(procid),bproc(procid+1)-1
         endif
         iv0 = iiv0(ib)
 #endif
@@ -279,10 +277,8 @@ C ... Assemble data from separate threads
      .MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
       if (mlog) then
         call gettime(datim)
-        call awrit3(' ugcomp '//datim//' Process %i of %i on '
-     .  //shortname(procid)(1:namelen(procid))//
-     .  ' allreduce gpot0 nvl=%i',' ',256,lgunit(3),
-     .  procid,numprocs,nvl)
+        write(lgunit(3),"(a,i5,' of ',i5,a,i5)") ' ugcomp '//datim//' Process ',procid,numprocs,
+     &   ' on '//shortname(procid)(1:namelen(procid))//' allreduce gpot0 nvl=',nvl
       endif
       call daxpy(nvl,1d0,buffer,1,gpot0,1)
       deallocate(buffer, stat=ierr)
@@ -292,10 +288,9 @@ C ... Assemble data from separate threads
      .MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
       if (mlog) then
         call gettime(datim)
-        call awrit3(' ugcomp '//datim//' Process %i of %i on '
-     .  //shortname(procid)(1:namelen(procid))//
-     .  ' allreduce hpot0 nbas=%i',' ',256,lgunit(3),
-     .  procid,numprocs,nbas)
+        write(lgunit(3),"(a,i5,' of ',i5,a,i5)")
+     .       ' ugcomp '//datim//' Process ',procid,numprocs,
+     &       ' on '//shortname(procid)(1:namelen(procid))//' allreduce hpot0 nbas=',nbas
       endif
       call daxpy(nbas,1d0,buffer,1,hpot0,1)
       deallocate(buffer, stat=ierr)
@@ -305,10 +300,9 @@ C ... Assemble data from separate threads
      .MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
       if (mlog) then
         call gettime(datim)
-        call awrit3(' ugcomp '//datim//' Process %i of %i on '
-     .  //shortname(procid)(1:namelen(procid))//
-     .  ' allreduce f 3nbas=%i',' ',256,lgunit(3),
-     .  procid,numprocs,3*nbas)
+        write(lgunit(3),"(a,i5,' of ',i5,a,i5)")
+     .       ' ugcomp '//datim//' Process ',procid,numprocs,
+     &       ' on '//shortname(procid)(1:namelen(procid))//' allreduce f 3nbas=',3*nbas
       endif
       call daxpy(3*nbas,1d0,buffer,1,f,1)
       deallocate(buffer, stat=ierr)
@@ -317,10 +311,9 @@ C ... Assemble data from separate threads
      .MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
       if (mlog) then
         call gettime(datim)
-        call awrit2(' ugcomp '//datim//' Process %i of %i on '
-     .  //shortname(procid)(1:namelen(procid))//
-     .  ' allreduce ugg',' ',256,lgunit(3),
-     .  procid,numprocs)
+        write(lgunit(3),"(a,i5,' of ',i5,a)")
+     .       ' ugcomp '//datim//' Process ',procid,numprocs,
+     &       ' on '//shortname(procid)(1:namelen(procid))//' allreduce ugg'
       endif
       deallocate(bproc, stat=ierr)
 #else

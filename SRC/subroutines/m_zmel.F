@@ -200,16 +200,16 @@ c      integer(4),intent(in) :: il(nlnmx,nclass),in(nlnmx,nclass),im(nlnmx,nclas
       logical,optional::izmel0
       integer:: iq,k,isp_k,isp_kq,izmel,nmtot_,nqtot_
       character(1):: rw
-      character*8 :: charext
+      character(10) :: i2char
       character*256::fff
       real(8),optional:: q(3)
       integer::nnn
-      open(newunit=izmel,file='zmel.'//trim(charext(iq))//'_'
-     &     //trim(charext(k))//'_'//trim(charext(isp_k))//trim(charext(isp_kq)),
+      open(newunit=izmel,file='zmel.'//trim(i2char(iq))//'_'
+     &     //trim(i2char(k))//'_'//trim(i2char(isp_k))//trim(i2char(isp_kq)),
      &     form='unformatted')
       if(rw=='r'.and.present(izmel0)) then
-         fff=trim('zmel.'//trim(charext(iq))//'_'
-     &     //trim(charext(k))//'_'//trim(charext(isp_k))//trim(charext(isp_kq)))
+         fff=trim('zmel.'//trim(i2char(iq))//'_'
+     &     //trim(i2char(k))//'_'//trim(i2char(isp_k))//trim(i2char(isp_kq)))
          print *,'fff=',trim(fff)
          read(izmel) nbb,nmtot_,nqtot_,qm0
          if(allocated(zmel0)) deallocate(zmel0)

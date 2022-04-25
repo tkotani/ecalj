@@ -280,7 +280,7 @@ ctm
       integer:: ifvcoud,ivc,ngb0
       real(8)::qvv(3),vc
       logical :: newansisoW
-      character(5):: charnum5
+      character(10):: i2char
 
 c      real(8),allocatable:: wklm(:),dmlx(:,:),epinvq0i(:,:)
 c      integer:: ifidmlx,lxklm,nq0ix
@@ -444,7 +444,7 @@ c        ngc = ngcni(k)  ! k-points in IBZ
            qxx=qibz_k
 c           if(kx<=nqibz) qxx=qibz_k
 c           if(kx>nqibz ) qxx=q0i(:,kx-nqibz)
-           ifvcoud = iopen('Vcoud.'//charnum5(kx),0,0,0)
+           ifvcoud = iopen('Vcoud.'//i2char(kx),0,0,0)
            do
               read(ifvcoud) ngb0
               read(ifvcoud) qvv
@@ -473,7 +473,7 @@ c$$$  cccccccccccccccccccccccccccccccccccccccccccccc
               call rx( 'wmatK: qvv/=qibz(:,kx) hvcc is not consistent')
            endif
  1133      continue
-           ifvcoud = iclose('Vcoud.'//charnum5(kx))
+           ifvcoud = iclose('Vcoud.'//i2char(kx))
            if( ngb0/=ngb ) then !sanity check
               write(6,*)' qxx ngb0 ngb=',qxx,ngb0,ngb
               call rx( 'hsfp0.m.f:ngb0/=ngb')
@@ -757,7 +757,7 @@ c------------------------------------------------
         nx  = niw
         nprecx=8
         mrecl  = nprecx*2*nblochpmx*nblochpmx/nwordr()
-        ifrcwi = iopen('WVI.'//charnum5(kx),0,-1,mrecl)
+        ifrcwi = iopen('WVI.'//i2char(kx),0,-1,mrecl)
         do ix = 1,nx     ! imaginary frequency w'-loop
 ccccccccccccccccccccccccccccccccc
 c          nrec=(kx-2)*niw+ix
@@ -788,7 +788,7 @@ c        enddo
           enddo ! ir2
           enddo ! ir3
         enddo
-        ifrcwi = iclose('WVI.'//charnum5(kx))
+        ifrcwi = iclose('WVI.'//i2char(kx))
 
 c====================================================================
 c Wc(qt,w) along the real axis
@@ -796,7 +796,7 @@ c====================================================================
         if(debug) write(6,*)' go to poles'
         nprecx=8
         mrecl  = nprecx*2*nblochpmx*nblochpmx/nwordr()
-        ifrcw = iopen('WVR.'//charnum5(kx),0,-1,mrecl)
+        ifrcw = iopen('WVR.'//i2char(kx),0,-1,mrecl)
         do      ix = 0,nrw                    ! real frequency w'-loop
 ccccccccccccccccccccccccccc
 c          nrec=(kx-2)*(nw+1-nw_i)+ ix-nw_i+1
@@ -818,7 +818,7 @@ c zwz = S[i,j] <psi(q,t) |psi(q-rk,n) B(rk,i)> Wc(k,iw')(i,j) > <B(rk,j) psi(q-r
           enddo ! ir2
           enddo ! ir3
         enddo
-        ifrcw = iclose('WVR.'//charnum5(kx))
+        ifrcw = iclose('WVR.'//i2char(kx))
         deallocate(zmelc,zw,zw2)
         if(debug) write(6,*)' end of screen-if'
 c end of if (exchange)

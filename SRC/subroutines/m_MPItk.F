@@ -22,9 +22,8 @@
       character::  prgnamx*(*)
       integer:: mpipid
       logical:: cmdopt0
-      character(5) :: charnum5
-      character*8 charext
       integer fext,lgunit
+      character(10):: i2char
       prgnam=prgnamx
       call mpi_init(ierr)
       call mpi_comm_size(MPI_COMM_WORLD, nsize,ierr)
@@ -34,19 +33,19 @@
       procid = mpipid(1) !
       nproc  = mpipid(0) ! num of processors
       shortname(procid) = trim(name)
-      strprocid=charext(procid)
+      strprocid=trim(i2char(procid))
       call Gettime(datim)
       call Finits() !read and set arguments addsyv in symvar.F
       mlog = cmdopt0('--mlog') !! set log for --mlog (not maintained well)
       if(mlog) write(lgunit(3),"(a)")' lmf '//datim//' Process '
-     &  //trim(charnum5(procid))//' of '//trim(charnum5(nproc-1))//' on '//trim(shortname(procid)) 
+     &  //trim(i2char(procid))//' of '//trim(i2char(nproc-1))//' on '//trim(shortname(procid)) 
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
 #else
       call Finits() !read and set arguments addsyv in symvar.F
       procid=0 
 #endif      
       if(procid == master) ext=''
-      if(procid /= master) ext='_'//trim(charext(procid))
+      if(procid /= master) ext='_'//trim(i2char(procid))
 c      ierr = fext('.'//trim(sname)//trim(ext)) !set ext for fopen
       master_mpi=.false.
       if(procid==master) master_mpi=.true.
@@ -82,14 +81,13 @@ c     if( master_mpi ) call rx0(prgnam//' on '//trim(shortname(procid)))
       character*26 datim
       character(512):: aaachar
       character(10):: i2char
-      character*8:: charext
       numprocs=nsize
 c      if(iq==iqini) then
          if(mlog) then
                call gettime(datim)
                aaachar=' bndfp '//datim//' Process '//
      &              trim(i2char(procid))//' of '//trim(i2char(numprocs))//' on '//
-     &              trim(charext(procid))//' starting k-points '//
+     &              trim(i2char(procid))//' starting k-points '//
      &              trim(i2char( iqini))//' to '//trim(i2char(iqend))
                write(lgunit(3),"(a)")trim(aaachar)
          endif

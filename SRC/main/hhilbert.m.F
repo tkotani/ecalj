@@ -66,7 +66,7 @@ c      use m_eibz,only:    Seteibz, nwgt,neibz,igx,igxt,eibzsym
       logical :: debug=.false. , realomega, imagomega, nolfco=.false.
       logical :: hx0, eibzmode, crpa, eibz4x0,iprintx=.false.,chipm=.false., localfieldcorrectionllw
       integer:: i_red_npm, i_red_nwhis,  i_red_nmbas2,ierr,ircxq,npmx
-      character*8 :: charext
+      character(10) :: i2char
       character(20):: outs=''
       integer:: ipart
       logical:: cmdopt2
@@ -119,7 +119,7 @@ c      call Init_readeigen2()
 !! Read Coulomb matrix 
         call Readvcoud(qp,iq,NoVcou=.false.) !Readin vcousq,zcousq ngb ngc for the Coulomb matrix 
 !! Read rcxq        
-        open(newunit=ircxq,file='rcxq.'//trim(charext(iq)),form='unformatted')
+        open(newunit=ircxq,file='rcxq.'//trim(i2char(iq)),form='unformatted')
         read(ircxq) nmbas1,nmbas2
         if(allocated(rcxq)) deallocate(rcxq)
         allocate( rcxq(nmbas1,nmbas2,nwhis,npm))

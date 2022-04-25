@@ -72,7 +72,7 @@ c      use m_readq0p,only:     Readq0p,   wqt,q0i,nq0i ,nq0iadd,ixyz
       logical :: debug=.false. , realomega, imagomega, nolfco=.false.
       logical :: hx0, eibzmode, crpa, eibz4x0,iprintx=.false.,chipm=.false., localfieldcorrectionllw
       integer:: i_red_npm, i_red_nwhis,  i_red_nmbas2,ierr,ircxq,npmx
-      character*8 :: charext
+      character(10) :: i2char
       character(20):: outs=''
       integer:: ipart
       logical:: cmdopt2
@@ -239,7 +239,7 @@ c      call Readq0p()    !Readin Offset Gamma
      i       nolfco, zzr, nmbas_in, chipm, eibzmode=eibzmode, eibzsym=eibzsym(:,:,iq),
      o       rcxq=rcxq)              !  crystal symmetry of rcxq is recovered for EIBZ mode.
         endif
-        open(newunit=ircxq,file='rcxq.'//trim(charext(iq)),form='unformatted')
+        open(newunit=ircxq,file='rcxq.'//trim(i2char(iq)),form='unformatted')
         write(ircxq) nmbas1,nmbas2
         write(ircxq) rcxq
         close(ircxq)
@@ -250,7 +250,7 @@ c      call Readq0p()    !Readin Offset Gamma
 !!-Hilbert transformation -----------
       do 1201 iq = iqxini,iqxend
         if( .not. MPI__Qtask(iq) ) cycle
-        open(newunit=ircxq,file='rcxq.'//trim(charext(iq)),form='unformatted')
+        open(newunit=ircxq,file='rcxq.'//trim(i2char(iq)),form='unformatted')
         read(ircxq) nmbas1,nmbas2
         if(allocated(rcxq)) deallocate(rcxq)
         allocate( rcxq(nmbas1,nmbas2,nwhis,npm))

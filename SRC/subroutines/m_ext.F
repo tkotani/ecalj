@@ -18,15 +18,31 @@ c         write( 6, '( i5, x, a )' ) i, trim(argv)
       enddo
       end subroutine
       end module
-
-      character(5) function charnum5(num)
-      integer(4) ::num
-      charnum5 = char(48+mod(num/10000,10))//
-     &           char(48+mod(num/1000,10))//
-     &           char(48+mod(num/100,10))//
-     &           char(48+mod(num/10,10))//
-     &           char(48+mod(num,10))
-      end
+      
+! use i2char instead !-----------------      
+c$$$      character(9) function itoa(numin)
+c$$$      integer(4) ::numin,num
+c$$$      num=abs(numin)
+c$$$                     itoa= char(48+mod(num,10))
+c$$$      if(num>9)      itoa= char(48+mod(num/10,10))//itoa
+c$$$      if(num>99)     itoa= char(48+mod(num/100,10))//itoa
+c$$$      if(num>999)    itoa= char(48+mod(num/1000,10))//itoa
+c$$$      if(num>9999)   itoa= char(48+mod(num/10000,10))//itoa
+c$$$      if(num>99999)  itoa= char(48+mod(num/100000,10))//itoa
+c$$$      if(num>999999) itoa= char(48+mod(num/1000000,10))//itoa
+c$$$      if(num>9999999)itoa= char(48+mod(num/10000000,10))//itoa
+c$$$      if(num>99999999) call rx( ' charext:can not produce')
+c$$$      if(numin<0) itoa='-'//itoa
+c$$$      end
+c
+c$$$      character(5) function charnum5(num)
+c$$$      integer(4) ::num
+c$$$      charnum5 = char(48+mod(num/10000,10))//
+c$$$     &           char(48+mod(num/1000,10))//
+c$$$     &           char(48+mod(num/100,10))//
+c$$$     &           char(48+mod(num/10,10))//
+c$$$     &           char(48+mod(num,10))
+c$$$      end
       
       character(4) function charnum4(num)
       integer(4) ::num
@@ -59,15 +75,6 @@ c      character*(*) add
       if(num>999999) call rx( ' xts:can not produce')
       end
       
-      character*8 function charext(num)
-      integer(4) ::num
-      charext = char(48+mod(num,10))
-      if(num>9)   charext= char(48+mod(num/10,10))//charext
-      if(num>99)  charext= char(48+mod(num/100,10))//charext
-      if(num>999) charext= char(48+mod(num/1000,10))//charext
-      if(num>9999)charext= char(48+mod(num/10000,10))//charext
-      if(num >99999) call rx( ' charext:can not produce')
-      end
 
       character*9 function ftoa9(arg)
       real(8):: arg

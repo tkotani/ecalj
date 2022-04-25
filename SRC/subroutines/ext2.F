@@ -37,46 +37,7 @@ C Local parameters
   100 continue
  1001 continue
       end
-C#elseC
-C      subroutine zhmul(ndim,hk,d,nid,ck)
-CC- Multiplies matrix ck = hk*d*hk, where d is a diagonal matrix
-CC ----------------------------------------------------------------
-CCi Inputs
-CCi   ndim,hk,d
-CCi   nid: skip length between elements of d
-CCo Outputs
-CCo   ck
-CCr Remarks
-CCr   Hk and ck are dimensioned (ndim,ndim,2) (real followed by imag)
-CCr   The looping order is chosen so as to vectorize the inner loop
-CC ----------------------------------------------------------------
-CC     implicit none
-CC Passed parameters
-C      integer ndim,nid
-C      double precision hk(ndim,ndim),ck(ndim,ndim),d(nid,1)
-CC Local parameters
-C      integer n2,i,j,k
-C      double precision xikr,xiki
-CC
-C      n2 = ndim**2
-C      do  100  k = 1, ndim
-C        do  100  i = 1, ndim
-C        xikr = d(1,k)*hk(i,k)
-C        xiki = d(1,k)*hk(n2+i,k)
-C#ifdefC BLAS
-C        call daxpy(ndim, xikr,hk(   k,1),ndim,ck(i,1),   ndim)
-C        call daxpy(ndim,-xiki,hk(n2+k,1),ndim,ck(i,1),   ndim)
-C        call daxpy(ndim, xikr,hk(n2+k,1),ndim,ck(n2+i,1),ndim)
-C        call daxpy(ndim, xiki,hk(   k,1),ndim,ck(n2+i,1),ndim)
-C#elseC
-C        do  110  j = 1, ndim
-C          ck(i,j)    = ck(i,j)    + xikr*hk(k,j) - xiki*hk(n2+k,j)
-C          ck(n2+i,j) = ck(n2+i,j) + xikr*hk(n2+k,j) + xiki*hk(k,j)
-C  110 continue
-C#endifC
-C  100 continue
-C      end
-C#endif
+      
       subroutine zmul0(ndim,a,b,c)
 C- Multiplies complex matrix c = a*b,
 C- All matrices have the same dimension
@@ -96,23 +57,7 @@ C Passed parameters
 C Local parameters
       integer n2,i,j,k,jndim,j2ndim,kndim,k2ndim
       double precision bkj,bk2j,bk2jm
-
       n2 = ndim**2
-
-C#ifdefC CRAY
-C      call mxma(a,1,ndim,b,1,ndim,c,1,ndim,ndim,ndim,ndim)
-C      call mxma(a,1,ndim,b(n2+1),1,ndim,c(n2+1),1,ndim,ndim,ndim,ndim)
-C      call dinit(a,n2)
-C      call mxma(a(n2+1),1,ndim,b(n2+1),1,ndim,a,1,ndim,ndim,ndim,ndim)
-C      do 10 i = 1, n2
-C        c(i) = c(i) - a(i)
-C   10 continue
-C      call dinit(a,n2)
-C      call mxma(a(n2+1),1,ndim,b,1,ndim,a,1,ndim,ndim,ndim,ndim)
-C      do 20 i = 1, n2
-C        c(n2+i) = c(n2+i) + a(i)
-C   20 continue
-C#else
       do  1001  j = 1, ndim
         jndim = (j-1)*ndim
         j2ndim = jndim+n2
@@ -130,8 +75,8 @@ C#else
   110   continue
   100 continue
  1001 continue
-C#endif
       end
+      
       subroutine zmul(a,nleft,b,nmid,c,nright)
 C- General complex matrix copy c = a*b, cij = \sum aik*bkj
 C ----------------------------------------------------------------
@@ -174,6 +119,7 @@ C Local parameters
   100 continue
  1001 continue
       end
+      
       subroutine zmult(a,nleft,b,nmid,c,nright)
 C- General complex matrix copy c = at*b,
 C-                             cij = \sum atik*bkj = \sum aki*bkj

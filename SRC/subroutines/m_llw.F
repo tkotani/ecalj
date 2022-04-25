@@ -44,7 +44,7 @@ c      use m_readq0p,only: Readq0p,
       logical::  localfieldcorrectionllw
       logical,save:: init=.true.
       complex(8):: zxq(nmbas1,nmbas2,nw_i:nw)
-      character(5):: charnum5
+      character(10):: i2char
 !     !
       mreclx=mrecl
       write(6,*)'WVRllwR init zxq dddxxx',nmbas1,nmbas2,nw_i,nq0i,nblochpmx !,zxq(1,1,iw) !, sum(abs(zxq))
@@ -72,7 +72,7 @@ c         tpioa=2d0*pi/alat
       write(6, *)" === trace check for W-V === nwmin nwmax=",nwmin,nwmax
       write(6,*) 'qqqqqxx=',iq,q
       if(iq<=nqibz) then        !for mmmw
-         open(newunit=ifrcw, file='WVR.'//charnum5(iq),form='unformatted',access='direct',recl=mreclx)
+         open(newunit=ifrcw, file='WVR.'//i2char(iq),form='unformatted',access='direct',recl=mreclx)
          do 1015 iw  = nwmin,nwmax
             frr= dsign(freq_r(abs(iw)),dble(iw))
 c            imode = 1
@@ -96,7 +96,7 @@ c            imode = 1
             if(iw==0.and.w4pmode) then 
 !static epstinv is saved. For q=0 epstilde (mu=1 skipped). For q/=0 full matrix inversion.
 !(ix=1 is set for q=0) 
-               open(newunit=ifw4p,file='W4PHONON.'//charnum5(iq),form='unformatted')
+               open(newunit=ifw4p,file='W4PHONON.'//i2char(iq),form='unformatted')
                write(ifw4p) iq,q,ngb,ix !ix=0, or ix=1 for q=0 (iq=1)
                write(ifw4p) epstinv(ix+1:ngb,ix+1:ngb) 
                close(ifw4p)
@@ -157,7 +157,7 @@ c            imode = 1
      &           2i5,x,10(d13.6,2x,d13.6,x,d13.6,2x,d13.6,x,d13.6))")
      &           iq,iw,freq_r(iw),llw(iw,iq0),1d0-vcou1*zxq(1,1,iw)
  1115    continue               !iw
-c         open(newunit=ifllw,file='LLWR.'//charnum5(iq),form='unformatted')
+c         open(newunit=ifllw,file='LLWR.'//i2char(iq),form='unformatted')
 c         write(ifllw) llw
 c         close(ifllw)
       endif   
@@ -173,7 +173,7 @@ c      deallocate( zw0, epstilde, epstinv)
       logical::  localfieldcorrectionllw
       logical,save:: init=.true.
       complex(8):: zxqi(nmbas1,nmbas2,niw)
-      character(5):: charnum5
+      character(10):: i2char
       mreclx=mrecl
       if(init) then
          allocate( llwI(niw,nq0i) )
@@ -185,7 +185,7 @@ c      allocate( epstilde(ngb,ngb), epstinv(ngb,ngb))
       write(6,*)'WVRllwI: init'
       if (nspin == 1) zxqi = 2d0*zxqi ! if paramagnetic, multiply x0 by 2
       if( iq<=nqibz ) then
-        open(newunit=ifrcwi,file='WVI.'//charnum5(iq),form='unformatted',access='direct',recl=mreclx)
+        open(newunit=ifrcwi,file='WVI.'//i2char(iq),form='unformatted',access='direct',recl=mreclx)
         do 1016 iw  = 1,niw
 !!  Eqs.(37),(38) in PRB81 125102
            if(iq==1) then
@@ -242,7 +242,7 @@ c      allocate( epstilde(ngb,ngb), epstinv(ngb,ngb))
            if(iq0<=nq0i) write(6,"('iq iw_img eps(wLFC) eps(noLFC)',i4,i4,2f10.4,2x,2f10.4)")
      &          iq,iw,llwI(iw,iq0),1d0-vcou1*zxqi(1,1,iw)
  1116   continue
-c        open(newunit=ifllwi,file='LLWI.'//charnum5(iq),form='unformatted')
+c        open(newunit=ifllwi,file='LLWI.'//i2char(iq),form='unformatted')
 c        write(ifllwi) llwi
 c        close(ifllwi)
       endif

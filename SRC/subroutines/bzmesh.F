@@ -240,8 +240,7 @@ C ... Done accumulating inequivalent qp
       if (lstar .ne. 0) igstar(0) = n1 + ndmx*n2 + ndmx**2*n3
       if (lstar .lt. 0) igstar(0) = -igstar(0)
       if (igcnt .ne. n1*n2*n3) call rx('bug in bzmesh')
-      if (dabs(swgt-2) .gt. 1.d-9) call fexit(-1,111,
-     .' Exit -1 BZMESH: QP weights sum to %1;6d but must sum to 2',swgt)
+      if (dabs(swgt-2) .gt. 1.d-9) call rx1('BZMESH: QP weights sum to ',swgt)
       if (ipr .ge. 50) then
         write(stdo,663)
   663   format(14x,'Qx',10x,'Qy',10x,'Qz',6x,'Multiplicity    Weight')

@@ -26,16 +26,19 @@ c         print *,'mpipid i=',mpipid(1),i,trim(nnn)
       call rx('ifile_handle: we did not find open file handle')
       end
 !ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-      character(10) function i2char(num)
-!! convert num>0 to char. See charnum3 to understand this.
+      character(10) function i2char(numin)
+!! convert num to char. See charnum3 to understand this.
       implicit none
-      integer(4) ::num,itens,iten
+      integer(4) ::num,itens,iten,numin
+      num=abs(numin)
+      if(num>=10**9) call rx('i2char:num>10**9')
       i2char=''
-      do itens=9,1,-1 !itens mean itens+1's digit
+      do itens=8,1,-1 !itens mean itens+1's digit
         iten=10**itens
         if(num>=iten) i2char=trim(i2char)//char(48+mod(num/iten,10))
       enddo
       i2char = trim(i2char)//char(48+mod(num,10)) !1st digit
+      if(numin<0) i2char = '-'//trim(i2char)//char(48+mod(num,10)) !1st digit
       end
 !ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       character(3) function charnum3(num)

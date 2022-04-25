@@ -1,7 +1,7 @@
       integer function lgunit(i)
       use m_ext,only: sname
       implicit none
-      character*8 charext
+      character(10):: i2char
       character*100 ext
       integer i, fopn, i1mach, fhndl,ifile_handle,procid
       integer,save:: lgunit1=0,lgunit2=0,lgunit3=0
@@ -20,7 +20,7 @@ C- Returns stdout for i=1, log for i=2, mlog for i=3 (MPI logfile)
       elseif (i .eq. 3) then
          if(lgunit3==0) then
             lgunit3=ifile_handle()
-            open(lgunit3,file='mlog.'//trim(sname)//'_'//trim(charext(procid)))
+            open(lgunit3,file='mlog.'//trim(sname)//'_'//trim(i2char(procid)))
          endif
          lgunit = lgunit3
       endif

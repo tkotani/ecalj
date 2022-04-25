@@ -1,8 +1,6 @@
       subroutine sumlst(lopt,nchmx,nbas,ng,ssite,sspec,sopts,mode,
      .nsites,lsites,lmxch,nchan,lchan,nll)
-
       use m_struc_def  !Cgetarg
-
 C- Set up list of sites and mode for Mulliken or partial DOS projection
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -87,9 +85,8 @@ C Local Variables
      .'all sites l-projected','all sites lm-projected',
      .'site list atom-projected',
      .'site list l-projected','site list lm-projected' /
-
       logical:: isanrg, l_dummy_isanrg
-
+      character(256)::ttt
       lopt0 = mod(lopt,10)
       lopt1 = mod(lopt/10,10)
       ipr = iprint()
@@ -120,8 +117,7 @@ Ckino isanrg is logical function,             call isanrg(mode,0,5,' sumlst:','m
             l_dummy_isanrg=isanrg(mode,0,5,' sumlst:','mode',.true.)
             if (ipr .ge. 10) then
               if ((mode .eq. 2 .or. mode .eq. 5) .and. ng .gt. 1)
-     .        call awrit0(' **WARNING** sumlst: '//
-     .        'for lm-decomposition suppress symops',' ',128,stdo)
+     .        write(stdo,*)' **WARNING** sumlst: for lm-decomposition suppress symops'
             endif
 C         Number of energy points.  Not used now
           elseif (sopts(j1:j1+2) .eq. 'nl=')  then
@@ -208,19 +204,16 @@ C --- Generate nchan,lchan ---
         endif
       enddo
       nchan = i
-
 C --- Printout --
       if (ipr .ge. iprmin) then
-        call strip(modstr(mode),i,j)
-        call awrit4(' sumlst:  %?#n#Mulliken#Partial DOS# mode %i ('//
-     .  modstr(mode)(i:j)//')  %i sites %i channels',' ',128,stdo,
-     .  lopt0,mode,nsites,nchan)
+         call strip(modstr(mode),i,j)
+         if(lopt0==0) ttt=' sumlst:  Mulliken mode '
+         if(lopt0==1) ttt=' sumlst:  Partial DOS mode '
+         write(stdo,"(a,i5,a,i5,' sites ',i5,' channels')")ttt,mode,modstr(mode)(i:j),nsites,nchan
       endif
       return
-
   999 continue
       call rxs('sumlst: failed to parse options in ',sopts(j1:))
-
       end subroutine sumlst
 
 

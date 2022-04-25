@@ -116,7 +116,7 @@ c      logical :: tetra=.true. !,tmpwwk=.true.! If tmpwwk=.true., this use a tem
       character*11 fileps23
       character*16 filepsnolfc
       character*11  filele
-      character(5) :: charnum5
+      character(10) :: i2char
       character(20):: xxt
 
       real(8) :: Emin, Emax,emin2,emax2
@@ -844,11 +844,11 @@ c$$$          do ircw=1,2
 c$$$           if  (ircw==1) then
 c$$$              nini=nw_i
 c$$$              nend=nw
-c$$$              open(newunit=ifrcwx, file='WVR.'//charnum5(iq), form='unformatted', access='direct',recl=mrecl)
+c$$$              open(newunit=ifrcwx, file='WVR.'//i2char(iq), form='unformatted', access='direct',recl=mrecl)
 c$$$           elseif(ircw==2) then
 c$$$              nini=1
 c$$$              nend=niw
-c$$$              open(newunit=ifrcwx, file='WVI.'//charnum5(iq), form='unformatted',access='direct',recl=mrecl)
+c$$$              open(newunit=ifrcwx, file='WVI.'//i2char(iq), form='unformatted',access='direct',recl=mrecl)
 c$$$            endif
 c$$$            do iw=nini,nend
 c$$$              read(ifrcwx, rec= iw-nini+1) zw 

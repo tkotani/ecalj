@@ -1,10 +1,7 @@
       subroutine finits()       !job,fcn,fcargs,iarg)
       use m_ext,only:sname
       implicit none
-!!--- Set the numbr of iprint(), extension, and -vnam=val
-!!note: input arguments are      
-!!   [-vnam=val ...] [-pr# .or. --pr#] [switches] extens;
-!!--------------------------------      
+!! Set the numbr of iprint(), extension, and -vnam=val
       integer iarg
       double precision fcargs(1)
       logical lsequ,lext
@@ -12,7 +9,6 @@
       logical:: cmdopt
       character strn*256
       character*100 extns
-      call awrit0('%u',' ',80,0)
 !! Command line arguments and extension ---
       lext = .false.
       do iarg = 1,nargf()-1
@@ -27,8 +23,7 @@
       enddo
       end
 
-      subroutine fexit(retval,iopt,strng,args)
-      use m_lmfinit,only:stdo,stdl
+      subroutine fexit0(retval,iopt,strng)
       implicit none
 C- Machine and compiler-dependent program termination
 C ----------------------------------------------------------------------
@@ -49,34 +44,42 @@ C ----------------------------------------------------------------------
 C Passed parameters 
       integer retval,iopt
       character*(*) strng
-      double precision args(1),arg2(1),arg3(1)
-C Local parameters 
-      integer fhndl,iprint,i,i2,getdig,scrwid,mpipid
-c      parameter (scrwid=300)
+      double precision args,arg2,arg3,argss(3)
+      integer fhndl,iprint,i,i2,getdig,scrwid,mpipid,ix
       double precision cpusec,tnew
       character*1 timeu
       character*256 strn, datim*26, hostnm*20
-      character(8):: charext
+c      character(8):: charext
       character(9):: ftoa9
       logical isopen
-      integer master,procid,ierr
+      integer master,procid,ierr,stdo,stdl,lgunit,ia
       parameter (master = 0)
-#if MPI | MPIK
       include "mpif.h"
-#endif
+      ia=0
       goto 5
-      entry fexit3(retval,iopt,strng,args,arg2,arg3)
+      
+      entry fexit(retval,iopt,strng,args)
+      ia=1
+      goto 5
+      
       entry fexit2(retval,iopt,strng,args,arg2)
+      ia=2
+      goto 5
+      
+      entry fexit3(retval,iopt,strng,args,arg2,arg3)
+      ia=3
     5 continue
+      if(ia>=1) argss(1)=args
+      if(ia>=2) argss(2)=arg2
+      if(ia>=3) argss(3)=arg3
+      stdo=lgunit(1)
+      stdl=lgunit(2)
       procid = mpipid(1)
       if (procid .eq. master.or. retval/=0) then
         i = mod(iopt,10) !getdig(iopt,0,10) 
         if (i .ne. 0) then
-           if (i .eq. 9) then
-              write(stdo,"(a,i0,a)")'Exit ',retval,' '//trim(strng)
-           else
-             call awrit3(strng,strn,-len_trim(strn),stdo,args,arg2,arg3)
-           endif
+           if (i .eq. 9) ia=0
+           write(stdo,"(a,i0,a,3d15.8)")"Exit ",retval,' '//trim(strng),(argss(ix),ix=1,ia)
         endif
         i = mod(iopt/10,10) !getdig(iopt,1,10)
         if (i .ne. 0 .and. cpusec() .ne. 0) then
@@ -100,7 +103,6 @@ c      parameter (scrwid=300)
         endif
       endif
       call tcprt(stdo) 
-#if MPI | MPIK
       if(retval/=0) then
          write(6,"(a,i5)")'ERROR: fexit, error code=',retval
          write(6,*)
@@ -108,69 +110,55 @@ c      parameter (scrwid=300)
          call MPI_FINALIZE(i)
          stop
       endif
-#endif 
       call cexit(retval,1)
       stop
       end
 
-      subroutine rx0s(string)
+      subroutine rx0s(string) !normal exit for master_mpi
       use m_MPItk,only: master_mpi
-c  write extra information before error exit in standard format
       character*(*) string
       if(master_mpi) write(6,892) trim(string)//' ======================'
   892 format(/,a)
       call exit(0)
       end
 
-      subroutine rx(string)
-C- Error exit
-C     implicit none
+      subroutine rx(string) !error exit
       character*(*) string
-      call fexit(-1,119,string,0d0)
+      call fexit0(-1,119,string)
       end
 
-      subroutine rx0(string)
-C- Normal exit
-C     implicit none
+      subroutine rx0(string) !normal exit
       character*(*) string
-#if MPI | MPIK
-      call fexit(0,119,string,0d0)
-#else
+      call fexit0(0,119,string)
       call rx0s(string)         !for single core exit
-#endif
       end
 
-      subroutine rx1(string,arg)
-C- Error exit, with a single argument
-C     implicit none
+      subroutine rx1(string,arg) ! Error exit, with a single argument
       character*(*) string
       double precision arg
       character*120 outs
-      outs = '%N Exit -1 '//string
+      outs = ' Exit -1 '//string
       call fexit(-1,111,outs,arg)
       end
-      subroutine rx2(string,arg1,arg2)
-C- Error exit, with two arguments
-C     implicit none
+      
+      subroutine rx2(string,arg1,arg2) ! Error exit, with two arguments
       character*(*) string
       double precision arg1,arg2
       character*120 outs
-      outs = '%N Exit -1 '//string
+      outs = ' Exit -1 '//string
       call fexit2(-1,111,outs,arg1,arg2)
       end
-      subroutine rxi(string,arg)
-C- Error exit, with a single integer at end
-C     implicit none
+      
+      subroutine rxi(string,arg) ! Error exit, with a single integer at end
       character*(*) string
-      double precision arg
+      integer:: arg
+      character(10):: i2char
       character*120 outs
-      outs = '%N Exit -1 '//string//' %i'
-      call fexit(-1,111,outs,arg)
+      outs = ' Exit -1 '//string//' '//trim(i2char(arg))
+      call fexit0(-1,119,outs)
       end
 
-      subroutine rxs(string,msg)
-C- Error exit with extra string message
-C     implicit none
+      subroutine rxs(string,msg) ! Error exit with extra string message
       character*(*) string,msg
       character*120 outs
       integer i
@@ -178,9 +166,8 @@ C     implicit none
       call skpblb(outs,len(outs),i)
       call rx(outs(1:i+1))
       end
-      subroutine rxs2(string,msg,msg2)
-C- Error exit with extra string messages
-C     implicit none
+      
+      subroutine rxs2(string,msg,msg2) ! Error exit with extra string messages
       character*(*) string,msg,msg2
       character*120 outs
       integer i
@@ -189,9 +176,7 @@ C     implicit none
       call rx(outs(1:i+1))
       end
       
-      subroutine rxs4(string,msg,msg2,msg3,msg4)
-C- Error exit with extra string messages
-C     implicit none
+      subroutine rxs4(string,msg,msg2,msg3,msg4) ! Error exit with extra string messages
       character*(*) string,msg,msg2,msg3,msg4
       character*120 outs
       integer i
@@ -199,6 +184,7 @@ C     implicit none
       call skpblb(outs,len(outs),i)
       call rx(outs(1:i+1))
       end
+      
       subroutine rxx(test,string)
       logical test
       character*(*) string
@@ -211,7 +197,6 @@ C     implicit none
       write(6,890)
   890 format(' ---- Error exit')
   892 format(/' ---- ',a)
-c ... write to log file also
       write(71,710) string
   710 format('++ ',a)
       call exit(-1)

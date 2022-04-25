@@ -55,7 +55,7 @@ c     &  wqt(:), q0i(:,:)
       logical :: allochk=.true.
       complex(8),allocatable:: hh1(:,:),oo1(:,:)
       integer(4)::  nqnumc,ifiqgc !bzcase,
-c      character(5)  :: charnum5
+c      character(5)  :: i2char
 c      integer(4),allocatable:: iqok(:)
       real(8):: qqq(3),QpGcut_Cou       !,qq(3)
       integer(4),allocatable:: ngvecc0(:,:)
@@ -69,7 +69,7 @@ c      integer(4),allocatable:: iqok(:)
       integer(4)   :: ifprodmt,nl_r,lx_,nxx_r,nxdim,ibl1,nn,no,ngbnew,
      &  nmatch,ifpmatch,nmatch_q,ifpmatch_q,m,ifpomat,nbln,ibln,ngb_in,nnr,igc2
       character(3) :: charnum3
-      character(5) :: charnum5
+      character(10) :: i2char
       character(11):: filenamep
       integer(4),allocatable:: nx_r(:), ibl(:,:,:,:)
      &  ,imatcho(:),imatchn(:),imatcho_q(:),imatchn_q(:)
@@ -511,7 +511,7 @@ c       write(6,*)'ttt= sumchk pmat(b)=',sum(abs(pmat(1:nbloch, 1:nbln)))
       call MPI__getRange( mpi__iini, mpi__iend, iqxini, iqxend )
       do 1001 iqx = mpi__iini, mpi__iend ! q=(0,0,0) is omitted!
         write(6,"('#### do 1001 start iqx=',5i5)")iqx,nqibz
-        vcoudfile='Vcoud.'//charnum5(iqx)  !this is closed at the end of do 1001
+        vcoudfile='Vcoud.'//i2char(iqx)  !this is closed at the end of do 1001
         open(newunit=ifvcoud,file=trim(vcoudfile),form='unformatted')
         if(iqx > nqibz) then  !       iq = 1
           q  = q0i(:,iqx-nqibz)
@@ -647,7 +647,7 @@ C... oon(nn,nn) is the overlap matrix with new basis
           oon = matmul( dconjg(transpose(pmat(1:no,1:nn)))
      &               ,matmul(oo,pmat(1:no,1:nn)) )
           if(.false.) then
-            open(newunit=if3011,file='oontest'//charnum5(iqx))
+            open(newunit=if3011,file='oontest'//i2char(iqx))
             do ix=nbln+1,nn
               igc=ix-nbln
               qqx(1:3) = (q(1:3)+ matmul(qlat, ngvecc(1:3,igc)))
