@@ -9,7 +9,7 @@ C- Returns stdout for i=1, log for i=2, mlog for i=3 (MPI logfile)
       include "mpif.h"
       integer mpipid
       procid = mpipid(1) 
-      lgunit = 6!i1mach(2)
+      lgunit = 6
       if (i .eq. 1) return
       if (i .eq. 2) then
          if(lgunit2==0) then

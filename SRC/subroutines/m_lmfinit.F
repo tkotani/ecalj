@@ -368,8 +368,10 @@ C --- Initialize ---
       nm='IO_VERBOS'; call gtv(trim(nm),tksw(prgnam,nm),verbos,
      .     note='Verbosity for printout. Set from the command-line with --pr=xxx',
      .     def_i4=30,nout=nout)
-      if(cmdopt2('--pr=',outs)) read(outs,*) verbos ! Override verbos w/ --pr=xxx
-      i0=setprint0(verbos)
+      if(cmdopt2('--pr=',outs))read(outs,*) verbos 
+      if(cmdopt2('--pr',outs)) read(outs,*) verbos 
+      if(cmdopt2('-pr',outs))  read(outs,*) verbos 
+      i0=setprint0(verbos) !initial verbose set
       if(.not.master_mpi) i0=setprint0(-100) !iprint() is negative except master
       
 c$$$      if ((cmdopt('--pr',4,0,a) .or. cmdopt('-pr',3,0,a)) ) then

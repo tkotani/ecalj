@@ -50,8 +50,8 @@ for prereq0 in Rule.keys():
                 #print(prereq0,' x ',target0)
                 prereq = re.sub('.F$','.o', prereq0)
                 target = re.sub('.F$','.o', target0)
-                prereq = re.sub('.F90$','.o', prereq)
-                target = re.sub('.F90$','.o', target)
+                prereq = re.sub('.f90$','.o', prereq)
+                target = re.sub('.f90$','.o', target)
                 #print(target +': '+prereq)
                 aaa=aaa + target +': '+prereq+'\n'
 oxx = open("moduledepends.inc",'wt')

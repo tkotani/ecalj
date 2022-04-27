@@ -190,9 +190,9 @@ c          itp_(ibib,jpm,k)= -999
 c        write(6,"(a,6i5,d13.5)")'uuuuu k it itp iw jpm whw=',icount,k,it,itp,iw,jpm,whwc(icount)
              endif
           enddo                 ! iw
- 125     continue
- 1251    continue
- 110  continue
+ 125     enddo !continue
+ 1251    enddo !continue
+ 110  enddo !continue
       ncount = icount
       ierr=0
       if(job==0) write(6,"('x0kf_v4hz_init: job=0 ncount ngb nqibz=',3i8)") ncount, ngb, nqibz
@@ -365,7 +365,7 @@ c----------------------------
            endif   
         enddo     
         enddo     
- 1000 continue
+ 1000 enddo !continue
       call Deallocate_zmel()
       deallocate(nkmin,nkmax,nkqmin,nkqmax)!,skipk)
       deallocate(whwc,kc,itc,itpc,iwc,jpmc) !z1p
@@ -379,7 +379,7 @@ c----------------------------
          enddo
       enddo
       enddo
- 9999 continue
+c 9999 continue
       write(6,"(' --- x0kf_v4hz: end')") !, 3d13.5)")
       if(debug) write(6,"(' --- ', 3d13.5)")
      &     sum(abs(rcxq(1:nmbas,1:nmbas,1:nwhis,1:npm))),sum((rcxq(1:nmbas,1:nmbas,1:nwhis,1:npm)))

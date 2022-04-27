@@ -21,6 +21,7 @@
 !     eksham   : DFT(Kohn-Sham)  total energy
 !     eharris  : Harris foulkner total energy      
       module m_bndfp
+      use m_ftox
       use m_density,only: orhoat,osmrho     !input/output unprotected
       real(8),protected:: ham_ehf, ham_ehk, sev  !output
       real(8),protected:: eferm, qdiff  !output
@@ -325,8 +326,8 @@ c      if(master_mpi) write(stdo,"(a)") 'bndfp:start'
          do isp = 1, nspx 
           jsp = isp
           if(master_mpi.and.iprint()>=35) then
-            write(stdo,'(" bndfp: kpt",i5," of",i5, " k isp=",3f8.4,i2," ndimh nev=",2i5)')
-     &            iq,nkp,qp,jsp,ndimhx_(iq),nevls(iq,jsp)
+            write(stdo,ftox)" bndfp: kpt",iq," of",nkp," k isp=",ftof(qp,4),jsp," ndimh nev=",
+     &            ndimhx_(iq),nevls(iq,jsp)
             write(stdo,"(9f8.4)") (evlall(i,jsp,iq), i=1,nevls(iq,jsp))
           endif  
           emin= min(minval( evlall(1:nevls(iq,jsp),jsp,iq)),emin)

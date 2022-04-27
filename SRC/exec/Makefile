@@ -37,9 +37,9 @@ mkobj:
 moduledepends.$(PLATFORM).inc: moduledepends.inc
 	@echo 'Generate module-dependency file, moduledepends.$(PLATFORM).inc'
 	sed -e "s/\.\.\/\w*\//$(obj_path)\//g" moduledepends.inc |uniq >moduledepends.$(PLATFORM).inc
-moduledepends.inc: $(subr)*.F $(subr)*.F90 $(main)*.F $(maxloc)*.F
+moduledepends.inc: $(subr)*.F $(subr)*.f90 $(main)*.F $(maxloc)*.F
 	@echo 'init: Generate module-dependency file, moduledepends.$(PLATFORM).inc'
-	@[ -d moduledepends.inc ] || exec ../../TOOLS/checkmodule $(subr)*.F90 $(subr)*.F $(main)*.F $(maxloc)*.F 
+	@[ -d moduledepends.inc ] || exec ../../TOOLS/checkmodule $(subr)*.f90 $(subr)*.F $(main)*.F $(maxloc)*.F 
 
 prog2: $(progslm2) $(progsgw2) $(progsw2)
 
@@ -51,7 +51,7 @@ include Make.$(PLATFORM).inc          # machine-dependence
 include makesrc.inc                   # defines ELIB_list,GWLIB_list,MLOC_list,MPI_list,MLO_list
 
 .PHONY:  progs prog2 clean cleanall init echotest mkobj
-.SUFFIXES: .o .F90 .F .mod
+.SUFFIXES: .o .f90 .F .mod
 
 ELIB = $(addprefix ./$(obj_path)/,$(ELIB_list))
 GWLIB = $(addprefix ./$(obj_path)/,$(GWLIB_list))
@@ -61,20 +61,20 @@ MPI  = $(addprefix ./$(obj_path)/,$(MPI_list))
 
 $(obj_path)/%.o: $(subr)%.F
 	$(FC) $(FFLAGS) -c $< -o $@ 
-$(obj_path)/%.o: $(subr)%.F90
+$(obj_path)/%.o: $(subr)%.f90
 	$(FC) $(FFLAGS) -c $< -o $@ 
 $(obj_path)/%.o: $(maxloc)%.F
 	$(FC) $(FFLAGS) -c $< -o $@ 
-$(obj_path)/%.o: $(maxloc)%.F90
+$(obj_path)/%.o: $(maxloc)%.f90
 	$(FC) $(FFLAGS) -c $< -o $@ 
 $(obj_path)/%.o: $(main)%.F
 	$(FC) $(FFLAGS) -c $< -o $@ 
-$(obj_path)/%.o: $(main)%.F90
+$(obj_path)/%.o: $(main)%.f90
 	$(FC) $(FFLAGS) -c $< -o $@
 
 #%.o:%.F
 #	$(FC) $(FFLAGS) -c $<
-#%.o:%.F90
+#%.o:%.f90
 #	$(FC) $(FFLAGS) -c $<
 
 echotest:
@@ -172,7 +172,7 @@ cleanall:
 install: 
 	cp $(script) $(progslm) $(progsgw) $(progsw) ctrlgen*.py job* run_arg* $(BINDIR)
 dep:
-	@echo 'This generate a call-caller data set for lmv7.F fp/*.F and subs/\*.F subs/*.F90 slatsm/*.F .'
+	@echo 'This generate a call-caller data set for lmv7.F fp/*.F and subs/\*.F subs/*.f90 slatsm/*.F .'
 	@echo 'No arguments required. This drives ../TOOLS/f_calltree.py '
 	@echo 'HELP --> ../TOOLS/FparserTools/f_calltree.py --help, and read CallCaller.sh'
 	@echo

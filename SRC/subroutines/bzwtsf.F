@@ -9,7 +9,7 @@
      .fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,lswtk,
      .swtk,efermi,sumev,wtkb,qval,lwtkb,lfill,vnow)
       use m_lmfinit,only: stdo
-
+      use m_ftox
 
 C- BZ integration for fermi level, band sum and qp weights, fixed-spin
 C ----------------------------------------------------------------------
@@ -92,8 +92,7 @@ C --- Make and print out magnetic moment ---
   922   format(9x,'Mag. moment:',f15.6)
         qval(2) = amom
       else
-        call info0(20,0,0,
-     .  '%9fspin weights not available ... no spin moment calculated')
+        write(stdo,*) 'spin weights not available ... no spin moment calculated'
         return
       endif
 !! --- Setup for fixed-spin moment method ---
@@ -128,8 +127,7 @@ c      if (fmom==NULLR .or. lwtkb .eq. 0) call rx('bzwtsf2: check logic of lwtkb
 !!= takao interted a block taken from original version of bzwtsf.F June-2 2011.=
       vhold= 0d0
       ef0  = efermi
-c      vnow=0d0
-      call info0(41,1,0,' Seek potential shift for fixed-spin mom ...')
+      write(stdo,*)' Seek potential shift for fixed-spin mom ...'
 
 !!== do loop for new guess at potential shift ==
 !!bisection method takao
@@ -157,67 +155,43 @@ c      vnow=0d0
         deallocate(ebs)
         if (.not.quitvnow) call poppr
         if(quitvnow) exit
-
 !!=== Magnetic moment ===
         call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,amom)
-        if (ipr .ge. 41) call awrit5(' -Vup+Vdn=%;10,6D  yields '//
-     . 'ef=%;10,6D  amom=%;10,6D;  seeking %;10,6D',' ',160,
-     . stdo,vnow,efermi,amom,fmom,vnow)
+        if(ipr>=41)write(stdo,ftox)' -Vup+Vdn=',ftof(vnow,8),'yields ef=',ftof(efermi),
+     &       'amom',ftof(amom),'when seeking mom=',ftof(fmom)
 !!takao for molecule Dec1 2010
         agreemom= abs(amom-fmom) < 1d-6 ! 1d-6 on June-2 2011
         if(iprint()>60) print *,'ttttt amom fmom=',amom,fmom,agreemom
-c      if(original_dvdos) then
         call dvdos(vnow,amom,dosef,vhold,fmom,dvcap,dv)
         if(agreemom) vhold(12)=0
-c      if (abs(dv) .lt. 1d-6) then
         quitvnow=.false.
         if (abs(dv).lt.1d-6 .or. agreemom) then
-C       A root was found
-          if (vhold(12) .eq. -2 .or. vhold(12) .eq. -3 .or.
-     .  vhold(12) .eq.  0 .or. vhold(12) .eq.  1) then
+           if (vhold(12) .eq. -2 .or. vhold(12) .eq. -3 .or.
+     .          vhold(12) .eq.  0 .or. vhold(12) .eq.  1) then
             if (ipr .ge. 10)
-     .    call awrit5('%N BZWTSF2: potential shift bracketed.'//
-     .    '  Unconstrained efermi=%,6;6d.'//
-     .    '%N constraint fmom=%,6;6d  actual mmom=%,6;6d'//
-     .    '  ef=%,6;6d  -Vup+Vdn=%,6;6d',' ',160,stdo,ef0,
-     .    fmom,amom,efermi,vnow)
-            quitvnow=.true.
+     .    write(stdo,ftox)' BZWTSF2: potential shift bracketed.',
+     .    'Unconstrained efermi=',ftof(ef0),
+     .    'constraint fmom=',ftof(fmom),'actual mmom=',amom,
+     .    'ef=',efermi,'-Vup+Vdn=',vnow
+          quitvnow=.true.
           endif
         else if (iter .eq. itmax) then
           if (ipr .ge. 10)
-     .  call awrit5('%N BZWTSF2: failed to converge potential shift'//
-     .  ' after %i iterations.'//
-     .  '%N constraint fmom=%,6;6d  actual amom=%,6;6d'//
-     .  '  ef=%,6;6d  -Vup+Vdn=%,6;6d',' ',160,stdo,iter,fmom,amom,efermi,
-     .  vnow)
+     .    write(stdo,ftox)' BZWTSF2: failed to converge potential shift',
+     .  'after',iter,'iterations.',
+     .  'constraint fmom=',ftof(fmom),'actual amom=',ftof(amom),
+     .  'ef=',ftof(efermi),'-Vup+Vdn=',ftof(vnow)
           quitvnow=.true.
         endif
  10   continue
-C--------------------------------------
-
-cccccccccccccccccccccccccccccccccc
-!! weitht modification by hand for Vanadium atom.
-c      wtkb(8,1,1)=0d0                                                            
-c      wtkb(9,1,1)=1d0                                                            
-c      wtkb(10,1,1)=1d0                                                           
-c      do ie=1,20                                                                 
-c       write(*,"('vvvvvv up:',i3,f13.6,' ',2f13.4)")ie,eb(ie,1,1),wtkb(ie,1,1)   
-c      enddo                                                                      
-c      do ie=1,20                                                                 
-c       write(*,"('vvvvvv dn:',i3,f13.6,' ',2f13.4)")ie,eb(ie,2,1),wtkb(ie,2,1)   
-c      enddo                                                                      
-ccccccccccccccccccccccccccccccccccc              
-c
       ele1 = (zval+amom)/2d0
       ele2 = (zval-amom)/2d0
       sumev=sumev+ ele1*(vnow/2d0) - ele2*(vnow/2d0) !sumev correction takao
-      if(iprint()>20) write(stdo,"(' bzwtsf2(METHOD=1): Set Bias field -Vup+Vdn=',f20.15)")vnow
+      if(iprint()>20) write(stdo,ftox)' bzwtsf2(METHOD=1): Set Bias field -Vup+Vdn=',ftof(vnow,8)
       if (lswtk.eq.1 .and. lwtkb .eq. 1) then
          call rx('bzwtsf2:111 tk think not used here')
-c        lwtkb = 2
       elseif (lswtk.eq.1 .and. lwtkb .eq. 2) then
          call rx('bzwtsf2:222 tk think not used here')
-c        lwtkb = 1
       endif
       call tcx('bzwtsf2')
       end subroutine bzwtsf2
@@ -228,7 +202,7 @@ c        lwtkb = 1
      .fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,lswtk,
      .swtk,efermi,sumev,wtkb,qval,lwtkb,lfill,vnow)
       use m_lmfinit,only: stdo
-
+      use m_ftox
 
 C- BZ integration for fermi level, band sum and qp weights, fixed-spin
 C ----------------------------------------------------------------------
@@ -308,8 +282,7 @@ c      stdo = globalvariables%stdo
   922   format(9x,'Mag. moment:',f15.6)
         qval(2) = amom
       else
-        call info0(20,0,0,
-     .  '%9fspin weights not available ... no spin moment calculated')
+        write(stdo,*)'spin weights not available ... no spin moment calculated'
         return
       endif
 
@@ -321,7 +294,7 @@ c      if (fmom==NULLR .or. lwtkb .eq. 0) call rx('bzwtsf:check logic of lwtkb')
       call dpzero(vhold,12)
       vnow = 0
       ef0 = efermi
-      call info0(41,1,0,' Seek potential shift for fixed-spin mom ...')
+      write(stdo,*)' Seek potential shift for fixed-spin mom ...'
 
 !!== do loop for new guess at potential shift ==
 !!bisection method takao
@@ -329,9 +302,8 @@ c      if (fmom==NULLR .or. lwtkb .eq. 0) call rx('bzwtsf:check logic of lwtkb')
       do 10 iter=1,itermx
 !!=== Magnetic moment ===
         call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,amom)
-        if (ipr .ge. 41) call awrit5(' -Vup+Vdn=%;10,6D  yields '//
-     . 'ef=%;10,6D  amom=%;10,6D;  seeking %;10,6D',' ',160,
-     . stdo,vnow,efermi,amom,fmom,vnow)
+        if(ipr>=41) write(stdo,ftox)' -Vup+Vdn=',ftof(vnow,8),'yields ',
+     . 'ef=',ftof(efermi),'amom=',ftof(amom),'when seeking',ftof(fmom)
 !!takao for molecule Dec1 2010
         agreemom= abs(amom-fmom) < 1d-3
         if(iprint()>60) print *,'ttttt amom fmom=',amom,fmom,agreemom
@@ -343,22 +315,19 @@ c      if (abs(dv) .lt. 1d-6) then
         if (abs(dv).lt.1d-6 .or. agreemom) then
 C       A root was found
           if (vhold(12) .eq. -2 .or. vhold(12) .eq. -3 .or.
-     .  vhold(12) .eq.  0 .or. vhold(12) .eq.  1) then
-            if (ipr .ge. 10)
-     .    call awrit5('%N BZWTSF: potential shift bracketed.'//
-     .    '  Unconstrained efermi=%,6;6d.'//
-     .    '%N constraint fmom=%,6;6d  actual mmom=%,6;6d'//
-     .    '  ef=%,6;6d  -Vup+Vdn=%,6;6d',' ',160,stdo,ef0,
-     .    fmom,amom,efermi,vnow)
-            quitvnow=.true.
+     .          vhold(12) .eq.  0 .or. vhold(12) .eq.  1) then
+          if (ipr .ge. 10) write(stdo,ftox)' BZWTSF: potential shift bracketed.',
+     .    'Unconstrained efermi=',ftof(ef0),
+     .    'constraint fmom=',ftof(fmom),'actual mmom=',ftof(amom),
+     .    'ef=',ftof(efermi),'-Vup+Vdn=',ftof(vnow,8)
+          quitvnow=.true.
           endif
         else if (iter .eq. itmax) then
-          if (ipr .ge. 10)
-     .  call awrit5('%N BZWTSF: failed to converge potential shift'//
-     .  ' after %i iterations.'//
-     .  '%N constraint fmom=%,6;6d  actual amom=%,6;6d'//
-     .  '  ef=%,6;6d  -Vup+Vdn=%,6;6d',' ',160,stdo,iter,fmom,amom,efermi,
-     .  vnow)
+           if(ipr>=10)then
+              write(stdo,ftox)' BZWTSF: failed to converge potential shift after',iter,'iterations.'
+              write(stdo,ftox)' constraint fmom=',ftof(fmom),'actual amom=',ftof(amom),
+     &             'ef=',ftof(efermi),'-Vup+Vdn=',ftof(vnow,8)
+          endif    
           quitvnow=.true.
         endif
 
@@ -402,6 +371,7 @@ c        lwtkb = 1
 
 
       subroutine bzwtsm(lswtk,nkp,nsp,nevx,wtkb,swtk,amom)
+      use m_ftox
 C- Determine the magnetic moment, collinear or noncollinear case
 C ----------------------------------------------------------------------
 Ci Inputs

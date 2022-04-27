@@ -1,6 +1,8 @@
 #NOTE: when you add your foobar.F, choose one of *_list.
 
 ELIB_list=\
+m_ftox.o\
+m_util2.o\
 getgv2.o\
 m_gennlat.o\
 rydberg.o \
@@ -45,12 +47,10 @@ aiocor.o \
 aiogen.o \
 aiomom.o \
 aiomp.o \
-aiopar.o \
 aiopot.o \
 atomsr.o \
 atwf.o \
 avwsr.o \
-baslst.o \
 besslr.o \
 bloch.o \
 bzints.o \
@@ -62,7 +62,6 @@ ccutup.o \
 chgmsh.o \
 chkdmu.o \
 clabel.o \
-clsset.o \
 config.o \
 contet.o \
 cshear.o \
@@ -86,7 +85,6 @@ freeat.o \
 fswgts.o \
 getbzp.o \
 getq.o \
-getqp.o \
 grpop.o \
 gtbsl1.o \
 gtbvec.o \
@@ -107,7 +105,6 @@ hsmq.o \
 iax2fd.o \
 iclbas.o \
 intnos.o \
-iobsmv.o \
 ioeula.o \
 iofa.o \
 ioorbp.o \
@@ -151,9 +148,7 @@ pkli.o \
 pptrns.o \
 prdmts.o \
 prjpos.o \
-prmx.o \
 projql.o \
-prrmsh.o \
 qdist.o \
 radgkl.o \
 radmsh.o \
@@ -168,7 +163,6 @@ roplat.o \
 ropyln1.o \
 ropyln.o \
 rseq.o \
-rsmsym.o \
 rsort.o \
 rstr0.o \
 s2sph.o \
@@ -205,7 +199,6 @@ symstr.o \
 symtbl.o \
 tailsm.o \
 tetirr.o \
-trysop.o \
 uspecb.o \
 vecpkl.o \
 veecomp.o \
@@ -232,30 +225,19 @@ a2bina.o \
 a2rotm.o \
 a2vec.o \
 amix.o \
-arrprt.o \
 awrite.o \
 bin2a.o \
 bitops.o \
 brentm.o \
 brmin.o \
 broyj.o \
-cdasin.o \
-cdiv.o \
-chcase.o \
-chkhss.o \
 cmdopt.o \
-cmdstr.o \
-cplxdm.o \
 cpstr.o \
 cpudel.o \
 cross.o \
 dbesj.o \
-dcabsr.o \
 derfc.o \
 dfdump.o \
-dgedi.o \
-dgefa.o \
-dgesl.o \
 dinv33.o \
 discop.o \
 dmcpy.o \
@@ -271,7 +253,6 @@ dpsadd.o \
 dpscop.o \
 dsbak.o \
 dschd.o \
-dsev1.o \
 dshell.o \
 dsidi.o \
 dsifa.o \
@@ -282,13 +263,10 @@ dsred.o \
 dsredx.o \
 dsum.o \
 dsumdf.o \
-dtribx.o \
-dtridx.o \
 dvheap.o \
 dvshel.o \
 epslon.o \
 fftz3.o \
-fgtcat.o \
 finits.o \
 fopna.o \
 fpiint.o \
@@ -297,7 +275,6 @@ getcat.o \
 gettime.o \
 gradfl.o \
 gradzr.o \
-hrmint.o \
 htribk.o \
 htridi.o \
 hunti.o \
@@ -328,9 +305,7 @@ mklegw.o \
 mpibc.o \
 mxint.o \
 nintsp.o \
-nxtarg.o \
 nxtgrp.o \
-parchv.o \
 pars1v.o \
 parsvc.o \
 platsl.o \
@@ -339,7 +314,6 @@ poldvm.o \
 polint.o \
 poseof.o \
 ppfac.o \
-praxis.o \
 pretty.o \
 pythag.o \
 ran1.o \
@@ -360,18 +334,8 @@ tqlrat.o \
 tred2.o \
 wordg.o \
 words.o \
-ymtrns.o \
-yscal.o \
-ywrm.o \
-z2herm.o \
 zerfc.o \
 zhev.o \
-zmcpy.o \
-zmsadd.o \
-zmscop.o \
-zpmblk.o \
-ztoy.o \
-ztoyy.o \
 tc.o \
 dpzero.o \
 scglp1.o \
@@ -554,7 +518,6 @@ tetwt5.o \
 m_tetrakbt.o \
 m_tetwt.o \
 x0kf_v4h.o \
-cinvrx.o \
 zsvd.o \
 m_zmel.o \
 m_freq.o \
@@ -571,7 +534,6 @@ rgwinf_mod.o \
 iopen.o \
 cputid.o \
 rw.o \
-ext2.o \
 mate.o \
 bib1.o \
 index.o \
@@ -590,7 +552,6 @@ alloclist.o \
 m_pkm4crpa.o \
 m_anf.o \
 qpe1.sc.o \
-icompvv2.o \
 iopenxx.o \
 qpe1.o \
 mopen.o \
