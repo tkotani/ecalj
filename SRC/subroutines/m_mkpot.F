@@ -124,6 +124,7 @@ c      call togpr()
       use m_ldau,only: vorb !input. 'U-V_LDA(couter term)' of LDA+U 
       use m_bstrux,only: m_bstrux_init
       use m_elocp,only: elocp
+      use m_locpot,only: Locpot
 !Note other output in module area
 c for job=0      
 Co         utot   = total electrostatic energy

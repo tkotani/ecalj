@@ -120,7 +120,6 @@ C ... Local parameters
      .pnzs(n0,2),dval
       character spid*8,spid0*8,fid0*68,line*20,msg*23,use*80,ignore*80,
      .msgw*17,datimp*32,usernm*32,hostnm*32,jobid*32,ffmt*32,ifmt*32
-      logical:: l_dummy_aiomom, aiomom
       integer:: fextg, i_dummy_fextg
       data vec0 /0d0,0d0,0d0/
 c      real(8):: eferm!,bz_ef00,bz_def00

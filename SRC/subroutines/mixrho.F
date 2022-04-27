@@ -1,3 +1,8 @@
+      module m_mixrho
+      public:: mixrho
+      private
+      
+      contains
       subroutine mixrho(iter, qval, elind, sv_p_orhnew, sv_p_orhold, smrnew, smrho,rmsdel)
       use m_struc_def
       use m_supot,only: iv_a_okv,rv_a_ogv,k1,k2,k3
@@ -234,7 +239,8 @@ C ... Local parameters
       integer ::iwdummy ,isp,nnnx,ng02,ng2, iprint,ifile_handle
       real(8):: smmin,sss,wgtsmooth
       complex(8),allocatable:: smrnewbk(:,:,:,:),w_owk(:)
-      complex(8),allocatable:: w_oqkl(:)
+!      complex(8),allocatable:: w_oqkl(:)
+      real(8),allocatable:: w_oqkl(:)
       real(8),allocatable:: w_oa(:),w_oaa(:),w_ocn(:)
       logical::       noelind
       logical:: mixrealsmooth
@@ -609,7 +615,7 @@ C ... Allocate memory for coffs to G_kL expansion of rho
 c      oqkl = 1
 c      if (locmix .ge. 2) call defcc(oqkl,-(kmxr+1)*nlm0*nsp*4*nbas)
       if(locmix .ge. 2) then
-        allocate(w_oqkl((kmxr+1)*nlm0*nsp*4*nbas))
+        allocate(w_oqkl(2*(kmxr+1)*nlm0*nsp*4*nbas))
         w_oqkl=0d0
       else
         allocate(w_oqkl(1))
@@ -2162,3 +2168,5 @@ C      call prrmsh('pvmix9,rho2',rofi,rho2,nr,nr,nlml)
       end subroutine pvmix9
 
 
+
+      end module m_mixrho

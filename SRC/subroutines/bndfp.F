@@ -22,7 +22,8 @@
 !     eharris  : Harris foulkner total energy      
       module m_bndfp
       use m_ftox
-      use m_density,only: orhoat,osmrho     !input/output unprotected
+      use m_density,only: orhoat,osmrho !input/output unprotected
+      use m_mixrho,only: Mixrho
       real(8),protected:: ham_ehf, ham_ehk, sev  !output
       real(8),protected:: eferm, qdiff  !output
       real(8),allocatable:: force(:,:)
@@ -476,9 +477,9 @@ c$$$               if(abs(rv_a_owtkb(ib,jsp,iq))>1d-3) write(stdo,"('ib wtkb=',i
 c$$$            enddo
 c$$$         endif
 c$$$      endif   
-c      end
+c     end
       end module m_bndfp
-      
+
 
 !sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine xmpbnd2(kpproc,ndham,nkp,nspx,eb)
@@ -519,5 +520,5 @@ C ----------------------------------------------------------------------
       deallocate(offset, stat=ierr)
       deallocate(length, stat=ierr)
       end subroutine xmpbnd2
-
       
+

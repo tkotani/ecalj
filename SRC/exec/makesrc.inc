@@ -43,11 +43,6 @@ m_hamindex.o \
 m_struc_def.o \
 m_gtv.o \
 addrwf.o \
-aiocor.o \
-aiogen.o \
-aiomom.o \
-aiomp.o \
-aiopot.o \
 atomsr.o \
 atwf.o \
 avwsr.o \

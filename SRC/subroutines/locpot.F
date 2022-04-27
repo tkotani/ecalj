@@ -1,4 +1,8 @@
-      subroutine locpot (  !lcplxp , 
+      module m_locpot
+      public locpot
+      private
+      contains
+      subroutine locpot (       !lcplxp , 
      .      sv_p_orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau  !slat , 
      .    , sv_p_oppi, ohsozz,ohsopm, ppnl , hab , vab , sab , vvesat , cpnvsa , rhoexc 
      .    , rhoex , rhoec , rhovxc , rvepsv , rvexv , rvecv , rvvxcv , 
@@ -10,6 +14,7 @@
       use m_MPItk,only: master_mpi
       use m_struc_def  
       use m_uspecb,only:uspecb
+      use m_ftox
 C- Make the potential at the atomic sites and augmentation matrices.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -236,8 +241,9 @@ c        lfltwf = mod(job,1000) .ge. 100 .or.
         call gtpcor(sspec,is,kcor,lcor,qcor)
         call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc0,qv,qsc0)
         if (qsc0 .ne. qsca .or. qc .ne. qc0-qsc0) then
-          if (iprint() .gt. 0)
-     .    call awrit5(' is=%i qsc0=%d qsca=%d qc=%d qc0=%d',' ',120,stdo,is,qsc0,qsca,qc,qc0)
+          if(iprint()>0)
+     &    write(stdo,ftox)' is=',is,'qsc0=',ftof(qsc0),'qsca',ftof(qsca),'qc',ftof(qc),'qc0',ftof(qc0)
+!          =%d',' ',120,stdo,is,qsc0,qsca,qc,qc0)
           call rxs('problem in locpot -- possibly low LMXA or orbital mismatch, species ',spid)
         endif
         qval = qval+qv+qsca
@@ -454,6 +460,7 @@ C     Electric field gradient
      .rvexv,rvecv,rvvxcv,rveps,rvvxc,valvef,xcore,qloc,
      .qlocc,aloc,alocc,gpotb,focexc,focex,focec,focvxc,rhobg,efg,ifivesint)
       use m_lmfinit,only: lxcf,nlmx,nrmx
+      use m_ftox
 C- Makes the potential at one site, and associated energy terms.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -636,8 +643,8 @@ C ... Renormalize gaussian
         gnu = fac* r*r * dexp(-ag*ag*r*r)
         sumg = sumg + rwgt(i)*gnu
       enddo
-      if (dabs(sumg-1d0) .gt. 1d-4) call awrit1('%N locpot (warning): '
-     .//'large gaussian, integral=%g',' ',80,stdo,sumg)
+      if (dabs(sumg-1d0) .gt. 1d-4) write(stdo,ftox)' locpot (warning): '
+     .//'large gaussian, integral=',ftod(sumg)
       sfac = 1d0/sumg
       fac = fac*sfac
       sumh = 0d0
@@ -657,8 +664,8 @@ C       sum1 = sum1 + rwgt(i)*rhonsm(i)
       enddo
       samh = -y0*cofh*4d0*pi*dexp(ceh*rfoc*rfoc*0.25d0)/ceh
       if (ipr.ge.20 .and. dabs(samh) .gt. 1d-6)
-     .call awrit3(' sm core charge = %;6d (sphere) + %;6d (spillout)'
-     .//' = %;6d',' ',80,stdo,sumh,samh-sumh,samh)
+     .write(stdo,ftox)' sm core charge=',ftof(sumh),'=(sphere)+(spillout)=',ftof(samh-sumh),ftof(samh)
+c     .//' = %;6d',' ',80,stdo,sumh,samh-sumh,samh)
 C --- rhol1 = full electron density = rho1 + rhoc ---
       if(debug) print *,'locpt2: 1111'
       do  isp = 1, nsp
@@ -1110,3 +1117,4 @@ C     .         (tr(j,i),j=1,3),conv1*d(i),conv2*d(i)
       end subroutine elfigr
 
 
+      end module m_locpot

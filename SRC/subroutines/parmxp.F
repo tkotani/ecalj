@@ -380,12 +380,12 @@ C     print *, 'errmin=',errmin
       endif
       end subroutine parmx0
 
-      block data dparmx
-      integer lstblk,lstitj
-      double precision errmin
-      common /parmx1/ lstblk,lstitj,errmin
-      data lstblk /0/ lstitj /0/ errmin /0d0/
-      end block data dparmx
+c$$$      block data dparmx
+c$$$      integer lstblk,lstitj
+c$$$      double precision errmin
+c$$$      common /parmx1/ lstblk,lstitj,errmin
+c$$$      data lstblk /0/ lstitj /0/ errmin /0d0/
+c$$$      end block data dparmx
 
 c ... testing parmxp
 C      subroutine fmain
@@ -456,4 +456,3 @@ CC      call parms0(i1,i2,rmserr,1)
 CC      print *, i1,i2,rmserr
 C
 C      end
-

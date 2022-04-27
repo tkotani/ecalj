@@ -1,5 +1,6 @@
 C=========================================================================
       module m_gtv
+      use m_ftox
 C- module to read ctrl file -------------------------------
 Cr gtv is the main rouitne. Its has interface.
 Cr
@@ -675,11 +676,11 @@ C ... Printout
         else
           write(sout(1+len_trim(sout):),"(',',i4,',',i3)")nparse,nn-nparse
         endif
-        if (nn .gt. 0 .and. lgx)
-     .  call awrit2('%u%55p%n:1l',sout,len(sout),0,nn,lg)
-        if (nn .gt. 0 .and. .not. lgx)
-     .  call awrit2('%u%55p%n:1,1;6g',sout,len(sout),0,nn,ddat)
-        write(stdo,'(a)') trim(sout)
+        if (nn .gt. 0 .and. lgx) write(stdo,*)lg
+        if (nn .gt. 0 .and. .not. lgx) write(stdo,ftox)ftod(ddat(1:nn))
+c     .  call awrit2('%u%55p%n:1l',sout,len(sout),0,nn,lg)
+c     .  call awrit2('%u%55p%n:1,1;6g',sout,len(sout),0,nn,ddat)
+c        write(stdo,'(a)') trim(sout)
       endif
 
  1012 format(a,d13.5)

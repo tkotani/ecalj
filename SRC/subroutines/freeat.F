@@ -2,7 +2,7 @@
       use m_struc_def,only:s_spec
       use m_ext,only:sname
       use m_lmfinit,only: ctrl_smalit,ctrl_lxcf,ham_seref,nsp,nspec, sspec=>v_sspec
-
+      use m_ftox
 
 C- For each species, makes free atom self-consistent
 C ----------------------------------------------------------------------
@@ -140,7 +140,7 @@ c      type(s_spec)::sspec(*)
      .idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof,ceh,
      .sec,stc,v,etot,nmcore,ifives,ifiwv)
       use m_lmfinit,only: nsp,lrel
-
+      use m_ftox
 
       use m_ext,only:sname
       use m_getqvc
@@ -370,11 +370,8 @@ cNov 2010 QvalCheck
       call getqvc(nsp, n0, lmxa, z, pl, ql, 0, 0, kcor, lcor, qcor, qc, qtot, amgm )
       qtot=qtot+sum(qlplus(:,:)) !takao feb2011
       amgm=amgm+sum(qlplus(:,1)-qlplus(:,nsp)) !takao feb2011
-      if (ipr .ge. 20) then
-        call awrit6('%Nconf: Species '//spid//'%a:  Z=%d'//
-     .  '  Qc=%d  R=%1,6;6d  Q=%1;6d%?#n==2#  mom=%1;5d#%0d#%a',
-     .  ' ',80,stdo,z,qc,rmt,qtot,nsp,amgm)
-      endif
+      if(ipr>=20) write(stdo,ftox)'conf: Species ',spid,'Z=',ftof(z,2),
+     .  'Qc=',ftof(qc,3),'R=',ftof(rmt),'Q=',ftof(qtot),'nsp=',nsp,'mom=',ftof(amgm)
 
 C --- Set up radial mesh for free atom ---
       rmax = 50d0
@@ -413,12 +410,8 @@ C     call pshpr(min(iprint(),40))
       if(ifiwv>0) write(ifiwv,"(f23.15,' ! total charge')") sum(qlplus(0:lmxa,1:nsp)+ql(1,1:lmxa+1,1:nsp))
 
       dq=dq+sum(qlplus(:,:)) !takao feb2011
-C     call poppr
-
-      if (ipr .ge. 20)
-     .call awrit6('%?#n>=30#%N## sumev=%,6;6d  etot=%,6;6d'//
-     .'  eref=%,6;6d%?#n#  diff= %,6;6d',' ',80,stdo,ipr,sumev,etot,
-     .eref,isw(eref.ne.0),etot-eref)
+      if (ipr>=20)write(stdo,ftox)'sumev=',ftof(sumev),'etot=',ftof(etot),
+     .'eref=',ftof(eref),'etot-eref=',ftof(etot-eref)
 
 !! june2012takao comment out followings. because confusing.
 c      call dcopy(lmxa+1,ql,3,qat,1)
@@ -430,8 +423,7 @@ c     .call awrit4('fa  Pl2%n:-1d  Ql2%n:-1d',
 c     .' ',80,stdl,lmxa+1,pl(1,nsp),lmxa+1,qat(1,nsp))
 
       if (dabs(dq) .gt. 1d-5 .and. iprint() .ge. 10)
-     .call awrit1(' freeat (warning) atom not neutral, Q=%d',
-     .' ',80,lgunit(1),dq)
+     .write(stdo,ftox)' freeat (warning) atom not neutral, Q=',ftof(dq)
 C .. Subtract core from density to make valence density
       do  isp = 1, nsp
         do  i = 1, nr
@@ -551,8 +543,6 @@ C --- Fit analytical expression to tail of core density ---
       subroutine pratfs(spid,lplawv,z,a,nr,rmax,nrmt,lmaxa,pl,nsp,v,
      .rofi,g,psi,plplus,qlplus,ifiwv)
       use m_lmfinit,only: stdo
-
-
       use m_ext,only:sname
 C- Prints out core and valence energy levels of free-atom
 C ----------------------------------------------------------------------
@@ -776,10 +766,8 @@ C ... Find the outermost maximum
 
 
       subroutine optfab(isw,z,a,nr,rmax,nrmt,rmt,lmxa,pl,ql,nsp,v,rofi,
-     .spid,itab,rtab,etab)
-c      use m_lmfinit,only: lrel
-
-
+     .     spid,itab,rtab,etab)
+      use m_ftox
 C- Optimise a minimal smooth-Hankel basis for the free atom.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -841,9 +829,8 @@ c      if (z .lt. 0.99d0) lrel = 0 !takao think lrel here was not used may2021
       b = rmax/(dexp(a*nr-a)-1d0)
 
       do  80  isp = 1, nsp
-        if (ipr .ge. 20) call awrit2('%?#n>=30#%N##'//
-     .  ' Optimise free-atom basis for species '//spid//'%a, rmt=%;7g',
-     .  ' ',80,stdo,ipr,rmt)
+        if(ipr>=20) write(stdo,ftox)
+     .  ' Optimise free-atom basis for species '//spid, 'Rmt=',ftof(rmt)
         allocate(h_rv(nr))
         allocate(g_rv(2*nr))
         allocate(gp_rv(2*nr*4))

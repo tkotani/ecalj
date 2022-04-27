@@ -1,5 +1,5 @@
       module m_mksym
-      use m_mksym_util
+      use m_mksym_util,only: gensym,pvsym2,grpgen,symtbl
      
       public :: Mksymaf,Mksym,
      & rv_a_oag, rv_a_oclabl, iv_a_oics, iv_a_oipc, lat_npgrp, lat_nsgrp,
