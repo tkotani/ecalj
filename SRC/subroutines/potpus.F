@@ -1,6 +1,7 @@
       subroutine potpus(z,rmax,lmxa,v,vdif,a,nr,nsp,lso,rofi,pnu,pnz,
      .ehl,rsml,rs3,vmtz,nab,n0,pp,ppnl,hab,vab,sab,sodb)
       use m_lmfinit,only: stdo,lrel_g=>lrel
+      use m_ftox
 C- Potential parameters for potential and boundary condition
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -136,11 +137,11 @@ C ... Passed parameters
      .hab(nab,n0,nsp),sab(nab,n0,nsp),vab(nab,n0,nsp),vdif(nr,nsp),
      .sodb(nab,n0,nsp,2),rs3,vmtz
 C ... Local parameters
-      integer ipr,ir,i,j,k,l,awrite,lpz,lpzi(0:n0),nrbig,
+      integer ipr,ir,i,j,k,l,lpz,lpzi(0:n0),nrbig,
      .lorthz,lrel
       integer nrx
       parameter (nrx=1501)
-      character*80 outs
+c      character*80 outs
       double precision m21,m11,m22,m12,cc,d00,d10,d11,det,vi,
      .fllp1,gfac,gf11,gf22,gf12,h00,h01,h10,h11,
      .phmins,phplus,q,r,s00,s01,s10,s11,tmc,
@@ -188,13 +189,8 @@ C --- Loop over spins, lmxa ---
         if (lso .ne. 0) call dpzero(sodb(1,1,i,1),nab*n0)
         if (lso .ne. 0) call dpzero(sodb(1,1,i,2),nab*n0)
         if (ipr .ge. 40) then
-          call awrit4('%N potpus %?#n==2# spin %i #%j#: pnu =%n:1,6d',' ',
-     .    80,stdo,nsp,i,lmxa+1,pnu(1,i))
-          if (lpz .ne. 0) then
-            ir = awrite('%N potpus %?#n==2# spin %i #%j#:',outs,
-     .      80,0,nsp,i,0,0,0,0,0,0)
-            call awrit3('%nfpz  =%n:1,6d',' ',80,stdo,ir,lmxa+1,pnz(1,i))
-          endif
+          write(stdo,ftox)' potpus spin=',i,'pnu=',pnu(1:lmxa+1,i)
+          if (lpz .ne. 0) write(stdo,ftox), 'pnz=',pnz(1:lmxa+1,i)
         endif
         if(ipr>=50) then
           write(stdo,698)

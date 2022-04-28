@@ -18,7 +18,7 @@
 !>nnn2 1.240000 4.560000 117.123459
 !>nnn3 0.12D+01 0.46D+01 0.12D+03 0.46D+07 0.91D+05
 module m_FtoX
-  public:: ftof,ftod
+  public:: ftof,ftod,ftom !ftom is removing right-end zeros below decimal point.
   character(11),public:: ftox='(*(g0,x))'
   interface ftof
      module procedure ftof,ftofv
@@ -26,6 +26,9 @@ module m_FtoX
   interface ftod
      module procedure ftod,ftodv
   endinterface ftod
+  interface ftom
+     module procedure ftom,ftomv
+  endinterface ftom
   private
 contains
   function ftodv(argv,ixx) result(farg)
@@ -58,6 +61,21 @@ contains
     allocate(farg,source=mmm(1:len(trim(mmm))))
   end function ftofv
 
+  function ftomv(argv,ixx) result(farg)
+    intent(in):: argv,ixx
+    real(8):: argv(:)
+    integer::i,ix
+    character(:),allocatable:: farg
+    integer,optional:: ixx
+    character(1000):: mmm
+    ix=6
+    if(present(ixx)) ix=ixx
+    write(mmm,"(*(g0,x))") (ftom(argv(i),ix),i=1,size(argv))
+    mmm=adjustl(mmm)
+    if(allocated(farg)) deallocate(farg)
+    allocate(farg,source=mmm(1:len(trim(mmm))))
+  end function ftomv
+
   function ftof(arg,ixx) result(farg)
     intent(in)::arg,ixx
     real(8):: arg
@@ -88,6 +106,30 @@ contains
     allocate(farg,source=mmm(1:len(trim(mmm))))
   end function ftod
   !  
+  function ftom(arg,ixx) result(farg) !arg =3.45600000 is '3.45', trucates to rightside zeros'
+    intent(in)::arg,ixx
+    real(8):: arg
+    character(:),allocatable:: farg
+    character(32):: mmm,fmt
+    integer::lsize,ix,i,j
+    integer,optional:: ixx
+    write(mmm,"(*(g0,x))")ftof(arg,12)
+    j=len(trim(mmm))
+    do i=len(mmm),1,-1
+       if(mmm(i:i)==' ') cycle
+       if(mmm(i:i)=='.') then
+          j=i-1
+          exit
+       elseif(mmm(i:i)/='0') then
+          j=i
+          exit
+       endif
+    enddo
+    if(allocated(farg)) deallocate(farg)
+    allocate(farg,source=mmm(1:j))
+  end function ftom
+
+  
   character(3) function charnum3(num)
     integer(4) ::num
     charnum3=char(48+mod(num/100,10))//char(48+mod(num/10,10))//char(48+mod(num,10))

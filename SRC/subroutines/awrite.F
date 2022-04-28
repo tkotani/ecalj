@@ -110,11 +110,6 @@ C ----------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer ifi,mxln
-C ... Patch to handle strings of length longer than 267 on the CRAY.
-#if CRAY
-      integer nstrn,ind,nmxstr
-      parameter (nmxstr=267)
-#endif
       character*(*) fmt,sout
       double precision
      .a1(*),a2(*),a3(*),a4(*),a5(*),a6(*),a7(*),a8(*)
@@ -436,18 +431,7 @@ C --- Finish up and exit ---
         ip = ip+1
       endif
       ia = iabs(ifi)
-#if CRAY
-      if (ifi .ne. 0) then
-        nstrn = ip / nmxstr
-        do  30  i = 1, nstrn
-          ind = (i - 1)*nmxstr + 1
-          write(ia,333) s(ind:(ind+nmxstr-1))
-   30   continue
-        if (nstrn*nmxstr .lt. ip) write(ia,333) s((nstrn*nmxstr+1):ip)
-      endif
-#else
       if (ifi .ne. 0 .and. ip .gt. 0) write(ia,333) s(1:ip)
-#endif
   333 format(a)
       if (ifi .le. 0 .and. ip .gt. 0) sout = s(1:ip)
       awrite = ip

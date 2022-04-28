@@ -1,5 +1,7 @@
       subroutine maknos(nqp,nband,nbmx,nsp,wgts,evl,n,w,tol,emin,emax,
-     .ndos,dos)
+     .     ndos,dos)
+      use m_ftox
+      use m_lmfinit,only:stdo
 C- Make density of states from bands
 C-----------------------------------------------------------------------
 Ci  Input
@@ -47,10 +49,8 @@ C     implicit none
         mrange = range / ( 2 * step )
         call delstp(n,-tol/2,test,s,xx)
       endif
-C     if (iprint() .ge. 40) write (*,100) range/w,2*mrange,test
-      if (iprint() .ge. 40) call awrit3(' MAKNOS: range = %;2dW'//
-     .' (%i bins)  DOS error estimate = %;2g per state',
-     .' ',80,i1mach(2),range/w,2*mrange,test)
+      if (iprint() .ge. 40) write(stdo,ftox) ' MAKNOS: range=',ftof(range/w),
+     .' (',2*mrange,'bins) DOS error estimate=',ftof(test),'per state'
       do  7  iq = 1, nqp
         wt = abs(wgts(iq)) / nsp
         do  61  iband = 1, nband

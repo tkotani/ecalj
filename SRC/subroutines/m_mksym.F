@@ -137,7 +137,7 @@ c      type(s_lat)::slat
       type(s_site)::ssite(*)
 c      type(s_array)::sarray
       integer ::iwdummy ,iwdummy1(1)
-      logical T,F,cmdopt,a2bin,ltmp
+      logical T,F,cmdopt,ltmp
       integer:: idest,ig,iprint,igets,isym(10),j1,j2,lpgf,nbas,
      .nbas0,nbasp,nsite,nclass,nclasp,nclspp,ngen,ngnmx,nspec,usegen,
      .ldist,nggen,ngmx,incli, oiwk , aginv 
@@ -194,14 +194,14 @@ C ... For memory allocation of class data, assume initially nclass=nbas
 C --- Generate space group ---
       nbas0 = nbas
       if (cmdopt('--fixpos',8,0,strn)) then
-         call Rx('fixpos is going to be removed. outside of lmf')
-ccccccccccccccccccccccccccccccc         
-        j1 = 8+1
-        if (strn(9:13) .eq. ':tol=') then
-          j1 = 13
-        endif
-        if (strn(9:9) .ne. ':' .or.
-     .  .not. a2bin(strn,fptol,4,0,' ',j1,len(strn))) fptol = 1d-5
+         call Rx('fixpos is removed. outside of lmf')
+c$$$ccccccccccccccccccccccccccccccc         
+c$$$        j1 = 8+1
+c$$$        if (strn(9:13) .eq. ':tol=') then
+c$$$          j1 = 13
+c$$$        endif
+c$$$        if (strn(9:9) .ne. ':' .or.
+c$$$     .  .not. a2bin(strn,fptol,4,0,' ',j1,len(strn))) fptol = 1d-5
       else
         fptol = 0
       endif

@@ -1,4 +1,5 @@
       module m_mkehkf
+      use m_ftox
       contains
       subroutine m_mkehkf_etot1(sev, etot)
       use m_struc_def
@@ -38,8 +39,8 @@ Co         :Hohnberg-Kohn-Sham energy (mode = 2)
      .    /' sumec= ',f15.6,'  cor*vef=',f15.6,'   ttcor=',f15.6
      .    /' rhoeps=',f15.6,'     utot=',f15.6,'    ehar=',f15.6)
         elseif (ipr .ge. 10) then
-          call awrit4('%N ekin=%,6;6d  rho*v=%,6;6d  sumev=%,6;6d'//
-     .    ' ehf =%,6;6d',' ',80,stdo,ekin,utot+rhoexc,sev,eh)
+          write(stdo,ftox)' ekin=',ftof(ekin),'rho*v=',ftof(utot+rhoexc),'sumev=',ftof(sev),
+     .    'ehf=',ftof(eh) 
         endif
         if (ipr.gt.0 .and. ipl.gt.0) write (stdl,720) utot,ekin,sev,etot
   720   format('fp Har: U',f15.6,'  T',f15.6,'  sev',f14.6,'  EH ',f14.6)
@@ -85,8 +86,8 @@ Co         :Hohnberg-Kohn-Sham energy (mode = 2)
   412     format(' mag. mom=',f13.6) !,'  (bands)',f16.6,'  (output rho)')
 
         elseif (ipr .ge. 10) then
-          call awrit4('%N ekin=%,6;6d  rho*v=%,6;6d ehf =%,6;6d'//
-     .    '  ehks =%,6;6d',' ',80,stdo,ekin,utot+rhoexc,eh,eks)
+          write(stdo,ftox)' ekin=',ftof(ekin),'rho*v=',ftof(utot+rhoexc),'ehf=',ftof(eh),
+     .    'ehks=',ftof(eks) !%,6;6d',' ',80,stdo,ekin,,eh,eks)
         endif
         if (ipr.gt.0 .and. ipl.gt.0) write (stdl,721) utot,ekin,rhoexc,eks
   721   format('fp KS: U',f16.7,' T',f16.7,' Exc',f15.7,' EKS',f15.7)

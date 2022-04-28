@@ -1,12 +1,11 @@
       module m_clsmode
 !! CLS: Core-level spectroscopy !too confusing notation see suclst.
-      use m_lmfinit, only: lmet=>bz_lmet,nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,nlmax,nspc,nl,lso
+      use m_lmfinit, only: lmet=>bz_lmet,nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,nlmax,nspc,nl,lso,stdo
       use m_suham,only:   ndham=>ham_ndham
       use m_mkqp,only: nkp=>bz_nkp
       use m_MPItk,only: master_mpi
       use m_mkpot,only: ppnl_rv 
-
-      
+      use m_ftox,only: ftox
       integer,parameter,private:: nsitmx = 256
       integer,private::  icls=0 , isite(nsitmx) , iclsl(nsitmx), iclsn(nsitmx),nsites
       complex(8),allocatable,private :: ausc_zv(:)
@@ -15,25 +14,44 @@
       subroutine m_clsmode_init()
       logical:: cmdopt
       character(10):: i2char
-      integer::nevmx,ndhamx
+      integer::nevmx,ndhamx,i,ific
       character strn*120, clsopt*120
       character(512):: aaachar
 !! --- Options for core level specta (CLS) ---
       if (cmdopt('--cls',5,0,strn)) then
          if (lmet/=2) call rx('For CLS restart with METAL=2')
          icls = 1
-         clsopt = strn(6:)
-         call suclst(nsitmx,nbas,nsp,ssite,sspec,clsopt,
-     .     isite,iclsl,iclsn,nsites)
+c     clsopt = strn(6:)
+c     call suclst(nsitmx,nbas,nsp,ssite,sspec,clsopt,
+c     .     isite,iclsl,iclsn,nsites)
+c     open(newunit=ific,file='CLSinput') !2022apr28
+c     do i=1,nsites
+c     write(ific,ftox)isite(i),iclsl(i),iclsn(i),' ! site,core-l,core-n'
+c     enddo
+c     close(ific)
+         open(newunit=ific,file='CLSinput') !2022apr28
+         i=0
+         do 
+            i=i+1
+            read(ific,*,err=1018,end=1018) isite(i),iclsl(i),iclsn(i)
+c     write(stdo,ftox)'xxx clsmode for',isite(i),iclsl(i),iclsn(i),' ! site,core-l,core-n'
+         enddo
+ 1018    continue
+         close(ific)
+         nsites=i-1
+         do i=1,nsites
+            write(stdo,ftox)'clsmode for',isite(i),iclsl(i),iclsn(i),' ! site,core-l,core-n'
+         enddo
+         
          if (16*3*nlmax*ndham*nbas*nsp*nkp/1000000 .gt. 24 .and. master_mpi) then
-!! this path is go through by crn test.
+!     ! this path is go through by crn test.
             aaachar=
-     &        ' CLS: '//trim(i2char( 16*3*nlmax*ndham*nsites*nsp*nkp/1000000))//
-     &        ' Mb memory for aus: nlmax='//trim(i2char( nlmax))//
-     &        ' ndham='  //trim(i2char( ndham))//
-     &        ' nsistes='//trim(i2char( nsites))//
-     &        ' nsp='    //trim(i2char( nsp))//
-     &        ' nkp='    //trim(i2char( nkp))
+     &           ' CLS: '//trim(i2char( 16*3*nlmax*ndham*nsites*nsp*nkp/1000000))//
+     &           ' Mb memory for aus: nlmax='//trim(i2char( nlmax))//
+     &           ' ndham='  //trim(i2char( ndham))//
+     &           ' nsistes='//trim(i2char( nsites))//
+     &           ' nsp='    //trim(i2char( nsp))//
+     &           ' nkp='    //trim(i2char( nkp))
             write(6,"(a)") aaachar
          endif
          allocate(ausc_zv(3*nlmax*ndham*nsites*nsp*nkp))

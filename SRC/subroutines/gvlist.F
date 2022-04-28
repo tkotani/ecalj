@@ -101,7 +101,7 @@ C ... Local parameters
      .tpiba,tol,gg,vol,gmax2,q(3),s1,s2,s3,ddot
       character*256 outs
       parameter (PRTG=30)
-      external awrit0,awrit4,awrit6,dinv33,dpcopy,dpzero,pvglst,rx,shorbz
+      external dinv33,dpcopy,dpzero,pvglst,rx,shorbz
       integer,save:: i,iyy
       integer,allocatable:: ixx(:,:)
       integer,parameter :: m_gslist=10
@@ -336,22 +336,22 @@ c#endif
 
 C ... Printout
       if (iprint() .ge. PRTG) then
-#if AWRITE
-        s1 = alat*sqrt(ddot(3,plat(1,1),1,plat(1,1),1))/n1
-        s2 = alat*sqrt(ddot(3,plat(1,2),1,plat(1,2),1))/n2
-        s3 = alat*sqrt(ddot(3,plat(1,3),1,plat(1,3),1))/n3
-        call awrit4('%x%N GVLIST: gmax = %,1;4g'//
-     .  ' a.u. created %i vectors of %i (%i%%)',
-     .  outs,len(outs),0,gmax,ng,n1*n2*n3,(ng*100)/(n1*n2*n3))
-        call awrit6('%a%N%9fmesh has %i x %i x %i'//
-     .  ' divisions; length %,3;3d, %,3;3d, %,3;3d',outs,
-     .  len(outs),0,n1,n2,n3,s1,s2,s3)
-        call awrit0('%a',outs,len(outs),-stdo)
-#else
+c$$$#if AWRITE
+c$$$        s1 = alat*sqrt(ddot(3,plat(1,1),1,plat(1,1),1))/n1
+c$$$        s2 = alat*sqrt(ddot(3,plat(1,2),1,plat(1,2),1))/n2
+c$$$        s3 = alat*sqrt(ddot(3,plat(1,3),1,plat(1,3),1))/n3
+c$$$        call awrit4('%x%N GVLIST: gmax = %,1;4g'//
+c$$$     .  ' a.u. created %i vectors of %i (%i%%)',
+c$$$     .  outs,len(outs),0,gmax,ng,n1*n2*n3,(ng*100)/(n1*n2*n3))
+c$$$        call awrit6('%a%N%9fmesh has %i x %i x %i'//
+c$$$     .  ' divisions; length %,3;3d, %,3;3d, %,3;3d',outs,
+c$$$     .  len(outs),0,n1,n2,n3,s1,s2,s3)
+c$$$        call awrit0('%a',outs,len(outs),-stdo)
+c$$$#else
         if (iprint() .ge. PRTG) print 861, gmax,ng,n1*n2*n3
   861   format(/' gvlist: cutoff radius ',f7.3,' gives',i7,
      .  '   recips of max',i7)
-#endif
+c#endif
       endif
 
 C ... Sort the list of vectors

@@ -342,9 +342,11 @@ C       For compatibility with nfp, read record into wk
         endif
         call mpibc1_real(wk,3,'iors_wk')
         if (irs4 .ne. 0) then
-          call awrit0('%a ef window,',ignore,len(ignore),0)
+          ignore=trim(ignore)//'ef window,'
+c          call awrit0('%a ef window,',ignore,len(ignore),0)
         else
-          call awrit0('%a ef window,',use,len(use),0)
+          use=trim(use)//'use window,'
+c          call awrit0('%a ef window,',use,len(use),0)
 c          bz_ef00=wk(1)
 c          bz_def00=wk(2)
           call m_bndfp_ef_SET(wk(1)) !bz_ef00) !,bz_def00)
@@ -353,10 +355,13 @@ c          bz_w= -9999 !dummy wk(3)
 C   --- Read atomic positions,forces,velocities ---
         line = 'site data'
         if (irs3 .ne. 0) then
-          call awrit0('%a positions,',ignore,len(ignore),0)
+          ignore=trim(ignore)//'positions,'
+c          call awrit0('%a positions,',ignore,len(ignore),0)
         else
-          call awrit0('%a positions,',use,len(use),0)
-          if (lshear) call awrit0('%a%7b(sheared),',use,len(use),0)
+          use=trim(use)//' positions,'
+c          call awrit0('%a positions,',use,len(use),0)
+          if (lshear) use=trim(use)//' (sheared)'
+c     if(lshare) call awrit0('%a%7b(sheared),',use,len(use),0)
 C         Must be enough sites to read from rst file
           if (nbas0 .lt. nbas) then
             call info0(1,0,0,'%9f oops ... cannot use file site positions (site mismatch)')
@@ -397,13 +402,17 @@ C         rst file positions in pos0
 
 C   --- Read information for local densities ---
         if (irs5 .ne. 0) then
-          call awrit0('%a pnu,',ignore,len(ignore),0)
+          ignore=trim(ignore)//' pnu,'
+c          call awrit0('%a pnu,',ignore,len(ignore),0)
         else
-          call awrit0('%a pnu,',use,len(use),0)
+          use=trim(use)//' pnu,'
+c          call awrit0('%a pnu,',use,len(use),0)
         endif
         if (ipr .ge. 10) then
-          call awrit1('%a%?#(p>32)#%b # *#',use,len(use),-stdo,0)
-          call awrit1('%a%?#(p>32)#%b # *#',ignore,len(ignore),-stdo,0)
+           write(stdo,*)trim(use)
+           write(stdo,*)trim(ignore)
+c          call awrit1('%a%?#(p>32)#%b # *#',use,len(use),-stdo,0)
+c          call awrit1('%a%?#(p>32)#%b # *#',ignore,len(ignore),-stdo,0)
         endif
         if (procid .eq. master) then
           if (.not. lbin) read(jfi,*,err=999,end=999)

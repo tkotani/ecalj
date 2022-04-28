@@ -11,7 +11,7 @@ c      character*100::filenm(2)
       real(8):: rydberg=13.6058d0, bin,eigen(4),vvv,wt,bin2
       character strn*120
       character*(*)::ext
-      logical::a2bin,cmdopt,mlog
+      logical::cmdopt,mlog
 
       integer, dimension(:),allocatable :: kpproc
       integer::numprocs,procid,ierr,itete,iteti,mpipid,ifile_handle
@@ -59,19 +59,6 @@ c      print *,'ppppp',numprocs,procid,iteti,itete
         ndos = ndos_
       endif
 
-c$$$      if (cmdopt('-emin=',6,0,strn)) then
-c$$$         j=6
-c$$$        if (a2bin(strn,eminp_,4,0,' ',j,len(strn))) eminp=eminp_/rydberg
-c$$$      endif
-c$$$      if (cmdopt('-emax=',6,0,strn)) then
-c$$$        j =6
-c$$$        if (a2bin(strn,emaxp_,4,0,' ',j,len(strn))) emaxp=emaxp_/rydberg
-c$$$      endif
-c$$$      if(cmdopt('-ndos=',6,0,strn))  then
-c$$$        j = 6
-c$$$        if (a2bin(strn,ndos_,2,0,' ',j,len(strn))) ndos=ndos_
-c$$$      endif
-      
 !! dostet ---
 c      call dostet(ndhamx,nsp,nspx,nevmin,nchanp*nbas,nkk1,nkk2,nkk3,ntete,idtete,evlall,
 c     &  dwgtall, ndos, eminp+ef0, emaxp+ef0,.false.,wkd,pdosall)

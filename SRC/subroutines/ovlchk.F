@@ -1,6 +1,6 @@
       subroutine ovlchk(nbas,nbasp,pos,alat,rmax,rmt,dclabl,
      .ips,mode,plat,fovl,volsph)
-
+      use m_ftox
 C- Check volume and sphere overlaps
 C ----------------------------------------------------------------
 Ci Inputs
@@ -41,7 +41,7 @@ C Local parameters
       logical lterse,cmdopt,lrmt
       character*8 clabl,clablj
       integer:: ifile_handle,ifp
-
+      character(10):: i2char
       call getpr(ipr)
       lrmt = rmt(1) .gt. 0
       stdo = lgunit(1)
@@ -73,11 +73,12 @@ c          call dpadd(dd,plat(1,m3),1,3,dble(kc))
  101  continue
  102  continue
 
-      if (ipr .ge. 10)
-     .call awrit1('%N   Site     Spec%12fRmax%?;n;%8fRmt ;;'//
-     .'%16fPosition',' ',80,i1mach(2),isw(lrmt))
+      if(ipr>=10) then
+         if(lrmt)     write(stdo,*)'   Site     Spec    Rmax   Rmt    Position'
+         if(.not.lrmt)write(stdo,*)'   Site     Spec    Rmax   Position'
+      endif   
       volsph = 0d0
-      volspp = 0d0
+c      volspp = 0d0
 
       ifp=ifile_handle()
       open(ifp,file='SiteInfo.lmchk')
@@ -88,12 +89,10 @@ c          call dpadd(dd,plat(1,m3),1,3,dble(kc))
         if (ibas .eq. nbas+1) write(stdo,'(''  ... Padding basis'')')
 c        call r8tos8(dclabl(ic),clabl)
         clabl=dclabl(ic)
-        if (dclabl(1) .eq.'') call awrit1('%x%,4i',clabl,8,0,ic)
+        if (dclabl(1) .eq.'') clabl= i2char(ic)
         if (lrmt) then
-          write(stdo,450) ibas,ic,clabl,rmax(ic),rmt(ic),
-     .    (pos(m,ibas),m=1,3)
-          write(ifp,450) ibas,ic,clabl,rmax(ic),rmt(ic),
-     .    (pos(m,ibas),m=1,3)
+          write(stdo,450) ibas,ic,clabl,rmax(ic),rmt(ic),(pos(m,ibas),m=1,3)
+          write(ifp,450)  ibas,ic,clabl,rmax(ic),rmt(ic), (pos(m,ibas),m=1,3)
   450     format(i5,3x,i4,2x,a8,2f12.6,3f11.5)
         else
           write(stdo,351) ibas,ic,clabl,rmax(ic),(pos(m,ibas),m=1,3)
@@ -111,21 +110,22 @@ C          enddo
         endif
 
         if (ibas .le. nbas) volsph = volsph + 4.188790205d0*rmax(ic)**3
-        volspp = volspp + 4.188790205d0*rmax(ic)**3
+c        volspp = volspp + 4.188790205d0*rmax(ic)**3
    20 continue
       close(ifp)
 
       xx = avwsr(plat,alat,vol,nbas)
-      if (ipr .ge. 10 .and. volspp .eq. volsph) then
-        call awrit3('%N Cell volume= %1,5;5d   Sum of sphere volumes='//
-     .  ' %1,5;5d (%1;5d)',' ',80,i1mach(2),vol,volsph,volsph/vol)
-      elseif (ipr .ge. 10) then
-        volspp = 2*volspp-volsph
-        call info5(0,1,0,
-     .  ' Cell volume= %1,5;5d'//
-     .  ' Sum of sphere volumes= %1,5;5d + %1,5;5d(2 x pad) '//
-     .  ' ratio=%1;5d',vol,volsph,volspp-volsph,volspp/vol,0)
+      if (ipr .ge. 10) then ! .and. volspp .eq. volsph) then
+        write(stdo,ftox)' Cell volume= ',ftof(vol,3),'Sum of sphere volumes=',
+     .        ftof(volsph,3),'(',ftof(volsph/vol,1),' %)'
       endif
+c$$$      elseif (ipr .ge. 10) then
+c$$$        volspp = 2*volspp-volsph
+c$$$        call info5(0,1,0,
+c$$$     .  ' Cell volume= %1,5;5d'//
+c$$$     .  ' Sum of sphere volumes= %1,5;5d + %1,5;5d(2 x pad) '//
+c$$$     .  ' ratio=%1;5d',vol,volsph,volspp-volsph,volspp/vol,0)
+c$$$      endif
 
 C --- Check sphere overlaps ---
       fovl = 0
@@ -137,7 +137,8 @@ C --- Check sphere overlaps ---
         if (ipr .ge. 10) then
 c          call r8tos8(dclabl(ic),clabl)
           clabl = dclabl(ic)
-          if (dclabl(1) .eq. '') call awrit1('%x%,4i',clabl,8,0,ic)
+          if (dclabl(1) .eq. '') clabl=i2char(ic)
+c     all awrit1('%x%,4i',clabl,8,0,ic)
         endif
       do  30  jbas = ibas, nbasp
         jc = ips(jbas)
@@ -147,7 +148,8 @@ c          call r8tos8(dclabl(ic),clabl)
         if (ipr .ge. 10) then
 c          call r8tos8(dclabl(jc),clablj)
           clablj=dclabl(jc)
-          if (dclabl(1) .eq.'') call awrit1('%x%,4i',clablj,8,0,jc)
+          if (dclabl(1) .eq.'')clablj=i2char(jc)
+c     all awrit1('%x%,4i',clablj,8,0,jc)
         endif
         if (ibas .eq. jbas) then
           if (ddot(3,dlat,1,dlat,1) .eq. 0) goto 30

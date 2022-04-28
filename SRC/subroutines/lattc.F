@@ -1,6 +1,7 @@
 CSFCPP#define F90 1
       subroutine lattc(as,tol,rpad,alat,alat0,platin,g1,g2,g3,gt,plat,
-     .qlat,lmax,vol,awald,dlat,nkd,glat,nkg,nkdmx,nkgmx)
+     .     qlat,lmax,vol,awald,dlat,nkd,glat,nkg,nkdmx,nkgmx)
+      use m_ftox
 C- Sets up the real and reciprocal space lattice vectors for Ewald
 C ----------------------------------------------------------------
 Ci Inputs
@@ -67,8 +68,7 @@ C     qlat = (plat+)^-1
 
   350 format(3f11.6,5x,3f11.6)
       if (dabs(gt-1d0) .gt. 1.d-5) then
-        call awrit4(' Distorted with gx,y,z= %d %d %d  gt=%d:',
-     .  ' ',80,i1mach(2),g1,g2,g3,gt)
+        write(stdo,ftox)' Distorted with gx,y,z=',ftof(g1),ftof(g2),ftof(g3),'gt=:',ftof(gt)
         write(stdo,350) ((plat(m,k),m=1,3),(qlat(m,k),m=1,3),k=1,3)
         call dpzero(one,9)
         one(1,1) = 1
@@ -78,9 +78,8 @@ C     qlat = (plat+)^-1
         if (iprint() .gt. 40) write(stdo,352) ((oned(m,k),m=1,3), k=1,3)
   352   format(t14,'shear matrix'/(3f11.7))
       endif
-      call awrit3('  Cell vol= %1,6;6d'//
-     .'%?#n# (undistorted vol=%1,6;6d)#%j#',' ',80,i1mach(2),
-     .vol,isw(dabs(vol-vol0*(alat**3)).gt.1d-9),vol0*(alat**3))
+      write(stdo,ftox)'  Cell vol= ',ftof(vol)
+      if((dabs(vol-vol0*(alat**3)).gt.1d-9))write(stdo,ftox)'(undistorted vol=',ftof(vol0*(alat**3))
    20 continue
 
 C --- Set up real and reciprocal vectors ---

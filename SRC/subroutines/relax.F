@@ -1,3 +1,8 @@
+      module m_relax
+      use m_ftox
+      public relax,prelx1
+      private
+      contains
       subroutine relax(ssite,sspec,it,indrlx,natrlx,f, !,sctrl prgnam,
      .p,w,nelts,delta,bas,icom)
       use m_struc_def  !Cgetarg
@@ -69,7 +74,7 @@ C Local Variables
       character clablj*8,dumstr*6,strn*128
       save ir,wkg
       data wkg /28*0d0/
-
+      character(256)::lll
       stdo = lgunit(1)
       stdl = lgunit(2)
       master = 0
@@ -160,41 +165,27 @@ C ... the user sets xtol _and_ gtol.
       endif
       if ((lrlx.eq.4 .or. lrlx.eq.5) .and. ipr .ge. 20) then
         if (procid .eq. master) then
-          call awrit4(' fp rlx ln %d:  %1j'//
-     .    '%-1j%?#n==-0#cnvg##'//
-     .    '%-1j%?#n==-1#new ln##'//
-     .    '%-1j%?#n==-2#brack ln##'//
-     .    '%-1j%?#n==-3#brack ln##'//
-     .    '%-1j%?#n==-4#extrap ln ##'//
-     .    '%-1j%?#n==-5#extrap ln ##'//
-     .    '%-1j%?#n==-6#trouble!!##'//
-     .    '  dxmx=%;7F  |g|=%1;3g',' ',80,stdl,wkg(19),ir,
-     .    wkg(1)*p(idamax(natrlx,p(1,nd),1),nd),
-     .    dsqrt(ddot(natrlx,p(1,2),1,p(1,2),1)))
-          if (ipr .ge. 20) call awrit4(' RELAX line %d:  %1j'//
-     .    '%-1j%?#n==-0#converged to tolerance##'//
-     .    '%-1j%?#n==-1#new line minimization##'//
-     .    '%-1j%?#n==-2#bracketed root this line##'//
-     .    '%-1j%?#n==-3#bracketed root this line##'//
-     .    '%-1j%?#n==-4#extrapolated along this line##'//
-     .    '%-1j%?#n==-5#extrapolated along this line##'//
-     .    '%-1j%?#n==-6#is in trouble##'//
-     .    ';  max shift=%;7F  |g|=%1;3g',' ',80,stdo,wkg(19),ir,
-     .    wkg(1)*p(idamax(natrlx,p(1,nd),1),nd),
-     .    dsqrt(ddot(natrlx,p(1,2),1,p(1,2),1)))
+         if(ir==0) lll='converged to tolerance'
+         if(ir==1) lll='new line minimization'
+         if(ir==2) lll='bracketed root this line'
+         if(ir==3) lll='bracketed root this line'
+         if(ir==4) lll='extrapolated along this line'
+         if(ir==5) lll='extrapolated along this line'
+         if(ir==6) lll='is in trouble'
+          write(stdl,ftox)' fp rlx ln ',ftof(wkg(19)),trim(lll),
+     .          '  dxmx=', ftof(wkg(1)*p(idamax(natrlx,p(1,nd),1),nd)),
+     .          '|g|=',ftof(dsqrt(ddot(natrlx,p(1,2),1,p(1,2),1)))
+          if (ipr .ge. 20) 
+     &    write(stdo,ftox)' fp rlx ln ',ftof(wkg(19)),trim(lll),
+     .         '  dxmx=', ftof(wkg(1)*p(idamax(natrlx,p(1,nd),1),nd)),
+     .         '|g|=',ftof(dsqrt(ddot(natrlx,p(1,2),1,p(1,2),1)))
         endif
       elseif (lrlx .eq. 6) then
         if (procid .eq. master) then
-          call awrit3(' fp rlx Br '//
-     .    '%?#n==0#cnvg#%-1jit %i#  dxmx=%;7F  |g|=%1;3g',' ',
-     .    80,stdl,-ir,p(idamax(natrlx,p(1,ns),1),ns),
-     .    dsqrt(ddot(natrlx,p(1,2),1,p(1,2),1)))
-          if (ipr .ge. 20) call awrit4(' RELAX:  %1j'//
-     .    '%-1j%?#n==-0#converged to tolerance##'//
-     .    '%-1j%?#n<0#completed Broyden iter %i#%j#'//
-     .    ';  max shift=%;7F  |g|=%1;3g',' ',80,stdo,
-     .    ir,-ir,p(idamax(natrlx,p(1,ns),1),ns),
-     .    dsqrt(ddot(natrlx,p(1,2),1,p(1,2),1)))
+          write(stdl,ftox)' fp rlx Br ',-ir,'dxmx',ftof(p(idamax(natrlx,p(1,ns),1),ns)),
+     .    '|g|=',ftof(dsqrt(ddot(natrlx,p(1,2),1,p(1,2),1)))
+          if(ipr>=20) write(stdo,ftox)' fp rlx Br',-ir,'dxmx',ftof(p(idamax(natrlx,p(1,ns),1),ns)),
+     .    '|g|=',ftof(dsqrt(ddot(natrlx,p(1,2),1,p(1,2),1)))
         endif
       endif
       if (ir .eq. 0) icom = 1
@@ -248,8 +239,8 @@ C --- Printout ---
         print *,' Site   Class                      Position(relaxed)'
         do  70  j = 1, nbas
           is=ssite(j)%spec
-          clablj = sspec(is)%name
-          call icopy(size(ssite(j)%relax),ssite(j)%relax,1,ifrlx,1)
+          clablj=sspec(is)%name
+          ifrlx=ssite(j)%relax
           write (stdo,130) j,clablj,(bas(ix,j),ifrlx(ix).eq.1,ix=1,3)
    70   continue
       endif
@@ -258,14 +249,12 @@ C ... Write new atom positions to LOG file, for use in CTRL file
       if (ipr .ge. 20 .and. .not. lshr) then
         dumstr = 'SITE'
         do  80  j = 1, nbas
-          call icopy(size(ssite(j)%relax),ssite(j)%relax,1,ifrlx,1)
+          ifrlx=ssite(j)%relax
           if (j .eq. 2) dumstr = ' '
           is=ssite(j)%spec
           clablj=sspec(is)%name
-          call icopy(size(ssite(j)%relax),ssite(j)%relax,1,ifrlx,1)
-          
-          call awrit2(dumstr//'ATOM='//clablj//
-     .    ' POS=%3;12,7D  RELAX=%3,2i',' ',80,lgunit(2), bas(1,j),ifrlx)
+          write(stdl,ftox)dumstr//'ATOM='//clablj,
+     .    ' POS=',ftof(bas(1:3,j),2),'RELAX=',ifrlx
    80   continue
       endif
       if (icom .eq. 0 .and. wkg(28) .lt. 0) icom = -1
@@ -360,3 +349,4 @@ C       4, 5, 6
       end subroutine grdep2
 
 
+      end module m_relax

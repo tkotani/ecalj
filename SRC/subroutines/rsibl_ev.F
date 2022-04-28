@@ -1,12 +1,13 @@
 Ckino from rsibl write eigenvectors
       module m_rsibl_ev
+      public rsibl_ev
+      private
       contains
       subroutine rsibl_ev(ssite,sspec,nbas,isp,q,iq,ndimh,nspc, !,slat
      .napw,igapw,iprmb,nevec,evec,k1,k2,k3, n_eiglist,eiglist)
       use m_struc_def 
       use m_w_psir
-      use m_lmfinit,only:
-     &     lat_alat,nspec
+      use m_lmfinit,only:  lat_alat,nspec
       use m_lattic,only: lat_qlat
       use m_lattic,only: lat_vol
       use m_supot,only: lat_nabc

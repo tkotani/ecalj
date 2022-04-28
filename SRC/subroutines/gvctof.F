@@ -1,4 +1,5 @@
       subroutine gvctof(iopt,alat,plat,pos,n1,n2,n3,gmax,ng)
+      use m_ftox
 C- Makes k-space cutoff associated with mesh orders n1,n2,n3
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -73,9 +74,7 @@ C --- Get shortest mesh pts where ki .ne. 0, gmax is pi/(longest) ---
       h0 = dmax1(h1,h2,h3)
       gmax = pi/h0
 
-      if (ipr .ge. ipr0) call awrit6('%N GVCTOF: mesh has '//
-     .' %i * %i * %i divisions  (length = %,3;3d * %,3;3d * %,3;3d)',
-     .' ',80,stdo,n1,n2,n3,h1,h2,h3)
+      if(ipr>=ipr0) write(stdo,ftox)' GVCTOF: mesh division',n1,n2,n3,'length',h1,h2,h3
       voln = (4*pi/3)*gmax**3
       ipv = int(100*voln/volgs)
       if (ipr .ge. ipr1) write(stdo,311) gmax,voln,ipv
@@ -130,10 +129,8 @@ C        endif
       enddo
       enddo
       enddo
-      if (ipr .ge. ipr0) call awrit3(' Reciprocal lattice: use sphere'//
-     .' of radius %;3d, keeping %i vectors of %i',' ',80,stdo,gmax,
-     .nv2,nv1)
+      if(ipr>=ipr0) write(stdo,ftox)' Reciprocal lattice: use sphere of radius',
+     &     ftof(gmax),'keeping',nv2,'vectors of',nv1
       ng = nv2
-
       end
 

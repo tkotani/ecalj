@@ -82,7 +82,7 @@ C ----------------------------------------------------------------------
       print *,' nclasp,lmxa=',nclasp,lmxa
       print *,' z   =',z
       nbasp = nbas !+ npadl + npadr
-      nbaspp = 2*nbasp - nbas
+      nbaspp = nbas !2*nbasp - nbas
       stdo = lgunit(1)
       j = 10
       if (cmdopt('--shorten',j-1,0,outs)) then
@@ -1238,7 +1238,7 @@ C ----------------------------------------------------------------------
 Ci Inputs
 Ci   nbas  :size of basis (input)
 Ci   nbasp :size of padded basis (layer programs)
-Ci          nbasp = nbas + nbas(left bulk) + nbas(right bulk)
+Ci          nbasp = nbas !+ nbas(left bulk) + nbas(right bulk)
 Ci   alat  :length scale of lattice and basis vectors, a.u.
 Ci   plat  :primitive lattice vectors, in units of alat (input)
 Ci   rmax  :maximum range for connecting vector, in a.u.
@@ -1274,7 +1274,7 @@ C ----------------------------------------------------------------------
       integer,allocatable:: iv_a_tmp(:,:)
       parameter (niax=10)
 C ... Set up input for call to pairc
-      nbaspp = 2*nbasp - nbas
+      nbaspp = nbas !2*nbasp - nbas
 C ... Estimate an upper bound to the size of the neighbor table
       avw = avwsr(plat,alat,vol,nbas)
       mxnbr = 3*(2*rmax(1)/avw)**3*nbasp

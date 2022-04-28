@@ -1,5 +1,5 @@
       subroutine nwit(nvario,iter,maxit,lhf,lhk,etol,qtol,
-     .qdiff,svflg,amom,etot,sev,lsc)
+     .qdiff,amom,etot,sev,lsc)
       use m_lmfinit,only: nsp,stdo
 C- Add to save file, determine whether to continue execution
 C ----------------------------------------------------------------------
@@ -15,8 +15,6 @@ Ci   etol  :energy tolerance for convergence.  If 0, criterion not used
 Ci         :Energy change from prior iteration is compared to etol.
 Ci   qtol  :charge tolerance for convergence.  If 0, criterion not used
 Ci   qdiff :change in charge
-Ci   svflg :string of characters.  svflg(lsc+1) is written as the
-Ci         :first character in the save file
 Ci   amom  :magnetic moment
 Ci   etot  :etot(1) = HF energy; etot(2) = KS energy
 Co Outputs
@@ -25,6 +23,8 @@ Co         :1 if not self-consistent, but encountered max. no. iter.
 Co         :2 Harris energy from overlap of free atoms (iter=1 and lhf=t)
 Co         :3 otherwise
 Cu Updates
+C   svflg :string of characters.  svflg(lsc+1) is written as the
+C         :first character in the save file
 Cu   14 Jan 05 Eliminate sctrl from argument list
 Cu   11 Jan 05 Add 10's digit option to lhk
 Cu   10 Mar 03 Split off nwitsv to make separately callable
@@ -33,14 +33,14 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       logical lhf
-      character*4 svflg
+      character(4):: svflg='cxhi'
       integer iter,maxit,lhk,lsc,nvario
       double precision etol,qtol,qdiff,amom,etot(2)
 C ... Local parameters
       integer lgunit,lbl
       logical more,letol,lqtol
       double precision ehf1,ehk1,diffe,sev
-      character flg*3
+      character flg*1
       save ehf1,ehk1
 
       character*255:: formatc(903:904),lbll
@@ -104,7 +104,7 @@ C ... Save for future iterations
       ehf1 = etot(1)
 
 C --- Write out to save file --
-      flg = svflg(lsc+1:lsc+1) // '67'
+      flg = svflg(lsc+1:lsc+1) !// '67'
       call nwitsv(1+2,nvario,flg,nsp,amom,etot,sev)
       end
 
@@ -138,29 +138,28 @@ C ... Local parameters
       integer ifi,i,lgunit,getdig,ifile_handle
       double precision xv(4),sev,rydberg
       character*180 sout
-
       i = 0
       sout = ' '
       if (nsp .eq. 2) then
         i = i+1
         xv(i) = amom
-        call awrit0('%a,mmom',sout,len(sout),0)
+        sout=trim(sout)//',mmom '
       endif
       if (etot(1) .ne. 0) then
         i = i+1
         xv(i) = etot(1)*rydberg()
-        call awrit0('%a,ehf(eV)',sout,len(sout),0)
+        sout=trim(sout)//',ehf(eV) '
       endif
       if (etot(2) .ne. 0) then
         i = i+1
         xv(i) = etot(2)*rydberg()
-        call awrit0('%a,ehk(eV)',sout,len(sout),0)
+        sout=trim(sout)//',ehk(eV) '
       endif
 
       if (sev .ne. 0) then
         i = i+1
         xv(i) = sev*rydberg()
-        call awrit0('%a,sev(eV)',sout,len(sout),0)
+        sout=trim(sout)//',sev(eV) '
       endif
 C ... Write to file list
       do  i = 1, 4!3
@@ -176,5 +175,3 @@ C ... Write to file list
         endif
       enddo
       end
-
-

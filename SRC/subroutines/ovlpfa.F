@@ -2,7 +2,7 @@
      .gv,cv)
       use m_lmfinit,only:lat_alat,nsp
       use m_lattic,only: lat_vol
-
+      use m_ftox
 
       use m_struc_def  
 c      use m_globalvariables
@@ -129,9 +129,8 @@ C       ... Loop over reciprocal lattice vectors
           sum(isp) = sum(isp) + sam(isp)
         enddo
         if (ipr .gt. 30 .and. nx .gt. 0) then
-          call awrit6(' site%,4i  spec%,3i  pos%3;8,4D'//
-     .    '  Qsmooth %,6;6d%?#n==2#  mom %,5;5d##',
-     .    ' ',90,stdo,ib,is,pos,sam(1)+sam(2),nsp,sam(1)-sam(2))
+          write(stdo,ftox)' site',ib,'spec',is,'pos',ftof(pos,4),
+     .    'Qsmooth',sam(1)+sam(2),'mom', sam(1)-sam(2)
           if (ipr .ge. 40) then
             write(stdo,700) 'energy:',(exi(i,is),i=1,nx)
             write(stdo,700) 'coeff:',(hfc(i,1,is),i=1,nx)

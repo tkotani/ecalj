@@ -1,5 +1,5 @@
       subroutine praldm(ifi,ipr1,ipr2,sharm,nbas,nsp,lmaxu,lldau,sspec,
-     .ssite,strn,dmatu)
+     .     ssite,strn,dmatu)
       use m_struc_def  !Cgetarg
 C- Writes out a site density-matrix-like object for all sites
 C ----------------------------------------------------------------------
@@ -37,7 +37,7 @@ C ----------------------------------------------------------------------
       integer nbas,nsp,lldau(nbas),ifi,lmaxu,ipr1,ipr2,sharm,i_copy_size
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
-      double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
+      real(8)::   dmatu(2,-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,iblu)
       character strn*(*)
       integer iblu,ib,is,igetss,lmxa,idu(4),l
       iblu = 0
@@ -45,8 +45,7 @@ C ----------------------------------------------------------------------
         if (lldau(ib) .ne. 0) then
           is = int(ssite(ib)%spec)
           lmxa=sspec(is)%lmxa
-          i_copy_size=size(sspec(is)%idu)
-          call icopy(i_copy_size,sspec(is)%idu,1,idu,1)
+          idu =sspec(is)%idu
           do  l = 0, min(lmxa,3)
             if (idu(l+1) .ne. 0) then
               iblu = iblu+1
@@ -60,9 +59,8 @@ C ----------------------------------------------------------------------
 
       subroutine prdmts(ifi,ipr1,ipr2,sharm,strn,ib,l,lmaxu,iblu,dmats,
      .nsp,nspc)
+      use m_ftox
       use m_lmfinit,only: stdo
-
-
 C- Writes out a site density-matrix-like object for a single l
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -96,26 +94,28 @@ C ... Passed parameters
       character strn*(*)
 C ... Local parameters
       integer isp,ipr,m1,m2,mpipid,nlm
-      character strnl*120,strn1*30
-
+      character strnl*120,strn1*30,lll*60
       if (nspc .eq. 2) call rx('prdmts not ready for nspc=2')
       if (mpipid(1) .ne. 0) return
       call getpr(ipr)
-Changenglob      stdo = nglob('stdo')
-c      stdo = globalvariables%stdo
       nlm = 2*l+1
-
       if (ifi .ne. 0) then
-        strn1 = ' '
-        call awrit3('%%%% rows %i cols %i complex %?#n#s#r#harm',
-     .  strn1,len(strn1),0,nlm,nlm,sharm)
-        strnl = strn1 // ' ' // strn // ' l=%i'//
-     .  '%?#n#%-1j  site %i##'//
-     .  '%?#(n>0)#  spin %i#'
+c        strn1 = ' '
+c        call awrit3('%%%% rows %i cols %i complex %?#n#s#r#harm',
+c     .       strn1,len(strn1),0,nlm,nlm,sharm)
+        if(sharm==0) lll='complex  real harmonics'
+        if(sharm/=0) lll='complex  sherical harmonics'
+c        strnl = 
+c        // ' l=%i'//
+c     .  '%?#n#%-1j  site %i##'//
+c     .  '%?#(n>0)#  spin %i#'
 C    .          '%?#(n>0)#  spin %i#%j#'
         do  isp = 1, nsp
-          if (ipr .ge. ipr1) call awrit4(strnl,' ',len(strnl),ifi,l,
-     .    ib,(ipr-ipr2+1)*(nsp-1),isp)
+           if (ipr .ge. ipr1)
+     &          write(ifi,ftox)'%%%% rows ',nlm,' cols ',nlm,' ',
+     &          trim(lll),' ',trim(strn),'l=',l,'site',ib,'spin',isp
+c     all awrit4(strnl,' ',len(strnl),ifi,l,
+c     .    ib,(ipr-ipr2+1)*(nsp-1),isp)
           if (ipr .lt. ipr2) return
           do  m1 = -l, l
             write(ifi,'(7(f12.7,2x))')

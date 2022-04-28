@@ -16,6 +16,7 @@
       use m_bndfp,only:  Bndfp,   ham_ehf,ham_ehk,qdiff,force,sev
       use m_ldau,only:   m_ldau_vorbset
       use m_bstrux,only: m_bstrux_init
+      use m_relax,only: relax,prelx1
 !! = Main routine of lmf = (following document is roughly checked at May2021)
 !! lmfp contains two loops after initialization
 !!   1  outer  loop do 2000 is for molecular dynamics (relaxiation).
@@ -135,7 +136,7 @@
 !     :2 Harris energy from overlap of free atoms (iter=1 and lhf=t)
 !     :3 otherwise
                call nwit( int(ctrl_nvario), iter, maxit, lhf.or.irs1x==0.and.iter==1,
-     &              leks+i, etol, qtol, qdiff, 'cxhi', amom, etot, sev,lsc)
+     &              leks+i, etol, qtol, qdiff, amom, etot, sev,lsc)
             endif
             call mpibc1_int(lsc,1,'lmfp_lsc')
             if (lsc==2 .and. (.not. lhf) .and. maxit>1) lsc = 3
@@ -155,7 +156,7 @@
 c         mdprm = ctrl_mdprm !MD setting
 !! Relax atomic positions.   !--> shear mode removed. probably outside of fortran code if necessary
          call relax( ssite , sspec , itrlx , indrx_iv 
-     .        , natrlx, force , p_rv , hess , 0 , 0d0 , pos_move, icom )
+     .        , natrlx, force , p_rv , hess , 0 , [0d0] , pos_move, icom )
 !!  warn: Updating positions in ssite structure ==> t.kotani think this is confusing because
 !!        'positions written in ctrl' and 'positions written in rst' can be different.
          if(master_mpi) write(ifipos) itrlx,pos_move

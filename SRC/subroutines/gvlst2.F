@@ -1,6 +1,7 @@
 CSFCPP#define F90 1
       subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx,
-     .ng,kv,gv,igv,igv2)
+     .     ng,kv,gv,igv,igv2)
+      use m_ftox
       use m_shortn3,only: shortn3_initialize,shortn3
 C- Set up a list of recip vectors within cutoff |q+G| < gmax
 C ----------------------------------------------------------------------
@@ -210,32 +211,29 @@ c            print *,' zzz ig=',ig,ngmx
  212  continue
       deallocate(nlatout)
       ng = ig
-c      print *,'xxxx wwwwwwwwwwwwww111111111 ng=',ng
 C --- Printout ---
       if (ipr .ge. PRTG .and. n1l*n2l*n3l .eq. 0) then
-        call awrit2('%x%N GVLST2: gmax = %,1;3d a.u. created %i'//
-     .  ' recip. lattice vectors',outs,len(outs),stdo,gmax0*tpiba,ng)
+         write(stdo,ftox)' GVLST2: gmax=',ftof(gmax0*tpiba,3),'created',ng,' recip. lattice vectors'
       elseif (ipr .ge. PRTG) then
         h1 = alat*sqrt(ddot(3,plat(1,1),1,plat(1,1),1))/n1l
         h2 = alat*sqrt(ddot(3,plat(1,2),1,plat(1,2),1))/n2l
         h3 = alat*sqrt(ddot(3,plat(1,3),1,plat(1,3),1))/n3l
-        call awrit4('%x%N GVLST2: gmax = %,1;3d'//
-     .  ' a.u. created %i vectors of %i (%i%%)',
-     .  outs,len(outs),0,gmax,ng,n1l*n2l*n3l,(ng*100)/(n1l*n2l*n3l))
-        iset(1) = n1
-        iset(2) = n2
-        iset(3) = n3
-        i = iset(1)*iset(2)*iset(3)
-        call awrit7('%a%N%9f%?#n#(input) ##mesh has %i x %i x %i'//
-     .  ' divisions; length %,3;3d, %,3;3d, %,3;3d',outs,
-     .  len(outs),0,i,n1l,n2l,n3l,h1,h2,h3)
-        if (i .eq. 0 .and. iset(1)**2+iset(2)**2+iset(3)**2 .ne. 0) then
-          call awrit3('%a%N%9fgenerated from input mesh with ('//
-     .    '%?#n#%-1j%i#*#,%?#n#%-1j%i#*#,'//
-     .    '%?#n#%-1j%i#*#) divisions',
-     .    outs,len(outs),0,iset(1),iset(2),iset(3))
-        endif
-        call awrit0('%a',outs,len(outs),-stdo)
+        write(stdo,ftox)' GVLST2: gmax = ',ftof(gmax,3),
+     .  ' a.u. created ',ng,' vectors of ',n1l*n2l*n3l,'(',(ng*100)/(n1l*n2l*n3l),'%)'
+c$$$        iset(1) = n1
+c$$$        iset(2) = n2
+c$$$        iset(3) = n3
+c$$$        i = iset(1)*iset(2)*iset(3)
+c$$$        call awrit7('%a%N%9f%?#n#(input) ##mesh has %i x %i x %i'//
+c$$$     .  ' divisions; length %,3;3d, %,3;3d, %,3;3d',outs,
+c$$$     .  len(outs),0,i,n1l,n2l,n3l,h1,h2,h3)
+c$$$        if (i .eq. 0 .and. iset(1)**2+iset(2)**2+iset(3)**2 .ne. 0) then
+c$$$          call awrit3('%a%N%9fgenerated from input mesh with ('//
+c$$$     .    '%?#n#%-1j%i#*#,%?#n#%-1j%i#*#,'//
+c$$$     .    '%?#n#%-1j%i#*#) divisions',
+c$$$     .    outs,len(outs),0,iset(1),iset(2),iset(3))
+c$$$        endif
+c$$$        call awrit0('%a',outs,len(outs),-stdo)
       endif
 !! --- Sort the list of vectors --
       if(lsort) then

@@ -360,70 +360,70 @@ c      call rx('done')
 cccccccccccccccccccccccccccccccccc
       end subroutine makidx
 
-      subroutine mkidx2(nl,maxp,idxdn,ltab,ndimi,outs)
-
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   nl    :(global maximum l) + 1
-Ci   maxp  :maximum number
-Ci   idxdn :controls how orbital is to be included in the basis
-Co Outputs
-Co   ltab  :list of l's in permuted order
-Co   ndimi :sum (ltab(i)+1)**2 for each priority
-Co   outs
-Cr Remarks
-Cu Updates
-C ----------------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
-      integer n0,n0H
-      parameter (n0=10,n0H=5)
-      integer nl,maxp,ltab(n0),idxdn(n0),ndimi(n0H)
-C ... Local parameters
-      integer iprior,i2,i1,norb,iwk(n0),ndim,ipr,i,idxdn2(n0),idxpr
-      character*80 outs
-      character onam(9)*1,ostr*10
-      data onam /'s','p','d','f','g','h','i','j','l'/
-
-C     call icopy(nl,idxdn,1,iwk2,1)
-      call getpr(ipr)
-      ipr = 51
-      do  10  i1 = 1, nl
-        idxdn2(i1) = idxpr(idxdn(i1))
-   10 continue
-      call ivheap(1,nl,idxdn2,iwk,101)
-      call iinit(ndimi,maxp)
-      iprior = 0
-      i2 = 0
-   11 i1 = i2+1
-      iprior = iprior+1
-C ... We have exhausted this group of orbitals
-      if (i1 .gt. nl .or. iprior .gt. maxp) return
-
-      i2 = i1-1
-      norb = 0
-      ndim = 0
-C ... Keep looping here until find all orbitals of this priority
-   12 i2 = i2+1
-      if (i2 .le. nl) then
-        if (idxdn2(iwk(i2)) .eq. iprior) then
-          norb = norb+1
-          ndim = ndim + 2*(iwk(i2)-1) + 1
-          ltab(norb) = iwk(i2)-1
-          goto 12
-        endif
-      endif
-      ndimi(iprior) = ndim
-C     offH(iprior,1,ibp1) = offH(iprior,1,ibp1) + ndim
-      if (ipr .ge. 50) then
-        write(ostr,'(10a1)')(' ', i=norb+1,5),(onam(ltab(i)+1),i=1,norb)
-        call awrit2('%a%b '//ostr(1:5)//' (%i)%(n*13+2)p%j+',
-     .  outs,80,0,ndim,iprior)
-      endif
-      i2 = i2-1
-      goto 11
-
-      end subroutine mkidx2
+c$$$      subroutine mkidx2(nl,maxp,idxdn,ltab,ndimi,outs)
+c$$$
+c$$$C ----------------------------------------------------------------------
+c$$$Ci Inputs
+c$$$Ci   nl    :(global maximum l) + 1
+c$$$Ci   maxp  :maximum number
+c$$$Ci   idxdn :controls how orbital is to be included in the basis
+c$$$Co Outputs
+c$$$Co   ltab  :list of l's in permuted order
+c$$$Co   ndimi :sum (ltab(i)+1)**2 for each priority
+c$$$Co   outs
+c$$$Cr Remarks
+c$$$Cu Updates
+c$$$C ----------------------------------------------------------------------
+c$$$C     implicit none
+c$$$C ... Passed parameters
+c$$$      integer n0,n0H
+c$$$      parameter (n0=10,n0H=5)
+c$$$      integer nl,maxp,ltab(n0),idxdn(n0),ndimi(n0H)
+c$$$C ... Local parameters
+c$$$      integer iprior,i2,i1,norb,iwk(n0),ndim,ipr,i,idxdn2(n0),idxpr
+c$$$      character*80 outs
+c$$$      character onam(9)*1,ostr*10
+c$$$      data onam /'s','p','d','f','g','h','i','j','l'/
+c$$$
+c$$$C     call icopy(nl,idxdn,1,iwk2,1)
+c$$$      call getpr(ipr)
+c$$$      ipr = 51
+c$$$      do  10  i1 = 1, nl
+c$$$        idxdn2(i1) = idxpr(idxdn(i1))
+c$$$   10 continue
+c$$$      call ivheap(1,nl,idxdn2,iwk,101)
+c$$$      call iinit(ndimi,maxp)
+c$$$      iprior = 0
+c$$$      i2 = 0
+c$$$   11 i1 = i2+1
+c$$$      iprior = iprior+1
+c$$$C ... We have exhausted this group of orbitals
+c$$$      if (i1 .gt. nl .or. iprior .gt. maxp) return
+c$$$
+c$$$      i2 = i1-1
+c$$$      norb = 0
+c$$$      ndim = 0
+c$$$C ... Keep looping here until find all orbitals of this priority
+c$$$   12 i2 = i2+1
+c$$$      if (i2 .le. nl) then
+c$$$        if (idxdn2(iwk(i2)) .eq. iprior) then
+c$$$          norb = norb+1
+c$$$          ndim = ndim + 2*(iwk(i2)-1) + 1
+c$$$          ltab(norb) = iwk(i2)-1
+c$$$          goto 12
+c$$$        endif
+c$$$      endif
+c$$$      ndimi(iprior) = ndim
+c$$$C     offH(iprior,1,ibp1) = offH(iprior,1,ibp1) + ndim
+c$$$      if (ipr .ge. 50) then
+c$$$        write(ostr,'(10a1)')(' ', i=norb+1,5),(onam(ltab(i)+1),i=1,norb)
+c$$$        call awrit2('%a%b '//ostr(1:5)//' (%i)%(n*13+2)p%j+',
+c$$$     .  outs,80,0,ndim,iprior)
+c$$$      endif
+c$$$      i2 = i2-1
+c$$$      goto 11
+c$$$
+c$$$      end subroutine mkidx2
 
       integer function idxpr(idxdn)
 

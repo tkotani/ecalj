@@ -1,4 +1,6 @@
       module m_gradzr
+      use m_ftox
+      use m_lmfinit,only:stdo
       public:: gradzr,drgrzr,pgradz,chkhss
       private
       contains
@@ -314,19 +316,21 @@ C   ... Size of initial gradient (and direction) vector
         ltmp = j .eq. isw0 .or.
      .  dxm.gt.0 .and. j.eq.2 .or. dxm.lt.0 .and. j.eq.1
         if (ipr .ge. 30 .or. ipr .ge. 20 .and. ltmp) then
-          call awrit7(' gradzr: begin %?#n# xtol=|%1;3g|#%j#'
-     .    //'%?#n==2# and##%-1j%?#n==3# or##%-1j'
-     .    //'%?#n<>1# gtol=|%1;3g|#%j#'
-     .    //'%?#n==0|n>=4#  gtll=%1;3g#%j#'
-     .    //'  dxmx=%1;3g',outs,
-     .    scrwid,0,itol,xtol,itol,gtol,
-     .    isw1,pgrada(isw1,isw4),dxm)
-          call info2(-25,0,0,
-     .    outs//'%a  '//
-     .    '%?#n==0#C.G.##%-1j'//
-     .    '%?#n==1#F.P.##%-1j'//
-     .    '%?#n==2#Broy##'//
-     .    '  isw=%i',isw2,isw)
+c$$$          call awrit7(' gradzr: begin %?#n# xtol=|%1;3g|#%j#'
+c$$$     .    //'%?#n==2# and##%-1j%?#n==3# or##%-1j'
+c$$$     .    //'%?#n<>1# gtol=|%1;3g|#%j#'
+c$$$     .    //'%?#n==0|n>=4#  gtll=%1;3g#%j#'
+c$$$     .    //'  dxmx=%1;3g',outs,
+c$$$     .    scrwid,0,itol,xtol,itol,gtol,
+c$$$     .    isw1,pgrada(isw1,isw4),dxm)
+           write(stdo,ftox)'itol,xtol,gtol,isw1,pgrada(isw1,isw4),dxm',itol,xtol,gtol,isw1,pgrada(isw1,isw4),dxm
+c          call info2(-25,0,0,
+c     .    outs//'%a  '//
+c     .    '%?#n==0#C.G.##%-1j'//
+c     .    '%?#n==1#F.P.##%-1j'//
+c     .    '%?#n==2#Broy##'//
+c     .    '  isw=%i',isw2,isw)
+          write(stdo,ftox)'cg fp broy',isw2,isw
 C     ... Sanity checks
 C          if (j .eq. isw0)
 C     .    call awrit0(' gradzr (warning) seek extremum but 4''s'
@@ -370,12 +374,11 @@ C ... Congugate gradients
         resg = gam*dgg-gg
         gammax = 2
         if (resg .gt. 0) then
-          call info2(-30,0,0,' gradzr encountered g.h = %;4g'
-     .    //'  ... set gam to zero',resg,0)
+          write(stdo,ftox) ' gradzr encountered g.h ='
+     .    //'  ... set gam to zero',ftod(resg)
           gam = 0
         elseif (gam .gt. gammax) then
-          call info2(-30,0,0,' gradzr cap gam = %;4g'//
-     .    ' to max gam = %;4g',gam,gammax)
+          write(stdo,ftox)' gradzr cap gam = ',' to max gam =',ftod(gam),ftod(gammax)
           gam = gammax
         endif
         call dpcopy(p(1,ng),p(1,n0),1,n,-1d0)
