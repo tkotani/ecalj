@@ -59,7 +59,7 @@ Ci          functions are less than tol.
       character*8,protected:: slabl(mxspec)
       integer,protected:: lmxbx=-1,lmxax,nkaph,nkapi
       logical,allocatable,protected:: mxcst1(:),mxcst2(:),mxcst4(:)
-      integer,allocatable,protected:: idxdn(:,:,:), grp(:),
+      integer,allocatable,protected:: idxdn(:,:,:),
      .     idu(:,:),lmxb(:),lmxa(:),idmod(:,:),iq1(:,:),ivso(:,:),
      .     kmxt(:),kmxv(:),lfoca(:),lmxl(:),nxi(:),nr(:), nmcore(:),
      &  nkapii(:),nkaphh(:) 
@@ -69,7 +69,7 @@ Ci          functions are less than tol.
      .     pnu(:,:,:),qnu(:,:,:),      pnudefault(:,:),qnudefault(:,:),qnudummy(:,:),
      .     coreq(:,:),mass(:),
      .     rg(:),rsma(:),rfoca(:), rsmfa(:),rcfa(:,:),
-     .     exi(:,:),rint(:),rcut(:),rmt(:),pz(:,:,:),
+     .     exi(:,:),rmt(:),pz(:,:,:),
      .     amom(:,:),spec_a(:),z(:),eref(:),rsmv(:)
       character*(8),allocatable,protected:: coreh(:)
 !! ... SITE
@@ -763,12 +763,11 @@ c     .     'Overrides default padding of variable basis dimension')
      .     iq1(n0,nspec),ivso(n0,nspec),
      .     rg(nspec),rsma(nspec),rfoca(nspec),rsmfa(nspec),rcfa(2,nspec),
      .     rs3(nspec),rham(nspec),rmt(nspec),rsmv(nspec),
-     .     nxi(nspec),exi(n0,nspec),rint(nspec),rcut(nspec),
+     .     nxi(nspec),exi(n0,nspec),
      .     spec_a(nspec),z(nspec),nr(nspec),mass(nspec),eref(nspec),
      .     coreh(nspec),coreq(2,nspec),
      .     idxdn(n0,nkap0,nspec),
      .     idu(4,nspec),uh(4,nspec),jh(4,nspec),
-     .     grp(nspec),
      .     mxcst1(nspec),mxcst2(nspec),mxcst4(nspec),
      .     kmxt(nspec),kmxv(nspec),
      .     lfoca(nspec),lmxl(nspec),lmxa(nspec),lmxb(nspec),nmcore(nspec))
@@ -962,8 +961,6 @@ c     .     'Overrides default padding of variable basis dimension')
         nxi(j) = NULLI          !If sought, default will be set below
         call dpzero(pnu(1,1,j),n0*nsp)
         call dpzero(pz(1,1,j),n0*nsp)
-        rint(j) = NULLI         !No default for now
-        rcut(j) = NULLI         !No default for now
         rs3(j) = NULLI          !If sought, default will be set below
         idxdn(:,:,j) = 1
         pnu(1,1,j) = NULLI      !If sought, default will be set below
@@ -1671,7 +1668,6 @@ C --- Allocate and copy input to sspec ---
       do j=1,nspec
           slabl_(j) = slabl(j)
           v_sspec(j)%eh3=-0.5d0
-          v_sspec(j)%etf=-1d0
           v_sspec(j)%vmtz=-0.5d0
           v_sspec(j)%coreh=coreh(j)
           v_sspec(j)%name=slabl(j)
@@ -1681,7 +1677,6 @@ C --- Allocate and copy input to sspec ---
           v_sspec(j)%coreq=coreq(:,j)
           v_sspec(j)%nxi=nxi(j)
           v_sspec(j)%exi=exi(:,j)
-          v_sspec(j)%group=grp(j)
           v_sspec(j)%idmod=idmod(:,j)
           
 !! idxdn= 1 or 3  (or 10,11 for LO)
@@ -1726,13 +1721,13 @@ Cr         and it is included in the basis.
           v_sspec(j)%lmxl=lmxl(j)
 c          v_sspec(j)%lmxpb=lmxpb(j)
           
-          orbp=1d10 
-          call dcopy(n0,rsmh1(1,j),1,orbp(1,1,1),1)
-          call dcopy(n0,eh1(1,j),1,orbp(1,2,1),1)
-          call dcopy(n0,rsmh2(1,j),1,orbp(1,1,2),1)
-          call dcopy(n0,eh2(1,j),1,orbp(1,2,2),1)
-          i_copy_size=size(v_sspec(j)%orbp)
-          call dcopy(i_copy_size,orbp,1,v_sspec(j)%orbp,1)
+c$$$          orbp=1d10 
+c$$$          call dcopy(n0,rsmh1(1,j),1,orbp(1,1,1),1)
+c$$$          call dcopy(n0,eh1(1,j),1,orbp(1,2,1),1)
+c$$$          call dcopy(n0,rsmh2(1,j),1,orbp(1,1,2),1)
+c$$$          call dcopy(n0,eh2(1,j),1,orbp(1,2,2),1)
+c$$$          i_copy_size=size(v_sspec(j)%orbp)
+c$$$          call dcopy(i_copy_size,orbp,1,v_sspec(j)%orbp,1)
 
           v_sspec(j)%mass = mass(j)
 Cr   mxcst2(lmchk)   Exclude this species when auto-resizing sphere radii
@@ -1748,7 +1743,6 @@ ccccccccccccccc
           v_sspec(j)%q = qnu(1:n0*nsp,1,j) 
           v_sspec(j)%z=z(j)
           v_sspec(j)%rcfa=rcfa(:,j)
-          v_sspec(j)%rcut=rcut(j)
           v_sspec(j)%rfoca=rfoca(j)
           v_sspec(j)%rg=rg(j)
           v_sspec(j)%rmt=rmt(j)
@@ -1756,8 +1750,6 @@ ccccccccccccccc
           v_sspec(j)%rsma=rsma(j)
           v_sspec(j)%rsmfa=rsmfa(j)
           v_sspec(j)%eref=eref(j)
-c          v_sspec(j)%rham=rham(j)
-c          v_sspec(j)%rint=rint(j)
       enddo
       allocate(v_ssite(nsite))
       do j=1,nsite
@@ -1894,8 +1886,8 @@ C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
       call poppr
       deallocate(wowk,pnu,qnu    ,amom,idmod,                  
      .     qpol,stni,tbvso,iq1,ivso,rg,rsma,rfoca,rsmfa,rcfa,nxi,
-     .     exi,rint,rcut,coreq,mass,rs3,rham,idxdn,
-     .     rmt,idu,uh,jh,grp,kmxv,  !kmxt,
+     .     exi,coreq,mass,rs3,rham,idxdn,
+     .     rmt,idu,uh,jh,kmxv,  !kmxt,
      .     lfoca,eref,lmxl,coreh,          spec_a,z,nr,rsmv,
      .     pos,vel,vshft,ips,irlx) 
 !! --- takao embed contents in susite here. This is only for lmf and lmfgw.

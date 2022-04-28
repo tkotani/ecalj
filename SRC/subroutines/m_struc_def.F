@@ -36,7 +36,6 @@
 Cr  name    purpose
 Cr  a      a for mesh
 Cr  alpha  screening alphas
-Cr  beta   mixing beta
 Cr  chfa   coefficients to fit of free-atom density tails
 Cr  coreh  core hole channel (char: eg '1s')
 Cr  coreq  coreq(1) = charge in core hole channel
@@ -44,13 +43,10 @@ Cr         coreq(2) = moment in core hole channel (nsp=2 only)
 Cr  ctail  coefficients to fit of free-atom core tail by unsm. Hankel
 Cr  eh3    sm Hankel energy for high local orbitals
 
-Cr  enu    linearization energies
 Cr  eref   reference energy
 Cr  etail  energy to fit of free-atom core tail
-Cr  etf    Thomas-Fermi screening length
 Cr  exi    Hankel energies for fit to c.d.
 Cr         For free atoms, fit to free-atom density tails.
-Cr  group  group
 Cr  idmod  idmol(l) controls how linearization energy is
 Cr         determined for an orbital of angular momentum l
 Cr         0 float to center of gravity of occupied part of band
@@ -60,29 +56,22 @@ Cr         3 float to natural center of band (C parameter)
 Cr  idu    identifies l-channels with Hubbard U (LDA+U)
 Cr  idxdn  idxdn
 Cr  jh     LDA+U J parameters for each l-channel
-Cr  kmxh   k cutoffs for head augmentation expansion
 Cr  kmxt   k cutoffs for tail augmentation expansion
 Cr  kmxv   k-cutoff for 1-center projection of free-atom rho
 Cr  lfoca  switch specifying treatment of core density
 Cr  lmxa   l cutoff for augmentation expansion
 Cr  lmxb   highest l in basis
 Cr  lmxl   cutoff for local density
-Cr  mass   atomic mass
 Cr  name   species name
-Cr  naug   number of k,L for augmentation
 Cr  ngcut  orbital-dependent G cutoffs (for nfp basis)
 Cr  nr     nr for mesh
-Cr  ntorb  number of orbital types in basis
 Cr  nxi    Number of energies in fit of free-atom density tails
-Cr  orbp   (lmf) parameters defining orbital shape
 Cr  orhoc  pointer to core density
 Cr  p      log derivative parameter
 Cr  pz     log derivative parameter, semicore states
 Cr  q      starting q's (charges)
 Cr  qc     core charge
 Cr  rcfa   renormalization radius of free atom density, and width
-Cr  rcut   range over which true, smoothed Hankels differ---may
-Cr         be used in the calculation of XC potential
 Cr  rfoca  smoothing radius for frozen core overlap approx
 Cr  rg     rsm for gaussians to fix multipole moments
 Cr  rmt    augmentation radius
@@ -94,15 +83,14 @@ Cr         In TCF, smoothing radius to calculate exchange
 Cr         (artificially smoothed density)
       type s_spec
       real(8), allocatable :: rv_a_orhoc(:)
+      character(8)   ::   name !string
       real(8)   ::   z !atomic number
       real(8)   ::   mass
       real(8)   ::   rmt
-      integer   ::   ntorb
       real(8)   ::   rsmfa
       real(8)   ::   rsma
       real(8)   ::   rg
       integer   ::   lmxa
-      integer   ::   kmxh
       integer   ::   lmxl
       integer   ::   kmxt
       real(8)   ::   rsmv
@@ -111,19 +99,14 @@ Cr         (artificially smoothed density)
       real(8)   ::   a
       integer   ::   nr
       real(8)   ::   eref
-      real(8)   ::   etf
-      real(8)   ::   beta
       integer   ::   lfoca
       real(8)   ::   ctail
       real(8)   ::   etail
-      character(8)   ::   name !string
       real(8)   ::   stc !core kinetic energy
       integer   ::   lmxb
       real(8)   ::   rfoca
-      integer   ::   group
       integer   ::   nxi
       real(8)   ::   qc
-      real(8)   ::   rcut
       real(8)   ::   eh3
       real(8)   ::   rs3
       real(8)   ::   vmtz!Asymptotic potential for fitting functions at rmt
@@ -136,8 +119,6 @@ Cr         (artificially smoothed density)
       real(8)   ::   exi(10)
       integer   ::   ngcut(30)
       real(8)   ::   chfa(20)
-      real(8)   ::   orbp(60)
-      real(8)   ::   enu(10)
       real(8)   ::   pz(20)
       integer   ::   idu(4)
       real(8)   ::   uh(4)!Hubbard U
