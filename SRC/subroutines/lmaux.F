@@ -6,7 +6,7 @@
       use m_mksym,only: ctrl_nclass,rv_a_oclabl,iv_a_oics,iv_a_oipc
       use m_lmfinit,only: iv_a_oips,str_mxnbr,str_rmax,ctrl_nbas,ctrl_nspec,ctrl_nspin,
      &     ctrl_nl,ctrl_modep,ctrl_omax1,ctrl_omax2,ctrl_wsrmax,slabl,sspec=>v_sspec,
-     &     lat_avw,lat_alat
+     &     lat_avw,lat_alat,mxcst2
       use m_lattic,only: lat_nkd
       use m_lattic,only: lat_nkq
       use m_struc_def  
@@ -150,8 +150,7 @@ C --- Find sphere overlaps ---
           allocate(lock_iv(nspec))
           lock_iv(:)=0
           do  i = 1, nspec
-            call ivset ( lock_iv , i , i , bitand ( int ( sspec ( i ) 
-     .      %mxcst ) , 2 ) )
+            lock_iv(i)= mxcst2(i) !bitand ( int ( sspec ( i )%mxcst ) , 2 ) )
           enddo
           if (lpbc .eq. 0) then
             i = 3

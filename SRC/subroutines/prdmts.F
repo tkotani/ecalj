@@ -92,7 +92,6 @@ C ... Passed parameters
       integer ifi,ipr1,ipr2,l,ib,lmaxu,nsp,nspc,iblu,sharm
       double precision dmats(2,-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,iblu)
       character strn*(*)
-C ... Local parameters
       integer isp,ipr,m1,m2,mpipid,nlm
       character strnl*120,strn1*30,lll*60
       if (nspc .eq. 2) call rx('prdmts not ready for nspc=2')
@@ -100,60 +99,42 @@ C ... Local parameters
       call getpr(ipr)
       nlm = 2*l+1
       if (ifi .ne. 0) then
-c        strn1 = ' '
-c        call awrit3('%%%% rows %i cols %i complex %?#n#s#r#harm',
-c     .       strn1,len(strn1),0,nlm,nlm,sharm)
-        if(sharm==0) lll='complex  real harmonics'
-        if(sharm/=0) lll='complex  sherical harmonics'
-c        strnl = 
-c        // ' l=%i'//
-c     .  '%?#n#%-1j  site %i##'//
-c     .  '%?#(n>0)#  spin %i#'
-C    .          '%?#(n>0)#  spin %i#%j#'
+        if(sharm==0) lll='complex rharm'
+        if(sharm/=0) lll='complex sharm'
         do  isp = 1, nsp
            if (ipr .ge. ipr1)
-     &          write(ifi,ftox)'%%%% rows ',nlm,' cols ',nlm,' ',
-     &          trim(lll),' ',trim(strn),'l=',l,'site',ib,'spin',isp
-c     all awrit4(strnl,' ',len(strnl),ifi,l,
-c     .    ib,(ipr-ipr2+1)*(nsp-1),isp)
+     &          write(ifi,ftox)'% rows ',nlm,' cols ',nlm,' ',
+     &          trim(lll),trim(strn),'l=',l,'site',ib,'spin',isp
           if (ipr .lt. ipr2) return
           do  m1 = -l, l
-            write(ifi,'(7(f12.7,2x))')
-     .      (dmats(1,m1,m2,isp,iblu),m2=-l,l)
+            write(ifi,'(7(f12.7,2x))') (dmats(1,m1,m2,isp,iblu),m2=-l,l)
           enddo
           write(ifi,'(1x)')
           do  m1 = -l, l
-            write(ifi,'(7(f12.7,2x))')
-     .      (dmats(2,m1,m2,isp,iblu),m2=-l,l)
+            write(ifi,'(7(f12.7,2x))') (dmats(2,m1,m2,isp,iblu),m2=-l,l)
           enddo
         enddo
       else
-        if (sharm .eq. 0) then
-          strnl = strn // ' l=%i'//
-     .    '%?#n#%-1j  site %i##'//
+        if(sharm .eq. 0) then
+          strnl = strn // ' l=%i'//'%?#n#%-1j  site %i##'//
      .    '%?#(n>0)#  spin %i##, real harmonics'
         else
-          strnl = strn // ' l=%i'//
-     .    '%?#n#%-1j  site %i##'//
+          strnl = strn // ' l=%i'//'%?#n#%-1j  site %i##'//
      .    '%?#(n>0)#  spin %i##, spherical harmonics'
-        endif
+        endif 
 C       Header: printout l, ib (if ib>0), spin (if nsp=2, ipr2>=ipr)
         do  isp = 1, nsp
-          call info5(ipr1,0,0,strnl,l,ib,(ipr-ipr2+1)*(nsp-1),isp,0)
+          write(stdo,ftox) trim(strnl),'l=',l,'ib',ib,'isp',isp
           if (ipr .lt. ipr2) return
           do  m1 = -l, l
-            write(stdo,'(7(f9.5,2x))')
-     .      (dmats(1,m1,m2,isp,iblu),m2=-l,l)
+            write(stdo,'(7(f9.5,2x))')(dmats(1,m1,m2,isp,iblu),m2=-l,l)
           enddo
           write(stdo,'(1x)')
           do  m1 = -l, l
-            write(stdo,'(7(f9.5,2x))')
-     .      (dmats(2,m1,m2,isp,iblu),m2=-l,l)
+            write(stdo,'(7(f9.5,2x))')(dmats(2,m1,m2,isp,iblu),m2=-l,l)
           enddo
         enddo
-
       endif
-
       end subroutine prdmts
 
 

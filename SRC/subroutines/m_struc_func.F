@@ -33,10 +33,6 @@
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%ntorb, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%naug, 1,MPI_INTEGER
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%norb, 1,MPI_INTEGER
-     , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%rsmfa, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%rsma, 1,MPI_REAL8
@@ -52,8 +48,6 @@
       call mpi_bcast(struc%kmxt, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%rsmv, 1,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%norp, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%coreh, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
@@ -82,44 +76,15 @@
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%lmxb, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lmxf, 1,MPI_INTEGER
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%stni, 1,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%stnm, 1,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%rham, 1,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%rfoca, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%dv, 1,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%mxcst, 1,MPI_INTEGER
-     , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%group, 1,MPI_INTEGER
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%grp2, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%nxi, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%qc, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lmxpb, 1,MPI_INTEGER
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%pb1, 1,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%pb2, 1,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      i_data_size=size(struc%colxbs) ! colxbs(3)
-      call mpi_bcast(struc%colxbs, i_data_size,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lxi, 1,MPI_INTEGER
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%radxbs, 1,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%rcut, 1,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%rint, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%eh3, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
@@ -143,9 +108,6 @@
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%idxdn) ! idxdn(30)
       call mpi_bcast(struc%idxdn, i_data_size,MPI_INTEGER
-     , , master, MPI_COMM_WORLD,ierr)
-      i_data_size=size(struc%hcr) ! hcr(10)
-      call mpi_bcast(struc%hcr, i_data_size,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%exi) ! exi(10)
       call mpi_bcast(struc%exi, i_data_size,MPI_REAL8
@@ -173,9 +135,6 @@
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%jh) ! jh(4)
       call mpi_bcast(struc%jh, i_data_size,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      i_data_size=size(struc%ehvl) ! ehvl(10)
-      call mpi_bcast(struc%ehvl, i_data_size,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
       if (mlog) then
         call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
@@ -214,15 +173,10 @@
       master=0
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
-c      i_data_size=size(struc%bfield) ! bfield(3)
-c      call mpi_bcast(struc%bfield, i_data_size,MPI_REAL8 , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%clabel, 1,MPI_REAL8 , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%class, 1,MPI_INTEGER , master, MPI_COMM_WORLD,ierr)
-c      i_data_size=size(struc%eula) ! eula(3)
-c      call mpi_bcast(struc%eula, i_data_size,MPI_REAL8 , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%force) ! force(3)
       call mpi_bcast(struc%force, i_data_size,MPI_REAL8 , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%norb, 1,MPI_INTEGER , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%pnu) ! pnu(20)
       call mpi_bcast(struc%pnu, i_data_size,MPI_REAL8 , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%pos) ! pos(3)

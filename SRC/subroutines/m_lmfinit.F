@@ -59,19 +59,19 @@ Ci          functions are less than tol.
       character*8,protected:: slabl(mxspec)
       integer,protected:: lmxbx=-1,lmxax,nkaph,nkapi
       logical,allocatable,protected:: mxcst1(:),mxcst2(:),mxcst4(:)
-      integer,allocatable,protected:: idxdn(:,:,:), grp(:),grp2(:),
+      integer,allocatable,protected:: idxdn(:,:,:), grp(:),
      .     idu(:,:),lmxb(:),lmxa(:),idmod(:,:),iq1(:,:),ivso(:,:),
-     .     kmxt(:),kmxv(:),lfoca(:),lmxl(:),lxi(:),nxi(:),nr(:),lmxpb(:), nmcore(:),
+     .     kmxt(:),kmxv(:),lfoca(:),lmxl(:),nxi(:),nr(:), nmcore(:),
      &  nkapii(:),nkaphh(:) 
       real(8),allocatable,protected:: rsmh1(:,:),rsmh2(:,:),eh1(:,:),eh2(:,:),
-     .     hcr(:,:),rs3(:),rham(:),alpha(:,:),ehvl(:,:),dv(:), uh(:,:),jh(:,:),
+     .     rs3(:),rham(:),alpha(:,:),ehvl(:,:), uh(:,:),jh(:,:),
      .     qpol(:,:),stni(:),tbvso(:,:),
      .     pnu(:,:,:),qnu(:,:,:),      pnudefault(:,:),qnudefault(:,:),qnudummy(:,:),
-     .     coreq(:,:),mass(:),colxbs(:,:),radxbs(:),
+     .     coreq(:,:),mass(:),
      .     rg(:),rsma(:),rfoca(:), rsmfa(:),rcfa(:,:),
      .     exi(:,:),rint(:),rcut(:),rmt(:),pz(:,:,:),
      .     amom(:,:),spec_a(:),z(:),eref(:),rsmv(:)
-      character*(8),allocatable,protected::pb1(:),pb2(:), coreh(:)
+      character*(8),allocatable,protected:: coreh(:)
 !! ... SITE
       character(8),protected:: alabl
       real(8),allocatable,protected :: pos(:,:),vel(:,:),vshft(:)
@@ -758,7 +758,6 @@ c     .     'Overrides default padding of variable basis dimension')
       allocate(pnu(n0,nsp,nspec),qnu(n0,nsp,nspec),
      .     pz(n0,nsp,nspec),amom(n0,nspec),idmod(n0,nspec),
      .     rsmh1(n0,nspec),eh1(n0,nspec),rsmh2(n0,nspec),eh2(n0,nspec),
-     .     pb1(nspec),pb2(nspec),lmxpb(nspec),
      .     ehvl(n0,nspec),
      .     qpol(n0,nspec),stni(nspec),tbvso(4,nspec),
      .     iq1(n0,nspec),ivso(n0,nspec),
@@ -767,14 +766,12 @@ c     .     'Overrides default padding of variable basis dimension')
      .     nxi(nspec),exi(n0,nspec),rint(nspec),rcut(nspec),
      .     spec_a(nspec),z(nspec),nr(nspec),mass(nspec),eref(nspec),
      .     coreh(nspec),coreq(2,nspec),
-     .     colxbs(3,nspec),radxbs(nspec), 
      .     idxdn(n0,nkap0,nspec),
-     .     hcr(n0,nspec),       !alpha(n0,nspec),
      .     idu(4,nspec),uh(4,nspec),jh(4,nspec),
-     .     dv(nspec),grp(nspec),grp2(nspec),
+     .     grp(nspec),
      .     mxcst1(nspec),mxcst2(nspec),mxcst4(nspec),
      .     kmxt(nspec),kmxv(nspec),
-     .     lfoca(nspec),lmxl(nspec),lxi(nspec),lmxa(nspec),lmxb(nspec),nmcore(nspec))
+     .     lfoca(nspec),lmxl(nspec),lmxa(nspec),lmxb(nspec),nmcore(nspec))
       allocate(lpz(nspec),lpzex(nspec))
       allocate(nkapii(nspec),nkaphh(nspec))
       lpz=0
@@ -785,18 +782,15 @@ c     .     'Overrides default padding of variable basis dimension')
       nkapii=1
       nkapi = 1
       lpzi = 0 !1
-      
       qpol = NULLR
       rsmh1 = 0d0
       rsmh2 = 0d0
       eh1  = 0d0
       eh2 = 0d0
-      hcr = NULLR
       idmod = NULLI
       ehvl = NULLR
       do 1111 j = 1, nspec
         if(debug) print *,'nspec mxcst j-loop j nspec',j,nspec
-        colxbs(:,j) = NULLR; radxbs(j) = NULLR
         rcfa(:,j) = NULLR; rfoca(j) = 0d0; rg(j) = 0d0
         rham(j) = NULLR; rsma(j) = 0d0; rsmfa(j) = 0d0
         spec_a(j) = NULLR; nr(j) = NULLI
@@ -804,22 +798,16 @@ c     .     'Overrides default padding of variable basis dimension')
         coreh(j) = ' '; coreq(:,j) = NULLR
         eref(j) = NULLR
         mass(j) = NULLR
-
         if (io_help /= 0) then
           write(stdo,'(1x)')
         elseif (io_help == 0 .and. io_show>0) then
           call info(1,0,0,' ... Species %i',j,0)
         endif
-
         jj= (/1,j/)
         nm='SPEC_ATOM'; call gtv(trim(nm),tksw(prgnam,nm),slabl(j),
      .       nmin=10,cindx=jj,note='Species label')
-
         nm='SPEC_ATOM_Z'; call gtv(trim(nm),tksw(prgnam,nm),z(j),
      .       cindx=jj,note='Atomic number')
-
-        if(debug) print *,'nspec aaa mxcst j-loop j nspec',j,nspec
-
         sw = tksw(prgnam,'SPEC_ATOM_R')
         if (sw /= 2) then
            nout = 0
@@ -842,10 +830,7 @@ c     .     'Overrides default padding of variable basis dimension')
               endif
            endif
         endif
-c     if (ltbe) rmt(j) = 1d0
-
         if(debug) print *,'nspec bbb mxcst j-loop j nspec',j,nspec
-
 !    Radial mesh parameters: determine default value of a
         i0 = NULLI
         xxx = NULLR
@@ -928,10 +913,6 @@ c     if (ltbe) rmt(j) = 1d0
      .          note='Basis kinetic energies, second group')
         endif
         if(debug) print *,'nspec ddd mxcst j-loop j nspec',j,nspec
-        nm='SPEC_ATOM_EHVL'; call gtv(trim(nm),tksw(prgnam,nm),
-     .       ehvl(1:nlbj,j),cindx=jj,def_r8v=(/(-0.5d0,i=1,n0)/),
-     .       nout=nout,nmin=nlbj, note='val-lap fit energies')
-
 !     ... Determine lmxa: floating orbitals have no lmxa
         nm='SPEC_ATOM_LMXA'; sw = tksw(prgnam,nm)
         if(debug) print *,'nspec ddd000 mxcst j rmt io_help lmxa=',j,rmt(j),io_help,lmxa(j)
@@ -964,10 +945,6 @@ c     if (ltbe) rmt(j) = 1d0
            nlaji = NULLI
            nlaj = 0
         endif
-C     if (lmxaj == NULLI) nlaj = NULLI
-C     if (lmxaj == NULLI) nlaji = NULLI
-
-
 !     ... Parameters that depend on the existence of an augmentation sphere
 !     lmxl = l-cutoff for numerical rep'sn of density in sphere
 !     lfoca = mode for treating core
@@ -982,11 +959,7 @@ C     if (lmxaj == NULLI) nlaji = NULLI
         lfoca(j) = 0            !If sought, default will be reset below
         nmcore(j)=0
         lmxl(j) =  lmxaj        !Use lmxaj in case not sought (ASA:mpol)
-        lmxpb(j) = NULLI        !If sought, default will be set below
-        lxi(j) = NULLI          !If sought, default will be set below
         nxi(j) = NULLI          !If sought, default will be set below
-        pb1(j) = ' '
-        pb2(j) = ' '
         call dpzero(pnu(1,1,j),n0*nsp)
         call dpzero(pz(1,1,j),n0*nsp)
         rint(j) = NULLI         !No default for now
@@ -996,31 +969,13 @@ C     if (lmxaj == NULLI) nlaji = NULLI
         pnu(1,1,j) = NULLI      !If sought, default will be set below
         qnu(1,1,j) = NULLI      !If sought, default will be set below
 
-        if(debug) print *,'nspec ddd222 mxcst j-loop j nspec nlaj=',j,nspec,nlaj
-
         if (nlaj .ne. 0) then
            nm='SPEC_ATOM_LMXL'; call gtv(trim(nm),tksw(prgnam,nm),lmxl(j),
      .          cindx=jj,def_i4=lmxaj,note=
      .          'lmax for which to accumulate rho,V in sphere')
-
 !     ... Set up default P,Q in absence of explicit specification
            call dpzero(pnu(1,1,j),nsp*n0)
            call dpzero(qnu(1,1,j),nsp*n0)
-
-!     !       This branch sets defaults beforehand ... too complicated
-C     if (io_help == 0) then
-C     C         Default P,Q, nsp=1
-C     if (debug) call pshpr(100)
-C     call defpq(z(j),lmxaj,1,pnu(1,1,j),qnu(1,1,j))
-C     if (debug) call poppr
-C     endif
-C     nm='SPEC_ATOM_P'; call gtv(trim(nm),tksw(prgnam,nm),
-C     .    pnu(1:nlaj,1,j),def_r8v=pnu(:,1,j),nmin=nlaji,cindx=jj,note=
-C     .    'Starting log der. parameters for each l')
-C     nm='SPEC_ATOM_Q'; call gtv(trim(nm),tksw(prgnam,nm),
-C     .    qnu(1:nlaj,1,j),def_r8v=qnu(:,1,j),nmin=nlaji,cindx=jj,note=
-C     .    'Starting sphere charges for each l channel')
-C     call snit
 
 ! -- takao move back default value of dev_r8v to zero june2012 --
            nm='SPEC_ATOM_P'; call gtv(trim(nm),tksw(prgnam,nm),
@@ -1115,7 +1070,6 @@ c     print *,'qnu=',lx,qnu(lx+1,1,j)
            if (z(j) .le. 8) i0 = 0
            if (io_help .eq. 1) i0 = NULLI
            nm='SPEC_ATOM_LFOCA';call gtv(trim(nm),tksw(prgnam,nm),lfoca(j),
-c     .    def_i4=i0,cindx=jj,note='FOCA switch 0, 1 or 2 (see docs)')
      .          def_i4=i0,cindx=jj,note='FOCA switch 0(within MT):'
      .          //'=1(frozenCore). Default: 1 for z>8;0 for z<=8') !takao Aug2010
            if(io_help==0) then
@@ -1124,7 +1078,6 @@ c     .    def_i4=i0,cindx=jj,note='FOCA switch 0, 1 or 2 (see docs)')
               endif
            endif
 
-C     call snot
            nm='SPEC_ATOM_KMXA'; call gtv(trim(nm),tksw(prgnam,nm),
      .          kmxt(j),def_i4=3,cindx=jj,note=
      .          'k-cutoff for projection of wave functions in sphere.')
@@ -1135,22 +1088,15 @@ C     xxx = 0.40d0*rmt(j); if (io_help .eq. 1) xxx = NULLI
      .          def_r8=xxx,cindx=jj,note=
      .          'Smoothing for projection of wave functions in sphere.'//
      .          '%N%3finput<0 => choose default * -input')
-
-C     Cannot set default here: need set after rescaling of rmt
-C     xxx = 0.25d0*rmt(j); if (io_help .eq. 1) xxx = NULLI
            xxx = 0d0; if (io_help .eq. 1) xxx = NULLI
            nm='SPEC_ATOM_RSMG'; call gtv(trim(nm),tksw(prgnam,nm),rg(j),
      .          def_r8=xxx,cindx=jj,note=
      .          'Smoothing for projection of charge in sphere.'//
      .          '%N%3finput<0 => choose default * -input')
-C     Cannot set default here: need set after rescaling of rmt
-C     xxx = 0.40d0*rmt(j); if (io_help .eq. 1) xxx = NULLI
            xxx = 0d0; if (io_help .eq. 1) xxx = NULLI
            nm='SPEC_ATOM_RFOCA'; call gtv(trim(nm),tksw(prgnam,nm),rfoca(j),
      .          def_r8=xxx,cindx=jj,note=
      .          'Smoothing for core tail.  input<0 => choose default * -input')
-C     Cannot set default here: need set after rescaling of rmt
-C     xxx = 0.50d0*rmt(j); if (io_help .eq. 1) xxx = NULLI
            xxx = 0d0; if (io_help .eq. 1) xxx = NULLI
            nm='SPEC_ATOM_RSMFA'; call gtv(trim(nm),tksw(prgnam,nm),rsmfa(j),
      .          def_r8=xxx,cindx=jj,note=
@@ -1170,46 +1116,17 @@ C     Negative radii: convert to actual numbers
            if (rsmfa(j) .lt. 0) rsmfa(j) = -rsmfa(j)*0.5d0*rmt(j)
 
            nm='SPEC_ATOM_RS3'; call gtv(trim(nm),tksw(prgnam,nm),rs3(j),
-c     .    def_r8=1d0,cindx=jj,
      .          def_r8=0.5d0,cindx=jj, !takao Nov26,2010
      .          note='Minimum smoothing radius for local orbital')
-
-C     Downfolding switches: if auto DNF turned on, default is zero.
-c     if (lham4) then
-c     nn = 0
-c     C       Help mode: If ADNF COULD have been turned on, default unknown
-c     elseif (tksw(prgnam,'OPTIONS_ADNF')/= 2.and. io_help==1) then
-c     nn = NULLI
-c     C       All other cases: default is 1
-c     else
            nn = 1
-c     endif
            nm='SPEC_ATOM_IDXDN'; call gtv(trim(nm),tksw(prgnam,nm),
      .          idxdn(1:nlbj,1,j),nmin=nlbj,
      .          def_i4v=(/(nn,i=1,nlbj)/),cindx=jj,
      .          note='orbital index: 1, use; 3, unuse')
-
-C     'Hard Core' radius entering into strux
-           nm='SPEC_ATOM_HCR'; call gtv(trim(nm),tksw(prgnam,nm),
-     .          hcr(1:nlbj,j),nmin=nlbj,cindx=jj,nout=nout,or=T,
-     .          note='Hard sphere radii for structure constants')
-           if (nout == 0) then  !nout=-1 if sw=2; otherwise nout=0 unless data was read
-              nm='SPEC_ATOM_HCR/R'; call gtv(trim(nm),tksw(prgnam,nm),
-     .             hcr(1:nlbj,j),nmin=nlbj,cindx=jj,nout=nout,
-     .             def_r8v=(/(0.7d0,I=1,n0)/),note=
-     .             'Hard sphere radii for structure constants, units of R')
-              call dscal(nout,rmt(j),hcr(1,j),1)
-           endif
-           if(debug) print *,'nspec eee mxcst j-loop j nspec',j,nspec
-
           nm='SPEC_ATOM_IDMOD'; call gtv(trim(nm),tksw(prgnam,nm),
      .         idmod(1:nlaj,j),nmin=nlaji,def_i4v=(/(0,i=1,n0)/),
      .         cindx=jj,note=
      .         'idmod=0 floats P to band CG, 1 freezes P, 2 freezes enu')
-
-          nm='SPEC_ATOM_DV'; call gtv(trim(nm),tksw(prgnam,nm),dv(j),
-     .         def_r8=0d0,cindx=jj,note='Artificial constant potential '//
-     .         'shift added to spheres belonging to this species')
           nm='SPEC_ATOM_MIX'; call gtv(trim(nm),tksw(prgnam,nm),mxcst1(j),
      .         def_lg=F,cindx=jj,note='Set to suppress '//
      .         'self-consistency of classes in this spec')
@@ -1258,14 +1175,6 @@ C     'Hard Core' radius entering into strux
         call mpibc1_real(jh(:,j),4,'m_lmfinit_jh')
         write(stdo,"('idu uh jh=',4i4,4f6.2,' ',4f6.2)") idu(:,j),uh(:,j),jh(:,j)
         
-        nm='SPEC_ATOM_PBAS'; call gtv(trim(nm),tksw(prgnam,nm),pb1(j),
-     .       nmin=10,cindx=jj,note='product basis for GW')
-        nm='SPEC_ATOM_PBAS2'; call gtv(trim(nm),tksw(prgnam,nm),
-     .       pb2(j),cindx=jj,note='second product basis for GW')
-        nm='SPEC_ATOM_LMXPB';call gtv(trim(nm),tksw(prgnam,nm),lmxpb(j),
-     .       def_i4=4,cindx=jj,note='l-cutoff for product basis')
-c     if (nout==0) spec_lmxpb(j)='        '
-
 C     Some sanity checks
         if (io_help == 0 .and. lmxaj .ge. 0) then
            if (tksw(prgnam,'SPEC_ATOM_LFOCA') /= 2)
@@ -1289,14 +1198,8 @@ C     Some sanity checks
      .       'Reference energy subtracted from total energy')
         nm='SPEC_ATOM_AMASS'; call gtv(trim(nm),tksw(prgnam,nm),mass(j),
      .       cindx=jj,note='Nuclear mass in a.u. (for dynamics)')
-c     nm='SPEC_ATOM_COLOUR'; call gtv(trim(nm),tksw(prgnam,nm),
-c     .  colxbs(:,j),def_r8v=zerov,cindx=jj,note=
-c     .  'Colour for xbs') !,-3,4,i1,TF(37))
-c     xxx = rmt(j); if (io_help .eq. 1) xxx = NULLI
-c     nm='SPEC_ATOM_RADIUS'; call gtv(trim(nm),tksw(prgnam,nm),
-c     .  radxbs(j),def_r8=xxx,cindx=jj,note='Radius for xbs')
-         nkaphh(j) = nkapii(j) + lpzex(j)
-c         if(master_mpi) write('ispec: nkaphh = nkapii+ lpzex(j)',i3,3i2)") j,nkaphh(j),nkapii(j),lpzex(j)
+        nkaphh(j) = nkapii(j) + lpzex(j)
+c  if(master_mpi) write('ispec: nkaphh = nkapii+ lpzex(j)',i3,3i2)") j,nkaphh(j),nkapii(j),lpzex(j)
  1111 continue  ! Loop over species
       if (io_help==0) then
          call imxmn(nspec,lmxa,1,i0,lmxax) !Maximum L-cutoff
@@ -1550,17 +1453,17 @@ C     Default values for smix (array has same same structure as lstra smix)
      .        '[;...] or'/
      .        3x,'B[nmix][,b=beta][,bv=betv][,wc=wc][,n=#][,w=w1,w2][,nam=fn]',
      .        '[,k=nkill]')
-         if (nout==1 .and. io_help==0 .and. sw/=2) then
-            alabl=mix_fn
-            if (io_show==0) call pshpr(0)
-            if (.not. parmxp(-1,iter_mix,len_trim(iter_mix),
-     .           int(mix_mode),int(mix_nmix),mix_w(1),mix_b,mix_elind,
-     .           alabl,mix_wc,mix_kill,mix_bv,xxx)) then
-               if (io_show==0) call poppr
-               call rx( 'RDCCAT: parse in parmxp failed 1')
-            endif
-            if (io_show==0) call poppr
-         endif
+c$$$         if (nout==1 .and. io_help==0 .and. sw/=2) then
+c$$$            alabl=mix_fn
+c$$$            if (io_show==0) call pshpr(0)
+c$$$            if (.not. parmxp(-1,iter_mix,len_trim(iter_mix),
+c$$$     .           int(mix_mode),int(mix_nmix),mix_w(1),mix_b,mix_elind,
+c$$$     .           alabl,mix_wc,mix_kill,mix_bv,xxx)) then
+c$$$               if (io_show==0) call poppr
+c$$$               call rx( 'RDCCAT: parse in parmxp failed 1')
+c$$$            endif
+c$$$            if (io_show==0) call poppr
+c$$$         endif
          nm='ITER_CONV'; call gtv(trim(nm),tksw(prgnam,nm),ctrl_tol(3),
      .        def_r8=1d-4,note='Tolerance in energy change from prior'//
      .        ' iteration for self-consistency')
@@ -1769,25 +1672,17 @@ C --- Allocate and copy input to sspec ---
           slabl_(j) = slabl(j)
           v_sspec(j)%eh3=-0.5d0
           v_sspec(j)%etf=-1d0
-          v_sspec(j)%lmxf= 2*nl-2
-          v_sspec(j)%norp=2
           v_sspec(j)%vmtz=-0.5d0
-          v_sspec(j)%pb1=pb1(j)
-          v_sspec(j)%pb2=pb2(j)
           v_sspec(j)%coreh=coreh(j)
           v_sspec(j)%name=slabl(j)
           v_sspec(j)%nmcore=nmcore(j)
           v_sspec(j)%a=spec_a(j)
           v_sspec(j)%nr=nr(j)
           v_sspec(j)%coreq=coreq(:,j)
-          v_sspec(j)%lxi=lxi(j)
           v_sspec(j)%nxi=nxi(j)
           v_sspec(j)%exi=exi(:,j)
           v_sspec(j)%group=grp(j)
-          v_sspec(j)%grp2=grp2(j)
-          v_sspec(j)%hcr=hcr(:,j)
           v_sspec(j)%idmod=idmod(:,j)
-          v_sspec(j)%ehvl=ehvl(:,j)
           
 !! idxdn= 1 or 3  (or 10,11 for LO)
 Cr     1  Orbital is included as "active" orbitals, which means
@@ -1829,7 +1724,7 @@ Cr         and it is included in the basis.
           v_sspec(j)%lmxa=lmxa(j)
           v_sspec(j)%lmxb=lmxb(j)
           v_sspec(j)%lmxl=lmxl(j)
-          v_sspec(j)%lmxpb=lmxpb(j)
+c          v_sspec(j)%lmxpb=lmxpb(j)
           
           orbp=1d10 
           call dcopy(n0,rsmh1(1,j),1,orbp(1,1,1),1)
@@ -1840,7 +1735,8 @@ Cr         and it is included in the basis.
           call dcopy(i_copy_size,orbp,1,v_sspec(j)%orbp,1)
 
           v_sspec(j)%mass = mass(j)
-          v_sspec(j)%mxcst= 1*isw(mxcst1(j))+2*isw(mxcst2(j))+4*isw(mxcst4(j))
+Cr   mxcst2(lmchk)   Exclude this species when auto-resizing sphere radii
+Cr   mxcst4   Freeze augmentation w.f. for this species (FP)
 !!     Pack P,Q,PZ for both spins
           v_sspec(j)%p = pnu(1:n0*nsp,1,j)
           if(nsp==2) pz(1:n0,2,j) = pz(1:n0,1,j) !takao
@@ -1851,8 +1747,6 @@ ccccccccccccccc
           v_sspec(j)%pz= pz(1:n0*nsp,1,j)  
           v_sspec(j)%q = qnu(1:n0*nsp,1,j) 
           v_sspec(j)%z=z(j)
-          v_sspec(j)%colxbs=colxbs(:,j)
-          v_sspec(j)%radxbs=radxbs(j)
           v_sspec(j)%rcfa=rcfa(:,j)
           v_sspec(j)%rcut=rcut(j)
           v_sspec(j)%rfoca=rfoca(j)
@@ -1861,10 +1755,9 @@ ccccccccccccccc
           v_sspec(j)%rs3=rs3(j)
           v_sspec(j)%rsma=rsma(j)
           v_sspec(j)%rsmfa=rsmfa(j)
-          v_sspec(j)%dv=dv(j)
           v_sspec(j)%eref=eref(j)
-          v_sspec(j)%rham=rham(j)
-          v_sspec(j)%rint=rint(j)
+c          v_sspec(j)%rham=rham(j)
+c          v_sspec(j)%rint=rint(j)
       enddo
       allocate(v_ssite(nsite))
       do j=1,nsite
@@ -1875,7 +1768,6 @@ ccccccccccccccc
           v_ssite(j)%vel=vel(1:3,j)
           v_ssite(j)%vshft=vshft(j)
           v_ssite(j)%relax=irlx(:,j)
-c          v_ssite(j)%eula=eula(:,j)
           v_ssite(j)%iantiferro=iantiferro(j)
       enddo
       sstrnmix=trim(iter_mix)
@@ -2000,11 +1892,11 @@ C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
       call suldau(nbas,v_sspec,v_ssite,nlibu,k,wowk)!Count LDA+U blocks (printout only)
       ham_nlibu=nlibu
       call poppr
-      deallocate(wowk,pnu,qnu    ,amom,idmod,                  pb1,pb2,
-     .     lmxpb,qpol,stni,tbvso,iq1,ivso,rg,rsma,rfoca,rsmfa,rcfa,nxi,
-     .     exi,rint,rcut,coreq,mass,colxbs,radxbs,rs3,rham,idxdn,hcr,
-     .     rmt,idu,uh,jh,dv,grp,grp2,mxcst1,mxcst2,mxcst4,kmxv,  !kmxt,
-     .     lfoca,eref,lmxl,lxi,coreh,          spec_a,z,nr,rsmv,
+      deallocate(wowk,pnu,qnu    ,amom,idmod,                  
+     .     qpol,stni,tbvso,iq1,ivso,rg,rsma,rfoca,rsmfa,rcfa,nxi,
+     .     exi,rint,rcut,coreq,mass,rs3,rham,idxdn,
+     .     rmt,idu,uh,jh,grp,kmxv,  !kmxt,
+     .     lfoca,eref,lmxl,coreh,          spec_a,z,nr,rsmv,
      .     pos,vel,vshft,ips,irlx) 
 !! --- takao embed contents in susite here. This is only for lmf and lmfgw.
       seref = 0d0

@@ -10,7 +10,8 @@
      .    , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , 
      .     nlibu , lmaxu , vorb , lldau )
       use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkaph,stdo,lxcf,lhh,nkapii,nkaphh
-      use m_lmfinit,only: n0,nppn,nab,nrmx,nkap0,nlmx,nbas, nsp, lso, ssite=>v_ssite , sspec=>v_sspec
+      use m_lmfinit,only: n0,nppn,nab,nrmx,nkap0,nlmx,nbas, nsp, lso, ssite=>v_ssite,
+     &     sspec=>v_sspec,mxcst4
       use m_MPItk,only: master_mpi
       use m_struc_def  
       use m_uspecb,only:uspecb
@@ -229,13 +230,14 @@ C ... for core hole
         i_copy_size=size(sspec(is)%idu)
         call icopy(i_copy_size,sspec(is)%idu,1,idu,1)
         kmax=sspec(is)%kmxt
-        i=sspec(is)%mxcst
+c        i=sspec(is)%mxcst
 C       Float wave functions if:
 C         100's digit job > 0 set   OR:
 C         4's bit mxcst=0   AND   10's digit job=0  AND  1's digit job=1
 c        lfltwf = mod(job,1000) .ge. 100 .or.
         lfltwf = !mod(job,1000) .ge. 100 .or. !aug2013 comment out for lmfgw with FRZWF=T
-     .  mod(i/4,2).eq.0 .and. mod(job/10,10).eq.0 .and. mod(job,10).eq.1
+     .  (.not.mxcst4(is)) .and. mod(job/10,10).eq.0 .and. mod(job,10).eq.1
+c     .  (.not.mxcst4(is)) mod(i/4,2).eq.0 .and. mod(job/10,10).eq.0 .and. mod(job,10).eq.1
         call corprm(sspec,is,qcorg,qcorh,qsca,cofg,cofh,ceh,lfoc,rfoc,z)
         chole=sspec(is)%coreh
         call gtpcor(sspec,is,kcor,lcor,qcor)

@@ -2,7 +2,7 @@
       use m_MPItk,only: master_mpi
       use m_mkpot,only: hab=>hab_rv,sab=>sab_rv
       use m_lmfinit,only:nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,ham_frzwf,
-     &     pmin=>ham_pmin,pmax=>ham_pmax,n0,nab
+     &     pmin=>ham_pmin,pmax=>ham_pmax,n0,nab,mxcst4
       use m_mkrout,only: hbyl=>hbyl_rv,qbyl=>qbyl_rv
 c      use m_struc_def  !Cgetarg
 !!= Makes new boundary conditions pnu for phi,phidot =
@@ -104,12 +104,13 @@ C --- For each site, do ---
         rmt=sspec(is)%rmt
         i_copy_size=size(sspec(is)%idmod)
         call icopy(i_copy_size,sspec(is)%idmod,1,idmod,1)
-        mxcst=sspec(is)%mxcst
+c        mxcst=sspec(is)%mxcst
 
         if (lmxa .eq. -1) goto 10
         spid=sspec(is)%name
 
-        if (mod(mxcst/4,2) .ne. 0) call ivset(idmod,1,n0,1)
+c        if (mod(mxcst/4,2) .ne. 0) call ivset(idmod,1,n0,1)
+        if (mxcst4(is)) idmod=1 !call ivset(idmod,1,n0,1)
 
         if (ipr .ge. 20) write(stdo,320) ib,is,spid
   320   format(/' site',i5,'   species',i4,':',a)

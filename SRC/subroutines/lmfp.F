@@ -17,6 +17,7 @@
       use m_ldau,only:   m_ldau_vorbset
       use m_bstrux,only: m_bstrux_init
       use m_relax,only: relax,prelx1
+      use m_mixrho,only:parms0
 !! = Main routine of lmf = (following document is roughly checked at May2021)
 !! lmfp contains two loops after initialization
 !!   1  outer  loop do 2000 is for molecular dynamics (relaxiation).
