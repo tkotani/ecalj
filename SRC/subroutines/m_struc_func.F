@@ -1,5 +1,5 @@
-!!mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
       Module m_struc_func
+      use m_ftox
       public  mpibc1_s_spec, mpibc1_s_site 
       contains
       subroutine mpibc1_s_spec(struc,label)
@@ -19,9 +19,9 @@
       character*26 datim
       integer namelen(0:MAX_PROCS-1)
       character*256 strn
-      logical lgunit
+      integer:: lgunit
       integer procid,master,i_data_size
-      integer:: n=0, cast=4 !,      struc_size,uspec_size
+      integer:: n=0
       master=0
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
@@ -121,11 +121,8 @@
         call strcop(shortname(procid),name,10,'.',ierr)
         namelen(procid) = ierr-1
         call gettime(datim)
-        strn = '  '//datim//' Process %i of %i on '
-     .  //shortname(procid)(1:namelen(procid))//' bcast '//label//
-     .  ' (%i %?#n==2#int##%?#n==4#d.p.##%?#n==6#d.c.##)'
-        call awrit6(strn,' ',-256,lgunit(3),procid,numprocs,n,cast,cast,
-     .  cast)
+        write(lgunit(3),ftox)'  '//datim//' Process ',procid,' of ',numprocs,' on '
+     .  //shortname(procid)(1:namelen(procid))//' '//label
       endif
 #endif
       end subroutine mpibc1_s_spec
@@ -147,9 +144,9 @@
       character*26 datim
       integer namelen(0:MAX_PROCS-1)
       character*256 strn
-      logical lgunit
+      integer:: lgunit
       integer procid,master,i_data_size
-      integer:: n=0, cast=4 !,      struc_size,usite_size
+      integer:: n=0
       master=0
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
@@ -176,11 +173,8 @@
         call strcop(shortname(procid),name,10,'.',ierr)
         namelen(procid) = ierr-1
         call gettime(datim)
-        strn = '  '//datim//' Process %i of %i on '
-     .  //shortname(procid)(1:namelen(procid))//' bcast '//label//
-     .  ' (%i %?#n==2#int##%?#n==4#d.p.##%?#n==6#d.c.##)'
-        call awrit6(strn,' ',-256,lgunit(3),procid,numprocs,n,cast,cast,
-     .  cast)
+        write(lgunit(3),ftox)'  '//datim//' Process ',procid,' of ',numprocs,' on '
+     .  //shortname(procid)(1:namelen(procid))//' '//label
       endif
 #endif
       end subroutine mpibc1_s_site

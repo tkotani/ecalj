@@ -36,19 +36,19 @@ Ci          functions are less than tol.
       character(256),protected:: header,symg=' ',   symgaf=' '!for Antiferro
       logical,protected :: ham_frzwf,ham_ewald
       integer,protected:: nspc,stdo,stdl,procid,nproc,master=0,nspx,
-     &     ctrl_lxcf,ctrl_nbas,ctrl_lfp,ctrl_lrel,ctrl_lves, 
+     &     ctrl_lxcf,ctrl_nbas,ctrl_lfp,ctrl_lrel,!ctrl_lves, 
      &     ctrl_maxit ,ctrl_modep(3),ctrl_nl,ctrl_nesabc(3),ctrl_nitmv,ctrl_nspin,
      &     ctrl_nspec,ctrl_nsite,ctrl_nvario,ctrl_pfloat
      &     ,ham_lxcf,gga,ftmesh(3),nmto=0,lrsigx=0
-     &     ,nsp=1,lrel=1,lso=0,ham_udiag=0,ggax
+     &     ,nsp=1,lrel=1,lso=0
       real(8),protected:: pmin(n0),pmax(n0),ham_pmax(10),ham_pmin(10),
      &     ctrl_defm(6), ctrl_wsrmax,ctrl_sdprm(5),ctrl_rmaxes,
      &     ctrl_omax1(3),ctrl_omax2(3),ctrl_sclwsr,ctrl_rmines, !ctrl_zbak,
-     &     tolft,elind,dqval,vmtz, scaledsigma  ,rsstol     
-     &     ,ham_elind,ham_oveps,ham_rsstol,ham_scaledsigma
-     &     ,ham_delta_stabilize 
+     &     tolft,elind,vmtz, scaledsigma
+     &     ,ham_elind,ham_oveps,ham_scaledsigma
+c     &     ,ham_delta_stabilize 
 !! ... OPTIONS
-      integer,protected ::lves, ctrl_smalit(2),smalit(2),nesabc(3), lstonr(3)=0,nl,lpfloat
+      integer,protected :: ctrl_smalit(2),smalit(2),nesabc(3), lstonr(3)=0,nl,lpfloat
       real(8),protected:: rmines,rmaxes
       logical,protected :: lhf,lcd4
 !! ... STRUC 
@@ -58,7 +58,7 @@ Ci          functions are less than tol.
       real(8),protected:: omax1(3),omax2(3),wsrmax,sclwsr
       character*8,protected:: slabl(mxspec)
       integer,protected:: lmxbx=-1,lmxax,nkaph,nkapi
-      logical,allocatable,protected:: mxcst1(:),mxcst2(:),mxcst4(:)
+      logical,allocatable,protected:: mxcst2(:),mxcst4(:)
       integer,allocatable,protected:: idxdn(:,:,:),
      .     idu(:,:),lmxb(:),lmxa(:),idmod(:,:),iq1(:,:),ivso(:,:),
      .     kmxt(:),kmxv(:),lfoca(:),lmxl(:),nxi(:),nr(:), nmcore(:),
@@ -67,7 +67,7 @@ Ci          functions are less than tol.
      .     rs3(:),rham(:),alpha(:,:),ehvl(:,:), uh(:,:),jh(:,:),
      .     qpol(:,:),stni(:),tbvso(:,:),
      .     pnu(:,:,:),qnu(:,:,:),      pnudefault(:,:),qnudefault(:,:),qnudummy(:,:),
-     .     coreq(:,:),mass(:),
+     .     coreq(:,:),!mass(:),
      .     rg(:),rsma(:),rfoca(:), rsmfa(:),rcfa(:,:),
      .     exi(:,:),rmt(:),pz(:,:,:),
      .     amom(:,:),spec_a(:),z(:),eref(:),rsmv(:)
@@ -83,7 +83,7 @@ Ci          functions are less than tol.
      .     bz_lmet,bz_n,bz_lmull,ctrl_ldos,bz_fsmommethod
       real(8),protected:: bz_efmax,bz_zval,bz_fsmom,
      .     bz_semsh(10),zbak,bz_lcond(4),bz_range=5d0,bz_dosmax
-      logical,protected:: bz_lio1,bz_lio2,ctrl_lmet2 
+      logical,protected:: bz_lio2,ctrl_lmet2 
 !! ... Ewald
       real(8),protected:: lat_as,lat_tol,lat_rpad
       integer,protected:: lat_nkdmx
@@ -106,7 +106,7 @@ Ci          functions are less than tol.
       logical,protected:: prmint_new,lbsprm=F,lsdyn=F
       integer,protected:: nitmv,prmint_mi,prmint_mx,prmint_nseq(11),gd_modt(3),gd_nmodt=1
       integer,protected:: pwmode,ncutovl  !ncutovl is by takao. not in lm-7.0beta.npwpad,
-      real(8),protected:: pwemax,pwemin,oveps,delta_stabilize
+      real(8),protected:: pwemax,pwemin,oveps!,delta_stabilize
       integer , allocatable,protected ::  iv_a_oips (:)   ,  lpz(:),lpzex(:),lhh(:,:),iprmb(:)
 !! CG coefficient      
       real(8) , allocatable,protected  ::  rv_a_ocg (:)
@@ -331,8 +331,8 @@ C --- Initialize ---
       endif
       
 !! IO ---
-      nm='IO_SHOW'; call gtv(trim(nm),tksw(prgnam,nm),io_show,def_i4=0,
-     .     note='Echo data as it is read from input file')
+c      nm='IO_SHOW'; call gtv(trim(nm),tksw(prgnam,nm),io_show,def_i4=0,
+c     .     note='Echo data as it is read from input file')
       if (cmdopt0('--show')     ) io_show = 1
       if (procid .ne. master    ) io_show = 0
       if (io_help == 1      ) io_show = 1
@@ -502,9 +502,7 @@ c      gam1 = gam(4)
 c      gam(4) = 1
 c      lat_gam=gam
 C     ... End of struc tokens
-      
    59 continue
-
       
 !! Options ---
       if (tksw(prgnam,'OPTIONS') == 2) goto 69
@@ -520,23 +518,6 @@ C     ... End of struc tokens
      .     nmin=3,def_i4v=(/100,100,100/),
      .     note='No. divisions when searching for empty spheres')
       lpfloat=1
-c$$$      nm='OPTIONS_PFLOAT';call gtv(trim(nm),tksw(prgnam,nm),lpfloat,
-c$$$     .     def_i4=1,note=       !feb2012takao
-c$$$     .     'Controls how band CG is determined in floating Pnu.'//
-c$$$     .     '%N%5f0 Band CG found by traditional method'//
-c$$$     .     '%N%5f1 Band CG found from true energy moment of density')
-c$$$      nm='OPTIONS_SCR'; call gtv(trim(nm),tksw(prgnam,nm),lscr,
-c$$$     .     def_i4=0,note='Use scr to accelerate convergence:'//
-c$$$     .     '%N%3f0 do nothing'//
-c$$$     .     '%N%3f1 Make ASA static response function (see documentation)'//
-c$$$     .     '%N%3f2 Use response to screen output q and ves'//
-c$$$     .     '%N%3f4 Use model response to screen output q'//
-c$$$     .     '%N%3f6 Use response to screen output ves only'//
-c$$$     .     '%N%5fAdd 1 to combine mode 1 with another mode'//
-c$$$     .     '%N%5fAdd 10*k to compute intra-site contribution to vbare'//
-c$$$     .     ' each kth iteration'//
-c$$$     .     '%N%5fAdd 100*k to compute response function'//
-c$$$     .     ' on every kth iteration')
    69 continue                  ! end of OPTIONS
 
 !! Hamiltonian parameters ---
@@ -631,31 +612,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccc
      .     '%N%3f1 for Ceperly-Alder (VWN)'//
      .     '%N%3f2 for Barth-Hedin (ASW fit)'//
      .     '%N%3f103 for PBE-GGA (use xcpbe.F in ABINIT')
-      nm='HAM_GGA'; call gtv(trim(nm),tksw(prgnam,nm),ggax,
-     .     nout=nout, def_i4=0, note='UnUsed now. See XCFUN...')
-      if(ggax>0) call rx('Use HAM_XCFUN instead of HAM_GGA')
-c      nm='HAM_ALFSI'; call gtv(trim(nm),tksw(prgnam,nm),
-c     .     alfsi, def_r8=0d0,note=
-c     .     'Coefficient to artificial addition of overlap to hamiltonian')
-c      nm='HAM_DABC' ; call gtv(trim(nm),tksw(prgnam,nm),
-c     .     dabc,nout=nout,
-c     .     note='Spacings for real-space interstital mesh')
-c      if (nout == 1) dabc(2) = dabc(1)
-c      if (nout <  3) dabc(3) = dabc(2)
-      nm='HAM_DQVAL'; call gtv(trim(nm),tksw(prgnam,nm),dqval,
-     .     note='Total charge')
       nm='HAM_RDSIG'; call gtv(trim(nm),tksw(prgnam,nm),lrsigx,def_i4=1,
      .     note=
      .     'Controls how self-energy is added to '//
      .     'local exchange correlation functional:'//
      .     '%N%3f   0: do not read Sigma'//
      .     '%N%3f   1(or not zero): read sigm=Sigma-Vxc. Default now')
-c      nm='HAM_RSRNGE'; call gtv(trim(nm),tksw(prgnam,nm),rsrnge,
-c     .     def_r8=5d0, note='Maximum range in connecting vectors for '//
-c     .     'r.s. sigma (units of alat)')
-      nm='HAM_RSSTOL'; call gtv(trim(nm),tksw(prgnam,nm),
-     .     rsstol, def_r8=5d-6, note=
-     .     'Max tolerance in Bloch sum error for r.s. sigma ')
       nm='HAM_ScaledSigma'; call gtv(trim(nm),tksw(prgnam,nm),scaledsigma,
      .     def_r8=1d0, note='=\alpha_Q for QSGW-LDA hybrid. \alpha \times (\Sigma-Vxc^LDA) is added to LDA/GGA Hamiltonian.')
       nm='HAM_EWALD'; call gtv(trim(nm),tksw(prgnam,nm),ham_ewald,
@@ -681,10 +643,10 @@ c     .     'r.s. sigma (units of alat)')
      .     'Diagonalize hamiltonian in reduced hilbert space,'//
      .     '%N%3fdiscarding part with evals of overlap < OVEPS')
       if(cmdopt0('--zmel0')) OVEPS=0d0
-      nm='HAM_STABILIZE'; call gtv(trim(nm),tksw(prgnam,nm),
-     .     delta_stabilize, def_r8=-1d0, nout=nout,note=
-     .     'Experimental. Stabilizer for Diagonalize hamiltonian (negative means unused),'//
-     .     '%N%3f "H --> H + HAM_STABILIZE*O^-1" in zhev_tk(diagonalization)')
+c      nm='HAM_STABILIZE'; call gtv(trim(nm),tksw(prgnam,nm),
+c     .     delta_stabilize, def_r8=-1d0, nout=nout,note=
+c     .     'Experimental. Stabilizer for Diagonalize hamiltonian (negative means unused),'//
+c     .     '%N%3f "H --> H + HAM_STABILIZE*O^-1" in zhev_tk(diagonalization)')
 !     ... APW basis
       nm='HAM_PWMODE'; call gtv(trim(nm),tksw(prgnam,nm),pwmode,
      .     def_i4=0,note=
@@ -706,8 +668,8 @@ c     .     'r.s. sigma (units of alat)')
 c      nm='HAM_NPWPAD'; call gtv(trim(nm),tksw(prgnam,nm),
 c     .     npwpad, def_i4=-1, note=
 c     .     'Overrides default padding of variable basis dimension')
-      nm='HAM_UDIAG'; call gtv(trim(nm),tksw(prgnam,nm),ham_udiag,
-     .     def_i4=0,note='nonzero => diagonal-only LDA+U')
+c      nm='HAM_UDIAG'; call gtv(trim(nm),tksw(prgnam,nm),ham_udiag,
+c     .     def_i4=0,note='nonzero => diagonal-only LDA+U')
      
 !! Symmetry group ---
       if (io_show+io_help/=0 .and. tksw(prgnam,'SYMGRP')/=2)
@@ -721,7 +683,7 @@ c     .     'Overrides default padding of variable basis dimension')
         nm='SYMGRPAF'; call gtv(trim(nm),tksw(prgnam,nm),symgaf,
      .  note='An (or multiple) Extra Generator for adding anti ferro symmetry')
       endif  
-!! Species (old CLASS) ---
+!! Species
       if (io_help == 1) nspec = 1
       if (tksw(prgnam,'SPEC') == 2) goto 79
       if (io_show+io_help/=0) call info0(1,1,
@@ -764,18 +726,17 @@ c     .     'Overrides default padding of variable basis dimension')
      .     rg(nspec),rsma(nspec),rfoca(nspec),rsmfa(nspec),rcfa(2,nspec),
      .     rs3(nspec),rham(nspec),rmt(nspec),rsmv(nspec),
      .     nxi(nspec),exi(n0,nspec),
-     .     spec_a(nspec),z(nspec),nr(nspec),mass(nspec),eref(nspec),
+     .     spec_a(nspec),z(nspec),nr(nspec),eref(nspec),
      .     coreh(nspec),coreq(2,nspec),
      .     idxdn(n0,nkap0,nspec),
      .     idu(4,nspec),uh(4,nspec),jh(4,nspec),
-     .     mxcst1(nspec),mxcst2(nspec),mxcst4(nspec),
+     .     mxcst2(nspec),mxcst4(nspec),
      .     kmxt(nspec),kmxv(nspec),
      .     lfoca(nspec),lmxl(nspec),lmxa(nspec),lmxb(nspec),nmcore(nspec))
       allocate(lpz(nspec),lpzex(nspec))
       allocate(nkapii(nspec),nkaphh(nspec))
       lpz=0
       lpzex=0
-      mxcst1=F
       mxcst2=F
       mxcst4=F
       nkapii=1
@@ -796,7 +757,7 @@ c     .     'Overrides default padding of variable basis dimension')
         exi(:,j) = NULLR
         coreh(j) = ' '; coreq(:,j) = NULLR
         eref(j) = NULLR
-        mass(j) = NULLR
+c        mass(j) = NULLR
         if (io_help /= 0) then
           write(stdo,'(1x)')
         elseif (io_help == 0 .and. io_show>0) then
@@ -1115,19 +1076,19 @@ C     Negative radii: convert to actual numbers
            nm='SPEC_ATOM_RS3'; call gtv(trim(nm),tksw(prgnam,nm),rs3(j),
      .          def_r8=0.5d0,cindx=jj, !takao Nov26,2010
      .          note='Minimum smoothing radius for local orbital')
-           nn = 1
-           nm='SPEC_ATOM_IDXDN'; call gtv(trim(nm),tksw(prgnam,nm),
-     .          idxdn(1:nlbj,1,j),nmin=nlbj,
-     .          def_i4v=(/(nn,i=1,nlbj)/),cindx=jj,
-     .          note='orbital index: 1, use; 3, unuse')
+c           nn = 1
+c          nm='SPEC_ATOM_IDXDN'; call gtv(trim(nm),tksw(prgnam,nm),
+c     .          idxdn(1:nlbj,1,j),nmin=nlbj,
+c     .          def_i4v=(/(nn,i=1,nlbj)/),cindx=jj,
+c     .          note='orbital index: 1, use; 3, unuse')
           nm='SPEC_ATOM_IDMOD'; call gtv(trim(nm),tksw(prgnam,nm),
      .         idmod(1:nlaj,j),nmin=nlaji,def_i4v=(/(0,i=1,n0)/),
      .         cindx=jj,note=
      .         'idmod=0 floats P to band CG, 1 freezes P, 2 freezes enu')
-          nm='SPEC_ATOM_MIX'; call gtv(trim(nm),tksw(prgnam,nm),mxcst1(j),
-     .         def_lg=F,cindx=jj,note='Set to suppress '//
-     .         'self-consistency of classes in this spec')
-          if(debug) print *,' mxcst nspec 111 =',nspec,j,jj,mxcst1(j)
+c          nm='SPEC_ATOM_MIX'; call gtv(trim(nm),tksw(prgnam,nm),mxcst1(j),
+c     .         def_lg=F,cindx=jj,note='Set to suppress '//
+c     .         'self-consistency of classes in this spec')
+c          if(debug) print *,' mxcst nspec 111 =',nspec,j,jj,mxcst1(j)
           nm='SPEC_ATOM_CSTRMX'; call gtv(trim(nm),tksw(prgnam,nm),
      .         mxcst2(j),cindx=jj,def_lg=F,note='Set to exclude this'//
      .         ' species when automatically resizing sphere radii'//
@@ -1193,8 +1154,8 @@ C     Some sanity checks
         nm='SPEC_ATOM_EREF'; call gtv(trim(nm),tksw(prgnam,nm),eref(j),
      .       def_r8=0d0,cindx=jj,note=
      .       'Reference energy subtracted from total energy')
-        nm='SPEC_ATOM_AMASS'; call gtv(trim(nm),tksw(prgnam,nm),mass(j),
-     .       cindx=jj,note='Nuclear mass in a.u. (for dynamics)')
+c        nm='SPEC_ATOM_AMASS'; call gtv(trim(nm),tksw(prgnam,nm),mass(j),
+c     .       cindx=jj,note='Nuclear mass in a.u. (for dynamics)')
         nkaphh(j) = nkapii(j) + lpzex(j)
 c  if(master_mpi) write('ispec: nkaphh = nkapii+ lpzex(j)',i3,3i2)") j,nkaphh(j),nkapii(j),lpzex(j)
  1111 continue  ! Loop over species
@@ -1324,16 +1285,16 @@ c$$$         endif
 !! Brillouin Zone ---
       if (io_show+io_help/=0 .and. tksw(prgnam,'BZ')/=2) call info0(1,1,
      .     0,' --- Parameters for Brillouin zone integration ---')
-      nm='BZ_GETQP'; call gtv(trim(nm),tksw(prgnam,nm),bz_lio1,
-     .     def_lg=F,note='Read qp from disk',or=T)
-      nm='BZ_NKABC'; sw=tksw(prgnam,nm); if (bz_lio1) sw = 2
+c      nm='BZ_GETQP'; call gtv(trim(nm),tksw(prgnam,nm),bz_lio1,
+c     .     def_lg=F,note='Read qp from disk',or=T)
+      nm='BZ_NKABC'; sw=tksw(prgnam,nm)!; if (bz_lio1) sw = 2
       call gtv(trim(nm),sw,bz_nabcin,nout=nout,
      .     note='No. qp along each of 3 lattice vectors.'//
      .     '%N%3fSupply one number for all vectors or a separate '//
      .     'number for each vector.')
       call fill3in(nout,bz_nabcin)
-      nm='BZ_PUTQP'; call gtv(trim(nm),tksw(prgnam,nm),bz_lio2,
-     .     def_lg=F,note='Write qp to disk')
+c      nm='BZ_PUTQP'; call gtv(trim(nm),tksw(prgnam,nm),bz_lio2,
+c     .     def_lg=F,note='Write qp to disk')
       nm='BZ_BZJOB';call gtv(trim(nm),tksw(prgnam,nm),bz_lshft,nout=nout,
      .     def_i4v=izerv(1:1),note=
      .     '0 centers BZ mesh at origin, 1 centers off origin'//
@@ -1382,7 +1343,6 @@ c     .     (/-1d0,0d0/),note='Energy window over which DOS accumulated')
       bz_doswin=-9999
       nm='BZ_NPTS'; call gtv(trim(nm),tksw(prgnam,nm),bz_ndos,def_i4=1001,
      .     note='No. DOS points (sampling integration)')
-
       nm='BZ_DOSMAX'; call gtv(trim(nm),tksw(prgnam,nm),bz_dosmax,def_r8=1.5d0,
      &     note='Maximum energy to which DOS accumulated, relative to Efermi') !march 2013
       xxx = 5d0
@@ -1467,16 +1427,16 @@ c$$$         endif
          nm='ITER_CONVC'; call gtv(trim(nm),tksw(prgnam,nm),ctrl_tol(1),
      .        def_r8=1d-4,note='Tolerance in output-input charge for'//
      .        ' self-consistency')
-         i0 = 0
-         nm='ITER_XIPMX'; call gtv(trim(nm),tksw(prgnam,nm),i0,def_i4=0,
-     .        nout=nout,note='Mix potential independently of charge:'//
-     .        '%N%3fXIPMX=1: mix vin and v(qmix)'//
-     .        '%N%3fXIPMX=2: mix vin and v(qout)')
-         if (nout .gt. 0) then
-            l_dummy_isanrg = isanrg(i0,0,3,'rdctrl','XIPMX',T)
-            if (i0 .gt. 0) lves = 1 
-         endif
-         mix_lxpot = i0
+c$$$         i0 = 0
+c$$$         nm='ITER_XIPMX'; call gtv(trim(nm),tksw(prgnam,nm),i0,def_i4=0,
+c$$$     .        nout=nout,note='Mix potential independently of charge:'//
+c$$$     .        '%N%3fXIPMX=1: mix vin and v(qmix)'//
+c$$$     .        '%N%3fXIPMX=2: mix vin and v(qout)')
+c$$$         if (nout .gt. 0) then
+c$$$            l_dummy_isanrg = isanrg(i0,0,3,'rdctrl','XIPMX',T)
+c$$$            if (i0 .gt. 0) lves = 1 
+c$$$         endif
+c$$$         mix_lxpot = i0
          nm='ITER_UMIX'; call gtv(trim(nm),tksw(prgnam,nm),mix_umix,
      .        def_r8=1d0,note='Mixing parameter for densmat in LDA+U')
          nm='ITER_TOLU'; call gtv(trim(nm),tksw(prgnam,nm),mix_tolu,
@@ -1568,7 +1528,7 @@ C            vbare each kth iteration
 C            Add 100*k to compute response function only each kth iteration
       ctrl_noinv = isw(noinv)  ! T->1 F->0
       ctrl_lrel=lrel
-      ctrl_lves=lves !!!  lves    1 take ves as input
+c      ctrl_lves=lves !!!  lves    1 take ves as input
 !!  lxcf   parameter defining XC functional
 !!      1s digit:
 !!      1 for Ceperly-Alder (VWN)
@@ -1651,18 +1611,12 @@ c      call dcopy(i_copy_size,dabc,1,ham_dabc,1)
       endif
       ham_lsig=lrsigx
       call mpibc1_int(ham_lsig,1,'bndfp_ham_lsig')
-      ham_rsstol=rsstol
-      ham_udiag=ham_udiag
+c      ham_rsstol=rsstol
+c      ham_udiag=ham_udiag
       ham_scaledsigma=scaledsigma
       ham_pwmode=pwmode
       ham_oveps=oveps
-      ham_delta_stabilize=delta_stabilize !takao sep2010
-c      if (procid==master) then
-c         open(newunit=ifi,file='PWMODE')
-c         write(ifi,"(i5)")pwmode
-c         close(ifi)
-c      endif 
-      
+c      ham_delta_stabilize=delta_stabilize !takao sep2010
 C --- Allocate and copy input to sspec ---
       allocate(v_sspec(nspec))
       do j=1,nspec
@@ -1678,7 +1632,6 @@ C --- Allocate and copy input to sspec ---
           v_sspec(j)%nxi=nxi(j)
           v_sspec(j)%exi=exi(:,j)
           v_sspec(j)%idmod=idmod(:,j)
-          
 !! idxdn= 1 or 3  (or 10,11 for LO)
 Cr     1  Orbital is included as "active" orbitals, which means
 Cr           they are included in the hamiltonian and diagonalized
@@ -1708,7 +1661,6 @@ Cr         and it is included in the basis.
              idxdn(lmxb(j)+ 2:,ik,j)=3 
           enddo
           call dcopy(n0*nkap0,idxdn(1,1,j),1,v_sspec(j)%idxdn,1) ! = idxdn
-          
           v_sspec(j)%idu = idu(:,j)
           v_sspec(j)%jh=jh(:,j)
           v_sspec(j)%uh=uh(:,j)
@@ -1719,17 +1671,6 @@ Cr         and it is included in the basis.
           v_sspec(j)%lmxa=lmxa(j)
           v_sspec(j)%lmxb=lmxb(j)
           v_sspec(j)%lmxl=lmxl(j)
-c          v_sspec(j)%lmxpb=lmxpb(j)
-          
-c$$$          orbp=1d10 
-c$$$          call dcopy(n0,rsmh1(1,j),1,orbp(1,1,1),1)
-c$$$          call dcopy(n0,eh1(1,j),1,orbp(1,2,1),1)
-c$$$          call dcopy(n0,rsmh2(1,j),1,orbp(1,1,2),1)
-c$$$          call dcopy(n0,eh2(1,j),1,orbp(1,2,2),1)
-c$$$          i_copy_size=size(v_sspec(j)%orbp)
-c$$$          call dcopy(i_copy_size,orbp,1,v_sspec(j)%orbp,1)
-
-          v_sspec(j)%mass = mass(j)
 Cr   mxcst2(lmchk)   Exclude this species when auto-resizing sphere radii
 Cr   mxcst4   Freeze augmentation w.f. for this species (FP)
 !!     Pack P,Q,PZ for both spins
@@ -1886,7 +1827,7 @@ C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
       call poppr
       deallocate(wowk,pnu,qnu    ,amom,idmod,                  
      .     qpol,stni,tbvso,iq1,ivso,rg,rsma,rfoca,rsmfa,rcfa,nxi,
-     .     exi,coreq,mass,rs3,rham,idxdn,
+     .     exi,coreq,rs3,rham,idxdn,
      .     rmt,idu,uh,jh,kmxv,  !kmxt,
      .     lfoca,eref,lmxl,coreh,          spec_a,z,nr,rsmv,
      .     pos,vel,vshft,ips,irlx) 
