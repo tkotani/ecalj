@@ -457,7 +457,7 @@ c     if (nbasp .eq. NULLI) nbasp = nbas
       lat_slat(1:3,3)=temp33(7:9)
       nm='STRUC_DALAT'; call gtv(trim(nm),tksw(prgnam,nm),
      .     dalat, def_r8=0d0, note='added to alat after input is read')
-      nl=3
+      nl=3 !default
 c      nm='STRUC_NL'; call gtv(trim(nm),tksw(prgnam,nm),nl,def_i4=3,
 c     .     note='global default LMXA+1 for basis and augmentation.')
       
@@ -836,29 +836,24 @@ c$$$           nlbj = 0
 c$$$        endif
         if(debug) print *,'nspec ccc mxcst j-loop j nspec',j,nspec
 
-!     ... Basis set for lmf -----------------
+!... Basis set for lmf -----------------
         nm='SPEC_ATOM_RSMH'; call gtv(trim(nm),tksw(prgnam,nm),
-     .       rsmh1(1:,j),cindx=jj,nout=nout,nmin=0,def_r8v=zerov,
+     .       rsmh1(1:,j),cindx=jj,nout=nout,def_r8v=zerov,!nout=n0 because of default
      .       note='Smoothing radii for basis. Gives l-cut max for base')
-cccccccccccccccccccccccccccccccccc
-        print *,'nnnnnnnnnn=',nout
-        print *,'rsmh1(1:nout,j)
-        if(j==nspec) stop'vvvvvvvvvvvvvvvv'
-cccccccccccccccccccccccccccccccccc
-        
         nnx=nout
         do i=1,nout
            if(rsmh1(i,j)==0d0) cycle
            nnx=i
         enddo
         nm='SPEC_ATOM_EH'; call gtv(trim(nm),tksw(prgnam,nm),
-     .       eh1(1:,j),nmin=nnx,cindx=jj,def_r8v=zerov,
+     .       eh1(1:,j),nmin=nnx,cindx=jj, def_r8v=zerov,
      .       note='Kinetic energies for basis')
         nn1=nnx
-!!        
+!---- 2nd        
         nm='SPEC_ATOM_RSMH2'; call gtv(trim(nm),tksw(prgnam,nm),
-     .       rsmh2(1:,j),nmin=0,def_r8v=zerov,cindx=jj,nout=nout,
+     .       rsmh2(1:,j),def_r8v=zerov,cindx=jj,nout=nout,
      .       Texist=ltmp,note='Basis smoothing radii, second group ')
+        nnx=0
         if (ltmp) then
            nnx=nout
            do i=1,nout
@@ -872,17 +867,15 @@ cccccccccccccccccccccccccccccccccc
               sw = 1
            endif
            nm='SPEC_ATOM_EH2'; call gtv(trim(nm),sw,
-     .          eh2(1:,j),nmin=nnx,cindx=jj,def_r8v=zerov,
+     .          eh2(1:,j),nmin=nnx,cindx=jj, !def_r8v=zerov,
      .          note='Basis kinetic energies, second group')
-        else
-           nnx=0
         endif
         nn2=nnx
 c        if(nn2>nn1) call rx('RSMH2(EH2) is longer than RSMH(EH)')
         lmxbj=max(nn1,nn2)-1
-        write(*,*)'llllllllll',j,nn1,nn2
+        
 cccccccccccccccccccccccccccccccccccccccccc
-        lmxbj=max(lmxbj,2)
+c        lmxbj=max(lmxbj,2) !this is needed for _PZ
 cccccccccccccccccccccccccccccccccccccccccc
         
 !!!
@@ -1010,9 +1003,19 @@ c     print *,'qnuin ',sum(abs(qnu(:,:,j))),qnu(:,:,j)
      .          '%N%3f1         : spin-averaged core density is from spin-averaged potential')
 
            nm='SPEC_ATOM_PZ'; call gtv(trim(nm),tksw(prgnam,nm),
-     .          pz(1:nlaj,1,j),def_r8v=zerov,nmin=nlaji,cindx=jj,note=
+     .          pz(1:nlaj,1,j),def_r8v=zerov,cindx=jj,note=
      .          'Starting semicore log der. parameters'//
-     .          '%N%10fAdd 10 to attach Hankel tail',nout=nout)
+     .          '%N%10fAdd 10 to attach Hankel tail',nout=nout) !zero default by zerov
+!! lmxb corrected by pz
+           nnx=nout
+           do i=nout,1,-1
+              if(pz(i,1,j)/=0d0) then
+                 nnx=i
+                 lmxb(j)=max(lmxb(j),nnx-1)
+                 exit
+              endif   
+           enddo
+!           
            if (nout>0) then
               if (dasum(nlaj,pz(1,1,j),1) /= 0) then
                  lpzi = max(lpzi,1) !,2
@@ -1957,6 +1960,7 @@ c      if (sum(lldau)/=0) lcplxp = 1
          write(stdo,*)
          write(stdo,"('mmm === MTO setting ===')")
          do i=1,nspec
+          lmxbj = lmxb(i)
           write(stdo,"('mmm ispec lmxb lpzex nkapii nkaphh=',10i5)")i,lmxb(i),lpzex(i),nkapii(i),nkaphh(i)
           write(stdo,"('mmm rsmh1 ',i4,100f6.2)")i, rsmh1(1:lmxbj+1,i)
           write(stdo,"('mmm   eh1 ',i4,100f6.2)")i,   eh1(1:lmxbj+1,i)
