@@ -708,8 +708,13 @@ C --- Setup ---
       call getpr(ipr)
       stdo  = lgunit(1)
       gamma = 0
-      call maknrs(nbas,ips,ib,nrspec)
-      if (ib .gt. nspec) call rx('sclwsr: wrong number of species')
+c      call maknrs(nbas,ips,ib,nrspec)
+      nrspec=0
+      do  ib = 1, nbas
+        is = ips(ib)
+        nrspec(is) = nrspec(is) + 1
+      enddo
+c      if (ib .gt. nspec) call rx('sclwsr: wrong number of species')
       opt1 = mod(opt/10,10)
       call dcopy(nspec,wsr,1,wsrs,1)
       avw = avwsr(plat,alat,vol,nbas)

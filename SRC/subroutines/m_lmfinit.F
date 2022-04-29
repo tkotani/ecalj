@@ -1160,7 +1160,7 @@ c     .       cindx=jj,note='Nuclear mass in a.u. (for dynamics)')
 c  if(master_mpi) write('ispec: nkaphh = nkapii+ lpzex(j)',i3,3i2)") j,nkaphh(j),nkapii(j),lpzex(j)
  1111 continue  ! Loop over species
       if (io_help==0) then
-         call imxmn(nspec,lmxa,1,i0,lmxax) !Maximum L-cutoff
+         lmxax=maxval(lmxa) !call imxmn(nspec,lmxa,1,i0,lmxax) !Maximum L-cutoff
          nlmax = (lmxax+1)**2
          nkaph = nkapi + lpzi     !-1
          mxorb= nkaph*nlmax

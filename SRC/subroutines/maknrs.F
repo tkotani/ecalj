@@ -1,15 +1,15 @@
-      subroutine maknrs(nbas,ips,nspec,nrspec)
-C- Counts species and makes array nrspec = no. species per site
-C     implicit none
-      integer nbas,ips(nbas),nspec,nrspec(*)
-      integer i1,ib,is
-
-      call imxmn(nbas,ips,1,i1,nspec)
-      call iinit(nrspec,nspec)
-      do  ib = 1, nbas
-        is = ips(ib)
-        nrspec(is) = nrspec(is) + 1
-      enddo
-
-      end
-
+c$$$      subroutine maknrs(nbas,ips,nspec,nrspec)
+c$$$C- Counts species and makes array nrspec = no. species per site
+c$$$C     implicit none
+c$$$      integer nbas,ips(nbas),nspec,nrspec(*)
+c$$$      integer i1,ib,is
+c$$$
+c$$$      call imxmn(nbas,ips,1,i1,nspec)
+c$$$      call iinit(nrspec,nspec)
+c$$$      do  ib = 1, nbas
+c$$$        is = ips(ib)
+c$$$        nrspec(is) = nrspec(is) + 1
+c$$$      enddo
+c$$$
+c$$$      end
+c$$$
