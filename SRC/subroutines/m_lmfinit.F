@@ -299,7 +299,7 @@ c      integer,parameter:: mxspec=256
       logical:: sexist
       integer:: ibas,ierr,lc, iqnu
 c      logical:: ltet
-      integer:: ifzbak
+      integer:: ifzbak,nn1,nn2,nnx,lmxxx
       
       integer,allocatable :: iv_a_oips_bakup (:)
       integer :: ctrl_nspec_bakup,inumaf,iin,iout,ik,iprior,ibp1,indx,iposn,m,nvi,nvl,setprint0
@@ -457,8 +457,9 @@ c     if (nbasp .eq. NULLI) nbasp = nbas
       lat_slat(1:3,3)=temp33(7:9)
       nm='STRUC_DALAT'; call gtv(trim(nm),tksw(prgnam,nm),
      .     dalat, def_r8=0d0, note='added to alat after input is read')
-      nm='STRUC_NL'; call gtv(trim(nm),tksw(prgnam,nm),nl,def_i4=3,
-     .     note='global default LMXA+1 for basis and augmentation.')
+      nl=3
+c      nm='STRUC_NL'; call gtv(trim(nm),tksw(prgnam,nm),nl,def_i4=3,
+c     .     note='global default LMXA+1 for basis and augmentation.')
       
 C     ... Lattice distortion or rotation. it is better to move main part to lattic
 c$$$      sw = tksw(prgnam,'STRUC_SHEAR')
@@ -813,66 +814,86 @@ c        mass(j) = NULLR
         nm='SPEC_ATOM_NR'; call gtv(trim(nm),tksw(prgnam,nm),nr(j),
      .       def_i4=i0,cindx=jj, note='Number of radial mesh points')
         if (nr(j) .eq. 0) nr(j) = i0
-        nm='SPEC_ATOM_LMX'; call gtv(trim(nm),tksw(prgnam,nm),lmxb(j),
-     .       def_i4=max(nl-1,NULLI),cindx=jj,note='l-cutoff for basis')
-!     Running account of maximum lmxb
-        lmxbj = NULLI
-        if (io_help .ne. 1) then
-           lmxbx = max(lmxbx,lmxb(j))
-           lmxbj = lmxb(j)
-        endif
-!     nlbj = number of elements associated with lmxb
-!     0 => no elements
-!     nlbji: ditto, but used to specify number of default values
-        nlbj = 1+lmxbj
-        nlbji = nlbj
-        if (io_help .eq. 1) then
-           nlbji = NULLI
-           nlbj = 1
-        elseif (lmxbj == NULLI) then
-           nlbji = NULLI
-           nlbj = 0
-        endif
+        
+        
+c$$$!     Running account of maximum lmxb
+c$$$        lmxbj = NULLI
+c$$$        if (io_help .ne. 1) then
+c$$$           lmxbx = max(lmxbx,lmxb(j))
+c$$$           lmxbj = lmxb(j)
+c$$$        endif
+c$$$!     nlbj = number of elements associated with lmxb
+c$$$!     0 => no elements
+c$$$!     nlbji: ditto, but used to specify number of default values
+c$$$        nlbj = 1+lmxbj
+c$$$        nlbji = nlbj
+c$$$        if (io_help .eq. 1) then
+c$$$           nlbji = NULLI
+c$$$           nlbj = 1
+c$$$        elseif (lmxbj == NULLI) then
+c$$$           nlbji = NULLI
+c$$$           nlbj = 0
+c$$$        endif
         if(debug) print *,'nspec ccc mxcst j-loop j nspec',j,nspec
 
-!     ... Basis set for lmf
+!     ... Basis set for lmf -----------------
         nm='SPEC_ATOM_RSMH'; call gtv(trim(nm),tksw(prgnam,nm),
-     .       rsmh1(1:nlbj,j),cindx=jj,nout=nout,nmin=nlbj,def_r8v=zerov,
-     .       note='Smoothing radii for basis')
-        nn = NULLI
-        if (nout .gt. 0) nn = nout
-!     Find nn=lmax+1 for which rsmh1 ne 0 => reduce # EH required
-        do  i = 1, nlbj
-           if (rsmh1(i,j) .eq. 0) cycle
-           nn = i
+     .       rsmh1(1:,j),cindx=jj,nout=nout,nmin=0,def_r8v=zerov,
+     .       note='Smoothing radii for basis. Gives l-cut max for base')
+cccccccccccccccccccccccccccccccccc
+        print *,'nnnnnnnnnn=',nout
+        print *,'rsmh1(1:nout,j)
+        if(j==nspec) stop'vvvvvvvvvvvvvvvv'
+cccccccccccccccccccccccccccccccccc
+        
+        nnx=nout
+        do i=1,nout
+           if(rsmh1(i,j)==0d0) cycle
+           nnx=i
         enddo
         nm='SPEC_ATOM_EH'; call gtv(trim(nm),tksw(prgnam,nm),
-     .       eh1(1:nlbj,j),nmin=nn,cindx=jj,def_r8v=zerov,
+     .       eh1(1:,j),nmin=nnx,cindx=jj,def_r8v=zerov,
      .       note='Kinetic energies for basis')
-        nn = NULLI
-        if (nout>0) nn = nout
+        nn1=nnx
+!!        
         nm='SPEC_ATOM_RSMH2'; call gtv(trim(nm),tksw(prgnam,nm),
-     .       rsmh2(1:nlbj,j),nmin=nlbj,def_r8v=zerov,cindx=jj,nout=nout,
-     .       Texist=ltmp,note='Basis smoothing radii, second group')
+     .       rsmh2(1:,j),nmin=0,def_r8v=zerov,cindx=jj,nout=nout,
+     .       Texist=ltmp,note='Basis smoothing radii, second group ')
         if (ltmp) then
-           nn = NULLI
+           nnx=nout
+           do i=1,nout
+              if(rsmh2(i,j)==0d0) cycle
+              nnx=i
+           enddo
            sw = tksw(prgnam,nm)
-           if (nout>0) then
+           if (nnx>0) then
               nkapi=2
               nkapii(j)=2
-              nn = nout
               sw = 1
-!     Find nn=lmax+1 for which rsmh ne 0 => reduce # EH required
-              do  i = 1, nlbj
-                 if (rsmh2(i,j) .eq. 0) cycle
-                 nn = i
-              enddo
            endif
            nm='SPEC_ATOM_EH2'; call gtv(trim(nm),sw,
-     .          eh2(1:nlbj,j),nmin=nn,cindx=jj,def_r8v=zerov,
+     .          eh2(1:,j),nmin=nnx,cindx=jj,def_r8v=zerov,
      .          note='Basis kinetic energies, second group')
+        else
+           nnx=0
         endif
+        nn2=nnx
+c        if(nn2>nn1) call rx('RSMH2(EH2) is longer than RSMH(EH)')
+        lmxbj=max(nn1,nn2)-1
+        write(*,*)'llllllllll',j,nn1,nn2
+cccccccccccccccccccccccccccccccccccccccccc
+        lmxbj=max(lmxbj,2)
+cccccccccccccccccccccccccccccccccccccccccc
+        
+!!!
+        nm='SPEC_ATOM_LMX'; call gtv(trim(nm),tksw(prgnam,nm),lmxxx,
+     .       def_i4=10,cindx=jj,nout=nout,note='optional l-cutoff for basis')
+        lmxbj=min(lmxxx,lmxbj)
+!        
+        lmxb(j)=lmxbj
+        lmxbx=max(lmxbx,lmxb(j))
         if(debug) print *,'nspec ddd mxcst j-loop j nspec',j,nspec
+        
 !     ... Determine lmxa: floating orbitals have no lmxa
         nm='SPEC_ATOM_LMXA'; sw = tksw(prgnam,nm)
         if(debug) print *,'nspec ddd000 mxcst j rmt io_help lmxa=',j,rmt(j),io_help,lmxa(j)
@@ -883,13 +904,13 @@ c        mass(j) = NULLR
         else
 !     Possibly replace with a formula that depends on rmt
            call gtv(trim(nm),sw,lmxa(j),
-     .          def_i4=max(nl-1,lmxbj,NULLI),cindx=jj,Texist=ltmp,note=
+     .          def_i4=max(nl-1,lmxbj),cindx=jj,Texist=ltmp,note=
      .          'l-cutoff for augmentation')
-!     lmxb may not exceed lmxa
-           if (io_help == 0 .and. lmxbj .gt. lmxa(j))
-     .          call rx2('species '//trim(slabl(j))//' : LMX=%i '//
-     .          'exceeds LMXA=%i.  Revise input so that LMX<=LMXA.',
-     .          lmxbj,lmxa(j))
+c$$$!     lmxb may not exceed lmxa
+c$$$           if (io_help == 0 .and. lmxbj .gt. lmxa(j))
+c$$$     .          call rx2('species '//trim(slabl(j))//' : LMX=%i '//
+c$$$     .          'exceeds LMXA=%i.  Revise input so that LMX<=LMXA.',
+c$$$     .          lmxbj,lmxa(j))
         endif
         lmxaj = lmxa(j)
 !     nlaj = number of elements associated with lmxa
@@ -1160,7 +1181,7 @@ c     .       cindx=jj,note='Nuclear mass in a.u. (for dynamics)')
 c  if(master_mpi) write('ispec: nkaphh = nkapii+ lpzex(j)',i3,3i2)") j,nkaphh(j),nkapii(j),lpzex(j)
  1111 continue  ! Loop over species
       if (io_help==0) then
-         lmxax=maxval(lmxa) !call imxmn(nspec,lmxa,1,i0,lmxax) !Maximum L-cutoff
+         lmxax = maxval(lmxa) !Maximum L-cutoff
          nlmax = (lmxax+1)**2
          nkaph = nkapi + lpzi     !-1
          mxorb= nkaph*nlmax
