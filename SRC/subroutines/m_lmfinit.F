@@ -914,11 +914,11 @@ c          nm='SPEC_ATOM_IDXDN'; removed...
            do lxx=0+1,3+1
               idu(lxx,j) = mod(idu(lxx,j),10)
            enddo
+           if(sum(abs(idu(:,j)))/=0) write(stdo,"('idu uh jh=',4i4,4f6.2,' ',4f6.2)") idu(:,j),uh(:,j),jh(:,j)
         endif
         call mpibc1_int(idu(:,j),4,'m_lmfinit_idu')
         call mpibc1_real(uh(:,j),4,'m_lmfinit_uh') !bug fix at oct26 2021 (it was _int-->not passed )
         call mpibc1_real(jh(:,j),4,'m_lmfinit_jh')
-        write(stdo,"('idu uh jh=',4i4,4f6.2,' ',4f6.2)") idu(:,j),uh(:,j),jh(:,j)
 !     Some sanity checks
         if (io_help == 0 .and. lmxaj .ge. 0) then
            if (tksw(prgnam,'SPEC_ATOM_LFOCA') /= 2)
@@ -1657,12 +1657,12 @@ c      if (sum(lldau)/=0) lcplxp = 1
          do i=1,nspec
           lmxbj = lmxb(i)
           write(stdo,"('mmm ispec lmxb lpzex nkapii nkaphh=',10i5)")i,lmxb(i),lpzex(i),nkapii(i),nkaphh(i)
-          write(stdo,"('mmm rsmh1 ',i4,100f6.2)")i, rsmh1(1:lmxbj+1,i)
-          write(stdo,"('mmm   eh1 ',i4,100f6.2)")i,   eh1(1:lmxbj+1,i)
-          write(stdo,"('mmm rsmh2 ',i4,100f6.2)")i, rsmh2(1:lmxbj+1,i)
-          write(stdo,"('mmm  eh2  ',i4,100f6.2)")i,   eh2(1:lmxbj+1,i)
-          write(stdo,"('mmm pz    ',i4,100f6.2)")i,   pz(1:lmxbj+1,1,i)
-          write(stdo,"('mmm lh    ',i4,100i3)")i,   lhh(1:nkaph,i)
+          write(stdo,"('mmm rsmh1 ',i4,100f6.2)")i, rsmh1(1:lhh(1,i)+1,i)
+          write(stdo,"('mmm   eh1 ',i4,100f6.2)")i,   eh1(1:lhh(1,i)+1,i)
+          if(nkapii(i)==2) write(stdo,"('mmm rsmh2 ',i4,100f6.2)")i, rsmh2(1:lhh(2,i)+1,i)
+          if(nkapii(i)==2) write(stdo,"('mmm  eh2  ',i4,100f6.2)")i,   eh2(1:lhh(2,i)+1,i)
+          if(lpzex(i)==1 ) write(stdo,"('mmm pz    ',i4,100f6.2)")i,    pz(1:lhh(nkaph,i)+1,1,i)
+          write(stdo,"('mmm lh    ',i4,100i3)")  lhh(1:nkaph,i)
          enddo
       endif
 !!
