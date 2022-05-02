@@ -80,6 +80,8 @@ echo 2| $nfpgw/hmaxloc >& lmaxloc2  #(band plot data are generated.)
 #$nfpgw/wanplot >& lwanplot
 
 
+
+#### dipole part ####
 $nfpgw/qg4gw  --job=1 --allqbz >&   lqg4gwdipole  
 mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK --job=1 --dipolematrix --socmatrix $MATERIAL >& llmfgw01dipole
 $nfpgw/hdipole >& ldipole
