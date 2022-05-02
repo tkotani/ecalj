@@ -266,7 +266,7 @@ c          print *,ik,jk,sij
       end
 
       subroutine q0irre(qibz,nqibz,q0,wt0,nx06,symops,ngrp, q0i,nq0i,wt,plat,ltrans,ifix,irr)
-c inequivalent points
+! inequivalent points
 !! input:  qibz,q0, 
 !! output: q0i,nq0i
 !!xxxxxxx NOTE:input q0i(1:3,1:nq0i) is kept. Output nq0i is larger than input nq0i.
@@ -278,16 +278,6 @@ c inequivalent points
       real(8):: plat(3,3)
       real(8):: platt(3,3)
       real(8):: tolq 
-c      print *,'presense trans=',present(ltrans)
-ccccccccc
-c        print *, ' --- rotation ---'
-c        do ig = 1,ngrp
-c         print *, ' ig=',ig
-c       do i=1,3
-c         write(6,"(3f14.6)") symops(i,1:3,ig)
-c        enddo
-c       enddo
-ccccccccc
       irr=0
       if(ltrans) then
         platt=transpose(plat)
@@ -298,11 +288,7 @@ ccccccccc
       do i = 1,nx06
         qt = q0(:,i)
         do ib = 1,nqibz
-c          write(6,"('xxxx nqibz qt qibz=',i5,i5,3f9.4)") i,ib
           if(sum(abs(qibz(:,ib)-qt))<tolq()) then
-c             write(6,"('xxxxyyy nqibz qt qibz=',i5,i5,3f9.4,x,3f9.4)") i,ib,qt,qibz(:,ib)
-c            write(ifix) qt,q0i(:,ix),ix,ig !qtarget, q0i(ix),ig
-c            wt(ix) = wt(ix)+wt0(i)
             ixx = ixx+1
             q0i(:,ixx) = qt
             irr(i)=1  !this is irreducible
@@ -311,7 +297,12 @@ c            wt(ix) = wt(ix)+wt0(i)
         enddo
  980    continue
       enddo
-!!
+!! for genMLWFdipole 2022
+      if(cmdopt0('--allqbz')) then
+         nq0i=nqbz
+         return
+      endif
+!!      
       do i = 1,nx06
         qt = q0(:,i)
 c equivalence check

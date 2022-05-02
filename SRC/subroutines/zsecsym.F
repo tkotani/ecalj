@@ -17,7 +17,7 @@
       character*256:: extn,ext
       character*256,allocatable:: extp(:)
       integer:: nsym,nhdim,it,nblk,iband,napw,ldim,ierr,ispx,nbsize,nbsizemx
-     & ,iblk1,iblk2,ii1,ii2,ie1,ie2,ne1,ne2,iqxx, ndimhx, nspx,nnnx
+     & ,iblk1,iblk2,ii1,ii2,ie1,ie2,ne1,ne2,iqxx, ndimhx, nspx
       integer,allocatable::iblki(:),iblke(:)
       complex(8),allocatable:: evec(:,:),evec_inv(:,:),evecrot(:,:),rmatjj(:,:,:)
       real(8),allocatable::evaliq(:)
@@ -34,14 +34,14 @@
         do 3030 ispx=1,nspin !nspinmx  bugfix!!! at 2021-11-01 !ispx loop is to find isx=is
           if(ispx==is) then 
             open(newunit=ifevec_,  file='evec'//trim(xt(iq))//trim(xt(is)),form='unformatted')
-            read(ifevec_) nhdim, nspx,nnnx,nxx,ldim
+            read(ifevec_) nhdim, ldim
             allocate( evec(nhdim,nhdim),evecrot(nhdim,nhdim))
             read(ifevec_) qqqx(1:3), evec(1:nhdim,1:nhdim),nev !nev number of true bands nov2015
             zsect = 0d0
           else                  !skip isx/=is. Need to get access sequential files evec and v_xc.
             cycle
           endif  
-          do i=1,nnnx           !nq     !qqqx from evec v_xc.
+          do i=1,nq           !nq     !qqqx from evec v_xc.
             if(sum(abs(qqqx-q(:,i)))<tolq) then
               iqxx=i
               goto 3011

@@ -1,4 +1,4 @@
-subroutine smves(mode,nbas,ssite,sspec,k1,k2,k3,qmom,gpot0, & 
+subroutine smves(nbas,ssite,sspec,k1,k2,k3,qmom,gpot0, & 
      vval,hpot0,sgp0,smrho,smpot,vconst,smq,qsmc,f,rhvsm,zvnsm,zsum, &
      vrmt,qbg)
   use m_supot,only: iv_a_okv, rv_a_ogv
@@ -12,8 +12,8 @@ subroutine smves(mode,nbas,ssite,sspec,k1,k2,k3,qmom,gpot0, &
   !- Electrostatic potential of the smooth density.
   ! ----------------------------------------------------------------------
   !i Inputs
-  !i   mode  :0 use input vconst
-  !i         :1 generate vconst as - average v(RMT)
+  !i   mode=0 use input vconst
+  !ixxxx     (removed  mode=1 generate vconst as - average v(RMT))
   !i   nbas  :size of basis
   !i   ssite :struct containing site-specific information
   !i   sspec :struct containing species-specific information
@@ -143,28 +143,22 @@ subroutine smves(mode,nbas,ssite,sspec,k1,k2,k3,qmom,gpot0, &
   !u   22 Apr 00 Adapted from nfp ves_smooth.f
   ! ----------------------------------------------------------------------
   implicit none
-  ! ... Passed parameters
-  integer :: k1,k2,k3,nbas,mode,i_copy_size
-  double precision :: qsmc,smq,rhvsm,sgp0,vconst,zsum,zvnsm,qbg
+  integer :: k1,k2,k3,nbas,i_copy_size
   real(8):: qmom(1) , f(3,nbas) , gpot0(1) , vval(1) , hpot0(nbas) &
-       , vrmt(nbas)
-  !      type(s_lat)::slat
+       , vrmt(nbas),qsmc,smq,rhvsm,sgp0,vconst,zsum,zvnsm,qbg
   type(s_site)::ssite(*)
   type(s_spec)::sspec(*)
-
-  double complex smrho(k1,k2,k3,2),smpot(k1,k2,k3,2)
+  complex(8):: smrho(k1,k2,k3,2),smpot(k1,k2,k3,2)
   integer:: ib , igetss , ilm , ipr , iprint , is , iv0 , lfoc &
-       , lgunit , lmxl , m , n1 , n2 , n3 , ng , ngabc(3) , nglob , &
-       nlm , j1 , j2 , j3
+       , lgunit , lmxl , m , n1 , n2 , n3 , ng , ngabc(3) , nglob , nlm , j1 , j2 , j3
   complex(8) ,allocatable :: cg1_zv(:)
   complex(8) ,allocatable :: cgsum_zv(:)
   complex(8) ,allocatable :: cv_zv(:)
-
-  equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
   double precision :: ceh,cofg,cofh,dgetss,hsum,pi,qcorg,qcorh,qsc, &
        rfoc,rmt,s1,s2,sbar,srfpi,sumx,sum1,sum2,u00,u0g,ugg,usm,vbar, &
        vcnsto,vol,y0,z,R,eint
   integer ::iwdummy, ifivsmconst
+  equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
   ! ... Setup
   call tcn('smves')
   ipr   = iprint()
@@ -228,11 +222,10 @@ subroutine smves(mode,nbas,ssite,sspec,k1,k2,k3,qmom,gpot0, &
   enddo
   vbar = vbar/sbar
   vcnsto = vconst
-  if (mode /= 0) vconst = -vbar
+  vconst = -vbar !  if (mode /= 0) vconst = -vbar
   if (ipr >= 20) write (stdo,232) vbar,vcnsto,vconst
-232 format(' smves:: avg es pot at rmt=',f9.6, &
-       '  avg sphere pot=',f9.6,'  vconst=',f9.6)
-  if(mode==0)call rx(' vsmconst is not vconst due to estatic. need to implement something!')
+232 format(' smves:: avg es pot at rmt=',f9.6,'  avg sphere pot=',f9.6,'  vconst=',f9.6)
+!  if(mode==0)call rx(' vsmconst is not vconst due to estatic. need to implement something!')
   if(master_mpi) then
      open(newunit=ifivsmconst,file='vessm.'//trim(sname))
      write(ifivsmconst,"(d23.15)") vconst

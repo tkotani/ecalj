@@ -8,10 +8,9 @@
      .    , rhoex , rhoec , rhovxc , rvepsv , rvexv , rvecv , rvvxcv , 
      .    rveps , rvvxc , valvef , xcore , focexc , focex , focec , focvxc 
      .    , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , 
-     .     nlibu , lmaxu , vorb , lldau )
-      use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkaph,stdo,lxcf,lhh,nkapii,nkaphh
-      use m_lmfinit,only: n0,nppn,nab,nrmx,nkap0,nlmx,nbas, nsp, lso, ssite=>v_ssite,
-     &     sspec=>v_sspec,mxcst4
+     .     nlibu , lmaxu , vorb , lldau,novxc,idipole )
+      use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkaph,stdo,lxcf,lhh,nkapii,nkaphh,alat
+      use m_lmfinit,only: n0,nppn,nab,nrmx,nkap0,nlmx,nbas,nsp,lso,ssite=>v_ssite, sspec=>v_sspec,mxcst4
       use m_MPItk,only: master_mpi
       use m_struc_def  
       use m_uspecb,only:uspecb
@@ -165,16 +164,18 @@ C ... for core hole
       integer:: i , nglob , ipr , iprint , j1 , ib , is , lmxl 
      .     , lmxa , nr , lmxb , kmax , lfoc , nrml , nlml,ifivesint,ifi
       logical,save:: secondcall=.false.
-      logical :: phispinsym,cmdopt0,readov0,v0fix,v0write
+      logical :: phispinsym,cmdopt0,readov0,v0fix,v0write,novxc
+      integer::lsox
       character*20::strib
       character strn*120
       real(8):: ov0mean,pmean
+      integer:: idipole
       call tcn('locpot')
       ipr = iprint()
       pi = 4d0*datan(1d0)
       srfpi = dsqrt(4d0*pi)
       y0 = 1d0/srfpi
-      k = nrmx*nlmx*2
+      k = nrmx*nlmx*nsp
       allocate(wk(k),rhol1(k),rhol2(k),v1(k),v2(k),v1es(k),v2es(k))
       allocate(efg(5,nbas),zz(nbas))
       if (ipr .ge. 30) write(stdo,"(/' locpot:')")
@@ -278,7 +279,7 @@ C   --- Make potential and energy terms at this site ---
      .   , wk , valvs , cpnvs , rhexc , rhex , rhec , rhvxc , rvepvl , 
      .   rvexl , rvecl , rvvxvl , rveptl , rvvxtl , valvt , xcor , qloc 
      .   , qlocc , aloc , alocc , gpotb , fcexc , fcex , fcec , fcvxc 
-     .       , rhobg , efg ( 1 , ib ),ifivesint )
+     .       , rhobg , efg ( 1 , ib ),ifivesint) !,novxc )
 !! write density 1st(true) component and counter components.
         if(cmdopt0('--density').and.master_mpi.and.secondcall) then
            write(stdo,"(' TotalValenceChange diff in MT;  ib,\int(rho2-rho1)=',i5,f13.5)") ib,qloc
@@ -305,7 +306,7 @@ C   ... Write true potential to file vtrue.ib
 C   ... Update the potential used to define basis set
         if (lfltwf) then
           do i = 0, nsp-1
-            call dpscop ( v1 , ssite(ib)%rv_a_ov0 , nr , 1 + nr * nlml * i , 1 + nr * i , y0 )
+            call dpscop(v1, ssite(ib)%rv_a_ov0, nr, 1+nr*nlml*i, 1+nr*i, y0)
           enddo
         endif
 !! spin averaged oV0 to generate phi and phidot. takaoAug2019
@@ -429,14 +430,25 @@ C     ... Smooth Hankel tails for local orbitals
             ehl =  eh(:,nkaph) !call dcopy(n0,eh(1,nkaph),  1,ehl, 1)
           endif
 C     ... Use effective potentials with modified xc
-          if (mod(job,1000) >= 100) then
-            call dcopy(nrml*nsp,v1es,1,v1,1)
-            call dcopy(nrml*nsp,v2es,1,v2,1)
+          if (novxc) then 
+            v1=v1es !call dcopy(nrml*nsp,v1es,1,v1,1)
+            v2=v2es !call dcopy(nrml*nsp,v2es,1,v2,1)
           endif
+!!
+          lsox=lso
+          if(idipole/=0) then
+c             call adddipole(v1,rofi,nr,nlml,nsp,idipole,0d0)
+             call adddipole(v1,rofi,nr,nlml,nsp,idipole,ssite(ib)%pos(idipole)*alat)
+             call adddipole(v2,rofi,nr,nlml,nsp,idipole,ssite(ib)%pos(idipole)*alat)
+          endif
+          if(.not.novxc .and. cmdopt0('--socmatrix') ) then
+             lsox=1
+          endif   
+          
           if (ipr >= 20) write(stdo,467) y0*(gpot0(j1)-gpotb(1))
   467     format(' potential shift to crystal energy zero:',f12.6)
           call augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax , nlml
-     .           , a , nr , nsp , lso , rofi , rwgt , rv_a_ocg, iv_a_ojcg, iv_a_oidxcg
+     .           , a , nr , nsp , lsox , rofi , rwgt , rv_a_ocg, iv_a_ojcg, iv_a_oidxcg
      .           , ssite(ib)%rv_a_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , 
      .           lmxb , lhh(:,is) , eh , rsmh, ehl , rsml , rs3 , vmtz ,  lmaxu !lcplxp ,
      .         , vorb, lldau(ib), iblu, idu, sv_p_osig(1,ib) , sv_p_otau(1,ib),
@@ -455,12 +467,25 @@ C     Electric field gradient
       call tcx('locpot')
       end subroutine locpot
 
-
+!!---------------------
+      subroutine adddipole(v,rofi,nr,nlml,nsp, idipole, basr)
+!! v=v+x (or y or z). to calculate dipole matrix of Hamiltonian      
+      integer:: nr,nlml,nsp,idipole,isp,nrmx
+      real(8):: v(nr,nlml,nsp),rofi(nr),basr
+      real(8),parameter:: pi=4d0*datan(1d0), srfpi = dsqrt(4d0*pi),srfpi3 = dsqrt(4d0*pi/3d0)
+      do isp=1,nsp
+        v(1:nr,1,isp) = v(1:nr,1,isp) + basr * srfpi
+        if(idipole==1) v(1:nr,4,isp) = v(1:nr,4,isp)+rofi(1:nr)* srfpi3 !x
+        if(idipole==2) v(1:nr,2,isp) = v(1:nr,2,isp)+rofi(1:nr)* srfpi3 !y
+        if(idipole==3) v(1:nr,3,isp) = v(1:nr,3,isp)+rofi(1:nr)* srfpi3 !z
+      enddo
+      end
+      
       subroutine locpt2(job,z,rmt,rg,a,nr,nsp,cofg,cofh,ceh,rfoc,lfoc,
      .nlml,qmom,vval,rofi,rwgt,rho1,rho2,rhoc,rhol1,rhol2,v1,v2,v1es,
      .v2es,wk,vvesat,cpnves,rhoexc,rhoex,rhoec,rhovxc,rvepsv,
      .rvexv,rvecv,rvvxcv,rveps,rvvxc,valvef,xcore,qloc,
-     .qlocc,aloc,alocc,gpotb,focexc,focex,focec,focvxc,rhobg,efg,ifivesint)
+     .qlocc,aloc,alocc,gpotb,focexc,focex,focec,focvxc,rhobg,efg,ifivesint)!,novxc)
       use m_lmfinit,only: lxcf,nlmx,nrmx
       use m_ftox
 C- Makes the potential at one site, and associated energy terms.
@@ -613,6 +638,7 @@ C ... Passed parameters
       logical:: debug=.false.
       real(8):: ves1int,ves2int
       integer:: ifivesint
+c      logical:: novxc
       call tcn('locpt2')
       stdo = lgunit(1)
       ipr = iprint()
@@ -720,25 +746,36 @@ C ... Sphere charges; also check sphere neutrality for safety
       qloc  = qv1-qv2
       aloc  = a1-a2
       if (nsp .eq. 1) aloc = 0
-      if (dabs(sum1-sum2) .gt. 1d-6)
-     .call rx1('locpt2: sphere not neutral: charge = %d',sum1-sum2)
+      if (dabs(sum1-sum2)>1d-6)call rx1('locpt2: sphere not neutral: charge = %d',sum1-sum2)
+      
+c      if(.not.novxc) then
 C --- Solve Poisson equation for the true and smooth densities ---
 C     call dpzero(vval, nlml)
 C     v1 = Ves[rho1]: true ES pot without nuclear contribution
-      if(debug) print *,'locpt2: 4444'
-      call poinsp(z,vval,nlml,a,b,v1,rofi,rhol1,wk,nr,rvs1,rhves1,
-     .vnucl,vsum)
-      if (nlml.ge.9.and.z.gt.0.01) then
-        do ilm=5,9
-          efg(ilm-4)=v1(5,ilm,1)/rofi(5)**2
-        enddo
-      else
-        do ilm=1,5
-          efg(ilm)=0.d0
-        enddo
-      endif
+         if(debug) print *,'locpt2: 4444'
+         call poinsp(z,vval,nlml,a,b,v1,rofi,rhol1,wk,nr,rvs1,rhves1,  vnucl,vsum)
+         if (nlml.ge.9.and.z.gt.0.01) then
+            do ilm=5,9
+               efg(ilm-4)=v1(5,ilm,1)/rofi(5)**2
+            enddo
+         else
+            do ilm=1,5
+               efg(ilm)=0.d0
+            enddo
+         endif
 C     v2 = Ves[rhol2 = rho2+gval+gcor+gnuc] ---
-      call poinsp(0d0,vval,nlml,a,b,v2,rofi,rhol2,wk,nr,rvs2,rhves2, vnucl,vsum)
+         call poinsp(0d0,vval,nlml,a,b,v2,rofi,rhol2,wk,nr,rvs2,rhves2, vnucl,vsum)
+c      else
+c         v1=0d0
+c         v2=0d0
+c         rvs1=0d0
+c         rvs2=0d0
+c         rhves1=0d0
+c         rhves2=0d0
+c         vnucl=0d0
+c         vsum=0d0
+c      endif
+      
 C --- gpotb = integrals of compensating gaussians times smooth ves ---
       if(debug) print *,'locpt2: 5555'
       sgpotb = 0d0
@@ -1012,11 +1049,7 @@ C      if (iprint() .lt. 30) return
         write(ifi,'("      ",5x,"           ",5x," x10^13 ",2x,
      .  "  x10^19 ",4x,"   ",4x,"    (mm/s)")')
       enddo
-ccccccccccccccccccccccccccccccc      
-c       do  ic = 1, nc
-c         write(ifi,"('eeeefg ic z=',i3,f9.4,5f13.4)") ic,z(ic),efg1(1:5,ic)
-c       enddo
-ccccccccccccccccccccccccccccc        
+
       do  ic = 1, nc
 c      write(ifi,*) ' ic,z=',ic,z(ic)
         if (z(ic) .gt. 0.01d0) then
@@ -1058,12 +1091,7 @@ C      ex=efg1(5,ic)+efg2(5,ic)
             enddo
             tr(i,i) = 1d0
           enddo
-cccccccccccccccccccccc
-c          do  i = 1, 3
-c          write(ifi,"('eeeefg vvvvvvvvvvv' i4,3x,3f6.3)")  ic,(v(j,i),j=1,3)
-c          enddo
-cccccccccccccccccccc
-          
+
           n = 3
           call htridi(n,n,v,vi,d,e,e2,tau)
           call imtql2(n,n,d,e,tr,ier)

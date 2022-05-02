@@ -1,15 +1,14 @@
       module m_sugw
       private
       public:: m_sugw_init
-      
       contains
-      subroutine m_sugw_init () 
+      subroutine m_sugw_init (dipolematrix,socmatrix) 
       use m_ext,only:   sname
       use m_struc_def,only: s_rv1, s_spec, s_site 
       use m_suham,only: ndham=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
       use m_lmfinit, only: 
      &     ham_pwmode,pwemin,pwemax,ham_oveps,lrsig=>ham_lsig,stdl,ham_ldham,iprmb,
-     &     ham_scaledsigma,lat_alat,mxorb,nkaph,nsp,nspc,nl,mxorb,ssite=>v_ssite,sspec=>v_sspec,nbas,n0,nppn,nkap0 !lcplxp,
+     &     ham_scaledsigma,lat_alat,mxorb,nkaph,nsp,nspc,nl,mxorb,ssite=>v_ssite,sspec=>v_sspec,nbas,n0,nppn,nkap0
       use m_lattic,only: lat_plat, lat_qlat
       use m_supot,only: lat_nabc, lat_gmax
       use m_rdsigm2,only: getsenex, senex,dsene
@@ -17,9 +16,8 @@
 c      use m_shortn3,only: shortn3_initialize,shortn3
       use m_mkpot,only: 
      &     smpot=>osmpot, sv_p_osig, sv_p_otau, sv_p_oppi, vconst, vesrmt,
-     &     sv_p_osig, sv_p_otau, sv_p_oppi,ohsozz,ohsopm,
-     &     ppn=>ppnl_rv
-      use m_mkpot,only: sv_p_oppix,spotx !sv_p_osigx,sv_p_otaux: these are the same as sv_p_osig, sv_p_otau
+     &     sv_p_osig, sv_p_otau, sv_p_oppi, ohsozz,ohsopm, ppn=>ppnl_rv, 
+     &     sv_p_oppix,spotx, spotxd, sv_p_oppixd
       use m_MPItk,only: numproc=>nsize,procid,master,master_mpi
       use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_setiq,ndimhall
       use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
@@ -97,7 +95,7 @@ c      use m_shortn3,only: shortn3_initialize,shortn3
       real(8) ,allocatable:: wk(:,:),
      .bas(:,:),rofi(:),rwgt(:),gcore(:,:,:),gval(:,:,:,:,:),evl(:,:),vxclda(:)
       real(8),allocatable::  cphin(:,:,:) !!ovv(:,:),evl_p(:,:), qq1(:,:),qq2(:,:),
-      complex(8),allocatable:: ham(:,:),ovl(:,:),evec(:,:),vxc(:,:),
+      complex(8),allocatable:: ham(:,:),ovl(:,:),evec(:,:),vxc(:,:),dipo(:,:,:),
      .ppovl(:,:),phovl(:,:),pwh(:,:),pwz(:,:),pzovl(:,:),
      .testc(:,:),testcd(:),ppovld(:),cphi(:,:,:),cphi_p(:,:,:),
      .geig(:,:,:),geig_p(:,:,:),sene(:,:)
@@ -150,6 +148,8 @@ c      integer,allocatable:: igv2(:,:)
       integer:: lpdiag=0,stdo,nrmx,ncoremx!,ndham
       character spid*8
       character*8 xt
+      logical,optional:: dipolematrix,socmatrix
+      integer:: ispSS,ispEE
 #if MPI | MPIK
       include "mpif.h"
 #endif
@@ -332,7 +332,7 @@ c      integer,allocatable:: igv2(:,:)
 !      See npwpad in suham.F I think npwpad=0 if essentially ok. but current version cause inconsistency.
       if(master_mpi) then
          open(newunit=ifigwbhead,file='gwb.head',form='unformatted')
-         write(ifigwbhead) nat,nsp,ndima,ndham, maxval(lmxa(1:nat)),ncoremx/nsp,nrmx,plat,alat,nqirr
+         write(ifigwbhead) nat,nsp,ndima,ndham, maxval(lmxa(1:nat)),ncoremx/nsp,nrmx,plat,alat,nqirr,nqibz
          write(ifigwbhead) bas,lmxa,qplist,ngplist,ndimhall
          close(ifigwbhead)
       endif
@@ -350,40 +350,56 @@ c      integer,allocatable:: igv2(:,:)
 !! == Main loop for eigenfunction generation ==
       if(ham_scaledsigma/=1d0.and.sigmamode) write(stdo,*)' Scaled Sigma method: ScaledSigma=',ham_scaledsigma
       do 1001 iq = iqini,iqend ! iqini:iqend for this procid 
+        if (dipolematrix.and.iq>nqbz) exit
         qp  = qplist(:,iq)     !  ... For this qp, G vectors for PW basis and hamiltonian dimension
         ngp = ngplist(iq)
         lwvxc = lsig>0 .and. iq<=iqibzmax
         if (cmdopt0('--novxc')) lwvxc = .false.
+        if (dipolematrix) lwvxc = .true.
         call m_Igv2x_setiq(iq)! (qp)    ! Set napw ndimh ndimhx and igv2x
-        allocate(ham(ndimh,ndimh),ovl(ndimh,ndimh),evec(ndimh,ndimh))
-        allocate(vxc(ndimh,ndimh))
+        allocate(ham(ndimh,ndimh),ovl(ndimh,ndimh),evec(ndimh,ndimh), vxc(ndimh,ndimh))
         allocate(cphi(ndima,ndimh,nsp),cphin(2,ndimh,nsp))
-        do 1002 isp = 1, nsp
-ccccccccccccccc
-           if(iq==iqini.and.ispini==2.and.isp==1) cycle
-           if(iq==iqend.and.ispend==1.and.isp==2) cycle
-ccccccccccccccc           
+        if(dipolematrix) allocate(dipo(ndimh,ndimh,3))
+        ispSS=1
+        ispEE=nsp
+        if(iq==iqini.and.ispini==2) ispSS=2
+        if(iq==iqend.and.ispend==1) ispEE=1
+        if(lso==1) then
+           call rx('sugw: lso==1 is not yet implemented')
+        elseif(lso/=0.or.dipolematrix) then
+           allocate(hammhso(ndimh,ndimh,3))
+           call aughsoc(qp, ohsozz,ohsopm, ndimh, hammhso)
+        endif
+        do 1002 isp = ispSS,ispEE
           open(newunit=ifigwb,file='gwb'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
           if(lwvxc) then !lsig>0 .and. (.not.cmdopt0('--novxc'))) then
-             nnn=nqibz          ! rotwv mode. on regular mesh, only eigenfunctions for nqibz are required.
-             open(newunit=ifievec,file='evec'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
-             open(newunit=ifiv,    file='vxc'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
-             write(ifievec) ndimh, nsp,nnn,ndham,ldim
-             write(ifiv)    ndimh, nsp,nnn,ndham,ldim
+             open(newunit=ifievec,   file='evec'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
+             open(newunit=ifiv,      file='vxc'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
+             write(ifievec) ndimh, ldim
+             write(ifiv)    ndimh, ldim
           endif
-          lso=0
-          if(lso==1) call rx('sugw:lso=1 is not yet')
-          if(lso/=0.and.(.not.allocated(hammhso))) then !aug2021 Hso matrix
-             allocate(hammhso(ndimh,ndimh,3))
-             call aughsoc(qp, sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm, ndimh, hammhso)
-          endif
+          if(dipolematrix)then  !From spotd,and ppixd, dipo(=x,y,z)=<F_i|x,y,x|F_j>
+            write(stdo,'("dipole matrix calculated")')    
+            call hambl(isp,qp,spotxd(:,:,:,:,1),vconst,sv_p_osig,sv_p_otau,sv_p_oppixd(:,:,1),dipo(:,:,1),ovl)
+            call hambl(isp,qp,spotxd(:,:,:,:,2),vconst,sv_p_osig,sv_p_otau,sv_p_oppixd(:,:,2),dipo(:,:,2),ovl)
+            call hambl(isp,qp,spotxd(:,:,:,:,3),vconst,sv_p_osig,sv_p_otau,sv_p_oppixd(:,:,3),dipo(:,:,3),ovl)
+          endif   
 !! LDA Hamiltonian and overlap matrices for this qp ---
-          qp  = qplist(:,iq) ! ... For this qp, G vectors for PW basis and hamiltonian dimension
-          call hambl(isp,qp,spotx,vconst,sv_p_osig, sv_p_otau,sv_p_oppix, vxc,ovl)!H(LDA) wihout vxc
-          call hambl(isp,qp,smpot,vconst,sv_p_osig, sv_p_otau, sv_p_oppi, ham,ovl)!H(LDA) and O
-          if(lso==2) ham(:,:) = ham(:,:) + hammhso(:,:,isp) !aug2021
+          call hambl(isp,qp,spotx,vconst,sv_p_osig, sv_p_otau,sv_p_oppix, vxc,ovl)!vxc=<F_i|vxc(LDA)|F_j>
+          call hambl(isp,qp,smpot,vconst,sv_p_osig, sv_p_otau, sv_p_oppi, ham,ovl)!ham=<F_i|H(LDA)|F_j> and ovl=<F_i|F_j>
+          if(lso==2) ham(:,:) = ham(:,:) + hammhso(:,:,isp) !diagonal part of SOC matrix added for Lz.Sz mode.
+c!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+c          qp  = qplist(:,iq)-[1d-6,2d-6,3d-6] !A trick to shift qp to avoid ambiguity of degeneracy
+c!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+          if(dipolematrix) then 
+             dipo(:,:,1)= dipo(:,:,1)-vxc ! dipo(i,j,1) = <Fi|x|Fj>
+             dipo(:,:,2)= dipo(:,:,2)-vxc ! dipo(i,j,2) = <Fi|y|Fj>
+             dipo(:,:,3)= dipo(:,:,3)-vxc ! dipo(i,j,3) = <Fi|z|Fj>
+          endif   
           vxc = ham - vxc ! vxc(LDA) part 
           if (lwvxc) write(ifiv) vxc
+          if (dipolematrix) write(ifiv) dipo,ovl
+          if (socmatrix.and.isp==1) write(ifiv) hammhso
 !! LDA + sigma Hamiltonian for this qp ---
           if(sigmamode) then ! See m_bandcal.F
              call getsenex(qp, isp, ndimh,ovl)
@@ -620,17 +636,13 @@ c          write(ifigw1) vxclda(1:ndimh)
           endif
  1002  continue             ! Loop over spins
        if(allocated(hammhso)) deallocate(hammhso)
-       deallocate(ham,ovl,evec,vxc,cphi,cphin)!,igv2)
+       if(allocated(dipo)) deallocate(dipo)
+       deallocate(ham,ovl,evec,vxc,cphi,cphin)
  1001 continue ! ===== Loop over qp ===============================
       deallocate(evl)
       close(ifiqg)
-c      close(ifigw1)
-c      close(ifigw2)
-c      if ((.not. cmdopt0('--novxc')).and. lsig>0) then
-c      endif
       call tcx('m_sugw_init')
       end subroutine m_sugw_init
-
 c$$$      subroutine ioaindx(npqn,lmxax,nbas,ndima,nlindx)
 c$$$C-  read NlAindx
 c$$$C ----------------------------------------------------------------------
@@ -659,5 +671,4 @@ c$$$       enddo
 c$$$ 101   continue
 c$$$      close(ifi)
 c$$$      end subroutine ioaindx
-
       end module 

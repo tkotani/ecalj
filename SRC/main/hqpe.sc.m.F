@@ -266,9 +266,9 @@ c          ifvxc_  = ifvxc__ (iprocq(iqq,is))
 c          ifevec_ = ifevec__(iprocq(iqq,is)) 
           open(newunit=ifvxc_,    file='vxc'//trim(xt(iq))//trim(xt(is)),form='unformatted')
           open(newunit=ifevec_,  file='evec'//trim(xt(iq))//trim(xt(is)),form='unformatted')
-          read(ifvxc_ ) ndimh, nsp,nnn ,nnnx,nmto
+          read(ifvxc_ ) ndimh, nmto !nsp,nnn ,nnnx,nmto
           nz=ndimh
-          read(ifevec_) ndimhx, nspx,nnnx
+          read(ifevec_) !ndimhx , nspx,nnnx
 c          read(ifvxc_) nz,nmto    ! june209 takao nhqx is true dimension which is dependent on q. 
                                   ! nmto(not iq,is is dependent) is MTO dimension.!2012sep
           write(6,*) ' reading v_xc ... iq is nz=',iq,is,nz

@@ -1,0 +1,87 @@
+#!/bin/bash -eu
+# -------------------------------------------------------------------------
+# generate MLWF.
+# NOTE: Wannier is generated before wanplot (wanplot is only to make *.xsf file for plot).
+#       After wanplot, we goto calculate <wan wan |W |wan wan>
+# For cray, set machine="cray"
+#--------------------------------------------------------------------------
+### all input arguments are processed ###
+if [ $# -ne 3 ] || [ $2 != "-np" ] ; then
+    echo "An example of usage: genMLWF cu -np 4"
+    echo "Do job_band_* in advance to genMLWF to get superposition of Wannier band plot!"
+    exit 101
+fi
+nfpgw=`dirname $0`
+MATERIAL=$1
+MPI_SIZE=$3
+NO_MPI=0
+### end of processing input arguments ###
+if [ ! -e bnds.$1 ];then 
+    echo "!!! Perform job_band in advance!" 
+    exit
+fi
+
+######## start here ##########
+echo "### START genMLWF: MPI size= " $MPI_SIZE, "MATERIAL= "$MATERIAL
+rm -f SYML BNDS
+ln -s syml.${MATERIAL} SYML
+ln -s bnds.${MATERIAL} BNDS
+## Make softlink from sigm --> simg.$MATERIAL.
+## If sigm and sigm.$MATERIAL coexist, sigm.$MATERIAL is moved to sigm.$MATERIAL.backup in advance.
+if [ -e sigm ]; then 
+    if [ -e sigm.$MATERIAL ]; then
+	mv sigm.$MATERIAL sigm.$MATERIAL.bakup 
+  	ln -s -f sigm sigm.$MATERIAL 
+  	echo '--- sigm is used. sigm.$MATERIAL is softlink to it  ---'
+    fi
+else
+    echo '--- Neither sigm nor sigm.$MATERIAL exists. ==> LDA '
+fi 
+
+######## lmf part #########################################
+set -x
+$nfpgw/lmfa  $MATERIAL >& llmfa 
+mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK  $MATERIAL >& llmf_start
+rm -f ewindow.${MATERIAL}* qbyl.${MATERIAL}* eigze*.${MATERIAL}* # remove temporaly files.
+$nfpgw/lmfgw-MPIK --job=0 $MATERIAL >& llmfgw00 
+$nfpgw/qg4gw  --job=1 >&   lqg4gw  
+mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK --job=1 $MATERIAL >& llmfgw01 
+$nfpgw/lmf2gw  >&   llmf2gw 
+##### GW related part (up to preparation of MPB) ###########
+$nfpgw/rdata4gw_v2 --job=0 >& lrdata4gw_v2 # Prepare all files for GW
+$nfpgw/heftet --job=1 >& leftet # A file EFERMI for hx0fp0 generated
+$nfpgw/hbasfp0 --job=0 >& lbas   # Product basis generation mode=4
+echo 1| $nfpgw/hmaxloc >& lmaxloc1     # b-vector BBVEC
+echo 1| mpirun -np $MPI_SIZE $nfpgw/hpsig_MPI >& lpsig_MPI # PSIG* =<Psi|Gaussian>.
+# Gather all PSIG* into a file. (U meand UP isp=1, D means Down spin isp=2)
+set +x
+cat PSIGU.* >PSIGU
+rm -f PSIGU.*
+if [ -e PSIGD.0000 ]; then 
+    cat PSIGD.* >PSIGD
+    rm -f PSIGD.*
+fi
+set -x
+echo 2|mpirun -np $MPI_SIZE $nfpgw/huumat_MPI >& luumat2
+# UU (UUmatrix <u_k,i|u_k+b,j>) matrix are caltulated.
+# Gather all UU*.* into a file UUU/UUD.
+set +x
+cat UUU.* >UUU
+rm -f UUU.*
+if [ -e UUD.0000 ]; then 
+    cat UUD.* >UUD
+    rm -f UUD.*
+fi
+
+set -x
+# -- Main part of Wannier (Both of Souza's and Marzari's and procedures sucessively).
+echo 2| $nfpgw/hmaxloc >& lmaxloc2  #(band plot data are generated.)
+#run_arg '---' $NO_MPI $nfpgw  /wanplot lwanplot 
+#$nfpgw/wanplot >& lwanplot
+
+
+$nfpgw/qg4gw  --job=1 --allqbz >&   lqg4gwdipole  
+mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK --job=1 --dipolematrix --socmatrix $MATERIAL >& llmfgw01dipole
+$nfpgw/hdipole >& ldipole
+exit
+

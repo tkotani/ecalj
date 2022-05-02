@@ -19,7 +19,7 @@ tags  = ..
 progslm = lmf-MPIK lmfa lmchk 
 progsgw = hbasfp0 hvccfp0 hx0fp0 hsfp0 hqpe qg4gw gwinit heftet rdata4gw_v2 hx0fp0_sc hsfp0_sc hqpe_sc hmagnon \
 hx0init hhilbert hrcxq hx0zmel
-progsw  = hmaxloc huumat_MPI hpsig_MPI wanplot hwmatK_MPI 
+progsw  = hmaxloc huumat_MPI hpsig_MPI wanplot hwmatK_MPI hdipole
 
 # targets generaged by make prog2
 progslm2 = lmfham mkhamloc plotmodel initmlo mkinput
@@ -27,7 +27,7 @@ progsgw2 = hef hqpe_qsgw convgwin kino_input_test hecor eout eout2 hhomogas
 progsw2  = huumat hpsig htbplot
 
 
-script  = cleargw* dqpu eps* gw_* gwg* gws* gwp*  mkG* chipm_mat genMLWF genMLWF_vw genMLWF2 genMLWFmod RPAWannier* FLEX_interaction.py
+script  = cleargw* dqpu eps* gw_* gwg* gws* gwp*  mkG* chipm_mat genMLWF genMLWF_vw genMLWF2 genMLWFmod RPAWannier* FLEX_interaction.py genMLWFdipole
 
 all: mkobj progs tags
 
@@ -305,6 +305,9 @@ wanplot : $(obj_path)/wanplot.o ${MLOC} ${GWLIB} $(MPI)  $(ELIB) $(GWLIB)
 htbplot :  $(obj_path)/htbplot.o
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $< $(LKFLAGS2) -o $@
+hdipole : $(obj_path)/hdipole.o ${MLOC} ${GWLIB} $(MPI)  $(ELIB) $(GWLIB)
+	@echo $(LK) $@.o 'link with *.o'
+	@$(LK) $(LKFLAGS1) $< $(MLOC) $(MPI)  $(ELIB) $(GWLIB) $(LKFLAGS2)  -o $@ 
 #----------------------------
 tags: $(progs)
 	@echo '--- TAGS for emacs is generated as SRC/TAGS ---'
