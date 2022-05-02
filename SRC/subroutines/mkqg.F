@@ -384,7 +384,7 @@ c$$$  endif
       wt0=1d0
 !! Set irreducible k-point flag. irr=1 for (irredusible point) flag, otherwise =0. 
 !! irr(iq)=1 for irreducile qq(:,iq), iq=1,nqnum
-      call q0irre(qibz,nqibz,qq,wt0,nqnum,symops,ngrp, qi,nqi,wti,plat,.true.,0,irr)
+      call q0irre(qibz,nqibz,qq,wt0,nqnum,symops,ngrp, qi,nqi,wti,plat,.true.,0,irr,nqbz)
 !! nqnum is the finally obtained number of q points.
       allocate(ngpn(nqnum), ngcn(nqnum))
       if(debug) write(6,*) ' --- q vector in 1st BZ + Q0P shift. ngp ---'

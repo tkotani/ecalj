@@ -100,7 +100,6 @@ hsmq.o \
 iax2fd.o \
 iclbas.o \
 intnos.o \
-ioeula.o \
 iofa.o \
 ioorbp.o \
 iorbtm.o \
@@ -168,22 +167,17 @@ shoist.o \
 shorbz.o \
 shorps.o \
 shortn.o \
-shoshl.o \
 siteid.o \
 slinz.o \
-slist.o \
 soprm.o \
 splcls.o \
 splwts.o \
 strx00.o \
 subzi.o \
-suclst.o \
 sugcut.o \
 suham.o \
 suldau.o \
-sumlst.o \
 sumsro.o \
-suqlst.o \
 sylm.o \
 sylmnc.o \
 symdmu.o \
@@ -191,7 +185,6 @@ symfor.o \
 symprj.o \
 symq.o \
 symstr.o \
-symtbl.o \
 tailsm.o \
 tetirr.o \
 uspecb.o \
@@ -217,7 +210,6 @@ m_ext.o\
 fsubs.o \
 a2bin.o \
 a2bina.o \
-a2rotm.o \
 a2vec.o \
 amix.o \
 awrite.o \
@@ -301,8 +293,6 @@ mpibc.o \
 mxint.o \
 nintsp.o \
 nxtgrp.o \
-pars1v.o \
-parsvc.o \
 platsl.o \
 pmblk.o \
 poldvm.o \
@@ -314,7 +304,6 @@ pythag.o \
 ran1.o \
 rdfiln.o \
 rdm.o \
-rdtok.o \
 rfalsi.o \
 ropylg.o \
 setfac.o \
@@ -380,7 +369,6 @@ hsmbl.o \
 hxpbl.o \
 hxpgbl.o \
 hxpos.o \
-ioden.o \
 jxpos.o \
 lgstar.o \
 lindsc.o \

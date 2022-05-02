@@ -1,11 +1,9 @@
       subroutine lmfp(llmfgw,irs1x)
       use m_lmfinit,only: irs2,lhf, irs1x10, 
-     &     ctrl_mdprm,ctrl_maxit,nbas,nsp,
-     &     ctrl_ldos,ctrl_nitmv,ctrl_nvario,ctrl_tol,
-     &     ham_seref,ctrl_lfrce,  
-     &     sspec=>v_sspec, ssite=>v_ssite, 
-     &     nlibu,stdo,lrout,leks,plbnd,lpzex, nitrlx
-     &     , indrx_iv,natrlx,xyzfrz,pdim
+     &     ctrl_mdprm,maxit,nbas,nsp, ctrl_ldos,ctrl_nitmv,ctrl_nvario,
+     &     ham_seref,ctrl_lfrce,  sspec=>v_sspec, ssite=>v_ssite, 
+     &     nlibu,stdo,lrout,leks,plbnd,lpzex, nitrlx,
+     &     indrx_iv,natrlx,xyzfrz,pdim,qtol,etol
       use m_lattic,only: qlat=>lat_qlat,rv_a_opos
       use m_chkdmu,only:  eorb
       use m_bandcal,only: dmatu
@@ -46,10 +44,10 @@
       integer :: i,ifi,ipr,irs1x, k, nit1,numq, lsc
       integer :: icom,  nvrelx , itrlx, irlxsh=0 
       
-      integer:: ibas,unlink,ifipos,ifile_handle, maxit,iter,j,idmatu,iprint
+      integer:: ibas,unlink,ifipos,ifile_handle,iter,j,idmatu,iprint
       real(8) :: gam(4),gam1,bstim,pletot(6,2)
       real(8) :: plat(3,3),xvcart(3),xvfrac(3)
-      real(8):: seref,etot(2),qtol,etol
+      real(8):: seref,etot(2)
       real(8), allocatable :: pos_move(:,:),  ftot_rv(:), wk_rv(:), p_rv(:),hess(:,:)
       real(8), allocatable :: rv_a_omad (:) !  Madelung matrix if necessary
       integer,parameter:: nm=3
@@ -63,14 +61,8 @@
 !! Sep2020 comment " Shorten site positions" removed. (we are using shortn3 mainly now)
       call tcn('lmfp')
       ipr = iprint() !call getpr(ipr) !ipr is pring verbose control
-!!  tolerances for convergence check. q charge and e energy
-      qtol = ctrl_tol(1)
-      etol = ctrl_tol(3)
-      etot(1) = 0 ! Total energy mode --etot ==>moved to m_lmfinit ---
-      maxit = ctrl_maxit
-      if(lrout == 0 ) maxit = 1
-!! Atomic position Relaxation setup (MD mode)
-      if( nitrlx>0 ) then 
+      etot = 0d0 ! Total energy mode --etot ==>moved to m_lmfinit ---
+      if( nitrlx>0 ) then ! Atomic position Relaxation setup (MD mode)
         icom = 0
         if(natrlx /= 0) allocate(hess(natrlx,natrlx),p_rv(pdim))
         if(master_mpi) then
@@ -78,9 +70,9 @@
            write(ifipos) nbas
            write(ifipos) 0,rv_a_opos
         endif   
+        allocate(pos_move(3,nbas))
       endif
 !! === Main iteration loops ===
-      if( nitrlx>=1 ) allocate(pos_move(3,nbas))
       do 2000 itrlx = 1,max(1,nitrlx) ! loop for atomic position relaxiation (molecular dynamics) ===
 !! Get all structure constants for nbas and qplist
          if(sum(lpzex)==0) call m_bstrux_init() !this reads ssite%pos %pz and so on.

@@ -37,7 +37,7 @@ Ci          functions are less than tol.
       logical,protected :: ham_frzwf,ham_ewald
       integer,protected:: nspc,stdo,stdl,procid,nproc,master=0,nspx,
      &     ctrl_lxcf,ctrl_nbas,ctrl_lfp,ctrl_lrel,!ctrl_lves, 
-     &     ctrl_maxit ,ctrl_modep(3),ctrl_nl,ctrl_nesabc(3),ctrl_nitmv,ctrl_nspin,
+     &     maxit ,ctrl_modep(3),ctrl_nl,ctrl_nitmv,ctrl_nspin,
      &     ctrl_nspec,ctrl_nsite,ctrl_nvario,ctrl_pfloat
      &     ,ham_lxcf,gga,ftmesh(3),nmto=0,lrsigx=0
      &     ,nsp=1,lrel=1,lso=0
@@ -48,11 +48,11 @@ Ci          functions are less than tol.
      &     ,ham_elind,ham_oveps,ham_scaledsigma
 c     &     ,ham_delta_stabilize 
 !! ... OPTIONS
-      integer,protected :: ctrl_smalit(2),smalit(2),nesabc(3), lstonr(3)=0,nl,lpfloat
+      integer,protected :: ctrl_smalit(2),smalit(2), lstonr(3)=0,nl,lpfloat
       real(8),protected:: rmines,rmaxes
       logical,protected :: lhf,lcd4
 !! ... STRUC 
-      real(8),protected:: lat_slat(3,3),dlat,alat=NULLR,dalat,vol,avw
+      real(8),protected:: lat_slat(3,3),dlat,alat=NULLR,dalat=NULLR,vol,avw
       integer,protected:: nbas=NULLI,nsite=NULLI,nspec 
 !! ... SPEC
       real(8),protected:: omax1(3),omax2(3),wsrmax,sclwsr
@@ -92,7 +92,7 @@ c     &     ,ham_delta_stabilize
       integer,protected:: str_mxnbr 
 !! ... Iteration, MIX
       character(128),protected :: iter_mix=' ' 
-      real(8),protected:: ctrl_tol(3)=1d-4
+      real(8),protected:: etol,qtol !ctrl_tol(3)=1d-4
       integer,protected:: iter_maxit=1
       integer,protected:: mix_kill,mix_lxpot,mix_mmix,mix_mode,mix_nmix,mix_nsave !mix_nitu,
       real(8),protected:: mix_b,mix_bv,mix_elind,mix_tolu,mix_umix,mix_w(3),mix_wc
@@ -326,8 +326,7 @@ c      logical:: ltet
       call gtv_setio(debug,io_show,io_help) ! In case io_help changed
 !! CONST --- for backword compatibility. We will remove this.
       call numsyv(nvario)
-      nm='CONST'; call gtv(trim(nm),tksw(prgnam,nm), bigstr, note=
-     .     'Constants may declared for use in expressions'//
+      nm='CONST'; call gtv(trim(nm),tksw(prgnam,nm), bigstr, note='Constants may declared for use in expressions'//
      .     '%N   Variables may also be set from the command-line:  -vnam=#',nout=nout)
       if (nout .eq. 1) then
          i = 0
@@ -335,8 +334,7 @@ c      logical:: ltet
          if (io_show .ne. 0) call shosyv(0,0,0,stdo)
       endif
 !! Header ---
-      nm='HEADER'; call gtv(trim(nm),tksw(prgnam,nm),header,note=
-     .     'Contents displayed at beginning of program execution',nout=nout)
+      nm='HEADER'; call gtv(trim(nm),tksw(prgnam,nm),header,note='Contents displayed at beginning of program execution',nout=nout)
       if (nout .gt. 0) then
          outs  = 'HEADER '//trim(header)
          if (procid .eq. master) then
@@ -354,11 +352,9 @@ c      logical:: ltet
       if(cmdopt2('-pr',outs))  read(outs,*) verbos 
       i0=setprint0(verbos) !initial verbose set
       if(.not.master_mpi) i0=setprint0(-100) !iprint() is negative except master
-      nm='IO_TIM'; call gtv(trim(nm),tksw(prgnam,nm),io_tim,
-     .     note='Turns CPU timing log.  Value sets tree depth.'//
+      nm='IO_TIM'; call gtv(trim(nm),tksw(prgnam,nm),io_tim,note='Turns CPU timing log.  Value sets tree depth.'//
      .     '%N   Optional 2nd arg prints CPU times as routines execute.'//
-     .     '%N   Args may be set through command-line: --time=#1[,#2]',
-     .     def_i4v=(/1,1/),nmin=1,nout=i0)
+     .     '%N   Args may be set through command-line: --time=#1[,#2]', def_i4v=(/1,1/),nmin=1,nout=i0)
       if(i0==1) io_tim(2)=io_tim(1)
       if (cmdopt2('--time=',outs) ) then!!  Override with '--time=' commmand-line arg
          i0=1
@@ -384,15 +380,13 @@ c      logical:: ltet
       endif
       if (nbas .eq. NULLI) then
          nm='STRUC_NBAS'; call gtv(trim(nm),tksw(prgnam,nm),nbas,note='Size of basis')
-         nm='STRUC_PLAT'; call gtv(trim(nm),tksw(prgnam,nm),temp33,nmin=9,nout=nout,note=
-     .        'Primitive lattice vectors, in units of alat')
+         nm='STRUC_PLAT'; call gtv(trim(nm),tksw(prgnam,nm),temp33,nmin=9,nout=nout,note='Primitive lattice vectors (alat unit)')
          plat(1:3,1)=temp33(1:3)
          plat(1:3,2)=temp33(4:6)
          plat(1:3,3)=temp33(7:9)
       endif
       avw = avwsr(plat,alat,vol,nbas)
-      nm='STRUC_NSPEC'; call gtv(trim(nm),tksw(prgnam,nm),nspec,
-     .     note='Number of species to read from SPEC category.'//
+      nm='STRUC_NSPEC'; call gtv(trim(nm),tksw(prgnam,nm),nspec,note='Number of species to read from SPEC category.'//
      .     '%N%3fIf not present, NSPEC will be obtained by counting entries in the SPEC category' )
       if (io_help == 0 .and. nspec .eq. NULLI) then
          nm='SPEC_ATOM'; sw = tksw(prgnam,nm)
@@ -413,7 +407,8 @@ c      logical:: ltet
       lat_slat(1:3,1)=temp33(1:3)
       lat_slat(1:3,2)=temp33(4:6)
       lat_slat(1:3,3)=temp33(7:9)
-      nm='STRUC_DALAT'; call gtv(trim(nm),tksw(prgnam,nm),dalat,def_r8=0d0,note='added to alat after input is read')
+      nm='STRUC_DALAT'; call gtv(trim(nm),tksw(prgnam,nm),dalat,def_r8=0d0,
+     &     note='added to alat after reading inputs (only affecting to R/A)')
 !     STRUC_NL here removed, Lattice distortion or rotatation here removed.  
    59 continue
 !! Options ---
@@ -422,8 +417,6 @@ c      logical:: ltet
       nm='OPTIONS_HF'; call gtv(trim(nm),tksw(prgnam,nm),lhf,def_lg=F,note='T for non-self-consistent Harris')
       nm='OPTIONS_RMINES'; call gtv(trim(nm),tksw(prgnam,nm),rmines,def_r8=1d0,note='Minimum MT radius when finding new ES')
       nm='OPTIONS_RMAXES'; call gtv(trim(nm),tksw(prgnam,nm),rmaxes,def_r8=2d0,note='Maximum MT radius when finding new ES')
-      nm='OPTIONS_NESABC'; call gtv(trim(nm),tksw(prgnam,nm),nesabc,nmin=3,def_i4v=(/100,100,100/),
-     .     note='No. divisions when searching for empty spheres')
       lpfloat=1
    69 continue                  ! end of OPTIONS
 !! Hamiltonian parameters ---
@@ -636,7 +629,7 @@ c     .     '%N%3f "H --> H + HAM_STABILIZE*O^-1" in zhev_tk(diagonalization)')
               if (nout == 1) then
                  rmt(j) =rmt(j)*avw
               else
-                 nm='SPEC_ATOM_R/A';call gtv(trim(nm),sw,rmt(j),cindx=jj,nout=nout,note='rmax relative to lattice constant')
+                 nm='SPEC_ATOM_R/A';call gtv(trim(nm),sw,rmt(j),cindx=jj,nout=nout,note='rmax ratio to alat')
                  if (nout == 1) then
                     rmt(j) =rmt(j)*alat
                  else
@@ -1173,9 +1166,9 @@ C     Default values for smix (array has same same structure as lstra smix)
          if (io_help/=0 .and. tksw(prgnam,nm)/=2) print 345
  345     format(3x,'A[nmix][,b=beta][,bv=betv][,n=nit][,w=w1,w2][,nam=fn][,k=nkill]','[;...] or'/
      .          3x,'B[nmix][,b=beta][,bv=betv][,wc=wc][,n=#][,w=w1,w2][,nam=fn]','[,k=nkill]')
-         nm='ITER_CONV'; call gtv(trim(nm),tksw(prgnam,nm),ctrl_tol(3),def_r8=1d-4,note='Tolerance in energy change from prior'//
+         nm='ITER_CONV'; call gtv(trim(nm),tksw(prgnam,nm),etol,def_r8=1d-4,note='Tolerance in energy change from prior'//
      .        ' iteration for self-consistency')
-         nm='ITER_CONVC'; call gtv(trim(nm),tksw(prgnam,nm),ctrl_tol(1),
+         nm='ITER_CONVC'; call gtv(trim(nm),tksw(prgnam,nm),qtol,
      .        def_r8=1d-4,note='Tolerance in output-input charge for self-consistency')
          nm='ITER_UMIX'; call gtv(trim(nm),tksw(prgnam,nm),mix_umix,def_r8=1d0,note='Mixing parameter for densmat in LDA+U')
          nm='ITER_TOLU'; call gtv(trim(nm),tksw(prgnam,nm),mix_tolu,def_r8=0d0,note='Tolerance for densmat in LDA+U')
@@ -1255,13 +1248,12 @@ C            Add 100*k to compute response function only each kth iteration
 !!lxcf   parameter defining XC functional
 !!  1s digit:  1 for Ceperly-Alder (VWN),  2 for Barth-Hedin (ASW fit), 103 for PBE-GGA
       ctrl_lxcf= ham_lxcf
-      ctrl_maxit=iter_maxit
+      maxit=iter_maxit
       ctrl_mdprm=mdprm
       ctrl_modep=2
       ctrl_nbas=nbas
       nl = max(lmxbx,lmxax)+1 !max l-base l-aug +1
       nlmax=nl**2
-      ctrl_nesabc=nesabc
       ctrl_nitmv=nitmv
       ctrl_nl=nl
       ctrl_nsite=nsite
@@ -1275,11 +1267,11 @@ C            Add 100*k to compute response function only each kth iteration
       ctrl_sclwsr= sclwsr
       ctrl_sdprm = sdprm
       ctrl_smalit= smalit
-      ctrl_tol   = ctrl_tol
+c      ctrl_tol   = ctrl_tol
       ctrl_wsrmax= wsrmax
 c      ctrl_zbak  = zbak
       ctrl_pfloat= lpfloat
-      if (dalat == NULLR) dalat=0
+      if (dalat == NULLR) dalat=0d0
       lat_alat=alat+dalat
       lat_avw=avw
       lat_nkqmx=lat_nkdmx
@@ -1598,9 +1590,9 @@ c      print *,' mpipid=',procid
         ctrl_lfrce=0
         ctrl_mdprm=0
         irs2=0
-        ctrl_maxit=1
+        maxit=1
       endif
-      if(lhf) ctrl_maxit= 1
+      if(lhf) maxit= 1
 !! scalar rel       
       call setcc(lrel) !lrel/=0 means scalar relativistiv c=274.074d0 in a.u.
 !!
@@ -1618,6 +1610,7 @@ c      print *,' mpipid=',procid
       else
          plbnd=0
       endif
+      if(lrout == 0 ) maxit = 1
       if(ctrl_lmet/=0 ) ctrl_ldos=1
       if(ctrl_ldos==0 .and. ctrl_lmet==0) bz_ndos = 1
 !! LDA+U block (it was suldau.F)
@@ -1907,7 +1900,6 @@ Cr   modep.. which dimensions are periodic
 Cr   nbas    size of basis
 Cr   nbasp   size of padded basis (layer geometry)
 Cr   nclass  size of class
-Cr   nesabc  mesh for determining empty spheres
 Cr   nitmv   max number of mol-dynamics iterations
 Cr   nl      1 + maximum lmxa
 Cr   nmap    number of maps (ASA)

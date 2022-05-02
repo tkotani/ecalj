@@ -265,19 +265,20 @@ c          print *,ik,jk,sij
       enddo
       end
 
-      subroutine q0irre(qibz,nqibz,q0,wt0,nx06,symops,ngrp, q0i,nq0i,wt,plat,ltrans,ifix,irr)
+      subroutine q0irre(qibz,nqibz,q0,wt0,nx06,symops,ngrp, q0i,nq0i,wt,plat,ltrans,ifix,irr,nqbz)
 ! inequivalent points
 !! input:  qibz,q0, 
 !! output: q0i,nq0i
 !!xxxxxxx NOTE:input q0i(1:3,1:nq0i) is kept. Output nq0i is larger than input nq0i.
       implicit none
-      integer(4) :: ixx,ix,i,ngrp,ig,nq0i,nx06,ifix,irr(nx06),nqirr,nqibz,ib
+      integer(4) :: ixx,ix,i,ngrp,ig,nq0i,nx06,ifix,irr(nx06),nqirr,nqibz,ib,nqbz
       real(8) :: q0(1:3,nx06),q0i(1:3,nx06),symops(3,3,ngrp),sym(3,3),
      &   qt(3) ,wt0(nx06), wt(nx06),qx(3),qibz(3,nqibz)
       logical:: ltrans
       real(8):: plat(3,3)
       real(8):: platt(3,3)
       real(8):: tolq 
+      logical:: cmdopt0
       irr=0
       if(ltrans) then
         platt=transpose(plat)
@@ -288,7 +289,7 @@ c          print *,ik,jk,sij
       do i = 1,nx06
         qt = q0(:,i)
         do ib = 1,nqibz
-          if(sum(abs(qibz(:,ib)-qt))<tolq()) then
+          if(sum(abs(qibz(:,ib)-qt))<tolq().or.(cmdopt0('--allqbz').and.i<=nqbz)) then
             ixx = ixx+1
             q0i(:,ixx) = qt
             irr(i)=1  !this is irreducible
