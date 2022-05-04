@@ -82,7 +82,7 @@ Cr         3 float to natural center of band (C parameter)
 !      
       type s_site
       integer  :: iantiferro !may2015
-      character(8)   ::   clabel !labelling class
+c      character(8)   ::   clabel !labelling class
       integer   ::   class !class index
       real(8)   ::   force(3) !force   force (dynamics)
       real(8) , allocatable ::  rv_a_ov0 (:)!pointer to potential that defines wave functions

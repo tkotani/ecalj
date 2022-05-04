@@ -1,62 +1,63 @@
       module m_mksym_util
-      public gensym,pvsym2,grpgen,symtbl
+      public gensym,grpgen,symtbl
       private
+      real(8):: fptol=0d0
       contains
-      subroutine pvsym2(mode,nbas,nclass,ics,ipc,nspec,slabl,ssite,
-     .dclabl,nrc)
-      use m_struc_def  !Cgetarg
-C- Create class labels from species labels (double precision format)
-C ----------------------------------------------------------------------
-Ci Inputs:
-Ci   nosplt: T copy class and species
-Ci     mode: 0 do nothing
-Ci           1 create class labels clabl
-Ci           2 create number of sites in each class nrc
-Ci      ipc: for padding sites ib ipc(ib) = class
-Ci   nclass: number of classes
-Ci   ssite :struct for site-specific information; see routine usite
-Ci     Elts read: *
-Ci     Stored:    clabel
-Co Outputs:
-Co   dclabl: class labels in double precision format
-Co      nrc: number of sites in each class
-Cu Updates
-Cu   18 Dec 01 Packs class label into ssite->clabel
-C ----------------------------------------------------------------------
-      implicit none
-      integer mode,nbas,nclass,nspec,ics(1),ipc(nbas),nrc(1)
-      type(s_site)::ssite(*)
-      character*8 slabl(nspec)
-      integer ic,iclbsj,idx,is,ib
-      character(8):: clabl,dclabl(nclass)
-C --- Make class labels from species labels ---
-      if (mod(mode,2) .eq. 1) then
-        do  10  is = 1, nspec
-          do  12  idx = 1, nbas
-            ic = iclbsj(is,ics,-nclass,idx)
-            if (ic .lt. 0) goto 13
-            call clabel(slabl,is,idx,clabl)
-c            call s8tor8(clabl,dclabl(ic))
-            dclabl(ic)=clabl
-   12     continue
-   13     continue
-   10   continue
-      endif
-      do  20  ib = 1, nbas
-        ic = ipc(ib)
-        ssite(ib)%clabel = dclabl(ic) !clabl
-   20 continue
-C --- Create nrc ---
-      if (mod(mode/2,2) .eq. 1) then
-        call iinit(nrc,nclass)
-        do  30  ib = 1, nbas
-          ic = ipc(ib)
-          nrc(ic) = nrc(ic)+1
-   30   continue
-      endif
-      end subroutine pvsym2
+c$$$      subroutine pvsym2(mode,nbas,nclass,ics,ipc,nspec,slabl,ssite,
+c$$$     .dclabl,nrc)
+c$$$      use m_struc_def  !Cgetarg
+c$$$C- Create class labels from species labels (double precision format)
+c$$$C ----------------------------------------------------------------------
+c$$$Ci Inputs:
+c$$$Ci   nosplt: T copy class and species
+c$$$Ci     mode: 0 do nothing
+c$$$Ci           1 create class labels clabl
+c$$$Ci           2 create number of sites in each class nrc
+c$$$Ci      ipc: for padding sites ib ipc(ib) = class
+c$$$Ci   nclass: number of classes
+c$$$Ci   ssite :struct for site-specific information; see routine usite
+c$$$Ci     Elts read: *
+c$$$Ci     Stored:    clabel
+c$$$Co Outputs:
+c$$$Co   dclabl: class labels in double precision format
+c$$$Co      nrc: number of sites in each class
+c$$$Cu Updates
+c$$$Cu   18 Dec 01 Packs class label into ssite->clabel
+c$$$C ----------------------------------------------------------------------
+c$$$      implicit none
+c$$$      integer mode,nbas,nclass,nspec,ics(1),ipc(nbas),nrc(1)
+c$$$      type(s_site)::ssite(*)
+c$$$      character*8 slabl(nspec)
+c$$$      integer ic,iclbsj,idx,is,ib
+c$$$      character(8):: clabl,dclabl(nclass)
+c$$$c$$$C --- Make class labels from species labels ---
+c$$$c$$$      if (mod(mode,2) .eq. 1) then
+c$$$c$$$        do  10  is = 1, nspec
+c$$$c$$$          do  12  idx = 1, nbas
+c$$$c$$$            ic = iclbsj(is,ics,-nclass,idx)
+c$$$c$$$            if (ic .lt. 0) goto 13
+c$$$c$$$            call clabel(slabl,is,idx,clabl)
+c$$$c$$$c            call s8tor8(clabl,dclabl(ic))
+c$$$c$$$            dclabl(ic)=clabl
+c$$$c$$$   12     continue
+c$$$c$$$   13     continue
+c$$$c$$$   10   continue
+c$$$c$$$      endif
+c$$$c$$$      do  20  ib = 1, nbas
+c$$$c$$$        ic = ipc(ib)
+c$$$c$$$        ssite(ib)%clabel = dclabl(ic) !clabl
+c$$$c$$$   20 continue
+c$$$C --- Create nrc ---
+c$$$      if (mod(mode/2,2) .eq. 1) then
+c$$$        call iinit(nrc,nclass)
+c$$$        do  30  ib = 1, nbas
+c$$$          ic = ipc(ib)
+c$$$          nrc(ic) = nrc(ic)+1
+c$$$   30   continue
+c$$$      endif
+c$$$      end subroutine pvsym2
 
-      subroutine gensym(slabl,gens,usegen,lcar,lfix,fptol,lsmall,nbas,
+      subroutine gensym(slabl,gens,usegen,lcar,lfix,lsmall,nbas,
      .nspec,ngmx,plat,platcv,bas,ips,nrspec,ng,g,
      .ag,ngen,gen,nwgens,nggen,isym,istab)
 C- Generate the space group !,ldist,dist
@@ -140,34 +141,27 @@ Cu   13 Dec 03 Uses platcv when scaling translation part of symgrp
 Cu   05 Apr 03 Call sgroup looking only for point group ops;see bugs
 Cu   03 Nov 01 Shortened argument list, eliminating duplicate bas,ips
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C Passed parameters:
       integer nbas,isym(*),istab(nbas,*),nspec,ngen,ngmx,
      .ng,nrspec(nspec),usegen,ips(nbas),nggen !,ldist
-C     integer istab2(nbas,*)
       double precision plat(9),platcv(9),g(9,*),ag(3,*),!dist(3,3),
-     .bas(3,nbas),fptol
+     .bas(3,nbas)!,fptol=0d0
       character*8  slabl(*), gens*(*), nwgens*(*)
       logical lcar,lfix
-C Local parameters:
-      integer:: i , j , ibas , ic , iprint , ngnmx , igen , mxint , 
-     .modes
+      integer:: i , j , ibas , ic , iprint , ngnmx , igen , mxint , modes,ig,lgunit
       real(8) ,allocatable :: wk_rv(:)
-
       double precision qlat(3,3),vol,platt(9)
       logical lsmall,latvec
       parameter(ngnmx=10)
       double precision gen(9,ngnmx),agen(3,ngnmx)
-C heap:
-      integer ::iwdummy,iwdummy1(1)
+      integer ::iwdummy,iwdummy1(1),stdo
+      stdo = lgunit(1)
       call rxx(.not. lcar, 'gensym not implemented lcar')
       call rxx(lfix,  'gensym not implemented lfix')
       call rxx(lsmall,'gensym not implemented lsmall')
-
-C --- Reciprocal lattice vectors ---
-      call dinv33(plat,1,qlat,vol)
-
-C --- Symmetry group as given by input generators ---
+      call dinv33(plat,1,qlat,vol) !Reciprocal lattice vectors ---
+! Symmetry group as given by input generators ---
       nwgens = gens
       modes = 0
       call words(gens,ngen)
@@ -180,11 +174,9 @@ C --- Symmetry group as given by input generators ---
         call psymop(gens(1:j),platcv,gen,agen,ngen)
         nwgens = gens(1:j)
       endif
-
 C ... Rotate the generators
 c      call pshpr(iprint()-11)
-c      call lattdf ( - ldist , dist , plat , 0 , iwdummy , ngen , gen 
-c     . )
+c      call lattdf ( - ldist , dist , plat , 0 , iwdummy , ngen , gen )
 c      call poppr
       do  10  igen = 1, ngen
         call grpprd(gen(1,igen),plat,platt)
@@ -199,10 +191,10 @@ C ... Set up space group (g,ag,ng) given point group generators gen
       ng = min(nggen,ngmx)
       if (nggen .gt. ngmx) return
 
-C --- Add new atoms to the basis according to symmetry ---
-      if (usegen .lt. 2) then
-        call addbas(fptol,bas,slabl,ips,nbas,ng,qlat,g,ag)
-      endif
+c$$$C --- Add new atoms to the basis according to symmetry ---
+c$$$      if (usegen .lt. 2) then
+c$$$        call addbas(fptol,bas,slabl,ips,nbas,ng,qlat,g,ag)
+c$$$      endif
 C ... Make nrspec ... i should be nspec
       i = mxint(nbas,ips)
       if (i .ne. nspec .and. iprint() .gt. 0)
@@ -215,11 +207,10 @@ C ... Make nrspec ... i should be nspec
         ic = ips(ibas)
         nrspec(ic) = nrspec(ic)+1
    22 continue
-
 C --- check if unit cell is the smallest possible one (not implemented)
 C      call chkcel(alat,bas,csym,ips,isym,lsmall,nbas,nspec,
 C     .            nrspec,plat,qlat)
-
+c
 C --- Complete the space group ---
       if (usegen .eq. 0) then
 C       call rotlat(alat,bas,csym,isym,lfix,nbas,plat,qlat)
@@ -227,22 +218,18 @@ C   ... Symmetry of lattice without basis
         call symlat(plat,ng,g,isym(1))
 C   ... Symmetry of lattice with basis
         allocate(wk_rv(3*nbas))
-
 C       call prmx('pos',bas,3,3,nbas)
-        call symcry ( fptol , bas , wk_rv , ips , nbas , nspec , nrspec 
+        call symcry (bas , wk_rv , ips , nbas , nspec , nrspec  ! fptol , 
      .  , ng , plat , qlat , g , ag , istab )
-
         if (allocated(wk_rv)) deallocate(wk_rv)
-
         if (ng .gt. ngmx) return
 C       ngen = 0
         nwgens = ' '
         call groupg(0,ng,g,ag,plat,ngen,gen,agen,nwgens,nggen)
       else
         nggen = 0
-        call symtbl ( 0 , fptol , nbas , iwdummy1 , bas , g , ag , ng , qlat , istab )
+        call symtbl ( 0 , nbas , iwdummy1 , bas , g , ag , ng , qlat , istab )
       endif
-
 C --- Make istab2 ---
 C      do  i = 1, ng
 C        do  ibas = 1, nbas
@@ -250,148 +237,132 @@ C          ic = istab(ibas,i)
 C          istab2(ic,i) = ibas
 C        enddo
 C      enddo
-
       if (iprint() .ge. 80 .and. ng .gt. 1) then
-        call info0(0,0,0,
-     .  ' GENSYM: site permutation table for group operations ...')
-        call shoist(istab,nbas,ag,g,ng)
-C       call shoist(istab2,nbas,ag,g,ng)
+         write(stdo,*)'  ib  istab ...'
+         do  i = 1, nbas
+            write(stdo,"(i4,':',48i3)") i, (istab(i,ig), ig=1,ng)
+         enddo   
+         write(stdo,*)' GENSYM: site permutation table for group operations ...'
       endif
-
-C     pause
-
 C --- Adjust basis to conform with symops to numerical precision ---
-      if (fptol .gt. 0) then
-        call fixpos(bas,nbas,fptol,ng,plat,g,ag,istab)
-      endif
-
-C  ... debugging
-C      call shoist(istab,nbas,ag,g,ng)
-C      call symtbl(0,nbas,w,bas,g,ag,ng,qlat,istab)
-C      call shoist(istab,nbas,ag,g,ng)
-C
-C      call symtab(nbas,w,bas,g,ag,-ng,plat,qlat,w,istab)
-C      call shoist(istab,nbas,ag,g,ng)
-C      call symtbl(1,nbas,w,bas,g,ag,ng,qlat,istab)
-C      call shoist(istab,nbas,ag,g,ng)
-C      stop
-
+c      if (fptol .gt. 0) call fixpos(bas,nbas,fptol,ng,plat,g,ag,istab)
+c      endif
       end
 
-      subroutine addbas(tol,bas,clabl,ips,nbas,ngrp,qlat,g,ag)
-C- Adds the missing basis atoms to get the right symmetry
-C ----------------------------------------------------------------------
-Ci Inputs:
-Ci   clabl :name of the different inequivalent atom
-Ci   ips:the jth atom belongs to spec ips(j)
-Ci   ngrp  :number of group operations
-Ci   qlat  :primitive translation vectors in reciprocal space
-Ci   g     :symmetry operation matrix
-Ci   symops:symmetry operation symbol
-Ci   ag    :symmetry operation vector (dimensionless)
-Cio Inputs/Output:
-Cio  bas   :basis vectors (dimensionless)
-Cio         on output list has been completed by the new positions
-Cio  nbas  :number of atoms in the basis
-Cr Remarks:
-Cr For each atom, the symmetry-related positions are generated.
-Cr If this position is empty a new atom is added.
-Cr At the end, a check is made to ensure that
-Cr atoms of different speces do not occupy the same positions.
-C ----------------------------------------------------------------------
-C     implicit none
-C Passed parameters:
-      integer ips(*),nbas,ngrp
-      double precision qlat(3,3),bas(3,*),g(9,*),ag(3,*),tol
-      character*8 clabl(*)
-C Local parameters:
-      integer i,isop,ipr,lgunit,nbasnw,ibas,jbas,ic,jc,m,novlp,stdo
-      double precision bast(3),dbas(3),tol1
-      logical latvec
-      character*50 sg
-C External calls:
-      external  daxpy,dcopy,dmpy,errmsg,iprint,lgunit
-C Intrinsic functions:
-      intrinsic  idnint
-      character(200)::aaa
-
-      tol1 = tol
-      if (tol .eq. 0) tol1 = 1d-5
-      stdo = lgunit(1)
-
-C --- If no atom of same spec at the rotated site, add it ---
-      call getpr(ipr)
-      nbasnw = nbas
-      do  10  ibas = 1, nbas
-        do  20  isop = 2, ngrp
-          ic = ips(ibas)
-          call dmpy(g(1,isop),3,1,bas(1,ibas),3,1,bast,3,1,3,1,3)
-          call daxpy(3,1.d0,ag(1,isop),1,bast,1)
-          do  30  jbas = 1, nbasnw
-            jc = ips(jbas)
-            if (ic .eq. jc) then
-              do  32  m = 1, 3
-                dbas(m) = bast(m)-bas(m,jbas)
-   32         continue
-              if (latvec(1,tol1,qlat,dbas)) goto 22
-            endif
-   30     continue
-          nbasnw = nbasnw+1
-          if (ipr .ge. 50) then
-            if (nbasnw .eq. nbas+1) write(stdo,304)
-            call asymop(g(1,isop),ag(1,isop),' ',sg)
-            call skpblb(sg,len(sg),i)
-            write(stdo,303) clabl(ic),ibas,nbasnw,sg(1:i+1)
-          endif
-          ips(nbasnw) = ic
-          call dcopy(3,bast,1,bas(1,nbasnw),1)
-   22     continue
-   20   continue
-   10 continue
-
-C --- Printout ---
-      if (nbasnw > nbas) then
-        if (ipr >= 10) then
-c          call awrit2('%N ADDBAS: The basis was enlarged from %i'//
-c     .    ' to %i sites%N         The additional sites are: %N',
-          write(stdo,"(/,' ADDBAS: The basis was enlarged from ',i0,
-     &     ' to ',i0,' sites',/,'         The additional sites are: ')") nbas,nbasnw
-          write(stdo,301) (clabl(ips(ibas)),(bas(i,ibas),i=1,3), ibas=nbas+1,nbasnw)
-          write(stdo,'(a)') ' '
-        endif
-        nbas = nbasnw
-      else
-        if (ipr>40) write(stdo,'('' ADDBAS: basis is already complete --- no sites added'')')
-      endif
-
-C --- Error whether atoms are sitting on same position ---
-      novlp = 0
-      do  40  ibas = 1, nbas
-        ic = ips(ibas)
-        do  50  jbas = 1, ibas-1
-          jc = ips(jbas)
-          do  52  m = 1, 3
-            dbas(m) = bas(m,ibas)-bas(m,jbas)
-   52     continue
-          if (latvec(1,tol1,qlat,dbas)) then
-            write(stdo,400) ibas,clabl(ic),(bas(m,ibas),m=1,3),
-     .      jbas,clabl(jc),(bas(m,jbas),m=1,3)
-            novlp = novlp+1
-          endif
-   50   continue
-   40 continue
-      if (novlp>0) then
-         write(aaa,"(' ADDBAS: basis has ',i0,' overlapping site(s)')")novlp
-         call rx(aaa)
-      endif   
-c     call fexit(-1,111,' Exit -1 ADDBAS: basis has %i overlapping site(s)',novlp)
-  301 format(8x,'ATOM=',a4,1x,'POS=',3f12.7)
-  303 format(10x,a4,2x,i3,2x,'-> ',i3,3x,5x,a)
-  304 format(/' ADDBAS: Spec   Atom  New_atom     Operation'/9x,35('-'))
-  400 format(/' ADDBAS: atom ',i3,', SPEC ',a4,' POS=',3f9.5, 
-     ./'     and atom ',i3,', SPEC ',a4,' POS=',3f9.5,
-     ./'     are at the same positions. '/)
-      end
+c$$$      subroutine addbas(tol,bas,clabl,ips,nbas,ngrp,qlat,g,ag)
+c$$$C- Adds the missing basis atoms to get the right symmetry
+c$$$C ----------------------------------------------------------------------
+c$$$Ci Inputs:
+c$$$Ci   clabl :name of the different inequivalent atom
+c$$$Ci   ips:the jth atom belongs to spec ips(j)
+c$$$Ci   ngrp  :number of group operations
+c$$$Ci   qlat  :primitive translation vectors in reciprocal space
+c$$$Ci   g     :symmetry operation matrix
+c$$$Ci   symops:symmetry operation symbol
+c$$$Ci   ag    :symmetry operation vector (dimensionless)
+c$$$Cio Inputs/Output:
+c$$$Cio  bas   :basis vectors (dimensionless)
+c$$$Cio         on output list has been completed by the new positions
+c$$$Cio  nbas  :number of atoms in the basis
+c$$$Cr Remarks:
+c$$$Cr For each atom, the symmetry-related positions are generated.
+c$$$Cr If this position is empty a new atom is added.
+c$$$Cr At the end, a check is made to ensure that
+c$$$Cr atoms of different speces do not occupy the same positions.
+c$$$C ----------------------------------------------------------------------
+c$$$C     implicit none
+c$$$C Passed parameters:
+c$$$      integer ips(*),nbas,ngrp
+c$$$      double precision qlat(3,3),bas(3,*),g(9,*),ag(3,*),tol
+c$$$      character*8 clabl(*)
+c$$$C Local parameters:
+c$$$      integer i,isop,ipr,lgunit,nbasnw,ibas,jbas,ic,jc,m,novlp,stdo
+c$$$      double precision bast(3),dbas(3),tol1
+c$$$      logical latvec
+c$$$      character*50 sg
+c$$$C External calls:
+c$$$      external  daxpy,dcopy,dmpy,errmsg,iprint,lgunit
+c$$$C Intrinsic functions:
+c$$$      intrinsic  idnint
+c$$$      character(200)::aaa
+c$$$
+c$$$      tol1 = tol
+c$$$      if (tol .eq. 0) tol1 = 1d-5
+c$$$      stdo = lgunit(1)
+c$$$
+c$$$C --- If no atom of same spec at the rotated site, add it ---
+c$$$      call getpr(ipr)
+c$$$      nbasnw = nbas
+c$$$      do  10  ibas = 1, nbas
+c$$$        do  20  isop = 2, ngrp
+c$$$          ic = ips(ibas)
+c$$$          call dmpy(g(1,isop),3,1,bas(1,ibas),3,1,bast,3,1,3,1,3)
+c$$$          call daxpy(3,1.d0,ag(1,isop),1,bast,1)
+c$$$          do  30  jbas = 1, nbasnw
+c$$$            jc = ips(jbas)
+c$$$            if (ic .eq. jc) then
+c$$$              do  32  m = 1, 3
+c$$$                dbas(m) = bast(m)-bas(m,jbas)
+c$$$   32         continue
+c$$$              if (latvec(1,tol1,qlat,dbas)) goto 22
+c$$$            endif
+c$$$   30     continue
+c$$$          nbasnw = nbasnw+1
+c$$$          if (ipr .ge. 50) then
+c$$$            if (nbasnw .eq. nbas+1) write(stdo,304)
+c$$$            call asymop(g(1,isop),ag(1,isop),' ',sg)
+c$$$            call skpblb(sg,len(sg),i)
+c$$$            write(stdo,303) clabl(ic),ibas,nbasnw,sg(1:i+1)
+c$$$          endif
+c$$$          ips(nbasnw) = ic
+c$$$          call dcopy(3,bast,1,bas(1,nbasnw),1)
+c$$$   22     continue
+c$$$   20   continue
+c$$$   10 continue
+c$$$
+c$$$C --- Printout ---
+c$$$      if (nbasnw > nbas) then
+c$$$        if (ipr >= 10) then
+c$$$c          call awrit2('%N ADDBAS: The basis was enlarged from %i'//
+c$$$c     .    ' to %i sites%N         The additional sites are: %N',
+c$$$          write(stdo,"(/,' ADDBAS: The basis was enlarged from ',i0,
+c$$$     &     ' to ',i0,' sites',/,'         The additional sites are: ')") nbas,nbasnw
+c$$$          write(stdo,301) (clabl(ips(ibas)),(bas(i,ibas),i=1,3), ibas=nbas+1,nbasnw)
+c$$$          write(stdo,'(a)') ' '
+c$$$        endif
+c$$$        nbas = nbasnw
+c$$$      else
+c$$$        if (ipr>40) write(stdo,*)' ADDBAS: basis is already complete --- no sites added'
+c$$$      endif
+c$$$
+c$$$C --- Error whether atoms are sitting on same position ---
+c$$$      novlp = 0
+c$$$      do  40  ibas = 1, nbas
+c$$$        ic = ips(ibas)
+c$$$        do  50  jbas = 1, ibas-1
+c$$$          jc = ips(jbas)
+c$$$          do  52  m = 1, 3
+c$$$            dbas(m) = bas(m,ibas)-bas(m,jbas)
+c$$$   52     continue
+c$$$          if (latvec(1,tol1,qlat,dbas)) then
+c$$$            write(stdo,400) ibas,clabl(ic),(bas(m,ibas),m=1,3),
+c$$$     .      jbas,clabl(jc),(bas(m,jbas),m=1,3)
+c$$$            novlp = novlp+1
+c$$$          endif
+c$$$   50   continue
+c$$$   40 continue
+c$$$      if (novlp>0) then
+c$$$         write(aaa,"(' ADDBAS: basis has ',i0,' overlapping site(s)')")novlp
+c$$$         call rx(aaa)
+c$$$      endif   
+c$$$c     call fexit(-1,111,' Exit -1 ADDBAS: basis has %i overlapping site(s)',novlp)
+c$$$  301 format(8x,'ATOM=',a4,1x,'POS=',3f12.7)
+c$$$  303 format(10x,a4,2x,i3,2x,'-> ',i3,3x,5x,a)
+c$$$  304 format(/' ADDBAS: Spec   Atom  New_atom     Operation'/9x,35('-'))
+c$$$  400 format(/' ADDBAS: atom ',i3,', SPEC ',a4,' POS=',3f9.5, 
+c$$$     ./'     and atom ',i3,', SPEC ',a4,' POS=',3f9.5,
+c$$$     ./'     are at the same positions. '/)
+c$$$      end
 !sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine sgroup(mode,gen,agen,ngen,g,ag,ng,ngmx,qb)
       use m_lmfinit,only: stdo
@@ -738,68 +709,68 @@ C     endif
      .  ' %i ops',ng,ngout)
       endif
       end
-!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-      subroutine fixpos(pos,nbas,tol,ng,plat,g,ag,istab)
-C- Adjusts site positions to agree with given symmmetry
-C  to machine precision
-C ----------------------------------------------------------------------
-Ci Inputs:
-Ci   pos:   basis vectors (scaled by alat)
-Ci   nbas:  number of atoms in the basis
-Ci   tol:   largest separation at which atoms are considered coincident
-Ci   ng:    number of symmetry operations
-Ci   plat:  primitive lattice vectors (scaled by alat)
-Ci   g,ag:  point and translation group operators
-Ci   istab: atom transformation table; see symtab
-Co Outputs:
-Co   pos:   basis vectors are adjusted.
-Cr Remarks:
-Cr   Generally atoms of the same class do not sit exactly on
-Cr   symmetry-related positions. In this subroutine each atomic
-Cr   position is replaced by the average of the position itself and
-Cr   the generated positions of the atoms of the same class.
-C ----------------------------------------------------------------------
-      implicit none
-C Passed parameters:
-      integer nbas,ng,istab(nbas,ng)
-      double precision pos(3,*),plat(*),g(9,*),ag(3,*),tol
-      integer ibas,jbas,m,ig,lgunit
-      double precision dbas(3),bast(3),sum,tol2,qlat(3,3),vol,ddot
-      double precision sdpos(3,nbas)
-      tol2 = 2*tol
-      call dpzero(sdpos,3*nbas)
-      sum = 0
-      call dinv33(plat,1,qlat,vol)
-      do  10  ibas = 1, nbas
-        do  20  ig = 1, ng
-          jbas = istab(ibas,ig)
-          call dmpy(g(1,ig),3,1,pos(1,ibas),3,1,bast,3,1,3,1,3)
-          do  30  m = 1, 3
-            dbas(m) = bast(m) + ag(m,ig) - pos(m,jbas)
-   30     continue
-  333     format(a,3f12.6)
-          call shorbz(dbas,dbas,plat,qlat)
-c         print 334, 'output dbas', dbas
-C     ... Debugging check
-          sum = sum + abs(dbas(1))+abs(dbas(2))+abs(dbas(3))
-          if (abs(dbas(1)) .gt. tol2 .or. abs(dbas(2)) .gt. tol2.or.
-     .    abs(dbas(3)) .gt. tol2) call fexit(-1,111,
-     .    'Exit -1 FIXPOS: positions incompatible with symgrp:'//
-     .    '  dpos=%d',max(dbas(1),dbas(2),dbas(3)))
-          if (abs(dbas(1)) .gt. tol .or. abs(dbas(2)) .gt. tol .or.
-     .    abs(dbas(3)) .gt. tol) call awrit4(
-     .    ' FIXPOS (warning): sites %i,%i incompatible '//
-     .    'with grp op %i:  dpos=%d',' ',80,lgunit(1),
-     .    ibas,jbas,ig,max(dbas(1),dbas(2),dbas(3)))
-  334     format(a,3f18.12)
-          call daxpy(3,1d0,dbas,1,sdpos(1,jbas),1)
-   20   continue
-   10 continue
-      sum = dsqrt(ddot(3*nbas,sdpos,1,sdpos,1)/3/nbas)
-      call daxpy(3*nbas,1d0/ng,sdpos,1,pos,1)
-      call awrit1(' FIXPOS: shifted site positions by average %;3g',' ',
-     .80,lgunit(1),sum/ng)
-      end
+c$$$!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+c$$$      subroutine fixpos(pos,nbas,tol,ng,plat,g,ag,istab)
+c$$$C- Adjusts site positions to agree with given symmmetry
+c$$$C  to machine precision
+c$$$C ----------------------------------------------------------------------
+c$$$Ci Inputs:
+c$$$Ci   pos:   basis vectors (scaled by alat)
+c$$$Ci   nbas:  number of atoms in the basis
+c$$$Ci   tol:   largest separation at which atoms are considered coincident
+c$$$Ci   ng:    number of symmetry operations
+c$$$Ci   plat:  primitive lattice vectors (scaled by alat)
+c$$$Ci   g,ag:  point and translation group operators
+c$$$Ci   istab: atom transformation table; see symtab
+c$$$Co Outputs:
+c$$$Co   pos:   basis vectors are adjusted.
+c$$$Cr Remarks:
+c$$$Cr   Generally atoms of the same class do not sit exactly on
+c$$$Cr   symmetry-related positions. In this subroutine each atomic
+c$$$Cr   position is replaced by the average of the position itself and
+c$$$Cr   the generated positions of the atoms of the same class.
+c$$$C ----------------------------------------------------------------------
+c$$$      implicit none
+c$$$C Passed parameters:
+c$$$      integer nbas,ng,istab(nbas,ng)
+c$$$      double precision pos(3,*),plat(*),g(9,*),ag(3,*),tol
+c$$$      integer ibas,jbas,m,ig,lgunit
+c$$$      double precision dbas(3),bast(3),sum,tol2,qlat(3,3),vol,ddot
+c$$$      double precision sdpos(3,nbas)
+c$$$      tol2 = 2*tol
+c$$$      call dpzero(sdpos,3*nbas)
+c$$$      sum = 0
+c$$$      call dinv33(plat,1,qlat,vol)
+c$$$      do  10  ibas = 1, nbas
+c$$$        do  20  ig = 1, ng
+c$$$          jbas = istab(ibas,ig)
+c$$$          call dmpy(g(1,ig),3,1,pos(1,ibas),3,1,bast,3,1,3,1,3)
+c$$$          do  30  m = 1, 3
+c$$$            dbas(m) = bast(m) + ag(m,ig) - pos(m,jbas)
+c$$$   30     continue
+c$$$  333     format(a,3f12.6)
+c$$$          call shorbz(dbas,dbas,plat,qlat)
+c$$$c         print 334, 'output dbas', dbas
+c$$$C     ... Debugging check
+c$$$          sum = sum + abs(dbas(1))+abs(dbas(2))+abs(dbas(3))
+c$$$          if (abs(dbas(1)) .gt. tol2 .or. abs(dbas(2)) .gt. tol2.or.
+c$$$     .    abs(dbas(3)) .gt. tol2) call fexit(-1,111,
+c$$$     .    'Exit -1 FIXPOS: positions incompatible with symgrp:'//
+c$$$     .    '  dpos=%d',max(dbas(1),dbas(2),dbas(3)))
+c$$$          if (abs(dbas(1)) .gt. tol .or. abs(dbas(2)) .gt. tol .or.
+c$$$     .    abs(dbas(3)) .gt. tol) call awrit4(
+c$$$     .    ' FIXPOS (warning): sites %i,%i incompatible '//
+c$$$     .    'with grp op %i:  dpos=%d',' ',80,lgunit(1),
+c$$$     .    ibas,jbas,ig,max(dbas(1),dbas(2),dbas(3)))
+c$$$  334     format(a,3f18.12)
+c$$$          call daxpy(3,1d0,dbas,1,sdpos(1,jbas),1)
+c$$$   20   continue
+c$$$   10 continue
+c$$$      sum = dsqrt(ddot(3*nbas,sdpos,1,sdpos,1)/3/nbas)
+c$$$      call daxpy(3*nbas,1d0/ng,sdpos,1,pos,1)
+c$$$      call awrit1(' FIXPOS: shifted site positions by average %;3g',' ',
+c$$$     .80,lgunit(1),sum/ng)
+c$$$      end
 !!
       subroutine grpgen(gen,ngen,symops,ng,ngmx)
       use m_lmfinit,only: stdo
@@ -1168,7 +1139,7 @@ C       ... Add it and i*symop, if allowed
      .//csym1(isym)//'%a with %i symmetry operations.',' ',80,lgunit(1),ngrp)
       end
 !ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss!
-      subroutine symcry(tol,bas,bast,ipc,nbas,nclass,nrclas,
+      subroutine symcry(bas,bast,ipc,nbas,nclass,nrclas,
      .ng,plat,qlat,g,ag,istab)
 C- Generates the symmetry ops of the crystal from those of the lattice
 C ----------------------------------------------------------------------
@@ -1203,7 +1174,8 @@ C     implicit none
 C Passed parameters:
       integer nbas,ng,ipc(nbas),nclass,istab(nbas,ng),nrclas(nclass)
       double precision plat(9,*),qlat(*),bas(3,*),bast(3,*),
-     .g(9,*),ag(3,*),tol
+     .     g(9,*),ag(3,*)
+c      real(8):: tol=0d0
 C Local parameters:
       integer ibas,ic,iclbsj,icmin,ig,ipr,jbas,kbas,kc,
      .lgunit,m,mbas,nj,nm,ng0,stdo
@@ -1212,12 +1184,10 @@ C     integer mode(3)
       parameter (tol0=1d-5)
       logical latvec
       character sg*35
-
       call getpr(ipr)
       stdo = lgunit(1)
-      tol1 = tol
-      if (tol .eq. 0) tol1 = tol0
-
+      tol1 = fptol
+      if(fptol==0d0) tol1 = tol0
 C --- Find the class with minimum number of atoms ---
       icmin = 1
       do  5  ic = 1, nclass
@@ -1465,7 +1435,7 @@ C         to allow for abbreviations as 'D', 'X', 'Y' or 'Z'
       endif
       end
 !sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-      subroutine symtbl(mode,tol,nbas,ipc,pos,g,ag,ng,qlat,istab)
+      subroutine symtbl(mode,nbas,ipc,pos,g,ag,ng,qlat,istab)
 C- Make symmetry transformation table for posis atoms; check classes
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1491,18 +1461,19 @@ C     implicit none
 C Passed parameters
       integer nbas,ng,mode
       integer ipc(1),istab(nbas,1)
-      double precision pos(3,1),g(9,1),ag(3,1),qlat(9),tol
+      double precision pos(3,1),g(9,1),ag(3,1),qlat(9)!,tol
 C Local variables
       integer ib,ic,ig,jb,jc,mode1,mode10 !,oiwk
       double precision tol0,tol1
       character(200)::aaa
       parameter (tol0=1d-5)
+c      real(8):: tol=0d0
       integer,allocatable:: w_oiwk(:)
       if (ng .eq. 0) return
       mode1 = mod(mode,10)
       mode10 = mod(mode/10,10)
-      tol1 = tol
-      if (tol .eq. 0) tol1 = tol0
+      tol1 = fptol !tol
+      if(fptol==0d0) tol1 = tol0
 C     --- Make atom transformation table ---
       do  20  ig = 1, ng
         do  10  ib = 1, nbas

@@ -1403,7 +1403,7 @@ Cr         and it is included in the basis.
       do j=1,nsite
           v_ssite(j)%spec=ips(j)
           v_ssite(j)%class=ips(j)
-          v_ssite(j)%clabel=slabl(ips(j))
+c          v_ssite(j)%clabel=slabl(ips(j))
           v_ssite(j)%pos=pos(1:3,j)
           v_ssite(j)%vel=vel(1:3,j)
           v_ssite(j)%vshft=vshft(j)
@@ -1543,7 +1543,7 @@ C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
       do ib = 1, nsite
          is = v_ssite(ib)%spec
          if (is <= 0) cycle
-         v_ssite(ib)%clabel = v_sspec(is)%name
+c         v_ssite(ib)%clabel = v_sspec(is)%name
          seref = seref +     v_sspec(is)%eref
       enddo
       ham_seref=seref
