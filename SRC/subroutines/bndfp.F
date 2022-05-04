@@ -44,7 +44,7 @@
 !     ! For example,, rightafter call m_bandcal_init, we can get evalall, which is used in other modules.
       use m_supot,only: ngabc=>lat_nabc,k1,k2,k3 !for charge mesh
       use m_suham,only: ndham=>ham_ndham, ndhamx=>ham_ndhamx,nspx=>ham_nspx 
-      use m_lmfinit, only: n0,nab,nppn,ncutovl,lso,ndos=>bz_ndos,bz_ef0,bz_w,fsmom=>bz_fsmom,
+      use m_lmfinit, only: n0,nab,nppn,ncutovl,lso,ndos=>bz_ndos,bz_w,fsmom=>bz_fsmom, !bz_ef0,
      &     bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n,
      &     ctrl_nspec,ctrl_pfloat,ldos=>ctrl_ldos,qbg=>zbak,lfrce=>ctrl_lfrce,
      &     pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps,ham_elind,
@@ -156,7 +156,7 @@ c      if(master_mpi) write(stdo,"(a)") 'bndfp:start'
       idummy = unlink('RSEQ_ERROR') ! Clean RSEQ_ERROR.
 !! FermiEnergy eferm is from ctrl.*, rst.* or efermi.lmf.
       if(binit) then 
-         eferm = bz_ef0 !! eferm is from ctrl file when m_bndfp_ef_set in not called (binit=T)
+         eferm = 0d0 !bz_ef0 !! xxx deleter EF0 in ctrlfile xxx 
          binit=.false.
       endif
 !  Get eferm from efermi.lmf for plbnd mode. Note that efermi.lmf can be different from efermi in rst.* file.
@@ -338,7 +338,7 @@ c      if(master_mpi) write(stdo,"(a)") 'bndfp:start'
       if(lmet>0 .and. lwtkb==-1 .and. lrout>0) then 
          call m_subzi_setlwtkb(1)
          call mpi_barrier(MPI_comm_world,ierr)
-         call m_bandcal_2nd(iqini,iqend,ispini,ispend,lrout, eferm) !accumulate smrho_out and so on.
+         call m_bandcal_2nd(iqini,iqend,ispini,ispend,lrout)!, eferm) !accumulate smrho_out and so on.
          call m_bandcal_allreduce(lwtkb)
       endif
 !! Core-level spectroscopy --- m_clsmode_set1 is called in m_bandcal

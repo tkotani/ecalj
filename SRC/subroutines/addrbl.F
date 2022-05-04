@@ -15,7 +15,7 @@
       
       subroutine addrbl ( isp,q, 
      .     iq,lfrce, smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,
-     .     evec,evl,nevl,  ef0,def, !emin,emax, !ndos,dos,
+     .     evec,evl,nevl,  !ef0,def, !emin,emax, !ndos,dos,
      o      smrho, sumqv,sumev, sv_p_oqkkl,sv_p_oeqkkl, f)
       use m_struc_def 
       use m_suham,only: 
@@ -65,7 +65,7 @@ Ci   qval  :total valence charge
 Ci   evec  :eigenvectors
 Ci   evl   :eigenvalues
 Ci   nev
-Ci   ef0   :estimate for fermi level
+Cixxx   ef0   :estimate for fermi level
 Cixx   def   :When lmet=4, charge also accmulated for ef0+def and ef0-def
 Cixx   esmear:(sampling integration) gaussian broadening
 Cixx         :sign and integer part are extensions; see mkewgt.f
@@ -102,7 +102,7 @@ C ----------------------------------------------------------------------
       implicit none
       integer isp,iq,lfrce 
       integer nevl
-      double precision def,ef0,emax,emin,qval,vconst 
+      double precision emax,emin,qval,vconst 
       real(8):: q(3), evl(ndham,nsp), sumev(2,3), sumqv(3,2), f(3,*)
       type(s_cv1) :: sv_p_oppi(3,1)
       type(s_rv1) :: sv_p_otau(3,1)
@@ -143,7 +143,7 @@ C ... Case band weights not passed: make sampling weights
       if (lwtkb .eq. 0) then
         call rxx(nspc.ne.1,'lwtkb=0 not implemented in noncoll case')
         wgt = abs(wtkp(iq))/nsp
-        call mkewgt(lmet,wgt,qval,ndimh,evl(1,isp),ef0,def, !!esmear
+        call mkewgt(lmet,wgt,qval,ndimh,evl(1,isp),!ef0,def, !!esmear
      .  nevec,ewgt,sumev,sumqv(1,isp))
         call dscal(nevec,wgt,ewgt,1)
 C ... Case band weights are passed

@@ -3,7 +3,7 @@
       private
       contains
       subroutine lmaux()     !main part of lmchk
-      use m_mksym,only: ctrl_nclass,rv_a_oclabl,iv_a_oics,iv_a_oipc
+      use m_mksym,only: ctrl_nclass,iv_a_oics,iv_a_oipc
       use m_lmfinit,only: iv_a_oips,str_mxnbr,str_rmax,ctrl_nbas,ctrl_nspec,ctrl_nspin,
      &     ctrl_nl,ctrl_modep,ctrl_omax1,ctrl_omax2,ctrl_wsrmax,slabl,sspec=>v_sspec,
      &     lat_avw,lat_alat,mxcst2
@@ -213,7 +213,7 @@ C --- Print overlaps, optionally minimize wrt spec'd sites ---
         j = 1
         if (iprint() .lt. 30) j = 0
         call ovmin ( outs ( i: ) , nbas , nbasp , alat , plat , rmax
-     .     , rmax , rv_a_oclabl , iv_a_oipc , modep , z , iv_a_ontab , iv_a_oiax ,
+     .     , rmax , slabl , iv_a_oipc , modep , z , iv_a_ontab , iv_a_oiax ,
      .     rv_a_opos , j )
       endif
 C --- Interpolate core to another mesh ---

@@ -2,13 +2,12 @@
       contains
       integer function iors(nit,lbin,ifi)
       use m_density,only: zv_a_osmrho=>osmrho, sv_p_orhoat=>orhoat
-
       use m_supot,only: lat_nabc
       use m_struc_func,only:mpibc1_s_spec,mpibc1_s_site
       use m_bndfp,only: m_bndfp_ef_SET,eferm!,bz_ef !,bz_def
-      use m_lmfinit,only: irs3,irs4,irs5,irsrot,lat_alat,nsp,lrel,nl,ssite=>v_ssite,sspec=>v_sspec,
-     &    nbas,nat,nspec 
-      use m_lattic,only: lat_dist, lat_plat
+      use m_lmfinit,only: irs3,irs4,irs5,lat_alat,nsp,lrel,nl,ssite=>v_ssite,sspec=>v_sspec,
+     &    nbas,nat,nspec  !,irsrot
+      use m_lattic,only: lat_plat !lat_dist, 
       use m_ext,only:sname
 !!- I/O for charge density to rst or rsta. ssite sspec are readin 
 !! read write
@@ -73,8 +72,8 @@ Cu   01 Jul 05 handle sites with lmxa=-1 -> no augmentation
 Cu   04 Feb 05 Spin-split file non-spin-polarized density (FP)
 Cu   26 Apr 03 Added MPI parallelization for ASA
 Cu   11 Jan 03 Bug fix: corrected calc. vol (might have been<0)
-Cu   10 Dec 02 File shears atom positions by shear transformation
-Cu             (slat->plat) (file plat)^-1
+Cuxxx   10 Dec 02 File shears atom positions by shear transformation
+Cuxxx             (slat->plat) (file plat)^-1
 Cu   19 Feb 02 (version update 1.03)
 Cu             File now contains nspec
 Cu             File contents backwardly compatible with prior versions.
@@ -110,7 +109,7 @@ C ... Local parameters
       real(8) ,allocatable :: rwgt_rv(:)
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       integer idmod(n0),idmoz(n0) !,lrs(10)
-      logical isanrg,lfail,ltmp1,ltmp2,latvec,lshear,cmdopt,mlog
+      logical isanrg,lfail,ltmp1,ltmp2,latvec,cmdopt,mlog !,lshear
       double precision a,a0,alat,alat0,cof,eh,fac,qc,rfoc,rfoc0,rmt,
      .rmt0,rsma,rsma0,rsmfa,rsmr,rsmr0,rsmv,rsmv0,stc,sum,vfac,vol,
      .vol0,vs,vs1,z,z0
@@ -248,7 +247,7 @@ C       Abort with error message if file is missing (lfail = .true.)
             read(jfi,*) plat0
           endif
           call dinv33(plat0,1,qlat0,fac)
-          lshear = .not. latvec(3,1d-6,qlat,plat0)
+c          lshear = .not. latvec(3,1d-6,qlat,plat0)
           fid = fid0
           call strip(fid,i,i1)
           call strip(datimp,i,i2)
@@ -341,27 +340,19 @@ C       For compatibility with nfp, read record into wk
           endif
         endif
         call mpibc1_real(wk,3,'iors_wk')
-        if (irs4 .ne. 0) then
-          ignore=trim(ignore)//'ef window,'
-c          call awrit0('%a ef window,',ignore,len(ignore),0)
-        else
+c        if (irs4 .ne. 0) then
+c          ignore=trim(ignore)//'ef window,' !binit=T in bndfp==> set eferm=0d0
+c        else
           use=trim(use)//'use window,'
-c          call awrit0('%a ef window,',use,len(use),0)
-c          bz_ef00=wk(1)
-c          bz_def00=wk(2)
           call m_bndfp_ef_SET(wk(1)) !bz_ef00) !,bz_def00)
-c          bz_w= -9999 !dummy wk(3)
-        endif
+c        endif
 C   --- Read atomic positions,forces,velocities ---
         line = 'site data'
         if (irs3 .ne. 0) then
           ignore=trim(ignore)//'positions,'
-c          call awrit0('%a positions,',ignore,len(ignore),0)
         else
           use=trim(use)//' positions,'
-c          call awrit0('%a positions,',use,len(use),0)
-          if (lshear) use=trim(use)//' (sheared)'
-c     if(lshare) call awrit0('%a%7b(sheared),',use,len(use),0)
+c          if (lshear) use=trim(use)//' (sheared)'
 C         Must be enough sites to read from rst file
           if (nbas0 .lt. nbas) then
             call info0(1,0,0,'%9f oops ... cannot use file site positions (site mismatch)')
@@ -384,10 +375,10 @@ C         Must be enough sites to read from rst file
           call mpibc1_real(vel,3,'iors_vel')
           if (ib .gt. nbas) goto 10
 C         rst file positions in pos0
-          if (lshear) then
-            call dgemm('T','N',3,1,3,1d0,qlat0,3,pos,3,0d0,pos0,3)
-            call dgemm('N','N',3,1,3,1d0,plat,3,pos0,3,0d0,pos,3)
-          endif
+c          if (lshear) then
+c            call dgemm('T','N',3,1,3,1d0,qlat0,3,pos,3,0d0,pos0,3)
+c           call dgemm('N','N',3,1,3,1d0,plat,3,pos0,3,0d0,pos,3)
+c          endif
           call dcopy(3,pos,1,pos0,1)
           if (irs3 .ne. 0) then
             pos=ssite(ib)%pos
@@ -403,10 +394,8 @@ C         rst file positions in pos0
 C   --- Read information for local densities ---
         if (irs5 .ne. 0) then
           ignore=trim(ignore)//' pnu,'
-c          call awrit0('%a pnu,',ignore,len(ignore),0)
         else
           use=trim(use)//' pnu,'
-c          call awrit0('%a pnu,',use,len(use),0)
         endif
         if (ipr .ge. 10) then
            write(stdo,*)trim(use)
@@ -497,10 +486,12 @@ c          call dpzero(ql,2*n0)
           pnu=0d0
           pnz=0d0
           ql=0d0
-          i_copy_size=size(sspec(is)%p)
-          call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
-          i_copy_size=size(sspec(is)%pz)
-          call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1)
+          pnu=sspec(is)%p
+          pnz=sspec(is)%pz
+c          i_copy_size=size(sspec(is)%p)
+c          call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
+c          i_copy_size=size(sspec(is)%pz)
+c          call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1)
           idmod=0
           idmoz=0
           if (procid .eq. master) then
@@ -542,10 +533,12 @@ C         read(but don't use) site idmod for compatibility with nfp
           endif
 C     ... Store pnu and pz in site and spec data
 C         if (ib .le. nat) then
-          i_copy_size=size(sspec(is)%p)
-          call dcopy(i_copy_size,sspec(is)%p,1,pnus,1)
-          i_copy_size=size(sspec(is)%pz)
-          call dcopy(i_copy_size,sspec(is)%pz,1,pnzs,1)
+c          i_copy_size=size(sspec(is)%p)
+c          call dcopy(i_copy_size,sspec(is)%p,1,pnus,1)
+c          i_copy_size=size(sspec(is)%pz)
+c          call dcopy(i_copy_size,sspec(is)%pz,1,pnzs,1)
+          pnus=sspec(is)%p
+          pnzs=sspec(is)%pz
           if  (irs5 .eq. 0 ) then 
             i_copy_size=size(ssite(ib)%pnu)
             call dcopy(i_copy_size,pnu,1,ssite(ib)%pnu,1)
@@ -654,11 +647,11 @@ C     ... store data in strucs
    20     continue
         enddo
         if (isanrg(ibaug, nat,nat,  msg,'nat', .false.)) goto 999
-        if ( lshear.and.irsrot) then 
-          wk(1:9)=lat_dist !rhoat rotation by lat_dist matrix
-          call dgemm('N','T',3,1,3,1d0,plat,3,qlat0,3,0d0,wk,3)
-          call pvsms2 ( ssite , sspec , wk , nbas , nsp , sv_p_orhoat )
-        endif
+c        if ( lshear.and.irsrot) then 
+c          wk(1:9)=lat_dist !rhoat rotation by lat_dist matrix
+c          call dgemm('N','T',3,1,3,1d0,plat,3,qlat0,3,0d0,wk,3)
+c          call pvsms2 ( ssite , sspec , wk , nbas , nsp , sv_p_orhoat )
+c        endif
 C   --- Read data on free-atom core states and fit to fa density ---
         line = 'species data'
         if (procid .eq. master) then
@@ -882,8 +875,9 @@ C   --- Write information for local densities ---
           rmt=sspec(is)%rmt
           z=sspec(is)%z
           qc=sspec(is)%qc
-          i_copy_size=size(sspec(is)%idmod)
-          call icopy(i_copy_size,sspec(is)%idmod,1,idmod,1)
+c          i_copy_size=size(sspec(is)%idmod)
+c          call icopy(i_copy_size,sspec(is)%idmod,1,idmod,1)
+          idmod=sspec(is)%idmod
           rsma=sspec(is)%rsma
           lmxa=sspec(is)%lmxa
           lmxl=sspec(is)%lmxl
@@ -891,12 +885,12 @@ C   --- Write information for local densities ---
           kmxv=sspec(is)%kmxv
           rsmv=sspec(is)%rsmv
           kmax=sspec(is)%kmxt
-          i_copy_size=size(ssite(ib)%pnu)
-          call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
-          i_copy_size=size(ssite(ib)%pz)
-          call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
-c         pnu=ssite(ib)%pnu
-c         pnz=ssite(ib)%pz
+c          i_copy_size=size(ssite(ib)%pnu)
+c          call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
+c          i_copy_size=size(ssite(ib)%pz)
+c          call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
+         pnu=ssite(ib)%pnu
+         pnz=ssite(ib)%pz
           if (lmxa .eq. -1) goto 120
           if (lbin) then
             write(jfi) is,spid,lmxa,lmxl,nr,rmt,a,z,qc

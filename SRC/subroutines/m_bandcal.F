@@ -225,7 +225,7 @@ c               call readindensitymodesetting() !dummy
                !Accumulate output density and sampling DOS. 
                call addrbl (jsp, qp 
      .              , iq , lfrce,  osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi
-     &              , evec,evl,nev,  ef0,def  !emin,emax,ndos, dos_rv
+     &              , evec,evl,nev  !ef0,def  !emin,emax,ndos, dos_rv
      o              , smrho_out, sumqv, sumev, sv_p_oqkkl,sv_p_oeqkkl, frcband)
             endif     
             if(PROCARon) call m_procar_init(iq,isp,ef0,evl,ndimh,jsp,qp,nev,evec,ndimhx,nmx)
@@ -251,7 +251,7 @@ c               call readindensitymodesetting() !dummy
       deallocate(evl)
       end subroutine
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-      subroutine m_bandcal_2nd(iqini,iqend,ispini,ispend,lrout,ef0) !,emin,emax)!,ndos)
+      subroutine m_bandcal_2nd(iqini,iqend,ispini,ispend,lrout)!,ef0) !,emin,emax)!,ndos)
 !accumulation by addrbl
       implicit none
       integer:: iq,nmx,ispinit,isp,jsp,nev,iqini,iqend,lrout,ifig,i,ibas,ispini,ispend,ispendx
@@ -297,7 +297,7 @@ c            if( lrout/=0 ) then
 c               call readindensitymodesetting() !dummy
                call addrbl (jsp, qp
      .              , iq , lfrce,  osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi
-     &              , evec,evl,nev,  ef0,def !emin,emax,ndos, dos_rv
+     &              , evec,evl,nev  !ef0,def !emin,emax,ndos, dos_rv
      o              , smrho_out, sumqv, sumev, sv_p_oqkkl,sv_p_oeqkkl, frcband)
 c            endif     
             if(allocated(evec)) deallocate(evec)

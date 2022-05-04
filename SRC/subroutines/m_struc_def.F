@@ -1,6 +1,8 @@
 !! explanations are old, some are obsolate 
       module m_struc_def
-      public s_rv1, s_nv2, s_cv1, s_cv2,s_cv3,s_cv4,s_spec, s_site,s_sblock
+c      use m_lmfinit,only:n0,nkap0
+      integer,parameter::  nkap0=3,n0=10
+      public s_rv1, s_nv2, s_cv1, s_cv2,s_cv3,s_cv4, s_spec, s_site, s_sblock
       private
       
       type s_rv1
@@ -26,7 +28,7 @@
       complex(8),allocatable:: cv4(:,:,:,:)
       end type s_cv4
       
-!! --- explanation of s_spec --- (some are obsolate)
+!! --- explanation of s_spec --- 
 Cr  idmod  idmol(l) controls how linearization energy is
 Cr         determined for an orbital of angular momentum l
 Cr         0 float to center of gravity of occupied part of band
@@ -64,14 +66,14 @@ Cr         3 float to natural center of band (C parameter)
       real(8)   ::   vmtz!Asymptotic potential for fitting functions at rmt
       integer   ::   kmxv !  k-cutoff for 1-center projection of free-atom rho
       real(8)   ::   rcfa(2) !renormalization radius of free atom density, and width
-      real(8)   ::   p(20) ! log derivative parameter
-      real(8)   ::   q(20)  !starting q's (charges)
-      integer   ::   idmod(10) !see m_lmfinit.F
-      integer   ::   idxdn(30) !see m_lmfinit.F
-      real(8)   ::   exi(10) !Hankel energies for fit to c.d.;  For free atoms, fit to free-atom density tails.
-      integer   ::   ngcut(30) !orbital-dependent G cutoffs (for nfp basis)
-      real(8)   ::   chfa(20) ! coefficients to fit of free-atom density tails
-      real(8)   ::   pz(20) !  log derivative parameter, semicore states
+      real(8)   ::   p(n0,2) ! log derivative parameter
+      real(8)   ::   q(n0,2)  !starting q's (charges)
+      integer   ::   idmod(n0) !see m_lmfinit.F
+      integer   ::   idxdn(n0,nkap0) !see m_lmfinit.F
+      real(8)   ::   exi(n0) !Hankel energies for fit to c.d.;  For free atoms, fit to free-atom density tails.
+      integer   ::   ngcut(n0,nkap0) !orbital-dependent G cutoffs (for nfp basis)
+      real(8)   ::   chfa(n0,2) ! coefficients to fit of free-atom density tails
+      real(8)   ::   pz(n0,2) !  log derivative parameter, semicore states
       integer   ::   idu(4) !identifies l-channels with Hubbard U (LDA+U)
       real(8)   ::   uh(4) !Hubbard U
       real(8)   ::   jh(4) !LDA+U J parameters for each l-channel
@@ -85,10 +87,10 @@ Cr         3 float to natural center of band (C parameter)
       real(8)   ::   force(3) !force   force (dynamics)
       real(8) , allocatable ::  rv_a_ov0 (:)!pointer to potential that defines wave functions
       real(8) , allocatable ::  rv_a_ov1 (:)!pointer to spherical part of MT potential
-      real(8)   ::   pnu(20)!log derivative parameter
+      real(8)   ::   pnu(n0,2)!log derivative parameter
       real(8)   ::   pos(3) !true coordinates of atom
       real(8)   ::   pos0(3) !coordinates of atom before distortion
-      real(8)   ::   pz(20) !log derivative parameter, semicore states
+      real(8)   ::   pz(n0,2) !log derivative parameter, semicore states
       integer   ::   relax(3) !(dynamics) flags which coordinates to relax
       integer   ::   spec !species index
       real(8)   ::   vel(3) !velocity

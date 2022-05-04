@@ -1,16 +1,16 @@
       module m_mksym
       use m_mksym_util,only: gensym,pvsym2,grpgen,symtbl
      
-      public :: Mksymaf,Mksym,
-     & rv_a_oag, rv_a_oclabl, iv_a_oics, iv_a_oipc, lat_npgrp, lat_nsgrp,
+      public :: m_mksym_init,
+     & rv_a_oag,  iv_a_oics, iv_a_oipc, lat_npgrp, lat_nsgrp,
      & rv_a_osymgr,iv_a_oistab, ctrl_nclass,iclasstaf_,symops_af_,ag_af_,ngrpaf_
-
+c rv_a_oclabl,
       real(8) , allocatable,protected ::  rv_a_oag (:)
-      character(8), allocatable,protected ::  rv_a_oclabl(:) 
+c      character(8), allocatable,protected ::  rv_a_oclabl(:) 
       integer , allocatable,protected ::  iv_a_oics (:)
       integer,  allocatable,protected ::  iv_a_oipc(:)
       integer , allocatable,protected ::  iv_a_onrc (:)
-      integer , allocatable,protected ::  iv_a_onrcp (:)
+c      integer , allocatable,protected ::  iv_a_onrcp (:)
       real(8) , allocatable,protected ::  rv_a_osymgr (:)
       integer , allocatable,protected ::  iv_a_oistab (:)
       integer,allocatable,protected:: iclasstaf_(:)
@@ -20,14 +20,14 @@
       private 
       contains
 
-      subroutine mksymaf(v_ssite,iv_a_oips_in,nbas,imaster,strn2,lc,slabl_,mxspec,nsite)!all input
+      subroutine mksymaf(v_ssite,iv_a_oips_in,nbas,imaster,strn2,lc,slabl,mxspec,nsite)!all input
 c      use m_hamindex,only: iclasstaf,symops_af,ag_af,ngrpaf
 !     mksymaf sets data above used in sugw.F. a little complicated...
       use m_struc_def,only: s_site
-      intent(in)::       v_ssite,iv_a_oips_in,nbas,imaster,strn2,lc,slabl_,mxspec,nsite
+      intent(in)::       v_ssite,iv_a_oips_in,nbas,imaster,strn2,lc,slabl,mxspec,nsite
       logical::                         imaster
       character strn2*(*)
-      character(8) :: slabl_(mxspec) 
+      character(8) :: slabl(mxspec) 
       type(s_site):: v_ssite(nbas)
       type(s_site),allocatable:: v_ssite2(:) !pos is rewritten in lmfp
       integer:: inumaf,iv_a_oips_in(nsite),j,k,nbas,  lc,       mxspec,nsite,ib
@@ -46,7 +46,7 @@ c      use m_hamindex,only: iclasstaf,symops_af,ag_af,ngrpaf
       enddo
       enddo
       if(imaster) call pshpr(60)
-      call mksym(lc,slabl_,strn2,v_ssite2,iv_a_oips) 
+      call mksym(lc,slabl,strn2,v_ssite2,iv_a_oips) 
       if(imaster) call poppr()
       if(imaster) write(6,"(a)")' AF: mksym, generator= SYMGRP+SYMGRPAF= '//trim(strn2)
       ngrpaf_     = lat_nsgrp 
@@ -61,9 +61,10 @@ c      use m_hamindex,only: iclasstaf,symops_af,ag_af,ngrpaf
       end subroutine
       
       subroutine mksym(mode,slabl,ssymgr,ssite,iv_a_oips) !,sctrl,slat
+      use m_ftox
       use m_struc_def
-      use m_lattic,only: lat_plat,rv_a_opos,lat_dist
-      use m_lmfinit,only: ctrl_nbas,ctrl_nsite,ctrl_nspec,stdo,lat_ldist
+      use m_lattic,only: lat_plat,rv_a_opos!,lat_dist
+      use m_lmfinit,only: ctrl_nbas,ctrl_nsite,ctrl_nspec,stdo!,lat_ldist
 C- Setup for symmetry group
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -130,7 +131,7 @@ Cu   26 Jan 01 Added new '2' option to 1s digit of mode
 Cu   31 May 00 revised meaning of mode
 C ----------------------------------------------------------------------
       implicit none
-      character*8 slabl(1),ssymgr*(*)
+      character*8 slabl(*),ssymgr*(*)
       integer mode,nsgrp,npgrp
 c      type(s_ctrl)::sctrl
 c      type(s_lat)::slat
@@ -139,24 +140,25 @@ c      type(s_array)::sarray
       integer ::iwdummy ,iwdummy1(1)
       logical T,F,cmdopt,ltmp
       integer:: idest,ig,iprint,igets,isym(10),j1,j2,lpgf,nbas,
-     .nbas0,nbasp,nsite,nclass,nclasp,nclspp,ngen,ngnmx,nspec,usegen,
-     .ldist,nggen,ngmx,incli, oiwk , aginv 
+     .nbas0,nsite,nclass,nclasp,nclspp,ngen,ngnmx,nspec,usegen,
+     .nggen,ngmx,incli, oiwk , aginv  !ldist,
       integer ,allocatable :: nrspc_iv(:)
       real(8) ,allocatable :: pos2_rv(:,:)
       integer ,allocatable :: ips2_iv(:)
       integer,allocatable:: iv_a_tmp(:)
       parameter (T=.true., F=.false., ngnmx=10)
       character*120 gens,strn*72
-      double precision gen(9,ngnmx),plat(3,3),dist(3,3),qlat(3,3),xx,fptol
+      double precision gen(9,ngnmx),plat(3,3),qlat(3,3),xx,fptol !,dist(3,3)
       integer:: i_copy_size,i_data_size,i_spackv
       integer:: iv_a_oips(*)
       nbas =ctrl_nbas
       nspec=ctrl_nspec
       nsite=ctrl_nsite
       plat =lat_plat
-      ldist=lat_ldist! ldist mode need to be recovered if necessary
-      i_copy_size=size(lat_dist)
-      call dcopy(i_copy_size,lat_dist,1,dist,1)
+c      ldist=lat_ldist           ! ldist mode need to be recovered if necessary
+c      dist=lat_dist
+c      i_copy_size=size(lat_dist)
+c      call dcopy(i_copy_size,lat_dist,1,dist,1)
       ngmx = 48
 c      stdo = globalvariables%stdo
       if (iprint() .ge. 30) write(stdo,'(1x)')
@@ -193,19 +195,8 @@ C ... For memory allocation of class data, assume initially nclass=nbas
       endif
 C --- Generate space group ---
       nbas0 = nbas
-      if (cmdopt('--fixpos',8,0,strn)) then
-         call Rx('fixpos is removed. outside of lmf')
-c$$$ccccccccccccccccccccccccccccccc         
-c$$$        j1 = 8+1
-c$$$        if (strn(9:13) .eq. ':tol=') then
-c$$$          j1 = 13
-c$$$        endif
-c$$$        if (strn(9:9) .ne. ':' .or.
-c$$$     .  .not. a2bin(strn,fptol,4,0,' ',j1,len(strn))) fptol = 1d-5
-      else
-        fptol = 0
-      endif
-
+      if (cmdopt('--fixpos',8,0,strn)) call Rx('fixpos is removed. outside of lmf')
+      fptol = 0
 C ... When generating the group the basis may become enlarged ...
       if(allocated(iv_a_oistab)) deallocate(iv_a_oistab) !lat_iv_a_oistab
       allocate(iv_a_oistab(abs((ngmx+1)*nbas)))
@@ -213,33 +204,20 @@ C ... When generating the group the basis may become enlarged ...
       allocate(pos2_rv(3,ngmx*nbas))
       call icopy ( nbas , iv_a_oips , 1 , ips2_iv , 1 ) 
       call dcopy ( 3 * nbas , rv_a_opos , 1 , pos2_rv , 1 )
-c      print *,' mmmmmm',nspec
       call gensym ( slabl , gens , usegen , t , f , fptol , f , nbas 
-     .   , nspec , ngmx , plat , plat , ldist , dist , pos2_rv , ips2_iv 
+     .   , nspec , ngmx , plat , plat , pos2_rv , ips2_iv !, ldist , dist
      .   , nrspc_iv , nsgrp , rv_a_osymgr , rv_a_oag , ngen , gen , ssymgr 
      .   , nggen , isym , iv_a_oistab ) 
-
-      if (nbas .gt. nbas0) call rxs('gensym: the basis was enlarged.',
-     .' Check group operations.')
+      if (nbas .gt. nbas0) call rxs('gensym: the basis was enlarged.',' Check group operations.')
       if (nggen .gt. nsgrp) then
-        call info2(1,0,0,' MKSYM (warning): generators create more than'
-     .  //' ngmx=%i group ops ...',ngmx,0)
+        write(stdo,ftox)' MKSYM (warning): generators create more than ngmx=',ngmx,' group ops ...'
         ngmx = ngmx*16
         if (allocated(pos2_rv)) deallocate(pos2_rv)
         if (allocated(ips2_iv)) deallocate(ips2_iv)
         if (allocated(nrspc_iv)) deallocate(nrspc_iv)
-c        if (allocated(rv_a_oag)) deallocate(rv_a_oag)
         goto 5
       endif
-
-      
-      if (fptol .ne. 0) then
-         call Rx('fptol=0 is assumed now')
-c        do i_spackv=1,nbas
-c          ssite( i_spackv )%pos = pos2_rv(:,i_spackv)
-c          rv_a_opos(:,i_spackv)=ssite(i_spackv)%pos
-c        enddo
-      endif
+      if (fptol .ne. 0) call Rx('fptol=0 is assumed now')
       
 C --- Add inversion to point group ---
       incli = -1
@@ -278,7 +256,6 @@ c       npadl=sarray%npadl
 c       npadr=sarray%npadr
       nclasp = nclass
       nclspp = nclass
-      nbasp  = nbas !+ npadl + npadr
 C   ... Reallocate arrays as permanent arrays
        i_data_size=size(iv_a_oics); allocate(iv_a_tmp(i_data_size))
        iv_a_tmp=iv_a_oics; deallocate(iv_a_oics)
@@ -293,24 +270,24 @@ C ... Remake istab
      .     , rv_a_oag , nsgrp , qlat , iv_a_oistab ) 
 C ... poke ipc into ssite
       i_copy_size=1;
-      do i_spackv=1,nbasp
+      do i_spackv=1,nbas
          ssite ( i_spackv )%class = iv_a_oipc(i_spackv)
       enddo
 c       print *,'end of ssite'
-C --- Create nrc and class labels ---
-      if (mod(mode/10,10) .eq. 2 .or. mod(mode/10,10) .eq. 4) then
-c         print *,'goto pvsym2'
-        allocate(rv_a_oclabl(nclspp))
-        allocate(iv_a_onrcp(nclspp))
-        rv_a_oclabl(:)='' !0.0d0
-        iv_a_onrcp(:)=0
-        call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , iv_a_oics , iv_a_oipc 
-     .   , nspec , slabl , ssite , rv_a_oclabl , iv_a_onrcp ) 
-        deallocate(iv_a_onrc)
-        call move_alloc(from=iv_a_onrcp, to=iv_a_onrc)
-      else
-        if (allocated(rv_a_oclabl)) deallocate(rv_a_oclabl)
-      endif
+c$$$C --- Create nrc and class labels ---
+c$$$      if (mod(mode/10,10) .eq. 2 .or. mod(mode/10,10) .eq. 4) then
+c$$$c         print *,'goto pvsym2'
+c$$$        allocate(rv_a_oclabl(nclspp))
+c$$$        allocate(iv_a_onrcp(nclspp))
+c$$$        rv_a_oclabl(:)='' !0.0d0
+c$$$        iv_a_onrcp(:)=0
+c$$$        call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , iv_a_oics , iv_a_oipc 
+c$$$     .   , nspec , slabl , ssite , rv_a_oclabl , iv_a_onrcp ) 
+c$$$        deallocate(iv_a_onrc)
+c$$$        call move_alloc(from=iv_a_onrcp, to=iv_a_onrc)
+c$$$      else
+c$$$        if (allocated(rv_a_oclabl)) deallocate(rv_a_oclabl)
+c$$$      endif
 C --- Cleanup: poke class and symmetry info into structures ---
       ctrl_nclass=nclass
 c      sarray%nclasp=nclasp
@@ -320,9 +297,9 @@ c      sarray%nclasp=nclasp
 c      print *,'end of mksym'
       end subroutine mksym
 !ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
-      subroutine latsym(prgnam)
+      subroutine m_mksym_init(prgnam) !latsym(prgnam)
       use m_lmfinit,only: v_ssite,nbas,sstrnsymg,ctrl_noinv,
-     &     symgaf,iv_a_oips,slabl_,mxspec,nsite,procid,master
+     &     symgaf,iv_a_oips,slabl,mxspec,nsite,procid,master
 ! v_ssite%pos modified
       use m_lattic,only: rv_a_opos,m_lattic_init
 c      use m_mksym,only: mksymaf,mksym
@@ -348,7 +325,6 @@ c      use m_mksym,only: mksymaf,mksym
       logical ::cmdopt,ipr10=.false.
       character strn*(recln),strn2*(recln),outs(recln)
 !! lattice set up      
-      call m_lattic_init() 
       do ibas=1,nbas
         v_ssite(ibas)%pos = rv_a_opos(:,ibas)
       enddo
@@ -377,14 +353,14 @@ c      use m_mksym,only: mksymaf,mksym
            enddo
         endif
         strn2=trim(strn)//' '//trim(symgaf)
-        call mksymaf(v_ssite,iv_a_oips,nbas,procid==master,strn2,lc,slabl_,mxspec,nsite)
+        call mksymaf(v_ssite,iv_a_oips,nbas,procid==master,strn2,lc,slabl,mxspec,nsite)
         if(ipr10) write(6,"(a)") ' AF: ===== end of AF section================= '
         if(ipr10) write(6,"(a)")       
       endif
       if(procid==master) call pshpr(60)
-      call mksym(lc,slabl_,strn,v_ssite,iv_a_oips) 
+      call mksym(lc,slabl,strn,v_ssite,iv_a_oips) 
       if(procid==master) call poppr
-      end subroutine latsym
+      end subroutine m_mksym_init
       end module m_mksym
 
       

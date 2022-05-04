@@ -1,5 +1,4 @@
       subroutine sugcut(mode) !,sspec)
-c      use m_struc_def,only: s_spec
       use m_lmfinit,only: nspec,alat=>lat_alat,tol=>lat_tolft,n0,nkap0,nkaphh,lhh,nkapii,sspec=>v_sspec
       use m_supot,only: gv=>rv_a_ogv,ng=>lat_ng
       use m_uspecb,only:uspecb
@@ -18,17 +17,9 @@ Cu   10 Apr 02 Redimensionsed eh,rsmh to accomodate larger lmax
 Cu    9 May 00 Adapted from nfp su_gvcut.f
 C ----------------------------------------------------------------------
       implicit none
-C ... Passed parameters
-      integer mode,i_copy_size
-c      type(s_spec)::sspec(*)
-C ... Local parameters
-c      integer nkap0,n0
-c      parameter (nkap0=3,n0=10)
-      integer ngcut(n0,nkap0),lh(nkap0)
-      integer stdo,lgunit,ipr,iprint,is,irep,icut,i,ik,l,lcut,nkapi,
-     .nkap1,nkap2
-      double precision rsmh(n0,nkap0),eh(n0,nkap0),tpi,tpiba2,gg0,gg,
-     .e,rsm,gam,gmax,top
+      integer:: mode, ngcut(n0,nkap0),lh(nkap0)
+      integer:: stdo,lgunit,ipr,iprint,is,irep,icut,i,ik,l,lcut,nkapi,nkap1,nkap2
+      real(8):: rsmh(n0,nkap0),eh(n0,nkap0),tpi,tpiba2,gg0,gg,e,rsm,gam,gmax,top
       character*8 spid
       character*1 ccc,ccl
       if (ng .eq. 0) return
@@ -40,30 +31,23 @@ c      parameter (nkap0=3,n0=10)
         if (mode .eq. 1) write(stdo,887) tol
         if (mode .eq. 2) write(stdo,888) tol
         write(stdo,774)
-  887   format(/' sugcut:  make orbital-dependent reciprocal vector',
-     .  ' cutoffs for tol=',1p,e9.2)
+  887   format(/' sugcut:  make orbital-dependent reciprocal vector',' cutoffs for tol=',1p,e9.2)
   888   format(/' sugcut:  orbital-dependent cutoffs for local',' orbitals, tol=',1p,e9.2)
       endif
       gg = -1
       do  is = 1, nspec
         spid = sspec(is)%name
         nkap1 = 1
-c        call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkapi)
         call uspecb(is,rsmh,eh)
         nkap2 = nkaphh(is)
         nkapi = nkapii(is)
-c        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
         if (mode>1) then
-c          call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkap2)
           if(mode==2) nkap1 = nkapi+1
         else
           nkap2 = nkapi
         endif
-        ngcut=0 !call iinit(ngcut,n0*nkap0)
-        if (mode==2 ) then
-          i_copy_size=size(sspec(is)%ngcut)
-          call icopy(i_copy_size,sspec(is)%ngcut,1,ngcut,1)
-        endif
+        ngcut=0 
+        if(mode==2 ) ngcut=sspec(is)%ngcut
         gg0 = gg
         do  ik = nkap1, nkap2
           lcut = -1
@@ -83,8 +67,6 @@ C     ... Get cutoff radius where exp(-gam*gmax)*gmax**l equals tol
               gmax = 1d0
               do  irep = 1, 10
                 gmax = dsqrt(-dlog(tol/gmax**l)/gam)
-C           write(stdo,895) irep,gmax
-C 895       format('irep,gmax=',i5,f12.6)
               enddo
 C     ... Find first longer vector, icut is one less
               icut = 1
@@ -107,8 +89,7 @@ C     ... Find first longer vector, icut is one less
             endif
           enddo
         enddo
-        i_copy_size=size(sspec(is)%ngcut)
-        call icopy(i_copy_size,ngcut,1,sspec(is)%ngcut,1)
+        sspec(is)%ngcut=ngcut
       enddo
       end subroutine sugcut
       

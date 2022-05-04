@@ -5,6 +5,7 @@
 !     We can not modify data in a module by other modules (in prinicple, not everywhere yet).
       program lmf
       use m_lmfinit,only:m_Lmfinit_init,nlibu,plbnd,irs1,irs1x10,lrout,ctrl_lfrce,sspec=>v_sspec
+      use m_lmfinit,only: irs1,irs2,irs3,irs4,irs5, irs1x10,irsrot 
       use m_writeham,only: m_writeham_init, m_writeham_write
       use m_ext,only:      m_Ext_init,sname
       use m_lattic,only:   m_Lattic_init, Setopos
@@ -22,6 +23,7 @@
       use m_iors,only:  Iors
       use m_lmaux,only: lmaux
       use m_gennlat,only: m_gennlat_init
+      use m_mksym,only: m_mksym_init
       implicit none
       integer:: k,lgunit,stdo,stdl
       logical:: fileexist,cmdopt,cmdopt0,cmdopt2
@@ -30,7 +32,10 @@
       character(8):: prgnam='LMF'
       character*8 charext
       integer:: iarg,jobgw,iprint,nit1,ifi,irs1x,ifile_handle,nx,ny,nk1,nk2,nk3
-!      
+c      integer:: irs(5), irs1,irs2,irs3,irs4,irs5,
+c     logical:: irs1x10,irsrot
+      
+!=== Bootstrap building up of module variables by M*_init().
       call M_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
       if(cmdopt0('--jobgw')) prgnam='LMFGWD'
       call M_MPItk_init(prgnam)
@@ -41,13 +46,12 @@
          call getarg(iarg,sss)
          aaa=aaa//' '//trim(sss)
       enddo
-      aaa= '===START '//trim(prgnam)//'  '//trim(aaa)//' ==='
+      aaa='===START '//trim(prgnam)//'  '//trim(aaa)//' ==='
       if(master_mpi) write(stdo,"(a)") trim(aaa)
       if(master_mpi) write(stdl,"(a)") trim(aaa)
       if(master_mpi) write(stdo,*) 'mpisize=',nsize
       if(master_mpi) write(stdl,*) 'mpisize=',nsize
-!!      
-      if (cmdopt0('--help')) then  !help and quit
+      if(cmdopt0('--help')) then  !help and quit
          call M_lmfinit_init(prgnam) ! show help and quit for --input
          call Rx0('end of help mode')
       endif
@@ -66,22 +70,17 @@
          call Writedossawada()
          call Rx0('done: end of --wdsawada mode.')
       endif
-      
 !! Read ctrl.* into m_rdfiln
-!! m_rdfiln is too complicated to maintain. We will use simple reader.
-!! 'math operation' and '-v substitution' may be convenient, but probably we will separate them away.
-!!    it allow expression like ALAT=7.88*1.1
-      call M_rdfiln_init()
-!! Read recrd of ctrl file into m_lmfinit
-!!  Set all the initial conditions in the module m_lmfinit.
-!!  All variables except v_sspec and v_ssite are protected.
-      call M_lmfinit_init(prgnam) ! Computational settings go into m_lmfinit
-!! Lattice and Symmetry
-      call Latsym(prgnam) !---> lattice(for ewald sum) and symmetry go into m_lattic and m_mksym
-!! q points info     
-      if(trim(prgnam) == 'LMF') then
-         call M_mkqp_init() ! data of BZ go into m_mkqp
-      endif
+! m_rdfiln is too complicated to maintain. We will use simple reader.
+! 'math operation' and '-v substitution' may be convenient, but probably we will separate them away.
+!  it allow expression like ALAT=7.88*1.1
+      call M_rdfiln_init() ! Read recrd of ctrl file into m_lmfinit
+! Set all the initial conditions in the module m_lmfinit.
+! All variables except v_sspec and v_ssite are protected.
+      call M_lmfinit_init(prgnam) ! Computational settings from ctrl file is stored in m_lmfinit
+      call M_lattic_init() ! lattice setup (for ewald sum)
+      call M_mksym_init(prgnam) !symmetry go into m_lattic and m_mksym
+      if(trim(prgnam)=='LMF') call M_mkqp_init() ! data of BZ go into m_mkqp
 !!======================================================================      
 !! Main program. lmf-MPIK/lmfgw-MPIK. 'call lmfp'---------------------
 !! --rs=3 mode is removed. (--rs=3 meand fixed density Harris-foukner MD).
@@ -109,7 +108,6 @@
 !! Array allocated in supot rhoat smrho. We have to store all fixed quantites in modules.
       call m_supot_init() ! get G vectors for charge
       call sugcut(1)
-c      print *,'mmmmm goto m_suham_init'
       call m_suham_init() ! Get estimated dimension of Hamiltonian (probably simplified in future).
 !! LDA+U initialization
       if(nlibu>0) call m_ldau_init()
@@ -118,44 +116,73 @@ c! Get q point list at which we do band calculations
       call m_qplist_init(plbnd,jobgw==1)
       call m_qplist_qspdivider()  !generate iqini:iqend,isini,isend  for each rank
 !! G vectors for qplist
-      call m_igv2xall_init(1,nkp) !(iqini,iqend)   !(1,nkp) is needed for gwb.head
+      call m_igv2xall_init(1,nkp) !(1,nkp) is needed for gwb.head
 !! madelung mode may need to be recovered.      
 !! allocate(madelung(nbas**2)); call madmat(madelung) !Monopole Madelung matrix (kept for future).
       
 !!=== NOTE: shear mode here is currently commented out.
 !!   =>probably shear mode should be recovered outside of fortran.
 
+c$$$cxxxxxxxxxxxxxxxxxxxxxx      
+c$$$!!  --- Read restart file or overlap free atom densities ---
+c$$$!!    irs1x tells what to read and whether to invoke smshft.
+c$$$!!     0    read from atom file  atm;  1  read from binary  rst ;  2 read from ascii  rsta
+c$$$!!    +10 -> invoke smshft(1) after file read.
+c$$$c     write(stdo,*) ' reading rst or atm',irs1x
+c$$$      irs=0
+c$$$      irs(1) = 1
+c$$$      irs(2) = 1
+c$$$      if (cmdopt('--rs=',5,0,strn)) then
+c$$$        i = 5
+c$$$        j = a2vec(strn,len(strn),i,2,', ',2,2,5,ix,irs)
+c$$$      endif
+c$$$      irs1    = mod(irs(1),10)  !   0:read atom file, 1:read rst, 2:read rsta, 
+c$$$      irs1x10 = (irs(1)/10==1)  ! +10:  smshft after rst/rsta read (see lmfp.F) 
+c$$$      irsrot  = (irs(1)/100==1) ! +100: rotate local density after file read for shear mode (iors.F)
+c$$$                                !       (originally it was 8s' bit of irs(1))
+c$$$      irs2 = irs(2) ! 1:write rst  2:write rsta
+c$$$      irs3 = irs(3) ! read site positions from ctrl
+c$$$      irs4 = irs(4) ! read starting fermi level from ctrl
+c$$$      irs5 = irs(5)             ! read starting pnu level from ctrl
+c$$$      if (cmdopt0('--etot')) irs2=0
+c$$$      endif
+c$$$  ccccccccccccccccccccxxxxxxxx
+! plan----------      
+!     --ReadAtom --ReadRst ReadRsta for atom,rst,rsta
+!     --ReadPosCtrl ==> irs3=T
+!     --ReadPnuCtrl ==> irs5=T
+!     xxx --irsrot ->deleted
+!     xxx --irs1x10
+!     xxx --ReadEfermiCtrl==> unused
+      
+      
 !! Initial density Read atm.* or rst.*  rhoat smrho in supot
-!!  --- Read restart file or overlap free atom densities ---
-!!    irs1x tells what to read and whether to invoke smshft.
-!!     0    read from atom file  atm;  1  read from binary  rst ;  2 read from ascii  rsta
-!!    +10 -> invoke smshft(1) after file read.
-c      write(stdo,*) ' reading rst or atm',irs1x
       irs1x = irs1
-      if (irs1x == 0) then ! read overlap free-atom densities
-         call rdovfa()     ! superposition of spherical atomic densities by lmfa.
-         nit1 = 0
-      elseif( mod(irs1x,4)==1 .or. mod(irs1x,4)==2 ) then 
-         lbin = (irs1x==1) ! lbin=T:rst for --rs=1, or lbin=F:rsta for --rs=2,
-         k = -1
-         if(master_mpi) then
-            ifi=ifile_handle() 
-            if(lbin)       open(ifi,file='rst.'//trim(sname),form='unformatted')
-            if(.not. lbin) open(ifi,file='rsta.'//trim(sname)) 
-         endif
-         call mpibc1_int(ifi,1,'lmv7:lmfp_ifi')
-         k = iors(nit1 , lbin, ifi=ifi )! read rst file. sspec ssite maybe modified 
-         if (master_mpi) close(ifi) 
-         call mpibc1_int(k,1,'lmv7:lmfp_k')
-         call Setopos() !set pos read in iors into rv_a_opos
-         if(k<0) then !initial potential from atm file if rst can not read
-            irs1x = 0
-            call rdovfa() 
-            nit1 = 0
-         elseif (irs1x10) then  
-            call smshft(1)
-         endif
+c      if (irs1x == 0) then ! read overlap free-atom densities
+c         call rdovfa()     ! superposition of spherical atomic densities by lmfa.
+c         nit1 = 0
+c      elseif( mod(irs1x,4)==1 .or. mod(irs1x,4)==2 ) then 
+      lbin = (irs1x==1)         ! lbin=T:rst for --rs=1, or lbin=F:rsta for --rs=2,
+      k = -1
+      if(master_mpi) then
+         ifi=ifile_handle() 
+         if(lbin)       open(ifi,file='rst.'//trim(sname),form='unformatted')
+         if(.not. lbin) open(ifi,file='rsta.'//trim(sname)) 
       endif
+      call mpibc1_int(ifi,1,'lmv7:lmfp_ifi')
+      k = iors(nit1 , lbin, ifi=ifi ) ! read rst file. sspec ssite maybe modified 
+      if (master_mpi) close(ifi) 
+      call mpibc1_int(k,1,'lmv7:lmfp_k')
+      call Setopos()            !set pos read in iors into rv_a_opos
+      if(k<0) then              !initial potential from atm file if rst can not read
+         irs1x = 0
+         call rdovfa() 
+         nit1 = 0
+      elseif (irs1x10) then  
+         call smshft(1)
+      endif
+c      endif
+!      
       call m_hamindex_init(jobgw) !bugfix. moved here 2022apr04
 !! m_writeham_* is after m_hamindex_init 2022apr22
       writeham= cmdopt0('--writeham')
@@ -173,7 +200,7 @@ c      write(stdo,*) ' reading rst or atm',irs1x
          if(master_mpi) call getqmode()
          call rx0('--getq mode done')
       endif
-!!      
+!! ---     
       if(iprint()>=30) call praugm(sspec,0) !print out properties of species
       if(lrout == 0 .and. ctrl_lfrce /= 0) then
         write(stdo,"(a)") 'Error: output density required when forces sought.\n'//

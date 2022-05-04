@@ -30,9 +30,8 @@ Ci          functions are less than tol.
       real(8),parameter::  NULLR =-99999, fs = 20.67098d0, degK = 6.3333d-6 ! defaults for MD
       integer,protected:: io_show=0,io_help=0,nvario=0
       integer(2),protected:: nono
-      character(8),protected:: slabl_(mxspec) 
       character(lstrn),protected:: sstrnmix,sstrnsymg
-      integer,protected:: irs1,irs2,irs3,irs4,irs5,irs11, lat_nkqmx,nat,lxcf
+      integer,protected:: irs1,irs2,irs3,irs4,irs5, lat_nkqmx,nat,lxcf
       character(256),protected:: header,symg=' ',   symgaf=' '!for Antiferro
       logical,protected :: ham_frzwf,ham_ewald
       integer,protected:: nspc,stdo,stdl,procid,nproc,master=0,nspx,
@@ -117,13 +116,13 @@ c     &     ,ham_delta_stabilize
       integer,protected:: ham_pwmode,ham_nkaph,ham_nlibu,
      &     ctrl_noinv,nlmax,mxorb,ctrl_lfrce,bz_nevmx,
      &     ham_nbf,ham_lsig,ctrl_lmet,bz_nabcin(3)=NULLI,
-     &     bz_ndos,              !bndfp
-     &     lat_ldist=0
+     &     bz_ndos              !bndfp
+c     &     lat_ldist=0
       logical,protected:: irs1x10,irsrot !(irsrot is not tested)
-      real(8),protected:: ham_seref, bz_w,bz_ef0,bz_def0, !iors,bndfp
+      real(8),protected:: ham_seref, bz_w,!,bz_ef0,bz_def0, !iors,bndfp
      &     lat_platin(3,3),lat_alat,lat_avw,lat_tolft,lat_gmaxin
       real(8),protected::
-     &     lat_dist0(1:9)=0d0,lat_gam(1:4)=[0d0,0d0,1d0,1d0], !no deformation. See lattic
+     &     lat_gam(1:4)=[0d0,0d0,1d0,1d0], !no deformation. See lattic !lat_dist0(3,3)=0d0,
      &     ctrl_mdprm(6),
      &     bz_doswin(2) 
       integer,protected:: lekkl!,lcplxp !now we fix lcplxp=1 and removed from m_lmfinit 
@@ -257,7 +256,7 @@ C ----------------------------------------------------------------------
       integer:: dvec1(3)=1, dvec2(3)=0
 C ... basis
       double precision orbp(n0,2,nkap0)
-      integer o,oclabl,ohave,oics,opnu,opp,oqnu,osgw,osoptc,oves,owk !osordn,
+      integer ohave,oics,opnu,opp,oqnu,osgw,osoptc,oves,owk !osordn,
       real(8):: pnux(20) ,temp33(9)
       integer:: nnn
       integer:: i_copy_size,i_spacks,iendx,inix,i_spackv
@@ -1096,9 +1095,9 @@ c     .     ' 4 BZ integration with 3-point scheme')
       nm='BZ_W'; call gtv(trim(nm),tksw(prgnam,nm),bz_w, def_r8=5d-3,note=
      .     'If BZ_N>=0, Line broadening for sampling integration%N%3f'//
      .     'If BZ_N<0,  Temperature for Fermi distribution (Ry)')
-      nm='BZ_EF0'; call gtv(trim(nm),tksw(prgnam,nm),bz_ef0, def_r8=0d0,note='Initial guess at Fermi energy')
-      nm='BZ_DELEF'; call gtv(trim(nm),tksw(prgnam,nm),bz_def0,
-     .     def_r8=0.05d0,note='Initial uncertainty in Fermi energy')
+c      nm='BZ_EF0'; call gtv(trim(nm),tksw(prgnam,nm),bz_ef0, def_r8=0d0,note='Initial guess at Fermi energy')
+c      nm='BZ_DELEF'; call gtv(trim(nm),tksw(prgnam,nm),bz_def0,
+c     .     def_r8=0.05d0,note='Initial uncertainty in Fermi energy')
       nm='BZ_ZBAK'; call gtv(trim(nm),tksw(prgnam,nm),zbak,def_r8=0d0,note='Homogeneous background charge')
 c!! Write zbak. sep2020
 c      if(procid==master) then
@@ -1331,7 +1330,6 @@ c      ham_delta_stabilize=delta_stabilize !takao sep2010
 C --- Allocate and copy input to sspec ---
       allocate(v_sspec(nspec))
       do j=1,nspec
-          slabl_(j) = slabl(j)
           v_sspec(j)%eh3=-0.5d0
           v_sspec(j)%vmtz=-0.5d0
           v_sspec(j)%coreh=coreh(j)
@@ -1385,14 +1383,12 @@ Cr         and it is included in the basis.
 ! mxcst2(for lmchk)   Exclude this species when auto-resizing sphere radii
 ! mxcst4   Freeze augmentation w.f. for this species (FP)
 !!     Pack P,Q,PZ for both spins
-          v_sspec(j)%p = pnu(1:n0*nsp,1,j)
+          v_sspec(j)%p = pnu(1:n0,1:nsp,j)
           if(nsp==2) pz(1:n0,2,j) = pz(1:n0,1,j) !takao
-ccccccc unused areas but fill zero to avoid NaN stop
-          if(nsp==1) v_sspec(j)%p(n0+1:2*n0)  = 0d0
-          if(nsp==1) v_sspec(j)%pz(n0+1:2*n0) = 0d0
-ccccccc          
-          v_sspec(j)%pz= pz(1:n0*nsp,1,j)  
-          v_sspec(j)%q = qnu(1:n0*nsp,1,j) 
+          if(nsp==1) v_sspec(j)%p(1:n0,2) = 0d0 !unused areas but fill zero to avoid NaN stop
+          if(nsp==1) v_sspec(j)%pz(1:n0,2) = 0d0
+          v_sspec(j)%pz= pz(1:n0, 1:nsp,j)  
+          v_sspec(j)%q = qnu(1:n0,1:nsp,j) 
           v_sspec(j)%z=z(j)
           v_sspec(j)%rcfa=rcfa(:,j)
           v_sspec(j)%rfoca=rfoca(j)
@@ -1545,17 +1541,15 @@ C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
 !! --- takao embed contents in susite here. This is only for lmf and lmfgw.
       seref = 0d0
       do ib = 1, nsite
-         ispec = v_ssite(ib)%spec
-         if (ispec <= 0) cycle
-         v_ssite(ispec)%clabel = v_sspec(ispec)%name
-         seref = seref +     v_sspec(ispec)%eref
+         is = v_ssite(ib)%spec
+         if (is <= 0) cycle
+         v_ssite(ib)%clabel = v_sspec(is)%name
+         seref = seref +     v_sspec(is)%eref
       enddo
       ham_seref=seref
-c      allocate(rv_a_opos(3,nsite))
       allocate(iv_a_oips(nsite))
-      do i_spackv=1,nsite
-c         rv_a_opos(:,i_spackv)= v_ssite( i_spackv )%pos
-         iv_a_oips(i_spackv) =  v_ssite( i_spackv )%spec
+      do ib=1,nsite
+         iv_a_oips(ib) = v_ssite(ib)%spec
       enddo
       if (procid .eq. master) then
          if (iprint() .ge. 20) then
@@ -1577,7 +1571,6 @@ c         rv_a_opos(:,i_spackv)= v_ssite( i_spackv )%pos
       endif
 #if MPI | MPIK
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
-c      print *,' mpipid=',procid
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
 #endif
       if( cmdopt0('--quit=show') ) call rx0(trim(prgnam)//' --quit=show')
@@ -1630,9 +1623,6 @@ c      print *,' mpipid=',procid
       enddo
       if (master_mpi.and.nlibu/=0) write(stdo,"(' LDA+U: block(s) lmaxu =',2i4)") nlibu,lmaxu
 !! aug2012 we now fix lcplxp=1 (complex ppi integral)      
-c      lcplxp = 0
-c      if (lso .ne. 0)    lcplxp = 1
-c      if (sum(lldau)/=0) lcplxp = 1
       lekkl  = ctrl_pfloat
             
 ! lhh, nkapii, nkaphh (nkaphh = nkapii(1 or 2) +1) if extented local orbital exist)

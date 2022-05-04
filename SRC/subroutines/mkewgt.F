@@ -1,4 +1,4 @@
-      subroutine mkewgt(lmet,wgt,qval,ndimh,evl,ef0,def,!esmear-->BZ_W and BZ_N instead,
+      subroutine mkewgt(lmet,wgt,qval,ndimh,evl,!ef0,def,!esmear-->BZ_W and BZ_N instead,
      .     nevec,ewgt,sumev,sumqv)
       use m_lmfinit,only: bz_w,bz_n,stdo
 C- State-dependent weights for sampling BZ integration.
@@ -13,9 +13,9 @@ Ci   wgt   :symmetry weight for this qp
 Ci   qval  :valence charge; number of occupied states
 Ci   ndimh :dimensions evl
 Ci   evl   :eigenvalues
-Ci   ef0   :trial Fermi level
-Ci   def   :uncertainty in Fermi level; quantities are accumulated for
-Ci         :ef0-def, ef0, ef0+def
+Cixxx   ef0   :trial Fermi level
+Cixxx   def   :uncertainty in Fermi level; quantities are accumulated for
+Cixxx         :ef0-def, ef0, ef0+def
 Ci   esmear:Parameter that describes gaussian broadening. 
 Ci         :Integer part >0 for for generalized gaussian broadening
 Ci         :and is the the Methfessel-Paxton integration order
@@ -42,7 +42,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer lmet,ndimh,nevec!,numq
-      double precision def,ef0,qval,wgt !esmear,
+      double precision qval,wgt !esmear,
       double precision evl(ndimh),ewgt(1),sumev(2),sumqv
 C ... Local parameters
       integer i,i1,i2,ie,iprint,iq,k,nord

@@ -57,9 +57,9 @@ C --- Create nrc ---
       end subroutine pvsym2
 
       subroutine gensym(slabl,gens,usegen,lcar,lfix,fptol,lsmall,nbas,
-     .nspec,ngmx,plat,platcv,ldist,dist,bas,ips,nrspec,ng,g,
+     .nspec,ngmx,plat,platcv,bas,ips,nrspec,ng,g,
      .ag,ngen,gen,nwgens,nggen,isym,istab)
-C- Generate the space group
+C- Generate the space group !,ldist,dist
 C ----------------------------------------------------------------------
 Ci Inputs:
 Ci   slabl: name of the different species.
@@ -143,9 +143,9 @@ C ----------------------------------------------------------------------
 C     implicit none
 C Passed parameters:
       integer nbas,isym(*),istab(nbas,*),nspec,ngen,ngmx,
-     .ng,nrspec(nspec),usegen,ldist,ips(nbas),nggen
+     .ng,nrspec(nspec),usegen,ips(nbas),nggen !,ldist
 C     integer istab2(nbas,*)
-      double precision plat(9),platcv(9),g(9,*),ag(3,*),dist(3,3),
+      double precision plat(9),platcv(9),g(9,*),ag(3,*),!dist(3,3),
      .bas(3,nbas),fptol
       character*8  slabl(*), gens*(*), nwgens*(*)
       logical lcar,lfix
@@ -182,11 +182,10 @@ C --- Symmetry group as given by input generators ---
       endif
 
 C ... Rotate the generators
-      call pshpr(iprint()-11)
-      call lattdf ( - ldist , dist , plat , 0 , iwdummy , ngen , gen 
-     . )
-
-      call poppr
+c      call pshpr(iprint()-11)
+c      call lattdf ( - ldist , dist , plat , 0 , iwdummy , ngen , gen 
+c     . )
+c      call poppr
       do  10  igen = 1, ngen
         call grpprd(gen(1,igen),plat,platt)
 C       call dmpy(gen(1,igen),3,1,plat,3,1,platt,3,1,3,3,3)
