@@ -28,10 +28,10 @@ Ci          functions are less than tol.
       integer,parameter::  NULLI=-99999,nkap0=3,mxspec=256,lstrn=10000
       integer,parameter::  n0=10,nppn=12, nab=9, nrmx=1501,nlmx=64 !bndfp
       real(8),parameter::  NULLR =-99999, fs = 20.67098d0, degK = 6.3333d-6 ! defaults for MD
-      integer,protected:: io_show=0,io_help=0,nvario=0
+      integer,protected:: io_show=0,io_help=0,nvario=0, lat_nkqmx,nat,lxcf !,irs4
       integer(2),protected:: nono
       character(lstrn),protected:: sstrnmix,sstrnsymg
-      integer,protected:: irs1,irs2,irs3,irs5, lat_nkqmx,nat,lxcf !,irs4
+c      integer,protected:: irs1,irs2,irs3,irs5
       character(256),protected:: header,symg=' ',   symgaf=' '!for Antiferro
       logical,protected :: ham_frzwf,ham_ewald
       integer,protected:: nspc,stdo,stdl,procid,nproc,master=0,nspx,
@@ -47,7 +47,7 @@ Ci          functions are less than tol.
      &     ,ham_elind,ham_oveps,ham_scaledsigma
 c     &     ,ham_delta_stabilize 
 !! ... OPTIONS
-      integer,protected :: ctrl_smalit(2),smalit(2), lstonr(3)=0,nl,lpfloat
+      integer,protected :: ctrl_smalit(2),smalit(2), lstonr(3)=0,nl,lpfloat 
       real(8),protected:: rmines,rmaxes
       logical,protected :: lhf,lcd4
 !! ... STRUC 
@@ -246,7 +246,7 @@ C ----------------------------------------------------------------------
       logical lgors,cmdopt,bittst,ltmp,ioorbp,noinv,cmdopt0,cmdopt2
       double precision dval,dglob,xx(n0*2),dgets !,ekap(6)
       integer a2vec,bitand,getdig,i,is,igets,iprint,
-     .iprt,irs(5),isw,ifi,ix(n0*nkap0),j,k,l,!lbas, !noinv was iand(lqp,1)
+     .iprt,isw,ifi,ix(n0*nkap0),j,k,l,!lbas, !noinv was iand(lqp,1),irs(5)
      .lfrzw,lgunit,
      .lrs,lstsym,ltb,nclasp,
      .nglob,scrwid,stde,k1,k2,mpipid !nkap,lsx1,
@@ -1211,21 +1211,21 @@ C     Default values for smix (array has same same structure as lstra smix)
 !! Stage 2  Reorganize ctrl_* in module m_lmfinit ---------------------
       ctrl_defm = lat_defm(:)
       ctrl_lmet= isw(bz_lmet.ne.0) + 2*isw(ctrl_lmet2) != 1*lmetal + 2*ltetrahedron
-      irs=0
-      irs(1) = 1
-      irs(2) = 1
-      if (cmdopt('--rs=',5,0,strn)) then
-        i = 5
-        j = a2vec(strn,len(strn),i,2,', ',2,2,5,ix,irs)
-      endif
-      irs1    = mod(irs(1),10)  !   0:read atom file, 1:read rst, 2:read rsta, 
-c      irs1x10 = (irs(1)/10==1)  ! +10:  smshft after rst/rsta read (see lmfp.F) 
-c      irsrot  = (irs(1)/100==1) ! +100: rotate local density after file read for shear mode (iors.F)
-                                !       (originally it was 8s' bit of irs(1))
-      irs2 = irs(2) ! 1:write rst  2:write rsta
-      irs3 = irs(3) ! read site positions from ctrl
-c      irs4 = irs(4) ! read starting fermi level from ctrl
-      irs5 = irs(5) ! read starting pnu level from ctrl
+c$$$      irs=0
+c$$$      irs(1) = 1
+c$$$      irs(2) = 1
+c$$$      if (cmdopt('--rs=',5,0,strn)) then
+c$$$        i = 5
+c$$$        j = a2vec(strn,len(strn),i,2,', ',2,2,5,ix,irs)
+c$$$      endif
+c$$$      irs1    = mod(irs(1),10)  !   0:read atom file, 1:read rst, 2:read rsta, 
+c$$$c      irs1x10 = (irs(1)/10==1)  ! +10:  smshft after rst/rsta read (see lmfp.F) 
+c$$$c      irsrot  = (irs(1)/100==1) ! +100: rotate local density after file read for shear mode (iors.F)
+c$$$                                !       (originally it was 8s' bit of irs(1))
+c$$$      irs2 = irs(2) ! 1:write rst  2:write rsta
+c$$$      irs3 = irs(3) ! read site positions from ctrl
+c$$$c      irs4 = irs(4) ! read starting fermi level from ctrl
+c$$$      irs5 = irs(5) ! read starting pnu level from ctrl
 C     lqp 1 do not add inversion 2 inverse iteration
 c      lqp = 1*isw(ctrl_noinv)+2*isw(ctrl_lqp2)  !lqp= ctrl_noinv + 2*ctrl_lqp2
 c      lpq2 = isw (ctrl_lqp2)  ! T->1 F->0
@@ -1582,7 +1582,7 @@ c         v_ssite(ib)%clabel = v_sspec(is)%name
         mdprm=0 !!!  No forces or dynamics
         ctrl_lfrce=0
         ctrl_mdprm=0
-        irs2=0
+c        irs2=0
         maxit=1
       endif
       if(lhf) maxit= 1

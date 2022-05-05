@@ -2,13 +2,13 @@
       public iors
       private
       contains
-      integer function iors(nit,lbin,ifi)
+      integer function iors(nit,lbin,ifi,irs3,irs5)
       use m_density,only: osmrho, orhoat !these are allocated
       
       use m_supot,only: lat_nabc
       use m_struc_func,only:mpibc1_s_spec,mpibc1_s_site
       use m_bndfp,only: m_bndfp_ef_SET,eferm 
-      use m_lmfinit,only: irs3,irs5,lat_alat,nsp,lrel,nl,ssite=>v_ssite,sspec=>v_sspec,
+      use m_lmfinit,only: lat_alat,nsp,lrel,nl,ssite=>v_ssite,sspec=>v_sspec,
      &    nbas,nat,nspec,n0  !,irsrot,irs4
       use m_lattic,only: lat_plat !lat_dist, 
       use m_ext,only:sname
@@ -92,7 +92,7 @@ Cu   21 Apr 00 Adapted from nfp rw_rs
 C  ----------------------------------------------------------------------
       implicit none
       logical lbin
-      integer::  nit , ifi , i_site,i_spec!,i_copy_size !mode=1 ,
+      integer::  irs3,irs5,nit , ifi , i_site,i_spec!,i_copy_size !mode=1 ,
       character*256:: fid=''
 C ... Local parameters
       integer procid,master,mpipid,nproc
@@ -359,7 +359,7 @@ c            call dgemm('T','N',3,1,3,1d0,qlat0,3,pos,3,0d0,pos0,3)
 c           call dgemm('N','N',3,1,3,1d0,plat,3,pos0,3,0d0,pos,3)
 c          endif
           pos0=pos 
-          if (irs3 .ne. 0) then
+          if (irs3 .ne. 0) then !overwrite pos,vel
             pos=ssite(ib)%pos
             vel=0d0 
           endif

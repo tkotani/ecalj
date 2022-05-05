@@ -1,5 +1,5 @@
-      subroutine lmfp(llmfgw,irs1x)
-      use m_lmfinit,only: irs2,lhf, !irs1x10, 
+      subroutine lmfp(llmfgw,irs1x,irs2,irs3,irs5)
+      use m_lmfinit,only: lhf, !irs1x10, 
      &     ctrl_mdprm,maxit,nbas,nsp, ctrl_ldos,ctrl_nitmv,ctrl_nvario,
      &     ham_seref,ctrl_lfrce,  sspec=>v_sspec, ssite=>v_ssite, 
      &     nlibu,stdo,lrout,leks,plbnd,lpzex, nitrlx,
@@ -41,7 +41,7 @@
       implicit none
       character strn*120, alabl*8, flg*3
       logical :: cmdopt,llmfgw,lbin,cmdopt0 !,lshr=.false.
-      integer :: i,ifi,ipr,irs1x, k, nit1,numq, lsc
+      integer :: i,ifi,ipr,irs1x, k, nit1,numq, lsc,irs2,irs3,irs5
       integer :: icom,  nvrelx , itrlx, irlxsh=0 
       
       integer:: ibas,unlink,ifipos,ifile_handle,iter,j,idmatu,iprint
@@ -109,7 +109,7 @@
                   ifi = ifile_handle() 
                   if(lbin)      open(ifi,file='rst.'//trim(sname),form='unformatted')
                   if(.not.lbin) open(ifi,file='rsta.'//trim(sname)) 
-                  k = iors ( iter , lbin , - ifi )
+                  k = iors ( iter , lbin , - ifi ,irs3,irs5)
                   close(ifi) 
                endif
             endif
@@ -180,7 +180,7 @@ C     ... Restore minimum gradient positions if this is last step
          if (master_mpi) then ! .and. .not. lshr) then
             ifi = ifile_handle()
             open(ifi,file='rst.'//trim(sname),form='unformatted') 
-            k = iors (iter , .true., - ifi )
+            k = iors (iter , .true., - ifi ,irs3,irs5)
             close(ifi)
          endif
          if ( master_mpi) then

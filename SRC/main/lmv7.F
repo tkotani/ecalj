@@ -4,8 +4,8 @@
 !     In principle, all the data are generared and stored in some modules with 'protection'.
 !     We can not modify data in a module by other modules (in prinicple, not everywhere yet).
       program lmf
-      use m_lmfinit,only:m_Lmfinit_init,nlibu,plbnd,irs1,lrout,ctrl_lfrce,sspec=>v_sspec
-      use m_lmfinit,only: irs1!,irs2,irs3,irs5!, irs1x10!,irsrot ,irs4
+      use m_lmfinit,only:m_Lmfinit_init,nlibu,plbnd,lrout,ctrl_lfrce,sspec=>v_sspec
+c      use m_lmfinit,only: irs1!,irs2,irs3,irs5!, irs1x10!,irsrot ,irs4
       use m_writeham,only: m_writeham_init, m_writeham_write
       use m_ext,only:      m_Ext_init,sname
       use m_lattic,only:   m_Lattic_init, Setopos
@@ -32,7 +32,8 @@
       character(8):: prgnam='LMF'
       character*8 charext
       integer:: iarg,jobgw,iprint,nit1,ifi,irs1x,ifile_handle,nx,ny,nk1,nk2,nk3
-c      integer:: irs(5), irs1,irs2,irs3,irs4,irs5,
+      integer:: irs(5), irs1,irs2,irs3,irs5,i,j,ix,a2vec
+      character(256):: strn
 c     logical:: irs1x10,irsrot
       
 !=== Bootstrap building up of module variables by M*_init().
@@ -123,47 +124,34 @@ c! Get q point list at which we do band calculations
 !!=== NOTE: shear mode here is currently commented out.
 !!   =>probably shear mode should be recovered outside of fortran.
 
-c$$$cxxxxxxxxxxxxxxxxxxxxxx      
-c$$$!!  --- Read restart file or overlap free atom densities ---
-c$$$!!    irs1x tells what to read and whether to invoke smshft.
-c$$$!!     0    read from atom file  atm;  1  read from binary  rst ;  2 read from ascii  rsta
-c$$$!!    +10 -> invoke smshft(1) after file read.
-c$$$c     write(stdo,*) ' reading rst or atm',irs1x
-c$$$      irs=0
-c$$$      irs(1) = 1
-c$$$      irs(2) = 1
-c$$$      if (cmdopt('--rs=',5,0,strn)) then
-c$$$        i = 5
-c$$$        j = a2vec(strn,len(strn),i,2,', ',2,2,5,ix,irs)
-c$$$      endif
-c$$$      irs1    = mod(irs(1),10)  !   0:read atom file, 1:read rst, 2:read rsta, 
-c$$$xxx      irs1x10 = (irs(1)/10==1)  ! +10:  smshft after rst/rsta read (see lmfp.F) 
-c$$$xxx      irsrot  = (irs(1)/100==1) ! +100: rotate local density after file read for shear mode (iors.F)
-c$$$                                !       (originally it was 8s' bit of irs(1))
-c$$$      irs2 = irs(2) ! 1:write rst  2:write rsta
-c$$$      irs3 = irs(3) ! read site positions from ctrl
-c$$$      irs5 = irs(5)             ! read starting pnu level from ctrl
-c$$$xxx      irs4 = irs(4) ! read starting fermi level from ctrl
-c$$$      if (cmdopt0('--etot')) irs2=0
-c$$$      endif
-c$$$  ccccccccccccccccccccxxxxxxxx
-! plan----------      
-!     --ReadAtom --ReadRst ReadRsta for atom,rst,rsta
-!     --ReadPosCtrl ==> irs3=T
-!     --ReadPnuCtrl ==> irs5=T
-!     xxx --irsrot ->deleted
-!     xxx --irs1x10
-!     xxx --ReadEfermiCtrl==> unused
+
       
-      
+!!  --- Read restart file or overlap free atom densities ---
+!!    irs1x tells what to read and whether to invoke smshft.
+!!     0    read from atom file  atm;  1  read from binary  rst ;  2 read from ascii  rsta
+!!    +10 -> invoke smshft(1) after file read.
+      irs(1:2)=1
+      irs(3:5)=0
+      if (cmdopt('--rs=',5,0,strn)) then
+        i = 5
+        j = a2vec(strn,len(strn),i,2,', ',2,2,5,ix,irs)
+      endif
+      irs1 = mod(irs(1),10) ! 1:read  rst  2:read rsta 
+      irs2 = irs(2)         ! 1:write rst  2:write rsta
+      irs3 = irs(3) ! irs3=1: read site positions from ctrl even when we have rst. 
+      irs5 = irs(5) ! irs5=1: read pnu from ctrl even when we have rst.
+      if (cmdopt0('--etot')) irs2=0
+cxxx      irs1x10 = (irs(1)/10==1)  ! +10:  smshft after rst/rsta read (see lmfp.F) 
+cxxx      irsrot  = (irs(1)/100==1) ! +100: rotate local density after file read for shear mode (iors.F)
+cxxx      irs4 = irs(4) ! read starting fermi level from ctrl
+c      
 !! Initial density Read atm.* or rst.*  rhoat smrho in supot
+!! Reading rst is prior to reading atom file.
 c      irs1x = irs1
 c      if (irs1x == 0) then ! read overlap free-atom densities
 c         call rdovfa()     ! superposition of spherical atomic densities by lmfa.
 c         nit1 = 0
 c     elseif( mod(irs1x,4)==1 .or. mod(irs1x,4)==2 ) then
-c      
-! readin rst file at first. If not, read atom file.      
       irs1x = irs1
       lbin = (irs1x==1)         ! lbin=T:rst for --rs=1, or lbin=F:rsta for --rs=2,
       k = -1
@@ -173,11 +161,11 @@ c
          if(.not. lbin) open(ifi,file='rsta.'//trim(sname)) 
       endif
       call mpibc1_int(ifi,1,'lmv7:lmfp_ifi')
-      k = iors(nit1 , lbin, ifi=ifi ) ! read rst file. sspec ssite maybe modified 
+      k = iors(nit1 , lbin, ifi=ifi,irs3=irs3,irs5=irs5) ! read rst file. sspec ssite maybe modified 
       if (master_mpi) close(ifi) 
       call mpibc1_int(k,1,'lmv7:lmfp_k')
-      call Setopos()            !set pos read in iors into rv_a_opos
-      if(k<0) then              !initial potential from atm file if rst can not read
+      call Setopos()      !set pos read in iors into rv_a_opos
+      if(k<0) then        !initial potential from atm file if rst can not read
          irs1x = 0
          call rdovfa() 
          nit1 = 0
@@ -185,10 +173,11 @@ c
 c     elseif (irs1x10) then  
 c         call smshft(1) !smshft unused now but smshft.F is kept as hints.
 c      endif
-!      
+!
+
+!!      
       call m_hamindex_init(jobgw) !bugfix. moved here 2022apr04
-!! m_writeham_* is after m_hamindex_init 2022apr22
-      writeham= cmdopt0('--writeham')
+      writeham= cmdopt0('--writeham') !m_writeham_* is after m_hamindex_init 2022apr22
       if(writeham.and.master_mpi) call m_gennlat_init(bz_nabc) !for interpolation of Hamiltonian
       if(writeham.and.master_mpi) call m_writeham_init()
       if(writeham.and.master_mpi) call m_writeham_write()
@@ -216,7 +205,7 @@ c      endif
         call rx('incompatible input. see the end of console output')
       endif
 !! Main rouitne. After module initializations, call lmfp  -----------------------
-      call Lmfp(jobgw==1,irs1x)
+      call Lmfp(jobgw==1,irs1x,irs2,irs3,irs5)
 !! finalization      
       inquire(file='RSEQ_ERROR',exist=fileexist)
       if(fileexist) call rx('RSEQ_ERROR: maybe in phidx.F See takao comment in it.')
