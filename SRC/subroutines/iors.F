@@ -5,8 +5,8 @@
       use m_supot,only: lat_nabc
       use m_struc_func,only:mpibc1_s_spec,mpibc1_s_site
       use m_bndfp,only: m_bndfp_ef_SET,eferm!,bz_ef !,bz_def
-      use m_lmfinit,only: irs3,irs4,irs5,lat_alat,nsp,lrel,nl,ssite=>v_ssite,sspec=>v_sspec,
-     &    nbas,nat,nspec  !,irsrot
+      use m_lmfinit,only: irs3,irs5,lat_alat,nsp,lrel,nl,ssite=>v_ssite,sspec=>v_sspec,
+     &    nbas,nat,nspec  !,irsrot,irs4
       use m_lattic,only: lat_plat !lat_dist, 
       use m_ext,only:sname
 !!- I/O for charge density to rst or rsta. ssite sspec are readin 

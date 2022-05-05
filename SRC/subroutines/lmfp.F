@@ -1,5 +1,5 @@
       subroutine lmfp(llmfgw,irs1x)
-      use m_lmfinit,only: irs2,lhf, irs1x10, 
+      use m_lmfinit,only: irs2,lhf, !irs1x10, 
      &     ctrl_mdprm,maxit,nbas,nsp, ctrl_ldos,ctrl_nitmv,ctrl_nvario,
      &     ham_seref,ctrl_lfrce,  sspec=>v_sspec, ssite=>v_ssite, 
      &     nlibu,stdo,lrout,leks,plbnd,lpzex, nitrlx,
@@ -128,7 +128,7 @@
 !     :1 if not self-consistent, but encountered max. no. iter.
 !     :2 Harris energy from overlap of free atoms (iter=1 and lhf=t)
 !     :3 otherwise
-               call nwit( int(ctrl_nvario), iter, maxit, lhf.or.irs1x==0.and.iter==1,
+               call nwit( int(ctrl_nvario), iter, maxit, (lhf.or.irs1x==0).and.iter==1,
      &              leks+i, etol, qtol, qdiff, amom, etot, sev,lsc)
             endif
             call mpibc1_int(lsc,1,'lmfp_lsc')

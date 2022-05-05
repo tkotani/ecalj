@@ -4,8 +4,8 @@
 !     In principle, all the data are generared and stored in some modules with 'protection'.
 !     We can not modify data in a module by other modules (in prinicple, not everywhere yet).
       program lmf
-      use m_lmfinit,only:m_Lmfinit_init,nlibu,plbnd,irs1,irs1x10,lrout,ctrl_lfrce,sspec=>v_sspec
-      use m_lmfinit,only: irs1,irs2,irs3,irs4,irs5, irs1x10,irsrot 
+      use m_lmfinit,only:m_Lmfinit_init,nlibu,plbnd,irs1,lrout,ctrl_lfrce,sspec=>v_sspec
+      use m_lmfinit,only: irs1!,irs2,irs3,irs5!, irs1x10!,irsrot ,irs4
       use m_writeham,only: m_writeham_init, m_writeham_write
       use m_ext,only:      m_Ext_init,sname
       use m_lattic,only:   m_Lattic_init, Setopos
@@ -137,13 +137,13 @@ c$$$        i = 5
 c$$$        j = a2vec(strn,len(strn),i,2,', ',2,2,5,ix,irs)
 c$$$      endif
 c$$$      irs1    = mod(irs(1),10)  !   0:read atom file, 1:read rst, 2:read rsta, 
-c$$$      irs1x10 = (irs(1)/10==1)  ! +10:  smshft after rst/rsta read (see lmfp.F) 
-c$$$      irsrot  = (irs(1)/100==1) ! +100: rotate local density after file read for shear mode (iors.F)
+c$$$xxx      irs1x10 = (irs(1)/10==1)  ! +10:  smshft after rst/rsta read (see lmfp.F) 
+c$$$xxx      irsrot  = (irs(1)/100==1) ! +100: rotate local density after file read for shear mode (iors.F)
 c$$$                                !       (originally it was 8s' bit of irs(1))
 c$$$      irs2 = irs(2) ! 1:write rst  2:write rsta
 c$$$      irs3 = irs(3) ! read site positions from ctrl
-c$$$      irs4 = irs(4) ! read starting fermi level from ctrl
 c$$$      irs5 = irs(5)             ! read starting pnu level from ctrl
+c$$$xxx      irs4 = irs(4) ! read starting fermi level from ctrl
 c$$$      if (cmdopt0('--etot')) irs2=0
 c$$$      endif
 c$$$  ccccccccccccccccccccxxxxxxxx
@@ -157,11 +157,14 @@ c$$$  ccccccccccccccccccccxxxxxxxx
       
       
 !! Initial density Read atm.* or rst.*  rhoat smrho in supot
-      irs1x = irs1
+c      irs1x = irs1
 c      if (irs1x == 0) then ! read overlap free-atom densities
 c         call rdovfa()     ! superposition of spherical atomic densities by lmfa.
 c         nit1 = 0
-c      elseif( mod(irs1x,4)==1 .or. mod(irs1x,4)==2 ) then 
+c     elseif( mod(irs1x,4)==1 .or. mod(irs1x,4)==2 ) then
+c      
+! readin rst file at first. If not, read atom file.      
+      irs1x = irs1
       lbin = (irs1x==1)         ! lbin=T:rst for --rs=1, or lbin=F:rsta for --rs=2,
       k = -1
       if(master_mpi) then
@@ -178,9 +181,9 @@ c      elseif( mod(irs1x,4)==1 .or. mod(irs1x,4)==2 ) then
          irs1x = 0
          call rdovfa() 
          nit1 = 0
-      elseif (irs1x10) then  
-         call smshft(1)
       endif
+c     elseif (irs1x10) then  
+c         call smshft(1) !smshft unused now but smshft.F is kept as hints.
 c      endif
 !      
       call m_hamindex_init(jobgw) !bugfix. moved here 2022apr04

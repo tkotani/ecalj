@@ -31,7 +31,7 @@ Ci          functions are less than tol.
       integer,protected:: io_show=0,io_help=0,nvario=0
       integer(2),protected:: nono
       character(lstrn),protected:: sstrnmix,sstrnsymg
-      integer,protected:: irs1,irs2,irs3,irs4,irs5, lat_nkqmx,nat,lxcf
+      integer,protected:: irs1,irs2,irs3,irs5, lat_nkqmx,nat,lxcf !,irs4
       character(256),protected:: header,symg=' ',   symgaf=' '!for Antiferro
       logical,protected :: ham_frzwf,ham_ewald
       integer,protected:: nspc,stdo,stdl,procid,nproc,master=0,nspx,
@@ -118,7 +118,7 @@ c     &     ,ham_delta_stabilize
      &     ham_nbf,ham_lsig,ctrl_lmet,bz_nabcin(3)=NULLI,
      &     bz_ndos              !bndfp
 c     &     lat_ldist=0
-      logical,protected:: irs1x10,irsrot !(irsrot is not tested)
+c      logical,protected:: irs1x10!,irsrot !(irsrot is not tested)
       real(8),protected:: ham_seref, bz_w,!,bz_ef0,bz_def0, !iors,bndfp
      &     lat_platin(3,3),lat_alat,lat_avw,lat_tolft,lat_gmaxin
       real(8),protected::
@@ -1219,12 +1219,12 @@ C     Default values for smix (array has same same structure as lstra smix)
         j = a2vec(strn,len(strn),i,2,', ',2,2,5,ix,irs)
       endif
       irs1    = mod(irs(1),10)  !   0:read atom file, 1:read rst, 2:read rsta, 
-      irs1x10 = (irs(1)/10==1)  ! +10:  smshft after rst/rsta read (see lmfp.F) 
-      irsrot  = (irs(1)/100==1) ! +100: rotate local density after file read for shear mode (iors.F)
+c      irs1x10 = (irs(1)/10==1)  ! +10:  smshft after rst/rsta read (see lmfp.F) 
+c      irsrot  = (irs(1)/100==1) ! +100: rotate local density after file read for shear mode (iors.F)
                                 !       (originally it was 8s' bit of irs(1))
       irs2 = irs(2) ! 1:write rst  2:write rsta
       irs3 = irs(3) ! read site positions from ctrl
-      irs4 = irs(4) ! read starting fermi level from ctrl
+c      irs4 = irs(4) ! read starting fermi level from ctrl
       irs5 = irs(5) ! read starting pnu level from ctrl
 C     lqp 1 do not add inversion 2 inverse iteration
 c      lqp = 1*isw(ctrl_noinv)+2*isw(ctrl_lqp2)  !lqp= ctrl_noinv + 2*ctrl_lqp2
