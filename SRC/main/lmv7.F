@@ -26,14 +26,14 @@ c      use m_lmfinit,only: irs1!,irs2,irs3,irs5!, irs1x10!,irsrot ,irs4
       use m_mksym,only: m_mksym_init
       implicit none
       integer:: k,lgunit,stdo,stdl
-      logical:: fileexist,cmdopt,cmdopt0,cmdopt2
+      logical:: fileexist,cmdopt0,cmdopt2
       logical:: writeham,lbin,sigx
       character:: outs*20,aaa*512,sss*128
       character(8):: prgnam='LMF'
       character*8 charext
       integer:: iarg,jobgw,iprint,nit1,ifi,irs1x,ifile_handle,nx,ny,nk1,nk2,nk3
-      integer:: irs(5), irs1,irs2,irs3,irs5,i,j,ix,a2vec
-      character(256):: strn
+      integer:: irs(5), irsr(5), irs1,irs2,irs3,irs5,i,j,ix
+      character(256):: strn,strn2
 c     logical:: irs1x10,irsrot
       
 !=== Bootstrap building up of module variables by M*_init().
@@ -106,7 +106,7 @@ c     logical:: irs1x10,irsrot
          if(master_mpi) call m_hamindex0_init() 
          call rx0(' OK! '//'lmfgw mode=0 generated HAMindex0')
       endif   
-!! Array allocated in supot rhoat smrho. We have to store all fixed quantites in modules.
+!! Array allocated in supot rhoat smrho. 
       call m_supot_init() ! get G vectors for charge
       call sugcut(1)
       call m_suham_init() ! Get estimated dimension of Hamiltonian (probably simplified in future).
@@ -124,17 +124,18 @@ c! Get q point list at which we do band calculations
 !!=== NOTE: shear mode here is currently commented out.
 !!   =>probably shear mode should be recovered outside of fortran.
 
-
-      
 !!  --- Read restart file or overlap free atom densities ---
 !!    irs1x tells what to read and whether to invoke smshft.
 !!     0    read from atom file  atm;  1  read from binary  rst ;  2 read from ascii  rsta
 !!    +10 -> invoke smshft(1) after file read.
       irs(1:2)=1
       irs(3:5)=0
-      if (cmdopt('--rs=',5,0,strn)) then
-        i = 5
-        j = a2vec(strn,len(strn),i,2,', ',2,2,5,ix,irs)
+      if (cmdopt2('--rs=',strn)) then
+         strn2=trim(strn)//',999,999,999,999,999'
+         read(strn2,*) irsr
+         do i=1,5
+            if(irsr(i)/=999 ) irs(i)=irsr(i)
+         enddo
       endif
       irs1 = mod(irs(1),10) ! 1:read  rst  2:read rsta 
       irs2 = irs(2)         ! 1:write rst  2:write rsta
@@ -143,15 +144,16 @@ c! Get q point list at which we do band calculations
       if (cmdopt0('--etot')) irs2=0
 cxxx      irs1x10 = (irs(1)/10==1)  ! +10:  smshft after rst/rsta read (see lmfp.F) 
 cxxx      irsrot  = (irs(1)/100==1) ! +100: rotate local density after file read for shear mode (iors.F)
-cxxx      irs4 = irs(4) ! read starting fermi level from ctrl
-c      
-!! Initial density Read atm.* or rst.*  rhoat smrho in supot
+cxxx  irs4 = irs(4) ! read starting fermi level from ctrl
+     
+!! Initial density. Read atomic and smooth parted os density, rhoat smrho in m_density from atm.* or rst.*
 !! Reading rst is prior to reading atom file.
 c      irs1x = irs1
 c      if (irs1x == 0) then ! read overlap free-atom densities
 c         call rdovfa()     ! superposition of spherical atomic densities by lmfa.
 c         nit1 = 0
 c     elseif( mod(irs1x,4)==1 .or. mod(irs1x,4)==2 ) then
+      nit1=0
       irs1x = irs1
       lbin = (irs1x==1)         ! lbin=T:rst for --rs=1, or lbin=F:rsta for --rs=2,
       k = -1
