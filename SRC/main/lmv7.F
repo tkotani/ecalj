@@ -48,6 +48,7 @@ c     logical:: irs1x10,irsrot
          aaa=aaa//' '//trim(sss)
       enddo
       aaa='===START '//trim(prgnam)//'  '//trim(aaa)//' ==='
+      if(master_mpi) call show_programinfo(stdo)
       if(master_mpi) write(stdo,"(a)") trim(aaa)
       if(master_mpi) write(stdl,"(a)") trim(aaa)
       if(master_mpi) write(stdo,*) 'mpisize=',nsize
@@ -215,3 +216,5 @@ c      endif
       call m_MPItk_finalize()
       call Exit(0)
       end program Lmf
+      
+      include "show_programinfo.fpp"

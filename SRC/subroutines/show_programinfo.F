@@ -1,31 +1,23 @@
-c$$$      subroutine show_programinfo(io)
-c$$$      implicit none
-c$$$      integer:: io
-c$$$      character(17),parameter:: info='HOST_INFORMATION '
-c$$$#if MPI|MPIK
-c$$$      include 'mpif.h'
-c$$$      integer:: procid, ierr
-c$$$      call mpi_barrier( MPI_COMM_WORLD, ierr )
-c$$$      call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
-c$$$      if (procid.eq.0) then
-c$$$#endif
-c$$$        write(io,'(a,a,a)') info,'platform: ',___PLATFORM___
-c$$$        write(io,'(a,a,a)') info,'compiler version: ',___FC_VERSION___
-c$$$        write(io,'(a,a,a)') info,'FFLAGS (<=120): ',
-c$$$     .___FFLAGS___
-c$$$        write(io,'(a,a,a)') info,'LIBLOC (<=120): ',
-c$$$     .___LIBLOC___
-c$$$        write(io,'(a,a,a)') info,'uname -a (<=120): ',
-c$$$     .___UNAME_A___
-c$$$        write(io,'(a,a,a)') info,'/etc/issue: ',___ETC_ISSUE___
-c$$$        write(io,'(a,a,a)') info,'git branch: ',___GIT_BRANCH___
-c$$$        write(io,'(a,a,a)') info,'git commit: ',___GIT_COMMIT___
-c$$$        write(io,'(a,a,a)') info,'linked at: ',___LINK_TIME___
-c$$$#if MPI|MPIK
-c$$$      endif
-c$$$#endif
-c$$$      end subroutine show_programinfo
-c$$$
-c$$$C       program test
-c$$$C       call show_programinfo(6)
-c$$$C       end
+      subroutine show_programinfo(io)
+      implicit none
+      integer:: io
+      character(6),parameter:: info='INFO: '
+      character(256):: FFL=___FFLAGS___
+      character(256):: UA=___UNAME_A___ 
+      character(256):: LL=___LIBLOC___ 
+      character(512):: GC1=___GIT_COMMIT1___
+      character(512):: GC2=___GIT_COMMIT2___
+      character(512):: GC3=___GIT_COMMIT3___
+      write(io,'(a,a,a)') info,'system:',trim(UA)//' '//___ETC_ISSUE___
+      write(io,'(a,a,a)') info,'compilar: ',___PLATFORM___//' '//___FC_VERSION___
+      write(io,'(a,a,a)') info,'FFLAGS: ',trim(FFL)
+      write(io,'(a,a,a)') info,'LIBLOC: ',trim(LL)
+      write(io,'(a,a,a)') info,'git: ',trim(GC1)
+      write(io,'(a,a,a)') info,'   : ',trim(GC2)
+      write(io,'(a,a,a)') info,'   : ',trim(GC3)
+      write(io,'(a,a,a)') info,'linked at: ',___LINK_TIME___
+      end subroutine show_programinfo
+
+c        program test
+c       call show_programinfo(6)
+c       end

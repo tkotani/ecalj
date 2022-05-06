@@ -18,17 +18,17 @@
       stdo = lgunit(1)          !standard output stdo=6 usually
       stdl = lgunit(2)
       aaa= '=== START LFMA ==='
+      if(master_mpi) call show_programinfo(stdo)
       if(master_mpi) write(stdo,"(a)") trim(aaa)
       if(master_mpi) write(stdl,"(a)") trim(aaa)
       if(master_mpi) write(stdo,*) 'mpisize=',nsize
       if(master_mpi) write(stdl,*) 'mpisize=',nsize
+      if(cmdopt0('--help')) then  !help and quit
+         call M_lmfinit_init(prgnam) ! show help and quit for --input
+         call Rx0('end of help mode')
+      endif
       call M_rdfiln_init()        ! read ctrl file
       call M_lmfinit_init(prgnam) ! Computational settings. Set data from rdfiln.
-      if(cmdopt2('--pr=',outs)) then 
-        read(outs,*) k
-        call Setprint0(k)
-      endif
-      if(.not.master_mpi) call setprint0(-100) !iprint() is negative except master
       call Freeat()  !Spherical atom calculation
       inquire(file='RSEQ_ERROR',exist=fileexist) ! error file exist or not
       if(fileexist) call rx('RSEQ_ERROR: maybe in phidx.F See takao comment in it.')
@@ -36,3 +36,5 @@
       if(master_mpi) write(6,"(a)") "OK! end of "//trim(prgnam)//" ======================"
       call Exit(0)
       end program Lmfa
+
+      include "show_programinfo.fpp"

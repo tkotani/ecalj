@@ -34,7 +34,6 @@ toksw_init.o\
 writeband.o\
 writepdos.o\
 lmhelp.o\
-show_programinfo.o\
 util.o\
 m_toksw.o \
 m_psigd.o \

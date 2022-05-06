@@ -47,7 +47,7 @@ c      integer,protected:: irs1,irs2,irs3,irs5
      &     ,ham_elind,ham_oveps,ham_scaledsigma
 c     &     ,ham_delta_stabilize 
 !! ... OPTIONS
-      integer,protected :: ctrl_smalit(2),smalit(2), lstonr(3)=0,nl,lpfloat 
+      integer,protected :: smalit, lstonr(3)=0,nl,lpfloat 
       real(8),protected:: rmines,rmaxes
       logical,protected :: lhf,lcd4
 !! ... STRUC 
@@ -279,8 +279,8 @@ C ... basis
       integer:: lp1,lpzi
       real(8):: xxx
       real(8)::  avwsr
-      integer::izerv(n0)=(/(0,i=1,n0)/)
-      real(8)::   zerov(n0)=(/(0d0,i=1,n0)/)
+      integer::  izerv(n0)=(/(0,i=1,n0)/)
+      real(8)::  zerov(n0)=(/(0d0,i=1,n0)/)
       integer:: ii,sw
       real(8):: dasum!,dglob
       character(128) :: nm
@@ -308,48 +308,35 @@ c      logical:: ltet
       nullrv = nullr
       nulliv  =nulli
       debug = cmdopt0('--debug')
-      call gtv_setrcd(recrd,nrecs,recln,stdo,stdl,stde) !Copy recrd to rcd in m_gtv 
+      call gtv_setrcd(recrd,nrecs,recln,stdo,stdl,stde) !Copy recrd to rcd in m_gtv
       call toksw_init(debug)
-      if (procid .ne. master) io_show = 0
-      if (cmdopt0('--help') ) io_help = 1
+! io_show io_help      
+      io_show=1
+      if (.not.master_mpi)   io_show = 0
+      if (cmdopt0('--help')) io_help = 1
       call gtv_setio(debug,io_show,io_help)
       if (io_help == 1) then
         write(stdo,"(/' Token',t19,'Input   cast  (size,min)'/' ------------------------------------------')")
       elseif(io_show/=0) then
         write(stdo,"(/' Token',t19,'Input   cast  (size,min,read,def)     result')")
       endif
-!! IO ---
-      if (cmdopt0('--show')     ) io_show = 1
       if (procid .ne. master    ) io_show = 0
       if (io_help == 1      ) io_show = 1
       call gtv_setio(debug,io_show,io_help) ! In case io_help changed
-!! CONST --- for backword compatibility. We will remove this.
-      call numsyv(nvario)
-      nm='CONST'; call gtv(trim(nm),tksw(prgnam,nm), bigstr, note='Constants may declared for use in expressions'//
-     .     '%N   Variables may also be set from the command-line:  -vnam=#',nout=nout)
-      if (nout .eq. 1) then
-         i = 0
-         call parsyv(bigstr,len_trim(bigstr),1999,0,i)
-         if (io_show .ne. 0) call shosyv(0,0,0,stdo)
-      endif
-!! Header ---
-      nm='HEADER'; call gtv(trim(nm),tksw(prgnam,nm),header,note='Contents displayed at beginning of program execution',nout=nout)
-      if (nout .gt. 0) then
-         outs  = 'HEADER '//trim(header)
-         if (procid .eq. master) then
-            if (io_show .ne. 0) write(stdo,'(1x)')
-            write(stdo,'(1x,a)') trim(outs)
-            if (io_show .ne. 0) write(stdo,'(1x)')
-            if (stdl>0 .and. iprint()>0) write(stdl,'(1x,a)') trim(outs)
-         endif
-      endif
 !! IO ---
+      i0=setprint0(30)      !initial verbose set
       nm='IO_VERBOS'; call gtv(trim(nm),tksw(prgnam,nm),verbos,
      .     note='Verbosity for printout. Set from the command-line with --pr=xxx',def_i4=30,nout=nout)
-      if(cmdopt2('--pr=',outs))read(outs,*) verbos 
-      if(cmdopt2('--pr',outs)) read(outs,*) verbos 
-      if(cmdopt2('-pr',outs))  read(outs,*) verbos 
-      i0=setprint0(verbos) !initial verbose set
+      if(io_help==1) verbos=30
+!! when we have no ctrl files, nout=0, default value not read
+      if(cmdopt2('--pr=',outs)) then
+         read(outs,*) verbos 
+      elseif(cmdopt2('--pr',outs)) then
+         read(outs,*) verbos 
+      elseif(cmdopt2('-pr',outs))then
+         read(outs,*) verbos
+      endif
+      i0=setprint0(verbos)      !initial verbose set
       if(.not.master_mpi) i0=setprint0(-100) !iprint() is negative except master
       nm='IO_TIM'; call gtv(trim(nm),tksw(prgnam,nm),io_tim,note='Turns CPU timing log.  Value sets tree depth.'//
      .     '%N   Optional 2nd arg prints CPU times as routines execute.'//
@@ -371,6 +358,27 @@ c      logical:: ltet
  829     continue
       endif
       if ( i0 >=1 ) call tcinit(io_tim(2),io_tim(1),levelinit)
+      
+!! CONST --- for backword compatibility. We will remove this.
+      call numsyv(nvario)
+      nm='CONST'; call gtv(trim(nm),tksw(prgnam,nm), bigstr, note='Constants may declared for use in expressions'//
+     .     '%N   Variables may also be set from the command-line:  -vnam=#',nout=nout)
+      if (nout .eq. 1) then
+         i = 0
+         call parsyv(bigstr,len_trim(bigstr),1999,0,i)
+         if (io_show .ne. 0) call shosyv(0,0,0,stdo)
+      endif
+!! Header ---
+      nm='HEADER'; call gtv(trim(nm),tksw(prgnam,nm),header,note='Contents displayed at beginning of program execution',nout=nout)
+      if (nout .gt. 0) then
+         outs  = 'HEADER '//trim(header)
+         if (procid .eq. master) then
+            if (io_show .ne. 0) write(stdo,'(1x)')
+            write(stdo,'(1x,a)') trim(outs)
+            if (io_show .ne. 0) write(stdo,'(1x)')
+            if (stdl>0 .and. iprint()>0) write(stdl,'(1x,a)') trim(outs)
+         endif
+      endif
 !! Struc ---
       if (tksw(prgnam,'STRUC') == 2) goto 59
       if (io_show+io_help/=0) write(stdo,*)' --- Parameters for crystal structure ---'
@@ -385,9 +393,9 @@ c      logical:: ltet
          plat(1:3,3)=temp33(7:9)
       endif
       avw = avwsr(plat,alat,vol,nbas)
-      nm='STRUC_NSPEC'; call gtv(trim(nm),tksw(prgnam,nm),nspec,note='Number of species to read from SPEC category.'//
-     .     '%N%3fIf not present, NSPEC will be obtained by counting entries in the SPEC category' )
-      if (io_help == 0 .and. nspec .eq. NULLI) then
+c  nm='STRUC_NSPEC'; call gtv(trim(nm),tksw(prgnam,nm),nspec,note='Number of species to read from SPEC category.'//
+c     .     '%N%3fIf not present, NSPEC will be obtained by counting entries in the SPEC category' )
+      if (io_help == 0) then ! .and. nspec .eq. NULLI) then
          nm='SPEC_ATOM'; sw = tksw(prgnam,nm)
          if (sw .ne. 2) then
             j = 0; nspec = 0
@@ -891,6 +899,9 @@ c          nm='SPEC_ATOM_IDXDN'; removed...
      .       'LDA+U mode:  0 nothing, 1 AMF, 2 FLL, 3 mixed; +10: nothin if sigm.* exist')
         nm='SPEC_ATOM_UH';call gtv(trim(nm),sw,uh(:,j),cindx=jj,def_r8v=zerov,note='Hubbard U for LDA+U')
         nm='SPEC_ATOM_JH';call gtv(trim(nm),sw,jh(:,j),cindx=jj,def_r8v=zerov,note='Exchange parameter J for LDA+U')
+c        print *,'idu=',idu(:,j)
+c        print *,' uh=',uh(:,j)
+c        print *,' ju=',jh(:,j)
 !! 2019 automatic turn off lda+u mode; enforce uh=jh=0 when sigm exist !!
         if(procid==master .and. sum(abs(idu(:,j)))/=0) then 
            inquire(file='sigm.'//trim(sname),exist=sexist)
@@ -906,7 +917,7 @@ c          nm='SPEC_ATOM_IDXDN'; removed...
            do lxx=0+1,3+1
               idu(lxx,j) = mod(idu(lxx,j),10)
            enddo
-           if(sum(abs(idu(:,j)))/=0) write(stdo,"('idu uh jh=',4i4,4f6.2,' ',4f6.2)") idu(:,j),uh(:,j),jh(:,j)
+c           if(sum(abs(idu(:,j)))/=0) write(stdo,"('idu uh jh=',4i4,4f6.2,' ',4f6.2)") idu(:,j),uh(:,j),jh(:,j)
         endif
         call mpibc1_int(idu(:,j),4,'m_lmfinit_idu')
         call mpibc1_real(uh(:,j),4,'m_lmfinit_uh') !bug fix at oct26 2021 (it was _int-->not passed )
@@ -1157,8 +1168,7 @@ C     Default values for smix (array has same same structure as lstra smix)
          smalit = NULLI
          nm='ITER_NIT';call gtv(trim(nm),tksw(prgnam,nm),iter_maxit,def_i4=30,
      .        note='maximum number of iterations in self-consistency cycle')
-         nm='ITER_NRMIX'; call gtv(trim(nm),tksw(prgnam,nm),smalit,def_i4v=(/80,2/),note='Sphere program, (1) max iter; '//
-     .        '(2) no. prior iter for Anderson mixing ')
+         nm='ITER_NRMIX'; call gtv(trim(nm),tksw(prgnam,nm),smalit,def_i4=80,note='Sphere program, max iter')
 ! we use mixrho.F ->parmxp.F. But too complicated to touch it.
          nm='ITER_MIX'; sw=tksw(prgnam,nm); call gtv(trim(nm),sw,iter_mix,
      .        nmin=10,nout=nout,note='Mixing rules for charge mixing.  Syntax:')
@@ -1265,7 +1275,7 @@ C            Add 100*k to compute response function only each kth iteration
       ctrl_rmines= rmines
       ctrl_sclwsr= sclwsr
       ctrl_sdprm = sdprm
-      ctrl_smalit= smalit
+c      ctrl_smalit= smalit
 c      ctrl_tol   = ctrl_tol
       ctrl_wsrmax= wsrmax
 c      ctrl_zbak  = zbak

@@ -1,7 +1,7 @@
       subroutine freeat()
       use m_struc_def,only:s_spec
       use m_ext,only:sname
-      use m_lmfinit,only: ctrl_smalit,ctrl_lxcf,ham_seref,nsp,nspec, sspec=>v_sspec
+      use m_lmfinit,only: smalit,ctrl_lxcf,ham_seref,nsp,nspec, sspec=>v_sspec
       use m_ftox
 
 C- For each species, makes free atom self-consistent
@@ -31,14 +31,14 @@ Cu   18 Sep 03 (ATP) Enabled partial core occupation
 Cu   06 Sep 03 Constrain rsm in fit to FA wave function
 Cu   18 Mar 03 Altered sign of magnetic moment to conform to std
 Cu   19 Apr 02 Redesigned freats call to avoid the use of structures
-Cu   22 Dec 01 Adjustments to accomodate changes in phidx
+Cu   22 Dec 01 Adjustments to accomodate changes in phidxasz
 Cu   22 Mar 01 Added printout of reference energy
 Cu   10 Jun 00 spin polarized
 C ----------------------------------------------------------------------
       implicit none
 c      type(s_spec)::sspec(*)
       integer ifi,iprint,is,lgunit,nglob,nr,nrmt,nrmx,
-     .n0,nkap0,nxi,nxi0,stdo,nrmix(2),lxcfun,igets,lmxa,kcor,lcor
+     .n0,nkap0,nxi,nxi0,stdo,nrmix,lxcfun,igets,lmxa,kcor,lcor
       character*8 spid,chole*8
       parameter ( nrmx=1501, nxi0=10, n0=10, nkap0=3)
       double precision qc,ccof,ceh,z,rmt,rfoca,rsmfa,qcor(2),a,sumec,
@@ -80,8 +80,7 @@ c      type(s_spec)::sspec(*)
           exi(6) = -15
           nxi = 6
         endif
-        i_copy_size=size(ctrl_smalit)
-        call icopy(i_copy_size,ctrl_smalit,1,nrmix,1)
+        nrmix=smalit
         lxcfun = int(ctrl_lxcf)
         spid = sspec(is)%name
         rsmfa= sspec(is)%rsmfa
@@ -210,7 +209,7 @@ Cu   10 Apr 02 Redimensionsed etab,rtab to accomodate larger lmax
 C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
-      integer nrmx,nrmt,is,nxi0,nxi,nrmix(2),lwf,lxcfun,n0,kcor,lcor
+      integer nrmx,nrmt,is,nxi0,nxi,nrmix,lwf,lxcfun,n0,kcor,lcor
       parameter (nrmx=1501,n0=10)
       character*8 spid
       double precision rsmfa,rfoca,qc,ccof,ceh,sec,stc,z,rmt,a,eref,
@@ -388,8 +387,8 @@ C --- Set up radial mesh for free atom ---
      .'  a=%d  nr=%i  nr(rmax)=%i',rmt,rmax,a,nrmt,nr)
 
 C --- Make atom self-consistent ---
-      nitmax = nrmix(1)
-      nmix = nrmix(2)
+      nitmax = nrmix
+c      nmix = nrmix(2)
       nmix = -30
 C     call pshpr(min(iprint(),40))
       ec(1) = 0

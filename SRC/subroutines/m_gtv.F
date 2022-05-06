@@ -528,6 +528,7 @@ C ... Logical case: treat locally as integer
 
 C  --- Help mode ---
       if (io_help .ne. 0) then
+c         print *,'hhhhhhhhhhhhhhh mode',note,present(note)
 C       if (lgx .and. .false.) then
         if (lgx) then
           call info2(1,0,0,trim(sout)//
@@ -552,8 +553,9 @@ C       if (lgx .and. .false.) then
           call info2(1,0,0,trim(sout)//'%50pdefault =%n:1g ...',3,defa)
         else
           call info0(1,0,0,trim(sout))
-        endif
-        if (present(note)) then
+       endif
+       
+       if (present(note)) then
           call info0(1,0,0,'   '//note)
         endif
         if ( lor ) then
@@ -653,7 +655,6 @@ C       Otherwise, error exit
         nn = nndef
         ddat(nparse+1:nn) = defa(nparse+1:nn)
       endif
-
 C ... Copy result to one of (dat,idat,datv,idatv,lg)
       if (present(nout)) nout = nn
       if (ig=='r8' .and. nn==1)      then ;   dat  = ddat(1)
@@ -662,7 +663,6 @@ C ... Copy result to one of (dat,idat,datv,idatv,lg)
       elseif (ig=='r8v' .and. nn.gt.0) then ; datv(1:nn)  = ddat(1:nn)
       elseif (ig=='i4v' .and. nn.gt.0) then ; idatv(1:nn) = ddat(1:nn)
       endif
-
 C ... Printout
       if (io_show>0 .or. debug) then
         if (.not. lexist .and. nndef .eq. 0) then
@@ -670,24 +670,19 @@ C ... Printout
         elseif (nn .eq. nparse .and. nndef .ne. 0) then
           write(sout(1+len_trim(sout):),"(',',i4,',',i3)")nparse,nn-nparse
         elseif (nn .eq. nparse) then
-          write(sout(1+len_trim(sout):),"(',',i4,', --')") nparse
+           write(sout(1+len_trim(sout):),"(',',i4,', --')")nparse
         elseif (.not. lexist) then
-          write(sout(1+len_trim(sout):),"(',   *,',i3)") nn-nparse
+          write(sout(1+len_trim(sout):),"(',   *,',i3)")         nn-nparse
         else
           write(sout(1+len_trim(sout):),"(',',i4,',',i3)")nparse,nn-nparse
         endif
-        if (nn .gt. 0 .and. lgx) write(stdo,*)lg
-        if (nn .gt. 0 .and. .not. lgx) write(stdo,ftox)ftod(ddat(1:nn))
-c     .  call awrit2('%u%55p%n:1l',sout,len(sout),0,nn,lg)
-c     .  call awrit2('%u%55p%n:1,1;6g',sout,len(sout),0,nn,ddat)
-c        write(stdo,'(a)') trim(sout)
+        if (nparse .gt. 0 .and. lgx)       write(stdo,ftox) trim(sout),'     ',lg
+        if (nparse .gt. 0 .and. .not. lgx) write(stdo,ftox) trim(sout),'     ',ftom(ddat(1:nn))
+c        if (nn .gt. 0 .and. lgx)       write(stdo,ftox) trim(sout),'     ',lg
+c        if (nn .gt. 0 .and. .not. lgx) write(stdo,ftox) trim(sout),'     ',ftom(ddat(1:nn))
       endif
-
  1012 format(a,d13.5)
  2012 format(a,200d13.5)
-C      if (debug) then
-C        call info(0,0,0,' gtv exit: %i%-1j elements: %n:1g',nn,ddat)
-C      endif
       end subroutine
 
       subroutine getinput_entrance()

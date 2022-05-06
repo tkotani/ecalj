@@ -7,18 +7,7 @@ function my_error() {
 CORES=`nproc`
 echo $CORES
 
-# for ubuntu
-# sudo apt update
-# sudo apt install gfortran
-# sudo apt install intel-mkl
 MATH=-lmkl_rt
-
-#old procedures
-#'-lblas -llapack /usr/lib/x86_64-linux-gnu/libfftw3.so.3'
-#MATH='/usr/lib/x86_64-linux-gnu/libblas.so.3 /usr/lib/x86_64-linux-gnu/liblapack.so.3 /usr/lib/x86_64-linux-gnu/libfftw3.so.3'
-#MATH='/usr/local/lib/libblas.a /usr/local/lib/liblapack.a /usr/local/lib/libfftw3.a'
-#MATH='/usr/lib/x86_64-linux-gnu/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf'
-#MATH='/sw/lib/libfftw3.a /sw/lib/lapack/librefblas.a /sw/lib/lapack/libreflapack.a'
 
 # Make directory for ecalj binaries and scripts.
 BINDIR=${HOME}/bin
@@ -38,6 +27,7 @@ popd
 ### Use SRC/exec/Makefile
 pushd .
 cd SRC/exec
+maks sysinfo
 make -j $CORES PLATFORM=gfortran LIBMATH="$MATH" ||my_error
 make -j $CORES PLATFORM=gfortran BINDIR=$BINDIR install ||my_error
 popd

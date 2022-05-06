@@ -30,6 +30,10 @@
       if(master_mpi) write(stdl,"(a)") trim(aaa)
       if(master_mpi) write(stdo,*) 'mpisize=',nsize
       if(master_mpi) write(stdl,*) 'mpisize=',nsize
+      if(cmdopt0('--help')) then  !help and quit
+         call M_lmfinit_init(prgnam) ! show help and quit for --input
+         call Rx0('end of help mode')
+      endif
       call M_rdfiln_init()
       call M_lmfinit_init(prgnam) ! Computational settings go into m_lmfinit
       if(cmdopt2('--pr=',outs)) then 
