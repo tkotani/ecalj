@@ -27,9 +27,7 @@ writedossawada.o\
 m_clsprm.o\
 xcfunc.o\
 m_struc_func.o\
-pqmix.o\
 m_lmfinit.o\
-latsym.o\
 toksw_init.o\
 writeband.o\
 writepdos.o\
@@ -96,7 +94,6 @@ hansr.o \
 hansrz.o \
 hnsmft.o \
 hsmq.o \
-iax2fd.o \
 iclbas.o \
 intnos.o \
 iofa.o \
@@ -132,9 +129,6 @@ nghbor.o \
 nnrl.o \
 nwit.o \
 orbl.o \
-ovlchk.o \
-ovmin.o \
-parmxp.o \
 phidx.o \
 phvsfp.o \
 pkli.o \
