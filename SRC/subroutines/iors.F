@@ -117,6 +117,7 @@ C ... Local parameters
      .msgw*17,datimp*32,usernm*32,hostnm*32,jobid*32,ffmt*32,ifmt*32
       integer:: fextg, i_dummy_fextg
       data vec0 /0d0,0d0,0d0/
+c      call tcn('iors')
 C ... MPI setup
       nproc  = mpipid(0)
       procid = mpipid(1)
@@ -920,5 +921,6 @@ C     ... For now, ASA stores no core data
       return
   999 continue
       if (ipr .gt. 0) write(stdo,'('' iors  : read failed in: '',a)') line
+c      call tcx('iors')
       end function iors
       end module m_iors

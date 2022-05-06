@@ -274,8 +274,8 @@ C --- Force from foca sm-head; cgh1 is workspace ---
         call dpzero(f,3*nbas)
         if (lfoc1.gt.0 .or. lfoc2.gt.0) then
           call fftz3(smvxc,n1,n2,n3,k1,k2,k3,nsp,0,-1)
-          call gvgetf ( ng , nsp , iv_a_okv , k1 , k2 , k3 , smvxc , cgh1_zv  )
-          call smvxc4 ( nbas , nsp , ssite , sspec , alat , vol , rv_a_ocy, ng , rv_a_ogv , cgh1_zv , f )
+          call gvgetf(ng, nsp, iv_a_okv , k1 , k2 , k3 , smvxc , cgh1_zv  )
+          call smvxc4(nbas, nsp, ssite, sspec, alat, vol, rv_a_ocy, ng , rv_a_ogv , cgh1_zv , f )
         endif
         if (allocated(cgh1_zv)) deallocate(cgh1_zv)
       endif
@@ -283,9 +283,9 @@ C --- Force from foca sm-head; cgh1 is workspace ---
       end subroutine smvxcm
 
 
-      subroutine smvxc2(mode,nsp,lxcfun,vol,n1,n2,n3,k1,k2,k3,smrho,!slat,
-c     .smvxc,smvx,smvc,smexc,dsmvxc,rhoeps,rhoex,rhoec,rhomu,vxcavg)
-     .smvxc,smvx,smvc,smexc,       rhoeps,rhoex,rhoec,rhomu,vxcavg)
+      subroutine smvxc2(mode,nsp,lxcfun,vol,n1,n2,n3,k1,k2,k3,smrho,
+     .     smvxc,smvx,smvc,smexc,       rhoeps,rhoex,rhoec,rhomu,vxcavg)
+      use m_ftox
 c      use m_struc_def, only: s_lat
 !! Not documented well yet.
 !!= Makes smooth part of xc potential smvxc and optionally dsmvxc/drho =
@@ -559,8 +559,8 @@ c$$$        call awrit5('%a%?#n==2#%N%7f#  #'//
 c$$$     .  'avg vxc =%;12,6D %?#n==2#(%;11,6D,%;11,6D)',outs,len(outs),
 c$$$  .  -stdo,nsp,(vxcavg(1)+vxcavg(nsp))/2,nsp,vxcavg,vxcavg(2))
         do i=1,nsp
-           write(stdo,"(a,i0,' ',3d18.10)")'smooth isp rhoeps rhomu vxcavg='
-     &          ,i,rhoeps(i),rhomu(i),vxcavg(i)
+           write(stdo,ftox)'smooth isp rhoeps rhomu vxcavg='
+     &          ,i,ftof(rhoeps(i)),ftof(rhomu(i)),ftof(vxcavg(i))
         enddo   
       endif
 

@@ -35,7 +35,8 @@
       character outs*80
       integer ::iwdummy
 c      data prgnam/'mkqp'/
-C ... Setup
+C     ... Setup
+      call tcn('m_mkqp_init')
       gettet = bz_lmet/=0 .or. ctrl_ldos/=0
       ntet = 0
 c      stdo = globalvariables%stdo
@@ -123,8 +124,7 @@ C   ... Generate inequivalent tetrahedra
 C     ... Save a copy of ipq since tetirr destroys this array
         if (lipq) then
           allocate(iv_a_owk(abs(6*mxkp))); iv_a_owk(:)=iv_a_oipq(:)
-          iv_a_oipq(:)=0
-          call icopy ( 6 * mxkp , iv_a_owk , 1 , iv_a_oipq , 1 )
+          iv_a_oipq=iv_a_owk
         endif
         call tetirr ( qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 )
      .   , iv_a_oipq , ntet , iv_a_oidtet )
@@ -150,6 +150,7 @@ C --- Pack new info into structures ---
       if (.not.allocated(iv_a_oidtet))then
         write(*,*)'warnig in mkqp: iv_a_oidtet is not allocated. but continue.'
       endif
+      call tcx('m_mkqp_init')
       end subroutine m_mkqp_init
       end module m_mkqp
 

@@ -44,6 +44,7 @@
       integer,parameter::recln=511
       logical ::cmdopt,ipr10=.false.
       character strn*(recln),strn2*(recln),outs(recln)
+      call tcn('m_mksym_init')
 !! lattice set up      
       do ibas=1,nbas
         v_ssite(ibas)%pos = rv_a_opos(:,ibas)
@@ -80,6 +81,7 @@
       if(procid==master) call pshpr(60)
       call mksym(lc,slabl,strn,v_ssite,iv_a_oips) 
       if(procid==master) call poppr
+      call tcx('m_mksym_init')
       end subroutine m_mksym_init
       
 cSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
@@ -198,7 +200,7 @@ C ----------------------------------------------------------------------
       character*8 slabl(*),ssymgr*(*)
       integer mode,nsgrp,npgrp,ibas
       integer ::iwdummy ,iwdummy1(1)
-      logical T,F,cmdopt,ltmp
+      logical T,F,cmdopt0,ltmp
       integer:: idest,ig,iprint,igets,isym(10),j1,j2,lpgf,nbas,
      .nbas0,nsite,nclass,ngen,ngnmx,nspec,usegen,
      .nggen,ngmx,incli, oiwk , aginv  !ldist,
@@ -210,7 +212,7 @@ C ----------------------------------------------------------------------
       character*120 gens,strn*72
       double precision gen(9,ngnmx),plat(3,3),qlat(3,3),xx !,dist(3,3)
       integer:: i_copy_size,i_data_size,i_spackv
-      integer:: iv_a_oips(*)
+      integer:: iv_a_oips(:)
       nbas =ctrl_nbas
       nspec=ctrl_nspec
       nsite=ctrl_nsite
@@ -252,13 +254,13 @@ c        call strncp(gens,'point',idest,1,5)
 c      endif
 C --- Generate space group ---
       nbas0 = nbas
-      if (cmdopt('--fixpos',8,0,strn)) call Rx('fixpos is removed. outside of lmf')
+      if (cmdopt0('--fixpos')) call Rx('fixpos is removed. outside of lmf')
 C ... When generating the group the basis may become enlarged ...
       if(allocated(iv_a_oistab)) deallocate(iv_a_oistab) !lat_iv_a_oistab
       allocate(iv_a_oistab(abs((ngmx+1)*nbas)))
       allocate(ips2_iv(ngmx*nbas))
       allocate(pos2_rv(3,ngmx*nbas))
-      call icopy ( nbas , iv_a_oips , 1 , ips2_iv , 1 ) 
+      ips2_iv(1:nbas)= iv_a_oips(1:nbas)
       call dcopy ( 3 * nbas , rv_a_opos , 1 , pos2_rv , 1 )
       call gensym ( slabl , gens , usegen , t , f , f , nbas 
      .   , nspec , ngmx , plat , plat , pos2_rv , ips2_iv !, ldist , dist
@@ -292,7 +294,7 @@ C --- Printout of symmetry operations ---
 ! Split species into classes : ibas ==> iclass=ipc(ibas) ==> ispec=ics(iclass)
       if(allocated(iv_a_onrc)) deallocate(iv_a_onrc)
        allocate(iv_a_onrc(abs(nspec)))
-       call icopy ( nsite , iv_a_oips , 1 , iv_a_oipc , 1 )
+       iv_a_oipc=iv_a_oips(1:nsite)
        call splcls ( mod ( mode / 10 , 10 ) .eq.4 , rv_a_opos , nbas 
      .     , nsgrp , iv_a_oistab , nspec , slabl , nclass , iv_a_oipc , 
      .     iv_a_oics , iv_a_onrc ) 

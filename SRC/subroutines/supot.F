@@ -12,7 +12,7 @@
       subroutine m_supot_init()  
       use m_lattic,only: rv_a_odlv,rv_a_oqlv,lat_plat,rv_a_opos
       use m_mksym,only:   rv_a_osymgr,rv_a_oag 
-      use m_lmfinit,only : lcd4,ctrl_nbas,ctrl_nspin,lat_alat,ftmesh,lat_gmaxin
+      use m_lmfinit,only : lcd4,ctrl_nbas,ctrl_nspin,lat_alat,ftmesh,lat_gmaxin,stdo
       use m_lattic,only: lat_vol, lat_awald
       use m_lattic,only: lat_nkd, lat_nkq
       use m_mksym,only:  lat_nsgrp
@@ -29,7 +29,8 @@ C ----------------------------------------------------------------------
       double precision awald,alat,vol,plat(3,3),gmax,xx
       integer ::iwdummy
       real(8):: wdummy(3)=0d0
-      call info0(50,1,0,' supot : potential setup ... ')
+      call tcn('m_supot_init')
+      write(stdo,*)' supot : allocate potential and gv setup ... '
       nbas=ctrl_nbas
       nsp=ctrl_nspin
       alat=lat_alat
@@ -67,5 +68,6 @@ C   ... Make list of lattice vectors within cutoff
         ngrp = lat_nsgrp
         call sgvsym ( ngrp , rv_a_osymgr , rv_a_oag , ng , rv_a_ogv , iv_a_oips0 , zv_a_obgv )
       endif
+      call tcx('m_supot_init')
       end subroutine m_supot_init
       end module m_supot

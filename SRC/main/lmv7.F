@@ -34,7 +34,7 @@ c      use m_lmfinit,only: irs1!,irs2,irs3,irs5!, irs1x10!,irsrot ,irs4
       integer:: iarg,jobgw,iprint,nit1,ifi,irs1x,ifile_handle,nx,ny,nk1,nk2,nk3
       integer:: irs(5), irsr(5), irs1,irs2,irs3,irs5,i,j,ix
       character(256):: strn,strn2
-c     logical:: irs1x10,irsrot
+      logical:: irs1x10!,irsrot
       
 !=== Bootstrap building up of module variables by M*_init().
       call M_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
@@ -60,15 +60,15 @@ c     logical:: irs1x10,irsrot
 !! New pdos mode (use --mkprocar and --fullmesh together). and exit ===
 !! We use all k points (--fullmesh), instead of using crystal symmetry. See job_pdos
       if( Cmdopt0('--writepdos') ) then
-         write(6,*) '... Doing writepdos mode. Wait a while ...'
-         write(6,*) '... See job_pdos to know how to call --writepdos mode'
+         if(master_mpi) write(6,*) '... Doing writepdos mode. Wait a while ...'
+         if(master_mpi) write(6,*) '... See job_pdos to know how to call --writepdos mode'
          call Writepdos(trim(sname))
          call Rx0('done: end of --writepdos mode.')
       endif
 !! Sawada's simple mode and exit
       if( Cmdopt0('--wdsawada') ) then
-         write(6,*) '... write Dos from tetraf.dat and eigenf.dat. '
-         write(6,*) '...  eigenf.dat is for qplistf.dat '
+         if(master_mpi)write(6,*) '... write Dos from tetraf.dat and eigenf.dat. '
+         if(master_mpi)write(6,*) '...  eigenf.dat is for qplistf.dat '
          call Writedossawada()
          call Rx0('done: end of --wdsawada mode.')
       endif
@@ -143,7 +143,7 @@ c! Get q point list at which we do band calculations
       irs3 = irs(3) ! irs3=1: read site positions from ctrl even when we have rst. 
       irs5 = irs(5) ! irs5=1: read pnu from ctrl even when we have rst.
       if (cmdopt0('--etot')) irs2=0
-cxxx      irs1x10 = (irs(1)/10==1)  ! +10:  smshft after rst/rsta read (see lmfp.F) 
+      irs1x10 = (irs(1)/10==1)  ! +10:  smshft after rst/rsta read (see lmfp.F) 
 cxxx      irsrot  = (irs(1)/100==1) ! +100: rotate local density after file read for shear mode (iors.F)
 cxxx  irs4 = irs(4) ! read starting fermi level from ctrl
      
@@ -172,10 +172,9 @@ c     elseif( mod(irs1x,4)==1 .or. mod(irs1x,4)==2 ) then
          irs1x = 0
          call rdovfa() 
          nit1 = 0
+      elseif (irs1x10) then  
+         call smshft(1) !smshft unused now but smshft.F is kept as hints.
       endif
-c     elseif (irs1x10) then  
-c         call smshft(1) !smshft unused now but smshft.F is kept as hints.
-c      endif
 !
 
 !!      
@@ -212,9 +211,9 @@ c      endif
 !! finalization      
       inquire(file='RSEQ_ERROR',exist=fileexist)
       if(fileexist) call rx('RSEQ_ERROR: maybe in phidx.F See takao comment in it.')
-      if(master_mpi) write(6,"(a)") "OK! end of "//trim(prgnam)//" ======================"
-      call m_MPItk_finalize()
-      call Exit(0)
+      call rx0("OK! end of "//trim(prgnam)//" ======================")
+c      if(master_mpi) write(6,"(a)") "OK! end of "//trim(prgnam)//" ======================"
+c      call m_MPItk_finalize()
       end program Lmf
       
       include "show_programinfo.fpp"

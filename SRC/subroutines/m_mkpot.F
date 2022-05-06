@@ -119,10 +119,7 @@
       integer:: i,lfrzw,is,ib,kmax,lmxa,lmxh,nelt2,nlma,nlmh!,lfrce
       real(8) ::qbz
       logical :: llmfgw,fsmode,fullmesh,cmdopt0
-c      lfrce=ctrl_lfrce
-c      fullmesh = cmdopt0('--fullmesh') !full mesh stop just after do 2010 iq loop.
-c      if(fsmode) fullmesh=.true.
-c      if(cmdopt0('--band').or.fullmesh) lfrce = 0
+      call tcn('m_mkpot_init')
       write(stdo,"(a)")' m_mkpot_init: Making one-particle potential ...'
       lfrzw = 0
       if(ham_frzwf) lfrzw = 1   !freeze all augmentation wave
@@ -151,16 +148,19 @@ c      if(cmdopt0('--band').or.fullmesh) lfrce = 0
       call dfaugm(sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm) !allocation for sig,tau,ppi integrals
       call mkpot (i, osmrho , orhoat, 
      o     osmpot, sv_p_osig , sv_p_otau , sv_p_oppi, fes1_rv, ohsozz,ohsopm)
+      call tcx('m_mkpot_init')
       end subroutine
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine m_mkpot_energyterms(smrho_out,orhoat_out)
       use m_struc_def
       type(s_rv1):: orhoat_out(:,:)
       complex(8) :: smrho_out(:)
+      call tcn('m_mkpot_energyterms')
       if(allocated(fes2_rv)) deallocate(fes2_rv)
       allocate( fes2_rv(3*nbas))
          call mkpot (0, smrho_out , orhoat_out , 
      o     osmpot, sv_p_osig , sv_p_otau , sv_p_oppi, fes2_rv, ohsozz,ohsopm)
+      call tcx('m_mkpot_energyterms')
       end subroutine
 !!------------------------------------------------------
       subroutine m_mkpot_deallocate()

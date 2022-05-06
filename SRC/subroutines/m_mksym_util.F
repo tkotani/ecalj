@@ -611,13 +611,13 @@ C Local parameters:
       integer i1,i2,j1,j2
       parameter (ngmx=48*64)
       character*100 sg,sg1,sout,sout2
-      double precision gloc(3,3,ngmx),agloc(3,ngmx),qlat(9),xx,vec(3)
+      double precision gloc(3,3,ngmx),agloc(3,ngmx),qlat(9),xx,vec(3),vol
 
 cChangenglob      stdo = nglob('stdo')
 c      stdo = globalvariables%stdo
 
 C --- Starting number of group ops ---
-      call mkqlat(plat,qlat,xx)
+      call dinv33(plat,1,qlat,vol)
       call pshpr(1)
       ngen0 = ngen
       call sgroup(0,gen,agen,ngen,gloc,agloc,ngout,ngmx,qlat)

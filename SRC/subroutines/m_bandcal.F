@@ -44,6 +44,7 @@ ccccccccccccc
       integer::  iprint,i,ibas,iwsene
       logical:: ltet,cmdopt0,dmatuinit=.true.,wsene
       character(3):: charnum3
+      call tcn('m_bandcal_init')
       if(master_mpi) write(stdo,*)' m_bandcal_init: start'
       sigmamode = mod(lrsig,10)/=0
       writeham= cmdopt0('--writeham')
@@ -249,6 +250,7 @@ c               call readindensitymodesetting() !dummy
       if(debug) write(stdo,"(' ---- end of do 2010 ---- ',2i5)") procid
       if(call_m_bandcal_2nd) close(ifig)
       deallocate(evl)
+      call tcx('m_bandcal_init')
       end subroutine
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine m_bandcal_2nd(iqini,iqend,ispini,ispend,lrout)!,ef0) !,emin,emax)!,ndos)
@@ -259,6 +261,7 @@ c               call readindensitymodesetting() !dummy
       real(8),allocatable:: evl(:,:)
       complex(8),allocatable :: evec(:,:)
       logical:: cmdopt0
+      call tcn('m_bandcal_2nd')
       if(master_mpi) write(stdo,*)' mmmmm m_bandcal_2nd'
       call dfqkkl( sv_p_oqkkl ) !zero clear 
       if(lekkl==1) call dfqkkl( sv_p_oeqkkl ) !zero clear
@@ -314,6 +317,7 @@ c            endif
       endif
       close(ifig)
       deallocate(evl)
+      call tcx('m_bandcal_2nd')
       end subroutine
 !sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine m_bandcal_clean()
@@ -434,7 +438,9 @@ c$$$      enddo                     !end second loop over iq
 c$$$      end subroutine
       
       subroutine m_bandcal_symsmrho()
+      call tcn('m_bandcal_symsmrho')
       call symsmrho(smrho_out)
+      call tcx('m_bandcal_symsmrho')
       end
       
       end module

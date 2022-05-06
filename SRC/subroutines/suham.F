@@ -38,6 +38,7 @@ C ----------------------------------------------------------------------
       integer ,allocatable :: kv_iv(:)
       integer ,allocatable :: igv2_iv(:)
       integer:: obas , oo , opp ,  opti , obs , omagf,i_copy_size
+      call tcn('m_suham_init')
 C --- Hamiltonian offsets, orbital permutation table ---
       if (mod(pwmode,10)==2.and.master_mpi) write(stdo,"(a)")' suham: no MTO basis'
 C   ... PW setup : estimate upper bound to number of G vectors
@@ -118,6 +119,7 @@ c         spinoffdiag=.false.    !paramagnetic
       else
          call rx('suham: nspc==2 but nsp=1')
       endif
+      call tcx('m_suham_init')
       end subroutine m_suham_init
       end module m_suham
 

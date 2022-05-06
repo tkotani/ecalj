@@ -96,13 +96,13 @@ c          call get_environment_variable('HOST',hostnm)
  10       format('CPU time:', f9.3,a1,5x,a26,' on ',i0)
         endif
       endif
-      call tcprt(stdo) 
+      if(procid==master) call tcprt(stdo) 
       if(retval/=0) then
         write(stdo,"(a,i0,a,i0,a,3d15.8)")
      &        "ERROR Exit ",retval,' procid= ',procid,' '//trim(strng),(argss(ix),ix=1,ia)
         call MPI_abort(MPI_comm_world,retval,ierr)
       else
-        write(stdo,"(a,i0,a,3d15.8)")'Exit 0 procid= ',procid,' '//trim(strng),(argss(ix),ix=1,ia)
+        if(procid==master)write(stdo,"(a,i0,a,3d15.8)")'Exit 0 procid= ',procid,' '//trim(strng),(argss(ix),ix=1,ia)
       endif
       call MPI_FINALIZE()
       call exit(retval)

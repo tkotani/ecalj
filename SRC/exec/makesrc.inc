@@ -2,7 +2,6 @@
 
 ELIB_list=\
 m_ftox.o\
-m_util2.o\
 getgv2.o\
 m_gennlat.o\
 rydberg.o \
@@ -72,7 +71,6 @@ dvdos.o \
 efrng2.o \
 fermi.o \
 fixef0.o \
-fovlp.o \
 freeat.o \
 fswgts.o \
 getbzp.o \
@@ -158,7 +156,6 @@ shear.o \
 shftpp.o \
 shoist.o \
 shorbz.o \
-shorps.o \
 shortn.o \
 siteid.o \
 slinz.o \
@@ -170,7 +167,6 @@ subzi.o \
 sugcut.o \
 suham.o \
 suldau.o \
-sumsro.o \
 sylm.o \
 sylmnc.o \
 symdmu.o \

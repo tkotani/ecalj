@@ -19,7 +19,8 @@
       use m_suham,only: ham_ndham
       integer:: ib,is,nr,lmxl,nlml
 !! contribution to force via band 
-!! for force      
+!     ! for force
+      call tcn('m_mkrout_init')
       if(ctrl_lfrce>0 ) then
         if(allocated(frcbandsym)) deallocate(frcbandsym)
         allocate(frcbandsym(3,nbas)) !for forces
@@ -50,6 +51,7 @@
 !!  Symmetrize output atomic density and forces frcbandsym is symmetrized
          call symrhoat ( orhoat_out, qbyl_rv, hbyl_rv, frcbandsym)
       endif
+      call tcx('m_mkrout_init')
       end
 !!-------------------------------
       subroutine mkrout( sv_p_oqkkl, sv_p_oeqkkl, orhoat_out, hab,sab, qbyl, hbyl)

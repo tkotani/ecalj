@@ -172,7 +172,7 @@ C     ... Allocate ASA arrays
          allocate(rv_a_ovrmax(2*nclspp))
          rv_a_ovrmax(:)=0.0d0
          allocate( ics(nclspp) )
-         call icopy ( nclspp , iv_a_oics , 1 , ics , 1 ) 
+         ics=iv_a_oics
          allocate(rv_a_ormax(nclspp))
          call dcopy ( nclspp , sspec ( ics ( 1:nclspp ) ) %rmt , 1 , rv_a_ormax, 1 ) 
 C     Even in collinear case, bxc might be written to

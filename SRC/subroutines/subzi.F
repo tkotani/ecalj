@@ -85,6 +85,7 @@ C ----------------------------------------------------------------------
       character*11 strni(2)
       integer procid,master,mpipid,nevx0,nq0,nsp0
       data strni /'sampling','tetrahedron'/
+      call tcn('m_subzi_init')
 !! set nevmx for plbnd=1 Note: initial setting nevmx=0 is returned for band mode.
       if(cmdopt0('--cls').or.cmdopt0('--tdos').or.cmdopt0('--mkprocar'))  nevmx = ndhamx
       fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') 
@@ -138,6 +139,7 @@ c          call info(20,0,0,' subzi : nonmetal',0,0)
 c        endif
 c        write(stdo,'(1x)')
 c      endif
+      call tcx('m_subzi_init')
       end subroutine m_subzi_init
       
 !sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
@@ -161,6 +163,7 @@ c      use m_subzi, only: lwtkb,lswtk
       real(8):: dosrng,evlall(*),sev,sumqv(3,*),eferm,vnow,ef0,bz_ef
       real(8),parameter::    NULLR =-99999
       real(8):: swtk(*)
+      call tcn('m_subzi_bzintegration')
       sev=0d0
       ltet = ntet>0
 c      qbg = ctrl_zbak(1) !homogenious background charge
@@ -203,5 +206,6 @@ c           i = iobzwt ( ndhamx , nkp , nspx , eferm , rv_a_owtkb , -ifi )
             close(ifi)    
          endif
       endif
+      call tcx('m_subzi_bzintegration')
       end subroutine
       end module m_subzi

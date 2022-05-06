@@ -340,7 +340,7 @@ C     Relative positions
       character*1 sym(2)
 C ... External calls
       external dcopy,defpq,defwsr,dpcopy,dpzero,dscal,freats,getpr,
-     .iinit,info,polint,poppr,pshpr,psymq0,psymr0,rx,rxi,sumsro
+     .iinit,info,polint,poppr,pshpr,psymq0,psymr0,rx,rxi
 C ... Heap
       data sym /' ','*'/
 
@@ -353,16 +353,10 @@ C --- Setup ---
       opt1 = mod(opt/10,10)
       opt2 = mod(opt/100,10)
       opt3 = mod(opt/1000,10)
-Ckino isanrg is logical function,       call isanrg(opt0,1,1,'makrm0:','1s digit opt',.true.)
       l_dummy_isanrg=isanrg(opt0,1,1,'makrm0:','1s digit opt',.true.)
-Ckino isanrg is logical function,       call isanrg(opt1,0,2,'makrm0:','10s digit opt',.true.)
       l_dummy_isanrg=isanrg(opt1,0,2,'makrm0:','10s digit opt',.true.)
-Ckino isanrg is logical function,       call isanrg(opt2,0,1,'makrm0:','100s digit opt',.true.)
       l_dummy_isanrg=isanrg(opt2,0,1,'makrm0:','100s digit opt',.true.)
-Ckino isanrg is logical function,       call isanrg(opt3,0,1,'makrm0:','1000s digit opt',.true.)
       l_dummy_isanrg=isanrg(opt3,0,1,'makrm0:','1000s digit opt',.true.)
-Changenglob      nsp = nglob('nsp')
-c      nsp = globalvariables%nsp
       stdo = lgunit(1)
       call getpr(ipr)
       call dpzero(rpos,3*mxcsiz)
@@ -2487,5 +2481,393 @@ C     .  call awrit1('%N ovlchk: fovl= %;6g',' ',80,i1mach(2),fovl)
       end subroutine ovlchk
 
 
+      subroutine sumsro(rp,np,ips,a,b,rho,nttab,iax,rpos,rosum)
+C- Add a r.s. superposition of spherical densities at a set of points
+C ----------------------------------------------------------------------
+Ci Inputs
+Ci   rp    :set of np points
+Ci   np    :number points
+Ci   ips   :species table: density for site ib site ib found in ips(ib)
+Ci   a     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
+Ci         :a(i) is coefficient for species i
+Ci   b     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
+Ci         :b(i) is coefficient for species i
+Ci   rho   :spherical density for each species
+Ci   nttab :total number of pairs in neighbor and iax (pairc.f)
+Ci   iax   :neighbor table containing pair information connecting
+Ci         :site i to its neighbors
+Ci   rpos  :positions of neighbors.
+Ci         :rp and rpos must be defined with respect to same origin.
+Co Outputs
+Co   rosum :sum of densities at each of np points
+Cl Local variables
+Cu Updates
+Cu   21 Apr 02 First created
+C ----------------------------------------------------------------------
+C     implicit none
+C ... Passed parameters
+      integer np,ips(1),nrmx,niax
+      parameter (nrmx=1501, niax=10)
+      integer nttab,iax(niax,nttab)
+      double precision rp(3,np),rpos(3,nttab),rho(nrmx,*),rosum(np)
+      double precision a(*),b(*)
+C ... Local parameters
+      integer k,jb,js,ip,jx
+      double precision dx(3),d,xx,y,e
+      double precision rp3p,rp5p,rpp3p,rpp32,rpp5p,rppp
+C     double precision rofii(nrmx),dy
+
+C     x axis for polynomial interpolation.  Use log mesh
+C     Needed only for call to polint
+C      do  k = 1, nrmx
+C        rofii(k) = k
+C      enddo
+
+C ... Sum the potential from nttab neighbors
+      do  ip = 1, np
+        rosum(ip)= 0
+        do  k = 1, nttab
+          dx(1) = rp(1,ip)-rpos(1,k)
+          dx(2) = rp(2,ip)-rpos(2,k)
+          dx(3) = rp(3,ip)-rpos(3,k)
+          jb = iax(2,k)
+          js = ips(jb)
+          d = dsqrt(dx(1)**2+dx(2)**2+dx(3)**2)
+
+          xx = 1 + dlog(d/b(js)+1)/a(js)
+          if (int(xx) .le. nrmx-2) then
+C           General polynomial interpolation.  Works, but slow.
+C           jx = int(xx)-1
+C           call polint(rofii,rho(1,js),nrmx,5,xx,0d0,0,jx,y,dy)
+
+C           Interpolate in-line by 5-point formula
+            jx = nint(xx)-2
+C           first derivative, 3- and 5-point estimate
+            rp3p = (rho(jx+3,js)-rho(jx+1,js))/2
+            rp5p = (4*rp3p-(rho(jx+4,js)-rho(jx,js))/4)/(4-1)
+
+C           Second derivative, nearest points and 2nd points
+            rpp3p =  rho(jx+1,js) + rho(jx+3,js) - 2*rho(jx+2,js)
+            rpp32 = (rho(jx+0,js) + rho(jx+4,js) - 2*rho(jx+2,js))/4
+C           five-point estimate for second derivative
+            rpp5p = (rpp3p*4 - rpp32*1) / (4 - 1)
+
+C           Estimate for third derivative
+            rppp = -6*(rp5p - rp3p)
+
+C           Interpolate function value by polynomial
+            e = xx-jx-2
+            y = rho(jx+2,js)+e*rp5p+e*e/2*rpp5p+e**3/6*rppp
+
+            rosum(ip) = rosum(ip) + y
+          endif
+
+C       Verbose debugging printout
+C       print 333, k, iax(2,k), js, ip, dx, d, y, rosum(ip)
+C 333   format(4i4,6f8.3)
+        enddo
+C     Debugging printout
+C     print 334, ip, rosum(ip)
+C  334 format(i4,f12.6)
+      enddo
+
+      end
+
+
+      subroutine mkqlat(plat,qlat,vol0)
+C- Reciprocal of a lattice vector
+C     implicit none
+      double precision plat(3,3),qlat(3,3),tripl,vol0
+      integer i,k
+      call cross(plat(1,2),plat(1,3),qlat)
+      call cross(plat(1,3),plat(1,1),qlat(1,2))
+      call cross(plat(1,1),plat(1,2),qlat(1,3))
+      vol0 = tripl(plat,plat(1,2),plat(1,3))
+      do  i=1,3
+      do  k=1,3
+         qlat(i,k)=qlat(i,k)/vol0
+      enddo
+      enddo
+      end
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc      
+      subroutine shorps(nbas,plat,mode,pin,pout)
+C- Shift each basis vector by multiples of plat according to mode
+C ----------------------------------------------------------------
+Ci Inputs:  nbas,plat
+Ci   nbas<0: sign used as a switch to make shorps return in
+Ci         array pout the change in pin, in units of plat
+Ci   pin:  position (basis) vectors
+Ci   mode  vector of length 3 governing shifts along selected axes.
+Ci         0 suppresses shifts along plat(j)
+Ci         1 shifts to unit cell at origin (pos in 1st quadrant)
+Ci         2 shifts to minimize length of pos
+Co Outputs:
+Co   pout  (may point to the same address space as pin).
+Co   iat:  multiples of plat added
+Cr Remarks
+Cr   pos = f . plat, with f = integer + fraction for each plat.
+Cr   Integer part according to mode.
+Cu Updates
+Cu   09 Jan 09 Do not change basis vectors if they exactly fall
+Cu             on the cell boundary
+Cu   10 Apr 02 Patch to handle mixed boundary conditions
+C ----------------------------------------------------------------
+C     implicit none
+      integer nbas,mode(3)
+      double precision plat(3,3),pin(3,nbas),pout(3,nbas)
+C Local
+      double precision qlat(3,3),xx,x0,x(3),a2,ap,p0(3),xmin(3),amin,vol
+      integer ib,i,m,j1,j2,j3,nbas1,j1max,j2max,j3max
+      double precision tol
+      parameter (tol = 1d-12)
+      nbas1 = iabs(nbas)
+C ... qlat = (plat^-1)^T so that qlat^T . plat = 1
+      call dinv33(plat,1,qlat,vol)
+      do  10  ib = 1, nbas1
+        call dpcopy(pin(1,ib),p0,1,3,1d0)
+C   --- Reduce to unit cell centered at or near origin ---
+        do  12  i = 1, 3
+C   ... x0 is projection of pin along plat(i)
+          x0 = pin(1,ib)*qlat(1,i)+pin(2,ib)*qlat(2,i)+pin(3,ib)*qlat(3,i)
+          if (mode(i) .le. 0) then
+            x(i) = x0
+          else
+c   ... leave basis vectors intact if |pin(i,ib)| = 0.5
+            if (dabs(x0) .le. 0.5d0+tol) then
+              xx = 0d0
+            else
+              xx = idnint(x0)
+            endif
+C     ... first octant for mode=1
+            if (mode(i) .eq. 1 .and. x0-xx .lt. -tol) xx = xx-1
+            x(i) = x0-xx
+          endif
+   12   continue
+        do  14  m = 1, 3
+          pout(m,ib) = x(1)*plat(m,1) + x(2)*plat(m,2) + x(3)*plat(m,3)
+   14   continue
+C   --- Try shortening by adding +/- lattice vectors ---
+        j1max = 1
+        if (mode(1) .le. 1) j1max = 0
+        j2max = 1
+        if (mode(2) .le. 1) j2max = 0
+        j3max = 1
+        if (mode(3) .le. 1) j3max = 0
+   15   continue
+        amin = 0
+        do  162  j1 = -j1max, j1max
+        do  161  j2 = -j2max, j2max
+        do  16  j3 = -j3max, j3max
+C     ... (-1,0,1) (plat(1) + (-1,0,1) plat(2)) + (-1,0,1) plat(3))
+          do  17  i = 1, 3
+            x(i) = plat(i,1)*j1 + plat(i,2)*j2 + plat(i,3)*j3
+   17     continue
+          a2 = x(1)*x(1) + x(2)*x(2) + x(3)*x(3)
+          ap = pout(1,ib)*x(1) + pout(2,ib)*x(2) + pout(3,ib)*x(3)
+          if (a2+2*ap .lt. amin) then
+            xmin(1) = x(1)
+            xmin(2) = x(2)
+            xmin(3) = x(3)
+            amin = a2+2*ap
+          endif
+ 16     continue
+ 161    continue
+ 162    continue
+c       if (amin .lt. 0) then
+        if (amin .lt. -tol) then
+          pout(1,ib) = pout(1,ib) + xmin(1)
+          pout(2,ib) = pout(2,ib) + xmin(2)
+          pout(3,ib) = pout(3,ib) + xmin(3)
+C         In cases w/ mixed boundary conditions, (-1,0,1) may not be enough
+C         Patched 10 Apr 02
+          if (mode(1).eq.0 .or. mode(2).eq.0 .or. mode(3).eq.0) goto 15
+        endif
+C   --- pout <- pout - pin, units of plat ---
+        if (nbas .lt. 0) then
+c           call dpadd(p0,pout(1,ib),1,3,-1d0)
+          p0=p0-pout(:,ib)
+          do  20  i = 1, 3
+            xx = -p0(1)*qlat(1,i) - p0(2)*qlat(2,i) - p0(3)*qlat(3,i)
+            if (dabs(xx-nint(xx)) .gt. 1d-10) call rx('bug in shorps')
+            pout(i,ib) = xx
+   20     continue
+        endif
+   10 continue
+      end
+c$$$#if TESTforshorps
+c$$$      subroutine fmain
+c$$$C to see that the change in position vectors are multiples of
+c$$$C the lattice vector, copy input,output pos to 'pos','posf'; invoke
+c$$$C mc posf pos -- -t plat -t -i -x
+c$$$      implicit none
+c$$$      integer ix(3),i
+c$$$      double precision pos(3,48),pos2(3,48),plat(3,3),qlat(9),xx
+c$$$
+c$$$      call wkinit(10000)
+c$$$
+c$$$      data plat /
+c$$$     .0.5d0,          .5d0, 0d0,
+c$$$     .0.0d0,          0.d0, 1d0,
+c$$$     .2.570990255d0, -2.570990255d0, 0d0/
+c$$$      data pos /
+c$$$     .-0.697107d0,  1.197107d0,  0.250000d0,
+c$$$     .-0.697107d0,  1.197107d0,  0.750000d0,
+c$$$     .-0.770330d0,  0.770330d0,  0.000000d0,
+c$$$     .-0.770330d0,  0.770330d0,  0.500000d0,
+c$$$     .-0.343553d0,  0.843553d0,  0.250000d0,
+c$$$     .-0.343553d0,  0.843553d0,  0.750000d0,
+c$$$     .-0.416777d0,  0.416777d0,  0.000000d0,
+c$$$     .-0.416777d0,  0.416777d0,  0.500000d0,
+c$$$     .0.010000d0,  0.490000d0,  0.250000d0,
+c$$$     .0.010000d0,  0.490000d0,  0.750000d0,
+c$$$     .0.250000d0,  0.250000d0,  0.500000d0,
+c$$$     .0.500000d0,  0.500000d0,  0.750000d0,
+c$$$     .0.750000d0,  0.750000d0,  1.000000d0,
+c$$$     .1.000000d0,  1.000000d0,  1.250000d0,
+c$$$     .0.250000d0, -0.250000d0,  0.000000d0,
+c$$$     .0.500000d0,  0.000000d0,  0.250000d0,
+c$$$     .0.750000d0,  0.250000d0,  0.500000d0,
+c$$$     .1.000000d0,  0.500000d0,  0.750000d0,
+c$$$     .0.750000d0, -0.250000d0,  0.500000d0,
+c$$$     .1.000000d0,  0.000000d0,  0.750000d0,
+c$$$     .1.250000d0,  0.250000d0,  1.000000d0,
+c$$$     .1.500000d0,  0.500000d0,  1.250000d0,
+c$$$     .0.740000d0, -0.740000d0,  0.000000d0,
+c$$$     .0.740000d0, -0.740000d0,  0.500000d0,
+c$$$     .1.166777d0, -0.666777d0,  0.250000d0,
+c$$$     .1.166777d0, -0.666777d0,  0.750000d0,
+c$$$     .1.093553d0, -1.093553d0,  0.000000d0,
+c$$$     .1.093553d0, -1.093553d0,  0.500000d0,
+c$$$     .1.520330d0, -1.020330d0,  0.250000d0,
+c$$$     .1.520330d0, -1.020330d0,  0.750000d0,
+c$$$     .1.447107d0, -1.447107d0,  0.000000d0,
+c$$$     .1.447107d0, -1.447107d0,  0.500000d0,
+c$$$     .-1.050660d0,  1.550660d0,  0.250000d0,
+c$$$     .-1.050660d0,  1.550660d0,  0.750000d0,
+c$$$     .-1.123883d0,  1.123883d0,  0.000000d0,
+c$$$     .-1.123883d0,  1.123883d0,  0.500000d0,
+c$$$     .1.873883d0, -1.373883d0,  0.250000d0,
+c$$$     .1.873883d0, -1.373883d0,  0.750000d0,
+c$$$     .1.800660d0, -1.800660d0,  0.000000d0,
+c$$$     .1.800660d0, -1.800660d0,  0.500000d0,
+c$$$     .-1.404214d0,  1.904214d0,  0.250000d0,
+c$$$     .-1.404214d0,  1.904214d0,  0.750000d0,
+c$$$     .-1.477437d0,  1.477437d0,  0.000000d0,
+c$$$     .-1.477437d0,  1.477437d0,  0.500000d0,
+c$$$     .2.227437d0, -1.727437d0,  0.250000d0,
+c$$$     .2.227437d0, -1.727437d0,  0.750000d0,
+c$$$     .2.154214d0, -2.154214d0,  0.000000d0,
+c$$$     .2.154214d0, -2.154214d0,  0.500000d0/
+c$$$
+c$$$
+c$$$      call prmx('plat',plat,3,3,3)
+c$$$      call prmx('starting pos',pos,3,3,48)
+c$$$      ix(1) = 2
+c$$$      ix(2) = 2
+c$$$      ix(3) = 2
+c$$$      call shorps(48,plat,ix,pos,pos2)
+c$$$      call prmx('final pos',pos2,3,3,48)
+c$$$
+c$$$      call mkqlat(plat,qlat,xx)
+c$$$      do  10  i = 1, 48
+c$$$        call shorbz(pos(1,i),pos2(1,i),plat,qlat)
+c$$$   10 continue
+c$$$
+c$$$      call prmx('from shorbz',pos2,3,3,48)
+c$$$      end
+c$$$#endif
+c$$$#if TEST2
+c$$$      subroutine fmain
+c$$$C Check special case in which a bug fix, mixed boundary conditions
+c$$$      implicit none
+c$$$      integer ix(3),i
+c$$$      double precision pos(3,1),pos2(3,1),plat(3,3),qlat(9),xx
+c$$$      double precision dd1,dd2
+c$$$
+c$$$      call wkinit(10000)
+c$$$
+c$$$      data plat /-0.5d0,0.5d0,0.0d0,
+c$$$     .0.0d0,0.0d0,1.0d0,
+c$$$     .7.0d0,7.0d0,4.0d0/
+c$$$      data ix /2,2,0/
+c$$$
+c$$$      pos(1,1) = 2.5d0
+c$$$      pos(2,1) = 3.0d0
+c$$$      pos(3,1) = 0.0d0
+c$$$
+c$$$      dd1 = dsqrt(pos(1,1)**2 + pos(2,1)**2 + pos(3,1)**2)
+c$$$      call shorps(1,plat,ix,pos,pos2)
+c$$$      dd2 = dsqrt(pos2(1,1)**2 + pos2(2,1)**2 + pos2(3,1)**2)
+c$$$      print *, dd1, dd2
+c$$$
+c$$$      call mkqlat(plat,qlat,xx)
+c$$$      do  10  i = 1, 1
+c$$$        call shorbz(pos(1,i),pos2(1,i),plat,qlat)
+c$$$   10 continue
+c$$$      dd2 = dsqrt(pos2(1,1)**2 + pos2(2,1)**2 + pos2(3,1)**2)
+c$$$      print *, dd1, dd2
+c$$$
+c$$$      end
+c$$$#endif
+c$$$
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+      subroutine fovlp(ib1,ib2,ntab,iax,plat,pos,ipc,alat,rmax,z,pwr,
+     .facaa,facae,facee,fmax,f,inc)
+C- Analytical function of the sphere overlaps
+Cu Updates
+Cu   22 Oct 02  weight ES-ES and atom-ES overlaps differently
+Cu              New argument list
+C     implicit none
+      integer ib1,ib2,ntab(ib2+1),niax,ipc(ib2),inc
+      parameter (niax=10)
+      integer iax(niax,1)
+      double precision alat,plat(3,3),pos(3,ib2),rmax(1),pwr,fmax,f,
+     .facaa,facae,facee
+      double precision dsqr,dr,d,sumrs,z(ib2),zb,zi,fac
+      integer i,ib,i0,i1,ii,jj,kk,ix,icb,ici
+
+      fmax = -99d0
+      f = 0
+      inc = 0
+      do  10  ib = ib1, ib2
+        i0 = ntab(ib)+1
+        i1 = ntab(ib+1)
+        do  12  i = i0+1, i1
+          ii = iax(3,i)-iax(3,i0)
+          jj = iax(4,i)-iax(4,i0)
+          kk = iax(5,i)-iax(5,i0)
+          dsqr = 0
+          do  16  ix = 1, 3
+            dr = pos(ix,iax(2,i)) - pos(ix,iax(1,i0)) +
+     .      plat(ix,1)*ii + plat(ix,2)*jj + plat(ix,3)*kk
+            dsqr = dsqr + dr**2
+   16     continue
+          icb = ipc(ib)
+          ici = ipc(iax(2,i))
+          zb = z(icb)
+          zi = z(ici)
+          fac = 1
+          if (zb .ne. 0 .and. zi .ne. 0) then
+            fac = facaa
+          elseif (zb .eq. 0 .and. zi .eq. 0) then
+            fac = facee
+          else
+            fac = facae
+          endif
+          sumrs = rmax(icb) + rmax(ici)
+          d = alat*dsqrt(dsqr)
+          if (sumrs .gt. d) then
+            f = f + fac*(sumrs/d-1)**pwr
+            inc = inc+1
+C          else
+C            goto 10
+          endif
+          fmax = max(sumrs/d-1,fmax)
+   12   continue
+   10 continue
+      end
+      
       end module m_lmaux
 

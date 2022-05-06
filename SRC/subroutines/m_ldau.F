@@ -12,6 +12,7 @@
       use m_chkdmu,only: sudmtu
       integer:: i,idmatu
       logical:: mmtargetx
+      call tcn('m_ldau_init')
       idmatu=nsp*nlibu*(lmaxu*2+1)**2
       if(init) then
       allocate( dmato(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu))
@@ -21,6 +22,7 @@
       call sudmtu(dmato, vorb)  !read dmatu from dmatu.ext and generate vorbdmat from dmatu.ext
       inquire(file='mmtarget.aftest',exist=mmtargetx)
       if(mmtargetx) call vorbmodifyaftest()
+      call tcx('m_ldau_init')
       end
       
 !! vorb LDA+U mixing
@@ -35,10 +37,12 @@
       logical:: mmtargetx
       real(8):: alpha,mmtarget, uhhist(nx),uhx,sss(1),fac,mmsite(nbas),mmhist(nx)
       integer:: nit,ibas,ifx,ncount=0,iblu,i
+      call tcn('m_ldau_vorbset')
       call chkdmu(eks,dmatu, dmato, vorb)
       dmato=dmatu !dmato is kept in this module as previous dmat
       inquire(file='mmtarget.aftest',exist=mmtargetx)
       if(mmtargetx) call vorbmodifyaftest()
+      call tcx('m_ldau_vorbset')
       end
       
 !ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      

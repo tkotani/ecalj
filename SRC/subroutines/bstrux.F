@@ -40,6 +40,7 @@ c      print *,' bbbbbbbbbb iq q=',iq,q
       integer:: kmaxx,ia,isa,lmxa,lmxb,kmax,nlmb,nlma,mode,inn(3),ig,iq,ndimhmax
       real(8):: pa(3),qin(3),q(3),qlatinv(3,3),rsma,qss(3)
       integer,allocatable:: igvapw(:,:)
+      call tcn('m_bstrux_init')
       if(allocated(qall)) deallocate(qall,p_bstr,p_dbstr)
       allocate(qall(3,iqini:iqend),p_bstr(nbas,iqini:iqend),p_dbstr(nbas,iqini:iqend)) !iqini:iqend for each rank
       do 1200 iq = iqini, iqend !This is a big iq loop
@@ -78,6 +79,7 @@ c      print *,' bbbbbbbbbb iq q=',iq,q
         enddo 
         deallocate(igvapw)
  1200 continue
+      call tcx('m_bstrux_init')
       end
 !ssssssssssssssssssssssssssssssssssssssss         
       subroutine bstrux(mode,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igapw,  b,                db)
@@ -154,6 +156,7 @@ C ... Local parameters
       double precision p(3),xx,srvol
       complex(8),allocatable:: b0(:),db0(:)
       real(8),allocatable:: bos(:)
+      call tcn('bstrux')
       srvol = dsqrt(vol)
       nlmto = ndimh-napw
 C     Zero out strux to eliminate contributions from local orbitals
@@ -213,6 +216,7 @@ C         Note: indices of b are ordered differently by mode (see Outputs)
         if (mode .eq. 1) deallocate(db0)
       endif
       call paugqp(mode,kmax,nlma,kmax,ndimh,napw,igapw,alat,qlat,srvol,q,pa,rsma,b,b,db)
+      call tcx('bstrux')
       end subroutine bstrux
 !!
       subroutine prlcb1(mode,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,

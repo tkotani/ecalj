@@ -50,6 +50,7 @@ c      stdo = globalvariables%stdo
 Changenglob      nsp  = nglob('nsp')
 c      nsp  = globalvariables%nsp
 C     Assume not self-consistent
+      call tcn('nwit')
       lsc = 3
       more = .true.
       if (iter .ge. maxit) then
@@ -106,6 +107,7 @@ C ... Save for future iterations
 C --- Write out to save file --
       flg = svflg(lsc+1:lsc+1) !// '67'
       call nwitsv(1+2,nvario,flg,nsp,amom,etot,sev)
+      call tcx('nwit')
       end
 
       subroutine nwitsv(iflst,nvario,flg,nsp,amom,etot,sev)

@@ -60,6 +60,7 @@ c      enddo
       data dig /'1','2','3','4','5','6','7','8','9'/
       data lsym /'s','p','d','f','g','5','6','7','8','9'/
       data lorb /'p','d','l'/
+      call tcn('m_hamindex_init')
 ! forget floating orbital case
       ldim  = ham_ldham(1) 
       nbas=ctrl_nbas !nbas_in
@@ -224,7 +225,6 @@ c         write(6,*)'ssssssssssss spid=',is,ib,spid,iorb
          l_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ltab(iorb)
          k_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ktab(iorb)
       enddo
-
       
 !! Get rotation matrix dlmm.  We assume nl=lmxa+1.
       lxxa=nl-1
@@ -232,8 +232,10 @@ c         write(6,*)'ssssssssssss spid=',is,ib,spid,iorb
       call rotdlmm(symops,ngrp, nl, dlmm)
 
 !! Not GW mode ------------------------------------
-      if(jobgw<0) return !for sigm mode, dlmm needed.
-!---------------------------------------------------------
+      if(jobgw<0) then
+         call tcx('m_hamindex_init')
+         return                 !for sigm mode, dlmm needed.
+      endif
       
 !! --- PW part. info for eigenfunctions are expanded as MTpart+PWpart.!feb2012takao
       inquire(file='QGpsi',EXIST=qpgexist)  !feb2012takao
@@ -315,6 +317,7 @@ c         write(6,*)'ssssssssssss spid=',is,ib,spid,iorb
            print *,'pwmode=0 writehamindex'
            call writehamindex() !sep2012takao
         endif   
+        call tcx('m_hamindex_init')
         return
       endif
 !! for APW rotation.  ! ... Get igv2(3,iapw,ikt). pwmode>=10 only
@@ -323,6 +326,7 @@ c         write(6,*)'ssssssssssss spid=',is,ib,spid,iorb
       allocate( napwk(nkt))
 !! takao is 
       if(mod(pwmode,10)==0) then ! MTO basis only 
+        call tcx('m_hamindex_init')
         return
       endif
       pwgmax = dsqrt(pwemax)
@@ -423,6 +427,7 @@ C ... Reverse table of igv2 --->igv2rev
         allocate( dlmm( -lxxa:lxxa, -lxxa:lxxa, 0:lxxa, ngrp))
         call rotdlmm(symtmp,ngrp, nl, dlmm) !rotation matrix dlmm.  We assume nl=lmxa+1.
       endif
+      call tcx('m_hamindex_init')
       end subroutine m_hamindex_init
       
       

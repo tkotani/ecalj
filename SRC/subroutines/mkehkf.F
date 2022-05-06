@@ -24,6 +24,7 @@ Co         :Hohnberg-Kohn-Sham energy (mode = 2)
       integer:: i_copy_size
       real(8):: sev , etot ,ekin,ttcor, eh,eks,sumtv
       integer ipr,ipl
+      call tcn('m_mkehkf_etot1')
       call getpr(ipr)
       ipl = 1
         sumtv = sev - valvef
@@ -44,6 +45,7 @@ Co         :Hohnberg-Kohn-Sham energy (mode = 2)
         endif
         if (ipr.gt.0 .and. ipl.gt.0) write (stdl,720) utot,ekin,sev,etot
   720   format('fp Har: U',f15.6,'  T',f15.6,'  sev',f14.6,'  EH ',f14.6)
+      call tcx('m_mkehkf_etot1')
       end subroutine m_mkehkf_etot1
 !!
       subroutine m_mkehkf_etot2(sev,sumtv, etot)
@@ -69,6 +71,7 @@ Co         :Hohnberg-Kohn-Sham energy (mode = 2)
       integer:: i_copy_size
       real(8):: sev , etot ,ekin,ttcor, eh,eks,sumtv
       integer ipr,ipl
+      call tcn('m_mkehkf_etot2')
       call getpr(ipr)
       ipl = 1
         ekin = sumtv + sumtc
@@ -91,5 +94,6 @@ Co         :Hohnberg-Kohn-Sham energy (mode = 2)
         endif
         if (ipr.gt.0 .and. ipl.gt.0) write (stdl,721) utot,ekin,rhoexc,eks
   721   format('fp KS: U',f16.7,' T',f16.7,' Exc',f15.7,' EKS',f15.7)
+      call tcx('m_mkehkf_etot2')
       end subroutine m_mkehkf_etot2
       end module

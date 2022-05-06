@@ -12,6 +12,7 @@
       integer:: iq,ik1,ik2,ik3,nkk(3)
       integer:: nkk1,nkk2,nkk3
       logical:: ok
+      call tcn('m_gennlat_init')
       nkk1=nkk(1)
       nkk2=nkk(2)
       nkk3=nkk(3)
@@ -27,6 +28,7 @@
          deallocate( nlat, nqwgt, nlatS,nlatE )
       enddo
 c      print *,'m_gennlat_init: We got nlat and nqwgt'
+      call tcx('m_gennlat_init')
       end subroutine
       end module m_gennlat
       
@@ -43,6 +45,7 @@ csssssssssssssssssssssssssssssssssss
       implicit none
       integer:: iq,ik1,ik2,ik3,nkk(3),nkk1,nkk2,nkk3
       logical:: ok
+      call tcn('m_gennlat_sig')
       nkk1=nkk(1)
       nkk2=nkk(2)
       nkk3=nkk(3)
@@ -57,6 +60,7 @@ csssssssssssssssssssssssssssssssssss
          if(ok) exit
          deallocate( nlat, nqwgt, nlatS,nlatE )
       enddo
+      call tcx('m_gennlat_sig')
       end subroutine
       end module m_gennlat_sig
 csssssssssssssssssssssssssssssssssss

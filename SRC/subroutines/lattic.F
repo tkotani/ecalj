@@ -56,6 +56,7 @@ c      integer nbaspp,npadl,npadr
      .xx1,xx2,dotprd,pi,rpad,
      .plat0(3,3),plat(3,3),qlat(3,3) !platl(3,3),platr(3,3),dist(3,3)
       equivalence (gam(1), gx), (gam(2), gy), (gam(3), gz), (gam(4), gt)
+      call tcn('m_lattic_init')
       alat=lat_alat
       awald0=lat_as
       tol=lat_tol
@@ -118,6 +119,7 @@ c      lat_plat0=plat0
       lat_nkd=nkd
       lat_nkq=nkq
 c      lat_dist=dist
+      call tcx('m_lattic_init')
       end subroutine m_lattic_init
       end module m_lattic
  

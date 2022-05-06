@@ -171,6 +171,7 @@ c lso,isw
        iprx=.false.
        if(procid==master) iprx=.true.
 #endif
+      call tcn('mkekin')
       ndimh=ham_ldham(1) 
       call getpr(ipr)
       ngabc=lat_nabc
@@ -222,6 +223,7 @@ C       Add site augmentation contribution to rhout * (ham - ke)
       sumtv = sumev - srhov
       if (ipr .ge. 30) write(stdo,340) srmesh,sraugm,srhov,sumev,sumtv
   340 format(/' srhov:',3f14.6,' sumev=',f12.6,'   sumtv=',f12.6)
+      call tcx('mkekin')
       end subroutine mkekin
 
 
@@ -229,7 +231,6 @@ C       Add site augmentation contribution to rhout * (ham - ke)
      .nlmh,tauhh,sighh,ppihhz,tauhp,sighp,ppihpz,
      .taupp,sigpp,ppippz,lso,qhh,qhp,qpp,nsp,nspc, !lcplxp,
      .sumt,sumq,sumh)
-
 C- Local contribution to kinetic energy for one site
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -304,22 +305,10 @@ ccccccccccccccccccccccccccccccccccccccc
       sumt = 0d0
       sumq = 0d0
       sumh = 0d0
-
 C ... Pkl*Pkl
       do  i = 1, nsp
         do  k1 = 0, kmax
           do  k2 = 0, kmax
-c$$$            if (lcplxp .eq. 0) then
-c$$$              do  ilm1 = 1, nlma
-c$$$                l1 = ll(ilm1)
-c$$$                sumt = sumt + qpp(k1,k2,ilm1,ilm1,i)*taupp(k1,k2,l1,i)
-c$$$                sumq = sumq + qpp(k1,k2,ilm1,ilm1,i)*sigpp(k1,k2,l1,i)
-c$$$                do  ilm2 = 1, nlma
-c$$$                  sumh = sumh + qpp(k1,k2,ilm1,ilm2,i)*ppipp(k1,k2,ilm1,ilm2,i)
-c$$$                enddo
-c$$$              enddo
-c$$$
-c$$$            else
               do  ilm1 = 1, nlma
                 l1 = ll(ilm1)
                 sumt = sumt + qpp(k1,k2,ilm1,ilm1,i)*taupp(k1,k2,l1,i)
@@ -328,10 +317,8 @@ c$$$            else
                   sumh = sumh + qpp(k1,k2,ilm1,ilm2,i)*ppippz(k1,k2,ilm1,ilm2,i)
                 enddo
               enddo
-c$$$            endif
           enddo
         enddo
-
 C ... Hsm*Hsm
         do  io2 = 1, norb
           if (blks(io2) .ne. 0) then
@@ -347,19 +334,6 @@ C         k1,l1 = k and starting l index for this block
                 k1 = ktab(io1)
                 nlm11 = l1**2+1
                 nlm12 = nlm11 + blks(io1)-1
-c$$$                if (lcplxp .eq. 0) then
-c$$$                  do  ilm1 = nlm11, nlm12
-c$$$                    l1 = ll(ilm1)
-c$$$                    do  ilm2 = nlm21, nlm22
-c$$$                      if (ilm1 .eq. ilm2) then
-c$$$                        sumt = sumt + qhh(k1,k2,ilm1,ilm2,i)*tauhh(k1,k2,l1,i)
-c$$$                        sumq = sumq + qhh(k1,k2,ilm1,ilm2,i)*sighh(k1,k2,l1,i)
-c$$$                      endif
-c$$$                      sumh = sumh+ qhh(k1,k2,ilm1,ilm2,i)*ppihh(k1,k2,ilm1,ilm2,i)
-c$$$                    enddo
-c$$$                  enddo
-c$$$
-c$$$                else
                   do  ilm1 = nlm11, nlm12
                     l1 = ll(ilm1)
                     do  ilm2 = nlm21, nlm22
@@ -370,19 +344,10 @@ c$$$                else
                       sumh = sumh+qhh(k1,k2,ilm1,ilm2,i)*ppihhz(k1,k2,ilm1,ilm2,i)
                     enddo
                   enddo
-c$$$                endif
-C          Needs to be checked ...
-C          if (nspc .eq. 2) then
-C            call pvgtk1(nkaph,nlmh,k1,k2,nlm11,nlm12,nlm21,nlm22,
-C     .        qhh,ppihhz,sumh)
-C          endif
-
               endif
             enddo
-
           endif
         enddo
-
 C ... Hsm*Pkl
         do  io1 = 1, norb
           if (blks(io1) .ne. 0) then
@@ -392,19 +357,6 @@ C       k1,l1 = k and starting l index for this block
             nlm11 = l1**2+1
             nlm12 = nlm11 + blks(io1)-1
             do  k2 = 0, kmax
-
-c$$$              if (lcplxp .eq. 0) then
-c$$$                do  ilm1 = nlm11, nlm12
-c$$$                  l1 = ll(ilm1)
-c$$$                  do  ilm2 = 1, nlma
-c$$$                    if (ilm1 .eq. ilm2) then
-c$$$                      sumt = sumt + qhp(k1,k2,ilm1,ilm2,i)*tauhp(k1,k2,l1,i)
-c$$$                      sumq = sumq + qhp(k1,k2,ilm1,ilm2,i)*sighp(k1,k2,l1,i)
-c$$$                    endif
-c$$$                    sumh = sumh+qhp(k1,k2,ilm1,ilm2,i)*ppihp(k1,k2,ilm1,ilm2,i)
-c$$$                  enddo
-c$$$                enddo
-c$$$              else
                 do  ilm1 = nlm11, nlm12
                   l1 = ll(ilm1)
                   do  ilm2 = 1, nlma
@@ -415,25 +367,9 @@ c$$$              else
                     sumh = sumh+qhp(k1,k2,ilm1,ilm2,i)*ppihpz(k1,k2,ilm1,ilm2,i)
                   enddo
                 enddo
-c$$$              endif
-
             enddo
           endif
         enddo
       enddo
-c      if (.false.) then !lso==1) then ! .ne. 0) then
-c        call ppi2z2(5,nsp,nspc,nkaph,nkaph,nlmh,nlmh,ppihhz)
-c        call ppi2z2(5,nsp,nspc,nkaph,1+kmax,nlmh,nlma,ppihpz)
-c        call ppi2z2(5,nsp,nspc,1+kmax,1+kmax,nlma,nlma,ppippz)
-c      endif
       end subroutine pvgtkn
 
-c$$$      subroutine ppi2z2(job,nsp,nspc,nf1,nf2,nlx1,nlx2,ppiz)
-c$$$      integer job,nsp,nspc,nf1,nf2,nlx1,nlx2
-c$$$      double complex  ppiz(nf1,nf2,nlx1,nlx2,nsp,nspc,2)
-c$$$      integer i1,i
-c$$$      real(8):: sz
-c$$$      if (job==5) sz =  1d0
-c$$$      if (job==6) sz = -1d0
-c$$$      call daxpy(2*nf1*nf2*nlx1*nlx2*nsp*nspc,sz,ppiz(1,1,1,1,1,1,2),1,ppiz,1)
-c$$$      end

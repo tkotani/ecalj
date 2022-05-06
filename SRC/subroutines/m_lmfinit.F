@@ -28,7 +28,7 @@ Ci          functions are less than tol.
       integer,parameter::  NULLI=-99999,nkap0=3,mxspec=256,lstrn=10000
       integer,parameter::  n0=10,nppn=12, nab=9, nrmx=1501,nlmx=64 !bndfp
       real(8),parameter::  NULLR =-99999, fs = 20.67098d0, degK = 6.3333d-6 ! defaults for MD
-      integer,protected:: io_show=0,io_help=0,nvario=0, lat_nkqmx,nat,lxcf !,irs4
+      integer,protected::  io_show,io_help=0,nvario=0, lat_nkqmx,nat,lxcf !,irs4
       integer(2),protected:: nono
       character(lstrn),protected:: sstrnmix,sstrnsymg
 c      integer,protected:: irs1,irs2,irs3,irs5
@@ -73,7 +73,7 @@ c     &     ,ham_delta_stabilize
       character*(8),allocatable,protected:: coreh(:)
 !! ... SITE
       character(8),protected:: alabl
-      real(8),allocatable,protected :: pos(:,:),vel(:,:),vshft(:)
+      real(8),allocatable,protected :: pos(:,:),vel(:,:)!,vshft(:)
       integer,allocatable,protected :: ips(:),irlx(:,:),ndelta(:) !,ipl(:),plv(:)
       real(8),allocatable,protected :: delta(:,:),mpole(:),dpole(:,:)
       integer,allocatable,protected ::iantiferro(:) !reserved
@@ -311,54 +311,43 @@ c      logical:: ltet
       call gtv_setrcd(recrd,nrecs,recln,stdo,stdl,stde) !Copy recrd to rcd in m_gtv
       call toksw_init(debug)
 ! io_show io_help      
-      io_show=1
+      if (     master_mpi)   io_show = 1
       if (.not.master_mpi)   io_show = 0
       if (cmdopt0('--help')) io_help = 1
-      call gtv_setio(debug,io_show,io_help)
       if (io_help == 1) then
-        write(stdo,"(/' Token',t19,'Input   cast  (size,min)'/' ------------------------------------------')")
+        write(stdo,*)' Token           Input   cast  (size,min) --------------------------'
       elseif(io_show/=0) then
-        write(stdo,"(/' Token',t19,'Input   cast  (size,min,read,def)     result')")
+        write(stdo,*)' Token           Input   cast  (size,min,read,def)     result'
       endif
-      if (procid .ne. master    ) io_show = 0
-      if (io_help == 1      ) io_show = 1
       call gtv_setio(debug,io_show,io_help) ! In case io_help changed
-!! IO ---
+!! IO
       i0=setprint0(30)      !initial verbose set
       nm='IO_VERBOS'; call gtv(trim(nm),tksw(prgnam,nm),verbos,
      .     note='Verbosity for printout. Set from the command-line with --pr=xxx',def_i4=30,nout=nout)
       if(io_help==1) verbos=30
-!! when we have no ctrl files, nout=0, default value not read
-      if(cmdopt2('--pr=',outs)) then
+      if(cmdopt2('--pr=',outs)) then !overwrite verbos via console input
          read(outs,*) verbos 
       elseif(cmdopt2('--pr',outs)) then
          read(outs,*) verbos 
       elseif(cmdopt2('-pr',outs))then
          read(outs,*) verbos
       endif
-      i0=setprint0(verbos)      !initial verbose set
+      i0 = setprint0(verbos)      !Set initial verbos
       if(.not.master_mpi) i0=setprint0(-100) !iprint() is negative except master
-      nm='IO_TIM'; call gtv(trim(nm),tksw(prgnam,nm),io_tim,note='Turns CPU timing log.  Value sets tree depth.'//
+!! show timing      
+      nm='IO_TIM';call gtv(trim(nm),tksw(prgnam,nm),io_tim,note='Turns CPU timing log. Value sets tree depth.'//
      .     '%N   Optional 2nd arg prints CPU times as routines execute.'//
      .     '%N   Args may be set through command-line: --time=#1[,#2]', def_i4v=(/1,1/),nmin=1,nout=i0)
       if(i0==1) io_tim(2)=io_tim(1)
-      if (cmdopt2('--time=',outs) ) then!!  Override with '--time=' commmand-line arg
+      if (cmdopt2('--time',outs) ) then !!  Override with '--time=' commmand-line arg
+         outs=trim(outs(2:))//' 999 999'
+         read(outs,*)io_tim(1),io_tim(2)
+         if(io_tim(1)==999) io_tim(1)=5
+         if(io_tim(2)==999) io_tim(2)=2
          i0=1
-         do i=1,len(outs)
-            if(outs(i:i)==',') then
-               outs=outs(1:i-1)//' '//outs(i+1:)
-               read(outs,*) io_tim(1),io_tim(2)
-               goto 829
-            elseif(outs(i:i)==' ') then
-               read(outs(1:i-1),*) io_tim(1)
-               goto 829
-            endif   
-         enddo
-         call rx('reading error for --time')
- 829     continue
       endif
       if ( i0 >=1 ) call tcinit(io_tim(2),io_tim(1),levelinit)
-      
+      call tcn('m_lmfinit')
 !! CONST --- for backword compatibility. We will remove this.
       call numsyv(nvario)
       nm='CONST'; call gtv(trim(nm),tksw(prgnam,nm), bigstr, note='Constants may declared for use in expressions'//
@@ -368,17 +357,18 @@ c      logical:: ltet
          call parsyv(bigstr,len_trim(bigstr),1999,0,i)
          if (io_show .ne. 0) call shosyv(0,0,0,stdo)
       endif
-!! Header ---
-      nm='HEADER'; call gtv(trim(nm),tksw(prgnam,nm),header,note='Contents displayed at beginning of program execution',nout=nout)
-      if (nout .gt. 0) then
-         outs  = 'HEADER '//trim(header)
-         if (procid .eq. master) then
-            if (io_show .ne. 0) write(stdo,'(1x)')
-            write(stdo,'(1x,a)') trim(outs)
-            if (io_show .ne. 0) write(stdo,'(1x)')
-            if (stdl>0 .and. iprint()>0) write(stdl,'(1x,a)') trim(outs)
-         endif
-      endif
+c$$$!! Header ---
+c$$$      nm='HEADER'; call gtv(trim(nm),tksw(prgnam,nm),header,note='Contents displayed at beginning of program execution',nout=nout)
+c$$$      if (nout .gt. 0) then
+c$$$         outs  = 'HEADER '//trim(header)
+c$$$         if (procid .eq. master) then
+c$$$            if (io_show .ne. 0) write(stdo,'(1x)')
+c$$$            write(stdo,'(1x,a)') trim(outs)
+c$$$            if (io_show .ne. 0) write(stdo,'(1x)')
+c$$$            if (stdl>0 .and. iprint()>0) write(stdl,'(1x,a)') trim(outs)
+c$$$         endif
+c$$$      endif
+      
 !! Struc ---
       if (tksw(prgnam,'STRUC') == 2) goto 59
       if (io_show+io_help/=0) write(stdo,*)' --- Parameters for crystal structure ---'
@@ -393,8 +383,7 @@ c      logical:: ltet
          plat(1:3,3)=temp33(7:9)
       endif
       avw = avwsr(plat,alat,vol,nbas)
-c  nm='STRUC_NSPEC'; call gtv(trim(nm),tksw(prgnam,nm),nspec,note='Number of species to read from SPEC category.'//
-c     .     '%N%3fIf not present, NSPEC will be obtained by counting entries in the SPEC category' )
+!  'STRUC_NSPEC' removed
       if (io_help == 0) then ! .and. nspec .eq. NULLI) then
          nm='SPEC_ATOM'; sw = tksw(prgnam,nm)
          if (sw .ne. 2) then
@@ -410,14 +399,15 @@ c     .     '%N%3fIf not present, NSPEC will be obtained by counting entries in 
          endif
       endif
       nsite = nbas
-      nm='STRUC_SLAT'; call gtv(trim(nm),tksw(prgnam,nm),temp33,nmin=9,note='Supercell lattice vectors')
+      nm='STRUC_SLAT';call gtv(trim(nm),tksw(prgnam,nm),temp33,nmin=9,note='Supercell lattice vectors')
       lat_slat(1:3,1)=temp33(1:3)
       lat_slat(1:3,2)=temp33(4:6)
       lat_slat(1:3,3)=temp33(7:9)
       nm='STRUC_DALAT'; call gtv(trim(nm),tksw(prgnam,nm),dalat,def_r8=0d0,
-     &     note='added to alat after reading inputs (only affecting to R/A)')
-!     STRUC_NL here removed, Lattice distortion or rotatation here removed.  
+     &     note='added to alat after reading inputs (only affecting to SPEC_ATOM_R/A case)')
+!     STRUC_NL here removed, Lattice distortion or rotatation here removed.
    59 continue
+      
 !! Options ---
       if (tksw(prgnam,'OPTIONS') == 2) goto 69
       if (io_show+io_help/=0) write(stdo,*)' --- Program Options ---'
@@ -425,9 +415,10 @@ c     .     '%N%3fIf not present, NSPEC will be obtained by counting entries in 
       nm='OPTIONS_RMINES'; call gtv(trim(nm),tksw(prgnam,nm),rmines,def_r8=1d0,note='Minimum MT radius when finding new ES')
       nm='OPTIONS_RMAXES'; call gtv(trim(nm),tksw(prgnam,nm),rmaxes,def_r8=2d0,note='Maximum MT radius when finding new ES')
       lpfloat=1
-   69 continue                  ! end of OPTIONS
+ 69   continue                  ! end of OPTIONS
+      
 !! Hamiltonian parameters ---
-      if (io_show+io_help/=0 .and. tksw(prgnam,'HAM')/=2) write(stdo,*)' --- Parameters for hamiltonian ---'
+      if(io_show+io_help/=0.and.tksw(prgnam,'HAM')/=2)write(stdo,*)' --- Parameters for hamiltonian ---'
       nsp = 1
       nm='HAM_NSPIN'; call gtv(trim(nm),tksw(prgnam,nm),nsp,def_i4=1,note='Set to 2 for spin polarized calculations')
       if (io_help .eq. 0) then
@@ -588,13 +579,13 @@ c     .     '%N%3f "H --> H + HAM_STABILIZE*O^-1" in zhev_tk(diagonalization)')
       endif
       if (nspec .eq. 0) goto 79
       allocate(pnu(n0,nsp,nspec),qnu(n0,nsp,nspec), pz(n0,nsp,nspec),amom(n0,nspec),idmod(n0,nspec),
-     .     rsmh1(n0,nspec),eh1(n0,nspec),rsmh2(n0,nspec),eh2(n0,nspec),
-     .     ehvl(n0,nspec), qpol(n0,nspec),stni(nspec),tbvso(4,nspec),
-     .     iq1(n0,nspec),ivso(n0,nspec), rg(nspec),rsma(nspec),rfoca(nspec),rsmfa(nspec),rcfa(2,nspec),
-     .     rs3(nspec),rham(nspec),rmt(nspec),rsmv(nspec),
-     .     nxi(nspec),exi(n0,nspec), spec_a(nspec),z(nspec),nr(nspec),eref(nspec),
-     .     coreh(nspec),coreq(2,nspec), idxdn(n0,nkap0,nspec), idu(4,nspec),uh(4,nspec),jh(4,nspec),
-     .     mxcst2(nspec),mxcst4(nspec), kmxt(nspec),kmxv(nspec),lfoca(nspec),lmxl(nspec),lmxa(nspec),lmxb(nspec),nmcore(nspec))
+     .    rsmh1(n0,nspec),eh1(n0,nspec),rsmh2(n0,nspec),eh2(n0,nspec),
+     .    ehvl(n0,nspec), qpol(n0,nspec),stni(nspec),tbvso(4,nspec),
+     .    iq1(n0,nspec),ivso(n0,nspec), rg(nspec),rsma(nspec),rfoca(nspec),rsmfa(nspec),rcfa(2,nspec),
+     .    rs3(nspec),rham(nspec),rmt(nspec),rsmv(nspec),
+     .    nxi(nspec),exi(n0,nspec), spec_a(nspec),z(nspec),nr(nspec),eref(nspec),
+     .    coreh(nspec),coreq(2,nspec), idxdn(n0,nkap0,nspec), idu(4,nspec),uh(4,nspec),jh(4,nspec),
+     .    mxcst2(nspec),mxcst4(nspec), kmxt(nspec),kmxv(nspec),lfoca(nspec),lmxl(nspec),lmxa(nspec),lmxb(nspec),nmcore(nspec))
       allocate(lpz(nspec),lpzex(nspec))
       allocate(nkapii(nspec),nkaphh(nspec))
       lpz=0
@@ -899,10 +890,7 @@ c          nm='SPEC_ATOM_IDXDN'; removed...
      .       'LDA+U mode:  0 nothing, 1 AMF, 2 FLL, 3 mixed; +10: nothin if sigm.* exist')
         nm='SPEC_ATOM_UH';call gtv(trim(nm),sw,uh(:,j),cindx=jj,def_r8v=zerov,note='Hubbard U for LDA+U')
         nm='SPEC_ATOM_JH';call gtv(trim(nm),sw,jh(:,j),cindx=jj,def_r8v=zerov,note='Exchange parameter J for LDA+U')
-c        print *,'idu=',idu(:,j)
-c        print *,' uh=',uh(:,j)
-c        print *,' ju=',jh(:,j)
-!! 2019 automatic turn off lda+u mode; enforce uh=jh=0 when sigm exist !!
+!! 2019 automatic turn off lda+u mode; Enforce uh=jh=0 when sigm exist !!
         if(procid==master .and. sum(abs(idu(:,j)))/=0) then 
            inquire(file='sigm.'//trim(sname),exist=sexist)
            if(sexist) then
@@ -917,7 +905,6 @@ c        print *,' ju=',jh(:,j)
            do lxx=0+1,3+1
               idu(lxx,j) = mod(idu(lxx,j),10)
            enddo
-c           if(sum(abs(idu(:,j)))/=0) write(stdo,"('idu uh jh=',4i4,4f6.2,' ',4f6.2)") idu(:,j),uh(:,j),jh(:,j)
         endif
         call mpibc1_int(idu(:,j),4,'m_lmfinit_idu')
         call mpibc1_real(uh(:,j),4,'m_lmfinit_uh') !bug fix at oct26 2021 (it was _int-->not passed )
@@ -943,10 +930,7 @@ c           if(sum(abs(idu(:,j)))/=0) write(stdo,"('idu uh jh=',4i4,4f6.2,' ',4f
         nm='SPEC_ATOM_EREF'; call gtv(trim(nm),tksw(prgnam,nm),eref(j),
      .       def_r8=0d0,cindx=jj,note=
      .       'Reference energy subtracted from total energy')
-c        nm='SPEC_ATOM_AMASS'; call gtv(trim(nm),tksw(prgnam,nm),mass(j),
-c     .       cindx=jj,note='Nuclear mass in a.u. (for dynamics)')
         nkaphh(j) = nkapii(j) + lpzex(j)
-c  if(master_mpi) write('ispec: nkaphh = nkapii+ lpzex(j)',i3,3i2)") j,nkaphh(j),nkapii(j),lpzex(j)
  1111 continue  ! Loop over species
       if (io_help==0) then
          lmxax = maxval(lmxa) !Maximum L-cutoff
@@ -957,34 +941,25 @@ c  if(master_mpi) write('ispec: nkaphh = nkapii+ lpzex(j)',i3,3i2)") j,nkaphh(j)
  79   continue
       
 !! Site ---
-      if (io_show+io_help/=0 .and. tksw(prgnam,'SITE')/=2) call info0(1,1,0,' --- Parameters for site data ---')
-      if (io_help .eq. 1) then
+      if(io_show+io_help/=0.and.tksw(prgnam,'SITE')/=2)write(stdo,*)' --- Parameters for site ---'
+      if(io_help .eq. 1) then
          nbas = 1
          nsite =2
-      endif
-      allocate(pos(3,nsite),vel(3,nsite),vshft(nsite),
-     .     ips(nsite),irlx(3,nsite), !,ipl(nsite),plv(nsite)
-     .     iantiferro(nsite))   !mpole(nsite),dpole(3,nsite),
-C     Default values
-      vel  = 0d0
-c      eula = 0d0
-      vshft = 0d0
-      irlx = 0
-C     Should always be set, if used
-      ips  = NULLI
-      pos  = NULLR
-c     mpole = 0d0
-c     dpole = 0d0
-      if (io_help .eq. 1) then
          if (iprint() .gt. 0) write(*,383)
  383     format(/' * ',
      .        'The following tokens are input for each site. ',
      .        'Data sandwiched'/3x,'between successive occurences of ',
      .        'token ATOM apply to one site.'/3x,'Alternatively, all ',
      .        'site data can be read in via the SITE file.')
-         nbas = 1
-         nsite = 2
       endif
+      allocate(pos(3,nsite),vel(3,nsite),!vshft(nsite),
+     .     ips(nsite),irlx(3,nsite), !,ipl(nsite),plv(nsite)
+     .     iantiferro(nsite))   !mpole(nsite),dpole(3,nsite),
+      vel  = 0d0
+c      vshft = 0d0
+      irlx = 0
+      ips  = NULLI
+      pos  = NULLR
 !      ... Site data, one pass for each atom
       do  j = 1, nbas
          if (io_help /= 0) then
@@ -1009,19 +984,18 @@ c     dpole = 0d0
 !  ... Site positions
          sw = tksw(prgnam,'SITE_ATOM_XPOS')
          nm='SITE_ATOM_POS'; call gtv(trim(nm),tksw(prgnam,nm),pos(:,j),
-     .        nout=nout,cindx=jj,note='Atom coordinates, in units of alat',
+     .        nout=nout,cindx=jj,note='Atom coordinates, cartesian in alat',
      .        or=(sw.ne.2))
          if (nout == 0 .or. tksw(prgnam,'SITE_ATOM_POS') == 2) then !nout=-1 if sw=2; otherwise nout=0 unless data was read
             nm='SITE_ATOM_XPOS'; call gtv(trim(nm),tksw(prgnam,nm),pos(:,j),
-     .           cindx=jj,note='Atom coordinates, as (fractional) '//
-     .           'multiples of the lattice vectors')
+     .           cindx=jj,note='Atom coordinates, fractional in alat')
             call dcopy(3,pos(1,j),1,xv,1)
             call dmpy(plat,3,1,xv,3,1,pos(1,j),3,1,3,1,3)
          endif
-         nm='SITE_ATOM_DPOS'; call gtv(trim(nm),tksw(prgnam,nm),
-     .        xv(1:3),def_r8v=zerov,nout=nout,cindx=jj,note=
-     .        'Shift in atom coordinates added to pos')
-         if (nout .eq. 3) call daxpy(3,1d0,xv,1,pos(1,j),1)
+c         nm='SITE_ATOM_DPOS'; call gtv(trim(nm),tksw(prgnam,nm),
+c     .        xv(1:3),def_r8v=zerov,nout=nout,cindx=jj,note=
+c     .        'Shift in atom coordinates added to pos')
+c         if (nout .eq. 3) call daxpy(3,1d0,xv,1,pos(1,j),1)
 
          nm='SITE_ATOM_V0'; call gtv(trim(nm),tksw(prgnam,nm),vel(:,j),
      .        def_r8v=zerov,cindx=jj,
@@ -1032,9 +1006,9 @@ c     dpole = 0d0
      .        'relax site positions (lattice dynamics) or '//
      .        'Euler angles (spin dynamics)')
 
-         nm='SITE_ATOM_VSHFT'; call gtv(trim(nm),tksw(prgnam,nm),vshft(j),
-     .        def_r8=0d0,cindx=jj,
-     .        note='Constant potential shift for this site')
+c         nm='SITE_ATOM_VSHFT'; call gtv(trim(nm),tksw(prgnam,nm),vshft(j),
+c     .        def_r8=0d0,cindx=jj,
+c     .        note='Constant potential shift for this site')
 
 c$$$         nm='SITE_ATOM_ROT'; call gtv(trim(nm),tksw(prgnam,nm),outs,nmin=
 c$$$     .        10,cindx=jj,nout=nout,note=
@@ -1416,7 +1390,7 @@ Cr         and it is included in the basis.
 c          v_ssite(j)%clabel=slabl(ips(j))
           v_ssite(j)%pos=pos(1:3,j)
           v_ssite(j)%vel=vel(1:3,j)
-          v_ssite(j)%vshft=vshft(j)
+c          v_ssite(j)%vshft=vshft(j)
           v_ssite(j)%relax=irlx(:,j)
           v_ssite(j)%iantiferro=iantiferro(j)
       enddo
@@ -1547,7 +1521,7 @@ C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
      .     exi,coreq,rs3,rham,idxdn,
      .     rmt,idu,uh,jh,kmxv,  !kmxt,
      .     lfoca,eref,lmxl,coreh,          spec_a,z,nr,rsmv,
-     .     pos,vel,vshft,ips,irlx) 
+     .     pos,vel,ips,irlx)  !,vshft
 !! --- takao embed contents in susite here. This is only for lmf and lmfgw.
       seref = 0d0
       do ib = 1, nsite
@@ -1720,6 +1694,7 @@ c        irs2=0
  9299    continue
          end block
       endif
+      call tcx('m_lmfinit')
       end subroutine m_lmfinit_init
 !ssssssssssssssssssssss      
       subroutine getiout(a,iin,iout) !a(1:iout) can be nonzero.

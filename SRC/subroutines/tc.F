@@ -22,58 +22,48 @@ C ----------------------------------------------------------------------
       character*(*) str1,str2
       character*3  tt(0:20)
       integer ncall(nx),lev(nx),it1(nx),icb(nx),icall(-2:30) 
-                       !bugfux this was icall(0:30) sep2010
       integer iwk0(nx),iwk1(nx),iwk2(nx),iwk3(nx)
       integer lvl,lv,last,j1,j2,iwmax,ilev,stdo,lgunit
       integer ifi,iprint
-C$    integer mp_my_threadnum
       real ttot(nx),tavg,tm
       double precision cpusec
       save
       data nn/0/, ii/0/, init/0/, ltr/0/, lpr/0/ !level/0/, 
-
       level=levelinit
-
       stdo = lgunit(1)
       if (ltrace .ne. 0) ltr = ltrace
       if (lprof .gt. 0) lpr = lprof
       ltop = max0(iabs(ltr),lpr)
       jt0 = 1000*cpusec()
-C     jt1 = 1000*cpusec()
       init = 1
       return
-
+!cccccccccccccccccccccccccccccccccccccccccccccccccccc
       entry tcn(str1)
-C$    if(mp_my_threadnum().ne.0) return
       levx = level
       level = level+1
       if (level .gt. ltop) return
       nam0 = str1
       job = 1
       goto 95
-
+!cccccccccccccccccccccccccccccccccccccccccccccccccccc
       entry tclev(str1,ilev)
       ilev = level-1
       str1 = ' '
       if (ilev .ge. 0) str1 = name(icall(ilev))
       return
-
+!cccccccccccccccccccccccccccccccccccccccccccccccccccc
       entry tcx(str2)
-C$    if(mp_my_threadnum().ne.0) return
       levx = level-1
       level = level-1
       if (level+1 .gt. ltop) return
       nam0 = str2
       job = 2
-
   95  continue
       if (init .eq. 0) jt0 = 1000*cpusec()
       init = 1
-c      call wquery(mfree,mnow,mmax) !takao no w(x) anymore.
       mfree=0
       mnow=0
       mmax=0
-
 c ... look for entry with same call path
       ii = 0
       do  10  i = 1, nn, 1
@@ -90,7 +80,6 @@ c ... look for entry with same call path
           endif
         endif
    10 continue
-
 c ... add a new entry
       if (job .eq. 2) call rxs('tcx: missing call to tcn: ',str2)
       nn = nn+1
@@ -106,7 +95,6 @@ c ... add a new entry
 c      print *,'level-2=',level-2
       icb(nn) = icall(level-2)
       ii = nn
-
 c ... do real operations here
   91  continue
       if (job .eq. 1) then
@@ -138,40 +126,30 @@ C       jt1 = it
      .      1x,i7,'K left on stack')
           else
             write(stdo,101) 0.001d0*(it-jt0),str2,tm
-  101       format(' >>',f10.2,'   exit  ',a,t35,f8.2:
-     .      '  mnow =',i11,'  mmax=',i11)
+  101       format(' >>',f10.2,'   exit  ',a,t35,f8.2:'  mnow =',i11,'  mmax=',i11)
           endif
         endif
         return
       endif
-
+!cccccccccccccccccccccccccccccccccccccccccccccccccccc
       entry tcprt(ifi)
       if (lpr .eq. 0) return
-
       if (iprint() .gt. 0) write (ifi,800) lpr
-  800 format(/
-     .'  ==== xxxxxxxxx ====     calls      == cpu time ===   depth',i2/
+ 800  format(/'  ==== procid=0 ====     calls      == cpu time ===   depth',i2/
      .'  entry   xxxx  xxxx                per call  total  (depth is by TIM= in ctrl.*.)')
-
       it = 1000*cpusec()
       tm = (it-jt0)/1000d0
-      
-c      call wquery(mfree,mnow,mmax) !takao no common/w anymore
       mfree=0
       mnow=0
       mmax=0
       iwmax = 0.001*mmax+0.5
       iwnow = 0.001*mnow+0.5
-      if (iprint() .gt. 0)
-c     .write (ifi,700) 0,0,iwmax,1,tm,tm,'main'
-     .write (ifi,700) 0,0,0,1,tm,tm,'main'
+      if (iprint() .gt. 0)write (ifi,700) 0,0,0,1,tm,tm,'main'
       lev(nn+1)=-1
-
       lvl=-1
       do  20  i = 1, nn
         lv = lev(i)
         if (lv+1 .le. lpr) then
-
           if (lv .gt. lvl) then
             tt(lv) = '|--'
             if (lv.gt.0 .and. tt(lv-1).eq.'|--') tt(lv-1) = '|  '
@@ -185,18 +163,16 @@ c     .write (ifi,700) 0,0,iwmax,1,tm,tm,'main'
    22     continue
    99     continue
           if (last .eq. 1) tt(lv) = '`--'
-
           tavg = ttot(i)/max(ncall(i),1)
           call strip(name(i),j1,j2)
-          if (iprint() .gt. 0)
-     .    write (ifi,700) iwk0(i),iwk2(i),iwk3(i),ncall(i),
+          if (iprint() .gt. 0) write (ifi,700) iwk0(i),iwk2(i),iwk3(i),ncall(i),
      .    tavg,ttot(i),(tt(l),l=0,lev(i)),name(i)(j1:j2)
   700     format(3i7,i9,2f11.2,3x,30a)
           lvl = lv
         endif
    20 continue
-
       end
+!ssssssssssssssssss
       subroutine tc(string)
 C- Routine for tracing program flow
 C     implicit none
@@ -217,11 +193,7 @@ C     implicit none
         if (ltr .eq. 1) call cpudel(i1mach(2),string,x)
       endif
       return
-
+!ssssssssssssssssss
       entry tcget(ltc)
       ltc = ltr
       end
-
-
-
-

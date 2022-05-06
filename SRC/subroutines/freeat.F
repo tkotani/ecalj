@@ -100,7 +100,7 @@ c      type(s_spec)::sspec(*)
         i_copy_size=size(sspec(is)%q)
         call dcopy(i_copy_size,sspec(is)%q,1,qat,1)
         i_copy_size=size(sspec(is)%idmod)
-        call icopy(i_copy_size,sspec(is)%idmod,1,idmod,1)
+        idmod=sspec(is)%idmod
         lmxa=sspec(is)%lmxa
         i_copy_size=size(sspec(is)%pz)
         call dcopy(i_copy_size,sspec(is)%pz,1,pz,1)

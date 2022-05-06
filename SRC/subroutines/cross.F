@@ -49,20 +49,3 @@ c      integer:: iopt=0
       inverse = transpose(inverse)
       inverse = inverse/det
       end
-
-      subroutine mkqlat(plat,qlat,vol0)
-C- Reciprocal of a lattice vector
-C     implicit none
-      double precision plat(3,3),qlat(3,3),tripl,vol0
-      integer i,k
-      call cross(plat(1,2),plat(1,3),qlat)
-      call cross(plat(1,3),plat(1,1),qlat(1,2))
-      call cross(plat(1,1),plat(1,2),qlat(1,3))
-      vol0 = tripl(plat,plat(1,2),plat(1,3))
-      do  i=1,3
-      do  k=1,3
-         qlat(i,k)=qlat(i,k)/vol0
-      enddo
-      enddo
-      end
-      

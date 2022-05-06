@@ -48,6 +48,7 @@ c$$$      end
       use m_MPItk,only: master_mpi,procid,master
       integer:: iqini,iqend,iq
       real(8):: qp(3)
+      call tcn('m_igv2xall_init')
       allocate(igv2xall(iqini:iqend),napwall(iqini:iqend),ndimhall(iqini:iqend),ndimhxall(iqini:iqend))
       do iq = iqini, iqend !This is a big iq loop
          qp = qplist(:,iq)
@@ -58,6 +59,7 @@ c$$$      end
          ndimhall(iq)= ndimh_z
          ndimhxall(iq)=ndimhx_z
       enddo
+      call tcx('m_igv2xall_init')
       end subroutine
       
 !!-----------------------------      
@@ -74,6 +76,7 @@ c$$$      end
       logical,save:: init=.true.
       integer,parameter:: noutmx=48
       integer:: iout,nout,nlatout(3,noutmx),iapw,napwx
+      call tcn('m_igv2x_init')
       debug    = cmdopt0('--debugbndfp')
 c      print *,'mmmmmmm master_mpi=',master_mpi,procid,master
       if(pwmode>0.and.pwmode<10.and.init) then
@@ -116,5 +119,6 @@ c      print *,'mmmmmmm master_mpi=',master_mpi,procid,master
       ndimh_z = ldham(1)+napw_z     ! ldim+napw
       if (mod(pwmode,10)==2) ndimh_z = napw_z !APW-only mode
       ndimhx_z = ndimh_z*nspc       !this is iq-dependent.
+      call tcx('m_igv2x_init')
       end
       end module

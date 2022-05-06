@@ -39,6 +39,7 @@ c      character*256,allocatable:: extp(:)
       integer:: nqnum, nqbz,iqq,isp,ifiqg,irr,ngp ,imx,nqibz,iqibz
       real(8):: QpGcut_psi,q(3)
 !     !
+      call tcn('m_qplist_init')
       if(master_mpi) write(stdo,*) 'm_qplistinit:start'
       nkk1=nkabc(1)
       nkk2=nkabc(2)
@@ -246,6 +247,7 @@ c 1013       continue
         if(.not.master_mpi) allocate(xdatt(nkp))
         call mpibc1( xdatt, nkp , 4 , .false. , 'bndfp' , 'xdatt'  )
       endif
+      call tcx('m_qplist_init')
       end subroutine
 !sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine m_qplist_qspdivider()
@@ -258,6 +260,7 @@ c 1013       continue
       implicit none
       integer:: iprocid,iqendx,iqinix,iqq,ifiproc,isp,ispx,icount,iqs,ncount,iqsi,iqse
       integer,allocatable::iqvec(:),ispin(:),iproc(:)
+      call tcn('m_qplist_qpsdivider')
       allocate(iqvec(nkp*nspx),ispin(nkp*nspx),iproc(nkp*nspx))
 !---------------------------------------------------------------      
       allocate(kpproc(0:numprocs))
@@ -301,6 +304,7 @@ c$$$            enddo
 c$$$         enddo
 c$$$         close(ifiproc)
 c$$$      endif    
+      call tcx('m_qplist_qpsdivider')
       end subroutine
       end module m_qplist
 

@@ -2,9 +2,8 @@
       use m_supot,only:  rv_a_ogv , iv_a_oips0 , zv_a_obgv ,iv_a_okv
       use m_mksym,only: iv_a_oistab , rv_a_osymgr, rv_a_oag
       use m_struc_def  
-      use m_lmfinit,only: nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,lf=>ctrl_lfrce
+      use m_lmfinit,only: nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,lf=>ctrl_lfrce,stdo
       use m_supot,only: lat_nabc
-
 C- Symmetrize charge density and related quantities
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -38,29 +37,17 @@ Cu   01 Jul 05 handle sites with lmxa=-1 -> no augmentation
 Cu   19 Jun 00 Packaged from nfp symrat.f and symsmr.f
 C ----------------------------------------------------------------------
       implicit none
-c      integer:: lf
       type(s_rv1) :: sv_p_orhoat(3,*)
       real(8):: f(*) , qbyl(*) , hbyl(*)
-c      type(s_site)::ssite(*)
-c      type(s_spec)::sspec(*)
-c      type(s_lat)::slat
-c      double complex smrho(*)
       integer ngabc(3),n1,n2,n3,k1,k2,k3,nglob,iprint,i_copy_size
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-      call tcn('symrho')
-      call info(30,1,0,' Symmetrize density..',0,0)
-c      nbas = globalvariables%nbas
-c      nsp = globalvariables%nsp
-c      i_copy_size=size(lat_nabc)
-c     call icopy(i_copy_size,lat_nabc,1,ngabc,1)
+      call tcn('symrhoat')
+      write(stdo,*)' Symmetrize density..'
       ngabc=lat_nabc
       call fftz30(n1,n2,n3,k1,k2,k3)
-      call symrat ( ssite , sspec , nbas , nsp , lf , sv_p_orhoat !slat , 
-     . , qbyl , hbyl , f )
-      if ( iprint ( ) .gt. 50 ) call prrhat ( nbas , ssite , sspec 
-     . , sv_p_orhoat )
-c      call symsmr(nsp,k1,k2,k3,smrho) !slat,
-      call tcx('symrho')
+      call symrat ( ssite , sspec , nbas , nsp , lf , sv_p_orhoat , qbyl , hbyl , f )
+      if ( iprint ( ) .gt. 50 ) call prrhat (nbas , ssite , sspec, sv_p_orhoat )
+      call tcx('symrhoat')
       end subroutine symrhoat
 
       subroutine symrat ( ssite , sspec , nbas , nsp , lf , !slat , 
@@ -68,8 +55,6 @@ c      call symsmr(nsp,k1,k2,k3,smrho) !slat,
       use m_struc_def  !Cgetarg
       use m_mksym,only: iv_a_oistab , rv_a_osymgr, rv_a_oag,lat_nsgrp
       use m_lattic,only: lat_qlat
-
-
       use m_lattic,only:lat_plat
 C     - Symmetrize the atomic charge densities and the forces.
 C ----------------------------------------------------------------------
@@ -122,36 +107,19 @@ c      type(s_lat)::slat
       real(8) ,allocatable :: rho_rv(:)
       real(8) ,allocatable :: sym_rv(:)
       double precision plat(3,3),qlat(3,3)
-
       call tcn('symrat')
       stdo = lgunit(1)
       ipr = iprint()
-c      i_copy_size=size(lat_plat)
-c      call dcopy(i_copy_size,lat_plat,1,plat,1)
-c      i_copy_size=size(lat_qlat)
-c     call dcopy(i_copy_size,lat_qlat,1,qlat,1)
       plat=lat_plat
       qlat=lat_qlat
       ngrp=lat_nsgrp
       allocate(ips_iv(nbas))
       allocate(ipc_iv(nbas))
       allocate(pos0_rv(3,nbas))
-C ... Separate sites into symmetry classes
-C      call symcls(nbas,ssite,sspec,slat,ngrp,w(og),w(oag),
-C     .  w(oips),w(opos0),nclass,w(oipc))
-C      if (ipr .ge. 40) write(stdo,300) nclass
-C  300 format(/' symrat: number of symmetry classes is',i3)
-
-c      i_copy_size=1;
       do i_spackv=1,nbas
-c        call spackv_array_copy_i8_i ( 'u' , ssite ( i_spackv ) %class 
-c     .  , i_copy_size , i_spackv + 1 - 1 , ipc_iv )
         ipc_iv(i_spackv)= ssite( i_spackv)%class
       enddo
-c      i_copy_size=size(ssite(1)%pos)
       do i_spackv=1,nbas
-c        call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
-c     .  , i_copy_size , i_spackv + 1 - 1 , pos0_rv )
         pos0_rv(:,i_spackv)= ssite(i_spackv)%pos 
       enddo
       nclass = mxint ( nbas , ipc_iv )
@@ -171,9 +139,6 @@ C --- Start loop over classes ---
           lmxa=sspec(is)%lmxa
           nr=sspec(is)%nr
           nlml = (lmxl+1)**2
-c          if (ipr .ge. 40) write(stdo,800) ic,nrclas,nlml
-c  800     format(/' Symmetry class',i3,'   nrclas=',i3,'   nlml=',i3)
-
 C   ... Make the projectors; make to at least to l=1 for forces
           nlmx = max0(nlml,4)
           allocate(sym_rv(nlmx*nlmx*nrclas))

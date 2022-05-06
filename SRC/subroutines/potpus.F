@@ -189,13 +189,12 @@ C --- Loop over spins, lmxa ---
         if (lso .ne. 0) call dpzero(sodb(1,1,i,1),nab*n0)
         if (lso .ne. 0) call dpzero(sodb(1,1,i,2),nab*n0)
         if (ipr .ge. 40) then
-          write(stdo,ftox)' potpus spin=',i,'pnu=',pnu(1:lmxa+1,i)
-          if (lpz .ne. 0) write(stdo,ftox), 'pnz=',pnz(1:lmxa+1,i)
+          write(stdo,ftox)' potpus spin=',i,'pnu=',ftof(pnu(1:lmxa+1,i),3)
+          if (lpz .ne. 0) write(stdo,ftox), 'pnz=',ftof(pnz(1:lmxa+1,i),3)
         endif
         if(ipr>=50) then
           write(stdo,698)
-  698     format(' l',8x,'enu',9x,'v',11x,'c',10x,'srdel',
-     .    8x,'qpar',8x,'ppar')
+  698     format(' l',8x,'enu',9x,'v',11x,'c',10x,'srdel',8x,'qpar',8x,'ppar')
         endif
 C --- Loop over l ---
         do  10  l = 0, lmxa

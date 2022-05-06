@@ -20,6 +20,7 @@
       real(8):: qp(3)
       complex(8),allocatable:: ovlmtoi(:,:),ovliovl(:,:) 
       complex(8):: ovlm(ndimh,ndimh)
+      call tcn('getsenex')
       allocate(sene(ndimsig,ndimsig))
       ispsigm=isp
       if(isp>nspsigm) ispsigm = nspsigm
@@ -32,6 +33,7 @@
       allocate(senex(ndimh,ndimh))
       senex = matmul(transpose(dconjg(ovliovl)), matmul(sene,ovliovl))
       deallocate(ovliovl)
+      call tcx('getsenex')
       end subroutine
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine dsene()
@@ -47,6 +49,7 @@
       logical:: laf,mlog,cmdopt, mtosigmaonly,cmdopt0
       character strn*120
       real(8),allocatable:: qsmesh2(:,:,:,:)
+      call tcn('m_rdsigm2_init')
       ldim  = ham_ldham(1)
       ndimsig= ldim             !if(mtosigmaonly()) mode. Dimension of sigm is the size of MTOs.
       if(procid==master) then
@@ -102,6 +105,7 @@
       call mpibc1_complex(sfz, size(sfz),'senebroadcase:sfz')
       if(procid/=master) hrr => sfz    ! rename sfz as hrr
       if(procid==master) write(stdo,*)' --- end of sigmainit: rdsigm2 initialization section ---'
+      call tcx('m_rdsigm2_init')
       return
  9995 continue
       call rx('sigmainit: readin error of sigm file')
@@ -389,6 +393,7 @@ C Given (j1,j2,j3) of ipq, q_k(j1,j2,j3) =  sum_i (j_i*ifac(i)-1)*qb(k,i)
       complex(8),allocatable:: sigx(:,:)
       integer :: ldim,debugmode,iaf,ngini,ngend
       character(300)::aaa
+      call tcn('rotsig')
       img2pi=2*4d0*datan(1d0)*img
       ierr=1
       platt=transpose(plat) !this is inverse of qlat
@@ -527,5 +532,6 @@ c  write(6,"(3i3,2x,2i5,3x,a)") ib,l,k, offl(iorb,ib)+1,offl(iorb,ib)+2*l+1,trim
       if(debugmode()>0) print *,' goto deallcate sigx'
       deallocate(sigx)
       if(debugmode()>0) print *,' end of rotsig'
+      call tcx('rotsig')
       end subroutine rotsig
       end module m_rdsigm2

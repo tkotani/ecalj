@@ -284,8 +284,7 @@ c      ndimi=0
           ibp1 = jb+1
           is = ips(ib)
           iposn = mxorb*(ib-1)
-          i_copy_size=size(sspec(is)%idxdn)
-          call icopy(i_copy_size,sspec(is)%idxdn,1,idxdn,1)
+          idxdn=sspec(is)%idxdn
           do  1121 ik = 1, nkaph
           do  111  l = 0, nl-1
              lz =.false.

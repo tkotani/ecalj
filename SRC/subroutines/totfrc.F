@@ -28,7 +28,7 @@ C ----------------------------------------------------------------------
       integer:: stdo , stdl , lgunit , ipr , ipl , ib , m , ng , ibmx , isw
       real(8) ,allocatable :: wk_rv(:)
       double precision fev1(3),fev2(3),fhar(3),fks(3),c,ddot,fmax,dfmax
-      
+      call tcn('totfrc')
       f=fin
       stdo = lgunit(1)
       stdl = lgunit(2)
@@ -106,6 +106,7 @@ C     Symmetrize forces to machine precision
         if (allocated(wk_rv)) deallocate(wk_rv)
       endif
       fout=f
+      call tcx('totfrc')
       end subroutine totfrc
 
 

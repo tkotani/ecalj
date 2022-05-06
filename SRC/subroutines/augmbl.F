@@ -24,11 +24,8 @@
       complex(8):: img=(0d0,1d0), facso(3,3), f1,f2,f3
       real(8)::d2
       logical,save:: init=.true.
-c     call tcn ('aughsoc')
-
+      call tcn ('aughsoc')
       if(lso==1) then
-            
-            
          if( sum(abs(socaxis-[0d0,0d0,1d0]))  < 1d-6) then
 !     Mixing matrix for Spin-block facso based on (Lz,L-,L+)
 !     (001)                              Lz   L-   L+
@@ -139,7 +136,7 @@ c           if(isp1==2) isp2=1
         enddo
         deallocate(b,SSbPP,SSbHP,SSbPH,SSbHH)
       enddo
-c      call tcx ('aughsoc')
+      call tcx ('aughsoc')
       end subroutine aughsoc
       
       subroutine lmlps(n,din,dout)
@@ -336,6 +333,7 @@ C ... Local parameters
       double precision xx
       double complex cadd,cadd1
       complex(8),allocatable:: tso(:,:,:,:)
+      call tcn ('augq2z')
 C --- Loop over basis functions at site ia (augentation index) ---
       call orbl(ia,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
       do  iorb = 1, norb
@@ -368,6 +366,7 @@ C --- Loop over basis functions at site ia (augentation index) ---
             enddo
         enddo
       enddo
+      call tcx ('augq2z')
       end subroutine augq2z
 !ssssssssssssssssssssssssss
       subroutine augq2zhso(ia,nkaph,lmxb,nlmb,kmax, nlma,b,ndimh, hsohh,hsohp,hsoph,hsopp,  hso)
@@ -405,6 +404,7 @@ C ... Local parameters
       double precision xx
       double complex cadd,cadd1,fac
       integer jlm1,jlm2,k1,k2
+      call tcn ('augq2zhs0')
       call orbl(ia,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
       do iorb = 1, norb
         l1  = ltab(iorb)
@@ -442,6 +442,7 @@ C ... Local parameters
           hso(i1,i2) = hso(i1,i2) + sum(dconjg(b(:,:,i1))*g(:,:))
         enddo
       enddo
+      call tcx ('augq2z')
       end subroutine augq2zhso
 
       
@@ -453,6 +454,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      & b(0:kmax,nlma,ndimh),h(ndimh,ndimh),
      & g(0:kmax,nlma),csum,csum1 !,hso(ndimh,ndimh),gso(0:kmax,nlma)
       integer i1,i2,jlm1,jlm2,k1,k2,kjlm !,kjtop
+      call tcn ('augq3z')
       do  i2 = 1, ndimh
         g = 0d0   
         do  jlm1 = 1, nlma
@@ -464,6 +466,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           h(i1,i2) = h(i1,i2) + sum(dconjg(b(:,:,i1))*g(:,:))
         enddo
       enddo
+      call tcx ('augq3z')
       end subroutine augq3z
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       
@@ -487,6 +490,7 @@ C ----------------------------------------------------------------------
       double complex b(0:kmax,nlma,ndimh),s(ndimh,ndimh),g(0:kmax,nlma),csum
       integer i1,i2,ilm,k1,k2,l,kjlm 
       integer :: ll
+      call tcn ('augqs3')
       do i2 = 1, ndimh
         do ilm = 1, nlma
           l = ll(ilm)
@@ -496,6 +500,7 @@ C ----------------------------------------------------------------------
           s(i1,i2) = s(i1,i2) + sum( dconjg(b(:,:,i1))*g(:,:) )
         enddo
       enddo
+      call tcx ('augqs3')
       end subroutine augqs3
 
 

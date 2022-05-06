@@ -83,8 +83,7 @@ C     call prmx('dmatu',dmatu,2*lmaxu+1,2*lmaxu+1,2*lmaxu+1)
       havesh = idvsh
       ipl = 1
       ivsiz = nsp*nlibu*(lmaxu*2+1)**2
-      write(stdo,*)' chkdmu:  '//
-     .'check LDA+U density-matrix for convergence and update ...'
+      write(stdo,*)' chkdmu:  check LDA+U density-matrix for convergence and update ...'
 C --- Symmetrize output dmatu (req. real harmonics); compare diff ---
       call praldm(0,60,60,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,
      .' Unsymmetrized output dmats',dmatu)
@@ -94,8 +93,7 @@ C --- Symmetrize output dmatu (req. real harmonics); compare diff ---
       endif
       allocate(dmwk_zv(ivsiz))
       dmwk_zv(:)=0.0d0
-      call symdmu ( dmatu , dmwk_zv , nbas , nsp , lmaxu , sspec 
-     ., ssite , ng , g , istab , lldau , xx )
+      call symdmu(dmatu, dmwk_zv,nbas,nsp, lmaxu, sspec, ssite, ng, g, istab, lldau, xx)
       deallocate(dmwk_zv)
       if (havesh .ne. idvsh) then
         call rotycs(2*idvsh-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
@@ -121,12 +119,9 @@ C     This block requires dmatu to be in spherical harmonics
         if (lldau(ib) .ne. 0) then
           is = int(ssite(ib)%spec)
           lmxa=sspec(is)%lmxa
-          i_copy_size=size(sspec(is)%idu)
-          call icopy(i_copy_size,sspec(is)%idu,1,idu,1)
-          i_copy_size=size(sspec(is)%uh)
-          call dcopy(i_copy_size,sspec(is)%uh,1,uh,1)
-          i_copy_size=size(sspec(is)%jh)
-          call dcopy(i_copy_size,sspec(is)%jh,1,jh,1)
+          idu=sspec(is)%idu
+          uh=sspec(is)%uh
+          jh=sspec(is)%jh
           do  l = 0, min(lmxa,3)
             if (idu(l+1) .ne. 0) then
               iblu = iblu+1
@@ -235,12 +230,9 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           if (lldau(ib) .ne. 0) then
             is = int(ssite(ib)%spec)
             lmxa=sspec(is)%lmxa
-            i_copy_size=size(sspec(is)%idu)
-            call icopy(i_copy_size,sspec(is)%idu,1,idu,1)
-            i_copy_size=size(sspec(is)%uh)
-            call dcopy(i_copy_size,sspec(is)%uh,1,uh,1)
-            i_copy_size=size(sspec(is)%jh)
-            call dcopy(i_copy_size,sspec(is)%jh,1,jh,1)
+            idu=sspec(is)%idu
+            uh=sspec(is)%uh
+            jh=sspec(is)%jh
             do  l = 0, min(lmxa,3)
               if (idu(l+1) .ne. 0) then
                 iblu = iblu+1
@@ -407,8 +399,7 @@ C --- Read in dmatu if file  dmats.ext  exists ---
             if (lldau(ib) .ne. 0) then
               is = int(ssite(ib)%spec)
               lmxa=sspec(is)%lmxa
-              i_copy_size=size(sspec(is)%idu)
-              call icopy(i_copy_size,sspec(is)%idu,1,idu,1)
+              idu=sspec(is)%idu
               do l = 0, min(lmxa,3)
                 if (idu(l+1) .ne. 0) then
                   iblu = iblu+1
@@ -445,8 +436,7 @@ C --- Otherwise read in occnumbers and construct diagonal dmatu ---
                 if (lldau(ib) .ne. 0) then
                    is = int(ssite(ib)%spec)
                    lmxa=sspec(is)%lmxa
-                   i_copy_size=size(sspec(is)%idu)
-                   call icopy(i_copy_size,sspec(is)%idu,1,idu,1)
+                   idu=sspec(is)%idu
                    do l = 0,min(lmxa,3)
                       if (idu(l+1) .ne. 0) then
                          iblu = iblu+1
@@ -587,18 +577,10 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         if (lldau(ib) .eq. 0) goto 20
         is = int(ssite(ib)%spec)
         lmxa=sspec(is)%lmxa
-        i_copy_size=size(sspec(is)%idu)
-        call icopy(i_copy_size,sspec(is)%idu,1,idu,1)
-        i_copy_size=size(sspec(is)%uh)
-        call dcopy(i_copy_size,sspec(is)%uh,1,uh,1)
-        i_copy_size=size(sspec(is)%jh)
-        call dcopy(i_copy_size,sspec(is)%jh,1,jh,1)
-
-c        do i_spacks=is,is
-c          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-c        enddo
+        idu=sspec(is)%idu
+        uh=sspec(is)%uh
+        jh=sspec(is)%jh
         spid=sspec(is)%name
-
         i = min(lmxa,3)
         write(stdo,ftox)'Species '//spid//'mode',idu(1:i+1),'U',ftof(uh(1:i+1),2),'J',ftof(jh(1:i+1),2)
 c     .  i+1,idu,i+1,uh,i+1,jh,0,0)
@@ -731,9 +713,7 @@ C local variables
         if (lldau(ib) .ne. 0) then
           is = int(ssite(ib)%spec)
           lmxa=sspec(is)%lmxa
-          i_copy_size=size(sspec(is)%idu)
-          call icopy(i_copy_size,sspec(is)%idu,1,idu,1)
-
+          idu=sspec(is)%idu
           do  l = 0, min(lmxa,3)
             if (idu(l+1) .ne. 0) then
               iblu = iblu+1
