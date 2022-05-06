@@ -5,7 +5,6 @@ C ----------------------------------------------------------------------
 Ci Inputs:
 Ci   ipq   :is a work array of dimension 6*n1*n2*n3.
 Ci         :On input, ipq(i1,i2,i3) points to corresponding irreducible qp
-Ci         :ipq is DESTROYED on output.
 Ci   n1..n3:no. of divisions made along each reciprocal lattice vector
 Ci   qb    :vectors of first microcell
 Co Outputs:

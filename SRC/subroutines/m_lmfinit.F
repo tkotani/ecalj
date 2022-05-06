@@ -82,7 +82,7 @@ c     &     ,ham_delta_stabilize
      .     bz_lmet,bz_n,bz_lmull,ctrl_ldos,bz_fsmommethod
       real(8),protected:: bz_efmax,bz_zval,bz_fsmom,
      .     bz_semsh(10),zbak,bz_lcond(4),bz_range=5d0,bz_dosmax
-      logical,protected:: bz_lio2,ctrl_lmet2 
+      logical,protected:: bz_lio2,bz_tetrahedron !ctrl_lmet2 
 !! ... Ewald
       real(8),protected:: lat_as,lat_tol,lat_rpad
       integer,protected:: lat_nkdmx
@@ -115,7 +115,7 @@ c     &     ,ham_delta_stabilize
 !!      
       integer,protected:: ham_pwmode,ham_nkaph,ham_nlibu,
      &     ctrl_noinv,nlmax,mxorb,ctrl_lfrce,bz_nevmx,
-     &     ham_nbf,ham_lsig,ctrl_lmet,bz_nabcin(3)=NULLI,
+     &     ham_nbf,ham_lsig,bz_nabcin(3)=NULLI,
      &     bz_ndos              !bndfp
 c     &     lat_ldist=0
 c      logical,protected:: irs1x10!,irsrot !(irsrot is not tested)
@@ -357,18 +357,6 @@ c      logical:: ltet
          call parsyv(bigstr,len_trim(bigstr),1999,0,i)
          if (io_show .ne. 0) call shosyv(0,0,0,stdo)
       endif
-c$$$!! Header ---
-c$$$      nm='HEADER'; call gtv(trim(nm),tksw(prgnam,nm),header,note='Contents displayed at beginning of program execution',nout=nout)
-c$$$      if (nout .gt. 0) then
-c$$$         outs  = 'HEADER '//trim(header)
-c$$$         if (procid .eq. master) then
-c$$$            if (io_show .ne. 0) write(stdo,'(1x)')
-c$$$            write(stdo,'(1x,a)') trim(outs)
-c$$$            if (io_show .ne. 0) write(stdo,'(1x)')
-c$$$            if (stdl>0 .and. iprint()>0) write(stdl,'(1x,a)') trim(outs)
-c$$$         endif
-c$$$      endif
-      
 !! Struc ---
       if (tksw(prgnam,'STRUC') == 2) goto 59
       if (io_show+io_help/=0) write(stdo,*)' --- Parameters for crystal structure ---'
@@ -594,7 +582,7 @@ c     .     '%N%3f "H --> H + HAM_STABILIZE*O^-1" in zhev_tk(diagonalization)')
       mxcst4=F
       nkapii=1
       nkapi = 1
-      lpzi = 0 !1
+      lpzi = 0 
       qpol = NULLR
       rsmh1 = 0d0
       rsmh2 = 0d0
@@ -956,7 +944,6 @@ c          nm='SPEC_ATOM_IDXDN'; removed...
      .     ips(nsite),irlx(3,nsite), !,ipl(nsite),plv(nsite)
      .     iantiferro(nsite))   !mpole(nsite),dpole(3,nsite),
       vel  = 0d0
-c      vshft = 0d0
       irlx = 0
       ips  = NULLI
       pos  = NULLR
@@ -977,8 +964,7 @@ c      vshft = 0d0
                   goto 881
                endif
             enddo
-            call rxs('Category SITE referred to'//
-     .           ' nonexistent species: ',alabl)
+            call rxs('Category SITE referred to nonexistent species: ',alabl)
          endif
  881     continue
 !  ... Site positions
@@ -986,46 +972,19 @@ c      vshft = 0d0
          nm='SITE_ATOM_POS'; call gtv(trim(nm),tksw(prgnam,nm),pos(:,j),
      .        nout=nout,cindx=jj,note='Atom coordinates, cartesian in alat',
      .        or=(sw.ne.2))
-         if (nout == 0 .or. tksw(prgnam,'SITE_ATOM_POS') == 2) then !nout=-1 if sw=2; otherwise nout=0 unless data was read
+         if (nout==0 .or. tksw(prgnam,'SITE_ATOM_POS') == 2) then !nout=-1 if sw=2; otherwise nout=0 unless data was read
             nm='SITE_ATOM_XPOS'; call gtv(trim(nm),tksw(prgnam,nm),pos(:,j),
      .           cindx=jj,note='Atom coordinates, fractional in alat')
             call dcopy(3,pos(1,j),1,xv,1)
             call dmpy(plat,3,1,xv,3,1,pos(1,j),3,1,3,1,3)
          endif
-c         nm='SITE_ATOM_DPOS'; call gtv(trim(nm),tksw(prgnam,nm),
-c     .        xv(1:3),def_r8v=zerov,nout=nout,cindx=jj,note=
-c     .        'Shift in atom coordinates added to pos')
-c         if (nout .eq. 3) call daxpy(3,1d0,xv,1,pos(1,j),1)
-
          nm='SITE_ATOM_V0'; call gtv(trim(nm),tksw(prgnam,nm),vel(:,j),
      .        def_r8v=zerov,cindx=jj,
      .        note='Initial velocity for molecular dynamics')
-
          nm='SITE_ATOM_RELAX'; call gtv(trim(nm),tksw(prgnam,nm),irlx(:,j),
      .        def_i4v=(/(1,i=1,n0)/),cindx=jj,note=
      .        'relax site positions (lattice dynamics) or '//
      .        'Euler angles (spin dynamics)')
-
-c         nm='SITE_ATOM_VSHFT'; call gtv(trim(nm),tksw(prgnam,nm),vshft(j),
-c     .        def_r8=0d0,cindx=jj,
-c     .        note='Constant potential shift for this site')
-
-c$$$         nm='SITE_ATOM_ROT'; call gtv(trim(nm),tksw(prgnam,nm),outs,nmin=
-c$$$     .        10,cindx=jj,nout=nout,note=
-c$$$     .        'Rotation of spin quantization axis at this site')
-c$$$         if (io_help .ne. 1 .and. nout .eq. 1) then
-c$$$            call numsyv(i0)
-c$$$            call lodsyv('ib',0,dble(j),ii)
-c$$$            call lodsyv('x', 0,pos(1,j),ii)
-c$$$            call lodsyv('y', 0,pos(2,j),ii)
-c$$$            call lodsyv('z', 0,pos(3,j),ii)
-c$$$            call a2rotm(outs,F,iprint()-10,xv)
-c$$$            call clrsyv(i0)
-c$$$            call rm2eua(xv,eula(1,j),eula(2,j),eula(3,j))
-c$$$            if (io_show>0) call info5(0,0,0,
-c$$$     .           '%15pROT= : Euler alpha = %1;6d  beta = %1;6d'//
-c$$$     .           '  gamma = %1;6d',eula(1,j),eula(2,j),eula(3,j),0,0)
-c$$$         endif
          nm='SITE_ATOM_AF'; call gtv(trim(nm),tksw(prgnam,nm),iantiferro(j),
      .        cindx=jj,def_i4=0,
      .        note='antiferro ID:=i and -i should be af-pair, we look for space-group operation with spin-flip')
@@ -1045,15 +1004,11 @@ c$$$         endif
       nm='STR_MXNBR'; call gtv(trim(nm),tksw(prgnam,nm),str_mxnbr,def_i4=0,note='Max number of nbrs (for dimensioning arrays)')
 !! Brillouin Zone ---
       if (io_show+io_help/=0 .and. tksw(prgnam,'BZ')/=2) write(stdo,*)' --- Parameters for Brillouin zone integration ---'
-c      nm='BZ_GETQP'; call gtv(trim(nm),tksw(prgnam,nm),bz_lio1,
-c     .     def_lg=F,note='Read qp from disk',or=T)
       nm='BZ_NKABC'; sw=tksw(prgnam,nm)!; if (bz_lio1) sw = 2
       call gtv(trim(nm),sw,bz_nabcin,nout=nout,
      .     note='No. qp along each of 3 lattice vectors.'//'%N%3fSupply one number for all vectors or a separate '//
      .     'number for each vector.')
       call fill3in(nout,bz_nabcin)
-c      nm='BZ_PUTQP'; call gtv(trim(nm),tksw(prgnam,nm),bz_lio2,
-c     .     def_lg=F,note='Write qp to disk')
       nm='BZ_BZJOB';call gtv(trim(nm),tksw(prgnam,nm),bz_lshft,nout=nout,def_i4v=izerv(1:1),note=
      .     '0 centers BZ mesh at origin, 1 centers off origin'//
      .     '%N%3fSupply one number for all vectors or a separate '//
@@ -1065,12 +1020,12 @@ c     .     def_lg=F,note='Write qp to disk')
      .     '2 use wgt from prior iter%N%3f3 wgt calculated from eigenvalues (two band pass)')
       if(bz_lmet>3) call rx('BZ_lmet is 0,1,2, or 3: usually 3')
 c     .     ' 4 BZ integration with 3-point scheme')
-      nm='BZ_TETRA'; call gtv(trim(nm),tksw(prgnam,nm),ctrl_lmet2,
+      nm='BZ_TETRA'; call gtv(trim(nm),tksw(prgnam,nm),bz_tetrahedron, !tetrahedron switch
      .     def_lg=T,note='Tetrahedron integration')
       if( cmdopt0('--tdos').or.cmdopt0('--pdos')) then
-         print *,' --tdos or --pdos enforces BZ_METAL=3 and BZ_TETRA=1'
+         print *,' --tdos or --pdos enforces BZ_METAL=3 and BZ_TETRA=T'
          bz_lmet=3
-         ctrl_lmet2=.true.
+         bz_tetrahedron=.true. !ctrl_lmet2=.true.
       endif
       nm='BZ_N'; call gtv(trim(nm),tksw(prgnam,nm),bz_n, def_i4=0,note=
      .     'N>0: Polynomial order for Methfessel-Paxton sampling%N%3f'//
@@ -1080,9 +1035,7 @@ c     .     ' 4 BZ integration with 3-point scheme')
       nm='BZ_W'; call gtv(trim(nm),tksw(prgnam,nm),bz_w, def_r8=5d-3,note=
      .     'If BZ_N>=0, Line broadening for sampling integration%N%3f'//
      .     'If BZ_N<0,  Temperature for Fermi distribution (Ry)')
-c      nm='BZ_EF0'; call gtv(trim(nm),tksw(prgnam,nm),bz_ef0, def_r8=0d0,note='Initial guess at Fermi energy')
-c      nm='BZ_DELEF'; call gtv(trim(nm),tksw(prgnam,nm),bz_def0,
-c     .     def_r8=0.05d0,note='Initial uncertainty in Fermi energy')
+c BZ_EF0, BZ_DELEF removed.
       nm='BZ_ZBAK'; call gtv(trim(nm),tksw(prgnam,nm),zbak,def_r8=0d0,note='Homogeneous background charge')
 c!! Write zbak. sep2020
 c      if(procid==master) then
@@ -1194,38 +1147,6 @@ C     Default values for smix (array has same same structure as lstra smix)
       
 !! Stage 2  Reorganize ctrl_* in module m_lmfinit ---------------------
       ctrl_defm = lat_defm(:)
-      ctrl_lmet= isw(bz_lmet.ne.0) + 2*isw(ctrl_lmet2) != 1*lmetal + 2*ltetrahedron
-c$$$      irs=0
-c$$$      irs(1) = 1
-c$$$      irs(2) = 1
-c$$$      if (cmdopt('--rs=',5,0,strn)) then
-c$$$        i = 5
-c$$$        j = a2vec(strn,len(strn),i,2,', ',2,2,5,ix,irs)
-c$$$      endif
-c$$$      irs1    = mod(irs(1),10)  !   0:read atom file, 1:read rst, 2:read rsta, 
-c$$$c      irs1x10 = (irs(1)/10==1)  ! +10:  smshft after rst/rsta read (see lmfp.F) 
-c$$$c      irsrot  = (irs(1)/100==1) ! +100: rotate local density after file read for shear mode (iors.F)
-c$$$                                !       (originally it was 8s' bit of irs(1))
-c$$$      irs2 = irs(2) ! 1:write rst  2:write rsta
-c$$$      irs3 = irs(3) ! read site positions from ctrl
-c$$$c      irs4 = irs(4) ! read starting fermi level from ctrl
-c$$$      irs5 = irs(5) ! read starting pnu level from ctrl
-C     lqp 1 do not add inversion 2 inverse iteration
-c      lqp = 1*isw(ctrl_noinv)+2*isw(ctrl_lqp2)  !lqp= ctrl_noinv + 2*ctrl_lqp2
-c      lpq2 = isw (ctrl_lqp2)  ! T->1 F->0
-C     lscr 0 do nothing
-C          1 Make P0(0)
-C          2 Screen output q and ves
-C          3 Screen output ves only
-C            Add 10*k to compute intra-site contribution to
-C            vbare each kth iteration
-C            Add 100*k to compute response function only
-C            each kth iteration
-C          4 Use model response to screen output q
-C            Add 1 to combine mode 1 with another mode
-C            Add 10*k to compute intra-site contribution to
-C            vbare each kth iteration
-C            Add 100*k to compute response function only each kth iteration
       ctrl_noinv = isw(noinv)  ! T->1 F->0
       ctrl_lrel=lrel
 !!lxcf   parameter defining XC functional
@@ -1249,18 +1170,13 @@ C            Add 100*k to compute response function only each kth iteration
       ctrl_rmines= rmines
       ctrl_sclwsr= sclwsr
       ctrl_sdprm = sdprm
-c      ctrl_smalit= smalit
-c      ctrl_tol   = ctrl_tol
       ctrl_wsrmax= wsrmax
-c      ctrl_zbak  = zbak
       ctrl_pfloat= lpfloat
       if (dalat == NULLR) dalat=0d0
       lat_alat=alat+dalat
       lat_avw=avw
       lat_nkqmx=lat_nkdmx
-c      lat_nabc=ftmesh
       lat_platin=plat
-c      lat_vol=vol
       lat_tolft=tolft
       
 !! set cg coefficients for lmf --- Choose dimensions for arrays
@@ -1588,8 +1504,8 @@ c        irs2=0
          plbnd=0
       endif
       if(lrout == 0 ) maxit = 1
-      if(ctrl_lmet/=0 ) ctrl_ldos=1
-      if(ctrl_ldos==0 .and. ctrl_lmet==0) bz_ndos = 1
+      if(bz_lmet/=0 .or. bz_tetrahedron ) ctrl_ldos=1
+      if(ctrl_ldos==0) bz_ndos = 1
 !! LDA+U block (it was suldau.F)
       nlibu = 0
       lmaxu = 0

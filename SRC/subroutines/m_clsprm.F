@@ -175,26 +175,7 @@ C     ... Allocate ASA arrays
          ics=iv_a_oics
          allocate(rv_a_ormax(nclspp))
          call dcopy ( nclspp , sspec ( ics ( 1:nclspp ) ) %rmt , 1 , rv_a_ormax, 1 ) 
-C     Even in collinear case, bxc might be written to
-c         allocate(rv_a_obxc(abs(-3*nclasp)))
-c         rv_a_obxc(:)=0.0d0
-c$$$         nrhos=0 
-c$$$         if ( lso /=0 ) then 
-c$$$            neula=ham_neula
-c$$$            nbf=ham_nbf
-c$$$            nrhos = max(nl,neula,nbf)
-c$$$            if (allocated(rv_a_obxc)) deallocate(rv_a_obxc)
-c$$$            allocate(rv_a_osop(nlspc*nsp*9))
-c$$$            rv_a_osop(:)=0.0d0
-c$$$            allocate(rv_a_obxc(3*nclasp))
-c$$$            rv_a_obxc(:)=0.0d0
-c$$$            nrhos=nrhos 
-c$$$         endif
          if (allocated(rv_a_ogrrme)) deallocate(rv_a_ogrrme)
-c         if ( iand(3,int(ctrl_lsx)) .ne.0 .or. iand(-1,int(ctrl_lscr)) .ne.0 ) then 
-c            allocate(rv_a_ovintr(abs(-nclasp*(nl*nsp)**2)))
-c            rv_a_ovintr(:)= 0d0
-c         endif
          lnsph = isw ( .false.)
 C     ... Allocate memory for, attempt to read qpp from file
          if (lnsph .ne. 0 .or. nlibu .ne. 0) then

@@ -129,8 +129,7 @@ c! Get q point list at which we do band calculations
 !!    irs1x tells what to read and whether to invoke smshft.
 !!     0    read from atom file  atm;  1  read from binary  rst ;  2 read from ascii  rsta
 !!    +10 -> invoke smshft(1) after file read.
-      irs(1:2)=1
-      irs(3:5)=0
+      irs=[1,1,0,0,0]
       if (cmdopt2('--rs=',strn)) then
          strn2=trim(strn)//',999,999,999,999,999'
          read(strn2,*) irsr
@@ -142,11 +141,11 @@ c! Get q point list at which we do band calculations
       irs2 = irs(2)         ! 1:write rst  2:write rsta
       irs3 = irs(3) ! irs3=1: read site positions from ctrl even when we have rst. 
       irs5 = irs(5) ! irs5=1: read pnu from ctrl even when we have rst.
-      if (cmdopt0('--etot')) irs2=0
       irs1x10 = (irs(1)/10==1)  ! +10:  smshft after rst/rsta read (see lmfp.F) 
-cxxx      irsrot  = (irs(1)/100==1) ! +100: rotate local density after file read for shear mode (iors.F)
-cxxx  irs4 = irs(4) ! read starting fermi level from ctrl
-     
+      if (cmdopt0('--etot')) irs2=0 !not write rst files
+cxxx irsrot  = (irs(1)/100==1) ! +100: rotate local density after file read for shear mode (iors.F)
+cxxx irs4 = irs(4) ! read starting fermi level from ctrl
+c     
 !! Initial density. Read atomic and smooth parted os density, rhoat smrho in m_density from atm.* or rst.*
 !! Reading rst is prior to reading atom file.
 c      irs1x = irs1
@@ -175,7 +174,6 @@ c     elseif( mod(irs1x,4)==1 .or. mod(irs1x,4)==2 ) then
       elseif (irs1x10) then  
          call smshft(1) !smshft unused now but smshft.F is kept as hints.
       endif
-!
 
 !!      
       call m_hamindex_init(jobgw) !bugfix. moved here 2022apr04
