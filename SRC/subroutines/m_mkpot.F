@@ -116,11 +116,11 @@
       use m_supot,only: k1,k2,k3
       use m_density,only: osmrho, orhoat !main input density
       use m_lmfinit,only: lso,nbas, ssite=>v_ssite, sspec=>v_sspec, nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex 
-      integer:: i,lfrzw,is,ib,kmax,lmxa,lmxh,nelt2,nlma,nlmh!,lfrce
+      integer:: i,lfrzw,is,ib,kmax,lmxa,lmxh,nelt2,nlma,nlmh,iprint!,lfrce
       real(8) ::qbz
       logical :: llmfgw,fsmode,fullmesh,cmdopt0
       call tcn('m_mkpot_init')
-      write(stdo,"(a)")' m_mkpot_init: Making one-particle potential ...'
+      if(iprint()>=10) write(stdo,"(a)")' m_mkpot_init: Making one-particle potential ...'
       lfrzw = 0
       if(ham_frzwf) lfrzw = 1   !freeze all augmentation wave
 !! Make the potential and total energy terms for given density (smrho,rhoat,qbg)  ---

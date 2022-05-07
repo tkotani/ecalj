@@ -4,6 +4,7 @@ subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,&
   use m_ftox
   use m_lmfinit,only: stdo,stdl
   use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
+  use m_MPItk,only: master_mpi
   !- BZ integration for fermi level, band sum and qp weights
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -196,10 +197,10 @@ subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,&
 103  format(/' BZWTS : --- Tetrahedron Integration ---')
      if (lfill) then
         egap = emax-emin
-        write(stdo,ftox)' ... only filled or empty bands encountered: ev=',&
+        if(ipr>=30)write(stdo,ftox)' ... only filled or empty bands encountered: ev=',&
              ftof(emin),'ec=',ftof(emax)
-        write(stdo,ftox)'VBmax = ',ftof(emin),'CBmin =',ftof(emax),' gap =',&
-             ftof(emax-emin),'Ry = ',ftof((emax-emin)*13.6058d0)
+        if(ipr>=30)write(stdo,ftox)' VBmax=',ftof(emin),'CBmin=',ftof(emax),'gap =',&
+             ftof(emax-emin),'Ry = ',ftof((emax-emin)*13.6058d0),'eV'
         goto 2
      endif
      nptdos = 101

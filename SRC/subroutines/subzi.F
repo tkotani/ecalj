@@ -31,7 +31,7 @@ Ci Inputs
 Ci   lmet  :See Remarks
 Ci         :0 assume insulator
 Ci         :1 save eigenvectors to disk
-Ci         :2 read weights from file, if they are needed
+Ci         :2 read weights from file wkp.*
 Ci         :3 always make two band passes; weights never needed a priori
 Ci         :xxx 4 BZ integration with 3-point scheme
 Ci   ltet  :T allocate space for tetrahedron weights
@@ -64,14 +64,6 @@ Cr
 Cr     lmet=3 After m_bandcal_init, we calcutlate wtkb, which is passed to m_bandcal_2nd to accumulate quantities of sum in BZ.
 Cr
 c lmet=4 is removed now ------------.      
-Cr     lmet=4 information is retained for three distinct Fermi levels.
-Cr            After the Fermi level is determined, the density is
-Cr            obtained by interpolation of the three points.  (This
-Cr            scheme is suitable for sampling only, since in that case
-Cr            just the Fermi level is needed to set integration weights.
-Cr            When this scheme is used in conjunction with the
-Cr            tetrahedron method, the charge density is calculated with
-Cr            sampling.
 Cu Updates
 Cu   09 Jun 07 Setup for spin weights (noncollinear case)
 Cu   11 Oct 02 (ATP) MPI
@@ -144,7 +136,6 @@ c      endif
       
 !sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine m_subzi_bzintegration(evlall,swtk, eferm,sev,sumqv,vnow)
-c      use m_addrbl,only: swtk
       use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
       use m_lmfinit, only: lso,nsp,ham_scaledsigma,nlibu,lmaxu,bz_w,
      & lmet=>bz_lmet,stdo,nbas,epsovl=>ham_oveps,nspc,bz_n,bz_fsmommethod,qbg=>zbak,fsmom=>bz_fsmom,ndos=>bz_ndos
@@ -153,10 +144,11 @@ c      use m_addrbl,only: swtk
       use m_qplist,only: m_qplist_init, nkp,xdatt,labeli,labele,dqsyml,etolc,etolv,
      &     nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml
       use m_mkpot,only: qval
-c      use m_subzi, only: lwtkb,lswtk
       use m_suham,only: ndham=>ham_ndham,ndhamx=>ham_ndhamx,nspx=>ham_nspx 
       use m_ext,only: sname
       implicit none
+      intent(in)::                     evlall,swtk
+      intent(out)::                                 eferm,sev,sumqv,vnow
       logical:: lfill=.false.,ltet
       logical:: debug,cmdopt0 !goto99,
       integer:: ierr,ifimag,i,ifi,ifile_handle,unlink !,iobzwt
@@ -202,7 +194,6 @@ c      qbg = ctrl_zbak(1) !homogenious background charge
             open(newunit=ifi,file='wkp.'//trim(sname),form='unformatted')
             write(ifi) ndhamx,nkp,nspx
             write(ifi) rv_a_owtkb
-c           i = iobzwt ( ndhamx , nkp , nspx , eferm , rv_a_owtkb , -ifi )
             close(ifi)    
          endif
       endif

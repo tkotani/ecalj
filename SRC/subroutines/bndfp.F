@@ -272,7 +272,7 @@ c      if(master_mpi) write(stdo,"(a)") 'bndfp:start'
       if(plbnd/=0)            call rx0('plot band mode done') 
       !  end of band plbnd/=0, that is, band plot mode.
 !! New eferm and wtkb determined from evlall 
-      call m_subzi_bzintegration(evlall,swtk,  eferm,sev,qvalm,vnow) !Get eferm, and wtkb...
+      call m_subzi_bzintegration(evlall,swtk,  eferm,sev,qvalm,vnow) !Get eferm and wtkb in m_subzi
       if(lmet==0) eferm = (evtop+ecbot)/2d0 !for metal
       if(lmet==0.and. master_mpi) write(stdo,"(' HOMO; Ef; LUMO =',3f11.6)")evtop,eferm,ecbot
       if(master_mpi) then

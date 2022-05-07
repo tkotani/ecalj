@@ -988,7 +988,7 @@ c          nm='SPEC_ATOM_IDXDN'; removed...
       call fill3in(nout,bz_lshft)
       nm='BZ_METAL'; call gtv(trim(nm),tksw(prgnam,nm),bz_lmet,
      .     def_i4=3,note='0 insulator only; 3 for metal (2 is for maintenance)')
-      if(bz_lmet/=3.and.bz_lmet/=0.and.bz_lmet/=2) call rx('BZ_lmet is 0 or 3')
+      if(io_help==0.and.bz_lmet/=3.and.bz_lmet/=0.and.bz_lmet/=2) call rx('BZ_METAL error')
       nm='BZ_TETRA'; call gtv(trim(nm),tksw(prgnam,nm),bz_tetrahedron, !tetrahedron switch
      .     def_lg=T,note='Tetrahedron integration')
       if(cmdopt0('--tdos').or.cmdopt0('--pdos')) then

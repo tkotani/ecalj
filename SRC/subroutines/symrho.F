@@ -42,7 +42,7 @@ C ----------------------------------------------------------------------
       integer ngabc(3),n1,n2,n3,k1,k2,k3,nglob,iprint,i_copy_size
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       call tcn('symrhoat')
-      write(stdo,*)' Symmetrize density..'
+      if(iprint()>=10) write(stdo,*)' Symmetrize density..'
       ngabc=lat_nabc
       call fftz30(n1,n2,n3,k1,k2,k3)
       call symrat ( ssite , sspec , nbas , nsp , lf , sv_p_orhoat , qbyl , hbyl , f )

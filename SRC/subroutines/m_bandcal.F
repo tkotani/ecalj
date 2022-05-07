@@ -13,7 +13,7 @@ ccccccccccccc
      &     lmet=>bz_lmet,stdo,nbas,epsovl=>ham_oveps,nspc,plbnd,lfrce=>ctrl_lfrce,
      &     pwmode=>ham_pwmode,pwemax,stdl,iprmb
       use m_MPItk,only: mlog, master_mpi, procid,strprocid, numprocs=>nsize, mlog_MPIiq
-      use m_subzi, only: m_subzi_init, nevmx,lswtk,rv_a_owtkb
+      use m_subzi, only: nevmx,lswtk,rv_a_owtkb
       use m_supot, only: k1,k2,k3
       use m_mkpot,only: m_Mkpot_init,m_Mkpot_deallocate, osmpot,vconst,
      &     sv_p_osig, sv_p_otau, sv_p_oppi,ohsozz,ohsopm
