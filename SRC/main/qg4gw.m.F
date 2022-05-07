@@ -58,6 +58,7 @@ c      character(len=10) :: keyw1='unit_2pioa',keyw2
       logical:: lmagnon = .false., cmdopt2
       character(20):: outs=''
       call MPI__Initialize()
+      call show_programinfo(6)
       call cputid (0)
       write(6,"(a)")'qg4gw: Generate Q0P->1; Readin Q0P->2; SW(chipm)->4'
       write(6,"(a)")'       Generate Q0P and Q0P for xyz ->201 '
@@ -97,3 +98,5 @@ c      character(len=10) :: keyw1='unit_2pioa',keyw2
       if(iq0pin ==40001) call rx0( ' OK! qg4gw mode=40001 QforEPSL for magnon')
       call rx('qg4gw: iq0pin wrong?')
       end
+
+      include 'show_programinfo.fpp'

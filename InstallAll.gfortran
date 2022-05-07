@@ -27,7 +27,6 @@ popd
 ### Use SRC/exec/Makefile
 pushd .
 cd SRC/exec
-make sysinfo
 make -j $CORES PLATFORM=gfortran LIBMATH="$MATH" ||my_error
 make -j $CORES PLATFORM=gfortran BINDIR=$BINDIR install ||my_error
 popd

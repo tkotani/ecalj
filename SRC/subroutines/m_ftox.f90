@@ -1,4 +1,7 @@
 ! General module for formatted write'
+! ftox: general format. usage write(6,ftox) foobar,xxx
+! ftom(drealx) truncate right-hand-side zeros. drealx can be real(8) arrays.
+! ftof(drealx,m) show m digits below period. m is option (six when no m)
 !==============
 ! program test_ftox
 !   use m_ftox

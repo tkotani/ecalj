@@ -1,10 +1,10 @@
       module m_rdfiln
-      integer,parameter,public:: recln=511
-      integer,parameter,private:: mxrecs=10000
-      character*(recln),public,protected:: recrd(mxrecs)
-      integer,public,protected:: nrecs
-      public m_rdfiln_init      !return -vfoobar replaced simplified contents of ctrl into recrd
-      
+      public m_rdfiln_init,recln,recrd,nrecs,mxrecs
+      integer,parameter:: recln=511, mxrecs=10000
+      character*(recln),protected:: recrd(mxrecs)
+      integer,protected:: nrecs
+!return -vfoobar replaced simplified contents of ctrl into recrd
+      private
       contains
       subroutine m_rdfiln_init()
       use m_ext,only: sname

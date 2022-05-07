@@ -1,5 +1,6 @@
       subroutine rdovfa()
-      use m_density,only: zv_a_osmrho=>osmrho,sv_p_orhoat=>orhoat 
+      use m_density,only: zv_a_osmrho=>osmrho,sv_p_orhoat=>orhoat
+      
       use m_supot,only: lat_nabc,lat_ng,rv_a_ogv,iv_a_okv,rv_a_ogv
       use m_lmfinit,only:lat_alat,nsp,nbas,nspec,ssite=>v_ssite,sspec=>v_sspec,qbg=>zbak
       use m_lattic,only: lat_plat,lat_vol

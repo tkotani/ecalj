@@ -1,4 +1,8 @@
       module m_lmfinit
+      use m_ext,only :sname               ! sname contains extension. foobar of ctrl.foobar
+      use m_struc_def,only: s_spec,s_site ! spec and site structures.
+      use m_MPItk,only: master_mpi
+      implicit none
 !! All data set to run lmfp.F rdctrl2 read ctrl file and set these data
 !! rdctrls made from three stages. Search the word 'Stage' in the followings.
 !! At the bottom of this code, I put old document for variables such as ctrl_*, ham_* and so on (search 'old doc')
@@ -17,21 +21,16 @@ Ci   tol   :tolerance in wave function precision:
 Ci         :Here wave function cutoff for g-vectors whose wave
 Ci          functions are less than tol.
       
-      use m_ext,only :sname               ! sname contains extension. foobar of ctrl.foobar
-      use m_struc_def,only: s_spec,s_site ! spec and site structures.
-      use m_MPItk,only: master_mpi
-      implicit none
-      
 !!---- initial settings read from ctrl and processed -------
-      integer,parameter:: noutmx=48
+      integer,parameter::  noutmx=48
       logical,parameter::  T=.true., F=.false.
       integer,parameter::  NULLI=-99999,nkap0=3,mxspec=256,lstrn=10000
       integer,parameter::  n0=10,nppn=12, nab=9, nrmx=1501,nlmx=64 !bndfp
       real(8),parameter::  NULLR =-99999, fs = 20.67098d0, degK = 6.3333d-6 ! defaults for MD
+!     
       integer,protected::  io_show,io_help=0,nvario=0, lat_nkqmx,nat,lxcf !,irs4
       integer(2),protected:: nono
       character(lstrn),protected:: sstrnmix,sstrnsymg
-c      integer,protected:: irs1,irs2,irs3,irs5
       character(256),protected:: header,symg=' ',   symgaf=' '!for Antiferro
       logical,protected :: ham_frzwf,ham_ewald
       integer,protected:: nspc,stdo,stdl,procid,nproc,master=0,nspx,
@@ -41,17 +40,17 @@ c      integer,protected:: irs1,irs2,irs3,irs5
      &     ,ham_lxcf,gga,ftmesh(3),nmto=0,lrsigx=0
      &     ,nsp=1,lrel=1,lso=0
       real(8),protected:: pmin(n0),pmax(n0),ham_pmax(10),ham_pmin(10),
-     &     ctrl_defm(6), ctrl_wsrmax,ctrl_sdprm(5),ctrl_rmaxes,
-     &     ctrl_omax1(3),ctrl_omax2(3),ctrl_sclwsr,ctrl_rmines, !ctrl_zbak,
+     &     ctrl_defm(6), ctrl_wsrmax,ctrl_rmaxes,
+     &     ctrl_omax1(3),ctrl_omax2(3),ctrl_sclwsr,ctrl_rmines, !ctrl_zbak,,ctrl_sdprm(5)
      &     tolft,elind,vmtz, scaledsigma
-     &     ,ham_elind,ham_oveps,ham_scaledsigma
+     &     ,ham_elind,ham_oveps,ham_scaledsigma 
 c     &     ,ham_delta_stabilize 
 !! ... OPTIONS
       integer,protected :: smalit, lstonr(3)=0,nl,lpfloat 
       real(8),protected:: rmines,rmaxes
       logical,protected :: lhf,lcd4
 !! ... STRUC 
-      real(8),protected:: lat_slat(3,3),dlat,alat=NULLR,dalat=NULLR,vol,avw
+      real(8),protected:: dlat,alat=NULLR,dalat=NULLR,vol,avw !lat_slat(3,3),
       integer,protected:: nbas=NULLI,nsite=NULLI,nspec 
 !! ... SPEC
       real(8),protected:: omax1(3),omax2(3),wsrmax,sclwsr
@@ -59,12 +58,12 @@ c     &     ,ham_delta_stabilize
       integer,protected:: lmxbx=-1,lmxax,nkaph,nkapi
       logical,allocatable,protected:: mxcst2(:),mxcst4(:)
       integer,allocatable,protected:: idxdn(:,:,:),
-     .     idu(:,:),lmxb(:),lmxa(:),idmod(:,:),iq1(:,:),ivso(:,:),
+     .     idu(:,:),lmxb(:),lmxa(:),idmod(:,:),
      .     kmxt(:),kmxv(:),lfoca(:),lmxl(:),nxi(:),nr(:), nmcore(:),
      &  nkapii(:),nkaphh(:) 
       real(8),allocatable,protected:: rsmh1(:,:),rsmh2(:,:),eh1(:,:),eh2(:,:),
      .     rs3(:),rham(:),alpha(:,:),ehvl(:,:), uh(:,:),jh(:,:),
-     .     qpol(:,:),stni(:),tbvso(:,:),
+     .     qpol(:,:),stni(:),
      .     pnu(:,:,:),qnu(:,:,:),      pnudefault(:,:),qnudefault(:,:),qnudummy(:,:),
      .     coreq(:,:),!mass(:),
      .     rg(:),rsma(:),rfoca(:), rsmfa(:),rcfa(:,:),
@@ -97,14 +96,10 @@ c     &     ,ham_delta_stabilize
       real(8),protected:: mix_b,mix_bv,mix_elind,mix_tolu,mix_umix,mix_w(3),mix_wc
       character(8),protected:: mix_fn
 !! DYN
-      real(8),protected:: mdprm(6),lat_defm(6),sdprm(5)
-      real(8),protected:: prmint(20)=(/1d0,1d0,0d0,2d-4,7d0,11d0,2d0,4d0,6d0,8d0,
-     .     12d0,16d0,24d0,32d0,48d0,64d0,96d0,0d0,0d0,0d0/),
-     .     prmint_ts0,prmint_tol,gd_ct(3),
-     .     move_kt,move_ts,move_tsequ,move_tstot
-      logical,protected:: prmint_new,lbsprm=F,lsdyn=F
-      integer,protected:: nitmv,prmint_mi,prmint_mx,prmint_nseq(11),gd_modt(3),gd_nmodt=1
-      integer,protected:: pwmode,ncutovl  !ncutovl is by takao. not in lm-7.0beta.npwpad,
+      real(8),protected:: mdprm(6)
+      integer,protected:: nitmv
+!!      
+      integer,protected:: pwmode,ncutovl     !ncutovl is by takao. not in lm-7.0beta.npwpad,
       real(8),protected:: pwemax,pwemin,oveps!,delta_stabilize
       integer , allocatable,protected ::  iv_a_oips (:)   ,  lpz(:),lpzex(:),lhh(:,:),iprmb(:)
 !! CG coefficient      
@@ -123,8 +118,7 @@ c      logical,protected:: irs1x10!,irsrot !(irsrot is not tested)
      &     lat_platin(3,3),lat_alat,lat_avw,lat_tolft,lat_gmaxin
       real(8),protected::
      &     lat_gam(1:4)=[0d0,0d0,1d0,1d0], !no deformation. See lattic !lat_dist0(3,3)=0d0,
-     &     ctrl_mdprm(6),
-     &     bz_doswin(2) 
+     &     ctrl_mdprm(6)
       integer,protected:: lekkl!,lcplxp !now we fix lcplxp=1 and removed from m_lmfinit 
       integer,protected:: lmaxu,nlibu
       integer,allocatable,protected::lldau(:)
@@ -274,7 +268,7 @@ C ... basis
       double precision vsn,vers,xv(2*n0)
       character(256*16) :: bigstr=' '
       integer:: it
-      logical :: parmxp
+c      logical :: parmxp
       logical::  debug=.false.
       integer:: lp1,lpzi
       real(8):: xxx
@@ -291,7 +285,7 @@ C ... basis
       integer:: lx,lxx
       character*256:: sss
       logical:: sexist
-      integer:: ibas,ierr,lc, iqnu
+      integer:: ibas,ierr,lc, iqnu=0
 c      logical:: ltet
       integer:: ifzbak,nn1,nn2,nnx,lmxxx,nlaj
       integer,allocatable :: iv_a_oips_bakup (:)
@@ -360,23 +354,17 @@ c      logical:: ltet
 !! Struc ---
       if (tksw(prgnam,'STRUC') == 2) goto 59
       if (io_show+io_help/=0) write(stdo,*)' --- Parameters for crystal structure ---'
-      if (alat .eq. NULLR) then
-         nm='STRUC_ALAT'; call gtv(trim(nm),tksw(prgnam,nm),alat, note= 'Scaling of lattice vectors, in a.u.')
-      endif
-      if (nbas .eq. NULLI) then
-         nm='STRUC_NBAS'; call gtv(trim(nm),tksw(prgnam,nm),nbas,note='Size of basis')
-         nm='STRUC_PLAT'; call gtv(trim(nm),tksw(prgnam,nm),temp33,nmin=9,nout=nout,note='Primitive lattice vectors (alat unit)')
-         plat(1:3,1)=temp33(1:3)
-         plat(1:3,2)=temp33(4:6)
-         plat(1:3,3)=temp33(7:9)
-      endif
+      nm='STRUC_ALAT';call gtv(trim(nm),tksw(prgnam,nm),alat, note= 'Scaling of lattice vectors, in a.u.')
+      nm='STRUC_NBAS';call gtv(trim(nm),tksw(prgnam,nm),nbas,note='Size of basis')
+      nm='STRUC_PLAT';call gtv(trim(nm),tksw(prgnam,nm),temp33,nmin=9,nout=nout,note='Primitive lattice vectors (alat unit)')
+      plat= reshape(temp33,[3,3])
       avw = avwsr(plat,alat,vol,nbas)
 !  'STRUC_NSPEC' removed
-      if (io_help == 0) then ! .and. nspec .eq. NULLI) then
+      if(io_help == 0) then ! .and. nspec .eq. NULLI) then
          nm='SPEC_ATOM'; sw = tksw(prgnam,nm)
          if (sw .ne. 2) then
             j = 0; nspec = 0
-            do  while (nspec .le. 0)
+            do while (nspec <= 0)
                j = j+1; jj= (/1,j/)
                if (.not. debug) call pshpr(0)
                call gtv(trim(nm),0,nono,Texist=ltmp,cindx=jj)
@@ -387,15 +375,10 @@ c      logical:: ltet
          endif
       endif
       nsite = nbas
-      nm='STRUC_SLAT';call gtv(trim(nm),tksw(prgnam,nm),temp33,nmin=9,note='Supercell lattice vectors')
-      lat_slat(1:3,1)=temp33(1:3)
-      lat_slat(1:3,2)=temp33(4:6)
-      lat_slat(1:3,3)=temp33(7:9)
       nm='STRUC_DALAT'; call gtv(trim(nm),tksw(prgnam,nm),dalat,def_r8=0d0,
      &     note='added to alat after reading inputs (only affecting to SPEC_ATOM_R/A case)')
 !     STRUC_NL here removed, Lattice distortion or rotatation here removed.
    59 continue
-      
 !! Options ---
       if (tksw(prgnam,'OPTIONS') == 2) goto 69
       if (io_show+io_help/=0) write(stdo,*)' --- Program Options ---'
@@ -408,7 +391,7 @@ c      logical:: ltet
 !! Hamiltonian parameters ---
       if(io_show+io_help/=0.and.tksw(prgnam,'HAM')/=2)write(stdo,*)' --- Parameters for hamiltonian ---'
       nsp = 1
-      nm='HAM_NSPIN'; call gtv(trim(nm),tksw(prgnam,nm),nsp,def_i4=1,note='Set to 2 for spin polarized calculations')
+      nm='HAM_NSPIN';call gtv(trim(nm),tksw(prgnam,nm),nsp,def_i4=1,note='Set to 2 for spin polarized calculations')
       if (io_help .eq. 0) then
          l_dummy_isanrg=isanrg(nsp,1,2,'rdctrl','nsp',T)
       else
@@ -429,8 +412,7 @@ C     Flags representing how cd is represented: default values
 !  lso  =0 (no so): =1(L.S): =2(LzSz).
       if (lrel==2) lso=1
       if (nsp==2 .or. io_help/=0) then
-         if (io_help /= 0) call info0(1,0,0,' * To read the magnetic '//
-     .        'parameters below, HAM_NSPIN must be 2')
+         if (io_help /= 0) write(stdo,*)' * To read the magnetic parameters below, HAM_NSPIN must be 2'
          nm='HAM_SO'; call gtv(trim(nm),tksw(prgnam,nm), lso,def_i4=0,note=
      .        'Spin-orbit coupling (for REL=1)'//
      .        '%N%3f0 : no SO coupling'//
@@ -439,6 +421,7 @@ C     Flags representing how cd is represented: default values
 c     .        '%N%3f3 : Like 2, but also compute <L.S-LzSz> by perturbation')
          if (io_help==0) l_dummy_isanrg=isanrg(lso,0,2,' rdctrl:','SO',T)
       endif
+      
 !! SOC Spin-block matrix Aug2021 ! Taken from (A8) in Ke.Liqin2019,PhysRevB.99.054418
       nm='HAM_SOCAXIS'; call gtv(trim(nm),tksw(prgnam,nm),socaxis,nmin=3,nout=nout, def_r8v=[0d0,0d0,1d0], !default
      &     note='SOC axis! 0,0,1(default) or 1,1,0 only effective for HAM_SO=1')
@@ -451,10 +434,11 @@ c     .        '%N%3f3 : Like 2, but also compute <L.S-LzSz> by perturbation')
       if(io_help==0) then
          if( sum(abs(socaxis-[0d0,0d0,1d0])) >1d-6 .and. (.not.cmdopt0('--phispinsym')))
      &     call rx('We need --phispinsym for SO=1 and HAM_SOCAXIS/=001')
-      endif   
+      endif
+!!      
       sw = tksw(prgnam,'HAM_GMAX')
-      if (sw/=2) then
-         nm='HAM_GMAX'; call gtv(trim(nm),sw,lat_gmaxin,nmin=1,nout=nout,note='Energy cutoff for plane-wave mesh',or=T)
+      if(sw/=2) then
+         nm='HAM_GMAX';call gtv(trim(nm),sw,lat_gmaxin,nmin=1,nout=nout,note='Energy cutoff for plane-wave mesh',or=T)
          if (nout .ne. 0) then
             sw = 2
          else
@@ -536,15 +520,13 @@ c     .     '%N%3f "H --> H + HAM_STABILIZE*O^-1" in zhev_tk(diagonalization)')
 !   for AF --- !june2015
       if(.not.(prgnam=='LMFA'.or.prgnam=='LMCHK')) then
         nm='SYMGRPAF'; call gtv(trim(nm),tksw(prgnam,nm),symgaf,
-     .  note='An (or multiple) Extra Generator for adding anti ferro symmetry')
+     .  note='One (or multiple) Extra Generator for adding anti ferro symmetry')
       endif  
 !! Species
       if (io_help == 1) nspec = 1
       if (tksw(prgnam,'SPEC') == 2) goto 79
-      if (io_show+io_help/=0) call info0(1,1,
-     .     0,' --- Parameters for species data ---')
-      if (io_help /= 0) call info0(1,0,0,' * The next four tokens '//
-     .     'apply to the automatic sphere resizer')
+      if (io_show+io_help/=0) write(stdo,*)' --- Parameters for species data ---'
+      if (io_help /= 0) write(stdo,*)' * The next four tokens apply to the automatic sphere resizer'
       nm='SPEC_SCLWSR'; call gtv(trim(nm),tksw(prgnam,nm), sclwsr, def_r8=0d0, note=
      .     'Scales sphere radii, trying to reach volume = '//
      .     'SCLWSR * cell volume'//
@@ -565,11 +547,12 @@ c     .     '%N%3f "H --> H + HAM_STABILIZE*O^-1" in zhev_tk(diagonalization)')
      .        'token ATOM apply to one species.')
          nspec = 1
       endif
+!! SPEC_ATOM_*      
       if (nspec .eq. 0) goto 79
       allocate(pnu(n0,nsp,nspec),qnu(n0,nsp,nspec), pz(n0,nsp,nspec),amom(n0,nspec),idmod(n0,nspec),
      .    rsmh1(n0,nspec),eh1(n0,nspec),rsmh2(n0,nspec),eh2(n0,nspec),
-     .    ehvl(n0,nspec), qpol(n0,nspec),stni(nspec),tbvso(4,nspec),
-     .    iq1(n0,nspec),ivso(n0,nspec), rg(nspec),rsma(nspec),rfoca(nspec),rsmfa(nspec),rcfa(2,nspec),
+     .    ehvl(n0,nspec), qpol(n0,nspec),stni(nspec),
+     .    rg(nspec),rsma(nspec),rfoca(nspec),rsmfa(nspec),rcfa(2,nspec),
      .    rs3(nspec),rham(nspec),rmt(nspec),rsmv(nspec),
      .    nxi(nspec),exi(n0,nspec), spec_a(nspec),z(nspec),nr(nspec),eref(nspec),
      .    coreh(nspec),coreq(2,nspec), idxdn(n0,nkap0,nspec), idu(4,nspec),uh(4,nspec),jh(4,nspec),
@@ -601,7 +584,7 @@ c     .     '%N%3f "H --> H + HAM_STABILIZE*O^-1" in zhev_tk(diagonalization)')
         if (io_help /= 0) then
           write(stdo,'(1x)')
         elseif (io_help == 0 .and. io_show>0) then
-          call info(1,0,0,' ... Species %i',j,0)
+          write(stdo,ftox)' ... Species ',j
         endif
         jj= (/1,j/)
         nm='SPEC_ATOM'; call gtv(trim(nm),tksw(prgnam,nm),slabl(j), nmin=10,cindx=jj,note='Species label')
@@ -897,14 +880,12 @@ c          nm='SPEC_ATOM_IDXDN'; removed...
         call mpibc1_int(idu(:,j),4,'m_lmfinit_idu')
         call mpibc1_real(uh(:,j),4,'m_lmfinit_uh') !bug fix at oct26 2021 (it was _int-->not passed )
         call mpibc1_real(jh(:,j),4,'m_lmfinit_jh')
-!     Some sanity checks
+!     Sanity checks
         if (io_help == 0 .and. lmxaj .ge. 0) then
-           if (tksw(prgnam,'SPEC_ATOM_LFOCA') /= 2)
-     .          l_dummy_isanrg=isanrg(lfoca(j),0,2,'rdctrl','lfoca',T)
-           if (tksw(prgnam,'SPEC_ATOM_LMXL') /= 2) l_dummy_isanrg=
+           if(tksw(prgnam,'SPEC_ATOM_LFOCA')/= 2)l_dummy_isanrg=isanrg(lfoca(j),0,2,'rdctrl','lfoca',T)
+           if(tksw(prgnam,'SPEC_ATOM_LMXL')/= 2) l_dummy_isanrg=
      .          isanrg(lmxl(j),min(0,lmxaj),max(0,lmxaj),'rdctrl','lmxl',T)
-           if (tksw(prgnam,'SPEC_ATOM_KMXA') /= 2)
-     .          l_dummy_isanrg=isanrg(kmxt(j),2,25,' rdctrl (warning):','kmxa',F)
+           if(tksw(prgnam,'SPEC_ATOM_KMXA')/= 2)l_dummy_isanrg=isanrg(kmxt(j),2,25,' rdctrl (warning):','kmxa',F)
         endif
         coreh(j) = ' '
         nm='SPEC_ATOM_C-HOLE'; call gtv(trim(nm),tksw(prgnam,nm),coreh(j),
@@ -927,7 +908,6 @@ c          nm='SPEC_ATOM_IDXDN'; removed...
          mxorb= nkaph*nlmax
       endif
  79   continue
-      
 !! Site ---
       if(io_show+io_help/=0.and.tksw(prgnam,'SITE')/=2)write(stdo,*)' --- Parameters for site ---'
       if(io_help .eq. 1) then
@@ -940,24 +920,22 @@ c          nm='SPEC_ATOM_IDXDN'; removed...
      .        'token ATOM apply to one site.'/3x,'Alternatively, all ',
      .        'site data can be read in via the SITE file.')
       endif
-      allocate(pos(3,nsite),vel(3,nsite),!vshft(nsite),
-     .     ips(nsite),irlx(3,nsite), !,ipl(nsite),plv(nsite)
-     .     iantiferro(nsite))   !mpole(nsite),dpole(3,nsite),
+      allocate(pos(3,nsite),vel(3,nsite),ips(nsite),irlx(3,nsite),iantiferro(nsite))
+! vshft(nsite),,ipl(nsite),plv(nsite)!mpole(nsite),dpole(3,nsite),
       vel  = 0d0
       irlx = 0
       ips  = NULLI
       pos  = NULLR
-!      ... Site data, one pass for each atom
+!SITE_ATOM_*
       do  j = 1, nbas
          if (io_help /= 0) then
             write(stdo,'(1x)')
          elseif (io_help == 0 .and. io_show>0) then
-            call info(1,0,0,' ... Site %i',j,0)
+            write(stdo,ftox)' ... Site ',j
          endif
          jj=(/1,j/)
-         nm='SITE_ATOM'; call gtv(trim(nm),tksw(prgnam,nm),alabl,nmin=10,
-     .        cindx=jj,note='Species label')
-         if (io_help .ne. 1) then
+         nm='SITE_ATOM'; call gtv(trim(nm),tksw(prgnam,nm),alabl,nmin=10, cindx=jj,note='Species label')
+         if(io_help .ne. 1) then
             do  i = 1, nspec
                if (trim(alabl) == trim(slabl(i)) ) then
                   ips(j) = i
@@ -968,32 +946,26 @@ c          nm='SPEC_ATOM_IDXDN'; removed...
          endif
  881     continue
 !  ... Site positions
-         sw = tksw(prgnam,'SITE_ATOM_XPOS')
+         sw= tksw(prgnam,'SITE_ATOM_XPOS')
          nm='SITE_ATOM_POS'; call gtv(trim(nm),tksw(prgnam,nm),pos(:,j),
-     .        nout=nout,cindx=jj,note='Atom coordinates, cartesian in alat',
-     .        or=(sw.ne.2))
-         if (nout==0 .or. tksw(prgnam,'SITE_ATOM_POS') == 2) then !nout=-1 if sw=2; otherwise nout=0 unless data was read
+     .        nout=nout,cindx=jj,note='Atom coordinates, cartesian in alat', or=(sw.ne.2))
+         if(nout==0.or.tksw(prgnam,'SITE_ATOM_POS')==2)then !nout=-1 if sw=2; otherwise nout=0 unless data was read
             nm='SITE_ATOM_XPOS'; call gtv(trim(nm),tksw(prgnam,nm),pos(:,j),
      .           cindx=jj,note='Atom coordinates, fractional in alat')
             call dcopy(3,pos(1,j),1,xv,1)
             call dmpy(plat,3,1,xv,3,1,pos(1,j),3,1,3,1,3)
          endif
-         nm='SITE_ATOM_V0'; call gtv(trim(nm),tksw(prgnam,nm),vel(:,j),
-     .        def_r8v=zerov,cindx=jj,
+         nm='SITE_ATOM_V0'; call gtv(trim(nm),tksw(prgnam,nm),vel(:,j),def_r8v=zerov,cindx=jj,
      .        note='Initial velocity for molecular dynamics')
          nm='SITE_ATOM_RELAX'; call gtv(trim(nm),tksw(prgnam,nm),irlx(:,j),
      .        def_i4v=(/(1,i=1,n0)/),cindx=jj,note=
-     .        'relax site positions (lattice dynamics) or '//
-     .        'Euler angles (spin dynamics)')
-         nm='SITE_ATOM_AF'; call gtv(trim(nm),tksw(prgnam,nm),iantiferro(j),
-     .        cindx=jj,def_i4=0,
+     .        'relax site positions (lattice dynamics) or Euler angles (spin dynamics)')
+         nm='SITE_ATOM_AF'; call gtv(trim(nm),tksw(prgnam,nm),iantiferro(j), cindx=jj,def_i4=0,
      .        note='antiferro ID:=i and -i should be af-pair, we look for space-group operation with spin-flip')
       enddo
  89   continue
-
 !! Structure constants ---
-      if (io_show+io_help/=0 .and. tksw(prgnam,'STR')/=2) call info0(1,1,
-     .     0,' --- Parameters for structure constants ---')
+      if(io_show+io_help/=0.and.tksw(prgnam,'STR')/=2)write(stdo,*)' --- Parameters for structure constants ---'
       nm='STR_RMAXS'; call gtv(trim(nm),tksw(prgnam,nm),str_rmax,
      .     nout=nout,note='Radial cutoff for strux, in a.u.',or=T)
       if (nout == 0) then       !nout=-1 if sw=2; otherwise nout=0 unless data was read
@@ -1003,7 +975,7 @@ c          nm='SPEC_ATOM_IDXDN'; removed...
       endif
       nm='STR_MXNBR'; call gtv(trim(nm),tksw(prgnam,nm),str_mxnbr,def_i4=0,note='Max number of nbrs (for dimensioning arrays)')
 !! Brillouin Zone ---
-      if (io_show+io_help/=0 .and. tksw(prgnam,'BZ')/=2) write(stdo,*)' --- Parameters for Brillouin zone integration ---'
+      if(io_show+io_help/=0.and.tksw(prgnam,'BZ')/=2)write(stdo,*)' --- Parameters for Brillouin zone integration ---'
       nm='BZ_NKABC'; sw=tksw(prgnam,nm)!; if (bz_lio1) sw = 2
       call gtv(trim(nm),sw,bz_nabcin,nout=nout,
      .     note='No. qp along each of 3 lattice vectors.'//'%N%3fSupply one number for all vectors or a separate '//
@@ -1015,17 +987,14 @@ c          nm='SPEC_ATOM_IDXDN'; removed...
      .     'number for each vector.')
       call fill3in(nout,bz_lshft)
       nm='BZ_METAL'; call gtv(trim(nm),tksw(prgnam,nm),bz_lmet,
-     .     def_i4=1,note=
-     .     '0 assume insulator; 1 save evecs on disk; '//
-     .     '2 use wgt from prior iter%N%3f3 wgt calculated from eigenvalues (two band pass)')
-      if(bz_lmet>3) call rx('BZ_lmet is 0,1,2, or 3: usually 3')
-c     .     ' 4 BZ integration with 3-point scheme')
+     .     def_i4=3,note='0 insulator only; 3 for metal (2 is for maintenance)')
+      if(bz_lmet/=3.and.bz_lmet/=0.and.bz_lmet/=2) call rx('BZ_lmet is 0 or 3')
       nm='BZ_TETRA'; call gtv(trim(nm),tksw(prgnam,nm),bz_tetrahedron, !tetrahedron switch
      .     def_lg=T,note='Tetrahedron integration')
-      if( cmdopt0('--tdos').or.cmdopt0('--pdos')) then
-         print *,' --tdos or --pdos enforces BZ_METAL=3 and BZ_TETRA=T'
+      if(cmdopt0('--tdos').or.cmdopt0('--pdos')) then
+         write(stdo,*)' --tdos or --pdos enforces BZ_METAL=3 and BZ_TETRA=T'
          bz_lmet=3
-         bz_tetrahedron=.true. !ctrl_lmet2=.true.
+         bz_tetrahedron=.true.
       endif
       nm='BZ_N'; call gtv(trim(nm),tksw(prgnam,nm),bz_n, def_i4=0,note=
      .     'N>0: Polynomial order for Methfessel-Paxton sampling%N%3f'//
@@ -1035,19 +1004,10 @@ c     .     ' 4 BZ integration with 3-point scheme')
       nm='BZ_W'; call gtv(trim(nm),tksw(prgnam,nm),bz_w, def_r8=5d-3,note=
      .     'If BZ_N>=0, Line broadening for sampling integration%N%3f'//
      .     'If BZ_N<0,  Temperature for Fermi distribution (Ry)')
-c BZ_EF0, BZ_DELEF removed.
+c BZ_EF0, BZ_DELEF removed. !c!! remove writing ZBAK file here. (Write ZBAK file. sep2020)
       nm='BZ_ZBAK'; call gtv(trim(nm),tksw(prgnam,nm),zbak,def_r8=0d0,note='Homogeneous background charge')
-c!! Write zbak. sep2020
-c      if(procid==master) then
-c         open(newunit=ifzbak,file='ZBAK')
-c         write(ifzbak,"(d23.5, ' ! zbak')") zbak
-c         close(ifzbak)
-c      endif
       nm='BZ_SAVDOS'; call gtv(trim(nm),tksw(prgnam,nm),ctrl_ldos,
      .     def_i4=0,note='Choose 0 or 1: %N%3f1 Write dos.tot.* file (settings are NPTS and DOS)')
-c      nm='BZ_DOS'; call gtv(trim(nm),tksw(prgnam,nm),bz_doswin,def_r8v=
-c     .     (/-1d0,0d0/),note='Energy window over which DOS accumulated')
-      bz_doswin=-9999
       nm='BZ_NPTS'; call gtv(trim(nm),tksw(prgnam,nm),bz_ndos,def_i4=1001,
      .     note='No. DOS points (sampling integration)')
       nm='BZ_DOSMAX'; call gtv(trim(nm),tksw(prgnam,nm),bz_dosmax,def_r8=1.5d0,
@@ -1060,9 +1020,7 @@ c     .     (/-1d0,0d0/),note='Energy window over which DOS accumulated')
      .     '%N%3fIf NEVMX=0, program uses internal default'//
      .     '%N%3fIf NEVMX<0, no eigenvectors are generated')
       if( cmdopt0('--tdos').or.cmdopt0('--pdos').or.cmdopt0('--zmel0')) bz_nevmx=999999
-      
-      nm='BZ_NOINV'; call gtv(trim(nm),tksw(prgnam,nm),noinv,
-     .     def_lg=F,note=
+      nm='BZ_NOINV'; call gtv(trim(nm),tksw(prgnam,nm),noinv, def_lg=F,note=
      .     'Suppress automatic inclusion of inversion symmetry for BZ')
       nm='BZ_FSMOM'; call gtv(trim(nm),tksw(prgnam,nm),bz_fsmom,
      .     def_r8=NULLR,note='Fixed-spin moment (fixed-spin moment method)')
@@ -1076,9 +1034,8 @@ c     .     (/-1d0,0d0/),note='Energy window over which DOS accumulated')
 !! Iterations (formerly MIX) ---
       mix_b = NULLI            ! Not set
       if (tksw(prgnam,'ITER')/=2) then
-         if (io_show+io_help/=0)
-     .        call info0(1,1,0,' --- Parameters for iterations ---')
-C     Default values for smix (array has same same structure as lstra smix)
+         if (io_show+io_help/=0) write(stdo,*)' --- Parameters for iterations ---'
+!     Default values for smix (array has same same structure as lstra smix)
          mix_b = 1             ! beta
          mix_bv = 1            ! bv
          mix_fn='mixm'
@@ -1099,23 +1056,23 @@ C     Default values for smix (array has same same structure as lstra smix)
 ! we use mixrho.F ->parmxp.F. But too complicated to touch it.
          nm='ITER_MIX'; sw=tksw(prgnam,nm); call gtv(trim(nm),sw,iter_mix,
      .        nmin=10,nout=nout,note='Mixing rules for charge mixing.  Syntax:')
-         if (io_help/=0 .and. tksw(prgnam,nm)/=2) print 345
+         if(io_help/=0 .and. tksw(prgnam,nm)/=2) print 345
  345     format(3x,'A[nmix][,b=beta][,bv=betv][,n=nit][,w=w1,w2][,nam=fn][,k=nkill]','[;...] or'/
      .          3x,'B[nmix][,b=beta][,bv=betv][,wc=wc][,n=#][,w=w1,w2][,nam=fn]','[,k=nkill]')
-         nm='ITER_CONV'; call gtv(trim(nm),tksw(prgnam,nm),etol,def_r8=1d-4,note='Tolerance in energy change from prior'//
-     .        ' iteration for self-consistency')
+         nm='ITER_CONV';call gtv(trim(nm),tksw(prgnam,nm),etol,def_r8=1d-4,note=
+     &    'Tolerance in energy change from prior iteration for self-consistency')
          nm='ITER_CONVC'; call gtv(trim(nm),tksw(prgnam,nm),qtol,
      .        def_r8=1d-4,note='Tolerance in output-input charge for self-consistency')
-         nm='ITER_UMIX'; call gtv(trim(nm),tksw(prgnam,nm),mix_umix,def_r8=1d0,note='Mixing parameter for densmat in LDA+U')
-         nm='ITER_TOLU'; call gtv(trim(nm),tksw(prgnam,nm),mix_tolu,def_r8=0d0,note='Tolerance for densmat in LDA+U')
+         nm='ITER_UMIX';call gtv(trim(nm),tksw(prgnam,nm),mix_umix,def_r8=1d0,note='Mixing parameter for densmat in LDA+U')
+         nm='ITER_TOLU';call gtv(trim(nm),tksw(prgnam,nm),mix_tolu,def_r8=0d0,note='Tolerance for densmat in LDA+U')
       endif                     ! iterations category
 !! Dynamics (relaxation)---
-      if (io_show+io_help/=0 .and. tksw(prgnam,'DYN')/=2) write(stdo,*)' --- Parameters for dynamics and statics ---'
+      if(io_show+io_help/=0.and.tksw(prgnam,'DYN')/=2)write(stdo,*)' --- Parameters for dynamics and statics ---'
       nm='DYN_NIT'; call gtv(trim(nm),tksw(prgnam,nm),nitmv,def_i4=1,
      .     note='maximum number of relaxation steps (statics)'//' or time steps (dynamics)')
       nm='DYN_MSTAT'; call gtv(trim(nm),tksw(prgnam,nm),nono,Texist=ltmp,note='Parameters for molecular statics')
       mdprm(1) = 0
-      if (io_help .ne. 0 .or. ltmp) then
+      if(io_help/=0 .or. ltmp) then
          if(ctrl_lfrce==0) ctrl_lfrce=1 ! takao july2012
          nm='DYN_MSTAT_MODE'; call gtv(trim(nm),tksw(prgnam,nm),i0,
      .        def_i4=0,note=
@@ -1127,31 +1084,26 @@ C     Default values for smix (array has same same structure as lstra smix)
          nm='DYN_MSTAT_HESS'; call gtv(trim(nm),tksw(prgnam,nm),ltmp,def_lg=T,note='Read hessian matrix')
          mdprm(2) = isw(ltmp)! T=>1 F=>0
          nm='DYN_MSTAT_XTOL'; call gtv(trim(nm),tksw(prgnam,nm),mdprm(3),def_r8=1d-3,note=
-     .        'Convergence criterion in displacements'//'%N%3fXTOL>0: use length;  <0: use max val;  =0: do not use')
+     .      'Convergence criterion in displacements'//'%N%3fXTOL>0: use length;  <0: use max val;  =0: do not use')
          nm='DYN_MSTAT_GTOL'; call gtv(trim(nm),tksw(prgnam,nm),mdprm(4),def_r8=0d0,note=
-     .        'Convergence criterion in gradients'//
-     .        '%N%3fGTOL>0: use length;  <0: use max val;  =0: do not use')
-         nm='DYN_MSTAT_STEP'; call gtv(trim(nm),tksw(prgnam,nm),mdprm(5),def_r8=0.015d0,note='Initial (and maximum) step length')
+     .      'Convergence criterion in gradients'//
+     .      '%N%3fGTOL>0: use length;  <0: use max val;  =0: do not use')
+         nm='DYN_MSTAT_STEP'; call gtv(trim(nm),tksw(prgnam,nm),mdprm(5),def_r8=0.015d0,note=
+     &      'Initial (and maximum) step length')
          nm='DYN_MSTAT_NKILL'; call gtv(trim(nm),tksw(prgnam,nm),i0,def_i4=0,note='Remove hessian after NKILL iter')
          mdprm(6) = i0
-         nm='DYN_MSTAT_PDEF'; call gtv(trim(nm),tksw(prgnam,nm),lat_defm,def_r8v=zerov,note='Lattice deformation modes')
       endif
-      if (io_help >0) then
-         write(stdo,*)
+      if (io_help>0) then
          write(stdo,"(a)")'==============================================='
          call lmhelp(prgnam)
-         call cexit(0,1)
+         call rx0('end of help mode')
       endif   
 !!  end of read input parameter ccccccccccccccccccccccccccxxxxxxxxxxxxxxxx
 
-      
 !! Stage 2  Reorganize ctrl_* in module m_lmfinit ---------------------
-      ctrl_defm = lat_defm(:)
       ctrl_noinv = isw(noinv)  ! T->1 F->0
       ctrl_lrel=lrel
-!!lxcf   parameter defining XC functional
-!!  1s digit:  1 for Ceperly-Alder (VWN),  2 for Barth-Hedin (ASW fit), 103 for PBE-GGA
-      ctrl_lxcf= ham_lxcf
+      ctrl_lxcf= ham_lxcf !1 for Ceperly-Alder (VWN),  2 for Barth-Hedin (ASW fit), 103 for PBE-GGA
       maxit=iter_maxit
       ctrl_mdprm=mdprm
       ctrl_modep=2
@@ -1169,7 +1121,6 @@ C     Default values for smix (array has same same structure as lstra smix)
       ctrl_rmaxes= rmaxes
       ctrl_rmines= rmines
       ctrl_sclwsr= sclwsr
-      ctrl_sdprm = sdprm
       ctrl_wsrmax= wsrmax
       ctrl_pfloat= lpfloat
       if (dalat == NULLR) dalat=0d0
@@ -1178,7 +1129,6 @@ C     Default values for smix (array has same same structure as lstra smix)
       lat_nkqmx=lat_nkdmx
       lat_platin=plat
       lat_tolft=tolft
-      
 !! set cg coefficients for lmf --- Choose dimensions for arrays
       lmxcg=8
       lmxcy=12
@@ -1194,7 +1144,6 @@ C     Default values for smix (array has same same structure as lstra smix)
       else
         call rxi('setcg: cannot handle lmxcg=',lmxcg)
       endif
-!     Allocate and fill data for cg
       nlm=(lmxcy+1)**2
       allocate(rv_a_ocy(abs(nlm)))
       allocate(rv_a_ocg(abs(lnjcg)))
@@ -1202,16 +1151,11 @@ C     Default values for smix (array has same same structure as lstra smix)
       allocate(iv_a_oidxcg(abs(lnxcg)))
       call sylmnc ( rv_a_ocy , lmxcy )
       call scg ( lmxcg , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg )
-!! Allocate and copy input to sham ---
-c      ham_alfsi=alfsi
-c      i_copy_size=size(ham_dabc)
-c      call dcopy(i_copy_size,dabc,1,ham_dabc,1)
+!!      
       ham_elind=elind
       ham_nkaph=nkaph
-      i_copy_size=size(ham_pmax)
-      call dcopy(i_copy_size,pmax,1,ham_pmax,1)
-      i_copy_size=size(ham_pmin)
-      call dcopy(i_copy_size,pmin,1,ham_pmin,1)
+      ham_pmax=pmax 
+      ham_pmin=pmin 
       if (procid==master) then
          inquire(file='sigm.'//trim(sname),exist=sexist)
          if (lrsigx/=0 .and. (.not.sexist) ) then
@@ -1221,8 +1165,6 @@ c      call dcopy(i_copy_size,dabc,1,ham_dabc,1)
       endif
       ham_lsig=lrsigx
       call mpibc1_int(ham_lsig,1,'bndfp_ham_lsig')
-c      ham_rsstol=rsstol
-c      ham_udiag=ham_udiag
       ham_scaledsigma=scaledsigma
       ham_pwmode=pwmode
       ham_oveps=oveps
@@ -1303,10 +1245,8 @@ Cr         and it is included in the basis.
       do j=1,nsite
           v_ssite(j)%spec=ips(j)
           v_ssite(j)%class=ips(j)
-c          v_ssite(j)%clabel=slabl(ips(j))
           v_ssite(j)%pos=pos(1:3,j)
           v_ssite(j)%vel=vel(1:3,j)
-c          v_ssite(j)%vshft=vshft(j)
           v_ssite(j)%relax=irlx(:,j)
           v_ssite(j)%iantiferro=iantiferro(j)
       enddo
@@ -1352,28 +1292,6 @@ c      call suidx(nkaph,j,nspec,v_sspec)
       
       allocate( iprmb(nbas * nl**2 * maxp ) )
       indx = 0
-c$$$      do 112 iprior = 1, maxp
-c$$$      do 110 ib = 1,nbas
-c$$$          ibp1 = ib+1
-c$$$          is = v_ssite(ib)%spec
-c$$$          iposn = mxorb*(ib-1)
-c$$$          do  1121 ik = 1, nkaph
-c$$$          do  111  l = 0, nl-1
-c$$$            lzz =.false.
-c$$$            if( (idxdn(l+1,ik,is)==10.or.idxdn(l+1,ik,is)==11) .and. iprior==1) lzz=.true.
-c$$$            do   m = -l, l
-c$$$              iposn = iposn+1
-c$$$              if (lzz .or. (idxdn(l+1,ik,is)==iprior)) then
-c$$$                indx = indx+1
-c$$$                iprmb(iposn) = indx
-c$$$             endif
-c$$$            enddo 
-c$$$  111     continue
-c$$$ 1121     continue
-c$$$  110   continue
-c$$$        ldham(iprior) = indx
-c$$$  112  continue
-      
       ldham=0
       do 110 ib = 1,nbas
          is = v_ssite(ib)%spec
@@ -1392,8 +1310,6 @@ c$$$  112  continue
   110 continue
       ldham(1) = indx
       nlmto   => ldham(1)
-C     Default value for hamiltonian dimension
-c      ham_ndham= ldham(1)
 C ... Make rest of ldham
       ldham(4) = nspc
       ldham(5) = ldham(1) * nspc
@@ -1433,7 +1349,7 @@ C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
       ham_nlibu=nlibu
       call poppr
       deallocate(wowk,pnu,qnu    ,amom,idmod,                  
-     .     qpol,stni,tbvso,iq1,ivso,rg,rsma,rfoca,rsmfa,rcfa,nxi,
+     .     qpol,stni,rg,rsma,rfoca,rsmfa,rcfa,nxi,
      .     exi,coreq,rs3,rham,idxdn,
      .     rmt,idu,uh,jh,kmxv,  !kmxt,
      .     lfoca,eref,lmxl,coreh,          spec_a,z,nr,rsmv,
@@ -1443,7 +1359,6 @@ C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
       do ib = 1, nsite
          is = v_ssite(ib)%spec
          if (is <= 0) cycle
-c         v_ssite(ib)%clabel = v_sspec(is)%name
          seref = seref +     v_sspec(is)%eref
       enddo
       ham_seref=seref
@@ -1524,7 +1439,6 @@ c        irs2=0
       if (master_mpi.and.nlibu/=0) write(stdo,"(' LDA+U: block(s) lmaxu =',2i4)") nlibu,lmaxu
 !! aug2012 we now fix lcplxp=1 (complex ppi integral)      
       lekkl  = ctrl_pfloat
-            
 ! lhh, nkapii, nkaphh (nkaphh = nkapii(1 or 2) +1) if extented local orbital exist)
       allocate(lhh(nkap0,nspec))
       lhh=-1
@@ -1548,7 +1462,7 @@ c        irs2=0
           write(stdo,"('mmm lh    ',i4,100i3)")  lhh(1:nkaph,i)
          enddo
       endif
-!!
+      
 !! Atomic position Relaxation setup (MD mode)
       nitrlx= ctrl_nitmv  ! num of iteration cycle for atomic relaxiation (outer loop)
       mdprm = ctrl_mdprm  ! MD(relxation) condition setup
@@ -1598,14 +1512,14 @@ c        irs2=0
          endif
          if (iprint() .ge. 30) then
             if (lrlx .eq. 4) then
-               call info(0,1,0,' m_lmfinit RLXSTP: Molecular statics (conjugate gradients) ..',0,0)
+               write(stdo,*)' m_lmfinit RLXSTP: Molecular statics (conjugate gradients) ..'
             elseif (lrlx .eq. 5) then
-               call info(0,1,0,' m_lmfinit RLXSTP: Molecular statics (Fletcher-Powell) ..',0,0)
+               write(stdo,*)' m_lmfinit RLXSTP: Molecular statics (Fletcher-Powell) ..'
             else
-               call info(0,1,0,' m_lmfinit RLXSTP: Molecular statics (Broyden) ..',0,0)
+               write(stdo,*)' m_lmfinit RLXSTP: Molecular statics (Broyden) ..'
             endif
-            call info2(0,0,0, '     relaxing %i variables, %i iterations',natrlx,nitrlx)
-            write(stdo,"('    x-tol g-tol step=',4d13.6)") mdprm(3),mdprm(4),mdprm(5)
+            write(stdo,ftox)'   relaxing',natrlx,'variables,',nitrlx,'iterations'
+            write(stdo,ftox)'   x-tol g-tol step=', ftom(mdprm(3:5))
          endif
  9299    continue
          end block
@@ -1636,15 +1550,14 @@ c        irs2=0
       end
       end module m_lmfinit
 
+      
+!! Hereafter are list of variables. Old document, but it maybe a help.
+!!mmmmmm old doc mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm      
 ! def      Uncertainty in Fermi level
 ! dosw     Energy window over which DOS accumulated
 ! fsmom    fixed-spin moment (fixed spin moment method)
 ! ef       Fermi level
 ! ntet     number of tetrahedra
-
-      
-!! Hereafter are list of variables. Old document, but it maybe a help.
-!!mmmmmm old doc mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm      
 !! --- explanation of  bz_* ---
 Cr name    purpose
 Cr efmax    eigenvalues above efmax are not needed
@@ -1812,7 +1725,7 @@ Cr               all sites are resized.
 Cr             2 all sites with z>0 are resized first; then
 Cr               the ES sites only are resized
 Cr   sdmod   spin dynamics mode
-Cr   sdprm   spin dynamics parameters
+Crxxx   sdprm   spin dynamics parameters
 Cr   sdxsi   Bulgac and Kusnezov global deamons
 Cr   size    size of this structure
 Cr   smalit  parameters for small iterations
@@ -2044,7 +1957,6 @@ Cr  ogma    gamma-alpha in potential functions
 Cr  ogmar   (gamma-alpha)*P^alpha/P^gamma fully relativistic
 Cr  ogrrme  radial matrix elements of gradient.
 Cr  ohab    not used now
-Cr  oivso   (tbe) spin orbit
 Cr  opalp   ASA potential functions, alpha repsn (mkptfp)
 Cr  opapg   p^alpha/p^gamma fully relativistic
 Cr  opdel   ASA Delta, in hamiltonian order (for LDA+U)

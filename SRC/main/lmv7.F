@@ -5,7 +5,6 @@
 !     We can not modify data in a module by other modules (in prinicple, not everywhere yet).
       program lmf
       use m_lmfinit,only:m_Lmfinit_init,nlibu,plbnd,lrout,ctrl_lfrce,sspec=>v_sspec
-c      use m_lmfinit,only: irs1!,irs2,irs3,irs5!, irs1x10!,irsrot ,irs4
       use m_writeham,only: m_writeham_init, m_writeham_write
       use m_ext,only:      m_Ext_init,sname
       use m_lattic,only:   m_Lattic_init, Setopos
