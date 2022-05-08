@@ -1,4 +1,5 @@
       subroutine vldau(UH,JH,vrsion,dmatu,l,nsp,lmaxu,iblu,Eorb,vorb)
+      intent(out)                                          vorb,Eorb
 C- Set up LDA+U potential from U and J for one l
 C ----------------------------------------------------------------------
 Ci Inputs

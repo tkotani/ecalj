@@ -1,4 +1,5 @@
       subroutine ldau(vrsion,l,iblu,UH,JH,dmatu,nsp,lmaxu,vorb,Eorb)
+      intent(out)                                         vorb,Eorb
 C- Makes Vorb and Eorb from dmatu for given site and l
 C ----------------------------------------------------------------------
 Ci Inputs

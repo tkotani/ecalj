@@ -27,7 +27,7 @@ Ci     Elts read: lmxa idu uh jh
 Ci     Stored: *
 Ci     Passed to: symdmu rotycs
 Ci   idvsh :0 dmatu, dmatuo, vorb input/output in real harmonics
-Ci         :1 dmatu, dmatuo, vorb input/output in spherical harmonics
+Ci         :xxxx1 dmatu, dmatuo, vorb input/output in spherical harmonics
 Ci   dmatu : dmatu produced in current iteration
 Ci         : dmatu is passed in real harmonics
 Ci   dmatuo: dmatu produced in prior iteration
@@ -40,8 +40,7 @@ Ci   ng    :number of group operations
 Ci   g     :point group operations
 Ci   istab :site istab(i,ig) is transformed into site i by grp op ig
 Cio Inputs/Outputs
-Cio  vorb  :orbital dependent potential matrices
-Cio        :vorb is updated on output
+Co  vorb  :orbital dependent potential matrices
 Cl Local variables
 Cl   eorb  : U contribution to LDA+U total energy
 Cb Bugs
@@ -78,40 +77,38 @@ C ----------------------------------------------------------------------
 C     print *, 'dmatu',dmatu(-lmaxu,-lmaxu,1,1)
 C     call rx0('done')
 C     call prmx('dmatu',dmatu,2*lmaxu+1,2*lmaxu+1,2*lmaxu+1)
-
       if (nlibu .eq. 0) return
-      havesh = idvsh
+      havesh = idvsh !=0   We assume real harmonics for i/o
       ipl = 1
       ivsiz = nsp*nlibu*(lmaxu*2+1)**2
       write(stdo,*)' chkdmu:  check LDA+U density-matrix for convergence and update ...'
 C --- Symmetrize output dmatu (req. real harmonics); compare diff ---
-      call praldm(0,60,60,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,
+      if(iprint()>=60) call praldm(0,60,60,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,
      .' Unsymmetrized output dmats',dmatu)
-      if (havesh .eq. 1) then
-        call rotycs(-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
-        havesh = 0
-      endif
+c      if (havesh .eq. 1) then
+c        call rotycs(-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
+c        havesh = 0
+c      endif
       allocate(dmwk_zv(ivsiz))
       dmwk_zv(:)=0.0d0
       call symdmu(dmatu, dmwk_zv,nbas,nsp, lmaxu, sspec, ssite, ng, g, istab, lldau, xx)
       deallocate(dmwk_zv)
-      if (havesh .ne. idvsh) then
-        call rotycs(2*idvsh-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
-        havesh = idvsh
-      endif
+c      if (havesh .ne. idvsh) then
+c        call rotycs(2*idvsh-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
+c        havesh = idvsh
+c      endif
 C     RMS change : dmatu-dmatuo; restore dmatuo
       call daxpy(2*ivsiz,-1d0,dmatu,1,dmatuo,1)
       ddmat = dsqrt(ddot(2*ivsiz,dmatuo,1,dmatuo,1)/(2*ivsiz))
       call daxpy(2*ivsiz,1d0,dmatu,1,dmatuo,1)
 C --- Printout dmatu in real or spherical harmonics, fixed by idvsh ---
-      write(stdo,ftox)' chkdmu:  RMS change in dmat'//
-     .' from symmetrization =',ftof(xx)
+      write(stdo,ftox)' chkdmu: RMS change in dmat from symmetrization =',ftof(xx)
 C --- Compute U contribution to total energy; make vorb ---
 C     This block requires dmatu to be in spherical harmonics
-      if (havesh .ne. 1) then
-        call rotycs(1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
-        havesh = 1
-      endif
+c      if (havesh .ne. 1) then
+      call rotycs(1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau) !1, dmatu is from rh to sh 
+      havesh = 1
+c      endif
       write(stdo,*)'    LDA+U total energy ...'
       eorb = 0
       iblu = 0
@@ -126,46 +123,41 @@ C     This block requires dmatu to be in spherical harmonics
             if (idu(l+1) .ne. 0) then
               iblu = iblu+1
               eorbi = 999
-              call ldau(100+idu(l+1),l,iblu,uh(l+1),jh(l+1),dmatu,nsp,
-     .        lmaxu,vorb,eorbi)
+              call ldau(100+idu(l+1),l,iblu,uh(l+1),jh(l+1),dmatu,nsp,lmaxu,vorb,eorbi)
               eorb = eorb + eorbi
             endif
           enddo
         endif
       enddo
 C --- LDA total energy terms ---
-      write(stdo,ftox)' eks =',eks,'e[U] =',ftof(eorb),'Etot(LDA+U) =',ftof(eks+eorb)
-      if (master_mpi .and. ipl.gt.0)
-     .write (stdl,720) eks,eorb,eks+eorb
-  720 format('ldau EHK ',f14.6,'  U',f12.6,'  ELDA+U ',f14.6)
-
+      write(stdo,ftox)' eks =',ftof(eks),'e[U] =',ftof(eorb),'Etot(LDA+U) =',ftof(eks+eorb)
+      if(master_mpi) write (stdl,ftox) 'ldau EHK',ftof(eks),'U',ftof(eorb),'ELDA+U',ftof(eks+eorb)
 C --- Restore dmatu, vorb to harmonics specified by idvsh ---
-      if (havesh .ne. idvsh) then
-        call rotycs(2*idvsh-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
-        call rotycs(2*idvsh-1,vorb,nbas,nsp,lmaxu,sspec,ssite,lldau)
+      if (havesh .ne. idvsh) then !1/=0
+        call rotycs(2*idvsh-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau) !-1, from sh to rh idvsh=0
+c        call rotycs(2*idvsh-1,vorb,nbas,nsp,lmaxu,sspec,ssite,lldau)
         havesh = idvsh
       endif
-C --- Case self-consistent within tolerance tolu ---
-      if (ddmat .lt. tolu) then
-        write(stdo,ftox)' LDA+U dmatu converged'//
-     .  '  RMS diff ',ftof(ddmat,8),'< tolu',ftof(tolu,8)
-C       Restore dmatuo to dmatu
-        call dcopy(2*ivsiz,dmatuo,1,dmatu,1)
-        return
+cC --- Case self-consistent within tolerance tolu ---
+c      if (ddmat .lt. tolu) then
+c        write(stdo,ftox)' LDA+U dmatu converged RMS diff ',ftof(ddmat,8),'< tolu',ftof(tolu,8)
+cC       Restore dmatuo to dmatu
+c        call dcopy(2*ivsiz,dmatuo,1,dmatu,1)
+c        return
 C --- Case not self-consistent ---
-      else
-        write(stdo,*) '    LDA+U update density matrix ...'
-        write(stdo,ftox)'RMS diff in densmat',ddmat,' > tolu',tolu,
-     .  ' Linear mix with beta=',umix
+c      else
+        write(stdo,*)   ' LDA+U update density matrix ...'
+        write(stdo,ftox)' RMS diff in densmat',ftod(ddmat) !,'>tolu',ftod(tolu),' Linear mix with beta=',ftom(umix)
 C   ... Make new dmatu by mixing    new*umix + old*(1-umix)
-        call dscal(2*ivsiz,umix,dmatu,1)
-        call daxpy(2*ivsiz,1-umix,dmatuo,1,dmatu,1)
+        dmatu = dmatu+(1d0-umix)*dmatuo
+c        call dscal(2*ivsiz,umix,dmatu,1)
+c        call daxpy(2*ivsiz,1-umix,dmatuo,1,dmatu,1)
 C   --- Make Vorb from mixed dmatu ---
 C       This block requires dmatu to be in spherical harmonics
         if (havesh .ne. 1) then
-          call rotycs(1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
+          call rotycs(1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau) !from rh to sh
           havesh = 1
-       endif
+        endif
        
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccc   
 c$$$!! experimental block to keep magnetic moment for AF.
@@ -224,7 +216,7 @@ c$$$          enddo
 c$$$
 c$$$       endif
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-       
+        vorb=1d99
         iblu = 0
         do  ib = 1, nbas
           if (lldau(ib) .ne. 0) then
@@ -250,18 +242,16 @@ c$$$                if(.not.mmtargetx) uhx = uh(l+1)
 C   ... Symmetrize vorb to check (symdmu requires real harmonics)
         allocate(dmwk_zv(ivsiz))
         dmwk_zv(:)=0.0d0
-        call rotycs(-1,vorb,nbas,nsp,lmaxu,sspec,ssite,lldau)
+        call rotycs(-1,vorb,nbas,nsp,lmaxu,sspec,ssite,lldau) !vorb from sh to rh
         call symdmu ( vorb , dmwk_zv , nbas , nsp , lmaxu , sspec 
      .  , ssite , ng , g , istab , lldau , xx )
-        call rotycs(1,vorb,nbas,nsp,lmaxu,sspec,ssite,lldau)
+        call rotycs(1,vorb,nbas,nsp,lmaxu,sspec,ssite,lldau) !vorb from rh to sh
         if (allocated(dmwk_zv)) deallocate(dmwk_zv)
 
 !! ==>  At this point, dmatu and vorb are in spherical harmonics
 
-        if(Iprint()>20) write(6,"(a,f9.4)")
-     &    '  RMS change in vorb from symmetrization =',xx
-        if(xx>.0001d0.and.iprint()>30)
-     &   write(6,'(a)')' (warning) RMS change unexpectely large'
+        if(Iprint()>20) write(6,"(a,f9.4)")'  RMS change in vorb from symmetrization =',xx
+        if(xx>.0001d0.and.iprint()>30) write(6,'(a)')' (warning) RMS change unexpectely large'
         call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite, ' Mixed dmats',dmatu)
         call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite, ' New vorb',vorb)
 !! Write dmatu to file
@@ -273,12 +263,13 @@ C   ... Symmetrize vorb to check (symdmu requires real harmonics)
         endif
 !! Exit with dmatu, vorb in real harmonics, depending on idvsh
         if (idvsh .eq. 0) then
-          call rotycs(-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
+          call rotycs(-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau) !from sh to rh
           call rotycs(-1,vorb,nbas,nsp,lmaxu,sspec,ssite,lldau)
-          call praldm(0,60,60,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,' Mixed dmats',dmatu)
-          call praldm(0,60,60,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,' New vorb',vorb)
+          havesh=0 !I recovered this 2022May8
+          call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,' Mixed dmats',dmatu)
+          call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,' New vorb',vorb)
         endif
-      endif
+c      endif
       end subroutine chkdmu
 
 

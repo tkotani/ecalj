@@ -116,11 +116,9 @@ C ... Passed parameters
         enddo
       else
         if(sharm .eq. 0) then
-          strnl = strn // ' l=%i'//'%?#n#%-1j  site %i##'//
-     .    '%?#(n>0)#  spin %i##, real harmonics'
+          strnl = strn // ' real harmonics'
         else
-          strnl = strn // ' l=%i'//'%?#n#%-1j  site %i##'//
-     .    '%?#(n>0)#  spin %i##, spherical harmonics'
+          strnl = strn // ' spherical harmonics'
         endif 
 C       Header: printout l, ib (if ib>0), spin (if nsp=2, ipr2>=ipr)
         do  isp = 1, nsp
