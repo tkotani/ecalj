@@ -115,7 +115,7 @@
             endif
 !     ! Add to save file; decide on next iteration ---
             if (maxit<=0) goto 9998
-            etot(1) = ham_ehf
+            etot(1) = ham_ehf 
             etot(2) = ham_ehk + eorb !eorb by LDA+U
             seref   = ham_seref !   ... reference energy
             etot(1) = etot(1) - seref

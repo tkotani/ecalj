@@ -1,4 +1,4 @@
-      subroutine symdmu(dmatu,dmatw,nbas,nsp,lmaxu,sspec,ssite,ng,g,
+      subroutine symdmu(nlibu,dmatu,nbas,nsp,lmaxu,sspec,ssite,ng,g,!dmatw,
      .istab,lldau,rms)
       use m_struc_def  
 C- Symmetrize LDA+U density matrix dmatu
@@ -42,8 +42,8 @@ C--------------------------------------------------------------
       implicit none
 C ... Passed parameters
       integer nbas,lldau(nbas),ng,nsp,lmaxu,istab(nbas,ng),i_copy_size
-      double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
-      double complex dmatw(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
+      double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
+      double complex dmatw(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
 
@@ -59,7 +59,7 @@ C ... for spinor rotations
 c      double precision eula(3),ddet33,xx
 c      double complex u(2,2,ng)
       character *40 str
-
+      dmatw=0d0
       rms = 0
       if (cmdopt0('--nosymdm') .or. ng .eq. 0) return
 
