@@ -320,16 +320,22 @@ c      integer,allocatable:: igv2(:,:)
                   enddo
                enddo
             enddo
-!     radial integral
-            if(cmdopt0('--radialintegral')) then
-
-
-
+c!     radial integral
+c            if(cmdopt0('--radialintegral')) then
                
-            endif   
+c            do l = 0, lmaxa
+c            do i = 1, nsp
+c               call gintxx(gval(1:nr,1,l,3,i),gval(1:nr,1,l,3,i),a,b,nr,sum1)
+c               write(6,ftox)'ggggg',ibas,l,i,sum1
+c            enddo
+c            enddo
+               
+c            endif   
             deallocate(rofi,rwgt,gcore,gval)
          endif
       enddo
+c      if(cmdopt0('--radialintegral')) call rx0('end of radial integral')
+      
       if(master_mpi) then
          write(ifigwa) iantiferro(1:nat) !iantiferro may2015
          close(ifigwa)
