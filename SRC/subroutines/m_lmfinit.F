@@ -1063,7 +1063,7 @@ c BZ_EF0, BZ_DELEF removed. !c!! remove writing ZBAK file here. (Write ZBAK file
      &    'Tolerance in energy change from prior iteration for self-consistency')
          nm='ITER_CONVC'; call gtv(trim(nm),tksw(prgnam,nm),qtol,
      .        def_r8=1d-4,note='Tolerance in output-input charge for self-consistency')
-         nm='ITER_UMIX';call gtv(trim(nm),tksw(prgnam,nm),mix_umix,def_r8=1d0,note='Mixing parameter for densmat in LDA+U')
+         nm='ITER_UMIX';call gtv(trim(nm),tksw(prgnam,nm),mix_umix,def_r8=.5d0,note='Mixing parameter for densmat in LDA+U') !2022mar9 default umix=0.5
          nm='ITER_TOLU';call gtv(trim(nm),tksw(prgnam,nm),mix_tolu,def_r8=0d0,note='Tolerance for densmat in LDA+U')
       endif                     ! iterations category
 !! Dynamics (relaxation)---

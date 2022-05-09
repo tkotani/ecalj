@@ -42,14 +42,7 @@ C ... Local parameters
       double precision ehf1,ehk1,diffe,sev
       character flg*1
       save ehf1,ehk1
-
       character*255:: formatc(903:904),lbll
-
-Changenglob      stdo = nglob('stdo')
-c      stdo = globalvariables%stdo
-Changenglob      nsp  = nglob('nsp')
-c      nsp  = globalvariables%nsp
-C     Assume not self-consistent
       call tcn('nwit')
       lsc = 3
       more = .true.
@@ -58,8 +51,6 @@ C     Assume not self-consistent
         more = .false.
       endif
       if (lhf) lsc = 2
-
-
 C --- Decide whether to iterate on ---
 c  903 format(/  ' it',i4,'  of',i4,'    ehf=',f15.6:'   ehk=',f15.6)
 c  904 format(/'   it',i3,'  of',i3,'    ehf=',f15.6:'   ehk=',f15.6)
@@ -68,7 +59,6 @@ c  904 format(/'   it',i3,'  of',i3,'    ehf=',f15.6:'   ehk=',f15.6)
       lbl=904 !assign 904 to lbl
       if (maxit .gt. 999 .or. iter .gt. 999) lbl=903 !assign 903 to lbl
       lbll=formatc(lbl)
-
       if (mod(lhk,10) .eq. 1) write(stdo,trim(lbll)) iter,maxit,etot(1),etot(2)
       if (mod(lhk,10) .eq. 0) write(stdo,trim(lbll)) iter,maxit,etot(1)
       if (iter .gt. 1 .or. etol .eq. 0) then
@@ -97,7 +87,6 @@ C       write(lgunit(2),907) diffe,qdiff,etol,qtol
      .  /' diffe(q)=',f10.6,' (',f8.6,')',
      .  '    tol=',f9.6,' (',f8.6,')','   more=',l1)
   907   format(16x,'rms dq=',f10.6,8x,'tol=',f9.6,'   more=',l1)
-
       endif
 
 C ... Save for future iterations
@@ -112,6 +101,7 @@ C --- Write out to save file --
 
       subroutine nwitsv(iflst,nvario,flg,nsp,amom,etot,sev)
       use m_ext,only:      sname
+      use m_chkdmu,only:  eorb
 C- Write to save file
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -147,12 +137,14 @@ C ... Local parameters
         xv(i) = amom
         sout=trim(sout)//',mmom '
       endif
-      if (etot(1) .ne. 0) then
+      if(eorb==0) then
+      if (etot(1).ne.0d0) then
         i = i+1
         xv(i) = etot(1)*rydberg()
         sout=trim(sout)//',ehf(eV) '
       endif
-      if (etot(2) .ne. 0) then
+      endif
+      if (etot(2) .ne. 0d0) then
         i = i+1
         xv(i) = etot(2)*rydberg()
         sout=trim(sout)//',ehk(eV) '

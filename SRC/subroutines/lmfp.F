@@ -115,11 +115,13 @@
             endif
 !     ! Add to save file; decide on next iteration ---
             if (maxit<=0) goto 9998
-            etot(1) = ham_ehf 
+            etot(1) = ham_ehf        ! etot(1) is not the total energy when LDA+U
+                                     ! because vefv1,vefv2 do not include U contributions
             etot(2) = ham_ehk + eorb !eorb by LDA+U
             seref   = ham_seref !   ... reference energy
             etot(1) = etot(1) - seref
             if (etot(2)/=0) etot(2) = etot(2) - seref
+            !
             flush(6)
             call mpi_barrier(MPI_COMM_WORLD,ierr)
             if(master_mpi) then

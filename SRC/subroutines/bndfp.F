@@ -18,8 +18,9 @@
 !  evlall  : eigenvalues
 !  eferm   : Fermi energy
 !  sev     : sum of band energy     
-!     eksham   : DFT(Kohn-Sham)  total energy
-!     eharris  : Harris foulkner total energy      
+!     eksham   : DFT(Kohn-Sham)  total energy 
+!     eharris  : Harris foulkner total energy.
+!        eharris is not correct for LDA+U case (valv locpot2 do not include U contribution).
       module m_bndfp
       use m_ftox
       use m_density,only: orhoat,osmrho !input/output unprotected
@@ -371,7 +372,6 @@ c        if(lfrce>0 ) call dfrce (lfrce,orhoat,orhoat_out,elind,qmom,osmrho,smrh
 !!   ... Evaluate KS total energy and output magnetic moment
         eksham = 0d0
         if(leks>=1) then
-c           call togpr()
            call mkekin(sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,osmpot,smrho_out,sev,  sumtv)
            call m_mkpot_energyterms(smrho_out, orhoat_out) !qmom is revised for given orhoat_out
            if(cmdopt0('--density')) then
@@ -379,7 +379,6 @@ c           call togpr()
               call rx0('end of --density mode')
            endif  
            call m_mkehkf_etot2(sev,sumtv, eksham) 
-c           call togpr()
         endif
 !! --- Add together force terms ---
 !! fes1_rv: contribution to HF forces from estat + xc potential
