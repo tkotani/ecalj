@@ -347,63 +347,63 @@ C --- Read in dmatu if file  dmats.ext  exists ---
               enddo
             endif
           enddo
-c        else
-c           dmatu=0d0 !0 at LDA 
-c        endif   
-c      endif   
         else
-          inquire(file='occnum.'//trim(sname),exist=occe)
-          if(occe) then !if no occunum.* initial dmatu=0 
-             write(stdo,*) ' sudmtu:  initial (diagonal) density-matrix from occ numbers'
-             open(newunit=foccn,file='occnum.'//trim(sname))
-             havesh = 1
- 12          if (.not. rdstrn(foccn,str,len(str),.false.)) goto 99
-             if (str(1:1) .eq. '#') goto 12
-             if (str(1:1) .eq. '%') then
-                i = 0
-                if (parstr(str,'real ',len(str)-5,4,' ',i,m)) havesh = 0
-             else
-                backspace foccn
-             endif
-             iblu = 0
-             do  ib = 1, nbas
-                if (lldau(ib) .ne. 0) then
-                   is = int(ssite(ib)%spec)
-                   lmxa=sspec(is)%lmxa
-                   idu=sspec(is)%idu
-                   do l = 0,min(lmxa,3)
-                      if (idu(l+1) .ne. 0) then
-                         iblu = iblu+1
-                         do  isp = 1, 2
- 11                         continue
-                            if (.not. rdstrn(foccn,str,len(str),.false.)) goto 99
-C     Skip comment lines
-                            if (str(1:1) .eq. '#') goto 11
-                            i = 0
-                            m = a2vec(str,len(str),i,4,', ',2,3,2*l+1,iv,nocc(-l,isp))
-                            if (m .lt. 0) goto 99
-                         enddo
-                         do isp=1,2
-                            write(stdo,ftox)' occ num: site',ib,'l',l,'isp',isp,' ',nocc(-l:l,isp)
-                         enddo   
-                         do isp = 1, 2
-                         do m = -l, l
-                         do m2 = -l, l
-                            dmatu(m,m2,isp,iblu) = dcmplx(0d0,0d0)
-                         enddo
-                            dmatu(m,m,isp,iblu) = dcmplx(nocc(m,isp),0d0)
-                         enddo
-                         enddo
-                      endif
-                   enddo
-                endif
-             enddo
-             close(foccn) !call fclose(foccn)
-          else
-             dmatu=0d0
-          endif
-        endif
-      endif
+           dmatu=0d0 !0 at LDA 
+        endif   
+      endif   
+c$$$        else
+c$$$          inquire(file='occnum.'//trim(sname),exist=occe)
+c$$$          if(occe) then !if no occunum.* initial dmatu=0 
+c$$$             write(stdo,*) ' sudmtu:  initial (diagonal) density-matrix from occ numbers'
+c$$$             open(newunit=foccn,file='occnum.'//trim(sname))
+c$$$             havesh = 1
+c$$$ 12          if (.not. rdstrn(foccn,str,len(str),.false.)) goto 99
+c$$$             if (str(1:1) .eq. '#') goto 12
+c$$$             if (str(1:1) .eq. '%') then
+c$$$                i = 0
+c$$$                if (parstr(str,'real ',len(str)-5,4,' ',i,m)) havesh = 0
+c$$$             else
+c$$$                backspace foccn
+c$$$             endif
+c$$$             iblu = 0
+c$$$             do  ib = 1, nbas
+c$$$                if (lldau(ib) .ne. 0) then
+c$$$                   is = int(ssite(ib)%spec)
+c$$$                   lmxa=sspec(is)%lmxa
+c$$$                   idu=sspec(is)%idu
+c$$$                   do l = 0,min(lmxa,3)
+c$$$                      if (idu(l+1) .ne. 0) then
+c$$$                         iblu = iblu+1
+c$$$                         do  isp = 1, 2
+c$$$ 11                         continue
+c$$$                            if (.not. rdstrn(foccn,str,len(str),.false.)) goto 99
+c$$$C     Skip comment lines
+c$$$                            if (str(1:1) .eq. '#') goto 11
+c$$$                            i = 0
+c$$$                            m = a2vec(str,len(str),i,4,', ',2,3,2*l+1,iv,nocc(-l,isp))
+c$$$                            if (m .lt. 0) goto 99
+c$$$                         enddo
+c$$$                         do isp=1,2
+c$$$                            write(stdo,ftox)' occ num: site',ib,'l',l,'isp',isp,' ',nocc(-l:l,isp)
+c$$$                         enddo   
+c$$$                         do isp = 1, 2
+c$$$                         do m = -l, l
+c$$$                         do m2 = -l, l
+c$$$                            dmatu(m,m2,isp,iblu) = dcmplx(0d0,0d0)
+c$$$                         enddo
+c$$$                            dmatu(m,m,isp,iblu) = dcmplx(nocc(m,isp),0d0)
+c$$$                         enddo
+c$$$                         enddo
+c$$$                      endif
+c$$$                   enddo
+c$$$                endif
+c$$$             enddo
+c$$$             close(foccn) !call fclose(foccn)
+c$$$          else
+c$$$             dmatu=0d0
+c$$$          endif
+c$$$        endif
+c$$$      endif
  1185 continue
 
 C ... Initial printout
