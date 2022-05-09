@@ -320,6 +320,9 @@ c      integer,allocatable:: igv2(:,:)
                   enddo
                enddo
             enddo
+c!     radial integral
+c            if(cmdopt0('--radialint')) then
+               
             deallocate(rofi,rwgt,gcore,gval)
          endif
       enddo

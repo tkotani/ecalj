@@ -74,24 +74,21 @@ c      complex(8) :: dmwk_zv(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
       complex(8):: dmatuav(-lmaxu:lmaxu,-lmaxu:lmaxu)
       real(8):: sss(1),sigin
       real(8):: fac
-C     print *, 'dmatu',dmatu(-lmaxu,-lmaxu,1,1)
-C     call rx0('done')
-C     call prmx('dmatu',dmatu,2*lmaxu+1,2*lmaxu+1,2*lmaxu+1)
       if (nlibu .eq. 0) return
-      havesh = idvsh !=0   We assume real harmonics for i/o
+      havesh =0
+      idvsh  =0  ! We assume real harmonics for i/o
       ipl = 1
       ivsiz = nsp*nlibu*(lmaxu*2+1)**2
-      write(stdo,*)' chkdmu:  check LDA+U density-matrix for convergence and update ...'
 C --- Symmetrize output dmatu (req. real harmonics); compare diff ---
       if(iprint()>=60) call praldm(0,60,60,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,
      .' Unsymmetrized output dmats',dmatu)
       call symdmu(nlibu,dmatu, nbas,nsp, lmaxu, sspec, ssite, ng, g, istab, lldau, xx)
       ddmat = dsqrt(ddot(2*ivsiz,dmatu-dmatuo,1,dmatu-dmatuo,1)/(2*ivsiz))
-      write(stdo,ftox)' chkdmu: RMS change in dmat from symmetrization =',ftof(xx)
+      if(master_mpi)write(stdo,ftox)' chkdmu: LDA+U. RMSdiff of dmat from symmetrization =',ftod(xx,2)
+      
 C --- Compute U contribution to total energy; make vorb ---
       call rotycs(1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau) !mode=1, dmatu is from rh to sh 
       havesh = 1
-      write(stdo,*)'    LDA+U total energy ...'
       eorb = 0
       iblu = 0
       do  ib = 1, nbas
@@ -112,20 +109,18 @@ C --- Compute U contribution to total energy; make vorb ---
         endif
       enddo
 C --- LDA total energy terms ---
-      write(stdo,ftox)' eks =',ftof(eks),'e[U] =',ftof(eorb),'Etot(LDA+U) =',ftof(eks+eorb)
+      if(iprint()>=60) write(stdo,ftox)' eks =',ftof(eks),'e[U] =',ftof(eorb),'Etot(LDA+U) =',ftof(eks+eorb)
       if(master_mpi) write (stdl,ftox) 'ldau EHK',ftof(eks),'U',ftof(eorb),'ELDA+U',ftof(eks+eorb)
-C --- Restore dmatu, vorb to harmonics specified by idvsh ---
-      if (havesh .ne. idvsh) then !1/=0
-        call rotycs(2*idvsh-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau) !-1, from sh to rh idvsh=0
-        havesh = idvsh
-      endif
-      write(stdo,*)   ' LDA+U update density matrix ...'
-      write(stdo,ftox)' RMS diff in densmat',ftod(ddmat) !,'>tolu',ftod(tolu),' Linear mix with beta=',ftom(umix)
+      
+C --- Restore dmatu, vorb to real harmonics 
+      call rotycs(-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau) !-1, from sh to rh idvsh=0
+      havesh = 0
+      if(master_mpi)write(stdo,ftox)' LDA+U update density matrix ...'
+      if(master_mpi)write(stdo,ftox)' RMS diff in densmat',ftod(ddmat) 
       dmatu = dmatu+(1d0-umix)*dmatuo ! new*umix + old*(1-umix)
-      if (havesh .ne. 1) then
-         call rotycs(1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau) !from rh to sh
-         havesh = 1
-      endif
+      call rotycs(1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau) !from rh to sh
+      havesh = 1
+      
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccc   
 c$$$!! experimental block to keep magnetic moment for AF.
 c$$$       inquire(file='mmtarget.aftest',exist=mmtargetx)
@@ -205,10 +200,11 @@ c$$$  if(.not.mmtargetx) uhx = uh(l+1)
             enddo
          endif
       enddo
-C     ... Symmetrize vorb to check (symdmu requires real harmonics)
+C  ... Symmetrize vorb to check (symdmu requires real harmonics)
       call rotycs(-1,vorb,nbas,nsp,lmaxu,sspec,ssite,lldau) !vorb from sh to rh
       call symdmu(nlibu,vorb,nbas , nsp , lmaxu , sspec, ssite , ng , g , istab , lldau , xx )
       call rotycs(1,vorb,nbas,nsp,lmaxu,sspec,ssite,lldau) !vorb from rh to sh
+      
 !!=>  At this point, dmatu and vorb are in spherical harmonics
       if(Iprint()>20) write(6,"(a,f9.4)")'  RMS change in vorb from symmetrization =',xx
       if(xx>.0001d0.and.iprint()>30) write(6,'(a)')' (warning) RMS change unexpectely large'
@@ -216,13 +212,13 @@ C     ... Symmetrize vorb to check (symdmu requires real harmonics)
       call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite, ' New vorb',vorb)
       if (master_mpi) then
          idmat = ifile_handle()
-         open(idmat,file='dmats.'//trim(sname))
+         open(idmat,file='dmats.'//trim(sname)) !havesh mush be 1
          call praldm(idmat,0,0,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,' mixed dmats',dmatu)
          close(idmat)
       endif
 !! write in real harmonics      
       call rotycs(-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau) !from sh to rh
-      call rotycs(-1,vorb,nbas,nsp,lmaxu,sspec,ssite,lldau)
+      call rotycs(-1,vorb,nbas,nsp,lmaxu,sspec,ssite,lldau)  !from sh to rh
       havesh=0                  !I recovered this 2022May8
       call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,' Mixed dmats',dmatu)
       call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,' New vorb',vorb)

@@ -1,5 +1,8 @@
       subroutine ldau(vrsion,l,iblu,UH,JH,dmatu,nsp,lmaxu,vorb,Eorb)
+      use m_lmfinit,only:stdo
+      use m_ftox
       intent(out)                                         vorb,Eorb
+      intent(in)      vrsion,l,iblu,UH,JH,dmatu,nsp,lmaxu
 C- Makes Vorb and Eorb from dmatu for given site and l
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -28,26 +31,19 @@ Cu   27 Apr 05 Lambrecht first created
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer l,iblu,nsp,lmaxu,vrsion
+      integer l,iblu,nsp,lmaxu,vrsion,iprint
       double precision UH,JH,Eorb
       double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,iblu)
       double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,iblu)
-C ... Local parameters
       integer m1,m2,ii,isp,lvrs,lnov
       double precision aaa,num(2),aven(2),nnum,bot
       double precision E1,E2
       double complex Vorb1(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,iblu)
       double complex Vorb2(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,iblu)
       double complex den1(-3:3,-3:3),den2(-3:3,-3:3)
-C      integer stdo,nglob
-C      stdo = nglob('stdo')
-
       lvrs = mod(vrsion,100)
       lnov = mod(vrsion/100,10)
-      call info2(30,0,0,' ldau:   version = %i  iblu = %i',lvrs,iblu)
-
-C     call prmx('dmatu, spin 1',dmatu,2*lmaxu+1,2*lmaxu+1,2*lmaxu+1)
-
+      if(iprint()>0) write(stdo,ftox)' ldau: version(See ldau.F)= ',lvrs,'iblu=', iblu
 c see Petukhov et al. PRB 67, 153106 (2003) construct aaa=alpha mixing
 C of two ldau versions eq. 5
       if (lvrs .eq. 3) then
