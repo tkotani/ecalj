@@ -37,7 +37,7 @@ C ----------------------------------------------------------------------
       integer nbas,nsp,lldau(nbas),ifi,lmaxu,ipr1,ipr2,sharm,i_copy_size
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
-      real(8)::   dmatu(2,-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,iblu)
+      real(8)::   dmatu(2,-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
       character strn*(*)
       integer iblu,ib,is,igetss,lmxa,idu(4),l
       iblu = 0

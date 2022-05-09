@@ -3,57 +3,38 @@
       real(8),protected,public:: eorb=0d0
       public:: chkdmu,sudmtu
       private
+      
       contains
-      subroutine chkdmu(eks, dmatu,dmatuo,vorb) !,tolu,umix)
+      subroutine chkdmu(eks, dmatu,dmatuo,vorb)
       use m_struc_def,only: s_site,s_spec
       use m_lmfinit,only: stdl,nbas,nsp,nlibu,lmaxu,ssite=>v_ssite,sspec=>v_sspec,lldau,
      &     tolu=>mix_tolu,umix=>mix_umix,stdo
       use m_MPItk,only: master_mpi
       use m_mksym,only: g=>rv_a_osymgr,istab=>iv_a_oistab, ng =>lat_nsgrp
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
-C- LDA+U total energy and mixing of lda+U density matrix
+      implicit none
+      intent(in)::       eks,       dmatuo
+      intent(out)::                        vorb
+! LDA+U potential vorb and total energy eorb.
 C ----------------------------------------------------------------------
 Ci Inputs
-Ci   nbas  :size of basis
 Ci   nsp   :2 for spin-polarized case, otherwise 1
-Ci   nlibu
+Ci   nlibu: number of U blocks
 Ci   lmaxu :dimensioning parameter for U matrix
-Ci   ssite :struct for site-specific information; see routine usite
-Ci     Elts read: spec
-Ci     Stored: *
-Ci     Passed to: symdmu rotycs
-Ci   sspec :struct for species-specific information; see routine uspec
-Ci     Elts read: lmxa idu uh jh
-Ci     Stored: *
-Ci     Passed to: symdmu rotycs
-Ci   idvsh :0 dmatu, dmatuo, vorb input/output in real harmonics
-Ci         :xxxx1 dmatu, dmatuo, vorb input/output in spherical harmonics
 Ci   dmatu : dmatu produced in current iteration
 Ci         : dmatu is passed in real harmonics
 Ci   dmatuo: dmatu produced in prior iteration
 Ci         : dmatuo is passed in real harmonics
-Ci   tolu  :convergence tolerance density-matrix
+Cixxx   idvsh=0 dmatu, dmatuo, vorb input/output in real harmonics
 Ci   umix  :linear mixing parameter for density matrix
 Ci   lldau :lldau(ib)=0 => no U on this site otherwise
 Ci         :U on site ib with dmat in dmats(*,lldau(ib))
 Ci   ng    :number of group operations
 Ci   g     :point group operations
 Ci   istab :site istab(i,ig) is transformed into site i by grp op ig
-Cio Inputs/Outputs
 Co  vorb  :orbital dependent potential matrices
-Cl Local variables
-Cl   eorb  : U contribution to LDA+U total energy
-Cb Bugs
-Cb   This routine should not update vorb
-Cu Updates
-Cu   12 Nov 07 Works with dmatu and vorb in either real or spher. harmonics
-Cu   31 Jan 06 Printouts in spherical harmonics
-Cu   09 Nov 05 Convert dmat to complex form
-Cu   29 Oct 05 doesn't update vorb in tot. E eval; restores dmatu if conv.
-Cu    2 Jun 05 Evaluates total energy contribution from output dmatu
-Cu   27 Apr 05 Lambrecht first created
+Co  eorb  : U contribution to LDA+U total energy
 C ----------------------------------------------------------------------
-      implicit none
       integer:: ierr
       include "mpif.h"
       integer:: idvsh=0,i_copy_size
@@ -64,7 +45,6 @@ C ----------------------------------------------------------------------
       integer l,idu(4),lmxa,ib,is,iblu,igetss,idmat,ivsiz,ifile_handle
       integer iprint,ipl,havesh
       double precision ddmat,uh(4),jh(4),eorbi,eterms(20),ddot,xx
-c      complex(8) :: dmwk_zv(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
       logical:: fexist,mmtargetx,eee
       real(8),allocatable:: uhall(:,:)
       real(8):: mmsite(nbas),uhxx,mmhist(10000),uhhist(10000),mmtarget,uhdiff
@@ -85,7 +65,6 @@ C --- Symmetrize output dmatu (req. real harmonics); compare diff ---
       call symdmu(nlibu,dmatu, nbas,nsp, lmaxu, sspec, ssite, ng, g, istab, lldau, xx)
       ddmat = dsqrt(ddot(2*ivsiz,dmatu-dmatuo,1,dmatu-dmatuo,1)/(2*ivsiz))
       if(master_mpi)write(stdo,ftox)' chkdmu: LDA+U. RMSdiff of dmat from symmetrization =',ftod(xx,2)
-      
 C --- Compute U contribution to total energy; make vorb ---
       call rotycs(1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau) !mode=1, dmatu is from rh to sh 
       havesh = 1
@@ -109,8 +88,8 @@ C --- Compute U contribution to total energy; make vorb ---
         endif
       enddo
 C --- LDA total energy terms ---
-      if(iprint()>=60) write(stdo,ftox)' eks =',ftof(eks),'e[U] =',ftof(eorb),'Etot(LDA+U) =',ftof(eks+eorb)
-      if(master_mpi) write (stdl,ftox) 'ldau EHK',ftof(eks),'U',ftof(eorb),'ELDA+U',ftof(eks+eorb)
+      if(master_mpi)write(stdo,ftox)' eks =',ftof(eks),'e[U]=',ftof(eorb),'Etot(LDA+U)=',ftof(eks+eorb)
+      if(master_mpi)write(stdl,ftox)' ldau EHK',ftof(eks),'U',ftof(eorb),'ELDA+U',ftof(eks+eorb)
       
 C --- Restore dmatu, vorb to real harmonics 
       call rotycs(-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau) !-1, from sh to rh idvsh=0
@@ -206,7 +185,7 @@ C  ... Symmetrize vorb to check (symdmu requires real harmonics)
       call rotycs(1,vorb,nbas,nsp,lmaxu,sspec,ssite,lldau) !vorb from rh to sh
       
 !!=>  At this point, dmatu and vorb are in spherical harmonics
-      if(Iprint()>20) write(6,"(a,f9.4)")'  RMS change in vorb from symmetrization =',xx
+      if(Iprint()>20) write(6,ftox)'  RMS change in vorb from symmetrization =',ftod(xx)
       if(xx>.0001d0.and.iprint()>30) write(6,'(a)')' (warning) RMS change unexpectely large'
       call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite, ' Mixed dmats',dmatu)
       call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite, ' New vorb',vorb)
@@ -223,7 +202,7 @@ C  ... Symmetrize vorb to check (symdmu requires real harmonics)
       call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,' Mixed dmats',dmatu)
       call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,' New vorb',vorb)
       end subroutine chkdmu
-
+!ssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine sudmtu(dmatu,vorb)
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
       use m_lmfinit,only: nbas,nsp,nlibu,lmaxu,lldau,ssite=>v_ssite,sspec=>v_sspec,stdo
