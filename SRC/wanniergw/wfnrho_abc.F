@@ -98,7 +98,7 @@ cccccccccccccc
       end subroutine calc_phiall_abc2
 ccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine calc_augregion_abc(n1,n2,n3,augregion)
-      use m_DATA4GW,only: bb,nr,aa,alat,iclass,nclass,bas,nbas,plat
+      use m_lmf2gw,only: bb,nr,aa,alat,iclass,nclass,bas,nbas,plat
 c      use m_genallcf_v3,only: nbas=>natom, bas=>pos,plat
       implicit none
 c input
@@ -161,7 +161,7 @@ ccccccccccccccccccccccccccccccccccccc
       subroutine calc_eikreikT_abc(kvec,mesh,
      &                           augregion,eikr,eikT)
 c      use m_LMTO
-      use m_DATA4GW,only: bb,nr,aa,alat,nsp,plat
+      use m_lmf2gw,only: bb,nr,aa,alat,nsp,plat
       implicit none
 c input
       double precision :: kvec(3)
@@ -221,7 +221,7 @@ ccccccccccccccccccccccccccccccccccccc
      &     augregion,
      o     phipwtmp,phiaugtmp)
       use m_QG,only:ngvecp,ngp
-      use m_DATA4GW,only:mnla,iclass,nbas,bas,plat,alat
+      use m_lmf2gw,only:mnla,iclass,nbas,bas,plat,alat
 c      use m_genallcf_v3,only: nbas=>natom, bas=>pos,plat,alat
       implicit none
       integer :: isp,iq,npw(3),mesh(3),ngpmx,ldim2 !,iband
@@ -354,7 +354,7 @@ cccccccccccccccccccccccccccccccccccc
       subroutine calc_rho_abc(alat_ang,nq_wfn,nband_wfn,mesh,
      &   phipw,phiaug,phitot)
 c      use m_LMTO
-      use m_DATA4GW,only: bb,nr,aa,alat,nsp,plat
+      use m_lmf2gw,only: bb,nr,aa,alat,nsp,plat
       implicit none
 c input
       integer :: nq_wfn,nband_wfn,mesh(3)

@@ -1,7 +1,7 @@
 #!/bin/bash 
 # ---------------------------------------------------------
-# QP self-consistent GW itteration using MPI. Using run_arg2
-### you may need to set echo_run and serial_run in /run_arg2 for cray machine
+# QP self-consistent GW itteration using MPI. Using run_arg
+### you may need to set echo_run and serial_run in /run_arg for cray machine
 # ---------------------------------------------------------
 
 if [ $# -ne 4 ] || [ $2 != "-np" ] ; then
@@ -16,8 +16,8 @@ NO_MPI=0
 ITER=$1
 lx0_para_option=""  #set lx0_para_option='-nq 4 -ns 1'
 
-### Read funcitons run_arg2 and run_arg2_tee defined in a file run_arg2 ###
-source $nfpgw/run_arg2 #define echo_run and serial_run in run_arg2
+### Read funcitons run_arg and run_arg_tee defined in a file run_arg ###
+source $nfpgw/run_arg #define echo_run and serial_run in run_arg
 
 $echo_run echo "### START gwsc: ITER= "$ITER, "MPI size= " $MPI_SIZE, "TARGET= "$TARGET
 
@@ -64,59 +64,58 @@ do
 	fi   
 	$echo_run echo "No sigm ---> LDA caculation for eigenfunctions "
 	rm -f llmf
-	run_arg2 '---' $MPI_SIZE $nfpgw          /lmf-MPIK llmf_lda $TARGET
+	run_arg '---' $MPI_SIZE $nfpgw          /lmf-MPIK llmf_lda $TARGET
 	cp rst.$TARGET rst.$TARGET.lda
     else
-	run_arg2 '---' $MPI_SIZE $nfpgw          /lmf-MPIK llmf $TARGET
+	run_arg '---' $MPI_SIZE $nfpgw          /lmf-MPIK llmf $TARGET
     fi
     rm -f ewindow.${TARGET}* qbyl.${TARGET}* eigze*.${TARGET}* mixm.${TARGET}
-    argin=0; run_arg2 $argin $NO_MPI  $nfpgw  /lmfgw-MPIK  llmfgw00 $TARGET 
-    argin=1; run_arg2 $argin $NO_MPI  $nfpgw  /qg4gw lqg4gw   #Generate requied q+G v
+    argin=0; run_arg $argin $NO_MPI  $nfpgw  /lmf-MPIK  llmfgw00 $TARGET --jobgw
+    argin=1; run_arg $argin $NO_MPI  $nfpgw  /qg4gw lqg4gw   #Generate requied q+G v
 
     ### eigenvalues for micro-tetrahedron method. Rarely used.
     # if [ -e Qmtet ]; then
     # 	mv Qmtet Qeigval 
-    # 	argin=5; run_arg2 $argin $MPI_SIZE $nfpgw /lmfgw-MPIK llmfgw_eigval $TARGET
+    # 	argin=5; run_arg $argin $MPI_SIZE $nfpgw /lmfgw-MPIK llmfgw_eigval $TARGET
     # 	mv eigval eigmtet
     # fi
-    argin=1; run_arg2 $argin $MPI_SIZE $nfpgw /lmfgw-MPIK llmfgw01 $TARGET
-    #run_arg2  '---' $NO_MPI   $nfpgw /lmf2gw     llmf2gw  #reform data for gw
-
-    mv normchk* STDOUT
+    argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmf-MPIK llmfgw01 $TARGET --jobgw
+    #run_arg  '---' $NO_MPI   $nfpgw /lmf2gw     llmf2gw  #reform data for gw
 
     ##### main stage of gw ################
-    argin=0; run_arg2 $argin $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files
-    rm gw1* gw2* gwa* gwb*
-    if [ $ix == 0 ]; then 
-	cp evec.$TARGET evec0  # used in hqpe_sc for isigma_en==5
-    fi
-    if [ -e ANFcond ]; then
-	cp EVU EVD  # This is for ANFcond. Rarely used recently
-    fi
-    argin=1; run_arg2 $argin $NO_MPI $nfpgw   /heftet leftet # A file EFERMI for hx0fp0
-#    argin=1; run_arg2 $argin $NO_MPI $nfpgw   /hchknw lchknw # A file NW, containing nw 
+    run_arg $argin $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files
+    mv norm* STDOUT
+    rm gwa gwb*
+    
+    argin=1; run_arg $argin $NO_MPI $nfpgw   /heftet leftet # A file EFERMI for hx0fp0
     ### Core part of the self-energy (exchange only) ###
-    argin=3; run_arg2 $argin $NO_MPI $nfpgw   /hbasfp0 lbasC  # Product basis generation 
-    argin=3; run_arg2 $argin $MPI_SIZE $nfpgw /hvccfp0 lvccC # Coulomb matrix for lbasC 
-    argin=3; run_arg2 $argin $MPI_SIZE $nfpgw /hsfp0_sc lsxC # Sigma from core1
+    argin=3; run_arg $argin $NO_MPI $nfpgw   /hbasfp0 lbasC  # Product basis generation 
+    argin=3; run_arg $argin $MPI_SIZE $nfpgw /hvccfp0 lvccC # Coulomb matrix for lbasC 
+    argin=3; run_arg $argin $MPI_SIZE $nfpgw /hsfp0_sc lsxC # Sigma from core1
     mv stdout* STDOUT
     ### Valence part of the self-energy Sigma ###
-    argin=0; run_arg2 $argin $NO_MPI $nfpgw   /hbasfp0 lbas # Product basis generation 
-    argin=0; run_arg2 $argin $MPI_SIZE $nfpgw /hvccfp0 lvcc # Coulomb matrix for lbas 
-    argin=1; run_arg2 $argin $MPI_SIZE $nfpgw /hsfp0_sc lsx # Exchange Sigma
+    argin=0; run_arg $argin $NO_MPI $nfpgw   /hbasfp0 lbas # Product basis generation 
+    argin=0; run_arg $argin $MPI_SIZE $nfpgw /hvccfp0 lvcc # Coulomb matrix for lbas 
+    argin=1; run_arg $argin $MPI_SIZE $nfpgw /hsfp0_sc lsx # Exchange Sigma
     mv stdout* STDOUT
     if [ -e WV.d ]; then
 	rm -f WV* 
     fi
     # following two runs are most expensive #
-    argin=11; run_arg2 $argin $MPI_SIZE $nfpgw /hx0fp0_sc lx0 $lx0_para_option #x0 part
+    #argin=11; run_arg $argin $MPI_SIZE $nfpgw /hx0init lx0init $lx0_para_option #x0 part
+    #run_arg '---' $MPI_SIZE $nfpgw /hx0zmel  lx0zmel   $lx0_para_option #x0 part
+    #run_arg '---' $MPI_SIZE $nfpgw /hrcxq    lrcxq   $lx0_para_option #x0 part
+    #run_arg '---' $MPI_SIZE $nfpgw /hhilbert lhilbert   $lx0_para_option #x0 part
+    argin=11; run_arg $argin $MPI_SIZE $nfpgw /hx0fp0_sc lx0 $lx0_para_option #x0 part
     mv stdout* STDOUT
-    argin=2;  run_arg2 $argin $MPI_SIZE $nfpgw /hsfp0_sc lsc #correlation Sigma
+    
     mv stdout* STDOUT
-    argin=0;  run_arg2 $argin $NO_MPI $nfpgw   /hqpe_sc lqpe #all Sigma are combined.
+    argin=2;  run_arg $argin $MPI_SIZE $nfpgw /hsfp0_sc lsc #correlation Sigma
+    mv stdout* STDOUT
+    argin=0;  run_arg $argin $NO_MPI $nfpgw   /hqpe_sc lqpe #all Sigma are combined.
     $echo_run echo -n 'OK! --> '
     ### final part of iteration loop. Manupulate files ###
-    cp evec.$TARGET evec_prev_iter
+    #cp evec.* evec_prev_iter
     ln -s -f sigm sigm.$TARGET
     mv SEX* SEC* XC* SEBK
     for file in sigm QPU QPD TOTE.UP TOTE.DN lqpe lsc lsx lx0 llmfgw01 evecfix.chk llmf ESEAVR 
@@ -127,7 +126,7 @@ do
     done
     if [ $ix == 0 ] && [ ${ITER} != 0 ]; then
 	mkdir RUN0
-	run_arg2 '---' $MPI_SIZE $nfpgw           /lmf-MPIK llmf_oneshot $TARGET
+	run_arg '---' $MPI_SIZE $nfpgw           /lmf-MPIK llmf_oneshot $TARGET
 	cp ctrl.$TARGET rst.$TARGET sigm.$TARGET llmf_oneshot save.$TARGET RUN0
     fi
 
@@ -139,7 +138,7 @@ done
 ################## end of loop #######################
 
 ### finally we have llmf_gwscend ###
-run_arg2 '---' $MPI_SIZE $nfpgw             /lmf-MPIK llmf_gwscend.${ITER} $TARGET
+run_arg '---' $MPI_SIZE $nfpgw             /lmf-MPIK llmf_gwscend.${ITER} $TARGET
 rm -f ewindow.${TARGET}* qbyl.${TARGET}* eigze*.${TARGET}* _IN_
 if [ ${ITER} == 0 ]; then
     mkdir RUN0

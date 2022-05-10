@@ -43,10 +43,10 @@ set -x
 $nfpgw/lmfa  $MATERIAL >& llmfa 
 mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK  $MATERIAL >& llmf_start
 rm -f ewindow.${MATERIAL}* qbyl.${MATERIAL}* eigze*.${MATERIAL}* # remove temporaly files.
-$nfpgw/lmfgw-MPIK --job=0 $MATERIAL >& llmfgw00 
+$nfpgw/lmf-MPIK --job=0 --jobgw $MATERIAL >& llmfgw00 
 $nfpgw/qg4gw  --job=1 >&   lqg4gw  
-mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK --job=1 $MATERIAL >& llmfgw01 
-$nfpgw/lmf2gw  >&   llmf2gw 
+mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK --job=1 --jobgw $MATERIAL >& llmfgw01 
+#$nfpgw/lmf2gw  >&   llmf2gw 
 ##### GW related part (up to preparation of MPB) ###########
 $nfpgw/rdata4gw_v2 --job=0 >& lrdata4gw_v2 # Prepare all files for GW
 $nfpgw/heftet --job=1 >& leftet # A file EFERMI for hx0fp0 generated
@@ -83,7 +83,7 @@ echo 2| $nfpgw/hmaxloc >& lmaxloc2  #(band plot data are generated.)
 
 #### dipole part ####
 $nfpgw/qg4gw  --job=1 --allqbz >&   lqg4gwdipole  
-mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK --job=1 --dipolematrix --socmatrix $MATERIAL >& llmfgw01dipole
+mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK --jobgw --job=1 --dipolematrix --socmatrix $MATERIAL >& llmfgw01dipole
 $nfpgw/hdipole >& ldipole
 exit
 

@@ -85,8 +85,8 @@ Cr         3 float to natural center of band (C parameter)
 c      character(8)   ::   clabel !labelling class
       integer   ::   class !class index
       real(8)   ::   force(3) !force   force (dynamics)
-      real(8) , allocatable ::  rv_a_ov0 (:)!pointer to potential that defines wave functions
-      real(8) , allocatable ::  rv_a_ov1 (:)!pointer to spherical part of MT potential
+      real(8) , allocatable ::  rv_a_ov0(:)!pointer to potential that defines wave functions
+      real(8) , allocatable ::  rv_a_ov1(:)!pointer to spherical part of MT potential
       real(8)   ::   pnu(n0,2)!log derivative parameter
       real(8)   ::   pos(3) !true coordinates of atom
       real(8)   ::   pos0(3) !coordinates of atom before distortion

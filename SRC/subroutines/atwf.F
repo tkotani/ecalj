@@ -81,8 +81,6 @@ C --- Count number of core states ---
         konfig(k) = pnu(k,1)
         konfz = mod(pnz(k,1),10d0)
         if (konfz .eq. 0) konfz = konfig(k)
-C       Sanity check
-Ckino isanrg is logical function,         call isanrg(konfz,konfig(k)-1,konfig(k)+1,'atwf:','pnuz',.true.)
         l_dummy_isanrg=isanrg(konfz,konfig(k)-1,konfig(k)+1,'atwf:','pnuz',.true.)
 C       lpz = konfz .ne. konfig(k)
         do  konf = l+1, min(konfz,konfig(k))-1
@@ -124,7 +122,10 @@ C         slo(1) = 1 + dtan(pi*(0.5d0 - pnu(k,isp)))
 C         call phidx(0,z,l,v0(1,isp),hcrl,0d0,rofi,nr,4,tol,e,val,slo,
 C    .      nn,gval(1,l,1,isp),gp,xx,xx,xx,xx,pgam,xx,xx,xx,xx)
             call makrwf(0,z,rofi(nr),l,v0(1,isp),a,nr,rofi,pnu(1,isp),4,
-     .      gval(1,l,1,isp),gp,e,phi,dphi,phip,dphip,p)
+     .           gval(1,l,1,isp),gp,e,phi,dphi,phip,dphip,p)
+cccccccccccccccccccccc            
+c            print *,' eeeeeeeeee=',l,isp,e
+cccccccccccccccccccccc            
 C         Copy 1st derivative to passed array
             call dcopy(2*nr,gp,1,gval(1,l,2,isp),1)
 C         phi,phidot already orthogonal if mode1=1

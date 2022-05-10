@@ -70,7 +70,7 @@ c
 !!      geig(ngpmx,  nband, nqirr,nsp) ! Coefficients of eigenfunction for IPW.
       
       module m_lmf2gw
-      integer,allocatable,protected:: nindx(:),lindx(:),ibasindx(:),iantiferro(:)
+      integer,allocatable,protected:: nindx(:),lindx(:),ibasindx(:),iantiferro(:),mnla(:,:)
       integer,protected :: nbandmx,nphimx,!n1q,n2q,n3q,
      &nsp,      ! =1 or 2, corresponding to para or ferro.
      &nbas,     ! Number of atom in the primitive cell
@@ -308,6 +308,46 @@ c$$$     &          gx_d(nr_A,l,3,ic,isp), ovv(6),ovv(4),ovv(5)
       enddo
       close(ifiqg)
       close(ifiqgc)
-      write(6,*)'QpGcut_psi QpGcutCou =',QpGcut_psi,QpGcut_Cou 
+      write(6,*)'QpGcut_psi QpGcutCou =',QpGcut_psi,QpGcut_Cou
+      
+      set_mnla :block
+      integer :: ix, ibas,lx,nx,mx,ic,nvmax(0:lmxamx,nclass)
+      write(*,*) '--- set_mnla ---'
+      nvmax=0
+      do ix =1,ldim2
+        nx = nindx(ix)  
+        lx   = lindx(ix)
+        ibas =ibasindx(ix)
+        ic = iclass(ibas)
+        if( nx> nvmax(lx,ic) ) nvmax(lx,ic) = nx
+      enddo
+      write(6,"(5a5)") 'm','n','l','atom','ix'
+      allocate(mnla(4,ldim2))
+      ix=0
+      do nx = 1,3
+        do ibas = 1,nbas
+          ic = iclass(ibas)
+          do lx = 0,lmxa_d(ic)
+            if (nx.gt.nvmax(lx,ic)) then
+              cycle
+            endif
+            do mx = -lx,lx
+              ix=ix+1
+              mnla(1,ix)=mx
+              mnla(2,ix)=nx
+              mnla(3,ix)=lx
+              mnla(4,ix)=ibas
+              write(6,"(5i5)") mnla(1:4,ix),ix
+            enddo
+          enddo
+        enddo
+      enddo
+      if(ix.ne.ldim2) then
+        write(6,*) 'Error in set_mnla: ix!=ldim2'
+        write(6,*) 'ix2,ldim2=',ix,ldim2
+        call rx('lmf2gw: Error in set_mnla: ix!=ldim2')
+      endif
+      endblock set_mnla
+
       end subroutine lmf2gw
       end module m_lmf2gw

@@ -147,27 +147,29 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
       real(8),parameter::  NULLR =-99999,pi=4d0*datan(1d0)
 !! ----------------------------
       call tcn ('bndfp')
-c      if(master_mpi) write(stdo,"(a)") 'bndfp:start'
-!  Too complicated to touch it. Probably, it is better to write new mixing routine by yourself
       debug  = cmdopt0('--debugbndfp')
       tdos   = cmdopt0('--tdos')  !total dos mode or not
-      fsmode = cmdopt0('--fermisurface')! Fermi surfece for xcrysden in http://www.xcrysden.org/doc/XSF.html#2l.16
+      fsmode = cmdopt0('--fermisurface')!FermiSurfece for xcrysden in http://www.xcrysden.org/doc/XSF.html#2l.16
       ipr    = iprint() ! for procid/=master, we set iprint=0 at lmv7.F
       ltet = ntet>0 !tetrahedron method or not
       idummy = unlink('RSEQ_ERROR') ! Clean RSEQ_ERROR.
-!! FermiEnergy eferm is from ctrl.*, rst.* or efermi.lmf.
+      
+!! FermiEnergy eferm is from rst.* or efermi.lmf.
       if(binit) then 
-         eferm = 0d0 !bz_ef0 !! xxx deleter EF0 in ctrlfile xxx 
+         eferm = 0d0 ! if no eferm is read from rst file.
          binit=.false.
       endif
-!  Get eferm from efermi.lmf for plbnd mode. Note that efermi.lmf can be different from efermi in rst.* file.
-!  For example, you may change NKABC, and run job_pdos (lmf-MPIK --quit=band only modify efermi.lmf, without touching rst.*).
-      if(plbnd/=0) then
+      
+!  Get eferm from efermi.lmf for plbnd mode.
+!     efermi.lmf can be different from efermi in rst.* file.
+!     For example, you may change NKABC, and run job_pdos (lmf-MPIK --quit=band only modify efermi.lmf, without touching rst.*).
+      if(plbnd/=0) then 
          open(newunit=ifi,file='efermi.lmf')
          read(ifi,*) eferm
          close(ifi)             
          call mpibc1_real(eferm,1,'bndfp_eferm')
       endif
+      
 !! Set spin-symmetrized pnu. aug2019. See also in pnunew and locpot
       if(cmdopt0('--phispinsym')) call phispinsym_ssite_set() !pnu,pz are spin symmetrized      
 !! Write out Hamiltonian HamiltonianPMT.* 
@@ -213,7 +215,7 @@ c      if(master_mpi) write(stdo,"(a)") 'bndfp:start'
       if(sigmamode.and.master_mpi) write(stdo,*)' ScaledSigma=',ham_scaledsigma
 !! == GW driver and finish ==
       if(llmfgw) then
-         call m_sugw_init(cmdopt0('--dipolematrix'),cmdopt0('--socmatrix'))
+         call m_sugw_init(cmdopt0('--dipolematrix'),cmdopt0('--socmatrix'),eferm)
          call tcx('bndfp')
          call rx0('sugw mode')  !exit program here normally.
       endif

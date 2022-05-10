@@ -70,6 +70,9 @@ C     .    gp,phi,dphi,phip,dphip,p)
       else
         modep = 2
       endif
+cccccccccccccccccccccc            
+c            print *,' vvveeeeeeeeee=',l,enu
+cccccccccccccccccccccc            
 
 *      print *, '!! makrwf'
 C     if (mode .ge. 10) modep = modep+10

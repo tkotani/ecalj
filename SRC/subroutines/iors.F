@@ -319,7 +319,7 @@ C       For compatibility with nfp, read record into wk
             call dfdump(wk,100,jfi)
           endif
         endif
-        call mpibc1_real(wk,3,'iors_wk')
+        call mpibc1_real(wk,1,'iors:eferm')
 c        if (irs4 .ne. 0) then
 c          ignore=trim(ignore)//'ef window,' !binit=T in bndfp==> set eferm=0d0
 c        else
@@ -765,10 +765,8 @@ C   --- Write smooth charge density ---
         call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp , osmrho, lbin , - jfi )
 
 C   --- Write information related to dynamics ---
-        wk=0d0 !call dpzero(wk,100)
-        wk(1)= eferm !sbz%ef !dummy
-        wk(2)=-9999 !sbz%def !dummy
-        wk(3)=-9999 !dummy bz_w !sbz%w
+        wk=1d99 !call dpzero(wk,100)
+        wk(1)= eferm !sbz%ef !dummy ! we use wk(1) only wk(2:100) are dummy
         if (lbin) then
           call dpdump(wk,100,-jfi)
         else

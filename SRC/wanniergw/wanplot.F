@@ -32,7 +32,7 @@ c      use m_wfrho_abc
       use m_read_bzdata,only: read_bzdata, nqbz,nqibz,nqbzw,nteti,ntetf
      &     ,n1,n2,n3,qbas=>qlat,ginv,qbz,wbz,qibz,wibz,qbzw,idtetf,ib1bz,idteti !qbasmc,
      &     ,nstar,irk,nstbz,ngrp2=>ngrp !,qibz_r,nqibz_r
-      use m_DATA4GW,only: read_data4gw,set_mnla,iclass,nclass,zz,alat,nbas,nsp,plat,ldim2,bas
+      use m_lmf2gw,only: lmf2gw,iclass,nclass,zz,alat,nbas,nsp,plat,ldim2,bas !set_mnla,
       use m_QG,only: read_qg,ngp
       use m_cubeformat 
       use m_xsfformat 
@@ -81,8 +81,8 @@ c      use m_wfrho_abc
 !! Readin all data
       call read_qg()
       call read_BZDATA()
-      call read_DATA4GW()
-      call set_mnla()
+      call lmf2gw()
+c      call set_mnla()
       call minv33tp (plat,qlat)  !inverse and transpose
       do isp=1,nsp
          ifi = ifile_handle()

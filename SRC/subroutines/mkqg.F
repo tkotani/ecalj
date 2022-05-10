@@ -65,7 +65,7 @@ c     logical :: readgwinput
       integer:: gammacellctrl,nnng(3),ifi0,itet,ifi00,ifidmlx
       real(8)::imat33(3,3),unit,QpGx2,aaa
       logical:: lnq0iadd, lmagnon
-      logical ::unit2=.false. 
+      logical ::unit2=.false. ,cmdopt0
       real(8),parameter:: pi=4d0* atan(1d0)  
 c------------------------------------------------
       write(6,"('mkqg2: ')")
@@ -167,7 +167,7 @@ c!! Write QIBZ
 c      write(6,*)' qibz are written in QIBZ file...'
 c      open (newunit=ifiqibz, file='QIBZ',form='unformatted') !write q-points in IBZ.
 c      write(ifiqibz) nqibz
-c      write(ifiqibz) qibz(1:3,1:nqibz),wibz(1:nqibz)
+c      write(ifiqibz) qibz(1:3,1:nqibz),wibz(1:nqibz)
 c      close(ifiqibz)
 !! Write QBZ
       open (newunit=ifiqbz, file='QBZ.chk') !write q-points in IBZ.
@@ -385,6 +385,8 @@ c$$$  endif
 !! Set irreducible k-point flag. irr=1 for (irredusible point) flag, otherwise =0. 
 !! irr(iq)=1 for irreducile qq(:,iq), iq=1,nqnum
       call q0irre(qibz,nqibz,qq,wt0,nqnum,symops,ngrp, qi,nqi,wti,plat,.true.,0,irr,nqbz)
+
+      if(cmdopt0('--allqbz')) nqnum=nqbz
 !! nqnum is the finally obtained number of q points.
       allocate(ngpn(nqnum), ngcn(nqnum))
       if(debug) write(6,*) ' --- q vector in 1st BZ + Q0P shift. ngp ---'

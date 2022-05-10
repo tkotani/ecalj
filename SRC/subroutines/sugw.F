@@ -2,7 +2,7 @@
       private
       public:: m_sugw_init
       contains
-      subroutine m_sugw_init (dipolematrix,socmatrix) 
+      subroutine m_sugw_init (dipolematrix,socmatrix,eferm)
       use m_ext,only:   sname
       use m_struc_def,only: s_rv1, s_spec, s_site 
       use m_suham,only: ndham=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
@@ -23,6 +23,7 @@ c      use m_shortn3,only: shortn3_initialize,shortn3
       use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
       use m_qplist,only: qplist,ngplist,ngvecp, iqini,iqend,ispini,ispend,iqibzmax      !for current rank iprocq,
       use m_hamindex0,only: Readhamindex0, nlindx
+      use m_ftox
       implicit none
 !! == Driver for fpgw (to prepare eigenfuncitons for fpgw) ==
 !! NOTE: following documents are not carefully examined. Not believe everything.
@@ -71,7 +72,7 @@ c      use m_shortn3,only: shortn3_initialize,shortn3
 !! ----------------------------------------------------------------------
       integer:: i_copy_size,ham_lsig
       integer:: jobgw=1 , lh(n0)
-      real(8):: rsml(n0), ehl(n0) 
+      real(8):: rsml(n0), ehl(n0) ,eferm
       logical :: lwvxc,cmdopt0
       integer i,i1,i2,iat,ib,ibr,icore,ierr,ifeigen,!ifi,
      .ifiqg,iflband(2),ifqeigen,ifsyml,igets,igetss,iix,iline, 
@@ -237,15 +238,12 @@ c      integer,allocatable:: igv2(:,:)
          endif
       enddo
       print *,'iantiferro=',iantiferro
-
-!     !   ... Determine nphimx
+!!   ... Determine nphimx
       nphimx = 0
       do  i = 1, nbas
          is=ssite(i)%spec
-         i_copy_size=size(ssite(i)%pnu)
-         call dcopy(i_copy_size,ssite(i)%pnu,1,pnu,1)
-         i_copy_size=size(ssite(i)%pz)
-         call dcopy(i_copy_size,ssite(i)%pz,1,pnz,1)
+         pnu=ssite(i)%pnu
+         pnz=ssite(i)%pz
          a=sspec(is)%a
          nr=sspec(is)%nr
          z=sspec(is)%z
@@ -257,17 +255,14 @@ c      integer,allocatable:: igv2(:,:)
             nphimx = max(nphimx,i1)
          endif
       enddo
-      
 !! Atom data (gwa)
-      call info(30,1,1,' ... Generate core wave functions (file gwa)', 0,0)
+      write(stdo,*)' ... Generate core wave functions (file gwa)'
       ncoremx=0
       nrmx=0
       do  ib = 1, nbas
          is=ssite(ib)%spec
-         i_copy_size=size(ssite(ib)%pnu)
-         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
-         i_copy_size=size(ssite(ib)%pz)
-         call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
+         pnu=ssite(ib)%pnu
+         pnz=ssite(ib)%pz
          a=sspec(is)%a
          nr=sspec(is)%nr
          z=sspec(is)%z
@@ -320,21 +315,52 @@ c      integer,allocatable:: igv2(:,:)
                   enddo
                enddo
             enddo
-c!     radial integral
-c            if(cmdopt0('--radialintegral')) then
-               
-c            do l = 0, lmaxa
-c            do i = 1, nsp
-c               call gintxx(gval(1:nr,1,l,3,i),gval(1:nr,1,l,3,i),a,b,nr,sum1)
-c               write(6,ftox)'ggggg',ibas,l,i,sum1
-c            enddo
-c            enddo
-               
-c            endif   
+
+            
+!   radial integral test block radial functions when energy/pnu are changing.
+            radint: block
+            integer::ir,ie
+            real(8):: enu,sum1,sum2,gfun(1:nr,2),gpfun(1:nr,2,4), rgfun(1:nr)
+            real(8):: phi,dphi,phip,dphip,p,pnux(4)
+            if(cmdopt0('--radialintegraltest')) then
+               l = 3            !0, lmaxa
+               do i = 1, nsp
+               do ie=-12,10
+                     pnux= [0d0,0d0,0d0,4.65d0 + ie*0.05d0] !pnu is changing 
+                     if(ie==7) cycle
+                     call makrwf(0,z,rmt(ib),l,ssite(ib)%rv_a_ov0(1+(i-1)*nr:nr*i)
+     &                    ,a,nr,rofi,pnux,2,  gfun,gpfun,enu, phi,dphi,phip,dphip,p)
+                     call gintxx(gfun(1:nr,1),gfun(1:nr,1),a,b,nr,sum1)
+                     rgfun=[(rofi(ir)*gfun(ir,1),ir=1,nr)]
+                     if(abs(sum1-1d0)>0.01d0) call rx('sugw: need to check normalization 111')
+                     call gintxx(rgfun,gfun(1:nr,1),a,b,nr,sum2)
+                     write(stdo,ftox)'\int phiphi : ib l isp=',ib,l,i,
+     &                    ' pnu \int rphiphi=',ftof(pnux,3),ftof(sum2,3)
+                  enddo
+                  write(stdo,*)
+               enddo
+               l = 3            !0, lmaxa
+               do i = 1, nsp
+               do ie=-10,10
+                     enu= eferm + 0.2d0*ie !enu is changing
+                     call makrwf(1,z,rmt(ib),l,ssite(ib)%rv_a_ov0(1+(i-1)*nr:nr*i)
+     &                    ,a,nr,rofi,1d10,2,  gfun,gpfun,enu, phi,dphi,phip,dphip,p)
+                     call gintxx(gfun(1:nr,1),gfun(1:nr,1),a,b,nr,sum1)
+                     rgfun=[(rofi(ir)*gfun(ir,1),ir=1,nr)]
+                     if(abs(sum1-1d0)>0.01d0) call rx('sugw: need to check normalization 222')
+                     call gintxx(rgfun,gfun(1:nr,1),a,b,nr,sum2)
+                     write(stdo,ftox)'\int phiphi : ib l isp=',ib,l,i,
+     &                    ' enu \int rphiphi=',ftof(enu,3),ftof(sum2,3)
+                  enddo
+                  write(stdo,*)
+               enddo
+            endif
+            endblock radint
+            
             deallocate(rofi,rwgt,gcore,gval)
          endif
       enddo
-c      if(cmdopt0('--radialintegral')) call rx0('end of radial integral')
+      if(cmdopt0('--radialintegraltest')) call rx0('end of radial integral')
       
       if(master_mpi) then
          write(ifigwa) iantiferro(1:nat) !iantiferro may2015
@@ -391,14 +417,14 @@ c      if(cmdopt0('--radialintegral')) call rx0('end of radial integral')
              write(ifievec) ndimh, ldim
              write(ifiv)    ndimh, ldim
           endif
-          if(dipolematrix)then  !From spotd,and ppixd, dipo(=x,y,z)=<F_i|x,y,x|F_j>
+          if(dipolematrix)then  !From spotd,and ppixd, dipo(=x,y,z)=<F_i|x,y,z|F_j>
             write(stdo,'("dipole matrix calculated")')    
             call hambl(isp,qp,spotxd(:,:,:,:,1),vconst,sv_p_osig,sv_p_otau,sv_p_oppixd(:,:,1),dipo(:,:,1),ovl)
             call hambl(isp,qp,spotxd(:,:,:,:,2),vconst,sv_p_osig,sv_p_otau,sv_p_oppixd(:,:,2),dipo(:,:,2),ovl)
             call hambl(isp,qp,spotxd(:,:,:,:,3),vconst,sv_p_osig,sv_p_otau,sv_p_oppixd(:,:,3),dipo(:,:,3),ovl)
           endif   
 !! LDA Hamiltonian and overlap matrices for this qp ---
-          call hambl(isp,qp,spotx,vconst,sv_p_osig, sv_p_otau,sv_p_oppix, vxc,ovl)!vxc=<F_i|vxc(LDA)|F_j>
+          call hambl(isp,qp,spotx,vconst,sv_p_osig, sv_p_otau,sv_p_oppix, vxc,ovl)!vxc=<F_i|H(LDA)-vxc(LDA)|F_j>
           call hambl(isp,qp,smpot,vconst,sv_p_osig, sv_p_otau, sv_p_oppi, ham,ovl)!ham=<F_i|H(LDA)|F_j> and ovl=<F_i|F_j>
           if(lso==2) ham(:,:) = ham(:,:) + hammhso(:,:,isp) !diagonal part of SOC matrix added for Lz.Sz mode.
 c!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

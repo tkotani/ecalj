@@ -73,7 +73,7 @@ c      print *,'aaaaaaaa',args
       if(ia>=2) argss(2)=arg2
       if(ia>=3) argss(3)=arg3
       stdo=lgunit(1)
-      stdl=lgunit(2)
+c      stdl=lgunit(2)
       procid = mpipid(1)
       if (procid .eq. master) then
         if ( cpusec() .ne. 0) then
@@ -92,7 +92,7 @@ c      print *,'aaaaaaaa',args
 c          hostnm = ' '
 c          call get_environment_variable('HOST',hostnm)
           write(stdo,10) tnew,timeu,datim,procid!trim(adjustl(hostnm))
-          write(stdl,10) tnew,timeu,datim,procid!trim(adjustl(hostnm))
+c          write(stdl,10) tnew,timeu,datim,procid!trim(adjustl(hostnm))
  10       format('CPU time:', f9.3,a1,5x,a26,' on ',i0)
         endif
       endif
