@@ -17,6 +17,7 @@ cm Aug 2007 Takashi Miyake, berry connection in the Wannier gauge
 c  May 2004 Takashi Miyake, from hwmat.f
 c------------------------------------------------------------
 c     use m_readqg,only: readngmx,readqg
+      use m_ftox
       use m_hamindex,only:   Readhamindex,symgg=>symops,ngrp
       use m_readeigen,only: init_readeigen,init_readeigen2,readeval
       use m_hamindex,only: qtt,nqtt
@@ -99,7 +100,7 @@ c
       real(8)    :: qqex(1:3), eex,exsp,eee, exwgt,deltax0
       integer(4) :: itmx,ipex,itpex,itex,nspexmx,nnex,isig,iex,ifexspx
      & ,ifexspxx ,ifefsm, nq0ix,ifemesh,nz
-      character(3)  :: charnum3,sss
+      character(3)  :: sss
       character(12) :: filenameex
       logical :: exspwrite=.false.
       character*8 xt
@@ -165,7 +166,7 @@ c step 2
       complex(8),allocatable:: mmn(:,:,:,:),mmn0(:,:,:,:),
      c                         rmn(:,:),smn(:,:),amn(:,:),
      c                         tmn(:,:),dwmn(:,:)
-      real(8),allocatable:: rn(:,:),qn(:)
+      real(8),allocatable:: rn(:,:),qn(:),r_nm(:,:,:)
       real(8)   :: omgd,omgod,omgdod,omgidod,omgdodold,domgdod,
      c             conv2,alpha2
       integer(4):: nsc2,ibb,ii,ij,ik
@@ -812,7 +813,7 @@ c     &     nqbz,nwf,nband,nlmto)
       allocate (mmn(nwf,nwf,nbb,nqbz),mmn0(nwf,nwf,nbb,nqbz),
      &          umnk(nwf,nwf,nqbz),
      &          rmn(nwf,nwf),amn(nwf,nwf),smn(nwf,nwf),
-     &          rn(3,nwf),qn(nwf),tmn(nwf,nwf),dwmn(nwf,nwf),
+     &          rn(3,nwf),qn(nwf),tmn(nwf,nwf),dwmn(nwf,nwf),r_nm(3,nwf,nwf),
      &          eunk(nwf,nqbz))
 
 !! (2-0) construct initlal u~ from u
@@ -877,12 +878,9 @@ c <r_n> ([1] eq.31)
          call get_rn(mmn,bb,wbb,wbz,
      d               nwf,nqbz,nbb,
      o               rn)
-ccccccccccccccccccccccccccccccccccccccccccccc
 c         do i=1,nwf
-c            write(1106+is,"(a,3f13.5)")'rrrrrn',rn(1:3,i)
+c            write(6,ftox)'wwww: i,i, <wannier i|r|wannier i> ',i,ftof(rn(1:3,i))
 c         enddo
-ccccccccccccccccccccccccccccccccccccccccccccccccc
-
          do iq = 1,nqbz
             dwmn = (0d0,0d0)
             do ibb = 1,nbb
@@ -1012,8 +1010,21 @@ c 070830
      & call writemmn(is,mmn,bb,wbb,qbz,wbz,rt,
      d              nwf,nqbz,nbb,n1,n2,n3)
 
+ccccccccccccccccccccccccccccccccccccccccccccc
+         call get_rnm(mmn,bb,wbb,wbz,
+     d               nwf,nqbz,nbb,
+     o               r_nm)
+         do i=1,nwf
+         do j=1,nwf
+            write(6,ftox)'dddd: i,j, <wannier i|r|wannier j> ',i,j,ftof(r_nm(1:3,i,j))
+     &       ,'  ',ftof(sqrt(sum((r_nm(1:3,i,j)**2))))
+         enddo
+         enddo
+ccccccccccccccccccccccccccccccccccccccccccccccccc
+
+
       deallocate(uumat,amnk,omgik,mmn,mmn0,
-     &           rmn,amn,smn,rn,qn,tmn,dwmn)
+     &           rmn,amn,smn,rn,qn,tmn,dwmn,r_nm)
 
 
 !! step 3 -- reduced Hamiltonian ------------------------------

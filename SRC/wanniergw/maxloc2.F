@@ -323,6 +323,38 @@ c            write(*,*)in,ibb,rtmp
 
       return
       end
+c--------------------------------------------------------r---------------
+       subroutine get_rnm(mmn,bb,wbb,wbz,
+     d                   nwf,nqbz,nbb,
+     o                   rnm)
+      implicit integer (i-n)
+      implicit real*8(a-h,o-z)
+      integer:: in,im
+      complex(8) :: mmn(nwf,nwf,nbb,nqbz)
+      real(8) :: bb(3,nbb),wbb(nbb),wbz(nqbz),rnm(3,nwf,nwf)
+      rnm = 0d0
+      do in = 1,nwf
+      do im = 1,nwf
+         do ibb = 1,nbb
+            rtmp = 0d0
+            do iq = 1,nqbz
+                rtmp = rtmp
+     &        + dimag(log(mmn(in,im,ibb,iq)))*wbz(iq)
+ccccccccccccccccccccccccccccc
+c            if(abs(log(mmn(in,in,ibb,iq)))>0.9) then
+c               write(6,"('mmmnnn in ibb iq log(mmn)',3i5,2f13.4)") 
+c     &         in,ibb,iq,log(mmn(in,in,ibb,iq))
+c            endif
+ccccccccccccccccccccccccccccc
+            enddo
+            rnm(:,in,im) = rnm(:,in,im) + wbb(ibb)*bb(:,ibb)*rtmp
+c            write(*,*)in,ibb,rtmp
+         enddo
+      enddo
+      enddo
+      rnm = - rnm
+      return
+      end
 c-----------------------------------------------------------------------
       subroutine getrmn(mmn,
      d                  nwf,
