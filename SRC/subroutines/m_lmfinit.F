@@ -1293,8 +1293,8 @@ c      call suidx(nkaph,j,nspec,v_sspec)
    20 continue
       
       allocate( iprmb(nbas * nl**2 * maxp ) )
+      iprmb=-1
       nlmto = 0
-c      ldham=0
       do 110 ib = 1,nbas
          is = v_ssite(ib)%spec
          iposn = mxorb*(ib-1)
