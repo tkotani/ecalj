@@ -62,7 +62,7 @@
       use m_rsibl_ev, only : Rsibl_ev ! to plot wavefunction in the fat band mode
       use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
       use m_lmfgw,only: M_lmfgw_init !,jobgw !,sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx
-      use m_mkpot,only: M_mkpot_init,M_mkpot_deallocate, M_mkpot_energyterms,M_mkpot_novxc,M_mkpot_novxc_dipole,
+      use m_mkpot,only: M_mkpot_init,M_mkpot_deallocate, M_mkpot_energyterms,M_mkpot_novxc,!M_mkpot_novxc_dipole,
      o    osmpot, qmom, vconst, sv_p_osig, sv_p_otau, sv_p_oppi 
      o  , ppnl_rv , hab_rv , sab_rv , qval , qsc , fes1_rv , fes2_rv
       use m_clsmode,only: M_clsmode_init,m_clsmode_set1,m_clsmode_finalize
@@ -177,7 +177,7 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
       if(writeham) open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
 !! Make one-particle potential without XC part for GWdriver: lmfgw mode 
       if(llmfgw) call m_mkpot_novxc() !Get osigx,otaux oppix spotx (without XC(LDA)) !
-      if(llmfgw.and.cmdopt0('--dipolematrix')) call m_mkpot_novxc_dipole()      
+c      if(llmfgw.and.cmdopt0('--dipolematrix')) call m_mkpot_novxc_dipole()      
 !! Generate one-body potential and energy-related quantities. See use m_mkpot:
       call m_mkpot_init(llmfgw) !from (smrho,rhoat), get one-particle potential.
                                 !  mkpot->locpot->augmat. augmat calculates sig,tau,ppi.
@@ -215,7 +215,8 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
       if(sigmamode.and.master_mpi) write(stdo,*)' ScaledSigma=',ham_scaledsigma
 !! == GW driver and finish ==
       if(llmfgw) then
-         call m_sugw_init(cmdopt0('--dipolematrix'),cmdopt0('--socmatrix'),eferm)
+c         call m_sugw_init(cmdopt0('--dipolematrix'),cmdopt0('--socmatrix'),eferm)
+         call m_sugw_init(cmdopt0('--socmatrix'),eferm)
          call tcx('bndfp')
          call rx0('sugw mode')  !exit program here normally.
       endif

@@ -2,7 +2,7 @@
       private
       public:: m_sugw_init
       contains
-      subroutine m_sugw_init (dipolematrix,socmatrix,eferm)
+      subroutine m_sugw_init (socmatrix,eferm) !dipolematrix,
       use m_ext,only:   sname
       use m_struc_def,only: s_rv1, s_spec, s_site 
       use m_suham,only: ndham=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
@@ -96,7 +96,7 @@ c      use m_shortn3,only: shortn3_initialize,shortn3
       real(8) ,allocatable:: wk(:,:),
      .bas(:,:),rofi(:),rwgt(:),gcore(:,:,:),gval(:,:,:,:,:),evl(:,:),vxclda(:)
       real(8),allocatable::  cphin(:,:,:) !!ovv(:,:),evl_p(:,:), qq1(:,:),qq2(:,:),
-      complex(8),allocatable:: ham(:,:),ovl(:,:),evec(:,:),vxc(:,:),dipo(:,:,:),
+      complex(8),allocatable:: ham(:,:),ovl(:,:),evec(:,:),vxc(:,:),!dipo(:,:,:),
      .ppovl(:,:),phovl(:,:),pwh(:,:),pwz(:,:),pzovl(:,:),
      .testc(:,:),testcd(:),ppovld(:),cphi(:,:,:),cphi_p(:,:,:),
      .geig(:,:,:),geig_p(:,:,:),sene(:,:)
@@ -149,7 +149,7 @@ c      integer,allocatable:: igv2(:,:)
       integer:: lpdiag=0,stdo,nrmx,ncoremx!,ndham
       character spid*8
       character*8 xt
-      logical,optional:: dipolematrix,socmatrix
+      logical,optional:: socmatrix !dipolematrix,
       integer:: ispSS,ispEE
 #if MPI | MPIK
       include "mpif.h"
@@ -389,23 +389,23 @@ c      integer,allocatable:: igv2(:,:)
 !! == Main loop for eigenfunction generation ==
       if(ham_scaledsigma/=1d0.and.sigmamode) write(stdo,*)' Scaled Sigma method: ScaledSigma=',ham_scaledsigma
       do 1001 iq = iqini,iqend ! iqini:iqend for this procid 
-        if (dipolematrix.and.iq>nqbz) exit
+c        if (dipolematrix.and.iq>nqbz) exit
         qp  = qplist(:,iq)     !  ... For this qp, G vectors for PW basis and hamiltonian dimension
         ngp = ngplist(iq)
         lwvxc = lsig>0 .and. iq<=iqibzmax
         if (cmdopt0('--novxc')) lwvxc = .false.
-        if (dipolematrix) lwvxc = .true.
+c        if (dipolematrix) lwvxc = .true.
         call m_Igv2x_setiq(iq)! (qp)    ! Set napw ndimh ndimhx and igv2x
         allocate(ham(ndimh,ndimh),ovl(ndimh,ndimh),evec(ndimh,ndimh), vxc(ndimh,ndimh))
         allocate(cphi(ndima,ndimh,nsp),cphin(2,ndimh,nsp))
-        if(dipolematrix) allocate(dipo(ndimh,ndimh,3))
+c        if(dipolematrix) allocate(dipo(ndimh,ndimh,3))
         ispSS=1
         ispEE=nsp
         if(iq==iqini.and.ispini==2) ispSS=2
         if(iq==iqend.and.ispend==1) ispEE=1
         if(lso==1) then
            call rx('sugw: lso==1 is not yet implemented')
-        elseif(lso/=0.or.dipolematrix) then
+        elseif(lso/=0) then !.or.dipolematrix) then
            allocate(hammhso(ndimh,ndimh,3))
            call aughsoc(qp, ohsozz,ohsopm, ndimh, hammhso)
         endif
@@ -417,12 +417,13 @@ c      integer,allocatable:: igv2(:,:)
              write(ifievec) ndimh, ldim
              write(ifiv)    ndimh, ldim
           endif
-          if(dipolematrix)then  !From spotd,and ppixd, dipo(=x,y,z)=<F_i|x,y,z|F_j>
-            write(stdo,'("dipole matrix calculated")')    
-            call hambl(isp,qp,spotxd(:,:,:,:,1),vconst,sv_p_osig,sv_p_otau,sv_p_oppixd(:,:,1),dipo(:,:,1),ovl)
-            call hambl(isp,qp,spotxd(:,:,:,:,2),vconst,sv_p_osig,sv_p_otau,sv_p_oppixd(:,:,2),dipo(:,:,2),ovl)
-            call hambl(isp,qp,spotxd(:,:,:,:,3),vconst,sv_p_osig,sv_p_otau,sv_p_oppixd(:,:,3),dipo(:,:,3),ovl)
-          endif   
+c! note. This was intended for dipole but wrong since x,y,z are not periodic
+c          if(dipolematrix)then  !From spotd,and ppixd, dipo(=x,y,z)=<F_i|x,y,z|F_j> . Experimental.
+c            write(stdo,'("dipole matrix calculated")')    !is this is ambiguous for x+dx shifts but good for wannier?
+c            call hambl(isp,qp,spotxd(:,:,:,:,1),vconst,sv_p_osig,sv_p_otau,sv_p_oppixd(:,:,1),dipo(:,:,1),ovl)
+c            call hambl(isp,qp,spotxd(:,:,:,:,2),vconst,sv_p_osig,sv_p_otau,sv_p_oppixd(:,:,2),dipo(:,:,2),ovl)
+c            call hambl(isp,qp,spotxd(:,:,:,:,3),vconst,sv_p_osig,sv_p_otau,sv_p_oppixd(:,:,3),dipo(:,:,3),ovl)
+c          endif   
 !! LDA Hamiltonian and overlap matrices for this qp ---
           call hambl(isp,qp,spotx,vconst,sv_p_osig, sv_p_otau,sv_p_oppix, vxc,ovl)!vxc=<F_i|H(LDA)-vxc(LDA)|F_j>
           call hambl(isp,qp,smpot,vconst,sv_p_osig, sv_p_otau, sv_p_oppi, ham,ovl)!ham=<F_i|H(LDA)|F_j> and ovl=<F_i|F_j>
@@ -430,14 +431,14 @@ c      integer,allocatable:: igv2(:,:)
 c!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 c          qp  = qplist(:,iq)-[1d-6,2d-6,3d-6] !A trick to shift qp to avoid ambiguity of degeneracy
 c!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-          if(dipolematrix) then 
-             dipo(:,:,1)= dipo(:,:,1)-vxc ! dipo(i,j,1) = <Fi|x|Fj>
-             dipo(:,:,2)= dipo(:,:,2)-vxc ! dipo(i,j,2) = <Fi|y|Fj>
-             dipo(:,:,3)= dipo(:,:,3)-vxc ! dipo(i,j,3) = <Fi|z|Fj>
-          endif   
+c          if(dipolematrix) then 
+c             dipo(:,:,1)= dipo(:,:,1)-vxc ! dipo(i,j,1) = <Fi|x|Fj>
+c             dipo(:,:,2)= dipo(:,:,2)-vxc ! dipo(i,j,2) = <Fi|y|Fj>
+c             dipo(:,:,3)= dipo(:,:,3)-vxc ! dipo(i,j,3) = <Fi|z|Fj>
+c          endif   
           vxc = ham - vxc ! vxc(LDA) part 
           if (lwvxc) write(ifiv) vxc
-          if (dipolematrix) write(ifiv) dipo,ovl
+c          if (dipolematrix) write(ifiv) dipo,ovl
           if (socmatrix.and.isp==1) write(ifiv) hammhso
 !! LDA + sigma Hamiltonian for this qp ---
           if(sigmamode) then ! See m_bandcal.F
@@ -675,7 +676,7 @@ c          write(ifigw1) vxclda(1:ndimh)
           endif
  1002  continue             ! Loop over spins
        if(allocated(hammhso)) deallocate(hammhso)
-       if(allocated(dipo)) deallocate(dipo)
+c       if(allocated(dipo)) deallocate(dipo)
        deallocate(ham,ovl,evec,vxc,cphi,cphin)
  1001 continue ! ===== Loop over qp ===============================
       deallocate(evl)

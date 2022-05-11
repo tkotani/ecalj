@@ -8,7 +8,7 @@
      .    , rhoex , rhoec , rhovxc , rvepsv , rvexv , rvecv , rvvxcv , 
      .    rveps , rvvxc , valvef , xcore , focexc , focex , focec , focvxc 
      .    , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , 
-     .     nlibu , lmaxu , vorb , lldau,novxc,idipole )
+     .     nlibu , lmaxu , vorb , lldau,novxc)!,idipole )
       use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkaph,stdo,lxcf,lhh,nkapii,nkaphh,alat
       use m_lmfinit,only: n0,nppn,nab,nrmx,nkap0,nlmx,nbas,nsp,lso,ssite=>v_ssite, sspec=>v_sspec,mxcst4
       use m_MPItk,only: master_mpi
@@ -169,7 +169,7 @@ C ... for core hole
       character*20::strib
       character strn*120
       real(8):: ov0mean,pmean
-      integer:: idipole
+c      integer:: idipole
       call tcn('locpot')
       ipr = iprint()
       pi = 4d0*datan(1d0)
@@ -436,11 +436,10 @@ C     ... Use effective potentials with modified xc
           endif
 !!
           lsox=lso
-          if(idipole/=0) then
-c             call adddipole(v1,rofi,nr,nlml,nsp,idipole,0d0)
-             call adddipole(v1,rofi,nr,nlml,nsp,idipole,ssite(ib)%pos(idipole)*alat)
-             call adddipole(v2,rofi,nr,nlml,nsp,idipole,ssite(ib)%pos(idipole)*alat)
-          endif
+c          if(idipole/=0) then
+c             call adddipole(v1,rofi,nr,nlml,nsp,idipole,ssite(ib)%pos(idipole)*alat)
+c             call adddipole(v2,rofi,nr,nlml,nsp,idipole,ssite(ib)%pos(idipole)*alat)
+c          endif
           if(.not.novxc .and. cmdopt0('--socmatrix') ) then
              lsox=1
           endif   
@@ -467,19 +466,19 @@ C     Electric field gradient
       call tcx('locpot')
       end subroutine locpot
 
-!!---------------------
-      subroutine adddipole(v,rofi,nr,nlml,nsp, idipole, basr)
-!! v=v+x (or y or z). to calculate dipole matrix of Hamiltonian      
-      integer:: nr,nlml,nsp,idipole,isp,nrmx
-      real(8):: v(nr,nlml,nsp),rofi(nr),basr
-      real(8),parameter:: pi=4d0*datan(1d0), srfpi = dsqrt(4d0*pi),srfpi3 = dsqrt(4d0*pi/3d0)
-      do isp=1,nsp
-        v(1:nr,1,isp) = v(1:nr,1,isp) + basr * srfpi
-        if(idipole==1) v(1:nr,4,isp) = v(1:nr,4,isp)+rofi(1:nr)* srfpi3 !x
-        if(idipole==2) v(1:nr,2,isp) = v(1:nr,2,isp)+rofi(1:nr)* srfpi3 !y
-        if(idipole==3) v(1:nr,3,isp) = v(1:nr,3,isp)+rofi(1:nr)* srfpi3 !z
-      enddo
-      end
+c$$$!!---------------------
+c$$$      subroutine adddipole(v,rofi,nr,nlml,nsp, idipole, basr)
+c$$$!! v=v+x (or y or z). to calculate dipole matrix of Hamiltonian      
+c$$$      integer:: nr,nlml,nsp,idipole,isp,nrmx
+c$$$      real(8):: v(nr,nlml,nsp),rofi(nr),basr
+c$$$      real(8),parameter:: pi=4d0*datan(1d0), srfpi = dsqrt(4d0*pi),srfpi3 = dsqrt(4d0*pi/3d0)
+c$$$      do isp=1,nsp
+c$$$        v(1:nr,1,isp) = v(1:nr,1,isp) + basr * srfpi
+c$$$        if(idipole==1) v(1:nr,4,isp) = v(1:nr,4,isp)+rofi(1:nr)* srfpi3 !x
+c$$$        if(idipole==2) v(1:nr,2,isp) = v(1:nr,2,isp)+rofi(1:nr)* srfpi3 !y
+c$$$        if(idipole==3) v(1:nr,3,isp) = v(1:nr,3,isp)+rofi(1:nr)* srfpi3 !z
+c$$$      enddo
+c$$$      end
       
       subroutine locpt2(job,z,rmt,rg,a,nr,nsp,cofg,cofh,ceh,rfoc,lfoc,
      .nlml,qmom,vval,rofi,rwgt,rho1,rho2,rhoc,rhol1,rhol2,v1,v2,v1es,
