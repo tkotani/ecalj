@@ -15,6 +15,7 @@
       use m_struc_def  
       use m_uspecb,only:uspecb
       use m_ftox
+c      use m_iors,only: v1pot
 C- Make the potential at the atomic sites and augmentation matrices.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -374,7 +375,8 @@ ccccccccccccccccccccccccccccccccccccccc
         endif
 C   ... Store the potential used in mkrout to calculate the core
         do  i = 0, nsp-1
-          call dpscop ( v1 , ssite(ib)%rv_a_ov1, nr , 1 + nr * nlml * i , 1 + nr* i , y0 )
+           call dpscop ( v1 , ssite(ib)%rv_a_ov1, nr , 1 + nr * nlml * i , 1 + nr* i , y0 )
+c           v1pot(ib)%v=y0*v1
         enddo
 C   ... Accumulate terms for LDA total energy
         vvesat = vvesat + valvs

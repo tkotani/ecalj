@@ -1,10 +1,12 @@
       module m_iors
+      use m_struc_def
       public iors
+      type(s_rv1),public,allocatable :: v1pot(:),v0pot(:)
       private
+      
       contains
       integer function iors(nit,lbin,ifi,irs3,irs5)
       use m_density,only: osmrho, orhoat !these are allocated
-      
       use m_supot,only: lat_nabc
       use m_struc_func,only:mpibc1_s_spec,mpibc1_s_site
       use m_bndfp,only: m_bndfp_ef_SET,eferm 
@@ -383,7 +385,7 @@ C   --- Read information for local densities ---
         if (procid .eq. master) then
           if (.not. lbin) read(jfi,*,err=999,end=999)
         endif
-        allocate(orhoat(3,nbas))
+        allocate(orhoat(3,nbas), v1pot(nbas),v0pot(nbas))
         ibaug = 0
         do  ib = 1, nbas
           ic=ssite(ib)%class
@@ -545,6 +547,10 @@ C     ... FP local densities rho1,rho2,rhoc and potentials v0, v1
             allocate(orhoat(3,ib)%v(abs(nr*nsp)))
             if (allocated(ssite(ib)%rv_a_ov1)) deallocate(ssite(ib)%rv_a_ov1)
             allocate(ssite(ib)%rv_a_ov1(abs(nr*nsp)))
+cccccccccccccccccccccccccccc
+            allocate(v0pot(ib)%v(nr*nsp)) 
+            allocate(v1pot(ib)%v(nr*nsp)) 
+ccccccccccccccccccccccccccccc            
             if (procid .eq. master) then
               if (.not. lbin) read(jfi,*)
               call dpdbyl ( orhoat( 1 , ib )%v , nr0 , nlml0 , nlml , nsp0 , nsp , lbin , jfi )
@@ -562,7 +568,11 @@ C     ... FP local densities rho1,rho2,rhoc and potentials v0, v1
               if (nsp0 .lt. nsp) then
                 call dscal ( nr0 * 2 , 2d0 , ssite(ib)%rv_a_ov0 , 1 )
                 call dscal ( nr0 * 2 , 2d0 , ssite(ib)%rv_a_ov1 , 1 )
-              endif
+             endif
+cccccccccccccccccccccc
+             v0pot(ib)%v = ssite(ib)%rv_a_ov0
+             v1pot(ib)%v = ssite(ib)%rv_a_ov1
+cccccccccccccccccccccc             
             endif
             call mpibc1_real( orhoat(1,ib)%v, size(orhoat(1,ib)%v), 'iors_rhoat(1)' )
             call mpibc1_real( orhoat(2,ib)%v, size(orhoat(2,ib)%v), 'iors_rhoat(2)' )
