@@ -127,7 +127,6 @@ mxmymz.o \
 nghbor.o \
 nnrl.o \
 nwit.o \
-orbl.o \
 phidx.o \
 phvsfp.o \
 pkli.o \

@@ -339,7 +339,7 @@ C ... end loop over noncollinear spins
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine pusq2(mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma,iprmb,
      .cPkL,r,evec,vh,dh,vp,dp,au,as,az)
-      use m_orbl,only: Orblib,ktab,ltab,offl
+      use m_orbl,only: Orblib,ktab,ltab,offl,norb
 C- Extract projection of eigenstate onto (u,s,z) for sphere at site ia
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -385,7 +385,7 @@ C ... Passed parameters
       double complex au(nlma),as(nlma),az(nlma),
      .evec(nlmto),cPkL(0:kmax,nlma)
 C Local
-      integer n0,nkap0,norb
+      integer n0,nkap0!,norb
       parameter (n0=10,nkap0=3)
 c      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
       integer blks(n0*nkap0),ntab(n0*nkap0)
