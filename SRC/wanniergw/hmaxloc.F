@@ -166,7 +166,8 @@ c step 2
       complex(8),allocatable:: mmn(:,:,:,:),mmn0(:,:,:,:),
      c                         rmn(:,:),smn(:,:),amn(:,:),
      c                         tmn(:,:),dwmn(:,:)
-      real(8),allocatable:: rn(:,:),qn(:),r_nm(:,:,:)
+      real(8),allocatable:: rn(:,:),qn(:)
+      complex(8),allocatable::r_nm(:,:,:)
       real(8)   :: omgd,omgod,omgdod,omgidod,omgdodold,domgdod,
      c             conv2,alpha2
       integer(4):: nsc2,ibb,ii,ij,ik
@@ -1016,8 +1017,9 @@ ccccccccccccccccccccccccccccccccccccccccccccc
      o               r_nm)
          do i=1,nwf
          do j=1,nwf
-            write(6,ftox)'dddd: i,j, <wannier i|r|wannier j> ',i,j,ftof(r_nm(1:3,i,j))
-     &       ,'  ',ftof(sqrt(sum((r_nm(1:3,i,j)**2))))
+            if(i==j) cycle
+            write(6,ftox)'dddd: i,j, <wannier i|r|wannier j> ',i,j,ftof(alat/(2d0*pi)*r_nm(1:3,i,j))
+     &       ,'  ',ftod(alat/(2d0*pi)*sqrt(sum(abs(r_nm(1:3,i,j)**2))))
          enddo
          enddo
 ccccccccccccccccccccccccccccccccccccccccccccccccc
