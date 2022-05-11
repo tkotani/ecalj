@@ -110,7 +110,7 @@ C ... Local parameters
       double precision a,a0,alat,alat0,cof,eh,fac,qc,rfoc,rfoc0,rmt,
      .rmt0,rsma,rsma0,rsmfa,rsmr,rsmr0,rsmv,rsmv0,stc,sum,vfac,vol,vol0,vs,vs1,z,z0
       double precision pnu(n0,2),pnz(n0,2),ql(n0,2*n0),pos(3),
-     .pos0(3),force(3),vel(3),plat(3,3),plat0(3,3),qlat(3,3),qlat0(3,3),
+     .pos0(3),force(3),plat(3,3),plat0(3,3),qlat(3,3),qlat0(3,3), !,vel(3)
      .exi(n0),hfc(n0,2),vec0(3),wk(100),rh,vrmax(2),pnus(n0,2),
      .pnzs(n0,2),dval
       character spid*8,spid0*8,fid0*68,line*20,msg*23,use*80,ignore*80,
@@ -342,17 +342,17 @@ C         Must be enough sites to read from rst file
         do  ib = 1, nbas0
           if (procid .eq. master) then
             if (lbin) then
-              read(jfi,err=999,end=999) jb,pos,force,vel
+              read(jfi,err=999,end=999) jb,pos,force!,vel
             else
               read(jfi,'(6x,i10)',err=999,end=999) jb
               read(jfi,*,err=999,end=999) pos
               read(jfi,*,err=999,end=999) force
-              read(jfi,*,err=999,end=999) vel
+              read(jfi,*,err=999,end=999) !vel
             endif
           endif
           call mpibc1_real(pos,3,'iors_pos')
           call mpibc1_real(force,3,'iors_force')
-          call mpibc1_real(vel,3,'iors_vel')
+c          call mpibc1_real(vel,3,'iors_vel')
           if (ib .gt. nbas) goto 10
 C         rst file positions in pos0
 c          if (lshear) then
@@ -362,12 +362,12 @@ c          endif
           pos0=pos 
           if (irs3 .ne. 0) then !overwrite pos,vel
             pos=ssite(ib)%pos
-            vel=0d0 
+c            vel=0d0 
           endif
            ssite(ib)%pos  =pos
            ssite(ib)%pos0 =pos0
            ssite(ib)%force=force
-           ssite(ib)%vel  =vel
+c           ssite(ib)%vel  =vel
    10     continue
         enddo
 C   --- Read information for local densities ---
@@ -776,14 +776,14 @@ C   --- Write information related to dynamics ---
         do  110  ib = 1, nbas
           pos  =ssite(ib)%pos
           force=ssite(ib)%force
-          vel  =ssite(ib)%vel
+c          vel  =ssite(ib)%vel
           if (lbin) then
-            write(jfi) ib,pos,force,vel
+            write(jfi) ib,pos,force!,vel
           else
             write(jfi,'('' Site:'',i5)') ib
             write(jfi,345) pos,   'position'
             write(jfi,345) force, 'force'
-            write(jfi,345) vel,   'velocity'
+            write(jfi,345) !vel,   'velocity'
   345       format(3f15.10,t50,'! ',a)
           endif
   110   continue

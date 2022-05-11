@@ -72,7 +72,7 @@ c     &     ,ham_delta_stabilize
       character*(8),allocatable,protected:: coreh(:)
 !! ... SITE
       character(8),protected:: alabl
-      real(8),allocatable,protected :: pos(:,:),vel(:,:)!,vshft(:)
+      real(8),allocatable,protected :: pos(:,:)!,vel(:,:)!,vshft(:)
       integer,allocatable,protected :: ips(:),irlx(:,:),ndelta(:) !,ipl(:),plv(:)
       real(8),allocatable,protected :: delta(:,:),mpole(:),dpole(:,:)
       integer,allocatable,protected ::iantiferro(:) !reserved
@@ -921,9 +921,9 @@ c          nm='SPEC_ATOM_IDXDN'; removed...
      .        'token ATOM apply to one site.'/3x,'Alternatively, all ',
      .        'site data can be read in via the SITE file.')
       endif
-      allocate(pos(3,nsite),vel(3,nsite),ips(nsite),irlx(3,nsite),iantiferro(nsite))
-! vshft(nsite),,ipl(nsite),plv(nsite)!mpole(nsite),dpole(3,nsite),
-      vel  = 0d0
+      allocate(pos(3,nsite),ips(nsite),irlx(3,nsite),iantiferro(nsite))
+! vshft(nsite),,ipl(nsite),plv(nsite)!mpole(nsite),dpole(3,nsite),,vel(3,nsite)
+c      vel  = 0d0
       irlx = 0
       ips  = NULLI
       pos  = NULLR
@@ -956,8 +956,8 @@ c          nm='SPEC_ATOM_IDXDN'; removed...
             call dcopy(3,pos(1,j),1,xv,1)
             call dmpy(plat,3,1,xv,3,1,pos(1,j),3,1,3,1,3)
          endif
-         nm='SITE_ATOM_V0'; call gtv(trim(nm),tksw(prgnam,nm),vel(:,j),def_r8v=zerov,cindx=jj,
-     .        note='Initial velocity for molecular dynamics')
+c         nm='SITE_ATOM_V0'; call gtv(trim(nm),tksw(prgnam,nm),vel(:,j),def_r8v=zerov,cindx=jj,
+c     .        note='Initial velocity for molecular dynamics')
          nm='SITE_ATOM_RELAX'; call gtv(trim(nm),tksw(prgnam,nm),irlx(:,j),
      .        def_i4v=(/(1,i=1,n0)/),cindx=jj,note=
      .        'relax site positions (lattice dynamics) or Euler angles (spin dynamics)')
@@ -1248,7 +1248,7 @@ c          call dcopy(n0*nkap0,idxdn(1,1,j),1,v_sspec(j)%idxdn,1) ! = idxdn
           v_ssite(j)%spec=ips(j)
           v_ssite(j)%class=ips(j)
           v_ssite(j)%pos=pos(1:3,j)
-          v_ssite(j)%vel=vel(1:3,j)
+c          v_ssite(j)%vel=vel(1:3,j)
           v_ssite(j)%relax=irlx(:,j)
           v_ssite(j)%iantiferro=iantiferro(j)
       enddo
@@ -1345,7 +1345,7 @@ C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
      .     exi,coreq,rs3,rham,idxdn,
      .     rmt,idu,uh,jh,kmxv,  !kmxt,
      .     lfoca,eref,lmxl,coreh,          spec_a,z,nr,rsmv,
-     .     pos,vel,ips,irlx)  !,vshft
+     .     pos,ips,irlx)  !,vshft
 !! --- takao embed contents in susite here. This is only for lmf and lmfgw.
       seref = 0d0
       do ib = 1, nsite

@@ -93,7 +93,7 @@ c      character(8)   ::   clabel !labelling class
       real(8)   ::   pz(n0,2) !log derivative parameter, semicore states
       integer   ::   relax(3) !(dynamics) flags which coordinates to relax
       integer   ::   spec !species index
-      real(8)   ::   vel(3) !velocity
+c      real(8)   ::   vel(3) !velocity
 c      real(8)   ::   vshft !constant potential shift for this site
       end type s_site
       end module m_struc_def
