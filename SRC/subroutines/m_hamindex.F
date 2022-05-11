@@ -4,6 +4,8 @@
       use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
       use NaNum,only: NaN       !for initialization, but not working well
       use m_suham,only: ndham_read=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
+      use m_orbl,only: Orblinit,norbx,ltabx,ktabx,offlx
+      
       integer,allocatable,public:: ib_table(:),k_table(:),l_table(:)
       integer,protected,public:: ngrpaf,ngrp_original,pwmode,ndham
       integer,protected,public:: nqi=NaN, nqnum=NaN, ngrp=NaN, lxx=NaN, kxx=NaN,norbmto=NaN,
@@ -45,7 +47,7 @@ c      enddo
       integer:: i_copy_size,i_spacks,i_spackv,ifi,nbas_in,ifisym,i,ifiqibz,igg,iqq,iqi,irr,iqi_,jobgw
       integer:: iout,nout,nlatout(3,noutmx),iapw ,iprint,ngadd,igadd,igaf
       integer:: ngp, ifiqg,iq,nnn(3),ixx,ndummy,nqbz___ ,ifatomlist
-      integer,allocatable:: ltabx(:,:),ktabx(:,:),offlx(:,:),iqtt(:), kv(:)
+      integer,allocatable:: iqtt(:), kv(:)!ltabx(:,:),ktabx(:,:),offlx(:,:),
       real(8):: pwgmax, pwgmin, QpGcut_psi,qxx(3),qtarget(3),platt(3,3),q(3),qx(3),qqx(3)
       real(8):: dum,qb(3,3),ddd(3),ppin(3), tolq, rlatp(3,3),xmx2(3),qqq(3),diffs,ddf
       real(8),allocatable:: symtmp(:,:,:)
@@ -166,15 +168,16 @@ c$$$      endif
       
 !---------------------------------------------------------
 !!--- MTO part ---- obtain norbmto, lxx,kxx ----
-      allocate( ltabx(n0*nkap0,nbas),ktabx(n0*nkap0,nbas),offlx(n0*nkap0,nbas))
+c      allocate( ltabx(n0*nkap0,nbas),ktabx(n0*nkap0,nbas),offlx(n0*nkap0,nbas))
+      call Orblinit() 
       norbmto=0
       kxx=-1
       lxx=-1
-      ndimham = 0 !dimension of mto part of hamiltonian
+      ndimham = 0               !dimension of mto part of hamiltonian
       do  ib = 1, nbas
         is=ssite(ib)%spec
-        call orbl(ib,0,ldim,iprmb,norb,ltabx(:,ib),ktabx(:,ib),off,offlx(:,ib),ndim)!iprmb
-        do iorb = 1, norb
+c     call orbl(ib,0,ldim,iprmb,norb,ltabx(:,ib),ktabx(:,ib),off,offlx(:,ib),ndim)!iprmb
+        do iorb = 1, norbx(ib)
           norbmto = norbmto+1
           if(ltabx(iorb,ib)>lxx)  lxx = ltabx(iorb,ib)
           if(ktabx(iorb,ib)>kxx)  kxx = ktabx(iorb,ib)
@@ -191,8 +194,8 @@ c$$$      endif
       do  ib = 1, nbas
         is=ssite(ib)%spec
 c        spid(ib)=sspec(is)%name
-        call orbl(ib,0,ldim,iprmb,norb,ltabx(:,ib),ktabx(:,ib),off,offlx(:,ib),ndim) !iprmb
-        do  iorb = 1, norb !(ib,irob) specify a block of MTO part Hamiltonian
+c        call orbl(ib,0,ldim,iprmb,norb,ltabx(:,ib),ktabx(:,ib),off,offlx(:,ib),ndim) !iprmb
+        do  iorb = 1, norbx(ib) !(ib,irob) specify a block of MTO part Hamiltonian
           norbmto=norbmto+1
           ibastab(norbmto)= ib
           ltab(norbmto)   = ltabx(iorb,ib) !angular momentum l of (ib,iorb) block

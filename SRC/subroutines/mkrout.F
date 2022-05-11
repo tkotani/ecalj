@@ -2,6 +2,7 @@
       use m_struc_def
       use m_uspecb,only:uspecb
       use m_lmfinit,only:nkapii,lhh
+      use m_orbl,only: Orblib,ktab,ltab,offl,norb
       
       public:: m_Mkrout_init, orhoat_out, frcbandsym, qbyl_rv,hbyl_rv, sumec,sumtc,sumt0
       
@@ -145,8 +146,8 @@ C ----------------------------------------------------------------------
       parameter (nkap0=3)
       integer lh(nkap0)
       double precision eh(n0,nkap0),rsmh(n0,nkap0)
-      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
-      integer norb,ntab(n0*nkap0),blks(n0*nkap0)
+c      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
+      integer ntab(n0*nkap0),blks(n0*nkap0)
       double precision pnu(n0,2),pnz(n0,2),qcorg,qcorh,qsc,cofg,cofh
       integer ::iwdummy,i_copy_size,ifx!,nlmto
       real(8):: dat(6,nbas)
@@ -177,8 +178,7 @@ c      nlmto= ham_ldham(1)
 c        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
         call uspecb(is,rsmh,eh)
         nkapi=nkapii(is)
-        call orbl ( ib , 0 , nlmto , iprmb , norb , ltab , ktab 
-     .   , xx , offl , xx )
+        call orblib(ib)! , 0 , nlmto , iprmb , norb , ltab , ktab , xx , offl , xx )
         call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
         is=ssite(ib)%spec
         i_copy_size=size(ssite(ib)%pnu)

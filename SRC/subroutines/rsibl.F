@@ -8,9 +8,8 @@
       use m_supot,only: lat_ng
       use m_supot,only: lat_gmax
       use m_uspecb,only:uspecb
-
-
-      use m_lattic,only:lat_plat      
+      use m_lattic,only:lat_plat
+      
 C- Add smooth part of output density into smrho and forces.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -195,6 +194,7 @@ C    --- Add to forces ---
      .ndimh,nlmto,nspc,ewgt,ivec,nvec,evec,vpsi,psi,f)
       use m_uspecb,only:uspecb
       use m_struc_def  !Cgetarg
+      use m_orbl,only: Orblib,ktab,ltab,offl,norb
 C- Make wave function for a block of evecs, or add contr. to forces
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -251,8 +251,8 @@ C ... Passed parameters
       double complex
      .psi(ng,nspc,nvec),evec(ndimh,nspc,ivec),vpsi(ng,nspc,nvec)
 C ... Local parameters
-      integer norb,ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),
-     .blks(n0*nkap0),ntab(n0*nkap0),ncut(n0,nkap0),lh(nkap0),nkapi
+c      integer norb,ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),
+      integer:: blks(n0*nkap0),ntab(n0*nkap0),ncut(n0,nkap0),lh(nkap0),nkapi
       double precision e,rsm,eh(n0,nkap0),rsmh(n0,nkap0),f0(3)
       double precision xx(n0),wt,p(3)
       integer ib,is,io,jo,l2,kp,ie,ir,ioff,nlm1,nlm2,iq,kb,lt,i
@@ -274,7 +274,7 @@ c takao
 
         call suphas(q,p,ng,iv,n1,n2,n3,qlat,cosgp,singp)
 C       List of orbitals, their l- and k- indices, and ham offsets
-        call orbl(ib,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
+        call orblib(ib) !,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
 C       Block into groups with consecutive l and common (e,rsm)
         call uspecb(is,rsmh,eh)
         call gtbsl1(7+16,norb,ltab,ktab,rsmh,eh,ntab,blks)

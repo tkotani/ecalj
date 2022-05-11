@@ -6,6 +6,7 @@
       use m_uspecb,only:uspecb
       use m_struc_def
       use m_lattic,only:lat_plat      
+      use m_orbl,only: Orblib1,Orblib2,ktab1,ltab1,offl1,norb1,ktab2,ltab2,offl2,norb2
 C- Smoothed Bloch Hamiltonian (constant potential) and overlap matrix
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -146,10 +147,10 @@ C ... Local parameters
       integer nlmto
       integer i1,i2,ib1,ib2,ilm1,ilm2,io1,io2,is1,is2,nlm1,nlm2,l1,l2,ig
       integer lh1(nkap0),lh2(nkap0),nkap1,nkap2
-      integer ltab1(n0*nkap0),ktab1(n0*nkap0),offl1(n0*nkap0),norb1,ik1,
-     .blks1(n0*nkap0),ntab1(n0*nkap0)
-      integer ltab2(n0*nkap0),ktab2(n0*nkap0),offl2(n0*nkap0),norb2,ik2,
-     .blks2(n0*nkap0),ntab2(n0*nkap0)
+c      integer ltab1(n0*nkap0),ktab1(n0*nkap0),offl1(n0*nkap0),norb1,ik1,
+      integer:: ik1,blks1(n0*nkap0),ntab1(n0*nkap0)
+c      integer ltab2(n0*nkap0),ktab2(n0*nkap0),offl2(n0*nkap0),norb2,ik2,
+      integer:: ik2,blks2(n0*nkap0),ntab2(n0*nkap0)
       double precision e1(n0,nkap0),rsm1(n0,nkap0),p1(3),
      .e2(n0,nkap0),rsm2(n0,nkap0),p2(3),xx
       double complex s0(nlms,nlms,0:kdim,nkap0,nkap0)
@@ -207,14 +208,14 @@ C     Note: rearrange order
             p1=ssite(ib1)%pos
             call uspecb(is1,rsm1,e1)
 !     Row info telling smhsbl where to poke s0 made by hhibl
-            call orbl(ib1,0,nlmto,iprmb,norb1,ltab1,ktab1,xx,offl1,xx)
+            call orblib1(ib1)!,0,nlmto,iprmb,norb1,ltab1,ktab1,xx,offl1,xx)
             call gtbsl1(8+16,norb1,ltab1,ktab1,rsm1,e1,ntab1,blks1)
             do  ib2 = ib1, nbas
                is2=ssite(ib2)%spec
                p2=ssite(ib2)%pos
                call uspecb(is2,rsm2,e2)
 !     Column info telling smhsbl where to poke s0 made by hhibl
-               call orbl(ib2,0,nlmto,iprmb,norb2,ltab2,ktab2,xx,offl2,xx)
+               call orblib2(ib2) !,0,nlmto,iprmb,norb2,ltab2,ktab2,xx,offl2,xx)
                call gtbsl1(8+16,norb2,ltab2,ktab2,rsm2,e2,ntab2,blks2)
 !     ... M.E. <1> and <T> between all envelopes connecting ib1 and ib2
                do  i1 = 1, nkaphh(is1) !nkap1

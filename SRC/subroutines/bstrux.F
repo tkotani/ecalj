@@ -88,6 +88,7 @@ c      print *,' bbbbbbbbbb iq q=',iq,q
      &     indxcg=>iv_a_oidxcg,jcg=>iv_a_ojcg,cy=>rv_a_ocy,iprmb,nbas
       use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol
       use m_uspecb,only: uspecb
+      use m_orbl,only: Orblib, norb,ltab,ktab,offl
 C- Structure constants for P_kL expansion of Bloch lmto + PW around site ia
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -148,11 +149,11 @@ C ----------------------------------------------------------------------
       !b(ndimh,nlma,0:kmax) mode 1,2
       double complex db(*) !db(ndimh,nlma,0:kmax,3)
 C ... Local parameters
-      integer nlmto,nlmbx,ib,is,ik,n0,nkap0,nkapi,norb,nlmh
+      integer nlmto,nlmbx,ib,is,ik,n0,nkap0,nkapi,nlmh
       parameter (nlmbx=25,n0=10,nkap0=3)
       integer lh(nkap0)
       double precision eh(n0,nkap0),rsmh(n0,nkap0)
-      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
+c      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
       double precision p(3),xx,srvol
       complex(8),allocatable:: b0(:),db0(:)
       real(8),allocatable:: bos(:)
@@ -177,7 +178,8 @@ C --- b for MTO  (Written as C_kl in LMTO book) ---
           p = ssite(ib)%pos
           call uspecb(is,rsmh,eh)          
 C       Position in h; l,k indices for orbitals connected w/ ib
-          call orbl(ib,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
+c     call orbl(ib,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
+          call orblib(ib)
 C       Loop over blocks of envelope functions
           do  ik = 1, nkaphh(is)
             nlmh = (lhh(ik,is)+1)**2

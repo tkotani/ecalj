@@ -2,6 +2,7 @@
      .nevec,evl,evec,ewgt,napw,qpgv,qpg2v,ylv,nlmax,lmxax,alat,sqv,f)
       use m_struc_def 
       use m_uspecb,only:uspecb
+      use m_orbl,only: Orblib1,ktab1,ltab1,offl1,norb1
 C- Force from smoothed hamiltonian (constant potential), PW contribution
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -68,8 +69,8 @@ C ... Local parameters
       parameter (n0=10, nkap0=3)
       integer i1,i2,ib1,ilm1,io1,iq,is1,l1,ik1,ig,ivec,nglob,
      .nlm11,nlm12,m
-      integer norb1,ltab1(n0*nkap0),ktab1(n0*nkap0),offl1(n0*nkap0),
-     .blks1(n0*nkap0),ntab1(n0*nkap0),lh1(nkap0),nkap1
+c      integer norb1,ltab1(n0*nkap0),ktab1(n0*nkap0),offl1(n0*nkap0),
+      integer:: blks1(n0*nkap0),ntab1(n0*nkap0),lh1(nkap0),nkap1
       double precision gam,denom,pi,fpi,ddot
       double precision e1(n0,nkap0),rsm1(n0,nkap0),p1(3),xx(n0),wt
       double complex phase,srm1,fach,ovl,ccc(3),sum,srm1l(0:n0)
@@ -125,7 +126,9 @@ C --- Loop over first and second site indices ---
 
         call uspecb(is1,rsm1,e1)
 C       Row info telling fsmbpw where to poke s0 made by hhibl
-        call orbl(ib1,0,nlmto,iprmb,norb1,ltab1,ktab1,xx,offl1,xx)
+c        call orbl(ib1,0,nlmto,iprmb,norb1,ltab1,ktab1,xx,offl1,xx)
+        call orblib1(ib1) !,0,nlmto,iprmb,norb1,ltab1,ktab1,xx,offl1,xx)
+        
 C       For now, do not allow l blocks to be grouped.
 C       To do so will require rewriting loops below.
         call gtbsl1(8+16,norb1,ltab1,ktab1,rsm1,e1,ntab1,blks1)

@@ -2,6 +2,7 @@
       contains
       subroutine prlcb2(job,ia,nkaph,iprmb,nlmha,kmax,nlma,isp,cPkL,
      .     nlmto,evec,ewgt,evl,qhh,qhp)
+      use m_orbl,only: Orblib,ktab,ltab,offl,norb
 C- Add one and two-center terms to density coeffs
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -40,13 +41,13 @@ C ... Local parameters
       integer i1,i2,ilm1,ilm2,ilma,io1,io2,iq,k,ik1,ik2,
      .     l1,l2,n0,nkap0,nlm11,nlm12,nlm21,nlm22
       parameter (n0=10,nkap0=3)
-      integer norb,ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),
-     .     blks(n0*nkap0),ntab(n0*nkap0)
+      integer  blks(n0*nkap0),ntab(n0*nkap0)
+!norb,ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),      
       double precision xx
       if (nlmto .eq. 0) return
       call tcn('prlcb2')
 C --- Loop over all orbitals centered at site ia, incl. local orbs ---
-      call orbl(ia,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
+      call orblib(ia)!,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
 C     Block into groups of consecutive l
       call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
       do io1 = 1, norb

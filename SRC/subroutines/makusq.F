@@ -339,6 +339,7 @@ C ... end loop over noncollinear spins
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine pusq2(mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma,iprmb,
      .cPkL,r,evec,vh,dh,vp,dp,au,as,az)
+      use m_orbl,only: Orblib,ktab,ltab,offl
 C- Extract projection of eigenstate onto (u,s,z) for sphere at site ia
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -386,7 +387,7 @@ C ... Passed parameters
 C Local
       integer n0,nkap0,norb
       parameter (n0=10,nkap0=3)
-      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
+c      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
       integer blks(n0*nkap0),ntab(n0*nkap0)
       integer io1,l1,ik1,nlm11,nlm12,ilm1,i1,ilma,k
       integer l,ll
@@ -396,7 +397,7 @@ C     call tcn('pusq2')
       if (nlmto .eq. 0) return
       if (nlma .gt. nlmxx) call rxi('makusq:  nlmxx.lt.nlma=',nlma)
 C --- Loop over all orbitals centered at this site ---
-      call orbl(ia,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
+      call orblib(ia)!,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
 C     Block into groups of consecutive l
       call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
 C     Contribution from head part

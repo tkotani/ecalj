@@ -1,6 +1,7 @@
       subroutine flocbl(nbas,ia,kmax,nkaph,lmxha,nlmha,nlma,lmxa,nlmto,
      .ndimh,iprmb,isp,evl,evec,ewgt,cPkL,db,!da,wk,
      .sigpp,sighp,ppippz,ppihpz,f) !lcplxp,
+      use m_orbl,only: Orblib, norb,ltab,ktab,offl
 C- Force contribution from augmentation at site ia.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -51,9 +52,9 @@ c     .ppipp(0:kmax,0:kmax,nlma,nlma,isp)
       double complex ppihpz(nkaph,0:kmax,nlmha,nlma,isp)
       double complex ppippz(0:kmax,0:kmax,nlma,nlma,isp)
 C ... Local parameters
-      integer i,ib,ilm,ilmb,io,iq,k,l2,m,nlm1,nlm2,norb,n0,nkap0
+      integer i,ib,ilm,ilmb,io,iq,k,l2,m,nlm1,nlm2,n0,nkap0
       parameter (n0=10,nkap0=3)
-      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
+c      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
       integer blks(n0*nkap0),ntab(n0*nkap0)
       double precision sum,wt,xx
       if (nlmto .eq. 0) return
@@ -69,7 +70,8 @@ C ... Loop over ib, virtual shift of wavefct part centered there
       do  ib = 1, nbas
         if (ib .eq. ia) goto 10
 C       Block orbitals into groups with consecutive l
-        call orbl(ib,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
+c        call orbl(ib,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
+        call orblib(ib)
         call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
 
 C   ... Grad of psi expansion coeffs from a virtual shift at site ib
@@ -138,6 +140,7 @@ C ... Force term is (grad psi_kL) * (ppi-evl*sig)*evec
       subroutine flocb2(ia,nlmto,iprmb,kmax,nkaph,nlmha,nlma,evl,evec,
 c     .ppipp,ppippz,sigpp,ppihp,ppihpz,sighp,cPkL,wk)!lcplxp,
      .ppippz,sigpp,ppihpz,sighp,cPkL,wk)!lcplxp,
+      use m_orbl,only: Orblib, norb,ltab,ktab,offl
 C- Make (ppi-evl*sig)*evec
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -175,14 +178,15 @@ C ... Passed parameters
       double complex ppihpz(nkaph,0:kmax,nlmha,nlma)
       double complex ppippz(0:kmax,0:kmax,nlma,nlma)
 C ... Local parameters
-      integer i,ilm,ilma,ilmb,io,jlm,k,k1,k2,l,ll,nlm1,nlm2,n0,nkap0,ik,
-     .norb
+      integer i,ilm,ilma,ilmb,io,jlm,k,k1,k2,l,ll,nlm1,nlm2,n0,nkap0,ik
+c     .norb
       parameter (n0=10,nkap0=3)
-      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),blks(n0*nkap0),ntab(n0*nkap0)
+      integer blks(n0*nkap0),ntab(n0*nkap0)!ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),
       double precision xx
       wk=0d0
 C ... Add Hsm*Pkl block of ppi-evl*sig times evec
-      call orbl(ia,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
+c      call orbl(ia,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
+      call orblib(ia)
 C     Block evl*ppi contribution in groups of consecutive l
       call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
       do  io = 1, norb

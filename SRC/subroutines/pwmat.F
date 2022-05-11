@@ -5,8 +5,7 @@
       use m_lattic,only: lat_qlat
       use m_lattic,only: lat_vol
       use m_uspecb,only:uspecb
-
-
+      use m_orbl,only: Orblib,ktab,ltab,offl,norb
       use m_lattic,only:lat_plat
       implicit none
 !! inn:  takao added 27 Apr2009
@@ -84,8 +83,8 @@ C ... Local parameters
       integer n0,nkap0
       parameter (n0=10, nkap0=3)
       integer lh(nkap0),nkapi
-      integer norb,io,l,ik,offh,ilm,ltab(n0*nkap0),ktab(n0*nkap0),
-     .offl(n0*nkap0),blks(n0*nkap0),ntab(n0*nkap0)
+      integer io,l,ik,offh,ilm,blks(n0*nkap0),ntab(n0*nkap0)
+!     ltab(n0*nkap0),ktab(n0*nkap0),  .offl(n0*nkap0)norb,
 
       double precision eh(n0,nkap0),rsmh(n0,nkap0)
       double complex phase,img,fach,mimgl(0:n0)
@@ -180,7 +179,7 @@ C     Could be optimized, ala hsibl, but not a critical step for GW.
           is = int(ssite(ib)%spec)
 
           call uspecb(is,rsmh,eh)
-          call orbl(ib,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
+          call orblib(ib)!,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
           call gtbsl1(8+16,norb,ltab,ktab,rsmh,eh,ntab,blks)
 
           do  io = 1, norb
@@ -248,9 +247,8 @@ C --- Cleanup ---
       use m_lattic,only: lat_qlat
       use m_lattic,only: lat_vol
       use m_uspecb,only:uspecb
-
-
       use m_lattic,only:lat_plat      
+      use m_orbl,only: Orblib,ktab,ltab,offl,norb
 C- Matrix elements (IPW,IPW); expansion coefficients of basis fns in IPWs
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -307,9 +305,8 @@ C ... Local parameters
       integer n0,nkap0,i_spackv
       parameter (n0=10, nkap0=3)
       integer lh(nkap0),nkapi,i_copy_size
-      integer norb,io,l,ik,offh,ilm,ltab(n0*nkap0),ktab(n0*nkap0),
-     .offl(n0*nkap0),blks(n0*nkap0),ntab(n0*nkap0)
-
+      integer io,l,ik,offh,ilm, blks(n0*nkap0),ntab(n0*nkap0)
+!      ,norb,ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),
       double precision eh(n0,nkap0),rsmh(n0,nkap0)
       double complex phase,img,fach,mimgl(0:n0)
       double precision,allocatable:: yl(:)
@@ -373,7 +370,7 @@ C ... Fourier coefficients of smoothed hankels for all LMTOs
           is = int(ssite(ib)%spec)
 
           call uspecb(is,rsmh,eh)
-          call orbl(ib,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
+          call orblib(ib)!,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
           call gtbsl1(8+16,norb,ltab,ktab,rsmh,eh,ntab,blks)
 
           do  io = 1, norb

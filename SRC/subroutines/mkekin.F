@@ -3,6 +3,8 @@
       use m_lmfinit,only:lso,nkaph,nsp,nspc,stdo,nbas,ssite=>v_ssite,sspec=>v_sspec,iprmb,nlmto
       use m_lattic,only: lat_vol
       use m_supot,only: lat_nabc,k1,k2,k3
+      use m_orbl,only: Orblib,ktab,ltab,offl,norb
+      
 C- Evaluate the valence kinetic energy
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -153,12 +155,12 @@ C ... Passed parameters
       double complex smpot(k1,k2,k3,2),smrho(k1,k2,k3,2)
 C ... Local parameters
       integer ib,igetss,ipr,is,kmax,lgunit,lmxa,lmxh,n0,n1,n2,n3,
-     .ngabc(3),nglob,nkap0,nlma,nlmh,norb
+     .ngabc(3),nglob,nkap0,nlma,nlmh!,norb
 c lso,isw
       logical lgors
       parameter (n0=10,nkap0=3)
-      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),
-     .ntab(n0*nkap0),blks(n0*nkap0)
+c      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),
+      integer:: ntab(n0*nkap0),blks(n0*nkap0)
       double precision qum1,qum2,sraugm,srhov,srmesh,sum1,sum2,sumh,
      .sumq,sumt,vol,xx
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
@@ -191,8 +193,7 @@ C --- Integral rhout*veff, part from augmentation ---
         kmax=sspec(is)%kmxt
         lmxh=sspec(is)%lmxb
         if (lmxa .eq. -1) goto 10
-        call orbl ( ib , 0 , nlmto , iprmb , norb , ltab , ktab 
-     .   , xx , offl , xx )
+        call orblib(ib) !, 0 , nlmto , iprmb , norb , ltab , ktab , xx , offl , xx )
 C       Block into groups of consecutive l
         call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
         nlma = (lmxa+1)**2

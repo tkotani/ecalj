@@ -45,26 +45,25 @@ C --- Make ltab,offl in l order, followed by k order ---
       lmr = nl*nl*nkaph*(ib-1)
       do  ik = 1, nkaph
         do  l = 0, nl-1
-          offli(norb+1) = -1
+          offl(norb+1) = -1
           if (iprmb(lmr+1) .gt. ldimp .and. iprmb(lmr+1) .le. ldim) then
-            offli(norb+1) = iprmb(lmr+1) - 1
-            if (off .eq. -1) off = offli(norb+1)
-            off = min(off,offli(norb+1))
+            offl(norb+1) = iprmb(lmr+1) - 1
+            if (off .eq. -1) off = offl(norb+1)
+            off = min(off,offl(norb+1))
             norb = norb+1
             ndim = ndim + 2*l+1
-            ltabi(norb) = l
-            ktabi(norb) = ik
+            ltab(norb) = l
+            ktab(norb) = ik
           endif
           lmr = lmr + 2*l+1
         enddo
       enddo
 C --- Permute to downfolding order ---
       if (norb .gt. n0*nkap0) call rx('orbl: norb .gt. n0')
-      call ivheap(1,norb,offli,iwk,1)
-      do  l = 1, norb
-        ltab(l) = ltabi(iwk(l))
-        ktab(l) = ktabi(iwk(l))
-        offl(l) = offli(iwk(l))
-      enddo
+c      call ivheap(1,norb,offli,iwk,1)
+c      do  l = 1, norb
+c        ltab(l) = ltabi(l) !iwk(l))
+c        ktab(l) = ktabi(l) !iwk(l))
+c        offl(l) = offli(l) !iwk(l))
+c      enddo
       end
-

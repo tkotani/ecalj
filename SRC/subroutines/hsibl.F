@@ -9,6 +9,8 @@ c#define SGI 1
       use m_supot,only: lat_gmax
       use m_lattic,only:  lat_plat
       use m_uspecb,only:uspecb
+      use m_orbl,only: Orblib1,Orblib2,ktab1,ltab1,offl1,norb1,ktab2,ltab2,offl2,norb2
+      
 C- Interstitial ME of smooth Bloch Hankels, smooth potential.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -110,10 +112,10 @@ C     Shared variables
       complex(8) ,allocatable :: wk2_zv(:)
       integer iprt(n0,nkap0,nermx),ipet(n0,nkap0,nermx),
      .ncut(n0,nkap0)!,lh(nkap0)
-      integer norb1,ltab1(n0*nkap0),ktab1(n0*nkap0),offl1(n0*nkap0),
-     .blks1(n0*nkap0),ntab1(n0*nkap0)
-      integer norb2,ltab2(n0*nkap0),ktab2(n0*nkap0),offl2(n0*nkap0),
-     .blks2(n0*nkap0),ntab2(n0*nkap0)
+c      integer norb1,ltab1(n0*nkap0),ktab1(n0*nkap0),offl1(n0*nkap0),
+      integer:: blks1(n0*nkap0),ntab1(n0*nkap0)
+c      integer norb2,ltab2(n0*nkap0),ktab2(n0*nkap0),offl2(n0*nkap0),
+      integer:: blks2(n0*nkap0),ntab2(n0*nkap0)
       double precision eh1(n0,nkap0),rsmh1(n0,nkap0)
       double precision eh2(n0,nkap0),rsmh2(n0,nkap0)
       double precision xx(n0),p1(3),p2(3)
@@ -254,7 +256,7 @@ C$      ip = mp_my_threadnum()+1
           call suphas ( q , p1 , ng , iv_iv , n1 , n2 , n3 , qlat , 
      .    w_ocos1(1,ip) , w_osin1(1,ip) )
 C       List of orbitals, their l- and k- indices, and ham offsets
-          call orbl(ib1,0,nlmto,iprmb,norb1,ltab1,ktab1,xx,offl1,xx)
+          call orblib1(ib1) !,0,nlmto,iprmb,norb1,ltab1,ktab1,xx,offl1,xx)
           ofh1 = offl1(1)
 C       Block routines into groups with common (e,rsm)
           call uspecb(is1,rsmh1,eh1)
@@ -295,7 +297,7 @@ cccccccccccccccccccccccc
             call suphas ( q , p2 , ng , iv_iv , n1 , n2 , n3 , qlat , 
      .      w_ocos2(1,ip) , w_osin2(1,ip) )
 C         List of orbitals, their l- and k- indices, and ham offsets
-            call orbl(ib2,0,nlmto,iprmb,norb2,ltab2,ktab2,xx,offl2,xx)
+            call orblib2(ib2) !(ib2,0,nlmto,iprmb,norb2,ltab2,ktab2,xx,offl2,xx)
             ofh2 = offl2(1)
 C         Block into groups with consecutive l and common (e,rsm)
             call uspecb(is2,rsmh2,eh2)

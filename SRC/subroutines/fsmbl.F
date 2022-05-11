@@ -2,7 +2,8 @@
      .     nevec,evl,evec,ewgt,f)
       use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,lhh,nkaphh
       use m_uspecb,only:uspecb
-      use m_struc_def 
+      use m_struc_def
+      use m_orbl,only: Orblib1,Orblib2,ktab1,ltab1,offl1,norb1,ktab2,ltab2,offl2,norb2
 C- Force from smoothed hamiltonian (constant potential) and overlap
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -38,7 +39,7 @@ Cu   10 Sep 01 Extended to local orbitals.
 Cu   23 May 00 Adapted from nfp fsm_q.f
 C ----------------------------------------------------------------------
       implicit none
-      integer:: i_copy_size,iloop
+      integer:: iloop
       integer nbas,ndimh,nlmto,nevec,iprmb(nlmto)
       real(8):: q(3)
       type(s_site)::ssite(*)
@@ -52,10 +53,10 @@ C ... Local parameters
      .    , is1 , is2 , l1 , l2 , ik1 , ik2 , ivec , m , nglob , nlm1 , 
      .    nlm2
       integer lh1(nkap0),lh2(nkap0),nkap1,nkap2,nlm21,nlm22,nlm11,nlm12
-      integer norb1,ltab1(n0*nkap0),ktab1(n0*nkap0),offl1(n0*nkap0),
-     .blks1(n0*nkap0),ntab1(n0*nkap0)
-      integer norb2,ltab2(n0*nkap0),ktab2(n0*nkap0),offl2(n0*nkap0),
-     .blks2(n0*nkap0),ntab2(n0*nkap0)
+c      integer norb1,ltab1(n0*nkap0),ktab1(n0*nkap0),offl1(n0*nkap0),
+      integer:: blks1(n0*nkap0),ntab1(n0*nkap0)
+c      integer norb2,ltab2(n0*nkap0),ktab2(n0*nkap0),offl2(n0*nkap0),
+      integer:: blks2(n0*nkap0),ntab2(n0*nkap0)
       double precision e1(n0,nkap0),rsm1(n0,nkap0),p1(3),wt,
      .e2(n0,nkap0),rsm2(n0,nkap0),p2(3),xx(n0)
       double complex  s(nlms,nlms,0:k0,nkap0,nkap0)
@@ -71,15 +72,16 @@ C ... Heap
         p1 =ssite(ib1)%pos
         call uspecb(is1,rsm1,e1)
 C       Row info telling fsmbl where to poke s0 made by hhibl
-        call orbl(ib1,0,nlmto,iprmb,norb1,ltab1,ktab1,xx,offl1,xx)
+c        call orbl(ib1,0,nlmto,iprmb,norb1,ltab1,ktab1,xx,offl1,xx)
+        call orblib1(ib1) !,0,nlmto,iprmb,norb1,ltab1,ktab1,xx,offl1,xx)
         call gtbsl1(4+16,norb1,ltab1,ktab1,rsm1,e1,ntab1,blks1)
         do  ib2 = ib1+1, nbas
           is2=ssite(ib2)%spec
-          i_copy_size=size(ssite(ib2)%pos)
-          call dcopy(i_copy_size,ssite(ib2)%pos,1,p2,1)
+          p2=ssite(ib2)%pos
           call uspecb(is2,rsm2,e2)
 C         Column info telling fsmbl where to poke s0 made by hhibl
-          call orbl(ib2,0,nlmto,iprmb,norb2,ltab2,ktab2,xx,offl2,xx)
+c          call orbl(ib2,0,nlmto,iprmb,norb2,ltab2,ktab2,xx,offl2,xx)
+          call orblib2(ib2)
           call gtbsl1(4+16,norb2,ltab2,ktab2,rsm2,e2,ntab2,blks2)
 C     ... M.E. <1> and <KE> between all envelopes connecting ib1 and ib2
           do  i1 = 1, nkaphh(is1) !nkap1
@@ -91,7 +93,7 @@ C     ... M.E. <1> and <KE> between all envelopes connecting ib1 and ib2
               call hhigbl ( 11 , p1 , p2 , q , rsm1 ( 1 , i1 ) , rsm2 ( 1 , 
      .            i2 ) , e1 ( 1 , i1 ) , e2 ( 1 , i2 ) , nlm1 , nlm2 , 1 , nlms
      .            , nlms , k0 , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy , 
-     .            s ( 1 , 1 , 0 , i1 , i2 ) , ds ( 1 , 1 , 0 , 1 , i1 ,  i2 ) ) !slat , 
+     .            s ( 1 , 1 , 0 , i1 , i2 ) , ds ( 1 , 1 , 0 , 1 , i1 ,  i2 ) ) 
             enddo
           enddo
 

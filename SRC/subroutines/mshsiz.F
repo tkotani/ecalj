@@ -64,8 +64,7 @@ C ... list of all allowed values of n1..n3
       mshlst(0) = 0
       call gtpfac(npfac,pfac)
       call ppfac(npfac,pfac,fmax,1,mshlst(1),mshlst)
-      if (mshlst(1) .eq. 0)
-     .  call rx('mshsiz: null set of allowed mesh points')
+      if (mshlst(1) .eq. 0) call rx('mshsiz: null set of allowed mesh points')
 C --- Upper bound for n1..n3 : guaranteed to hold all G<gmax ---
       do  i = 1, 3
         i2 = mod(i,3)+1

@@ -285,7 +285,8 @@ c        if(lso/=0) deallocate(ppi1,ppi2,ppi3)
 
       subroutine augq2z(ia,isp,nkaph,lmxb,nlmb,kmax,
      .nlma,b,ndimh,sighh,sighp,ppihh,ppihp,s,h)
-      use m_lmfinit,only: nlmto,iprmb
+c      use m_lmfinit,only: nlmto,iprmb
+      use m_orbl,only: Orblib, norb,ltab,ktab,offl
 C- Add one and two-center terms to h,s for complex potential
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -329,13 +330,14 @@ C ----------------------------------------------------------------------
 C ... Local parameters
       integer iorb,ik1,j,k,ilma,i1,i2,ilm1,ilm2,l1,n0,nkap0,jorb,ik2,l2,jsp,ksp
       parameter (n0=10,nkap0=3)
-      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),norb
+c      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),norb
       double precision xx
       double complex cadd,cadd1
       complex(8),allocatable:: tso(:,:,:,:)
       call tcn ('augq2z')
 C --- Loop over basis functions at site ia (augentation index) ---
-      call orbl(ia,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
+c     call orbl(ia,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
+      call orblib(ia) !return ltab,... 
       do  iorb = 1, norb
         l1  = ltab(iorb)
         ik1 = ktab(iorb)
@@ -370,7 +372,8 @@ C --- Loop over basis functions at site ia (augentation index) ---
       end subroutine augq2z
 !ssssssssssssssssssssssssss
       subroutine augq2zhso(ia,nkaph,lmxb,nlmb,kmax, nlma,b,ndimh, hsohh,hsohp,hsoph,hsopp,  hso)
-      use m_lmfinit,only: nlmto,iprmb
+c      use m_lmfinit,only: nlmto,iprmb
+      use m_orbl,only: Orblib, norb,ltab,ktab,offl
 C- Add one and two-center terms to h,s for complex potential
 Co   hso   :1- and 2- center spin up-down spin orbit block
 Cr Remarks
@@ -400,12 +403,13 @@ C ----------------------------------------------------------------------
 C ... Local parameters
       integer iorb,ik1,j,k,ilma,i1,i2,ilm1,ilm2,l1,n0,nkap0,jorb,ik2,l2,jsp,ksp,isp1,isp2
       parameter (n0=10,nkap0=3)
-      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),norb
+c      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),norb
       double precision xx
       double complex cadd,cadd1,fac
       integer jlm1,jlm2,k1,k2
       call tcn ('augq2zhs0')
-      call orbl(ia,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
+c     call orbl(ia,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
+      call orblib(ia) !return ltab,... 
       do iorb = 1, norb
         l1  = ltab(iorb)
         ik1 = ktab(iorb)

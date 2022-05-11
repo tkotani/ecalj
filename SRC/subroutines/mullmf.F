@@ -3,6 +3,7 @@ CSFCPP#define F90 1
      .nsites,lsites,lmxch,nchan,lchan,lmdim,nddos,doswt)
 
       use m_struc_def  !Cgetarg
+      use m_orbl,only: Orblib,ktab,ltab,offl,norb
 
 C- Make Mulliken decomposition of the norm at this k-point
 C ----------------------------------------------------------------------
@@ -53,9 +54,9 @@ C ... Local parameters
      .ispc,ksp,stdo,nev,nx
       integer n0,nkap0
       parameter (n0=10,nkap0=3)
-      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
+c      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
       integer blks(n0*nkap0),ntab(n0*nkap0)
-      integer io,ikap,l,nlm1,nlm2,ilm,jlm,i,j,norb
+      integer io,ikap,l,nlm1,nlm2,ilm,jlm,i,j!,norb
       double precision xx
 CSFCPP#if F90
       integer ipiv(n*nspc)
@@ -119,14 +120,10 @@ C --- Decompose by l:
 C --- Loop over channels ---
       do  isite = 1, nsites
         ib = lsites(isite)
-
         is=ssite(ib)%spec
-
-
         lmxb=sspec(is)%lmxb
-
 C   ... Loop over all orbitals centered at this site
-        call orbl(ib,0,n,iprmb,norb,ltab,ktab,xx,offl,xx)
+        call orblib(ib) !,0,n,iprmb,norb,ltab,ktab,xx,offl,xx)
 C   ... Block into groups of consecutive l
         call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
         if (ipr .ge. iprmin) write(stdo,2) ib,is,lmxb,norb

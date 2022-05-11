@@ -1310,7 +1310,7 @@ c                (idxdn(l+1,ik,is)==10.or.idxdn(l+1,ik,is)==11).or. idxdn(l+1,ik
            enddo 
            enddo
  1121     continue
-  110 continue
+ 110   continue
       nspx  = nsp
       if(lso/=0) nspx = 1
       nvi=0
