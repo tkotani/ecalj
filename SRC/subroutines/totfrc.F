@@ -48,14 +48,13 @@ C ----------------------------------------------------------------------
         write(stdo,201)
   201   format('  ib',11x,'estatic',18x,'eigval',20x,'total')
       endif
-      do  ib = 1, nbas
-        do  m = 1, 3
-          fev1(m) = f(m,ib) + dfhf(m,ib)
-          fev2(m) = f(m,ib)
-          fhar(m) = fev1(m) + fes1(m,ib)
-          f(m,ib) = fhar(m)
-        enddo
-        if (dsqrt(ddot(3,fhar,1,fhar,1)) .gt. fmax) then
+      
+      do ib = 1, nbas
+        fev1 = f(:,ib) + dfhf(:,ib)
+        fev2 = f(:,ib)
+        fhar = fev1(:) + fes1(:,ib)
+        f(:,ib) = fhar(:)
+        if(dsqrt(ddot(3,fhar,1,fhar,1)) .gt. fmax) then
           ibmx = ib
           fmax = dsqrt(ddot(3,fhar,1,fhar,1))
         endif
@@ -63,46 +62,30 @@ C ----------------------------------------------------------------------
           ibmx = ib
           dfmax = dsqrt(ddot(3,dfhf(1,ib),1,dfhf(1,ib),1))
         endif
-        if (ipr .ge. 30) write(stdo,200) ib,(c*fes1(m,ib),m=1,3),
-     .  (c*fev1(m),m=1,3),(c*fhar(m),m=1,3)
+        if(ipr .ge. 30) write(stdo,200) ib,(c*fes1(m,ib),m=1,3),(c*fev1(m),m=1,3),(c*fhar(m),m=1,3)
   200   format(i4,3f8.2,1x,3f8.2,1x,3f8.2)
         if (leks. eq. 0 .and. ipl .gt. 0 .and. ipr .ge. 30)
-     .  write(stdl,710) ib,(c*fhar(m),m=1,3)
-
-        i_copy_size=size(ssite(ib)%force)
-        call dcopy(i_copy_size,f(1,ib),1,ssite(ib)%force,1)
-
-  710   format('fp ib',i4,'  fh ',3f8.2,2x,3f8.2)
-
-        if (leks .ge. 1) then
-          do  m = 1, 3
-            fks(m)  = fev2(m) + fes2(m,ib)
-            if (leks .gt. 1) f(m,ib) = fks(m)
-            if ( leks .gt. 1 ) then
-
-              i_copy_size=size(ssite(ib)%force)
-              call dcopy(i_copy_size,fks,1,ssite(ib)%force,1)
-            endif
-          enddo
-          if (ipr .gt. 40) write(stdo,210) (c*fes2(m,ib),m=1,3),
-     .    (c*fev2(m),m=1,3),(c*fks(m),m=1,3)
-  210     format('  KS',3f8.2,1x,3f8.2,1x,3f8.2)
+     .  write(stdl,"('fp ib',i4,'  fh ',3f8.2,2x,3f8.2)") ib,(c*fhar(m),m=1,3)
+        if (leks >= 1) then
+          fks  = fev2 + fes2(:,ib)
+          if (leks .gt. 1) f(:,ib) = fks
+          if (ipr .gt. 40) write(stdo,210) (c*fes2(m,ib),m=1,3),(c*fev2(m),m=1,3),(c*fks(m),m=1,3)
+ 210      format('  KS',3f8.2,1x,3f8.2,1x,3f8.2)
           if (ipl .gt. 0 .and. ipr .ge.30)
      .    write (stdl,711) ib,(c*fhar(m),m=1,3),(c*fks(m),m=1,3)
   711     format('fp ib',i4,'  fh ',3f8.2,'   fks ',3f8.2)
         endif
+        ssite(ib)%force = f(:,ib)
       enddo
       call info5(10,0,0,' Maximum Harris force = %;3g mRy/au (site %i)'
-     .//'%?#n#  Max eval correction = %;1d##',
-     .c*fmax,ibmx,isw(dfmax.gt.0),c*dfmax,0)
+     .//'%?#n#  Max eval correction = %;1d##',c*fmax,ibmx,isw(dfmax.gt.0),c*dfmax,0)
 
 C     Symmetrize forces to machine precision
       ng=lat_nsgrp
       if (ng .gt. 1) then
         call info(30,1,0,' Symmetrize forces ...',0,0)
         allocate(wk_rv(3*nbas))
-        call symfor ( nbas , 1 , rv_a_osymgr , ng , iv_a_oistab , wk_rv , 
-     .    f )
+        call symfor ( nbas , 1 , rv_a_osymgr , ng , iv_a_oistab , wk_rv , f )
         if (allocated(wk_rv)) deallocate(wk_rv)
       endif
       fout=f

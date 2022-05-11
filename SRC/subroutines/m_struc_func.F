@@ -167,7 +167,7 @@ c      call mpi_bcast(struc%clabel, 1,MPI_REAL8 , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%spec, 1,MPI_INTEGER , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%vel) ! vel(3)
       call mpi_bcast(struc%vel, i_data_size,MPI_REAL8 , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%vshft, 1,MPI_REAL8 , master, MPI_COMM_WORLD,ierr)
+c       call mpi_bcast(struc%vshft, 1,MPI_REAL8 , master, MPI_COMM_WORLD,ierr)
       if (mlog) then
         call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
         call strcop(shortname(procid),name,10,'.',ierr)

@@ -94,6 +94,6 @@ c      character(8)   ::   clabel !labelling class
       integer   ::   relax(3) !(dynamics) flags which coordinates to relax
       integer   ::   spec !species index
       real(8)   ::   vel(3) !velocity
-      real(8)   ::   vshft !constant potential shift for this site
+c      real(8)   ::   vshft !constant potential shift for this site
       end type s_site
       end module m_struc_def
