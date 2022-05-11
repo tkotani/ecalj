@@ -41,16 +41,16 @@
       end subroutine
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine m_rdsigm2_init() !get hrr (fourier transformation of self-energy in full BZ)
-      use m_lmfinit,only : nbas,pwmode=>ham_pwmode,ham_ldham,stdo
+      use m_lmfinit,only : nbas,pwmode=>ham_pwmode,stdo,ldim=>nlmto
       use m_hamindex,only: symops_af,napwmx
       use m_MPItk,only: procid,master
       use m_ext,only:sname
-      integer:: ldim,ierr,ifi,ndimh_dummy,ifile_handle,ifis2,ik1,ik2,ik3,is,iset,nqp
+      integer:: ierr,ifi,ndimh_dummy,ifile_handle,ifis2,ik1,ik2,ik3,is,iset,nqp
       logical:: laf,mlog,cmdopt, mtosigmaonly,cmdopt0
       character strn*120
       real(8),allocatable:: qsmesh2(:,:,:,:)
       call tcn('m_rdsigm2_init')
-      ldim  = ham_ldham(1)
+c      ldim  = ham_ldham(1)
       ndimsig= ldim             !if(mtosigmaonly()) mode. Dimension of sigm is the size of MTOs.
       if(procid==master) then
          ifi=ifile_handle()
@@ -141,7 +141,7 @@
      .latvec,lfbzin,lfbzout
       integer parg,isw
       character outs*80,out2*80,dc*1,rots*120
-      integer i,j,ifis2,ifiz,isp,nspsigm,nglob,ldham(16),lrsig,
+      integer i,j,ifis2,ifiz,isp,nspsigm,nglob,lrsig,
      .nkxyz(3),nk1,nk2,nk3,nsgrp,nsgrps,mxkp,nqp,nqps,
      .j1,k1,k2,k3,iq1,nspc,mxorb,nqsig, !modsgp,nmin,nmax,
      .lrot,iprint,lssym,

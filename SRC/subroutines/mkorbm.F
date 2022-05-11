@@ -1,6 +1,5 @@
       subroutine mkorbm(isp,nev,iq,qp,evec, orbtm)
       use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nl,n0,nppn,nab
-      use m_lmfinit,only: ham_ldham
       use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
       use m_mkpot,only: ppnl=>ppnl_rv 
       use m_subzi, only: wtkb=>rv_a_owtkb

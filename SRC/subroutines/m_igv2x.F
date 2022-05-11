@@ -68,7 +68,7 @@ c$$$      end
       use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
       use m_MPItk,only: master_mpi,procid,master
       use m_shortn3,only: shortn3_initialize,shortn3
-      use m_lmfinit,only: ldham=>ham_ldham
+      use m_lmfinit,only: nlmto
       integer:: ifiese
       integer,allocatable ::  kv_iv(:,:) 
       real(8):: ppin(3),qp(3),qqq(3),pwgmin,pwgmax,dum
@@ -116,7 +116,7 @@ c      print *,'mmmmmmm master_mpi=',master_mpi,procid,master
          napw_z=0 
          allocate(igv2x_z(1,1))   !dummy
       endif
-      ndimh_z = ldham(1)+napw_z     ! ldim+napw
+      ndimh_z = nlmto+napw_z     ! ldim+napw
       if (mod(pwmode,10)==2) ndimh_z = napw_z !APW-only mode
       ndimhx_z = ndimh_z*nspc       !this is iq-dependent.
       call tcx('m_igv2x_init')

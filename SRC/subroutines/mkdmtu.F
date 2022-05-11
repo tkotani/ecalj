@@ -1,6 +1,5 @@
       subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu)
       use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nl,n0,nppn,nlibu,lmaxu,nlibu,lldau
-      use m_lmfinit,only: ham_ldham
       use m_mkpot,only: ppnl=>ppnl_rv 
       use m_subzi, only: wtkb=>rv_a_owtkb
       use m_igv2x,only: ndimh

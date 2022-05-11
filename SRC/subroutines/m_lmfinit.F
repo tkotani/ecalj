@@ -57,7 +57,7 @@ c     &     ,ham_delta_stabilize
       character*8,protected:: slabl(mxspec)
       integer,protected:: lmxbx=-1,lmxax,nkaph,nkapi
       logical,allocatable,protected:: mxcst2(:),mxcst4(:)
-      integer,allocatable,protected:: idxdn(:,:,:),
+      integer,allocatable,protected:: 
      .     idu(:,:),lmxb(:),lmxa(:),idmod(:,:),
      .     kmxt(:),kmxv(:),lfoca(:),lmxl(:),nxi(:),nr(:), nmcore(:),
      &  nkapii(:),nkaphh(:) 
@@ -123,9 +123,9 @@ c      logical,protected:: irs1x10!,irsrot !(irsrot is not tested)
       integer,protected:: lmaxu,nlibu
       integer,allocatable,protected::lldau(:)
       logical,protected:: lpztail=.false.
-      integer,protected:: leks,lrout,plbnd,  pot_nlma,  pot_nlml,ham_nspx,ham_ldham(16)
-      integer,protected,target::ldham(16)
-      integer,protected,pointer:: nlmto !total number of MTOs
+      integer,protected:: leks,lrout,plbnd,  pot_nlma,  pot_nlml,ham_nspx !,ham_ldham(16)
+c      integer,protected,target::ldham(16)
+      integer,protected:: nlmto !total number of MTOs
       
 !! For SOC 
       real(8),protected:: socaxis(3)
@@ -292,6 +292,7 @@ c      logical:: ltet
       integer :: ctrl_nspec_bakup,inumaf,iin,iout,ik,iprior,ibp1,indx,iposn,m,nvi,nvl,setprint0
       logical :: ipr10,fullmesh,lzz
       integer,parameter:: maxp=3
+      integer,allocatable:: idxdn(:,:,:)
 !! Stage 1  read ctrl file ---------------------    
       procid = mpipid(1)
       nproc  = mpipid(0)
@@ -1183,10 +1184,11 @@ C --- Allocate and copy input to sspec ---
           v_sspec(j)%nxi=nxi(j)
           v_sspec(j)%exi=exi(:,j)
           v_sspec(j)%idmod=idmod(:,j)
-!! idxdn= 1 or 3  (or 10,11 for LO)
+!! idxdn= 1 or 3  
 Cr     1  Orbital is included as "active" orbitals, which means
 Cr           they are included in the hamiltonian and diagonalized
 Cr     3   Neglected.
+cxxxxxxxxxx          
 Cr     10  Orbital is a local orbital whose value and slope are
 Cr         constructed to be zero at the MT boundary.
 Cr         It is included in the basis.
@@ -1203,15 +1205,15 @@ Cr         and it is included in the basis.
                 idxdn(:,ik,j)=3 !call ivset(idxdn(1,ik,j),1,n0,4)
                 do  lp1  = 1, lmxb(j)+1
                    if (pz(lp1,1,j) .ne.  0) then
-                      if(pz(lp1,1,j)>=10) idxdn(lp1,ik,j)=11
-                      if(pz(lp1,1,j)>  0) idxdn(lp1,ik,j)=10
+                      if(pz(lp1,1,j)>=10) idxdn(lp1,ik,j)=1 !11
+                      if(pz(lp1,1,j)>  0) idxdn(lp1,ik,j)=1 !10
                    endif
                 enddo
              endif
              if (ik > nkaph) idxdn(:,ik,j)=3 !call ivset(idxdn(1,ik,j),1,n0,4)
              idxdn(lmxb(j)+ 2:,ik,j)=3 
           enddo
-          call dcopy(n0*nkap0,idxdn(1,1,j),1,v_sspec(j)%idxdn,1) ! = idxdn
+c          call dcopy(n0*nkap0,idxdn(1,1,j),1,v_sspec(j)%idxdn,1) ! = idxdn
           v_sspec(j)%idu = idu(:,j)
           v_sspec(j)%jh=jh(:,j)
           v_sspec(j)%uh=uh(:,j)
@@ -1291,34 +1293,34 @@ c      call suidx(nkaph,j,nspec,v_sspec)
    20 continue
       
       allocate( iprmb(nbas * nl**2 * maxp ) )
-      indx = 0
-      ldham=0
+      nlmto = 0
+c      ldham=0
       do 110 ib = 1,nbas
          is = v_ssite(ib)%spec
          iposn = mxorb*(ib-1)
          do 1121 ik = 1, nkaph
-           do     l = 0, nl-1
-           do     m = -l, l
+           do  l = 0, nl-1
+           do  m = -l, l
              iposn = iposn+1
-             if( (idxdn(l+1,ik,is)==10.or.idxdn(l+1,ik,is)==11).or. idxdn(l+1,ik,is)==1 )  then
-               indx = indx+1
-               iprmb(iposn) = indx
+             if(idxdn(l+1,ik,is)==1) then
+c                (idxdn(l+1,ik,is)==10.or.idxdn(l+1,ik,is)==11).or. idxdn(l+1,ik,is)==1 )  then
+               nlmto = nlmto+1
+               iprmb(iposn) = nlmto
              endif
            enddo 
            enddo
  1121     continue
   110 continue
-      ldham(1) = indx
-      nlmto   => ldham(1)
-C ... Make rest of ldham
-      ldham(4) = nspc
-      ldham(5) = ldham(1) * nspc
-      ldham(6) = ldham(2) * nspc
-      ldham(7) = ldham(3) * nspc
+c      ldham(1) = nlmto
+cC ... Make rest of ldham
+c      ldham(4) = nspc
+c      ldham(5) = ldham(1) * nspc
+c      ldham(6) = ldham(2) * nspc
+c      ldham(7) = ldham(3) * nspc
       nspx  = nsp
       if(lso/=0) nspx = 1
-      ldham(8) = nspx
-      ham_ldham=ldham
+c      ldham(8) = nspx
+c      ham_ldham=ldham
       nvi=0
       nvl=0
       do  ib = 1, nbas

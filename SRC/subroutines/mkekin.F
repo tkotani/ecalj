@@ -1,13 +1,13 @@
       subroutine mkekin(sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,smpot,smrho,sumev, sumtv)
       use m_struc_def  
-      use m_lmfinit,only:lso,nkaph,nsp,nspc,stdo,nbas,ssite=>v_ssite,sspec=>v_sspec,ham_ldham,iprmb !lcplxp,
+      use m_lmfinit,only:lso,nkaph,nsp,nspc,stdo,nbas,ssite=>v_ssite,sspec=>v_sspec,iprmb,nlmto
       use m_lattic,only: lat_vol
       use m_supot,only: lat_nabc,k1,k2,k3
 C- Evaluate the valence kinetic energy
 C ----------------------------------------------------------------------
 Ci Inputs
 Ci   nbas  :size of basis
-Ci   ndimh :dimension of hamiltonian (ham_ldham)
+Ci   nlmto :dimension of hamiltonian (MTO)
 Ci   ssite :struct for site-specific information; see routine usite
 Ci     Elts read: spec
 Ci     Stored:    *
@@ -140,7 +140,7 @@ Cu   20 Jun 00 adapted from nfp get_ekin
 C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
-      integer ndimh,i_copy_size
+      integer i_copy_size
       type(s_cv1),target :: sv_p_oppi(3,nbas)
       type(s_rv1),target :: sv_p_otau(3,1)
       type(s_rv1),target :: sv_p_osig(3,1)
@@ -172,7 +172,7 @@ c lso,isw
        if(procid==master) iprx=.true.
 #endif
       call tcn('mkekin')
-      ndimh=ham_ldham(1) 
+c      ndimh=ham_ldham(1) 
       call getpr(ipr)
       ngabc=lat_nabc
       vol=lat_vol
@@ -191,7 +191,7 @@ C --- Integral rhout*veff, part from augmentation ---
         kmax=sspec(is)%kmxt
         lmxh=sspec(is)%lmxb
         if (lmxa .eq. -1) goto 10
-        call orbl ( ib , 0 , ndimh , iprmb , norb , ltab , ktab 
+        call orbl ( ib , 0 , nlmto , iprmb , norb , ltab , ktab 
      .   , xx , offl , xx )
 C       Block into groups of consecutive l
         call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)

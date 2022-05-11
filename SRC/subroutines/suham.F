@@ -3,9 +3,9 @@
       contains
       subroutine m_suham_init()
       use m_struc_def  
-      use m_lmfinit,only:lso, ctrl_nbas,ctrl_nspec, ctrl_nl,nspc,nsp,ldham,iprmb,nbas,nl,nspec,
+      use m_lmfinit,only:lso, ctrl_nbas,ctrl_nspec, ctrl_nl,nspc,nsp,nlmto,iprmb,nbas,nl,nspec,
      &     pwmode=>ham_pwmode,pwemax,pwemin
-     &     ,alat=>lat_alat, lat_tolft,nkaph, pot_nlma, pot_nlml ,stdo
+     &     ,alat=>lat_alat, lat_tolft,nkaph, pot_nlma, pot_nlml ,stdo,nlmto
       use m_supot,only: lat_ng, rv_a_ogv
       use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
       use m_MPItk,only:master_mpi
@@ -24,7 +24,7 @@ Cu     ndham = estimate for upper dimension of
 Cu             hamiltonian, including possible PW part
 C ----------------------------------------------------------------------
       implicit none
-      integer hord,i,i1,i2,iprint,ldhamx(16),ldim, !lgen3,lham,
+      integer hord,i,i1,i2,iprint, 
      . lidim,lihdim,nclasp,ndim,neul,
      .nlspcp,nspx,nttab,partok,igets,nvi,nvl, 
      .ib,is,lmxa,lmxl,isw,nbf,lmxax, j1,j2,j3,m,npw,npwmin,npwmax
@@ -43,8 +43,8 @@ C --- Hamiltonian offsets, orbital permutation table ---
       if (mod(pwmode,10)==2.and.master_mpi) write(stdo,"(a)")' suham: no MTO basis'
 C   ... PW setup : estimate upper bound to number of G vectors
 C     to set up upper bound to hamiltonian dimension
-      ham_ndham = ldham(1)
-      ndham     = ldham(1)
+      ham_ndham = nlmto
+      ndham     = nlmto
       if (pwemax>0 .and. mod(pwmode,10)>0) then
         Gmin = dsqrt(pwemin)
         Gmax = dsqrt(pwemax)
@@ -77,7 +77,7 @@ C     to set up upper bound to hamiltonian dimension
           npwpad = 0
         endif
         ndham = npwmax + npwpad
-        if (mod(pwmode,10) .ne. 2) ndham = ldham(1) + npwmax + npwpad
+        if (mod(pwmode,10) .ne. 2) ndham = nlmto + npwmax + npwpad
         ham_ndham = ndham
 !! Dimension maximum of Hamiltonian is ndhamx (ispx=1,nspx)
 !! Note spinoffdiag=T case: we use nspc,nsp,nspx,ndhamx (a little complicated, I think).

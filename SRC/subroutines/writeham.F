@@ -90,7 +90,7 @@ c     endif
 !--------------------------------------------      
       subroutine m_writeham_write() 
       use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,lso,nsp
-       use m_lmfinit,only: ldham,stdo
+       use m_lmfinit,only: nlmto,stdo
 c      use m_hamindex, only: norbmto
       use m_hamindex, only: ngrp,symops,norbmto,ibastab,ltab,ktab,offl,ib_table,k_table,l_table
 
@@ -107,7 +107,7 @@ c      if(.not.master_mpi) return
       write(stdo,*)'mmmm m_writeham_init'
       if(.not.initset1  ) return
       initset1 = .false.
-      ldim=ldham(1) !ham_ldham(1)
+      ldim=nlmto
 c     write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
       write(stdo,*)'mmmm m_writeham_init',ldim,norbmto,ibastab
 c      print *,'offl',offl

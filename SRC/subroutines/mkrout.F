@@ -57,7 +57,7 @@
       subroutine mkrout( sv_p_oqkkl, sv_p_oeqkkl, orhoat_out, hab,sab, qbyl, hbyl)
       use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,procid,master,nkaph
      & , sspec=>v_sspec,ssite=>v_ssite,nbas,nsp,lekkl,lrout,n0,nab,stdo,iprmb
-      use m_lmfinit,only: ham_ldham
+      use m_lmfinit,only: nlmto
       use m_struc_def
       use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
 C- Assembles local output densities out of the qkkl, and core states
@@ -148,10 +148,10 @@ C ----------------------------------------------------------------------
       integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
       integer norb,ntab(n0*nkap0),blks(n0*nkap0)
       double precision pnu(n0,2),pnz(n0,2),qcorg,qcorh,qsc,cofg,cofh
-      integer ::iwdummy,i_copy_size,ifx,nlmto
+      integer ::iwdummy,i_copy_size,ifx!,nlmto
       real(8):: dat(6,nbas)
       logical:: mmtargetx=.false.
-      nlmto= ham_ldham(1)
+c      nlmto= ham_ldham(1)
       ipr  = iprint()
       pi   = 4d0*datan(1d0)
       y0   = 1d0/dsqrt(4d0*pi)

@@ -69,7 +69,7 @@ Cr         3 float to natural center of band (C parameter)
       real(8)   ::   p(n0,2) ! log derivative parameter
       real(8)   ::   q(n0,2)  !starting q's (charges)
       integer   ::   idmod(n0) !see m_lmfinit.F
-      integer   ::   idxdn(n0,nkap0) !see m_lmfinit.F
+c      integer   ::   idxdn(n0,nkap0) !see m_lmfinit.F
       real(8)   ::   exi(n0) !Hankel energies for fit to c.d.;  For free atoms, fit to free-atom density tails.
       integer   ::   ngcut(n0,nkap0) !orbital-dependent G cutoffs (for nfp basis)
       real(8)   ::   chfa(n0,2) ! coefficients to fit of free-atom density tails

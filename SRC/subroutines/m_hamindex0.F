@@ -1,6 +1,6 @@
 !!  originally HAMIndex0 contains informatio of SYMOPS,LATTC,CLASS,NLAindx.
       module m_hamindex0
-      use m_lmfinit,only: ham_pwmode,pwemax,ham_ldham,noutmx,nsp_in=>nsp,
+      use m_lmfinit,only: ham_pwmode,pwemax,ldim=>nlmto,noutmx,nsp_in=>nsp,
      &     lat_alat,nl,ctrl_nbas,ssite=>v_ssite,sspec=>v_sspec,n0,nkap0,iprmb,zbak_read=>zbak
       use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
       use NaNum,only: NaN       !for initialization, but not working well
@@ -47,7 +47,7 @@ c        init1 = offl(iorb)+1      !starting index for the block iorb
 c        iend1 = offl(iorb)+2*l+1  !end of the block for the iorb
 c      enddo
       implicit none
-      integer:: ibas,k,l,ndim,ipr,nglob,ldim,off,offs,specw,fieldw,iorb,offsi,ib,is
+      integer:: ibas,k,l,ndim,ipr,nglob,off,offs,specw,fieldw,iorb,offsi,ib,is
       integer:: nkabc(3),nkp,lshft(3),napwx,ig,nini,nk1,nk2,nk3,ik1,ik2,ik3,ikt,nkt
       integer:: i_copy_size,i_spacks,i_spackv,ifi,nbas_in,ifisym,i,ifiqibz,igg,iqq,iqi,irr,iqi_,jobgw
       integer:: iout,nout,nlatout(3,noutmx),iapw ,iprint,ngadd,igadd,igaf
@@ -65,7 +65,7 @@ c      enddo
       data lsym /'s','p','d','f','g','5','6','7','8','9'/
       data lorb /'phi','phidot','phiz'/
 ! forget floating orbital case
-      ldim  = ham_ldham(1) 
+c      ldim  = ham_ldham(1) 
       nbas=ctrl_nbas !nbas_in
       ngrp=lat_nsgrp            !note nsgrp given in mksym.F is without inversion.
       nsp=nsp_in

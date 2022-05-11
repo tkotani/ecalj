@@ -7,7 +7,7 @@
       use m_struc_def,only: s_rv1, s_spec, s_site 
       use m_suham,only: ndham=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
       use m_lmfinit, only: 
-     &     ham_pwmode,pwemin,pwemax,ham_oveps,lrsig=>ham_lsig,stdl,ham_ldham,iprmb,
+     &     ham_pwmode,pwemin,pwemax,ham_oveps,lrsig=>ham_lsig,stdl,nlmto,iprmb,
      &     ham_scaledsigma,lat_alat,mxorb,nkaph,nsp,nspc,nl,mxorb,ssite=>v_ssite,sspec=>v_sspec,nbas,n0,nppn,nkap0
       use m_lattic,only: lat_plat, lat_qlat
       use m_supot,only: lat_nabc, lat_gmax
@@ -77,7 +77,7 @@ c      use m_shortn3,only: shortn3_initialize,shortn3
       integer i,i1,i2,iat,ib,ibr,icore,ierr,ifeigen,!ifi,
      .ifiqg,iflband(2),ifqeigen,ifsyml,igets,igetss,iix,iline, 
      .im1,im2,ipb(nbas),ipqn,ipr,iprint,iq,is,isp,ispc,j,job,k1,
-     .k2,k3,konf,konfig(0:n0),l,lchk,ldim,loldpw, ldham(8,2),
+     .k2,k3,konf,konfig(0:n0),l,lchk,ldim,loldpw,
      .lgunit,lmaxa,lmxax,lsig,mx,mxint,n1,n2,n3,nat,
      .ncore,ndima,nevl,nev,nglob,ngp,ngp_p, 
      .ngpmx,nline,nlinemax,nlmax,nmx,nn1,nn2,nnn,npgrp,
@@ -196,9 +196,7 @@ c      integer,allocatable:: igv2(:,:)
       if(nat/=nbas) call rx('sugw: gw is only for no floating orbital case') !2022jan
 !      
       lsig = 1
-      i_copy_size=size(ham_ldham)
-      call icopy(i_copy_size,ham_ldham,1,ldham,1)
-      ldim=ldham(1,1)
+      ldim=nlmto 
       pwmode= ham_pwmode
 !! ndima
       ndima = 0
