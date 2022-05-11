@@ -34,7 +34,7 @@ Ci          functions are less than tol.
       character(256),protected:: header,symg=' ',   symgaf=' '!for Antiferro
       logical,protected :: ham_frzwf,ham_ewald
       integer,protected:: nspc,stdo,stdl,procid,nproc,master=0,nspx,
-     &     ctrl_lxcf,ctrl_nbas,ctrl_lfp,ctrl_lrel,!ctrl_lves, 
+     &     ctrl_lxcf,ctrl_nbas,ctrl_lrel,!ctrl_lves, 
      &     maxit ,ctrl_modep(3),ctrl_nl,ctrl_nitmv,ctrl_nspin,
      &     ctrl_nspec,ctrl_nsite,ctrl_nvario,ctrl_pfloat
      &     ,ham_lxcf,gga,ftmesh(3),nmto=0,lrsigx=0
@@ -230,9 +230,9 @@ Cg   stdo  :standard output file
 Cr  Read input data specified by tokens (see m_toksw.F)
 C ----------------------------------------------------------------------
       implicit none
-#if MPI | MPIK
+c#if MPI | MPIK
       include "mpif.h"
-#endif
+c#endif
       character,intent(in)::  prgnam*(*)
       character strn*(recln),strn2*(recln)
       integer:: i_spec
@@ -1311,16 +1311,8 @@ c                (idxdn(l+1,ik,is)==10.or.idxdn(l+1,ik,is)==11).or. idxdn(l+1,ik
            enddo
  1121     continue
   110 continue
-c      ldham(1) = nlmto
-cC ... Make rest of ldham
-c      ldham(4) = nspc
-c      ldham(5) = ldham(1) * nspc
-c      ldham(6) = ldham(2) * nspc
-c      ldham(7) = ldham(3) * nspc
       nspx  = nsp
       if(lso/=0) nspx = 1
-c      ldham(8) = nspx
-c      ham_ldham=ldham
       nvi=0
       nvl=0
       do  ib = 1, nbas
@@ -1330,8 +1322,7 @@ c      ham_ldham=ldham
       enddo
       pot_nlma=nvi
       pot_nlml=nvl
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      
+     
       
 C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
       if (procid .eq. master) then
@@ -1386,10 +1377,10 @@ C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
          print *, 'symg:', trim(sstrnsymg)
          call rx0('done show')
       endif
-#if MPI | MPIK
+c#if MPI | MPIK
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
-#endif
+c#endif
       if( cmdopt0('--quit=show') ) call rx0(trim(prgnam)//' --quit=show')
 
       
@@ -1528,6 +1519,7 @@ c        irs2=0
       endif
       call tcx('m_lmfinit')
       end subroutine m_lmfinit_init
+      
 !ssssssssssssssssssssss      
       subroutine getiout(a,iin,iout) !a(1:iout) can be nonzero.
       integer:: iin,iout,i
