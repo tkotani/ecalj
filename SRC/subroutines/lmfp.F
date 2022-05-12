@@ -1,4 +1,4 @@
-      subroutine lmfp(llmfgw,irs1x,irs2,irs3,irs5)
+      subroutine lmfp(llmfgw)!,irs1x,irs2,irs3,irs5)
       use m_lmfinit,only: lhf, !irs1x10, 
      &     ctrl_mdprm,maxit,nbas,nsp, ctrl_ldos,ctrl_nitmv,ctrl_nvario,
      &     ham_seref,ctrl_lfrce,  sspec=>v_sspec, ssite=>v_ssite, 
@@ -16,6 +16,8 @@
       use m_bstrux,only: m_bstrux_init
       use m_relax,only: relax,prelx1
       use m_mixrho,only:parms0
+      use m_lattic,only:   Setopos
+      
 !! = Main routine of lmf = (following document is roughly checked at May2021)
 !! lmfp contains two loops after initialization
 !!   1  outer  loop do 2000 is for molecular dynamics (relaxiation).
@@ -39,28 +41,77 @@
 !! aug2020. T.kotani removed lshr mode (automatic modification of plat), because
 !!      Probably, we need to re-design it (maybe outside of fortran code).
       implicit none
-      character strn*120, alabl*8, flg*3
-      logical :: cmdopt,llmfgw,lbin,cmdopt0 !,lshr=.false.
-      integer :: i,ifi,ipr,irs1x, k, nit1,numq, lsc,irs2,irs3,irs5
-      integer :: icom,  nvrelx , itrlx, irlxsh=0 
-      
-      integer:: ibas,unlink,ifipos,ifile_handle,iter,j,idmatu,iprint
-      real(8) :: gam(4),gam1,bstim,pletot(6,2)
-      real(8) :: plat(3,3),xvcart(3),xvfrac(3)
-      real(8):: seref,etot(2)
-      real(8), allocatable :: pos_move(:,:),  ftot_rv(:), wk_rv(:), p_rv(:),hess(:,:)
-      real(8), allocatable :: rv_a_omad (:) !  Madelung matrix if necessary
       integer,parameter:: nm=3
+      character alabl*8, flg*3
+      logical :: cmdopt,llmfgw,lbin,cmdopt0 !,lshr=.false.
+      integer :: i,ifi,ipr, k, nit1,numq, lsc, icom,  nvrelx , itrlx, irlxsh=0 
+      integer:: ibas,unlink,ifipos,ifile_handle,iter,j,idmatu,iprint
+      real(8) :: gam(4),gam1,bstim,pletot(6,2), plat(3,3),xvcart(3),xvfrac(3),seref,etot(2)
+      real(8),allocatable :: pos_move(:,:),  ftot_rv(:), wk_rv(:), p_rv(:),hess(:,:)
+      real(8),allocatable :: rv_a_omad (:) !  Madelung matrix if necessary
       character(512):: aaachar
       character(10):: i2char
       logical:: cmdopt2
       character(20):: outs=''
       integer:: ierr
+      integer:: irs(5),irsr(5), irs1x,irs1,irs2,irs3,irs5
+      logical:: irs1x10!,irsrot
+      character(256):: strn,strn2
       include "mpif.h"
-!! --rs=3, always read from atom file, mode is removed. (--rs=3 is for fixed density Harris-foukner MD).
-!! Sep2020 comment " Shorten site positions" removed. (we are using shortn3 mainly now)
       call tcn('lmfp')
       ipr = iprint() !call getpr(ipr) !ipr is pring verbose control
+      
+!! --- Read density from restart file or atom files
+!!    irs1x tells what to read and whether to invoke smshft.
+!!     0    read from atom file  atm;  1  read from binary  rst ;  2 read from ascii  rsta
+!!    +10 -> invoke smshft(1) after file read.
+!! --rs=3 mode is removed.(always read from atom file, --rs=3 is for fixed density Harris-foukner MD).
+      irs=[1,1,0,0,0]
+      if (cmdopt2('--rs=',strn)) then
+         strn2=trim(strn)//',999,999,999,999,999'
+         read(strn2,*) irsr
+         do i=1,5
+            if(irsr(i)/=999 ) irs(i)=irsr(i)
+         enddo
+      endif
+      irs1 = mod(irs(1),10) ! 1:read  rst  2:read rsta 
+      irs2 = irs(2)         ! 1:write rst  2:write rsta
+      irs3 = irs(3) ! irs3=1: read site positions from ctrl even when we have rst. 
+      irs5 = irs(5) ! irs5=1: read pnu from ctrl even when we have rst.
+      irs1x10 = (irs(1)/10==1)  ! +10:  smshft after rst/rsta
+      if (cmdopt0('--etot')) irs2=0 !not write rst files
+cxxx irsrot  = (irs(1)/100==1) ! +100: rotate local density after file read for shear mode (iors.F)
+cxxx irs4 = irs(4) ! read starting fermi level from ctrl
+!! Initial density. Read atomic and smooth parted os density, rhoat smrho in m_density from atm.* or rst.*
+!! Reading rst is prior to reading atom file.
+c      if (irs1x == 0) then ! read overlap free-atom densities
+c         call rdovfa()     ! superposition of spherical atomic densities by lmfa.
+c         nit1 = 0
+c      else
+      nit1=0
+      irs1x = irs1
+      lbin = (irs1x==1)         ! lbin=T:rst for --rs=1, or lbin=F:rsta for --rs=2,
+      k = -1
+      if(master_mpi) then
+         ifi=ifile_handle() 
+         if(lbin)       open(ifi,file='rst.'//trim(sname),form='unformatted')
+         if(.not. lbin) open(ifi,file='rsta.'//trim(sname)) 
+      endif
+      call mpibc1_int(ifi,1,'lmv7:lmfp_ifi')
+      k = iors(nit1 , lbin, ifi=ifi,irs3=irs3,irs5=irs5) ! read rst file. sspec ssite maybe modified 
+      if (master_mpi) close(ifi) 
+      call mpibc1_int(k,1,'lmv7:lmfp_k')
+      call Setopos()      !Set pos of iors to rv_a_opos
+      if(k<0) then        !initial potential from atm file if rst can not read
+         irs1x = 0
+         call rdovfa() 
+         nit1 = 0
+      elseif (irs1x10) then  
+         call smshft(1) 
+      endif
+
+      
+!! Sep2020 " Shorten site positions" removed. (we are using shortn3 mainly now)
       etot = 0d0 ! Total energy mode --etot ==>moved to m_lmfinit ---
       if( nitrlx>0 ) then ! Atomic position Relaxation setup (MD mode)
         icom = 0
@@ -72,6 +123,8 @@
         endif   
         allocate(pos_move(3,nbas))
       endif
+
+      
 !! === Main iteration loops ===
       do 2000 itrlx = 1,max(1,nitrlx) ! loop for atomic position relaxiation (molecular dynamics) ===
 !! Get all structure constants for nbas and qplist
@@ -83,10 +136,9 @@
            write(stdo,"(/1x,a/' site spec',8x,'pos (Cartesian coordinates)',9x,
      &     'pos (multiples of plat)')") 'Basis, after reading restart file'
            do i = 1, nbas
-           xvcart = ssite(i)%pos
-           xvfrac = matmul(transpose(qlat),xvcart)
-           alabl  = sspec(ssite(i)%spec)%name
-           write(stdo,"(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)") i, alabl, xvcart,xvfrac
+           xvcart = ssite(i)%pos !cartesian coordinate
+           xvfrac = matmul(transpose(qlat),xvcart) !fractional coodinate
+           write(stdo,"(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)") i, trim(sspec(ssite(i)%spec)%name), xvcart,xvfrac
            enddo
          endif
          do 1000 iter = 1,max(1,maxit) ! loop for electronic structure ===
@@ -121,7 +173,6 @@
             seref   = ham_seref !   ... reference energy
             etot(1) = etot(1) - seref
             if (etot(2)/=0) etot(2) = etot(2) - seref
-            !
             flush(6)
             call mpi_barrier(MPI_COMM_WORLD,ierr)
             if(master_mpi) then
