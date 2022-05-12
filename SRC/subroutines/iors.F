@@ -7,17 +7,17 @@
       contains
       integer function iors(nit,lbin,ifi,irs3,irs5)
       use m_density,only: osmrho, orhoat !these are allocated
+      use m_bndfp,only: m_bndfp_ef_SET,eferm 
+
       use m_supot,only: lat_nabc
       use m_struc_func,only: mpibc1_s_spec,mpibc1_s_site
-      use m_bndfp,only: m_bndfp_ef_SET,eferm 
-      use m_lmfinit,only: lat_alat,nsp,lrel,nl,ssite=>v_ssite,sspec=>v_sspec,
-     &    nbas,nat,nspec,n0  
+      use m_lmfinit,only: lat_alat,nsp,lrel,nl,ssite=>v_ssite,sspec=>v_sspec, nbas,nat,nspec,n0  
       use m_lattic,only: lat_plat 
       use m_ext,only:sname
 !!- I/O for charge density to rst or rsta. ssite sspec are readin 
 !! read write
 !!     smrho, rhoat
-!!     ssite: pos, pos0, force, vel, pnu pz ov0,ov1 
+!!     ssite: pos, pos0, force, pnu pz ov0,ov1 
 !      sspec:
 !!           a nr rmt z lmxa lmxl kmxt p pz lfoca qc orhoc idmod
 !!           rsma lmxb kmxv rsmv rfoca ctail etail stc nxi exi

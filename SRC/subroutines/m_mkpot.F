@@ -20,11 +20,11 @@
       real(8),allocatable,protected,public:: hab_rv(:), sab_rv(:), ppnl_rv(:,:,:,:), qmom(:),vesrmt(:)
       real(8),protected,public:: qval,vconst,qsc
 
-! nov2021 dipole contribution added 
-! sv_p_oppixd: add dipole part to sv_p_oppix
-! spotxd:      add dipole part to spotx
-      type(s_cv1),allocatable,protected,public  :: sv_p_oppixd(:,:,:)
-      complex(8),allocatable,protected ,public  :: spotxd(:,:,:,:,:)
+c! nov2021 dipole contribution added 
+c! sv_p_oppixd: add dipole part to sv_p_oppix
+c! spotxd:      add dipole part to spotx
+c      type(s_cv1),allocatable,protected,public  :: sv_p_oppixd(:,:,:)
+c      complex(8),allocatable,protected ,public  :: spotxd(:,:,:,:,:)
 
 !!---------------------------------------------------------------------------      
       private
@@ -500,7 +500,7 @@ C   ... Smooth exchange-correlation potential
         call dpzero(fcvxc0,2)
       endif
 !! Add dipole contribution (x,y,z) to smpot (we only need <i|x|j> and so on, but because of technical reason,
-!! Calculate <i|x|j> by subtraction. nov2021
+!! Calculate <i|x|j> by subtraction. nov2021 (this is stupid implementation--- See MLWF paper.
 c$$$      dipole=0
 c$$$      if(present(dipole_)) then
 c$$$         if(dipole_/=0) dipole=dipole_

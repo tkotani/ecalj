@@ -1,6 +1,5 @@
-      subroutine lmfp(llmfgw)!,irs1x,irs2,irs3,irs5)
-      use m_lmfinit,only: lhf, !irs1x10, 
-     &     ctrl_mdprm,maxit,nbas,nsp, ctrl_ldos,ctrl_nitmv,ctrl_nvario,
+      subroutine lmfp(llmfgw)
+      use m_lmfinit,only: lhf, maxit,nbas,nsp, ctrl_ldos,ctrl_nitmv,ctrl_nvario,
      &     ham_seref,ctrl_lfrce,  sspec=>v_sspec, ssite=>v_ssite, 
      &     nlibu,stdo,lrout,leks,plbnd,lpzex, nitrlx,
      &     indrx_iv,natrlx,xyzfrz,pdim,qtol,etol
@@ -109,9 +108,8 @@ c      else
       elseif (irs1x10) then  
          call smshft(1) 
       endif
-
       
-!! Sep2020 " Shorten site positions" removed. (we are using shortn3 mainly now)
+!! Sep2020 " Shorten site positions" removed.
       etot = 0d0 ! Total energy mode --etot ==>moved to m_lmfinit ---
       if( nitrlx>0 ) then ! Atomic position Relaxation setup (MD mode)
         icom = 0
@@ -125,9 +123,9 @@ c      else
       endif
 
       
-!! === Main iteration loops ===
+!==== Main iteration loops ===
       do 2000 itrlx = 1,max(1,nitrlx) ! loop for atomic position relaxiation (molecular dynamics) ===
-!! Get all structure constants for nbas and qplist
+!     Get all structure constants for nbas and qplist
          if(sum(lpzex)==0) call m_bstrux_init() !this reads ssite%pos %pz and so on.
               ! We can make structure constant (C_akL Eq.(38) in /JPSJ.84.034702) here
               ! if we have no extended local orbital.
@@ -140,9 +138,9 @@ c      else
            xvfrac = matmul(transpose(qlat),xvcart) !fractional coodinate
            write(stdo,"(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)") i, trim(sspec(ssite(i)%spec)%name), xvcart,xvfrac
            enddo
-         endif
-         do 1000 iter = 1,max(1,maxit) ! loop for electronic structure ===
-!     ! Make and diagonalize hamiltonian, make new charge density ---
+        endif
+!===  loop for electronic structure. Atomic force is calculated        
+         do 1000 iter = 1,max(1,maxit) 
             if(maxit/=0) then
                if (master_mpi) then
                   aaachar=trim(i2char(iter))//" of "//trim(i2char(maxit))
@@ -151,7 +149,7 @@ c      else
                endif
                call bndfp(iter,llmfgw,plbnd) !Main part of band calculation. Get total energies ham_ehf and ham_ehk
             endif
-!! Check convergence of dmatu (density matrix for LDA+U) and update it. Get vorbdmat (U potential)
+!     Check convergence of dmatu (density matrix for LDA+U) and update it. Get vorbdmat (U potential)
             if(nlibu>0.and.lrout>0) call m_ldau_vorbset(ham_ehk,dmatu) !set new vorb from dmat by bndfp-mkpot
 !   Things for --density (plot density) are in locpot.F(rho1mt and rho2mt) and mkpot.F(smooth part).
 !! Write restart file (skip if --quit=band) ---
@@ -165,7 +163,7 @@ c      else
                   close(ifi) 
                endif
             endif
-!     ! Add to save file; decide on next iteration ---
+!     Add to save file; decide on next iteration ---
             if (maxit<=0) goto 9998
             etot(1) = ham_ehf        ! etot(1) is not the total energy when LDA+U
                                      ! because vefv1,vefv2 do not include U contributions
@@ -177,7 +175,8 @@ c      else
             call mpi_barrier(MPI_COMM_WORLD,ierr)
             if(master_mpi) then
                i = 0
-! lsc   :0 self-consistency achieved (diffe<=etol, qdiff=dmxp(11)<=qtol)
+!==   convergence check by call nwit
+!     lsc   :0 self-consistency achieved (diffe<=etol, qdiff=dmxp(11)<=qtol)
 !     :1 if not self-consistent, but encountered max. no. iter.
 !     :2 Harris energy from overlap of free atoms (iter=1 and lhf=t)
 !     :3 otherwise
@@ -193,24 +192,25 @@ c      else
             if( cmdopt0('--quit=band')) call rx0('lmf-MPIK : exit (--quit=band)')
             if( lsc <= 2) exit  !self-consistency exit
  1000    continue               ! ---------------- SCF (iteration) loop end ----
-         if(nitrlx==0) exit !no molecular dynamics (=no atomic position relaxation)
-!! --- Molecular dynamics. not maintained recently but atomic position relaxation was working
+         if(nitrlx==0) exit     !no molecular dynamics (=no atomic position relaxation)
+
+         
+!==== Molecular dynamics (relaxiation). 
+         MDblock: Block !Not maintained well recently but atomic position relaxation was working
          do ibas=1,nbas
             ssite(ibas)%pos0 = ssite(ibas)%pos
             pos_move(:,ibas) = ssite(ibas)%pos
          enddo
-c         mdprm = ctrl_mdprm !MD setting
-!! Relax atomic positions.   !--> shear mode removed. probably outside of fortran code if necessary
-         call relax( ssite , sspec , itrlx , indrx_iv 
-     .        , natrlx, force , p_rv , hess , 0 , [0d0] , pos_move, icom )
-!!  warn: Updating positions in ssite structure ==> t.kotani think this is confusing because
-!!        'positions written in ctrl' and 'positions written in rst' can be different.
+!==   Relax atomic positions.   !--> shear mode removed. probably outside of fortran code if necessary
+         call relax(ssite, sspec, itrlx, indrx_iv, natrlx, force, p_rv , hess , 0 , [0d0] , pos_move, icom )
+!     warn: Updating positions in ssite structure ==> t.kotani think this is confusing because
+!     'positions written in ctrl' and 'positions written in rst' can be different.
          if(master_mpi) write(ifipos) itrlx,pos_move
          do ibas=1,nbas
             ssite(ibas)%pos = pos_move(:,ibas) 
          enddo
-C     ... Exit when relaxation converged or maximum number of iterations
-         if(icom==1) then !takao 
+!==   Exit when relaxation converged or maximum number of iterations
+         if(icom==1) then 
             if(master_mpi) then
                flg = 'C67' !what? 
                call nwitsv(1+2,ctrl_nvario,flg,nsp,amom,etot,sev)
@@ -218,7 +218,7 @@ C     ... Exit when relaxation converged or maximum number of iterations
             endif
             exit
          endif
-C     ... Restore minimum gradient positions if this is last step
+!==   Restore minimum gradient positions if this is last step
          if (itrlx==nitrlx) then
             write(stdo,"(a)")' lmfp: restore positions for minimum g'
             call prelx1(1 , nm , .false. , natrlx , indrx_iv , p_rv, pos_move )
@@ -226,23 +226,22 @@ C     ... Restore minimum gradient positions if this is last step
                ssite(ibas)%pos = pos_move(:,ibas)
             enddo
          endif
-!! New density after atom shifts.  
-!! If explicitly told to read from atom files after atom movement
+!==   New density after atom shifts.  
          call smshft(ctrl_lfrce) 
-!! Write restart file (to include new positions)
          if (master_mpi) then ! .and. .not. lshr) then
             ifi = ifile_handle()
             open(ifi,file='rst.'//trim(sname),form='unformatted') 
-            k = iors (iter , .true., - ifi ,irs3,irs5)
+            k = iors (iter , .true., - ifi ,irs3,irs5)!Write restart file (to include new positions)
             close(ifi)
-         endif
-         if ( master_mpi) then
             write(stdo,*)' Delete mixing and band weights files ...'
-            ifi = unlink('mixm.'//trim(sname))
-            ifi = unlink('wkp.'//trim(sname))
+            open(newunit=ifi, file='mixm.'//trim(sname)); close(ifi, status='delete')
+            open(newunit=ifi, file='wkp.'//trim(sname)); close(ifi, status='delete')
          endif
          call parms0(0,0,0d0,0) !   reset mixing block
          if(itrlx==nitrlx.and.master_mpi) write(stdo,"(a)")' LMFP: relaxation incomplete'
+         endblock MDblock
+
+         
  2000 continue
  9998 continue
       if(master_mpi.and.nitrlx>0) close(ifipos)

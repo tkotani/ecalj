@@ -17,7 +17,7 @@ c      use m_shortn3,only: shortn3_initialize,shortn3
       use m_mkpot,only: 
      &     smpot=>osmpot, sv_p_osig, sv_p_otau, sv_p_oppi, vconst, vesrmt,
      &     sv_p_osig, sv_p_otau, sv_p_oppi, ohsozz,ohsopm, ppn=>ppnl_rv, 
-     &     sv_p_oppix,spotx, spotxd, sv_p_oppixd
+     &     sv_p_oppix,spotx!, spotxd, sv_p_oppixd
       use m_MPItk,only: numproc=>nsize,procid,master,master_mpi
       use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_setiq,ndimhall
       use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
