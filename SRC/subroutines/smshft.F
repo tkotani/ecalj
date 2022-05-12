@@ -1,39 +1,14 @@
       subroutine smshft (job)
-      use m_density,only:  sv_p_orhoat=>orhoat,smrho=>osmrho !output
+      use m_density,only:  sv_p_orhoat=>orhoat,smrho=>osmrho !input and output
       use m_supot,only:  iv_a_okv,rv_a_ogv
       use m_lmfinit,only: ctrl_lfrce,ham_elind,
      &     lat_alat,nsp,nbas, sspec=>v_sspec, ssite=>v_ssite
       use m_lattic,only: lat_qlat, lat_vol,lat_plat
       use m_supot,only: lat_nabc, lat_ng
 C- Estimate the smooth density for a shift in atomic positions.
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   ssite :struct for site-specific information; see routine usite
-Ci     Elts read: spec pos pos0
-Ci     Duplicate: spec spec
-Ci     Stored:    pos
-Ci     Passed to: pvsms1 rhgcmp
-Ci   sspec :struct for species-specific information; see routine uspec
-Ci     Elts read: z p pz lmxa lmxl a nr rmt nxi exi chfa rsmfa
-Ci     Duplicate: z p pz lmxa
-Ci     Stored:    *
-Ci     Passed to: pvsms1 gtpcor rhgcmp
-Ci   slat  :struct for lattice information; see routine ulat
-Ci     Elts read: alat plat qlat nabc ng ogv okv vol
-Ci     Duplicate: alat vol
-Ci     Stored:    *
-Ci     Passed to: pvsms1 symsmr rhgcmp
-Ci   sctrl :struct for program flow parameters; see routine uctrl
-Ci     Elts read: lfrce
-Ci     Stored:    *
-Ci     Passed to: *
-Ci   sham  :struct for parameters defining hamiltonian; see routine uham
-Ci     Elts read: elind
-Ci     Stored:    *
-Ci     Passed to: *
-Ci   orhoat:vector of offsets containing site density
-Co Outputs
-Co   smrho :a perturbation is added to smrho, depending on job
+!input  orhoat:vector of offsets containing site density
+!inputoutput 
+!   smrho :a perturbation is added to smrho, depending on job
 Cr Remarks
 Cr   job describes which ansatz for charge shift is used for correction
 Cr     <=0  do not calculate correction to force
@@ -45,17 +20,7 @@ Cu   17 Sep 01 Adapted for local orbitals.  Altered argument list
 Cu    3 Jul 00 Adapted from nfp smshft.f
 C ----------------------------------------------------------------------
       implicit none
-C ... Passed parameters
-c      type(s_rv1) :: sv_p_orhoat(3,1)
-c      type(s_site)::ssite(*)
-c      type(s_spec)::sspec(*)
-c      type(s_lat)::slat
-c      type(s_ctrl)::sctrl
-c      type(s_ham)::sham
-c      double complex smrho(*)
-C ... Local parameters
-      integer i,ib,igets,igetss,iprint,is,k1,k2,k3,kcor,lcor,lmxa,n0,n1,
-     .n2,n3,ng,ngabc(3),i_copy_size
+      integer i,ib,igets,igetss,iprint,is,k1,k2,k3,kcor,lcor,lmxa,n0,n1,n2,n3,ng,ngabc(3),i_copy_size
       complex(8) ,allocatable :: cgr_zv(:)
       complex(8) ,allocatable :: cgs_zv(:)
       complex(8) ,allocatable :: cwk_zv(:)
@@ -64,28 +29,15 @@ C ... Local parameters
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       double precision alat,dgets,elind,pi,qc,qsc,qcor(2),plat(3,3),
      .     qlat(3,3),qv,qval,tpiba,vol,z,pnu(n0,2),pnz(n0,2)
-      
       if (job .le. 0) return
       call tcn('smshft')
-C --- Setup and printout ---
-c      i_copy_size=size(lat_plat)
-c      call dcopy(i_copy_size,lat_plat,1,plat,1)
-c      i_copy_size=size(lat_qlat)
-c      call dcopy(i_copy_size,lat_qlat,1,qlat,1)
-c      i_copy_size=size(lat_nabc)
-c      call icopy(i_copy_size,lat_nabc,1,ngabc,1)
-c      nsp  = globalvariables%nsp
-c      nbas = globalvariables%nbas
       alat=lat_alat
       plat=lat_plat
       qlat=lat_qlat
       ngabc=lat_nabc
       ng=lat_ng
       vol=lat_vol
-
       call fftz30(n1,n2,n3,k1,k2,k3)
-C     call zprm3('input smrho',0,smrho,k1,k2,k3)
-
 C ... Hold on to original smrho (cgr)
       allocate(cgr_zv(ng*nsp))
       call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,-1)
@@ -114,7 +66,6 @@ C       Compute elind if not given
           i_copy_size=size(sspec(is)%pz)
           call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1)
           lmxa=sspec(is)%lmxa
-
           if (lmxa .eq. -1) goto 12
           call gtpcor(sspec,is,kcor,lcor,qcor)
           call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc,qv,qsc)
