@@ -121,9 +121,8 @@ C ... Local parameters
       character(*)::rwrw
       data vec0 /0d0,0d0,0d0/
 c      call tcn('iors')
-      ifi=ifile_handle() 
-      open(ifi,file='rst.'//trim(sname),form='unformatted')
-      if(trim(rwrw)=='write') ifi=-ifi
+      open(newunit=ifi,file='rst.'//trim(sname),form='unformatted')
+c      if(trim(rwrw)=='write') ifi=-ifi
       
 C ... MPI setup
       nproc  = mpipid(0)
@@ -149,7 +148,7 @@ C ... MPI setup
       if (ipr .ge. 10) then
         fid0 = 'read'
         i = 5
-        if (ifi .lt. 0) then
+        if (trim(rwrw)=='write') then
           fid0 = 'write'
           i = i+1
         endif
@@ -168,7 +167,7 @@ C ... MPI setup
         write(stdo,"(/' iors  : ',a)") fid0(1:i)
       endif
 C --- Input ---
-      if (ifi .gt. 0) then
+      if (trim(rwrw)=='read') then
         jfi = ifi
         if (procid .eq. master) then
           rewind jfi
@@ -243,7 +242,7 @@ C   --- Read smooth charge density ---
           if (procid .eq. master) then
               read(jfi,err=999,end=999) n11,n21,n31
             if (n11.eq.n1 .and. n21.eq.n2 .and. n31.eq.n3) then
-              call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp0 , osmrho, lbin , jfi )
+              read(jfi)osmrho ! call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp0 , osmrho, lbin , jfi )
               if (nsp .gt. nsp0) then
                 i = k1*k2*k3*2
                 call dscal ( i , 0.5d0 , osmrho , 1 )
@@ -255,8 +254,7 @@ C   --- Read smooth charge density ---
      .        '    to  ',i4,'  *',i4,'  *',i4)
               call fftz30(n11,n21,n31,k11,k21,k31)
               allocate(h_zv(k11*k21*k31*nsp))
-              h_zv(:)=0.0d0
-              call dpdftr ( n11 , n21 , n31 , k11 , k21 , k31 , nsp0 , h_zv , lbin , jfi )
+              read(jfi)h_zv 
               if (nsp .gt. nsp0) then
                 i = k11*k21*k31*2
                 call dscal ( i , 0.5d0 , h_zv , 1 )
@@ -283,7 +281,7 @@ C   ... If cell volume changed, scale smooth density to maintain charge
 C   --- Read information related to dynamics ---
 C       For compatibility with nfp, read record into wk
         if (procid .eq. master) then
-            call dpdump(wk,100,jfi)
+            read(jfi) wk !call dpdump(wk,100,jfi)
         endif
         call mpibc1_real(wk,1,'iors:eferm')
 c        if (irs4 .ne. 0) then
@@ -481,14 +479,14 @@ cccccccccccccccccccccccccccc
             allocate(v1pot(ib)%v(nr*nsp)) 
 ccccccccccccccccccccccccccccc            
             if (procid .eq. master) then
-              call dpdbyl ( orhoat( 1 , ib )%v , nr0 , nlml0 , nlml , nsp0 , nsp , lbin , jfi )
-              call dpdbyl ( orhoat( 2 , ib )%v , nr0 , nlml0 , nlml , nsp0 , nsp , lbin , jfi )
+              read(jfi)orhoat(1,ib)%v! call dpdbyl ( orhoat( 1 , ib )%v , nr0 , nlml0 , nlml , nsp0 , nsp , lbin , jfi )
+              read(jfi) orhoat( 2 , ib )%v !, nr0 , nlml0 , nlml , nsp0 , nsp , lbin , jfi )
               if (nlml0.gt.nlml.and.ipr.ge.10) write(stdo,202) ib,spid,'truncate',nlml0,nlml
               if (nlml0.lt.nlml.and.ipr.ge.10) write(stdo,202) ib,spid,'inflate',nlml0,nlml
   202         format(9x,'site',i4,', species ',a,': ',a,' local density from nlm=',i3,' to',i3)
-              call dpdbyl(orhoat(3,ib)%v,nr0,1,1,nsp0, nsp , lbin , jfi )
-              call dpdbyl ( ssite(ib)%rv_a_ov0, nr0, 1, 1, nsp0, nsp , lbin , jfi )
-              call dpdbyl ( ssite(ib)%rv_a_ov1, nr0, 1, 1, nsp0, nsp , lbin , jfi )
+              read(jfi) orhoat(3,ib)%v!,nr0,1,1,nsp0, nsp , lbin , jfi )
+              read(jfi) ssite(ib)%rv_a_ov0!, nr0, 1, 1, nsp0, nsp , lbin , jfi )
+              read(jfi) ssite(ib)%rv_a_ov1!, nr0, 1, 1, nsp0, nsp , lbin , jfi )
               if (nsp0 .lt. nsp) then
                 call dscal ( nr0 * 2 , 2d0 , ssite(ib)%rv_a_ov0 , 1 )
                 call dscal ( nr0 * 2 , 2d0 , ssite(ib)%rv_a_ov1 , 1 )
@@ -545,7 +543,7 @@ C     ... FP core densities
            if (nr*nsp<0) sspec(is)%rv_a_orhoc(:)=0.0d0
            if (procid .eq. master) then
               if (nr .ne. nr0) call rx('iors not set up to convert core radial mesh')
-                 call dpdump ( sspec(is)%rv_a_orhoc , nr * nsp0 , jfi )
+                 read(jfi) sspec(is)%rv_a_orhoc !, nr * nsp0 , jfi )
               if (nsp .gt. nsp0) then !spin-split core density
                  i = nr
                  call dscal ( i , 0.5d0 , sspec(is)%rv_a_orhoc , 1 )
@@ -557,8 +555,7 @@ C     ... FP core densities
            call dpzero(hfc,n0*2)
            if (procid .eq. master) then
                  read(jfi,err=999,end=999) rsmfa,nxi
-                 read(jfi,err=999,end=999)
-     .                ((exi(i),hfc(i,isp),i=1,nxi),isp=1,nsp0)
+                 read(jfi,err=999,end=999) ((exi(i),hfc(i,isp),i=1,nxi),isp=1,nsp0)
               if (nsp .gt. nsp0) then
                  i = n0
                  call dscal(i,0.5d0,hfc,1)
@@ -616,7 +613,7 @@ C --- Output ---
           iors = 0
           return
         endif
-        jfi = -ifi
+        jfi = ifi
         rewind jfi
         fid0 = fid
         call strip(fid0,i0,i1)
@@ -646,12 +643,12 @@ C --- Output ---
 
 C   --- Write smooth charge density ---
           write(jfi) n1,n2,n3
-        call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp , osmrho, lbin , - jfi )
+          write(jfi) osmrho!, lbin , -jfi )
 
 C   --- Write information related to dynamics ---
         wk=1d99 !call dpzero(wk,100)
         wk(1)= eferm !sbz%ef !dummy ! we use wk(1) only wk(2:100) are dummy
-          call dpdump(wk,100,-jfi)
+          write(jfi) wk !call dpdump(wk,100,-jfi)
         do  110  ib = 1, nbas
           pos  =ssite(ib)%pos
           force=ssite(ib)%force
@@ -696,11 +693,11 @@ C         Write for compatibility with nfp
             write(jfi) (idmod(l+1), l=0,lmxa)
 C     ... Write arrays for local density and potential
           nlml = (lmxl+1)**2
-            call dpdbyl ( orhoat( 1 , ib )%v , nr , nlml , nlml , nsp  , nsp , lbin , - jfi )
-            call dpdbyl ( orhoat( 2 , ib )%v , nr , nlml , nlml , nsp  , nsp , lbin , - jfi )
-            call dpdbyl ( orhoat( 3 , ib )%v , nr , 1 , 1 , nsp , nsp   , lbin , - jfi )
-            call dpdbyl ( ssite(ib)%rv_a_ov0 , nr , 1 , 1 , nsp , nsp , lbin , - jfi  )
-            call dpdbyl ( ssite(ib)%rv_a_ov1 , nr , 1 , 1 , nsp , nsp , lbin , - jfi  )
+            write(jfi) orhoat( 1 , ib )%v !, nr , nlml , nlml , nsp  , nsp , lbin , -jfi )
+            write(jfi) orhoat( 2 , ib )%v !, nr , nlml , nlml , nsp  , nsp , lbin , -jfi )
+            write(jfi) orhoat( 3 , ib )%v !, nr , 1 , 1 , nsp , nsp   , lbin , -jfi )
+            write(jfi) ssite(ib)%rv_a_ov0 !, nr , 1 , 1 , nsp , nsp , lbin , -jfi  )
+            write(jfi) ssite(ib)%rv_a_ov1 !, nr , 1 , 1 , nsp , nsp , lbin , -jfi  )
             if (ipr .ge. 50) then
                write(stdo,349) ib,spid,lmxa,lmxl,rmt,nr,a, (pnu(l+1,1),l=0,lmxa)
                if (nsp .eq. 2)  write(stdo,350) (pnu(l+1,2), l=0,lmxa)
@@ -724,7 +721,7 @@ C   --- Write data on free-atom core states and fit to fa density ---
           if (lmxa .eq. -1) goto 130
             write(jfi) nr,a,qc,cof,eh,stc,lfoc,rfoc
 C     ... For now, ASA stores no core data
-              call dpdump ( sspec(is)%rv_a_orhoc , nr * nsp , - jfi )
+              write(jfi) sspec(is)%rv_a_orhoc 
               write(jfi) rsmfa,nxi
               write(jfi) ((exi(i),hfc(i,isp),i=1,nxi),isp=1,nsp)
   130   continue
