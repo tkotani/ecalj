@@ -5,7 +5,7 @@
       private
       
       contains
-      integer function iors(nit,ifi,irs3,irs5)
+      integer function iors(nit,rwrw,ifi,irs3,irs5)
       use m_density,only: osmrho, orhoat !these are allocated
       use m_bndfp,only: m_bndfp_ef_SET,eferm 
 
@@ -118,8 +118,13 @@ C ... Local parameters
       character spid*8,spid0*8,fid0*68,line*20,msg*23,use*80,ignore*80,
      .msgw*17,datimp*32,usernm*32,hostnm*32,jobid*32,ffmt*32,ifmt*32
       integer:: fextg, i_dummy_fextg
+      character(*)::rwrw
       data vec0 /0d0,0d0,0d0/
-c      call tcn('iors')
+      call tcn('iors')
+      ifi=ifile_handle() 
+      open(ifi,file='rst.'//trim(sname),form='unformatted')
+      if(trem(rwrw)='write') ifi=-ifi
+      
 C ... MPI setup
       nproc  = mpipid(0)
       procid = mpipid(1)
@@ -733,6 +738,6 @@ C     ... For now, ASA stores no core data
       return
   999 continue
       if (ipr .gt. 0) write(stdo,'('' iors  : read failed in: '',a)') line
-c      call tcx('iors')
+      call tcx('iors')
       end function iors
       end module m_iors

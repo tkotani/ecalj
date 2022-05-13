@@ -94,13 +94,12 @@ c      else
       irs1x = irs1
 c      lbin = (irs1x==1)         ! lbin=T:rst for --rs=1, or lbin=F:rsta for --rs=2,
       k = -1
-      if(master_mpi) then
-         ifi=ifile_handle() 
-         open(ifi,file='rst.'//trim(sname),form='unformatted')
-c         if(.not. lbin) open(ifi,file='rsta.'//trim(sname)) 
-      endif
+c      if(master_mpi) then
+c         ifi=ifile_handle() 
+c         open(ifi,file='rst.'//trim(sname),form='unformatted')
+c      endif
       call mpibc1_int(ifi,1,'lmv7:lmfp_ifi')
-      k = iors(nit1 , ifi=ifi,irs3=irs3,irs5=irs5) ! read rst file. sspec ssite maybe modified 
+      k = iors(nit1,'read',irs3=irs3,irs5=irs5) ! read rst file. sspec ssite maybe modified 
       if (master_mpi) close(ifi) 
       call mpibc1_int(k,1,'lmv7:lmfp_k')
       call Setopos()      !Set pos of iors to rv_a_opos
@@ -162,7 +161,7 @@ c                  lbin = .true. !irs2/=2
                   ifi = ifile_handle() 
                   open(ifi,file='rst.'//trim(sname),form='unformatted')
 c                  if(.not.lbin) open(ifi,file='rsta.'//trim(sname)) 
-                  k = iors ( iter ,  - ifi ,irs3,irs5)
+                  k = iors ( iter , 'write' ,irs3,irs5)
                   close(ifi) 
                endif
             endif
@@ -234,7 +233,7 @@ c                  if(.not.lbin) open(ifi,file='rsta.'//trim(sname))
          if (master_mpi) then ! .and. .not. lshr) then
             ifi = ifile_handle()
             open(ifi,file='rst.'//trim(sname),form='unformatted') 
-            k = iors (iter , - ifi ,irs3,irs5)!Write restart file (to include new positions)
+            k = iors (iter , 'write' ,irs3,irs5)!Write restart file (to include new positions)
             close(ifi)
             write(stdo,*)' Delete mixing and band weights files ...'
             open(newunit=ifi, file='mixm.'//trim(sname)); close(ifi, status='delete')

@@ -16,7 +16,6 @@ m_igv2x.o\
 m_qplist.o\
 m_clsmode.o\
 m_mkpot.o\
-m_lmfgw.o\
 writefs.o\
 writeham.o\
 vbmmode.o\
