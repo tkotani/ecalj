@@ -85,5 +85,33 @@ C ...   zero out unset components in array
 
       end
 
+      subroutine readrho(ifi,nr,nlm0,nsp0,nlm,nsp,aout)!size controled read
+      integer nr,nlm,nlm0,nsp0,nsp,ifi
+      real(8):: aread(nr,nlm0,nsp0)
+      real(8):: aout (nr,nlm,nsp)
+      integer jfi,isp,ilm,i,nlmx
+      double precision xx
+      nlmx = min(nlm,nlm0)
+      read(ifi) aread
+      if(nsp0==2.and.nsp==1) then
+         aout(1:nr,1:nlmx,1) = aread(1:nr,1:nlmx,1)+aread(1:nr,1:nlmx,2)
+      elseif(nsp0==1.and.nsp==2) then
+         aout(1:nr,1:nlmx,1)=.5d0*aread(1:nr,1:nlmx,1)
+         aout(1:nr,1:nlmx,2)=.5d0*aread(1:nr,1:nlmx,1)
+      elseif(nsp0==nsp) then
+         aout(1:nr,1:nlmx,1:nsp)=aread(1:nr,1:nlmx,1:nsp)
+      else
+         call rx('readrho nsp wrong')
+      endif
+      aout(1:nr,nlmx+1:nlm0,1:nsp)=0d0
+      end
 
+      subroutine readrhos(ifi,nr,nsp0,nsp,aout)
+      integer nr,nsp0,nsp,ifi
+      real(8):: aread(nr,nsp0)
+      real(8):: aout (nr,nsp)
+      read(ifi) aread
+      aout(1:nr,1:nsp0)=aread(1:nr,1:nsp0)
+      if(nsp==2.and.nsp0==1) aout(1:nr,2)=aread(1:nr,1)
+      end
 

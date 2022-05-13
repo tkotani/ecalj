@@ -26,25 +26,20 @@ C      parameter (n1mx=1024)
 C      double precision row(n1mx)
       double precision row(n1)
       n1mx = n1
-
 C --- Input ---
       if (ifi .gt. 0) then
         jfi = ifi
         if (n1 .gt. n1mx) call rx('dpdftr: increase n1mx')
         call dpzero(f, 2*k1*k2*k3*n)
         do  i = 1, n
-          do  i3 = 1, n3
-            do  i2 = 1, n2
-              if (lbin) then
+        do  i3 = 1, n3
+        do  i2 = 1, n2
                 read(jfi) (row(i1), i1=1,n1)
-              else
-                call dfdump(row,n1,jfi)
-              endif
               do  i1 = 1, n1
                 f(i1,i2,i3,i) = dcmplx(row(i1),0d0)
-              enddo
-            enddo
-          enddo
+        enddo
+        enddo
+        enddo
         enddo
 
 C --- Output ---
@@ -56,11 +51,11 @@ C --- Output ---
               do  i1 = 1, n1
                 row(i1) = dble(f(i1,i2,i3,i))
               enddo
-              if (lbin) then
+c              if (lbin) then
                 write(jfi) (row(i1), i1=1,n1)
-              else
-                call dfdump(row,n1,ifi)
-              endif
+c              else
+c                call dfdump(row,n1,ifi)
+c              endif
             enddo
           enddo
         enddo

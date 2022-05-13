@@ -122,8 +122,6 @@ C ... Local parameters
       data vec0 /0d0,0d0,0d0/
 c      call tcn('iors')
       open(newunit=ifi,file='rst.'//trim(sname),form='unformatted')
-c      if(trim(rwrw)=='write') ifi=-ifi
-      
 C ... MPI setup
       nproc  = mpipid(0)
       procid = mpipid(1)
@@ -145,33 +143,10 @@ C ... MPI setup
       ffmt = '(5f15.10)'
       ifmt = '(20i5)'
       npan = 1 !Hardwired for now
-      if (ipr .ge. 10) then
-        fid0 = 'read'
-        i = 5
-        if (trim(rwrw)=='write') then
-          fid0 = 'write'
-          i = i+1
-        endif
-        fid0(i:) = ' restart file ('
-        i = i+15
-        fid0(i:) = 'ascii'
-        fid0(i:) = 'binary'
-        i = i+5
-        i = i+1
-        fid0(i:) = ', asa'
-        fid0(i:) = ', mesh density'
-        i = i+5
-        i = i+14-5
-        fid0(i:i) = ')'
-        i = i+1
-        write(stdo,"(/' iors  : ',a)") fid0(1:i)
-      endif
+      write(stdo,"(/' iors  : ',a)") trim(rwrw)//' rst restart file (binary mesh density)'
 C --- Input ---
       if (trim(rwrw)=='read') then
         jfi = ifi
-        if (procid .eq. master) then
-          rewind jfi
-        endif
         use    = '         use from  restart file:'
         ignore = '         ignore in restart file:'
         line = 'header'
@@ -341,9 +316,7 @@ C   --- Read information for local densities ---
         ibaug = 0
         do  ib = 1, nbas
           ic=ssite(ib)%class
-          is=ssite(ib)%spec
-C         is = -1 -> spec struc does not have these parameters
-C         lskip = .false.
+          is=ssite(ib)%spec !     is = -1 -> spec struc does not have these parameters
           if (is /= -1) then
             spid=sspec(is)%name
             a=sspec(is)%a
@@ -456,53 +429,39 @@ C         if (is0 .ne. is) call xxerri('species pointer',is,is0)
   201         format(9x,'site',i4,', species ',a,
      .        ': augmentation ',a,' changed from',i2,' to',i2)
             endif
-C         Case read but skip over this site data
           else
             lmxl = lmxl0
             nr = nr0
-          endif
-
-C     --- Allocate and read arrays for local density and potential ---
+         endif
+!!         
           nlml0 = (lmxl0+1)**2
-          nlml = (lmxl+1)**2
-          if (allocated(ssite(ib)%rv_a_ov0)) deallocate(ssite(ib)%rv_a_ov0)
-          allocate(ssite(ib)%rv_a_ov0(abs(nr*nsp)))
-C     ... FP local densities rho1,rho2,rhoc and potentials v0, v1
-            if (nr .ne. nr0) call rx('iors not set up to convert radial mesh')
-            allocate(orhoat(1,ib)%v(abs(nr*nlml*nsp)))
-            allocate(orhoat(2,ib)%v(abs(nr*nlml*nsp)))
-            allocate(orhoat(3,ib)%v(abs(nr*nsp)))
-            if (allocated(ssite(ib)%rv_a_ov1)) deallocate(ssite(ib)%rv_a_ov1)
-            allocate(ssite(ib)%rv_a_ov1(abs(nr*nsp)))
-cccccccccccccccccccccccccccc
-            allocate(v0pot(ib)%v(nr*nsp)) 
-            allocate(v1pot(ib)%v(nr*nsp)) 
-ccccccccccccccccccccccccccccc            
-            if (procid .eq. master) then
-              read(jfi)orhoat(1,ib)%v! call dpdbyl ( orhoat( 1 , ib )%v , nr0 , nlml0 , nlml , nsp0 , nsp , lbin , jfi )
-              read(jfi) orhoat( 2 , ib )%v !, nr0 , nlml0 , nlml , nsp0 , nsp , lbin , jfi )
-              if (nlml0.gt.nlml.and.ipr.ge.10) write(stdo,202) ib,spid,'truncate',nlml0,nlml
-              if (nlml0.lt.nlml.and.ipr.ge.10) write(stdo,202) ib,spid,'inflate',nlml0,nlml
-  202         format(9x,'site',i4,', species ',a,': ',a,' local density from nlm=',i3,' to',i3)
-              read(jfi) orhoat(3,ib)%v!,nr0,1,1,nsp0, nsp , lbin , jfi )
-              read(jfi) ssite(ib)%rv_a_ov0!, nr0, 1, 1, nsp0, nsp , lbin , jfi )
-              read(jfi) ssite(ib)%rv_a_ov1!, nr0, 1, 1, nsp0, nsp , lbin , jfi )
-              if (nsp0 .lt. nsp) then
-                call dscal ( nr0 * 2 , 2d0 , ssite(ib)%rv_a_ov0 , 1 )
-                call dscal ( nr0 * 2 , 2d0 , ssite(ib)%rv_a_ov1 , 1 )
-             endif
-cccccccccccccccccccccc
+          nlml  = (lmxl+1)**2
+          if (nr .ne. nr0) call rx('iors not set up to convert radial mesh')
+          allocate(orhoat(1,ib)%v(nr*nlml*nsp)) !FP local densities rho1,rho2,rhoc and potentials v0, v1
+          allocate(orhoat(2,ib)%v(nr*nlml*nsp))
+          allocate(orhoat(3,ib)%v(nr*nsp))
+          allocate(ssite(ib)%rv_a_ov0(nr*nsp))
+          allocate(ssite(ib)%rv_a_ov1(nr*nsp))
+          allocate(v0pot(ib)%v(nr*nsp)) 
+          allocate(v1pot(ib)%v(nr*nsp))
+          if (procid .eq. master) then
+             print *,'nnnnnnnnread',ib,nr*nlml*nsp,nr,nlml,nsp
+             call readrho(ifi,nr,nlml0,nsp0,nlml,nsp,orhoat(1,ib)%v)
+             call readrho(ifi,nr,nlml0,nsp0,nlml,nsp,orhoat(2,ib)%v)
+             call readrho(ifi,nr,1,nsp0,1,nsp,orhoat(3,ib)%v)
+             call readrhos(ifi,nr,nsp0,nsp,ssite(ib)%rv_a_ov0)
+             call readrhos(ifi,nr,nsp0,nsp,ssite(ib)%rv_a_ov1)
+             if(nlml0.gt.nlml.and.ipr.ge.10) write(stdo,202) ib,spid,'truncate',nlml0,nlml
+             if(nlml0.lt.nlml.and.ipr.ge.10) write(stdo,202) ib,spid,'inflate',nlml0,nlml
+ 202         format(9x,'site',i4,', species ',a,': ',a,' local density from nlm=',i3,' to',i3)
              v0pot(ib)%v = ssite(ib)%rv_a_ov0
              v1pot(ib)%v = ssite(ib)%rv_a_ov1
-cccccccccccccccccccccc             
-            endif
-            call mpibc1_real( orhoat(1,ib)%v, size(orhoat(1,ib)%v), 'iors_rhoat(1)' )
-            call mpibc1_real( orhoat(2,ib)%v, size(orhoat(2,ib)%v), 'iors_rhoat(2)' )
-            call mpibc1_real( orhoat(3,ib)%v, size(orhoat(3,ib)%v), 'iors_rhoat(3)' )
-            call mpibc1_real( ssite(ib)%rv_a_ov0 , size(ssite(ib)%rv_a_ov0) , 'iors_v0' )
-            call mpibc1_real( ssite(ib)%rv_a_ov1 , size(ssite(ib)%rv_a_ov1) , 'iors_v1' )
-c          endif
-C     ... store data in strucs
+          endif
+          call mpibc1_real( orhoat(1,ib)%v, size(orhoat(1,ib)%v), 'iors_rhoat(1)' )
+          call mpibc1_real( orhoat(2,ib)%v, size(orhoat(2,ib)%v), 'iors_rhoat(2)' )
+          call mpibc1_real( orhoat(3,ib)%v, size(orhoat(3,ib)%v), 'iors_rhoat(3)' )
+          call mpibc1_real( ssite(ib)%rv_a_ov0 , size(ssite(ib)%rv_a_ov0) , 'iors_v0' )
+          call mpibc1_real( ssite(ib)%rv_a_ov1 , size(ssite(ib)%rv_a_ov1) , 'iors_v1' )
           sspec(is)%a=a
           sspec(is)%nr=nr
           sspec(is)%rmt=rmt
@@ -693,6 +652,7 @@ C         Write for compatibility with nfp
             write(jfi) (idmod(l+1), l=0,lmxa)
 C     ... Write arrays for local density and potential
           nlml = (lmxl+1)**2
+              print *,'nnnnnnnwrite',ib,nr*nlml*nsp,nr,nlml,nsp
             write(jfi) orhoat( 1 , ib )%v !, nr , nlml , nlml , nsp  , nsp , lbin , -jfi )
             write(jfi) orhoat( 2 , ib )%v !, nr , nlml , nlml , nsp  , nsp , lbin , -jfi )
             write(jfi) orhoat( 3 , ib )%v !, nr , 1 , 1 , nsp , nsp   , lbin , -jfi )
