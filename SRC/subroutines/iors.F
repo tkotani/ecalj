@@ -5,7 +5,7 @@
       private
       
       contains
-      integer function iors(nit,lbin,ifi,irs3,irs5)
+      integer function iors(nit,ifi,irs3,irs5)
       use m_density,only: osmrho, orhoat !these are allocated
       use m_bndfp,only: m_bndfp_ef_SET,eferm 
 
@@ -32,8 +32,8 @@ Ci         :Note: if nat<nbas, there is a requirement that
 Ci         :lmxa>-1 for nat sites, and
 Ci         :and lmxa=-1 for nbas-nat sites
 Ci   ifi   :file logical unit, but >0 for read, <0 for write
-Ci   lbin  :T file I/O in binary mode
-Ci         :F file I/O in ascii mode
+Ci   lbin  :=T file I/O in binary mode
+Ci         :xxxF file I/O in ascii mode
 !!      
 Cr Remarks
 Cr   The density consists of a smooth part (smrho) plus
@@ -93,7 +93,7 @@ Cu   25 Jun 00 spin polarized
 Cu   21 Apr 00 Adapted from nfp rw_rs
 C  ----------------------------------------------------------------------
       implicit none
-      logical lbin
+      logical:: lbin=.true.
       integer::  irs3,irs5,nit , ifi , i_site,i_spec!,i_copy_size !mode=1 ,
       character*256:: fid=''
 C ... Local parameters
@@ -151,9 +151,9 @@ C ... MPI setup
         fid0(i:) = ' restart file ('
         i = i+15
         fid0(i:) = 'ascii'
-        if (lbin) fid0(i:) = 'binary'
+        fid0(i:) = 'binary'
         i = i+5
-        if (lbin) i = i+1
+        i = i+1
         fid0(i:) = ', asa'
         fid0(i:) = ', mesh density'
         i = i+5
@@ -175,26 +175,16 @@ C --- Input ---
         lfail = .false.
         if (nproc .gt. 0) then
           if (procid .eq. master) then
-            if (lbin) then
               lfail = .true.
               read(jfi,end=996,err=996) vs1
               lfail = .false.
               rewind jfi
   996         continue
-            else
-              lfail = .true.
-              read(jfi,*,end=997,err=997)
-              read(jfi,*,end=997,err=997) vs1
-              lfail = .false.
-              rewind jfi
-  997         continue
-            endif
           endif
           call mpibc1_logical(lfail,1,'iors_read error')
           if (lfail) goto 998
         endif
         if (procid .eq. master) then
-          if (lbin) then
             read(jfi,end=998,err=998) vs1
             read(jfi) fid0
             read(jfi) datimp,usernm,hostnm
@@ -210,27 +200,6 @@ C --- Input ---
             endif
             read(jfi) nit
             read(jfi) alat0,vol0,plat0
-          else
-            read(jfi,*,end=998,err=998)
-            read(jfi,*,end=998,err=998) vs1
-            read(jfi,'(1x,a68)',end=998,err=998) fid0
-            read(jfi,'(1x,a32)',end=998,err=998) datimp
-            read(jfi,'(1x,a32)',end=998,err=998) usernm
-            read(jfi,'(1x,a32)',end=998,err=998) hostnm
-            if (abs(vs1) .le. 1.021) then
-              nspec0 = nspec
-              read(jfi,*,end=998,err=998) nbas0,nsp0,npan0,lrel0,nit
-              nat0 = nbas0
-            else if (abs(vs1) .le. 1.031) then
-              read(jfi,*,end=998,err=998) nbas0,nsp0,npan0,lrel0,nit,
-     .        nspec0
-              nat0 = nbas0
-            else
-              read(jfi,*,end=998,err=998) nbas0,nat0,nsp0,npan0,lrel0,nit,nspec0
-            endif
-            read(jfi,*) alat0,vol0
-            read(jfi,*) plat0
-          endif
           call dinv33(plat0,1,qlat0,fac)
 c          lshear = .not. latvec(3,1d-6,qlat,plat0)
           fid = fid0
@@ -267,12 +236,7 @@ C   --- Read smooth charge density ---
         osmrho(:)=0d0
         line = 'smoothed density'
           if (procid .eq. master) then
-            if (lbin) then
               read(jfi,err=999,end=999) n11,n21,n31
-            else
-              read(jfi,*,err=999,end=999)
-              read(jfi,*,err=999,end=999) n11,n21,n31
-            endif
             if (n11.eq.n1 .and. n21.eq.n2 .and. n31.eq.n3) then
               call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp0 , osmrho, lbin , jfi )
               if (nsp .gt. nsp0) then
@@ -314,12 +278,7 @@ C   ... If cell volume changed, scale smooth density to maintain charge
 C   --- Read information related to dynamics ---
 C       For compatibility with nfp, read record into wk
         if (procid .eq. master) then
-          if (lbin) then
             call dpdump(wk,100,jfi)
-          else
-            read(jfi,*,err=999,end=999)
-            call dfdump(wk,100,jfi)
-          endif
         endif
         call mpibc1_real(wk,1,'iors:eferm')
 c        if (irs4 .ne. 0) then
@@ -343,14 +302,7 @@ C         Must be enough sites to read from rst file
         endif
         do  ib = 1, nbas0
           if (procid .eq. master) then
-            if (lbin) then
               read(jfi,err=999,end=999) jb,pos,force!,vel
-            else
-              read(jfi,'(6x,i10)',err=999,end=999) jb
-              read(jfi,*,err=999,end=999) pos
-              read(jfi,*,err=999,end=999) force
-              read(jfi,*,err=999,end=999) !vel
-            endif
           endif
           call mpibc1_real(pos,3,'iors_pos')
           call mpibc1_real(force,3,'iors_force')
@@ -382,9 +334,6 @@ C   --- Read information for local densities ---
            write(stdo,*)trim(use)
            write(stdo,*)trim(ignore)
         endif
-        if (procid .eq. master) then
-          if (.not. lbin) read(jfi,*,err=999,end=999)
-        endif
         allocate(orhoat(3,nbas), v1pot(nbas),v0pot(nbas))
         ibaug = 0
         do  ib = 1, nbas
@@ -405,29 +354,15 @@ C         lskip = .false.
           endif
           ibaug = ibaug+1
           if (procid== master) then
-            if (lbin) then
               read(jfi) is0,spid0,lmxa0,lmxl0,nr0,rmt0,a0,z0,qc
               if (ib .gt. nbas) goto 20
-            else
-              read(jfi,'(19x,a8)') spid0
-              read(jfi,*)
-              read(jfi,*) is0,lmxa0,lmxl0,nr0
-              read(jfi,*)
-              read(jfi,*) rmt0,a0,z0,qc
-              if (ib .gt. nbas) goto 20
-            endif
             if (ipr .ge. 40) then
               if (ib .le. nat) write(stdo,380) ib,is0,spid0
               if (ib .gt. nat) write(stdo,380) ib,is0,spid0, ' (skip)'
             endif
   380       format('   atom',i4,'    species',i4,':',a:a)
 c     ... read(but don't use) extra info since record is present
-            if (lbin) then
               read(jfi) rsma0,rsmr0,rsmv0,lmxv0,lmxr,lmxb0,kmax0
-            else
-              read(jfi,*)
-              read(jfi,*) rsma0,rsmr0,rsmv0,lmxv0,lmxr,lmxb0,kmax0
-            endif
           endif
           call mpibc1_int(lmxa0,1,'iors_lmxa0')
           call mpibc1_int(lmxl0,1,'iors_lmxl0')
@@ -444,14 +379,8 @@ c     ... read(but don't use) extra info since record is present
           idmoz=0
           if (procid .eq. master) then
             do  isp = 1, nsp0
-              if (lbin) then
                 read(jfi) (pnu(l+1,isp), l=0,lmxa0)
                 read(jfi) (pnz(l+1,isp), l=0,lmxa0)
-              else
-                if (isp .eq. 1) read(jfi,*)
-                read(jfi,*) (pnu(l+1,isp), l=0,lmxa0)
-                read(jfi,*) (pnz(l+1,isp), l=0,lmxa0)
-              endif
               if (nsp .gt. nsp0) then
                 do  l = 0, lmxa0
                   pnu(l+1,2) = pnu(l+1,1)
@@ -470,13 +399,8 @@ C       ... For backwards compatibility: prior versions wrote pnu for pnz
             enddo
           enddo
           if (procid .eq. master) then
-            if (lbin) then
               read(jfi) (idmod(l+1), l=0,lmxa0)
               read(jfi) (idmoz(l+1), l=0,lmxa0)
-            else
-              read(jfi,*) (idmod(l+1), l=0,lmxa0)
-              read(jfi,*) (idmoz(l+1), l=0,lmxa0)
-            endif
           endif
           pnus =sspec(is)%p
           pnzs =sspec(is)%pz
@@ -552,18 +476,13 @@ cccccccccccccccccccccccccccc
             allocate(v1pot(ib)%v(nr*nsp)) 
 ccccccccccccccccccccccccccccc            
             if (procid .eq. master) then
-              if (.not. lbin) read(jfi,*)
               call dpdbyl ( orhoat( 1 , ib )%v , nr0 , nlml0 , nlml , nsp0 , nsp , lbin , jfi )
-              if (.not. lbin) read(jfi,*)
               call dpdbyl ( orhoat( 2 , ib )%v , nr0 , nlml0 , nlml , nsp0 , nsp , lbin , jfi )
               if (nlml0.gt.nlml.and.ipr.ge.10) write(stdo,202) ib,spid,'truncate',nlml0,nlml
               if (nlml0.lt.nlml.and.ipr.ge.10) write(stdo,202) ib,spid,'inflate',nlml0,nlml
   202         format(9x,'site',i4,', species ',a,': ',a,' local density from nlm=',i3,' to',i3)
-              if (.not. lbin) read(jfi,*)
               call dpdbyl(orhoat(3,ib)%v,nr0,1,1,nsp0, nsp , lbin , jfi )
-              if (.not. lbin) read(jfi,*)
               call dpdbyl ( ssite(ib)%rv_a_ov0, nr0, 1, 1, nsp0, nsp , lbin , jfi )
-              if (.not. lbin) read(jfi,*)
               call dpdbyl ( ssite(ib)%rv_a_ov1, nr0, 1, 1, nsp0, nsp , lbin , jfi )
               if (nsp0 .lt. nsp) then
                 call dscal ( nr0 * 2 , 2d0 , ssite(ib)%rv_a_ov0 , 1 )
@@ -599,26 +518,13 @@ c          call pvsms2 ( ssite , sspec , wk , nbas , nsp , orhoat )
 c        endif
 C   --- Read data on free-atom core states and fit to fa density ---
         line = 'species data'
-        if (procid .eq. master) then
-          if (.not. lbin) read(jfi,*,err=999,end=999)
-        endif
         do  30  is = 1, nspec
            a   =sspec(is)%a
            nr  =sspec(is)%nr
            lmxa=sspec(is)%lmxa
            if (lmxa .eq. -1) goto 30
            if (procid .eq. master) then
-              if (lbin) then
                  read(jfi,err=999,end=999) nr0,a0,qc,cof,eh,stc,lfoc0,rfoc0
-              else
-                 read(jfi,*,err=999,end=999)
-                 read(jfi,*,err=999,end=999)
-                 read(jfi,*,err=999,end=999) nr0,lfoc0
-                 read(jfi,*,err=999,end=999)
-                 read(jfi,*,err=999,end=999) a0,qc,cof,eh
-                 read(jfi,*,err=999,end=999)
-                 read(jfi,*,err=999,end=999) stc,rfoc0
-              endif
               sspec(is)%lfoca=lfoc0
               sspec(is)%rfoca=rfoc0
               lfail = isanrg(nr0,nr,nr,msgw,'nr',.false.)
@@ -634,11 +540,7 @@ C     ... FP core densities
            if (nr*nsp<0) sspec(is)%rv_a_orhoc(:)=0.0d0
            if (procid .eq. master) then
               if (nr .ne. nr0) call rx('iors not set up to convert core radial mesh')
-              if (lbin) then
                  call dpdump ( sspec(is)%rv_a_orhoc , nr * nsp0 , jfi )
-              else
-                 call dfdump ( sspec(is)%rv_a_orhoc , nr * nsp0 , jfi )
-              endif
               if (nsp .gt. nsp0) then !spin-split core density
                  i = nr
                  call dscal ( i , 0.5d0 , sspec(is)%rv_a_orhoc , 1 )
@@ -649,17 +551,9 @@ C     ... FP core densities
            call dpzero(exi,n0)
            call dpzero(hfc,n0*2)
            if (procid .eq. master) then
-              if (lbin) then
                  read(jfi,err=999,end=999) rsmfa,nxi
                  read(jfi,err=999,end=999)
      .                ((exi(i),hfc(i,isp),i=1,nxi),isp=1,nsp0)
-              else
-                 read(jfi,*,err=999,end=999)
-                 read(jfi,*,err=999,end=999) rsmfa,nxi
-                 read(jfi,*,err=999,end=999) (exi(i),i=1,nxi)
-                 call dfdump(hfc(1,1),nxi,jfi)
-                 if (nsp0 .eq. 2) call dfdump(hfc(1,2),nxi,jfi)
-              endif
               if (nsp .gt. nsp0) then
                  i = n0
                  call dscal(i,0.5d0,hfc,1)
@@ -732,7 +626,6 @@ C --- Output ---
         call strip(hostnm,i,i4)
         if (ipr .ge. 40) write(stdo,710) fid(1:i1), usernm(1:i3),hostnm(1:i4),datimp(1:i2)
   721   format('----------------------- ',a,' -----------------------')
-        if (lbin) then
           write(jfi) vs
           write(jfi) fid0
           write(jfi) datimp,usernm,hostnm,jobid
@@ -745,61 +638,23 @@ C --- Output ---
           endif
           write(jfi) nit
           write(jfi) alat,vol,plat
-        else
-          write(jfi,721) 'header'
-          write(jfi,'(1f15.10,t50,a)') vs,
-     .    '! version; id; date; name; host'
-          write(jfi,'(1x,a68)') fid0
-          write(jfi,'(1x,a32)') datimp
-          write(jfi,'(1x,a32)') usernm
-          write(jfi,'(1x,a32)') hostnm
-          if (abs(vs) .le. 1.021) then
-            write(jfi,'(5i5,t50,a)') nbas,nsp,npan,lrel,nit,'! nbas nsp npan lrel nit'
-          else if (abs(vs) .le. 1.031) then
-            write(jfi,'(6i5,t50,a)') nbas,nsp,npan,lrel,nit,nspec,'! nbas nsp npan lrel nit nspec'
-          else
-            write(jfi,'(7i5,t50,a)') nbas,nat,nsp,npan,lrel,nit,nspec,
-     .      '! nbas nat nsp npan lrel nit nspec'
-          endif
-          write(jfi,'(f15.10,1pe20.10,t50,a)') alat,vol,'! alat vol; plat'
-          write(jfi,'(3f15.10)') plat
-        endif
 
 C   --- Write smooth charge density ---
-        if (lbin) then
           write(jfi) n1,n2,n3
-        else
-          write(jfi,721) 'smooth density'
-          write(jfi,ifmt) n1,n2,n3
-        endif
         call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp , osmrho, lbin , - jfi )
 
 C   --- Write information related to dynamics ---
         wk=1d99 !call dpzero(wk,100)
         wk(1)= eferm !sbz%ef !dummy ! we use wk(1) only wk(2:100) are dummy
-        if (lbin) then
           call dpdump(wk,100,-jfi)
-        else
-          write(jfi,721) 'geometric data'
-          call dfdump(wk,100,-jfi)
-        endif
         do  110  ib = 1, nbas
           pos  =ssite(ib)%pos
           force=ssite(ib)%force
 c          vel  =ssite(ib)%vel
-          if (lbin) then
             write(jfi) ib,pos,force!,vel
-          else
-            write(jfi,'('' Site:'',i5)') ib
-            write(jfi,345) pos,   'position'
-            write(jfi,345) force, 'force'
-            write(jfi,345) !vel,   'velocity'
-  345       format(3f15.10,t50,'! ',a)
-          endif
   110   continue
 C   --- Write information for local densities ---
         if (ipr .ge. 50) write(stdo,364)
-        if (.not. lbin) write(jfi,721) 'site densities'
         do  120  ib = 1, nbas
           ic=ssite(ib)%class
           is=ssite(ib)%spec
@@ -820,56 +675,26 @@ C   --- Write information for local densities ---
          pnu=ssite(ib)%pnu
          pnz=ssite(ib)%pz
           if (lmxa .eq. -1) goto 120
-          if (lbin) then
             write(jfi) is,spid,lmxa,lmxl,nr,rmt,a,z,qc
-          else
-            write(jfi,'('' site'',i5,''   spec: '',a8)') ib, spid
-            write(jfi,'('' spec  lmxa lmxl  nr'')')
-            write(jfi,ifmt) is,lmxa,lmxl,nr
-            write(jfi,'(t7,'' rmt'',t21,''a'',t36,''z'',t51,''qc'')')
-            write(jfi,ffmt) rmt,a,z,qc
-          endif
 C     ... Some extra info... lots of it useless or obsolete
           lmxr = 0
           lmxv = 0
           rsmr = 0
-          if (lbin) then
             write(jfi) rsma,rsmr,rsmv,lmxv,lmxr,lmxb,kmax
-          else
-            write(jfi,'('' Next two lines for nfp compatibility'')')
-            write(jfi,ffmt) rsma,rsmr,rsmv
-            write(jfi,ifmt) lmxv,lmxr,lmxb,kmax
-          endif
 C     ... Write augmentation data
           do  122  isp = 1, nsp
-            if (lbin) then
               write(jfi) (pnu(l+1,isp), l=0,lmxa)
               write(jfi) (pnz(l+1,isp), l=0,lmxa)
-            else
-              if (isp .eq. 1) write(jfi,'('' pnu, pz, idmod, idmoz'')')
-              write(jfi,ffmt) (pnu(l+1,isp), l=0,lmxa)
-              write(jfi,ffmt) (pnz(l+1,isp), l=0,lmxa)
-            endif
   122     continue
 C         Write for compatibility with nfp
-          if (lbin) then
             write(jfi) (idmod(l+1), l=0,lmxa)
             write(jfi) (idmod(l+1), l=0,lmxa)
-          else
-            write(jfi,ifmt) (idmod(l+1), l=0,lmxa)
-            write(jfi,ifmt) (idmod(l+1), l=0,lmxa)
-          endif
 C     ... Write arrays for local density and potential
           nlml = (lmxl+1)**2
-            if (.not. lbin) write(jfi,'('' rho1'')')
             call dpdbyl ( orhoat( 1 , ib )%v , nr , nlml , nlml , nsp  , nsp , lbin , - jfi )
-            if (.not. lbin) write(jfi,'('' rho2'')')
             call dpdbyl ( orhoat( 2 , ib )%v , nr , nlml , nlml , nsp  , nsp , lbin , - jfi )
-            if (.not. lbin) write(jfi,'('' rhoc'')')
             call dpdbyl ( orhoat( 3 , ib )%v , nr , 1 , 1 , nsp , nsp   , lbin , - jfi )
-            if (.not. lbin) write(jfi,'('' v0'')')
             call dpdbyl ( ssite(ib)%rv_a_ov0 , nr , 1 , 1 , nsp , nsp , lbin , - jfi  )
-            if (.not. lbin) write(jfi,'('' v1'')')
             call dpdbyl ( ssite(ib)%rv_a_ov1 , nr , 1 , 1 , nsp , nsp , lbin , - jfi  )
             if (ipr .ge. 50) then
                write(stdo,349) ib,spid,lmxa,lmxl,rmt,nr,a, (pnu(l+1,1),l=0,lmxa)
@@ -877,7 +702,6 @@ C     ... Write arrays for local density and potential
             endif
   120   continue
 C   --- Write data on free-atom core states and fit to fa density ---
-        if (.not. lbin) write(jfi,721) 'species data'
         do  130  is = 1, nspec
           a  =sspec(is)%a
           nr =sspec(is)%nr
@@ -893,31 +717,11 @@ C   --- Write data on free-atom core states and fit to fa density ---
           hfc=sspec(is)%chfa
           rsmfa = sspec(is)%rsmfa
           if (lmxa .eq. -1) goto 130
-          if (lbin) then
             write(jfi) nr,a,qc,cof,eh,stc,lfoc,rfoc
-          else
-            spid0=sspec(is)%name
-            write(jfi,'('' spec'',i5,2x,'' label '',a)') is, spid0
-            write(jfi,'(''  nr   lfoc'')')
-            write(jfi,ifmt) nr,lfoc
-            write(jfi,'(t7,''  a '',t21,''qc'',t36,''cof'',t61,''eh'')')
-            write(jfi,'(2f15.10,1p,2e25.15)') a,qc,cof,eh
-            write(jfi,'(t17,'' stc'',t31,''rfoc'')')
-            write(jfi,'(1p,2e25.15)') stc,rfoc
-          endif
 C     ... For now, ASA stores no core data
-            if (lbin) then
               call dpdump ( sspec(is)%rv_a_orhoc , nr * nsp , - jfi )
               write(jfi) rsmfa,nxi
               write(jfi) ((exi(i),hfc(i,isp),i=1,nxi),isp=1,nsp)
-            else
-              call dfdump ( sspec(is)%rv_a_orhoc , nr * nsp , - jfi )
-              write(jfi,'('' core tail: rsmfa,n,e,cof=''/f15.10,i4)')
-     .        rsmfa,nxi
-              write(jfi,ffmt) (exi(i),i=1,nxi)
-              call dfdump(hfc(1,1),nxi,-jfi)
-              if (nsp .eq. 2) call dfdump(hfc(1,2),nxi,-jfi)
-            endif
   130   continue
       endif
   349 format(i11,':',a4,2i2,f9.5,i5,f6.3,1x,8f6.3)
