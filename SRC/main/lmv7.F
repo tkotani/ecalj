@@ -140,7 +140,7 @@
         call rx('incompatible input. see the end of console output')
       endif
 !! Main rouitne. After module initializations, call lmfp  -----------------------
-      call Lmfp(jobgw==1) !,irs1x,irs2,irs3,irs5)
+      call Lmfp(jobgw==1)
       
       inquire(file='RSEQ_ERROR',exist=fileexist)
       if(fileexist) call rx('RSEQ_ERROR: maybe in phidx.F See takao comment in it.')

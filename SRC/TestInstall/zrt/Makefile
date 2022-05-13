@@ -21,11 +21,7 @@ define test1.exec
 	@cat message.test1.$(TARGET)
 	$(bindir)/lmfa -vfp=1 $(TARGET) --no-iactiv > $1 2>&1
 	$(LMFP)  -vnitq=1 -vforce=1 -vfp=1 $(TARGET) >> $1 2>&1
-	cp mixm.$(TARGET) mixm.$(TARGET)~
-	$(LMFP)  -vnitq=0 -vforce=1 -vfp=1 $(TARGET) --rs=1,2 >> $1 2>&1
-	$(LMFP)  -vnitq=1 -vforce=1 -vfp=1 $(TARGET) --rs=1,1 >> $1 2>&1
-	mv mixm.$(TARGET)~ mixm.$(TARGET)
-	$(LMFP)  -vnitq=1 -vforce=1 -vfp=1 $(TARGET) --rs=2,0 >> $1 2>&1
+	$(LMFP)  -vnitq=1 -vforce=1 -vfp=1 $(TARGET) >> $1 2>&1
 endef
 
 ###########################################################

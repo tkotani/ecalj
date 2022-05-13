@@ -31,7 +31,7 @@ my $eval1r = $termsr[$evalso-1];
 my $eval2r = $termsr[$evalso];
 
 my $delta = sprintf("%8.4f",($eval2-$eval1) * 13.605 );
-my $deltar = sprintf("%8.4f",($eval2-$eval1) * 13.605 );
+my $deltar = sprintf("%8.4f",($eval2r-$eval1r) * 13.605 );
 
 print "Spin-Orbit splitting = $delta eV ( states $eval1 and $eval2 )\n";
 print "           reference = $deltar eV ( states $eval1r and $eval2r )\n";
