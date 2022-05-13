@@ -1,0 +1,11 @@
+5 0 1  ! site,core-l,core-n
+
+!! originally --cls:xxx is used. It is too confusing. We now switch to CLSinput
+Cr  produces
+Cr         site  l  n
+Cr           2   1  2
+Cr           4   2  3
+Cr           3   0  1
+Cr           5   0  1
+Cr           6   0  1
+Cr           7   0  1

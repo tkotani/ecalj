@@ -95,7 +95,6 @@ hsmq.o \
 iclbas.o \
 intnos.o \
 iofa.o \
-ioorbp.o \
 iorbtm.o \
 iors.o \
 iosave.o \

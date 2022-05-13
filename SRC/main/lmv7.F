@@ -11,7 +11,6 @@
       use m_mkqp,only:     m_Mkqp_init,bz_nabc
       use m_rdfiln,only:   m_Rdfiln_init
       use m_MPItk,only:    m_MPItk_init, m_MPItk_finalize, nsize, master_mpi
-      use m_lmfgw,only:    m_lmfgw_init
       use m_hamindex, only:m_hamindex_init
       use m_hamindex0,only:m_hamindex0_init
       use m_supot,only:    m_supot_init
@@ -100,7 +99,7 @@
 !! Array allocated in supot rhoat smrho. 
       call M_supot_init() ! get G vectors for charge
       call sugcut(1)
-      call M_suham_init() ! Get estimated dimension of Hamiltonian (probably simplified in future).
+      call M_suham_init()       ! Get estimated dimension of Hamiltonian (probably simplified in future).
       if(nlibu>0) call m_ldau_init() !! LDA+U initialization
       if(cmdopt0('--quit=dmat')) call rx0('--quit=dmat')
       call m_qplist_init(plbnd,jobgw==1) ! Get q point list at which we do band calculations

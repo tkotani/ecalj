@@ -111,7 +111,7 @@ VERSIONFLAGS = \
 # Generate o of main routines for lmf 
 ########################################
 $(main)show_programinfo.fpp: $(main)*.F $(ELIB) $(MPI) $(MLO) $(GWLIB) $(main)show_programinfo.F
-	@echo $(main)show_programinfo.fpp 
+	@echo generating $(main)show_programinfo.fpp 
 	@cpp $(VERSIONFLAGS) $(main)show_programinfo.F >  $@
 $(obj_path)/lmf-MPIK.o: $(main)lmv7.F $(main)show_programinfo.fpp
 	$(FC) $(FFLAGS_NONE) -c $(main)lmv7.F -o $@
@@ -119,7 +119,7 @@ $(obj_path)/lmfa.o:     $(main)show_programinfo.fpp
 $(obj_path)/lmchk.o:    $(main)show_programinfo.fpp
 $(obj_path)/lmfham.o:   $(main)show_programinfo.fpp
 $(obj_path)/lmfham1.o:  $(main)show_programinfo.fpp
-$(obj_path)/qg4gw.o:	$(main)show_programinfo.fpp
+$(obj_path)/qg4gw.m.o:  $(main)show_programinfo.fpp
 
 #$(obj_path)/lmfa.o: $(main)lmfa.F sysinfo
 #	$(FC) $(FFLAGS_NONE) -c $< -o $@

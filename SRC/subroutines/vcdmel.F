@@ -188,6 +188,7 @@ c     enddo
      .     , s_rv(1:nchan*nbandx,1:nsp,1:nq), npts, emin, emax, lidos , wk_rv , dos_rv )
       del = 0d0
       ifdos=ifile_handle()
+      i=nsp
       open(ifdos,file='dos-vcdmel.'//trim(sname))
       call dosio ( dos_rv , npts * ( 1 + nsp - i ) , nchan , npts 
      .     , nchan , emin , emax , i , ef , del , 1 , - ifdos) 
