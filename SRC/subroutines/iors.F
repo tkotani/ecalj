@@ -120,8 +120,9 @@ C ... Local parameters
       integer:: fextg, i_dummy_fextg,ifile_handle
       character(*)::rwrw
       data vec0 /0d0,0d0,0d0/
-c      call tcn('iors')
-      open(newunit=ifi,file='rst.'//trim(sname),form='unformatted')
+c     call tcn('iors')
+      open(newunit=ifi,file='rst.'//trim(sname),form='unformatted') 
+      
 C ... MPI setup
       nproc  = mpipid(0)
       procid = mpipid(1)
@@ -134,7 +135,7 @@ C ... MPI setup
       vol = dabs(fac)*alat**3
       ipr    = iprint()
       stdo   = lgunit(1)
-      vs   =  1.04d0
+      vs   =  2d0 !1.04d0 !version of rst file vs=2d0 at 2022-5-15. Only we support reading vs=1.04 only.
       msg  = '         File mismatch:'
       msgw = '         warning:'
       iors = -1
@@ -143,7 +144,7 @@ C ... MPI setup
       ffmt = '(5f15.10)'
       ifmt = '(20i5)'
       npan = 1 !Hardwired for now
-      write(stdo,"(/' iors  : ',a)") trim(rwrw)//' rst restart file (binary mesh density)'
+      write(stdo,"(/a)")' iors  : '//trim(rwrw)//' rst restart file (binary mesh density)'
 C --- Input ---
       if (trim(rwrw)=='read') then
         jfi = ifi
@@ -152,31 +153,31 @@ C --- Input ---
         line = 'header'
 ! MPI check to see if at least 1st record can be read. Abort with error message if file is missing (lfail = .true.)
         lfail = .false.
-        if (nproc .gt. 0) then
-          if (procid .eq. master) then
-              lfail = .true.
-              read(jfi,end=996,err=996) vs1
-              lfail = .false.
-              rewind jfi
-  996         continue
-          endif
-          call mpibc1_logical(lfail,1,'iors_read error')
-          if (lfail) goto 998
+c        if (nproc .gt. 0) then
+        if (procid .eq. master) then
+           lfail = .true.
+           read(jfi,end=996,err=996) vs1
+           lfail = .false.
+           rewind jfi
+ 996       continue
         endif
+        call mpibc1_logical(lfail,1,'iors_read error')
+        if (lfail) goto 998
+c        endif
         if (procid .eq. master) then
             read(jfi,end=998,err=998) vs1
             read(jfi) fid0
             read(jfi) datimp,usernm,hostnm
-            if (abs(vs1) .le. 1.021) then
-              nspec0 = nspec
-              read(jfi) nbas0,nsp0,npan0,lrel0
-              nat0 = nbas0
-            else if (abs(vs1) .le. 1.031) then
-              read(jfi) nbas0,nsp0,npan0,lrel0,nspec0
-              nat0 = nbas0
-            else
+c            if (abs(vs1) .le. 1.021) then
+c              nspec0 = nspec
+c              read(jfi) nbas0,nsp0,npan0,lrel0
+c              nat0 = nbas0
+c            else if (abs(vs1) .le. 1.031) then
+c              read(jfi) nbas0,nsp0,npan0,lrel0,nspec0
+c              nat0 = nbas0
+c            else
               read(jfi) nbas0,nat0,nsp0,npan0,lrel0,nspec0
-            endif
+c            endif
             read(jfi) nit
             read(jfi) alat0,vol0,plat0
           call dinv33(plat0,1,qlat0,fac)
@@ -186,8 +187,7 @@ c          lshear = .not. latvec(3,1d-6,qlat,plat0)
           call strip(datimp,i,i2)
           call strip(usernm,i,i3)
           call strip(hostnm,i,i4)
-          if (ipr .ge. 40) write(stdo,710) fid(1:i1),
-     .    usernm(1:i3),hostnm(1:i4),datimp(1:i2)
+          if (ipr .ge. 40) write(stdo,710) fid(1:i1),usernm(1:i3),hostnm(1:i4),datimp(1:i2)
   710     format(9x,'id -  ',a,/9x,'written by -  ',a,' on ',a,' at: ',a)
 C       Number of real atoms may not increase
           if (nat .gt. nat0) then
@@ -573,7 +573,7 @@ C --- Output ---
           return
         endif
         jfi = ifi
-        rewind jfi
+c        rewind jfi
         fid0 = fid
         call strip(fid0,i0,i1)
         jobid = sname !datimp(2:)
@@ -590,13 +590,13 @@ C --- Output ---
           write(jfi) vs
           write(jfi) fid0
           write(jfi) datimp,usernm,hostnm,jobid
-          if (abs(vs) .le. 1.021) then
-            write(jfi) nbas,nsp,npan,lrel
-          else if (abs(vs) .le. 1.031) then
-            write(jfi) nbas,nsp,npan,lrel,nspec
-          else
+c          if (abs(vs) .le. 1.021) then
+c            write(jfi) nbas,nsp,npan,lrel
+c          else if (abs(vs) .le. 1.031) then
+c            write(jfi) nbas,nsp,npan,lrel,nspec
+c          else
             write(jfi) nbas,nat,nsp,npan,lrel,nspec
-          endif
+c          endif
           write(jfi) nit
           write(jfi) alat,vol,plat
 
