@@ -11,9 +11,10 @@
 
       use m_supot,only: lat_nabc
       use m_struc_func,only: mpibc1_s_spec,mpibc1_s_site
-      use m_lmfinit,only: lat_alat,nsp,lrel,nl,ssite=>v_ssite,sspec=>v_sspec, nbas,nat,nspec,n0  
-      use m_lattic,only: lat_plat 
+      use m_lmfinit,only: alat=>lat_alat,nsp,lrel,nl,ssite=>v_ssite,sspec=>v_sspec, nbas,nat,nspec,n0  
+      use m_lattic,only: plat=>lat_plat,vol=>lat_vol,qlat=>lat_qlat
       use m_ext,only:sname
+      use m_ftox
 !!- I/O for charge density to rst or rsta. ssite sspec are readin 
 !! read write
 !!     smrho, rhoat
@@ -109,15 +110,15 @@ C ... Local parameters
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       integer idmod(n0),idmoz(n0) !,lrs(10)
       logical isanrg,lfail,ltmp1,ltmp2,latvec,cmdopt,mlog !,lshear
-      double precision a,a0,alat,alat0,cof,eh,fac,qc,rfoc,rfoc0,rmt,
-     .rmt0,rsma,rsma0,rsmfa,rsmr,rsmr0,rsmv,rsmv0,stc,sum,vfac,vol,vol0,vs,vs1,z,z0
+      double precision a,a0,alat0,cof,eh,fac,qc,rfoc,rfoc0,rmt,
+     .rmt0,rsma,rsma0,rsmfa,rsmr,rsmr0,rsmv,rsmv0,stc,sum,vfac,vol0,vs,vs1,z,z0
       double precision pnu(n0,2),pnz(n0,2),ql(n0,2*n0),pos(3),
-     .pos0(3),force(3),plat(3,3),plat0(3,3),qlat(3,3),qlat0(3,3), !,vel(3)
+     .pos0(3),force(3),plat0(3,3),qlat0(3,3), !,vel(3)
      .exi(n0),hfc(n0,2),vec0(3),wk(100),rh,vrmax(2),pnus(n0,2),
      .pnzs(n0,2),dval
       character spid*8,spid0*8,fid0*68,line*20,msg*23,use*80,ignore*80,
      .msgw*17,datimp*32,usernm*32,hostnm*32,jobid*32,ffmt*32,ifmt*32
-      integer:: fextg, i_dummy_fextg,ifile_handle
+      integer:: fextg, i_dummy_fextg,ifile_handle,n
       character(*)::rwrw
       data vec0 /0d0,0d0,0d0/
 c     call tcn('iors')
@@ -128,11 +129,7 @@ C ... MPI setup
       procid = mpipid(1)
       master = 0
       mlog = cmdopt('--mlog',6,0,ignore)
-      alat=lat_alat
-      plat=lat_plat
       ngabc=lat_nabc
-      call dinv33(plat,1,qlat,fac)
-      vol = dabs(fac)*alat**3
       ipr    = iprint()
       stdo   = lgunit(1)
       vs   =  2d0 !1.04d0 !version of rst file vs=2d0 at 2022-5-15. Only we support reading vs=1.04 only.
@@ -153,7 +150,6 @@ C --- Input ---
         line = 'header'
 ! MPI check to see if at least 1st record can be read. Abort with error message if file is missing (lfail = .true.)
         lfail = .false.
-c        if (nproc .gt. 0) then
         if (procid .eq. master) then
            lfail = .true.
            read(jfi,end=996,err=996) vs1
@@ -163,48 +159,28 @@ c        if (nproc .gt. 0) then
         endif
         call mpibc1_logical(lfail,1,'iors_read error')
         if (lfail) goto 998
-c        endif
         if (procid .eq. master) then
             read(jfi,end=998,err=998) vs1
             read(jfi) fid0
             read(jfi) datimp,usernm,hostnm
-c            if (abs(vs1) .le. 1.021) then
-c              nspec0 = nspec
-c              read(jfi) nbas0,nsp0,npan0,lrel0
-c              nat0 = nbas0
-c            else if (abs(vs1) .le. 1.031) then
-c              read(jfi) nbas0,nsp0,npan0,lrel0,nspec0
-c              nat0 = nbas0
-c            else
-              read(jfi) nbas0,nat0,nsp0,npan0,lrel0,nspec0
-c            endif
+            read(jfi) nbas0,nat0,nsp0,npan0,lrel0,nspec0
             read(jfi) nit
-            read(jfi) alat0,vol0,plat0
-          call dinv33(plat0,1,qlat0,fac)
+            read(jfi) alat0,vol0!,plat0
+!          call dinv33(plat0,1,qlat0,fac)
 c          lshear = .not. latvec(3,1d-6,qlat,plat0)
-          fid = fid0
-          call strip(fid,i,i1)
-          call strip(datimp,i,i2)
-          call strip(usernm,i,i3)
-          call strip(hostnm,i,i4)
-          if (ipr .ge. 40) write(stdo,710) fid(1:i1),usernm(1:i3),hostnm(1:i4),datimp(1:i2)
+          if (ipr .ge. 40) write(stdo,710) trim(fid0),trim(usernm),trim(hostnm),trim(datimp)
   710     format(9x,'id -  ',a,/9x,'written by -  ',a,' on ',a,' at: ',a)
-C       Number of real atoms may not increase
-          if (nat .gt. nat0) then
+          if (nat > nat0) then !  Number of real atoms may not increase
             if (isanrg(nat0,  nat,nat,msg,'nat',.true.)) goto 999
           elseif (nat .eq. nat0 .and. nbas .ne. nbas0) then
-            call info2(10,0,0,
-     .      '%9f(warning) mismatch in nbas ... skipping sites'//
-     .      '%N%18f expected nbas=%i but rst file has nbas=%i',
-     .      nbas,nbas0)
-C       OK to reduce nat (e.g. E.S.); these sites will be skipped
+            write(stdo,ftox)' (warning) mismatch in nbas ... skipping sites'
+            write(stdo,ftox)' expected nbas=',nbas,'but rst file has nbas=',nbas0
+!           OK to reduce nat (e.g. E.S.); these sites will be skipped
           elseif (nat .lt. nat0) then
             write(stdo,*)'   (warning) rst mismatch in nat ... skipping sites'
           endif
-          if (nsp0 .lt. nsp) write(stdo,*)'   (warning) rst file not spin pol .. splitting spins'
-          if (isanrg(npan0, npan,npan,msg,'npan',.true.)) goto 999
-          lfail = isanrg(lrel0, lrel,lrel,msgw,'lrel',.false.)
-          call fsanrg(abs(vs1),1.00d0,abs(vs),0d0,' ','file''s version',.true.)
+          if (nsp0 < nsp) write(stdo,*)'   (warning) rst file not spin pol .. splitting spins'
+          if(lrel0/=lrel) write(stdo,ftox) 'warning lrel_ctrl lrelrst=',lrel0,lrel
         endif
         call mpibc1_int(nbas0,1,'iors_nbas0')
         call mpibc1_int(nat0,1,'iors_nat0')
@@ -212,67 +188,60 @@ C       OK to reduce nat (e.g. E.S.); these sites will be skipped
         call mpibc1_int(nit,1,'iors_nit')
 C   --- Read smooth charge density ---
         allocate(osmrho(k1*k2*k3*nsp))
-        osmrho(:)=0d0
+        osmrho=0d0
         line = 'smoothed density'
-          if (procid .eq. master) then
-              read(jfi,err=999,end=999) n11,n21,n31
-            if (n11.eq.n1 .and. n21.eq.n2 .and. n31.eq.n3) then
-              read(jfi)osmrho ! call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp0 , osmrho, lbin , jfi )
+        if (procid .eq. master) then
+           read(jfi,err=999,end=999) n11,n21,n31
+           if (n11.eq.n1 .and. n21.eq.n2 .and. n31.eq.n3) then
+              read(jfi)osmrho 
               if (nsp .gt. nsp0) then
-                i = k1*k2*k3*2
-                call dscal ( i , 0.5d0 , osmrho , 1 )
-                call dpscop ( osmrho , osmrho , i , 1 , 1 + i , 1d0 )
+                 n =k1*k2*k3
+                 osmrho(1:n   )=.5d0*osmrho(1:n)
+                 osmrho(1+n:n+n)= osmrho(1:n)
               endif
-            else !... or read and remesh
+           else                 !... or read and remesh
               if (ipr .ge. 10) write(stdo,450) n11,n21,n31,n1,n2,n3
-  450         format(9x,'remesh density from  ',i4,'  *',i4,'  *',i4,
-     .        '    to  ',i4,'  *',i4,'  *',i4)
+ 450          format(9x,'remesh density from  ',i4,'  *',i4,'  *',i4,'    to  ',i4,'  *',i4,'  *',i4)
               call fftz30(n11,n21,n31,k11,k21,k31)
               allocate(h_zv(k11*k21*k31*nsp))
               read(jfi)h_zv 
               if (nsp .gt. nsp0) then
-                i = k11*k21*k31*2
-                call dscal ( i , 0.5d0 , h_zv , 1 )
-                call dpscop ( h_zv , h_zv , i , 1 , 1 + i , 1d0 )
+                 n  = k11*k21*k31
+                 h_zv(1:n    ) = .5d0 *h_zv(1:n)
+                 h_zv(1+n:n+n) = h_zv(1:n)
               endif
               call pshpr(50)
               i = 0
               if (n1 .eq. 2*n11 .and. n2 .eq. 2*n21 .and. n3 .eq. 2*n31) i=3
               call chgmsh ( i , plat , nsp , n11 , n21 , n31 , k11 , k21 ,
-     .         k31 , h_zv , n1 , n2 , n3 , k1 , k2 , k3 , osmrho )
+     .             k31 , h_zv , n1 , n2 , n3 , k1 , k2 , k3 , osmrho )
               call poppr
               if (allocated(h_zv)) deallocate(h_zv)
-            endif
-C   ... If cell volume changed, scale smooth density to maintain charge
-            vfac = vol0/vol
-            if (dabs(vfac-1d0) .gt. 1d-8) then
+           endif
+C     ... If cell volume changed, scale smooth density to maintain charge
+           vfac = vol0/vol
+           if (dabs(vfac-1d0) .gt. 1d-8) then
               if (ipr .ge. 10) write(stdo,460) vol0,vfac
-  460         format(9x,'volume changed from',f8.2,' :  scale smooth density by',f8.4)
-              call dpcopy ( osmrho, osmrho, 1 , 2 * k1 * k2 * k3* nsp , vfac )
-            endif
-          endif
-          call mpibc1_complex(osmrho, size(osmrho), 'iors_smrho' )
-  115     continue
+ 460          format(9x,'volume changed from',f8.2,' :  scale smooth density by',f8.4)
+              osmrho=osmrho*vfac 
+           endif
+        endif
+        call mpibc1_complex(osmrho, size(osmrho), 'iors_smrho' )
+ 115    continue
 C   --- Read information related to dynamics ---
-C       For compatibility with nfp, read record into wk
         if (procid .eq. master) then
-            read(jfi) wk !call dpdump(wk,100,jfi)
+            read(jfi) wk 
         endif
         call mpibc1_real(wk,1,'iors:eferm')
-c        if (irs4 .ne. 0) then
-c          ignore=trim(ignore)//'ef window,' !binit=T in bndfp==> set eferm=0d0
-c        else
+c        if (irs4 .ne. 0) then ignore=trim(ignore)//'ef window,' !binit=T in bndfp==> set eferm=0d0   else
         use=trim(use)//'use window,'
         call m_bndfp_ef_SET(wk(1)) !bz_ef00) !,bz_def00)
-c        endif
-C   --- Read atomic positions,forces,velocities ---
-        line = 'site data'
+        line = 'site data' !Read atomic positions,forces,velocities ---
         if (irs3 .ne. 0) then
           ignore=trim(ignore)//'positions,'
         else
           use=trim(use)//' positions,'
-c          if (lshear) use=trim(use)//' (sheared)'
-C         Must be enough sites to read from rst file
+c          if (lshear) use=trim(use)//' (sheared)'     Must be enough sites to read from rst file
           if (nbas0 .lt. nbas) then
             call info0(1,0,0,'%9f oops ... cannot use file site positions (site mismatch)')
             if (isanrg(nbas0, nbas,nbas,msg,'nbas',.true.)) goto 999
@@ -294,12 +263,10 @@ c          endif
           pos0=pos 
           if (irs3 .ne. 0) then !overwrite pos,vel
             pos=ssite(ib)%pos
-c            vel=0d0 
           endif
            ssite(ib)%pos  =pos
            ssite(ib)%pos0 =pos0
            ssite(ib)%force=force
-c           ssite(ib)%vel  =vel
    10     continue
         enddo
 C   --- Read information for local densities ---
@@ -332,7 +299,7 @@ C   --- Read information for local densities ---
           if (procid== master) then
               read(jfi) is0,spid0,lmxa0,lmxl0,nr0,rmt0,a0,z0,qc
               if (ib .gt. nbas) goto 20
-            if (ipr .ge. 40) then
+              if (ipr .ge. 40) then
               if (ib .le. nat) write(stdo,380) ib,is0,spid0
               if (ib .gt. nat) write(stdo,380) ib,is0,spid0, ' (skip)'
             endif
@@ -414,20 +381,15 @@ C     ... Verify lowest valence pnu compatible with file
             if (nr .le. 0)   nr = nr0
             if (a .le. 1d-6) a = a0
             if (procid .eq. master) then
-C     ... Sanity checks, or inform about changed parameters
-C         if (is0 .ne. is) call xxerri('species pointer',is,is0)
               call fsanrg(rmt0,rmt,rmt,1d-3,msg,'rmt',.true.)
               call fsanrg(rmt0,rmt,rmt,1d-6,msg,'rmt',.false.)
               call fsanrg(z0,z,z,1d-6,msg,'z',.true.)
               call fsanrg(a0,a,a,0d-9,msg,'a',.true.)
               lfail = isanrg(nr0,nr,nr,msgw,'nr',.false.)
               if (isanrg(lmxl,  0,lmxa,  msg,'lmxl', .false.)) goto 999
-              if (kmax0.ne.kmax.and.ipr.ge.10)
-     .        write(stdo,201) ib,spid,'kmax',kmax0,kmax
-              if (lmxa0.ne.lmxa.and.ipr.ge.10)
-     .        write(stdo,201) ib,spid,'lmax',lmxa0,lmxa
-  201         format(9x,'site',i4,', species ',a,
-     .        ': augmentation ',a,' changed from',i2,' to',i2)
+              if (kmax0.ne.kmax.and.ipr.ge.10) write(stdo,201) ib,spid,'kmax',kmax0,kmax
+              if (lmxa0.ne.lmxa.and.ipr.ge.10) write(stdo,201) ib,spid,'lmax',lmxa0,lmxa
+  201         format(9x,'site',i4,', species ',a,': augmentation ',a,' changed from',i2,' to',i2)
             endif
           else
             lmxl = lmxl0
@@ -445,7 +407,7 @@ C         if (is0 .ne. is) call xxerri('species pointer',is,is0)
           allocate(v0pot(ib)%v(nr*nsp)) 
           allocate(v1pot(ib)%v(nr*nsp))
           if (procid .eq. master) then
-             print *,'nnnnnnnnread',ib,nr*nlml*nsp,nr,nlml,nsp
+c             print *,'nnnnnnnnread',ib,nr*nlml*nsp,nr,nlml,nsp
              call readrho(ifi,nr,nlml0,nsp0,nlml,nsp,orhoat(1,ib)%v)
              call readrho(ifi,nr,nlml0,nsp0,nlml,nsp,orhoat(2,ib)%v)
              call readrho(ifi,nr,1,nsp0,1,nsp,orhoat(3,ib)%v)
