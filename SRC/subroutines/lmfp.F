@@ -9,6 +9,7 @@
       use m_mkpot,only:   amom 
       use m_ext,only:     sname
       use m_iors,only:   Iors
+      use m_iors_old,only:   Iors_old !only for reading vs=1.04 rst file (before 2022-5-14)
       use m_MPItk,only:  mlog,master_mpi
       use m_bndfp,only:  Bndfp,   ham_ehf,ham_ehk,qdiff,force,sev
       use m_ldau,only:   m_ldau_vorbset
@@ -45,7 +46,7 @@
       logical :: cmdopt,llmfgw,lbin,cmdopt0 !,lshr=.false.
       integer :: i,ifi,ipr, k, nit1,numq, lsc, icom,  nvrelx , itrlx, irlxsh=0 
       integer:: ibas,unlink,ifipos,ifile_handle,iter,j,idmatu,iprint
-      real(8) :: gam(4),gam1,bstim,pletot(6,2), plat(3,3),xvcart(3),xvfrac(3),seref,etot(2)
+      real(8) :: gam(4),gam1,bstim,pletot(6,2), plat(3,3),xvcart(3),xvfrac(3),seref,etot(2),vs
       real(8),allocatable :: pos_move(:,:),  ftot_rv(:), wk_rv(:), p_rv(:),hess(:,:)
       real(8),allocatable :: rv_a_omad (:) !  Madelung matrix if necessary
       character(512):: aaachar
@@ -73,11 +74,10 @@
             if(irsr(i)/=999 ) irs(i)=irsr(i)
          enddo
       endif
-      irs1 = mod(irs(1),10) ! 1:read  rst  xxx2:read rsta 
-      irs2 = irs(2)             ! 1:write rst  xxx2:write rsta
+      irs1 = mod(irs(1),10) ! irs1 is irrelenvant now . irs1>10 gives irs1x10
+      irs2 = irs(2)         ! irs2=0 (no write)
       if(irs1/=0.and.irs1/=1) call rx('irs1/=0.and.irs1/=1')
       if(irs2/=0.and.irs2/=1) call rx('irs2/=0.and.irs2/=1')
-      
       irs3 = irs(3) ! irs3=1: read site positions from ctrl even when we have rst. 
       irs5 = irs(5) ! irs5=1: read pnu from ctrl even when we have rst.
       irs1x10 = (irs(1)/10==1)  ! +10:  smshft after rst/rsta
@@ -92,14 +92,14 @@ c         nit1 = 0
 c      else
       nit1=0
       irs1x = irs1
-c      lbin = (irs1x==1)         ! lbin=T:rst for --rs=1, or lbin=F:rsta for --rs=2,
       k = -1
-c      if(master_mpi) then
-c         ifi=ifile_handle() 
-c         open(ifi,file='rst.'//trim(sname),form='unformatted')
-c      endif
       call mpibc1_int(ifi,1,'lmv7:lmfp_ifi')
-      k = iors(nit1,'read',irs3=irs3,irs5=irs5) ! read rst file. sspec ssite maybe modified 
+      vs=2d0
+      if(vs==2d0) then 
+         k = iors(nit1,'read',irs3=irs3,irs5=irs5)     ! read rst file. sspec ssite maybe modified
+      else !vs=1.04d0
+         k = iors_old(nit1,'read',irs3=irs3,irs5=irs5) ! read rst file. sspec ssite maybe modified
+      endif   
       if (master_mpi) close(ifi) 
       call mpibc1_int(k,1,'lmv7:lmfp_k')
       call Setopos()      !Set pos of iors to rv_a_opos
