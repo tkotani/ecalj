@@ -17,6 +17,7 @@
       use m_relax,only: relax,prelx1
       use m_mixrho,only:parms0
       use m_lattic,only:   Setopos
+      use m_ftox
       
 !! = Main routine of lmf = (following document is roughly checked at May2021)
 !! lmfp contains two loops after initialization
@@ -46,7 +47,7 @@
       logical :: cmdopt,llmfgw,lbin,cmdopt0 !,lshr=.false.
       integer :: i,ifi,ipr, k, nit1,numq, lsc, icom,  nvrelx , itrlx, irlxsh=0 
       integer:: ibas,unlink,ifipos,ifile_handle,iter,j,idmatu,iprint
-      real(8) :: gam(4),gam1,bstim,pletot(6,2), plat(3,3),xvcart(3),xvfrac(3),seref,etot(2),vs
+      real(8) :: gam(4),gam1,bstim,pletot(6,2), plat(3,3),xvcart(3),xvfrac(3),seref,etot(2),vs,vs1
       real(8),allocatable :: pos_move(:,:),  ftot_rv(:), wk_rv(:), p_rv(:),hess(:,:)
       real(8),allocatable :: rv_a_omad (:) !  Madelung matrix if necessary
       character(512):: aaachar
@@ -93,14 +94,23 @@ c      else
       nit1=0
       irs1x = irs1
       k = -1
-      call mpibc1_int(ifi,1,'lmv7:lmfp_ifi')
-      vs=2d0
-      if(vs==2d0) then 
+c      call mpibc1_int(ifi,1,'lmv7:lmfp_ifi')
+!!      
+      if(master_mpi) then
+         open(newunit=ifi,file='rst.'//trim(sname),form='unformatted') 
+         read(ifi,end=996,err=996) vs1 !version id of rst file
+         close(ifi)
+ 996     continue
+         vs=vs1
+         write(stdo,ftox)'lmv7: Reading rst version ID=',ftof(vs,2)
+      endif
+      call mpi_barrier(MPI_COMM_WORLD,ierr)
+      call mpibc1_real(vs,1,'lmv7: vs: version id of rst file')
+      if(vs==2d0) then !2020-5-14
          k = iors(nit1,'read',irs3=irs3,irs5=irs5)     ! read rst file. sspec ssite maybe modified
       else !vs=1.04d0
          k = iors_old(nit1,'read',irs3=irs3,irs5=irs5) ! read rst file. sspec ssite maybe modified
       endif   
-      if (master_mpi) close(ifi) 
       call mpibc1_int(k,1,'lmv7:lmfp_k')
       call Setopos()      !Set pos of iors to rv_a_opos
       if(k<0) then        !initial potential from atm file if rst can not read

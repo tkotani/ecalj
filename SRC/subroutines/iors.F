@@ -566,11 +566,11 @@ c   ... Copy or rescale cores, in case foca was switched on or off
         do i_spec=1,nspec
           call mpibc1_s_spec(sspec(i_spec),'iors_sspec')
         enddo
-C --- Output ---
-      else
+C --- Output for master---
+      else 
         if (procid .ne. master) then
           iors = 0
-          return
+          call rx('iors: something wrong duplicated writing by cores?')
         endif
         jfi = ifi
 c        rewind jfi
@@ -691,10 +691,13 @@ C     ... For now, ASA stores no core data
   364 format(/9x,'ib:spc la ll   rmt     nr   a     pnu')
       iors = 0
       return
-  998 if (ipr .gt. 0) write(stdo,'('' iors  : empty file ... nothing read'')')
+ 998  continue
+      if (ipr .gt. 0) write(stdo,'('' iors  : empty file ... nothing read'')')
+      close(ifi)
       return
   999 continue
       if (ipr .gt. 0) write(stdo,'('' iors  : read failed in: '',a)') line
+      close(ifi)
 c      call tcx('iors')
       end function iors
       
