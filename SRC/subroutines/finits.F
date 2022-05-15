@@ -51,7 +51,7 @@ C Passed parameters
       character*256 strn, datim*26, hostnm*20
       character(9):: ftoa9
       logical isopen
-      integer master,procid,ierr,stdo,stdl,lgunit,ia
+      integer master,procid,ierr,stdo,stdl,lgunit,ia,iii
       parameter (master = 0)
       include "mpif.h"
       ia=0
@@ -104,7 +104,7 @@ c          write(stdl,10) tnew,timeu,datim,procid!trim(adjustl(hostnm))
       else
         if(procid==master)write(stdo,"(a,i0,a,3d15.8)")'Exit 0 procid= ',procid,' '//trim(strng),(argss(ix),ix=1,ia)
       endif
-      call MPI_FINALIZE()
+      call MPI_FINALIZE(iii)
       call exit(retval)
       end
 
