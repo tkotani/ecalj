@@ -113,7 +113,7 @@ C ... Local parameters
       double precision a,a0,alat0,cof,eh,fac,qc,rfoc,rfoc0,rmt,
      .rmt0,rsma,rsma0,rsmfa,rsmr,rsmr0,rsmv,rsmv0,stc,sum,vfac,vol0,vs,vs1,z,z0
       double precision pnu(n0,2),pnz(n0,2),ql(n0,2*n0),pos(3),
-     .pos0(3),force(3),plat0(3,3),qlat0(3,3), !,vel(3)
+     .force(3),plat0(3,3),qlat0(3,3), !,vel(3)
      .exi(n0),hfc(n0,2),vec0(3),wk(100),rh,vrmax(2),pnus(n0,2),
      .pnzs(n0,2),dval
       character spid*8,spid0*8,fid0*68,line*20,msg*23,use*80,ignore*80,
@@ -123,7 +123,6 @@ C ... Local parameters
       data vec0 /0d0,0d0,0d0/
 c     call tcn('iors')
       open(newunit=ifi,file='rst.'//trim(sname),form='unformatted') 
-      
 C ... MPI setup
       nproc  = mpipid(0)
       procid = mpipid(1)
@@ -165,23 +164,21 @@ C --- Input ---
             read(jfi) datimp,usernm,hostnm
             read(jfi) nbas0,nat0,nsp0,npan0,lrel0,nspec0
             read(jfi) nit
-            read(jfi) alat0,vol0!,plat0
-!          call dinv33(plat0,1,qlat0,fac)
-c          lshear = .not. latvec(3,1d-6,qlat,plat0)
-          if (ipr .ge. 40) write(stdo,710) trim(fid0),trim(usernm),trim(hostnm),trim(datimp)
-  710     format(9x,'id -  ',a,/9x,'written by -  ',a,' on ',a,' at: ',a)
-          if (nat > nat0) then !  Number of real atoms may not increase
-            if (isanrg(nat0,  nat,nat,msg,'nat',.true.)) goto 999
-          elseif (nat .eq. nat0 .and. nbas .ne. nbas0) then
-            write(stdo,ftox)' (warning) mismatch in nbas ... skipping sites'
-            write(stdo,ftox)' expected nbas=',nbas,'but rst file has nbas=',nbas0
-!           OK to reduce nat (e.g. E.S.); these sites will be skipped
-          elseif (nat .lt. nat0) then
-            write(stdo,*)'   (warning) rst mismatch in nat ... skipping sites'
-          endif
-          if (nsp0 < nsp) write(stdo,*)'   (warning) rst file not spin pol .. splitting spins'
-          if(lrel0/=lrel) write(stdo,ftox) 'warning lrel_ctrl lrelrst=',lrel0,lrel
+            read(jfi) alat0,vol0
+            if (ipr .ge. 40) write(stdo,710) trim(fid0),trim(usernm),trim(hostnm),trim(datimp)
+            if (nat > nat0) then !  Number of real atoms may not increase
+               if (isanrg(nat0, nat,nat,msg,'nat',.true.)) goto 999
+            elseif (nat==nat0 .and. nbas/=nbas0) then
+               write(stdo,ftox)' (warning) mismatch in nbas ... skipping sites'
+               write(stdo,ftox)' expected nbas=',nbas,'but rst file has nbas=',nbas0
+!     OK to reduce nat (e.g. E.S.); these sites will be skipped
+            elseif (nat < nat0) then
+               write(stdo,*)'   (warning) rst mismatch in nat ... skipping sites'
+            endif
+            if (nsp0 < nsp) write(stdo,*)'   (warning) rst file not spin pol .. splitting spins'
+            if(lrel0/=lrel) write(stdo,ftox) 'warning lrel_ctrl lrelrst=',lrel0,lrel
         endif
+ 710    format(9x,'id -  ',a,/9x,'written by -  ',a,' on ',a,' at: ',a)
         call mpibc1_int(nbas0,1,'iors_nbas0')
         call mpibc1_int(nat0,1,'iors_nat0')
         call mpibc1_real(plat,9,'iors_plat')
@@ -229,11 +226,8 @@ C     ... If cell volume changed, scale smooth density to maintain charge
         call mpibc1_complex(osmrho, size(osmrho), 'iors_smrho' )
  115    continue
 C   --- Read information related to dynamics ---
-        if (procid .eq. master) then
-            read(jfi) wk 
-        endif
+        if (procid .eq. master) read(jfi) wk 
         call mpibc1_real(wk,1,'iors:eferm')
-c        if (irs4 .ne. 0) then ignore=trim(ignore)//'ef window,' !binit=T in bndfp==> set eferm=0d0   else
         use=trim(use)//'use window,'
         call m_bndfp_ef_SET(wk(1)) !bz_ef00) !,bz_def00)
         line = 'site data' !Read atomic positions,forces,velocities ---
@@ -241,33 +235,20 @@ c        if (irs4 .ne. 0) then ignore=trim(ignore)//'ef window,' !binit=T in bnd
           ignore=trim(ignore)//'positions,'
         else
           use=trim(use)//' positions,'
-c          if (lshear) use=trim(use)//' (sheared)'     Must be enough sites to read from rst file
           if (nbas0 .lt. nbas) then
             call info0(1,0,0,'%9f oops ... cannot use file site positions (site mismatch)')
             if (isanrg(nbas0, nbas,nbas,msg,'nbas',.true.)) goto 999
           endif
         endif
-        do  ib = 1, nbas0
-          if (procid .eq. master) then
-              read(jfi,err=999,end=999) jb,pos,force!,vel
-          endif
-          call mpibc1_real(pos,3,'iors_pos')
+        do ib = 1, nbas0
+          if (procid .eq. master) read(jfi,err=999,end=999) jb,pos,force
+          call mpibc1_real(pos,  3,'iors_pos')
           call mpibc1_real(force,3,'iors_force')
-c          call mpibc1_real(vel,3,'iors_vel')
-          if (ib .gt. nbas) goto 10
-C         rst file positions in pos0
-c          if (lshear) then
-c            call dgemm('T','N',3,1,3,1d0,qlat0,3,pos,3,0d0,pos0,3)
-c           call dgemm('N','N',3,1,3,1d0,plat,3,pos0,3,0d0,pos,3)
-c          endif
-          pos0=pos 
-          if (irs3 .ne. 0) then !overwrite pos,vel
-            pos=ssite(ib)%pos
-          endif
-           ssite(ib)%pos  =pos
-           ssite(ib)%pos0 =pos0
-           ssite(ib)%force=force
-   10     continue
+          if(ib > nbas) cycle
+          if(irs3 .ne. 0) pos=ssite(ib)%pos
+          ssite(ib)%pos  =pos
+          ssite(ib)%pos0 =pos
+          ssite(ib)%force=force
         enddo
 C   --- Read information for local densities ---
         if (irs5 .ne. 0) then
@@ -435,11 +416,6 @@ c             print *,'nnnnnnnnread',ib,nr*nlml*nsp,nr,nlml,nsp
    20     continue
         enddo
         if (isanrg(ibaug, nat,nat,  msg,'nat', .false.)) goto 999
-c        if ( lshear.and.irsrot) then 
-c          wk(1:9)=lat_dist !rhoat rotation by lat_dist matrix
-c          call dgemm('N','T',3,1,3,1d0,plat,3,qlat0,3,0d0,wk,3)
-c          call pvsms2 ( ssite , sspec , wk , nbas , nsp , orhoat )
-c        endif
 C   --- Read data on free-atom core states and fit to fa density ---
         line = 'species data'
         do  30  is = 1, nspec
@@ -497,7 +473,7 @@ C     ... FP core densities
  30     continue
 
 c   ... Copy or rescale cores, in case foca was switched on or off
-          do  ib = 1, nbas
+        do  ib = 1, nbas
             is = int(ssite(ib)%spec)
             a=sspec(is)%a
             nr=sspec(is)%nr
@@ -521,7 +497,7 @@ c   ... Copy or rescale cores, in case foca was switched on or off
               if (allocated(rwgt_rv)) deallocate(rwgt_rv)
             endif
    40       continue
-          enddo
+        enddo
         do i_site=1,nbas
           call mpibc1_s_site(ssite(i_site),'iors_ssite')
         enddo
