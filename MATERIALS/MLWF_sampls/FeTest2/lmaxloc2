@@ -1,0 +1,430 @@
+  verbose=           0
+  --- Choose omodes below ----------------
+   bb vectors (1) or Wannier fn. (2) or TB Hamiltonian (3)
+  --- Put number above ! -----------------
+  ixc=           2
+  ### readin BZDATA ###
+  end of read_BZdata
+  nqibz ngrp=          16    -9999999
+  nqbz  =         216
+  m_qbze: nqibz nqibze=          16          17
+  --- Freq ---
+    niw  =    10
+    delta=   -0.000001
+    esmr =    0.003000
+  reading <PRODUCT_BASIS> section
+ lx=  0 readin tolerance=  0.100D-02
+ lx=  1 readin tolerance=  0.100D-02
+ lx=  2 readin tolerance=  0.100D-02
+ lx=  3 readin tolerance=  0.100D-02
+ lx=  4 readin tolerance=  0.100D-02
+ lx=  5 readin tolerance=  0.100D-02
+ lx=  6 readin tolerance=  0.100D-02
+ lx=  7 readin tolerance=  0.100D-02
+ lx=  8 readin tolerance=  0.100D-02
+ --- prod section: lcutmx cutbase=  4  0.100D-02  0.100D-02  0.100D-02  0.100D-02  0.100D-02  0.100D-02  0.100D-02  0.100D-02  0.100D-02
+  --- valence product basis section
+  1  0  1  1  1
+  1  0  2  0  0
+  1  1  1  1  1
+  1  1  2  0  0
+  1  1  3  1  1
+  1  2  1  1  1
+  1  2  2  0  0
+  1  3  1  0  1
+  1  3  2  0  0
+  1  4  1  0  0
+  1  4  2  0  0
+  --- core product basis section
+  1  0  1  0  0  0  0
+  1  0  2  0  0  0  0
+  1  0  3  0  0  0  0
+  1  1  1  0  0  0  0
+  ### incwf=-1 Use ForSxc for core
+  read ECORE : ic=           1
+  CPU:       0.0000 secs =     0.0 mins
+ genallcf_v3
+  nbmx ebmx from GWinput=     99999 0.300000D+01
+  hsfp0: end of genallcf2
+ ngrp=          48
+ init_readeigen:
+ nqi=          91
+ read(ifiqg)         432          96   4.0000000000000000              216          91
+ read EValue: nband_ev,nqi,nsp_ev          44          91           2
+              nband,   nqi,nsp             44          91           2
+   --- Readingin CLASS info ---
+ goto mptauof
+ tiat=   6.4296472470546122E-312   8.6165048634713397E-321   5.7756273998841721E-321           0
+ Read EF from BNDS
+  Ef=   2.1290000000000000E-002
+  wgt nocc=   1.9999999999999836        13.990740740740927     
+  ef    =   2.1290000000000000E-002
+  esmr  =   3.0000000000000001E-003
+  valn  =   0.0000000000000000     
+  ntot  =   13.990740740740927     
+  end of readin @MNLA_CPHI: norbtx=          11
+  KeepEigen=T; readin geig and cphi into m_readeigen
+ Read k points for bands from SYML
+nline nclass mlwf=    1    1
+ nbasclass_mlwf=           5           5
+ output:           1           5 Fe           5           6           7           8           9
+ checkorb: iiwf,idorb(iiwf)           1           2
+ checkorb: iiwf,idorb(iiwf)           2           2
+ checkorb: iiwf,idorb(iiwf)           3           2
+ checkorb: iiwf,idorb(iiwf)           4           2
+ checkorb: iiwf,idorb(iiwf)           5           2
+ mloc.heps    0.0000000000000000     
+  ***
+    2  42   5  nspin  nq  ntq
+ spin = 0   nbloch ngp ngc=   0   0   0  nqbz =   216  nqibz =    16   ef=    0.0213 Rydberg
+ 0.2000000000000000D-01 <= deltaw(Hartree)
+ 0.5416902100000000D+01 <= alat
+ 0.2129000000000000D-01 <= ef 
+ 0.3000000000000000D-02 <= esmr
+  sum of nonzero iirk=         216         216
+ getbb: bcc
+elist max enwf enwfmaxi=      2.54929     -1.69276
+ is =           1   out of           2
+ Outer energy window, on
+ eomin, eomax =  -10.000000000000000        5.0000000000000000     
+ Inner energy window, off
+ Step 1: Hilbert space branch
+  iko_ix iko_fx=           4           9
+ goto readpsig
+ readpsig:
+#SC-loop, conv.    1  0.14838D+02
+#SC-loop, conv.    2  0.14770D+02
+#SC-loop, conv.    3  0.14709D+02
+#SC-loop, conv.    4  0.14653D+02
+#SC-loop, conv.    5  0.14603D+02
+#SC-loop, conv.    6  0.14557D+02
+#SC-loop, conv.    7  0.14516D+02
+#SC-loop, conv.    8  0.14479D+02
+#SC-loop, conv.    9  0.14445D+02
+#SC-loop, conv.   10  0.14415D+02
+#SC-loop, conv.   11  0.14388D+02
+#SC-loop, conv.   12  0.14363D+02
+#SC-loop, conv.   13  0.14340D+02
+#SC-loop, conv.   14  0.14320D+02
+#SC-loop, conv.   15  0.14301D+02
+#SC-loop, conv.   16  0.14285D+02
+#SC-loop, conv.   17  0.14270D+02
+#SC-loop, conv.   18  0.14256D+02
+#SC-loop, conv.   19  0.14244D+02
+#SC-loop, conv.   20  0.14233D+02
+#SC-loop, conv.   21  0.14222D+02
+#SC-loop, conv.   22  0.14213D+02
+#SC-loop, conv.   23  0.14205D+02
+#SC-loop, conv.   24  0.14198D+02
+#SC-loop, conv.   25  0.14191D+02
+#SC-loop, conv.   26  0.14185D+02
+#SC-loop, conv.   27  0.14179D+02
+#SC-loop, conv.   28  0.14174D+02
+#SC-loop, conv.   29  0.14170D+02
+#SC-loop, conv.   30  0.14166D+02
+#SC-loop, conv.   31  0.14162D+02
+#SC-loop, conv.   32  0.14158D+02
+#SC-loop, conv.   33  0.14155D+02
+#SC-loop, conv.   34  0.14153D+02
+#SC-loop, conv.   35  0.14150D+02
+#SC-loop, conv.   36  0.14148D+02
+#SC-loop, conv.   37  0.14146D+02
+#SC-loop, conv.   38  0.14144D+02
+#SC-loop, conv.   39  0.14142D+02
+#SC-loop, conv.   40  0.14141D+02
+#SC-loop, conv.   41  0.14139D+02
+#SC-loop, conv.   42  0.14138D+02
+#SC-loop, conv.   43  0.14137D+02
+#SC-loop, conv.   44  0.14136D+02
+#SC-loop, conv.   45  0.14135D+02
+#SC-loop, conv.   46  0.14134D+02
+#SC-loop, conv.   47  0.14133D+02
+#SC-loop, conv.   48  0.14133D+02
+#SC-loop, conv.   49  0.14132D+02
+#SC-loop, conv.   50  0.14132D+02
+#SC-loop, conv.   51  0.14131D+02
+#SC-loop, conv.   52  0.14131D+02
+#SC-loop, conv.   53  0.14130D+02
+#SC-loop, conv.   54  0.14130D+02
+#SC-loop, conv.   55  0.14129D+02
+#SC-loop, conv.   56  0.14129D+02
+#SC-loop, conv.   57  0.14129D+02
+#SC-loop, conv.   58  0.14129D+02
+#SC-loop, conv.   59  0.14128D+02
+#SC-loop, conv.   60  0.14128D+02
+#SC-loop, conv.   61  0.14128D+02
+#SC-loop, conv.   62  0.14128D+02
+#SC-loop, conv.   63  0.14128D+02
+#SC-loop, conv.   64  0.14127D+02
+#SC-loop, conv.   65  0.14127D+02
+ step1: converged!
+ Step 2: Wannier fn. branch
+#SC-loop, spread(bohr**2)     1 Omg_I Omg_OD Omg_D=    10.4994270779     0.1845842841     0.0000000000
+#SC-loop, spread(bohr**2)     2 Omg_I Omg_OD Omg_D=    10.4994270779     0.1844192700     0.0000000000
+#SC-loop, spread(bohr**2)     3 Omg_I Omg_OD Omg_D=    10.4994270779     0.1842723713     0.0000000000
+#SC-loop, spread(bohr**2)     4 Omg_I Omg_OD Omg_D=    10.4994270779     0.1841409433     0.0000000000
+#SC-loop, spread(bohr**2)     5 Omg_I Omg_OD Omg_D=    10.4994270779     0.1840227987     0.0000000000
+#SC-loop, spread(bohr**2)     6 Omg_I Omg_OD Omg_D=    10.4994270779     0.1839161205     0.0000000000
+#SC-loop, spread(bohr**2)     7 Omg_I Omg_OD Omg_D=    10.4994270779     0.1838193934     0.0000000000
+#SC-loop, spread(bohr**2)     8 Omg_I Omg_OD Omg_D=    10.4994270779     0.1837313475     0.0000000000
+#SC-loop, spread(bohr**2)     9 Omg_I Omg_OD Omg_D=    10.4994270779     0.1836509138     0.0000000000
+#SC-loop, spread(bohr**2)    10 Omg_I Omg_OD Omg_D=    10.4994270779     0.1835771884     0.0000000000
+#SC-loop, spread(bohr**2)    11 Omg_I Omg_OD Omg_D=    10.4994270779     0.1835094032     0.0000000000
+#SC-loop, spread(bohr**2)    12 Omg_I Omg_OD Omg_D=    10.4994270779     0.1834469023     0.0000000000
+#SC-loop, spread(bohr**2)    13 Omg_I Omg_OD Omg_D=    10.4994270779     0.1833891231     0.0000000000
+#SC-loop, spread(bohr**2)    14 Omg_I Omg_OD Omg_D=    10.4994270779     0.1833355810     0.0000000000
+#SC-loop, spread(bohr**2)    15 Omg_I Omg_OD Omg_D=    10.4994270779     0.1832858558     0.0000000000
+#SC-loop, spread(bohr**2)    16 Omg_I Omg_OD Omg_D=    10.4994270779     0.1832395824     0.0000000000
+#SC-loop, spread(bohr**2)    17 Omg_I Omg_OD Omg_D=    10.4994270779     0.1831964414     0.0000000000
+#SC-loop, spread(bohr**2)    18 Omg_I Omg_OD Omg_D=    10.4994270779     0.1831561526     0.0000000000
+#SC-loop, spread(bohr**2)    19 Omg_I Omg_OD Omg_D=    10.4994270779     0.1831184691     0.0000000000
+#SC-loop, spread(bohr**2)    20 Omg_I Omg_OD Omg_D=    10.4994270779     0.1830831719     0.0000000000
+#SC-loop, spread(bohr**2)    21 Omg_I Omg_OD Omg_D=    10.4994270779     0.1830500668     0.0000000000
+#SC-loop, spread(bohr**2)    22 Omg_I Omg_OD Omg_D=    10.4994270779     0.1830189804     0.0000000000
+#SC-loop, spread(bohr**2)    23 Omg_I Omg_OD Omg_D=    10.4994270779     0.1829897572     0.0000000000
+#SC-loop, spread(bohr**2)    24 Omg_I Omg_OD Omg_D=    10.4994270779     0.1829622577     0.0000000000
+#SC-loop, spread(bohr**2)    25 Omg_I Omg_OD Omg_D=    10.4994270779     0.1829363560     0.0000000000
+#SC-loop, spread(bohr**2)    26 Omg_I Omg_OD Omg_D=    10.4994270779     0.1829119383     0.0000000000
+#SC-loop, spread(bohr**2)    27 Omg_I Omg_OD Omg_D=    10.4994270779     0.1828889013     0.0000000000
+#SC-loop, spread(bohr**2)    28 Omg_I Omg_OD Omg_D=    10.4994270779     0.1828671510     0.0000000000
+#SC-loop, spread(bohr**2)    29 Omg_I Omg_OD Omg_D=    10.4994270779     0.1828466017     0.0000000000
+#SC-loop, spread(bohr**2)    30 Omg_I Omg_OD Omg_D=    10.4994270779     0.1828271748     0.0000000000
+#SC-loop, spread(bohr**2)    31 Omg_I Omg_OD Omg_D=    10.4994270779     0.1828087986     0.0000000000
+#SC-loop, spread(bohr**2)    32 Omg_I Omg_OD Omg_D=    10.4994270779     0.1827914068     0.0000000000
+#SC-loop, spread(bohr**2)    33 Omg_I Omg_OD Omg_D=    10.4994270779     0.1827749386     0.0000000000
+#SC-loop, spread(bohr**2)    34 Omg_I Omg_OD Omg_D=    10.4994270779     0.1827593378     0.0000000000
+#SC-loop, spread(bohr**2)    35 Omg_I Omg_OD Omg_D=    10.4994270779     0.1827445525     0.0000000000
+#SC-loop, spread(bohr**2)    36 Omg_I Omg_OD Omg_D=    10.4994270779     0.1827305344     0.0000000000
+#SC-loop, spread(bohr**2)    37 Omg_I Omg_OD Omg_D=    10.4994270779     0.1827172390     0.0000000000
+#SC-loop, spread(bohr**2)    38 Omg_I Omg_OD Omg_D=    10.4994270779     0.1827046247     0.0000000000
+#SC-loop, spread(bohr**2)    39 Omg_I Omg_OD Omg_D=    10.4994270779     0.1826926528     0.0000000000
+#SC-loop, spread(bohr**2)    40 Omg_I Omg_OD Omg_D=    10.4994270779     0.1826812872     0.0000000000
+#SC-loop, spread(bohr**2)    41 Omg_I Omg_OD Omg_D=    10.4994270779     0.1826704945     0.0000000000
+#SC-loop, spread(bohr**2)    42 Omg_I Omg_OD Omg_D=    10.4994270779     0.1826602430     0.0000000000
+#SC-loop, spread(bohr**2)    43 Omg_I Omg_OD Omg_D=    10.4994270779     0.1826505034     0.0000000000
+#SC-loop, spread(bohr**2)    44 Omg_I Omg_OD Omg_D=    10.4994270779     0.1826412481     0.0000000000
+#SC-loop, spread(bohr**2)    45 Omg_I Omg_OD Omg_D=    10.4994270779     0.1826324512     0.0000000000
+#SC-loop, spread(bohr**2)    46 Omg_I Omg_OD Omg_D=    10.4994270779     0.1826240885     0.0000000000
+#SC-loop, spread(bohr**2)    47 Omg_I Omg_OD Omg_D=    10.4994270779     0.1826161371     0.0000000000
+#SC-loop, spread(bohr**2)    48 Omg_I Omg_OD Omg_D=    10.4994270779     0.1826085755     0.0000000000
+#SC-loop, spread(bohr**2)    49 Omg_I Omg_OD Omg_D=    10.4994270779     0.1826013836     0.0000000000
+#SC-loop, spread(bohr**2)    50 Omg_I Omg_OD Omg_D=    10.4994270779     0.1825945422     0.0000000000
+#SC-loop, spread(bohr**2)    51 Omg_I Omg_OD Omg_D=    10.4994270779     0.1825880335     0.0000000000
+#SC-loop, spread(bohr**2)    52 Omg_I Omg_OD Omg_D=    10.4994270779     0.1825818406     0.0000000000
+#SC-loop, spread(bohr**2)    53 Omg_I Omg_OD Omg_D=    10.4994270779     0.1825759473     0.0000000000
+#SC-loop, spread(bohr**2)    54 Omg_I Omg_OD Omg_D=    10.4994270779     0.1825703387     0.0000000000
+#SC-loop, spread(bohr**2)    55 Omg_I Omg_OD Omg_D=    10.4994270779     0.1825650004     0.0000000000
+#SC-loop, spread(bohr**2)    56 Omg_I Omg_OD Omg_D=    10.4994270779     0.1825599190     0.0000000000
+#SC-loop, spread(bohr**2)    57 Omg_I Omg_OD Omg_D=    10.4994270779     0.1825550817     0.0000000000
+#SC-loop, spread(bohr**2)    58 Omg_I Omg_OD Omg_D=    10.4994270779     0.1825504763     0.0000000000
+#SC-loop, spread(bohr**2)    59 Omg_I Omg_OD Omg_D=    10.4994270779     0.1825460914     0.0000000000
+#SC-loop, spread(bohr**2)    60 Omg_I Omg_OD Omg_D=    10.4994270779     0.1825419163     0.0000000000
+#SC-loop, spread(bohr**2)    61 Omg_I Omg_OD Omg_D=    10.4994270779     0.1825379405     0.0000000000
+#SC-loop, spread(bohr**2)    62 Omg_I Omg_OD Omg_D=    10.4994270779     0.1825341543     0.0000000000
+#SC-loop, spread(bohr**2)    63 Omg_I Omg_OD Omg_D=    10.4994270779     0.1825305485     0.0000000000
+#SC-loop, spread(bohr**2)    64 Omg_I Omg_OD Omg_D=    10.4994270779     0.1825271144     0.0000000000
+#SC-loop, spread(bohr**2)    65 Omg_I Omg_OD Omg_D=    10.4994270779     0.1825238435     0.0000000000
+#SC-loop, spread(bohr**2)    66 Omg_I Omg_OD Omg_D=    10.4994270779     0.1825207280     0.0000000000
+#SC-loop, spread(bohr**2)    67 Omg_I Omg_OD Omg_D=    10.4994270779     0.1825177603     0.0000000000
+#SC-loop, spread(bohr**2)    68 Omg_I Omg_OD Omg_D=    10.4994270779     0.1825149334     0.0000000000
+#SC-loop, spread(bohr**2)    69 Omg_I Omg_OD Omg_D=    10.4994270779     0.1825122405     0.0000000000
+#SC-loop, spread(bohr**2)    70 Omg_I Omg_OD Omg_D=    10.4994270779     0.1825096751     0.0000000000
+#SC-loop, spread(bohr**2)    71 Omg_I Omg_OD Omg_D=    10.4994270779     0.1825072311     0.0000000000
+#SC-loop, spread(bohr**2)    72 Omg_I Omg_OD Omg_D=    10.4994270779     0.1825049026     0.0000000000
+#SC-loop, spread(bohr**2)    73 Omg_I Omg_OD Omg_D=    10.4994270779     0.1825026843     0.0000000000
+#SC-loop, spread(bohr**2)    74 Omg_I Omg_OD Omg_D=    10.4994270779     0.1825005707     0.0000000000
+#SC-loop, spread(bohr**2)    75 Omg_I Omg_OD Omg_D=    10.4994270779     0.1824985570     0.0000000000
+#SC-loop, spread(bohr**2)    76 Omg_I Omg_OD Omg_D=    10.4994270779     0.1824966383     0.0000000000
+#SC-loop, spread(bohr**2)    77 Omg_I Omg_OD Omg_D=    10.4994270779     0.1824948101     0.0000000000
+#SC-loop, spread(bohr**2)    78 Omg_I Omg_OD Omg_D=    10.4994270779     0.1824930681     0.0000000000
+ step2: converged!
+dddd spread: iwf r2n(bohr^2) rn(bohr)=  1     2.262036      0.0000  -0.0000  -0.0000
+dddd spread: iwf r2n(bohr^2) rn(bohr)=  2     2.262038     -0.0000  -0.0000   0.0000
+dddd spread: iwf r2n(bohr^2) rn(bohr)=  3     1.947897     -0.0000   0.0000   0.0000
+dddd spread: iwf r2n(bohr^2) rn(bohr)=  4     2.262038     -0.0000  -0.0000   0.0000
+dddd spread: iwf r2n(bohr^2) rn(bohr)=  5     1.947910      0.0000  -0.0000  -0.0000
+ ---------- wlaxloc isp =           1
+dddd: i,j, <wannier i|r|wannier j>  1 2 ( 0.000000 , -0.000000 ) ( -0.000000 , -0.000000 ) ( 0.000000 , 0.000000 )    0.464325D-09
+dddd: i,j, <wannier i|r|wannier j>  1 3 ( -0.000000 , -0.000000 ) ( 0.000000 , -0.000000 ) ( 0.000000 , -0.000000 )    0.196158D-08
+dddd: i,j, <wannier i|r|wannier j>  1 4 ( -0.000000 , 0.000000 ) ( -0.000000 , -0.000000 ) ( -0.000000 , 0.000000 )    0.677211D-09
+dddd: i,j, <wannier i|r|wannier j>  1 5 ( 0.000000 , -0.000000 ) ( 0.000000 , 0.000000 ) ( 0.000000 , -0.000000 )    0.354931D-08
+dddd: i,j, <wannier i|r|wannier j>  2 1 ( 0.000000 , 0.000000 ) ( -0.000000 , 0.000000 ) ( 0.000000 , -0.000000 )    0.464325D-09
+dddd: i,j, <wannier i|r|wannier j>  2 3 ( -0.000000 , 0.000000 ) ( -0.000000 , 0.000000 ) ( 0.000000 , -0.000000 )    0.312182D-08
+dddd: i,j, <wannier i|r|wannier j>  2 4 ( -0.000000 , 0.000000 ) ( -0.000000 , -0.000000 ) ( -0.000000 , 0.000000 )    0.559093D-09
+dddd: i,j, <wannier i|r|wannier j>  2 5 ( 0.000000 , -0.000000 ) ( 0.000000 , 0.000000 ) ( -0.000000 , -0.000000 )    0.239932D-08
+dddd: i,j, <wannier i|r|wannier j>  3 1 ( -0.000000 , 0.000000 ) ( 0.000000 , 0.000000 ) ( 0.000000 , 0.000000 )    0.196158D-08
+dddd: i,j, <wannier i|r|wannier j>  3 2 ( -0.000000 , -0.000000 ) ( -0.000000 , -0.000000 ) ( 0.000000 , 0.000000 )    0.312182D-08
+dddd: i,j, <wannier i|r|wannier j>  3 4 ( -0.000000 , -0.000000 ) ( -0.000000 , -0.000000 ) ( 0.000000 , 0.000000 )    0.325230D-08
+dddd: i,j, <wannier i|r|wannier j>  3 5 ( -0.000000 , 0.000000 ) ( -0.000000 , 0.000000 ) ( -0.000000 , -0.000000 )    0.187552D-09
+dddd: i,j, <wannier i|r|wannier j>  4 1 ( -0.000000 , -0.000000 ) ( -0.000000 , 0.000000 ) ( -0.000000 , -0.000000 )    0.677211D-09
+dddd: i,j, <wannier i|r|wannier j>  4 2 ( -0.000000 , -0.000000 ) ( -0.000000 , 0.000000 ) ( -0.000000 , -0.000000 )    0.559093D-09
+dddd: i,j, <wannier i|r|wannier j>  4 3 ( -0.000000 , 0.000000 ) ( -0.000000 , 0.000000 ) ( 0.000000 , -0.000000 )    0.325230D-08
+dddd: i,j, <wannier i|r|wannier j>  4 5 ( -0.000000 , -0.000000 ) ( -0.000000 , 0.000000 ) ( -0.000000 , 0.000000 )    0.255995D-08
+dddd: i,j, <wannier i|r|wannier j>  5 1 ( 0.000000 , 0.000000 ) ( 0.000000 , -0.000000 ) ( 0.000000 , 0.000000 )    0.354931D-08
+dddd: i,j, <wannier i|r|wannier j>  5 2 ( 0.000000 , 0.000000 ) ( 0.000000 , -0.000000 ) ( -0.000000 , 0.000000 )    0.239932D-08
+dddd: i,j, <wannier i|r|wannier j>  5 3 ( -0.000000 , -0.000000 ) ( -0.000000 , -0.000000 ) ( -0.000000 , 0.000000 )    0.187552D-09
+dddd: i,j, <wannier i|r|wannier j>  5 4 ( -0.000000 , 0.000000 ) ( -0.000000 , -0.000000 ) ( -0.000000 , -0.000000 )    0.255995D-08
+ Step 3: reduced Hamiltonian branch
+
+  got get_hrotkp_ws iq =           1
+  got get_hrotkp_ws iq =           2
+  got get_hrotkp_ws iq =           3
+  got get_hrotkp_ws iq =           4
+  ...
+  got get_hrotkp_ws iq =         214
+  got get_hrotkp_ws iq =         215
+  got get_hrotkp_ws iq =         216
+ is =           2   out of           2
+ Outer energy window, on
+ eomin, eomax =  -10.000000000000000        5.0000000000000000     
+ Inner energy window, off
+ Step 1: Hilbert space branch
+  iko_ix iko_fx=           4           9
+ goto readpsig
+ readpsig:
+#SC-loop, conv.    1  0.20244D+02
+#SC-loop, conv.    2  0.20005D+02
+#SC-loop, conv.    3  0.19789D+02
+#SC-loop, conv.    4  0.19593D+02
+#SC-loop, conv.    5  0.19415D+02
+#SC-loop, conv.    6  0.19254D+02
+#SC-loop, conv.    7  0.19107D+02
+#SC-loop, conv.    8  0.18975D+02
+#SC-loop, conv.    9  0.18854D+02
+#SC-loop, conv.   10  0.18745D+02
+#SC-loop, conv.   11  0.18646D+02
+#SC-loop, conv.   12  0.18557D+02
+#SC-loop, conv.   13  0.18476D+02
+#SC-loop, conv.   14  0.18402D+02
+#SC-loop, conv.   15  0.18335D+02
+#SC-loop, conv.   16  0.18274D+02
+#SC-loop, conv.   17  0.18220D+02
+#SC-loop, conv.   18  0.18170D+02
+#SC-loop, conv.   19  0.18125D+02
+#SC-loop, conv.   20  0.18084D+02
+#SC-loop, conv.   21  0.18046D+02
+#SC-loop, conv.   22  0.18013D+02
+#SC-loop, conv.   23  0.17982D+02
+#SC-loop, conv.   24  0.17955D+02
+#SC-loop, conv.   25  0.17929D+02
+#SC-loop, conv.   26  0.17907D+02
+#SC-loop, conv.   27  0.17886D+02
+#SC-loop, conv.   28  0.17867D+02
+#SC-loop, conv.   29  0.17850D+02
+#SC-loop, conv.   30  0.17835D+02
+#SC-loop, conv.   31  0.17821D+02
+#SC-loop, conv.   32  0.17808D+02
+#SC-loop, conv.   33  0.17796D+02
+#SC-loop, conv.   34  0.17786D+02
+#SC-loop, conv.   35  0.17776D+02
+#SC-loop, conv.   36  0.17768D+02
+#SC-loop, conv.   37  0.17760D+02
+#SC-loop, conv.   38  0.17753D+02
+#SC-loop, conv.   39  0.17746D+02
+#SC-loop, conv.   40  0.17740D+02
+#SC-loop, conv.   41  0.17735D+02
+#SC-loop, conv.   42  0.17730D+02
+#SC-loop, conv.   43  0.17726D+02
+#SC-loop, conv.   44  0.17722D+02
+#SC-loop, conv.   45  0.17718D+02
+#SC-loop, conv.   46  0.17715D+02
+#SC-loop, conv.   47  0.17712D+02
+#SC-loop, conv.   48  0.17709D+02
+#SC-loop, conv.   49  0.17707D+02
+#SC-loop, conv.   50  0.17704D+02
+#SC-loop, conv.   51  0.17702D+02
+#SC-loop, conv.   52  0.17700D+02
+#SC-loop, conv.   53  0.17699D+02
+#SC-loop, conv.   54  0.17697D+02
+#SC-loop, conv.   55  0.17696D+02
+#SC-loop, conv.   56  0.17694D+02
+#SC-loop, conv.   57  0.17693D+02
+#SC-loop, conv.   58  0.17692D+02
+#SC-loop, conv.   59  0.17691D+02
+#SC-loop, conv.   60  0.17690D+02
+#SC-loop, conv.   61  0.17690D+02
+#SC-loop, conv.   62  0.17689D+02
+#SC-loop, conv.   63  0.17688D+02
+#SC-loop, conv.   64  0.17688D+02
+#SC-loop, conv.   65  0.17687D+02
+#SC-loop, conv.   66  0.17687D+02
+#SC-loop, conv.   67  0.17686D+02
+#SC-loop, conv.   68  0.17686D+02
+#SC-loop, conv.   69  0.17685D+02
+#SC-loop, conv.   70  0.17685D+02
+#SC-loop, conv.   71  0.17685D+02
+#SC-loop, conv.   72  0.17684D+02
+#SC-loop, conv.   73  0.17684D+02
+#SC-loop, conv.   74  0.17684D+02
+#SC-loop, conv.   75  0.17684D+02
+#SC-loop, conv.   76  0.17683D+02
+#SC-loop, conv.   77  0.17683D+02
+#SC-loop, conv.   78  0.17683D+02
+ step1: converged!
+ Step 2: Wannier fn. branch
+#SC-loop, spread(bohr**2)     1 Omg_I Omg_OD Omg_D=    13.1421051115     0.4666459919     0.0000000000
+#SC-loop, spread(bohr**2)     2 Omg_I Omg_OD Omg_D=    13.1421051115     0.4663996391     0.0000000000
+#SC-loop, spread(bohr**2)     3 Omg_I Omg_OD Omg_D=    13.1421051115     0.4661946689     0.0000000000
+#SC-loop, spread(bohr**2)     4 Omg_I Omg_OD Omg_D=    13.1421051115     0.4660237298     0.0000000000
+#SC-loop, spread(bohr**2)     5 Omg_I Omg_OD Omg_D=    13.1421051115     0.4658808370     0.0000000000
+#SC-loop, spread(bohr**2)     6 Omg_I Omg_OD Omg_D=    13.1421051115     0.4657611089     0.0000000000
+#SC-loop, spread(bohr**2)     7 Omg_I Omg_OD Omg_D=    13.1421051115     0.4656605565     0.0000000000
+#SC-loop, spread(bohr**2)     8 Omg_I Omg_OD Omg_D=    13.1421051115     0.4655759135     0.0000000000
+#SC-loop, spread(bohr**2)     9 Omg_I Omg_OD Omg_D=    13.1421051115     0.4655044999     0.0000000000
+#SC-loop, spread(bohr**2)    10 Omg_I Omg_OD Omg_D=    13.1421051115     0.4654441122     0.0000000000
+#SC-loop, spread(bohr**2)    11 Omg_I Omg_OD Omg_D=    13.1421051115     0.4653929351     0.0000000000
+#SC-loop, spread(bohr**2)    12 Omg_I Omg_OD Omg_D=    13.1421051115     0.4653494696     0.0000000000
+#SC-loop, spread(bohr**2)    13 Omg_I Omg_OD Omg_D=    13.1421051115     0.4653124754     0.0000000000
+#SC-loop, spread(bohr**2)    14 Omg_I Omg_OD Omg_D=    13.1421051115     0.4652809239     0.0000000000
+#SC-loop, spread(bohr**2)    15 Omg_I Omg_OD Omg_D=    13.1421051115     0.4652539602     0.0000000000
+#SC-loop, spread(bohr**2)    16 Omg_I Omg_OD Omg_D=    13.1421051115     0.4652308722     0.0000000000
+#SC-loop, spread(bohr**2)    17 Omg_I Omg_OD Omg_D=    13.1421051115     0.4652110655     0.0000000000
+#SC-loop, spread(bohr**2)    18 Omg_I Omg_OD Omg_D=    13.1421051115     0.4651940428     0.0000000000
+#SC-loop, spread(bohr**2)    19 Omg_I Omg_OD Omg_D=    13.1421051115     0.4651793868     0.0000000000
+#SC-loop, spread(bohr**2)    20 Omg_I Omg_OD Omg_D=    13.1421051115     0.4651667472     0.0000000000
+#SC-loop, spread(bohr**2)    21 Omg_I Omg_OD Omg_D=    13.1421051115     0.4651558288     0.0000000000
+#SC-loop, spread(bohr**2)    22 Omg_I Omg_OD Omg_D=    13.1421051115     0.4651463823     0.0000000000
+#SC-loop, spread(bohr**2)    23 Omg_I Omg_OD Omg_D=    13.1421051115     0.4651381972     0.0000000000
+#SC-loop, spread(bohr**2)    24 Omg_I Omg_OD Omg_D=    13.1421051115     0.4651310947     0.0000000000
+#SC-loop, spread(bohr**2)    25 Omg_I Omg_OD Omg_D=    13.1421051115     0.4651249232     0.0000000000
+#SC-loop, spread(bohr**2)    26 Omg_I Omg_OD Omg_D=    13.1421051115     0.4651195535     0.0000000000
+#SC-loop, spread(bohr**2)    27 Omg_I Omg_OD Omg_D=    13.1421051115     0.4651148756     0.0000000000
+#SC-loop, spread(bohr**2)    28 Omg_I Omg_OD Omg_D=    13.1421051115     0.4651107955     0.0000000000
+ step2: converged!
+dddd spread: iwf r2n(bohr^2) rn(bohr)=  1     2.806605      0.0000  -0.0000  -0.0000
+dddd spread: iwf r2n(bohr^2) rn(bohr)=  2     2.806615     -0.0000  -0.0000   0.0000
+dddd spread: iwf r2n(bohr^2) rn(bohr)=  3     2.593600     -0.0000   0.0000   0.0000
+dddd spread: iwf r2n(bohr^2) rn(bohr)=  4     2.806600     -0.0000  -0.0000   0.0000
+dddd spread: iwf r2n(bohr^2) rn(bohr)=  5     2.593796      0.0000  -0.0000  -0.0000
+ ---------- wlaxloc isp =           2
+dddd: i,j, <wannier i|r|wannier j>  1 2 ( 0.000000 , -0.000000 ) ( -0.000000 , -0.000000 ) ( 0.000000 , 0.000000 )    0.413168D-09
+dddd: i,j, <wannier i|r|wannier j>  1 3 ( -0.000000 , -0.000000 ) ( 0.000000 , -0.000000 ) ( 0.000000 , -0.000000 )    0.242008D-08
+dddd: i,j, <wannier i|r|wannier j>  1 4 ( -0.000000 , -0.000000 ) ( -0.000000 , -0.000000 ) ( -0.000000 , 0.000000 )    0.807063D-09
+dddd: i,j, <wannier i|r|wannier j>  1 5 ( 0.000000 , -0.000000 ) ( 0.000000 , 0.000000 ) ( 0.000000 , 0.000000 )    0.405229D-08
+dddd: i,j, <wannier i|r|wannier j>  2 1 ( 0.000000 , 0.000000 ) ( -0.000000 , 0.000000 ) ( 0.000000 , -0.000000 )    0.413168D-09
+dddd: i,j, <wannier i|r|wannier j>  2 3 ( -0.000000 , 0.000000 ) ( 0.000000 , 0.000000 ) ( 0.000000 , -0.000000 )    0.355670D-08
+dddd: i,j, <wannier i|r|wannier j>  2 4 ( -0.000000 , 0.000000 ) ( -0.000000 , -0.000000 ) ( -0.000000 , 0.000000 )    0.613951D-09
+dddd: i,j, <wannier i|r|wannier j>  2 5 ( 0.000000 , -0.000000 ) ( 0.000000 , 0.000000 ) ( -0.000000 , -0.000000 )    0.285611D-08
+dddd: i,j, <wannier i|r|wannier j>  3 1 ( -0.000000 , 0.000000 ) ( 0.000000 , 0.000000 ) ( 0.000000 , 0.000000 )    0.242008D-08
+dddd: i,j, <wannier i|r|wannier j>  3 2 ( -0.000000 , -0.000000 ) ( 0.000000 , -0.000000 ) ( 0.000000 , 0.000000 )    0.355670D-08
+dddd: i,j, <wannier i|r|wannier j>  3 4 ( -0.000000 , -0.000000 ) ( -0.000000 , -0.000000 ) ( 0.000000 , 0.000000 )    0.375611D-08
+dddd: i,j, <wannier i|r|wannier j>  3 5 ( -0.000000 , 0.000000 ) ( -0.000000 , 0.000000 ) ( -0.000000 , -0.000000 )    0.312363D-09
+dddd: i,j, <wannier i|r|wannier j>  4 1 ( -0.000000 , 0.000000 ) ( -0.000000 , 0.000000 ) ( -0.000000 , -0.000000 )    0.807063D-09
+dddd: i,j, <wannier i|r|wannier j>  4 2 ( -0.000000 , -0.000000 ) ( -0.000000 , 0.000000 ) ( -0.000000 , -0.000000 )    0.613951D-09
+dddd: i,j, <wannier i|r|wannier j>  4 3 ( -0.000000 , 0.000000 ) ( -0.000000 , 0.000000 ) ( 0.000000 , -0.000000 )    0.375611D-08
+dddd: i,j, <wannier i|r|wannier j>  4 5 ( 0.000000 , -0.000000 ) ( -0.000000 , 0.000000 ) ( -0.000000 , 0.000000 )    0.305732D-08
+dddd: i,j, <wannier i|r|wannier j>  5 1 ( 0.000000 , 0.000000 ) ( 0.000000 , -0.000000 ) ( 0.000000 , -0.000000 )    0.405229D-08
+dddd: i,j, <wannier i|r|wannier j>  5 2 ( 0.000000 , 0.000000 ) ( 0.000000 , -0.000000 ) ( -0.000000 , 0.000000 )    0.285611D-08
+dddd: i,j, <wannier i|r|wannier j>  5 3 ( -0.000000 , -0.000000 ) ( -0.000000 , -0.000000 ) ( -0.000000 , 0.000000 )    0.312363D-09
+dddd: i,j, <wannier i|r|wannier j>  5 4 ( 0.000000 , 0.000000 ) ( -0.000000 , -0.000000 ) ( -0.000000 , -0.000000 )    0.305732D-08
+ Step 3: reduced Hamiltonian branch
+
+  got get_hrotkp_ws iq =           1
+  got get_hrotkp_ws iq =           2
+  got get_hrotkp_ws iq =           3
+  got get_hrotkp_ws iq =           4
+  ...
+  got get_hrotkp_ws iq =         214
+  got get_hrotkp_ws iq =         215
+  got get_hrotkp_ws iq =         216
+  CPU:       2.8820 secs =     0.0 mins

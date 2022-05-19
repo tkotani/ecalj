@@ -1,4 +1,4 @@
-       program hdipole
+       program hsocmat
 !! == dipole and Hso matrix based on Wannier functions
 c   use m_keyvalue,only: getkeyvalue
 c   use m_readqg,only: readqg,readngmx
@@ -142,12 +142,14 @@ c          ifevec_ = ifevec__(iprocq(iqbz,isp))
           open(newunit=ifievec_,   file='evec'//trim(xt(iqbz))//trim(xt(isp)),form='unformatted')
           open(newunit=ifvxc_,      file='vxc'//trim(xt(iqbz))//trim(xt(isp)),form='unformatted')
           read(ifvxc_) nz!,ldim  ! Hamiltonian dimension, dependent of iqbz
-          read(ifievec_) nz!,ldim  ! Hamiltonian dimension, dependent of iqbz
-          if(isp==1) nz1=nz
-          if(isp==2.and.nz1/=nz) call rx('hdipole: Hamiltonian dimension is spin dependent') 
+          read(ifievec_) nz     !,ldim  ! Hamiltonian dimension, dependent of iqbz
+c          print *,'iiiiqbz isp nz',iqbz,isp,nz
+c          if(isp==1) nz1=nz
+c          if(isp==2.and.nz1/=nz) call rx('hdipole: Hamiltonian dimension is spin dependent') 
           read(ifvxc_) 
-          read(ifvxc_) dipo(1:nz,1:nz,1:3,isp),ovl(1:nz,1:nz,isp) !dipole matrix for pmt basis.
+c          read(ifvxc_) dipo(1:nz,1:nz,1:3,isp),ovl(1:nz,1:nz,isp) !dipole matrix for pmt basis.
           if(isp==1.and.socmatrix) read(ifvxc_) hso(1:nz,1:nz,1:3) !see sugw.F for writing vxc file.
+          close(ifvxc_)
 c          write(6,*) 'evec'//trim(xt(iqbz))//trim(xt(isp)),iqbz,isp,nz
           read(ifievec_) qqq,evec(1:nz,1:nz,isp) !evec(ipmt,iband,isp) for pmt basis.
 c          write(6,"('iiiii iqbz isp qqq nz=',2i5,3f9.4,i5)") iqbz,isp,qqq,nz
@@ -183,33 +185,33 @@ c     if(irk(iqibz,ig)==0) call rx('bug: irk(iqibz,ig)==0 for ig=1')
      &            evec(1:nz,iko_ix:iko_fx,isp),dnk(iko_ix:iko_fx,iwf,iqbz,isp)) !iqbz component of Wannier based on PMT basis.
           enddo                 !evecw is the component of Wannier for qbz(:,iqbz)
 
-          
-!! component check at Gamma point (iqbz=1)
-          if(iqbz==1) then !.and.ig==1) then
-             do iwf= 1,nwf
-                norm = sum(dconjg(evecw(1:nz,iwf,isp))*  matmul(ovl(1:nz,1:nz,isp),evecw(1:nz,iwf,isp)))
-                ioffatom=0 
-                do iz = 1,5     !nz
-                   iz1= ioffatom + 1+ 3+ iz !PMT index for 3d EH,    EH=-1 -1 -1 -1 =1+3+5+7
-                   iz2= ioffatom + 1+ 3+ 5+ 7+ 1+ 3+ iz !PMT index for 3d EH2,   EH2=-2 -2 -2    =1+3+5
-                   aa= ovl(iz1,iz1,isp)
-                   bb= ovl(iz1,iz2,isp)
-                   cc= ovl(iz2,iz1,isp)
-                   dd= ovl(iz2,iz2,isp)
-                   ovi(1,1)=  dd/(aa*dd-bb*cc)
-                   ovi(1,2)= -bb/(aa*dd-bb*cc)
-                   ovi(2,1)= -cc/(aa*dd-bb*cc)
-                   ovi(2,2)=  aa/(aa*dd-bb*cc)
-                   ddd(iz)=
-     & sum(dconjg(evecw(1:nz,iwf,isp))*ovl(1:nz,iz1,isp))*ovi(1,1)*sum(ovl(iz1,1:nz,isp)*evecw(1:nz,iwf,isp))
-     &+sum(dconjg(evecw(1:nz,iwf,isp))*ovl(1:nz,iz1,isp))*ovi(1,2)*sum(ovl(iz2,1:nz,isp)*evecw(1:nz,iwf,isp))
-     &+sum(dconjg(evecw(1:nz,iwf,isp))*ovl(1:nz,iz2,isp))*ovi(2,1)*sum(ovl(iz1,1:nz,isp)*evecw(1:nz,iwf,isp))
-     &+sum(dconjg(evecw(1:nz,iwf,isp))*ovl(1:nz,iz2,isp))*ovi(2,2)*sum(ovl(iz2,1:nz,isp)*evecw(1:nz,iwf,isp))
-                enddo   
-      write(6,"('dddd 3d comp at Gamma:isp iwf norm evecw(3d) =',i2,i3,f6.3,2x,5f7.4)") isp,iwf,norm,ddd(1:5)
-             enddo
-          endif
-!!          
+c$$$          
+c$$$!! component check at Gamma point (iqbz=1)
+c$$$          if(iqbz==1) then !.and.ig==1) then
+c$$$             do iwf= 1,nwf
+c$$$                norm = sum(dconjg(evecw(1:nz,iwf,isp))*  matmul(ovl(1:nz,1:nz,isp),evecw(1:nz,iwf,isp)))
+c$$$                ioffatom=0 
+c$$$                do iz = 1,5     !nz
+c$$$                   iz1= ioffatom + 1+ 3+ iz !PMT index for 3d EH,    EH=-1 -1 -1 -1 =1+3+5+7
+c$$$                   iz2= ioffatom + 1+ 3+ 5+ 7+ 1+ 3+ iz !PMT index for 3d EH2,   EH2=-2 -2 -2    =1+3+5
+c$$$                   aa= ovl(iz1,iz1,isp)
+c$$$                   bb= ovl(iz1,iz2,isp)
+c$$$                   cc= ovl(iz2,iz1,isp)
+c$$$                   dd= ovl(iz2,iz2,isp)
+c$$$                   ovi(1,1)=  dd/(aa*dd-bb*cc)
+c$$$                   ovi(1,2)= -bb/(aa*dd-bb*cc)
+c$$$                   ovi(2,1)= -cc/(aa*dd-bb*cc)
+c$$$                   ovi(2,2)=  aa/(aa*dd-bb*cc)
+c$$$                   ddd(iz)=
+c$$$     & sum(dconjg(evecw(1:nz,iwf,isp))*ovl(1:nz,iz1,isp))*ovi(1,1)*sum(ovl(iz1,1:nz,isp)*evecw(1:nz,iwf,isp))
+c$$$     &+sum(dconjg(evecw(1:nz,iwf,isp))*ovl(1:nz,iz1,isp))*ovi(1,2)*sum(ovl(iz2,1:nz,isp)*evecw(1:nz,iwf,isp))
+c$$$     &+sum(dconjg(evecw(1:nz,iwf,isp))*ovl(1:nz,iz2,isp))*ovi(2,1)*sum(ovl(iz1,1:nz,isp)*evecw(1:nz,iwf,isp))
+c$$$     &+sum(dconjg(evecw(1:nz,iwf,isp))*ovl(1:nz,iz2,isp))*ovi(2,2)*sum(ovl(iz2,1:nz,isp)*evecw(1:nz,iwf,isp))
+c$$$                enddo   
+c$$$c      write(6,"('dddd 3d comp at Gamma:isp iwf norm evecw(3d) =',i2,i3,f6.3,2x,5f7.4)") isp,iwf,norm,ddd(1:5)
+c$$$c             enddo
+c$$$          endif
+c$$$!!          
           do iwf  = 1,nwf
           do iwfd = 1,nwf
                 do ia=1,3
@@ -266,8 +268,7 @@ c      enddo
          write(6,ftox)'dddd hammso real =',iwf,iwfd,ftof(hammso(iwf,iwfd,1:3),8)
       enddo          
       enddo
-      print *,'hdipole ok'
-      print *,'2021-5-11: something wrong. diagonal dipole should point at the wannier center but not...'
-      call rx0s('hdipole: ok')
-      end program hdipole
+      print *,'hsocmat ok'
+      call rx0s('hsocmat: ok')
+      end program hsocmat
 

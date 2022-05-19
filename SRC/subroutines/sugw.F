@@ -7,7 +7,7 @@
       use m_struc_def,only: s_rv1, s_spec, s_site 
       use m_suham,only: ndham=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
       use m_lmfinit, only: 
-     &     ham_pwmode,pwemin,pwemax,ham_oveps,lrsig=>ham_lsig,stdl,nlmto,iprmb,
+     &     ham_pwmode,pwemin,pwemax,ham_oveps,lrsig=>ham_lsig,stdl,nlmto,iprmb,lso,
      &     ham_scaledsigma,lat_alat,mxorb,nkaph,nsp,nspc,nl,mxorb,ssite=>v_ssite,sspec=>v_sspec,nbas,n0,nppn,nkap0
       use m_lattic,only: lat_plat, lat_qlat
       use m_supot,only: lat_nabc, lat_gmax
@@ -142,7 +142,7 @@ c      integer,allocatable:: igv2(:,:)
       real(8)::ppin(3)
       real(8):: rlatp(3,3),xmx2(3)
       real(8):: qqq(3)
-      integer:: mode,iwdummy,lso,jx
+      integer:: mode,iwdummy,jx
       complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),ovlmtoi(:,:),ovliovl(:,:) ,hammhso(:,:,:)
       integer,allocatable:: iantiferro(:)
 
@@ -169,6 +169,7 @@ c      integer,allocatable:: igv2(:,:)
  112  continue
       magexist=.false.
  113  continue
+
 !!--------------------      
       call getpr(ipr)
       alat=lat_alat
@@ -195,7 +196,7 @@ c      integer,allocatable:: igv2(:,:)
       enddo
       if(nat/=nbas) call rx('sugw: gw is only for no floating orbital case') !2022jan
 !      
-      lsig = 1
+c      lsig = 1
       ldim=nlmto 
       pwmode= ham_pwmode
 !! ndima
@@ -390,9 +391,9 @@ c      integer,allocatable:: igv2(:,:)
 c        if (dipolematrix.and.iq>nqbz) exit
         qp  = qplist(:,iq)     !  ... For this qp, G vectors for PW basis and hamiltonian dimension
         ngp = ngplist(iq)
-        lwvxc = lsig>0 .and. iq<=iqibzmax
+        lwvxc = iq<=iqibzmax
         if (cmdopt0('--novxc')) lwvxc = .false.
-c        if (dipolematrix) lwvxc = .true.
+        if (socmatrix) lwvxc = .true.
         call m_Igv2x_setiq(iq)! (qp)    ! Set napw ndimh ndimhx and igv2x
         allocate(ham(ndimh,ndimh),ovl(ndimh,ndimh),evec(ndimh,ndimh), vxc(ndimh,ndimh))
         allocate(cphi(ndima,ndimh,nsp),cphin(2,ndimh,nsp))
@@ -401,9 +402,7 @@ c        if(dipolematrix) allocate(dipo(ndimh,ndimh,3))
         ispEE=nsp
         if(iq==iqini.and.ispini==2) ispSS=2
         if(iq==iqend.and.ispend==1) ispEE=1
-        if(lso==1) then
-           call rx('sugw: lso==1 is not yet implemented')
-        elseif(lso/=0) then !.or.dipolematrix) then
+        if(lso/=0.or.socmatrix) then 
            allocate(hammhso(ndimh,ndimh,3))
            call aughsoc(qp, ohsozz,ohsopm, ndimh, hammhso)
         endif
@@ -668,7 +667,7 @@ C     xx(2) = sum(dconjg(cphi(1:nchan,i1,isp))*cphi(1:nchan,i2,isp))
 c          write(ifigw1) vxclda(1:ndimh)
           deallocate(testc,pwz)
           close(ifigwb)
-          if (lsig>0 .and. (.not.cmdopt0('--novxc'))) then
+          if (.not.cmdopt0('--novxc')) then
              close(ifiv)
              close(ifievec)
           endif

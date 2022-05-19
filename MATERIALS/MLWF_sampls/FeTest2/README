@@ -1,0 +1,10 @@
+Soc and <wn|r|wm> tests ( <Wannier |r |Wannier> )
+
+Run
+>lmfa fe
+>lmf-MPIK fe (sc calculation)
+>job_band fe -np 4
+>genMLWFsoc
+
+1. <wn|r|wm> are shown in lmaxloc2 (output of echo 2|hmaxloc, even in the usual mode of genMLWF).
+2. genMLWFsoc shows SOC matrix as <wn|H_soc|wm>

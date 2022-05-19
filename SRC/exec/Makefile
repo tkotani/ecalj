@@ -20,7 +20,7 @@ tags  = ..
 progslm = lmf-MPIK lmfa lmchk 
 progsgw = hbasfp0 hvccfp0 hx0fp0 hsfp0 hqpe qg4gw gwinit heftet rdata4gw_v2 hx0fp0_sc hsfp0_sc hqpe_sc hmagnon \
 hx0init hhilbert hrcxq hx0zmel
-progsw  = hmaxloc huumat_MPI hpsig_MPI wanplot hwmatK_MPI hdipole
+progsw  = hmaxloc huumat_MPI hpsig_MPI wanplot hwmatK_MPI hsocmat
 
 # targets generaged by make prog2
 progslm2 = lmfham mkhamloc plotmodel initmlo mkinput
@@ -311,7 +311,7 @@ wanplot : $(obj_path)/wanplot.o ${MLOC} ${GWLIB} $(MPI)  $(ELIB) $(GWLIB)
 htbplot :  $(obj_path)/htbplot.o
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $< $(LKFLAGS2) -o $@
-hdipole : $(obj_path)/hdipole.o ${MLOC} ${GWLIB} $(MPI)  $(ELIB) $(GWLIB)
+hsocmat : $(obj_path)/hsocmat.o ${MLOC} ${GWLIB} $(MPI)  $(ELIB) $(GWLIB)
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $< $(MLOC) $(MPI)  $(ELIB) $(GWLIB) $(LKFLAGS2)  -o $@ 
 #----------------------------
