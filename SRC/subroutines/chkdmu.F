@@ -96,7 +96,7 @@ C --- Restore dmatu, vorb to real harmonics
       havesh = 0
       if(master_mpi)write(stdo,ftox)' LDA+U update density matrix ...'
       if(master_mpi)write(stdo,ftox)' RMS diff in densmat',ftod(ddmat) 
-      dmatu = dmatu+(1d0-umix)*dmatuo ! new*umix + old*(1-umix)
+      dmatu = umix*dmatu+(1d0-umix)*dmatuo ! new*umix + old*(1-umix)
       call rotycs(1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau) !from rh to sh
       havesh = 1
       
