@@ -117,7 +117,9 @@ c         write(6,"(' iatom l nnvv=',4i5)") ixatom, il, nnvv(il,ixatom),ioffset(
          ioffadd = ioffadd + nnvv(il,ixatom) * (2*il+1)
       end do
  888  continue
-!!
+      close(ifmloc)
+      
+!! real harmonics case
       allocate (nphi(nwf)) ! number of radial waves for each iwf.
       nphi  = 1  ! We use a simple setting.
       nphix = 1
@@ -135,7 +137,8 @@ c          print *, "l_number, iclassin(iclass)", l_number , iclassin(iclass)
           iwf = iwf +1
       enddo
       enddo
-      close(ifmloc)
+
+      
 c      write(6,"('iii:iphi     = ',10i5)") iphi
 c      write(6,"('iii:iphidot  = ',10i5)") iphidot
       end subroutine s_cal_Worb

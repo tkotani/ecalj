@@ -189,8 +189,8 @@ for matr in choosedmaterials:
     os.chdir(wdir)
     os.system('pwd')
     os.system('lmfa '+ext+optionlmf+' >llmfa')
-    print(    'mkGWIN_lmf2 '+ext+optiongw +'> lmkGWIN')
-    os.system('mkGWIN_lmf2 '+ext+optiongw +'> lmkGWIN')
+    print(    'mkGWinput '+ext+optiongw +'> lmkGWIN')
+    os.system('mkGWinput '+ext+optiongw +'> lmkGWIN')
     os.system('cp GWinput.tmp GWinput')
    
     #joblmf='lmf  '+ext+optionlmf+' >llmf'   

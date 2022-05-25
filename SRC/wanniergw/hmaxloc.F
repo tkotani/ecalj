@@ -199,9 +199,9 @@ c ixc=3
       integer:: ifoc,iwf,ldim2,ixx,ifile_handle
 
       real(8):: enwfmax,qxx(3),eeee,enwfmaxi, ef
-      integer:: inii,if102
+      integer:: inii,if102,iwf2
       logical:: leauto,leinauto,iprint
-
+      complex(8):: cccx(7)
 cccccccccccccccccccccccccccccccccccccccccxxxxxxx
 c      open(1107,file='xxx1')
 c      open(1108,file='xxx2')
@@ -994,10 +994,36 @@ c end of self-consistent loop
 
 c output
       write(*,*)"---------- wlaxloc isp =",is
+
+      block
+      complex(8),allocatable :: dnk(:,:,:)
+      allocate(dnk(iko_ix:iko_fx,nwf,nqbz))
       call wmaxloc(ifmlw(is),ifmlwe(is),
      i             qbz,umnk,cnk,eunk,
      i             iko_ix,iko_fx,iko_i,iko_f,
-     d             nwf,nqbz,nband,nlmto, is)
+     d             nwf,nqbz,nband,nlmto, is,dnk)
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$      write(6,ftox)' uuuu'
+c$$$      do iq=1,nqbz
+c$$$      do iwf=1,nwf
+c$$$c         write(6,ftox)' uuuu umnk  ',is,iq,ftof(umnk(iwf,1:nwf,iq),2)
+c$$$c         write(6,ftox)' uuuu   amnk',is,iq,ftof(amnk(iko_ix:iko_fx,iwf,iq),2)
+c$$$         do iwf2=1,nwf
+c$$$            cccx(iwf2)= sum( dconjg(amnk(iko_ix:iko_fx,iwf,iq))*cnk(iko_ix:iko_fx,iwf2,iq) )
+c$$$         enddo
+c$$$         write(6,ftox)' uuuu   <G|psi*c  >',is,iq,ftof(cccx,3)
+c$$$         write(6,ftox)' uuuu   <G|psi*c*u>',is,iq,ftof(matmul(cccx,umnk(:,:,iq)),3)
+c$$$         do iwf2=1,nwf
+c$$$            cccx(iwf2)= sum( dconjg(amnk(iko_ix:iko_fx,iwf,iq))*dnk(iko_ix:iko_fx,iwf2,iq))
+c$$$         enddo
+c$$$         write(6,ftox)' uuuu   <G|ib>dnk',is,iq,ftof(cccx,3)
+c$$$      enddo
+c$$$      enddo
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccccc
+      deallocate(dnk)
+      endblock
+
+
       call writeOmg(is,mmn,rn,bb,wbb,wbz,tpia,
      d             nwf,nqbz,nbb)
 c 070824

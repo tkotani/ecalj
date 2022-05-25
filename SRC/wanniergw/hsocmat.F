@@ -24,13 +24,14 @@ c     &     ,irk !,nstbz!,nstar,ngrp !2=>ngrp !,qibz_r,nqibz_r
       logical:: debug=.false.
       integer::nqbzx,ia,ifievec_,ifiproc,ifvxc_,ig,iqq,iqqxx,ispxx,ixxx !,iqibz
      &     ,is,iwfs,ixx,ndimh,ndimhx,nhq,nkp,iwfd,nmto,nnn,nnnx,nqixx,nrank,nspx,nspxx,
-     &     ntq,nz,procid,nz1,ipmt,iz,izz,nwfo,iz1,iz2,iz1z,iz2z,ioffatom,ldim,napw
+     &     ntq,nz,procid,nz1,ipmt,iz,izz,nwfo,iz1,iz2,iz1z,iz2z,ioffatom,ldim,napw,iwf2
       complex(8),allocatable:: evecw(:,:,:),dipole(:,:,:,:),dipoig(:,:,:),dipoig1(:,:,:),evecr(:,:),
-     &    evec(:,:,:),dipo(:,:,:,:),hammso(:,:,:),hso(:,:,:),hammsoig1(:,:,:),ovl(:,:,:),orth(:,:),orthcheck(:,:,:)
+     &    evec(:,:,:),dipo(:,:,:,:),hammso(:,:,:),hso2(:,:,:),hso(:,:,:),hammsoig1(:,:,:),ovl(:,:,:),orth(:,:),orthcheck(:,:,:)
+     &     ,hammv(:,:,:),psig(:,:,:,:)
 c      integer,allocatable:: ifevec__(:),ifvxc__(:),iprocq(:,:)
       character*256:: extn,ext
       character*256,allocatable:: extp(:)
-      real(8)::qqq(3),qqqx(3),qtarget(3),tolq=1d-8   ,diff,ispblock,norm,ddd2
+      real(8)::qqq(3),qqqx(3),qtarget(3),tolq=1d-8   ,diff,ispblock,norm,ddd2,sss
       integer(4),allocatable:: nev(:,:), nhqx(:,:)
       character(5):: charnum5
       complex(8):: ovi(2,2),aa,bb,cc,dd
@@ -110,6 +111,32 @@ c      enddo
          close(ifi)
       enddo          
       write(6,*)'read end of MLWU/D ...'
+
+c$$$cccccccccccccccccc
+c$$$      allocate(psig(iko_ix:iko_fx,nwf,nqbz,nsp))
+c$$$      do isp=1,nsp
+c$$$         if (isp.eq.1) fname='U'
+c$$$         if (isp.eq.2) fname='D'
+c$$$         open(newunit=ifi,file='PSIG'//trim(fname),form='unformatted',status='old', action='read')
+c$$$         block
+c$$$         integer :: nqbz2,iti2,itf2,nwf2,iqbz2,j1,j2,iti,itf
+c$$$         iti=iko_ix
+c$$$         itf=iko_fx
+c$$$         read(ifi)nqbz2,iti2,itf2,nwf2
+c$$$         block
+c$$$         complex(8):: psigread(iti2:itf2,nwf2,nqbz2)
+c$$$         do iqbz = 1,nqbz
+c$$$            read(ifi)iqbz2
+c$$$            if(iqbz2 .ne. iqbz) call rx('readpsig: iqbz error')
+c$$$            read(ifi)((psigread(j1,j2,iqbz),j1=iti2,itf2),j2=1,nwf)
+c$$$         enddo
+c$$$         psig(iti:itf,:,:,isp)=psigread(iti:itf,:,:)
+c$$$         endblock
+c$$$         endblock
+c$$$         close(ifi)
+c$$$      enddo
+c$$$cccccccccccccccccccc
+
 !! readin vxc and evec ----------------------------------------------------
 c      ifvxc_ = ifvxc__(0)
 c      ifevec_= ifevec__(0)
@@ -128,15 +155,17 @@ c      allocate(nhqx(nnn,nsp))
       allocate(evecw(nhq,nwf,nsp),dipole(3,nwf,nwf,nsp),dipoig(3,nwf,nwf),dipoig1(3,nwf,nwf))
       allocate(hammso(nwf,nwf,3),hammsoig1(nwf,nwf,3),orth(nwf,nwf),orthcheck(nwf,nwf,nsp),ddd(nhq))
       write(6,*)' ndimh nsp nnn =',nhq,nsp,nnn
-      
+ccccccccccccccccccccccc
+c      allocate(hso2(nhq,nhq,1:3))
+cccccccccccccccccccccccc
 !! -------------------------     
       hammso=0d0
       dipole=0d0
-      orthcheck=0d0
+c      orthcheck=0d0
       socmatrix=.true.
-      do iqbz = 1,nqbz          !nqibz !index for q in irrecucible BZ.
+      do 1012 iqbz = 1,nqbz          !nqibz !index for q in irrecucible BZ.
          write(6,"('iqbz qbz(:,iqbz)=',i6,3f9.4)")iqbz,qbz(:,iqbz)
-      do isp = 1,nsp !isp parallel for dipole, isp=nsp only for hammso
+      do 1014 isp = 1,nsp !isp parallel for dipole, isp=nsp only for hammso
 c          ifvxc_  = ifvxc__ (iprocq(iqbz,isp)) 
 c          ifevec_ = ifevec__(iprocq(iqbz,isp)) 
           open(newunit=ifievec_,   file='evec'//trim(xt(iqbz))//trim(xt(isp)),form='unformatted')
@@ -150,7 +179,19 @@ c          if(isp==2.and.nz1/=nz) call rx('hdipole: Hamiltonian dimension is spi
 c          read(ifvxc_) dipo(1:nz,1:nz,1:3,isp),ovl(1:nz,1:nz,isp) !dipole matrix for pmt basis.
           if(isp==1.and.socmatrix) read(ifvxc_) hso(1:nz,1:nz,1:3) !see sugw.F for writing vxc file.
           close(ifvxc_)
-c          write(6,*) 'evec'//trim(xt(iqbz))//trim(xt(isp)),iqbz,isp,nz
+c          if(isp==1.and.socmatrix) write(6,ftox)'hhhhso',iqbz, sum(abs( hso(1:nz,1:nz,1)))
+c     &         , sum(abs( hso(1:nz,1:nz,2))), sum(abs( hso(1:nz,1:nz,3)))
+ccccccccccccccccccccccccccccccccccccccccccccc
+c          open(newunit=ifvxc_, file='uuu/vxc'//trim(xt(iqbz))//trim(xt(isp)),form='unformatted')
+c          read(ifvxc_) nz!,ldim  ! Hamiltonian dimension, dependent of iqbz
+c          read(ifvxc_) 
+c          if(isp==1.and.socmatrix) read(ifvxc_) hso2(1:nz,1:nz,1:3) !see sugw.F for writing vxc file.
+c          close(ifvxc_)
+c          if(isp==1.and.socmatrix) then
+c             write(6,ftox)'hhh222hso',iqbz,(sum(abs(hso(1:nz,1:nz,i)-hso2(1:nz,1:nz,i))),i=1,3),(sum(abs(hso(1:nz,1:nz,i))),i=1,3)
+c          endif
+
+c         write(6,*) 'evec'//trim(xt(iqbz))//trim(xt(isp)),iqbz,isp,nz
           read(ifievec_) qqq,evec(1:nz,1:nz,isp) !evec(ipmt,iband,isp) for pmt basis.
 c          write(6,"('iiiii iqbz isp qqq nz=',2i5,3f9.4,i5)") iqbz,isp,qqq,nz
 c          write(6,ftox)' v_xc dipo hso: iq is nz=', iqbz,isp,nz,ftof(qqq,3)
@@ -158,6 +199,8 @@ c          if (sum(abs( qqq-qqqx ))        > tolq) call rx( 'hdipole: qqq/=qqqx'
           if (sum(abs( qqq-qbz(:,iqbz) )) > tolq) call rx( 'hdipole: qqq/=qbz')
           iko_ix=ik1(isp)
           iko_fx=ik2(isp)
+c          if(allocated(hammv)) deallocate(hammv)
+c          allocate(hammv(iko_ix:iko_fx,iko_ix:iko_fx,3))
           
 c     do ig  = 1,ngrp  ! space group operation 
 c     if(ig==1.and.irk(iqibz,ig)==0) call rx('sanity check: irk(iqibz,ig)==0 for ig=1')
@@ -183,8 +226,30 @@ c     if(irk(iqibz,ig)==0) call rx('bug: irk(iqibz,ig)==0 for ig=1')
           do iwf = 1,nwf        ! iko_ix:iko_fx is the range of bands to construct MlocWannier.
              evecw(1:nz,iwf,isp)=  matmul(
      &            evec(1:nz,iko_ix:iko_fx,isp),dnk(iko_ix:iko_fx,iwf,iqbz,isp)) !iqbz component of Wannier based on PMT basis.
+c             evecw(1:nz,iwf,isp)=  matmul(
+c     &            evec(1:nz,iko_ix:iko_fx,isp),psig(iko_ix:iko_fx,iwf,iqbz,isp)) !iqbz component of Wannier based on PMT basis.
           enddo                 !evecw is the component of Wannier for qbz(:,iqbz)
 
+c$$$ccccccccccccccccccccccccccccccccc
+c$$$          write(6,*) '--------- eeev1 eeev2 eeev3 start',iqbz,isp
+c$$$          iwf=1
+c$$$          write(6,ftox)'eeev2',isp,iqbz,ftof(evecw(10:16,iwf,isp),3)
+c$$$          if(isp==2.and.iqbz==5) then
+c$$$             write(6,ftox)' dnk abs ',isp,iqbz, ftod(abs(dnk(iko_ix:iko_fx,1,iqbz,isp)),2)
+c$$$             write(6,ftox)' dnk phas',isp,iqbz, ftod(dimag(log(dnk(iko_ix:iko_fx,1,iqbz,isp))),2)
+c$$$             do iz=10,16
+c$$$c                write(6,ftox)'evec abs  ',isp,iqbz,iz,ftod(abs(evec(iz,iko_ix:iko_fx,isp)),2)
+c$$$c                write(6,ftox)'evec phase',isp,iqbz,iz
+c$$$c     &               ,ftof(dimag(log(evec(iz,iko_ix:iko_fx,isp)/evec(1,iko_ix:iko_fx,isp))),2)
+c$$$                write(6,ftox)'     ab3  ',isp,iqbz,iz,ftof(abs(evec(iz,iko_ix:iko_fx,isp)*
+c$$$     &                                                dnk(iko_ix:iko_fx,1,iqbz,isp)),3)
+c$$$                write(6,ftox)'     ph3   ',isp,iqbz,iz,ftof(dimag(log(evec(iz,iko_ix:iko_fx,isp)*
+c$$$     &                                                dnk(iko_ix:iko_fx,1,iqbz,isp))),3)
+c$$$             enddo
+c$$$          endif
+c$$$cccccccccccccccccccccccccccccc
+
+          
 c$$$          
 c$$$!! component check at Gamma point (iqbz=1)
 c$$$          if(iqbz==1) then !.and.ig==1) then
@@ -214,12 +279,13 @@ c$$$          endif
 c$$$!!          
           do iwf  = 1,nwf
           do iwfd = 1,nwf
-                do ia=1,3
+c                do ia=1,3
 c                   dipoig1(ia,iwf,iwfd)=
 c     &                  sum(dconjg(evecw(1:nz,iwf,isp))*matmul(dipo(1:nz,1:nz,ia,isp),evecw(1:nz,iwfd,isp)))
-                   orth(iwf,iwfd)= !Orthgonalization check of Wannier functions                     
-     &                  sum(dconjg(evecw(1:nz,iwf,isp))*matmul(ovl(1:nz,1:nz,isp),evecw(1:nz,iwfd,isp)))
-                enddo          
+c                   orth(iwf,iwfd)= !Orthgonalization check of Wannier functions                     
+c     &                  sum(dconjg(evecw(1:nz,iwf,isp))*matmul(ovl(1:nz,1:nz,isp),evecw(1:nz,iwfd,isp)))
+c                enddo          
+
                 if(isp==nsp) then
                    hammsoig1(iwf,iwfd,1)=
      &                  sum(dconjg(evecw(1:nz,iwf,1))*matmul(hso(1:nz,1:nz,1),evecw(1:nz,iwfd,1)))
@@ -230,23 +296,43 @@ c     &                  sum(dconjg(evecw(1:nz,iwf,isp))*matmul(dipo(1:nz,1:nz,i
                 endif  
           enddo          
           enddo
+c          if(isp==nsp) then
+c          do iwf  = iko_ix,iko_fx 
+c          do iwfd = iko_ix,iko_fx 
+c                   hammv(iwf,iwfd,1)=
+c     &                  sum(dconjg(evec(1:nz,iwf,1))*matmul(hso(1:nz,1:nz,1),evec(1:nz,iwfd,1)))
+c                   hammv(iwf,iwfd,2)=
+c     &                  sum(dconjg(evec(1:nz,iwf,2))*matmul(hso(1:nz,1:nz,2),evec(1:nz,iwfd,2)))
+c                   hammv(iwf,iwfd,3)= ! Hso(isp=1,isp=2) block elements
+c     &                  sum(dconjg(evec(1:nz,iwf,1))*matmul(hso(1:nz,1:nz,3),evec(1:nz,iwfd,2)))
+c          enddo
+c          enddo
+c          endif
  ! accumulate hammso and dipole for q points in the 1st BZ
           if(isp==nsp) hammso(:,:,:) = hammso(:,:,:) + hammsoig1
-c          dipole(:,:,:,isp) = dipole(:,:,:,isp) + dipoig1
-          orthcheck(:,:,isp)= orthcheck(:,:,isp) + orth
-      enddo 
-      enddo
+c          if(isp==nsp) then
+c          do iwf=iko_ix,iko_fx 
+c             write(6,ftox) 'vvvhammv1=',iqbz,iwf, ftof([(hammv(iwf2,iwf,1),iwf2=iko_ix,iko_fx) ],3)
+c             write(6,ftox) 'vvvhammv2=',iqbz,iwf, ftof([(hammv(iwf2,iwf,2),iwf2=iko_ix,iko_fx) ],3)
+c             write(6,ftox) 'vvvhammv3=',iqbz,iwf, ftof([(hammv(iwf2,iwf,3),iwf2=iko_ix,iko_fx) ],3)
+c          enddo   
+c          endif
+cc          dipole(:,:,:,isp) = dipole(:,:,:,isp) + dipoig1
+cc          orthcheck(:,:,isp)= orthcheck(:,:,isp) + orth
+ 1014  enddo 
+ 1012 enddo
+
 !! normalization. averaged in       
-      orthcheck=orthcheck/dble(nqbz)
+cc      orthcheck=orthcheck/dble(nqbz)
 c      dipole=dipole/dble(nqbz)
       hammso=hammso/dble(nqbz)
       
 !! check orthgonalization of Wannier
       do isp=1,nsp
-      do iwf  = 1,nwf           !dipoig is the rotation of dipoig1 by symops
-         iwfd = iwf
-         write(6,ftox)'orthcheck diag=',iwf,iwfd,isp,ftod(orthcheck(iwf,iwfd,isp))
-      enddo          
+c      do iwf  = 1,nwf           !dipoig is the rotation of dipoig1 by symops
+c         iwfd = iwf
+c         write(6,ftox)'orthcheck diag=',iwf,iwfd,isp,ftod(orthcheck(iwf,iwfd,isp))
+c      enddo          
       do iwf  = 1,nwf           !dipoig is the rotation of dipoig1 by symops
       do iwfd = 1,nwf
          if(iwf==iwfd) cycle   
@@ -268,6 +354,17 @@ c      enddo
          write(6,ftox)'dddd hammso real =',iwf,iwfd,ftof(hammso(iwf,iwfd,1:3),8)
       enddo          
       enddo
+!
+      block
+      real(8):: hammso2(nwf,nwf),sss=0d0
+      hammso2 = matmul(hammso(:,:,1),hammso(:,:,1)) + matmul(hammso(:,:,2),hammso(:,:,2))
+     & + matmul(hammso(:,:,3),transpose(hammso(:,:,3)))+ matmul(transpose(hammso(:,:,3)),hammso(:,:,3))
+      do iwf  = 1,nwf        
+         sss=sss+ hammso2(iwf,iwf)
+      enddo
+      write(6,*)"hhhddd hammso**2 diagonal=",sss
+      endblock
+
       print *,'hsocmat ok'
       call rx0s('hsocmat: ok')
       end program hsocmat

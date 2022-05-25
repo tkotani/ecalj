@@ -841,18 +841,19 @@ c-----------------------------------------------------------------------
       subroutine wmaxloc(ifmlw,ifmlwe,
      i                   qbz,umnk,cnk,eunk,
      i                   iko_ix,iko_fx,iko_i,iko_f,
-     d                   nwf,nqbz,nband,nlmto,isp)
+     d                   nwf,nqbz,nband,nlmto,isp, dnk)
+      use m_ftox
       implicit integer (i-n)
       implicit real*8(a-h,o-z)
-
-      complex(8),allocatable :: dnk(:,:,:)
+      complex(8):: dnk(iko_ix:iko_fx,nwf,nqbz)
+c      complex(8),allocatable :: dnk(:,:,:)
       complex(8) :: cnk(iko_ix:iko_fx,nwf,nqbz),
      &              umnk(nwf,nwf,nqbz)
       real(8) :: qbz(3,nqbz),eunk(nwf,nqbz)
       integer(4) :: iko_i(nqbz),iko_f(nqbz),ib,isp
       character*4::fname
 
-      allocate(dnk(iko_ix:iko_fx,nwf,nqbz))
+c      allocate(dnk(iko_ix:iko_fx,nwf,nqbz))
 
       write(ifmlw)nqbz,nwf,iko_ix,iko_fx
 c      write(ifmlwe)nqbz,nwf,iko_ix,iko_fx
@@ -876,6 +877,10 @@ c$$$      write(ifi,"('       |pkm|**2          ib      iq     q(1:3)')")
             enddo
          enddo
          enddo
+
+c         do iwf=1,nwf
+c            write(6,ftox)' wwww   dnk',isp,iq,ftof(dnk(iko_ix:iko_fx,iwf,iq),2)
+c         enddo
 
          write(ifmlw)iq,qbz(1:3,iq)
          write(ifmlw)dnk(iko_ix:iko_fx,1:nwf,iq)
@@ -912,7 +917,7 @@ c$$$      close(ifi)
 c      call chk_cnkweight(qbz,iko_ix,iko_fx,dnk,
 c     &     nqbz,nwf,nband,nlmto)
 
-      deallocate(dnk)
+c      deallocate(dnk)
 
       return
       end

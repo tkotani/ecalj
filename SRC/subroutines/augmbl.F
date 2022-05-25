@@ -1,6 +1,6 @@
       subroutine aughsoc(qp,ohsozz,ohsopm, ndimh, hso)
       use m_struc_def,only: s_cv1,s_rv1,s_sblock
-      use m_lmfinit,only: nsp, lso, nbas, nkaph, ssite=>v_ssite, sspec=>v_sspec,socaxis
+      use m_lmfinit,only: nsp, lsox=>lso, nbas, nkaph, ssite=>v_ssite, sspec=>v_sspec,socaxis
       use m_bstrux,only: Bstrux_set, bstr 
       use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat
 !!- Spin-orbit couping matrix hso
@@ -13,7 +13,7 @@
 !!note  We obtain Lz,L+,and L- (Lzz Lmm Lpp) in this routine. From their linear combinatios, we have hso. 
       implicit none
       type(s_sblock),target :: ohsozz(3,nbas),ohsopm(3,nbas)
-      integer:: isp, ndimh, ibas, isa , kmax , lmxa , lmxb ,  nglob , nlma , nlmb 
+      integer:: isp, ndimh, ibas, isa , kmax , lmxa , lmxb ,  nglob , nlma , nlmb,lso
       integer:: initbas, endbas,lm,iq,nh,np,isp1,isp2,nspx
       real(8):: q(3),qp(3),fac
       complex(8):: hso(ndimh,ndimh,3)
@@ -24,7 +24,10 @@
       complex(8):: img=(0d0,1d0), facso(3,3), f1,f2,f3
       real(8)::d2
       logical,save:: init=.true.
+      logical:: cmdopt0
       call tcn ('aughsoc')
+      lso=lsox
+      if(cmdopt0('--socmatrix')) lso=1
       if(lso==1) then
          if( sum(abs(socaxis-[0d0,0d0,1d0]))  < 1d-6) then
 !     Mixing matrix for Spin-block facso based on (Lz,L-,L+)

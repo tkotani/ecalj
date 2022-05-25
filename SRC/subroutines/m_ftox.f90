@@ -168,7 +168,8 @@ contains
     write(mmm,fmt) arg
     mmm=adjustl(mmm)
     if(allocated(farg)) deallocate(farg)
-    allocate(farg,source=mmm(1:len(trim(mmm))))
+    if(arg>=0)  allocate(farg,source=' '//mmm(1:len(trim(mmm))))
+    if(arg<0 ) allocate(farg,source=mmm(1:len(trim(mmm))))
   end function fwww
   !  
   function ftom(arg,ixx) result(farg) !arg =3.45600000 is '3.45', trucates to rightside zeros'
