@@ -64,10 +64,10 @@ c      type(s_ctrl)::sctrl
       type(s_spec)::sspec(*)
 
 C Local Variables
-      integer i,j,ipr,ifi,ix,lgunit,nbas,ltb,ifrlx(3),
+      integer i,j,ipr,ifi,ix,lgunit,nbas,ltb,ifrlx(3),natrlx2,natrlx3,
      .ir,iprint,isw,rdm,lrlx,is,idamax,stdo,stdl,nd,ns,nkill
       parameter (nd=4,ns=6)
-      logical rdhess,lpp,cmdopt,a2bin,lshr !U,
+      logical rdhess,lpp,cmdopt,a2bin,lshr ,readhess
       double precision mdprm(6),step,xtol,gtol,xtoll,grfac,wkg(28),ddot,
      .xv(10)
       equivalence (step,mdprm(5)), (xtol,mdprm(3)), (gtol,mdprm(4))
@@ -112,23 +112,26 @@ C --- Initialization ---
 C   ... Read Hessian from disc
         if (rdhess) then
           if (procid .eq. master) then
-c            ifi = fopna('HSSN',-1,4)
-c     rewind ifi
-            open(newunit=ifi,file='hssn.'//trim(sname),form='unformatted')
-C     ... Hessian written in rdm-compatible format
-            if (rdm(ifi,2,natrlx*natrlx,' ',w,natrlx,natrlx) .lt. 0) then
-C       ... Attempt to read Hessian failed.  Make it unity
-              call info0(-20,0,0,' RELAX: (warning) failed to read Hessian; set to unity')
-              call dcopy(natrlx*natrlx,0d0,0,w,1)
-              call dcopy(natrlx,1d0,0,w,natrlx+1)
-            else
-              call info0(-20,0,0,' RELAX: Hessian read from disc')
-            endif
-            close(ifi) !call fclose(ifi)
+              open(newunit=ifi,file='hssn.'//trim(sname),form='unformatted')
+              readhess=.false.
+              read(ifi,end=9888,err=9888) natrlx2,natrlx3 !,11
+              if(natrlx2/=natrlx) call rx('relax:natlx2/=natlx')
+              read(ifi,end=9888,err=9888) w
+              close(ifi)
+              readhess=.true.
+ 9888         continue
+!readhess = rdm(ifi,2,natrlx*natrlx,' ',w,natrlx,natrlx)<0
+              if (readhess) then
+                 write(stdo,*)' RELAX: Hessian read from disc'
+              else           
+                 write(stdo,*)' RELAX: (warning) failed to read Hessian; set to unity'
+                 w=0d0
+                 call dcopy(natrlx,1d0,0,w,natrlx+1)
+              endif
           endif
           call mpibc1(w,natrlx*natrlx,4,.false.,'relax','hssn')
         else
-          call info0(-30,0,0,' RELAX: no Hessian read from disc')
+          write(stdo,*)' RELAX: no Hessian read from disc'
         endif
       endif
 
@@ -204,9 +207,7 @@ C --- Update atom positions ---
 C --- Write Hessian to disc ---
       if (rdhess .and. (icom .eq. 1 .or. it .eq. nit) .or. .true.) then
         if (procid .eq. master) then
-c          ifi = fopna('HSSN',-1,4)
 C   ... Hessian written in rdm-compatible format
-c          rewind ifi
           open(newunit=ifi,file='hssn.'//trim(sname),form='unformatted')
           write(ifi) natrlx,natrlx,11
           write(ifi) w

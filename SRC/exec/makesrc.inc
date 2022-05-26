@@ -23,7 +23,6 @@ getqmode.o\
 phispinsym.o\
 m_MPItk.o \
 writedossawada.o\
-m_clsprm.o\
 xcfunc.o\
 m_struc_func.o\
 m_lmfinit.o\
@@ -291,7 +290,6 @@ pretty.o \
 pythag.o \
 ran1.o \
 rdfiln.o \
-rdm.o \
 rfalsi.o \
 ropylg.o \
 setfac.o \

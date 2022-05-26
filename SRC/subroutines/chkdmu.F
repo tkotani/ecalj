@@ -251,18 +251,19 @@ C-------------------------------------------------------------------
       double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
       double complex Vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
       logical rdstrn,parstr,mmtargetx,eee
-      integer i,isp,ib,l,lmxa,m,m2,foccn,rdm,havesh,ivsiz,ipr,ifx
+      integer i,isp,ib,l,lmxa,m,m2,foccn,havesh,ivsiz,ipr,ifx
       double precision nocc(-3:3,2),iv(7)
-      integer idu(4),igetss,is,idmat,fxst,iblu,nlm,nlmu,a2vec,nn
+      integer:: idu(4),igetss,is,idmat,fxst,iblu,nlm,nlmu,a2vec,nn,m1
       double precision uh(4),jh(4),eorb,xx !tmp(2,7,7)
-      complex(8):: tmp(7,7)
+      complex(8):: tmp(7,7),img=(0d0,1d0)
+      real(8):: tempr(7,7),tempi(7,7)
       character str*80,spid*8,aaa*24
       complex(8) :: dmwk_zv(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
       real(8):: uhx,uhxx
 C ... MPI
       include "mpif.h"
       integer procid,master,mpipid,ierr
-      logical mlog,occe,dexist
+      logical mlog,occe,dexist,readtemp
       real(8)::sss
       character(128):: bbb
       call rxx(nsp.ne.2,'LDA+U must be spin-polarized!')
@@ -282,14 +283,14 @@ C ... MPI
         havesh = 1
         goto 1185
       endif
-C --- Read in dmatu if file  dmats.ext  exists ---
-      if(procid .eq. master) then
-        inquire(file='dmats.'//trim(sname),exist=dexist)
-        if(dexist) then
-          open(newunit=idmat,file='dmats.'//trim(sname)) 
-          rewind idmat
-  825     continue
-          if (rdstrn(idmat,str,len(str),.false.)) then
+! Read in dmatu if file  dmats.ext  exists ---
+      if(procid /= master) goto 1185
+      inquire(file='dmats.'//trim(sname),exist=dexist)
+      inquire(file='occnum.'//trim(sname),exist=occe) !if no dmats, try occnum. 
+      if(dexist) then
+         open(newunit=idmat,file='dmats.'//trim(sname)) 
+ 825     continue
+         if (rdstrn(idmat,str,len(str),.false.)) then
             if (str(1:1) .eq. '#') goto 825
             i = 0
             if (parstr(str,'sharm ',len(str)-6,5,' ',i,m)) then
@@ -301,84 +302,87 @@ C --- Read in dmatu if file  dmats.ext  exists ---
          if(havesh ==1) bbb='spherical harmonics'
          if(havesh ==0) bbb='real harmonics'
          write(stdo,*)' sudmtu: reading density matrix from file dmats in '//trim(bbb)
-          backspace idmat
-          iblu = 0
-          do  ib = 1, nbas
+         rewind idmat
+         iblu = 0
+         do  ib = 1, nbas
             if (lldau(ib) .ne. 0) then
-              is = int(ssite(ib)%spec)
-              lmxa=sspec(is)%lmxa
-              idu=sspec(is)%idu
-              do l = 0, min(lmxa,3)
-                if (idu(l+1) .ne. 0) then
-                  iblu = iblu+1
-                  nlm = 2*l+1
-                  nlmu = 2*lmaxu+1
-                  do  isp = 1, 2
-                    if (rdm(idmat,40,2*nlm**2,' ',tmp(1:nlm,1:nlm),nlm,nlm) .ne. 2)
-     .              call rxi('sudmtu failed to read dmats for site',ib)
-                    dmatu(-l:l,-l:l,isp,iblu)=tmp(1:nlm,1:nlm)
-                  enddo
-                endif
-              enddo
+               is = int(ssite(ib)%spec)
+               lmxa=sspec(is)%lmxa
+               idu=sspec(is)%idu
+               do l = 0, min(lmxa,3)
+                  if (idu(l+1) .ne. 0) then
+                     iblu = iblu+1
+                     nlm = 2*l+1
+                     nlmu = 2*lmaxu+1
+                     do  isp = 1, 2
+                        readtemp=.false.
+                        read(idmat,*,end=9888,err=9888)                     
+                        do m1=1,nlm
+                           read(idmat,*,end=9888,err=9888) (tempr(m1,m2),m2=1,nlm)
+                        enddo
+                        read(idmat,*,end=9888,err=9888)
+                        do m1=1,nlm
+                           read(idmat,*,end=9888,err=9888) (tempi(m1,m2),m2=1,nlm)
+                        enddo
+                        readtemp=.true.
+ 9888                   continue
+c     readtemp = rdm(idmat,40,2*nlm**2,' ',tmp(1:nlm,1:nlm),nlm,nlm) .ne. 2
+                        if(.not.readtemp) call rxi('sudmtu failed to read dmats for site',ib)
+                        dmatu(-l:l,-l:l,isp,iblu)=tempr(1:nlm,1:nlm)+img*tempi(1:nlm,1:nlm)
+                     enddo
+                  endif
+               enddo
             endif
-          enddo
-        else
-           dmatu=0d0 !0 at LDA 
-        endif   
-      endif   
-c$$$        else
-c$$$          inquire(file='occnum.'//trim(sname),exist=occe)
-c$$$          if(occe) then !if no occunum.* initial dmatu=0 
-c$$$             write(stdo,*) ' sudmtu:  initial (diagonal) density-matrix from occ numbers'
-c$$$             open(newunit=foccn,file='occnum.'//trim(sname))
-c$$$             havesh = 1
-c$$$ 12          if (.not. rdstrn(foccn,str,len(str),.false.)) goto 99
-c$$$             if (str(1:1) .eq. '#') goto 12
-c$$$             if (str(1:1) .eq. '%') then
-c$$$                i = 0
-c$$$                if (parstr(str,'real ',len(str)-5,4,' ',i,m)) havesh = 0
-c$$$             else
-c$$$                backspace foccn
-c$$$             endif
-c$$$             iblu = 0
-c$$$             do  ib = 1, nbas
-c$$$                if (lldau(ib) .ne. 0) then
-c$$$                   is = int(ssite(ib)%spec)
-c$$$                   lmxa=sspec(is)%lmxa
-c$$$                   idu=sspec(is)%idu
-c$$$                   do l = 0,min(lmxa,3)
-c$$$                      if (idu(l+1) .ne. 0) then
-c$$$                         iblu = iblu+1
-c$$$                         do  isp = 1, 2
-c$$$ 11                         continue
-c$$$                            if (.not. rdstrn(foccn,str,len(str),.false.)) goto 99
-c$$$C     Skip comment lines
-c$$$                            if (str(1:1) .eq. '#') goto 11
-c$$$                            i = 0
-c$$$                            m = a2vec(str,len(str),i,4,', ',2,3,2*l+1,iv,nocc(-l,isp))
-c$$$                            if (m .lt. 0) goto 99
-c$$$                         enddo
-c$$$                         do isp=1,2
-c$$$                            write(stdo,ftox)' occ num: site',ib,'l',l,'isp',isp,' ',nocc(-l:l,isp)
-c$$$                         enddo   
-c$$$                         do isp = 1, 2
-c$$$                         do m = -l, l
-c$$$                         do m2 = -l, l
-c$$$                            dmatu(m,m2,isp,iblu) = dcmplx(0d0,0d0)
-c$$$                         enddo
-c$$$                            dmatu(m,m,isp,iblu) = dcmplx(nocc(m,isp),0d0)
-c$$$                         enddo
-c$$$                         enddo
-c$$$                      endif
-c$$$                   enddo
-c$$$                endif
-c$$$             enddo
-c$$$             close(foccn) !call fclose(foccn)
-c$$$          else
-c$$$             dmatu=0d0
-c$$$          endif
-c$$$        endif
-c$$$      endif
+         enddo
+      elseif(occe) then         !if no occunum.* initial dmatu=0 
+         write(stdo,*) ' sudmtu:  initial (diagonal) density-matrix from occ numbers'
+         open(newunit=foccn,file='occnum.'//trim(sname))
+         havesh = 1
+ 12      if (.not. rdstrn(foccn,str,len(str),.false.)) goto 99
+         if (str(1:1) .eq. '#') goto 12
+         if (str(1:1) .eq. '%') then
+            i = 0
+            if (parstr(str,'real ',len(str)-5,4,' ',i,m)) havesh = 0
+         else
+            backspace foccn
+         endif
+         iblu = 0
+         do  ib = 1, nbas
+            if (lldau(ib) .ne. 0) then
+               is = int(ssite(ib)%spec)
+               lmxa=sspec(is)%lmxa
+               idu=sspec(is)%idu
+               do l = 0,min(lmxa,3)
+                  if (idu(l+1) .ne. 0) then
+                     iblu = iblu+1
+                     do  isp = 1, 2
+ 11                     continue
+                        if (.not. rdstrn(foccn,str,len(str),.false.)) goto 99
+C     Skip comment lines
+                        if (str(1:1) .eq. '#') goto 11
+                        i = 0
+                        m = a2vec(str,len(str),i,4,', ',2,3,2*l+1,iv,nocc(-l,isp))
+                        if (m .lt. 0) goto 99
+                     enddo
+                     do isp=1,2
+                        write(stdo,ftox)' occ num: site',ib,'l',l,'isp',isp,' ',nocc(-l:l,isp)
+                     enddo   
+                     do isp = 1, 2
+                        do m = -l, l
+                           do m2 = -l, l
+                              dmatu(m,m2,isp,iblu) = dcmplx(0d0,0d0)
+                           enddo
+                           dmatu(m,m,isp,iblu) = dcmplx(nocc(m,isp),0d0)
+                        enddo
+                     enddo
+                  endif
+               enddo
+            endif
+         enddo
+         close(foccn)
+      else
+         dmatu=0d0
+      endif
  1185 continue
 
 C ... Initial printout
@@ -531,75 +535,45 @@ Cu   09 Nov 05 (wrl) Convert dmat to complex form
 Cu   30 Apr 05 Lambrecht first created
 C----------------------------------------------------------------
       implicit none
-C passed variables
       integer nbas,lldau(nbas),mode,lmaxu,nsp,i_copy_size
-      double complex a(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
+      complex(8),target:: a(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
-
-C local variables
-      integer ib,m,l,idu(4),lmxa,is,igetss,i,j,k,ll,isp,iblu
-      double complex rot(2,2)
-      double complex b(2,2),c(2,2),add
-      double precision s2
-
-      s2 = 1/dsqrt(2d0)
+      integer:: ib,m,l,is,igetss,i,j,k,ll,isp,iblu
+      complex(8):: b(2,2),c(2,2),add,bb(2,2)
+      complex(8),parameter:: s2= 1/dsqrt(2d0), img=(0d0,1d0)
+      complex(8),pointer:: rot(:,:)
+      complex(8),save,target::rott(2,2,5,-1:1)
+      logical,save:: init=.true.
+      if(mode/=1.and.mode/=-1) call rx('ROTYCS: mode must be 1 or -1')
+      if(init)then
+         do m=1,5
+            rott(1,1:2,m,-1) = [s2,          s2*(-1d0)**m] !mode -1: spherical to cubic basis
+            rott(2,1:2,m,-1) = [img*s2, -img*s2*(-1d0)**m]
+            rott(:,:,  m, 1) = transpose(dconjg(rott(:,:,m,-1))) !mode 1 : cubic to spherical
+         enddo
+         init=.false.
+      endif
       iblu = 0
       do  ib = 1, nbas
-        if (lldau(ib) .ne. 0) then
-          is = int(ssite(ib)%spec)
-          lmxa=sspec(is)%lmxa
-          idu=sspec(is)%idu
-          do  l = 0, min(lmxa,3)
-            if (idu(l+1) .ne. 0) then
-              iblu = iblu+1
-              do  isp = 1, 2
-                do  m = 1, l
-                  b(1,1) = a(m,m,isp,iblu)
-                  b(1,2) = a(m,-m,isp,iblu)
-                  b(2,1) = a(-m,m,isp,iblu)
-                  b(2,2) = a(-m,-m,isp,iblu)
-                  if (mode .eq. -1) then
-C rotation from spherical  to cubic basis
-                    rot(1,1) = dcmplx(s2,0d0)
-                    rot(1,2) = dcmplx(s2*(-1d0)**m,0d0)
-C                   rot(2,1) = dcmplx(0d0,-s2)
-C                   rot(2,2) = dcmplx(0d0,s2*(-1d0)**m)
-                    rot(2,1) = dcmplx(0d0,s2)
-                    rot(2,2) = dcmplx(0d0,-s2*(-1d0)**m)
-                  elseif (mode .eq. 1) then
-C rotation from cubic  to spherical  basis
-                    rot(1,1) = dcmplx(s2,0d0)
-C                   rot(1,2) = dcmplx(0d0,s2)
-                    rot(1,2) = dcmplx(0d0,-s2)
-                    rot(2,1) = dcmplx(s2*(-1d0)**m,0d0)
-C                   rot(2,2) = dcmplx(0d0,-s2*(-1d0)**m)
-                    rot(2,2) = dcmplx(0d0,s2*(-1d0)**m)
-                  else
-                    call rx('ROTYCS: mode must be 1 or -1')
-                  endif
-C calculate matrix product c=rot*b*rot^+
-                  do  i = 1, 2
-                    do  j = 1, 2
-                      add = dcmplx(0d0,0d0)
-                      do  k = 1, 2
-                        do  ll = 1, 2
-                          add = add + rot(i,k)*b(k,ll)*dconjg(rot(j,ll))
-                        enddo
-                      enddo
-                      c(i,j) = add
-                    enddo
-                  enddo
-C place c in appropriate place
-                  a(m,m,isp,iblu) = c(1,1)
-                  a(m,-m,isp,iblu) = c(1,2)
-                  a(-m,m,isp,iblu) = c(2,1)
+         if (lldau(ib)==0) cycle
+         is  = ssite(ib)%spec
+         do  l = 0, min(sspec(is)%lmxa,3)
+            if (sspec(is)%idu(l+1) ==0) cycle
+            iblu = iblu+1
+            do  isp = 1, 2
+               do  m = 1, l
+                  bb(1,:) = [a( m,m,isp,iblu), a( m,-m,isp,iblu)]
+                  bb(2,:) = [a(-m,m,isp,iblu), a(-m,-m,isp,iblu)]
+                  rot => rott(:,:,m,mode)
+                  c = matmul(matmul(rot,bb),transpose(dconjg(rot))) !c=rot*b*rot^+
+                  a(m,m,isp,iblu)   = c(1,1)
+                  a(m,-m,isp,iblu)  = c(1,2)
+                  a(-m,m,isp,iblu)  = c(2,1)
                   a(-m,-m,isp,iblu) = c(2,2)
-                enddo
-              enddo
-            endif
-          enddo
-        endif
+               enddo
+            enddo
+         enddo
       enddo
       end subroutine rotycs
       end module m_chkdmu
