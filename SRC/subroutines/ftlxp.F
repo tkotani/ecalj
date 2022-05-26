@@ -1,5 +1,6 @@
       subroutine ftlxp(nbas,ssite,sspec,alat,ng,gv,cv,k0,nlm0,fkl)
       use m_struc_def  !Cgetarg
+      use m_lgunit,only:stdo
 C- Pkl expansion around all sites of a function given as Fourier series.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -35,8 +36,8 @@ C ... Passed parameters
 
       double complex cv(ng),fkl(0:k0,nlm0,nbas)
 C ... Local parameters
-      integer:: ib , ilm , ipr , is , k , kmxv , l , lgunit , lmxl 
-     ., ltop , m , nlm , ntop , stdo , igetss
+      integer:: ib , ilm , ipr , is , k , kmxv , l , lmxl 
+     ., ltop , m , nlm , ntop , igetss
       real(8) ,allocatable :: g2_rv(:)
       complex(8) ,allocatable :: h_zv(:)
       real(8) ,allocatable :: yl_rv(:)
@@ -44,9 +45,7 @@ C ... Local parameters
       double precision a,fpi,pfac,pi,rsmv,tip,top,tpiba,df(0:20),
      .fact(0:20),tau(3)
       double complex cfac
-C ... Heap
-
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       call getpr(ipr)
       call setfac(20,fact)
       call stdfac(20,df)

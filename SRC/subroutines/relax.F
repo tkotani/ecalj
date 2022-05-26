@@ -1,5 +1,6 @@
       module m_relax
       use m_ftox
+      use m_lgunit,only:stdo,stdl
       public relax,prelx1
       private
       contains
@@ -59,7 +60,7 @@ C ----------------------------------------------------------------------
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       integer i,j,ipr,ifi,ix,lgunit,nbas,ltb,ifrlx(3),natrlx2,natrlx3,
-     .ir,iprint,isw,rdm,lrlx,is,idamax,stdo,stdl,nd,ns,nkill
+     .ir,iprint,isw,rdm,lrlx,is,idamax,nd,ns,nkill
       parameter (nd=4,ns=6)
       logical rdhess,lpp,cmdopt,a2bin,lshr ,readhess
       double precision mdprm(6),step,xtol,gtol,xtoll,grfac,wkg(28),ddot,
@@ -69,8 +70,8 @@ C ----------------------------------------------------------------------
       save ir,wkg
       data wkg /28*0d0/
       character(256)::lll
-      stdo = lgunit(1)
-      stdl = lgunit(2)
+c      stdo = lgunit(1)
+c      stdl = lgunit(2)
       master = 0
       procid = mpipid(1)
       if (procid .eq. master) call pshpr(iprint()+30)
@@ -214,8 +215,6 @@ C --- Periodically remove hessian ---
       if (nkill .gt. 0) then
         if (mod(it,nkill) .eq. 0) then
           call info(-20,0,0,'   ...  resetting hessian : iter=%i nkill=%i',it,nkill)
-c          ifi = fopna('HSSN',-1,4)
-c     call dfclos(ifi)
           open(newunit=ifi,file='hssn.'//trim(sname))
           close(ifi,status="delete")
           call dcopy(natrlx*natrlx,0d0,0,w,1)
@@ -223,7 +222,6 @@ c     call dfclos(ifi)
         endif
       endif
 C --- Printout ---
-      ifi = lgunit(2)
       lpp = (icom .eq. 1 .or. it .eq. nit) .and. ipr .ge. 30 .or.ipr .ge. 31
       if (natrlx .gt. 0 .and. lpp .and. lshr) then
         call dpzero(xv,6)
@@ -254,7 +252,7 @@ C ... Write new atom positions to LOG file, for use in CTRL file
       endif
       if (icom .eq. 0 .and. wkg(28) .lt. 0) icom = -1
       flush(stdo)
-      flush(ifi)
+      flush(stdl)
   120 format(/' Updated atom positions:')
   130 format(i4,6x,a4,3x,3(f14.8,'(',l1,')'))
   160 format(10x,'DELTA=',3(f13.8),:,4(/31x,3(f13.8),:))

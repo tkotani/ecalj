@@ -1,9 +1,9 @@
       subroutine lmhelp(prgnam)
+      use m_lgunit,only:stdo
       implicit none
       character prgnam*8
-      integer i1,i2,stdo,lgunit
+      integer i1,i2
       character ch*1,outs*1000
-      stdo = lgunit(1)
       call locase(prgnam)
       call info0(0,0,0,' usage:  '//prgnam//'%a [--OPTION] [-var-assign] [ext]')
       print 343

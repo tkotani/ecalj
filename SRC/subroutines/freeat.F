@@ -1,23 +1,18 @@
+      module m_freeat
+      use m_lgunit,only: stdo,stdl
+      contains
       subroutine freeat()
-      use m_struc_def,only:s_spec
       use m_ext,only:sname
       use m_lmfinit,only: smalit,ctrl_lxcf,ham_seref,nsp,nspec, sspec=>v_sspec
       use m_ftox
-
 C- For each species, makes free atom self-consistent
 C ----------------------------------------------------------------------
 Ci Inputs
-Ci   sctrl :struct containing parameters governing program flow
-Ci     Elts read: lxcf smalit
 Ci   sspec :struct for species-specific information; see routine uspec
 Ci     Elts read: rsmfa rfoca coreq z rmt a nr p q idmod lmxa pz eref
 Ci                rs3 eh3 vmtz
-Ci     Stored:    name coreh z rmt a nr norp ntorb orbp
-Ci     Passed to: spacks gtpcor ioorbp
-Ci   sham  :struct for parameters defining hamiltonian; see routine uham
-Ci     Elts read: seref
-Ci   spot  :struct containing information about the potential
-Co Outputs
+Ci     Stored:    name coreh z rmt a nr norp ntorb 
+Co Outputs via iofa
 Cl Local variables
 Cl   ccof  :coefficient to fit of core tail to smoothed Hankel
 Cl   ceh   :energy of core tail to smoothed Hankel
@@ -36,9 +31,8 @@ Cu   22 Mar 01 Added printout of reference energy
 Cu   10 Jun 00 spin polarized
 C ----------------------------------------------------------------------
       implicit none
-c      type(s_spec)::sspec(*)
-      integer ifi,iprint,is,lgunit,nglob,nr,nrmt,nrmx,
-     .n0,nkap0,nxi,nxi0,stdo,nrmix,lxcfun,igets,lmxa,kcor,lcor
+      integer ifi,iprint,is,nglob,nr,nrmt,nrmx,
+     .n0,nkap0,nxi,nxi0,nrmix,lxcfun,igets,lmxa,kcor,lcor
       character*8 spid,chole*8
       parameter ( nrmx=1501, nxi0=10, n0=10, nkap0=3)
       double precision qc,ccof,ceh,z,rmt,rfoca,rsmfa,qcor(2),a,sumec,
@@ -46,7 +40,7 @@ c      type(s_spec)::sspec(*)
       double precision hfc(nxi0,2),exi(nxi0),hfct(nxi0,2)
       double precision v(nrmx*2),rho(nrmx*2),rhoc(nrmx*2),rofi(nrmx*2)
       double precision pnu(n0,2),pz(n0,2),qat(n0,2),rcfa(2)
-      double precision rtab(n0,2),etab(n0,2)!,orbp(n0,2,nkap0)
+      double precision rtab(n0,2),etab(n0,2)
       double precision rs3,eh3,vmtz
       integer idmod(n0)
       integer:: iofa, i_dum,ifile_handle
@@ -56,7 +50,6 @@ c      type(s_spec)::sspec(*)
       ifi = ifile_handle()
       open(ifi,file='atm.'//trim(sname))
       rewind ifi
-      stdo  = lgunit(1)
       hfct = 0d0
       open(newunit=ifives,file='vesintatm.'//trim(sname)//'.chk')
       ifiwv = ifile_handle()
@@ -158,7 +151,7 @@ Ci   lcor  :(partial core occupation) l quantum for occupation
 Ci   qcor  :(partial core occupation) core charge and moment
 Ci   nrmix :nrmix(1) = maximum number of interations in sphere
 Ci         :           before giving up on self-consistency
-Ci         :nrmix(2) = no prior iterations Anderson mixing in
+Ci         :xxx nrmix(2) = no prior iterations Anderson mixing in
 Ci         :           self-consistency cycle.
 Ci   lwf   :1 print information about wave functions
 Ci   lxcfun:selects local exchange-correlation functional
@@ -229,31 +222,17 @@ C     integer idmoz(n0)
      .rhot(nrmx*2),ql(3,n0,2),pz(n0,2),rcfa(2) ,qatbk(n0,2)
 C     double precision qz(n0,2)
       integer i,ifi,ipr,iprint,isp,isw,l,lfrz,
-     .lgrad,lgunit,lmxa,lplfa,nitmax,nmix,nr,stdl,stdo,lplawv,irchan(n0)
+     .lgrad,lmxa,lplfa,nitmax,nmix,nr,lplawv,irchan(n0)
       real(8) ,allocatable :: g_rv(:)
       real(8) ,allocatable :: psi_rv(:)
-
-C     Parameters for optimized free-atom wave functions
       integer itab(n0,2)
       integer ::iwdummy
-
-ctakao
       integer:: ipl, ipz,iplx,iplv,ix, nmcore, ifives,ifiwv,iplz,miplzipl
       real(8):: qcc,qzz, qvalv,qvaltot,qval,vsum,qelectron,qvalz
       real(8),allocatable:: plplus(:,:),qlplus(:,:)
-
-c      print *,'0000111 ifives=',ifives
-
-      stdo   = lgunit(1)
-      stdl   = lgunit(2)
       ipr    = iprint()
-Changenglob      lrel   = nglob('lrel')
-c      lrel   = globalvariables%lrel
-Changenglob      nsp    = nglob('nsp')
-c      nsp    = globalvariables%nsp
       lfrz   = 0
       lgrad  = lxcfun/10
-ctakao
       if(ipr>29) then
         print *
         do i = 1, nsp
@@ -541,7 +520,6 @@ C --- Fit analytical expression to tail of core density ---
 
       subroutine pratfs(spid,lplawv,z,a,nr,rmax,nrmt,lmaxa,pl,nsp,v,
      .rofi,g,psi,plplus,qlplus,ifiwv)
-      use m_lmfinit,only: stdo
       use m_ext,only:sname
 C- Prints out core and valence energy levels of free-atom
 C ----------------------------------------------------------------------
@@ -583,8 +561,6 @@ C ... Local parameters
 !! Our current version assumes MTOcore(specified by PZ) is below MTO(specified by P).
       real(8):: plplus(0:lmaxa,nsp),qlplus(0:lmaxa,nsp)
       real(8):: sumr !mar2013
-      
-c      stdo = globalvariables%stdo
       pi   = 4d0*datan(1d0)
       if (lmaxa.gt.n0-1) call rx('pratfs:  lmax too large')
       b = rmax/(dexp(a*nr-a)-1d0)
@@ -806,8 +782,7 @@ C ... Local parameters
       integer itab(n0,2)
       double precision rtab(n0,2),etab(n0,2)
       integer:: ipr , iprint , irep , isp , istife , istifr , jpr , 
-     .konfig , l , lgunit , lplawv , nn , nrep , stdo 
-     ., stdl
+     .konfig , l ,  lplawv , nn , nrep 
       real(8) ,allocatable :: g_rv(:)
       real(8) ,allocatable :: gp_rv(:)
       real(8) ,allocatable :: h_rv(:)
@@ -819,10 +794,6 @@ C ... Local parameters
 C ... Heap
 
       ipr = iprint()
-      stdo = lgunit(1)
-      stdl = lgunit(2)
-Changenglob      lrel = nglob('lrel')
-c      lrel = globalvariables%lrel
 c      if (z .lt. 0.99d0) lrel = 0 !takao think lrel here was not used may2021
       if (lmxa .gt. 8) call rx('optfab:  lmax too large')
       b = rmax/(dexp(a*nr-a)-1d0)
@@ -1078,8 +1049,8 @@ C ... Passed parameters
 C ... Local parameters
       logical cmdopt
       character spid*8, strn*80, flg(2)*1
-      integer:: ipr , iprint , i , konfig , l , info , lgunit , nn 
-     ., stdo , lplawv , loclo , nfit , isw
+      integer:: ipr , iprint , i , konfig , l , info , nn 
+     ., lplawv , loclo , nfit , isw
       real(8) ,allocatable :: g_rv(:)
       real(8) ,allocatable :: gp_rv(:)
       real(8) ,allocatable :: h_rv(:)
@@ -1094,14 +1065,8 @@ C     for the fitting of local orbitals to Hankel tails.
 C     For plotting wave functions
       integer itab(n0,2)
       double precision rtab(n0,2),etab(n0,2),pl(n0,nsp),qrmt
-C ... Heap
       data flg/'*',' '/
-
-C     return
-
       ipr = iprint()
-      stdo = lgunit(1)
-C     stdl = lgunit(2)
       if (lmxa .gt. 8) call rx('ftfalo:  lmax too large')
       b = rmax/(dexp(a*nr-a)-1d0)
       nfit = 0
@@ -1402,14 +1367,12 @@ C ... Passed parameters
       integer jpr,l
       double precision dx,e1,e2,e3,stiff,x0,xmax,xmin,xnew,xshx,y0
 C ... Local parameters
-      integer ie0,lgunit,stdo
+      integer ie0
       double precision a,aa,b,c,ee1,ee2,ee3,een,enew,xadd
 
-      stdo = lgunit(1)
       c = e2
       b = (e3-e1)/(2*dx)
       a = (e1+e3-2*e2)/(2*dx*dx)
-ctakao
       if (a .le. 0d0) then
         xadd = -xshx
         enew = e1
@@ -1470,11 +1433,9 @@ C ... Passed parameters
       integer mode,l,nn,nr,nrmt
       double precision a,b,evl,pnu,rmt,z,rofi(nr),v(nr),g(nr*2)
 C ... Local parameters
-      integer lgunit,nre,stdo,konfig,nri,nn2
+      integer nre,konfig,nri,nn2
       double precision d0l,p0l,dphi,drdi,du,eb1,eb2,g1,g2,g3,g4,g5,pi,
      .slo,slou,sum,tol,val,valu,dnu
-
-      stdo = lgunit(1)
       pi = 4d0*datan(1d0)
 
       eb1 = -50 !ccctakao 30
@@ -1629,13 +1590,12 @@ C ... Passed parameters
      .rofi(nr),psi(nr,0:*),g(nr,2),v(nr),pl(0:n0-1)
       character spid*8
 C ... Local parameters
-      integer i,ifi,konfig,l,lgunit,lp1,m,n,nn,nre,stdo
+      integer i,ifi,konfig,l,lp1,m,n,nn,nre
       integer ltab(n0)
       double precision asm,dfl,drdi,eb1,eb2,eh,evl,fac,fl,flp1,r,rsm,
      .slo,sum1,sum2,tol,val,wt,xi(0:20)
       character str*32
 
-      stdo = lgunit(1)
       eb1 = -20
       eb2 = 20
       tol = 1d-8
@@ -1732,14 +1692,10 @@ C ... Passed parameters
       integer nr,nrmt
       double precision a,b,c,eh,rmt,rsm,rofi(nr),rhoc(nr,2)
 C ... Local parameters
-      integer i,lgunit,stdo,ipr
+      integer i,ipr
       double precision ak1,akap,fit,q,q0,r,s,v0,wt
       character sout*80
-
       call getpr(ipr)
-      stdo = lgunit(1)
-Changenglob      nsp =  nglob('nsp')
-c      nsp =  globalvariables%nsp
       rmt = rofi(nrmt)
       q0 = 0d0
       do  10  i = nrmt, nr
@@ -1827,3 +1783,4 @@ c|  965 format(' integral over smoothed core:',f10.5)
       end subroutine fctail
 
 
+      end module m_freeat

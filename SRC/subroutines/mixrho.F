@@ -1,4 +1,5 @@
       module m_mixrho
+      use m_lgunit,only:stdo,stml
       public:: mixrho,parms0
       private
 !  mixing routine of smrho, rh. T.kotani think this routine is too compicated to maintain.
@@ -7,7 +8,7 @@
       subroutine mixrho(iter, qval, elind, sv_p_orhnew, sv_p_orhold, smrnew, smrho,rmsdel)
       use m_struc_def
       use m_supot,only: iv_a_okv,rv_a_ogv,k1,k2,k3
-      use m_lmfinit,only:lat_alat,nbas,stdo,stdl, mixmod=>sstrnmix,ssite=>v_ssite,sspec=>v_sspec,nsp
+      use m_lmfinit,only:lat_alat,nbas,stdl, mixmod=>sstrnmix,ssite=>v_ssite,sspec=>v_sspec,nsp
       use m_lattic,only: lat_vol
       use m_supot,only: lat_nabc, lat_ng
       use m_lmfinit, only:   mix_b,mix_bv,mix_w,mix_wc,mix_nsave,mix_mmix
@@ -213,7 +214,7 @@ c      type(s_lat)::slat
       double precision qval,elind
       double complex smrnew(k1,k2,k3,nsp),smrho(k1,k2,k3,nsp)
 C ... Local parameters
-      integer lgunit,i,i1,i2,i3,ib,ipl,ipr,is,k0,k9,kmxv,
+      integer i,i1,i2,i3,ib,ipl,ipr,is,k0,k9,kmxv,
      .lmxl,n1,n2,n3,ng,nglob,nlml,nr,nmixr,nmix,nda,mxsav,ifi,nlm0,
      .kkk,nnnew,nnmix,ngabc(3),igetss,broy,nx,
      .nkill,isw,naa,kmxr,kmxs,locmix,offx,off2
@@ -635,7 +636,7 @@ c        rewind ifi
         call gettime(datim)
         call awrit3(' mixrho '//datim//' Process %i of %i on '
      .  //shortname(procid)(1:namelen(procid))//
-     .  ' bcast ifi = %i',' ',256,lgunit(3),procid,numprocs,ifi)
+     .  ' bcast ifi = %i',' ',256,stml,procid,numprocs,ifi)
       endif
 C     NB: For now, nx must be zero
       k9 = 10
@@ -1168,7 +1169,7 @@ C ... Passed parameters
      .rhos1(nr,nlml,nsp),rhos2(nr,nlml,nsp),
      .rhns1(nr,nlml,nsp),rhns2(nr,nlml,nsp)
 C ... Local parameters
-      integer i,ir,iprint,stdo,lgunit,np,npc
+      integer i,ir,iprint,np,npc
       double precision pi,srfpi,vsph,ddot,qnew,qold,qmix,rmt,
      .amnew,amold,amix
 
@@ -1185,7 +1186,7 @@ C      call prrmsh('rhns2',ri,rhns2,nr,nr,nlml*nsp) ! rhscrs1-rhscrs2
 
 
 C ... Setup
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       pi = 4d0*datan(1d0)
       srfpi = dsqrt(4d0*pi)
       rmt = ri(nr)
@@ -1387,7 +1388,7 @@ C ... Passed parameters
 
       character fnam*8
 C ... Local parameters
-      integer stdo,lgunit,ib,na,i,j,k,m,np,iprint,nmixr,is,igetss,
+      integer ib,na,i,j,k,m,np,iprint,nmixr,is,igetss,
      .awrite,off,nlml,lmxl,k9l
       real(8) ,allocatable :: rofi_rv(:)
 
@@ -1407,7 +1408,7 @@ C ... Heap
       mlog = cmdopt('--mlog',6,0,strn)
 #endif
 
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       lcnst = cnst(0) .gt. 0
 
 C --- Copy rho to a; calc. RMS error; read prior iter from ifi ---
@@ -1633,7 +1634,7 @@ C   ... File I/O of previous iterations; nmixr is number actually read
           call awrit3(' mixrho '//datim//' Process %i of %i on '
      .    //shortname(procid)(1:namelen(procid))//
      .    ' bcast readerror = %l',' ',
-     .    256,lgunit(3),procid,numprocs,readerror)
+     .    256,stml,procid,numprocs,readerror)
         endif
         if (readerror) goto 31
         call MPI_BCAST(nmixr,1,MPI_INTEGER,master,MPI_COMM_WORLD,ierr)
@@ -1642,7 +1643,7 @@ C   ... File I/O of previous iterations; nmixr is number actually read
           call awrit3(' mixrho '//datim//' Process %i of %i on '
      .    //shortname(procid)(1:namelen(procid))//
      .    ' bcast nmixr = %i',' ',
-     .    256,lgunit(3),procid,numprocs,nmixr)
+     .    256,stml,procid,numprocs,nmixr)
         endif
         call MPI_BCAST(na,1,MPI_INTEGER,master,MPI_COMM_WORLD,ierr)
         if (mlog) then
@@ -1650,7 +1651,7 @@ C   ... File I/O of previous iterations; nmixr is number actually read
           call awrit3(' mixrho '//datim//' Process %i of %i on '
      .    //shortname(procid)(1:namelen(procid))//
      .    ' bcast na = %i',' ',
-     .    256,lgunit(3),procid,numprocs,na)
+     .    256,stml,procid,numprocs,na)
         endif
         if (nda*nsp .ne. na) then
           if (procid .eq. master) then
@@ -1685,7 +1686,7 @@ C   ... File I/O of previous iterations; nmixr is number actually read
             call awrit3(' mixrho '//datim//' Process %i of %i on '
      .      //shortname(procid)(1:namelen(procid))//
      .      ' bcast (mix) a %i d.p. numbers',' ',
-     .      256,lgunit(3),procid,numprocs,nda*nsp*(mxsav+2)*2)
+     .      256,stml,procid,numprocs,nda*nsp*(mxsav+2)*2)
           endif
         endif
    31   continue
@@ -2399,7 +2400,7 @@ C     stop 'here'
       end
 
       subroutine pqmixa(nda,nmix,mmix,mxsav,beta,rms2,a,tj)
-      use m_lmfinit,only:stdo
+c      use m_lgunit,only:stdo
       use m_ftox
 C- Anderson mixing of a vector
 Ci  mmix: number of iterates available to mix
@@ -2615,7 +2616,7 @@ C      call dcopy(nda,w(oxmp1),1,a(1,0,2),1)
 C      call rlse(obt)
 C      end
       subroutine pqmixb(nda,nmix,mmix,mxsav,beta,wc,rms2,a,wctrue)
-      use m_lmfinit,only:stdo
+c      use m_lgunit,only:stdo
       use m_ftox
 C- Broyden mixing of a vector, Duane Johnson's approach
 C ------------------------------------------------------------------
@@ -2759,7 +2760,7 @@ C --- Save x^(m+2) into a(*,0,2) and exit ---
       end
       subroutine pqmixc(nda,nmix,mmix,mxsav,beta,rms2,a,xn)
       use m_gradzr,only:drgrzr
-      use m_lmfinit,only:stdo
+c      use m_lgunit,only:stdo
       use m_ftox
 C- C. G. mixing of a vector
 C ------------------------------------------------------------------
@@ -2893,7 +2894,7 @@ C       print *, i, qold(i,l+1,isp,ic) -  a(na+i,0,2)
       end
       subroutine pqmxio(nmix,mxsav,ifi,lbin,nclass,nl,nsp,nx,lmx,
      .pnu,pold,qnu,qold,xnew,xold,cnst,nda,a,na,rms2)
-      use m_lmfinit,only:stdo
+c      use m_lgunit,only:stdo
       use m_ftox
 C- Copy P,Q into holding array, read prior P,Q from disk
 C -----------------------------------------------------------------

@@ -4,6 +4,7 @@
       use m_lmfinit,only:nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,ham_frzwf,
      &     pmin=>ham_pmin,pmax=>ham_pmax,n0,nab,mxcst4
       use m_mkrout,only: hbyl=>hbyl_rv,qbyl=>qbyl_rv
+      use m_lgunit,only:stdo
 c      use m_struc_def  !Cgetarg
 !!= Makes new boundary conditions pnu for phi,phidot =
 !!* takao sep2010. P is setted to that at efermi if PZ is for semicore.
@@ -46,7 +47,7 @@ Cu   28 Aug 01 Extended to local orbitals.  For now, freeze pnu
 C ----------------------------------------------------------------------
       implicit none
       logical lpz,lfrzv,lfrzz
-      integer:: idmod(n0) , stdo , lgunit , ipr , ib , is , lmxa , 
+      integer:: idmod(n0) , ipr , ib , is , lmxa , 
      . l , ipqn , m , isp , nr , nn , mxcst
       real(8) ,allocatable :: g_rv(:)
       real(8) ,allocatable :: gp_rv(:)
@@ -64,7 +65,7 @@ C ----------------------------------------------------------------------
       character strn*120
       call tcn('pnunew')
       pi = 4d0*datan(1d0)
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       call info(30,1,0,' Make new boundary conditions for phi,phidot..',0,0)
       call getpr(ipr)
       if(ipr>=30) then

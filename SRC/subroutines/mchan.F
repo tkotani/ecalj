@@ -1,6 +1,6 @@
       subroutine mchan(lmdim,ssite,sspec,nsp,nsites,lsites,ib,ilm,io,
      .ichan,lchan)
-
+      use m_lgunit,only:stdo
       use m_struc_def  !Cgetarg
 
 C- set or get Mulliken channel for site ib and ilm index
@@ -32,7 +32,7 @@ C Passed Parameters
       type(s_spec)::sspec(*)
 
 C Local Variables
-      integer i,j,lgunit,js,igetss,jb
+      integer i,j,js,igetss,jb
       character clabl*8
 
       if (io .lt. 0) then
@@ -40,10 +40,10 @@ C Local Variables
       elseif (io .gt. 0) then
         ichan = lchan(ilm,ib)
       else
-        write(lgunit(1),"(' mchan: channel table, ',i0,' sites')") nsites
+        write(stdo,"(' mchan: channel table, ',i0,' sites')") nsites
         if (nsp .eq. 2)
-     .  write(lgunit(1),"(' (each channel splits into two: up, down spin)')")
-        write(lgunit(1),"(' site  label          channels')")
+     .  write(stdo,"(' (each channel splits into two: up, down spin)')")
+        write(stdo,"(' site  label          channels')")
         do  j = 1, nsites
           jb = lsites(j)
           js = int(ssite(jb)%spec)
@@ -52,7 +52,7 @@ c          do i_spacks=js,js
 c            call spacks_copy('u',sspec(i_spacks)%name,js,js,clabl,i_spacks)
 c          enddo
           clabl=sspec(js)%name
-          write (lgunit(1),1) j, clabl, (lchan(i,j),i=1,lmdim)
+          write (stdo,1) j, clabl, (lchan(i,j),i=1,lmdim)
         enddo
       endif
     1 format (1x,i3,5x,a8,1x,256i3)

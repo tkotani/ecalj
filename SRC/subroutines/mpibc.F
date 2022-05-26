@@ -103,7 +103,7 @@ C     implicit none
       character*26 datim
       integer namelen(0:MAX_PROCS-1)
       character*256 strn
-      logical lgunit
+c      logical lgunit
       integer procid,master
 #endif
 C ... Passed parameters
@@ -156,6 +156,7 @@ C     .  cast)
 c$$$      subroutine mpibc3(vec,n,cast,pid,mlog,funnam,label) !   this is removed at 19jun2021
       
       subroutine mpibc2(vec,n,cast,mlog,funnam,label)
+      use m_lgunit,only:stml
 C- Performs MPI_ALLREDUCE on a vector (MPI)
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -187,7 +188,7 @@ C     implicit none
       character*26 datim
       integer namelen(0:MAX_PROCS-1)
       character*256 strn
-      integer:: lgunit
+c      integer:: lgunit
       integer procid,master
 #endif
 C ... Passed parameters
@@ -234,7 +235,7 @@ C ... Local parameters
         namelen(procid) = ierr-1
         call gettime(datim)
 c        call awrit2(strn,' ',-256,lgunit(3),procid,numprocs)
-        write(lgunit(3),"(a,i0,' of ',i0,' on ',a)")
+        write(stml,"(a,i0,' of ',i0,' on ',a)")
      &       ' '//funnam//' '//datim//' Process ',procid,numprocs,
      &       shortname(procid)(1:namelen(procid))//' allreduce '//label
       endif

@@ -1,6 +1,7 @@
       subroutine nwit(nvario,iter,maxit,lhf,lhk,etol,qtol,
      .qdiff,amom,etot,sev,lsc)
-      use m_lmfinit,only: nsp,stdo
+      use m_lmfinit,only: nsp
+      use m_lgunit,only:stdo,stdl
 C- Add to save file, determine whether to continue execution
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -37,7 +38,7 @@ C ... Passed parameters
       integer iter,maxit,lhk,lsc,nvario
       double precision etol,qtol,qdiff,amom,etot(2)
 C ... Local parameters
-      integer lgunit,lbl
+      integer lbl
       logical more,letol,lqtol
       double precision ehf1,ehk1,diffe,sev
       character flg*1
@@ -102,6 +103,7 @@ C --- Write out to save file --
       subroutine nwitsv(iflst,nvario,flg,nsp,amom,etot,sev)
       use m_ext,only:      sname
       use m_ldau,only:  eorb
+      use m_lgunit,only:stdo,stdl
 C- Write to save file
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -127,7 +129,7 @@ C ... Passed parameters
       character flg*(*)
       double precision amom,etot(2)
 C ... Local parameters
-      integer ifi,i,lgunit,getdig,ifile_handle
+      integer ifi,i,getdig,ifile_handle
       double precision xv(4),sev,rydberg
       character*180 sout
       i = 0
@@ -162,8 +164,8 @@ C ... Write to file list
              ifi = ifile_handle()
              open(ifi,file='save.'//trim(sname),position='append')
           endif    
-          if (i .eq. 2) ifi = lgunit(1)
-          if (i .eq. 3) ifi = lgunit(2)
+          if (i .eq. 2) ifi = stdo
+          if (i .eq. 3) ifi = stdl
           call iosave(flg,sout(2:),xv,-ifi,nvario)
           if (i .eq. 1) close(ifi)
         endif

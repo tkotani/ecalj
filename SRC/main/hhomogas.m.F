@@ -47,6 +47,7 @@ c
 c      use m_lldata,only: ll
       use m_homoelectron,only: read_qgband, efermi_egas !for gsq 
       use m_shortn3,only: shortn3_initialize,shortn3
+      use m_lgunit,only: m_lgunit_init
       implicit none
 
       integer::nctot=0,nspin=1,niw
@@ -292,6 +293,7 @@ c      logical::wan=.true.,egasmode
       fourpi   = 4d0*pi
       sqfourpi = sqrt(fourpi)
       call MPI__Initialize()
+      call M_lgunit_init()
       call MPI__consoleout('hhomogas')
       call cputid (0)
       call cputid(0)

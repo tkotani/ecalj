@@ -25,6 +25,7 @@
 
       subroutine fexit0(retval,strng)
       use m_MPItk,only:  m_MPItk_finalize
+      use m_lgunit,only:stdo,stdl
       implicit none
 C- Machine and compiler-dependent program termination
 C ----------------------------------------------------------------------
@@ -51,7 +52,7 @@ C Passed parameters
       character*256 strn, datim*26, hostnm*20
       character(9):: ftoa9
       logical isopen
-      integer master,procid,ierr,stdo,stdl,lgunit,ia,iii
+      integer master,procid,ierr,ia,iii
       parameter (master = 0)
       include "mpif.h"
       ia=0
@@ -72,7 +73,7 @@ c      print *,'aaaaaaaa',args
       if(ia>=1) argss(1)=args
       if(ia>=2) argss(2)=arg2
       if(ia>=3) argss(3)=arg3
-      stdo=lgunit(1)
+c      stdo=lgunit(1)
 c      stdl=lgunit(2)
       procid = mpipid(1)
       if (procid .eq. master) then

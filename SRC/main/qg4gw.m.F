@@ -46,6 +46,7 @@
 !! ----------------------------------------------------------------------
       use m_keyvalue,only: getkeyvalue
       use m_mpi,only: MPI__Initialize
+      use m_lgunit,only: m_lgunit_init
       implicit none
       integer(4) :: ifiqg,ifiqgc,ifigw0,ngrp,ifi,i,ig,iq0pin
       real(8) :: alat,QpGcut_psi, QpGcut_Cou,dummy ,plat(3,3),volum,q0(3),qlat0(3,3),a1,a2,unit
@@ -58,6 +59,7 @@ c      character(len=10) :: keyw1='unit_2pioa',keyw2
       logical:: lmagnon = .false., cmdopt2
       character(20):: outs=''
       call MPI__Initialize()
+      call M_lgunit_init()
       call show_programinfo(6)
       call cputid (0)
       write(6,"(a)")'qg4gw: Generate Q0P->1; Readin Q0P->2; SW(chipm)->4'

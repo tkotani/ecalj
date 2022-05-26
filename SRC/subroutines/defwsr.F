@@ -1,5 +1,5 @@
       subroutine defwsr(wsr,z)
-
+      use m_lgunit,only:stdo
 C- Returns default value of radii for given nuclear charge
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -16,7 +16,7 @@ C     implicit none
 C Passed variables:
       double precision wsr,z
 C Local variables:
-      integer iprint,iz,lgunit
+      integer iprint,iz
       double precision cpwsr(0:100)
 C External calls:
 c      external isanrg
@@ -44,11 +44,9 @@ C Data statements:
      .2.93d0,2.95d0,2.99d0,3.05d0,3.17d0/
 
       iz = idnint(z)
-Ckino isanrg is logical function,       call isanrg(iz,0,100,'DEFWSR:','z',.true.)
-      l_dummy_isanrg=isanrg(iz,0,100,'DEFWSR:','z',.true.)
+c      l_dummy_isanrg=isanrg(iz,0,100,'DEFWSR:','z',.true.)
       wsr = cpwsr(iz)
-      if (iprint() .ge. 120) write(lgunit(1),300) iz,wsr
-
+      if (iprint() .ge. 120) write(stdo,300) iz,wsr
   300 format(/' DEFWSR: default radius for z=',i2,': ',f8.2)
       end subroutine defwsr
 

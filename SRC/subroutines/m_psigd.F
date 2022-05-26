@@ -1,6 +1,7 @@
       module m_psigd
       contains
       subroutine psigd(mode,ndimh,sig,eval,sigp,n123,sigd, q,isp,iout,iprx)
+      use m_lgunit,only:stdo
 
 c psigd is also called from hambls.F. Then I found present(iout) is alwasy T even when iout is missing.
 c This will be a bug in gfortran.
@@ -84,7 +85,7 @@ C ... Passed parameters
       double complex sig(ndimh,ndimh)
 C ... Local parameters
       logical llow,lhigh
-      integer i,stdo,lgunit,ipr,nmin,nmax,modsgp,PRTE
+      integer i,ipr,nmin,nmax,modsgp,PRTE
       double precision emin,emax,asig,bsig,tol,siglin
       double complex zer,sigii
       parameter (zer=(0d0,0d0),tol=1d-7,PRTE=45)
@@ -102,7 +103,7 @@ c     print *,'psigd:',present(iout)
 c      print *,' iout=',iout
 
       call getpr(ipr)
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       call ivset(n123,1,3,0)
       n123(4) = ndimh
 

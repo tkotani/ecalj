@@ -2,6 +2,7 @@ CSFCPP#define F90 1
       subroutine lattc(as,tol,rpad,alat,alat0,platin,g1,g2,g3,gt,plat,
      .     qlat,lmax,vol,awald,dlat,nkd,glat,nkg,nkdmx,nkgmx)
       use m_ftox
+      use m_lgunit,only:stdo
 C- Sets up the real and reciprocal space lattice vectors for Ewald
 C ----------------------------------------------------------------
 Ci Inputs
@@ -42,12 +43,12 @@ C Passed parameters
       double precision as,tol,alat,g1,g2,g3,gt,vol,awald,alat0,rpad,
      .glat(3,nkgmx),dlat(3,nkdmx),platin(3,3),plat(3,3),qlat(3,3)
 C Local parameters
-      integer k,iprint,m,i1mach,modeg(3),isw,stdo,lgunit
+      integer k,iprint,m,i1mach,modeg(3),isw
       double precision qlat0(3,3),vol0,plat0(3,3),radd,qadd
       double precision qdist0,a0,rdist0,tol1,r0,q0,one(3,3),oned(3,3)
       integer:: ifile_handle,ifp
 
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       call dcopy(9,platin,1,plat0,1)
       call dinv33(plat0,1,qlat0,vol0)
       vol0 = dabs(vol0)

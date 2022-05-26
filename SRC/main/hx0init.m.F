@@ -60,6 +60,7 @@ c      use m_readq0p,only:     Readq0p,   nq0i ,nq0iadd
       use m_mpi,only: MPI__hx0fp0_rankdivider2Q, MPI__Qtask, 
      &     MPI__Initialize, MPI__Finalize,MPI__root,
      &     MPI__Broadcast, MPI__rank,MPI__size, MPI__consoleout,MPI__barrier  
+      use m_lgunit,only: m_lgunit_init
 !! ------------------------------------------------------------------------      
       implicit none
       integer:: MPI__Ss,MPI__Se
@@ -77,6 +78,7 @@ c      use m_readq0p,only:     Readq0p,   nq0i ,nq0iadd
       logical:: cmdopt2
 !-------------------------------------------------------------------------
       call MPI__Initialize()
+      call M_lgunit_init()
       call MPI__consoleout('hx0fp0_sc')
       call cputid (0)
       if(verbose()>=100) debug=.true.

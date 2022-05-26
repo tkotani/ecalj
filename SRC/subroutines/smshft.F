@@ -5,6 +5,7 @@
      &     lat_alat,nsp,nbas, sspec=>v_sspec, ssite=>v_ssite
       use m_lattic,only: lat_qlat, lat_vol,lat_plat
       use m_supot,only: lat_nabc, lat_ng
+      use m_lgunit,only:stdo
 C- Estimate the smooth density for a shift in atomic positions.
 !input  orhoat:vector of offsets containing site density
 !inputoutput 
@@ -106,8 +107,7 @@ c      if (iprint() .gt. 100) call zprm3('shifted smrho',0,smrho,k1,k2,k3*nsp)
       use m_struc_def           !Cgetarg
       use m_lmfinit,only:lat_alat
       use m_lattic,only: lat_vol
-
-
+      use m_lgunit,only:stdo
 C- Shift in smoothed density according to job.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -192,7 +192,7 @@ C ... Passed parameters
 c      type(s_lat)::slat
       double complex cg(ng,nsp),cwk(ng)
       integer ib,i,is,iv0,kmax,lmxl,igetss,lmxa,nr,nrmx,n0,
-     .nlml,nxi,ie,ixi,ig,ipr,iprint,kcor,lcor,stdo,lgunit
+     .nlml,nxi,ie,ixi,ig,ipr,iprint,kcor,lcor
       parameter (nrmx=1501, n0=10)
       double precision a,aa,alat,df(0:20),e,
      .exi(n0),gam,hfc(n0,2),pi,pnew(3),pnu(n0,2),pnz(n0,2),pold(3),
@@ -209,7 +209,7 @@ c      type(s_lat)::slat
       y0 = 1d0/dsqrt(4d0*pi)
       tpiba = 2*pi/alat
       ipr = iprint()
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       volsp = vol*nsp
 C --- For each site, accumulate shift in density ---
       call dpzero(cg,2*ng*nsp)

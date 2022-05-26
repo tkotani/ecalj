@@ -1,4 +1,4 @@
-      program htetwt.m.F
+      program htetwt
 !!  Calculate W-V for QSGW mode.
 !! We calculate chi0 by the follwoing three steps.
 !!  tetwt5: tetrahedron weights
@@ -57,6 +57,7 @@ c     & laf,ibasf !,ldima,pos,natom
 !! q0p
       use m_readq0p,only: readq0p,
      & wqt,q0i,nq0i ,nq0iadd,ixyz
+      use m_lgunit,only: m_lgunit_init
 
       implicit none
       integer,allocatable:: nwgt(:,:)
@@ -170,6 +171,7 @@ c      integer:: ifw0w0i
 
 !-------------------------------------------------------------------------
       call MPI__InitializeQSPBM()
+      call m_lgunit_init()
 !TIME0_1001 ProgAll
       call MPI__consoleout('htetwt')
       call cputid (0)

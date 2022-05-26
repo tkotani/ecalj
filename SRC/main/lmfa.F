@@ -3,8 +3,10 @@
       use m_ext,only:      m_Ext_init,sname
       use m_rdfiln,only:   m_Rdfiln_init
       use m_MPItk,only:    m_MPItk_init,m_MPItk_finalize,nsize,master_mpi
+      use m_lgunit,only:   M_lgunit_init, stdo,stdl
+      use m_freeat,only:   Freeat
       implicit none
-      integer:: k,lgunit,stdo,stdl
+      integer:: k
       logical:: fileexist,cmdopt,llmfgw=.false.,cmdopt0,cmdopt2
       logical:: writeham,lbin
       character:: outs*20,aaa*512,sss*128,uuu*128
@@ -14,9 +16,8 @@
       data prgnam /'LMFA'/
       call M_ext_init()        ! Get sname, e.g. trim(sname)=si of ctrl.si
       call M_MPItk_init(prgnam)
+      call M_lgunit_init()
       if(nsize/=1) call rx('Current lmfa is only for single core')
-      stdo = lgunit(1)          !standard output stdo=6 usually
-      stdl = lgunit(2)
       aaa= '=== START LFMA ==='
       if(master_mpi) call show_programinfo(stdo)
       if(master_mpi) write(stdo,"(a)") trim(aaa)

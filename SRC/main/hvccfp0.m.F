@@ -15,6 +15,7 @@ c
      &   mpi__ranktab,MPI__consoleout,mpi__iend,mpi__iini,mpi__getrange
       use m_readgwinput,only: ReadGwinputKeys,
      &                                   keeppositivecou
+      use m_lgunit,only: m_lgunit_init
 
       implicit none
       integer(4) :: ifvcfpout,ifhvccfp,is,  lmxcg,if1011,if3011, !nqbz,nbas,iopen,
@@ -88,6 +89,7 @@ c      integer(4),allocatable:: iqok(:)
       character(20):: outs=''
 !!------------------------------------------------------------
       call MPI__Initialize()
+      call M_lgunit_init()
       pi  = 4d0*datan(1d0)
       fpi = 4d0*pi
       if( mpi__root) write(6,"(' mode=0,3,202 (0 and 3 give the same results for given bas)' )")

@@ -1,7 +1,7 @@
 CSFCPP#define F90 1
       subroutine mullmf(nbas,ssite,sspec,iprmb,z,n,nspc,iq,isp,mode,
      .nsites,lsites,lmxch,nchan,lchan,lmdim,nddos,doswt)
-
+      use m_lgunit,only:stdo
       use m_struc_def  !Cgetarg
       use m_orbl,only: Orblib,ktab,ltab,offl,norb
 
@@ -50,8 +50,8 @@ C ... Passed parameters
       double complex z(n,nspc,n*nspc)
 C ... Local parameters
       logical lmp,lp,atp
-      integer isite,ib,is,ichan,lmxb,iband,iprint,ipr,iprmin,lgunit,
-     .ispc,ksp,stdo,nev,nx
+      integer isite,ib,is,ichan,lmxb,iband,iprint,ipr,iprmin,
+     .ispc,ksp,nev,nx
       integer n0,nkap0
       parameter (n0=10,nkap0=3)
 c      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
@@ -75,7 +75,7 @@ CSFCPP      call rx('mullmf only implemented for automatic arrays')
 CSFCPP#endif
 
 C ... Setup
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       call tcn ('mullmf')
 C     nx = total hamiltonian dimension
       nx = n*nspc

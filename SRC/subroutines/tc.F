@@ -1,4 +1,5 @@
       subroutine tcinit(ltrace,lprof,levelinit)
+      use m_lgunit,only:stdo
 C- Setup for timer and workspace routines
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -23,14 +24,14 @@ C ----------------------------------------------------------------------
       character*3  tt(0:20)
       integer ncall(nx),lev(nx),it1(nx),icb(nx),icall(-2:30) 
       integer iwk0(nx),iwk1(nx),iwk2(nx),iwk3(nx)
-      integer lvl,lv,last,j1,j2,iwmax,ilev,stdo,lgunit
+      integer lvl,lv,last,j1,j2,iwmax,ilev
       integer ifi,iprint
       real ttot(nx),tavg,tm
       double precision cpusec
       save
       data nn/0/, ii/0/, init/0/, ltr/0/, lpr/0/ !level/0/, 
       level=levelinit
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       if (ltrace .ne. 0) ltr = ltrace
       if (lprof .gt. 0) lpr = lprof
       ltop = max0(iabs(ltr),lpr)

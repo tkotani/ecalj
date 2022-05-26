@@ -1,4 +1,5 @@
       subroutine efldos(qval,nsp,emin,emax,ndos,dos,eferm,eband)
+      use m_lgunit,only:stdo,stdl
 C- Linear interpolation for Fermi and band energy from dos and i-dos
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -20,12 +21,12 @@ C ... Passed parameters
       integer ndos,nsp
       double precision eband,eferm,emax,emin,qval,dos(ndos,2,nsp)
 C ... Local parameters
-      integer stdo,stdl,i,i1,i2,ibot,ie,ipl,iprint,lgunit,k
+      integer i,i1,i2,ibot,ie,ipl,iprint,k
       double precision de,dferm,e1,ebot,sum,x,dossp
       dossp(k) = (dos(k,2,1)+dos(k,2,nsp))/dble(3-nsp)
 
-      stdo = lgunit(1)
-      stdl = lgunit(2)
+c      stdo = lgunit(1)
+c      stdl = lgunit(2)
       ipl  = iprint()
 
 C ... Find interval containing fermi energy

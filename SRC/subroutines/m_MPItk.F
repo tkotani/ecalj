@@ -1,5 +1,6 @@
       module m_MPItk
       use m_ext,only:sname
+      use m_lgunit,only: stml,stdl
       public ::
      &     m_MPItk_init, m_MPItk_finalize, procid, strprocid,master,nsize,master_mpi,mlog,mlog_MPIiq
 
@@ -21,7 +22,7 @@
       character::  prgnamx*(*)
       integer:: mpipid
       logical:: cmdopt0
-      integer fext,lgunit
+      integer fext
       character(10):: i2char
       prgnam=prgnamx
       call mpi_init(ierr)
@@ -36,7 +37,7 @@
       call Gettime(datim)
       call Finits() !read and set arguments addsyv in symvar.F
       mlog = cmdopt0('--mlog') !! set log for --mlog (not maintained well)
-      if(mlog) write(lgunit(3),"(a)")' lmf '//datim//' Process '
+      if(mlog) write(stml,"(a)")' lmf '//datim//' Process '
      &  //trim(i2char(procid))//' of '//trim(i2char(nproc-1))//' on '//trim(shortname(procid)) 
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
       if(procid == master) ext=''
@@ -47,7 +48,6 @@
 
       subroutine m_MPItk_finalize()
       character*256 strn, datim*26, hostnm*20
-      integer:: lgunit,stdl
       real(8):: cpusec
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
       if(master_mpi) then
@@ -56,7 +56,6 @@
          call ftime(datim)
          hostnm = ' '
          call get_environment_variable('HOST',hostnm)
-         stdl = lgunit(2)
          write(stdl,10) cpusec(), trim(datim),trim(adjustl(hostnm))
  10      format(' CPU time:', f9.3,' sec  ',a26,' on ',a)
          close(stdl)
@@ -65,7 +64,7 @@
       end
       
       subroutine mlog_MPIiq(iq,iqini,iqend)
-      integer:: iq,numprocs,lgunit,iqini,iqend
+      integer:: iq,numprocs,iqini,iqend
       character*26 datim
       character(512):: aaachar
       character(10):: i2char
@@ -76,7 +75,7 @@
      &              trim(i2char(procid))//' of '//trim(i2char(numprocs))//' on '//
      &              trim(i2char(procid))//' starting k-points '//
      &              trim(i2char( iqini))//' to '//trim(i2char(iqend))
-               write(lgunit(3),"(a)")trim(aaachar)
+               write(stml,"(a)")trim(aaachar)
          endif
       end
       

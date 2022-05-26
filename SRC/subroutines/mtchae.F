@@ -1,4 +1,5 @@
       subroutine mtchae(mode,rsm,eh,l,r,phi,dphi,phip,dphip,alfa,beta)
+      use m_lgunit,only:stdo
 C- Matches augmentation function to envelope function
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -92,6 +93,7 @@ C     return log derivative in alfa, K.E. in beta
 
       subroutine mtchre(mode,l,rsmin,rsmax,emin,emax,r1,r2,phi1,dphi1,
      .phi2,dphi2,rsm,eh,ekin,ir)
+      use m_lgunit,only:stdo
 C- Finds envelope function parameters that match conditions on sphere
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -179,14 +181,14 @@ C ... Passed parameters
       double precision dphi1,dphi2,eh,phi1,phi2,r1,r2,rsm,rsmin,rsmax,
      .emin,emax,ekin
 C ... Local parameters
-      integer iter,stdo,lgunit,IPRT1,IPRTW,ipr,maxit,mode0,mode2,ir1,
+      integer iter,IPRT1,IPRTW,ipr,maxit,mode0,mode2,ir1,
      .ipass
       double precision tol,eh0,dxrsm
       parameter (tol=1d-12,IPRT1=100/1,IPRTW=50/1,maxit=50,dxrsm=.05d0)
       double precision xnow,alfa,beta,xclose,bclose,eclose,tclose,wk(12)
       logical:: isanrg, l_dummy_isanrg
 
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       call getpr(ipr)
       mode0 = mod(mode,100)
       mode2 = mod(mode/100,10)
@@ -409,6 +411,7 @@ C ... Not implemented: find K.E. closest to target
       end
 
       subroutine mtchr2(mode,l,x1,x2,x0,r,phi,dphi,rsm,eh,ekin,info)
+      use m_lgunit,only:stdo
 C- Match rsm or eh to value and slope of phi at surface of sphere
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -452,11 +455,11 @@ C ... Passed parameters
       integer mode,l,info
       double precision dphi,eh,phi,r,rsm,x1,x2,x0,ekin
 C ... Local parameters
-      integer ir,iter,stdo,lgunit,IPRT,ipr,maxit
+      integer ir,iter,IPRT,ipr,maxit
       double precision xnow,dxmx,alfa,beta,tol,wk(12)
       parameter (tol=1d-12,IPRT=100/1,maxit=50)
 
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       call getpr(ipr)
 C     call pshpr(ipr-10)
 C     ipr=100

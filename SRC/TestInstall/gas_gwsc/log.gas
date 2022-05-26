@@ -65,3 +65,51 @@ fp 4g  ;Anderson n 2 beta 0.5  sm-dq 1.19e-4  mx loc 1.76e-4  dq 8.21e-5
  CPU time:    2.930 sec    Sat Jan 15 14:49:40 2022 on 
 ===START LMFGWD   ===
  mpisize=           1
+=== START LFMA ===
+ mpisize=           1
+fa op 0  10  1.095 -0.231  stf     0  2109  ev -0.65927 -0.67398  pq  4.81  2.00
+fa op 1  11  1.095 -0.100  stf     0  -683  ev -0.08393 -0.20078  pq  4.69  1.00
+fa op 2  17  1.095 -2.500  stf     0     1  ev -1.42529 -1.42658  pq  3.92 10.00
+fa op sumev  -15.81455   opt basis  -15.65533   err  0.15922
+fa Z  31.0   rm  49.60  qc 18.00  qspl 0.00227  dq 0.00000  Etot   -3882.268069
+fa op 0   7  1.150 -0.559  stf     0   377  ev -1.07749 -1.08042  pq  4.87  2.00
+fa op 1  11  1.150 -0.100  stf     0  3041  ev -0.37732 -0.39256  pq  4.81  3.00
+fa op sumev   -3.33852   opt basis   -3.28695   err  0.05157
+fa Z  33.0   rm  49.06  qc 28.00  qspl 0.01941  dq 0.00000  Etot   -4515.531967
+ CPU time:    0.137 sec    Thu May 26 19:38:17 2022 on 
+=== START LFMA ===
+ mpisize=           1
+fa op 0  10  1.095 -0.231  stf     0  2109  ev -0.65927 -0.67398  pq  4.81  2.00
+fa op 1  11  1.095 -0.100  stf     0  -683  ev -0.08393 -0.20078  pq  4.69  1.00
+fa op 2  17  1.095 -2.500  stf     0     1  ev -1.42529 -1.42658  pq  3.92 10.00
+fa op sumev  -15.81455   opt basis  -15.65533   err  0.15922
+fa Z  31.0   rm  49.60  qc 18.00  qspl 0.00227  dq 0.00000  Etot   -3882.268069
+fa op 0   7  1.150 -0.559  stf     0   377  ev -1.07749 -1.08042  pq  4.87  2.00
+fa op 1  11  1.150 -0.100  stf     0  3041  ev -0.37732 -0.39256  pq  4.81  3.00
+fa op sumev   -3.33852   opt basis   -3.28695   err  0.05157
+fa Z  33.0   rm  49.06  qc 28.00  qspl 0.01941  dq 0.00000  Etot   -4515.531967
+ CPU time:    0.128 sec    Thu May 26 19:38:21 2022 on 
+=== START LFMA ===
+ mpisize=           1
+fa op 0  10  1.095 -0.231  stf     0  2109  ev -0.65927 -0.67398  pq  4.81  2.00
+fa op 1  11  1.095 -0.100  stf     0  -683  ev -0.08393 -0.20078  pq  4.69  1.00
+fa op 2  17  1.095 -2.500  stf     0     1  ev -1.42529 -1.42658  pq  3.92 10.00
+fa op sumev  -15.81455   opt basis  -15.65533   err  0.15922
+fa Z  31.0   rm  49.60  qc 18.00  qspl 0.00227  dq 0.00000  Etot   -3882.268069
+fa op 0   7  1.150 -0.559  stf     0   377  ev -1.07749 -1.08042  pq  4.87  2.00
+fa op 1  11  1.150 -0.100  stf     0  3041  ev -0.37732 -0.39256  pq  4.81  3.00
+fa op sumev   -3.33852   opt basis   -3.28695   err  0.05157
+fa Z  33.0   rm  49.06  qc 28.00  qspl 0.01941  dq 0.00000  Etot   -4515.531967
+ CPU time:    0.146 sec    Thu May 26 19:38:36 2022 on 
+=== START LFMA ===
+ mpisize=           1
+fa op 0  10  1.095 -0.231  stf     0  2109  ev -0.65927 -0.67398  pq  4.81  2.00
+fa op 1  11  1.095 -0.100  stf     0  -683  ev -0.08393 -0.20078  pq  4.69  1.00
+fa op 2  17  1.095 -2.500  stf     0     1  ev -1.42529 -1.42658  pq  3.92 10.00
+fa op sumev  -15.81455   opt basis  -15.65533   err  0.15922
+fa Z  31.0   rm  49.60  qc 18.00  qspl 0.00227  dq 0.00000  Etot   -3882.268069
+fa op 0   7  1.150 -0.559  stf     0   377  ev -1.07749 -1.08042  pq  4.87  2.00
+fa op 1  11  1.150 -0.100  stf     0  3041  ev -0.37732 -0.39256  pq  4.81  3.00
+fa op sumev   -3.33852   opt basis   -3.28695   err  0.05157
+fa Z  33.0   rm  49.06  qc 28.00  qspl 0.01941  dq 0.00000  Etot   -4515.531967
+ CPU time:    0.136 sec    Thu May 26 19:38:39 2022 on 

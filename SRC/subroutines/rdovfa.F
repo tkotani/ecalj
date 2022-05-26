@@ -1,12 +1,13 @@
       subroutine rdovfa()
       use m_density,only: zv_a_osmrho=>osmrho,sv_p_orhoat=>orhoat
-      
+
       use m_supot,only: lat_nabc,lat_ng,rv_a_ogv,iv_a_okv,rv_a_ogv
       use m_lmfinit,only:lat_alat,nsp,nbas,nspec,ssite=>v_ssite,sspec=>v_sspec,qbg=>zbak
       use m_lattic,only: lat_plat,lat_vol
       use m_struc_def,only: s_rv1
       use m_struc_func, only: mpibc1_s_spec
       use m_ext,only: sname
+      use m_lgunit,only:stdo,stdl
 !!- Read and overlap free atom densities.
 C  allocates orhoca with free-atom core density. 
 C ----------------------------------------------------------------------
@@ -34,7 +35,7 @@ C ----------------------------------------------------------------------
      .hfc(n0,2,nspec),hfct(n0,2,nspec)
       character*8 spid(nspec),spidr
       integer:: ipr , iprint , ngabc(3) , n1 , n2 , n3 , k1 , k2 , 
-     .     k3 , lgunit , stdo , stdl , i , ifi , is 
+     .     k3 , i , ifi , is 
      .     , nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ng 
      .     , iofa , kcor , lcor
       real(8) ,allocatable :: rwgt_rv(:)
@@ -49,8 +50,8 @@ C ----------------------------------------------------------------------
       integer:: i_copy_size,i_spec,ifile_handle
       call tcn('rdovfa')
       ipr   = iprint()
-      stdo  = lgunit(1)
-      stdl  = lgunit(2)
+c      stdo  = lgunit(1)
+c      stdl  = lgunit(2)
       msg   = '         File mismatch:'
       procid = mpipid(1)
       master = 0

@@ -1,4 +1,5 @@
       subroutine roplat(a,alat,alpha,b,beta,c,gamma,isym,platcv,platro)
+      use m_lgunit,only:stdo
 C- Make platro from lattice parameters
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -98,12 +99,12 @@ C Passed variables:
       integer isym(*)
       double precision a,alat,b,c,alpha,beta,gamma,platcv(9),platro(3,*)
 C Local variables:
-      integer isym1,iprint,isym3,k,lgunit,m,stdo
+      integer isym1,iprint,isym3,k,m
       double precision a1,b1,c1,al,be,ga,facdeg,pi,qlatro(3,3),
      .tb(9,7),parm,vol,wk
       parameter(pi=3.14159265358979324d0,facdeg=180.d0/pi,parm=1.d-4)
 C External calls:
-      external dmpy,iprint,lgunit,query
+      external dmpy,iprint,query
 C Data statements:
       data tb/1.0d0, .0d0, .0d0,  .0d0, 1.0d0, .0d0,  .0d0,.0d0, 1.0d0,
      .0.5d0,-.5d0, .0d0,  .5d0, 0.5d0, .0d0,  .0d0,.0d0, 1.0d0,
@@ -115,7 +116,7 @@ C Data statements:
      .-0.3333333333333d0,  0.3333333333333d0,  0.3333333333333d0,
      .-0.3333333333333d0, -0.6666666666667d0,  0.3333333333333d0/
 
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       isym1=isym(1)
       isym3=isym(3)
       a1=a
@@ -189,6 +190,7 @@ C ----take rhombohedral primitive cell  not hexagonal triple cell
   304 format(17x,'Platcv'/3(2x,3f11.7/))
       end
       subroutine cpplat(platin,platcp)
+      use m_lgunit,only:stdo
 C- Finds the most compact unit cell
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -206,8 +208,8 @@ C     implicit none
 C Passed variables:
       double precision platin(3,*)
 C Local variables:
-      integer ikd,ikd1,ikd2,ikd3,iprint,k,ll1,ltmax,lgunit,m,mn,nkd,
-     .nplat,stdo
+      integer ikd,ikd1,ikd2,ikd3,iprint,k,ll1,ltmax,m,mn,nkd,
+     .nplat
       parameter(ltmax=1,nplat=3,ll1=ltmax*2+1)
       double precision d1cd2(3),d1mach,d2,d2min,danrm2,ddot,
      .dlat(3,ll1**nplat),plat(3,3),platcp(3,3),
@@ -218,7 +220,7 @@ C Local variables:
       parameter(tollat=1.d-5)
 C External calls:
       external  cross,d1mach,danrm2,dcopy,ddot,dinv33,
-     .iprint,lgunit,prodln
+     .iprint,prodln
 C Intrinsic functions:
       intrinsic  dabs,dsqrt,idnint,mod
 C Statement functions:
@@ -235,7 +237,7 @@ C Statement functions:
       change=.true.
       lmorec=.false.
       nkd=ll1**nplat-1
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
 
       if (iprint().ge.40) write(stdo,300)
      .pro1,pro2,((platin(m,k),m=1,3),(qlatin(m,k),m=1,3),k=1,3)

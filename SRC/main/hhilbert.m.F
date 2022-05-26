@@ -55,6 +55,7 @@ c      use m_eibz,only:    Seteibz, nwgt,neibz,igx,igxt,eibzsym
       use m_mpi,only: MPI__hx0fp0_rankdivider2Q, MPI__Qtask, 
      &     MPI__Initialize, MPI__Finalize,MPI__root,
      &     MPI__Broadcast, MPI__rank,MPI__size, MPI__consoleout,MPI__barrier  
+      use m_lgunit,only:m_lgunit_init
 !! ------------------------------------------------------------------------      
       implicit none
       integer:: MPI__Ss,MPI__Se
@@ -72,6 +73,7 @@ c      use m_eibz,only:    Seteibz, nwgt,neibz,igx,igxt,eibzsym
       logical:: cmdopt2
 !-------------------------------------------------------------------------
       call MPI__Initialize()
+      call M_lgunit_init()
       call MPI__consoleout('hhilbert')
       if(MPI__root) iprintx=.true.
       call cputid (0)

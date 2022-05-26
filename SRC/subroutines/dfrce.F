@@ -5,6 +5,7 @@
       use m_lmfinit,only:lat_alat,nsp,nbas,nspec,ssite=>v_ssite,sspec=>v_sspec
       use m_lattic,only: lat_qlat, lat_vol,lat_plat
       use m_supot,only: lat_nabc,k1,k2,k3,lat_ng
+      use m_lgunit,only:stdo
 C-Correction to force theorem, Harris functional
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -63,7 +64,7 @@ C ... Passed parameters
       real(8):: dfh(3,nbas) , qmom(*)
       double complex smrho(k1,k2,k3,*),smrout(k1,k2,k3,*)
       integer job,n1,n2,n3,ng,iprint,ib,is,lmxl,iv0,nlm,
-     .ip,m,i,ngabc(3),ltop,nlmtop,igets,igetss,nn,lgunit,stdo
+     .ip,m,i,ngabc(3),ltop,nlmtop,igets,igetss,nn
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       complex(8) ,allocatable :: ceps_zv(:)
       complex(8) ,allocatable :: cnomi_zv(:)
@@ -96,7 +97,7 @@ C --- Setup ---
       plat=lat_plat
       qlat=lat_qlat
       c = 1000
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       nn   = k1*k2*k3
 
 C ... Arrays needed for pvdf1

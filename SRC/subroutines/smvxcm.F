@@ -3,10 +3,11 @@
      .rvepsm,focexc,focex,focec,focvxc,f)
       use m_supot,only: rv_a_ogv,iv_a_okv
       use m_struc_def
-      use m_lmfinit,only: rv_a_ocy,   lat_alat, lxcf,nsp,stdo
+      use m_lmfinit,only: rv_a_ocy,   lat_alat, lxcf,nsp
       use m_lattic,only: lat_vol
       use m_supot,only: lat_nabc
       use m_supot,only: lat_ng
+      use m_lgunit,only:stdo
 
 
 C- XC potential for smooth mesh density
@@ -93,7 +94,7 @@ c      type(s_lat)::slat
       double complex smrho(k1,k2,k3,*),smpot(k1,k2,k3,*),
      .smvxc(k1,k2,k3,*),smvx(k1,k2,k3,*),smvc(k1,k2,k3,*),
      .smexc(k1,k2,k3)
-      integer:: i , k123 , n1 , n2 , n3 , lgunit , ng , lfoc1 
+      integer:: i , k123 , n1 , n2 , n3 , ng , lfoc1 
      .   , lfoc2 , iprint , excsan 
       complex(8) ,allocatable :: cgh1_zv(:)
       complex(8) ,allocatable :: cgh2_zv(:)
@@ -286,6 +287,7 @@ C --- Force from foca sm-head; cgh1 is workspace ---
       subroutine smvxc2(mode,nsp,lxcfun,vol,n1,n2,n3,k1,k2,k3,smrho,
      .     smvxc,smvx,smvc,smexc,       rhoeps,rhoex,rhoec,rhomu,vxcavg)
       use m_ftox
+      use m_lgunit,only:stdo
 c      use m_struc_def, only: s_lat
 !! Not documented well yet.
 !!= Makes smooth part of xc potential smvxc and optionally dsmvxc/drho =
@@ -352,7 +354,7 @@ C ... Passed parameters
      .smvx(k1,k2,k3,nsp),smvc(k1,k2,k3,nsp),
      .smexc(k1,k2,k3) !,dsmvxc(k1,k2,k3,nsp)
 C ... Local parameters
-      integer i,i1,i2,i3,lgunit,lxcf,nx,stdo,iprint,n1x,lxcg,nglob,mode1
+      integer i,i1,i2,i3,lxcf,nx,iprint,n1x,lxcg,nglob,mode1
       parameter (n1x=512)
       double precision alfa,dfdr,dvdr,f,f1,f2,rrho,fac,dmach,rrmin
       double precision repnl(2),rmunl(2),vavgnl(2)
@@ -373,7 +375,7 @@ c      type(s_lat)::slat
       real(8):: sss ,smmin(2)
       call tcn('smvxc2')
       if (n1 .gt. n1x) call rxi('smvxc2: increase n1x, need',n1)
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       lxcf = mod(lxcfun,100)
       lxcg = mod(lxcfun/100,100)
       alfa = 2d0/3d0
@@ -577,6 +579,7 @@ C      endif
 
       subroutine smvxc3(vol,nsp,n1,n2,n3,k1,k2,k3,smrho,smcor,dsmvxc,
      .smvxc,rmuxcc)
+      use m_lgunit,only:stdo
 
 C- Smooth core density times dvxc/drho
 C ----------------------------------------------------------------------
@@ -626,7 +629,7 @@ C 862 format(' csum=',2f14.8)
       end subroutine smvxc3
 
       subroutine smvxc4(nbas,nsp,ssite,sspec,alat,vol,cy,ng,gv,cvxc,f)
-
+      use m_lgunit,only:stdo
       use m_struc_def  !Cgetarg
 
 C- For foca, adds force from shift of smH-head against Vxc.
@@ -662,13 +665,13 @@ C ... Passed parameters
 
       double complex cvxc(ng,nsp)
 C ... Local parameters
-      integer stdo,k0,nlmx,lgunit,kmax,ib,is,lfoc,i,kb,iprint
+      integer k0,nlmx,kmax,ib,is,lfoc,i,kb,iprint
       double precision tau(3),v(3),pi,tpiba,qcorg,qcorh,qsc,cofg,
      .cofh,ceh,rfoc,z,sum1,sum2,sum3,xx
       parameter (k0=3, nlmx = 9)
       double complex gkl(0:k0,nlmx),ccc,cvxci
 
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       pi = 4d0*datan(1d0)
       tpiba = 2d0*pi/alat
       kmax = 0

@@ -20,6 +20,7 @@ c-----------------------------------------------------------------------
       use m_anf,only: anfcond,laf
       use m_hamindex,only: Readhamindex, nhq=>ndham
       use m_mpi,only: MPI__Initialize,MPI__Finalize
+      use m_lgunit,only: m_lgunit_init
       implicit real*8 (a-h,o-z)
       implicit integer (i-n)
 c     local data
@@ -66,7 +67,8 @@ c----------------------------------------------
       integer,allocatable:: nev(:,:)
       complex(8),allocatable:: ovl(:,:)
       character(8):: xt
-      call MPI__Initialize() !this is just for exit routine subroutine rx('...') works well.
+      call MPI__Initialize()    !this is just for exit routine subroutine rx('...') works well.
+      call m_lgunit_init()
       hartree=2d0*rydberg()
 
 !! Shift quasiparticle energies (eV)

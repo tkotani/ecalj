@@ -1,7 +1,8 @@
       subroutine ovlocr ( nbas , ssite , sspec ,  nxi0 , nxi 
      .  , exi , hfc , rsmfa , rv_a_orhofa , sv_p_orhoat , sqloc, slmom )
-      use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nsp,stdo
+      use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nsp
       use m_struc_def
+      use m_lgunit,only:stdo
 C- Makes the site densities for overlapped free atoms.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -35,7 +36,7 @@ C ----------------------------------------------------------------------
       type(s_spec)::sspec(*)
 c      parameter(nrmx=1501,nlmx=64,ktop0=25)
       integer:: ib , ipr , iprint , is , jb , je , js , kmxv , lfoca 
-     .    , lgunit , lmxl , nlmh , nlml , nr , i
+     .    , lmxl , nlmh , nlml , nr , i
       double precision ceh,cofg,cofh,eh,qcorg,qcorh,qsc,qcsm,qloc,rfoca,
      .rmt,rsmh,rsmv,z,amom
       double precision a,p1(3),
@@ -221,7 +222,7 @@ C ... Local parameters
 
       subroutine p2ovlc(ib,nsp,rsmv,kmxv,nr,nlml,acof,rofi,rwgt, !rhohd,
      .nxi0,nxi,exi,hfc,rsmfa,rhofa,rhoc,lfoca,qcsm,qloc,amom,rho1,rho2)
-
+      use m_lgunit,only:stdo
 C- Assemble local density from P_kl expansion for one site
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -262,16 +263,16 @@ C ... Passed parameters
      .rho2(nr,nlml,nsp),rofi(nr),rwgt(nr),rhohd(nr,nsp),exi(1),
      .hfc(nxi0,nsp),rhoc(nr,nsp),acof(0:kmxv,nlml,nsp),rsmv,rsmfa,amom
 C ... Local parameters
-      integer stdo !kmx,lmx,
+c      integer stdo !kmx,lmx,
 c      parameter (kmx=20, lmx=6)
-      integer i,ie,ilm,ipr,iprint,k,l,lgunit,ll,lmax,lmxl,isp
+      integer i,ie,ilm,ipr,iprint,k,l,ll,lmax,lmxl,isp
       double precision asm,gam,pi,qall,qexa,qin,qlc,qnum,qout,qsmo,qut,
      .r,rl,rmt,srfpi,sum,sumfa,sumhd,sumsm,sumtr,y0,
      .xi(0:10),x0(0:2),ddot !pkl(0:kmx,0:lmx)
       real(8),allocatable:: pkl(:,:)
 
       ipr   = iprint()
-      stdo  = lgunit(1)
+c      stdo  = lgunit(1)
       pi    = 4d0*datan(1d0)
       srfpi = dsqrt(4*pi)
       y0    = 1d0/srfpi

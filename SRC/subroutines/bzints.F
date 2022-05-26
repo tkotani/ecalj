@@ -1,5 +1,6 @@
       subroutine bzints(n1,n2,n3,ep,wp,nq,nband,nbmx,nsp,emin,emax,
      .     dos,nr,ef,job,ntet,idtet,sumev,sumwp)
+      use m_lgunit,only:stdo
 C- BZ integrations by linear method
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -36,12 +37,12 @@ C Passed parameters
      .emin,emax,ef,sumev,sumwp
 C Local parameters
       integer ib,iq,iq1,iq2,iq3,iq4,isp,itet,jjob
-      integer lgunit,ipr,stdo
+      integer ipr
       double precision ec(4),wc(4,2),ebot,etop,sev1,sev2,sumwm,
      .volwgt
       character(10):: i2char
       call getpr(ipr)
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
 C     stdl = lgunit(2)
       jjob = iabs(job)
       if (job .lt. 0 .and. nsp .eq. 2 .or.jjob .ne. 1 .and. jjob .ne. 2)

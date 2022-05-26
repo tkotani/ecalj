@@ -2,8 +2,9 @@
       use m_supot,only:  rv_a_ogv , iv_a_oips0 , zv_a_obgv ,iv_a_okv
       use m_mksym,only: iv_a_oistab , rv_a_osymgr, rv_a_oag
       use m_struc_def  
-      use m_lmfinit,only: nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,lf=>ctrl_lfrce,stdo
+      use m_lmfinit,only: nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,lf=>ctrl_lfrce
       use m_supot,only: lat_nabc
+      use m_lgunit,only:stdo
 C- Symmetrize charge density and related quantities
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -56,6 +57,7 @@ C ----------------------------------------------------------------------
       use m_mksym,only: iv_a_oistab , rv_a_osymgr, rv_a_oag,lat_nsgrp
       use m_lattic,only: lat_qlat
       use m_lattic,only:lat_plat
+      use m_lgunit,only:stdo
 C     - Symmetrize the atomic charge densities and the forces.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -96,7 +98,7 @@ C ... Passed parameters
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 c      type(s_lat)::slat
-      integer:: stdo , ib0 , ic , ipr , iprint , is , lgunit , lmxa 
+      integer:: ib0 , ic , ipr , iprint , is , lmxa 
      .       , lmxl , nclass , ngrp , nlml , nlmx , nr , nrclas , igetss , 
      .       mxint , ival,i_copy_size,i_spackv
       integer ,allocatable :: ipa_iv(:)
@@ -108,7 +110,7 @@ c      type(s_lat)::slat
       real(8) ,allocatable :: sym_rv(:)
       double precision plat(3,3),qlat(3,3)
       call tcn('symrat')
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       ipr = iprint()
       plat=lat_plat
       qlat=lat_qlat
@@ -196,6 +198,7 @@ C ... Local parameters
       end subroutine psymrf
 
       subroutine psymrq(nrclas,nsp,ipa,lmxa,qbyl,hbyl)
+      use m_lgunit,only:stdo
 C- Symmetrize l-decomposed site charges and eval sums
       implicit none
 C ... Passed parameters
@@ -203,9 +206,9 @@ C ... Passed parameters
       parameter (n0=10)
       double precision qbyl(n0,nsp,1),hbyl(n0,nsp,1)
 C ... Local parameters
-      integer stdo,ia,ib,iprint,l,lgunit,isp,icopy_size
+      integer ia,ib,iprint,l,isp,icopy_size
       double precision qsum(n0,2),hsum(n0,2),fac
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       call dpzero(qsum,2*n0)
       call dpzero(hsum,2*n0)
       fac = 1d0/nrclas
@@ -246,19 +249,19 @@ c  770   format(' atom site ib=',255i3)
       subroutine psymr1 ( nrclas , ipa , nr , nlml , nsp , nlmx , sym 
      . , rho , sv_p_orhoat , icmp )
       use m_struc_def, only: s_rv1
+      use m_lgunit,only:stdo
 C- Symmetrize density for one class of atoms
       implicit none
 C ... Passed parameters
       integer nrclas,nsp
       integer:: ipa(nrclas) , nlmx , nr , nlml , icmp
       type(s_rv1) :: sv_p_orhoat(3,1)
-
       double precision sym(nlmx,nlmx,nrclas),rho(nr,nlml,nsp)
 C ... Local parameters
-      integer stdo,ia,ib,iprint,lgunit,nn
+      integer ia,ib,iprint,nn
       double precision wgt
 C ... Accumulate symmetrized true density on first site
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       call dpzero(rho, nr*nlml*nsp)
       do  ia = 1, nrclas
         ib = ipa(ia)
@@ -324,15 +327,16 @@ C   10   smrho(i1,i23,1) = dble(smrho(i1,i23,1))
       end subroutine symsmrho
 
       subroutine rhopos(smrho,k1,k2,k3,n1,n2,n3)
+      use m_lgunit,only:stdo
 C- Make smrho real and positive
       implicit none
 C ... Passed parameters
       integer k1,k2,k3,n1,n2,n3
       double complex smrho(k1,k2,k3)
 C ... Local parameters
-      integer stdo,lgunit,i1,i2,i3,nneg
+      integer i1,i2,i3,nneg
       double precision rmin,xx
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       nneg = 0
       rmin = 999
       do    i3 = 1, n3

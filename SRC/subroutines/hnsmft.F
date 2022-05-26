@@ -1,4 +1,5 @@
       subroutine hnsmft(rofi,rho,nr,qout,a,b,nrmt,e,qcst,xi,f,nf,err)
+      use m_lgunit,only:stdo
 C- Fit the charge density tail to nf functions
 C-----------------------------------------------------------------------
 Ci Inputs
@@ -31,7 +32,7 @@ C Passed parameters
       double precision rofi(nr),rho(nr),e(nf),f(nf+1),xi(nr,nf),qcst(nf),
      .qout
 C Local variables
-      integer i,ip,ipr,ir,ire,irs,is,j,nfmax,info,lpr,lgunit,stdo
+      integer i,ip,ipr,ir,ire,irs,is,j,nfmax,info,lpr
       parameter (nfmax = 10)
       integer ipiv(nfmax)
       double precision r,rhot,rhotol,err,a,b,dif,fpi,fit,qtf,qtr,qof,qor
@@ -42,7 +43,7 @@ C --- Setup ---
       fpi = 16*datan(1d0)
       rhotol = 1d-12
       call getpr(ipr)
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
 
 C --- Find odd mesh points for integrations of the tail density ---
       irs = nrmt

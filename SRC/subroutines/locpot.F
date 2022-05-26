@@ -1,4 +1,5 @@
       module m_locpot
+      use m_lgunit,only:stdo
       public locpot
       private
       contains
@@ -9,7 +10,7 @@
      .    rveps , rvvxc , valvef , xcore , focexc , focex , focec , focvxc 
      .    , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , 
      .     nlibu , lmaxu , vorb , lldau,novxc)!,idipole )
-      use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkaph,stdo,lxcf,lhh,nkapii,nkaphh,alat
+      use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkaph,lxcf,lhh,nkapii,nkaphh,alat
       use m_lmfinit,only: n0,nppn,nab,nrmx,nkap0,nlmx,nbas,nsp,lso,ssite=>v_ssite, sspec=>v_sspec,mxcst4
       use m_MPItk,only: master_mpi
       use m_struc_def  
@@ -624,7 +625,7 @@ C ... Passed parameters
      .v2(nr,nlml,nsp),v2es(nr,nlml,nsp),
      .wk(nr,nlml,nsp),rhoc(nr,nsp)
       double precision efg(5)
-      integer stdo,lgunit,ipr,iprint,ll,i,isp,ilm,l,lxcfun,nglob,nrml,
+      integer ipr,iprint,ll,i,isp,ilm,l,lxcfun,nglob,nrml,
      .isw,isw2
       double precision rhochs(nrmx*2),rhonsm(nrmx),df(0:20),cof(nlmx),
      .rhocsm(nrmx),xi(0:40),tmp(2)
@@ -641,7 +642,7 @@ C ... Passed parameters
       integer:: ifivesint
 c      logical:: novxc
       call tcn('locpt2')
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       ipr = iprint()
       isw = mod(job/1000,10)
       isw2 = mod(job/100000,10)*10

@@ -32,6 +32,7 @@
      &   ngvecptt,ngvecctt,ngptt,ngctt, ngplist,ndimhall,iqindex,qplist,nqirr
       use m_read_bzdata,only: Read_bzdata,
      &     nqibz,qibz, nq0i,nq0iadd,wt,q0i,iq0pin
+      use m_lgunit,only: m_lgunit_init
       
 !xxx nphi,        ! number of augmentation nRl channels, as distinct from:
 ! ldim2,       ! number of nRLm channels = 2*ldim for phi+phidot case.
@@ -180,6 +181,7 @@ c     &     , checkdia=.true.    !only write normchk.dia This is relevant only f
 
 !!
       call MPI__Initialize()
+      call m_lgunit_init()
       call lmf2gw() !set variables, and CphiGeig
       call read_bzdata()
       if(verbose()>50 ) debug=.true.

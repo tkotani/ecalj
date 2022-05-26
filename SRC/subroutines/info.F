@@ -1,4 +1,5 @@
       subroutine info(jpr,l1,l2,string,a1,a2)
+      use m_lgunit,only:stdo
 C- Printout when ipr>=jpr, with some blank lines
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -22,7 +23,7 @@ C ... Passed parameters
       integer jpr,l1,l2,a1,a2,a3,a4,a5,a6,a7,a8
       character*(*) string
 C ... Local parameters
-      integer i,iprint,stdo,lgunit,recl,awrite,mpipid
+      integer i,iprint,recl,awrite,mpipid
       parameter (recl=1024)
       character*(recl) lstr
       entry info0(jpr,l1,l2,string)
@@ -34,7 +35,7 @@ C ... Local parameters
         i = mpipid(1)
         if (i .ne. 0) return
       endif
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       do  10  i = 1, l1
          write(stdo,100)
  10   continue

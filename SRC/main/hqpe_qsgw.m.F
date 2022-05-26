@@ -11,6 +11,7 @@ c xcLDA(k,t) = <psi(k,t)| vxc |psi(k,t)>
 c SEx and xcLDA are in file SEX
 c SEc is in file SEC
       use m_keyvalue,only:getkeyvalue
+      use m_lgunit,only: m_lgunit_init
       implicit real*8 (a-h,o-z)
       implicit integer(i-n)
 c local data
@@ -50,6 +51,7 @@ c      logical:: readgwinput
 
 
 
+      call M_lgunit_init()
 c shift quasiparticle energies (eV)
       write (*,*)' q+band index for zero?'
       read (*,*)jin

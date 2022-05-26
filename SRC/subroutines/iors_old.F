@@ -1,5 +1,7 @@
       module m_iors_old!this module is for reading(and writing old version) of rst file befor 2022-5-14
-      use m_struc_def  !we will remove this at some point.
+      use m_struc_def           !we will remove this at some point.
+      use m_lgunit,only:stdo
+      
       public iors_old
       type(s_rv1),public,allocatable :: v1pot(:),v0pot(:)
       private
@@ -103,7 +105,7 @@ C ... Local parameters
      .lmxa0,lmxb,lmxb0,lmxl,lmxl0,lmxr,lmxv,lmxv0,lrel0,n11,n21,
      .n31,nbas0,nspec0,nlml,nlml0,npan,npan0,nr,nr0,nsp0,
      .nxi,nat0,ibaug
-      integer:: ngabc(3) , n1 , n2 , n3 , lgunit , stdo , isw
+      integer:: ngabc(3) , n1 , n2 , n3 , isw
       complex(8) ,allocatable :: h_zv(:)
       real(8) ,allocatable :: rwgt_rv(:)
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
@@ -136,7 +138,7 @@ C ... MPI setup
       call dinv33(plat,1,qlat,fac)
       vol = dabs(fac)*alat**3
       ipr    = iprint()
-      stdo   = lgunit(1)
+c      stdo   = lgunit(1)
       vs   =  1.04d0
       msg  = '         File mismatch:'
       msgw = '         warning:'

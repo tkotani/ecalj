@@ -1,4 +1,5 @@
       subroutine fixef0(zval,nsp,nspc,nevx,ndev,evl,dosw,ef0)
+      use m_lgunit,only:stdo
 C- Corrects estimate for Fermi level
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -22,7 +23,7 @@ C ... Passed parameters
       integer nsp,nspc,ndev,nevx
       double precision zval,ef0,evl(ndev*2),dosw(2)!takao evl(ndev)->evl(ndev*2)
 C ... Local parameters
-      integer:: i , i1 , stdo , lgunit , ipr , nbpw , i1mach
+      integer:: i , i1 , ipr , nbpw , i1mach
       integer ,allocatable :: bmap_iv(:)
       real(8) ,allocatable :: wk_rv(:)
 
@@ -30,7 +31,7 @@ C ... Local parameters
 C ... Heap
 
       call getpr(ipr)
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       if (nsp .eq. 2) then
         nbpw = int(dlog(dble(i1mach(9))+1d0)/dlog(2d0))
         allocate(bmap_iv(abs(-(nevx*nsp/nbpw+1))))

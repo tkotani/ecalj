@@ -1,10 +1,10 @@
 module m_rhocor
+  use m_lgunit,only:stdo
   public:: rhocor
   private
 contains
   subroutine rhocor(isw,z,lmax,nsp,konfig,a,b,nr,rofi,v,g,kcor,lcor, &
        qcor,tol,ec,sumec,sumtc,rho,gcore,nmcore,ipr) !nmcore jun2012
-
     !- Generates the (spherical) charge density from the core states
     ! ----------------------------------------------------------------------
     !i Inputs:
@@ -54,7 +54,7 @@ contains
     integer,optional:: nmcore
     ! ... Local parameters
     character(1) :: pqn(9),ang(6)
-    integer :: icore,isp,konf,l,ll,nodes,nre,stdo,lgunit,iprint,ir
+    integer :: icore,isp,konf,l,ll,nodes,nre,iprint,ir
     double precision :: deg,dlml,e1,e2,ecor0,ecore,qcore,rhorim,rmax, &
          rorim,slo,sumx,tcore,val,vrho,kappa2
     ! ... Heap
@@ -76,8 +76,6 @@ contains
        vaa=v
     endif
     !! -------------------------------
-
-    stdo = lgunit(1)
     rmax  = rofi(nr)
     b     = rmax/(dexp(a*nr-a)-1.d0)
     e1    = -2.5d0*z*z - 5d0
@@ -120,7 +118,6 @@ contains
              endif
              ec(icore) = ecore
              if (isw == 1) call dcopy(2*nr,g,1,gcore(1,1,icore),1)
-
              !     --- Add to rho, make integral v*rho ---
              call xyrhsr(ecore,l,z,a,b,nr,nre,g,rofi,vaa(1,isp),rho(1,isp), &
                   deg,vrho,rorim)
@@ -141,12 +138,14 @@ contains
   end subroutine rhocor
 end module m_rhocor
 
+
 subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, &
      nr,rofi,ec,ev,pnu,qnu,idmod,v,dv,rhoin,rho,rhoc,nrmix,qc,sumec, &
      sumtc,sumev,ekin,utot,rhoeps,etot,amgm,rhrmx,vrmax,qtot,exrmax, &
      job,niter,lfrz,plplus,qlplus,nmcore,qelectron,vsum)
-  use  m_lmfinit,only: lrel
-  use  m_getqvc
+  use m_lmfinit,only: lrel
+  use m_getqvc
+  use m_lgunit,only: stdo
   !- Makes an atomic sphere self-consistent and get atomic charges
   ! ----------------------------------------------------------------
   !i Inputs
@@ -233,7 +232,6 @@ subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, &
   !b   Total energy terms need to be cleaned up and simplified.
   ! ----------------------------------------------------------------
   implicit none
-  ! Passed parameters
   logical :: lfrz,lgdd
   character job*3
   integer :: nr,nsp,nl,nrmix,niter,kcor,lcor,ncmx,nvmx,lmax, &
@@ -244,11 +242,8 @@ subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, &
        qnu(3,nl,nsp),z,rmax,a,qc,vrmax(2),exrmax(2),dv,rhrmx, &
        rhozbk,qcor(2),amgm,ekin,etot,qtot,rhoeps,sumec,sumev,sumtc, &
        utot
-  !     double precision z(nl,2),qz(3,nl,3)
-  !     integer idmoz(nl)
-  !  Local parameters
   logical :: last,cmdopt,ltmp
-  integer :: iprint,ir,isp,iter,jmix,lgunit,nglob,ipr1,l,ii,stdo
+  integer :: iprint,ir,isp,iter,jmix,nglob,ipr1,l,ii
   character strn*10
   double precision :: b,ddot,decay,dl,dold,drdi,drho,dsumec,ea,fac,pi, &
        rho0t,rhomu,rhovh,rmsdel,ro,sum,tolrsq,vhrmax,vnucl,vrhoc,vsum, &
@@ -257,22 +252,16 @@ subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, &
   integer:: amix , nmix
   real(8) ,allocatable :: rho_rv(:)
   real(8):: plplus(0:lmax,nsp),qlplus(0:lmax,nsp),qelectron
-
   double precision :: norm(10,10),awk(10,2),beta,beta1
   parameter (beta = 0.3d0)
-
-  ! Heap allocation
-  !      integer w(1)
-  !      common /w/ w
   ! tolch is tolerance for change in the charge density, tolv for rseq
   double precision :: tolch,tl
   parameter (tolch=5d-5,tolrsq=1d-12)
-  external lgunit
+!  external lgunit
   integer:: nmcore
   print *,'atomsc nmcore=',nmcore
   if (lmax >= nl) call rx('atomsc:  lmax too large')
   !      lrel = globalvariables%lrel
-  stdo = lgunit(1)
   pi = 4d0*datan(1d0)
   b = rmax/(dexp(a*(nr-1)) - 1)
   vhrmax = 0d0
@@ -367,10 +356,7 @@ subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, &
   else if (job /= 'rho') then
      call rx('atomsc: job not pot|rho|gue')
   endif
-  call dpscop ( rhoin , rho_rv , nr * nsp , 1 , 1 + nr * nsp &
-       * ( nmix + 2 ) , 1d0 )
-
-
+  call dpscop ( rhoin , rho_rv , nr * nsp , 1 , 1 + nr * nsp* ( nmix + 2 ) , 1d0 )
   ! --- Start self-consistency loop ---
   drho = 100d0
   last = .false.
@@ -389,14 +375,11 @@ subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, &
      vhrmax=2d0*(qelectron-z)/rmax
      !        print *,'vvv vh=',vhrmax
      call poiss0(z,a,b,rofi,rhoin,nr,vhrmax,v,rvh,vsum,nsp)
-
      !! 22march2013 !z is replaced by qelectron
      !        print *,'vvvvvvv1', vsum,z,qelectron!,rmax
      vsum = vsum + 4d0*pi*(z-qelectron)*rmax**2
      !        print *,'vvvvvvv2', vsum,4d0*pi*rofi(nr,1)**2
-
      !       call prrmsh('vh atom ',rofi,v,nr,nr,nsp)
-
      call addzbk(rofi,nr,nsp,rhoin,rhozbk,1d0)
      vnucl = v(1,1)
      !       Exchange-correlation potential
@@ -510,7 +493,6 @@ subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, &
 55 enddo
   vrmax(2) = 0
   if (nsp == 2) vrmax(2) = v(nr,1)-v(nr,2)
-
   !$$$C --- write out rho if requested ---
   !$$$      if (cmdopt('--dumprho',8,0,strn)) then
   !$$$        call prrmsh('rho for atom ',rofi,rho,nr,nr,nsp)
@@ -532,13 +514,11 @@ subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, &
 end subroutine atomsc
 
 subroutine addzbk(rofi,nr,nsp,rho,rhozbk,scale)
-
   !     implicit none
   integer :: nr,nsp
   double precision :: rofi(*),rho(nr,*),rhozbk,scale
   integer :: ir,isp
   double precision :: s
-
   if (rhozbk == 0) return
   s = 16*datan(1d0)*scale*rhozbk
   do   isp = 1, nsp
@@ -549,7 +529,6 @@ subroutine addzbk(rofi,nr,nsp,rho,rhozbk,scale)
 end subroutine addzbk
 
 subroutine poiss0(z,a,b,rofi,rho,nr,vhrmax,v,rhovh,vsum,nsp)
-
   !- Hartree potential for spherical rho.
   !  ---------------------------------------------------------------------
   !i Inputs:
@@ -578,7 +557,6 @@ subroutine poiss0(z,a,b,rofi,rho,nr,vhrmax,v,rhovh,vsum,nsp)
   double precision :: rmax,r2,r3,r4,f2,f3,f4,x23,x34,cc,bb,dd,df,drdi, &
        r,srdrdi,g,f,y2,y3,y4,ro,vnow,wgt,a2b4,vhrmax,vsum,vhat0
   integer :: ir,isp
-
   real(8):: qtotxxx
   pi = 4d0*datan(1d0)
   ea = dexp(a)
@@ -588,7 +566,6 @@ subroutine poiss0(z,a,b,rofi,rho,nr,vhrmax,v,rhovh,vsum,nsp)
      rpb = rpb*ea
 5 enddo
   rmax = rofi(nr)
-
   ! --- Approximate rho/r**2 by cc + bb*r + dd*r*r near zero  ---
   r2 = rofi(2)
   r3 = rofi(3)
@@ -638,13 +615,11 @@ subroutine poiss0(z,a,b,rofi,rho,nr,vhrmax,v,rhovh,vsum,nsp)
      y2 = y3
      y3 = y4
 13 enddo
-
   ! --- Add constant to get v(nr) = vhrmax ---
   vnow = v(nr,1) - 2d0*z/rmax
   do  27  ir = 1, nr
      v(ir,1) = v(ir,1) + (vhrmax - vnow)
 27 enddo
-
   ! --- Integral vh and  rho * vh ---
   vhint=0d0
   rhovh(1) = 0d0
@@ -676,118 +651,7 @@ subroutine poiss0(z,a,b,rofi,rho,nr,vhrmax,v,rhovh,vsum,nsp)
 84 enddo
 end subroutine poiss0
 
-
-!      subroutine fctp0(l,rofi,v,z,nr,nctp0,xrim,xmin,nsave)
-!C- Initialize things for FCTP, which finds classical turning point
-!C  ---------------------------------------------------
-! i Inputs
-! i   l     :angular quantum number
-! i   rofi  :radial mesh points
-! i   v     :spherical potential (atomsr.f)
-! i   z     :nuclear charge
-! i   nr    :number of radial mesh points
-! o Outputs:
-! o   nctp0:
-! o   xrim:
-! o   xmin:
-! o   nsave: Estimate for nctp
-!C  ---------------------------------------------------
-!      implicit none
-!      integer l,nctp0,nr,nsave
-!      double precision xmin,xrim,z,v(nr),rofi(nr)
-!C Local
-!      integer ir
-!      double precision fllp1,r,x,xlast
-!      fllp1 = l*(l + 1)
-!      r = rofi(10)
-!      x = fllp1/r/r - 2d0*z/r + v(10)
-!      ir = 10
-!   80 ir = ir + 1
-!      xlast = x
-!      r = rofi(ir)
-!      x = fllp1/r/r - 2d0*z/r + v(ir)
-!      if (x .le. xlast .and. ir .lt. nr) goto 80
-!      nctp0 = ir - 1
-!      xmin = xlast
-!      r = rofi(nr)
-!      xrim = fllp1/r/r - 2d0*z/r + v(nr)
-!      if (xmin .ge. xrim-3d0) nctp0 = nr
-!      if (xmin .ge. xrim-3d0) xmin = xrim
-!      nsave = (nctp0 + nr)/2
-!      end
-!      subroutine fctp(e,nctp,nctp0,xrim,xmin,nsave,l,rofi,v,z,nr,a,b)
-!C- Finds classical turning point for wave function
-!C ----------------------------------------------------------------------
-! i Inputs
-! i   e     :energy
-! i   nctp0 :
-! i   xrim  :
-! i   xmin  :
-! i   nsave: Estimate for nctp
-! i   l     :l quantum number
-! i   rofi  :radial mesh points
-! i   v     :spherical potential
-! i   z     :nuclear charge
-! i   nr    :number of radial mesh points
-! i   a     :mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
-! i   b     :mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
-! o Outputs:
-! o   nctp:  rofi(nctp) is classical turning point
-! o   nsave: New estimate for NCTP, next iteration
-! r Remarks
-!C  ---------------------------------------------------
-!      implicit none
-!      integer l,nctp,nctp0,nr,nsave
-!      double precision a,b,e,xmin,xrim,z,v(nr),rofi(nr)
-!C Local
-!      integer irep,k,n1,n2,nlast,ntry
-!      double precision dfdr,dvdr,fllp1,fntry,fofr,r,rtry,vme
-
-!      fllp1 = l*(l+1)
-!      if (nctp0 .eq. nr) then
-!        nctp = nr
-!        return
-!      endif
-!      if (e .gt. xrim) then
-!        nctp = nr
-!        return
-!        endif
-!      if (e .lt. xmin) then
-!        nctp = 2
-!        return
-!      endif
-!      n1 = nctp0
-!      n2 = nr
-!      nctp = nsave
-!      nlast = -10
-!      do  20  irep = 1, 20
-!      if (nctp.gt.n2 .or. nctp.lt.n1) nctp=(n1+n2+1)/2
-!        r = rofi(nctp)
-!        vme = (v(nctp)-e)
-!        if (nctp .gt. nr) call rx('fctp0: nctp gt nr')
-!        k = min(nctp,nr-1)
-!        dvdr = (v(k+1)-v(k-1))/(2.d0*a*(r+b))
-!C       dvdr = (v(nctp+1)-v(nctp-1))/(2.d0*a*(r+b))
-!        fofr = fllp1/r/r - 2.d0*z/r + vme
-!        dfdr = -2.d0*fllp1/r/r/r+2.d0*z/r/r + dvdr
-!        rtry = r - fofr/dfdr
-!        rtry = dmax1(rtry,rofi(2))
-!        fntry = dlog(rtry/b+1.d0)/a + 1.d0
-!        ntry = fntry + .5d0
-!C|      write(6,810) irep,n1,nctp,n2,fntry,ntry
-!C|810   format(i6,'   n1,nctp,n2=',3i5,'   ntry=',f8.3,i6)
-!        if (nlast .eq. nctp) goto 98
-!        if (fofr .gt. 0.d0) n2=nctp
-!        if (fofr .lt. 0.d0) n1=nctp
-!        nlast = nctp
-!        nctp = ntry
-!   20 continue
-!   98 if (nctp .eq. nctp0+1) nctp = 2
-!      nsave = nctp
-!      end
-
 subroutine fctp0(l,nr,rofi,v,z,nctp0)
-
   !- Initialize things for FCTP, which finds classical turning point
   ! ----------------------------------------------------------------------
   !i Inputs:
@@ -810,7 +674,6 @@ subroutine fctp0(l,nr,rofi,v,z,nctp0)
   parameter (irmin=11)
   ! Statement functions:
   veff(ir)=fllp1/(rofi(ir)*rofi(ir))-zz/rofi(ir)+v(ir)
-
   zz = z+z
   fllp1 = l*(l+1)
 
@@ -823,14 +686,11 @@ subroutine fctp0(l,nr,rofi,v,z,nctp0)
      vi = veff(ir)
      goto 10
   endif
-
   nctp0 = ir-1
   if (veff(nctp0) >= veff(nr)-3.d0) nctp0 = nr
-
 end subroutine fctp0
 
 subroutine fctp(a,b,e,l,nctp0,nr,rofi,v,z,nctp)
-
   !- Finds classical turning point
   !  ---------------------------------------------------------------------
   !i Inputs:
@@ -900,7 +760,6 @@ subroutine fctp(a,b,e,l,nctp0,nr,rofi,v,z,nctp)
 21            continue
            endif
         endif
-
         !         Exit point
         if (nlast == nctp) then
            if (nctp == nctp0+1) nctp = 2
@@ -1137,10 +996,7 @@ subroutine newrho(z,lrel,lgdd,nl,nlr,lmax,a,b,nr,rofi,v,rho,rhoc, &
 end subroutine newrho
 
 
-
-subroutine xyrhsr(ecore,l,z,a,b,nr,nre,g,rofi,v,rho,deg,vrho, &
-     rhormx)
-
+subroutine xyrhsr(ecore,l,z,a,b,nr,nre,g,rofi,v,rho,deg,vrho, rhormx)
   !- Make density and integrate potential*density for one core state
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -1176,7 +1032,6 @@ subroutine xyrhsr(ecore,l,z,a,b,nr,nre,g,rofi,v,rho,deg,vrho, &
   double precision :: fpi,fllp1,vrho,r,wgt,tmc,c,gfac,rhoir,deg,rmax
   !     Speed of light, or infinity in nonrelativistic case
   common /cc/ c
-
   fpi = 16d0*datan(1d0)
   fllp1 = l*(l+1)
   vrho = 0
@@ -1197,7 +1052,6 @@ subroutine xyrhsr(ecore,l,z,a,b,nr,nre,g,rofi,v,rho,deg,vrho, &
   !     nfp has the following line:
   !     if (nre .ge. nr) rhormx = deg*g(nr,1)**2/(rmax*rmax*fpi)
   if (nre >= nr) rhormx = deg*rhoir/(fpi*rmax**2)
-
   ! ... Integrate rho*v from nrmx+1 .. nre
   do  12  ir = nrmx+1, nre
      r = rofi(ir)
@@ -1209,7 +1063,6 @@ subroutine xyrhsr(ecore,l,z,a,b,nr,nre,g,rofi,v,rho,deg,vrho, &
      vrho = vrho + wgt*rhoir * (v(ir)-2*z/r) * (r+b)
 12 enddo
   vrho = vrho*a/3
-
 end subroutine xyrhsr
 
 
@@ -1298,8 +1151,8 @@ end subroutine xyrhsr
 !      if (iprint() .ge. 111) print 749, phi,dphi,phip,dphip
 !  749 format(' PHIDOT:  phi,phip,phip,dphip=',4f12.6)
 !      end
-subroutine gintsr(g1,g2,a,b,nr,z,e,l,v,rofi,sum)
 
+subroutine gintsr(g1,g2,a,b,nr,z,e,l,v,rofi,sum)
   !- Integrate inner product of two wave equations
   ! ----------------------------------------------------------------
   !i   g1,g2 :First and second radial wave functions
@@ -1329,7 +1182,6 @@ subroutine gintsr(g1,g2,a,b,nr,z,e,l,v,rofi,sum)
   tmc(i,r) = c - (v(i) - 2d0*z/r - e)/c
   fi(i,r) = (r+b)*(g1(i,1)*g2(i,1)*(1 + fllp1/(tmc(i,r)*r)**2) &
        + g1(i,2)*g2(i,2))
-
   fllp1 = l*(l+1)
   sum = 0d0
   do  10  ir = 2, nr-1, 2
@@ -1340,11 +1192,10 @@ subroutine gintsr(g1,g2,a,b,nr,z,e,l,v,rofi,sum)
      sum = sum + fi(ir,rofi(ir))
 11 enddo
   sum = (2*sum + fi(nr,rofi(nr)))*a/3
-
 end subroutine gintsr
 
-subroutine gintsl(g1,g2,a,b,nr,rofi,sum)
 
+subroutine gintsl(g1,g2,a,b,nr,rofi,sum)
   !- Integrate inner product of two wave equations, large component only
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -1368,7 +1219,6 @@ subroutine gintsl(g1,g2,a,b,nr,rofi,sum)
   ! ... Local parameters
   integer :: ir
   double precision :: sum,r
-
   sum = 0
   do  10  ir = 2, nr-1,2
      r = rofi(ir)
@@ -1384,6 +1234,7 @@ subroutine gintsl(g1,g2,a,b,nr,rofi,sum)
   sum = sum+(r+b)*(g1(nr)*g2(nr))
   sum = sum*a/3
 end subroutine gintsl
+
 
 !$$$      subroutine asprjq(mode,clabl,nl,nsp,eula,neul,pnu,qnu,
 !$$$     .pnuloc,qnuloc,bhat,amom)

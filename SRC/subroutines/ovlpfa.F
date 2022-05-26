@@ -3,7 +3,7 @@
       use m_lmfinit,only:lat_alat,nsp
       use m_lattic,only: lat_vol
       use m_ftox
-
+      use m_lgunit,only:stdo
       use m_struc_def  
 c      use m_globalvariables
 C- Set up Fourier coeffs to overlap the smooth part of FA densities.
@@ -44,7 +44,7 @@ c      type(s_lat)::slat
 
       double complex cv(ng,*)
 C ... Local parameters
-      integer stdo,ipr,iprint,lgunit,ib,is,nx,i,ixi,ig,isp
+      integer ipr,iprint,ib,is,nx,i,ixi,ig,isp
       double precision v(3),pi,y0,alat,vol,tpiba,sum(2),px,py,pz,pos(3),
      .sam(2),e,cof,rsm,gam,v2,aa,scalp
       double complex phase
@@ -61,7 +61,7 @@ C     integer ifi,fopna
 
       call tcn('ovlpfa')
       ipr  = iprint()
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
 Changenglob      nsp  = nglob('nsp')
 c      nsp  = globalvariables%nsp
       pi   = 4d0*datan(1d0)

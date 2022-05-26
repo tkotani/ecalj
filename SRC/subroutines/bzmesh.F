@@ -1,5 +1,6 @@
       subroutine bzmesh(plat,qb,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx,igstar,lpbc)
       use m_ext,only: sname   !file extension. Open a file like file='ctrl.'//trim(sname)
+      use m_lgunit,only:stdo
 C- Divides the reciprocal lattice into microcells
 C-----------------------------------------------------------------------
 Ci Inputs:
@@ -106,11 +107,11 @@ C ... Passed parameters
       logical lsgrp
       integer i1,i2,i3,ifac(3),ig,igcnt,ii,ii1,ii2,ii3,ipr,iq,
      .is(3),iwgt,j1,j2,j3,lgunit,lpbc01,lpbc2,lstar,m1,m2,m3,ndmx,nn1,
-     .nn2,nn3,stdo,nsgrp,mxxyz
+     .nn2,nn3,nsgrp,mxxyz
       double precision w0,x1,x2,x3,swgt,v(3),v1(3),rb(3,3)
       character*1 chr(0:2)
       call getpr(ipr)
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       ndmx = mxxyz()
       lstar = igstar(0)
       lpbc01 = mod(lpbc,100)
@@ -255,6 +256,7 @@ C ... Done accumulating inequivalent qp
       end
 
       subroutine bzmsh0(plat,lshft,lpbc,n1,n2,n3,is,ifac,rb,qb)
+      use m_lgunit,only:stdo
 C- Setup for a uniform mesh in the Brillouin zone
 C-----------------------------------------------------------------------
 Ci   plat:      primitive lattice vectors
@@ -282,9 +284,9 @@ C     implicit none
       logical lshft(3)
       integer n1,n2,n3,is(3),ifac(3),lpbc
       double precision plat(3,3),rb(3,3),qb(3,3),qlat(3,3),vol
-      integer k,m,m1,m2,m3,iprint,lgunit,stdo
+      integer k,m,m1,m2,m3,iprint
 c      print *,'bzmsh0:',plat,n1,n2,n3,lshft,lpbc
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       is(1)   = 0
       is(2)   = 0
       is(3)   = 0

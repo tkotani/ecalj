@@ -3,8 +3,7 @@
       use m_struc_def  !Cgetarg
       use m_lmfinit,only:lat_alat
       use m_lattic,only: lat_vol
-
-
+      use m_lgunit,only:stdo
 C- Adds contribution from compensating gaussians to smooth estat pot.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -74,7 +73,7 @@ c      type(s_lat)::slat
 
       double complex smpot(k1,k2,k3),cv(ng),cg1(ng),cgsum(ng)
 C ... Local parameters
-      integer stdo,k0,nlmx,i,ib,ilm,iprint,is,iv0,kb,kmax,l,lgunit,ll,
+      integer k0,nlmx,i,ib,ilm,iprint,is,iv0,kb,kmax,l,ll,
      .lmxl,m,nlm,lfoc
       parameter (k0=3, nlmx=64)
       double precision alat,ceh,cofg,cofh,g2,pi,qc,qcorg,qcorh,qsc,rfoc,
@@ -86,7 +85,7 @@ C ... Local parameters
       call tcn('vesgcm')
 
       call stdfac(20,df)
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       pi = 4d0*datan(1d0)
       y0 = 1d0/dsqrt(4d0*pi)
 

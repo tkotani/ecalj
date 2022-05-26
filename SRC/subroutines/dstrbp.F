@@ -1,4 +1,5 @@
       subroutine dstrbp(nloop,np,nblk,index)
+      use m_lgunit,only:stdo
       use m_MPItk,only:master_mpi
 C- Distribute loop counter over processes
 C ----------------------------------------------------------------------
@@ -39,7 +40,7 @@ C Passed
 C Local
       INTEGER :: i,step
       INTEGER, DIMENSION(0:np-1) :: xnode,inode
-      integer iprint, lgunit
+      integer iprint
 
       if (nblk .eq. -1) then
         call pdstlb(nloop,np,index)
@@ -80,7 +81,7 @@ C Local
       INTEGER :: min=0,rem=0
       INTEGER :: times=0,rem2=0,total=0
       INTEGER, DIMENSION(0:np-1) :: inode,xnode
-      integer iprint,lgunit
+      integer iprint
 
 C      if (iprint() .gt. 40) WRITE(LGUNIT(1),*) 'DSTRBP SINGLE:'
 ! Split nblock evenly with nodes
@@ -123,6 +124,7 @@ C     .  ,'rem2=',rem2
 
 
       SUBROUTINE optimise(nloop,np,step,xnode,inode,size)
+      use m_lgunit,only:stdo
 
       IMPLICIT NONE
       INTEGER, PARAMETER :: stepmin=6,stepmax=16
@@ -132,9 +134,9 @@ C     .  ,'rem2=',rem2
       INTEGER :: times=0,rem3=0
       INTEGER, DIMENSION(0:np-1) :: inode,xnode
       INTEGER, DIMENSION(0:nloop-1) :: iblock,xblock
-      integer iprint,lgunit
+      integer iprint
 
-      if (iprint() .gt. 40) WRITE(LGUNIT(1),*) 'DSTRBP OPTIMISE:'
+      if (iprint() .gt. 40) WRITE(stdo,*) 'DSTRBP OPTIMISE:'
 ! Optimises the block size
       size = stepmin
       DO i=stepmin+1,stepmax
@@ -147,11 +149,11 @@ C     .  ,'rem2=',rem2
       nblock = nloop/size
       rem2 = MOD(nloop,size)
       if (iprint() .gt. 40) then
-        WRITE(LGUNIT(1),*) 'size=',size,'nblock=',nblock,'rem2=',rem2
+        WRITE(stdo,*) 'size=',size,'nblock=',nblock,'rem2=',rem2
         IF (nblock < np) THEN
-          WRITE(LGUNIT(1),*) ""
-          WRITE(LGUNIT(1),*) "*** WARNING: No. blocks < no. nodes ***"
-          WRITE(LGUNIT(1),*) ""
+          WRITE(stdo,*) ""
+          WRITE(stdo,*) "*** WARNING: No. blocks < no. nodes ***"
+          WRITE(stdo,*) ""
         END IF
       endif
 ! Even no. of kpts per block without remainder
@@ -182,7 +184,7 @@ C     .  ,'rem2=',rem2
       times = nblock/np
       rem3 = MOD(nblock,np)
       if (iprint() .gt. 40)
-     .WRITE(LGUNIT(1),*) 'nblock=',nblock,'np=',np,'times=',times
+     .WRITE(stdo,*) 'nblock=',nblock,'np=',np,'times=',times
      .,'rem3=',rem3
 
 ! Even no. of blocks per node without remainder
@@ -200,7 +202,7 @@ C     .  ,'rem2=',rem2
       END IF
       if (iprint() .gt. 40) then
         DO i=0,np-1
-          WRITE(LGUNIT(1),*) 'inode(',i,')=',inode(i)
+          WRITE(stdo,*) 'inode(',i,')=',inode(i)
         END DO
       endif
       DO i=0,np-2
@@ -212,6 +214,7 @@ C     .  ,'rem2=',rem2
 
 
       SUBROUTINE multiple(nloop,np,step,xnode,inode)
+      use m_lgunit,only:stdo
 
       IMPLICIT NONE
       INTEGER :: i=0,j=0,nloop,np,step
@@ -220,20 +223,20 @@ C     .  ,'rem2=',rem2
       INTEGER :: times=0,rem3=0
       INTEGER, DIMENSION(0:np-1) :: inode,xnode
       INTEGER, DIMENSION(0:nloop-1) :: iblock,xblock
-      integer iprint,lgunit
+      integer iprint
 
-      if (iprint() .gt. 40) WRITE(LGUNIT(1),*) 'DSTRBP MULTIPLE:'
+      if (iprint() .gt. 40) WRITE(stdo,*) 'DSTRBP MULTIPLE:'
       size = step
       rem = MOD(nloop,size)
 ! Split nloop into blocks
       nblock = nloop/size
       rem2 = MOD(nloop,size)
       if (iprint() .gt. 40) then
-        WRITE(LGUNIT(1),*) 'size=',size,'nblock=',nblock,'rem2=',rem2
+        WRITE(stdo,*) 'size=',size,'nblock=',nblock,'rem2=',rem2
         IF (nblock < np) THEN
-          WRITE(LGUNIT(1),*) ""
-          WRITE(LGUNIT(1),*) "*** WARNING: No. blocks < no. nodes ***"
-          WRITE(LGUNIT(1),*) ""
+          WRITE(stdo,*) ""
+          WRITE(stdo,*) "*** WARNING: No. blocks < no. nodes ***"
+          WRITE(stdo,*) ""
         END IF
       endif
 ! Even no. of kpts per block without remainder
@@ -264,7 +267,7 @@ C     .  ,'rem2=',rem2
       times = nblock/np
       rem3 = MOD(nblock,np)
       if (iprint() .gt. 40)
-     .WRITE(LGUNIT(1),*) 'nblock=',nblock,'np=',np,'times=',times
+     .WRITE(stdo,*) 'nblock=',nblock,'np=',np,'times=',times
      .,'rem3=',rem3
 
 ! Even no. of blocks per node without remainder
@@ -288,9 +291,10 @@ C     .  ,'rem2=',rem2
       END SUBROUTINE multiple
 
       subroutine pdstlb(nloop,np,index)
+      use m_lgunit,only:stdo
       implicit none
       integer nloop, np, index(0:np-1,0:*)
-      integer n, p, m, i, j, sum1, sum2, iprint, lgunit
+      integer n, p, m, i, j, sum1, sum2, iprint
       n = nloop
       do i = 0, np-1
         index(i,0) = 0
@@ -321,12 +325,12 @@ C     .  ,'rem2=',rem2
       if (iprint() .gt. 40) then
         write (*,1)
         do i = 0, np-1
-          write (lgunit(1),2) i,(index(i,j),j=0,index(i,0))
+          write (stdo,2) i,(index(i,j),j=0,index(i,0))
         enddo
       endif
       if (sum1 .ne. sum2) then
         if (iprint() .gt. 0)
-     .  write(lgunit(1),"('Bug in pdstlb: sum1=',i0,' sum2=',i0)") sum1,sum2
+     .  write(stdo,"('Bug in pdstlb: sum1=',i0,' sum2=',i0)") sum1,sum2
         call rx0(' ')
       endif
     1 format (/' PDSTLB:'/' proc   total    loop number')

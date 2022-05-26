@@ -2,6 +2,7 @@
       use m_ext,only :sname               ! sname contains extension. foobar of ctrl.foobar
       use m_struc_def,only: s_spec,s_site ! spec and site structures.
       use m_MPItk,only: master_mpi
+      use m_lgunit,only: stdo,stdl
       implicit none
 !! All data set to run lmfp.F rdctrl2 read ctrl file and set these data
 !! rdctrls made from three stages. Search the word 'Stage' in the followings.
@@ -33,7 +34,7 @@ Ci          functions are less than tol.
       character(lstrn),protected:: sstrnmix,sstrnsymg
       character(256),protected:: header,symg=' ',   symgaf=' '!for Antiferro
       logical,protected :: ham_frzwf,ham_ewald
-      integer,protected:: nspc,stdo,stdl,procid,nproc,master=0,nspx,
+      integer,protected:: nspc,procid,nproc,master=0,nspx, !,stdo,stdl
      &     ctrl_lxcf,ctrl_nbas,ctrl_lrel,!ctrl_lves, 
      &     maxit ,ctrl_modep(3),ctrl_nl,ctrl_nitmv,ctrl_nspin,
      &     ctrl_nspec,ctrl_nsite,ctrl_nvario,ctrl_pfloat
@@ -241,9 +242,9 @@ c#endif
       double precision dval,dglob,xx(n0*2),dgets !,ekap(6)
       integer a2vec,bitand,getdig,i,is,igets,iprint,
      .iprt,isw,ifi,ix(n0*nkap0),j,k,l,!lbas, !noinv was iand(lqp,1),irs(5)
-     .lfrzw,lgunit,
+     .lfrzw,!lgunit,
      .lrs,lstsym,ltb,nclasp,
-     .nglob,scrwid,stde,k1,k2,mpipid !nkap,lsx1,
+     .nglob,scrwid,k1,k2,mpipid !nkap,lsx1, !,stde
       character*(8),allocatable::clabl(:)
       integer,allocatable:: ipc(:),initc(:),ics(:)
       real(8),allocatable:: pnuc(:,:,:),qnuc(:,:,:,:),pp(:,:,:,:),ves(:),zc(:)
@@ -297,13 +298,13 @@ c      logical:: ltet
       procid = mpipid(1)
       nproc  = mpipid(0)
       scrwid = 80
-      stdo = lgunit(1)
-      stdl = lgunit(2)
-      stde = stdo
+c      stdo = lgunit(1)
+c      stdl = lgunit(2)
+c      stde = stdo
       nullrv = nullr
       nulliv  =nulli
       debug = cmdopt0('--debug')
-      call gtv_setrcd(recrd,nrecs,recln,stdo,stdl,stde) !Copy recrd to rcd in m_gtv
+      call gtv_setrcd(recrd,nrecs,recln,stdo,stdl,stde_in=stdo) !Copy recrd to rcd in m_gtv
       call toksw_init(debug)
 ! io_show io_help      
       if (     master_mpi)   io_show = 1

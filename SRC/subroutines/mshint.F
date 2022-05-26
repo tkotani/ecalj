@@ -1,4 +1,5 @@
       subroutine mshint(vol,n,n1,n2,n3,k1,k2,k3,c,sum1,sum2)
+      use m_lgunit,only:stdo
 C- Integrate a function tabulated on a real-space mesh
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -20,11 +21,11 @@ C ... Passed parameters
       double precision vol,sum1,sum2
       double complex c(k1,k2,k3,n)
 C ... Local parameters
-      integer stdo,lgunit,i,i1,i2,i3,iprint
+      integer i,i1,i2,i3,iprint
       double precision bot1,bot2,top1,top2
       double complex csum
 
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       csum = 0d0
       top1 = -1d10
       top2 = -1d10

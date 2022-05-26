@@ -1,4 +1,5 @@
       subroutine mshdot(vol,n,n1,n2,n3,k1,k2,k3,c,d,sum1,sum2)
+      use m_lgunit,only:stdo
 C- Scalar product of two functions tabulated on the real-space mesh
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -20,10 +21,10 @@ C ... Passed parameters
       double precision vol,sum1,sum2
       double complex c(k1,k2,k3,n),d(k1,k2,k3,n)
 C ... Local parameters
-      integer stdo,lgunit,i1,i2,i3,iprint,i
+      integer i1,i2,i3,iprint,i
       double complex csum
 
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       csum = 0d0
       do  i = 1, n
         do  i3 = 1, n3

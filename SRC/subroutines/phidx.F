@@ -1,5 +1,6 @@
       subroutine phidx(job,z,l,v,hcr,vmtz,rofi,nr,nptdif,tol,
      .e,val,slo,nn,g,gp,phi,dphi,phip,dphip,p,phia,phiap,dla,dlap)
+      use m_lgunit,only:stdo
 C- Generate potential parameters for a prescribed energy or b.c.
 C ----------------------------------------------------------------
 Ci Inputs:
@@ -85,7 +86,7 @@ C Passed parameters
      .dla,dlap(*),p,phia,phiap(*),tol,v(nr),rofi(nr),
      .g(2*nr),gp(2*nr,4)
 C Local variables
-      integer nre,i,iprint,stdo,lgunit,job0,job1
+      integer nre,i,iprint,job0,job1
       double precision rmax,eb1,eb2,dele,ddde,sum,a,b,aold,dmach,tola,
      .sloi(5),vali(5),phiai(4),dlai(4),ei(4),de1,de2,del1,del2,tole
       parameter (tole=1d-10)
@@ -95,7 +96,7 @@ C External calls
 C ... Setup: extract a and b
       job0 = mod(job,10)
       job1 = mod(job/10,10)
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       rmax = rofi(nr)
       dele = .002d0
       a = log(rofi(nr)/rofi(nr-1))

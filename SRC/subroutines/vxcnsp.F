@@ -1,5 +1,6 @@
       subroutine vxcnsp(isw,a,ri,nr,rwgt,nlm,nsp,rl,lxcfun,rc,
      .focexc,focex,focec,focvxc,reps,repsx,repsc,rmu,vl,fl,qs)
+      use m_lgunit,only:stdo
 C- Add vxc to potential in sphere and make integrals rho*vxc,rho*exc
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -68,7 +69,7 @@ C ... Local parameters
       integer nnn,nlmx
       parameter(nnn=122,nlmx=64)
       logical lpert
-      integer stdo,lgunit,ipr,ll,lmax,np,nph,nth,nxl(0:7),lxcf,lxcg
+      integer ipr,ll,lmax,np,nph,nth,nxl(0:7),lxcf,lxcg
       double precision p(3,nnn),wp(nnn),p2(nnn*3),r2(nnn),fpi
 C     double precision yl(nnn*nlmx)
 c      real(8), allocatable :: ylwp(:)
@@ -80,7 +81,7 @@ c      real(8), allocatable :: ylwp(:)
       real(8):: a !takao used to get derivetive of ri. See vxcnls.F
       real(8),allocatable::vlxc(:,:,:)
 
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       call getpr(ipr)
       lxcf = mod(lxcfun,100)
       lxcg = mod(lxcfun/100,100)
@@ -159,6 +160,7 @@ C ... Undo the rl scaling
 
       subroutine vxcns2(isw,ri,nr,rwgt,np,wp,yl,nlm,nsp,rl,rc,lxcf,
      .lpert,focexc,focex,focec,focvxc,rep,repx,repc,rmu,vl,fl,qs)
+      use m_lgunit,only:stdo
 C- Make vxc, rep and rmu in sphere, for local XC functional.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -571,6 +573,7 @@ C  ...  Extrapolate rho to origin
 
       subroutine vxcns4(isw,ri,nr,rwgt,np,wp,nsp,rp,exc,excx,excc,vxc,
      .rep,repx,repc,rmu,qs)
+      use m_lgunit,only:stdo
 C- Integrals of vxc, reps and rmu in sphere.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -606,10 +609,10 @@ C ... Passed parameters
      .rwgt(nr),rp(nr,np,nsp),exc(nr,np),excx(nr,np),excc(nr,np),
      .vxc(nr,np,nsp)
 C ... Local parameters
-      integer ip,ipr,ir,i,stdo,lgunit,isw1
+      integer ip,ipr,ir,i,isw1
       double precision weight,rpneg,qs(2)
 
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       call getpr(ipr)
       isw1 = mod(isw/10,10)
 
@@ -660,6 +663,7 @@ C          endif
       end
 
       subroutine vxcns5(isw,ipr,strn,nlml,nsp,nr,ri,rwgt,rl,vl,suml,sum)
+      use m_lgunit,only:stdo
 C- Integrals of rl*vl resolved by l
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -685,10 +689,10 @@ C ... Passed parameters
       double precision ri(nr),rwgt(nr),rl(nr,nlml,nsp),vl(nr,nlml,nsp),
      .suml(0:20,2),sum(2)
 C ... Local parameters
-      integer ir,stdo,lgunit,lmax,ilm,isp,l,ll
+      integer ir,lmax,ilm,isp,l,ll
       double precision dsum,dot3
 
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       lmax = ll(nlml)
 
       do   isp = 1, nsp

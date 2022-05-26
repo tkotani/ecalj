@@ -3,6 +3,7 @@ CSFCPP#define F90 1
      .     ng,kv,gv,igv,igv2)
       use m_ftox
       use m_shortn3,only: shortn3_initialize,shortn3
+      use m_lgunit,only:stdo
 C- Set up a list of recip vectors within cutoff |q+G| < gmax
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -80,7 +81,7 @@ C ----------------------------------------------------------------------
       double precision alat,gmin,gmax,gv(ngmx,3),plat(3,3),q(3)
       integer ig,n1max,n1min,n2max,n2min,n3max,n3min,i1,i2,i3,nn,i
       integer n1l,n2l,n3l
-      integer PRTG,PRTG2,iset(3),stdo,ipr,lgunit,job0,job1,job2,!job4,
+      integer PRTG,PRTG2,iset(3),ipr,job0,job1,job2,!job4,
      .job8,k1,k2,k3
       double precision qlat(3,3),vol,pi,tpiba,qpg(3),q2
       double precision gmin0,gmax0,gmin2,gmax2,h1,h2,h3,ddot,tol
@@ -91,7 +92,7 @@ C ----------------------------------------------------------------------
       integer:: j1,j2,j3,noutmx,m,nout,jj1,jj2,jj3,nn1,nn2,nn3
       integer,allocatable:: nlatout(:,:)
       real(8):: rlatp(3,3),xmx2(3)
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       call getpr(ipr)
       call dinv33(plat,1,qlat,vol)
       pi = 4d0*datan(1d0)

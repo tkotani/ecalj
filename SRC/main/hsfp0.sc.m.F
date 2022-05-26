@@ -103,6 +103,7 @@ c      use m_readq0p,only: ReadQ0P, nq0i, wqt,q0i
       use m_readgwinput,only: ReadGwinputKeys,SetIsigMode, ebmx_sig,nbmx_sig,ISigMode
 c      use m_readepswklm,only: Readepswklm    ! ,wklm,lxklm,dmlx,epinvq0i
       use m_hamindex,only:ngrp
+      use m_lgunit,only:m_lgunit_init
       
       implicit none
 !! -----------------------------------------------------------------------------------
@@ -138,6 +139,7 @@ c
       complex(8),pointer::zsec(:,:,:)
 !!
       call MPI__Initialize() 
+      call M_lgunit_init()
       call date_and_time(values=timevalues)
       write(6,"('mpirank=',i5,' YYYY.MM.DD.HH.MM.msec=',9i4)")mpi__rank,timevalues(1:3),timevalues(5:8)
       hartree=2d0*rydberg()

@@ -17,6 +17,7 @@ c-------------------------------------------------------------
       use m_keyvalue,only: getkeyvalue
       use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
       use m_mpi,only: MPI__Initialize
+      use m_lgunit,only: m_lgunit_init
       
       implicit none
       integer :: mxclass,ngnmax,
@@ -80,6 +81,7 @@ c-------------------------------------------------------------
       character(20):: outs=''
       
       call MPI__Initialize()
+      call M_lgunit_init()
       if(cmdopt2('--job=',outs)) then
          read(outs,*) imode
       else

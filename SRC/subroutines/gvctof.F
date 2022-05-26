@@ -1,5 +1,6 @@
       subroutine gvctof(iopt,alat,plat,pos,n1,n2,n3,gmax,ng)
       use m_ftox
+      use m_lgunit,only:stdo
 C- Makes k-space cutoff associated with mesh orders n1,n2,n3
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -21,13 +22,13 @@ C ... Passed parameters
       integer n1,n2,n3,ng,iopt
       double precision gmax,alat,plat(3,3),pos(3)
 C ... Local parameters
-      integer ipr,iprint,m,k1,k2,k3,ipv,nv1,nv2,ipr0,ipr1,stdo,lgunit
+      integer ipr,iprint,m,k1,k2,k3,ipv,nv1,nv2,ipr0,ipr1
       parameter (ipr0=30,ipr1=40)
       double precision pi,vol,tpiba,tol,volg,volgs,gvol,h1,
      .h2,h3,gg,h0,voln,gbot,g1,g2,g3,gmax1,vol1,qlat(3,3),
      .g(3),gs(3),plat1(3,3),qlat1(3,3),gmax2
 
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       ipr = iprint()
       pi = 4*datan(1d0)
       call dinv33(plat,1,qlat,vol)

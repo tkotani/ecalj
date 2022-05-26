@@ -3,6 +3,7 @@
      . k3 , smrho , sv_p_oqkkl , f , lrep )
       use m_struc_def  
       use m_lmfinit,only: nkaph,nsp
+      use m_lgunit,only:stdo,stdl
 
 
 c      use m_globalvariables
@@ -67,15 +68,15 @@ C ... Passed parameters
 
       double complex smrho(k1,k2,k3,3,2)
 C ... Local parameters
-      integer stdo,stdl,ib,ipl,is,kmax,lmxa,lmxh,lmxl,m,nelt1,nelt2,
+      integer ib,ipl,is,kmax,lmxa,lmxh,lmxl,m,nelt1,nelt2,
      .nelt3,nlma,nlmh,lgunit,ipr,iprint
       double precision a,b,c,def1,disc,eadd,efold,p(3),px,py,pz,
      .q1,q2,q3,a1,a2,a3,rsm,sen,sev,sqv,sav,w1,w2,w3,x,x1,x2,xlin
       equivalence (px,p(1)),(py,p(2)),(pz,p(3))
 C ... Heap
 
-      stdo = lgunit(1)
-      stdl = lgunit(2)
+c      stdo = lgunit(1)
+c      stdl = lgunit(2)
       ipr = iprint()
       ipl = ipr
       lrep = 0

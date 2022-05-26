@@ -1,8 +1,7 @@
       subroutine prrhat ( nbas , ssite , sspec , sv_p_orhoat )
       use m_struc_def  
-      use m_lmfinit,only: nsp,stdo
-
-
+      use m_lmfinit,only: nsp
+      use m_lgunit,only:stdo
       integer:: nbas
       type(s_rv1) :: sv_p_orhoat(3,nbas)
       type(s_site)::ssite(*)
@@ -38,6 +37,7 @@ C ... Local parameters
       end subroutine prrhat
 
       subroutine prlrho(str,nr,nlm,nsp,rofi,rwgt,rho)
+      use m_lgunit,only:stdo
 C- Print info about site density
 C     implicit none
 C ... Passed parameters
@@ -45,9 +45,9 @@ C ... Passed parameters
       double precision rho(nr,nlm,nsp),rofi(nr),rwgt(nr)
       character*(*) str
 C ... Local parameters
-      integer stdo,lgunit,ilm,l,ll,itop,ibot,i
+      integer ilm,l,ll,itop,ibot,i
       double precision xx,pi,srfpi,top,bot,sum
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       pi = 4d0*datan(1d0)
       srfpi = dsqrt(4d0*pi)
       write(stdo,601) str

@@ -2,6 +2,7 @@
       use m_lmfinit,only: nspec,alat=>lat_alat,tol=>lat_tolft,n0,nkap0,nkaphh,lhh,nkapii,sspec=>v_sspec
       use m_supot,only: gv=>rv_a_ogv,ng=>lat_ng
       use m_uspecb,only:uspecb
+      use m_lgunit,only:stdo
 C- Find max recip for each spec and orbital block, store in struct.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -18,12 +19,12 @@ Cu    9 May 00 Adapted from nfp su_gvcut.f
 C ----------------------------------------------------------------------
       implicit none
       integer:: mode, ngcut(n0,nkap0),lh(nkap0)
-      integer:: stdo,lgunit,ipr,iprint,is,irep,icut,i,ik,l,lcut,nkapi,nkap1,nkap2
+      integer:: ipr,iprint,is,irep,icut,i,ik,l,lcut,nkapi,nkap1,nkap2
       real(8):: rsmh(n0,nkap0),eh(n0,nkap0),tpi,tpiba2,gg0,gg,e,rsm,gam,gmax,top
       character*8 spid
       character*1 ccc,ccl
       if (ng .eq. 0) return
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       ipr = iprint()
       tpi = 8d0*datan(1d0)
       tpiba2 = (tpi/alat)**2

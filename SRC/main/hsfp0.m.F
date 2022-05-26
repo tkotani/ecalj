@@ -32,6 +32,7 @@ c     &   miat,tiat,shtvg, ntq, ppbir
      &   MPI__consoleout,
      &   MPI__barrier
       use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+      use m_lgunit,only: m_lgunit_init
       implicit none
 !! = Calculate the diagonal part of self-energy \Sigma within the GW approximation. And some other functions =
 !  See document at the top of hsfp0.sc.m.F
@@ -161,6 +162,7 @@ c      logical:: newaniso=.true.
       real(8)::dwdummy, ef
 C...  mode switch. --------------
       call MPI__Initialize() 
+      call M_lgunit_init()
       call date_and_time(values=timevalues)
       write(6,'(a,9i5)')'dateandtime1=',MPI__rank,timevalues(1:8)
 

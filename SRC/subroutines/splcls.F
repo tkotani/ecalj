@@ -1,5 +1,6 @@
       subroutine splcls(nosplt,bas,nbas,ng,istab,nspec,slabl,nclass,ipc,
      .ics,nrclas)
+      use m_lgunit,only:stdo
 C- Splits species into classes
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -28,11 +29,11 @@ c     .ics(nspec),nrclas(nspec)
       double precision bas(3,*)
       character*8 slabl(*)
 C Local parameters:
-      integer ib,ic,icn,iclbsj,ig,jb,m,i,is,lgunit,ipr,idx,stdo,ispec,j
+      integer ib,ic,icn,iclbsj,ig,jb,m,i,is,ipr,idx,ispec,j
       logical lyetno
       character*80 outs,clabl*8
 
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
 ccccccccccccccccccccccccccc
 ctakao
       call getpr(ipr)

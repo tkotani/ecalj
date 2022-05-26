@@ -1,5 +1,6 @@
       subroutine ugcomp(nbas,ssite,sspec,qmom,gpot0,hpot0,ugg,f) !slat,
-      use m_struc_def  !Cgetarg
+      use m_struc_def           !Cgetarg
+      use m_lgunit,only:stml
 C- Part of the smooth estatic energy from compensating G's alone.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -41,7 +42,7 @@ C ... Passed parameters
       character*10 shortname(0:MAX_PROCS-1)
       character*20 ext
       character*26 datim
-      integer namelen(0:MAX_PROCS-1),lgunit
+      integer namelen(0:MAX_PROCS-1)
       double precision starttime, endtime
       logical mlog,cmdopt
       character*120 strn
@@ -148,7 +149,7 @@ c      do  ib = 1, nbas
 #if MPI |MPIK
         if (mlog .and. ib .eq. bproc(procid)) then
           call gettime(datim)
-          write(lgunit(3),"(a,i5,' of ',i5,a,i5,' to ',i5)")' ugcomp '//datim//' Process ',procid,numprocs,
+          write(stml,"(a,i5,' of ',i5,a,i5,' to ',i5)")' ugcomp '//datim//' Process ',procid,numprocs,
      &    ' on '//shortname(procid)(1:namelen(procid))//' starting atoms ',bproc(procid),bproc(procid+1)-1
         endif
         iv0 = iiv0(ib)
@@ -277,7 +278,7 @@ C ... Assemble data from separate threads
      .MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
       if (mlog) then
         call gettime(datim)
-        write(lgunit(3),"(a,i5,' of ',i5,a,i5)") ' ugcomp '//datim//' Process ',procid,numprocs,
+        write(stml,"(a,i5,' of ',i5,a,i5)") ' ugcomp '//datim//' Process ',procid,numprocs,
      &   ' on '//shortname(procid)(1:namelen(procid))//' allreduce gpot0 nvl=',nvl
       endif
       call daxpy(nvl,1d0,buffer,1,gpot0,1)
@@ -288,7 +289,7 @@ C ... Assemble data from separate threads
      .MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
       if (mlog) then
         call gettime(datim)
-        write(lgunit(3),"(a,i5,' of ',i5,a,i5)")
+        write(stml,"(a,i5,' of ',i5,a,i5)")
      .       ' ugcomp '//datim//' Process ',procid,numprocs,
      &       ' on '//shortname(procid)(1:namelen(procid))//' allreduce hpot0 nbas=',nbas
       endif
@@ -300,7 +301,7 @@ C ... Assemble data from separate threads
      .MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
       if (mlog) then
         call gettime(datim)
-        write(lgunit(3),"(a,i5,' of ',i5,a,i5)")
+        write(stml,"(a,i5,' of ',i5,a,i5)")
      .       ' ugcomp '//datim//' Process ',procid,numprocs,
      &       ' on '//shortname(procid)(1:namelen(procid))//' allreduce f 3nbas=',3*nbas
       endif
@@ -311,7 +312,7 @@ C ... Assemble data from separate threads
      .MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
       if (mlog) then
         call gettime(datim)
-        write(lgunit(3),"(a,i5,' of ',i5,a)")
+        write(stml,"(a,i5,' of ',i5,a)")
      .       ' ugcomp '//datim//' Process ',procid,numprocs,
      &       ' on '//shortname(procid)(1:namelen(procid))//' allreduce ugg'
       endif

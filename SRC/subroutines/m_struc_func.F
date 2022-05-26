@@ -1,5 +1,6 @@
       Module m_struc_func
-      use m_ftox
+      use m_ftox,only: ftox
+      use m_lgunit,only:stml
       public  mpibc1_s_spec, mpibc1_s_site 
       contains
       subroutine mpibc1_s_spec(struc,label)
@@ -19,7 +20,7 @@
       character*26 datim
       integer namelen(0:MAX_PROCS-1)
       character*256 strn
-      integer:: lgunit
+c      integer:: lgunit
       integer procid,master,i_data_size
       integer:: n=0
       master=0
@@ -121,7 +122,7 @@ c     , , master, MPI_COMM_WORLD,ierr)
         call strcop(shortname(procid),name,10,'.',ierr)
         namelen(procid) = ierr-1
         call gettime(datim)
-        write(lgunit(3),ftox)'  '//datim//' Process ',procid,' of ',numprocs,' on '
+        write(stml,ftox)'  '//datim//' Process ',procid,' of ',numprocs,' on '
      .  //shortname(procid)(1:namelen(procid))//' '//label
       endif
 #endif
@@ -144,7 +145,7 @@ c     , , master, MPI_COMM_WORLD,ierr)
       character*26 datim
       integer namelen(0:MAX_PROCS-1)
       character*256 strn
-      integer:: lgunit
+c      integer:: lgunit
       integer procid,master,i_data_size
       integer:: n=0
       master=0
@@ -173,7 +174,7 @@ c       call mpi_bcast(struc%vshft, 1,MPI_REAL8 , master, MPI_COMM_WORLD,ierr)
         call strcop(shortname(procid),name,10,'.',ierr)
         namelen(procid) = ierr-1
         call gettime(datim)
-        write(lgunit(3),ftox)'  '//datim//' Process ',procid,' of ',numprocs,' on '
+        write(stml,ftox)'  '//datim//' Process ',procid,' of ',numprocs,' on '
      .  //shortname(procid)(1:namelen(procid))//' '//label
       endif
 #endif

@@ -169,6 +169,7 @@ CSFCPP#endif
       use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp
       use m_struc_def           
       use m_lattic,only:lat_plat      
+      use m_lgunit,only:stdo
 C- Symmetrizes the potential at the MT boundary.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -204,13 +205,13 @@ C ... Passed parameters
       type(s_spec)::sspec(*)
 c      type(s_lat)::slat
 C ... Local parameters
-      integer ic,ib,ilm,mxint,nclass,ipa(nbas),nrclas,stdo,iv0
+      integer ic,ib,ilm,mxint,nclass,ipa(nbas),nrclas,iv0
       integer ipc(nbas),ips(nbas),lmxl(nbas)
       double precision pos(3,nbas),posc(3,nbas),plat(3,3),pi,y0
-      integer:: igetss , nlml , lgunit , ipr , jpr , ngrp , nn , iclbas
+      integer:: igetss , nlml ,ipr , jpr , ngrp , nn , iclbas
       real(8) ,allocatable :: qwk_rv(:)
       real(8) ,allocatable :: sym_rv(:)
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       call getpr(ipr)
       plat=lat_plat
       ngrp=lat_nsgrp

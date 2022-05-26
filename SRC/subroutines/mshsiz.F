@@ -1,4 +1,5 @@
       subroutine mshsiz(alat,plat,job,gmax,ngabc,ng)
+      use m_lgunit,only:stdo
 C- Finds dimensions for a mesh of G vectors that satisfy a cutoff
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -34,8 +35,8 @@ C ... Passed parameters
       double precision alat,plat(3,3),gmax
 C ... Local parameters
       logical change
-      integer npfac,pfac(10),fmax,i,indx,iprint,stdo,
-     .lgunit,i1,i2,i3,nn,nmin,nmx(3),nmxn(3),k,ngabcn(3),ngn,nginit,
+      integer npfac,pfac(10),fmax,i,indx,iprint,
+     .i1,i2,i3,nn,nmin,nmx(3),nmxn(3),k,ngabcn(3),ngn,nginit,
      .PRTG
       double precision gmaxn,xx,q(3),gmax0,qlat(3,3),tpiba,facg,tolg,s1,
      .s2,s3,ddot
@@ -46,7 +47,7 @@ C     parameter (fmax=360,tolg=1d0,PRTG=30)
       logical:: fullmesh
 
 c     print *,'mshsiz: gmax=',gmax
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       call dpzero(q,3)
 C ... If input gmax is zero assume n1..n3 available, and return w/ gmax
       if (gmax .eq. 0) then

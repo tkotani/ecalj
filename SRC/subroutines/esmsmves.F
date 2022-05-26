@@ -5,9 +5,9 @@
       use m_struc_def
       use m_lmfinit,only: nsp, lat_alat
       use m_MPItk,only: master_mpi,mlog
-      use m_lattic,only: lat_vol
-
-      use m_lattic,only: lat_plat
+      use m_lattic,only: lat_vol,lat_plat
+      use m_lgunit,only:stdo
+     
 C-Make ESM electrostatic potential of density given in real space
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -37,7 +37,7 @@ C ... Local parameters
       
       logical ::  twrite = .true.
       character(len=120) strn
-      integer :: stdo, ig, i, j, lgunit, mpipid, ifiese, ierr, ib, is, i_copy_size, ik3, ik2, ik1!, nsp
+      integer :: ig, i, j, mpipid, ifiese, ierr, ib, is, i_copy_size, ik3, ik2, ik1!, nsp
       real(8), parameter ::angstr=1d0/0.5291769, ev=2d0/27.2113834, eps=1d-10
       real(8) :: alat, plat(3,3), vol, eh, tau(3), vg(3), ddot, gvr, rmt, fac, gvb, g2
       real(8) :: pi, epi, tpiba, tpiba2
@@ -54,7 +54,7 @@ C ... Local parameters
       vol = lat_vol
       tpiba = 2*pi/alat
       tpiba2 = tpiba*tpiba
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       plat = lat_plat
 
       if( esm_init ) then
@@ -179,6 +179,7 @@ C-----------------------------------------------------------------------
 C      INSTALLED DEVELOVED BY Otani&Sugino (2006); Phys.Rev.B73,115407(2006).
 C      OPTION JESM=1,2,3      ORIGINAL OPTIONS (i),(ii),(iii) IN THE PAPER
 C
+      use m_lgunit,only:stdo
       implicit none
       integer, intent(in) :: ng, k1, k2, k3
       integer, intent(in) :: kv(ng,3)
@@ -214,7 +215,6 @@ C
       endif
 
       cv(1:ng) = cgsum(1:ng) + cv(1:ng)
-
       clat=z0esm*2d0
       delc=clat/dble(k3)
 

@@ -6,8 +6,9 @@
       use m_MPItk,only:    m_MPItk_init,m_MPItk_finalize,nsize,master_mpi
       use m_lmaux,only: lmaux
       use m_mksym,only: m_mksym_init
+      use m_lgunit,only:   M_lgunit_init, stdo,stdl
       implicit none
-      integer:: k,lgunit,stdo,stdl
+      integer:: k
       logical:: fileexist,cmdopt,llmfgw=.false.,cmdopt0,cmdopt2
       logical:: writeham,lbin
       character:: outs*20,aaa*512,sss*128,uuu*128
@@ -17,9 +18,10 @@
       data prgnam /'LMCHK'/
       call M_ext_init()        ! Get sname, e.g. trim(sname)=si of ctrl.si
       call M_MPItk_init(prgnam)
+      call M_lgunit_init()
       if(nsize/=1) call rx('Current lmchk is only for single core')
-      stdo = lgunit(1)          !standard output stdo=6 usually
-      stdl = lgunit(2)
+c      stdo = lgunit(1)          !standard output stdo=6 usually
+c      stdl = lgunit(2)
       aaa=''
       do iarg=1,iargc()
          call getarg(iarg,sss)

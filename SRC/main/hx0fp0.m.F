@@ -60,6 +60,7 @@ c     &     wqt,q0i,nq0i ,nq0iadd,ixyz,nq0ix,neps
       use m_eibz,only:Seteibz, nwgt,neibz,igx,igxt,eibzsym
       use m_llw,only: WVRllwR,WVIllwI,MPI__sendllw2
       use m_w0w0i,only: w0w0i
+      use m_lgunit,only:m_lgunit_init
       implicit none
 !! ------------------------------------------------
 !! We calculate chi0 by the follwoing three steps.
@@ -260,6 +261,7 @@ c      real(8),allocatable:: qbze(:,:),qibze(:,:)
       character(20):: outs=''
 !! -------------------------------------------------------------------
       call MPI__Initialize()
+      call M_lgunit_init()
       call MPI__consoleout('hx0fp0')
       call cputid (0)
       if(verbose()>=100) debug=.true.

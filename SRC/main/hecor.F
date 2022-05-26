@@ -16,6 +16,7 @@ c      implicit real*8(a-h,o-z)
       use m_keyvalue,only: getkeyvalue
       use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
       use m_hamindex,only: ngrp, symgg=>symops
+      use m_lgunit,only: m_lgunit_init
 
       implicit none
 c parameter
@@ -142,6 +143,7 @@ c---------------------------------------
 
 c set up work array
 c      call wkinit (iwksize)
+      call M_lgunit_init()
       call pshprt(60)
 
 

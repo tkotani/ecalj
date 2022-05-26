@@ -5,6 +5,7 @@
      .lmux,sig,tau,nlx1,nlx2,ppi,hsozz,hsopm,
      .lmaxu,vumm,lldau,idu)
       use m_lmfinit,only: nab,n0
+      use m_lgunit,only:stdo
 C- Generic routine to make augmentation matrices
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -208,7 +209,7 @@ C ----------------------------------------------------------------------
      .sig(nf1,nf2,0:lmux,nsp),tau(nf1,nf2,0:lmux,nsp),vum(0:lmxa,0:lmxa,nlml,6,nsp)
       double precision sodb(nab,n0,nsp,2) !Spin-Orbit related
       integer ilm1,ilm2
-      integer i1,i2,ilm,l,ll,nlm,nlm1,nlm2,i,iprint,stdo,lgunit
+      integer i1,i2,ilm,l,ll,nlm,nlm1,nlm2,i,iprint
       real(8),parameter:: pi= 4d0*datan(1d0),y0= 1d0/dsqrt(4d0*pi)
       real(8):: vsms(nr),ppi0(nf1*nf2*(lmux+1)),
      .qm(nf1*nf2*(lmx1+1)*(lmx2+1)*(lmxl+1)), sum((lmx1+1)*(lmx2+1)*nlml)
@@ -217,7 +218,7 @@ C ----------------------------------------------------------------------
       complex(8):: hsozz(nf1,nf2,nlx1,nlx2,nsp) 
       complex(8):: hsopm(nf1,nf2,nlx1,nlx2,nsp) !offdiag parts for <isp|ispo> (see sodb(*,2))
       real(8)::   ppir(nf1,nf2,nlx1,nlx2,nsp)
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
 c      allocate(hso(nf1,nf2,nlx1,nlx2,nsp,2),ppiz(nf1,nf2,nlx1,nlx2,nsp,2))
       allocate(ppiz(nf1,nf2,nlx1,nlx2,nsp))
       if(lso/=0)  hsozz=0d0

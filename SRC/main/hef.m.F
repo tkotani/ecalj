@@ -13,6 +13,7 @@ c so this routine contains unused things so much.
      & plat, pos,z,ecore,konf,nlnx
       use m_keyvalue,only: getkeyvalue
       use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+      use m_lgunit,only:m_lgunit_init
 
       implicit none
 c
@@ -121,6 +122,7 @@ c     &    ,wibz(:),qbzw(:,:)
 c       integer(4),allocatable:: idtetf(:,:),ib1bz(:),idteti(:,:)
 c     &    ,nstar(:),irk(:,:),index_qbz(:,:,:)
 c-----------------------------------------------------------------
+      call m_lgunit_init()
       call read_BZDATA()
       write(6,*)' nqbz qbz =',nqbz
 c      write(6,*)' nqibz ngrp=',nqibz,ngrp2

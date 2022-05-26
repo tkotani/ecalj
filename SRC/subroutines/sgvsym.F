@@ -1,4 +1,5 @@
       subroutine sgvsym(ngrp,g,ag,ng,gv,ips0,bgv)
+      use m_lgunit,only:stdo
 C- Setup for symmetrization of a function in Fourier representation.
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -29,10 +30,10 @@ C ... Passed parameters
       double precision g(3,3,1),ag(3,1),gv(ng,3)
       double complex bgv(ng)
 C ... Local parameters
-      integer i,i00,irep,i0,nstar,k,j,j0,iprint,ksum,kstar,stdo,lgunit
+      integer i,i00,irep,i0,nstar,k,j,j0,iprint,ksum,kstar
       double precision tpi,df,scalp,gg0,gg,fac,vv,v(3)
 
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       tpi = 8d0*datan(1d0)
 
       do  10  i = 1, ng

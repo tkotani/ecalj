@@ -1,6 +1,7 @@
       integer function iofa(spid,nxi0,nxi,exi,hfc,hfct,rsm,z,rmt,a,nr,
      .qc,ccof,ceh,stc,rho,rhoc,v,ifi)
       use m_lmfinit,only: nsp,lrel
+      use m_lgunit,only:stdo
 
 
 C- I/O for free-atom data, one species
@@ -37,12 +38,12 @@ C ... Passed parameters
       character spid*8
       double precision a,ccof,ceh,qc,rmt,rsm,stc,z,
      .hfc(nxi0,2),rho(2*nr),v(2*nr),exi(nxi0),rhoc(2*nr),hfct(nxi0,2)
-      integer i,jfi,lrel0,nglob,nsp0,ipr,iprint,stdo,lgunit
+      integer i,jfi,lrel0,nglob,nsp0,ipr,iprint
       logical isanrg
       character msg*23
 
       ipr    = iprint()
-      stdo   = lgunit(1)
+c      stdo   = lgunit(1)
       msg  = '         File mismatch:'
       iofa   = -1
 

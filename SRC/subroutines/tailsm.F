@@ -1,5 +1,6 @@
       subroutine tailsm(lrhot,nr,nrmt,nsp,a,b,rmt,rsm,nxi0,nxi,exi,rofi,
      .rho,rhot,hfc,hfct)
+      use m_lgunit,only:stdo
 C- Fit tails of rho to smoothed Hankel functions
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -37,7 +38,7 @@ C ... Passed parameters
       double precision hfct(nxi0,nsp),rhot(*)
 C ... Local parameters
       logical lzero
-      integer:: lx0(20) , isp , ie , ir , ipr , stdo , lgunit
+      integer:: lx0(20) , isp , ie , ir , ipr 
 c      real(8) ,allocatable :: wk_rv(:)
       real(8) ,allocatable :: idx_rv(:)
       real(8) ,allocatable :: xi_rv(:)
@@ -48,7 +49,7 @@ C ... Heap
       print *,'tailsm: init'
       fpi = 16*datan(1d0)
       call getpr(ipr)
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
 
 C --- Tabulate smoothed Hankels on a radial mesh ---
       do  10  ir = 1, nr

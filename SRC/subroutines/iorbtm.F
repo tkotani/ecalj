@@ -2,6 +2,7 @@
       use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,nl,nsp,nbas
       use m_struc_def           !Cgetarg
       use m_bandcal,only: orbtm=>orbtm_rv
+      use m_lgunit,only:stdo
 C- Printout of orbital moments
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -24,7 +25,7 @@ c      real(8):: orbtm(nl,nsp,nbas) !nclass)
 c      type(s_spec)::sspec(*)
 
 C ... Local parameters
-      integer isp,l,im,lm,m,l1,ipr,stdo,lgunit,is,ibas
+      integer isp,l,im,lm,m,l1,ipr,is,ibas
       double precision amom,orbl(10)
       character*8 slabl
 C ... External calls
@@ -32,7 +33,7 @@ ckino      external dpzero,getpr,spacks
       external dpzero,getpr
       call getpr(ipr)
       if (ipr .lt. 20) return
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       write(stdo,332)
   332 format(/' IORBTM:  orbital moments :'/
      .' ibas  Spec        spin   Moment decomposed by l ...')

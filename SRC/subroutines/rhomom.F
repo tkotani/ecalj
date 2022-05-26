@@ -1,6 +1,7 @@
       subroutine rhomom (sv_p_orhoat, qmom,vsum)
       use m_struc_def 
       use m_lmfinit,only: nsp,nbas,ssite=>v_ssite,sspec=>v_sspec
+      use m_lgunit,only:stdo
 C- Multipole moments of valence sphere densities
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -28,7 +29,7 @@ C ... Passed parameters
       type(s_rv1) :: sv_p_orhoat(3,*)
       real(8):: qmom(1) , vsum
 C ... Local parameters
-      integer:: stdo , ipr , iprint , lgunit , nrmx , 
+      integer:: ipr , iprint, nrmx , 
      .j1 , ib , is , igetss , lmxl , nr , nlml , ilm , j , lfoc
       real(8) ,allocatable :: rofi_rv(:)
       real(8) ,allocatable :: rwgt_rv(:)
@@ -38,7 +39,7 @@ C ... Local parameters
       double precision fpi,y0,z,qc,a,rmt,qcorg,qcorh,qsc,cofg,cofh,rg,ceh,rfoc,vs1,vs2
 C --- Setup ---
       ipr  = iprint()
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       fpi  = 16d0*datan(1d0)
       y0   = 1d0/dsqrt(fpi)
       allocate(rofi_rv(nrmx))

@@ -20,7 +20,7 @@
       use m_ldau,only:     M_ldau_init
       use m_gennlat,only:  M_gennlat_init
       use m_mksym,only:    M_mksym_init
-      use m_ftox,only:     M_ftox_init_lgunit, stdo,stdl
+      use m_lgunit,only:   M_lgunit_init, stdo,stdl
       implicit none
       integer:: k, iarg,jobgw,iprint,nit1,ifi,ifile_handle,nx,ny,nk1,nk2,nk3,i,j,ix
       logical:: fileexist,cmdopt0,cmdopt2, writeham,lbin,sigx
@@ -32,7 +32,7 @@
       if(cmdopt0('--jobgw')) prgnam='LMFGWD'
       call M_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
       call M_MPItk_init(prgnam)
-      call M_ftox_init_lgunit()
+      call M_lgunit_init()
       aaa=''
       do iarg=1,iargc()
          call getarg(iarg,sss)

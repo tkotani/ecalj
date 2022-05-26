@@ -1,4 +1,5 @@
       module m_rdfiln
+      use m_lgunit,only:stdo
       public m_rdfiln_init,recln,recrd,nrecs,mxrecs
       integer,parameter:: recln=511, mxrecs=10000
       character*(recln),protected:: recrd(mxrecs)
@@ -8,7 +9,7 @@
       contains
       subroutine m_rdfiln_init()
       use m_ext,only: sname
-      integer:: nfilin,master=0,ierr,i,procid=0,stdo,mpipid,lgunit
+      integer:: nfilin,master=0,ierr,i,procid=0,mpipid
       character(8) :: alabl
       character:: strn*1000
       logical:: fileexist,lshowp,lshow,cmdopt0,mlog
@@ -17,7 +18,7 @@
       procid = mpipid(1) 
 #endif
       mlog = cmdopt0('--mlog')  !! set log for --mlog (not maintained well)
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       if(procid==master) then
          inquire(file='ctrl.'//trim(sname),exist=fileexist)
          if(.not.fileexist) call rx("No ctrl file found! ctrl."//trim(sname)) 

@@ -1,5 +1,6 @@
       subroutine soprm(mode,lpzi,phi,phid,phiz,nr,nsp,lmxs,lmx,v,dv,enu,
      .ez,z,ri,wi,wk,sop,sopz)
+      use m_lgunit,only:stdo
 C- Radial matrix elements between orbitals of different spin
 C ---------------------------------------------------------------------
 Ci Inputs
@@ -59,7 +60,7 @@ C ... Passed parameters
      .ri(nr),sop(0:lmxs,nsp,nsp,3),v(nr,nsp),wk(nr,4),dv(nr),
      .wi(nr),sopz(0:lmxs,nsp,nsp,3),enu(0:8,nsp),ez(0:8,nsp)
 C ... Local parameters
-      integer l,ir,is,is1,is2,ipr,mode0,stdo,lgunit,lmin
+      integer l,ir,is,is1,is2,ipr,mode0,lmin
       double precision c,pa,r,r1,r2,dot3,vavg,eavg,eavgz,dva,xx,
      .xxz,xxavg,wkz(nr,4)
 C ... External calls
@@ -70,7 +71,7 @@ C     Speed of light, or infinity in nonrelativistic case
 
 C --- Setup ---
       call getpr(ipr)
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       mode0 = mod(mode,4)
 C     c = 274.071979d0
       lmin = 1

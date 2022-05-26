@@ -1,4 +1,5 @@
       subroutine prtev(t,n,evl,nmx,nev)
+      use m_lgunit,only:stdo
 C- Printout the eigenvalues
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -16,8 +17,8 @@ C ... Passed parameters
       double precision evl(nev)
       double complex t(n,nmx)
 C ... Local parameters
-      integer i,ipr,j,stdo,lgunit
-      stdo = lgunit(1)
+      integer i,ipr,j
+c      stdo = lgunit(1)
       call getpr(ipr)
       ipr = 30 !100
       if (ipr .ge. 30 .and. ipr .lt. 100) then

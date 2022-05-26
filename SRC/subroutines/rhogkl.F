@@ -1,7 +1,6 @@
       subroutine rhogkl ( ib1 , ib2 , nsp , mode , ssite , sspec , 
      . sv_p_orhoat , kmax , qkl )
-
-
+      use m_lgunit,only:stdo
       use m_struc_def  !Cgetarg
 
 C- G_kL expansion of valence sphere densities
@@ -48,7 +47,7 @@ C ... Passed parameters
       type(s_spec)::sspec(*)
 
 C ... Local parameters
-      integer:: stdo , ipr , iprint , lgunit , nrmx , j1 , ib , is 
+      integer:: ipr , iprint, nrmx , j1 , ib , is 
      ., igetss , lmxl , nr , nlml , ilm , j , lfoc , k , l , m
       real(8) ,allocatable :: rofi_rv(:)
       real(8) ,allocatable :: rwgt_rv(:)
@@ -61,7 +60,7 @@ C ... Heap
 
 C --- Setup ---
       ipr  = iprint()
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       allocate(rofi_rv(nrmx))
 
       allocate(rwgt_rv(nrmx))

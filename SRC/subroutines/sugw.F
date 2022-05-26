@@ -1,4 +1,5 @@
       module m_sugw
+      use m_lgunit,only:stdo
       private
       public:: m_sugw_init
       contains
@@ -7,7 +8,7 @@
       use m_struc_def,only: s_rv1, s_spec, s_site 
       use m_suham,only: ndham=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
       use m_lmfinit, only: 
-     &     ham_pwmode,pwemin,pwemax,ham_oveps,lrsig=>ham_lsig,stdl,nlmto,iprmb,lso,
+     &     ham_pwmode,pwemin,pwemax,ham_oveps,lrsig=>ham_lsig,nlmto,iprmb,lso,
      &     ham_scaledsigma,lat_alat,mxorb,nkaph,nsp,nspc,nl,mxorb,ssite=>v_ssite,sspec=>v_sspec,nbas,n0,nppn,nkap0
       use m_lattic,only: lat_plat, lat_qlat
       use m_supot,only: lat_nabc, lat_gmax
@@ -78,7 +79,7 @@ c      use m_shortn3,only: shortn3_initialize,shortn3
      .ifiqg,iflband(2),ifqeigen,ifsyml,igets,igetss,iix,iline, 
      .im1,im2,ipb(nbas),ipqn,ipr,iprint,iq,is,isp,ispc,j,job,k1,
      .k2,k3,konf,konfig(0:n0),l,lchk,ldim,loldpw,
-     .lgunit,lmaxa,lmxax,lsig,mx,mxint,n1,n2,n3,nat,
+     .lmaxa,lmxax,lsig,mx,mxint,n1,n2,n3,nat,
      .ncore,ndima,nevl,nev,nglob,ngp,ngp_p, 
      .ngpmx,nline,nlinemax,nlmax,nmx,nn1,nn2,nnn,npgrp,
      .nphimx,npqn,nqbz,nqibz,nqnum,nqnumx,nqtot,nr,nsgrp,iqibz,imx, 
@@ -146,7 +147,7 @@ c      integer,allocatable:: igv2(:,:)
       complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),ovlmtoi(:,:),ovliovl(:,:) ,hammhso(:,:,:)
       integer,allocatable:: iantiferro(:)
 
-      integer:: lpdiag=0,stdo,nrmx,ncoremx!,ndham
+      integer:: lpdiag=0,nrmx,ncoremx!,ndham
       character spid*8
       character*8 xt
       logical,optional:: socmatrix !dipolematrix,
@@ -156,7 +157,7 @@ c      integer,allocatable:: igv2(:,:)
 #endif
 !! --- Setup ---
       call tcn ('m_sugw_init')
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       if(master_mpi) write(stdo,"(a)") 'm_sugw_init: start'
       sigmamode = mod(lrsig,10) .ne. 0
 !! june2013 magfield is added

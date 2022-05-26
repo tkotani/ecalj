@@ -1,4 +1,5 @@
       module m_lmaux
+      use m_lgunit,only:stdo
       public:: lmaux
       private
       contains
@@ -31,10 +32,10 @@ C ----------------------------------------------------------------------
       integer NULLI
       logical cmdopt,T,F,swtmp
       parameter (T=.true., F=.false., NULLI=-99999)
-      integer getdig,i,ip,j,k,m,ifi,iprint,lpbc,lgunit,
+      integer getdig,i,ip,j,k,m,ifi,iprint,lpbc,
      .nbas,nclasp,nclass,nl,nlspc,nsp,modep(3),parg,nbasp,
      .nbaspp,nkd,nkq,nspec,neul,nc,mxcsiz,nttab,igets, !npadl,npadr,
-     .iosits,cmplat,ngrp,ival,stdo,irs(5),nclspp,bitand,igetss,
+     .iosits,cmplat,ngrp,ival,irs(5),nclspp,bitand,igetss,
      .ngmx,nsgrp
       integer:: oeold  , olmx , opold , owk2 , orham , oamsh 
      .     , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl , mxclas
@@ -83,7 +84,7 @@ C ----------------------------------------------------------------------
       print *,' z   =',z
       nbasp = nbas !+ npadl + npadr
       nbaspp = nbas !2*nbasp - nbas
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       j = 10
       if (cmdopt('--shorten',j-1,0,outs)) then
         call shorps ( nbasp , plat , modep , rv_a_opos , rv_a_opos )
@@ -237,6 +238,7 @@ C       call coritp(nclass,nsp,w(oclabl),nrmsh,amsh,w(ormax))
       subroutine makrm0(opt,nspec,nbas,alat,plat,pos,slabl,ips,modep,
      .lock,z,rmt)
       use m_lmfinit,only: nsp
+      use m_freeat,only:freats
 C- Estimate muffin-tin radii overlapping atomic potentials
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -314,7 +316,7 @@ C Local variables:
       integer nrmx,nxi0,n0,niax,mxcsiz,npmx,pass
       parameter (nrmx=1501,nxi0=10,n0=10,niax=10,mxcsiz=400,npmx=mxcsiz)
       integer nxi,nrmix(2),lxcfun,is,opt0,opt1,opt2,opt3
-      integer idmod(n0),lmxa,nrmt,nr,ib,nttab,k,ir,np,ipr,stdo,lgunit,
+      integer idmod(n0),lmxa,nrmt,nr,ib,nttab,k,ir,np,ipr,
      .nrspec
       integer ntab(nbas+1),iax(niax,mxcsiz),ipa(nbas)
       double precision qc,ccof,ceh,rmtl(nspec),rfoca,rsmfa,qcor(2),
@@ -339,7 +341,7 @@ C     Relative positions
       double precision rpos(3,mxcsiz),ri,rbar,rmin,vrmax,cur,slo,di
       character*1 sym(2)
 C ... External calls
-      external dcopy,defpq,defwsr,dpcopy,dpzero,dscal,freats,getpr,
+      external dcopy,defpq,defwsr,dpcopy,dpzero,dscal,getpr,
      .iinit,info,polint,poppr,pshpr,psymq0,psymr0,rx,rxi
 C ... Heap
       data sym /' ','*'/
@@ -357,7 +359,7 @@ C --- Setup ---
       l_dummy_isanrg=isanrg(opt1,0,2,'makrm0:','10s digit opt',.true.)
       l_dummy_isanrg=isanrg(opt2,0,1,'makrm0:','100s digit opt',.true.)
       l_dummy_isanrg=isanrg(opt3,0,1,'makrm0:','1000s digit opt',.true.)
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       call getpr(ipr)
       call dpzero(rpos,3*mxcsiz)
       call dpzero(v,nrmx*nspec)
@@ -399,8 +401,8 @@ C       nrspec(is) = iabs(iclbsj(is,ips,-nbas,nbas))
         eref = 0
         nrmt = 0
         call pshpr(ipr-20)
-        call freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,0,-1,qcor,nrmix,0,
-     .  lxcfun,z(is),rmtl(is),a(is),nrmt,pnu,pnz,qat,0d0,0d0,0d0,0d0,
+        call freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,0,-1,qcor,nrmix(1),0,
+     .  lxcfun,z(is),rmtl(is),a(is),nrmt,pnu,pnz,qat,0d0,0d0,0d0,[0d0,0d0],
      .  idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho(1,is),rhoc(1,
      .  is),qc,ccof,ceh,sumec,sumtc,v(1,is),etot, 1, -1,-1) !nmcore=1 july2012 !last -1 -1 means not write ves* files.
         call poppr
@@ -681,7 +683,7 @@ C Passed variables:
       character*8 slabl(*)
       integer:: i , k , nrspec(nspec) , ib , is , opt1
       real(8) ,allocatable :: wk_rv(:)
-      integer niax,mxcsiz,mxnbr,nttab,ipr,stdo,lgunit,llock(nspec)
+      integer niax,mxcsiz,mxnbr,nttab,ipr,llock(nspec)
       integer ,allocatable :: ntab_iv(:)
       integer ,allocatable :: iax_iv(:)
       logical les
@@ -700,7 +702,7 @@ C      wsr(6) = 1.647651d0
 
 C --- Setup ---
       call getpr(ipr)
-      stdo  = lgunit(1)
+c      stdo  = lgunit(1)
       gamma = 0
 c      call maknrs(nbas,ips,ib,nrspec)
       nrspec=0
@@ -918,7 +920,7 @@ C Passed variables:
       character*8 slabl(nspec)
 C Local variables:
       integer ib,jb,is,iclbsj,ip,k1,k2,k3,
-     .kb,ks,kco,kpr,lgunit,nloop,stdo,ipr,npcol,locki
+     .kb,ks,kco,kpr,nloop,stdo,ipr,npcol,locki
       double precision a,amax,amax1,amax2,amax3,amax4,avw,b,bmax,d,
      .dm(0:3),dovlap,dscl(nspec),
      .dsclmx,drr2,dr(3),fpi3,gw,opo1,omo2,p,q,r,ratio,
@@ -932,7 +934,7 @@ C ... External calls
 
       avw  = avwsr(plat,alat,vol,nbas)
       gw   = avw*gamma
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       call getpr(ipr)
 C      print *, '!!'
 C      ipr = 40
@@ -1544,7 +1546,7 @@ C ----------------------------------------------------------------
       double precision alat,plat(3,3),pos(3,19),range(1)
 C Local variables
       integer:: ib , is , jb , js , ipr , i , j , moder , it , jt , 
-     .iprint , lgunit , stdo , nsite , isw1
+     .iprint ,  nsite , isw1
       real(8) ,allocatable :: pos_rv(:)
       integer ,allocatable :: iwk_iv(:)
 
@@ -1555,7 +1557,7 @@ C Local variables
       ipr = iprint()
       moder = mod(isw,10)
       nsite = ib2-ib1+1
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       if (isw1 .eq. 2) goto 80
       if (isw1 .eq. 4) goto 71
 
@@ -1885,7 +1887,7 @@ C     implicit none
       double precision fovl,xtol,gtol,dxmn,dxmx,fovmx
       double precision wk(0:27)
       integer i1mach,isw,ir,i,j,j1,j2,ls,m,lstyle, !op
-     .iv,parg,nlstc,mxint,nclass,ib,ic,iclbsj,maxit,ipr,n,lgunit
+     .iv,parg,nlstc,mxint,nclass,ib,ic,iclbsj,maxit,ipr,n!,lgunit
       character dc*1
       external mxint
       integer,allocatable:: olist(:)
@@ -1899,7 +1901,7 @@ C --- Print out positions and overlaps ---
      .  , novl )
       if (novl .eq. 0) novl = 1
       if (ipr .ge. 10 .or. iprtbl .gt. 0)
-     .write(lgunit(1),"(' OVMIN:  fovl= ',f5.1,' <ovlp> = ',f5.1,'%',
+     .write(stdo,"(' OVMIN:  fovl= ',f5.1,' <ovlp> = ',f5.1,'%',
      .'   max ovlp = ',f5.1,'%')") fovl/novl,(fovl/novl)**(1/6d0)*100,fovmx*100
 C     --- Minimize overlaps wrt positions in list ---
       if (sovmin .ne. ' ') then
@@ -2307,7 +2309,7 @@ C Local parameters
       double precision dd(3),dd1,dd2,sumrs,summt,ovlprs,ovlpmt,
      .ctrs,ctmt,ddot,dlat(3),xx,avwsr,vol
       double precision qlat(3,3),volspp
-      integer ibas,jbas,ic,jc,kc,m,ipr,i1mach,m1,m2,m3,isw,lgunit,stdo,istdo
+      integer ibas,jbas,ic,jc,kc,m,ipr,i1mach,m1,m2,m3,isw,stdo,istdo
       character*80 a, ch*1
       logical lterse,cmdopt,lrmt
       character*8 clabl,clablj
@@ -2315,7 +2317,7 @@ C Local parameters
       character(10):: i2char
       call getpr(ipr)
       lrmt = rmt(1) .gt. 0
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       call mkqlat(plat,qlat,xx)
 
 C --- Determine which linear combination of plat is shortest ---

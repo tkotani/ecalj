@@ -41,6 +41,7 @@ c      use m_readqg,only: readqg,readngmx
       use m_w0w0i,only: w0w0i,
      & w0,w0i
       use m_readgwinput,only: ReadGWinputKeys
+      use m_lgunit,only:m_lgunit_init
 
       implicit none
 !! ------------------------------------------------
@@ -188,6 +189,7 @@ c      integer, allocatable:: epslgroup(:)
       call getkeyvalue("GWinput","mpi_size_lim",size_lim,default=999)
 
       call MPI__Initialize_magnon()
+      call M_lgunit_init()
       call MPI__consoleout_magnon('hmagnon',size_lim) ! size_lim for saving memory (avoid swapping)
 
       call cputid (0)

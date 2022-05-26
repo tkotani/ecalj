@@ -2,6 +2,7 @@
       use m_lmfinit,only: nbas,ssite=>v_ssite
       use m_mksym,only:  rv_a_osymgr , iv_a_oistab ,lat_nsgrp
       use m_struc_def           
+      use m_lgunit,only:stdo,stdl
 C- Add together and print contributions to force
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -25,13 +26,13 @@ C ----------------------------------------------------------------------
       implicit none
       integer leks,i_copy_size
       real(8):: fin(3,nbas) ,fout(3,nbas), f(3,nbas) , fes1(3,nbas) , fes2(3,nbas) , dfhf(3,nbas)
-      integer:: stdo , stdl , lgunit , ipr , ipl , ib , m , ng , ibmx , isw
+      integer:: ipr , ipl , ib , m , ng , ibmx , isw
       real(8) ,allocatable :: wk_rv(:)
       double precision fev1(3),fev2(3),fhar(3),fks(3),c,ddot,fmax,dfmax
       call tcn('totfrc')
       f=fin
-      stdo = lgunit(1)
-      stdl = lgunit(2)
+c      stdo = lgunit(1)
+c      stdl = lgunit(2)
       if (leks .lt. 0) return
       c = 1000d0
       call getpr(ipr)

@@ -1,9 +1,13 @@
-! General purpose formatted write module m_ftox
-!
-! ftox: general format. usage: write(6,ftox) foobar,xxx
-! ftof(dfloat,m) 1234.123456 format. m digits below period. m is option (six when no m)
-! ftod(dfloat,m) 0.123456d+08 format.
-! ftom(dfloat)   truncate right-hand-side zeros. drealx can be real(8) arrays.
+! == General purpose formatted write module m_FtoX ==
+! 
+! ftox: general format. usage: write(6,ftox) foobar,foobar1,foobar2
+! foobar can be integer, character, and something like
+!   ftof(dfloat/complex,m) 1234.123456 format.
+!                m digits below period. m is option (six when m is not given)
+!   ftod(dfloat/complex,m) 0.123456d+08 format.
+!   ftom(dfloat/complex)   truncate right-hand-side zeros. drealx can be real(8) arrays.
+! stdo: file handle for standard output
+! stdl: handle for log
 !==============
 ! program test_ftox
 !   use m_ftox
@@ -25,9 +29,8 @@
 !>nnn2 1.240000 4.560000 117.123459
 !>nnn3 0.12D+01 0.46D+01 0.12D+03 0.46D+07 0.91D+05
 module m_FtoX
-  public:: ftof,ftod,ftom, m_ftox_init_lgunit
-  character(11),public:: ftox='(*(g0,x))'
-  integer,public:: stdl,stdo
+  public :: ftof,ftod,ftom, ftox
+  character(11):: ftox='(*(g0,x))'
   private
   
   !ftom is removing right-end zeros below decimal point.
@@ -45,13 +48,6 @@ module m_FtoX
   endinterface ftom
 
 contains
-  
-  subroutine M_ftox_init_lgunit()
-  integer:: lgunit
-    stdo=lgunit(1)
-    stdl=lgunit(2)
-  end subroutine M_ftox_init_lgunit
-
   function ftodv(argv,ixx) result(farg)
     intent(in):: argv,ixx
     real(8):: argv(:)
@@ -214,37 +210,49 @@ contains
     integer(4) ::num
     charnum3=char(48+mod(num/100,10))//char(48+mod(num/10,10))//char(48+mod(num,10))
   end function charnum3
-  
 end module m_FtoX
 
-integer function lgunit(i)
-  ! Returns stdout for i=1, log for i=2, mlog for i=3 (MPI logfile)
-  use m_ext,only: sname
-  implicit none
-  character(10):: i2char
-  character*100 ext
-  integer i, fopn, i1mach, fhndl,ifile_handle,procid
-  integer,save:: lgunit1=0,lgunit2=0,lgunit3=0
-  include "mpif.h"
-  integer mpipid
-  procid = mpipid(1) 
-  lgunit = 6
-  if (i .eq. 1) return
-  if (i .eq. 2) then
-     if(lgunit2==0) then
-        lgunit2=ifile_handle()
-        open(lgunit2,file='log.'//trim(sname),position='append')
-     endif
-     lgunit = lgunit2
-  elseif (i .eq. 3) then
-     if(lgunit3==0) then
-        lgunit3=ifile_handle()
-        open(lgunit3,file='mlog.'//trim(sname)//'_'//trim(i2char(procid)))
-     endif
-     lgunit = lgunit3
-  endif
-end function lgunit
-  
+
+
+module m_lgunit
+  public:: m_lgunit_init
+  integer,public :: stdl,stdo,stml
+  private
+contains
+  subroutine M_lgunit_init()
+    stdo=lgunit(1)
+    stdl=lgunit(2)
+    stml=lgunit(3)
+  end subroutine M_lgunit_init
+  integer function lgunit(i)
+    ! Returns stdout for i=1, log for i=2, mlog for i=3 (MPI logfile)
+    use m_ext,only: sname
+    implicit none
+    character(10):: i2char
+    character*100 ext
+    integer i, fopn, i1mach, fhndl,ifile_handle,procid
+    integer,save:: lgunit1=0,lgunit2=0,lgunit3=0
+    include "mpif.h"
+    integer mpipid
+    procid = mpipid(1) 
+    lgunit = 6
+    if (i .eq. 1) return
+    if (i .eq. 2) then
+       if(lgunit2==0) then
+          lgunit2=ifile_handle()
+          open(lgunit2,file='log.'//trim(sname),position='append')
+       endif
+       lgunit = lgunit2
+    elseif (i .eq. 3) then
+       if(lgunit3==0) then
+          lgunit3=ifile_handle()
+          open(lgunit3,file='mlog.'//trim(sname)//'_'//trim(i2char(procid)))
+       endif
+       lgunit = lgunit3
+    endif
+  end function lgunit
+end module m_lgunit
+
 
 
  ! program test_ftox

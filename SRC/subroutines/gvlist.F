@@ -1,6 +1,7 @@
       subroutine gvlist_notused(alat,plat,tau,n1,n2,n3,gmax,job,ngmx,ng,kv,gv,
      .igv,igv2)
       use m_shortn3,only: shortn3_initialize,shortn3
+      use m_lgunit,only:stdo
 C- Create a list of G vectors for a specified uniform mesh and cutoff
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -96,7 +97,7 @@ C ... Passed parameters
       double precision alat,gmax,gv(ngmx,3),plat(3,3),tau(3)
 C ... Local parameters
       logical ligv,ligv2,lgv,lsort,lgpq
-      integer m,ig,j1,j2,j3,iprint,ogg,okk,oiwk,PRTG,stdo,lgunit,job0
+      integer m,ig,j1,j2,j3,iprint,ogg,okk,oiwk,PRTG,job0
       double precision qlat(3,3),plat1(3,3),qlat1(3,3),qpg(3),gs(3),pi,
      .tpiba,tol,gg,vol,gmax2,q(3),s1,s2,s3,ddot
       character*256 outs
@@ -117,7 +118,7 @@ C ... Local parameters
       real(8):: rlatp(3,3),xmx2(3)
 
 C ... Setup
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
       job0  = mod(job,100)
       ligv  = mod(job0,2)   .ne. 0
       ligv2 = mod(job0/2,2) .ne. 0

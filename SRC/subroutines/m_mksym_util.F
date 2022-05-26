@@ -1,4 +1,5 @@
       module m_mksym_util
+      use m_lgunit,only:stdo
       public gensym,grpgen,symtbl
       private
       real(8):: fptol=0d0
@@ -149,14 +150,14 @@ C Passed parameters:
      .bas(3,nbas)!,fptol=0d0
       character*8  slabl(*), gens*(*), nwgens*(*)
       logical lcar,lfix
-      integer:: i , j , ibas , ic , iprint , ngnmx , igen , mxint , modes,ig,lgunit
+      integer:: i , j , ibas , ic , iprint , ngnmx , igen , mxint , modes,ig
       real(8) ,allocatable :: wk_rv(:)
       double precision qlat(3,3),vol,platt(9)
       logical lsmall,latvec
       parameter(ngnmx=10)
       double precision gen(9,ngnmx),agen(3,ngnmx)
-      integer ::iwdummy,iwdummy1(1),stdo
-      stdo = lgunit(1)
+      integer ::iwdummy,iwdummy1(1)
+c      stdo = lgunit(1)
       call rxx(.not. lcar, 'gensym not implemented lcar')
       call rxx(lfix,  'gensym not implemented lfix')
       call rxx(lsmall,'gensym not implemented lsmall')
@@ -365,7 +366,7 @@ c$$$     ./'     are at the same positions. '/)
 c$$$      end
 !sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine sgroup(mode,gen,agen,ngen,g,ag,ng,ngmx,qb)
-      use m_lmfinit,only: stdo
+c      use m_lmfinit,only: stdo
 C- Sets up space group given generators (gen,agen).
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -571,7 +572,6 @@ C      mode(3) = 2
       end
       
       subroutine groupg(mode,ng,g,ag,plat,ngen,gen,agen,gens,ngout)
-      use m_lmfinit,only: stdo
 C- Finds a set of generators for the symmetry group
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -612,9 +612,6 @@ C Local parameters:
       parameter (ngmx=48*64)
       character*100 sg,sg1,sout,sout2
       double precision gloc(3,3,ngmx),agloc(3,ngmx),qlat(9),xx,vec(3),vol
-
-cChangenglob      stdo = nglob('stdo')
-c      stdo = globalvariables%stdo
 
 C --- Starting number of group ops ---
       call dinv33(plat,1,qlat,vol)
@@ -773,7 +770,6 @@ c$$$     .80,lgunit(1),sum/ng)
 c$$$      end
 !!
       subroutine grpgen(gen,ngen,symops,ng,ngmx)
-      use m_lmfinit,only: stdo
 C- Generate all point symmetry operations from the generation group
 C ----------------------------------------------------------------
 Ci Inputs
@@ -795,8 +791,6 @@ c      logical grpeql
       character*80 sout
       data e /1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0/, ae/0d0,0d0,0d0/
 
-cChangenglob      stdo = nglob('stdo')
-c      stdo = globalvariables%stdo
       call getpr(ipr)
       sout = ' '
       call grpcop(e,symops)
@@ -1079,7 +1073,7 @@ C ----------------------------------------------------------------------
       implicit none
       integer ngrp,isym
       double precision platcp(3,3),grp(9,*)
-      integer i,iprint,ltmax,ll1,lgunit,m,m1,m2,m3,mm,nrot(4)
+      integer i,iprint,ltmax,ll1,m,m1,m2,m3,mm,nrot(4)
       parameter(ltmax=3,ll1=ltmax*2+1)
       double precision platt(9),qlatcp(3,3),mat(9),vecg(3),vol
       logical latvec,lirr
@@ -1136,7 +1130,7 @@ C       ... Add it and i*symop, if allowed
       if (ngrp .eq.24) isym=6
       if (ngrp .eq.48) isym=7
       if (iprint() .ge. 30) call awrit1(' SYMLAT: Bravais system is '
-     .//csym1(isym)//'%a with %i symmetry operations.',' ',80,lgunit(1),ngrp)
+     .//csym1(isym)//'%a with %i symmetry operations.',' ',80,stdo,ngrp)
       end
 !ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss!
       subroutine symcry(bas,bast,ipc,nbas,nclass,nrclas,
@@ -1178,14 +1172,13 @@ C Passed parameters:
 c      real(8):: tol=0d0
 C Local parameters:
       integer ibas,ic,iclbsj,icmin,ig,ipr,jbas,kbas,kc,
-     .lgunit,m,mbas,nj,nm,ng0,stdo
+     .m,mbas,nj,nm,ng0
 C     integer mode(3)
       double precision dbas(3),tol0,tol1
       parameter (tol0=1d-5)
       logical latvec
       character sg*35
       call getpr(ipr)
-      stdo = lgunit(1)
       tol1 = fptol
       if(fptol==0d0) tol1 = tol0
 C --- Find the class with minimum number of atoms ---

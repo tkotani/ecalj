@@ -1,4 +1,5 @@
       subroutine intnos(ndos,dos,emin,emax,qval,efermi,dosef,eband)
+      use m_lgunit,only:stdo
 C- Finds E_F from a tabulated number of states function
 C-----------------------------------------------------------------------
 Ci  Input
@@ -11,7 +12,7 @@ C-----------------------------------------------------------------------
 C     implicit none
       integer ndos
       double precision dos(0:ndos-1),emin,emax,qval,efermi,eband,dosef
-      integer i,meshpt,iprint,lgunit
+      integer i,meshpt,iprint
       double precision step,sum,q,q1,q2,e1,eps,d1mach
       eps = d1mach(3)
 C --- make Fermi energy ---
@@ -41,7 +42,7 @@ C --- make band energy by partial integration ---
       eband = efermi * qval - sum
       if (iprint() .ge. 30) then
 c        do  12  i = 1, 1
-         write(lgunit(1),"(' INTNOS: Fermi energy=,f15.8',
+         write(stdo,"(' INTNOS: Fermi energy=,f15.8',
      .    '  band energy=',f15.8,' DOS(E_f)=',f15.8)") efermi, eband, dosef
 c   12   continue
 C        write(*,10) efermi, eband, dosef
