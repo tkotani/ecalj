@@ -25,9 +25,9 @@
 !>nnn2 1.240000 4.560000 117.123459
 !>nnn3 0.12D+01 0.46D+01 0.12D+03 0.46D+07 0.91D+05
 module m_FtoX
-  public:: ftof,ftod,ftom,stdo,stdl,ftox,m_ftox_init_lgunit
-  character(11):: ftox='(*(g0,x))'
-  integer:: stdl,stdo=6
+  public:: ftof,ftod,ftom, m_ftox_init_lgunit
+  character(11),public:: ftox='(*(g0,x))'
+  integer,public:: stdl,stdo
   private
   
   !ftom is removing right-end zeros below decimal point.
