@@ -1,5 +1,4 @@
       program hqpe
-
 c Jul,2000 takao mod from hqpe by ferdi. No routines required.
 c calculates quasiparticle energies
 c E(k,t) = e(k,t) + Z [SEx(k,t) + SEc(k,t) - xcLDA(k,t)]
@@ -11,8 +10,7 @@ c xcLDA(k,t) = <psi(k,t)| vxc |psi(k,t)>
 c SEx and xcLDA are in file SEX
 c SEc is in file SEC
       use m_keyvalue,only: getkeyvalue
-      use m_lgunit,only: m_lgunit_init
-
+c      use m_lgunit,only: m_lgunit_init
       implicit real*8 (a-h,o-z)
       implicit integer(i-n)
 c local data
@@ -23,13 +21,10 @@ c local data
       real(8),allocatable :: qxc(:,:,:),eldaxc(:,:),vxc(:,:),
      &    qc(:,:,:),eldac(:,:),sex(:,:),sexcore(:,:),
      &    qx(:,:,:),eldax(:,:),rsec(:,:,:),csec(:,:,:),zfac(:,:)
-
       integer:: ret,iix
 c      logical:: readgwinput
       logical :: nozmode=.false.
-
-
-      call m_lgunit_init()
+c      call m_lgunit_init()
 c shift quasiparticle energies (eV)
       write (*,*)' q+band index for zero?'
       read (*,*)jin
@@ -37,28 +32,15 @@ c shift quasiparticle energies (eV)
          jin=jin-1000
          nozmode=.true.
       endif
-c      call headver('hqpe',jin)
-
-c open files
-c> input files
-c      ifqpnt     = iopenxx ('QPNT')
-c      if(readgwinput()) then
       call getkeyvalue("GWinput","<QPNT>",unit=ifqpnt,status=ret)
-c      else
-c        ifqpnt     = iopenxx ('QPNT')
-c      endif
       laf        = .false.
-
       call readx   (ifqpnt,10)
       read (ifqpnt,*) iqall,iaf
       if (iaf .eq. 1) laf = .true.
-
       ifsex(1)   = iopenxx ('SEXU')
       ifsexcore(1) = iopenxx ('SEXcoreU')
       ifsec(1)   = iopenxx ('SECU')
       ifxc(1)    = iopenxx ('XCU')
-
-
       call readx   (ifsex(1),50)
       read (ifsex(1),*) nspin,nq,ntq
       if (nspin .eq. 2 .and. .not. laf) then
@@ -68,7 +50,6 @@ c      endif
         ifxc(2)    = iopenxx ('XCD')
       endif
       rewind (ifsex(1))
-
 c> output file
       ifqpe(1)   = iopenxx ('QPU')
       iftote(1)  = iopenxx ('TOTE.UP')
@@ -78,7 +59,6 @@ c> output file
         iftote(2)  = iopenxx ('TOTE.DN')
         iftote2(2) = iopenxx ('TOTE2.DN')
       endif
-
 c loop over spin
       do      is = 1,nspin
         write(6,*) ' --- is=',is
@@ -90,10 +70,8 @@ c      call readx   (ifsex(is),50)
         read (ifsex(is),*) deltaw
         read (ifsex(is),*) alat
         read (ifsex(is),*) ef
-c
         call readx(ifsec(is),50)
         read (ifsec(is),*) nspinc,nqc,ntqc
-c
         call readx   (ifxc(is),50)
         read (ifxc(is),*) nspinxc,nqxc,ntqxc
         if (nspin .ne. nspinx)  call rx( 'hqpe: wrong nspin SEx')
@@ -175,12 +153,9 @@ c
      i              rsec,csec,zfac,jin,deltaw,alat,ef,
      d              ntq,nq,is,
      o              eshift0,eshift02,eshtlda)
-c     o              w(ieqp),w(iwqp))
-
         deallocate( itxc,qxc,eldaxc,vxc ,itc, qc ,eldac,
      &                 sexcore ,rsec,csec,zfac,
      &       itx, qx ,eldax,sex)
-
         if (laf) exit
         if (jin .gt. 0) jin = 999999
       end do

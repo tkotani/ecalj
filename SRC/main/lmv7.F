@@ -103,7 +103,7 @@
 !! Array allocated in supot rhoat smrho. 
       call M_supot_init() ! get G vectors for charge
       call Sugcut(1)
-      call M_suham_init()       ! Get estimated dimension of Hamiltonian (probably simplified in future).
+      call M_suham_init()   ! Get estimated dimension of Hamiltonian (probably simplified in future).
       if(nlibu>0) call M_ldau_init() !! LDA+U initialization
       if(cmdopt0('--quit=dmat')) call Rx0('--quit=dmat')
       call M_qplist_init(plbnd,jobgw==1) ! Get q point list at which we do band calculations
@@ -126,31 +126,14 @@
          if(master_mpi) call Vbmmode()
          call Rx0('--vbmonly mode done')
       endif
-      
       if(cmdopt0('--getq')) then ! Current version is not for spin dependent, with many restrictions.
          if(master_mpi) call Getqmode()
          call Rx0('--getq mode done')
       endif
-!!      
-      if(iprint()>=30) call Praugm(sspec,0) !print out properties of species
-      if(lrout == 0 .and. ctrl_lfrce /= 0) then
-        write(stdo,"(a)") 'Error: output density required when forces sought.\n'//
-     &              '      To make output density turn off HF=t and/or NEVMX<0'
-        call Rx('incompatible input. see the end of console output')
-      endif
-      if(lrout == 0 .and. cmdopt0('--etot')) then
-        write(stdo,"(a)") 'Error: output density required with --etot switch.\n'//
-     &              '      To make output density turn off HF=t and/or NEVMX<0'
-        call Rx('incompatible input. see the end of console output')
-      endif
-      
-!! Main rouitne. After module initializations, call lmfp  -----------------------
+      call Praugm(sspec,0) !print out properties of species
+!! Main rouitne. 
       call Lmfp(jobgw==1)
-
-      inquire(file='RSEQ_ERROR',exist=fileexist) !error check file when calculating radial function (by rseq)
-      if(fileexist) call rx('RSEQ_ERROR: maybe in phidx.F See takao comment in it.')
-!!      
       call Rx0("OK! end of "//trim(prgnam)//" ======================")
       end program Lmf
-!!      
+      
       include "show_programinfo.fpp" !this is preprocessed from show_programinfo.f90 by Makefile 

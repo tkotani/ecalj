@@ -1414,6 +1414,18 @@ c        irs2=0
       if(lrout == 0 ) maxit = 1
       if(bz_lmet/=0 .or. bz_tetrahedron ) ctrl_ldos=1
       if(ctrl_ldos==0) bz_ndos = 1
+!!
+      if(lrout == 0 .and. ctrl_lfrce /= 0) then
+        write(stdo,"(a)") 'Error: output density required when forces sought.\n'//
+     &              '      To make output density turn off HF=t and/or NEVMX<0'
+        call Rx('incompatible input. see the end of console output')
+      endif
+      if(lrout == 0 .and. cmdopt0('--etot')) then
+        write(stdo,"(a)") 'Error: output density required with --etot switch.\n'//
+     &              '      To make output density turn off HF=t and/or NEVMX<0'
+        call Rx('incompatible input. see the end of console output')
+      endif
+      
 !! LDA+U block (it was suldau.F)
       nlibu = 0
       lmaxu = 0

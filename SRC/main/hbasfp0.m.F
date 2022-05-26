@@ -15,7 +15,7 @@ c     use m_rgwinf_v3,only:rgwinf_v3,
      & nindxv,occv,unoccv,occc,unoccc,iclass
       use m_keyvalue,only: getkeyvalue
       use m_anf,only: ibasf,laf,anfcond !may2015takao
-      use m_lgunit,only: m_lgunit_init
+c      use m_lgunit,only: m_lgunit_init
 c      use m_mpi,only: MPI__Initialize
       implicit none
       integer::
@@ -32,7 +32,7 @@ c      use m_mpi,only: MPI__Initialize
       character(12) :: aaa
       character*11 :: ffaln
       character(20):: outs=''
-      call M_lgunit_init()
+c      call M_lgunit_init()
       write(6,'(a)') ' --- Input normal(=0); coremode(=3);'//
      & ' ptest(=4); Excore(=5); for core-valence Ex(=6);'//
      & ' val-val Ex(7);  normal+<rho_spin|B> (8); version(-9999) ?'

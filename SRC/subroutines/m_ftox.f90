@@ -216,7 +216,7 @@ end module m_FtoX
 
 module m_lgunit
   public:: m_lgunit_init
-  integer,public :: stdl,stdo,stml
+  integer,public :: stdl,stdo=6,stml
   private
 contains
   subroutine M_lgunit_init()

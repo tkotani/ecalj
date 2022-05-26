@@ -163,10 +163,15 @@ C --- Possible warning or error exit ---
         else
           write(*,816) l,nod,abs(de),e
   816     format(' RSEQ (warning) eval for l=',i1,' node=',i1,
-     .    ' did not converge: de=',1pd9.2,' e=',1pd11.4)
-          open(newunit=irsq,file='RSEQ_ERROR')
-          write(irsq,816) l,nod,abs(de),e
-          close(irsq)
+     .         ' did not converge: de=',1pd9.2,' e=',1pd11.4)
+          block
+          character(256):: aaaa
+          write(aaaa,816) l,nod,abs(de),e
+          call rx('rseq_error'//trim(aaaa))
+          endblock
+c          open(newunit=irsq,file='RSEQ_ERROR')
+c          write(irsq,816) l,nod,abs(de),e
+c          close(irsq)
         endif
       endif
 C     ec = e

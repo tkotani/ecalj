@@ -149,7 +149,7 @@ c      else
            do i = 1, nbas
            xvcart = ssite(i)%pos !cartesian coordinate
            xvfrac = matmul(transpose(qlat),xvcart) !fractional coodinate
-           write(stdo,"(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)") i, trim(sspec(ssite(i)%spec)%name), xvcart,xvfrac
+           write(stdo,"(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)")i,trim(sspec(ssite(i)%spec)%name),xvcart,xvfrac
            enddo
         endif
 !===  loop for electronic structure. Atomic force is calculated        
@@ -162,7 +162,7 @@ c      else
                endif
                call bndfp(iter,llmfgw,plbnd) !Main part of band calculation. Get total energies ham_ehf and ham_ehk
             endif
-!     Check convergence of dmatu (density matrix for LDA+U) and update it. Get vorbdmat (U potential)
+! Check convergence of dmatu (density matrix for LDA+U) and update it. Get vorbdmat (U potential)
             if(nlibu>0.and.lrout>0) call m_ldau_vorbset(ham_ehk,dmatu) !set new vorb from dmat by bndfp-mkpot
 !   Things for --density (plot density) are in locpot.F(rho1mt and rho2mt) and mkpot.F(smooth part).
 !! Write restart file (skip if --quit=band) ---
