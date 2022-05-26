@@ -169,9 +169,9 @@ c      call mpibc1_int(ifi,1,'lmv7:lmfp_ifi')
                if(irs2>0 .and. (lrout>0.or.maxit==0)) then ! .and. irlxsh==0) then
 c                  lbin = .true. !irs2/=2
                   ifi = ifile_handle() 
-                  open(ifi,file='rst.'//trim(sname),form='unformatted')
-c                  if(.not.lbin) open(ifi,file='rsta.'//trim(sname)) 
+                  open(ifi,file='rst.'//trim(sname),form='unformatted') !no rsa now
                   k = iors ( iter , 'write' ,irs3,irs5)
+c                  k = iors_old ( iter , 'write' ,irs3,irs5)
                   close(ifi) 
                endif
             endif
@@ -205,7 +205,6 @@ c                  if(.not.lbin) open(ifi,file='rsta.'//trim(sname))
             if( lsc <= 2) exit  !self-consistency exit
  1000    continue               ! ---------------- SCF (iteration) loop end ----
          if(nitrlx==0) exit     !no molecular dynamics (=no atomic position relaxation)
-
          
 !==== Molecular dynamics (relaxiation). 
          MDblock: Block !Not maintained well recently but atomic position relaxation was working
@@ -244,6 +243,7 @@ c                  if(.not.lbin) open(ifi,file='rsta.'//trim(sname))
             ifi = ifile_handle()
             open(ifi,file='rst.'//trim(sname),form='unformatted') 
             k = iors (iter , 'write' ,irs3,irs5)!Write restart file (to include new positions)
+c            k = iors_old (iter , 'write' ,irs3,irs5)!Write restart file (to include new positions)
             close(ifi)
             write(stdo,*)' Delete mixing and band weights files ...'
             open(newunit=ifi, file='mixm.'//trim(sname)); close(ifi, status='delete')
@@ -252,7 +252,6 @@ c                  if(.not.lbin) open(ifi,file='rsta.'//trim(sname))
          call parms0(0,0,0d0,0) !   reset mixing block
          if(itrlx==nitrlx.and.master_mpi) write(stdo,"(a)")' LMFP: relaxation incomplete'
          endblock MDblock
-
          
  2000 continue
  9998 continue

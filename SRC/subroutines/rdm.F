@@ -1,4 +1,5 @@
       integer function rdm(ifi,sw,mxelt,filel,s,nr,nc)
+c      use m_FtoX,only: stdo
 C- Matrix input, parsing file with rdfiln.
 C ----------------------------------------------------------------
 Ci  nr,nc: number of rows and columns (also output; see Remarks)
@@ -96,7 +97,7 @@ Cu  16 jan 01  rdm can read complex arrays, sparse format
 Cu  17 Mar 99  rdm can read integer array (converting it to real)
 Cu  17 Nov 98  rdm can read real sparse matrices
 C ----------------------------------------------------------------
-C     implicit none
+      implicit none
       integer ifi,mxelt,nr,nc,sw
       character*(*) filel
       double precision s(1)
@@ -108,19 +109,16 @@ C Local variables
       character ctbl(mxchr,2)*(ctlen)
       logical loop0(0:mxlev),a2bin,qread,ltrnsi,ltrns,pvrdm1,
      .lddump,lidump,lpr,lsprse
-#if CCAR
-      logical cmdopt
-#endif
-      integer nlin(0:mxlev),list(lstsiz,mxlev),ilist(mxlev),
-     .nlist(0:mxlev),i,ip,k,nelt,ic,ir,retval,ii,ilbl,nrx,ipr,lgunit,
-     .ndir,a2vec,ix(4),sw1
+      integer:: nlin(0:mxlev),list(lstsiz,mxlev),ilist(mxlev),
+     .nlist(0:mxlev),i,ip,k,nelt,ic,ir,retval,ii,ilbl,nrx,ipr,
+     .a2vec,ix(4),sw1
       double precision xwk(4),xx
-      parameter (ndir=8)
+      integer,parameter:: ndir=8
       character vnam(mxlev)*16,dir(ndir)*7,llbl*1000,rdarg*7
       data rdarg /'#{}% ct'/
       data dir /'rows','cols','real','symm','complex','herm',
      .'trans','sparse'/
-
+      integer::lgunit
 C --- Initialization ---
       ipr=iprint()
       lpr = ipr .gt. 0
@@ -203,9 +201,6 @@ C         return
 
 C --- Determine nr,nc from % rows and % cols ---
       recrd = ' '
-#if CCAR
-      if (cmdopt('-C',2,0,a)) rdarg(1:1) = a(3:3)
-#endif
    21 call rdfiln(ifi,rdarg,mxlev,loop0,nlin,list,lstsiz,
      .ilist,nlist,vnam,ctbl,mxchr,a,recrd,recl,nl)
 C ... Empty file kosher unless nr or nc nonzero

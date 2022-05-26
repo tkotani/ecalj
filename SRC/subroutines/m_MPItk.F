@@ -16,9 +16,8 @@
       integer  resultlen, id,nproc
       character::  prgnam*32, ext*100
       contains
-      
+!      
       subroutine m_MPItk_init(prgnamx)
-#if MPIK      
       character::  prgnamx*(*)
       integer:: mpipid
       logical:: cmdopt0
@@ -40,13 +39,8 @@
       if(mlog) write(lgunit(3),"(a)")' lmf '//datim//' Process '
      &  //trim(i2char(procid))//' of '//trim(i2char(nproc-1))//' on '//trim(shortname(procid)) 
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
-#else
-      call Finits() !read and set arguments addsyv in symvar.F
-      procid=0 
-#endif      
       if(procid == master) ext=''
       if(procid /= master) ext='_'//trim(i2char(procid))
-c      ierr = fext('.'//trim(sname)//trim(ext)) !set ext for fopen
       master_mpi=.false.
       if(procid==master) master_mpi=.true.
       end
@@ -55,12 +49,10 @@ c      ierr = fext('.'//trim(sname)//trim(ext)) !set ext for fopen
       character*256 strn, datim*26, hostnm*20
       integer:: lgunit,stdl
       real(8):: cpusec
-#if MPIK
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
-c     if( master_mpi ) call rx0(prgnam//' on '//trim(shortname(procid)))
       if(master_mpi) then
          call fdate(datim)
-         datim=datim(1:24)      !takao. If this is not, write(6,*) gives CR at the ene of datim*26.
+         datim=datim(1:24) !takao. If this is not, write(6,*) gives CR at the ene of datim*26.
          call ftime(datim)
          hostnm = ' '
          call get_environment_variable('HOST',hostnm)
@@ -70,10 +62,6 @@ c     if( master_mpi ) call rx0(prgnam//' on '//trim(shortname(procid)))
          close(stdl)
       endif
       call Mpi_finalize(ierr)
-#else
-      close(stdl)
-      call Rx0s(prgnam) !for single core exit
-#endif
       end
       
       subroutine mlog_MPIiq(iq,iqini,iqend)
@@ -82,7 +70,6 @@ c     if( master_mpi ) call rx0(prgnam//' on '//trim(shortname(procid)))
       character(512):: aaachar
       character(10):: i2char
       numprocs=nsize
-c      if(iq==iqini) then
          if(mlog) then
                call gettime(datim)
                aaachar=' bndfp '//datim//' Process '//
@@ -91,7 +78,6 @@ c      if(iq==iqini) then
      &              trim(i2char( iqini))//' to '//trim(i2char(iqend))
                write(lgunit(3),"(a)")trim(aaachar)
          endif
-c      endif   
       end
       
-      end module
+      end module m_MPItk

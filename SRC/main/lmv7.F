@@ -4,41 +4,43 @@
 !     In principle, all the data are generared and stored in some modules with 'protection'.
 !     We can not modify data in a module by other modules (in prinicple, not everywhere yet).
       program lmf
-      use m_lmfinit,only:  m_Lmfinit_init,nlibu,plbnd,lrout,ctrl_lfrce,sspec=>v_sspec
-      use m_writeham,only: m_writeham_init, m_writeham_write
-      use m_ext,only:      m_Ext_init,sname
-      use m_lattic,only:   m_Lattic_init
-      use m_mkqp,only:     m_Mkqp_init,bz_nabc
-      use m_rdfiln,only:   m_Rdfiln_init
-      use m_MPItk,only:    m_MPItk_init, m_MPItk_finalize, nsize, master_mpi
-      use m_hamindex, only:m_hamindex_init
-      use m_hamindex0,only:m_hamindex0_init
-      use m_supot,only:    m_supot_init
-      use m_suham,only:    m_suham_init
-      use m_qplist,only:   m_qplist_init, m_qplist_qspdivider, nkp
-      use m_igv2x,only:    m_igv2xall_init
-      use m_ldau,only:     m_ldau_init
-      use m_gennlat,only:  m_gennlat_init
-      use m_mksym,only:    m_mksym_init
+      use m_lmfinit,only:  M_Lmfinit_init,nlibu,plbnd,lrout,ctrl_lfrce,sspec=>v_sspec
+      use m_writeham,only: M_writeham_init, M_writeham_write
+      use m_ext,only:      M_Ext_init,sname
+      use m_lattic,only:   M_Lattic_init
+      use m_mkqp,only:     M_Mkqp_init,bz_nabc
+      use m_rdfiln,only:   M_Rdfiln_init
+      use m_MPItk,only:    M_MPItk_init, m_MPItk_finalize, nsize, master_mpi
+      use m_hamindex, only:M_hamindex_init
+      use m_hamindex0,only:M_hamindex0_init
+      use m_supot,only:    M_supot_init
+      use m_suham,only:    M_suham_init
+      use m_qplist,only:   M_qplist_init, M_qplist_qspdivider, nkp
+      use m_igv2x,only:    M_igv2xall_init
+      use m_ldau,only:     M_ldau_init
+      use m_gennlat,only:  M_gennlat_init
+      use m_mksym,only:    M_mksym_init
+      use m_ftox,only: ftof,ftod,ftom,ftox,stdo,stdl, M_ftox_init_lgunit
       implicit none
-      integer:: k,lgunit,stdo,stdl
-      integer:: iarg,jobgw,iprint,nit1,ifi,ifile_handle,nx,ny,nk1,nk2,nk3,i,j,ix
+      integer:: k, iarg,jobgw,iprint,nit1,ifi,ifile_handle,nx,ny,nk1,nk2,nk3,i,j,ix
       logical:: fileexist,cmdopt0,cmdopt2, writeham,lbin,sigx
       character:: outs*20,aaa*512,sss*128
-      character(8):: prgnam='LMF'
+      character(8):: prgnam
 ! ===  Bootstrap building up of module variables by m*_init().
 ! ===  In principle, all the fixed data required for calculation are pushed into modules by their initialzation.
+      prgnam='LMF'
       if(cmdopt0('--jobgw')) prgnam='LMFGWD'
       call M_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
       call M_MPItk_init(prgnam)
-      stdo = lgunit(1)          !standard output stdo=6 usually
-      stdl = lgunit(2)
+      call M_ftox_init_lgunit()
+c      stdo = lgunit(1) !standard output stdo=6 usually
+c      stdl = lgunit(2) !log output
       aaa=''
       do iarg=1,iargc()
          call getarg(iarg,sss)
          aaa=aaa//' '//trim(sss)
       enddo
-      aaa='===START '//trim(prgnam)//'  '//trim(aaa)//' ==='
+      aaa='===START '//trim(prgnam)//' with  '//trim(aaa)//' ==='
       if(master_mpi) call show_programinfo(stdo)
       if(master_mpi) write(stdo,"(a)") trim(aaa)
       if(master_mpi) write(stdl,"(a)") trim(aaa)
@@ -48,6 +50,8 @@
          call M_lmfinit_init(prgnam) ! show help and quit for --input
          call Rx0('end of help mode')
       endif
+      
+!! --writepdos mode and exit      
       if( Cmdopt0('--writepdos') ) then 
 !! See job_pdos. New pdos mode (use --mkprocar and --fullmesh together).
 !! We use all k points (--fullmesh), instead of using crystal symmetry. See job_pdos
@@ -56,19 +60,21 @@
          call Writepdos(trim(sname))
          call Rx0('done: end of --writepdos mode.')
       endif
+      
+!! --wdsawada mode and exit     
       if( Cmdopt0('--wdsawada') ) then !! Sawada's simple mode and exit
          if(master_mpi)write(6,*) '... write Dos from tetraf.dat and eigenf.dat. '
          if(master_mpi)write(6,*) '...  eigenf.dat is for qplistf.dat '
          call Writedossawada()
          call Rx0('done: end of --wdsawada mode.')
       endif
+      
 !! Read ctrl.* into m_rdfiln
 ! m_rdfiln is too complicated to maintain. We will use simple reader.
 ! 'math operation' and '-v substitution' may be convenient, but probably we will separate them away.
-!  it allow expression like ALAT=7.88*1.1
+!  'math operation' allows expression such as ALAT=7.88*1.1 in ctrl file
       call M_rdfiln_init() ! Read recrd of ctrl file into m_lmfinit
-! Set all the initial conditions in the module m_lmfinit.
-! All variables except v_sspec and v_ssite are protected.
+! Set all the initial conditions in the module m_lmfinit. All variables except v_sspec and v_ssite are protected.
       call M_lmfinit_init(prgnam) ! Computational settings from ctrl file is stored in m_lmfinit
       call M_lattic_init()      ! lattice setup (for ewald sum)
       call M_mksym_init(prgnam) !symmetry go into m_lattic and m_mksym
@@ -90,60 +96,63 @@
          write(stdo,*) '  jobgw 0 or 1?'
          read (5,*) jobgw
         endif
-        call mpibc1_int(jobgw,1,'lmfp_jobgw')
+        call Mpibc1_int(jobgw,1,'lmfp_jobgw')
       endif
       if(jobgw==0) then ! Index for hamiltonian gen_hamindex
-         if(master_mpi) call m_hamindex0_init() 
-         call rx0(' OK! '//'lmfgw mode=0 generated HAMindex0')
+         if(master_mpi) call M_hamindex0_init() 
+         call Rx0(' OK! '//'lmfgw mode=0 generated HAMindex0')
       endif   
 !! Array allocated in supot rhoat smrho. 
       call M_supot_init() ! get G vectors for charge
-      call sugcut(1)
+      call Sugcut(1)
       call M_suham_init()       ! Get estimated dimension of Hamiltonian (probably simplified in future).
-      if(nlibu>0) call m_ldau_init() !! LDA+U initialization
-      if(cmdopt0('--quit=dmat')) call rx0('--quit=dmat')
-      call m_qplist_init(plbnd,jobgw==1) ! Get q point list at which we do band calculations
-      call m_qplist_qspdivider()  !generate iqini:iqend,isini,isend  for each rank
-      call m_igv2xall_init(1,nkp) !G vectors for qplist. (1,nkp) is needed for gwb.head
+      if(nlibu>0) call M_ldau_init() !! LDA+U initialization
+      if(cmdopt0('--quit=dmat')) call Rx0('--quit=dmat')
+      call M_qplist_init(plbnd,jobgw==1) ! Get q point list at which we do band calculations
+      call M_qplist_qspdivider()  !generate iqini:iqend,isini,isend  for each rank
+      call M_igv2xall_init(1,nkp) !G vectors for qplist. (1,nkp) is needed for gwb.head
 
-!! madelung mode may need to be recovered.    
-!! allocate(madelung(nbas**2)); call madmat(madelung) !Monopole Madelung matrix (kept for future).
-!      
-!! shear mode here is currently commented out.=>probably shear mode should be outside of fortran.
+!! Madelung mode here may need to be recovered if necessary.
+!!  allocate(madelung(nbas**2)); call madmat(madelung) !Monopole Madelung matrix (kept for future).
+!! Shear mode here is currently commented out.=>probably shear mode should be outside of fortran.
 
-      call m_hamindex_init(jobgw) !bugfix. moved here 2022apr04
+      call M_hamindex_init(jobgw) !bugfix. moved here 2022apr04
       writeham= cmdopt0('--writeham') !m_writeham_* is after m_hamindex_init 2022apr22
-      if(writeham.and.master_mpi) call m_gennlat_init(bz_nabc) !for interpolation of Hamiltonian
-      if(writeham.and.master_mpi) call m_writeham_init()
-      if(writeham.and.master_mpi) call m_writeham_write()
-      if( cmdopt0('--quit=ham') ) call rx0('quit = ham')
+      if(writeham.and.master_mpi) call M_gennlat_init(bz_nabc) !for interpolation of Hamiltonian
+      if(writeham.and.master_mpi) call M_writeham_init()
+      if(writeham.and.master_mpi) call M_writeham_write()
+      if( cmdopt0('--quit=ham') ) call Rx0('quit = ham')
       
 !! (we need check. a simple approximaiton to determine VBM and CBM. Need fixing if necessary).
       if(cmdopt0('--vbmonly')) then !Get VBM and CBM relative to vaccum
-         if(master_mpi) call vbmmode()
-         call rx0('--vbmonly mode done')
+         if(master_mpi) call Vbmmode()
+         call Rx0('--vbmonly mode done')
       endif
+      
       if(cmdopt0('--getq')) then ! Current version is not for spin dependent, with many restrictions.
-         if(master_mpi) call getqmode()
-         call rx0('--getq mode done')
+         if(master_mpi) call Getqmode()
+         call Rx0('--getq mode done')
       endif
-      if(iprint()>=30) call praugm(sspec,0) !print out properties of species
+!!      
+      if(iprint()>=30) call Praugm(sspec,0) !print out properties of species
       if(lrout == 0 .and. ctrl_lfrce /= 0) then
         write(stdo,"(a)") 'Error: output density required when forces sought.\n'//
      &              '      To make output density turn off HF=t and/or NEVMX<0'
-        call rx('incompatible input. see the end of console output')
+        call Rx('incompatible input. see the end of console output')
       endif
       if(lrout == 0 .and. cmdopt0('--etot')) then
         write(stdo,"(a)") 'Error: output density required with --etot switch.\n'//
      &              '      To make output density turn off HF=t and/or NEVMX<0'
-        call rx('incompatible input. see the end of console output')
+        call Rx('incompatible input. see the end of console output')
       endif
+      
 !! Main rouitne. After module initializations, call lmfp  -----------------------
       call Lmfp(jobgw==1)
-      
-      inquire(file='RSEQ_ERROR',exist=fileexist)
+
+      inquire(file='RSEQ_ERROR',exist=fileexist) !error check file when calculating radial function (by rseq)
       if(fileexist) call rx('RSEQ_ERROR: maybe in phidx.F See takao comment in it.')
-      call rx0("OK! end of "//trim(prgnam)//" ======================")
+!!      
+      call Rx0("OK! end of "//trim(prgnam)//" ======================")
       end program Lmf
-      
-      include "show_programinfo.fpp"
+!!      
+      include "show_programinfo.fpp" !this is preprocessed from show_programinfo.f90 by Makefile 
