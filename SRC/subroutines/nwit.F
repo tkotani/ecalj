@@ -101,7 +101,7 @@ C --- Write out to save file --
 
       subroutine nwitsv(iflst,nvario,flg,nsp,amom,etot,sev)
       use m_ext,only:      sname
-      use m_chkdmu,only:  eorb
+      use m_ldau,only:  eorb
 C- Write to save file
 C ----------------------------------------------------------------------
 Ci Inputs

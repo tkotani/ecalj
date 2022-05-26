@@ -4,19 +4,18 @@
      &     nlibu,stdo,lrout,leks,plbnd,lpzex, nitrlx,
      &     indrx_iv,natrlx,xyzfrz,pdim,qtol,etol
       use m_lattic,only: qlat=>lat_qlat,rv_a_opos
-      use m_chkdmu,only:  eorb
       use m_bandcal,only: dmatu
       use m_mkpot,only:   amom 
       use m_ext,only:     sname
-      use m_iors,only:   Iors
-      use m_iors_old,only:   Iors_old !only for reading vs=1.04 rst file (before 2022-5-14)
+      use m_iors,only:     Iors
+      use m_iors_old,only: Iors_old !only for reading vs=1.04 rst file (before 2022-5-14)
       use m_MPItk,only:  mlog,master_mpi
       use m_bndfp,only:  Bndfp,   ham_ehf,ham_ehk,qdiff,force,sev
-      use m_ldau,only:   m_ldau_vorbset
-      use m_bstrux,only: m_bstrux_init
-      use m_relax,only: relax,prelx1
-      use m_mixrho,only:parms0
-      use m_lattic,only:   Setopos
+      use m_ldau,only:   M_ldau_vorbset, eorb
+      use m_bstrux,only: M_bstrux_init
+      use m_relax,only:  Relax,Prelx1
+      use m_mixrho,only: Parms0
+      use m_lattic,only: Setopos
       use m_ftox
       
 !! = Main routine of lmf = (following document is roughly checked at May2021)
@@ -82,20 +81,22 @@
       irs3 = irs(3) ! irs3=1: read site positions from ctrl even when we have rst. 
       irs5 = irs(5) ! irs5=1: read pnu from ctrl even when we have rst.
       irs1x10 = (irs(1)/10==1)  ! +10:  smshft after rst/rsta
-      if (cmdopt0('--etot')) irs2=0 !not write rst files
 cxxx irsrot  = (irs(1)/100==1) ! +100: rotate local density after file read for shear mode (iors.F)
 cxxx irs4 = irs(4) ! read starting fermi level from ctrl
-!! Initial density. Read atomic and smooth parted os density, rhoat smrho in m_density from atm.* or rst.*
+
+      
+!  Initial density. Read atomic and smooth parted os density,
+!  rhoat smrho in m_density from atm.* or rst.*
+
 !! Reading rst is prior to reading atom file.
 c      if (irs1x == 0) then ! read overlap free-atom densities
 c         call rdovfa()     ! superposition of spherical atomic densities by lmfa.
 c         nit1 = 0
 c      else
+      if (cmdopt0('--etot')) irs2=0 !not write rst files
       nit1=0
       irs1x = irs1
       k = -1
-c      call mpibc1_int(ifi,1,'lmv7:lmfp_ifi')
-!!      
       if(master_mpi) then
          open(newunit=ifi,file='rst.'//trim(sname),form='unformatted') 
          read(ifi,end=996,err=996) vs1 !version id of rst file
@@ -104,21 +105,21 @@ c      call mpibc1_int(ifi,1,'lmv7:lmfp_ifi')
          vs=vs1
          write(stdo,ftox)'lmv7: Reading rst version ID=',ftof(vs,2)
       endif
-      call mpi_barrier(MPI_COMM_WORLD,ierr)
-      call mpibc1_real(vs,1,'lmv7: vs: version id of rst file')
+      call Mpi_barrier(MPI_COMM_WORLD,ierr)
+      call Mpibc1_real(vs,1,'lmv7: vs: version id of rst file')
       if(vs==2d0) then !2020-5-14
          k = iors(nit1,'read',irs3=irs3,irs5=irs5)     ! read rst file. sspec ssite maybe modified
       else !vs=1.04d0
          k = iors_old(nit1,'read',irs3=irs3,irs5=irs5) ! read rst file. sspec ssite maybe modified
       endif   
-      call mpibc1_int(k,1,'lmv7:lmfp_k')
+      call Mpibc1_int(k,1,'lmv7:lmfp_k')
       call Setopos()      !Set pos of iors to rv_a_opos
       if(k<0) then        !initial potential from atm file if rst can not read
          irs1x = 0
-         call rdovfa() 
+         call Rdovfa() 
          nit1 = 0
       elseif (irs1x10) then  
-         call smshft(1) 
+         call Smshft(1) 
       endif
       
 !! Sep2020 " Shorten site positions" removed.
@@ -138,7 +139,7 @@ c      call mpibc1_int(ifi,1,'lmv7:lmfp_ifi')
 !==== Main iteration loops ===
       do 2000 itrlx = 1,max(1,nitrlx) ! loop for atomic position relaxiation (molecular dynamics) ===
 !     Get all structure constants for nbas and qplist
-         if(sum(lpzex)==0) call m_bstrux_init() !this reads ssite%pos %pz and so on.
+         if(sum(lpzex)==0) call M_bstrux_init() !this reads ssite%pos %pz and so on.
               ! We can make structure constant (C_akL Eq.(38) in /JPSJ.84.034702) here
               ! if we have no extended local orbital.
               ! When we have extentede local obtail, we run m_bstrux_init after elocp in mkpot.
@@ -203,7 +204,7 @@ c                  k = iors_old ( iter , 'write' ,irs3,irs5)
             endif
             if( cmdopt0('--quit=band')) call rx0('lmf-MPIK : exit (--quit=band)')
             if( lsc <= 2) exit  !self-consistency exit
- 1000    continue               ! ---------------- SCF (iteration) loop end ----
+ 1000    enddo               ! ---------------- SCF (iteration) loop end ----
          if(nitrlx==0) exit     !no molecular dynamics (=no atomic position relaxation)
          
 !==== Molecular dynamics (relaxiation). 
@@ -213,7 +214,7 @@ c                  k = iors_old ( iter , 'write' ,irs3,irs5)
             pos_move(:,ibas) = ssite(ibas)%pos
          enddo
 !==   Relax atomic positions.   !--> shear mode removed. probably outside of fortran code if necessary
-         call relax(ssite, sspec, itrlx, indrx_iv, natrlx, force, p_rv , hess , 0 , [0d0] , pos_move, icom )
+         call Relax(ssite,sspec,itrlx,indrx_iv,natrlx,force,p_rv,hess,0,[0d0],pos_move,icom)
 !     warn: Updating positions in ssite structure ==> t.kotani think this is confusing because
 !     'positions written in ctrl' and 'positions written in rst' can be different.
          if(master_mpi) write(ifipos) itrlx,pos_move
@@ -232,13 +233,13 @@ c                  k = iors_old ( iter , 'write' ,irs3,irs5)
 !==   Restore minimum gradient positions if this is last step
          if (itrlx==nitrlx) then
             write(stdo,"(a)")' lmfp: restore positions for minimum g'
-            call prelx1(1 , nm , .false. , natrlx , indrx_iv , p_rv, pos_move )
+            call Prelx1(1 , nm , .false. , natrlx , indrx_iv , p_rv, pos_move )
             do ibas=1,nbas !updated positions in site structure
                ssite(ibas)%pos = pos_move(:,ibas)
             enddo
          endif
 !==   New density after atom shifts.  
-         call smshft(ctrl_lfrce) 
+         call Smshft(ctrl_lfrce) 
          if (master_mpi) then ! .and. .not. lshr) then
             ifi = ifile_handle()
             open(ifi,file='rst.'//trim(sname),form='unformatted') 
@@ -249,11 +250,11 @@ c            k = iors_old (iter , 'write' ,irs3,irs5)!Write restart file (to inc
             open(newunit=ifi, file='mixm.'//trim(sname)); close(ifi, status='delete')
             open(newunit=ifi, file='wkp.'//trim(sname)); close(ifi, status='delete')
          endif
-         call parms0(0,0,0d0,0) !   reset mixing block
+         call Parms0(0,0,0d0,0) !   reset mixing block
          if(itrlx==nitrlx.and.master_mpi) write(stdo,"(a)")' LMFP: relaxation incomplete'
          endblock MDblock
          
- 2000 continue
+ 2000 enddo
  9998 continue
       if(master_mpi.and.nitrlx>0) close(ifipos)
       if(allocated(p_rv)) deallocate(p_rv)

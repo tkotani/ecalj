@@ -3,9 +3,9 @@
       public relax,prelx1
       private
       contains
-      subroutine relax(ssite,sspec,it,indrlx,natrlx,f, !,sctrl prgnam,
+      subroutine relax(ssite,sspec,it,indrlx,natrlx,f, 
      .p,w,nelts,delta,bas,icom)
-      use m_struc_def  !Cgetarg
+      use m_struc_def 
       use m_lmfinit,only:ctrl_nbas,ctrl_nitmv,ctrl_mdprm
       use m_ext,only:     sname
       use m_gradzr,only :Gradzr
@@ -53,17 +53,11 @@ Cu   08 Mar 06 Some improvements to gradzr; repackaged MPI
 Cu   15 Feb 02 (ATP) Added MPI parallelization
 C ----------------------------------------------------------------------
       implicit none
-C Passed Parameters
-c      character prgnam*8
       integer it,nit,natrlx,nelts,icom,procid,master,mpipid
       integer indrlx(2,natrlx)
-      real(8):: f(3,*) , w(natrlx,natrlx) , p(natrlx,6) , delta(nelts,*) 
-     ., bas(3,*)
-c      type(s_ctrl)::sctrl
+      real(8):: f(3,*), w(natrlx,natrlx) , p(natrlx,6) , delta(nelts,*), bas(3,*)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-
-C Local Variables
       integer i,j,ipr,ifi,ix,lgunit,nbas,ltb,ifrlx(3),natrlx2,natrlx3,
      .ir,iprint,isw,rdm,lrlx,is,idamax,stdo,stdl,nd,ns,nkill
       parameter (nd=4,ns=6)

@@ -50,7 +50,6 @@ bzwts.o \
 bzwtsf.o \
 ccutup.o \
 chgmsh.o \
-chkdmu.o \
 clabel.o \
 config.o \
 contet.o \

@@ -10,7 +10,7 @@
       use m_lattic,only:   M_Lattic_init
       use m_mkqp,only:     M_Mkqp_init,bz_nabc
       use m_rdfiln,only:   M_Rdfiln_init
-      use m_MPItk,only:    M_MPItk_init, m_MPItk_finalize, nsize, master_mpi
+      use m_MPItk,only:    M_MPItk_init, M_MPItk_finalize, nsize, master_mpi
       use m_hamindex, only:M_hamindex_init
       use m_hamindex0,only:M_hamindex0_init
       use m_supot,only:    M_supot_init
@@ -20,21 +20,19 @@
       use m_ldau,only:     M_ldau_init
       use m_gennlat,only:  M_gennlat_init
       use m_mksym,only:    M_mksym_init
-      use m_ftox,only: ftof,ftod,ftom,ftox,stdo,stdl, M_ftox_init_lgunit
+      use m_ftox,only:     M_ftox_init_lgunit, stdo,stdl
       implicit none
       integer:: k, iarg,jobgw,iprint,nit1,ifi,ifile_handle,nx,ny,nk1,nk2,nk3,i,j,ix
       logical:: fileexist,cmdopt0,cmdopt2, writeham,lbin,sigx
       character:: outs*20,aaa*512,sss*128
       character(8):: prgnam
-! ===  Bootstrap building up of module variables by m*_init().
-! ===  In principle, all the fixed data required for calculation are pushed into modules by their initialzation.
+! ===  Bootstrap building up of module variables by initialization routines m*_init().
+! ===  In principle, all the fixed data required for calculation are pushed into modules by the initialzation.
       prgnam='LMF'
       if(cmdopt0('--jobgw')) prgnam='LMFGWD'
       call M_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
       call M_MPItk_init(prgnam)
       call M_ftox_init_lgunit()
-c      stdo = lgunit(1) !standard output stdo=6 usually
-c      stdl = lgunit(2) !log output
       aaa=''
       do iarg=1,iargc()
          call getarg(iarg,sss)
