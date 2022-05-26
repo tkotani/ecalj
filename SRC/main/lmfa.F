@@ -31,8 +31,6 @@
       call M_rdfiln_init()        ! read ctrl file
       call M_lmfinit_init(prgnam) ! Computational settings. Set data from rdfiln.
       call Freeat()  !Spherical atom calculation
-      inquire(file='RSEQ_ERROR',exist=fileexist) ! error file exist or not
-      if(fileexist) call rx('RSEQ_ERROR: maybe in phidx.F See takao comment in it.')
       call m_MPItk_finalize()
       if(master_mpi) write(6,"(a)") "OK! end of "//trim(prgnam)//" ======================"
       call Exit(0)

@@ -152,7 +152,7 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
       fsmode = cmdopt0('--fermisurface')!FermiSurfece for xcrysden in http://www.xcrysden.org/doc/XSF.html#2l.16
       ipr    = iprint() ! for procid/=master, we set iprint=0 at lmv7.F
       ltet = ntet>0 !tetrahedron method or not
-      idummy = unlink('RSEQ_ERROR') ! Clean RSEQ_ERROR.
+c      idummy = unlink('RSEQ_ERROR') ! Clean RSEQ_ERROR.
       
 !! FermiEnergy eferm is from rst.* or efermi.lmf.
       if(binit) then 
