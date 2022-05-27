@@ -46,18 +46,14 @@ C ... Local parameters
       logical deq,lreqe,lreqr,lreql,lreqz,lnever,bittst,match
       logical:: l_dummy_isanrg,isanrg
       deq(x1,x2) = dabs(x1-x2) .lt. 1d-8
-
-Ckino isanrg is logical function,       call isanrg(mode,1,31,'gtbsl1:','mode',.true.)
       l_dummy_isanrg=isanrg(mode,1,31,'gtbsl1:','mode',.true.)
       lreqr = bittst(mode,1)
       lreqe = bittst(mode,2)
       lreql = bittst(mode,4)
       lnever= bittst(mode,8)
       lreqz = bittst(mode,16)
-
 C     Set all block sizes to -1 to flag they haven't been touched
       call ivset(blks,1,norb,-1)
-
       do  iorb = 1, norb
 C       If iorb not subsumed into prior orbitals, then mark
         if (blks(iorb) .ne. 0) then
@@ -70,7 +66,6 @@ C       If iorb not subsumed into prior orbitals, then mark
               goto 10
             endif
           endif
-
           lk = li
           kk = ki
 C         Initial block size = size of this l

@@ -46,7 +46,7 @@ C Passed parameters
       integer retval,iopt,abret
       character*(*) strng
       double precision args,arg2,arg3,argss(3)
-      integer fhndl,iprint,i,i2,getdig,scrwid,mpipid,ix
+      integer iprint,i,i2,scrwid,mpipid,ix
       double precision cpusec,tnew
       character*1 timeu
       character*256 strn, datim*26, hostnm*20

@@ -238,9 +238,9 @@ c#endif
       character strn*(recln),strn2*(recln)
       integer:: i_spec
       character fileid*64
-      logical lgors,cmdopt,bittst,ltmp,ioorbp,noinv,cmdopt0,cmdopt2
+      logical lgors,cmdopt,ltmp,ioorbp,noinv,cmdopt0,cmdopt2
       double precision dval,dglob,xx(n0*2),dgets !,ekap(6)
-      integer a2vec,bitand,getdig,i,is,igets,iprint,
+      integer i,is,iprint,
      .iprt,isw,ifi,ix(n0*nkap0),j,k,l,!lbas, !noinv was iand(lqp,1),irs(5)
      .lfrzw,!lgunit,
      .lrs,lstsym,ltb,nclasp,

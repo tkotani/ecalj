@@ -96,11 +96,11 @@ C ... Save for future iterations
 
 C --- Write out to save file --
       flg = svflg(lsc+1:lsc+1) !// '67'
-      call nwitsv(1+2,nvario,flg,nsp,amom,etot,sev)
+      call nwitsv(nvario,flg,nsp,amom,etot,sev)
       call tcx('nwit')
       end
 
-      subroutine nwitsv(iflst,nvario,flg,nsp,amom,etot,sev)
+      subroutine nwitsv(nvario,flg,nsp,amom,etot,sev)
       use m_ext,only:      sname
       use m_ldau,only:  eorb
       use m_lgunit,only:stdo,stdl
@@ -151,23 +151,17 @@ C ... Local parameters
         xv(i) = etot(2)*rydberg()
         sout=trim(sout)//',ehk(eV) '
       endif
-
       if (sev .ne. 0) then
         i = i+1
         xv(i) = sev*rydberg()
         sout=trim(sout)//',sev(eV) '
       endif
-C ... Write to file list
-      do  i = 1, 4!3
-        if (getdig(iflst,i-1,2) .ne. 0) then
-          if (i .eq. 1) then
-             ifi = ifile_handle()
-             open(ifi,file='save.'//trim(sname),position='append')
-          endif    
-          if (i .eq. 2) ifi = stdo
-          if (i .eq. 3) ifi = stdl
-          call iosave(flg,sout(2:),xv,-ifi,nvario)
-          if (i .eq. 1) close(ifi)
-        endif
-      enddo
+!
+      ifi=ifile_handle()
+      open(ifi,file='save.'//trim(sname),position='append')
+      call iosave(flg,sout(2:),xv,-ifi,nvario)
+      close(ifi)
+      call iosave(flg,sout(2:),xv,-stdo,nvario)
+c      call iosave(flg,sout(2:),xv,-stdl,nvario)
+      close(ifi)
       end

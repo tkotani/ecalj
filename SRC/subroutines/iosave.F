@@ -49,21 +49,11 @@ C ... Print fractions w/out leading 0, to save space
       outstr = flg(1:1)
       p1 = '6'
       p2 = '6'
-c$$$      leof  = -ifi .ne. lgunit(1)
-c$$$      if (len(flg) .gt. 1) p1 = flg(2:2)
-c$$$      if (len(flg) .gt. 2) p2 = flg(3:3)
-c$$$      if (leof .and. len(flg) .gt. 3) then
-c$$$        leof = flg(4:4) .ne. 'F' .and. flg(4:4) .ne. 'f'
-c$$$      endif
-c$$$      if (p1 .lt. '0' .or. p1 .gt. '9') p1x = '6'
-c$$$      if (p2 .lt. '0' .or. p2 .gt. '9') p2x = '6'
-
 C --- Output variables up to nvario ---
       do  10  i = 4, min(nvario,nvar)
         nam = ' '
         call watsyv(nam,val,i)
         outstr=trim(outstr)//' '//trim(nam)//'='//ftom(val)
-c        call awrit1('%a '//nam//'%a=%1;'//p1//'g',outstr,lstr,0,val)
    10 continue
 C --- Output all variables in string ---
       k0 = 0
@@ -73,13 +63,11 @@ C --- Output all variables in string ---
       i = i+1
       call chrps2(vstrn,', ',2,len(vstrn),k,j)
       nam = vstrn(k0+1:k)
-c      call awrit1('%a '//nam//'%a=%1;'//p2//'d',outstr,lstr,0,vars(i))
       outstr=trim(outstr)//' '//trim(nam)//'='//ftof(vars(i),6)
       k0 = k+1
       if (j .eq. 1 .and. k .lt. len(vstrn)) goto 20
       if (leof) call poseof(-ifi)
       write(-ifi,"(a)") trim(outstr)
-c     call awrit0(outstr,' ',-lstr,-ifi)
       call bin2a0(ib)
       end
 
