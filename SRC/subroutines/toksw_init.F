@@ -1,15 +1,3 @@
-      subroutine fill3in(nin,res)
-C- fills res(2) or res(2:3) if res(1) or res(1:2) are given
-C     implicit none
-      integer nin,res(3)
-      if (nin==2) then
-        res(3) = res(2)
-      elseif (nin==1) then
-        res(2:3) = res(1)
-      endif
-      end
-
-
       subroutine toksw_init(debug)
 C- Declares program-specific tokens
 !! For each program such as LMFA:, 

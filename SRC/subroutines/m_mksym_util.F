@@ -153,7 +153,7 @@ C Passed parameters:
       integer:: i , j , ibas , ic , iprint , ngnmx , igen , mxint , modes,ig
       real(8) ,allocatable :: wk_rv(:)
       double precision qlat(3,3),vol,platt(9)
-      logical lsmall,latvec
+      logical lsmall!,latvec
       parameter(ngnmx=10)
       double precision gen(9,ngnmx),agen(3,ngnmx)
       integer ::iwdummy,iwdummy1(1)
@@ -1076,7 +1076,7 @@ C ----------------------------------------------------------------------
       integer i,iprint,ltmax,ll1,m,m1,m2,m3,mm,nrot(4)
       parameter(ltmax=3,ll1=ltmax*2+1)
       double precision platt(9),qlatcp(3,3),mat(9),vecg(3),vol
-      logical latvec,lirr
+      logical lirr
       character*12 csym1(0:7)
       data nrot /2,3,4,6/
       data csym1 /'indefinite','triclinic','monoclinic','orthorhombic',
@@ -1176,7 +1176,7 @@ C Local parameters:
 C     integer mode(3)
       double precision dbas(3),tol0,tol1
       parameter (tol0=1d-5)
-      logical latvec
+c      logical latvec
       character sg*35
       call getpr(ipr)
       tol1 = fptol
@@ -1784,7 +1784,7 @@ C Passed parameters
       double precision g(3,3,ig),ag(3,ig),pos(3,1),qlat(3,3),tol
 C Local parameters
       double precision d(3),d2(3)
-      logical latvec
+c      logical latvec
       integer ka,nbas,m,k
       ka = iabs(ia)
       do    m = 1, 3
@@ -1860,5 +1860,46 @@ C     implicit none
       grpeql = .true.
       end
 !sssssssssssssssssssssssssssssssssssssssss
+      SUBROUTINE GRPOP(V,V1,G,I)
+C     implicit none
+      double precision G(3,3,*),V(3),V1(3)
+      integer i
+      V1(1) = G(1,1,I)*V(1) + G(1,2,I)*V(2) + G(1,3,I)*V(3)
+      V1(2) = G(2,1,I)*V(1) + G(2,2,I)*V(2) + G(2,3,I)*V(3)
+      V1(3) = G(3,1,I)*V(1) + G(3,2,I)*V(2) + G(3,3,I)*V(3)
+      RETURN
+      END
+!ssssssssssssssssssssssssssssssssssssssssssssssss
+      logical function latvec(n,tol,qlat,vec)
+C- Checks whether a set of vectors are lattice vectors
+C ----------------------------------------------------------------------
+Ci Inputs:
+Ci   n     :number of vectors
+Ci   tol   :tolerance
+Ci   qlat  :primitive translation vectors in reciprocal space
+Ci   vec   :double-precision vector
+Co Outputs:
+Co   latvec:T if all vectors are lattice vectors within spec'd tol
+C ----------------------------------------------------------------------
+C     implicit none
+C Passed parameters:
+      integer n
+      double precision qlat(3,3),vec(3,n),tol
+C Local parameters:
+      integer i,m
+      double precision vdiff
+
+      latvec = .false.
+      do  10  i = 1, n
+        do  20  m = 1, 3
+          vdiff = vec(1,i)*qlat(1,m) +
+     .    vec(2,i)*qlat(2,m) +
+     .    vec(3,i)*qlat(3,m)
+          if (dabs(vdiff-dnint(vdiff)) .gt. tol) return
+   20   continue
+   10 continue
+      latvec = .true.
+      end
+
       end module m_mksym_util
 

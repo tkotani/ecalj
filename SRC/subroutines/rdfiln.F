@@ -2254,6 +2254,4 @@ C --- Copy variable contents into the table ---
       if (ctmp .eq. '"') j=j+1
       if (opt2 .eq. 1) call get_environment_variable(ctbl(i,2),ctbl(i,2))
       goto 2
-
       end
-

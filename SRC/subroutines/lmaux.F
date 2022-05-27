@@ -3,7 +3,8 @@
       public:: lmaux
       private
       contains
-      subroutine lmaux()     !main part of lmchk
+
+      subroutine lmaux()        !main part of lmchk
       use m_mksym,only: ctrl_nclass,iv_a_oics,iv_a_oipc
       use m_lmfinit,only: iv_a_oips,str_mxnbr,str_rmax,ctrl_nbas,ctrl_nspec,ctrl_nspin,
      &     ctrl_nl,ctrl_omax1,ctrl_omax2,ctrl_wsrmax,slabl,sspec=>v_sspec,
@@ -688,7 +689,7 @@ C Passed variables:
       integer ,allocatable :: iax_iv(:)
       logical les
       double precision dovl1(3),dovl2(3),gamma,range(nbas),wsrs(nspec)
-      double precision facr,tiny,avw,vol,avwsr,volnew,volnes,volold,volsph
+      double precision facr,tiny,avw,vol,avwsr,volnew,volnes,volold
       parameter(niax=10,mxcsiz=200,facr=2d0,tiny=1d-5)
       integer:: istdo
 
@@ -925,7 +926,7 @@ C Local variables:
      .dm(0:3),dovlap,dscl(nspec),
      .dsclmx,dr(3),fpi3,gw,opo1,omo2,p,q,r,ratio,
      .rik,riko,s,t,tiny,u,v,vol,vola,volb,
-     .volsph,wsri,wsrk,x,avwsr,Vconst
+     .wsri,wsrk,x,avwsr,Vconst
       logical fin
       character*72 fmt
       parameter(fpi3=4.18879020478639053d0,tiny=1d-5)
@@ -2902,5 +2903,30 @@ C Local parameters
    10 continue
       end function drr2
       
+      double precision function volsph(nspec,nrspec,wsr)
+C- Sum-of-sphere volumes
+C ----------------------------------------------------------------------
+Ci Inputs:
+Ci  nspec :number of species
+Ci  nrspec:number of atoms in the ith species
+Ci  wsr   :Wigner-Seitz sphere radius
+Co Outputs:
+Co  volsph:sum-of-sphere volumes, in units of wsr**3
+C ----------------------------------------------------------------------
+C     implicit none
+C Passed variables:
+      integer nspec,nrspec(*)
+      double precision wsr(*)
+C Local variables:
+      integer ic
+      double precision fpi3
+      parameter(fpi3=4.18879020478639053d0)
+
+      volsph = 0d0
+      do  ic = 1, nspec
+        volsph = volsph + fpi3*nrspec(ic)*wsr(ic)**3
+      enddo
+      end
+
       end module m_lmaux
 

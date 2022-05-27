@@ -103,7 +103,7 @@ C     implicit none
 C ... Passed parameters
       logical lshft(3)
       integer n1,n2,n3,nqmx,ng,nq,igstar(0:*),ipq(n1,n2,n3),lpbc
-      double precision qb(3,3),wgt(nqmx),plat(3,3),qp(3,nqmx),g(9,1)
+      double precision qb(3,3),wgt(nqmx),plat(3,3),qp(3,nqmx),g(3,3,*)
       logical lsgrp
       integer i1,i2,i3,ifac(3),ig,igcnt,ii,ii1,ii2,ii3,ipr,iq,
      .is(3),iwgt,j1,j2,j3,lgunit,lpbc01,lpbc2,lstar,m1,m2,m3,ndmx,nn1,
@@ -162,7 +162,7 @@ C     --- Mark each qp in the star of q as equivalent to this qp ---
         lsgrp = .false.
         call dcopy(3,v,1,v1,1)
         do  25  ig = 1, max(ng,1)
-          if (ng .gt. 0) call grpop(v,v1,g,ig)
+          if (ng .gt. 0) v1=matmul(g(:,:,ig),v) !call grpop(v,v1,g,ig)
           x1 = v1(1)*rb(1,1) + v1(2)*rb(2,1) + v1(3)*rb(3,1) - is(1)
           x2 = v1(1)*rb(1,2) + v1(2)*rb(2,2) + v1(3)*rb(3,2) - is(2)
           if (lpbc01 .eq. 0) then

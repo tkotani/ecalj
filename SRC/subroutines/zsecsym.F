@@ -9,7 +9,6 @@
       integer,intent(in):: ngrp,eibzsym(ngrp,-1:1,nq)
       logical,intent(in):: tiii !time reversal switch
       real(8),intent(in):: q(3,nq)
-
       complex(8),allocatable::zsect(:,:)
       integer:: ifile_handle,iqq
       integer:: procid,nrankv,ifvxc_,ifevec_,ifiproc,iqqxx,
@@ -26,8 +25,7 @@
       integer::nev,j,nxx
       character(8):: xt
       write(6,*)'zsecsym:'
-      allocate( zsect(ntq,ntq))
-      allocate(evaliq(nband),iblki(nband),iblke(nband))
+      allocate( zsect(ntq,ntq), evaliq(nband),iblki(nband),iblke(nband))
       iqq=0                     !iqq is to read multiple vxc.* evec.*
       do 3020 iq=1,nq           !nq means iq for which we will calculate sigma
         iqq=iqq+1
@@ -82,8 +80,7 @@
               do iband=2,nbandmx(iqxx,is) 
 ! nbandmx is the number of bands for which we calculate self-energy.
 ! We assume nbandmx(iqxx,is) is well separated for degeneracy.
-                if(evaliq(iband) > evaliq(iband-1)+tolry 
-     &           .or.iband==nbandmx(iqxx,is)) then
+                if(evaliq(iband)>evaliq(iband-1)+tolry.or.iband==nbandmx(iqxx,is)) then
                   nblk=nblk+1
                   if(nblk>=2) iblki(nblk)=iblke(nblk-1)+1
                   if(iband==nbandmx(iqxx,is)) then
@@ -127,8 +124,8 @@
           deallocate(evec, evec_inv, evecrot)
           zsec(:,:,iqxx) = zsect(:,:)/dble(nsym)
           close(ifevec_)
- 3030   continue                ! ispx
- 3020 continue                  ! iq
+ 3030   enddo                ! ispx
+ 3020 enddo                  ! iq
       deallocate(iblki,iblke,evaliq)
       deallocate(zsect)
       end subroutine zsecsym

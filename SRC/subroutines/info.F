@@ -35,13 +35,11 @@ C ... Local parameters
         i = mpipid(1)
         if (i .ne. 0) return
       endif
-c      stdo = lgunit(1)
       do  10  i = 1, l1
          write(stdo,100)
  10   continue
       if (l2 .ge. 0) then
         call awrit8(string,' ',recl,stdo,a1,a2,a3,a4,a5,a6,a7,a8)
-C       call awrit2(string,' ',recl,stdo,a1,a2)
       else
         i = awrite(string,lstr,recl,0,a1,a2,a3,a4,a5,a6,a7,a8)
         call cwrite(lstr,0,i-1,0)
@@ -53,3 +51,13 @@ C       call awrit2(string,' ',recl,stdo,a1,a2)
       return
       end
 
+      subroutine cwrite(ps,i1,i2,newln)
+      character(*) ps
+      integer:: i1,i2,newln,i
+      integer,save:: iii
+      if (newln.ne.0) then
+        write(*,'(a,$)') ps(i1+1:i2+1)
+      else
+        write(*,'(a)')   ps(i1+1:i2+1)
+      endif
+      end subroutine cwrite

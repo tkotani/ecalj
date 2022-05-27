@@ -152,8 +152,6 @@ c----------------------------------------------
       integer::  id,nsizex,iqqxx,ifile_handle,ib,ii,ipqn,nn,nnn(3),ifiqg,ifiqgc,irr,irrq,iqibz
 !! =================================================================
       call setprint0(30)
-c      call getkeyvalue("GWinput", "n1n2n3", nnn,3) !Readin nx ny nz for k-points for GW 
-c     n1q=nnn(1); n2q=nnn(2); n3q = nnn(3)
       open(newunit=ifigwb,file='gwb.head',form='unformatted')
       read (ifigwb) nbas,nsp,ldim2,nbandmx,lmxamx,ncoremx,nrmx,plat,alat,nqirr
       allocate(bas(3,nbas),lmxaa(nbas),qplist(3,nqirr),ngplist(nqirr),ndimhall(nqirr))

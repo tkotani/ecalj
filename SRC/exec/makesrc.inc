@@ -268,7 +268,7 @@ isw.o \
 ivheap.o \
 ivshel.o \
 iyamax.o \
-ll.o \
+llnew.o  \
 matm.o \
 minfit.o \
 mkdlst.o \
@@ -512,7 +512,6 @@ bz.o \
 genqbz.o \
 switches.o \
 rwbzdata.o \
-llnew.o  \
 readeigen.o \
 readqg.o \
 iqindx.o  \

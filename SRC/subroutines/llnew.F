@@ -8,20 +8,14 @@
      &   81*40, 83*41, 85*42, 87*43 ,89*44 ,91*45 ,93*46, 95*47, 97*48, 99*49, 101*50/
       end module m_lldata
 
-c$$$#else
-c$$$      integer(4) function ll(ilm)
-c$$$      integer(4),parameter :: lmx=50
-c$$$      integer(4),save:: lla((lmx+1)**2)
-c$$$      logical:: init=.true.
-c$$$      if(ilm>(lmx+1)**2) call rx( 'll: ilm too large')
-c$$$      if(init) then
-c$$$        do l=0,lmx
-c$$$          lini= l**2 + 1
-c$$$          lend=(l+1)**2
-c$$$          lla(lini:lend)=l
-c$$$        enddo
-c$$$      endif
-c$$$      ll = lla(ilm)
-c$$$      return
-c$$$      end
-c$$$#endif
+      integer function ll(ilm) ! Returns l, given lm index
+      integer ilm
+      integer lmaxx
+      parameter (lmaxx=17)
+      integer lla(lmaxx**2)
+      data lla/0,3*1,5*2,7*3,9*4,11*5,13*6,15*7,17*8,19*9,
+     .21*10,23*11,25*12,27*13,29*14,31*15,33*16 /
+      ll = lla(ilm)
+      end
+
+     

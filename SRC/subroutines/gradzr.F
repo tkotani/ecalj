@@ -232,7 +232,7 @@ C Passed Parameters
      .grfac
 C Local Variables
       logical ltmp,cnvgx,cnvgg,nwlin
-      integer i,j,bitand,ipr,npr,lminn,isw0,isw1,isw2,isw3,isw4,
+      integer i,j,ipr,npr,lminn,isw0,isw1,isw2,isw3,isw4,
      .isw31,idamax,iswl,itol,iswb
       integer nx,ng,nd,n1,n2,n0,nm,nhs
       double precision gg,dgg,gam,ddot,dasum,x0h,x1h,x2h,evtol,
@@ -1430,4 +1430,10 @@ C This loop parallelizable ...
    40 continue
       call tcx('dschd')
       end
+
+      integer function bitand(i1,i2)
+      integer:: i1,i2
+      bitand= iand(i1,i2)
+      end function bitand 
+
       end module m_gradzr

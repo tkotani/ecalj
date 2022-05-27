@@ -1037,3 +1037,11 @@ C ... Local parameters
       lnull = res(count) .eq. NULLI
       end
 
+      subroutine nlchar(ich,ps)
+      integer ich
+      character(*) ps
+      if (ich==1) then
+        ps(1:1) =  char(10) 
+      endif
+      end subroutine nlchar
+

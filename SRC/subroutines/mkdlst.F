@@ -38,7 +38,6 @@ C ... Passed parameters
 C ... Local parameters
       double precision dv(1000),d1mach,dx,tfuzz
       integer it(1000),a2vec,ip,i,j,k,n,iprint,i1mach,np
-
       ip = 0
       call skipbl(strn,len(strn),ip)
       k = a2vec(strn,len(strn),ip,4,',: ',3,3,30,it,dv)
@@ -77,15 +76,11 @@ C ... Case dv => n1:n2[:n3]
         if (it(i) .eq. 2) i = i+1
       endif
       if (i .lt. k) goto 14
-
-
 C --- Entry for np = npmax
 C  20 continue
       mkdlst = np
-c      if (iprint() .gt. 100 .and. npmx .gt. 0) call
-c     .awrit3(' MKDLST: %i points:%n:1g',' ',100,i1mach(2),np,np,xp)
-      
       end
+      
 C --- Test of mkdlst ---
 C      subroutine fmain
 CC      implicit none
@@ -97,4 +92,52 @@ C      call pshpr(101)
 C      np = mkdlst('9,3:5:.2 ',npmx,xp)
 C      print *, np
 C      end
+
+      subroutine idmxmn(n,a,incx,imin,imax)
+C- Finds maximum and minimum value of an double precision array
+C ----------------------------------------------------------------------
+Ci Inputs
+Ci   n     :number of points to evaluate
+Ci   a     :array of points
+Ci   incx  :spacing between points to consider
+Co Outputs
+Co   imin  :points to lowest
+Co   imax
+Cl Local variables
+Cl         :
+Cr Remarks
+Cr   Points a(1),a(1+incx),...,a(1+incx*n) are compared
+Cr   
+Cu Updates
+Cu   25 Aug 04 First created from iyamax
+C ----------------------------------------------------------------------
+C     implicit none
+C ... Passed parameters
+      integer n,incx
+      double precision a(n)
+C ... Local parameters
+      integer i,ix,imin,imax
+      double precision smin,smax
+      imin = 0
+      imax = 0
+      if (n.lt.1 .or. incx.le.0) return
+      imin = 1
+      imax = 1
+      if (n.eq.1) return
+      ix = 1
+      smin = dabs(a(1))
+      smax = dabs(a(1))
+      ix = ix + incx
+      do  10  i = 2, n
+        if (dabs(a(ix)) .le. smax) go to 5
+        imax = i
+        smax = dabs(a(ix))
+    5   continue
+        if (dabs(a(ix)) .ge. smin) go to 6
+        imin = i
+        smin = dabs(a(ix))
+    6   continue
+        ix = ix + incx
+   10 continue
+      end
 

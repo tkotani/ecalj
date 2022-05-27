@@ -8,7 +8,4 @@
         ntot       = nindxv(i) + nindxc(i)
         if (ntot .gt. maxnn) maxnn = ntot
       end do
-
-      return
       end
-

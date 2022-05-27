@@ -259,3 +259,97 @@ C      print *, 'call xlgen, opt=',opts
 C      call xlgen(plat,rmax,nvmx,opts,mode,nv,w(ovecs))
 C      end
 
+      subroutine ishell(n,iarray)
+      integer n
+      integer iarray(1)
+      integer lognb2,i,j,k,l,m,nn,it
+      if (n .le. 1) return
+      lognb2 = int(log(float(n+1))*1.4426950)
+      m = n
+      do  12  nn = 1, lognb2
+        m = m/2
+        k = n - m
+        do  11  j = 1, k
+          i = j
+    3     continue
+          l = i + m
+          if (iarray(l) .lt. iarray(i)) then
+            it = iarray(i)
+            iarray(i) = iarray(l)
+            iarray(l) = it
+            i = i - m
+            if (i .ge. 1) goto 3
+          endif
+   11   continue
+   12 continue
+      return
+      end
+
+!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+      subroutine lgen(bas,bmax,nv,nvmax,vecs,work)
+c  generates lattice vectors.
+      implicit real*8 (a-h,p-z), integer(o)
+      implicit integer(i-n)
+      dimension bas(3,3),v(3),vecs(3,*),work(*) ! MIZUHO-IR
+      call latlim(bas,bmax,imax,jmax,kmax)
+      bmax2=bmax*bmax
+      nv=0
+      do 202 i=-imax,imax
+      do 201 j=-jmax,jmax
+      do 20 k=-kmax,kmax
+        do 21 m=1,3
+          v(m)=i*bas(m,1)+j*bas(m,2)+k*bas(m,3)
+   21   continue
+        v2=v(1)*v(1)+v(2)*v(2)+v(3)*v(3)
+        if(v2.gt.bmax2) goto 20
+        nv=nv+1
+        if(nv.gt.nvmax) write(6,633) nvmax,i,imax
+        if(nv.gt.nvmax) call rx( '')
+  633   format(/' --- nv=',i6,'  exceeded,   i=',i3,'  imax=',i3)
+        do 22 m=1,3
+          vecs(m,nv)=v(m)
+   22   continue
+        vsm=dabs(v(1))+dabs(v(2))+dabs(v(3))
+        work(nv)=v2+vsm/1000.
+  20  continue
+ 201  continue
+ 202  continue
+c --- sort by length -----------
+      do 30 iv=1,nv
+        ilow=iv
+        alow=work(iv)
+        do 31 jv=iv,nv
+          if(work(jv).lt.alow) then
+            alow=work(jv)
+            ilow=jv
+          endif
+  31    continue
+        if(ilow.eq.iv) goto 30
+        do 32 m=1,3
+          xx=vecs(m,iv)
+          vecs(m,iv)=vecs(m,ilow)
+          vecs(m,ilow)=xx
+   32   continue
+        work(ilow)=work(iv)
+        xx=work(ilow)
+  30  continue
+c ---- add neighbor layers if basis vec 3 is not in list ------
+      do 41 iv=1,nv
+        ddd=(bas(1,3)-vecs(1,iv))**2+(bas(2,3)-vecs(2,iv))**2
+     .   +(bas(3,3)-vecs(3,iv))**2
+        if(ddd.lt.1.d-8) return
+  41  continue
+      write(6,650)
+  650 format(/' basis vec 3 not in list - include 2 more planes')
+      if(3*nv.gt.nvmax) write(6,643) nvmax
+      if(3*nv.gt.nvmax) call rx( '')
+  643 format( '--- lgen needs nvmax at least',i7)
+      do iv=1,nv
+      do m=1,3
+        vecs(m,iv+nv)=vecs(m,iv)+bas(m,3)
+        vecs(m,iv+2*nv)=vecs(m,iv)-bas(m,3)
+      enddo
+      enddo
+      nv=3*nv
+      return
+      end

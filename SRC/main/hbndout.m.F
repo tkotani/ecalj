@@ -8,10 +8,8 @@ c QPNT points in agreemnet with SYML are used for QP bands.
      &  ndimh,ibr,ifi,igx,ngrp,i,ig,nxx,iag,nagmx,iqx,
      &  iflda,ifqp1,ifqp2,iy,ix,iqagree,nqmx,ifbandqp,iq0,ib0,ifip,naa
      &  ,iform
-c
       integer(4),parameter :: nlinemax = 50
       character*1  dd1,dd2
-c
       integer(4),allocatable:: iout(:,:),nqq(:),nx(:),nag(:)
      &  ,itq(:),itqinv(:),ibidx(:,:,:),iq_ag(:,:),iqq_ag(:,:)
       real(8) qxx(3),ef,polinta2,rydberg,plat(3,3),qlat(3,3),
@@ -152,7 +150,6 @@ c --- Readin LBAND
       write(6,"(' qlat =',9f12.6)") qlat
       if(nqnum/=nqnumx) then
         write(6,*) nqnum, nqnumx
-Cstop2rx 2013.08.09 kino        stop 'hbndout: nqnum of LBAND and SYML is inconsistent'
         call rx( 'hbndout: nqnum of LBAND and SYML is inconsistent')
       endif
 
@@ -450,39 +447,25 @@ C --- write bands
           enddo
         endif
       enddo
-Cstop2rx 2013.08.09 kino      stop ' OK! bndout for SYML'
       call rx0( ' OK! bndout for SYML')
       end
 
+      integer(4) function iqagree(qb,qqr,nxx,nx,nq,plat,qlat)
+      integer(4) :: nxx,nx(nq),ix,iq
+      real(8) :: qb(3),qbo(3),qqr(3,nxx,nq),qqro(3)
+     & ,plat(3,3),qlat(3,3),aa1(3)
+      iqagree = 0
+      do iq = 1,nq
+        do ix = 1,nx(iq)
+          do i=1,3
+            aa1(i) = sum(plat(:,i)*(qqr(:,ix,iq)-qb))
+          enddo
+          if(sum(abs( aa1-nint(aa1) ))<1d-6) then
+            iqagree = iq
+            return
+          endif
+        enddo
+      enddo
+      end
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+c-------------------------------------

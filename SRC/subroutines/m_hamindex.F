@@ -516,47 +516,6 @@ c      allocate( ngvecp(3,ngpmx,nqnum) )
       endif  
       close(ifi)
       end subroutine readhamindex
-!sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
-      subroutine pvsug1(nbas,lmxa,ipc,ipcx)
-C- Remakes class table, expunging classes with floating orbitals.
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   nbas  :size of basis
-Ci   lmxa  :augmentation l-cutoff
-Ci   ipc   :class table: site ib belongs to class ipc(ib)
-Co Inputs/Outputs
-Co   ipcx  :expunged class table: classes with lmxa=-1 are expunged
-Co         :and the remaining classes are sequentially renumbered
-Co         :preserving the order of the remaining classes.
-Cl Local variables
-Cl         :
-Cr Remarks
-Cr
-Cu Updates
-Cu   27 Mar 07
-C ----------------------------------------------------------------------
-      implicit none
-C ... Passed parameters
-      integer nbas,lmxa(nbas),ipc(nbas),ipcx(nbas)
-C ... Local parameters
-      integer i,ip,ic,ipskip,nelim
-      integer prm(nbas)
-      call ivshel(1,nbas,ipc,prm,.true.)
-      nelim = 0
-      ipskip = 0
-      do  i = 1, nbas
-        ip = prm(i)+1
-        ic = ipc(ip)
-        if (lmxa(ip) .lt. 0) then
-          if (ipskip .ne. ic) nelim = nelim+1
-          ipskip = ic
-          ipcx(ip) = -1
-        else
-          ipcx(ip) = ic - nelim
-        endif
-      enddo
-      end subroutine pvsug1
-!!
       
       end module m_hamindex
 

@@ -2,8 +2,6 @@
      .qc,ccof,ceh,stc,rho,rhoc,v,ifi)
       use m_lmfinit,only: nsp,lrel
       use m_lgunit,only:stdo
-
-
 C- I/O for free-atom data, one species
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -41,15 +39,11 @@ C ... Passed parameters
       integer i,jfi,lrel0,nglob,nsp0,ipr,iprint
       logical isanrg
       character msg*23
-
       ipr    = iprint()
-c      stdo   = lgunit(1)
       msg  = '         File mismatch:'
       iofa   = -1
-
 C --- Input ---
       if (ifi .gt. 0) then
-
         jfi = ifi
         read(jfi,201,end=998,err=998) spid
   201   format(9x,a8/)
@@ -73,7 +67,6 @@ C ...   Sanity checks
         read(ifi,333) v(1:nr) !call dfdump(v,nr,ifi)
         if (nsp .eq. 2) read(ifi,333) v(nr+1:2*nr) !call dfdump(v(1+nr),nr,ifi)
       endif
-
 C --- Output ---
       if (ifi .lt. 0)  then
         jfi = -ifi
@@ -100,13 +93,10 @@ C --- Output ---
         if (nsp .eq. 2) write(jfi,333) v(nr+1:2*nr) !call dfdump(v(1+nr),nr,-jfi)
         return
       endif
-
       iofa = 0
       return
-
 C ... Error handling
   998 if (ipr .gt. 0)
      .write(stdo,'('' iofa  : missing species id ... nothing read'')')
   333 format(1p,4e20.13)
       end
-

@@ -1064,12 +1064,6 @@ c      write(ifi,*) ' ic,z=',ic,z(ic)
             ifesn = 0
             conv3 = 0d0
           endif
-
-C      ax=efg1(1,ic)+efg2(1,ic)
-C      bx=efg1(2,ic)+efg2(2,ic)
-C      cx=efg1(3,ic)+efg2(3,ic)
-C      dx=efg1(4,ic)+efg2(4,ic)
-C      ex=efg1(5,ic)+efg2(5,ic)
           ax = efg1(1,ic)
           bx = efg1(2,ic)
           cx = efg1(3,ic)
@@ -1097,9 +1091,9 @@ C      ex=efg1(5,ic)+efg2(5,ic)
           n = 3
           call htridi(n,n,v,vi,d,e,e2,tau)
           call imtql2(n,n,d,e,tr,ier)
-c      write(ifi,*) ' imtql2: ier=',ier
           if (ier .gt. 0) call rx(' ELFIGR : IER ne 0')
           call htribk(n,n,v,vi,tau,n,tr,ti)
+          
 c     write(stdo,99) ic
 c 99  format(/' EFG, class = ',I3)
           do  i = 1, 3
