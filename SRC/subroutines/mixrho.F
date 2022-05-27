@@ -3554,4 +3554,11 @@ CC      print *, i1,i2,rmserr
 C
 C      end
       
+      subroutine dpsadd(adest,asrc,nel,n1,n2,fac)
+C- shift and add. nel=number of elements, n1,n2= start in asrc,adest
+C     implicit none
+      integer n1,n2,i,iadd,ntop,nel
+      double precision asrc(1),adest(1),fac
+      call daxpy(nel,fac,asrc(n2),1,adest(n1),1)
+      end
       end module m_mixrho

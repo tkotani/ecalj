@@ -67,7 +67,7 @@ subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,&
        , ikp , ipr , job , nbpw , i1mach , nev&
        , mkdlst , ifi , i , j , lry , procid , mpipid , master &
        , nulli , isw
-  real(8) ,allocatable :: dos_rv(:)
+  real(8) ,allocatable :: dos_rv(:,:)
   real(8) ,allocatable :: bot_rv(:)
   real(8) ,allocatable :: top_rv(:)
   integer ,allocatable :: bmap_iv(:)
@@ -110,7 +110,6 @@ subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,&
      nbmxx = nbmx
      job = 1
   endif
-
   !     Force coupled spins: find range
   if (nspx .ne. nsp .and. nspc .eq. 1) then
      nbpw = int(dlog(dble(i1mach(9))+1d0)/dlog(2d0))
@@ -135,7 +134,6 @@ subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,&
   else
      lfill = efrng2 ( nspx , nkp , nbmxx , nevxx , nspc * zval , eb &
           , bot_rv , top_rv , elo , ehi , emin , emax )
-
   endif
   ! ... Bands never filled if 100s digit norder set
   if (.not. tetra .and. iabs(norder) .ge. 100) lfill = .false.
@@ -204,7 +202,7 @@ subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,&
         goto 2
      endif
      nptdos = 101
-     allocate(dos_rv(nspx*nptdos))
+     allocate(dos_rv(nptdos,nspx))
      tol = 1d-6
      !  Preliminary check that dos lies within emin,emax.  Widen emin,emax if not
      if (.not. lfill) then
@@ -277,12 +275,13 @@ subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,&
            efermi = 0.5d0*(e1 + e2)
         enddo
         write(stdo,ftox)' BZWTS (warning): cannot find E_F by bisection, using INTNOS'
-        allocate(dos_rv(nspx*npts))
+        allocate(dos_rv(npts,nspx))
         emin = elo - rnge*width/2
         emax = emax + rnge*width/2
         call maknos ( nkp , nevxx , nbmxx , nspx , wtkp , eb , n , width &
              , - rnge , emin , emax , npts , dos_rv )
-        if ( nspx.eq.2 ) call dpsadd ( dos_rv , dos_rv , npts , 1 , npts + 1 , 1d0 )
+        if ( nspx.eq.2 ) dos_rv(:,1)=dos_rv(:,2)+dos_rv(:,1)
+                         !call dpsadd ( dos_rv , dos_rv , npts , 1 , npts + 1 , 1d0 )
         call intnos ( npts , dos_rv , emin , emax , zval , efermi , dosef , sumev )
         if (allocated(dos_rv)) deallocate(dos_rv)
 3       continue
@@ -505,4 +504,145 @@ integer function iget(bitmap, nbpw, n)
   nbit = mod(n-1,nbpw)
   iget = mod(bitmap(nword+1)/2**(nbpw-nbit-1),2)
 end function iget
+
+
+logical function efrng2(nsp,nkp,nbmax,nband,zval,eband,ebbot,ebtop,elo,ehi,e1,e2)
+  !- Find range of Fermi energy.
+  ! ----------------------------------------------------------------------
+  !i Inputs
+  !i   nsp   :2 for spin-polarized case, otherwise 1
+  !i   nkp   :number of irreducible k-points (bzmesh.f)
+  !i   nbmax :leading dimension of eband
+  !i   nband :number of bands
+  !i   zval  :no. of valence electrons
+  !i   eband :energy bands
+  !o Outputs
+  !o   e1,e2: e1 < ef < e2
+  !o   elo, ehi:  lowest and highest band found
+  !o   efrng2:flags whether metal or insulator.
+  !o         :F metal (highest occ band crossed lowest unoccupied one)
+  !o         :T insulator (highest occ band did not cross lowest unocc)
+  !r Remarks
+  !r    For an even no. of electrons ef is above the bottom of the
+  !r    zval/2+1'th band and below the top of the zval/2 'th band. If the
+  !r    former is higher that the latter we have an insulator, with
+  !r    these two numbers estimates for the conduction band minimum and
+  !r    valence band maximum, respectively.
+  !r    For an odd no. of electrons ef is between the bottom and top
+  !r    of the (zval+1)/2 'th band.
+  !r
+  !r    For spin pol case:
+  !r      bottom of the zval+1'th band < ef < top of the zval'th band.
+  !r      If the bottom is higher that the top then we have an insulator,
+  !r      with the bottom an estimate for the conduction band minimum and
+  !r      to and estimate for the valence band maximum.
+  !r      and e1=e2.
+  !u Updates
+  !u   08 Jul 08 Extend to case where number of bands can be q dependent
+  !u             eband=99999 => not calculated: ignore
+  !u   01 Apr 03 Set e1=e2 if every band is filled
+  ! ----------------------------------------------------------------------
+  !     implicit none
+  ! Passed parameters
+  integer nsp,nkp,nbmax,nband
+  double precision zval,e1,e2,eband(nbmax,nsp,nkp),ebbot(nband,nsp),ebtop(nband,nsp),elo,ehi
+  ! Local parameters
+  double precision xx,d1mach,enull
+  integer ikp,isp,iba,nval,nbbot,nbtop,nfound
+  parameter (enull=99999d0)
+  elo = enull
+  ehi = -enull
+  nval = zval + 1d-7
+  ! --- Find bottom and top of each band ---
+  call dvset(ebbot,1,nband*nsp,elo)
+  call dvset(ebtop,1,nband*nsp,ehi)
+  do  ikp = 1, nkp
+     do  isp = 1, nsp
+        do  iba = 1, nband
+           if (eband(iba,isp,ikp) .ne. enull) then
+              ebbot(iba,isp) = min(ebbot(iba,isp),eband(iba,isp,ikp))
+              ebtop(iba,isp) = max(ebtop(iba,isp),eband(iba,isp,ikp))
+           endif
+        enddo
+     enddo
+  enddo
+  !     Set all -enull to enull to float to top when sorted
+  do  isp = 1, nsp
+     do  iba = 1, nband
+        if (ebtop(iba,isp) .eq. -enull) ebtop(iba,isp) = enull
+     enddo
+  enddo
+  !     Sort bands irrespective of spin
+  call dshell(nband*nsp,ebbot)
+  call dshell(nband*nsp,ebtop)
+  nfound = nband*nsp
+10 continue
+  if (ebtop(nfound,1).eq.enull .or. ebbot(nfound,1).eq.enull) then
+     nfound = nfound-1
+     if (nfound .eq. 0) call rx('efrng2: no bands')
+     goto 10
+  endif
+  ! --- Find limits ---
+  nbtop = (nval+2-nsp)/(3-nsp)
+  if (zval .gt. nval) nbtop = nbtop+1
+  nbbot = nval/(3-nsp) + 1
+  if (nbtop .gt. nfound) nbtop = nfound
+  if (nbbot .gt. nfound) nbbot = nfound
+  elo = ebbot(1,1)
+  ehi = ebtop(nfound,1)
+  if (elo .eq. enull) call rx('efrng2: no bands')
+  e1  = ebbot(nbbot,1)
+  e2  = ebtop(nbtop,1)
+  efrng2 = .false.
+  !     if (e1 .gt. e2) then
+  if (e1-e2 .gt. d1mach(3)) then
+     xx = e1
+     e1 = e2
+     e2 = xx
+     efrng2 = .true.
+  endif
+  !     Every band is filled ??
+  !     if (nbbot .eq. nbtop) e1 = e2
+
+  ! --- Printout ---
+  !      if (iprint() .ge. 50) then
+  !        print '(1x)'
+  !        call awrit3(' efrng2:  emin=%d  emax=%d'//
+  !     .    '  de=%d',' ',80,i1mach(2),e1,e2,e2-e1)
+  !     endif
+end function efrng2
+
+
+subroutine dshell(n,array)
+  implicit none
+  integer n
+  double precision array(n)
+  integer i,j,k,inc
+  double precision v
+  ! ... Get the largest increment
+  if (n .le. 1) return
+  inc = 1
+10 continue
+  inc = 3*inc+1
+  if (inc .lt. n) goto 10
+  ! ... Loop over partial sorts
+12 continue
+  inc = inc/3
+  !   ... Outer loop of straight insertion
+  do  11  i = inc+1, n
+     v = array(i)
+     j = i
+     !     ... Inner loop of straight insertion
+20   continue
+     if (array(j-inc) .gt. v) then
+        array(j) = array(j-inc)
+        j = j-inc
+        if (j .le. inc) goto 21
+        goto 20
+     endif
+21   continue
+     array(j) = v
+11 enddo
+  if (inc .gt. 1) goto 12
+end subroutine dshell
 

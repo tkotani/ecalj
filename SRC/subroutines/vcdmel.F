@@ -69,7 +69,7 @@ C Local Variables
       double precision ume(0:lmxax,nsp,nsite),sme(0:lmxax,nsp,nsite)
       character clabl*8
 
-      integer:: nbandx,nspx,npts,ifid,ikp,ichib,ifile_handle,ifdos
+      integer:: nbandx,nspx,npts,ifid,ikp,ichib,ifile_handle,ifdos,ie,ild
       logical:: lidos
       real(8),allocatable:: wk_rv(:),dos_rv(:,:,:)
       real(8):: emin,dosw(2),emax,del
@@ -187,11 +187,17 @@ c     enddo
      &     bz_nabc(1),bz_nabc(2),bz_nabc(3), bz_ntet , iv_a_oidtet, evl
      .     , s_rv(1:nchan*nbandx,1:nsp,1:nq), npts, emin, emax, lidos , wk_rv , dos_rv )
       del = 0d0
-      ifdos=ifile_handle()
-      i=nsp
-      open(ifdos,file='dos-vcdmel.'//trim(sname))
-      call dosio ( dos_rv , npts * ( 1 + nsp - i ) , nchan , npts 
-     .     , nchan , emin , emax , i , ef , del , 1 , - ifdos) 
+      open(newunit=ifdos,file='dos-vcdmel.'//trim(sname))
+c      call dosio ( dos_rv , npts , nchan , npts 
+c     .     , nchan , emin , emax , i , ef , del , 1 , - ifdos)
+      write(ifdos,760) emin,emax,npts,nchan,nsp,ef,del,1
+      do ild = 1, nchan
+      do isp = 1, nsp
+         write(ifdos,762) (dos_rv(ie,isp,ild),ie=1,npts)
+      enddo
+      enddo
+ 760  format(2f10.5,3i5,2f10.5,i5)
+ 762  format(5f14.6)
       if (allocated(s_rv)) deallocate(s_rv)
       call tcx ('vcdmel')
       end subroutine vcdmel
