@@ -2,7 +2,7 @@
       use m_density,only:  sv_p_orhoat=>orhoat,smrho=>osmrho !input and output
       use m_supot,only:  iv_a_okv,rv_a_ogv
       use m_lmfinit,only: ctrl_lfrce,ham_elind,
-     &     lat_alat,nsp,nbas, sspec=>v_sspec, ssite=>v_ssite
+     &     lat_alat,nsp,nbas, sspec=>v_sspec, ssite=>v_ssite,n0
       use m_lattic,only: lat_qlat, lat_vol,lat_plat
       use m_supot,only: lat_nabc, lat_ng
       use m_lgunit,only:stdo
@@ -21,12 +21,11 @@ Cu   17 Sep 01 Adapted for local orbitals.  Altered argument list
 Cu    3 Jul 00 Adapted from nfp smshft.f
 C ----------------------------------------------------------------------
       implicit none
-      integer i,ib,igets,igetss,iprint,is,k1,k2,k3,kcor,lcor,lmxa,n0,n1,n2,n3,ng,ngabc(3),i_copy_size
+      integer i,ib,igets,igetss,iprint,is,k1,k2,k3,kcor,lcor,lmxa,n1,n2,n3,ng,ngabc(3),i_copy_size
       complex(8) ,allocatable :: cgr_zv(:,:)
       complex(8) ,allocatable :: cgs_zv(:,:),cgs_zvv(:,:)
       complex(8) ,allocatable :: cwk_zv(:)
       integer kmax,job
-      parameter (n0=10)
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       double precision alat,dgets,elind,pi,qc,qsc,qcor(2),plat(3,3),
      .     qlat(3,3),qv,qval,tpiba,vol,z,pnu(n0,2),pnz(n0,2)
@@ -92,7 +91,7 @@ C --- Symmetrize the shifted density ---
       subroutine pvsms1 ( ssite , sspec ,  nbas , nsp , kmax 
      . , ng , gv , sv_p_orhoat , cwk , cg , job )
       use m_struc_def          
-      use m_lmfinit,only:lat_alat
+      use m_lmfinit,only:lat_alat,n0
       use m_lattic,only: lat_vol
       use m_lgunit,only:stdo
 C- Shift in smoothed density according to job.
@@ -176,22 +175,21 @@ C ----------------------------------------------------------------------
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       double complex cg(ng,nsp),cwk(ng)
-      integer ib,i,is,iv0,kmax,lmxl,igetss,lmxa,nr,nrmx,n0,
+      integer ib,i,is,iv0,kmax,lmxl,igetss,lmxa,nr,nrmx,
      .nlml,nxi,ie,ixi,ig,ipr,iprint,kcor,lcor
-      parameter (nrmx=1501, n0=10)
+      parameter (nrmx=1501)
       double precision a,aa,alat,df(0:20),e,
-     .exi(n0),gam,hfc(n0,2),pi,pnew(3),pnu(n0,2),pnz(n0,2),pold(3),
+     .exi(n0),gam,hfc(n0,2),pnew(3),pnu(n0,2),pnz(n0,2),pold(3),
      .pp,qall,qc,qcor(2),qsc,qfat,qg,qloc,qval,rmt,
-     .rsmfa,rwgt(nrmx),scalp,summ,tpiba,v(3),v2,vol,volsp,y0,z
+     .rsmfa,rwgt(nrmx),scalp,summ,tpiba,v(3),v2,vol,volsp,z
       character*35 strn,spid*8
       double complex phase
       complex(8):: img=(0d0,1d0)
+      real(8),parameter:: pi = 4d0*datan(1d0), y0=1d0/dsqrt(4d0*pi)
       call tcn('pvsms1')
       call stdfac(20,df)
       alat=lat_alat
       vol=lat_vol
-      pi = 4d0*datan(1d0)
-      y0 = 1d0/dsqrt(4d0*pi)
       tpiba = 2*pi/alat
       ipr = iprint()
       volsp = vol*nsp
@@ -212,7 +210,7 @@ C --- For each site, accumulate shift in density ---
         is  = ssite(ib)%spec
         pnew= ssite(ib)%pos
         pold= ssite(ib)%pos0
-        pp = alat*dsqrt((pnew(1)-pold(1))**2 + (pnew(2)-pold(2))**2+(pnew(3)-pold(3))**2)
+        pp = alat*dsqrt(sum((pnew-pold)**2))
         if(ipr>=30) write(stdo,340) ib,spid,pold,pnew,pp/alat
   340   format(i4,':',a,f8.5,2f9.5,2x,3f9.5,2x,f9.6)
 C       Skip this site if shift is negligible
@@ -220,10 +218,8 @@ C       Skip this site if shift is negligible
 C   --- Shift in mesh density, job 1 ---
         if (mod(job,10)==1) then
           z=sspec(is)%z
-          i_copy_size=size(sspec(is)%p)
-          call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
-          i_copy_size=size(sspec(is)%pz)
-          call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1)
+          pnu=sspec(is)%p
+          pnz=sspec(is)%pz
           lmxa=sspec(is)%lmxa
           a  =sspec(is)%a
           nr  =sspec(is)%nr
@@ -232,6 +228,7 @@ C   --- Shift in mesh density, job 1 ---
           exi =sspec(is)%exi
           hfc =sspec(is)%chfa
           rsmfa=sspec(is)%rsmfa
+          gam  = 0.25d0*rsmfa**2
           call gtpcor(sspec,is,kcor,lcor,qcor)
           if (nr .gt. nrmx) call rx('dfrce: nr gt nrmx')
           call radwgt(rmt,a,nr,rwgt)
@@ -241,7 +238,6 @@ C   --- Shift in mesh density, job 1 ---
           qfat = 0d0
           do   i  = 1, nsp
           do   ie = 1, nxi
-            gam  = 0.25d0*rsmfa**2
             qall = -4d0*pi*y0*dexp(gam*exi(ie))/exi(ie)
             qfat = qfat + hfc(ie,i)*qall
          enddo
@@ -254,12 +250,8 @@ C     ... Shift in smoothed free atom density
             e = exi(ixi)
             do ig = 1, ng
               v(:) = gv(ig,:)*tpiba
-              v2 = sum(v**2) !v(1)**2+v(2)**2+v(3)**2
+              v2 = sum(v**2)
               aa = -4d0*pi*dexp(gam*(e-v2))/(e-v2)
-c              scalp = -alat*sum(pnew*v) !(pnew(1)*v(1)+pnew(2)*v(2)+pnew(3)*v(3))
-c              phase = dcmplx(dcos(scalp),dsin(scalp))
-c              scalp = -alat*sum(pold*v) !(pold(1)*v(1)+pold(2)*v(2)+pold(3)*v(3))
-c              phase = phase - dcmplx(dcos(scalp),dsin(scalp))
               phase = exp(-img*alat*sum(pnew*v)) - exp(-img*alat*sum(pold*v))
               cg(ig,i) = cg(ig,i) + hfc(ixi,i)*aa*phase*y0/vol
           enddo
@@ -270,11 +262,7 @@ C     ... Add gaussian to conserve local charge; see Remarks
           do    i = 1, nsp
           do    ig = 1, ng
             v(:) = gv(ig,:)*tpiba
-            v2 = sum(v**2) !v(1)**2+v(2)**2+v(3)**2
-c            scalp = -alat*sum(pnew*v) !(pnew(1)*v(1)+pnew(2)*v(2)+pnew(3)*v(3))
-c            phase = dcmplx(dcos(scalp),dsin(scalp))
-c            scalp = -alat*sum(pold*v) !(pold(1)*v(1)+pold(2)*v(2)+pold(3)*v(3))
-!     phase - dcmplx(dcos(scalp),dsin(scalp))
+            v2 = sum(v**2) 
             phase = exp(-img*alat*sum(pnew*v)) - exp(-img*alat*sum(pold*v))
             cg(ig,i) = cg(ig,i) + qg*phase*dexp(-gam*v2)/volsp
           enddo
@@ -289,11 +277,9 @@ C     ... Core + valence at old position
 C     ... Core + valence at new position
           ssite(ib)%pos=pnew
           call rhgcmp(131, ib, ib, ssite , sspec,  sv_p_orhoat, kmax , ng , cwk )
-C     ... Add to cg
-          cg(:,i)= cwk/nsp + cg(:,i)
-c          do  i = 1, nsp
-c            call daxpy(ng*2,1d0/nsp,cwk,1,cg(1,i),1)
-c          enddo
+          do i=1,nsp
+             cg(:,i)= cwk/nsp + cg(:,i)
+          enddo
         else
           call rxi('smshft: bad job:',job)
         endif
