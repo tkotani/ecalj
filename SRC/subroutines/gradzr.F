@@ -1242,4 +1242,108 @@ c     .......... form reduced a ..........
       call tcx('dtridx')
       end
 
+      subroutine dsredx(nm,n,hr,ar,wkr)
+C- Reduction of nonorthogonal hermitian matrix to orthogonal form
+C ----------------------------------------------------------------
+Ci Inputs
+Ci   h,nm: hermitian matrix, declared as h(nm,*).  (Lower triangle only)
+Ci   a: nonorthogonality matrix, Cholesky-decomposed by dschd into L(L+)
+Ci      and L inverted.
+Ci   wk: work array of same dimensions as h,a
+Ci   n:  order of h and a
+Ci   sw: false if h and a matrix are real.
+Co Outputs
+Co   H replaced by H'' = L^-1 H (L+)^-1
+Cr Remarks
+Cr   This version has more floating point operations and uses more
+Cr   memory than yyhred, but calls zmpy for the n^3 operations.
+C ----------------------------------------------------------------
+C     implicit none
+C Passed parameters 
+      integer n,nm
+      double precision hr(nm,n),ar(nm,n),wkr(nm,n)
+C Local parameters 
+      integer i,j,mssiz
+      parameter (mssiz = 48)
+      call tcn('dsredx')
+C --- Make a strictly L^-1 ---
+      do  i = 1, n
+        do j = 1, i-1
+           ar(j,i) = 0
+        enddo
+      enddo
+C --- wk <-  L^-1 H ---- 
+      call dmpyt(2,mssiz,n,n,ar,nm,hr,nm,wkr,nm)
+C --- Copy L^-1 to (L+)^-1 ---
+      do    i = 1, n
+        do j = i+1, n
+          ar(i,j) =  ar(j,i)
+          ar(j,i) = 0
+       enddo
+      enddo
+C --- New H <-  L^-1 H L+^-1 ---- 
+      call dmpyt(11,mssiz,n,n,wkr,nm,ar,nm,hr,nm)
+      call tcx('dsredx')
+      end
+      
+      subroutine dmpyt(case,nrow,n,m,ar,lda,br,ldb,cr,ldc)
+C- Multiplication of a triangular matrix by regular matrix
+C ----------------------------------------------------------------
+Ci Inputs:
+Ci   n: number of rows of destination matrix to calculate
+Ci   m: number of columns of destination matrix to calculate
+Ci   case:  1(ones digit), rhs upper triangular
+Ci          2(ones digit), lhs lower triangular
+Ci          1(tens digit), result assumed symmetric
+Co Outputs:
+Co   product matrix stored in c
+Cr Remarks:
+Cr   This version uses BLAS3 dgemm.
+C ----------------------------------------------------------------
+C     implicit none
+      integer n,m,lda,ldb,ldc,nrow,case
+      double precision ar(lda,1),br(ldb,1),cr(ldc,1)
+      integer ic,ncol,nc,lc,ir,lr,nr,k
+      logical lherm
+
+      lherm = case/10 .gt. 0
+      goto (1,2), mod(case,10)
+      call rx('bad case in dmpyt')
+
+C --- Case rhs is upper triangular ---
+    1 continue
+      ncol = nrow
+      k = n
+      do  10  ic = 1, m, ncol
+        nc = min(m-ic+1,ncol)
+        lc = nc+ic-1
+        if (lherm) k = lc
+        call dmpy(ar,lda,1,br(1,ic),ldb,1,cr(1,ic),ldc,1,k,nc,lc)
+   10 continue
+C --- Copy to upper triangle ---
+      if (.not. lherm) return
+      do    ir = 1, n
+        do    ic = ir+1, n
+           cr(ic,ir) =  cr(ir,ic)
+        enddo
+      enddo
+      return
+C --- Case lhs is lower triangular ---
+    2 continue
+      k = m
+      do  20  ir = 1, n, nrow
+        nr = min(n-ir+1,nrow)
+        lr = nr+ir-1
+        if (lherm) k = lr
+        call dmpy(ar(ir,1),lda,1,br,ldb,1,cr(ir,1),ldc,1,nr,k,lr)
+   20 continue
+C --- Copy to lower triangle ---
+      if (.not. lherm) return
+      do    ir = 1, n
+         do  ic = ir+1, n
+            cr(ir,ic) =  cr(ic,ir)
+         enddo
+      enddo
+      end
+
       end module m_gradzr

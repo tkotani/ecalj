@@ -1122,4 +1122,18 @@ C         ... uz, sz, zu, zs, zz terms
 C     call tcx('mkrou3')
       end subroutine mkrou3
 
+      subroutine dinv22(a,ainv) ! ainv  :Inverse of a,  A.Chantis
+      double precision a(2,2), ainv(2,2)
+      double precision det,aloc(2,2)
+      det = a(1,1)*a(2,2) - a(1,2)*a(2,1)
+      if (det .eq. 0d0) call rx('INV22: vanishing determinant')
+      aloc(1,1) = a(2,2)/det
+      aloc(2,2) = a(1,1)/det
+      aloc(1,2) = -a(1,2)/det
+      aloc(2,1) = -a(2,1)/det
+      ainv(1,1) = aloc(1,1)
+      ainv(2,2) = aloc(2,2)
+      ainv(1,2) = aloc(1,2)
+      ainv(2,1) = aloc(2,1)
+      end
       end module m_mkrout
