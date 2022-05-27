@@ -6,7 +6,8 @@
       real(8) ,   allocatable,protected ::  rv_a_ogv (:,:)
       integer ,   allocatable,protected ::  iv_a_okv (:,:)
       real(8),protected:: lat_gmax
-      integer,protected:: lat_ng,lat_nabc(3), k1 , k2 , k3 
+      integer,protected:: lat_nabc(3)
+      integer,protected:: lat_ng,k1 , k2 , k3 
       contains
       
       subroutine m_supot_init()  

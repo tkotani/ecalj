@@ -80,7 +80,7 @@ C ... Local parameters
       real(8) ,allocatable :: g_rv(:)
       real(8) ,allocatable :: gp_rv(:)
       real(8) ,allocatable :: h_rv(:)
-
+      real(8):: vv(nr,nsp)
       integer nrx,nrbig,ir,lp1
       double precision dphi,dphip,eh,eval,p,phi,phip,
      .pnul,rsm,rsmin,rsmax,rmt,ekin,h,sum1,sum2,qrmt
@@ -169,20 +169,23 @@ C   ... Make value, slope, kinetic energy
           if (mod(modei,2) .eq. 1) then
 C     ... Overwrite V+, V- with (V+ + V-)/2, (V+ - V-)/2,
             if (nsp .eq. 2 .and. mode3 .eq. 1) then
-              call dsumdf(nr,0.5d0,v,0,1,v(1,2),0,1)
+c               call dsumdf(nr,0.5d0,v,0,1,v(1,2),0,1)
+               vv(:,1)= .5d0*(v(:,1)+v(:,2))
+               vv(:,2)= .5d0*(v(:,1)-v(:,2))
+            else
+               vv= v
             endif
-
 C     ... Wave function and potential parameters at MT sphere
-            call makrwf ( 0 , z , rmt , l , v ( 1 , i ) , a , nrmt , rofi 
+            call makrwf ( 0 , z , rmt , l , vv( 1 , i ) , a , nrmt , rofi 
      .      , pnz ( 1 , i ) , 4 , g_rv , gp_rv , eval , phi , dphi 
      .      , phip , dphip , p )
 
 C         call prrmsh('gz',rofi,w(og),nr,nr,2)
 
-C     ... Restore V+, V-
-            if (nsp .eq. 2 .and. mode3 .eq. 1) then
-              call dsumdf(nr,1d0,v,0,1,v(1,2),0,1)
-            endif
+cC     ... Restore V+, V-
+c            if (nsp .eq. 2 .and. mode3 .eq. 1) then
+c              call dsumdf(nr,1d0,v,0,1,v(1,2),0,1)
+c            endif
 
             vsel(1,l+1) = phi
             vsel(2,l+1) = dphi

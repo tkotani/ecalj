@@ -686,19 +686,18 @@ C     MvS Feb 04 Allocate sigin if not already done so
         sigin = 0d0
       endif
       call mixsigma(sigma_m, lsigin, sigin, 2*ndimsig**2*nq*nspin)
-
 C     ... write sigm Binary format ---------------------------------------
       write(6,*)
-      write(6,*) "=== Write sigma to files (Binary and ASCII) ========"
+      write(6,*) "=== Write sigm to files ========"
       rewind ifse_out
       call rwsigma (-ifse_out,sigma_m,qqqx_m, nspin,ndimsig,n1,n2,n3,nq) !,eseavr)
       close(ifse_out)
-
-C     ... Write sigma ASCII format ---------------------------------------
-      ifse_out=ifile_handle()
-      open(UNIT=ifse_out, file='sigma')
-      call rwsigmaa (-ifse_out,sigma_m,qqqx_m, nspin,ndimsig,n1,n2,n3,nq) !,eseavr)
-      close(ifse_out)
+      
+cC     ... Write sigma ASCII format ---------------------------------------
+c      ifse_out=ifile_handle()
+c      open(UNIT=ifse_out, file='sigma')
+c      call rwsigmaa (-ifse_out,sigma_m,qqqx_m, nspin,ndimsig,n1,n2,n3,nq) !,eseavr)
+c      close(ifse_out)
  9999 continue
       call rx0s( ' OK! hqpe_sc ')
       end
@@ -750,31 +749,31 @@ C----------------------------------------------------------------------
       print *
       end
 c
-      subroutine rwsigmaa(ifs,sigma_m,qqqx_m, nspin,ntq,n1,n2,n3,nq) !,eseavr)
-      implicit integer (i-n)
-      complex(8)::sigma_m(ntq,ntq,nq,nspin)
-      real(8)::qqqx_m(3,nq,nspin) !,eseavr(nq,nspin)
-      ntm1=0;ntm2=0;ntm3=0
-      if(ifs>0) write(6,*) " rwsigmaa: Reading sigma (ASCII)==="
-      if(ifs<0) write(6,*) " rwsigmaa: Writing sigma (ASCII)==="
-      if(ifs>0)read ( ifs,*)      nspin,ntq,n1,n2,n3,nq,ntm1,ntm2,ntm3
-      if(ifs<0)write(-ifs,"(i10)")nspin,ntq,n1,n2,n3,nq,ntm1,ntm2,ntm3
-      do is=1,nspin
-        do ip=1,nq
-          if(ifs>0) read (ifs,*)  qqqx_m(1:3,ip,is) !,isr!,eseavr(ip,is)
-          if(ifs<0) write(-ifs,"(3d24.16,i3)") qqqx_m(1:3,ip,is),is!,eseavr(ip,is)
-          do j=1,ntq
-            do i=1,ntq
-              if(ifs>0) read (ifs,"(2d24.16)")  sigma_m(i,j,ip,is)
-              if(ifs<0) write(-ifs,"(2d24.16,2i5)") sigma_m(i,j,ip,is),i,j
-            enddo
-          enddo
-          write(6,"('  === ',i5,i3,3f10.5)")ip,is,qqqx_m(1:3,ip,is)
-        enddo
-      enddo
-      write(6,*)' === rwsigmaa: sum check of sigma_m=',sum(abs(sigma_m))
-      print *
-      end
+c$$$      subroutine rwsigmaa(ifs,sigma_m,qqqx_m, nspin,ntq,n1,n2,n3,nq) !,eseavr)
+c$$$      implicit integer (i-n)
+c$$$      complex(8)::sigma_m(ntq,ntq,nq,nspin)
+c$$$      real(8)::qqqx_m(3,nq,nspin) !,eseavr(nq,nspin)
+c$$$      ntm1=0;ntm2=0;ntm3=0
+c$$$      if(ifs>0) write(6,*) " rwsigmaa: Reading sigma (ASCII)==="
+c$$$      if(ifs<0) write(6,*) " rwsigmaa: Writing sigma (ASCII)==="
+c$$$      if(ifs>0)read ( ifs,*)      nspin,ntq,n1,n2,n3,nq,ntm1,ntm2,ntm3
+c$$$      if(ifs<0)write(-ifs,"(i10)")nspin,ntq,n1,n2,n3,nq,ntm1,ntm2,ntm3
+c$$$      do is=1,nspin
+c$$$        do ip=1,nq
+c$$$          if(ifs>0) read (ifs,*)  qqqx_m(1:3,ip,is) !,isr!,eseavr(ip,is)
+c$$$          if(ifs<0) write(-ifs,"(3d24.16,i3)") qqqx_m(1:3,ip,is),is!,eseavr(ip,is)
+c$$$          do j=1,ntq
+c$$$            do i=1,ntq
+c$$$              if(ifs>0) read (ifs,"(2d24.16)")  sigma_m(i,j,ip,is)
+c$$$              if(ifs<0) write(-ifs,"(2d24.16,2i5)") sigma_m(i,j,ip,is),i,j
+c$$$            enddo
+c$$$          enddo
+c$$$          write(6,"('  === ',i5,i3,3f10.5)")ip,is,qqqx_m(1:3,ip,is)
+c$$$        enddo
+c$$$      enddo
+c$$$      write(6,*)' === rwsigmaa: sum check of sigma_m=',sum(abs(sigma_m))
+c$$$      print *
+c$$$      end
 
 C----------------------------------------------------------------------
       subroutine mixsigma(sss, lsigin, sigin, nda)
@@ -790,7 +789,6 @@ Co        (sign) <0, intended that caller update nmix for next call.
 C  MvS Feb 04 use sigin as input sigma if available (lsigin=T)
 C             Add mixnit as parameter
       use m_keyvalue,only: getkeyvalue
-
       implicit none
       logical lsigin
       integer nda,nmix,mmix
@@ -864,114 +862,10 @@ C     write(6,*)'   mmix mxsav =', mmix,mxsav
         tjmax=5d0
         ido=0
       endif
-c      allocate(norm(mxsav**2),kpvt(mxsav))
-      imix = amix(nda,mmix,mxsav,ido,dabs(beta),iprintxx,tjmax,
-     .  a,tj,rms2) !norm,kpvt,
-c      deallocate(norm, kpvt)
-C ... Restore PQ array, updating new x
-c      call dpscop(a,w(oa),nda,1+nda*(mxsav+2),1+nda*(mxsav+2),1d0)
-c      call dcopy(nda*(mxsav+2)*2,w(oa),1,a,1)
-c ...
+      imix = amix(nda,mmix,mxsav,ido,dabs(beta),iprintxx,tjmax, a,tj,rms2) !norm,kpvt,
       sss = a(:,0,2)
       rewind(ifi)
       write(ifi) nitr+1,nda
       write(ifi) a
       close(ifi)
       end
-
-c$$$!! ===================================================================
-c$$$      subroutine anfsig( natom,ldima,bas, nbloch,
-c$$$     i  q,           ! for q+G
-c$$$     i  anfvec,iaf,  ! these are antiferro informations.
-c$$$     i  zxq)  ! i/o
-c$$$C- antiferro part is added to sism
-c$$$c We assume that the crystal has a magnetic symmetry described by (translataion + spin flip).
-c$$$c The translation is specified by a vector,
-c$$$c   AFvector = anfvec(1:3)*alat, which is the true real vector in Cartesian coodinate.
-c$$$c   The anfvec(1:3) is given in ANFcond file.
-c$$$c
-c$$$c Each mixed basis is mapped to the other mixed basis.
-c$$$c E.g. the product basis B({\bf r}-{\bf a}) is mapped to
-c$$$c  B({\bf r}-{\bf a}-{\bf A}) = B({\bf r}-{\bf a}'-{\bf T}_0),
-c$$$c  by the translation specified by AFvec={\bf A}.
-c$$$c  Here {\bf T}_0 is some crystal tralslation vector.
-c$$$c  In this code you see,
-c$$$c      bas(1:3,ia1)+ anfvec  = bas(1:3,iaf(ia1)) + transaf(1:3,ia1)
-c$$$c  ==   {\bf a}    +{\bf A}  = {\bf a}'          + {\bf T}_0
-c$$$c
-c$$$c ---- The corresponding atoms should have the same product basis.
-c$$$c
-c$$$      implicit none
-c$$$      integer natom, nbloch, nclass
-c$$$      integer ldima(natom), iaf(natom), iof(natom),
-c$$$     &  ix,ia1,ia2,ic1,ic2,ifi,i,j, iaf1,iaf2,igp,im1,im2
-c$$$      integer(4):: iam(nbloch),imf(nbloch)
-c$$$      real(8) :: qt(natom), rf,cf,q(3),qlat(3,3),bas(3,natom),
-c$$$     &         anfvec(3),transaf(3,natom),qg(3)
-c$$$      complex(8) :: zxq (nbloch,nbloch),fac(nbloch)
-c$$$      complex(8):: imagtwopi ,imag=(0d0,1d0)
-c$$$      complex(8),allocatable :: zxqw(:,:)
-c$$$      real(8) :: pi=3.1415926535897932d0
-c$$$cr
-c$$$cr    True_q(1:3)     = 2*pi/alat * q(1:3)
-c$$$cr  True G is given by
-c$$$cr    True_G(1:3,igp) = 2*pi/alat * matmul(qlat * ngvecc(1:3,igp)) ,igp=1,ngp
-c$$$c------------------------
-c$$$c      imagtwopi = 2d0*(0d0,3.1415926535897932d0)
-c$$$      write(6,"(' q=', 3d23.15)") q
-c$$$      do ia1 = 1, natom
-c$$$        transaf(1:3,ia1)= bas(1:3,ia1)+ anfvec - bas(1:3,iaf(ia1))
-c$$$        write(6,"(' ia1 transaf=',i3, 3d23.15)") ia1,transaf(1:3,ia1)
-c$$$      enddo
-c$$$      iof(1) = 0
-c$$$      do ia1 = 1, natom-1
-c$$$        iof(ia1+1)= iof(ia1) + ldima(ia1)
-c$$$        iam(iof(ia1)+1:iof(ia1+1)) = ia1
-c$$$      enddo
-c$$$      iam(iof(natom)+1:nbloch) = natom
-c$$$      write(6,*) (ia1, ldima(ia1),ia1 = 1, natom)
-c$$$
-c$$$c (we had a problem at June18 2007)
-c$$$c  this sanitiy check should be removed in fufture...
-c$$$      if( nbloch /= iof(natom) +ldima(natom) ) then
-c$$$        print *,' nbloch=',nbloch
-c$$$        print *,' iof=',iof
-c$$$        print *,' ldima=',ldima
-c$$$        call rx(' anfsig: nbloch.ne.... not yet for floting orbital case')
-c$$$      endif
-c$$$c phase shifts
-c$$$      do ia1 = 1, natom
-c$$$        qt(ia1) = 2d0*pi*sum(q*transaf(1:3,ia1))
-c$$$c        write( 6, "(i3,2x,d23.15)") iaf(ia1),sum(q*transaf(1:3,ia1))
-c$$$c        write( 6, "(3x,2x,d23.15)") 2d0*pi*sum(q*transaf(1:3,ia1))
-c$$$      enddo
-c$$$      write(6,*) ' anfsig:  nbloch=',nbloch
-c$$$      do im1 = 1,nbloch
-c$$$        ia1  = iam(im1)
-c$$$        i    = im1 - iof(ia1)
-c$$$        imf (im1) = i + iof(iaf(ia1))
-c$$$        fac (im1) = exp( imag*qt(ia1) )
-c$$$c        write( 6, "(5i6,2d13.5)") ia1,iaf(ia1), i, im1, imf(im1),fac(im1)
-c$$$      enddo
-c$$$      allocate(zxqw(nbloch,nbloch))
-c$$$      zxqw = zxq
-c$$$c      write(6,*) ' anfsig: end1 ',sum(abs(zxqw))
-c$$$      do im1 = 1,nbloch
-c$$$        do im2 = 1,nbloch
-c$$$          zxq(im1, im2)= 
-c$$$     &               + zxqw(imf(im1),imf(im2))*fac(im1)*dconjg(fac(im2))
-c$$$        enddo
-c$$$      enddo
-c$$$c      write(6,*) ' anfsig: end2 ',sum(abs(zxq))
-c$$$      return
-c$$$      end
-c$$$
-c sep2013t
-c$$$      character(5) function charnum5(num)
-c$$$      integer(4) ::num
-c$$$      charnum5 = char(48+mod(num/10000,10))//
-c$$$     &           char(48+mod(num/1000,10))//
-c$$$     &           char(48+mod(num/100,10))//
-c$$$     &           char(48+mod(num/10,10))//
-c$$$     &           char(48+mod(num,10))
-c$$$      end

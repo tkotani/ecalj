@@ -22,16 +22,12 @@ C     implicit none
       integer mode,nsp,nr,nlml
       double precision rho1(nr,nlml,nsp),rho2(nr,nlml,nsp),rhoc(nr,nsp)
       double precision fac
-
       if (nsp .eq. 1) return
       fac = 1
       if (mod(mode,10) .ne. 0) fac = .5d0
-
       call dsumdf(nr*nlml,fac,rho1,0,1,rho1(1,1,2),0,1)
-      if (mod(mod(mode/10,10),2) .eq. 0)
-     .call dsumdf(nr*nlml,fac,rho2,0,1,rho2(1,1,2),0,1)
-      if (mod(mod(mode/10,10)/2,2) .eq. 0)
-     .call dsumdf(nr,fac,rhoc,0,1,rhoc(1,2),0,1)
+      if (mod(mod(mode/10,10),2)  .eq.0) call dsumdf(nr*nlml,fac,rho2,0,1,rho2(1,1,2),0,1)
+      if (mod(mod(mode/10,10)/2,2).eq.0) call dsumdf(nr,fac,rhoc,0,1,rhoc(1,2),0,1)
       end
 
       subroutine lcrho(nr,nsp,nlml1,nlml2,fac1,fac2,rho1,rho2)
