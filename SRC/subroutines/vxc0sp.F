@@ -45,7 +45,7 @@ c      parameter (nrmx=1501)
 
       integer:: nth,nph,lxcg,np,lmax,nlm
       integer,parameter:: nnn=122
-      real(8):: p(3,nnn),wp(nnn),rwgt(nr) ,p2(nnn*3),r2(nnn)
+      real(8):: p(3,nnn),wp(nnn),rwgt(nr) ,p2(nnn,3),r2(nnn)
       real(8),allocatable:: gyl(:,:),yl(:),rll(:,:),vxc_(:,:)
       logical:: newv=.true.
       pi = 4d0*datan(1d0)
@@ -97,12 +97,12 @@ c         wp(1)=4d0*pi
 
           nph=0
           call fpiint(-4,nph,np,p,wp)
-          call dmcpy(p,1,3,p2,np,1,np,3)
+          p2=transpose(p)
           call radwgt(rofi(nr),a,nr,rwgt)
           lmax=0
           nlm=(lmax+1)**2 !yl(l=1) is needed for gradfl called in vxcnls
           allocate (yl(np*(lmax+2)**2),gyl(np*nlm,3)) !nlm=1 Only s channel. Sphelical atom.
-          call ropyln(np,p2,p2(1+np),p2(1+2*np),lmax+1,np,yl,r2)
+          call ropyln(np,p2(1,1),p2(1,2),p2(1,3),lmax+1,np,yl,r2)
 c         call ropylg(1,lmax,nlm,np,np,p2,p2(1+np),p2(1+2*np),r2,yl,gyl)
           gyl=0d0
 c         print *,'goto vxcnls only s channel',sum(abs(gyl))

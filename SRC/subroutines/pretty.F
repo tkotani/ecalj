@@ -267,3 +267,34 @@ C --- Append exponent if there is one ---
 
       end
 
+      double precision function dround(x,n)
+C- Rounds double precision x after n digits
+C     implicit none
+      integer n,is,i
+      double precision x,s
+#if QUAD
+      double precision xnint
+#endif
+#if QUAD
+      s = qlog10(dble(abs(x)))
+#else
+      s = dlog10(dabs(x))
+#endif
+      is = s
+      if (is .gt. 0) then
+        is = -int(is) + n-1
+      else
+        is = int(-is) + n
+      endif
+      s = 1
+      do    i = 1, iabs(is)
+         s = 10*s
+      enddo   
+#if QUAD
+      if (is .gt. 0) dround = xnint(s*dble(x))/s
+      if (is .lt. 0) dround = xnint(dble(x)/s)*s
+#else
+      if (is .gt. 0) dround = dnint(s*x)/s
+      if (is .lt. 0) dround = dnint(x/s)*s
+#endif
+      end

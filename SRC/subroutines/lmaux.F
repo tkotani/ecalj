@@ -6,7 +6,7 @@
       subroutine lmaux()     !main part of lmchk
       use m_mksym,only: ctrl_nclass,iv_a_oics,iv_a_oipc
       use m_lmfinit,only: iv_a_oips,str_mxnbr,str_rmax,ctrl_nbas,ctrl_nspec,ctrl_nspin,
-     &     ctrl_nl,ctrl_modep,ctrl_omax1,ctrl_omax2,ctrl_wsrmax,slabl,sspec=>v_sspec,
+     &     ctrl_nl,ctrl_omax1,ctrl_omax2,ctrl_wsrmax,slabl,sspec=>v_sspec,
      &     lat_avw,lat_alat,mxcst2
       use m_lattic,only: lat_nkd
       use m_lattic,only: lat_nkq
@@ -65,7 +65,7 @@ C ----------------------------------------------------------------------
       nl=ctrl_nl
       nspec=ctrl_nspec
       nsp=ctrl_nspin
-      modep = ctrl_modep
+c      modep = ctrl_modep
       lpbc = 0
       nclasp=ctrl_nclass !sarray%nclasp
       avw=lat_avw
@@ -90,7 +90,7 @@ c      stdo = lgunit(1)
         call shorps ( nbasp , plat , modep , rv_a_opos , rv_a_opos )
       endif
 C --- Neighbor tables and sphere overlaps ---
-      if (getdig(mode,0,2) .ne. 0) then
+c      if (getdig(mode,0,2) .ne. 0) then
         if (rmaxs .le. 0d0) then
           rmaxs = 2.7d0*avw
           call info5(30,0,0,'%1f'//
@@ -216,12 +216,12 @@ C --- Print overlaps, optionally minimize wrt spec'd sites ---
         call ovmin ( outs ( i: ) , nbas , nbasp , alat , plat , rmax
      .     , rmax , slabl , iv_a_oipc , modep , z , iv_a_ontab , iv_a_oiax ,
      .     rv_a_opos , j )
-      endif
+c      endif
 C --- Interpolate core to another mesh ---
-      if (getdig(mode,4,2) .ne. 0) then
-        call rx('patch clabl for call to coritp')
-C       call coritp(nclass,nsp,w(oclabl),nrmsh,amsh,w(ormax))
-      endif
+c      if (getdig(mode,4,2) .ne. 0) then
+c        call rx('patch clabl for call to coritp')
+cC       call coritp(nclass,nsp,w(oclabl),nrmsh,amsh,w(ormax))
+c      endif
       deallocate(lmxa,z)
       if (allocated(lockc_rv)) deallocate(lockc_rv)
       if (allocated(rmtc_rv)) deallocate(rmtc_rv)

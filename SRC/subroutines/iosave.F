@@ -43,8 +43,8 @@ C Local parameters
       call rxx(ifi.gt.0,'iosave:  attempt to read from save file')
 C ... Print fractions w/out leading 0, to save space
       ib = -1
-      call bin2a0(ib)
-      call bin2a0(10)
+c      call bin2a0(ib)
+c      call bin2a0(10)
       call numsyv(nvar)
       outstr = flg(1:1)
       p1 = '6'
@@ -68,6 +68,6 @@ C --- Output all variables in string ---
       if (j .eq. 1 .and. k .lt. len(vstrn)) goto 20
       if (leof) call poseof(-ifi)
       write(-ifi,"(a)") trim(outstr)
-      call bin2a0(ib)
+c      call bin2a0(ib)
       end
 

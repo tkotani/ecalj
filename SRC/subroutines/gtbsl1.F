@@ -106,3 +106,16 @@ C             Flag that jorb is subsumed
 
       end
 
+      logical function bittst(n,bit)
+C- Returns true when a bit is set in an integer
+C ----------------------------------------------------------------
+Ci Inputs
+Ci   n: integer
+Ci   bit: a bit, ie 1,2,4,8,16, etc
+Co Outputs
+Co   bittst: true when bit in n is set, false otherwise
+C ----------------------------------------------------------------
+C     implicit none
+      integer n,bit
+      bittst = (mod(n,bit+bit) - mod(n,bit) .eq. bit)
+      end

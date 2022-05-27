@@ -206,3 +206,52 @@ C --- Restore d* and x* + beta d* from end of wk --
   110 format(14x,'Old',11x,' New',9x,'Diff',10x,'Mixed')
       end
 
+      subroutine dmcpy(a,nca,nra,b,ncb,nrb,n,m)
+C- General matrix copy
+C ----------------------------------------------------------------
+Ci Inputs:
+Ci   a,nca,nra is the source matrix and respectively the number of
+Ci      elements separating columns and rows.
+Ci   b,ncb,nrb is the dest. matrix and respectively the number of
+Ci      elements separating columns and rows.
+Ci   n,m: the number of columns and rows, respectively, to calculate
+Co Outputs:
+Co   result matrix stored in c
+Cr Remarks:
+Cr   This is a general-purpose matrix copy routine,
+Cr   copying a subblock of matrix a to a subblock of matrix b.
+Cr   Normally matrix nc{a,b} is the row dimension of matrix {a,b}
+Cr   and nr{a,b} is 1.  Reverse nr and nc for a transposed matrix.
+Cr   Arrays are locally one-dimensional so as to optimize inner loop.
+Cr
+Cr   Example: Set 3-by-2 block of matrix c to constant z
+Cr     call dmcpy(z,0,0,c,nc,1,3,2)
+Cr   Here scalar z is represented by an array of 0 dimension
+Cr   Example: copy nbas-by-3 'wk' to its transpose 'bas', and the reverse:
+Cr     call dmcpy(wk,nbas,1,bas,1,3,nbas,3)
+Cr     call dmcpy(bas,1,3,wk,nbas,1,nbas,3)
+C ----------------------------------------------------------------
+C     implicit none
+      integer nca,nra,ncb,nrb,n,m
+      double precision a(0:*), b(0:*)
+      integer i,j,ia,ib
+      if (nra .eq. 1 .and. nrb .eq. 1) then
+        do  11  j = 0, m-1
+          ia = j*nca
+          ib = j*ncb
+          do  10  i = 0, n-1
+            b(i+ib) = a(i+ia)
+   10   continue
+   11   continue
+        return
+      endif
+      do  21  i = n-1, 0, -1
+        ia = i*nra+m*nca
+        ib = i*nrb+m*ncb
+        do  20  j = m-1, 0, -1 
+          ia = ia-nca
+          ib = ib-ncb
+          b(ib) = a(ia)
+   20 continue
+   21 continue
+      end

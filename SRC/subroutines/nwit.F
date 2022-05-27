@@ -129,7 +129,7 @@ C ... Passed parameters
       character flg*(*)
       double precision amom,etot(2)
 C ... Local parameters
-      integer ifi,i,getdig,ifile_handle
+      integer ifi,i,ifile_handle
       double precision xv(4),sev,rydberg
       character*180 sout
       i = 0

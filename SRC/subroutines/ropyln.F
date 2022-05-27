@@ -24,7 +24,7 @@ C     implicit none
       real(8) ,allocatable :: q_rv(:)
       real(8) ,allocatable :: h_rv(:)
 
-      double precision x(1),y(1),z(1),yl(nd,1),rsq(1),cx(3)
+      double precision x(*),y(*),z(*),yl(nd,*),rsq(*),cx(3)
       double precision fpi,f2m
 
 C     call tcn('ropyln')

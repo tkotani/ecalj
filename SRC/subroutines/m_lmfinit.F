@@ -36,7 +36,7 @@ Ci          functions are less than tol.
       logical,protected :: ham_frzwf,ham_ewald
       integer,protected:: nspc,procid,nproc,master=0,nspx, !,stdo,stdl
      &     ctrl_lxcf,ctrl_nbas,ctrl_lrel,!ctrl_lves, 
-     &     maxit ,ctrl_modep(3),ctrl_nl,ctrl_nitmv,ctrl_nspin,
+     &     maxit ,ctrl_nl,ctrl_nitmv,ctrl_nspin,
      &     ctrl_nspec,ctrl_nsite,ctrl_nvario,ctrl_pfloat
      &     ,ham_lxcf,gga,ftmesh(3),nmto=0,lrsigx=0
      &     ,nsp=1,lrel=1,lso=0
@@ -1108,7 +1108,6 @@ c BZ_EF0, BZ_DELEF removed. !c!! remove writing ZBAK file here. (Write ZBAK file
       ctrl_lxcf= ham_lxcf !1 for Ceperly-Alder (VWN),  2 for Barth-Hedin (ASW fit), 103 for PBE-GGA
       maxit=iter_maxit
       ctrl_mdprm=mdprm
-      ctrl_modep=2
       ctrl_nbas=nbas
       nl = max(lmxbx,lmxax)+1 !max l-base l-aug +1
       nlmax=nl**2
@@ -1334,7 +1333,6 @@ C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
          enddo
       endif
       call mpibc1_int(nat,1,'m_lmfinit_nat')
-      ctrl_modep=2
       allocate(wowk(nbas))
       wowk=0
       call pshpr(0)

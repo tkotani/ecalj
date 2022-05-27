@@ -70,7 +70,7 @@ C ... Local parameters
       parameter(nnn=122,nlmx=64)
       logical lpert
       integer ipr,ll,lmax,np,nph,nth,nxl(0:7),lxcf,lxcg
-      double precision p(3,nnn),wp(nnn),p2(nnn*3),r2(nnn),fpi
+      double precision p(3,nnn),wp(nnn),p2(nnn,3),r2(nnn),fpi
 C     double precision yl(nnn*nlmx)
 c      real(8), allocatable :: ylwp(:)
       real(8), allocatable :: yl(:),rp(:,:,:),gyl(:,:),grp(:,:),agrp(:),
@@ -117,14 +117,13 @@ C     if (lxcg .ne. 0) lmax = lmax+1
         call dscal(nr,1/fpi,rc,1)
       endif
 
-      call dmcpy(p,1,3,p2,np,1,np,3)
-
+      p2=transpose(p)
 !!== XC part ==
       allocate(vlxc(nr,nlm,nsp))
 !!=== LDA exchange-correlation potential ===
       if(lxcg==0) then
         allocate (yl(np*nlm))
-        call ropyln(np,p2,p2(1+np),p2(1+2*np),lmax,np,yl,r2)
+        call ropyln(np,p2(1,1),p2(1,2),p2(1,3),lmax,np,yl,r2)
         vlxc=0d0
         call vxcns2(isw,ri,nr,rwgt,np,wp,yl,nlm,nsp,rl,rc,lxcf,
      .  lpert,focexc,focex,focec,focvxc,reps,repsx,repsc,rmu,
@@ -134,9 +133,9 @@ C     if (lxcg .ne. 0) lmax = lmax+1
 !!=== GGA ===
 !!    GGA case:  Need both YL to lmax+1 to make grad YL
         allocate (yl(np*(lmax+2)**2)) !,ylwp(np*(lmax+2)**2))
-        call ropyln(np,p2,p2(1+np),p2(1+2*np),lmax+1,np,yl,r2)
+        call ropyln(np,p2(1,1),p2(1,2),p2(1,3),lmax+1,np,yl,r2)
         allocate (gyl(np*nlm,3))
-        call ropylg(1,lmax,nlm,np,np,p2,p2(1+np),p2(1+2*np),r2,yl,gyl)
+        call ropylg(1,lmax,nlm,np,np,p2(1,1),p2(1,2),p2(1,3),r2,yl,gyl)
 c        allocate(grp(nr*np*nsp,3),agrp(nr*np*nsp),ggrp(nr*np*nsp))
 c        allocate(rp(nr,np,nsp))
 c        allocate(agrl(nr*nlm*nsp))!,vxcnl(nr*nlm*nsp),excnl(nr*nlm*nsp))
