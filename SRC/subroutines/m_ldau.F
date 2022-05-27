@@ -128,6 +128,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 !sssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine mixmag(sss)
+      use m_amix,only: amix
 c  subroutine pqmixa(nda,nmix,mmix,mxsav,beta,rms2,a,tj)
 C- Mixing routine for sigma. Modified from pqmixa in subs/pqmix.f
 C- Anderson mixing of a vector
@@ -144,7 +145,7 @@ c      logical lsigin
       integer:: nmix,mmix
       integer(4),parameter:: mxsav=10
       double precision rms2,tj(mxsav),beta
-      integer im,imix,jmix,amix,onorm,okpvt,oa
+      integer im,imix,jmix,onorm,okpvt,oa !,amix
       integer iprintxx,ifi,nitr,ndaf
       real(8)::sss(nda),sigin(nda)
       real(8):: tjmax
@@ -210,10 +211,10 @@ c     call getkeyvalue("GWinput","mixtj",acc,default=0d0,status=ret)
         tjmax=5d0
         ido=0
       endif
-      allocate(norm(mxsav**2),kpvt(mxsav))
+c      allocate(norm(mxsav**2),kpvt(mxsav))
       imix = amix(nda,mmix,mxsav,ido,dabs(beta),iprintxx,tjmax,
-     .  norm,kpvt,a,tj,rms2)
-      deallocate(norm, kpvt)
+     .  a,tj,rms2) !norm,kpvt,
+c      deallocate(norm, kpvt)
 C ... Restore PQ array, updating new x
 c      call dpscop(a,w(oa),nda,1+nda*(mxsav+2),1+nda*(mxsav+2),1d0)
 c      call dcopy(nda*(mxsav+2)*2,w(oa),1,a,1)

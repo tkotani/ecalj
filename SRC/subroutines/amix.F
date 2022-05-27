@@ -1,4 +1,7 @@
-      integer function amix(nelts,npmix,mmix,ido,beta,ipr,tm,norm,kpvt,
+      module m_amix !nothing saved in this module. Bundle subroutines/functions for amix
+      public:: amix 
+      contains
+      integer function amix(nelts,npmix,mmix,ido,beta,ipr,tm, !norm,kpvt,
      .wk,t,rmsdel)
 C- Anderson mixing of a vector
 C ----------------------------------------------------------------
@@ -52,7 +55,7 @@ Cr   is set by making npmix < 0.
 C ----------------------------------------------------------------
 C     implicit none
 C Passed parameters
-      integer nelts,mmix,npmix,kpvt(1),ipr
+      integer nelts,mmix,npmix,kpvt(mmix),ipr
       double precision norm(mmix,mmix),wk(nelts,0:mmix+1,2),t(mmix),
      .  beta,tm,rmsdel
 C Local parameters
@@ -119,7 +122,7 @@ C --  Solve the simultaneous equations for tj --
         sing = sinmax + 1
       else
         call dsisl(norm,mmix,nmix,kpvt,t)
-        call dsidi(norm,mmix,nmix,kpvt,det,inert,kpvt,10)
+        call dsidi(norm,mmix,nmix,kpvt,det,inert,10)
         sing = dabs(sumsqr/(det(1)*10**det(2)))
       endif
 
@@ -314,9 +317,9 @@ c
 c     loop backward applying the transformations and
 c     d inverse to b.
 c
-#if CRAY
-      call ssisl(a,lda,n,kpvt,b)
-#else
+c#if CRAY
+c      call ssisl(a,lda,n,kpvt,b)
+c#else
       k = n
    10 if (k .eq. 0) goto 80
       if (kpvt(k) .lt. 0) goto 40
@@ -429,12 +432,12 @@ c
       goto 90
   160 continue
       return
-#endif
+c#endif
       end
 
-      subroutine dsidi(a,lda,n,kpvt,det,inert,work,job)
+      subroutine dsidi(a,lda,n,kpvt,det,inert,job)
       integer lda,n,job
-      double precision a(lda,1),work(1)
+      double precision a(lda,1),work(n)
       double precision det(2)
       integer kpvt(1),inert(3)
 c
@@ -508,9 +511,9 @@ c
       integer j,jb,k,km1,ks,kstep
       logical noinv,nodet,noert
 c
-#if CRAY
-      call ssidi(a,lda,n,kpvt,det,inert,work,job)
-#else
+c#if CRAY
+c      call ssidi(a,lda,n,kpvt,det,inert,work,job)
+c#else
       noinv = mod(job,10) .eq. 0
       nodet = mod(job,100)/10 .eq. 0
       noert = mod(job,1000)/100 .eq. 0
@@ -647,7 +650,7 @@ c
   260 continue
   270 continue
       return
-#endif
+c#endif
       end
 
       subroutine dsifa(a,lda,n,kpvt,info)
@@ -713,9 +716,9 @@ c
 c     initialize
 c
 c     alpha is used in choosing pivot block size.
-#if CRAY
-      call ssifa(a,lda,n,kpvt,info)
-#else
+c#if CRAY
+c      call ssifa(a,lda,n,kpvt,info)
+c#else
       alpha = (1.0d0 + dsqrt(17.0d0))/8.0d0
 c
       info = 0
@@ -874,6 +877,7 @@ c
       goto 10
   200 continue
       return
-#endif
+c#endif
       end
 
+      end module m_amix

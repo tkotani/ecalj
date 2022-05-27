@@ -146,6 +146,7 @@ subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, &
   use m_lmfinit,only: lrel
   use m_getqvc
   use m_lgunit,only: stdo
+  use m_amix,only: amix
   !- Makes an atomic sphere self-consistent and get atomic charges
   ! ----------------------------------------------------------------
   !i Inputs
@@ -249,7 +250,7 @@ subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, &
        rho0t,rhomu,rhovh,rmsdel,ro,sum,tolrsq,vhrmax,vnucl,vrhoc,vsum, &
        zvnucl,rvh(2),rho0(2),reps(2),rmu(2),sec(2),stc(2),sev(2),dasum
   ! for Anderson mixing:
-  integer:: amix , nmix
+  integer:: nmix !amix , 
   real(8) ,allocatable :: rho_rv(:)
   real(8):: plplus(0:lmax,nsp),qlplus(0:lmax,nsp),qelectron
   double precision :: norm(10,10),awk(10,2),beta,beta1
@@ -420,7 +421,7 @@ subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, &
      call dcopy ( nr * nsp , rho , 1 , rho_rv , 1 )
 
      jmix = amix ( nr * nsp , min ( jmix , nmix ) , nmix , 0 , beta1 &
-          , iprint ( ) - 70 , .9d0 , norm , awk ( 1 , 2 ) , rho_rv , &
+          , iprint ( ) - 70 , .9d0 ,  rho_rv , & !norm , awk ( 1 , 2 )
           awk , rmsdel )
 
      call dpscop ( rho_rv , rhoin , nr * nsp , 1 + nr * nsp * ( &

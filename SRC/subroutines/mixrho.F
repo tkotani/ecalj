@@ -1730,6 +1730,7 @@ C       call prm('a after write',a,nda*nsp,nda*nsp,(mxsav+2)*2)
 
 
       subroutine pvmix6(broy,nmix,mmix,mxsav,beta,wc,nda,a)
+      use m_amix,only: amix
 
 C- Mixing of the total density
 C ------------------------------------------------------------------
@@ -1755,7 +1756,7 @@ C ... Passed parameters
       integer nda,nmix,mmix,mxsav,broy
       double precision beta,a(nda,0:mxsav+1,2)
 C ... Local parameters
-      integer j,iprint,amix
+      integer j,iprint!,amix
       double precision tjmax,tj(10),norm(100),kpvt(10),wc,wctrue,rms2
 C     integer idamax
 C     double precision dval,rmskm(100),rmsmx
@@ -1789,7 +1790,7 @@ C ... amix needs f-x for prior iterations
           call daxpy(nda,-1d0,a(1,j,2),1,a(1,j,1),1)
    30   continue
 c        call query('beta',4,beta)
-        nmix = amix(nda,nmix,mxsav,0,beta,iprint(),tjmax,norm,kpvt,a,tj,
+        nmix = amix(nda,nmix,mxsav,0,beta,iprint(),tjmax,a,tj, !norm,kpvt
      .  rms2)
 C      if (iprint() .ge. 20) write(stdo,101) strn,rms2,(tj(j), j=1,nmix)
 C  101 format(1x,a4,':     rms diff',f10.6:'  tj=',5f8.3)
@@ -2401,6 +2402,7 @@ C     stop 'here'
 
       subroutine pqmixa(nda,nmix,mmix,mxsav,beta,rms2,a,tj)
 c      use m_lgunit,only:stdo
+      use m_amix,only: amix
       use m_ftox
 C- Anderson mixing of a vector
 Ci  mmix: number of iterates available to mix
@@ -2411,7 +2413,7 @@ Co        (sign) <0, intended that caller update nmix for next call.
       implicit none
       integer nda,nmix,mmix,mxsav
       double precision rms2,tj(1),a(nda,0:mxsav+1,2),beta
-      integer:: im , imix , jmix , iprint , i1mach , amix
+      integer:: im , imix , jmix , iprint , i1mach !, amix
       real(8) ,allocatable :: norm_rv(:)
       integer ,allocatable :: kpvt_iv(:)
       real(8) ,allocatable :: a_rv(:)
@@ -2448,7 +2450,7 @@ C ... for iterations 1,2,... amix needs F-x
 c      call query('beta',4,beta)
       jmix = min(mmix,iabs(imix))
       imix = amix ( nda , jmix , mxsav , 0 , dabs ( beta ) , iprint 
-     .( ) , tjmax , norm_rv , kpvt_iv , a , tj , rms2 )
+     .( ) , tjmax  , a , tj , rms2 ) !, norm_rv , kpvt_iv
 
       im = imix
 c      if (iprint() .gt. 30) call query('redo, nmix=',2,imix)
