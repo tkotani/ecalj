@@ -11,7 +11,7 @@
 
 !!--- Readin QGcou ---
       subroutine readqgcou()
-      integer:: ifiqg,iopen,nqi,ikp,nnnn! igc,ikpm
+      integer:: ifiqg,nqi,ikp,nnnn! igc,ikpm
       real(8):: QpGcut_cou,qmm(3)
       open(newunit=ifiqg,file='QGcou',form='unformatted')
       read(ifiqg) nqnum , ngcmx, QpGcut_cou, nqbz_, nqi,imxc

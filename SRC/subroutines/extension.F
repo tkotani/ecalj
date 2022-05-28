@@ -8,7 +8,7 @@ C- just to get the maximum size of ngb (mized basis size) from POmat
      &      nomx,nqibze,iopen,iclose
       real(8):: q_r(3)
       complex(8),allocatable:: pomat(:,:)
-      ifpomat = iopen('POmat',0,-1,0) !oct2005
+      open(newunit=ifpomat,file='POmat',form='unformatted')
       nnmx=0
       nomx=0
       do ikpo=1,nqibze
@@ -20,34 +20,8 @@ C- just to get the maximum size of ngb (mized basis size) from POmat
         read(ifpomat) pomat
         deallocate(pomat)
       enddo
-      isx = iclose('POmat')
+      close(ifpomat) 
       end
-
-c$$$      subroutine qqsave2 (qq,nqnum,qi,nmax,ginv, qsave,qsavel,imx)
-c$$$C---accumulate q into qsave imx
-c$$$c        if(allocated(qsave)) deallocate(qsave)
-c$$$c        allocate( qsave(3,nmax))
-c$$$c        imx=0
-c$$$      real(8):: qi(3),qsave(3,nmax),qx(3),ginv(3,3)
-c$$$     . ,tolq=1d-5,tolq2=1d-4
-c$$$      do iq=1,nqnum
-c$$$         qql(iq) = sum(abs(qq(1:3,iq)**2))
-c$$$      enddo
-c$$$
-c$$$      do iq=1,nqnum
-c$$$         qi = qq(1:3,iq)
-c$$$         do i = 1,imx
-c$$$            if(abs(qql(iq)-qsavel(i))<tolq) cycle
-c$$$            if(sum(abs(qi-qsave(:,i)))<tolq) cycle
-c$$$            call rangedq( matmul(ginv,qi-qsave(:,i)), qx)
-c$$$            if(sum(abs(qx))< tolq) cycle
-c$$$         enddo
-c$$$         imx = imx+1
-c$$$         if(imx>nmax) stop ' qqsave: imx>=nmax'
-c$$$         qsave(:,imx) = qi
-c$$$         qsavel(:,imx) = sum(qi**2)
-c$$$      enddo
-c$$$      end
 
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine qqsave (qi,nmax,ginv, qsave,imx)
@@ -72,27 +46,10 @@ c     imx=0
       subroutine readd_iSigma_en(ifinin,iSigma_en)
       use m_keyvalue,only:getkeyvalue
       integer(4):: iSigma_en,ifinin
-c      logical :: readgwinput
-c      if(readgwinput()) then
       call getkeyvalue("GWinput","iSigMode",iSigma_en )
-c      else
-c        ifinin=iopen('GWIN_V2',1,0,0)
-c        read(ifinin,*)
-c        read(ifinin,*)
-c        read(ifinin,*) blank,blank,iSigma_en
-cc        iSigma_en parameter which determines approximation for  self-energy,
-cc        stored in GWIN_V2.
-cc        iSigma_en==0 SE_nn'(ef)+imag intgrl:delta_nn'(SE_nn(e_n)-SE_nn(ef))
-cc        iSigma_en==1 SE_nn'(ef)+delta_nn'(SE_nn(e_n)-SE_nn(ef))
-cc        iSigma_en==2 SE_nn'((e_n+e_n')/2)
-cc        iSigma_en==3 (SE_nn'(e_n)+SE_nn'(e_n'))/2
-cc        iSigma_en==5 delta_nn' SE_nn(e_n)
-cc        output file should contain hermitean part of SE for energies to be real
-cc        (for example, hermitean conjunction of SE_nn'(e_n) means SE_n'n(e_n')^* )
-c        is=iclose('GWIN_V2')
-c      endif
       write(6,*)' iSigma_en=',iSigma_en
       end
+      
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine getnemx(nbmx,ebmx,im,ipr)
 C- Readin nbmx ebmx for hxofp0 hscfp0

@@ -391,7 +391,7 @@ c 9999 continue
       use m_rotMPB2,only:  rotMPB2 
       intent(in)::                    q, iq, nolfco, zzr,nmbas, chipmzzr, eibzmode, eibzsym
 !! === symmetrization for EPIBZ mode ===
-      integer(4):: nnc,iq,iatom,nctot,nbmx,iopen 
+      integer(4):: nnc,iq,iatom,nctot,nbmx
      &  ,jpm,ibib,itps,nt0,ntp0,ngp_kq,ngp_k,it,itp,iw,igb2,igb1, nn,no,isx,iclose,k 
       real(8):: q(3),ebmx 
       complex(8):: rcxq (nmbas,nmbas,nwhis,npm)

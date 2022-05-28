@@ -12,7 +12,7 @@ c--------------------------------------------------------------------
       logical ::nocore,lfind
       real(8)::  rydberg,tolq=1d-5,qx(3),ginv(3,3),qr(3),symgg(3,3,ng),sym(3,3)
       write(6,*)' OPEN VXCFP '
-      open(newunit=ifvxcfp,file='VXCFP')
+      open(newunit=ifvxcfp,file='VXCFP',form='unformatted')
       read(ifvxcfp) ldim,nqbz
       write(6,*)' rsexx ldim,nqbz',ldim,nqbz
       allocate(qqq(3,nqbz),vxcfpx(ldim,nqbz,nspin))
@@ -54,7 +54,7 @@ c------------------------------------------------------------------------
       logical ::nocore,lfind
       real(8)::  rydberg,tolq=1d-5,qx(3),ginv(3,3)
       write(6,*)' OPEN VXCFP '
-      open(newunit=ifvxcfp,file='VXCFP')
+      open(newunit=ifvxcfp,file='VXCFP',form='unformatted')
       read(ifvxcfp) ldim,nqbz
       write(6,*)' rsexx ldim,nqbz',ldim,nqbz
       allocate(qqq(3,nqbz),vxcfpx(ldim,nqbz,nspin))

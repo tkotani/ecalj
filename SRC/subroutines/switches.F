@@ -262,7 +262,7 @@ c      end
       real(8) function scissors_x0()
       use m_keyvalue,only: getkeyvalue
       use m_ReadEfermi,only: readefermi,ef,bandgap
-      integer(4):: iopen
+c      integer(4):: iopen
       logical,save:: init=.true.
       real(8),save:: sciss !,bandgap,ef
       if(init) then

@@ -148,7 +148,6 @@ c----------------------------------------------
       character*256:: extn,aaa,fname
       integer,parameter :: nsize= 1 000 000
       integer:: ifiproc,nqixx,nspxx,numprocxx,ixxx,ifiqibz
-      logical:: iopen
       integer::  id,nsizex,iqqxx,ifile_handle,ib,ii,ipqn,nn,nnn(3),ifiqg,ifiqgc,irr,irrq,iqibz
 !! =================================================================
       call setprint0(30)
