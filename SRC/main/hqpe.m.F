@@ -1,5 +1,5 @@
       program hqpe
-c Jul,2000 takao mod from hqpe by ferdi. No routines required.
+c Jul,2000 t.kotani started from hqpe by Ferdi.Aryasetiawan
 c calculates quasiparticle energies
 c E(k,t) = e(k,t) + Z [SEx(k,t) + SEc(k,t) - xcLDA(k,t)]
 c e(k,t) = LDA eigenvalue
@@ -17,7 +17,7 @@ c local data
       logical laf
       dimension ifsex(2),ifsexcore(2),ifxc(2),ifsec(2),ifqpe(2)
      & ,iftote(2),iftote2(2)
-      integer(4),allocatable :: itxc(:),itc(:),itx(:)
+      integer,allocatable :: itxc(:),itc(:),itx(:)
       real(8),allocatable :: qxc(:,:,:),eldaxc(:,:),vxc(:,:),
      &    qc(:,:,:),eldac(:,:),sex(:,:),sexcore(:,:),
      &    qx(:,:,:),eldax(:,:),rsec(:,:,:),csec(:,:,:),zfac(:,:)
@@ -37,27 +37,27 @@ c shift quasiparticle energies (eV)
       call readx   (ifqpnt,10)
       read (ifqpnt,*) iqall,iaf
       if (iaf .eq. 1) laf = .true.
-      ifsex(1)   = iopenxx ('SEXU')
-      ifsexcore(1) = iopenxx ('SEXcoreU')
-      ifsec(1)   = iopenxx ('SECU')
-      ifxc(1)    = iopenxx ('XCU')
+      open(newunit=ifsex(1)   ,file='SEXU')
+      open(newunit=ifsexcore(1) ,file='SEXcoreU')
+      open(newunit=ifsec(1)   ,file='SECU')
+      open(newunit=ifxc(1)    ,file='XCU')
       call readx   (ifsex(1),50)
       read (ifsex(1),*) nspin,nq,ntq
       if (nspin .eq. 2 .and. .not. laf) then
-        ifsex(2)   = iopenxx ('SEXD')
-        ifsexcore(2)   = iopenxx ('SEXcoreD')
-        ifsec(2)   = iopenxx ('SECD')
-        ifxc(2)    = iopenxx ('XCD')
+        open(newunit=ifsex(2)   ,file='SEXD')
+        open(newunit=ifsexcore(2),file='SEXcoreD')
+        open(newunit=ifsec(2)   ,file='SECD')
+        open(newunit=ifxc(2)    ,file='XCD')
       endif
       rewind (ifsex(1))
 c> output file
-      ifqpe(1)   = iopenxx ('QPU')
-      iftote(1)  = iopenxx ('TOTE.UP')
-      iftote2(1) = iopenxx ('TOTE2.UP')
+      open(newunit=ifqpe(1)   ,file='QPU')
+      open(newunit=iftote(1)  ,file='TOTE.UP')
+      open(newunit=iftote2(1) ,file='TOTE2.UP')
       if (nspin == 2) then
-        ifqpe(2)   = iopenxx ('QPD')
-        iftote(2)  = iopenxx ('TOTE.DN')
-        iftote2(2) = iopenxx ('TOTE2.DN')
+        open(newunit=ifqpe(2)   ,file='QPD')
+        open(newunit=iftote(2)  ,file='TOTE.DN')
+        open(newunit=iftote2(2) ,file='TOTE2.DN')
       endif
 c loop over spin
       do      is = 1,nspin

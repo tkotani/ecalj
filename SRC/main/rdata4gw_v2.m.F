@@ -94,7 +94,7 @@ Cr
      &     ,mx,nnc,lmxax,ic1,irad1,irad2,l1,n1,l2,n2,nn,ierr,i1,i2,nnv
      &     ,iband,ib,m,nm,iqqisp,ngp,ngc,ifhvccfp,ngrp,ig,ifiqibz
      &     ,iqibz,ifnqibz,iqi,iq,ifigwin  !,ippovl,ngc2mx,ngc2
-     &     ,l,ifoc,ir,isp,  iqi2 !,iopen
+     &     ,l,ifoc,ir,isp,  iqi2 
       real(8):: ovvxx,ovvx,qpgcut_psi2,dummy
       integer,parameter:: nspx=2
       real(8) :: qlat(3,3) ,qm(3,3) !,ginv(3,3)
@@ -170,7 +170,7 @@ c     &     , checkdia=.true.    !only write normchk.dia This is relevant only f
       complex(8),allocatable:: ggg(:)
       integer,allocatable:: nvggg(:,:),nvgcgp(:,:) 
       integer:: nggg,ngcgp,ixyz !q independent 
-      logical:: cmdopt2,iopen
+      logical:: cmdopt2
       character(20):: outs=''
       integer:: nrmx,nl,iqtt,iqq
       real(8),parameter:: pi = 4d0*datan(1d0)

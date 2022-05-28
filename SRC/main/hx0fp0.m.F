@@ -125,7 +125,7 @@ c      logical :: tetra=.true. !,tmpwwk=.true.! If tmpwwk=.true., this use a tem
       real(8), allocatable :: freqr2(:)  , ekxxx(:,:,:)
 
 c      logical::imagonly=.false.,realonly=.false. !,readgwinput
-      integer::maxocc2,  !iclose,iopen,
+      integer::maxocc2,  
      & ixc,iqxini,iqxend,iqxendx,
 c     &   ifhbe,
 c     &   nprecb,mrecb,mrece,nlmtot,nqbzt,nband,

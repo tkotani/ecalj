@@ -41,7 +41,7 @@ c wqp   = quasiparticle width
       dimension eqp(ntq,nq),eqp2(ntq,nq),wqp(ntq,nq)
       logical legas
       integer:: ifqpe,iftote,iftote2,itq,ntq,jin,nq,is,if1111,ifelda,ifepq,iq,it,
-     &     ifeflda,ifefqp,ifefqp1,iopenxx
+     &     ifeflda,ifefqp,ifefqp1
 c
 
       zfac=1d0 !sf..13may2002 zfac=1 to not change to much the rest of this code
@@ -60,9 +60,9 @@ c         print *,' jin=999999 use given shift '
         eshift02 = - elda(it,iq) - eshift
         eshtlda  = - elda(it,iq)
       elseif (jin<0) then
-        ifeflda  = iopenxx ('EFERMI')
-        ifefqp   = iopenxx ('EFERMI.QP')
-        ifefqp1  = iopenxx ('EFERMI.QPz=1')
+        open(newunit=ifeflda  ,file='EFERMI')
+        open(newunit=ifefqp   ,file='EFERMI.QP')
+        open(newunit=ifefqp1  ,file='EFERMI.QPz=1')
         read(ifeflda,*) eftetlda
         read(ifefqp,* ) eftetqp
         read(ifefqp1,*) eftetqp1

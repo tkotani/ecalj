@@ -243,7 +243,7 @@ subroutine sxcf_fal3z(&
   integer:: invrot,invr
   logical :: debug=.false. ,onceww
   complex(8) :: wintzsg_npm
-  integer :: ibl,iii,ivsumxxx,ifexsp ,iopen
+  integer :: ibl,iii,ivsumxxx,ifexsp 
   integer,save::ifzwz=-999
   integer :: iwini, iwend, ia
   real(8)    :: esec, omega(ntq, iwini:iwend)
@@ -320,9 +320,9 @@ subroutine sxcf_fal3z(&
   if(verbose()>=90) debug=.true.
   !!
   if(.not.exchange) then
-     ifwd = iopen('WV.d',1,-1,0)
+     open(newunit=ifwd,file='WV.d')
      read (ifwd,*) nprecx,mrecl
-     ifwd = iclose('WV.d')
+     close(ifwd)
      !$$$!! --- gauss_img : interpolation gaussion for W(i \omega).
      !$$$      call getkeyvalue("GWinput","gauss_img",ua_,default=1d0)
      !$$$      if(ua_<=0d0) then
@@ -445,8 +445,8 @@ subroutine sxcf_fal3z(&
 
         !! === open WVR,WVI for correlation mode ===
         if(.not.exchange) then
-           ifrcw  = iopen('WVR.'//i2char(kx),0,-1,mrecl)
-           ifrcwi = iopen('WVI.'//i2char(kx),0,-1,mrecl)
+           open(newunit=ifrcw, file='WVR.'//i2char(kx),form='unformatted',access='direct',recl=mrecl)
+           open(newunit=ifrcwi,file='WVI.'//i2char(kx),form='unformatted',access='direct',recl=mrecl)
         endif
         nrot=0
         do irot = 1,ngrp
@@ -1044,10 +1044,10 @@ subroutine sxcf_fal3z(&
            endif
 1000    enddo!continue
         !      if(newaniso) ifvcoud =iclose('Vcoud.'//i2char(kx))
-        ifvcoud =iclose('Vcoud.'//i2char(kx))
+        !        ifvcoud =iclose('Vcoud.'//i2char(kx))
         if(.not.exchange) then
-           ifrcw  = iclose('WVR.'//i2char(kx))
-           ifrcwi = iclose('WVI.'//i2char(kx))
+           close(ifrcw)!  = iclose('WVR.'//i2char(kx))
+           close(ifrcwi)! = iclose('WVI.'//i2char(kx))
         endif
 1100 enddo!continue                ! end of k-loop
      if (tote) then

@@ -435,6 +435,7 @@ MPI_list= MPI_fpgw2.o
 
 
 MLOC_list= \
+iopen.o \
 maxloc0.o \
 maxloc1.o \
 maxloc2.o \
@@ -499,7 +500,6 @@ extension.o \
 rdpp.o \
 genallcf_mod.o \
 rgwinf_mod.o \
-iopen.o \
 cputid.o \
 rw.o \
 mate.o \

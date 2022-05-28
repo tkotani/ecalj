@@ -68,12 +68,12 @@ c------------------------------------
 c------------------------------------
       real(8):: esmr2,shtw,esmr
       integer::
-     &     ixc,iopen, 
+     &     ixc,
      &     ibas,ibasx,ifqpnt,ifwd, !ngpmx,ngcmx,!nbloch,
      &     nprecx,mrecl,nblochpmx2,nwp=0,niwt, nqnum,nblochpmx, !mdimx,
 !     nwp=0 for initialization March26-2007
      &     noccxv,maxocc2,noccx,ifvcfpout,iqall,iaf, !ntq, !ifrcw,ifrcwi,  
-     &     i,k,nspinmx, nq,is,ip,iq,idxk,ifoutsex,iclose,ig,
+     &     i,k,nspinmx, nq,is,ip,iq,idxk,ifoutsex,ig,
      &     mxkp,nqibzxx,ntet,nene,iqi, ix,iw,
      &     nlnx4,niwx,irot,invr,invrot,ivsum, ifoutsec,
      &     ifsec(2),             !,ifcphi
@@ -265,13 +265,11 @@ c$$$      endif
         tote=.false.
         write(6,*) ' --- Exchange mode --- '
         if(MPI__root) then
-          ifxc(1)  = iopen('XCU'//xt(nz),1,-1,0)
-          ifsex(1) = iopen('SEXU'//xt(nz),1,-1,0)
-c          ifsex2(1)= iopen('SEX2U',0,-1,0) !out SEX_nn'
+          open(newunit=ifxc(1),file='XCU'//xt(nz))
+          open(newunit=ifsex(1),file='SEXU'//xt(nz))
           if (nspin == 2) then
-            ifxc(2)  = iopen('XCD'//xt(nz),1,-1,0)
-            ifsex(2) = iopen('SEXD'//xt(nz),1,-1,0)
-c            ifsex2(2)= iopen('SEX2D',0,-1,0) !out SEX_nn'
+            open(newunit=ifxc(2),file='XCD'//xt(nz))
+            open(newunit=ifsex(2),file='SEXD'//xt(nz))
           endif
           INQUIRE (FILE = 'EXspTEST', EXIST = exspwrite)
           if(exspwrite) then
@@ -279,7 +277,7 @@ c            ifsex2(2)= iopen('SEX2D',0,-1,0) !out SEX_nn'
             write(6,*)'--- esmr is chosen to be 2d0 Ry'
             esmr= 2d0
             do is=1,nspin
-              ifexsp(is)  = iopen('EXSP.'//char(48+is),1,-1,0)
+              open(newunit=ifexsp(is),file='EXSP.'//char(48+is))
             enddo
           endif
         endif
@@ -289,9 +287,9 @@ c            ifsex2(2)= iopen('SEX2D',0,-1,0) !out SEX_nn'
         write(6,*) ' --- Correlation mode --- '
         if(cohtest) write(6,*) ' COH calculation mode. Results in COH'
          if(MPI__root) then
-           ifsec(1)   = iopen('SECU'//xt(nz),1,-1,0) ! output files
+           open(newunit=ifsec(1),file='SECU'//xt(nz))
            if (nspin == 2) 
-     .      ifsec(2)   = iopen('SECD'//xt(nz),1,-1,0)
+     .      open(newunit=ifsec(2),file='SECD'//xt(nz))
          endif  
       elseif(ixc==3) then
         exchange=.true.
@@ -299,24 +297,22 @@ c            ifsex2(2)= iopen('SEX2D',0,-1,0) !out SEX_nn'
         esmr=0d0
         write(6,*) ' --- CORE Exchange mode --- '
         if(MPI__root) then
-          ifsex(1)   = iopen('SEXcoreU'//xt(nz),1,-1,0)
-          if (nspin == 2) then
-            ifsex(2)   = iopen('SEXcoreD'//xt(nz),1,-1,0)
-          endif
+          open(newunit=ifsex(1),file='SEXcoreU'//xt(nz))
+          if(nspin == 2) open(newunit=ifsex(2),file='SEXcoreD'//xt(nz))
         endif  
 !! ixc=4,5,6 not checked now... NEED MPI and so on...
       elseif(ixc==4) then
         write(6,*) ' --- Spectrum function Sigma(omega) mode --- '
         exchange=.false.
         tote=.false.
-        ifsecomg(1) = iopen('SEComgU'//xt(nz),1,-1,0) ! output files
-        if (nspin == 2) ifsecomg(2) = iopen('SEComgD'//xt(nz),1,-1,0)
+c        open(newunit=ifsecomg(1),file='SEComgU'//xt(nz))
+c        if (nspin == 2) open(newunit=ifsecomg(2),file='SEComgD'//xt(nz))
 c        call rx('need to test this mode again')
       elseif(ixc==5) then
         exchange=.true.
         tote=.true.
         write(6,*) ' --- Exx mode valence-valence --- '
-        ifexx = iopen('TEEXXvv',1,-1,0)
+        open(newunit=ifexx,file='TEEXXvv')
         esmr2 = esmr           !takao June2002
         call rx('need to test this mode again')
       elseif(ixc==6) then
@@ -325,7 +321,7 @@ c        call rx('need to test this mode again')
         esmr2 = esmr           !takao June2002
         esmr  = 0d0            !takao June2002
         write(6,*) ' --- CORE Exx mode core-valence --- '
-        ifexx = iopen('TEEXXcv',1,-1,0)
+        open(newunit=ifexx,file='TEEXXcv')
         call rx('need to test this mode again')
         write(6,'("    esmr2    =",f13.6)') esmr2
       else
@@ -354,10 +350,10 @@ c      call Rdpp(ngrp,symgg) =>moved to m_zmel
       call pshpr(60)
 !! Readin WV.d
       if(.not.exchange.or.(exchange.and.screen)) then !screen means screened exchange case
-        ifwd = iopen('WV.d',1,-1,0) !direct access files WVR and WVI which include W-V.
-        read (ifwd,*) nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i
+        open(newunit=ifwd,file='WV.d') !direct access files WVR and WVI which include W-V.
+        read(ifwd,*) nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i
         write(6,"(' Readin WV.d =', 10i8)") nprecx,mrecl,nblochpmx, nwp, niwt, nqnum, nw_i
-        ifwd =iclose('WV.d')
+        close(ifwd)
         call checkeq(nprecx,ndble)
         nw=nwp-1
         if (niwt /= niw) call rx( 'hsfp0: wrong niw')
@@ -446,7 +442,7 @@ c     noccxv = maxocc (ifev,nspin, ef+0.5d0*esmr, nband,nqbz)  ! maximum no. of 
         if(nz==0) then
           call getkeyvalue("GWinput","<QPNT>",unit=ifqpnt,status=ret)
         else
-          ifqpnt  = iopen('QPNT'//xt(nz),1,0,0)
+          open(newunit=ifqpnt,file='QPNT'//xt(nz))
         endif
       endif
 c      write(6,*)' ifqpnt ret=',ifqpnt,ret
@@ -567,8 +563,8 @@ c     loop over spins
             end do
           end do
 c     end of spin-loop
-          if(is==1) isx = iclose('XCU'//xt(nz))
-          if(is==2) isx = iclose('XCD'//xt(nz))
+          close(ifxc(is)) !isx = iclose('XCU'//xt(nz))
+c          if(is==2) isx = iclose('XCD'//xt(nz))
         enddo
         endif !MPI__root
         deallocate(vxcfp)
@@ -626,7 +622,7 @@ c------------------------------------------------------------------
 !! this can be recovered in future.
       if(tetraex) then
         write(6,*) ' !!!!  tetraex=T is not tested well !!!!!!!!!'
-        ifefsm  = iopen('EFERMI',1,-1,0)
+        open(newunit=ifefsm,file='EFERMI')
         read(ifefsm,*) ef
         write(6,"(' ef is readin from EFERMI',d23.15)")ef
         allocate(wtet(nband,nspin,nqibz,0:0),

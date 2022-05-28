@@ -35,7 +35,7 @@ c                           ! If you want to calculate with tetra=T for exchange
 c------------------------------------
       integer(4) ::
      o   nqitot,
-     &   ixc,iopen,!ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, nband,
+     &   ixc,!,iopen,!ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, nband,
      &   ibas,ibasx,ngpmx,nxx,ngcmx,nbloch,ifqpnt,ifwd,
      &   nprecx,mrecl,nblochpmx2,nwt,niwt, nqnum,mdimx,nblochpmx,
      &   ifrcw,ifrcwi,  noccxv,maxocc,noccx,ifvcfpout,iqall,iaf,ntq,
@@ -365,8 +365,9 @@ c> input files
 c      ifqpnt    = iopen('QPNT',1,0,0)
 
 c direct access files WVR and WVI which include W-V.
-      ifwd      = iopen('WV.d',1,-1,0)
+      open(newunit=ifwd,file='WV.d')
       read (ifwd,*) nprecx,mrecl,nblochpmx2,nwt,niwt, nqnum
+      close(ifwd)
       write(6,*) ' WV.d =', nprecx,mrecl,nblochpmx2,nwt,niwt, nqnum
       call checkeq(nprecx,ndble)
       call checkeq(nblochpmx,nblochpmx2)
@@ -374,7 +375,7 @@ c     if (nwt /= nw)   stop 'hecor: wrong nw'
 Cstop2rx 2013.08.09 kino      if (niwt /= niw) stop 'hecor: wrong niw'
       if (niwt /= niw) call rx( 'hecor: wrong niw')
 c     ifrcw     = iopen('WVR',0,-1,mrecl)
-      ifrcwi    = iopen('WVI',0,-1,mrecl)
+      open(newunit=ifrcwi,file='WVI',form='unfomatted',access='direct',recl=mrecl)
 
 c eigen functions
 c      ifev(1)   = iopen('EVU', 0,0,mrece)
@@ -411,7 +412,7 @@ c        if(abs(valn-ntot)>1d-6) stop ' abs(valn-ntot)>1d-6'  !20001 May
 
 c--
 
-      ifvcfpout = iopen('VCCFP',0,-1,0)
+      open(newunit=ifvcfpout,file='VCCFP',form='unformatted')
       read(ifvcfpout) ndummy1, ndummy2
 
 c read q-points and states
@@ -558,7 +559,7 @@ c---------------------------------
 c------------
 c output
 c------------
-      ifcor   = iopen('TEECORR',1,-1,0) ! output files
+      open(newunit=ifcor,file='TEECORR')
       write(ifcor,*) '============================'
       write(ifcor,*) 'Correlation energy Erpa (eV)'
       write(ifcor,*) '============================'
@@ -601,9 +602,9 @@ c output ecqw
 c------------
 c close files
 c------------
-      isx = iclose ('wc.d')
-      isx = iclose ('wci.d')
-      isx = iclose ('hbe.d')
+c      isx = iclose ('wc.d')
+c      isx = iclose ('wci.d')
+c      isx = iclose ('hbe.d')
 
       call cputid(0)
 Cstop2rx 2013.08.09 kino      stop  ' OK! hecor'

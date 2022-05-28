@@ -4,8 +4,9 @@
       complex(8),allocatable:: zw(:,:)
 c
 c      call headver('hmergewv',0)
-      ifwd = iopen('WV.d',1,-1,0)
+      open(newunit=ifwd,file='WV.d')
       read (ifwd,*) nprecx,mrecl,nblochpmx,nw,niw, nqnum
+      close(ifwd)
       write(6,*) ' WV.d =', nprecx,mrecl,nblochpmx,nw,niw, nqnum
       allocate( zw(nblochpmx,nblochpmx) )
 c

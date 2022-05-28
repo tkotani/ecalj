@@ -117,7 +117,7 @@ c     & ,rcxqmean(:,:,:,:),rcxqmeanc(:,:,:,:) !now rcxqmean is treated as a case
       real(8), allocatable :: freqr2(:)  , ekxxx(:,:,:)
 
 c      logical::imagonly=.false.,realonly=.false. !,readgwinput
-      integer::iopen,maxocc2,iclose,
+      integer::maxocc2,
      & ixc,iqxini,iqxend,iqxendx,
      &   ifhbe,
      &   nprecb,mrecb,mrece,nlmtot,nqbzt,!nband,
