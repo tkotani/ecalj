@@ -315,7 +315,6 @@ c      lsig = 1
                   enddo
                enddo
             enddo
-
             
 !   radial integral test block radial functions when energy/pnu are changing.
             radint: block
@@ -356,12 +355,10 @@ c      lsig = 1
                enddo
             endif
             endblock radint
-            
             deallocate(rofi,rwgt,gcore,gval)
          endif
       enddo
       if(cmdopt0('--radialintegraltest')) call rx0('end of radial integral')
-      
       if(master_mpi) then
          write(ifigwa) iantiferro(1:nat) !iantiferro may2015
          close(ifigwa)
@@ -585,15 +582,11 @@ c     if (mod(loldpw,2) .eq. 0) then
 !!!!  do not need to be short enough).
 c             if(sum(abs(qp-q))>1d-8) stop 'sugw:qp/=q; qp=p sep2012'
              inn=0
-             if(debug) print *,'goto pwmat'
              call pwmat (  ssite , sspec , nbas , ndimh , napw, !slat ,
      .            igv2x, iprmb , qp , ngp , nlmax , ngvecp(1,1,iq) , gmax , inn, 
      .            ppovl, phovl )
-             if(debug) print *,'sss: ppovl=',sum(abs(ppovl))
-             if(debug) print *,'sss: phovl=',sum(abs(phovl))
-             if(debug) print *,'sss: evec =',sum(abs(evec))
-             if(debug) print *,'sss:       '
-             call zgemm('N','N',ngp,ndimh,ndimh,(1d0,0d0),phovl,ngp, evec,ndimh,(0d0,0d0),pwz,ngp)
+             pwz=matmul(phovl,evec)
+!call zgemm('N','N',ngp,ndimh,ndimh,(1d0,0d0),phovl,ngp, evec,ndimh,(0d0,0d0),pwz,ngp)
              if(debug) print *,'sss: pwz =',sum(abs(pwz))
              if(debug) print *,'sss:       '
              deallocate(phovl)
@@ -610,10 +603,6 @@ c             if(sum(abs(qp-q))>1d-8) stop 'sugw:qp/=q; qp=p sep2012'
              pwz = matmul(ppovl,pwz)
              deallocate(ppovl)
           endif
-          if(debug) print *,' goto gwb write...'
-c          write(ifigwb) evl(1:ndimh,isp),cphi(:,:,isp),pwz,nev
-C     --- File output, jobgw=1 ---
-c          write(ifigwb) qp, ndimh, iq,ngp
           if(debug) write (6,"('q ndimh=',3f10.5,i10)") qp, ndimh
 c          write(ifigw1) qp, (evl(i,isp),i=1,ndimh)
 C  call prmx('e(H+sigma-vxc)',evl,ndimh,ndimh,1)
@@ -625,8 +614,8 @@ C     = sum_G1,G2 (pwz_G1,n)+ ppovl_G1,G2 (PWZ_G2,n')
 C     = (PWZ)+ O (PWZ) = (PZOVL)+ (PWZ)  (old style)
           if (lchk .ge. 1 .and. ngp .gt. 0) then
              allocate(testc(ndimh,ndimh),testcd(ndimh))
-             call zgemm('C','N',ndimh,ndimh,ngp,(1d0,0d0),
-     .            pzovl,ngp,pwz,ngp,(0d0,0d0),testc,ndimh)
+             testc=matmul(transpose(dconjg(pzovl)),pwz)
+c             call zgemm('C','N',ndimh,ndimh,ngp,(1d0,0d0),pzovl,ngp,pwz,ngp,(0d0,0d0),testc,ndimh)
              deallocate(pzovl)
 !     ! call zprm('(PWZ)+^-1 O_i^-1 (PWZ)',2,testc,ndimh,ndimh, ndimh)
              do  i = 1, ndimh
@@ -659,13 +648,12 @@ C     xx(2) = sum(dconjg(cphi(1:nchan,i1,isp))*cphi(1:nchan,i2,isp))
              write(ifinormchk,*)
           endif                 !------------- end of lchk=1
           allocate(testc(ndimh,ndimh))
-          call zgemm('C','N',ndimh,ndimh,ndimh,(1d0,0d0),
-     .         evec,ndimh,vxc,ndimh,(0d0,0d0),testc,ndimh)
+c          call zgemm('C','N',ndimh,ndimh,ndimh,(1d0,0d0),evec,ndimh,vxc,ndimh,(0d0,0d0),testc,ndimh)
+         testc=matmul(transpose(dconjg(evec)),vxc)
           do i1 = 1, ndimh
             vxclda(i1) =  sum(testc(i1,1:ndimh) * evec(1:ndimh,i1))  !<i|Vxc^lda|i> 
           enddo
           write(ifigwb) evl(1:ndimh,isp),cphi(:,:,isp),pwz,vxclda(1:ndimh),nev
-c          write(ifigw1) vxclda(1:ndimh)
           deallocate(testc,pwz)
           close(ifigwb)
           if (.not.cmdopt0('--novxc')) then
@@ -681,6 +669,8 @@ c       if(allocated(dipo)) deallocate(dipo)
       close(ifiqg)
       call tcx('m_sugw_init')
       end subroutine m_sugw_init
+      end module
+      
 c$$$      subroutine ioaindx(npqn,lmxax,nbas,ndima,nlindx)
 c$$$C-  read NlAindx
 c$$$C ----------------------------------------------------------------------
@@ -709,4 +699,3 @@ c$$$       enddo
 c$$$ 101   continue
 c$$$      close(ifi)
 c$$$      end subroutine ioaindx
-      end module 

@@ -15,10 +15,6 @@
       implicit none
       real(8):: q(3),eps=1d-10
       integer:: iq,iqx,ia
-c      write(6,*)'bbb=',qall
-c      do iqx=iqini,iqend
-c         write(6,*)'aaa',qall(:,iqx)
-c      enddo
       iq=-999
       do iqx=iqini,iqend
          if( sum( (q-qall(:,iqx))**2 )<eps) then
@@ -26,7 +22,6 @@ c      enddo
             exit
          endif
       enddo
-c      print *,' bbbbbbbbbb iq q=',iq,q
       if(iq==-999) call rx('err:bstrux_set')
       bstr => p_bstr(ia,iq)%cv3
       if(lfrce/=0) dbstr=> p_dbstr(ia,iq)%cv4
@@ -275,19 +270,13 @@ C     Block into groups of consecutive l
             i1 = i1+1
             if (mode .eq. 0) then
               do  ilma = 1, nlma
-                do  k = 0, kmax
-                  b(i1,ilma,k) = b0(k,ilma,ilmb)
-                enddo
+                 b(i1,ilma,:) = b0(:,ilma,ilmb)
               enddo
             else
-              do  ilma = 1, nlma
-                do  k = 0, kmax
-                  b(i1,ilma,k) =    b0(k,ilma,ilmb)
-                  db(i1,ilma,k,1) = db0(k,ilma,ilmb,1)
-                  db(i1,ilma,k,2) = db0(k,ilma,ilmb,2)
-                  db(i1,ilma,k,3) = db0(k,ilma,ilmb,3)
-                enddo
-              enddo
+               do  k = 0, kmax
+                  b(i1,:,k)    =  b0(k,:,ilmb)
+                  db(i1,:,k,:) = db0(k,:,ilmb,:)
+               enddo
             endif
           enddo
         endif
@@ -326,30 +315,23 @@ C ... Passed parameters
       parameter (n0=10,nkap0=3)
       double precision rsmh(n0,nkap0)
       double complex b0(0:k0,nlma,1),b(0:k0,nlma,1)
-C ... Local parameters
       integer ilmb,ilma,k,iorb,l1,ik1,i1,nlm1,nlm2
       integer blks(norb),ntab(norb)
       double precision xx
 C     Block into groups of consecutive l
       call gtbsl1(4+16,norb,ltab,ktab,rsmh,xx,ntab,blks)
       do  iorb = 1, norb
-        ik1 = ktab(iorb)
-C       Loop only over orbitals belonging to this energy block
+        ik1 = ktab(iorb) ! Loop only over orbitals belonging to this energy block
         if (ik1 .eq. ik .and. blks(iorb) .ne. 0) then
           l1  = ltab(iorb)
           nlm1 = l1**2+1
           nlm2 = nlm1 + blks(iorb)-1
-C         i1 = index to hamiltonian offset
           i1 = offl(iorb)
           do  ilmb = nlm1, nlm2
             i1 = i1+1
-            do  ilma = 1, nlma
-              do  k = 0, kmax
-                b(k,ilma,i1) = b0(k,ilma,ilmb)
-              enddo
-              do  k = kmax+1, k0
-                b(k,ilma,i1) = 0d0
-              enddo
+            do ilma = 1, nlma
+              b(0:kmax,ilma,i1) = b0(0:kmax,ilma,ilmb)
+              b(kmax+1:k0,ilma,i1) = 0d0
             enddo
           enddo
         endif
@@ -389,14 +371,11 @@ C ... Passed parameters
       double precision rsma,alat,qlat(3,3),q(3),srvol,pa(3)
       double complex b0(0:k0,nlma,ndimh),b1(ndimh,nlma,0:k0),
      .db(ndimh,nlma,0:k0,3)
-C ... Local parameters
       integer k,lmxa,ll,l,ig,ilm,m,nlmto
       double precision gamma,qpg(3),pi,tpiba,qpg2,ddot,facexp,
      .rsmal,pgint,dfac(0:kmax),fac2l(0:nlma),yl(nlma),fpi,fac ,qk
-C     complex(8),allocatable:: bpw(:,:)
       double complex srm1,srm1l,gfourier,phase,facilm,b
       parameter (srm1=(0d0,1d0))
-      
       if (napw .eq. 0) return
       nlmto = ndimh - napw
       pi = 4d0*datan(1d0)
@@ -404,12 +383,11 @@ C     complex(8),allocatable:: bpw(:,:)
       tpiba = 2d0*pi/alat
       gamma = rsma**2/4d0
       lmxa = ll(nlma)
-C     allocate(bpw(0:kmax,nlma))
+c     fac2l(l)=(2l-1)!! data fac2l /1,1,3,15,105,945,10395,135135,2027025,34459425/ See msrtx3.f
       fac2l(0) = 1d0
       do  l = 1, lmxa+1
         fac2l(l) = fac2l(l-1) * (2*l-1)
       enddo
-c     fac2l(l)=(2l-1)!! data fac2l /1,1,3,15,105,945,10395,135135,2027025,34459425/ See msrtx3.f
       dfac(0) = 1d0
       do  k = 1, kmax
         dfac(k) = dfac(k-1)*k
@@ -552,18 +530,13 @@ Cr   b0 has normal L ordering in both row and column dimensions.
 Cu Updates
 C ----------------------------------------------------------------------
       implicit none
-C ... Passed parameters
       integer kmax,nlmh,nlma
-      double precision bos(0:kmax,nlmh)
-      double complex b0(0:kmax,nlma,1)
-C ... Local parameters
+      real(8):: bos(0:kmax,nlmh)
+      complex(8):: b0(0:kmax,nlma,1)
       integer ilm,k
       do  ilm = 1, nlmh
-        do  k = 0, kmax
-          b0(k,ilm,ilm) = b0(k,ilm,ilm)-bos(k,ilm)
-        enddo
+          b0(0:kmax,ilm,ilm) = b0(0:kmax,ilm,ilm)-bos(0:kmax,ilm)
       enddo
       end subroutine paugq2
-
       end module m_bstrux
 

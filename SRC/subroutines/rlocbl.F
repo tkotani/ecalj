@@ -262,7 +262,7 @@ C ----------------------------------------------------------------------
       double precision pa(3),rsma,pi,tpiba
       complex(8),allocatable:: cPkL(:),da(:),wk(:)
       integer ::iwdummy, iaini,iaend
-      complex(8),allocatable::w_ob(:),w_odb(:),force(:)
+      complex(8),allocatable::w_ob(:),w_odb(:,:,:,:),force(:)
       if (nevec .le. 0) return
       call tcn('rlocbl')
 c      nkaph = globalvariables%nkaph
@@ -287,7 +287,7 @@ C ... Find maximum sizes needed to allocate strux; allocate them
       allocate(cPkL((ktop0+1)*nlmx),da((ktop0+1)*nlmx*3),wk((ktop0+1)*nlmx))
       if (nlmax .gt. nlmx)  call rxi('rlocbl: nlmx.lt.nlma=',nlmax)
       if (kmaxx .gt. ktop0) call rxi('rlocbl: ktop0.lt.kmax=',kmax)
-      allocate(w_ob(ndimh*nlmax*(kmaxx+1)), w_odb(ndimh*nlmax*(kmaxx+1)*3))
+      allocate(w_ob(ndimh*nlmax*(kmaxx+1)), w_odb((kmaxx+1),nlmax,ndimh,3))
       if (lfrce .ne. 0) then
         allocate(force(3*nbas))
         force=0d0

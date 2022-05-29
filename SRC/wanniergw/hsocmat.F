@@ -47,36 +47,6 @@ c!! MPI dummy
       call readhamindex()
       call read_bzdata()
       
-c$$$!! === readin lmfgw_kdivider, and get extensions
-c$$$      open(newunit=ifiproc,file='lmfgw_kdivider',status='old')
-c$$$      read(ifiproc,*) ext
-c$$$      read(ifiproc,*) nqixx, nsp, nrank
-c$$$      allocate(iprocq(nqixx,nsp))
-c$$$      do isp=1,nsp
-c$$$      do iqq=1,nqixx
-c$$$        read(ifiproc,*) iqqxx, ispxx, ixxx
-c$$$        if(iqqxx/=iqq) call rx( 'iqqxx/=iqq')
-c$$$        if(ispxx/=isp) call rx( 'ispxx/=isp')
-c$$$        iprocq(iqq,isp) = ixxx
-c$$$        write(6,"('iqq isp irank=',i8,i2,i6)") iqq,isp, iprocq(iqq,isp)
-c$$$      enddo
-c$$$      enddo
-c$$$      close(ifiproc)
-      
-c$$$!! Open vxc* evec*
-c$$$      allocate(extp(0:nrank-1),ifvxc__(0:nrank-1),ifevec__(0:nrank-1))
-c$$$      extp(0) = trim(ext)
-c$$$      write(6,"('  0 ext= ',a,a)") trim(extp(0)),' ----------'
-c$$$      do procid=1,nrank-1
-c$$$        write(extn,"(i10)") procid
-c$$$        extp(procid)=trim(adjustl(ext))//'_'//trim(adjustl(extn))
-c$$$        write(6,"(i3,' ext= ',a,a)") procid,trim(extp(procid)),' ----------'
-c$$$      enddo
-c      do procid=0,nrank-1
-c        open(newunit=ifvxc__(procid), file='vxc'//extp(procid),form='unformatted')
-c        open(newunit=ifevec__(procid),file='evec'//extp(procid),form='unformatted')
-c      enddo
-      
 !! Read dnk
       do isp=1,nsp
          if (isp.eq.1) fname='MLWU'
@@ -112,52 +82,14 @@ c      enddo
       enddo          
       write(6,*)'read end of MLWU/D ...'
 
-c$$$cccccccccccccccccc
-c$$$      allocate(psig(iko_ix:iko_fx,nwf,nqbz,nsp))
-c$$$      do isp=1,nsp
-c$$$         if (isp.eq.1) fname='U'
-c$$$         if (isp.eq.2) fname='D'
-c$$$         open(newunit=ifi,file='PSIG'//trim(fname),form='unformatted',status='old', action='read')
-c$$$         block
-c$$$         integer :: nqbz2,iti2,itf2,nwf2,iqbz2,j1,j2,iti,itf
-c$$$         iti=iko_ix
-c$$$         itf=iko_fx
-c$$$         read(ifi)nqbz2,iti2,itf2,nwf2
-c$$$         block
-c$$$         complex(8):: psigread(iti2:itf2,nwf2,nqbz2)
-c$$$         do iqbz = 1,nqbz
-c$$$            read(ifi)iqbz2
-c$$$            if(iqbz2 .ne. iqbz) call rx('readpsig: iqbz error')
-c$$$            read(ifi)((psigread(j1,j2,iqbz),j1=iti2,itf2),j2=1,nwf)
-c$$$         enddo
-c$$$         psig(iti:itf,:,:,isp)=psigread(iti:itf,:,:)
-c$$$         endblock
-c$$$         endblock
-c$$$         close(ifi)
-c$$$      enddo
-c$$$cccccccccccccccccccc
-
 !! readin vxc and evec ----------------------------------------------------
-c      ifvxc_ = ifvxc__(0)
-c      ifevec_= ifevec__(0)
-c      read(ifvxc_)  ndimh,  nspxx,nnn 
-c      read(ifevec_) ndimhx, nspx,nnnx
-c      if (ndimhx /= ndimh)call rx( 'hdipole: ndimhx/=ndimx')
-c      if (nsp .ne. nspx)  call rx( 'hdipole: nsp/=nspx')
-c      if (nsp .ne. nspxx)  call rx( 'hdipole: nsp/=nspxx')
-c      if (nnn .ne. nnnx)  call rx( 'hdipole: nnn/=nnnx')
-c      if(nnn/=nqibz) call rx( ' nnn/nqibz ')
       nhq=ndham+napwmx !max of ndimhamiltonian
-c      allocate(nhqx(nnn,nsp))
       allocate(evec(nhq,nhq,nsp),evecr(nhq,nhq))
       allocate(dipo(nhq,nhq,3,nsp),hso(nhq,nhq,1:3),ovl(nhq,nhq,nsp))
 !! evec,dnk, dipo,hamso      
       allocate(evecw(nhq,nwf,nsp),dipole(3,nwf,nwf,nsp),dipoig(3,nwf,nwf),dipoig1(3,nwf,nwf))
       allocate(hammso(nwf,nwf,3),hammsoig1(nwf,nwf,3),orth(nwf,nwf),orthcheck(nwf,nwf,nsp),ddd(nhq))
       write(6,*)' ndimh nsp nnn =',nhq,nsp,nnn
-ccccccccccccccccccccccc
-c      allocate(hso2(nhq,nhq,1:3))
-cccccccccccccccccccccccc
 !! -------------------------     
       hammso=0d0
       dipole=0d0
@@ -166,63 +98,18 @@ c      orthcheck=0d0
       do 1012 iqbz = 1,nqbz          !nqibz !index for q in irrecucible BZ.
          write(6,"('iqbz qbz(:,iqbz)=',i6,3f9.4)")iqbz,qbz(:,iqbz)
       do 1014 isp = 1,nsp !isp parallel for dipole, isp=nsp only for hammso
-c          ifvxc_  = ifvxc__ (iprocq(iqbz,isp)) 
-c          ifevec_ = ifevec__(iprocq(iqbz,isp)) 
           open(newunit=ifievec_,   file='evec'//trim(xt(iqbz))//trim(xt(isp)),form='unformatted')
           open(newunit=ifvxc_,      file='vxc'//trim(xt(iqbz))//trim(xt(isp)),form='unformatted')
           read(ifvxc_) nz!,ldim  ! Hamiltonian dimension, dependent of iqbz
           read(ifievec_) nz     !,ldim  ! Hamiltonian dimension, dependent of iqbz
-c          print *,'iiiiqbz isp nz',iqbz,isp,nz
-c          if(isp==1) nz1=nz
-c          if(isp==2.and.nz1/=nz) call rx('hdipole: Hamiltonian dimension is spin dependent') 
           read(ifvxc_) 
 c          read(ifvxc_) dipo(1:nz,1:nz,1:3,isp),ovl(1:nz,1:nz,isp) !dipole matrix for pmt basis.
           if(isp==1.and.socmatrix) read(ifvxc_) hso(1:nz,1:nz,1:3) !see sugw.F for writing vxc file.
           close(ifvxc_)
-c          if(isp==1.and.socmatrix) write(6,ftox)'hhhhso',iqbz, sum(abs( hso(1:nz,1:nz,1)))
-c     &         , sum(abs( hso(1:nz,1:nz,2))), sum(abs( hso(1:nz,1:nz,3)))
-ccccccccccccccccccccccccccccccccccccccccccccc
-c          open(newunit=ifvxc_, file='uuu/vxc'//trim(xt(iqbz))//trim(xt(isp)),form='unformatted')
-c          read(ifvxc_) nz!,ldim  ! Hamiltonian dimension, dependent of iqbz
-c          read(ifvxc_) 
-c          if(isp==1.and.socmatrix) read(ifvxc_) hso2(1:nz,1:nz,1:3) !see sugw.F for writing vxc file.
-c          close(ifvxc_)
-c          if(isp==1.and.socmatrix) then
-c             write(6,ftox)'hhh222hso',iqbz,(sum(abs(hso(1:nz,1:nz,i)-hso2(1:nz,1:nz,i))),i=1,3),(sum(abs(hso(1:nz,1:nz,i))),i=1,3)
-c          endif
-
-c         write(6,*) 'evec'//trim(xt(iqbz))//trim(xt(isp)),iqbz,isp,nz
           read(ifievec_) qqq,evec(1:nz,1:nz,isp) !evec(ipmt,iband,isp) for pmt basis.
-c          write(6,"('iiiii iqbz isp qqq nz=',2i5,3f9.4,i5)") iqbz,isp,qqq,nz
-c          write(6,ftox)' v_xc dipo hso: iq is nz=', iqbz,isp,nz,ftof(qqq,3)
-c          if (sum(abs( qqq-qqqx ))        > tolq) call rx( 'hdipole: qqq/=qqqx')
           if (sum(abs( qqq-qbz(:,iqbz) )) > tolq) call rx( 'hdipole: qqq/=qbz')
           iko_ix=ik1(isp)
           iko_fx=ik2(isp)
-c          if(allocated(hammv)) deallocate(hammv)
-c          allocate(hammv(iko_ix:iko_fx,iko_ix:iko_fx,3))
-          
-c     do ig  = 1,ngrp  ! space group operation 
-c     if(ig==1.and.irk(iqibz,ig)==0) call rx('sanity check: irk(iqibz,ig)==0 for ig=1')
-c     if(irk(iqibz,ig)==0) cycle ! irk(iqibz,ig)=0 if iq is given by another rotation from iqibz.
-c     iqbz = irk(iqibz,ig) !iqbz=irk(iqibz,ig) runs all iqbz in the 1st BZ.
-!     q consistency check
-c     q=      qbz(:,iqbz)-matmul(symops(:,:,ig),qqq)
-c     &         -nint(qbz(:,iqbz)-matmul(symops(:,:,ig),qqq))
-c     diff = sum(abs(  matmul(q,plat)))
-c     if(diff>tolq) write(6,*) 'diff111=',iqbz, diff
-c     q=      qreg(:,iqbz)-matmul(symops(:,:,ig),qqq)
-c     &         -nint(qreg(:,iqbz)-matmul(symops(:,:,ig),qqq))
-c     diff = sum(abs(  matmul(q,plat)))
-c     if(diff>tolq) write(6,*) 'diff222=',iqbz, diff
-c     ! rotate wave function coefficient  
-c     napw= nz-ldim
-c     c             write(6,"('rotwvigg qqq q=',3f9.4,x,3f9.4)") qqq,qbz(:,iqbz)
-c     call rotwvigg(ig,qqq,qbz(:,iqbz),nz,
-c     &            napw,nz,evec(1:nz,1:nz,isp),evecr(1:nz,1:nz),ierr)
-c     if(ig==1) then !ig=0 is the identical rotation of space group
-c     if(irk(iqibz,ig)==0) call rx('bug: irk(iqibz,ig)==0 for ig=1')
-          
           do iwf = 1,nwf        ! iko_ix:iko_fx is the range of bands to construct MlocWannier.
              evecw(1:nz,iwf,isp)=  matmul(
      &            evec(1:nz,iko_ix:iko_fx,isp),dnk(iko_ix:iko_fx,iwf,iqbz,isp)) !iqbz component of Wannier based on PMT basis.

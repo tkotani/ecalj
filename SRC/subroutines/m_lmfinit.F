@@ -1229,6 +1229,7 @@ c          call dcopy(n0*nkap0,idxdn(1,1,j),1,v_sspec(j)%idxdn,1) ! = idxdn
 !!     Pack P,Q,PZ for both spins
           v_sspec(j)%p = pnu(1:n0,1:nsp,j)
           if(nsp==2) pz(1:n0,2,j) = pz(1:n0,1,j) !takao
+          
           if(nsp==1) v_sspec(j)%p(1:n0,2) = 0d0 !unused areas but fill zero to avoid NaN stop
           if(nsp==1) v_sspec(j)%pz(1:n0,2) = 0d0
           v_sspec(j)%pz= pz(1:n0, 1:nsp,j)  

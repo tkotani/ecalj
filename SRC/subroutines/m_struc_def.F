@@ -66,23 +66,22 @@ Cr         3 float to natural center of band (C parameter)
       real(8)   ::   vmtz!Asymptotic potential for fitting functions at rmt
       integer   ::   kmxv !  k-cutoff for 1-center projection of free-atom rho
       real(8)   ::   rcfa(2) !renormalization radius of free atom density, and width
-      real(8)   ::   p(n0,2) ! log derivative parameter
       real(8)   ::   q(n0,2)  !starting q's (charges)
       integer   ::   idmod(n0) !see m_lmfinit.F
-c      integer   ::   idxdn(n0,nkap0) !see m_lmfinit.F
       real(8)   ::   exi(n0) !Hankel energies for fit to c.d.;  For free atoms, fit to free-atom density tails.
       integer   ::   ngcut(n0,nkap0) !orbital-dependent G cutoffs (for nfp basis)
       real(8)   ::   chfa(n0,2) ! coefficients to fit of free-atom density tails
-      real(8)   ::   pz(n0,2) !  log derivative parameter, semicore states
       integer   ::   idu(4) !identifies l-channels with Hubbard U (LDA+U)
       real(8)   ::   uh(4) !Hubbard U
       real(8)   ::   jh(4) !LDA+U J parameters for each l-channel
       integer :: nmcore !jun2012takao
+c      integer   ::   idxdn(n0,nkap0) !see m_lmfinit.F
+      real(8)   ::   p(n0,2) ! log derivative parameter
+      real(8)   ::   pz(n0,2) !  log derivative parameter, semicore states
       end type s_spec
 !      
       type s_site
       integer  :: iantiferro !may2015
-c      character(8)   ::   clabel !labelling class
       integer   ::   class !class index
       real(8)   ::   force(3) !force   force (dynamics)
       real(8) , allocatable ::  rv_a_ov0(:)!pointer to potential that defines wave functions
@@ -93,6 +92,7 @@ c      character(8)   ::   clabel !labelling class
       real(8)   ::   pz(n0,2) !log derivative parameter, semicore states
       integer   ::   relax(3) !(dynamics) flags which coordinates to relax
       integer   ::   spec !species index
+c      character(8)   ::   clabel !labelling class
 c      real(8)   ::   vel(3) !velocity
 c      real(8)   ::   vshft !constant potential shift for this site
       end type s_site

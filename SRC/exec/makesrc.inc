@@ -1,6 +1,7 @@
 #NOTE: when you add your foobar.F, choose one of *_list.
 
 ELIB_list=\
+derfc.o\
 m_orbl.o\
 m_ftox.o\
 getgv2.o\
@@ -45,14 +46,12 @@ besslr.o \
 bloch.o \
 bzints.o \
 bzmesh.o \
-bzmio.o \
 bzwts.o \
 bzwtsf.o \
 ccutup.o \
 chgmsh.o \
 clabel.o \
 config.o \
-contet.o \
 cshear.o \
 defpq.o \
 defspc.o \
@@ -60,13 +59,9 @@ defwsr.o \
 delstd.o \
 delstp.o \
 dfphi.o \
-dlmn.o \
-dosio.o \
 dostet.o \
-drr2.o \
 dstrbp.o \
 dvdos.o \
-efrng2.o \
 fermi.o \
 fixef0.o \
 freeat.o \
@@ -103,7 +98,6 @@ lattdf.o \
 lattic.o \
 latvec.o \
 ldau.o \
-lx2vec.o \
 madmat.o \
 makdla.o \
 makdos.o \
@@ -121,7 +115,6 @@ m_mksym_util.o \
 mshsiz.o \
 mtchae.o \
 mxmymz.o \
-nghbor.o \
 nnrl.o \
 nwit.o \
 phidx.o \
@@ -135,7 +128,6 @@ qdist.o \
 radgkl.o \
 radmsh.o \
 radpkl.o \
-rdeq.o \
 relax.o \
 rmesh.o \
 rnatm.o \
@@ -184,8 +176,6 @@ ylmrtg.o \
 writebasis.o \
 switch.o \
 rdsigm2.o\
-dpdbyl.o \
-dpdftr.o \
 pvsms2.o \
 getcor.o \
 radgra.o \
@@ -199,9 +189,7 @@ a2bina.o \
 a2vec.o \
 amix.o \
 awrite.o \
-bin2a.o \
 bitops.o \
-brentm.o \
 brmin.o \
 broyj.o \
 cmdopt.o \
@@ -209,31 +197,16 @@ cpstr.o \
 cpudel.o \
 cross.o \
 dbesj.o \
-derfc.o \
-dfdump.o \
 dinv33.o \
-discop.o \
-dmcpy.o \
 dmpy.o \
 dmpy22.o \
-dmpyt.o \
-dmsadd.o \
-dmscop.o \
 dot3.o \
 dpcopy.o \
 dpdump.o \
-dpsadd.o \
 dpscop.o \
-dsbak.o \
-dschd.o \
-dshell.o \
-dsidi.o \
-dsifa.o \
-dsisl.o \
 dsmpy.o \
 dspbmm.o \
 dsred.o \
-dsredx.o \
 dsum.o \
 dsumdf.o \
 dvheap.o \
@@ -522,7 +495,6 @@ qpe1.sc.o \
 iopenxx.o \
 qpe1.o \
 mopen.o \
-checksymlon.o \
 mkqg.o \
 m_q0p.o \
 q0irre.o \
