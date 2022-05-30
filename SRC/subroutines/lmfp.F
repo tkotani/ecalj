@@ -134,7 +134,6 @@ c      else
         endif   
         allocate(pos_move(3,nbas))
       endif
-
       
 !==== Main iteration loops ===
       do 2000 itrlx = 1,max(1,nitrlx) ! loop for atomic position relaxiation (molecular dynamics) ===

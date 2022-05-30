@@ -78,31 +78,26 @@ C ----------------------------------------------------------------------
         spid = sspec(is)%name
         rsmfa= sspec(is)%rsmfa
         rfoca= sspec(is)%rfoca
-        i_copy_size=size(sspec(is)%coreq)
-        call dcopy(i_copy_size,sspec(is)%coreq,1,qcor,1)
-        chole=sspec(is)%coreh
+        qcor = sspec(is)%coreq
+        chole= sspec(is)%coreh
         call gtpcor(sspec,is,kcor,lcor,qcor)
-        z=sspec(is)%z
-        rmt=sspec(is)%rmt
-        a=sspec(is)%a
-        nrmt=sspec(is)%nr
+        z   = sspec(is)%z
+        rmt = sspec(is)%rmt
+        a   = sspec(is)%a
+        nrmt= sspec(is)%nr
         if (z == 0 .and. rmt == 0) cycle !floating orbital
-        call dpzero(qat,n0*2)
-        i_copy_size=size(sspec(is)%p)
-        call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
-        i_copy_size=size(sspec(is)%q)
-        call dcopy(i_copy_size,sspec(is)%q,1,qat,1)
-        i_copy_size=size(sspec(is)%idmod)
-        idmod=sspec(is)%idmod
-        lmxa=sspec(is)%lmxa
-        i_copy_size=size(sspec(is)%pz)
-        call dcopy(i_copy_size,sspec(is)%pz,1,pz,1)
-        eref = (sspec(is)%eref)
+        pnu(:,1)=   sspec(is)%p
+        if(nsp==2) pnu(:,2)= pnu(:,1)
+        qat=   sspec(is)%q
+        idmod= sspec(is)%idmod
+        lmxa = sspec(is)%lmxa
+        pz(:,1) =   sspec(is)%pz
+        if(nsp==2) pz(:,2)= pz(:,1)
+        eref = sspec(is)%eref
         rs3=sspec(is)%rs3
         eh3=sspec(is)%eh3
         vmtz=sspec(is)%vmtz
-        i_copy_size=size(sspec(is)%rcfa)
-        call dcopy(i_copy_size,sspec(is)%rcfa,1,rcfa,1)
+        rcfa=sspec(is)%rcfa
         print *,'goto freats'
         call freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,kcor,lcor,qcor,
      .  nrmix,1,lxcfun,z,rmt,a,nrmt,pnu,pz,qat,rs3,eh3,vmtz,rcfa,

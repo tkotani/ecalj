@@ -37,7 +37,7 @@ Ci          functions are less than tol.
       integer,protected:: nspc,procid,nproc,master=0,nspx, !,stdo,stdl
      &     ctrl_lxcf,ctrl_nbas,ctrl_lrel,!ctrl_lves, 
      &     maxit ,ctrl_nl,ctrl_nitmv,ctrl_nspin,
-     &     ctrl_nspec,ctrl_nsite,ctrl_nvario,ctrl_pfloat
+     &     ctrl_nspec,ctrl_nvario,ctrl_pfloat
      &     ,ham_lxcf,gga,ftmesh(3),nmto=0,lrsigx=0
      &     ,nsp=1,lrel=1,lso=0
       real(8),protected:: pmin(n0),pmax(n0),ham_pmax(10),ham_pmin(10),
@@ -52,7 +52,7 @@ c     &     ,ham_delta_stabilize
       logical,protected :: lhf,lcd4
 !! ... STRUC 
       real(8),protected:: dlat,alat=NULLR,dalat=NULLR,vol,avw !lat_slat(3,3),
-      integer,protected:: nbas=NULLI,nsite=NULLI,nspec 
+      integer,protected:: nbas=NULLI,nspec 
 !! ... SPEC
       real(8),protected:: omax1(3),omax2(3),wsrmax,sclwsr
       character*8,protected:: slabl(mxspec)
@@ -376,7 +376,6 @@ c      stde = stdo
             if (io_show>0) write(stdo,"(' ... found',g0,'species in SPEC category')")nspec
          endif
       endif
-      nsite = nbas
       nm='STRUC_DALAT'; call gtv(trim(nm),tksw(prgnam,nm),dalat,def_r8=0d0,
      &     note='added to alat after reading inputs (only affecting to SPEC_ATOM_R/A case)')
 !     STRUC_NL here removed, Lattice distortion or rotatation here removed.
@@ -764,6 +763,8 @@ c     print *,'qnuin ',sum(abs(qnu(:,:,j))),qnu(:,:,j)
            nm='SPEC_ATOM_PZ'; call gtv(trim(nm),tksw(prgnam,nm),pz(1:nlaj,1,j),def_r8v=zerov,cindx=jj,note=
      .          'Starting semicore log der. parameters'//
      .          '%N%10fAdd 10 to attach Hankel tail',nout=nout) !zero default by zerov
+           if(nsp==2) pz(1:n0,2,j) = pz(1:n0,1,j) !takao
+          
 !! lmxb corrected by pz
            nnx=nout
            do i=nout,1,-1
@@ -850,13 +851,16 @@ c          nm='SPEC_ATOM_IDXDN'; removed...
           nm='SPEC_ATOM_IDMOD'; call gtv(trim(nm),tksw(prgnam,nm),
      .         idmod(1:nlaj,j),def_i4v=(/(0,i=1,n0)/), cindx=jj,note=
      .         'idmod=0 floats P to band CG, 1 freezes P, 2 freezes enu')
+! mxcst2(for lmchk)   Exclude this species when auto-resizing sphere radii
+! mxcst4   Freeze augmentation w.f. for this species (FP)
           nm='SPEC_ATOM_CSTRMX'; call gtv(trim(nm),tksw(prgnam,nm),
      .         mxcst2(j),cindx=jj,def_lg=F,note='Set to exclude this'//
      .         ' species when automatically resizing sphere radii (SCLWSR>0)') !for lmchk
           if (sclwsr .eq. 0) mxcst2(j) = F
           nm='SPEC_ATOM_FRZWF'; call gtv(trim(nm),tksw(prgnam,nm),mxcst4(j),cindx=jj,def_lg=F,note=
      .         'Set to freeze augmentation wave functions for this species')
-        endif    ! end of input dependent on presence of aug sphere.
+        endif                    ! end of input dependent on presence of aug sphere.
+       
         sw = tksw(prgnam,'SPEC_ATOM_IDU')
         if (io_help .gt. 0 .and. sw .lt. 2) write(stdo,*)' * ... The next three tokens are for LDA+U'
         nm='SPEC_ATOM_IDU'; call gtv(trim(nm),sw,idu(:,j),cindx=jj, def_i4v=(/(0,i=1,n0)/),note=
@@ -914,7 +918,6 @@ c          nm='SPEC_ATOM_IDXDN'; removed...
       if(io_show+io_help/=0.and.tksw(prgnam,'SITE')/=2)write(stdo,*)' --- Parameters for site ---'
       if(io_help .eq. 1) then
          nbas = 1
-         nsite =2
          if (iprint() .gt. 0) write(*,383)
  383     format(/' * ',
      .        'The following tokens are input for each site. ',
@@ -922,8 +925,8 @@ c          nm='SPEC_ATOM_IDXDN'; removed...
      .        'token ATOM apply to one site.'/3x,'Alternatively, all ',
      .        'site data can be read in via the SITE file.')
       endif
-      allocate(pos(3,nsite),ips(nsite),irlx(3,nsite),iantiferro(nsite))
-! vshft(nsite),,ipl(nsite),plv(nsite)!mpole(nsite),dpole(3,nsite),,vel(3,nsite)
+      allocate(pos(3,nbas),ips(nbas),irlx(3,nbas),iantiferro(nbas))
+! vshft(nbas),,ipl(nbas),plv(nbas)!mpole(nbas),dpole(3,nbas),,vel(3,nbas)
 c      vel  = 0d0
       irlx = 0
       ips  = NULLI
@@ -1108,12 +1111,11 @@ c BZ_EF0, BZ_DELEF removed. !c!! remove writing ZBAK file here. (Write ZBAK file
       ctrl_lxcf= ham_lxcf !1 for Ceperly-Alder (VWN),  2 for Barth-Hedin (ASW fit), 103 for PBE-GGA
       maxit=iter_maxit
       ctrl_mdprm=mdprm
-      ctrl_nbas=nbas
       nl = max(lmxbx,lmxax)+1 !max l-base l-aug +1
       nlmax=nl**2
       ctrl_nitmv=nitmv
       ctrl_nl=nl
-      ctrl_nsite=nsite
+      ctrl_nbas=nbas
       ctrl_nspec=nspec
       ctrl_nspin=nsp
       ctrl_nvario=nvario
@@ -1169,21 +1171,7 @@ c      endif
       ham_scaledsigma=scaledsigma
       ham_pwmode=pwmode
       ham_oveps=oveps
-c      ham_delta_stabilize=delta_stabilize !takao sep2010
-C --- Allocate and copy input to sspec ---
-      allocate(v_sspec(nspec))
-      do j=1,nspec
-          v_sspec(j)%eh3=-0.5d0
-          v_sspec(j)%vmtz=-0.5d0
-          v_sspec(j)%coreh=coreh(j)
-          v_sspec(j)%name=slabl(j)
-          v_sspec(j)%nmcore=nmcore(j)
-          v_sspec(j)%a=spec_a(j)
-          v_sspec(j)%nr=nr(j)
-          v_sspec(j)%coreq=coreq(:,j)
-          v_sspec(j)%nxi=nxi(j)
-          v_sspec(j)%exi=exi(:,j)
-          v_sspec(j)%idmod=idmod(:,j)
+!
 !! idxdn= 1 or 3  
 Cr     1  Orbital is included as "active" orbitals, which means
 Cr           they are included in the hamiltonian and diagonalized
@@ -1194,26 +1182,43 @@ Cr         constructed to be zero at the MT boundary.
 Cr         It is included in the basis.
 Cr     11  Orbital is a local orbital with a smooth Hankel tail
 Cr         and it is included in the basis.
-          do  ik = 1, nkap0
-             if (ik <= nkapi) then
-                do lp1 = 1, lmxb(j)+1
-                   if (ik==1.and.rsmh1(lp1,j)<=0) idxdn(lp1,ik,j)=3
-                   if (ik==2.and.rsmh2(lp1,j)<=0) idxdn(lp1,ik,j)=3
-                enddo
-             endif
-             if (ik == nkaph .and. sum(lpz)>0) then
-                idxdn(:,ik,j)=3 !call ivset(idxdn(1,ik,j),1,n0,4)
-                do  lp1  = 1, lmxb(j)+1
-                   if (pz(lp1,1,j) .ne.  0) then
-                      if(pz(lp1,1,j)>=10) idxdn(lp1,ik,j)=1 !11
-                      if(pz(lp1,1,j)>  0) idxdn(lp1,ik,j)=1 !10
-                   endif
-                enddo
-             endif
-             if (ik > nkaph) idxdn(:,ik,j)=3 !call ivset(idxdn(1,ik,j),1,n0,4)
-             idxdn(lmxb(j)+ 2:,ik,j)=3 
-          enddo
-c          call dcopy(n0*nkap0,idxdn(1,1,j),1,v_sspec(j)%idxdn,1) ! = idxdn
+      do j=1,nspec
+         do  ik = 1, nkap0
+            if (ik <= nkapi) then
+               do lp1 = 1, lmxb(j)+1
+                  if (ik==1.and.rsmh1(lp1,j)<=0) idxdn(lp1,ik,j)=3
+                  if (ik==2.and.rsmh2(lp1,j)<=0) idxdn(lp1,ik,j)=3
+               enddo
+            endif
+            if (ik == nkaph .and. sum(lpz)>0) then
+               idxdn(:,ik,j)=3  !call ivset(idxdn(1,ik,j),1,n0,4)
+               do  lp1  = 1, lmxb(j)+1
+                  if (pz(lp1,1,j) .ne.  0) then
+                     if(pz(lp1,1,j)>=10) idxdn(lp1,ik,j)=1 !11
+                     if(pz(lp1,1,j)>  0) idxdn(lp1,ik,j)=1 !10
+                  endif
+               enddo
+            endif
+            if (ik > nkaph) idxdn(:,ik,j)=3 !call ivset(idxdn(1,ik,j),1,n0,4)
+            idxdn(lmxb(j)+ 2:,ik,j)=3 
+         enddo
+      enddo
+c      ham_delta_stabilize=delta_stabilize !takao sep2010
+C --- Allocate and copy input to sspec ---
+      allocate(v_sspec(nspec))
+      do j=1,nspec
+          v_sspec(j)%name=slabl(j)
+          v_sspec(j)%z=z(j)
+          v_sspec(j)%eh3=-0.5d0
+          v_sspec(j)%vmtz=-0.5d0
+          v_sspec(j)%coreh=coreh(j)
+          v_sspec(j)%nmcore=nmcore(j)
+          v_sspec(j)%a=spec_a(j)
+          v_sspec(j)%nr=nr(j)
+          v_sspec(j)%coreq=coreq(:,j)
+          v_sspec(j)%nxi=nxi(j)
+          v_sspec(j)%exi=exi(:,j)
+          v_sspec(j)%idmod=idmod(:,j)
           v_sspec(j)%idu = idu(:,j)
           v_sspec(j)%jh=jh(:,j)
           v_sspec(j)%uh=uh(:,j)
@@ -1224,17 +1229,9 @@ c          call dcopy(n0*nkap0,idxdn(1,1,j),1,v_sspec(j)%idxdn,1) ! = idxdn
           v_sspec(j)%lmxa=lmxa(j)
           v_sspec(j)%lmxb=lmxb(j)
           v_sspec(j)%lmxl=lmxl(j)
-! mxcst2(for lmchk)   Exclude this species when auto-resizing sphere radii
-! mxcst4   Freeze augmentation w.f. for this species (FP)
-!!     Pack P,Q,PZ for both spins
-          v_sspec(j)%p = pnu(1:n0,1:nsp,j)
-          if(nsp==2) pz(1:n0,2,j) = pz(1:n0,1,j) !takao
-          
-          if(nsp==1) v_sspec(j)%p(1:n0,2) = 0d0 !unused areas but fill zero to avoid NaN stop
-          if(nsp==1) v_sspec(j)%pz(1:n0,2) = 0d0
-          v_sspec(j)%pz= pz(1:n0, 1:nsp,j)  
+          v_sspec(j)%p = pnu(1:n0,1,j) !only for lmfa. fixed.
+          v_sspec(j)%pz= pz(1:n0, 1,j) !only for lmfa. fixed.
           v_sspec(j)%q = qnu(1:n0,1:nsp,j) 
-          v_sspec(j)%z=z(j)
           v_sspec(j)%rcfa=rcfa(:,j)
           v_sspec(j)%rfoca=rfoca(j)
           v_sspec(j)%rg=rg(j)
@@ -1244,14 +1241,16 @@ c          call dcopy(n0*nkap0,idxdn(1,1,j),1,v_sspec(j)%idxdn,1) ! = idxdn
           v_sspec(j)%rsmfa=rsmfa(j)
           v_sspec(j)%eref=eref(j)
       enddo
-      allocate(v_ssite(nsite))
-      do j=1,nsite
+      allocate(v_ssite(nbas))
+      do j=1,nbas
           v_ssite(j)%spec=ips(j)
           v_ssite(j)%class=ips(j)
           v_ssite(j)%pos=pos(1:3,j)
-c          v_ssite(j)%vel=vel(1:3,j)
           v_ssite(j)%relax=irlx(:,j)
           v_ssite(j)%iantiferro=iantiferro(j)
+          is=v_ssite(j)%spec
+          v_ssite(j)%pnu= pnu(1:n0,1:nsp,is) 
+          v_ssite(j)%pz = pz(1:n0,1:nsp,is)  
       enddo
       sstrnmix=trim(iter_mix)
 
@@ -1286,12 +1285,7 @@ c      call suidx(nkaph,j,nspec,v_sspec)
       lxcf = ctrl_lxcf
       nspc = 1
       if( lso==1 ) nspc = 2
-      
-      do  20  ib = 1, nbas
-        is=v_ssite(ib)%spec
-        v_ssite(ib)%pnu=v_sspec(is)%p
-        v_ssite(ib)%pz=v_sspec(is)%pz
-   20 continue
+     
       
       allocate( iprmb(nbas * nl**2 * maxp ) )
       iprmb=-1
@@ -1322,8 +1316,7 @@ c      call suidx(nkaph,j,nspec,v_sspec)
       enddo
       pot_nlma=nvi
       pot_nlml=nvl
-     
-      
+           
 C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
       if (procid .eq. master) then
          nat = nbas
@@ -1348,14 +1341,14 @@ C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
      .     pos,ips,irlx)  !,vshft
 !! --- takao embed contents in susite here. This is only for lmf and lmfgw.
       seref = 0d0
-      do ib = 1, nsite
+      do ib = 1, nbas
          is = v_ssite(ib)%spec
          if (is <= 0) cycle
          seref = seref +     v_sspec(is)%eref
       enddo
       ham_seref=seref
-      allocate(iv_a_oips(nsite))
-      do ib=1,nsite
+      allocate(iv_a_oips(nbas))
+      do ib=1,nbas
          iv_a_oips(ib) = v_ssite(ib)%spec
       enddo
       if (procid .eq. master) then
@@ -1369,17 +1362,14 @@ C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
             endif
          endif
       endif
-!! Debugging printout ---
       if (io_help == 0 .and. io_show > 1) then
          print *, '---------- contents of sstrn ------------'
          print *, 'mix: ', trim(sstrnmix)
          print *, 'symg:', trim(sstrnsymg)
          call rx0('done show')
       endif
-c#if MPI | MPIK
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
-c#endif
       if( cmdopt0('--quit=show') ) call rx0(trim(prgnam)//' --quit=show')
 
       
@@ -1725,7 +1715,7 @@ Cr   nitmv   max number of mol-dynamics iterations
 Cr   nl      1 + maximum lmxa
 Cr   nmap    number of maps (ASA)
 Cr   npl     number of principal layers (PGF)
-Cr   nsite   number of sites
+Cr   nbas   number of sites
 Cr   nspec   number of species
 Cr   nspin   number of spins
 Cr   nvario  number of variables to output

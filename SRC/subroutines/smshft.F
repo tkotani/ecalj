@@ -54,8 +54,8 @@ C --- Screened shift ---
         do  12  ib = 1, nbas
           is  =ssite(ib)%spec
           z   =sspec(is)%z
-          pnu =sspec(is)%p
-          pnz =sspec(is)%pz
+          pnu =ssite(ib)%pnu
+          pnz =ssite(ib)%pz
           lmxa=sspec(is)%lmxa
           if (lmxa .eq. -1) goto 12
           call gtpcor(sspec,is,kcor,lcor,qcor)
@@ -218,8 +218,8 @@ C       Skip this site if shift is negligible
 C   --- Shift in mesh density, job 1 ---
         if (mod(job,10)==1) then
           z=sspec(is)%z
-          pnu=sspec(is)%p
-          pnz=sspec(is)%pz
+          pnu=ssite(ib)%pnu
+          pnz=ssite(ib)%pz
           lmxa=sspec(is)%lmxa
           a  =sspec(is)%a
           nr  =sspec(is)%nr

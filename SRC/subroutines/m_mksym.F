@@ -20,7 +20,7 @@
 !ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine m_mksym_init(prgnam) !latsym(prgnam)
       use m_lmfinit,only: v_ssite,nbas,sstrnsymg,ctrl_noinv,
-     &     symgaf,iv_a_oips,slabl,mxspec,nsite,procid,master
+     &     symgaf,iv_a_oips,slabl,mxspec,procid,master
 ! v_ssite%pos modified
       use m_lattic,only: rv_a_opos,m_lattic_init
 !! Driver for calling mksymaf and mksym
@@ -74,7 +74,7 @@
            enddo
         endif
         strn2=trim(strn)//' '//trim(symgaf)
-        call mksymaf(v_ssite,iv_a_oips,nbas,procid==master,strn2,lc,slabl,mxspec,nsite)
+        call mksymaf(v_ssite,iv_a_oips,nbas,procid==master,strn2,lc,slabl,mxspec)
         if(ipr10) write(6,"(a)") ' AF: ===== end of AF section================= '
         if(ipr10) write(6,"(a)")       
       endif
@@ -85,18 +85,18 @@
       end subroutine m_mksym_init
       
 cSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
-      subroutine mksymaf(v_ssite,iv_a_oips_in,nbas,imaster,strn2,lc,slabl,mxspec,nsite)!all input
+      subroutine mksymaf(v_ssite,iv_a_oips_in,nbas,imaster,strn2,lc,slabl,mxspec)!all input
 !     mksymaf sets data above used in sugw.F. a little complicated...
       use m_struc_def,only: s_site
-      intent(in)::       v_ssite,iv_a_oips_in,nbas,imaster,strn2,lc,slabl,mxspec,nsite
+      intent(in)::       v_ssite,iv_a_oips_in,nbas,imaster,strn2,lc,slabl,mxspec
       logical::                         imaster
       character strn2*(*)
       character(8) :: slabl(mxspec) 
       type(s_site):: v_ssite(nbas)
       type(s_site),allocatable:: v_ssite2(:) !pos is rewritten in lmfp
-      integer:: inumaf,iv_a_oips_in(nsite),j,k,nbas,  lc,       mxspec,nsite,ib
+      integer:: inumaf,iv_a_oips_in(nbas),j,k,nbas,  lc,       mxspec,ib
       integer,allocatable::iv_a_oips(:)
-      allocate(v_ssite2(nbas),iv_a_oips(nsite))
+      allocate(v_ssite2(nbas),iv_a_oips(nbas))
       v_ssite2 = v_ssite
       iv_a_oips=iv_a_oips_in
       inumaf = 0
@@ -129,7 +129,7 @@ cSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSs
       use m_ftox
       use m_struc_def
       use m_lattic,only: lat_plat,rv_a_opos!,lat_dist
-      use m_lmfinit,only: ctrl_nbas,ctrl_nsite,ctrl_nspec,stdo!,lat_ldist
+      use m_lmfinit,only: ctrl_nbas,ctrl_nspec,stdo!,lat_ldist
 C- Setup for symmetry group
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -152,7 +152,7 @@ Ci           complete the space group.
 Ci
 Cio Inputs/outputs
 Ci   sctrl :struct for program flow parameters; see routine uctrl
-Ci     Elts read: nbas nspec nsite lpgf
+Ci     Elts read: nbas nspec lpgf
 Ci     Stored:    nclass
 Ci     Passed to: *
 Cio  slat  :struct containing information about the lattice
@@ -202,7 +202,7 @@ C ----------------------------------------------------------------------
       integer ::iwdummy ,iwdummy1(1)
       logical T,F,cmdopt0,ltmp
       integer:: idest,ig,iprint,igets,isym(10),j1,j2,lpgf,nbas,
-     .nbas0,nsite,nclass,ngen,ngnmx,nspec,usegen,
+     .nbas0,nclass,ngen,ngnmx,nspec,usegen,
      .nggen,ngmx,incli, oiwk , aginv  !ldist,
       integer ,allocatable :: nrspc_iv(:)
       real(8) ,allocatable :: pos2_rv(:,:)
@@ -215,7 +215,7 @@ C ----------------------------------------------------------------------
       integer:: iv_a_oips(:)
       nbas =ctrl_nbas
       nspec=ctrl_nspec
-      nsite=ctrl_nsite
+c      nsite=ctrl_nsite
       plat =lat_plat
 c      ldist=lat_ldist           ! ldist mode need to be recovered if necessary
 c      dist=lat_dist
@@ -229,8 +229,8 @@ C ... For memory allocation of class data, assume initially nclass=nbas
       if(allocated(rv_a_oag)) deallocate(rv_a_oag,rv_a_osymgr,iv_a_oipc,iv_a_oics)
       allocate( rv_a_oag(3*ngmx)    )
       allocate( rv_a_osymgr(9*ngmx) )
-      allocate( iv_a_oipc(nsite)  )
-      allocate( iv_a_oics(nsite)  )
+      allocate( iv_a_oipc(nbas)  )
+      allocate( iv_a_oics(nbas)  )
       allocate( nrspc_iv(nbas) )
       call words(ssymgr,ngen)
       j1 = 1
@@ -294,7 +294,7 @@ C --- Printout of symmetry operations ---
 ! Split species into classes : ibas ==> iclass=ipc(ibas) ==> ispec=ics(iclass)
       if(allocated(iv_a_onrc)) deallocate(iv_a_onrc)
        allocate(iv_a_onrc(abs(nspec)))
-       iv_a_oipc=iv_a_oips(1:nsite)
+       iv_a_oipc=iv_a_oips(1:nbas)
        call splcls ( mod ( mode / 10 , 10 ) .eq.4 , rv_a_opos , nbas 
      .     , nsgrp , iv_a_oistab , nspec , slabl , nclass , iv_a_oipc , 
      .     iv_a_oics , iv_a_onrc ) 

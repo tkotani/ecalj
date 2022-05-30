@@ -380,8 +380,8 @@ c     ... read(but don't use) extra info since record is present
           pnu=0d0
           pnz=0d0
           ql=0d0
-          pnu=sspec(is)%p
-          pnz=sspec(is)%pz
+          pnu=ssite(ib)%pnu
+          pnz=ssite(ib)%pz
           idmod=0
           idmoz=0
           if (procid .eq. master) then
@@ -409,32 +409,32 @@ C       ... For backwards compatibility: prior versions wrote pnu for pnz
               read(jfi) (idmod(l+1), l=0,lmxa0)
               read(jfi) (idmoz(l+1), l=0,lmxa0)
           endif
-          pnus =sspec(is)%p
-          pnzs =sspec(is)%pz
+c          pnus =sspec(is)%p
+c          pnzs =sspec(is)%pz
           if  (irs5 .eq. 0 ) then 
             ssite(ib)%pnu=pnu
             ssite(ib)%pz=pnz
-            sspec(is)%p=pnu
-            sspec(is)%pz=pnz
-C     ... Verify lowest valence pnu compatible with file
-            lfail = .false.
-            ltmp1 = .false.
-            ltmp2 = .false.
-            do  i = 1, lmxa+1
-              vec0(1) = mod(pnz(i,1),10d0)
-              if (vec0(1) .eq. 0) vec0(1) = pnu(i,1)
-              vec0(2) = mod(pnzs(i,1),10d0)
-              if (vec0(2) .eq. 0) vec0(2) = pnus(i,1)
-              ltmp1 = ltmp1 .or. int(pnu(i,1)) .ne. int(pnus(i,1))
-              ltmp2 = ltmp2 .or.
-     .        int(mod(pnz(i,1),10d0)) .ne. int(mod(pnzs(i,1),10d0))
-              lfail = lfail .or. min(int(pnu(i,1)),int(vec0(1))) .ne.
-     .        min(int(pnus(i,1)),int(vec0(2)))
-            enddo
-            if (ltmp1 .and. ipr.ge.20) write(stdo,203) ib,spid,'file pnu',(pnu(i,1), i=1,lmxa+1)
-            if (ltmp1 .and. ipr.ge.20) write(stdo,204) 'given pnu is',(pnus(i,1), i=1,lmxa+1)
-            if (ltmp2 .and. ipr.ge.20) write(stdo,203) ib,spid,'file pz ',(pnz(i,1), i=1,lmxa+1)
-            if (ltmp2 .and. ipr.ge.20) write(stdo,204) 'given pz  is',(pnzs(i,1), i=1,lmxa+1)
+c            sspec(is)%p=  pnu !int?
+c            sspec(is)%pz= pnz
+c$$$C     ... Verify lowest valence pnu compatible with file
+c$$$            lfail = .false.
+c$$$            ltmp1 = .false.
+c$$$            ltmp2 = .false.
+c$$$            do  i = 1, lmxa+1
+c$$$              vec0(1) = mod(pnz(i,1),10d0)
+c$$$              if (vec0(1) .eq. 0) vec0(1) = pnu(i,1)
+c$$$              vec0(2) = mod(pnzs(i,1),10d0)
+c$$$              if (vec0(2) .eq. 0) vec0(2) = pnus(i,1)
+c$$$              ltmp1 = ltmp1 .or. int(pnu(i,1)) .ne. int(pnus(i,1))
+c$$$              ltmp2 = ltmp2 .or.
+c$$$     .        int(mod(pnz(i,1),10d0)) .ne. int(mod(pnzs(i,1),10d0))
+c$$$              lfail = lfail .or. min(int(pnu(i,1)),int(vec0(1))) .ne.
+c$$$     .        min(int(pnus(i,1)),int(vec0(2)))
+c$$$            enddo
+            if (ipr.ge.20) write(stdo,203) ib,spid,'file pnu',(pnu(i,1), i=1,lmxa+1)
+c            if (ltmp1 .and. ipr.ge.20) write(stdo,204) 'given pnu is',(pnus(i,1), i=1,lmxa+1)
+            if (ipr.ge.20) write(stdo,203) ib,spid,'file pz ',(pnz(i,1), i=1,lmxa+1)
+c            if (ltmp2 .and. ipr.ge.20) write(stdo,204) 'given pz  is',(pnzs(i,1), i=1,lmxa+1)
   203       format(9x,'site',i4,':',a,':',a,' is',8f6.2)
   204       format(26x,a,8f6.2)
             if (lfail .and. irs5 .eq. 1) then

@@ -142,13 +142,13 @@ cccccccccccccccccccccccccccccccc
 C     ichan0 = 0
       do  ib = 1, nbas
         is = int(ssite(ib)%spec)
-
         ia = ipb(ib)
 
-        i_copy_size=size(sspec(is)%p)
-        call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
-        i_copy_size=size(sspec(is)%pz)
-        call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1)
+c        i_copy_size=size(sspec(is)%p)
+c        call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
+c        i_copy_size=size(sspec(is)%pz)
+c        call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1)
+        pnz =ssite(ib)%pz
         lmxa=sspec(is)%lmxa
 
         if (lmxa .eq. -1) goto 10

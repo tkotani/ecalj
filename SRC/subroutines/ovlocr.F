@@ -22,7 +22,7 @@ C    sqloc :sum of local charges (integral over rho1-rho2)
 C    slmom :sum of local magnetic moments
 Cr Remarks
 Cu Updates
-Cu   12 May 07 parallelized (MPI)
+Cu   xxx 12 May 07 parallelized (MPI)
 Cu   01 Jul 05 Zero-radius empty spheres skip as having no local part
 Cu   14 Jun 00 spin polarized
 Cu   24 Apr 00 Adapted from nfp ovlocr.f
@@ -34,58 +34,24 @@ C ----------------------------------------------------------------------
       real(8):: rsmfa(1) , exi(nxi0,1) , hfc(nxi0,2,1) , sqloc , slmom
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-c      parameter(nrmx=1501,nlmx=64,ktop0=25)
       integer:: ib , ipr , iprint , is , jb , je , js , kmxv , lfoca 
      .    , lmxl , nlmh , nlml , nr , i
-      double precision ceh,cofg,cofh,eh,qcorg,qcorh,qsc,qcsm,qloc,rfoca,
-     .rmt,rsmh,rsmv,z,amom
-      double precision a,p1(3),
-     .p2(3),q(3) !,b0(ktop0+1),acof((ktop0+1),nlmx,2)
+      double precision ceh,cofg,cofh,eh,qcorg,qcorh,qsc,qcsm,qloc,rfoca,rmt,rsmh,rsmv,z,amom
+      double precision a,p1(3), p2(3),q(3) !,b0(ktop0+1),acof((ktop0+1),nlmx,2)
       real(8),allocatable:: acof(:,:,:),b0(:,:),rofi(:),rwgt(:)
       complex(8),allocatable:: b(:,:)
-c$$$#if MPI | MPIK
-c$$$C      include "mpif.h"
-c$$$      integer, dimension(:),allocatable :: ibproc
-c$$$      integer ierr,pid
-c$$$      integer procid, master, mpipid, numprocs
-c$$$      logical mlog,cmdopt
-c$$$      character strn*120
-c$$$#endif
       data q /0d0,0d0,0d0/
       integer:: ibini,ibend
 
       call tcn('ovlocr')
       ipr  = iprint()
-c      stdo = lgunit(1)
-c      nsp  = globalvariables%nsp
-c$$$#if MPI | MPIK
-c$$$      procid = mpipid(1)
-c$$$      numprocs = mpipid(0)
-c$$$      master = 0
-c$$$      mlog = cmdopt('--mlog',6,0,strn)
-c$$$#endif
-C --- Loop over sites where density is made ---
       sqloc = 0
       slmom = 0
-c$$$#if MPI | MPIK
-c$$$      call info0(31,1,0,' ovlocr: make sphere densities from '//
-c$$$     .'overlapping FA densities (parallel)')
-c$$$      allocate (ibproc(0:numprocs), stat=ierr)
-c$$$      call pshpr(ipr-10)
-c$$$      call dstrbp(nbas,numprocs,1,ibproc(0))
-c$$$      call poppr
-c$$$      ipr = 0
-c$$$      call pshpr(10)
-c$$$      ibini= ibproc(procid)
-c$$$      ibend= ibproc(procid+1)-1
-c$$$#else
       if (ipr .ge. 30) write (stdo,300)
   300 format(/' Free atom and overlapped crystal site charges:'
-     ./'   ib    true(FA)    smooth(FA)  true(OV)',
-     .'    smooth(OV)    local')
+     ./'   ib    true(FA)    smooth(FA)  true(OV)    smooth(OV)    local')
       ibini= 1
       ibend= nbas
-c$$$#endif
       do  ib = ibini,ibend
         is=ssite(ib)%spec
         p1(:)=ssite(ib)%pos(:)
@@ -138,59 +104,11 @@ c            call dpzero(b0,(kmxv+1)*nlmh)
    10   continue
         deallocate(acof,b)
       enddo
-
-c$$$#if MPI | MPIK
-c$$$      call poppr
-c$$$
-c$$$C ... Combine sphere densities from separate threads
-c$$$      do  pid = 0, numprocs-1
-c$$$        do  ib = ibproc(pid), ibproc(pid+1)-1
-c$$$
-c$$$          is=ssite(ib)%spec
-c$$$
-c$$$
-c$$$          nr=sspec(is)%nr
-c$$$          lmxl=sspec(is)%lmxl
-c$$$
-c$$$          nlml = (lmxl+1)**2
-c$$$          call mpibc3 ( sv_p_orhoat( 1 , ib )%v , nr * nlml * nsp , 4 , 
-c$$$     .     pid , 0 , 'ovlocr' , 'rhoat(1)' )
-c$$$
-c$$$          call mpibc3 ( sv_p_orhoat( 2 , ib )%v , nr * nlml * nsp , 4 , 
-c$$$     .     pid , 0 , 'ovlocr' , 'rhoat(1)' )
-c$$$
-c$$$          call mpibc3 ( sv_p_orhoat( 3 , ib )%v , nr * nsp , 4 , pid , 
-c$$$     .     0 , 'ovlocr' , 'rhoat(1)' )
-c$$$
-c$$$C          call MPI_BCAST(w(orhoat(1,ib)),nr*nlml*nsp,
-c$$$C     .      MPI_DOUBLE_PRECISION,pid,MPI_COMM_WORLD,ierr)
-c$$$C          call MPI_BCAST(w(orhoat(2,ib)),nr*nlml*nsp,
-c$$$C     .      MPI_DOUBLE_PRECISION,pid,MPI_COMM_WORLD,ierr)
-c$$$C          call MPI_BCAST(w(orhoat(3,ib)),nr*nsp,
-c$$$C     .      MPI_DOUBLE_PRECISION,pid,MPI_COMM_WORLD,ierr)
-c$$$        enddo
-c$$$      enddo
-c$$$C ... Combine sum-of-sphere charges from separate threads
-c$$$      call mpibc2_real(sqloc,1,'ovlocr_sqloc')
-c$$$      call mpibc2_real(slmom,1,'ovlocr_slmom')
-c$$$
-c$$$C     Debugging printout
-c$$$C      print 345, procid, (dval(w(orhoat(1,ib)),445), ib=1,20)
-c$$$C      print 345, procid, (dval(w(orhoat(2,ib)),445), ib=1,20)
-c$$$C      print 345, procid, (dval(w(orhoat(3,ib)),445), ib=1,20)
-c$$$C  345 format(i4,20f10.5)
-c$$$C     print *, procid, iprint()
-c$$$
-c$$$      deallocate(ibproc, stat=ierr)
-c$$$C     call rx0('done')
-c$$$#endif
-c$$$
       call tcx('ovlocr')
       end subroutine ovlocr
 
 
       subroutine p1ovlc(kmxv,nlml,hfc,b,b0,a)
-
 C- Adds contribution to P_kl expansion of density from one basis function
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -203,14 +121,11 @@ Co Outputs
 Co   a     :cumulative P_kl expansion of density for this site
 Cu Updates
 C ----------------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
+      implicit none
       integer nlml,kmxv
       double precision a(0:kmxv,nlml),b0(0:kmxv,1),hfc
       double complex b(0:kmxv,nlml)
-C ... Local parameters
       integer k,ilm
-
       do  10  k = 0, kmxv
         do  12  ilm = 1, nlml
           a(k,ilm) = a(k,ilm) + hfc*dble(b(k,ilm))

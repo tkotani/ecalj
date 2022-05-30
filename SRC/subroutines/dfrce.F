@@ -302,7 +302,7 @@ C ... Local parameters
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       double precision pi,alat,ceh,cofg,cofh,qcorg,qcorh,qsc,rfoc,rg,
      .vol,y0,z,v(3),df(0:20),feso(3),qcor(2),gpot0(nlmx,3),fesdn(3),
-     .fesgg(3),pnu(n0,2),pnz(n0,2),a,rmt,qloc,rsmfa,exi(n0),hfc(n0,2),
+     .fesgg(3),pnu(n0),pnz(n0),a,rmt,qloc,rsmfa,exi(n0),hfc(n0,2),
      .qfat,gam,qall,qc,qval,qg,e,aa,q0(3),sum
       double precision rwgt(nrmx),cc,gamf,cfoc,cvol
 C     parameter (k0=3)

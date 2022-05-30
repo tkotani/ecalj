@@ -88,23 +88,23 @@ c      ldim  = ham_ldham(1)
       ndima = 0
       norb=0
       do  ib = 1, nbas
-        is=ssite(ib)%spec
-        call dcopy(size(sspec(is)%pz),sspec(is)%pz,1,pnz,1)
-c     if (lmxa(ib)> -1) then
+        is  = ssite(ib)%spec
+        pnz = ssite(ib)%pz 
         do  l = 0, lmxa(ib)
           npqn = 2
           if (pnz(l+1,1) .ne. 0) npqn = 3
           ndima = ndima + npqn*(2*l+1)
           norb= norb + npqn
         enddo
-c     endif
       enddo
 ! ndima is the number of augmented wave. total number of (principle,L,ibas)
       lmxax = maxval(lmxa)      !mxint(nbas,lmxa)
       allocate(konft(0:lmxax,nbas,nsp))
       do ib = 1, nbas
-        call dcopy(size(ssite(ib)%pnu), ssite(ib)%pnu,1,pnu,1)
-        call dcopy(size(ssite(ib)%pz),  ssite(ib)%pz, 1,pnz,1)
+c     call dcopy(size(ssite(ib)%pnu), ssite(ib)%pnu,1,pnu,1)
+c     call dcopy(size(ssite(ib)%pz),  ssite(ib)%pz, 1,pnz,1)
+        pnu=ssite(ib)%pnu
+        pnz=ssite(ib)%pz
         do  isp = 1, nsp
           do  l  = 0, lmxa(ib)
             konft(l,ib,isp) = pnu(l+1,isp)

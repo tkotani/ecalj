@@ -206,8 +206,7 @@ c      lsig = 1
       do  ib = 1, nbas
         is=ssite(ib)%spec
         lmaxa=sspec(is)%lmxa
-        i_copy_size=size(sspec(is)%pz)
-        call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1)
+        pnz  =ssite(ib)%pz
         lmxax = max(lmxax,lmaxa)
         if (lmaxa .gt. -1) then
           do  l = 0, lmaxa

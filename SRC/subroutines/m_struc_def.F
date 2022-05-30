@@ -27,6 +27,7 @@ c      use m_lmfinit,only:n0,nkap0
       type s_cv4
       complex(8),allocatable:: cv4(:,:,:,:)
       end type s_cv4
+
       
 !! --- explanation of s_spec --- 
 Cr  idmod  idmol(l) controls how linearization energy is
@@ -35,7 +36,9 @@ Cr         0 float to center of gravity of occupied part of band
 Cr         1 freeze to spec'd logarithmic derivative
 Cr         2 freeze to spec'd linearization energy
 Cr         3 float to natural center of band (C parameter)
-      type s_spec
+!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+      
+      type s_spec !I think all of them are fixed during iteration cycle of lmf-MPIK
       real(8), allocatable :: rv_a_orhoc(:) !pointer to core density
       character(8)   ::   name !species name
       real(8)   ::   z !atomic number
@@ -46,8 +49,7 @@ Cr         3 float to natural center of band (C parameter)
       integer   ::   lmxa !  l cutoff for augmentation expansion
       integer   ::   lmxl !cutoff for local density
       integer   ::   kmxt !  k cutoffs for tail augmentation expansion
-      real(8)   ::   rsmv !  rsmv   rsm for one-center projection of free-atom density
-!     !     In TCF, smoothing radius to calculate exchange (artificially smoothed density)
+      real(8)   ::   rsmv !  rsmv  =rmt*.5d0 in defspc from m_lmfinit. smoothing radius of gaussian
       character(8)   ::   coreh !core hole channel (char: eg '1s')
       real(8)   :: coreq(2)!coreq(1)=charge in core hole channel;coreq(2):moment in core hole channel (nsp=2 only)
       real(8)   ::   a !a for mesh
@@ -75,25 +77,23 @@ Cr         3 float to natural center of band (C parameter)
       real(8)   ::   uh(4) !Hubbard U
       real(8)   ::   jh(4) !LDA+U J parameters for each l-channel
       integer :: nmcore !jun2012takao
-c      integer   ::   idxdn(n0,nkap0) !see m_lmfinit.F
-      real(8)   ::   p(n0,2) ! log derivative parameter
-      real(8)   ::   pz(n0,2) !  log derivative parameter, semicore states
+      real(8)   ::   p(n0)  !log derivative for spec taken from ctrl file !shown by >lmfa si |grep conf
+      real(8)   ::   pz(n0) !log derivative for spec taken from ctrl file
       end type s_spec
 !      
       type s_site
-      integer  :: iantiferro !may2015
-      integer   ::   class !class index
-      real(8)   ::   force(3) !force   force (dynamics)
-      real(8) , allocatable ::  rv_a_ov0(:)!pointer to potential that defines wave functions
-      real(8) , allocatable ::  rv_a_ov1(:)!pointer to spherical part of MT potential
-      real(8)   ::   pnu(n0,2)!log derivative parameter
-      real(8)   ::   pos(3) !true coordinates of atom
-      real(8)   ::   pos0(3) !coordinates of atom before distortion !pold in smshit (for MD)
-      real(8)   ::   pz(n0,2) !log derivative parameter, semicore states
-      integer   ::   relax(3) !(dynamics) flags which coordinates to relax
-      integer   ::   spec !species index
-c      character(8)   ::   clabel !labelling class
-c      real(8)   ::   vel(3) !velocity
-c      real(8)   ::   vshft !constant potential shift for this site
+      integer  :: iantiferro  !fixed during lmf-MPIK.
+      integer   ::   spec     !fixed. species index
+      integer   ::   class    !fixed. class index
+      integer   ::   relax(3) !fixed.(dynamics) flags which coordinates to relax
+c
+      real(8)   ::   pos(3)  !fixed during do 1000 in lmfp.F  Coordinates of atom
+      real(8)   ::   pos0(3) ! atomic pos in previous loop of do 2000 in lmfp.F smshit (for MD)
+c
+      real(8)   ::   force(3)  ! Force   
+      real(8) , allocatable ::  rv_a_ov0(:)! pointer to potential that defines wave functions
+      real(8) , allocatable ::  rv_a_ov1(:)! pointer to spherical part of MT potential
+      real(8)   ::   pnu(n0,2) ! log derivative parameter
+      real(8)   ::   pz(n0,2)  ! log derivative parameter for LO
       end type s_site
       end module m_struc_def

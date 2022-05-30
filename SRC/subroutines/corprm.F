@@ -61,43 +61,31 @@ cki      type(s_spec)::sspec(*)
       type(s_spec)::sspec(is)
 
 C ... Local parameters
-      integer:: n0 , lfoc , lmxb , l
+      integer:: n0 , lfoc , lmxb , l,isp
 ckino Dec.8.2011:         real(8),pointer :: rv_p_orhoca(:) =>NULL()
 
       parameter (n0=10)
       double precision ccof,fpi,q0,q1,qc,rmt,rsm,srfpi,stc,y0,x0(0:n0),
-     .xi(0:n0),dgetss,pnu(2*n0),pz(2*n0)
+     .     xi(0:n0),dgetss
+      real(8):: pnu(n0),pz(n0)
 
       fpi = 16d0*datan(1d0)
       srfpi = dsqrt(fpi)
       y0 = 1d0/srfpi
-
-C ... Extract parameters including qc and qsc
-
       lfoc=sspec(is)%lfoca
       rfoc=sspec(is)%rfoca
       qc=sspec(is)%qc
       z=sspec(is)%z
-
-
       ccof=sspec(is)%ctail
       ceh=sspec(is)%etail
       stc=sspec(is)%stc
-ckino Dec.8.2011:         rv_p_orhoca => sspec(is)%rv_p_orhoc
-
-
-
       lmxb=sspec(is)%lmxb
-      i_copy_size=size(sspec(is)%p)
-      call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
-      i_copy_size=size(sspec(is)%pz)
-      call dcopy(i_copy_size,sspec(is)%pz,1,pz,1)
-
-      rmt = (sspec(is)%rmt)
-
+      pnu= sspec(is)%p
+      pz = sspec(is)%pz
+      rmt = sspec(is)%rmt
       if ( rfoc .le. 1d-5 ) rfoc = (sspec(is)%rg)
-
       qsc = 0
+      isp=1 !we assme int pz(:,1)=pz(:,2) int pnu as well
       do  l = 0, lmxb
         if (int(pz(l+1)) .ne. 0) then
           if (int(mod(pz(l+1),10d0)).lt.int(pnu(l+1))) qsc = qsc + 4*l+2
