@@ -11,7 +11,7 @@ c      character*100::filenm(2)
       real(8):: rydberg=13.6058d0, bin,eigen(4),vvv,wt,bin2
       character strn*120
       character*(*)::ext
-      logical::cmdopt,mlog
+      logical::cmdopt2!,mlog
 
       integer, dimension(:),allocatable :: kpproc
       integer::numprocs,procid,ierr,itete,iteti,mpipid,ifile_handle
@@ -30,7 +30,7 @@ c      character*100::filenm(2)
       read(ifip) ef0 !may2015
       close(ifip)
 #if MPIK
-      mlog = cmdopt('--mlog',6,0,strn) !--mlog here is taken by getarg.
+c      mlog = cmdopt('--mlog',6,0,strn) !--mlog here is taken by getarg.
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
       allocate (kpproc(0:numprocs), stat=ierr)
@@ -46,16 +46,16 @@ c      print *,'ppppp',numprocs,procid,iteti,itete
       eminp =-25.0/rydberg
       emaxp = 30.0/rydberg
       ndos  = 5500
-      if (cmdopt('-emin=',6,0,strn)) then
-         read(strn(7:),*) eminp_
+      if (cmdopt2('-emin=',strn)) then
+         read(strn,*) eminp_
          eminp = eminp_/rydberg
       endif
-      if (cmdopt('-emax=',6,0,strn)) then
-        read(strn(7:),*) emaxp_
+      if (cmdopt2('-emax=',strn)) then
+        read(strn,*) emaxp_
         emaxp = emaxp_/rydberg
       endif
-      if(cmdopt('-ndos=',6,0,strn))  then
-        read(strn(7:),*) ndos_
+      if(cmdopt2('-ndos=',strn))  then
+        read(strn,*) ndos_
         ndos = ndos_
       endif
 

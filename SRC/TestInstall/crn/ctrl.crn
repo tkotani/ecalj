@@ -93,7 +93,7 @@ SITE
         ATOM=N2  POS=  1/2-{x}  3/4*s  (1/2+{z})*q
         ATOM=N2  POS=  1/2+{x}  1/4*s  (1/2-{z})*q
 BZ      NKABC=nk 2*nk nk BZJOB=T T T METAL=metal TETRA=T 
-        EF0=0.4 DELEF=0.1 NEVMX=256 EFMAX=5
+        EF0=0.4 DELEF=0.1 NEVMX=256 EFMAX=5 DOSMAX=1.5 NPTS=1001
         N=1 W=.01
 # for version 7
 ITER    MIX=A{nmix},b={beta},k=4 CONV={conv} CONVC={convc} NIT=nit
