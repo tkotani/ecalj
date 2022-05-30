@@ -88,7 +88,7 @@ c      integer   ::   idxdn(n0,nkap0) !see m_lmfinit.F
       real(8) , allocatable ::  rv_a_ov1(:)!pointer to spherical part of MT potential
       real(8)   ::   pnu(n0,2)!log derivative parameter
       real(8)   ::   pos(3) !true coordinates of atom
-      real(8)   ::   pos0(3) !coordinates of atom before distortion
+      real(8)   ::   pos0(3) !coordinates of atom before distortion !pold in smshit (for MD)
       real(8)   ::   pz(n0,2) !log derivative parameter, semicore states
       integer   ::   relax(3) !(dynamics) flags which coordinates to relax
       integer   ::   spec !species index

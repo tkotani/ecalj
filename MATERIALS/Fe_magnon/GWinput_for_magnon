@@ -6,7 +6,7 @@ tetrakbt off
 t_tetrakbt 0
 
 !EIBZmode off  !no symmetrization for hx0fp0* (default on);Only affects comp. effort. off may faster.
-chi_RegQbz off !Use no Gamma mesh for dielectric function. This automaticall set EIBZmode off.
+!chi_RegQbz off !Use no Gamma mesh for dielectric function. This automaticall set EIBZmode off.
 !Verbose    0  ! 0-->default; 100--->debug 
 !LFC@Gamma off !(on is default) if on, eps with Local field correction is used at Gamma point
 !Q0Pchoice 1 !1(default):qzerolimit(in practice, See generated Q0P), 2:1/q^2 average in Gamma region

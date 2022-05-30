@@ -4,7 +4,7 @@
 
 !!! qsym: 100 110 111 fccWK fccXW fccWL fccS
 ! qsym gxkgl
-qsym 100
+!qsym 100
 
 ! cma .true.
 ! cma_wshift 1.0

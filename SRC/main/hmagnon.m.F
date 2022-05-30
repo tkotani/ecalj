@@ -15,7 +15,7 @@ c      use m_readqg,only: readqg,readngmx
       use m_hamindex,only:qtt,nqtt
       use m_read_bzdata,only: read_bzdata,
      & nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,ginv,
-     & dq_,qbz,wbz,qibz,wibz,qbzw,
+     & qbz,wbz,qibz,wibz,qbzw,
      & idtetf,ib1bz,idteti,
      &   nstar,irk,nstbz
      &     ,wqt=>wt,q0i,nq0i ,nq0iadd,ixyz,epslgroup,nq0ix,neps
@@ -208,7 +208,16 @@ c      integer, allocatable:: epslgroup(:)
       nolfco=.true.
       wan=.true.
 
-!! We fix newaniso2=T now.
+
+!! === Readin by genallcf. Set basic data for crystal
+!! See "use m_genallcf_v3" at the begining of this routine
+!!
+      incwfin=0  !use ForX0 for core in GWIN
+      call genallcf_v3(incwfin) !in module m_genallcf_v3
+      write(6,"(' nqbz nqibz =',2i5)") nqbz,nqibz
+      if(chipm.and.nspin==1) call rx( 'chipm mode is for nspin=2')
+
+!     ! We fix newaniso2=T now.
 
 !! Prof.Naraga said " write(6,*)'Timereversal=',Timereversal()" 
 !! here caused a stop in ifort ver.1x.x. Why? May be a compilar bug, and fixed now.
@@ -259,17 +268,6 @@ cc need for gettetwt; automatically read file(okumura) OK
          call readefermi()      !!! ef:     Fermi energy at 0 K
          ef = ef_read
       endif
-
-!! === Readin by genallcf. Set basic data for crystal
-!! See "use m_genallcf_v3" at the begining of this routine
-!!
-      incwfin=0  !use ForX0 for core in GWIN
-      call genallcf_v3(incwfin) !in module m_genallcf_v3
-!     ! incwfin is for core handling
-c     write(6,*)' ncore nw_input delta=', ncore,nw_input,delta
-      write(6,"(' nqbz nqibz =',2i5)") nqbz,nqibz
-c      if(ngrp/=ngrp2       ) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
-      if(chipm.and.nspin==1) call rx( 'chipm mode is for nspin=2')
 
       tpioa=2d0*pi/alat
 

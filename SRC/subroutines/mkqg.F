@@ -357,9 +357,9 @@ c$$$  endif
       
 !! Remove equivalent q point by the translational symmetry 
       if( qreduce0 ) then
-         write(6,"(a,3i8)")'  nq0i nq0iadd nqnum=',nq0i,nq0iadd,nqnum
          call cputid (0)
          nmax= nq0i+nq0iadd+nqnum
+         write(6,"(a,4i8)")'  nq0i nq0iadd nqnum=',nq0i,nq0iadd,nqnum,nmax
          allocate(qsave(3,nmax)) !,qsavel(nmax))
          imx=0
          if(iq0pin /=1) then

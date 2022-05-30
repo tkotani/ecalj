@@ -41,7 +41,7 @@
       read(ifbz)idtetf(0:3,1:ntetf)
       allocate( ib1bz(1:nqbzw), qbzw(1:3,1:nqbzw))
       read(ifbz)ib1bz(1:nqbzw), qbzw(1:3,1:nqbzw)
-      allocate( idteti(0:4,1:nteti))
+      allocate( idteti(0:4,1:nteti),dq_(3))
       read(ifbz)idteti(0:4,1:nteti)
       read(ifbz) dq_
       read(ifbz) iq0pin,nq0i,iq0pin,nq0iadd
