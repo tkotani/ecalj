@@ -1133,18 +1133,18 @@ c BZ_EF0, BZ_DELEF removed. !c!! remove writing ZBAK file here. (Write ZBAK file
 !! set cg coefficients for lmf --- Choose dimensions for arrays
       lmxcg=8
       lmxcy=12
-      if (lmxcg .le. 6) then
-        lnjcg = 6500
-        lnxcg = 1300
-      else if (lmxcg .le. 8) then
+c      if (lmxcg .le. 6) then
+c        lnjcg = 6500
+c        lnxcg = 1300
+c      else if (lmxcg .le. 8) then
         lnjcg = 22700
         lnxcg = 3400
-      else if (lmxcg .le. 10) then
-        lnjcg = 62200
-        lnxcg = 7400
-      else
-        call rxi('setcg: cannot handle lmxcg=',lmxcg)
-      endif
+c      else if (lmxcg .le. 10) then
+c        lnjcg = 62200
+c        lnxcg = 7400
+c      else
+c        call rxi('setcg: cannot handle lmxcg=',lmxcg)
+c      endif
       nlm=(lmxcy+1)**2
       allocate(rv_a_ocy(abs(nlm)))
       allocate(rv_a_ocg(abs(lnjcg)))
