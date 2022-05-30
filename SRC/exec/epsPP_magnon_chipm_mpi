@@ -22,39 +22,42 @@ TARGET=$3
 # source $nfpgw/run_arg
 ###
 
-### create EFERMI_kbt if usetetrakbt mode
 
-### check n1n2n3 in GWinput and lqg4gw
-### if n1n2n3 same each other, then we skip lqg4gw
-lqg4gw="lqg4gw"
-if [ -e ${lqg4gw} ]; then
-    agwin=$(grep n1n2n3 GWinput)
-    alqg=$(grep n1n2n3 lqg4gw)
-    arygwin=(`echo $agwin`)
-    aryqg=(`echo $alqg`)
-    
-    for ((i=1;i<4;i++)); do
-	if [ ${arygwin[$i]} = ${aryqg[$i+1]} ]; then
-	    echo "n"${i}" is same."
-	    echo 5 | $nfpgw/heftet &> leftet_kbt # EFERMI_kbt
-	else
-	    ### EFERMI_kbt for original n1n2n3
-	    cp GWinput GWinput.magnon
-	    tmpnn=${aryqg[2]}" "${aryqg[3]}" "${aryqg[4]}"  \! comment"
-	    # echo ${tmpnn}
-	    sed -i -e "s/^n1n2n3/n1n2n3 $tmpnn/" GWinput
-	    echo 5 | $nfpgw/heftet &> leftet_kbt # EFERMI_kbt	   
-	    mv GWinput.magnon GWinput
-	    ### qg4gw for n1n2n3 GWinput_for_magnon
-	    echo "start qg4gw"
-	    # echo 1 | ~/bin/qg4gw > lqg4gw ### generate BZdata
-	    # echo 4 | ~/bin/qg4gw > lqg4gw ### generate BZdata
-	    break
-	fi
-    done
-fi
+#### we have to recover EFERMI_kbt when we use kbt mode.###
+# ### create EFERMI_kbt if usetetrakbt mode
+#
+# ### check n1n2n3 in GWinput and lqg4gw
+# ### if n1n2n3 same each other, then we skip lqg4gw
+# lqg4gw="lqg4gw"
+# if [ -e ${lqg4gw} ]; then
+#     agwin=$(grep n1n2n3eee GWinput)
+#     alqg=$(grep n1n2n3 lqg4gw)
+#     arygwin=(`echo $agwin`)
+#     aryqg=(`echo $alqg`)
+#    
+#     for ((i=1;i<4;i++)); do
+# 	if [ ${arygwin[$i]} = ${aryqg[$i+1]} ]; then
+# 	    echo "n"${i}" is same."
+# 	    echo 5 | $nfpgw/heftet &> leftet_kbt # EFERMI_kbt
+# 	else
+# 	    ### EFERMI_kbt for original n1n2n3
+# 	    cp GWinput GWinput.magnon
+# 	    tmpnn=${aryqg[2]}" "${aryqg[3]}" "${aryqg[4]}"  \! comment"
+# 	    # echo ${tmpnn}
+# 	    sed -i -e "s/^n1n2n3/n1n2n3 $tmpnn/" GWinput
+# 	    echo 5 | $nfpgw/heftet &> leftet_kbt # EFERMI_kbt	   
+# 	    mv GWinput.magnon GWinput
+# 	    ### qg4gw for n1n2n3 GWinput_for_magnon
+# 	    #echo "start qg4gw"
+# 	    # echo 1 | ~/bin/qg4gw > lqg4gw ### generate BZdata
+# 	    # echo 4 | ~/bin/qg4gw > lqg4gw ### generate BZdata
+# 	    break
+# 	fi
+#     done
+# fi
 
 # run_arg '---' $MPI_SIZE $nfpgw /hmagnon magnon.log
+
 
 echo 40001 | $nfpgw/qg4gw > lqg4gw04 ### generate BZdata
 mpirun -np $MPI_SIZE $nfpgw/hmagnon

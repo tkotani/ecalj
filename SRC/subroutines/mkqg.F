@@ -87,6 +87,7 @@ c      close(ifi)
       call readhamindex0()
       
       call getkeyvalue("GWinput", "n1n2n3", nnn,3)
+      if(lmagnon) call getkeyvalue("GWinput", "n1n2n3eee", nnn,3)
       call getkeyvalue("GWinput", "QpGcut_psi",QpGx2)
       call getkeyvalue("GWinput", "QpGcut_cou",QpGcut_Cou)
       call getkeyvalue("GWinput", "unit_2pioa",unit2)

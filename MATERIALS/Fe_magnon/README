@@ -1,4 +1,4 @@
 run magnon_all.sh
 We need
-GWinput_for_MLWF GWinput_for_magnon ctrl.fe syml.fe
+GWinput_for_MLWF GWinput_for_magnon ctrl.fe syml.fe mag3d.glt fbplot.glt
 for start
