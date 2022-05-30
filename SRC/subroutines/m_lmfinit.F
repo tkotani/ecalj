@@ -279,7 +279,7 @@ c      logical :: parmxp
       integer:: ii,sw
       real(8):: dasum!,dglob
       character(128) :: nm
-      real(8):: nullrv(256),d2,plat(3,3)
+      real(8):: nullrv(256),d2,plat(3,3),rydberg
       integer:: nulliv(256),jj(2) !,nkapsi
       logical:: noelind
       integer:: levelinit=0
@@ -1010,9 +1010,9 @@ c BZ_EF0, BZ_DELEF removed. !c!! remove writing ZBAK file here. (Write ZBAK file
       nm='BZ_ZBAK'; call gtv(trim(nm),tksw(prgnam,nm),zbak,def_r8=0d0,note='Homogeneous background charge')
       nm='BZ_SAVDOS'; call gtv(trim(nm),tksw(prgnam,nm),ctrl_ldos,
      .     def_i4=0,note='Choose 0 or 1: %N%3f1 Write dos.tot.* file (settings are NPTS and DOS)')
-      nm='BZ_NPTS'; call gtv(trim(nm),tksw(prgnam,nm),bz_ndos,def_i4=1001,
+      nm='BZ_NPTS'; call gtv(trim(nm),tksw(prgnam,nm),bz_ndos,def_i4=2001,
      .     note='No. DOS points (sampling integration)')
-      nm='BZ_DOSMAX'; call gtv(trim(nm),tksw(prgnam,nm),bz_dosmax,def_r8=1.5d0,
+      nm='BZ_DOSMAX'; call gtv(trim(nm),tksw(prgnam,nm),bz_dosmax,def_r8=40d0/rydberg(),
      &     note='Maximum energy to which DOS accumulated, relative to Efermi') !march 2013
       xxx = 5d0
       nm='BZ_EFMAX'; call gtv(trim(nm),tksw(prgnam,nm),bz_efmax,

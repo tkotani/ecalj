@@ -26,7 +26,7 @@ c      character(*),intent(in)::sname
       character*3::charnum3
       integer::ifbndsp(2),iprint,iq,i,ifile_handle,ifglt,ifbndsp_nearef(2),ifmass(2),ifmglt,ifmglt2
       character*300::aaa,addx
-      real(8):: emin=-18.0,emax=16.0 !eV for default plotting.
+      real(8):: emin=-20d0,emax=20d0 !eV for default plotting.
       integer:: ikps,ne,ifi,ix,nee,ibb,ilt,imin,imax
       real(8),allocatable::diffeb(:),diff2eb(:)
       real(8)::polinta,tpiba,eee,eqq,qqq,dEdkatef

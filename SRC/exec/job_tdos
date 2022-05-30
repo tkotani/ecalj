@@ -24,6 +24,7 @@ num=`head -2 dos.tot.$MATERIAL |tail -n 1|wc -w`
 ufileg=tdos.${MATERIAL}.glt
 echo '#!/usr/bin/gnuplot -persist' > ${ufileg}
 echo set title \"Total DOS\" >> ${ufileg}
+echo set xran [-20.0:20.0] >> ${ufileg}
 echo set xlabel \" eV \(zero at the Fermi energy or top of valence\)\" >> ${ufileg}
 echo set ylabel \" number of states/\(cell Ry\) : red \" >> ${ufileg}
 echo set y2tics >> ${ufileg}
