@@ -1,4 +1,14 @@
-run magnon_all.sh
+Check test at 2022-5-31
+----------------------
 We need
-GWinput_for_MLWF GWinput_for_magnon ctrl.fe syml.fe mag3d.glt fbplot.glt
-for start
+ GWinput
+ ctrl.fe
+ syml.fe
+ wanplot.glt
+ mag3d.glt
+ fbplot.glt
+to run ./magnon_all.sh, which calls genMLWF_wv and so on.
+
+After finished, you will have magnon3d_100.eps and so on.
+Compare them with eps/*.eps
+

@@ -84,11 +84,14 @@
 !=  rhoat smrho in m_density from atm.* or rst.*
 !     Read rst
       k=-1
+      vs=2d0
       if(irs1/=0) then
          if(master_mpi) then
             open(newunit=ifi,file='rst.'//trim(sname),form='unformatted') 
-            read(ifi) vs        !version id of rst file
-            write(stdo,ftox)'lmv7: Reading rst version ID=',ftof(vs,2)
+            read(ifi,end=996,err=996) vs !version id of rst file
+            close(ifi)
+            write(stdo,ftox)'lmv7: Read rst version ID=',ftof(vs,2)
+ 996        continue
          endif
          call Mpi_barrier(MPI_COMM_WORLD,ierr)
          call Mpibc1_real(vs,1,'lmv7: vs: version id of rst file')

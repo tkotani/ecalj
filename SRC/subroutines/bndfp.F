@@ -152,14 +152,11 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
       fsmode = cmdopt0('--fermisurface')!FermiSurfece for xcrysden in http://www.xcrysden.org/doc/XSF.html#2l.16
       ipr    = iprint() ! for procid/=master, we set iprint=0 at lmv7.F
       ltet = ntet>0 !tetrahedron method or not
-c      idummy = unlink('RSEQ_ERROR') ! Clean RSEQ_ERROR.
-      
 !! FermiEnergy eferm is from rst.* or efermi.lmf.
       if(binit) then 
          eferm = 0d0 ! if no eferm is read from rst file.
          binit=.false.
       endif
-      
 !  Get eferm from efermi.lmf for plbnd mode.
 !     efermi.lmf can be different from efermi in rst.* file.
 !     For example, you may change NKABC, and run job_pdos (lmf-MPIK --quit=band only modify efermi.lmf, without touching rst.*).
@@ -169,7 +166,6 @@ c      idummy = unlink('RSEQ_ERROR') ! Clean RSEQ_ERROR.
          close(ifi)             
          call mpibc1_real(eferm,1,'bndfp_eferm')
       endif
-      
 !! Set spin-symmetrized pnu. aug2019. See also in pnunew and locpot
       if(cmdopt0('--phispinsym')) call phispinsym_ssite_set() !pnu,pz are spin symmetrized      
 !! Write out Hamiltonian HamiltonianPMT.* 

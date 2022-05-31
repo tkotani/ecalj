@@ -19,7 +19,8 @@
 !LFC@Gamma off !(on is default) if on, eps with Local field correction is used at Gamma point
 !Q0Pchoice 1 !1(default):qzerolimit(in practice, See generated Q0P), 2:1/q^2 average in Gamma region
 ! ##### From GWIN0 ################ 
-n1n2n3  12 12 12
+n1n2n3  4 4 4
+n1n2n3eps  12 12 12 !for magnon
 QpGcut_psi 4.0  !(See unit_2pioa for unit) |q+G| cutoff for eigenfunction.
 QpGcut_cou 3.0  !(See unit_2pioa for unit) |q+G| cutoff for Coulomb and W.
 unit_2pioa off ! off --> a.u.; on--> unit of QpGcut_* are in 2*pi/alat 
@@ -162,15 +163,15 @@ GaussSmear on ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr for
 !EPSdw     0.05 !(Ry) energy mesh  for dielectric function plot.
  
 !QforEPSIBZ on ! Use all q in IBZ for the calculation of eps mode.
-<QforEPS>
- 0d0 0d0 0.01d0
- 0d0 0d0 0.02d0
- 0d0 0d0 0.04d0
-</QforEPS>
-!<QforEPSL>
-! 0d0 0d0 0d0   1d0   0d0  0d0 8
-! 0d0 0d0 0d0  .5d0  .5d0  0d0 8
-!</QforEPSL>
+!<QforEPS>
+! 0d0 0d0 0.01d0
+! 0d0 0d0 0.02d0
+! 0d0 0d0 0.04d0
+!</QforEPS>
+<QforEPSL>
+ 0d0 0d0 0d0   1d0   0d0  0d0 6
+ 0d0 0d0 0d0  .5d0  .5d0  0d0 6
+</QforEPSL>
  
 !!! ##### Maximally localized Wannier function ################ 
 !!! For s,p,d,f the indices 1-16 correspond to: 

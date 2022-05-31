@@ -1,6 +1,6 @@
 # set term x11
 set terminal postscript enhanced color eps
-set output "fe9_fbplot.eps"
+set output "ni9_fbplot.eps"
 
 set multiplot layout 1,2
 set xzeroaxis
