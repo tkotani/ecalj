@@ -17,8 +17,7 @@
       use m_mixrho,only: Parms0
       use m_lattic,only: Setopos
       use m_ftox
-      
-!! = Main routine of lmf = (following document is roughly checked at May2021)
+!!= Main routine of lmf = (following document is roughly checked at May2021)
 !! lmfp contains two loops after initialization
 !!   1  outer  loop do 2000 is for molecular dynamics (relaxiation).
 !!   2. innner loop do 1000 is for electronic structure self-consistency.
@@ -26,25 +25,22 @@
 !! (Most of) all data in modules are 'protected'.
 !! Thus data in m_lmfinit, m_lattic, m_mksy, m_ext, ... are fixed during iteration.
 !! Currently rhoat, smrho, smpot in m_supot are iterated. ham_ehf _ehk changed by iterations.      
-!! We currently don't maintain the share (of crystal structure) mode.
-!     sspec :struct for species-specific information; see routine uspec
-!     ssite :struct for site-specific information; see routine usite
-!     sspec and ssite are not protecetd ---> iors can modify it.
-!     But, these are fixed before going into do 2000/1000 loop (I think).      
+!     sspec :struct for species-specific information. I think fixed during iteration. See m_lmfinit.
+!     ssite :struct for site-specific information
 ! Memo for LDA+U. See m_ldau module.
 !     lmaxu : max l for a U (used for dimensioning)
 !     nlibu : total number of U blocks
 !     lldau(ib) : U on site ib with dmat beginning at dmats(*,lldau(ib))
-!! Unused irlxsh: counter for shear relaxations.  irlxsh=0 => new step
 !!      
-!! --> history is removed to avoid confusions. See ecalj@github  
+!! We currently don't maintain the share (of crystal structure) mode.
+!! ===> history is removed to avoid confusions. See ecalj@github  
 !! aug2020. T.kotani removed lshr mode (automatic modification of plat), because
 !!      Probably, we need to re-design it (maybe outside of fortran code).
       implicit none
       integer,parameter:: nm=3
       character alabl*8, flg*3
       logical :: cmdopt,llmfgw,lbin,cmdopt0 !,lshr=.false.
-      integer :: i,ifi,ipr, k, nit1,numq, lsc, icom,  nvrelx , itrlx, irlxsh=0 
+      integer :: i,ifi,ipr, k, nit1,numq, lsc, icom,  nvrelx , itrlx
       integer:: ibas,unlink,ifipos,ifile_handle,iter,j,idmatu,iprint
       real(8) :: gam(4),gam1,bstim,pletot(6,2), plat(3,3),xvcart(3),xvfrac(3),seref,etot(2),vs,vs1
       real(8),allocatable :: pos_move(:,:),  ftot_rv(:), wk_rv(:), p_rv(:),hess(:,:)
@@ -54,18 +50,17 @@
       logical:: cmdopt2
       character(20):: outs=''
       integer:: ierr
-      integer:: irs(5),irsr(5), irs1x,irs1,irs2,irs3,irs5
+      integer:: irs(5),irsr(5), irs1,irs2,irs3,irs5
       logical:: irs1x10!,irsrot
       character(256):: strn,strn2
       include "mpif.h"
       call tcn('lmfp')
-      ipr = iprint() !call getpr(ipr) !ipr is pring verbose control
-      
-!! --- Read density from restart file or atom files
-!!    irs1x tells what to read and whether to invoke smshft.
-!!     0    read from atom file  atm;  1  read from binary  rst ;  2 read from ascii  rsta
-!!    +10 -> invoke smshft(1) after file read.
-!! --rs=3 mode is removed.(always read from atom file, --rs=3 is for fixed density Harris-foukner MD).
+      ipr = iprint() 
+!= Reading condition switch [irs1,irs2,irs3,irs5,irs1x10]
+!=    irs1x tells what to read and whether to invoke smshft.
+!=    0    read from atom file  atm;  1  read from binary  rst ;  2 read from ascii  rsta
+!=    +10 -> invoke smshft(1) after file read.
+!= --rs=3 mode is removed.(always read from atom file, --rs=3 is for fixed density Harris-foukner MD).
       irs=[1,1,0,0,0]
       if (cmdopt2('--rs=',strn)) then
          strn2=trim(strn)//',999,999,999,999,999'
@@ -76,51 +71,41 @@
       endif
       irs1 = mod(irs(1),10) ! irs1 is irrelenvant now . irs1>10 gives irs1x10
       irs2 = irs(2)         ! irs2=0 (no write)
-      if(irs1/=0.and.irs1/=1) call rx('irs1/=0.and.irs1/=1')
+      if(irs1/=1.and.irs1/=0.and.irs1/=1) call rx('irs1 not \in [0,1,2]')
       if(irs2/=0.and.irs2/=1) call rx('irs2/=0.and.irs2/=1')
       irs3 = irs(3) ! irs3=1: read site positions from ctrl even when we have rst. 
       irs5 = irs(5) ! irs5=1: read pnu from ctrl even when we have rst.
       irs1x10 = (irs(1)/10==1)  ! +10:  smshft after rst/rsta
-cxxx irsrot  = (irs(1)/100==1) ! +100: rotate local density after file read for shear mode (iors.F)
-cxxx irs4 = irs(4) ! read starting fermi level from ctrl
-
-      
-!  Initial density. Read atomic and smooth parted os density,
-!  rhoat smrho in m_density from atm.* or rst.*
-
-!! Reading rst is prior to reading atom file.
-c      if (irs1x == 0) then ! read overlap free-atom densities
-c         call rdovfa()     ! superposition of spherical atomic densities by lmfa.
-c         nit1 = 0
-c      else
       if (cmdopt0('--etot')) irs2=0 !not write rst files
-      nit1=0
-      irs1x = irs1
-      k = -1
-      if(master_mpi) then
-         open(newunit=ifi,file='rst.'//trim(sname),form='unformatted') 
-         read(ifi,end=996,err=996) vs1 !version id of rst file
-         close(ifi)
- 996     continue
-         vs=vs1
-         write(stdo,ftox)'lmv7: Reading rst version ID=',ftof(vs,2)
+!xxx irsrot  = (irs(1)/100==1) ! +100: rotate local density after file read for shear mode (iors.F)
+!xxx irs4 = irs(4) ! read starting fermi level from ctrl
+      
+!=  Initial density set up. Read atomic and smooth parted os density,
+!=  rhoat smrho in m_density from atm.* or rst.*
+!     Read rst
+      k=-1
+      if(irs1/=0) then
+         if(master_mpi) then
+            open(newunit=ifi,file='rst.'//trim(sname),form='unformatted') 
+            read(ifi) vs        !version id of rst file
+            write(stdo,ftox)'lmv7: Reading rst version ID=',ftof(vs,2)
+         endif
+         call Mpi_barrier(MPI_COMM_WORLD,ierr)
+         call Mpibc1_real(vs,1,'lmv7: vs: version id of rst file')
+         if(vs==2d0) then       !2020-5-14
+            k = iors(nit1,'read',irs3=irs3,irs5=irs5) ! read rst file. sspec ssite maybe modified
+         else                   !vs=1.04d0
+            k = iors_old(nit1,'read',irs3=irs3,irs5=irs5) ! read rst file. sspec ssite maybe modified
+         endif   
+         call Mpibc1_int(k,1,'lmv7:lmfp_k')
+         call Setopos()         ! Set position of atoms read from iors 
       endif
-      call Mpi_barrier(MPI_COMM_WORLD,ierr)
-      call Mpibc1_real(vs,1,'lmv7: vs: version id of rst file')
-      if(vs==2d0) then !2020-5-14
-         k = iors(nit1,'read',irs3=irs3,irs5=irs5)     ! read rst file. sspec ssite maybe modified
-      else !vs=1.04d0
-         k = iors_old(nit1,'read',irs3=irs3,irs5=irs5) ! read rst file. sspec ssite maybe modified
-      endif   
-      call Mpibc1_int(k,1,'lmv7:lmfp_k')
-      call Setopos()      !Set pos of iors to rv_a_opos
-      if(k<0) then        !initial potential from atm file if rst can not read
-         irs1x = 0
-         call Rdovfa() 
+      if(k<0) then !irs1==0 .or. Not reading rst.      
+         irs1 = 0
+         call Rdovfa()  ! Initial potential from atm file if rst can not read
          nit1 = 0
-      elseif (irs1x10) then  
-         call Smshft(1) 
-      endif
+      endif   
+      if(k>=0.and.irs1x10) call Smshft(1)  ! modify denity after reading rst when irs1x10=True
       
 !! Sep2020 " Shorten site positions" removed.
       etot = 0d0 ! Total energy mode --etot ==>moved to m_lmfinit ---
@@ -166,7 +151,7 @@ c      else
 !   Things for --density (plot density) are in locpot.F(rho1mt and rho2mt) and mkpot.F(smooth part).
 !! Write restart file (skip if --quit=band) ---
             if(master_mpi .and. (.not.cmdopt0('--quit=band'))) then
-               if(irs2>0 .and. (lrout>0.or.maxit==0)) then ! .and. irlxsh==0) then
+               if(irs2>0 .and. (lrout>0.or.maxit==0)) then 
 c                  lbin = .true. !irs2/=2
                   ifi = ifile_handle() 
                   open(ifi,file='rst.'//trim(sname),form='unformatted') !no rsa now
@@ -192,7 +177,7 @@ c                  k = iors_old ( iter , 'write' ,irs3,irs5)
 !     :1 if not self-consistent, but encountered max. no. iter.
 !     :2 Harris energy from overlap of free atoms (iter=1 and lhf=t)
 !     :3 otherwise
-               call nwit( int(ctrl_nvario), iter, maxit, (lhf.or.irs1x==0).and.iter==1,
+               call nwit( int(ctrl_nvario), iter, maxit, (lhf.or.irs1==0).and.iter==1,
      &              leks+i, etol, qtol, qdiff, amom, etot, sev,lsc)
             endif
             call mpibc1_int(lsc,1,'lmfp_lsc')
@@ -205,7 +190,6 @@ c                  k = iors_old ( iter , 'write' ,irs3,irs5)
             if( lsc <= 2) exit  !self-consistency exit
  1000    enddo               ! ---------------- SCF (iteration) loop end ----
          if(nitrlx==0) exit     !no molecular dynamics (=no atomic position relaxation)
-         
 !==== Molecular dynamics (relaxiation). 
          MDblock: Block !Not maintained well recently but atomic position relaxation was working
          do ibas=1,nbas
@@ -243,7 +227,7 @@ c                  k = iors_old ( iter , 'write' ,irs3,irs5)
             ifi = ifile_handle()
             open(ifi,file='rst.'//trim(sname),form='unformatted') 
             k = iors (iter , 'write' ,irs3,irs5)!Write restart file (to include new positions)
-c            k = iors_old (iter , 'write' ,irs3,irs5)!Write restart file (to include new positions)
+c           k = iors_old (iter , 'write' ,irs3,irs5)! rst version 1.04
             close(ifi)
             write(stdo,*)' Delete mixing and band weights files ...'
             open(newunit=ifi, file='mixm.'//trim(sname)); close(ifi, status='delete')
@@ -252,7 +236,6 @@ c            k = iors_old (iter , 'write' ,irs3,irs5)!Write restart file (to inc
          call Parms0(0,0,0d0,0) !   reset mixing block
          if(itrlx==nitrlx.and.master_mpi) write(stdo,"(a)")' LMFP: relaxation incomplete'
          endblock MDblock
-         
  2000 enddo
  9998 continue
       if(master_mpi.and.nitrlx>0) close(ifipos)

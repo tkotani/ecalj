@@ -1,13 +1,15 @@
       module m_rdfiln
-      use m_lgunit,only:stdo
-      public m_rdfiln_init,recln,recrd,nrecs,mxrecs
+      public M_rdfiln_init, recln,recrd,nrecs,mxrecs
+      
       integer,parameter:: recln=511, mxrecs=10000
       character*(recln),protected:: recrd(mxrecs)
       integer,protected:: nrecs
-!return -vfoobar replaced simplified contents of ctrl into recrd
+      
       private
       contains
-      subroutine m_rdfiln_init()
+      subroutine m_rdfiln_init() !Read recln,recrd,nrecs,mxrecs for m_lmfinit_init
+!     -vfoobar replaced simplified contents of ctrl into recrd
+      use m_lgunit,only:stdo
       use m_ext,only: sname
       integer:: nfilin,master=0,ierr,i,procid=0,mpipid
       character(8) :: alabl
