@@ -1,29 +1,35 @@
 !! explanations are old, some are obsolate 
       module m_struc_def
-c      use m_lmfinit,only:n0,nkap0
-      integer,parameter::  nkap0=3,n0=10
+      use m_lmfinit,only:n0,nkap0
+      
       public s_rv1, s_nv2, s_cv1, s_cv2,s_cv3,s_cv4, s_spec, s_site, s_sblock
       private
       
       type s_rv1
       real(8),allocatable:: v(:)
       end type s_rv1
+      
       type s_cv1
       complex(8),allocatable:: cv(:)
       end type s_cv1
+      
       type s_sblock
       complex(8),allocatable:: sdiag(:,:) !(1,1) and (2,2) spin block as sdiag(:,isp)
       complex(8),allocatable:: soffd(:,:) !(1,2) and (2,1) spin block as soffd(:,isp)
       end type s_sblock
+      
       type s_nv2
       integer,allocatable:: nv2(:,:)
       end type s_nv2
+      
       type s_cv2
       complex(8),allocatable:: cv2(:,:)
       end type s_cv2
+      
       type s_cv3
       complex(8),allocatable:: cv3(:,:,:)
       end type s_cv3
+      
       type s_cv4
       complex(8),allocatable:: cv4(:,:,:,:)
       end type s_cv4
@@ -38,9 +44,9 @@ Cr         2 freeze to spec'd linearization energy
 Cr         3 float to natural center of band (C parameter)
 !ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       
-      type s_spec !I think all of them are fixed during iteration cycle of lmf-MPIK
+      type s_spec               !I think all of them are fixed during iteration cycle of lmf-MPIK
       real(8), allocatable :: rv_a_orhoc(:) !pointer to core density
-      character(8)   ::   name !species name
+      character(8)  ::   name !species name
       real(8)   ::   z !atomic number
       real(8)   ::   rmt !augmentation radius
       real(8)   ::   rsmfa !rsm to fit free atom density

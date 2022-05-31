@@ -90,16 +90,18 @@ c$$$  としていました。program毎に変える場合はこのファイル�
        
        end module m_commandline
        
-#if 0
+#if 1
        program test
        use m_commandline
        
        type(t_commandline):: cmdline
        integer:: i
        
-       write(6,*) cmdline%get_f(),cmdline%mode
+       write(6,*) cmdline%get_f()
+       write(6,*) 'mode=',cmdline%mode
        
-       write(6,*) cmdline%narg,cmdline%mode
+       write(6,*) cmdline%narg
+       write(6,*) cmdline%mode
        
        end program test
        
