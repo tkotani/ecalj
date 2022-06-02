@@ -1,623 +1,623 @@
-      double precision function dbesj(n,x)
-C- Bessel functions of integer order
-C  (Taken from Numerical Recipes)
-C     implicit none
-      integer iacc,n,j,m,jsum
-      double precision bigno,bigni,tox,x,bjm,dbesj0,bj,dbesj1,bjp,sum
-      parameter (iacc=100,bigno=1d10,bigni=1d-10)
+real(8) function dbesj(n,x)
+  !- Bessel functions of integer order
+  !  (Taken from Numerical Recipes)
+  !     implicit none
+  integer :: iacc,n,j,m,jsum
+  double precision :: bigno,bigni,tox,x,bjm,dbesj0,bj,dbesj1,bjp,sum
+  parameter (iacc=100,bigno=1d10,bigni=1d-10)
 
-C --- Handle j=0, 1 explicitly ---
-      if (n .lt. 0) call rx('DBESJ: n lt 0')
-      if (n .eq. 0) then 
-        dbesj = dbesj0(x)
-        return
-      elseif (n .eq. 1) then 
-        dbesj = dbesj1(x)
-        return
-      endif
+  ! --- Handle j=0, 1 explicitly ---
+  if (n < 0) call rx('DBESJ: n lt 0')
+  if (n == 0) then
+     dbesj = dbesj0(x)
+     return
+  elseif (n == 1) then
+     dbesj = dbesj1(x)
+     return
+  endif
 
-C --- Bessel functions for larger n ---
-      tox = 2d0/x
-      if (x .gt. dble(n)) then
-        bjm = dbesj0(x)
-        bj = dbesj1(x)
-        do  11  j = 1, n-1
-          bjp = j*tox*bj-bjm
-          bjm = bj
-          bj = bjp
-   11   continue
-        dbesj = bj
-      else
-        m = 2*((n+int(dsqrt(dble(iacc*n))))/2)
-        dbesj = 0d0
-        jsum = 0
-        sum = 0d0
-        bjp = 0d0
-        bj = 1d0
-        do  12  j = m, 1,-1
-          bjm = j*tox*bj-bjp
-          bjp = bj
-          bj = bjm
-          if (dabs(bj) .gt. bigno) then
-            bj = bj*bigni
-            bjp = bjp*bigni
-            dbesj = dbesj*bigni
-            sum = sum*bigni
-          endif
-          if (jsum .ne. 0)sum = sum+bj
-          jsum = 1-jsum
-          if (j .eq. n) dbesj = bjp
-   12   continue
-        sum = 2d0*sum-bj
-        dbesj = dbesj/sum
-      endif
-      end
-      double precision function dbesj0 (x)
-c july 1977 edition.  w. fullerton, c3, los alamos scientific lab.
-C NB: a bug for x<=4 !!! (errors ~10-3)
-      double precision x, bj0cs(19), ampl, theta, xsml, y,
-     1     d1mach, dcsevl, dcos, dsqrt,eta
-      integer:: initds,ntj0
-c      external d1mach,  dcsevl, initds
-c
-c series for bj0        on the interval  0.          to  1.60000e+01
-c                                        with weighted error   4.39e-32
-c                                         log weighted error  31.36
-c                               significant figures required  31.21
-c                                    decimal places required  32.00
-c
-      data bj0 cs(  1) / +.1002541619 6893913701 0731272640 74 d+0     /
-      data bj0 cs(  2) / -.6652230077 6440513177 6787578311 24 d+0     /
-      data bj0 cs(  3) / +.2489837034 9828131370 4604687266 80 d+0     /
-      data bj0 cs(  4) / -.3325272317 0035769653 8843415038 54 d-1     /
-      data bj0 cs(  5) / +.2311417930 4694015462 9049241177 29 d-2     /
-      data bj0 cs(  6) / -.9911277419 9508092339 0485193365 49 d-4     /
-      data bj0 cs(  7) / +.2891670864 3998808884 7339037470 78 d-5     /
-      data bj0 cs(  8) / -.6121085866 3032635057 8184074815 16 d-7     /
-      data bj0 cs(  9) / +.9838650793 8567841324 7687486364 15 d-9     /
-      data bj0 cs( 10) / -.1242355159 7301765145 5158970068 36 d-10    /
-      data bj0 cs( 11) / +.1265433630 2559045797 9158272103 63 d-12    /
-      data bj0 cs( 12) / -.1061945649 5287244546 9148175129 59 d-14    /
-      data bj0 cs( 13) / +.7470621075 8024567437 0989155840 00 d-17    /
-      data bj0 cs( 14) / -.4469703227 4412780547 6270079999 99 d-19    /
-      data bj0 cs( 15) / +.2302428158 4337436200 5230933333 33 d-21    /
-      data bj0 cs( 16) / -.1031914479 4166698148 5226666666 66 d-23    /
-      data bj0 cs( 17) / +.4060817827 4873322700 8000000000 00 d-26    /
-      data bj0 cs( 18) / -.1414383600 5240913919 9999999999 99 d-28    /
-      data bj0 cs( 19) / +.4391090549 6698880000 0000000000 00 d-31    /
-c
-      data ntj0, xsml / 0, 0.d0 /
-c
-      if (ntj0.ne.0) go to 10
-      ntj0 = initds (bj0cs, 19, 0.1d0*d1mach(3))
-      xsml = dsqrt (4.0d0*d1mach(3))
-c
- 10   y = dabs(x)
-      if (y.gt.4.0d0) go to 20
-c
-      dbesj0 = 1.0d0
-      if (y.gt.xsml) dbesj0 = dcsevl (.125d0*y*y-1.d0, bj0cs, ntj0)
-      return
-c
-   20 call d9b0mp (y, ampl, theta)
-      dbesj0 = ampl * dcos(theta)
-c
-      return
-      end
-      double precision function dbesj1 (x)
-c sept 1983 edition.  w. fullerton, c3, los alamos scientific lab.
-c apr 1991  bug fix by boisvert@cam.nist.gov
-      double precision x, bj1cs(19), ampl, theta, xsml, xmin, y,
-     1     d1mach, dcsevl, dcos, dsqrt
-      integer:: initds
-c      external d1mach, dcsevl, initds
-c
-c series for bj1        on the interval  0.          to  1.60000e+01
-c                                        with weighted error   1.16e-33
-c                                         log weighted error  32.93
-c                               significant figures required  32.36
-c                                    decimal places required  33.57
-c
-      data bj1 cs(  1) / -.1172614151 3332786560 6240574524 003 d+0    /
-      data bj1 cs(  2) / -.2536152183 0790639562 3030884554 698 d+0    /
-      data bj1 cs(  3) / +.5012708098 4469568505 3656363203 743 d-1    /
-      data bj1 cs(  4) / -.4631514809 6250819184 2619728789 772 d-2    /
-      data bj1 cs(  5) / +.2479962294 1591402453 9124064592 364 d-3    /
-      data bj1 cs(  6) / -.8678948686 2788258452 1246435176 416 d-5    /
-      data bj1 cs(  7) / +.2142939171 4379369150 2766250991 292 d-6    /
-      data bj1 cs(  8) / -.3936093079 1831797922 9322764073 061 d-8    /
-      data bj1 cs(  9) / +.5591182317 9468800401 8248059864 032 d-10   /
-      data bj1 cs( 10) / -.6327616404 6613930247 7695274014 880 d-12   /
-      data bj1 cs( 11) / +.5840991610 8572470032 6945563268 266 d-14   /
-      data bj1 cs( 12) / -.4482533818 7012581903 9135059199 999 d-16   /
-      data bj1 cs( 13) / +.2905384492 6250246630 6018688000 000 d-18   /
-      data bj1 cs( 14) / -.1611732197 8414416541 2118186666 666 d-20   /
-      data bj1 cs( 15) / +.7739478819 3927463729 8346666666 666 d-23   /
-      data bj1 cs( 16) / -.3248693782 1119984114 3466666666 666 d-25   /
-      data bj1 cs( 17) / +.1202237677 2274102272 0000000000 000 d-27   /
-      data bj1 cs( 18) / -.3952012212 6513493333 3333333333 333 d-30   /
-      data bj1 cs( 19) / +.1161678082 2664533333 3333333333 333 d-32   /
-c
-      integer::ntj1
-      data ntj1, xsml, xmin / 0, 2*0.d0 /
-c
-      if (ntj1.ne.0) go to 10
-      ntj1 = initds (bj1cs, 19, 0.1d0*d1mach(3))
-c
-      xsml = dsqrt (4.0d0*d1mach(3))
-      xmin = 2.0d0*d1mach(1)
-c
- 10   y = dabs(x)
-      if (y.gt.4.0d0) go to 20
-c
-      dbesj1 = 0.0d0
-      if (y.eq.0.0d0) return
-c
-      if (y.le.xmin) call errmsg('DBESJ1:  x so small j1 underflows',0)
-      if (y.gt.xmin) dbesj1 = 0.5d0*x
-      if (y.gt.xsml) dbesj1 = x*(.25d0 + dcsevl (.125d0*y*y-1.d0,
-     1bj1cs, ntj1) )
-      return
-c
- 20   call d9b1mp (y, ampl, theta)
-      dbesj1 = dsign(ampl,x) * dcos(theta)
-c
-      return
-      end
-      subroutine d9b0mp (x, ampl, theta)
-c july 1977 edition.  w. fullerton, c3, los alamos scientific lab.
-c
-c evaluate the modulus and phase for the bessel j0 and y0 functions.
-c
-      double precision x, ampl, theta, bm0cs(37), bt02cs(39),
-     1bm02cs(40), bth0cs(44), xmax, pi4, z, d1mach, dcsevl,
-     2     dsqrt,eta
-      integer:: initds,nbm0,nbt02,nbm02,nbth0
-c      external d1mach, dcsevl, initds
-c
-c series for bm0        on the interval  1.56250e-02 to  6.25000e-02
-c                                        with weighted error   4.40e-32
-c                                         log weighted error  31.36
-c                               significant figures required  30.02
-c                                    decimal places required  32.14
-c
-      data bm0 cs(  1) / +.9211656246 8277427125 7376773018 2 d-1      /
-      data bm0 cs(  2) / -.1050590997 2719051024 8071637175 5 d-2      /
-      data bm0 cs(  3) / +.1470159840 7687597540 5639285095 2 d-4      /
-      data bm0 cs(  4) / -.5058557606 0385542233 4792932770 2 d-6      /
-      data bm0 cs(  5) / +.2787254538 6324441766 3035613788 1 d-7      /
-      data bm0 cs(  6) / -.2062363611 7809148026 1884101897 3 d-8      /
-      data bm0 cs(  7) / +.1870214313 1388796751 3817259626 1 d-9      /
-      data bm0 cs(  8) / -.1969330971 1356362002 4173077782 5 d-10     /
-      data bm0 cs(  9) / +.2325973793 9992754440 1250881805 2 d-11     /
-      data bm0 cs( 10) / -.3009520344 9382502728 5122473448 2 d-12     /
-      data bm0 cs( 11) / +.4194521333 8506691814 7120676864 6 d-13     /
-      data bm0 cs( 12) / -.6219449312 1884458259 7326742956 4 d-14     /
-      data bm0 cs( 13) / +.9718260411 3360684696 0176588526 9 d-15     /
-      data bm0 cs( 14) / -.1588478585 7010752073 6663596693 7 d-15     /
-      data bm0 cs( 15) / +.2700072193 6713088900 8621732445 8 d-16     /
-      data bm0 cs( 16) / -.4750092365 2340089924 7750478677 3 d-17     /
-      data bm0 cs( 17) / +.8615128162 6043708731 9170374656 0 d-18     /
-      data bm0 cs( 18) / -.1605608686 9561448157 4560270335 9 d-18     /
-      data bm0 cs( 19) / +.3066513987 3144829751 8853980159 9 d-19     /
-      data bm0 cs( 20) / -.5987764223 1939564306 9650561706 6 d-20     /
-      data bm0 cs( 21) / +.1192971253 7482483064 8906984106 6 d-20     /
-      data bm0 cs( 22) / -.2420969142 0448054894 8468258133 3 d-21     /
-      data bm0 cs( 23) / +.4996751760 5106164533 7100287999 9 d-22     /
-      data bm0 cs( 24) / -.1047493639 3511585100 9504051199 9 d-22     /
-      data bm0 cs( 25) / +.2227786843 7974681010 4818346666 6 d-23     /
-      data bm0 cs( 26) / -.4801813239 3981628623 7054293333 3 d-24     /
-      data bm0 cs( 27) / +.1047962723 4709599564 7699626666 6 d-24     /
-      data bm0 cs( 28) / -.2313858165 6786153251 0126080000 0 d-25     /
-      data bm0 cs( 29) / +.5164823088 4626742116 3519999999 9 d-26     /
-      data bm0 cs( 30) / -.1164691191 8500653895 2540159999 9 d-26     /
-      data bm0 cs( 31) / +.2651788486 0433192829 5833600000 0 d-27     /
-      data bm0 cs( 32) / -.6092559503 8257284976 9130666666 6 d-28     /
-      data bm0 cs( 33) / +.1411804686 1442593080 3882666666 6 d-28     /
-      data bm0 cs( 34) / -.3298094961 2317372457 5061333333 3 d-29     /
-      data bm0 cs( 35) / +.7763931143 0740650317 1413333333 3 d-30     /
-      data bm0 cs( 36) / -.1841031343 6614584784 2133333333 3 d-30     /
-      data bm0 cs( 37) / +.4395880138 5943107371 0079999999 9 d-31     /
-c
-c series for bth0       on the interval  0.          to  1.56250e-02
-c                                        with weighted error   2.66e-32
-c                                         log weighted error  31.57
-c                               significant figures required  30.67
-c                                    decimal places required  32.40
-c
-      data bth0cs(  1) / -.2490178086 2128936717 7097937899 67 d+0     /
-      data bth0cs(  2) / +.4855029960 9623749241 0486155354 85 d-3     /
-      data bth0cs(  3) / -.5451183734 5017204950 6562735635 05 d-5     /
-      data bth0cs(  4) / +.1355867305 9405964054 3774459299 03 d-6     /
-      data bth0cs(  5) / -.5569139890 2227626227 5832184149 20 d-8     /
-      data bth0cs(  6) / +.3260903182 4994335304 0042057194 68 d-9     /
-      data bth0cs(  7) / -.2491880786 2461341125 2379038779 93 d-10    /
-      data bth0cs(  8) / +.2344937742 0882520554 3524135648 91 d-11    /
-      data bth0cs(  9) / -.2609653444 4310387762 1775747661 36 d-12    /
-      data bth0cs( 10) / +.3335314042 0097395105 8699550149 23 d-13    /
-      data bth0cs( 11) / -.4789000044 0572684646 7507705574 09 d-14    /
-      data bth0cs( 12) / +.7595617843 6192215972 6425685452 48 d-15    /
-      data bth0cs( 13) / -.1313155601 6891440382 7733974876 33 d-15    /
-      data bth0cs( 14) / +.2448361834 5240857495 4268207383 55 d-16    /
-      data bth0cs( 15) / -.4880572981 0618777683 2567619183 31 d-17    /
-      data bth0cs( 16) / +.1032728502 9786316149 2237563612 04 d-17    /
-      data bth0cs( 17) / -.2305763381 5057217157 0047445270 25 d-18    /
-      data bth0cs( 18) / +.5404444300 1892693993 0171084837 65 d-19    /
-      data bth0cs( 19) / -.1324069519 4366572724 1550328823 85 d-19    /
-      data bth0cs( 20) / +.3378079562 1371970203 4247921247 22 d-20    /
-      data bth0cs( 21) / -.8945762915 7111779003 0269262922 99 d-21    /
-      data bth0cs( 22) / +.2451990688 9219317090 8999086514 05 d-21    /
-      data bth0cs( 23) / -.6938842287 6866318680 1399331576 57 d-22    /
-      data bth0cs( 24) / +.2022827871 4890138392 9463033377 91 d-22    /
-      data bth0cs( 25) / -.6062850000 2335483105 7941953717 64 d-23    /
-      data bth0cs( 26) / +.1864974896 4037635381 8237883962 70 d-23    /
-      data bth0cs( 27) / -.5878373238 4849894560 2450365308 67 d-24    /
-      data bth0cs( 28) / +.1895859144 7999563485 5311795035 13 d-24    /
-      data bth0cs( 29) / -.6248197937 2258858959 2916207285 65 d-25    /
-      data bth0cs( 30) / +.2101790168 4551024686 6386335290 74 d-25    /
-      data bth0cs( 31) / -.7208430093 5209253690 8139339924 46 d-26    /
-      data bth0cs( 32) / +.2518136389 2474240867 1564059767 46 d-26    /
-      data bth0cs( 33) / -.8951804225 8785778806 1439459536 43 d-27    /
-      data bth0cs( 34) / +.3235723747 9762298533 2562358685 87 d-27    /
-      data bth0cs( 35) / -.1188301051 9855353657 0471441137 96 d-27    /
-      data bth0cs( 36) / +.4430628690 7358104820 5792319417 31 d-28    /
-      data bth0cs( 37) / -.1676100964 8834829495 7920101356 81 d-28    /
-      data bth0cs( 38) / +.6429294692 1207466972 5323939660 88 d-29    /
-      data bth0cs( 39) / -.2499226116 6978652421 2072136827 63 d-29    /
-      data bth0cs( 40) / +.9839979429 9521955672 8282603553 18 d-30    /
-      data bth0cs( 41) / -.3922037524 2408016397 9891316261 58 d-30    /
-      data bth0cs( 42) / +.1581810703 0056522138 5906188456 92 d-30    /
-      data bth0cs( 43) / -.6452550614 4890715944 3440983654 26 d-31    /
-      data bth0cs( 44) / +.2661111136 9199356137 1770183463 67 d-31    /
-c
-c series for bm02       on the interval  0.          to  1.56250e-02
-c                                        with weighted error   4.72e-32
-c                                         log weighted error  31.33
-c                               significant figures required  30.00
-c                                    decimal places required  32.13
-c
-      data bm02cs(  1) / +.9500415145 2283813693 3086133556 0 d-1      /
-      data bm02cs(  2) / -.3801864682 3656709917 4808156685 1 d-3      /
-      data bm02cs(  3) / +.2258339301 0314811929 5182992722 4 d-5      /
-      data bm02cs(  4) / -.3895725802 3722287647 3062141260 5 d-7      /
-      data bm02cs(  5) / +.1246886416 5120816979 3099052972 5 d-8      /
-      data bm02cs(  6) / -.6065949022 1025037798 0383505838 7 d-10     /
-      data bm02cs(  7) / +.4008461651 4217469910 1527597104 5 d-11     /
-      data bm02cs(  8) / -.3350998183 3980942184 6729879457 4 d-12     /
-      data bm02cs(  9) / +.3377119716 5174173670 6326434199 6 d-13     /
-      data bm02cs( 10) / -.3964585901 6350127005 6935629582 3 d-14     /
-      data bm02cs( 11) / +.5286111503 8838572173 8793974473 5 d-15     /
-      data bm02cs( 12) / -.7852519083 4508523136 5464024349 3 d-16     /
-      data bm02cs( 13) / +.1280300573 3866822010 1163407344 9 d-16     /
-      data bm02cs( 14) / -.2263996296 3914297762 8709924488 4 d-17     /
-      data bm02cs( 15) / +.4300496929 6567903886 4641029047 7 d-18     /
-      data bm02cs( 16) / -.8705749805 1325870797 4753545145 5 d-19     /
-      data bm02cs( 17) / +.1865862713 9620951411 8144277205 0 d-19     /
-      data bm02cs( 18) / -.4210482486 0930654573 4508697230 1 d-20     /
-      data bm02cs( 19) / +.9956676964 2284009915 8162741784 2 d-21     /
-      data bm02cs( 20) / -.2457357442 8053133596 0592147854 7 d-21     /
-      data bm02cs( 21) / +.6307692160 7620315680 8735370705 9 d-22     /
-      data bm02cs( 22) / -.1678773691 4407401426 9333117238 8 d-22     /
-      data bm02cs( 23) / +.4620259064 6739044337 7087813608 7 d-23     /
-      data bm02cs( 24) / -.1311782266 8603087322 3769340249 6 d-23     /
-      data bm02cs( 25) / +.3834087564 1163028277 4792244027 6 d-24     /
-      data bm02cs( 26) / -.1151459324 0777412710 7261329357 6 d-24     /
-      data bm02cs( 27) / +.3547210007 5233385230 7697134521 3 d-25     /
-      data bm02cs( 28) / -.1119218385 8150046462 6435594217 6 d-25     /
-      data bm02cs( 29) / +.3611879427 6298378316 9840499425 7 d-26     /
-      data bm02cs( 30) / -.1190687765 9133331500 9264176246 3 d-26     /
-      data bm02cs( 31) / +.4005094059 4039681318 0247644953 6 d-27     /
-      data bm02cs( 32) / -.1373169422 4522123905 9519391601 7 d-27     /
-      data bm02cs( 33) / +.4794199088 7425315859 9649152643 7 d-28     /
-      data bm02cs( 34) / -.1702965627 6241095840 0699447645 2 d-28     /
-      data bm02cs( 35) / +.6149512428 9363300715 0357516132 4 d-29     /
-      data bm02cs( 36) / -.2255766896 5818283499 4430023724 2 d-29     /
-      data bm02cs( 37) / +.8399707509 2942994860 6165835320 0 d-30     /
-      data bm02cs( 38) / -.3172997595 5626023555 6742393615 2 d-30     /
-      data bm02cs( 39) / +.1215205298 8812985545 8333302651 4 d-30     /
-      data bm02cs( 40) / -.4715852749 7544386930 1321056804 5 d-31     /
-c
-c series for bt02       on the interval  1.56250e-02 to  6.25000e-02
-c                                        with weighted error   2.99e-32
-c                                         log weighted error  31.52
-c                               significant figures required  30.61
-c                                    decimal places required  32.32
-c
-      data bt02cs(  1) / -.2454829521 3424597462 0504672493 24 d+0     /
-      data bt02cs(  2) / +.1254412103 9084615780 7853317782 99 d-2     /
-      data bt02cs(  3) / -.3125395041 4871522854 9734467095 71 d-4     /
-      data bt02cs(  4) / +.1470977824 9940831164 4534269693 14 d-5     /
-      data bt02cs(  5) / -.9954348893 7950033643 4688503511 58 d-7     /
-      data bt02cs(  6) / +.8549316673 3203041247 5787113977 51 d-8     /
-      data bt02cs(  7) / -.8698975952 6554334557 9855121791 92 d-9     /
-      data bt02cs(  8) / +.1005209953 3559791084 5401010821 53 d-9     /
-      data bt02cs(  9) / -.1282823060 1708892903 4836236855 44 d-10    /
-      data bt02cs( 10) / +.1773170078 1805131705 6557504510 23 d-11    /
-      data bt02cs( 11) / -.2617457456 9485577488 6362841809 25 d-12    /
-      data bt02cs( 12) / +.4082835138 9972059621 9664812211 03 d-13    /
-      data bt02cs( 13) / -.6675166823 9742720054 6067495542 61 d-14    /
-      data bt02cs( 14) / +.1136576139 3071629448 3924695499 51 d-14    /
-      data bt02cs( 15) / -.2005118962 0647160250 5592664121 17 d-15    /
-      data bt02cs( 16) / +.3649797879 4766269635 7205914641 06 d-16    /
-      data bt02cs( 17) / -.6830963756 4582303169 3558437888 00 d-17    /
-      data bt02cs( 18) / +.1310758314 5670756620 0571042679 46 d-17    /
-      data bt02cs( 19) / -.2572336310 1850607778 7571306495 99 d-18    /
-      data bt02cs( 20) / +.5152165744 1863959925 2677809493 33 d-19    /
-      data bt02cs( 21) / -.1051301756 3758802637 9407414613 33 d-19    /
-      data bt02cs( 22) / +.2182038199 1194813847 3010845013 33 d-20    /
-      data bt02cs( 23) / -.4600470121 0362160577 2259054933 33 d-21    /
-      data bt02cs( 24) / +.9840700692 5466818520 9536511999 99 d-22    /
-      data bt02cs( 25) / -.2133403803 5728375844 7359863466 66 d-22    /
-      data bt02cs( 26) / +.4683103642 3973365296 0662869333 33 d-23    /
-      data bt02cs( 27) / -.1040021369 1985747236 5133823999 99 d-23    /
-      data bt02cs( 28) / +.2334910567 7301510051 7777408000 00 d-24    /
-      data bt02cs( 29) / -.5295682532 3318615788 0497493333 33 d-25    /
-      data bt02cs( 30) / +.1212634195 2959756829 1962879999 99 d-25    /
-      data bt02cs( 31) / -.2801889708 2289428760 2756266666 66 d-26    /
-      data bt02cs( 32) / +.6529267898 7012873342 5937066666 66 d-27    /
-      data bt02cs( 33) / -.1533798006 1873346427 8357333333 33 d-27    /
-      data bt02cs( 34) / +.3630588430 6364536682 3594666666 66 d-28    /
-      data bt02cs( 35) / -.8656075571 3629122479 1722666666 66 d-29    /
-      data bt02cs( 36) / +.2077990997 2536284571 2383999999 99 d-29    /
-      data bt02cs( 37) / -.5021117022 1417221674 3253333333 33 d-30    /
-      data bt02cs( 38) / +.1220836027 9441714184 1919999999 99 d-30    /
-      data bt02cs( 39) / -.2986005626 7039913454 2506666666 66 d-31    /
-c
-      data pi4 / 0.7853981633 9744830961 5660845819 876 d0 /
-      data nbm0, nbt02, nbm02, nbth0, xmax / 4*0, 0.d0 /
-c
-      if (nbm0.ne.0) go to 10
-      eta = 0.1d0*d1mach(3)
-      nbm0 = initds (bm0cs, 37, eta)
-      nbt02 = initds (bt02cs, 39, eta)
-      nbm02 = initds (bm02cs, 40, eta)
-      nbth0 = initds (bth0cs, 44, eta)
-c
-      xmax = 1.0d0/d1mach(4)
-c
-c   10 if (x.lt.4.d0) call seteru (22hd9b0mp  x must be ge 4, 22, 1, 2)
-   10 if (x.lt.4.d0) call errmsg('D9B0MP: x must be ge 4',2)
-c
-      if (x.gt.8.d0) go to 20
-      z = (128.d0/(x*x) - 5.d0)/3.d0
-      ampl = (.75d0 + dcsevl (z, bm0cs, nbm0))/dsqrt(x)
-      theta = x - pi4 + dcsevl (z, bt02cs, nbt02)/x
-      return
-c
-   20 if (x.gt.xmax)
-     .call errmsg('D9B0MP:  no precision because x is big',2)
+  ! --- Bessel functions for larger n ---
+  tox = 2d0/x
+  if (x > dble(n)) then
+     bjm = dbesj0(x)
+     bj = dbesj1(x)
+     do  11  j = 1, n-1
+        bjp = j*tox*bj-bjm
+        bjm = bj
+        bj = bjp
+11   enddo
+     dbesj = bj
+  else
+     m = 2*((n+int(dsqrt(dble(iacc*n))))/2)
+     dbesj = 0d0
+     jsum = 0
+     sum = 0d0
+     bjp = 0d0
+     bj = 1d0
+     do  12  j = m, 1,-1
+        bjm = j*tox*bj-bjp
+        bjp = bj
+        bj = bjm
+        if (dabs(bj) > bigno) then
+           bj = bj*bigni
+           bjp = bjp*bigni
+           dbesj = dbesj*bigni
+           sum = sum*bigni
+        endif
+        if (jsum /= 0)sum = sum+bj
+        jsum = 1-jsum
+        if (j == n) dbesj = bjp
+12   enddo
+     sum = 2d0*sum-bj
+     dbesj = dbesj/sum
+  endif
+END function dbesj
+real(8) function dbesj0 (x)
+  ! july 1977 edition.  w. fullerton, c3, los alamos scientific lab.
+  ! NB: a bug for x<=4 !!! (errors ~10-3)
+  double precision :: x, bj0cs(19), ampl, theta, xsml, y, &
+       d1mach, dcsevl, dcos, dsqrt,eta
+  integer:: initds,ntj0
+  !      external d1mach,  dcsevl, initds
 
-c
-      z = 128.d0/(x*x) - 1.d0
-      ampl = (.75d0 + dcsevl (z, bm02cs, nbm02))/dsqrt(x)
-      theta = x - pi4 + dcsevl (z, bth0cs, nbth0)/x
-      return
-c
-      end
-      subroutine d9b1mp (x, ampl, theta)
-c july 1977 edition.  w. fullerton, c3, los alamos scientific lab.
-c
-c evaluate the modulus and phase for the bessel j1 and y1 functions.
-c
-      double precision x, ampl, theta, bm1cs(37), bt12cs(39),
-     1bm12cs(40), bth1cs(44), xmax, pi4, z, d1mach, dcsevl,
-     2     dsqrt,eta
-      integer:: initds,nbm1,nbm12,nbt12,nbth1
-c      external d1mach, dcsevl, initds
-c
-c series for bm1        on the interval  1.56250e-02 to  6.25000e-02
-c                                        with weighted error   4.91e-32
-c                                         log weighted error  31.31
-c                               significant figures required  30.04
-c                                    decimal places required  32.09
-c
-      data bm1 cs(  1) / +.1069845452 6180630149 6998530853 8 d+0      /
-      data bm1 cs(  2) / +.3274915039 7159649007 2905514344 5 d-2      /
-      data bm1 cs(  3) / -.2987783266 8316985920 3044577793 8 d-4      /
-      data bm1 cs(  4) / +.8331237177 9919745313 9322266902 3 d-6      /
-      data bm1 cs(  5) / -.4112665690 3020073048 9638172549 8 d-7      /
-      data bm1 cs(  6) / +.2855344228 7892152207 1975766316 1 d-8      /
-      data bm1 cs(  7) / -.2485408305 4156238780 6002659605 5 d-9      /
-      data bm1 cs(  8) / +.2543393338 0725824427 4248439717 4 d-10     /
-      data bm1 cs(  9) / -.2941045772 8229675234 8975082790 9 d-11     /
-      data bm1 cs( 10) / +.3743392025 4939033092 6505615362 6 d-12     /
-      data bm1 cs( 11) / -.5149118293 8211672187 2054824352 7 d-13     /
-      data bm1 cs( 12) / +.7552535949 8651439080 3404076419 9 d-14     /
-      data bm1 cs( 13) / -.1169409706 8288464441 6629062246 4 d-14     /
-      data bm1 cs( 14) / +.1896562449 4347915717 2182460506 0 d-15     /
-      data bm1 cs( 15) / -.3201955368 6932864206 6477531639 4 d-16     /
-      data bm1 cs( 16) / +.5599548399 3162041144 8416990549 3 d-17     /
-      data bm1 cs( 17) / -.1010215894 7304324431 1939044454 4 d-17     /
-      data bm1 cs( 18) / +.1873844985 7275629833 0204271957 3 d-18     /
-      data bm1 cs( 19) / -.3563537470 3285802192 7430143999 9 d-19     /
-      data bm1 cs( 20) / +.6931283819 9712383304 2276351999 9 d-20     /
-      data bm1 cs( 21) / -.1376059453 4065001522 5140893013 3 d-20     /
-      data bm1 cs( 22) / +.2783430784 1070802205 9977932799 9 d-21     /
-      data bm1 cs( 23) / -.5727595364 3205616893 4866943999 9 d-22     /
-      data bm1 cs( 24) / +.1197361445 9188926725 3575679999 9 d-22     /
-      data bm1 cs( 25) / -.2539928509 8918719766 4144042666 6 d-23     /
-      data bm1 cs( 26) / +.5461378289 6572959730 6961919999 9 d-24     /
-      data bm1 cs( 27) / -.1189211341 7733202889 8628949333 3 d-24     /
-      data bm1 cs( 28) / +.2620150977 3400815949 5782400000 0 d-25     /
-      data bm1 cs( 29) / -.5836810774 2556859019 2093866666 6 d-26     /
-      data bm1 cs( 30) / +.1313743500 0805957734 2361599999 9 d-26     /
-      data bm1 cs( 31) / -.2985814622 5103803553 3277866666 6 d-27     /
-      data bm1 cs( 32) / +.6848390471 3346049376 2559999999 9 d-28     /
-      data bm1 cs( 33) / -.1584401568 2224767211 9296000000 0 d-28     /
-      data bm1 cs( 34) / +.3695641006 5709380543 0101333333 3 d-29     /
-      data bm1 cs( 35) / -.8687115921 1446682430 1226666666 6 d-30     /
-      data bm1 cs( 36) / +.2057080846 1587634629 2906666666 6 d-30     /
-      data bm1 cs( 37) / -.4905225761 1162255185 2373333333 3 d-31     /
-c
-c series for bt12       on the interval  1.56250e-02 to  6.25000e-02
-c                                        with weighted error   3.33e-32
-c                                         log weighted error  31.48
-c                               significant figures required  31.05
-c                                    decimal places required  32.27
-c
-      data bt12cs(  1) / +.7382386012 8742974662 6208397927 64 d+0     /
-      data bt12cs(  2) / -.3336111317 4483906384 4701476811 89 d-2     /
-      data bt12cs(  3) / +.6146345488 8046964698 5148994201 86 d-4     /
-      data bt12cs(  4) / -.2402458516 1602374264 9776354695 68 d-5     /
-      data bt12cs(  5) / +.1466355557 7509746153 2105919972 04 d-6     /
-      data bt12cs(  6) / -.1184191730 5589180567 0051475049 83 d-7     /
-      data bt12cs(  7) / +.1157419896 3919197052 1254663030 55 d-8     /
-      data bt12cs(  8) / -.1300116112 9439187449 3660077945 71 d-9     /
-      data bt12cs(  9) / +.1624539114 1361731937 7421662736 67 d-10    /
-      data bt12cs( 10) / -.2208963682 1403188752 1554417701 28 d-11    /
-      data bt12cs( 11) / +.3218030425 8553177090 4743586537 78 d-12    /
-      data bt12cs( 12) / -.4965314793 2768480785 5520211353 81 d-13    /
-      data bt12cs( 13) / +.8043890043 2847825985 5588826393 17 d-14    /
-      data bt12cs( 14) / -.1358912131 0161291384 6947126822 82 d-14    /
-      data bt12cs( 15) / +.2381050439 7147214869 6765296059 73 d-15    /
-      data bt12cs( 16) / -.4308146636 3849106724 4712414207 99 d-16    /
-      data bt12cs( 17) / +.8020254403 2771002434 9935125504 00 d-17    /
-      data bt12cs( 18) / -.1531631064 2462311864 2300274687 99 d-17    /
-      data bt12cs( 19) / +.2992860635 2715568924 0730405546 66 d-18    /
-      data bt12cs( 20) / -.5970996465 8085443393 8156366506 66 d-19    /
-      data bt12cs( 21) / +.1214028966 9415185024 1608526506 66 d-19    /
-      data bt12cs( 22) / -.2511511469 6612948901 0069777066 66 d-20    /
-      data bt12cs( 23) / +.5279056717 0328744850 7383807999 99 d-21    /
-      data bt12cs( 24) / -.1126050922 7550498324 3611613866 66 d-21    /
-      data bt12cs( 25) / +.2434827735 9576326659 6634624000 00 d-22    /
-      data bt12cs( 26) / -.5331726123 6931800130 0384426666 66 d-23    /
-      data bt12cs( 27) / +.1181361505 9707121039 2059903999 99 d-23    /
-      data bt12cs( 28) / -.2646536828 3353523514 8567893333 33 d-24    /
-      data bt12cs( 29) / +.5990339404 1361503945 5778133333 33 d-25    /
-      data bt12cs( 30) / -.1369085463 0829503109 1363839999 99 d-25    /
-      data bt12cs( 31) / +.3157679015 4380228326 4136533333 33 d-26    /
-      data bt12cs( 32) / -.7345791508 2084356491 4005333333 33 d-27    /
-      data bt12cs( 33) / +.1722808148 0722747930 7059200000 00 d-27    /
-      data bt12cs( 34) / -.4071690796 1286507941 0688000000 00 d-28    /
-      data bt12cs( 35) / +.9693474513 6779622700 3733333333 33 d-29    /
-      data bt12cs( 36) / -.2323763633 7765716765 3546666666 66 d-29    /
-      data bt12cs( 37) / +.5607451067 3522029406 8906666666 66 d-30    /
-      data bt12cs( 38) / -.1361646539 1539005860 5226666666 66 d-30    /
-      data bt12cs( 39) / +.3326310923 3894654388 9066666666 66 d-31    /
-c
-c series for bm12       on the interval  0.          to  1.56250e-02
-c                                        with weighted error   5.01e-32
-c                                         log weighted error  31.30
-c                               significant figures required  29.99
-c                                    decimal places required  32.10
-c
-      data bm12cs(  1) / +.9807979156 2330500272 7209354693 7 d-1      /
-      data bm12cs(  2) / +.1150961189 5046853061 7548348460 2 d-2      /
-      data bm12cs(  3) / -.4312482164 3382054098 8935809773 2 d-5      /
-      data bm12cs(  4) / +.5951839610 0888163078 1302980183 2 d-7      /
-      data bm12cs(  5) / -.1704844019 8269098574 0070158647 8 d-8      /
-      data bm12cs(  6) / +.7798265413 6111095086 5817382740 1 d-10     /
-      data bm12cs(  7) / -.4958986126 7664158094 9175495186 5 d-11     /
-      data bm12cs(  8) / +.4038432416 4211415168 3820226514 4 d-12     /
-      data bm12cs(  9) / -.3993046163 7251754457 6548384664 5 d-13     /
-      data bm12cs( 10) / +.4619886183 1189664943 1334243277 5 d-14     /
-      data bm12cs( 11) / -.6089208019 0953833013 4547261933 3 d-15     /
-      data bm12cs( 12) / +.8960930916 4338764821 5704804124 9 d-16     /
-      data bm12cs( 13) / -.1449629423 9420231229 1651891892 5 d-16     /
-      data bm12cs( 14) / +.2546463158 5377760561 6514964806 8 d-17     /
-      data bm12cs( 15) / -.4809472874 6478364442 5926371862 0 d-18     /
-      data bm12cs( 16) / +.9687684668 2925990490 8727583912 4 d-19     /
-      data bm12cs( 17) / -.2067213372 2779660232 4503811755 1 d-19     /
-      data bm12cs( 18) / +.4646651559 1503847318 0276780959 0 d-20     /
-      data bm12cs( 19) / -.1094966128 8483341382 4135132833 9 d-20     /
-      data bm12cs( 20) / +.2693892797 2886828609 0570761278 5 d-21     /
-      data bm12cs( 21) / -.6894992910 9303744778 1897002685 7 d-22     /
-      data bm12cs( 22) / +.1830268262 7520629098 9066855474 0 d-22     /
-      data bm12cs( 23) / -.5025064246 3519164281 5611355322 4 d-23     /
-      data bm12cs( 24) / +.1423545194 4548060396 3169363419 4 d-23     /
-      data bm12cs( 25) / -.4152191203 6164503880 6888676980 1 d-24     /
-      data bm12cs( 26) / +.1244609201 5039793258 8233007654 7 d-24     /
-      data bm12cs( 27) / -.3827336370 5693042994 3191866128 6 d-25     /
-      data bm12cs( 28) / +.1205591357 8156175353 7472398183 5 d-25     /
-      data bm12cs( 29) / -.3884536246 3764880764 3185936112 4 d-26     /
-      data bm12cs( 30) / +.1278689528 7204097219 0489528346 1 d-26     /
-      data bm12cs( 31) / -.4295146689 4479462720 6193691591 2 d-27     /
-      data bm12cs( 32) / +.1470689117 8290708864 5680270798 3 d-27     /
-      data bm12cs( 33) / -.5128315665 1060731281 8037401779 6 d-28     /
-      data bm12cs( 34) / +.1819509585 4711693854 8143737328 6 d-28     /
-      data bm12cs( 35) / -.6563031314 8419808676 1863505037 3 d-29     /
-      data bm12cs( 36) / +.2404898976 9199606531 9891487583 4 d-29     /
-      data bm12cs( 37) / -.8945966744 6906124732 3495824297 9 d-30     /
-      data bm12cs( 38) / +.3376085160 6572310266 3714897824 0 d-30     /
-      data bm12cs( 39) / -.1291791454 6206563609 1309991696 6 d-30     /
-      data bm12cs( 40) / +.5008634462 9588105206 8495150125 4 d-31     /
-c
-c series for bth1       on the interval  0.          to  1.56250e-02
-c                                        with weighted error   2.82e-32
-c                                         log weighted error  31.55
-c                               significant figures required  31.12
-c                                    decimal places required  32.37
-c
-      data bth1cs(  1) / +.7474995720 3587276055 4434839696 95 d+0     /
-      data bth1cs(  2) / -.1240077714 4651711252 5457775413 84 d-2     /
-      data bth1cs(  3) / +.9925244240 4424527376 6414976895 92 d-5     /
-      data bth1cs(  4) / -.2030369073 7159711052 4193753756 08 d-6     /
-      data bth1cs(  5) / +.7535961770 5690885712 1840175836 29 d-8     /
-      data bth1cs(  6) / -.4166161271 5343550107 6300238562 28 d-9     /
-      data bth1cs(  7) / +.3070161807 0834890481 2451020912 16 d-10    /
-      data bth1cs(  8) / -.2817849963 7605213992 3240088839 24 d-11    /
-      data bth1cs(  9) / +.3079069673 9040295476 0281468216 47 d-12    /
-      data bth1cs( 10) / -.3880330026 2803434112 7873475547 81 d-13    /
-      data bth1cs( 11) / +.5509603960 8630904934 5617262085 62 d-14    /
-      data bth1cs( 12) / -.8659006076 8383779940 1033989539 94 d-15    /
-      data bth1cs( 13) / +.1485604914 1536749003 4236890606 83 d-15    /
-      data bth1cs( 14) / -.2751952981 5904085805 3712121250 09 d-16    /
-      data bth1cs( 15) / +.5455079609 0481089625 0362236409 23 d-17    /
-      data bth1cs( 16) / -.1148653450 1983642749 5436310271 77 d-17    /
-      data bth1cs( 17) / +.2553521337 7973900223 1990525335 22 d-18    /
-      data bth1cs( 18) / -.5962149019 7413450395 7682879078 49 d-19    /
-      data bth1cs( 19) / +.1455662290 2372718620 2883020058 33 d-19    /
-      data bth1cs( 20) / -.3702218542 2450538201 5797760195 93 d-20    /
-      data bth1cs( 21) / +.9776307412 5345357664 1684345179 24 d-21    /
-      data bth1cs( 22) / -.2672682163 9668488468 7237753930 52 d-21    /
-      data bth1cs( 23) / +.7545330038 4983271794 0381906557 64 d-22    /
-      data bth1cs( 24) / -.2194789991 9802744897 8923833716 47 d-22    /
-      data bth1cs( 25) / +.6564839462 3955262178 9069998174 93 d-23    /
-      data bth1cs( 26) / -.2015560429 8370207570 7840768695 19 d-23    /
-      data bth1cs( 27) / +.6341776855 6776143492 1446671856 70 d-24    /
-      data bth1cs( 28) / -.2041927788 5337895634 8137699555 91 d-24    /
-      data bth1cs( 29) / +.6719146422 0720567486 6589800185 51 d-25    /
-      data bth1cs( 30) / -.2256907911 0207573595 7090036873 36 d-25    /
-      data bth1cs( 31) / +.7729771989 2989706370 9269598719 29 d-26    /
-      data bth1cs( 32) / -.2696744451 2294640913 2114240809 20 d-26    /
-      data bth1cs( 33) / +.9574934451 8502698072 2955219336 27 d-27    /
-      data bth1cs( 34) / -.3456916844 8890113000 1756808276 27 d-27    /
-      data bth1cs( 35) / +.1268123481 7398436504 2119862383 74 d-27    /
-      data bth1cs( 36) / -.4723253663 0722639860 4649937134 45 d-28    /
-      data bth1cs( 37) / +.1785000847 8186376177 8586197964 17 d-28    /
-      data bth1cs( 38) / -.6840436100 4510395406 2152235667 46 d-29    /
-      data bth1cs( 39) / +.2656602867 1720419358 2934226722 12 d-29    /
-      data bth1cs( 40) / -.1045040252 7914452917 7141614846 70 d-29    /
-      data bth1cs( 41) / +.4161829082 5377144306 8619171970 64 d-30    /
-      data bth1cs( 42) / -.1677163920 3643714856 5013478828 87 d-30    /
-      data bth1cs( 43) / +.6836199777 6664389173 5359280285 28 d-31    /
-      data bth1cs( 44) / -.2817224786 1233641166 7395746228 10 d-31    /
-c
-      data pi4 / 0.7853981633 9744830961 5660845819 876 d0 /
-      data nbm1, nbt12, nbm12, nbth1, xmax / 4*0, 0.d0 /
-c
-      if (nbm1.ne.0) go to 10
-      eta = 0.1d0*d1mach(3)
-      nbm1 = initds (bm1cs, 37, eta)
-      nbt12 = initds (bt12cs, 39, eta)
-      nbm12 = initds (bm12cs, 40, eta)
-      nbth1 = initds (bth1cs, 44, eta)
-c
-      xmax = 1.0d0/d1mach(4)
-c
-   10 if (x.lt.4.d0) call errmsg('D9B1MP:  x must be ge 4',2)
-c
-      if (x.gt.8.d0) go to 20
-      z = (128.d0/(x*x) - 5.d0)/3.d0
-      ampl = (0.75d0 + dcsevl (z, bm1cs, nbm1))/dsqrt(x)
-      theta = x - 3.d0*pi4 + dcsevl (z, bt12cs, nbt12)/x
-      return
-c
-   20 if (x.gt.xmax) call errmsg('D9B1MP:  x is too big',2)
-c
-      z = 128.d0/(x*x) - 1.d0
-      ampl = (0.75d0 + dcsevl (z, bm12cs, nbm12))/dsqrt(x)
-      theta = x - 3.d0*pi4 + dcsevl (z, bth1cs, nbth1)/x
-c
-      end
+  ! series for bj0        on the interval  0.          to  1.60000e+01
+  !                                        with weighted error   4.39e-32
+  !                                         log weighted error  31.36
+  !                               significant figures required  31.21
+  !                                    decimal places required  32.00
+
+  data bj0cs(  1) / +.10025416196893913701073127264074d+0     /
+  data bj0cs(  2) / -.66522300776440513177678757831124d+0     /
+  data bj0cs(  3) / +.24898370349828131370460468726680d+0     /
+  data bj0cs(  4) / -.33252723170035769653884341503854d-1     /
+  data bj0cs(  5) / +.23114179304694015462904924117729d-2     /
+  data bj0cs(  6) / -.99112774199508092339048519336549d-4     /
+  data bj0cs(  7) / +.28916708643998808884733903747078d-5     /
+  data bj0cs(  8) / -.61210858663032635057818407481516d-7     /
+  data bj0cs(  9) / +.98386507938567841324768748636415d-9     /
+  data bj0cs( 10) / -.12423551597301765145515897006836d-10    /
+  data bj0cs( 11) / +.12654336302559045797915827210363d-12    /
+  data bj0cs( 12) / -.10619456495287244546914817512959d-14    /
+  data bj0cs( 13) / +.74706210758024567437098915584000d-17    /
+  data bj0cs( 14) / -.44697032274412780547627007999999d-19    /
+  data bj0cs( 15) / +.23024281584337436200523093333333d-21    /
+  data bj0cs( 16) / -.10319144794166698148522666666666d-23    /
+  data bj0cs( 17) / +.40608178274873322700800000000000d-26    /
+  data bj0cs( 18) / -.14143836005240913919999999999999d-28    /
+  data bj0cs( 19) / +.43910905496698880000000000000000d-31    /
+
+  data ntj0, xsml / 0, 0.d0 /
+
+  if (ntj0 /= 0) go to 10
+  ntj0 = initds (bj0cs, 19, 0.1d0*d1mach(3))
+  xsml = dsqrt (4.0d0*d1mach(3))
+
+10 y = dabs(x)
+  if (y > 4.0d0) go to 20
+
+  dbesj0 = 1.0d0
+  if (y > xsml) dbesj0 = dcsevl (.125d0*y*y-1.d0, bj0cs, ntj0)
+  return
+
+20 call d9b0mp (y, ampl, theta)
+  dbesj0 = ampl * dcos(theta)
+
+  return
+END function dbesj0
+real(8) function dbesj1 (x)
+  ! sept 1983 edition.  w. fullerton, c3, los alamos scientific lab.
+  ! apr 1991  bug fix by boisvert@cam.nist.gov
+  double precision :: x, bj1cs(19), ampl, theta, xsml, xmin, y, &
+       d1mach, dcsevl, dcos, dsqrt
+  integer:: initds
+  !      external d1mach, dcsevl, initds
+
+  ! series for bj1        on the interval  0.          to  1.60000e+01
+  !                                        with weighted error   1.16e-33
+  !                                         log weighted error  32.93
+  !                               significant figures required  32.36
+  !                                    decimal places required  33.57
+
+  data bj1cs(  1) / -.117261415133327865606240574524003d+0    /
+  data bj1cs(  2) / -.253615218307906395623030884554698d+0    /
+  data bj1cs(  3) / +.501270809844695685053656363203743d-1    /
+  data bj1cs(  4) / -.463151480962508191842619728789772d-2    /
+  data bj1cs(  5) / +.247996229415914024539124064592364d-3    /
+  data bj1cs(  6) / -.867894868627882584521246435176416d-5    /
+  data bj1cs(  7) / +.214293917143793691502766250991292d-6    /
+  data bj1cs(  8) / -.393609307918317979229322764073061d-8    /
+  data bj1cs(  9) / +.559118231794688004018248059864032d-10   /
+  data bj1cs( 10) / -.632761640466139302477695274014880d-12   /
+  data bj1cs( 11) / +.584099161085724700326945563268266d-14   /
+  data bj1cs( 12) / -.448253381870125819039135059199999d-16   /
+  data bj1cs( 13) / +.290538449262502466306018688000000d-18   /
+  data bj1cs( 14) / -.161173219784144165412118186666666d-20   /
+  data bj1cs( 15) / +.773947881939274637298346666666666d-23   /
+  data bj1cs( 16) / -.324869378211199841143466666666666d-25   /
+  data bj1cs( 17) / +.120223767722741022720000000000000d-27   /
+  data bj1cs( 18) / -.395201221265134933333333333333333d-30   /
+  data bj1cs( 19) / +.116167808226645333333333333333333d-32   /
+
+  integer::ntj1
+  data ntj1, xsml, xmin / 0, 2*0.d0 /
+
+  if (ntj1 /= 0) go to 10
+  ntj1 = initds (bj1cs, 19, 0.1d0*d1mach(3))
+
+  xsml = dsqrt (4.0d0*d1mach(3))
+  xmin = 2.0d0*d1mach(1)
+
+10 y = dabs(x)
+  if (y > 4.0d0) go to 20
+
+  dbesj1 = 0.0d0
+  if (y == 0.0d0) return
+
+  if (y <= xmin) call errmsg('DBESJ1:  x so small j1 underflows',0)
+  if (y > xmin) dbesj1 = 0.5d0*x
+  if (y > xsml) dbesj1 = x*(.25d0 + dcsevl (.125d0*y*y-1.d0, &
+       bj1cs, ntj1) )
+  return
+
+20 call d9b1mp (y, ampl, theta)
+  dbesj1 = dsign(ampl,x) * dcos(theta)
+
+  return
+END function dbesj1
+subroutine d9b0mp (x, ampl, theta)
+  ! july 1977 edition.  w. fullerton, c3, los alamos scientific lab.
+
+  ! evaluate the modulus and phase for the bessel j0 and y0 functions.
+
+  double precision :: x, ampl, theta, bm0cs(37), bt02cs(39), &
+       bm02cs(40), bth0cs(44), xmax, pi4, z, d1mach, dcsevl, &
+       dsqrt,eta
+  integer:: initds,nbm0,nbt02,nbm02,nbth0
+  !      external d1mach, dcsevl, initds
+
+  ! series for bm0        on the interval  1.56250e-02 to  6.25000e-02
+  !                                        with weighted error   4.40e-32
+  !                                         log weighted error  31.36
+  !                               significant figures required  30.02
+  !                                    decimal places required  32.14
+
+  data bm0cs(  1) / +.9211656246827742712573767730182d-1      /
+  data bm0cs(  2) / -.1050590997271905102480716371755d-2      /
+  data bm0cs(  3) / +.1470159840768759754056392850952d-4      /
+  data bm0cs(  4) / -.5058557606038554223347929327702d-6      /
+  data bm0cs(  5) / +.2787254538632444176630356137881d-7      /
+  data bm0cs(  6) / -.2062363611780914802618841018973d-8      /
+  data bm0cs(  7) / +.1870214313138879675138172596261d-9      /
+  data bm0cs(  8) / -.1969330971135636200241730777825d-10     /
+  data bm0cs(  9) / +.2325973793999275444012508818052d-11     /
+  data bm0cs( 10) / -.3009520344938250272851224734482d-12     /
+  data bm0cs( 11) / +.4194521333850669181471206768646d-13     /
+  data bm0cs( 12) / -.6219449312188445825973267429564d-14     /
+  data bm0cs( 13) / +.9718260411336068469601765885269d-15     /
+  data bm0cs( 14) / -.1588478585701075207366635966937d-15     /
+  data bm0cs( 15) / +.2700072193671308890086217324458d-16     /
+  data bm0cs( 16) / -.4750092365234008992477504786773d-17     /
+  data bm0cs( 17) / +.8615128162604370873191703746560d-18     /
+  data bm0cs( 18) / -.1605608686956144815745602703359d-18     /
+  data bm0cs( 19) / +.3066513987314482975188539801599d-19     /
+  data bm0cs( 20) / -.5987764223193956430696505617066d-20     /
+  data bm0cs( 21) / +.1192971253748248306489069841066d-20     /
+  data bm0cs( 22) / -.2420969142044805489484682581333d-21     /
+  data bm0cs( 23) / +.4996751760510616453371002879999d-22     /
+  data bm0cs( 24) / -.1047493639351158510095040511999d-22     /
+  data bm0cs( 25) / +.2227786843797468101048183466666d-23     /
+  data bm0cs( 26) / -.4801813239398162862370542933333d-24     /
+  data bm0cs( 27) / +.1047962723470959956476996266666d-24     /
+  data bm0cs( 28) / -.2313858165678615325101260800000d-25     /
+  data bm0cs( 29) / +.5164823088462674211635199999999d-26     /
+  data bm0cs( 30) / -.1164691191850065389525401599999d-26     /
+  data bm0cs( 31) / +.2651788486043319282958336000000d-27     /
+  data bm0cs( 32) / -.6092559503825728497691306666666d-28     /
+  data bm0cs( 33) / +.1411804686144259308038826666666d-28     /
+  data bm0cs( 34) / -.3298094961231737245750613333333d-29     /
+  data bm0cs( 35) / +.7763931143074065031714133333333d-30     /
+  data bm0cs( 36) / -.1841031343661458478421333333333d-30     /
+  data bm0cs( 37) / +.4395880138594310737100799999999d-31     /
+
+  ! series for bth0       on the interval  0.          to  1.56250e-02
+  !                                        with weighted error   2.66e-32
+  !                                         log weighted error  31.57
+  !                               significant figures required  30.67
+  !                                    decimal places required  32.40
+
+  data bth0cs(  1) / -.24901780862128936717709793789967d+0     /
+  data bth0cs(  2) / +.48550299609623749241048615535485d-3     /
+  data bth0cs(  3) / -.54511837345017204950656273563505d-5     /
+  data bth0cs(  4) / +.13558673059405964054377445929903d-6     /
+  data bth0cs(  5) / -.55691398902227626227583218414920d-8     /
+  data bth0cs(  6) / +.32609031824994335304004205719468d-9     /
+  data bth0cs(  7) / -.24918807862461341125237903877993d-10    /
+  data bth0cs(  8) / +.23449377420882520554352413564891d-11    /
+  data bth0cs(  9) / -.26096534444310387762177574766136d-12    /
+  data bth0cs( 10) / +.33353140420097395105869955014923d-13    /
+  data bth0cs( 11) / -.47890000440572684646750770557409d-14    /
+  data bth0cs( 12) / +.75956178436192215972642568545248d-15    /
+  data bth0cs( 13) / -.13131556016891440382773397487633d-15    /
+  data bth0cs( 14) / +.24483618345240857495426820738355d-16    /
+  data bth0cs( 15) / -.48805729810618777683256761918331d-17    /
+  data bth0cs( 16) / +.10327285029786316149223756361204d-17    /
+  data bth0cs( 17) / -.23057633815057217157004744527025d-18    /
+  data bth0cs( 18) / +.54044443001892693993017108483765d-19    /
+  data bth0cs( 19) / -.13240695194366572724155032882385d-19    /
+  data bth0cs( 20) / +.33780795621371970203424792124722d-20    /
+  data bth0cs( 21) / -.89457629157111779003026926292299d-21    /
+  data bth0cs( 22) / +.24519906889219317090899908651405d-21    /
+  data bth0cs( 23) / -.69388422876866318680139933157657d-22    /
+  data bth0cs( 24) / +.20228278714890138392946303337791d-22    /
+  data bth0cs( 25) / -.60628500002335483105794195371764d-23    /
+  data bth0cs( 26) / +.18649748964037635381823788396270d-23    /
+  data bth0cs( 27) / -.58783732384849894560245036530867d-24    /
+  data bth0cs( 28) / +.18958591447999563485531179503513d-24    /
+  data bth0cs( 29) / -.62481979372258858959291620728565d-25    /
+  data bth0cs( 30) / +.21017901684551024686638633529074d-25    /
+  data bth0cs( 31) / -.72084300935209253690813933992446d-26    /
+  data bth0cs( 32) / +.25181363892474240867156405976746d-26    /
+  data bth0cs( 33) / -.89518042258785778806143945953643d-27    /
+  data bth0cs( 34) / +.32357237479762298533256235868587d-27    /
+  data bth0cs( 35) / -.11883010519855353657047144113796d-27    /
+  data bth0cs( 36) / +.44306286907358104820579231941731d-28    /
+  data bth0cs( 37) / -.16761009648834829495792010135681d-28    /
+  data bth0cs( 38) / +.64292946921207466972532393966088d-29    /
+  data bth0cs( 39) / -.24992261166978652421207213682763d-29    /
+  data bth0cs( 40) / +.98399794299521955672828260355318d-30    /
+  data bth0cs( 41) / -.39220375242408016397989131626158d-30    /
+  data bth0cs( 42) / +.15818107030056522138590618845692d-30    /
+  data bth0cs( 43) / -.64525506144890715944344098365426d-31    /
+  data bth0cs( 44) / +.26611111369199356137177018346367d-31    /
+
+  ! series for bm02       on the nterval  0          o  1.56250e-02
+  !                                       wth weighte error   4.72e-32
+  !                                        og weighte error  31.33
+  !                              significan figures rquired  30.00
+  !                                   deciml places rquired  32.13
+
+  data bm02cs(  1) / +.9500415145228381369330861335560d-1      /
+  data bm02cs(  2) / -.3801864682365670991748081566851d-3      /
+  data bm02cs(  3) / +.2258339301031481192951829927224d-5      /
+  data bm02cs(  4) / -.3895725802372228764730621412605d-7      /
+  data bm02cs(  5) / +.1246886416512081697930990529725d-8      /
+  data bm02cs(  6) / -.6065949022102503779803835058387d-10     /
+  data bm02cs(  7) / +.4008461651421746991015275971045d-11     /
+  data bm02cs(  8) / -.3350998183398094218467298794574d-12     /
+  data bm02cs(  9) / +.3377119716517417367063264341996d-13     /
+  data bm02cs( 10) / -.3964585901635012700569356295823d-14     /
+  data bm02cs( 11) / +.5286111503883857217387939744735d-15     /
+  data bm02cs( 12) / -.7852519083450852313654640243493d-16     /
+  data bm02cs( 13) / +.1280300573386682201011634073449d-16     /
+  data bm02cs( 14) / -.2263996296391429776287099244884d-17     /
+  data bm02cs( 15) / +.4300496929656790388646410290477d-18     /
+  data bm02cs( 16) / -.8705749805132587079747535451455d-19     /
+  data bm02cs( 17) / +.1865862713962095141181442772050d-19     /
+  data bm02cs( 18) / -.4210482486093065457345086972301d-20     /
+  data bm02cs( 19) / +.9956676964228400991581627417842d-21     /
+  data bm02cs( 20) / -.2457357442805313359605921478547d-21     /
+  data bm02cs( 21) / +.6307692160762031568087353707059d-22     /
+  data bm02cs( 22) / -.1678773691440740142693331172388d-22     /
+  data bm02cs( 23) / +.4620259064673904433770878136087d-23     /
+  data bm02cs( 24) / -.1311782266860308732237693402496d-23     /
+  data bm02cs( 25) / +.3834087564116302827747922440276d-24     /
+  data bm02cs( 26) / -.1151459324077741271072613293576d-24     /
+  data bm02cs( 27) / +.3547210007523338523076971345213d-25     /
+  data bm02cs( 28) / -.1119218385815004646264355942176d-25     /
+  data bm02cs( 29) / +.3611879427629837831698404994257d-26     /
+  data bm02cs( 30) / -.1190687765913333150092641762463d-26     /
+  data bm02cs( 31) / +.4005094059403968131802476449536d-27     /
+  data bm02cs( 32) / -.1373169422452212390595193916017d-27     /
+  data bm02cs( 33) / +.4794199088742531585996491526437d-28     /
+  data bm02cs( 34) / -.1702965627624109584006994476452d-28     /
+  data bm02cs( 35) / +.6149512428936330071503575161324d-29     /
+  data bm02cs( 36) / -.2255766896581828349944300237242d-29     /
+  data bm02cs( 37) / +.8399707509294299486061658353200d-30     /
+  data bm02cs( 38) / -.3172997595562602355567423936152d-30     /
+  data bm02cs( 39) / +.1215205298881298554583333026514d-30     /
+  data bm02cs( 40) / -.4715852749754438693013210568045d-31     /
+
+  ! series for bt02       on the nterval  156250e-02 o  6.25000e-02
+  !                                       wth weighte error   2.99e-32
+  !                                        og weighte error  31.52
+  !                              significan figures rquired  30.61
+  !                                   deciml places rquired  32.32
+
+  data bt02cs(  1) / -.24548295213424597462050467249324d+0     /
+  data bt02cs(  2) / +.12544121039084615780785331778299d-2     /
+  data bt02cs(  3) / -.31253950414871522854973446709571d-4     /
+  data bt02cs(  4) / +.14709778249940831164453426969314d-5     /
+  data bt02cs(  5) / -.99543488937950033643468850351158d-7     /
+  data bt02cs(  6) / +.85493166733203041247578711397751d-8     /
+  data bt02cs(  7) / -.86989759526554334557985512179192d-9     /
+  data bt02cs(  8) / +.10052099533559791084540101082153d-9     /
+  data bt02cs(  9) / -.12828230601708892903483623685544d-10    /
+  data bt02cs( 10) / +.17731700781805131705655750451023d-11    /
+  data bt02cs( 11) / -.26174574569485577488636284180925d-12    /
+  data bt02cs( 12) / +.40828351389972059621966481221103d-13    /
+  data bt02cs( 13) / -.66751668239742720054606749554261d-14    /
+  data bt02cs( 14) / +.11365761393071629448392469549951d-14    /
+  data bt02cs( 15) / -.20051189620647160250559266412117d-15    /
+  data bt02cs( 16) / +.36497978794766269635720591464106d-16    /
+  data bt02cs( 17) / -.68309637564582303169355843788800d-17    /
+  data bt02cs( 18) / +.13107583145670756620057104267946d-17    /
+  data bt02cs( 19) / -.25723363101850607778757130649599d-18    /
+  data bt02cs( 20) / +.51521657441863959925267780949333d-19    /
+  data bt02cs( 21) / -.10513017563758802637940741461333d-19    /
+  data bt02cs( 22) / +.21820381991194813847301084501333d-20    /
+  data bt02cs( 23) / -.46004701210362160577225905493333d-21    /
+  data bt02cs( 24) / +.98407006925466818520953651199999d-22    /
+  data bt02cs( 25) / -.21334038035728375844735986346666d-22    /
+  data bt02cs( 26) / +.46831036423973365296066286933333d-23    /
+  data bt02cs( 27) / -.10400213691985747236513382399999d-23    /
+  data bt02cs( 28) / +.23349105677301510051777740800000d-24    /
+  data bt02cs( 29) / -.52956825323318615788049749333333d-25    /
+  data bt02cs( 30) / +.12126341952959756829196287999999d-25    /
+  data bt02cs( 31) / -.28018897082289428760275626666666d-26    /
+  data bt02cs( 32) / +.65292678987012873342593706666666d-27    /
+  data bt02cs( 33) / -.15337980061873346427835733333333d-27    /
+  data bt02cs( 34) / +.36305884306364536682359466666666d-28    /
+  data bt02cs( 35) / -.86560755713629122479172266666666d-29    /
+  data bt02cs( 36) / +.20779909972536284571238399999999d-29    /
+  data bt02cs( 37) / -.50211170221417221674325333333333d-30    /
+  data bt02cs( 38) / +.12208360279441714184191999999999d-30    /
+  data bt02cs( 39) / -.29860056267039913454250666666666d-31    /
+
+  data pi4 / 0.785398163397448309615660845819876d0 /
+  data nbm0, nbt02, nbm02, nbth0, xmax / 4*0, 0.d0 /
+
+  if (nbm0 /= 0) go to 10
+  eta = 0.1d0*d1mach(3)
+  nbm0 = initds (bm0cs, 37, eta)
+  nbt02 = initds (bt02cs, 39, eta)
+  nbm02 = initds (bm02cs, 40, eta)
+  nbth0 = initds (bth0cs, 44, eta)
+
+  xmax = 1.0d0/d1mach(4)
+
+  !   10 if (x.lt.4.d0) call seteru (22hd9b0mp  x must be ge 4, 22, 1, 2)
+10 if (x < 4.d0) call errmsg('D9B0MP: x must be ge 4',2)
+
+  if (x > 8.d0) go to 20
+  z = (128.d0/(x*x) - 5.d0)/3.d0
+  ampl = (.75d0 + dcsevl (z, bm0cs, nbm0))/dsqrt(x)
+  theta = x - pi4 + dcsevl (z, bt02cs, nbt02)/x
+  return
+
+20 if (x > xmax) &
+       call errmsg('D9B0MP:  no precision because x is big',2)
+
+
+  z = 128.d0/(x*x) - 1.d0
+  ampl = (.75d0 + dcsevl (z, bm02cs, nbm02))/dsqrt(x)
+  theta = x - pi4 + dcsevl (z, bth0cs, nbth0)/x
+  return
+
+end subroutine d9b0mp
+subroutine d9b1mp (x, ampl, theta)
+  ! july 1977 edition.  w. fullerton, c3, los alamos scientific lab.
+
+  ! evaluate the modulus and phase for the bessel j1 and y1 functions.
+
+  double precision :: x, ampl, theta, bm1cs(37), bt12cs(39), &
+       bm12cs(40), bth1cs(44), xmax, pi4, z, d1mach, dcsevl, &
+       dsqrt,eta
+  integer:: initds,nbm1,nbm12,nbt12,nbth1
+  !      external d1mach, dcsevl, initds
+
+  ! series for bm1        on the interval  1.56250e-02 to  6.25000e-02
+  !                                        with weighted error   4.91e-32
+  !                                         log weighted error  31.31
+  !                               significant figures required  30.04
+  !                                    decimal places required  32.09
+
+  data bm1cs(  1) / +.1069845452618063014969985308538d+0      /
+  data bm1cs(  2) / +.3274915039715964900729055143445d-2      /
+  data bm1cs(  3) / -.2987783266831698592030445777938d-4      /
+  data bm1cs(  4) / +.8331237177991974531393222669023d-6      /
+  data bm1cs(  5) / -.4112665690302007304896381725498d-7      /
+  data bm1cs(  6) / +.2855344228789215220719757663161d-8      /
+  data bm1cs(  7) / -.2485408305415623878060026596055d-9      /
+  data bm1cs(  8) / +.2543393338072582442742484397174d-10     /
+  data bm1cs(  9) / -.2941045772822967523489750827909d-11     /
+  data bm1cs( 10) / +.3743392025493903309265056153626d-12     /
+  data bm1cs( 11) / -.5149118293821167218720548243527d-13     /
+  data bm1cs( 12) / +.7552535949865143908034040764199d-14     /
+  data bm1cs( 13) / -.1169409706828846444166290622464d-14     /
+  data bm1cs( 14) / +.1896562449434791571721824605060d-15     /
+  data bm1cs( 15) / -.3201955368693286420664775316394d-16     /
+  data bm1cs( 16) / +.5599548399316204114484169905493d-17     /
+  data bm1cs( 17) / -.1010215894730432443119390444544d-17     /
+  data bm1cs( 18) / +.1873844985727562983302042719573d-18     /
+  data bm1cs( 19) / -.3563537470328580219274301439999d-19     /
+  data bm1cs( 20) / +.6931283819971238330422763519999d-20     /
+  data bm1cs( 21) / -.1376059453406500152251408930133d-20     /
+  data bm1cs( 22) / +.2783430784107080220599779327999d-21     /
+  data bm1cs( 23) / -.5727595364320561689348669439999d-22     /
+  data bm1cs( 24) / +.1197361445918892672535756799999d-22     /
+  data bm1cs( 25) / -.2539928509891871976641440426666d-23     /
+  data bm1cs( 26) / +.5461378289657295973069619199999d-24     /
+  data bm1cs( 27) / -.1189211341773320288986289493333d-24     /
+  data bm1cs( 28) / +.2620150977340081594957824000000d-25     /
+  data bm1cs( 29) / -.5836810774255685901920938666666d-26     /
+  data bm1cs( 30) / +.1313743500080595773423615999999d-26     /
+  data bm1cs( 31) / -.2985814622510380355332778666666d-27     /
+  data bm1cs( 32) / +.6848390471334604937625599999999d-28     /
+  data bm1cs( 33) / -.1584401568222476721192960000000d-28     /
+  data bm1cs( 34) / +.3695641006570938054301013333333d-29     /
+  data bm1cs( 35) / -.8687115921144668243012266666666d-30     /
+  data bm1cs( 36) / +.2057080846158763462929066666666d-30     /
+  data bm1cs( 37) / -.4905225761116225518523733333333d-31     /
+
+  ! series for bt12       on the interval  1.56250e-02 to  6.25000e-02
+  !                                        with weighted error   3.33e-32
+  !                                         log weighted error  31.48
+  !                               significant figures required  31.05
+  !                                    decimal places required  32.27
+
+  data bt12cs(  1) / +.73823860128742974662620839792764d+0     /
+  data bt12cs(  2) / -.33361113174483906384470147681189d-2     /
+  data bt12cs(  3) / +.61463454888046964698514899420186d-4     /
+  data bt12cs(  4) / -.24024585161602374264977635469568d-5     /
+  data bt12cs(  5) / +.14663555577509746153210591997204d-6     /
+  data bt12cs(  6) / -.11841917305589180567005147504983d-7     /
+  data bt12cs(  7) / +.11574198963919197052125466303055d-8     /
+  data bt12cs(  8) / -.13001161129439187449366007794571d-9     /
+  data bt12cs(  9) / +.16245391141361731937742166273667d-10    /
+  data bt12cs( 10) / -.22089636821403188752155441770128d-11    /
+  data bt12cs( 11) / +.32180304258553177090474358653778d-12    /
+  data bt12cs( 12) / -.49653147932768480785552021135381d-13    /
+  data bt12cs( 13) / +.80438900432847825985558882639317d-14    /
+  data bt12cs( 14) / -.13589121310161291384694712682282d-14    /
+  data bt12cs( 15) / +.23810504397147214869676529605973d-15    /
+  data bt12cs( 16) / -.43081466363849106724471241420799d-16    /
+  data bt12cs( 17) / +.80202544032771002434993512550400d-17    /
+  data bt12cs( 18) / -.15316310642462311864230027468799d-17    /
+  data bt12cs( 19) / +.29928606352715568924073040554666d-18    /
+  data bt12cs( 20) / -.59709964658085443393815636650666d-19    /
+  data bt12cs( 21) / +.12140289669415185024160852650666d-19    /
+  data bt12cs( 22) / -.25115114696612948901006977706666d-20    /
+  data bt12cs( 23) / +.52790567170328744850738380799999d-21    /
+  data bt12cs( 24) / -.11260509227550498324361161386666d-21    /
+  data bt12cs( 25) / +.24348277359576326659663462400000d-22    /
+  data bt12cs( 26) / -.53317261236931800130038442666666d-23    /
+  data bt12cs( 27) / +.11813615059707121039205990399999d-23    /
+  data bt12cs( 28) / -.26465368283353523514856789333333d-24    /
+  data bt12cs( 29) / +.59903394041361503945577813333333d-25    /
+  data bt12cs( 30) / -.13690854630829503109136383999999d-25    /
+  data bt12cs( 31) / +.31576790154380228326413653333333d-26    /
+  data bt12cs( 32) / -.73457915082084356491400533333333d-27    /
+  data bt12cs( 33) / +.17228081480722747930705920000000d-27    /
+  data bt12cs( 34) / -.40716907961286507941068800000000d-28    /
+  data bt12cs( 35) / +.96934745136779622700373333333333d-29    /
+  data bt12cs( 36) / -.23237636337765716765354666666666d-29    /
+  data bt12cs( 37) / +.56074510673522029406890666666666d-30    /
+  data bt12cs( 38) / -.13616465391539005860522666666666d-30    /
+  data bt12cs( 39) / +.33263109233894654388906666666666d-31    /
+
+  ! series for bm12       on the nterval  0          o  1.56250e-02
+  !                                       wth weighte error   5.01e-32
+  !                                        og weighte error  31.30
+  !                              significan figures rquired  29.99
+  !                                   deciml places rquired  32.10
+
+  data bm12cs(  1) / +.9807979156233050027272093546937d-1      /
+  data bm12cs(  2) / +.1150961189504685306175483484602d-2      /
+  data bm12cs(  3) / -.4312482164338205409889358097732d-5      /
+  data bm12cs(  4) / +.5951839610088816307813029801832d-7      /
+  data bm12cs(  5) / -.1704844019826909857400701586478d-8      /
+  data bm12cs(  6) / +.7798265413611109508658173827401d-10     /
+  data bm12cs(  7) / -.4958986126766415809491754951865d-11     /
+  data bm12cs(  8) / +.4038432416421141516838202265144d-12     /
+  data bm12cs(  9) / -.3993046163725175445765483846645d-13     /
+  data bm12cs( 10) / +.4619886183118966494313342432775d-14     /
+  data bm12cs( 11) / -.6089208019095383301345472619333d-15     /
+  data bm12cs( 12) / +.8960930916433876482157048041249d-16     /
+  data bm12cs( 13) / -.1449629423942023122916518918925d-16     /
+  data bm12cs( 14) / +.2546463158537776056165149648068d-17     /
+  data bm12cs( 15) / -.4809472874647836444259263718620d-18     /
+  data bm12cs( 16) / +.9687684668292599049087275839124d-19     /
+  data bm12cs( 17) / -.2067213372277966023245038117551d-19     /
+  data bm12cs( 18) / +.4646651559150384731802767809590d-20     /
+  data bm12cs( 19) / -.1094966128848334138241351328339d-20     /
+  data bm12cs( 20) / +.2693892797288682860905707612785d-21     /
+  data bm12cs( 21) / -.6894992910930374477818970026857d-22     /
+  data bm12cs( 22) / +.1830268262752062909890668554740d-22     /
+  data bm12cs( 23) / -.5025064246351916428156113553224d-23     /
+  data bm12cs( 24) / +.1423545194454806039631693634194d-23     /
+  data bm12cs( 25) / -.4152191203616450388068886769801d-24     /
+  data bm12cs( 26) / +.1244609201503979325882330076547d-24     /
+  data bm12cs( 27) / -.3827336370569304299431918661286d-25     /
+  data bm12cs( 28) / +.1205591357815617535374723981835d-25     /
+  data bm12cs( 29) / -.3884536246376488076431859361124d-26     /
+  data bm12cs( 30) / +.1278689528720409721904895283461d-26     /
+  data bm12cs( 31) / -.4295146689447946272061936915912d-27     /
+  data bm12cs( 32) / +.1470689117829070886456802707983d-27     /
+  data bm12cs( 33) / -.5128315665106073128180374017796d-28     /
+  data bm12cs( 34) / +.1819509585471169385481437373286d-28     /
+  data bm12cs( 35) / -.6563031314841980867618635050373d-29     /
+  data bm12cs( 36) / +.2404898976919960653198914875834d-29     /
+  data bm12cs( 37) / -.8945966744690612473234958242979d-30     /
+  data bm12cs( 38) / +.3376085160657231026637148978240d-30     /
+  data bm12cs( 39) / -.1291791454620656360913099916966d-30     /
+  data bm12cs( 40) / +.5008634462958810520684951501254d-31     /
+
+  ! series for bth1       on the nterval  0          o  1.56250e-02
+  !                                       wth weighte error   2.82e-32
+  !                                        og weighte error  31.55
+  !                              significan figures rquired  31.12
+  !                                   deciml places rquired  32.37
+
+  data bth1cs(  1) / +.74749957203587276055443483969695d+0     /
+  data bth1cs(  2) / -.12400777144651711252545777541384d-2     /
+  data bth1cs(  3) / +.99252442404424527376641497689592d-5     /
+  data bth1cs(  4) / -.20303690737159711052419375375608d-6     /
+  data bth1cs(  5) / +.75359617705690885712184017583629d-8     /
+  data bth1cs(  6) / -.41661612715343550107630023856228d-9     /
+  data bth1cs(  7) / +.30701618070834890481245102091216d-10    /
+  data bth1cs(  8) / -.28178499637605213992324008883924d-11    /
+  data bth1cs(  9) / +.30790696739040295476028146821647d-12    /
+  data bth1cs( 10) / -.38803300262803434112787347554781d-13    /
+  data bth1cs( 11) / +.55096039608630904934561726208562d-14    /
+  data bth1cs( 12) / -.86590060768383779940103398953994d-15    /
+  data bth1cs( 13) / +.14856049141536749003423689060683d-15    /
+  data bth1cs( 14) / -.27519529815904085805371212125009d-16    /
+  data bth1cs( 15) / +.54550796090481089625036223640923d-17    /
+  data bth1cs( 16) / -.11486534501983642749543631027177d-17    /
+  data bth1cs( 17) / +.25535213377973900223199052533522d-18    /
+  data bth1cs( 18) / -.59621490197413450395768287907849d-19    /
+  data bth1cs( 19) / +.14556622902372718620288302005833d-19    /
+  data bth1cs( 20) / -.37022185422450538201579776019593d-20    /
+  data bth1cs( 21) / +.97763074125345357664168434517924d-21    /
+  data bth1cs( 22) / -.26726821639668488468723775393052d-21    /
+  data bth1cs( 23) / +.75453300384983271794038190655764d-22    /
+  data bth1cs( 24) / -.21947899919802744897892383371647d-22    /
+  data bth1cs( 25) / +.65648394623955262178906999817493d-23    /
+  data bth1cs( 26) / -.20155604298370207570784076869519d-23    /
+  data bth1cs( 27) / +.63417768556776143492144667185670d-24    /
+  data bth1cs( 28) / -.20419277885337895634813769955591d-24    /
+  data bth1cs( 29) / +.67191464220720567486658980018551d-25    /
+  data bth1cs( 30) / -.22569079110207573595709003687336d-25    /
+  data bth1cs( 31) / +.77297719892989706370926959871929d-26    /
+  data bth1cs( 32) / -.26967444512294640913211424080920d-26    /
+  data bth1cs( 33) / +.95749344518502698072295521933627d-27    /
+  data bth1cs( 34) / -.34569168448890113000175680827627d-27    /
+  data bth1cs( 35) / +.12681234817398436504211986238374d-27    /
+  data bth1cs( 36) / -.47232536630722639860464993713445d-28    /
+  data bth1cs( 37) / +.17850008478186376177858619796417d-28    /
+  data bth1cs( 38) / -.68404361004510395406215223566746d-29    /
+  data bth1cs( 39) / +.26566028671720419358293422672212d-29    /
+  data bth1cs( 40) / -.10450402527914452917714161484670d-29    /
+  data bth1cs( 41) / +.41618290825377144306861917197064d-30    /
+  data bth1cs( 42) / -.16771639203643714856501347882887d-30    /
+  data bth1cs( 43) / +.68361997776664389173535928028528d-31    /
+  data bth1cs( 44) / -.28172247861233641166739574622810d-31    /
+
+  data pi4 / 0.785398163397448309615660845819876d0 /
+  data nbm1, nbt12, nbm12, nbth1, xmax / 4*0, 0.d0 /
+
+  if (nbm1 /= 0) go to 10
+  eta = 0.1d0*d1mach(3)
+  nbm1 = initds (bm1cs, 37, eta)
+  nbt12 = initds (bt12cs, 39, eta)
+  nbm12 = initds (bm12cs, 40, eta)
+  nbth1 = initds (bth1cs, 44, eta)
+
+  xmax = 1.0d0/d1mach(4)
+
+10 if (x < 4.d0) call errmsg('D9B1MP:  x must be ge 4',2)
+
+  if (x > 8.d0) go to 20
+  z = (128.d0/(x*x) - 5.d0)/3.d0
+  ampl = (0.75d0 + dcsevl (z, bm1cs, nbm1))/dsqrt(x)
+  theta = x - 3.d0*pi4 + dcsevl (z, bt12cs, nbt12)/x
+  return
+
+20 if (x > xmax) call errmsg('D9B1MP:  x is too big',2)
+
+  z = 128.d0/(x*x) - 1.d0
+  ampl = (0.75d0 + dcsevl (z, bm12cs, nbm12))/dsqrt(x)
+  theta = x - 3.d0*pi4 + dcsevl (z, bth1cs, nbth1)/x
+
+end subroutine d9b1mp
 

@@ -1,12 +1,7 @@
-      subroutine gettime(datim)
-C     implicit none
-      character datim*(*)
-
-      datim = ' '
-#if SGI
-      call fdate(datim)
-#else
-      call ftime(datim)
-#endif
-      end
+subroutine gettime(datim)
+  !     implicit none
+  character datim*(*)
+  datim = ' '
+  call ftime(datim)
+end subroutine gettime
 

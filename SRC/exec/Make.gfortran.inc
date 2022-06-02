@@ -28,30 +28,30 @@ LIBLOC = ${LIBMATH}
 LKFLAGS2 = $(LIBMATH) 
 
 ##### Patch section #############
-$(obj_path)/huntx.o: $(subr)/huntx.F
+$(obj_path)/huntx.o: $(subr)/huntx.f90
 	$(FC) $(FFLAGS_LESS3) -c $< -o $@
-$(obj_path)/hunti.o: $(subr)/hunti.F
+$(obj_path)/hunti.o: $(subr)/hunti.f90
 	$(FC) $(FFLAGS_LESS3) -c $< -o $@
-$(obj_path)/polcof.o: $(subr)/polcof.F
+$(obj_path)/polcof.o: $(subr)/polcof.f90
 	$(FC) $(FFLAGS_LESS3) -c $< -o $@
-$(obj_path)/rdfiln.o: $(subr)/rdfiln.F
+$(obj_path)/rdfiln.o: $(subr)/rdfiln.f90
 	$(FC) $(FFLAGS_LESS3) -c $< -o $@
-$(obj_path)/ropbes.o: $(subr)/ropbes.F
+$(obj_path)/ropbes.o: $(subr)/ropbes.f90
 	$(FC) $(FFLAGS_LESS3) -c $< -o $@
-$(obj_path)/ropyln.o: $(subr)/ropyln.F
+$(obj_path)/ropyln.o: $(subr)/ropyln.f90
 	$(FC) $(FFLAGS_LESS3) -c $< -o $@
-$(obj_path)/spcgrp.o  : $(subr)/spcgrp.F 
+$(obj_path)/spcgrp.o  : $(subr)/spcgrp.f90
 	$(FC) $(FFLAGS_LESS) -c $< -o $@
-$(obj_path)/m_toksw.o  : $(subr)/m_toksw.F 
+$(obj_path)/m_toksw.o  : $(subr)/m_toksw.f90
 	$(FC) $(FFLAGS_NONE) -c $< -o $@
-$(obj_path)/m_rdctrl.o : $(subr)/m_rdctrl.F
+$(obj_path)/m_rdctrl.o : $(subr)/m_rdctrl.f90
 	$(FC) $(FFLAGS_NONE) -c $< -o $@
-$(obj_path)/m_rdctrlchk.o : $(subr)/m_rdctrlchk.F
+$(obj_path)/m_rdctrlchk.o : $(subr)/m_rdctrlchk.f90
 	$(FC) $(FFLAGS_NONE) -c $< -o $@
-$(obj_path)/m_struc_def.o : $(subr)/m_struc_def.F 
+$(obj_path)/m_struc_def.o : $(subr)/m_struc_def.f90 
 	$(FC) $(FFLAGS_NONE) -c $< -o $@
-$(obj_path)/m_struc_func.o : $(subr)/m_struc_func.F 
+$(obj_path)/m_struc_func.o : $(subr)/m_struc_func.f90 
 	$(FC) $(FFLAGS_NONE) -c $< -o $@
-$(obj_path)/rhogkl.o  : $(subr)/rhogkl.F 
+$(obj_path)/rhogkl.o  : $(subr)/rhogkl.f90
 	$(FC) $(FFLAGS_LESS) -c $< -o $@
 

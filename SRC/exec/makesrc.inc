@@ -66,9 +66,7 @@ fermi.o \
 fixef0.o \
 freeat.o \
 fswgts.o \
-getbzp.o \
 getq.o \
-grpop.o \
 gtbsl1.o \
 gtbvec.o \
 gtpcor.o \
@@ -94,20 +92,13 @@ iors_old.o \
 iosave.o \
 latlim.o \
 lattc.o \
-lattdf.o \
 lattic.o \
-latvec.o \
 ldau.o \
 madmat.o \
-makdla.o \
 makdos.o \
-makidx.o \
 maknos.o \
-maknrs.o \
 makrot.o \
 makrwf.o \
-mchan.o \
-mkcond.o \
 mkqp.o \
 mkrtab.o \
 m_mksym.o \
@@ -169,11 +160,9 @@ uspecb.o \
 vecpkl.o \
 veecomp.o \
 vldau.o \
-volsph.o \
 vxc0sp.o \
 xlgen.o \
 ylmrtg.o \
-writebasis.o \
 switch.o \
 rdsigm2.o\
 pvsms2.o \
@@ -214,10 +203,8 @@ dvshel.o \
 epslon.o \
 fftz3.o \
 finits.o \
-fopna.o \
 fpiint.o \
 garg.o \
-getcat.o \
 gettime.o \
 gradfl.o \
 gradzr.o \
@@ -227,20 +214,13 @@ hunti.o \
 huntx.o \
 i1mach.o \
 icopy.o \
-idmxmn.o \
 imtql2.o \
 imtqlv.o \
-imxmn.o \
 info.o \
-ipdump.o \
 iprint.o \
 isanrg.o \
-ishell.o \
-isum.o \
 isw.o \
 ivheap.o \
-ivshel.o \
-iyamax.o \
 llnew.o  \
 matm.o \
 minfit.o \
@@ -251,7 +231,6 @@ mklegw.o \
 mpibc.o \
 mxint.o \
 nintsp.o \
-nxtgrp.o \
 platsl.o \
 pmblk.o \
 poldvm.o \
@@ -296,7 +275,6 @@ elocp.o \
 esmsmves.o \
 fklbl.o \
 flocbl.o \
-fpchk.o \
 fradhd.o \
 fradpk.o \
 fsmbl.o \
@@ -327,12 +305,9 @@ hsmbl.o \
 hxpbl.o \
 hxpgbl.o \
 hxpos.o \
-jxpos.o \
-lgstar.o \
 lindsc.o \
 lmfp.o \
 locpot.o \
-loctsh.o \
 makusp.o \
 makusq.o \
 mixrho.o \
@@ -448,7 +423,6 @@ m_readwan.o \
 diagcv3.o \
 m_w0w0i.o \
 getwemax.o \
-genallcf_dump.o \
 wse.o \
 bzints2.o \
 wintzsg.o \
@@ -478,7 +452,6 @@ rw.o \
 mate.o \
 bib1.o \
 index.o \
-idxk.o \
 maxnn.o \
 reindx.o \
 bz.o \
@@ -492,7 +465,6 @@ alloclist.o \
 m_pkm4crpa.o \
 m_anf.o \
 qpe1.sc.o \
-iopenxx.o \
 qpe1.o \
 mopen.o \
 mkqg.o \
@@ -507,7 +479,6 @@ sxcf_fal2.o \
 diagcv2.o \
 wronkj.o \
 bessl.o \
-lgen.o \
 rpaq.o \
 m_readeps.o \
 m_readq0p.o \

@@ -38,9 +38,9 @@ mkobj:
 moduledepends.$(PLATFORM).inc: moduledepends.inc
 	@echo 'Generate module-dependency file, moduledepends.$(PLATFORM).inc'
 	sed -e "s/\.\.\/\w*\//$(obj_path)\//g" moduledepends.inc |uniq >moduledepends.$(PLATFORM).inc
-moduledepends.inc: $(subr)*.F $(subr)*.f90 $(main)*.F $(maxloc)*.F
+moduledepends.inc: $(subr)*.f90 $(main)*.f90 $(maxloc)*.f90
 	@echo 'init: Generate module-dependency file, moduledepends.$(PLATFORM).inc'
-	@[ -d moduledepends.inc ] || exec ../../TOOLS/checkmodule $(subr)*.f90 $(subr)*.F $(main)*.F $(maxloc)*.F 
+	@[ -d moduledepends.inc ] || exec ../../TOOLS/checkmodule $(subr)*.f90 $(main)*.f90 $(maxloc)*.f90 
 
 prog2: $(progslm2) $(progsgw2) $(progsw2)
 
@@ -52,7 +52,7 @@ include Make.$(PLATFORM).inc          # machine-dependence
 include makesrc.inc                   # defines ELIB_list,GWLIB_list,MLOC_list,MPI_list,MLO_list
 
 .PHONY:  progs prog2 clean cleanall init echotest mkobj sysinfo
-.SUFFIXES: .o .f90 .F .mod
+.SUFFIXES: .o .f90 .mod
 
 ELIB = $(addprefix ./$(obj_path)/,$(ELIB_list))
 GWLIB = $(addprefix ./$(obj_path)/,$(GWLIB_list))
@@ -110,11 +110,11 @@ VERSIONFLAGS = \
 ########################################
 # Generate o of main routines for lmf 
 ########################################
-$(main)show_programinfo.fpp: $(main)*.F $(ELIB) $(MPI) $(MLO) $(GWLIB) $(main)show_programinfo.F
+$(main)show_programinfo.fpp: $(main)*.f90 $(ELIB) $(MPI) $(MLO) $(GWLIB) $(main)show_programinfo.f90
 	@echo generating $(main)show_programinfo.fpp 
-	@cpp $(VERSIONFLAGS) $(main)show_programinfo.F >  $@
-$(obj_path)/lmf-MPIK.o: $(main)lmv7.F $(main)show_programinfo.fpp
-	$(FC) $(FFLAGS_NONE) -c $(main)lmv7.F -o $@
+	@cpp $(VERSIONFLAGS) $(main)show_programinfo.f90 >  $@
+$(obj_path)/lmf-MPIK.o: $(main)lmv7.f90 $(main)show_programinfo.fpp
+	$(FC) $(FFLAGS_NONE) -c $(main)lmv7.f90 -o $@
 $(obj_path)/lmfa.o:     $(main)show_programinfo.fpp
 $(obj_path)/lmchk.o:    $(main)show_programinfo.fpp
 $(obj_path)/lmfham.o:   $(main)show_programinfo.fpp
@@ -129,13 +129,13 @@ $(obj_path)/qg4gw.m.o:  $(main)show_programinfo.fpp
 #	$(FC) $(FFLAGS_NONE) -c $< -o $@
 #$(obj_path)/lmfham1.o: $(main)lmfham1.F
 #	$(FC) $(FFLAGS_NONE) -c $< -o $@
-$(obj_path)/mkhamloc.o: $(main)mkhamloc.F
+$(obj_path)/mkhamloc.o: $(main)mkhamloc.f90
 	$(FC) $(FFLAGS_NONE) -c $< -o $@
-$(obj_path)/plotmodel.o: $(main)plotmodel.F
+$(obj_path)/plotmodel.o: $(main)plotmodel.f90
 	$(FC) $(FFLAGS_NONE) -c $< -o $@
-$(obj_path)/initmlo.o: $(main)initmlo.F
+$(obj_path)/initmlo.o: $(main)initmlo.f90
 	$(FC) $(FFLAGS_NONE) -c $< -o $@
-$(obj_path)/mkinput.o: $(main)mkinput.F
+$(obj_path)/mkinput.o: $(main)mkinput.f90
 	$(FC) $(FFLAGS_NONE) -c $< -o $@
 
 ########################################
@@ -178,14 +178,14 @@ cleanall:
 install: 
 	cp $(script) $(progslm) $(progsgw) $(progsw) ctrlgen*.py job* run_arg* $(BINDIR)
 dep:
-	@echo 'This generate a call-caller data set for lmv7.F fp/*.F and subs/\*.F subs/*.f90 slatsm/*.F .'
+	@echo 'This generate a call-caller data set for SRC/*/*.f90 .'
 	@echo 'No arguments required. This drives ../TOOLS/f_calltree.py '
 	@echo 'HELP --> ../TOOLS/FparserTools/f_calltree.py --help, and read CallCaller.sh'
 	@echo
 	@echo '--- Now generating a file 'callcaller.dat' ... Wait!!! It takes 1 minute or so!'
 	@echo '   If you like to apply this to other programs modify this script'
 	@echo ' NOTE: T.Kotani is not sure whether this is reliable enough .. let me know something wrong...'
-	../TOOLS/FparserTools/f_calltree.py lmv7.F ../srclm/*.F* srcgw/*.F* >callcaller.dat 2>callcaller.err
+	../TOOLS/FparserTools/f_calltree.py SRC/*/*.f90 >callcaller.dat 2>callcaller.err
 	-egrep -e '^(ERROR|Error)' callcaller.err
 	@echo
 	@echo '------------------------------------------------------------------------------'
@@ -317,5 +317,5 @@ hsocmat : $(obj_path)/hsocmat.o ${MLOC} ${GWLIB} $(MPI)  $(ELIB) $(GWLIB)
 #----------------------------
 tags: $(progs)
 	@echo '--- TAGS for emacs is generated at SRC/TAGS ---'
-	(cd $(tags); etags */*.F)
+	(cd $(tags); etags */*.f90)
 

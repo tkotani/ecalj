@@ -1,8 +1,13 @@
-program ieee_naninf
-use, intrinsic :: ieee_arithmetic
-implicit none
-real :: NaN, Inf
-NaN = ieee_value(0.0, ieee_quiet_nan)
-Inf = ieee_value(0.0, ieee_positive_inf)
-print *, Inf, NaN
-end program ieee_naninf
+module NaNum
+  !      use,intrinsic :: iso_fortran_env
+  !c      use,intrinsic :: ieee_arithmetic
+  !c      real(8),parameter :: NaN = transfer(-1_int64,0.0_real64) !not good for module in ifort
+  real(8),parameter :: NaN = -9999999 !transfer(-1_int64,0.0_real64)
+end module NaNum
+
+!      program test1
+!      Use NaNum,only: NaN
+!      real(8):: a(8)=NaN,c=NaN
+!      write(6,*) a
+!      write(6,*) 'ccc=',c
+!      end

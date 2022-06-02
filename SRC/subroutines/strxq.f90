@@ -1,177 +1,176 @@
-      subroutine strxq(mode,e,q,p,nlma,nlmh,ndim,alat,vol,awald,nkd,nkq,
-     .  dlv,qlv,cg,indxcg,jcg,s,sd)
-C- One-center expansion coefficents to j of Bloch summed h (strux)
-C ----------------------------------------------------------------
-Cr  Onsite contribution is not contained in the bloch sum in the case of p=0.
-cr  See job=10 for hsmq.
-Ci Inputs:
-Ci   mode  :1's digit (not implemented)
-Ci         :1: calculate s only
-Ci         :2: calculate sd only
-Ci         :any other number: calculate both s and sdot
-Ci   e     :energy of Hankel function.  e must be <=0
-Ci   q     :Bloch wave number
-Ci   p     :position of Hankel function center;
-Ci         :structure constants are for expansion about the origin
-Ci   nlma  :Generate coefficients S_R'L',RL for L' < nlma
-Ci   nlmh  :Generate coefficients S_R'L',RL for L  < nlmh
-Ci   ndim  :leading dimension of s,sdot
-Ci   alat  :length scale of lattice and basis vectors, a.u.
-Ci   vol   :cell volume
-Ci   awald :Ewald smoothing parameter
-Ci   nkq   :number of direct-space lattice vectors
-Ci   nkq   :number of reciprocal-space lattice vectors
-Ci   dlv   :direct-space lattice vectors, units of alat
-Ci   qlv   :reciprocal lattice vectors, units of 2pi/alat
-Ci   cg    :Clebsch Gordon coefficients (scg.f)
-Ci   indxcg:index for Clebsch Gordon coefficients
-Ci   jcg   :L quantum number for the C.G. coefficients (scg.f)
-Co Outputs
-Co   s      :structure constant matrix S_R'L',RL
-Co   sd     :Energy derivative of s
-C ----------------------------------------------------------------
-c1.  Bloch phase.  For translation vectors T, it's sum_T exp(+i q T)
-c
-c2.  Methfessel's definitions of Hankels and Bessel functions:
-c
-c    h_0 = Re e^(ikr)/r and j = sin(kr)/kr, k = sqrt(e), Im k >=0.
-c    H_L = Y_L(-grad) h(r);   J_L = E^(-l) Y_L (-grad) j(r)
-c
-c    They are related to the usual n_l and j_l by factors (I think)
-c       H_L  =  (i k)^(l+1) n_l (kr) Y_L   (E < 0)
-c       J_L  =  (i k)^(-l)  j_l (kr) Y_L   (E < 0)
-c
-c   which explains how the energy-dependence is extracted out.
-c   Also cases e .ne. 0 and e .eq. 0 have the same equations.
-c
-Cr Expansion Theorem: H_{RL}(r) = H_L(r-R)
-Cr   H_{RL}(E,r) = J_{R'L'}(E,r) * S_{R'L',RL}
-Cr   S_R'L',RL = 4 pi Sum_l" C_{LL'L"} (-1)^l (-E)^(l+l'-l")/2 H_L"(E,R-R')
-c ---
-      use m_lldata,only: ll
-      implicit none
-C ... Passed parameters
-      integer mode,ndim,nlma,nlmh
-      integer indxcg(*),jcg(*),nkd,nkq
-      double precision p(3),q(3),alat,awald,vol,e,cg(*), ! MIZUHO-IR
-     .  dlv(*),qlv(*) ! MIZUHO-IR
-      double complex s(ndim,nlmh),sd(ndim,nlmh)
-C ... Local parameters
-      integer lmxx,nrxmx,nlm0
-c      parameter (lmxx=12,nlm0=(lmxx+1)**2,nrxmx=2000)
-      double precision fpi,p1(3),sp
-c     .  wk((lmxx*2+10)*nrxmx),yl(nrxmx*(lmxx+1)**2),efac(0:lmxx)
-      real(8),allocatable :: wk(:),yl(:),efac(:)
-      complex(8),allocatable :: dl(:),dlp(:)
-      integer(4),allocatable :: sig(:)
-      double complex phase,sumx,sud !dl(nlm0),dlp(nlm0)
-      integer icg,icg1,icg2,ii,indx,ipow,l,lmax,nrx,nlm,
-     .  ilm,ilma,la,ilmb,lh !sig(0:lmxx),
-      logical ldot
-      integer(4) :: job
-c$$$#ifdef COMMONLL
-c$$$      integer(4):: ll(51**2)
-c$$$      common/llblock/ll
-c$$$#else
-c$$$      integer(4)::ll
-c$$$#endif
-!!    to avoid warinig jan2013takao
-      integer ::lmax_(1)
-      real(8):: e_(1),rsm_(1)
-C ... Setup
-      ldot = .false.
-      lmax = ll(nlma)+ll(nlmh)
-      nlm = (lmax+1)**2
-      nrx  = max(nkd,nkq)
-      fpi  = 16d0*datan(1d0)
-c
-      if (nlma > ndim) call rxi('strxq: increase ndim: need',nlma)
-c      if (lmax .gt. lmxx) call rxi('strxq: increase lmxx: need',lmax)
-c      if (nrx .gt. nrxmx) call rxi('strxq: increase nrxmx: need',nrx)
-      lmxx = lmax
-      nlm0 =(lmxx+1)**2
-      nrxmx= nrx
-      allocate( wk((lmxx*2+10)*nrxmx),yl(nrxmx*(lmxx+1)**2),
-     &  efac(0:lmxx),sig(0:lmxx),dl(nlm0),dlp(nlm0))
+subroutine strxq(mode,e,q,p,nlma,nlmh,ndim,alat,vol,awald,nkd,nkq, &
+     dlv,qlv,cg,indxcg,jcg,s,sd)
+  !- One-center expansion coefficents to j of Bloch summed h (strux)
+  ! ----------------------------------------------------------------
+  !r  Onsite contribution is not contained in the bloch sum in the case of p=0.
+  !r  See job=10 for hsmq.
+  !i Inputs:
+  !i   mode  :1's digit (not implemented)
+  !i         :1: calculate s only
+  !i         :2: calculate sd only
+  !i         :any other number: calculate both s and sdot
+  !i   e     :energy of Hankel function.  e must be <=0
+  !i   q     :Bloch wave number
+  !i   p     :position of Hankel function center;
+  !i         :structure constants are for expansion about the origin
+  !i   nlma  :Generate coefficients S_R'L',RL for L' < nlma
+  !i   nlmh  :Generate coefficients S_R'L',RL for L  < nlmh
+  !i   ndim  :leading dimension of s,sdot
+  !i   alat  :length scale of lattice and basis vectors, a.u.
+  !i   vol   :cell volume
+  !i   awald :Ewald smoothing parameter
+  !i   nkq   :number of direct-space lattice vectors
+  !i   nkq   :number of reciprocal-space lattice vectors
+  !i   dlv   :direct-space lattice vectors, units of alat
+  !i   qlv   :reciprocal lattice vectors, units of 2pi/alat
+  !i   cg    :Clebsch Gordon coefficients (scg.f)
+  !i   indxcg:index for Clebsch Gordon coefficients
+  !i   jcg   :L quantum number for the C.G. coefficients (scg.f)
+  !o Outputs
+  !o   s      :structure constant matrix S_R'L',RL
+  !o   sd     :Energy derivative of s
+  ! ----------------------------------------------------------------
+  !1.  Bloch phase.  For translation vectors T, it's sum_T exp(+i q T)
 
-c ???
-c      allocate( wk((lmax*2+10)*nrxmx),yl(nrxmx*(lmax+1)**2),
-c     &  efac(0:lmax),sig(0:lmax),dl(nlm0),dlp(nlm0))
+  !2.  Methfessel's definitions of Hankels and Bessel functions:
 
-C --- Reduced structure constants ---
-      call shortn(p,p1,dlv,nkd)
-      sp = fpi/2*(q(1)*(p(1)-p1(1))+q(2)*(p(2)-p1(2))+q(3)*(p(3)-p1(3)))
-      phase = dcmplx(dcos(sp),dsin(sp))
-      job = 0
-      if( sum(abs(p))<1d-10 ) job = 10
-!! 
-      lmax_(1)=lmax
-      e_(1)=e
-      rsm_(1)=0d0
-c      print *," goto hsm e=",e
-      if (e .lt. 0) then
-        call hsmq(1,0,lmax_,e_,rsm_,job,q,p1,nrx,nlm0,wk,yl,
-     .    awald,alat,qlv,nkq,dlv,nkd,vol,dl,dlp)
-      else
-        call hsmqe0(lmax,0d0,job,q,p1,nrx,nlm0,wk,yl,
-     .    awald,alat,qlv,nkq,dlv,nkd,vol,dl)
-        ldot = .false.
-      endif
-c      print *," end of hsm"
+  !    h_0 = Re e^(ikr)/r and j = sin(kr)/kr, k = sqrt(e), Im k >=0.
+  !    H_L = Y_L(-grad) h(r);   J_L = E^(-l) Y_L (-grad) j(r)
 
-C ... Put in phase to undo shortening
-      if (sp .ne. 0d0) then
-        do  20  ilm = 1, nlm
-          dl(ilm) = phase*dl(ilm)
-          if (ldot) dlp(ilm) = phase*dl(ilm)
-   20   continue
-      endif
+  !    They are related to the usual n_l and j_l by factors (I think)
+  !       H_L  =  (i k)^(l+1) n_l (kr) Y_L   (E < 0)
+  !       J_L  =  (i k)^(-l)  j_l (kr) Y_L   (E < 0)
 
-c      print *," end of do 20"
-C --- Combine with Clebsch-Gordan coefficients ---
-C ... efac(l)=(-e)**l; sig(l)=(-)**l
-      efac(0) = 1
-      sig(0) = 1
-      do  1  l = 1, lmax
-        efac(l) = -e*efac(l-1)
-        sig(l) = -sig(l-1)
-    1 continue
-c      print *," goto do11"
-      do  11  ilma = 1, nlma
-        la = ll(ilma)
-        do  14  ilmb = 1, nlmh
-          lh = ll(ilmb)
-          ii = max0(ilma,ilmb)
-          indx = (ii*(ii-1))/2 + min0(ilma,ilmb)
-          icg1 = indxcg(indx)
-          icg2 = indxcg(indx+1)-1
-          sumx = 0d0
-          sud = 0d0
-c      print *," xxx 2"
-c      print *," xxx =",ilma,ilmb,ll(ilma),ll(ilmb)
-          if (ldot) then
-            do  16  icg = icg1, icg2
+  !   which explains how the energy-dependence is extracted out.
+  !   Also cases e .ne. 0 and e .eq. 0 have the same equations.
+
+  !r Expansion Theorem: H_{RL}(r) = H_L(r-R)
+  !r   H_{RL}(E,r) = J_{R'L'}(E,r) * S_{R'L',RL}
+  !r   S_R'L',RL = 4 pi Sum_l" C_{LL'L"} (-1)^l (-E)^(l+l'-l")/2 H_L"(E,R-R')
+  ! ---
+  use m_lldata,only: ll
+  implicit none
+  ! ... Passed parameters
+  integer :: mode,ndim,nlma,nlmh
+  integer :: indxcg(*),jcg(*),nkd,nkq
+  double precision :: p(3),q(3),alat,awald,vol,e,cg(*), dlv(*),qlv(*)
+  double complex s(ndim,nlmh),sd(ndim,nlmh)
+  ! ... Local parameters
+  integer :: lmxx,nrxmx,nlm0
+  !      parameter (lmxx=12,nlm0=(lmxx+1)**2,nrxmx=2000)
+  double precision :: fpi,p1(3),sp
+  !     .  wk((lmxx*2+10)*nrxmx),yl(nrxmx*(lmxx+1)**2),efac(0:lmxx)
+  real(8),allocatable :: wk(:),yl(:),efac(:)
+  complex(8),allocatable :: dl(:),dlp(:)
+  integer(4),allocatable :: sig(:)
+  double complex phase,sumx,sud !dl(nlm0),dlp(nlm0)
+  integer :: icg,icg1,icg2,ii,indx,ipow,l,lmax,nrx,nlm, &
+       ilm,ilma,la,ilmb,lh !sig(0:lmxx),
+  logical :: ldot
+  integer(4) :: job
+  !$$$#ifdef COMMONLL
+  !$$$      integer(4):: ll(51**2)
+  !$$$      common/llblock/ll
+  !$$$#else
+  !$$$      integer(4)::ll
+  !$$$#endif
+  !!    to avoid warinig jan2013takao
+  integer ::lmax_(1)
+  real(8):: e_(1),rsm_(1)
+  ! ... Setup
+  ldot = .false.
+  lmax = ll(nlma)+ll(nlmh)
+  nlm = (lmax+1)**2
+  nrx  = max(nkd,nkq)
+  fpi  = 16d0*datan(1d0)
+
+  if (nlma > ndim) call rxi('strxq: increase ndim: need',nlma)
+  !      if (lmax .gt. lmxx) call rxi('strxq: increase lmxx: need',lmax)
+  !      if (nrx .gt. nrxmx) call rxi('strxq: increase nrxmx: need',nrx)
+  lmxx = lmax
+  nlm0 =(lmxx+1)**2
+  nrxmx= nrx
+  allocate( wk((lmxx*2+10)*nrxmx),yl(nrxmx*(lmxx+1)**2), &
+       efac(0:lmxx),sig(0:lmxx),dl(nlm0),dlp(nlm0))
+
+  ! ???
+  !      allocate( wk((lmax*2+10)*nrxmx),yl(nrxmx*(lmax+1)**2),
+  !     &  efac(0:lmax),sig(0:lmax),dl(nlm0),dlp(nlm0))
+
+  ! --- Reduced structure constants ---
+  call shortn(p,p1,dlv,nkd)
+  sp = fpi/2*(q(1)*(p(1)-p1(1))+q(2)*(p(2)-p1(2))+q(3)*(p(3)-p1(3)))
+  phase = dcmplx(dcos(sp),dsin(sp))
+  job = 0
+  if( sum(abs(p))<1d-10 ) job = 10
+  !!
+  lmax_(1)=lmax
+  e_(1)=e
+  rsm_(1)=0d0
+  !      print *," goto hsm e=",e
+  if (e < 0) then
+     call hsmq(1,0,lmax_,e_,rsm_,job,q,p1,nrx,nlm0,wk,yl, &
+          awald,alat,qlv,nkq,dlv,nkd,vol,dl,dlp)
+  else
+     call hsmqe0(lmax,0d0,job,q,p1,nrx,nlm0,wk,yl, &
+          awald,alat,qlv,nkq,dlv,nkd,vol,dl)
+     ldot = .false.
+  endif
+  !      print *," end of hsm"
+
+  ! ... Put in phase to undo shortening
+  if (sp /= 0d0) then
+     do  20  ilm = 1, nlm
+        dl(ilm) = phase*dl(ilm)
+        if (ldot) dlp(ilm) = phase*dl(ilm)
+20   enddo
+  endif
+
+  !      print *," end of do 20"
+  ! --- Combine with Clebsch-Gordan coefficients ---
+  ! ... efac(l)=(-e)**l; sig(l)=(-)**l
+  efac(0) = 1
+  sig(0) = 1
+  do  1  l = 1, lmax
+     efac(l) = -e*efac(l-1)
+     sig(l) = -sig(l-1)
+1 enddo
+  !      print *," goto do11"
+  do  11  ilma = 1, nlma
+     la = ll(ilma)
+     do  14  ilmb = 1, nlmh
+        lh = ll(ilmb)
+        ii = max0(ilma,ilmb)
+        indx = (ii*(ii-1))/2 + min0(ilma,ilmb)
+        icg1 = indxcg(indx)
+        icg2 = indxcg(indx+1)-1
+        sumx = 0d0
+        sud = 0d0
+        !      print *," xxx 2"
+        !      print *," xxx =",ilma,ilmb,ll(ilma),ll(ilmb)
+        if (ldot) then
+           do  16  icg = icg1, icg2
               ilm  = jcg(icg)
               ipow = (la+lh-ll(ilm))/2
               sumx = sumx + cg(icg)*efac(ipow)*dl(ilm)
               sud = sud + cg(icg)*efac(ipow)*(dlp(ilm)+ipow*dl(ilm)/e)
-   16       continue
-          else
-            do  15  icg = icg1, icg2
+16         enddo
+        else
+           do  15  icg = icg1, icg2
               ilm  = jcg(icg)
               ipow = (la+lh-ll(ilm))/2
               sumx  = sumx + cg(icg)*efac(ipow)*dl(ilm)
-   15       continue
-          endif
-c      print *," xxx 3"
-          s(ilma,ilmb) = fpi*sig(lh)*dconjg(sumx)
-          if (ldot) sd(ilma,ilmb) = fpi*dconjg(sud)*sig(lh)
-   14   continue
-   11 continue
-      if (allocated(wk))deallocate(wk)
-      if (allocated(yl))deallocate(yl)
-      if (allocated(efac))deallocate(efac)
-      if (allocated(sig))deallocate(sig)
-      if (allocated(dl))deallocate(dl)
-      if (allocated(dlp))deallocate(dlp)
-      end
+15         enddo
+        endif
+        !      print *," xxx 3"
+        s(ilma,ilmb) = fpi*sig(lh)*dconjg(sumx)
+        if (ldot) sd(ilma,ilmb) = fpi*dconjg(sud)*sig(lh)
+14   enddo
+11 enddo
+  if (allocated(wk))deallocate(wk)
+  if (allocated(yl))deallocate(yl)
+  if (allocated(efac))deallocate(efac)
+  if (allocated(sig))deallocate(sig)
+  if (allocated(dl))deallocate(dl)
+  if (allocated(dlp))deallocate(dlp)
+end subroutine strxq

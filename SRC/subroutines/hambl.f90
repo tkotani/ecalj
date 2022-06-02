@@ -1,148 +1,147 @@
-      subroutine hambl(isp,qin, smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi, !,ohsozz,ohsopm,
-     &     h, s) !, hso)
-      use m_lmfinit,only: nbas , ssite=>v_ssite , sspec=>v_sspec,nsp,iprmb!,nlmto
-      use m_igv2x,only: napw, igvapwin=>igv2x, ndimh
-      use m_supot,only: k1,k2,k3
-      use m_struc_def,only: s_rv1,s_cv1
-      use m_lattic,only:plat=>lat_plat,qlat=>lat_qlat
-C- Make the LDA hamiltonian and overlap for one k-point.
-C     ----------------------------------------------------------------------
-! ohsozz,ohsopm are for Lz and for L+,L-      
-Ci Inputs
-Ci   mode  :1s digit specifies LDA matrix elements
-Ci         :  0 compute LDA hamiltonian and overlap
-Ci         :  1 compute the overlap only
-Ci         :10s digit
-Ci         :  0 do not compute hso
-Cix         :  1 compute hs0
-Cix         :    Note: only a portion of hso is computed for a
-Cix         :    particular isp.  The total hso is assembled
-Cix         :    after isp loops from 1..2.  hso should not be
-Cix         :    initialized between isp=1 and isp=2 loops.
-Ci   nbas  :size of basis
-Ci   ssite :struct for site-specific information; see routine usite
-Ci     Elts read: *
-Ci     Stored:    *
-Ci     Passed to: augmbl smhsbl hsibl
-Ci   sspec :struct for species-specific information; see routine uspec
-Ci     Elts read: *
-Ci     Stored:    *
-Ci     Passed to: augmbl smhsbl hsibl
-Ci   slat  :struct for lattice information; see routine ulat
-Ci     Elts read: plat
-Ci     Stored:    *
-Ci     Passed to: augmbl smhsbl hsibl
-Ci   sham  :struct for parameters defining hamiltonian; see routine uham
-Ci     Elts read: oindxo
-Ci     Stored:    *
-Ci     Passed to: *
-Ci   isp   :spin index
-Ci   q     :Bloch vector (k-point)
-Ci   k1,k2,k3 dimensions of smpot
-Ci   smpot :smooth potential on uniform mesh (mkpot.f)
-Ci   vconst:additional constant potential
-Ci   osig,otau,oppi  augmentation matrices
-Ci   alfa  :add alfa * overlap to hamiltonian
-Ci         :This is for stability in evals.  Preferably alfa=0
-Ci   ndimh :dimension of hamiltonian and ovrlap h,s
-Co Outputs
-Co   h     :Hamiltonian matrix
-Co   s     :overlap matrix
-Cox   hso   :spin off-diagonal block of spin-orbit hamiltonian
-Cr Remarks
-Cu Updates
-Cu   04 Jul 08 (T. Kotani) New PW addition to basis
-Cu   03 Feb 05 (A. Chantis) calculate hso
-Cu    1 Sep 04 Adapted to handle complex ppi; S.O. put into ppi
-Cu   25 Aug 04 modifications for extended local orbitals
-Cu   15 Jul 04 (Chantis) Add Lz.Sz spin-orbit coupling
-Cu   10 Jan 03 Remove addition from hambl.  See hambls.f
-Cu   10 Jan 03 put sigma back into Bloch transform only
-Cu   14 Aug 02 Added overlap-only option and option for orthog sigm
-Cu   20 Jul 02 Can add Bloch transform of sigma matrix to ham
-Cu   18 May 00 Adapted from nfp mk_hamiltonian.f
-C     ----------------------------------------------------------------------
-      implicit none
-      integer:: mode,igvapw(3,napw),isp
-      integer:: mode1,ipr,inn(3),ig,i
-      type(s_cv1) :: sv_p_oppi(3,nbas)
-      type(s_rv1) :: sv_p_otau(3,nbas)
-      type(s_rv1) :: sv_p_osig(3,nbas)
-      real(8):: q(3), vconst,vavg
-      complex(8):: smpot(k1,k2,k3,nsp), h(ndimh,ndimh),s(ndimh,ndimh)
-      real(8):: qin(3),qlatinv(3,3)
-      call tcn('hambl')
+subroutine hambl(isp,qin, smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi, h, s) !, hso)
+  use m_lmfinit,only: nbas , ssite=>v_ssite , sspec=>v_sspec,nsp,iprmb
+  use m_igv2x,only: napw, igvapwin=>igv2x, ndimh
+  use m_supot,only: k1,k2,k3
+  use m_struc_def,only: s_rv1,s_cv1
+  use m_lattic,only:plat=>lat_plat,qlat=>lat_qlat
+  !- Make the LDA hamiltonian and overlap for one k-point.
+  !     ----------------------------------------------------------------------
+  ! ohsozz,ohsopm are for Lz and for L+,L-
+  !i Inputs
+  !i   mode  :1s digit specifies LDA matrix elements
+  !i         :  0 compute LDA hamiltonian and overlap
+  !i         :  1 compute the overlap only
+  !i         :10s digit
+  !i         :  0 do not compute hso
+  ! x         :  1 compute hs0
+  ! x         :    Note: only a portion of hso is computed for a
+  ! x         :    particular isp.  The total hso is assembled
+  ! x         :    after isp loops from 1..2.  hso should not be
+  ! x         :    initialized between isp=1 and isp=2 loops.
+  !i   nbas  :size of basis
+  !i   ssite :struct for site-specific information; see routine usite
+  !i     Elts read: *
+  !i     Stored:    *
+  !i     Passed to: augmbl smhsbl hsibl
+  !i   sspec :struct for species-specific information; see routine uspec
+  !i     Elts read: *
+  !i     Stored:    *
+  !i     Passed to: augmbl smhsbl hsibl
+  !i   slat  :struct for lattice information; see routine ulat
+  !i     Elts read: plat
+  !i     Stored:    *
+  !i     Passed to: augmbl smhsbl hsibl
+  !i   sham  :struct for parameters defining hamiltonian; see routine uham
+  !i     Elts read: oindxo
+  !i     Stored:    *
+  !i     Passed to: *
+  !i   isp   :spin index
+  !i   q     :Bloch vector (k-point)
+  !i   k1,k2,k3 dimensions of smpot
+  !i   smpot :smooth potential on uniform mesh (mkpot.f)
+  !i   vconst:additional constant potential
+  !i   osig,otau,oppi  augmentation matrices
+  !i   alfa  :add alfa * overlap to hamiltonian
+  !i         :This is for stability in evals.  Preferably alfa=0
+  !i   ndimh :dimension of hamiltonian and ovrlap h,s
+  !o Outputs
+  !o   h     :Hamiltonian matrix
+  !o   s     :overlap matrix
+  ! x   hso   :spin off-diagonal block of spin-orbit hamiltonian
+  !r Remarks
+  !u Updates
+  !u   04 Jul 08 (T. Kotani) New PW addition to basis
+  !u   03 Feb 05 (A. Chantis) calculate hso
+  !u    1 Sep 04 Adapted to handle complex ppi; S.O. put into ppi
+  !u   25 Aug 04 modifications for extended local orbitals
+  !u   15 Jul 04 (Chantis) Add Lz.Sz spin-orbit coupling
+  !u   10 Jan 03 Remove addition from hambl.  See hambls.f
+  !u   10 Jan 03 put sigma back into Bloch transform only
+  !u   14 Aug 02 Added overlap-only option and option for orthog sigm
+  !u   20 Jul 02 Can add Bloch transform of sigma matrix to ham
+  !u   18 May 00 Adapted from nfp mk_hamiltonian.f
+  !     ----------------------------------------------------------------------
+  implicit none
+  integer:: mode,igvapw(3,napw),isp
+  integer:: mode1,ipr,inn(3),ig,i
+  type(s_cv1) :: sv_p_oppi(3,nbas)
+  type(s_rv1) :: sv_p_otau(3,nbas)
+  type(s_rv1) :: sv_p_osig(3,nbas)
+  real(8):: q(3), vconst,vavg
+  complex(8):: smpot(k1,k2,k3,nsp), h(ndimh,ndimh),s(ndimh,ndimh)
+  real(8):: qin(3),qlatinv(3,3)
+  call tcn('hambl')
 !!!!!!!!!!!!!!!!!!!!!!!!!!
-!     qin=qinin+ [1d-6,2d-6,3d-6] !trick to avoid degeneracy oscillation.
-!!      See m_bstrux_init as well via augmbl
+  !     qin=qinin+ [1d-6,2d-6,3d-6] !trick to avoid degeneracy oscillation.
+  !!      See m_bstrux_init as well via augmbl
 !!!!!!!!!!!!!!!!!!!!!!!!!
-!! Originally Given q should be shorted becasue (takao think)
-!! hamble ->smhsbl-->hhibl-->hklbl ---> hsmq requires
-!! lat_rv_a_o_dlv and lat_rv_a_o_qlv, generated by lattic.F (call lattc)  where we assume q is shortened. I think.
-!! But we need extensive test to improve this part...
-!! Easier way to manage any q with shorbz.
-c
-!! input and output
-!!   qpg(ig) = tpiba * ( qin + matmul(qlat,igapwin(1:3,ig))) for h,o,hso
-!! internal
-!!   qpg(ig) = tpiba * ( q  + matmul(qlat,igapw(1:3,ig)))
-!!  NOTE: both qpg are the same for given ig.
-!! qlat*igapw = qlat*igqwin + (qin-q) ---> igvapw = igvapwin + matmul(qlatinv,qin-q)
-      qlatinv = transpose(plat)
-      call shorbz(qin,q,qlat,plat) !is this fine?
-      inn=nint(matmul(qlatinv,qin-q))
-      do ig=1,napw
-        igvapw(:,ig) = inn + igvapwin(:,ig)
-      enddo  
-      h = 0d0
-      s = 0d0
-!! Augmentation part of hamiltonian and overlap ---
-      call augmbl(ssite,sspec,isp,q, sv_p_osig,sv_p_otau,sv_p_oppi,ndimh, h,s) !,ohsozz,ohsopm
-!! Optionally set average istl potential to zero
-      vavg = 0
-      call smhsbl(ssite,sspec, vavg+vconst, q, ndimh, iprmb, napw, igvapw, h,s)
-      call hsibl (ssite,sspec, k1,k2,k3,smpot,isp,q,ndimh,iprmb,napw,igvapw, h)
-      do i=1,ndimh
-         h(i+1:ndimh,i)=dconjg(h(i,i+1:ndimh))
-         s(i+1:ndimh,i)=dconjg(s(i,i+1:ndimh))
-      enddo
-      call tcx('hambl')
-      end subroutine hambl
+  !! Originally Given q should be shorted becasue (takao think)
+  !! hamble ->smhsbl-->hhibl-->hklbl ---> hsmq requires
+  !! lat_rv_a_o_dlv and lat_rv_a_o_qlv, generated by lattic.F (call lattc)  where we assume q is shortened. I think.
+  !! But we need extensive test to improve this part...
+  !! Easier way to manage any q with shorbz.
 
-      subroutine pvhmb1(mode,k1,k2,k3,smpot,vavg) !slat,
-      use m_supot,only:lat_nabc
-C- Add subtract a constant from smooth potential
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci    mode :0 do not adjust smpot; just return avg smpot
-Ci         :1 add vavg to smpot
-Ci   slat  :struct for lattice information; see routine ulat
-Ci     Elts read: nabc
-Ci   k1,k2,k3 dimensions of smpot
-Cio Inputs/Outputs
-Cio  smpot :(input for mode=0, altered for mode=1)
-Cio        :smooth potential on uniform mesh (mkpot.f)
-Cio  vavg  :(output for mode=0, input for mode=1) average potential
-Cr Remarks
-Cr
-Cu Updates
-Cu   16 Aug 04 First created
-C ----------------------------------------------------------------------
-      implicit none
-      integer mode,k1,k2,k3
-      double complex smpot(k1,k2,k3)
-C ... Local parameters
-      double precision vavg
-      double complex xx
-      integer ngabc(3),i
-      if (mode .eq. 0) then
-        ngabc=lat_nabc
-        call mshint(1d0,1,ngabc(1),ngabc(2),ngabc(3), k1,k2,k3,smpot,vavg,xx)
-      elseif (mode .eq. 1) then
-        do i = 1, k1*k2*k3
-          smpot(i,1,1) = smpot(i,1,1) + vavg
-        enddo
-      else
-        call rx('pvhmb1: bad mode')
-      endif
-      end subroutine pvhmb1
+  !! input and output
+  !!   qpg(ig) = tpiba * ( qin + matmul(qlat,igapwin(1:3,ig))) for h,o,hso
+  !! internal
+  !!   qpg(ig) = tpiba * ( q  + matmul(qlat,igapw(1:3,ig)))
+  !!  NOTE: both qpg are the same for given ig.
+  !! qlat*igapw = qlat*igqwin + (qin-q) ---> igvapw = igvapwin + matmul(qlatinv,qin-q)
+  qlatinv = transpose(plat)
+  call shorbz(qin,q,qlat,plat) !is this fine?
+  inn=nint(matmul(qlatinv,qin-q))
+  do ig=1,napw
+     igvapw(:,ig) = inn + igvapwin(:,ig)
+  enddo
+  h = 0d0
+  s = 0d0
+  !! Augmentation part of hamiltonian and overlap ---
+  call augmbl(ssite,sspec,isp,q, sv_p_osig,sv_p_otau,sv_p_oppi,ndimh, h,s) !,ohsozz,ohsopm
+  !! Optionally set average istl potential to zero
+  vavg = 0
+  call smhsbl(ssite,sspec, vavg+vconst, q, ndimh, iprmb, napw, igvapw, h,s)
+  call hsibl (ssite,sspec, k1,k2,k3,smpot,isp,q,ndimh,iprmb,napw,igvapw, h)
+  do i=1,ndimh
+     h(i+1:ndimh,i)=dconjg(h(i,i+1:ndimh))
+     s(i+1:ndimh,i)=dconjg(s(i,i+1:ndimh))
+  enddo
+  call tcx('hambl')
+end subroutine hambl
+
+subroutine pvhmb1(mode,k1,k2,k3,smpot,vavg) !slat,
+  use m_supot,only:lat_nabc
+  !- Add subtract a constant from smooth potential
+  ! ----------------------------------------------------------------------
+  !i Inputs
+  !i    mode :0 do not adjust smpot; just return avg smpot
+  !i         :1 add vavg to smpot
+  !i   slat  :struct for lattice information; see routine ulat
+  !i     Elts read: nabc
+  !i   k1,k2,k3 dimensions of smpot
+  ! o Inputs/Outputs
+  ! o  smpot :(input for mode=0, altered for mode=1)
+  ! o        :smooth potential on uniform mesh (mkpot.f)
+  ! o  vavg  :(output for mode=0, input for mode=1) average potential
+  !r Remarks
+  !r
+  !u Updates
+  !u   16 Aug 04 First created
+  ! ----------------------------------------------------------------------
+  implicit none
+  integer :: mode,k1,k2,k3
+  double complex smpot(k1,k2,k3)
+  ! ... Local parameters
+  double precision :: vavg
+  double complex xx
+  integer :: ngabc(3),i
+  if (mode == 0) then
+     ngabc=lat_nabc
+     call mshint(1d0,1,ngabc(1),ngabc(2),ngabc(3), k1,k2,k3,smpot,vavg,xx)
+  elseif (mode == 1) then
+     do i = 1, k1*k2*k3
+        smpot(i,1,1) = smpot(i,1,1) + vavg
+     enddo
+  else
+     call rx('pvhmb1: bad mode')
+  endif
+end subroutine pvhmb1

@@ -1,447 +1,447 @@
-c$$$      subroutine get_nqbze(nqbz,nqbze)
-c$$$      implicit real*8(a-h,o-z)
-c$$$      implicit integer (i-n)
-c$$$      logical :: lq0p
-c$$$
-c$$$      inquire(file='Q0P',exist=lq0p)
-c$$$
-c$$$      if (lq0p) then
-c$$$         ifq0p = iopen('Q0P',1,0,0)
-c$$$         read (ifq0p,"(i5)") nq0i
-c$$$         ifq0P = iclose('Q0P')         
-c$$$         nqbze = nqbz*(nq0i+1)
-c$$$      else
-c$$$         nqbze = nqbz
-c$$$      endif
-c$$$
-c$$$      return
-c$$$      end
-c$$$c-----------------------------------------------------------------------
-c$$$      subroutine get_nqbze2(nqbz,nqbze)
-c$$$      implicit real*8(a-h,o-z)
-c$$$      implicit integer (i-n)
-c$$$      logical :: lq0p
-c$$$
-c$$$      inquire(file='Q0P',exist=lq0p)
-c$$$
-c$$$      if (lq0p) then
-c$$$         ifq0p = iopen('Q0P',1,0,0)
-c$$$         read (ifq0p,"(i5)") nq0i
-c$$$         ifq0P = iclose('Q0P')         
-c$$$         nqbze = nqbz*(nq0i+2)
-c$$$      else
-c$$$         nqbze = nqbz*2
-c$$$      endif
-c$$$
-c$$$      return
-c$$$      end
-c$$$c-----------------------------------------------------------------------
-c$$$      subroutine get_qbze(qbz,nqbz,
-c$$$     o                    qbze,nqbze)
-c$$$      implicit real*8(a-h,o-z)
-c$$$      implicit integer (i-n)
-c$$$      logical :: lq0p
-c$$$      real(8), allocatable :: wqt(:),q0i(:,:)
-c$$$      real(8) :: qbz(3,nqbz),qbze(3,nqbze)
-c$$$
-c$$$      inquire(file='Q0P',exist=lq0p)
-c$$$
-c$$$      if (lq0p) then
-c$$$         ifq0p = iopen('Q0P',1,0,0)
-c$$$         read (ifq0p,"(i5)") nq0i
-c$$$         allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )
-c$$$         do iq=1,nq0i
-c$$$           read (ifq0p, * ) wqt(iq),q0i(1:3,iq)
-c$$$         enddo
-c$$$         ifq0P = iclose('Q0P')         
-c$$$
-c$$$c         nqbze = nqbz*(nq0i+1)
-c$$$c         allocate(qbze(3,nqbze))
-c$$$         qbze(:,1:nqbz) = qbz(:,1:nqbz)
-c$$$         do iq = 1,nq0i
-c$$$           ini = nqbz*(1 + iq -1)
-c$$$           do ix=1,nqbz
-c$$$             qbze (:,ini+ix)   = q0i(:,iq) + qbz(:,ix)
-c$$$           enddo
-c$$$         enddo
-c$$$         deallocate(wqt,q0i)
-c$$$      else
-c$$$c         nqbze = nqbz
-c$$$c         allocate(qbze(3,nqbze))
-c$$$         qbze = qbz
-c$$$      endif
-c$$$
-c$$$      return
-c$$$      end
-c$$$c-----------------------------------------------------------------------
-c$$$      subroutine get_qbze2(qbz,qbzs,nqbz,
-c$$$     o                    qbze,nqbze)
-c$$$      implicit real*8(a-h,o-z)
-c$$$      implicit integer (i-n)
-c$$$      logical :: lq0p
-c$$$      real(8), allocatable :: wqt(:),q0i(:,:)
-c$$$      real(8) :: qbz(3,nqbz),qbzs(3,nqbz),qbze(3,nqbze)
-c$$$
-c$$$      inquire(file='Q0P',exist=lq0p)
-c$$$
-c$$$      if (lq0p) then
-c$$$         ifq0p = iopen('Q0P',1,0,0)
-c$$$         read (ifq0p,"(i5)") nq0i
-c$$$         allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )
-c$$$         do iq=1,nq0i
-c$$$           read (ifq0p, * ) wqt(iq),q0i(1:3,iq)
-c$$$         enddo
-c$$$         ifq0P = iclose('Q0P')         
-c$$$
-c$$$c         nqbze = nqbz*(nq0i+2)
-c$$$c         allocate(qbze(3,nqbze))
-c$$$         qbze(:,1:nqbz) = qbz(:,1:nqbz)
-c$$$         qbze(:,nqbz+1:2*nqbz) = qbzs(:,1:nqbz)
-c$$$         do iq = 1,nq0i
-c$$$           ini = nqbz*(2 + iq -1)
-c$$$           do ix=1,nqbz
-c$$$             qbze (:,ini+ix)   = q0i(:,iq) + qbz(:,ix)
-c$$$           enddo
-c$$$         enddo
-c$$$         deallocate(wqt,q0i)
-c$$$      else
-c$$$c         nqbze = nqbz*2
-c$$$c         allocate(qbze(3,nqbze))
-c$$$         qbze(:,1:nqbz) = qbz(:,1:nqbz)
-c$$$         qbze(:,nqbz+1:2*nqbz) = qbzs(:,1:nqbz)
-c$$$      endif
-c$$$
-c$$$      return
-c$$$      end
-c-----------------------------------------------------------------------
-      subroutine rot_hmnk(umnk,eunk,
-     d                    nwf,nqbz,
-     o                    hrotk)
+!$$$      subroutine get_nqbze(nqbz,nqbze)
+!$$$      implicit real*8(a-h,o-z)
+!$$$      implicit integer (i-n)
+!$$$      logical :: lq0p
+!$$$
+!$$$      inquire(file='Q0P',exist=lq0p)
+!$$$
+!$$$      if (lq0p) then
+!$$$         ifq0p = iopen('Q0P',1,0,0)
+!$$$         read (ifq0p,"(i5)") nq0i
+!$$$         ifq0P = iclose('Q0P')
+!$$$         nqbze = nqbz*(nq0i+1)
+!$$$      else
+!$$$         nqbze = nqbz
+!$$$      endif
+!$$$
+!$$$      return
+!$$$      end
+!$$$c-----------------------------------------------------------------------
+!$$$      subroutine get_nqbze2(nqbz,nqbze)
+!$$$      implicit real*8(a-h,o-z)
+!$$$      implicit integer (i-n)
+!$$$      logical :: lq0p
+!$$$
+!$$$      inquire(file='Q0P',exist=lq0p)
+!$$$
+!$$$      if (lq0p) then
+!$$$         ifq0p = iopen('Q0P',1,0,0)
+!$$$         read (ifq0p,"(i5)") nq0i
+!$$$         ifq0P = iclose('Q0P')
+!$$$         nqbze = nqbz*(nq0i+2)
+!$$$      else
+!$$$         nqbze = nqbz*2
+!$$$      endif
+!$$$
+!$$$      return
+!$$$      end
+!$$$c-----------------------------------------------------------------------
+!$$$      subroutine get_qbze(qbz,nqbz,
+!$$$     o                    qbze,nqbze)
+!$$$      implicit real*8(a-h,o-z)
+!$$$      implicit integer (i-n)
+!$$$      logical :: lq0p
+!$$$      real(8), allocatable :: wqt(:),q0i(:,:)
+!$$$      real(8) :: qbz(3,nqbz),qbze(3,nqbze)
+!$$$
+!$$$      inquire(file='Q0P',exist=lq0p)
+!$$$
+!$$$      if (lq0p) then
+!$$$         ifq0p = iopen('Q0P',1,0,0)
+!$$$         read (ifq0p,"(i5)") nq0i
+!$$$         allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )
+!$$$         do iq=1,nq0i
+!$$$           read (ifq0p, * ) wqt(iq),q0i(1:3,iq)
+!$$$         enddo
+!$$$         ifq0P = iclose('Q0P')
+!$$$
+!$$$c         nqbze = nqbz*(nq0i+1)
+!$$$c         allocate(qbze(3,nqbze))
+!$$$         qbze(:,1:nqbz) = qbz(:,1:nqbz)
+!$$$         do iq = 1,nq0i
+!$$$           ini = nqbz*(1 + iq -1)
+!$$$           do ix=1,nqbz
+!$$$             qbze (:,ini+ix)   = q0i(:,iq) + qbz(:,ix)
+!$$$           enddo
+!$$$         enddo
+!$$$         deallocate(wqt,q0i)
+!$$$      else
+!$$$c         nqbze = nqbz
+!$$$c         allocate(qbze(3,nqbze))
+!$$$         qbze = qbz
+!$$$      endif
+!$$$
+!$$$      return
+!$$$      end
+!$$$c-----------------------------------------------------------------------
+!$$$      subroutine get_qbze2(qbz,qbzs,nqbz,
+!$$$     o                    qbze,nqbze)
+!$$$      implicit real*8(a-h,o-z)
+!$$$      implicit integer (i-n)
+!$$$      logical :: lq0p
+!$$$      real(8), allocatable :: wqt(:),q0i(:,:)
+!$$$      real(8) :: qbz(3,nqbz),qbzs(3,nqbz),qbze(3,nqbze)
+!$$$
+!$$$      inquire(file='Q0P',exist=lq0p)
+!$$$
+!$$$      if (lq0p) then
+!$$$         ifq0p = iopen('Q0P',1,0,0)
+!$$$         read (ifq0p,"(i5)") nq0i
+!$$$         allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )
+!$$$         do iq=1,nq0i
+!$$$           read (ifq0p, * ) wqt(iq),q0i(1:3,iq)
+!$$$         enddo
+!$$$         ifq0P = iclose('Q0P')
+!$$$
+!$$$c         nqbze = nqbz*(nq0i+2)
+!$$$c         allocate(qbze(3,nqbze))
+!$$$         qbze(:,1:nqbz) = qbz(:,1:nqbz)
+!$$$         qbze(:,nqbz+1:2*nqbz) = qbzs(:,1:nqbz)
+!$$$         do iq = 1,nq0i
+!$$$           ini = nqbz*(2 + iq -1)
+!$$$           do ix=1,nqbz
+!$$$             qbze (:,ini+ix)   = q0i(:,iq) + qbz(:,ix)
+!$$$           enddo
+!$$$         enddo
+!$$$         deallocate(wqt,q0i)
+!$$$      else
+!$$$c         nqbze = nqbz*2
+!$$$c         allocate(qbze(3,nqbze))
+!$$$         qbze(:,1:nqbz) = qbz(:,1:nqbz)
+!$$$         qbze(:,nqbz+1:2*nqbz) = qbzs(:,1:nqbz)
+!$$$      endif
+!$$$
+!$$$      return
+!$$$      end
+!-----------------------------------------------------------------------
+subroutine rot_hmnk(umnk,eunk, &
+     nwf,nqbz, &
+     hrotk)
 
-c see Ref.[2] eq.24
-      implicit integer (i-n)
-      implicit real*8(a-h,o-z)
+  ! see Ref.[2] eq.24
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
 
-      complex(8) :: umnk(nwf,nwf,nqbz),hrotk(nwf,nwf,nqbz),ctmp
-      real(8) :: eunk(nwf,nqbz)
+  complex(8) :: umnk(nwf,nwf,nqbz),hrotk(nwf,nwf,nqbz),ctmp
+  real(8) :: eunk(nwf,nqbz)
 
-      hrotk = (0d0,0d0)
+  hrotk = (0d0,0d0)
 
-      do iq = 1,nqbz
-      do im = 1,nwf
-      do in = 1,nwf
-         do ii = 1,nwf
-            hrotk(im,in,iq) = hrotk(im,in,iq) + 
-     &      dconjg(umnk(ii,im,iq))*eunk(ii,iq)*umnk(ii,in,iq)
-         enddo
-      enddo
-      enddo
-      enddo
+  do iq = 1,nqbz
+     do im = 1,nwf
+        do in = 1,nwf
+           do ii = 1,nwf
+              hrotk(im,in,iq) = hrotk(im,in,iq) + &
+                   dconjg(umnk(ii,im,iq))*eunk(ii,iq)*umnk(ii,in,iq)
+           enddo
+        enddo
+     enddo
+  enddo
 
-      return
-      end
-c-----------------------------------------------------------------------
-      subroutine get_hrotr_ws(hrotk,qbz,wbz,
-     i                  rws,irws,drws,
-     d                  nwf,nqbz,nrws,
-     o                  hrotr)
+  return
+end subroutine rot_hmnk
+!-----------------------------------------------------------------------
+subroutine get_hrotr_ws(hrotk,qbz,wbz, &
+     rws,irws,drws, &
+     nwf,nqbz,nrws, &
+     hrotr)
 
-c see Ref.[2] eq.25
-      implicit integer (i-n)
-      implicit real*8(a-h,o-z)
+  ! see Ref.[2] eq.25
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
 
-      complex(8) :: hrotk(nwf,nwf,nqbz),hrotr(nwf,nwf,nrws),
-     &              ci,cikr,ceikr,ctmp
-      real(8) :: qbz(3,nqbz),wbz(nqbz),q(3),r(3)
-     &          ,rws(3,nrws),drws(nrws)
-      integer(4) :: irws(nrws)
- 
-      pi = 4d0* atan(1d0)
-      ci = (0d0,1d0)
+  complex(8) :: hrotk(nwf,nwf,nqbz),hrotr(nwf,nwf,nrws), &
+       ci,cikr,ceikr,ctmp
+  real(8) :: qbz(3,nqbz),wbz(nqbz),q(3),r(3) &
+       ,rws(3,nrws),drws(nrws)
+  integer(4) :: irws(nrws)
 
-      hrotr = (0d0,0d0)
+  pi = 4d0* atan(1d0)
+  ci = (0d0,1d0)
 
-      ir = 0
-      do ir = 1,nrws
-      do iq = 1,nqbz
-         rk = 2d0*pi*sum(rws(:,ir)*qbz(:,iq))
-         ceikr = exp(-ci*rk)
-         do im = 1,nwf
-         do in = 1,nwf
-            hrotr(im,in,ir) = hrotr(im,in,ir) + 
-     &      ceikr * hrotk(im,in,iq) / dble(nqbz)
-         enddo ! in
-         enddo ! im
-      enddo ! iq
-      enddo ! ir
+  hrotr = (0d0,0d0)
 
-      return
-      end
-c-----------------------------------------------------------------------
-      subroutine get_hrotkp_ws(hrotr,rws,drws,irws,q,
-     d                     nwf,nqbz,nrws,
-     o                     hrotkp)
+  ir = 0
+  do ir = 1,nrws
+     do iq = 1,nqbz
+        rk = 2d0*pi*sum(rws(:,ir)*qbz(:,iq))
+        ceikr = exp(-ci*rk)
+        do im = 1,nwf
+           do in = 1,nwf
+              hrotr(im,in,ir) = hrotr(im,in,ir) + &
+                   ceikr * hrotk(im,in,iq) / dble(nqbz)
+           enddo ! in
+        enddo ! im
+     enddo ! iq
+  enddo ! ir
 
-c see Ref.[2] eq.26
-      implicit integer (i-n)
-      implicit real*8(a-h,o-z)
+  return
+end subroutine get_hrotr_ws
+!-----------------------------------------------------------------------
+subroutine get_hrotkp_ws(hrotr,rws,drws,irws,q, &
+     nwf,nqbz,nrws, &
+     hrotkp)
 
-      complex(8) :: hrotr(nwf,nwf,nrws),hrotkp(nwf,nwf),
-     &              ci,cikr,ceikr,ctmp
-      real(8) :: q(3),rws(3,nrws),drws(nrws)
-      integer(4) :: irws(nrws)
+  ! see Ref.[2] eq.26
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
 
-      pi = 4d0* atan(1d0)
-      ci = (0d0,1d0)
+  complex(8) :: hrotr(nwf,nwf,nrws),hrotkp(nwf,nwf), &
+       ci,cikr,ceikr,ctmp
+  real(8) :: q(3),rws(3,nrws),drws(nrws)
+  integer(4) :: irws(nrws)
 
-      hrotkp = (0d0,0d0)
+  pi = 4d0* atan(1d0)
+  ci = (0d0,1d0)
 
-      do ir = 1,nrws
-         rk = sum(rws(:,ir)*q(:))
-         cikr = ci * 2d0 * pi * rk
-         ceikr = exp(cikr) / dble(irws(ir))
-         do im = 1,nwf
-         do in = 1,nwf
-            hrotkp(im,in) = hrotkp(im,in) + 
-     &      ceikr * hrotr(im,in,ir)
-         enddo
-         enddo
-      enddo
+  hrotkp = (0d0,0d0)
 
-      return
-      end
-c-----------------------------------------------------------------------
-      subroutine get_hrotkp_tb_ws(rcut,plat,alat,
-     i                     hrotr,rws,drws,irws,q,  ibasiwf,bas,natom,
-     d                     nwf,nqbz,nrws,
-     o                     hrotkp)
+  do ir = 1,nrws
+     rk = sum(rws(:,ir)*q(:))
+     cikr = ci * 2d0 * pi * rk
+     ceikr = exp(cikr) / dble(irws(ir))
+     do im = 1,nwf
+        do in = 1,nwf
+           hrotkp(im,in) = hrotkp(im,in) + &
+                ceikr * hrotr(im,in,ir)
+        enddo
+     enddo
+  enddo
 
-c truncate long-range part of hrotr
-c from get_hrotkp_ws
-c see Ref.[2] eq.26
-      implicit integer (i-n)
-      implicit real*8(a-h,o-z)
+  return
+end subroutine get_hrotkp_ws
+!-----------------------------------------------------------------------
+subroutine get_hrotkp_tb_ws(rcut,plat,alat, &
+     hrotr,rws,drws,irws,q,  ibasiwf,bas,natom, &
+     nwf,nqbz,nrws, &
+     hrotkp)
 
-      parameter (delta = 1d-3)
-      complex(8) :: hrotr(nwf,nwf,nrws),hrotkp(nwf,nwf),
-     &              ci,cikr,ceikr,ctmp
-      real(8) :: q(3),rws(3,nrws),drws(nrws),plat(3,3)
-      integer(4) :: irws(nrws)
+  ! truncate long-range part of hrotr
+  ! from get_hrotkp_ws
+  ! see Ref.[2] eq.26
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
 
-      integer:: ibasiwf(nwf),natom
-      real(8):: bas(3,natom)
-!!
-ctm
-c      rc = rcut + delta
-      rc = rcut
+  parameter (delta = 1d-3)
+  complex(8) :: hrotr(nwf,nwf,nrws),hrotkp(nwf,nwf), &
+       ci,cikr,ceikr,ctmp
+  real(8) :: q(3),rws(3,nrws),drws(nrws),plat(3,3)
+  integer(4) :: irws(nrws)
 
-      pi = 4d0* atan(1d0)
-      ci = (0d0,1d0)
+  integer:: ibasiwf(nwf),natom
+  real(8):: bas(3,natom)
+  !!
+  ! m
+  !      rc = rcut + delta
+  rc = rcut
 
-      hrotkp = (0d0,0d0)
+  pi = 4d0* atan(1d0)
+  ci = (0d0,1d0)
 
-      do ir = 1,nrws
-         ceikr = (0d0,0d0)
-c         rtmp = alat*dsqrt(sum(rws(:,ir)**2))
-c         if (rtmp.le.rc) then
-            rk = sum(rws(:,ir)*q(:))
-            cikr = ci * 2d0 * pi * rk
-            ceikr = exp(cikr) / dble(irws(ir))
-c         endif  
-         do im = 1,nwf
-           imp= ibasiwf(im)
-         do in = 1,nwf
+  hrotkp = (0d0,0d0)
+
+  do ir = 1,nrws
+     ceikr = (0d0,0d0)
+     !         rtmp = alat*dsqrt(sum(rws(:,ir)**2))
+     !         if (rtmp.le.rc) then
+     rk = sum(rws(:,ir)*q(:))
+     cikr = ci * 2d0 * pi * rk
+     ceikr = exp(cikr) / dble(irws(ir))
+     !         endif
+     do im = 1,nwf
+        imp= ibasiwf(im)
+        do in = 1,nwf
            inp= ibasiwf(in)
-c           rtmp = alat*dsqrt( sum( (rws(:,ir)+bas(:,imp)-bas(:,inp))**2 ) )
-!! Rn-0m
+           !           rtmp = alat*dsqrt( sum( (rws(:,ir)+bas(:,imp)-bas(:,inp))**2 ) )
+           !! Rn-0m
            rtmp = alat*dsqrt( sum( (rws(:,ir)+bas(:,inp)-bas(:,imp))**2 ) )
            if(rtmp<rc) then
-             hrotkp(im,in) = hrotkp(im,in) + 
-     &       ceikr * hrotr(im,in,ir)
-           endif 
-         enddo
-         enddo
-      enddo
+              hrotkp(im,in) = hrotkp(im,in) + &
+                   ceikr * hrotr(im,in,ir)
+           endif
+        enddo
+     enddo
+  enddo
 
-      return
-      end
-c-----------------------------------------------------------------------
-      subroutine wmaxloc_diag(ifmlw,ifmlwe,
-     i                 iq,q,umnk,cnk,eunk,evecc,eval,
-     i                 iko_ix,iko_fx,iko_i,iko_f,
-     d                 nwf,nqbz)
-      implicit integer (i-n)
-      implicit real*8(a-h,o-z)
+  return
+end subroutine get_hrotkp_tb_ws
+!-----------------------------------------------------------------------
+subroutine wmaxloc_diag(ifmlw,ifmlwe, &
+     iq,q,umnk,cnk,eunk,evecc,eval, &
+     iko_ix,iko_fx,iko_i,iko_f, &
+     nwf,nqbz)
+  implicit integer (i-n)
+  implicit real*8(a-h,o-z)
 
-      complex(8),allocatable :: dnk(:,:)
-      complex(8) :: cnk(iko_ix:iko_fx,nwf,nqbz),
-     &              umnk(nwf,nwf,nqbz),evecc(nwf,nwf)
-      real(8) :: q(3),eunk(nwf,nqbz),eval(nwf)
-      integer(4) :: iko_i(nqbz),iko_f(nqbz)
-
-
-      write(ifmlw)iq,q(1:3)
-      write(ifmlw)evecc(1:nwf,1:nwf)
-
-      write(ifmlwe)iq,q(1:3)
-      write(ifmlwe)eval(1:nwf)
-
-      return
-      end
-c-----------------------------------------------------------------------
-      subroutine chk_diag(q,ham,nwf,eval,evec)
-      implicit real*8(a-h,o-z)
-      implicit integer (i-n)
-      complex(8) :: ham(nwf,nwf),evec(nwf,nwf),zm1(nwf,nwf),zm2(nwf,nwf)
-      real(8) :: eval(nwf),q(3)
+  complex(8),allocatable :: dnk(:,:)
+  complex(8) :: cnk(iko_ix:iko_fx,nwf,nqbz), &
+       umnk(nwf,nwf,nqbz),evecc(nwf,nwf)
+  real(8) :: q(3),eunk(nwf,nqbz),eval(nwf)
+  integer(4) :: iko_i(nqbz),iko_f(nqbz)
 
 
-      write(7100,*)'***'
-      write(7100,"(3f12.6)")q
+  write(ifmlw)iq,q(1:3)
+  write(ifmlw)evecc(1:nwf,1:nwf)
 
-c zm1(i1,iwf2)   = S[i2] ham(i1,i2) * evec(i2,iwf2)
-      zm1 = 0d0
-      do iwf2 = 1,nwf
-      do i1   = 1,nwf
-         do i2 = 1,nwf
-            zm1(i1,iwf2) = zm1(i1,iwf2) + ham(i1,i2) * evec(i2,iwf2)
-         enddo
-      enddo
-      enddo
+  write(ifmlwe)iq,q(1:3)
+  write(ifmlwe)eval(1:nwf)
 
-c zm2(iwf1,iwf2) = S[i1] conjg(evec(i1,iwf1)) * zm1(i1,iwf2)
-      zm2 = 0d0
-      do iwf1 = 1,nwf
-      do iwf2 = 1,nwf
-         do i1 = 1,nwf
-            zm2(iwf1,iwf2) = zm2(iwf1,iwf2)
-     &              + dconjg(evec(i1,iwf1)) * zm1(i1,iwf2)
-         enddo
-      enddo
-      enddo
-
-c output
-      do iwf1 = 1,nwf
-      do iwf2 = 1,nwf
-         tmp = 0d0
-         if (iwf1.eq.iwf2) tmp = eval(iwf1)
-         write(7100,"(2i5,3f12.6)")iwf1,iwf2,
-     &        dreal(zm2(iwf1,iwf2)),dimag(zm2(iwf1,iwf2)),tmp
-      enddo
-      enddo
-
-      return
-      end
-c-----------------------------------------------------------------------
-      subroutine chk_umnk(q,ham,nwf,eval,umn)
-      implicit real*8(a-h,o-z)
-      implicit integer (i-n)
-      complex(8) :: ham(nwf,nwf),evec(nwf,nwf),zm1(nwf,nwf),zm2(nwf,nwf),
-     &              umn(nwf,nwf)
-      real(8) :: eval(nwf),q(3)
+  return
+end subroutine wmaxloc_diag
+!-----------------------------------------------------------------------
+subroutine chk_diag(q,ham,nwf,eval,evec)
+  implicit real*8(a-h,o-z)
+  implicit integer (i-n)
+  complex(8) :: ham(nwf,nwf),evec(nwf,nwf),zm1(nwf,nwf),zm2(nwf,nwf)
+  real(8) :: eval(nwf),q(3)
 
 
-      do i1 = 1,nwf
-      do i2 = 1,nwf
-         evec(i1,i2) = dconjg(umn(i2,i1))
-      enddo
-      enddo
+  write(7100,*)'***'
+  write(7100,"(3f12.6)")q
 
-      write(7000,*)'***'
-      write(7000,"(3f12.6)")q
+  ! zm1(i1,iwf2)   = S[i2] ham(i1,i2) * evec(i2,iwf2)
+  zm1 = 0d0
+  do iwf2 = 1,nwf
+     do i1   = 1,nwf
+        do i2 = 1,nwf
+           zm1(i1,iwf2) = zm1(i1,iwf2) + ham(i1,i2) * evec(i2,iwf2)
+        enddo
+     enddo
+  enddo
 
-c zm1(i1,iwf2)   = S[i2] ham(i1,i2) * evec(i2,iwf2)
-      zm1 = 0d0
-      do iwf2 = 1,nwf
-      do i1   = 1,nwf
-         do i2 = 1,nwf
-            zm1(i1,iwf2) = zm1(i1,iwf2) + ham(i1,i2) * evec(i2,iwf2)
-         enddo
-      enddo
-      enddo
+  ! zm2(iwf1,iwf2) = S[i1] conjg(evec(i1,iwf1)) * zm1(i1,iwf2)
+  zm2 = 0d0
+  do iwf1 = 1,nwf
+     do iwf2 = 1,nwf
+        do i1 = 1,nwf
+           zm2(iwf1,iwf2) = zm2(iwf1,iwf2) &
+                + dconjg(evec(i1,iwf1)) * zm1(i1,iwf2)
+        enddo
+     enddo
+  enddo
 
-c zm2(iwf1,iwf2) = S[i1] conjg(evec(i1,iwf1)) * zm1(i1,iwf2)
-      zm2 = 0d0
-      do iwf1 = 1,nwf
-      do iwf2 = 1,nwf
-         do i1 = 1,nwf
-            zm2(iwf1,iwf2) = zm2(iwf1,iwf2)
-     &              + dconjg(evec(i1,iwf1)) * zm1(i1,iwf2)
-         enddo
-      enddo
-      enddo
+  ! output
+  do iwf1 = 1,nwf
+     do iwf2 = 1,nwf
+        tmp = 0d0
+        if (iwf1 == iwf2) tmp = eval(iwf1)
+        write(7100,"(2i5,3f12.6)")iwf1,iwf2, &
+             dreal(zm2(iwf1,iwf2)),dimag(zm2(iwf1,iwf2)),tmp
+     enddo
+  enddo
 
-c output
-      do iwf1 = 1,nwf
-      do iwf2 = 1,nwf
-         tmp = 0d0
-         if (iwf1.eq.iwf2) tmp = eval(iwf1)
-         write(7000,"(2i5,3f12.6)")iwf1,iwf2,
-     &        dreal(zm2(iwf1,iwf2)),dimag(zm2(iwf1,iwf2)),tmp
-      enddo
-      enddo
-
-      return
-      end
-c-----------------------------------------------------------------------
-      subroutine cmp_umn_evec(q,umn,evec,eval,nwf)
-      implicit real*8(a-h,o-z)
-      implicit integer (i-n)
-      complex(8) :: evec(nwf,nwf),zm1(nwf,nwf),zm2(nwf,nwf),
-     &              umn(nwf,nwf)
-      real(8) :: eval(nwf),q(3)
+  return
+end subroutine chk_diag
+!-----------------------------------------------------------------------
+subroutine chk_umnk(q,ham,nwf,eval,umn)
+  implicit real*8(a-h,o-z)
+  implicit integer (i-n)
+  complex(8) :: ham(nwf,nwf),evec(nwf,nwf),zm1(nwf,nwf),zm2(nwf,nwf), &
+       umn(nwf,nwf)
+  real(8) :: eval(nwf),q(3)
 
 
-      do i1 = 1,nwf
-      do i2 = 1,nwf
-         zm1(i1,i2) = dconjg(umn(i2,i1))
-      enddo
-      enddo
+  do i1 = 1,nwf
+     do i2 = 1,nwf
+        evec(i1,i2) = dconjg(umn(i2,i1))
+     enddo
+  enddo
 
-      zm2 = zm1 - evec
+  write(7000,*)'***'
+  write(7000,"(3f12.6)")q
 
-c output
-      write(7000,*)'***'
-      write(7000,"(3f12.6)")q
-      do iwf = 1,nwf
-         write(7000,*)iwf,eval(iwf)
-      enddo
-      do iwf1 = 1,nwf
-      do iwf2 = 1,nwf
-         write(7000,"(2i5,3f12.6)")iwf1,iwf2,
-     &        dreal(zm2(iwf1,iwf2)),dimag(zm2(iwf1,iwf2))
-      enddo
-      enddo
+  ! zm1(i1,iwf2)   = S[i2] ham(i1,i2) * evec(i2,iwf2)
+  zm1 = 0d0
+  do iwf2 = 1,nwf
+     do i1   = 1,nwf
+        do i2 = 1,nwf
+           zm1(i1,iwf2) = zm1(i1,iwf2) + ham(i1,i2) * evec(i2,iwf2)
+        enddo
+     enddo
+  enddo
 
-      return
-      end
-c-----------------------------------------------------------------------
-      subroutine writeham(ifi,is,ef,alat,plat,pos,qbz,wbz,rws,irws,hrotk,
-     &              nspin,natom,nwf,nqbz,nrws)
-      implicit none
-      integer(4) :: nspin,nwf,natom,nqbz,nrws,is,irws(nrws)
-      double precision :: ef,alat,plat(3,3),pos(3,natom),qbz(3,nqbz),
-     &             wbz(nqbz),rws(3,nrws)
-      complex(8) :: hrotk(nwf,nwf,nqbz)
+  ! zm2(iwf1,iwf2) = S[i1] conjg(evec(i1,iwf1)) * zm1(i1,iwf2)
+  zm2 = 0d0
+  do iwf1 = 1,nwf
+     do iwf2 = 1,nwf
+        do i1 = 1,nwf
+           zm2(iwf1,iwf2) = zm2(iwf1,iwf2) &
+                + dconjg(evec(i1,iwf1)) * zm1(i1,iwf2)
+        enddo
+     enddo
+  enddo
 
-      integer(4) :: iopen,iclose,ifi
+  ! output
+  do iwf1 = 1,nwf
+     do iwf2 = 1,nwf
+        tmp = 0d0
+        if (iwf1 == iwf2) tmp = eval(iwf1)
+        write(7000,"(2i5,3f12.6)")iwf1,iwf2, &
+             dreal(zm2(iwf1,iwf2)),dimag(zm2(iwf1,iwf2)),tmp
+     enddo
+  enddo
 
-      if (is.eq.1) then
-         ifi = iopen('HMLWF',1,-1,0)
-         write(ifi,*)nspin,natom,nwf,nqbz,nrws,ef
-         write(ifi,*)alat
-         write(ifi,*)plat
-         write(ifi,*)pos
-         write(ifi,*)qbz
-         write(ifi,*)wbz
-         write(ifi,*)rws
-         write(ifi,*)irws
-      endif
+  return
+end subroutine chk_umnk
+!-----------------------------------------------------------------------
+subroutine cmp_umn_evec(q,umn,evec,eval,nwf)
+  implicit real*8(a-h,o-z)
+  implicit integer (i-n)
+  complex(8) :: evec(nwf,nwf),zm1(nwf,nwf),zm2(nwf,nwf), &
+       umn(nwf,nwf)
+  real(8) :: eval(nwf),q(3)
 
-      write(ifi,*)hrotk
 
-      if (is.eq.nspin) ifi = iclose('HMLWF')
+  do i1 = 1,nwf
+     do i2 = 1,nwf
+        zm1(i1,i2) = dconjg(umn(i2,i1))
+     enddo
+  enddo
 
-      return
-      end
-c-----------------------------------------------------------------------
+  zm2 = zm1 - evec
+
+  ! output
+  write(7000,*)'***'
+  write(7000,"(3f12.6)")q
+  do iwf = 1,nwf
+     write(7000,*)iwf,eval(iwf)
+  enddo
+  do iwf1 = 1,nwf
+     do iwf2 = 1,nwf
+        write(7000,"(2i5,3f12.6)")iwf1,iwf2, &
+             dreal(zm2(iwf1,iwf2)),dimag(zm2(iwf1,iwf2))
+     enddo
+  enddo
+
+  return
+end subroutine cmp_umn_evec
+!-----------------------------------------------------------------------
+subroutine writeham(ifi,is,ef,alat,plat,pos,qbz,wbz,rws,irws,hrotk, &
+     nspin,natom,nwf,nqbz,nrws)
+  implicit none
+  integer(4) :: nspin,nwf,natom,nqbz,nrws,is,irws(nrws)
+  double precision :: ef,alat,plat(3,3),pos(3,natom),qbz(3,nqbz), &
+       wbz(nqbz),rws(3,nrws)
+  complex(8) :: hrotk(nwf,nwf,nqbz)
+
+  integer(4) :: iopen,iclose,ifi
+
+  if (is == 1) then
+     ifi = iopen('HMLWF',1,-1,0)
+     write(ifi,*)nspin,natom,nwf,nqbz,nrws,ef
+     write(ifi,*)alat
+     write(ifi,*)plat
+     write(ifi,*)pos
+     write(ifi,*)qbz
+     write(ifi,*)wbz
+     write(ifi,*)rws
+     write(ifi,*)irws
+  endif
+
+  write(ifi,*)hrotk
+
+  if (is == nspin) ifi = iclose('HMLWF')
+
+  return
+end subroutine writeham
+!-----------------------------------------------------------------------
