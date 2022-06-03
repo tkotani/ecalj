@@ -47,7 +47,7 @@ real(8) function cpusec()
   logical,save::firsttime=.true.
   integer,save::i1
   integer:: i2,irate,imax
-  real(4)::diff
+  real(8)::diff
 
   if (firsttime) then
      call system_clock(i1)

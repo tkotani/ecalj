@@ -560,7 +560,7 @@ contains
     real(dp) :: d2cc_drs2,d2cc_drsdzeta,d2cc_dzeta2,d2ecrs0_drs2,d2ecrs1_drs2
     real(dp) :: d2ecrs_drdn2,d2ecrs_drdndrup,d2ecrs_drho2,d2ecrs_drs2
     real(dp) :: d2ecrs_drsdzeta,d2ecrs_drup2,d2ecrs_dzeta2,d2fxdg2,d2fxdn2
-    real(dp) :: d2fxdndg,d2fxdss2,d2fzeta4_dzeta2,d2gcrs_drs2,d2hh_drs2
+    real(dp) :: d2fxdndg=1d99,d2fxdss2=1d99,d2fzeta4_dzeta2,d2gcrs_drs2,d2hh_drs2
     real(dp) :: d2hh_drsdtt,d2hh_drsdzeta,d2hh_dtt2,d2hh_dttdzeta,d2hh_dzeta2
     real(dp) :: d2macrs_drs2,d2pade_drs2,d2pade_drsdtt,d2pade_drsdzeta,d2pade_dtt2
     real(dp) :: d2pade_dttdzeta,d2pade_dxx2,d2pade_dzeta2,d2qq_drs2,d2qq_drsdtt
@@ -574,22 +574,22 @@ contains
     real(dp) :: d3ecrs_drs3,d3macrs_drs3
     real(dp) :: d_wc,daa_drs,daa_dzeta,dbb_drs,dbb_dzeta
     real(dp) :: dcc_dbb,dcc_drs,dcc_dzeta,decrs0_drs,decrs1_drs,decrs_drs
-    real(dp) :: decrs_dzeta,dfxdg,dfxdn,dfxdss,dfzeta4_dzeta,dgcrs_drs
+    real(dp) :: decrs_dzeta,dfxdg=1d99,dfxdn=1d99,dfxdss=1d99,dfzeta4_dzeta,dgcrs_drs
     real(dp) :: dhh_drs,dhh_dtt,dhh_dzeta,div_rr,divss,dmacrs_drs,dpade_drs
     real(dp) :: dpade_dtt,dpade_dxx,dpade_dzeta,dqq_drs,dqq_dtt,dqq_dzeta
-    real(dp) :: drhohh_drho,drr_dqq,drr_drs,drr_dtt,drr_dzeta,drs_dn,dssdg,dssdn
+    real(dp) :: drhohh_drho,drr_dqq,drr_drs,drr_dtt,drr_dzeta,drs_dn,dssdg=1d99,dssdn=1d99
     real(dp) :: dtt_dg,dvcrs_drs,dxx_drs,dxx_dtt,dxx_dzeta,ec0_a1,ec0_aa,ec0_b1
     real(dp) :: ec0_b2,ec0_b3,ec0_b4,ec0_den,ec0_f1,ec0_f2,ec0_log,ec0_q0,ec0_q1
     real(dp) :: ec0_q1p,ec0_q1pp,ec0_q1ppp,ec1_a1,ec1_aa,ec1_b1,ec1_b2,ec1_b3
     real(dp) :: ec1_b4,ec1_den,ec1_f1,ec1_f2,ec1_log,ec1_q0,ec1_q1,ec1_q1p,ec1_q1pp
-    real(dp) :: ec1_q1ppp,ecrs,ecrs0,factfppp_zeta
-    real(dp) :: ecrs1,ex_gga,ex_lsd,exc,exp_pbe,expss,f_zeta,factfpp_zeta
+    real(dp) :: ec1_q1ppp,ecrs,ecrs0,factfppp_zeta=1d99
+    real(dp) :: ecrs1,ex_gga,ex_lsd,exc,exp_pbe,expss,f_zeta,factfpp_zeta=1d99
     real(dp) :: fp_zeta,fpp_zeta,fppp_zeta,fx,gamphi3inv,gcrs,grrho2,hh,kappa
     real(dp) :: mac_a1,mac_aa,mac_b1,mac_b2,mac_b3,mac_b4,mac_den,mac_f1,mac_f2,mac_log,mac_q0
     real(dp) :: mac_q1,mac_q1ppp
     real(dp) :: mac_q1p,mac_q1pp,macrs,mu_divkappa,p1_wc,p2_wc,pade,pade_den
     real(dp) :: phi3_zeta,phi_logder,phi_zeta,phi_zeta_inv,phip_zeta,phipp_zeta,qq
-    real(dp) :: rho,rho_inv,rhomot
+    real(dp) :: rho,rho_inv=1d99,rhomot
     real(dp) :: rhotmo6,rhotmot,rhoto6,rhotot,rhotot_inv,rr,rs,rsm1_2,sqr_rs
     real(dp) :: sqr_sqr_rs,ss,tt,vxcadd,xx,zeta,zeta4,zetm_1_3,zetp_1_3
     real(dp) :: a1fa,a2fa,b1fa,b2fa,c1fa,c2fa,e1fa,e2fa,f1fa,f2fa,g1fa,g2fa,h1fa,h2fa

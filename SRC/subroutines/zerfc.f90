@@ -84,7 +84,8 @@ SUBROUTINE WOFZ (XI, YI, U, V, FLAG)
        RXREAL = 0.5D+154, &
        RMXEXP  = 708.503061461606D0, &
        RXGONI = 3.53711887601422D+15)
-
+  h2=1d99
+  qlmbda=1d99
   FLAG = .FALSE.
 
   XABS = DABS(XI)

@@ -1,6 +1,5 @@
 subroutine minfit(nm,m,n,a,w,ip,b,ierr,rv1)
-
-  integer :: i,j,k,l,m,n,ii,ip,i1,kk,k1,ll,l1,m1,nm,its,ierr
+  integer :: i,j,k,l,m,n,ii,ip,i1,kk,k1,ll,l1=9999,m1,nm,its,ierr
   double precision :: a(nm,n),w(n),b(nm,ip),rv1(n)
   double precision :: c,f,g,h,s,x,y,z,tst1,tst2,scale,pythag
 

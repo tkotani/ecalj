@@ -232,7 +232,6 @@ mpibc.o \
 mxint.o \
 nintsp.o \
 platsl.o \
-pmblk.o \
 poldvm.o \
 polint.o \
 poseof.o \

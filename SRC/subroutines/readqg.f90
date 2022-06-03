@@ -84,7 +84,7 @@ contains
     real(8) :: qin(3)!,ginv(3,3)
     real(8) :: qu(3)
     integer :: ngv, ngvec(3,*)
-    integer:: ifi, iq,verbose
+    integer:: ifi=-999999, iq,verbose
     if    (key=='QGpsi') then
        ifi=1
        if(verbose()>=80) write (6,"(' readqg psi: qin=',3f8.3,i5)") qin

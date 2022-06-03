@@ -32,9 +32,9 @@ subroutine writedossawada()
   integer, dimension(:),allocatable :: kpproc
   complex(8),allocatable:: ham(:,:,:)
   integer::numprocs,procid,ierr,itete,iteti,mpipid,ifile_handle,ikp
-#if MPIK
+!#if MPIK
   include "mpif.h"
-#endif
+!#endif
   open(newunit=ifip,form='unformatted',file='tetraf.dat')
   read(ifip) ndhamx,nkp,ntete
   allocate(idtete(0:4,6*nkp))
@@ -64,7 +64,7 @@ subroutine writedossawada()
   emaxp  = maxval(evlall)+0.5
   write(6,*) 'read eigenvalue data from eigenf.dat nkp=',nkp
   ef0=0d0
-#if MPIK
+!#if MPIK
   mlog=.false.
   !      mlog = cmdopt('--mlog',6,0,strn) !--mlog here is taken by getarg.
   call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
@@ -74,10 +74,10 @@ subroutine writedossawada()
   iteti = kpproc(procid)
   itete = kpproc(procid+1)-1
   !      print *,'ppppp',numprocs,procid,iteti,itete
-#else
-  iteti = 1
-  itete = ntete
-#endif
+!#else
+!  iteti = 1
+!  itete = ntete
+!#endif
   !! dostet ---
   !      call dostet(ndhamx,nsp,nspx,nevmin,nchanp*nbas,nkk1,nkk2,nkk3,ntete,idtete,evlall,
   !     &  dwgtall, ndos, eminp+ef0, emaxp+ef0,.false.,wkd,pdosall)
@@ -97,9 +97,9 @@ subroutine writedossawada()
         enddo
      enddo
   enddo
-#if MPIK
+!#if MPIK
   call mpibc2_real( pdosalla, ndos, 'writedossawada_pdosalla' )
-#endif
+!#endif
   if(procid==0) then        !master only
      allocate(pdosp (ndos,0:nbas))
      bin2 = 2d0 * bin

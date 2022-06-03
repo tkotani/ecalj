@@ -228,7 +228,7 @@ contains
     ! ... Local parameters
     character spid*8,orbit(2)*4,flg(2)*1
     integer:: ipr , iprint , i , l , info , mode0 &
-         , mode1 , mode2 , mode3 , mode4 , modei , loclo , nfit , iprt &
+         , mode1 , mode2 , mode3 , mode4 , modei , loclo=-99999 , nfit , iprt &
          , isw
     real(8) ,allocatable :: g_rv(:)
     real(8) ,allocatable :: gp_rv(:)

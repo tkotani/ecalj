@@ -61,22 +61,22 @@ subroutine mkilst(strn,nlist,list)
   if (i < k) goto 14
 end subroutine mkilst
 
-#if TEST
-subroutine fmain
-  implicit none
-  character(20) :: strn
-  integer :: nlist,list(20),i
+! #if TEST
+! subroutine fmain
+!   implicit none
+!   character(20) :: strn
+!   integer :: nlist,list(20),i
 
-  strn = '                 2,1'
-  call mkilst(strn,nlist,list)
-  print *, nlist, (list(i), i=1,nlist)
-  strn = '                2,1 '
-  call mkilst(strn,nlist,list)
-  print *, nlist, (list(i), i=1,nlist)
-  strn = '             22:33:3'
-  call mkilst(strn,nlist,list)
-  print *, nlist, (list(i), i=1,nlist)
+!   strn = '                 2,1'
+!   call mkilst(strn,nlist,list)
+!   print *, nlist, (list(i), i=1,nlist)
+!   strn = '                2,1 '
+!   call mkilst(strn,nlist,list)
+!   print *, nlist, (list(i), i=1,nlist)
+!   strn = '             22:33:3'
+!   call mkilst(strn,nlist,list)
+!   print *, nlist, (list(i), i=1,nlist)
 
-end subroutine fmain
-#endif
+! end subroutine fmain
+! #endif
 

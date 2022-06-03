@@ -67,7 +67,7 @@ contains
     real(8):: q(3) !,qlat(3,3),ginv(3,3),ef,qbz(3,nqbz),qbzw(3,nqbzw),ebmx
     real(8):: ekxx1(nband,nqbz),ekxx2(nband,nqbz) !qbzw(:,: )
     !      real(8):: frhis(1:nwhis+1),ecore(nctot,2)
-    real(4),allocatable :: demin(:,:,:,:),demax(:,:,:,:)
+    real(8),allocatable :: demin(:,:,:,:),demax(:,:,:,:)
     logical,allocatable :: iwgt(:,:,:,:)
     integer,allocatable:: nbnbtt(:,:),noccxvv(:) !  &         idtetf(:,:),ib1bz(:)
     logical :: eibzmode,tetra,tmpwwk=.false.,debug

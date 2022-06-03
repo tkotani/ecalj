@@ -177,8 +177,9 @@ contains
     ix1 = index(swtok(isw),' '//trim(name)//' ')
     !     See if found among optional tokens
     ix2 = index(swtok(isw),' '//trim(name)//'~')
-
+    
     ! ... Determine whether optional or required
+    ix=-999999
     if (ix1 == 0 .AND. ix2 == 0) then
        ix = 0
     elseif (ix1 == 0 .AND. ix2 /= 0) then

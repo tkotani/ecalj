@@ -37,7 +37,7 @@ subroutine vldau(UH,JH,vrsion,dmatu,l,nsp,lmaxu,iblu,Eorb,vorb)
   ! ... Local parameters
   integer :: m,m1,m2,m3,isp,lvrs,lnov
   double precision :: Eldau,Edc,Ueff,dmat4
-  double precision :: trace(2),n0(2),ttrace
+  double precision :: trace(2)=1d99,n0(2),ttrace
   double complex Vnew(-3:3,-3:3)
   double precision :: Vee(-3:3,-3:3,-3:3,-3:3)
   double complex vtemp1,vtemp2

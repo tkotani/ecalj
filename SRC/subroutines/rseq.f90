@@ -39,8 +39,8 @@ subroutine rseq(eb1,eb2,e,tol,z,l,nod,val,slo,v,g,q,a,b,rofi,nr, &
        a,b
   ! ... Local parameters
   integer :: ipr,k,k2,kc,nctp,nctp0,nit,nitmax,nod1,nod2,node,irsq
-  double precision :: c,de,e1,e2,fac,fllp1,r,ratio,re,rhok,slo1,slo2, &
-       slop,tmcr,val1,val2,valu,wgt
+  double precision :: c,de,e1,e2,fac,fllp1,r,ratio=1d99,re,rhok=1d99,slo1,slo2, &
+       slop,tmcr,val1,val2,valu,wgt=1d99
   ! ... Speed of light, or infinity in nonrelativistic case
   common /cc/ c
   !     double complex gc(nr,2),ec,valc,sloc

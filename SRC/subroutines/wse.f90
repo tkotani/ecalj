@@ -10,6 +10,7 @@ subroutine rsexx2 (nspin, itq, q, ntq,nq,ginv, symgg,ng, vxco)
   real(8),allocatable :: qqq(:,:),vxcfpx(:,:,:)
   logical ::nocore,lfind
   real(8)::  rydberg,tolq=1d-5,qx(3),ginv(3,3),qr(3),symgg(3,3,ng),sym(3,3)
+  integer:: ikpx=999999
   write(6,*)' OPEN VXCFP '
   open(newunit=ifvxcfp,file='VXCFP',form='unformatted')
   read(ifvxcfp) ldim,nqbz
@@ -44,14 +45,14 @@ subroutine rsexx2 (nspin, itq, q, ntq,nq,ginv, symgg,ng, vxco)
   enddo
 end subroutine rsexx2
 !------------------------------------------------------------------------
-subroutine rsexx (nspin, itq, q, ntq,nq,ginv, &
-     vxco)
+subroutine rsexx (nspin, itq, q, ntq,nq,ginv, vxco)
   implicit real*8 (a-h,o-z)
   implicit integer (i-n)
   dimension vxco(ntq,nq,nspin),q(3,nq),itq(ntq) !itq is not dependent on q, right?
   real(8),allocatable :: qqq(:,:),vxcfpx(:,:,:)
   logical ::nocore,lfind
   real(8)::  rydberg,tolq=1d-5,qx(3),ginv(3,3)
+  integer:: ikpx=999999
   write(6,*)' OPEN VXCFP '
   open(newunit=ifvxcfp,file='VXCFP',form='unformatted')
   read(ifvxcfp) ldim,nqbz

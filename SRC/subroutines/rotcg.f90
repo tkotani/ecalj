@@ -7,15 +7,11 @@ subroutine rotcg(lmxax,symops,ng,cgr)
   !! for given symops(3,3,ig).
   use m_lldata,only: ll
   implicit none
-  integer(4) :: lmxax, ng, nlmxa, &
-       lnjcg, lnxcg, &
-       ilma,la,ilmb,lh,ii,indx,icg1,icg2,icg, &
+  integer :: lmxax, ng, nlmxa, lnjcg=999999, lnxcg=99999, ilma,la,ilmb,lh,ii,indx,icg1,icg2,icg, &
        ig,lm1,lm2,lm,l,m,md,lmd,lmxcg,ilm ,lx
-  real(8) :: &
-       cgr((lmxax+1)**2,(lmxax+1)**2,(2*lmxax+1)**2,ng), &
-       symops(9,ng)        ,sumr
+  real(8) :: cgr((lmxax+1)**2,(lmxax+1)**2,(2*lmxax+1)**2,ng), symops(9,ng) ,sumr
   real(8),allocatable:: cg(:),dlmm(:,:,:,:),cgn(:,:,:)
-  integer(4),allocatable :: jcg(:),indxcg(:)
+  integer,allocatable :: jcg(:),indxcg(:)
   integer:: ll1,ll2,lxm
   ! --- CG coefficienets. <LM3|lm1 lm2>
   ! inxcg = lm1(lm1-1)/2 + lm2 (lm1>lm2)

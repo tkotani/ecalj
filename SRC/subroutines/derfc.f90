@@ -314,6 +314,7 @@ real(8) function derfc (x)
   data nterf, nterfc, nterc2, xsml, xmax, sqeps /3*0, 3*0.d0/
 
 
+  derfc=1d99
 
   if (nterf /= 0d0) goto 10
   eta = 0.1*d1mach(3)
@@ -325,14 +326,14 @@ real(8) function derfc (x)
   xmax = dsqrt (-dlog(sqrtpi*d1mach(1)))
   xmax = xmax - 0.5d0*dlog(xmax)/xmax - 0.01d0
   sqeps = dsqrt (2.0d0*d1mach(3))
-
-10 if (x > xsml) goto 20
-
+10 continue
+  if (x > xsml) goto 20
   ! --- derfc(x) = 1.0d0 - erf(x) for x .lt. xsml ---
   derfc = 2.d0
   return
 
-20 if (x > xmax) goto 40
+20 continue
+  if (x > xmax) goto 40
   y = dabs(x)
   if (y > 1.0d0) goto 30
 
@@ -343,7 +344,8 @@ real(8) function derfc (x)
   return
 
   ! --- derfc(x) = 1.0d0 - erf(x) for 1.d0 .lt. dabs(x) .le. xmax ---
-30 y = y*y
+30 continue
+  y = y*y
   if (y <= 4.d0) derfc = dexp(-y)/dabs(x) * &
        (0.5d0 + dcsevl ((8.d0/y-5.d0)/3.d0, erc2cs, nterc2) )
   if (y > 4.d0) derfc = dexp(-y)/dabs(x) * &
@@ -351,7 +353,8 @@ real(8) function derfc (x)
   if (x < 0.d0) derfc = 2.0d0 - derfc
   return
 
-40 if (iprint() > 100) call errmsg ('DERFC: underflow', 1)
+40 continue
+  if (iprint() > 100) call errmsg ('DERFC: underflow', 1)
   derfc = 0.d0
   return
 
@@ -378,7 +381,7 @@ integer function initds (dos, nos, eta)
   !r   Adapted from June 1977 edition W. Fullerton,
   !r   c3, los alamos scientific lab.
   !     ----------------------------------------------------------------
-  integer:: nos,i,ii
+  integer:: nos,i=99999999,ii
   real(8):: dos(nos),err
   real :: eta
 
@@ -409,7 +412,7 @@ real(8) function dcsevl (x, a, n)
   !r   Adapted from R. Broucke, algorithm 446, c.a.c.m., 16, 254 (1973).
   !     ----------------------------------------------------------------
   integer:: n,ni,i
-  double precision :: a(n), x, twox, b0, b1, b2
+  double precision :: a(n), x, twox, b0, b1, b2=1d99
 
   if (dabs(x) > 1.1d0) call errmsg('DCSEVL:  x outside (-1,1)',2)
   twox = 2.0d0*x
@@ -422,7 +425,6 @@ real(8) function dcsevl (x, a, n)
      b0 = twox*b1 - b2 + a(ni)
 10 enddo
   dcsevl = .5d0*(b0-b2)
-  return
 END function dcsevl
 subroutine errmsg (messg, iopt)
   !- Write error message to standard error device

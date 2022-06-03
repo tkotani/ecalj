@@ -221,7 +221,7 @@ subroutine doop(op,lerr)
   common /a2binc/ machep,numtok,numstk,opnum,numnum,toktyp,ptktyp, &
        prevop,opstk,optok,parenc,oprule,vartok
   integer ::   t1,t2,ival
-  double precision ::  v0,v1,log2d,derfc
+  double precision ::  v0=1d99,v1=1d99,log2d,derfc
   real :: ran1
 ! #if HANSMR
 !   integer :: ixx,l

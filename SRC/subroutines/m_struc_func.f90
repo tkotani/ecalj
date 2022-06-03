@@ -9,7 +9,7 @@ contains
     implicit none
     type(s_spec):: struc
     character label*(*)
-#if MPI|MPIK
+!#if MPI|MPIK
     include 'mpif.h'
     integer :: numprocs, ierr
     integer :: MAX_PROCS
@@ -125,7 +125,7 @@ contains
        write(stml,ftox)'  '//datim//' Process ',procid,' of ',numprocs,' on ' &
             //shortname(procid)(1:namelen(procid))//' '//label
     endif
-#endif
+!#endif
   end subroutine mpibc1_s_spec
   ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine mpibc1_s_site(struc,label)
@@ -134,7 +134,7 @@ contains
     implicit none
     type(s_site):: struc
     character label*(*)
-#if MPI|MPIK
+!#if MPI|MPIK
     include 'mpif.h'
     integer :: numprocs, ierr
     integer :: MAX_PROCS
@@ -177,6 +177,6 @@ contains
        write(stml,ftox)'  '//datim//' Process ',procid,' of ',numprocs,' on ' &
             //shortname(procid)(1:namelen(procid))//' '//label
     endif
-#endif
+!#endif
   end subroutine mpibc1_s_site
 end module m_struc_func

@@ -89,6 +89,7 @@ contains
 
 
     ! -- Regular Anderson mixing branch --
+    sumsqr=-1d99
     if (ido/10 == 0) then
        sumsqr = 0
        do    i = 1, nmix

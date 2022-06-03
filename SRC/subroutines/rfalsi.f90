@@ -92,7 +92,7 @@ subroutine rfalsi(xn,fn,xtol,ftol,dxmn,dxmx,isw,wk,ir)
   parameter (scrwid=100)
   character*(scrwid) outs
   double precision :: f2x,xtl,x0,f0,f0x,x1,f1,x2,f2,f1x,xmin,xmax, &
-       x(0:2),f(0:2),fx(0:2),dum,dx2,dx1,df2,df1,fpp,fp,den,dirdx,xtoll
+       x(0:2),f(0:2),fx(0:2),dum,dx2,dx1,df2,df1,fpp,fp=1d99,den,dirdx,xtoll
   equivalence (x0,x(0)),(x1,x(1)),(x2,x(2))
   equivalence (f0,f(0)),(f1,f(1)),(f2,f(2))
   equivalence (f0x,fx(0)),(f1x,fx(1)),(f2x,fx(2))

@@ -169,7 +169,7 @@ subroutine zhev_tk2(n,h,s,nmx,nev, e,z)
   !      logical ipr
   complex(8) :: h(n,n),s(n,n),z(n,*)
   complex(8),allocatable:: work(:)
-  integer:: i,j,ni,ik,ik2,k
+  integer:: i,j,ni=999999,ik,ik2,k
   real(8):: epsovl,epsx,e(n),emx,eee,fac,vldummy,vudummy,abstol
   real(8),allocatable:: rwork(:)
   integer:: ier,lwork,ix,ifi,ifig,nmx0,ifail(n),nevx
@@ -228,7 +228,7 @@ subroutine zhev_tk4(n,h,s,nmx,nev, e,z, epsovl)
   !      logical ipr
   complex(8) :: h(n,n),s(n,n),z(n,nmx)
   complex(8),allocatable:: work(:)
-  integer:: i,j,ni,ik,ik2,k
+  integer:: i,j,ni=999999,ik,ik2,k
   real(8):: epsovl,epsx,e(n),emx,eee,fac,vldummy,vudummy,abstol
   real(8),allocatable:: rwork(:)
   integer:: ier,lwork,ix,ifi,ifig,nmx0,ifail(n),nevx

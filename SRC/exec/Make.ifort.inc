@@ -11,9 +11,13 @@ LIBMATH= -mkl
 ### INTEL FORTRAN LINUX ###
 module = -module $(moddir) 
 
-FFLAGS = -O2 -132 -cpp $(CPP_SW) $(module)
-FFLAGS_LESS = -O0 -132 -cpp $(CPP_SW) $(module)
-FFLAGS_NONE = -O0 -132 -cpp $(CPP_SW) $(module)
+FFLAGS = -O2 -132 $(module)
+FFLAGS_LESS = -O0 -132 $(module)
+FFLAGS_NONE = -O0 -132 $(module)
+
+#FFLAGS = -O2 -132 -cpp $(CPP_SW) $(module)
+#FFLAGS_LESS = -O0 -132 -cpp $(CPP_SW) $(module)
+#FFLAGS_NONE = -O0 -132 -cpp $(CPP_SW) $(module)
 
 #FFLAGS_OMP= -qopenmp -O3 -cpp $(CPPSWITCH_INTELLINUXIFC)
 #-openmp
@@ -21,7 +25,8 @@ FFLAGS_NONE = -O0 -132 -cpp $(CPP_SW) $(module)
 #FFLAGS_OMP=-O0 -check bounds -traceback -g -cpp $(CPPSWITCH_INTELLINUXIFC)
 #
 
-CPP_SW = -DMPIK 
+CPP_SW =
+#-DMPIK 
 
 LIBLOC = ${LIBMATH}
 LKFLAGS2 = $(LIBMATH) 

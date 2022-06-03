@@ -157,7 +157,7 @@ subroutine parsyv(recrd,size,mxdecl,iopt,i)
   ! Local parameters
   double precision :: dum,dum2
   integer :: j,nextop,i0,ndecl,k,ifi,m
-  logical :: a2bin,lrd
+  logical :: a2bin,lrd=.false.
   character(1) :: aops(7)
   character(255) :: a,aa,tmpdir
   data aops/'=','*','/','+','-','^',' '/

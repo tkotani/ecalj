@@ -45,7 +45,7 @@ subroutine pptrns(iopt,nl,ipc,nclass,nsp,alpha,nbas,pp,oold)
   double precision :: pp(6,nl,nsp,nclass),oold(nl,nsp,nclass)
   integer :: isp,jc,il,iclbas,jb,m,ib,nl2
   double precision :: xx,enu,gamma,pgam
-  double precision :: cold,srdold,alpold,cnew,srdnew,alpnew,pold,pnew
+  double precision :: cold,srdold,alpold,cnew,srdnew,alpnew=1d99,pold,pnew
   double precision :: oalpha
   external oalpha,iclbas
 
@@ -53,8 +53,6 @@ subroutine pptrns(iopt,nl,ipc,nclass,nsp,alpha,nbas,pp,oold)
      jb = iclbas(jc,ipc)
      do  121  isp = 1, nsp
         do  12  il = 1, nl
-
-           !        goto (1,2,3,4,5,6), mod(iabs(iopt),10)+1
            select case(mod(iabs(iopt),10)+1)
            case(1)
               alpnew = alpha((il-1)**2,jb)

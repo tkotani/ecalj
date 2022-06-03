@@ -59,7 +59,7 @@ subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl, &
   parameter (nlmxx=(200+1)**2) !(nlmxx=(16+1)**2)
   double precision :: qdotr,y0,a2,pi,sp,gam,tpiba,tpi,rsmi, &
        x1,x2,xx,xx0,xx1(nlmxx),xx2(nlmxx),xx3(nlmxx),xx4(nlmxx), &
-       r,akap,kappa,h0,h0d,a,faca,p1(3),cosp,sinp
+       r,akap=1d99,kappa,h0,h0d,a,faca,p1(3),cosp,sinp
   parameter (faca=1d0)
   double complex xxc
   logical :: dcmpre,ltmp

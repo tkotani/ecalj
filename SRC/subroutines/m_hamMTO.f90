@@ -13,7 +13,7 @@ contains
     !!  read information for crystal strucre, k points, neighbor pairs.
     implicit none
     !      character*200 ,intent(in) :: infoname
-    integer:: ififft,i,lold,kold,m,aold,access,ifnm,ifqpl,iflg
+    integer:: ififft,i,lold,kold,m=999999,aold,access,ifnm,ifqpl,iflg
     character*4:: cccx
     logical*4 ::debug=.false.
 

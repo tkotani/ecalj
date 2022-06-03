@@ -21,7 +21,7 @@ subroutine symprj(nrclas,nlml,ngrp,nbas,istab,g,ag,plat,qlat, &
   integer :: nlml,nrclas,ngrp,nbas,istab(nbas,ngrp)
   double precision :: sym(nlml,nlml,nrclas),plat(3,3),qlat(3,3), &
        g(3,3,ngrp),ag(3,ngrp),pos(3,nrclas),d(3)
-  integer:: lmxl , ll , ig , ja , m , ia , iprint , ilm , l , jlm,  jlm1 , jlm2
+  integer:: lmxl , ll , ig , ja , m , ia=99999 , iprint , ilm , l , jlm,  jlm1 , jlm2
   real(8),allocatable :: rmat_rv(:,:)
   double precision :: wgt
   lmxl = ll(nlml)
@@ -49,7 +49,7 @@ subroutine symprj(nrclas,nlml,ngrp,nbas,istab,g,ag,plat,qlat, &
      !        call dpadd ( sym ( 1 , 1 , ia ) , rmat_rv , 1 , nlml * nlml
      !     .  , wgt )
 10 enddo
-  if( iprint >= 60 ) then
+  if( iprint() >= 60 ) then
      do 20  ja = 1, nrclas
         write(6,727) ja
 727     format(/' projection matrices for ja=',i3)

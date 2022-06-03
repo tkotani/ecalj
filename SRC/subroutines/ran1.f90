@@ -29,9 +29,9 @@ function ran1()
   ix2 = mod(ia2*ix2+ic2,m2)
   ix3 = mod(ia3*ix3+ic3,m3)
   j = 1 + (97*ix3)/m3
-#if TEST
-  if (j > 97 .OR. j < 1) pause
-#endif
+! #if TEST
+!   if (j > 97 .OR. j < 1) pause
+! #endif
   ! Return the table entry ...
   ran1 = r(j)
   ! And refill it.

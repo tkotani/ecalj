@@ -108,9 +108,8 @@ subroutine hansr4(rsq,lmax,nrx,nr,e,rsm,wk,wk2,chi)
   ! Local variables
   logical :: lpos
   integer :: l,ir,ir1
-  double precision :: sre,r2,xx,ra,h0,arsm,earsm,kappa,ta
-  double precision :: akap,a,r,um,up,x,facgl
-  double complex zikap,zerfc,eikr,zuplus
+  real(8):: sre,r2,xx,ra,h0,arsm,earsm,kappa=0d0,ta=1d99, akap,a,r,um,up,x,facgl
+  complex(8):: zikap=-99999d0,zerfc,eikr,zuplus
 
   ! ... erfc(x) is evaluated inline as a ratio of polynomials,
   !     to a relative precision of <10^-15 for x<5.

@@ -278,6 +278,7 @@ double precision function dround(x,n)
 ! #if QUAD
 !   s = qlog10(dble(abs(x)))
 ! #else
+  dround=1d99
   s = dlog10(dabs(x))
 !#endif
   is = s

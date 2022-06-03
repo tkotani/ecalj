@@ -537,6 +537,7 @@ integer function ivawrt(ia,n,a1,a2,a3,a4,a5,a6,a7,a8)
   !     implicit none
   integer :: ia,n,ival
   double precision :: a1(1),a2(1),a3(1),a4(1),a5(1),a6(1),a7(1),a8(1)
+  ivawrt=99999
   if (ia == 1) ivawrt = ival(a1,n)
   if (ia == 2) ivawrt = ival(a2,n)
   if (ia == 3) ivawrt = ival(a3,n)
@@ -551,6 +552,7 @@ real(8) function dvawrt(ia,n,a1,a2,a3,a4,a5,a6,a7,a8)
   !     implicit none
   integer :: ia,n
   double precision :: a1(1),a2(1),a3(1),a4(1),a5(1),a6(1),a7(1),a8(1)
+  dvawrt=1d99
   if (ia == 1) dvawrt = a1(n)
   if (ia == 2) dvawrt = a2(n)
   if (ia == 3) dvawrt = a3(n)

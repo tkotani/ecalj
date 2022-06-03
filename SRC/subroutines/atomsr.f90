@@ -272,8 +272,6 @@ subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, &
   stc(2) = 0d0
   stc(1) = 0d0
   allocate(rho_rv(nr*nsp*2*(nmix+2)))
-
-
   ! --- Core charge, radial mesh points and weights ---
   if (kcor /= 0) then
      if (qcor(1) /= 0 .OR. qcor(2) /= 0) then
@@ -282,7 +280,6 @@ subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, &
      endif
   endif
   call getqvc(nsp,nl,lmax,z,pnu,qnu,0,0,kcor,lcor,qcor,qc,qtot,amgm)
-
   ! --- Guesses for core and valence eigenvalues ---
   ! akao probably not needed here
   if (ec(1) == 0) &
@@ -291,11 +288,9 @@ subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, &
   ! ill be replace by simple code.
   call radmsh(rmax,a,nr,rofi)
   call radwgt(rmax,a,nr,rofi(1,2))
-
   !! initialize ev here(overide getqvc now).feb2011
   ev = -0.5d0
   ec = -5.0d0
-
   !! takao2012jun. The followings are confusing when we use PZ and P together; because of historical reason, ql is used for PZ and so on.Need to improved...
   !$$$C --- Moments printout ---
   !$$$      if (iprint() .ge. 20) then
@@ -365,32 +360,23 @@ subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, &
   jmix = 0
   dold = 1
   beta1 = beta
+  vrhoc=-1d99
   if (nrmix < 0) beta1 = dble(-nrmix)/100
   do  35  iter = 1, niter
      tl = tolrsq
-     !       Hartree potential
      call addzbk(rofi,nr,nsp,rhoin,rhozbk,-1d0)
-
-     !! 22mar2013
      if(abs(rmax-rofi(nr,1))>1d-6) call rx('atomsr.F:something wrong. abs(rmax-rofi(nr,1))>1d-3')
      vhrmax=2d0*(qelectron-z)/rmax
-     !        print *,'vvv vh=',vhrmax
-     call poiss0(z,a,b,rofi,rhoin,nr,vhrmax,v,rvh,vsum,nsp)
-     !! 22march2013 !z is replaced by qelectron
-     !        print *,'vvvvvvv1', vsum,z,qelectron!,rmax
+     call poiss0(z,a,b,rofi,rhoin,nr,vhrmax,v,rvh,vsum,nsp) !  Hartree potential
      vsum = vsum + 4d0*pi*(z-qelectron)*rmax**2
-     !        print *,'vvvvvvv2', vsum,4d0*pi*rofi(nr,1)**2
-     !       call prrmsh('vh atom ',rofi,v,nr,nr,nsp)
      call addzbk(rofi,nr,nsp,rhoin,rhozbk,1d0)
-     vnucl = v(1,1)
-     !       Exchange-correlation potential
+     vnucl = v(1,1)  
      if (last .AND. iprint() >= 50) call pshpr(80)
-     call vxc0sp(a,b,rofi,rhoin,nr,v,rho0,reps,rmu,nsp,exrmax)
+     call vxc0sp(a,b,rofi,rhoin,nr,v,rho0,reps,rmu,nsp,exrmax)! Exchange-correlation potential
      if (last .AND. iprint() >= 50) call poppr
-     !       Get rhrmx, exrmax
      fac = 4*pi*rofi(nr,1)**2
      rhrmx = rhoin(nr,1)/fac
-     if (nsp == 2) then
+     if (nsp == 2) then !       Get rhrmx, exrmax
         exrmax(2) = exrmax(1)
         rhrmx = rhrmx + rhoin(nr,2)/fac
      endif
@@ -401,10 +387,10 @@ subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, &
      call newrho(z,lrel,lgdd,nl,1,lmax,a,b,nr,rofi,v,rho,rhoc, &
           kcor,lcor,qcor,pnu,qnu,sec,stc,sev,ec,ev,tl,nsp,lfrz,ipr1,plplus,qlplus,nmcore)
      if( .NOT. last) call poppr !set back to original print()
-     drho = 0
-     sum = 0
-     vrhoc = 0
-     rho0t = 0
+     drho = 0d0
+     sum = 0d0
+     vrhoc = 0d0
+     rho0t = 0d0
      do  40  isp = 1, nsp
         rho0t = rho0t + rho0(isp)
         sum = sum + ddot(nr,rofi(1,2),1,rho(1,isp),1)
@@ -417,49 +403,38 @@ subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, &
            vrhoc = vrhoc + rofi(ir,2)*ea*rhoc(ir,isp)
 41      enddo
 40   enddo
-     !       call prrmsh('rho for atom ',rofi,rho,nr,nr,nsp)
      call dcopy ( nr * nsp , rho , 1 , rho_rv , 1 )
-
      jmix = amix ( nr * nsp , min ( jmix , nmix ) , nmix , 0 , beta1 &
           , iprint ( ) - 70 , .9d0 ,  rho_rv , & !norm , awk ( 1 , 2 )
           awk , rmsdel )
-
      call dpscop ( rho_rv , rhoin , nr * nsp , 1 + nr * nsp * ( &
           nmix + 2 ) , 1 , 1d0 )
-
-
      if (last) goto 90
      if (iprint() >= 41 .OR. iprint() >= 30 .AND. &
           (drho < tolch .OR. iter == niter-1 .OR. iter == 1)) &
           write(stdo,340) iter,sum,drho,vnucl,rho0t,vsum,beta1
 340  format(i5,f12.6,1p,e12.3,0p,f14.4,e14.4,f14.4,f7.2)
-341  format(/'  iter     qint',9x,'drho',10x,'vh0',10x,'rho0', &
-          10x,'vsum',5x,'beta')
+341  format(/'  iter     qint',9x,'drho',10x,'vh0',10x,'rho0',10x,'vsum',5x,'beta')
      last = (drho .lt. tolch .or. iter .eq. niter-1)
-     !        if (iprint() .gt. 100)  call query(' ',-1,0)
      jmix = jmix+1
      !       Beta for next iteration
-     beta1 = min(max((1-drho/dold)/beta1,beta1-.2d0,beta), &
-          1d0,beta1+.2d0)
+     beta1 = min(max((1-drho/dold)/beta1,beta1-.2d0,beta), 1d0,beta1+.2d0)
      if (nmix > 0 .AND. drho < 1) beta1 = 1
      if (nrmix < 0) beta1 = dble(-nrmix)/100
      dold = drho
 35 enddo
 90 continue
   if (allocated(rho_rv)) deallocate(rho_rv)
-
-  !     End of iteration loop
   if (iprint() >= 30) write(stdo,'(1x)')
-
   ! --- Collect terms for total energy ---
-  rhoeps = 0
-  rhomu  = 0
-  sumev  = 0
+  rhoeps = 0d0
+  rhomu  = 0d0
+  sumev  = 0d0
   if ( .NOT. lfrz) then
-     sumec = 0
-     sumtc = 0
+     sumec = 0d0
+     sumtc = 0d0
   endif
-  rhovh  = 0
+  rhovh  = 0d0
   do  80  isp = 1, nsp
      if (nsp == 2 .AND. iprint() > 30) &
           write(stdo,230) isp,v(nr,isp)-2*z/rmax, &
@@ -492,7 +467,7 @@ subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, &
   do  55  isp = 1, nsp
      vrmax(1) = vrmax(1) + v(nr,isp)/nsp
 55 enddo
-  vrmax(2) = 0
+  vrmax(2) = 0d0
   if (nsp == 2) vrmax(2) = v(nr,1)-v(nr,2)
   !$$$C --- write out rho if requested ---
   !$$$      if (cmdopt('--dumprho',8,0,strn)) then
@@ -523,7 +498,7 @@ subroutine addzbk(rofi,nr,nsp,rho,rhozbk,scale)
   if (rhozbk == 0) return
   s = 16*datan(1d0)*scale*rhozbk
   do   isp = 1, nsp
-     do   ir = 2, nr
+     do  ir = 2, nr
         rho(ir,isp) = rho(ir,isp) + s*rofi(ir)*rofi(ir)
      enddo
   enddo
@@ -720,10 +695,8 @@ subroutine fctp(a,b,e,l,nctp0,nr,rofi,v,z,nctp)
   intrinsic dlog,dmax1,min0
   ! Statement functions:
   veff(ir)=fllp1/(rofi(ir)*rofi(ir))-zz/rofi(ir)+v(ir)
-
   zz=z+z
   fllp1 = l*(l+1)
-
   if (nctp0 == nr .OR. e > veff(nr)) then
      nctp = nr
   elseif (e < veff(nctp0)) then
@@ -1038,6 +1011,7 @@ subroutine xyrhsr(ecore,l,z,a,b,nr,nre,g,rofi,v,rho,deg,vrho, rhormx)
   vrho = 0
   nrmx = min0(nr,nre)
   ! ... Make rho, and integrate vrho for points 1..nrmx
+  rhoir=-1d99
   do  11  ir = 2, nrmx
      r = rofi(ir)
      wgt = 2*(mod(ir+1,2)+1)

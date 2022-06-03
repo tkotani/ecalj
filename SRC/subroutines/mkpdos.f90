@@ -47,7 +47,7 @@ subroutine mkpdos(mode,ssite,sspec,isp,nsp,nlmax,ndham,nev, &
   double precision :: ppnl(nppn,n0,nsp,*),doswt(nchan,npd,nev)
   double complex aus(nlmax,ndham,3,nsp,*)
   ! ... Local parameters
-  integer :: lmxa,lmxax,lmdim,ichan,i,ib,is,igetss,iv,ilm,l,m,nlma,ll
+  integer :: lmxa,lmxax,lmdim=999999,ichan,i,ib,is,igetss,iv,ilm,l,m,nlma,ll
   double precision :: summ(121),suml(11),s11,s22,s33,s12,s13,s23, &
        suma,sum,rmt
   double complex au,as,az

@@ -1,19 +1,15 @@
 subroutine cexit(pv,ps)
   implicit none
-#if MPI|MPIK
   include 'mpif.h'
-#endif
   integer:: pv,ps,i
   integer:: status,ierr
   if (ps /= 0) then
-#if MPI|MPIK
      if (pv == 0) then
         call MPI_finalized(status,ierr)
         if (status == 0) then
            call MPI_finalize(ierr)
         endif
      endif
-#endif
      call exit(pv)
   endif
 end subroutine cexit

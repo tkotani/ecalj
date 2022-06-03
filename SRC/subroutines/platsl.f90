@@ -8,31 +8,23 @@ subroutine platsl(r,npt)
   double precision :: r(3,npt)
   double precision :: d,cp,cx,pi,sx,sp,ddot,x(3,12),r2(3),wb,wi,rm(3,3)
   integer :: i
-
   ! --- npt 4 or 8 ---
   if (npt == 4 .OR. npt == 8) then
      cx = 1/dsqrt(3d0)
-     do   i = 1, 12
-        r(i,1) = cx
-     enddo
+     r(1:3,1:4) = cx
      do  i = 1, 3
         r(i,i) = -cx
         r(i,4) = -cx
      enddo
      if (npt == 8) then
-        do i = 1, 12
-           r(i,5) = -r(i,1)
-        enddo
+        r(1:3,5:8) = -r(1:3,1:4)
      endif
      return
   endif
-
   ! --- npt 6 ---
   if (npt == 6) then
-     do   i = 1, 18
-        r(i,1) = 0
-     enddo
-     do   i = 1, 3
+     r(1:3,1:6) = 0d0
+     do  i = 1, 3
         r(i,i) = 1
         r(i,i+3) = -1
      enddo

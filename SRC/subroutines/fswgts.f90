@@ -14,24 +14,15 @@ subroutine fswgts(volwgt,e,ef,etop,w)
   ! Local parameters
   integer :: i,i00,j,m,n,isort(4)
   double precision :: ex(4),w1(4),w2(4),ec(4), &
-       a14,a21,a24,a31,a32,a34,a41,a42,df,e1,e2,e3,e4,v1,v2,v3,vw4,xxx
-
+       a14,a21,a24,a31,a32,a34,a41,a42,df=0d0,e1,e2,e3,e4,v1,v2,v3,vw4,xxx
   vw4 = volwgt/4d0
-  do  22  i = 1, 4
-     w(i,1) = 0d0
-     w(i,2) = 0d0
-22 enddo
-  if (ef >= etop) then
-     do  23  i = 1, 4
-        w(i,1) = vw4
-23   enddo
+  w=0d0
+  if(ef >= etop) then
+     w(:,1)=vw4
      return
   endif
-
   ! --- Sort energies into ec ---
-  do  2  i = 1, 4
-     ex(i) = e(i)
-2 enddo
+  ex = e
   do  3  i = 1, 4
      i00 = 1
      do  4  j = 2, 4
@@ -45,7 +36,6 @@ subroutine fswgts(volwgt,e,ef,etop,w)
   e2 = ec(2)
   e3 = ec(3)
   e4 = ec(4)
-
   ! --- Case Ef between e2,e3 ---
   if (e2 < ef .AND. ef <= e3) then
      a31 = (ef-e1)/(e3-e1)
@@ -85,9 +75,9 @@ subroutine fswgts(volwgt,e,ef,etop,w)
      df = -3*volwgt*a14*a24/(e3-e4)
   endif
   ! --- Bloechl correction ---
+  w2=0d0
   do   m = 1, 4
-     w2(m) = 0d0
-     do    n = 1, 4
+     do  n = 1, 4
         w2(m) = w2(m) + (ec(n)-ec(m))*df/40
      enddo
   enddo

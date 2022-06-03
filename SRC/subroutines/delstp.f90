@@ -30,10 +30,7 @@ subroutine delstp(n,x,d,s,e)
   integer :: n
   double precision :: x,d,s,e
   integer :: i,k
-  double precision :: a,h1,h2,h3,s0,ex2,dsqrt,datan,dexp,derfc,srpi
-  intrinsic dsqrt,datan,dexp
-  external derfc
-
+  double precision :: a,h1,h2,h3,s0,ex2,derfc,srpi
   srpi = dsqrt(4d0*datan(1d0))
 
   ! ... Fermi-Dirac broadening

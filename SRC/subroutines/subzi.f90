@@ -73,7 +73,7 @@ contains
     logical :: ltet,lwt,tdos,cmdopt0,PROCARon,fullmesh
     integer :: nkp,mpsord,ifile_handle
     double precision :: zval,ef0,def,esmear
-    integer :: ifi,lerr,iprint,isw,n
+    integer :: ifi,lerr,iprint,n
     character(11) :: strni(2)
     integer :: procid,master,mpipid,nevx0,nq0,nsp0
     data strni /'sampling','tetrahedron'/
@@ -121,16 +121,6 @@ contains
        if (nspc == 2) nevmx = 2*nevmx
        nevmx=nevmx+5 !+5 is for safer setting. At least +1 is required...
     endif
-    !C ... Printout
-    !      if (nevmx .ge. 0 .and. iprint() .gt. 30) then
-    !        if (lmet .gt. 0) then
-    !          call awrit0('%N subzi: '//strni(isw(ltet)+1)//'%a integration of bands; '//
-    !     .    strni(isw(lmet.ne.4.and.ltet)+1)//'%a integration of density',' ',80,stdo)
-    !        else
-    !          call info(20,0,0,' subzi : nonmetal',0,0)
-    !        endif
-    !        write(stdo,'(1x)')
-    !      endif
     call tcx('m_subzi_init')
   end subroutine m_subzi_init
 

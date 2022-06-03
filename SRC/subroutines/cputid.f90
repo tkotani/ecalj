@@ -40,16 +40,16 @@ subroutine cputid(ifile)
   ! ifile = file number where the cpu time information is
   !         to be printed
   ! ifile = 0 ==> screen (id=6)
-  real(4) :: cpuetime, etw(2),cpulast, etime
-  real(4) :: cpu0=-1d0
+  real(8) :: cpuetime, etw(2),cpulast, etime
+  real(8) :: cpu0=-1d0
   save cpu0
   character*(*):: message
-  real(4):: cpusec,cpumax,cpumin
+  real(8):: cpusec,cpumax,cpumin
   integer:: ierr,rank ,ifile
   logical,save::firsttime=.true.
   integer,save::i1
   integer:: i2,irate,imax
-  real(4)::diff
+  real(8)::diff
   if(ifile < 0)call rx( 'cputid: negative unit number')
   if (firsttime) then
      call system_clock(i1)

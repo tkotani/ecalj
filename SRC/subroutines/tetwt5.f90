@@ -5,8 +5,8 @@ subroutine  tetwt5x_dtet4(npm, ncc, &
      ntetf, nqbzw, nband,nqbz, &
      nctot,ecore,  idtetf,qbzw,ib1bz, &
      job, &
-     iwgt,nbnb,  &         ! & job=0
-     demin, demax,   &    ! & job=0   Note these are real(4)
+     iwgt,nbnb,  &        ! & job=0
+     demin, demax,   &    ! & job=0  real(4) --->real(8) 2022june for simplicity
      frhis,nwhis, &
      nbnbx,ibjb,nhwtot, ihw,nhw,jhw,& ! & job=1
      whw,             &               ! & job=1
@@ -118,7 +118,7 @@ subroutine  tetwt5x_dtet4(npm, ncc, &
   integer:: idim,ivec
   real(8)::  x_(0:3),cut
   integer:: job
-  real(4) :: demax(nband+nctot,nband+ncc,nqbz,npm),demax_,demaxx &
+  real(8) :: demax(nband+nctot,nband+ncc,nqbz,npm),demax_,demaxx &
        ,demin(nband+nctot,nband+ncc,nqbz,npm),demin_,deminn
   !      real(8) :: demax(nband+nctot,nband,nqbz),demax_,demaxx
   !     &          ,demin(nband+nctot,nband,nqbz),demin_,deminn
@@ -580,7 +580,7 @@ subroutine hisrange(frhis,nwhis, demin,demax, &
   integer:: nwhis,ihw,nhw,ihis
   !      real(8):: frhis(nwhis+1), demin,demax
   real(8):: frhis(nwhis+1)
-  real(4):: demin,demax
+  real(8):: demin,demax
   !  Range for each division is from frhis(ihis-1) to frhis(ihis).
   !      print *,' hisrange nwhis=',nwhis,demin,demax
   ihw=-9999;nhw=-9999

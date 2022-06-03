@@ -3,6 +3,7 @@
 function i1mach(i) result(s)
   implicit none
   integer :: i,s
+  s=99999
   if(i==2 .OR. i==4) then
      s=6
   elseif(i==9) then
@@ -37,6 +38,7 @@ function d1mach(i) result(s)
   double precision :: s,dm(5)
   logical :: beg = .true.
   save dm
+  s=1d99
   if(i < 1 .OR. i > 5)stop 'D1MACH(arg < 1 or arg > 5)'
   if(beg)then
      beg=.false.

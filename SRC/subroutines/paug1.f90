@@ -61,7 +61,7 @@ subroutine paug1(nf1,nf1s,lmx1,lx1,v1,d1,nf2,nf2s,lmx2,lx2,v2,d2, &
        ppi(nf1,nf2,nlx1,nlx2),cg(1)
   ! ... Local parameters
   integer :: i1,i2,icg,ilm1,ilm2,ix,l1,l2,ll,mlm,nlm1,nlm2
-  double precision :: add
+  double precision :: add=1d99
 
   ! ... Combine with CG coefficents
   do  i1 = 1, nf1s

@@ -23,7 +23,7 @@ subroutine makdos(nqp,nband,nbmx,nsp,wgts,evl,n,w,tol,emin,emax, &
   integer :: nqp,nband,nbmx,nsp,n,ndos
   double precision :: wgts(nqp),evl(nbmx,nsp,nqp),dos(0:ndos-1,nsp), &
        w,emin,emax,tol,wt,emesh
-  integer :: i,isp,iband,iq,meshpt,mesh1,mesh2,mrange,iprint
+  integer :: i,isp,iband,iq,meshpt,mesh1,mesh2,mrange=999999,iprint
   double precision :: e,x,range,test,step,d,s,xx
   external delstp
 

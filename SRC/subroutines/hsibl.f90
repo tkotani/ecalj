@@ -776,6 +776,7 @@ integer function ifindiv(igapw,igv,ng)
   implicit none
   integer :: ng,igapw(3),igv(ng,3)
   integer :: ig
+  ifindiv=-999999
   do  ig = 1, ng
      if (igapw(1) /= igv(ig,1)) cycle
      if (igapw(2) /= igv(ig,2)) cycle
@@ -800,6 +801,7 @@ integer function ifindiv2(igapw,igv2,ng)
   implicit none
   integer :: ng,igapw(3),igv2(3,ng)
   integer :: ig
+  ifindiv2=-999999
   do  ig = 1, ng
      if (igapw(1) /= igv2(1,ig)) cycle
      if (igapw(2) /= igv2(2,ig)) cycle

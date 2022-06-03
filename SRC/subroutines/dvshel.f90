@@ -64,16 +64,14 @@ subroutine dvshel(m,n,vecs,iprm,lopt)
 21      continue
      elseif (lopt == 1) then
 120     continue
-        do  124  mm = 1, m
-           !           cases dl.gt.di, dl.eq.di, dl.lt.di
-           if (vecs(mm,iprm(j-inc)) - vecs(mm,iv)) 121,124,138
+        do  124  mm = 1, m !           cases dl.gt.di, dl.eq.di, dl.lt.di
+!           if (vecs(mm,iprm(j-inc)) - vecs(mm,iv)) 121,124,138
+           if (vecs(mm,iprm(j-inc)) - vecs(mm,iv)<0) goto 121
+           if (vecs(mm,iprm(j-inc)) - vecs(mm,iv)>0) goto 138
 124     enddo
 136     continue
-        !       ... v(iv) .eq. v(iprm(j-inc)
-        goto 121
-        !       ... v(iv) .gt. v(iprm(j-inc)
-138     continue
-        !           print *, 'slip',j-inc,j,i
+        goto 121 !       ... v(iv) .eq. v(iprm(j-inc)
+138     continue !       ... v(iv) .gt. v(iprm(j-inc)
         iprm(j) = iprm(j-inc)
         j = j-inc
         if (j <= inc) goto 121
@@ -81,9 +79,10 @@ subroutine dvshel(m,n,vecs,iprm,lopt)
 121     continue
      elseif (lopt == 0) then
 220     continue
-        do  224  mm = 1, m
-           !           cases dl.gt.di, dl.eq.di, dl.lt.di
-           if (vecs(mm,iprm(j-inc)) - sw(mm)) 221,224,238
+        do  224  mm = 1, m !           cases dl.gt.di, dl.eq.di, dl.lt.di
+!           if (vecs(mm,iprm(j-inc)) - sw(mm)) 221,224,238
+           if (vecs(mm,iprm(j-inc)) - sw(mm)<0) goto 221
+           if (vecs(mm,iprm(j-inc)) - sw(mm)>0) goto 238
 224     enddo
 236     continue
         !       ... v(iv) .eq. v(iprm(j-inc)

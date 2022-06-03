@@ -27,8 +27,8 @@ subroutine maknos(nqp,nband,nbmx,nsp,wgts,evl,n,w,tol,emin,emax, &
        w,emin,emax,tol,wt,emesh
   integer :: i,isp,iband,iq,meshpt,mesh1,mesh2,mrange,iprint,i1mach
   double precision :: e,x,range,test,step,d,s,xx
-  external delstp
-
+!  external delstp
+  mrange=-9999999
   call dpzero(dos,nsp*ndos)
   step = (emax - emin) / (ndos - 1)
   if ( tol > 0d0 ) then

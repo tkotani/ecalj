@@ -6,7 +6,7 @@ LIBMATH = -lmkl_rt
 module = -J$(moddir) -I$(moddir)
 
 ##############################
-FFLAGS_COMMON= -g -fimplicit-none -ffixed-line-length-132 $(CPP_SW) $(module)
+FFLAGS_COMMON= -g -fimplicit-none -ffixed-line-length-132 $(module)
 FFLAGS = -O2  $(FFLAGS_COMMON)
 FFLAGS_LESS = -O0   $(FFLAGS_COMMON)
 FFLAGS_LESS2 = -O0  $(FFLAGS_COMMON)
@@ -23,35 +23,35 @@ FLAGS_LESS67 = -O0  $(FFLAGS_COMMON)
 #FFLAGS_LESS3 = -g  -fbacktrace $(FFLAGS_COMMON)
 #FFLAGS_NONE = -g  -fbacktrace $(FFLAGS_COMMON)
 
-CPP_SW = -DMPIK 
+#-DMPIK 
 LIBLOC = ${LIBMATH}
 LKFLAGS2 = $(LIBMATH) 
 
-##### Patch section #############
-$(obj_path)/huntx.o: $(subr)/huntx.f90
-	$(FC) $(FFLAGS_LESS3) -c $< -o $@
-$(obj_path)/hunti.o: $(subr)/hunti.f90
-	$(FC) $(FFLAGS_LESS3) -c $< -o $@
-$(obj_path)/polcof.o: $(subr)/polcof.f90
-	$(FC) $(FFLAGS_LESS3) -c $< -o $@
-$(obj_path)/rdfiln.o: $(subr)/rdfiln.f90
-	$(FC) $(FFLAGS_LESS3) -c $< -o $@
-$(obj_path)/ropbes.o: $(subr)/ropbes.f90
-	$(FC) $(FFLAGS_LESS3) -c $< -o $@
-$(obj_path)/ropyln.o: $(subr)/ropyln.f90
-	$(FC) $(FFLAGS_LESS3) -c $< -o $@
-$(obj_path)/spcgrp.o  : $(subr)/spcgrp.f90
-	$(FC) $(FFLAGS_LESS) -c $< -o $@
-$(obj_path)/m_toksw.o  : $(subr)/m_toksw.f90
-	$(FC) $(FFLAGS_NONE) -c $< -o $@
-$(obj_path)/m_rdctrl.o : $(subr)/m_rdctrl.f90
-	$(FC) $(FFLAGS_NONE) -c $< -o $@
-$(obj_path)/m_rdctrlchk.o : $(subr)/m_rdctrlchk.f90
-	$(FC) $(FFLAGS_NONE) -c $< -o $@
-$(obj_path)/m_struc_def.o : $(subr)/m_struc_def.f90 
-	$(FC) $(FFLAGS_NONE) -c $< -o $@
-$(obj_path)/m_struc_func.o : $(subr)/m_struc_func.f90 
-	$(FC) $(FFLAGS_NONE) -c $< -o $@
-$(obj_path)/rhogkl.o  : $(subr)/rhogkl.f90
-	$(FC) $(FFLAGS_LESS) -c $< -o $@
+# ##### Patch section #############
+# $(obj_path)/huntx.o: $(subr)/huntx.f90
+# 	$(FC) $(FFLAGS_LESS3) -c $< -o $@
+# $(obj_path)/hunti.o: $(subr)/hunti.f90
+# 	$(FC) $(FFLAGS_LESS3) -c $< -o $@
+# $(obj_path)/polcof.o: $(subr)/polcof.f90
+# 	$(FC) $(FFLAGS_LESS3) -c $< -o $@
+# $(obj_path)/rdfiln.o: $(subr)/rdfiln.f90
+# 	$(FC) $(FFLAGS_LESS3) -c $< -o $@
+# $(obj_path)/ropbes.o: $(subr)/ropbes.f90
+# 	$(FC) $(FFLAGS_LESS3) -c $< -o $@
+# $(obj_path)/ropyln.o: $(subr)/ropyln.f90
+# 	$(FC) $(FFLAGS_LESS3) -c $< -o $@
+# $(obj_path)/spcgrp.o  : $(subr)/spcgrp.f90
+# 	$(FC) $(FFLAGS_LESS) -c $< -o $@
+# $(obj_path)/m_toksw.o  : $(subr)/m_toksw.f90
+# 	$(FC) $(FFLAGS_NONE) -c $< -o $@
+# $(obj_path)/m_rdctrl.o : $(subr)/m_rdctrl.f90
+# 	$(FC) $(FFLAGS_NONE) -c $< -o $@
+# $(obj_path)/m_rdctrlchk.o : $(subr)/m_rdctrlchk.f90
+# 	$(FC) $(FFLAGS_NONE) -c $< -o $@
+# $(obj_path)/m_struc_def.o : $(subr)/m_struc_def.f90 
+# 	$(FC) $(FFLAGS_NONE) -c $< -o $@
+# $(obj_path)/m_struc_func.o : $(subr)/m_struc_func.f90 
+# 	$(FC) $(FFLAGS_NONE) -c $< -o $@
+# $(obj_path)/rhogkl.o  : $(subr)/rhogkl.f90
+# 	$(FC) $(FFLAGS_LESS) -c $< -o $@
 

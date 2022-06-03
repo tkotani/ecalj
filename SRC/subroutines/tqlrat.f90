@@ -2,7 +2,7 @@ subroutine tqlrat(n,d,e2,ierr)
 
   integer :: i,j,l,m,n,ii,l1,mml,ierr
   double precision :: d(n),e2(n)
-  double precision :: b,c,f,g,h,p,r,s,t,epslon,pythag
+  double precision :: b=1d99,c=1d99,f,g=1d99,h,p,r,s,t,epslon,pythag
 
   !     this subroutine is a translation of the algol procedure tqlrat,
   !     algorithm 464, comm. acm 16, 689(1973) by reinsch.

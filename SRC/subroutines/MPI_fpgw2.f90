@@ -500,6 +500,7 @@ contains
        vtotal(p-1) = vtotal(p-1) + 1
     end do
     indexe=0
+    indexi=-999999
     do p=0, mpi__rank
        indexi = indexe+1
        indexe = indexi+vtotal(p)-1
