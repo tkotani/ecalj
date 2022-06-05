@@ -78,6 +78,7 @@ contains
   end subroutine m_bstrux_init
   ! sssssssssssssssssssssssssssssssssssssss
   subroutine bstrux(mode,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igapw,  b,                db)
+!    use m_shankel,only: hxpbl,hxpos,hxpgbl
     use m_struc_def
     use m_lmfinit,only:alat=>lat_alat,lhh,nkaphh,nkapii,ssite=>v_ssite,sspec=>v_sspec,cg=>rv_a_ocg, &
          indxcg=>iv_a_oidxcg,jcg=>iv_a_ojcg,cy=>rv_a_ocy,iprmb,nbas
@@ -339,6 +340,7 @@ contains
 
   subroutine paugqp(mode,kmax,nlma,k0,ndimh,napw,igapw,alat,qlat, &
        srvol,q,pa,rsma,b0,b1,db)
+    use m_ropyln,only: ropyln
     !- Make PW part of strux b
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -371,7 +373,7 @@ contains
     double complex b0(0:k0,nlma,ndimh),b1(ndimh,nlma,0:k0), &
          db(ndimh,nlma,0:k0,3)
     integer :: k,lmxa,ll,l,ig,ilm,m,nlmto
-    double precision :: gamma,qpg(3),pi,tpiba,qpg2,ddot,facexp, &
+    double precision :: gamma,qpg(3),pi,tpiba,qpg2(1),ddot,facexp, &
          rsmal,pgint,dfac(0:kmax),fac2l(0:nlma),yl(nlma),fpi,fac ,qk
     double complex srm1,srm1l,gfourier,phase,facilm,b
     parameter (srm1=(0d0,1d0))
@@ -395,7 +397,7 @@ contains
        qpg = tpiba * ( q + matmul(qlat,igapw(1:3,ig)) )
        call ropyln(1,qpg(1),qpg(2),qpg(3),lmxa,1,yl,qpg2)
        phase = exp(srm1*alat*ddot(3,qpg,1,pa,1))
-       facexp = exp(-gamma*qpg2)
+       facexp = exp(-gamma*qpg2(1))
        ilm = 0
        rsmal = 1d0 !takao 1 to 1d0 June2011 (may give little effects).
        srm1l = 1d0 !
@@ -412,7 +414,7 @@ contains
                    gfourier = qk*facilm*facexp ! Eq. 5.17
                    b0(k,ilm,ig+nlmto) = gfourier/pgint/srvol*phase
                    fac = fac * 4/rsma**2
-                   qk = -qpg2 * qk
+                   qk = -qpg2(1) * qk
                 enddo
              enddo
              rsmal = rsmal*rsma
@@ -436,7 +438,7 @@ contains
                       db(ig+nlmto,ilm,k,2) = -srm1*qpg(2) * b
                       db(ig+nlmto,ilm,k,3) = -srm1*qpg(3) * b
                       fac = fac * 4/rsma**2
-                      qk = -qpg2 * qk
+                      qk = -qpg2(1) * qk
                    enddo
                 else
                    do  k = 0, kmax
@@ -445,7 +447,7 @@ contains
                       b = gfourier/pgint/srvol*phase
                       b1(ig+nlmto,ilm,k) = b
                       fac = fac * 4/rsma**2
-                      qk = -qpg2 * qk
+                      qk = -qpg2(1) * qk
                    enddo
                 endif
              enddo

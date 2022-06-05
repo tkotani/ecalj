@@ -1,4 +1,5 @@
 subroutine ylmrtg(nlm,rotp,rmat)
+  use m_ropyln,only: ropyln
   !- Matrix to rotate cubic harmonics for a given rotation matrix
   ! ----------------------------------------------------------------------
   !i Inputs:

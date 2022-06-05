@@ -1,5 +1,6 @@
 subroutine gklq(lmax,rsm,q,p,e,kmax,k0,alat,dlv,nkd,nrx,yl,wk,job, &
      gkl)
+  use m_ropyln,only: ropyln
   !- Bloch sum of k,L-dependent gaussians (vectorizes)
   ! ---------------------------------------------------------------
   !i Inputs:

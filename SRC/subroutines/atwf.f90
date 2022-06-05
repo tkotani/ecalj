@@ -1,5 +1,6 @@
 subroutine atwf(mode,a,lmxa,nr,nsp,pnu,pnz,rsml,ehl,rmt,z,v0, &
      nphimx,ncore,konfig,ecore,gcore,gval,nmcore)
+  use m_ftox
   !- Make properties related to core for one sphere
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -180,6 +181,7 @@ end subroutine atwf
 subroutine atwf2l(ifi,jfi,iclass,a,lmxa,nr,nsp,pnz,rmt, &
      nphimx,konfig,ecore,gcore,gval)
   use m_lmfinit,only: stdo
+  use m_ftox
   !- Translate radial wave functions from shifted to standard log mesh
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -275,8 +277,8 @@ subroutine atwf2l(ifi,jfi,iclass,a,lmxa,nr,nsp,pnz,rmt, &
   !     call prrmsh('gval on shifted log mesh',rofi,gval,nr,nr,ic)
 
   write(ifi) iclass,lmxa,nsp ! 1st record in class: dimensioning
-  call info2(PRTV,1,0,' Valence wave function normalizations for ' &
-       //'class %i%N  phi  l   spin    sqrt(norm)',iclass,isp)
+  if(iprint()>=PRTV) write(stdo,ftox)' Valence wave function normalizations for ' &
+       //'class ',iclass,' phi  l  spin  sqrt(norm)',isp
   dytopa = 0
   do  isp = 1, nsp
      do  l = 0, lmxa
@@ -326,9 +328,8 @@ subroutine atwf2l(ifi,jfi,iclass,a,lmxa,nr,nsp,pnz,rmt, &
   ! --- Core eigenfunctions and eigenvalues ---
   write(jfi) iclass,lmxa,nsp ! 1st record in class: dimensioning
   dytopa = 0
-  call info2(PRTV,1,0,' Core wave function normalizations for ' &
-       //'class %i%N   n   l   spin    sqrt(norm)        ecore', &
-       iclass,isp)
+  if(iprint()>=PRTV) write(stdo,ftox)' Core wave function normalizations for ' &
+       //'class ',iclass,'   n   l   spin    sqrt(norm)        ecore',isp 
   icore = 0
   do  l = 0, lmxa
      do  isp = 1, nsp
@@ -336,14 +337,10 @@ subroutine atwf2l(ifi,jfi,iclass,a,lmxa,nr,nsp,pnz,rmt, &
         do  konf = l+1, mod(konfig(l),10)-1
            icore = icore+1
            jcore = jcore+1
-
-           xxo = &
-                dot3(nr,gcore(1,1,jcore),gcore(1,1,jcore),rwgt) + &
-                dot3(nr,gcore(1,2,jcore),gcore(1,2,jcore),rwgt)
-
-           dytop = 0
+           xxo = dot3(nr,gcore(1,1,jcore),gcore(1,1,jcore),rwgt) + &
+                 dot3(nr,gcore(1,2,jcore),gcore(1,2,jcore),rwgt)
+           dytop = 0d0
            do  ic = 1, 2 ! large, small components
-
               !           g(r) = phi(r)*r
               !           For small r, g(r)~r^(l+1) ... so fit g(r)/r^(l+1)
               do  ir = 2, nr
@@ -358,24 +355,15 @@ subroutine atwf2l(ifi,jfi,iclass,a,lmxa,nr,nsp,pnz,rmt, &
                     dytop  = max(dytop,dy)
                     dytopa = max(dytopa,dy)
                  endif
-                 gwk2(ir,ic) = y*rofil(ir)**(l+1)
-                 !             gcore(ir,ic,jcore) = gwk2(ir,ic) ! Overwrite, for debuggging
+                 gwk2(ir,ic) = y*rofil(ir)**(l+1)! gcore(ir,ic,jcore) = gwk2(ir,ic) ! Overwrite, for debuggging
               enddo
            enddo
-
-           xx = dot3(nr,gwk2(1,1),gwk2(1,1),rwgtl) &
-                + dot3(nr,gwk2(1,2),gwk2(1,2),rwgtl)
-           !           Debugging printout
-           call info8(99,0,0,' atwf2l interp l=%i konf=%i isp=%i:'// &
-                ' err ~ %;g  onorm = %,6;6d  nnorm-onorm = %;6d',l, &
-                konf,isp,dytop,xxo,xx-xxo,0,0)
-
+           xx = dot3(nr,gwk2(1,1),gwk2(1,1),rwgtl) + dot3(nr,gwk2(1,2),gwk2(1,2),rwgtl)
+           if(iprint()>99)write(stdo,ftox)' atwf2l interp l=',l,' konf=',konf,'isp=',isp,  &
+                'err~',ftod(dytop),'onorm=',ftof(xxo),'nnorm-onorm=',xx-xxo
            write(jfi) jcore, l, isp, konf, ecore(icore)
            write(jfi) gwk2(1:nr,1), gwk2(1:nr,2)
-
-           if (iprint() >= PRTV) write(stdo,345) konf, l, isp, &
-                dsqrt(xx), ecore(icore)
-
+           if (iprint()>=PRTV) write(stdo,345) konf, l, isp, dsqrt(xx), ecore(icore)
         enddo
      enddo
   enddo

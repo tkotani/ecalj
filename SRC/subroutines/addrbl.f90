@@ -28,6 +28,7 @@ contains
     use m_subzi, only: lwtkb,nevmx, lswtk,wtkb=>rv_a_owtkb
     use m_mkqp,only: wtkp=>rv_a_owtkp
     use m_mkpot,only: qval_=>qval
+    use m_ropyln,only: ropyln
     !- Adds to the smooth and local output density and to eigval sum
     ! ----------------------------------------------------------------------
     !i Inputs

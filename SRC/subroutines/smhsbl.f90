@@ -6,6 +6,8 @@ subroutine smhsbl(ssite,sspec,vavg,q,ndimh,iprmb, napw,igapw, h,s)
   use m_struc_def
   use m_lattic,only:lat_plat
   use m_orbl,only: Orblib1,Orblib2,ktab1,ltab1,offl1,norb1,ktab2,ltab2,offl2,norb2
+  use m_ropyln,only: ropyln
+!  use m_shankel,only:hhibl
   !- Smoothed Bloch Hamiltonian (constant potential) and overlap matrix
   ! ----------------------------------------------------------------------
   !i Inputs

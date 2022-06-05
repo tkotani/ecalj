@@ -1,5 +1,6 @@
 subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl, &
      awald,alat,qlv,nG,dlv,nD,vol,hsm,hsmp)
+  use m_ropyln,only: ropyln
   !- Bloch-sum of smooth Hankel functions and energy derivatives at p
   !  by Ewald summation, for nxi groups of parameters (lxi,exi,rsm).
   ! ---------------------------------------------------------------
@@ -323,6 +324,7 @@ subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl, &
 end subroutine hsmq
 subroutine hsmqe0(lmax,rsm,job,q,p,nrx,nlmx,wk,yl, &
      awald,alat,qlv,nG,dlv,nD,vol,hsm)
+  use m_ropyln,only: ropyln
   !- Bloch-sum of smooth Hankel functions for energy 0
   ! ---------------------------------------------------------------
   !i Inputs:

@@ -1,6 +1,7 @@
 subroutine ftlxp(nbas,ssite,sspec,alat,ng,gv,cv,k0,nlm0,fkl)
   use m_struc_def  !Cgetarg
   use m_lgunit,only:stdo
+  use m_ropyln,only: ropyln
   !- Pkl expansion around all sites of a function given as Fourier series.
   ! ----------------------------------------------------------------------
   !i Inputs

@@ -7,6 +7,7 @@ subroutine pwmat(ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q,&
   use m_uspecb,only:uspecb
   use m_orbl,only: Orblib,ktab,ltab,offl,norb
   use m_lattic,only:lat_plat
+  use m_ropyln,only: ropyln
   implicit none
   !! inn:  takao added 27 Apr2009
   !!   We have  q+G(igvx; internal in pwmat) = qp + G(igapw).
@@ -79,7 +80,7 @@ subroutine pwmat(ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q,&
   integer :: ips(nbas),ib,is,igetss,ngmx,ig,lmxax,ll,iwk(3),nlmto,iga, &
        ifindiv2
   double precision :: alat,plat(3,3),qlat(3,3),vol,pi,pi4,tpiba,xx, &
-       tripl,dgetss,bas(3,nbas),rmax(nbas),qpg(3),qpg2,denom,gam,srvol
+       tripl,dgetss,bas(3,nbas),rmax(nbas),qpg(3),qpg2(1),denom,gam,srvol
   integer :: n0,nkap0
   parameter (n0=10, nkap0=3)
   integer :: lh(nkap0),nkapi
@@ -189,7 +190,7 @@ subroutine pwmat(ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q,&
               ik = ktab(io)
               !           offh = hamiltonian offset to this block
               offh  = offl(io)
-              denom = eh(l+1,ik) - qpg2
+              denom = eh(l+1,ik) - qpg2(1)
               gam   = 1d0/4d0*rsmh(l+1,ik)**2
               offh  = offl(io)
               fach  = -pi4/vol/denom * phase * mimgl(l) * exp(gam*denom)
@@ -248,6 +249,7 @@ subroutine pwmat2(ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q, ngp,nlmax,igv,ovlp,
   use m_uspecb,only:uspecb
   use m_lattic,only:lat_plat
   use m_orbl,only: Orblib,ktab,ltab,offl,norb
+  use m_ropyln,only: ropyln
   !- Matrix elements (IPW,IPW); expansion coefficients of basis fns in IPWs
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -300,7 +302,7 @@ subroutine pwmat2(ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q, ngp,nlmax,igv,ovlp,
   ! ... Local parameters
   integer :: ips(nbas),ib,is,igetss,ig,lmxax,ll,nlmto,iga,ifindiv2
   double precision :: alat,plat(3,3),qlat(3,3),vol,pi,pi4,tpiba,xx, &
-       tripl,dgetss,bas(3,nbas),rmax(nbas),qpg(3),qpg2,denom,gam,srvol
+       tripl,dgetss,bas(3,nbas),rmax(nbas),qpg(3),qpg2(1),denom,gam,srvol
   integer :: n0,nkap0,i_spackv
   parameter (n0=10, nkap0=3)
   integer :: lh(nkap0),nkapi,i_copy_size
@@ -379,7 +381,7 @@ subroutine pwmat2(ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q, ngp,nlmax,igv,ovlp,
               ik = ktab(io)
               !           offh = hamiltonian offset to this block
               offh  = offl(io)
-              denom = eh(l+1,ik) - qpg2
+              denom = eh(l+1,ik) - qpg2(1)
               gam   = 1d0/4d0*rsmh(l+1,ik)**2
               offh  = offl(io)
               fach  = -pi4/vol/denom * phase * mimgl(l) * exp(gam*denom)

@@ -3,7 +3,8 @@ subroutine mshvmt(nbas,ssite,sspec,ng,gv, kv,cv,k1,k2,k3,smpot,vval)
   use m_lattic,only:lat_plat
   use m_lmfinit,only:lat_alat
   use m_supot,only: lat_nabc
-  !- Makes potential at MT surfaces given potential on a uniform mesh
+  use m_ropyln,only: ropyln
+!- Makes potential at MT surfaces given potential on a uniform mesh
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   nbas  :size of basis

@@ -1,6 +1,7 @@
 subroutine vxcnsp(isw,a,ri,nr,rwgt,nlm,nsp,rl,lxcfun,rc, &
      focexc,focex,focec,focvxc,reps,repsx,repsc,rmu,vl,fl,qs)
   use m_lgunit,only:stdo
+  use m_ropyln,only: ropyln
   !- Add vxc to potential in sphere and make integrals rho*vxc,rho*exc
   ! ----------------------------------------------------------------------
   !i Inputs

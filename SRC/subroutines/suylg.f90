@@ -1,4 +1,5 @@
 subroutine suylg(ltop,alat,ng,gv,g,g2,yl)
+  use m_ropyln,only: ropyln
   !- Set up vectors g, g2, yl from list of vectors gv
   ! ----------------------------------------------------------------------
   !i Inputs

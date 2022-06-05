@@ -232,6 +232,7 @@ subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, &
   !b Bugs
   !b   Total energy terms need to be cleaned up and simplified.
   ! ----------------------------------------------------------------
+  use m_ftox
   implicit none
   logical :: lfrz,lgdd
   character job*3
@@ -275,8 +276,7 @@ subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, &
   ! --- Core charge, radial mesh points and weights ---
   if (kcor /= 0) then
      if (qcor(1) /= 0 .OR. qcor(2) /= 0) then
-        call info5(30,0,0,'%9fAdd core hole:  kcor=%i  lcor=%i'// &
-             '  qcor=%d  amom=%d',kcor,lcor,qcor,qcor(2),0)
+        write(stdo,ftox)'Add core hole:  kcor=',kcor,' lcor=',lcor,' qcor=',ftof(qcor),'amom=',ftof(qcor(2))
      endif
   endif
   call getqvc(nsp,nl,lmax,z,pnu,qnu,0,0,kcor,lcor,qcor,qc,qtot,amgm)

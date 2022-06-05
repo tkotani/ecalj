@@ -406,6 +406,7 @@ end subroutine hsibl
 
 
 subroutine hsibl1(net,et,nrt,rt,ltop,alat,q,ng,gv,g,g2,yl,he,hr)
+  use m_ropyln,only: ropyln
   !- Make yl's, energy and rsm factors for list of G vectors
   ! ----------------------------------------------------------------------
   !i Inputs

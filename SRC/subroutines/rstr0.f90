@@ -1,4 +1,5 @@
 subroutine rstr0(nxi,lxi,exi,nlmx,np,x,y,z,lmxa,iop,hl,hd)
+  use m_ropyln,only: ropyln
   !- Reduced strux for a vector of energies, standard definition IV-43.
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -46,24 +47,16 @@ subroutine rstr0(nxi,lxi,exi,nlmx,np,x,y,z,lmxa,iop,hl,hd)
 2 enddo
   if (lmxy > lmxx) call rxi('rstr0: lmax exceeds lmxx:',lmxy)
   allocate(ylm_rv((lmxy+1)**2*np))
-
   allocate(r2_rv(np))
-
-  call ropyln ( np , x , y , z , lmxy , np , ylm_rv , r2_rv &
-       )
-
-
+  call ropyln ( np , x , y , z , lmxy , np , ylm_rv , r2_rv )
   ! --- For each point, do ---
   do  5  ip = 1, np
-     call pvstr0 ( lmxy , ip , np , ylm_rv , r2_rv , yl , r2 &
-          )
-
+     call pvstr0 ( lmxy , ip , np , ylm_rv , r2_rv , yl , r2 )
      if (r2 < 1d-10) then
         call dpzero(hl(1,1,ip),nlmx*nxi)
         if (iop /= 1) call dpzero(hd(1,1,ip),nlmx*nxi)
         goto 5
      endif
-
      ! --- Reduced strx hl, or hl and hd for all energies, this point ---
      if (iop == 1) then
         do  10  ie = 1, nxi
