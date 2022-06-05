@@ -3,6 +3,7 @@ subroutine ovlocr ( nbas , ssite , sspec ,  nxi0 , nxi &
   use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nsp
   use m_struc_def
   use m_lgunit,only:stdo
+  use m_smhankel,only: hxpbl,hxpos
   !- Makes the site densities for overlapped free atoms.
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -79,14 +80,14 @@ subroutine ovlocr ( nbas , ssite , sspec ,  nxi0 , nxi &
            rsmh = rsmfa(js)
            eh   = exi(je,js)
            nlmh = 1
-           call hxpbl ( p2 , p1 , q , rsmh , rsmv , eh , kmxv , nlmh , nlml &
+           call hxpbl ( p2 , p1 , q , [rsmh], rsmv , [eh] , kmxv , nlmh , nlml &
                 , kmxv , nlml , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy &
                 ,  b ) !slat ,
 
            allocate(b0(0:kmxv,nlmh))
            b0=0d0
            !            call dpzero(b0,(kmxv+1)*nlmh)
-           if (ib == jb) call hxpos(rsmh,rsmv,eh,kmxv,nlmh,kmxv,b0)
+           if (ib == jb) call hxpos([rsmh],rsmv,[eh],kmxv,nlmh,kmxv,b0)
            do  i = 1, nsp
               call p1ovlc(kmxv,nlml,hfc(je,i,js),b,b0,acof(0,1,i))
            enddo

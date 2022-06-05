@@ -4,7 +4,7 @@ subroutine fsmbl(nbas,ssite,sspec,vavg,q,ndimh,nlmto,iprmb, &! & ,slat
   use m_uspecb,only:uspecb
   use m_struc_def
   use m_orbl,only: Orblib1,Orblib2,ktab1,ltab1,offl1,norb1,ktab2,ltab2,offl2,norb2
-!  use m_shankel,only: hhigbl
+  use m_smhankel,only: hhigbl
   !- Force from smoothed hamiltonian (constant potential) and overlap
   ! ----------------------------------------------------------------------
   !i Inputs

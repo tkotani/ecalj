@@ -1,6 +1,7 @@
 #NOTE: when you add your foobar.F, choose one of *_list.
 
 ELIB_list=\
+m_smhankel.o\
 derfc.o\
 m_orbl.o\
 m_ftox.o\
@@ -123,9 +124,7 @@ relax.o \
 rmesh.o \
 rnatm.o \
 ropbes.o \
-ropcsm.o \
 roplat.o \
-ropyln1.o \
 ropyln.o \
 rseq.o \
 rsort.o \
@@ -295,15 +294,9 @@ hgugbl.o \
 hhibl.o \
 hhigbl.o \
 hhugbl.o \
-hklbl.o \
 hklft.o \
-hklgbl.o \
-hklos.o \
 hsibl.o \
 hsmbl.o \
-hxpbl.o \
-hxpgbl.o \
-hxpos.o \
 lindsc.o \
 lmfp.o \
 locpot.o \
@@ -339,7 +332,6 @@ rhogkl.o \
 rhomom.o \
 rlocbl.o \
 rsibl.o \
-rsibl_ev.o \
 setofl.o \
 sgvsym.o \
 smcorm.o \

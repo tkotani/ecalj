@@ -1,4 +1,5 @@
 subroutine hansmd(mode,r,e,rsm,lmax,hs,dhs,ddhs,hsp,dhsp,ddhsp)
+  use m_hansr,only: hansr
   !- Value and some derivatives of smoothed radial Hankel functions
   ! ---------------------------------------------------------------
   !i Inputs
@@ -60,7 +61,7 @@ subroutine hansmd(mode,r,e,rsm,lmax,hs,dhs,ddhs,hsp,dhsp,ddhsp)
   mode0 = mod(mode,10)
   mode1 = mod(mode/10,10)
   !      call hansr(rsm,-1,lmax+2,1,lmax+2,e,r**2,1,1,idx,wk,11,xi)
-  call hansr(rsm,-1,lmax+2,1,lmax+2,e,r**2,1,1,idx,11,xi)
+  call hansr(rsm,-1,lmax+2,1,[lmax+2],[e],[r**2],1,1,[idx],11,xi)
   do  54  l = 0, lmax
      hs(l)   = xi(l)
      if (mode0 /= 0) then

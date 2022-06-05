@@ -27,7 +27,6 @@ subroutine scglp1(mlm,kz,cz,kx1,kx2,cx1,cx2,ky1,ky2,cy1,cy2)
   ! ... Local parameters
   integer :: l,ll,lav,m,mm,isg,kav,ma,mb
   double precision :: bot,top,tap,cofa,cofb
-
   l = ll(mlm)
   lav = l*l+l+1
   m = mlm-lav

@@ -26,9 +26,7 @@ subroutine ropylg(lp,lmax,ndim,nrx,nr,x,y,z,r2,yl,gyl)
   ! ... Local parameters
   integer :: ilm,kx1,kx2,ky1,ky2,kz,l,m,i
   double precision :: cx1,cx2,cy1,cy2,cz,f
-
   if ((lmax+1)**2 > ndim) call rx('ropylg: ndim too small')
-
   ! --- Gradients of yl's ---
   ilm = 0
   do    l = 0, lmax
@@ -43,9 +41,7 @@ subroutine ropylg(lp,lmax,ndim,nrx,nr,x,y,z,r2,yl,gyl)
         enddo
      enddo
   enddo
-
   if (lp == 0) return
-
   ! --- Add r**l (grad r**-l) yl ---
   ilm = 0
   do    l = 0, lmax

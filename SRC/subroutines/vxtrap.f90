@@ -192,6 +192,7 @@ subroutine vxtrap(mode,z,rmax,lmxa,v,a,nr,nsp,pnz,rs3,vmtz,nrmax, &
 end subroutine vxtrap
 subroutine rwftai(mode,rmt,a,nrmt,nrbig,ribig,phi,dphi,tphi,l, &
      ehl,rsml,g)
+  use m_hansr,only :hansr
   !- Extend radial wave function outside MT boundary
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -276,7 +277,7 @@ subroutine rwftai(mode,rmt,a,nrmt,nrbig,ribig,phi,dphi,tphi,l, &
      enddo
      !       Hankel function scaled to match g at nrmt
      !        call hansr(rsml,0,l,1,l,ehl,r2,nrx,nxtn,idn,wk,11,xi)
-     call hansr(rsml,0,l,1,l,ehl,r2,nrx,nxtn,idn,11,xi)
+     call hansr(rsml,0,l,1,[l],[ehl],[r2],nrx,nxtn,[idn],11,xi)
      !       fac1 = phi/xi(1,l)
      fac1 = g(nrmt,1)/rmt/xi(1,l)
      fac2 = g(nrmt,2)/rmt/xi(1,l)

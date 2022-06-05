@@ -1614,30 +1614,31 @@ subroutine pvfil1(reclr,recla,jr,recrd,cex,nchr,mxchr,ctbl,ja,a,t)
   parameter (ctlen=120)
   character(1) :: recrd(0:reclr-1),a(recla),ctbl(mxchr,2)*(ctlen)
   ! Local variables
-  logical :: pvfil2
+  logical :: pvfil2,lpv2
   character(512) :: aa
   integer :: ia,ja0,jaa
   character:: cex*2
-
   do  ia = ja, recla
      a(ia) = ' '
   enddo
   ja0 = ja
-  if ( .NOT. pvfil2(reclr,recla,jr,recrd,cex,nchr,mxchr,ctbl,ja,a)) &
-       return
-10 continue
-  aa = ' '
-  do   ia = ja0, ja
-     aa(ia:ia) = a(ia)
+  lpv2=pvfil2(reclr,recla,jr,recrd,cex,nchr,mxchr,ctbl,ja,a)
+  if ( .NOT.lpv2 ) return
+  do 
+     aa = ' '
+     do ia = ja0, ja
+        aa(ia:ia) = a(ia)
+     enddo
+     if (t > 2) then
+        call skpblb(aa,ja,ja)
+        print 333, '#rf subst: "', aa(1:ja+1),'"'
+333     format(a,a,a)
+     endif
+     jaa = ja0-1
+     ja = ja0
+     lpv2=pvfil2(recla,recla,jaa,aa,cex,nchr,mxchr,ctbl,ja,a)
+     if (.not.lpv2) exit 
   enddo
-  if (t > 2) then
-     call skpblb(aa,ja,ja)
-     print 333, '#rf subst: "', aa(1:ja+1),'"'
-333  format(a,a,a)
-  endif
-  jaa = ja0-1
-  ja = ja0
-  if (pvfil2(recla,recla,jaa,aa,cex,nchr,mxchr,ctbl,ja,a)) goto 10
 end subroutine pvfil1
 
 logical function pvfil2(reclr,recla,jr,recrd,cex,nchr,mxchr,ctbl, &

@@ -184,6 +184,7 @@ contains
     use m_bstrux,only: m_bstrux_init
     use m_elocp,only: elocp
     use m_locpot,only: Locpot
+    use m_ftox
     ! ote other output in module area
     ! for job=0
     !o         utot   = total electrostatic energy
@@ -447,8 +448,8 @@ contains
     ! --- Printout for smooth background charge ---
     if (qbg /= 0) then
        rhobg = (3d0/4d0/pi*vol)**(1d0/3d0)
-       call info5(20,1,0,' Energy for background charge'// &
-            ' q=%d, radius r=%;3d :  E = 9/5*q*q/r = %;4d', qbg,rhobg,1.8d0*qbg*qbg/rhobg,0,0)
+       write(stdo,ftox)' Energy for background charge', &
+            ' q=',ftod(qbg),'radius r=',rhobg,'E=9/5*q*q/r=',1.8d0*qbg*qbg/rhobg
     endif
     ! --- Smooth electrostatic potential ---
     call rhomom (sv_p_orhoat,  qmom,vsum)

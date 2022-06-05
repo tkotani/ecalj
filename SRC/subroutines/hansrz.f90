@@ -1,3 +1,6 @@
+module  m_hansrz
+  use m_hansr,only: hansr,hanr
+contains
 subroutine hansrz(rsml,lmin,lmax,e,rsq,nrx,nr,job,xi,fi)
   !- Vector of smoothed Hankel functions, any e
   ! ----------------------------------------------------------------------
@@ -656,3 +659,5 @@ subroutine hansz2(jerf,rsq,lmin,lmax,nrx,nr,e,rsm,wk,wk2,xi)
 
 end subroutine hansz2
 
+
+end module m_hansrz

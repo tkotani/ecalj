@@ -1,6 +1,7 @@
 subroutine ugcomp(nbas,ssite,sspec,qmom,gpot0,hpot0,ugg,f) !slat,
   use m_struc_def           !Cgetarg
   use m_lgunit,only:stml
+  use m_smhankel,only:hhugbl,hgugbl,ggugbl
   !- Part of the smooth estatic energy from compensating G's alone.
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -213,7 +214,7 @@ subroutine ugcomp(nbas,ssite,sspec,qmom,gpot0,hpot0,ugg,f) !slat,
 
               !     --- Additional h*h, h*g, g*h terms for foca ---
               if (lfoc1 > 0 .OR. lfoc2 > 0) then
-                 call hhugbl(0,tau1,tau2,rh1,rh2,ceh1,ceh2,1,1,ndim0,ndim0, &
+                 call hhugbl(0,tau1,tau2,[rh1],[rh2],[ceh1],[ceh2],1,1,ndim0,ndim0, &
                       wk,dwk,s0,ds0) !slat,
                  xugg(ip) = xugg(ip) + cofh1*s0(1,1)*cofh2
                  xhpot0(jb,ip) = xhpot0(jb,ip) + cofh1*s0(1,1)

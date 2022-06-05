@@ -463,7 +463,7 @@ EXTRACT_ALL            = YES
 # be included in the documentation.
 # The default value is: NO.
 
-EXTRACT_PRIVATE        = YES
+EXTRACT_PRIVATE        = NO
 
 # If the EXTRACT_PRIV_VIRTUAL tag is set to YES, documented private virtual
 # methods of a class will be included in the documentation.
@@ -489,7 +489,7 @@ EXTRACT_STATIC         = NO
 # for Java sources.
 # The default value is: YES.
 
-EXTRACT_LOCAL_CLASSES  = YES
+EXTRACT_LOCAL_CLASSES  = NO
 
 # This flag is only useful for Objective-C code. If set to YES, local methods,
 # which are defined in the implementation section but not in the interface are
@@ -888,8 +888,15 @@ EXCLUDE_PATTERNS       =
 # Note that the wildcards are matched against the file with absolute path, so to
 # exclude all test directories use the pattern */test/*
 
-EXCLUDE_SYMBOLS        = rx ftime cpusec tolq qbzreg iprint mpipid
-
+EXCLUDE_SYMBOLS = rx ftime cpusec tolq qbzreg iprint mpipid verbose cmdopt2 cmdopt0 \
+		errmsg matma cross cputid i2char winfo matma matcinv readx i2char ifile_handle \
+		sorta nwordr matm matinv minv33 wab wordg dvset skpbl chrpos nwordg locase poseof chrps2 skpblb ivprm \
+		gettime icopy dpscop dsumdf pshpr dpzero dpcopy pretty nlchar ivawrt getpr word info strncp a2bin rx1 \
+		bin2a rxs oncewrite ivheap dvshel dmpy fexit0 rx0 strcop fsanrg iinit dfdump mpibc1 rxx mpibc1_real mpibc1_int mpibc1_complex \
+		dpdump fftz30 fftz3 a2vec rxi isw ivset i1mach stdfac dinv33 nword tcinit tcn poppr d1mach tql2 xt charnum3 skipbl awrite cmdopt \
+		dpsdump lddump tred2 easypbe words mpibc2 mpibc2_complex mpibc2_int mpibc2_real rydberg prtev isang lfdump polint polintx polinta \
+		setfac epslon dsred tqlrat strip ll ftof ftod 
+		
 # The EXAMPLE_PATH tag can be used to specify one or more files or directories
 # that contain example code fragments that are included (see the \include
 # command).

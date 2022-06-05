@@ -78,7 +78,7 @@ contains
   end subroutine m_bstrux_init
   ! sssssssssssssssssssssssssssssssssssssss
   subroutine bstrux(mode,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igapw,  b,                db)
-!    use m_shankel,only: hxpbl,hxpos,hxpgbl
+    use m_smhankel,only: hxpbl,hxpos,hxpgbl
     use m_struc_def
     use m_lmfinit,only:alat=>lat_alat,lhh,nkaphh,nkapii,ssite=>v_ssite,sspec=>v_sspec,cg=>rv_a_ocg, &
          indxcg=>iv_a_oidxcg,jcg=>iv_a_ojcg,cy=>rv_a_ocy,iprmb,nbas

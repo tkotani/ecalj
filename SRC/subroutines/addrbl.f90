@@ -29,6 +29,7 @@ contains
     use m_mkqp,only: wtkp=>rv_a_owtkp
     use m_mkpot,only: qval_=>qval
     use m_ropyln,only: ropyln
+    use m_rsibl,only:rsibl
     !- Adds to the smooth and local output density and to eigval sum
     ! ----------------------------------------------------------------------
     !i Inputs

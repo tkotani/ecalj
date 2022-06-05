@@ -1,4 +1,5 @@
 subroutine fradhd(nkaps,eh,rsmh,lh,lmxh,nr,rofi,fh,xh,vh,dh)
+  use m_hansr,only: hansr
   !- Radial envelope head functions and gradients
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -57,7 +58,7 @@ subroutine fradhd(nkaps,eh,rsmh,lh,lmxh,nr,rofi,fh,xh,vh,dh)
            !           dh(l,ik) = vh(l,ik)*l/rmt - xi(l+1)*rmt**(l+1)
 
            !            call hansr(rsm,0,l+1,1,l+1,e,rmt**2,1,1,idx,wk,10,xi) !we calculate xi at nr.
-           call hansr(rsm,0,l+1,1,l+1,e,rmt**2,1,1,idx,10,xi) !we calculate xi at nr.
+           call hansr(rsm,0,l+1,1,[l+1],[e],[rmt**2],1,1,[idx],10,xi) !we calculate xi at nr.
            vh(l,ik) = xi(l) * rl
            dh(l,ik) = vh(l,ik)*l/rmt - xi(l+1)*rl*rmt
 
@@ -71,7 +72,7 @@ subroutine fradhd(nkaps,eh,rsmh,lh,lmxh,nr,rofi,fh,xh,vh,dh)
 
               !             call hansmr(r,e,asm,xi,l+1)
               !              call hansr(rsm,0,l+1,1,l+1,e,r**2,1,1,idx,wk,10,xi) !we calculate xi at r**2.
-              call hansr(rsm,0,l+1,1,l+1,e,r**2,1,1,idx,10,xi) !we calculate xi at r**2.
+              call hansr(rsm,0,l+1,1,[l+1],[e],[r**2],1,1,[idx],10,xi) !we calculate xi at r**2.
 
               !             g0 = dexp(-asm*asm*r*r)
               vhh = xi(l) * rl

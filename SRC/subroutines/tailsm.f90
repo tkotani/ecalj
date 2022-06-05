@@ -1,6 +1,7 @@
 subroutine tailsm(lrhot,nr,nrmt,nsp,a,b,rmt,rsm,nxi0,nxi,exi,rofi, &
      rho,rhot,hfc,hfct)
   use m_lgunit,only:stdo
+  use m_hansr,only :hansr
   !- Fit tails of rho to smoothed Hankel functions
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -40,7 +41,7 @@ subroutine tailsm(lrhot,nr,nrmt,nsp,a,b,rmt,rsm,nxi0,nxi,exi,rofi, &
   logical :: lzero
   integer:: lx0(20) , isp , ie , ir , ipr
   !      real(8) ,allocatable :: wk_rv(:)
-  real(8) ,allocatable :: idx_rv(:)
+  integer,allocatable :: idx_rv(:)
   real(8) ,allocatable :: xi_rv(:)
 
   double precision :: sr,x0(0:2),xi(0:2),fpi,qout,qcst(20),qcst0(20), &
@@ -76,7 +77,7 @@ subroutine tailsm(lrhot,nr,nrmt,nsp,a,b,rmt,rsm,nxi0,nxi,exi,rofi, &
   !      print *,'tailsm:xxx2'
   if (lzero) rsq(1) = 0
   !      if (allocated(wk_rv)) deallocate(wk_rv)
-  if (allocated(idx_rv)) deallocate(idx_rv)
+  deallocate(idx_rv)
 
 
   ! --- Fit smoothed hankels to rho ---

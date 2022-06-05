@@ -1,5 +1,6 @@
 subroutine makusp(n0,z,nsp,rmax,lmxa,v,a,nr,rs3,vmtz,pnu,pnz, &
      rsml,ehl,ul,sl,gz,ruu,rus,rss)
+  use m_hansr,only: hansr
   !- Augmentation fcts of pure val,slo (times r) from spherical V and b.c.
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -104,7 +105,7 @@ subroutine makusp(n0,z,nsp,rmax,lmxa,v,a,nr,rs3,vmtz,pnu,pnz, &
            !         Scale extended local orbital
            if (lpzi > 1) then
               !              call hansr(rsml(l),0,l,1,l,ehl(l),rmax**2,1,1,idx,wk,11,xi)
-              call hansr(rsml(l),0,l,1,l,ehl(l),rmax**2,1,1,idx,11,xi)
+              call hansr(rsml(l),0,l,1,[l],[ehl(l)],[rmax**2],1,1,[idx],11,xi)
               fac1 = gzl(nr,1)/rmax/xi(l)
               call dscal(2*nr,1/fac1,gzl,1)
            endif

@@ -59,7 +59,7 @@ contains
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
     use m_rdsigm2,only: M_rdsigm2_init
     use m_subzi, only: M_subzi_init, lwtkb,rv_a_owtkb,M_subzi_setlwtkb,M_subzi_bzintegration
-    use m_rsibl_ev, only : Rsibl_ev ! to plot wavefunction in the fat band mode
+    use m_rsibl, only : Rsibl_ev ! to plot wavefunction in the fat band mode
     use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
     !      use m_lmfgw,only: M_lmfgw_init !,jobgw !,sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx
     use m_mkpot,only: M_mkpot_init,M_mkpot_deallocate, M_mkpot_energyterms,M_mkpot_novxc,& ! & M_mkpot_novxc_dipole,
