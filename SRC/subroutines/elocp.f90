@@ -132,8 +132,8 @@ contains
           enddo
        endif
        !!
-       rs3=sspec(is)%rs3
-       eh3=sspec(is)%eh3
+       rs3= sspec(is)%rs3
+       eh3= sspec(is)%eh3
        vmtz=sspec(is)%vmtz
        a=sspec(is)%a
        nr=sspec(is)%nr

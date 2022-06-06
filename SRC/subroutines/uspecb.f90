@@ -2,7 +2,7 @@ module m_uspecb
 contains
   subroutine uspecb(is,rsmh,eh)
     use m_lmfinit,only: nkaph,nspec,nkapii,n0,nkap0, &
-         rsmh1ss=>rsmh1,rsmh2ss=>rsmh2,eh1ss=>eh1,eh2ss=>eh2,lhh,lpzex,sspec=>v_sspec
+         rsmh1ss=>rsmh1,rsmh2ss=>rsmh2,eh1ss=>eh1,eh2ss=>eh2,lhh,lpzex
     use m_elocp,only: rsml,ehl
     implicit none
     intent(in)::     is

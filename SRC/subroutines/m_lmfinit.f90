@@ -838,9 +838,9 @@ contains
           if (rsma(j)  < 0) rsma(j)  = -rsma(j)*0.4d0*rmt(j)
           if (rfoca(j) < 0) rfoca(j) = -rfoca(j)*0.4d0*rmt(j)
           if (rsmfa(j) < 0) rsmfa(j) = -rsmfa(j)*0.5d0*rmt(j)
-          nm='SPEC_ATOM_RS3'; call gtv(trim(nm),tksw(prgnam,nm),rs3(j), &
-               def_r8=0.5d0,cindx=jj, &
-          note='Minimum smoothing radius for local orbital')
+!          nm='SPEC_ATOM_RS3'; call gtv(trim(nm),tksw(prgnam,nm),rs3(j), &
+!               def_r8=0.5d0,cindx=jj, &
+!          note='Minimum smoothing radius for local orbital')
           nm='SPEC_ATOM_IDMOD'; call gtv(trim(nm),tksw(prgnam,nm), &
                idmod(1:nlaj,j),def_i4v=(/(0,i=1,n0)/), cindx=jj,note= &
                'idmod=0 floats P to band CG, 1 freezes P, 2 freezes enu')
@@ -1203,7 +1203,6 @@ contains
     do j=1,nspec
        v_sspec(j)%name=slabl(j)
        v_sspec(j)%z=z(j)
-       v_sspec(j)%eh3=-0.5d0
        v_sspec(j)%vmtz=-0.5d0
        v_sspec(j)%coreh=coreh(j)
        v_sspec(j)%nmcore=nmcore(j)
@@ -1230,12 +1229,11 @@ contains
        v_sspec(j)%rfoca=rfoca(j)
        v_sspec(j)%rg=rg(j)
        v_sspec(j)%rmt=rmt(j)
-       v_sspec(j)%rs3=rs3(j)
        v_sspec(j)%rsma=rsma(j)
        v_sspec(j)%rsmfa=rsmfa(j)
        v_sspec(j)%eref=eref(j)
-!!       
-       v_sspec(j)%ngcut=-9999 !2022-6-6
+       v_sspec(j)%eh3=-0.5d0
+       v_sspec(j)%rs3=0.5d0 !rs3(j)
     enddo
     allocate(v_ssite(nbas))
     do j=1,nbas

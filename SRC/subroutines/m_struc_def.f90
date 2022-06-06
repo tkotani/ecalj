@@ -78,7 +78,7 @@ module m_struc_def
      real(8)   ::   q(n0,2)  !starting q's (charges)
      integer   ::   idmod(n0) !see m_lmfinit.F
      real(8)   ::   exi(n0) !Hankel energies for fit to c.d.;  For free atoms, fit to free-atom density tails.
-     integer   ::   ngcut(n0,nkap0) !orbital-dependent G cutoffs (for nfp basis)
+!     integer   ::   ngcut(n0,nkap0) !orbital-dependent G cutoffs (for nfp basis)-->m_sugcut
      real(8)   ::   chfa(n0,2) ! coefficients to fit of free-atom density tails
      integer   ::   idu(4) !identifies l-channels with Hubbard U (LDA+U)
      real(8)   ::   uh(4) !Hubbard U

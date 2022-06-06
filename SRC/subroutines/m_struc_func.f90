@@ -99,9 +99,6 @@ contains
     i_data_size=size(struc%exi) ! exi(10)
     call mpi_bcast(struc%exi, i_data_size,MPI_REAL8 &
          , master, MPI_COMM_WORLD,ierr)
-    i_data_size=size(struc%ngcut) ! ngcut(30)
-    call mpi_bcast(struc%ngcut, i_data_size,MPI_INTEGER &
-         , master, MPI_COMM_WORLD,ierr)
     i_data_size=size(struc%chfa) ! chfa(20)
     call mpi_bcast(struc%chfa, i_data_size,MPI_REAL8 &
          , master, MPI_COMM_WORLD,ierr)
