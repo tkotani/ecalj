@@ -184,6 +184,7 @@ contains
     use m_bstrux,only: m_bstrux_init
     use m_elocp,only: elocp
     use m_locpot,only: Locpot
+    use m_smvxcm,only: smvxcm
     use m_ftox
     ! ote other output in module area
     ! for job=0

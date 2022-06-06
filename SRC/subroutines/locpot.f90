@@ -1,5 +1,7 @@
 module m_locpot
   use m_lgunit,only:stdo
+  use m_vxc,only: vxcnsp,vxcns5
+
   public locpot
   private
 contains
@@ -627,7 +629,7 @@ contains
     integer :: ipr,iprint,ll,i,isp,ilm,l,lxcfun,nglob,nrml, &
          isw,isw2
     double precision :: rhochs(nrmx*2),rhonsm(nrmx),df(0:20),cof(nlmx), &
-         rhocsm(nrmx),xi(0:40),tmp(2)
+         rhocsm(nrmx),xi(0:20,2),tmp(2),xil(0:20)
     double precision :: afoc,ag,b,cof0,fac,gnu,pi,qv1,qv2,qcor1,qcor2, &
          r,rep1(2),rep2(2),rep1x(2),rep2x(2),rep1c(2),rep2c(2), &
          rhves1,rhves2,rmu1(2),rmu2(2),rvs1,rvs2, &
@@ -637,7 +639,7 @@ contains
     double precision :: qs(2)
     real(8), allocatable :: fl(:,:,:)
     logical:: debug=.false.
-    real(8):: ves1int,ves2int
+    real(8):: ves1int,ves2int, w2(2)!dummy
     integer:: ifivesint
     !      logical:: novxc
     call tcn('locpt2')
@@ -681,9 +683,9 @@ contains
     do  i = 1, nr
        r = rofi(i)
        gnu = fac * r*r * dexp(-ag*ag*r*r)
-       call hansmr(r,ceh,afoc,xi,1)
+       call hansmr(r,ceh,afoc,xil,1)
        rhonsm(i) = -z*gnu
-       smrhoc = srfpi*cofh*xi(0)*r*r
+       smrhoc = srfpi*cofh*xil(0)*r*r
        rhocsm(i) = srfpi*cofg*gnu + smrhoc
        rhochs(i) = smrhoc
        sumh  = sumh + rwgt(i)*rhochs(i)
@@ -844,11 +846,11 @@ contains
     lxcfun = lxcf
     if(debug) print *,'locpt2: 55551111 isw2 lxcfun=',isw2,lxcfun
     if(debug) write(6,'(a)')' === rho1 valence true density ==='
-    call vxcnsp(isw2,a,rofi,nr,rwgt,nlml,nsp,rho1,lxcfun,0,0,0,0,0, &
+    call vxcnsp(isw2,a,rofi,nr,rwgt,nlml,nsp,rho1,lxcfun,w2,w2,w2,w2,w2, &
          rep1,rep1x,rep1c,rmu1,v1,fl,qs)
     if(debug) print *,'locpt2: 55551111aaaa'
     if(debug) write(6,'(a)')' === rho2 valence counter density ==='
-    call vxcnsp(isw2,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,0,0,0,0,0, &
+    call vxcnsp(isw2,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,w2,w2,w2,w2,w2, &
          rep2,rep2x,rep2c,rmu2,v1,fl,qs)
     rvvxcv = rmu1(1) - rmu2(1) + rmu1(2) - rmu2(2)
     rvepsv = rep1(1) - rep2(1) + rep1(2) - rep2(2)
@@ -867,14 +869,13 @@ contains
     call info0(30,0,0,' Exchange for true density:')
     if(debug) write(6,'(a)')' === rhol1 valence+core density ==='
     call vxcnsp(isw+isw2,a,rofi,nr,rwgt,nlml,nsp,rhol1,lxcfun, &
-         0,0,0,0,0,rep1,rep1x,rep1c,rmu1,v1,fl,qs)
+         w2,w2,w2,w2,w2,rep1,rep1x,rep1c,rmu1,v1,fl,qs)
     if (isw == 1) then
        call dpzero(tmp,2)
        call vxcns5(1,31,'rhov*vxc',nlml,nsp,nr,rofi,rwgt,rho1,fl,xi,tmp)
        rvvxc = tmp(1) + tmp(2)
        do  isp = 1, nsp
-          call vxcns5(1,31,'rhov*exc',nlml,1,nr,rofi,rwgt,rho1(1,1,isp), &
-               fl(1,1,3),xi,tmp(isp))
+          call vxcns5(1,31,'rhov*exc',nlml,1,nr,rofi,rwgt,rho1(1,1,isp), fl(1,1,3),xi,tmp(isp))
        enddo
        rveps = tmp(1) + tmp(2)
     endif
@@ -885,7 +886,7 @@ contains
     if(debug)write(6,'(a)')' === rho2 ->valence+smooth core density ==='
     if (lfoc == 0) then
        call vxcnsp(isw+isw2,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun, &
-            0,0,0,0,0,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
+            w2,w2,w2,w2,w2,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
        !     Otherwise v2 += vxc(rho2 + sm core), directly or perturbatively:
     else if (lfoc == 1) then
        if (ipr > 40) print *, 'exchange for smooth density, foca=1:'
@@ -894,7 +895,7 @@ contains
           rho2(1:nr,1,isp)=rho2(1:nr,1,isp) + y0/nsp*rhochs(1:nr)
        enddo
        call vxcnsp(isw+isw2,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun, &
-            0,0,0,0,0,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
+            w2,w2,w2,w2,w2,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
        do  isp = 1, nsp
           !          call dpadd(rho2(1,1,isp),rhochs,1,nr,-y0/nsp)
           rho2(1:nr,1,isp)=rho2(1:nr,1,isp)-y0/nsp*rhochs(1:nr)
@@ -920,8 +921,7 @@ contains
        call vxcns5(1,31,'rhov*vxc',nlml,nsp,nr,rofi,rwgt,rho2,fl,xi,tmp)
        rvvxc = rvvxc - (tmp(1) + tmp(2))
        do  isp = 1, nsp
-          call vxcns5(1,31,'rhov*exc',nlml,1,nr,rofi,rwgt,rho2(1,1,isp), &
-               fl(1,1,3),xi,tmp(isp))
+          call vxcns5(1,31,'rhov*exc',nlml,1,nr,rofi,rwgt,rho2(1,1,isp), fl(1,1,3),xi,tmp(isp))
        enddo
        rveps = rveps - (tmp(1) + tmp(2))
     endif
@@ -1141,5 +1141,262 @@ contains
 
   end subroutine elfigr
 
+subroutine htribk(nm,n,ar,ai,tau,m,zr,zi)
+
+  integer :: i,j,k,l,m,n,nm
+  double precision :: ar(nm,n),ai(nm,n),tau(2,n),zr(nm,m),zi(nm,m)
+  double precision :: h,s,si
+
+  !     this subroutine is a translation of a complex analogue of
+  !     the algol procedure trbak1, num. math. 11, 181-195(1968)
+  !     by martin, reinsch, and wilkinson.
+  !     handbook for auto. comp., vol.ii-linear algebra, 212-226(1971).
+
+  !     this subroutine forms the eigenvectors of a complex hermitian
+  !     matrix by back transforming those of the corresponding
+  !     real symmetric tridiagonal matrix determined by  htridi.
+
+  !     on input
+
+  !        nm must be set to the row dimension of two-dimensional
+  !          array parameters as declared in the calling program
+  !          dimension statement.
+
+  !        n is the order of the matrix.
+
+  !        ar and ai contain information about the unitary trans-
+  !          formations used in the reduction by  htridi  in their
+  !          full lower triangles except for the diagonal of ar.
+
+  !        tau contains further information about the transformations.
+
+  !        m is the number of eigenvectors to be back transformed.
+
+  !        zr contains the eigenvectors to be back transformed
+  !          in its first m columns.
+
+  !     on output
+
+  !        zr and zi contain the real and imaginary parts,
+  !          respectively, of the transformed eigenvectors
+  !          in their first m columns.
+
+  !     note that the last component of each returned vector
+  !     is real and that vector euclidean norms are preserved.
+
+  !     questions and comments should be directed to burton s. garbow,
+  !     mathematics and computer science div, argonne national laboratory
+
+  !     this version dated august 1983.
+  !     Aug 1990 MvS altered into daxpy-style loops
+  !     ------------------------------------------------------------------
+
+  if (m == 0) return
+  !     .......... transform the eigenvectors of the real symmetric
+  !                tridiagonal matrix to those of the hermitian
+  !                tridiagonal matrix. ..........
+  do  k = 1, n
+     do j = 1, m
+        zi(k,j) = -zr(k,j) * tau(2,k)
+        zr(k,j) = zr(k,j) * tau(1,k)
+     enddo
+  enddo
+
+  if (n == 1) return
+  !     .......... recover and apply the householder matrices ..........
+  do  140  i = 2, n
+     l = i - 1
+     h = ai(i,i)
+     if (h == 0.0d0) go to 140
+     !        do 100 j = 1, m
+     !          tau(1,j) = 0.0d0
+     !          tau(2,j) = 0.0d0
+     !     100   continue
+     tau=0d0
+     do  110  k = 1, l
+        !          call yyaxpy(m,ar(i,k),ai(i,k),zr(k,1),zi(k,1),nm,
+        !     .          tau,tau(2,1),2,.true.)
+        tau(1,:)= ar(i,k)*zr(k,:) - ai(i,k)*zi(k,:) + tau(1,:)
+        tau(2,:)= ar(i,k)*zi(k,:) + ai(i,k)*zr(k,:) + tau(2,:)
+110  enddo
+     !     ... double divisions avoid possible underflow ...
+     tau=tau/h**2
+     !        call dscal(m,1/h,tau,2)
+     !        call dscal(m,1/h,tau,2)
+     !        call dscal(m,1/h,tau(2,1),2)
+     !        call dscal(m,1/h,tau(2,1),2)
+     do  120  j = 1, m
+        !          call yyxcpy(l,-tau(1,j),-tau(2,j),ar(i,1),ai(i,1),nm,
+        !     .    zr(1,j),zi(1,j),1,.true.)
+        zr(:,j)= -tau(1,j)*ar(i,:) + tau(2,j)*ai(i,:) + zr(:,j)
+        zi(:,j)= +tau(1,j)*ai(i,:) - tau(2,j)*ar(i,:) + zi(:,j)
+120  enddo
+140 enddo
+end subroutine htribk
+
+subroutine htridi(nm,n,ar,ai,d,e,e2,tau)
+
+  !     implicit none
+  integer :: i,j,k,l,n,nm
+  double precision :: ar(nm,n),ai(nm,n),d(n),e(n),e2(n),tau(2,n)
+  double precision :: f,g,h,fi,gi,hh,si,scale,pythag
+
+  !     this subroutine is a translation of a complex analogue of
+  !     the algol procedure tred1, num. math. 11, 181-195(1968)
+  !     by martin, reinsch, and wilkinson.
+  !     handbook for auto. comp., vol.ii-linear algebra, 212-226(1971).
+
+  !     this subroutine reduces a complex hermitian matrix
+  !     to a real symmetric tridiagonal matrix using
+  !     unitary similarity transformations.
+
+  !     on input
+
+  !        nm must be set to the row dimension of two-dimensional
+  !          array parameters as declared in the calling program
+  !          dimension statement.
+
+  !        n is the order of the matrix.
+
+  !        ar and ai contain the real and imaginary parts,
+  !          respectively, of the complex hermitian input matrix.
+  !          only the lower triangle of the matrix need be supplied.
+
+  !     on output
+
+  !        ar and ai contain information about the unitary trans-
+  !          formations used in the reduction in their full lower
+  !          triangles.  their strict upper triangles and the
+  !          diagonal of ar are unaltered.
+
+  !        d contains the diagonal elements of the the tridiagonal matrix.
+
+  !        e contains the subdiagonal elements of the tridiagonal
+  !          matrix in its last n-1 positions.  e(1) is set to zero.
+
+  !        e2 contains the squares of the corresponding elements of e.
+  !          e2 may coincide with e if the squares are not needed.
+
+  !        tau contains further information about the transformations.
+
+  !     calls pythag for  dsqrt(a*a + b*b) .
+
+  !     questions and comments should be directed to burton s. garbow,
+  !     mathematics and computer science div, argonne national laboratory
+
+  !     this version dated august 1983.
+
+  !     ------------------------------------------------------------------
+
+  tau(1,n) = 1.0d0
+  tau(2,n) = 0.0d0
+
+  do   i = 1, n
+     d(i) = ar(i,i)
+  enddo
+  do  300  i = n, 1, -1
+     l = i - 1
+     h = 0.0d0
+     scale = 0.0d0
+     if (l < 1) go to 130
+     !     .......... scale row (algol tol then not needed) ..........
+     do   k = 1, l
+        scale = scale + dabs(ar(i,k)) + dabs(ai(i,k))
+     enddo
+
+     if (scale /= 0.0d0) go to 140
+     tau(1,l) = 1.0d0
+     tau(2,l) = 0.0d0
+130  continue
+     e(i) = 0.0d0
+     e2(i) = 0.0d0
+     go to 290
+
+140  continue
+     do 150  k = 1, l
+        ar(i,k) = ar(i,k) / scale
+        ai(i,k) = ai(i,k) / scale
+        h = h + ar(i,k) * ar(i,k) + ai(i,k) * ai(i,k)
+150  enddo
+
+     e2(i) = scale * scale * h
+     g = dsqrt(h)
+     e(i) = scale * g
+     f = pythag(ar(i,l),ai(i,l))
+     !     .......... form next diagonal element of matrix t ..........
+     if (f == 0.0d0) go to 160
+     tau(1,l) = (ai(i,l) * tau(2,i) - ar(i,l) * tau(1,i)) / f
+     si = (ar(i,l) * tau(2,i) + ai(i,l) * tau(1,i)) / f
+     h = h + f * g
+     g = 1.0d0 + g / f
+     ar(i,l) = g * ar(i,l)
+     ai(i,l) = g * ai(i,l)
+     if (l == 1) go to 270
+     go to 170
+160  continue
+     tau(1,l) = -tau(1,i)
+     si = tau(2,i)
+     ar(i,l) = g
+170  continue
+     f = 0.0d0
+     g = tau(1,l)
+     ! ... use tau1,1:l) and tau(2,1:l) as work array ...
+     !        do  180  j = 1, l
+     !          tau(1,j) = 0
+     !          tau(2,j) = 0
+     !     180   continue
+     tau = 0d0
+     do  220  k = 1, l
+        !          call yyxcpy(k-1,ar(i,k),-ai(i,k),ar(k,1),ai(k,1),nm,
+        !     .          tau,tau(2,1),2,.true.)
+        !          call yyaxpy(l-k+1,ar(i,k),-ai(i,k),ar(k,k),ai(k,k),1,
+        !     .         tau(1,k),tau(2,k),2,.true.)
+        tau(1,1:k-1) =  ar(i,k)*ar(k,1:k-1) + ai(i,k)*ai(k,1:k-1) + tau(1,1:k-1)
+        tau(2,1:k-1) = -ar(i,k)*ai(k,1:k-1) - ai(i,k)*ar(k,1:k-1) + tau(2,1:k-1)
+        tau(1,k:l)   =  ar(i,k)*ar(k,k:l)   + ai(i,k)*ai(k,k:l)   + tau(1,k:l)
+        tau(2,k:l)   =  ar(i,k)*ai(k,k:l)   - ai(i,k)*ar(k,k:l)   + tau(2,k:l)
+220  enddo
+     !        call dcopy(l,tau,2,e,1)
+     e(1:l) = tau(1,1:l)
+     tau(1,l) = g
+     do  240  j = 1, l
+        e(j) = e(j)/h
+        tau(2,j) = tau(2,j)/h
+        f = f + e(j) * ar(i,j) - tau(2,j) * ai(i,j)
+240  enddo
+     hh = f / (h + h)
+     !     .......... form reduced a ..........
+     do  261  j = 1, l
+        f = ar(i,j)
+        g = e(j) - hh * f
+        e(j) = g
+        fi = -ai(i,j)
+        gi = tau(2,j) - hh * fi
+        tau(2,j) = -gi
+
+        do  260  k = 1, j
+           ar(j,k) = ar(j,k) - f * e(k) - g * ar(i,k) &
+                + fi * tau(2,k) + gi * ai(i,k)
+           ai(j,k) = ai(j,k) - f * tau(2,k) - g * ai(i,k) &
+                - fi * e(k) - gi * ar(i,k)
+260     enddo
+261  enddo
+
+270  continue
+     do  280  k = 1, l
+        ar(i,k) = scale * ar(i,k)
+        ai(i,k) = scale * ai(i,k)
+280  enddo
+
+     tau(2,l) = -si
+290  continue
+     hh = d(i)
+     d(i) = ar(i,i)
+     ar(i,i) = hh
+     ai(i,i) = scale * dsqrt(h)
+300 enddo
+
+  return
+end subroutine htridi
 
 end module m_locpot

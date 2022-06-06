@@ -4,6 +4,7 @@ subroutine hambl(isp,qin, smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi, h, s) !, h
   use m_supot,only: k1,k2,k3
   use m_struc_def,only: s_rv1,s_cv1
   use m_lattic,only:plat=>lat_plat,qlat=>lat_qlat
+  use m_hsibl,only:hsibl
   !- Make the LDA hamiltonian and overlap for one k-point.
   !     ----------------------------------------------------------------------
   ! ohsozz,ohsopm are for Lz and for L+,L-

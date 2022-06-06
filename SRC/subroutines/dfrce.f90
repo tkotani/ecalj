@@ -518,6 +518,7 @@ end subroutine pvdf1
 
 subroutine pvdf2(nbas,nsp,ssite,sspec,n1,n2,n3,k1,k2,k3, smrho,vxcp,vxcm,wk1,wk2,wk3,dvxc)
   use m_struc_def
+  use m_smvxcm,only: smvxcm
   !- Makes derivative of smoothed xc potential wrt density.
   implicit none
   ! ... Passed parameters
@@ -532,7 +533,7 @@ subroutine pvdf2(nbas,nsp,ssite,sspec,n1,n2,n3,k1,k2,k3, smrho,vxcp,vxcm,wk1,wk2
   integer :: i1,i2,i3,i,nn
   double precision :: fac,dmach,f1,f2,f,alfa,dfdr,rrho,dvdr, &
        rmusm(2),rvmusm(2),rvepsm(2),repsm(2),repsmx(2),repsmc(2), &
-       fcexc0(2),fcex0(2),fcec0(2),fcvxc0(2)
+       fcexc0(2),fcex0(2),fcec0(2),fcvxc0(2),ff(1,1)
   fac = dmach(1)**(1d0/3d0)
   alfa = 2d0/3d0
   nn = k1*k2*k3
@@ -559,7 +560,7 @@ subroutine pvdf2(nbas,nsp,ssite,sspec,n1,n2,n3,k1,k2,k3, smrho,vxcp,vxcm,wk1,wk2
   call dpzero(wk3, nn*2)
   call smvxcm(ssite,sspec,nbas,0,k1,k2,k3,smrho, &
   vxcp,dvxc,wk1,wk2,wk3,repsm,repsmx,repsmc,rmusm, &
-       rvmusm,rvepsm,fcexc0,fcex0,fcec0,fcvxc0,f)
+       rvmusm,rvepsm,fcexc0,fcex0,fcec0,fcvxc0,ff)
   ! ... Replace fac*rho with -fac*rho
   if (nsp == 1) then
      call dpcopy(smrho,smrho,1,nn*2,(1d0-fac)/(1d0+fac))
@@ -578,7 +579,7 @@ subroutine pvdf2(nbas,nsp,ssite,sspec,n1,n2,n3,k1,k2,k3, smrho,vxcp,vxcm,wk1,wk2
   call dpzero(vxcm, nn*2*nsp)
   call smvxcm(ssite,sspec,nbas,0,k1,k2,k3,smrho,&
   vxcm,dvxc,wk1,wk2,wk3,repsm,repsmx,repsmc,rmusm, &
-       rvmusm,rvepsm,fcexc0,fcex0,fcec0,fcvxc0,f)
+       rvmusm,rvepsm,fcexc0,fcex0,fcec0,fcvxc0,ff)
   ! ... Restore rho+, rho-
   if (nsp == 1) then
      call dpcopy(smrho,smrho,1,nn*2,1/(1d0-fac))
@@ -615,7 +616,7 @@ subroutine pvdf2(nbas,nsp,ssite,sspec,n1,n2,n3,k1,k2,k3, smrho,vxcp,vxcm,wk1,wk2
   call dpzero(vxcm, nn*2*nsp)
   call smvxcm(ssite,sspec,nbas,0,k1,k2,k3,smrho,&
        vxcm,dvxc,wk1,wk2,wk3,repsm,repsmx,repsmc,rmusm, &
-       rvmusm,rvepsm,fcexc0,fcex0,fcec0,fcvxc0,f)
+       rvmusm,rvepsm,fcexc0,fcex0,fcec0,fcvxc0,ff)
   ! ... dvxc/drho into dvxc
   do  i = 1, nsp
      do i3=1,n3

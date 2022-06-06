@@ -1,4 +1,7 @@
-! define SGI 1
+module m_hsibl
+  public hsibl,hsibl1
+  private
+contains
 subroutine hsibl(ssite,sspec,k1,k2,k3,vsm,isp,q,ndimh,iprmb,napw,igapw,h)
   use m_struc_def
   use m_lmfinit,only: lat_alat,nspec,nbas
@@ -743,7 +746,7 @@ subroutine hsibl6(ndimh,nlmto,norb1,blks1,offl1,ng,igv,napw,igapw,c1,cf1,h)
   integer :: offl1(*),blks1(*)
   double complex h(ndimh,ndimh),c1(ng,nlmto),cf1(nlmto)
   ! ... Local parameters
-  integer :: ig,i2,i2x,ifindiv,ofw1,io1,norb1,ofh1,nlm1,i1
+  integer :: ig,i2,i2x,ofw1,io1,norb1,ofh1,nlm1,i1
 
   do  ig = 1, napw
      i2  = nlmto+ig
@@ -788,29 +791,4 @@ integer function ifindiv(igapw,igv,ng)
   call rx('ifindiv: igapw not found in igv')
 end function ifindiv
 
-integer function ifindiv2(igapw,igv2,ng)
-  !- Find index in igv2 that corresponds to igapw
-  ! ----------------------------------------------------------------------
-  !i   igapw :vector of APWs, in units of reciprocal lattice vectors
-  !i   igv2   :List of G vectors
-  !i   ng    :number of group operations
-  !o Outputs
-  !o   ifindiv2:index to igv2 that matches igapw
-  !u Updates
-  !u   19 Jan 09 Original cleaned up, made more efficient
-  ! ----------------------------------------------------------------------
-  implicit none
-  integer :: ng,igapw(3),igv2(3,ng)
-  integer :: ig
-  ifindiv2=-999999
-  do  ig = 1, ng
-     if (igapw(1) /= igv2(1,ig)) cycle
-     if (igapw(2) /= igv2(2,ig)) cycle
-     if (igapw(3) /= igv2(3,ig)) cycle
-     ifindiv2 = ig
-     return
-  enddo
-  call rx('ifindiv2: igapw not found in igv')
-end function ifindiv2
-
-
+end module m_hsibl

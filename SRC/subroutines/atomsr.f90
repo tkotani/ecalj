@@ -233,6 +233,7 @@ subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, &
   !b   Total energy terms need to be cleaned up and simplified.
   ! ----------------------------------------------------------------
   use m_ftox
+  use m_vxc,only: vxc0sp
   implicit none
   logical :: lfrz,lgdd
   character job*3
@@ -372,7 +373,7 @@ subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, &
      call addzbk(rofi,nr,nsp,rhoin,rhozbk,1d0)
      vnucl = v(1,1)  
      if (last .AND. iprint() >= 50) call pshpr(80)
-     call vxc0sp(a,b,rofi,rhoin,nr,v,rho0,reps,rmu,nsp,exrmax)! Exchange-correlation potential
+     call vxc0sp(a,b,rofi,rhoin,nr,v,rho0,reps,rmu,nsp,exrmax(1))! Exchange-correlation potential
      if (last .AND. iprint() >= 50) call poppr
      fac = 4*pi*rofi(nr,1)**2
      rhrmx = rhoin(nr,1)/fac

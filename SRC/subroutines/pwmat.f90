@@ -547,3 +547,28 @@ subroutine matgg2(alat,bas,rmax,nbas,vol,tpibaqlat,igv,ppovl)
 end subroutine matgg2
 
 
+integer function ifindiv2(igapw,igv2,ng)
+  !- Find index in igv2 that corresponds to igapw
+  ! ----------------------------------------------------------------------
+  !i   igapw :vector of APWs, in units of reciprocal lattice vectors
+  !i   igv2   :List of G vectors
+  !i   ng    :number of group operations
+  !o Outputs
+  !o   ifindiv2:index to igv2 that matches igapw
+  !u Updates
+  !u   19 Jan 09 Original cleaned up, made more efficient
+  ! ----------------------------------------------------------------------
+  implicit none
+  integer :: ng,igapw(3),igv2(3,ng)
+  integer :: ig
+  ifindiv2=-999999
+  do  ig = 1, ng
+     if (igapw(1) /= igv2(1,ig)) cycle
+     if (igapw(2) /= igv2(2,ig)) cycle
+     if (igapw(3) /= igv2(3,ig)) cycle
+     ifindiv2 = ig
+     return
+  enddo
+  call rx('ifindiv2: igapw not found in igv')
+end function ifindiv2
+

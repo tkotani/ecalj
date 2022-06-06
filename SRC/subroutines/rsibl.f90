@@ -1,4 +1,5 @@
 module  m_rsibl
+  use m_hsibl,only: hsibl,hsibl1
   public rsibl,rsibl_ev
   private
   contains
@@ -6,14 +7,9 @@ subroutine rsibl(ssite,sspec,lfrce,nbas,isp,q,iq,ndimh,nspc,&
   napw,igapw,iprmb,nevec,evec,ewgt,k1,k2,k3,smpot,smrho,f)
   use m_struc_def  !Cgetarg
   use m_lmfinit,only: lat_alat,nspec
-  use m_lattic,only: lat_qlat
-  use m_lattic,only: lat_vol
-  use m_supot,only: lat_nabc
-  use m_supot,only: lat_ng
-  use m_supot,only: lat_gmax
+  use m_lattic,only: lat_qlat, lat_vol,lat_plat
+  use m_supot,only: lat_nabc, lat_ng, lat_gmax
   use m_uspecb,only:uspecb
-  use m_lattic,only:lat_plat
-
   !- Add smooth part of output density into smrho and forces.
   ! ----------------------------------------------------------------------
   !i Inputs

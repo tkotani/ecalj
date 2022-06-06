@@ -1,3 +1,6 @@
+module m_smvxcm
+  public smvxcm
+  contains
 subroutine smvxcm(ssite,sspec,nbas,lfrce,k1,k2,k3,smrho,&
   smpot,smvxc,smvx,smvc,smexc,repsm,repsmx,repsmc,rmusm,rvmusm, &
        rvepsm,focexc,focex,focec,focvxc,f)
@@ -8,8 +11,8 @@ subroutine smvxcm(ssite,sspec,nbas,lfrce,k1,k2,k3,smrho,&
   use m_supot,only: lat_nabc
   use m_supot,only: lat_ng
   use m_lgunit,only:stdo
-
-
+  use m_vxcnlm,only: vxcnlm
+  use m_vxcfunc,only: evxcp,evxcv
   !- XC potential for smooth mesh density
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -284,6 +287,9 @@ subroutine smvxc2(mode,nsp,lxcfun,vol,n1,n2,n3,k1,k2,k3,smrho, &
      smvxc,smvx,smvc,smexc,       rhoeps,rhoex,rhoec,rhomu,vxcavg)
   use m_ftox
   use m_lgunit,only:stdo
+  use m_vxcnlm,only:vxcnlm
+  use m_vxcfunc,only: evxcv,evxcp,vxcgga
+  
   !      use m_struc_def, only: s_lat
   !! Not documented well yet.
   !!= Makes smooth part of xc potential smvxc and optionally dsmvxc/drho =
@@ -715,3 +721,4 @@ subroutine smvxc4(nbas,nsp,ssite,sspec,alat,vol,cy,ng,gv,cvxc,f)
 
 end subroutine smvxc4
 
+end module m_smvxcm

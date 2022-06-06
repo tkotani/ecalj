@@ -240,6 +240,7 @@ contains
        lock,z,rmt)
     use m_lmfinit,only: nsp
     use m_freeat,only:freats
+    use m_vxcfunc,only:evxcv
     !- Estimate muffin-tin radii overlapping atomic potentials
     ! ----------------------------------------------------------------------
     !i Inputs
