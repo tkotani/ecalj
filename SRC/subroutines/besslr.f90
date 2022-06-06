@@ -269,7 +269,6 @@ subroutine besslr(y,loka,lmin,lmax,fi,gi)
         gi(l) = gi(l)*exppr
 66   enddo
   endif
-
   ! --- Scaling to Andersen's 2nd generation LMTO conventions ---
 100 continue
   if (loka == 1) then
@@ -278,8 +277,8 @@ subroutine besslr(y,loka,lmin,lmax,fi,gi)
         gi(l) = gi(l)/fac2l(l)
 68   enddo
   endif
-
 end subroutine besslr
+
 subroutine bessl2(y,lmin,lmax,fi,gi)
   !- Radial part of Bessel functions, Andersen's definitions
   !  See besslr for definitions.
@@ -288,20 +287,9 @@ subroutine bessl2(y,lmin,lmax,fi,gi)
   ! Passed variables:
   integer :: lmin,lmax
   double precision :: y,fi(lmin:lmax),gi(lmin:lmax)
-
   call besslr(y,1,lmin,lmax,fi,gi)
 end subroutine bessl2
-subroutine besslm(y,lmax,fi,gi)
-  !- Radial part of Bessel functions, standard definitions
-  !  See besslr for definitions.
-  !  For y=0, fi(l) = (2l-1)!!, gi(l) = 1/(2l+1)!!
-  !     implicit none
-  ! Passed variables:
-  integer :: lmax
-  double precision :: y,fi(0:lmax),gi(0:lmax)
 
-  call besslr(y,0,0,lmax,fi,gi)
-end subroutine besslm
 subroutine bessl(y,lmax,fi,gi)
   !- Radial part of Bessel functions, standard definitions
   !  See besslr for definitions.
@@ -310,9 +298,22 @@ subroutine bessl(y,lmax,fi,gi)
   ! Passed variables:
   integer :: lmax
   double precision :: y,fi(0:lmax),gi(0:lmax)
-
   call besslr(y,0,0,lmax,fi,gi)
 end subroutine bessl
+
+! subroutine besslm(y,lmax,fi,gi)
+!   !- Radial part of Bessel functions, standard definitions
+!   !  See besslr for definitions.
+!   !  For y=0, fi(l) = (2l-1)!!, gi(l) = 1/(2l+1)!!
+!   !     implicit none
+!   ! Passed variables:
+!   integer :: lmax
+!   double precision :: y,fi(0:lmax),gi(0:lmax)
+
+!   call besslr(y,0,0,lmax,fi,gi)
+! end subroutine besslm
+
+
 !      subroutine fmain
 !      implicit none
 !      integer lmin,lmax,il

@@ -45,19 +45,6 @@ subroutine slinz(volwgt,ec,emin,emax,dosi,nr)
      go to 26
   endif
   de = (emax-emin)/(nr-1)
-  !      i01 = (e1-emin)/de + 1.9999999d0
-  !      i02 = (e2-emin)/de + 1.9999999d0
-  !      i03 = (e3-emin)/de + 1.9999999d0
-  !      i04 = (e4-emin)/de + 1.9999999d0
-
-  !      print *,'slinz',max(i01,1), int(mxmin(e1-emin)),
-  !     .                max(i01,1)-int(mxmin(e1-emin))
-  !      print *,'slinz',max(i02,1), int(mxmin(e2-emin)),
-  !     .                max(i02,1)-int(mxmin(e2-emin))
-  !      print *,'slinz',max(i03,1), int(mxmin(e3-emin)),
-  !     .                max(i03,1)-int(mxmin(e3-emin))
-  !      print *,'slinz',max(i04,1), int(mxmin(e4-emin)),
-  !     .                max(i04,1)-int(mxmin(e4-emin))
   i01 = mxmin(e1-emin)
   i02 = mxmin(e2-emin)
   i03 = mxmin(e3-emin)

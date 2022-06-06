@@ -52,7 +52,7 @@ contains
          ham_scaledsigma, &
          alat=>lat_alat,stdo,stdl,procid,master, &! & bz_doswin,
     nkaph,nlmax,nl,nbas,nsp, ham_frzwf, bz_dosmax, &
-         lekkl,lmaxu,nlibu,lldau,sspec=>v_sspec, lpztail,leks,lrout &
+         lekkl,lmaxu,nlibu,lldau,lpztail,leks,lrout &
          ,  nchan=>pot_nlma, nvl=>pot_nlml,nspc
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
     use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
@@ -79,6 +79,8 @@ contains
     use m_sugw,only: M_sugw_init
     use m_mkehkf,only: M_mkehkf_etot1,M_mkehkf_etot2
     use m_gennlat_sig,only: M_gennlat_init_sig
+    use m_dfrce,only: dfrce
+    use m_sugcut,only:sugcut
     !i   nbas  : size of basis
     !i   nsp   : number of spins
     !i   nlibu : total number of LDA+U blocks (used to dimension dmatu and vorb)
@@ -183,7 +185,10 @@ contains
     call m_subzi_init(lrout>0)
     !   Hankel's e of local orbital of PZ>10 (hankel tail mode) is changing.
     !   lpztail: if T, local orbital of 2nd type(hankel tail).
-    if(lpztail) call sugcut(2, sspec)
+    if(lpztail) then
+       write(6,*) 'sugcut xxxxxxx '
+       call sugcut(2)
+    endif
     if(cmdopt0('--cls')) then !clsmode
        call rxx(lso==1,'CLS not implemented in noncoll case')
        if (lrout == 0) call rx('bndfp: need output density for cls')

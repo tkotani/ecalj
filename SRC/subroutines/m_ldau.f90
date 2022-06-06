@@ -234,6 +234,7 @@ contains
     use m_MPItk,only: master_mpi
     use m_mksym,only: g=>rv_a_osymgr,istab=>iv_a_oistab, ng =>lat_nsgrp
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
+    use m_ldauu,only: ldau
     implicit none
     intent(in)::       eks,       dmatuo
     intent(out)::                        vorb
@@ -467,6 +468,7 @@ contains
     !u   09 Nov 05 (wrl) Convert dmat to complex form
     !u   27 Apr 05 Lambrecht first created
     !-------------------------------------------------------------------
+    use m_ldauu,only: ldau
     implicit none
     integer:: idvsh=0,i_copy_size !nbas,nsp,nlibu,lmaxu,
     double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)

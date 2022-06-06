@@ -21,6 +21,7 @@ program lmf
   use m_gennlat,only:  M_gennlat_init
   use m_mksym,only:    M_mksym_init
   use m_lgunit,only:   M_lgunit_init, stdo,stdl
+  use m_sugcut,only:sugcut
   implicit none
   integer:: k, iarg,jobgw,iprint,nit1,ifi,ifile_handle,nx,ny,nk1,nk2,nk3,i,j,ix
   logical:: fileexist,cmdopt0,cmdopt2, writeham,lbin,sigx

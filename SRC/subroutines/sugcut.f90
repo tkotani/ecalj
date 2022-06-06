@@ -1,4 +1,9 @@
-subroutine sugcut(mode) !,sspec)
+module m_sugcut
+  public sugcut
+  integer,allocatable,protected,public :: ngcut(:,:,:)
+  private
+contains  
+subroutine sugcut(mode) 
   use m_lmfinit,only: nspec,alat=>lat_alat,tol=>lat_tolft,n0,nkap0,nkaphh,lhh,nkapii,sspec=>v_sspec
   use m_supot,only: gv=>rv_a_ogv,ng=>lat_ng
   use m_uspecb,only:uspecb
@@ -18,13 +23,13 @@ subroutine sugcut(mode) !,sspec)
   !u    9 May 00 Adapted from nfp su_gvcut.f
   ! ----------------------------------------------------------------------
   implicit none
-  integer:: mode, ngcut(n0,nkap0),lh(nkap0)
+  integer:: mode,lh(nkap0) !, ngcut(n0,nkap0)
   integer:: ipr,iprint,is,irep,icut,i,ik,l,lcut,nkapi,nkap1,nkap2
   real(8):: rsmh(n0,nkap0),eh(n0,nkap0),tpi,tpiba2,gg0,gg,e,rsm,gam,gmax,top
   character(8) :: spid
   character(1) :: ccc,ccl
   if (ng == 0) return
-  !      stdo = lgunit(1)
+  if(mode==1) allocate(ngcut(n0,nkap0,nspec) )
   ipr = iprint()
   tpi = 8d0*datan(1d0)
   tpiba2 = (tpi/alat)**2
@@ -36,6 +41,7 @@ subroutine sugcut(mode) !,sspec)
 888  format(/' sugcut:  orbital-dependent cutoffs for local',' orbitals, tol=',1p,e9.2)
   endif
   gg = -1
+  if(mode==1) ngcut=0
   do  is = 1, nspec
      spid = sspec(is)%name
      nkap1 = 1
@@ -47,8 +53,7 @@ subroutine sugcut(mode) !,sspec)
      else
         nkap2 = nkapi
      endif
-     ngcut=0
-     if(mode==2 ) ngcut=sspec(is)%ngcut
+!     if(mode==2 ) ngcut=sspec(is)%ngcut
      gg0 = gg
      do  ik = nkap1, nkap2
         lcut = -1
@@ -86,11 +91,12 @@ subroutine sugcut(mode) !,sspec)
               if (ipr >= 20) write(stdo,773) spid,l,ccl,rsm,e,gmax,top,icut,ccc
 773           format(2x,a,i2,a1,f7.2,f7.2,f8.3,1p,e12.2,0p,i8,a)
 774           format(' spec      l    rsm',4x,'eh',5x,'gmax',4x,'last term',4x,'cutoff')
-              ngcut(l+1,ik) = icut
+              ngcut(l+1,ik,is) = icut
            endif
         enddo
      enddo
-     sspec(is)%ngcut=ngcut
+!     sspec(is)%ngcut=ngcut
   enddo
 end subroutine sugcut
 
+end module m_sugcut

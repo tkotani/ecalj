@@ -197,6 +197,7 @@ subroutine rsibl1(mode,ssite,sspec,q,nbas,iprmb,ng,gq,iv,n1,n2,n3, &
   use m_uspecb,only:uspecb
   use m_struc_def  !Cgetarg
   use m_orbl,only: Orblib,ktab,ltab,offl,norb
+  use m_sugcut,only:ngcut
   !- Make wave function for a block of evecs, or add contr. to forces
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -270,9 +271,9 @@ subroutine rsibl1(mode,ssite,sspec,q,nbas,iprmb,ng,gq,iv,n1,n2,n3, &
      call dcopy(i_copy_size,ssite(ib)%pos,1,p,1)
 
 
-     i_copy_size=size(sspec(is)%ngcut)
-     call icopy(i_copy_size,sspec(is)%ngcut,1,ncut,1)
-
+!     i_copy_size=size(sspec(is)%ngcut)
+!     call icopy(i_copy_size,sspec(is)%ngcut,1,ncut,1)
+     ncut=ngcut(:,:,is)
      call suphas(q,p,ng,iv,n1,n2,n3,qlat,cosgp,singp)
      !       List of orbitals, their l- and k- indices, and ham offsets
      call orblib(ib) !,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)

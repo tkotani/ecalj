@@ -233,7 +233,7 @@ subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, &
   !b   Total energy terms need to be cleaned up and simplified.
   ! ----------------------------------------------------------------
   use m_ftox
-  use m_vxc,only: vxc0sp
+  use m_vxcatom,only: vxc0sp
   implicit none
   logical :: lfrz,lgdd
   character job*3

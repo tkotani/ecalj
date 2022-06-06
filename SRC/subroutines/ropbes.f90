@@ -1,3 +1,7 @@
+module m_ropbes
+  public ropbes
+  private
+  contains
 ! ----------------------------------------------------------------
 !   spherical Bessel function at x=r(i)*sqrt(e) divided by x**l
 
@@ -227,39 +231,40 @@ SUBROUTINE beschb(x,gam1,gam2,gampl,gammi)
   INTEGER :: NUSE1,NUSE2
   DOUBLE PRECISION :: gam1,gam2,gammi,gampl,x
   PARAMETER (NUSE1=5,NUSE2=5)
-  !U    USES chebev
-  REAL :: xx,c1(7),c2(8),chebev
+  REAL(8) :: xx,c1(7),c2(8)
   SAVE c1,c2
   DATA c1/-1.142022680371172d0,6.516511267076d-3,3.08709017308d-4, &
        -3.470626964d-6,6.943764d-9,3.6780d-11,-1.36d-13/
   DATA c2/1.843740587300906d0,-.076852840844786d0,1.271927136655d-3, &
        -4.971736704d-6,-3.3126120d-8,2.42310d-10,-1.70d-13,-1.d-15/
   xx=8.d0*x*x-1.d0
-  gam1=chebev(-1.,1.,c1,NUSE1,xx)
-  gam2=chebev(-1.,1.,c2,NUSE2,xx)
+  gam1=chebev(-1d0,1d0,c1,NUSE1,xx)
+  gam2=chebev(-1d0,1d0,c2,NUSE2,xx)
   gampl=gam2-x*gam1
   gammi=gam2+x*gam1
   return
 end SUBROUTINE beschb
 !  (C) Copr. 1986-92 Numerical Recipes Software v%1jw#<0(9p#3.
-FUNCTION chebev(a,b,c,m,x)
+real(8) FUNCTION chebev(a,b,c,m,x)
   INTEGER :: m
-  REAL :: chebev,a,b,x,c(m)
+  REAL(8) :: a,b,x,c(m)
   INTEGER :: j
-  REAL :: d,dd,sv,y,y2
-  if ((x-a)*(x-b) > 0.)then
+  REAL(8) :: d,dd,sv,y,y2 !real(8) 2022-6-6
+  if ((x-a)*(x-b) > 0d0)then
      write(*,*) 'x not in range in chebev'
      stop
   endif
-  d=0.
-  dd=0.
-  y=(2.*x-a-b)/(b-a)
-  y2=2.*y
+  d=0d0
+  dd=0d0
+  y=(2d0*x-a-b)/(b-a)
+  y2=2d0*y
   do 11 j=m,2,-1
      sv=d
      d=y2*d-dd+c(j)
      dd=sv
 11 enddo
-  chebev=y*d-dd+0.5*c(1)
+  chebev=y*d-dd+.5d0*c(1)
   return
 end FUNCTION chebev
+
+end module m_ropbes

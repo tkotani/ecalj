@@ -1,4 +1,4 @@
-module m_vxc
+module m_vxcatom
   public vxcnsp,vxc0sp,vxcns5
   private
   contains
@@ -6,7 +6,7 @@ subroutine vxcnsp(isw,a,ri,nr,rwgt,nlm,nsp,rl,lxcfun,rc, &
      focexc,focex,focec,focvxc,reps,repsx,repsc,rmu,vl,fl,qs)
   use m_lgunit,only:stdo
   use m_ropyln,only: ropyln
-  use m_vxcfunc,only: vxcgga
+!  use m_vxcfunc,only: vxcgga
   !- Add vxc to potential in sphere and make integrals rho*vxc,rho*exc
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -146,7 +146,7 @@ subroutine vxcnsp(isw,a,ri,nr,rwgt,nlm,nsp,rl,lxcfun,rc, &
      !        allocate(rp(nr,np,nsp))
      !        allocate(agrl(nr*nlm*nsp))!,vxcnl(nr*nlm*nsp),excnl(nr*nlm*nsp))
      if(debug) print *,'goto vxcnls'
-     call vxcnls(a,ri,0,nr,np,nlm,nsp, yl,gyl,rwgt,wp,rl,lxcg, vlxc,reps,rmu)
+     call vxcnls(a,ri,nr,np,nlm,nsp, yl,gyl,rwgt,wp,rl,lxcg, vlxc,reps,rmu)
      deallocate(yl,gyl) !,grp,agrp,ggrp,agrl)!,vxcnl,excnl,rp)
   endif
   vl=vl+vlxc
@@ -164,7 +164,7 @@ end subroutine vxcnsp
 subroutine vxcns2(isw,ri,nr,rwgt,np,wp,yl,nlm,nsp,rl,rc,lxcf, &
      lpert,focexc,focex,focec,focvxc,rep,repx,repc,rmu,vl,fl,qs)
   use m_lgunit,only:stdo
-  use m_vxcfunc,only:evxcv,evxcp
+  use m_xclda,only:evxcv,evxcp
   !- Make vxc, rep and rmu in sphere, for local XC functional.
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -743,7 +743,7 @@ end subroutine vxcns5
 !   20 fl(ir,ilm,i) = fl(ir,ilm,i) + fp(ir,ip,i)*xx
 !      end
 
-subroutine vxcnls(a,ri,lcut,nr,np,nlm,nsp, yl,gyl,rwgt,wp,rl,lxcg, vl,rep,rmu) 
+subroutine vxcnls(a,ri,nr,np,nlm,nsp, yl,gyl,rwgt,wp,rl,lxcg, vl,rep,rmu) 
   use m_xcpbe,  only: xcpbe
   !!= Gradient correction to nspher. density on a radial and angular mesh =
   !!*NOTE: seeing tol=1d-10 is changed on Dec1st 2010. But this is empirically determined for Co atom.
@@ -751,7 +751,7 @@ subroutine vxcnls(a,ri,lcut,nr,np,nlm,nsp, yl,gyl,rwgt,wp,rl,lxcg, vl,rep,rmu)
   !!----------------------------------------------------------------------
   !!*Inputs
   !!   ri    :mesh of points
-  !!   lcut  :1 if cutoff exc for small rho to avoid blowup in exc
+  !!   lcut=0 !!!  :1 if cutoff exc for small rho to avoid blowup in exc
   !!   nr    :number of radial mesh points
   !!   np    :number of points for angular integration
   !!   nlm   :maximum (l+1)**2
@@ -784,7 +784,7 @@ subroutine vxcnls(a,ri,lcut,nr,np,nlm,nsp, yl,gyl,rwgt,wp,rl,lxcg, vl,rep,rmu)
   !!   29 Apr 05 (ATP) adaped to new vxcnsp
   !!----------------------------------------------------------------------
   implicit none
-  integer :: lcut,nr,np,nlm,nsp,lxcg
+  integer :: lcut=0,nr,np,nlm,nsp,lxcg
   double precision :: ri(nr),gyl(np,nlm,3),ylwp(np,nlm), &
        wp(np),rep(2),rmu(2),rwgt(nr),vxcnl(nr,nlm,nsp),excnl(nr,nlm), &
        rl(nr,nlm,nsp),agrl(nr,nlm,nsp),agrp(nr,np,nsp), &
@@ -1346,30 +1346,12 @@ subroutine vxcnls(a,ri,lcut,nr,np,nlm,nsp, yl,gyl,rwgt,wp,rl,lxcg, vl,rep,rmu)
   nri = ir1-ir0+1
   if (nri <= 0) goto 32
   vhold = (vxcnl(ir0,1,1)+vxcnl(ir0,1,nsp))/2
-
   ! ...   Gradient-corrected Vxc for points between ir0 and ir1
-  !      call defrr(oagrp,nri*np*(3*nsp-2))
-  !      call defrr(ogagrp,nri*np*nsp*3)
-  !      call defrr(ovxcp,nri*np*nsp)
-  !      call defrr(oexcp,nri*np*nsp)
-  !      call defrr(owk,nr)
-  !      call defrr(owkl,nri*nlm*nsp)
-  !      call xxcnls(lxcg,lmax,ir0,ir1,nr,np,nlm,nsp,nn,ri,yl,gyl,ylwp,
-  !     .wp,w(owkl),rp,ggrp,grp,agrl,w(oagrp),w(ogagrp),rl,rwgt,lcut,
-  !     .w(ovxcp),w(oexcp),vxcnl,excnl,sumnl)
-  if(debug) print *,'vxcnls: goto vxcnls 77777a',lxcg,lmax,ir0,ir1,nr
-  if(debug) print *,'vxcnls: goto vxcnls 77777b',np,nlm,nn,lcut
-
+  if(debug) print *,'vxcnls: goto vxcnls 77777a',lxcg,lmax,ir0,ir1,nr,np,nlm,nn
   call xxcnls2(lxcg,lmax,ir0,ir1,nr,np,nlm,nsp,nn,ri,yl,gyl,ylwp &
-       ,wp,rp,ggrp,grp,agrl,rl,rwgt,lcut, &
+       ,wp,rp,ggrp,grp,agrl,rl,rwgt, & !lcut, &
        vxcnl,excnl,sumnl)
-
-  if(debug) print *,'vxcnls: goto vxcnls 7777711111'
-  !      stop 'xxxxxxxxxxxxxxxxxx test end'
-
-  !      call rlse(oagrp)
   ir1 = ir0-1
-
   ! ... Check rmu to determine largest lmax next pass
   do  34  l = lmax, 0, -1
      lmx = l
@@ -1482,10 +1464,10 @@ end subroutine vxcnls
 !     .ylwp,wp,wkl,rp,ggrp,grp,agrl,agrp,gagrp,rl,rwgt,lcut,vxcp,excp,
 !     .vxcnl,excnl,sumnl)
 subroutine xxcnls2(lxcg,lmax,ir0,ir1,nr,np,nlm,nsp,nn,ri,yl,gyl,ylwp &
-     ,wp,rp,ggrp,grp,agrl,rl,rwgt,lcut, &! & fixed bug (remove wkl) 11July2010.takao
+     ,wp,rp,ggrp,grp,agrl,rl,rwgt,& !lcut, &! & fixed bug (remove wkl) 11July2010.takao
      vxcnl,excnl,sumnl)
   !     implicit none
-  use m_vxcfunc,only: vxcgga
+!  use m_vxcfunc,only: vxcgga
   integer :: ir0,ir1,nr,np,nlm,nsp,nn,lmax,lcut,lxcg
   double precision :: rp(nr,np,nsp),ggrp(nr,np,nsp),ri(1),wp(np), &
        grp(nr,np,3,nsp),agrp(ir0:ir1,np,3*nsp-2),vxcnl(nr,nlm,nsp), &
@@ -1599,28 +1581,28 @@ subroutine xxcnls2(lxcg,lmax,ir0,ir1,nr,np,nlm,nsp,nn,ri,yl,gyl,ylwp &
   call dpzero(excp,nri*np)
   if(debug) print *,'xxcnls2 66666'
   do  50  ip = 1, np
-     if (lxcg > 2) then
-        call vxcgga(lxcg,nri,nsp,rp(ir0,ip,1),rp(ir0,ip,nsp), &
-             agrp(ir0,ip,1),agrp(ir0,ip,nsp),ggrp(ir0,ip,1), &
-             ggrp(ir0,ip,nsp),agrp(ir0,ip,2*nsp-1),agrp(ir0,ip,4), &
-             gagrp(ir0,ip,2*nsp-1,1),gagrp(ir0,ip,1,1), &
-             gagrp(ir0,ip,nsp,1),vxcp(ir0,ip,1),vxcp(ir0,ip,nsp), &
-             excp(ir0,ip))
-     else
-        if (lcut == 0) then
+!     if (lxcg > 2) then
+!        call vxcgga(lxcg,nri,nsp,rp(ir0,ip,1),rp(ir0,ip,nsp), &
+!             agrp(ir0,ip,1),agrp(ir0,ip,nsp),ggrp(ir0,ip,1), &
+!             ggrp(ir0,ip,nsp),agrp(ir0,ip,2*nsp-1),agrp(ir0,ip,4), &
+!             gagrp(ir0,ip,2*nsp-1,1),gagrp(ir0,ip,1,1), &
+!             gagrp(ir0,ip,nsp,1),vxcp(ir0,ip,1),vxcp(ir0,ip,nsp), &
+!             excp(ir0,ip))
+!     else
+!        if (lcut == 0) then
            call vxnloc(nri,nsp,rp(ir0,ip,1),rp(ir0,ip,nsp),agrp(ir0,ip,1), &
                 agrp(ir0,ip,nsp),ggrp(ir0,ip,1),ggrp(ir0,ip,nsp), &
                 agrp(ir0,ip,2*nsp-1),agrp(ir0,ip,4),gagrp(ir0,ip,2*nsp-1,1), &
                 gagrp(ir0,ip,1,1),gagrp(ir0,ip,nsp,1),vxcp(ir0,ip,1), &
                 vxcp(ir0,ip,nsp),excp(ir0,ip))
-        else
-           call vxnlcc(nri,nsp,rp(ir0,ip,1),rp(ir0,ip,nsp),agrp(ir0,ip,1), &
-                agrp(ir0,ip,nsp),ggrp(ir0,ip,1),ggrp(ir0,ip,nsp), &
-                agrp(ir0,ip,2*nsp-1),agrp(ir0,ip,4),gagrp(ir0,ip,2*nsp-1,1), &
-                gagrp(ir0,ip,1,1),gagrp(ir0,ip,nsp,1),vxcp(ir0,ip,1), &
-                vxcp(ir0,ip,nsp),excp(ir0,ip))
-        endif
-     endif
+!        else
+!           call vxnlcc(nri,nsp,rp(ir0,ip,1),rp(ir0,ip,nsp),agrp(ir0,ip,1), &
+!                agrp(ir0,ip,nsp),ggrp(ir0,ip,1),ggrp(ir0,ip,nsp), &
+!                agrp(ir0,ip,2*nsp-1),agrp(ir0,ip,4),gagrp(ir0,ip,2*nsp-1,1), &
+!                gagrp(ir0,ip,1,1),gagrp(ir0,ip,nsp,1),vxcp(ir0,ip,1), &
+!                vxcp(ir0,ip,nsp),excp(ir0,ip))
+!        endif
+!     endif
 50 enddo
   if(debug) print *,'xxcnls2 77777'
 
@@ -1764,7 +1746,7 @@ end subroutine vxc0gc
 subroutine vxc0sp(a,b,rofi,rho,nr,v,rho0,rep,rmu,nsp,exrmx)
   use m_lmfinit,only: lxcf_g=>lxcf, stdo
   use m_ropyln,only: ropyln
-  use m_vxcfunc,only: evxcv
+  use m_xclda,only: evxcv
   !!- Adds xc part to spherical potential, makes integrals rmu and rep
   !! ----------------------------------------------------------------------
   ! i Inputs
@@ -1873,7 +1855,7 @@ subroutine vxc0sp(a,b,rofi,rho,nr,v,rho0,rep,rmu,nsp,exrmx)
         !         allocate(rll(nr,nsp))
         !         rll(:,1:nsp)=
         !         print *,'goto vxcnls',sum(rll)
-        call vxcnls(a,rofi,0,nr,np,nlm,nsp, &
+        call vxcnls(a,rofi,nr,np,nlm,nsp, &
              yl,gyl,rwgt,wp,sqrt(4d0*pi)*rp(:,1:nsp),lxcfun-100,  vxc,rep,rmu)
         deallocate(yl,gyl)
         vxc= vxc/sqrt(4d0*pi)
@@ -2014,229 +1996,4 @@ subroutine vxc0sp(a,b,rofi,rho,nr,v,rho0,rep,rmu,nsp,exrmx)
 end subroutine vxc0sp
 
 
-subroutine vxcgr2(nr,nsp,nrx,rofi,rp, exc,vxc)
-  use m_lmfinit,only: lxcf_g=>lxcf
-  use m_vxcfunc,only: vxcgga
-  !      subroutine vxcgr2(nr,nsp,nrx,rofi,rp,
-  !     .grh,ggrh,agrh,grgagr,exc,vxc)
-  ! akao automatic array version
-  !- Gradient correction to vxc, exc for a mesh of points.
-  ! ----------------------------------------------------------------------
-  !i Inputs
-  !i   nr    :number of radial mesh points
-  !i   nsp   :2 for spin-polarized case, otherwise 1
-  !i   nrx   :leading dimension of the radial function arrays
-  !i   rofi  :radial mesh points
-  !i   rp    :density rho on a radial mesh
-  !i         :the following work arrays are dimensioned (nrx,2)
-  !i   grh   :work array : radial grad rho
-  !i   ggrh  :work array : laplacian rho
-  !i   agrh  :work array : abs(grh)
-  !i   grgagr:work array : grad rho . grad abs grad rho
-  !o Outputs
-  !o   exc   :gradient contribution to energy added to exc
-  !o   vxc   :gradient contribution to potential added to vxc
-  !l Local variables
-  !r Remarks
-  !r
-  !u Updates
-  !u   18 Jun 04 Bug fix
-  ! ----------------------------------------------------------------------
-  implicit none
-  ! ... Passed parameters
-  integer :: nr,nsp,nrx
-  double precision :: rp(nrx,nsp),grh(nrx,2),ggrh(nrx,2), &
-       agrh(nrx,4),grgagr(nrx,3),exc(nrx),vxc(nrx,2),rofi(nr)
-  ! ... Local parameters
-  integer :: ir,i,lxcf,lxcg,nglob
-
-  ! angenglob      lxcg = mod(nglob('lxcf')/100,100)
-  !      lxcg = mod(globalvariables%lxcf/100,100)
-
-
-  ! ccccccccccccccccccccccc
-  lxcg=3
-  ! ccccccccccccccccccccccc
-
-
-  !      integer iprint
-  !      if (iprint() .ge. 80) then
-  !        call prmr(20,rofi,rp(2,1),1)
-  !        call prmr(20,rofi,rp(2,2),1)
-  !      endif
-
-  ! --- grad(rho), laplacian rho ---
-  call radgrx(nr,nrx,nsp,rofi,rp,grh)
-  call radgrx(nr,nrx,nsp,rofi,grh,ggrh)
-  do  20  i  = 1, nsp
-     do  ir = 2, nr
-        ggrh(ir,i) = ggrh(ir,i) + 2d0*grh(ir,i)/rofi(ir)
-     enddo
-     ggrh(1,i) =(rofi(3)*ggrh(2,i)-rofi(2)*ggrh(3,i))/(rofi(3)-rofi(2))
-
-     ! --- grad rho . grad abs grad rho ---
-     do   ir = 1, nr
-        agrh(ir,i) = dabs(grh(ir,i))
-     enddo
-     call radgrx(nr,nrx,1,rofi,agrh(1,i),grgagr(1,i))
-     do  ir = 1, nr
-        grgagr(ir,i) = grh(ir,i)*grgagr(ir,i)
-     enddo
-20 enddo
-
-  ! --- Extra terms g(n), g(n+).g(n-), g(n).g(abs(g(n))) if spin pol ---
-  if (nsp == 2) then
-     do   ir = 1, nr
-        agrh(ir,3) = dabs(grh(ir,1)+grh(ir,2))
-     enddo
-     call radgrx(nr,nrx,1,rofi,agrh(1,3),grgagr(1,3))
-     do  ir = 1, nr
-        grgagr(ir,3) = (grh(ir,1)+grh(ir,2))*grgagr(ir,3)
-     enddo
-     do   ir = 1, nr
-        agrh(ir,4) = grh(ir,1)*grh(ir,2)
-     enddo
-  endif
-  ! --- Gradient term for all points ---
-  if (lxcg >= 3) then
-     ! angenglob        lxcf = mod(nglob('lxcf'),100)
-     lxcf = mod(lxcf_g,100) !globalvariables%lxcf,100)
-     if (lxcf /= 3 .AND. lxcf /= 4) call &
-          rx('vxcgf2: inconsistent use of local and GGA functionals')
-     call vxcgga(lxcg,nr,nsp,rp,rp(1,nsp),agrh,agrh(1,nsp), &
-          ggrh,ggrh(1,nsp),agrh(1,2*nsp-1),agrh(1,4), &
-          grgagr(1,2*nsp-1),grgagr,grgagr(1,nsp), &
-          vxc(1,1),vxc(1,nsp),exc)
-  elseif (lxcg == 2) then
-     call rx('PW91 no longer implemented')
-  else
-     call vxnloc(nr,nsp,rp,rp(1,nsp),agrh,agrh(1,nsp), &
-          ggrh,ggrh(1,nsp),agrh(1,2*nsp-1),agrh(1,4), &
-          grgagr(1,2*nsp-1),grgagr,grgagr(1,nsp), &
-          vxc(1,1),vxc(1,nsp),exc)
-  endif
-  do  i = 1, nsp
-     vxc(1,i) = (vxc(2,i)*rofi(3)-vxc(3,i)*rofi(2))/(rofi(3)-rofi(2))
-  enddo
-end subroutine vxcgr2
-
-subroutine vxnloc(n,nsp,rhop,rhom,grhop,grhom,ggrhop,ggrhom, &
-     grho,grpgrm,grggr,grggrp,grggrm,vxc1,vxc2,exc)
-  !- Langreth-Mehl-Hu gradient correction to exc and vxc
-  ! ---------------------------------------------------------------
-  !i Inputs:
-  !i   rhop  :spin up density if nsp=2; otherwise total density
-  !i   rhom  :spin down density if nsp=2; otherwise not used
-  !i   grhop :|grad rhop| or |grad rho| if nsp=1
-  !i   grhom :|grad rhom| (nsp=2)
-  !i   grho  :|grad total rho| if nsp=2; otherwise not used
-  !i   ggrhop:Laplacian of rhop
-  !i   ggrhom:Laplacian of rhom
-  !i   grggr :(grad rho).(grad |grad rho|)
-  !i   grggrp:(grad up).(grad |grad up|) (not used here)
-  !i   grggrm:(grad dn).(grad |grad dn|) (not used here)
-  !i   grpgrm: grad rho+ . grad rho- (nsp=2)
-  !o Outputs:
-  !o   vxc, exc
-  !r Remarks:
-  !r   References PRB28,1809(1983) and PRB40,1997(1989).
-  !r   If nsp=1, rhop, grhop, etc are for total rho.
-  !r   factor f is empirically determined cutoff.  f=0 for pure gradient.
-  !r   cutoff eliminates the blowup of vxc for small rho,
-  !r   for numerical convenience.  Should be no significant change if 0.
-  !r   Langreth-Mehl form does not use grggrp,grggrm
-  !r   Should be used together with Barth-Hedin functional.
-  ! ----------------------------------------------------------------
-  !     implicit none
-  ! Passed parameters
-  integer :: nsp,n,i
-  double precision :: rhop(1),rhom(1),grhop(1),grhom(1),grho(1), &
-       ggrhop(1),ggrhom(1),grggr(1),grggrp(1),grggrm(1),grpgrm(1), &
-       vxc1(1),vxc2(1),exc(1)
-  ! Local parameters
-  logical :: warned
-  double precision :: pi,fivth,th4,th2,th,sth,sevni,f8,f9,rho,gp2,gm2, &
-       bigf,aa,d,polar,f,cutoff,cutof1,gro,ggro,g2, &
-       cutof2,hh,rp,rm,grp,grm,ggrp,ggrm,rmin,xd,expf,xx
-  parameter (f=0.15d0,hh=1d-3,fivth=5d0/3d0,th4=4d0/3d0, &
-       th2=2d0/3d0,th=1d0/3d0,sth=7d0/3d0,sevni=7d0/9d0, rmin=1d-15)
-
-  warned = .false.
-  pi = 4d0*datan(1d0)
-  f8 = (9d0*pi)**(1d0/6d0)*f
-  f9 = 5d0/6d0*2d0**th2
-  aa = (pi/(8d0*(3d0*pi*pi)**th4))
-  if (nsp == 1) then
-     do  10  i = 1, n
-        rho = rhop(i)
-        if (rho > rmin) then
-           gro  = grhop(i)
-           ggro = ggrhop(i)
-
-           bigf = f8*gro/(rho**(7d0/6d0))
-           cutoff = dexp(-hh*(gro*gro/(rho*rho))*rho**(-th2))
-           expf = 2d0*dexp(-bigf)
-           exc(i) = exc(i) + aa*(gro*gro/(rho**sth))*(expf-sevni)
-           vxc1(i) = vxc1(i) + 2d0*aa*rho**(-th)* &
-                (sevni*(ggro/rho-th2*gro*gro/(rho*rho)) - expf*( &
-                ggro*(1d0-bigf/2d0)/rho - &
-                (th2+bigf*(-11d0/6d0+bigf*7d0/12d0))*gro*gro/(rho*rho) + &
-                bigf*(bigf-3d0)*grggr(i)/(2*gro*rho)))*cutoff
-        endif
-10   enddo
-  else
-     do  20  i = 1, n
-        rho = rhop(i)+rhom(i)
-        if (rho > rmin) then
-           rp   = rhop(i)
-           rm   = rhom(i)
-           if (rp <= 0d0) then
-              if ( .NOT. warned) &
-                   print *, 'vxnloc (warning) rho+ not positive but rho is'
-              rp = rho/1000
-              warned = .true.
-           endif
-           if (rm <= 0d0) then
-              if ( .NOT. warned) &
-                   print *, 'vxnloc (warning) rho- not positive but rho is'
-              rm = rho/1000
-              warned = .true.
-           endif
-           grp  = grhop(i)
-           grm  = grhom(i)
-           gro  = grho(i)
-           g2   = gro*gro
-           gp2  = grp*grp
-           gm2  = grm*grm
-           ggrp = ggrhop(i)
-           ggrm = ggrhom(i)
-           ggro = ggrp+ggrm
-           polar = (rp-rm)/rho
-           bigf = f8*gro/(rho**(7d0/6d0))
-           d = dsqrt(((1d0+polar)**fivth+(1d0-polar)**fivth)/2d0)
-           expf = 2d0/d*dexp(-bigf)
-
-           exc(i) = exc(i) + aa/rho*(expf*g2/(rho**th4) &
-                - sevni/(2d0**th)*(gp2/(rp**th4)+gm2/(rm**th4)))
-           cutof1 = dexp(-hh*(gp2/(rp*rp))*(2*rp)**(-th2))
-           xd = f9*rho**(th-4d0)/(d*d)*(rp**th2-rm**th2)
-           xx = (2d0-bigf)*ggro/rho - &
-                (th4+bigf*(-11d0/3d0+bigf*7d0/6d0))*g2/(rho*rho) + &
-                bigf*(bigf-3d0)*grggr(i)/(gro*rho)
-           vxc1(i) = vxc1(i) + aa/rho**th*( &
-                -sevni/(2d0**th)*(rho/rp)**th*(th4*gp2/(rp*rp)-2d0*ggrp/rp) &
-                -expf*(xx - &
-                xd*((1d0-bigf)*rm*g2-(2d0-bigf)*rho*(grpgrm(i)+gm2)))) &
-                *cutof1
-           cutof2=dexp(-hh*(gm2/(rm*rm))*(2*rm)**(-th2))
-           vxc2(i) = vxc2(i) + aa/rho**th*( &
-                -sevni/(2d0**th)*(rho/rm)**th*(th4*gm2/(rm*rm)-2d0*ggrm/rm) &
-                -expf*(xx + &
-                xd*((1d0-bigf)*rp*g2-(2d0-bigf)*rho*(gp2+grpgrm(i))))) &
-                *cutof2
-        endif
-20   enddo
-  endif
-end subroutine vxnloc
-
-end module m_vxc
+end module m_vxcatom

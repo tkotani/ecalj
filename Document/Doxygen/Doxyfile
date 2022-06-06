@@ -895,7 +895,7 @@ EXCLUDE_SYMBOLS = rx ftime cpusec tolq qbzreg iprint mpipid verbose cmdopt2 cmdo
 		bin2a rxs oncewrite ivheap dvshel dmpy fexit0 rx0 strcop fsanrg iinit dfdump mpibc1 rxx mpibc1_real mpibc1_int mpibc1_complex \
 		dpdump fftz30 fftz3 a2vec rxi isw ivset i1mach stdfac dinv33 nword tcinit tcn poppr d1mach tql2 xt charnum3 skipbl awrite cmdopt \
 		dpsdump lddump tred2 easypbe words mpibc2 mpibc2_complex mpibc2_int mpibc2_real rydberg prtev isang lfdump polint polintx polinta \
-		setfac epslon dsred tqlrat strip ll ftof ftod 
+		setfac epslon dsred tqlrat strip ll ftof ftod tql1 tred1 rs dot3 dsum polintx
 		
 # The EXAMPLE_PATH tag can be used to specify one or more files or directories
 # that contain example code fragments that are included (see the \include

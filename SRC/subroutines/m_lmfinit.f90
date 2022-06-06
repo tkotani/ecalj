@@ -1234,6 +1234,8 @@ contains
        v_sspec(j)%rsma=rsma(j)
        v_sspec(j)%rsmfa=rsmfa(j)
        v_sspec(j)%eref=eref(j)
+!!       
+       v_sspec(j)%ngcut=-9999 !2022-6-6
     enddo
     allocate(v_ssite(nbas))
     do j=1,nbas

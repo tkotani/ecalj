@@ -1,18 +1,9 @@
-subroutine rhgcmp(mode,ib1,ib2,ssite,sspec,sv_p_orhoat,kmax,ng,cg)!slat,
+subroutine rhgcmp(mode,ib1,ib2,ssite,sspec,sv_p_orhoat,kmax,ng,cg)
+  use m_struc_def  
   use m_supot,only: rv_a_ogv
-  use m_struc_def  !Cgetarg
-  !      use m_lmfinit,only: globalvariables
-
-
-  !      use m_globalvariables
   use m_lmfinit,only: lat_alat,nspec,nsp
-  use m_lattic,only: lat_qlat
-  use m_lattic,only: lat_vol
-  use m_supot,only: lat_nabc
-  use m_supot,only: lat_ng
-
-
-  use m_lattic,only:lat_plat
+  use m_lattic,only: lat_qlat,lat_vol,lat_plat
+  use m_supot,only: lat_nabc,lat_ng
   !- Adds density of compensating gaussians to FT list
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -83,44 +74,36 @@ subroutine rhgcmp(mode,ib1,ib2,ssite,sspec,sv_p_orhoat,kmax,ng,cg)!slat,
   ! ... Local parameters
   integer :: ib,is,iv0,igetss,lmxl,ltop,n1,n2,n3,ng1,nlm, &
        nlmtop,ngabc(3),lfoc,modgkl
-  real(8) ,allocatable :: qkl_rv(:)
+  real(8) ,allocatable :: qkl_rv(:,:)
   real(8) ,allocatable :: cs_rv(:)
   real(8) ,allocatable :: g_rv(:)
   real(8) ,allocatable :: g2_rv(:)
   integer ,allocatable :: iv_iv(:)
   real(8) ,allocatable :: sn_rv(:)
-  real(8) ,allocatable :: yl_rv(:)
+  real(8) ,allocatable :: yl_rv(:,:)
   equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
   double precision :: alat,ceh,cofg,cofh,qcorg,qcorh,qsc,rfoc,rg, &
        vol,z,q0(3),df(0:20),plat(3,3),qlat(3,3),tau(3)
-  external corprm,poppr,pshpr,rhgcm2,rhogkl,stdfac,suphas,suphs0,suylg,tcn,tcx
+  external corprm,poppr,pshpr,rhogkl,stdfac,suphas,suphs0,suylg,tcn,tcx
   data q0 /0d0,0d0,0d0/
   call tcn('rhgcmp')
   call stdfac(20,df)
-  !      i_copy_size=size(lat_plat)
-  !      call dcopy(i_copy_size,lat_plat,1,plat,1)
-  !      i_copy_size=size(lat_qlat)
-  !      call dcopy(i_copy_size,lat_qlat,1,qlat,1)
-  !      i_copy_size=size(lat_nabc)
-  !      call icopy(i_copy_size,lat_nabc,1,ngabc,1)
   alat=lat_alat
   plat=lat_plat
   qlat=lat_qlat
   ngabc=lat_nabc
   ng1=lat_ng
   vol=lat_vol
-  !      nspec = globalvariables%nspec
-  !      nsp   = globalvariables%nsp
   modgkl = mode
   if (mode >= 200) modgkl = mod(mode,100)
   ! --- Set up help arrays ---
   ltop = 0
   do  is = 1, nspec
-     lmxl = int(sspec(is)%lmxl)
+     lmxl = sspec(is)%lmxl
      ltop = max0(ltop,lmxl)
   enddo
   nlmtop = (ltop+1)**2
-  allocate(yl_rv(ng*nlmtop))
+  allocate(yl_rv(ng,nlmtop))
   allocate(g2_rv(ng))
   allocate(g_rv(ng*3))
   call suylg ( ltop , alat , ng , rv_a_ogv , g_rv , g2_rv , yl_rv  )
@@ -129,12 +112,9 @@ subroutine rhgcmp(mode,ib1,ib2,ssite,sspec,sv_p_orhoat,kmax,ng,cg)!slat,
   call suphs0 ( plat , ng , rv_a_ogv , iv_iv )
   allocate(cs_rv(ng))
   allocate(sn_rv(ng))
-  ! --- Loop over sites ---
   iv0 = 0
   do  ib = ib1, ib2
      is=ssite(ib)%spec
-     !        i_copy_size=size(ssite(ib)%pos)
-     !     call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1)
      tau=ssite(ib)%pos
      lmxl=sspec(is)%lmxl
      rg=sspec(is)%rg
@@ -143,7 +123,7 @@ subroutine rhgcmp(mode,ib1,ib2,ssite,sspec,sv_p_orhoat,kmax,ng,cg)!slat,
      if (mode == 2) cofh = 0
      nlm = (lmxl+1)**2
      call suphas ( q0 , tau , ng , iv_iv , n1 , n2 , n3 , qlat  , cs_rv , sn_rv )
-     allocate(qkl_rv(nlm*(kmax+1)))
+     allocate(qkl_rv(0:kmax,nlm))
      call pshpr(0)
      ! ino G_kL expansion of valence sphere densities
      call rhogkl ( ib , ib , nsp , modgkl , ssite , sspec , sv_p_orhoat &
@@ -158,13 +138,44 @@ subroutine rhgcmp(mode,ib1,ib2,ssite,sspec,sv_p_orhoat,kmax,ng,cg)!slat,
      ! ino   rfoc: gamf=1/4*rfoc**2
      ! ino   ceh:  exp(gamf*(ceh-g2))/ceh-g2
      ! ino   cofh: cg(i)=cg(i)+cofh*aa*phase
-     call rhgcm2 ( vol , rg , rfoc , ceh , cofh , kmax , mod ( mode &
-          / 10 , 10 ) .ge.2 , qkl_rv , nlm , ng , g2_rv , yl_rv &
-          , cs_rv , sn_rv , cg )
-     ! ino PW expansion of Z * delta(r)
-     if ( mode >= 200 ) call rhgcm3 ( - z , vol , ng , cs_rv &
-          , sn_rv , cg )
-     if (allocated(qkl_rv)) deallocate(qkl_rv)
+!     call rhgcm2 ( vol , rg , rfoc , ceh , cofh , kmax , mod ( mode &
+!          / 10 , 10 ) .ge.2 , qkl_rv , nlm , ng , g2_rv , yl_rv &
+!          , cs_rv , sn_rv , cg )
+     rhgcm2: block !!- Convert G_kL expansion of function centered at a site to PW's
+       logical :: lcor
+       complex(8):: phase(ng),cc
+       integer :: i,ilm,l,m,k
+       real(8):: aa,cfoc,cvol,gam,gamf,fac,sqkl
+       real(8),parameter:: pi = 4d0*datan(1d0),y0 = 1d0/dsqrt(4d0*pi)
+       if (nlm == 0) return
+       !  lmxl = ll(nlm)
+       lcor= mod(mode/ 10, 10) >=2
+       gam = 0.25d0*rg*rg
+       gamf = 0.25d0*rfoc*rfoc
+       cvol = 1d0/vol
+       cfoc = -4d0*pi*y0/vol
+       phase = dcmplx(cs_rv(:),sn_rv(:))
+       do  i = 1, ng
+          cc = phase(i)*(0d0,1d0)*dexp(-gam*g2_rv(i))*cvol
+          ilm = 0
+          do  l = 0, lmxl
+             cc = cc*(0d0,-1d0)
+             do m = -l,l
+                ilm = ilm+1
+                fac = 1d0
+                sqkl = 0d0
+                do  k = 0, kmax
+                   sqkl = sqkl + qkl_rv(k,ilm)*fac
+                   fac = -g2_rv(i)*fac
+                enddo
+                cg(i) = cg(i) + sqkl*cc*yl_rv(i,ilm)
+             enddo
+          enddo
+          if(lcor) cg(i) = cg(i) + cofh*cfoc*dexp(gamf*(ceh-g2_rv(i)))/(ceh-g2_rv(i))*phase(i)
+       enddo
+     end block rhgcm2
+     if( mode >= 200 ) cg(:) = -z*dcmplx(cs_rv(:),sn_rv(:))/vol !- PW expansion of Z * delta(r)
+     deallocate(qkl_rv)
      iv0 = iv0+nlm
 10   continue
   enddo
@@ -175,92 +186,3 @@ subroutine rhgcmp(mode,ib1,ib2,ssite,sspec,sv_p_orhoat,kmax,ng,cg)!slat,
   if (allocated(yl_rv)) deallocate(yl_rv)
   call tcx('rhgcmp')
 end subroutine rhgcmp
-
-subroutine rhgcm2(vol,rg,rfoc,ceh,cofh,kmax,lcor,qkl,nlm,ng,g2,yl, &
-     cs,sn,cg)
-  !- Convert G_kL expansion of function centered at a site to PW's
-  !     implicit none
-  ! ... Passed parameters
-  integer :: ng,nlm,kmax
-  logical :: lcor
-  double precision :: ceh,cofh,rfoc,rg,vol,qkl(0:kmax,nlm)
-  double precision :: g2(ng),yl(ng,1),cs(ng),sn(ng)
-  double complex cg(ng)
-  ! ... Local parameters
-  integer :: i,ilm,l,ll,lmxl,m,k
-  double precision :: aa,cfoc,cvol,gam,gamf,pi,y0,fac,sqkl
-  double complex phase,cc
-
-  if (nlm == 0) return
-  lmxl = ll(nlm)
-  pi = 4d0*datan(1d0)
-  y0 = 1d0/dsqrt(4d0*pi)
-  gam = 0.25d0*rg*rg
-  gamf = 0.25d0*rfoc*rfoc
-  cvol = 1d0/vol
-  cfoc = -4d0*pi*y0/vol
-  do  i = 1, ng
-     phase = dcmplx(cs(i),sn(i))
-     aa = dexp(-gam*g2(i))*cvol
-     cc = aa*phase*(0d0,1d0)
-     ilm = 0
-     do  l = 0, lmxl
-        cc = cc*(0d0,-1d0)
-        do m = -l,l
-           ilm = ilm+1
-           fac = 1
-           sqkl = 0
-           do  k = 0, kmax
-              sqkl = sqkl + qkl(k,ilm)*fac
-              fac = -g2(i)*fac
-           enddo
-           cg(i) = cg(i) + sqkl*cc*yl(i,ilm)
-        enddo
-     enddo
-
-     if (lcor) then
-        aa = cfoc*dexp(gamf*(ceh-g2(i)))/(ceh-g2(i))
-        cg(i) = cg(i) + cofh*aa*phase
-     endif
-
-  enddo
-
-end subroutine rhgcm2
-
-subroutine rhgcm3(z,vol,ng,cs,sn,cg)
-
-  !- PW expansion of Z * delta(r)
-  ! ----------------------------------------------------------------------
-  !i Inputs
-  !i   z     :size of delta-function
-  !i   vol   :cell volume
-  !i   ng    :number of G-vectors
-  !i   cs    :cos(-p*G)
-  !i   sn    :cos(-p*G)
-  !o Outputs
-  !o   cg    :Clebsch Gordon coefficients, stored in condensed form (scg.f)
-  !l Local variables
-  !l         :
-  !r Remarks
-  !r
-  !u Updates
-  !u   26 Oct 01
-  ! ----------------------------------------------------------------------
-
-  !     implicit none
-  ! ... Passed parameters
-  integer :: ng
-  double precision :: z,vol,cs(ng),sn(ng)
-  double complex cg(ng)
-  ! ... Local parameters
-  integer :: i
-  double complex phase
-
-  do  i = 1, ng
-     phase = dcmplx(cs(i),sn(i))
-     cg(i) = cg(i) + z*phase/vol
-  enddo
-
-end subroutine rhgcm3
-
-

@@ -2,7 +2,7 @@ module m_mkpot ! http://dx.doi.org/10.7566/JPSJ.84.034702
   use m_lmfinit,only: nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nab,nppn &
        ,lfrce=>ctrl_lfrce,stdl, nchan=>pot_nlma, nvl=>pot_nlml,nkaph
   use m_struc_def,only: s_rv1,s_cv1,s_sblock
-  use m_MPItk,only: master_mpi,mlog
+!  use m_MPItk,only: master_mpi,mlog
   !! output ------------------------------------------------------------------
   public::  m_Mkpot_init, m_Mkpot_deallocate, m_Mkpot_energyterms, m_Mkpot_novxc!,m_Mkpot_novxc_dipole
   type(s_sblock),allocatable,protected,public  :: ohsozz(:,:),ohsopm(:,:) !SOC matrix
@@ -151,6 +151,7 @@ contains
     call tcx('m_mkpot_init')
   end subroutine m_mkpot_init
   ! ssssssssssssssssssssssssssssssssssssssssssssssssssssss
+  
   subroutine m_mkpot_energyterms(smrho_out,orhoat_out)
     use m_struc_def
     type(s_rv1):: orhoat_out(:,:)
@@ -162,20 +163,11 @@ contains
          osmpot, sv_p_osig , sv_p_otau , sv_p_oppi, fes2_rv, ohsozz,ohsopm)
     call tcx('m_mkpot_energyterms')
   end subroutine m_mkpot_energyterms
-  !!------------------------------------------------------
-  subroutine m_mkpot_deallocate()
-    if (allocated(vesrmt)) then
-       deallocate(vesrmt,fes1_rv,ppnl_rv,sab_rv,vab_rv,hab_rv,vval,gpot0,qmom, &
-            sv_p_oppi,sv_p_otau,sv_p_osig,osmpot,ohsozz,ohsopm)
-    endif
-  end subroutine m_mkpot_deallocate
-  !!------------------------------------------------------
-  subroutine mkpot ( &
-       job, smrho, sv_p_orhoat, &
-       smpot, sv_p_osig, sv_p_otau, sv_p_oppi, fes, ohsozz,ohsopm, &
-       novxc_) !dipole_)
+   
+  subroutine mkpot(job, smrho, sv_p_orhoat, &
+       smpot, sv_p_osig, sv_p_otau, sv_p_oppi, fes, ohsozz,ohsopm, novxc_) !dipole_)
     ! xxx problematic option dipole_ removed. (for <i|{\bf r}|j> matrix for novxc)
-    use m_lmfinit,only: lso,nbas, ssite=>v_ssite, sspec=>v_sspec, nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex
+    use m_lmfinit,only:lso,nbas,ssite=>v_ssite,sspec=>v_sspec,nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex
     use m_lattic,only: lat_plat,lat_qlat, lat_vol
     use m_supot,only: k1,k2,k3,lat_nabc
     use m_MPItk,only: master_mpi
@@ -700,4 +692,13 @@ contains
        endif
     enddo
   end subroutine dfaugm
+  !!------------------------------------------------------
+  
+  subroutine m_mkpot_deallocate()
+    if (allocated(vesrmt)) then
+       deallocate(vesrmt,fes1_rv,ppnl_rv,sab_rv,vab_rv,hab_rv,vval,gpot0,qmom, &
+            sv_p_oppi,sv_p_otau,sv_p_osig,osmpot,ohsozz,ohsopm)
+    endif
+  end subroutine m_mkpot_deallocate
+  
 end module m_mkpot

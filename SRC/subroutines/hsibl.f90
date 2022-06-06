@@ -13,7 +13,8 @@ subroutine hsibl(ssite,sspec,k1,k2,k3,vsm,isp,q,ndimh,iprmb,napw,igapw,h)
   use m_lattic,only:  lat_plat
   use m_uspecb,only:uspecb
   use m_orbl,only: Orblib1,Orblib2,ktab1,ltab1,offl1,norb1,ktab2,ltab2,offl2,norb2
-
+  use m_ftox
+  use m_sugcut,only: ngcut
   !- Interstitial ME of smooth Bloch Hankels, smooth potential.
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -287,13 +288,14 @@ subroutine hsibl(ssite,sspec,k1,k2,k3,vsm,isp,q,ndimh,iprmb,napw,igapw,h)
            is2=ssite(ib2)%spec
            i_copy_size=size(ssite(ib2)%pos)
            call dcopy(i_copy_size,ssite(ib2)%pos,1,p2,1)
-           i_copy_size=size(sspec(is2)%ngcut)
-           call icopy(i_copy_size,sspec(is2)%ngcut,1,ncut,1)
+!           i_copy_size=size(sspec(is2)%ngcut)
+!           call icopy(i_copy_size,sspec(is2)%ngcut,1,ncut,1)
+           ncut=ngcut(:,:,is2)
            ! ccccccccccccccccccccc
            !            print *,'wwwww ng=',ng
            !            do i=1,i_copy_size
            !               if(sspec(is2)%ngcut(i)/=0) then
-           !               write(6,*)'wwwww ',is2,sspec(is2)%ngcut(i)
+           !               write(6,ftox)'wwwww ngcut',is2,sspec(is2)%ngcut(1:4,1:3)
            !               endif
            !            enddo
            ! cccccccccccccccccccccc

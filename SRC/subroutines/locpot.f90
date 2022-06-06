@@ -1,6 +1,6 @@
 module m_locpot
   use m_lgunit,only:stdo
-  use m_vxc,only: vxcnsp,vxcns5
+  use m_vxcatom,only: vxcnsp,vxcns5
 
   public locpot
   private

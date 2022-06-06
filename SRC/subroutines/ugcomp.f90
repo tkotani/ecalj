@@ -334,5 +334,3 @@ subroutine ugcomp(nbas,ssite,sspec,qmom,gpot0,hpot0,ugg,f) !slat,
 !#endif
   call tcx('ugcomp')
 end subroutine ugcomp
-
-

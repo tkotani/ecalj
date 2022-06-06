@@ -1,3 +1,6 @@
+module m_dfrce
+  public dfrce
+  contains
 subroutine dfrce (job, sv_p_orhoat , sv_p_orhat1 , elind , qmom , smrho , smrout , dfh )
   use m_lmfinit,only: nvl=>pot_nlml
   use m_supot,only: rv_a_ogv,iv_a_okv
@@ -762,4 +765,4 @@ subroutine pvdf4(ssite,sspec,qmom,ng,g2,yl,cs,sn,iv,qlat,cv) !slat,
   call tcx('pvdf4')
 end subroutine pvdf4
 
-
+end module m_dfrce
