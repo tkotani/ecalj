@@ -8,7 +8,7 @@ contains
     use m_struc_def,only: s_rv1, s_spec, s_site
     use m_suham,only: ndham=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
     use m_lmfinit, only: &
-         ham_pwmode,pwemin,pwemax,ham_oveps,lrsig=>ham_lsig,nlmto,iprmb,lso, &
+         ham_pwmode,pwemin,pwemax,ham_oveps,lrsig=>ham_lsig,nlmto,lso, &
          ham_scaledsigma,lat_alat,mxorb,nkaph,nsp,nspc,nl,mxorb,ssite=>v_ssite,sspec=>v_sspec,nbas,n0,nppn,nkap0
     use m_lattic,only: lat_plat, lat_qlat
     use m_supot,only: lat_nabc, lat_gmax
@@ -577,8 +577,7 @@ contains
              !             if(sum(abs(qp-q))>1d-8) stop 'sugw:qp/=q; qp=p sep2012'
              inn=0
              call pwmat (  ssite , sspec , nbas , ndimh , napw,&
-                  igv2x, iprmb , qp , ngp , nlmax , ngvecp(1,1,iq) , gmax , inn, &
-                  ppovl, phovl )
+                  igv2x, qp , ngp , nlmax , ngvecp(1,1,iq) , gmax , inn, ppovl, phovl )
              pwz=matmul(phovl,evec)
              ! all zgemm('N','N',ngp,ndimh,ndimh,(1d0,0d0),phovl,ngp, evec,ndimh,(0d0,0d0),pwz,ngp)
              if(debug) print *,'sss: pwz =',sum(abs(pwz))

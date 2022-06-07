@@ -1,6 +1,6 @@
 subroutine mkekin(sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,smpot,smrho,sumev, sumtv)
   use m_struc_def
-  use m_lmfinit,only:lso,nkaph,nsp,nspc,stdo,nbas,ssite=>v_ssite,sspec=>v_sspec,iprmb,nlmto
+  use m_lmfinit,only:lso,nkaph,nsp,nspc,stdo,nbas,ssite=>v_ssite,sspec=>v_sspec,nlmto
   use m_lattic,only: lat_vol
   use m_supot,only: lat_nabc,k1,k2,k3
   use m_orbl,only: Orblib,ktab,ltab,offl,norb
@@ -191,7 +191,7 @@ subroutine mkekin(sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,smpot,smrho,su
      kmax=sspec(is)%kmxt
      lmxh=sspec(is)%lmxb
      if (lmxa == -1) goto 10
-     call orblib(ib) !, 0 , nlmto , iprmb , norb , ltab , ktab , xx , offl , xx )
+     call orblib(ib) ! norb , ltab , ktab , offl 
      !       Block into groups of consecutive l
      call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
      nlma = (lmxa+1)**2

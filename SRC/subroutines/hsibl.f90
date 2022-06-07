@@ -2,7 +2,7 @@ module m_hsibl
   public hsibl,hsibl1
   private
 contains
-subroutine hsibl(ssite,sspec,k1,k2,k3,vsm,isp,q,ndimh,iprmb,napw,igapw,h)
+subroutine hsibl(ssite,sspec,k1,k2,k3,vsm,isp,q,ndimh,napw,igapw,h)
   use m_struc_def
   use m_lmfinit,only: lat_alat,nspec,nbas
   use m_lattic,only: lat_qlat
@@ -15,6 +15,7 @@ subroutine hsibl(ssite,sspec,k1,k2,k3,vsm,isp,q,ndimh,iprmb,napw,igapw,h)
   use m_orbl,only: Orblib1,Orblib2,ktab1,ltab1,offl1,norb1,ktab2,ltab2,offl2,norb2
   use m_ftox
   use m_sugcut,only: ngcut
+  use m_lmfinit,only: nkaph,nl,ndimx
   !- Interstitial ME of smooth Bloch Hankels, smooth potential.
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -31,7 +32,6 @@ subroutine hsibl(ssite,sspec,k1,k2,k3,vsm,isp,q,ndimh,iprmb,napw,igapw,h)
   !i   isp   :current spin channel (1 or 2)
   !i   q     :Bloch vector
   !i   ndimh :dimension of hamiltonian
-  !i   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
   !i   napw  :number of augmented PWs in basis
   !i   igapw :vector of APWs, in units of reciprocal lattice vectors
   !o Outputs
@@ -66,37 +66,15 @@ subroutine hsibl(ssite,sspec,k1,k2,k3,vsm,isp,q,ndimh,iprmb,napw,igapw,h)
   !u   22 May 00 Adapted from nfp hsi_q.f
   ! ----------------------------------------------------------------------
   implicit none
-  !$$$#if MPI
-  !$$$      include "mpif.h"
-  !$$$      integer procid, master, numprocs, ierr, status(MPI_STATUS_SIZE)
-  !$$$      integer MAX_PROCS
-  !$$$      parameter (MAX_PROCS = 100)
-  !$$$      integer resultlen
-  !$$$      character*(MPI_MAX_PROCESSOR_NAME) name
-  !$$$      character*10 shortname(0:MAX_PROCS-1)
-  !$$$      character*20 ext
-  !$$$      character*26 datim
-  !$$$      integer namelen(0:MAX_PROCS-1)
-  !$$$      double precision starttime, endtime
-  !$$$      logical mlog,cmdopt
-  !$$$      integer lgunit
-  !$$$      character*120 strn
-  !$$$#endif
-  ! ... Passed parameters
-  integer :: k1,k2,k3,isp,ndimh,iprmb(1),napw,igapw(3,napw)
+  integer :: k1,k2,k3,isp,ndimh,napw,igapw(3,napw)
   real(8):: q(3)
   type(s_site)::ssite(*)
   type(s_spec)::sspec(*)
   double complex h(ndimh,ndimh),vsm(k1,k2,k3,isp)
-  ! ... Local parameters
-  integer :: n0,npmx,nkap0,nkape,nermx,ngabc(3),nhblk,nlmto
+  integer :: n0,npmx,nkap0,nkape,nermx,ngabc(3),nlmto
   parameter (n0=10,nkap0=3,nkape=2,nermx=100)
-  parameter (npmx=128,nhblk=60)
-  integer :: oic1(npmx),oic2(npmx),oicos1(npmx),oicos2(npmx), &
-       oicf1(npmx),oicf2(npmx), &
-       oisin1(npmx),oisin2(npmx),oiwk(npmx),oif(npmx)
   integer:: ltop , n1 , n2 , n3 , net , ng , nglob , nlmtop &
-       , nrt , ndimx , nnrl , ncuti(nhblk) , iprint
+       , nrt , iprint
   real(8) ,allocatable :: g_rv(:)
   real(8) ,allocatable :: g2_rv(:)
   real(8) ,allocatable :: gv_rv(:)
@@ -107,63 +85,34 @@ subroutine hsibl(ssite,sspec,k1,k2,k3,vsm,isp,q,ndimh,iprmb,napw,igapw,h)
   double precision :: alat,plat(3,3),qlat(3,3),vol,gmax,q0(3)
   double precision :: etab(nermx),rtab(nermx)
   equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-  !     Shared variables
   integer:: i , ib1 , ib2 , ie , ofh1 , ofh2 , ip , ir , is1 , &
        is2 , j , mp , nlm1 , nlm2 , ik1 , ik2 , l1 , iorb1 , l2 , l2t &
        , iorb2 , jorb2 , osin1 , osin2 , oc1 , ocf1 , oc2 , ocf2 , ocos1 &
        , ocos2 , of , owk , ndim1 , ndim2 , nkap1 , nkap2
-  integer ,allocatable :: iv_iv(:)
+  integer ,allocatable :: iv_iv(:),ncuti(:)
   complex(8) ,allocatable :: wk2_zv(:)
-  integer :: iprt(n0,nkap0,nermx),ipet(n0,nkap0,nermx), &
-       ncut(n0,nkap0)!,lh(nkap0)
-  !      integer norb1,ltab1(n0*nkap0),ktab1(n0*nkap0),offl1(n0*nkap0),
+  integer :: iprt(n0,nkap0,nermx),ipet(n0,nkap0,nermx), ncut(n0,nkap0)!,lh(nkap0)
   integer:: blks1(n0*nkap0),ntab1(n0*nkap0)
-  !      integer norb2,ltab2(n0*nkap0),ktab2(n0*nkap0),offl2(n0*nkap0),
   integer:: blks2(n0*nkap0),ntab2(n0*nkap0)
   double precision :: eh1(n0,nkap0),rsmh1(n0,nkap0)
   double precision :: eh2(n0,nkap0),rsmh2(n0,nkap0)
   double precision :: xx(n0),p1(3),p2(3)
   integer:: xxxx(nkap0)
-  integer :: ig1,i1,ig2,i2,igx(3),igx1,igx2,igx3,oiv1
-  !$    integer mp_numthreads,mp_my_threadnum
-  !$$$#if MPI
-  !$$$      double precision, dimension(:), allocatable :: buffer
-  !$$$      integer, dimension(:,:), allocatable :: index
-  !$$$#endif
-  integer:: iloop
+  integer :: ig1,i1,ig2,i2,igx(3),igx1,igx2,igx3,oiv1, iloop
   complex(8) ,allocatable :: h_zv(:)
-  complex(8) ,allocatable :: hbuf_zv(:)
   integer:: nnn
   complex(8),allocatable:: w_oc1(:,:),w_ocf1(:,:),w_oc2(:,:),w_ocf2(:,:),w_of(:,:)
   real(8),allocatable:: w_ocos1(:,:), w_osin1(:,:),w_ocos2(:,:), w_osin2(:,:),w_owk(:,:)
   real(8):: gmin=0d0
   integer:: ibini,ibend
-  integer:: i_copy_size
+  integer:: i_copy_size,nnrl,lmri,li,nnrlx,nnrli,ik,ib,ndim
   call tcn('hsibl')
-
-  !$$$#if MPI
-  !$$$      call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
-  !$$$      call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
-  !$$$      call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
-  !$$$      call strcop(shortname(procid),name,10,'.',i)
-  !$$$      namelen(procid) = i-1
-  !$$$      master = 0
-  !$$$      mlog = cmdopt('--mlog',6,0,strn)
-  !$$$#endif
-
-  ! ... First setup
-  ! angenglob      nbas  = nglob('nbas')
-  !      nbas  = globalvariables%nbas
-  ! angenglob      nspec = nglob('nspec')
-  !      nspec = globalvariables%nspec
   nlmto = ndimh - napw
   if (nspec > nermx) call rx('hsibl: increase nermx')
   alat=lat_alat
   plat=lat_plat
   qlat=lat_qlat
   gmax=lat_gmax
-  !      i_copy_size=size(lat_nabc)
-  !     call icopy(i_copy_size,lat_nabc,1,ngabc,1)
   ngabc=lat_nabc
   ng=lat_ng
   vol=lat_vol
@@ -184,86 +133,37 @@ subroutine hsibl(ssite,sspec,k1,k2,k3,vsm,isp,q,ndimh,iprmb,napw,igapw,h)
      call tcx('gvlst2')
      ! ... Tables of energies, rsm, indices to them
      call tbhsi(sspec,nspec,nermx,net,etab,ipet,nrt,rtab,iprt,ltop)
-     !     ndimx = maximum hamiltonian dimension for any site
-     ndimx = nnrl(10,1,nbas,iprmb,nlmto)
-     ! --- Allocate and occupy arrays for YL, energy factors, rsm factors ---
+     !     ndimx = maximum hamiltonian dimension for any site (in m_lmfinit now)
      nlmtop = (ltop+1)**2
      allocate(g_rv(ng*3))
      allocate(yl_rv(ng*nlmtop))
      allocate(g2_rv(ng))
      allocate(he_rv(ng*net))
      allocate(hr_rv(ng*nrt))
-
-     !     gv has q already added ...
      call dpzero(q0,3)
      call hsibl1 ( net , etab , nrt , rtab , ltop , alat , q0 , ng &
           , gv_rv , g_rv , g2_rv , yl_rv , he_rv , hr_rv )
-     ! ... Allocate local arrays; setup for fast phase factors
      mp = 1
-     !$    mp = mp_numthreads()
-     !$    if (mp .gt. npmx) call rxi('hsibl: increase npmx, needed',mp)
      nnn=min(mp,nbas)
-     ! if SGI | MPI
-     allocate(w_oc1( ng*ndimx,nnn), w_ocf1( nhblk*ndimx,nnn))
-     ! else
-     !        allocate(w_oc1( ng*nhblk,nnn), w_ocf1(  nhblk,nnn))
-     ! endif
+     allocate( w_oc1( ng*ndimx,nnn), w_ocf1(ndimx,nnn))
      allocate( w_oc2(nnn, ng*ndimx), w_ocf2(nnn,  ndimx), &
           w_ocos1( ng,nnn),  w_osin1( ng,nnn), &
           w_ocos2( ng,nnn),  w_osin2( ng,nnn), &
           w_owk  ( ng,nnn),  w_of(k1*k2*k3,nnn))
-
-     ! --- Loop over orbitals on first site ---
-     ! DOACROSS LOCAL(ib1,ib2,ie,ofh1,ofh2,ip,ir,is1,is2,
-     !$&              mp,nlm1,nlm2,nlm2,ik1,ik2,
-     !$&              l1,iorb1,l2,l2t,iorb2,jorb2,osin1,osin2,
-     !$&              oc1,ocf1,oc2,ocf2,ndim1,ndim2,ocos1,ocos2,of,owk,
-     !$&              norb1,ltab1,ktab1,nkap1,offl1,blks1,ntab1,lh,
-     !$&              norb2,ltab2,ktab2,nkap2,offl2,blks2,ntab2,xx)
-     !$&       SHARED(nbas,n1,n2,n3,k1,k2,k3,ng,vol,ndimh,oiv)
-     !$&       MP_SCHEDTYPE=RUNTIME
-     !$$$#if MPI
-     !$$$        allocate(h_zv(abs(-ndimh*ndimh)))
-     !$$$        if (-ndimh*ndimh<0) h_zv(:)=0.0d0
-     !$$$
-     !$$$        allocate (index(0:numprocs-1,0:nbas-1), stat=ierr)
-     !$$$        call dstrbp(nbas,numprocs,-1,index(0,0))
-     !$$$
-     !$$$c      do  iloop = 1, index(procid,0)
-     !$$$        ibini=1
-     !$$$        ibend=index(procid,0)
-     !$$$#else
-     !      do  ib1 = 1, nbas
      ibini=1
      ibend=nbas
-     !$$$#endif
      do  iloop = ibini,ibend
-        !$$$#if MPI
-        !$$$          ib1 = index(procid,iloop)
-        !$$$          if (mlog) then
-        !$$$            call gettime(datim)
-        !$$$            call awrit4(' hsibl '//datim//' Process %i of %i on '
-        !$$$     .      //shortname(procid)(1:namelen(procid))//
-        !$$$     .      ' starting atom %i of %i',' ',256,lgunit(3),
-        !$$$     .      procid,numprocs,ib1,index(procid,0))
-        !$$$          endif
-        !$$$#else
         ib1=iloop
-        !$$$#endif
         ip = 1
-        !$      ip = mp_my_threadnum()+1
         if (nbas < mp) ip = ib1
         ndim1 = 0
         is1=ssite(ib1)%spec
         i_copy_size=size(ssite(ib1)%pos)
         call dcopy(i_copy_size,ssite(ib1)%pos,1,p1,1)
-        call suphas ( q , p1 , ng , iv_iv , n1 , n2 , n3 , qlat , &
-             w_ocos1(1,ip) , w_osin1(1,ip) )
-        !       List of orbitals, their l- and k- indices, and ham offsets
-        call orblib1(ib1) !,0,nlmto,iprmb,norb1,ltab1,ktab1,xx,offl1,xx)
+        call suphas ( q , p1 , ng , iv_iv , n1 , n2 , n3 , qlat , w_ocos1(1,ip) , w_osin1(1,ip) )
+        call orblib1(ib1) !norb1,ltab1,ktab1,xx,offl1,xx)
         ofh1 = offl1(1)
-        !       Block routines into groups with common (e,rsm)
-        call uspecb(is1,rsmh1,eh1)
+        call uspecb(is1,rsmh1,eh1)!       Block routines into groups with common (e,rsm)
         call gtbsl1(7+16,norb1,ltab1,ktab1,rsmh1,eh1,ntab1,blks1)
         do  iorb1 = 1, norb1
            if (blks1(iorb1) /= 0) then
@@ -280,33 +180,29 @@ subroutine hsibl(ssite,sspec,k1,k2,k3,vsm,isp,q,ndimh,iprmb,napw,igapw,h)
            endif
         enddo
         !   ... Multiply potential into wave functions for orbitals in ib1
-        call hsibl4 ( n1 , n2 , n3 , k1 , k2 , k3 , vsm ( 1 , 1 , 1 , &
-             isp ) , w_of(1,ip) , ng , kv_iv , ndim1 , w_oc1(1,ip) )
+        call hsibl4(n1,n2,n3,k1,k2,k3,vsm(1,1,1,isp),w_of(1,ip),ng,kv_iv,ndim1,w_oc1(1,ip) )
         !   ... Loop over second of (ib1,ib2) site pairs
         do  ib2 = ib1, nbas
            ndim2 = 0
-           is2=ssite(ib2)%spec
-           i_copy_size=size(ssite(ib2)%pos)
-           call dcopy(i_copy_size,ssite(ib2)%pos,1,p2,1)
-!           i_copy_size=size(sspec(is2)%ngcut)
-!           call icopy(i_copy_size,sspec(is2)%ngcut,1,ncut,1)
+           is2 =ssite(ib2)%spec
+           p2  =ssite(ib2)%pos
            ncut=ngcut(:,:,is2)
-           ! ccccccccccccccccccccc
-           !            print *,'wwwww ng=',ng
-           !            do i=1,i_copy_size
-           !               if(sspec(is2)%ngcut(i)/=0) then
-           !               write(6,ftox)'wwwww ngcut',is2,sspec(is2)%ngcut(1:4,1:3)
-           !               endif
-           !            enddo
-           ! cccccccccccccccccccccc
-           call suphas ( q , p2 , ng , iv_iv , n1 , n2 , n3 , qlat , &
-                w_ocos2(1,ip) , w_osin2(1,ip) )
-           !         List of orbitals, their l- and k- indices, and ham offsets
-           call orblib2(ib2) !(ib2,0,nlmto,iprmb,norb2,ltab2,ktab2,xx,offl2,xx)
+           call suphas (q,p2,ng, iv_iv , n1 , n2 , n3 , qlat , w_ocos2(1,ip) , w_osin2(1,ip) )
+           call orblib2(ib2) !norb2,ltab2,ktab2,offl2
            ofh2 = offl2(1)
-           !         Block into groups with consecutive l and common (e,rsm)
-           call uspecb(is2,rsmh2,eh2)
+           call uspecb(is2,rsmh2,eh2) ! Block into groups with consecutive l and common (e,rsm)
            call gtbsl1(7+16,norb2,ltab2,ktab2,rsmh2,eh2,ntab2,blks2)
+           
+           do  iorb2 = 1, norb2
+              if (blks2(iorb2) /= 0) then
+                 nlm1 = l2**2+1
+                 nlm2 = nlm1 + blks2(iorb2)-1
+                 ndim2 = ndim2 + max(nlm2-nlm1+1,0)
+              endif
+           enddo
+           allocate(ncuti(ndim2))
+           
+           ndim2 = 0
            do  iorb2 = 1, norb2
               if (blks2(iorb2) /= 0) then
                  jorb2 = ntab2(iorb2)
@@ -317,72 +213,35 @@ subroutine hsibl(ssite,sspec,k1,k2,k3,vsm,isp,q,ndimh,iprmb,napw,igapw,h)
                  nlm2 = nlm1 + blks2(iorb2)-1
                  ie   = ipet(l2+1,ik2,is2)
                  ir   = iprt(l2+1,ik2,is2)
-                 if (ndim2+nlm2-nlm1+1 > nhblk) call rxi( &
-                      'increase nhblk in hsibl; need',ndim2+nlm2-nlm1+1)
-                 !           Assemble hkl(G+q)
                  call hsibl3 ( ie , ir , etab , rtab , vol , nlm1 , nlm2 , ndim2 &
                       , ng , yl_rv , he_rv , hr_rv , w_ocos2(1,ip) , w_osin2(1,ip) &
                       , w_owk(1,ip) , w_oc2(1,ip) , w_ocf2(1,ip) )
-
-                 call ivset(ncuti,ndim2+1,ndim2+nlm2-nlm1+1,ncut(l2t+1,ik2))
+                 ncuti(ndim2+1:ndim2+nlm2-nlm1+1)=ncut(l2t+1,ik2)
                  ndim2 = ndim2 + max(nlm2-nlm1+1,0)
               endif
            enddo
            !     ... Scalar products phi1*vsm*phi2 for all orbitals in (ib1,ib2)
            allocate(wk2_zv(ndim1*ndim2))
            wk2_zv(:)=0d0
-           ! akao Apr2009
-           ! ncuti give by lmfp-suham-sugcut(1,..) lmfp-bndfp-suham2-sugcut(2,..) (1 is for normal MTO, 2 is for lo)
-           ! are only at Gamma point; thus symmetry can not be kept well for other k points.
+           ! ncuti are only at Gamma point; thus symmetry can not be kept well for other k points.
            call ncutcorrect ( ncuti , ndim2 , gv_rv , ng )
            call hsibl2 ( ndim1 , ndim2 , ng , ncuti , w_oc1(1,ip) , w_ocf1(1,ip) &
                 , w_oc2(1,ip) , w_ocf2(1,ip) , ndim1 , 0 , 0 , wk2_zv )
-           !     ... Add to hamiltonian
-           !$$$#if MPI
-           !$$$            call hsibl5 ( norb1 , blks1 , offl1 , ndim1 , norb2 , blks2 ,
-           !$$$     .      offl2 , ndim2 , ndimh , wk2_zv , h_zv )
-           !$$$
-           !$$$#else
-           !         print *, ib1,ib2
+           deallocate(ncuti)
            call hsibl5 ( norb1 , blks1 , offl1 , ndim1 , norb2 , blks2 , &
                 offl2 , ndim2 , ndimh , wk2_zv , h )
-           !$$$#endif
            deallocate(wk2_zv)
         enddo !Ends loop over ib2
         !   ... Matrix elements <Hsm| Vsm |PW>
-        !$$$#if MPI
-        !$$$          call hsibl6 ( ndimh , nlmto , norb1 , blks1 , offl1 , ng , iv_iv
-        !$$$     .    , napw , igapw , w_oc1(1,ip) , w_ocf1(1,ip) , h_zv )
-        !$$$#else
         call hsibl6 ( ndimh , nlmto , norb1 , blks1 , offl1 , ng , iv_iv &
              , napw , igapw , w_oc1(1,ip) , w_ocf1(1,ip) , h )
         !$$$#endif
      enddo !Ends loop over ib1
-
-     !$$$#if MPI
-     !$$$        call MPI_BARRIER(MPI_COMM_WORLD,ierr)
-     !$$$        allocate(hbuf_zv(ndimh*ndimh))
-     !$$$        call mpi_allreduce ( h_zv , hbuf_zv , 2 * ndimh * ndimh
-     !$$$     .  , mpi_double_precision , mpi_sum , mpi_comm_world , ierr )
-     !$$$        if (mlog) then
-     !$$$          call gettime(datim)
-     !$$$          call awrit3(' hsibl '//datim//' Process %i of %i on '
-     !$$$     .    //shortname(procid)(1:namelen(procid))//
-     !$$$     .    ' allreduce h ndimh=%i',' ',256,lgunit(3),
-     !$$$     .    procid,numprocs,ndimh)
-     !$$$        endif
-     !$$$        call daxpy ( 2 * ndimh * ndimh , 1d0 , hbuf_zv , 1 , h , 1  )
-     !$$$        if (allocated(hbuf_zv)) deallocate(hbuf_zv)
-     !$$$        if (allocated(h_zv)) deallocate(h_zv)
-     !$$$        deallocate(index, stat=ierr)
-     !$$$#endif
      deallocate(hr_rv, he_rv, g2_rv, yl_rv, g_rv, iv_iv, kv_iv, gv_rv, &
           w_oc1, w_ocf1, w_oc2, w_ocf2, &
           w_ocos1,  w_osin1,   w_ocos2,  w_osin2, &
           w_owk  ,  w_of)
-     !        call rlse(oic1)
   endif
-
   ! --- <e^i qpG | V |e^i qpG'>/vol = V(G'-G) ---
   if (napw > 0) then
      call fftz3(vsm(1,1,1,isp),n1,n2,n3,k1,k2,k3,1,0,-1)
@@ -400,10 +259,9 @@ subroutine hsibl(ssite,sspec,k1,k2,k3,vsm,isp,q,ndimh,iprmb,napw,igapw,h)
      enddo
      call fftz3(vsm(1,1,1,isp),n1,n2,n3,k1,k2,k3,1,0,1)
   endif
-  ! ... Occupy second half of matrix
   do  i = 1, ndimh
      do  j = i, ndimh
-        h(j,i) = dconjg(h(i,j))
+        h(j,i) = dconjg(h(i,j)) ! ... Occupy second half of matrix
      enddo
   enddo
   call tcx('hsibl')

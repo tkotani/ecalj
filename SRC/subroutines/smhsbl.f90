@@ -1,4 +1,4 @@
-subroutine smhsbl(ssite,sspec,vavg,q,ndimh,iprmb, napw,igapw, h,s)
+subroutine smhsbl(ssite,sspec,vavg,q,ndimh, napw,igapw, h,s)
   use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
   use m_lmfinit,only: lat_alat,nbas,nkaphh,lhh
   use m_lattic,only: lat_vol
@@ -29,7 +29,6 @@ subroutine smhsbl(ssite,sspec,vavg,q,ndimh,iprmb, napw,igapw, h,s)
   !i   vavg  :constant potential (MT zero) to be added to h
   !i   q     :Bloch wave vector
   !i   ndimh :dimension of hamiltonian
-  !i   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
   !o Outputs
   !o   h     :smooth Bloch hamiltonian added to h (= s * vavg)
   !o   s     :smooth Bloch overlap added to s
@@ -44,7 +43,6 @@ subroutine smhsbl(ssite,sspec,vavg,q,ndimh,iprmb, napw,igapw, h,s)
   !r        For local orbitals spec->pz is also required.
   !r        Note that each orbital type has 2*l+1 orbitals.
   !r     3. Location of orbitals (offsets) in hamiltonian
-  !r        Information is stored in iprmb (passed array)
   !r
   !r   Routines needing this information unpack the data as follows:
   !r
@@ -59,12 +57,6 @@ subroutine smhsbl(ssite,sspec,vavg,q,ndimh,iprmb, napw,igapw, h,s)
   !r               Note that these possiblities can simultaneously occur.
   !r
   !r     orbl      norb : (total number of orbital types)
-  !r     (iprmb)   ltab(io),ktab(io) : specifes l and index ik to
-  !r               rsmh(l,ik),eh(l,ik) for orbital type io (io=1..norb).
-  !r               Thus, the parameters
-  !r                 l=ltab(io),ik=ktab(io),rsmh(l,ik),eh(l,ik)
-  !r               completely specify envelope information for type io
-  !r               offl(io): hamiltonian offset for orbital type io
   !r
   !r     gtbsl1    Serves two purposes.
   !r     (norb,    1. Blocks orbitals with common (rsmh,eh) and
@@ -78,35 +70,6 @@ subroutine smhsbl(ssite,sspec,vavg,q,ndimh,iprmb, napw,igapw, h,s)
   !r               that if io+1, io+2, ... are contiguous to io,
   !r               blks(io+1)=blks(io+2)=...=0
   !r
-  !r     A typical loop that does NOT block orbitals therefore looks like
-  !r
-  !r     do  io= 1, norb
-  !r       l  = ltab(io)
-  !r       ik = ktab(io)
-  !r   C   off = orbital index in iprmb order
-  !r       off = offl(io)
-  !r       do  ilm1 = l**2+1, (l+1)**2
-  !r         off = off+1
-  !r         ...
-  !r       enddo
-  !r     enddo
-  !r
-  !r     A typical loop that DOES block orbitals therefore looks like
-  !r
-  !r     do  io= 1, norb
-  !r     if (blks(io) .ne. 0) then
-  !r       l   = ltab(io)
-  !r       ik  = ktab(io)
-  !r       nlm1 = l**2+1
-  !r       nlm2 = nlm1 + blks1(io1)-1
-  !r   C   off = orbital index in iprmb order
-  !r       off = offl(io)
-  !r       do  ilm1 = nlm1, nlm2
-  !r         off = off+1
-  !r         ...
-  !r       enddo
-  !r     endif
-  !r     enddo
   !r
   !r  *The Bloch sum of s(q) is computed as s = sum_T s_T exp(iq.T)
   !r   where T are the set of lattice vectors.
@@ -137,7 +100,7 @@ subroutine smhsbl(ssite,sspec,vavg,q,ndimh,iprmb, napw,igapw, h,s)
   implicit none
   ! ... Passed parameters
   integer :: procid,master
-  integer :: mode,ndimh,iprmb(1),napw,igapw(3,napw)
+  integer :: mode,ndimh,napw,igapw(3,napw)
   real(8):: q(3) , vavg
   type(s_site)::ssite(*)
   type(s_spec)::sspec(*)
@@ -209,14 +172,14 @@ subroutine smhsbl(ssite,sspec,vavg,q,ndimh,iprmb, napw,igapw, h,s)
         p1=ssite(ib1)%pos
         call uspecb(is1,rsm1,e1)
         !     Row info telling smhsbl where to poke s0 made by hhibl
-        call orblib1(ib1)!,0,nlmto,iprmb,norb1,ltab1,ktab1,xx,offl1,xx)
+        call orblib1(ib1)!norb1,ltab1,ktab1,xx,offl1,xx)
         call gtbsl1(8+16,norb1,ltab1,ktab1,rsm1,e1,ntab1,blks1)
         do  ib2 = ib1, nbas
            is2=ssite(ib2)%spec
            p2=ssite(ib2)%pos
            call uspecb(is2,rsm2,e2)
            !     Column info telling smhsbl where to poke s0 made by hhibl
-           call orblib2(ib2) !,0,nlmto,iprmb,norb2,ltab2,ktab2,xx,offl2,xx)
+           call orblib2(ib2) !norb2,ltab2,ktab2,xx,offl2,xx)
            call gtbsl1(8+16,norb2,ltab2,ktab2,rsm2,e2,ntab2,blks2)
            !     ... M.E. <1> and <T> between all envelopes connecting ib1 and ib2
            do  i1 = 1, nkaphh(is1) !nkap1
@@ -237,7 +200,6 @@ subroutine smhsbl(ssite,sspec,vavg,q,ndimh,iprmb, napw,igapw, h,s)
                  !     l2,ik2 = l and kaph indices, needed to locate block in s0
                  l2  = ltab2(io2)
                  ik2 = ktab2(io2)
-                 !     i2 = orbital index in iprmb order
                  i2 = offl2(io2)
                  do  ilm2 = l2**2+1, (l2+1)**2
                     i2 = i2+1
@@ -247,7 +209,6 @@ subroutine smhsbl(ssite,sspec,vavg,q,ndimh,iprmb, napw,igapw, h,s)
                           !     l1,ik1 = l and kaph indices, needed to locate block in s0
                           l1  = ltab1(io1)
                           ik1 = ktab1(io1)
-                          !     i1 = orbital index in iprmb order
                           i1 = offl1(io1)
                           do  ilm1 = l1**2+1, (l1+1)**2
                              i1 = i1+1

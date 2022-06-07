@@ -11,7 +11,7 @@ module m_bandcal
   use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_setiq
   use m_lmfinit,only: lrsig=>ham_lsig, lso,ham_scaledsigma,lekkl, &
        lmet=>bz_lmet,stdo,nbas,epsovl=>ham_oveps,nspc,plbnd,lfrce=>ctrl_lfrce, &
-       pwmode=>ham_pwmode,pwemax,stdl,iprmb
+       pwmode=>ham_pwmode,pwemax,stdl
   use m_MPItk,only: mlog, master_mpi, procid,strprocid, numprocs=>nsize, mlog_MPIiq
   use m_subzi, only: nevmx,lswtk,rv_a_owtkb
   use m_supot, only: k1,k2,k3

@@ -24,7 +24,6 @@ contains
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol
     use m_supot,only: lat_nabc,k1,k2,k3
     use m_igv2x,only: napw,ndimh,ndimhx,igapw=>igv2x
-    use m_lmfinit,only: iprmb
     use m_subzi, only: lwtkb,nevmx, lswtk,wtkb=>rv_a_owtkb
     use m_mkqp,only: wtkp=>rv_a_owtkp
     use m_mkpot,only: qval_=>qval
@@ -164,22 +163,21 @@ contains
        !       call zprm('evecs',2,evec,ndimh,ndimh,nevec)
        if (nlmto>0) then
           call fsmbl ( nbas , ssite , sspec ,  vavg , q , ndimh ,&
-          nlmto , iprmb , nevec , evl ( 1 , isp ) , evec , &
-               ewgt , f )
+          nlmto, nevec, evl(1,isp) , evec ,  ewgt , f )
        endif
        if (napw>0) then
-          call fsmbpw ( nbas , ssite , sspec , vavg , ndimh , nlmto , iprmb &
-               , nevec , evl ( 1 , isp ) , evec , ewgt , napw , qpgv &
+          call fsmbpw ( nbas , ssite , sspec , vavg , ndimh , nlmto &
+               , nevec , evl(1,isp) , evec , ewgt , napw , qpgv &
                , qpg2v , ylv , nlmax , lmxax , alat , dsqrt ( vol ) , f )
        endif
     endif
     ! ... Add to smooth density
     call rsibl ( ssite , sspec , lfrce , nbas , isp , q , &
-         iq , ndimh , nspc , napw , igapw , iprmb , nevec &
+         iq , ndimh , nspc , napw , igapw , nevec &
          , evec , ewgt , k1 , k2 , k3 , smpot , smrho , f )
     ! ... Add to local density coefficients
     call rlocbl ( ssite , sspec , lfrce , nbas , isp , q , &
-         ndham , ndimh , nspc , napw , igapw , iprmb ,  nevec &
+         ndham , ndimh , nspc , napw , igapw , nevec &
          , evec , ewgt , evl , sv_p_osig , sv_p_otau , sv_p_oppi &
     , lekkl , sv_p_oqkkl , sv_p_oeqkkl , f )
     ! ... Weights for spin moments

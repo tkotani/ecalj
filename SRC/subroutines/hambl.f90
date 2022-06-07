@@ -1,5 +1,5 @@
 subroutine hambl(isp,qin, smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi, h, s) !, hso)
-  use m_lmfinit,only: nbas , ssite=>v_ssite , sspec=>v_sspec,nsp,iprmb
+  use m_lmfinit,only: nbas , ssite=>v_ssite , sspec=>v_sspec,nsp
   use m_igv2x,only: napw, igvapwin=>igv2x, ndimh
   use m_supot,only: k1,k2,k3
   use m_struc_def,only: s_rv1,s_cv1
@@ -100,8 +100,8 @@ subroutine hambl(isp,qin, smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi, h, s) !, h
   call augmbl(ssite,sspec,isp,q, sv_p_osig,sv_p_otau,sv_p_oppi,ndimh, h,s) !,ohsozz,ohsopm
   !! Optionally set average istl potential to zero
   vavg = 0
-  call smhsbl(ssite,sspec, vavg+vconst, q, ndimh, iprmb, napw, igvapw, h,s)
-  call hsibl (ssite,sspec, k1,k2,k3,smpot,isp,q,ndimh,iprmb,napw,igvapw, h)
+  call smhsbl(ssite,sspec, vavg+vconst, q, ndimh, napw, igvapw, h,s)
+  call hsibl (ssite,sspec, k1,k2,k3,smpot,isp,q,ndimh,napw,igvapw, h)
   do i=1,ndimh
      h(i+1:ndimh,i)=dconjg(h(i,i+1:ndimh))
      s(i+1:ndimh,i)=dconjg(s(i,i+1:ndimh))

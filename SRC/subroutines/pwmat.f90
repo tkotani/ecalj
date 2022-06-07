@@ -1,4 +1,4 @@
-subroutine pwmat(ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q,&
+subroutine pwmat(ssite,sspec,nbas,ndimh,napw,igapw,q,&
   ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
   use m_struc_def           !Cgetarg
   use m_lmfinit,only: lat_alat
@@ -32,7 +32,6 @@ subroutine pwmat(ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q,&
   !i   napw  :number of augmented PWs in basis
   !i   igapw :list of G vectors for APW part of basis as multiples of
   !i         :primitive reciprocal lattice vectors
-  !i   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
   !i   q     :Bloch wave vector
   !i   nlmax :maximum value of (1+augmentation l)**2 within any sphere
   !i   ngp   :no. G vectors for eigenfunction expansion (depends on q)
@@ -68,7 +67,7 @@ subroutine pwmat(ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q,&
   !u   10 Apr 02 Redimensionsed eh,rsmh to accomodate larger lmax
   !u   09 Apr 01 Adapted from Kotani's pplmat2
   ! ----------------------------------------------------------------------
-  integer :: ngp,nlmax,igv(3,ngp),nbas,ndimh,iprmb(1), &
+  integer :: ngp,nlmax,igv(3,ngp),nbas,ndimh, &
        napw,igapw(3,napw)
   real(8):: q(3) , GcutH
   type(s_site)::ssite(*)
@@ -180,7 +179,7 @@ subroutine pwmat(ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q,&
         is = int(ssite(ib)%spec)
 
         call uspecb(is,rsmh,eh)
-        call orblib(ib)!,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
+        call orblib(ib)!norb,ltab,ktab,xx,offl,xx)
         call gtbsl1(8+16,norb,ltab,ktab,rsmh,eh,ntab,blks)
 
         do  io = 1, norb
@@ -240,174 +239,6 @@ subroutine pwmat(ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q,&
   deallocate(yl,igvx,pwh,kv,ppovlx)
 end subroutine pwmat
 
-! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-subroutine pwmat2(ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q, ngp,nlmax,igv,ovlp,pwh)
-  use m_struc_def           !Cgetarg
-  use m_lmfinit,only: lat_alat
-  use m_lattic,only: lat_qlat
-  use m_lattic,only: lat_vol
-  use m_uspecb,only:uspecb
-  use m_lattic,only:lat_plat
-  use m_orbl,only: Orblib,ktab,ltab,offl,norb
-  use m_ropyln,only: ropyln
-  !- Matrix elements (IPW,IPW); expansion coefficients of basis fns in IPWs
-  ! ----------------------------------------------------------------------
-  !i Inputs
-  !i   slat  :struct containing information about the lattice
-  !i     Elts read: alat plat qlat vol
-  !i     Stored:
-  !i   ssite :struct containing site-specific information
-  !i     Elts read: spec
-  !i     Stored:    pos spec
-  !i   sspec :struct containing species-specific information
-  !i     Elts read: rmt
-  !i     Stored:
-  !i   nbas  :size of basis
-  !i   ndimh :dimension of hamiltonian
-  !i   napw  :number of augmented PWs in basis
-  !i   igapw :list of G vectors for APW part of basis as multiples of
-  !i         :primitive reciprocal lattice vectors
-  !i   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
-  !i   q     :Bloch wave vector
-  !i   nlmax :maximum value of (1+augmentation l)**2 within any sphere
-  !i   ngp   :no. G vectors for eigenfunction expansion (depends on q)
-  !i         :Cutoff specified by QpGcut_psi in GWinput
-  !i   igv   :list of ngp G vectors for PW expansion of basis as multiples
-  !i         :of primitive reciprocal lattice vectors.
-  !o Outputs
-  !o   ovlp  :<IPW_G1 | IPW_G2 >
-  !o   pwh   :coefficients to PW expansion of basis functions, and also
-  !o         :therefore of IPW expansion of interstitial part of basis
-  !o         :pwh(ig,j) = Fourier coff ig for envelope function j
-  !o         :where ig is an index to igv
-  !o         :The interstitial part of the basis function phi_j is:
-  !o         :phi_j (istl) = sum_G  pwh(G,j) IPW(G)
-  !l Local variables
-  !r Remarks
-  !r   pwmat2 is similar to pwmat, but returns pwh rather than pwhovl.
-  !r   The reasons for this are discussed in sugw.f
-  !u Updates
-  !u   26 Jan 09 Adapted from pwmat
-  ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
-  integer :: ngp,nlmax,igv(3,ngp),nbas,ndimh,iprmb(1), &
-       napw,igapw(3,napw)
-  real(8):: q(3)
-  type(s_site)::ssite(*)
-  type(s_spec)::sspec(*)
-  !      type(s_lat)::slat
-
-  double complex ovlp(ngp,ngp), pwh(ngp,ndimh)
-  ! ... Local parameters
-  integer :: ips(nbas),ib,is,igetss,ig,lmxax,ll,nlmto,iga,ifindiv2
-  double precision :: alat,plat(3,3),qlat(3,3),vol,pi,pi4,tpiba,xx, &
-       tripl,dgetss,bas(3,nbas),rmax(nbas),qpg(3),qpg2(1),denom,gam,srvol
-  integer :: n0,nkap0,i_spackv
-  parameter (n0=10, nkap0=3)
-  integer :: lh(nkap0),nkapi,i_copy_size
-  integer :: io,l,ik,offh,ilm, blks(n0*nkap0),ntab(n0*nkap0)
-  !      ,norb,ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),
-  double precision :: eh(n0,nkap0),rsmh(n0,nkap0)
-  double complex phase,img,fach,mimgl(0:n0)
-  double precision,allocatable:: yl(:)
-
-  ! --- Setup ---
-
-  !      i_copy_size=size(lat_plat)
-  !      call dcopy(i_copy_size,lat_plat,1,plat,1)
-  !      i_copy_size=size(lat_qlat)
-  !      call dcopy(i_copy_size,lat_qlat,1,qlat,1)
-  alat=lat_alat
-  vol=lat_vol
-  plat=lat_plat
-  qlat=lat_qlat
-  pi  = 4d0*datan(1d0)
-  pi4 = 4d0*pi
-  tpiba = 2*pi/alat
-  vol = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
-  srvol = dsqrt(vol)
-  img = dcmplx(0d0,1d0)
-  mimgl(0) = 1
-  do  l = 1, n0
-     mimgl(l) = (-img)**l
-  enddo
-  !     Create bas,ips,rmax
-  i_copy_size=size(ssite(1)%pos)
-  do i_spackv=1,nbas
-     !        call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,bas)
-     bas(:,i_spackv)=ssite(i_spackv)%pos
-  enddo
-
-  i_copy_size=1;
-  do i_spackv=1,nbas
-     !        call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,ips)
-     ips(i_spackv)=ssite(i_spackv)%spec
-  enddo
-
-  do  ib = 1, nbas
-     is = int(ssite(ib)%spec)
-
-     rmax ( ib ) = (sspec(is)%rmt)
-
-  enddo
-  nlmto = ndimh-napw
-
-  ! --- Overlaps between IPW's ---
-  call ipwovl(alat,plat,qlat,ngp,igv,ngp,igv,nbas,rmax,bas,ovlp)
-  !     call zprm('ovlp',2,ovlp,ngp,ngp,ngp)
-
-  ! --- Expansion pwh of envelope basis functions in PWs ---
-  call dpzero(pwh,ngp*ndimh*2)
-  allocate(yl(nlmax))
-  lmxax = ll(nlmax)
-
-  ! ... Fourier coefficients of smoothed hankels for all LMTOs
-  do  ig = 1, ngp
-     qpg(1:3) = tpiba * (q(1:3) + matmul(qlat, igv(1:3,ig)))
-     call ropyln(1,qpg(1),qpg(2),qpg(3),lmxax,1,yl,qpg2)
-     do  ib = 1, nbas
-        phase = exp( -img * sum( qpg*bas(:,ib)*alat )  )
-        is = int(ssite(ib)%spec)
-
-        call uspecb(is,rsmh,eh)
-        call orblib(ib)!,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
-        call gtbsl1(8+16,norb,ltab,ktab,rsmh,eh,ntab,blks)
-
-        do  io = 1, norb
-           if (blks(io) /= 0) then
-              !           l,ik = l and kaph indices, needed to address eh,rsmh
-              l  = ltab(io)
-              ik = ktab(io)
-              !           offh = hamiltonian offset to this block
-              offh  = offl(io)
-              denom = eh(l+1,ik) - qpg2(1)
-              gam   = 1d0/4d0*rsmh(l+1,ik)**2
-              offh  = offl(io)
-              fach  = -pi4/vol/denom * phase * mimgl(l) * exp(gam*denom)
-              do  ilm = l**2+1, (l+1)**2
-                 offh = offh+1
-                 pwh(ig,offh) = fach * yl(ilm)
-              enddo
-           endif
-        enddo
-     enddo
-  enddo
-
-  ! ... Fourier coefficients to APWs
-  !     APWs are normalized:  |G> = 1/sqrt(vol) exp[i G.r]
-  do  iga = 1, napw
-     !       Index to igv that corresponds to igapw
-     ig = ifindiv2(igapw(1,iga),igv,ngp)
-     pwh(ig,iga+nlmto) = 1d0/srvol
-  enddo
-
-  !     call zprm('pwh',2,pwh,ngp,ngp,ndimh)
-
-  ! --- Cleanup ---
-  deallocate(yl)
-
-end subroutine pwmat2
 
 
 subroutine ipwovl(alat,plat,qlat,ng1,igv1,ng2,igv2,nbas, &

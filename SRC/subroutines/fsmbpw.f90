@@ -1,4 +1,4 @@
-subroutine fsmbpw(nbas,ssite,sspec,vavg,ndimh,nlmto,iprmb, &
+subroutine fsmbpw(nbas,ssite,sspec,vavg,ndimh,nlmto, &
      nevec,evl,evec,ewgt,napw,qpgv,qpg2v,ylv,nlmax,lmxax,alat,sqv,f)
   use m_struc_def
   use m_uspecb,only:uspecb
@@ -18,7 +18,6 @@ subroutine fsmbpw(nbas,ssite,sspec,vavg,ndimh,nlmto,iprmb, &
   !i   vavg  :constant potential (MT zero) to be added to h
   !i   ndimh :dimension of hamiltonian
   !i   nlmto :dimension of lmto part of hamiltonian
-  !i   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
   !i   nevec :number of occupied eigenvectors
   !i   evl   :eigenvalues
   !i   evec  :eigenvectors
@@ -40,7 +39,7 @@ subroutine fsmbpw(nbas,ssite,sspec,vavg,ndimh,nlmto,iprmb, &
   implicit none
   integer:: i_copy_size,iloop
   ! ... Passed parameters
-  integer :: nbas,ndimh,napw,nlmax,nlmto,nevec,iprmb(nlmto),lmxax
+  integer :: nbas,ndimh,napw,nlmax,nlmto,nevec,lmxax
   real(8):: ylv(napw,nlmax)
   type(s_site)::ssite(*)
   type(s_spec)::sspec(*)
@@ -85,8 +84,7 @@ subroutine fsmbpw(nbas,ssite,sspec,vavg,ndimh,nlmto,iprmb, &
 
      call uspecb(is1,rsm1,e1)
      !       Row info telling fsmbpw where to poke s0 made by hhibl
-     !        call orbl(ib1,0,nlmto,iprmb,norb1,ltab1,ktab1,xx,offl1,xx)
-     call orblib1(ib1) !,0,nlmto,iprmb,norb1,ltab1,ktab1,xx,offl1,xx)
+     call orblib1(ib1) !norb1,ltab1,ktab1,xx,offl1,xx)
 
      !       For now, do not allow l blocks to be grouped.
      !       To do so will require rewriting loops below.

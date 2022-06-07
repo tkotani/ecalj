@@ -1,6 +1,6 @@
 module m_hamindex         !all protected now
   use m_lmfinit,only: ham_pwmode,pwemax,ldim=>nlmto,noutmx,nsp_in=>nsp,stdo, &
-       alat=>lat_alat,nl,ctrl_nbas,ssite=>v_ssite,sspec=>v_sspec,n0,nkap0,iprmb,zbak_read=>zbak
+       alat=>lat_alat,nl,ctrl_nbas,ssite=>v_ssite,sspec=>v_sspec,n0,nkap0,zbak_read=>zbak
   use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
   use NaNum,only: NaN       !for initialization, but not working well
   use m_suham,only: ndham_read=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
@@ -176,7 +176,6 @@ contains
     ndimham = 0               !dimension of mto part of hamiltonian
     do  ib = 1, nbas
        is=ssite(ib)%spec
-       !     call orbl(ib,0,ldim,iprmb,norb,ltabx(:,ib),ktabx(:,ib),off,offlx(:,ib),ndim)!iprmb
        do iorb = 1, norbx(ib)
           norbmto = norbmto+1
           if(ltabx(iorb,ib)>lxx)  lxx = ltabx(iorb,ib)
@@ -194,7 +193,6 @@ contains
     do  ib = 1, nbas
        is=ssite(ib)%spec
        !        spid(ib)=sspec(is)%name
-       !        call orbl(ib,0,ldim,iprmb,norb,ltabx(:,ib),ktabx(:,ib),off,offlx(:,ib),ndim) !iprmb
        do  iorb = 1, norbx(ib) !(ib,irob) specify a block of MTO part Hamiltonian
           norbmto=norbmto+1
           ibastab(norbmto)= ib

@@ -1,6 +1,6 @@
 subroutine makusq(mode,nsites,isite, &
      nev,isp,iq,q,evec,  aus)
-  use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nkapii,lhh,iprmb
+  use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nkapii,lhh
   use m_suham,only: ndham=>ham_ndham
   use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
   use m_mkpot,only: ppnl=>ppnl_rv
@@ -108,7 +108,6 @@ subroutine makusq(mode,nsites,isite, &
   !      integer lh(nkap0)
   double precision :: eh(n0,nkap0),rsmh(n0,nkap0),rsma,a,rmt
   integer :: igetss,ib,nkapi,is,nr,kmax,lmxa,lmxl,lmxh,i
-  ! ino Dec.12.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
 
   real(8) ,allocatable :: rofi_rv(:)
   real(8) ,allocatable :: fh_rv(:)
@@ -163,7 +162,7 @@ subroutine makusq(mode,nsites,isite, &
      call fradpk ( kmax , rsma , lmxa , nr , rofi_rv , fp_rv &
           , xp_rv , vp_rv , dp_rv )
      !   --- Add to the coefficient for the projection onto (u,s) for this site
-     call pusq1 ( mode , ib , isp , nspc , iprmb , nlmax , lmxh &
+     call pusq1 ( mode , ib , isp , nspc , nlmax , lmxh &
           , nbas , ssite , sspec ,  q , ndham , ndimh , napw , igvapw& ! & slat ,
           , nev , evec , vh_rv , dh_rv , vp_rv , dp_rv , ppnl ( 1 , 1 , &
           1 , ib ) , aus ( 1 , 1 , 1 , 1 , i , iq ) , aus ( 1 , 1 , 2 , &
@@ -182,7 +181,7 @@ subroutine makusq(mode,nsites,isite, &
   call tcx('makusq')
 end subroutine makusq
 ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-subroutine pusq1(mode,ia,isp,nspc,iprmb,nlmax,lmxh,nbas,ssite, &
+subroutine pusq1(mode,ia,isp,nspc,nlmax,lmxh,nbas,ssite, &
      sspec,q,ndham,ndimh,napw,igvapw,nev,evec,vh,dh,vp,dp,ppnl, &
      au,as,az)
   use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkapii
@@ -197,7 +196,6 @@ subroutine pusq1(mode,ia,isp,nspc,iprmb,nlmax,lmxh,nbas,ssite, &
   !i   ia    :augmentation sphere
   !i   isp   :current spin index for collinear case
   !i   nspc  :2 for coupled spins; otherwise 1
-  !i   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
   !i   nlmax :dimensions au,as
   !i   lmxh  :basis l-cutoff
   !i   nbas  :size of basis
@@ -247,7 +245,6 @@ subroutine pusq1(mode,ia,isp,nspc,iprmb,nlmax,lmxh,nbas,ssite, &
   integer :: mode,ia,isp,nspc,lmxh,nlmax, &
        nbas,ndham,ndimh,napw,igvapw(3,napw),nev,nlmbx,n0,nppn
   parameter (nlmbx=25, n0=10, nppn=12)
-  integer :: iprmb(ndimh)
   double precision :: ppnl(nppn,n0,2)
   double precision :: vp(*),dp(*),vh(*),dh(*)
   real(8):: q(3)
@@ -289,11 +286,7 @@ subroutine pusq1(mode,ia,isp,nspc,iprmb,nlmax,lmxh,nbas,ssite, &
   nkape=nkapii(isa)
   ! --- Make strux to expand all orbitals at site ia ---
   allocate(b_zv((kmax+1)*nlma*ndimh))
-  !      call bstrux ( 2 , ssite , sspec , rv_a_ocg , iv_a_oidxcg !slat ,
-  !     .     , iv_a_ojcg , rv_a_ocy , iprmb , nbas , ia , pa , rsma , q ,
-  !     .     kmax , nlma , ndimh , napw , igvapw , b_zv , iwdummy )
-  call bstrux ( 2 ,  ia , pa , rsma , q , &
-       kmax , nlma , ndimh , napw , igvapw , b_zv , zdummy )
+  call bstrux(2,ia,pa,rsma,q, kmax , nlma , ndimh , napw , igvapw , b_zv , zdummy )
   !     In noncollinear case, isp=1 always => need internal ispc=1..2
   !     ksp is the current spin index in both cases:
   !     ksp = isp  in the collinear case
@@ -324,7 +317,7 @@ subroutine pusq1(mode,ia,isp,nspc,iprmb,nlmax,lmxh,nbas,ssite, &
         call rlocb1 ( ndimh , nlma , kmax , evec ( 1 , ispc , ivec ) &
              , b_zv , a_zv )
         call pusq2 ( mode , ia , nkape , kmax , lmxa , lmxh , nlmto , &
-             min ( nlma , nlmax ) , iprmb , a_zv , rotp , evec ( 1 , ispc &
+             min ( nlma , nlmax ) , a_zv , rotp , evec ( 1 , ispc &
              , ivec ) , vh , dh , vp , dp , au ( 1 , ivec , 1 , ksp ) , as &
              ( 1 , ivec , 1 , ksp ) , az ( 1 , ivec , 1 , ksp ) )
      enddo
@@ -335,7 +328,7 @@ subroutine pusq1(mode,ia,isp,nspc,iprmb,nlmax,lmxh,nbas,ssite, &
   call tcx('pusq1')
 end subroutine pusq1
 ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-subroutine pusq2(mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma,iprmb, &
+subroutine pusq2(mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma, &
      cPkL,r,evec,vh,dh,vp,dp,au,as,az)
   use m_orbl,only: Orblib,ktab,ltab,offl,norb
   !- Extract projection of eigenstate onto (u,s,z) for sphere at site ia
@@ -351,7 +344,6 @@ subroutine pusq2(mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma,iprmb, &
   !i   lmxh  :basis l-cutoff
   !i   nlmto :dimension of lmto component of basis
   !i   nlma  :number of L's in augmentation sphere = (lmxa+1)**2
-  !i   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
   !o   cPkL  :coefficients to P_kL expansion of evec
   !i   r     :2x2 rotation matrices rotating (phi,phidot) to (u,s)
   !i   evec  :eigenvector
@@ -374,7 +366,7 @@ subroutine pusq2(mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma,iprmb, &
   ! ----------------------------------------------------------------------
   !     implicit none
   ! ... Passed parameters
-  integer :: mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma,iprmb(1)
+  integer :: mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma
   double precision :: vh(0:lmxh,1),dh(0:lmxh,1)
   double precision :: vp(0:lmxa,0:kmax),dp(0:lmxa,0:kmax)
   integer :: nlmxx
@@ -395,7 +387,7 @@ subroutine pusq2(mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma,iprmb, &
   if (nlmto == 0) return
   if (nlma > nlmxx) call rxi('makusq:  nlmxx < nlma=',nlma)
   ! --- Loop over all orbitals centered at this site ---
-  call orblib(ia)!,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
+  call orblib(ia)!norb,ltab,ktab,xx,offl,xx)
   !     Block into groups of consecutive l
   call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
   !     Contribution from head part

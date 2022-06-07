@@ -55,7 +55,6 @@ clabel.o \
 config.o \
 cshear.o \
 defpq.o \
-defspc.o \
 defwsr.o \
 delstd.o \
 delstp.o \
@@ -75,7 +74,6 @@ gvctof.o \
 gvlist.o \
 gvlst2.o \
 gvmtch.o \
-hanr.o \
 hansmd.o \
 hansmr.o \
 hansr4.o \
@@ -157,9 +155,6 @@ tailsm.o \
 tetirr.o \
 uspecb.o \
 vecpkl.o \
-veecomp.o \
-vldau.o \
-vxc0sp.o \
 xlgen.o \
 ylmrtg.o \
 switch.o \
@@ -168,8 +163,6 @@ pvsms2.o \
 getcor.o \
 radgra.o \
 xcpbe.o \
-vxcnls.o \
-vxc0gc.o \
 m_ext.o\
 fsubs.o \
 a2bin.o \
@@ -184,7 +177,6 @@ cmdopt.o \
 cpstr.o \
 cpudel.o \
 cross.o \
-dbesj.o \
 dinv33.o \
 dmpy.o \
 dmpy22.o \
@@ -207,8 +199,6 @@ garg.o \
 gettime.o \
 gradfl.o \
 gradzr.o \
-htribk.o \
-htridi.o \
 hunti.o \
 huntx.o \
 i1mach.o \
@@ -271,7 +261,6 @@ dfrce.o \
 efldos.o \
 elocp.o \
 esmsmves.o \
-fklbl.o \
 flocbl.o \
 fradhd.o \
 fradpk.o \
@@ -279,24 +268,11 @@ fsmbl.o \
 fsmbpw.o \
 ftlxp.o \
 gaugm.o \
-gfigbl.o \
-ggugbl.o \
-ghibl.o \
-ghigbl.o \
-ghios.o \
-gklbl.o \
 gklft.o \
-gklq.o \
-gtbsl2.o \
 gvsym.o \
 hambl.o \
-hgugbl.o \
-hhibl.o \
-hhigbl.o \
-hhugbl.o \
 hklft.o \
 hsibl.o \
-hsmbl.o \
 lindsc.o \
 lmfp.o \
 locpot.o \
@@ -307,7 +283,6 @@ mkdmtu.o \
 mkehkf.o \
 mkekin.o \
 mkewgt.o \
-mkorbm.o \
 mkpdos.o \
 mkrout.o \
 momusl.o \
@@ -334,7 +309,6 @@ rlocbl.o \
 rsibl.o \
 setofl.o \
 sgvsym.o \
-smcorm.o \
 smhsbl.o \
 smves.o \
 sopert.o \
@@ -365,7 +339,6 @@ m_events.o \
 grfmsh.o \
 smvxcm.o \
 vxcnsp.o \
-vxcnlm.o \
 w_psir.o \
 gintxx.o 
 

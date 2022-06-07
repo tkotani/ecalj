@@ -97,7 +97,7 @@ module m_lmfinit
   real(8),protected:: mdprm(6)
   integer,protected:: nitmv
   !!
-  integer,protected:: pwmode,ncutovl     !ncutovl is by takao. not in lm-7.0beta.npwpad,
+  integer,protected:: pwmode,ncutovl ,ndimx    !ncutovl is by takao. not in lm-7.0beta.npwpad,
   real(8),protected:: pwemax,pwemin,oveps!,delta_stabilize
   integer,allocatable,protected ::  iv_a_oips (:)   ,  lpz(:),lpzex(:),lhh(:,:),iprmb(:)
   !! CG coefficient
@@ -1274,7 +1274,7 @@ contains
     !      j=3+10 ! no downfolding j=3 ; j=+10 nfp-style basis:
     !      call suidx(nkaph,j,nspec,v_sspec)
     !! Set default values for species data
-    call defspc(v_sspec)
+    call defspc(v_sspec,nspec)
     !!
     lxcf = ctrl_lxcf
     nspc = 1
@@ -1299,6 +1299,26 @@ contains
           enddo
 1121   enddo
 110 enddo
+    
+    block
+    integer:: nnrlx,lmri,ik,nnrl,nnrli,li
+    nnrlx=0
+    do ib = 1,nbas
+       lmri = nl*nl*nkaph*(ib-1)
+       do  ik = 1, nkaph
+          do   li = 0, nl-1
+             lmri = lmri + 2*li+1
+             if (iprmb(lmri) > nlmto) cycle
+             nnrli = nnrli + 2*li+1
+          enddo
+       enddo
+       nnrlx = max(nnrlx,nnrli)
+       nnrli = 0
+    enddo
+    nnrl = nnrlx
+    ndimx=nnrl
+    end block
+  
     nspx  = nsp
     if(lso/=0) nspx = 1
     nvi=0
@@ -1516,6 +1536,35 @@ contains
   end subroutine m_lmfinit_init
 
   ! sssssssssssssssssssss
+  subroutine defspc(sspec,nspec)
+    use m_struc_def,only:s_spec
+    integer:: nspec
+    type(s_spec)::sspec(*)
+    double precision :: dgetss,rg,rsma,rfoca,rsmfa,rmt
+    integer :: is
+    do  is = 1, nspec
+       rmt = (sspec(is)%rmt)
+       rmt=sspec(is)%rmt
+       rg=sspec(is)%rg
+       rsma=sspec(is)%rsma
+       rfoca=sspec(is)%rfoca
+       rsmfa=sspec(is)%rsmfa
+       if (rg    == 0) rg    = -1
+       if (rg    < 0) rg    = -rg*0.25d0*rmt
+       if (rsma  == 0) rsma  = -1
+       if (rsma  < 0) rsma  = -rsma*0.4d0*rmt
+       if (rfoca == 0) rfoca = -1
+       if (rfoca < 0) rfoca = -rfoca*0.4d0*rmt
+       if (rsmfa == 0) rsmfa = -1
+       if (rsmfa < 0) rsmfa = -rsmfa*0.5d0*rmt
+       sspec(is)%rg=rg
+       sspec(is)%rsma=rsma
+       sspec(is)%rfoca=rfoca
+       sspec(is)%rsmfa=rsmfa
+       sspec(is)%rsmv=rmt*.5d0
+    enddo
+  end subroutine defspc
+  ! sssssssssssssssssssss
   subroutine getiout(a,iin,iout) !a(1:iout) can be nonzero.
     integer:: iin,iout,i
     real(8):: a(iin)
@@ -1537,10 +1586,9 @@ contains
        endif
     enddo
   end subroutine getiout10
-
+  !ssssssssssssssssssssssss
   subroutine fill3in(nin,res)
     !- fills res(2) or res(2:3) if res(1) or res(1:2) are given
-    !     implicit none
     integer :: nin,res(3)
     if (nin==2) then
        res(3) = res(2)
@@ -1548,7 +1596,7 @@ contains
        res(2:3) = res(1)
     endif
   end subroutine fill3in
-
+  
 end module m_lmfinit
 
 

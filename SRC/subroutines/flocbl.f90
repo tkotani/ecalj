@@ -1,5 +1,5 @@
 subroutine flocbl(nbas,ia,kmax,nkaph,lmxha,nlmha,nlma,lmxa,nlmto, &
-     ndimh,iprmb,isp,evl,evec,ewgt,cPkL,db, sigpp,sighp,ppippz,ppihpz,f)
+     ndimh,isp,evl,evec,ewgt,cPkL,db, sigpp,sighp,ppippz,ppihpz,f)
   use m_orbl,only: Orblib, norb,ltab,ktab,offl
   !- Force contribution from augmentation at site ia.
   ! ----------------------------------------------------------------------
@@ -40,7 +40,7 @@ subroutine flocbl(nbas,ia,kmax,nkaph,lmxha,nlmha,nlma,lmxa,nlmto, &
   ! ----------------------------------------------------------------------
   !     implicit none
   ! ... Passed parameters
-  integer :: ia,kmax,lmxa,nkaph,nbas,nlmto,ndimh,nlma,lmxha,nlmha,isp,iprmb(1)
+  integer :: ia,kmax,lmxa,nkaph,nbas,nlmto,ndimh,nlma,lmxha,nlmha,isp
   double precision :: evl,f(3,nbas),ewgt, &
        sigpp(0:kmax,0:kmax,0:lmxa,isp),sighp(nkaph,0:kmax,0:lmxha,isp)
   !     .ppihp(nkaph,0:kmax,nlmha,nlma,isp)
@@ -59,7 +59,7 @@ subroutine flocbl(nbas,ia,kmax,nkaph,lmxha,nlmha,nlma,lmxa,nlmto, &
 
   call tcn('flocbl')
   ! ... Make (ppi-evl*sig)*psi in wk
-  call flocb2(ia,nlmto,iprmb,kmax,nkaph,nlmha,nlma,evl,evec, &
+  call flocb2(ia,nlmto,kmax,nkaph,nlmha,nlma,evl,evec, &
        ppippz(0,0,1,1,isp),sigpp(0,0,0,isp), &
        ppihpz(1,0,1,1,isp),sighp(1,0,0,isp), &
        cPkL,wk) !lcplxp,
@@ -67,9 +67,7 @@ subroutine flocbl(nbas,ia,kmax,nkaph,lmxha,nlmha,nlma,lmxa,nlmto, &
   ! ... Loop over ib, virtual shift of wavefct part centered there
   do  ib = 1, nbas
      if (ib == ia) goto 10
-     !       Block orbitals into groups with consecutive l
-     !        call orbl(ib,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
-     call orblib(ib)
+     call orblib(ib)!norb,ltab,ktab,offl
      call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
 
      !   ... Grad of psi expansion coeffs from a virtual shift at site ib
@@ -135,7 +133,7 @@ subroutine flocbl(nbas,ia,kmax,nkaph,lmxha,nlmha,nlma,lmxa,nlmto, &
   call tcx('flocbl')
 end subroutine flocbl
 
-subroutine flocb2(ia,nlmto,iprmb,kmax,nkaph,nlmha,nlma,evl,evec, &
+subroutine flocb2(ia,nlmto,kmax,nkaph,nlmha,nlma,evl,evec, &
      !     .ppipp,ppippz,sigpp,ppihp,ppihpz,sighp,cPkL,wk)!lcplxp,
      ppippz,sigpp,ppihpz,sighp,cPkL,wk)!lcplxp,
   use m_orbl,only: Orblib, norb,ltab,ktab,offl
@@ -144,7 +142,6 @@ subroutine flocb2(ia,nlmto,iprmb,kmax,nkaph,nlmha,nlma,evl,evec, &
   !i Inputs
   !i   ia    :site of augmentation
   !l   nlmto :dimension of LMTO part of hamiltonian, for hh and ht blocks
-  !i   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
   !i   nlmha :dimensions ppihp
   !i   nlma  :augmentation L-cutoff
   !i   kmax  :polynomial cutoff
@@ -168,7 +165,7 @@ subroutine flocb2(ia,nlmto,iprmb,kmax,nkaph,nlmha,nlma,evl,evec, &
   ! ----------------------------------------------------------------------
   !     implicit none
   ! ... Passed parameters
-  integer :: ia,kmax,nkaph,nlma,nlmha,nlmto,iprmb(*) !,lcplxp
+  integer :: ia,kmax,nkaph,nlma,nlmha,nlmto
   double precision :: &
        evl,sighp(nkaph,0:kmax,0:*),& ! & ppihp(nkaph,0:kmax,nlmha,nlma),
   sigpp(0:kmax,0:kmax,0:*)!,ppipp(0:kmax,0:kmax,nlma,nlma)
@@ -183,15 +180,13 @@ subroutine flocb2(ia,nlmto,iprmb,kmax,nkaph,nlmha,nlma,evl,evec, &
   double precision :: xx
   wk=0d0
   ! ... Add Hsm*Pkl block of ppi-evl*sig times evec
-  !      call orbl(ia,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
-  call orblib(ia)
+  call orblib(ia)!norb,ltab,ktab,offl
   !     Block evl*ppi contribution in groups of consecutive l
   call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
   do  io = 1, norb
      !       l,ik = l and kaph indices, needed for sigma
      l  = ltab(io)
      ik = ktab(io)
-     !       i1 = orbital index in iprmb order; ilm1 = augm. index in L order
      nlm1 = l**2+1
      nlm2 = (l+1)**2
      i  = offl(io)

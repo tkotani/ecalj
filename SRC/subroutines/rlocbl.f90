@@ -1,6 +1,6 @@
 module m_prlcb
 contains
-  subroutine prlcb2(job,ia,nkaph,iprmb,nlmha,kmax,nlma,isp,cPkL, &
+  subroutine prlcb2(job,ia,nkaph,nlmha,kmax,nlma,isp,cPkL, &
        nlmto,evec,ewgt,evl,qhh,qhp)
     use m_orbl,only: Orblib,ktab,ltab,offl,norb
     !- Add one and two-center terms to density coeffs
@@ -10,7 +10,6 @@ contains
     !i         :1 accumulate local density-matrix weighted by energy
     !i   ia    :site of augmentation
     !i   nkaph :dimensions qhh,qhp
-    !i   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
     !i   nlmha :dimensions qhh,qhp
     !i   kmax  :polynomial cutoff
     !i   nlma  :augmentation L-cutoff
@@ -32,7 +31,7 @@ contains
     !u   27 Aug 01 Extended to local orbitals.
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: job,ia,kmax,nkaph,isp,nlmto,nlma,nlmha,iprmb(1)
+    integer :: job,ia,kmax,nkaph,isp,nlmto,nlma,nlmha
     double precision :: qhh(nkaph,nkaph,nlmha,nlmha,isp), &
          qhp(nkaph,0:kmax,nlmha,nlma,isp),ewgt !(numq)
     real(8),optional::evl
@@ -47,7 +46,7 @@ contains
     if (nlmto == 0) return
     call tcn('prlcb2')
     ! --- Loop over all orbitals centered at site ia, incl. local orbs ---
-    call orblib(ia)!,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
+    call orblib(ia)! norb,ltab,ktab,offl
     !     Block into groups of consecutive l
     call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
     do io1 = 1, norb
@@ -80,7 +79,7 @@ contains
              ik2 = ktab(io2)
              nlm21 = l2**2+1
              nlm22 = nlm21 + blks(io2)-1
-             i2 = offl(io2) !   i2 = orbital index in iprmb order
+             i2 = offl(io2) 
              do  ilm2 = nlm21, nlm22
                 i2 = i2+1
                 if (job == 0) then
@@ -151,7 +150,7 @@ contains
 end module m_prlcb
 !!
 subroutine rlocbl ( ssite , sspec , lfrce , nbas , isp  &
-  , q , ndham , ndimh , nspc , napw , igvapw , iprmb , nevec &
+  , q , ndham , ndimh , nspc , napw , igvapw ,  nevec &
        , evec , ewgt , evl , sv_p_osig , sv_p_otau , sv_p_oppi &
   , lekkl , sv_p_oqkkl , sv_p_oeqkkl , f )
   use m_struc_def,only: s_site,s_spec,s_rv1,s_cv1
@@ -183,7 +182,6 @@ subroutine rlocbl ( ssite , sspec , lfrce , nbas , isp  &
   !i   nspc  :2 for coupled spins; otherwise 1
   !i   napw  :number of G vectors in PW basis (gvlst2.f)
   !i   igvapw:G vectors in PW basis, units of qlat (gvlst2.f)
-  !i   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
   !i   nevec :number of occupied eigenvectors
   !i   evec  :eigenvectors
   !i   ewgt  :eigenvector weights
@@ -242,7 +240,7 @@ subroutine rlocbl ( ssite , sspec , lfrce , nbas , isp  &
   !u   25 May 00 Adapted from nfp rloc_q.f
   ! ----------------------------------------------------------------------
   implicit none
-  integer :: lfrce,nbas,isp,ndimh,nspc,nevec,lekkl, iprmb(1),ndham,napw,igvapw(3,napw)
+  integer :: lfrce,nbas,isp,ndimh,nspc,nevec,lekkl, ndham,napw,igvapw(3,napw)
   type(s_cv1),target:: sv_p_oppi(3,1)
   type(s_rv1),target:: sv_p_otau(3,1), sv_p_osig(3,1), &
        sv_p_oeqkkl(3,1), sv_p_oqkkl(3,1)
@@ -327,19 +325,19 @@ subroutine rlocbl ( ssite , sspec , lfrce , nbas , isp  &
            call rlocb1(ndimh,nlma,kmax, evec(1,ispc,ivec), w_ob, cPkL)
            !!  ... Add to local density coefficients for one state
            call prlcb3 ( job=0 , kmax=kmax , nlma=nlma , isp=ksp , cpkl=cpkl, ewgt=ewgt(ivec),   qpp=OQPP)
-           call prlcb2 ( job=0 , ia=ia , nkaph=nkaph , iprmb=iprmb , &
+           call prlcb2 ( job=0 , ia=ia , nkaph=nkaph , &
                 nlmha=nlmha , kmax=kmax, nlma=nlma, isp=ksp , cpkl=cpkl, nlmto=nlmto , &
                 evec=evec(1,ispc,ivec), ewgt=ewgt(ivec),    qhh=OQHH, qhp=OQHP)
            if (lekkl == 1) then
               call prlcb3(1, kmax, nlma, ksp, cpkl, ewgt(ivec), evl(ivec,isp) , OEQPP)
-              call prlcb2(1, ia, nkaph,iprmb,nlmha,kmax,nlma ,ksp , cpkl , nlmto , &
+              call prlcb2(1, ia, nkaph,nlmha,kmax,nlma ,ksp , cpkl , nlmto , &
                    evec(1,ispc,ivec), ewgt(ivec),  evl ( ivec , isp ) , OEQHH , OEQHP)
            endif
            !! ... Contribution to forces
            if (lfrce/=0) then
               call rxx(nspc.ne.1,'forces not implemented in noncoll case')
               call flocbl ( nbas , ia , kmax , nkaph , lmxha , nlmha , nlma, &
-                   lmxa, nlmto, ndimh, iprmb, ksp, evl(ivec,isp),evec(1,ispc,ivec),ewgt (ivec ),cpkl, w_odb,& 
+                   lmxa, nlmto, ndimh, ksp, evl(ivec,isp),evec(1,ispc,ivec),ewgt (ivec ),cpkl, w_odb,& 
                    OSIGPP, OSIGHP , OPPIPP, OPPIHP, force ) 
            endif
         enddo

@@ -81,7 +81,7 @@ contains
     use m_smhankel,only: hxpbl,hxpos,hxpgbl
     use m_struc_def
     use m_lmfinit,only:alat=>lat_alat,lhh,nkaphh,nkapii,ssite=>v_ssite,sspec=>v_sspec,cg=>rv_a_ocg, &
-         indxcg=>iv_a_oidxcg,jcg=>iv_a_ojcg,cy=>rv_a_ocy,iprmb,nbas
+         indxcg=>iv_a_oidxcg,jcg=>iv_a_ojcg,cy=>rv_a_ocy,nbas
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol
     use m_uspecb,only: uspecb
     use m_orbl,only: Orblib, norb,ltab,ktab,offl
@@ -108,7 +108,6 @@ contains
     !i   indxcg:index for Clebsch Gordon coefficients
     !i   jcg   :L q.n. for the C.G. coefficients stored in condensed form (scg.f)
     !i   cy    :Normalization constants for spherical harmonics
-    !i   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
     !i   nbas  :size of basis
     !i   ia    :augmentation around site ia
     !i   pa    :position of site ia
@@ -174,8 +173,7 @@ contains
           p = ssite(ib)%pos
           call uspecb(is,rsmh,eh)
           !       Position in h; l,k indices for orbitals connected w/ ib
-          !     call orbl(ib,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
-          call orblib(ib)
+          call orblib(ib) !return norb,ltab,ktab,offl
           !       Loop over blocks of envelope functions
           do  ik = 1, nkaphh(is)
              nlmh = (lhh(ik,is)+1)**2
@@ -228,7 +226,6 @@ contains
     !i   nlmbx :dimensions b,db
     !i   nlma  :augmentation L-cutoff
     !i   kmax  :Pkl polynomial cutoff
-    !i   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
     !i   b0    :L-ordered strux for one ik block and pair of sites
     !i   db0   :gradient of b0
     !o Outputs
@@ -236,7 +233,7 @@ contains
     !o   db    :subblock corresponding to db0 is poked into db
     !r Remarks
     !r   b0,db0 have normal L ordering in both row and column dimensions.
-    !r   b,db   have normal L ordering in rows but iprmb ordering in columns
+    !r   b,db   have normal L ordering in rows 
     !r   This routine is identical in function to paugq1 (augmbl.f) except:
     !r     the gradient db of b can optionally be filled
     !r     array indices to b are ordered differently
@@ -301,7 +298,7 @@ contains
     !o   b     :subblock corresponding to b0 is poked into b
     !r Remarks
     !r   b0 has normal L ordering in both row and column dimensions.
-    !r   b  has normal L ordering in row but iprmb ordering in col dim.
+    !r   b  has normal L ordering in row 
     !r   This routine is identical in function to prlcb1 (rlocbl.f) except:
     !r     no gradient db in this routine
     !r     array indices to b are ordered differently

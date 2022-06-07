@@ -4,7 +4,7 @@ module  m_rsibl
   private
   contains
 subroutine rsibl(ssite,sspec,lfrce,nbas,isp,q,iq,ndimh,nspc,& 
-  napw,igapw,iprmb,nevec,evec,ewgt,k1,k2,k3,smpot,smrho,f)
+  napw,igapw,nevec,evec,ewgt,k1,k2,k3,smpot,smrho,f)
   use m_struc_def  !Cgetarg
   use m_lmfinit,only: lat_alat,nspec
   use m_lattic,only: lat_qlat, lat_vol,lat_plat
@@ -35,7 +35,6 @@ subroutine rsibl(ssite,sspec,lfrce,nbas,isp,q,iq,ndimh,nspc,&
   !i   nspc  :2 for coupled spins; otherwise 1
   !i   napw  :number of augmented PWs in basis
   !i   igapw :vector of APWs, in units of reciprocal lattice vectors
-  !i   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
   !i   nevec :number of eigenvectors with nonzero weights
   !i   evec  :eigenvectors
   !i   ewgt  :eigenvector weights
@@ -70,7 +69,7 @@ subroutine rsibl(ssite,sspec,lfrce,nbas,isp,q,iq,ndimh,nspc,&
   ! ----------------------------------------------------------------------
   implicit none
   integer :: procid, master, nproc, mpipid
-  integer :: lfrce,isp,k1,k2,k3,ndimh,nevec,iprmb(1),iq,nspc
+  integer :: lfrce,isp,k1,k2,k3,ndimh,nevec,iq,nspc
   integer :: napw,igapw(3,napw),nbas
   real(8):: q(3) , ewgt(nevec) , f(3,nbas)
   type(s_site)::ssite(*)
@@ -160,7 +159,7 @@ subroutine rsibl(ssite,sspec,lfrce,nbas,isp,q,iq,ndimh,nspc,&
   ivecend= nevec
   do  ivec = ivecini,ivecend, nblk !blocked calculation for future
      nvec = min(nblk, nevec-ivec+1)
-     call rsibl1(0,ssite,sspec,q,nbas,iprmb,ng,w_ogq,w_oiv,n1,n2, &
+     call rsibl1(0,ssite,sspec,q,nbas,ng,w_ogq,w_oiv,n1,n2, &
           n3,qlat,cosi,sini,w_oyl,w_oylw,w_ohe,w_ohr,wk, &
           wk2,vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc, &
           ewgt,ivec,nvec,evec,w,psi,wff)
@@ -177,7 +176,7 @@ subroutine rsibl(ssite,sspec,lfrce,nbas,isp,q,iq,ndimh,nspc,&
           )
      !    --- Add to forces ---
      if (lfrce /= 0) then
-        call rsibl1(1,ssite,sspec,q,nbas,iprmb,ng,w_ogq,w_oiv,n1,n2, &
+        call rsibl1(1,ssite,sspec,q,nbas,ng,w_ogq,w_oiv,n1,n2, &
              n3,qlat,cosi,sini,w_oyl,w_oylw,w_ohe,w_ohr, &
              wk,wk2,vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc, &
              ewgt,ivec,nvec,evec,vpsi,psi,f)
@@ -191,7 +190,7 @@ subroutine rsibl(ssite,sspec,lfrce,nbas,isp,q,iq,ndimh,nspc,&
 end subroutine rsibl
 
 
-subroutine rsibl1(mode,ssite,sspec,q,nbas,iprmb,ng,gq,iv,n1,n2,n3, &
+subroutine rsibl1(mode,ssite,sspec,q,nbas,ng,gq,iv,n1,n2,n3, &
      qlat,cosgp,singp,yl,ylw,he,hr,psi0,wk2,vol,iprt,ipet,etab,rtab, &
      ndimh,nlmto,nspc,ewgt,ivec,nvec,evec,vpsi,psi,f)
   use m_uspecb,only:uspecb
@@ -245,7 +244,7 @@ subroutine rsibl1(mode,ssite,sspec,q,nbas,iprmb,ng,gq,iv,n1,n2,n3, &
   type(s_spec)::sspec(*)
 
   integer :: mode,nbas,ng,ndimh,nlmto,nspc,ivec,nvec,iv(ng,3), &
-       n1,n2,n3,n0,nkap0,iprmb(*),i_copy_size
+       n1,n2,n3,n0,nkap0,i_copy_size
   parameter (n0=10,nkap0=3)
   integer :: iprt(n0,nkap0,*),ipet(n0,nkap0,*)
   double precision :: vol,yl(ng,*),ylw(ng,*),he(ng,*),hr(ng,*), &
@@ -276,7 +275,7 @@ subroutine rsibl1(mode,ssite,sspec,q,nbas,iprmb,ng,gq,iv,n1,n2,n3, &
      ncut=ngcut(:,:,is)
      call suphas(q,p,ng,iv,n1,n2,n3,qlat,cosgp,singp)
      !       List of orbitals, their l- and k- indices, and ham offsets
-     call orblib(ib) !,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
+     call orblib(ib) !norb,ltab,ktab,xx,offl,xx)
      !       Block into groups with consecutive l and common (e,rsm)
      call uspecb(is,rsmh,eh)
      call gtbsl1(7+16,norb,ltab,ktab,rsmh,eh,ntab,blks)
@@ -691,7 +690,7 @@ subroutine rsiblp(ng,ndimh,nlmto,nspc,napw,ivp,nvec,sqv,evec,psi)
 end subroutine rsiblp
 
   subroutine rsibl_ev(ssite,sspec,nbas,isp,q,iq,ndimh,nspc,&
-    napw,igapw,iprmb,nevec,evec,k1,k2,k3, n_eiglist,eiglist)
+    napw,igapw,nevec,evec,k1,k2,k3, n_eiglist,eiglist)
     use m_struc_def
     use m_w_psir
     use m_lmfinit,only:  lat_alat,nspec
@@ -726,7 +725,6 @@ end subroutine rsiblp
     !i   nspc  :2 for coupled spins; otherwise 1
     !i   napw  :number of augmented PWs in basis
     !i   igapw :vector of APWs, in units of reciprocal lattice vectors
-    !i   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
     !i   nevec :number of eigenvectors with nonzero weights
     !i   evec  :eigenvectors
     !i   ewgt  :eigenvector weights
@@ -762,7 +760,7 @@ end subroutine rsiblp
     !     implicit none
     ! ... Passed parameters
     integer :: procid, master, nproc, mpipid
-    integer :: isp,k1,k2,k3,ndimh,nevec,iprmb(*),iq,nspc
+    integer :: isp,k1,k2,k3,ndimh,nevec,iq,nspc
     integer :: napw,igapw(3,napw)
     real(8):: q(3)
     type(s_site)::ssite(*)
@@ -860,7 +858,7 @@ end subroutine rsiblp
        nvec = min(nblk, nevec-ivec+1)
        !   ... Add together total smooth wavefunction
        ! ino   rsibl1 calculates fourier transformed smoothed Hankel, H(G), to psi
-       call rsibl1(0,ssite,sspec,q,nbas,iprmb,ng,w_ogq,w_oiv,n1,n2, &
+       call rsibl1(0,ssite,sspec,q,nbas,ng,w_ogq,w_oiv,n1,n2, &
             n3,qlat,cosi,sini,w_oyl,w_oylw,w_ohe,w_ohr,wk, &
             wk2,vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc, &
             ewgt,ivec,nvec,evec,wpsidummy,psi,w)

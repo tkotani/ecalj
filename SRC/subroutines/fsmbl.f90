@@ -1,4 +1,4 @@
-subroutine fsmbl(nbas,ssite,sspec,vavg,q,ndimh,nlmto,iprmb, &! & ,slat
+subroutine fsmbl(nbas,ssite,sspec,vavg,q,ndimh,nlmto, &
   nevec,evl,evec,ewgt,f)
   use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,lhh,nkaphh
   use m_uspecb,only:uspecb
@@ -24,7 +24,6 @@ subroutine fsmbl(nbas,ssite,sspec,vavg,q,ndimh,nlmto,iprmb, &! & ,slat
   !i   vavg  :constant potential (MT zero) to be added to h
   !i   q     :Bloch wave vector
   !i   ndimh :dimension of hamiltonian
-  !i   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
   !i   nevec :number of occupied eigenvectors
   !i   evl   :eigenvalues
   !i   evec  :eigenvectors
@@ -41,7 +40,7 @@ subroutine fsmbl(nbas,ssite,sspec,vavg,q,ndimh,nlmto,iprmb, &! & ,slat
   ! ----------------------------------------------------------------------
   implicit none
   integer:: iloop
-  integer :: nbas,ndimh,nlmto,nevec,iprmb(nlmto)
+  integer :: nbas,ndimh,nlmto,nevec
   real(8):: q(3)
   type(s_site)::ssite(*)
   type(s_spec)::sspec(*)
@@ -73,15 +72,13 @@ subroutine fsmbl(nbas,ssite,sspec,vavg,q,ndimh,nlmto,iprmb, &! & ,slat
      p1 =ssite(ib1)%pos
      call uspecb(is1,rsm1,e1)
      !       Row info telling fsmbl where to poke s0 made by hhibl
-     !        call orbl(ib1,0,nlmto,iprmb,norb1,ltab1,ktab1,xx,offl1,xx)
-     call orblib1(ib1) !,0,nlmto,iprmb,norb1,ltab1,ktab1,xx,offl1,xx)
+     call orblib1(ib1) !norb1,ltab1,ktab1,offl1
      call gtbsl1(4+16,norb1,ltab1,ktab1,rsm1,e1,ntab1,blks1)
      do  ib2 = ib1+1, nbas
         is2=ssite(ib2)%spec
         p2=ssite(ib2)%pos
         call uspecb(is2,rsm2,e2)
         !         Column info telling fsmbl where to poke s0 made by hhibl
-        !          call orbl(ib2,0,nlmto,iprmb,norb2,ltab2,ktab2,xx,offl2,xx)
         call orblib2(ib2)
         call gtbsl1(4+16,norb2,ltab2,ktab2,rsm2,e2,ntab2,blks2)
         !     ... M.E. <1> and <KE> between all envelopes connecting ib1 and ib2
@@ -122,7 +119,6 @@ subroutine fsmbl(nbas,ssite,sspec,vavg,q,ndimh,nlmto,iprmb, &! & ,slat
                           i2 = offl2(io2)
                           do  ilm2 = nlm21, nlm22
                              i2 = i2+1
-                             !                 i1 = orbital index in iprmb order
                              i1 = offl1(io1)
                              do  ilm1 = nlm11, nlm12
                                 i1 = i1+1

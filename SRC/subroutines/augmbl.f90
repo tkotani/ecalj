@@ -176,7 +176,6 @@ subroutine augmbl(ssite,sspec,isp, &
   !i         (otau is not needed because folded into ppi already)
   !i   oppi  :kinetic energy + potential matrix of P_kL
   !i         :NB: also head-head, head-tail contributions; see augmat.f
-  !i   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
   !i   ndimh :dimension of h and s
   !i   napw  :number of PWs in APW part of basis
   !i   igapw :PWs in units of reciprocal lattice vectors
@@ -288,7 +287,6 @@ end subroutine augmbl
 
 subroutine augq2z(ia,isp,nkaph,lmxb,nlmb,kmax, &
      nlma,b,ndimh,sighh,sighp,ppihh,ppihp,s,h)
-  !      use m_lmfinit,only: nlmto,iprmb
   use m_orbl,only: Orblib, norb,ltab,ktab,offl
   !- Add one and two-center terms to h,s for complex potential
   ! ----------------------------------------------------------------------
@@ -297,7 +295,6 @@ subroutine augq2z(ia,isp,nkaph,lmxb,nlmb,kmax, &
   !i   ia    :augmentation site about which strux are expanded
   !i   isp   :current spin channel
   !i   nkaph :dimensions augmentation matrices
-  !i   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
   !i   nlmb :dimensions augmentation potential matrix at site a
   !i   lmxb :dimensions sighh at site a
   !i   kmax  :polynomial cutoff
@@ -314,7 +311,6 @@ subroutine augq2z(ia,isp,nkaph,lmxb,nlmb,kmax, &
   !r Remarks
   !r  In this implementation, the augmentation matrices and the row
   !r  dimension of the structure constants b follow normal L order.
-  !r  The column dimension of b is permuted in iprmb order.
   !r  The ppihh(i,i,i,i,3), ppihh(i,i,i,i,4) are the head-head matrix
   !r  elements of LxSx+LySy. The ppihp(i,i,i,i,3), ppihp(i,i,i,i,4) are
   !r  the corresponding head-tail elements.
@@ -337,8 +333,7 @@ subroutine augq2z(ia,isp,nkaph,lmxb,nlmb,kmax, &
   complex(8),allocatable:: tso(:,:,:,:)
   call tcn ('augq2z')
   ! --- Loop over basis functions at site ia (augentation index) ---
-  !     call orbl(ia,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
-  call orblib(ia) !return ltab,...
+  call orblib(ia) !See use section. Return norb,ltab,ktab,offl
   do  iorb = 1, norb
      l1  = ltab(iorb)
      ik1 = ktab(iorb)
@@ -373,7 +368,6 @@ subroutine augq2z(ia,isp,nkaph,lmxb,nlmb,kmax, &
 end subroutine augq2z
 ! sssssssssssssssssssssssss
 subroutine augq2zhso(ia,nkaph,lmxb,nlmb,kmax, nlma,b,ndimh, hsohh,hsohp,hsoph,hsopp,  hso)
-  !      use m_lmfinit,only: nlmto,iprmb
   use m_orbl,only: Orblib, norb,ltab,ktab,offl
   !- Add one and two-center terms to h,s for complex potential
   !o   hso   :1- and 2- center spin up-down spin orbit block
@@ -409,8 +403,7 @@ subroutine augq2zhso(ia,nkaph,lmxb,nlmb,kmax, nlma,b,ndimh, hsohh,hsohp,hsoph,hs
   double complex cadd,cadd1,fac
   integer :: jlm1,jlm2,k1,k2
   call tcn ('augq2zhs0')
-  !     call orbl(ia,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
-  call orblib(ia) !return ltab,...
+  call orblib(ia) !return norb,ltab,ktab,offl...
   do iorb = 1, norb
      l1  = ltab(iorb)
      ik1 = ktab(iorb)

@@ -57,7 +57,7 @@ contains
   !!-------------------------------
   subroutine mkrout( sv_p_oqkkl, sv_p_oeqkkl, orhoat_out, hab,sab, qbyl, hbyl)
     use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,procid,master,nkaph &
-         , sspec=>v_sspec,ssite=>v_ssite,nbas,nsp,lekkl,lrout,n0,nab,stdo,iprmb
+         , sspec=>v_sspec,ssite=>v_ssite,nbas,nsp,lekkl,lrout,n0,nab,stdo
     use m_lmfinit,only: nlmto
     use m_struc_def
     use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
@@ -178,7 +178,7 @@ contains
        !        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
        call uspecb(is,rsmh,eh)
        nkapi=nkapii(is)
-       call orblib(ib)! , 0 , nlmto , iprmb , norb , ltab , ktab , xx , offl , xx )
+       call orblib(ib)!norb , ltab , ktab , xx , offl , xx )
        call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
        is=ssite(ib)%spec
        i_copy_size=size(ssite(ib)%pnu)
