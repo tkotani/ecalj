@@ -157,7 +157,7 @@ subroutine rlocbl ( ssite , sspec , lfrce , nbas , isp  &
   use m_prlcb,only:   prlcb2,prlcb3
   use m_lmfinit,only: iv_a_oidxcg,iv_a_ojcg,rv_a_ocy,rv_a_ocg,lat_alat,nkaph
   use m_lattic,only: lat_qlat
-  use m_bstrux,only: bstrux
+  use m_bstrux,only: bstrux,bstrux_set,bstr,dbstr
   !- Accumulates the local atomic densities.
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -312,6 +312,7 @@ subroutine rlocbl ( ssite , sspec , lfrce , nbas , isp  &
      OSIGHP => sv_p_osig(2,ia)%v
      !   --- Strux to expand all orbitals and their gradients at site ia ---
      call bstrux(1, ia, pa, rsma, q, kmax, nlma, ndimh, napw, igvapw, w_ob , w_odb )
+     !call bstrux_set(ia,q) !bset, dbstr
      !   --- Loop over eigenstates ---
      !       In noncollinear case, isp=1 always => need internal ispc=1..2
      !       ksp is the current spin index in both cases:
@@ -322,7 +323,7 @@ subroutine rlocbl ( ssite , sspec , lfrce , nbas , isp  &
         do ispc = 1, nspc
            ksp = max(ispc,isp)
            !!  ... Pkl expansion of eigenvector
-           call rlocb1(ndimh,nlma,kmax, evec(1,ispc,ivec), w_ob, cPkL)
+           call rlocb1(ndimh,nlma,kmax, evec(1,ispc,ivec), w_ob,cPkl) !bstr, cPkL)
            !!  ... Add to local density coefficients for one state
            call prlcb3 ( job=0 , kmax=kmax , nlma=nlma , isp=ksp , cpkl=cpkl, ewgt=ewgt(ivec),   qpp=OQPP)
            call prlcb2 ( job=0 , ia=ia , nkaph=nkaph , &
@@ -337,7 +338,7 @@ subroutine rlocbl ( ssite , sspec , lfrce , nbas , isp  &
            if (lfrce/=0) then
               call rxx(nspc.ne.1,'forces not implemented in noncoll case')
               call flocbl ( nbas , ia , kmax , nkaph , lmxha , nlmha , nlma, &
-                   lmxa, nlmto, ndimh, ksp, evl(ivec,isp),evec(1,ispc,ivec),ewgt (ivec ),cpkl, w_odb,& 
+                   lmxa, nlmto, ndimh, ksp, evl(ivec,isp),evec(1,ispc,ivec),ewgt (ivec ),cpkl, w_odb, &!dbstr,& 
                    OSIGPP, OSIGHP , OPPIPP, OPPIHP, force ) 
            endif
         enddo

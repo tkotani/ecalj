@@ -4,8 +4,9 @@ module m_hamindex         !all protected now
   use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
   use NaNum,only: NaN       !for initialization, but not working well
   use m_suham,only: ndham_read=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
-  use m_orbl,only: Orblinit,norbx,ltabx,ktabx,offlx
-
+  use m_lmfinit,only:norbx,ltabx,ktabx,offlx
+  use m_lgunit,only:stdo
+  use m_ftox
   integer,allocatable,public:: ib_table(:),k_table(:),l_table(:)
   integer,protected,public:: ngrpaf,ngrp_original,pwmode,ndham
   integer,protected,public:: nqi=NaN, nqnum=NaN, ngrp=NaN, lxx=NaN, kxx=NaN,norbmto=NaN, &
@@ -19,14 +20,13 @@ module m_hamindex         !all protected now
        qtt(:,:),qtti(:,:)
   real(8),protected,public:: plat(3,3)=NaN,qlat(3,3)=NaN,zbak
   public:: m_hamindex_init, Readhamindex, getikt
-
   private
   logical,private:: debug=.false.
 contains
   ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine m_hamindex_init(jobgw)
     use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp, iclasstaf_,symops_af_,ag_af_,ngrpaf_
-    use m_struc_def           !Cgetarg
+    use m_struc_def
     use m_shortn3,only: shortn3_initialize,shortn3
     use m_MPItk,only: master_mpi
     !!-- Set up m_hamiltonian. Index for Hamiltonian. --
@@ -63,14 +63,11 @@ contains
     data lsym /'s','p','d','f','g','5','6','7','8','9'/
     data lorb /'p','d','l'/
     call tcn('m_hamindex_init')
-    ! forget floating orbital case
-    !      ldim  = ham_ldham(1)
     nbas=ctrl_nbas !nbas_in
     ngrp=lat_nsgrp !note nsgrp given in mksym.F is without inversion.
     plat=lat_plat
     qlat=lat_qlat
     nsp=nsp_in
-    !! symmetry operation ---
     allocate(symops(3,3,ngrp),ag(3,ngrp))
     call dcopy ( ngrp * 9 , rv_a_osymgr , 1 , symops , 1 )
     call dcopy ( ngrp * 3 , rv_a_oag , 1 , ag , 1 )
@@ -79,97 +76,7 @@ contains
        iclasst(ib)=ssite(ib)%class
     enddo
     !! get space group information ---- translation informations also in miat tiat invgx, shtvg
-    call mptauof( symops , ngrp , plat , nbas , rv_a_opos, iclasst &
-         , miat , tiat , invgx , shtvg )
-    !$$$!! jobgw=0 mode ----------------------------------
-    !$$$      if(master_mpi.and.jobgw==0) then
-    !$$$         ndima = 0
-    !$$$         do  ib = 1, nbas
-    !$$$           is=ssite(ib)%spec
-    !$$$           lmxa(ib) = sspec(is)%lmxa  !we assume lmxa>-1
-    !$$$           call dcopy(size(sspec(is)%pz),sspec(is)%pz,1,pnz,1)
-    !$$$c           if (lmxa(ib)> -1) then
-    !$$$              do  l = 0, lmxa(ib)
-    !$$$                npqn = 2
-    !$$$                if (pnz(l+1,1) .ne. 0) npqn = 3
-    !$$$                ndima = ndima + npqn*(2*l+1)
-    !$$$              enddo
-    !$$$c           endif
-    !$$$         enddo
-    !$$$         lmxax = mxint(nbas,lmxa)
-    !$$$         allocate(konft(0:lmxax,nbas,nsp))
-    !$$$         do ib = 1, nbas
-    !$$$           call dcopy(size(ssite(ib)%pnu), ssite(ib)%pnu,1,pnu,1)
-    !$$$           call dcopy(size(ssite(ib)%pz),  ssite(ib)%pz, 1,pnz,1)
-    !$$$           do  isp = 1, nsp
-    !$$$             do  l  = 0, lmxa(ib)
-    !$$$               konft(l,ib,isp) = pnu(l+1,isp)
-    !$$$               if( mod(pnz(l+1,isp),10d0)<pnu(l+1,isp) .and. pnz(l+1,isp)>0) then
-    !$$$                  konft(l,ib,isp) = mod(pnz(l+1,isp),10d0)
-    !$$$               endif
-    !$$$             enddo
-    !$$$           enddo
-    !$$$         enddo
-    !$$$!     ! NLAindx
-    !$$$c         open(newunit=ifinlaindx,file='NLAindx')
-    !$$$c         write(ifinlaindx,'(''----NLAindx start---------------''/I6)') ndima
-    !$$$         ndima = 0
-    !$$$         allocate(iqnum(4,3*nbas*lmxax),strn4c(3*nbas*lmxax))
-    !$$$         iorb=0
-    !$$$         do  ipqn = 1, 3
-    !$$$         do  ib = 1, nbas
-    !$$$             is =  ssite(ib)%spec
-    !$$$             lmaxa=sspec(is)%lmxa
-    !$$$             i_copy_size=size(ssite(ib)%pnu)
-    !$$$             call dcopy(i_copy_size ,ssite(ib)%pnu,1,pnu,1)
-    !$$$             i_copy_size=size(ssite(ib)%pnu)
-    !$$$             call dcopy(i_copy_size,ssite(ib)%pz, 1,pnz,1)
-    !$$$c             if (lmaxa .gt. -1) then
-    !$$$                do  l = 0, lmaxa
-    !$$$                  npqn = 2
-    !$$$                  if (pnz(l+1,1) .ne. 0) npqn = 3
-    !$$$                  if (ipqn <= npqn) then
-    !$$$                     iorb=iorb+1
-    !$$$                     konf = pnu(l+1,1)
-    !$$$                     if (ipqn .eq. 3) konf = mod(pnz(l+1,1),10d0)
-    !$$$                     strn4 = dig(konf)//lsym(l)//'_'//lorb(ipqn)
-    !$$$                     iqnum(:,iorb)=[ipqn,l,ib,ndima]
-    !$$$                     strn4c(iorb)=strn4
-    !$$$c                     write(ifinlaindx,'(i6,i3,i4,i6,4x,a)')ipqn,l,ib,ndima,strn4
-    !$$$c                    write(ifinlaindx,'(i6,i3,i4,i6,4x,a)')ipqn,l,ipb(ib),ndima,strn4
-    !$$$                     ndima = ndima + (2*l+1)
-    !$$$                  endif
-    !$$$                enddo
-    !$$$c             endif
-    !$$$         enddo
-    !$$$         enddo
-    !$$$         norb=iorb
-    !$$$         call wkonfchk(alat,plat,nbas,lmxax,lmxa,nsp,konft)
-    !$$$!!
-    !$$$         open(newunit=ifi,file='HAMindex0',form='unformatted')
-    !$$$         write(ifi) alat,plat,nbas,lmxax,nsp,ngrp,ndima,norb
-    !$$$         write(ifi) konft(0:lmxax,1:nbas,1:nsp),lmxa(1:nbas)
-    !$$$         write(ifi) (ssite(ib)%class,ib=1,nbas)
-    !$$$         write(ifi) iqnum(:,1:norb),strn4c(1:norb)
-    !$$$         write(ifi) (trim(sspec(ssite(ib)%spec)%name),ib=1,nbas)
-    !$$$         write(ifi) symops(1:3,1:3,1:ngrp),invgx(1:ngrp),shtvg(1:3,1:ngrp)
-    !$$$         close(ifi)
-    !$$$c$$$         open(newunit=ifisym,file='SYMOPS')
-    !$$$c$$$         write(ifisym,*) ngrp
-    !$$$c$$$         do ig = 1,ngrp
-    !$$$c$$$           write(ifisym,"(2i4,3e24.16)") ig, invgx(ig), shtvg(1:3,ig)
-    !$$$c$$$           do i=1,3
-    !$$$c$$$             write(ifisym,"(3e24.16)") symops(i,1:3,ig)
-    !$$$c$$$           enddo
-    !$$$c$$$         enddo
-    !$$$c$$$         close(ifisym)
-    !$$$         return
-    !$$$      endif
-
-    !---------------------------------------------------------
-    !!--- MTO part ---- obtain norbmto, lxx,kxx ----
-    !      allocate( ltabx(n0*nkap0,nbas),ktabx(n0*nkap0,nbas),offlx(n0*nkap0,nbas))
-    call Orblinit()
+    call mptauof(symops, ngrp , plat , nbas , rv_a_opos, iclasst, miat , tiat , invgx , shtvg )
     norbmto=0
     kxx=-1
     lxx=-1
@@ -221,23 +128,19 @@ contains
        ib   = ibastab(iorb)
        is   = ssite(ib)%spec
        spid=sspec(is)%name
-       !         write(6,*)'ssssssssssss spid=',is,ib,spid,iorb
+       !         write(stdo,*)'ssssssssssss spid=',is,ib,spid,iorb
        ib_table(offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ib
        l_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ltab(iorb)
        k_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ktab(iorb)
     enddo
-
-    !! Get rotation matrix dlmm.  We assume nl=lmxa+1.
     lxxa=nl-1
     allocate( dlmm( -lxxa:lxxa, -lxxa:lxxa, 0:lxxa, ngrp))
-    call rotdlmm(symops,ngrp, nl, dlmm)
-
+    call rotdlmm(symops,ngrp, nl, dlmm) !!! Get rotation matrix dlmm.  We assume nl=lmxa+1.
     !! Not GW mode ------------------------------------
     if(jobgw<0) then
        call tcx('m_hamindex_init')
        return                 !for sigm mode, dlmm needed.
     endif
-
     !! --- PW part. info for eigenfunctions are expanded as MTpart+PWpart.!feb2012takao
     inquire(file='QGpsi',EXIST=qpgexist)  !feb2012takao
     if( .NOT. qpgexist) then
@@ -262,7 +165,7 @@ contains
        endif
        read(ifiqg)
        qq(:,iq)=qxx
-       if(master_mpi)write(6,"(' qq=',i5,3f10.5)") iq,qq(:,iq)
+       if(master_mpi)write(stdo,"(' qq=',i5,3f10.5)") iq,qq(:,iq)
     enddo
     close(ifiqg)
 
@@ -283,7 +186,7 @@ contains
                 igg=ig
                 ddf=sum(abs(matmul(platt,(qtarget-matmul(symops(:,:,ig),q)))))
                 if(ddf-nint(ddf) > 1d-8) then
-                   write(6,"('qqqqqxq ',3d16.8,2x,3d16.8,2x,3d16.8)") q, qtarget,qtarget-matmul(symops(:,:,ig),q)
+                   write(stdo,ftox)'qxqx',ftof(q),ftof(qtarget),ftof(qtarget-matmul(symops(:,:,ig),q))
                 endif
                 goto 2012
              endif
@@ -291,13 +194,13 @@ contains
        enddo
 
        if(master_mpi) then
-          write(6,"(a,3f7.3,2x,3f7.3)")'gen_ham: qtarget cannot found.'// &
+          write(stdo,"(a,3f7.3,2x,3f7.3)")'gen_ham: qtarget cannot found.'// &
                ' Need to add SYMGRP explicitly (for SO=1), or You have to delete inconsistent QGpsi. qtarget=',qtarget
           print *,'gen_hamindex: qtarget can not found by SYMOPS.'
-          write(6,"('qqqqqxq20 ',3d16.8,2x,3d16.8,2x,3d16.8)") q, qtarget, matmul(platt,(qtarget-matmul(symops(:,:,ig),q)) )
+          write(stdo,"('qq20 ',3d16.8,2x,3d16.8,2x,3d16.8)") q, qtarget, matmul(platt,(qtarget-matmul(symops(:,:,ig),q)) )
           do ig=1,ngrp
              call rangedq( matmul(platt,(qtarget-matmul(symops(:,:,ig),q)) ), qx)
-             write(6,"('qqqqqxq2 ',3d16.8,2x,3d16.8,2x,3d16.8)") qtarget-matmul(symops(:,:,ig),q),qx
+             write(stdo,"('qqqq2 ',3d16.8,2x,3d16.8,2x,3d16.8)") qtarget-matmul(symops(:,:,ig),q),qx
           enddo
           call rx('gen_hamindex: you may need to repeat echo 1|qg4gw, when you changed SYMOPS.')
        endif
@@ -408,7 +311,7 @@ contains
 1013      continue
        enddo
        if(igadd/=ngrpaf) call rx('suham: strange. bug igadd/=ngrpaf')
-       if(master_mpi) write(6,*) '-----SYMGRPAF mode ---- # of additional symmetry=',igadd
+       if(master_mpi) write(stdo,*) '-----SYMGRPAF mode ---- # of additional symmetry=',igadd
        deallocate(symops, invgx,miat,tiat,shtvg,  dlmm )
        !!---- get space group information ---- translation informations also in miat tiat invgx, shtvg
        ngrp_original=ngrp
@@ -418,10 +321,10 @@ contains
        call mptauof ( symtmp , ngrp, plat , nbas , rv_a_opos , iclasstaf &
             , miat , tiat , invgx , shtvg )
        if(master_mpi) then
-          write(6,*)
-          write(6,"(' ngrp for SYMGRP+GYMGRPAF, ngrp for SYMGRP=',2i5)") ngrp, ngrp_original
+          write(stdo,*)
+          write(stdo,ftox)' ngrp for SYMGRP+GYMGRPAF=',ngrp,'ngrp for SYMGRP=',ngrp_original
           do ig=1,ngrp
-             write(6,"(a,i3,a,100i3)")'ig=',ig, ' miat=',miat(:,ig)
+             write(stdo,ftox)'ig=',ig, ' miat=',miat(:,ig)
           enddo
        endif
        lxxa=nl-1
@@ -492,7 +395,7 @@ contains
     allocate(symops(3,3,ngrp),ag(3,ngrp),qtt(3,nqtt),qtti(3,nqi))
     allocate(invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp))
     allocate(iqmap(nqtt),igmap(nqtt),iqimap(nqtt))
-    write(6,*) 'ngrp=',ngrp
+    write(stdo,ftox) 'ngrp=',ngrp
     read(ifi)symops,ag,invgx,miat,tiat,shtvg,qtt,qtti,iqmap,igmap,iqimap
     allocate( ltab(norbmto),ktab(norbmto),offl(norbmto),ibastab(norbmto) )
     allocate( offlrev(nbas,0:lxx,kxx))

@@ -31,7 +31,6 @@ contains
   ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine m_hamindex0_init()
     use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp, iclasstaf_,symops_af_,ag_af_,ngrpaf_
-    use m_struc_def           !Cgetarg
     use m_shortn3,only: shortn3_initialize,shortn3
     use m_MPItk,only: master_mpi
     !!-- Set up m_hamiltonian. Index for Hamiltonian. --
@@ -80,8 +79,8 @@ contains
     do ib=1,nbas
        is=ssite(ib)%spec
        iclasst(ib)=ssite(ib)%class
-       spid(ib)=sspec(is)%name
-       lmxa(ib) = sspec(is)%lmxa !we assume lmxa>-1
+       spid(ib) =sspec(is)%name
+       lmxa(ib) =sspec(is)%lmxa !we assume lmxa>-1
     enddo
     !! get space group information ---- translation informations also in miat tiat invgx, shtvg
     call mptauof( symops, ngrp,plat,nbas,rv_a_opos, iclasst,miat,tiat,invgx,shtvg )
@@ -98,11 +97,9 @@ contains
        enddo
     enddo
     ! ndima is the number of augmented wave. total number of (principle,L,ibas)
-    lmxax = maxval(lmxa)      !mxint(nbas,lmxa)
+    lmxax = maxval(lmxa)  
     allocate(konft(0:lmxax,nbas,nsp))
     do ib = 1, nbas
-       !     call dcopy(size(ssite(ib)%pnu), ssite(ib)%pnu,1,pnu,1)
-       !     call dcopy(size(ssite(ib)%pz),  ssite(ib)%pz, 1,pnz,1)
        pnu=ssite(ib)%pnu
        pnz=ssite(ib)%pz
        do  isp = 1, nsp
@@ -114,11 +111,9 @@ contains
           enddo
        enddo
     enddo
-    !! NLAindx
     open(newunit=ifinlaindx,file='NLAindx.chk')
     write(ifinlaindx,'(''----NLAindx start---------------''/I6)') ndima
     npqn=3
-    !      print *,'nnnnnnnn ndima=',ndima
     allocate(nlindx(npqn,0:lmxax,nbas),nindx(ndima),lindx(ndima),ibasindx(ndima),caption(ndima))
     iorb=0
     nlindx=-1
@@ -130,7 +125,6 @@ contains
           call dcopy(i_copy_size ,ssite(ib)%pnu,1,pnu,1)
           i_copy_size=size(ssite(ib)%pnu)
           call dcopy(i_copy_size,ssite(ib)%pz, 1,pnz,1)
-          !     if (lmaxa .gt. -1) then
           do  l = 0, lmaxa
              npqn = 2
              if (pnz(l+1,1) /= 0) npqn = 3
@@ -147,15 +141,12 @@ contains
                 caption (ndima+1:ndima+2*l+1)=strn4
                 nphimx=max(nphimx,ipqn)
                 write(ifinlaindx,'(i6,i3,i4,i6,4x,a)')ipqn,l,ib,     ndima,strn4
-                !   ipqn,l,ipb(ib),ndima,strn4
                 ndima = ndima + (2*l+1)
              endif
           enddo
-          !     endif
        enddo
     enddo
     close(ifinlaindx)
-    !      return
     if(norb/=iorb) call rx('m_hamindex0:norb/=iorb')
     alat=lat_alat
     npqn=3

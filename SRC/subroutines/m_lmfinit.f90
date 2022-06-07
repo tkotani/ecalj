@@ -26,7 +26,7 @@ module m_lmfinit
   integer,parameter::  noutmx=48
   logical,parameter::  T=.true., F=.false.
   integer,parameter::  NULLI=-99999,nkap0=3,mxspec=256,lstrn=10000
-  integer,parameter::  n0=10,nppn=12, nab=9, nrmx=1501,nlmx=64 !bndfp
+  integer,parameter::  n0=10,nppn=12, nab=9, nrmx=1501,nlmx=64 ,n00=n0*nkap0
   real(8),parameter::  NULLR =-99999, fs = 20.67098d0, degK = 6.3333d-6 ! defaults for MD
 
   integer,protected::  io_show,io_help=0,nvario=0, lat_nkqmx,nat,lxcf !,irs4
@@ -134,6 +134,8 @@ module m_lmfinit
   !! sspec and ssite are unprotected (be careful)
   type(s_spec),allocatable:: v_sspec(:) !(nspec: number of species in the cell)
   type(s_site),allocatable:: v_ssite(:) !(nbas: number of atoms)
+
+  integer,allocatable,public,target:: ltabx(:,:),ktabx(:,:),offlx(:,:),ndimxx(:),norbx(:)
 
   !! ... old memo for molecular dynamics section DYN
   !   structure of mdprm:
@@ -1281,6 +1283,7 @@ contains
     if( lso==1 ) nspc = 2
 
 
+    !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
     allocate( iprmb(nbas * nl**2 * maxp ) )
     iprmb=-1
     nlmto = 0
@@ -1299,7 +1302,6 @@ contains
           enddo
 1121   enddo
 110 enddo
-    
     block
     integer:: nnrlx,lmri,ik,nnrl,nnrli,li
     nnrlx=0
@@ -1318,7 +1320,44 @@ contains
     nnrl = nnrlx
     ndimx=nnrl
     end block
-  
+    !o Outputs
+    !o   norb  :number of orbital types for ib; see Remarks
+    !o   ltab  :table of l-quantum numbers for each type
+    !o   ktab  :table of energy index for each type
+    !o   offl  :offl(norb) offset in h to this block of orbitals
+    !o   ndim  :dimension of hamiltonian for this site
+    !r Remarks
+    !r   Each orbital type is label by a 'l' and a 'k' index
+    !r   Each orbital corresponds to a unique radial wave function at the
+    !r   site where the orbit is centered.  There can be multiple 'k'
+    !r   indices (radial wave function shapes) for a particular l.
+    !r
+    orb: block
+      integer:: ib,ik,l,lmr,ia
+      allocate(ltabx(n00,nbas),ktabx(n00,nbas),offlx(n00,nbas),ndimxx(nbas),norbx(nbas))
+      norbx=0
+      ndimxx=0
+      do ib=1,nbas
+         lmr = nl*nl*nkaph*(ib-1)
+         do  ik = 1, nkaph
+            do  l = 0, nl-1
+               offlx(norbx(ib)+1,ib) = -1
+               if (iprmb(lmr+1) >0 .AND. iprmb(lmr+1) <= nlmto) then
+                  offlx(norbx(ib)+1,ib) = iprmb(lmr+1) - 1
+                  norbx(ib) = norbx(ib) +1
+                  ndimxx(ib) = ndimxx(ib) + 2*l+1
+                  ltabx(norbx(ib),ib) = l
+                  ktabx(norbx(ib),ib) = ik
+               endif
+               lmr = lmr + 2*l+1
+            enddo
+         enddo
+         if (norbx(ib) > n00) call rx('orbl: norb> n00')
+      enddo
+    endblock orb
+    deallocate(iprmb)
+    !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!  
     nspx  = nsp
     if(lso/=0) nspx = 1
     nvi=0
