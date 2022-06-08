@@ -177,15 +177,15 @@ subroutine mkQG2(iq0pin, gammacellctrl,lnq0iadd,lmagnon)
      write(ifiqbz,"(3d24.16,3x,d24.16)") qbz(1:3,iqbz)
   enddo
   close(ifiqbz)
-  !!  Write KPNTin1BZ.mkqg.chk (files *.chk is only for check.).
-  open(newunit=ifkpt,file='KPTin1BZ.mkqg.chk')
-  write(ifkpt,*)"  qbz --> shoten(qbz)"
-  do i1 = 1,nqbz
-     call shorbz(qbz(1,i1),qp,qlat,plat)
-     write (ifkpt,"(1x,i7,4f10.5,'   ',3f10.5)") &
-          i1,qbz(1,i1),qbz(2,i1),qbz(3,i1),wbz(i1),qp
-  enddo
-  close (ifkpt)
+!  !!  Write KPNTin1BZ.mkqg.chk (files *.chk is only for check.).
+!  open(newunit=ifkpt,file='KPTin1BZ.mkqg.chk')
+!  write(ifkpt,*)"  qbz --> shoten(qbz)"
+!  do i1 = 1,nqbz
+!     call shorbz(qbz(1,i1),qp,qlat,plat)
+!     write (ifkpt,"(1x,i7,4f10.5,'   ',3f10.5)") &
+!          i1,qbz(1,i1),qbz(2,i1),qbz(3,i1),wbz(i1),qp
+!  enddo
+!  close (ifkpt)
   write(6,"('  --- TOTAL num of q nqbz and nqibz=)',2i6)") nqbz,nqibz
   write(6,'("  qibz = ",i6,3f12.5)')(i,qibz(1:3,i),i=1,min(10,nqibz))
   write(6,*)" ... QIBZ is written in QIBZ file ..."

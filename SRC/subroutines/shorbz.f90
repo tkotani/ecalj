@@ -6,8 +6,8 @@ contains
   ! NOTE: shortn3 is better than shorbz. we will have to replace shorbz with shortn3.
   ! NOTE: In advance, we will need to check speed and convenience.
   subroutine shortn3(pin,noutmx, nout,nlatout)
-    !! To call shortn3 for given rlat,
-    !! we have to call shorn3_initialize in advane to obtain rlatp and xmx2, which are passed to shortn3.
+    !! To call shortn3 for given rlat, 
+   !! we have to call shorn3_initialize to set rlatp and xmx2
     !!
     ! i pin is on the rlat coodinate.
     ! i rlatp,xmx2 are passed from shortn3_initialize

@@ -89,7 +89,8 @@ subroutine hambl(isp,qin, smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi, h, s) !, h
   !!  NOTE: both qpg are the same for given ig.
   !! qlat*igapw = qlat*igqwin + (qin-q) ---> igvapw = igvapwin + matmul(qlatinv,qin-q)
   qlatinv = transpose(plat)
-  call shorbz(qin,q,qlat,plat) !is this fine?
+  !sss call shorbz(qin,q,qlat,plat) !is this fine?
+  q=qin !sss
   inn=nint(matmul(qlatinv,qin-q))
   do ig=1,napw
      igvapw(:,ig) = inn + igvapwin(:,ig)

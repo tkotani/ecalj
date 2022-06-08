@@ -1,6 +1,9 @@
 module m_bstrux
   !! Structure constants for P_kL expansion of Bloch lmto + PW around site ia
   use m_struc_def,only: s_cv3,s_cv4
+  use m_ftox
+  use m_lgunit,only:stdo
+  use m_MPItk,only:procid
   public:: bstrux_set, bstr, dbstr, m_bstrux_init
   complex(8),pointer,protected::  bstr(:,:,:)
   complex(8),pointer,protected:: dbstr(:,:,:,:)
@@ -9,12 +12,17 @@ module m_bstrux
   real(8),allocatable,private:: qall(:,:)
 contains
 
-  subroutine bstrux_set(ia,q)
+  subroutine bstrux_set(ia,qin)
     use m_qplist,only: qplist,iqini,iqend
+    use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat
     use m_lmfinit,only: lfrce=>ctrl_lfrce
+    use m_ftox
+    use m_lgunit,only:stdo
     implicit none
-    real(8):: q(3),eps=1d-10
+    real(8):: qin(3),q(3),eps=1d-10
     integer:: iq,iqx,ia
+    !sss    call shorbz(qin,q,qlat,plat)
+    q=qin !sss
     iq=-999
     do iqx=iqini,iqend
        if( sum( (q-qall(:,iqx))**2 )<eps) then
@@ -22,7 +30,14 @@ contains
           exit
        endif
     enddo
-    if(iq==-999) call rx('err:bstrux_set')
+    if(iq==-999) then
+       write(stdo,ftox)'qin=',ftof(qin)
+       write(stdo,ftox)'  q=',ftof(q)
+       do iqx=iqini,iqend
+          write(stdo,ftox)'bstrux_set iq q=',procid,iqx,ftof(qall(:,iqx))
+       enddo   
+       call rx('err:bstrux_set')
+    endif   
     bstr => p_bstr(ia,iq)%cv3
     if(lfrce/=0) dbstr=> p_dbstr(ia,iq)%cv4
   end subroutine bstrux_set
@@ -36,6 +51,7 @@ contains
     real(8):: pa(3),qin(3),q(3),qlatinv(3,3),rsma,qss(3)
     integer,allocatable:: igvapw(:,:)
     call tcn('m_bstrux_init')
+    write(stdo,ftox)'bstrux_init000'
     if(allocated(qall)) deallocate(qall,p_bstr,p_dbstr)
     allocate(qall(3,iqini:iqend),p_bstr(nbas,iqini:iqend),p_dbstr(nbas,iqini:iqend)) !iqini:iqend for each rank
     do 1200 iq = iqini, iqend !This is a big iq loop
@@ -50,7 +66,8 @@ contains
        !!  NOTE: both qpg are the same for given ig.
        !! qlat*igapw = qlat*igqwin + (qin-q) ---> igvapw = igvapwin + matmul(qlatinv,qin-q)
        qlatinv = transpose(plat)
-       call shorbz(qin,q,qlat,plat) !Get q. Is this fine?
+       !sss call shorbz(qin,q,qlat,plat) !Get q. Is this fine?
+       q=qin
        inn = nint(matmul(qlatinv,qin-q))
        do ig=1,napw
           igvapw(:,ig) = inn + igvapwin(:,ig)
@@ -68,12 +85,19 @@ contains
           !  --- Make strux to expand all orbitals at site ia ---
           mode = 2
           if(lfrce/=0) mode=1
-          qss = q+ [1d-8,2d-8,3d-8] !this trick is for stabilizing deneracy ordering (this works well?)
+          qss = q+ [1d-8,2d-8,3d-8] !for stabilizing deneracy ordering (this works well?)
           call bstrux (mode,ia,pa,rsma,qss,kmax,nlma,ndimh,napw,igvapw, p_bstr(ia,iq)%cv3,p_dbstr(ia,iq)%cv4)
-          qall(:,iq)=q
        enddo
        deallocate(igvapw)
+       qall(:,iq)=q
+       write(stdo,ftox)'m_bstrux_init qin',procid,iq,ftof(qin)
+       write(stdo,ftox)'m_bstrux_init q  ',procid,iq,ftof(qall(:,iq))
 1200 enddo
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!    do iq=iqini,iqend
+       write(stdo,ftox)'m_bstrux_init',procid,iq,ftof(qall(:,iq))
+!    enddo
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
     call tcx('m_bstrux_init')
   end subroutine m_bstrux_init
   ! sssssssssssssssssssssssssssssssssssssss

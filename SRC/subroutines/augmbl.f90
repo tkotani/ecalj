@@ -81,7 +81,8 @@ subroutine aughsoc(qp,ohsozz,ohsopm, ndimh, hso)
   ! sumev=      -27.088951  val*vef=    -388.462096   sumtv=     361.373145
 
   hso=0d0
-  call shorbz(qp,q,qlat,plat) !is this fine?
+  !sss call shorbz(qp,q,qlat,plat) !is this fine?
+  q=qp !sss 
   do ibas = 1,nbas
      isa =ssite(ibas)%spec
      lmxa=sspec(isa)%lmxa !max l of augmentation

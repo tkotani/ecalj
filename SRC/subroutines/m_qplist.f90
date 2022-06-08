@@ -75,10 +75,8 @@ contains
           read(ifiqg) ngvecp(1:3,1:ngp,nkp)
           write(ifqplist,"(i5,3f23.15)")nkp, qplist(:,nkp) !,ngplist(nkp)
        enddo
-       !         print *,' qplist: nqibz iqibzmax=',nqibz,iqibzmax
        close(ifiqg)
        close(ifqplist)
-       !! self-consistent calculaiton
     elseif(plbnd==0) then
        nkp=bz_nkp
        allocate(qplist(3,nkp))
@@ -205,22 +203,6 @@ contains
        endif
        if (nkp <= 0) call rx('bndfp: nkp<=0') ! quit if nkp==0
     endif
-
-    !! broadcase nkp and qplist
-    call mpibc1_int( nkp,1,  'qplit_nkp')
-    call mpibc1_int( onesp,1,'qplist_onesp')
-    if( .NOT. master_mpi) allocate(qplist(3,nkp))
-    call mpibc1_real(qplist, 3*nkp , 'qplist_qp'  )
-    ! !
-    if(llmfgw) then
-       if( .NOT. master_mpi) allocate(ngplist(nkp))
-       call mpibc1_int(ngpmx,1,      'qplist_ngpmx')
-       if( .NOT. master_mpi) allocate(ngvecp(3,ngpmx,nkp))
-       call mpibc1_int(ngplist, nkp, 'qplist_ngp' )
-       call mpibc1_int( ngvecp,  3*ngpmx*nkp,  'qplist_ngvecp' )
-       call mpibc1_int( iqibzmax,1, 'qplist_iqibzmax')
-    endif
-    !!
     if (master_mpi .AND. nsyml>0) then !plbnd mode
        open(newunit=ifqplist,file='QPLIST')
        print *,'-------- qplist --------',nsyml
@@ -238,6 +220,21 @@ contains
        enddo
        close(ifqplist)
     endif
+
+    !! broadcase nkp and qplist
+    call mpibc1_int( nkp,1,  'qplit_nkp')
+    call mpibc1_int( onesp,1,'qplist_onesp')
+    if( .NOT. master_mpi) allocate(qplist(3,nkp))
+    call mpibc1_real(qplist, 3*nkp , 'qplist_qp'  )
+    if(llmfgw) then
+       if( .NOT. master_mpi) allocate(ngplist(nkp))
+       call mpibc1_int(ngpmx,1,      'qplist_ngpmx')
+       if( .NOT. master_mpi) allocate(ngvecp(3,ngpmx,nkp))
+       call mpibc1_int(ngplist, nkp, 'qplist_ngp' )
+       call mpibc1_int( ngvecp,  3*ngpmx*nkp,  'qplist_ngvecp' )
+       call mpibc1_int( iqibzmax,1, 'qplist_iqibzmax')
+    endif
+    !!
     if(procaron .AND. nsyml==0 .AND. master_mpi) then !xdatt is dummy
        if(allocated(xdatt)) deallocate(xdatt)
        allocate(xdatt(nkp))

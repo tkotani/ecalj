@@ -311,8 +311,8 @@ subroutine rlocbl ( ssite , sspec , lfrce , nbas , isp  &
      OSIGPP => sv_p_osig(1,ia)%v
      OSIGHP => sv_p_osig(2,ia)%v
      !   --- Strux to expand all orbitals and their gradients at site ia ---
-     call bstrux(1, ia, pa, rsma, q, kmax, nlma, ndimh, napw, igvapw, w_ob , w_odb )
-     !call bstrux_set(ia,q) !bset, dbstr
+     !call bstrux(1, ia, pa, rsma, q, kmax, nlma, ndimh, napw, igvapw, w_ob , w_odb )
+     call bstrux_set(ia,q) !bset, dbstr
      !   --- Loop over eigenstates ---
      !       In noncollinear case, isp=1 always => need internal ispc=1..2
      !       ksp is the current spin index in both cases:
@@ -323,9 +323,9 @@ subroutine rlocbl ( ssite , sspec , lfrce , nbas , isp  &
         do ispc = 1, nspc
            ksp = max(ispc,isp)
            !!  ... Pkl expansion of eigenvector
-           call rlocb1(ndimh,nlma,kmax, evec(1,ispc,ivec), w_ob,cPkl) !bstr, cPkL)
+           call rlocb1(ndimh,nlma,kmax, evec(1,ispc,ivec),bstr, cPkL) !, w_ob,cPkl) !
            !!  ... Add to local density coefficients for one state
-           call prlcb3 ( job=0 , kmax=kmax , nlma=nlma , isp=ksp , cpkl=cpkl, ewgt=ewgt(ivec),   qpp=OQPP)
+           call prlcb3 ( job=0 , kmax=kmax , nlma=nlma , isp=ksp , cpkl=cpkl, ewgt=ewgt(ivec), qpp=OQPP)
            call prlcb2 ( job=0 , ia=ia , nkaph=nkaph , &
                 nlmha=nlmha , kmax=kmax, nlma=nlma, isp=ksp , cpkl=cpkl, nlmto=nlmto , &
                 evec=evec(1,ispc,ivec), ewgt=ewgt(ivec),    qhh=OQHH, qhp=OQHP)
@@ -338,7 +338,7 @@ subroutine rlocbl ( ssite , sspec , lfrce , nbas , isp  &
            if (lfrce/=0) then
               call rxx(nspc.ne.1,'forces not implemented in noncoll case')
               call flocbl ( nbas , ia , kmax , nkaph , lmxha , nlmha , nlma, &
-                   lmxa, nlmto, ndimh, ksp, evl(ivec,isp),evec(1,ispc,ivec),ewgt (ivec ),cpkl, w_odb, &!dbstr,& 
+                   lmxa,nlmto,ndimh,ksp,evl(ivec,isp),evec(1,ispc,ivec),ewgt(ivec),cpkl, dbstr,&  !w_odb, &!
                    OSIGPP, OSIGHP , OPPIPP, OPPIHP, force ) 
            endif
         enddo

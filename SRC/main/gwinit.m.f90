@@ -88,13 +88,13 @@ program gwinit_v2
   nnn = n1q*n2q*n3q
   ifkpt = ifile_handle()
   nqs=0
-  open(ifkpt,file='KPTin1BZ.gwinit.chk')
-  do      i1 = 1,nnn
-     call shorbz(qbz(1,i1),qp,qlat,plat)
-     write (ifkpt,"(1x,i4,4f10.5,2x,3f10.5,i3)") &
-          i1,qbz(1,i1),qbz(2,i1),qbz(3,i1),wbz(i1),qp
-  end do
-  close (ifkpt)
+!  open(ifkpt,file='KPTin1BZ.gwinit.chk')
+!  do      i1 = 1,nnn
+!     call shorbz(qbz(1,i1),qp,qlat,plat)
+!     write (ifkpt,"(1x,i4,4f10.5,2x,3f10.5,i3)") &
+!          i1,qbz(1,i1),qbz(2,i1),qbz(3,i1),wbz(i1),qp
+!  end do
+!  close (ifkpt)
   write(6,"(' --- TOTAL num of q is n1*n2*n3=',i10)")nnn
   ! --- Sample QPNT file ---------------
   ifqpnt = ifile_handle()

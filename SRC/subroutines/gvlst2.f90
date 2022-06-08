@@ -404,3 +404,104 @@ subroutine gvlsts(ngmx,ng,gv,kv,igv,igv2,job1,job2)
   !      pause
 end subroutine gvlsts
 
+subroutine gvgetf(ng,n,kv,k1,k2,k3,c,c0)
+  !- Gathers Fourier coefficients from 3D array c into list c0.
+  !     implicit none
+  integer :: ng,n,k1,k2,k3,kv(ng,3)
+  complex(8):: c0(ng,n),c(k1,k2,k3,n)
+  integer :: ig,i,j1,j2,j3
+  do   i = 1, n
+     do   ig = 1, ng
+        j1 = kv(ig,1)
+        j2 = kv(ig,2)
+        j3 = kv(ig,3)
+        c0(ig,i) = c(j1,j2,j3,i)
+     enddo
+  enddo
+end subroutine gvgetf
+
+subroutine gvputf(ng,n,kv,k1,k2,k3,c0,c)
+  !- Pokes Fourier coefficients from gathered list c0 into 3D array c.
+  !     implicit none
+  integer :: ng,n,k1,k2,k3,kv(ng,3)
+  complex(8):: c0(ng,n),c(k1,k2,k3,n)
+  integer :: ig,i,j1,j2,j3
+  c=0d0 
+  do   i = 1, n
+     do   ig = 1, ng
+        j1 = kv(ig,1)
+        j2 = kv(ig,2)
+        j3 = kv(ig,3)
+        c(j1,j2,j3,i) = c0(ig,i)
+     enddo
+  enddo
+end subroutine gvputf
+
+subroutine gvaddf(ng,kv,k1,k2,k3,c0,c)
+  !  Adds Fourier coefficients from gathered list c0 into 3D array c.
+  !     implicit none
+  integer :: ng,k1,k2,k3,kv(ng,3)
+  complex(8):: c0(ng),c(k1,k2,k3)
+  integer :: ig,j1,j2,j3
+  do  10  ig = 1, ng
+     j1 = kv(ig,1)
+     j2 = kv(ig,2)
+     j3 = kv(ig,3)
+     c(j1,j2,j3) = c(j1,j2,j3) + c0(ig)
+10 enddo
+end subroutine gvaddf
+
+
+! subroutine gvgetf_test(ng,n,kv,k1,k2,k3,c,c0)
+!   !- Gathers Fourier coefficients from 3D array c into list c0.
+!   !     implicit none
+!   integer :: ng,n,k1,k2,k3,kv(ng,3)
+!   double complex c0(ng,n),c(k1,k2,k3,n)
+!   integer :: ig,i,j1,j2,j3
+
+!   do   i = 1, n
+!      do   ig = 1, ng
+!         j1 = kv(ig,1)
+!         j2 = kv(ig,2)
+!         j3 = kv(ig,3)
+!         !        print *,'vvvvvvvvvvv kv=',j1,j2,j3,i
+!         c0(ig,i) = c(j1,j2,j3,i)
+!         !     print *,'vvvvvvvvvvv xxx'
+!      enddo
+!   enddo
+! end subroutine gvgetf_test
+
+
+!      subroutine gvlstp(p,ng,gv,sgv)
+!C- Adds offset to lattice vectors, and resorts by increasing length
+!C ---------------------------------------------------------------
+! i Inputs:
+! i  gv,ng:  lattice vectors, and number
+! i  p:      vector to subtract from gv
+! o  sgv:    lattice vectors, sorted by increasing (p-gv)**2
+! r Remarks
+! r  Shell sorting is apparently faster than heap sorting,
+! r  because the starting vectors are approximately sorted already.
+!C ---------------------------------------------------------------
+!      implicit none
+!      integer ng
+!      double precision p(3),gv(3,ng),sgv(3,ng)
+!      integer ir,oiwk
+!      integer w(1)
+!      common /w/ w
+
+!      do  10  ir = 1, ng
+!   10 sgv(ir,1) =
+!     .  (p(1)-gv(1,ir))**2 + (p(2)-gv(2,ir))**2 + (p(3)-gv(3,ir))**2
+!      call defi(oiwk, ng*3)
+!      call dvshel(1,ng,sgv,w(oiwk),1)
+!      call dvperm(3,ng,gv,sgv,w(oiwk),.false.)
+!      call rlse(oiwk)
+
+!      end
+!      subroutine rx(string)
+!      character *(*) string
+!      print *, string
+!      stop
+!      end
+

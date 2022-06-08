@@ -548,6 +548,7 @@ contains
     integer :: ia,ja
     double precision :: g(3,3),ag(3),pos(3,1),d(3),rb(3,3),qb(3,3)
     integer :: ka,nrc,m,k
+    real(8):: rfrac(3),epsr=1d-12
     !     integer mode(3)
     !      mode(1) = 2
     !      mode(2) = 2
@@ -560,15 +561,21 @@ contains
              d(m) = d(m) + g(m,k)*pos(k,ka)
           enddo
        enddo
-       call shorbz(d,d,rb,qb)
-       if (abs(d(1))+abs(d(2))+abs(d(3)) < 1d-4) then
+       rfrac = matmul(d,qb)
+       if(sum(abs(rfrac-nint(rfrac)))< 1d-4) then
           ja = ka
           return
        endif
+       !call shorbz(d,d,rb,qb)
+       !if (abs(d(1))+abs(d(2))+abs(d(3)) < 1d-4) then
+       !   ja = ka
+       !   return
+       !endif
 11  enddo
   end subroutine gpfndx
 
   subroutine groupg(mode,ng,g,ag,plat,ngen,gen,agen,gens,ngout)
+    use m_ftox
     !- Finds a set of generators for the symmetry group
     ! ----------------------------------------------------------------------
     !i Inputs:
@@ -601,14 +608,15 @@ contains
     ! Passed parameters:
     integer :: mode,ngen,ng,ngout
     double precision :: plat(9)
-    double precision :: gen(9,*),agen(3,*),g(9,*),ag(3,*)
+    double precision :: gen(3,3,*),agen(3,*),g(3,3,*),ag(3,*)
     character*(*) gens
     ! Local parameters:
     integer :: imax,isop,ngloc,ngmax,iprint,ngen0,ngmx
     integer :: i1,i2,j1,j2
     parameter (ngmx=48*64)
     character(100) :: sg,sg1,sout,sout2
-    double precision :: gloc(3,3,ngmx),agloc(3,ngmx),qlat(9),xx,vec(3),vol
+    double precision :: gloc(3,3,ngmx),agloc(3,ngmx),qlat(3,3),xx,vec(3),vol
+    real(8):: rfrac(3),epsr=1d-12
 
     ! --- Starting number of group ops ---
     call dinv33(plat,1,qlat,vol)
@@ -619,15 +627,12 @@ contains
 10  continue
     ! --- Do until enough generators added to make whole group ---
     if (ngout < ng) then
-       !   ... Run through all symops, choosing whichever adds the most ops
        imax = 0
        ngmax = 0
-       do  isop = 1, ng
-          call dcopy(9,g(1,isop),1,gen(1,ngen+1),1)
-          call dcopy(3,ag(1,isop),1,agen(1,ngen+1),1)
-          !         call pshpr(61)
+       do  isop = 1, ng!   ... Run through all symops, choosing whichever adds the most ops
+          gen(:,:,ngen+1)= g(:,:,isop) !call dcopy(9,g(1,isop),1,gen(1,ngen+1),1)
+          agen(:,ngen+1) = ag(:,isop)  !call dcopy(3,ag(1,isop),1,agen(1,ngen+1),1)
           call sgroup(mode,gen,agen,ngen+1,gloc,agloc,ngloc,ngmx,qlat)
-          !         call poppr
           if (ngloc > ngmax) then
              imax = isop
              ngmax = ngloc
@@ -635,19 +640,21 @@ contains
           endif
        enddo
        ngen = ngen+1
-       call dcopy(9,g(1,imax),1,gen(1,ngen),1)
-       call dcopy(3,ag(1,imax),1,agen(1,ngen),1)
+       gen(:,:,ngen)= g(:,:,imax) !call dcopy(9,g(1,isop),1,gen(1,ngen+1),1)
+       agen(: ,ngen)= ag(: ,imax) !call dcopy(3,ag(1,isop),1,agen(1,ngen+1),1)
+!       call dcopy(9,g(1,imax),1,gen(1,ngen),1)
+!       call dcopy(3,ag(1,imax),1,agen(1,ngen),1)
        goto 10
     endif
-
-    !     One last pass in case extra generators
     if ( .TRUE. ) then
        !   ... Run through all symops, choosing whichever adds the most ops
        imax = 0
        ngmax = ngout
        do  isop = 1, ng
-          call dcopy(9,g(1,isop),1,gen(1,ngen+1),1)
-          call dcopy(3,ag(1,isop),1,agen(1,ngen+1),1)
+          gen(:,:,ngen+1)= g(:,:,isop) !call dcopy(9,g(1,isop),1,gen(1,ngen+1),1)
+          agen(:,ngen+1) = ag(:,isop)  !call dcopy(3,ag(1,isop),1,agen(1,ngen+1),1)
+          !call dcopy(9,g(1,isop),1,gen(1,ngen+1),1)
+          !call dcopy(3,ag(1,isop),1,agen(1,ngen+1),1)
           !         call pshpr(61)
           call sgroup(mode,gen,agen,ngen+1,gloc,agloc,ngloc,ngmx,qlat)
           !         call poppr
@@ -659,49 +666,40 @@ contains
        enddo
        if (ngout > ngmax) then
           ngen = ngen+1
-          call dcopy(9,g(1,imax),1,gen(1,ngen),1)
-          call dcopy(3,ag(1,imax),1,agen(1,ngen),1)
+!          call dcopy(9,g(1,imax),1,gen(1,ngen),1)
+!          call dcopy(3,ag(1,imax),1,agen(1,ngen),1)
+          gen(:,:,ngen)= g(:,:,imax) !call dcopy(9,g(1,isop),1,gen(1,ngen+1),1)
+          agen(: ,ngen)= ag(: ,imax) !call dcopy(3,ag(1,isop),1,agen(1,ngen+1),1)
        endif
     endif
-
     call poppr
-
-    ! --- Create gens, optionally printout ---
-    !     if (iprint() .ge. 20)  then
-    if (ngen0 == 0) then
-       call info0(20,0,0,' GROUPG: the following '// &
-            'are sufficient to generate the space group:')
+    if (ngen0 == 0) then     ! --- Create gens, optionally printout ---
+       write(stdo,ftox)' GROUPG: the following are sufficient to generate the space group:'
     else
-       call info2(20,0,0,' GROUPG: %i generator(s) were added to '// &
-            'complete the group%?#n#:',ngen-ngen0,ngen-ngen0)
+       write(stdo,ftox)' GROUPG:',ngen-ngen0,'generator(s) were added to complete the group:'
     endif
     sout = ' '
     sout2 = ' '
     do  20  isop = 1, ngen
-       call asymop(gen(1,isop),agen(1,isop),':',sg)
+       call asymop(gen(1,1,isop),agen(1,isop),':',sg)
        call awrit0('%a '//sg,sout(9:),len(sout)-9,0)
        call dcopy(3,agen(1,isop),1,vec,1)
        call dgemm('N','N',1,3,3,1d0,agen(1,isop),1,qlat,3,0d0,vec,1)
-       call asymop(gen(1,isop),vec,'::',sg1)
+       call asymop(gen(1,1,isop),vec,'::',sg1)
        call word(sg1,1,i1,i2)
-       call shorbz(vec,vec,plat,qlat)
-       call asymop(gen(1,isop),vec,'::',sg)
+       rfrac= matmul(vec-epsr,qlat)
+       vec  = rfrac -nint(rfrac)+epsr ! call shorbz(vec,vec,plat,qlat)
+       call asymop(gen(1,1,isop),vec,'::',sg)
        call word(sg,1,j1,j2)
        if (i2-i1 < j2-j1) sg = sg1
        call awrit0('%a '//sg,sout2(9:),len(sout2)-9,0)
-       ! rint *,'len(sout2)=',isop,len(sout2)
 20  enddo
     if (ngen > ngen0 .AND. iprint() >= 20) then
-       write(stdo,"(' Generator(cart): ', a)") trim(adjustl(sout))  ! call awrit0('%a',sout,len(sout),-stdo)
-       write(stdo,"(' Generator(frac): ', a)") trim(adjustl(sout2)) ! call awrit0('%a',sout2,len(sout2),-stdo)
+       write(stdo,"(' Generator(cart): ', a)")trim(adjustl(sout)) 
+       write(stdo,"(' Generator(frac): ', a)")trim(adjustl(sout2))
     endif
     gens = sout2
-    !     endif
-    if (ngout > ng) then
-       call info2(20,0,0, &
-            '%9f(warning) %i group ops supplied but generators create'// &
-            ' %i ops',ng,ngout)
-    endif
+    if(ngout>ng)write(stdo,ftox)'(warning)',ng,' ops supplied but generators create ',ngout,' ops'
   end subroutine groupg
   !$$$!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   !$$$      subroutine fixpos(pos,nbas,tol,ng,plat,g,ag,istab)
@@ -1164,7 +1162,7 @@ contains
     !     implicit none
     ! Passed parameters:
     integer :: nbas,ng,ipc(nbas),nclass,istab(nbas,ng),nrclas(nclass)
-    double precision :: plat(9,*),qlat(*),bas(3,*),bast(3,*), &
+    double precision :: plat(3,3),qlat(3,3),bas(3,*),bast(3,*), &
          g(9,*),ag(3,*)
     !      real(8):: tol=0d0
     ! Local parameters:
@@ -1175,6 +1173,7 @@ contains
     parameter (tol0=1d-5)
     !      logical latvec
     character sg*35
+    real(8):: rfrac(3),epsr=1d-12
     call getpr(ipr)
     tol1 = fptol
     if(fptol==0d0) tol1 = tol0
@@ -1197,12 +1196,9 @@ contains
           do  22  m = 1, 3
              ag(m,ng+1) = bas(m,jbas)-bast(m,ibas)
 22        enddo
-          call shorbz(ag(1,ng+1),ag(1,ng+1),plat,qlat)
-          !          mode(1) = 2
-          !          mode(2) = 2
-          !          mode(3) = 2
-          !          call shorps(1,plat,mode,ag(1,ng+1),ag(1,ng+1))
-          !     ... See whether candidate works for all sites; also make istab
+          !          call shorbz(ag(1,ng+1),ag(1,ng+1),plat,qlat)
+          rfrac = matmul(ag(:,ng+1)-epsr,qlat)
+          ag(:,ng+1) = matmul(plat,rfrac -nint(rfrac)+epsr)
           do  10  kbas = 1, nbas
              kc = ipc(kbas)
              do  12  nm = 1, nrclas(kc)

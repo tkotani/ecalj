@@ -383,95 +383,93 @@ subroutine setq0_2(icase,alat,vol,plat,qlat,alpv,qbz,nstbz,nnn,ngc,ngcmx,ngvect,
   q0x=0d0
   iix= q0pchoice()
   print *, ' setq0_2: q0pchoice() icase=',iix,icase
-
-  if(q0pchoice()<0 .AND. icase==2) then !see wgtq0p in switch!
-     nx = abs(q0pchoice())
-
-     if( .FALSE. ) then
-        !------------------------
-        ! testing case
-        !        nxx=(nnn)**(1/3d0)+1d-10 !this is a test case for n1=n2=n3
-        qm(:,1) = qlat(:,1)/dble(2*nx)/n1q
-        qm(:,2) = qlat(:,2)/dble(2*nx)/n2q
-        qm(:,3) = qlat(:,3)/dble(2*nx)/n3q
-        print *,'n1 n2 n3 2*nx qm=',n1q,n2q,n3q,nnn,2*nx,qm
-        ni= -nx
-        ne=  nx-1
-        !        if(mod(nx,2)==0) then
-        !          ni= -nx/2
-        !          ne= nx/2-1
-        !        else
-        !           stop ' not implimented xxxxxxxxxxxxxxxxxxxxxxx'
-        !          ni= -(nx+1)/2
-        !          ne=  (nx+1)/2-1
-        !        endif
-        ix=0
-        do iq1 = ni,ne
-           do iq2 = ni,ne
-              do iq3 = ni,ne
-                 ix=ix+1
-                 q0x(:,ix) = qm(:,1)*(iq1+.5) &
-                      + qm(:,2)*(iq2+.5) &
-                      + qm(:,3)*(iq3+.5)
-              enddo
-           enddo
-        enddo
-        nq00i = ix
-        wt0(1:ix) = 1d0/ix
-        return
-        !-----------------------------
-     endif
-
-     ! ccccccccccccccccccccccccccccccccccccccccccccccccccccc
-     !--- scaling box case :
-     !        goto 1120 ! Not used now
-     ! wgtq0p in swiches.f should be given correctly --->it should be consistent with wt0 given here
-     eee= escale()
-     nsc=0
-     qmin=1d10
-     do iq = 1,nnn ! omit q=0 point
-        if(nstbz(iq)/=0) then
-           nsc=nsc+1
-           call shorbz(qbz(1:3,iq),qout,qlat,plat)
-           if(sum(qout**2)>qmax) qmax=sum(qout**2)
-        endif
-     enddo
-     print *,' nearest iq qmin=',nsc,qmin
-     if(nsc/=8 ) call rx( ' setq0_2: err.we assumce nsc==8')
-     call wgtscale(eee,w1,w2)
-     ix=0
-     do iq = 1,nnn
-        call shorbz(qbz(1:3,iq),qout,qlat,plat)
-        !          if(nstbz(iq)/=0) then
-        ! only shortest
-        if(nstbz(iq)/=0 .AND. sum(qout**2)>qmax-1d-4 ) then
-           ! c            write(6,"(i3,2x,3f16.7,2x,f8.3)") iq,qbz(1:3,iq),sum(qbz(1:3,iq)**2)
-           write(6,"(i3,2x,3f16.7,2x,f8.3)") iq,qout,sum(qout**2)
-           do i=1,nx
-              ix=ix+1
-              q0x(:,ix) = qout * eee**(nx+1-i)
-              if(i==1) then
-                 !                wt0(ix) = 1d0
-                 wt0(ix) = (eee**(nx+1-i))**3
-                 !2                vol2    = (eee**(nx+1-i))**3*(1d0/eee**3 - 1d0 )
-                 !2                wt0(ix) = (eee**(nx+1-i))**3 + vol2*w1
-              else
-                 !                wt0(ix) = 1d0
-                 wt0(ix) = (eee**(nx+1-i))**3 *( 1d0 - eee**3  )
-                 !2                vol2    = (eee**(nx+1-i))**3*(1d0/eee**3 - 1d0 )
-                 !2                vol1    = (eee**(nx+1-i))**3*( 1d0 - eee**3  )
-                 !2                wt0(ix) = vol2*w1 + vol1*w2
-              endif
-              !              write(6,"(i3,f16.7,2x,3f16.7,2x,f9.4)") ix,wt0(ix),qout,sum(qout**2)
-           enddo
-        endif
-     enddo
-     wt0(1:ix)=wt0(1:ix)/sum(wt0(1:ix))
-     nq00i = ix
-     return
-     ! 1120   continue
-     ! ccccccccccccccccccccccccccccccccccccccccccccccccccccc
-  endif
+  if(q0pchoice()<0 .AND. icase==2) call rx('this branch is not maintained now')
+  ! if(q0pchoice()<0 .AND. icase==2) then !see wgtq0p in switch!
+  !    nx = abs(q0pchoice())
+  !    if( .FALSE. ) then
+  !       !------------------------
+  !       ! testing case
+  !       !        nxx=(nnn)**(1/3d0)+1d-10 !this is a test case for n1=n2=n3
+  !       qm(:,1) = qlat(:,1)/dble(2*nx)/n1q
+  !       qm(:,2) = qlat(:,2)/dble(2*nx)/n2q
+  !       qm(:,3) = qlat(:,3)/dble(2*nx)/n3q
+  !       print *,'n1 n2 n3 2*nx qm=',n1q,n2q,n3q,nnn,2*nx,qm
+  !       ni= -nx
+  !       ne=  nx-1
+  !       !        if(mod(nx,2)==0) then
+  !       !          ni= -nx/2
+  !       !          ne= nx/2-1
+  !       !        else
+  !       !           stop ' not implimented xxxxxxxxxxxxxxxxxxxxxxx'
+  !       !          ni= -(nx+1)/2
+  !       !          ne=  (nx+1)/2-1
+  !       !        endif
+  !       ix=0
+  !       do iq1 = ni,ne
+  !          do iq2 = ni,ne
+  !             do iq3 = ni,ne
+  !                ix=ix+1
+  !                q0x(:,ix) = qm(:,1)*(iq1+.5) &
+  !                     + qm(:,2)*(iq2+.5) &
+  !                     + qm(:,3)*(iq3+.5)
+  !             enddo
+  !          enddo
+  !       enddo
+  !       nq00i = ix
+  !       wt0(1:ix) = 1d0/ix
+  !       return
+  !       !-----------------------------
+  !    endif
+  !    ! ccccccccccccccccccccccccccccccccccccccccccccccccccccc
+  !    !--- scaling box case :
+  !    !        goto 1120 ! Not used now
+  !    ! wgtq0p in swiches.f should be given correctly --->it should be consistent with wt0 given here
+  !    eee= escale()
+  !    nsc=0
+  !    qmin=1d10
+  !    do iq = 1,nnn ! omit q=0 point
+  !       if(nstbz(iq)/=0) then
+  !          nsc=nsc+1
+  !          call shorbz(qbz(1:3,iq),qout,qlat,plat)
+  !          if(sum(qout**2)>qmax) qmax=sum(qout**2)
+  !       endif
+  !    enddo
+  !    print *,' nearest iq qmin=',nsc,qmin
+  !    if(nsc/=8 ) call rx( ' setq0_2: err.we assumce nsc==8')
+  !    call wgtscale(eee,w1,w2)
+  !    ix=0
+  !    do iq = 1,nnn
+  !       call shorbz(qbz(1:3,iq),qout,qlat,plat)
+  !       !          if(nstbz(iq)/=0) then
+  !       ! only shortest
+  !       if(nstbz(iq)/=0 .AND. sum(qout**2)>qmax-1d-4 ) then
+  !          ! c            write(6,"(i3,2x,3f16.7,2x,f8.3)") iq,qbz(1:3,iq),sum(qbz(1:3,iq)**2)
+  !          write(6,"(i3,2x,3f16.7,2x,f8.3)") iq,qout,sum(qout**2)
+  !          do i=1,nx
+  !             ix=ix+1
+  !             q0x(:,ix) = qout * eee**(nx+1-i)
+  !             if(i==1) then
+  !                !                wt0(ix) = 1d0
+  !                wt0(ix) = (eee**(nx+1-i))**3
+  !                !2                vol2    = (eee**(nx+1-i))**3*(1d0/eee**3 - 1d0 )
+  !                !2                wt0(ix) = (eee**(nx+1-i))**3 + vol2*w1
+  !             else
+  !                !                wt0(ix) = 1d0
+  !                wt0(ix) = (eee**(nx+1-i))**3 *( 1d0 - eee**3  )
+  !                !2                vol2    = (eee**(nx+1-i))**3*(1d0/eee**3 - 1d0 )
+  !                !2                vol1    = (eee**(nx+1-i))**3*( 1d0 - eee**3  )
+  !                !2                wt0(ix) = vol2*w1 + vol1*w2
+  !             endif
+  !             !              write(6,"(i3,f16.7,2x,3f16.7,2x,f9.4)") ix,wt0(ix),qout,sum(qout**2)
+  !          enddo
+  !       endif
+  !    enddo
+  !    wt0(1:ix)=wt0(1:ix)/sum(wt0(1:ix))
+  !    nq00i = ix
+  !    return
+  !    ! 1120   continue
+  !    ! ccccccccccccccccccccccccccccccccccccccccccccccccccccc
+  ! endif
 
   !      write(6,*) ' newq0p=',iix
   q0pc=q0pchoice()

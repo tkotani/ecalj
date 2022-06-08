@@ -2,15 +2,12 @@ module m_bandcal
   use m_struc_def,only: s_rv1
   use m_suham,  only: ndhamx=>ham_ndhamx,nspx=>ham_nspx
   use m_qplist, only: nkp
-  use m_lmfinit,only: nsp,nlibu,lmaxu,nbas,nl!,nlmto
-  use m_mkqp,only: ntet=> bz_ntet
-  ! ccccccccccc
-  use m_mkqp,only: bz_nabc
-  ! ccccccccccc
+  use m_lmfinit,only: nsp,nlibu,lmaxu,nbas,nl
+  use m_mkqp,only: ntet=> bz_ntet, bz_nabc
   use m_qplist,only: qplist
   use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_setiq
   use m_lmfinit,only: lrsig=>ham_lsig, lso,ham_scaledsigma,lekkl, &
-       lmet=>bz_lmet,stdo,nbas,epsovl=>ham_oveps,nspc,plbnd,lfrce=>ctrl_lfrce, &
+       lmet=>bz_lmet,nbas,epsovl=>ham_oveps,nspc,plbnd,lfrce=>ctrl_lfrce, &
        pwmode=>ham_pwmode,pwemax,stdl
   use m_MPItk,only: mlog, master_mpi, procid,strprocid, numprocs=>nsize, mlog_MPIiq
   use m_subzi, only: nevmx,lswtk,rv_a_owtkb
@@ -21,21 +18,20 @@ module m_bandcal
   use m_procar,only: m_procar_init,m_procar_closeprocar
   use m_clsmode,only: m_clsmode_set1
   use m_addrbl,only: Addrbl,swtk,Swtkzero
-
+  use m_lgunit,only:stdo
+  use m_ftox
   !! outputs ---------------------------
   public m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce,m_bandcal_symsmrho
   integer,allocatable,protected,public::     ndimhx_(:),nev_(:),nevls(:,:)
   real(8),allocatable,protected,public::     evlall(:,:,:),frcband(:,:), orbtm_rv(:,:,:)
   complex(8),allocatable,protected,public::  smrho_out(:),dmatu(:,:,:,:)
   type(s_rv1),allocatable,protected,public:: sv_p_oeqkkl(:,:), sv_p_oqkkl(:,:)
-
   !! ------------------------------------------------
   logical,private:: debug,sigmamode,call_m_bandcal_2nd,procaron,writeham
   logical,private:: dmatuinit=.true.
   real(8),private::  sumqv(3,2),sumev(3,2)
   private
 contains
-  ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   ! Set up Hamiltonian, diagonalization
   subroutine m_bandcal_init(iqini,iqend,ispini,ispend,lrout,ef0,ifih,lwtkb)
     implicit none
@@ -67,12 +63,10 @@ contains
     ndimhx_=0
     nev_   =0
     nevls  =0
-
     if(nlibu>0 .AND. dmatuinit) then
        allocate( dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu))
        dmatuinit=.false.
     endif
-
     if(lrout/=0) then
        allocate( sv_p_oeqkkl(3,nbas), sv_p_oqkkl(3,nbas))
        call dfqkkl( sv_p_oqkkl ) !zero clear
@@ -80,20 +74,17 @@ contains
        allocate( smrho_out(k1*k2*k3*nsp) )
        smrho_out = 0d0
     endif
-
     call_m_bandcal_2nd =.false.
     if(plbnd==0) call_m_bandcal_2nd= (lmet>=0 .AND. lrout>0 )
     if(call_m_bandcal_2nd) open(newunit=ifig,file='eigze_'//trim(strprocid),form='unformatted')
     allocate( evl(ndhamx,nspx))
-
-    !! These are accumulation varivables
     if(nlibu>0)  dmatu=0d0    !density matrix for U initialization
     sumev = 0d0
     sumqv = 0d0
     if (lswtk==1)  call swtkzero()
     do 2010 iq = iqini, iqend !This is a big iq loop
        qp = qplist(:,iq)
-       if(debug) print *,' do 2010 iq procid=',iq,procid,iq,iqini,iqend
+       write(stdo,ftox)'m_bandcal_init: procid iq=',procid,iq,ftof(qp)
        if(iq==iqini) call mlog_MPIiq(iq,iqini,iqend)
        call m_Igv2x_setiq(iq)    ! Get napw and so on for given qp
        if(lso==1) then
@@ -104,10 +95,8 @@ contains
        ispendx = nsp
        if(lso==1) ispendx=1
        do 2005 isp = 1,ispendx
-          ! ccccccccccccc
           if(iq==iqini .AND. ispini==2 .AND. isp==1) cycle
           if(iq==iqend .AND. ispend==1 .AND. isp==2) cycle
-          ! ccccccccccccc
           jsp = isp
           if(lso==1) jsp = 1
           ! Hambl calls augmbl.
@@ -142,7 +131,6 @@ contains
                   ,form='unformatted')
              if(iq==1 .AND. isp==1) write(iwsene) nsp,ndimsig,bz_nabc,nkp,0,0,0
           endif
-
           hamm=0d0
           ovlm=0d0
           if(lso==1) then !L.S case nspc=2
@@ -177,11 +165,9 @@ contains
           endif
           if(wsene) close(iwsene)
           nmx=min(nevmx,ndimhx)!nmx: max number of eigenfunctions we will obtain. Smaller is faster.
-
           if(iprint()>=30) write(stdo,'(" bndfp: kpt ",i5," of ",i5, " k=",3f8.4, &
                " ndimh = nmto+napw = ",3i5,f13.5)') iq,nkp,qp,ndimh,ndimh-napw,napw
           if(writeham) then
-             !              write(stdo,"(a,3f9.5)") "Hamiltonian: Writing hamm and ovlm for qp= ",qp
              write(ifih) qp,ndimhx,lso,epsovl,jsp
              if(lso==1) then  !L.S case ndimhx=ndimh*nspc nspc=2
                 write(ifih) ovlm !Note sopert2. When you read, use ovlm(1:ndimhx, 1:ndimhx)
@@ -191,42 +177,34 @@ contains
                 write(ifih) hamm
              endif
           endif
-
           allocate(evec(ndimhx,nmx))
           !! == Diagonalize Hamiltonian ==
           !! ndimhx: dimension of Hamitonian
           !! hamm:Hamiltonian, ovlm: overlap matrix
           !! evec:eigenfunciton. evl: eigenvalue.
-          !!
           !! nmx: input, number of requested eigenvalues(functions).
           !!      If nmx=0, no eigenfunctions but all eigenvalues. <== WARNNNNNNNNNN!
           !! nev: out number of obtained eigenfvalues(funcitons)
           call zhev_tk4(ndimhx, hamm, ovlm, nmx, nev, evl(1, jsp ), evec, epsovl)
           if(writeham .AND. master_mpi) call prtev(evec, ndimhx , evl(1, jsp ) , nmx , nev )
           if(call_m_bandcal_2nd) then
-             write(ifig) nev,nmx,ndimhx
+             write(ifig) nev,nmx,ndimhx !nev: number of eigenvalues
              write(ifig) evl(1:nev,jsp)
              write(ifig) evec(1:ndimhx,1:nmx)
           endif
-
-          !! nev: number of eigenvalues
           evl(nev+1:ndhamx,jsp)=1d99 !to skip these data
           nevls(iq,jsp) = nev  !nov2014 isp and jsp is confusing...
           evlall(1:ndhamx,jsp,iq) = evl(1:ndhamx,jsp)
           if(master_mpi .AND. epsovl>=1.000001d-14 .AND. plbnd/=0) then
              write(stdo,"(' : ndimhx=',i5,' --> nev=',i5' by HAM_OVEPS ',d11.2)") ndimhx,nev,epsovl
           endif
-
           if(plbnd==0 .AND. lwtkb/=-1) then !lwtkb=-1,0,1
-             if(nlibu>0 .AND. nev>0 .AND. lwtkb==0) call rx('metal weights required for LDA+U calculation')
+             if(nlibu>0.AND.nev>0.AND.lwtkb==0)call rx('metal weights required for LDA+U calculation')
              if(lso/=0)  call mkorbm(jsp, nev, iq,qp, evec,  orbtm_rv) !Orbital magnetic moment
              if(nlibu>0 .AND. nev>0) call mkdmtu(jsp, iq, qp, nev, evec,  dmatu) !density matrix
              if(cmdopt0('--cls'))  call m_clsmode_set1(nmx,jsp,iq,qp,nev,evec) !all inputs
           endif
-
-          if(lrout/=0 .AND. lwtkb>=0) then
-             !               call readindensitymodesetting() !dummy
-             ! ccumulate output density and sampling DOS.
+          if(lrout/=0 .AND. lwtkb>=0) then ! accumulate output density and sampling DOS.
              call addrbl (jsp, qp &
                   , iq , lfrce,  osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi &
                   , evec,evl,nev, smrho_out, sumqv, sumev, sv_p_oqkkl,sv_p_oeqkkl, frcband)
@@ -257,8 +235,7 @@ contains
     call tcx('m_bandcal_init')
   end subroutine m_bandcal_init
   ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  subroutine m_bandcal_2nd(iqini,iqend,ispini,ispend,lrout)!,ef0) !,emin,emax)!,ndos)
-    ! ccumulation by addrbl
+  subroutine m_bandcal_2nd(iqini,iqend,ispini,ispend,lrout)! accumulation by addrbl
     implicit none
     integer:: iq,nmx,ispinit,isp,jsp,nev,iqini,iqend,lrout,ifig,i,ibas,ispini,ispend,ispendx
     real(8):: qp(3),ef0,def=0d0,xv(3)
@@ -285,10 +262,8 @@ contains
        ispendx = nsp
        if(lso==1) ispendx=1
        do 12005 isp = 1,ispendx
-          ! ccccccccccccc
           if(iq==iqini .AND. ispini==2 .AND. isp==1) cycle
           if(iq==iqend .AND. ispend==1 .AND. isp==2) cycle
-          ! ccccccccccccc
           jsp = isp
           if(lso==1) jsp = 1
           read(ifig) nev,nmx  !ndimhx <---supplied by m_Igv2x_set
@@ -354,88 +329,13 @@ contains
           endif
        enddo
     enddo
-    !         if( ndos>0 ) nnn=size(dos_rv)
-    !         if( ndos>0 ) call mpibc2_real(dos_rv,nnn,'bndfp_dos')
     if(lfrce/=0) nnn=size(frcband)
     if(lfrce/=0) call mpibc2_real(frcband,nnn,'bndfp_frcband')
     if(nlibu>0)  nnn=size(dmatu)
     if(nlibu>0)  call mpibc2_complex(dmatu,nnn,'bndfp_dmatu')
     if(lso/=0 .AND. lwtkb/=-1) nnn=size(orbtm_rv)
     if(lso/=0 .AND. lwtkb/=-1) call mpibc2_real(orbtm_rv,nnn,'bndfp_orbtm')
-    !      endif
   end subroutine m_bandcal_allreduce
-
-  !!------------------------------
-  !$$$      subroutine m_bandcal_dosw(lwtkb,lrout,  dosw,evtop,ecbot) !goto99)
-  !$$$      ! lwtkb,lrout,def are used only for
-  !$$$      use m_lmfinit,only:ctrl_zbak,bz_w
-  !$$$      intent(in)   ::           lwtkb,lrout
-  !$$$      intent(inout)::                             dosw !input is just initial guess
-  !$$$      intent(out)  ::                                  evtop,ecbot
-  !$$$c      intent(out)::                                  goto99
-  !$$$!!  ===   Repeat loop for printout and goto 99 ===
-  !$$$!!   jsp=isp in the collinear case; jsp=1 in the noncollinear
-  !$$$!!     Thus jsp should be used in place of isp
-  !$$$!     !     isp serves as a flag for the noncollinear case
-  !$$$!     ! block10
-  !$$$      logical:: ltet !goto99,
-  !$$$      real(8):: ef00,ef0,dosw(2),qp(3),qbg,evl(ndhamx,nspx),dum,ebot,ecbot,evtop
-  !$$$      integer:: iq,ipr,lwtkb,isp,jsp,nev_iq,i,lrout,iprint
-  !$$$      character(10):: i2char
-  !$$$c      goto99=.false.
-  !$$$      ltet = ntet>0
-  !$$$      qbg = ctrl_zbak(1) !homogenious background charge
-  !$$$      ipr=iprint()
-  !$$$      evtop = -99999
-  !$$$      ecbot = -evtop
-  !$$$      ebot = 1000d0
-  !$$$      do  iq = 1, nkp
-  !$$$         qp=qplist(:,iq)
-  !$$$         do isp = 1, nspx
-  !$$$            jsp = isp
-  !$$$            evl(1:ndhamx,jsp) = evlall(1:ndhamx,jsp,iq)
-  !$$$            nev_iq    = nev_(iq)
-  !$$$            if(plbnd==0.and.ipr>=10 .and. iq==1) write (stdl,"('fp evl',8f8.4)") (evl(i,jsp),i=1,nev_iq)
-  !$$$            ebot = dmin1(ebot,evl(1,jsp))
-  !$$$            i = max(1,nint(qval-qbg)/(3-nspc))
-  !$$$            evtop = max(evtop,evl(i,jsp))
-  !$$$            ecbot = min(ecbot,evl(i+1,jsp))
-  !$$$            if (lmet==0 .and. iq==1 .and. jsp==1) ef0 = evtop
-  !$$$            if(debug) print *,'eeeee44444444444 plbnd=',plbnd
-  !$$$            if(plbnd==0.and.lwtkb/=-1) then
-  !$$$                  if (iq .eq. 1 .and. jsp .eq. nsp ) then !
-  !$$$                     ef00 = ef0
-  !$$$                     call fixef0(qval-qbg,jsp,1,nev_iq,ndhamx,evl,dosw,ef0)
-  !$$$!!        :on output, dosw is revised if ebot<dosw(1) or dosw(2)<ef0
-  !$$$                     if (jsp .eq. 2 .and. ef00 .ne. ef0 .and.
-  !$$$     .                    lwtkb .eq. 0 .and. lmet .gt. 0 .and. lrout .ne. 0) then
-  !$$$                          if (master_mpi) write(stdo,"(a)")
-  !$$$     .                       ' ... Fermi level reset in second spin channel ... restart band pass'
-  !$$$                          call rx0('tk think ecalj is going though not maintained branch).')
-  !$$$                         !goto99=.true.
-  !$$$                        exit    !this was the case of make co test at ecalj/TestInstall/ (did I remove this?)
-  !$$$                     endif
-  !$$$                  endif
-  !$$$            endif
-  !$$$!!     Check for cases when nevmx is too small : i=2 => fatal error
-  !$$$            if(plbnd==0.and.lwtkb/=-1) then
-  !$$$                  i = 0
-  !$$$                  if (nevmx.ge.0 .and. lmet .ne. 0) then
-  !$$$                     dum = evl(max(nev_iq,1),jsp)
-  !$$$                     if (.not. ltet .and. ef0+5*bz_w .gt. dum) i=2
-  !$$$c                     if (lmet.eq.4 .and. ef0+def+5*bz_w .gt.dum)i=2
-  !$$$                  endif
-  !$$$                  if(i .eq. 2) then
-  !$$$                     write(stdo,"(a,f13.5,a, f13.5)")
-  !$$$     &                 'evl(nev='//trim(i2char(nev_iq))//')=',
-  !$$$     &                 evl(max(nev_iq,1),jsp),' but ef0=',ef0
-  !$$$                     call rx('bndfp:... restart with larger nevmx: bndfp')
-  !$$$                  endif
-  !$$$
-  !$$$            endif
-  !$$$         enddo                  ! end second loop over isp
-  !$$$      enddo                     !end second loop over iq
-  !$$$      end subroutine
 
   subroutine m_bandcal_symsmrho()
     call tcn('m_bandcal_symsmrho')
