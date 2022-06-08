@@ -24,6 +24,7 @@ subroutine symprj(nrclas,nlml,ngrp,nbas,istab,g,ag,plat,qlat, &
   integer:: lmxl , ll , ig , ja , m , ia=99999 , iprint , ilm , l , jlm,  jlm1 , jlm2
   real(8),allocatable :: rmat_rv(:,:)
   double precision :: wgt
+  real(8):: rfrac(3)
   lmxl = ll(nlml)
   allocate(rmat_rv(nlml,nlml))
   wgt = 1d0/ngrp
@@ -36,9 +37,11 @@ subroutine symprj(nrclas,nlml,ngrp,nbas,istab,g,ag,plat,qlat, &
            d(m) = g(m,1,ig)*pos(1,ja) + g(m,2,ig)*pos(2,ja) &
                 + g(m,3,ig)*pos(3,ja) + ag(m,ig) - pos(m,1)
 14      enddo
-        call shorbz(d,d,plat,qlat)
-        ia = ja
-        if (d(1)*d(1)+d(2)*d(2)+d(3)*d(3) < 1d-7) goto 80
+!        call shorbz(d,d,plat,qlat)
+       ia = ja
+       rfrac = matmul(d,qlat)
+       if(sum(abs(rfrac-nint(rfrac)))< 1d-7) goto 80
+!        if (d(1)*d(1)+d(2)*d(2)+d(3)*d(3) < 1d-7) goto 80
         !          if (d(1)*d(1)+d(2)*d(2)+d(3)*d(3) .lt. 1d-9) goto 80
 12   enddo
      call rxi('symprj: no site mapped into first under op',ig)

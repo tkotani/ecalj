@@ -1,37 +1,32 @@
-module m_shortn3
-  !!== Find shortest vector in modulo of rlat ===
-  public:: shortn3,shortn3_initialize
-  real(8),private:: rlatp(3,3),xmx2(3)
+module m_shortn33 !== Find shortest vector in modulo of rlat ===
+  public:: shortn33,shortn33initialize
 contains
   ! NOTE: shortn3 is better than shorbz. we will have to replace shorbz with shortn3.
   ! NOTE: In advance, we will need to check speed and convenience.
-  subroutine shortn3(pin,noutmx, nout,nlatout)
+  subroutine shortn33(pin,rlatp,xmx2,noutmx,nout,nlatout)
     !! To call shortn3 for given rlat, 
-   !! we have to call shorn3_initialize to set rlatp and xmx2
+    !! we have to call shorn33initialize to set rlatp and xmx2
     !!
-    ! i pin is on the rlat coodinate.
-    ! i rlatp,xmx2 are passed from shortn3_initialize
-    !!  rlatp(i,j)= sum( rlat(:,i)*rlat(:,j) )
-    !!  rlat(3,i) i-th vertor for modulo
-    ! o noutmax: upper limit of nlatout
+    ! i pin is the fractional coodinate on rlat.
+    ! i rlatp,xmx2 are passed from shortn33initialize
+    !!   rlatp(i,j)= sum( rlat(:,i)*rlat(:,j) )
+    !!   rlat(3,i) i-th vertor for modulo
+    ! i noutmax: upper limit of nlatout
     ! o nout
     ! o nlatout
     !!  Shortest vectors are
-    !!  pin + nlatout \in  [ pin + any integer linear-combination of (rlat(:,1),rlat(:,2),rlat(:,3)) ].
+    !!    pin+nlatout(:,ix), where ix=1:nout, is the shortest vectors.
+    !!    We may have multiple nlatout (# is nout).
     !!
-    !!  length = sum_i sum_j pin(i)*rlatp(i,j)*pin(j)
-    !!  pin+nlatout(:,ix), where ix=1:nout, is the shortest vectors. We may have multiple nlatout (# is nout).
-    !!
-    !! Takao think shorbz will be almost OK, but not perfect as an algolism.
-    !! Takao think all shorbz should be replaced by shortn3 in future.
     !!==========================================================================
     implicit none
+    integer:: noutmx
+    integer:: nlatout(3,noutmx)
     integer:: nmax(3),nknknk,ik1,ik2,ik3,nout,nk,ik,i,j
     real(8):: rmax2,pin(3),eps=1d-8,rlat(3,3),xmax2(3),rr(3),rmin,nrmax(3)
     integer,allocatable:: nlat0(:,:)
     real(8),allocatable:: rnorm(:)
-    integer:: noutmx
-    integer:: nlatout(3,noutmx)
+    real(8):: rlatp(3,3),xmx2(3)
     rmax2 = sum(pin*matmul(rlatp,pin)) + eps  ! eps is to make degeneracy safe.
     nrmax(:) =  sqrt(rmax2*xmx2(:))+abs(pin(:)) ! range of ix
     nmax =  nrmax
@@ -68,22 +63,24 @@ contains
     ! rite(6,"('pin=',3f8.3,' nmax=',3i4,' nout=',i3)")pin, nmax(1:3),nout
     deallocate(rnorm,nlat0)
     return
-  end subroutine shortn3
+  end subroutine shortn33
   !------------------------------------
-  subroutine shortn3_initialize(rlat)
+  subroutine shortn33initialize(rlat,rlatp,xmx2)
     !!== Set translation vactors rlat(:,i),i=1,3 ==
     ! i rlat
     ! o rlatp,xmx2: these are passed to shortn3
     !     !=============================================
     integer:: i,j
     real(8):: rlat(3,3)
+    real(8):: rlatp(3,3),xmx2(3)
     do i=1,3
        do j=1,3
           rlatp(i,j) = sum(rlat(:,i)*rlat(:,j))
        enddo
     enddo
     call ellipsoidxmax(rlatp,xmx2)
-  end subroutine shortn3_initialize
+  end subroutine shortn33initialize
+  !------------------------------------
   subroutine ellipsoidxmax(nn, xmx2)
     !!== Maximum value for x_i for ellipsoid ==
     !!  Ellipsoid is given as 1d0 = sum x_i nn(i,j) x_j.
@@ -132,10 +129,62 @@ contains
     fac = n33-sum(nv2 *matmul(ainv,nv2))
     xmx2(3) = 1d0/fac
   end subroutine ellipsoidxmax
-end module m_shortn3
+end module m_shortn33
 ! ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
+
+!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+module m_shortn3
+  implicit none
+  public:: shortn3, shortn3_initialize
+  integer,private:: noutmx=48
+  real(8),private:: rlatp(3,3),xmx2(3)
+contains
+  subroutine shortn3(pin,nnn,nout,nlatout)
+    use m_shortn33,only: shortn33
+    real(8):: pin(3)
+    integer:: nout,nlatout(3,noutmx),nnn
+    call shortn33(pin,rlatp,xmx2,noutmx,nout,nlatout)
+  end subroutine shortn3
+  subroutine shortn3_initialize(rlat)
+    use m_shortn33,only: shortn33initialize
+    real(8):: rlat(3,3)
+    call shortn33initialize(rlat,rlatp,xmx2)
+  end subroutine shortn3_initialize
+end module m_shortn3
+
+
+
+!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+module m_shortn3_qlat
+  implicit none
+  public shortn3_qlat
+  integer,private,parameter:: noutmx=48
+  integer,public:: nout,nlatout(3,noutmx)
+  
+  real(8),private:: rlatp(3,3),xmx2(3)
+  logical,private:: init=.true.
+contains
+  subroutine shortn3_qlat(pin)
+    use m_shortn33,only: shortn33
+    use m_shortn33,only: shortn33initialize
+    use m_lattic,only: qlat=>lat_qlat
+    real(8):: pin(3)
+    if(init) then
+       call shortn33initialize(qlat,rlatp,xmx2)
+       init=.false.
+    endif   
+    call shortn33(pin,rlatp,xmx2,noutmx,nout,nlatout)
+  end subroutine shortn3_qlat
+end module m_shortn3_qlat
+
+
+
+
+
+
+!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 subroutine shorbz(p,pout,plat,qlat)
   !- Shortens vector to equivalent in first Brillouin zone.
   ! ----------------------------------------------------------------
@@ -146,7 +195,6 @@ subroutine shorbz(p,pout,plat,qlat)
   !o   pout      shortened p.   pout and p can point to the same address.
   !r Remarks
   !r   Switch around plat,qlat to shorten reciprocal space vectors.
-  !r   Jan 1997 Adapted from shorps to fix bug:  Example:
   !r   plat=  -0.5  0.5  1.7517  0.5  -0.5  1.7517  0.5  0.5  -1.7517
   !r   p= 0.0 -0.5 -1.26384
   !r   Should get pout -> 0.5 0.0 0.48786, not -0.5 1.0 0.48786.
@@ -200,104 +248,5 @@ subroutine shorbz(p,pout,plat,qlat)
      enddo
   enddo
 end subroutine shorbz
-!      subroutine fmain
-!      implicit none
-!      double precision plat(9),qlat(9),p(3),p1(3),xx
-!      integer mode(3)
 
-!      data plat /-0.5d0,0.5d0,1.7517d0,
-!     .            0.5d0,-.5d0,1.7517d0,
-!     .            0.5d0,0.5d0,-1.7517d0/
-
-!      integer w(10000)
-!      common /w/ w
-
-!      data p /0.0d0,-0.5d0,-1.2638400000000001d0/
-
-!      call wkinit(10000)
-
-!C ... qlat = (plat^-1)^T so that qlat^T . plat = 1
-!      call mkqlat(plat,qlat,xx)
-
-!      call shorbz(p,p1,plat,qlat)
-!      call prmx('p1 from shorbz',p1,1,1,3)
-
-!      mode(1) = 2
-!      mode(2) = 2
-!      mode(3) = 3
-!      call shorps(1,plat,mode,p,p1)
-!      call prmx('p1 from shorps',p1,1,1,3)
-!      end
-
-
-subroutine shorbzm(flags,p,pout,plat,qlat)
-  !- Shortens vector to equivalent in first Brillouin zone.
-  ! ----------------------------------------------------------------
-  !i Inputs:
-  !i   plat,qlat lattice vectors and inverse
-  !i   p         vector to shorten
-  !o Outputs:
-  !o   pout      shortened p.   pout and p can point to the same address.
-  !r Remarks
-  !r   Switch around plat,qlat to shorten reciprocal space vectors.
-  !r   Jan 1997 Adapted from shorps to fix bug:  Example:
-  !r   plat=  -0.5  0.5  1.7517  0.5  -0.5  1.7517  0.5  0.5  -1.7517
-  !r   p= 0.0 -0.5 -1.26384
-  !r   Should get pout -> 0.5 0.0 0.48786, not -0.5 1.0 0.48786.
-  ! ----------------------------------------------------------------
-  !     implicit none
-  integer,intent(in)::flags(3)
-  double precision :: p(3),pout(3),plat(3,3),qlat(3,3),x(3),x0,xx,a2,ap
-  double precision :: tol
-  parameter (tol=-1d-10)
-  integer :: i,j,m,j2min,j3min,j1,j2,j3
-  real(8),parameter:: eps=1.0d-10
-
-  ! --- Reduce to unit cell centered at origin ---
-  do  1  i = 1, 3
-     ! ... x is projection of pin along plat(i), with multiples of p removed
-     x0 = p(1)*qlat(1,i)+p(2)*qlat(2,i)+p(3)*qlat(3,i)
-     if (flags(i) /= 0) then
-        xx = idnint(x0-eps)
-     else
-        xx = idnint(x0)
-     endif
-     x(i) = x0-xx
-1 enddo
-  ! ... pout is x rotated back to Cartesian coordinates
-  do  2  m = 1, 3
-     pout(m) = x(1)*plat(m,1)+x(2)*plat(m,2)+x(3)*plat(m,3)
-2 enddo
-
-  ! --- Try shortening by adding +/- basis vectors ---
-15 continue
-  do   j1 =  0, 1
-     j2min = -1
-     if (j1 == 0) j2min = 0
-     do   j2 = j2min, 1
-        j3min = -1
-        if (j1 == 0 .AND. j2 == 0) j3min = 0
-        do   j3 = j3min, 1
-
-           !     ... (-1,0,1) (plat(1) + (-1,0,1) plat(2)) + (-1,0,1) plat(3))
-           ! takao think this alglorism cause problems (=wrong) for very anisotropic cases.
-
-           do  17  i = 1, 3
-              x(i) = plat(i,1)*j1 + plat(i,2)*j2 + plat(i,3)*j3
-17         enddo
-           a2 = x(1)*x(1) + x(2)*x(2) + x(3)*x(3)
-           ap = pout(1)*x(1) + pout(2)*x(2) + pout(3)*x(3)
-           j = 0
-           if (a2 + 2*ap < tol) j = 1
-           if (a2 - 2*ap < tol) j = -1
-           if (j /= 0) then
-              pout(1) = pout(1) + j*x(1)
-              pout(2) = pout(2) + j*x(2)
-              pout(3) = pout(3) + j*x(3)
-              goto 15
-           endif
-        enddo
-     enddo
-  enddo
-end subroutine shorbzm
 

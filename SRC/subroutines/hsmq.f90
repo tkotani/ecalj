@@ -1,6 +1,7 @@
 subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl, &
      awald,alat,qlv,nG,dlv,nD,vol,hsm,hsmp)
   use m_ropyln,only: ropyln
+  use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat
   !- Bloch-sum of smooth Hankel functions and energy derivatives at p
   !  by Ewald summation, for nxi groups of parameters (lxi,exi,rsm).
   ! ---------------------------------------------------------------
@@ -74,6 +75,8 @@ subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl, &
   job3 = mod(job/1000,10)
   ! ... Shorten connecting vector; adjust phase later
   if (job3 == 1 .OR. job3 == 3) then
+!     call shortn3_initialize(plat)
+!     call shortn3(qplist(:,iq),noutmx, nout,nlatout)
      call shortn(p,p1,dlv,nD)
   else
      call dcopy(3,p,1,p1,1)

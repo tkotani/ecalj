@@ -4,60 +4,6 @@ module m_mksym_util
   private
   real(8):: fptol=0d0
 contains
-  !$$$      subroutine pvsym2(mode,nbas,nclass,ics,ipc,nspec,slabl,ssite,
-  !$$$     .dclabl,nrc)
-  !$$$      use m_struc_def  !Cgetarg
-  !$$$C- Create class labels from species labels (double precision format)
-  !$$$C ----------------------------------------------------------------------
-  !$$$Ci Inputs:
-  !$$$Ci   nosplt: T copy class and species
-  !$$$Ci     mode: 0 do nothing
-  !$$$Ci           1 create class labels clabl
-  !$$$Ci           2 create number of sites in each class nrc
-  !$$$Ci      ipc: for padding sites ib ipc(ib) = class
-  !$$$Ci   nclass: number of classes
-  !$$$Ci   ssite :struct for site-specific information; see routine usite
-  !$$$Ci     Elts read: *
-  !$$$Ci     Stored:    clabel
-  !$$$Co Outputs:
-  !$$$Co   dclabl: class labels in double precision format
-  !$$$Co      nrc: number of sites in each class
-  !$$$Cu Updates
-  !$$$Cu   18 Dec 01 Packs class label into ssite->clabel
-  !$$$C ----------------------------------------------------------------------
-  !$$$      implicit none
-  !$$$      integer mode,nbas,nclass,nspec,ics(1),ipc(nbas),nrc(1)
-  !$$$      type(s_site)::ssite(*)
-  !$$$      character*8 slabl(nspec)
-  !$$$      integer ic,iclbsj,idx,is,ib
-  !$$$      character(8):: clabl,dclabl(nclass)
-  !$$$c$$$C --- Make class labels from species labels ---
-  !$$$c$$$      if (mod(mode,2) .eq. 1) then
-  !$$$c$$$        do  10  is = 1, nspec
-  !$$$c$$$          do  12  idx = 1, nbas
-  !$$$c$$$            ic = iclbsj(is,ics,-nclass,idx)
-  !$$$c$$$            if (ic .lt. 0) goto 13
-  !$$$c$$$            call clabel(slabl,is,idx,clabl)
-  !$$$c$$$c            call s8tor8(clabl,dclabl(ic))
-  !$$$c$$$            dclabl(ic)=clabl
-  !$$$c$$$   12     continue
-  !$$$c$$$   13     continue
-  !$$$c$$$   10   continue
-  !$$$c$$$      endif
-  !$$$c$$$      do  20  ib = 1, nbas
-  !$$$c$$$        ic = ipc(ib)
-  !$$$c$$$        ssite(ib)%clabel = dclabl(ic) !clabl
-  !$$$c$$$   20 continue
-  !$$$C --- Create nrc ---
-  !$$$      if (mod(mode/2,2) .eq. 1) then
-  !$$$        call iinit(nrc,nclass)
-  !$$$        do  30  ib = 1, nbas
-  !$$$          ic = ipc(ib)
-  !$$$          nrc(ic) = nrc(ic)+1
-  !$$$   30   continue
-  !$$$      endif
-  !$$$      end subroutine pvsym2
-
   subroutine gensym(slabl,gens,usegen,lcar,lfix,lsmall,nbas, &
        nspec,ngmx,plat,platcv,bas,ips,nrspec,ng,g, &
        ag,ngen,gen,nwgens,nggen,isym,istab)
@@ -247,121 +193,6 @@ contains
     !      endif
   end subroutine gensym
 
-  !$$$      subroutine addbas(tol,bas,clabl,ips,nbas,ngrp,qlat,g,ag)
-  !$$$C- Adds the missing basis atoms to get the right symmetry
-  !$$$C ----------------------------------------------------------------------
-  !$$$Ci Inputs:
-  !$$$Ci   clabl :name of the different inequivalent atom
-  !$$$Ci   ips:the jth atom belongs to spec ips(j)
-  !$$$Ci   ngrp  :number of group operations
-  !$$$Ci   qlat  :primitive translation vectors in reciprocal space
-  !$$$Ci   g     :symmetry operation matrix
-  !$$$Ci   symops:symmetry operation symbol
-  !$$$Ci   ag    :symmetry operation vector (dimensionless)
-  !$$$Cio Inputs/Output:
-  !$$$Cio  bas   :basis vectors (dimensionless)
-  !$$$Cio         on output list has been completed by the new positions
-  !$$$Cio  nbas  :number of atoms in the basis
-  !$$$Cr Remarks:
-  !$$$Cr For each atom, the symmetry-related positions are generated.
-  !$$$Cr If this position is empty a new atom is added.
-  !$$$Cr At the end, a check is made to ensure that
-  !$$$Cr atoms of different speces do not occupy the same positions.
-  !$$$C ----------------------------------------------------------------------
-  !$$$C     implicit none
-  !$$$C Passed parameters:
-  !$$$      integer ips(*),nbas,ngrp
-  !$$$      double precision qlat(3,3),bas(3,*),g(9,*),ag(3,*),tol
-  !$$$      character*8 clabl(*)
-  !$$$C Local parameters:
-  !$$$      integer i,isop,ipr,lgunit,nbasnw,ibas,jbas,ic,jc,m,novlp,stdo
-  !$$$      double precision bast(3),dbas(3),tol1
-  !$$$      logical latvec
-  !$$$      character*50 sg
-  !$$$C External calls:
-  !$$$      external  daxpy,dcopy,dmpy,errmsg,iprint,lgunit
-  !$$$C Intrinsic functions:
-  !$$$      intrinsic  idnint
-  !$$$      character(200)::aaa
-  !$$$
-  !$$$      tol1 = tol
-  !$$$      if (tol .eq. 0) tol1 = 1d-5
-  !$$$      stdo = lgunit(1)
-  !$$$
-  !$$$C --- If no atom of same spec at the rotated site, add it ---
-  !$$$      call getpr(ipr)
-  !$$$      nbasnw = nbas
-  !$$$      do  10  ibas = 1, nbas
-  !$$$        do  20  isop = 2, ngrp
-  !$$$          ic = ips(ibas)
-  !$$$          call dmpy(g(1,isop),3,1,bas(1,ibas),3,1,bast,3,1,3,1,3)
-  !$$$          call daxpy(3,1.d0,ag(1,isop),1,bast,1)
-  !$$$          do  30  jbas = 1, nbasnw
-  !$$$            jc = ips(jbas)
-  !$$$            if (ic .eq. jc) then
-  !$$$              do  32  m = 1, 3
-  !$$$                dbas(m) = bast(m)-bas(m,jbas)
-  !$$$   32         continue
-  !$$$              if (latvec(1,tol1,qlat,dbas)) goto 22
-  !$$$            endif
-  !$$$   30     continue
-  !$$$          nbasnw = nbasnw+1
-  !$$$          if (ipr .ge. 50) then
-  !$$$            if (nbasnw .eq. nbas+1) write(stdo,304)
-  !$$$            call asymop(g(1,isop),ag(1,isop),' ',sg)
-  !$$$            call skpblb(sg,len(sg),i)
-  !$$$            write(stdo,303) clabl(ic),ibas,nbasnw,sg(1:i+1)
-  !$$$          endif
-  !$$$          ips(nbasnw) = ic
-  !$$$          call dcopy(3,bast,1,bas(1,nbasnw),1)
-  !$$$   22     continue
-  !$$$   20   continue
-  !$$$   10 continue
-  !$$$
-  !$$$C --- Printout ---
-  !$$$      if (nbasnw > nbas) then
-  !$$$        if (ipr >= 10) then
-  !$$$c          call awrit2('%N ADDBAS: The basis was enlarged from %i'//
-  !$$$c     .    ' to %i sites%N         The additional sites are: %N',
-  !$$$          write(stdo,"(/,' ADDBAS: The basis was enlarged from ',i0,
-  !$$$     &     ' to ',i0,' sites',/,'         The additional sites are: ')") nbas,nbasnw
-  !$$$          write(stdo,301) (clabl(ips(ibas)),(bas(i,ibas),i=1,3), ibas=nbas+1,nbasnw)
-  !$$$          write(stdo,'(a)') ' '
-  !$$$        endif
-  !$$$        nbas = nbasnw
-  !$$$      else
-  !$$$        if (ipr>40) write(stdo,*)' ADDBAS: basis is already complete --- no sites added'
-  !$$$      endif
-  !$$$
-  !$$$C --- Error whether atoms are sitting on same position ---
-  !$$$      novlp = 0
-  !$$$      do  40  ibas = 1, nbas
-  !$$$        ic = ips(ibas)
-  !$$$        do  50  jbas = 1, ibas-1
-  !$$$          jc = ips(jbas)
-  !$$$          do  52  m = 1, 3
-  !$$$            dbas(m) = bas(m,ibas)-bas(m,jbas)
-  !$$$   52     continue
-  !$$$          if (latvec(1,tol1,qlat,dbas)) then
-  !$$$            write(stdo,400) ibas,clabl(ic),(bas(m,ibas),m=1,3),
-  !$$$     .      jbas,clabl(jc),(bas(m,jbas),m=1,3)
-  !$$$            novlp = novlp+1
-  !$$$          endif
-  !$$$   50   continue
-  !$$$   40 continue
-  !$$$      if (novlp>0) then
-  !$$$         write(aaa,"(' ADDBAS: basis has ',i0,' overlapping site(s)')")novlp
-  !$$$         call rx(aaa)
-  !$$$      endif
-  !$$$c     call fexit(-1,111,' Exit -1 ADDBAS: basis has %i overlapping site(s)',novlp)
-  !$$$  301 format(8x,'ATOM=',a4,1x,'POS=',3f12.7)
-  !$$$  303 format(10x,a4,2x,i3,2x,'-> ',i3,3x,5x,a)
-  !$$$  304 format(/' ADDBAS: Spec   Atom  New_atom     Operation'/9x,35('-'))
-  !$$$  400 format(/' ADDBAS: atom ',i3,', SPEC ',a4,' POS=',3f9.5,
-  !$$$     ./'     and atom ',i3,', SPEC ',a4,' POS=',3f9.5,
-  !$$$     ./'     are at the same positions. '/)
-  !$$$      end
-  ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine sgroup(mode,gen,agen,ngen,g,ag,ng,ngmx,qb)
     !      use m_lmfinit,only: stdo
     !- Sets up space group given generators (gen,agen).
@@ -401,7 +232,6 @@ contains
     integer:: ipr,igen,ig,itry,iord,nnow,j,ip,i,k,n2,m1,m2,is,nnew,n,m,mode0,mode1
     real(8):: gen(9,ngen),g(9,ngmx),qb(3,3),agen(3,ngen),ag(3,ngmx), &
          h(9),hh(9),e(9),sig(9),asig(3),ah(3),ahh(3),ae(3)
-    !      logical :: spgeql
     character:: sout*80,sg*35
     data e/1d0,0d0,0d0, 0d0,1d0,0d0, 0d0,0d0,1d0/, ae/0d0,0d0,0d0/
     call getpr(ipr)
@@ -604,34 +434,28 @@ contains
     !u   12 May 07 Always returns gens, independent of verbosity
     !u   04 Jan 06 Returns ngout
     ! ----------------------------------------------------------------------
-    !     implicit none
-    ! Passed parameters:
     integer :: mode,ngen,ng,ngout
     double precision :: plat(9)
     double precision :: gen(3,3,*),agen(3,*),g(3,3,*),ag(3,*)
     character*(*) gens
-    ! Local parameters:
     integer :: imax,isop,ngloc,ngmax,iprint,ngen0,ngmx
     integer :: i1,i2,j1,j2
     parameter (ngmx=48*64)
     character(100) :: sg,sg1,sout,sout2
     double precision :: gloc(3,3,ngmx),agloc(3,ngmx),qlat(3,3),xx,vec(3),vol
     real(8):: rfrac(3),epsr=1d-12
-
-    ! --- Starting number of group ops ---
     call dinv33(plat,1,qlat,vol)
     call pshpr(1)
     ngen0 = ngen
     call sgroup(0,gen,agen,ngen,gloc,agloc,ngout,ngmx,qlat)
-
 10  continue
     ! --- Do until enough generators added to make whole group ---
     if (ngout < ng) then
        imax = 0
        ngmax = 0
        do  isop = 1, ng!   ... Run through all symops, choosing whichever adds the most ops
-          gen(:,:,ngen+1)= g(:,:,isop) !call dcopy(9,g(1,isop),1,gen(1,ngen+1),1)
-          agen(:,ngen+1) = ag(:,isop)  !call dcopy(3,ag(1,isop),1,agen(1,ngen+1),1)
+          gen(:,:,ngen+1)= g(:,:,isop) 
+          agen(:,ngen+1) = ag(:,isop)  
           call sgroup(mode,gen,agen,ngen+1,gloc,agloc,ngloc,ngmx,qlat)
           if (ngloc > ngmax) then
              imax = isop
@@ -640,10 +464,8 @@ contains
           endif
        enddo
        ngen = ngen+1
-       gen(:,:,ngen)= g(:,:,imax) !call dcopy(9,g(1,isop),1,gen(1,ngen+1),1)
-       agen(: ,ngen)= ag(: ,imax) !call dcopy(3,ag(1,isop),1,agen(1,ngen+1),1)
-!       call dcopy(9,g(1,imax),1,gen(1,ngen),1)
-!       call dcopy(3,ag(1,imax),1,agen(1,ngen),1)
+       gen(:,:,ngen)= g(:,:,imax) 
+       agen(: ,ngen)= ag(: ,imax) 
        goto 10
     endif
     if ( .TRUE. ) then
@@ -651,13 +473,9 @@ contains
        imax = 0
        ngmax = ngout
        do  isop = 1, ng
-          gen(:,:,ngen+1)= g(:,:,isop) !call dcopy(9,g(1,isop),1,gen(1,ngen+1),1)
-          agen(:,ngen+1) = ag(:,isop)  !call dcopy(3,ag(1,isop),1,agen(1,ngen+1),1)
-          !call dcopy(9,g(1,isop),1,gen(1,ngen+1),1)
-          !call dcopy(3,ag(1,isop),1,agen(1,ngen+1),1)
-          !         call pshpr(61)
+          gen(:,:,ngen+1)= g(:,:,isop)
+          agen(:,ngen+1) = ag(:,isop) 
           call sgroup(mode,gen,agen,ngen+1,gloc,agloc,ngloc,ngmx,qlat)
-          !         call poppr
           if (ngloc > ngmax) then
              imax = isop
              ngmax = ngloc
@@ -666,10 +484,8 @@ contains
        enddo
        if (ngout > ngmax) then
           ngen = ngen+1
-!          call dcopy(9,g(1,imax),1,gen(1,ngen),1)
-!          call dcopy(3,ag(1,imax),1,agen(1,ngen),1)
-          gen(:,:,ngen)= g(:,:,imax) !call dcopy(9,g(1,isop),1,gen(1,ngen+1),1)
-          agen(: ,ngen)= ag(: ,imax) !call dcopy(3,ag(1,isop),1,agen(1,ngen+1),1)
+          gen(:,:,ngen)= g(:,:,imax)
+          agen(: ,ngen)= ag(: ,imax)
        endif
     endif
     call poppr
@@ -701,69 +517,6 @@ contains
     gens = sout2
     if(ngout>ng)write(stdo,ftox)'(warning)',ng,' ops supplied but generators create ',ngout,' ops'
   end subroutine groupg
-  !$$$!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  !$$$      subroutine fixpos(pos,nbas,tol,ng,plat,g,ag,istab)
-  !$$$C- Adjusts site positions to agree with given symmmetry
-  !$$$C  to machine precision
-  !$$$C ----------------------------------------------------------------------
-  !$$$Ci Inputs:
-  !$$$Ci   pos:   basis vectors (scaled by alat)
-  !$$$Ci   nbas:  number of atoms in the basis
-  !$$$Ci   tol:   largest separation at which atoms are considered coincident
-  !$$$Ci   ng:    number of symmetry operations
-  !$$$Ci   plat:  primitive lattice vectors (scaled by alat)
-  !$$$Ci   g,ag:  point and translation group operators
-  !$$$Ci   istab: atom transformation table; see symtab
-  !$$$Co Outputs:
-  !$$$Co   pos:   basis vectors are adjusted.
-  !$$$Cr Remarks:
-  !$$$Cr   Generally atoms of the same class do not sit exactly on
-  !$$$Cr   symmetry-related positions. In this subroutine each atomic
-  !$$$Cr   position is replaced by the average of the position itself and
-  !$$$Cr   the generated positions of the atoms of the same class.
-  !$$$C ----------------------------------------------------------------------
-  !$$$      implicit none
-  !$$$C Passed parameters:
-  !$$$      integer nbas,ng,istab(nbas,ng)
-  !$$$      double precision pos(3,*),plat(*),g(9,*),ag(3,*),tol
-  !$$$      integer ibas,jbas,m,ig,lgunit
-  !$$$      double precision dbas(3),bast(3),sum,tol2,qlat(3,3),vol,ddot
-  !$$$      double precision sdpos(3,nbas)
-  !$$$      tol2 = 2*tol
-  !$$$      call dpzero(sdpos,3*nbas)
-  !$$$      sum = 0
-  !$$$      call dinv33(plat,1,qlat,vol)
-  !$$$      do  10  ibas = 1, nbas
-  !$$$        do  20  ig = 1, ng
-  !$$$          jbas = istab(ibas,ig)
-  !$$$          call dmpy(g(1,ig),3,1,pos(1,ibas),3,1,bast,3,1,3,1,3)
-  !$$$          do  30  m = 1, 3
-  !$$$            dbas(m) = bast(m) + ag(m,ig) - pos(m,jbas)
-  !$$$   30     continue
-  !$$$  333     format(a,3f12.6)
-  !$$$          call shorbz(dbas,dbas,plat,qlat)
-  !$$$c         print 334, 'output dbas', dbas
-  !$$$C     ... Debugging check
-  !$$$          sum = sum + abs(dbas(1))+abs(dbas(2))+abs(dbas(3))
-  !$$$          if (abs(dbas(1)) .gt. tol2 .or. abs(dbas(2)) .gt. tol2.or.
-  !$$$     .    abs(dbas(3)) .gt. tol2) call fexit(-1,111,
-  !$$$     .    'Exit -1 FIXPOS: positions incompatible with symgrp:'//
-  !$$$     .    '  dpos=%d',max(dbas(1),dbas(2),dbas(3)))
-  !$$$          if (abs(dbas(1)) .gt. tol .or. abs(dbas(2)) .gt. tol .or.
-  !$$$     .    abs(dbas(3)) .gt. tol) call awrit4(
-  !$$$     .    ' FIXPOS (warning): sites %i,%i incompatible '//
-  !$$$     .    'with grp op %i:  dpos=%d',' ',80,lgunit(1),
-  !$$$     .    ibas,jbas,ig,max(dbas(1),dbas(2),dbas(3)))
-  !$$$  334     format(a,3f18.12)
-  !$$$          call daxpy(3,1d0,dbas,1,sdpos(1,jbas),1)
-  !$$$   20   continue
-  !$$$   10 continue
-  !$$$      sum = dsqrt(ddot(3*nbas,sdpos,1,sdpos,1)/3/nbas)
-  !$$$      call daxpy(3*nbas,1d0/ng,sdpos,1,pos,1)
-  !$$$      call awrit1(' FIXPOS: shifted site positions by average %;3g',' ',
-  !$$$     .80,lgunit(1),sum/ng)
-  !$$$      end
-  !!
   subroutine grpgen(gen,ngen,symops,ng,ngmx)
     !- Generate all point symmetry operations from the generation group
     ! ----------------------------------------------------------------
@@ -1644,111 +1397,6 @@ contains
        ip = ip+1
     endif
   end function parsvc
-  !      subroutine fmain
-  !      implicit none
-  !      double precision v(3)
-  !      integer ip
-  !      logical parsvc,lsw
-  !      character *50 t
-
-
-  !      call dpzero(v,3)
-  !      v(1) = 1
-  !      ip = 1
-  !      t = 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'
-  !      lsw = parsvc(1,t,ip,v)
-  !      call awrit3(' lsw=%l  ip=%i  v=%3:1d '//t//'%a '//t(ip:ip+1),' ',
-  !     .  80,6,lsw,ip,v)
-
-  !      call dpzero(v,3)
-  !      v(2) = 1
-  !      ip = 1
-  !      t = 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'
-  !      lsw = parsvc(1,t,ip,v)
-  !      call awrit3(' lsw=%l  ip=%i  v=%3:1d '//t//'%a '//t(ip:ip+1),' ',
-  !     .  80,6,lsw,ip,v)
-
-  !      call dpzero(v,3)
-  !      v(3) = 1
-  !      ip = 1
-  !      t = 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'
-  !      lsw = parsvc(1,t,ip,v)
-  !      call awrit3(' lsw=%l  ip=%i  v=%3:1d '//t//'%a '//t(ip:ip+1),' ',
-  !     .  80,6,lsw,ip,v)
-
-  !      call dpzero(v,3)
-  !      v(1) = 1
-  !      v(2) = 1
-  !      v(3) = 1
-  !      ip = 1
-  !      t = 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'
-  !      lsw = parsvc(1,t,ip,v)
-  !      call awrit3(' lsw=%l  ip=%i  v=%3:1d '//t//'%a '//t(ip:ip+1),' ',
-  !     .  80,6,lsw,ip,v)
-
-  !      call dpzero(v,3)
-  !      v(1) = 1d0/3
-  !      v(2) = .25d0
-  !      v(3) = .3d0
-  !      ip = 1
-  !      t = 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'
-  !      lsw = parsvc(1,t,ip,v)
-  !      call awrit3(' lsw=%l  ip=%i  v=%3:1d '//t//'%a '//t(ip:ip+1),' ',
-  !     .  80,6,lsw,ip,v)
-
-  !      call dpzero(v,3)
-  !      v(1) = 1d0/3
-  !      v(2) = .25d0
-  !      v(3) = .3d0
-  !      ip = 1
-  !      t = 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'
-  !      lsw = parsvc(5,t,ip,v)
-  !      call awrit3(' lsw=%l  ip=%i  v=%3:1;7d '//t//'%a '//t(ip:ip+1),
-  !     .  ' ',80,6,lsw,ip,v)
-
-  !      call dpzero(v,3)
-  !      v(1) = 5*sqrt(3d0)/12
-  !      v(2) = -sqrt(3d0)/2
-  !      v(3) = sqrt(3d0)/6
-  !      ip = 1
-  !      t = 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'
-  !      lsw = parsvc(1,t,ip,v)
-  !      call awrit3(' lsw=%l  ip=%i  v=%3:1;7d '//t//'%a '//t(ip:ip+1),
-  !     .  ' ',95,6,lsw,ip,v)
-
-  !      t = ' xa'
-  !      ip = 1
-  !      lsw = parsvc(-1,t,ip,v)
-  !      call awrit3(' lsw=%l  ip=%i  v=%3:1d '//t(ip:ip+1),' ',
-  !     .  80,6,lsw,ip,v)
-
-  !      t = ' yb'
-  !      ip = 1
-  !      lsw = parsvc(-1,t,ip,v)
-  !      call awrit3(' lsw=%l  ip=%i  v=%3:1d '//t(ip:ip+1),' ',
-  !     .  80,6,lsw,ip,v)
-
-  !      t = ' zc'
-  !      ip = 1
-  !      lsw = parsvc(-1,t,ip,v)
-  !      call awrit3(' lsw=%l  ip=%i  v=%3:1d '//t(ip:ip+1),' ',
-  !     .  80,6,lsw,ip,v)
-
-  !      t = ' Dd'
-  !      ip = 1
-  !      lsw = parsvc(-1,t,ip,v)
-  !      call awrit3(' lsw=%l  ip=%i  v=%3:1d '//t(ip:ip+1),' ',
-  !     .  80,6,lsw,ip,v)
-
-  !      t = ' (.1,2-1,pi/4)e'
-  !      ip = 1
-  !      lsw = parsvc(-1,t,ip,v)
-  !      call awrit3(' lsw=%l  ip=%i  v=%3:1d '//t(ip:ip+1),' ',
-  !     .  80,6,lsw,ip,v)
-
-  !      end
-
-
   ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine grpfnd(tol,g,ag,ig,pos,nbas,qlat,ia,ja)
     !- Find index to site ja site into which g,ag transforms site ia

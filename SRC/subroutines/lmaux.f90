@@ -1,4 +1,6 @@
-module m_lmaux
+module m_lmaux ! core of lmchk: Crystal structure check, and MT size determination.
+  ! Tkotani think this is too complicated to touch. Probably it is better
+  ! to rewrite new version. 
   use m_lgunit,only:stdo
   public:: lmaux
   private
@@ -12,7 +14,6 @@ contains
     use m_lattic,only: lat_nkd
     use m_lattic,only: lat_nkq
     use m_struc_def
-    !      use m_ovmin , only: ovmin
     use m_lattic,only:lat_plat,rv_a_opos
     !! check crystal structure symmetry and get WSR
     ! ----------------------------------------------------------------------

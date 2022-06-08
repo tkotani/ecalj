@@ -81,7 +81,6 @@ subroutine hhugbl(mode,p1,p2,rsm1,rsm2,e1,e2,nlm1,nlm2,ndim1,ndim2,wk,dwk, s,ds)
   s(1,1) = s(1,1) + add
 end subroutine hhugbl
 
-
 subroutine hgugbl(p1,p2,rsm1,rsm2,e1,nlm1,nlm2,ndim1,ndim2,  s,ds)
   use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
   !- Estatic energy integrals between Bloch Hankels and gaussians, and grad
@@ -107,7 +106,6 @@ subroutine hgugbl(p1,p2,rsm1,rsm2,e1,nlm1,nlm2,ndim1,ndim2,  s,ds)
   !u   22 Apr 00 Adapted from nfp hgug_bl.f
   ! ----------------------------------------------------------------------
   implicit none
-  ! ... Passed parameters
   integer :: nlm1,nlm2,ndim1,ndim2
   real(8):: rsm1 , rsm2 , p1(3) , p2(3) , e1
   complex(8):: s(ndim1,ndim2),ds(ndim1,ndim2,3)
@@ -297,7 +295,6 @@ subroutine phhigb(dr,q,rsm1,rsm2,e1,e2,mlm1,nlm1,mlm2,nlm2, &
   ktopp1 = ktop+1
   if (nlmxp1 > nlm0)  call rxi('hhigbl: need nlm0 ge',nlmxp1)
   if (ktopp1 > ktop0) call rxi('hhigbl: need ktop0 ge',ktopp1)
-
   ! --- Set up functions for connecting vector p2-p1 ---
   if (dabs(e1-e2) > 1d-5) then
      fac1 = dexp(gam2*(e2-e1))/(e1-e2)
@@ -332,7 +329,6 @@ subroutine phhigb(dr,q,rsm1,rsm2,e1,e2,mlm1,nlm1,mlm2,nlm2, &
 7       enddo
 6    enddo
   endif
-
   ! ... Make gradients using CGs for p functions
   call dpzero(ghkl, 2*(ktop0+1)*nlm0*3)
   do  ilm = 1, nlmx
@@ -350,7 +346,6 @@ subroutine phhigb(dr,q,rsm1,rsm2,e1,e2,mlm1,nlm1,mlm2,nlm2, &
         endif
      enddo
   enddo
-
   ! ... Combine with Clebsch-Gordan coefficients
   do  1111  ilm1 = mlm1, nlm1
      l1 = ll(ilm1)
@@ -374,7 +369,6 @@ subroutine phhigb(dr,q,rsm1,rsm2,e1,e2,mlm1,nlm1,mlm2,nlm2, &
 11      enddo
 111  enddo
 1111 enddo
-
   ! ... Extra term when e1 or e2 is zero (but not both)
   if (mlm1 == 1 .AND. mlm2 == 1) then
      add = 0d0
@@ -426,21 +420,17 @@ subroutine hhibl(mode,p1,p2,q,rsm1,rsm2,e1,e2,nlm1,nlm2,kmax, &
   !u   18 May 00 Adapted from nfp hhi_bl.f
   ! ----------------------------------------------------------------------
   implicit none
-  ! ... Passed parameters
   integer :: mode,jcg(1),indxcg(1),nlm1,nlm2,kmax,ndim1,ndim2
   double precision :: p1(3),p2(3),q(3),cg(1),cy(1),rsm1(0:*),rsm2(0:*),e1(0:*),e2(0:*)
   double complex s(ndim1,ndim2,0:kmax)
-  ! ... Local parameters
   integer :: m,lmx1,lmx2,ll,l1,l2,k,jlm,ilm,lm11,lm21,lm12,lm22,l1t,l2t
   double precision :: dr(3)
-
   if (nlm1 == 0 .OR. nlm2 == 0) return
   do  1  m = 1, 3
      dr(m) = p1(m)-p2(m)
 1 enddo
   lmx1 = ll(nlm1)
   lmx2 = ll(nlm2)
-
   do    k = 0, kmax
      do    jlm = 1, nlm2
         do    ilm = 1, nlm1
@@ -453,13 +443,11 @@ subroutine hhibl(mode,p1,p2,q,rsm1,rsm2,e1,e2,nlm1,nlm2,kmax, &
      if (l1 <= l1t) goto 20
      call gtbsl2(l1,lmx1,e1,rsm1,l1t)
      !       l1t = l1
-
      l2t = -1
      do  22  l2 = 0, lmx2
         if (l2 <= l2t) goto 22
         call gtbsl2(l2,lmx2,e2,rsm2,l2t)
         !         l2t = l2
-
         lm11 = l1**2+1
         lm12 = (l1t+1)**2
         lm21 = l2**2+1
@@ -470,6 +458,7 @@ subroutine hhibl(mode,p1,p2,q,rsm1,rsm2,e1,e2,nlm1,nlm2,kmax, &
 22   enddo
 20 enddo
 end subroutine hhibl
+
 subroutine phhibl(dr,q,rsm1,rsm2,e1,e2,mlm1,nlm1,mlm2,nlm2,kmax, &
      ndim1,ndim2,cg,indxcg,jcg,cy,s) !,slat
   !- Integrals between smooth Hankels with k-th power of Laplace operator.
@@ -499,7 +488,6 @@ subroutine phhibl(dr,q,rsm1,rsm2,e1,e2,mlm1,nlm1,mlm2,nlm2,kmax, &
   !u   18 May 00 Adapted from nfp hhi_bl.f
   ! ----------------------------------------------------------------------
   implicit none
-  ! ... Passed parameters
   integer :: jcg(1),indxcg(1),mlm1,nlm1,mlm2,nlm2,kmax,ndim1,ndim2
   double precision :: dr(3),q(3),cg(1),cy(1),rsm1, rsm2,e1,e2
   double complex s(ndim1,ndim2,0:kmax)
@@ -508,9 +496,7 @@ subroutine phhibl(dr,q,rsm1,rsm2,e1,e2,mlm1,nlm1,mlm2,nlm2,kmax, &
        ktop,l1,l2,ll,lm,lmax1,lmax2,lmaxx,nlmx
   parameter( nlm0=100, ktop0=10 )
   double precision :: fpi,e,fac,fac1,fac2,gam1,gam2,gamx,rsmx
-  double complex hkl1(0:ktop0,nlm0),hkl2(0:ktop0,nlm0), &
-       hsm(nlm0),hsmp(nlm0)
-
+  double complex hkl1(0:ktop0,nlm0),hkl2(0:ktop0,nlm0), hsm(nlm0),hsmp(nlm0)
   fpi = 16d0*datan(1.d0)
   gam1 = 0.25d0*rsm1*rsm1
   gam2 = 0.25d0*rsm2*rsm2
@@ -523,7 +509,6 @@ subroutine phhibl(dr,q,rsm1,rsm2,e1,e2,mlm1,nlm1,mlm2,nlm2,kmax, &
   ktop = max0(lmax1,lmax2)+kmax
   if (nlmx > nlm0) call rxi('increase nlm0 in hhibl need',nlmx)
   if (ktop > ktop0) call rx('hhibl: increase ktop0')
-
   ! ... Set up functions for connecting vector p1-p2
   if (dabs(e1-e2) > 1d-5) then
      fac1 = dexp(gam2*(e2-e1))/(e1-e2)
@@ -545,9 +530,7 @@ subroutine phhibl(dr,q,rsm1,rsm2,e1,e2,mlm1,nlm1,mlm2,nlm2,kmax, &
            hkl1(k,ilm) = -e*hkl1(k-1,ilm) - hkl2(k-1,ilm)
 7       enddo
 6    enddo
-
   endif
-
   ! ... Combine with Clebsch-Gordan coefficients
   do  1111  ilm1 = mlm1, nlm1
      l1 = ll(ilm1)
@@ -571,9 +554,9 @@ subroutine phhibl(dr,q,rsm1,rsm2,e1,e2,mlm1,nlm1,mlm2,nlm2,kmax, &
 end subroutine phhibl
 
 subroutine gklbl(p,rsm,e,q,kmax,nlm,k0,cy,gkl) !,slat
-  use m_lattic,only: rv_a_oqlv,rv_a_odlv,lat_plat
-  use m_lmfinit,only: lat_alat
-  use m_lattic,only: lat_qlat, lat_vol,lat_awald, lat_nkd, lat_nkq
+  use m_lattic,only: rv_a_oqlv,rv_a_odlv,plat=>lat_plat
+  use m_lmfinit,only:alat=> lat_alat
+  use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol,awald=>lat_awald, lat_nkd, lat_nkq
   !- Bloch-sums of k,L-dependent gaussians
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -599,19 +582,10 @@ subroutine gklbl(p,rsm,e,q,kmax,nlm,k0,cy,gkl) !,slat
   ! ... Local parameters
   double complex cfac,phase
   integer:: ilm , k , ll , lmax , nkd , nkq , owk , l , m
-  double precision :: alat,awald,pi,sp,vol,plat(3,3),qlat(3,3),p1(3),rwald
+  double precision :: pi,sp,p1(3),rwald
   real(8),allocatable:: wk(:)
   if (nlm == 0) return
   pi = 4d0*datan(1d0)
-  alat=lat_alat
-  !      i_copy_size=size(lat_plat)
-  !      call dcopy(i_copy_size,lat_plat,1,plat,1)
-  !      i_copy_size=size(lat_qlat)
-  !     call dcopy(i_copy_size,lat_qlat,1,qlat,1)
-  plat=lat_plat
-  qlat=lat_qlat
-  awald=lat_awald
-  vol=lat_vol
   nkd=lat_nkd
   nkq=lat_nkq
   ! ... Shorten p, multiply by corresponding phase later
@@ -853,9 +827,9 @@ subroutine hklbl(p,rsm,e,q,kmax,nlm,k0,cy,hkl)
 end subroutine hklbl
 
 subroutine fklbl(p,rsm,kmax,nlm,k0,cy,fkl)
-  use m_lattic,only: rv_a_odlv,rv_a_oqlv,lat_plat
-  use m_lmfinit,only: lat_alat,lat_tol
-  use m_lattic,only: lat_qlat, lat_vol, lat_awald, lat_nkd, lat_nkq
+  use m_lattic,only: rv_a_odlv,rv_a_oqlv,plat=>lat_plat
+  use m_lmfinit,only: alat=>lat_alat,tol=>lat_tol
+  use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, awald=>lat_awald, nkd=>lat_nkd, nkq=>lat_nkq
   !- Bloch sum of smooth Hankels for e=0 and q=(0,0,0).
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -875,42 +849,21 @@ subroutine fklbl(p,rsm,kmax,nlm,k0,cy,fkl)
   !u   24 Apr 00 Adapted from nfp fkl_bl.f
   ! ----------------------------------------------------------------------
   implicit none
-  ! ... Passed parameters
   integer :: kmax,nlm,k0
   real(8):: p(3) , cy(*) , rsm
-  double complex fkl(0:k0,nlm)
-  ! ... Local parameters
-  integer:: nlm0 , lmax , ll , nkd , nkq , nrx , owk , oyl , job &
-       , ilm , k
+  integer:: nlm0 , lmax , ll, nrx , owk , oyl , job, ilm , k
   parameter ( nlm0=196 )
-  double precision :: q(3),alat,plat(3,3),qlat(3,3),p1(3)
-  double precision :: faca,fpi,y0,e,vol,awald,tol
-  double complex fsm(nlm0),gklsav,gklnew
+  double precision :: q(3),p1(3),faca,fpi,y0,e
+  complex(8):: fsm(nlm0),gklsav,gklnew,fkl(0:k0,nlm)
   parameter (faca=1d0)
   real(8),allocatable:: wk(:),yl(:)
-
   if (nlm == 0) return
   fpi = 16d0*datan(1d0)
   y0 = 1d0/dsqrt(fpi)
   if (nlm > nlm0) call rx('fklbl: increase nlm0')
   lmax = ll(nlm)
   e = 0d0
-  q(1) = 0d0
-  q(2) = 0d0
-  q(3) = 0d0
-
-  alat=lat_alat
-  !      i_copy_size=size(lat_plat)
-  !      call dcopy(i_copy_size,lat_plat,1,plat,1)
-  plat=lat_plat
-  !      i_copy_size=size(lat_qlat)
-  !      call dcopy(i_copy_size,lat_qlat,1,qlat,1)
-  qlat=lat_qlat
-  awald=lat_awald
-  tol=lat_tol
-  vol=lat_vol
-  nkd=lat_nkd
-  nkq=lat_nkq
+  q = 0d0
   call shorbz(p,p1,plat,qlat)
   nrx = max(nkd,nkq)
   allocate(wk(nrx*(2*lmax+10)),yl(nrx*(lmax+1)**2))
@@ -922,7 +875,6 @@ subroutine fklbl(p,rsm,kmax,nlm,k0,cy,fkl)
      job = 2
      call gklq ( lmax , rsm , q , p1 , e , kmax - 1 , k0 , alat , &
           rv_a_odlv , nkd , nrx , yl , wk , job , fkl )
-
   endif
   deallocate(wk,yl)
   ! ... Upward recursion in k: mainly sets fkl = -4*pi * g(k-1,l)
@@ -935,8 +887,7 @@ subroutine fklbl(p,rsm,kmax,nlm,k0,cy,fkl)
         gklsav = gklnew
      enddo
   enddo
-  ! ... Add extra term to F(k=1,l=0)
-  fkl(1,1) = fkl(1,1) + fpi*y0/vol
+  fkl(1,1) = fkl(1,1) + fpi*y0/vol !! ... Add extra term to F(k=1,l=0)
 end subroutine fklbl
 
 ! FCPP#define F90 1

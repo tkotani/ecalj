@@ -1,6 +1,7 @@
 subroutine eibzgen(nqibz,symgg,ngrp,qibze,iqxini,iqxend,qbz,nqbz,timereversal,ginv,iprintx, &
      nwgt,igx,igxt,eibzsym,timerout)
-  use m_shortn3,only: shortn3_initialize,shortn3
+!  use m_shortn3,only: shortn3_initialize,shortn3
+  use m_shortn3_qlat,only: shortn3_qlat,nout,nlatout
   use m_genallcf_v3,only:  plat
   use m_hamindex,only: pwmode
   implicit none
@@ -25,8 +26,8 @@ subroutine eibzgen(nqibz,symgg,ngrp,qibze,iqxini,iqxend,qbz,nqbz,timereversal,gi
   integer,allocatable:: key(:,:),kk1(:),kk2(:),kk3(:),iqkkk(:,:,:)
   real(8),allocatable:: qbzl(:,:)
   logical :: inotime,nexist,debug=.false.
-  integer,parameter:: noutmx=48
-  integer:: iout,nout,nlatout(3,noutmx),iapw
+!  integer,parameter:: noutmx=48
+  integer:: iout,iapw !,nout,nlatout(3,noutmx)
   real(8)::ppin(3)
   real(8):: rlatp(3,3),xmx2(3),tolq=1d-8
   call minv33tp(plat,qlat)
@@ -96,7 +97,7 @@ subroutine eibzgen(nqibz,symgg,ngrp,qibze,iqxini,iqxend,qbz,nqbz,timereversal,gi
   !      open(newunit=ifiese,file='PWMODE')
   !      read(ifiese,*)pwmode
   !     close(ifiese)
-  if(pwmode>0 .AND. pwmode<10) call shortn3_initialize(qlat)
+!  if(pwmode>0 .AND. pwmode<10) call shortn3_initialize(qlat)
 
   !! ===  main iq loop ===
   eibzsym = 0
@@ -115,7 +116,7 @@ subroutine eibzgen(nqibz,symgg,ngrp,qibze,iqxini,iqxend,qbz,nqbz,timereversal,gi
            if(pwmode>0 .AND. pwmode<10) then
               !     check wheter q is on 1st BZ boundary or not
               ppin=matmul(transpose(plat),q)
-              call shortn3(ppin,noutmx, nout,nlatout)
+              call shortn3_qlat(ppin) !shortn3(ppin,noutmx, nout,nlatout)
               if(ig/=1 .AND. nout>1) then
                  do iout=1,nout
                     if(debug) write(*,"(a,3i5,f10.4,3f8.4)")'rrrrn1 =',nlatout(:,iout), &
