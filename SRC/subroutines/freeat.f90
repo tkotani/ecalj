@@ -1227,7 +1227,7 @@ contains
 
   subroutine popta1(rsm,eh,l,z,rmt,nr,nrmt,rofi,h,v,a,b,enu,p, &
        phi,dphi,phip,dphip,eval,qrmt)
-
+    use m_hansr,only:hansmd
     !- Calculate expectation value for smooth Hankel
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -1264,7 +1264,7 @@ contains
          rofi(nr),h(nr),v(nr),qrmt
     ! ... Local parameters
     integer :: i
-    double precision :: alfa,beta,det,drdi,hlap, &
+    double precision :: alfa,beta,det(1),drdi,hlap, &
          hum,hum1,hum2,r,sum,sum1,sum2,tum2,vum2,wt
     !     double precision xi(0:20)
 
@@ -1283,7 +1283,6 @@ contains
 
     do  10  i = nrmt, nr
        r = rofi(i)
-
        !   ... Make r*h and r Laplacian h, including L^2
        call hansmd(2,r,eh,rsm,l,hs,dhs,ddhs,det,det,det)
        h(i) = hs(l)*r

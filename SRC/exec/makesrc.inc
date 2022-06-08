@@ -1,6 +1,8 @@
 #NOTE: when you add your foobar.F, choose one of *_list.
 
 ELIB_list=\
+m_shortn3.o\
+m_shortn3_plat.o\
 m_smhankel.o\
 derfc.o\
 m_orbl.o\
@@ -71,13 +73,9 @@ gtbsl1.o \
 gtbvec.o \
 gtpcor.o \
 gvctof.o \
-gvlist.o \
 gvlst2.o \
 gvmtch.o \
-hansmd.o \
 hansmr.o \
-hansr4.o \
-hansr5.o \
 hansr.o \
 hansrz.o \
 hnsmft.o \
@@ -105,7 +103,6 @@ m_mksym_util.o \
 mshsiz.o \
 mtchae.o \
 mxmymz.o \
-nnrl.o \
 nwit.o \
 phidx.o \
 phvsfp.o \
@@ -132,8 +129,6 @@ scg.o \
 shear.o \
 shftpp.o \
 shoist.o \
-shorbz.o \
-shortn.o \
 siteid.o \
 slinz.o \
 soprm.o \
@@ -290,7 +285,6 @@ mshdot.o \
 mshint.o \
 mshn3p.o \
 mshvmt.o \
-mullmf.o \
 ovlocr.o \
 ovlpfa.o \
 paug1.o \

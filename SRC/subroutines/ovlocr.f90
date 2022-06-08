@@ -3,7 +3,7 @@ subroutine ovlocr ( nbas , ssite , sspec ,  nxi0 , nxi &
   use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nsp
   use m_struc_def
   use m_lgunit,only:stdo
-  use m_smhankel,only: hxpbl,hxpos
+  use m_smhankel,only: hxpbl
   !- Makes the site densities for overlapped free atoms.
   ! ----------------------------------------------------------------------
   !i Inputs

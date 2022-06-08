@@ -192,7 +192,7 @@ subroutine vxtrap(mode,z,rmax,lmxa,v,a,nr,nsp,pnz,rs3,vmtz,nrmax, &
 end subroutine vxtrap
 subroutine rwftai(mode,rmt,a,nrmt,nrbig,ribig,phi,dphi,tphi,l, &
      ehl,rsml,g)
-  use m_hansr,only :hansr
+  use m_hansr,only :hansr,hansmd
   !- Extend radial wave function outside MT boundary
   ! ----------------------------------------------------------------------
   !i Inputs

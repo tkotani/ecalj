@@ -40,10 +40,10 @@ subroutine madmat(dmad)
         do  15  i = 1, 3
            tau(i) = bas(i,jbas)-bas(i,ibas)
 15      enddo
-        call shortn(tau,tau,dlat,nkd)
-        !pp = matmul(transpose(qlat),tau)
-        !call shortn3_plat(pp)
-        !tau = matmul(plat,pp+nlatout(:,1))
+        !call shortn(tau,tau,dlat,nkd)
+        pp = matmul(transpose(qlat),tau)
+        call shortn3_plat(pp)
+        tau = matmul(plat,pp+nlatout(:,1))
         call strx00(tau,awald,alat,vol,glat,nkg,dlat,nkd, &
              dmad(ibas,jbas))
         dmad(jbas,ibas) = dmad(ibas,jbas)

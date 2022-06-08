@@ -1,7 +1,7 @@
 subroutine gvctof(iopt,alat,plat,pos,n1,n2,n3,gmax,ng)
   use m_ftox
   use m_lgunit,only:stdo
-  use m_shortn3,only: shortn3_initialize,shortn3
+  use m_shortn3,only: shortn3_initialize,shortn3,nout,nlatout
   !- Makes k-space cutoff associated with mesh orders n1,n2,n3
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -99,8 +99,8 @@ subroutine gvctof(iopt,alat,plat,pos,n1,n2,n3,gmax,ng)
   nv1 = 0
   nv2 = 0
   s3: block
-    integer,parameter:: noutmx=48
-    integer:: nlatout(3,noutmx),nout
+ !   integer,parameter:: noutmx=48
+  !  integer:: nlatout(3,noutmx),nout
     real(8):: gg(3)
     call shortn3_initialize(qlat1) !initialization for shoten3
     do   k1 = 0, n1-1
@@ -108,7 +108,7 @@ subroutine gvctof(iopt,alat,plat,pos,n1,n2,n3,gmax,ng)
           do   k3 = 0, n3-1
              g = matmul(qlat,[k1,k2,k3]) - pos
              gg= matmul(g,plat1)
-             call shortn3(gg,noutmx,nout,nlatout) !gg+nlatout are shortests of module qlat1.
+             call shortn3(gg)!,noutmx,nout,nlatout) !gg+nlatout are shortests of module qlat1.
              gs = matmul(qlat1,gg+nlatout(:,1))
              if ((tpiba*tpiba)*sum(gs**2) <= gmax2) nv2 = nv2+1
              nv1 = nv1+1

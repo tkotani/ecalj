@@ -67,15 +67,14 @@ end module m_gennlat_sig
 
 
 subroutine gennlat(pos,nbas,plat,nk1,nk2,nk3,npairmx,npair,nlat,nqwgt,nlatS,nlatE,ok)
-  use m_shortn3,only: shortn3_initialize,shortn3
+  use m_shortn3,only: shortn3_initialize,shortn3,nout,nlatout
   implicit none
   intent(in)::       pos,nbas,plat,nk1,nk2,nk3,npairmx
   intent(out)::                                        ok!,npair,  t,nqwgt
   integer:: nbas,nk1,nk2,nk3,npairmx ,npair(nbas,nbas)
-  integer:: ib1,ib2,nnn,ik,nmax(3),ix,i,j,ik1,ik2,ik3,nout,ni
+  integer:: ib1,ib2,nnn,ik,nmax(3),ix,i,j,ik1,ik2,ik3,ni
   integer:: nd(3),nlat(3,npairmx,nbas,nbas)
-  integer,parameter:: noutmx=100
-  integer:: nlatout(3,noutmx),debug=0,nqwgt(npairmx,nbas,nbas)
+  integer:: debug=0,nqwgt(npairmx,nbas,nbas)
   real(8):: pos(3,nbas),plat(3,3), pi,qlat(3,3),q(3),pin(3),rmax2 !,nrmax(3)
   real(8):: eps=1d-8
   real(8):: posp(3),rxlat(3,3),rxprod(3,3),dummy,rrr,rmax
@@ -126,7 +125,7 @@ subroutine gennlat(pos,nbas,plat,nk1,nk2,nk3,npairmx,npair,nlat,nqwgt,nlatS,nlat
                  pin(1)= (posp(1)+nd(1))/nk1
                  pin(2)= (posp(2)+nd(2))/nk2
                  pin(3)= (posp(3)+nd(3))/nk3
-                 call shortn3(pin,noutmx, nout,nlatout)
+                 call shortn3(pin) ! return nout,nlatout
                  if(nnn+nout>npairmx) then
                     ok=.false.
                     return

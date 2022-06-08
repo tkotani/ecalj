@@ -70,8 +70,7 @@ subroutine mshsiz(alat,plat,job,gmax,ngabc,ng)
   do  i = 1, 3
      i2 = mod(i,3)+1
      i3 = mod(i2,3)+1
-     nn = 0
-     call gvlstn(qlat(1,i),qlat(1,i2),qlat(1,i3),q,mshlst,gmax0,nn) !,nmin,nmx(i))
+     call gvlstn(qlat(1,i),qlat(1,i2),qlat(1,i3),q,mshlst,gmax0,nn)
      nmx(i)=nn
      if (ngabc(i) == 0) ngabc(i) = nn
   enddo
@@ -97,7 +96,6 @@ subroutine mshsiz(alat,plat,job,gmax,ngabc,ng)
      do  i = 1, 3
         i2 = mod(i,3)+1
         i3 = mod(i2,3)+1
-        nn = 0
         call gvlstn(qlat(1,i),qlat(1,i2),qlat(1,i3),q,mshlst,gmaxn,nn) !,    nmin,nmxn(i))
         nmxn(i)=nn
         if (nmxn(i) /= nmx(i)) change = .TRUE. 

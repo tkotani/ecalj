@@ -1,8 +1,12 @@
-module m_smhankel
-  public hxpbl, hxpgbl, hhigbl, hhibl,hhugbl, hgugbl, ggugbl, hxpos  !bl means blochsum
+module m_smhankel !Bloch sum of Hankel, Gaussians.
+  ! JMP39:
+  ! Bott, E., M. Methfessel, W. Krabs, and P. C. Schmidt.
+  ! “Nonsingular Hankel Functions as a New Basis for Electronic Structure Calculations.”
+  ! Journal of Mathematical Physics 39, no. 6 (June 1, 1998): 3393–3425.
+  ! https://doi.org/doi:10.1063/1.532437.
+  public hxpbl, hxpgbl, hhigbl, hhibl,hhugbl, hgugbl, ggugbl  !bl means blochsum
   private
 contains
-  
 subroutine hhugbl(mode,p1,p2,rsm1,rsm2,e1,e2,nlm1,nlm2,ndim1,ndim2,wk,dwk, s,ds)
   use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
   use m_lattic,only:lat_vol
@@ -33,10 +37,8 @@ subroutine hhugbl(mode,p1,p2,rsm1,rsm2,e1,e2,nlm1,nlm2,ndim1,ndim2,wk,dwk, s,ds)
   implicit none
   ! ... Passed parameters
   integer :: mode,nlm1,nlm2,ndim1,ndim2
-  real(8):: rsm1(0:*) , rsm2(0:*) , e1(0:*) , e2(0:*) , p1(3) , &
-       p2(3)
-  double complex s(ndim1,ndim2),ds(ndim1,ndim2,3), &
-       wk(ndim1,ndim2),dwk(ndim1,ndim2,3)
+  real(8):: rsm1(0:*) , rsm2(0:*) , e1(0:*) , e2(0:*) , p1(3) , p2(3)
+  double complex s(ndim1,ndim2),ds(ndim1,ndim2,3), wk(ndim1,ndim2),dwk(ndim1,ndim2,3)
   integer:: kmax , kdim , i2 , i1 , lmxx , nlmx , l , ll
   parameter (lmxx=6,nlmx=(lmxx+1)**2)
   double precision :: add,pi,q(3),fpi,vol,gam1,gam2,xx1,xx2
@@ -557,6 +559,7 @@ subroutine gklbl(p,rsm,e,q,kmax,nlm,k0,cy,gkl) !,slat
   use m_lattic,only: rv_a_oqlv,rv_a_odlv,plat=>lat_plat
   use m_lmfinit,only:alat=> lat_alat
   use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol,awald=>lat_awald, lat_nkd, lat_nkq
+  use m_shortn3_plat,only: shortn3_plat,nout,nlatout
   !- Bloch-sums of k,L-dependent gaussians
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -582,14 +585,18 @@ subroutine gklbl(p,rsm,e,q,kmax,nlm,k0,cy,gkl) !,slat
   ! ... Local parameters
   double complex cfac,phase
   integer:: ilm , k , ll , lmax , nkd , nkq , owk , l , m
-  double precision :: pi,sp,p1(3),rwald
+  double precision :: pi,sp,p1(3),rwald,ppin(3)
   real(8),allocatable:: wk(:)
   if (nlm == 0) return
   pi = 4d0*datan(1d0)
   nkd=lat_nkd
   nkq=lat_nkq
   ! ... Shorten p, multiply by corresponding phase later
-  call shorbz(p,p1,plat,qlat)
+  !call shorbz(p,p1,plat,qlat)
+  ppin=matmul(transpose(qlat),p) 
+  call shortn3_plat(ppin) 
+  p1= matmul(plat,ppin+nlatout(:,1))
+
   sp = 2*pi*(q(1)*(p(1)-p1(1))+q(2)*(p(2)-p1(2))+q(3)*(p(3)-p1(3)))
   phase = dcmplx(dcos(sp),dsin(sp))
   lmax = ll(nlm)
@@ -741,6 +748,7 @@ subroutine hklbl(p,rsm,e,q,kmax,nlm,k0,cy,hkl)
   use m_lmfinit,only: lat_alat
   use m_lattic,only: rv_a_oqlv,rv_a_odlv,lat_plat
   use m_lattic,only: lat_qlat, lat_vol, lat_awald,lat_nkd,lat_nkq
+  use m_shortn3_plat,only: shortn3_plat,nout,nlatout
   !- Bloch-sums of k,L-dependent smooth Hankel functions.
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -770,7 +778,7 @@ subroutine hklbl(p,rsm,e,q,kmax,nlm,k0,cy,hkl)
        , owk , oyl
   parameter (nlm0=144)
   double precision :: alat,awald,fpi,pi,sp,vol,plat(3,3), &
-       qlat(3,3),p1(3)
+       qlat(3,3),p1(3),ppin(3)
   double complex hsm(nlm0),hsmp(nlm0),phase,gklsav,gklnew
   real(8),allocatable:: wk(:),yl(:)
   double precision :: faca
@@ -785,7 +793,11 @@ subroutine hklbl(p,rsm,e,q,kmax,nlm,k0,cy,hkl)
   alat=lat_alat
   plat=lat_plat
   qlat=lat_qlat
-  call shorbz(p,p1,plat,qlat)
+!  call shorbz(p,p1,plat,qlat)
+  ppin=matmul(transpose(qlat),p) 
+  call shortn3_plat(ppin) 
+  p1= matmul(plat,ppin+nlatout(:,1))
+  
   sp = 2*pi*(q(1)*(p(1)-p1(1))+q(2)*(p(2)-p1(2))+q(3)*(p(3)-p1(3)))
   phase = dcmplx(dcos(sp),dsin(sp))
   awald=lat_awald
@@ -830,6 +842,7 @@ subroutine fklbl(p,rsm,kmax,nlm,k0,cy,fkl)
   use m_lattic,only: rv_a_odlv,rv_a_oqlv,plat=>lat_plat
   use m_lmfinit,only: alat=>lat_alat,tol=>lat_tol
   use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, awald=>lat_awald, nkd=>lat_nkd, nkq=>lat_nkq
+  use m_shortn3_plat,only: shortn3_plat,nout,nlatout
   !- Bloch sum of smooth Hankels for e=0 and q=(0,0,0).
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -850,7 +863,7 @@ subroutine fklbl(p,rsm,kmax,nlm,k0,cy,fkl)
   ! ----------------------------------------------------------------------
   implicit none
   integer :: kmax,nlm,k0
-  real(8):: p(3) , cy(*) , rsm
+  real(8):: p(3) , cy(*) , rsm,ppin(3)
   integer:: nlm0 , lmax , ll, nrx , owk , oyl , job, ilm , k
   parameter ( nlm0=196 )
   double precision :: q(3),p1(3),faca,fpi,y0,e
@@ -864,7 +877,11 @@ subroutine fklbl(p,rsm,kmax,nlm,k0,cy,fkl)
   lmax = ll(nlm)
   e = 0d0
   q = 0d0
-  call shorbz(p,p1,plat,qlat)
+  !call shorbz(p,p1,plat,qlat)
+  ppin=matmul(transpose(qlat),p) 
+  call shortn3_plat(ppin) 
+  p1= matmul(plat,ppin+nlatout(:,1))
+
   nrx = max(nkd,nkq)
   allocate(wk(nrx*(2*lmax+10)),yl(nrx*(lmax+1)**2))
   call hsmqe0 ( lmax , rsm , 0 , q , p1 , nrx , nlm , wk , yl , &
@@ -890,7 +907,6 @@ subroutine fklbl(p,rsm,kmax,nlm,k0,cy,fkl)
   fkl(1,1) = fkl(1,1) + fpi*y0/vol !! ... Add extra term to F(k=1,l=0)
 end subroutine fklbl
 
-! FCPP#define F90 1
 subroutine gfigbl(pg,ph,rsmg,rsmh,nlmg,nlmh,kmax,ndim1,ndim2,kdim, &
      cg,indxcg,jcg,cy,s,ds)!,slat
   !- Integrals between smooth hankels(eh=0,q=0) and gaussians
@@ -925,22 +941,14 @@ subroutine gfigbl(pg,ph,rsmg,rsmh,nlmg,nlmh,kmax,ndim1,ndim2,kdim, &
   !u   22 Apr 00 Adapted from nfp hhig_bl.f
   ! ----------------------------------------------------------------------
   implicit none
-  ! ... Passed parameters
   integer :: jcg(*),indxcg(*),nlmg,nlmh,kmax,ndim1,ndim2,kdim
   double precision :: ph(3),pg(3),cg(1),cy(1),rsmg,rsmh !,slat(1)
   double complex s(ndim1,ndim2,0:kdim),ds(ndim1,ndim2,0:kdim,3)
-  ! ... Local parameters
   integer :: nlm0,ktop0,m,lmaxh,ll,lmaxg,lmaxx,nlmx,nlmxp1,ktop,ktopp1, &
        ilm,kz,kx1,kx2,ky1,ky2,k,jlm,ilg,lg,ilh,lh,ii,indx,icg1,icg2, &
        icg,lm,ip,nlmxx
   double precision :: dr(3),gamh,gamg,rsmx,cz,cx1,cx2,cy1,cy2,fac
-  ! FCPP#if F90
   complex(8),allocatable:: hkl(:,:),ghkl(:,:,:)
-  ! FCPP#else
-  ! FCPP      parameter (nlm0=196, ktop0=7)
-  ! FCPP      double complex hkl(0:ktop0,nlm0),ghkl(0:ktop0,nlm0,3)
-  ! FCPP#endif
-
   if (nlmh == 0 .OR. nlmg == 0) return
   gamh = 0.25d0*rsmh*rsmh
   gamg = 0.25d0*rsmg*rsmg
@@ -955,19 +963,13 @@ subroutine gfigbl(pg,ph,rsmg,rsmh,nlmg,nlmh,kmax,ndim1,ndim2,kdim, &
   nlmxp1 = (lmaxx+2)**2
   ktop = max0(lmaxg,lmaxh) + kmax
   ktopp1 = ktop+1
-
-  !     Memory allocation
-  ! FCPP#if F90
   nlm0 = nlmxp1
   ktop0 = ktopp1
   allocate(hkl(0:ktop0,nlm0),ghkl(0:ktop0,nlm0,3))
-  ! FCPP#endif
   if (nlmxp1 > nlm0)  call rxi('gfigbl: need nlm0 ge',nlmxp1)
   if (ktopp1 > ktop0) call rxi('gfigbl: need ktop0 ge',ktopp1)
-
   ! ... Make functions for connecting vector
-  call fklbl(dr,rsmx,ktopp1,nlmxp1,ktop0,cy, hkl) !,slat
-
+  call fklbl(dr,rsmx,ktopp1,nlmxp1,ktop0,cy, hkl) 
   ! ... Make gradients using CGs for p functions
   call dpzero(ghkl, 2*(ktop0+1)*nlm0*3)
   nlmxx = lmaxx*lmaxx
@@ -997,7 +999,6 @@ subroutine gfigbl(pg,ph,rsmg,rsmh,nlmg,nlmh,kmax,ndim1,ndim2,kdim, &
         enddo
      enddo
   enddo
-
   ! --- Combine with Clebsch-Gordan coefficients ---
   do  1111  ilg = 1, nlmg
      lg = ll(ilg)
@@ -1071,82 +1072,6 @@ subroutine ggugbl(p1,p2,rsm1,rsm2,nlm1,nlm2,ndim1,ndim2,s,ds) !slat,
   enddo
 end subroutine ggugbl
 
-
-
-subroutine hklos(rsm,e,kmax,h0k)
-  !- k,L-dependent smooth hankel functions at (0,0,0)
-  ! ----------------------------------------------------------------------
-  !i Inputs
-  !i   rsm   :smoothing radius
-  !i   e     :energy of smoothed Hankel
-  !i   kmax  :polynomial cutoff
-  !o Outputs
-  !i   h0k   :Smoothed Hankel at origin
-  !r Remarks
-  !r   Only the functions for l=0 are generated (remaining are zero)
-  !r   Equivalent to hkl_ml for p=(0,0,0) and lmax=0.
-  !u Updates
-  !u   24 Apr 00 Adapted from nfp hkl_os.f
-  ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
-  integer :: kmax
-  double precision :: rsm,e,h0k(0:kmax)
-  ! ... Local parameters
-  integer :: k
-  double precision :: akap,asm,cc,derfc,gam,gg,hh,pi,y0
-
-  pi = 4d0*datan(1d0)
-  y0 = 1d0/dsqrt(4*pi)
-  gam = rsm*rsm/4d0
-  asm = 0.5d0/dsqrt(gam)
-
-  ! ... Make smooth Hankel at zero
-  if (e > 0d0) call rx('hklos: e is positive')
-  akap = dsqrt(dabs(e))
-  cc = 4d0*asm**3 * dexp(gam*e) / dsqrt(pi)
-  hh = cc/(2*asm*asm)-akap*derfc(akap/(2*asm))
-  h0k(0) = hh*y0
-
-  ! ... Upward recursion for laplace**k h0
-  gg = dexp(gam*e) * (asm*asm/pi)**1.5d0
-  do k = 1,kmax
-     hh = -e*hh - 4*pi*gg
-     h0k(k) = hh*y0
-     gg = -2*asm*asm*(2*k+1)*gg
-  enddo
-
-end subroutine hklos
-
-subroutine gtbsl2(l1,lmxh,eh,rsmh,l2)
-  !- Returns the highest l with rsm,e common to those of a given l
-  ! ----------------------------------------------------------------------
-  !i Inputs
-  !i   l1    :current l
-  !i   lmxh :basis l-cutoff
-  !i   eh    :energy of smoothed Hankel
-  !i   rsmh  :smoothing radius of smoothed hankel
-  !o Outputs
-  !o   l2    :large l for which eh and rsmh l1..l2 are in common
-  !r Remarks
-  !r   Routine used group functions, strux in blocks.
-  !u Updates
-  ! ----------------------------------------------------------------------
-  !     implicit none
-  integer :: l1,l2,lmxh
-  double precision :: rsmh(0:lmxh),eh(0:lmxh)
-  double precision :: e,rsm
-
-  e = eh(l1)
-  rsm = rsmh(l1)
-  l2 = l1
-10 if (l2 >= lmxh) return
-  if (rsmh(l2+1) /= rsm .OR. eh(l2+1) /= e) return
-  l2 = l2+1
-  goto 10
-
-end subroutine gtbsl2
-
 subroutine hklgbl(p,rsm,e,q,kmax,nlm,k0,nlm0,cy,hkl,ghkl)!slat,
   !- Bloch-sums of k,L-dependent smooth hankel functions and gradients
   ! ----------------------------------------------------------------------
@@ -1211,9 +1136,7 @@ subroutine hklgbl(p,rsm,e,q,kmax,nlm,k0,nlm0,cy,hkl,ghkl)!slat,
         endif
      enddo
   enddo
-
 end subroutine hklgbl
-
   
 subroutine ghibl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax, &
      ndim1,ndim2,cg,indxcg,jcg,cy,s)!,slat
@@ -1329,79 +1252,6 @@ subroutine ghibl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax, &
 1111 enddo
 20 enddo
 end subroutine ghibl
-
-  
-subroutine ghios(rsmg,rsmh,eg,eh,nlmh,kmax,ndim,s)
-  !- Integrals between 3D Gaussians and smooth Hankels at same site.
-  ! ----------------------------------------------------------------------
-  !i Inputs
-  !i   rsmg  :smoothing radius of gaussian
-  !i   rsmh  :vector of l-dependent smoothing radii of smoothed hankel
-  !i         :rsmh must be specified for 1..ll(nlmh)+1
-  !i   eg    :gkL scaled by exp(eg*rsm**2/4)
-  !i   eh    :vector of l-dependent energies of smoothed Hankel
-  !i         :eh must be specified for 1..ll(nlmh)+1
-  !i   nlmh  :L-cutoff for smoothed Hankel functions and P_kL
-  !i   kmax  :polynomial cutoff
-  !i   ndim  :nl*nl*nbas
-  !o Outputs
-  !o   s     :real-space structure constants c(k,M,L); see Remarks
-  !o         :s(ilm,*) for rsmh(ll(ilm)) <= 0 are UNTOUCHED
-  !r Remarks
-  !r   s(L,M,k) contains integral of G_L^*(r) (lap)^k H_M(r)
-  !r
-  !r   Only diagonal elements ilm=jlm are nonzero and returned.
-  !r   Equivalent to ghiml called for pg=ph.
-  !u Updates
-  !u   18 May 00 Made rsmh,eh l-dependent
-  !u   24 Apr 00 Adapted from nfp ghi_os.f
-  ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
-  integer :: kmax,ndim,nlmh
-  double precision :: eg,eh(*),rsmg,rsmh(*),s(ndim,0:kmax)
-  ! ... Local parameters
-  integer :: ktop0,ilm,k,ktop,l,ll,lmaxh,l1,l2,ilm1,ilm2
-  parameter( ktop0=50 )
-  double precision :: fac,fpi,gamg,gamh,rsmx,y0,h0k(0:ktop0),rsm,e
-
-  if (nlmh == 0) return
-  fpi = 16d0*datan(1d0)
-  y0 = 1d0/dsqrt(fpi)
-  lmaxh = ll(nlmh)
-
-  ! --- Loop over sequences of l with a common rsm,e ---
-  l2 = -1
-  do  20  l1  = 0, lmaxh
-     if (l1 <= l2) goto 20
-     call gtbsl2(l1,lmaxh,eh,rsmh,l2)
-     rsm  = rsmh(l1+1)
-     e    = eh(l1+1)
-     if (rsm <= 0 .OR. e > 0) goto 20
-     ilm1 = l1**2+1
-     ilm2 = (l2+1)**2
-     gamh = 0.25d0*rsm*rsm
-     gamg = 0.25d0*rsmg*rsmg
-     rsmx = 2d0*dsqrt(gamg+gamh)
-
-     !   ... Make hankels for l=0 and k=0..kmax
-     ktop = l2+kmax
-     if(ktop > ktop0) call rxi('ghios: increase ktop0, need',ktop)
-     call hklos(rsmx,e,ktop,h0k)
-
-     !   ... Evaluate what is left of Clebsch-Gordan sum
-     fac = y0*dexp(gamg*(eg-e))
-     do  ilm = ilm1, ilm2
-        l = ll(ilm)
-        do  k = 0, kmax
-           s(ilm,k) = fac * (-1)**l * h0k(k+l)
-        enddo
-     enddo
-
-20 enddo
-
-end subroutine ghios
-
   
 subroutine ghigbl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax, &
      ndim1,ndim2,k0,cg,indxcg,jcg,cy,s,ds)!,slat
@@ -1520,7 +1370,6 @@ subroutine ghigbl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax, &
   deallocate(hkl,dhkl)
 end subroutine ghigbl
 
-
 subroutine hxpbl(ph,pg,q,rsmh,rsmg,eh,kmax,nlmh,nlmg,k0,ndim, &
      cg,indxcg,jcg,cy,c) !,slat
   !- Coefficients to expand smooth bloch hankels centered at ph
@@ -1619,101 +1468,9 @@ subroutine hxpbl(ph,pg,q,rsmh,rsmg,eh,kmax,nlmh,nlmg,k0,ndim, &
 2    enddo
      dfact = dfact*(2*l+3)
 1 enddo
-
-  ! FCPP#if F90
   deallocate(s)
-  ! FCPP#endif
 end subroutine hxpbl
   
-subroutine hxpos(rsmh,rsmg,eh,kmax,nlmh,k0,c)
-  !- Coefficients to expand smooth hankels at (0,0,0) into P_kl's.
-  ! ----------------------------------------------------------------------
-  !i Inputs
-  !i   rsmh  :vector of l-dependent smoothing radii of smoothed hankel
-  !i         :rsmh must be specified for 1..ll(nlmh)+1
-  !i   rsmg  :smoothing radius of gaussian
-  !i   eh    :vector of l-dependent energies of smoothed Hankel
-  !i         :eh must be specified for 1..ll(nlmh)+1
-  !i   kmax  :polynomial cutoff
-  !i   nlmh  :L-cutoff for smoothed Hankel functions and P_kL
-  !i   k0    :leading dimension of coefficient array c
-  !o Outputs
-  !o   c     :structure constants c(k,M,L); see Remarks
-  !o         :c(*,ilm) for rsmh(ll(ilm))<=0 are SET TO ZERO
-  !r Remarks
-  !r   Expansion is:  H_L = sum(k) c(k,L) * P_kL
-  !r   As rsmg -> 0, expansion turns into a Taylor series of H_L.
-  !r   As rsmg increases the error is spread out over a progressively
-  !r   larger radius, thus reducing the error for larger r while
-  !r   reducing accuracy at small r.
-  !r
-  !r    Only diagonal elements ilmh=ilmg are nonzero and returned.
-  !r    Routine is equivalent to hxpml with ph=pg.
-  !u Updates
-  !u   18 May 00 Made rsmh,eh l-dependent
-  !u   24 Apr 00 Adapted from nfp hxp_os.f
-  ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
-  integer :: k0,kmax,nlmh
-  double precision :: eh(1),rsmg,rsmh(1),c(0:k0,nlmh)
-  ! ... Local parameters
-  integer :: ndim,ktop0,ilm,k,l,ll,lmax,m,nm
-  double precision :: a,dfact,eg,fac,factk,fpi,sig
-  ! FCPP#if F90
-  real(8),allocatable:: s(:,:)
-  ! FCPP#else
-  ! FCPP      parameter ( ndim=25, ktop0=25 )
-  ! FCPP      double precision s(ndim,0:ktop0)
-  ! FCPP#endif
-
-  if (nlmh == 0) return
-  fpi = 16d0*datan(1d0)
-
-  ! FCPP#if F90
-  ktop0 = kmax
-  ndim  = nlmh
-  allocate(s(ndim,0:ktop0))
-  ! FCPP#else
-  ! FCPP      if (kmax .gt. ktop0) call rxi('hxpos: increase ktop0, need',kmax)
-  ! FCPP      if (nlmh .gt. ndim)   call rxi('hxpos: increase ndim, need', nlmh)
-  ! FCPP#endif
-
-  ! ... Make integrals with gaussians G_kL
-  eg = 0d0
-  call ghios(rsmg,rsmh,eg,eh,nlmh,kmax,ndim,s)
-
-  ! ... Scale integrals to get coefficients of the P_kL
-  a = 1d0/rsmg
-  lmax = ll(nlmh)
-  ilm = 0
-  dfact = 1d0
-  do  l = 0, lmax
-     nm = 2*l+1
-     do  m = 1, nm
-        ilm = ilm+1
-        factk = 1d0
-        if (rsmh(l+1) > 0) then
-           do  k = 0, kmax
-              fac = (4*a*a)**k * a**l * factk * dfact
-              sig = 1d0
-              c(k,ilm) = s(ilm,k)*(fpi/fac)*sig
-              factk = factk*(k+1)
-           enddo
-        else
-           do  k = 0, kmax
-              c(k,ilm) = 0
-           enddo
-        endif
-     enddo
-     dfact = dfact*(2*l+3)
-  enddo
-
-  ! FCPP#if F90
-  deallocate(s)
-  ! FCPP#endif
-end subroutine hxpos
-
 subroutine hxpgbl(ph,pg,q,rsmh,rsmg,eh,kmax,nlmh,nlmg,k0,ndimh, &
      ndimg,cg,indxcg,jcg,cy,c,dc)!,slat
   !- Coefficients to expand smooth bloch hankels and grads centered at ph
@@ -1755,43 +1512,28 @@ subroutine hxpgbl(ph,pg,q,rsmh,rsmg,eh,kmax,nlmh,nlmg,k0,ndimh, &
   !u   25 May 00 Adapted from nfp hxpg_bl.f
   ! ----------------------------------------------------------------------
   implicit none
-  ! ... Passed parameters
   integer :: k0,kmax,ndimg,ndimh,nlmg,nlmh,jcg(1),indxcg(1)
   double precision :: eh(1),rsmg,rsmh(1),ph(3),pg(3),cg(1),cy(1),q(3)
-  !     .slat(1)
   double complex c(0:k0,ndimg,ndimh),dc(0:k0,ndimg,ndimh,3)
-  ! ... Local parameters
   integer :: ndim1,ndim2,ktop0,ilmg,ilmh,k,l,ll,lmaxg,m,nm
   double precision :: a,dfact,eg,fac,factk,fpi
-  ! FCPP#if F90
   complex(8),allocatable:: s(:,:,:),ds(:,:,:,:)
-  ! FCPP#else
-  ! FCPP      parameter (ndim1=49, ndim2=36, ktop0=20)
-  ! FCPP      double complex s(ndim1,ndim2,0:ktop0),ds(ndim1,ndim2,0:ktop0,3)
-  ! FCPP#endif
-
   if (nlmg == 0 .OR. nlmh == 0) return
   fpi = 16d0*datan(1d0)
-  !     Memory allocation
-  ! FCPP#if F90
   ndim1 = nlmg
   ndim2 = nlmh
   ktop0 = kmax
   allocate(s(ndim1,ndim2,0:ktop0),ds(ndim1,ndim2,0:ktop0,3))
-  ! FCPP#endif
   if (kmax > ktop0) call rxi('hxpgbl: increase ktop0, need',kmax)
   if (nlmg > ndim1) call rxi('hxpgbl: increase ndim1, need',nlmg)
   if (nlmh > ndim2) call rxi('hxpgbl: increase ndim2, need',nlmh)
-
   ! ... Integrals of Hankels with Gaussians
   eg = 0d0
   call ghigbl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax,ndim1,ndim2, &
        ktop0,cg,indxcg,jcg,cy,s,ds)!,slat
-
   ! ... Scale to get coefficients of the PkL
   a = 1d0/rsmg
   lmaxg = ll(nlmg)
-
   ilmg = 0
   dfact = 1d0
   do  1  l = 0, lmaxg
@@ -1812,11 +1554,9 @@ subroutine hxpgbl(ph,pg,q,rsmh,rsmg,eh,kmax,nlmh,nlmg,k0,ndimh, &
 2    enddo
      dfact = dfact*(2*l+3)
 1 enddo
-
-  ! FCPP#if F90
   deallocate(s,ds)
-  ! FCPP#endif
 end subroutine hxpgbl
+
 subroutine gklq(lmax,rsm,q,p,e,kmax,k0,alat,dlv,nkd,nrx,yl,wk,job, gkl)
   use m_ropyln,only: ropyln
   use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
@@ -1865,8 +1605,6 @@ subroutine gklq(lmax,rsm,q,p,e,kmax,k0,alat,dlv,nkd,nrx,yl,wk,job, gkl)
   integer :: ilm,ir,k,l,m,nlm,ik1,ik2,lc1,ls1,lc2,ls2,job0,job1
   double precision :: qdotr,pi,tpi,y0,ta2,x,y,a2,g0fac,xx1,xx2,x1,x2, &
        y2,p1(3),sp,cosp,sinp,pp(3)
-
-  ! --- Setup ---
   if (kmax < 0 .OR. lmax < 0 .OR. rsm == 0d0) return
   job0 = mod(job,10)
   job1 = mod(job/10,10)
@@ -1883,14 +1621,13 @@ subroutine gklq(lmax,rsm,q,p,e,kmax,k0,alat,dlv,nkd,nrx,yl,wk,job, gkl)
   enddo
   ! ... Shorten connecting vector; need to adjust phase later
   if (job1 == 1 .OR. job1 == 3) then
-     call shortn(p,p1,dlv,nkd)
-     !pp=matmul(transpose(qlat),p)
-     !call shortn3_plat(pp)
-     !p1 = matmul(plat,pp+nlatout(:,1))
+     !call shortn(p,p1,dlv,nkd)
+     pp=matmul(transpose(qlat),p)
+     call shortn3_plat(pp)
+     p1 = matmul(plat,pp+nlatout(:,1))
   else
      call dcopy(3,p,1,p1,1)
   endif
-
   ! --- Put ylm in yl and alat**2*(p-dlv)**2 in wk(1) ---
   if (job0 == 0) then
      do  20  ir = 1, nkd
@@ -1911,14 +1648,12 @@ subroutine gklq(lmax,rsm,q,p,e,kmax,k0,alat,dlv,nkd,nrx,yl,wk,job, gkl)
         wk(ir,2) = y0*dexp(-wk(ir,1)*a2)
 24   enddo
   endif
-
   lc1 = 5
   ls1 = 6
   lc2 = 7
   ls2 = 8
   ik1 = 9
   ik2 = 10+lmax
-
   ! --- Outer loop over k (in blocks of 2), and over l ---
   do  301  k = 0, kmax, 2
      do  30  l = 0, lmax
@@ -1975,7 +1710,6 @@ subroutine gklq(lmax,rsm,q,p,e,kmax,k0,alat,dlv,nkd,nrx,yl,wk,job, gkl)
         endif
 30   enddo
 301 enddo
-
   ! ... Put in phase to undo shortening, or different phase convention
   sp = tpi*(q(1)*(p(1)-p1(1))+q(2)*(p(2)-p1(2))+q(3)*(p(3)-p1(3)))
   if (job1 >= 2) sp = sp-tpi*(q(1)*p1(1)+q(2)*p1(2)+q(3)*p1(3))
@@ -1990,7 +1724,6 @@ subroutine gklq(lmax,rsm,q,p,e,kmax,k0,alat,dlv,nkd,nrx,yl,wk,job, gkl)
         enddo
      enddo
   endif
-
 end subroutine gklq
 
 subroutine hsmbl(p,rsm,e,q,lmax,cy,hsm,hsmp) !,slat
@@ -2040,10 +1773,10 @@ subroutine hsmbl(p,rsm,e,q,lmax,cy,hsm,hsmp) !,slat
   plat=lat_plat
   qlat=lat_qlat
 
-  call shorbz(p,p1,plat,qlat)
-  !ppin=matmul(transpose(qlat),p) 
-  !call shortn3_plat(ppin) 
-  !p1= matmul(plat,ppin+nlatout(:,1))
+  !call shorbz(p,p1,plat,qlat)
+  ppin=matmul(transpose(qlat),p) 
+  call shortn3_plat(ppin) 
+  p1= matmul(plat,ppin+nlatout(:,1))
   
   pi = 4d0*datan(1d0)
   sp = 2*pi*(q(1)*(p(1)-p1(1))+q(2)*(p(2)-p1(2))+q(3)*(p(3)-p1(3)))
@@ -2077,7 +1810,6 @@ subroutine hsmbl(p,rsm,e,q,lmax,cy,hsm,hsmp) !,slat
   enddo
 end subroutine hsmbl
 
-
 subroutine hsmblq(p,e,q,a,lmax,alat,qlv,nkq,vol,dl,dlp)
   !- k-space part of smooth hankel bloch sum
   ! ----------------------------------------------------------------------
@@ -2097,12 +1829,10 @@ subroutine hsmblq(p,e,q,a,lmax,alat,qlv,nkq,vol,dl,dlp)
   !u Updates
   ! ----------------------------------------------------------------------
   implicit none
-  ! ... Passed parameters
   integer :: nkq,lmax
   double precision :: a,alat,e,vol
   double precision :: q(3),p(3),qlv(3,nkq)
   double complex dl(1),dlp(1)
-  ! ... Local parameters
   integer :: lmxx,nlm,ilm,ir
   parameter (lmxx=11)
   double precision :: r(3),tpi,gamma,fpibv,tpiba,scalp,r2,den0,den1
@@ -2138,7 +1868,6 @@ subroutine hsmblq(p,e,q,a,lmax,alat,qlv,nkq,vol,dl,dlp)
      dlp(ilm) = fpibv*dlp(ilm) + gamma*dl(ilm)
 35 enddo
 end subroutine hsmblq
-
 
 subroutine hsmbld(p,rsm,e,q,a,lmax,alat,dlv,nkd,dl,dlp)
   !- Adds real space part of reduced structure constants (ewald).
@@ -2309,5 +2038,205 @@ subroutine hsmbld(p,rsm,e,q,a,lmax,alat,dlv,nkd,dl,dlp)
 20 enddo
 
 end subroutine hsmbld
-
 end module m_smhankel
+
+
+
+!sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+subroutine hxpos(rsmh,rsmg,eh,kmax,nlmh,k0,c)
+  !- Coefficients to expand smooth hankels at (0,0,0) into P_kl's.
+  ! ----------------------------------------------------------------------
+  !i Inputs
+  !i   rsmh  :vector of l-dependent smoothing radii of smoothed hankel
+  !i         :rsmh must be specified for 1..ll(nlmh)+1
+  !i   rsmg  :smoothing radius of gaussian
+  !i   eh    :vector of l-dependent energies of smoothed Hankel
+  !i         :eh must be specified for 1..ll(nlmh)+1
+  !i   kmax  :polynomial cutoff
+  !i   nlmh  :L-cutoff for smoothed Hankel functions and P_kL
+  !i   k0    :leading dimension of coefficient array c
+  !o Outputs
+  !o   c     :structure constants c(k,M,L); see Remarks
+  !o         :c(*,ilm) for rsmh(ll(ilm))<=0 are SET TO ZERO
+  !r Remarks
+  !r   Expansion is:  H_L = sum(k) c(k,L) * P_kL
+  !r   As rsmg -> 0, expansion turns into a Taylor series of H_L.
+  !r   As rsmg increases the error is spread out over a progressively
+  !r   larger radius, thus reducing the error for larger r while
+  !r   reducing accuracy at small r.
+  !r
+  !r    Only diagonal elements ilmh=ilmg are nonzero and returned.
+  !r    Routine is equivalent to hxpml with ph=pg.
+  !u Updates
+  !u   18 May 00 Made rsmh,eh l-dependent
+  !u   24 Apr 00 Adapted from nfp hxp_os.f
+  ! ----------------------------------------------------------------------
+  integer :: k0,kmax,nlmh
+  double precision :: eh(1),rsmg,rsmh(1),c(0:k0,nlmh)
+  integer :: ndim,ktop0,ilm,k,l,ll,lmax,m,nm
+  double precision :: a,dfact,eg,fac,factk,fpi,sig
+  real(8),allocatable:: s(:,:)
+  if (nlmh == 0) return
+  fpi = 16d0*datan(1d0)
+  ktop0 = kmax
+  ndim  = nlmh
+  allocate(s(ndim,0:ktop0))
+  ! ... Make integrals with gaussians G_kL
+  eg = 0d0
+  call ghios(rsmg,rsmh,eg,eh,nlmh,kmax,ndim,s)
+  ! ... Scale integrals to get coefficients of the P_kL
+  a = 1d0/rsmg
+  lmax = ll(nlmh)
+  ilm = 0
+  dfact = 1d0
+  do  l = 0, lmax
+     nm = 2*l+1
+     do  m = 1, nm
+        ilm = ilm+1
+        factk = 1d0
+        if (rsmh(l+1) > 0) then
+           do  k = 0, kmax
+              fac = (4*a*a)**k * a**l * factk * dfact
+              sig = 1d0
+              c(k,ilm) = s(ilm,k)*(fpi/fac)*sig
+              factk = factk*(k+1)
+           enddo
+        else
+           do  k = 0, kmax
+              c(k,ilm) = 0
+           enddo
+        endif
+     enddo
+     dfact = dfact*(2*l+3)
+  enddo
+  deallocate(s)
+end subroutine hxpos
+
+subroutine ghios(rsmg,rsmh,eg,eh,nlmh,kmax,ndim,s)
+  !- Integrals between 3D Gaussians and smooth Hankels at same site.
+  ! ----------------------------------------------------------------------
+  !i Inputs
+  !i   rsmg  :smoothing radius of gaussian
+  !i   rsmh  :vector of l-dependent smoothing radii of smoothed hankel
+  !i         :rsmh must be specified for 1..ll(nlmh)+1
+  !i   eg    :gkL scaled by exp(eg*rsm**2/4)
+  !i   eh    :vector of l-dependent energies of smoothed Hankel
+  !i         :eh must be specified for 1..ll(nlmh)+1
+  !i   nlmh  :L-cutoff for smoothed Hankel functions and P_kL
+  !i   kmax  :polynomial cutoff
+  !i   ndim  :nl*nl*nbas
+  !o Outputs
+  !o   s     :real-space structure constants c(k,M,L); see Remarks
+  !o         :s(ilm,*) for rsmh(ll(ilm)) <= 0 are UNTOUCHED
+  !r Remarks
+  !r   s(L,M,k) contains integral of G_L^*(r) (lap)^k H_M(r)
+  !r
+  !r   Only diagonal elements ilm=jlm are nonzero and returned.
+  !r   Equivalent to ghiml called for pg=ph.
+  !u Updates
+  !u   18 May 00 Made rsmh,eh l-dependent
+  !u   24 Apr 00 Adapted from nfp ghi_os.f
+  ! ----------------------------------------------------------------------
+  integer :: kmax,ndim,nlmh
+  double precision :: eg,eh(*),rsmg,rsmh(*),s(ndim,0:kmax)
+  integer :: ktop0,ilm,k,ktop,l,ll,lmaxh,l1,l2,ilm1,ilm2
+  parameter( ktop0=50 )
+  double precision :: fac,fpi,gamg,gamh,rsmx,y0,h0k(0:ktop0),rsm,e
+  if (nlmh == 0) return
+  fpi = 16d0*datan(1d0)
+  y0 = 1d0/dsqrt(fpi)
+  lmaxh = ll(nlmh)
+  l2 = -1
+  do  20  l1  = 0, lmaxh ! --- Loop over sequences of l with a common rsm,e ---
+     if (l1 <= l2) goto 20
+     call gtbsl2(l1,lmaxh,eh,rsmh,l2)
+     rsm  = rsmh(l1+1)
+     e    = eh(l1+1)
+     if (rsm <= 0 .OR. e > 0) goto 20
+     ilm1 = l1**2+1
+     ilm2 = (l2+1)**2
+     gamh = 0.25d0*rsm*rsm
+     gamg = 0.25d0*rsmg*rsmg
+     rsmx = 2d0*dsqrt(gamg+gamh)
+     !   ... Make hankels for l=0 and k=0..kmax
+     ktop = l2+kmax
+     if(ktop > ktop0) call rxi('ghios: increase ktop0, need',ktop)
+     call hklos(rsmx,e,ktop,h0k)
+     !   ... Evaluate what is left of Clebsch-Gordan sum
+     fac = y0*dexp(gamg*(eg-e))
+     do  ilm = ilm1, ilm2
+        l = ll(ilm)
+        do  k = 0, kmax
+           s(ilm,k) = fac * (-1)**l * h0k(k+l)
+        enddo
+     enddo
+20 enddo
+end subroutine ghios
+
+subroutine hklos(rsm,e,kmax,h0k)
+  !- k,L-dependent smooth hankel functions at (0,0,0)
+  ! ----------------------------------------------------------------------
+  !i Inputs
+  !i   rsm   :smoothing radius
+  !i   e     :energy of smoothed Hankel
+  !i   kmax  :polynomial cutoff
+  !o Outputs
+  !i   h0k   :Smoothed Hankel at origin
+  !r Remarks
+  !r   Only the functions for l=0 are generated (remaining are zero)
+  !r   Equivalent to hkl_ml for p=(0,0,0) and lmax=0.
+  !u Updates
+  !u   24 Apr 00 Adapted from nfp hkl_os.f
+  ! ----------------------------------------------------------------------
+  !     implicit none
+  ! ... Passed parameters
+  integer :: kmax
+  double precision :: rsm,e,h0k(0:kmax)
+  ! ... Local parameters
+  integer :: k
+  double precision :: akap,asm,cc,derfc,gam,gg,hh,pi,y0
+  pi = 4d0*datan(1d0)
+  y0 = 1d0/dsqrt(4*pi)
+  gam = rsm*rsm/4d0
+  asm = 0.5d0/dsqrt(gam)
+  ! ... Make smooth Hankel at zero
+  if (e > 0d0) call rx('hklos: e is positive')
+  akap = dsqrt(dabs(e))
+  cc = 4d0*asm**3 * dexp(gam*e) / dsqrt(pi)
+  hh = cc/(2*asm*asm)-akap*derfc(akap/(2*asm))
+  h0k(0) = hh*y0
+  ! ... Upward recursion for laplace**k h0
+  gg = dexp(gam*e) * (asm*asm/pi)**1.5d0
+  do k = 1,kmax
+     hh = -e*hh - 4*pi*gg
+     h0k(k) = hh*y0
+     gg = -2*asm*asm*(2*k+1)*gg
+  enddo
+end subroutine hklos
+
+subroutine gtbsl2(l1,lmxh,eh,rsmh,l2)
+  !- Returns the highest l with rsm,e common to those of a given l
+  ! ----------------------------------------------------------------------
+  !i Inputs
+  !i   l1    :current l
+  !i   lmxh :basis l-cutoff
+  !i   eh    :energy of smoothed Hankel
+  !i   rsmh  :smoothing radius of smoothed hankel
+  !o Outputs
+  !o   l2    :large l for which eh and rsmh l1..l2 are in common
+  !r Remarks
+  !r   Routine used group functions, strux in blocks.
+  !u Updates
+  ! ----------------------------------------------------------------------
+  !     implicit none
+  integer :: l1,l2,lmxh
+  double precision :: rsmh(0:lmxh),eh(0:lmxh)
+  double precision :: e,rsm
+  e = eh(l1)
+  rsm = rsmh(l1)
+  l2 = l1
+10 if (l2 >= lmxh) return
+  if (rsmh(l2+1) /= rsm .OR. eh(l2+1) /= e) return
+  l2 = l2+1
+  goto 10
+end subroutine gtbsl2

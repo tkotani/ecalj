@@ -22,8 +22,9 @@ contains
     use m_mkqp,only: rv_p_oqp,rv_a_owtkp
     use m_MPItk,only: master_mpi,mlog
     use m_mkqp,only: nkabc=> bz_nabc,bz_nkp
-    use m_lattic,only: qlat=>lat_qlat
+    use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
     use m_ext,only: sname
+    use m_shortn3_qlat,only: shortn3_qlat,nlatout
     intent(in)::             plbnd,llmfgw
     integer:: nqp2_syml(nsymlmax),nqp2s_syml(nsymlmax),nqp2e_syml(nsymlmax)
     logical:: masslineon(nsymlmax),llmfgw
@@ -38,6 +39,7 @@ contains
     character(50)::infoq
     integer:: nqnum, nqbz,iqq,isp,ifiqg,irr,ngp ,imx,nqibz,iqibz
     real(8):: QpGcut_psi,q(3)
+    real(8)::qq(3)
     !     !
     call tcn('m_qplist_init')
     if(master_mpi) write(stdo,*) 'm_qplistinit:start'
@@ -220,7 +222,7 @@ contains
        enddo
        close(ifqplist)
     endif
-
+    
     !! broadcase nkp and qplist
     call mpibc1_int( nkp,1,  'qplit_nkp')
     call mpibc1_int( onesp,1,'qplist_onesp')

@@ -1,4 +1,4 @@
-module  m_hansrz
+module  m_hansrz_unused
   use m_hansr,only: hansr,hanr
 contains
 subroutine hansrz(rsml,lmin,lmax,e,rsq,nrx,nr,job,xi,fi)
@@ -656,8 +656,5 @@ subroutine hansz2(jerf,rsq,lmin,lmax,nrx,nr,e,rsm,wk,wk2,xi)
         enddo
      enddo
   endif
-
 end subroutine hansz2
-
-
-end module m_hansrz
+end module m_hansrz_unused

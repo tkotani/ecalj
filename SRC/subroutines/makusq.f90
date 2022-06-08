@@ -1,5 +1,4 @@
-subroutine makusq(mode,nsites,isite, &
-     nev,isp,iq,q,evec,  aus)
+subroutine makusq(mode,nsites,isite, nev,isp,iq,q,evec,  aus)
   use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nkapii,lhh
   use m_suham,only: ndham=>ham_ndham
   use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
@@ -86,29 +85,17 @@ subroutine makusq(mode,nsites,isite, &
   !u   21 Nov 00 (ATP) Adapted from fp mkrout
   ! ----------------------------------------------------------------------
   implicit none
-  ! ... Passed parameters
-  ! dummy input
-  real(8):: ssite_,sspec_,nbas_, &
-       nlmax_,ndham_,ndimh_,napw_,igvapw_,nsp_,nspc_,ppnl_ !dummy input
-
-  integer :: mode,isp,iq, nev,n0,nppn, nsites,isite(nsites)
+  real(8):: nlmax_,ndham_,ndimh_,napw_,igvapw_,nsp_,nspc_,ppnl_ !dummy input
+  integer:: mode,isp,iq, nev,n0,nppn, nsites,isite(nsites)
   parameter (n0=10,nppn=12)
   real(8):: q(3)
-  !      type(s_site)::ssite(*)
-  !      type(s_spec)::sspec(*)
-  !      type(s_lat)::slat
-  !      type(s_ham)::sham
-
-  !      double precision ppnl(nppn,n0,nsp,nbas)
   double complex evec(ndimh,nsp,nev), &
        aus(nlmax,ndham*nspc,3,nsp,nsites,iq)
   ! ... Local parameters
   integer :: nkap0
   parameter (nkap0=3)
-  !      integer lh(nkap0)
   double precision :: eh(n0,nkap0),rsmh(n0,nkap0),rsma,a,rmt
   integer :: igetss,ib,nkapi,is,nr,kmax,lmxa,lmxl,lmxh,i
-
   real(8) ,allocatable :: rofi_rv(:)
   real(8) ,allocatable :: fh_rv(:)
   real(8) ,allocatable :: xh_rv(:)
@@ -118,14 +105,7 @@ subroutine makusq(mode,nsites,isite, &
   real(8) ,allocatable :: xp_rv(:)
   real(8) ,allocatable :: vp_rv(:)
   real(8) ,allocatable :: dp_rv(:)
-
-  ! ... Heap
-
-  ! ... Setup
-  !     stdo = lgunit(1)
-  !     ipr  = iprint()
   call tcn ('makusq')
-
   ! --- Start loop over atoms ---
   do  i = 1, nsites
      if (nsites == nbas) then
@@ -143,8 +123,8 @@ subroutine makusq(mode,nsites,isite, &
      rmt=sspec(is)%rmt
      !        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
      call uspecb(is,rsmh,eh)
-     nkapi=nkapii(is)
-     lmxh=sspec(is)%lmxb
+     nkapi= nkapii(is)
+     lmxh = sspec(is)%lmxb
      if (lmxa == -1) goto 10
      !   --- Set up all radial head and tail functions, and their BC's
      allocate(rofi_rv(nr))
@@ -159,8 +139,7 @@ subroutine makusq(mode,nsites,isite, &
      allocate(xp_rv(nr*(lmxa+1)*(kmax+1)))
      allocate(vp_rv((lmxa+1)*(kmax+1)))
      allocate(dp_rv((lmxa+1)*(kmax+1)))
-     call fradpk ( kmax , rsma , lmxa , nr , rofi_rv , fp_rv &
-          , xp_rv , vp_rv , dp_rv )
+     call fradpk(kmax,rsma,lmxa,nr,rofi_rv,fp_rv,xp_rv,vp_rv,dp_rv)
      !   --- Add to the coefficient for the projection onto (u,s) for this site
      call pusq1 ( mode , ib , isp , nspc , nlmax , lmxh &
           , nbas , ssite , sspec ,  q , ndham , ndimh , napw , igvapw& ! & slat ,
@@ -185,9 +164,9 @@ subroutine pusq1(mode,ia,isp,nspc,nlmax,lmxh,nbas,ssite, &
      sspec,q,ndham,ndimh,napw,igvapw,nev,evec,vh,dh,vp,dp,ppnl, &
      au,as,az)
   use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkapii
-  use m_uspecb,only:uspecb
-  use m_bstrux,only: bstrux
-  use m_struc_def  !Cgetarg
+  use m_uspecb,only: uspecb
+  use m_bstrux,only: bstrux_set,bstr
+  use m_struc_def 
   !- Add to the coefficient for the projection onto (u,s) for one site
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -240,53 +219,38 @@ subroutine pusq1(mode,ia,isp,nspc,nlmax,lmxh,nbas,ssite, &
   !u   10 Apr 02 Redimensionsed eh,rsmh to accommodate larger lmax
   !u   12 Feb 02 Extended to local orbitals
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
   integer :: mode,ia,isp,nspc,lmxh,nlmax, &
        nbas,ndham,ndimh,napw,igvapw(3,napw),nev,nlmbx,n0,nppn
   parameter (nlmbx=25, n0=10, nppn=12)
-  double precision :: ppnl(nppn,n0,2)
-  double precision :: vp(*),dp(*),vh(*),dh(*)
-  real(8):: q(3)
+  real(8):: ppnl(nppn,n0,2),q(3),vp(*),dp(*),vh(*),dh(*)
   type(s_site)::ssite(*)
   type(s_spec)::sspec(*)
-  !      type(s_lat)::slat
-
-  double complex evec(ndimh,nspc,ndimh), &
+  complex(8):: evec(ndimh,nspc,ndimh), &
        au(nlmax,ndham*nspc,3,2), &
        as(nlmax,ndham*nspc,3,2), &
        az(nlmax,ndham*nspc,3,2)
-  ! ... Local parameters
+  complex(8):: zdummy(1)
   integer :: nkap0,nlmxx
   parameter (nkap0=3,nlmxx=121)
-  !      integer lh(nkap0)
-  complex(8) ,allocatable :: b_zv(:)
-  complex(8) ,allocatable :: a_zv(:)
-  integer :: isa,lmxa,lmxha,kmax,nlma,ivec, &
-       ilm,k,ll,nkape,ksp,ispc,nlmto
-  double precision :: eh(n0,nkap0),rsmh(n0,nkap0)
-  double precision :: rsma,pa(3),rmt, &
-       phi,phip,dphi,dlphi,dphip,dlphip,det,rotp(nlmxx,2,2)
-  complex(8):: zdummy(1)
-  integer:: i_copy_size
+  complex(8) ,allocatable :: a_zv(:) !b_zv(:),
+  integer :: isa,lmxa,lmxha,kmax,nlma,ivec, ilm,k,ll,nkape,ksp,ispc,nlmto
+  real(8) :: rsma,pa(3),rmt, phi,phip,dphi,dlphi,dphip,dlphip,det,rotp(nlmxx,2,2),&
+       eh(n0,nkap0),rsmh(n0,nkap0)
   call tcn ('pusq1')
-  isa=ssite(ia)%spec
-  i_copy_size=size(ssite(ia)%pos)
-  call dcopy(i_copy_size,ssite(ia)%pos,1,pa,1)
+  isa =ssite(ia)%spec
+  pa  =ssite(ia)%pos
   lmxa=sspec(isa)%lmxa
+  if (lmxa == -1) return
   lmxha=sspec(isa)%lmxb
   kmax=sspec(isa)%kmxt
   rsma=sspec(isa)%rsma
   rmt=sspec(isa)%rmt
-  if (lmxa == -1) return
   nlmto = ndimh-napw
   nlma  = (lmxa+1)**2
-  !      call uspecb(0,1,sspec,isa,isa,lh,rsmh,eh,nkape)
   call uspecb(isa,rsmh,eh)
-  nkape=nkapii(isa)
-  ! --- Make strux to expand all orbitals at site ia ---
-  allocate(b_zv((kmax+1)*nlma*ndimh))
-  call bstrux(2,ia,pa,rsma,q, kmax , nlma , ndimh , napw , igvapw , b_zv , zdummy )
+  nkape = nkapii(isa)
+  call bstrux_set(ia,q) !bstr
+  allocate(a_zv((kmax+1)*nlma))
   !     In noncollinear case, isp=1 always => need internal ispc=1..2
   !     ksp is the current spin index in both cases:
   !     ksp = isp  in the collinear case
@@ -294,7 +258,7 @@ subroutine pusq1(mode,ia,isp,nspc,nlmax,lmxh,nbas,ssite, &
   !     whereas ispc=1 for independent spins, and spin index when nspc=2
   do  ispc = 1, nspc
      ksp = max(ispc,isp)
-     if (mode == 1) then
+     if(mode == 1) then
         if (nlma > nlmxx) call rxi('makusq:  nlmxx < nlma=',nlma)
         do  ilm = 1, nlma
            k = ll(ilm)+1
@@ -311,23 +275,18 @@ subroutine pusq1(mode,ia,isp,nspc,nlmax,lmxh,nbas,ssite, &
            rotp(ilm,2,2) = phi/det
         enddo
      endif
-     ! --- Loop over eigenstates ---
-     allocate(a_zv((kmax+1)*nlma))
-     do  ivec = 1, nev
-        call rlocb1 ( ndimh , nlma , kmax , evec ( 1 , ispc , ivec ) &
-             , b_zv , a_zv )
-        call pusq2 ( mode , ia , nkape , kmax , lmxa , lmxh , nlmto , &
-             min ( nlma , nlmax ) , a_zv , rotp , evec ( 1 , ispc &
-             , ivec ) , vh , dh , vp , dp , au ( 1 , ivec , 1 , ksp ) , as &
-             ( 1 , ivec , 1 , ksp ) , az ( 1 , ivec , 1 , ksp ) )
-     enddo
-     if (allocated(a_zv)) deallocate(a_zv)
-     ! ... end loop over noncollinear spins
+     do  ivec = 1, nev ! --- Loop over eigenstates ---
+        call rlocb1(ndimh, nlma, kmax, evec(1,ispc,ivec), bstr,a_zv) !b_zv ,a_zv ) !
+        call pusq2 (mode, ia, nkape, kmax, lmxa , lmxh, nlmto , &
+             min(nlma,nlmax),a_zv,rotp,evec(1,ispc,ivec),vh,dh,vp,dp,&
+             au(1,ivec,1,ksp), as(1,ivec,1,ksp), az(1,ivec,1,ksp) )
+     enddo 
   enddo
-  if (allocated(b_zv)) deallocate(b_zv)
+  deallocate(a_zv) ! ... end loop over noncollinear spins
+  !if (allocated(b_zv)) deallocate(b_zv)
   call tcx('pusq1')
 end subroutine pusq1
-! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+
 subroutine pusq2(mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma, &
      cPkL,r,evec,vh,dh,vp,dp,au,as,az)
   use m_orbl,only: Orblib,ktab,ltab,offl,norb
@@ -372,12 +331,9 @@ subroutine pusq2(mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma, &
   integer :: nlmxx
   parameter (nlmxx=121)
   double precision :: r(nlmxx,2,2)
-  double complex au(nlma),as(nlma),az(nlma), &
-       evec(nlmto),cPkL(0:kmax,nlma)
-  ! Local
-  integer :: n0,nkap0!,norb
+  complex(8):: au(nlma),as(nlma),az(nlma), evec(nlmto),cPkL(0:kmax,nlma)
+  integer :: n0,nkap0
   parameter (n0=10,nkap0=3)
-  !      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
   integer :: blks(n0*nkap0),ntab(n0*nkap0)
   integer :: io1,l1,ik1,nlm11,nlm12,ilm1,i1,ilma,k
   integer :: l,ll
@@ -396,8 +352,7 @@ subroutine pusq2(mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma, &
      ik1 = ktab(io1)
      nlm11 = l1**2+1
      nlm12 = nlm11 + blks(io1)-1
-     !       i1 = hamiltonian offset for first orbital in block
-     i1 = offl(io1)-nlm11+1
+     i1 = offl(io1)-nlm11+1 !  i1 = hamiltonian offset for first orbital in block
      if (ik1 <= nkape) then
         do  ilm1 = nlm11, nlm12
            l = ll(ilm1)

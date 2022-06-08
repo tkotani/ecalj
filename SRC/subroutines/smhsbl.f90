@@ -1,31 +1,19 @@
 subroutine smhsbl(ssite,sspec,vavg,q,ndimh, napw,igapw, h,s)
-  use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
-  use m_lmfinit,only: lat_alat,nbas,nkaphh,lhh
-  use m_lattic,only: lat_vol
+  use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg, lat_alat,nbas,nkaphh,lhh
+  use m_lattic,only: lat_vol,lat_plat
   use m_uspecb,only:uspecb
-  use m_struc_def
-  use m_lattic,only:lat_plat
   use m_orbl,only: Orblib1,Orblib2,ktab1,ltab1,offl1,norb1,ktab2,ltab2,offl2,norb2
   use m_ropyln,only: ropyln
   use m_smhankel,only:hhibl
+  use m_struc_def
+  implicit none
+  intent(in)::    ssite,sspec,vavg,q,ndimh, napw,igapw 
   !- Smoothed Bloch Hamiltonian (constant potential) and overlap matrix
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   mode  :0 compute both hamiltonian and overlap
   !i         :  otherwise, compute overlap only.
   !i         :  In this case, vavg is not used
-  !i   ssite :struct for site-specific information; see routine usite
-  !i     Elts read: spec pos
-  !i     Stored:    *
-  !i     Passed to: *
-  !i   sspec :struct for species-specific information; see routine uspec
-  !i     Elts read: *
-  !i     Stored:    *
-  !i     Passed to: uspecb
-  !i   slat  :struct for lattice information; see routine ulat
-  !i     Elts read: ocg ojcg oidxcg ocy
-  !i     Stored:    *
-  !i     Passed to: hhibl
   !i   vavg  :constant potential (MT zero) to be added to h
   !i   q     :Bloch wave vector
   !i   ndimh :dimension of hamiltonian
@@ -83,11 +71,7 @@ subroutine smhsbl(ssite,sspec,vavg,q,ndimh, napw,igapw, h,s)
   !r       would not correspond to the hermitian conjugate of the tight
   !r       binding case.
   !r
-  !r  *MPI
-  !r   See remarks to hsibl. Buffers for h and s are F90 ALLOCATEd as
-  !r   they need to be used locally as dimensioned. A buffer is taken
-  !r   from the heap for ALLREDUCE.
-  !u Updates
+  !u Updates see github log after 2009
   !u   05 Jul 08 (T. Kotani) output density for new PW part
   !u   12 Aug 04 First implementation of extended local orbitals
   !u   14 Aug 02 Added overlap-only option
@@ -97,44 +81,29 @@ subroutine smhsbl(ssite,sspec,vavg,q,ndimh, napw,igapw, h,s)
   !u   02 Mar 01 Bug fix for multiple-kappa case
   !u   19 May 00 Adapted from nfp smhs_q.f
   ! ----------------------------------------------------------------------
-  implicit none
-  ! ... Passed parameters
-  integer :: procid,master
-  integer :: mode,ndimh,napw,igapw(3,napw)
+  integer :: nlms,kdim,n0,nkap0
+  parameter (nlms=25, kdim=1, n0=10, nkap0=3)
+  integer :: procid,master, mode,ndimh,napw,igapw(3,napw)
   real(8):: q(3) , vavg
   type(s_site)::ssite(*)
   type(s_spec)::sspec(*)
-  double complex h(ndimh,ndimh),s(ndimh,ndimh)
-  ! ... Local parameters
-  integer :: nlms,kdim,n0,nkap0
-  parameter (nlms=25, kdim=1, n0=10, nkap0=3)
-  integer :: nlmto
-  integer :: i1,i2,ib1,ib2,ilm1,ilm2,io1,io2,is1,is2,nlm1,nlm2,l1,l2,ig
-  integer :: lh1(nkap0),lh2(nkap0),nkap1,nkap2
-  !      integer ltab1(n0*nkap0),ktab1(n0*nkap0),offl1(n0*nkap0),norb1,ik1,
-  integer:: ik1,blks1(n0*nkap0),ntab1(n0*nkap0)
-  !      integer ltab2(n0*nkap0),ktab2(n0*nkap0),offl2(n0*nkap0),norb2,ik2,
-  integer:: ik2,blks2(n0*nkap0),ntab2(n0*nkap0)
-  double precision :: e1(n0,nkap0),rsm1(n0,nkap0),p1(3), &
-       e2(n0,nkap0),rsm2(n0,nkap0),p2(3),xx
-  double complex s0(nlms,nlms,0:kdim,nkap0,nkap0)
-  ! ... for PW part
-  integer :: lmxax,lmxa,nlmax
-  double precision :: qpg2,alat,plat(3,3),qlat(3,3),vol,srvol,tpiba,pi, &
-       denom,gam,fpi,ddot
+  complex(8):: h(ndimh,ndimh),s(ndimh,ndimh)
+  integer :: nlmto, i1,i2,ib1,ib2,ilm1,ilm2,io1,io2,is1,is2,nlm1,nlm2,l1,l2,ig,&
+       lmxax,lmxa,nlmax, lh1(nkap0),lh2(nkap0),nkap1,nkap2, &
+       ik1,blks1(n0*nkap0),ntab1(n0*nkap0), ik2,blks2(n0*nkap0),ntab2(n0*nkap0)
+  integer:: iloop,iloopmx
+  real(8) :: e1(n0,nkap0),rsm1(n0,nkap0),p1(3),e2(n0,nkap0),rsm2(n0,nkap0),p2(3),xx
+  complex(8):: s0(nlms,nlms,0:kdim,nkap0,nkap0)
+  real(8) :: qpg2,alat,plat(3,3),qlat(3,3),vol,srvol,tpiba,pi,denom,gam,fpi,ddot
   real(8),allocatable:: yl(:),ylv(:,:),qpgv(:,:),qpg2v(:)
   complex(8),allocatable:: srm1l(:)
   complex(8):: ovl,srm1,phase,fach
   parameter (srm1=(0d0,1d0))
-  integer:: iloop,iloopmx
   call tcn('smhsbl')
   procid = 0
   master = 0
-  ! --- Setup ---
   nlmto = ndimh-napw
-
-  ! ... Setup below needed for PWs
-  if (napw > 0) then
+  if(napw > 0) then
      alat=lat_alat
      plat=lat_plat
      vol=lat_vol
@@ -144,41 +113,35 @@ subroutine smhsbl(ssite,sspec,vavg,q,ndimh, napw,igapw, h,s)
      fpi = 4*pi
      call dinv33(plat,1,qlat,vol)
      vol = dabs(vol)*(alat**3)
-     !     Find largest lmxa ... should be made elsewhere
      lmxax = -1
-     do  ib1 = 1, nbas
+     do  ib1 = 1, nbas !!     Find largest lmxa ... should be made elsewhere
         is1=ssite(ib1)%spec
         lmxa=sspec(is1)%lmxa
         lmxax = max(lmxax,lmxa)
      enddo
      nlmax=(lmxax+1)**2
      allocate(ylv(napw,nlmax),yl(nlmax),qpgv(3,napw),qpg2v(napw))
-     !     Note: rearrange order
      do  ig = 1, napw
         qpgv(:,ig) = tpiba * (q + matmul(qlat, igapw(:,ig)))
      enddo
-     call ropyln(napw,qpgv(1,1:napw),qpgv(2,1:napw),qpgv(3,1:napw), &
-          lmxax,napw,ylv,qpg2v)
+     call ropyln(napw,qpgv(1,1:napw),qpgv(2,1:napw),qpgv(3,1:napw), lmxax,napw,ylv,qpg2v)
      allocate(srm1l(0:lmxax))
      srm1l(0) = 1d0
      do  l1 = 1, lmxax
         srm1l(l1) = (srm1)**l1
      enddo
   endif
-
-  if (nlmto >0 ) then
-     do ib1=1,nbas
+  if(nlmto >0 ) then
+     do 1010 ib1=1,nbas
         is1=ssite(ib1)%spec
-        p1=ssite(ib1)%pos
+        p1 =ssite(ib1)%pos
         call uspecb(is1,rsm1,e1)
-        !     Row info telling smhsbl where to poke s0 made by hhibl
-        call orblib1(ib1)!norb1,ltab1,ktab1,xx,offl1,xx)
+        call orblib1(ib1)!norb1,ltab1,ktab1,offl1
         call gtbsl1(8+16,norb1,ltab1,ktab1,rsm1,e1,ntab1,blks1)
         do  ib2 = ib1, nbas
            is2=ssite(ib2)%spec
            p2=ssite(ib2)%pos
            call uspecb(is2,rsm2,e2)
-           !     Column info telling smhsbl where to poke s0 made by hhibl
            call orblib2(ib2) !norb2,ltab2,ktab2,xx,offl2,xx)
            call gtbsl1(8+16,norb2,ltab2,ktab2,rsm2,e2,ntab2,blks2)
            !     ... M.E. <1> and <T> between all envelopes connecting ib1 and ib2
@@ -186,24 +149,20 @@ subroutine smhsbl(ssite,sspec,vavg,q,ndimh, napw,igapw, h,s)
               do  i2 = 1, nkaphh(is2) !nkap2
                  nlm1 = (lhh(i1,is1)+1)**2
                  nlm2 = (lhh(i2,is2)+1)**2
-                 if (nlm1 > nlms .OR. nlm2 > nlms) &
-                      call rx('smhsbl: increase nlms')
+                 if (nlm1 > nlms .OR. nlm2 > nlms) call rx('smhsbl: increase nlms')
                  call hhibl ( 11 , p1 , p2 , q , rsm1 ( 1 , i1 ) , rsm2 ( 1 , &
                       i2 ) , e1 ( 1 , i1 ) , e2 ( 1 , i2 ) , nlm1 , nlm2 , 1 , nlms &
                       , nlms , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy &
                       , s0 ( 1 , 1 , 0 , i1 , i2 ) )
               enddo
            enddo
-           !     ... Loop over orbital indices, poke block of integrals into s,h
-           do  io2 = 1, norb2
+           do  io2 = 1, norb2 !  ... Loop over orbital indices, poke block of integrals into s,h
               if (blks2(io2) /= 0) then
-                 !     l2,ik2 = l and kaph indices, needed to locate block in s0
-                 l2  = ltab2(io2)
+                 l2  = ltab2(io2)!  l2,ik2 = l and kaph indices, needed to locate block in s0
                  ik2 = ktab2(io2)
                  i2 = offl2(io2)
                  do  ilm2 = l2**2+1, (l2+1)**2
                     i2 = i2+1
-                    !     if (mode .eq. 0) then
                     do  io1 = 1, norb1
                        if (blks1(io1) /= 0) then
                           !     l1,ik1 = l and kaph indices, needed to locate block in s0
@@ -228,7 +187,6 @@ subroutine smhsbl(ssite,sspec,vavg,q,ndimh, napw,igapw, h,s)
            i2 = ig + nlmto
            qpg2 = qpg2v(ig)
            phase = exp(srm1*alat*ddot(3,qpgv(1,ig),1,p1,1))
-           !     phase = exp( srm1 * sum(qpgv(:,ig)*p1)*alat  )
            do  io1 = 1, norb1
               if (blks1(io1) == 0) cycle
               l1  = ltab1(io1)
@@ -253,12 +211,9 @@ subroutine smhsbl(ssite,sspec,vavg,q,ndimh, napw,igapw, h,s)
               enddo
            enddo
         enddo
-        !     ... end loop over ib1
-     enddo
+1010 enddo
   endif
-
-  ! ... PW x PW part (diagonal matrix)
-  do  ig = 1, napw
+  do  ig = 1, napw !! ... PW x PW part (diagonal matrix)
      i2 = ig + nlmto
      s(i2,i2) = s(i2,i2) + 1
      h(i2,i2) = h(i2,i2) + qpg2v(ig) + vavg
@@ -266,8 +221,7 @@ subroutine smhsbl(ssite,sspec,vavg,q,ndimh, napw,igapw, h,s)
   if (napw > 0) then
      deallocate(yl,ylv,qpgv,qpg2v,srm1l)
   endif
-  ! ... Occupy second half of matrix
-  do  i1 = 1, ndimh
+  do  i1 = 1, ndimh !! ... Occupy second half of matrix
      do  i2 = i1, ndimh
         h(i2,i1) = dconjg(h(i1,i2))
         s(i2,i1) = dconjg(s(i1,i2))

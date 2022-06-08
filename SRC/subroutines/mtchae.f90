@@ -1,5 +1,6 @@
 subroutine mtchae(mode,rsm,eh,l,r,phi,dphi,phip,dphip,alfa,beta)
   use m_lgunit,only:stdo
+  use m_hansr,only:hansmd
   !- Matches augmentation function to envelope function
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -94,6 +95,7 @@ end subroutine mtchae
 subroutine mtchre(mode,l,rsmin,rsmax,emin,emax,r1,r2,phi1,dphi1, &
      phi2,dphi2,rsm,eh,ekin,ir)
   use m_lgunit,only:stdo
+  use m_hansr,only:hansmd
   !- Finds envelope function parameters that match conditions on sphere
   ! ----------------------------------------------------------------------
   !i Inputs

@@ -67,7 +67,6 @@ contains
     use m_lmfinit,only: pwmode=>ham_pwmode,pwemin,pwemax,alat=>lat_alat,stdo,nspc
     use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
     use m_MPItk,only: master_mpi,procid,master
-    use m_shortn3,only: shortn3_initialize,shortn3
     use m_lmfinit,only: nlmto
     use m_shortn3_qlat,only: shortn3_qlat,nout,nlatout
     integer:: ifiese
@@ -78,31 +77,19 @@ contains
 !    integer,parameter:: noutmx=48
     integer:: iout,iapw,napwx !,nout,nlatout(3,noutmx)
     call tcn('m_igv2x_init')
-    debug    = cmdopt0('--debugbndfp')
-    !      print *,'mmmmmmm master_mpi=',master_mpi,procid,master
-!    if(pwmode>0 .AND. pwmode<10 .AND. init) then
-!       call shortn3_initialize(qlat)
-!       init=.false.
-!    endif
-    if(pwmode>0 .AND. pwmode<10) then
-       ppin=matmul(transpose(plat),qp) !basis on the qlat coordinate. qp in Cartesian.
-       call shortn3_qlat(ppin) !,noutmx, nout,nlatout)
-       if(debug) then
-          do iout=1,nout
-             write(*,"(a,3i5,f10.4,3f8.4)")'rrrrn1 =',nlatout(:,iout), &
-                  sum(matmul(qlat(:,:),ppin+nlatout(:,iout))**2), &
-                  matmul(qlat(:,:),ppin+nlatout(:,iout))
-          enddo
-       endif
+    debug = cmdopt0('--debugbndfp')
+    if(0<pwmode .and. pwmode<10) then
+       ppin=matmul(transpose(plat),qp) !ppin is fractional coordinate of qp(Cartesian).
+       call shortn3_qlat(ppin)
     endif
     if(allocated(igv2x_z)) deallocate(igv2x_z)
-    if (pwemax>0 .AND. mod(pwmode,10)>0) then
+    if (0<pwemax .and. mod(pwmode,10)>0) then
        pwgmin = pwemin**.5d0
        pwgmax = pwemax**.5d0
        qqq = 0d0
        if (mod(pwmode/10,10) == 1) qqq = qp !pwmode 1 in 10th digit means q-dependent nw
-       call pshpr(1) !gvlst2 calls shortn3_initialize==>confusing(but initialization qlat is the same)
-       call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,0,napwx,napwx,dum,dum,dum,dum) !get napw
+       call pshpr(1) 
+       call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,0,napwx,napwx,dum,dum,dum,dum) !get napwx
        napw_z=napwx
        allocate(igv2x_z(3,napw_z), kv_iv(3,napw_z))
        call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,2,napw_z,napw_z,kv_iv,dum,dum,igv2x_z)
@@ -112,10 +99,10 @@ contains
              igv2x_z(:,iapw)=igv2x_z(:,iapw)+nlatout(:,1)
           enddo
        endif
-       deallocate(kv_iv)      !we only keep
+       deallocate(kv_iv)     
     else
        napw_z=0
-       allocate(igv2x_z(1,1))   !dummy
+       allocate(igv2x_z(1,1))  
     endif
     ndimh_z = nlmto+napw_z     ! ldim+napw
     if (mod(pwmode,10)==2) ndimh_z = napw_z !APW-only mode

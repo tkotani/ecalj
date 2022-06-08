@@ -3,6 +3,7 @@ module m_lattic
   real(8) , allocatable,protected ::  rv_a_oqlv (:)
   real(8),protected:: lat_plat(3,3),lat_qlat(3,3),lat_awald,lat_vol
   real(8), allocatable,protected :: rv_a_opos(:,:)
+  logical,protected:: lattic_init=.false.
   !      real(8),protected:: lat_dist(3,3) !unused because no deformation of cell allowed currently.
   integer,protected:: lat_nkd,lat_nkq
 contains
@@ -56,6 +57,7 @@ contains
          plat0(3,3),plat(3,3),qlat(3,3) !platl(3,3),platr(3,3),dist(3,3)
     equivalence (gam(1), gx), (gam(2), gy), (gam(3), gz), (gam(4), gt)
     call tcn('m_lattic_init')
+    lattic_init=.true.
     alat=lat_alat
     awald0=lat_as
     tol=lat_tol

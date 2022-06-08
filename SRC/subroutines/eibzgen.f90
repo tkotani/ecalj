@@ -1,7 +1,6 @@
 subroutine eibzgen(nqibz,symgg,ngrp,qibze,iqxini,iqxend,qbz,nqbz,timereversal,ginv,iprintx, &
      nwgt,igx,igxt,eibzsym,timerout)
-!  use m_shortn3,only: shortn3_initialize,shortn3
-  use m_shortn3_qlat,only: shortn3_qlat,nout,nlatout
+!  use m_shortvec,only: shortvec,shortvecinitialize,nout,nlatout
   use m_genallcf_v3,only:  plat
   use m_hamindex,only: pwmode
   implicit none
@@ -97,7 +96,7 @@ subroutine eibzgen(nqibz,symgg,ngrp,qibze,iqxini,iqxend,qbz,nqbz,timereversal,gi
   !      open(newunit=ifiese,file='PWMODE')
   !      read(ifiese,*)pwmode
   !     close(ifiese)
-!  if(pwmode>0 .AND. pwmode<10) call shortn3_initialize(qlat)
+!  if(pwmode>0 .AND. pwmode<10) call shortvecinitialize(qlat)
 
   !! ===  main iq loop ===
   eibzsym = 0
@@ -113,20 +112,19 @@ subroutine eibzgen(nqibz,symgg,ngrp,qibze,iqxini,iqxend,qbz,nqbz,timereversal,gi
            call rangedq(matmul(ginv,qdiff), qxx)
            if(debug) write(6,*)'ig qdiff',ig,qdiff,q,ginv,qxx
            ! cccccccccccccccccccccccccccccccccccccccccccc
-           if(pwmode>0 .AND. pwmode<10) then
-              !     check wheter q is on 1st BZ boundary or not
-              ppin=matmul(transpose(plat),q) !qlat-based fractional coodinate
-              call shortn3_qlat(ppin) !shortn3(ppin,noutmx, nout,nlatout)
-              if(ig/=1 .AND. nout>1) then
-                 do iout=1,nout
-                    if(debug) write(*,"(a,3i5,f10.4,3f8.4)")'rrrrn1 =',nlatout(:,iout), &
-                         sum(matmul(qlat(:,:),ppin+nlatout(:,iout))**2), &
-                         matmul(qlat(:,:),ppin+nlatout(:,iout))
-                 enddo
-                 print *
-                 cycle
-              endif
-           endif
+           ! if(pwmode>0 .AND. pwmode<10) then ! check wheter q is on 1st BZ boundary or not
+           !    ppin=matmul(transpose(plat),q) !qlat-based fractional coodinate
+           !    call shortvec(ppin,noutmx, nout,nlatout)
+           !    if(ig/=1 .AND. nout>1) then
+           !       do iout=1,nout
+           !          if(debug) write(*,"(a,3i5,f10.4,3f8.4)")'rrrrn1 =',nlatout(:,iout), &
+           !               sum(matmul(qlat(:,:),ppin+nlatout(:,iout))**2), &
+           !               matmul(qlat(:,:),ppin+nlatout(:,iout))
+           !       enddo
+           !       print *
+           !       cycle
+           !    endif
+           ! endif
            ! ccccccccccccccccccccccccccccccccccccccccccc
            if(sum(abs(qxx))<tolq) then
               eallow(ig,it)=1

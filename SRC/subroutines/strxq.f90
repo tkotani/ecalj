@@ -1,8 +1,9 @@
 subroutine strxq(mode,e,q,p,nlma,nlmh,ndim,alat,vol,awald,nkd,nkq, &
      dlv,qlv,cg,indxcg,jcg,s,sd)
   use m_lldata,only: ll
-  use m_shortn4,only: shortn4,shortn4_initialize,nout,nlatout
+  !use m_shortn4,only: shortn4,shortn4_initialize,nout,nlatout
   use m_hamindex,only:   plat,qlat
+  use m_shortn3_plat,only: shortn3_plat,nout,nlatout
   !- One-center expansion coefficents to j of Bloch summed h (strux)
   ! ----------------------------------------------------------------
   !r  Onsite contribution is not contained in the bloch sum in the case of p=0.
@@ -102,8 +103,9 @@ subroutine strxq(mode,e,q,p,nlma,nlmh,ndim,alat,vol,awald,nkd,nkq, &
   ! --- Reduced structure constants ---
   !call shortn(p,p1,dlv,nkd)
   pp=matmul(transpose(qlat),p)
-  call shortn4_initialize(plat)
-  call shortn4(pp)
+  !call shortn4_initialize(plat)
+  !call shortn4(pp)
+  call shortn3_plat(pp)
   p1 = matmul(plat,pp+nlatout(:,1))
   
   sp = fpi/2*(q(1)*(p(1)-p1(1))+q(2)*(p(2)-p1(2))+q(3)*(p(3)-p1(3)))

@@ -20,6 +20,7 @@ module m_hamindex         !all protected now
        qtt(:,:),qtti(:,:)
   real(8),protected,public:: plat(3,3)=NaN,qlat(3,3)=NaN,zbak
   public:: m_hamindex_init, Readhamindex, getikt
+  logical,protected,public:: readhamindex_init=.false.
   private
   logical,private:: debug=.false.
 contains
@@ -27,8 +28,7 @@ contains
   subroutine m_hamindex_init(jobgw)
     use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp, iclasstaf_,symops_af_,ag_af_,ngrpaf_
     use m_struc_def
-    !use m_shortn3,only: shortn3_initialize,shortn3
-    use m_shortn3_qlat,only: shortn3_qlat,nout,nlatout
+    use m_shortn3,only: shortn3_initialize,shortn3,nout,nlatout
     use m_MPItk,only: master_mpi
     !!-- Set up m_hamiltonian. Index for Hamiltonian. --
     !!  Generated index are stored into m_hamindex
@@ -248,7 +248,7 @@ contains
     call poppr
     ! nn
     if(master_mpi)print*,' --- gvlst2 generates G for APW part (we show cases for limited q) ---'
-    !if(pwmode<5) call shortn3_initialize(qlat)
+    if(pwmode<10) call shortn3_initialize(qlat)
     allocate( igv2(3,napwmx,nkt), kv(3*napwmx) )
     prpushed=.false.
     do ikt = 1,nkt
@@ -261,9 +261,7 @@ contains
        endif
        if(pwmode<10) then
           ppin=matmul(transpose(plat),qq(:,ikt))
-          call shortn3_qlat(ppin) !shortn3(ppin,noutmx, nout,nlatout)
-       endif
-       if (pwmode<10) then
+          call shortn3(ppin) !return nout,nlatout
           do iapw=1,napwk(ikt)
              igv2(:,iapw,ikt)=igv2(:,iapw,ikt)+nlatout(:,1)
           enddo
@@ -391,6 +389,7 @@ contains
     logical,save:: done=.false.
     if(done) call rx('readhamindex is already done')
     done=.true.
+    readhamindex_init=.true.
     open(newunit=ifi,file='HAMindex',form='unformatted')
     read(ifi)ngrp,nbas,kxx,lxx,nqtt,nqi,nqnum,imx,ngpmx,norbmto,pwmode,zbak,ndham
     allocate(symops(3,3,ngrp),ag(3,ngrp),qtt(3,nqtt),qtti(3,nqi))
