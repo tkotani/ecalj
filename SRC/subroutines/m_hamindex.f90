@@ -27,7 +27,8 @@ contains
   subroutine m_hamindex_init(jobgw)
     use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp, iclasstaf_,symops_af_,ag_af_,ngrpaf_
     use m_struc_def
-    use m_shortn3,only: shortn3_initialize,shortn3
+    !use m_shortn3,only: shortn3_initialize,shortn3
+    use m_shortn3_qlat,only: shortn3_qlat,nout,nlatout
     use m_MPItk,only: master_mpi
     !!-- Set up m_hamiltonian. Index for Hamiltonian. --
     !!  Generated index are stored into m_hamindex
@@ -45,7 +46,7 @@ contains
     integer:: ibas,k,l,ndim,ipr,nglob,off,offs,specw,fieldw,iorb,offsi,ib,is, norb,nsp
     integer:: nkabc(3),nkp,lshft(3),napwx,ig,nini,nk1,nk2,nk3,ik1,ik2,ik3,ikt,nkt
     integer:: i_copy_size,i_spacks,i_spackv,ifi,nbas_in,ifisym,i,ifiqibz,igg,iqq,iqi,irr,iqi_,jobgw
-    integer:: iout,nout,nlatout(3,noutmx),iapw ,iprint,ngadd,igadd,igaf
+    integer:: iout,iapw ,iprint,ngadd,igadd,igaf !,nout,nlatout(3,noutmx)
     integer:: ngp, ifiqg,iq,nnn(3),ixx,ndummy,nqbz___ ,ifatomlist
     integer,allocatable:: iqtt(:), kv(:)!ltabx(:,:),ktabx(:,:),offlx(:,:),
     real(8):: pwgmax, pwgmin, QpGcut_psi,qxx(3),qtarget(3),platt(3,3),q(3),qx(3),qqx(3)
@@ -247,7 +248,7 @@ contains
     call poppr
     ! nn
     if(master_mpi)print*,' --- gvlst2 generates G for APW part (we show cases for limited q) ---'
-    if(pwmode<5) call shortn3_initialize(qlat)
+    !if(pwmode<5) call shortn3_initialize(qlat)
     allocate( igv2(3,napwmx,nkt), kv(3*napwmx) )
     prpushed=.false.
     do ikt = 1,nkt
@@ -260,7 +261,7 @@ contains
        endif
        if(pwmode<10) then
           ppin=matmul(transpose(plat),qq(:,ikt))
-          call shortn3(ppin,noutmx, nout,nlatout)
+          call shortn3_qlat(ppin) !shortn3(ppin,noutmx, nout,nlatout)
        endif
        if (pwmode<10) then
           do iapw=1,napwk(ikt)

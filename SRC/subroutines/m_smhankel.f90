@@ -1819,6 +1819,8 @@ subroutine hxpgbl(ph,pg,q,rsmh,rsmg,eh,kmax,nlmh,nlmg,k0,ndimh, &
 end subroutine hxpgbl
 subroutine gklq(lmax,rsm,q,p,e,kmax,k0,alat,dlv,nkd,nrx,yl,wk,job, gkl)
   use m_ropyln,only: ropyln
+  use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
+  use m_shortn3_plat,only: shortn3_plat,nout,nlatout
   !- Bloch sum of k,L-dependent gaussians (vectorizes)
   ! ---------------------------------------------------------------
   !i Inputs:
@@ -1862,7 +1864,7 @@ subroutine gklq(lmax,rsm,q,p,e,kmax,k0,alat,dlv,nkd,nrx,yl,wk,job, gkl)
   ! Local variables
   integer :: ilm,ir,k,l,m,nlm,ik1,ik2,lc1,ls1,lc2,ls2,job0,job1
   double precision :: qdotr,pi,tpi,y0,ta2,x,y,a2,g0fac,xx1,xx2,x1,x2, &
-       y2,p1(3),sp,cosp,sinp
+       y2,p1(3),sp,cosp,sinp,pp(3)
 
   ! --- Setup ---
   if (kmax < 0 .OR. lmax < 0 .OR. rsm == 0d0) return
@@ -1882,6 +1884,9 @@ subroutine gklq(lmax,rsm,q,p,e,kmax,k0,alat,dlv,nkd,nrx,yl,wk,job, gkl)
   ! ... Shorten connecting vector; need to adjust phase later
   if (job1 == 1 .OR. job1 == 3) then
      call shortn(p,p1,dlv,nkd)
+     !pp=matmul(transpose(qlat),p)
+     !call shortn3_plat(pp)
+     !p1 = matmul(plat,pp+nlatout(:,1))
   else
      call dcopy(3,p,1,p1,1)
   endif
@@ -1997,6 +2002,7 @@ subroutine hsmbl(p,rsm,e,q,lmax,cy,hsm,hsmp) !,slat
   use m_lattic,only: lat_awald
   use m_lattic,only: lat_nkd
   use m_lattic,only: lat_nkq
+  use m_shortn3_plat,only: shortn3_plat,nout,nlatout
   !- Bloch-sum of smooth Hankel functions and energy derivatives
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -2021,7 +2027,7 @@ subroutine hsmbl(p,rsm,e,q,lmax,cy,hsm,hsmp) !,slat
   implicit none
   ! ... Passed parameters
   integer :: lmax
-  real(8):: rsm , e , q(3) , p(3) , cy(1)
+  real(8):: rsm , e , q(3) , p(3) , cy(1), ppin(3)
   !      type(s_lat)::slat
 
   double complex hsm(1),hsmp(1)
@@ -2033,7 +2039,12 @@ subroutine hsmbl(p,rsm,e,q,lmax,cy,hsm,hsmp) !,slat
   alat=lat_alat
   plat=lat_plat
   qlat=lat_qlat
+
   call shorbz(p,p1,plat,qlat)
+  !ppin=matmul(transpose(qlat),p) 
+  !call shortn3_plat(ppin) 
+  !p1= matmul(plat,ppin+nlatout(:,1))
+  
   pi = 4d0*datan(1d0)
   sp = 2*pi*(q(1)*(p(1)-p1(1))+q(2)*(p(2)-p1(2))+q(3)*(p(3)-p1(3)))
   phase = dcmplx(dcos(sp),dsin(sp))

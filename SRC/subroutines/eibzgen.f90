@@ -115,7 +115,7 @@ subroutine eibzgen(nqibz,symgg,ngrp,qibze,iqxini,iqxend,qbz,nqbz,timereversal,gi
            ! cccccccccccccccccccccccccccccccccccccccccccc
            if(pwmode>0 .AND. pwmode<10) then
               !     check wheter q is on 1st BZ boundary or not
-              ppin=matmul(transpose(plat),q)
+              ppin=matmul(transpose(plat),q) !qlat-based fractional coodinate
               call shortn3_qlat(ppin) !shortn3(ppin,noutmx, nout,nlatout)
               if(ig/=1 .AND. nout>1) then
                  do iout=1,nout

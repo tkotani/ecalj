@@ -69,23 +69,24 @@ contains
     use m_MPItk,only: master_mpi,procid,master
     use m_shortn3,only: shortn3_initialize,shortn3
     use m_lmfinit,only: nlmto
+    use m_shortn3_qlat,only: shortn3_qlat,nout,nlatout
     integer:: ifiese
     integer,allocatable ::  kv_iv(:,:)
     real(8):: ppin(3),qp(3),qqq(3),pwgmin,pwgmax,dum
     logical:: debug,cmdopt0
     logical,save:: init=.true.
-    integer,parameter:: noutmx=48
-    integer:: iout,nout,nlatout(3,noutmx),iapw,napwx
+!    integer,parameter:: noutmx=48
+    integer:: iout,iapw,napwx !,nout,nlatout(3,noutmx)
     call tcn('m_igv2x_init')
     debug    = cmdopt0('--debugbndfp')
     !      print *,'mmmmmmm master_mpi=',master_mpi,procid,master
-    if(pwmode>0 .AND. pwmode<10 .AND. init) then
-       call shortn3_initialize(qlat)
-       init=.false.
-    endif
+!    if(pwmode>0 .AND. pwmode<10 .AND. init) then
+!       call shortn3_initialize(qlat)
+!       init=.false.
+!    endif
     if(pwmode>0 .AND. pwmode<10) then
        ppin=matmul(transpose(plat),qp) !basis on the qlat coordinate. qp in Cartesian.
-       call shortn3(ppin,noutmx, nout,nlatout)
+       call shortn3_qlat(ppin) !,noutmx, nout,nlatout)
        if(debug) then
           do iout=1,nout
              write(*,"(a,3i5,f10.4,3f8.4)")'rrrrn1 =',nlatout(:,iout), &

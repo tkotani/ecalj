@@ -1,5 +1,8 @@
 subroutine strxq(mode,e,q,p,nlma,nlmh,ndim,alat,vol,awald,nkd,nkq, &
      dlv,qlv,cg,indxcg,jcg,s,sd)
+  use m_lldata,only: ll
+  use m_shortn4,only: shortn4,shortn4_initialize,nout,nlatout
+  use m_hamindex,only:   plat,qlat
   !- One-center expansion coefficents to j of Bloch summed h (strux)
   ! ----------------------------------------------------------------
   !r  Onsite contribution is not contained in the bloch sum in the case of p=0.
@@ -48,7 +51,6 @@ subroutine strxq(mode,e,q,p,nlma,nlmh,ndim,alat,vol,awald,nkd,nkq, &
   !r   H_{RL}(E,r) = J_{R'L'}(E,r) * S_{R'L',RL}
   !r   S_R'L',RL = 4 pi Sum_l" C_{LL'L"} (-1)^l (-E)^(l+l'-l")/2 H_L"(E,R-R')
   ! ---
-  use m_lldata,only: ll
   implicit none
   ! ... Passed parameters
   integer :: mode,ndim,nlma,nlmh
@@ -76,7 +78,7 @@ subroutine strxq(mode,e,q,p,nlma,nlmh,ndim,alat,vol,awald,nkd,nkq, &
   !$$$#endif
   !!    to avoid warinig jan2013takao
   integer ::lmax_(1)
-  real(8):: e_(1),rsm_(1)
+  real(8):: e_(1),rsm_(1),pp(3)
   ! ... Setup
   ldot = .false.
   lmax = ll(nlma)+ll(nlmh)
@@ -98,7 +100,12 @@ subroutine strxq(mode,e,q,p,nlma,nlmh,ndim,alat,vol,awald,nkd,nkq, &
   !     &  efac(0:lmax),sig(0:lmax),dl(nlm0),dlp(nlm0))
 
   ! --- Reduced structure constants ---
-  call shortn(p,p1,dlv,nkd)
+  !call shortn(p,p1,dlv,nkd)
+  pp=matmul(transpose(qlat),p)
+  call shortn4_initialize(plat)
+  call shortn4(pp)
+  p1 = matmul(plat,pp+nlatout(:,1))
+  
   sp = fpi/2*(q(1)*(p(1)-p1(1))+q(2)*(p(2)-p1(2))+q(3)*(p(3)-p1(3)))
   phase = dcmplx(dcos(sp),dsin(sp))
   job = 0

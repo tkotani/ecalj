@@ -7,14 +7,15 @@ subroutine writefs(ef0)
   use m_suham,only: ndhamx=>ham_ndhamx,nspx=>ham_nspx
   use m_qplist,only:nkp,qplist
   use m_bandcal,only: evlall
+  use m_shortn3_qlat,only: shortn3_qlat,nout,nlatout
 
   implicit none
   logical:: cmdopt0,allband
   real(8):: ppin(3),ef0
   integer:: ip,i,isp,ififm,ifile_handle,nbxx,iq,ib,nkk1,nkk2,nkk3,ifi
   real(8):: rlatp(3,3),xmx2(3),vadd,qshort(3)
-  integer,parameter:: noutmx=48
-  integer:: iout,nout,nlatout(3,noutmx)
+  !integer,parameter:: noutmx=48
+  integer:: iout !,nout,nlatout(3,noutmx)
   nkk1=bz_nabc(1)
   nkk2=bz_nabc(2)
   nkk3=bz_nabc(3)
@@ -51,7 +52,7 @@ subroutine writefs(ef0)
      write(ifi,"(4x,3(f9.5,1x))") qlat(:,1)
      write(ifi,"(4x,3(f9.5,1x))") qlat(:,2)
      write(ifi,"(4x,3(f9.5,1x))") qlat(:,3)
-     call shortn3_initialize(qlat)
+     !call shortn3_initialize(qlat)
      do ib=1,ndhamx
         if(allband .OR. (minval(evlall(ib,isp,:))<ef0+0.5 .AND. &
              maxval(evlall(ib,isp,:))>ef0-0.5)) then
@@ -62,7 +63,7 @@ subroutine writefs(ef0)
            ! to reduce q-point to qshort
            do iq=1,nkk1*nkk2*nkk3
               ppin=matmul(transpose(plat),qplist(:,iq))
-              call shortn3(qplist(:,iq),noutmx, nout,nlatout)
+              call shortn3_qlat(ppin) !bug (qlist(:,iq) ==>ppin 2022-6-8 tkotani)
               iout=1
               qshort(1:3)=  matmul(qlat(:,:), ppin+nlatout(:,iout))
               write(ififm,"(4f13.5)") qshort(:),evlall(ib,isp,iq) !q-point reduced to 1stBZ

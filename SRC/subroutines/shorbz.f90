@@ -141,7 +141,7 @@ module m_shortn3
   integer,private:: noutmx=48
   real(8),private:: rlatp(3,3),xmx2(3)
 contains
-  subroutine shortn3(pin,nnn,nout,nlatout)
+  subroutine shortn3(pin,nnn,nout,nlatout) !pin is in fractional coordinate in rlat(:,i)
     use m_shortn33,only: shortn33
     real(8):: pin(3)
     integer:: nout,nlatout(3,noutmx),nnn
@@ -154,7 +154,51 @@ contains
   end subroutine shortn3_initialize
 end module m_shortn3
 
+!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+module m_shortn4
+  implicit none
+  public shortn4,shortn4_initialize
+  integer,private,parameter:: noutmx=48
+  integer,public:: nout,nlatout(3,noutmx)
+  
+  real(8),private:: rlatp(3,3),xmx2(3)
+  logical,private:: init=.true.
+contains
+  subroutine shortn4(pin)
+    use m_shortn33,only: shortn33
+    use m_lattic,only: qlat=>lat_qlat
+    real(8):: pin(3)
+    call shortn33(pin,rlatp,xmx2,noutmx,nout,nlatout)
+  end subroutine shortn4
+  subroutine shortn4_initialize(rlat)
+    use m_shortn33,only: shortn33initialize
+    real(8):: rlat(3,3)
+    call shortn33initialize(rlat,rlatp,xmx2)
+  end subroutine shortn4_initialize
+end module m_shortn4
 
+!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+module m_shortn3_plat
+  implicit none
+  public shortn3_plat
+  integer,private,parameter:: noutmx=48
+  integer,public:: nout,nlatout(3,noutmx)
+  
+  real(8),private:: rlatp(3,3),xmx2(3)
+  logical,private:: init=.true.
+contains
+  subroutine shortn3_plat(pin)
+    use m_shortn33,only: shortn33
+    use m_shortn33,only: shortn33initialize
+    use m_lattic,only: plat=>lat_plat
+    real(8):: pin(3)
+    if(init) then
+       call shortn33initialize(plat,rlatp,xmx2)
+       init=.false.
+    endif   
+    call shortn33(pin,rlatp,xmx2,noutmx,nout,nlatout)
+  end subroutine shortn3_plat
+end module m_shortn3_plat
 
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 module m_shortn3_qlat

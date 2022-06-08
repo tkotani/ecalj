@@ -5,6 +5,8 @@ subroutine madmat(dmad)
   use m_lmfinit,only: stdo,nbas,alat=>lat_alat
   use m_lattic,only: awald=>lat_awald,vol=>lat_vol,dlat=>rv_a_odlv &
        ,nkd=>lat_nkd,glat=>rv_a_oqlv, nkg=>lat_nkq,bas=>rv_a_opos
+  use m_shortn3_plat,only: shortn3_plat,nout,nlatout
+  use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
   !- Coefficients to Madelung matrix
   ! ----------------------------------------------------------------
   !i Inputs
@@ -30,6 +32,7 @@ subroutine madmat(dmad)
   ! local variables
   integer :: ibas,jbas,iprint,i
   double precision :: tau(3)
+  real(8):: pp(3)
   dmad=0.0d0
   ! --- Generate Madelung matrix ---
   do  101  ibas = 1, nbas
@@ -38,6 +41,9 @@ subroutine madmat(dmad)
            tau(i) = bas(i,jbas)-bas(i,ibas)
 15      enddo
         call shortn(tau,tau,dlat,nkd)
+        !pp = matmul(transpose(qlat),tau)
+        !call shortn3_plat(pp)
+        !tau = matmul(plat,pp+nlatout(:,1))
         call strx00(tau,awald,alat,vol,glat,nkg,dlat,nkd, &
              dmad(ibas,jbas))
         dmad(jbas,ibas) = dmad(ibas,jbas)

@@ -2,6 +2,7 @@ subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl, &
      awald,alat,qlv,nG,dlv,nD,vol,hsm,hsmp)
   use m_ropyln,only: ropyln
   use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat
+  use m_shortn3_plat,only: shortn3_plat,nout,nlatout
   !- Bloch-sum of smooth Hankel functions and energy derivatives at p
   !  by Ewald summation, for nxi groups of parameters (lxi,exi,rsm).
   ! ---------------------------------------------------------------
@@ -65,6 +66,7 @@ subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl, &
   parameter (faca=1d0)
   double complex xxc
   logical :: dcmpre,ltmp
+  real(8):: pp(3)
   dcmpre(x1,x2) = dabs(x1-x2) .lt. 1d-8
 
   ! --- Setup ---
@@ -75,8 +77,9 @@ subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl, &
   job3 = mod(job/1000,10)
   ! ... Shorten connecting vector; adjust phase later
   if (job3 == 1 .OR. job3 == 3) then
-!     call shortn3_initialize(plat)
-!     call shortn3(qplist(:,iq),noutmx, nout,nlatout)
+!     pp=matmul(transpose(qlat),p)
+!     call shortn3_plat(pp)
+!     p1 = matmul(plat,pp+nlatout(:,1))
      call shortn(p,p1,dlv,nD)
   else
      call dcopy(3,p,1,p1,1)
@@ -328,6 +331,8 @@ end subroutine hsmq
 subroutine hsmqe0(lmax,rsm,job,q,p,nrx,nlmx,wk,yl, &
      awald,alat,qlv,nG,dlv,nD,vol,hsm)
   use m_ropyln,only: ropyln
+  use m_shortn3_plat,only: shortn3_plat,nout,nlatout
+  use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat
   !- Bloch-sum of smooth Hankel functions for energy 0
   ! ---------------------------------------------------------------
   !i Inputs:
@@ -387,6 +392,7 @@ subroutine hsmqe0(lmax,rsm,job,q,p,nrx,nlmx,wk,yl, &
   parameter (faca=1d0)
   double complex xxc
   logical :: dcmpre,lqzero
+  real(8):: pp(3)
   dcmpre(x1,x2) = dabs(x1-x2) .lt. 1d-8
 
   ! --- Setup ---
@@ -400,6 +406,9 @@ subroutine hsmqe0(lmax,rsm,job,q,p,nrx,nlmx,wk,yl, &
   if (nrx < max(nD,nG)) call rx('hsmqe0: nrx < nD or nG')
   ! ... Shorten connecting vector; adjust phase later
   if (job3 == 1 .OR. job3 == 3) then
+!     pp=matmul(transpose(qlat),p)
+!     call shortn3_plat(pp)
+!     p1 = matmul(plat,pp+nlatout(:,1))
      call shortn(p,p1,dlv,nD)
   else
      call dcopy(3,p,1,p1,1)

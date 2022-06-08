@@ -13,7 +13,8 @@ contains
 !!! generate |q+G| bands
 !!! calculate |q+G|^2
   subroutine read_qgband(alat,plat,q,ngv,ngvec,isp,gsq,qshort)
-    use m_shortn3,only: shortn3_initialize,shortn3
+    !use m_shortn3,only: shortn3_initialize,shortn3
+    use m_shortn3_qlat,only: shortn3_qlat,nout,nlatout
     intent(in)::           alat,plat,q,ngv,ngvec,isp
     intent(out)::                                    gsq,qshort
     integer :: ngv,isp, ngvec(3,*)
@@ -24,7 +25,7 @@ contains
     integer:: igv
     logical::gamma
     real(8):: qqin(3),qlat(3,3)
-    integer:: nlatout(3,48),noutmx,nout,iout
+    integer:: iout !nlatout(3,48),noutmx,nout,
 
     pi=4d0*datan(1d0)
     tpioa=2d0*pi/alat
@@ -37,13 +38,13 @@ contains
     call minv33tp(plat,qlat)
 
     !     ! Get shortest q
-    if(init) then
-       call shortn3_initialize(qlat)
-       init=.false.
-    endif
-    noutmx=48
+    ! if(init) then
+    !    call shortn3_initialize(qlat)
+    !    init=.false.
+    ! endif
+    !noutmx=48
     qqin = matmul(transpose(plat),q)
-    call shortn3(qqin,noutmx, nout,nlatout)
+    call shortn3_qlat(qqin) !,noutmx, nout,nlatout)
     iout=1
     qshort(1:3)=  matmul(qlat(:,:), qqin+nlatout(:,iout))
 
