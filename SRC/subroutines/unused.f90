@@ -1,4 +1,4 @@
-module  m_hansrz_unused
+module  m_hansrz_unused !supposed to be used for e>0
   use m_hansr,only: hansr,hanr
 contains
 subroutine hansrz(rsml,lmin,lmax,e,rsq,nrx,nr,job,xi,fi)
@@ -106,7 +106,7 @@ subroutine hansrz(rsml,lmin,lmax,e,rsq,nrx,nr,job,xi,fi)
         if (lpos) then
            do  ir = 1, nr
               rl = rsq(ir)
-              call besslr(e*rl,0,lmin,llmax,fbess(lmin),fneum(lmin))
+              call besslr(e*rl,lmin,llmax,fbess(lmin),fneum(lmin))
               rm2 = 1.d0/rl
               rl = dsqrt(rl)
               if (lmin == -1) then
@@ -177,8 +177,7 @@ subroutine hansrz(rsml,lmin,lmax,e,rsq,nrx,nr,job,xi,fi)
            if (lpos) then
               do  ir = n2, n2p - 1
                  rl = rsq(ir)
-                 call besslr(e*rl,0,lmin,llmax,fbess(lmin),fneum(lmin))
-                 !               call bessll(e*rl,lmin,llmax,fbess(lmin),fneum(lmin))
+                 call besslr(e*rl,lmin,llmax,fbess(lmin),fneum(lmin))
                  rm2 = 1.d0/rl
                  rl = dsqrt(rl)
                  if (lmin == -1) then
@@ -200,9 +199,7 @@ subroutine hansrz(rsml,lmin,lmax,e,rsq,nrx,nr,job,xi,fi)
         if (lpos .AND. llmax == lmax) then
            if (n2 > 1) then
               do  ir = 1, n2-1
-                 !               call bessll(e*rsq(ir),lmin,llmax,
-                 call besslr(e*rsq(ir),0,lmin,llmax, &
-                      fbess(lmin),fneum(lmin))
+                 call besslr(e*rsq(ir),lmin,llmax, fbess(lmin),fneum(lmin))
                  do il = lmin, llmax
                     fi(ir,il) = fbess(il)
                  enddo
@@ -224,8 +221,7 @@ subroutine hansrz(rsml,lmin,lmax,e,rsq,nrx,nr,job,xi,fi)
            if (lpos) then
               do  ir = n2, nr
                  rl = wrsq(ir)
-                 call besslr(e*rl,0,lmin,llmax,fbess(lmin),fneum(lmin))
-                 !               call bessll(e*rl,lmin,llmax,fbess(lmin),fneum(lmin))
+                 call besslr(e*rl,lmin,llmax,fbess(lmin),fneum(lmin))
                  rm2 = 1.d0/rl
                  rl = dsqrt(rl)
                  if (lmin == -1) then
@@ -246,9 +242,7 @@ subroutine hansrz(rsml,lmin,lmax,e,rsq,nrx,nr,job,xi,fi)
         if (lpos .AND. llmax == lmax) then
            if (n2 > 1) then
               do  ir = 1, n2-1
-                 !               call bessll(e*wrsq(ir),lmin,llmax,
-                 call besslr(e*wrsq(ir),0,lmin,llmax, &
-                      fbess(lmin),fneum(lmin))
+                 call besslr(e*wrsq(ir),lmin,llmax, fbess(lmin),fneum(lmin))
                  do il = lmin, llmax
                     wbes(ir,il) = fbess(il)
                  enddo
@@ -643,7 +637,6 @@ subroutine hansz2(jerf,rsq,lmin,lmax,nrx,nr,e,rsm,wk,wk2,xi)
         wk2(ir) = facgl*wk(ir)
      enddo
   endif
-
   ! --- xi(ir,l) for l>1 by upward recursion ---
   if (lmax > lmin+1) then
      facgl = a2

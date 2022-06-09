@@ -1,4 +1,9 @@
 subroutine hansmr(r,e,a,xi,lmax)
+  !NOTE: hansr is equivalent to hansr, but hansr may have numerical problem for rms<1d-9 (tailsm.f90).
+  !      hansmr is for core fitting parts, while hansr is for valence part.
+  !      Probably, hansr is better verison than hansr while range of r is divided into three.
+  !      (See tailsm.f90). 2022-6-9
+  !
   !- Smoothed hankel functions for l=0...lmax, negative e.
   ! ---------------------------------------------------------------
   !o  Outputs: xi(0:lmax)
@@ -6,20 +11,19 @@ subroutine hansmr(r,e,a,xi,lmax)
   !r  xi is the radial part divided by r**l.
   !r  A solid smoothed hankel is from xi as:
   !r  hl(ilm) = xi(l)*cy(ilm)*yl(ilm)
-
+  !r
   !r  See J. Math. Phys. 39, 3393 (1998).
   !r  xi(l)= 2/sqrt(pi) * 2^l int_a^inf u^2l dexp(-r^2*u^2+kap2/4u^2) du
   !u Updates
   !u   04 Jul 08 (S. Lozovoi) Bug fix, lmax
   !u   11 May 07 (S. Lozovoi) small bug fixes
   ! ---------------------------------------------------------------
-  !     implicit none
+  implicit none
   integer :: lmax,l,n,nmax
   double precision :: r,e,a,xi(0:lmax)
   double precision :: a0(0:40),a2,add,akap,al,cc,derfc,dudr,ema2r2,fac, &
        gl,r2n,radd,rfac,rhs,rlim,srpi,sum,ta,ta2l,tol,u,uminus,uplus,w
   parameter (nmax=1000, tol=1d-20, srpi=1.77245385090551602729817d0)
-
   if (e > 0d0) call rx('hansmr: e gt 0')
   if (lmax > 40) call rx('hansmr: lmax gt 40')
   ! ... old tolerance
@@ -29,60 +33,57 @@ subroutine hansmr(r,e,a,xi,lmax)
   ta = a+a
   a2 = a*a
   cc = 4d0*a2*a*dexp(e/(ta*ta))/srpi
-
   ! ---- return zero if exponential part very small -------
   !      if (akap*r.gt.80d0) then
   !        do  27  l = 0, lmax
   !  27    xi(l)=0d0
   !        return
   !        endif
-
   !  --- call bessl if exp(-a*a*r*r) is very small ---
   if (a*r > 10d0) then
      call bessl(e*r*r,lmax,a0,xi)
      rfac = r
-     do  28  l = 0, lmax
+     do  l = 0, lmax
         rfac = rfac*(1d0/(r*r))
         xi(l) = rfac*xi(l)
-28   enddo
+     enddo
      return
   endif
-
   ! --- Power series for small r ---
   if (r > rlim) goto 90
   a0(0) = cc/(ta*a) - akap*derfc(akap/ta)
   rhs = cc
   fac = 1d0
   al = a0(0)
-  do  10  l = 1, lmax
+  do  l = 1, lmax
      al = -(e*al+rhs)/(2*l*(2*l+1))
      rhs = -rhs*a2/l
      fac = -2d0*fac*l
      a0(l) = fac*al
-10 enddo
+  enddo
   ta2l = 1d0
-  do  20  l = 0, lmax
+  do  200  l = 0, lmax
      rhs = cc*ta2l
      sum = a0(l)
      add = sum
      r2n = 1d0
-     do  21  n = 1, nmax
+     do n = 1, nmax
         add = -(e*add+rhs)/( 2*n*(2*n+(l+l+1)) )
         r2n = r2n*(r*r)
         radd = add*r2n
         sum = sum+radd
         if (dabs(radd) < tol) goto 22
         rhs = -rhs*a2/n
-21   enddo
+     enddo
      print *, 'hansmr (warning): power series did not converge'
 22   continue
      xi(l) = sum
      ta2l = ta2l*(2d0*a2)
-20 enddo
+200 enddo
   return
-
   ! --- Big r: make xi0,xi1 explicitly; the higher l by recursion ---
-90 ema2r2 = dexp(-a*a*r*r)
+90 continue
+  ema2r2 = dexp(-a*a*r*r)
   uminus = derfc(akap/ta-r*a)*dexp(-akap*r)
   uplus = derfc(akap/ta+r*a)*dexp(+akap*r)
   u = .5d0*(uminus-uplus)
@@ -99,6 +100,5 @@ subroutine hansmr(r,e,a,xi,lmax)
         enddo
      endif
   endif
-
 end subroutine hansmr
 

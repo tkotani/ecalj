@@ -14,14 +14,11 @@ subroutine suylg(ltop,alat,ng,gv,g,g2,yl)
   !u Updates
   !u   30 May 00 adapted from nfp su_ylg
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
+  implicit none
   integer :: ltop,ng
   double precision :: alat,gv(ng,3),g(ng,3),yl(ng,1),g2(ng)
-  ! ... Local parameters
   integer :: i
   double precision :: pi,tpiba
-
   ! ... Make (2*pi/alat)*gv in g
   pi = 4d0*datan(1d0)
   tpiba = 2d0*pi/alat
@@ -30,9 +27,7 @@ subroutine suylg(ltop,alat,ng,gv,g,g2,yl)
      g(i,2) = tpiba*gv(i,2)
      g(i,3) = tpiba*gv(i,3)
   enddo
-
   ! ... Make the yl's and g2
   call ropyln(ng,g(1,1),g(1,2),g(1,3),ltop,ng,yl,g2)
-
 end subroutine suylg
 

@@ -385,39 +385,16 @@ subroutine bzwtsm(lswtk,nkp,nsp,nevx,wtkb,swtk,amom)
   !i         :Used when lswtk is set
   !o Outputs
   !o   amom  :magnetic moment
-  !l Local variables
-  !l         :
-  !r Remarks
-  !r
-  !u Updates
-  !u   09 Jun 07
-  ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
   logical :: lswtk
   integer :: nkp,nevx,nsp
   double precision :: wtkb(nevx,nsp,nkp),swtk(nevx,nsp,nkp),amom
-  ! ... Local parameters
   integer :: ikp,k
   double precision :: dsum
-
   if (nsp == 1) return
-
-  !      if (lswtk .eq. 1 .and. nspc .eq. 2) then
   if (lswtk) then
-     amom = 0
-     do  ikp = 1, nkp
-        do  k = 1, nevx
-           amom = amom + wtkb(k,1,ikp)*swtk(k,1,ikp) &
-                + wtkb(k,2,ikp)*swtk(k,2,ikp)
-        enddo
-     enddo
+     amom = sum(wtkb(:,1,:)*swtk(:,1,:) + wtkb(:,2,:)*swtk(:,2,:))
   else
-     amom = 0
-     do  ikp = 1, nkp
-        amom = amom + dsum(nevx,wtkb(1,1,ikp),1) - &
-             dsum(nevx,wtkb(1,2,ikp),1)
-     enddo
+     amom = sum(wtkb(:,1,:) - wtkb(:,2,:))
   endif
 end subroutine bzwtsm
 

@@ -1,4 +1,4 @@
-module m_hamindex         !all protected now
+module m_hamindex  
   use m_lmfinit,only: ham_pwmode,pwemax,ldim=>nlmto,noutmx,nsp_in=>nsp,stdo, &
        alat=>lat_alat,nl,ctrl_nbas,ssite=>v_ssite,sspec=>v_sspec,n0,nkap0,zbak_read=>zbak
   use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
@@ -7,6 +7,7 @@ module m_hamindex         !all protected now
   use m_lmfinit,only:norbx,ltabx,ktabx,offlx
   use m_lgunit,only:stdo
   use m_ftox
+  public:: m_hamindex_init, Readhamindex, getikt
   integer,allocatable,public:: ib_table(:),k_table(:),l_table(:)
   integer,protected,public:: ngrpaf,ngrp_original,pwmode,ndham
   integer,protected,public:: nqi=NaN, nqnum=NaN, ngrp=NaN, lxx=NaN, kxx=NaN,norbmto=NaN, &
@@ -16,10 +17,8 @@ module m_hamindex         !all protected now
        iqimap(:),iqmap(:),igmap(:),invgx(:),miat(:,:),ibasindex(:), &
        igv2(:,:,:),napwk(:),igv2rev(:,:,:,:)
   real(8),allocatable,protected,public:: symops_af(:,:,:), ag_af(:,:), &
-       symops(:,:,:),ag(:,:),tiat(:,:,:),shtvg(:,:), dlmm(:,:,:,:),qq(:,:), &
-       qtt(:,:),qtti(:,:)
+       symops(:,:,:),ag(:,:),tiat(:,:,:),shtvg(:,:), dlmm(:,:,:,:),qq(:,:), qtt(:,:),qtti(:,:)
   real(8),protected,public:: plat(3,3)=NaN,qlat(3,3)=NaN,zbak
-  public:: m_hamindex_init, Readhamindex, getikt
   logical,protected,public:: readhamindex_init=.false.
   private
   logical,private:: debug=.false.
@@ -129,7 +128,6 @@ contains
        ib   = ibastab(iorb)
        is   = ssite(ib)%spec
        spid=sspec(is)%name
-       !         write(stdo,*)'ssssssssssss spid=',is,ib,spid,iorb
        ib_table(offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ib
        l_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ltab(iorb)
        k_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ktab(iorb)
@@ -169,7 +167,6 @@ contains
        if(master_mpi)write(stdo,"(' qq=',i5,3f10.5)") iq,qq(:,iq)
     enddo
     close(ifiqg)
-
     !! ==== Generate info for rotwv and write ====
     allocate(iqmap(nqtt),igmap(nqtt),iqimap(nqtt))
     platt= transpose(plat) !this is inverse of qlat
@@ -193,12 +190,11 @@ contains
              endif
           enddo
        enddo
-
        if(master_mpi) then
           write(stdo,"(a,3f7.3,2x,3f7.3)")'gen_ham: qtarget cannot found.'// &
                ' Need to add SYMGRP explicitly (for SO=1), or You have to delete inconsistent QGpsi. qtarget=',qtarget
-          print *,'gen_hamindex: qtarget can not found by SYMOPS.'
-          write(stdo,"('qq20 ',3d16.8,2x,3d16.8,2x,3d16.8)") q, qtarget, matmul(platt,(qtarget-matmul(symops(:,:,ig),q)) )
+          write(stdo,*)'gen_hamindex: qtarget can not found by SYMOPS.'
+          write(stdo,"('qq20 ',3d16.8,2x,3d16.8,2x,3d16.8)")q,qtarget,matmul(platt,(qtarget-matmul(symops(:,:,ig),q)))
           do ig=1,ngrp
              call rangedq( matmul(platt,(qtarget-matmul(symops(:,:,ig),q)) ), qx)
              write(stdo,"('qqqq2 ',3d16.8,2x,3d16.8,2x,3d16.8)") qtarget-matmul(symops(:,:,ig),q),qx
@@ -333,7 +329,6 @@ contains
     call tcx('m_hamindex_init')
   end subroutine m_hamindex_init
 
-
   ! SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
   !> get index ikt such that for qin(:)=qq(:,ikt)
   integer function getikt(qin) !return
@@ -375,9 +370,7 @@ contains
     if(napwmx/=0) then !for APW rotation used in rotwvigg
        write(ifi) igv2,napwk,igv2rev
     endif
-    ! xx
     write(ifi) alat,rv_a_opos
-
     close(ifi)
   end subroutine writehamindex
 
@@ -417,7 +410,6 @@ contains
     endif
     close(ifi)
   end subroutine readhamindex
-
 end module m_hamindex
 
 

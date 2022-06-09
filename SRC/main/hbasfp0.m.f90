@@ -99,7 +99,8 @@ program hbasfp0
   write(6,'(20i3)') lcutmxa(1:natom)
   lmx        = 2*(nl-1)
   lmx2       = (lmx+1)**2
-  nn         = maxnn (nindxv,nindxc,nl,nclass)
+  !nn         = maxnn (nindxv,nindxc,nl,nclass)
+  nn  =  maxval(nindxv(0:nl-1,1:nclass)+nindxc(0:nl-1,1:nclass))
   nphi       = nrx*nl*nn*nclass
 
   ! -optimal orthonormal product basis

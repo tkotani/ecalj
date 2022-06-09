@@ -9,16 +9,13 @@ subroutine cpudel(unit,strn,delt)
   !r Remarks
   !r   Uses cpusec
   ! ----------------------------------------------------------------------
-  ! Passed parameters
   character*(*) strn
   integer :: unit
   double precision :: delt
-  ! Local parameters
   character(1) :: timeu, outs(80)
   double precision :: cpusec,told,tnew
   save told
   data told /0d0/
-
   if (unit < -1) return
   tnew = cpusec()
   delt = tnew - told
@@ -32,12 +29,6 @@ subroutine cpudel(unit,strn,delt)
         tnew = tnew/60
      endif
   endif
-  !$$$      if (unit .ge. 0 .and. tnew .gt. 0d0) then
-  !$$$        outs = ' '
-  !$$$        write(outs,333) strn
-  !$$$        call awrit2('%a  %1;3,3g%53ptotal:  %1,3;3g'//timeu,
-  !$$$     .       outs,len(outs),-unit,delt,tnew)
-  !$$$      endif
   if (unit >= 0 .AND. tnew > 0d0) &
        write(unit,333) strn,delt,tnew,timeu
 333 format(' cpudel',a25,'  time(s):',g10.3,'  total:',f8.3,a1)
@@ -48,7 +39,6 @@ real(8) function cpusec()
   integer,save::i1
   integer:: i2,irate,imax
   real(8)::diff
-
   if (firsttime) then
      call system_clock(i1)
      firsttime=.false.

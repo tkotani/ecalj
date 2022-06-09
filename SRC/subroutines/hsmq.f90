@@ -248,8 +248,6 @@ subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dl
            h0d = sin(kappa*r)/r
            wk(1,lc+1) = wk(1,lc+1) - h0
            wk(2,lc+1) = wk(2,lc+1) - h0d
-           !           wk(1,lc)   = wk(1,lc) -
-           !           wk(2,lc)   = wk(2,lc) -
         else
            akap = dsqrt(-exi(ie))
            h0 = exp(-akap*r)/r
@@ -260,8 +258,7 @@ subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dl
         !     ... Generate -hsm(p,a,l>0) by upward recursion
         xx = 4*a*y0*dexp(-(akap/a/2)**2 - (r*a)**2)
         do  31  l = 1, lx(ie)
-           wk(1,l+lc+1) = ((2*l-1)*wk(1,l+lc) -exi(ie)*wk(1,l+lc-1) + xx) &
-                /wk(1,1)
+           wk(1,l+lc+1) = ((2*l-1)*wk(1,l+lc) -exi(ie)*wk(1,l+lc-1) + xx) /wk(1,1)
            !          print *, wk(1,l+lc+1)
            xx = 2*a**2*xx
 31      enddo

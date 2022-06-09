@@ -255,18 +255,23 @@ subroutine makdla(kbak,l,hcr,slo,val,rmax,phia,dla)
   !r Remarks:
   !r This was adapted from the Stuttgart third-generation LMTO package.
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! Passed variables:
-  integer :: l
+  implicit none
+  integer :: l,lmax,lx
   double precision :: kbak,hcr,slo,val,rmax,phia,dla
-  ! Local variables:
-  integer :: nlmax
+  integer :: nlmax,lmin
   parameter(nlmax=20)
   double precision :: er2,fi(0:nlmax+1),gi(0:nlmax+1),wn,wj,dlr,dj,dn, &
-       sigma,phi,rdphia,rdfi,rdgi
-  external bessl2
+       sigma,phi,rdphia,rdfi,rdgi, fac2l(0:l+1)
+  lmin=0
+  lmax=l+1
+  fac2l(0) = 1d0
+  do  lx = 1, lmax
+     fac2l(lx) = fac2l(lx-1) * (lx+lx-1)
+  enddo
   er2 = kbak*rmax*rmax
-  call bessl2(er2,0,l+1,fi(0),gi(0))
+  call bessl(er2,l+1,fi(0),gi(0)) !bessl2->bessl
+  fi(lmin:lmax) = fi(lmin:lmax)*fac2l(lmin:lmax)*0.5d0 !Andersen factor
+  gi(lmin:lmax) = gi(lmin:lmax)/fac2l(lmin:lmax)       !Andersen factor
   !     phi,dlr are value and logarithmic derivative r/phi dphi/dr at rmax
   !     free dlr=dj
   phi =  val/rmax
@@ -279,7 +284,9 @@ subroutine makdla(kbak,l,hcr,slo,val,rmax,phia,dla)
   wn  = (dlr-dn)*gi(l)*phi
   sigma = hcr/rmax
   er2 = kbak*hcr**2
-  call bessl2(er2,0,l+1,fi(0),gi(0))
+  call bessl(er2,l+1,fi(0),gi(0)) !call bessl2(er2,0,l+1,fi(0),gi(0))
+  fi(lmin:lmax) = fi(lmin:lmax)*fac2l(lmin:lmax)*0.5d0 !Andersen factor
+  gi(lmin:lmax) = gi(lmin:lmax)/fac2l(lmin:lmax)       !Andersen factor
   rdgi = l*gi(l) - gi(l+1)*(l+l+1)
   rdfi = l*fi(l) - fi(l+1)/(l+l+1)*er2
   phia   = 2d0*(wn*fi(l)*sigma**l - wj*gi(l)*sigma**(-l-1))

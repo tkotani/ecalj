@@ -1,5 +1,4 @@
 subroutine sylmnc(c,lmx)
-
   !- Normalization constants for the spherical harmonics
   ! ----------------------------------------------------------------
   !i Inputs
@@ -16,7 +15,6 @@ subroutine sylmnc(c,lmx)
   ! Local parameters
   integer :: i,i1,i2,l,lav,lp1,m,n1,n2,n3
   double precision :: fn2,fpi,tlp1,tpi,y0
-
   tpi = 8.d0*datan(1.d0)
   fpi = 2.d0*tpi
   y0 = 1.d0/dsqrt(fpi)

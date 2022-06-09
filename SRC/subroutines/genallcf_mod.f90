@@ -71,7 +71,7 @@ contains
     !! --------------------------------------------------------
     integer::incwfx,ifec,i,j, &
          lmx, lmx2,nlmto2,nprodxc,nlnaxc,nlnaxv,nprodx,ifi,ig,is &
-         ,nprodxv,nlnax,ix,ixoff,lx,maxnn
+         ,nprodxv,nlnax,ix,ixoff,lx
     !     & ,noflmto
     integer:: infwfx,ret, n1,n2,n3,imagw,n,ic
     logical :: nocore,readon
@@ -212,7 +212,8 @@ contains
     lmx2       = (lmx+1)**2
     nlmto      = noflmto(nindxv,iclass,nl,nclass,natom)
     nlmto2     = nlmto*nlmto
-    nn         = maxnn (nindxv,nindxc,nl,nclass)
+    !nn         = maxnn (nindxv,nindxc,nl,nclass)
+    nn  =  maxval(nindxv(0:nl-1,1:nclass)+nindxc(0:nl-1,1:nclass))
     !! combine nocc,nunocc,nindx
     allocate(nindx(nl,nclass),nocc(nl,nn,nclass),nunocc(nl,nn,nclass))
     call reindx  (occv,unoccv,nindxv, &
@@ -663,6 +664,17 @@ contains
 1   enddo
     return
   end function noflnm
+  ! integer function maxnn (nindxv,nindxc, nl,nclass)
+  !   implicit real*8 (a-h,o-z)
+  !   integer:: nindxv(nl*nclass),nindxc(nl*nclass)
+  !   integer:: i,ntot,nclass,nl
+  !   maxnn      = -1
+  !   do       i = 1,nl*nclass
+  !      ntot       = nindxv(i) + nindxc(i)
+  !      if (ntot > maxnn) maxnn = ntot
+  !   end do
+  ! end function maxnn
+ 
 end module m_genallcf_v3
 
 

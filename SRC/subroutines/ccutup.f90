@@ -57,8 +57,53 @@ SUBROUTINE CCUTUP(B0,B,IBTR,KCUT)
 221 enddo
   if (iprint() > 100) &
        WRITE(*,783) LXX,LYY,DSQRT(EDGMIN),DSQRT(EDGMAX)
-783 FORMAT(' LXX=',I1,'   LYY=',I1,'   EDGMIN=',F10.5, &
-       '   EDGMAX=',F10.5)
-
+783 FORMAT(' LXX=',I1,'   LYY=',I1,'   EDGMIN=',F10.5, '   EDGMAX=',F10.5)
 END SUBROUTINE CCUTUP
+
+SUBROUTINE CSHEAR(B0,B,IBTR)
+  !- Tries to make microcell more compact by shearing.
+  ! ----------------------------------------------------------------
+  !i Inputs
+  !i
+  !o Outputs
+  !o
+  !r Remarks
+  !r   Ibtr gives the transformation from bo to b.
+  ! ----------------------------------------------------------------
+  !      implicit none
+  ! Passed parameters
+  ! Local parameters
+  IMPLICIT double precision (A-H,O-Z)
+  integer:: ibtr,i,j
+  DIMENSION B(3,3),IBTR(3,3),B0(3,3)
+  !     logical print
+  DO  8  I = 1, 3
+     DO  7  J = 1, 3
+        B(J,I) = B0(J,I)
+        IBTR(J,I) = 0
+7    enddo
+     IBTR(I,I) = 1
+8 enddo
+END SUBROUTINE CSHEAR
+
+SUBROUTINE MXMYMZ(KIN,K,LX,LY,LZ)
+  !- Do mirrors in x,y,z if lx,ly,lz=1, respectively
+  ! ----------------------------------------------------------------
+  !i Inputs
+  !i
+  !o Outputs
+  !o
+  !r Remarks
+  !r
+  ! ----------------------------------------------------------------
+  !     implicit none
+  integer :: KIN(3),K(3),lx,ly,lz
+  K(1) = KIN(1)
+  K(2) = KIN(2)
+  K(3) = KIN(3)
+  IF (LX == 1) K(1) = 1-K(1)
+  IF (LY == 1) K(2) = 1-K(2)
+  IF (LZ == 1) K(3) = 1-K(3)
+  RETURN
+END SUBROUTINE MXMYMZ
 

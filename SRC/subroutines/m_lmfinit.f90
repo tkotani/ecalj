@@ -261,7 +261,7 @@ contains
     character(256)::  a,outs
     logical::  mlog=.false.
     integer:: lmxbj,lmxaj,nlbj
-    double precision :: vsn,vers,xv(2*n0)
+    double precision :: vsn,vers,xv(2*n0),xvv(3)
     character(256*16) :: bigstr=' '
     integer:: it
     !      logical :: parmxp
@@ -950,14 +950,13 @@ contains
        sw= tksw(prgnam,'SITE_ATOM_XPOS')
        nm='SITE_ATOM_POS'; call gtv(trim(nm),tksw(prgnam,nm),pos(:,j), &
             nout=nout,cindx=jj,note='Atom coordinates, cartesian in alat', or=(sw.ne.2))
-       if(nout==0 .OR. tksw(prgnam,'SITE_ATOM_POS')==2)then !nout=-1 if sw=2; otherwise nout=0 unless data was read
+       if(nout==0 .OR. tksw(prgnam,'SITE_ATOM_POS')==2)then
+          !nout=-1 if sw=2; otherwise nout=0 unless data was read
           nm='SITE_ATOM_XPOS'; call gtv(trim(nm),tksw(prgnam,nm),pos(:,j), &
-               cindx=jj,note='Atom coordinates, fractional in alat')
-          call dcopy(3,pos(1,j),1,xv,1)
-          call dmpy(plat,3,1,xv,3,1,pos(1,j),3,1,3,1,3)
+               cindx=jj,note='Atom POS. fractional coordinates')
+          xvv=pos(:,j)
+          pos(:,j)= matmul(plat,xvv) 
        endif
-       !         nm='SITE_ATOM_V0'; call gtv(trim(nm),tksw(prgnam,nm),vel(:,j),def_r8v=zerov,cindx=jj,
-       !     .        note='Initial velocity for molecular dynamics')
        nm='SITE_ATOM_RELAX'; call gtv(trim(nm),tksw(prgnam,nm),irlx(:,j), &
             def_i4v=(/(1,i=1,n0)/),cindx=jj,note= &
             'relax site positions (lattice dynamics) or Euler angles (spin dynamics)')

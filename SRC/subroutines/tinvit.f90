@@ -1,6 +1,136 @@
+
+subroutine tqlrat(n,d,e2,ierr)
+  integer :: i,j,l,m,n,ii,l1,mml,ierr
+  double precision :: d(n),e2(n)
+  double precision :: b=1d99,c=1d99,f,g=1d99,h,p,r,s,t,epslon,pythag
+  !     this subroutine is a translation of the algol procedure tqlrat,
+  !     algorithm 464, comm. acm 16, 689(1973) by reinsch.
+
+  !     this subroutine finds the eigenvalues of a symmetric
+  !     tridiagonal matrix by the rational ql method.
+
+  !     on input
+
+  !        n is the order of the matrix.
+
+  !        d contains the diagonal elements of the input matrix.
+
+  !        e2 contains the squares of the subdiagonal elements of the
+  !          input matrix in its last n-1 positions.  e2(1) is arbitrary.
+
+  !      on output
+
+  !        d contains the eigenvalues in ascending order.  if an
+  !          error exit is made, the eigenvalues are correct and
+  !          ordered for indices 1,2,...ierr-1, but may not be
+  !          the smallest eigenvalues.
+
+  !        e2 has been destroyed.
+
+  !        ierr is set to
+  !          zero       for normal return,
+  !          j          if the j-th eigenvalue has not been
+  !                     determined after 30 iterations.
+
+  !     calls pythag for  dsqrt(a*a + b*b) .
+
+  !     questions and comments should be directed to burton s. garbow,
+  !     mathematics and computer science div, argonne national laboratory
+
+  !     this version dated august 1983.
+
+  !     ------------------------------------------------------------------
+
+  ierr = 0
+  if (n == 1) go to 1001
+
+  do  i = 2, n
+     e2(i-1) = e2(i)
+  enddo
+
+  f = 0.0d0
+  t = 0.0d0
+  e2(n) = 0.0d0
+
+  do 290 l = 1, n
+     j = 0
+     h = dabs(d(l)) + dsqrt(e2(l))
+     if (t > h) go to 105
+     t = h
+     b = epslon(t)
+     c = b * b
+     !     .......... look for small squared sub-diagonal element ..........
+105  do 110 m = l, n
+        if (e2(m) <= c) go to 120
+        !     .......... e2(n) is always zero, so there is no exit
+        !                through the bottom of the loop ..........
+110  enddo
+
+120  if (m == l) go to 210
+130  if (j == 30) go to 1000
+     j = j + 1
+     !     .......... form shift ..........
+     l1 = l + 1
+     s = dsqrt(e2(l))
+     g = d(l)
+     p = (d(l1) - g) / (2.0d0 * s)
+     r = pythag(p,1.0d0)
+     d(l) = s / (p + dsign(r,p))
+     h = g - d(l)
+
+     do i = l1, n
+        d(i) = d(i) - h
+     enddo
+
+     f = f + h
+     !     .......... rational ql transformation ..........
+     g = d(m)
+     if (g == 0.0d0) g = b
+     h = g
+     s = 0.0d0
+     mml = m - l
+     !     .......... for i=m-1 step -1 until l do -- ..........
+     do 200 ii = 1, mml
+        i = m - ii
+        p = g * h
+        r = p + e2(i)
+        e2(i+1) = s * r
+        s = e2(i) / r
+        d(i+1) = h + s * (h + d(i))
+        g = d(i) - e2(i) / g
+        if (g == 0.0d0) g = b
+        h = g * p / r
+200  enddo
+
+     e2(l) = s * g
+     d(l) = h
+     !     .......... guard against underflow in convergence test ..........
+     if (h == 0.0d0) go to 210
+     if (dabs(e2(l)) <= dabs(c/h)) go to 210
+     e2(l) = h * e2(l)
+     if (e2(l) /= 0.0d0) go to 130
+210  p = d(l) + f
+     !     .......... order eigenvalues ..........
+     if (l == 1) go to 250
+     !     .......... for i=l step -1 until 2 do -- ..........
+     do 230 ii = 2, l
+        i = l + 2 - ii
+        if (p >= d(i-1)) go to 270
+        d(i) = d(i-1)
+230  enddo
+
+250  i = 1
+270  d(i) = p
+290 enddo
+  go to 1001
+  !     .......... set error -- no convergence to an
+  !                eigenvalue after 30 iterations ..........
+1000 ierr = l
+1001 return
+end subroutine tqlrat
+
 subroutine tinvit(nm,n,d,e,e2,m,w,ind,z, &
      ierr,rv1,rv2,rv3,rv4,rv6)
-
   integer :: i,j,m,n,p,q,r,s,ii,ip,jj,nm,its,tag,ierr,group
   double precision :: d(n),e(n),e2(n),w(m),z(nm,m), &
        rv1(n),rv2(n),rv3(n),rv4(n),rv6(n)
@@ -249,4 +379,58 @@ subroutine tinvit(nm,n,d,e,e2,m,w,ind,z, &
 1001 continue
   call tcx('tinvit')
 end subroutine tinvit
+
+real(8) function epslon (x)
+  double precision :: x
+  double precision :: a,b,c,eps
+
+  !     this program should function properly on all systems
+  !     satisfying the following two assumptions,
+  !        1.  the base used in representing floating point
+  !            numbers is not a power of three.
+  !        2.  the quantity  a  in statement 10 is represented to
+  !            the accuracy used in floating point variables
+  !            that are stored in memory.
+  !     the statement number 10 and the go to 10 are intended to
+  !     force optimizing compilers to generate code satisfying
+  !     assumption 2.
+  !     under these assumptions, it should be true that,
+  !            a  is not exactly equal to four-thirds,
+  !            b  has a zero for its last bit or digit,
+  !            c  is not exactly equal to one,
+  !            eps  measures the separation of 1.0 from
+  !                 the next larger floating point number.
+  !     the developers of eispack would appreciate being informed
+  !     about any systems where these assumptions do not hold.
+
+  !     this version dated 4/6/83.
+
+  a = 4.0d0/3.0d0
+10 b = a - 1.0d0
+  c = b + b + b
+  eps = dabs(c-1.0d0)
+  if (eps == 0.0d0) go to 10
+  epslon = eps*dabs(x)
+  return
+END function epslon
+
+double precision function pythag(a,b)
+  !     implicit none
+  double precision :: a,b
+  !     finds dsqrt(a**2+b**2) without overflow or destructive underflow
+  double precision :: p,r,s,t,u
+  p = dmax1(dabs(a),dabs(b))
+  if (p == 0.0d0) go to 20
+  r = (dmin1(dabs(a),dabs(b))/p)**2
+10 continue
+  t = 4.0d0 + r
+  if (t == 4.0d0) go to 20
+  s = r/t
+  u = 1.0d0 + 2.0d0*s
+  p = u*p
+  r = (s/u)**2 * r
+  go to 10
+20 pythag = p
+  return
+END function pythag
 

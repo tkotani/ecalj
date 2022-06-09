@@ -11,15 +11,14 @@ integer function iclbas(class,iclass)
   !     implicit none
   ! Passed parameters
   integer :: class,iclass(1)
-  ! Local parameters
   integer :: ibas
-
-  do  10  ibas = 1, 1000000
+  do  10  ibas = 1, 10000
      iclbas = ibas
      if (iclass(ibas) == class) return
 10 enddo
   call rx('ICLBAS: bad input')
 end function iclbas
+
 integer function iclbsj(ic,ipc,nbas,nrbas)
   !- Returns an index to nrbas atom in basis given the class
   ! ----------------------------------------------------------------------
@@ -35,12 +34,9 @@ integer function iclbsj(ic,ipc,nbas,nrbas)
   !u Updates
   !u   10 May 01 Returns -n rather than -1 when nrbas-th atom not found
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! Passed parameters
+  implicit none
   integer :: ic,nbas,ipc(*),nrbas
-  ! Local parameters
   integer :: ibas,n,nbasa
-
   iclbsj = 1
   n = 0
   nbasa = iabs(nbas)
@@ -51,14 +47,11 @@ integer function iclbsj(ic,ipc,nbas,nrbas)
         return
      endif
 10 enddo
-
   if (nbas < 0) then
      iclbsj = -n
      return
   endif
-
   call fexit3(-1,111,' Exit -1 ICLBSJ: sought atom no. %i'// &
        ' in class %i but only %i atoms exist',nrbas,ic,n)
-
 end function iclbsj
 

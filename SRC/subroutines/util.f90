@@ -1,3 +1,8 @@
+! Collection of utility routines and small math routines.
+real(8) function rydberg()
+  rydberg=13.6058d0
+END function rydberg
+
 integer function ifile_handle()
   !! find unused file handle
   implicit none
@@ -160,3 +165,528 @@ character(20) function xxt(num1,num2)
   if(num>99999) xxt = char(48+mod(num/100000,10))//xxt
   if(num>999999) call rx( ' xxt:can not produce')
 END function xxt
+
+real(8) function tripl(a,b,c)
+  !! == tripl (determinant of 3x3 matrix) ==
+  !     implicit none
+  double precision :: a(3),b(3),c(3)
+  tripl = a(1)*b(2)*c(3) + a(2)*b(3)*c(1) + a(3)*b(1)*c(2) &
+       -a(3)*b(2)*c(1) - a(2)*b(1)*c(3) - a(1)*b(3)*c(2)
+END function tripl
+
+subroutine cross(a,b,c)
+  implicit none
+  intent(in)  ::   a,b
+  intent(out) ::       c
+  real(8):: a(3),b(3),c(3)
+  c(1)=a(2)*b(3)-a(3)*b(2)
+  c(2)=a(3)*b(1)-a(1)*b(3)
+  c(3)=a(1)*b(2)-a(2)*b(1)
+  return
+end subroutine cross
+
+!> This is a replacement of dinv33 of Ferdi's GW  => dinv33(plat,1,qlat,det)
+!! the SAME as the one of dinv33 in extens.f in ferdi/lmto/extens.f
+subroutine minv33tp(  plat,qlat)
+  implicit none
+  real(8),intent(in)::  plat(3,3)
+  real(8),intent(out):: qlat(3,3)
+  real(8):: det
+  call cross(plat(1,2),plat(1,3), qlat     )
+  call cross(plat(1,3),plat     , qlat(1,2))
+  call cross(plat     ,plat(1,2), qlat(1,3))
+  det  = sum( plat(1:3,1)*qlat(1:3,1) )
+  qlat = qlat/det
+end subroutine minv33tp
+
+!>- Inverts 3X3 matrix
+subroutine minv33(matrix,inverse)
+  !o Outputs
+  !o   inverse, as modified according to iopt
+  !o   det:      determinant
+  implicit none
+  !      integer:: iopt=0
+  real(8), intent(in) :: matrix(3,3)
+  real(8), intent(out) :: inverse(3,3)
+  real(8) :: det,ddot
+  call cross(matrix(1,2),matrix(1,3),inverse     )
+  call cross(matrix(1,3),matrix     ,inverse(1,2))
+  call cross(matrix     ,matrix(1,2),inverse(1,3))
+  det = ddot(3,matrix,1,inverse,1)
+  if (abs(det) ==0d0) call rx( 'minv33: vanishing determinant')
+  inverse = transpose(inverse)
+  inverse = inverse/det
+end subroutine minv33
+
+subroutine dinv33(matrix,iopt,invrse,det)
+  !- Inverts 3x3 matrix
+  ! ----------------------------------------------------------------
+  !i Inputs
+  !i   matrix:  matrix to be inverted
+  !i   iopt:  if 0, usual inverse
+  !i             1, transpose of inverse
+  !i             2, 2*pi*inverse
+  !i             3, 2*pi*transpose of inverse
+  !o Outputs
+  !o   invrse    see iopt
+  !o   det:      determinant, or det/2*pi (sign ok ??)
+  !r Remarks
+  !r   To generate reciprocal lattice vectors, call dinv33(plat,3,rlat)
+  ! ----------------------------------------------------------------
+  implicit none
+  integer :: iopt,i,j
+  double precision :: matrix(3,3),invrse(3,3),det,ddot
+  double precision :: xx
+  call cross(matrix(1,2),matrix(1,3),invrse     )
+  call cross(matrix(1,3),matrix     ,invrse(1,2))
+  call cross(matrix     ,matrix(1,2),invrse(1,3))
+  det = ddot(3,matrix,1,invrse,1)
+  if (det == 0d0) call rx('INV33: vanishing determinant')
+  if (iopt >= 2) det = det/(8*datan(1d0))
+  if (mod(iopt,2) == 0) then
+     do    i = 1, 3
+        do  j = i+1, 3
+           xx = invrse(i,j)
+           invrse(i,j) = invrse(j,i)
+           invrse(j,i) = xx
+        enddo
+     enddo
+  endif
+  call dscal(9,1/det,invrse,1)
+end subroutine dinv33
+
+subroutine dpcopy(afrom,ato,n1,n2,fac)
+  !- Copy and scale a portion of a vector
+  !     implicit none
+  integer :: n1,n2,i
+  double precision :: afrom(1),ato(1),fac
+  if (fac /= 1d0) goto 100
+  call dcopy(n2-n1+1,afrom(n1),1,ato(n1),1)
+  return
+100 continue
+  do    i = n1, n2
+     ato(i) = fac*afrom(i)
+  enddo
+end subroutine dpcopy
+
+subroutine cinit(array,leng)
+  !- Initializes complex array to zero
+  integer :: leng
+  real :: array(2*leng)
+  call ainit(array,leng+leng)
+end subroutine cinit
+subroutine zinit(array,leng)
+  !- Initializes complex array to zero
+  integer :: leng
+  double precision :: array(2*leng)
+  call dpzero(array,leng+leng)
+end subroutine zinit
+subroutine iinit(array,leng)
+  !- Initializes integer array to zero
+  integer :: leng,i
+  integer :: array(leng)
+  do   i=1, leng
+     array(i) = 0
+  enddo
+end subroutine iinit
+subroutine ainit(array,leng)
+  !- Initializes real array to zero
+  integer :: leng,i
+  real :: array(leng)
+  do   i=1, leng
+     array(i) = 0
+  enddo
+end subroutine ainit
+subroutine dpzero(array,leng)
+  !- Initializes double precision array to zero
+  integer :: leng,i
+  double precision :: array(leng)
+  do   i=1, leng
+     array(i) = 0
+  enddo
+end subroutine dpzero
+real function rval(array,index)
+  integer :: index
+  !- Returns the real value of ARRAY(INDEX)
+  real :: array(index)
+  rval = array(index)
+end function rval
+real(8) function dval(array,index)
+  integer :: index
+  !- Returns the double precision value of ARRAY(INDEX)
+  double precision :: array(index)
+  dval = array(index)
+END function dval
+integer function ival(array,index)
+  !- Returns the integer value of ARRAY(INDEX)
+  integer :: index
+  integer :: array(index)
+  ival = array(index)
+end function ival
+integer function ival2(array,nda,i1,i2)
+  !- Returns the integer value of ARRAY(i1,i2)
+  !     implicit none
+  integer :: nda,i1,i2,array(nda,1)
+  ival2 = array(i1,i2)
+end function ival2
+logical function logval(array,index)
+  !- Returns the integer value of ARRAY(INDEX)
+  integer :: index
+  logical :: array(index)
+  logval = array(index)
+end function logval
+complex function cval(array,index)
+  !- Returns the complex value of ARRAY(INDEX)
+  integer :: index
+  complex :: array(index)
+  cval = array(index)
+end function cval
+subroutine dvset(array,i1,i2,val)
+  !- Sets some elements of double precision array to value
+  integer :: i1,i2
+  double precision :: array(i2),val
+  integer :: i
+  do   i = i1, i2
+     array(i) = val
+  enddo
+end subroutine dvset
+subroutine ivset(array,i1,i2,val)
+  !- Sets some elements of integer array to value
+  integer :: i1,i2,array(1),val,i
+  do   i = i1, i2
+     array(i) = val
+  enddo
+end subroutine ivset
+subroutine lvset(array,i1,i2,val)
+  !- Sets some elements of logical array to value
+  integer :: i1,i2,i
+  logical :: array(1),val
+  do  i = i1, i2
+     array(i) = val
+  enddo
+end subroutine lvset
+
+subroutine dpscop(afrom,ato,nel,n1,n2,fac)
+  !- shift and copy.
+  !i nel number of elements
+  !i n1  offset in afrom
+  !i n2  ofset in ato
+  !     implicit none
+  integer :: n1,n2,i,iadd,ntop,nel
+  double precision :: afrom(1),ato(1),fac
+  if (fac /= 1d0) goto 100
+  call dcopy(nel,afrom(n1),1,ato(n2),1)
+  return
+  ! --- fac not unity ---
+100 continue
+  iadd = n2-n1
+  ntop = n1+nel-1
+  do    i = n1, ntop
+     ato(i+iadd) = fac*afrom(i)
+  enddo
+end subroutine dpscop
+
+!> taken from https://community.intel.com/t5/Intel-Fortran-Compiler/Weird-Fortran/td-p/1185072?
+!> for f90
+function i1mach(i) result(s)
+  implicit none
+  integer :: i,s
+  s=99999
+  if(i==2 .OR. i==4) then
+     s=6
+  elseif(i==9) then
+     s=huge(0)
+  else
+     call rx('i1mach not defined')
+  endif
+end function i1mach
+!$$$Cr Remarks
+!$$$C   dmach(1-3) are as returned by the BLAS subroutine dmach and are
+!$$$C   defined as follows.
+!$$$C        b = base of arithmetic
+!$$$C        t = number of base b digits
+!$$$C        l = smallest possible exponent
+!$$$C        u = largest possible exponent
+!$$$C   dmach(1): eps = b**(1-t)
+!$$$C   dmach(2): tiny = 100.0*b**(-l+t)
+!$$$C   dmach(3): huge = 0.01*b**(u-t)
+!$$$C
+!$$$C   d1mach(1-5) are as returned by the BLAS subroutine d1mach and are
+!$$$C   defined as follows.
+!$$$C   d1mach(1) = b**(l-1), the smallest positive magnitude.
+!$$$C   d1mach(2) = b**(u*(1 - b**(-t))), the largest magnitude.
+!$$$C   d1mach(3) = b**(-t), the smallest relative spacing.
+!$$$C   d1mach(4) = b**(1-t), the largest relative spacing.
+!$$$C   d1mach(5) = log10(b)
+!$$$C   d1mach and dmach call the C segment mkcon found in fsubs.c
+!$$$C ----------------------------------------------------------------------
+function d1mach(i) result(s)
+  implicit none
+  integer:: i
+  double precision :: s,dm(5)
+  logical :: beg = .true.
+  save dm
+  s=1d99
+  if(i < 1 .OR. i > 5)stop 'D1MACH(arg < 1 or arg > 5)'
+  if(beg)then
+     beg=.false.
+     dm(1) = tiny(0d0)
+     dm(2) = huge(0d0)
+     dm(3) = epsilon(0d0)/radix(0d0)
+     dm(4) = epsilon(0d0)
+     dm(5) = log10(2d0)
+  end if
+  s = dm(i)
+  return
+end function d1mach
+! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+function dmach(i) result(s)
+  implicit none
+  integer:: i
+  double precision :: s,dm(5)
+  logical :: beg = .true.
+  real(8):: t,b,l,u,dlamch,eps
+  save dm
+  if(i < 1 .OR. i > 3)stop 'DMACH(arg < 1 or arg > 3)'
+  if(beg)then
+     beg=.false.
+     !     machine constant from lapack routine
+     b = dlamch('b')        !base
+     eps = dlamch('p')      !eps*base
+     l = dlamch('m')        !emin
+     u = dlamch('l')        !emax
+     t = int(1d0-(log(eps)/log(b)))
+     dm(1) = b**(1d0-t)
+     dm(2) = 100d0*b**(l+t)
+     dm(3) = (b**(u-t))/100d0
+  endif
+  s = dm(i)
+  return
+end function dmach
+
+integer function isw(sw) ! Returns integer 0 logical sw is false, 1 if true
+  logical :: sw
+  isw = 0
+  if (sw) isw = 1
+end function isw
+
+module NaNum
+  real(8),parameter :: NaN = -9999999
+!  contains
+!    subroutine naninit()
+!    use, intrinsic :: ieee_arithmetic
+!    NaN=ieee_value(1d0,IEEE_QUIET_NAN)
+!  end subroutine naninit
+end module NaNum
+
+subroutine icopy(n,dx,incx,dy,incy)
+  !     copies a vector, x, to a vector, y.  Adapted from:
+  !     jack dongarra, linpack, 3/11/78.
+  integer :: dx(1),dy(1)
+  integer :: i,incx,incy,ix,iy,n
+  ix = 1
+  iy = 1
+  if (incx < 0) ix = (1-n)*incx + 1
+  if (incy < 0) iy = (1-n)*incy + 1
+  do  10  i = 1, n
+     dy(iy) = dx(ix)
+     ix = ix + incx
+     iy = iy + incy
+10 enddo
+end subroutine icopy
+
+subroutine gettime(datim)
+  !     implicit none
+  character datim*(*)
+  datim = ' '
+  call ftime(datim)
+end subroutine gettime
+
+integer(4) function nwordr()
+  real(8):: r
+  integer(4):: len
+  !      nword = 4 ! in alpha
+  !      nword =1 ! in AIX
+  !      nword=NWORD_RECORDSIZE
+  inquire(iolength=len) r
+  nwordr = 8/len
+  !      write(6,*)' nword=',nword
+END function nwordr
+
+integer function mxint(n,ivec)
+  !- Return the largest integer in ivec
+  !     implicit none
+  integer :: n,ivec(n)
+  integer :: imax,i
+  mxint = 0
+  if (n <= 0) return
+  imax = ivec(1)
+  do   i = 1, n
+     imax = max(imax,ivec(i))
+  enddo
+  mxint = imax
+end function mxint
+
+real(8) function dot3(n,a,b,c)
+  integer :: n,i
+  double precision :: a(n),b(n),c(n),xx
+  xx = 0d0
+  do    i = 1, n
+     xx = xx + a(i)*b(i)*c(i)
+  enddo
+  dot3 = xx
+END function dot3
+
+subroutine shoist(istab,nbas,ag,g,ng)
+  use m_lgunit,only:stdo
+  !- Show istab
+  !     implicit none
+  integer :: ng,nbas
+  double precision :: g(3,3,ng),ag(3,ng)
+  integer :: istab(nbas,ng)
+  integer :: i,ig
+  write(stdo,*)'  ib  istab ...'
+  do  30  i = 1, nbas
+     write(stdo,333) i, (istab(i,ig), ig=1,ng)
+333  format(i4,':',48i3)
+30 enddo
+end subroutine shoist
+
+subroutine poseof(iunit)
+  !- Positions file handle at end-of-file
+  integer :: iunit
+  integer :: i,nrec
+  nrec = 0
+  rewind iunit
+  do  10  i = 1, 100000000
+     read(iunit,"(a1)",end=90,err=91)
+     nrec = i
+10 enddo
+  write(*,"(' POSEOF: no EOF found for file',i3)") iunit
+  return
+90 continue
+  backspace iunit
+91 continue
+end subroutine poseof
+
+SUBROUTINE GTBVEC(K,B,SHIFT,V)
+  !     implicit none
+  integer :: K(3)
+  double precision :: V(3),B(3,3),SHIFT(3)
+  V(1) = SHIFT(1) + K(1)*B(1,1) + K(2)*B(1,2) + K(3)*B(1,3)
+  V(2) = SHIFT(2) + K(1)*B(2,1) + K(2)*B(2,2) + K(3)*B(2,3)
+  V(3) = SHIFT(3) + K(1)*B(3,1) + K(2)*B(3,2) + K(3)*B(3,3)
+END SUBROUTINE GTBVEC
+
+logical function isanrg(i,i1,i2,t1,t2,lreqd)
+  logical :: lreqd
+  integer :: i,i1,i2,lgunit,iprint,k1,k2,it1
+  character*(*) t1,t2
+  character strn*80,strn2*80,t3*30
+  if (i>=i1 .AND. i<=i2) return
+  call rx(trim(t1)//' '//trim(t2))
+end function isanrg
+
+subroutine fsanrg(f,f1,f2,tol,t1,t2,lreqd)
+  logical :: lreqd
+  double precision :: f,f1,f2,tol
+  character*(*) t1,t2
+  character strn*100,strn2*100,t3*30
+  if (f>=f1 .AND. f<=f2) return
+  if (f1==f2 .AND. f>=f1-tol/2d0 .AND. f<=f2+tol/2d0) return
+  call rx(trim(t1)//' '//trim(t2))
+end subroutine fsanrg
+
+subroutine strip(str,i1,i2) !- Returns indices to first and last nonblank characters in a string
+  implicit none
+  integer :: i1,i2
+  character*(*) str
+  integer :: i
+  i1 = 0
+  do  i = 1, len(str)
+     if(str(i:i) /= ' ') then
+        i1 = i
+        goto 2
+     endif
+  enddo
+  i1 = 1
+  i2 = 0
+  return
+2 continue
+  i2 = len(str) + 1
+  do  i = len(str), 1, -1
+     if(str(i:i) /= ' ') then
+        i2 = i
+        exit
+     endif
+  enddo
+end subroutine strip
+
+subroutine setfac(n,fac) !- set up array of factorials.
+  implicit none
+  integer :: n,i
+  double precision :: fac(0:n)
+  fac(0) = 1d0
+  do    i = 1, n
+     fac(i) = i*fac(i-1)
+  enddo
+end subroutine setfac
+
+subroutine stdfac(n,df) !- Set up array of double factorials.
+  !  for odd numbers,  makes 1*3*5*..*n
+  !  for even numbers, makes 2*4*6*..*n
+  implicit none
+  integer :: n,i
+  double precision :: df(0:n)
+  df(0) = 1d0
+  df(1) = 1d0
+  do  i = 2, n
+     df(i) = i*df(i-2)
+  enddo
+end subroutine stdfac
+
+integer function nargf()
+  integer :: iargc
+  nargf = iargc() + 1
+end function nargf
+
+subroutine ftime(datim)!fortran-callable date and time
+  character datim*(*)
+  call fdate(datim)
+  datim=datim(1:24) !takao. If this is not, write(6,*) gives CR at the ene of datim*26.
+end subroutine ftime
+
+! These routines are taken from Ferdi's rw.f
+subroutine readx(ifil,n)
+  integer::ifil,n,i,j
+  character(72) :: rchar
+  do 10 i = 1,n
+     read(ifil,*)rchar
+     j       = 0
+     rchar=trim(adjustl(rchar))
+     if(rchar(1:3) == '***')return
+     if(rchar(1:3) == '###')return
+10 enddo
+  call rx( 'readx: cannot find the string(rw.f)')
+end subroutine readx
+
+subroutine rwdd (ifi, ldim,n, a)
+  ! 92.02.07
+  ! direct access read (ifi>0) or write (ifi<0)
+  ! ldim = leading dimension of a
+  implicit real*8  (a-h,o-z)
+  integer:: ldim,n,ifi,j,i
+  dimension a(ldim,n)
+  if (ifi == 0) call rx( 'rwdd: ifi == 0')
+  if (ifi > 0) then
+     do       j = 1,n
+        read (ifi,rec=j) (a(i,j),i=1,ldim)
+     end do
+  elseif (ifi < 0) then
+     do       j = 1,n
+        write (-ifi,rec=j) (a(i,j),i=1,ldim)
+     end do
+  endif
+  return
+end subroutine rwdd
+

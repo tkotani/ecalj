@@ -94,6 +94,7 @@ contains
     !     if (nf_input.ne.0) then
     !     inquire(nf_input,opened=L)
     !     takao aug2005. This is because nf_input might be closed and opened in other part---
+    unusedfid=-9999
     inquire(opened=L,file=filename0)
     if (L) then
        call  getkeyvalue_err_exit( &

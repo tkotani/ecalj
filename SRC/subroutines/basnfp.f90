@@ -81,10 +81,10 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, &
   integer(4):: nc_max(0:nl-1),nnn, smbasis_case
   character(len=100):: recxxx
   character(len=160):: recxxx2
-  integer(4):: npbasmax(0:2*(nl-1)),ifinin,iax,izz,naxx,verbose
-  integer(4),allocatable:: ipx(:,:)
+  integer:: npbasmax(0:2*(nl-1)),ifinin,iax,izz,naxx,verbose
+  integer,allocatable:: ipx(:,:)
   real(8):: bb1,bb1s,aa_in,bb_in
-  integer(4):: nl2m1,nrofi_in,ifile_handle
+  integer:: nl2m1,nrofi_in,ifile_handle
   !-------------------------------------------
   print *,' basnfp_v2: ********** start ******** nrofi=',nrofi
   !      if(iread==1) goto 2001
@@ -295,7 +295,6 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, &
         do i=1,nzz !nq0i
            ix=ix+1
            if(i<= nq0i) then
-              !              read (ifq0p, * ) wqt(i),q0i(1:3,i)
               absqg2x(ix) =sum( (2*pi/alat *q0i(1:3,i))**2) !bug 30jan2005 ---q0i(q:3,nq0i)
            else
               absqg2x(ix) = absqg2x(1)*i*2
@@ -320,24 +319,17 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, &
               if(ix>1) call addd(absqg2x(ix),absqg2x,ix-1)
            endif
         enddo
-
      endif
      !      neps = nq0i - nq0ix
+     fac2l: block
+       integer:: fac2l(0:lxx)
+     fac2l(0) = 1d0
+     do  lx = 1, lxx
+        fac2l(lx) = fac2l(lx-1) * (lx+lx-1)
+     enddo
      nxxx = ix
-     !        deallocate(wqt,q0i)
-     !        close(ifq0p)
-     !      write(6,*)"----- read end of Q0P -----"
-     ! ccccccccccccccccccccc q near zero test end
-     !     nxxx= 4
-     !      allocate( wqt(1:nq0i),q0i(1:3,1:nq0i),absqg2x(nq0i) )
-     !      absqg2x(1) = 3.66707D+00
-     !      absqg2x(2) = 2.94331D+00
-     !      absqg2x(3) = 0.628174D+01
-     !      absqg2x(4) = 0.703180D+01
-     ! ccccccccccccccccccccccccccccccccccccccccccccccccc
      iprad = 0
      nxx = 0
-
      do lx = 0, lxx
         if(lx >lcutmx) cycle  ! Lmax cutoff for product basis
         do n1 = 1, nxxx
@@ -347,29 +339,28 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, &
            ipx(lx, nxx(lx)) = iprad
            absqg2 = absqg2x(n1)
            do ir =1,nrofi
-              call bessl2x(absqg2*r(ir)**2,max(2,lx),phij,psij) !second argument must be larger than 1.
+              lxx=max(2,lx)
+              call bessl(absqg2*r(ir)**2,lxx,phij,psij)!lmin must be larger than 1,right?
+              phij(0:lxx) = phij(0:lxx)*fac2l(0:lxx)*0.5d0 !Andersen factor
+              psij(0:lxx) = psij(0:lxx)/fac2l(0:lxx)       !Andersen factor
+             !call bessl2x(absqg2*r(ir)**2,max(2,lx),phij,psij)!second argument must be larger than 1.
               rprod(ir,iprad) = phij(lx)* r(ir) **(lx +1)
            enddo
            print *,' sumchk rprod=',lx,n1,sum(abs(rprod(1:nrofi,iprad)))
-           ! cccccccccccccccccccc
-           !        if(lx==8) then
-           if(verbose()>60) then
+           if(.false.) then !verbose()>60) then
               write(3100+ic,"(' -- -- -- ',3i3,' --- ' )") lx,n1
               do ir =1,nrofi
-                 write(3100+ic,"(d13.5,2x,2d18.8)") &
-                      r(ir), rprod(ir,iprad)
+                 write(3100+ic,"(d13.5,2x,2d18.8)") r(ir), rprod(ir,iprad)
               enddo
            endif
-           !        endif
-           ! cccccccccccccccccc
         enddo
      enddo
+     end block fac2l
      nprad=iprad
      print *, ' *** TEST nprad=',nprad
      print *, ' nxx =',nxx(0:lxx)
   endif
   ! ccccccccc end of ptest ccccccccccccccccccccccccccccccccccccccccccccccc
-
 
   ! sanity check
   if(maxval(nxx(0:2*(nl-1)))>nxxmx) call rx(' basnfp: nxx >nxxmx --- Enlarge nxxmx in basnfp.f')
@@ -492,17 +483,27 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, &
   ! cccccccccccc test2 ccccccccccccccccccccccccccccccccccccccccccc
   if( .FALSE. ) then
      allocate(rprodx2(nrx,nxxx,0:lxx))
+     fac2l2: block
+       integer:: fac2l(0:lxx)
+     fac2l(0) = 1d0
+     do  lx = 1, lxx
+        fac2l(lx) = fac2l(lx-1) * (lx+lx-1)
+     enddo
      do n  =1,nxxx
         if(n==1) absqg2 = 2.524974**2
         !       if(n==2) absqg2 = 2.598177**2
         if(n==2) absqg2 =  .612396**2
         do ir =1,nrofi
-           call bessl2x(absqg2*r(ir)**2, lxx, phij, psij)
+           !call bessl2x(absqg2*r(ir)**2, lxx, phij, psij)
+           call bessl(absqg2*r(ir)**2, lxx, phij, psij)
+           phij(0:lxx) = phij(0:lxx)*fac2l(0:lxx)*0.5d0 !Andersen factor
+           psij(0:lxx) = psij(0:lxx)/fac2l(0:lxx)       !Andersen factor
            do l = 0, lxx
               rprodx2(ir,n,l) = phij(l)* r(ir) **(l +1 )
            enddo
         enddo
      enddo
+     end block fac2l2
      do l   = 0, lxx
         !       rprodx2(1:nrofi,1,l)= rprodx2(1:nrofi,1,l)  + rprodx2(1:nrofi,2,l)
         n = 1
@@ -788,110 +789,109 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, &
   return
 end subroutine basnfp_v2
 
-! ----------------------------------------------------------------
-subroutine bessl2x(y,lmax,phi,psi)
-  ! ote --- what the difference from nfpsrc/bessl? : I think essentially the same.
-  !- Radial part of Bessel functions
-  ! ----------------------------------------------------------------
-  !i Inputs
-  !i   Y = E * R**2;  lmax
-  !o Outputs
-  !o   phi:  first (lmax+1) spherical bessel functions / r^l
-  !o         for e -> 0 returns phi(l) = 1/(2l+1)!!
-  !o   psi:  first (lmax+1) spherical hankel functions * r^(l+1)
-  !o         for e -> 0 returns psi(l) = (2l-1)!!
-  !r Remarks
-  ! xxx   Andersen's definition in the limit E->0:
-  ! xxx   bessel phi(OKA) is phi * (2l-1)!!/2  and
-  ! xxx   hankel psi(OKA) is psi / (2l-1)!!, making
-  ! xxx   H(OKA) = r^-l-1 and  J(OKA) = r^l/(2(2l+1))
-  ! ----------------------------------------------------------------
-  !     implicit none
-  integer :: lmax
-  double precision :: y
-  double precision :: phi(lmax+1),psi(lmax+1)
-  integer :: i,isn,j1,j2,k,l,lmux,lmuxp1,lmuxp2,lp1,nf,tlp1,tmp1,tmp2
-  double precision :: dt,dt1,dt2,exppr,my,srmy,t,t1,tol
-  double precision :: dum(420)
-  !C#ifdef OKA
-  !C A table of (2l-1)!!
-  !      integer fac2l(10)
-  !      data fac2l /1,1,3,15,105,945,10395,135135,2027025,34459425/
-  !C#endif
-  real(8):: fac2l
-  lmux = max0(lmax,2)
-  if (lmux > 9) call rx( 'bessl2: lmax gt 9')
-  tol = 1.d-8
-  my = -y
-  l = lmux
-1 tlp1 = l+l+1
-  i = 1
-  do  2  k = 3, tlp1, 2
-     i = i*k
-2 enddo
-  t1 = 1.d0/dble(i)
-  dt = 1.d0
-  t = 1.d0
-  i = 0
-  do  3  k = 1, 10000
-     i = i+2
-     dt1 = i
-     dt2 = i+tlp1
-     dt = dt*my/(dt1*dt2)
-     t = t+dt
-     if (dabs(dt) < tol) goto 4
-3 enddo
-  goto 10
-4 if (l < lmux) goto 5
-  dum(1) = t1*t
-  l = lmux-1
-  goto 1
-5 dum(2) = t1*t
-  tmp1 = lmux + lmux + 1
-  tmp2 = tmp1 + 1
-  nf = tmp1
-  do  6  k = 3, tmp2
-     nf = nf-2
-     dum(k) = nf*dum(k-1) - y*dum(k-2)
-6 enddo
-  lmuxp1 = lmux+1
-  lmuxp2 = lmux+2
-  isn = -1
-  do  7  k = 1, lmuxp1
-     isn = -isn
-     j1 = lmuxp2-k
-     j2 = lmuxp1+k
-     phi(k) = dum(j1)
-     psi(k) = dum(j2)*isn
-7 enddo
-  if (y >= 0d0) goto 40
-  ! ------- NEGATIVE ENERGY CASE ----------
-  srmy = dsqrt(-y)
-  psi(2) = 1.d0+srmy
-  psi(1) = 1.d0
-  if (lmux < 2) goto 23
-  tlp1 = 1
-  do  21  lp1 = 3, lmuxp1
-     tlp1 = tlp1+2
-     psi(lp1) = tlp1*psi(lp1-1) - y*psi(lp1-2)
-21 enddo
-23 exppr = 1.d0/dexp(srmy)
-  do  22  lp1 = 1, lmuxp1
-     psi(lp1) = psi(lp1)*exppr
-22 enddo
-  ! -------- EXIT --------
-40 continue
-  ! ifdef OKA
-  do  42  lp1 = 1, lmuxp1
-     phi(lp1) = (phi(lp1)*fac2l(lp1))/2
-     psi(lp1) =  psi(lp1)/fac2l(lp1)
-42 enddo
-  ! endif
-  return
-10 write(*,11) y
-11 format(' BESSL2: power series not convergent, E*r**2=',e12.4)
-  call rx( '')
-end subroutine bessl2x
+! ! ----------------------------------------------------------------
+! subroutine bessl2x(y,lmax,phi,psi) !I think this is equilavent to bessl2(y,0,lmax,phi,psi)
+!   !- Radial part of Bessel functions
+!   ! ----------------------------------------------------------------
+!   !i Inputs
+!   !i   Y = E * R**2;  lmax
+!   !o Outputs
+!   !o   phi:  first (lmax+1) spherical bessel functions / r^l
+!   !o         for e -> 0 returns phi(l) = 1/(2l+1)!!
+!   !o   psi:  first (lmax+1) spherical hankel functions * r^(l+1)
+!   !o         for e -> 0 returns psi(l) = (2l-1)!!
+!   !r Remarks
+!   ! xxx   Andersen's definition in the limit E->0:
+!   ! xxx   bessel phi(OKA) is phi * (2l-1)!!/2  and
+!   ! xxx   hankel psi(OKA) is psi / (2l-1)!!, making
+!   ! xxx   H(OKA) = r^-l-1 and  J(OKA) = r^l/(2(2l+1))
+!   ! ----------------------------------------------------------------
+!   implicit none
+!   integer :: lmax
+!   double precision :: y
+!   double precision :: phi(lmax+1),psi(lmax+1)
+!   integer :: i,isn,j1,j2,k,l,lmux,lmuxp1,lmuxp2,lp1,nf,tlp1,tmp1,tmp2
+!   double precision :: dt,dt1,dt2,exppr,my,srmy,t,t1,tol
+!   double precision :: dum(420)
+!   !C#ifdef OKA
+!   !C A table of (2l-1)!!
+!   !      integer fac2l(10)
+!   !      data fac2l /1,1,3,15,105,945,10395,135135,2027025,34459425/
+!   !C#endif
+!   real(8):: fac2l
+!   lmux = max0(lmax,2)
+!   if (lmux > 9) call rx( 'bessl2: lmax gt 9')
+!   tol = 1.d-8
+!   my = -y
+!   l = lmux
+! 1 tlp1 = l+l+1
+!   i = 1
+!   do  2  k = 3, tlp1, 2
+!      i = i*k
+! 2 enddo
+!   t1 = 1.d0/dble(i)
+!   dt = 1.d0
+!   t = 1.d0
+!   i = 0
+!   do  3  k = 1, 10000
+!      i = i+2
+!      dt1 = i
+!      dt2 = i+tlp1
+!      dt = dt*my/(dt1*dt2)
+!      t = t+dt
+!      if (dabs(dt) < tol) goto 4
+! 3 enddo
+!   goto 10
+! 4 if (l < lmux) goto 5
+!   dum(1) = t1*t
+!   l = lmux-1
+!   goto 1
+! 5 dum(2) = t1*t
+!   tmp1 = lmux + lmux + 1
+!   tmp2 = tmp1 + 1
+!   nf = tmp1
+!   do  6  k = 3, tmp2
+!      nf = nf-2
+!      dum(k) = nf*dum(k-1) - y*dum(k-2)
+! 6 enddo
+!   lmuxp1 = lmux+1
+!   lmuxp2 = lmux+2
+!   isn = -1
+!   do  7  k = 1, lmuxp1
+!      isn = -isn
+!      j1 = lmuxp2-k
+!      j2 = lmuxp1+k
+!      phi(k) = dum(j1)        !memo: corresponding to fi in besslr (2022-6-10 tk)
+!      psi(k) = dum(j2)*isn
+! 7 enddo
+!   if (y >= 0d0) goto 40
+!   ! ------- NEGATIVE ENERGY CASE ----------
+!   srmy = dsqrt(-y)
+!   psi(2) = 1.d0+srmy
+!   psi(1) = 1.d0
+!   if (lmux < 2) goto 23
+!   tlp1 = 1
+!   do  21  lp1 = 3, lmuxp1
+!      tlp1 = tlp1+2
+!      psi(lp1) = tlp1*psi(lp1-1) - y*psi(lp1-2)
+! 21 enddo
+! 23 exppr = 1.d0/dexp(srmy)
+!   do  22  lp1 = 1, lmuxp1
+!      psi(lp1) = psi(lp1)*exppr
+! 22 enddo
+!   ! -------- EXIT --------
+! 40 continue
+!   ! ifdef OKA 
+!   do  42  lp1 = 1, lmuxp1
+!      phi(lp1) = (phi(lp1)*fac2l(lp1))/2d0 !memo loka=1 case (do 68) of besslr (2022-6-10 tk)
+!      psi(lp1) =  psi(lp1)/fac2l(lp1)
+! 42 enddo
+!   ! endif
+!   return
+! 10 write(*,11) y
+! 11 format(' BESSL2: power series not convergent, E*r**2=',e12.4)
+!   call rx( '')
+! end subroutine bessl2x
 
 real(8) function fac2l(i)
   !C A table of (2l-1)!!
@@ -907,34 +907,6 @@ real(8) function fac2l(i)
   endif
   fac2l=fac2lx(i)
 END function fac2l
-
-real(8) function derie (x,y)
-  implicit none
-  real(8) :: x(3),y(3),deri1,deri2,xm1,xm2,xx,deriei,dxdi,dydi
-  !      xm1  = (x(2)+x(1))/2d0
-  !      deri1= (y(2)-y(1))/(x(2)-x(1))
-  !      xm2  = (x(3)+x(2))/2d0
-  !      deri2= (y(3)-y(2))/(x(3)-x(2))
-  !      xx = x(3)
-  !      deriei = deri1 + (deri2-deri1)/(xm2-xm1) *(xx - xm1)
-  !c dxdi at end
-  !c      dxdi1 = x(2) - x(1)
-  !c      dxdi2 = x(3) - x(2)
-  dxdi = x(3) - x(2) + .5d0*(x(3)- 2*x(2) +x(1))
-  dydi = y(3) - y(2) + .5d0*(y(3)- 2*y(2) +y(1))
-  derie = dydi/dxdi
-END function derie
-
-real(8) function derie3 (x,y)
-  implicit none
-  real(8) :: x(3),y(3),deri1,deri2,xm1,xm2,xx,deriei,dxdi,dydi
-  xm1  = (x(2)+x(1))/2d0
-  deri1= (y(2)-y(1))/(x(2)-x(1))
-  xm2  = (x(3)+x(2))/2d0
-  deri2= (y(3)-y(2))/(x(3)-x(2))
-  xx = x(3)
-  derie3 = deri1 + (deri2-deri1)/(xm2-xm1) *(xx - xm1)
-END function derie3
 
 real(8) function derie2 (x,y,n)
   !     return derivative at n
@@ -961,11 +933,31 @@ subroutine addd(a1,a,n)
   enddo
 end subroutine addd
 
-!$$$      character(3) function charnum3n(num)
-!$$$      integer(4) ::num
-!$$$      charnum3n=''
-!$$$      charnum3n = char(48+mod(num,10))
-!$$$      if(num>9)  charnum3n=char(48+mod(num/10,10))//charnum3n
-!$$$      if(num>99) charnum3n=char(48+mod(num/100,10))//charnum3n
-!$$$      end
-!$$$
+! real(8) function derie (x,y)
+!   implicit none
+!   real(8) :: x(3),y(3),deri1,deri2,xm1,xm2,xx,deriei,dxdi,dydi
+!   !      xm1  = (x(2)+x(1))/2d0
+!   !      deri1= (y(2)-y(1))/(x(2)-x(1))
+!   !      xm2  = (x(3)+x(2))/2d0
+!   !      deri2= (y(3)-y(2))/(x(3)-x(2))
+!   !      xx = x(3)
+!   !      deriei = deri1 + (deri2-deri1)/(xm2-xm1) *(xx - xm1)
+!   !c dxdi at end
+!   !c      dxdi1 = x(2) - x(1)
+!   !c      dxdi2 = x(3) - x(2)
+!   dxdi = x(3) - x(2) + .5d0*(x(3)- 2*x(2) +x(1))
+!   dydi = y(3) - y(2) + .5d0*(y(3)- 2*y(2) +y(1))
+!   derie = dydi/dxdi
+! END function derie
+
+! real(8) function derie3 (x,y)
+!   implicit none
+!   real(8) :: x(3),y(3),deri1,deri2,xm1,xm2,xx,deriei,dxdi,dydi
+!   xm1  = (x(2)+x(1))/2d0
+!   deri1= (y(2)-y(1))/(x(2)-x(1))
+!   xm2  = (x(3)+x(2))/2d0
+!   deri2= (y(3)-y(2))/(x(3)-x(2))
+!   xx = x(3)
+!   derie3 = deri1 + (deri2-deri1)/(xm2-xm1) *(xx - xm1)
+! END function derie3
+

@@ -3627,3 +3627,146 @@ subroutine lgstar(mode,ng,n,gv,ng0,ips0,cg)
   enddo
 end subroutine lgstar
 
+subroutine dpdump(array,length,ifile)
+  !     - Binary I/O of an array
+  integer:: length,ifile
+  double precision :: array(length)
+  if (ifile > 0) read(ifile) array
+  if (ifile < 0) write(-ifile) array
+end subroutine dpdump
+subroutine dpsdmp(array,n1,n2,ifile)
+  !- Binary I/O of an array segment
+  integer :: n1,n2,ifile,length
+  double precision :: array(n2)
+  length = n2-n1+1
+  if (length > 0) call dpdump(array(n1),length,ifile)
+end subroutine dpsdmp
+logical function lddump(array,length,ifile)
+  !- Binary I/O of an array, returning T if I/O without error or EOF
+  !     implicit none
+  integer :: length,ifile
+  double precision :: array(length),xx,yy
+  lddump = .true.
+  if (ifile > 0) then
+     yy = array(length)
+     !       (some random number)
+     xx = -1.9283746d0*datan(1d0)
+     array(length) = xx
+     read(ifile,end=90,err=91) array
+     if (xx /= array(length)) return
+     array(length) = yy
+     goto 90
+90   continue
+91   continue
+     lddump = .false.
+  else
+     write(-ifile) array
+  endif
+end function lddump
+
+subroutine dsumdf(n,scal,a1,ofa1,l1,a2,ofa2,l2)
+  !- Returns scaled sum and difference of two vectors
+  ! ----------------------------------------------------------------
+  !i Inputs
+  !i   n    :number elements to scale and combine
+  !i   scal :scale sum and difference by scal; see Outputs
+  !i   a1   :first vector
+  !i   ofa1 :offset to first entry in a1
+  !i   l1   :skip length in a1
+  !i   a2   :second vector
+  !i   ofa2 :offset to first entry in a2
+  !i   l2   :skip length in a2
+  !o Outputs
+  !o   a1   :a1 <- scal*(a1+a2)
+  !o   a2   :a1 <- scal*(a1-a2)
+  ! ----------------------------------------------------------------
+  !     implicit none
+  ! Passed parameters
+  integer :: n,l1,l2,ofa1,ofa2
+  double precision :: scal, a1(1), a2(1)
+  ! Local parameters
+  real(8) ,allocatable :: a_rv(:)
+  ! --- a1-a2-> temp;  a1+a2 -> a1;  temp -> a2 ---
+  allocate(a_rv(n))
+  call dcopy ( n , a1 ( 1 + ofa1 ) , l1 , a_rv , 1 )
+  call daxpy ( n , - 1d0 , a2 ( 1 + ofa2 ) , l2 , a_rv , 1 )
+  call daxpy (n,1d0,a2(1+ofa2),l2,a1(1+ofa1),l1)
+  call dcopy ( n , a_rv , 1 , a2 ( 1 + ofa2 ) , l2 )
+  deallocate(a_rv)
+  if (scal == 1) return
+  call dscal(n,scal,a1(1+ofa1),l1)
+  call dscal(n,scal,a2(1+ofa2),l1)
+end subroutine dsumdf
+
+integer function parg(tok,cast,strn,ip,lstr,sep,itrm,narg,it,res)
+  !- Returns vector of binary values from a string
+  ! ----------------------------------------------------------------------
+  !i Inputs
+  !i   tok:  token marking input
+  !i  cast:  0=logical, 2=int, 3=real, 4=double
+  !i  strn(ip:lstr):string to parse, from (ip=0 for first char)
+  !i  lstr:  length of strn
+  !i  sep:   string of characters, each of which separates arguments
+  !i  itrm:  characters sep(itrm:*) signal the last argument
+  !i  narg:  number of values to parse.
+  ! o Inputs/Outputs
+  !o   ip:   on input, position in strn where to start parsing
+  !o         on ouput, position in strn on exit.
+  !o Outputs
+  !o   res:  Vector of numbers that were converted
+  !o   it:   Vector of indices, one for each entry in res, labeling
+  !o         which char in 'sep' terminated the expr. for that entry.
+  !o parg:   0 if token is not matched in strn.
+  !o         n if token match and converted sans error narg numbers
+  !o           (for narg=0, returns 1 if token matched)
+  !o        -n if error on conversion of argument n
+  ! ----------------------------------------------------------------------
+  !     implicit none
+  ! Passed Parameters
+  integer :: lstr,ip,cast,narg,itrm,it(1)
+  character*(*) tok,sep,strn
+  double precision :: res(narg)
+  ! Local Variables
+  logical :: ldum,parstr
+  character term*1
+  integer :: jp,np,nsep,lentok,a2vec
+  nsep = len(sep)
+  lentok = len(tok)
+  term = tok(lentok:lentok)
+  ! --- Find end of string ---
+  jp = ip
+  it(1) = 0
+  if (itrm <= nsep) &
+       call chrps2(strn,sep(itrm:nsep),nsep-itrm+1,lstr,jp,it)
+  if (it(1) /= 0) then
+     np = jp
+  else
+     np = lstr
+  endif
+  !     print *, 'np,lstr=',np,lstr,ip,jp
+  ! --- Parse for tok within string strn, returning 0 if missing  ---
+  !      print *, tok
+  !      print *, strn
+  if (tok /= ' ') then
+     if (narg == 0 .AND. np == lentok) then
+        ip = np+1
+        parg = 0
+        if (strn(1:np) == tok(1:np)) parg = 1
+        return
+     elseif ( .NOT. parstr(strn,tok,np-lentok,lentok,term,ip,jp)) then
+        parg = 0
+        ip = np+1
+        return
+     endif
+  else
+     jp = ip
+  endif
+  ! --- Parse for vector of binary values to convert
+  if (narg == 0) then
+     ip = jp
+     parg = 1
+     return
+  endif
+  ip = jp
+  parg = a2vec(strn,np,ip,cast,sep,nsep,itrm,narg,it,res)
+end function parg

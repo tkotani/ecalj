@@ -1,3 +1,5 @@
+! originally 92.02.27 Ferdi.Aryasetiawan
+
 subroutine freq01 (nx,ua,   freqx,freqw,wx,expa)
   ! generates a gaussian point x between (0,1) and w = (1-x)/x
   ! and the weights in x
@@ -8,19 +10,16 @@ subroutine freq01 (nx,ua,   freqx,freqw,wx,expa)
   ! freqw = (1-x)/x
   ! wx    = weights of gaussian points x
   ! expa  = s.o.
-  ! originally 92.02.27 Ferdi.Aryasetiawan
   implicit real*8 (a-h,o-z)
   integer:: nx,ix
-  dimension freqx(nx),freqw(nx),wx(nx),expa(nx)
-  ! generate gaussian points
-  call gauss   (nx,0.d0,1.d0,freqx,wx)
+  real(8):: freqx(nx),freqw(nx),wx(nx),expa(nx)
+  call gauss   (nx,0.d0,1.d0,freqx,wx)! generate gaussian points
   ! calculate w = 1/(1+x)
   ua2        = ua*ua
   do      ix = 1,nx
      freqw(ix)  = (1.d0 - freqx(ix)) / freqx(ix)
      expa(ix)   = dexp(-ua2*freqw(ix)*freqw(ix))
   end do
-
   return
 end subroutine freq01
 !--------------------------------------------------------------------
@@ -36,7 +35,7 @@ subroutine freq01x (nx,    freqx,freqw,wx) !,expa)
   ! wx    = weights of gaussian points x
   ! expa  = s.o.
   implicit real*8 (a-h,o-z)
-  dimension freqx(nx),freqw(nx),wx(nx),expa(nx)
+  real(8):: freqx(nx),freqw(nx),wx(nx),expa(nx)
   integer:: nx,ix
   ! generate gaussian points
   call gauss   (nx,0.d0,1.d0,freqx,wx)

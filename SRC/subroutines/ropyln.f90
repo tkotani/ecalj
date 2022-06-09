@@ -22,7 +22,7 @@ subroutine ropyln(n,x,y,z,lmax,nd,yl,rsq)
   !u  25 Jun 03 (Kino) initialize cx to zero
   ! ----------------------------------------------------------------------
   !     implicit none
-  integer:: nd , n , i , m , lmax , l , kk
+  integer:: nd , n , i , m , lmax , l , kk=-999
   real(8) ,allocatable :: cm_rv(:)
   real(8) ,allocatable :: sm_rv(:)
   real(8) ,allocatable :: q_rv(:)

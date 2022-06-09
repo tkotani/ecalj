@@ -1,5 +1,5 @@
+! Sigular Value Decmoposition zzz= matmul(UU,matmul(SS,VT)) ------------
 subroutine zgesvdnn(ngb,zzz, SS,UU,VT)
-  ! Sigular Value Decmoposition zzz= matmul(UU,matmul(SS,VT)) ------------
   implicit none
   integer(4)::lwork,info,ngb,i
   complex(8):: zzz(ngb,ngb),UU(ngb,ngb),VT(ngb,ngb)
@@ -12,7 +12,8 @@ subroutine zgesvdnn(ngb,zzz, SS,UU,VT)
   zw0bk = zzz
   call zgesvd('A','A',ngb,ngb,zzz,ngb,SS,UU,ngb,VT,ngb,work,lwork,rwork,info)
   !      do i=1,ngb
-  !         write(6,"(' i ss=',i4,' ', d13.5 )")i,SS(i) !    write(6,"(' i ss=',i4,'  ', d13.5,' ss0*ss=',d13.5 )")i,SS(i),ss(i)*ss0(ngb-i+1)
+  !         write(6,"(' i ss=',i4,' ', d13.5 )")i,SS(i)
+  !    write(6,"(' i ss=',i4,'  ', d13.5,' ss0*ss=',d13.5 )")i,SS(i),ss(i)*ss0(ngb-i+1)
   !         vtt(i,:)=ss(i)*vt(i,:)
   !      enddo
   !      write(6,"('sumcheck zzz  zzz-uu*s*vt=',d13.5,d13.5)")

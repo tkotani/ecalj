@@ -56,13 +56,11 @@ subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,&
   !u   22 Sep 01 Returns dosef now.  Altered argument list.
   ! ----------------------------------------------------------------------
   implicit none
-  ! Passed parameters
   logical metal,tetra
   integer nbmx,norder,npts,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,&
        idtet(5,ntet),ifile_handle
   double precision zval,eb(nbmx,nsp,nkp),width,rnge,wtkp(nkp),&
        wtkb(nevx,nsp,nkp),efermi,sumev,dosef(2),qval(2),ent
-  ! Local variables
   integer:: it , itmax , n , nptdos , nspx , nbmxx , nevxx , ib &
        , ikp , ipr , job , nbpw , i1mach , nev&
        , mkdlst , ifi , i , j , lry , procid , mpipid , master &
@@ -73,26 +71,20 @@ subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,&
   integer ,allocatable :: bmap_iv(:)
   real(8) ,allocatable :: wk_rv(:)
   double precision emin,emax,e1,e2,dum,tol,e,elo,ehi,sumwt,&
-       dmin,dmax,dval,egap,amom,dsum,cv,tRy
+       dmin,dmax,dval,egap,amom,cv,tRy
   character outs*100,ryy*3
   logical cmdopt,efrng2,lfill
   real(8) ,allocatable :: tlst_rv(:)
   parameter (nulli=-99999)
   integer:: iprint, w(1)
-
-  ! --- Locate band limits: lfill => insulator ---
   procid = mpipid(1)
   master = 0
   call tcn('bzwts')
-  ipr=iprint() !call getpr(ipr)
+  ipr=iprint()
   qval(1) = 0
   qval(2) = 0
   ent = 0
   n = isign(1,norder) * mod(iabs(norder),100)
-  !hangenglob      stdo = nglob('stdo')
-  !      stdo = globalvariables%stdo
-  !hangenglob      stdl = nglob('stdl')
-  !      stdl = globalvariables%stdl
   allocate(bot_rv(nevx*nsp))
   allocate(top_rv(nevx*nsp))
   nspx  = 1
@@ -115,21 +107,13 @@ subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,&
      nbpw = int(dlog(dble(i1mach(9))+1d0)/dlog(2d0))
      allocate(bmap_iv(nevx*nsp*nkp/nbpw+1))
      bmap_iv(:)=0
-
      allocate(wk_rv(nevx*nsp))
-     !#ifdef KINODEBUG
-     !        write(*,*) 'kino allocate bmap_iv, wk_rv',nevx*nsp*nkp/nbpw+1,nevx*nsp
-     !#endif
-
      call ebcpl ( 0 , nbmx , nevx , nsp , nspc , nkp , nbpw , bmap_iv &
           , wk_rv , eb )
-
      lfill = efrng2 ( nspx , nkp , nbmxx , nevxx , zval * 2 , eb , &
           bot_rv , top_rv , elo , ehi , emin , emax )
-
      call ebcpl ( 1 , nbmx , nevx , nsp , nspc , nkp , nbpw , bmap_iv &
           , wk_rv , eb )
-
      !     Spins not coupled: find range
   else
      lfill = efrng2 ( nspx , nkp , nbmxx , nevxx , nspc * zval , eb &
@@ -141,7 +125,6 @@ subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,&
   if (allocated(bmap_iv)) deallocate(bmap_iv)
   if (allocated(top_rv)) deallocate(top_rv)
   if (allocated(bot_rv)) deallocate(bot_rv)
-
   ! ... Case an insulator: put efermi at emin + tiny number
   if (lfill) then
      efermi = emin + 1d-10
@@ -149,7 +132,6 @@ subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,&
   elseif (.not. metal) then
      efermi = (emin + emax) / 2
   endif
-
   ! ... Pretend as though spin-pol bands are coupled to find E_f
   if (nsp .eq. 2 .and. nspc .eq. 1 .and. job .eq. -1) then
      nbpw = int(dlog(dble(i1mach(9))+1d0)/dlog(2d0))
@@ -159,7 +141,6 @@ subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,&
      call ebcpl ( 0 , nbmx , nevx , nsp , nspc , nkp , nbpw , bmap_iv &
           , wk_rv , eb )
   endif
-
   ! --- BZ weights, sumev and E_f for an insulator  ---
   if ( .not. metal ) then
      if (.not. lfill .and. ipr .gt. 10) then
@@ -188,7 +169,6 @@ subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,&
         write(stdo,ftox)' VBmax=',ftof(emin),'CBmin=',ftof(emax)&
              &  ,'gap=',ftof(emax-emin), 'Ry =',ftof((emax-emin)*13.6058d0),'eV'
      endif
-
      ! --- BZ weights, sumev and E_f by tetrahedron method (Blochl wts) ---
   else if (tetra) then
      if (ipr .ge. 30) write (stdo,103)
@@ -237,8 +217,7 @@ subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,&
 100     format(7x,6(f10.6,1x))
         if (emax-emin .lt. tol) goto 1
      enddo
-     if (ipr .gt. 10)&
-          write(stdo,ftox)' BZWTS (warning): Fermi energy not converged: '&
+     if(ipr>10) write(stdo,ftox)' BZWTS (warning): Fermi energy not converged: '&
           ,ftof(emax-emin),' > tol=',ftof(tol)
 1    continue
      if (allocated(dos_rv)) deallocate(dos_rv)
@@ -281,7 +260,6 @@ subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,&
         call maknos ( nkp , nevxx , nbmxx , nspx , wtkp , eb , n , width &
              , - rnge , emin , emax , npts , dos_rv )
         if ( nspx.eq.2 ) dos_rv(:,1)=dos_rv(:,2)+dos_rv(:,1)
-                         !call dpsadd ( dos_rv , dos_rv , npts , 1 , npts + 1 , 1d0 )
         call intnos ( npts , dos_rv , emin , emax , zval , efermi , dosef , sumev )
         if (allocated(dos_rv)) deallocate(dos_rv)
 3       continue
@@ -294,7 +272,6 @@ subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,&
         write(stdo,ftox)' VBmax = ',ftof(emin),' CBmin = ',ftof(emax),' gap = ',&
              ftof(emax-emin),'Ry = ',ftof((emax-emin)*13.6058d0,3),'eV'
      endif
-
      !   ... (optional) Tabulate specific heat in file for list of T's
      if ((cmdopt('--cv:',5,0,outs) .or. cmdopt('--cvK:',6,0,outs))&
           .and. n .lt. 0 .and. metal) then
@@ -335,49 +312,25 @@ subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,&
            endif
         endif
      endif
-
      !   ... Make weights, sampling
      call splwts(nkp,nevxx,nbmxx,nspx,wtkp,eb,n,width,efermi,&
-          (.not. lfill) .or. (metal .and. (nkp .eq. 1)),&
-          sumev,wtkb,qval,ent,dosef,cv)
-
-     !   ... Put back spin degeneracy if removed
-     if (nsp .eq. 2 .and. nspx .eq. 1) call dscal(nkp,2d0,wtkp,1)
-
+          (.not. lfill) .or. (metal .and. (nkp .eq. 1)), sumev,wtkb,qval,ent,dosef,cv)
+     if(nsp .eq. 2 .and. nspx .eq. 1) call dscal(nkp,2d0,wtkp,1)
   endif
-
   ! ... Restore to uncoupled bands; ditto with weights
   if (nsp .eq. 2 .and. nspc .eq. 1 .and. job .eq. -1) then
-     call ebcpl ( 1 , nbmx , nevx , nsp , nspc , nkp , nbpw , bmap_iv &
-          , wk_rv , eb )
-
-     if ( metal ) call ebcpl ( 1 , nevx , nevx , nsp , nspc , nkp &
-          , nbpw , bmap_iv , wk_rv , wtkb )
-
-     if (allocated(tlst_rv)) deallocate(tlst_rv)
-     if (allocated(wk_rv)) deallocate(wk_rv)
-     if (allocated(bmap_iv)) deallocate(bmap_iv)
-
+     call ebcpl(1 , nbmx , nevx , nsp , nspc , nkp , nbpw, bmap_iv , wk_rv , eb )
+     if(metal) call ebcpl(1 , nevx , nevx , nsp , nspc, nkp, nbpw , bmap_iv , wk_rv , wtkb )
+     if(allocated(tlst_rv)) deallocate(tlst_rv)
+     if(allocated(wk_rv)) deallocate(wk_rv)
+     if(allocated(bmap_iv)) deallocate(bmap_iv)
   endif
-
-  ! ... Magnetic moment
-  amom = 0
-  if (nsp .eq. 2 .and. nspc .ne. 2 .and. metal) then
-     do  ikp = 1, nkp
-        amom = amom + dsum(nevx,wtkb(1,1,ikp),1) -&
-             dsum(nevx,wtkb(1,2,ikp),1)
-     enddo
-     !        if (ipr .gt. 0) write(stdo,922) amom
-     !  922   format(9x,'Mag. moment:',f15.6)
-  endif
+  amom = 0d0 ! ... Magnetic moment
+  if(nsp==2 .and. nspc/=2 .and. metal) amom = sum(wtkb(1:nevx,1,1:nkp)- wtkb(1:nevx,2,1:nkp))
   qval(2) = amom
   if (ipr .gt. 0) then
-     write(stdl,ftox)'bzmet',metal,'tet',tetra,'ef',ftof(efermi),&
-          'sev',ftof(sumev),'zval',ftof(zval)
+     write(stdl,ftox)'bzmet',metal,'tet',tetra,'ef',ftof(efermi),'sev',ftof(sumev),'zval',ftof(zval)
      write(stdl,ftox)'qval',ftof(qval(1)),'amom',ftof(amom),'egap(eV)',ftof(egap,3)
-!     call awrit5('%a qval %,1;6d%?#n# amom %,1;6d#%j#'//&
-!          '%?#n# gap %,4;4d eV##',outs,len(outs),-stdl,&
-!          qval,int(amom*10000),amom,isw(egap.gt.0),egap*13.6d0)
   endif
   e = efermi
   if (.not. lfill .and. .not. tetra) e = efermi + rnge*width/2
@@ -594,24 +547,13 @@ logical function efrng2(nsp,nkp,nbmax,nband,zval,eband,ebbot,ebtop,elo,ehi,e1,e2
   e1  = ebbot(nbbot,1)
   e2  = ebtop(nbtop,1)
   efrng2 = .false.
-  !     if (e1 .gt. e2) then
-  if (e1-e2 .gt. d1mach(3)) then
+  if (e1-e2 > epsilon(0d0)) then
      xx = e1
      e1 = e2
      e2 = xx
      efrng2 = .true.
   endif
-  !     Every band is filled ??
-  !     if (nbbot .eq. nbtop) e1 = e2
-
-  ! --- Printout ---
-  !      if (iprint() .ge. 50) then
-  !        print '(1x)'
-  !        call awrit3(' efrng2:  emin=%d  emax=%d'//
-  !     .    '  de=%d',' ',80,i1mach(2),e1,e2,e2-e1)
-  !     endif
 end function efrng2
-
 
 subroutine dshell(n,array)
   implicit none

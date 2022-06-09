@@ -126,7 +126,6 @@ contains
     !      call poppr
     do  10  igen = 1, ngen
        call grpprd(gen(1,igen),plat,platt)
-       !       call dmpy(gen(1,igen),3,1,plat,3,1,platt,3,1,3,3,3)
        if ( .NOT. latvec(3,1d-5,qlat,platt)) &
             call fexit(-1,111,' Exit -1 GENSYM: '// &
             'generator %i imcompatible with underlying lattice',igen)
@@ -702,8 +701,6 @@ contains
        i = i+1
        call parsop(t,i,h)
        call grpprd(g(1,ng),h,hh)
-       !       call dmpy(g(1,ng),3,1,h,3,1,hh,3,1,3,3,3)
-       !       call dvcpy(hh,1,g(1,ng),1,9)
        call dcopy(9,hh,1,g(1,ng),1)
     endif
     call dpzero(ag(1,ng),3)
@@ -854,7 +851,6 @@ contains
              !       ... Matrix for this symmetry operation
              call csymop(-1,mat,.false.,nrot(m),vecg)
              call grpprd(mat,platcp,platt)
-             !           call dmpy(mat,3,1,platcp,3,1,platt,3,1,3,3,3)
              !       ... Add it and i*symop, if allowed
              if (latvec(3,1d-5,qlatcp,platt)) then
                 call csymop(-1,grp(1,ngrp+1),.false.,nrot(m),vecg)
@@ -912,19 +908,12 @@ contains
     !r   This routine is based on ATFTMT written by Worlton and Warren,
     !r   CPC 3, 88 (1972).
     ! ----------------------------------------------------------------------
-    !     implicit none
-    ! Passed parameters:
+    implicit none
     integer :: nbas,ng,ipc(nbas),nclass,istab(nbas,ng),nrclas(nclass)
-    double precision :: plat(3,3),qlat(3,3),bas(3,*),bast(3,*), &
-         g(9,*),ag(3,*)
-    !      real(8):: tol=0d0
-    ! Local parameters:
-    integer :: ibas,ic,iclbsj,icmin,ig,ipr,jbas,kbas,kc, &
-         m,mbas,nj,nm,ng0
-    !     integer mode(3)
+    double precision :: plat(3,3),qlat(3,3),bas(3,nbas),bast(3,nbas), g(3,3,*),ag(3,*)
+    integer :: ibas,ic,iclbsj,icmin,ig,ipr,jbas,kbas,kc, m,mbas,nj,nm,ng0
     double precision :: dbas(3),tol0,tol1
     parameter (tol0=1d-5)
-    !      logical latvec
     character sg*35
     real(8):: rfrac(3),epsr=1d-12
     call getpr(ipr)
@@ -936,13 +925,12 @@ contains
        if (nrclas(ic) < nrclas(icmin) .AND. nrclas(ic) > 0) icmin = ic
 5   enddo
     ibas = iclbsj(icmin,ipc,nbas,1)
-
     ! --- For each group op, see whether it only shifts basis by some T ---
     ng0 = ng
     ng = 0
     do  30  ig = 1, ng0
        !   ... Rotate the basis by g
-       call dmpy(g(1,ig),3,1,bas,3,1,bast,3,1,3,nbas,3)
+       bast= matmul(g(:,:,ig),bas)
        do  20  nj = 1, nrclas(icmin)
           jbas = iclbsj(icmin,ipc,nbas,nj)
           !     ... This is a candidate for translation ag
@@ -966,18 +954,17 @@ contains
 12           enddo
              !       ... Candidate not valid
              if (ipr >= 90) then
-                call asymop(g(1,ig),ag(1,ng+1),' ',sg)
+                call asymop(g(:,:,ig),ag(1,ng+1),' ',sg)
                 call awrit1(' symcry: excluded candidate ig=%,2i  '//sg &
                      //'%a',' ',80,stdo,ig)
              endif
              goto 20
 10        enddo
-
           !     --- Valid ag found; add g to list ---
           ng = ng+1
-          if (ig > ng) call dcopy(9,g(1,ig),1,g(1,ng),1)
+          if (ig > ng) g(:,:,ng)=g(:,:,ig) 
           if (ipr >= 70) then
-             call asymop(g(1,ng),ag(1,ng),' ',sg)
+             call asymop(g(:,:,ng),ag(1,ng),' ',sg)
              call awrit1(' symcry: accepted candidate ig=%,2i  '//sg &
                   //'%a',' ',80,stdo,ig)
           endif
@@ -989,7 +976,7 @@ contains
     if (ipr >= 60 .AND. ng > 1) then
        write(stdo,'('' ig  group op'')')
        do  60  ig = 1, ng
-          call asymop(g(1,ig),ag(1,ig),' ',sg)
+          call asymop(g(:,:,ig),ag(1,ig),' ',sg)
           write(stdo,'(i4,2x,a)') ig,sg
 60     enddo
     endif

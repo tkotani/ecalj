@@ -11,18 +11,11 @@ subroutine symfor(nbas,mode,g,ng,istab,fwk,f)
   !o Outputs
   !o   f:  forces are symmetrized
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! Passed parameters
-  integer :: nbas,ng
-  integer :: istab(nbas,1)
+  implicit none
+  integer :: nbas,ng, istab(nbas,1),i,j,ib,ig,jb,mode
   double precision :: g(3,3,1),fwk(3,nbas),f(3,nbas)
-  ! Local variables
-  integer :: i,j,ib,ig,jb,mode
-
-  !     call prmx('f-in',f,3,3,nbas)
-  call dpcopy(f,fwk,1,3*nbas,1d0/ng)
-  call dpzero(f,3*nbas)
-
+  fwk=f/ng !!call dpcopy(f,fwk,1,3*nbas,1d0/ng)
+  f=0d0
   if (mode == 1) then
      do  101  ig = 1, ng
         do  10  ib = 1, nbas
@@ -46,8 +39,5 @@ subroutine symfor(nbas,mode,g,ng,istab,fwk,f)
 20      enddo
 201  enddo
   endif
-
-  !     call prmx('f-sym',f,3,3,nbas)
-
 end subroutine symfor
 

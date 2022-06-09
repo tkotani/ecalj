@@ -16,12 +16,9 @@ subroutine ppfac(npfac,pfac,fmax,job,fac,nfac)
   !r Remarks
   !u Updates
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
+  implicit none
   integer :: npfac,pfac(npfac),fac(*),fmax,job,nfac
-  ! ... Local parameters
   integer :: i,m,k,fack,nfaci
-
   nfac = 0
   nfaci = 0
   do  i = 1, npfac
@@ -42,7 +39,6 @@ subroutine ppfac(npfac,pfac,fmax,job,fac,nfac)
 10      continue
      enddo
   enddo
-
   if (job /= 0) call ivheap(1,nfac,fac,fac(1+2*nfac),0)
 end subroutine ppfac
 !     Testing

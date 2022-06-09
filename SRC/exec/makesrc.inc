@@ -1,6 +1,7 @@
 #NOTE: when you add your foobar.F, choose one of *_list.
 
 ELIB_list=\
+unused.o \
 m_shortn3.o\
 m_shortn3_plat.o\
 m_smhankel.o\
@@ -9,7 +10,6 @@ m_orbl.o\
 m_ftox.o\
 getgv2.o\
 m_gennlat.o\
-rydberg.o \
 mkppovl2.o\
 m_density.o\
 m_ldau.o\
@@ -53,9 +53,7 @@ bzwts.o \
 bzwtsf.o \
 ccutup.o \
 chgmsh.o \
-clabel.o \
 config.o \
-cshear.o \
 defpq.o \
 defwsr.o \
 delstd.o \
@@ -70,14 +68,12 @@ freeat.o \
 fswgts.o \
 getq.o \
 gtbsl1.o \
-gtbvec.o \
 gtpcor.o \
 gvctof.o \
 gvlst2.o \
 gvmtch.o \
 hansmr.o \
 hansr.o \
-hansrz.o \
 hnsmft.o \
 hsmq.o \
 iclbas.o \
@@ -88,7 +84,6 @@ iors.o \
 iors_old.o \
 iosave.o \
 latlim.o \
-lattc.o \
 lattic.o \
 ldau.o \
 madmat.o \
@@ -102,7 +97,6 @@ m_mksym.o \
 m_mksym_util.o \
 mshsiz.o \
 mtchae.o \
-mxmymz.o \
 nwit.o \
 phidx.o \
 phvsfp.o \
@@ -111,7 +105,6 @@ pptrns.o \
 prdmts.o \
 prjpos.o \
 projql.o \
-qdist.o \
 radgkl.o \
 radmsh.o \
 radpkl.o \
@@ -126,9 +119,7 @@ rsort.o \
 rstr0.o \
 s2sph.o \
 scg.o \
-shear.o \
 shftpp.o \
-shoist.o \
 siteid.o \
 slinz.o \
 soprm.o \
@@ -165,46 +156,22 @@ a2bina.o \
 a2vec.o \
 amix.o \
 awrite.o \
-bitops.o \
 brmin.o \
 broyj.o \
 cmdopt.o \
-cpstr.o \
 cpudel.o \
-cross.o \
-dinv33.o \
-dmpy.o \
-dmpy22.o \
-dot3.o \
-dpcopy.o \
-dpdump.o \
-dpscop.o \
-dsmpy.o \
-dspbmm.o \
-dsred.o \
-dsum.o \
-dsumdf.o \
-dvheap.o \
-dvshel.o \
-epslon.o \
+sort.o \
 fftz3.o \
 finits.o \
 fpiint.o \
-garg.o \
-gettime.o \
 gradfl.o \
 gradzr.o \
 hunti.o \
 huntx.o \
-i1mach.o \
-icopy.o \
 imtql2.o \
 imtqlv.o \
 info.o \
 iprint.o \
-isanrg.o \
-isw.o \
-ivheap.o \
 llnew.o  \
 matm.o \
 minfit.o \
@@ -213,35 +180,26 @@ mkilst.o \
 mklagw.o \
 mklegw.o \
 mpibc.o \
-mxint.o \
 nintsp.o \
 platsl.o \
 poldvm.o \
 polint.o \
-poseof.o \
 ppfac.o \
 pretty.o \
-pythag.o \
 ran1.o \
 rdfiln.o \
 rfalsi.o \
 ropylg.o \
-setfac.o \
 strings.o \
-strip.o \
 symvar.o \
 symvec.o \
-syscall.o \
 tinvit.o \
 tql2.o \
-tqlrat.o \
 tred2.o \
-wordg.o \
 words.o \
 zerfc.o \
 zhev.o \
 tc.o \
-dpzero.o \
 scglp1.o \
 addbkg.o \
 addrbl.o \
@@ -292,7 +250,6 @@ pkl2ro.o \
 pnunew.o \
 poinsp.o \
 potpus.o \
-praugm.o \
 prrhat.o \
 prtev.o \
 rdovfa.o \
@@ -301,7 +258,6 @@ rhogkl.o \
 rhomom.o \
 rlocbl.o \
 rsibl.o \
-setofl.o \
 sgvsym.o \
 smhsbl.o \
 smves.o \
@@ -375,7 +331,6 @@ lmf2gw.o\
 zsecsym.o \
 hilbertmat.o\
 dpsion5.o\
-nwordr.o\
 m_homoelectron.o \
 m_readwan.o \
 diagcv3.o \
@@ -406,11 +361,9 @@ rdpp.o \
 genallcf_mod.o \
 rgwinf_mod.o \
 cputid.o \
-rw.o \
 mate.o \
 bib1.o \
-index.o \
-maxnn.o \
+maxocc2.o \
 reindx.o \
 bz.o \
 genqbz.o \
@@ -419,12 +372,10 @@ rwbzdata.o \
 readeigen.o \
 readqg.o \
 iqindx.o  \
-alloclist.o \
 m_pkm4crpa.o \
 m_anf.o \
 qpe1.sc.o \
 qpe1.o \
-mopen.o \
 mkqg.o \
 m_q0p.o \
 q0irre.o \
@@ -450,7 +401,6 @@ rotcg.o \
 rotgvec.o\
 m_readVcoud.o\
 m_itq.o\
-nan.o\
 m_readgwinput.o\
 m_qbze.o\
 m_eibz.o\

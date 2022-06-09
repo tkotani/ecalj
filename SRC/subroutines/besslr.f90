@@ -1,10 +1,44 @@
-subroutine besslr(y,loka,lmin,lmax,fi,gi)
-  !- Radial part of Bessel functions, standard definitions
+subroutine bessl(y,lmax,fi,gi) ! Bessel and Hankel functions, standard definitions
+  implicit none
+  integer :: lmax,lmin=0
+  double precision :: y,fi(0:lmax),gi(0:lmax)
+  call besslr(y,lmin,lmax,fi,gi)
+end subroutine bessl
+
+! subroutine bessl2(y,lmin,lmax,fi,gi)!- Bessel and Hankel functions, Andersen's definitions
+!   implicit none
+!   integer :: lmin,lmax,l
+!   double precision :: y,fi(lmin:lmax),gi(lmin:lmax),fac2l(0:lmax)
+!   call besslr(y,lmin,lmax,fi,gi)
+!   ! !Andersen's factor multipled (do 68 in besslr)
+!   fac2l(0) = 1d0
+!   do  l = 1, lmax
+!      fac2l(l) = fac2l(l-1) * (l+l-1)
+!   enddo
+!   do  68  l = lmin, lmax 
+!      fi(l) = fi(l)*fac2l(l)*0.5d0
+!      gi(l) = gi(l)/fac2l(l)
+! 68 enddo
+! end subroutine bessl2
+
+! subroutine besslm(y,lmax,fi,gi)
+!   !- Radial part of Bessel functions, standard definitions
+!   !  See besslr for definitions.
+!   !  For y=0, fi(l) = (2l-1)!!, gi(l) = 1/(2l+1)!!
+!   !     implicit none
+!   ! Passed variables:
+!   integer :: lmax
+!   double precision :: y,fi(0:lmax),gi(0:lmax)
+!   call besslr(y,0,lmax,fi,gi)
+! end subroutine besslm
+
+subroutine besslr(y,lmin,lmax,fi,gi)!(y,loka,lmin,lmax,fi,gi)
+  !- Radial part of Bessel functions, standard definitions. loka=0 only now 2022-6-10
   ! ----------------------------------------------------------------------
   !i Inputs:
   !i   y     :y = e*r**2 = z**2 = (kappa*r)**2 = -(akap*r)**2, Im kappa>=0
   !i   loka  :0 Methfessel's conventions
-  !i         :1 Andersen conventions from 2nd generation LMTO
+  !i      xxx:1 Andersen conventions from 2nd generation LMTO !Search loka(just a factor difference)
   !i   lmin  :minimum l
   !i   lmax  :maximum l
   !o Outputs:
@@ -145,9 +179,9 @@ subroutine besslr(y,loka,lmin,lmax,fi,gi)
   !u   23 Jul 08 bug fix: besslr doesn't make fi/gi(lmax+1) when lmax=0
   !u   19 May 04 Changed loka from logical to integer
   ! ----------------------------------------------------------------------
-  !     implicit none
+  implicit none
   ! Passed variables:
-  integer :: loka
+  !integer :: loka
   integer :: lmin,lmax
   double precision :: y,fi(lmin:lmax),gi(lmin:lmax)
   ! Local variables:
@@ -155,9 +189,9 @@ subroutine besslr(y,loka,lmin,lmax,fi,gi)
   parameter (nlmax=20)
   double precision :: dt,dt2,exppr,my,srmy,g1,t,tol, &
        dum(nlmax*4+2),fac2l(-nlmax:nlmax*2+3)
-  logical :: lhank
+!  logical :: lhank
   parameter(tol=1.d-15)
-  parameter(lhank = .true.)
+!  parameter(lhank = .true.)
   ! Intrinsic functions:
   intrinsic dabs,dexp,dsqrt,max0
 
@@ -218,7 +252,6 @@ subroutine besslr(y,loka,lmin,lmax,fi,gi)
   call rx('BESSLR: series not convergent')
 31 continue
   dum(2) = t/fac2l(lmx)
-
   ! --- Recursion for dum(k)=j_{lmx+1-k}(x)/x^{lmx+1-k}=fi(lmx+1-k)
   ll1 = lmx + lmx + 1
   ll2 = ll1 + 1
@@ -227,7 +260,6 @@ subroutine besslr(y,loka,lmin,lmax,fi,gi)
      nf = nf-2
      dum(k) = nf*dum(k-1) - y*dum(k-2)
 40 enddo
-
   ! --- Get fi and gi from dum ---
   lmxp1 = lmx+1
   lmxp2 = lmx+2
@@ -242,7 +274,8 @@ subroutine besslr(y,loka,lmin,lmax,fi,gi)
 50 enddo
 
   ! --- For E<0, use Hankel functions rather than Neumann functions ---
-  if (lhank .AND. y < 0d0) then
+!  if (lhank .AND. y < 0d0) then
+  if ( y < 0d0) then
      srmy = dsqrt(-y)
      gi(0) = 1d0
      g1 = 1d0+srmy
@@ -271,47 +304,13 @@ subroutine besslr(y,loka,lmin,lmax,fi,gi)
   endif
   ! --- Scaling to Andersen's 2nd generation LMTO conventions ---
 100 continue
-  if (loka == 1) then
-     do  68  l = lmin, lmax
-        fi(l) = fi(l)*fac2l(l)*0.5d0
-        gi(l) = gi(l)/fac2l(l)
-68   enddo
-  endif
+!   if (loka == 1) then
+!      do  68  l = lmin, lmax
+!         fi(l) = fi(l)*fac2l(l)*0.5d0
+!         gi(l) = gi(l)/fac2l(l)
+! 68   enddo
+!  endif
 end subroutine besslr
-
-subroutine bessl2(y,lmin,lmax,fi,gi)
-  !- Radial part of Bessel functions, Andersen's definitions
-  !  See besslr for definitions.
-  !  For y=0, fi(l) = 0.5/(2l+1), gi(l) = 1
-  !     implicit none
-  ! Passed variables:
-  integer :: lmin,lmax
-  double precision :: y,fi(lmin:lmax),gi(lmin:lmax)
-  call besslr(y,1,lmin,lmax,fi,gi)
-end subroutine bessl2
-
-subroutine bessl(y,lmax,fi,gi)
-  !- Radial part of Bessel functions, standard definitions
-  !  See besslr for definitions.
-  !  For y=0, fi(l) = (2l-1)!!, gi(l) = 1/(2l+1)!!
-  !     implicit none
-  ! Passed variables:
-  integer :: lmax
-  double precision :: y,fi(0:lmax),gi(0:lmax)
-  call besslr(y,0,0,lmax,fi,gi)
-end subroutine bessl
-
-! subroutine besslm(y,lmax,fi,gi)
-!   !- Radial part of Bessel functions, standard definitions
-!   !  See besslr for definitions.
-!   !  For y=0, fi(l) = (2l-1)!!, gi(l) = 1/(2l+1)!!
-!   !     implicit none
-!   ! Passed variables:
-!   integer :: lmax
-!   double precision :: y,fi(0:lmax),gi(0:lmax)
-
-!   call besslr(y,0,0,lmax,fi,gi)
-! end subroutine besslm
 
 
 !      subroutine fmain

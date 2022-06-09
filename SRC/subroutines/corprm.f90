@@ -1,8 +1,5 @@
-subroutine corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc, &
-     rfoc,z)
-
-  use m_struc_def  !Cgetarg
-
+subroutine corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc, rfoc,z)
+  use m_struc_def 
   !- Returns parameters for smooth core+nucleus representation
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -54,24 +51,13 @@ subroutine corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc, &
   !u   24 Apr 00 Adapted from nfp corpars.f
   ! ----------------------------------------------------------------------
   implicit none
-  ! ... Passed parameters
   integer :: is,i_copy_size
   real(8):: qcorg , qcorh , qsc , cofg , cofh , ceh , rfoc , z
-  ! i      type(s_spec)::sspec(*)
   type(s_spec)::sspec(is)
-
-  ! ... Local parameters
   integer:: n0 , lfoc , lmxb , l,isp
-  ! ino Dec.8.2011:         real(8),pointer :: rv_p_orhoca(:) =>NULL()
-
   parameter (n0=10)
-  double precision :: ccof,fpi,q0,q1,qc,rmt,rsm,srfpi,stc,y0,x0(0:n0), &
-       xi(0:n0),dgetss
-  real(8):: pnu(n0),pz(n0)
-
-  fpi = 16d0*datan(1d0)
-  srfpi = dsqrt(fpi)
-  y0 = 1d0/srfpi
+  real(8):: pnu(n0),pz(n0),ccof,q0,q1,qc,rmt,rsm,stc,x0(0:n0), xi(0:n0),dgetss
+  real(8),parameter:: fpi = 16d0*datan(1d0), srfpi = dsqrt(fpi), y0 = 1d0/srfpi
   lfoc=sspec(is)%lfoca
   rfoc=sspec(is)%rfoca
   qc=sspec(is)%qc
@@ -91,7 +77,6 @@ subroutine corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc, &
         if (int(mod(pz(l+1),10d0)) < int(pnu(l+1))) qsc = qsc + 4*l+2
      endif
   enddo
-
   ! ... Scale smoothed hankel coeff for exact spillout charge
   !     q1 = spillout charge in sm. Hankel
   !     q0 = spillout charge in ordinary Hankel
@@ -109,7 +94,6 @@ subroutine corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc, &
      q1 = q1*y0
      ccof = ccof*q0/q1
   endif
-
   ! ... Set gaussian and hankel charges
   qcorg = qc
   qcorh = 0d0
@@ -117,14 +101,11 @@ subroutine corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc, &
      qcorh = -ccof*dexp(ceh*rfoc*rfoc/4d0)/ceh
      qcorg = qc-qcorh
   endif
-
   ! ... Coeffients to the the gaussian and hankel terms
   cofh = -y0*qcorh*ceh*dexp(-ceh*rfoc*rfoc/4d0)
   cofg = y0*qcorg
-
   !      write (6,352) is,qcorg,qcorh,cofg,cofh
   !  352 format(' spec',i3,'  qcorg,qcorh=',2f10.6,'  cofg,cofh=',2f12.4)
-
 end subroutine corprm
 
 

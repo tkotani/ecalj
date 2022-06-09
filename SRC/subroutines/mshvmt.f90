@@ -106,7 +106,7 @@ subroutine mshvmt(nbas,ssite,sspec,ng,gv, kv,cv,k1,k2,k3,smpot,vval)
      call ropbes(agv,rmt**2,lmxl,cgp,sgp,phil,ng)
      ! Patch for now
      !       do  i = 1, ng
-     !         call besslr(agv(i)**2*rmt**2,0,0,0,phil(i,0),yl)
+     !         call besslr(agv(i)**2*rmt**2,0,0,phil(i,0),yl)
      !       enddo
 
      !   ... Phases exp(-i.G.tau), fast version

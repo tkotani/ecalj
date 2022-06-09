@@ -31,72 +31,54 @@ subroutine xlgen(plat,rmax,rmax2,nvmax,opts,mode,nv,vecs)
   !u            when list has to be padded in order to include at
   !r            least one lattice vector.
   ! ----------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
+  implicit none
   integer :: nvmax,opts,mode(3)
   double precision :: plat(3,3),vecs(3,1),rmax,rmax2
-  ! ... Local parameters
   double precision :: rsqr,v2,vj(3)
   integer :: i,j,k,imx(3),nv,m,ivck(3),iprint,lgunit,iv,jv,oiwk,owk
-  !      integer w(1)
-  !      common /w/ w
   integer,allocatable:: w_oiwk(:)
   real(8),allocatable:: w_owk(:)
-  !     call setpr(110)
-
-  ! --- Setup ---
   call latlim(plat,rmax,imx(1),imx(2),imx(3))
-  do  10  i = 1, 3
-     !   ... Switches flagging whether this plat in lattice vectors
-     ivck(i) = 0
+  ivck = 0
+  do  10  i = 1, 3  !  Switches flagging whether this plat in lattice vectors
      if (mod(opts,10) == 1) ivck(i) = 1
-     imx(i) = max(imx(i),1)
      if (mode(i) == 0) then
         imx(i) = 0
         ivck(i) = 0
+     else
+        imx(i) = max(imx(i),1)
      endif
 10 enddo
   rsqr = rmax*rmax
   nv = 0
-
   ! --- Loop over all triples, paring out those within rmax ---
   do  202  i = -imx(1), imx(1)
      do  201  j = -imx(2), imx(2)
-        do  20  k = -imx(3), imx(3)
-           v2 = 0
-           do  21  m = 1, 3
+        do  200  k = -imx(3), imx(3)
+           v2 = 0d0
+           do  m = 1, 3
               vj(m) = i*plat(m,1) + j*plat(m,2) + k*plat(m,3)
               v2 = v2 + vj(m)**2
-21         enddo
-
-           !   --- A lattice vector found ---
-           if (v2 > rsqr) goto 20
-
+           enddo
+           if (v2 > rsqr) cycle !!   --- A lattice vector found ---
            !   ... Flag any plat in this vec as being present
            if (iabs(i) + iabs(j) + iabs(k) == 1) then
               if (i == 1) ivck(1) = 0
               if (j == 1) ivck(2) = 0
               if (k == 1) ivck(3) = 0
            endif
-
            !   ... Increment nv and copy to vec(nv)
            nv = nv+1
-           if (nv > nvmax .AND. mod(opts/10,10) /= 2) &
-                call fexit(-1,111,' xlgen: too many vectors, n=%i',nv)
+           if(nv>nvmax.and.mod(opts/10,10)/=2)call fexit(-1,111,' xlgen: too many vectors, n=%i',nv)
            if (mod(opts/10,10) == 2) then
            elseif (mod(opts/100,10) == 1) then
-              vecs(1,nv) = i
-              vecs(2,nv) = j
-              vecs(3,nv) = k
+              vecs(:,nv) = [i,j,k]
            else
-              vecs(1,nv) = vj(1)
-              vecs(2,nv) = vj(2)
-              vecs(3,nv) = vj(3)
+              vecs(1:3,nv) = vj(1:3)
            endif
-20      enddo
+200     enddo
 201  enddo
 202 enddo
-
   ! --- Add plat if ivck ne 0 ---
   if (ivck(1)+ivck(2)+ivck(3) /= 0) then
      if (mod(opts/10,10) == 2) then
@@ -104,30 +86,22 @@ subroutine xlgen(plat,rmax,rmax2,nvmax,opts,mode,nv,vecs)
      elseif (mod(opts/10,10) == 4) then
         do  33 i = 1, 3
            if (ivck(i) == 1) then
-              call dcopy(3,plat(1,i),1,vj,1)
+              vj(1:3)=plat(:,i) !call dcopy(3,plat(1,i),1,vj,1)
               if (mod(opts/100,10) == 1) then
-                 vj(1) = 0
-                 vj(2) = 0
-                 vj(3) = 0
+                 vj(1:3) = 0d0
                  vj(i) = ivck(i)
               endif
-              vecs(1,nv+1) =  vj(1)
-              vecs(2,nv+1) =  vj(2)
-              vecs(3,nv+1) =  vj(3)
-              vecs(1,nv+2) = -vj(1)
-              vecs(2,nv+2) = -vj(2)
-              vecs(3,nv+2) = -vj(3)
+              vecs(1:3,nv+1) =  vj(1:3)
+              vecs(1:3,nv+2) = -vj(1:3)
               nv = nv+2
            endif
 33      enddo
      else
-        if (iprint() >= 20) print 333, ivck, rmax, rmax2
+        if(iprint() >= 20) print 333, ivck, rmax, rmax2
 333     format(/' xlgen: added missing plat: ivck=',3i2, &
              '  rmax=',f8.3,'  rpad*rmax=',f8.3)
-        if (3*nv > nvmax) &
-             call fexit(-1,111,' xlgen: too many vectors, n=%i',3*nv)
-        if (ivck(1)+ivck(2)+ivck(3) /= 1) &
-             call rx('lgen: more than 1 missing plat')
+        if(3*nv > nvmax) call fexit(-1,111,' xlgen: too many vectors, n=%i',3*nv)
+        if(ivck(1)+ivck(2)+ivck(3)/=1) call rx('lgen: more than 1 missing plat')
         do  31  m = 1, 3
            v2 = ivck(1)*plat(m,1)+ivck(2)*plat(m,2)+ivck(3)*plat(m,3)
            if (mod(opts/100,10) == 1) v2 = ivck(m)
@@ -137,56 +111,39 @@ subroutine xlgen(plat,rmax,rmax2,nvmax,opts,mode,nv,vecs)
            call daxpy(nv,-1d0,v2,0,vecs(m,2*nv+1),3)
 31      enddo
         nv = 3*nv
-
         !   ... Find and eliminate any replicas
-        !          call defi(oiwk,nv)
-        !          call dvshel(3,nv,vecs,w(oiwk),1)
         allocate(w_oiwk(nv))
         call dvshel(3,nv,vecs,w_oiwk,1)
-        !       call awrit2('%n:1i',' ',80,6,nv,w(oiwk))
         k = 0
         !   ... Mark any replica iv by iwk(i) -> -iv
         do  32  i = nv-1, 1, -1
-           !            iv = w(oiwk+i) + 1
-           !            jv = w(oiwk+i-1) + 1
            iv = w_oiwk(i+1) + 1
            jv = w_oiwk(i) + 1
            v2 = (vecs(1,iv)-vecs(1,jv))**2 + &
                 (vecs(2,iv)-vecs(2,jv))**2 + &
                 (vecs(3,iv)-vecs(3,jv))**2
-           !            if (v2 .lt. 1d-10) w(oiwk+i) = -iv
            if (v2 < 1d-10) w_oiwk(i+1) = -iv
 32      enddo
-
         !   ... Flag vectors with radius > rmax2
         if (rmax2 > 0) then
            rsqr = rmax2*rmax2
            k = 0
            do  37  i = 0, nv-1
-              !              if (w(oiwk+i) .ge. 0) then
-              !                iv = w(oiwk+i) + 1
               if (w_oiwk(i+1) >= 0) then
                  iv = w_oiwk(i+1) + 1
                  v2 = vecs(1,iv)**2 + vecs(2,iv)**2 + vecs(3,iv)**2
                  if (v2 > rsqr) then
                     if (iv < 0) call rx('bug in xlgen')
-                    !                  w(oiwk+i) = -iv
                     w_oiwk(i+1) = -iv
                     k = k+1
                  endif
               endif
 37         enddo
-           !         print *, 'rpad reduced nv by',k
         endif
-        !       call prmx('unsorted vecs',vecs,3,3,nv)
-
-        !   ... Make a sorted list of replicas (any of iwk < 0)
-        call ishell(nv,w_oiwk)
-        !          call ishell(nv,w(oiwk))
+        call ishell(nv,w_oiwk) ! ... Make a sorted list of replicas (any of iwk < 0)
         !   ... For each replica, put lastmost vec into replica's place
         k = nv
         do  34  i = 0, nv-1
-           !            iv = -w(oiwk+i)
            iv = -w_oiwk(i+1)
            if (iv <= 0) goto 35
            call dpcopy(vecs(1,k),vecs(1,iv),1,3,1d0)
@@ -194,71 +151,19 @@ subroutine xlgen(plat,rmax,rmax2,nvmax,opts,mode,nv,vecs)
 34      enddo
 35      continue
         nv = k
-        !          call rlse(oiwk)
         deallocate(w_oiwk)
      endif
   endif
-  !     call prmx('after purging vecs',vecs,3,3,nv)
-
-
   if (mod(opts/10,10) == 2) return
-
   ! --- Sort vectors by increasing length ---
   if (mod(opts/10,10) == 1) then
-     !        call defi(oiwk,nv)
-     !        call dvshel(3,nv,vecs,w(oiwk),11)
-     !        call defi(owk,nv*3)
-     !        call dvperm(3,nv,vecs,w(owk),w(oiwk),.true.)
-     !        call rlse(oiwk)
      allocate(w_oiwk(nv))
      call dvshel(3,nv,vecs,w_oiwk,11)
      allocate(w_owk(nv*3))
      call dvperm(3,nv,vecs,w_owk,w_oiwk,.true.)
      deallocate(w_owk,w_oiwk)
   endif
-
-  ! --- Printout ---
-  !$$$      if (iprint() .le. 70) return
-  !$$$      call awrit5(' xlgen: opts=%i  mode=%3:1i  rmax=%;4d  plat='//
-  !$$$     .'%9:1;4d  nv=%i',' ',80,lgunit(1),opts,mode,rmax,plat,nv)
-  !$$$      if (iprint() .lt. 110) return
-  !$$$      print 345
-  !$$$  345 format('  iv',6x,'px',8x,'py',8x,'pz',8x,'l')
-  !$$$      do  40  i = 1, nv
-  !$$$        v2 = vecs(1,i)**2 + vecs(2,i)**2 + vecs(3,i)**2
-  !$$$        print 346, i, (vecs(m,i), m=1,3), dsqrt(v2)
-  !$$$  346   format(i4,3f10.4,f10.3)
-  !$$$   40 continue
 end subroutine xlgen
-!      subroutine fmain
-
-!      implicit none
-!      integer wksize,nvmx,nv,opts,mode(3),ovecs
-!      double precision plat(9),rmax
-!      parameter(wksize=500000)
-!      integer w(wksize)
-!      common /w/ w
-
-!      data plat /.5d0,.5d0,0d0, .5d0,-.5d0,0d0, 0d0,2d0,2d0/
-
-
-!      call wkinit(wksize)
-!      nvmx = 500
-!      rmax = 2
-
-!      mode(1) = 0
-!      mode(2) = 2
-!      mode(3) = 2
-!      opts = 0
-!      call initqu(.true.)
-!      call query('opts=?',2,opts)
-!      call defrr(ovecs,3*nvmx)
-!      call lgen(plat,rmax,nv,nvmx,w(ovecs))
-!      print *, 'old lgen found nv=', nv
-!      print *, 'call xlgen, opt=',opts
-!      call xlgen(plat,rmax,nvmx,opts,mode,nv,w(ovecs))
-!      end
-
 subroutine ishell(n,iarray)
   integer :: n
   integer :: iarray(1)
@@ -284,13 +189,10 @@ subroutine ishell(n,iarray)
 12 enddo
   return
 end subroutine ishell
-
-! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-subroutine lgen(bas,bmax,nv,nvmax,vecs,work)
-  !  generates lattice vectors.
+subroutine lgen(bas,bmax,nv,nvmax,vecs,work)  !  generates lattice vectors.
   implicit real*8 (a-h,p-z), integer(o)
   implicit integer(i-n)
-  dimension bas(3,3),v(3),vecs(3,*),work(*) ! MIZUHO-IR
+  dimension bas(3,3),v(3),vecs(3,*),work(*) 
   call latlim(bas,bmax,imax,jmax,kmax)
   bmax2=bmax*bmax
   nv=0

@@ -94,18 +94,12 @@ subroutine roplat(a,alat,alpha,b,beta,c,gamma,isym,platcv,platro)
   !r                            ( 1/2 , 1/2 ,  0 )
   !r
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! Passed variables:
+  implicit none
   integer :: isym(*)
-  double precision :: a,alat,b,c,alpha,beta,gamma,platcv(9),platro(3,*)
-  ! Local variables:
+  double precision :: a,alat,b,c,alpha,beta,gamma,platcv(3,3),platro(3,3)
   integer :: isym1,iprint,isym3,k,m
-  double precision :: a1,b1,c1,al,be,ga,facdeg,pi,qlatro(3,3), &
-       tb(9,7),parm,vol,wk
+  double precision :: a1,b1,c1,al,be,ga,facdeg,pi,qlatro(3,3), tb(3,3,7),parm,vol,wk
   parameter(pi=3.14159265358979324d0,facdeg=180.d0/pi,parm=1.d-4)
-  ! External calls:
-  external dmpy,iprint,query
-  ! Data statements:
   data tb/1.0d0, .0d0, .0d0,  .0d0, 1.0d0, .0d0,  .0d0,.0d0, 1.0d0, &
        0.5d0,-.5d0, .0d0,  .5d0, 0.5d0, .0d0,  .0d0,.0d0, 1.0d0, &
        0.5d0, .0d0,-.5d0,  .0d0, 1.0d0, .0d0,  .5d0,.0d0, 0.5d0, &
@@ -115,8 +109,6 @@ subroutine roplat(a,alat,alpha,b,beta,c,gamma,isym,platcv,platro)
        0.6666666666667d0,  0.3333333333333d0,  0.3333333333333d0, &
        -0.3333333333333d0,  0.3333333333333d0,  0.3333333333333d0, &
        -0.3333333333333d0, -0.6666666666667d0,  0.3333333333333d0/
-
-  !      stdo = lgunit(1)
   isym1=isym(1)
   isym3=isym(3)
   a1=a
@@ -125,10 +117,8 @@ subroutine roplat(a,alat,alpha,b,beta,c,gamma,isym,platcv,platro)
   al=alpha/facdeg
   be=beta /facdeg
   ga=gamma/facdeg
-
   if (iprint() >= 120) write(stdo,300) isym1,isym3
   if (iprint() >= 120) write(stdo,301) a,b,c,alpha,beta,gamma
-
   if (isym1 == 5 .AND. isym3 == 1) then
      ! ----- rhombohedral primitive cell will be obtained from
      ! ----- triple hexagonal cell
@@ -142,7 +132,6 @@ subroutine roplat(a,alat,alpha,b,beta,c,gamma,isym,platcv,platro)
   if (isym1 > 2) be = 90.d0/facdeg
   if (isym1 > 1) ga = 90.d0/facdeg
   if (isym1 == 5 .OR. isym1 == 6) ga =120.d0/facdeg
-
   ! --- Sanity checks ---
   call rxx(a1.le.0,'roplat: unspecified  `a'' lattice parameter')
   call rxx(b1.le.0,'roplat: unspecified  `b'' lattice parameter')
@@ -150,38 +139,23 @@ subroutine roplat(a,alat,alpha,b,beta,c,gamma,isym,platcv,platro)
   call rxx(al.le.0,'roplat: unspecified angle `alpha''')
   call rxx(be.le.0,'roplat: unspecified angle `beta''')
   call rxx(ga.le.0,'roplat: unspecified angle `gamma''')
-
   ! --- Choose b as length unit
   alat=b1
   if (isym1 == 5) alat=alat/dsqrt(3.d0)
-
   if (a1 < parm .OR. b1 < parm .OR. c1 < parm .OR. &
        dabs(dsin(al)) < parm .OR. dabs(dsin(be)) < parm .OR. &
-       dabs(dsin(ga)) < parm) &
-       call rx('LATPAR: bad lattice parameters')
-
-  wk=1.d0-dcos(al)**2-dcos(be)**2-dcos(ga)**2 &
-       +2.d0*dcos(al)*dcos(be)*dcos(ga)
+       dabs(dsin(ga)) < parm) call rx('LATPAR: bad lattice parameters')
+  wk=1.d0-dcos(al)**2-dcos(be)**2-dcos(ga)**2 +2.d0*dcos(al)*dcos(be)*dcos(ga)
   if (wk <= 0d0) call rx('ROPLAT: impossible angles')
-  platcv(1)=a1/alat*dsqrt(wk)/dsin(al)
-  platcv(2)=a1/alat*dcos(ga)
-  platcv(3)=a1/alat*(dcos(be)-dcos(al)*dcos(ga))/dsin(al)
-  platcv(4)=0.d0
-  platcv(5)=b1/alat
-  platcv(6)=0.d0
-  platcv(7)=0.d0
-  platcv(8)=c1/alat*dcos(al)
-  platcv(9)=c1/alat*dsin(al)
-
-  call dmpy(platcv,3,1,tb(1,isym3),3,1,platro,3,1,3,3,3)
+  platcv(:,1)= a1/alat*[dsqrt(wk)/dsin(al),dcos(ga),(dcos(be)-dcos(al)*dcos(ga))/dsin(al)]
+  platcv(:,2)= [0d0,b1/alat,0d0]
+  platcv(:,3)= [0d0,c1/alat*dcos(al),c1/alat*dsin(al)]
+  platro = matmul(platcv,tb(:,:,isym3))
   ! ----take rhombohedral primitive cell  not hexagonal triple cell
   if(isym(1) == 5 .AND. isym(3) == 1) call dcopy(9,platro,1,platcv,1)
-
   call dinv33(platro,1,qlatro,vol)
-  if (iprint() >= 50) write(stdo,302)alat, &
-       ((platro(m,k),m=1,3),(qlatro(m,k),m=1,3),k=1,3)
-  if (iprint() >= 60) write(stdo,304) (platcv(m),m=1,9)
-
+  if(iprint() >= 50) write(stdo,302)alat,((platro(m,k),m=1,3),(qlatro(m,k),m=1,3),k=1,3)
+  if(iprint() >= 60) write(stdo,304) ((platcv(m,k),m=1,3),k=1,3)
 300 format(/' ROPLAT: isym1,isym3=',2i3)
 301 format(/' ROPLAT:      a=',f8.5,' ,   b=',f8.5,' ,    c=',f8.5, &
        /'          alpha=',f8.4,' ,beta=',f8.4,' ,gamma=',f8.4)
@@ -204,12 +178,9 @@ subroutine cpplat(platin,platcp)
   !r  and   |pn| = dsqrt(qlat(1,n)**2+qlat(2,n)**2+qlat(3,n)**2), n=1,2,3
   !r  platin and platcp can point to the same address.
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! Passed variables:
+  implicit none
   double precision :: platin(3,*)
-  ! Local variables:
-  integer :: ikd,ikd1,ikd2,ikd3,iprint,k,ll1,ltmax,m,mn,nkd, &
-       nplat
+  integer :: ikd,ikd1,ikd2,ikd3,iprint,k,ll1,ltmax,m,mn,nkd, nplat
   parameter(ltmax=1,nplat=3,ll1=ltmax*2+1)
   double precision :: d1cd2(3),d1mach,d2,d2min,danrm2,ddot, &
        dlat(3,ll1**nplat),plat(3,3),platcp(3,3), &
@@ -218,16 +189,8 @@ subroutine cpplat(platin,platcp)
   logical :: change,lmorec
   character(72) :: messg
   parameter(tollat=1.d-5)
-  ! External calls:
-  external  cross,d1mach,danrm2,dcopy,ddot,dinv33, &
-       iprint,prodln
-  ! Intrinsic functions:
-  intrinsic  dabs,dsqrt,idnint,mod
-  ! Statement functions:
   mn(ikd,m)=(mod(ikd+(ll1/2)*ll1**(m-1),ll1**m) &
-       -mod(ikd+(ll1/2)*ll1**(m-1),ll1**(m-1))) &
-       /ll1**(m-1)-ltmax
-
+       -mod(ikd+(ll1/2)*ll1**(m-1),ll1**(m-1))) /ll1**(m-1)-ltmax
   call dcopy(9,platin,1,platcp,1)
   call dinv33(platin,1,qlatin,vol)
   vol=dabs(vol)
@@ -237,13 +200,8 @@ subroutine cpplat(platin,platcp)
   change=.true.
   lmorec=.false.
   nkd=ll1**nplat-1
-  !      stdo = lgunit(1)
-
-  if (iprint() >= 40) write(stdo,300) &
-       pro1,pro2,((platin(m,k),m=1,3),(qlatin(m,k),m=1,3),k=1,3)
-  if (iprint() > 50) write(stdo,303) &
-       (1.d0/dsqrt(ddot(3,qlatin(1,m),1,qlatin(1,m),1)),m=1,3)
-
+  if (iprint() >= 40) write(stdo,300) pro1,pro2,((platin(m,k),m=1,3),(qlatin(m,k),m=1,3),k=1,3)
+  if (iprint() > 50) write(stdo,303) (1.d0/dsqrt(ddot(3,qlatin(1,m),1,qlatin(1,m),1)),m=1,3)
   ! --- generate relevant lattice vectors
   do while (change)
      d2min=d1mach(2)

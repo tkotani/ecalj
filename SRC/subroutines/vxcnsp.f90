@@ -665,7 +665,7 @@ subroutine vxcns4(isw,ri,nr,rwgt,np,wp,nsp,rp,exc,excx,excc,vxc, &
 
 end subroutine vxcns4
 
-subroutine vxcns5(isw,ipr,strn,nlml,nsp,nr,ri,rwgt,rl,vl,suml,sum)
+subroutine vxcns5(isw,ipr,strn,nlml,nsp,nr,ri,rwgt,rl,vl,suml,ssum)
   use m_lgunit,only:stdo
   !- Integrals of rl*vl resolved by l
   ! ----------------------------------------------------------------------
@@ -685,19 +685,13 @@ subroutine vxcns5(isw,ipr,strn,nlml,nsp,nr,ri,rwgt,rl,vl,suml,sum)
   !u Updates
   !u   12 Mar 04 created from vxcns2
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
+  implicit none
   character strn*(*)
   integer :: isw,ipr,nlml,nsp,nr
-  double precision :: ri(nr),rwgt(nr),rl(nr,nlml,nsp),vl(nr,nlml,nsp), &
-       suml(0:20,2),sum(2)
-  ! ... Local parameters
+  double precision :: ri(nr),rwgt(nr),rl(nr,nlml,nsp),vl(nr,nlml,nsp), suml(0:20,2),ssum(2)
   integer :: ir,lmax,ilm,isp,l,ll
-  double precision :: dsum,dot3
-
-  !      stdo = lgunit(1)
+  double precision :: dot3
   lmax = ll(nlml)
-
   do   isp = 1, nsp
      call dpzero(suml(0,isp),lmax+1)
      do  ilm = 1, nlml
@@ -712,21 +706,17 @@ subroutine vxcns5(isw,ipr,strn,nlml,nsp,nr,ri,rwgt,rl,vl,suml,sum)
            enddo
         endif
      enddo
-
-     sum(isp) = dsum(lmax+1,suml(0,isp),1)
-
+     ssum(isp) = sum(suml(0:lmax,isp))
      if (ipr > 30) then
         if (isp == 1) &
-             write(stdo,341) strn,sum(isp),(suml(l,isp),l = 0,lmax)
+             write(stdo,341) strn,ssum(isp),(suml(l,isp),l = 0,lmax)
         if (isp == 2) &
-             write(stdo,342) sum(isp),(suml(l,isp),l = 0,lmax)
+             write(stdo,342) ssum(isp),(suml(l,isp),l = 0,lmax)
 341     format(1x,a8,f13.6,' ... by l: ',f12.6,4f10.6:/(18x,4f10.6))
 342     format('  spin 2:',f13.6,' ... by l: ',f12.6, &
              4f10.6:/(18x,4f10.6))
      endif
-
   enddo
-
 end subroutine vxcns5
 
 !      subroutine fp2yl(nr,nlm,nsp,np,wp,fp,yl,fl)

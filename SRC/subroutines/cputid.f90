@@ -1,10 +1,8 @@
-!----------------------------------------------------------------------
 real(8) function cpumin(ifile,cpu0)
   implicit real*8(a-h,o-z)
   integer:: ifile
   ! cpu time in minutes for RISC: mclock()/600.d0
   ! cpusek is the total cputime - cpu0
-
   !     cpumin   = mclock()/600.d0 - cpu0
   cpusec   = (secnds(0.0) - cpu0)
   cpumin   = cpusec/60.d0
@@ -17,20 +15,8 @@ real(8) function cpumin(ifile,cpu0)
      write(ifile,6400)cpusec,cpumin
   end if
 6400 format(/' cpu time = ',f15.4,' secs ',f15.4,' mins ')
-
   return
 END function cpumin
-!----------------------------------------------------------------------
-!     double precision function cpusec(cpu0)
-!     implicit real*8(a-h,o-z)
-
-! cpu time in seconds for RISC
-! cpusek is the total cputime - cpu0
-
-!     cpusec   = mclock()/100.d0 - cpu0
-!     return
-!     end
-!----------------------------------------------------------------------
 subroutine cputid(ifile)
   implicit none
   include 'mpif.h'
@@ -94,7 +80,6 @@ subroutine cputid(ifile)
   end if
 6401 format(a,' CPU= ',f12.4,' secs',f7.1,' mins')
   return
-
   entry mpi_cputid2(message,ifile)
   if(ifile < 0)call rx( 'cputid: negative unit number')
   if (firsttime) then
@@ -108,11 +93,9 @@ subroutine cputid(ifile)
      diff=diff/dble(irate)
      cpusec=diff
   endif
-
   call mpi_comm_rank(MPI_COMM_WORLD,rank,ierr)
   call mpi_reduce(cpusec,cpumax,1,MPI_REAL4,MPI_MAX,0,MPI_COMM_WORLD,ierr)
   call mpi_reduce(cpusec,cpumin,1,MPI_REAL4,MPI_MIN,0,MPI_COMM_WORLD,ierr)
-
   if (rank == 0) then
      if(ifile == 0)then
         write(6,6402)trim(message),cpumax,cpumax/60.0d0 , cpumin,cpumin/60.0d0
@@ -121,7 +104,6 @@ subroutine cputid(ifile)
      end if
   endif
 6402 format(a,', realtime nodeMAX=',f12.4,' secs (',f7.1,' mins), MIN=',f12.4,' secs (',f7.1,' mins)')
-
   return
 end subroutine cputid
 
@@ -142,18 +124,15 @@ subroutine realtimediff(id,msg0)
   implicit none
   integer,intent(in):: id
   character(*),intent(in)::msg0
-
   integer::mode
   real(8):: diff
   integer:: i2,imax
   character(20):: errmsg
   real(8):: mpi_wtime
-
   if (id<=0 .OR. id>nmax) then
      write(errmsg,"(i5,' ',i5)") id,nmax
      call rx('fatal error, id<=0 or id>nmax, id,nmax='//trim(errmsg))
   endif
-
   mode=0
   if (len_trim(msg0)>0) mode=1
 
@@ -165,11 +144,9 @@ subroutine realtimediff(id,msg0)
      msg(id)=msg0
      elapse(id)=elapse(id)+diff-start(id)
   endif
-
 end subroutine realtimediff
 
 subroutine print_realtimediff()
-  !      use m_mpi
   use m_realtimediff
   implicit none
   integer:: i,j,isize
