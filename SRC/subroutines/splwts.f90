@@ -1,8 +1,6 @@
 subroutine splwts(nqp,nband,nbmx,nsp,wgts,evl,n,w,efermi, &
      metal,sumev,bndwts,wtot,entrpy,dosef,cv)
   use m_lmfinit,only: stdo
-
-
   !- make sampling weights for integrals under the Fermi surface
   !-----------------------------------------------------------------------
   !i  Input

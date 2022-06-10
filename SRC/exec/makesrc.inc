@@ -114,7 +114,6 @@ ropbes.o \
 roplat.o \
 ropyln.o \
 rseq.o \
-rsort.o \
 s2sph.o \
 scg.o \
 shftpp.o \
@@ -129,7 +128,6 @@ sugcut.o \
 suham.o \
 suldau.o \
 sylm.o \
-sylmnc.o \
 symdmu.o \
 symfor.o \
 symprj.o \
@@ -172,8 +170,6 @@ info.o \
 iprint.o \
 llnew.o  \
 matm.o \
-minfit.o \
-mkdlst.o \
 mkilst.o \
 mklagw.o \
 mklegw.o \
@@ -183,7 +179,6 @@ platsl.o \
 poldvm.o \
 polint.o \
 ppfac.o \
-pretty.o \
 ran1.o \
 rdfiln.o \
 rfalsi.o \
@@ -283,7 +278,6 @@ gwcphi.o \
 pwmat.o \
 sugw.o \
 smshft.o \
-m_events.o \
 grfmsh.o \
 smvxcm.o \
 vxcnsp.o \

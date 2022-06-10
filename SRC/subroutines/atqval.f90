@@ -20,20 +20,16 @@ subroutine atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc,qv,qsc)
   !u   16 Sep 01 Added calculation of qsc.  New argument list.
   !u   30 May 00 adapted from nfp getqval
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
+  implicit none
   integer :: kcor,lcor,lmxa
   double precision :: qc,qcor(1),qv,qsc,z,pnu(0:lmxa),pnz(0:lmxa)
-  ! ... Local parameters
   integer :: l,konf,konfig
   double precision :: deg
-
   qc = 0d0
   qsc = 0d0
   do  l = 0, lmxa
      deg = 2*(2*l+1)
-     if (pnz(l) /= 0 .AND. mod(int(pnz(l)),10) < int(pnu(l))) &
-          qsc = qsc + deg
+     if(pnz(l) /= 0 .AND. mod(int(pnz(l)),10) < int(pnu(l))) qsc = qsc + deg
      konfig = pnu(l)
      do  konf = l+1, konfig-1
         if (konf == kcor .AND. l == lcor) deg = deg + qcor(1)

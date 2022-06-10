@@ -1,4 +1,3 @@
-! originally 92.02.27 Ferdi.Aryasetiawan
 
 subroutine freq01 (nx,ua,   freqx,freqw,wx,expa)
   ! generates a gaussian point x between (0,1) and w = (1-x)/x
@@ -10,6 +9,7 @@ subroutine freq01 (nx,ua,   freqx,freqw,wx,expa)
   ! freqw = (1-x)/x
   ! wx    = weights of gaussian points x
   ! expa  = s.o.
+  ! originally 92.02.27 Ferdi.Aryasetiawan
   implicit real*8 (a-h,o-z)
   integer:: nx,ix
   real(8):: freqx(nx),freqw(nx),wx(nx),expa(nx)

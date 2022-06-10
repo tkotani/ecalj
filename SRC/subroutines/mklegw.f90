@@ -10,19 +10,14 @@ subroutine mklegw(n,z,w,ipr)
   !r Remarks
   !r   Integrates 2(n-1) order polynomial exactly on interval (-1,1)
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! Passed parameters
+  implicit none
   integer :: n
   double precision :: z(1),w(1)
   double precision :: plegn,pnp
-  ! Local parameters
   integer :: iroot,in,ipr
   double precision :: root,delta,machep,d1mach,pi
-
   pi = 4 * datan(1d0)
-  !|    machep = 10*d1mach(3)
   machep=1d-14
-
   ! --- Find all the roots of P_n ---
   do  200  iroot = 1, n
      z(iroot) = dcos(pi*(2*iroot-.5d0)/(2*n+1))
@@ -43,12 +38,10 @@ subroutine mklegw(n,z,w,ipr)
                                 ! top2rx 2013.08.09 kino     .    stop 'mklegw: identical roots'
           call rx( 'mklegw: identical roots')
 300 enddo
-
   ! --- Make the weights ---
   do  700  in = 1, n
      w(in) = 2/((1-z(in)**2)*(pnp(n,z(in))**2))
 700 enddo
-
   ! --- Printout ---
   if (ipr < 80) return
   print *

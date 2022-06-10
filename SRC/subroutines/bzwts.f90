@@ -73,7 +73,7 @@ subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,&
   double precision emin,emax,e1,e2,dum,tol,e,elo,ehi,sumwt,&
        dmin,dmax,dval,egap,amom,cv,tRy
   character outs*100,ryy*3
-  logical cmdopt,efrng2,lfill
+  logical cmdopt0,efrng2,lfill
   real(8) ,allocatable :: tlst_rv(:)
   parameter (nulli=-99999)
   integer:: iprint, w(1)
@@ -95,13 +95,13 @@ subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,&
   dosef(1) = 0
   dosef(nspx) = 0
   egap = nulli
-  if (nsp .eq. 2 .and. nspc .eq. 1 .and. cmdopt('--oldbz',7,0,outs))&
-       then
-     nspx  = nsp
-     nevxx = nevx
-     nbmxx = nbmx
-     job = 1
-  endif
+!  if (nsp .eq. 2 .and. nspc .eq. 1 .and. cmdopt('--oldbz',7,0,outs))&
+!       then
+!     nspx  = nsp
+!     nevxx = nevx
+!     nbmxx = nbmx
+!     job = 1
+!  endif
   !     Force coupled spins: find range
   if (nspx .ne. nsp .and. nspc .eq. 1) then
      nbpw = int(dlog(dble(i1mach(9))+1d0)/dlog(2d0))
@@ -272,44 +272,26 @@ subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,&
         write(stdo,ftox)' VBmax = ',ftof(emin),' CBmin = ',ftof(emax),' gap = ',&
              ftof(emax-emin),'Ry = ',ftof((emax-emin)*13.6058d0,3),'eV'
      endif
-     !   ... (optional) Tabulate specific heat in file for list of T's
-     if ((cmdopt('--cv:',5,0,outs) .or. cmdopt('--cvK:',6,0,outs))&
-          .and. n .lt. 0 .and. metal) then
+     ! ... (optional) Tabulate specific heat in file for list of T's
+     if (cmdopt0('--cvK:') .and. n .lt. 0 .and. metal) then
         if (procid .eq. master) then
-           if (cmdopt('--cvK:',6,0,outs)) then
-              lRy = 0
-              i = 7
-              ryy='K'
-           else
-              lRy = 1
-              i = 6
-              ryy='Ry'
-           endif
-           itmax = mkdlst(outs(i:),1d-8,-1,w)
-           if (itmax .gt. 0) then
-              allocate(tlst_rv(itmax))
-              call word(outs,1,it,j)
-              write(stdo,ftox)' Writing CV(T) to file for ',itmax,' vals of T: '&
-                   ,outs(i:j),trim(ryy) !' %?#(n==1)#(Ry)#(K)#',itmax,lRy)
-              it = mkdlst ( outs ( i: ) , 1d-8 , itmax + 1 , tlst_rv )
-              if (it .ne. itmax) call rx('bzwts: bug in mkdlst')
-              ifi = ifile_handle()
-              open(ifi,file='cv.'//trim(sname)) 
-              rewind ifi
-              write(ifi,ftox)'% rows ',it,' cols 4 #   T(K)    T(Ry)   S(k_B)   TdS/dT(k_B)'
-              do  it = 1, itmax
-                 try = dval ( tlst_rv , it )
-                 if (lRy .eq. 0) then
-                    tRy = tRy/0.1579d6
-                 endif
-                 call pshpr(1)
-                 call splwts(nkp,nevxx,nbmxx,nspx,wtkp,eb,n,tRy,efermi,&
-                      metal,sumev,wtkb,qval,ent,dosef,cv)
-                 call poppr
-                 write(ifi,ftox)ftof(0.1579d6*tRy),ftof(tRy),ftof(ent),ftof(cv)
-              enddo
-              close(ifi)
-           endif
+           lRy = 0
+           ryy='K'
+           itmax=8
+           allocate(tlst_rv(itmax))
+           tlst_rv=[10,20,40,80,160,320,640,1280] !fixed now
+           write(stdo,ftox)'Writing CV(T) to file for ',itmax,'vals of T:',ftof(tlst_rv,1),trim(ryy) 
+           !open(newunit=ifi,file='cv.'//trim(sname)) 
+           write(stdo,ftox)'% rows ',it,' cols 4 #   T(K)    T(Ry)   S(k_B)   TdS/dT(k_B)'
+           do  it = 1, itmax
+              tRy = tlst_rv(it)/0.1579d6
+              call pshpr(1)
+              call splwts(nkp,nevxx,nbmxx,nspx,wtkp,eb,n,tRy,efermi,&
+                   metal,sumev,wtkb,qval,ent,dosef,cv)
+              call poppr
+              write(stdo,ftox)ftof(0.1579d6*tRy),ftof(tRy),ftof(ent),ftof(cv)
+           enddo
+           !close(ifi)
         endif
      endif
      !   ... Make weights, sampling

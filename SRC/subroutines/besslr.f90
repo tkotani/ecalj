@@ -200,7 +200,7 @@ subroutine bessl(y,lmax,fi,gi)
      dt = dt*my/(i*dt2)
      t = t+dt
 20 enddo
-  call rx('BESSLR: series not convergent')
+  call rx('BESSL: series not convergent')
 21 continue
   dum(1) = t/fac2l(lmx+1)
 
@@ -216,7 +216,7 @@ subroutine bessl(y,lmax,fi,gi)
      dt = dt*my/(i*dt2)
      t = t+dt
 30 enddo
-  call rx('BESSLR: series not convergent')
+  call rx('BESSL: series not convergent')
 31 continue
   dum(2) = t/fac2l(lmx)
   ! --- Recursion for dum(k)=j_{lmx+1-k}(x)/x^{lmx+1-k}=fi(lmx+1-k)
@@ -254,16 +254,16 @@ subroutine bessl(y,lmax,fi,gi)
            gi(l) = tlp1*gi(l-1) - y*gi(l-2)
 62      enddo
      endif
-     if (lmin <= -1) then
-        gi(-1) = (gi(0) - g1)/y
-        tlp1 = 1
-        if (lmin <= -2) then
-           do  64  l = -2, lmin,-1
-              tlp1  = tlp1-2
-              gi(l) = ((l+l+3)*gi(l+1) - gi(l+2))/y
-64         enddo
-        endif
-     endif
+!      if (lmin <= -1) then
+!         gi(-1) = (gi(0) - g1)/y
+!         tlp1 = 1
+!         if (lmin <= -2) then
+!            do  64  l = -2, lmin,-1
+!               tlp1  = tlp1-2
+!               gi(l) = ((l+l+3)*gi(l+1) - gi(l+2))/y
+! 64         enddo
+!         endif
+!      endif
      exppr = 1d0/dexp(srmy)
      do  66  l = lmin, lmax
         gi(l) = gi(l)*exppr

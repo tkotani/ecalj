@@ -1,7 +1,4 @@
-! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-!---- get size
-subroutine getngbpomat(nqibze &
-     ,nnmx,nomx)
+subroutine getngbpomat(nqibze,nnmx,nomx)
   !- just to get the maximum size of ngb (mized basis size) from POmat
   implicit none
   integer(4):: ifpomat,nnmx,ikpo,nn_,noo,iqxxx,isx, &
@@ -22,7 +19,6 @@ subroutine getngbpomat(nqibze &
   enddo
   close(ifpomat)
 end subroutine getngbpomat
-
 ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
 subroutine qqsave (qi,nmax,ginv, qsave,imx)
   !---accumulate q into qsave imx
@@ -41,7 +37,6 @@ subroutine qqsave (qi,nmax,ginv, qsave,imx)
   if(imx>nmax) call rx( ' qqsave: imx>=nmax')
   qsave(:,imx) = qi
 end subroutine qqsave
-
 ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
 subroutine readd_iSigma_en(ifinin,iSigma_en)
   use m_keyvalue,only:getkeyvalue
@@ -49,7 +44,6 @@ subroutine readd_iSigma_en(ifinin,iSigma_en)
   call getkeyvalue("GWinput","iSigMode",iSigma_en )
   write(6,*)' iSigma_en=',iSigma_en
 end subroutine readd_iSigma_en
-
 ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
 subroutine getnemx(nbmx,ebmx,im,ipr)
   !- Readin nbmx ebmx for hxofp0 hscfp0
@@ -69,7 +63,6 @@ subroutine getnemx(nbmx,ebmx,im,ipr)
   if(ipr) write(6,"('  nbmx ebmx from GWinput=',i10,d13.6)") nbmx,ebmx
   return
 end subroutine getnemx
-
 ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
 subroutine getnemx8(nbmx,ebmx)
   !- Readin nbmx ebmx for hscfp0

@@ -1,5 +1,4 @@
-subroutine fermi2( qval,dos,ndos,emin,emax, &
-     eferm,e1,e2,dosef)
+subroutine fermi2( qval,dos,ndos,emin,emax,  eferm,e1,e2,dosef)
   !- Makes fermi energy from integrated density
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -21,10 +20,8 @@ subroutine fermi2( qval,dos,ndos,emin,emax, &
   integer:: i1,ie
   real(8):: de,q,q1,q2,d1mach
   ! External procedures
-  external:: d1mach
-
+  !external:: d1mach
   DIMENSION DOS(NDOS)
-
   ! ccccccccccccccccc
   !      DE = (EMAX-EMIN)/(NDOS-1)
   !      do i1=1,ndos
@@ -32,14 +29,12 @@ subroutine fermi2( qval,dos,ndos,emin,emax, &
   !      enddo
   !      write(6,"(' qval =',d13.6)") qval
   ! ccccccccccccccccccc
-
   if (dos(1) > qval) print *, 'FERMI: EMIN,EMAX=', emin,emax
   if (dos(1) > qval) call rx( 'FERMI: Fermi energy lies below EMIN')
   if (dos(ndos) < qval) print *, 'FERMI: EMIN,EMAX=', emin,emax
   if (dos(ndos) < qval) then
      call rx( 'FERMI: Fermi energy lies above EMAX')
   endif
-
   DE = (EMAX-EMIN)/(NDOS-1)
   I1 = 1
   q = qval + d1mach(3)
@@ -90,9 +85,7 @@ subroutine fermi_kbt( qval,dos,ndos,emin,emax, kbt, eferm_init, &
   external d1mach
   logical:: debug = .false.
   logical:: lessqval, moreqval
-
   DIMENSION dos(ndos)
-
   if (debug) then
      write(6,"('ndos',I8)") ndos
      write(6,"('qval,dos(1),dos(ndos)',3E13.5)") qval,dos(1),dos(ndos)
@@ -109,13 +102,11 @@ subroutine fermi_kbt( qval,dos,ndos,emin,emax, kbt, eferm_init, &
   if (dos(ndos) < qval) then
      call rx( 'FERMI: Fermi energy lies above EMAX')
   endif
-
   de = (emax-emin)/(ndos-1)
   q = qval + d1mach(3)
   ! rite(6,"('fermi_kbt_plot:: ## fermi level (T=0 K)',E13.5)") eferm_init
 !!! self-consistently determined Fermi energy Efermi(T)
   eferm_i=-9999; eferm_i(1)=eferm_init
-
   lessqval = .false.
   moreqval = .false.
   write(6,*) "fermi_i: iter, EF(i) EF(i-1) EF(i-2) EF(i-3)"
@@ -139,7 +130,6 @@ subroutine fermi_kbt( qval,dos,ndos,emin,emax, kbt, eferm_init, &
            write(6,"('ec,dos(i1),idos',I6,5E13.5)") ec,dos(i1),idos,idos_l
         endif
 300  enddo
-
 !!! shift Efermi(i-1) <-- Efermi(i) for Efermi(i+1)
      do i = 3,1,-1
         eferm_i(i+1) = eferm_i(i)

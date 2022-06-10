@@ -1,6 +1,5 @@
-subroutine gwcphi(ssite,sspec,isp,nsp,nlmax,ndham,nev,nbas, &
-     ipb,lmxax,nlindx,ndima,ppnl,aus,cphi,cphin)
-  use m_struc_def  !Cgetarg
+subroutine gwcphi(ssite,sspec,isp,nsp,nlmax,ndham,nev,nbas,ipb,lmxax,nlindx,ndima,ppnl,aus,  cphi,cphin)
+  use m_struc_def 
   !- Project (phi,phidot) onto MT sphere, Kotani's GW conventions
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -116,50 +115,29 @@ subroutine gwcphi(ssite,sspec,isp,nsp,nlmax,ndham,nev,nbas, &
   ! ----------------------------------------------------------------------
   implicit none
   ! ... Passed parameters
-  integer :: isp,nsp,nlmax,ndham,nbas,nev,lmxax,ndima,ipb(nbas), &
-       nlindx(3,0:lmxax,nbas),i_copy_size
+  integer :: isp,nsp,nlmax,ndham,nbas,nev,lmxax,ndima,ipb(nbas), nlindx(3,0:lmxax,nbas)
   integer :: n0,nppn
   parameter (n0=10,nppn=12)
   type(s_site)::ssite(*)
   type(s_spec)::sspec(*)
-
   double precision :: ppnl(nppn,n0,nsp,*),cphin(2,nev)
   double complex aus(nlmax,ndham,3,nsp,*),cphi(ndima,nev)
-  ! ... Local parameters
   double precision :: lmat(3,3),pnu(n0,2),pnz(n0,2)
   integer :: lmxa,ichan,ib,is,igetss,iv,ilm,l,im,k,ia,i,ibas
   double precision :: s00,s11,szz,s0z,s1z,D
   double complex au,as,az,sqrsz(3)
-  ! cccccccccccccccccccccccccccc
-  !      do i=1,3
-  !        do ibas=1,nbas
-  !          write(6,*)'gggg222',nlindx(i,1:lmxax,ibas)
-  !        enddo
-  !      enddo
-  ! cccccccccccccccccccccccccccccc
   call dpzero(lmat,9)
   call dpzero(cphin,2*nev)
-  !     ichan0 = 0
   do  ib = 1, nbas
-     is = int(ssite(ib)%spec)
+     is = ssite(ib)%spec
      ia = ipb(ib)
-
-     !        i_copy_size=size(sspec(is)%p)
-     !        call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
-     !        i_copy_size=size(sspec(is)%pz)
-     !        call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1)
      pnz =ssite(ib)%pz
      lmxa=sspec(is)%lmxa
-
      if (lmxa == -1) goto 10
-
      do  iv = 1, nev
-        !         ichan = ichan0
         ilm = 0
         do  l = 0, lmxa
-
            k = l+1
-
            s00 = ppnl(2,k,isp,ib)
            s11 = ppnl(7,k,isp,ib)
            lmat(1,1) = sqrt(s00)
@@ -173,35 +151,17 @@ subroutine gwcphi(ssite,sspec,isp,nsp,nlmax,ndham,nev,nbas, &
               lmat(3,2) = s1z/sqrt(s11)
               lmat(3,3) = D
            else
-              lmat(3,1) = 0
-              lmat(3,2) = 0
-              lmat(3,3) = 0
+              lmat(3,:) = 0
            endif
-
-           if ( .NOT. (pnz(k,1) == 0 .eqv. nlindx(3,l,ia) == -1)) then
-              call rx('gwcphi: nlindx mismatch')
-           endif
-
+           if(.NOT.(pnz(k,1) == 0 .eqv. nlindx(3,l,ia) == -1)) call rx('gwcphi: nlindx mismatch')
            do  im = 1, 2*l+1
               ilm = ilm+1
               au = aus(ilm,iv,1,isp,ib)
               as = aus(ilm,iv,2,isp,ib)
               az = aus(ilm,iv,3,isp,ib)
-
-              sqrsz(1) = lmat(1,1)*au + lmat(3,1)*az
-              sqrsz(2) = lmat(2,2)*as + lmat(3,2)*az
-              sqrsz(3) =                lmat(3,3)*az
-              cphin(1,iv) = cphin(1,iv) + &
-                   dconjg(sqrsz(1))*sqrsz(1) + &
-                   dconjg(sqrsz(2))*sqrsz(2) + &
-                   dconjg(sqrsz(3))*sqrsz(3)
-              cphin(2,iv) = cphin(2,iv) + &
-                   dconjg(sqrsz(1))*sqrsz(1)
-
-              !            cphin(2,iv) = cphin(2,iv) +
-              !     .                    dconjg(lmat(1,1)*au)*lmat(1,1)*au
-
-              !           ichan = ichan+1
+              sqrsz = [lmat(1,1)*au + lmat(3,1)*az, lmat(2,2)*as + lmat(3,2)*az, lmat(3,3)*az]
+              cphin(1,iv) = cphin(1,iv) +   sum(dconjg(sqrsz(:))*sqrsz(:))
+              cphin(2,iv) = cphin(2,iv) +       dconjg(sqrsz(1))*sqrsz(1)
               ichan = nlindx(1,l,ia) + im
               cphi(ichan,iv) = au
               ichan = nlindx(2,l,ia) + im
@@ -214,11 +174,8 @@ subroutine gwcphi(ssite,sspec,isp,nsp,nlmax,ndham,nev,nbas, &
            enddo
         enddo
      enddo
-     !       ichan0 = ichan
-
 10   continue
   enddo
-
 end subroutine gwcphi
 
 

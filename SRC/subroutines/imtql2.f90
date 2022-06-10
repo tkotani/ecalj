@@ -1,9 +1,7 @@
 subroutine imtql2(nm,n,d,e,z,ierr)
-
   integer :: i,j,k,l,m,n,ii,nm,mml,ierr
   double precision :: d(n),e(n),z(nm,n)
   double precision :: b,c,f,g,p,r,s,tst1,tst2,pythag,d1mach,tol
-
   !     this subroutine is a translation of the algol procedure imtql2,
   !     num. math. 12, 377-383(1968) by martin and wilkinson,
   !     as modified in num. math. 15, 450(1970) by dubrulle.

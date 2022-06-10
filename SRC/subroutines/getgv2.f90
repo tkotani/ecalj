@@ -1,6 +1,4 @@
-! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-subroutine getgv2(alat,plat,qlat,q, QpGcut,job, &
-     ng, ngvec)
+subroutine getgv2(alat,plat,qlat,q, QpGcut,job,    ng, ngvec)
   !-  Set up a list of recip vectors within cutoff |Q+G| < QpGcut a.u.
   ! takao
   ! job==1 -> return ng (number of G ) only
@@ -12,8 +10,7 @@ subroutine getgv2(alat,plat,qlat,q, QpGcut,job, &
   real(8):: s_lat(1),q(3),plat(3,3),qlat(3,3),qpg(3),enor(3) &
        ,pi,alat,tpiba,QpGmax,QpGmax2,QpGcut,Qenor
   integer :: &
-       n1max,n1min,n2max,n2min,n3max,n3min, &
-       i1,i2,i3,ig,job,imx
+       n1max,n1min,n2max,n2min,n3max,n3min, i1,i2,i3,ig,job,imx
   integer ::  ngvec(3,ng)
   pi=4d0*datan(1d0)
   tpiba=2*pi/alat

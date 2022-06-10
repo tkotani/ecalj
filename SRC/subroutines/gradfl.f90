@@ -1,5 +1,4 @@
-subroutine gradfl(lmax,nd,nr,np,ir0,ir1,lgg,lx,nn,ri,yl,gyl,fl, &
-     gp,ggp)
+subroutine gradfl(lmax,nd,nr,np,ir0,ir1,lgg,lx,nn,ri,yl,gyl,fl,  gp,ggp)
   !- Gradient, Laplacian of function point-wise through sphere from YL expansion
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -33,17 +32,13 @@ subroutine gradfl(lmax,nd,nr,np,ir0,ir1,lgg,lx,nn,ri,yl,gyl,fl, &
   !u Updates
   !u   02 Apr 09 Made gf,ggf local; fixed bug for 10s digit lx case
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
+  implicit none
   integer :: np,nr,nd,lx,nn,lmax,ir0,ir1
-  double precision :: fl(nr,1),gp(ir0:ir1,np,3),ggp(ir0:ir1,np), &
-       ri(nr),yl(np,nd),gyl(np,nd,3)
-  ! ... Local parameters
+  double precision :: fl(nr,1),gp(ir0:ir1,np,3),ggp(ir0:ir1,np), ri(nr),yl(np,nd),gyl(np,nd,3)
   integer :: i0,ilm,ip,ir,j,l,m,l2,lerr,lgg,iprint,jx,nx
   double precision :: xx,cy1,tol,egf0,gf(nr),ggf(nr)
   logical :: lrat
   parameter (tol=1d-12)
-
   if (ir0 < 1) call rx('gradfl: illegal value of ir0')
   cy1 = dsqrt(3/(16*datan(1d0)))
   l2 = mod(lx,100)
@@ -54,7 +49,6 @@ subroutine gradfl(lmax,nd,nr,np,ir0,ir1,lgg,lx,nn,ri,yl,gyl,fl, &
      i0 = 2
      nx = nr-1
   endif
-
   ! --- Contribution (grad fl) r^-l yl ---
   call dpzero(gp,    (ir1-ir0+1)*np*3)
   if (lgg /= 0) call dpzero(ggp,   (ir1-ir0+1)*np)
@@ -77,18 +71,11 @@ subroutine gradfl(lmax,nd,nr,np,ir0,ir1,lgg,lx,nn,ri,yl,gyl,fl, &
            jx = 1
            call polint(ri(2),gf(2),nx,nn,ri,0d0,0,jx,gf,egf0)
            lerr = 1
-           !        if (iprint() .ge. 40 .and.
            if (iprint() >= 50 .AND. &! & takao. too noizy.
               dabs(egf0) .gt. 1d-3*max(dabs(gf(1)),dabs(gf(2)))) then
               call info5(40,0,0,' gradfl (warning): uncertainty in grad'// &
                    ' f(r=0,L=%i):  f=%;3g  est err= %;3g',ilm,gf(1),egf0,0,0)
               print *,'TAKAO: this warning is probably not a problem. If you like, plot ri.vs.gf as in gradfl.'
-              ! cccccccccccccccccccccccccccccccccccccccccccccc
-              !          do ir=ir0,ir1
-              !             print *,'rrrrr:',ri(ir),gf(ir)
-              !          enddo
-              !          stop 'rrrrrrrrrrrrrrrrrrrrr'
-              ! cccccccccccccccccccccccccccccccccccccccccccccc
            endif
         endif
         do    ip = 1, np
@@ -96,7 +83,6 @@ subroutine gradfl(lmax,nd,nr,np,ir0,ir1,lgg,lx,nn,ri,yl,gyl,fl, &
               gp(ir,ip,1) = gp(ir,ip,1) + gf(ir)*yl(ip,ilm)
            enddo
         enddo
-
         ! --- Laplacian: (nabla fl) Yl + fl (nabla Yl) ---
         if (lgg /= 0) then
            call poldvm(ri(i0),gf(i0),nx,nn,lrat,tol,lerr,ggf(i0))
@@ -131,7 +117,6 @@ subroutine gradfl(lmax,nd,nr,np,ir0,ir1,lgg,lx,nn,ri,yl,gyl,fl, &
         enddo
      enddo
   enddo
-
   ! --- Contribution fl(r) grad r^-l yl (use gf as work array) ---
   ilm = 0
   do  101  l = 0, lmax
@@ -159,11 +144,9 @@ subroutine gradfl(lmax,nd,nr,np,ir0,ir1,lgg,lx,nn,ri,yl,gyl,fl, &
 10   enddo
 101 enddo
   return
-
   ! --- Error handling ---
 99 print *, 'gradfl: stopping at ilm=',ilm,'  point', lerr
   call rx('gradfl: can''t diff radial function')
-
 end subroutine gradfl
 !$$$#if TEST
 !$$$C Test program to check

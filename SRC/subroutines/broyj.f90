@@ -1,6 +1,4 @@
-! define AWRITE 1
-integer function broyj(n,xin,gin,ir,isw,ipr,beta,dxmx,xtol,gtol, &
-     wc,wk,ndw,xnew)
+integer function broyj(n,xin,gin,ir,isw,ipr,beta,dxmx,xtol,gtol, wc,wk,ndw,xnew)
   !- One Broyden step in finding gin = f[xin]-xin = 0
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -36,8 +34,7 @@ integer function broyj(n,xin,gin,ir,isw,ipr,beta,dxmx,xtol,gtol, &
   ! ----------------------------------------------------------------------
   implicit none
   integer :: isw,ir,n,ipr,ndw
-  double precision :: beta,dxmx,wc,xin(n),gin(n),xnew(n),xtol,gtol, &
-       wk(ndw,2,0:ir)
+  double precision :: beta,dxmx,wc,xin(n),gin(n),xnew(n),xtol,gtol, wk(ndw,2,0:ir)
   ! Local variables
   integer :: i,ip,j,k,irm1,irm2,lm,ln,nn,i1mach,isw1,isw2,isw3 !dinv
   integer :: ierr
