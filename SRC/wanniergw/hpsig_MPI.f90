@@ -827,7 +827,7 @@ subroutine qggmat(q,alat,plat,qlat, &
               ! r \times j_l(|qg|r)  !bessel function
               do ir =1,ntail(j,iwf)
                  rtmp = rtail(ir,j,iwf)
-                 call besslggg(absqg2*rtmp**2,lxx,phij,psij)
+                 call bessl(absqg2*rtmp**2,lxx,phij,psij)
                  !  phij(lx) \approx 1/(2l+1)!! for small absqg*rr(ir,ibas).
                  if(rtmp==0d0) then
                     rjl(ir)=0d0

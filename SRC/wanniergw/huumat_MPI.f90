@@ -863,7 +863,7 @@ program h_uumatrix
            !        write(6,"(' nindx=',10i3)") nindx(1:nl,ic)
            !        write(6,*)' radial integral ibas=',ibas
            do ir =1,nrofi(ic)
-              call besslggg(absqg2*rr(ir,ibas)**2,lxx,phij,psij)
+              call bessl(absqg2*rr(ir,ibas)**2,lxx,phij,psij)
               !  phij(lx) \approx 1/(2l+1)!! for small absqg*rr(ir,ibas).
               do lx = 0, lxx
                  if(rr(ir,ibas)==0d0) then

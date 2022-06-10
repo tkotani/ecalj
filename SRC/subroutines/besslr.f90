@@ -1,39 +1,6 @@
-subroutine bessl(y,lmax,fi,gi) ! Bessel and Hankel functions, standard definitions
-  implicit none
-  integer :: lmax,lmin=0
-  double precision :: y,fi(0:lmax),gi(0:lmax)
-  call besslr(y,lmin,lmax,fi,gi)
-end subroutine bessl
-
-! subroutine bessl2(y,lmin,lmax,fi,gi)!- Bessel and Hankel functions, Andersen's definitions
-!   implicit none
-!   integer :: lmin,lmax,l
-!   double precision :: y,fi(lmin:lmax),gi(lmin:lmax),fac2l(0:lmax)
-!   call besslr(y,lmin,lmax,fi,gi)
-!   ! !Andersen's factor multipled (do 68 in besslr)
-!   fac2l(0) = 1d0
-!   do  l = 1, lmax
-!      fac2l(l) = fac2l(l-1) * (l+l-1)
-!   enddo
-!   do  68  l = lmin, lmax 
-!      fi(l) = fi(l)*fac2l(l)*0.5d0
-!      gi(l) = gi(l)/fac2l(l)
-! 68 enddo
-! end subroutine bessl2
-
-! subroutine besslm(y,lmax,fi,gi)
-!   !- Radial part of Bessel functions, standard definitions
-!   !  See besslr for definitions.
-!   !  For y=0, fi(l) = (2l-1)!!, gi(l) = 1/(2l+1)!!
-!   !     implicit none
-!   ! Passed variables:
-!   integer :: lmax
-!   double precision :: y,fi(0:lmax),gi(0:lmax)
-!   call besslr(y,0,lmax,fi,gi)
-! end subroutine besslm
-
-subroutine besslr(y,lmin,lmax,fi,gi)!(y,loka,lmin,lmax,fi,gi)
-  !- Radial part of Bessel functions, standard definitions. loka=0 only now 2022-6-10
+!- Radial part of Bessel and Hankel functions, Standard definitions. 
+subroutine bessl(y,lmax,fi,gi)
+!subroutine besslr(y,lmin,lmax,fi,gi)!(y,loka,lmin,lmax,fi,gi) !loka=0 only now 2022-6-10
   ! ----------------------------------------------------------------------
   !i Inputs:
   !i   y     :y = e*r**2 = z**2 = (kappa*r)**2 = -(akap*r)**2, Im kappa>=0
@@ -182,7 +149,8 @@ subroutine besslr(y,lmin,lmax,fi,gi)!(y,loka,lmin,lmax,fi,gi)
   implicit none
   ! Passed variables:
   !integer :: loka
-  integer :: lmin,lmax
+  integer,parameter :: lmin=0
+  integer :: lmax
   double precision :: y,fi(lmin:lmax),gi(lmin:lmax)
   ! Local variables:
   integer :: i,isn,j1,j2,k,l,lmx,lmxp1,lmxp2,nf,tlp1,ll1,ll2,nlmax
@@ -193,10 +161,9 @@ subroutine besslr(y,lmin,lmax,fi,gi)!(y,loka,lmin,lmax,fi,gi)
   parameter(tol=1.d-15)
 !  parameter(lhank = .true.)
   ! Intrinsic functions:
-  intrinsic dabs,dexp,dsqrt,max0
-
+  !intrinsic dabs,dexp,dsqrt,max0
   lmx = max0(lmax,2)
-  if (lmin > 0) call rx(' BESSL : lmin gt 0')
+!  if (lmin > 0) call rx(' BESSL : lmin gt 0')
   if (lmx > nlmax+nlmax) then
      call rxi(' BESSL : lmax gt nlmax*2, lmax=',lmx)
   endif
@@ -310,7 +277,42 @@ subroutine besslr(y,lmin,lmax,fi,gi)!(y,loka,lmin,lmax,fi,gi)
 !         gi(l) = gi(l)/fac2l(l)
 ! 68   enddo
 !  endif
-end subroutine besslr
+end subroutine bessl
+
+
+! subroutine bessl(y,lmax,fi,gi) ! Bessel and Hankel functions, standard definitions
+!   implicit none
+!   integer :: lmax,lmin=0
+!   double precision :: y,fi(0:lmax),gi(0:lmax)
+!   call besslr(y,lmin,lmax,fi,gi)
+! end subroutine bessl
+
+! subroutine bessl2(y,lmin,lmax,fi,gi)!- Bessel and Hankel functions, Andersen's definitions
+!   implicit none
+!   integer :: lmin,lmax,l
+!   double precision :: y,fi(lmin:lmax),gi(lmin:lmax),fac2l(0:lmax)
+!   call besslr(y,lmin,lmax,fi,gi)
+!   ! !Andersen's factor multipled (do 68 in besslr)
+!   fac2l(0) = 1d0
+!   do  l = 1, lmax
+!      fac2l(l) = fac2l(l-1) * (l+l-1)
+!   enddo
+!   do  68  l = lmin, lmax 
+!      fi(l) = fi(l)*fac2l(l)*0.5d0
+!      gi(l) = gi(l)/fac2l(l)
+! 68 enddo
+! end subroutine bessl2
+
+! subroutine besslm(y,lmax,fi,gi)
+!   !- Radial part of Bessel functions, standard definitions
+!   !  See besslr for definitions.
+!   !  For y=0, fi(l) = (2l-1)!!, gi(l) = 1/(2l+1)!!
+!   !     implicit none
+!   ! Passed variables:
+!   integer :: lmax
+!   double precision :: y,fi(0:lmax),gi(0:lmax)
+!   call besslr(y,0,lmax,fi,gi)
+! end subroutine besslm
 
 
 !      subroutine fmain

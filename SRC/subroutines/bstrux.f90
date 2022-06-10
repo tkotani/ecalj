@@ -277,28 +277,22 @@ contains
     complex(8),optional::db0(0:kmax,nlma,nlmbx,3),db(ndimh,nlma,0:kmax,3)
     ! ... Local parameters
     integer :: i1,ik1,k,ilma,ilmb,iorb,l1,nlm1,nlm2
-    integer :: blks(norb),ntab(norb)
+    integer :: blks(norb),ntab(norb),ol,oi,iblk
     double precision :: xx
     !     Block into groups of consecutive l
     call gtbsl1(4+16,norb,ltab,ktab,rsmh,xx,ntab,blks)
-
     do  iorb = 1, norb
        ik1 = ktab(iorb)
        if (ik1 == ik .AND. blks(iorb) /= 0) then
-          l1  = ltab(iorb)
-          nlm1 = l1**2+1
-          nlm2 = nlm1 + blks(iorb)-1
-          i1 = offl(iorb)
-          do  ilmb = nlm1, nlm2
-             i1 = i1+1
+          ol = ltab(iorb)**2
+          oi = offl(iorb)
+          do iblk = 1, blks(iorb)
              if (mode == 0) then
-                do  ilma = 1, nlma
-                   b(i1,ilma,:) = b0(:,ilma,ilmb)
-                enddo
+                b(oi+iblk,1:nlma,:) = transpose(b0(:,1:nlma, ol+iblk))
              else
+                b(oi+iblk,:,0:kmax) = transpose(b0(0:kmax,:,ol+iblk))
                 do  k = 0, kmax
-                   b(i1,:,k)    =  b0(k,:,ilmb)
-                   db(i1,:,k,:) = db0(k,:,ilmb,:)
+                   db(oi+iblk,:,k,:) = db0(k,:,ol+iblk,:)
                 enddo
              endif
           enddo
@@ -339,24 +333,18 @@ contains
     double precision :: rsmh(n0,nkap0)
     double complex b0(0:k0,nlma,1),b(0:k0,nlma,1)
     integer :: ilmb,ilma,k,iorb,l1,ik1,i1,nlm1,nlm2
-    integer :: blks(norb),ntab(norb)
+    integer :: blks(norb),ntab(norb),oi,ol,nn
     double precision :: xx
-    !     Block into groups of consecutive l
-    call gtbsl1(4+16,norb,ltab,ktab,rsmh,xx,ntab,blks)
+    call gtbsl1(4+16,norb,ltab,ktab,rsmh,xx,ntab,blks) !! Block into groups of consecutive l
     do  iorb = 1, norb
        ik1 = ktab(iorb) ! Loop only over orbitals belonging to this energy block
-       if (ik1 == ik .AND. blks(iorb) /= 0) then
-          l1  = ltab(iorb)
-          nlm1 = l1**2+1
-          nlm2 = nlm1 + blks(iorb)-1
-          i1 = offl(iorb)
-          do  ilmb = nlm1, nlm2
-             i1 = i1+1
-             do ilma = 1, nlma
-                b(0:kmax,ilma,i1) = b0(0:kmax,ilma,ilmb)
-                b(kmax+1:k0,ilma,i1) = 0d0
-             enddo
-          enddo
+       if (ik1 == ik .AND. blks(iorb) /= 0) then !blks(iorb): size of block of iorb
+          l1 = ltab(iorb)
+          oi = offl(iorb)
+          ol = l1**2
+          nn = blks(iorb)
+          b(0:kmax,   1:nlma,oi+1:oi+nn) = b0(0:kmax,1:nlma,ol+1:ol+nn)
+          b(kmax+1:k0,1:nlma,oi+1:oi+nn) = 0d0
        endif
     enddo
   end subroutine paugq1

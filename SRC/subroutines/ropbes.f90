@@ -1,27 +1,24 @@
+!  Spherical Bessel function
 module m_ropbes
   public ropbes
   private
   contains
 ! ----------------------------------------------------------------
 !   spherical Bessel function at x=r(i)*sqrt(e) divided by x**l
-
 !i Inputs
 !i   r    list of points
 !i   e    energy
 !i   y,h  work vectors of length n each (not used)
 !o Outputs
 !o   xi   J(r,l)/r**l, according to standard definition
-
 ! origianl: Feb. 15, 2010, Hiori Kino
 subroutine ropbes(r,e,lmax,y,h,xi,n)
   implicit none
   integer :: lmax,n
   double precision :: e,r(n),xi(n,0:lmax),h(n),y(n)
-
   double precision :: e2,f(0:lmax),eps=1.0d-10,x
   double precision :: sj,sy,sjp,syp
   integer:: i,l
-
   e2=sqrt(e)
   do i=1,n
      x=r(i)*e2
@@ -32,10 +29,8 @@ subroutine ropbes(r,e,lmax,y,h,xi,n)
      enddo
      xi(i,0:lmax)= f(0:lmax)
   enddo
-
 end subroutine ropbes
 !--------------------------------
-
 SUBROUTINE bessjy(x,xnu,rj,ry,rjp,ryp)
   implicit none
   INTEGER :: MAXIT

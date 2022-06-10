@@ -1,7 +1,6 @@
 #NOTE: when you add your foobar.F, choose one of *_list.
 
 ELIB_list=\
-unused.o \
 m_shortn3.o\
 m_shortn3_plat.o\
 m_smhankel.o\
@@ -116,7 +115,6 @@ roplat.o \
 ropyln.o \
 rseq.o \
 rsort.o \
-rstr0.o \
 s2sph.o \
 scg.o \
 shftpp.o \
@@ -387,7 +385,6 @@ sxcf_fal2.sc.o \
 sxcf_fal2.o \
 diagcv2.o \
 wronkj.o \
-bessl.o \
 rpaq.o \
 m_readeps.o \
 m_readq0p.o \

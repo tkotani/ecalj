@@ -55,7 +55,7 @@ subroutine radkj(e,r,lmax,ak,aj,dk,dj,job)
   dimension ak(*),aj(*),dk(*),dj(*),phi(200),psi(200),php(200),psp(200) ! MIZUHO-IR
   er2=e*r*r
   if(job == 0) then
-     call besslggg(er2,lmax+1,phi,psi)
+     call bessl(er2,lmax+1,phi,psi)
      rl=1.d0/r
      do 10 l=0,lmax
         lp1=l+1
@@ -66,7 +66,7 @@ subroutine radkj(e,r,lmax,ak,aj,dk,dj,job)
         dj(lp1)=(l*phi(lp1)-er2*phi(l+2))*rl/r
 10   enddo
   else
-     call besslggg(er2,lmax+2,phi,psi)
+     call bessl(er2,lmax+2,phi,psi)
      do 11 lp1=1,lmax+2
         php(lp1)=-0.5d0*r*r*phi(lp1+1)
         psp(lp1)=0.5d0*((2*lp1-1)*psi(lp1)-psi(lp1+1))/e

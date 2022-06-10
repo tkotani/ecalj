@@ -38,103 +38,57 @@ subroutine flocbl(nbas,ia,kmax,nkaph,lmxha,nlmha,nlma,lmxa,nlmto, &
   !u   17 Jun 00 spin polarized
   !u   25 May 00 Adapted from nfp floc_q.f
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
+  implicit none
   integer :: ia,kmax,lmxa,nkaph,nbas,nlmto,ndimh,nlma,lmxha,nlmha,isp
   double precision :: evl,f(3,nbas),ewgt, &
        sigpp(0:kmax,0:kmax,0:lmxa,isp),sighp(nkaph,0:kmax,0:lmxha,isp)
-  !     .ppihp(nkaph,0:kmax,nlmha,nlma,isp)
-  !     .ppipp(0:kmax,0:kmax,nlma,nlma,isp)
   double complex db(ndimh,nlma,0:kmax,3),da(0:kmax,nlma,3), &
        evec(ndimh),cPkL(0:kmax,nlma),wk(0:kmax,nlma)
   double complex ppihpz(nkaph,0:kmax,nlmha,nlma,isp)
   double complex ppippz(0:kmax,0:kmax,nlma,nlma,isp)
-  ! ... Local parameters
   integer :: i,ib,ilm,ilmb,io,iq,k,l2,m,nlm1,nlm2,n0,nkap0
   parameter (n0=10,nkap0=3)
-  !      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
-  integer :: blks(n0*nkap0),ntab(n0*nkap0)
-  double precision :: sum,wt,xx
+  integer :: blks(n0*nkap0),ntab(n0*nkap0),oi,ol,iblk
+  double precision :: wt,xx,ssum(3)
   if (nlmto == 0) return
-
   call tcn('flocbl')
   ! ... Make (ppi-evl*sig)*psi in wk
   call flocb2(ia,nlmto,kmax,nkaph,nlmha,nlma,evl,evec, &
-       ppippz(0,0,1,1,isp),sigpp(0,0,0,isp), &
-       ppihpz(1,0,1,1,isp),sighp(1,0,0,isp), &
-       cPkL,wk) !lcplxp,
-
+       ppippz(0,0,1,1,isp),sigpp(0,0,0,isp),ppihpz(1,0,1,1,isp),sighp(1,0,0,isp), cPkL,wk) 
   ! ... Loop over ib, virtual shift of wavefct part centered there
   do  ib = 1, nbas
-     if (ib == ia) goto 10
+     if (ib == ia) cycle
      call orblib(ib)!norb,ltab,ktab,offl
      call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
-
      !   ... Grad of psi expansion coeffs from a virtual shift at site ib
-     call dpzero(da, 2*(kmax+1)*nlma*3)
-     do  io = 1, norb
-        if (blks(io) /= 0) then
-           !         l2 = l index, needed to locate block in da,db
-           l2   = ltab(io)
-           nlm1 = l2**2+1
-           nlm2 = nlm1 + blks(io)-1
-           i    = offl(io)
-           !         i = index to head term, (ilm,k) to augmentation
-           do  ilmb = nlm1, nlm2
-              i = i+1
-              do  m = 1, 3
-                 do  ilm = 1, nlma
-                    do  k = 0, kmax !da can be written as {d cPkL}/{d R}. See rlocb1 in rlocbl.F for generating cPkL. b is used instead of db
-                       da(k,ilm,m) = da(k,ilm,m) + evec(i)*db(i,ilm,k,m)
-                    enddo
-                 enddo
-              enddo
-           enddo
-        endif
-     enddo
-     !   --- Force term is (grad psi_kL) * (ppi-evl*sig)*evec ---
-     do  m = 1, 3
-        sum = 0d0
-        do  ilm = 1, nlma
-           do  k = 0, kmax
-              sum = sum + 2d0*dconjg(da(k,ilm,m))*wk(k,ilm)
+     da=0d0 !da can be written as {d cPkL}/{d R}.See rlocb1 to make cPkL. b is used instead of db
+     do io = 1, norb
+        ol = ltab(io)**2
+        oi = offl(io)  
+        do iblk=1,blks(io)  !if blsk(io)=0, no loop cycle
+           do  ilm = 1, nlma
+              da(0:kmax,ilm,1:3)=da(0:kmax,ilm,1:3)+evec(oi+iblk)*db(oi+iblk,ilm,0:kmax,1:3)
            enddo
         enddo
-        wt = ewgt
-        f(m,ib) = f(m,ib) - wt*sum
-        f(m,ia) = f(m,ia) + wt*sum
      enddo
-10   continue
+     ! --- Force term is (grad psi_kL) * (ppi-evl*sig)*evec ---
+     ssum = ewgt* 2d0* [(sum(dconjg(da(:,:,m))*wk(:,:)),m=1,3)]
+     f(:,ib) = f(:,ib) - ssum
+     f(:,ia) = f(:,ia) + ssum
   enddo
-
   ! --- Force at site ia from PWs ---
-  call dpzero(da, 2*(kmax+1)*nlma*3)
-  do  m = 1, 3
-     do  k = 0, kmax
-        do  ilm = 1, nlma
-           do  i = nlmto+1, ndimh
-              da(k,ilm,m) = da(k,ilm,m) + evec(i)*db(i,ilm,k,m)
-           enddo
-        enddo
+  da=0d0
+  do  ilm = 1, nlma
+     do  i = nlmto+1, ndimh
+        da(:,ilm,:) = da(:,ilm,:) + evec(i)*db(i,ilm,:,:)
      enddo
   enddo
   ! ... Force term is (grad psi_kL) * (ppi-evl*sig)*evec
-  do  m = 1, 3
-     sum = 0d0
-     do  ilm = 1, nlma
-        do  k = 0, kmax
-           sum = sum + 2d0*dconjg(da(k,ilm,m))*wk(k,ilm)
-        enddo
-     enddo
-     wt = ewgt
-     f(m,ia) = f(m,ia) + wt*sum
-  enddo
-
+  f(:,ia) = f(:,ia) + ewgt*2d0*[(sum(dconjg(da(:,:,m))*wk(:,:)),m=1,3)]
   call tcx('flocbl')
 end subroutine flocbl
 
 subroutine flocb2(ia,nlmto,kmax,nkaph,nlmha,nlma,evl,evec, &
-     !     .ppipp,ppippz,sigpp,ppihp,ppihpz,sighp,cPkL,wk)!lcplxp,
      ppippz,sigpp,ppihpz,sighp,cPkL,wk)!lcplxp,
   use m_orbl,only: Orblib, norb,ltab,ktab,offl
   !- Make (ppi-evl*sig)*evec

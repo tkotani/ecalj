@@ -43,19 +43,13 @@ subroutine mshvmt(nbas,ssite,sspec,ng,gv, kv,cv,k1,k2,k3,smpot,vval)
   !u   22 Aug 01 Newly created.
   ! ----------------------------------------------------------------------
   implicit none
-  ! ... Passed parameters
   integer :: k1,k2,k3,nbas,ng,kv(ng,3),i_copy_size
   real(8):: gv(ng,3) , vval(1)
   type(s_site)::ssite(*)
   type(s_spec)::sspec(*)
-  !      type(s_lat)::slat
-
   double complex smpot(k1,k2,k3),cv(ng)
-  ! ... Local parameters
-  integer :: i,ib,is,lmxx,nlmx,iv0,lmxl,nlm,ngabc(3), &
-       n1,n2,n3,m,ilm,l,ipr
+  integer :: i,ib,is,lmxx,nlmx,iv0,lmxl,nlm,ngabc(3), n1,n2,n3,m,ilm,l,ipr
   double precision :: alat,pi,tpiba,tau(3),rmt,fac,plat(3,3)
-  !     double precision q(3),qlat(3,3)
   double complex vvali,fprli
   equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
   parameter (lmxx=6, nlmx=(lmxx+1)**2)
@@ -67,40 +61,27 @@ subroutine mshvmt(nbas,ssite,sspec,ng,gv, kv,cv,k1,k2,k3,smpot,vval)
   call getpr(ipr)
   pi = 4d0*datan(1d0)
   alat=lat_alat
-  !      i_copy_size=size(lat_plat)
-  !      call dcopy(i_copy_size,lat_plat,1,plat,1)
-  !      i_copy_size=size(lat_nabc)
-  !     call icopy(i_copy_size,lat_nabc,1,ngabc,1)
   plat =lat_plat
   ngabc=lat_nabc
   tpiba = 2*pi/alat
   call gvgetf(ng,1,kv,k1,k2,k3,smpot,cv)
-
   ! --- YL(G)*G**l, agv=|G| for each g ---
   call dpcopy(gv,gv2,1,3*ng,tpiba)
   call ropyln(ng,gv2(1,1),gv2(1,2),gv2(1,3),lmxx,ng,yl,agv)
   do  i = 1, ng
      agv(i) = sqrt(agv(i))
   enddo
-
-  ! --- For each ib in nbas, do ---
   iv0 = 0
   do  ib = 1, nbas
-
      is=ssite(ib)%spec
-     i_copy_size=size(ssite(ib)%pos)
-     call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1)
-
-
+     tau=ssite(ib)%pos
      rmt=sspec(is)%rmt
      lmxl=sspec(is)%lmxl
-
      if (lmxl == -1) goto 10
      nlm = (lmxl+1)**2
      if (nlm > nlmx) call rxi('mshvmt: increase nlmx to',nlm)
      !       Add a negligibly small amount to rmt to handle case rmt=0
      rmt = rmt+1d-32
-
      !   --- j_l(|rmt*q|)/rmt**l for each G and l=0..lmax ---
      !       Does not evolve correctly in the correct large r limit
      call ropbes(agv,rmt**2,lmxl,cgp,sgp,phil,ng)
@@ -121,7 +102,6 @@ subroutine mshvmt(nbas,ssite,sspec,ng,gv, kv,cv,k1,k2,k3,smpot,vval)
         cgp(i) = dcos(fac)
         sgp(i) = dsin(fac)
      enddo
-
      !   --- Sum_G 4*pi*(i*rmt)**l j_l(|rmt*G|)/(rmt*G)**l YL(G) G**l ---
      !       call dpzero(vval(iv0+1),nlm)
      ilm = 0
@@ -138,7 +118,6 @@ subroutine mshvmt(nbas,ssite,sspec,ng,gv, kv,cv,k1,k2,k3,smpot,vval)
         enddo
         fprli = fprli*(0d0,1d0)*rmt
      enddo
-
      !   ... Printout
      !        if (ipr .gt. 0) then
      !          do  ilm = 1, nlm
@@ -151,18 +130,13 @@ subroutine mshvmt(nbas,ssite,sspec,ng,gv, kv,cv,k1,k2,k3,smpot,vval)
      !  651                     format(4x,i6,f12.6)
      !          enddo
      !        endif
-
      iv0 = iv0 + nlm
 10   continue
   enddo
-  ! i#error have #if F90 directive
-  ! FCPP#if F90
   deallocate(phil,yl)
   deallocate(gv2,agv,cgp,sgp)
-  ! FCPP#endif
   call tcx('mshvmt')
 end subroutine mshvmt
-
 
 subroutine symvvl(nbas,ssite,sspec,vval,vrmt)
   use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp
@@ -197,20 +171,16 @@ subroutine symvvl(nbas,ssite,sspec,vval,vrmt)
   !u   23 Aug 01 Newly created.
   ! ----------------------------------------------------------------------
   implicit none
-  ! ... Passed parameters
   integer :: nbas,i_spackv
   real(8):: vval(1) , vrmt(nbas)
   type(s_site)::ssite(*)
   type(s_spec)::sspec(*)
-  !      type(s_lat)::slat
-  ! ... Local parameters
   integer :: ic,ib,ilm,mxint,nclass,ipa(nbas),nrclas,iv0
   integer :: ipc(nbas),ips(nbas),lmxl(nbas)
   double precision :: pos(3,nbas),posc(3,nbas),plat(3,3),pi,y0
   integer:: igetss , nlml ,ipr , jpr , ngrp , nn , iclbas
   real(8) ,allocatable :: qwk_rv(:)
   real(8) ,allocatable :: sym_rv(:)
-  !      stdo = lgunit(1)
   call getpr(ipr)
   plat=lat_plat
   ngrp=lat_nsgrp
@@ -251,7 +221,6 @@ subroutine symvvl(nbas,ssite,sspec,vval,vrmt)
      if (lmxl(ib) == -1) goto 10
      nlml = (lmxl(ib)+1)**2
      vrmt(ib) = vval(1+iv0)*y0
-     !   ... Printout
      ic = ipc(ib)
      jpr = 0
      if (ipr > 60) jpr = 2

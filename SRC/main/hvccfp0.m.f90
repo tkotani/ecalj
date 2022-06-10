@@ -193,7 +193,7 @@ program hvccfp0
              tpiba * (qibz(1:3,iqx)+ matmul(qlat, ngvecci(1:3,ig1,iqx)))
         absqg2  = sum(qg(1:3)**2)
         do ir =1,nrx
-           call besslggg(absqg2*rofit(ir)**2,lxx,phi,psi)
+           call bessl(absqg2*rofit(ir)**2,lxx,phi,psi)
            do ibas=1,nbas
               do l = 0, lx(ibas)
                  rprodx(ir,n,l,ibas) = phi(l)* rofit(ir) **(l +1 )
@@ -1077,7 +1077,7 @@ subroutine mkb0( q, lxx,lx,nxx,nx, aa,bb, nrr,nrx,rprodx, &
      rofi(1)    = 0d0
      do ir      = 1, nr
         rofi(ir) = b*( exp(a*(ir-1)) - 1d0)
-        call besslggg(absqg**2*rofi(ir)**2,lx(ibas),phi,psi)
+        call bessl(absqg**2*rofi(ir)**2,lx(ibas),phi,psi)
         do l  = 0,lx(ibas)
            ! ... bessel function
            ajr(ir,l) = phi(l)* rofi(ir) **(l +1 )

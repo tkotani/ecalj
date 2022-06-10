@@ -228,7 +228,7 @@ subroutine vcoulq_4(q,nbloch, ngc, &
      do ibas= 1,nbas
         if(debug) write(6,"('ccc: ',10i15)")ig1,ibas
         do ir = 1,nr(ibas)
-           call besslggg(absqg2(ig1)*rofi(ir,ibas)**2,lxx,phi,psi)
+           call bessl(absqg2(ig1)*rofi(ir,ibas)**2,lxx,phi,psi)
            do l  = 0,lx(ibas)
 
               if(debug .AND. ig==162 .AND. ibas==8) then
@@ -528,7 +528,7 @@ subroutine mkjp_4( q,ngc,ngvecc, alat, qlat, lxx,lx,nxx,nx, &
   ! ajr
   do ig1 = 1,ngc
      do ir  = 1,nr
-        call besslggg(absqg(ig1)**2*rofi(ir)**2,lx,phi,psi)
+        call bessl(absqg(ig1)**2*rofi(ir)**2,lx,phi,psi)
         do l   = 0,lx
            ajr(ir,l,ig1) = phi(l)* rofi(ir) **(l +1 )
            ! ajr = j_l(sqrt(e) r) * r / (sqrt(e))**l
@@ -665,7 +665,7 @@ subroutine genjh(eee,nr,a,b,lx, nrx,lxx, &
      enddo
   else
      do ir  = 1, nr
-        call besslggg(eee*rofi(ir)**2,lx,phi(0:lx),psi(0:lx))
+        call bessl(eee*rofi(ir)**2,lx,phi(0:lx),psi(0:lx))
         do l = 0,lx    !fac2m(l)= (2l-1)!!
            !            print *,' phi=',l,phi(l),phi(l)*fac2m(l+1)
            !            print *,' psi=',l,psi(l),psi(l)/fac2m(l)
@@ -836,7 +836,7 @@ subroutine sigintAn1( absqg, lx, rofi, nr, &
      ! top2rx 2013.08.09 kino        stop "sigintAn1: absqg=0 is not supported yet. Improve here."
      call rx( "sigintAn1: absqg=0 is not supported yet. Improve here.")
      ! This part for absqg=0 has not been checked yet!
-     !       call besslggg(0d0,lx,phi,psi)
+     !       call bessl(0d0,lx,phi,psi)
      !        do ir = 1,nr
      !        do l  = 0,lx
      !          a1int(ir,l) = .5d0* rofi(nr)**2     * rofi(ir)**l     * phi(l)

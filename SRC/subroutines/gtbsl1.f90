@@ -10,8 +10,7 @@ subroutine gtbsl1(mode,norb,ltab,ktab,rsmh,eh,ntab,blks)
   !i         :16 orbital types with rsmh<=0 are excluded
   !i         :   any combination is allowed;
   !i             however, if 8 is set, 1,2,4 have no effect.
-  !i   norb  :number of orbital types, i.e. kinds of radial functions
-  !i         :(orbl.f)
+  !i   norb  :number of orbital types, i.e. kinds of radial functions 
   !i   ltab  :table of l-quantum numbers for each type (orbl.f)
   !i   ktab  :table of energy index for each type (orbl.f)
   !i   rsmh  :table of smoothing radii in basis (uspecb.f)
@@ -22,7 +21,7 @@ subroutine gtbsl1(mode,norb,ltab,ktab,rsmh,eh,ntab,blks)
   !o Outputs
   !o   ntab  :table of upper ranges for each orbital block
   !o   blks  :blks(iorb) = size of contiguous block of orbitals for
-  !o         :orbital type iorb and possibly iorb+1,iorb+2...
+  !o         :orbital type iorb. It can be \sum_i (2ltab(iorb)+1) where i=iorb,iorb+1,iorb+2...
   !o         :This enables consecutive orbital types to be grouped into
   !o         :a single block when appropriate, depending on mode.
   !o         :blks flags orbital types jorb that have been subsumed into
@@ -51,9 +50,9 @@ subroutine gtbsl1(mode,norb,ltab,ktab,rsmh,eh,ntab,blks)
   lreqz = mod(mode/16,2)==1! +16
   blks=-1 
   do  iorb = 1, norb
-     if (blks(iorb)==0) cycle
-     ki = ktab(iorb)
-     li = ltab(iorb)
+     if (blks(iorb)==0) cycle !if iorb block is already sumsumed.
+     ki = ktab(iorb) ! Radial funciton index
+     li = ltab(iorb) ! l index
      if (lreqz.and. rsmh(li+1,ki)<= 0) then
         blks(iorb) = 0
         ntab(iorb) = iorb
@@ -61,7 +60,7 @@ subroutine gtbsl1(mode,norb,ltab,ktab,rsmh,eh,ntab,blks)
      endif
      lk = li
      kk = ki
-     blks(iorb) = 2*li+1 !  Initial block size = size of this l
+     blks(iorb) = 2*li+1 !  original block size for iorb = 2*l+1 
      ntab(iorb) = iorb
      do  jorb = iorb+1, norb
         kj = ktab(jorb)
@@ -72,7 +71,7 @@ subroutine gtbsl1(mode,norb,ltab,ktab,rsmh,eh,ntab,blks)
         if (lreql.and..not.(lj==lk+1  .and. kj==kk)) exit
         ntab(iorb) = jorb !           Increment upper limit
         blks(iorb) = blks(iorb) + 2*lj+1 !  Increment block size(iorb) by size jorb
-        blks(jorb) = 0 !             Flag that jorb is subsumed
+        blks(jorb) = 0 ! Flag that jorb is subsumed
         ntab(jorb) = 0
         lk = lj
         kk = kj
