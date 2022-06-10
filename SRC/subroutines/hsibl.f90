@@ -105,7 +105,7 @@ subroutine hsibl(ssite,sspec,k1,k2,k3,vsm,isp,q,ndimh,napw,igapw,h)
   real(8),allocatable:: w_ocos1(:,:), w_osin1(:,:),w_ocos2(:,:), w_osin2(:,:),w_owk(:,:)
   real(8):: gmin=0d0
   integer:: ibini,ibend
-  integer:: i_copy_size,nnrl,lmri,li,nnrlx,nnrli,ik,ib,ndim
+  integer:: nnrl,lmri,li,nnrlx,nnrli,ik,ib,ndim
   call tcn('hsibl')
   nlmto = ndimh - napw
   if (nspec > nermx) call rx('hsibl: increase nermx')
@@ -158,32 +158,29 @@ subroutine hsibl(ssite,sspec,k1,k2,k3,vsm,isp,q,ndimh,napw,igapw,h)
         if (nbas < mp) ip = ib1
         ndim1 = 0
         is1=ssite(ib1)%spec
-        i_copy_size=size(ssite(ib1)%pos)
-        call dcopy(i_copy_size,ssite(ib1)%pos,1,p1,1)
+        p1=ssite(ib1)%pos
         call suphas ( q , p1 , ng , iv_iv , n1 , n2 , n3 , qlat , w_ocos1(1,ip) , w_osin1(1,ip) )
         call orblib1(ib1) !norb1,ltab1,ktab1,xx,offl1,xx)
         ofh1 = offl1(1)
         call uspecb(is1,rsmh1,eh1)!       Block routines into groups with common (e,rsm)
         call gtbsl1(7+16,norb1,ltab1,ktab1,rsmh1,eh1,ntab1,blks1) ![1,1,1,0,1]
         do  iorb1 = 1, norb1
-           if (blks1(iorb1) /= 0) then
-              l1   = ltab1(iorb1)
-              ik1  = ktab1(iorb1)
-              nlm1 = l1**2+1
-              nlm2 = nlm1 + blks1(iorb1)-1
-              ie   = ipet(l1+1,ik1,is1)
-              ir   = iprt(l1+1,ik1,is1)
-              call hsibl3 ( ie , ir , etab , rtab , vol , nlm1 , nlm2 , ndim1 &
-                   , ng , yl_rv , he_rv , hr_rv , w_ocos1(1,ip) , w_osin1(1,ip) &
-                   , w_owk(1,ip) , w_oc1(1,ip) , w_ocf1(1,ip) )
-              ndim1 = ndim1 + max(nlm2-nlm1+1,0)
-           endif
+           if (blks1(iorb1) == 0) cycle
+           l1   = ltab1(iorb1)
+           ik1  = ktab1(iorb1)
+           nlm1 = l1**2+1
+           nlm2 = nlm1 + blks1(iorb1)-1
+           ie   = ipet(l1+1,ik1,is1)
+           ir   = iprt(l1+1,ik1,is1)
+           call hsibl3 ( ie , ir , etab , rtab , vol , nlm1 , nlm2 , ndim1 &
+                , ng , yl_rv , he_rv , hr_rv , w_ocos1(1,ip) , w_osin1(1,ip) &
+                , w_owk(1,ip) , w_oc1(1,ip) , w_ocf1(1,ip) )
+           ndim1 = ndim1 + max(blks1(iorb1),0)
         enddo
         !   ... Multiply potential into wave functions for orbitals in ib1
         call hsibl4(n1,n2,n3,k1,k2,k3,vsm(1,1,1,isp),w_of(1,ip),ng,kv_iv,ndim1,w_oc1(1,ip) )
         !   ... Loop over second of (ib1,ib2) site pairs
-        do  ib2 = ib1, nbas
-           ndim2 = 0
+        do 1010 ib2 = ib1, nbas
            is2 =ssite(ib2)%spec
            p2  =ssite(ib2)%pos
            ncut=ngcut(:,:,is2)
@@ -192,37 +189,34 @@ subroutine hsibl(ssite,sspec,k1,k2,k3,vsm,isp,q,ndimh,napw,igapw,h)
            ofh2 = offl2(1)
            call uspecb(is2,rsmh2,eh2) ! Block into groups with consecutive l and common (e,rsm)
            call gtbsl1(7+16,norb2,ltab2,ktab2,rsmh2,eh2,ntab2,blks2) ![1,1,1,0,1]
-           
-           do  iorb2 = 1, norb2
-              if (blks2(iorb2) /= 0) then
-                 nlm1 = l2**2+1
-                 nlm2 = nlm1 + blks2(iorb2)-1
-                 ndim2 = ndim2 + max(nlm2-nlm1+1,0)
-              endif
-           enddo
-           allocate(ncuti(ndim2))
-           
            ndim2 = 0
            do  iorb2 = 1, norb2
-              if (blks2(iorb2) /= 0) then
-                 jorb2 = ntab2(iorb2)
-                 l2t  = ltab2(jorb2)
-                 l2   = ltab2(iorb2)
-                 ik2  = ktab2(iorb2)
-                 nlm1 = l2**2+1
-                 nlm2 = nlm1 + blks2(iorb2)-1
-                 ie   = ipet(l2+1,ik2,is2)
-                 ir   = iprt(l2+1,ik2,is2)
-                 call hsibl3 ( ie , ir , etab , rtab , vol , nlm1 , nlm2 , ndim2 &
-                      , ng , yl_rv , he_rv , hr_rv , w_ocos2(1,ip) , w_osin2(1,ip) &
-                      , w_owk(1,ip) , w_oc2(1,ip) , w_ocf2(1,ip) )
-                 ncuti(ndim2+1:ndim2+nlm2-nlm1+1)=ncut(l2t+1,ik2)
-                 ndim2 = ndim2 + max(nlm2-nlm1+1,0)
-              endif
+              if (blks2(iorb2) == 0) cycle
+              nlm1 = l2**2+1
+              nlm2 = nlm1 + blks2(iorb2)-1
+              ndim2 = ndim2 + max(blks2(iorb2),0)
+           enddo
+           allocate(ncuti(ndim2))
+           ndim2 = 0
+           do  iorb2 = 1, norb2
+              if (blks2(iorb2) == 0) cycle
+              jorb2 = ntab2(iorb2)
+              l2t  = ltab2(jorb2)
+              l2   = ltab2(iorb2)
+              ik2  = ktab2(iorb2)
+              nlm1 = l2**2+1
+              nlm2 = nlm1 + blks2(iorb2)-1
+              ie   = ipet(l2+1,ik2,is2)
+              ir   = iprt(l2+1,ik2,is2)
+              call hsibl3 ( ie , ir , etab , rtab , vol , nlm1 , nlm2 , ndim2 &
+                   , ng , yl_rv , he_rv , hr_rv , w_ocos2(1,ip) , w_osin2(1,ip) &
+                   , w_owk(1,ip) , w_oc2(1,ip) , w_ocf2(1,ip) )
+              ncuti(ndim2+1:ndim2+nlm2-nlm1+1)=ncut(l2t+1,ik2)
+              ndim2 = ndim2 + max(nlm2-nlm1+1,0)
            enddo
            !     ... Scalar products phi1*vsm*phi2 for all orbitals in (ib1,ib2)
            allocate(wk2_zv(ndim1*ndim2))
-           wk2_zv(:)=0d0
+           wk2_zv=0d0
            ! ncuti are only at Gamma point; thus symmetry can not be kept well for other k points.
            call ncutcorrect ( ncuti , ndim2 , gv_rv , ng )
            call hsibl2 ( ndim1 , ndim2 , ng , ncuti , w_oc1(1,ip) , w_ocf1(1,ip) &
@@ -231,16 +225,13 @@ subroutine hsibl(ssite,sspec,k1,k2,k3,vsm,isp,q,ndimh,napw,igapw,h)
            call hsibl5 ( norb1 , blks1 , offl1 , ndim1 , norb2 , blks2 , &
                 offl2 , ndim2 , ndimh , wk2_zv , h )
            deallocate(wk2_zv)
-        enddo !Ends loop over ib2
+1010    enddo 
         !   ... Matrix elements <Hsm| Vsm |PW>
         call hsibl6 ( ndimh , nlmto , norb1 , blks1 , offl1 , ng , iv_iv &
              , napw , igapw , w_oc1(1,ip) , w_ocf1(1,ip) , h )
-        !$$$#endif
-     enddo !Ends loop over ib1
+     enddo 
      deallocate(hr_rv, he_rv, g2_rv, yl_rv, g_rv, iv_iv, kv_iv, gv_rv, &
-          w_oc1, w_ocf1, w_oc2, w_ocf2, &
-          w_ocos1,  w_osin1,   w_ocos2,  w_osin2, &
-          w_owk  ,  w_of)
+          w_oc1,w_ocf1, w_oc2, w_ocf2, w_ocos1,w_osin1,w_ocos2,w_osin2,w_owk,w_of)
   endif
   ! --- <e^i qpG | V |e^i qpG'>/vol = V(G'-G) ---
   if (napw > 0) then

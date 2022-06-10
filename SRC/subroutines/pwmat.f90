@@ -56,7 +56,7 @@ subroutine pwmat(ssite,sspec,nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,inn,ppo
   integer:: ngp,nlmax,igv(3,ngp),nbas,ndimh, napw,igapw(3,napw),&
        ips(nbas),ib,is,igetss,ngmx,ig,lmxax,ll,iwk(3),nlmto,iga, ifindiv2,&
        inn(3),matmul_pwhovl,&
-       lh(nkap0),nkapi,io,l,ik,offh,ilm,blks(n0*nkap0),ntab(n0*nkap0)
+       lh(nkap0),nkapi,io,l,ik,offh,ilm,blks(n0*nkap0),ntab(n0*nkap0),oi,ol
   real(8):: q(3),GcutH,tpiba,xx,tripl,dgetss,bas(3,nbas),rmax(nbas),qpg(3),qpg2(1),denom,gam,srvol,&
        eh(n0,nkap0),rsmh(n0,nkap0)
   complex(8):: ppovl(ngp,ngp), pwhovl(ngp,ndimh),phase,img,fach,mimgl(0:n0)
@@ -66,8 +66,7 @@ subroutine pwmat(ssite,sspec,nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,inn,ppo
   real(8),allocatable:: yl(:)
   complex(8),allocatable:: pwh(:,:),ppovlx(:,:)
   logical:: debug=.false.
-  tpiba = 2*pi/alat
-  !vol = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
+  tpiba = 2*pi/alat !vol = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
   srvol = dsqrt(vol)
   img = dcmplx(0d0,1d0)
   mimgl(0) = 1
@@ -107,19 +106,14 @@ subroutine pwmat(ssite,sspec,nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,inn,ppo
         call orblib(ib)!return norb,ltab,ktab,offl
         call gtbsl1(8+16,norb,ltab,ktab,rsmh,eh,ntab,blks)
         do  io = 1, norb
-           if (blks(io) /= 0) then
-              l  = ltab(io) ! l,ik = l and kaph indices, needed to address eh,rsmh
-              ik = ktab(io)
-              offh  = offl(io) ! offh = hamiltonian offset to this block
-              denom = eh(l+1,ik) - qpg2(1)
-              gam   = 1d0/4d0*rsmh(l+1,ik)**2
-              offh  = offl(io)
-              fach  = -pi4/vol/denom * phase * mimgl(l) * exp(gam*denom)
-              do  ilm = l**2+1, (l+1)**2
-                 offh = offh+1
-                 pwh(ig,offh) = fach * yl(ilm)
-              enddo
-           endif
+           l  = ltab(io) ! l,ik = l and kaph indices, needed to address eh,rsmh
+           ik = ktab(io)
+           ol = ltab(io)**2
+           oi = offl(io) ! offh = hamiltonian offset to this block
+           denom = eh(l+1,ik) - qpg2(1)
+           gam   = 1d0/4d0*rsmh(l+1,ik)**2
+           fach  = -pi4/vol/denom * phase * mimgl(l) * exp(gam*denom)
+           pwh(ig,oi+1:oi+blks(io)) = fach * yl(ol+1:ol+blks(io))
         enddo
      enddo
   enddo

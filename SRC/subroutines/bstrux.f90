@@ -283,20 +283,19 @@ contains
     call gtbsl1(4+16,norb,ltab,ktab,rsmh,xx,ntab,blks)
     do  iorb = 1, norb
        ik1 = ktab(iorb)
-       if (ik1 == ik .AND. blks(iorb) /= 0) then
-          ol = ltab(iorb)**2
-          oi = offl(iorb)
-          do iblk = 1, blks(iorb)
-             if (mode == 0) then
-                b(oi+iblk,1:nlma,:) = transpose(b0(:,1:nlma, ol+iblk))
-             else
-                b(oi+iblk,:,0:kmax) = transpose(b0(0:kmax,:,ol+iblk))
-                do  k = 0, kmax
-                   db(oi+iblk,:,k,:) = db0(k,:,ol+iblk,:)
-                enddo
-             endif
-          enddo
-       endif
+       if(ik1 /= ik) cycle
+       ol = ltab(iorb)**2
+       oi = offl(iorb)
+       do iblk = 1, blks(iorb)
+          if (mode == 0) then
+             b(oi+iblk,1:nlma,:) = transpose(b0(:,1:nlma, ol+iblk))
+          else
+             b(oi+iblk,:,0:kmax) = transpose(b0(0:kmax,:,ol+iblk))
+             do  k = 0, kmax
+                db(oi+iblk,:,k,:) = db0(k,:,ol+iblk,:)
+             enddo
+          endif
+       enddo
     enddo
   end subroutine prlcb1
 
@@ -338,11 +337,11 @@ contains
     call gtbsl1(4+16,norb,ltab,ktab,rsmh,xx,ntab,blks) !! Block into groups of consecutive l
     do  iorb = 1, norb
        ik1 = ktab(iorb) ! Loop only over orbitals belonging to this energy block
-       if (ik1 == ik .AND. blks(iorb) /= 0) then !blks(iorb): size of block of iorb
+       nn = blks(iorb)
+       if (ik1==ik .AND. nn/= 0) then !blks(iorb): size of block of iorb
           l1 = ltab(iorb)
           oi = offl(iorb)
           ol = l1**2
-          nn = blks(iorb)
           b(0:kmax,   1:nlma,oi+1:oi+nn) = b0(0:kmax,1:nlma,ol+1:ol+nn)
           b(kmax+1:k0,1:nlma,oi+1:oi+nn) = 0d0
        endif
