@@ -1,0 +1,16 @@
+#!/bin/bash 
+# ---------------------------------------------------------
+# QP self-consistent GW itteration using MPI. Using run_arg
+### you may need to set echo_run and serial_run in /run_arg for cray machine
+# ---------------------------------------------------------
+fff=$1
+nnn=${fff%.*}
+echo $nnn
+nfpgw=`dirname $0`
+TARGET=$4
+MPI_SIZE=$3
+NO_MPI=0
+
+$nfpgw/f2f.pl $1 > temp.f90
+emacs --script $nfpgw/indent.el temp.f90 > $nnn.f90
+rm temp.f90
