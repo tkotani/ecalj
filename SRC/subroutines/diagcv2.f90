@@ -62,3 +62,14 @@ subroutine diagcv(s,h,t,n,evl,nmx,emx,nev)
   return
 end subroutine diagcv
 
+subroutine rss(nn,omat,eb,zz,ierr)!get eigenvalues and eigenvectors for real-symmetric funciton.
+  integer:: ierr,lwork,nn
+  real(8):: omat(nn,nn),omatin(nn,nn),eb(nn),zz(nn,nn)
+  real(8),allocatable:: work(:)
+  lwork=max(1,3*nn-1)
+  allocate(work(max(1,lwork)))
+  omatin=omat
+  call dsyev('V','U',nn,omatin,nn,eb,work,lwork,ierr)
+  zz=omatin
+  deallocate(work)
+end subroutine rss

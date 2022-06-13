@@ -185,7 +185,6 @@ ropylg.o \
 strings.o \
 symvar.o \
 symvec.o \
-m_mathlib.o \
 words.o \
 zerfc.o \
 zhev.o \

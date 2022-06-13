@@ -4,7 +4,7 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, &
   use m_keyvalue,only:getkeyvalue
   use m_lldata,only: ll
   use m_read_bzdata,only: Read_bzdata, q0i,nq0i,wqt=>wt
-  use m_mathlib,only: rs
+  !use m_mathlib,only: rs
   ! takao kotani Apr 2002.
   ! gives an index for the allowed product basis
   ! A new routine by t.kotani mod. from indxbas of fa.
@@ -400,7 +400,7 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, &
            ovvc(ib1,ib2,1) = ovmt(ipx(lx,ib1),ipx(lx,ib2),lx)
         enddo
      enddo
-     call rs(nb, ovvc(:,:,1), eb, zz(:,:,1),ierr)
+     call rss(nb, ovvc(:,:,1), eb, zz(:,:,1),ierr) !rs==>rss 2022-6-13
      if(ierr/=0) call rx( ' basnfp: rs error')
      !$$$! PMASMAX option. rarely used now.
      !$$$        npbasmax=100

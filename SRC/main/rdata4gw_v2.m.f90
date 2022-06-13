@@ -84,7 +84,7 @@ program rdata4gw_v2
   !r
   use m_keyvalue,only: getkeyvalue
   use m_mpi,only: MPI__Initialize
-  use m_mathlib,only: rs
+  !use m_mathlib,only: rs
   implicit none
   integer :: &
        ifigw0,ifiqc,i,ifi &
@@ -456,8 +456,8 @@ program rdata4gw_v2
         do l1  = 0,lmxa(ic)
            n1 = nvmax(l1,ic)
            ! ... Get zzp : eigenfunctions of ovv
-           call rs(n1, ovv(1:n1,1:n1,l1,ic,isp), eb, &
-                zzp(1:n1,1:n1,l1,ic,isp), ierr)
+           call rss(n1, ovv(1:n1,1:n1,l1,ic,isp), eb, &
+                zzp(1:n1,1:n1,l1,ic,isp), ierr) !!rs==>rss 2022-6-13
            write(6,"(' eb=',10f12.6)") eb(1:n1)
            if(ierr/=0) call rx( ' rdata4gw_v2: error in rs ')
            do i1=1,n1

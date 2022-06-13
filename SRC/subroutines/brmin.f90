@@ -1,6 +1,6 @@
 subroutine brmin(n,x,g,isw,ipr,dxmx,xtol,gtol,hmax,w,diff,hess,ir)
   use m_gradzr,only:pgradz
-  use m_mathlib,only:chkhss
+  !use m_mathlib,only:chkhss
   !- One Broyden step in finding the root of an n-dimensional function
   ! ----------------------------------------------------------------
   !i Inputs
@@ -89,6 +89,7 @@ subroutine brmin(n,x,g,isw,ipr,dxmx,xtol,gtol,hmax,w,diff,hess,ir)
   isw32 = mod(isw/1000,10)/4
   scale = 1
   evmin = 0
+  if (isw31 /= 0) call rx('brmin: isw31/=0 is not used now')
   call pshpr(ipr)
 
   ! --- First iteration or restart ---
@@ -139,7 +140,7 @@ subroutine brmin(n,x,g,isw,ipr,dxmx,xtol,gtol,hmax,w,diff,hess,ir)
         w(i,nd) = g(i) - w(i,ng)
 20   enddo
      !       Local copy of the original Hessian
-     if (isw31 /= 0) call dcopy(n*n,hess,1,w(1,nhs),1)
+!     if (isw31 /= 0) call dcopy(n*n,hess,1,w(1,nhs),1)
      do  30  i = 1, n
         w(i,nx) = x(i)
         w(i,ng) = g(i)
@@ -170,17 +171,17 @@ subroutine brmin(n,x,g,isw,ipr,dxmx,xtol,gtol,hmax,w,diff,hess,ir)
      enddo
 
      !   --- Check that Hessian is positive definite ---
-     if (isw31 /= 0) then
-        !         Keep a local copy of hessian, since dsev1 destroys it.
-        call dcopy(n*n,hess,1,w(1,nhs+n),1)
-        j = chkhss(w(1,nhs+n),n,w(1,nd),evtol,isw31,w(1,nhs),w(1,ns))
-        evmin = w(1,ns)
-        if (j > 0 .AND. (isw31 == 1)) then
-           call dcopy(n*n,w(1,nhs),1,hess,1)
-           ir = -ir
-        elseif (j > 0) then
-        endif
-     endif
+     ! if (isw31 /= 0) then
+     !    !         Keep a local copy of hessian, since dsev1 destroys it.
+     !    call dcopy(n*n,hess,1,w(1,nhs+n),1)
+     !    j = chkhss(w(1,nhs+n),n,w(1,nd),evtol,isw31,w(1,nhs),w(1,ns))
+     !    evmin = w(1,ns)
+     !    if (j > 0 .AND. (isw31 == 1)) then
+     !       call dcopy(n*n,w(1,nhs),1,hess,1)
+     !       ir = -ir
+     !    elseif (j > 0) then
+     !    endif
+     ! endif
 
      !   --- Update x from Hessian, g ---
      do  i = 1, n
