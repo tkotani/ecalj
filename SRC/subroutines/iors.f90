@@ -123,7 +123,6 @@ contains
     character(*)::rwrw
     data vec0 /0d0,0d0,0d0/
     !     call tcn('iors')
-    open(newunit=ifi,file='rst.'//trim(sname),form='unformatted')
     ! ... MPI setup
     nproc  = mpipid(0)
     procid = mpipid(1)
@@ -142,6 +141,7 @@ contains
     ifmt = '(20i5)'
     npan = 1 !Hardwired for now
     write(stdo,"(/a)")' iors  : '//trim(rwrw)//' rst restart file (binary mesh density)'
+    open(newunit=ifi,file='rst.'//trim(sname),form='unformatted')
     ! --- Input ---
     if (trim(rwrw)=='read') then
        jfi = ifi
@@ -529,29 +529,19 @@ contains
        write(jfi) vs
        write(jfi) fid0
        write(jfi) datimp,usernm,hostnm,jobid
-       !          if (abs(vs) .le. 1.021) then
-       !            write(jfi) nbas,nsp,npan,lrel
-       !          else if (abs(vs) .le. 1.031) then
-       !            write(jfi) nbas,nsp,npan,lrel,nspec
-       !          else
        write(jfi) nbas,nat,nsp,npan,lrel,nspec
-       !          endif
        write(jfi) nit
        write(jfi) alat,vol,plat
-
-       !   --- Write smooth charge density ---
        write(jfi) n1,n2,n3
-       write(jfi) osmrho!, lbin , -jfi )
-
+       write(jfi) osmrho
        !   --- Write information related to dynamics ---
        wk=1d99 !call dpzero(wk,100)
        wk(1)= eferm !sbz%ef !dummy ! we use wk(1) only wk(2:100) are dummy
        write(jfi) wk !call dpdump(wk,100,-jfi)
        do  110  ib = 1, nbas
           pos  =ssite(ib)%pos
-          force=ssite(ib)%force
-          !          vel  =ssite(ib)%vel
-          write(jfi) ib,pos,force!,vel
+          force=ssite(ib)%force     !          vel  =ssite(ib)%vel
+          write(jfi) ib,pos,force   !,vel
 110    enddo
        !   --- Write information for local densities ---
        if (ipr >= 50) write(stdo,364)
@@ -575,23 +565,20 @@ contains
           pnu=ssite(ib)%pnu
           pnz=ssite(ib)%pz
           if (lmxa == -1) goto 120
-          write(jfi) is,spid,lmxa,lmxl,nr,rmt,a,z,qc
-          !     ... Some extra info... lots of it useless or obsolete
+          write(jfi) is,spid,lmxa,lmxl,nr,rmt,a,z,qc ! Some extra info. lots of it useless or obsolete
           lmxr = 0
           lmxv = 0
           rsmr = 0
-          write(jfi) rsma,rsmr,rsmv,lmxv,lmxr,lmxb,kmax
-          !     ... Write augmentation data
+          write(jfi) rsma,rsmr,rsmv,lmxv,lmxr,lmxb,kmax !  ... Write augmentation data
           do  122  isp = 1, nsp
              write(jfi) (pnu(l+1,isp), l=0,lmxa)
              write(jfi) (pnz(l+1,isp), l=0,lmxa)
 122       enddo
-          !         Write for compatibility with nfp
-          write(jfi) (idmod(l+1), l=0,lmxa)
+          write(jfi) (idmod(l+1), l=0,lmxa) !         Write for compatibility with nfp
           write(jfi) (idmod(l+1), l=0,lmxa)
           !     ... Write arrays for local density and potential
           nlml = (lmxl+1)**2
-          print *,'nnnnnnnwrite',ib,nr*nlml*nsp,nr,nlml,nsp
+          !print *,'nnnnnnnwrite',ib,nr*nlml*nsp,nr,nlml,nsp
           write(jfi) orhoat( 1 , ib )%v !, nr , nlml , nlml , nsp  , nsp , lbin , -jfi )
           write(jfi) orhoat( 2 , ib )%v !, nr , nlml , nlml , nsp  , nsp , lbin , -jfi )
           write(jfi) orhoat( 3 , ib )%v !, nr , 1 , 1 , nsp , nsp   , lbin , -jfi )
@@ -619,7 +606,6 @@ contains
           rsmfa = sspec(is)%rsmfa
           if (lmxa == -1) goto 130
           write(jfi) nr,a,qc,cof,eh,stc,lfoc,rfoc
-          !     ... For now, ASA stores no core data
           write(jfi) sspec(is)%rv_a_orhoc
           write(jfi) rsmfa,nxi
           write(jfi) ((exi(i),hfc(i,isp),i=1,nxi),isp=1,nsp)
@@ -629,6 +615,7 @@ contains
 350 format(41x,8f6.3)
 364 format(/9x,'ib:spc la ll   rmt     nr   a     pnu')
     iors = 0
+    close(ifi)
     return
 998 continue
     if (ipr > 0) write(stdo,'('' iors  : empty file ... nothing read'')')
