@@ -1,11 +1,8 @@
-module m_shortvec !== Find shortest vector in modulo of rlat ===
+module m_shortvec ! core of m_shortn3: Find shortest vectors in modulo of rlat 
   public:: shortvec,shortvecinitialize
 contains
-  ! NOTE: shortn3 is better than shorbz. we will have to replace shorbz with shortn3.
-  ! NOTE: In advance, we will need to check speed and convenience.
   subroutine shortvec(pin,rlatp,xmx2,noutmx,nout,nlatout)
-    !! To call shortn3 for given rlat, 
-    !! we have to call shorn33initialize to set rlatp and xmx2
+    !!
     !!
     ! i pin is the fractional coodinate on rlat.
     ! i rlatp,xmx2 are passed from shortvecinitialize
@@ -82,8 +79,11 @@ contains
   end subroutine shortvecinitialize
 end module m_shortvec
 
-module m_shortn3!gives shortest vector modulo of rlat
-  ! We need to set rlat into this module in advance to call shortn3
+!==============================================
+module m_shortn3! shortest vectors. modulo of rlat(1:3,i),i=1,3)
+  ! Set rlat at first, then call shortn3(pin)
+  ! Shortest p= pin + matmul(rlat(:,:),nlatout(:,i)) for i=1,nout
+  ! Only when pin is on the Volonoi boundaries, nout>1.
   implicit none
   public:: shortn3_initialize, shortn3
   integer,parameter,private:: noutmx=48
@@ -101,6 +101,7 @@ contains
     call shortvec(pin,rlatp,xmx2,noutmx,nout,nlatout)
   end subroutine shortn3
 end module m_shortn3
+
 
 subroutine ellipsoidxmax(nn, xmx2)
   !!== Maximum value for x_i for ellipsoid ==
@@ -150,30 +151,3 @@ subroutine ellipsoidxmax(nn, xmx2)
   fac = n33-sum(nv2 *matmul(ainv,nv2))
   xmx2(3) = 1d0/fac
 end subroutine ellipsoidxmax
-
-! !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-! module m_shortn4
-!   implicit none
-!   public shortn4,shortn4_initialize
-!   integer,private,parameter:: noutmx=48
-!   integer,public:: nout,nlatout(3,noutmx)
-  
-!   real(8),private:: rlatp(3,3),xmx2(3)
-!   logical,private:: init=.true.
-! contains
-!   subroutine shortn4(pin)
-!     use m_shortvec,only: shortvec
-!     use m_lattic,only: qlat=>lat_qlat
-!     real(8):: pin(3)
-!     call shortvec(pin,rlatp,xmx2,noutmx,nout,nlatout)
-!   end subroutine shortn4
-!   subroutine shortn4_initialize(rlat)
-!     use m_shortvec,only: shortvecinitialize
-!     real(8):: rlat(3,3)
-!     call shortvecinitialize(rlat,rlatp,xmx2)
-!   end subroutine shortn4_initialize
-! end module m_shortn4
-
-
-
-

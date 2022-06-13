@@ -8,7 +8,7 @@ module m_shortn3_plat
   real(8),private:: rlatp(3,3),xmx2(3)
   logical,private:: init=.true.
 contains
-  subroutine shortn3_plat(pin)
+  subroutine shortn3_plat(pin)!return shortest plat as p = qin + matmul(qlat(:,:),nlatout(:,i)) for i=1,nout
     use m_shortvec,only: shortvec, shortvecinitialize
     use m_lattic,only:   lattic_init, lat_plat,lat_qlat,lattic_init !lmf mode
     use m_hamindex,only: plat,qlat,readhamindex_init !gw mode
@@ -41,15 +41,11 @@ module m_shortn3_qlat
   real(8),private:: rlatp(3,3),xmx2(3)
   logical,private:: init=.true.
 contains
-  subroutine shortn3_qlat(pin)
-    !In advance to call shortn3, we need set fractional coordinate as
-    !  qq= matmul(transpose(plat),qin) !q cartesian --> q fractional 
-    !  call shortn3_qlat(qq)
-    !  q=matmul(qlat,qq)
+  subroutine shortn3_qlat(qin) !return shortest qlat as q = qin + matmul(qlat(:,:),nlatout(:,i)) for i=1,nout
     use m_shortvec,only: shortvec, shortvecinitialize
     use m_lattic,only:   lattic_init, lat_plat,lat_qlat,lattic_init !lmf mode
     use m_hamindex,only: plat,qlat,readhamindex_init !gw mode
-    real(8):: pin(3)
+    real(8):: qin(3)
     if(init) then
        init=.false.
        if(lattic_init) then !lmf case
@@ -63,7 +59,7 @@ contains
        endif
        call shortvecinitialize(qlatx, rlatp,xmx2)
     endif   
-    call shortvec(pin,rlatp,xmx2,noutmx,  nout,nlatout)
+    call shortvec(qin,rlatp,xmx2,noutmx,  nout,nlatout)
   end subroutine shortn3_qlat
 end module m_shortn3_qlat
 
