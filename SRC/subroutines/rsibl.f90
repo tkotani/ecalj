@@ -191,7 +191,7 @@ contains
           call rsibl1(1,ssite,sspec,q,nbas,ng,w_ogq,w_oiv,n1,n2, &
                n3,qlat,cosi,sini,w_oyl,w_oylw,w_ohe,w_ohr, &
                wk,wk2,vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc, &
-               ewgt,ivec,nvec,evec,vpsi,psi,f)
+               ewgt,ivec,nvec,evec,vpsi(:,:,1:nvec),psi(:,:,1:nvec),f)
        endif
     enddo
     deallocate(psi,vpsi,wk,psir,cosi,sini,wk2)
@@ -257,7 +257,7 @@ contains
     integer :: iprt(n0,nkap0,*),ipet(n0,nkap0,*)
     double precision :: vol,yl(ng,*),ylw(ng,*),he(ng,*),hr(ng,*), &
          wk2(ng),cosgp(ng),singp(ng),etab(*),rtab(*),gq(ng,3),f(3,nbas),ewgt(nvec+ivec-1),qlat(3,3)
-    complex(8):: psi0(ng,nspc,nvec),psi(ng,nspc,nvec),evec(ndimh,nspc,ivec),vpsi(ng,nspc,nvec)
+    complex(8):: psi0(:,:,:),psi(:,:,:), evec(ndimh,nspc,ivec),vpsi(:,:,:)  !psi(ng,nspc,nvec)
     integer:: blks(n0*nkap0),ntab(n0*nkap0),ncut(n0,nkap0),lh(nkap0),nkapi
     double precision :: e,rsm,eh(n0,nkap0),rsmh(n0,nkap0),f0(3)
     double precision :: xx(n0),wt,p(3)
@@ -316,10 +316,10 @@ contains
        enddo
        if (mode == 1) then
           rsibl4block: block
-          real(8):: xx(nspc,ng)
+          real(8):: xx(ng)
           do i = 1, nvec
-             xx = dimag(vpsi(:,:,i))*dreal(psi(:,:,i)) - dreal(vpsi(:,:,i))*dimag(psi(:,:,i))
-             f0(:) = 2d0*vol*sum(matmul(xx(:,:),gq(:,:)),dim=1)
+             xx = sum(dimag(vpsi(:,:,i))*dreal(psi(:,:,i)) - dreal(vpsi(:,:,i))*dimag(psi(:,:,i)),dim=2)
+             f0(:) = 2d0*vol*matmul(xx,gq(:,:))
              wt = ewgt(i+ivec-1)
              f(:,ib) = f(:,ib) + wt*f0(:)
              do  kb = 1, nbas !!             This shouldn't be necessary
@@ -465,7 +465,7 @@ contains
     complex(8),allocatable:: smrho(:,:,:,:), smpot(:,:,:,:)
     logical:: cmdopt
     real(8):: w(1)!dummy
-    complex(8):: wpsidummy(1)
+    complex(8):: wpsidummy(1,1,1)
     nproc  = mpipid(0)
     procid = mpipid(1)
     if (nevec <= 0) return

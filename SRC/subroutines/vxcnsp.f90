@@ -1457,6 +1457,7 @@ subroutine xxcnls2(lxcg,lmax,ir0,ir1,nr,np,nlm,nsp,nn,ri,yl,gyl,ylwp &
      ,wp,rp,ggrp,grp,agrl,rl,rwgt,& !lcut, &! & fixed bug (remove wkl) 11July2010.takao
      vxcnl,excnl,sumnl)
   !     implicit none
+  use m_xclda,only: vxnloc
 !  use m_vxcfunc,only: vxcgga
   integer :: ir0,ir1,nr,np,nlm,nsp,nn,lmax,lcut,lxcg
   double precision :: rp(nr,np,nsp),ggrp(nr,np,nsp),ri(1),wp(np), &
@@ -1649,6 +1650,7 @@ end subroutine xxcnls2
 
 
 subroutine vxc0gc(nr,nsp,rofi,rwgt,rho,vxc,exc,rep,rmu,lxcfun)
+  use m_xclda,only: vxcgr2
   !- Gradient-corrected part of vxc and exc in a spherical potential
   ! ----------------------------------------------------------------------
   !i Inputs
