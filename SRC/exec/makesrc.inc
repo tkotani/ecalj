@@ -280,7 +280,7 @@ sugw.o \
 smshft.o \
 grfmsh.o \
 smvxcm.o \
-vxcnsp.o \
+m_vxcatom.o \
 w_psir.o \
 gintxx.o 
 
