@@ -4,6 +4,7 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, &
   use m_keyvalue,only:getkeyvalue
   use m_lldata,only: ll
   use m_read_bzdata,only: Read_bzdata, q0i,nq0i,wqt=>wt
+  use m_mathlib,only: rs
   ! takao kotani Apr 2002.
   ! gives an index for the allowed product basis
   ! A new routine by t.kotani mod. from indxbas of fa.

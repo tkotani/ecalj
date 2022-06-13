@@ -84,6 +84,7 @@ program rdata4gw_v2
   !r
   use m_keyvalue,only: getkeyvalue
   use m_mpi,only: MPI__Initialize
+  use m_mathlib,only: rs
   implicit none
   integer :: &
        ifigw0,ifiqc,i,ifi &

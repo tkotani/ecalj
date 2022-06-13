@@ -1,6 +1,7 @@
 #NOTE: when you add your foobar.F, choose one of *_list.
 
 ELIB_list=\
+diagcv2.o \
 m_shortn3.o\
 m_shortn3_plat.o\
 m_smhankel.o\
@@ -164,8 +165,6 @@ gradfl.o \
 gradzr.o \
 hunti.o \
 huntx.o \
-imtql2.o \
-imtqlv.o \
 info.o \
 iprint.o \
 llnew.o  \
@@ -186,9 +185,7 @@ ropylg.o \
 strings.o \
 symvar.o \
 symvec.o \
-tinvit.o \
-tql2.o \
-tred2.o \
+m_mathlib.o \
 words.o \
 zerfc.o \
 zhev.o \
@@ -332,7 +329,6 @@ wse.o \
 bzints2.o \
 wintzsg.o \
 pplmat.o \
-rs.o \
 getbzdata1.o \
 wcf.o \
 tetwt5.o \
@@ -377,7 +373,6 @@ mkjp.o \
 strxq.o \
 sxcf_fal2.sc.o \
 sxcf_fal2.o \
-diagcv2.o \
 wronkj.o \
 rpaq.o \
 m_readeps.o \

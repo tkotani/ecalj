@@ -1,5 +1,6 @@
 subroutine brmin(n,x,g,isw,ipr,dxmx,xtol,gtol,hmax,w,diff,hess,ir)
-  use m_gradzr,only:pgradz,chkhss
+  use m_gradzr,only:pgradz
+  use m_mathlib,only:chkhss
   !- One Broyden step in finding the root of an n-dimensional function
   ! ----------------------------------------------------------------
   !i Inputs
