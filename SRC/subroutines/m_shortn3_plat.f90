@@ -61,7 +61,7 @@ contains
        else
           call rx('m_shortn3_plat: can not read plat')
        endif
-       call shortvecinitialize(qlat, rlatp,xmx2)
+       call shortvecinitialize(qlatx, rlatp,xmx2)
     endif   
     call shortvec(pin,rlatp,xmx2,noutmx,  nout,nlatout)
   end subroutine shortn3_qlat
