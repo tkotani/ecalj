@@ -153,7 +153,6 @@ a2bina.o \
 a2vec.o \
 amix.o \
 awrite.o \
-brmin.o \
 broyj.o \
 cmdopt.o \
 cpudel.o \

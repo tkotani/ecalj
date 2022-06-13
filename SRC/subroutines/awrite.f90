@@ -507,31 +507,31 @@ subroutine awrit8(fmt,sout,mxln,ifi,a1,a2,a3,a4,a5,a6,a7,a8)
   jp = ip
 end subroutine awrit8
 
-subroutine vwrt(ia,n,a1,a2,a3,a4,a5,a6,a7,a8,cast,ires,res)
-  !- Writes either integer or double into ires or res, depending on cast
-  ! ----------------------------------------------------------------------
-  !i Inputs
-  !i   ia    :indicates which of arrays a1..a8 to extract element from
-  !i   n     :which entry in array a_ia
-  !i   a1..a8:element is extracted from one of these arrays
-  !i   cast  :array cast
-  !o Outputs
-  !o   ires  :if cast is integer, result poked into ires
-  !o   res   :if cast is double, result poked into res
-  !u Updates
-  ! ----------------------------------------------------------------------
-  !     implicit none
-  integer :: ia,n,cast,ivawrt,ires
-  double precision :: dvawrt,res
-  double precision :: a1(1),a2(1),a3(1),a4(1),a5(1),a6(1),a7(1),a8(1)
-  if (cast == 2) then
-     ires = ivawrt(ia,n,a1,a2,a3,a4,a5,a6,a7,a8)
-  elseif (cast == 4) then
-     res = dvawrt(ia,n,a1,a2,a3,a4,a5,a6,a7,a8)
-  else
-     call rxi('vwrt: cannot handle cast',cast)
-  endif
-end subroutine vwrt
+! subroutine vwrt(ia,n,a1,a2,a3,a4,a5,a6,a7,a8,cast,ires,res)
+!   !- Writes either integer or double into ires or res, depending on cast
+!   ! ----------------------------------------------------------------------
+!   !i Inputs
+!   !i   ia    :indicates which of arrays a1..a8 to extract element from
+!   !i   n     :which entry in array a_ia
+!   !i   a1..a8:element is extracted from one of these arrays
+!   !i   cast  :array cast
+!   !o Outputs
+!   !o   ires  :if cast is integer, result poked into ires
+!   !o   res   :if cast is double, result poked into res
+!   !u Updates
+!   ! ----------------------------------------------------------------------
+!   !     implicit none
+!   integer :: ia,n,cast,ivawrt,ires
+!   double precision :: dvawrt,res
+!   double precision :: a1(1),a2(1),a3(1),a4(1),a5(1),a6(1),a7(1),a8(1)
+!   if (cast == 2) then
+!      ires = ivawrt(ia,n,a1,a2,a3,a4,a5,a6,a7,a8)
+!   elseif (cast == 4) then
+!      res = dvawrt(ia,n,a1,a2,a3,a4,a5,a6,a7,a8)
+!   else
+!      call rxi('vwrt: cannot handle cast',cast)
+!   endif
+! end subroutine vwrt
 
 integer function ivawrt(ia,n,a1,a2,a3,a4,a5,a6,a7,a8)
   !     implicit none
@@ -548,20 +548,20 @@ integer function ivawrt(ia,n,a1,a2,a3,a4,a5,a6,a7,a8)
   if (ia == 8) ivawrt = ival(a8,n)
 end function ivawrt
 
-real(8) function dvawrt(ia,n,a1,a2,a3,a4,a5,a6,a7,a8)
-  !     implicit none
-  integer :: ia,n
-  double precision :: a1(1),a2(1),a3(1),a4(1),a5(1),a6(1),a7(1),a8(1)
-  dvawrt=1d99
-  if (ia == 1) dvawrt = a1(n)
-  if (ia == 2) dvawrt = a2(n)
-  if (ia == 3) dvawrt = a3(n)
-  if (ia == 4) dvawrt = a4(n)
-  if (ia == 5) dvawrt = a5(n)
-  if (ia == 6) dvawrt = a6(n)
-  if (ia == 7) dvawrt = a7(n)
-  if (ia == 8) dvawrt = a8(n)
-END function dvawrt
+! real(8) function dvawrt(ia,n,a1,a2,a3,a4,a5,a6,a7,a8)
+!   !     implicit none
+!   integer :: ia,n
+!   double precision :: a1(1),a2(1),a3(1),a4(1),a5(1),a6(1),a7(1),a8(1)
+!   dvawrt=1d99
+!   if (ia == 1) dvawrt = a1(n)
+!   if (ia == 2) dvawrt = a2(n)
+!   if (ia == 3) dvawrt = a3(n)
+!   if (ia == 4) dvawrt = a4(n)
+!   if (ia == 5) dvawrt = a5(n)
+!   if (ia == 6) dvawrt = a6(n)
+!   if (ia == 7) dvawrt = a7(n)
+!   if (ia == 8) dvawrt = a8(n)
+! END function dvawrt
 
 subroutine bin2a(fmt,nblk,ndec,res,cast,count,mxlen,outstr,ip)
   !- Converts number to ascii format, stripping leading blanks, trailing 0

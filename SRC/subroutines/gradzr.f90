@@ -2,7 +2,7 @@ module m_gradzr
   !use m_mathlib,only:chkhss
   use m_ftox
   use m_lmfinit,only:stdo
-  public:: gradzr,drgrzr,pgradz
+  public:: gradzr
   private
 contains
   subroutine gradzr(n,p,hess,xtoll,dxmx,xtol,gtol,grfac,wk,isw,ir)
@@ -243,7 +243,7 @@ contains
     equivalence (xh(0),x0h), (xh(1),x1h), (xh(2),x2h)
     equivalence (gh(0),g0h), (gh(1),g1h), (gh(2),g2h)
     parameter (nx=1,ng=2,nm=3,nd=4,n1=5,n2=6,n0=7,nhs=8, evtol=1d-10)
-    double precision :: gwg,q,dxlast,dxtop,gtop,resx,resg,dum
+    double precision :: gwg,q,dxlast,dxtop,gtop,resx,resg,dum(1)
     integer :: scrwid
     parameter (scrwid=80)
     character*(100) outs
@@ -685,135 +685,135 @@ contains
     ir = 0
     goto 999
   end subroutine gradzr
-  subroutine drgrzr(n,pnew,gnew,p,hess,xtoll,dxmx,xtol,gtol,grfac, &
-       wk,copt,isw,ir)
-    !- Driver routine for gradzr
-    ! ----------------------------------------------------------------------
-    !i Inputs
-    !i   n      :size of vector; see gradzr
-    !i   pnew   :new positions for which gradient was obtained
-    !i   gnew   :gradient corresponding to new positions
-    !i  The following inputs are passed directly through to gradzr.
-    !i  See that routine for further description.
-    !i   hess   :inverse Hessian matrix for Fletcher-Powell and Broyden
-    !i   xtoll  :x tolerance for line minimizations.  See gradzr
-    !i   dxmx   :Maximum step length in any one component of x.
-    !i   xtol   :tolerance in x for global minimization.
-    !i   gtol   :tolerance in gradient for global minimization
-    !i   grfac  :Extrapolation growth factor for line minimizations.
-    !i   copt   :character string for a convenient specification of special
-    !i           options.  drgrzr converts the following strings in copt
-    !i           into the corresponding switches in isw.  These may be
-    !i           strung together, separated by spaces.  isw is altered
-    !i           only when input ir=0.
-    !i             'def' Set default isw
-    !i             'cg'  congugate gradients
-    !i             'fp'  Fletcher-Powell
-    !i             'br'  Broyden
-    !i             'min' specify minimization
-    !i             'max' specify maximization
-    !i           Options are read left-to-right, so when incompatible
-    !i           switches are set, the last takes precedence.
-    !i   isw    :compound of one-digit switches.  It will be altered
-    !i           if copt is set.
-    !o Inputs/Outputs
-    ! o  ir     :flow control passed to gradzr.
-    ! o          To start a new minimization, set ir to zero.
-    ! o          On exit, gradzr sets ir to a value as described in gradzr.
-    ! o          A return of ir=0 => convergence achieved to prescribed tol
-    ! o          A return of ir>0 => gradzr had trouble and is aborting.
-    ! o  p      :position and work array for input to gradzr.
-    ! o          Array is dimensioned at least 6*n for F.P. and C.G. and 8*n
-    ! o          for Broyden.  If the Hessian eigenvalues are calculated,
-    ! o          it increases to n*(6+n) and n*(11+2n) for F.P. and Broyden.
-    ! o          p should remain untouched between successive calls
-    ! o          drgrzr replaces p(*,nx):replaced by pnew and
-    ! o          p(*,nd) changed to p(nd) = xn * (h(xn)-h(xn=0))
-    ! o          NB: input ir=0 => p(nd) not defined and not changed
-    ! o  wk     :work array passed for input to gradzr.
-    ! o         :wk should remain untouched between successive calls
-    !r Remarks
-    !r   This is a driver routine for gradzr, taking as input positions
-    !r   and gradients, and internally updating the gradzr matrix p.
-    !r   For line minimizations, it also resets the conjugate direction
-    !r   vector h = p(1,nd) in the event the positions passed to drgrzr
-    !r   do not correspond to those kept by p.
-    !u Updates
-    ! ----------------------------------------------------------------------
-    !     implicit none
-    ! ... Passed parameters
-    character*(*) copt
-    integer :: n,ir,isw
-    double precision :: pnew(n),gnew(n)
-    double precision :: hess(n,n),p(n,10),xtoll,dxmx,xtol,gtol,wk(0:26), &
-         grfac
-    ! Local variables
-    integer :: idx,nx,ng,nd,n0,idamax,j1,j2,getdig
-    double precision :: dhmax,hold,hmax,tol,xn
-    parameter (nx=1,ng=2,nd=3,n0=6,tol=1d-4)
+!   subroutine drgrzr(n,pnew,gnew,p,hess,xtoll,dxmx,xtol,gtol,grfac, &
+!        wk,copt,isw,ir)
+!     !- Driver routine for gradzr
+!     ! ----------------------------------------------------------------------
+!     !i Inputs
+!     !i   n      :size of vector; see gradzr
+!     !i   pnew   :new positions for which gradient was obtained
+!     !i   gnew   :gradient corresponding to new positions
+!     !i  The following inputs are passed directly through to gradzr.
+!     !i  See that routine for further description.
+!     !i   hess   :inverse Hessian matrix for Fletcher-Powell and Broyden
+!     !i   xtoll  :x tolerance for line minimizations.  See gradzr
+!     !i   dxmx   :Maximum step length in any one component of x.
+!     !i   xtol   :tolerance in x for global minimization.
+!     !i   gtol   :tolerance in gradient for global minimization
+!     !i   grfac  :Extrapolation growth factor for line minimizations.
+!     !i   copt   :character string for a convenient specification of special
+!     !i           options.  drgrzr converts the following strings in copt
+!     !i           into the corresponding switches in isw.  These may be
+!     !i           strung together, separated by spaces.  isw is altered
+!     !i           only when input ir=0.
+!     !i             'def' Set default isw
+!     !i             'cg'  congugate gradients
+!     !i             'fp'  Fletcher-Powell
+!     !i             'br'  Broyden
+!     !i             'min' specify minimization
+!     !i             'max' specify maximization
+!     !i           Options are read left-to-right, so when incompatible
+!     !i           switches are set, the last takes precedence.
+!     !i   isw    :compound of one-digit switches.  It will be altered
+!     !i           if copt is set.
+!     !o Inputs/Outputs
+!     ! o  ir     :flow control passed to gradzr.
+!     ! o          To start a new minimization, set ir to zero.
+!     ! o          On exit, gradzr sets ir to a value as described in gradzr.
+!     ! o          A return of ir=0 => convergence achieved to prescribed tol
+!     ! o          A return of ir>0 => gradzr had trouble and is aborting.
+!     ! o  p      :position and work array for input to gradzr.
+!     ! o          Array is dimensioned at least 6*n for F.P. and C.G. and 8*n
+!     ! o          for Broyden.  If the Hessian eigenvalues are calculated,
+!     ! o          it increases to n*(6+n) and n*(11+2n) for F.P. and Broyden.
+!     ! o          p should remain untouched between successive calls
+!     ! o          drgrzr replaces p(*,nx):replaced by pnew and
+!     ! o          p(*,nd) changed to p(nd) = xn * (h(xn)-h(xn=0))
+!     ! o          NB: input ir=0 => p(nd) not defined and not changed
+!     ! o  wk     :work array passed for input to gradzr.
+!     ! o         :wk should remain untouched between successive calls
+!     !r Remarks
+!     !r   This is a driver routine for gradzr, taking as input positions
+!     !r   and gradients, and internally updating the gradzr matrix p.
+!     !r   For line minimizations, it also resets the conjugate direction
+!     !r   vector h = p(1,nd) in the event the positions passed to drgrzr
+!     !r   do not correspond to those kept by p.
+!     !u Updates
+!     ! ----------------------------------------------------------------------
+!     !     implicit none
+!     ! ... Passed parameters
+!     character*(*) copt
+!     integer :: n,ir,isw
+!     double precision :: pnew(n),gnew(n)
+!     double precision :: hess(n,n),p(n,10),xtoll,dxmx,xtol,gtol,wk(0:26), &
+!          grfac
+!     ! Local variables
+!     integer :: idx,nx,ng,nd,n0,idamax,j1,j2,getdig
+!     double precision :: dhmax,hold,hmax,tol,xn
+!     parameter (nx=1,ng=2,nd=3,n0=6,tol=1d-4)
 
-    ! --- Set switches based on copt ---
-    if (ir == 0 .AND. copt /= ' ') then
-       j1 = 1
-10     continue
-       call nword(copt,1,j1,j2)
-       if (j2 >= j1) then
-          if (copt(j1:j2) == 'cg') then
-             isw = isw + 100*(0-getdig(isw,2,10))
-          elseif (copt(j1:j2) == 'fp') then
-             isw = isw + 100*(1-getdig(isw,2,10))
-          elseif (copt(j1:j2) == 'br') then
-             isw = isw + 100*(2-getdig(isw,2,10))
-          elseif (copt(j1:j2) == 'def') then
-             isw = 40
-          elseif (copt(j1:j2) == 'min') then
-             isw = isw + 1*(1-mod(getdig(isw,0,10),4))
-          elseif (copt(j1:j2) == 'max') then
-             isw = isw + 1*(2-mod(getdig(isw,0,10),4))
-          else
-             call rxs2('drgrzr:  bad option, "',copt(j1:j2),'"')
-          endif
-          j1 = j2+1
-          goto 10
-       endif
-    endif
+!     ! --- Set switches based on copt ---
+!     if (ir == 0 .AND. copt /= ' ') then
+!        j1 = 1
+! 10     continue
+!        call nword(copt,1,j1,j2)
+!        if (j2 >= j1) then
+!           if (copt(j1:j2) == 'cg') then
+!              isw = isw + 100*(0-getdig(isw,2,10))
+!           elseif (copt(j1:j2) == 'fp') then
+!              isw = isw + 100*(1-getdig(isw,2,10))
+!           elseif (copt(j1:j2) == 'br') then
+!              isw = isw + 100*(2-getdig(isw,2,10))
+!           elseif (copt(j1:j2) == 'def') then
+!              isw = 40
+!           elseif (copt(j1:j2) == 'min') then
+!              isw = isw + 1*(1-mod(getdig(isw,0,10),4))
+!           elseif (copt(j1:j2) == 'max') then
+!              isw = isw + 1*(2-mod(getdig(isw,0,10),4))
+!           else
+!              call rxs2('drgrzr:  bad option, "',copt(j1:j2),'"')
+!           endif
+!           j1 = j2+1
+!           goto 10
+!        endif
+!     endif
 
-    xn = wk(0)
-    ! ... hnew = hold + 1/xn (pnew - pold)
-    if (ir /= 0 .AND. xn /= 0d0) then
-       idx = idamax(n,p(1,nd),1)
-       hmax = abs(p(idx,nd))
-       !       This destroys p(nx) but it isn't needed anymore
-       call daxpy(n,-1d0,pnew,1,p(1,nx),1)
-       idx = idamax(n,p(1,nx),1)
-       dhmax = abs(p(idx,nx)/xn)
-       hold = abs(p(idx,nd))
-       call daxpy(n,-1d0/xn,p(1,nx),1,p(1,nd),1)
-       !   ... Change in direction exceeds tolerance; reset ir
-       if (dhmax > tol*hmax) then
-          call info2(-30,0,0,' gradzr: reset conjugate'// &
-               ' direction.  dhmax = %1,3;3g  hold = %1,3;3g',dhmax,hold)
+!     xn = wk(0)
+!     ! ... hnew = hold + 1/xn (pnew - pold)
+!     if (ir /= 0 .AND. xn /= 0d0) then
+!        idx = idamax(n,p(1,nd),1)
+!        hmax = abs(p(idx,nd))
+!        !       This destroys p(nx) but it isn't needed anymore
+!        call daxpy(n,-1d0,pnew,1,p(1,nx),1)
+!        idx = idamax(n,p(1,nx),1)
+!        dhmax = abs(p(idx,nx)/xn)
+!        hold = abs(p(idx,nd))
+!        call daxpy(n,-1d0/xn,p(1,nx),1,p(1,nd),1)
+!        !   ... Change in direction exceeds tolerance; reset ir
+!        if (dhmax > tol*hmax) then
+!           call info2(-30,0,0,' gradzr: reset conjugate'// &
+!                ' direction.  dhmax = %1,3;3g  hold = %1,3;3g',dhmax,hold)
 
-          !     ... For ir=-10, need p(nx) = p(xn=0), p(ng) = -p(n0)
-          call dcopy(n,pnew,1,p(1,nx),1)
-          call daxpy(n,-xn,p(1,nd),1,p(1,nx),1)
-          call dpcopy(p(1,n0),p(1,ng),1,n,-1d0)
+!           !     ... For ir=-10, need p(nx) = p(xn=0), p(ng) = -p(n0)
+!           call dcopy(n,pnew,1,p(1,nx),1)
+!           call daxpy(n,-xn,p(1,nd),1,p(1,nx),1)
+!           call dpcopy(p(1,n0),p(1,ng),1,n,-1d0)
 
-          !     ... Call gradzr to reset C.G. or F.P. for new line min
-          ir = -10
-          call gradzr(n,p,hess,xtoll,dxmx,xtol,gtol,grfac,wk,isw,ir)
-          wk(0) = xn
+!           !     ... Call gradzr to reset C.G. or F.P. for new line min
+!           ir = -10
+!           call gradzr(n,p,hess,xtoll,dxmx,xtol,gtol,grfac,wk,isw,ir)
+!           wk(0) = xn
 
-       endif
-    endif
+!        endif
+!     endif
 
-    ! ... Set p(nx) to pnew and p(ng) to gnew
-    call dcopy(n,pnew,1,p(1,nx),1)
-    call dcopy(n,gnew,1,p(1,ng),1)
+!     ! ... Set p(nx) to pnew and p(ng) to gnew
+!     call dcopy(n,pnew,1,p(1,nx),1)
+!     call dcopy(n,gnew,1,p(1,ng),1)
 
-    ! ... Call gradzr for next step in minimization
-    call gradzr(n,p,hess,xtoll,dxmx,xtol,gtol,grfac,wk,isw,ir)
-  end subroutine drgrzr
+!     ! ... Call gradzr for next step in minimization
+!     call gradzr(n,p,hess,xtoll,dxmx,xtol,gtol,grfac,wk,isw,ir)
+!   end subroutine drgrzr
 
   real(8) function pgrada(isw1,isw4)
     !- Line minimization gradient tolerance
@@ -897,5 +897,288 @@ contains
        cnvgg = .true.
     endif
   end subroutine pgradz
+
+subroutine brmin(n,x,g,isw,ipr,dxmx,xtol,gtol,hmax,w,diff,hess,ir)
+  !use m_gradzr,only:pgradz
+  !use m_mathlib,only:chkhss
+  !- One Broyden step in finding the root of an n-dimensional function
+  ! ----------------------------------------------------------------
+  !i Inputs
+  !i   n:     number of variables
+  !i   x      current for which gradients are specified.
+  !i   g      gradient at current position
+  !i   isw    1s digit (not implemented)
+  !i          0  find minimum
+  !i          1  find maximum
+  !i         10s digit governs convergence criterion:
+  !i          0 convergence when <g> < gtol
+  !i          1 convergence when <dx> < xtol
+  !i          2 convergence when <g> < gtol and <dx> < xtol
+  !i          3 convergence when <g> < gtol or <dx> < xtol
+  !i            Here, <g> and <dx> are the max component of gradient
+  !i            and change in x between iterations
+  !i        100s digit
+  !i          1  Set this bit if there is an x-dependent hmax.
+  !i       1000s digit: Hessian matrix.  4's bit is independent from 1,2
+  !i          0  no tests are made for Hessian
+  !i          1  If Hessian is not positive definite, it is not updated.
+  !i          2  project out parts of Hessian corresponding to negative
+  !i             eval (not implemented).
+  !i          4  On the second iteration, Hessian is globally scaled
+  !i             once a first estimate is known (D. Novikov)
+  !i   ipr    verbosity
+  !i   dxmx   maximum allowed change in x for this step
+  !i   xtol  tolerance in delta x for global minimization.
+  !i         xtol > 0 : tolerance compared to |delta x|
+  !i         xtol < 0 : tolerance compared largest component, delta max(|x|)
+  !i   gtol  tolerance in gradient for global minimization
+  !i         gtol > 0 : tolerance compared to |delta g|
+  !i         gtol < 0 : tolerance compared largest component, delta max(|g|)
+  !i   hmax   a variable-specific maximum; shift is scaled so that
+  !i          no variable exceeds maximum (not tested).  Only used for
+  !i          those hmax>0.
+  !i   w      work array of dimension at least w(n,6), or if Hessian
+  !i          tested for positive definiteness, w(n,9+2*n), and if
+  !i          negative evals projected out, w(n,9+2*n).  Pieces signify:
+  !i          (*,nx)  prior position x (must be preserved between calls)
+  !i          (*,ng)  input gradient g (must be preserved between calls)
+  !i          (*,ns)  shift = x(output) - x(input)
+  !i          (*,nd)  change in g
+  !i          (*,nh)  a help array
+  !i          (*,nh2) a help array
+  !i          (*,nhs) a local copy of the Hessian (needed only if
+  !i                  Hessian is tested for positive definiteness)
+  ! o  ir:    iteration number.  Should be zero on first iteration.
+  ! o         It is updated internally, and returns the following:
+  ! o         0  brmin has converged to specified tolerance
+  ! o        >0  brmin needs gradients (preferably at the output x)
+  ! o        <0  like >0, but the Hessian was found to be not positive
+  ! o            definite, and was not updated.
+  ! o  hess inverse Hessian.  brmin updates hess as minimization
+  ! o         proceeds.  Initial Hessian may be specified; it is set to
+  ! o         unity if initially zero.
+  !o Outputs
+  !o   x      suggested new position at which to evaluate gradients
+  !o   diff   the largest shift
+  !r Remarks
+  !r   Adapted from D. Novikov.
+  !r   This routine generates the inverse of the Hessian matrix through
+  !r   the Broyden scheme, and supplies an update of the coordinates.
+  !u Updates
+  !u   08 Mar 06 Modified convergence checks for consistency w/ gradzr
+  ! ----------------------------------------------------------------
+  !     implicit none
+  ! ... Passed parameters
+  integer :: n,ir,isw,ipr
+  double precision :: diff,dxmx,xtol,gtol,x(n),g(n),hmax(n),w(n,10), &
+       hess(n,n)
+  ! ... Local parameters
+  integer :: nx,ng,ns,nd,nh,nh2,nhs,itol
+  parameter (nx=1,ng=2,ns=3,nd=4,nh=5,nh2=6,nhs=nd+5)
+  double precision :: dxtop,resx,gtop,resg,dum
+  logical :: cnvgx,cnvgg
+  double precision :: beta,one,evtol
+  parameter (beta=1d0, one=1d0, evtol=1d-10)
+  double precision :: factor,fmin,a,b,ddot,dasum,gmax,evmin,scale
+  !     double precision wk(n)
+  integer :: i,j,isw1,isw32,isw2,isw31,npr
+
+  isw1 = mod(isw/10,10)
+  isw2 = mod(isw/100,10)
+  isw31 = mod(mod(isw/1000,10),4)
+  isw32 = mod(isw/1000,10)/4
+  scale = 1
+  evmin = 0
+  if (isw31 /= 0) call rx('brmin: isw31/=0 is not used now')
+  call pshpr(ipr)
+
+  ! --- First iteration or restart ---
+  if (ir == 0) then
+     !   ... If starting Hessian is zero, set to unity.
+     if (dasum(n*n,hess,1) == 0) call dcopy(n,1d0,0,hess,n+1)
+     ir = 1
+     do  6  i = 1, n
+        w(i,nx) = x(i)
+        w(i,ng) = g(i)
+        do    j = 1, n
+           x(i) = x(i) - hess(i,j)*g(j)
+        enddo
+6    enddo
+
+     call info8(-25,0,0,' brmin: start'// &
+          '%?#(n==1|n==2|n==3)#  xtol=|%1;2g|#%j#'// &
+          '%?#(n==0|n==2|n==3)#  gtol=|%1;2g|#%j#'// &
+          '  isw=%i  |g|=%1;3g', &
+          isw1,xtol,isw1,gtol,isw,dsqrt(ddot(n,g,1,g,1)),0,0)
+
+     ! --- Subsequent iterations  ---
+  else
+
+     ir = iabs(ir)+1
+
+     !   ... Global scaling of the Hessian matrix
+     if (ir == 2 .AND. isw32 /= 0) then
+        do    i = 1, n
+           w(i,ns) = x(i) - w(i,nx)
+           w(i,nd) = g(i) - w(i,ng)
+        enddo
+        do    i = 1, n
+           w(i,nh) = 0d0
+           do    j = 1, n
+              w(i,nh) = w(i,nh) + hess(i,j)*w(j,nd)
+           enddo
+        enddo
+        a = ddot(n,w(1,nd),1,w(1,nh),1)
+        b = ddot(n,w(1,nd),1,w(1,ns),1)
+        scale = dabs(b/a)
+        call dscal(n*n,scale,hess,1)
+     endif
+
+     !   --- Make dx,dg; save Hessian,x,g; make some work arrays ---
+     do  20  i = 1, n
+        w(i,ns) = x(i) - w(i,nx)
+        w(i,nd) = g(i) - w(i,ng)
+20   enddo
+     !       Local copy of the original Hessian
+!     if (isw31 /= 0) call dcopy(n*n,hess,1,w(1,nhs),1)
+     do  30  i = 1, n
+        w(i,nx) = x(i)
+        w(i,ng) = g(i)
+        w(i,nh) = 0d0
+        do   j = 1, n
+           w(i,nh) = w(i,nh) + hess(i,j)*w(j,nd)
+        enddo
+30   enddo
+     a = ddot(n,w(1,nd),1,w(1,nh),1)
+     b = ddot(n,w(1,nd),1,w(1,ns),1)
+     do    i = 1, n
+        w(i,nh2) = 1/a*w(i,nh) - 1/b*w(i,ns)
+     enddo
+
+     !   --- Update inverse of Hessian ---
+     do    i = 1, n
+        do   j = i, n
+           hess(j,i) = hess(j,i) &
+                - w(j,nh)*w(i,nh)/a + w(j,ns)*w(i,ns)/b &
+                + beta*a*b*w(j,nh2)*w(i,nh2)
+        enddo
+     enddo
+     !   ... Make it symmetric
+     do    i = 2, n
+        do   j = 1, i-1
+           hess(j,i) = hess(i,j)
+        enddo
+     enddo
+
+     !   --- Check that Hessian is positive definite ---
+     ! if (isw31 /= 0) then
+     !    !         Keep a local copy of hessian, since dsev1 destroys it.
+     !    call dcopy(n*n,hess,1,w(1,nhs+n),1)
+     !    j = chkhss(w(1,nhs+n),n,w(1,nd),evtol,isw31,w(1,nhs),w(1,ns))
+     !    evmin = w(1,ns)
+     !    if (j > 0 .AND. (isw31 == 1)) then
+     !       call dcopy(n*n,w(1,nhs),1,hess,1)
+     !       ir = -ir
+     !    elseif (j > 0) then
+     !    endif
+     ! endif
+
+     !   --- Update x from Hessian, g ---
+     do  i = 1, n
+        do  j = 1, n
+           x(i) = x(i) - hess(i,j)*g(j)
+        enddo
+     enddo
+
+     !   ... End of subsequent Hessian update
+  endif
+
+  ! --- Limit the shift, depending on dxmx and hmax ---
+  do  i = 1, n
+     w(i,ns) = x(i) - w(i,nx)
+  enddo
+  diff = 0
+  do  i = 1, n
+     diff = max(diff,dabs(w(i,ns)))
+  enddo
+  if (diff == 0) goto 100
+  if (diff > dxmx) then
+     factor = dxmx/diff
+     print 334, diff,factor
+334  format(' brmin: max shift =',f9.5, &
+          ' is larger than dxmx.  Scale by',f8.4)
+     do  84  i = 1, n
+        w(i,ns) = factor * w(i,ns)
+        x(i) = w(i,ns) + w(i,nx)
+84   enddo
+     diff = factor*diff
+  endif
+  ! ... Check local shifts
+  if (isw2 /= 0) then
+     fmin = 1
+     do  85  i = 1, n
+        if (hmax(i) > 0) then
+           factor = min(one,abs(hmax(i)/x(i)))
+           if (factor < fmin) then
+              fmin = factor
+              print '('' Variable No.'',i3,'' is out of range'',f8.6)', &
+                   i,x(i)
+           endif
+        endif
+85   enddo
+     if (fmin < one) then
+        print '('' Rescale all shifts by'',f8.6)', fmin
+        do  86  i = 1, n
+           x(i) = fmin*x(i)
+           w(i,ns) = x(i) - w(i,nx)
+86      enddo
+     endif
+  endif
+
+  ! --- Cleanup ---
+100 continue
+  diff = 0
+  gmax = 0
+  do  i = 1, n
+     gmax = max(gmax,dabs(g(i)))
+     diff = max(diff,dabs(w(i,ns)))
+  enddo
+
+  if (scale /= 1) then
+     call info8(-30,0,0,' brmin: iter %i  max shift=%1;4g  '// &
+          '|g|=%1;4g  max g=%1;4g  scale H by %1;3g', &
+          iabs(ir),diff,dsqrt(ddot(n,g,1,g,1)),gmax,scale,0,0,0)
+  else
+     call info8(-30,0,0,' brmin: iter %i  max shift=%1;4g  '// &
+          '|g|=%1;4g  max g=%1;4g%?#n#  evmin=%1;2g#%j#',iabs(ir), &
+          diff,dsqrt(ddot(n,g,1,g,1)),gmax,isw31,evmin,0,0)
+  endif
+  npr = min(n,8)
+  call info0(-60,0,0,' Updated x: ')
+  do  i = 1, n, npr
+     call info(-60,0,0,' %n;10,6D',min(npr,n-i+1),x(i))
+  enddo
+
+  !     Global convergence criteria: shift relative to start of line min
+  itol = mod(isw1,4)
+  call pgradz(itol,n,1d0,w(1,ns),g,xtol,gtol, &
+       dxtop,resx,gtop,resg,dum,cnvgx,cnvgg)
+
+  ! ... Case brmin has converged globally
+  if (resg == 0 .OR. (cnvgg .AND. cnvgx)) then
+     call info5(-20,0,0, &
+          '%x brmin converged to dxmax=%1;3g, |dx|=%1;3g,'// &
+          '  gmax=%1;3g, |grad|=%1;3g in %i iter', &
+          dxtop,resx,gtop,resg,ir)
+     npr = min(n,6)
+     call info(-30,0,0,' p=%n:;10F',npr,x)
+     call info(-30,0,0,' g=%n:;10F',npr,g)
+     ir = 0
+  endif
+
+  call poppr
+
+
+end subroutine brmin
 
 end module m_gradzr

@@ -201,7 +201,8 @@ for matr in choosedmaterials:
         pass
     else:
         try:
-            out=subprocess.run(joblmf,shell=True)
+            #out=subprocess.run(joblmf,shell=True)
+            os.system(joblmf)
             os.system('echo Finished!: tail '+matr+'/save.'+ext +':` tail -n 1 save.'+ext+'`')
         except KeyboardInterrupt:
             'Keyboad interrrupt by user'

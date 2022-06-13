@@ -2718,101 +2718,101 @@ contains
     if (allocated(wk_rv)) deallocate(wk_rv)
 
   end subroutine pqmixb
-  subroutine pqmixc(nda,nmix,mmix,mxsav,beta,rms2,a,xn)
-    use m_gradzr,only:drgrzr
-    !      use m_lgunit,only:stdo
-    use m_ftox
-    !- C. G. mixing of a vector
-    ! ------------------------------------------------------------------
-    !i  mmix: number of iterates available to mix
-    !i  a:    (*,i,1)  output values for prev. iteration i
-    !i        (*,i,2)  input  values for prev. iteration i
-    ! o nmix: nmix > 0: number of iter to try and mix
-    !i        nmix < 0: use mmix instead of nmix.
-    !o  nmix: (abs)  number of iter actually mixed.
-    !o        (sign) <0, intended that caller update nmix for next call.
-    !o  xn:   projection along line minimization.
-    !o        (sign) <0, new line minimization
-    !r  Notations:
-    !r  x^(m): input vector for iteration m
-    !r  F^(m): difference between output and input vector in iteration m
-    ! ------------------------------------------------------------------
-    implicit none
-    integer :: nda,nmix,mmix,mxsav
-    double precision :: beta,rms2,xn,a(nda,0:mxsav+1,2)
-    double precision :: ddot,dval,dxmx,xtoll,grfac,wk(0:26)
-    save wk
-    real(8) ,allocatable :: p_rv(:)
-    real(8) ,allocatable :: dx_rv(:)
-    integer :: ir,imix,jmix,km,iprint,i1mach,i,idx,idamax
-    real(8):: ww(1,1) !dummy
-    ! --- Allocate some arrays ---
-    allocate(p_rv(nda*6))
-    allocate(dx_rv(nda))
-    ! ... imix is a local copy of nmix
-    imix = nmix
-    if (imix < 0) imix = mmix
+!   subroutine pqmixc(nda,nmix,mmix,mxsav,beta,rms2,a,xn)
+!     use m_gradzr,only:drgrzr
+!     !      use m_lgunit,only:stdo
+!     use m_ftox
+!     !- C. G. mixing of a vector
+!     ! ------------------------------------------------------------------
+!     !i  mmix: number of iterates available to mix
+!     !i  a:    (*,i,1)  output values for prev. iteration i
+!     !i        (*,i,2)  input  values for prev. iteration i
+!     ! o nmix: nmix > 0: number of iter to try and mix
+!     !i        nmix < 0: use mmix instead of nmix.
+!     !o  nmix: (abs)  number of iter actually mixed.
+!     !o        (sign) <0, intended that caller update nmix for next call.
+!     !o  xn:   projection along line minimization.
+!     !o        (sign) <0, new line minimization
+!     !r  Notations:
+!     !r  x^(m): input vector for iteration m
+!     !r  F^(m): difference between output and input vector in iteration m
+!     ! ------------------------------------------------------------------
+!     implicit none
+!     integer :: nda,nmix,mmix,mxsav
+!     double precision :: beta,rms2,xn,a(nda,0:mxsav+1,2)
+!     double precision :: ddot,dval,dxmx,xtoll,grfac,wk(0:26)
+!     save wk
+!     real(8) ,allocatable :: p_rv(:)
+!     real(8) ,allocatable :: dx_rv(:)
+!     integer :: ir,imix,jmix,km,iprint,i1mach,i,idx,idamax
+!     real(8):: ww(1,1) !dummy
+!     ! --- Allocate some arrays ---
+!     allocate(p_rv(nda*6))
+!     allocate(dx_rv(nda))
+!     ! ... imix is a local copy of nmix
+!     imix = nmix
+!     if (imix < 0) imix = mmix
 
-    ! --- Starting from iteration mmix, build the Jacobian matrix ---
-1   jmix = min(mmix,iabs(imix))
-    ir = 0
-    do  10  km = jmix, 0, -1
+!     ! --- Starting from iteration mmix, build the Jacobian matrix ---
+! 1   jmix = min(mmix,iabs(imix))
+!     ir = 0
+!     do  10  km = jmix, 0, -1
 
-       call dcopy ( nda , a ( 1 , km , 2 ) , 1 , dx_rv , 1 )
+!        call dcopy ( nda , a ( 1 , km , 2 ) , 1 , dx_rv , 1 )
 
-       call daxpy ( nda , - 1d0 , a ( 1 , km , 1 ) , 1 , dx_rv , &
-            1 )
+!        call daxpy ( nda , - 1d0 , a ( 1 , km , 1 ) , 1 , dx_rv , &
+!             1 )
 
-       rms2 = dsqrt ( ddot ( nda , dx_rv , 1 , dx_rv , 1 ) / ( &
-            nda - 0 ) )
+!        rms2 = dsqrt ( ddot ( nda , dx_rv , 1 , dx_rv , 1 ) / ( &
+!             nda - 0 ) )
 
-       idx = idamax ( nda , dx_rv , 1 )
+!        idx = idamax ( nda , dx_rv , 1 )
 
-       dxmx = beta * abs ( dval ( dx_rv , idx ) )
+!        dxmx = beta * abs ( dval ( dx_rv , idx ) )
 
-       xtoll = dxmx/10
-       grfac = min(2d0,1/beta)
-       call pshpr(80)
-       wk(0) = xn
-       call drgrzr ( nda , a ( 1 , km , 2 ) , dx_rv , p_rv , ww &
-            , xtoll , dxmx , 1d-10 , 1d-10 , grfac , wk , ' ' , 00040 &
-            , ir )
+!        xtoll = dxmx/10
+!        grfac = min(2d0,1/beta)
+!        call pshpr(80)
+!        wk(0) = xn
+!        call drgrzr ( nda , a ( 1 , km , 2 ) , dx_rv , p_rv , ww &
+!             , xtoll , dxmx , 1d-10 , 1d-10 , grfac , wk , ' ' , 00040 &
+!             , ir )
 
-       xn = wk(0)
-       call poppr
+!        xn = wk(0)
+!        call poppr
 
-10  enddo
-    if (ir == -1) xn = -xn
+! 10  enddo
+!     if (ir == -1) xn = -xn
 
-    ! --- Check for interactive change of nmix ---
-    ! NB negative sign signals request for permanent change in nmix
-    km = imix
-    !      if (iprint() .gt. 30) call query('redo, nmix=',2,imix)
-    if (iabs(imix) > mmix .AND. imix /= km) &
-         write(stdo,ftox)' (warning) only ',mmix,' iter available'
-    if (km /= imix) goto 1
-    nmix = imix
+!     ! --- Check for interactive change of nmix ---
+!     ! NB negative sign signals request for permanent change in nmix
+!     km = imix
+!     !      if (iprint() .gt. 30) call query('redo, nmix=',2,imix)
+!     if (iabs(imix) > mmix .AND. imix /= km) &
+!          write(stdo,ftox)' (warning) only ',mmix,' iter available'
+!     if (km /= imix) goto 1
+!     nmix = imix
 
-    ! --- Printout ---
-    if (iprint() > 40) then
-       print 310
-       do  12  i = 1, nda
-          if ( dabs ( a ( i , 0 , 1 ) - a ( i , 0 , 2 ) ) >= 5d-9 ) &
-               print 311 , i , a ( i , 0 , 2 ) , a ( i , 0 , 1 ) , a ( i , 0 &
-               , 1 ) - a ( i , 0 , 2 ) , dval ( p_rv , i )
+!     ! --- Printout ---
+!     if (iprint() > 40) then
+!        print 310
+!        do  12  i = 1, nda
+!           if ( dabs ( a ( i , 0 , 1 ) - a ( i , 0 , 2 ) ) >= 5d-9 ) &
+!                print 311 , i , a ( i , 0 , 2 ) , a ( i , 0 , 1 ) , a ( i , 0 &
+!                , 1 ) - a ( i , 0 , 2 ) , dval ( p_rv , i )
 
-12     enddo
-311    format(i5,4f14.6)
-310    format(14x,'Old',11X,' New',9X,'Diff',10X,'Mixed')
-    endif
+! 12     enddo
+! 311    format(i5,4f14.6)
+! 310    format(14x,'Old',11X,' New',9X,'Diff',10X,'Mixed')
+!     endif
 
-    ! --- Save x^(m+2) into a(*,0,2) and exit ---
-    call dcopy ( nda , p_rv , 1 , a ( 1 , 0 , 2 ) , 1 )
+!     ! --- Save x^(m+2) into a(*,0,2) and exit ---
+!     call dcopy ( nda , p_rv , 1 , a ( 1 , 0 , 2 ) , 1 )
 
-    if (allocated(dx_rv)) deallocate(dx_rv)
-    if (allocated(p_rv)) deallocate(p_rv)
+!     if (allocated(dx_rv)) deallocate(dx_rv)
+!     if (allocated(p_rv)) deallocate(p_rv)
 
-  end subroutine pqmixc
+!   end subroutine pqmixc
   subroutine pqmxup(na,mxsav,nclass,nl,nsp,nx,lmx, &
        pnu,qnu,xnew,pold,qold,xold,cnst,nda,a,rms2)
     !- Copy from holding array into P,Q
