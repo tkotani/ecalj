@@ -185,10 +185,7 @@ contains
     call m_subzi_init(lrout>0)
     !   Hankel's e of local orbital of PZ>10 (hankel tail mode) is changing.
     !   lpztail: if T, local orbital of 2nd type(hankel tail).
-    if(lpztail) then
-       write(6,*) 'sugcut xxxxxxx '
-       call sugcut(2)
-    endif
+    if(lpztail) call sugcut(2)
     if(cmdopt0('--cls')) then !clsmode
        call rxx(lso==1,'CLS not implemented in noncoll case')
        if (lrout == 0) call rx('bndfp: need output density for cls')

@@ -92,8 +92,8 @@ contains
        enddo
        !       deallocate(igvapw)
        qall(:,iq)=q
-       write(stdo,ftox)'m_bstrux_init qin',procid,iq,ftof(qin)
-       write(stdo,ftox)'m_bstrux_init q  ',procid,iq,ftof(qall(:,iq))
+       !write(stdo,ftox)'m_bstrux_init qin',procid,iq,ftof(qin)
+       !write(stdo,ftox)'m_bstrux_init q  ',procid,iq,ftof(qall(:,iq))
 1200 enddo
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !    do iq=iqini,iqend

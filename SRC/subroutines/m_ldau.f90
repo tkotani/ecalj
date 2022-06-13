@@ -287,7 +287,8 @@ contains
          ' Unsymmetrized output dmats',dmatu)
     call symdmu(nlibu,dmatu, nbas,nsp, lmaxu, sspec, ssite, ng, g, istab, lldau, xx)
     ddmat = dsqrt(ddot(2*ivsiz,dmatu-dmatuo,1,dmatu-dmatuo,1)/(2*ivsiz))
-    if(master_mpi)write(stdo,ftox)' chkdmu: LDA+U. RMSdiff of dmat from symmetrization =',ftod(xx,2)
+    if(master_mpi)write(stdo,ftox)
+    if(master_mpi)write(stdo,ftox)'chkdmu: LDA+U. RMSdiff of dmat from symmetrization =',ftod(xx,2)
     ! --- Compute U contribution to total energy; make vorb ---
     call rotycs(1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau) !mode=1, dmatu is from rh to sh
     havesh = 1
@@ -311,14 +312,13 @@ contains
        endif
     enddo
     ! --- LDA total energy terms ---
-    if(master_mpi)write(stdo,ftox)' eks =',ftof(eks),'e[U]=',ftof(eorb),'Etot(LDA+U)=',ftof(eks+eorb)
-    if(master_mpi)write(stdl,ftox)' ldau EHK',ftof(eks),'U',ftof(eorb),'ELDA+U',ftof(eks+eorb)
+    if(master_mpi)write(stdo,ftox)'eks =',ftof(eks),'e[U]=',ftof(eorb),'Etot(LDA+U)=',ftof(eks+eorb)
+    if(master_mpi)write(stdl,ftox)'ldau EHK',ftof(eks),'U',ftof(eorb),'ELDA+U',ftof(eks+eorb)
 
     ! --- Restore dmatu, vorb to real harmonics
     call rotycs(-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau) !-1, from sh to rh idvsh=0
     havesh = 0
-    if(master_mpi)write(stdo,ftox)' LDA+U update density matrix ...'
-    if(master_mpi)write(stdo,ftox)' RMS diff in densmat',ftod(ddmat)
+    if(master_mpi)write(stdo,ftox)'LDA+U update density matrix ... RMS diff in densmat',ftod(ddmat)
     dmatu = umix*dmatu+(1d0-umix)*dmatuo ! new*umix + old*(1-umix)
     call rotycs(1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau) !from rh to sh
     havesh = 1
@@ -407,7 +407,7 @@ contains
     call rotycs(1,vorb,nbas,nsp,lmaxu,sspec,ssite,lldau) !vorb from rh to sh
 
     !!=>  At this point, dmatu and vorb are in spherical harmonics
-    if(Iprint()>20) write(6,ftox)'  RMS change in vorb from symmetrization =',ftod(xx)
+    if(Iprint()>20) write(6,ftox)'RMS change in vorb from symmetrization =',ftod(xx)
     if(xx>.0001d0 .AND. iprint()>30) write(6,'(a)')' (warning) RMS change unexpectely large'
     call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite, ' Mixed dmats',dmatu)
     call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite, ' New vorb',vorb)

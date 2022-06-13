@@ -84,7 +84,7 @@ contains
     if (lswtk==1)  call swtkzero()
     do 2010 iq = iqini, iqend !This is a big iq loop
        qp = qplist(:,iq)
-       write(stdo,ftox)'m_bandcal_init: procid iq=',procid,iq,ftof(qp)
+       !write(stdo,ftox)'m_bandcal_init: procid iq=',procid,iq,ftof(qp)
        if(iq==iqini) call mlog_MPIiq(iq,iqini,iqend)
        call m_Igv2x_setiq(iq)    ! Get napw and so on for given qp
        if(lso==1) then

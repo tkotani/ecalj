@@ -859,7 +859,7 @@ contains
        sw = tksw(prgnam,'SPEC_ATOM_IDU')
        if (io_help > 0 .AND. sw < 2) write(stdo,*)' * ... The next three tokens are for LDA+U'
        nm='SPEC_ATOM_IDU'; call gtv(trim(nm),sw,idu(:,j),cindx=jj, def_i4v=(/(0,i=1,n0)/),note= &
-            'LDA+U mode:  0 nothing, 1 AMF, 2 FLL, 3 mixed; +10: nothin if sigm.* exist')
+            'LDA+U mode:  0 nothing, 1 AMF, 2 FLL, 3 mixed; +10: no LDA+U if sigm.* exist')
        nm='SPEC_ATOM_UH';call gtv(trim(nm),sw,uh(:,j),cindx=jj,def_r8v=zerov,note='Hubbard U for LDA+U')
        nm='SPEC_ATOM_JH';call gtv(trim(nm),sw,jh(:,j),cindx=jj,def_r8v=zerov,note='Exchange parameter J for LDA+U')
        !! 2019 automatic turn off lda+u mode; Enforce uh=jh=0 when sigm exist !!

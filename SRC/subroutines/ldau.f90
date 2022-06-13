@@ -47,7 +47,7 @@ subroutine ldau(vrsion,l,iblu,UH,JH,dmatu,nsp,lmaxu,vorb,Eorb)
   double complex den1(-3:3,-3:3),den2(-3:3,-3:3)
   lvrs = mod(vrsion,100)
   lnov = mod(vrsion/100,10)
-  if(iprint()>0) write(stdo,ftox)' ldau: version(See ldau.F)= ',lvrs,'iblu=', iblu
+  !if(iprint()>0) write(stdo,ftox)' ldau: version(See ldau.F)= ',lvrs,'iblu=', iblu
   ! see Petukhov et al. PRB 67, 153106 (2003) construct aaa=alpha mixing
   ! of two ldau versions eq. 5
   if (lvrs == 3) then
@@ -262,11 +262,11 @@ subroutine vldau(UH,JH,vrsion,dmatu,l,nsp,lmaxu,iblu,Eorb,vorb)
           (trace(1)*(trace(1)-1d0) + trace(2)*(trace(2)-1d0))
   endif
   Eorb = Eldau - Edc
-  if (lvrs == 4) then
-     write(stdo,ftox)' vldau:  Eldau =',ftof(Eldau),'Ueff=',Ueff,'Eorb =',Eorb
-  else
-     write(stdo,ftox)' vldau:  Eldau =',ftof(Eldau),'Edc =',Edc,'Eorb=',Eorb
-  endif
+  !if (lvrs == 4) then
+  !   write(stdo,ftox)' vldau:  Eldau =',ftof(Eldau),'Ueff=',Ueff,'Eorb =',Eorb
+  !else
+  !   write(stdo,ftox)' vldau:  Eldau =',ftof(Eldau),'Edc =',Edc,'Eorb=',Eorb
+  !endif
   if (lvrs == 1) then !!   Restore dmatu in AMF case
      do  isp = 1, nsp
         do m = -l, l
