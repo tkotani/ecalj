@@ -257,7 +257,7 @@ contains
     use m_suham,  only: nspx=>ham_nspx
     use m_ext,only: sname
     implicit none
-    integer:: iprocid,iqendx,iqinix,iqq,ifiproc,isp,ispx,icount,iqs,ncount,iqsi,iqse
+    integer:: iprocid,iqendx,iqinix,iqq,ifiproc,isp,ispx,icount,iqs,ncount,iqsi,iqse,iprint
     integer,allocatable::iqvec(:),ispin(:),iproc(:)
     call tcn('m_qplist_qpsdivider')
     allocate(iqvec(nkp*nspx),ispin(nkp*nspx),iproc(nkp*nspx))
@@ -275,7 +275,7 @@ contains
     if(nspx==2) iqend = (iqse+1)/nspx
     ispini = mod(iqsi+1,nspx)+1
     ispend = mod(iqse+1,nspx)+1
-    write(stdo,'(a,i5, ", (",i5,i2,"), "," (",i5,i2,")")' ) &
+    if(iprint()>80) write(stdo,'(a,i5, ", (",i5,i2,"), "," (",i5,i2,")")' ) &
          'm_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=', procid,iqini,ispini,iqend,ispend
     !$$$!!--- write lmfgw_divider ---------
     !$$$      icount = 0

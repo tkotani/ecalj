@@ -1,5 +1,6 @@
 module m_mksym_util
   use m_lgunit,only:stdo
+  use m_ftox
   public gensym,grpgen,symtbl
   private
   real(8):: fptol=0d0
@@ -308,10 +309,9 @@ contains
     if (ipr >= 30) then
        if (sout /= ' ' .AND. ipr >= 60) call awrit0 &
             (' Order of generator'//sout//'%a%b',' ',80,stdo)
-       call awrit2(' SGROUP: %i symmetry operations from %i '// &
-            'generators',' ',80,stdo,ng,ngen)
+       write(stdo,ftox)'SGROUP: ',ng,'symmetry operations from',ngen
        if (ipr >= 60 .AND. ng > 1) then
-          write(stdo,'('' ig  group op'')')
+          write(stdo,'('' ig group op'')')
           do  60  ig = 1, ng
              call asymop(g(1,ig),ag(1,ig),' ',sg)
              write(stdo,'(i4,2x,a)') ig,sg
@@ -320,10 +320,7 @@ contains
     endif
     return
 99  continue
-    if (mode1 == 0) call rx1( &
-         'SGROUP: ng greater than ngmx=%i: probably bad translation',ngmx)
-    !      call info2(1,0,0,
-    !     .  ' SGROUP (warning) ng greater than ngmx=%i ... exiting',ngmx,0)
+    if(mode1 == 0)call rx1('SGROUP: ng greater than ngmx=%i: probably bad translation',ngmx)
     ng = ngmx+1
   end subroutine sgroup
 
@@ -608,10 +605,8 @@ contains
 
     ! --- Printout ---
     if (ipr >= 30) then
-       if (sout /= ' ' .AND. ipr >= 60) call awrit0 &
-            (' Order of generator'//sout//'%a%b',' ',80,stdo)
-       call awrit2(' GRPGEN: %i symmetry operations from %i '// &
-            'generator(s)',' ',80,stdo,ng,ngen)
+       if (sout /= ' ' .AND. ipr >= 60) write(stdo,ftox)' Order of generator '//trim(sout)
+       write(stdo,ftox)'GRPGEN:',ng,'symmetry operations from',ngen,'generator(s)'
     endif
     if (ipr >= 80 .AND. ng > 1) then
        write(stdo,'('' ig  group op'')')
@@ -873,8 +868,8 @@ contains
     if (ngrp == 12) isym=5
     if (ngrp == 24) isym=6
     if (ngrp == 48) isym=7
-    if (iprint() >= 30) call awrit1(' SYMLAT: Bravais system is ' &
-         //csym1(isym)//'%a with %i symmetry operations.',' ',80,stdo,ngrp)
+    if (iprint() >= 30) write(stdo,ftox)' SYMLAT: Bravais system is ' &
+         //csym1(isym)//'with',ngrp,'symmetry operations.'
   end subroutine symlat
   ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss!
   subroutine symcry(bas,bast,ipc,nbas,nclass,nrclas, &

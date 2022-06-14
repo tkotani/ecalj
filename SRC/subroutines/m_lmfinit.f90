@@ -1472,6 +1472,7 @@ contains
     lmaxu = 0
     allocate(lldau(nbas))
     lldau = 0
+    if(master_mpi) write(stdo,*)
     do  ib = 1, nbas
        is = v_ssite(ib)%spec
        do  lx = 0, min(v_sspec(is)%lmxa,3)
@@ -1479,10 +1480,11 @@ contains
              if (lldau(ib) ==0) lldau(ib) = nlibu+1
              nlibu = nlibu+1
              lmaxu = max(lmaxu,lx)
+             !if(master_mpi)write(stdo,ftox)'lda+u block ibas lx=', ib,lx, &
+             !'JH=',ftof(v_sspec(is)%jh(lx+1),3),'UH',ftof(v_sspec(is)%uh(lx+1),3)
           endif
        enddo
     enddo
-    if (master_mpi .AND. nlibu/=0) write(stdo,"(' LDA+U: block(s) lmaxu =',2i4)") nlibu,lmaxu
     !! aug2012 we now fix lcplxp=1 (complex ppi integral)
     lekkl  = ctrl_pfloat
     ! lhh, nkapii, nkaphh (nkaphh = nkapii(1 or 2) +1) if extented local orbital exist)

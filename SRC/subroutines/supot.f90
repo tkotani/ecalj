@@ -31,7 +31,7 @@ contains
     integer ::iwdummy
     real(8):: wdummy(3)=0d0
     call tcn('m_supot_init')
-    write(stdo,*)' supot : allocate potential and gv setup ... '
+    !write(stdo,*)' supot : allocate potential and gv setup ... '
     nbas=ctrl_nbas
     nsp=ctrl_nspin
     alat=lat_alat

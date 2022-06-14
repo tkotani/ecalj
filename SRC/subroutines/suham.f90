@@ -1,5 +1,9 @@
 module m_suham
-  integer,protected:: ham_ndham, ham_ndhamx,ham_nspx  !only these integers returned.
+  use m_MPItk,only:master_mpi
+  use m_ftox
+  integer,protected,public:: ham_ndham, ham_ndhamx,ham_nspx  !only these integers returned.
+  public m_suham_init
+  private
 contains
   subroutine m_suham_init()
     use m_struc_def
@@ -8,7 +12,6 @@ contains
          ,alat=>lat_alat, lat_tolft,nkaph, pot_nlma, pot_nlml ,stdo,nlmto
     use m_supot,only: lat_ng, rv_a_ogv
     use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
-    use m_MPItk,only:master_mpi
     !! Hamiltonian dimensiton: APW part
     !!       ham_ndham,ham_ndhamx,ham_nspx
     !l   ndim  :total number of lmto orbitals = nl**2 * nbas
@@ -49,7 +52,7 @@ contains
        Gmin = dsqrt(pwemin)
        Gmax = dsqrt(pwemax)
        if (mod(pwmode/10,10) == 1) then
-          write(stdo,*)' Estimate max size of PW basis fromcombinations of recip. lattice vectors ...'
+          if(master_mpi)write(stdo,*)'Estimate max size of PW basis from combinations of recip. lattice vectors ...'
           npwmax = -1
           npwmin = 99999
           do  j1 = 0, nqdiv
@@ -82,7 +85,7 @@ contains
        !! Dimension maximum of Hamiltonian is ndhamx (ispx=1,nspx)
        !! Note spinoffdiag=T case: we use nspc,nsp,nspx,ndhamx (a little complicated, I think).
        !     nspx*nspc=nsp
-       write(stdo,"(a,2f9.3,2i5)")' suham: PW basis Emin Emax npw ndham=',pwemin,pwemax,npw,ndham
+       if(master_mpi)write(stdo,ftox)'suham: PW basis Emin Emax',ftof([pwemin,pwemax],3),'npw ndham',npw,ndham
        !    ...  Printout
        if (iprint() >= 40) then
           call pshpr(0)

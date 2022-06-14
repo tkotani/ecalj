@@ -1,4 +1,5 @@
 module m_mksym
+  use m_mpitk,only: master_mpi
   use m_mksym_util,only: gensym,grpgen,symtbl
   public :: m_mksym_init, &
        ! ibas ==> iclass=ipc(ibas),iv_a_oipc ==> ispec=ics(iclass),iv_a_oics
@@ -215,13 +216,13 @@ contains
     integer:: iv_a_oips(:)
     nbas =ctrl_nbas
     nspec=ctrl_nspec
-    !      nsite=ctrl_nsite
     plat =lat_plat
     !      ldist=lat_ldist           ! ldist mode need to be recovered if necessary
     !      dist=lat_dist
     !      i_copy_size=size(lat_dist)
     !      call dcopy(i_copy_size,lat_dist,1,dist,1)
     !      stdo = globalvariables%stdo
+
     ngmx = 48
     ! ... Re-entry when ngmx was increased
 5   continue
@@ -242,33 +243,28 @@ contains
        call word(ssymgr,ig,j1,j2)
        if (ssymgr(j1:j2) == 'find') then
           usegen = 0
-          !        else if (ssymgr(j1:j2) .eq. 'point') then
-          !          ltmp = .true.
        else
           call strncp(gens,ssymgr,idest,j1,j2-j1+2)
           idest = idest+j2-j1+2
        endif
     enddo
-    !      if (ltmp) then
-    !        call strncp(gens,'point',idest,1,5)
-    !      endif
     ! --- Generate space group ---
     nbas0 = nbas
-    if (cmdopt0('--fixpos')) call Rx('fixpos is removed. outside of lmf')
+    if (cmdopt0('--fixpos')) call Rx('fixpos is removed in current version')
     ! ... When generating the group the basis may become enlarged ...
-    if(allocated(iv_a_oistab)) deallocate(iv_a_oistab) !lat_iv_a_oistab
+    if(allocated(iv_a_oistab)) deallocate(iv_a_oistab) 
     allocate(iv_a_oistab(abs((ngmx+1)*nbas)))
     allocate(ips2_iv(ngmx*nbas))
     allocate(pos2_rv(3,ngmx*nbas))
     ips2_iv(1:nbas)= iv_a_oips(1:nbas)
-    call dcopy ( 3 * nbas , rv_a_opos , 1 , pos2_rv , 1 )
+    pos2_rv(:,1:nbas)=rv_a_opos(:,1:nbas)
     call gensym ( slabl , gens , usegen , t , f , f , nbas &
          , nspec , ngmx , plat , plat , pos2_rv , ips2_iv& ! & , ldist , dist
          , nrspc_iv , nsgrp , rv_a_osymgr , rv_a_oag , ngen , gen , ssymgr &
          , nggen , isym , iv_a_oistab )
     if (nbas > nbas0) call rxs('gensym: the basis was enlarged.',' Check group operations.')
-    if (nggen > nsgrp) then
-       write(stdo,ftox)' MKSYM (warning): generators create more than ngmx=',ngmx,' group ops ...'
+    if (nggen> nsgrp) then
+       if(master_mpi)write(stdo,ftox)'MKSYM(warning): generators create more than ngmx=',ngmx,'group ops ...'
        ngmx = ngmx*16
        if (allocated(pos2_rv)) deallocate(pos2_rv)
        if (allocated(ips2_iv)) deallocate(ips2_iv)
@@ -287,9 +283,9 @@ contains
        incli = npgrp-nsgrp
     endif
     ! --- Printout of symmetry operations ---
-    write(stdo,ftox)' MKSYM: found ',nsgrp,' space group operations'
-    if(nsgrp/=npgrp) write(stdo,ftox)' MKSYM: adding inversion gives ',npgrp,' operations'
-    if(incli == -1) write(stdo,*)'  no attempt to add inversion symmetry'
+    if(master_mpi) write(stdo,ftox)'MKSYM: found ',nsgrp,' space group operations'
+    if(master_mpi.and.nsgrp/=npgrp)write(stdo,ftox)'       adding inversion gives',npgrp,' operations'
+    if(master_mpi.and.incli == -1) write(stdo,*)'  no attempt to add inversion symmetry'
     if(mod(mode/10,10) == 0) goto 100
     ! Split species into classes : ibas ==> iclass=ipc(ibas) ==> ispec=ics(iclass)
     if(allocated(iv_a_onrc)) deallocate(iv_a_onrc)

@@ -122,8 +122,8 @@ subroutine prdmts(ifi,ipr1,ipr2,sharm,strn,ib,l,lmaxu,iblu,dmats, &
      endif
      !       Header: printout l, ib (if ib>0), spin (if nsp=2, ipr2>=ipr)
      do  isp = 1, nsp
-        write(stdo,ftox) trim(strnl),'l=',l,'ib',ib,'isp',isp
         if (ipr < ipr2) return
+        write(stdo,ftox) trim(strnl),'l=',l,'ib',ib,'isp',isp
         do  m1 = -l, l
            write(stdo,'(7(f9.5,2x))')(dmats(1,m1,m2,isp,iblu),m2=-l,l)
         enddo

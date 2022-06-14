@@ -1,4 +1,5 @@
 subroutine pnunew(eferm)
+  use m_ftox
   use m_MPItk,only: master_mpi
   use m_mkpot,only: hab=>hab_rv,sab=>sab_rv
   use m_lmfinit,only:nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,ham_frzwf,&
@@ -57,14 +58,14 @@ subroutine pnunew(eferm)
   character spid*8
   integer ::iwdummy ,i_copy_size,nnz,nnv
   real(8):: eferm,eee
-  logical:: lsemicorepz,phispinsym,cmdopt
+  logical:: lsemicorepz,phispinsym,cmdopt0
   real(8):: pmean
   character strn*120
   call tcn('pnunew')
   pi = 4d0*datan(1d0)
-  call info(30,1,0,' Make new boundary conditions for phi,phidot..',0,0)
+  if(ipr>40)write(stdo,ftox)' Make new boundary conditions for phi,phidot..'
   call getpr(ipr)
-  if(ipr>=30) then
+  if(ipr>40) then
      print *, ' pnunew: ebar: '
      print *, '   without lo    : ebar = center of gravity of occupied states'
      print *, '   with lo & PZ>P: ebar for lo is meaningless(zero is shown). Use empty-sphere PZ.'
@@ -84,30 +85,27 @@ subroutine pnunew(eferm)
      if (lmxa .eq. -1) goto 10
      spid=sspec(is)%name
      if (mxcst4(is)) idmod=1 !call ivset(idmod,1,n0,1)
-     if (ipr .ge. 20) write(stdo,320) ib,is,spid
+     if (ipr >40) write(stdo,320) ib,is,spid
 320  format(/' site',i5,'   species',i4,':',a)
-     if (ipr .ge. 20) write(stdo,311)
+     if (ipr >40) write(stdo,311)
      do  l = 0, lmxa
         do  isp = 1, nsp
            m = l+1
            p1 = 2d10
            pznew = 2d10
-           !         Initially set lfrzv,lfrzz to external constraints.
            lfrzv = (mod(idmod(m),10).ne.0 .and. mod(idmod(m),10).ne.3).or. ham_frzwf !lfrzw .ne. 0
-           lfrzz = lfrzv
+           lfrzz = lfrzv !freezing swiches
            lpz = pnz(m,1) .ne. 0
            lsemicorepz = .false.
            if(lpz)then
               nnv = int(mod(pnu(m,1),10d0))-l-1
               nnz = int(mod(pnz(m,1),10d0))-l-1
               if(nnz<nnv) then !this means semicore for local orbital.
-                 !                write(*,"(a,2i3,l,5f12.4)") 'zzzzz ',m,isp,lpz,pnu(m,isp),pnz(m,isp)
                  lsemicorepz = .true.
               endif
            endif
            if (dabs(qbyl(m,isp,ib)) .gt. 1d-8) then
               ebar = hbyl(m,isp,ib)/qbyl(m,isp,ib)
-              !     ... Log derivative by direct num integration
               is=ssite(ib)%spec
               z=sspec(is)%z
               a=sspec(is)%a
@@ -123,11 +121,9 @@ subroutine pnunew(eferm)
                  slo(1) = dl + 1d0
                  nn = int(mod(pnu(m,1),10d0))-l-1
                  allocate(gp_rv(8*nr))
-                 !             xx = dval(w(ov0i),nr)
                  call phidx ( 0 , z , l , v0i_rv , 0d0 , 0d0 , rofi_rv , &
                       nr , 2 , 1d-12 , ebar , val , slo , nn , g_rv , gp_rv &
                       , phi , dphi , phip , dphip , xx , xx , xx , xx , xx )
-
                  !         ... cz = estimate for energy of orbital with b.c. connecting
                  !             to Hankel of energy 0
                  dlphi = rmt*dphi/phi
@@ -144,29 +140,25 @@ subroutine pnunew(eferm)
                  !             val(1) = rmt
                  !             slo(1) = dl + 1d0
               endif
-              !! takao Sep24 2010
               if(lsemicorepz)then
                  ebar=eferm
-                 if(ipr>30) write(6,"(' pnunew: valence with semicore ebar=efermi=',f12.6)")ebar
+                 if(ipr>40) write(6,"(' pnunew: valence with semicore ebar=efermi=',f12.6)")ebar
               endif
               call phidx ( 2 , z , l , v0i_rv , 0d0 , 0d0 , rofi_rv , nr ,  &
                    0 , 1d-12 , ebar , val , slo , nn , g_rv , iwdummy , phi , &
-                   dphi , iwdummy , iwdummy , iwdummy , iwdummy , iwdummy , iwdummy &
-                   , iwdummy )
+                   dphi , iwdummy , iwdummy , iwdummy , iwdummy , iwdummy , iwdummy , iwdummy )
               nnv=nn
               if (nn .eq. int(pnu(m,1))-l-1) then
                  dl = rmt*slo(1)/val(1) - 1
                  p1 = 0.5d0 - datan(dl)/pi
-              elseif (ipr .ge. 10.and.(.not.lsemicorepz)) then
-                 print *,' node =',nn
-                 call info2(10,0,0,' (warning) failed to find proper ' &
-                      //'node count for l=%i  ebar=%;4d: pnu not calc',l,  ebar)
+              elseif (ipr>=10.and.(.not.lsemicorepz)) then
+                 write(stdo,ftox)'node=',nn, &
+                 '(warning,probably no problem) not expecting node count for l=',l,'ebar=',ftof(ebar)
               endif
               if(lsemicorepz) then
                  dl = rmt*slo(1)/val(1) - 1
                  p1 = 0.5d0 - datan(dl)/pi
               endif
-
               !       ... Estimate new pnz for semicore state
               if (lpz .and. int(mod(pnz(m,1),10d0)).lt.int(pnu(m,1))) then !local obital is semicore
                  val(1) = rmt
@@ -174,12 +166,9 @@ subroutine pnunew(eferm)
                  slo(1) = dnz + 1d0
                  nn = int(mod(pnz(m,1),10d0))-l-1
                  allocate(gp_rv(8*nr))
-
                  call phidx ( 0 , z , l , v0i_rv , 0d0 , 0d0 , rofi_rv , &
                       nr , 2 , 1d-12 , ez , val , slo , nn , g_rv , gp_rv , &
                       phi , dphi , phip , dphip , xx , xx , xx , xx , xx )
-
-                 !             dphip = (slo(2)-phip)/rmt
                  dlphi = rmt*dphi/phi
                  dlphip = rmt*dphip/phip
                  umegam = -(phi/phip)*(-l-1-dlphi)/(-l-1-dlphip)
@@ -226,9 +215,9 @@ subroutine pnunew(eferm)
                  if (ptry .gt. ipqn+pmax(m)) pnu(m,isp) = ipqn+pmax(m)
               endif
            endif
-           if (ipr .ge. 20 .and. isp .eq. 1) write(stdo,310) &
+           if (ipr>40 .and. isp .eq. 1) write(stdo,310) &
                 l,idmod(m),qbyl(m,isp,ib),ebar,pold,ptry,pfree,pnu(m,isp)
-           if (ipr .ge. 20 .and. isp .eq. 2) write(stdo,410) &
+           if (ipr>40 .and. isp .eq. 2) write(stdo,410) &
                 idmod(m),qbyl(m,isp,ib),ebar,pold,ptry,pfree,pnu(m,isp)
 310        format(i2,i6,6f12.6,l)
 410        format(' spn 2',i2,6f12.6,l)
@@ -246,17 +235,16 @@ subroutine pnunew(eferm)
                  d0l = l
                  if (ptry .lt. pfree) pnz(m,isp) = pfree + (pnz(m,isp)-mod(pnz(m,isp),10d0))
               endif
-              if (ipr .ge. 20 .and. isp .eq. 1) write(stdo,520)l,idmod(m),ez,pold,ptry,pfree,pnz(m,isp)
-              if (ipr .ge. 20 .and. isp .eq. 2) write(stdo,620)idmod(m),ez,pold,ptry,pfree,pnz(m,isp)
+              if (ipr>40.and. isp .eq. 1) write(stdo,520)l,idmod(m),ez,pold,ptry,pfree,pnz(m,isp)
+              if (ipr>40.and. isp .eq. 2) write(stdo,620)idmod(m),ez,pold,ptry,pfree,pnz(m,isp)
 520           format(i2,i6,'      ---   ',6f12.6)
 620           format(' spn 2',i2,'      ---   ',6f12.6)
            elseif (lpz) then
            endif
         enddo !end of spin loop
-        !! spin averaged pnu takaoAug2019
-        phispinsym= cmdopt('--phispinsym',12,0,strn)
+        phispinsym= cmdopt0('--phispinsym') !! spin averaged pnu takaoAug2019
         if(phispinsym) then
-           if(master_mpi.and.m==lmxa+1) write(6,*)'pnunew: --phispinsym enforces spin-averaged pnu' 
+           if(ipr>0.and.m==lmxa+1) write(6,*)'pnunew: --phispinsym enforces spin-averaged pnu' 
            pmean = sum(pnu(m,1:nsp))/nsp
            pnu(m,1:nsp) = pmean
            if (lpz) then
@@ -264,12 +252,10 @@ subroutine pnunew(eferm)
               pnz(m,1:nsp) = pmean
            endif
         endif
-     enddo !l loop
+     enddo 
      ssite(ib)%pnu=pnu
      ssite(ib)%pz=pnz
 10   continue
   enddo
   call tcx('pnunew')
 end subroutine pnunew
-
-

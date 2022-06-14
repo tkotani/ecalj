@@ -1,4 +1,5 @@
 module m_ldau
+  use m_mpitk,only:master_mpi
   use m_ftox
   public:: m_ldau_init,m_ldau_vorbset
   complex(8),allocatable,protected,public::  vorb(:,:,:,:)
@@ -31,7 +32,6 @@ contains
   subroutine m_ldau_vorbset(eks,dmatu)
     !      use m_chkdmu,only: Chkdmu
     use m_lmfinit,only: nlibu,nsp,lmaxu,lmaxu,nsp,nlibu,nbas,stdo
-    use m_MPItk,only: master_mpi
     complex(8):: dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
     complex(8):: vorbav(-lmaxu:lmaxu,-lmaxu:lmaxu)
     real(8):: eks
@@ -50,7 +50,6 @@ contains
   ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine vorbmodifyaftest()
     use m_lmfinit,only: nlibu,nsp,lmaxu,lmaxu,nsp,nlibu,nbas,stdo
-    use m_MPItk,only: master_mpi
     complex(8):: vorbav(-lmaxu:lmaxu,-lmaxu:lmaxu)
     integer,parameter:: nx=1000
     real(8):: alpha,mmtarget, uhhist(nx),uhx,sss(1),fac,mmsite(nbas),mmhist(0:nx)
@@ -409,8 +408,10 @@ contains
     !!=>  At this point, dmatu and vorb are in spherical harmonics
     if(Iprint()>20) write(6,ftox)'RMS change in vorb from symmetrization =',ftod(xx)
     if(xx>.0001d0 .AND. iprint()>30) write(6,'(a)')' (warning) RMS change unexpectely large'
-    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite, ' Mixed dmats',dmatu)
-    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite, ' New vorb',vorb)
+    if(iprint()>0) write(6,ftox)'=== representation in spherical harmonics dmatu ==='
+    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite, 'Mixed dmats',dmatu)
+    if(iprint()>0) write(6,ftox)'=== representation in spherical harmonics vorb ==='
+    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite, 'New vorb',vorb)
     if (master_mpi) then
        idmat = ifile_handle()
        open(idmat,file='dmats.'//trim(sname)) !havesh mush be 1
@@ -421,8 +422,10 @@ contains
     call rotycs(-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau) !from sh to rh
     call rotycs(-1,vorb,nbas,nsp,lmaxu,sspec,ssite,lldau)  !from sh to rh
     havesh=0                  !I recovered this 2022May8
-    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,' Mixed dmats',dmatu)
-    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,' New vorb',vorb)
+    if(iprint()>0) write(6,ftox)'=== represenation in real harmonics dmatu==='
+    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,'Mixed dmats',dmatu)
+    if(iprint()>0) write(6,ftox)'=== represenation in real harmonics vorb==='
+    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,'New vorb',vorb)
   end subroutine chkdmu
   ! sssssssssssssssssssssssssssssssssssssssssssssss
   subroutine sudmtu(dmatu,vorb)
@@ -524,7 +527,7 @@ contains
        endif
        if(havesh ==1) bbb='spherical harmonics'
        if(havesh ==0) bbb='real harmonics'
-       write(stdo,*)' sudmtu: reading density matrix from file dmats in '//trim(bbb)
+       if(master_mpi)write(stdo,*)' sudmtu: reading density matrix from file dmats in '//trim(bbb)
        rewind idmat
        iblu = 0
        do  ib = 1, nbas
@@ -631,7 +634,7 @@ contains
        havesh = idvsh
     endif
     if (ng /= 0) then
-       write(stdo,ftox)' sudmtu:  RMS change in dmats'// &
+       if(master_mpi)write(stdo,ftox)'sudmtu:  RMS change in dmats'// &
             ' from symmetrization',ftof(xx)
        if (xx > .01d0) write(stdo,*)'(warning) RMS change unexpectely large'
        call daxpy ( ivsiz * 2 , - 1d0 , dmatu , 1 , dmwk_zv , 1 )
@@ -644,12 +647,12 @@ contains
     if (havesh /= idvsh) then
        call rotycs ( 2 * idvsh - 1 , dmwk_zv , nbas , nsp , lmaxu, sspec , ssite , lldau )
     endif
-    write(stdo,*)
+    if(master_mpi)write(stdo,*)
     call praldm(0,30,30,idvsh,nbas,nsp,lmaxu,lldau,sspec , ssite , ' Symmetrized dmats' , dmwk_zv )
     !     Print dmats in complementary harmonics
     i = 1-idvsh
     call rotycs(2 * i - 1 , dmwk_zv , nbas , nsp , lmaxu , sspec , ssite , lldau )
-    write(stdo,*)' '
+    if(master_mpi)write(stdo,*)
     call praldm(0,30,30,i,nbas,nsp,lmaxu,lldau,sspec,ssite, ' Symmetrized dmats' , dmwk_zv )
     ! ... Make Vorb (ldau requires spherical harmonics)
     if (havesh /= 1) then
@@ -677,6 +680,7 @@ contains
     !$$$       endif
     !$$$       call mpibc1_real(uhx,1,'sudmtu_uhx')
     !$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+    if(master_mpi) write(stdo,*)
     iblu = 0
     do  20  ib = 1, nbas
        if (lldau(ib) == 0) goto 20
@@ -687,7 +691,7 @@ contains
        jh=sspec(is)%jh
        spid=sspec(is)%name
        i = min(lmxa,3)
-       write(stdo,ftox)'Species '//spid//'mode',idu(1:i+1),'U',ftof(uh(1:i+1),2),'J',ftof(jh(1:i+1),2)
+       if(master_mpi) write(stdo,ftox)'Species '//spid//'mode',idu(1:i+1),'U',ftof(uh(1:i+1),2),'J',ftof(jh(1:i+1),2)
        do  22  l = 0, i
           if (idu(l+1) /= 0) then
              iblu = iblu+1
@@ -710,9 +714,10 @@ contains
        call rotycs(-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
        havesh = 0
     endif
-    if (ng /= 0) then
+    if (master_mpi.and.ng /= 0) then
        write(stdo,ftox)' sudmtu:  RMS change in vorb from symmetrization = ',ftof(xx)
        if (xx > .01d0) write(stdo,*)'          (warning) RMS change unexpectely large'
+       write(stdo,*)
     endif
     !     Print vorb in specified harmonics
     call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,' Symmetrized vorb',vorb)
