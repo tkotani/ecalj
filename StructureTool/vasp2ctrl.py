@@ -45,7 +45,7 @@ vaspread = open(argvs[1]).read().split('\n')
 plat1 = vaspread[2].split()
 plat2 = vaspread[3].split()
 plat3 = vaspread[4].split()
-print( ' '+vaspread[7])
+print(vaspread[7])
 
 alat_val = convctrl.vasp2ctrl_alat(vaspread) #unit
 if(alatin): ratioa = alatin/alat_val #conversion by given --alat=alatin
@@ -54,6 +54,6 @@ all_atom,NBAS_val = convctrl.vasp2ctrl_atomcount(vaspread)
 atom_list = convctrl.vasp2ctrl_atom(vaspread,alat_val,NBAS_val,plat1,plat2,plat3)
 convctrl.vasp2ctrl_write(vaspread,alat_val,NBAS_val,atom_list,titleinput,all_atom,ratioa)
 
-print( ' OK! we have ',titleinput+'.vasp2ctrl')
+print('OK! we have ',titleinput+'.vasp2ctrl')
 
 
