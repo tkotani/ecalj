@@ -63,8 +63,8 @@ subroutine pnunew(eferm)
   character strn*120
   call tcn('pnunew')
   pi = 4d0*datan(1d0)
-  if(ipr>40)write(stdo,ftox)' Make new boundary conditions for phi,phidot..'
   call getpr(ipr)
+  if(ipr>20)write(stdo,ftox)' Make new boundary conditions for phi,phidot..'
   if(ipr>40) then
      print *, ' pnunew: ebar: '
      print *, '   without lo    : ebar = center of gravity of occupied states'

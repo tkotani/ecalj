@@ -202,7 +202,6 @@ subroutine smves(nbas,ssite,sspec,k1,k2,k3,qmom,gpot0, &
   call esmsmves( nbas , ssite , sspec ,  rv_a_ocy , qmom , &
        ng , rv_a_ogv , iv_a_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 &
        , k3 , smrho, qbg, smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt )
-
   ! ... Compute e.s. potential at MT boundary
   call mshvmt ( nbas , ssite , sspec ,  ng , rv_a_ogv , iv_a_okv &
        , cv_zv , k1 , k2 , k3 , smpot , vval )

@@ -136,6 +136,7 @@ subroutine symqmp(nrclas,nlml,nlmx,plat,posc,ngrp,g,ag,qwk, &
   integer :: ia,ilm
   double precision :: wgt,xx,qlat(3,3)
 
+  call tcn('symqmp')
   if (nlml > nlmx) call rxi('symqmp: increase nlmx to',nlml)
   call dinv33(plat,1,qlat,xx)
 
@@ -160,6 +161,7 @@ subroutine symqmp(nrclas,nlml,nlmx,plat,posc,ngrp,g,ag,qwk, &
      if (dabs(qmp(ilm+ipa(1))) > 1d-6) nn = nn+1
   enddo
 
+  call tcx('symqmp')
 end subroutine symqmp
 
 subroutine pxsmr1(wgt,nr,nlml,nsp,sym,rho1,rho2,nn)

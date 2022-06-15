@@ -40,7 +40,8 @@ subroutine symprj(nrclas,nlml,ngrp,nbas,istab,g,ag,plat,qlat, &
 !        call shorbz(d,d,plat,qlat)
        ia = ja
        rfrac = matmul(d,qlat)
-       if(sum(abs(rfrac-nint(rfrac)))< 1d-7) goto 80
+!       write(6,*)ig,ja,sum(abs(rfrac-nint(rfrac)))
+       if(sum((rfrac-nint(rfrac))**2)< 1d-7) goto 80
 !        if (d(1)*d(1)+d(2)*d(2)+d(3)*d(3) < 1d-7) goto 80
         !          if (d(1)*d(1)+d(2)*d(2)+d(3)*d(3) .lt. 1d-9) goto 80
 12   enddo

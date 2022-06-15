@@ -485,9 +485,9 @@ contains
        endif
     endif
     call poppr
-    if (ngen0 == 0) then     ! --- Create gens, optionally printout ---
+    if(iprint()>0.and. ngen0 == 0) then     ! --- Create gens, optionally printout ---
        write(stdo,ftox)' GROUPG: the following are sufficient to generate the space group:'
-    else
+    elseif(iprint()>0) then
        write(stdo,ftox)' GROUPG:',ngen-ngen0,'generator(s) were added to complete the group:'
     endif
     sout = ' '

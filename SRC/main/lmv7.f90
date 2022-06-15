@@ -151,7 +151,7 @@ subroutine praugm() !print out only
   character spid*8
   write (stdo,501)
 501 format(/' species data:  augmentation',27x,'density'/ &
-       ' spec       rmt   rsma lmxa kmxa',5x,' lmxl     rg   rsmv  kmxv foca   rfoca')
+       ' spec       rmt   rsma lmxa kmxa',5x,' lmxl     rg   rsmv foca   rfoca')
   do js = 1,nspec
      spid=slabl(js) !sspec(js)%name
      rmt =sspec(js)%rmt
@@ -161,10 +161,10 @@ subroutine praugm() !print out only
      lmxl=sspec(js)%lmxl
      rg=sspec(js)%rg
      rsmv=sspec(js)%rsmv
-     kmxv=sspec(js)%kmxv
+!     kmxv=sspec(js)%kmxv
      lfoca=sspec(js)%lfoca
      rfoca=sspec(js)%rfoca
-     write (stdo,500) spid,rmt,rsma,lmxa,kmxt, lmxl,rg,rsmv,kmxv,lfoca,rfoca
-500  format(1x,a,f6.3,f7.3,2i5,6x,i4,2f7.3,i6,i5,f8.3)
+     write (stdo,500) spid,rmt,rsma,lmxa,kmxt, lmxl,rg,rsmv,lfoca,rfoca
+500  format(1x,a,f6.3,f7.3,2i5,6x,i4,2f7.3,i5,f8.3)
   enddo
 end subroutine praugm

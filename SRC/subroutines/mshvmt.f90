@@ -181,6 +181,7 @@ subroutine symvvl(nbas,ssite,sspec,vval,vrmt)
   integer:: igetss , nlml ,ipr , jpr , ngrp , nn , iclbas
   real(8) ,allocatable :: qwk_rv(:)
   real(8) ,allocatable :: sym_rv(:)
+  call tcn('symvvl')
   call getpr(ipr)
   plat=lat_plat
   ngrp=lat_nsgrp
@@ -242,6 +243,7 @@ subroutine symvvl(nbas,ssite,sspec,vval,vrmt)
      iv0 = iv0 + nlml
 10   continue
   enddo
+  call tcx('symvvl')
 end subroutine symvvl
 
 

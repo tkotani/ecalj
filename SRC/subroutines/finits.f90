@@ -93,10 +93,10 @@ subroutine fexit0(retval,strng)
         call ftime(datim)
         !          hostnm = ' '
         !          call get_environment_variable('HOST',hostnm)
-        write(stdo,*)'xxxxxxx',procid,'vvvvvvvvv'
+        !write(stdo,*)'fexit0: exiting process=',procid
         write(stdo,10) tnew,timeu,datim,procid!trim(adjustl(hostnm))
         !          write(stdl,10) tnew,timeu,datim,procid!trim(adjustl(hostnm))
-10      format('CPU time:', f9.3,a1,5x,a,' on ',i0)
+10      format('CPU time:', f9.3,a1,5x,a,' on process=',i0)
      endif
   endif
   if(procid==master) call tcprt(stdo)
