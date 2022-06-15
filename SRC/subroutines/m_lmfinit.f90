@@ -57,7 +57,7 @@ module m_lmfinit
   integer,protected:: lmxbx=-1,lmxax,nkaph,nkapi
   logical,allocatable,protected:: mxcst2(:),mxcst4(:)
   integer,allocatable,protected:: &
-       lmxb(:),lmxa(:),idmod(:,:),idu(:,:),kmxt(:),kmxv(:),lfoca(:),lmxl(:),nxi(:),nr(:),&
+       lmxb(:),lmxa(:),idmod(:,:),idu(:,:),kmxt(:),lfoca(:),lmxl(:),nxi(:),nr(:),& !,kmxv(:)
        nmcore(:), nkapii(:),nkaphh(:)
   real(8),allocatable,protected:: rsmh1(:,:),rsmh2(:,:),eh1(:,:),eh2(:,:), &
        rs3(:),rham(:),alpha(:,:),ehvl(:,:), uh(:,:),jh(:,:), eh3(:),&
@@ -551,7 +551,7 @@ contains
          rham(nspec),rmt(nspec),rsmv(nspec), &
          nxi(nspec),exi(n0,nspec), spec_a(nspec),z(nspec),nr(nspec),eref(nspec), &
          coreh(nspec),coreq(2,nspec), idxdn(n0,nkap0,nspec), idu(4,nspec),uh(4,nspec),jh(4,nspec), &
-         mxcst2(nspec),mxcst4(nspec), kmxt(nspec),kmxv(nspec),lfoca(nspec),lmxl(nspec),lmxa(nspec),&
+         mxcst2(nspec),mxcst4(nspec), kmxt(nspec),lfoca(nspec),lmxl(nspec),lmxa(nspec),&
          lmxb(nspec),nmcore(nspec),rs3(nspec),eh3(nspec))
     allocate(lpz(nspec),lpzex(nspec))
     allocate(nkapii(nspec),nkaphh(nspec))
@@ -684,9 +684,8 @@ contains
        !     lmxl = l-cutoff for numerical rep'sn of density in sphere
        !     lfoca = mode for treating core
        !     kmxt = kmax for expansion of envelope wf tails
-       !     kmxv = cutoff to expand smoothed potential
-       !     hardwired for now
-       kmxv(j) = 15            !Not input
+       ! kmxv = cutoff to expand smoothed potential.    hardwired for now
+       ! kmxv(j) = 15            !Not input
        !     Cannot set default here: need set after rescaling of rmt
        !     rsmv(j) = rmt(j)*.5d0   !Not input
        rsmv(j) = 0d0           !Not input
@@ -1211,7 +1210,6 @@ contains
        v_sspec(j)%nxi=nxi(j)
        v_sspec(j)%exi=exi(:,j)
        v_sspec(j)%kmxt=kmxt(j)
-       v_sspec(j)%kmxv=kmxv(j)
        v_sspec(j)%lfoca=lfoca(j)
        v_sspec(j)%rsmv=rsmv(j)
        v_sspec(j)%lmxa=lmxa(j)
@@ -1223,6 +1221,7 @@ contains
        v_sspec(j)%rsma=rsma(j)
        v_sspec(j)%rsmfa=rsmfa(j)
     enddo
+       !v_sspec(j)%kmxv=kmxv(j)
 !       v_sspec(j)%p = pnu(1:n0,1,j) !only for lmfa. fixed.
 !       v_sspec(j)%pz= pz(1:n0, 1,j) !only for lmfa. fixed.
 !       v_sspec(j)%rcfa=rcfa(:,j)
@@ -1391,7 +1390,7 @@ contains
     call poppr
     deallocate(wowk,amom, & !idmod,,qnu pnu    ,
          qpol,stni,rg,rsma,rfoca,rsmfa,nxi, & !,rcfa
-         exi,rham,idxdn, rmt,kmxv, & ! & kmxt,,idu,uh,jh
+         exi,rham,idxdn, rmt,& !kmxv, & ! & kmxt,,idu,uh,jh
          lfoca,lmxl, spec_a,z,nr,rsmv, &
          pos,ips,irlx)  !,vshft,coreh coreq,
     !! --- takao embed contents in susite here. This is only for lmf and lmfgw.

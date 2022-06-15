@@ -101,7 +101,7 @@ contains
     ! ... Local parameters
     integer :: procid,master,mpipid,nproc
     integer :: i,i0,i1,i2,i3,i4,ib,ipr,iprint,ic,is,is0,isp,jb,k1,k2,k3, &
-         igetss,jfi,k11,k21,k31,kmax,kmax0,kmxv,l,lfoc,lfoc0,lmxa, &
+         igetss,jfi,k11,k21,k31,kmax,kmax0,l,lfoc,lfoc0,lmxa, & !kmxv,
          lmxa0,lmxb,lmxb0,lmxl,lmxl0,lmxr,lmxv,lmxv0,lrel0,n11,n21, &
          n31,nbas0,nspec0,nlml,nlml0,npan,npan0,nr,nr0,nsp0, &
          nxi,nat0,ibaug
@@ -676,7 +676,7 @@ contains
           lmxa=sspec(is)%lmxa
           lmxl=sspec(is)%lmxl
           lmxb=sspec(is)%lmxb
-          kmxv=sspec(is)%kmxv
+          !kmxv=sspec(is)%kmxv
           rsmv=sspec(is)%rsmv
           kmax=sspec(is)%kmxt
           pnu=ssite(ib)%pnu

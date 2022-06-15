@@ -29,13 +29,15 @@ subroutine ovlocr ( nbas , ssite , sspec ,  nxi0 , nxi &
   !u   24 Apr 00 Adapted from nfp ovlocr.f
   ! ----------------------------------------------------------------------
   implicit none
+  integer:: kmxv=15 !Hardwired taken from original code.
+  
   integer:: nbas , nxi(1) , nxi0
   type(s_rv1) :: sv_p_orhoat(3,nbas)
   type(s_rv1) :: rv_a_orhofa(nbas)
   real(8):: rsmfa(1) , exi(nxi0,1) , hfc(nxi0,2,1) , sqloc , slmom
   type(s_site)::ssite(*)
   type(s_spec)::sspec(*)
-  integer:: ib , ipr , iprint , is , jb , je , js , kmxv , lfoca &
+  integer:: ib , ipr , iprint , is , jb , je , js , lfoca &
        , lmxl , nlmh , nlml , nr , i
   double precision :: ceh,cofg,cofh,eh,qcorg,qcorh,qsc,qcsm,qloc,rfoca,rmt,rsmh,rsmv,z,amom
   double precision :: a,p1(3), p2(3),q(3) !,b0(ktop0+1),acof((ktop0+1),nlmx,2)
@@ -57,7 +59,7 @@ subroutine ovlocr ( nbas , ssite , sspec ,  nxi0 , nxi &
      is=ssite(ib)%spec
      p1(:)=ssite(ib)%pos(:)
      lmxl=sspec(is)%lmxl
-     kmxv=sspec(is)%kmxv
+     !kmxv=sspec(is)%kmxv
      rsmv=sspec(is)%rsmv
      nlml = (lmxl+1)**2
      allocate(acof(0:kmxv,nlml,nsp),b(0:kmxv,nlml))
@@ -81,12 +83,9 @@ subroutine ovlocr ( nbas , ssite , sspec ,  nxi0 , nxi &
            eh   = exi(je,js)
            nlmh = 1
            call hxpbl ( p2 , p1 , q , [rsmh], rsmv , [eh] , kmxv , nlmh , nlml &
-                , kmxv , nlml , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy &
-                ,  b ) !slat ,
-
+                , kmxv , nlml , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy ,  b ) 
            allocate(b0(0:kmxv,nlmh))
            b0=0d0
-           !            call dpzero(b0,(kmxv+1)*nlmh)
            if (ib == jb) call hxpos([rsmh],rsmv,[eh],kmxv,nlmh,kmxv,b0)
            do  i = 1, nsp
               call p1ovlc(kmxv,nlml,hfc(je,i,js),b,b0,acof(0,1,i))
@@ -97,8 +96,7 @@ subroutine ovlocr ( nbas , ssite , sspec ,  nxi0 , nxi &
      call p2ovlc ( ib , nsp , rsmv , kmxv , nr , nlml , acof , rofi &
           , rwgt , nxi0 , nxi ( is ) , exi ( 1 , is ) , hfc ( 1 &
           , 1 , is ) , rsmfa ( is ) , rv_a_orhofa ( is ) %v , sv_p_orhoat( 3 , ib )%v &
-          , lfoca , qcsm , qloc , amom , sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v &
-          )
+          , lfoca , qcsm , qloc , amom , sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v )
      sqloc = sqloc + qloc
      slmom = slmom + amom
      deallocate(rofi,rwgt)

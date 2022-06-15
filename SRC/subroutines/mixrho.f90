@@ -1,5 +1,6 @@
 module m_mixrho
   use m_lgunit,only:stdo,stml
+  integer,parameter,public:: kmxv=15
   public:: mixrho,parms0
   private
   !  mixing routine of smrho, rh. T.kotani think this routine is too compicated to maintain.
@@ -212,7 +213,7 @@ contains
     double precision :: qval,elind
     double complex smrnew(k1,k2,k3,nsp),smrho(k1,k2,k3,nsp)
     ! ... Local parameters
-    integer :: i,i1,i2,i3,ib,ipl,ipr,is,k0,k9,kmxv, &
+    integer :: i,i1,i2,i3,ib,ipl,ipr,is,k0,k9, &
          lmxl,n1,n2,n3,ng,nglob,nlml,nr,nmixr,nmix,nda,mxsav,ifi,nlm0, &
          kkk,nnnew,nnmix,ngabc(3),igetss,broy,nx, &
          nkill,isw,naa,kmxr,kmxs,locmix,offx,off2
@@ -237,11 +238,12 @@ contains
     !      logical parmxp
     character sout*80,fnam*8
     integer ::iwdummy ,isp,nnnx,ng02,ng2, iprint,ifile_handle
-    real(8):: smmin,sss,wgtsmooth
+    real(8):: smmin,sss,wgtsmooth,wdummy(1,1,1,1)
     complex(8),allocatable:: smrnewbk(:,:,:,:),w_owk(:)
     !      complex(8),allocatable:: w_oqkl(:)
     real(8),allocatable:: w_oqkl(:)
-    real(8),allocatable:: w_oa(:),w_oaa(:),w_ocn(:)
+    real(8),allocatable:: w_oa(:),w_oaa(:)
+    real(8),allocatable:: w_ocn(:)
     logical::       noelind
     logical:: mixrealsmooth
     logical:: init=.true., initd=.true.
@@ -499,7 +501,7 @@ contains
        rmt =sspec(is)%rmt
        lmxl=sspec(is)%lmxl
        rsmv=sspec(is)%rsmv
-       kmxv=sspec(is)%kmxv
+       !kmxv=sspec(is)%kmxv
        if (lmxl < 0) cycle
 
        nlml = (lmxl+1)**2
@@ -515,7 +517,7 @@ contains
                sv_p_orhnew( 2 , ib )%v , sv_p_orhnew( 3 , ib )%v )
           !   ... Add site-projected screening density to rhn1,rhn2
           call pkl2ro ( 110 , ib , rsmv , kmxv , nr , nlml , 1 , rofi_rv &
-               , rwgt_rv , k0 , nlm0 , fkl_zv , iwdummy , sv_p_orhnew ( 1 , &
+               , rwgt_rv , k0 , nlm0 , fkl_zv , wdummy , sv_p_orhnew ( 1 , &
                ib ) %v , sv_p_orhnew ( 2 , ib ) %v , qmx )
           !       Restore rho+, rho-
           call splrho ( 1 , nsp , nr , nlml , sv_p_orhnew( 1 , ib )%v , &
@@ -745,7 +747,6 @@ contains
 
        lmxl=sspec(is)%lmxl
        rsmv=sspec(is)%rsmv
-       kmxv=sspec(is)%kmxv
 
        if (lmxl < 0) cycle
        nlml = (lmxl+1)**2
@@ -1028,6 +1029,8 @@ contains
     ! ... Heap
     real(8),allocatable:: w_orsm(:,:)
     real(8):: wdummy
+    complex(8):: cdummy(1,1,1,1)
+    real(8):: rdummy(1,1,1)
 
     difx  = 0
     do  ib = 1, nbas
@@ -1062,8 +1065,8 @@ contains
              if (wt(1) == 0) i = 11001
              if (wt(2) == 0) i = 21001
              call pkl2ro ( i , 1 , rg , kmxr , nr , nlml , nsp , ri_rv &
-                  , rwgt_rv , kmxr , nlm0 , wdummy , qkl ( 0 , 1 , 1 , m , ib) , &
-                  w_orsm(1,m) , wdummy , difa)
+                  , rwgt_rv , kmxr , nlm0 , cdummy , qkl ( 0 , 1 , 1 , m , ib) , &
+                  w_orsm(1,m) , rdummy , difa)
 
              !           Undo scaling of rho1+rho2 for linear mix
              if (locmix == 3 .AND. (m == 2 .OR. m == 4)) then
@@ -1839,7 +1842,8 @@ contains
     double precision :: aat,rmt,rg,xx
     ! ... Heap
     integer ::iwdummy
-
+    complex(8):: cdummy(1,1,1,1)
+    real(8):: rdummy(1,1,1)
     real(8),allocatable:: w_orsm(:,:)
     logical:: mixrealsmooth
 
@@ -1928,8 +1932,8 @@ contains
              if (wt(1) == 0) i = 11001
              if (wt(2) == 0) i = 21001
              call pkl2ro ( i , 1 , rg , kmxr , nr , nlml , nsp , rofi_rv , &
-                  rwgt_rv , kmxr , nlm0 , iwdummy , qkl ( 0 , 1 , 1 , m , ib ) &
-                  , w_orsm ( 1 , m ) , iwdummy , xx )
+                  rwgt_rv , kmxr , nlm0 , cdummy , qkl ( 0 , 1 , 1 , m , ib ) &
+                  , w_orsm ( 1 , m ) , rdummy , xx )
 
           enddo
           !         Don't undo scaling of smoothed density since rho1+rho2 scaled
@@ -2718,101 +2722,101 @@ contains
     if (allocated(wk_rv)) deallocate(wk_rv)
 
   end subroutine pqmixb
-!   subroutine pqmixc(nda,nmix,mmix,mxsav,beta,rms2,a,xn)
-!     use m_gradzr,only:drgrzr
-!     !      use m_lgunit,only:stdo
-!     use m_ftox
-!     !- C. G. mixing of a vector
-!     ! ------------------------------------------------------------------
-!     !i  mmix: number of iterates available to mix
-!     !i  a:    (*,i,1)  output values for prev. iteration i
-!     !i        (*,i,2)  input  values for prev. iteration i
-!     ! o nmix: nmix > 0: number of iter to try and mix
-!     !i        nmix < 0: use mmix instead of nmix.
-!     !o  nmix: (abs)  number of iter actually mixed.
-!     !o        (sign) <0, intended that caller update nmix for next call.
-!     !o  xn:   projection along line minimization.
-!     !o        (sign) <0, new line minimization
-!     !r  Notations:
-!     !r  x^(m): input vector for iteration m
-!     !r  F^(m): difference between output and input vector in iteration m
-!     ! ------------------------------------------------------------------
-!     implicit none
-!     integer :: nda,nmix,mmix,mxsav
-!     double precision :: beta,rms2,xn,a(nda,0:mxsav+1,2)
-!     double precision :: ddot,dval,dxmx,xtoll,grfac,wk(0:26)
-!     save wk
-!     real(8) ,allocatable :: p_rv(:)
-!     real(8) ,allocatable :: dx_rv(:)
-!     integer :: ir,imix,jmix,km,iprint,i1mach,i,idx,idamax
-!     real(8):: ww(1,1) !dummy
-!     ! --- Allocate some arrays ---
-!     allocate(p_rv(nda*6))
-!     allocate(dx_rv(nda))
-!     ! ... imix is a local copy of nmix
-!     imix = nmix
-!     if (imix < 0) imix = mmix
+  !   subroutine pqmixc(nda,nmix,mmix,mxsav,beta,rms2,a,xn)
+  !     use m_gradzr,only:drgrzr
+  !     !      use m_lgunit,only:stdo
+  !     use m_ftox
+  !     !- C. G. mixing of a vector
+  !     ! ------------------------------------------------------------------
+  !     !i  mmix: number of iterates available to mix
+  !     !i  a:    (*,i,1)  output values for prev. iteration i
+  !     !i        (*,i,2)  input  values for prev. iteration i
+  !     ! o nmix: nmix > 0: number of iter to try and mix
+  !     !i        nmix < 0: use mmix instead of nmix.
+  !     !o  nmix: (abs)  number of iter actually mixed.
+  !     !o        (sign) <0, intended that caller update nmix for next call.
+  !     !o  xn:   projection along line minimization.
+  !     !o        (sign) <0, new line minimization
+  !     !r  Notations:
+  !     !r  x^(m): input vector for iteration m
+  !     !r  F^(m): difference between output and input vector in iteration m
+  !     ! ------------------------------------------------------------------
+  !     implicit none
+  !     integer :: nda,nmix,mmix,mxsav
+  !     double precision :: beta,rms2,xn,a(nda,0:mxsav+1,2)
+  !     double precision :: ddot,dval,dxmx,xtoll,grfac,wk(0:26)
+  !     save wk
+  !     real(8) ,allocatable :: p_rv(:)
+  !     real(8) ,allocatable :: dx_rv(:)
+  !     integer :: ir,imix,jmix,km,iprint,i1mach,i,idx,idamax
+  !     real(8):: ww(1,1) !dummy
+  !     ! --- Allocate some arrays ---
+  !     allocate(p_rv(nda*6))
+  !     allocate(dx_rv(nda))
+  !     ! ... imix is a local copy of nmix
+  !     imix = nmix
+  !     if (imix < 0) imix = mmix
 
-!     ! --- Starting from iteration mmix, build the Jacobian matrix ---
-! 1   jmix = min(mmix,iabs(imix))
-!     ir = 0
-!     do  10  km = jmix, 0, -1
+  !     ! --- Starting from iteration mmix, build the Jacobian matrix ---
+  ! 1   jmix = min(mmix,iabs(imix))
+  !     ir = 0
+  !     do  10  km = jmix, 0, -1
 
-!        call dcopy ( nda , a ( 1 , km , 2 ) , 1 , dx_rv , 1 )
+  !        call dcopy ( nda , a ( 1 , km , 2 ) , 1 , dx_rv , 1 )
 
-!        call daxpy ( nda , - 1d0 , a ( 1 , km , 1 ) , 1 , dx_rv , &
-!             1 )
+  !        call daxpy ( nda , - 1d0 , a ( 1 , km , 1 ) , 1 , dx_rv , &
+  !             1 )
 
-!        rms2 = dsqrt ( ddot ( nda , dx_rv , 1 , dx_rv , 1 ) / ( &
-!             nda - 0 ) )
+  !        rms2 = dsqrt ( ddot ( nda , dx_rv , 1 , dx_rv , 1 ) / ( &
+  !             nda - 0 ) )
 
-!        idx = idamax ( nda , dx_rv , 1 )
+  !        idx = idamax ( nda , dx_rv , 1 )
 
-!        dxmx = beta * abs ( dval ( dx_rv , idx ) )
+  !        dxmx = beta * abs ( dval ( dx_rv , idx ) )
 
-!        xtoll = dxmx/10
-!        grfac = min(2d0,1/beta)
-!        call pshpr(80)
-!        wk(0) = xn
-!        call drgrzr ( nda , a ( 1 , km , 2 ) , dx_rv , p_rv , ww &
-!             , xtoll , dxmx , 1d-10 , 1d-10 , grfac , wk , ' ' , 00040 &
-!             , ir )
+  !        xtoll = dxmx/10
+  !        grfac = min(2d0,1/beta)
+  !        call pshpr(80)
+  !        wk(0) = xn
+  !        call drgrzr ( nda , a ( 1 , km , 2 ) , dx_rv , p_rv , ww &
+  !             , xtoll , dxmx , 1d-10 , 1d-10 , grfac , wk , ' ' , 00040 &
+  !             , ir )
 
-!        xn = wk(0)
-!        call poppr
+  !        xn = wk(0)
+  !        call poppr
 
-! 10  enddo
-!     if (ir == -1) xn = -xn
+  ! 10  enddo
+  !     if (ir == -1) xn = -xn
 
-!     ! --- Check for interactive change of nmix ---
-!     ! NB negative sign signals request for permanent change in nmix
-!     km = imix
-!     !      if (iprint() .gt. 30) call query('redo, nmix=',2,imix)
-!     if (iabs(imix) > mmix .AND. imix /= km) &
-!          write(stdo,ftox)' (warning) only ',mmix,' iter available'
-!     if (km /= imix) goto 1
-!     nmix = imix
+  !     ! --- Check for interactive change of nmix ---
+  !     ! NB negative sign signals request for permanent change in nmix
+  !     km = imix
+  !     !      if (iprint() .gt. 30) call query('redo, nmix=',2,imix)
+  !     if (iabs(imix) > mmix .AND. imix /= km) &
+  !          write(stdo,ftox)' (warning) only ',mmix,' iter available'
+  !     if (km /= imix) goto 1
+  !     nmix = imix
 
-!     ! --- Printout ---
-!     if (iprint() > 40) then
-!        print 310
-!        do  12  i = 1, nda
-!           if ( dabs ( a ( i , 0 , 1 ) - a ( i , 0 , 2 ) ) >= 5d-9 ) &
-!                print 311 , i , a ( i , 0 , 2 ) , a ( i , 0 , 1 ) , a ( i , 0 &
-!                , 1 ) - a ( i , 0 , 2 ) , dval ( p_rv , i )
+  !     ! --- Printout ---
+  !     if (iprint() > 40) then
+  !        print 310
+  !        do  12  i = 1, nda
+  !           if ( dabs ( a ( i , 0 , 1 ) - a ( i , 0 , 2 ) ) >= 5d-9 ) &
+  !                print 311 , i , a ( i , 0 , 2 ) , a ( i , 0 , 1 ) , a ( i , 0 &
+  !                , 1 ) - a ( i , 0 , 2 ) , dval ( p_rv , i )
 
-! 12     enddo
-! 311    format(i5,4f14.6)
-! 310    format(14x,'Old',11X,' New',9X,'Diff',10X,'Mixed')
-!     endif
+  ! 12     enddo
+  ! 311    format(i5,4f14.6)
+  ! 310    format(14x,'Old',11X,' New',9X,'Diff',10X,'Mixed')
+  !     endif
 
-!     ! --- Save x^(m+2) into a(*,0,2) and exit ---
-!     call dcopy ( nda , p_rv , 1 , a ( 1 , 0 , 2 ) , 1 )
+  !     ! --- Save x^(m+2) into a(*,0,2) and exit ---
+  !     call dcopy ( nda , p_rv , 1 , a ( 1 , 0 , 2 ) , 1 )
 
-!     if (allocated(dx_rv)) deallocate(dx_rv)
-!     if (allocated(p_rv)) deallocate(p_rv)
+  !     if (allocated(dx_rv)) deallocate(dx_rv)
+  !     if (allocated(p_rv)) deallocate(p_rv)
 
-!   end subroutine pqmixc
+  !   end subroutine pqmixc
   subroutine pqmxup(na,mxsav,nclass,nl,nsp,nx,lmx, &
        pnu,qnu,xnew,pold,qold,xold,cnst,nda,a,rms2)
     !- Copy from holding array into P,Q
@@ -3514,8 +3518,6 @@ contains
 
   !     end
 
-
-
   subroutine dpsadd(adest,asrc,nel,n1,n2,fac)
     !- shift and add. nel=number of elements, n1,n2= start in asrc,adest
     !     implicit none
@@ -3523,6 +3525,160 @@ contains
     double precision :: asrc(1),adest(1),fac
     call daxpy(nel,fac,asrc(n2),1,adest(n1),1)
   end subroutine dpsadd
+
+
+
+  subroutine dpsdmp(array,n1,n2,ifile)
+    !- Binary I/O of an array segment
+    integer :: n1,n2,ifile,length
+    double precision :: array(n2)
+    length = n2-n1+1
+    if (length > 0) call dpdump(array(n1),length,ifile)
+  end subroutine dpsdmp
+
+
+
+  subroutine pkl2ro(mode,ib,rsm,kmax,nr,nlml,nsp,rofi,rwgt,k0,nlm0, &
+       fklc,fklr,rho1,rho2,qmx)
+    !- Put PkL or GkL expansion of a function on a radial mesh for one site
+    ! ----------------------------------------------------------------------
+    !i Inputs
+    !i   mode  :a compound of digits :
+    !i         :1s digit
+    !i         :  0 add P_kL expansion of rho to rho1 (and possibly rho2)
+    !i         :    Here, fkl are coffs to P_kL expansion
+    !i         :  1 add G_kL expansion of rho to rho1 (and possibly rho2)
+    !i         :    Here, fkl are coffs to G_kL expansion
+    !i         :10s digit
+    !i         :  0 add expansion to rho1 only; rho2 is not touched
+    !i         :  1 add expansion to both rho1 and rho2
+    !i         :100s digit
+    !i         :  0 coefficients fkl are real (uses fklr)
+    !i         :  1 coefficients fkl are complex (uses fklc)
+    !i         :1000s digit
+    !i         :  0 do not initialize rho1,rho2 before adding expansion
+    !i         :  1 initialize rho1,rho2 before adding expansion
+    !i         :10000s digit for spin polarized case
+    !i         :  1 zero out charge, rho1+ + rho1- (and rho2+ + rho2-)
+    !i         :  2 zero out spin, rho1+ - rho1- (and rho2+ + rho2-)
+    !i   ib    :site index (used in addressing fkl expansion)
+    !i   rsm   :smoothing radius for P_kL (or G_kL) expansion
+    !i   kmax  :k-cutoff for P_kL (or G_kL) expansion
+    !i   nr    :number of radial mesh points
+    !i   nlml  :L-cutoff for rho1,rho2
+    !i   nsp   :2 if fkl is spin-pol; 1 if not
+    !i   rofi  :radial mesh points
+    !i   rwgt  :radial mesh weights
+    !i   k0    :leading dimension of fkl
+    !i   nlm0  :second dimension of fkl
+    !i   fklc  :complex coefficients to P_kL (or G_kL) expansion for this site
+    !i         :(only one of fklc or fklr is used; see mode)
+    !i   fklr  :real coefficients to P_kL (or G_kL) expansion for this site
+    !i         :(only one of fklc or fklr is used; see mode)
+    !o Outputs
+    !o  rho1  :fkL P_kL (or G_kL) added to local true density rho1
+    !o  rho2  :fkL P_kL (or G_kL) added to local smoothed density rho2
+    !i   qmx   :charge in rho1 after fkl PkL is added
+    !r Remarks
+    !u Updates
+    !u   21 Nov 01 First created
+    ! ----------------------------------------------------------------------
+    !     implicit none
+    ! ... Passed parameters
+    integer :: mode,ib,k0,kmax,nlm0,nr,nlml,nsp
+    double precision :: qmx,rsm
+    double precision :: rofi(nr),rwgt(nr)
+    double precision :: rho1(nr,nlml,nsp),rho2(nr,nlml,nsp)
+    double complex   fklc(0:k0,nlm0,nsp,ib)
+    double precision :: fklr(0:k0,nlm0,nsp,ib)
+    ! ... Local parameters
+    integer :: lmx,i,ilm,isp,k,l,ll,lmxl,mode0,mode1,mode2,mode3,mode4,np
+    double precision :: add,pi,r,rl,srfpi,sum1
+    parameter(lmx=10)
+    double precision :: fkl(0:kmax,nlm0,2),pkl(0:kmax,0:lmx)
+
+    pi = 4d0*datan(1d0)
+    srfpi = dsqrt(4*pi)
+    lmxl = ll(nlml)
+    mode0 = mod(mode,10)
+    mode1 = mod(mode/10,10)
+    mode2 = mod(mode/100,10)
+    mode3 = mod(mode/1000,10)
+    mode4 = mod(mode/10000,10)
+
+    if (lmxl > lmx) call rxi('pklr2o: increase lmx, need',lmxl)
+    if (nlml > nlm0) call rxi('pklr2o: increase nlm0, need',nlml)
+
+    do  isp = 1, nsp
+       do  ilm = 1, nlml
+          do  k = 0, kmax
+             if (mode2 == 0) then
+                fkl(k,ilm,isp) = fklr(k,ilm,isp,ib)
+             else
+                fkl(k,ilm,isp) = dble(fklc(k,ilm,isp,ib))
+             endif
+          enddo
+       enddo
+    enddo
+
+    if (mode3 == 1) call dpzero(rho1,nr*nlml*nsp)
+    if (mode3 /= 0 .AND. mode1 /= 0) call dpzero(rho2,nr*nlml*nsp)
+
+    do  i = 2, nr
+       r = rofi(i)
+       if (mode0 == 0) then
+          call radpkl(r,rsm,kmax,lmxl,kmax,pkl)
+       else
+          call radgkl(r,rsm,kmax,lmxl,kmax,pkl)
+       endif
+       do  ilm = 1, nlml
+          l = ll(ilm)
+          rl = r**l
+          do  isp = 1, nsp
+             if (mode1 /= 0) then
+                do  k = 0, kmax
+                   add = fkl(k,ilm,isp)*pkl(k,l)*r*r*rl
+                   rho1(i,ilm,isp) = rho1(i,ilm,isp) + add
+                   rho2(i,ilm,isp) = rho2(i,ilm,isp) + add
+                enddo
+             else
+                do  k = 0, kmax
+                   add = fkl(k,ilm,isp)*pkl(k,l)*r*r*rl
+                   rho1(i,ilm,isp) = rho1(i,ilm,isp) + add
+                enddo
+             endif
+          enddo
+       enddo
+    enddo
+    sum1 = 0d0
+    do  isp = 1, nsp
+       do  i = 1, nr
+          sum1 = sum1 + rwgt(i)*rho1(i,1,isp)
+       enddo
+    enddo
+    qmx = sum1*srfpi
+
+    ! zero out spin or charge
+    if (mode4 == 0 .OR. nsp /= 2) return
+    i = 20                   ! No core
+    if (mode1 == 0) i = 30 ! No rho2
+    call splrho(i,nsp,nr,nlml,rho1,rho2,sum1)
+    np = nr*nlml
+    if (mode4 == 1) then   ! Zero density
+       call dpzero(rho1(1,1,1),np)
+       if (mode1 /= 0) then ! Including rho2
+          call dpzero(rho2(1,1,1),np)
+       endif
+    endif
+    if (mode4 == 2) then   ! Zero spin
+       call dpzero(rho1(1,1,nsp),np)
+       if (mode1 /= 0) then ! Including rho2
+          call dpzero(rho2(1,1,nsp),np)
+       endif
+    endif
+    call splrho(i+1,nsp,nr,nlml,rho1,rho2,sum1)
+
+  end subroutine pkl2ro
 end module m_mixrho
 
 
@@ -3627,42 +3783,6 @@ subroutine lgstar(mode,ng,n,gv,ng0,ips0,cg)
   enddo
 end subroutine lgstar
 
-subroutine dpdump(array,length,ifile)
-  !     - Binary I/O of an array
-  integer:: length,ifile
-  double precision :: array(length)
-  if (ifile > 0) read(ifile) array
-  if (ifile < 0) write(-ifile) array
-end subroutine dpdump
-subroutine dpsdmp(array,n1,n2,ifile)
-  !- Binary I/O of an array segment
-  integer :: n1,n2,ifile,length
-  double precision :: array(n2)
-  length = n2-n1+1
-  if (length > 0) call dpdump(array(n1),length,ifile)
-end subroutine dpsdmp
-logical function lddump(array,length,ifile)
-  !- Binary I/O of an array, returning T if I/O without error or EOF
-  !     implicit none
-  integer :: length,ifile
-  double precision :: array(length),xx,yy
-  lddump = .true.
-  if (ifile > 0) then
-     yy = array(length)
-     !       (some random number)
-     xx = -1.9283746d0*datan(1d0)
-     array(length) = xx
-     read(ifile,end=90,err=91) array
-     if (xx /= array(length)) return
-     array(length) = yy
-     goto 90
-90   continue
-91   continue
-     lddump = .false.
-  else
-     write(-ifile) array
-  endif
-end function lddump
 
 subroutine dsumdf(n,scal,a1,ofa1,l1,a2,ofa2,l2)
   !- Returns scaled sum and difference of two vectors
@@ -3698,6 +3818,220 @@ subroutine dsumdf(n,scal,a1,ofa1,l1,a2,ofa2,l2)
   call dscal(n,scal,a2(1+ofa2),l1)
 end subroutine dsumdf
 
+
+subroutine ftlxp(nbas,ssite,sspec,alat,ng,gv,cv,k0,nlm0,fkl)
+  use m_mixrho,only: kmxv
+  use m_struc_def  !Cgetarg
+  use m_lgunit,only:stdo
+  use m_ropyln,only: ropyln
+  !- Pkl expansion around all sites of a function given as Fourier series.
+  ! ----------------------------------------------------------------------
+  !i Inputs
+  !i   nbas  :size of basis
+  !i   ssite :struct for site-specific information; see routine usite
+  !i     Elts read: spec pos
+  !i     Stored:    *
+  !i     Passed to: *
+  !i   sspec :struct for species-specific information; see routine uspec
+  !i     Elts read: lmxl rsmv kmxv
+  !i     Stored:    *
+  !i     Passed to: *
+  !i   alat  :length scale of lattice and basis vectors, a.u.
+  !i   ng    :number of G-vectors
+  !i   gv    :list of reciprocal lattice vectors G (gvlist.f)
+  !i   cv    :FT of function, as list of G-vector coefficients
+  !i   k0    :leadingd dimension of fkl
+  !i   nlm0  :second dimension of fkl
+  !o Outputs
+  !o   fkl   :coefficient to P_kL expansion of function
+  !r Remarks
+  !u Updates
+  !u   01 Jul 05 handle sites with lmxa=-1 -> no augmentation
+  !u   31 May 00 Adapted from nfp ftlxp.f
+  ! ----------------------------------------------------------------------
+  implicit none
+  integer:: i_copy_size
+  ! ... Passed parameters
+  integer :: k0,nbas,ng,nlm0
+  real(8):: gv(ng,3) , alat
+  type(s_site)::ssite(*)
+  type(s_spec)::sspec(*)
+
+  double complex cv(ng),fkl(0:k0,nlm0,nbas)
+  ! ... Local parameters
+  integer:: ib , ilm , ipr , is , k , l , lmxl & !, kmxv 
+       , ltop , m , nlm , ntop , igetss
+  real(8) ,allocatable :: g2_rv(:)
+  complex(8) ,allocatable :: h_zv(:)
+  real(8) ,allocatable :: yl_rv(:)
+
+  double precision :: a,fpi,pfac,pi,rsmv,tip,top,tpiba,df(0:20), &
+       fact(0:20),tau(3)
+  double complex cfac
+  !      stdo = lgunit(1)
+  call getpr(ipr)
+  call setfac(20,fact)
+  call stdfac(20,df)
+  pi = 4d0*datan(1d0)
+  fpi = 4*pi
+  tpiba = 2d0*pi/alat
+
+  ! ... Set up spherical harmonics for max l needed
+  ltop = -1
+  do  ib = 1, nbas
+     is = int(ssite(ib)%spec)
+
+     lmxl = int(sspec(is)%lmxl)
+
+     ltop = max0(ltop,lmxl)
+  enddo
+  ntop = (ltop+1)**2
+  allocate(yl_rv(ntop*ng))
+
+  allocate(g2_rv(ng))
+
+  allocate(h_zv(ng))
+
+  call ropyln ( ng , gv ( 1 , 1 ) , gv ( 1 , 2 ) , gv ( 1 , 3 ) &
+       , ltop , ng , yl_rv , g2_rv )
+
+
+  ! ... Scale g2 by (2pi/a)**2
+  call dpcopy ( g2_rv , g2_rv , 1 , ng , tpiba * tpiba )
+
+
+  ! --- Start loop over atoms ---
+  do  ib = 1, nbas
+
+     is=ssite(ib)%spec
+     i_copy_size=size(ssite(ib)%pos)
+     call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1)
+
+
+     lmxl=sspec(is)%lmxl
+     rsmv=sspec(is)%rsmv
+     !kmxv=sspec(is)%kmxv
+
+     if (lmxl == -1) goto 10
+
+     nlm = (lmxl+1)**2
+     if (nlm > nlm0) call rxi('ftlcxp: nlm > nlm0, need',nlm)
+     if (kmxv > k0)  call rxi('ftlcxp: kmxv > k0, need',kmxv)
+     if (ipr >= 60) write(stdo,200) ib,is,nlm,rsmv,lmxl,kmxv,tau
+200  format(' ib=',2i3,'  nlm=',i3,'  rsmv=',f6.3, &
+          '  lv,kv=',2i2,'  pos=',3f7.4/ &
+          ' Expansion coefficients:')
+
+     call ftlxp2 ( rsmv , tau , kmxv , k0 , nlm , ng , gv , g2_rv &
+          , yl_rv , h_zv , cv , fkl ( 0 , 1 , ib ) )
+
+
+     !   ... Put in factors independent of G
+     a = 1d0/rsmv
+     cfac = (1d0,0d0)
+     ilm = 0
+     do  l = 0, lmxl
+        do m = -l,l
+           ilm = ilm+1
+           do  k = 0, kmxv
+              pfac = (4*a*a)**k * a**l * fact(k) * df(2*l+1)
+              fkl(k,ilm,ib) = fkl(k,ilm,ib)*cfac*fpi/pfac
+           enddo
+        enddo
+        cfac = cfac*dcmplx(0d0,tpiba)
+     enddo
+
+     !   ... Printout
+     if (ipr >= 60) then
+        do  ilm = 1, nlm
+           top = 0d0
+           tip = 0d0
+           do  k = 0, kmxv
+              top = dmax1(top,dabs(dble(fkl(k,ilm,ib))))
+              tip = dmax1(tip,dabs(dimag(fkl(k,ilm,ib))))
+           enddo
+           if (top > 1d-8) &
+                write(stdo,400) ilm,(dble(fkl(k,ilm,ib)),k = 0,kmxv)
+           if (tip > 1d-8) &
+                write(stdo,401)     (dimag(fkl(k,ilm,ib)),k = 0,kmxv)
+400        format(i4,' RE',5f12.6:/(7x,5f12.6))
+401        format(4x,' IM',5f12.6:/(7x,5f12.6))
+        enddo
+     endif
+
+10   continue
+  enddo
+  if (allocated(h_zv)) deallocate(h_zv)
+  if (allocated(g2_rv)) deallocate(g2_rv)
+  if (allocated(yl_rv)) deallocate(yl_rv)
+end subroutine ftlxp
+
+subroutine dpdump(array,length,ifile)
+  !     - Binary I/O of an array
+  integer:: length,ifile
+  double precision :: array(length)
+  if (ifile > 0) read(ifile) array
+  if (ifile < 0) write(-ifile) array
+end subroutine dpdump
+logical function lddump(array,length,ifile)
+  !- Binary I/O of an array, returning T if I/O without error or EOF
+  !     implicit none
+  integer :: length,ifile
+  double precision :: array(length),xx,yy
+  lddump = .true.
+  if (ifile > 0) then
+     yy = array(length)
+     !       (some random number)
+     xx = -1.9283746d0*datan(1d0)
+     array(length) = xx
+     read(ifile,end=90,err=91) array
+     if (xx /= array(length)) return
+     array(length) = yy
+     goto 90
+90   continue
+91   continue
+     lddump = .false.
+  else
+     write(-ifile) array
+  endif
+end function lddump
+
+subroutine ftlxp2(rsmv,tau,kmxvin,k0,nlm,ng,gv,g2,yl,h,cv,fkl)
+  implicit none
+  ! ... Passed parameters
+  integer :: k0,kmxvin,ng,nlm
+  double precision :: rsmv,yl(ng,1),tau(3),gv(ng,3),g2(ng)
+  double complex h(ng),cv(ng),fkl(0:k0,nlm)
+  ! ... Local parameters
+  integer :: i,ilm,k
+  double precision :: scalp,sum1,sum2,pi,gam
+
+  pi = 4d0*datan(1d0)
+  gam = 0.25d0*rsmv**2
+
+  ! ... Init h with conjg(phase) * exponential factor * coeff
+  do  i = 1, ng
+     scalp = -2*pi*(tau(1)*gv(i,1)+tau(2)*gv(i,2)+tau(3)*gv(i,3))
+     h(i) = dcmplx(dcos(scalp),-dsin(scalp))*dexp(-gam*g2(i))*cv(i)
+  enddo
+
+  ! ... Loop over k and ilm, do the scalar products with cv
+  do  k = 0, kmxvin
+     do  ilm = 1, nlm
+        sum1 = 0d0
+        sum2 = 0d0
+        do  i = 1, ng
+           sum1 = sum1 + dble(h(i))*yl(i,ilm)
+           sum2 = sum2 + dimag(h(i))*yl(i,ilm)
+        enddo
+        fkl(k,ilm) = dcmplx(sum1,sum2)
+     enddo
+     !   ... Multiply h to get next k-th power of (-g2)
+     do  i = 1, ng
+        h(i) = -h(i)*g2(i)
+     enddo
+  enddo
+end subroutine ftlxp2
 integer function parg(tok,cast,strn,ip,lstr,sep,itrm,narg,it,res)
   !- Returns vector of binary values from a string
   ! ----------------------------------------------------------------------
@@ -3770,3 +4104,4 @@ integer function parg(tok,cast,strn,ip,lstr,sep,itrm,narg,it,res)
   ip = jp
   parg = a2vec(strn,np,ip,cast,sep,nsep,itrm,narg,it,res)
 end function parg
+
