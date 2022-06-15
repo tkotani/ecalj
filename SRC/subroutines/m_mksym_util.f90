@@ -402,6 +402,7 @@ contains
 
   subroutine groupg(mode,ng,g,ag,plat,ngen,gen,agen,gens,ngout)
     use m_ftox
+    use m_shortn3_plat,only: shortn3_plat,nlatout
     !- Finds a set of generators for the symmetry group
     ! ----------------------------------------------------------------------
     !i Inputs:
@@ -431,7 +432,7 @@ contains
     !u   04 Jan 06 Returns ngout
     ! ----------------------------------------------------------------------
     integer :: mode,ngen,ng,ngout
-    double precision :: plat(9)
+    double precision :: plat(3,3)
     double precision :: gen(3,3,*),agen(3,*),g(3,3,*),ag(3,*)
     character*(*) gens
     integer :: imax,isop,ngloc,ngmax,iprint,ngen0,ngmx
@@ -486,29 +487,29 @@ contains
     endif
     call poppr
     if(iprint()>0.and. ngen0 == 0) then     ! --- Create gens, optionally printout ---
-       write(stdo,ftox)' GROUPG: the following are sufficient to generate the space group:'
+       write(stdo,ftox)'GROUPG: the following are sufficient to generate the space group:'
     elseif(iprint()>0) then
-       write(stdo,ftox)' GROUPG:',ngen-ngen0,'generator(s) were added to complete the group:'
+       write(stdo,ftox)'GROUPG:',ngen-ngen0,'generator(s) were added to complete the group:'
     endif
     sout = ' '
     sout2 = ' '
     do  20  isop = 1, ngen
        call asymop(gen(1,1,isop),agen(1,isop),':',sg)
        call awrit0('%a '//sg,sout(9:),len(sout)-9,0)
-       call dcopy(3,agen(1,isop),1,vec,1)
+       vec=agen(:,isop)
        call dgemm('N','N',1,3,3,1d0,agen(1,isop),1,qlat,3,0d0,vec,1)
        call asymop(gen(1,1,isop),vec,'::',sg1)
        call word(sg1,1,i1,i2)
-       rfrac= matmul(vec-epsr,qlat)
-       vec  = rfrac -nint(rfrac)+epsr ! call shorbz(vec,vec,plat,qlat)
+       call shortn3_plat(vec)
+       vec=vec+matmul(plat,nlatout(:,1))
        call asymop(gen(1,1,isop),vec,'::',sg)
        call word(sg,1,j1,j2)
        if (i2-i1 < j2-j1) sg = sg1
        call awrit0('%a '//sg,sout2(9:),len(sout2)-9,0)
 20  enddo
     if (ngen > ngen0 .AND. iprint() >= 20) then
-       write(stdo,"(' Generator(cart): ', a)")trim(adjustl(sout)) 
-       write(stdo,"(' Generator(frac): ', a)")trim(adjustl(sout2))
+       write(stdo,"(' Generators:trans(cart)  = ', a)")trim(adjustl(sout)) 
+       write(stdo,"(' Generators::trans(frac) = ', a)")trim(adjustl(sout2))
     endif
     gens = sout2
     if(ngout>ng)write(stdo,ftox)'(warning)',ng,' ops supplied but generators create ',ngout,' ops'
@@ -1019,7 +1020,6 @@ contains
           sg = 'm'
           ip = 1
        else
-          !          ip = awrite('%?#n#i*##r%i',sg,len(sg),0,isw(li),nrot,0,0,0,0,0,0)
           if(  li   ) sg='i*r'//char(48+nrot)
           if( .NOT. li) sg='r'//char(48+nrot)
           ip =len(trim(sg))
