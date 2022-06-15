@@ -81,8 +81,8 @@ contains
     allocate(lmxa(nclasp),z(nclasp))
     lmxa(1:nclasp) = sspec(iv_a_oics(1:nclasp))%lmxa !sarray%
     z   (1:nclasp) = sspec(iv_a_oics(1:nclasp))%z
-    print *,' nclasp,lmxa=',nclasp,lmxa
-    print *,' z   =',z
+    !print *,' nclasp,lmxa=',nclasp,lmxa
+    !print *,' z   =',z
     nbasp = nbas !+ npadl + npadr
     nbaspp = nbas !2*nbasp - nbas
     !      stdo = lgunit(1)
@@ -1926,6 +1926,7 @@ contains
 
   subroutine ovlchk(nbas,nbasp,pos,alat,rmax,rmt,dclabl, &
        ips,mode,plat,fovl,volsph)
+    use m_lmfinit,only: ssite=>v_ssite
     use m_ftox
     !- Check volume and sphere overlaps
     ! ----------------------------------------------------------------
@@ -1951,13 +1952,13 @@ contains
     !u Updates
     !u   21 Aug 02 Can print out positions as multiples of plat
     ! ----------------------------------------------------------------
-    !     implicit none
+    implicit none
     ! Passed parameters
     integer :: nbas,nbasp
     double precision :: plat(3,3),pos(3,nbasp),rmax(1),rmt(1), &
          alat,fovl,volsph
     character(8):: dclabl(*)
-    integer :: ips(1),mode(3)
+    integer :: ips(1),mode(3),is
     ! Local parameters
     double precision :: dd(3),dd1,dd2,sumrs,summt,ovlprs,ovlpmt, &
          ctrs,ctmt,ddot,dlat(3),xx,avwsr,vol
@@ -1966,7 +1967,7 @@ contains
     character(80) :: a, ch(1)
     logical :: lterse,cmdopt,lrmt
     character(8) :: clabl,clablj
-    integer:: ifile_handle,ifp
+    integer:: ifile_handle,ifp,js
     character(10):: i2char
     call getpr(ipr)
     lrmt = rmt(1) .gt. 0
@@ -2000,22 +2001,21 @@ contains
 102 END DO
 
     if(ipr>=10) then
-       if(lrmt)     write(stdo,*)'   Site     Spec    Rmax   Rmt    Position'
-       if( .NOT. lrmt)write(stdo,*)'   Site     Spec    Rmax   Position'
+       if(lrmt) write(stdo,*)'    Site   ic Spec        Rmax   RMT   Position'
+       if(.NOT.lrmt)write(stdo,*)'    Site   ic Spec        Rmax      Position'
     endif
     volsph = 0d0
-    !      volspp = 0d0
-
     ifp=ifile_handle()
     open(ifp,file='SiteInfo.lmchk')
 
     do  20  ibas = 1, nbasp
-       ic = ips(ibas)
+       ic = ips(ibas) !class id
+       is = ssite(ibas)%spec
        if (ipr <= 10) goto 20
        if (ibas == nbas+1) write(stdo,'(''  ... Padding basis'')')
        !        call r8tos8(dclabl(ic),clabl)
-       clabl=dclabl(ic)
-       if (dclabl(1) == '') clabl= i2char(ic)
+       clabl=dclabl(is)
+       if (dclabl(1) == '') clabl= i2char(is)
        if (lrmt) then
           write(stdo,450) ibas,ic,clabl,rmax(ic),rmt(ic),(pos(m,ibas),m=1,3)
           write(ifp,450)  ibas,ic,clabl,rmax(ic),rmt(ic), (pos(m,ibas),m=1,3)
@@ -2060,20 +2060,22 @@ contains
     if ( .NOT. lrmt .AND. ipr > 10) write(stdo,463)
     do  301  ibas = 1, nbasp
        ic = ips(ibas)
+       is = ssite(ibas)%spec
        if (ipr >= 10) then
           !          call r8tos8(dclabl(ic),clabl)
-          clabl = dclabl(ic)
-          if (dclabl(1) == '') clabl=i2char(ic)
+          clabl = trim(dclabl(is))//i2char(ic)
+          if (dclabl(1) == '') clabl=i2char(ic) 
           !     all awrit1('%x%,4i',clabl,8,0,ic)
        endif
        do  30  jbas = ibas, nbasp
           jc = ips(jbas)
+          js = ssite(jbas)%spec
           if (rmax(ic) == 0 .AND. rmax(jc) == 0) then
              goto 30
           endif
           if (ipr >= 10) then
              !          call r8tos8(dclabl(jc),clablj)
-             clablj=dclabl(jc)
+             clablj=trim(dclabl(js))//i2char(jc) !jc)
              if (dclabl(1) == '')clablj=i2char(jc)
              !     all awrit1('%x%,4i',clablj,8,0,jc)
           endif
@@ -2123,10 +2125,10 @@ contains
                   sumrs,ovlprs,ctrs,ch
 461          format(2i3,2x,a8,a8,3f7.3,2f7.3,f7.2,f6.1,a1)
           endif
-453       format(/' ib jb',2x,'cl1     cl2',7x,' Pos(jb)-Pos(ib)', &
-               7x,'Dist   sumrs   Ovlp   %  summt   Ovlp   %')
-463       format(/' ib jb',2x,'cl1     cl2',8x,'Pos(jb)-Pos(ib)', &
-               6x,'Dist  sumrs   Ovlp    %')
+453       format(/' ib jb',2x,'sp&ic1  sp&ic2',7x,' Pos(jb)-Pos(ib)', &
+               4x,'Dist   sumrs   Ovlp   %  summt   Ovlp   %')
+463       format(/' ib jb',2x,'sp&ic1  sp&ic2',8x,'Pos(jb)-Pos(ib)', &
+               3x,'Dist  sumrs   Ovlp    %')
 30     END DO
 301 END DO
 

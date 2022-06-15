@@ -1,6 +1,7 @@
 subroutine splcls(nosplt,bas,nbas,ng,istab,nspec,slabl,nclass,ipc, &
      ics,nrclas)
   use m_lgunit,only:stdo
+  use m_lmfinit,only: v_ssite
   !- Splits species into classes
   ! ----------------------------------------------------------------------
   !i Inputs:
@@ -31,7 +32,7 @@ subroutine splcls(nosplt,bas,nbas,ng,istab,nspec,slabl,nclass,ipc, &
   ! Local parameters:
   integer :: ib,ic,icn,iclbsj,ig,jb,m,i,is,ipr,idx,ispec,j
   logical :: lyetno
-  character(80) :: outs,clabl(8)
+  character(80) :: outs,clabl=''
 
   !      stdo = lgunit(1)
   ! ccccccccccccccccccccccccc
@@ -79,8 +80,7 @@ subroutine splcls(nosplt,bas,nbas,ng,istab,nspec,slabl,nclass,ipc, &
 25            enddo
               !      ... There wasn't one
               if (ipr >= 70) then
-                 write(stdo,400) slabl(is),ib,(bas(m,ib),m = 1,3), &
-                      jb,(bas(m,jb),m = 1,3)
+                 write(stdo,400) slabl(is),ib,(bas(m,ib),m = 1,3),jb,(bas(m,jb),m = 1,3)
               endif
               !      ... If the classes haven't been split yet, do so
               if (lyetno) then
@@ -102,56 +102,58 @@ subroutine splcls(nosplt,bas,nbas,ng,istab,nspec,slabl,nclass,ipc, &
      endif
   endif
   if(ipr>=30) then
-     !      write(stdo,"(a,i0,x,i0)")'SPLCLS: ',nspec,nclass
-     write(stdo,"(a)")        ' SPLCLS: ibas iclass ispec label(ispec)'
+     write(stdo,"(a)")'SPLCLS: ibas iclass ispec label(ispec)'
      do j=1,nbas
-        ic   =ipc(j)
-        ispec=ics(ic)
+        ic   = ipc(j) !class
+        ispec= ics(ic)!spec
         write(stdo,"(a,3i5,a)")" SPLCLS ",j,ic,ispec,'     '//trim(slabl(ispec))
      enddo
   endif
   ! ccccccccccccccccccccccc
-  ! akao
   !      print *,' ipr=',ipr,nclass,nspec
   !      print *,' ics=',ics(1:nspec)
   ! ccccccccccccccccccccccccc
-
-
-  ! --- Printout ---
   if (nclass == nspec .OR. ipr < 20) return
-  !      call awrit2('%N SPLCLS:  %i species split into %i classes'//
-  !     .'%N Species  Class      Sites...',' ',80,stdo,nspec,nclass)
-  !      write(stdo,"(a,i0,x,i0)")'SPLCLS: species ==> classes',nspec,nclass
-  !      write(stdo,"(a)")' Species  Class      Sites...'
-  !      if (ipr .le. 30) return
-  !$$$      do  40  is = 1, nspec
-  !$$$        if (nrclas(is) .eq. 1 .and. ipr .lt. 40) goto 40
-  !$$$        outs = ' '//slabl(is)
-  !$$$        do  42  idx = 1, nbas
-  !$$$          ic = iclbsj(is,ics,-nclass,idx)
-  !$$$          if (ic .gt. 0) then
-  !$$$            call clabel(slabl,is,idx,clabl)
-  !$$$            write(stdo,*) trim(slabl(is))//' '//trim(clabl),ic
-  !$$$c$$$            outs = ' '
-  !$$$c$$$            if (idx .eq. 1) outs = ' '//slabl(is)
-  !$$$c$$$            outs= '         '//trim(i2char(ic))//' '//clabl
-  !$$$c$$$!     call awrit1('%(n>9?9:10)p%i:'//clabl,outs,80,0,ic)
-  !$$$c$$$            do  44  ib = 1, nbas
-  !$$$c$$$              if (ipc(ib) .eq. ic)
-  !$$$c$$$              outs=trim(outs)//trim(i2char(ib)
-  !$$$c$$$c     .        call awrit1('%a%(p>20?p:20)p %i',outs,80,0,ib)
-  !$$$c$$$   44       continue
-  !$$$c$$$            write(stdo,*) trim(outs) !call awrit0(outs,' ',-80,stdo)
-  !$$$          else
-  !$$$            goto 43
-  !$$$          endif
-  !$$$   42   continue
-  !$$$   43   continue
-  !$$$   40 continue
-
 400 format(' SPLCLS: species: ',a,'has inequivalent positions:'/ &
        '  IB: ',i3,',  POS=',3f10.5/ &
        '  JB: ',i3,',  POS=',3f10.5)
-
+! !-----------------------  
+!   call awrit2('%N SPLCLS:  %i species split into %i classes'// &
+!        '%N Species  Class      Sites...',' ',80,stdo,nspec,nclass)
+!   if (ipr .le. 30) return
+!   do  40  is = 1, nspec
+!      outs = ' '//slabl(is)
+!      do  42  idx = 1, nbas
+!         ic = iclbsj(is,ics,-nclass,idx)
+!         if (ic .gt. 0) then
+!            call clabel(slabl,is,idx,clabl)
+!            outs = ' '
+!            if (idx .eq. 1) outs = ' '//slabl(is)
+!            call awrit1('%(n>9?9:10)p%i:'//clabl,outs,80,0,ic)
+!            do   ib = 1, nbas
+!               if (ipc(ib) .eq. ic) call awrit1('%a%(p>20?p:20)p %i',outs,80,0,ib)
+!            enddo
+!            call awrit0(outs,' ',-80,stdo)
+!         else
+!            exit
+!         endif
+! 42   enddo
+! 40 enddo
 end subroutine splcls
+
+
+! subroutine clabel(slabl,is,idx,clabl)
+! !  C- Make class label from species label
+! !  Ci Inputs
+! !  Ci   slabl,is: species label is slabl(is)
+! !  Ci   idx:      class to make is the idx_th class for species is
+! !  Ci             From the ics table, the class corrsponding to idx is
+! !  Ci             iclbsj(is,ics,-nclass,idx)
+! !  Co   clabl:    class label
+! !  C     implicit none
+!   integer is,idx
+!   character*8 slabl(is),clabl
+!   clabl = slabl(is)
+!   if (idx .gt. 1) call awrit1('%a%i',clabl,8,0,idx)
+! end subroutine clabel
 
