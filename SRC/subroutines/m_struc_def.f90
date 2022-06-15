@@ -76,9 +76,9 @@ module m_struc_def
      real(8)   ::   q(n0,2)  !starting q's (charges)
      real(8)   ::   exi(n0) !Hankel energies for fit to c.d.;  For free atoms, fit to free-atom density tails.
      real(8)   ::   chfa(n0,2) ! coefficients to fit of free-atom density tails
-     integer   ::   idu(4) !identifies l-channels with Hubbard U (LDA+U)
-     real(8)   ::   uh(4) !Hubbard U
-     real(8)   ::   jh(4) !LDA+U J parameters for each l-channel
+!     integer   ::   idu(4) !identifies l-channels with Hubbard U (LDA+U)
+!     real(8)   ::   uh(4) !Hubbard U
+!     real(8)   ::   jh(4) !LDA+U J parameters for each l-channel
      integer   :: nmcore !jun2012takao
      real(8)   ::  p(n0) !log derivative for spec taken from ctrl file !shown by >lmfa si |grep conf
      real(8)   ::   pz(n0) !log derivative for spec taken from ctrl file

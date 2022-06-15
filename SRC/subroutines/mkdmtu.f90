@@ -1,5 +1,5 @@
 subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu)
-  use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nl,n0,nppn,nlibu,lmaxu,nlibu,lldau
+  use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nl,n0,nppn,nlibu,lmaxu,nlibu,lldau,idu
   use m_mkpot,only: ppnl=>ppnl_rv
   use m_subzi, only: wtkb=>rv_a_owtkb
   use m_igv2x,only: ndimh
@@ -44,7 +44,7 @@ subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu)
   double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
   double complex add,au,as,az,ap1,ap2
   double precision :: dlphi,rmt,dlphip,phi,phip,dphi,dphip,r(2,2),det,phz,dphz
-  integer :: lmxa,ilm1,ilm2,l,iv,m1,m2,ib,is,idu(4),igetss,iblu,ispc, ksp
+  integer :: lmxa,ilm1,ilm2,l,iv,m1,m2,ib,is,igetss,iblu,ispc, ksp
   complex(8),allocatable ::aus(:,:,:,:,:)
   double complex evec(ndimh,nsp,nev)
   real(8)::qp(3)
@@ -56,10 +56,10 @@ subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu)
      if (lldau(ib) == 0) goto 10
      is = ssite(ib)%spec
      lmxa=sspec(is)%lmxa
-     idu= sspec(is)%idu
+     !idu= sspec(is)%idu
      rmt= sspec(is)%rmt
      do  l = 0, min(lmxa,3)
-        if (idu(l+1) /= 0) then
+        if (idu(l+1,is) /= 0) then
            iblu = iblu+1
            !           In noncollinear case, isp=1 always => need internal ispc=1..2
            !           ksp is the current spin index in both cases:

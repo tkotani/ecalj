@@ -1,6 +1,8 @@
-subroutine symdmu(nlibu,dmatu,nbas,nsp,lmaxu,sspec,ssite,ng,g, &
-  istab,lldau,rms)
+subroutine symdmu(nlibu,dmatu,nbas,nsp,lmaxu,sspec,ssite,ng,g, istab,lldau,rms)
   use m_struc_def
+  use m_ftox
+  use m_lmfinit,only:idu
+  use m_lgunit,only:stdo
   !- Symmetrize LDA+U density matrix dmatu
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -40,24 +42,15 @@ subroutine symdmu(nlibu,dmatu,nbas,nsp,lmaxu,sspec,ssite,ng,g, &
   !u   30 Apr 05 Lambrecht first created
   !--------------------------------------------------------------
   implicit none
-  ! ... Passed parameters
   integer :: nbas,lldau(nbas),ng,nsp,lmaxu,istab(nbas,ng),i_copy_size
-  double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
-  double complex dmatw(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
   type(s_spec)::sspec(*)
   type(s_site)::ssite(*)
-
-  double precision :: g(9,*),rms
-  ! ... Local parameters
-  integer :: is,igetss,lmxa,idu(4),m1,m2,ilm1,ilm2,ib,l,isp,m3,m4,ig, &
-       iblu,nlibu,jb,jblu,ofjbl,lwarn
-  double precision :: rmat(16,16),r(-3:3,-3:3),ddot
-  double complex sdmat(-3:3,-3:3,2,2)
-  ! ... for spinor rotations
+  integer :: is,igetss,lmxa,m1,m2,ilm1,ilm2,ib,l,isp,m3,m4,ig,iblu,nlibu,jb,jblu,ofjbl,lwarn
+  real(8):: rmat(16,16),r(-3:3,-3:3),ddot,g(9,*),rms,ddet33,xx
+  complex(8):: sdmat(-3:3,-3:3,2,2),&  ! ... for spinor rotations
+       dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu),&
+       dmatw(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
   logical :: cmdopt0
-  real(8):: ddet33,xx
-  !      double precision eula(3),ddet33,xx
-  !      double complex u(2,2,ng)
   character (40) :: str
   dmatw=0d0
   rms = 0
@@ -73,54 +66,23 @@ subroutine symdmu(nlibu,dmatu,nbas,nsp,lmaxu,sspec,ssite,ng,g, &
      else
         call dpcopy(g(1,ig),rmat,1,9,-1d0)
      endif
-     !        call dvset(eula,1,3,0d0)
-     !        call rm2eua(rmat,eula(1),eula(2),eula(3))
-     !        call rotspu(0,1,1,eula,1,u(1,1,ig))
-
-     !       For debugging
-     !        call asymop(rmat,eula,' ',str)
-     !        print *, ig, str, sngl(ddet33(g(1,ig))*g(9,ig))
-     !        print 433, ig, eula, (ddet33(g(1,ig)) .lt. 0)
-     !  433   format(' ig=',i4,' eula = ', 3f10.5, '  inv=', L1)
-     !        do  m1 = 1, 2
-     !          write(6,'(2f10.5,4x,2f10.5)') (dble(u(m1,m2,ig)), m2=1,2)
-     !        enddo
-     !        do  m1 = 1, 2
-     !          write(6,'(2f10.5,4x,2f10.5)') (dimag(u(m1,m2,ig)), m2=1,2)
-     !        enddo
-
-     !   .. for now
      if (dabs(xx*g(9,ig)-1) > 1d-6) lwarn = lwarn+1
   enddo
-
-  if (lwarn > 0) call info(10,0,0, &
-       ' symdmu  (warning): %i symops rotate z axis',lwarn,0)
-
+  if (lwarn > 0) write(stdo,ftox)'symdmu (warning): ',lwarn,'symops rotate z axis'
   ! --- For each site density-matrix, do ---
   iblu = 0
   do  ib = 1, nbas
      if (lldau(ib) /= 0) then
-        is = int(ssite(ib)%spec)
-
-
+        is = ssite(ib)%spec
         lmxa=sspec(is)%lmxa
-        i_copy_size=size(sspec(is)%idu)
-        call icopy(i_copy_size,sspec(is)%idu,1,idu,1)
-
         ofjbl = -1
         do  l = 0, min(lmxa,3)
-           if (idu(l+1) /= 0) then
+           if (idu(l+1,is) /= 0) then
               iblu = iblu+1
               ofjbl = ofjbl+1
-
-              !             call zprm('dm spin 2',2,dmatu(-l,-l,2,iblu),7,2*l+1,2*l+1)
-
-              !         --- Loop over group operations ---
               do  ig = 1, ng
-
                  jb = istab(ib,ig)
                  jblu = lldau(jb) + ofjbl
-
                  !               Rotation matrices for spherical harmonics up to f orbitals
                  call ylmrtg(16,g(1,ig),rmat)
                  !               Pick out the one we need
@@ -133,9 +95,6 @@ subroutine symdmu(nlibu,dmatu,nbas,nsp,lmaxu,sspec,ssite,ng,g, &
                        r(m1,m2) = rmat(ilm1,ilm2)
                     enddo
                  enddo
-
-                 !               call prmx('rot',r(-l,-l),7,2*l+1,2*l+1)
-
                  !           ... Spatial rotation: dmatu(iblu) -> sdmat
                  do  isp = 1, nsp
                     do  m1 = -l, l
@@ -151,85 +110,6 @@ subroutine symdmu(nlibu,dmatu,nbas,nsp,lmaxu,sspec,ssite,ng,g, &
                        enddo
                     enddo
                  enddo
-
-                 !               call zprm('rot dm(sp2)',2,sdmat(-l,-l,2),7,2*l+1,2*l+1)
-
-
-                 !           ... Spinor rotation ... give up for now
-                 !               Debugging
-                 !                print 432, ig, eula, (ddet33(g(1,ig)) .lt. 0)
-                 !  432           format(' ig=',i4,' eula = ', 3f10.5, '  inv=', L1,' u:')
-                 !                do  m1 = 1, 2
-                 !                  write(6,'(2f10.5)') (dble(u(m1,m2,ig)), m2=1,2)
-                 !                enddo
-                 !                do  m1 = 1, 2
-                 !                  write(6,'(2f10.5)') (dimag(u(m1,m2,ig)), m2=1,2)
-                 !                enddo
-
-                 !                do  isp = 1, 2
-                 !                print *, 'init, spin',isp,' ig=',ig, ' iblu=',iblu
-                 !                do  m1 = -l, l, 2*l
-                 !                  write(6,'(2f10.5)')
-                 !     .              (dble(dmatu(m1,m2,isp,iblu)), m2=-l, l, 2*l)
-                 !                enddo
-                 !                do   m1 = -l, l, 2*l
-                 !                  write(6,'(2f10.5)')
-                 !     .              (dimag(dmatu(m1,m2,isp,iblu)), m2=-l, l, 2*l)
-                 !                enddo
-                 !                enddo
-                 !                do  isp = 1, 2
-                 !                print *, 'spatial rot spin',isp
-                 !                do  m1 = -l, l, 2*l
-                 !                  write(6,'(2f10.5)')
-                 !     .              (dble(sdmat(m1,m2,isp,isp)), m2=-l, l, 2*l)
-                 !                enddo
-                 !                do   m1 = -l, l, 2*l
-                 !                  write(6,'(2f10.5)')
-                 !     .              (dimag(sdmat(m1,m2,isp,isp)), m2=-l, l, 2*l)
-                 !                enddo
-                 !                enddo
-
-                 !                do  m1 = -l, l
-                 !                do  m2 = -l, l
-                 !                  if (m1 .eq. l .and. m2 .eq. l) then
-                 !                    print *, 'hi'
-                 !                  endif
-                 !                  s11 = sdmat(m1,m2,1,1)
-                 !                  s12 = sdmat(m1,m2,1,2)
-                 !                  s21 = sdmat(m1,m2,2,1)
-                 !                  s22 = sdmat(m1,m2,2,2)
-                 !                  su(1,1) = s11*u(1,1,ig) + s12*u(2,1,ig)
-                 !                  su(2,1) = s21*u(1,1,ig) + s22*u(2,1,ig)
-                 !                  su(1,2) = s11*u(1,2,ig) + s12*u(2,2,ig)
-                 !                  su(2,2) = s21*u(1,2,ig) + s22*u(2,2,ig)
-                 !                  do  i = 1, 2
-                 !                  do  j = 1, 2
-                 !                    sdmat(m1,m2,i,j) = dconjg(u(1,i,ig))*su(1,j) +
-                 !     .                                 dconjg(u(2,i,ig))*su(2,j)
-                 !C                    usu(i,j) = dconjg(u(1,i,ig))*su(1,j) +
-                 !C     .                         dconjg(u(2,i,ig))*su(2,j)
-                 !C                    sdmat(m1,m2,i,j) = su(i,j)
-                 !                  enddo
-                 !                  enddo
-                 !                enddo
-                 !                enddo
-
-                 !                do  isp = 1, 2
-                 !                  print *, 'spinor rot, isp=',isp,' ig=',ig,'jblu=',jblu
-                 !                do  m1 = -l, l, 2*l
-                 !                  write(6,'(2f10.5:2x,2f10.5)')
-                 !     .              ((dble(sdmat(m1,m2,isp,is)), m2=-l,l,2*l), is=1,2)
-                 !C     .              (dble(sdmat(m1,m2,isp,isp)), m2=-l, l, 2*l),
-                 !                enddo
-                 !                do   m1 = -l, l, 2*l
-                 !                  write(6,'(2f10.5:2x,2f10.5)')
-                 !     .              ((dimag(sdmat(m1,m2,isp,is)), m2=-l,l,2*l), is=1,2)
-                 !C    .              (dimag(sdmat(m1,m2,isp,isp)), m2=-l, l, 2*l)
-                 !                enddo
-                 !                enddo
-                 !               pause
-
-                 !           ... Add sdmat/ng into dmat
                  do   isp = 1, nsp
                     do  m1 = -l, l
                        do  m2 = -l, l
@@ -238,19 +118,15 @@ subroutine symdmu(nlibu,dmatu,nbas,nsp,lmaxu,sspec,ssite,ng,g, &
                        enddo
                     enddo
                  enddo
-
               enddo
-
            endif
         enddo
      endif
   enddo
-
   !     Exchange original for symmetrized dmatu
   nlibu = iblu
   is = nsp*nlibu*(lmaxu*2+1)**2
   call dswap(2*is,dmatw,1,dmatu,1)
-
   !     RMS change in dmatu
   call daxpy(2*is,-1d0,dmatu,1,dmatw,1)
   rms = dsqrt(ddot(2*is,dmatw,1,dmatw,1)/(2*is))

@@ -2,6 +2,7 @@ subroutine suldau(nbas,sspec,ssite,nlibu,lmaxu,lldau)
   use m_struc_def  !Cgetarg
   use m_ftox
   use m_lgunit,only:stdo
+  use m_lmfinit,only:idu
   !- Finds lda+U sites and counts number of blocks
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -22,7 +23,7 @@ subroutine suldau(nbas,sspec,ssite,nlibu,lmaxu,lldau)
   !u   27 Apr 05 (Lambrecht) first created
   !------------------------------------
   implicit none
-  integer :: nbas,nlibu,lmaxu,lldau(nbas),igetss,is,ib,l,lmxa,idu(4),i_copy_size
+  integer :: nbas,nlibu,lmaxu,lldau(nbas),igetss,is,ib,l,lmxa !,idu(4),i_copy_size
   type(s_spec)::sspec(*)
   type(s_site)::ssite(*)
   nlibu = 0
@@ -31,9 +32,9 @@ subroutine suldau(nbas,sspec,ssite,nlibu,lmaxu,lldau)
      lldau(ib) = 0
      is  = ssite(ib)%spec
      lmxa= sspec(is)%lmxa
-     idu = sspec(is)%idu
+     !idu = sspec(is)%idu
      do  l = 0, min(lmxa,3)
-        if (idu(l+1) /= 0) then
+        if (idu(l+1,is) /= 0) then
            if (lldau(ib) == 0) lldau(ib) = nlibu+1
            nlibu = nlibu+1
            lmaxu = max(lmaxu,l)

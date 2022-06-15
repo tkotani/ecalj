@@ -11,7 +11,7 @@ contains
          , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , &
          nlibu , lmaxu , vorb , lldau,novxc)!,idipole )
     use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkaph,lxcf,lhh,nkapii,nkaphh,alat
-    use m_lmfinit,only: n0,nppn,nab,nrmx,nkap0,nlmx,nbas,nsp,lso,ssite=>v_ssite, sspec=>v_sspec,mxcst4,slabl
+    use m_lmfinit,only: n0,nppn,nab,nrmx,nkap0,nlmx,nbas,nsp,lso,ssite=>v_ssite, sspec=>v_sspec,mxcst4,slabl,idu
     use m_MPItk,only: master_mpi
     use m_struc_def
     use m_uspecb,only:uspecb
@@ -155,7 +155,7 @@ contains
     integer :: iltab(nbas)
     double precision :: rs3,vmtz
     ! ... for LDA+U
-    integer :: idu(4)
+!    integer :: idu(4)
     ! ... for core hole
     character chole*8
     integer :: kcor,lcor
@@ -230,8 +230,8 @@ contains
        lmxb=sspec(is)%lmxb
        zz(ib)=z
        if (lmxa == -1) cycle !goto 10 !floating orbital
-       i_copy_size=size(sspec(is)%idu)
-       call icopy(i_copy_size,sspec(is)%idu,1,idu,1)
+!       i_copy_size=size(sspec(is)%idu)
+!       call icopy(i_copy_size,sspec(is)%idu,1,idu,1)
        kmax=sspec(is)%kmxt
        !        i=sspec(is)%mxcst
        !       Float wave functions if:

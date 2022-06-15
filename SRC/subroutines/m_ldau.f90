@@ -229,7 +229,7 @@ contains
   subroutine chkdmu(eks, dmatu,dmatuo,vorb)
     use m_struc_def,only: s_site,s_spec
     use m_lmfinit,only: stdl,nbas,nsp,nlibu,lmaxu,ssite=>v_ssite,sspec=>v_sspec,lldau, &
-         tolu=>mix_tolu,umix=>mix_umix,stdo
+         tolu=>mix_tolu,umix=>mix_umix,stdo,idu,uh,jh
     use m_MPItk,only: master_mpi
     use m_mksym,only: g=>rv_a_osymgr,istab=>iv_a_oistab, ng =>lat_nsgrp
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
@@ -264,9 +264,9 @@ contains
     double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
     double complex dmatuo(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
     double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
-    integer :: l,idu(4),lmxa,ib,is,iblu,igetss,idmat,ivsiz,ifile_handle
+    integer :: l,lmxa,ib,is,iblu,igetss,idmat,ivsiz,ifile_handle !,idu(4)
     integer :: iprint,ipl,havesh
-    double precision :: ddmat,uh(4),jh(4),eorbi,eterms(20),ddot,xx
+    double precision :: ddmat,eorbi,eterms(20),ddot,xx !,uh(4),jh(4)
     logical:: fexist,mmtargetx,eee
     real(8),allocatable:: uhall(:,:)
     real(8):: mmsite(nbas),uhxx,mmhist(10000),uhhist(10000),mmtarget,uhdiff
@@ -297,14 +297,14 @@ contains
        if (lldau(ib) /= 0) then
           is = ssite(ib)%spec
           lmxa=sspec(is)%lmxa
-          idu=sspec(is)%idu
-          uh=sspec(is)%uh
-          jh=sspec(is)%jh
+          !idu=sspec(is)%idu
+          !uh=sspec(is)%uh
+          !jh=sspec(is)%jh
           do  l = 0, min(lmxa,3)
-             if (idu(l+1) /= 0) then
+             if (idu(l+1,is) /= 0) then
                 iblu = iblu+1
                 eorbi = 999
-                call ldau(100+idu(l+1),l,iblu,uh(l+1),jh(l+1),dmatu,nsp,lmaxu,vorb,eorbi)
+                call ldau(100+idu(l+1,is),l,iblu,uh(l+1,is),jh(l+1,is),dmatu,nsp,lmaxu,vorb,eorbi)
                 eorb = eorb + eorbi
              endif
           enddo
@@ -385,16 +385,16 @@ contains
        if (lldau(ib) /= 0) then
           is = ssite(ib)%spec
           lmxa=sspec(is)%lmxa
-          idu=sspec(is)%idu
-          uh=sspec(is)%uh
-          jh=sspec(is)%jh
+          !idu=sspec(is)%idu
+          !uh=sspec(is)%uh
+          !jh=sspec(is)%jh
           do  l = 0, min(lmxa,3)
-             if (idu(l+1) /= 0) then
+             if (idu(l+1,is) /= 0) then
                 iblu = iblu+1
                 call pshpr(iprint()-20)
                 !$$$  if(.not.mmtargetx) uhx = uh(l+1)
-                uhx = uh(l+1)
-                call ldau(idu(l+1),l,iblu,uhx,jh(l+1),dmatu,nsp, lmaxu,vorb,eorbxxx) 
+                uhx = uh(l+1,is)
+                call ldau(idu(l+1,is),l,iblu,uhx,jh(l+1,is),dmatu,nsp, lmaxu,vorb,eorbxxx) 
                 call poppr
              endif
           enddo
@@ -430,7 +430,7 @@ contains
   ! sssssssssssssssssssssssssssssssssssssssssssssss
   subroutine sudmtu(dmatu,vorb)
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
-    use m_lmfinit,only: nbas,nsp,nlibu,lmaxu,lldau,ssite=>v_ssite,sspec=>v_sspec,stdo,slabl
+    use m_lmfinit,only: nbas,nsp,nlibu,lmaxu,lldau,ssite=>v_ssite,sspec=>v_sspec,stdo,slabl,idu,uh,jh
     use m_mksym,only: g=>rv_a_osymgr,istab=>iv_a_oistab, ng =>lat_nsgrp
     !- Initialize site density matrix and vorb  for LDA+U
     ! ----------------------------------------------------------------------
@@ -479,8 +479,8 @@ contains
     logical :: rdstrn,parstr,mmtargetx,eee
     integer :: i,isp,ib,l,lmxa,m,m2,foccn,havesh,ivsiz,ipr,ifx
     double precision :: nocc(-3:3,2),iv(7)
-    integer:: idu(4),igetss,is,idmat,fxst,iblu,nlm,nlmu,a2vec,nn,m1
-    double precision :: uh(4),jh(4),eorb,xx !tmp(2,7,7)
+    integer:: igetss,is,idmat,fxst,iblu,nlm,nlmu,a2vec,nn,m1 !idu(4),
+    double precision :: eorb,xx !tmp(2,7,7) !uh(4),jh(4),
     complex(8):: tmp(7,7),img=(0d0,1d0)
     real(8):: tempr(7,7),tempi(7,7)
     character str*80,spid*8,aaa*24
@@ -500,8 +500,8 @@ contains
     sss=0d0
     do  ib = 1, nbas
        if (lldau(ib) /= 0) then
-          is = int(ssite(ib)%spec)
-          sss = sss + sum(abs(sspec(is)%uh))+sum(abs(sspec(is)%jh))
+          is = ssite(ib)%spec
+          sss = sss + sum(abs(uh(:,is)))+sum(abs(jh(:,is)))
        endif
     enddo
     if(sss<1d-6) then
@@ -534,9 +534,9 @@ contains
           if (lldau(ib) /= 0) then
              is = ssite(ib)%spec
              lmxa=sspec(is)%lmxa
-             idu=sspec(is)%idu
+             !idu=sspec(is)%idu
              do l = 0, min(lmxa,3)
-                if (idu(l+1) /= 0) then
+                if (idu(l+1,is) /= 0) then
                    iblu = iblu+1
                    nlm = 2*l+1
                    nlmu = 2*lmaxu+1
@@ -577,9 +577,9 @@ contains
           if (lldau(ib) /= 0) then
              is = int(ssite(ib)%spec)
              lmxa=sspec(is)%lmxa
-             idu=sspec(is)%idu
+             !idu=sspec(is)%idu
              do l = 0,min(lmxa,3)
-                if (idu(l+1) /= 0) then
+                if (idu(l+1,is) /= 0) then
                    iblu = iblu+1
                    do  isp = 1, 2
 11                    continue
@@ -686,18 +686,17 @@ contains
        if (lldau(ib) == 0) goto 20
        is = int(ssite(ib)%spec)
        lmxa=sspec(is)%lmxa
-       idu=sspec(is)%idu
-       uh=sspec(is)%uh
-       jh=sspec(is)%jh
+       !idu=sspec(is)%idu
+       !uh=sspec(is)%uh
+       !jh=sspec(is)%jh
        spid=slabl(is) !sspec(is)%name
        i = min(lmxa,3)
-       if(master_mpi) write(stdo,ftox)'Species '//spid//'mode',idu(1:i+1),'U',ftof(uh(1:i+1),2),'J',ftof(jh(1:i+1),2)
+       if(master_mpi) write(stdo,ftox)'Species '//spid//'mode',idu(1:i+1,is),'U',ftof(uh(1:i+1,is),2),'J',ftof(jh(1:i+1,is),2)
        do  22  l = 0, i
-          if (idu(l+1) /= 0) then
+          if (idu(l+1,is) /= 0) then
              iblu = iblu+1
-             !            if(.not.mmtargetx) uhx=uh(l+1)
-             uhx=uh(l+1)
-             call ldau(idu(l+1),l,iblu,uhx,jh(l+1),dmatu,nsp,lmaxu,vorb,eorb)
+             uhx=uh(l+1,is)
+             call ldau(idu(l+1,is),l,iblu,uhx,jh(l+1,is),dmatu,nsp,lmaxu,vorb,eorb)
           endif
 22     enddo
 20  enddo
@@ -737,6 +736,7 @@ contains
   ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine rotycs(mode,a,nbas,nsp,lmaxu,sspec,ssite,lldau)
     use m_struc_def  !Cgetarg
+    use m_lmfinit,only:idu
     !- Rotate matrix a from real to spherical harmonics
     ! for LDA+U objects densmat and vorb
     !-------------------------------------
@@ -787,7 +787,7 @@ contains
        if (lldau(ib)==0) cycle
        is  = ssite(ib)%spec
        do  l = 0, min(sspec(is)%lmxa,3)
-          if (sspec(is)%idu(l+1) ==0) cycle
+          if (idu(l+1,is) ==0) cycle
           iblu = iblu+1
           do  isp = 1, 2
              do  m = 1, l

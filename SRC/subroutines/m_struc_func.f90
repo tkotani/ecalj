@@ -105,15 +105,15 @@ contains
     i_data_size=size(struc%pz) ! pz(20)
     call mpi_bcast(struc%pz, i_data_size,MPI_REAL8 &
          , master, MPI_COMM_WORLD,ierr)
-    i_data_size=size(struc%idu) ! idu(4)
-    call mpi_bcast(struc%idu, i_data_size,MPI_INTEGER &
-         , master, MPI_COMM_WORLD,ierr)
-    i_data_size=size(struc%uh) ! uh(4)
-    call mpi_bcast(struc%uh, i_data_size,MPI_REAL8 &
-         , master, MPI_COMM_WORLD,ierr)
-    i_data_size=size(struc%jh) ! jh(4)
-    call mpi_bcast(struc%jh, i_data_size,MPI_REAL8 &
-         , master, MPI_COMM_WORLD,ierr)
+!    i_data_size=size(struc%idu) ! idu(4)
+!    call mpi_bcast(struc%idu, i_data_size,MPI_INTEGER &
+!         , master, MPI_COMM_WORLD,ierr)
+!    i_data_size=size(struc%uh) ! uh(4)
+!    call mpi_bcast(struc%uh, i_data_size,MPI_REAL8 &
+!         , master, MPI_COMM_WORLD,ierr)
+!    i_data_size=size(struc%jh) ! jh(4)
+!    call mpi_bcast(struc%jh, i_data_size,MPI_REAL8 &
+!         , master, MPI_COMM_WORLD,ierr)
     if (mlog) then
        call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
        call strcop(shortname(procid),name,10,'.',ierr)

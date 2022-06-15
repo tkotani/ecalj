@@ -57,9 +57,8 @@ module m_lmfinit
   integer,protected:: lmxbx=-1,lmxax,nkaph,nkapi
   logical,allocatable,protected:: mxcst2(:),mxcst4(:)
   integer,allocatable,protected:: &
-       idu(:,:),lmxb(:),lmxa(:),idmod(:,:), &
-       kmxt(:),kmxv(:),lfoca(:),lmxl(:),nxi(:),nr(:), nmcore(:), &
-       nkapii(:),nkaphh(:)
+       lmxb(:),lmxa(:),idmod(:,:),idu(:,:),kmxt(:),kmxv(:),lfoca(:),lmxl(:),nxi(:),nr(:),&
+       nmcore(:), nkapii(:),nkaphh(:)
   real(8),allocatable,protected:: rsmh1(:,:),rsmh2(:,:),eh1(:,:),eh2(:,:), &
        rs3(:),rham(:),alpha(:,:),ehvl(:,:), uh(:,:),jh(:,:), &
        qpol(:,:),stni(:), &
@@ -1214,9 +1213,9 @@ contains
        v_sspec(j)%nxi=nxi(j)
        v_sspec(j)%exi=exi(:,j)
        !v_sspec(j)%idmod=idmod(:,j)
-       v_sspec(j)%idu = idu(:,j)
-       v_sspec(j)%jh=jh(:,j)
-       v_sspec(j)%uh=uh(:,j)
+!       v_sspec(j)%idu = idu(:,j)
+!       v_sspec(j)%jh=jh(:,j)
+!       v_sspec(j)%uh=uh(:,j)
        v_sspec(j)%kmxt=kmxt(j)
        v_sspec(j)%kmxv=kmxv(j)
        v_sspec(j)%lfoca=lfoca(j)
@@ -1389,7 +1388,7 @@ contains
     deallocate(wowk,pnu,qnu    ,amom, & !idmod,
          qpol,stni,rg,rsma,rfoca,rsmfa,rcfa,nxi, &
          exi,coreq,rs3,rham,idxdn, &
-         rmt,idu,uh,jh,kmxv, & ! & kmxt,
+         rmt,kmxv, & ! & kmxt,,idu,uh,jh
     lfoca,eref,lmxl,coreh,          spec_a,z,nr,rsmv, &
          pos,ips,irlx)  !,vshft
     !! --- takao embed contents in susite here. This is only for lmf and lmfgw.
@@ -1477,7 +1476,7 @@ contains
     do  ib = 1, nbas
        is = v_ssite(ib)%spec
        do  lx = 0, min(v_sspec(is)%lmxa,3)
-          if (v_sspec(is)%idu(lx+1) /= 0) then
+          if (idu(lx+1,is) /= 0) then
              if (lldau(ib) ==0) lldau(ib) = nlibu+1
              nlibu = nlibu+1
              lmaxu = max(lmaxu,lx)
