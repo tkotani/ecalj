@@ -1206,11 +1206,8 @@ contains
     allocate(v_sspec(nspec))
     do j=1,nspec
        v_sspec(j)%z=z(j)
-       v_sspec(j)%coreh=coreh(j)
-       v_sspec(j)%nmcore=nmcore(j)
        v_sspec(j)%a=spec_a(j)
        v_sspec(j)%nr=nr(j)
-       v_sspec(j)%coreq=coreq(:,j)
        v_sspec(j)%nxi=nxi(j)
        v_sspec(j)%exi=exi(:,j)
        v_sspec(j)%kmxt=kmxt(j)
@@ -1220,15 +1217,19 @@ contains
        v_sspec(j)%lmxa=lmxa(j)
        v_sspec(j)%lmxb=lmxb(j)
        v_sspec(j)%lmxl=lmxl(j)
-       v_sspec(j)%p = pnu(1:n0,1,j) !only for lmfa. fixed.
-       v_sspec(j)%pz= pz(1:n0, 1,j) !only for lmfa. fixed.
-       v_sspec(j)%q = qnu(1:n0,1:nsp,j)
-       v_sspec(j)%rcfa=rcfa(:,j)
        v_sspec(j)%rfoca=rfoca(j)
        v_sspec(j)%rg=rg(j)
        v_sspec(j)%rmt=rmt(j)
        v_sspec(j)%rsma=rsma(j)
        v_sspec(j)%rsmfa=rsmfa(j)
+    enddo
+!       v_sspec(j)%p = pnu(1:n0,1,j) !only for lmfa. fixed.
+!       v_sspec(j)%pz= pz(1:n0, 1,j) !only for lmfa. fixed.
+!       v_sspec(j)%rcfa=rcfa(:,j)
+       !v_sspec(j)%q = qnu(1:n0,1:nsp,j)
+       !v_sspec(j)%coreh=coreh(j)
+       !v_sspec(j)%nmcore=nmcore(j)
+       !v_sspec(j)%coreq=coreq(:,j)
        !v_sspec(j)%name=slabl(j)
        !v_sspec(j)%vmtz=-0.5d0
        !v_sspec(j)%idmod=idmod(:,j)
@@ -1238,7 +1239,7 @@ contains
 !       v_sspec(j)%eref=eref(j)
 !       v_sspec(j)%eh3=-0.5d0
 !       v_sspec(j)%rs3=0.5d0 !rs3(j)
-    enddo
+!    enddo
     allocate(v_ssite(nbas))
     do j=1,nbas
        v_ssite(j)%spec=ips(j)
@@ -1247,8 +1248,8 @@ contains
        v_ssite(j)%relax=irlx(:,j)
        v_ssite(j)%iantiferro=iantiferro(j)
        is=v_ssite(j)%spec
-       v_ssite(j)%pnu= pnu(1:n0,1:nsp,is)
-       v_ssite(j)%pz = pz(1:n0,1:nsp,is)
+       v_ssite(j)%pnu= pnu(1:n0,1:nsp,is)! these can be changing during iteration
+       v_ssite(j)%pz = pz(1:n0,1:nsp,is) !
     enddo
     sstrnmix=trim(iter_mix)
 
@@ -1388,12 +1389,11 @@ contains
     call suldau(nbas,v_sspec,v_ssite,nlibu,k,wowk)!Count LDA+U blocks (printout only)
     ham_nlibu=nlibu
     call poppr
-    deallocate(wowk,pnu,qnu    ,amom, & !idmod,
-         qpol,stni,rg,rsma,rfoca,rsmfa,rcfa,nxi, &
-         exi,coreq,rham,idxdn, &
-         rmt,kmxv, & ! & kmxt,,idu,uh,jh
-    lfoca,lmxl,coreh,          spec_a,z,nr,rsmv, &
-         pos,ips,irlx)  !,vshft
+    deallocate(wowk,amom, & !idmod,,qnu pnu    ,
+         qpol,stni,rg,rsma,rfoca,rsmfa,nxi, & !,rcfa
+         exi,rham,idxdn, rmt,kmxv, & ! & kmxt,,idu,uh,jh
+         lfoca,lmxl, spec_a,z,nr,rsmv, &
+         pos,ips,irlx)  !,vshft,coreh coreq,
     !! --- takao embed contents in susite here. This is only for lmf and lmfgw.
     seref = 0d0
     do ib = 1, nbas

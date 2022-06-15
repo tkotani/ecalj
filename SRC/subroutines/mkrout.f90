@@ -57,8 +57,8 @@ contains
   !!-------------------------------
   subroutine mkrout( sv_p_oqkkl, sv_p_oeqkkl, orhoat_out, hab,sab, qbyl, hbyl)
     use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,procid,master,nkaph &
-         , sspec=>v_sspec,ssite=>v_ssite,nbas,nsp,lekkl,lrout,n0,nab,stdo
-    use m_lmfinit,only: nlmto
+         , sspec=>v_sspec,ssite=>v_ssite,nbas,nsp,lekkl,lrout,n0,nab,nlmto,nmcore
+    use m_lgunit,only: stdo
     use m_struc_def
     use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
     !- Assembles local output densities out of the qkkl, and core states
@@ -320,7 +320,7 @@ contains
           write(stdo,*)
           call getcor ( 0 , z , a , pnu , pnz , nr , lmxa , rofi_rv , ssite(ib)%rv_a_ov1 &
                , kcor , lcor , qcor , smec , smtc , orhoat_out( 3 , ib )%v &
-               , ncore , 0d0 , 0d0,   sspec(is)%nmcore)
+               , ncore , 0d0 , 0d0,   nmcore(is))
           call poppr
           sumtc = sumtc + smtc
           sumec = sumec + smec

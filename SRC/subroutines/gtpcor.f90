@@ -1,5 +1,6 @@
 subroutine gtpcor(sspec,is,kcore,lcore,qcore)
-  use m_struc_def  !Cgetarg
+  use m_struc_def 
+  use m_lmfinit,only:coreq,coreh
   !- Unpacks parameters related to partial core occpation
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -13,23 +14,16 @@ subroutine gtpcor(sspec,is,kcore,lcore,qcore)
   !u Updates
   ! ----------------------------------------------------------------------
   implicit none
-  ! ... Passed parameters
   integer :: is,kcore,lcore,i_copy_size
   real(8):: qcore(2)
   type(s_spec)::sspec(*)
-  ! ... Local parameters
   character(8) :: ch
   kcore = 0
   lcore = -1
-  qcore(1) = 0
-  qcore(2) = 0
-  !      do i_spacks=is,is
-  !        call spacks_copy('u',sspec(i_spacks)%coreh,is,is,ch,i_spacks)
-  !      enddo
-  ch=sspec(is)%coreh
+  qcore = 0d0
+  ch=coreh(is)
   if (ch == ' ') return
-  i_copy_size=size(sspec(is)%coreq)
-  call dcopy(i_copy_size,sspec(is)%coreq,1,qcore,1)
+  qcore=coreq(:,is)
   read (ch,'(i1)') kcore
   if (ch(2:2) == 's' .OR. ch(2:2) == 'S') lcore = 0
   if (ch(2:2) == 'p' .OR. ch(2:2) == 'P') lcore = 1

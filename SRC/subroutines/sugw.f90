@@ -9,7 +9,8 @@ contains
     use m_suham,only: ndham=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
     use m_lmfinit, only: &
          ham_pwmode,pwemin,pwemax,ham_oveps,lrsig=>ham_lsig,nlmto,lso, &
-         ham_scaledsigma,lat_alat,mxorb,nkaph,nsp,nspc,nl,mxorb,ssite=>v_ssite,sspec=>v_sspec,nbas,n0,nppn,nkap0,slabl
+         ham_scaledsigma,lat_alat,mxorb,nkaph,nsp,nspc,nl,mxorb,ssite=>v_ssite,sspec=>v_sspec,&
+         nbas,n0,nppn,nkap0,slabl,nmcorex=>nmcore
     use m_lattic,only: lat_plat, lat_qlat
     use m_supot,only: lat_nabc, lat_gmax
     use m_rdsigm2,only: getsenex, senex,dsene
@@ -243,7 +244,7 @@ contains
        z=sspec(is)%z
        rmt(i)=sspec(is)%rmt
        lmaxa = int(sspec(is)%lmxa)
-       nmcore=sspec(is)%nmcore
+       nmcore= nmcorex(is)
        if (lmaxa > -1) then
           call atwf(0,a,lmaxa,nr,nsp,pnu,pnz,rsml,ehl,rmt(i),z,w,i1,ncore,konfig,ecore,w,w,nmcore)
           nphimx = max(nphimx,i1)

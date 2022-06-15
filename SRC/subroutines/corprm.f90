@@ -1,5 +1,6 @@
 subroutine corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc, rfoc,z)
-  use m_struc_def 
+  use m_struc_def
+  use m_lmfinit,only: pnux=>pnu,pzx=>pz
   !- Returns parameters for smooth core+nucleus representation
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -66,8 +67,8 @@ subroutine corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc, rfoc,z)
   ceh=sspec(is)%etail
   stc=sspec(is)%stc
   lmxb=sspec(is)%lmxb
-  pnu= sspec(is)%p
-  pz = sspec(is)%pz
+  pnu= pnux(1:n0,1,is) !sspec(is)%p
+  pz = pzx(1:n0,1,is)  !sspec(is)%pz
   rmt = sspec(is)%rmt
   if ( rfoc <= 1d-5 ) rfoc = (sspec(is)%rg)
   qsc = 0

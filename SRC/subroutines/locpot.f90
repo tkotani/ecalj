@@ -11,7 +11,8 @@ contains
          , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , &
          nlibu , lmaxu , vorb , lldau,novxc)!,idipole )
     use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkaph,lxcf,lhh,nkapii,nkaphh,alat
-    use m_lmfinit,only: n0,nppn,nab,nrmx,nkap0,nlmx,nbas,nsp,lso,ssite=>v_ssite, sspec=>v_sspec,mxcst4,slabl,idu
+    use m_lmfinit,only: n0,nppn,nab,nrmx,nkap0,nlmx,nbas,nsp,lso,ssite=>v_ssite, sspec=>v_sspec,mxcst4,&
+         slabl,idu,coreh
     use m_MPItk,only: master_mpi
     use m_struc_def
     use m_uspecb,only:uspecb
@@ -242,7 +243,7 @@ contains
        (.not.mxcst4(is)) .and. mod(job/10,10).eq.0 .and. mod(job,10).eq.1
        !     .  (.not.mxcst4(is)) mod(i/4,2).eq.0 .and. mod(job/10,10).eq.0 .and. mod(job,10).eq.1
        call corprm(sspec,is,qcorg,qcorh,qsca,cofg,cofh,ceh,lfoc,rfoc,z)
-       chole=sspec(is)%coreh
+       chole=coreh(is)
        call gtpcor(sspec,is,kcor,lcor,qcor)
        call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc0,qv,qsc0)
        if (qsc0 /= qsca .OR. qc /= qc0-qsc0) then

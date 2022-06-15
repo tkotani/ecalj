@@ -3,7 +3,8 @@ module m_freeat
 contains
   subroutine freeat()
     use m_ext,only:sname
-    use m_lmfinit,only: smalit,ctrl_lxcf,ham_seref,nsp,nspec, sspec=>v_sspec,idmod,slabl,vmtz,eref,rs3,eh3
+    use m_lmfinit,only: smalit,ctrl_lxcf,ham_seref,nsp,nspec, sspec=>v_sspec,&
+         idmod,slabl,vmtz,eref,rs3,eh3,nmcore,coreh,coreq,rcfa,pnux=>pnu,pzx=>pz,qnu
     use m_ftox
     !- For each species, makes free atom self-consistent
     ! ----------------------------------------------------------------------
@@ -39,7 +40,7 @@ contains
          sumtc,seref,dgets,dgetss,etot
     double precision :: hfc(nxi0,2),exi(nxi0),hfct(nxi0,2)
     double precision :: v(nrmx*2),rho(nrmx*2),rhoc(nrmx*2),rofi(nrmx*2)
-    double precision :: pnu(n0,2),pz(n0,2),qat(n0,2),rcfa(2)
+    double precision :: pnu(n0,2),pz(n0,2),qat(n0,2)!,rcfa(2)
     double precision :: rtab(n0,2),etab(n0,2)
 !    double precision :: rs3,eh3!,vmtz
     !integer :: idmod(n0)
@@ -78,32 +79,32 @@ contains
        spid = slabl(is) !sspec(is)%name
        rsmfa= sspec(is)%rsmfa
        rfoca= sspec(is)%rfoca
-       qcor = sspec(is)%coreq
-       chole= sspec(is)%coreh
+       qcor = coreq(:,is)
+       chole= coreh(is)
        call gtpcor(sspec,is,kcor,lcor,qcor)
        z   = sspec(is)%z
        rmt = sspec(is)%rmt
        a   = sspec(is)%a
        nrmt= sspec(is)%nr
        if (z == 0 .AND. rmt == 0) cycle !floating orbital
-       pnu(:,1)=   sspec(is)%p
+       pnu(:,1)=  pnux(1:n0,1,is) ! sspec(is)%p
        if(nsp==2) pnu(:,2)= pnu(:,1)
-       qat=   sspec(is)%q
+       qat(1:n0,1:nsp)=  qnu(1:n0,1:nsp,is) !sspec(is)%q
 !       idmod= sspec(is)%idmod
        lmxa = sspec(is)%lmxa
-       pz(:,1) =   sspec(is)%pz
+       pz(:,1) =  pzx(1:n0,1,is) ! sspec(is)%pz
        if(nsp==2) pz(:,2)= pz(:,1)
 !       eref = eref(is)
        !rs3=sspec(is)%rs3
        !eh3=sspec(is)%eh3
        !vmtz=sspec(is)%vmtz
-       rcfa=sspec(is)%rcfa
+       !rcfa=sspec(is)%rcfa
        print *,'goto freats'
        call freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,kcor,lcor,qcor, &
-            nrmix,1,lxcfun,z,rmt,a,nrmt,pnu,pz,qat,rs3(is),eh3(is),vmtz(is),rcfa, &
+            nrmix,1,lxcfun,z,rmt,a,nrmt,pnu,pz,qat,rs3(is),eh3(is),vmtz(is),rcfa(:,is), &
             idmod(:,is),lmxa,eref(is),rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof, &
-            ceh,sumec,sumtc,v,etot,sspec(is)%nmcore,ifives,ifiwv)
-       print *,'end of freats: spid nmcore=',spid,sspec(is)%nmcore
+            ceh,sumec,sumtc,v,etot,nmcore(is),ifives,ifiwv)
+       print *,'end of freats: spid nmcore=',spid,nmcore(is)
        if (iprint()>40) write(stdo,"(a)")' write free atom data for species  '//trim(spid)
        if (nsp == 2 .AND. nr > nrmt) then
           call dcopy(nrmt,rho(1+nr),1,rho(1+nrmt),1)

@@ -251,7 +251,7 @@ subroutine pvdf1 ( job , ssite , sspec ,  nsp , ib , iv0 & ! & slat ,
        , ceps , cdvxc , cvin , sv_p_orhoat , fes1 , fes2 , fxc )
   use m_struc_def  !Cgetarg
   use m_lmfinit,only: nbas
-  use m_lmfinit,only:lat_alat
+  use m_lmfinit,only:lat_alat,pnux=>pnu,pzx=>pz
   use m_lattic,only: lat_vol
   use m_supot,only: lat_nabc
   ! need to modify texts.
@@ -335,8 +335,8 @@ subroutine pvdf1 ( job , ssite , sspec ,  nsp , ib , iv0 & ! & slat ,
   ! --- Unscreened rigid charge density shift, job 1, in cdn0 ---
   if (job0 == 1) then
      z=sspec(is)%z
-     pnu=sspec(is)%p
-     pnz=sspec(is)%pz
+     pnu=pnux(1:n0,1,is) !sspec(is)%p
+     pnz=pzx(1:n0,1,is)  !sspec(is)%pz
      lmxa=sspec(is)%lmxa
      a=sspec(is)%a
      nr=sspec(is)%nr
