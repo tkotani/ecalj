@@ -4,7 +4,7 @@
 !     In principle, all the data are generared and stored in some modules with 'protection'.
 !     We can not modify data in a module by other modules (in prinicple, not everywhere yet).
 program lmf
-  use m_lmfinit,only:  m_Lmfinit_init,nlibu,plbnd,lrout,ctrl_lfrce,sspec=>v_sspec
+  use m_lmfinit,only:  m_Lmfinit_init,nlibu,plbnd,lrout,ctrl_lfrce
   use m_writeham,only: m_writeham_init, m_writeham_write
   use m_ext,only:      m_Ext_init,sname
   use m_lattic,only:   m_Lattic_init
@@ -131,7 +131,7 @@ program lmf
      if(master_mpi) call Getqmode()
      call Rx0('--getq mode done')
   endif
-  call praugm(sspec,0) !print out properties of species
+  call praugm() !print out properties of species
   call Lmfp(jobgw==1) !main routine
   call Rx0("OK! end of "//trim(prgnam)//" ======================")
 end program Lmf
@@ -139,28 +139,22 @@ end program Lmf
 include "show_programinfo.fpp" !this is for 'call show_programinfo'
 ! preprocessed from show_programinfo.f90 by Makefile
 
-subroutine praugm(sspec,is) !print out only
+subroutine praugm() !print out only
   use m_struc_def 
-  use m_lmfinit,only: nspec,stdo
+  use m_lmfinit,only: nspec,stdo,sspec=>v_sspec,slabl
   implicit none
   integer :: is
-  type(s_spec)::sspec(*)
+  !type(s_spec)::sspec(*)
   integer :: is1,is2,js,kmxt,lmxa,lgunit
   integer :: kmxv,lmxl,lfoca
   double precision :: rmt,rsma,rfoca,rg,rsmv
   character spid*8
-  is1 = is
-  is2 = is
-  if (is <= 0) then
-     is1 = 1
-     is2 = nspec 
-  endif
   write (stdo,501)
 501 format(/' species data:  augmentation',27x,'density'/ &
        ' spec       rmt   rsma lmxa kmxa',5x,' lmxl     rg   rsmv  kmxv foca   rfoca')
-  do js = is1,is2
-     spid=sspec(js)%name
-     rmt=sspec(js)%rmt
+  do js = 1,nspec
+     spid=slabl(js) !sspec(js)%name
+     rmt =sspec(js)%rmt
      rsma=sspec(js)%rsma
      lmxa=sspec(js)%lmxa
      kmxt=sspec(js)%kmxt

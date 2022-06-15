@@ -4,7 +4,7 @@ module m_sugcut
   private
 contains  
 subroutine sugcut(mode) 
-  use m_lmfinit,only: nspec,alat=>lat_alat,tol=>lat_tolft,n0,nkap0,nkaphh,lhh,nkapii,sspec=>v_sspec
+  use m_lmfinit,only: nspec,alat=>lat_alat,tol=>lat_tolft,n0,nkap0,nkaphh,lhh,nkapii,sspec=>v_sspec,slabl
   use m_supot,only: gv=>rv_a_ogv,ng=>lat_ng
   use m_uspecb,only:uspecb
   use m_lgunit,only:stdo
@@ -43,7 +43,7 @@ subroutine sugcut(mode)
   gg = -1
   if(mode==1) ngcut=0
   do  is = 1, nspec
-     spid = sspec(is)%name
+     spid = slabl(is) !sspec(is)%name
      nkap1 = 1
      call uspecb(is,rsmh,eh)
      nkap2 = nkaphh(is)

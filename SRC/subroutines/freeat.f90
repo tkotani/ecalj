@@ -3,7 +3,7 @@ module m_freeat
 contains
   subroutine freeat()
     use m_ext,only:sname
-    use m_lmfinit,only: smalit,ctrl_lxcf,ham_seref,nsp,nspec, sspec=>v_sspec
+    use m_lmfinit,only: smalit,ctrl_lxcf,ham_seref,nsp,nspec, sspec=>v_sspec,idmod,slabl,vmtz
     use m_ftox
     !- For each species, makes free atom self-consistent
     ! ----------------------------------------------------------------------
@@ -41,8 +41,8 @@ contains
     double precision :: v(nrmx*2),rho(nrmx*2),rhoc(nrmx*2),rofi(nrmx*2)
     double precision :: pnu(n0,2),pz(n0,2),qat(n0,2),rcfa(2)
     double precision :: rtab(n0,2),etab(n0,2)
-    double precision :: rs3,eh3,vmtz
-    integer :: idmod(n0)
+    double precision :: rs3,eh3!,vmtz
+    !integer :: idmod(n0)
     integer:: iofa, i_dum,ifile_handle
     integer:: i_copy_size,i_spacks,ifives,ifiwv
     character strn*120
@@ -75,7 +75,7 @@ contains
        endif
        nrmix=smalit
        lxcfun = int(ctrl_lxcf)
-       spid = sspec(is)%name
+       spid = slabl(is) !sspec(is)%name
        rsmfa= sspec(is)%rsmfa
        rfoca= sspec(is)%rfoca
        qcor = sspec(is)%coreq
@@ -89,19 +89,19 @@ contains
        pnu(:,1)=   sspec(is)%p
        if(nsp==2) pnu(:,2)= pnu(:,1)
        qat=   sspec(is)%q
-       idmod= sspec(is)%idmod
+!       idmod= sspec(is)%idmod
        lmxa = sspec(is)%lmxa
        pz(:,1) =   sspec(is)%pz
        if(nsp==2) pz(:,2)= pz(:,1)
        eref = sspec(is)%eref
        rs3=sspec(is)%rs3
        eh3=sspec(is)%eh3
-       vmtz=sspec(is)%vmtz
+       !vmtz=sspec(is)%vmtz
        rcfa=sspec(is)%rcfa
        print *,'goto freats'
        call freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,kcor,lcor,qcor, &
-            nrmix,1,lxcfun,z,rmt,a,nrmt,pnu,pz,qat,rs3,eh3,vmtz,rcfa, &
-            idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof, &
+            nrmix,1,lxcfun,z,rmt,a,nrmt,pnu,pz,qat,rs3,eh3,vmtz(is),rcfa, &
+            idmod(:,is),lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof, &
             ceh,sumec,sumtc,v,etot,sspec(is)%nmcore,ifives,ifiwv)
        print *,'end of freats: spid nmcore=',spid,sspec(is)%nmcore
        if (iprint()>40) write(stdo,"(a)")' write free atom data for species  '//trim(spid)

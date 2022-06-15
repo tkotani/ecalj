@@ -61,8 +61,8 @@ contains
          , master, MPI_COMM_WORLD,ierr)
     call mpi_bcast(struc%etail, 1,MPI_REAL8 &
          , master, MPI_COMM_WORLD,ierr)
-    call mpi_bcast(struc%name, 1,MPI_REAL8 &
-         , master, MPI_COMM_WORLD,ierr)
+!    call mpi_bcast(struc%name, 1,MPI_REAL8 &
+!         , master, MPI_COMM_WORLD,ierr)
     call mpi_bcast(struc%stc, 1,MPI_REAL8 &
          , master, MPI_COMM_WORLD,ierr)
     call mpi_bcast(struc%lmxb, 1,MPI_INTEGER &
@@ -77,8 +77,8 @@ contains
          , master, MPI_COMM_WORLD,ierr)
     call mpi_bcast(struc%rs3, 1,MPI_REAL8 &
          , master, MPI_COMM_WORLD,ierr)
-    call mpi_bcast(struc%vmtz, 1,MPI_REAL8 &
-         , master, MPI_COMM_WORLD,ierr)
+!    call mpi_bcast(struc%vmtz, 1,MPI_REAL8 &
+!         , master, MPI_COMM_WORLD,ierr)
     call mpi_bcast(struc%kmxv, 1,MPI_INTEGER &
          , master, MPI_COMM_WORLD,ierr)
     i_data_size=size(struc%rcfa) ! rcfa(2)
@@ -90,9 +90,9 @@ contains
     i_data_size=size(struc%q) ! q(20)
     call mpi_bcast(struc%q, i_data_size,MPI_REAL8 &
          , master, MPI_COMM_WORLD,ierr)
-    i_data_size=size(struc%idmod) ! idmod(10)
-    call mpi_bcast(struc%idmod, i_data_size,MPI_INTEGER &
-         , master, MPI_COMM_WORLD,ierr)
+!    i_data_size=size(struc%idmod) ! idmod(10)
+!    call mpi_bcast(struc%idmod, i_data_size,MPI_INTEGER &
+!         , master, MPI_COMM_WORLD,ierr)
     !      i_data_size=size(struc%idxdn) ! idxdn(30)
     !      call mpi_bcast(struc%idxdn, i_data_size,MPI_INTEGER
     !     , , master, MPI_COMM_WORLD,ierr)

@@ -1,6 +1,6 @@
 subroutine pvsms2 ( ssite , sspec , rotm , nbas , nsp , sv_p_orhoat )
   use m_struc_def
-  use m_lmfinit,only: stdo
+  use m_lmfinit,only: stdo,slabl
 
 
   !- Rotate local densities by specified rotation
@@ -56,9 +56,9 @@ subroutine pvsms2 ( ssite , sspec , rotm , nbas , nsp , sv_p_orhoat )
 350  format(3f11.6)
   endif
   do  10  ib = 1, nbas
-     is = int(ssite(ib)%spec)
-     spid=sspec(is)%name
-     nr=sspec(is)%nr
+     is = ssite(ib)%spec
+     spid=slabl(is) !sspec(is)%name
+     nr  =sspec(is)%nr
      lmxl=sspec(is)%lmxl
      if (lmxl == -1) goto 10
      nlml = (lmxl+1)**2

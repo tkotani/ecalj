@@ -2,7 +2,7 @@ subroutine rdovfa()
   use m_density,only: zv_a_osmrho=>osmrho,sv_p_orhoat=>orhoat
 
   use m_supot,only: lat_nabc,lat_ng,rv_a_ogv,iv_a_okv,rv_a_ogv
-  use m_lmfinit,only:lat_alat,nsp,nbas,nspec,ssite=>v_ssite,sspec=>v_sspec,qbg=>zbak
+  use m_lmfinit,only:lat_alat,nsp,nbas,nspec,ssite=>v_ssite,sspec=>v_sspec,qbg=>zbak,slabl
   use m_lattic,only: lat_plat,lat_vol
   use m_struc_def,only: s_rv1
   use m_struc_func, only: mpibc1_s_spec
@@ -78,7 +78,7 @@ subroutine rdovfa()
      sspec(is)%rv_a_orhoc=0.0d0
      allocate(rv_a_ov0a(is)%v(nrmx*nsp))
      rv_a_ov0a(is)%v(:)=0.0d0
-     spid(is)=sspec(is)%name
+     spid(is)=slabl(is) !sspec(is)%name
      a=sspec(is)%a
      nr=sspec(is)%nr
      rmt=sspec(is)%rmt

@@ -2,7 +2,7 @@ subroutine pnunew(eferm)
   use m_ftox
   use m_MPItk,only: master_mpi
   use m_mkpot,only: hab=>hab_rv,sab=>sab_rv
-  use m_lmfinit,only:nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,ham_frzwf,&
+  use m_lmfinit,only:nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,ham_frzwf,idmodis=>idmod,slabl,&
        pmin=>ham_pmin,pmax=>ham_pmax,n0,nab,mxcst4
   use m_mkrout,only: hbyl=>hbyl_rv,qbyl=>qbyl_rv
   use m_lgunit,only:stdo
@@ -47,7 +47,7 @@ subroutine pnunew(eferm)
   ! ----------------------------------------------------------------------
   implicit none
   logical lpz,lfrzv,lfrzz
-  integer:: idmod(n0) , ipr , ib , is , lmxa , l , ipqn , m , isp , nr , nn , mxcst
+  integer:: idmod(n0) ,ipr , ib , is , lmxa , l , ipqn , m , isp , nr , nn , mxcst ! 
   real(8) ,allocatable :: g_rv(:)
   real(8) ,allocatable :: gp_rv(:)
   real(8) ,allocatable :: rofi_rv(:)
@@ -81,9 +81,9 @@ subroutine pnunew(eferm)
      pnz=ssite(ib)%pz
      lmxa=sspec(is)%lmxa
      rmt=sspec(is)%rmt
-     idmod=sspec(is)%idmod
+     idmod=idmodis(:,is)
      if (lmxa .eq. -1) goto 10
-     spid=sspec(is)%name
+     spid=slabl(is) !sspec(is)%name
      if (mxcst4(is)) idmod=1 !call ivset(idmod,1,n0,1)
      if (ipr >40) write(stdo,320) ib,is,spid
 320  format(/' site',i5,'   species',i4,':',a)

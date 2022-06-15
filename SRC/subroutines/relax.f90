@@ -7,7 +7,7 @@ contains
   subroutine relax(ssite,sspec,it,indrlx,natrlx,f, &
        p,w,nelts,delta,bas,icom)
     use m_struc_def
-    use m_lmfinit,only:ctrl_nbas,ctrl_nitmv,ctrl_mdprm
+    use m_lmfinit,only:ctrl_nbas,ctrl_nitmv,ctrl_mdprm,slabl
     use m_ext,only:     sname
     use m_gradzr,only :Gradzr
     !- Relax atomic positions and volume using variable metric algorithm
@@ -232,7 +232,7 @@ contains
        print *,' Site   Class                      Position(relaxed)'
        do  70  j = 1, nbas
           is=ssite(j)%spec
-          clablj=sspec(is)%name
+          clablj=slabl(is) !sspec(is)%name
           ifrlx=ssite(j)%relax
           write (stdo,130) j,clablj,(bas(ix,j),ifrlx(ix).eq.1,ix=1,3)
 70     enddo
@@ -245,7 +245,7 @@ contains
           ifrlx=ssite(j)%relax
           if (j == 2) dumstr = ' '
           is=ssite(j)%spec
-          clablj=sspec(is)%name
+          clablj=slabl(is) !sspec(is)%name
           write(stdl,ftox)dumstr//'ATOM='//clablj, &
                ' POS=',ftof(bas(1:3,j),2),'RELAX=',ifrlx
 80     enddo

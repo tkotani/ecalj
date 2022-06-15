@@ -13,7 +13,7 @@ contains
 
     use m_supot,only: lat_nabc
     use m_struc_func,only: mpibc1_s_spec,mpibc1_s_site
-    use m_lmfinit,only: lat_alat,nsp,lrel,nl,ssite=>v_ssite,sspec=>v_sspec, nbas,nat,nspec,n0
+    use m_lmfinit,only: lat_alat,nsp,lrel,nl,ssite=>v_ssite,sspec=>v_sspec, nbas,nat,nspec,n0,idmodis=>idmod,slabl
     use m_lattic,only: lat_plat
     use m_ext,only:sname
     !!- I/O for charge density to rst or rsta. ssite sspec are readin
@@ -349,7 +349,7 @@ contains
           !         is = -1 -> spec struc does not have these parameters
           !         lskip = .false.
           if (is /= -1) then
-             spid=sspec(is)%name
+             spid=slabl(is) !sspec(is)%name
              a=sspec(is)%a
              nr=sspec(is)%nr
              rmt=sspec(is)%rmt
@@ -665,13 +665,13 @@ contains
        do  120  ib = 1, nbas
           ic=ssite(ib)%class
           is=ssite(ib)%spec
-          spid=sspec(is)%name
+          spid=slabl(is) !sspec(is)%name
           a=sspec(is)%a
           nr=sspec(is)%nr
           rmt=sspec(is)%rmt
           z=sspec(is)%z
           qc=sspec(is)%qc
-          idmod=sspec(is)%idmod
+          idmod=idmodis(:,is) !sspec(is)%idmod
           rsma=sspec(is)%rsma
           lmxa=sspec(is)%lmxa
           lmxl=sspec(is)%lmxl

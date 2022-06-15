@@ -1,5 +1,5 @@
 subroutine iorbtm()
-  use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,nl,nsp,nbas
+  use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,nl,nsp,nbas,slabl
   use m_struc_def           !Cgetarg
   use m_bandcal,only: orbtm=>orbtm_rv
   use m_lgunit,only:stdo
@@ -27,7 +27,7 @@ subroutine iorbtm()
   ! ... Local parameters
   integer :: isp,l,im,lm,m,l1,ipr,is,ibas
   double precision :: amom,orbl(10)
-  character(8) :: slabl
+  !character(8) :: slabl
   ! ... External calls
   ! ino      external dpzero,getpr,spacks
   external dpzero,getpr
@@ -40,7 +40,7 @@ subroutine iorbtm()
   do  ibas = 1,nbas
      is = ssite(ibas)%spec
      !        icyy = ibas
-     slabl=sspec(is)%name
+     !slabl=sspec(is)%name
      amom = 0
      do  isp = 1, nsp
         call dpzero(orbl,nl)
@@ -56,7 +56,7 @@ subroutine iorbtm()
               amom = amom + orbtm(lm,isp,ibas)
            enddo
         enddo
-        write(stdo,333) ibas,slabl,isp,(orbl(l1),l1=1,nl)
+        write(stdo,333) ibas,slabl(is),isp,(orbl(l1),l1=1,nl)
 333     format(i5,4x,a8,i6,8f12.6)
      enddo
      write(stdo,334) ibas, amom

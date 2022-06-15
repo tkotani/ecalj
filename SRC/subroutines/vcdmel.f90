@@ -4,7 +4,7 @@ subroutine vcdmel(nl,ssite,sspec,nlmax,ndham,ndimh,&
   use m_mkqp,only: iv_a_oidtet ,bz_nabc, bz_ntet
   use m_struc_def
   use m_ext,only: sname     !extention for file
-  use m_lmfinit,only: bz_ndos,bz_dosmax
+  use m_lmfinit,only: bz_ndos,bz_dosmax,slabl
   use m_elocp,only: rsmlss=>rsml,ehlss=>ehl
   !- Valence-core dipole matrix elements
   ! ----------------------------------------------------------------------
@@ -76,7 +76,7 @@ subroutine vcdmel(nl,ssite,sspec,nlmax,ndham,ndimh,&
      is = ssite(ib)%spec
      call dcopy(n0*2,ssite(ib)%pnu,1,pnu,1)
      call dcopy(n0*2,ssite(ib)%pz,1,pnz,1)
-     clabl=sspec(is)%name
+     clabl=slabl(is) !sspec(is)%name
      a=sspec(is)%a
      nr=sspec(is)%nr
      rmt=sspec(is)%rmt

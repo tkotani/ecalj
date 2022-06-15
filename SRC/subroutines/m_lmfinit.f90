@@ -41,7 +41,7 @@ module m_lmfinit
        ,nsp=1,lrel=1,lso=0
   real(8),protected:: pmin(n0),pmax(n0),ham_pmax(10),ham_pmin(10), &
        ctrl_defm(6), ctrl_wsrmax,ctrl_rmaxes, &
-       ctrl_omax1(3),ctrl_omax2(3),ctrl_sclwsr,ctrl_rmines, tolft,elind,vmtz, scaledsigma &
+       ctrl_omax1(3),ctrl_omax2(3),ctrl_sclwsr,ctrl_rmines, tolft,elind, scaledsigma & !,vmtz
        ,ham_elind,ham_oveps,ham_scaledsigma
   !     &     ,ham_delta_stabilize
   !! ... OPTIONS
@@ -52,8 +52,8 @@ module m_lmfinit
   real(8),protected:: dlat,alat=NULLR,dalat=NULLR,vol,avw !lat_slat(3,3),
   integer,protected:: nbas=NULLI,nspec
   !! ... SPEC
-  real(8),protected:: omax1(3),omax2(3),wsrmax,sclwsr
-  character*8,protected:: slabl(mxspec)
+  real(8),protected:: omax1(3),omax2(3),wsrmax,sclwsr,vmtz(mxspec)=-.5d0
+  character*8,allocatable,protected:: slabl(:)
   integer,protected:: lmxbx=-1,lmxax,nkaph,nkapi
   logical,allocatable,protected:: mxcst2(:),mxcst4(:)
   integer,allocatable,protected:: &
@@ -471,7 +471,7 @@ contains
     nm='HAM_ScaledSigma'; call gtv(trim(nm),tksw(prgnam,nm),scaledsigma, &
          def_r8=1d0, note='=\alpha_Q for QSGW-LDA hybrid. \alpha \times (\Sigma-Vxc^LDA) is added to LDA/GGA Hamiltonian.')
     nm='HAM_EWALD'; call gtv(trim(nm),tksw(prgnam,nm),ham_ewald, def_lg=.false.,note='Make strux by Ewald summation')
-    nm='HAM_VMTZ'; call gtv(trim(nm),tksw(prgnam,nm),vmtz,def_r8=0d0, note='Muffin-tin zero defining wave functions')
+!    nm='HAM_VMTZ'; call gtv(trim(nm),tksw(prgnam,nm),vmtz,def_r8=0d0, note='Muffin-tin zero defining wave functions')
     nm='HAM_PMIN'; call gtv(trim(nm),tksw(prgnam,nm),pmin, def_r8v=zerov,nout=nout,note= &
          'Global minimum in fractional part of P-functions.'// &
          '%N%3fEnter values for l=0..:'// &
@@ -569,6 +569,7 @@ contains
     eh2 = 0d0
     idmod = NULLI
     ehvl = NULLR
+    allocate(slabl(nspec))
     do 1111 j = 1, nspec
        if(debug) print *,'nspec mxcst j-loop j nspec',j,nspec
        rcfa(:,j) = NULLR; rfoca(j) = 0d0; rg(j) = 0d0
@@ -1202,9 +1203,9 @@ contains
     ! --- Allocate and copy input to sspec ---
     allocate(v_sspec(nspec))
     do j=1,nspec
-       v_sspec(j)%name=slabl(j)
+       !v_sspec(j)%name=slabl(j)
        v_sspec(j)%z=z(j)
-       v_sspec(j)%vmtz=-0.5d0
+       !v_sspec(j)%vmtz=-0.5d0
        v_sspec(j)%coreh=coreh(j)
        v_sspec(j)%nmcore=nmcore(j)
        v_sspec(j)%a=spec_a(j)
@@ -1212,7 +1213,7 @@ contains
        v_sspec(j)%coreq=coreq(:,j)
        v_sspec(j)%nxi=nxi(j)
        v_sspec(j)%exi=exi(:,j)
-       v_sspec(j)%idmod=idmod(:,j)
+       !v_sspec(j)%idmod=idmod(:,j)
        v_sspec(j)%idu = idu(:,j)
        v_sspec(j)%jh=jh(:,j)
        v_sspec(j)%uh=uh(:,j)
@@ -1385,7 +1386,7 @@ contains
     call suldau(nbas,v_sspec,v_ssite,nlibu,k,wowk)!Count LDA+U blocks (printout only)
     ham_nlibu=nlibu
     call poppr
-    deallocate(wowk,pnu,qnu    ,amom,idmod, &
+    deallocate(wowk,pnu,qnu    ,amom, & !idmod,
          qpol,stni,rg,rsma,rfoca,rsmfa,rcfa,nxi, &
          exi,coreq,rs3,rham,idxdn, &
          rmt,idu,uh,jh,kmxv, & ! & kmxt,

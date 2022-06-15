@@ -11,7 +11,7 @@ contains
          , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , &
          nlibu , lmaxu , vorb , lldau,novxc)!,idipole )
     use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkaph,lxcf,lhh,nkapii,nkaphh,alat
-    use m_lmfinit,only: n0,nppn,nab,nrmx,nkap0,nlmx,nbas,nsp,lso,ssite=>v_ssite, sspec=>v_sspec,mxcst4
+    use m_lmfinit,only: n0,nppn,nab,nrmx,nkap0,nlmx,nbas,nsp,lso,ssite=>v_ssite, sspec=>v_sspec,mxcst4,slabl
     use m_MPItk,only: master_mpi
     use m_struc_def
     use m_uspecb,only:uspecb
@@ -220,7 +220,7 @@ contains
        z=sspec(is)%z
        qc=sspec(is)%qc
        rg=sspec(is)%rg
-       spid=sspec(is)%name
+       spid=slabl(is) !sspec(is)%name
        a=sspec(is)%a
        nr=sspec(is)%nr
        rmt=sspec(is)%rmt

@@ -12,7 +12,8 @@ contains
 
     use m_supot,only: lat_nabc
     use m_struc_func,only: mpibc1_s_spec,mpibc1_s_site
-    use m_lmfinit,only: alat=>lat_alat,nsp,lrel,nl,ssite=>v_ssite,sspec=>v_sspec, nbas,nat,nspec,n0
+    use m_lmfinit,only: alat=>lat_alat,nsp,lrel,nl,ssite=>v_ssite,sspec=>v_sspec, nbas,nat,nspec,n0,&
+         idmodis=>idmod,slabl
     use m_lattic,only: plat=>lat_plat,vol=>lat_vol,qlat=>lat_qlat
     use m_ext,only:sname
     use m_ftox
@@ -267,7 +268,7 @@ contains
           ic=ssite(ib)%class
           is=ssite(ib)%spec !     is = -1 -> spec struc does not have these parameters
           if (is /= -1) then
-             spid=sspec(is)%name
+             spid=slabl(is) !sspec(is)%name
              a=sspec(is)%a
              nr=sspec(is)%nr
              rmt=sspec(is)%rmt
@@ -548,13 +549,13 @@ contains
        do  120  ib = 1, nbas
           ic=ssite(ib)%class
           is=ssite(ib)%spec
-          spid=sspec(is)%name
+          spid=slabl(is) !sspec(is)%name
           a=sspec(is)%a
           nr=sspec(is)%nr
           rmt=sspec(is)%rmt
           z=sspec(is)%z
           qc=sspec(is)%qc
-          idmod=sspec(is)%idmod
+          idmod=idmodis(:,is) !sspec(is)%idmod
           rsma=sspec(is)%rsma
           lmxa=sspec(is)%lmxa
           lmxl=sspec(is)%lmxl

@@ -91,7 +91,7 @@ end subroutine smshft
 subroutine pvsms1 ( ssite , sspec ,  nbas , nsp , kmax &
      , ng , gv , sv_p_orhoat , cwk , cg , job )
   use m_struc_def
-  use m_lmfinit,only:lat_alat,n0
+  use m_lmfinit,only:lat_alat,n0,slabl
   use m_lattic,only: lat_vol
   use m_lgunit,only:stdo
   !- Shift in smoothed density according to job.
@@ -200,7 +200,7 @@ subroutine pvsms1 ( ssite , sspec ,  nbas , nsp , kmax &
 339 format(/' smshft:  add shifted ',a/'   site',16x,'old pos',22x,'new pos',14x,'shift')
   do  10  ib = 1, nbas
      is = int(ssite(ib)%spec)
-     spid = sspec(is)%name
+     spid = slabl(is) !sspec(is)%name
      lmxl = sspec(is)%lmxl
      nlml = (lmxl+1)**2
      if (lmxl == -1) cycle

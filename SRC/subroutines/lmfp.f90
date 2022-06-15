@@ -1,6 +1,6 @@
 subroutine lmfp(llmfgw)
   use m_lmfinit,only: lhf, maxit,nbas,nsp, ctrl_ldos,ctrl_nitmv,ctrl_nvario, &
-       ham_seref,ctrl_lfrce,  sspec=>v_sspec, ssite=>v_ssite, &
+       ham_seref,ctrl_lfrce,  sspec=>v_sspec, ssite=>v_ssite, slabl,&
        nlibu,stdo,lrout,leks,plbnd,lpzex, nitrlx, &
        indrx_iv,natrlx,xyzfrz,pdim,qtol,etol
   use m_lattic,only: qlat=>lat_qlat,rv_a_opos
@@ -136,7 +136,7 @@ subroutine lmfp(llmfgw)
         do i = 1, nbas
            xvcart = ssite(i)%pos !cartesian coordinate
            xvfrac = matmul(transpose(qlat),xvcart) !fractional coodinate
-           write(stdo,"(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)")i,trim(sspec(ssite(i)%spec)%name),xvcart,xvfrac
+           write(stdo,"(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)")i,trim(slabl(ssite(i)%spec)),xvcart,xvfrac
         enddo
      endif
      !===  loop for electronic structure. Atomic force is calculated

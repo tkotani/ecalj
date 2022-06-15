@@ -295,7 +295,7 @@ contains
     iblu = 0
     do  ib = 1, nbas
        if (lldau(ib) /= 0) then
-          is = int(ssite(ib)%spec)
+          is = ssite(ib)%spec
           lmxa=sspec(is)%lmxa
           idu=sspec(is)%idu
           uh=sspec(is)%uh
@@ -383,7 +383,7 @@ contains
     iblu = 0
     do  ib = 1, nbas
        if (lldau(ib) /= 0) then
-          is = int(ssite(ib)%spec)
+          is = ssite(ib)%spec
           lmxa=sspec(is)%lmxa
           idu=sspec(is)%idu
           uh=sspec(is)%uh
@@ -430,7 +430,7 @@ contains
   ! sssssssssssssssssssssssssssssssssssssssssssssss
   subroutine sudmtu(dmatu,vorb)
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
-    use m_lmfinit,only: nbas,nsp,nlibu,lmaxu,lldau,ssite=>v_ssite,sspec=>v_sspec,stdo
+    use m_lmfinit,only: nbas,nsp,nlibu,lmaxu,lldau,ssite=>v_ssite,sspec=>v_sspec,stdo,slabl
     use m_mksym,only: g=>rv_a_osymgr,istab=>iv_a_oistab, ng =>lat_nsgrp
     !- Initialize site density matrix and vorb  for LDA+U
     ! ----------------------------------------------------------------------
@@ -532,7 +532,7 @@ contains
        iblu = 0
        do  ib = 1, nbas
           if (lldau(ib) /= 0) then
-             is = int(ssite(ib)%spec)
+             is = ssite(ib)%spec
              lmxa=sspec(is)%lmxa
              idu=sspec(is)%idu
              do l = 0, min(lmxa,3)
@@ -689,7 +689,7 @@ contains
        idu=sspec(is)%idu
        uh=sspec(is)%uh
        jh=sspec(is)%jh
-       spid=sspec(is)%name
+       spid=slabl(is) !sspec(is)%name
        i = min(lmxa,3)
        if(master_mpi) write(stdo,ftox)'Species '//spid//'mode',idu(1:i+1),'U',ftof(uh(1:i+1),2),'J',ftof(jh(1:i+1),2)
        do  22  l = 0, i
