@@ -6,7 +6,7 @@ module m_elocp
   private
 contains
   subroutine elocp()!- Make envlope parameters for extended local orbitals
-    use m_lmfinit,only: nkaph,stdo,nspec,nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,n0,nkapii,slabl,vmtz
+    use m_lmfinit,only: nkaph,stdo,nspec,nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,n0,nkapii,slabl,vmtz,rs3,eh3
     ! ----------------------------------------------------------------------
     !i Inputs
     !i         : 0 do nothing ; just return
@@ -25,7 +25,7 @@ contains
     parameter (nrmx=1501, nkap0=3)
     integer:: nkape,idamax,nkapex
     integer,allocatable :: ips_iv(:)
-    real(8):: z,a,rmt,rs3,eh3,xx, rofi(nrmx),vseli(4,n0),vsel(4,n0,nbas), &
+    real(8):: z,a,rmt,xx, rofi(nrmx),vseli(4,n0),vsel(4,n0,nbas), &
          pnu(n0,2),pnz(n0,2),eh(n0,nkap0),rsmh(n0,nkap0), pnui(n0,2),pnzi(n0,2)
     real(8):: ehls(n0*2),rsmls(n0*2),wdummy(1)
     ! --- Setup ---
@@ -103,8 +103,8 @@ contains
 24           continue
           enddo
        endif
-       rs3= sspec(is)%rs3
-       eh3= sspec(is)%eh3
+       !rs3= sspec(is)%rs3
+       !eh3= sspec(is)%eh3
        !vmtz=sspec(is)%vmtz
        a=sspec(is)%a
        nr=sspec(is)%nr
@@ -114,7 +114,7 @@ contains
        call radmsh(rmt,a,nr,rofi)
        ! 102 means spin-averaged ehl,rsml
        call loctsh ( 2 , spid , xx , a , nr , nr , nsp , lmxa , rofi & !1102
-            , wdummy , pnui , pnzi , rs3 , eh3 , vmtz(is) , vseli , rsmls , ehls )
+            , wdummy , pnui , pnzi , rs3(is) , eh3(is) , vmtz(is) , vseli , rsmls , ehls )
        rsml(1:n0,is) = rsmls(1:n0) !Rsmooth for PZ
        ehl(1:n0,is) = ehls(1:n0)   !Eh for PZ
 20     continue

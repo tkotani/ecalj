@@ -60,7 +60,7 @@ module m_lmfinit
        lmxb(:),lmxa(:),idmod(:,:),idu(:,:),kmxt(:),kmxv(:),lfoca(:),lmxl(:),nxi(:),nr(:),&
        nmcore(:), nkapii(:),nkaphh(:)
   real(8),allocatable,protected:: rsmh1(:,:),rsmh2(:,:),eh1(:,:),eh2(:,:), &
-       rs3(:),rham(:),alpha(:,:),ehvl(:,:), uh(:,:),jh(:,:), &
+       rs3(:),rham(:),alpha(:,:),ehvl(:,:), uh(:,:),jh(:,:), eh3(:),&
        qpol(:,:),stni(:), &
        pnu(:,:,:),qnu(:,:,:),      pnudefault(:,:),qnudefault(:,:),qnudummy(:,:), &
        coreq(:,:), rg(:),rsma(:),rfoca(:), rsmfa(:),rcfa(:,:), &
@@ -548,10 +548,11 @@ contains
          rsmh1(n0,nspec),eh1(n0,nspec),rsmh2(n0,nspec),eh2(n0,nspec), &
          ehvl(n0,nspec), qpol(n0,nspec),stni(nspec), &
          rg(nspec),rsma(nspec),rfoca(nspec),rsmfa(nspec),rcfa(2,nspec), &
-         rs3(nspec),rham(nspec),rmt(nspec),rsmv(nspec), &
+         rham(nspec),rmt(nspec),rsmv(nspec), &
          nxi(nspec),exi(n0,nspec), spec_a(nspec),z(nspec),nr(nspec),eref(nspec), &
          coreh(nspec),coreq(2,nspec), idxdn(n0,nkap0,nspec), idu(4,nspec),uh(4,nspec),jh(4,nspec), &
-         mxcst2(nspec),mxcst4(nspec), kmxt(nspec),kmxv(nspec),lfoca(nspec),lmxl(nspec),lmxa(nspec),lmxb(nspec),nmcore(nspec))
+         mxcst2(nspec),mxcst4(nspec), kmxt(nspec),kmxv(nspec),lfoca(nspec),lmxl(nspec),lmxa(nspec),&
+         lmxb(nspec),nmcore(nspec),rs3(nspec),eh3(nspec))
     allocate(lpz(nspec),lpzex(nspec))
     allocate(nkapii(nspec),nkaphh(nspec))
     lpz=0
@@ -1200,11 +1201,11 @@ contains
     enddo
     !      ham_delta_stabilize=delta_stabilize !takao sep2010
     ! --- Allocate and copy input to sspec ---
+    eh3=-.5d0
+    rs3=.5d0
     allocate(v_sspec(nspec))
     do j=1,nspec
-       !v_sspec(j)%name=slabl(j)
        v_sspec(j)%z=z(j)
-       !v_sspec(j)%vmtz=-0.5d0
        v_sspec(j)%coreh=coreh(j)
        v_sspec(j)%nmcore=nmcore(j)
        v_sspec(j)%a=spec_a(j)
@@ -1212,10 +1213,6 @@ contains
        v_sspec(j)%coreq=coreq(:,j)
        v_sspec(j)%nxi=nxi(j)
        v_sspec(j)%exi=exi(:,j)
-       !v_sspec(j)%idmod=idmod(:,j)
-!       v_sspec(j)%idu = idu(:,j)
-!       v_sspec(j)%jh=jh(:,j)
-!       v_sspec(j)%uh=uh(:,j)
        v_sspec(j)%kmxt=kmxt(j)
        v_sspec(j)%kmxv=kmxv(j)
        v_sspec(j)%lfoca=lfoca(j)
@@ -1232,9 +1229,15 @@ contains
        v_sspec(j)%rmt=rmt(j)
        v_sspec(j)%rsma=rsma(j)
        v_sspec(j)%rsmfa=rsmfa(j)
-       v_sspec(j)%eref=eref(j)
-       v_sspec(j)%eh3=-0.5d0
-       v_sspec(j)%rs3=0.5d0 !rs3(j)
+       !v_sspec(j)%name=slabl(j)
+       !v_sspec(j)%vmtz=-0.5d0
+       !v_sspec(j)%idmod=idmod(:,j)
+!       v_sspec(j)%idu = idu(:,j)
+!       v_sspec(j)%jh=jh(:,j)
+!       v_sspec(j)%uh=uh(:,j)
+!       v_sspec(j)%eref=eref(j)
+!       v_sspec(j)%eh3=-0.5d0
+!       v_sspec(j)%rs3=0.5d0 !rs3(j)
     enddo
     allocate(v_ssite(nbas))
     do j=1,nbas
@@ -1387,16 +1390,16 @@ contains
     call poppr
     deallocate(wowk,pnu,qnu    ,amom, & !idmod,
          qpol,stni,rg,rsma,rfoca,rsmfa,rcfa,nxi, &
-         exi,coreq,rs3,rham,idxdn, &
+         exi,coreq,rham,idxdn, &
          rmt,kmxv, & ! & kmxt,,idu,uh,jh
-    lfoca,eref,lmxl,coreh,          spec_a,z,nr,rsmv, &
+    lfoca,lmxl,coreh,          spec_a,z,nr,rsmv, &
          pos,ips,irlx)  !,vshft
     !! --- takao embed contents in susite here. This is only for lmf and lmfgw.
     seref = 0d0
     do ib = 1, nbas
        is = v_ssite(ib)%spec
        if (is <= 0) cycle
-       seref = seref +     v_sspec(is)%eref
+       seref = seref + eref(is)
     enddo
     ham_seref=seref
     allocate(iv_a_oips(nbas))

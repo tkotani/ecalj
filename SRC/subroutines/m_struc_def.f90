@@ -60,7 +60,7 @@ module m_struc_def
      real(8)   :: coreq(2)!coreq(1)=charge in core hole channel;coreq(2):moment in core hole channel (nsp=2 only)
      real(8)   ::   a !a for mesh
      integer   ::   nr !nr for mesh
-     real(8)   ::   eref!reference energy
+!     real(8)   ::   eref!reference energy
      integer   ::   lfoca !switch specifying treatment of core density
      real(8)   ::   ctail !coefficients to fit of free-atom core tail by unsm. Hankel
      real(8)   ::   etail !energy to fit of free-atom core tail
@@ -69,8 +69,8 @@ module m_struc_def
      real(8)   ::   rfoca ! smoothing radius for frozen core overlap approx
      integer   ::   nxi !Number of energies in fit of free-atom density tails
      real(8)   ::   qc !core charge
-     real(8)   ::   eh3!sm Hankel energy for high local orbitals
-     real(8)   ::   rs3 !Lower bound to rsm for local orbital
+!     real(8)   ::   eh3!sm Hankel energy for high local orbitals
+!     real(8)   ::   rs3 !Lower bound to rsm for local orbital
      integer   ::   kmxv !  k-cutoff for 1-center projection of free-atom rho
      real(8)   ::   rcfa(2) !renormalization radius of free atom density, and width
      real(8)   ::   q(n0,2)  !starting q's (charges)

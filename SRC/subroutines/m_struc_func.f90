@@ -53,8 +53,8 @@ contains
          , master, MPI_COMM_WORLD,ierr)
     call mpi_bcast(struc%nr, 1,MPI_INTEGER &
          , master, MPI_COMM_WORLD,ierr)
-    call mpi_bcast(struc%eref, 1,MPI_REAL8 &
-         , master, MPI_COMM_WORLD,ierr)
+!    call mpi_bcast(struc%eref, 1,MPI_REAL8 &
+!         , master, MPI_COMM_WORLD,ierr)
     call mpi_bcast(struc%lfoca, 1,MPI_INTEGER &
          , master, MPI_COMM_WORLD,ierr)
     call mpi_bcast(struc%ctail, 1,MPI_REAL8 &
@@ -73,10 +73,10 @@ contains
          , master, MPI_COMM_WORLD,ierr)
     call mpi_bcast(struc%qc, 1,MPI_REAL8 &
          , master, MPI_COMM_WORLD,ierr)
-    call mpi_bcast(struc%eh3, 1,MPI_REAL8 &
-         , master, MPI_COMM_WORLD,ierr)
-    call mpi_bcast(struc%rs3, 1,MPI_REAL8 &
-         , master, MPI_COMM_WORLD,ierr)
+!    call mpi_bcast(struc%eh3, 1,MPI_REAL8 &
+!         , master, MPI_COMM_WORLD,ierr)
+!    call mpi_bcast(struc%rs3, 1,MPI_REAL8 &
+!         , master, MPI_COMM_WORLD,ierr)
 !    call mpi_bcast(struc%vmtz, 1,MPI_REAL8 &
 !         , master, MPI_COMM_WORLD,ierr)
     call mpi_bcast(struc%kmxv, 1,MPI_INTEGER &
