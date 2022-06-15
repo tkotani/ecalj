@@ -1,5 +1,7 @@
 subroutine suldau(nbas,sspec,ssite,nlibu,lmaxu,lldau)
   use m_struc_def  !Cgetarg
+  use m_ftox
+  use m_lgunit,only:stdo
   !- Finds lda+U sites and counts number of blocks
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -20,7 +22,6 @@ subroutine suldau(nbas,sspec,ssite,nlibu,lmaxu,lldau)
   !u   27 Apr 05 (Lambrecht) first created
   !------------------------------------
   implicit none
-  ! ... Passed parameters
   integer :: nbas,nlibu,lmaxu,lldau(nbas),igetss,is,ib,l,lmxa,idu(4),i_copy_size
   type(s_spec)::sspec(*)
   type(s_site)::ssite(*)
@@ -28,13 +29,9 @@ subroutine suldau(nbas,sspec,ssite,nlibu,lmaxu,lldau)
   lmaxu = 0
   do  ib = 1, nbas
      lldau(ib) = 0
-     is = int(ssite(ib)%spec)
-
-
-     lmxa=sspec(is)%lmxa
-     i_copy_size=size(sspec(is)%idu)
-     call icopy(i_copy_size,sspec(is)%idu,1,idu,1)
-
+     is  = ssite(ib)%spec
+     lmxa= sspec(is)%lmxa
+     idu = sspec(is)%idu
      do  l = 0, min(lmxa,3)
         if (idu(l+1) /= 0) then
            if (lldau(ib) == 0) lldau(ib) = nlibu+1
@@ -43,12 +40,7 @@ subroutine suldau(nbas,sspec,ssite,nlibu,lmaxu,lldau)
         endif
      enddo
   enddo
-
-  if (nlibu /= 0) then
-     call info2(10,1,0, &
-          ' suldau:  %i U block(s)  lmaxu = %i',nlibu,lmaxu)
-  endif
-
+  if(nlibu/=0) write(stdo,ftox)'suldau:  ',nlibu,' U block(s)  lmaxu =',lmaxu
 end subroutine suldau
 
 
