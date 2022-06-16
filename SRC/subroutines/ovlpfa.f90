@@ -1,8 +1,8 @@
 subroutine ovlpfa(ssite,nbas,nxi,nxi0,exi,hfc,rsmfa,ng,ngmx,  gv,cv)
   use m_lmfinit,only:lat_alat,nsp
-  use m_lattic,only: lat_vol
-  use m_ftox
+  use m_lattic,only: lat_vol,rv_a_opos
   use m_lgunit,only:stdo
+  use m_ftox
   use m_struc_def
   !      use m_globalvariables
   !- Set up Fourier coeffs to overlap the smooth part of FA densities.
@@ -35,73 +35,32 @@ subroutine ovlpfa(ssite,nbas,nxi,nxi0,exi,hfc,rsmfa,ng,ngmx,  gv,cv)
   !u   24 Apr 00 Adapted from nfp ovlpfa.f
   ! ----------------------------------------------------------------------
   implicit none
-  ! ... Passed parameters
   integer :: nbas,nxi(1),nxi0,ng,ngmx
   real(8):: gv(ngmx,3) , rsmfa(1) , exi(nxi0,1) , hfc(nxi0,2,1)
-  !      type(s_lat)::slat
   type(s_site)::ssite(*)
-
   double complex cv(ng,*)
-  ! ... Local parameters
   integer :: ipr,iprint,ib,is,nx,i,ixi,ig,isp
   double precision :: v(3),pi,y0,alat,vol,tpiba,sum(2),px,py,pz,pos(3), &
        sam(2),e,cof,rsm,gam,v2,aa,scalp
   double complex phase
   equivalence (px,pos(1)),(py,pos(2)),(pz,pos(3))
-! #if MPI | MPIK
-!   integer, dimension(:),allocatable :: kpproc
-!   integer :: ierr
-!   !     integer ifi,fopna
-!   integer :: procid, master, mpipid, numprocs
-!   logical :: mlog,cmdopt
-!   character strn*120
-! #endif
   integer:: ibini,ibend
-
   call tcn('ovlpfa')
   ipr  = iprint()
-  !      stdo = lgunit(1)
-  ! angenglob      nsp  = nglob('nsp')
-  !      nsp  = globalvariables%nsp
   pi   = 4d0*datan(1d0)
   y0   = 1d0/dsqrt(4*pi)
-
   alat=lat_alat
   vol=lat_vol
-
   tpiba = 2*pi/alat
   call dpzero(cv,2*ng*nsp)
-! #if MPI | MPIK
-!   procid = mpipid(1)
-!   numprocs = mpipid(0)
-!   master = 0
-!   mlog = cmdopt('--mlog',6,0,strn)
-! #endif
-
-  ! --- Loop over sites ---
   sum(1) = 0d0
   sum(2) = 0d0
   call info0(31,1,0,' ovlpfa: overlap smooth part of FA densities')
-! #if MPI | MPIK
-!   allocate (kpproc(0:numprocs), stat=ierr)
-!   call pshpr(ipr-10)
-!   call dstrbp(nbas,numprocs,1,kpproc(0))
-!   call poppr
-!   ipr = 0
-!   !      do ib = kpproc(procid), kpproc(procid+1)-1
-!   ibini = kpproc(procid)
-!   ibend = kpproc(procid+1)-1
-! #else
-  !      do  ib = 1, nbas
   ibini=1
   ibend=nbas
-!#endif
-
   do ib=ibini,ibend
      is=ssite(ib)%spec
-     !        i_copy_size=size(ssite(ib)%pos)
-     !        call dcopy(i_copy_size,ssite(ib)%pos,1,pos,1)
-     pos=ssite(ib)%pos
+     pos=rv_a_opos(:,ib) !ssite(ib)%pos
      nx = nxi(is)
      !   ... Loop over Hankels at this site
      sam(1) = 0
@@ -139,18 +98,6 @@ subroutine ovlpfa(ssite,nbas,nxi,nxi0,exi,hfc,rsmfa,ng,ngmx,  gv,cv)
 700     format(2x,a7,16f11.3)
      endif
   enddo
-
-  ! ... Combine cv from separate threads
-! #if MPI | MPIK
-!   deallocate(kpproc, stat=ierr)
-!   call mpibc2_real(cv,ng*nsp*2,'ovlpfa_cv')
-!   call mpibc2_real(sum,2,'ovlpfa_sum')
-!   !     Debugging
-!   !     ifi = fopna('out',-1,0)
-!   !     call ywrm(0,'cv',3,ifi,'(9f20.10)',cv,1,ng,ng,1)
-!   !     call rx0('done')
-! !#endif
-
   ipr  = iprint()
   call info5(31,0,0,' total smooth Q = %,6;6d'// &
        '%?#n==2#  moment = %,5;5d#%j#%?#n>40#  FT (0,0,0) = %,6;6d', &

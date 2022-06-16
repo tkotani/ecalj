@@ -2,7 +2,7 @@ subroutine rhgcmp(mode,ib1,ib2,ssite,sspec,sv_p_orhoat,kmax,ng,cg)
   use m_struc_def  
   use m_supot,only: rv_a_ogv
   use m_lmfinit,only: lat_alat,nspec,nsp
-  use m_lattic,only: lat_qlat,lat_vol,lat_plat
+  use m_lattic,only: lat_qlat,lat_vol,lat_plat,rv_a_opos
   use m_supot,only: lat_nabc,lat_ng
   !- Adds density of compensating gaussians to FT list
   ! ----------------------------------------------------------------------
@@ -115,7 +115,7 @@ subroutine rhgcmp(mode,ib1,ib2,ssite,sspec,sv_p_orhoat,kmax,ng,cg)
   iv0 = 0
   do  ib = ib1, ib2
      is=ssite(ib)%spec
-     tau=ssite(ib)%pos
+     tau=rv_a_opos(:,ib) !ssite(ib)%pos
      lmxl=sspec(is)%lmxl
      rg=sspec(is)%rg
      if (lmxl == -1) goto 10

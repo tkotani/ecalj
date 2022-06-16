@@ -208,6 +208,7 @@ contains
     use m_struc_def 
     use m_orbl,only: Orblib,ktab,ltab,offl,norb
     use m_sugcut,only:ngcut
+    use m_lattic,only:rv_a_opos
     !- Make wave function for a block of evecs, or add contr. to forces
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -268,7 +269,7 @@ contains
     if(nlmto == 0) return
     do ib = 1, nbas
        is=ssite(ib)%spec
-       p=ssite(ib)%pos
+       p=rv_a_opos(:,ib) !ssite(ib)%pos
        ncut=ngcut(:,:,is)
        call suphas(q,p,ng,iv,n1,n2,n3,qlat,cosgp,singp)
        call orblib(ib) !Return norb,ltab,ktab,offl

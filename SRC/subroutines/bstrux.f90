@@ -46,7 +46,7 @@ contains
   subroutine m_bstrux_init() !q for qplist --> not yet for sugw.
     use m_qplist,only: qplist,iqini,iqend
     use m_lmfinit,only: lfrce=>ctrl_lfrce,nlmax,kmxt,nspec,nbas,ssite=>v_ssite,sspec=>v_sspec
-    use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat
+    use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat,rv_a_opos
     use m_igv2x,only: napw, igvapw=>igv2x, ndimh,m_Igv2x_setiq !igvapwin=>igv2x,
     integer:: kmaxx,ia,isa,lmxa,lmxb,kmax,nlmb,nlma,mode,inn(3),ig,iq,ndimhmax
     real(8):: pa(3),qin(3),q(3),qlatinv(3,3),rsma,qss(3)
@@ -76,7 +76,7 @@ contains
        !igvapw(1:3,1:napw) = igvapwin(1:3,1:napw)
        do ia=1,nbas
           isa=ssite(ia)%spec
-          pa=ssite(ia)%pos
+          pa=rv_a_opos(:,ia) !ssite(ia)%pos
           lmxa=sspec(isa)%lmxa !max l of augmentation
           kmax=sspec(isa)%kmxt !max of radial k
           rsma=sspec(isa)%rsma
@@ -108,7 +108,7 @@ contains
     use m_struc_def
     use m_lmfinit,only:alat=>lat_alat,lhh,nkaphh,nkapii,ssite=>v_ssite,sspec=>v_sspec,cg=>rv_a_ocg, &
          indxcg=>iv_a_oidxcg,jcg=>iv_a_ojcg,cy=>rv_a_ocy,nbas
-    use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol
+    use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol,rv_a_opos
     use m_uspecb,only: uspecb
     use m_orbl,only: Orblib, norb,ltab,ktab,offl
     !- Structure constants for P_kL expansion of Bloch lmto + PW around site ia
@@ -196,7 +196,7 @@ contains
        endif
        do  ib = 1, nbas
           is= ssite(ib)%spec
-          p = ssite(ib)%pos
+          p = rv_a_opos(:,ib) !ssite(ib)%pos
           call uspecb(is,rsmh,eh)
           !       Position in h; l,k indices for orbitals connected w/ ib
           call orblib(ib) !return norb,ltab,ktab,offl

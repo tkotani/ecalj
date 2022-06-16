@@ -19,8 +19,8 @@ subroutine lmfp(llmfgw)
   use m_ftox
   !!= Main routine of lmf = (following document is roughly checked at May2021)
   !! lmfp contains two loops after initialization
-  !!   1  outer  loop do 2000 is for molecular dynamics (relaxiation).
-  !!   2. innner loop do 1000 is for electronic structure self-consistency.
+  !!   1  outer  MDloop:  do 2000 is for molecular dynamics (relaxiation).
+  !!   2. innner Eleloop: do 1000 is for electronic structure self-consistency.
   !!      Main part of band calculaiton is in bndfp.
   !! (Most of) all data in modules are 'protected'.
   !! Thus data in m_lmfinit, m_lattic, m_mksy, m_ext, ... are fixed during iteration.
@@ -101,7 +101,7 @@ subroutine lmfp(llmfgw)
         k = iors_old(nit1,'read',irs3=irs3,irs5=irs5) ! read rst file. sspec ssite maybe modified
      endif
      call Mpibc1_int(k,1,'lmv7:lmfp_k')
-     call Setopos()         ! Set position of atoms read from iors
+     call Setopos()         ! Set position of atoms to rv_a_opos from iors
   endif
   if(k<0) then !irs1==0 .OR. Not reading rst.
      irs1 = 0
@@ -112,21 +112,32 @@ subroutine lmfp(llmfgw)
 
   !! Sep2020 " Shorten site positions" removed.
   etot = 0d0 ! Total energy mode --etot ==>moved to m_lmfinit ---
-  if( nitrlx>0 ) then ! Atomic position Relaxation setup (MD mode)
+  if(nitrlx>0 ) then ! Atomic position Relaxation setup (MDloop)
      icom = 0
      if(natrlx /= 0) allocate(hess(natrlx,natrlx),p_rv(pdim))
      if(master_mpi) then
-        open(newunit=ifipos,file='AtomPos.'//trim(sname),form='unformatted',status='new')
-        write(ifipos) nbas
-        write(ifipos) 0,rv_a_opos
+        open(newunit=ifipos,file='AtomPos.'//trim(sname),position='append')
+        write(ifipos,ftox) '========'
+        write(ifipos,ftox) 0,   ' !nitrlx'
+        write(ifipos,ftox) nbas,' !nbas'
+        do i=1,nbas
+           write(ifipos,ftox) ftof(rv_a_opos(:,i),16)
+        enddo
      endif
      allocate(pos_move(3,nbas))
   endif
 
   !==== Main iteration loops ===
-  do 2000 itrlx = 1,max(1,nitrlx) ! loop for atomic position relaxiation (molecular dynamics) ===
-     !     Get all structure constants for nbas and qplist
-     if(sum(lpzex)==0) call M_bstrux_init() !this reads ssite%pos %pz and so on.
+  MDloop: do 2000 itrlx = 1,max(1,nitrlx) !loop for atomic position relaxiation(molecular dynamics)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!     
+     call Setopos()         ! Set position of atoms read from iors
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!     
+!     !ccccccccccccccccccccccccccccccccccccccccc
+!     do ibas=1,nbas
+!        ssite(ibas)%pos=rv_a_opos(:,ibas)
+!     enddo
+!     !cccccccccccccccccccccccccccccccccccccc
+     
      ! We can make structure constant (C_akL Eq.(38) in /JPSJ.84.034702) here
      ! if we have no extended local orbital.
      ! When we have extentede local obtail, we run m_bstrux_init after elocp in mkpot.
@@ -139,8 +150,10 @@ subroutine lmfp(llmfgw)
            write(stdo,"(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)")i,trim(slabl(ssite(i)%spec)),xvcart,xvfrac
         enddo
      endif
+     
+     if(sum(lpzex)==0) call M_bstrux_init() ! Get all structure constants for nbas and qplist !this reads ssite%pos %pz and so on.
      !===  loop for electronic structure. Atomic force is calculated
-     do 1000 iter = 1,max(1,maxit)
+     Eleloop: do 1000 iter = 1,max(1,maxit)
         if(maxit/=0) then
            if (master_mpi) then
               aaachar=trim(i2char(iter))//" of "//trim(i2char(maxit))
@@ -191,7 +204,7 @@ subroutine lmfp(llmfgw)
         endif
         if( cmdopt0('--quit=band')) call rx0('lmf-MPIK : exit (--quit=band)')
         if( lsc <= 2) exit  !self-consistency exit
-1000 enddo               ! ---------------- SCF (iteration) loop end ----
+1000 enddo Eleloop              ! ---------------- SCF (iteration) loop end ----
      if(nitrlx==0) exit     !no molecular dynamics (=no atomic position relaxation)
      !==== Molecular dynamics (relaxiation).
      MDblock: Block !Not maintained well recently but atomic position relaxation was working
@@ -203,7 +216,12 @@ subroutine lmfp(llmfgw)
        call Relax(ssite,sspec,itrlx,indrx_iv,natrlx,force,p_rv,hess,0,[0d0],pos_move,icom)
        !     warn: Updating positions in ssite structure ==> t.kotani think this is confusing because
        !     'positions written in ctrl' and 'positions written in rst' can be different.
-       if(master_mpi) write(ifipos) itrlx,pos_move
+       !if(master_mpi) write(ifipos) itrlx,pos_move
+       if(master_mpi) then
+       do i=1,nbas
+          write(ifipos,ftox) ftof(pos_move(:,i),16)
+       enddo
+       endif
        do ibas=1,nbas
           ssite(ibas)%pos = pos_move(:,ibas)
        enddo
@@ -239,7 +257,7 @@ subroutine lmfp(llmfgw)
        call Parms0(0,0,0d0,0) !   reset mixing block
        if(itrlx==nitrlx .AND. master_mpi) write(stdo,"(a)")' LMFP: relaxation incomplete'
      endblock MDblock
-2000 enddo
+2000 enddo MDloop
 9998 continue
   if(master_mpi .AND. nitrlx>0) close(ifipos)
   if(allocated(p_rv)) deallocate(p_rv)

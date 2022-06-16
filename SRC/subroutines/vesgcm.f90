@@ -1,8 +1,8 @@
 subroutine vesgcm(nbas,ssite,sspec,cy,qmom,ng,gv,&
   kv,cv,cg1,cgsum,k1,k2,k3,smpot,f,gpot0,hpot0,qsmc,zsum,vrmt)
-  use m_struc_def  !Cgetarg
+  use m_struc_def 
   use m_lmfinit,only:lat_alat
-  use m_lattic,only: lat_vol
+  use m_lattic,only: lat_vol,rv_a_opos
   use m_lgunit,only:stdo
   !- Adds contribution from compensating gaussians to smooth estat pot.
   ! ----------------------------------------------------------------------
@@ -62,40 +62,26 @@ subroutine vesgcm(nbas,ssite,sspec,cy,qmom,ng,gv,&
   !u   23 Apr 00 Adapted from nfp ves_gcomp.f
   ! ----------------------------------------------------------------------
   implicit none
-  ! ... Passed parameters
   integer :: k1,k2,k3,nbas,ng,kv(ng,3)
   double precision :: qsmc,zsum
-  real(8):: qmom(*) , gv(ng,3) , cy(*) , f(3,nbas) , gpot0(*) , &
-       hpot0(nbas) , vrmt(nbas)
+  real(8):: qmom(*) , gv(ng,3) , cy(*) , f(3,nbas) , gpot0(*) , hpot0(nbas) , vrmt(nbas)
   type(s_site)::ssite(*)
   type(s_spec)::sspec(*)
-  !      type(s_lat)::slat
-
   double complex smpot(k1,k2,k3),cv(ng),cg1(ng),cgsum(ng)
-  ! ... Local parameters
-  integer :: k0,nlmx,i,ib,ilm,iprint,is,iv0,kb,kmax,l,ll, &
-       lmxl,m,nlm,lfoc
+  integer :: k0,nlmx,i,ib,ilm,iprint,is,iv0,kb,kmax,l,ll, lmxl,m,nlm,lfoc
   parameter (k0=3, nlmx=64)
   double precision :: alat,ceh,cofg,cofh,g2,pi,qc,qcorg,qcorh,qsc,rfoc, &
        rg,sum1,sum2,sum3,tpiba,vol,xx,y0,z
-  double precision :: cof(nlmx),df(0:20),tau(3),v(3),ddot,gvr,rmt,fac, &
-       gvb
+  double precision :: cof(nlmx),df(0:20),tau(3),v(3),ddot,gvr,rmt,fac, gvb
   double complex gkl(0:k0,nlmx),img
-
   call tcn('vesgcm')
-
   call stdfac(20,df)
-  !      stdo = lgunit(1)
   pi = 4d0*datan(1d0)
   y0 = 1d0/dsqrt(4d0*pi)
-
   alat=lat_alat
   vol=lat_vol
-
   tpiba = 2*pi/alat
-
   call gvgetf(ng,1,kv,k1,k2,k3,smpot,cv)
-
   ! --- Accumulate FT of Gaussian + Hankel density for listed vectors ---
   !     and make integrals g*phi0, h*phi0
   call dpzero(cgsum,2*ng)
@@ -105,12 +91,9 @@ subroutine vesgcm(nbas,ssite,sspec,cy,qmom,ng,gv,&
   zsum = 0d0
   do  ib = 1, nbas
      is=ssite(ib)%spec
-     !        i_copy_size=size(ssite(ib)%pos)
-     !        call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1)
-     tau=ssite(ib)%pos
+     tau=rv_a_opos(:,ib) !ssite(ib)%pos
      lmxl=sspec(is)%lmxl
      rg=sspec(is)%rg
-
      if (lmxl == -1) goto 10
      call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
      qc = qcorg+qcorh
@@ -128,7 +111,6 @@ subroutine vesgcm(nbas,ssite,sspec,cy,qmom,ng,gv,&
      enddo
      hpot0(ib) = 0d0
      cof(1) = cof(1) + 4*pi*y0*(qcorg-z)
-
      call dpzero(cg1,2*ng)
      do  i = 1, ng
         v(1) = gv(i,1)
@@ -151,7 +133,6 @@ subroutine vesgcm(nbas,ssite,sspec,cy,qmom,ng,gv,&
         l = ll(ilm)
         gpot0(ilm+iv0) = gpot0(ilm+iv0)*4*pi/df(2*l+1)
      enddo
-
      !   ... Force of smooth density on the compensating gaussians
      sum1 = 0d0
      sum2 = 0d0
@@ -173,35 +154,25 @@ subroutine vesgcm(nbas,ssite,sspec,cy,qmom,ng,gv,&
         f(2,kb) = f(2,kb) - sum2/nbas
         f(3,kb) = f(3,kb) - sum3/nbas
      enddo
-
      iv0 = iv0+nlm
 10   continue
   enddo
-
   ! --- Add 8pi/G**2 * (FT gaussian+Hankel density) into smpot ---
   if (iprint() > 40) write(stdo,300) cgsum(1),dble(cgsum(1)*vol)
-300 format(/' vesgcm: smooth density G=0 term =', &
-       2f11.6,'   Q = ',f12.6)
+300 format(/' vesgcm: smooth density G=0 term =', 2f11.6,'   Q = ',f12.6)
   !! Commented by obata (but not packed in git by obata ---fixed by t.kotani)
-  !!  cgsum(1) = (0d0,0d0)
   do  i = 2, ng
      g2 = tpiba*tpiba*(gv(i,1)**2+gv(i,2)**2+gv(i,3)**2)
      cv(i) = cv(i) + (8*pi)*cgsum(i)/g2
   enddo
-
   ! --- Electrostatic potential at rmt ---
   call dpzero(vrmt,nbas)
   img = (0d0,1d0)
   do  ib = 1, nbas
-
      is=ssite(ib)%spec
-     !        i_copy_size=size(ssite(ib)%pos)
-     !        call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1)
-     tau=ssite(ib)%pos
+     tau=rv_a_opos(:,ib) !ssite(ib)%pos
      call dscal(3,alat,tau,1)
-
      rmt=sspec(is)%rmt
-
      !       Add a negligibly small amount to rmt to handle case rmt=0
      rmt = rmt+1d-32
      do  i = 2, ng
@@ -215,11 +186,7 @@ subroutine vesgcm(nbas,ssite,sspec,cy,qmom,ng,gv,&
         vrmt(ib) = vrmt(ib) + dble(cv(i)*fac*exp(img*gvb))
      enddo
   enddo
-
   ! --- Put cv back into smpot array ---
   call gvputf(ng,1,kv,k1,k2,k3,cv,smpot)
-
   call tcx('vesgcm')
 end subroutine vesgcm
-
-

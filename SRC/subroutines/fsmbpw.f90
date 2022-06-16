@@ -3,6 +3,7 @@ subroutine fsmbpw(nbas,ssite,sspec,vavg,ndimh,nlmto, &
   use m_struc_def
   use m_uspecb,only:uspecb
   use m_orbl,only: Orblib1,ktab1,ltab1,offl1,norb1
+  use m_lattic,only: rv_a_opos
   !- Force from smoothed hamiltonian (constant potential), PW contribution
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -58,7 +59,7 @@ subroutine fsmbpw(nbas,ssite,sspec,vavg,ndimh,nlmto, &
   ! --- Loop over first and second site indices ---
   do 1000 ib1=1,nbas
      is1=ssite(ib1)%spec
-     p1=ssite(ib1)%pos
+     p1=rv_a_opos(:,ib1) !ssite(ib1)%pos
      call uspecb(is1,rsm1,e1)
      call orblib1(ib1) !norb1,ltab1,ktab1,xx,offl1,xx)
      call gtbsl1(8+16,norb1,ltab1,ktab1,rsm1,e1,ntab1,blks1)

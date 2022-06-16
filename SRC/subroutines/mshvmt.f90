@@ -1,6 +1,6 @@
 subroutine mshvmt(nbas,ssite,sspec,ng,gv, kv,cv,k1,k2,k3,smpot,vval)
   use m_struc_def
-  use m_lattic,only:lat_plat
+  use m_lattic,only:lat_plat,rv_a_opos
   use m_lmfinit,only:lat_alat
   use m_supot,only: lat_nabc
   use m_ropyln,only: ropyln
@@ -43,7 +43,7 @@ subroutine mshvmt(nbas,ssite,sspec,ng,gv, kv,cv,k1,k2,k3,smpot,vval)
   !u   22 Aug 01 Newly created.
   ! ----------------------------------------------------------------------
   implicit none
-  integer :: k1,k2,k3,nbas,ng,kv(ng,3),i_copy_size
+  integer :: k1,k2,k3,nbas,ng,kv(ng,3)
   real(8):: gv(ng,3) , vval(1)
   type(s_site)::ssite(*)
   type(s_spec)::sspec(*)
@@ -74,7 +74,7 @@ subroutine mshvmt(nbas,ssite,sspec,ng,gv, kv,cv,k1,k2,k3,smpot,vval)
   iv0 = 0
   do  ib = 1, nbas
      is=ssite(ib)%spec
-     tau=ssite(ib)%pos
+     tau=rv_a_opos(:,ib) !ssite(ib)%pos
      rmt=sspec(is)%rmt
      lmxl=sspec(is)%lmxl
      if (lmxl == -1) goto 10
@@ -141,7 +141,7 @@ end subroutine mshvmt
 subroutine symvvl(nbas,ssite,sspec,vval,vrmt)
   use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp
   use m_struc_def
-  use m_lattic,only:lat_plat
+  use m_lattic,only:lat_plat,rv_a_opos
   use m_lgunit,only:stdo
   !- Symmetrizes the potential at the MT boundary.
   ! ----------------------------------------------------------------------
@@ -171,24 +171,24 @@ subroutine symvvl(nbas,ssite,sspec,vval,vrmt)
   !u   23 Aug 01 Newly created.
   ! ----------------------------------------------------------------------
   implicit none
-  integer :: nbas,i_spackv
+  integer :: nbas
   real(8):: vval(1) , vrmt(nbas)
   type(s_site)::ssite(*)
   type(s_spec)::sspec(*)
   integer :: ic,ib,ilm,mxint,nclass,ipa(nbas),nrclas,iv0
   integer :: ipc(nbas),ips(nbas),lmxl(nbas)
   double precision :: pos(3,nbas),posc(3,nbas),plat(3,3),pi,y0
-  integer:: igetss , nlml ,ipr , jpr , ngrp , nn , iclbas
+  integer:: igetss , nlml ,ipr , jpr , ngrp , nn , iclbas,ibas
   real(8) ,allocatable :: qwk_rv(:)
   real(8) ,allocatable :: sym_rv(:)
   call tcn('symvvl')
   call getpr(ipr)
   plat=lat_plat
   ngrp=lat_nsgrp
-  do i_spackv=1,nbas
-     ipc(i_spackv)  = ssite(i_spackv)%class
-     ips(i_spackv)  = ssite(i_spackv)%spec
-     pos(:,i_spackv)= ssite(i_spackv)%pos
+  do ibas=1,nbas
+     ipc(ibas)  = ssite(ibas)%class
+     ips(ibas)  = ssite(ibas)%spec
+     pos(:,ibas)= rv_a_opos(:,ibas) !ssite(i_spackv)%pos
   enddo
   nclass = mxint(nbas,ipc)
   do  ib = 1, nbas

@@ -624,7 +624,7 @@ end subroutine smvxc3
 subroutine smvxc4(nbas,nsp,ssite,sspec,alat,vol,cy,ng,gv,cvxc,f)
   use m_lgunit,only:stdo
   use m_struc_def  !Cgetarg
-
+  use m_lattic,only: rv_a_opos
   !- For foca, adds force from shift of smH-head against Vxc.
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -673,9 +673,7 @@ subroutine smvxc4(nbas,nsp,ssite,sspec,alat,vol,cy,ng,gv,cvxc,f)
   if (iprint() >= 50) write(stdo,400)
   do  ib = 1, nbas
      is=ssite(ib)%spec
-     !        i_copy_size=size(ssite(ib)%pos)
-     !        call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1)
-     tau=ssite(ib)%pos
+     tau=rv_a_opos(:,ib) !ssite(ib)%pos
      call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
      if (lfoc > 0 .AND. cofh /= 0) then
         sum1 = 0d0
@@ -949,12 +947,11 @@ subroutine vxcnlm(lxcg,nsp,k1,k2,k3,smrho,repnl,rmunl,vavgnl,vxnl,vcnl,vxcnl)
      !!--------------------------------------------------------------
 end subroutine vxcnlm
    
-subroutine smcorm(nbas,ssite,sspec,ng,gv,&
-  cgh1,cgh2,lfoc1,lfoc2)
+subroutine smcorm(nbas,ssite,sspec,ng,gv,  cgh1,cgh2,lfoc1,lfoc2)
   use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
-  use m_struc_def           !Cgetarg
+  use m_struc_def           
   use m_lmfinit,only:lat_alat
-  use m_lattic,only: lat_vol
+  use m_lattic,only: lat_vol,rv_a_opos
   !- For foca, add together density of smoothed part of core
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -1006,9 +1003,7 @@ subroutine smcorm(nbas,ssite,sspec,ng,gv,&
   lfoc2 = 0
   do  ib = 1, nbas
      is=ssite(ib)%spec
-     !        i_copy_size=size(ssite(ib)%pos)
-     !     call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1)
-     tau=ssite(ib)%pos
+     tau=rv_a_opos(:,ib) !ssite(ib)%pos
      call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
      !       qc = qcorg+qcorh
      !        if (iprint() .ge. 50) write(stdo,351) qc,lfoc,qcorg,qcorh

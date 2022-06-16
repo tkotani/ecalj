@@ -156,7 +156,7 @@ subroutine augmbl(ssite,sspec,isp, &
   use m_struc_def
   use m_lmfinit,only: rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy
   use m_lmfinit,only: nbas,nkaph,lat_alat
-  use m_lattic,only: lat_qlat, lat_vol
+  use m_lattic,only: lat_qlat, lat_vol,rv_a_opos
   use m_bstrux,only: Bstrux_set, bstr
   ! this is used for lso=0 only now (aug2021), but lso=2 should work.
   !- Adds augmentation part of H and S
@@ -242,7 +242,7 @@ subroutine augmbl(ssite,sspec,isp, &
   vol=lat_vol
   do ibas = 1,nbas
      isa =ssite(ibas)%spec
-     pa  =ssite(ibas)%pos
+     pa  =rv_a_opos(:,ibas) !ssite(ibas)%pos
      lmxa=sspec(isa)%lmxa !max l of augmentation
      lmxb=sspec(isa)%lmxb !max l of basis
      kmax=sspec(isa)%kmxt !max of radial k

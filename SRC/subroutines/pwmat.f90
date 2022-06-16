@@ -2,7 +2,7 @@
 subroutine pwmat(ssite,sspec,nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
   use m_struc_def     
   use m_lmfinit,only: alat=>lat_alat
-  use m_lattic,only:  qlat=>lat_qlat, vol=>lat_vol,plat=>lat_plat
+  use m_lattic,only:  qlat=>lat_qlat, vol=>lat_vol,plat=>lat_plat,rv_a_opos
   use m_uspecb,only:uspecb
   use m_orbl,only: Orblib,ktab,ltab,offl,norb
   use m_ropyln,only: ropyln
@@ -74,7 +74,7 @@ subroutine pwmat(ssite,sspec,nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,inn,ppo
      mimgl(l) = (-img)**l
   enddo
   do  ib = 1, nbas
-     bas(:,ib)=ssite(ib)%pos
+     bas(:,ib)=rv_a_opos(:,ib)!,ssite(ib)%pos
      ips(ib) = ssite(ib)%spec
      is = ssite(ib)%spec
      rmax(ib) = sspec(is)%rmt

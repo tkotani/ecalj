@@ -11,7 +11,7 @@ contains
          ham_pwmode,pwemin,pwemax,ham_oveps,lrsig=>ham_lsig,nlmto,lso, &
          ham_scaledsigma,lat_alat,mxorb,nkaph,nsp,nspc,nl,mxorb,ssite=>v_ssite,sspec=>v_sspec,&
          nbas,n0,nppn,nkap0,slabl,nmcorex=>nmcore
-    use m_lattic,only: lat_plat, lat_qlat
+    use m_lattic,only: lat_plat, lat_qlat,rv_a_opos
     use m_supot,only: lat_nabc, lat_gmax
     use m_rdsigm2,only: getsenex, senex,dsene
     use m_mksym,only: lat_npgrp,lat_nsgrp
@@ -227,7 +227,7 @@ contains
        if (lmaxa > -1) then
           iat = iat + 1
           if (iat > nat) call rx('bug in sugw')
-          bas(:,iat)=ssite(i)%pos
+          bas(:,iat)=rv_a_opos(:,i) !ssite(i)%pos
           lmxa(iat) = lmaxa
           iantiferro(iat)=ssite(i)%iantiferro
        endif

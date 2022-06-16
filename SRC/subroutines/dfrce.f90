@@ -252,7 +252,7 @@ subroutine pvdf1 ( job , ssite , sspec ,  nsp , ib , iv0 & ! & slat ,
   use m_struc_def  !Cgetarg
   use m_lmfinit,only: nbas
   use m_lmfinit,only:lat_alat,pnux=>pnu,pzx=>pz
-  use m_lattic,only: lat_vol
+  use m_lattic,only: lat_vol,rv_a_opos
   use m_supot,only: lat_nabc
   ! need to modify texts.
   !- Estimate shift in local density for one site
@@ -330,7 +330,7 @@ subroutine pvdf1 ( job , ssite , sspec ,  nsp , ib , iv0 & ! & slat ,
   call dpzero(fesdn,3)
   call dpzero(gpot0,nlmx*3)
   is=ssite(ib)%spec
-  tau=ssite(ib)%pos(1:3)
+  tau=rv_a_opos(:,ib) !ssite(ib)%pos(1:3)
   call suphas(q0,tau,ng,iv,n1,n2,n3,qlat,cs,sn)
   ! --- Unscreened rigid charge density shift, job 1, in cdn0 ---
   if (job0 == 1) then
@@ -386,7 +386,7 @@ subroutine pvdf1 ( job , ssite , sspec ,  nsp , ib , iv0 & ! & slat ,
   endif
   ! --- Coefficients defining local valence + core density ---
   is=ssite(ib)%spec
-  tau=ssite(ib)%pos
+  tau=rv_a_opos(:,ib) !ssite(ib)%pos
   lmxl=sspec(is)%lmxl
   rg=sspec(is)%rg
   call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
@@ -476,7 +476,7 @@ subroutine pvdf1 ( job , ssite , sspec ,  nsp , ib , iv0 & ! & slat ,
   jv0 = 0
   do  40  jb = 1, nbas
      js=ssite(jb)%spec
-     tau=ssite(jb)%pos
+     tau=rv_a_opos(:,jb) !ssite(jb)%pos
      lmxl=sspec(js)%lmxl
      rg=sspec(js)%rg
      nlm = (lmxl+1)**2
@@ -660,7 +660,7 @@ end subroutine pvdf3
 subroutine pvdf4(ssite,sspec,qmom,ng,g2,yl,cs,sn,iv,qlat,cv) !slat,
   use m_struc_def
   use m_lmfinit,only: nbas
-  use m_lattic,only: lat_vol
+  use m_lattic,only: lat_vol,rv_a_opos
   use m_supot,only: lat_nabc
   !- Makes smoothed ves from smoothed density and qmom, incl nuc. charge
   ! ----------------------------------------------------------------------
@@ -704,9 +704,7 @@ subroutine pvdf4(ssite,sspec,qmom,ng,g2,yl,cs,sn,iv,qlat,cv) !slat,
   type(s_site)::ssite(*)
   type(s_spec)::sspec(*)
   double complex cv(ng)
-  ! ... Local parameters
-  integer :: ig,ib,ilm,is,iv0,l,lmxl,m,nlm,nlmx,nglob,n1,n2,n3, &
-       ngabc(3),lfoc
+  integer :: ig,ib,ilm,is,iv0,l,lmxl,m,nlm,nlmx,nglob,n1,n2,n3, ngabc(3),lfoc
   equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
   parameter (nlmx=64)
   double precision :: tau(3),df(0:20),pi,y0,vol,rg,qcorg,qcorh,qsc, &
@@ -723,7 +721,7 @@ subroutine pvdf4(ssite,sspec,qmom,ng,g2,yl,cs,sn,iv,qlat,cv) !slat,
   iv0 = 0
   do  10  ib = 1, nbas
      is=ssite(ib)%spec
-     tau=ssite(ib)%pos
+     tau=rv_a_opos(:,ib) !ssite(ib)%pos
      lmxl=sspec(is)%lmxl
      rg=sspec(is)%rg
      if (lmxl == -1) goto 10

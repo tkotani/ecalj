@@ -3824,6 +3824,7 @@ subroutine ftlxp(nbas,ssite,sspec,alat,ng,gv,cv,k0,nlm0,fkl)
   use m_struc_def  !Cgetarg
   use m_lgunit,only:stdo
   use m_ropyln,only: ropyln
+  use m_lattic,only: rv_a_opos
   !- Pkl expansion around all sites of a function given as Fourier series.
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -3850,15 +3851,11 @@ subroutine ftlxp(nbas,ssite,sspec,alat,ng,gv,cv,k0,nlm0,fkl)
   !u   31 May 00 Adapted from nfp ftlxp.f
   ! ----------------------------------------------------------------------
   implicit none
-  integer:: i_copy_size
-  ! ... Passed parameters
   integer :: k0,nbas,ng,nlm0
   real(8):: gv(ng,3) , alat
   type(s_site)::ssite(*)
   type(s_spec)::sspec(*)
-
   double complex cv(ng),fkl(0:k0,nlm0,nbas)
-  ! ... Local parameters
   integer:: ib , ilm , ipr , is , k , l , lmxl & !, kmxv 
        , ltop , m , nlm , ntop , igetss
   real(8) ,allocatable :: g2_rv(:)
@@ -3887,33 +3884,20 @@ subroutine ftlxp(nbas,ssite,sspec,alat,ng,gv,cv,k0,nlm0,fkl)
   enddo
   ntop = (ltop+1)**2
   allocate(yl_rv(ntop*ng))
-
   allocate(g2_rv(ng))
-
   allocate(h_zv(ng))
-
   call ropyln ( ng , gv ( 1 , 1 ) , gv ( 1 , 2 ) , gv ( 1 , 3 ) &
        , ltop , ng , yl_rv , g2_rv )
-
-
   ! ... Scale g2 by (2pi/a)**2
   call dpcopy ( g2_rv , g2_rv , 1 , ng , tpiba * tpiba )
-
-
   ! --- Start loop over atoms ---
   do  ib = 1, nbas
-
      is=ssite(ib)%spec
-     i_copy_size=size(ssite(ib)%pos)
-     call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1)
-
-
+     tau= rv_a_opos(:,ib)
      lmxl=sspec(is)%lmxl
      rsmv=sspec(is)%rsmv
      !kmxv=sspec(is)%kmxv
-
      if (lmxl == -1) goto 10
-
      nlm = (lmxl+1)**2
      if (nlm > nlm0) call rxi('ftlcxp: nlm > nlm0, need',nlm)
      if (kmxv > k0)  call rxi('ftlcxp: kmxv > k0, need',kmxv)
@@ -3921,11 +3905,8 @@ subroutine ftlxp(nbas,ssite,sspec,alat,ng,gv,cv,k0,nlm0,fkl)
 200  format(' ib=',2i3,'  nlm=',i3,'  rsmv=',f6.3, &
           '  lv,kv=',2i2,'  pos=',3f7.4/ &
           ' Expansion coefficients:')
-
      call ftlxp2 ( rsmv , tau , kmxv , k0 , nlm , ng , gv , g2_rv &
           , yl_rv , h_zv , cv , fkl ( 0 , 1 , ib ) )
-
-
      !   ... Put in factors independent of G
      a = 1d0/rsmv
      cfac = (1d0,0d0)

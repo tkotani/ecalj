@@ -1,6 +1,6 @@
 subroutine smhsbl(ssite,sspec,vavg,q,ndimh, napw,igapw, h,s)
   use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg, lat_alat,nbas,nkaphh,lhh
-  use m_lattic,only: lat_vol,lat_plat
+  use m_lattic,only: lat_vol,lat_plat,rv_a_opos
   use m_uspecb,only:uspecb
   use m_orbl,only: Orblib1,Orblib2,ktab1,ltab1,offl1,norb1,ktab2,ltab2,offl2,norb2
   use m_ropyln,only: ropyln
@@ -134,13 +134,13 @@ subroutine smhsbl(ssite,sspec,vavg,q,ndimh, napw,igapw, h,s)
   if(nlmto >0 ) then
      do 1010 ib1=1,nbas
         is1=ssite(ib1)%spec
-        p1 =ssite(ib1)%pos
+        p1 =rv_a_opos(:,ib1) !ssite(ib1)%pos
         call uspecb(is1,rsm1,e1)
         call orblib1(ib1)!norb1,ltab1,ktab1,offl1
         call gtbsl1(8+16,norb1,ltab1,ktab1,rsm1,e1,ntab1,blks1)
         do  ib2 = ib1, nbas
            is2=ssite(ib2)%spec
-           p2=ssite(ib2)%pos
+           p2=rv_a_opos(:,ib2) !ssite(ib2)%pos
            call uspecb(is2,rsm2,e2)
            call orblib2(ib2) !norb2,ltab2,ktab2,xx,offl2,xx)
            call gtbsl1(8+16,norb2,ltab2,ktab2,rsm2,e2,ntab2,blks2)

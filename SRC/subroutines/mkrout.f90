@@ -317,7 +317,7 @@ contains
        !   --- Make new core density and core eigenvalue sum ---
        if (lfoc == 0) then
           call pshpr(ipr+11)
-          write(stdo,*)
+          !write(stdo,*)
           call getcor ( 0 , z , a , pnu , pnz , nr , lmxa , rofi_rv , ssite(ib)%rv_a_ov1 &
                , kcor , lcor , qcor , smec , smtc , orhoat_out( 3 , ib )%v &
                , ncore , 0d0 , 0d0,   nmcore(is))

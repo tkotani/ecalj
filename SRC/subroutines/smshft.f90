@@ -92,7 +92,7 @@ subroutine pvsms1 ( ssite , sspec ,  nbas , nsp , kmax &
      , ng , gv , sv_p_orhoat , cwk , cg , job )
   use m_struc_def
   use m_lmfinit,only:lat_alat,n0,slabl
-  use m_lattic,only: lat_vol
+  use m_lattic,only: lat_vol,rv_a_opos
   use m_lgunit,only:stdo
   !- Shift in smoothed density according to job.
   ! ----------------------------------------------------------------------
@@ -205,7 +205,7 @@ subroutine pvsms1 ( ssite , sspec ,  nbas , nsp , kmax &
      nlml = (lmxl+1)**2
      if (lmxl == -1) cycle
      is  = ssite(ib)%spec
-     pnew= ssite(ib)%pos
+     pnew= ssite(ib)%pos !rv_a_opos(:,ib) !
      pold= ssite(ib)%pos0
      pp = alat*dsqrt(sum((pnew-pold)**2))
      if(ipr>=30) write(stdo,340) ib,spid,pold,pnew,pp/alat

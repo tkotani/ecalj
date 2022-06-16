@@ -4,6 +4,7 @@ subroutine makusq(mode,nsites,isite, nev,isp,iq,q,evec,  aus)
   use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
   use m_mkpot,only: ppnl=>ppnl_rv
   use m_uspecb,only:uspecb
+  use m_lattic,only: rv_a_opos
   !- Accumulate coefficients of (u,s) in all augmentation spheres at one k-pt
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -166,7 +167,8 @@ subroutine pusq1(mode,ia,isp,nspc,nlmax,lmxh,nbas,ssite, &
   use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkapii
   use m_uspecb,only: uspecb
   use m_bstrux,only: bstrux_set,bstr
-  use m_struc_def 
+  use m_struc_def
+  use m_lattic,only: rv_a_opos
   !- Add to the coefficient for the projection onto (u,s) for one site
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -238,7 +240,7 @@ subroutine pusq1(mode,ia,isp,nspc,nlmax,lmxh,nbas,ssite, &
        eh(n0,nkap0),rsmh(n0,nkap0)
   call tcn ('pusq1')
   isa =ssite(ia)%spec
-  pa  =ssite(ia)%pos
+  pa  =rv_a_opos(:,ia) !ssite(ia)%pos
   lmxa=sspec(isa)%lmxa
   if (lmxa == -1) return
   lmxha=sspec(isa)%lmxb

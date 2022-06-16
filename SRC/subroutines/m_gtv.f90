@@ -660,7 +660,7 @@ contains
     if (ig=='r8' .AND. nn==1)      then ;   dat  = ddat(1)
     elseif (lgx .AND. nn==1)       then ;   lg = nint(ddat(1)) /= 0
     elseif (ig=='i4' .AND. nn==1)  then ;   idat = ddat(1)
-    elseif (ig=='r8v' .AND. nn > 0) then ; datv(1:nn)  = ddat(1:nn)
+   elseif (ig=='r8v' .AND. nn > 0) then ; datv(1:nn)  = ddat(1:nn)
     elseif (ig=='i4v' .AND. nn > 0) then ; idatv(1:nn) = ddat(1:nn)
     endif
     ! ... Printout

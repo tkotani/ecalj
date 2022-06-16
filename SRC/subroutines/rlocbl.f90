@@ -156,7 +156,7 @@ subroutine rlocbl ( ssite , sspec , lfrce , nbas , isp  &
   use m_struc_def,only: s_site,s_spec,s_rv1,s_cv1
   use m_prlcb,only:   prlcb2,prlcb3
   use m_lmfinit,only: iv_a_oidxcg,iv_a_ojcg,rv_a_ocy,rv_a_ocg,lat_alat,nkaph
-  use m_lattic,only: lat_qlat
+  use m_lattic,only: lat_qlat,rv_a_opos
   use m_bstrux,only: bstrux_set,bstr,dbstr
   !- Accumulates the local atomic densities.
   ! ----------------------------------------------------------------------
@@ -292,7 +292,7 @@ subroutine rlocbl ( ssite , sspec , lfrce , nbas , isp  &
   !! Loop over augmentation sites ---
   do ia = 1,nbas ! iaini,iaend
      isa= ssite(ia)%spec
-     pa = ssite(ia)%pos(1:3)
+     pa = rv_a_opos(:,ia) !ssite(ia)%pos(1:3)
      lmxa= sspec(isa)%lmxa
      if (lmxa == -1) cycle !goto 10
      lmxha=sspec(isa)%lmxb

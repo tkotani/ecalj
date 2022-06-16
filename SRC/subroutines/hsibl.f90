@@ -5,8 +5,7 @@ contains
 subroutine hsibl(ssite,sspec,k1,k2,k3,vsm,isp,q,ndimh,napw,igapw,h)
   use m_struc_def
   use m_lmfinit,only: lat_alat,nspec,nbas
-  use m_lattic,only: lat_qlat
-  use m_lattic,only: lat_vol
+  use m_lattic,only: lat_qlat,lat_vol,rv_a_opos
   use m_supot,only: lat_nabc
   use m_supot,only: lat_ng
   use m_supot,only: lat_gmax
@@ -158,7 +157,7 @@ subroutine hsibl(ssite,sspec,k1,k2,k3,vsm,isp,q,ndimh,napw,igapw,h)
         if (nbas < mp) ip = ib1
         ndim1 = 0
         is1=ssite(ib1)%spec
-        p1=ssite(ib1)%pos
+        p1=rv_a_opos(:,ib1) !ssite(ib1)%pos
         call suphas ( q , p1 , ng , iv_iv , n1 , n2 , n3 , qlat , w_ocos1(1,ip) , w_osin1(1,ip) )
         call orblib1(ib1) !norb1,ltab1,ktab1,xx,offl1,xx)
         ofh1 = offl1(1)
@@ -182,7 +181,7 @@ subroutine hsibl(ssite,sspec,k1,k2,k3,vsm,isp,q,ndimh,napw,igapw,h)
         !   ... Loop over second of (ib1,ib2) site pairs
         do 1010 ib2 = ib1, nbas
            is2 =ssite(ib2)%spec
-           p2  =ssite(ib2)%pos
+           p2  =rv_a_opos(:,ib2) !ssite(ib2)%pos
            ncut=ngcut(:,:,is2)
            call suphas (q,p2,ng, iv_iv , n1 , n2 , n3 , qlat , w_ocos2(1,ip) , w_osin2(1,ip) )
            call orblib2(ib2) !norb2,ltab2,ktab2,offl2

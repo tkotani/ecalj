@@ -349,7 +349,7 @@ contains
     endif
     !! Struc ---
     if (tksw(prgnam,'STRUC') == 2) goto 59
-    if (io_show+io_help/=0) write(stdo,*)' --- Parameters for crystal structure ---'
+    !if (io_show+io_help/=0) write(stdo,*)' --- Parameters for crystal structure ---'
     nm='STRUC_ALAT';call gtv(trim(nm),tksw(prgnam,nm),alat, note= 'Scaling of lattice vectors, in a.u.')
     nm='STRUC_NBAS';call gtv(trim(nm),tksw(prgnam,nm),nbas,note='Size of basis')
     nm='STRUC_PLAT';call gtv(trim(nm),tksw(prgnam,nm),temp33,nmin=9,nout=nout,note='Primitive lattice vectors (alat unit)')
@@ -367,7 +367,7 @@ contains
              if ( .NOT. debug) call poppr
              if ( .NOT. ltmp) nspec = j-1
           enddo
-          if (io_show>0) write(stdo,"(' ... found',g0,'species in SPEC category')")nspec
+          if (io_show>0) write(stdo,ftox) ' ... found',nspec,'species in SPEC category'
        endif
     endif
     nm='STRUC_DALAT'; call gtv(trim(nm),tksw(prgnam,nm),dalat,def_r8=0d0, &
@@ -375,7 +375,7 @@ contains
     !     STRUC_NL here removed, Lattice distortion or rotatation here removed.
 59  continue
     !! Options ---
-    if (tksw(prgnam,'OPTIONS') == 2) goto 69
+    !if (tksw(prgnam,'OPTIONS') == 2) goto 69
     if (io_show+io_help/=0) write(stdo,*)' --- Program Options ---'
     nm='OPTIONS_HF'; call gtv(trim(nm),tksw(prgnam,nm),lhf,def_lg=F,note='T for non-self-consistent Harris')
     nm='OPTIONS_RMINES'; call gtv(trim(nm),tksw(prgnam,nm),rmines,def_r8=1d0,note='Minimum MT radius when finding new ES')
@@ -384,7 +384,7 @@ contains
 69  continue                  ! end of OPTIONS
 
     !! Hamiltonian parameters ---
-    if(io_show+io_help/=0 .AND. tksw(prgnam,'HAM')/=2)write(stdo,*)' --- Parameters for hamiltonian ---'
+    !if(io_show+io_help/=0 .AND. tksw(prgnam,'HAM')/=2)write(stdo,*)' --- Parameters for hamiltonian ---'
     nsp = 1
     nm='HAM_NSPIN';call gtv(trim(nm),tksw(prgnam,nm),nsp,def_i4=1,note='Set to 2 for spin polarized calculations')
     if (io_help == 0) then
@@ -510,7 +510,7 @@ contains
          pwemax, def_r8=0d0, nout=nout, note= &
          'Include APWs with energy E < PWEMAX (Ry)')
     !! Symmetry group ---
-    if (io_show+io_help/=0 .AND. tksw(prgnam,'SYMGRP')/=2)write(stdo,*)' --- Symmetry group operations ---'
+    !if (io_show+io_help/=0 .AND. tksw(prgnam,'SYMGRP')/=2)write(stdo,*)' --- Symmetry group operations ---'
     nm='SYMGRP'; call gtv(trim(nm),tksw(prgnam,nm),symg, note='Generators for symmetry group')
     !   for AF --- !june2015
     if( .NOT. (prgnam=='LMFA' .OR. prgnam=='LMCHK')) then
@@ -953,7 +953,7 @@ contains
        if(nout==0 .OR. tksw(prgnam,'SITE_ATOM_POS')==2)then
           !nout=-1 if sw=2; otherwise nout=0 unless data was read
           nm='SITE_ATOM_XPOS'; call gtv(trim(nm),tksw(prgnam,nm),pos(:,j), &
-               cindx=jj,note='Atom POS. fractional coordinates')
+               cindx=jj,note='Atom POS. fractional(POSCAR direct) coordinates')
           xvv=pos(:,j)
           pos(:,j)= matmul(plat,xvv) 
        endif
@@ -965,7 +965,7 @@ contains
     enddo
 89  continue
     !! Structure constants ---
-    if(io_show+io_help/=0 .AND. tksw(prgnam,'STR')/=2)write(stdo,*)' --- Parameters for structure constants ---'
+    !if(io_show+io_help/=0 .AND. tksw(prgnam,'STR')/=2)write(stdo,*)' --- Parameters for structure constants ---'
     nm='STR_RMAXS'; call gtv(trim(nm),tksw(prgnam,nm),str_rmax, &
          nout=nout,note='Radial cutoff for strux, in a.u.',or=T)
     if (nout == 0) then       !nout=-1 if sw=2; otherwise nout=0 unless data was read

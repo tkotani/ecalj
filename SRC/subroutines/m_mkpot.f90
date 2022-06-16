@@ -168,7 +168,7 @@ contains
        smpot, sv_p_osig, sv_p_otau, sv_p_oppi, fes, ohsozz,ohsopm, novxc_) !dipole_)
     ! xxx problematic option dipole_ removed. (for <i|{\bf r}|j> matrix for novxc)
     use m_lmfinit,only:lso,nbas,ssite=>v_ssite,sspec=>v_sspec,nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex
-    use m_lattic,only: lat_plat,lat_qlat, lat_vol
+    use m_lattic,only: lat_plat,lat_qlat, lat_vol,rv_a_opos
     use m_supot,only: k1,k2,k3,lat_nabc
     use m_MPItk,only: master_mpi
     use m_struc_def
@@ -376,7 +376,7 @@ contains
           write(ifi,'(2i5)') nbas,1
           do i = 1, nbas
              ispec=ssite(i)%spec
-             write(ifi,'(i4,2x,3f10.5)') int(sspec(ispec)%z),(ssite(i)%pos(i2)*alat*0.529177208,i2=1,3)
+             write(ifi,'(i4,2x,3f10.5)') int(sspec(ispec)%z),(rv_a_opos(i2,i)*alat*0.529177208,i2=1,3)
           enddo
           write(ifi,'("BEGIN_BLOCK_DATAGRID_3D")')
           write(ifi,'("charge_density_spin_",i1)') isp

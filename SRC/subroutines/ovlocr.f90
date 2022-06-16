@@ -4,6 +4,7 @@ subroutine ovlocr ( nbas , ssite , sspec ,  nxi0 , nxi &
   use m_struc_def
   use m_lgunit,only:stdo
   use m_smhankel,only: hxpbl
+  use m_lattic,only: rv_a_opos
   !- Makes the site densities for overlapped free atoms.
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -57,7 +58,7 @@ subroutine ovlocr ( nbas , ssite , sspec ,  nxi0 , nxi &
   ibend= nbas
   do  ib = ibini,ibend
      is=ssite(ib)%spec
-     p1(:)=ssite(ib)%pos(:)
+     p1(:)=rv_a_opos(:,ib) !ssite(ib)%pos(:)
      lmxl=sspec(is)%lmxl
      !kmxv=sspec(is)%kmxv
      rsmv=sspec(is)%rsmv
@@ -77,7 +78,7 @@ subroutine ovlocr ( nbas , ssite , sspec ,  nxi0 , nxi &
      !   ... Loop over other sites, add up tail expansion
      do  jb = 1, nbas
         js=ssite(jb)%spec
-        p2(:)=ssite(jb)%pos(:)
+        p2(:)=rv_a_opos(:,jb) !ssite(jb)%pos(:)
         do  je = 1, nxi(js)
            rsmh = rsmfa(js)
            eh   = exi(je,js)

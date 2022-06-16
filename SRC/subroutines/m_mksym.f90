@@ -23,7 +23,7 @@ contains
     use m_lmfinit,only: v_ssite,nbas,sstrnsymg,ctrl_noinv, &
          symgaf,iv_a_oips,slabl,mxspec,procid,master
     ! v_ssite%pos modified
-    use m_lattic,only: rv_a_opos,m_lattic_init
+    use m_lattic,only: rv_a_opos,m_lattic_init,rv_a_opos
     !! Driver for calling mksymaf and mksym
     !-------------
     ! note: Antiferro symmetric self-energy mode. Feb2021 recovered
@@ -47,9 +47,9 @@ contains
     character strn*(recln),strn2*(recln),outs(recln)
     call tcn('m_mksym_init')
     !! lattice set up
-    do ibas=1,nbas
-       v_ssite(ibas)%pos = rv_a_opos(:,ibas)
-    enddo
+    !do ibas=1,nbas
+    !   v_ssite(ibas)%pos = rv_a_opos(:,ibas)
+    !enddo
     !! mksym mksymaf generate symmetry operations; split species into classes  ---
     !! mksym may correct atomic position slightly (not tested well).
     strn = 'find'

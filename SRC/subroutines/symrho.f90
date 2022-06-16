@@ -54,8 +54,7 @@ end subroutine symrhoat
 subroutine symrat( ssite, sspec, nbas, nsp, lf, sv_p_orhoat , qbyl , hbyl , f )
   use m_struc_def
   use m_mksym,only: iv_a_oistab , rv_a_osymgr, rv_a_oag,lat_nsgrp
-  use m_lattic,only: lat_qlat
-  use m_lattic,only:lat_plat
+  use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
   use m_lgunit,only:stdo
   !     - Symmetrize the atomic charge densities and the forces.
   ! ----------------------------------------------------------------------
@@ -99,7 +98,7 @@ subroutine symrat( ssite, sspec, nbas, nsp, lf, sv_p_orhoat , qbyl , hbyl , f )
   !      type(s_lat)::slat
   integer:: ib0 , ic , ipr , iprint , is , lmxa &
        , lmxl , nclass , ngrp , nlml , nlmx , nr , nrclas , igetss , &
-       mxint , ival,i_copy_size,i_spackv
+       mxint , ival,ibas
   integer ,allocatable :: ipa_iv(:)
   integer ,allocatable :: ipc_iv(:)
   integer ,allocatable :: ips_iv(:)
@@ -109,7 +108,6 @@ subroutine symrat( ssite, sspec, nbas, nsp, lf, sv_p_orhoat , qbyl , hbyl , f )
   real(8) ,allocatable :: sym_rv(:)
   double precision :: plat(3,3),qlat(3,3)
   call tcn('symrat')
-  !      stdo = lgunit(1)
   ipr = iprint()
   plat=lat_plat
   qlat=lat_qlat
@@ -117,14 +115,11 @@ subroutine symrat( ssite, sspec, nbas, nsp, lf, sv_p_orhoat , qbyl , hbyl , f )
   allocate(ips_iv(nbas))
   allocate(ipc_iv(nbas))
   allocate(pos0_rv(3,nbas))
-  do i_spackv=1,nbas
-     ipc_iv(i_spackv)= ssite( i_spackv)%class
-  enddo
-  do i_spackv=1,nbas
-     pos0_rv(:,i_spackv)= ssite(i_spackv)%pos
+  do ibas=1,nbas
+     ipc_iv(ibas)= ssite(ibas)%class
+     pos0_rv(:,ibas)= rv_a_opos(:,ibas) !ssite(i_spackv)%pos
   enddo
   nclass = mxint ( nbas , ipc_iv )
-  ! --- Start loop over classes ---
   allocate(ipa_iv(nbas))
   allocate(pos_rv(3*nbas))
   if (iprint() >= 35) then

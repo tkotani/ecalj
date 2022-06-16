@@ -402,7 +402,7 @@ contains
 
   subroutine groupg(mode,ng,g,ag,plat,ngen,gen,agen,gens,ngout)
     use m_ftox
-    use m_shortn3_plat,only: shortn3_plat,nlatout
+    use m_shortn3,only: shortn3_initialize,shortn3,nlatout
     !- Finds a set of generators for the symmetry group
     ! ----------------------------------------------------------------------
     !i Inputs:
@@ -493,6 +493,7 @@ contains
     endif
     sout = ' '
     sout2 = ' '
+    call shortn3_initialize(plat)
     do  20  isop = 1, ngen
        call asymop(gen(1,1,isop),agen(1,isop),':',sg)
        call awrit0('%a '//sg,sout(9:),len(sout)-9,0)
@@ -500,7 +501,7 @@ contains
        call dgemm('N','N',1,3,3,1d0,agen(1,isop),1,qlat,3,0d0,vec,1)
        call asymop(gen(1,1,isop),vec,'::',sg1)
        call word(sg1,1,i1,i2)
-       call shortn3_plat(vec)
+       call shortn3(vec)
        vec=vec+matmul(plat,nlatout(:,1))
        call asymop(gen(1,1,isop),vec,'::',sg)
        call word(sg,1,j1,j2)
