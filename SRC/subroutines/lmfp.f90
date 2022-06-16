@@ -118,10 +118,10 @@ subroutine lmfp(llmfgw)
      if(master_mpi) then
         open(newunit=ifipos,file='AtomPos.'//trim(sname),position='append')
         write(ifipos,ftox) '========'
-        write(ifipos,ftox) 0,   ' !nitrlx'
-        write(ifipos,ftox) nbas,' !nbas'
+        write(ifipos,ftox) 0,   '  !nitrlx'
+        write(ifipos,ftox) nbas,'  !nbas'
         do i=1,nbas
-           write(ifipos,ftox) ftof(rv_a_opos(:,i),16)
+           write(ifipos,ftox) ftof(rv_a_opos(:,i),16),'   ',i
         enddo
      endif
      allocate(pos_move(3,nbas))
@@ -218,9 +218,12 @@ subroutine lmfp(llmfgw)
        !     'positions written in ctrl' and 'positions written in rst' can be different.
        !if(master_mpi) write(ifipos) itrlx,pos_move
        if(master_mpi) then
-       do i=1,nbas
-          write(ifipos,ftox) ftof(pos_move(:,i),16)
-       enddo
+          write(ifipos,ftox) '========'
+          write(ifipos,ftox) itrlx,'   !itrlx'
+          write(ifipos,ftox) nbas, '   !nbas'
+          do i=1,nbas
+             write(ifipos,ftox) ftof(pos_move(:,i),16),'   ',i
+          enddo
        endif
        do ibas=1,nbas
           ssite(ibas)%pos = pos_move(:,ibas)
