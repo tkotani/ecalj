@@ -3,7 +3,7 @@ module m_mksym_util
   use m_ftox
   public gensym,grpgen,symtbl
   private
-  real(8):: fptol=0d0
+  real(8),parameter:: toll=1d-4,tiny=1d-4
 contains
   subroutine gensym(slabl,gens,usegen,lcar,lfix,lsmall,nbas, &
        nspec,ngmx,plat,platcv,bas,ips,nrspec,ng,g, &
@@ -22,10 +22,6 @@ contains
     !i          T express ag,positions in cartesian coordinates
     !i          F express in units of conventional unit cell
     !i   lfix:  T: do not rotate or shift lattice
-    !i   fptol: >0:Adjust positions slightly, rendering them as exactly
-    !i          possible consistent with the symmetry group.  Any sites
-    !i          within a lattice vector of tol are considered to be
-    !i          at the same point.
     !i   nspec: number of classes, atoms in same class are symmetry-related
     !i   plat:  primitive lattice vectors (scaled by alat)
     !i   platcv:Used to scale translation part of generators,
@@ -92,8 +88,8 @@ contains
     implicit none
     ! Passed parameters:
     integer :: nbas,isym(*),istab(nbas,*),nspec,ngen,ngmx, &
-         ng,nrspec(nspec),usegen,ips(nbas),nggen !,ldist
-    double precision :: plat(9),platcv(9),g(9,*),ag(3,*),bas(3,nbas)!,fptol=0d0
+         ng,nrspec(nspec),usegen,ips(nbas),nggen 
+    double precision :: plat(9),platcv(9),g(9,*),ag(3,*),bas(3,nbas)
     character(8) ::  slabl(*), gens*(*), nwgens*(*)
     logical :: lcar,lfix
     integer:: i , j , ibas , ic , iprint , ngnmx , igen , mxint , modes,ig
@@ -121,27 +117,16 @@ contains
        call psymop(gens(1:j),platcv,gen,agen,ngen)
        nwgens = gens(1:j)
     endif
-    ! ... Rotate the generators
-    !      call pshpr(iprint()-11)
-    !      call lattdf ( - ldist , dist , plat , 0 , iwdummy , ngen , gen )
-    !      call poppr
     do  10  igen = 1, ngen
        call grpprd(gen(1,igen),plat,platt)
        if ( .NOT. latvec(3,1d-5,qlat,platt)) &
             call fexit(-1,111,' Exit -1 GENSYM: '// &
             'generator %i imcompatible with underlying lattice',igen)
 10  enddo
-
     ! ... Set up space group (g,ag,ng) given point group generators gen
     call sgroup(10+modes,gen,agen,ngen,g,ag,nggen,ngmx,qlat)
     ng = min(nggen,ngmx)
     if (nggen > ngmx) return
-
-    !$$$C --- Add new atoms to the basis according to symmetry ---
-    !$$$      if (usegen .lt. 2) then
-    !$$$        call addbas(fptol,bas,slabl,ips,nbas,ng,qlat,g,ag)
-    !$$$      endif
-    ! ... Make nrspec ... i should be nspec
     i = mxint(nbas,ips)
     if (i /= nspec .AND. iprint() > 0) &
          call awrit2(' GENSYM (warning) %i species supplied but only '// &
@@ -153,10 +138,6 @@ contains
        ic = ips(ibas)
        nrspec(ic) = nrspec(ic)+1
 22  enddo
-    ! --- check if unit cell is the smallest possible one (not implemented)
-    !      call chkcel(alat,bas,csym,ips,isym,lsmall,nbas,nspec,
-    !     .            nrspec,plat,qlat)
-
     ! --- Complete the space group ---
     if (usegen == 0) then
        !       call rotlat(alat,bas,csym,isym,lfix,nbas,plat,qlat)
@@ -188,9 +169,6 @@ contains
        enddo
        write(stdo,*)' GENSYM: site permutation table for group operations ...'
     endif
-    ! --- Adjust basis to conform with symops to numerical precision ---
-    !      if (fptol .gt. 0) call fixpos(bas,nbas,fptol,ng,plat,g,ag,istab)
-    !      endif
   end subroutine gensym
 
   subroutine sgroup(mode,gen,agen,ngen,g,ag,ng,ngmx,qb)
@@ -516,6 +494,7 @@ contains
     if(ngout>ng)write(stdo,ftox)'(warning)',ng,' ops supplied but generators create ',ngout,' ops'
   end subroutine groupg
   subroutine grpgen(gen,ngen,symops,ng,ngmx)
+    use m_ftox
     !- Generate all point symmetry operations from the generation group
     ! ----------------------------------------------------------------
     !i Inputs
@@ -536,7 +515,6 @@ contains
     !      logical grpeql
     character(80) :: sout
     data e /1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0/, ae/0d0,0d0,0d0/
-
     call getpr(ipr)
     sout = ' '
     call grpcop(e,symops)
@@ -546,8 +524,7 @@ contains
        ! ---   Extend the group by all products with sig ---
        do  9  ig = 1, ng
           if (grpeql(symops(1,ig),sig) .AND. ipr > 30) &
-               call awrit2(' Generator %i already in group as element %i', &
-               ' ',80,stdo,igen,ig)
+               call awrit2(' Generator %i already in group as element %i',' ',80,stdo,igen,ig)
           if (grpeql(symops(1,ig),sig)) goto 80
 9      enddo
 
@@ -623,7 +600,12 @@ contains
     !        call ywrm(0,' ',1,i1mach(2),'(5f12.6)',symops,1,9,9,ng)
     !      endif
     return
-99  call rx('GRPGEN: too many elements')
+99  continue
+    do i=1,nnow
+       write(stdo,ftox) ftof(symops(1:9,i),8)
+    enddo   
+    write(stdo,ftox) ftof(h,3)
+    call rx('GRPGEN: too many elements')
   end subroutine grpgen
   subroutine grpcop(g,h)
     !- Copy matrix
@@ -909,13 +891,11 @@ contains
     integer :: nbas,ng,ipc(nbas),nclass,istab(nbas,ng),nrclas(nclass)
     double precision :: plat(3,3),qlat(3,3),bas(3,nbas),bast(3,nbas), g(3,3,*),ag(3,*)
     integer :: ibas,ic,iclbsj,icmin,ig,ipr,jbas,kbas,kc, m,mbas,nj,nm,ng0
-    double precision :: dbas(3),tol0,tol1
-    parameter (tol0=1d-5)
+    double precision :: dbas(3),tol1
     character sg*35
     real(8):: rfrac(3),epsr=1d-12
     call getpr(ipr)
-    tol1 = fptol
-    if(fptol==0d0) tol1 = tol0
+    tol1=toll
     ! --- Find the class with minimum number of atoms ---
     icmin = 1
     do  5  ic = 1, nclass
@@ -993,14 +973,12 @@ contains
     !b Bugs
     !b  No check is made on the length of sg
     ! ----------------------------------------------------------------------
-    !     implicit none
+    implicit none
     double precision :: grp(3,3),ag(3)
     character*(*) sg,asep
-    ! Local variables
-    double precision :: vecg(3),dasum,tiny
+    double precision :: vecg(3),dasum
     integer :: nrot,ip,isw,awrite,i1,i2,fmtv
-    logical :: li!,parsvc
-    parameter(tiny=1d-4)
+    logical :: li
     ! --- Get consitutents of grp ---
     call csymop(1,grp,li,nrot,vecg)
     ! --- Rotational part ---
@@ -1058,19 +1036,12 @@ contains
     !r   from: mat(i,j) = 2 v_i * v_j for i ne j.  This way we also
     !r   get the right phases between the components.
     ! ----------------------------------------------------------------------
-    !     implicit none
-    ! Passed parameters:
+    implicit none
     integer :: nrot,iopt
     double precision :: vecg(3),grp(3,3)
     logical :: li
-    ! Local parameters:
     integer :: i,idamax,j,in
-    double precision :: costbn,detop,ddet33,dnrm2,sinpb3,tiny,twopi,vfac, &
-         wk(9),sintbn,omcos,ddot
-    parameter(tiny=1d-5)
-    ! External calls:
-    external daxpy,dcopy,ddet33,dpzero,dnrm2,dscal,idamax,ddot
-
+    double precision :: costbn,detop,ddet33,dnrm2,sinpb3,twopi,vfac, wk(9),sintbn,omcos,ddot
     twopi = 8*datan(1d0)
     ! --- Make grp from (nrot,vecg,li) ---
     if (iopt == -1) then
@@ -1085,8 +1056,7 @@ contains
           sintbn = dsin(twopi/nrot)
           costbn = dcos(twopi/nrot)
           omcos  = 1d0-costbn
-          call rxx(dnrm2(3,vecg,1).lt.tiny, &
-               'CSYMOP: zero rotation vector')
+          call rxx(dnrm2(3,vecg,1).lt.tiny, 'CSYMOP: zero rotation vector')
           call dscal(3,1/sqrt(ddot(3,vecg,1,vecg,1)),vecg,1)
           grp(1,1) = omcos*vecg(1)*vecg(1) + costbn
           grp(1,2) = omcos*vecg(1)*vecg(2) - sintbn*vecg(3)
@@ -1121,7 +1091,6 @@ contains
           nrot = 1
           call dpzero(vecg,3)
        else
-          !     ... See Remarks
           nrot = idnint(twopi/dacos(dmax1(-1d0,costbn)))
           if (nrot == 2) then
              do  10  i = 1, 3
@@ -1141,7 +1110,6 @@ contains
              vecg(2) = grp(1,3)-grp(3,1)
              vecg(3) = grp(2,1)-grp(1,2)
           endif
-
           !     --- Renormalize at least one component to 1 ---
           !         to allow for abbreviations as 'D', 'X', 'Y' or 'Z'
           sinpb3 = dsqrt(.75d0)
@@ -1179,30 +1147,23 @@ contains
     !o Outputs
     !o   istab :table of site permutations for each group op; see mode
     ! ----------------------------------------------------------------------
-    !     implicit none
-    ! Passed parameters
+    implicit none
     integer :: nbas,ng,mode
     integer :: ipc(1),istab(nbas,1)
-    double precision :: pos(3,1),g(9,1),ag(3,1),qlat(9)!,tol
-    ! Local variables
-    integer :: ib,ic,ig,jb,jc,mode1,mode10 !,oiwk
-    double precision :: tol0,tol1
+    double precision :: pos(3,1),g(9,1),ag(3,1),qlat(9)
+    integer :: ib,ic,ig,jb,jc,mode1,mode10
+    double precision :: tol1
     character(200)::aaa
-    parameter (tol0=1d-5)
-    !      real(8):: tol=0d0
     integer,allocatable:: w_oiwk(:)
     if (ng == 0) return
     mode1 = mod(mode,10)
     mode10 = mod(mode/10,10)
-    tol1 = fptol !tol
-    if(fptol==0d0) tol1 = tol0
+    tol1=toll
     !     --- Make atom transformation table ---
     do  20  ig = 1, ng
        do  10  ib = 1, nbas
           call grpfnd(tol1,g,ag,ig,pos,nbas,qlat,ib,jb)
           if (jb == 0) then
-             !     .    call fexit2(-1,111,' Exit -1 SYMTBL: no map for atom '//
-             !     .    'ib=%i, ig=%i',ib,ig)
              write(aaa,"('SYMTBL: no map for atom ib=',i0,' ig=',i0)") ib,ig
              call rx(aaa)
           endif
@@ -1210,12 +1171,9 @@ contains
              ic = ipc(ib)
              jc = ipc(jb)
              if (ic /= jc) then
-                write(aaa,"('SYMTBL: site ',i0,' not in same class as mapped site ',i0,', ig=',i0)") &
+                write(aaa,"('SYMTBL: site ',i0,' not in same class as mapped site ',i0,', ig=',i0)")&
                      ib,jb,ig
                 call rx(aaa)
-                !               call fexit3(-1,111,' Exit -1 SYMTBL: '//
-                !     .      'site %i not in same class as mapped site %i, ig=%i',
-                !     .      ib,jb,ig)
              endif
           endif
           if (mode1 == 0) then
@@ -1243,7 +1201,6 @@ contains
 50  enddo
     deallocate(w_oiwk)
   end subroutine symtbl
-
   subroutine istbpm(istab,nbas,ng,istab2)
     !- Makes inverse of istab
     integer :: nbas,ng
@@ -1279,19 +1236,15 @@ contains
     !b Bugs
     !b   no check is made on the length of t
     ! ----------------------------------------------------------------------
-    !     implicit none
+    implicit none
     integer :: ip
     double precision :: v(3)
     character*(1) t(0:*)
-    ! Local variables
-    double precision :: tiny,x,y,z,d
+    double precision :: x,y,z,d
     character rchr*9, sout*50
     integer :: itrm,a2vec,awrite,ix(3),ich,iopt,m,i,iz,id
     logical :: lveq0(3),lveq1(3),a2bin
-    parameter (tiny=1d-4)
-
     data rchr /'(XxYyZzDd'/
-
     ! --- Convert t to vec ---
     if (iopt == -1) then
        call dpzero(v,3)
@@ -1402,13 +1355,10 @@ contains
     !u Updates
     !u   26 Jan 01  Add ability to operate with -g (ia<0)
     ! ----------------------------------------------------------------------
-    !     implicit none
-    ! Passed parameters
+    implicit none
     integer :: ia,ja,ig
     double precision :: g(3,3,ig),ag(3,ig),pos(3,1),qlat(3,3),tol
-    ! Local parameters
     double precision :: d(3),d2(3)
-    !      logical latvec
     integer :: ka,nbas,m,k
     ka = iabs(ia)
     do    m = 1, 3
@@ -1469,14 +1419,12 @@ contains
     return
   end function spgeql
   ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  logical function grpeql(g1,g2)
-    !- Checks if G1 is equal to G2
-    !     implicit none
-    double precision :: g1(9),g2(9),dabs,tol,x1,x2
-    parameter (tol = 1d-8)
+  logical function grpeql(g1,g2)    !- Checks if G1 is equal to G2
+         implicit none
+    double precision :: g1(9),g2(9),dabs,x1,x2
     logical :: ddif
     integer :: i
-    ddif(x1,x2) = dabs(x1-x2) .gt. tol
+    ddif(x1,x2) = dabs(x1-x2)> toll
     grpeql = .false.
     do  10  i = 1, 9
        if (ddif(g1(i),g2(i))) return
@@ -1505,14 +1453,9 @@ contains
     !o Outputs:
     !o   latvec:T if all vectors are lattice vectors within spec'd tol
     ! ----------------------------------------------------------------------
-    !     implicit none
-    ! Passed parameters:
-    integer :: n
-    double precision :: qlat(3,3),vec(3,n),tol
-    ! Local parameters:
-    integer :: i,m
-    double precision :: vdiff
-
+    implicit none
+    integer :: n,i,m
+    double precision :: qlat(3,3),vec(3,n),tol, vdiff
     latvec = .false.
     do  10  i = 1, n
        do  20  m = 1, 3
@@ -1524,6 +1467,5 @@ contains
 10  enddo
     latvec = .true.
   end function latvec
-
 end module m_mksym_util
 
