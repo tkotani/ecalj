@@ -203,8 +203,7 @@ contains
     integer ::iwdummy ,iwdummy1(1)
     logical :: T,F,cmdopt0,ltmp
     integer:: idest,ig,iprint,igets,isym(10),j1,j2,lpgf,nbas, &
-         nbas0,nclass,ngen,ngnmx,nspec,usegen, &
-         nggen,ngmx,incli, oiwk , aginv  !ldist,
+         nbas0,nclass,ngen,ngnmx,nspec,usegen, nggen,ngmx,incli, oiwk , aginv
     integer,allocatable :: nrspc_iv(:)
     real(8) ,allocatable :: pos2_rv(:,:)
     integer ,allocatable :: ips2_iv(:)
@@ -217,16 +216,8 @@ contains
     nbas =ctrl_nbas
     nspec=ctrl_nspec
     plat =lat_plat
-    !      ldist=lat_ldist           ! ldist mode need to be recovered if necessary
-    !      dist=lat_dist
-    !      i_copy_size=size(lat_dist)
-    !      call dcopy(i_copy_size,lat_dist,1,dist,1)
-    !      stdo = globalvariables%stdo
-
     ngmx = 48
-    ! ... Re-entry when ngmx was increased
-5   continue
-    ! ... For memory allocation of class data, assume initially nclass=nbas
+5   continue! ... Re-entry when ngmx was increased
     if(allocated(rv_a_oag)) deallocate(rv_a_oag,rv_a_osymgr,iv_a_oipc,iv_a_oics)
     allocate( rv_a_oag(3*ngmx)    )
     allocate( rv_a_osymgr(9*ngmx) )
@@ -259,16 +250,14 @@ contains
     ips2_iv(1:nbas)= iv_a_oips(1:nbas)
     pos2_rv(:,1:nbas)=rv_a_opos(:,1:nbas)
     call gensym ( slabl , gens , usegen , t , f , f , nbas &
-         , nspec , ngmx , plat , plat , pos2_rv , ips2_iv& ! & , ldist , dist
+         , nspec , ngmx , plat , plat , pos2_rv , ips2_iv& 
          , nrspc_iv , nsgrp , rv_a_osymgr , rv_a_oag , ngen , gen , ssymgr &
          , nggen , isym , iv_a_oistab )
-    if (nbas > nbas0) call rxs('gensym: the basis was enlarged.',' Check group operations.')
-    if (nggen> nsgrp) then
+    if(nbas >nbas0) call rxs('gensym: the basis was enlarged.',' Check group operations.')
+    if(nggen>nsgrp) then
        if(master_mpi)write(stdo,ftox)'MKSYM(warning): generators create more than ngmx=',ngmx,'group ops ...'
        ngmx = ngmx*16
-       if (allocated(pos2_rv)) deallocate(pos2_rv)
-       if (allocated(ips2_iv)) deallocate(ips2_iv)
-       if (allocated(nrspc_iv)) deallocate(nrspc_iv)
+       deallocate(pos2_rv,ips2_iv,nrspc_iv)
        goto 5
     endif
     ! --- Add inversion to point group ---

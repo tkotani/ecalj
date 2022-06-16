@@ -136,15 +136,16 @@ program lmf
   call Rx0("OK! end of "//trim(prgnam)//" ======================")
 end program Lmf
 
+
 include "show_programinfo.fpp" !this is for 'call show_programinfo'
 ! preprocessed from show_programinfo.f90 by Makefile
+
 
 subroutine praugm() !print out only
   use m_struc_def 
   use m_lmfinit,only: nspec,stdo,sspec=>v_sspec,slabl
   implicit none
   integer :: is
-  !type(s_spec)::sspec(*)
   integer :: is1,is2,js,kmxt,lmxa,lgunit
   integer :: kmxv,lmxl,lfoca
   double precision :: rmt,rsma,rfoca,rg,rsmv
@@ -161,7 +162,6 @@ subroutine praugm() !print out only
      lmxl=sspec(js)%lmxl
      rg=sspec(js)%rg
      rsmv=sspec(js)%rsmv
-!     kmxv=sspec(js)%kmxv
      lfoca=sspec(js)%lfoca
      rfoca=sspec(js)%rfoca
      write (stdo,500) spid,rmt,rsma,lmxa,kmxt, lmxl,rg,rsmv,lfoca,rfoca

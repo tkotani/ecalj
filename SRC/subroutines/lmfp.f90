@@ -43,7 +43,7 @@ subroutine lmfp(llmfgw)
   integer :: i,ifi,ipr, k, nit1,numq, lsc, icom,  nvrelx , itrlx
   integer:: ibas,unlink,ifipos,ifile_handle,iter,j,idmatu,iprint
   real(8) :: gam(4),gam1,bstim,pletot(6,2), plat(3,3),xvcart(3),xvfrac(3),seref,etot(2),vs,vs1
-  real(8),allocatable :: pos_move(:,:),  ftot_rv(:), wk_rv(:), p_rv(:),hess(:,:)
+  real(8),allocatable :: ftot_rv(:), wk_rv(:), p_rv(:),hess(:,:)
   real(8),allocatable :: rv_a_omad (:) !  Madelung matrix if necessary
   character(512):: aaachar
   character(10):: i2char
@@ -51,10 +51,14 @@ subroutine lmfp(llmfgw)
   character(20):: outs=''
   integer:: ierr
   integer:: irs(5),irsr(5), irs1,irs2,irs3,irs5
-  logical:: irs1x10!,irsrot
+  logical:: irs1x10,irpos,hsign
   character(256):: strn,strn2
+  real(8),allocatable:: posread(:,:),poss(:,:),pos0(:,:)
   include "mpif.h"
+
   call tcn('lmfp')
+  allocate(pos0(3,nbas),poss(3,nbas),posread(3,nbas))
+  
   ipr = iprint()
   != Reading condition switch [irs1,irs2,irs3,irs5,irs1x10]
   !=    irs1x tells what to read and whether to invoke smshft.
@@ -101,16 +105,29 @@ subroutine lmfp(llmfgw)
         k = iors_old(nit1,'read',irs3=irs3,irs5=irs5) ! read rst file. sspec ssite maybe modified
      endif
      call Mpibc1_int(k,1,'lmv7:lmfp_k')
-     call Setopos()         ! Set position of atoms to rv_a_opos from iors
+     do ibas=1,nbas
+        poss(:,ibas)=ssite(ibas)%pos 
+     enddo
+     call Setopos(poss)    ! Set position of atoms of iors to rv_a_opos 
   endif
   if(k<0) then !irs1==0 .OR. Not reading rst.
      irs1 = 0
      call Rdovfa()  ! Initial potential from atm file if rst can not read
      nit1 = 0
   endif
-  if(k>=0 .AND. irs1x10) call Smshft(1)  ! modify denity after reading rst when irs1x10=True
+  
+! Reading pos from AtomPos if it exists, overwrite pos in lattic.
+  call ReadAtomPos(nbas,posread,irpos)
+  if(irpos) call Setopos(posread)
+  print *,'irpossssssssssssssssss',irpos
 
-  !! Sep2020 " Shorten site positions" removed.
+! Use atomic positon in m_lattic
+  poss = rv_a_opos
+  if(k>=0 .AND. irs1x10) call Smshft(1,poss,poss)  ! modify denity after reading rst when irs1x10=True
+  
+  ! Sep2020 " Shorten site positions" removed.
+  
+!  
   etot = 0d0 ! Total energy mode --etot ==>moved to m_lmfinit ---
   if(nitrlx>0 ) then ! Atomic position Relaxation setup (MDloop)
      icom = 0
@@ -118,19 +135,18 @@ subroutine lmfp(llmfgw)
      if(master_mpi) then
         open(newunit=ifipos,file='AtomPos.'//trim(sname),position='append')
         write(ifipos,ftox) '========'
-        write(ifipos,ftox) 0,   '  !nitrlx'
+        write(ifipos,ftox) 0,   '  !itrlx'
         write(ifipos,ftox) nbas,'  !nbas'
         do i=1,nbas
-           write(ifipos,ftox) ftof(rv_a_opos(:,i),16),'   ',i
+           write(ifipos,ftox) ftof(poss(:,i),16),'   ',i
         enddo
      endif
-     allocate(pos_move(3,nbas))
   endif
 
   !==== Main iteration loops ===
   MDloop: do 2000 itrlx = 1,max(1,nitrlx) !loop for atomic position relaxiation(molecular dynamics)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!     
-     call Setopos()         ! Set position of atoms read from iors
+     call Setopos( poss )         ! Set position of atoms read from iors
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!     
 !     !ccccccccccccccccccccccccccccccccccccccccc
 !     do ibas=1,nbas
@@ -145,7 +161,7 @@ subroutine lmfp(llmfgw)
         write(stdo,"(/1x,a/' site spec',8x,'pos (Cartesian coordinates)',9x, &
              'pos (multiples of plat)')") 'Basis, after reading restart file'
         do i = 1, nbas
-           xvcart = ssite(i)%pos !cartesian coordinate
+           xvcart = poss(:,i) !ssite(i)%pos !cartesian coordinate
            xvfrac = matmul(transpose(qlat),xvcart) !fractional coodinate
            write(stdo,"(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)")i,trim(slabl(ssite(i)%spec)),xvcart,xvfrac
         enddo
@@ -193,7 +209,9 @@ subroutine lmfp(llmfgw)
            !     :1 if not self-consistent, but encountered max. no. iter.
            !     :2 Harris energy from overlap of free atoms (iter=1 and lhf=t)
            !     :3 otherwise
-           call nwit( int(ctrl_nvario), iter, maxit, (lhf.or.irs1==0).and.iter==1, &
+           hsign= (lhf.or.irs1==0).and.iter==1
+           if(itrlx>1) hsign=.false.
+           call nwit( int(ctrl_nvario), iter, maxit, hsign, &
                 leks+i, etol, qtol, qdiff, amom, etot, sev,lsc)
         endif
         call mpibc1_int(lsc,1,'lmfp_lsc')
@@ -208,45 +226,40 @@ subroutine lmfp(llmfgw)
      if(nitrlx==0) exit     !no molecular dynamics (=no atomic position relaxation)
      !==== Molecular dynamics (relaxiation).
      MDblock: Block !Not maintained well recently but atomic position relaxation was working
-       do ibas=1,nbas
-          ssite(ibas)%pos0 = ssite(ibas)%pos
-          pos_move(:,ibas) = ssite(ibas)%pos
-       enddo
-       !==   Relax atomic positions.   !--> shear mode removed. probably outside of fortran code if necessary
-       call Relax(ssite,sspec,itrlx,indrx_iv,natrlx,force,p_rv,hess,0,[0d0],pos_move,icom)
-       !     warn: Updating positions in ssite structure ==> t.kotani think this is confusing because
-       !     'positions written in ctrl' and 'positions written in rst' can be different.
-       !if(master_mpi) write(ifipos) itrlx,pos_move
+       pos0 = poss
+!       do ibas=1,nbas
+!           !ssite(ibas)%pos !old
+!       enddo
+       !==   Relax atomic positions. shear mode removed. probably outside of fortran code if necessary
+       call Relax(ssite,itrlx,indrx_iv,natrlx,force,p_rv,hess,0,[0d0],pos0,poss,icom)
+       if (itrlx==nitrlx) then !== Restore minimum gradient positions if this is last step
+          write(stdo,"(a)")' lmfp: restore positions for minimum g'
+          call Prelx1(1 , nm , .false. , natrlx , indrx_iv , p_rv, poss )
+       endif
        if(master_mpi) then
           write(ifipos,ftox) '========'
           write(ifipos,ftox) itrlx,'   !itrlx'
           write(ifipos,ftox) nbas, '   !nbas'
           do i=1,nbas
-             write(ifipos,ftox) ftof(pos_move(:,i),16),'   ',i
+             write(ifipos,ftox) ftof(poss(:,i),16),'   ',i !new position
           enddo
        endif
+       
        do ibas=1,nbas
-          ssite(ibas)%pos = pos_move(:,ibas)
+          ssite(ibas)%pos = poss(:,ibas) 
        enddo
+       
        !==   Exit when relaxation converged or maximum number of iterations
        if(icom==1) then
           if(master_mpi) then
-             flg = 'C67' !what?
-             call nwitsv(1+2,ctrl_nvario,flg,nsp,amom,etot,sev)
+             flg = 'C'
+             call nwitsv(ctrl_nvario,flg,nsp,amom,etot,sev)
              write(stdo,"(a,i5)")' LMFP: relaxation converged after iteration(s) of ',itrlx
           endif
           exit
        endif
-       !==   Restore minimum gradient positions if this is last step
-       if (itrlx==nitrlx) then
-          write(stdo,"(a)")' lmfp: restore positions for minimum g'
-          call Prelx1(1 , nm , .false. , natrlx , indrx_iv , p_rv, pos_move )
-          do ibas=1,nbas !updated positions in site structure
-             ssite(ibas)%pos = pos_move(:,ibas)
-          enddo
-       endif
        !==   New density after atom shifts.
-       call Smshft(ctrl_lfrce)
+       call Smshft(ctrl_lfrce,poss,pos0)
        if (master_mpi) then ! .AND. .NOT. lshr) then
           ifi = ifile_handle()
           open(ifi,file='rst.'//trim(sname),form='unformatted')
@@ -267,3 +280,31 @@ subroutine lmfp(llmfgw)
   if(allocated(hess)) deallocate(hess)
   call tcx('lmfp')
 end subroutine lmfp
+
+subroutine readatompos(nbas,pos,irpos)
+  use m_ext,only:     sname
+  use m_ftox
+  real(8):: pos(3,nbas)
+  integer:: ifipos,i,nbas,nbasin
+  logical:: irpos
+  open(newunit=ifipos,file='AtomPos.'//trim(sname),status='old',err=1019)
+  do 
+     read(ifipos,*,err=1010)
+     read(ifipos,*)
+     read(ifipos,*)nbasin
+     if(nbasin/=nbas) then
+        pos=0d0
+        irpos=.false.
+        return
+     endif
+     do i=1,nbas
+        read(ifipos,*) pos(:,i)
+        write(6,ftox)i,ftof(pos(:,i))
+     enddo
+  enddo
+1010 continue
+  irpos=.true.
+  return
+1019 continue
+  irpos=.false.
+end subroutine readatompos

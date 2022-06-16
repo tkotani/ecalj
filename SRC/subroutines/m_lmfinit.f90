@@ -1392,7 +1392,7 @@ contains
          qpol,stni,rg,rsma,rfoca,rsmfa,nxi, & !,rcfa
          exi,rham,idxdn, rmt,& !kmxv, & ! & kmxt,,idu,uh,jh
          lfoca,lmxl, spec_a,z,nr,rsmv, &
-         pos,ips,irlx)  !,vshft,coreh coreq,
+         ips,irlx)  !,vshft,coreh coreq,pos,
     !! --- takao embed contents in susite here. This is only for lmf and lmfgw.
     seref = 0d0
     do ib = 1, nbas

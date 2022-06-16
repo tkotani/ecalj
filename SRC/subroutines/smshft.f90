@@ -1,4 +1,4 @@
-subroutine smshft (job)
+subroutine smshft (job,ppnew,ppold)
   use m_density,only:  sv_p_orhoat=>orhoat,smrho=>osmrho !input and output
   use m_supot,only:  iv_a_okv,rv_a_ogv
   use m_lmfinit,only: ctrl_lfrce,ham_elind, &
@@ -29,6 +29,7 @@ subroutine smshft (job)
   equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
   double precision :: alat,dgets,elind,pi,qc,qsc,qcor(2),plat(3,3), &
        qlat(3,3),qv,qval,tpiba,vol,z,pnu(n0,2),pnz(n0,2)
+  real(8)::ppnew(3,nbas),ppold(3,nbas)
   if (job <= 0) return
   call tcn('smshft')
   alat=lat_alat
@@ -46,7 +47,7 @@ subroutine smshft (job)
   allocate(cgs_zv(ng,nsp),cgs_zvv(ng,nsp),cwk_zv(ng))
   kmax = 0
   call pvsms1 ( ssite , sspec ,  nbas , nsp , kmax , ng ,&
-       rv_a_ogv , sv_p_orhoat , cwk_zv , cgs_zv , job )
+       rv_a_ogv , sv_p_orhoat , cwk_zv , cgs_zv , job ,ppnew,ppold)
   if (allocated(cwk_zv)) deallocate(cwk_zv)
   ! --- Screened shift ---
   if (job > 10) then !Compute elind if not given
@@ -89,10 +90,10 @@ subroutine smshft (job)
 end subroutine smshft
 ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
 subroutine pvsms1 ( ssite , sspec ,  nbas , nsp , kmax &
-     , ng , gv , sv_p_orhoat , cwk , cg , job )
+     , ng , gv , sv_p_orhoat , cwk , cg , job, ppnew,ppold )
   use m_struc_def
   use m_lmfinit,only:lat_alat,n0,slabl
-  use m_lattic,only: lat_vol,rv_a_opos
+  use m_lattic,only: lat_vol!,rv_a_opos
   use m_lgunit,only:stdo
   !- Shift in smoothed density according to job.
   ! ----------------------------------------------------------------------
@@ -178,7 +179,8 @@ subroutine pvsms1 ( ssite , sspec ,  nbas , nsp , kmax &
   integer :: ib,i,is,iv0,kmax,lmxl,igetss,lmxa,nr,nlml,nxi,ie,ixi,ig,ipr,iprint,kcor,lcor
   integer,parameter:: nrmx=1501
   real(8) :: a,aa,alat,df(0:20),e,exi(n0),gam,hfc(n0,2),pnew(3),pnu(n0,2),pnz(n0,2),pold(3), &
-       pp,qall,qc,qcor(2),qsc,qfat,qg,qloc,qval,rmt,rsmfa,rwgt(nrmx),scalp,summ,tpiba,v(3),v2,vol,volsp,z
+       pp,qall,qc,qcor(2),qsc,qfat,qg,qloc,qval,rmt,rsmfa,rwgt(nrmx),scalp,summ,tpiba,v(3),&
+       v2,vol,volsp,z,ppnew(3,nbas),ppold(3,nbas)
   character(35) :: strn
   character:: spid*8
   complex(8):: phase,img=(0d0,1d0)
@@ -205,8 +207,8 @@ subroutine pvsms1 ( ssite , sspec ,  nbas , nsp , kmax &
      nlml = (lmxl+1)**2
      if (lmxl == -1) cycle
      is  = ssite(ib)%spec
-     pnew= ssite(ib)%pos !rv_a_opos(:,ib) !
-     pold= ssite(ib)%pos0
+     pnew= ppnew(:,ib) !ssite(ib)%pos !rv_a_opos(:,ib) !
+     pold= ppold(:,ib) !ssite(ib)%pos0
      pp = alat*dsqrt(sum((pnew-pold)**2))
      if(ipr>=30) write(stdo,340) ib,spid,pold,pnew,pp/alat
 340  format(i4,':',a,f8.5,2f9.5,2x,3f9.5,2x,f9.6)
@@ -266,16 +268,17 @@ subroutine pvsms1 ( ssite , sspec ,  nbas , nsp , kmax &
         enddo
         !   --- Shift in mesh density, job 12 ---
      elseif (job == 12) then  !     ... Core + valence at old position
-        cwk=0d0
-        ssite(ib)%pos=pold
-        call rhgcmp(131, ib, ib, ssite, sspec ,  sv_p_orhoat, kmax , ng , cwk )
-        cwk=-cwk !call dscal(ng*2,-1d0,cwk,1)
-        !     ... Core + valence at new position
-        ssite(ib)%pos=pnew
-        call rhgcmp(131, ib, ib, ssite , sspec,  sv_p_orhoat, kmax , ng , cwk )
-        do i=1,nsp
-           cg(:,i)= cwk/nsp + cg(:,i)
-        enddo
+        call rx('pvsms1: not supporting HAM_FORCES=12 now for simplicity')
+        ! cwk=0d0
+        ! ssite(ib)%pos=pold
+        ! call rhgcmp(131, ib, ib, ssite, sspec ,  sv_p_orhoat, kmax , ng , cwk )
+        ! cwk=-cwk !call dscal(ng*2,-1d0,cwk,1)
+        ! !     ... Core + valence at new position
+        ! ssite(ib)%pos=pnew
+        ! call rhgcmp(131, ib, ib, ssite , sspec,  sv_p_orhoat, kmax , ng , cwk )
+        ! do i=1,nsp
+        !    cg(:,i)= cwk/nsp + cg(:,i)
+        ! enddo
      else
         call rxi('smshft: bad job:',job)
      endif

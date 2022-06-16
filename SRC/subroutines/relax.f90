@@ -4,8 +4,8 @@ module m_relax
   public relax,prelx1
   private
 contains
-  subroutine relax(ssite,sspec,it,indrlx,natrlx,f, &
-       p,w,nelts,delta,bas,icom)
+  subroutine relax(ssite,it,indrlx,natrlx,f, &
+       p,w,nelts,delta,basin,bas,icom)
     use m_struc_def
     use m_lmfinit,only:ctrl_nbas,ctrl_nitmv,ctrl_mdprm,slabl
     use m_ext,only:     sname
@@ -20,9 +20,6 @@ contains
     !i     Elts read: spec relax
     !i     Duplicate: spec relax relax
     !i     Stored:
-    !i   sspec :struct for species-specific information; see routine uspec
-    !i     Elts read:
-    !i     Stored:    name
     !i   it:        iteration number
     !i   indrlx(1,i) points to the ith relaxing component and
     !i   indrlx(2,i) points to the corresponding site (see rlxstp)
@@ -32,10 +29,9 @@ contains
     !i   p:         for gradzr (dimensioned in rlxstp)
     !i   w:         the hessian
     !i   delta,nelts used for printout only, if U[L] turned on (TBE)
-    ! o Inputs/Outputs
-    ! o  bas        atom positions or shear coordinates; se Remarks
-    ! o             New estimate on output
+    !i basin: original atomic position
     !o Outputs
+    !o bas: new atomic position
     !o   icom       1 if relaxation is complete
     !o             -1 if relaxation is not complete and current gradient
     !o                is larger than prior case.
@@ -56,9 +52,8 @@ contains
     implicit none
     integer :: it,nit,natrlx,nelts,icom,procid,master,mpipid
     integer :: indrlx(2,natrlx)
-    real(8):: f(3,*), w(natrlx,natrlx) , p(natrlx,6) , delta(nelts,*), bas(3,*)
+    real(8):: f(3,*), w(natrlx,natrlx) , p(natrlx,6) , delta(nelts,*), bas(:,:),basin(:,:)
     type(s_site)::ssite(*)
-    type(s_spec)::sspec(*)
     integer :: i,j,ipr,ifi,ix,lgunit,nbas,ltb,ifrlx(3),natrlx2,natrlx3, &
          ir,iprint,isw,rdm,lrlx,is,idamax,nd,ns,nkill
     parameter (nd=4,ns=6)
@@ -76,7 +71,7 @@ contains
     procid = mpipid(1)
     if (procid == master) call pshpr(iprint()+30)
     call tcn('relax')
-
+    bas=basin
     ! --- Setup ---
     nbas=  ctrl_nbas
     nit =  ctrl_nitmv

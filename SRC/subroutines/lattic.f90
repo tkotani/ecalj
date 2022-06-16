@@ -9,17 +9,18 @@ module m_lattic
   ! real(8),protected:: lat_dist(3,3) !unused because no deformation of cell allowed currently.
   private
 contains
-  subroutine Setopos() !called from lmfp to revise atomic position by reading rst file.
-    use m_lmfinit,only: ctrl_nbas,v_ssite
+  subroutine Setopos(posin) !called from lmfp to revise atomic position by reading rst file.
+    use m_lmfinit,only: ctrl_nbas
     integer:: i
+    real(8):: posin(:,:)
     do i=1,ctrl_nbas
-       rv_a_opos(:,i)= v_ssite(i)%pos
+       rv_a_opos(:,i)= posin(:,i) !v_ssite(i)%pos
     enddo
   end subroutine Setopos
   subroutine m_lattic_init() !no shear now  ldist=0
     use m_lmfinit,only:ctrl_nbas,lat_alat,lat_as,lat_tol,lat_rpad,lat_nkdmx,lat_nkqmx,lat_gam,&
-         v_ssite, lat_platin
-    ! Sets up the real and reciprocal space lattice vectors
+        lat_platin, poss=>pos
+    ! Sets up the real and rmeciprocal space lattice vectors
     ! ----------------------------------------------------------------------
     !u Updates
     !u   2 Mar 04 Pass rpad to lattc
@@ -44,13 +45,9 @@ contains
     alat = lat_alat
     plat0=lat_platin
     nbas=ctrl_nbas
-    !      nbaspp = nbas
-    ! ... Apply specified linear transformation of lattice and basis vectors
-    !      ldist = lat_ldist
-    !      dist= lat_dist0
     allocate(rv_a_opos(3,nbas))
     do ib=1,nbas
-       rv_a_opos(:,ib)= v_ssite(ib)%pos
+       rv_a_opos(:,ib)= poss(:,ib) !v_ssite(ib)%pos
     enddo
     if (abs(gt-1d0) > 1d-10) then
        call rdistn ( rv_a_opos , rv_a_opos , nbas , gx , gy , gz , gt )
