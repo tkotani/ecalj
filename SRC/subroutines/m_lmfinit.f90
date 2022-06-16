@@ -843,6 +843,15 @@ contains
 !          nm='SPEC_ATOM_RS3'; call gtv(trim(nm),tksw(prgnam,nm),rs3(j), &
 !               def_r8=0.5d0,cindx=jj, &
 !          note='Minimum smoothing radius for local orbital')
+
+  !! --- explanation of s_spec ---
+  !r  idmod  idmol(l) controls how linearization energy is
+  !r         determined for an orbital of angular momentum l
+  !r         0 float to center of gravity of occupied part of band
+  !r         1 freeze to spec'd logarithmic derivative
+  !r         2 freeze to spec'd linearization energy
+  !r         3 float to natural center of band (C parameter)
+  ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
           nm='SPEC_ATOM_IDMOD'; call gtv(trim(nm),tksw(prgnam,nm), &
                idmod(1:nlaj,j),def_i4v=(/(0,i=1,n0)/), cindx=jj,note= &
                'idmod=0 floats P to band CG, 1 freezes P, 2 freezes enu')
@@ -1243,7 +1252,7 @@ contains
     do j=1,nbas
        v_ssite(j)%spec=ips(j)
        v_ssite(j)%class=ips(j)
-       v_ssite(j)%pos=pos(1:3,j)
+       !v_ssite(j)%pos=pos(1:3,j)
        v_ssite(j)%relax=irlx(:,j)
        v_ssite(j)%iantiferro=iantiferro(j)
        is=v_ssite(j)%spec

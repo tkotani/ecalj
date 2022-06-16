@@ -7,7 +7,7 @@ module m_iors_old!this module is for reading(and writing old version) of rst fil
   private
 
 contains
-  integer function iors_old(nit,rwrw,irs3,irs5)
+  integer function iors_old(nit,rwrw,irs5)
     use m_density,only: osmrho, orhoat !these are allocated
     use m_bndfp,only: m_bndfp_ef_SET,eferm
 
@@ -113,7 +113,7 @@ contains
     logical :: isanrg,lfail,ltmp1,ltmp2,latvec,cmdopt,mlog !,lshear
     double precision :: a,a0,alat,alat0,cof,eh,fac,qc,rfoc,rfoc0,rmt, &
          rmt0,rsma,rsma0,rsmfa,rsmr,rsmr0,rsmv,rsmv0,stc,sum,vfac,vol,vol0,vs,vs1,z,z0
-    double precision :: pnu(n0,2),pnz(n0,2),ql(n0,2*n0),pos(3), &
+    double precision :: pnu(n0,2),pnz(n0,2),ql(n0,2*n0),pos(3)=-9999, &
          pos0(3),force(3),plat(3,3),plat0(3,3),qlat(3,3),qlat0(3,3), &
          exi(n0),hfc(n0,2),vec0(3),wk(100),rh,vrmax(2),pnus(n0,2), &
          pnzs(n0,2),dval
@@ -296,22 +296,22 @@ contains
        !        endif
        !   --- Read atomic positions,forces,velocities ---
        line = 'site data'
-       if (irs3 /= 0) then
-          ignore=trim(ignore)//'positions,'
-       else
-          use=trim(use)//' positions,'
-          !          if (lshear) use=trim(use)//' (sheared)'
-          !         Must be enough sites to read from rst file
-          if (nbas0 < nbas) then
-             call info0(1,0,0,'%9f oops ... cannot use file site positions (site mismatch)')
-             if (isanrg(nbas0, nbas,nbas,msg,'nbas', .TRUE. )) goto 999
-          endif
-       endif
+!       if (irs3 /= 0) then
+!          ignore=trim(ignore)//'positions,'
+!       else
+!          use=trim(use)//' positions,'
+!          !          if (lshear) use=trim(use)//' (sheared)'
+!!          !         Must be enough sites to read from rst file
+!          if (nbas0 < nbas) then
+!             call info0(1,0,0,'%9f oops ... cannot use file site positions (site mismatch)')
+!             if (isanrg(nbas0, nbas,nbas,msg,'nbas', .TRUE. )) goto 999
+!          endif
+!       endif
        do  ib = 1, nbas0
           if (procid == master) then
              read(jfi,err=999,end=999) jb,pos,force!,vel
           endif
-          call mpibc1_real(pos,3,'iors_pos')
+          !call mpibc1_real(pos,3,'iors_pos')
           call mpibc1_real(force,3,'iors_force')
           !          call mpibc1_real(vel,3,'iors_vel')
           if (ib > nbas) goto 10
@@ -320,13 +320,13 @@ contains
           !            call dgemm('T','N',3,1,3,1d0,qlat0,3,pos,3,0d0,pos0,3)
           !           call dgemm('N','N',3,1,3,1d0,plat,3,pos0,3,0d0,pos,3)
           !          endif
-          pos0=pos
-          if (irs3 /= 0) then !overwrite pos,vel
-             pos=ssite(ib)%pos
+          !pos0=pos
+          !if (irs3 /= 0) then !overwrite pos,vel
+             !pos=ssite(ib)%pos
              !            vel=0d0
-          endif
-          ssite(ib)%pos  =pos
-          ssite(ib)%pos0 =pos0
+          !endif
+          !ssite(ib)%pos  =pos
+          !ssite(ib)%pos0 =pos0
           ssite(ib)%force=force
           !           ssite(ib)%vel  =vel
 10        continue
@@ -655,7 +655,7 @@ contains
        wk(1)= eferm !sbz%ef !dummy ! we use wk(1) only wk(2:100) are dummy
        call dpdump(wk,100,-jfi)
        do  110  ib = 1, nbas
-          pos  =ssite(ib)%pos
+          !pos  =ssite(ib)%pos
           force=ssite(ib)%force
           !          vel  =ssite(ib)%vel
           write(jfi) ib,pos,force!,vel

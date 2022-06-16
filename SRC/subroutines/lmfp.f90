@@ -53,18 +53,35 @@ subroutine lmfp(llmfgw)
   integer:: irs(5),irsr(5), irs1,irs2,irs3,irs5
   logical:: irs1x10,irpos,hsign
   character(256):: strn,strn2
-  real(8),allocatable:: posread(:,:),poss(:,:),pos0(:,:)
+  real(8),allocatable:: poss(:,:),pos0(:,:)
   include "mpif.h"
-
   call tcn('lmfp')
-  allocate(pos0(3,nbas),poss(3,nbas),posread(3,nbas))
-  
   ipr = iprint()
+  allocate(pos0(3,nbas),poss(3,nbas))
+! Use atomic positon in m_lattic
+  poss = rv_a_opos
+  call ReadAtomPos(nbas,poss)! Overwrite pos in AtomPos if it exists.
+     ! Sep2020 " Shorten site positions" here removed.
+  etot = 0d0 ! Total energy mode --etot ==>moved to m_lmfinit ---
+  if(nitrlx>0 ) then ! Atomic position Relaxation setup (MDloop)
+     icom = 0
+     if(natrlx /= 0) allocate(hess(natrlx,natrlx),p_rv(pdim))
+     if(master_mpi) then
+        open(newunit=ifipos,file='AtomPos.'//trim(sname),position='append')
+        write(ifipos,ftox) '========'
+        write(ifipos,ftox) 0,   '  !itrlx'
+        write(ifipos,ftox) nbas,'  !nbas'
+        do i=1,nbas
+           write(ifipos,ftox) ftof(poss(:,i),16),'   ',i
+        enddo
+     endif
+  endif
+
   != Reading condition switch [irs1,irs2,irs3,irs5,irs1x10]
   !=    irs1x tells what to read and whether to invoke smshft.
   !=    0    read from atom file  atm;  1  read from binary  rst ;  2 read from ascii  rsta
   !=    +10 -> invoke smshft(1) after file read.
-  != --rs=3 mode is removed.(always read from atom file, --rs=3 is for fixed density Harris-foukner MD).
+  != --rs=3 is removed.(always read from atom file, --rs=3 is for fixed density Harris-foukner MD).
   irs=[1,1,0,0,0]
   if (cmdopt2('--rs=',strn)) then
      strn2=trim(strn)//',999,999,999,999,999'
@@ -77,8 +94,8 @@ subroutine lmfp(llmfgw)
   irs2 = irs(2)         ! irs2=0 (no write)
   if(irs1/=1 .AND. irs1/=0 .AND. irs1/=1) call rx('irs1 not \in [0,1,2]')
   if(irs2/=0 .AND. irs2/=1) call rx('irs2/=0 .AND. irs2/=1')
-  irs3 = irs(3) ! irs3=1: read site positions from ctrl even when we have rst.
-  irs5 = irs(5) ! irs5=1: read pnu from ctrl even when we have rst.
+  !irs3 = irs(3) ! irs3=1: read site positions from ctrl even when we have rst.
+  irs5 = irs(5)  ! irs5=1: read pnu from ctrl even when we have rst.
   irs1x10 = (irs(1)/10==1)  ! +10:  smshft after rst/rsta
   if (cmdopt0('--etot')) irs2=0 !not write rst files
   ! xx irsrot  = (irs(1)/100==1) ! +100: rotate local density after file read for shear mode (iors.F)
@@ -100,74 +117,35 @@ subroutine lmfp(llmfgw)
      call Mpi_barrier(MPI_COMM_WORLD,ierr)
      call Mpibc1_real(vs,1,'lmv7: vs: version id of rst file')
      if(vs==2d0) then       !2020-5-14
-        k = iors(nit1,'read',irs3=irs3,irs5=irs5) ! read rst file. sspec ssite maybe modified
+        k = iors(nit1,'read',irs5=irs5) ! read rst file. sspec ssite maybe modified
      else                   !vs=1.04d0
-        k = iors_old(nit1,'read',irs3=irs3,irs5=irs5) ! read rst file. sspec ssite maybe modified
+        k = iors_old(nit1,'read',irs5=irs5) ! read rst file. sspec ssite maybe modified
      endif
      call Mpibc1_int(k,1,'lmv7:lmfp_k')
-     do ibas=1,nbas
-        poss(:,ibas)=ssite(ibas)%pos 
-     enddo
-     call Setopos(poss)    ! Set position of atoms of iors to rv_a_opos 
   endif
   if(k<0) then !irs1==0 .OR. Not reading rst.
      irs1 = 0
      call Rdovfa()  ! Initial potential from atm file if rst can not read
      nit1 = 0
   endif
-  
-! Reading pos from AtomPos if it exists, overwrite pos in lattic.
-  call ReadAtomPos(nbas,posread,irpos)
-  if(irpos) call Setopos(posread)
-  print *,'irpossssssssssssssssss',irpos
-
-! Use atomic positon in m_lattic
-  poss = rv_a_opos
   if(k>=0 .AND. irs1x10) call Smshft(1,poss,poss)  ! modify denity after reading rst when irs1x10=True
-  
-  ! Sep2020 " Shorten site positions" removed.
-  
-!  
-  etot = 0d0 ! Total energy mode --etot ==>moved to m_lmfinit ---
-  if(nitrlx>0 ) then ! Atomic position Relaxation setup (MDloop)
-     icom = 0
-     if(natrlx /= 0) allocate(hess(natrlx,natrlx),p_rv(pdim))
-     if(master_mpi) then
-        open(newunit=ifipos,file='AtomPos.'//trim(sname),position='append')
-        write(ifipos,ftox) '========'
-        write(ifipos,ftox) 0,   '  !itrlx'
-        write(ifipos,ftox) nbas,'  !nbas'
-        do i=1,nbas
-           write(ifipos,ftox) ftof(poss(:,i),16),'   ',i
-        enddo
-     endif
-  endif
 
   !==== Main iteration loops ===
   MDloop: do 2000 itrlx = 1,max(1,nitrlx) !loop for atomic position relaxiation(molecular dynamics)
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!     
-     call Setopos( poss )         ! Set position of atoms read from iors
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!     
-!     !ccccccccccccccccccccccccccccccccccccccccc
-!     do ibas=1,nbas
-!        ssite(ibas)%pos=rv_a_opos(:,ibas)
-!     enddo
-!     !cccccccccccccccccccccccccccccccccccccc
-     
+     call Setopos( poss )  ! Set position of atoms 
      ! We can make structure constant (C_akL Eq.(38) in /JPSJ.84.034702) here
      ! if we have no extended local orbital.
      ! When we have extentede local obtail, we run m_bstrux_init after elocp in mkpot.
+     if(sum(lpzex)==0) call M_bstrux_init() ! Get structure constants for nbas and qplist
      if( ipr>=30 ) then ! Write atom positions
         write(stdo,"(/1x,a/' site spec',8x,'pos (Cartesian coordinates)',9x, &
              'pos (multiples of plat)')") 'Basis, after reading restart file'
         do i = 1, nbas
-           xvcart = poss(:,i) !ssite(i)%pos !cartesian coordinate
+           xvcart = poss(:,i) !cartesian coordinate
            xvfrac = matmul(transpose(qlat),xvcart) !fractional coodinate
            write(stdo,"(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)")i,trim(slabl(ssite(i)%spec)),xvcart,xvfrac
         enddo
      endif
-     
-     if(sum(lpzex)==0) call M_bstrux_init() ! Get all structure constants for nbas and qplist !this reads ssite%pos %pz and so on.
      !===  loop for electronic structure. Atomic force is calculated
      Eleloop: do 1000 iter = 1,max(1,maxit)
         if(maxit/=0) then
@@ -184,11 +162,9 @@ subroutine lmfp(llmfgw)
         !! Write restart file (skip if --quit=band) ---
         if(master_mpi .AND. ( .NOT. cmdopt0('--quit=band'))) then
            if(irs2>0 .AND. (lrout>0 .OR. maxit==0)) then
-              !                  lbin = .true. !irs2/=2
               ifi = ifile_handle()
               open(ifi,file='rst.'//trim(sname),form='unformatted') !no rsa now
-              k = iors ( iter , 'write' ,irs3,irs5)
-              !                  k = iors_old ( iter , 'write' ,irs3,irs5)
+              k = iors ( iter , 'write' ,irs5)  ! = iors_old ( iter , 'write' ,irs5)
               close(ifi)
            endif
         endif
@@ -203,7 +179,6 @@ subroutine lmfp(llmfgw)
         flush(6)
         call mpi_barrier(MPI_COMM_WORLD,ierr)
         if(master_mpi) then
-           i = 0
            !==   convergence check by call nwit
            !     lsc   :0 self-consistency achieved (diffe<=etol, qdiff=dmxp(11)<=qtol)
            !     :1 if not self-consistent, but encountered max. no. iter.
@@ -211,8 +186,7 @@ subroutine lmfp(llmfgw)
            !     :3 otherwise
            hsign= (lhf.or.irs1==0).and.iter==1
            if(itrlx>1) hsign=.false.
-           call nwit( int(ctrl_nvario), iter, maxit, hsign, &
-                leks+i, etol, qtol, qdiff, amom, etot, sev,lsc)
+           call nwit(ctrl_nvario,iter,maxit,hsign,leks,etol,qtol,qdiff,amom,etot,sev,lsc)
         endif
         call mpibc1_int(lsc,1,'lmfp_lsc')
         if (lsc==2 .AND. ( .NOT. lhf) .AND. maxit>1) lsc = 3
@@ -227,48 +201,38 @@ subroutine lmfp(llmfgw)
      !==== Molecular dynamics (relaxiation).
      MDblock: Block !Not maintained well recently but atomic position relaxation was working
        pos0 = poss
-!       do ibas=1,nbas
-!           !ssite(ibas)%pos !old
-!       enddo
-       !==   Relax atomic positions. shear mode removed. probably outside of fortran code if necessary
+       ! Relax atomic positions. shear mode removed.
        call Relax(ssite,itrlx,indrx_iv,natrlx,force,p_rv,hess,0,[0d0],pos0,poss,icom)
        if (itrlx==nitrlx) then !== Restore minimum gradient positions if this is last step
           write(stdo,"(a)")' lmfp: restore positions for minimum g'
           call Prelx1(1 , nm , .false. , natrlx , indrx_iv , p_rv, poss )
        endif
-       if(master_mpi) then
+       if(master_mpi) then !new position written to AtomPos.*
           write(ifipos,ftox) '========'
           write(ifipos,ftox) itrlx,'   !itrlx'
           write(ifipos,ftox) nbas, '   !nbas'
           do i=1,nbas
-             write(ifipos,ftox) ftof(poss(:,i),16),'   ',i !new position
+             write(ifipos,ftox) ftof(poss(:,i),16),'   ',i 
           enddo
        endif
-       
-       do ibas=1,nbas
-          ssite(ibas)%pos = poss(:,ibas) 
-       enddo
-       
-       !==   Exit when relaxation converged or maximum number of iterations
-       if(icom==1) then
+       call Smshft(ctrl_lfrce,poss,pos0) ! New density after atom shifts.
+       if (master_mpi) then 
+          ifi = ifile_handle()
+          open(ifi,file='rst.'//trim(sname),form='unformatted')
+          k = iors (iter , 'write',irs5) !Write restart file
+          !           k = iors_old (iter , 'write' ,irs5)! rst version 1.04
+          close(ifi)
+          write(stdo,*)' Delete mixing and band weights files ...'
+          open(newunit=ifi, file='mixm.'//trim(sname)); close(ifi, status='delete')
+          open(newunit=ifi, file='wkp.'//trim(sname)); close(ifi, status='delete')
+       endif
+       if(icom==1) then ! Exit when relaxation converged or maximum number of iterations
           if(master_mpi) then
              flg = 'C'
              call nwitsv(ctrl_nvario,flg,nsp,amom,etot,sev)
              write(stdo,"(a,i5)")' LMFP: relaxation converged after iteration(s) of ',itrlx
           endif
           exit
-       endif
-       !==   New density after atom shifts.
-       call Smshft(ctrl_lfrce,poss,pos0)
-       if (master_mpi) then ! .AND. .NOT. lshr) then
-          ifi = ifile_handle()
-          open(ifi,file='rst.'//trim(sname),form='unformatted')
-          k = iors (iter , 'write' ,irs3,irs5)!Write restart file (to include new positions)
-          !           k = iors_old (iter , 'write' ,irs3,irs5)! rst version 1.04
-          close(ifi)
-          write(stdo,*)' Delete mixing and band weights files ...'
-          open(newunit=ifi, file='mixm.'//trim(sname)); close(ifi, status='delete')
-          open(newunit=ifi, file='wkp.'//trim(sname)); close(ifi, status='delete')
        endif
        call Parms0(0,0,0d0,0) !   reset mixing block
        if(itrlx==nitrlx .AND. master_mpi) write(stdo,"(a)")' LMFP: relaxation incomplete'
@@ -281,30 +245,23 @@ subroutine lmfp(llmfgw)
   call tcx('lmfp')
 end subroutine lmfp
 
-subroutine readatompos(nbas,pos,irpos)
+subroutine readatompos(nbas,pos)
   use m_ext,only:     sname
   use m_ftox
-  real(8):: pos(3,nbas)
-  integer:: ifipos,i,nbas,nbasin
+  real(8):: pos(3,nbas),p(3)
+  integer:: ifipos,i,nbas,nbaso
   logical:: irpos
-  open(newunit=ifipos,file='AtomPos.'//trim(sname),status='old',err=1019)
+  open(newunit=ifipos,file='AtomPos.'//trim(sname),status='old',err=1010)
   do 
-     read(ifipos,*,err=1010)
+     read(ifipos,*,end=1010)
      read(ifipos,*)
-     read(ifipos,*)nbasin
-     if(nbasin/=nbas) then
-        pos=0d0
-        irpos=.false.
-        return
-     endif
-     do i=1,nbas
-        read(ifipos,*) pos(:,i)
-        write(6,ftox)i,ftof(pos(:,i))
+     read(ifipos,*) nbaso
+     do i=1,nbaso
+        read(ifipos,*) p
+        if(i<=nbas) pos(:,i)=p
+        write(6,ftox)i,ftof(p)
      enddo
   enddo
 1010 continue
-  irpos=.true.
-  return
-1019 continue
-  irpos=.false.
+  close(ifipos)
 end subroutine readatompos

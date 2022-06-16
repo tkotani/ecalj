@@ -6,7 +6,7 @@ module m_iors
   private
 
 contains
-  integer function iors(nit,rwrw,irs3,irs5)
+  integer function iors(nit,rwrw,irs5)
     use m_density,only: osmrho, orhoat !these are allocated
     use m_bndfp,only: m_bndfp_ef_SET,eferm
 
@@ -114,7 +114,7 @@ contains
     logical :: isanrg,lfail,ltmp1,ltmp2,latvec,cmdopt,mlog !,lshear
     double precision :: a,a0,alat0,cof,eh,fac,qc,rfoc,rfoc0,rmt, &
          rmt0,rsma,rsma0,rsmfa,rsmr,rsmr0,rsmv,rsmv0,stc,sum,vfac,vol0,vs,vs1,z,z0
-    double precision :: pnu(n0,2),pnz(n0,2),ql(n0,2*n0),pos(3), &
+    double precision :: pnu(n0,2),pnz(n0,2),ql(n0,2*n0),pos(3)=99999, &
          force(3),plat0(3,3),qlat0(3,3), &
          exi(n0),hfc(n0,2),vec0(3),wk(100),rh,vrmax(2),pnus(n0,2), &
          pnzs(n0,2),dval
@@ -233,23 +233,23 @@ contains
        use=trim(use)//'use window,'
        call m_bndfp_ef_SET(wk(1)) !bz_ef00) !,bz_def00)
        line = 'site data' !Read atomic positions,forces,velocities ---
-       if (irs3 /= 0) then
-          ignore=trim(ignore)//'positions,'
-       else
-          use=trim(use)//' positions,'
-          if (nbas0 < nbas) then
-             call info0(1,0,0,'%9f oops ... cannot use file site positions (site mismatch)')
-             if (isanrg(nbas0, nbas,nbas,msg,'nbas', .TRUE. )) goto 999
-          endif
-       endif
+!       if (irs3 /= 0) then
+!          ignore=trim(ignore)//'positions,'
+!       else
+!          use=trim(use)//' positions,'
+!          if (nbas0 < nbas) then
+!             call info0(1,0,0,'%9f oops ... cannot use file site positions (site mismatch)')
+!             if (isanrg(nbas0, nbas,nbas,msg,'nbas', .TRUE. )) goto 999
+!          endif
+!       endif
        do ib = 1, nbas0
           if (procid == master) read(jfi,err=999,end=999) jb,pos,force
-          call mpibc1_real(pos,  3,'iors_pos')
+          !call mpibc1_real(pos,  3,'iors_pos')
           call mpibc1_real(force,3,'iors_force')
           if(ib > nbas) cycle
-          if(irs3 /= 0) pos=ssite(ib)%pos
-          ssite(ib)%pos  =pos
-          ssite(ib)%pos0 =pos
+          !if(irs3 /= 0) pos=ssite(ib)%pos
+          !ssite(ib)%pos  =pos
+          !ssite(ib)%pos0 =pos
           ssite(ib)%force=force
        enddo
        !   --- Read information for local densities ---
@@ -540,7 +540,7 @@ contains
        wk(1)= eferm !sbz%ef !dummy ! we use wk(1) only wk(2:100) are dummy
        write(jfi) wk !call dpdump(wk,100,-jfi)
        do  110  ib = 1, nbas
-          pos  =ssite(ib)%pos
+          !pos  =ssite(ib)%pos
           force=ssite(ib)%force     !          vel  =ssite(ib)%vel
           write(jfi) ib,pos,force   !,vel
 110    enddo
