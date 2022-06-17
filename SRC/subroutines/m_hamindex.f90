@@ -27,7 +27,6 @@ contains
   subroutine m_hamindex_init(jobgw)
     use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp, iclasstaf_,symops_af_,ag_af_,ngrpaf_
     use m_struc_def
-    use m_shortn3,only: shortn3_initialize,shortn3,nout,nlatout
     use m_MPItk,only: master_mpi
     !!-- Set up m_hamiltonian. Index for Hamiltonian. --
     !!  Generated index are stored into m_hamindex
@@ -244,7 +243,6 @@ contains
     call poppr
     ! nn
     if(master_mpi)print*,' --- gvlst2 generates G for APW part (we show cases for limited q) ---'
-    if(pwmode<10) call shortn3_initialize(qlat)
     allocate( igv2(3,napwmx,nkt), kv(3*napwmx) )
     prpushed=.false.
     do ikt = 1,nkt
@@ -254,13 +252,6 @@ contains
        if(master_mpi .AND. (ikt>5 .OR. ikt==nkt) .AND. ( .NOT. prpushed)) then
           call pshpr(0)
           prpushed=.true.
-       endif
-       if(pwmode<10) then
-          ppin=matmul(transpose(plat),qq(:,ikt))
-          call shortn3(ppin) !return nout,nlatout
-          do iapw=1,napwk(ikt)
-             igv2(:,iapw,ikt)=igv2(:,iapw,ikt)+nlatout(:,1)
-          enddo
        endif
     enddo
     deallocate(kv)

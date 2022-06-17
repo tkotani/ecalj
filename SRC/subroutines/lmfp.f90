@@ -74,6 +74,7 @@ subroutine lmfp(llmfgw)
         do i=1,nbas
            write(ifipos,ftox) ftof(poss(:,i),16),'   ',i
         enddo
+        close(ifipos)
      endif
   endif
 
@@ -208,12 +209,14 @@ subroutine lmfp(llmfgw)
           call Prelx1(1 , nm , .false. , natrlx , indrx_iv , p_rv, poss )
        endif
        if(master_mpi) then !new position written to AtomPos.*
+          open(newunit=ifipos,file='AtomPos.'//trim(sname),position='append')
           write(ifipos,ftox) '========'
           write(ifipos,ftox) itrlx,'   !itrlx'
           write(ifipos,ftox) nbas, '   !nbas'
           do i=1,nbas
              write(ifipos,ftox) ftof(poss(:,i),16),'   ',i 
           enddo
+          close(ifipos)
        endif
        call Smshft(ctrl_lfrce,poss,pos0) ! New density after atom shifts.
        if (master_mpi) then 
@@ -239,7 +242,7 @@ subroutine lmfp(llmfgw)
      endblock MDblock
 2000 enddo MDloop
 9998 continue
-  if(master_mpi .AND. nitrlx>0) close(ifipos)
+  !if(master_mpi .AND. nitrlx>0) close(ifipos)
   if(allocated(p_rv)) deallocate(p_rv)
   if(allocated(hess)) deallocate(hess)
   call tcx('lmfp')

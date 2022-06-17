@@ -1,6 +1,5 @@
 subroutine zsecsym(zsec,ntq,nq,nband,nbandmx,nspinmx,nspin, eibzsym,ngrp,tiii,q,is)
   !! --- symmetrize zsec for eibz4sig mode. -----------------
-  !! Read a file lmfgw_kdivider, which contains info for vxc and evec (they are in separated files in MPI)
   use m_readeigen,only: READEVAL
   use m_rotwave,only: Rotwvigg
   implicit none

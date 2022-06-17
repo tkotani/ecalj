@@ -5,7 +5,8 @@ contains
   !!------------------------------------------------------
   subroutine rotwvigg(igg,q,qtarget,ndimh,napw_in,nband,evec,evecout,ierr)
     use m_hamindex,only: symops,invgx,miat,tiat,shtvg,qlat,plat,dlmm,ngrp,norbmto, &
-         ibastab,ltab,ktab,offl,offlrev,getikt,igv2,igv2rev,napwk,nbas
+         ibastab,ltab,ktab,offl,offlrev,getikt,igv2,igv2rev,napwk,nbas,pwmode
+    use m_ftox
     implicit none
     intent(in)::        igg,q,qtarget,ndimh,napw_in,nband,evec
     intent(out)::                                              evecout,ierr
@@ -19,7 +20,7 @@ contains
          ,igg,ikt2,ikt,l,ibas,ig2,k
     real(8)::q(3),gout(3),delta(3),ddd(3),qpg(3),platt(3,3),qtarget(3),qx(3),det,qpgr(3),ddd2(3)
     complex(8):: evec(ndimh,nband),evecout(ndimh,nband),phase(nbas)
-    real(8),parameter:: tolq=1d-8
+    real(8),parameter:: tolq=1d-4
     complex(8),parameter:: img=(0d0,1d0), img2pi=2*4d0*datan(1d0)*img
     platt = transpose(plat) !this is inverse of qlat
     ierr=1
@@ -49,15 +50,37 @@ contains
     if(napw_in/=0) then
        ikt  = getikt(q)       !index for q
        ikt2 = getikt(qtarget) !index for qtarget
-       if(napw_in /= napwk(ikt) ) call rx_('rotwv: napw_in /= napw(ikt)')
+       if(napw_in /= napwk(ikt) ) then
+          call rx_('rotwv: napw_in /= napw(ikt)')
+       endif
        do ig = 1,napw_in
-          qpg  = q + matmul( qlat(:,:),igv2(:,ig,ikt))  !q+G
-          qpgr = matmul(symops(:,:,igg),qpg)            !rotated q+G
-          nnn= nint(matmul(platt,qpgr-qtarget)) !integer representation of G= qpgr - qtarget
+          if(pwmode>10) then
+             qpg  = q + matmul( qlat(:,:),igv2(:,ig,ikt))  !q+G
+             qpgr = matmul(symops(:,:,igg),qpg)            !rotated q+G
+             nnn= nint(matmul(platt,qpgr-qtarget)) !integer representation of G= qpgr - qtarget
+          else   
+             block
+               real(8):: gg(3),ggr(3) 
+               gg  = matmul(qlat(:,:),igv2(:,ig,ikt))  !q+G
+               ggr = matmul(symops(:,:,igg),gg)            !rotated G
+               nnn = nint(matmul(platt,ggr)) !integer representation of G= qpgr - qtarget
+             endblock
+          endif
           ig2 = igv2rev(nnn(1),nnn(2),nnn(3),ikt2) !get index of G
           if(ig2>=999999) then
-             write(6,*)'rotwvigg: q qr =',q,matmul(symops(:,:,igg),q) ,igv2(:,ig,ikt),ikt,ig2
-             write(6,*)'rorwvigg: igv2rev  ikt2=',nnn(1),nnn(2),nnn(3),ikt2
+             block
+               integer:: i1
+             do i1=1,napwk(ikt)
+                write(6,ftox)'yyy0 igv2', ftof(q,3),     ikt,i1, ' ',igv2(:,i1,ikt)
+             enddo
+             do i1=1,napwk(ikt2)
+                write(6,ftox)'yyy1 igv2', ftof(qtarget,3),ikt2,i1,' ',igv2(:,i1,ikt2)
+             enddo
+             endblock
+             write(6,ftox)'rotwvigg: q=',ftof( q,3),'qtarget=', ftof(qtarget,3)
+             write(6,ftox)'rotwvigg  qr=',ftof(matmul(symops(:,:,igg),q),3)
+             write(6,ftox)'rotwvigg: qpg=',ftof(qpg,3),'qpgr=', ftof(qpgr,3)
+             write(6,ftox)'rorwvigg: igv2rev ikt2=',nnn(1),nnn(2),nnn(3)
              call rx('rotwvigg can not find index of mapped G vector ig2')
           endif
           evecout(nlmto+ig2,:)= evec(nlmto+ig,:) * exp( -img2pi*sum(qpgr*shtvg(:,igg)) )
