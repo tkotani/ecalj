@@ -928,8 +928,9 @@ tail = tail + "      XCFUN={xcfun}"+ """
           #   (subs/evxc.F had a problem when =2 if rho(up)=0 or rho(down)=0).
                 # =103 PBE-GGA
 
-      PWMODE=1  # 0:  MTO basis only (LMTO) !2021feb. I think PWMODE=1 is usually better because of the smoothness.
-                # 11: APW+MTO        (PMT)
+      PWMODE=11  # 0:  MTO basis only (LMTO) !2021feb. I set PWMODE=1 as default (for smooth band plot).
+                # 11: APW+MTO        (PMT)   !2022jun17 PWMODE=1 causes problem for QSGW
+                                              (even when PWMODE=1, I enforce PWMODE=11 for lmfgw mode).
                 # 12: APW basis only (LAPW)
                 #
       PWEMAX={pwemax} # (in Ry). When you use larger pwemax more than 5, be careful

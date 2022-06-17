@@ -503,6 +503,11 @@ contains
          '%N%6f0: PW basis fixed'// &
          '%N%6f1: PW basis q-dependent')
     if(pwmode==10) pwmode=0   !takao added. corrected Sep2011
+!!!!!!!!!!!!!!!!!!!!!!!!
+    if(prgnam=='LMFGWD') pwmode=10+ mod(pwmode,10)
+    if(iprint()>0) write(stdo,ftox) ' ===> for --jobgw, pwmode is switched to be ',pwmode
+!!!!!!!!!!!!!!!!!!!!!!!!
+    
     nm='HAM_PWEMIN'; call gtv(trim(nm),tksw(prgnam,nm), &
          pwemin, def_r8=0d0, nout=nout, note= &
          'Include APWs with energy E > PWEMIN (Ry)')
