@@ -4,8 +4,7 @@ module m_relax
   public relax,prelx1
   private
 contains
-  subroutine relax(ssite,it,indrlx,natrlx,f, &
-       p,w,nelts,delta,basin,bas,icom)
+  subroutine relax(ssite,it,indrlx,natrlx,force, p,w,nelts,delta,basin,bas,icom)
     use m_struc_def
     use m_lmfinit,only:ctrl_nbas,ctrl_nitmv,ctrl_mdprm,slabl
     use m_ext,only:     sname
@@ -25,7 +24,7 @@ contains
     !i   indrlx(2,i) points to the corresponding site (see rlxstp)
     !i   natrlx:    # of relaxing degrees of freedom for atoms or shear
     !i   natrlx:      # of relaxing degrees of freedom for atoms or shear
-    !i   f:         forces
+    !i   force:         forces
     !i   p:         for gradzr (dimensioned in rlxstp)
     !i   w:         the hessian
     !i   delta,nelts used for printout only, if U[L] turned on (TBE)
@@ -52,19 +51,18 @@ contains
     implicit none
     integer :: it,nit,natrlx,nelts,icom,procid,master,mpipid
     integer :: indrlx(2,natrlx)
-    real(8):: f(3,*), w(natrlx,natrlx) , p(natrlx,6) , delta(nelts,*), bas(:,:),basin(:,:)
+    real(8):: force(3,*), w(natrlx,natrlx) , p(natrlx,6) , delta(nelts,*), bas(:,:),basin(:,:)
     type(s_site)::ssite(*)
     integer :: i,j,ipr,ifi,ix,lgunit,nbas,ltb,ifrlx(3),natrlx2,natrlx3, &
          ir,iprint,isw,rdm,lrlx,is,idamax,nd,ns,nkill
     parameter (nd=4,ns=6)
     logical :: rdhess,lpp,cmdopt,a2bin,lshr ,readhess
-    double precision :: mdprm(6),step,xtol,gtol,xtoll,grfac,wkg(28),ddot, &
-         xv(10)
+    double precision :: mdprm(6),step,xtol,gtol,xtoll,grfac,wkg(28),ddot, xv(6)
     equivalence (step,mdprm(5)), (xtol,mdprm(3)), (gtol,mdprm(4))
     character clablj*8,dumstr*6,strn*128
     save ir,wkg
     data wkg /28*0d0/
-    character(256)::lll
+    character(256)::lll=''
     !      stdo = lgunit(1)
     !      stdl = lgunit(2)
     master = 0
@@ -87,12 +85,12 @@ contains
     if ( .NOT. lshr) then
        do  10  i = 1, natrlx
           p(j,1) = bas(indrlx(1,i),indrlx(2,i))
-          p(j,2) = -f(indrlx(1,i),indrlx(2,i))
+          p(j,2) = -force(indrlx(1,i),indrlx(2,i))
           j = j + 1
 10     enddo
     else
        call dcopy(natrlx,bas,1,p,1)
-       call dcopy(natrlx,f,1,p(1,2),1)
+       call dcopy(natrlx,force,1,p(1,2),1)
     endif
     ! --- Initialization ---
     if (it == 1) then
@@ -147,8 +145,7 @@ contains
     if (lrlx == 5) isw = 00121 + 40
     if (lrlx == 6) isw = 00221 + 00
     if (lrlx == 4 .OR. lrlx == 5 .OR. lrlx == 6) then
-       if (xtol == 0 .AND. gtol == 0) &
-            call rx('RELAX: both xtol and gtol are zero')
+       if (xtol == 0 .AND. gtol == 0) call rx('RELAX: both xtol and gtol are zero')
        if (gtol == 0) isw = isw-10
        if (xtol == 0) isw = isw-20
     endif
@@ -158,13 +155,13 @@ contains
     endif
     if ((lrlx == 4 .OR. lrlx == 5) .AND. ipr >= 20) then
        if (procid == master) then
-          if(ir==0) lll='converged to tolerance'
-          if(ir==1) lll='new line minimization'
-          if(ir==2) lll='bracketed root this line'
-          if(ir==3) lll='bracketed root this line'
-          if(ir==4) lll='extrapolated along this line'
-          if(ir==5) lll='extrapolated along this line'
-          if(ir==6) lll='is in trouble'
+          if(ir==-0) lll='converged to tolerance'
+          if(ir==-1) lll='new line minimization'
+          if(ir==-2) lll='bracketed root this line'
+          if(ir==-3) lll='bracketed root this line'
+          if(ir==-4) lll='extrapolated along this line'
+          if(ir==-5) lll='extrapolated along this line'
+          if(ir==-6) lll='is in trouble'
           write(stdl,ftox)' fp rlx ln ',ftof(wkg(19)),trim(lll), &
                '  dxmx=', ftof(wkg(1)*p(idamax(natrlx,p(1,nd),1),nd)), &
                '|g|=',ftof(dsqrt(ddot(natrlx,p(1,2),1,p(1,2),1)))
@@ -197,11 +194,10 @@ contains
     ! --- Write Hessian to disc ---
     if (rdhess .AND. (icom == 1 .OR. it == nit) .OR. .TRUE. ) then
        if (procid == master) then
-          !   ... Hessian written in rdm-compatible format
           open(newunit=ifi,file='hssn.'//trim(sname),form='unformatted')
           write(ifi) natrlx,natrlx,11
           write(ifi) w
-          close(ifi) !call fclose(ifi)
+          close(ifi)
        endif
     endif
     if (procid == master) call poppr
@@ -219,11 +215,11 @@ contains
     ! --- Printout ---
     lpp = (icom .eq. 1 .or. it .eq. nit) .and. ipr .ge. 30 .or.ipr .ge. 31
     if (natrlx > 0 .AND. lpp .AND. lshr) then
-       call dpzero(xv,6)
+       xv=0d0
        call grdep2(1,natrlx,indrlx,bas,xv)
-       call info2(-20,0,0,' Update shear%N   PDEF=%6;8,4D%N STRAIN=%6;8,4D',bas,xv)
+       write(stdo,ftox)' Update shear PDEF=',ftof(bas),'STRAIN=',ftof(xv)
     elseif (natrlx > 0 .AND. lpp) then
-       print 120
+       write(stdo,"(/' Updated atom positions:')")
        print *,' Site   Class                      Position(relaxed)'
        do  70  j = 1, nbas
           is=ssite(j)%spec
@@ -232,7 +228,6 @@ contains
           write (stdo,130) j,clablj,(bas(ix,j),ifrlx(ix).eq.1,ix=1,3)
 70     enddo
     endif
-
     ! ... Write new atom positions to LOG file, for use in CTRL file
     if (ipr >= 20 .AND. .NOT. lshr) then
        dumstr = 'SITE'
@@ -240,15 +235,13 @@ contains
           ifrlx=ssite(j)%relax
           if (j == 2) dumstr = ' '
           is=ssite(j)%spec
-          clablj=slabl(is) !sspec(is)%name
-          write(stdl,ftox)dumstr//'ATOM='//clablj, &
-               ' POS=',ftof(bas(1:3,j),2),'RELAX=',ifrlx
+          clablj=slabl(is) 
+          write(stdl,ftox)dumstr//'ATOM='//clablj,' POS=',ftof(bas(1:3,j),2),'RELAX=',ifrlx
 80     enddo
     endif
     if (icom == 0 .AND. wkg(28) < 0) icom = -1
     flush(stdo)
     flush(stdl)
-120 format(/' Updated atom positions:')
 130 format(i4,6x,a4,3x,3(f14.8,'(',l1,')'))
 160 format(10x,'DELTA=',3(f13.8),:,4(/31x,3(f13.8),:))
     call tcx('relax')

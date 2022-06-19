@@ -1,4 +1,5 @@
 subroutine rfalsi(xn,fn,xtol,ftol,dxmn,dxmx,isw,wk,ir)
+  use m_ftox
   !- Find root of a function by a modified regular falsi method.
   ! ----------------------------------------------------------------------
   !i Inputs:
@@ -118,7 +119,7 @@ subroutine rfalsi(xn,fn,xtol,ftol,dxmn,dxmx,isw,wk,ir)
   if (ic == 2) ic = -1
   xtl = max(xtol,dxmn)
   if (ipr > 40 .AND. ir == 0) &
-       write(stdo,*)'rfalsi newstart ic,itol,xtl,ftol,dxmn,dxmx',ic,itol,xtl,ftol,dxmn,dxmx
+       write(stdo,ftox)'rfalsi newstart ic,itol,xtl,ftol,dxmn,dxmx',ic,itol,xtl,ftol,ftod(dxmn),ftod(dxmx)
   !     .call awrit8('  rfalsi: new start%?#n#  (c)##'//
   !     .'%?#n# xtol=%1;3g#%j#%?#n==2# and##%-1j%?#n==3# or##'//
   !     .'%?#n# ftol=%1;3g#%j#  dxmn=%1;3g  dxmx=%1;3g',

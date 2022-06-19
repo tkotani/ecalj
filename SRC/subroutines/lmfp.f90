@@ -200,7 +200,7 @@ subroutine lmfp(llmfgw)
 1000 enddo Eleloop              ! ---------------- SCF (iteration) loop end ----
      if(nitrlx==0) exit     !no molecular dynamics (=no atomic position relaxation)
      !==== Molecular dynamics (relaxiation).
-     MDblock: Block !Not maintained well recently but atomic position relaxation was working
+     MDblock: Block !Not maintained well recently. Relax and Smshft may need to be corrected.
        pos0 = poss
        ! Relax atomic positions. shear mode removed.
        call Relax(ssite,itrlx,indrx_iv,natrlx,force,p_rv,hess,0,[0d0],pos0,poss,icom)

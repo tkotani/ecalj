@@ -42,54 +42,52 @@ subroutine smshft (job,ppnew,ppold)
   ! ... Hold on to original smrho (cgr)
   allocate(cgr_zv(ng,nsp))
   call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,-1)
-  call gvgetf(ng , nsp , iv_a_okv , k1 , k2 , k3 , smrho , cgr_zv  )
+  call gvgetf(ng, nsp , iv_a_okv , k1 , k2 , k3 , smrho , cgr_zv  )
   ! --- Shift in unscreened density at the two positions ---
-  allocate(cgs_zv(ng,nsp),cgs_zvv(ng,nsp),cwk_zv(ng))
+  allocate(cgs_zv(ng,nsp),cwk_zv(ng))
   kmax = 0
-  call pvsms1 ( ssite , sspec ,  nbas , nsp , kmax , ng ,&
+  call pvsms1(ssite , sspec ,  nbas , nsp , kmax , ng ,&
        rv_a_ogv , sv_p_orhoat , cwk_zv , cgs_zv , job ,ppnew,ppold)
-  if (allocated(cwk_zv)) deallocate(cwk_zv)
-  ! --- Screened shift ---
-  if (job > 10) then !Compute elind if not given
+  deallocate(cwk_zv)
+  ! --- Screened shift --- mo
+  if(job > 10) then !Compute elind if not given
      qval = 0d0
-     do  12  ib = 1, nbas
+     do ib = 1, nbas
         is  =ssite(ib)%spec
         z   =sspec(is)%z
         pnu =ssite(ib)%pnu
         pnz =ssite(ib)%pz
         lmxa=sspec(is)%lmxa
-        if (lmxa == -1) goto 12
+        if (lmxa == -1) cycle
         call gtpcor(sspec,is,kcor,lcor,qcor)
         call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc,qv,qsc)
         qval = qval+qv
-12   enddo
+     enddo
      pi = 4d0*datan(1d0)
      tpiba = 2*pi/alat
      elind = ham_elind
      if (elind < 0d0) elind = -(3*pi**2*qval/vol)**.66666d0*elind
-     cgs_zvv(:,1)= cgs_zv(:,1) + cgs_zv(:,2)
-     cgs_zvv(:,2)= cgs_zv(:,1) - cgs_zv(:,2)
-     call lindsc( 2 , ng , rv_a_ogv , tpiba , elind , cgs_zvv )
+     if(nsp==2) cgs_zv(:,1)= cgs_zv(:,1) + cgs_zv(:,2)
+     call lindsc(2 , ng , rv_a_ogv , tpiba , elind , cgs_zv )
+     if(nsp==2) then
+        cgs_zv(:,1)= .5d0*(cgs_zv(:,1) + cgs_zv(:,2))
+        cgs_zv(:,2)= .5d0*(cgs_zv(:,1) - cgs_zv(:,2))
+     endif   
   endif
-  ! ... Debugging: show delta smrho
-  call gvputf ( ng , nsp , iv_a_okv , k1 , k2 , k3 , cgs_zv , smrho )
+  call gvputf(ng , nsp , iv_a_okv , k1 , k2 , k3 , cgs_zv , smrho )
   call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,1)
   !     --- Add shift to smrho, ensuring no shift in <rho> ---
-  cgs_zv(1,1:nsp)=0d0 !real part zero bug? 2022-5-27
-  !    do  i = 1, nsp
-  !      call dvset(cgs_zv,1 + ng*( i - 1 ), 1 + ng*(i-1 ) , 0d0 )<=== real part zero bug? 2022-5-27
-  !    enddo
+  cgs_zv(1,1:nsp)=0d0 !G=0 component
   cgr_zv = cgr_zv + cgs_zv
   call gvputf ( ng , nsp , iv_a_okv , k1 , k2 , k3 , cgr_zv , smrho )
   call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,1)
-  ! --- Symmetrize the shifted density ---
-  call symsmrho(smrho)
-  if (allocated(cgs_zv)) deallocate(cgs_zv,cgs_zvv)
-  if (allocated(cgr_zv)) deallocate(cgr_zv)
+  call symsmrho(smrho)! --- Symmetrize the shifted density ---
+  deallocate(cgs_zv,cgr_zv)
   call tcx('smshft')
 end subroutine smshft
+
 ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-subroutine pvsms1 ( ssite , sspec ,  nbas , nsp , kmax &
+subroutine pvsms1(ssite , sspec ,  nbas , nsp , kmax &
      , ng , gv , sv_p_orhoat , cwk , cg , job, ppnew,ppold )
   use m_struc_def
   use m_lmfinit,only:lat_alat,n0,slabl
@@ -177,15 +175,16 @@ subroutine pvsms1 ( ssite , sspec ,  nbas , nsp , kmax &
   type(s_spec)::sspec(*)
   complex(8):: cg(ng,nsp),cwk(ng)
   integer :: ib,i,is,iv0,kmax,lmxl,igetss,lmxa,nr,nlml,nxi,ie,ixi,ig,ipr,iprint,kcor,lcor
-  integer,parameter:: nrmx=1501
   real(8) :: a,aa,alat,df(0:20),e,exi(n0),gam,hfc(n0,2),pnew(3),pnu(n0,2),pnz(n0,2),pold(3), &
-       pp,qall,qc,qcor(2),qsc,qfat,qg,qloc,qval,rmt,rsmfa,rwgt(nrmx),scalp,summ,tpiba,v(3),&
+       pp,qall,qc,qcor(2),qsc,qfat,qg,qloc,qval,rmt,rsmfa,scalp,summ,tpiba,v(3),&
        v2,vol,volsp,z,ppnew(3,nbas),ppold(3,nbas)
   character(35) :: strn
   character:: spid*8
   complex(8):: phase,img=(0d0,1d0)
   real(8),parameter:: pi = 4d0*datan(1d0), y0=1d0/dsqrt(4d0*pi)
+  real(8),allocatable:: rwgt(:)
   call tcn('pvsms1')
+  allocate(rwgt(nr))
   call stdfac(20,df)
   alat=lat_alat
   vol=lat_vol
@@ -200,88 +199,82 @@ subroutine pvsms1 ( ssite , sspec ,  nbas , nsp , kmax &
   if (job == 12) strn = 'screened core+multipole densities'
   if (ipr >= 30) write(stdo,339) strn
 339 format(/' smshft:  add shifted ',a/'   site',16x,'old pos',22x,'new pos',14x,'shift')
-  do  10  ib = 1, nbas
+  do 10  ib = 1, nbas
      is = int(ssite(ib)%spec)
      spid = slabl(is) !sspec(is)%name
      lmxl = sspec(is)%lmxl
      nlml = (lmxl+1)**2
      if (lmxl == -1) cycle
-     is  = ssite(ib)%spec
+     is = ssite(ib)%spec
      pnew= ppnew(:,ib) !ssite(ib)%pos !rv_a_opos(:,ib) !
      pold= ppold(:,ib) !ssite(ib)%pos0
      pp = alat*dsqrt(sum((pnew-pold)**2))
-     if(ipr>=30) write(stdo,340) ib,spid,pold,pnew,pp/alat
-340  format(i4,':',a,f8.5,2f9.5,2x,3f9.5,2x,f9.6)
-     !       Skip this site if shift is negligible
-     if (pp <= 1d-6) goto 18
-     !   --- Shift in mesh density, job 1 ---
-     if (mod(job,10)==1) then
-        z=sspec(is)%z
-        pnu=ssite(ib)%pnu
-        pnz=ssite(ib)%pz
-        lmxa=sspec(is)%lmxa
-        a  =sspec(is)%a
-        nr  =sspec(is)%nr
-        rmt =sspec(is)%rmt
-        nxi =sspec(is)%nxi
-        exi =sspec(is)%exi
-        hfc =sspec(is)%chfa
-        rsmfa=sspec(is)%rsmfa
-        gam  = 0.25d0*rsmfa**2
-        call gtpcor(sspec,is,kcor,lcor,qcor)
-        if (nr > nrmx) call rx('dfrce: nr gt nrmx')
-        call radwgt(rmt,a,nr,rwgt)
-        call radsum ( nr , nr , nlml , nsp , rwgt , sv_p_orhoat( 1 , ib )%v, qloc )
-        call radsum ( nr , nr , nlml , nsp , rwgt , sv_p_orhoat( 2 , ib )%v, summ )
-        qloc = (qloc-summ)/y0
-        qfat = 0d0
-        do   i  = 1, nsp
-           do   ie = 1, nxi
-              qall = -4d0*pi*y0*dexp(gam*exi(ie))/exi(ie)
-              qfat = qfat + hfc(ie,i)*qall
-           enddo
+     if(ipr>=30) write(stdo,"(i4,':',a,f8.5,2f9.5,2x,3f9.5,2x,f9.6)") ib,spid,pold,pnew,pp/alat
+     if (pp <= 1d-6) goto 18 !!       Skip this site if shift is negligible
+!   --- Shift in mesh density, job 1 ---
+!      if (mod(job,10)==1) then
+!         z=sspec(is)%z
+!         pnu=ssite(ib)%pnu
+!         pnz=ssite(ib)%pz
+!         lmxa=sspec(is)%lmxa
+!         a  =sspec(is)%a
+!         nr  =sspec(is)%nr
+!         rmt =sspec(is)%rmt
+!         nxi =sspec(is)%nxi
+!         exi =sspec(is)%exi
+!         hfc =sspec(is)%chfa
+!         rsmfa=sspec(is)%rsmfa
+!         gam  = 0.25d0*rsmfa**2
+!         call gtpcor(sspec,is,kcor,lcor,qcor)
+!         !if (nr > nrmx) call rx('dfrce: nr gt nrmx')
+!         call radwgt(rmt,a,nr,rwgt)
+!         call radsum ( nr , nr , nlml , nsp , rwgt , sv_p_orhoat( 1 , ib )%v, qloc )
+!         call radsum ( nr , nr , nlml , nsp , rwgt , sv_p_orhoat( 2 , ib )%v, summ )
+!         qloc = (qloc-summ)/y0
+!         qfat = 0d0
+!         do   i  = 1, nsp
+!            do   ie = 1, nxi
+!               qall = -4d0*pi*y0*dexp(gam*exi(ie))/exi(ie)
+!               qfat = qfat + hfc(ie,i)*qall
+!            enddo
+!         enddo
+!         call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc,qval,qsc)
+!         qg = qval+qsc-qfat-qloc !Excess sphere charge.  See Remarks above.
+!         !     ... Shift in smoothed free atom density
+!         do    i = 1, nsp
+!            do  ixi = 1, nxi
+!               e = exi(ixi)
+!               do ig = 1, ng
+!                  v(:) = gv(ig,:)*tpiba
+!                  v2 = sum(v**2)
+!                  aa = -4d0*pi*dexp(gam*(e-v2))/(e-v2)
+!                  phase = exp(-img*alat*sum(pnew*v)) - exp(-img*alat*sum(pold*v))
+!                  cg(ig,i) = cg(ig,i) + hfc(ixi,i)*aa*phase*y0/vol
+!               enddo
+!            enddo
+!         enddo
+! 14      continue
+!         !     ... Add gaussian to conserve local charge; see Remarks
+!         do    i = 1, nsp
+!            do    ig = 1, ng
+!               v(:) = gv(ig,:)*tpiba
+!               v2 = sum(v**2)
+!               phase = exp(-img*alat*sum(pnew*v)) - exp(-img*alat*sum(pold*v))
+!               cg(ig,i) = cg(ig,i) + qg*phase*dexp(-gam*v2)/volsp
+!            enddo
+!         enddo
+!         !   --- Shift in mesh density, job 12 ---
+!      elseif (job == 12) then  !     ... 
+        cwk=0d0
+        call rhgcmp(131,ib,ib,ssite,sspec,sv_p_orhoat,kmax,ng,cwk,pold)! Core + valence at old position
+        cwk=-cwk 
+        call rhgcmp(131,ib,ib,ssite,sspec,sv_p_orhoat,kmax,ng,cwk,pnew)! Core + valence at new position
+        do i=1,nsp
+           cg(:,i)= cwk/nsp + cg(:,i)
         enddo
-        call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc,qval,qsc)
-        qg = qval+qsc-qfat-qloc !Excess sphere charge.  See Remarks above.
-        !     ... Shift in smoothed free atom density
-        do    i = 1, nsp
-           do  ixi = 1, nxi
-              e = exi(ixi)
-              do ig = 1, ng
-                 v(:) = gv(ig,:)*tpiba
-                 v2 = sum(v**2)
-                 aa = -4d0*pi*dexp(gam*(e-v2))/(e-v2)
-                 phase = exp(-img*alat*sum(pnew*v)) - exp(-img*alat*sum(pold*v))
-                 cg(ig,i) = cg(ig,i) + hfc(ixi,i)*aa*phase*y0/vol
-              enddo
-           enddo
-        enddo
-14      continue
-        !     ... Add gaussian to conserve local charge; see Remarks
-        do    i = 1, nsp
-           do    ig = 1, ng
-              v(:) = gv(ig,:)*tpiba
-              v2 = sum(v**2)
-              phase = exp(-img*alat*sum(pnew*v)) - exp(-img*alat*sum(pold*v))
-              cg(ig,i) = cg(ig,i) + qg*phase*dexp(-gam*v2)/volsp
-           enddo
-        enddo
-        !   --- Shift in mesh density, job 12 ---
-     elseif (job == 12) then  !     ... Core + valence at old position
-        call rx('pvsms1: not supporting HAM_FORCES=12 now for simplicity')
-        ! cwk=0d0
-        ! ssite(ib)%pos=pold
-        ! call rhgcmp(131, ib, ib, ssite, sspec ,  sv_p_orhoat, kmax , ng , cwk )
-        ! cwk=-cwk !call dscal(ng*2,-1d0,cwk,1)
-        ! !     ... Core + valence at new position
-        ! ssite(ib)%pos=pnew
-        ! call rhgcmp(131, ib, ib, ssite , sspec,  sv_p_orhoat, kmax , ng , cwk )
-        ! do i=1,nsp
-        !    cg(:,i)= cwk/nsp + cg(:,i)
-        ! enddo
-     else
-        call rxi('smshft: bad job:',job)
-     endif
+!     else
+!        call rxi('smshft: bad job:',job)
+!     endif
 18   continue
      iv0 = iv0+nlml
 10 enddo
