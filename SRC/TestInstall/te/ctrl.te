@@ -28,7 +28,7 @@ Experiment
 VERS    LMFP-4 LMASA-6 LMF-6 LM:7 FP:7
 IO      SHOW=F HELP=F VERBOS=30 WKP=F
 % const frz=f pwmode=0 pwemin=1 pwemax=3 oveps=0
-HAM     FORCES=1 ELIND=-1 FTMESH={ngd} XCFUN=2 TOL=1d-8  
+HAM     FORCES=1 FTMESH={ngd} XCFUN=2 TOL=1d-8  
         PWMODE={pwmode} PWEMIN={pwemin} PWEMAX={pwemax} OVEPS={oveps}
 # for Version 7:
         NSPIN=1 REL=t 
