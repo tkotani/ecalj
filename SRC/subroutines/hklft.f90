@@ -17,47 +17,18 @@ subroutine hklft(v,rsm,e,tau,alat,kmax,nlm,k0,cy,hkl)
   !u Updates
   !u   23 Apr 00 Adapted from nfp hkl_ft.f
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
-  integer :: k0,kmax,nlm
-  double precision :: alat,e,rsm,v(3),cy(1),tau(3)
-  double complex hkl(0:k0,nlm)
-  ! ... Local parameters
-  integer :: nlm0,ilm,k,l,ll,lmax,m
-  parameter ( nlm0=144 )
-  double precision :: aa,fac,gam,pi,scalp,v2,yl(nlm0),vv(3)
-  double complex phase,qfac
-
+  implicit none
+  integer:: k0,kmax,nlm,ilm,k,l,ll,lmax,m
+  real(8):: alat,e,rsm,v(3),cy(1),tau(3),aa,fac,gam,v2,yl(nlm),vv(3)
+  complex(8):: img=(0d0,1d0),hkl(0:k0,nlm)
+  real(8),parameter:: pi = 4d0*datan(1d0)
   if (nlm == 0) return
-  if (nlm > nlm0) call rx('hklft: increase nlm0')
-  pi = 4d0*datan(1d0)
-  lmax = ll(nlm)
-  gam = 0.25d0*rsm**2
-  vv(1) = v(1)*2*pi/alat
-  vv(2) = v(2)*2*pi/alat
-  vv(3) = v(3)*2*pi/alat
-  call sylm(vv,yl,lmax,v2)
-  aa = -4*pi*dexp(gam*(e-v2))/(e-v2)
-  scalp = -2*pi*(tau(1)*v(1)+tau(2)*v(2)+tau(3)*v(3))
-  phase = dcmplx(dcos(scalp),dsin(scalp))
-
-  qfac = (0d0,1d0)
-  ilm = 0
-  do  l = 0, lmax
-     qfac = qfac*(0d0,-1d0)
-     do m = -l,l
-        ilm = ilm+1
-        hkl(0,ilm) = phase*aa*qfac*cy(ilm)*yl(ilm)
-     enddo
+  gam = .25d0*rsm**2
+  call sylm(v(:)*2*pi/alat, yl, ll(nlm), v2)
+  hkl(0,:) = -4d0*pi*exp(gam*(e-v2))/(e-v2)*exp(-2d0*pi*img*sum(tau*v)) &
+       * [((-img)**ll(ilm)*cy(ilm)*yl(ilm), ilm=1,nlm)]
+  do k = 1, kmax
+     hkl(k,:) = (-v2)**k*hkl(0,:)
   enddo
-
-  fac = 1d0
-  do  k = 1, kmax
-     fac = -v2*fac
-     do  ilm = 1, nlm
-        hkl(k,ilm) = fac*hkl(0,ilm)
-     enddo
-  enddo
-
 end subroutine hklft
 
