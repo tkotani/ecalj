@@ -54,8 +54,8 @@ GW        NKABC=nkgw nkgw nkgw-1 GCUTB=2.7 GCUTX=2.2
 STR       EKAP=0 RMAXS=3.2 NDIMIN=0 NOCALC=F IALPHA=1 
           DOWATS=F SIGMA=.7 DELTR=.1 LMAXW=-1 
 # for version 7
-ITER      MIX=A2,b=.5,k=4,elind=-.8 XIPMX=f {nsph} NIT=nit # CONVC=.00001 
-MIX       MODE=A2,b=.5,k=4,elind=-.8 XIPMX=f {nsph}
+ITER      MIX=A2,b=.5,k=4 XIPMX=f {nsph} NIT=nit # CONVC=.00001 
+MIX       MODE=A2,b=.5,k=4 XIPMX=f {nsph}
 START     NIT=nit BROY=T WC=-1 NMIX=1 BETA=.5 RDVES=t
           FREE=F CNVG=.00001 CNVGET=.00001 BEGMOM=nit==0 CNTROL=T 
           EFERMI=.07510032 VMTZ=-.82711548 
