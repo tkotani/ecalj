@@ -17,41 +17,28 @@ subroutine gklft(v,rsm,e,tau,alat,kmax,nlm,k0,cy,gkl)
   !u Updates
   !u   23 Apr 00 Adapted from nfp gkl_ft.f
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
-  integer :: k0,kmax,nlm
-  double precision :: alat,e,rsm,v(3),cy(1),tau(3)
-  double complex gkl(0:k0,nlm)
-  ! ... Local parameters
-  integer :: nlm0,ilm,k,l,ll,lmax,m
-  parameter ( nlm0=121 )
-  double precision :: aa,fac,gam,pi,scalp,v2,yl(nlm0),vv(3)
-  double complex phase,qfac
-
+  implicit none
+  integer:: k0,nlm, ilm,k,l,ll,lmax,m,kmax
+  real(8):: alat,e,rsm,v(3),cy(1),tau(3), aa,fac,gam,scalp,v2,yl(nlm),vv(3)
+  complex(8):: phase,qfac,img=(0d0,1d0), gkl(0:k0,nlm)
+  real(8),parameter::pi = 4d0*datan(1d0)
   if (nlm == 0) return
-  if (nlm > nlm0) call rxi('gklft: increase nlm0, need',nlm)
-  if (kmax > k0)  call rxi('gklft: increase k0, need',kmax)
-  pi = 4d0*datan(1d0)
   lmax = ll(nlm)
   gam = 0.25d0*rsm**2
-  vv(1) = v(1)*2*pi/alat
-  vv(2) = v(2)*2*pi/alat
-  vv(3) = v(3)*2*pi/alat
+  vv(:) = v(:)*2d0*pi/alat
   call sylm(vv,yl,lmax,v2)
   aa = dexp(gam*(e-v2))
-  scalp = -2*pi*(tau(1)*v(1)+tau(2)*v(2)+tau(3)*v(3))
-  phase = dcmplx(dcos(scalp),dsin(scalp))
-
-  qfac = dcmplx(0d0,1d0)
+  scalp = -2d0*pi*sum(tau*v) !(tau(1)*v(1)+tau(2)*v(2)+tau(3)*v(3))
+  phase = exp(img*scalp) !dcmplx(dcos(scalp),dsin(scalp))
+  qfac = img
   ilm = 0
   do  l = 0, lmax
-     qfac = qfac*dcmplx(0d0,-1d0)
+     qfac = -img*qfac
      do m = -l,l
         ilm = ilm+1
         gkl(0,ilm) = phase*aa*qfac*cy(ilm)*yl(ilm)
      enddo
   enddo
-
   fac = 1d0
   do  k = 1, kmax
      fac = -v2*fac
@@ -59,6 +46,5 @@ subroutine gklft(v,rsm,e,tau,alat,kmax,nlm,k0,cy,gkl)
         gkl(k,ilm) = fac*gkl(0,ilm)
      enddo
   enddo
-
 end subroutine gklft
 

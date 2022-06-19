@@ -217,7 +217,7 @@ contains
     if (natrlx > 0 .AND. lpp .AND. lshr) then
        xv=0d0
        call grdep2(1,natrlx,indrlx,bas,xv)
-       write(stdo,ftox)' Update shear PDEF=',ftof(bas),'STRAIN=',ftof(xv)
+       write(stdo,ftox)' Update shear STRAIN=',ftof(xv)
     elseif (natrlx > 0 .AND. lpp) then
        write(stdo,"(/' Updated atom positions:')")
        print *,' Site   Class                      Position(relaxed)'
