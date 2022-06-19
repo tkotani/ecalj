@@ -1,7 +1,7 @@
 module m_dfrce
   public dfrce
   contains
-subroutine dfrce (job, sv_p_orhoat , sv_p_orhat1 , elind , qmom , smrho , smrout , dfh )
+subroutine dfrce (job, sv_p_orhoat , sv_p_orhat1 ,  qmom , smrho , smrout , dfh )
   use m_lmfinit,only: nvl=>pot_nlml
   use m_supot,only: rv_a_ogv,iv_a_okv
   use m_struc_def
@@ -85,7 +85,7 @@ subroutine dfrce (job, sv_p_orhoat , sv_p_orhat1 , elind , qmom , smrho , smrout
   complex(8) ,allocatable :: wk1_zv(:)
   complex(8) ,allocatable :: wk2_zv(:)
   complex(8) ,allocatable :: wk3_zv(:)
-  double precision :: vol,plat(3,3),qlat(3,3),alat,vsum,pi,tpiba,elind, &
+  double precision :: vol,plat(3,3),qlat(3,3),alat,vsum,pi,tpiba,elind=0d0, &
        fes1(3),fes2(3),fxc(3),c,avgdf(3)
   integer::ibini,ibend,iiv0(nbas)
   character(40) :: strn

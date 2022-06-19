@@ -6,7 +6,7 @@ module m_mixrho
   !  mixing routine of smrho, rh. T.kotani think this routine is too compicated to maintain.
   !  It is better to rewrite all with keeping the functionality
 contains
-  subroutine mixrho(iter, qval, elind, sv_p_orhnew, sv_p_orhold, smrnew, smrho,rmsdel)
+  subroutine mixrho(iter, qval,  sv_p_orhnew, sv_p_orhold, smrnew, smrho,rmsdel)
     use m_struc_def
     use m_supot,only: iv_a_okv,rv_a_ogv,k1,k2,k3
     use m_lmfinit,only:lat_alat,nbas,stdl, mixmod=>sstrnmix,ssite=>v_ssite,sspec=>v_sspec,nsp
@@ -210,7 +210,7 @@ contains
     !      type(s_spec)::sspec(*)
     !      type(s_lat)::slat
 
-    double precision :: qval,elind
+    double precision :: qval,elind=0d0
     double complex smrnew(k1,k2,k3,nsp),smrho(k1,k2,k3,nsp)
     ! ... Local parameters
     integer :: i,i1,i2,i3,ib,ipl,ipr,is,k0,k9, &
@@ -422,78 +422,78 @@ contains
 
 
     !!== elind mode ==
-    if(noelind()) then
-       !        allocate(w_ocn(2*ng))
-       !        w_ocn=0d0
-    else
-       ! --- Screen sm output rho; distribute screening rho over local rho ---
-       ! ... 1. Overwrite smrho+, smrho- with smrho, smrho+ - smrho-
-       if (nsp == 2) then
-          call dsumdf(kkk*2,1d0,smrho,0,1,smrho(1,1,1,2),0,1)
-          call dsumdf(kkk*2,1d0,smrnew,0,1,smrnew(1,1,1,2),0,1)
-       endif
-       ! ... <smrout-smrhoin> and <(smrout-smrhoin)**2>, unscreened smrout
-       dquns = 0
-       rmsuns = 0
-       do isp=1,nsp
-          do   i3 = 1, n3
-             do   i2 = 1, n2
-                do   i1 = 1, n1
-                   dquns  = dquns  + dble(smrnew(i1,i2,i3,isp)-smrho(i1,i2,i3,isp))
-                   rmsuns = rmsuns + dble(smrnew(i1,i2,i3,isp)-smrho(i1,i2,i3,isp))**2
-                enddo
-             enddo
-          enddo
-       enddo
-       rmsuns = dsqrt(rmsuns/(n1*n2*n3))
-       ! ... 2. cn <- (smrnew - smrho)(G)
-       allocate(w_ocn(2*ng),w_owk(kkk))
-       call dcopy(kkk*2,smrnew,1,w_owk,1)
-       !        call dpadd(w_owk,smrho,1,kkk*2,-1d0)
-       call daxpy(kkk*2,-1d0,smrho,1,w_owk,1)
-       call fftz3(w_owk,n1,n2,n3,k1,k2,k3,1,0,-1)
-       call gvgetf ( ng , 1 , iv_a_okv , k1 , k2 , k3 , w_owk , &
-            w_ocn )
-       deallocate(w_owk)
-       ! ... 3. Sum of local densities on Fourier mesh (up+down)
-       allocate(cg1_zv(ng))
-       allocate(cg2_zv(ng))
-       cg1_zv=0d0
-       cg2_zv=0d0
-       call rhgcmp ( 131 , 1 , nbas , ssite , sspec ,  sv_p_orhold , kmxs , ng , cg1_zv )
-       call rhgcmp ( 131 , 1 , nbas , ssite , sspec ,  sv_p_orhnew , kmxs , ng , cg2_zv )
-       !     call gvputf(ng,1,w(okv),k1,k2,k3,w(ocg1),smrnew)
-       !     call fftz3(smrnew,n1,n2,n3,k1,k2,k3,1,0,1)
-       !     call zprm3('input local densities (r)',0,smrnew,k1,k2,k3)
+    ! if(noelind()) then
+    !    !        allocate(w_ocn(2*ng))
+    !    !        w_ocn=0d0
+    ! else
+    !    ! --- Screen sm output rho; distribute screening rho over local rho ---
+    !    ! ... 1. Overwrite smrho+, smrho- with smrho, smrho+ - smrho-
+    !    if (nsp == 2) then
+    !       call dsumdf(kkk*2,1d0,smrho,0,1,smrho(1,1,1,2),0,1)
+    !       call dsumdf(kkk*2,1d0,smrnew,0,1,smrnew(1,1,1,2),0,1)
+    !    endif
+    !    ! ... <smrout-smrhoin> and <(smrout-smrhoin)**2>, unscreened smrout
+    !    dquns = 0
+    !    rmsuns = 0
+    !    do isp=1,nsp
+    !       do   i3 = 1, n3
+    !          do   i2 = 1, n2
+    !             do   i1 = 1, n1
+    !                dquns  = dquns  + dble(smrnew(i1,i2,i3,isp)-smrho(i1,i2,i3,isp))
+    !                rmsuns = rmsuns + dble(smrnew(i1,i2,i3,isp)-smrho(i1,i2,i3,isp))**2
+    !             enddo
+    !          enddo
+    !       enddo
+    !    enddo
+    !    rmsuns = dsqrt(rmsuns/(n1*n2*n3))
+    !    ! ... 2. cn <- (smrnew - smrho)(G)
+    !    allocate(w_ocn(2*ng),w_owk(kkk))
+    !    call dcopy(kkk*2,smrnew,1,w_owk,1)
+    !    !        call dpadd(w_owk,smrho,1,kkk*2,-1d0)
+    !    call daxpy(kkk*2,-1d0,smrho,1,w_owk,1)
+    !    call fftz3(w_owk,n1,n2,n3,k1,k2,k3,1,0,-1)
+    !    call gvgetf ( ng , 1 , iv_a_okv , k1 , k2 , k3 , w_owk , &
+    !         w_ocn )
+    !    deallocate(w_owk)
+    !    ! ... 3. Sum of local densities on Fourier mesh (up+down)
+    !    allocate(cg1_zv(ng))
+    !    allocate(cg2_zv(ng))
+    !    cg1_zv=0d0
+    !    cg2_zv=0d0
+    !    call rhgcmp ( 131 , 1 , nbas , ssite , sspec ,  sv_p_orhold , kmxs , ng , cg1_zv )
+    !    call rhgcmp ( 131 , 1 , nbas , ssite , sspec ,  sv_p_orhnew , kmxs , ng , cg2_zv )
+    !    !     call gvputf(ng,1,w(okv),k1,k2,k3,w(ocg1),smrnew)
+    !    !     call fftz3(smrnew,n1,n2,n3,k1,k2,k3,1,0,1)
+    !    !     call zprm3('input local densities (r)',0,smrnew,k1,k2,k3)
 
-       ! ... Add output-input difference in gaussian rho to make total rho
-       call daxpy ( 2 * ng ,   1d0 , cg2_zv , 1 , w_ocn , 1 )
-       call daxpy ( 2 * ng , - 1d0 , cg1_zv , 1 , w_ocn , 1 )
-       deallocate(cg1_zv,cg2_zv)
+    !    ! ... Add output-input difference in gaussian rho to make total rho
+    !    call daxpy ( 2 * ng ,   1d0 , cg2_zv , 1 , w_ocn , 1 )
+    !    call daxpy ( 2 * ng , - 1d0 , cg1_zv , 1 , w_ocn , 1 )
+    !    deallocate(cg1_zv,cg2_zv)
 
-       ! ... 4. Make cn = screening charge = (eps^-1 - 1) (n_out - n_in)
-       tpiba = 2*pi/alat
-       call lindsc ( 2 , ng , rv_a_ogv , tpiba , elinl , w_ocn )
-       ! ... 5. Add cn = screening charge into smrnew
-       !      call defcc(owk,kkk)
-       allocate(w_owk(kkk))
-       call gvputf ( ng , 1 , iv_a_okv , k1 , k2 , k3 , w_ocn , w_owk )
-       call fftz3(w_owk,n1,n2,n3,k1,k2,k3,1,0,1)
-       call daxpy(kkk*2,1d0,w_owk,1,smrnew,1)
-       deallocate(w_owk)
-       ! ... 6. Restore smrho+, smrho-
-       if (nsp == 2) then
-          call dsumdf(kkk*2,.5d0,smrho,0,1,smrho(1,1,1,2),0,1)
-          call dsumdf(kkk*2,.5d0,smrnew,0,1,smrnew(1,1,1,2),0,1)
-       endif
-    endif
-    if( .NOT. noelind()) then
-       ! --- 7. Project cn = screening density into local densities ---
-       k0 = 20
-       allocate(fkl_zv((k0+1)*nlm0*nbas))
-       call ftlxp ( nbas , ssite , sspec , alat , ng , rv_a_ogv , &
-            w_ocn , k0 , nlm0 , fkl_zv)
-    endif
+    !    ! ... 4. Make cn = screening charge = (eps^-1 - 1) (n_out - n_in)
+    !    tpiba = 2*pi/alat
+    !    call lindsc ( 2 , ng , rv_a_ogv , tpiba , elinl , w_ocn )
+    !    ! ... 5. Add cn = screening charge into smrnew
+    !    !      call defcc(owk,kkk)
+    !    allocate(w_owk(kkk))
+    !    call gvputf ( ng , 1 , iv_a_okv , k1 , k2 , k3 , w_ocn , w_owk )
+    !    call fftz3(w_owk,n1,n2,n3,k1,k2,k3,1,0,1)
+    !    call daxpy(kkk*2,1d0,w_owk,1,smrnew,1)
+    !    deallocate(w_owk)
+    !    ! ... 6. Restore smrho+, smrho-
+    !    if (nsp == 2) then
+    !       call dsumdf(kkk*2,.5d0,smrho,0,1,smrho(1,1,1,2),0,1)
+    !       call dsumdf(kkk*2,.5d0,smrnew,0,1,smrnew(1,1,1,2),0,1)
+    !    endif
+    ! endif
+!    if( .NOT. noelind()) then
+!       ! --- 7. Project cn = screening density into local densities ---
+!       k0 = 20
+!       allocate(fkl_zv((k0+1)*nlm0*nbas))
+!       call ftlxp ( nbas , ssite , sspec , alat , ng , rv_a_ogv , &
+!            w_ocn , k0 , nlm0 , fkl_zv)
+!    endif
     do  ib = 1, nbas
        is = int(ssite(ib)%spec)
        a   =sspec(is)%a
@@ -511,18 +511,18 @@ contains
        call radmsh ( rmt , a , nr , rofi_rv)
        call radwgt ( rmt , a , nr , rwgt_rv)
 
-       if( .NOT. noelind()) then
-          !       Overwrite rho+, rho- with rho, rho+ - rho-
-          call splrho ( 0 , nsp , nr , nlml , sv_p_orhnew( 1 , ib )%v , &
-               sv_p_orhnew( 2 , ib )%v , sv_p_orhnew( 3 , ib )%v )
-          !   ... Add site-projected screening density to rhn1,rhn2
-          call pkl2ro ( 110 , ib , rsmv , kmxv , nr , nlml , 1 , rofi_rv &
-               , rwgt_rv , k0 , nlm0 , fkl_zv , wdummy , sv_p_orhnew ( 1 , &
-               ib ) %v , sv_p_orhnew ( 2 , ib ) %v , qmx )
-          !       Restore rho+, rho-
-          call splrho ( 1 , nsp , nr , nlml , sv_p_orhnew( 1 , ib )%v , &
-               sv_p_orhnew( 2 , ib )%v , sv_p_orhnew( 3 , ib )%v )
-       endif
+       ! if( .NOT. noelind()) then
+       !    !       Overwrite rho+, rho- with rho, rho+ - rho-
+       !    call splrho ( 0 , nsp , nr , nlml , sv_p_orhnew( 1 , ib )%v , &
+       !         sv_p_orhnew( 2 , ib )%v , sv_p_orhnew( 3 , ib )%v )
+       !    !   ... Add site-projected screening density to rhn1,rhn2
+       !    call pkl2ro ( 110 , ib , rsmv , kmxv , nr , nlml , 1 , rofi_rv &
+       !         , rwgt_rv , k0 , nlm0 , fkl_zv , wdummy , sv_p_orhnew ( 1 , &
+       !         ib ) %v , sv_p_orhnew ( 2 , ib ) %v , qmx )
+       !    !       Restore rho+, rho-
+       !    call splrho ( 1 , nsp , nr , nlml , sv_p_orhnew( 1 , ib )%v , &
+       !         sv_p_orhnew( 2 , ib )%v , sv_p_orhnew( 3 , ib )%v )
+       ! endif
 
        !   ...  Always work with rho1+rho2, rho1-rho2
        !        print *, 'ib=',ib

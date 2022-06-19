@@ -48,7 +48,7 @@ contains
     use m_lmfinit, only: n0,nab,nppn,ncutovl,lso,ndos=>bz_ndos,bz_w,fsmom=>bz_fsmom, &
     bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n, &
          ctrl_nspec,ctrl_pfloat,ldos=>ctrl_ldos,qbg=>zbak,lfrce=>ctrl_lfrce, &
-         pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps,ham_elind, &
+         pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps, &
          ham_scaledsigma, &
          alat=>lat_alat,stdo,stdl,procid,master, &! & bz_doswin,
     nkaph,nlmax,nl,nbas,nsp, ham_frzwf, bz_dosmax, &
@@ -143,10 +143,11 @@ contains
     logical,save:: siginit=.true.
     integer:: iter,i,ifi,ipr,iq,isp,jsp,iprint,ipts
     integer:: idummy, unlink,ifih,ifii,ib
-    real(8):: sumtv,eharris,eksham,  dosw(2),elind,dum,evtop,ecbot,qp(3),rydberg,xxx,eeem
+    real(8):: sumtv,eharris,eksham,  dosw(2),dum,evtop,ecbot,qp(3),rydberg,xxx,eeem
     real(8):: fh_rv(3,nbas),vnow,eee,dosi(2),dee,efermxxx,emin,qvalm(2)
     real(8),allocatable:: dosi_rv(:,:),dos_rv(:,:),qmom_in(:)
     real(8),parameter::  NULLR =-99999,pi=4d0*datan(1d0)
+    real(8):: elind=0d0
     !! ----------------------------
     call tcn ('bndfp')
     debug  = cmdopt0('--debugbndfp')
@@ -366,8 +367,8 @@ contains
     if(lrout/=0) then
        allocate(qmom_in(nvl))
        qmom_in=qmom !
-       elind = ham_elind ! accelarating convergence. Not used so often. Need examination.
-       if(ham_elind<0d0) elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*ham_elind
+!       elind = ham_elind ! accelarating convergence. Not used so often. Need examination.
+!       if(ham_elind<0d0) elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*ham_elind
        !!   ... Correction to harris force ! qmom is given by m_mkpot_init for input dentisy.
        !        if(lfrce>0 ) call dfrce (lfrce,orhoat,orhoat_out,elind,qmom,osmrho,smrho_out,         fh_rv)
        !!   ... Evaluate KS total energy and output magnetic moment
@@ -391,12 +392,12 @@ contains
        if(lfrce> 0) then
           if(allocated(force)) deallocate(force)
           allocate(force(3,nbas))
-          call dfrce (lfrce,orhoat,orhoat_out,elind,qmom_in,osmrho,smrho_out,  fh_rv)
+          call dfrce (lfrce,orhoat,orhoat_out,qmom_in,osmrho,smrho_out,  fh_rv)
           call totfrc(leks, fes1_rv, fes2_rv, fh_rv, frcbandsym, force)
        endif
        deallocate(qmom_in)
        !! Mixing input (osmrho,orhoat) and output (osmrho_out,orhoat_out). Output are orhoat and osmrho.
-       call mixrho(iter,qval-qbg,elind, orhoat_out,orhoat, smrho_out,osmrho, qdiff) !mixrho keeps history in it.
+       call mixrho(iter,qval-qbg,orhoat_out,orhoat,smrho_out,osmrho,qdiff)!mixrho keeps history in it.
     else
        eksham = 0d0
     endif

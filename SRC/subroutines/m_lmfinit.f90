@@ -41,8 +41,8 @@ module m_lmfinit
        ,nsp=1,lrel=1,lso=0
   real(8),protected:: pmin(n0),pmax(n0),ham_pmax(10),ham_pmin(10), &
        ctrl_defm(6), ctrl_wsrmax,ctrl_rmaxes, &
-       ctrl_omax1(3),ctrl_omax2(3),ctrl_sclwsr,ctrl_rmines, tolft,elind, scaledsigma & !,vmtz
-       ,ham_elind,ham_oveps,ham_scaledsigma
+       ctrl_omax1(3),ctrl_omax2(3),ctrl_sclwsr,ctrl_rmines, tolft,scaledsigma & !,vmtz elind, 
+       ,ham_oveps,ham_scaledsigma !ham_elind,
   !     &     ,ham_delta_stabilize
   !! ... OPTIONS
   integer,protected :: smalit, lstonr(3)=0,nl,lpfloat
@@ -90,7 +90,7 @@ module m_lmfinit
   real(8),protected:: etol,qtol !ctrl_tol(3)=1d-4
   integer,protected:: iter_maxit=1
   integer,protected:: mix_kill,mix_lxpot,mix_mmix,mix_mode,mix_nmix,mix_nsave !mix_nitu,
-  real(8),protected:: mix_b,mix_bv,mix_elind,mix_tolu,mix_umix,mix_w(3),mix_wc
+  real(8),protected:: mix_b,mix_bv,mix_tolu,mix_umix,mix_w(3),mix_wc !,mix_elind
   character(8),protected:: mix_fn
   !! DYN
   real(8),protected:: mdprm(6)
@@ -275,7 +275,7 @@ contains
     character(128) :: nm
     real(8):: nullrv(256),d2,plat(3,3),rydberg
     integer:: nulliv(256),jj(2) !,nkapsi
-    logical:: noelind
+!    logical:: noelind
     integer:: levelinit=0
     integer:: lx,lxx
     character*256:: sss
@@ -451,12 +451,12 @@ contains
     nm='HAM_FORCES'; call gtv(trim(nm),tksw(prgnam,nm),ctrl_lfrce, def_i4=0,note= &
          'Controls the ansatz for density shift in force calculation.'// &
          '%N%3f-1 no force%3f0 no shift'//'%N%3f 1 free-atom shift  12 screened core+nucleus')
-    if( .NOT. noelind()) then
-       nm='HAM_ELIND'; call gtv(trim(nm),tksw(prgnam,nm),elind, &
-            def_r8=0d0,note='Lindhard energy for model screening')
-    else
-       elind=0d0
-    endif
+!    if( .NOT. noelind()) then
+!       nm='HAM_ELIND'; call gtv(trim(nm),tksw(prgnam,nm),elind, &
+!            def_r8=0d0,note='Lindhard energy for model screening')
+!    else
+!       elind=0d0
+!    endif
     nm='HAM_XCFUN'; call gtv(trim(nm),tksw(prgnam,nm),ham_lxcf,def_i4=2, &
          note='Specifies local exchange correlation functional:'// &
          '%N%3f1 for Ceperly-Alder (VWN)'// &
@@ -1164,7 +1164,7 @@ contains
     call sylmnc ( rv_a_ocy , lmxcy )
     call scg ( lmxcg , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg )
     !!
-    ham_elind=elind
+!    ham_elind=elind
     ham_nkaph=nkaph
     ham_pmax=pmax
     ham_pmin=pmin
@@ -1851,7 +1851,7 @@ end module m_lmfinit
 !r  dabc   Spacing for real-space mesh (molecules)
 !r  ehf    Harris-Foulkes energy
 !r  ehk    Hohnberg-Kohn energy
-!r  elind  Lindhard screening parameter
+!rxxx  elind  Lindhard screening parameter
 !r  eterms terms making up the total energy.   For FP:
 !r          1  =  ehf
 !r          2  =  eks
@@ -1997,7 +1997,7 @@ end module m_lmfinit
 !r   b       mixing beta
 !r   bl      previous mixing beta
 !r   bv      extra potential mixing
-!    elind   Lindhard energy for model screening
+!xxx    elind   Lindhard energy for model screening
 !r   fn      mixing file name
 !r   kill    kill the mixing file after k iterations
 !r   lxpot   decouple potential and the charge
