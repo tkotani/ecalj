@@ -63,7 +63,6 @@ HAM   NSPIN=1   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (initia
 
       PWEMAX={pwemax} # (in Ry). When you use larger pwemax more than 5, be careful
                       # about overcompleteness. See GetStarted.
-      ELIND=-1  # this is only for accelaration of convergence. Not need to change.
       
 OPTIONS PFLOAT=1 # Q=band (this is quit switch if you like to add)
                  # 

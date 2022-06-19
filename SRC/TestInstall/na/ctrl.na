@@ -63,7 +63,7 @@ SITE    ATOM=A POS= 0 0 0
         ATOM=E POS= 0 .5  0
         ATOM=E POS= 0 0  .5
 %endif
-HAM     FORCES=0 XCFUN=2 ELIND=-1 TOL=1e-6 NSPIN=1 REL=t
+HAM     FORCES=0 XCFUN=2 TOL=1e-6 NSPIN=1 REL=t
         GMAX=gmax
 GW      NKABC=nkgw GCUTB=2.7 GCUTX=2.2
 % const hf=f

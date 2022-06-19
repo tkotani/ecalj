@@ -34,8 +34,8 @@ SPEC    ATOM=Fe Z=26 R=R LMX=3 LMXA=3 KMXA=4 LFOCA=1 A=0.03
 SITE    ATOM=Fe POS= 0 0 0
 EWALD   TOL=1D-8 NKDMX=1999 NKRMX=1999
 # for version 7
-ITER    MIX=A6,k=nmix,b=beta,elind=-1 CONV=conv CONVC=convc NIT=nit
-MIX     MODE=A6,k=nmix,b=beta,elind=-1 CONV=conv CONVC=convc
+ITER    MIX=A6,k=nmix,b=beta CONV=conv CONVC=convc NIT=nit
+MIX     MODE=A6,k=nmix,b=beta CONV=conv CONVC=convc
 % const pwmode=0 pwemin=1 pwemax=3 oveps=0
 HAM     OPTIONS NSPIN=2 REL=T XCFUN=2 SO={so} GMAX=gmax
         PWMODE={pwmode} PWEMIN={pwemin} PWEMAX={pwemax} OVEPS={oveps}

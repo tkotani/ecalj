@@ -56,7 +56,7 @@ MIX     MODE=B,b=.3
 ITER    MIX=B,b=.3 NIT={nit} 
 % elseifd strx=='l12'
 % const ng=16 nk1=12 nz=10 a=7.1866
-HAM     ELIND=-.7 FORCES={lfrce} FTMESH={ng} TOL=1d-7
+HAM     FORCES={lfrce} FTMESH={ng} TOL=1d-7
 % const  pwmode=0 pwemin=1 pwemax=3 oveps=0
         PWMODE={pwmode} PWEMIN={pwemin} PWEMAX={pwemax} OVEPS={oveps}
 # for V7

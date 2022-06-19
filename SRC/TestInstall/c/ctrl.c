@@ -15,11 +15,11 @@ SYMGRP  find
 # for Version 7:
 ITER    MIX=A2,b=.5 CONV=1e-5 CONVC=.0005 NIT=nit
 MIX     MODE=A2,b=.5 CONV=1e-5 CONVC=.0005
-        ELIND=-1 NMIX=2
+        NMIX=2
 # for Version 7:
 HAM     NSPIN=2  REL=t XCFUN=2
         FTMESH=50 50 50  TOL=1E-6 FRZ=f
-        FORCES=12 ELIND=-1 CONV=1e-5 CONVC=.0005
+        FORCES=12 CONV=1e-5 CONVC=.0005
 STRUC   NBAS=1 NSPEC=1 NL=lmxa+1
 #       ALAT=10 PLAT=   1 0 0 0 1 0 0 0 1
         ALAT=10/2^(1/3) PLAT=   1 1 0  1 0 1  0 1 1

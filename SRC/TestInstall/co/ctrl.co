@@ -380,7 +380,7 @@ FIT     WVS=1 1  NFIT=2  EFIT=-.2 -1
 % endif
 FIT     WVS=1 1  NFIT=2  EFIT=-.5 -2
 % const ng=12 ng2=20 met=1
-HAM     ELIND=-.8 FRZ=f FTMESH={ng} {ng} {ng2} TOL=1d-6
+HAM     FRZ=f FTMESH={ng} {ng} {ng2} TOL=1d-6
         NSPIN={nsp} REL=t SO={so} XCFUN=2
 BZ      NKABC=nk BZJOB=bzj W=.002 NPTS=1001 NKABC2=6 JOB2=bzj SAVDOS=t
         EF0={ef0} DELEF=.1 TETRA=2 DOS={ef0}-1 {ef0}+.5 METAL={met}

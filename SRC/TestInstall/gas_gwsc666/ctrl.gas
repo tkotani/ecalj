@@ -137,9 +137,6 @@ HAM   NSPIN={nspin}   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (
                 # 12: LAPW: 
       PWEMAX={pwemax} # (in Ry). When you use larger pwemax more than 5, be careful
                       # about overcompleteness. See GetStarted.
-      ELIND=0    # this is to accelarate convergence. Not affect to the final results.
-                 # For sp-bonded solids, ELIND=-1 may give faster convergence.
-                 # For O2 molecule, Fe, and so on, use ELIND=0(this is default).
 
       FRZWF=F #If T, fix augmentation function. This is worth to test in future.
       #  See http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html#HAMcat

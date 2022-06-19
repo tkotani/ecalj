@@ -49,7 +49,7 @@ STRUC   NBAS=1 NSPEC=1 NL=5
 SITE    ATOM=A POS= 0 0 0
 % const pwmode=0 pwemin=1 pwemax=3 oveps=0
 HAM     NSPIN=1 REL=t XCFUN=2 
-        FORCES=0 ELIND=-.5 TOL=1e-6
+        FORCES=0 TOL=1e-6
         GMAX=gmax
         FTMESH=10 10 10
         PWMODE={pwmode} PWEMIN={pwemin} PWEMAX={pwemax} OVEPS={oveps}
