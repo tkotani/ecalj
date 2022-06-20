@@ -18,7 +18,7 @@ subroutine splrho(mode,nsp,nr,nlml,rho1,rho2,rhoc)
   !r Remarks
   !u Updates
   ! ----------------------------------------------------------------------
-  !     implicit none
+  implicit none
   integer :: mode,nsp,nr,nlml
   double precision :: rho1(nr,nlml,nsp),rho2(nr,nlml,nsp),rhoc(nr,nsp)
   double precision :: fac
