@@ -398,7 +398,7 @@ subroutine pvdf1 ( job , ssite , sspec ,  nsp , ib , iv0 & ! & slat ,
      cxx = cxx*dcmplx(0d0,-1d0)
      do  22  m = -l,l
         ilm = ilm+1
-        cof(ilm) = cxx*qmom(ilm+iv0)*4*pi/df(2*l+1)
+        cof(ilm) = cxx*qmom(ilm+iv0)*4d0*pi/df(2*l+1)
 22   enddo
 20 enddo
   !     cof(1) = cof(1) + 4*pi*y0*(qcorg+qsc-z)
@@ -461,7 +461,7 @@ subroutine pvdf1 ( job , ssite , sspec ,  nsp , ib , iv0 & ! & slat ,
   do  k = 1, 3
      do  ilm = 1, nlm
         l = ll(ilm)
-        gpot0(ilm,k) = gpot0(ilm,k)*4*pi/df(2*l+1)
+        gpot0(ilm,k) = gpot0(ilm,k)*4d0*pi/df(2*l+1)
         fesgg(k) = fesgg(k) + qmout(iv0+ilm)*gpot0(ilm,k)
      enddo
   enddo
@@ -506,7 +506,7 @@ subroutine pvdf1 ( job , ssite , sspec ,  nsp , ib , iv0 & ! & slat ,
         do  62  m = -l, l
            ilm = ilm+1
            do  64  k = 1, 3
-              gpot0(ilm,k) = gpot0(ilm,k)*4*pi/df(2*l+1)
+              gpot0(ilm,k) = gpot0(ilm,k)*4d0*pi/df(2*l+1)
               feso(k) = feso(k) + qmom(jv0+ilm)*gpot0(ilm,k)
               fes2(k) = fes2(k) + qmout(jv0+ilm)*gpot0(ilm,k)
 64         enddo
@@ -735,7 +735,7 @@ subroutine pvdf4(ssite,sspec,qmom,ng,g2,yl,cs,sn,iv,qlat,cv) !slat,
         cfac = cfac*dcmplx(0d0,-1d0)
         do  21  m = -l, l
            ilm = ilm+1
-           cof(ilm) = cfac*qmom(ilm+iv0)*4*pi/df(2*l+1)
+           cof(ilm) = cfac*qmom(ilm+iv0)*4d0*pi/df(2*l+1)
 21      enddo
 20   enddo
      cof(1) = cof(1) + 4*pi*y0*(qcorg-z)

@@ -272,8 +272,7 @@ contains
        write(stdo,"(a)")'Caution: Mag.field is written in MagField. But it is not used for --band mode!'
     endif
     if(plbnd/=0 .AND. fsmode) call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
-    if(plbnd/=0)            call rx0('plot band mode done')
-    !  end of band plbnd/=0, that is, band plot mode.
+    if(plbnd/=0) call rx0('plot band mode done') ! end of band plbnd/=0, that is, band plot mode.
     !! New eferm and wtkb determined from evlall
     call m_subzi_bzintegration(evlall,swtk,  eferm,sev,qvalm,vnow) !Get eferm and wtkb in m_subzi
     if(lmet==0) eferm = (evtop+ecbot)/2d0 !for metal
@@ -283,8 +282,8 @@ contains
        write(ifi,"(d24.16, ' # (Ry) Fermi energy given by lmf')") eferm
        write(ifi,"(d24.16, ' # (Ry) Top of Valence')") evtop
        write(ifi,"(d24.16, ' # (Ry) Bottom of conduction')") ecbot
-       write(ifi,"(d24.16,d24.16 ' #before: number of electrons total at sites:qval, backg:qbg=')") qval,qbg
-       write(ifi,"(2d24.16, ' # band: charge(nup+nspin), mag.mom(nup-ndown)')")qvalm(1), qvalm(2)
+       write(ifi,"(2d24.16,' #before: number of electrons total at sites:qval, backg:qbg=')") qval,qbg
+       write(ifi,"(2d24.16,' # band: charge(nup+nspin), mag.mom(nup-ndown)')")qvalm(1), qvalm(2)
        write(ifi,"(f24.9 , ' # band: band energy sum (eV)=')") sev*rydberg()
        write(ifi,"(3i10,'    # Used k point to determine Ef')") nkabc
        write(ifi,"(i6,'# iter CAUTION! This file is overwritten by lmf-MPIK SC loop')")iter
@@ -292,8 +291,8 @@ contains
     endif
     !! Generate total DOS  emin=dosw(1) emax=dosw(2) dos range
     if(master_mpi .AND. (tdos .OR. ldos/=0)) then
-       emin = eeem-0.01d0 !
-       dosw(1)= emin !-0.5d0   ! lowest energy limit to plot dos
+       emin = eeem-0.01d0 
+       dosw(1)= emin ! lowest energy limit to plot dos
        dosw(2)= eferm+bz_dosmax
        write(stdo,"(a,3f9.4)") 'Generating TDOS: efermi, and dos window= ',eferm,dosw
        allocate( dosi_rv(ndos,nspx),dos_rv(ndos,nspx)) !for xxxdif
@@ -302,10 +301,10 @@ contains
           call bzints(nkabc(1),nkabc(2),nkabc(3), evlall &
                , dum , nkp , ndhamx , ndhamx , nspx , dosw(1),dosw(2), dosi_rv , ndos ,xxx , &
                1, ntet , iv_a_oidtet , dum , dum ) !job=1 give IntegratedDos to dosi_rv
-          call xxxdif(dosw(1),dosw(2),ndos,nspx,0,dosi_rv,dos_rv) ! 'integrated DOS dosi_rv -> DOS dos_rv'
+          call xxxdif(dosw(1),dosw(2),ndos,nspx,0,dosi_rv,dos_rv)!integrated DOS dosi_rv->DOS dos_rv
        else
           call makdos (nkp, ndhamx, ndhamx, nspx, rv_a_owtkp, evlall,bz_n, bz_w &
-               , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv )
+               , -6d0, dosw(1),dosw(2), ndos , dos_rv )
        endif
        if(lso==1) dos_rv=0.5d0*dos_rv !call dscal ( ndos , .5d0 , dos_rv , 1 )
        open(newunit=ifi, file='dos.tot.'//trim(sname) )
@@ -352,27 +351,20 @@ contains
        call rx0('Done cls mode:')
     endif
     !! write out orbital moment
-    if(lwtkb==1 .AND. lso/=0) call iorbtm() !write out orbital moment
+    if(lwtkb==1 .AND. lso/=0) call iorbtm()  ! write orbital moment
     !! Assemble output density, energies and forces ===============================
     if (lrout/=0) call m_bandcal_symsmrho()  !Get smrho_out Symmetrize smooth density
     call m_mkrout_init() !Get force frcbandsym, symmetrized atomic densities orhoat_out, and weights hbyl,qbyl
     !!  New boundary conditions pnu for phi and phidot
     if (lrout/=0) call pnunew(eferm) !ssite%pnu ssite%pz are revised.
-    !$$$  if(master_mpi) call writeqpyl() !if you like to print writeqbyl
-
-    !! Evaluate Harris-foukner energy
-    !     (note: we now use NonMagneticCORE mode as default)
+    !  if(master_mpi) call writeqpyl() !if you like to print writeqbyl
+    !! Evaluate Harris-foukner energy (note: we now use NonMagneticCORE mode as default)
     call m_mkehkf_etot1(sev, eharris)
     !! Evaluate KS total energy and Force ---
     if(lrout/=0) then
        allocate(qmom_in(nvl))
-       qmom_in=qmom !
-!       elind = ham_elind ! accelarating convergence. Not used so often. Need examination.
-!       if(ham_elind<0d0) elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*ham_elind
-       !!   ... Correction to harris force ! qmom is given by m_mkpot_init for input dentisy.
-       !        if(lfrce>0 ) call dfrce (lfrce,orhoat,orhoat_out,elind,qmom,osmrho,smrho_out,         fh_rv)
-       !!   ... Evaluate KS total energy and output magnetic moment
-       eksham = 0d0
+       qmom_in=qmom !multipole moments.
+       eksham = 0d0 !   ... Evaluate KS total energy and output magnetic moment
        if(leks>=1) then
           call mkekin(sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,osmpot,smrho_out,sev,  sumtv)
           call m_mkpot_energyterms(smrho_out, orhoat_out) !qmom is revised for given orhoat_out
@@ -396,7 +388,7 @@ contains
           call totfrc(leks, fes1_rv, fes2_rv, fh_rv, frcbandsym, force)
        endif
        deallocate(qmom_in)
-       !! Mixing input (osmrho,orhoat) and output (osmrho_out,orhoat_out). Output are orhoat and osmrho.
+       ! Mix inputs(osmrho,orhoat) and outputs(osmrho_out,orhoat_out), resulting orhoat and osmrho.
        call mixrho(iter,qval-qbg,orhoat_out,orhoat,smrho_out,osmrho,qdiff)!mixrho keeps history in it.
     else
        eksham = 0d0

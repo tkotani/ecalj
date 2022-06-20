@@ -84,8 +84,8 @@ subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dl
      call dcopy(3,p,1,p1,1)
   endif
 
-  pi = 4*datan(1d0)
-  tpi = 2*pi
+  pi = 4d0*datan(1d0)
+  tpi = 2d0*pi
   ! ... lx(ie) = lxi(ie) + lmxa
   lmax = -1
   if (nxi > 20) call rx('hsmq: increase dim of lx')
@@ -113,14 +113,14 @@ subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dl
   if ((lmax+1)**2 > nlmx) call rx('hsmq: lxi gt ll(nlmx)')
   if ((lmax+1)**2 > nlmxx) call rx('hsmq: lxi gt ll(nlmxx)')
   if (nrx < max(nD,nG)) call rx('hsmq: nrx < nD or nG')
-  y0 = 1/dsqrt(4*pi)
+  y0 = 1/dsqrt(4d0*pi)
   a2 = a*a
   call dpzero(hsm, 2*nlmx*nxi)
   call dpzero(hsmp,2*nlmx*nxi)
 
   ! --- Energy-independent setup for Q-space part ---
   if (nG > 0) then
-     tpiba = 2*pi/alat
+     tpiba = 2d0*pi/alat
      gam = 0.25d0/a2
      do  10  ir = 1, nG
         wk(ir,2) = tpiba*(q(1) + qlv(1,ir))
@@ -256,11 +256,11 @@ subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dl
            wk(1,lc)   = wk(1,lc) - h0d
         endif
         !     ... Generate -hsm(p,a,l>0) by upward recursion
-        xx = 4*a*y0*dexp(-(akap/a/2)**2 - (r*a)**2)
+        xx = 4d0*a*y0*dexp(-(akap/a/2)**2 - (r*a)**2)
         do  31  l = 1, lx(ie)
            wk(1,l+lc+1) = ((2*l-1)*wk(1,l+lc) -exi(ie)*wk(1,l+lc-1) + xx) /wk(1,1)
            !          print *, wk(1,l+lc+1)
-           xx = 2*a**2*xx
+           xx = 2d0*a**2*xx
 31      enddo
         !     ... debugging check
         !         call hansmr(r,exi(ie),a,xx1,lx(ie))
@@ -407,9 +407,9 @@ subroutine hsmqe0(lmax,rsm,job,q,p,nrx,nlmx,wk,yl, &
   else
      call dcopy(3,p,1,p1,1)
   endif
-  pi = 4*datan(1d0)
-  y0 = 1/dsqrt(4*pi)
-  tpi = 2*pi
+  pi = 4d0*datan(1d0)
+  y0 = 1/dsqrt(4d0*pi)
+  tpi = 2d0*pi
   call dpzero(hsm, 2*nlmx)
   if (job2 > 0) then
      call dpzero(q0,3)
@@ -430,7 +430,7 @@ subroutine hsmqe0(lmax,rsm,job,q,p,nrx,nlmx,wk,yl, &
 
   ! --- Setup for Q-space part ---
   if (nG > 0) then
-     tpiba = 2*pi/alat
+     tpiba = 2d0*pi/alat
      gam = 0.25d0/a2
      do  10  ir = 1, nG
         wk(ir,2) = tpiba*(q0(1) + qlv(1,ir))
@@ -533,13 +533,13 @@ subroutine hsmqe0(lmax,rsm,job,q,p,nrx,nlmx,wk,yl, &
      wk(1,lc) = wk(1,lc) - h0
      if (lmax > 0) wk(1,lc+1) = wk(1,lc+1) - h0/wk(1,1)
      !   ... Generate -hsm(p,a,l>0) by upward recursion
-     xx = (2*a**2)*4*a*y0*dexp(-(r*a)**2)
+     xx = (2d0*a**2)*4d0*a*y0*dexp(-(r*a)**2)
      !  ... debugging check
      !      call hansmr(r,0d0,a,xx1,lmax)
      do  31  l = 2, lmax
         wk(1,l+lc) = ((2*l-1)*wk(1,l+lc-1) + xx)/wk(1,1)
         !       print *, wk(1,l+lc)
-        xx = 2*a**2*xx
+        xx = 2d0*a**2*xx
 31   enddo
   endif
 
@@ -600,7 +600,7 @@ subroutine hsmqe0(lmax,rsm,job,q,p,nrx,nlmx,wk,yl, &
 36 enddo
 
   ! --- Add extra term for l=0 when e=0 and q=0 ---
-  if (lqzero) hsm(1,1) = hsm(1,1) + rsm**2/(4*vol*y0)
+  if (lqzero) hsm(1,1) = hsm(1,1) + rsm**2/(4d0*vol*y0)
 
 end subroutine hsmqe0
 subroutine pvhsmq(job,nx,lmxa,lxi,exi,a,vol,n,qsq,nyl,yl,nlmx, &
@@ -622,7 +622,7 @@ subroutine pvhsmq(job,nx,lmxa,lxi,exi,a,vol,n,qsq,nyl,yl,nlmx, &
   logical :: dcmpre
   dcmpre(x1,x2) = dabs(x1-x2) .lt. 1d-8
   gam = 0.25d0/a**2
-  pi = 4*datan(1d0)
+  pi = 4d0*datan(1d0)
   ! --- For each exi ne 0 and ilm do ---
   do  20  ie = 1, nx
      e = exi(ie)
@@ -886,9 +886,9 @@ subroutine hansr4(rsq,lmax,nrx,nr,e,rsm,wk,wk2,chi)
   if (lpos) then
      kappa  =  dsqrt(e)
      zikap  = dcmplx(0d0,1d0)*kappa
-     ta = 2*a
+     ta = 2d0*a
      !       facgl = 4*a*exp(e/(2*a)**2)
-     facgl = 4*a*exp(e/ta**2)
+     facgl = 4d0*a*exp(e/ta**2)
   else
      akap = dsqrt(-e)
      arsm = akap*rsm/2
@@ -919,7 +919,7 @@ subroutine hansr4(rsq,lmax,nrx,nr,e,rsm,wk,wk2,chi)
            h0 = f1(arsm-.5d0)
         endif
         !         chi(-1) -> erfc(akap/2a)/akap for r=0
-        chi(1,0)  = akap*h0 - 4*a*xx
+        chi(1,0)  = akap*h0 - 4d0*a*xx
         chi(1,-1) = -h0/akap
      endif
   endif
@@ -970,7 +970,7 @@ subroutine hansr4(rsq,lmax,nrx,nr,e,rsm,wk,wk2,chi)
 20   enddo
   endif
   ! --- chi(ir,l) for l>1 by upward recursion ---
-  facgl = 2*a**2
+  facgl = 2d0*a**2
   do  31  l = 1, lmax
      chi(1,l) = 0
 31 enddo
@@ -1041,7 +1041,7 @@ subroutine hansr5(rsq,lmax,nrx,nr,rsm,wk,wk2,chi)
   ! --- Setup ---
   if (lmax < 0 .OR. nr == 0) return
   a = 1/rsm
-  facgl = 4*a
+  facgl = 4d0*a
   ! --- chi(*0), chi(*,1) ---
   ir1 = 1
   if (rsq(1) < 1d-6) then

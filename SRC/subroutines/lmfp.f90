@@ -136,7 +136,7 @@ subroutine lmfp(llmfgw)
         !Things for --density (plot density) are in locpot.F(rho1mt and rho2mt) and mkpot.F(smooth part).
         ! Write restart file (skip if --quit=band) ---
         if(master_mpi .AND. ( .NOT. cmdopt0('--quit=band'))) then
-           if(lrout>0 .OR. maxit==0) k=iors ( iter , 'write')  ! = iors_old ( iter , 'write' ,irs5)
+           if(lrout>0 .OR. maxit==0) k=iors(iter, 'write')  ! = iors_old ( iter , 'write' ,irs5)
         endif
         if (maxit<=0) goto 9998  !exit
         etot(1) = ham_ehf        ! etot(1) is not the total energy when LDA+U
@@ -191,7 +191,6 @@ subroutine lmfp(llmfgw)
        ! call Smshft(ctrl_lfrce,poss,pos0)!New density after atom shifts.
        ! Smshft is wrong idea. See TK paper.
        if (master_mpi) then 
-          k = iors (iter , 'write') !Write restart file  k = iors_old (iter , 'write' ,irs5)
           write(stdo,*)' Delete mixing and band weights files ...'
           open(newunit=ifi, file='mixm.'//trim(sname)); close(ifi, status='delete')
           open(newunit=ifi, file='wkp.'//trim(sname)); close(ifi, status='delete')

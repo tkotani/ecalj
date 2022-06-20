@@ -241,7 +241,6 @@ potpus.o \
 prrhat.o \
 prtev.o \
 rdovfa.o \
-rhgcmp.o \
 rhogkl.o \
 rhomom.o \
 rlocbl.o \
@@ -272,7 +271,6 @@ lmaux.o \
 gwcphi.o \
 pwmat.o \
 sugw.o \
-smshft.o \
 grfmsh.o \
 smvxcm.o \
 m_vxcatom.o \

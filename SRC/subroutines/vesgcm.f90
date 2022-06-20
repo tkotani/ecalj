@@ -105,7 +105,7 @@ subroutine vesgcm(nbas,ssite,sspec,cy,qmom,ng,gv,&
      do  l = 0, lmxl
         do m = -l,l
            ilm = ilm+1
-           cof(ilm) = qmom(ilm+iv0)*4*pi/df(2*l+1)
+           cof(ilm) = qmom(ilm+iv0)*4d0*pi/df(2*l+1)
            gpot0(ilm+iv0) = 0d0
         enddo
      enddo
@@ -131,7 +131,7 @@ subroutine vesgcm(nbas,ssite,sspec,cy,qmom,ng,gv,&
      !   ... Multiply factors into gpot0
      do  ilm = 1, nlm
         l = ll(ilm)
-        gpot0(ilm+iv0) = gpot0(ilm+iv0)*4*pi/df(2*l+1)
+        gpot0(ilm+iv0) = gpot0(ilm+iv0)*4d0*pi/df(2*l+1)
      enddo
      !   ... Force of smooth density on the compensating gaussians
      sum1 = 0d0
@@ -162,7 +162,7 @@ subroutine vesgcm(nbas,ssite,sspec,cy,qmom,ng,gv,&
 300 format(/' vesgcm: smooth density G=0 term =', 2f11.6,'   Q = ',f12.6)
   !! Commented by obata (but not packed in git by obata ---fixed by t.kotani)
   do  i = 2, ng
-     g2 = tpiba*tpiba*(gv(i,1)**2+gv(i,2)**2+gv(i,3)**2)
+     g2 = tpiba*tpiba*sum(gv(i,:)**2) 
      cv(i) = cv(i) + (8*pi)*cgsum(i)/g2
   enddo
   ! --- Electrostatic potential at rmt ---

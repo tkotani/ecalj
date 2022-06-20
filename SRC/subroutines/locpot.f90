@@ -657,7 +657,7 @@ contains
     endif
     if (nr > nrmx) call rxi('locpt2: need nrmx at least',nr)
     pi = 4d0*datan(1d0)
-    srfpi = dsqrt(4*pi)
+    srfpi = dsqrt(4d0*pi)
     y0 = 1d0/srfpi
     if (nlml > nlmx) call rxi('locpt2: increase nlmx, need',nlml)
     call stdfac(20,df)
@@ -666,7 +666,7 @@ contains
     afoc = 1d0/rfoc
     nrml = nr*nlml
     ! --- Make core and nucleus pseudodensities ---
-    fac = 4*pi*(ag*ag/pi)**1.5d0
+    fac = 4d0*pi*(ag*ag/pi)**1.5d0
     ! ... Renormalize gaussian
     sumg = 0d0
     do  i = 2, nr
@@ -710,8 +710,8 @@ contains
     do  isp = 1, nsp
        do  ilm = 1, nlml
           l = ll(ilm)
-          cof(ilm) = qmom(ilm)*4*pi/df(2*l+1)
-          fac = sfac*(ag*ag/pi)**1.5d0 * (2*ag*ag)**l
+          cof(ilm) = qmom(ilm)*4d0*pi/df(2*l+1)
+          fac = sfac*(ag*ag/pi)**1.5d0 * (2d0*ag*ag)**l
           do  i = 1, nr
              r = rofi(i)
              gnu = cof(ilm)*fac* r**(l+2) * dexp(-ag*ag*r*r)
@@ -784,8 +784,8 @@ contains
     sgpotb = 0d0
     do  ilm = 1, nlml
        l = ll(ilm)
-       cof0 = 4*pi/df(2*l+1)
-       fac = sfac*(ag*ag/pi)**1.5d0 * (2*ag*ag)**l
+       cof0 = 4d0*pi/df(2*l+1)
+       fac = sfac*(ag*ag/pi)**1.5d0 * (2d0*ag*ag)**l
        sum1 = 0d0
        do  i = 1, nr
           r = rofi(i)
@@ -803,7 +803,7 @@ contains
     ves1int=0d0
     ves2int=0d0
     do  i = 2, nr
-       ves1 = y0*v1(i,1,1) - 2*z/rofi(i)
+       ves1 = y0*v1(i,1,1) - 2d0*z/rofi(i)
        vesc1 = vesc1 + rwgt(i)*rhoc(i,1)*ves1
        vesn2 = vesn2 + rwgt(i)*rhonsm(i)*y0*v2(i,1,1)
        vesc2 = vesc2 + rwgt(i)*rhocsm(i)*y0*v2(i,1,1)
@@ -816,7 +816,7 @@ contains
     if(ifivesint>0) then
        write(ifivesint,"(3f23.15,a)")ves1int-ves2int,ves1int,ves2int,' ! vesint1-vesint2 ves1int ves2int'
     endif
-    vnucl = 2*srfpi*vnucl + 2*z/rmt + y0*vval(1)
+    vnucl = 2d0*srfpi*vnucl + 2d0*z/rmt + y0*vval(1)
     vesn1 = -z*vnucl
     ! ... Valence density times electrostatic potential
     vales1 = rvs1-vesc1
@@ -931,7 +931,7 @@ contains
     vefc1 = 0d0
     do  isp = 1, nsp
        do  i = 2, nr
-          ves1 = y0*v1(i,1,isp) - 2*z/rofi(i)
+          ves1 = y0*v1(i,1,isp) - 2d0*z/rofi(i)
           vefc1 = vefc1 + rwgt(i)*rhoc(i,isp)*ves1
        enddo
     enddo
@@ -947,7 +947,7 @@ contains
           rvsm(isp) = 0d0
           do  i = 2, nr
              vtr = v1(i,ilm,isp)
-             if (ilm == 1) vtr = vtr - srfpi*2*z/rofi(i)
+             if (ilm == 1) vtr = vtr - srfpi*2d0*z/rofi(i)
              rvtr(isp) = rvtr(isp) + rwgt(i)*rho1(i,ilm,isp)*vtr
              rvsm(isp) = rvsm(isp) + rwgt(i)*rho2(i,ilm,isp)*v2(i,ilm,isp)
           enddo
@@ -1069,12 +1069,12 @@ contains
           cx = efg1(3,ic)
           dx = efg1(4,ic)
           ex = efg1(5,ic)
-          v(1,1) = 2*ex-2/s3*cx
-          v(2,2) = -2*ex-2/s3*cx
-          v(3,3) = 4/s3*cx
-          v(1,2) = 2*ax
-          v(1,3) = 2*dx
-          v(2,3) = 2*bx
+          v(1,1) =  2d0*ex-2d0/s3*cx
+          v(2,2) = -2d0*ex-2d0/s3*cx
+          v(3,3) = 4d0/s3*cx
+          v(1,2) = 2d0*ax
+          v(1,3) = 2d0*dx
+          v(2,3) = 2d0*bx
           v(2,1) = v(1,2)
           v(3,1) = v(1,3)
           v(3,2) = v(2,3)

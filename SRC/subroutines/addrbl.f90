@@ -20,7 +20,7 @@ contains
     use m_suham,only: &
          ndham=>ham_ndham,ndhamx=>ham_ndhamx,nspx=>ham_nspx
     use m_lmfinit,only:alat=>lat_alat,nbas, ssite=>v_ssite,sspec=>v_sspec,nsp,nspc,lmet=>bz_lmet,&
-         lekkl, zbak !,ldos=>ctrl_ldos!,bz_dosw
+         lekkl, zbak 
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol
     use m_supot,only: lat_nabc,k1,k2,k3
     use m_igv2x,only: napw,ndimh,ndimhx,igapw=>igv2x
@@ -116,7 +116,6 @@ contains
     complex(8),allocatable:: evecc(:,:,:,:),work(:,:,:,:)
     real(8),allocatable:: qpgv(:,:),qpg2v(:),ylv(:,:)
     double precision :: ewgt(ndimh*nspc),epsnevec
-
     qval= qval_- zbak
     if (lwtkb < 0) return
     call tcn('addrbl')
@@ -145,8 +144,7 @@ contains
        wgt = abs(wtkp(iq))/nsp
        call mkewgt(lmet,wgt,qval,ndimh,evl(1,isp),nevec,ewgt,sumev,sumqv(1,isp))
        call dscal(nevec,wgt,ewgt,1)
-       ! ... Case band weights are passed
-    else
+    else! ... Case band weights are passed
        call dcopy(nevl,wtkb(1,isp,iq),1,ewgt,1)
        do  10  i = nevl, 1, -1
           nevec = i
@@ -158,9 +156,6 @@ contains
     if (lfrce > 0 ) then
        call rxx(nspc.ne.1,'forces not implemented in noncoll case')
        vavg = vconst
-       !        print *, '!! avg=1=smpot=1'; vavg=1; smpot=1 !; nevec=1
-       !        print *, '!! smpot=vavg'; smpot=vavg
-       !       call zprm('evecs',2,evec,ndimh,ndimh,nevec)
        if (nlmto>0) then
           call fsmbl ( nbas , ssite , sspec ,  vavg , q , ndimh ,&
           nlmto, nevec, evl(1,isp) , evec ,  ewgt , f )
@@ -186,13 +181,11 @@ contains
        call zcopy(ndimhx**2,evec,1,evecc,1)
        call zgetrf(nevl,nevl,evecc,ndimhx,ipiv,i)
        if (i /= 0) call rx('addrbl: failed to generate overlap')
-       call zgetri(nevl,evecc,ndimhx,ipiv,work,ndimhx**2,i)
+       call zgetri(nevl,evecc,ndimhx,ipiv,work,ndimhx**2,i) !evecc is evec^-1
        do  i = 1, ndimh
           do  k = 1, ndimh
-             swtk(i,1,iq) = swtk(i,1,iq) + evecc(i,1,k,1)*evec(k,1,i,1) &
-                  - evecc(i,1,k,2)*evec(k,2,i,1)
-             swtk(i,2,iq) = swtk(i,2,iq) + evecc(i,2,k,1)*evec(k,1,i,2) &
-                  - evecc(i,2,k,2)*evec(k,2,i,2)
+             swtk(i,1,iq)= swtk(i,1,iq) + evecc(i,1,k,1)*evec(k,1,i,1) - evecc(i,1,k,2)*evec(k,2,i,1)
+             swtk(i,2,iq)= swtk(i,2,iq) + evecc(i,2,k,1)*evec(k,1,i,2) - evecc(i,2,k,2)*evec(k,2,i,2)
           enddo
        enddo
        deallocate(evecc,work)
@@ -200,7 +193,6 @@ contains
     deallocate(qpgv,qpg2v,ylv)
     call tcx('addrbl')
   end subroutine addrbl
-
 
   subroutine addsds(ndimh,evl,wgt,emin,emax,ndos,dos) !,esmear
     use m_lmfinit,only: bz_w,bz_n

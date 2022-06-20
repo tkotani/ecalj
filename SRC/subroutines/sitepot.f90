@@ -88,8 +88,8 @@ subroutine sitepot(z,rmt,rg,a,nr,cofg,cofh,ceh,rfoc, &
   ! --- assemble the full smooth compensated density rho2+gval+gcor+gnuc
   do ilm=1,nlml
      l=ll(ilm)
-     cof(ilm)=qmom(ilm)*4*pi/df(2*l+1)
-     fac=sfac*(ag*ag/pi)**1.5d0 * (2*ag*ag)**l
+     cof(ilm)=qmom(ilm)*4d0*pi/df(2*l+1)
+     fac=sfac*(ag*ag/pi)**1.5d0 * (2d0*ag*ag)**l
      do i=1,nr
         r=rofi(i)
         gnu=cof(ilm)*fac* r**(l+2) * dexp(-ag*ag*r*r)
@@ -128,8 +128,8 @@ subroutine sitepot(z,rmt,rg,a,nr,cofg,cofh,ceh,rfoc, &
   sgpotb=0d0
   do ilm=1,nlml
      l=ll(ilm)
-     cof0=4*pi/df(2*l+1)
-     fac=sfac*(ag*ag/pi)**1.5d0 * (2*ag*ag)**l
+     cof0=4d0*pi/df(2*l+1)
+     fac=sfac*(ag*ag/pi)**1.5d0 * (2d0*ag*ag)**l
      sum1=0d0
      do i=1,nr
         r=rofi(i)
@@ -146,7 +146,7 @@ subroutine sitepot(z,rmt,rg,a,nr,cofg,cofh,ceh,rfoc, &
   do ilm=1,nlml
      do i=2,nr
         v1tot=v1(i,ilm)
-        if (ilm == 1) v1tot=v1tot-srfpi*2*z/rofi(i)
+        if (ilm == 1) v1tot=v1tot-srfpi*2d0*z/rofi(i)
         rvs1=rvs1+rwgt(i)*v1tot*rhol1(i,ilm)
         rvs2=rvs2+rwgt(i)*v2(i,ilm)*rhol2(i,ilm)
      enddo
@@ -158,14 +158,14 @@ subroutine sitepot(z,rmt,rg,a,nr,cofg,cofh,ceh,rfoc, &
   vesc1=0d0
   vnucl=0d0
   do i=2,nr
-     v1tot=y0*v1(i,1)-2*z/rofi(i)
+     v1tot=y0*v1(i,1)-2d0*z/rofi(i)
      vesc1=vesc1+rwgt(i)*rhoc(i)*v1tot
      vesn2=vesn2+rwgt(i)*rhonsm(i)*y0*v2(i,1)
      vesc2=vesc2+rwgt(i)*rhocsm(i)*y0*v2(i,1)
      vnucl=vnucl+rwgt(i)*rhol1(i,1)*(1d0/rofi(i)-1d0/rmt)
   enddo
 
-  vnucl=2*srfpi*vnucl+2*z/rmt+y0*vval(1)
+  vnucl=2d0*srfpi*vnucl+2d0*z/rmt+y0*vval(1)
   vesn1=-z*vnucl
 
   ! ... valence density times electrostatic potential
@@ -229,7 +229,7 @@ subroutine sitepot(z,rmt,rg,a,nr,cofg,cofh,ceh,rfoc, &
   ! --- integrals over core times effective potential
   vefc1=0d0
   do i=2,nr
-     v1tot=y0*v1(i,1)-2*z/rofi(i)
+     v1tot=y0*v1(i,1)-2d0*z/rofi(i)
      vefc1=vefc1+rwgt(i)*rhoc(i)*v1tot
   enddo
 
@@ -242,7 +242,7 @@ subroutine sitepot(z,rmt,rg,a,nr,cofg,cofh,ceh,rfoc, &
      rvtr=0d0
      do i=2,nr
         vtr=v1(i,ilm)
-        if (ilm == 1) vtr=vtr-srfpi*2*z/rofi(i)
+        if (ilm == 1) vtr=vtr-srfpi*2d0*z/rofi(i)
         rvtr=rvtr+rwgt(i)*rho1(i,ilm)*vtr
         rvsm=rvsm+rwgt(i)*rho2(i,ilm)*v2(i,ilm)
      enddo
@@ -298,7 +298,7 @@ subroutine getqval(lmxa,pl,z,kcor,lcor,qcor,qc,qv)
   do l=0,lmxa
      konfig=pl(l)
      do konf=l+1,konfig-1
-        deg=(2*(2*l+1))
+        deg=(2d0*(2*l+1))
         if (konf == kcor .AND. l == lcor) deg=deg+qcor
         qc=qc+deg
      enddo

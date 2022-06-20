@@ -114,7 +114,7 @@ subroutine makusq(mode,nsites,isite, nev,isp,iq,q,evec,  aus)
      else
         ib = isite(i)
      endif
-     is = int(ssite(ib)%spec)
+     is = ssite(ib)%spec
      rsma=sspec(is)%rsma
      lmxa=sspec(is)%lmxa
      lmxl=sspec(is)%lmxl
@@ -122,7 +122,6 @@ subroutine makusq(mode,nsites,isite, nev,isp,iq,q,evec,  aus)
      a=sspec(is)%a
      nr=sspec(is)%nr
      rmt=sspec(is)%rmt
-     !        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
      call uspecb(is,rsmh,eh)
      nkapi= nkapii(is)
      lmxh = sspec(is)%lmxb
@@ -258,7 +257,7 @@ subroutine pusq1(mode,ia,isp,nspc,nlmax,lmxh,nbas,ssite, &
   !     ksp = isp  in the collinear case
   !         = ispc in the noncollinear case
   !     whereas ispc=1 for independent spins, and spin index when nspc=2
-  do  ispc = 1, nspc
+  ispcloop: do  ispc = 1, nspc ! ... loop over noncollinear spins
      ksp = max(ispc,isp)
      if(mode == 1) then
         if (nlma > nlmxx) call rxi('makusq:  nlmxx < nlma=',nlma)
@@ -283,9 +282,8 @@ subroutine pusq1(mode,ia,isp,nspc,nlmax,lmxh,nbas,ssite, &
              min(nlma,nlmax),a_zv,rotp,evec(1,ispc,ivec),vh,dh,vp,dp,&
              au(1,ivec,1,ksp), as(1,ivec,1,ksp), az(1,ivec,1,ksp) )
      enddo 
-  enddo
-  deallocate(a_zv) ! ... end loop over noncollinear spins
-  !if (allocated(b_zv)) deallocate(b_zv)
+  enddo ispcloop
+  deallocate(a_zv) 
   call tcx('pusq1')
 end subroutine pusq1
 
@@ -325,8 +323,7 @@ subroutine pusq2(mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma, &
   !u Updates
   !u   12 Feb 02 Extended to local orbitals
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
+  implicit none
   integer :: mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma
   double precision :: vh(0:lmxh,1),dh(0:lmxh,1)
   double precision :: vp(0:lmxa,0:kmax),dp(0:lmxa,0:kmax)
