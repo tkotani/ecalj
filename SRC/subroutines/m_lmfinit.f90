@@ -1545,13 +1545,13 @@ contains
          if (mdxx) then
             xyzfrz = .false.
             goto 9299
-         elseif (force .AND. mdprm(1) >= 100) then
-            do  i = 1, 6
-               if (defm(i) == 1) then
-                  j = j+1
-                  indrx_iv(1,j) = i
-               endif
-            enddo
+!         elseif (force .AND. mdprm(1) >= 100) then
+!            do  i = 1, 6
+!               if (defm(i) == 1) then
+!                  j = j+1
+!                  indrx_iv(1,j) = i
+!               endif
+!            enddo
          elseif (force) then
             do  i = 1, nbas
                ifrlx=v_ssite(i)%relax

@@ -1,0 +1,8 @@
+Sample of relaxiation.
+
+>mpirun -np 4 lmf-MPIK lagao3
+
+See save.lagao3.
+
+AtomPos.* file is used for the atomic position. If it exist.
+AtomPos.* is written when DYN_MODE/=0

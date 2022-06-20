@@ -45,6 +45,7 @@ program lmf
   if(master_mpi) write(stdl,"(a)") trim(aaa)
   if(master_mpi) write(stdo,*) 'mpisize=',nsize
   if(master_mpi) write(stdl,*) 'mpisize=',nsize
+  if(iargc()==0) call rx0('no args: lmf-MPIK --help show help')
   if(cmdopt0('--help')) then  !help and quit
      call m_lmfinit_init(prgnam) ! show help and quit for --input
      call Rx0('end of help mode')
