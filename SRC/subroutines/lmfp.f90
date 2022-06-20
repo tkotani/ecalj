@@ -50,8 +50,7 @@ subroutine lmfp(llmfgw)
   logical:: cmdopt2
   character(20):: outs=''
   integer:: ierr
-  integer:: irs(5),irsr(5), irs1,irs2,irs3,irs5
-  logical:: irs1x10,irpos,hsign
+  logical:: irpos,hsign
   character(256):: strn,strn2
   real(8),allocatable:: poss(:,:),pos0(:,:)
   include "mpif.h"
@@ -77,59 +76,34 @@ subroutine lmfp(llmfgw)
         close(ifipos)
      endif
   endif
+  != Reading condition switch here [irs1,irs2,irs3,irs5,irs1x10] ==> removed 2022-6-20
 
-  != Reading condition switch [irs1,irs2,irs3,irs5,irs1x10]
-  !=    irs1x tells what to read and whether to invoke smshft.
-  !=    0    read from atom file  atm;  1  read from binary  rst ;  2 read from ascii  rsta
-  !=    +10 -> invoke smshft(1) after file read.
-  != --rs=3 is removed.(always read from atom file, --rs=3 is for fixed density Harris-foukner MD).
-  irs=[1,1,0,0,0]
-  if (cmdopt2('--rs=',strn)) then
-     strn2=trim(strn)//',999,999,999,999,999'
-     read(strn2,*) irsr
-     do i=1,5
-        if(irsr(i)/=999 ) irs(i)=irsr(i)
-     enddo
-  endif
-  irs1 = mod(irs(1),10) ! irs1 is irrelenvant now . irs1>10 gives irs1x10
-  irs2 = irs(2)         ! irs2=0 (no write)
-  if(irs1/=1 .AND. irs1/=0 .AND. irs1/=1) call rx('irs1 not \in [0,1,2]')
-  if(irs2/=0 .AND. irs2/=1) call rx('irs2/=0 .AND. irs2/=1')
-  !irs3 = irs(3) ! irs3=1: read site positions from ctrl even when we have rst.
-  irs5 = irs(5)  ! irs5=1: read pnu from ctrl even when we have rst.
-  irs1x10 = (irs(1)/10==1)  ! +10:  smshft after rst/rsta
-  if (cmdopt0('--etot')) irs2=0 !not write rst files
-  ! xx irsrot  = (irs(1)/100==1) ! +100: rotate local density after file read for shear mode (iors.F)
-  ! xx irs4 = irs(4) ! read starting fermi level from ctrl
-
-  !=  Initial density set up. Read atomic and smooth parted os density,
-  !=  rhoat smrho in m_density from atm.* or rst.*
-  !     Read rst
+  !=  Read atomic- and smooth-part density(rhoat smrho in m_density) from atm.* or rst.*
   k=-1
   vs=2d0
-  if(irs1/=0) then
-     if(master_mpi) then
-        open(newunit=ifi,file='rst.'//trim(sname),form='unformatted')
-        read(ifi,end=996,err=996) vs !version id of rst file
-        close(ifi)
-        write(stdo,ftox)'lmv7: Read rst version ID=',ftof(vs,2)
-996     continue
-     endif
-     call Mpi_barrier(MPI_COMM_WORLD,ierr)
-     call Mpibc1_real(vs,1,'lmv7: vs: version id of rst file')
-     if(vs==2d0) then       !2020-5-14
-        k = iors(nit1,'read',irs5=irs5) ! read rst file. sspec ssite maybe modified
-     else                   !vs=1.04d0
-        k = iors_old(nit1,'read',irs5=irs5) ! read rst file. sspec ssite maybe modified
-     endif
-     call Mpibc1_int(k,1,'lmv7:lmfp_k')
+  if(master_mpi) then
+     open(newunit=ifi,file='rst.'//trim(sname),form='unformatted')
+     read(ifi,end=996,err=996) vs !version id of rst file
+     close(ifi)
+     write(stdo,ftox)'lmv7: Read rst version ID=',ftof(vs,2)
+996  continue
   endif
-  if(k<0) then !irs1==0 .OR. Not reading rst.
-     irs1 = 0
+  call Mpi_barrier(MPI_COMM_WORLD,ierr)
+  call Mpibc1_real(vs,1,'lmv7: vs: version id of rst file')
+  if(vs==2d0) then       !2020-5-14
+     k = iors(nit1,'read') ! read rst file. sspec ssite maybe modified
+  else                   !vs=1.04d0
+     k = iors_old(nit1,'read') ! read rst file. sspec ssite maybe modified
+  endif
+  call Mpibc1_int(k,1,'lmv7:lmfp_k')
+  !  endif
+  if(k<0) then 
      call Rdovfa()  ! Initial potential from atm file if rst can not read
      nit1 = 0
   endif
-  if(k>=0 .AND. irs1x10) call Smshft(1,poss,poss)  ! modify denity after reading rst when irs1x10=True
+  
+  !smshft is not correct procedure, probably. t.k. See t.kotani JPSJ paper for formulation.
+  !if(k>=0 .AND. irs1x10) call Smshft(1,poss,poss) ! modify denity after reading rst when irs1x10=True
 
   !==== Main iteration loops ===
   MDloop: do 2000 itrlx = 1,max(1,nitrlx) !loop for atomic position relaxiation(molecular dynamics)
@@ -162,10 +136,10 @@ subroutine lmfp(llmfgw)
         !   Things for --density (plot density) are in locpot.F(rho1mt and rho2mt) and mkpot.F(smooth part).
         !! Write restart file (skip if --quit=band) ---
         if(master_mpi .AND. ( .NOT. cmdopt0('--quit=band'))) then
-           if(irs2>0 .AND. (lrout>0 .OR. maxit==0)) then
+           if(lrout>0 .OR. maxit==0) then
               ifi = ifile_handle()
               open(ifi,file='rst.'//trim(sname),form='unformatted') !no rsa now
-              k = iors ( iter , 'write' ,irs5)  ! = iors_old ( iter , 'write' ,irs5)
+              k = iors ( iter , 'write')  ! = iors_old ( iter , 'write' ,irs5)
               close(ifi)
            endif
         endif
@@ -185,7 +159,7 @@ subroutine lmfp(llmfgw)
            !     :1 if not self-consistent, but encountered max. no. iter.
            !     :2 Harris energy from overlap of free atoms (iter=1 and lhf=t)
            !     :3 otherwise
-           hsign= (lhf.or.irs1==0).and.iter==1
+           hsign= lhf.and.iter==1
            if(itrlx>1) hsign=.false.
            call nwit(ctrl_nvario,iter,maxit,hsign,leks,etol,qtol,qdiff,amom,etot,sev,lsc)
         endif
@@ -218,11 +192,11 @@ subroutine lmfp(llmfgw)
           enddo
           close(ifipos)
        endif
-       call Smshft(ctrl_lfrce,poss,pos0) ! New density after atom shifts.
+       !call Smshft(ctrl_lfrce,poss,pos0) ! New density after atom shifts.
        if (master_mpi) then 
           ifi = ifile_handle()
           open(ifi,file='rst.'//trim(sname),form='unformatted')
-          k = iors (iter , 'write',irs5) !Write restart file
+          k = iors (iter , 'write') !Write restart file
           !           k = iors_old (iter , 'write' ,irs5)! rst version 1.04
           close(ifi)
           write(stdo,*)' Delete mixing and band weights files ...'

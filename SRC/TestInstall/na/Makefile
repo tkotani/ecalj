@@ -24,9 +24,8 @@ define test1.exec
 	rm rst.$(TARGET) mixm.$(TARGET)
 	$(bindir)/lmfa --no-iactiv $(TARGET) -vnk=6 -vbigbas=t -vnapval=1 >> $1 2>&1
 	$(LMFP)  --no-iactiv $(TARGET) -vnk=6 -vbigbas=t -vnapval=1 >> $1 2>&1
-	rm mixm.$(TARGET)
-	$(LMFP)  --no-iactiv $(TARGET) -vnk=6 -vbigbas=t -vnapval=2 \
-		--rs=1,1,1,1,1 >> $1 2>&1
+	rm mixm.$(TARGET) rst.$(TARGET)
+	$(LMFP)  --no-iactiv $(TARGET) -vnk=6 -vbigbas=t -vnapval=2 >> $1 2>&1
 endef
 
 ###########################################################

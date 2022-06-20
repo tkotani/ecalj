@@ -18,24 +18,13 @@ subroutine lmhelp(prgnam)
        'Print timing info to # levels (#1=summary; #2=on-the-fly)'/ &
        /' -vnam=expr',t17, &
        'Define numerical variable "nam"; set to result of ''expr''')
-  outs = '%N '//prgnam//'%a-specific options:'
-  call strip(outs,i1,i2)
-  call info0(0,0,0,outs(1:i2))
-  if (prgnam == 'lmfa') then
-     call info0(0,0,0,  '%N%1f ')
-  endif
-  if (prgnam == 'lmfgwd') then
-     call info0(0,0,0, '%N%1f ')
-  endif
   if (prgnam == 'lmf') then
-     write(6,*)'--rs=#1,#2,#3,#4,#5'
-     write(6,*)'#1: =1 from rst, =2 from rsta'
-     write(6,*)'#2: =1 save to rst, =2 save to rsta'
-     write(6,*)'#3: =1 read pos from ctrl even when we have rst'
-     write(6,*)'#4: obsolate'
-     write(6,*)'#5: =1 read P from ctrl even when we have rst'
-     write(6,*)'lmf-MPIK --jobgw works as GW driver'
-     write(stdo,"(/a)") ' Other command-line-options:  Search "call cmdopt" in *.F'
+     write(stdo,*)'=== lmf-MPIK options=== (No --rs option now: 2022-6-20)'
+     write(stdo,*)' --jobgw works as GW driver'
+     write(stdo,*)' -v{foobar}=xxx replace {foobar} with xxx'
+     write(stdo,*)' Read rst.* prior to atm.* file'
+     write(stdo,*)' Use --quit=band, --quit=mkpot or --quit=dmat to surpress writing rst'
+     write(stdo,*) ' Other command-line-options:  Search "call cmdopt" in *.F'
   endif
   call fexit0(0,' ')
 end subroutine lmhelp

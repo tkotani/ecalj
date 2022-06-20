@@ -141,14 +141,12 @@ subroutine vcdmel(nl,ssite,sspec,nlmax,ndham,ndimh,&
        , s_rv(1:nchan*nbandx,1:nsp,1:nq), npts, emin, emax, lidos , wk_rv , dos_rv )
   del = 0d0
   open(newunit=ifdos,file='dos-vcdmel.'//trim(sname))
-  write(ifdos,760) emin,emax,npts,nchan,nsp,ef,del,1
-  do ild = 1, nchan
-     do isp = 1, nsp
-        write(ifdos,762) (dos_rv(ie,isp,ild),ie=1,npts)
-     enddo
+  write(ifdos,760) emin,emax,npts,nchan,nsp,ef,del
+  do ie=1,npts
+     write(ifdos,"(15f14.6)") &
+          emin+(emax-emin)/(npts-1d0)*(ie-1),((dos_rv(ie,isp,ild),ild=1,nchan),isp=1,nsp)
   enddo
 760 format(2f10.5,3i5,2f10.5,i5)
-762 format(5f14.6)
   if (allocated(s_rv)) deallocate(s_rv)
   call tcx ('vcdmel')
 end subroutine vcdmel

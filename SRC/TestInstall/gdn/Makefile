@@ -29,7 +29,7 @@ define test1.exec
 	rm -f rst.$(TARGET) wkp.$(TARGET) mixm.$(TARGET)
 	cp rst-save.$(TARGET) rst.$(TARGET)
 	cp dmats-save.$(TARGET) dmats.$(TARGET)
-	$(LMFP)  $(TARGET) --rs=1,0 -vpwmode=1 >> $1 2>&1
+	$(LMFP)  $(TARGET) -vpwmode=1 >> $1 2>&1
 	rm -f rst.$(TARGET) wkp.$(TARGET) mixm.$(TARGET)
 	$(bindir)/lmfa $(TARGET) -vcoref=t >> $1 2>&1
 	$(LMFP)  $(TARGET) -vcoref=t >> $1 2>&1

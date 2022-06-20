@@ -1,5 +1,5 @@
 module m_clsmode
-  !! CLS: Core-level spectroscopy !too confusing notation see suclst.
+  !! CLS: Core-level spectroscopy !We use CLSinput instead of --cls option.
   use m_lmfinit, only: lmet=>bz_lmet,nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,nlmax,nspc,nl,lso,stdo
   use m_suham,only:   ndham=>ham_ndham
   use m_mkqp,only: nkp=>bz_nkp
@@ -12,14 +12,14 @@ module m_clsmode
 contains
 
   subroutine m_clsmode_init()
-    logical:: cmdopt
+    logical:: cmdopt0
     character(10):: i2char
     integer::nevmx,ndhamx,i,ific
     character strn*120, clsopt*120
     character(512):: aaachar
     !! --- Options for core level specta (CLS) ---
-    if (cmdopt('--cls',5,0,strn)) then
-       if (lmet/=2) call rx('For CLS restart with METAL=2')
+    if (cmdopt0('--cls')) then
+       !if (lmet/=2) call rx('For CLS restart with METAL=2')
        icls = 1
        !     clsopt = strn(6:)
        !     call suclst(nsitmx,nbas,nsp,ssite,sspec,clsopt,
@@ -55,7 +55,7 @@ contains
           write(6,"(a)") aaachar
        endif
        allocate(ausc_zv(3*nlmax*ndham*nsites*nsp*nkp))
-       ausc_zv=0.0d0
+       ausc_zv=0d0
     else
        icls = 0
     endif

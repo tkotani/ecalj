@@ -25,10 +25,8 @@ define test1.exec
 	# --- Test 1.  Basic check of programs lmfa,lmf ---
 	#
 	@cat message.test1.$(TARGET)
-	$(bindir)/lmfa  $(TARGET) -vmet=3 -vlmf=1 -vnk=8 -vnit=3 --pr31 \
-		--no-iactiv > $1 2>&1
-	$(LMFP)   $(TARGET) -vmet=3 -vlmf=1 -vnk=8 -vnit=3 -vw2=0 \
-		--pr31 --no-iactiv --rs=0 >> $1 2>&1
+	$(bindir)/lmfa  $(TARGET) -vmet=3 -vlmf=1 -vnk=8 -vnit=3 --pr31 > $1 2>&1
+	$(LMFP)   $(TARGET) -vmet=3 -vlmf=1 -vnk=8 -vnit=3 -vw2=0 --pr31 >> $1 2>&1
 	rm mixm.$(TARGET)
 	$(LMFP)   $(TARGET) -vmet=3 -vlmf=1 -vnk=8 -vnit=3 -vw1=0 \
 		--pr31 --no-iactiv >> $1 2>&1

@@ -6,7 +6,7 @@ module m_iors
   private
 
 contains
-  integer function iors(nit,rwrw,irs5)
+  integer function iors(nit,rwrw) 
     use m_density,only: osmrho, orhoat !these are allocated
     use m_bndfp,only: m_bndfp_ef_SET,eferm
 
@@ -97,7 +97,7 @@ contains
     !  ----------------------------------------------------------------------
     implicit none
     logical:: lbin=.true.
-    integer::  irs3,irs5,nit , ifi , i_site,i_spec!,i_copy_size !mode=1 ,
+    integer::  nit , ifi , i_site,i_spec!,i_copy_size !mode=1 ,
     character*256:: fid=''
     ! ... Local parameters
     integer :: procid,master,mpipid,nproc
@@ -253,11 +253,11 @@ contains
           ssite(ib)%force=force
        enddo
        !   --- Read information for local densities ---
-       if (irs5 /= 0) then
-          ignore=trim(ignore)//' pnu,'
-       else
+!       if (irs5 /= 0) then
+!          ignore=trim(ignore)//' pnu,'
+!       else
           use=trim(use)//' pnu,'
-       endif
+!       endif
        if (ipr >= 10) then
           write(stdo,*)trim(use)
           write(stdo,*)trim(ignore)
@@ -330,7 +330,7 @@ contains
           endif
           !          pnus =sspec(is)%p
           !          pnzs =sspec(is)%pz
-          if  (irs5 == 0 ) then
+!          if  (irs5 == 0 ) then
              ssite(ib)%pnu=pnu
              ssite(ib)%pz=pnz
              !            sspec(is)%p=  pnu !int?
@@ -356,9 +356,9 @@ contains
              !            if (ltmp2 .and. ipr.ge.20) write(stdo,204) 'given pz  is',(pnzs(i,1), i=1,lmxa+1)
 203          format(9x,'site',i4,':',a,':',a,' is',8f6.2)
 204          format(26x,a,8f6.2)
-             if (lfail .AND. irs5 == 1) then
-                call rx('iors: file''s pnu is incompatible with input')
-             endif
+!             if (lfail .AND. irs5 == 1) then
+!                call rx('iors: file''s pnu is incompatible with input')
+!             endif
              nlml0 = (lmxl0+1)**2
              nlml = (lmxl+1)**2
              if (nr <= 0)   nr = nr0
@@ -374,10 +374,10 @@ contains
                 if (lmxa0 /= lmxa .AND. ipr >= 10) write(stdo,201) ib,spid,'lmax',lmxa0,lmxa
 201             format(9x,'site',i4,', species ',a,': augmentation ',a,' changed from',i2,' to',i2)
              endif
-          else
-             lmxl = lmxl0
-             nr = nr0
-          endif
+!          else
+!             lmxl = lmxl0
+!             nr = nr0
+!          endif
           !!
           nlml0 = (lmxl0+1)**2
           nlml  = (lmxl+1)**2

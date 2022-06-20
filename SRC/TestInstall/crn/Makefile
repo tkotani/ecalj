@@ -22,21 +22,11 @@ define test2.exec
 	@cat message.test2.$(TARGET)
 	$(bindir)/lmfa $(TARGET) > $1 2>&1
 	$(LMFP) $(TARGET) >> $1 2>&1
-	$(LMF) --rs=1,0 --cls:5,0,1 -vnit=1 -vmetal=2 $(TARGET) >> $1 2>&1
-	#$(bindir)/lmdos --dos:cls:window=0,1:npts=101 --cls $(TARGET) >> $1 2>&1
-	#mv dos.$(TARGET) dos-cls.$(TARGET)
+	#echo 'CLSinput is used for EELS mode (--cls). Works well. But not examined(2022-6-20)'
+	$(LMFP) -vnit=1 -vmetal=2 $(TARGET) >> $1 2>&1
+	$(LMFP) --cls $(TARGET) >> $1 2>&1
 endef
 
-###########################################################
-#----- subroutine plot.pldos
-define plot.pldos
-	echo .25 10 0 1 | $(bindir)/pldos -fplot -lst="1;3;5" -lst2="2;4;6" \
-		dos-vcmdel.$(TARGET) > plot.log 2>&1
-	$(bindir)/fplot -pr10 -f plot.dos >> plot.log 2>&1
-	mv ps.dat ps.pldos.dat
-	@echo "[note] run 'make plot-dos' to plot dos"
-endef
-#	$(bindir)/fplot -disp -pr10 -f plot.dos >> plot.log 2>&1
 
 ###########################################################
 # exec default case for $(TARGET).

@@ -11,7 +11,7 @@ export work=work
 
 # all lm tests provided by this makefile.
 LM_TEST  = copt te zrt co cr3si6 felz gasls eras c crn cu na
-# fe gdn
+#fe gdn
 
 # all gw tests provided by this makefile.
 GW_TEST  = gas_eps_lmfh gas_epsPP_lmfh fe_epsPP_lmfh_chipm si_gw_lmfh

@@ -19,20 +19,18 @@ define test1.exec
 	# --- Test 1.  Basic check of programs lmfa,lmf ---
 	#
 	@cat message.test1.$(TARGET)
-	$(bindir)/lmfa $(TARGET) -vminx=t --rs=0,1 -vnk=3 -vnit=3 -vlf1=4 \
-		-vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1d-4 \
-		--no-iactiv --wpos=pos > $1 2>&1
-        $(LMFP) $(TARGET) -vminx=t --rs=0,1 -vnk=3 -vnit=3 -vlf1=4 \
-		-vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1d-4 \
-		--no-iactiv --wpos=pos -vles=t >> $1 2>&1
+	$(bindir)/lmfa $(TARGET) -vminx=t -vnk=3 -vnit=3 -vlf1=4 \
+		-vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1d-4 > $1 2>&1
+        $(LMFP) $(TARGET) -vminx=t -vnk=3 -vnit=3 -vlf1=4 \
+		-vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1d-4 -vles=t >> $1 2>&1
         rm -f mixm.$(TARGET)
-        $(LMFP) $(TARGET) -vminx=0 --rs=11,0 -vnk=3 -vnit=3 -vlf1=4 \
-		-vlmxl=4 -vnk=3 -vngd=20 -vkmx=5 -vconv=1d-4 \
-		--no-iactiv -vpwmode=11 >> $1 2>&1
+	cp rst.$(TARGET) rst.$(TARGET).bk
+        $(LMFP) $(TARGET) -vminx=0 -vnk=3 -vnit=3 -vlf1=4 \
+		-vlmxl=4 -vnk=3 -vngd=20 -vkmx=5 -vconv=1d-4 -vpwmode=11 >> $1 2>&1
         rm -f mixm.$(TARGET)
-        $(LMFP)  $(TARGET) -vminx=0 --rs=11,0 -vnk=3 -vnit=3 -vlf1=4 \
-		-vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1d-4 \
-		--no-iactiv >> $1 2>&1
+	cp rst.$(TARGET).bk rst.$(TARGET)
+        $(LMFP)  $(TARGET) -vminx=0 -vnk=3 -vnit=3 -vlf1=4 \
+		-vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1d-4 >> $1 2>&1
 endef
 
 ###########################################################

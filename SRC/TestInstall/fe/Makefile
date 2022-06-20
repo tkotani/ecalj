@@ -26,8 +26,8 @@ define test2.exec
 	# --- Test 2.  Core-level spectroscopy (EELS), Mulliken analysis, partial DOS ---
 	#
 	@cat message.test2.$(TARGET)
-	$(bindir)/lmfa $(TARGET) > /dev/null
-	$(LMF) --rs=0 --cls:1,1,2 --mull:mode=2 -vnk=6 -vnit=1 $(TARGET) > $1 2>&1
+	$(bindir)/lmfa $(TARGET) > $1 2>&1
+	$(LMF) --cls:1,1,2 --mull:mode=2 -vnk=6 -vnit=1 $(TARGET) >> $1 2>&1
 	mv dos.$(TARGET) tdos.$(TARGET)
 	$(bindir)/lmdos --cls --dos:wtfn=cls:npts=1001:window=-.7,.8 -vnk=6 $(TARGET) >> $2 2>&1
 	mv dos.$(TARGET) dos-cls.$(TARGET)
@@ -49,17 +49,6 @@ define testjob1.exec
 endef
 
 ###########################################################
-#----- subroutine plot.pldos
-define plot.pldos
-	echo 20 10 -0.7 .8 | $(bindir)/pldos -fplot \
-		-lst="1:7:2,19:31:2;9,11,15;13,17" -lst2 \
-		dos-mull.$(TARGET) > plot.log 2>&1
-	$(bindir)/fplot -disp -pr10 -f plot.dos >> plot.log 2>&1
-	mv ps.dat ps.pldos.dat
-	@echo "[note] run make plot-dos to plot dos"
-endef
-
-###########################################################
 # exec default case for $(TARGET).
 $(TARGET).exec:
 	$(call test2.exec,$(out2a),$(out2b),$(out2c))
@@ -68,8 +57,6 @@ $(TARGET).exec:
 	$(call test2.check,$(REFDIR)/$(out2xc),$(out2xc))
 	$(call testjob1.exec,$(outtdos))
 	$(call test2.check,$(REFDIR)/$(outtdos),$(outtdos))
-#	$(call test2.check,$(REFDIR)/$(out2),$(out2))
-#	$(call plot.pldos)
 
 # check default case for $(TARGET).
 $(TARGET).check:

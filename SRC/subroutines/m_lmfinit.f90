@@ -1080,33 +1080,32 @@ contains
        nm='ITER_UMIX';call gtv(trim(nm),tksw(prgnam,nm),mix_umix,def_r8=.5d0,note='Mixing parameter for densmat in LDA+U') !2022mar9 default umix=0.5
        nm='ITER_TOLU';call gtv(trim(nm),tksw(prgnam,nm),mix_tolu,def_r8=0d0,note='Tolerance for densmat in LDA+U')
     endif                     ! iterations category
-    !! Dynamics (relaxation)---
+    
+    !! Dynamics (only for relaxation  2022-6-20)
     if(io_show+io_help/=0 .AND. tksw(prgnam,'DYN')/=2)write(stdo,*)' --- Parameters for dynamics and statics ---'
-    nm='DYN_NIT'; call gtv(trim(nm),tksw(prgnam,nm),nitmv,def_i4=1, &
+    i0=0
+    nm='DYN_MODE'; call gtv(trim(nm),tksw(prgnam,nm),i0,def_i4=0,note= &
+         '0: no relaxation  '// &
+         '4: relaxation: conjugate gradients  '// &
+         '5: relaxation: Fletcher-Powell  '// &
+         '6: relaxation: Broyden')
+    mdprm(1)=i0
+    if(i0/=0.or.io_help/=0) then
+       ctrl_lfrce=1
+       nm='DYN_NIT'; call gtv(trim(nm),tksw(prgnam,nm),nitmv,def_i4=1, &
          note='maximum number of relaxation steps (statics)'//' or time steps (dynamics)')
-    nm='DYN_MSTAT'; call gtv(trim(nm),tksw(prgnam,nm),nono,Texist=ltmp,note='Parameters for molecular statics')
-    mdprm(1) = 0
-    if(io_help/=0 .OR. ltmp) then
-       if(ctrl_lfrce==0) ctrl_lfrce=1 ! takao july2012
-       nm='DYN_MSTAT_MODE'; call gtv(trim(nm),tksw(prgnam,nm),i0, &
-            def_i4=0,note= &
-            '0: no relaxation  '// &
-            '4: conjugate gradients  '// &
-            '5: Fletcher-Powell  '// &
-            '6: Broyden')
-       mdprm(1) = i0
-       nm='DYN_MSTAT_HESS'; call gtv(trim(nm),tksw(prgnam,nm),ltmp,def_lg=T,note='Read hessian matrix')
+       nm='DYN_HESS'; call gtv(trim(nm),tksw(prgnam,nm),ltmp,def_lg=T,note='Read hessian matrix')
        mdprm(2) = isw(ltmp)! T=>1 F=>0
-       nm='DYN_MSTAT_XTOL'; call gtv(trim(nm),tksw(prgnam,nm),mdprm(3),def_r8=1d-3,note= &
-            'Convergence criterion in displacements'//'%N%3fXTOL>0: use length;  <0: use max val;  =0: do not use')
-       nm='DYN_MSTAT_GTOL'; call gtv(trim(nm),tksw(prgnam,nm),mdprm(4),def_r8=0d0,note= &
+       nm='DYN_XTOL'; call gtv(trim(nm),tksw(prgnam,nm),mdprm(3),def_r8=1d-3,note= &
+            'Convergence criterion in displacements'//'%N%3fXTOL>0: use length; <0: use max val; =0: do not use')
+       nm='DYN_GTOL'; call gtv(trim(nm),tksw(prgnam,nm),mdprm(4),def_r8=0d0,note= &
             'Convergence criterion in gradients'// &
             '%N%3fGTOL>0: use length;  <0: use max val;  =0: do not use')
-       nm='DYN_MSTAT_STEP'; call gtv(trim(nm),tksw(prgnam,nm),mdprm(5),def_r8=0.015d0,note= &
+       nm='DYN_STEP'; call gtv(trim(nm),tksw(prgnam,nm),mdprm(5),def_r8=0.015d0,note= &
             'Initial (and maximum) step length')
-       nm='DYN_MSTAT_NKILL'; call gtv(trim(nm),tksw(prgnam,nm),i0,def_i4=0,note='Remove hessian after NKILL iter')
-       mdprm(6) = i0
-    endif
+       nm='DYN_NKILL'; call gtv(trim(nm),tksw(prgnam,nm),i0,def_i4=0,note='Remove hessian after NKILL iter')
+       mdprm(6)=i0
+    endif   
     if (io_help>0) then
        write(stdo,"(a)")'==============================================='
        call lmhelp(prgnam)
