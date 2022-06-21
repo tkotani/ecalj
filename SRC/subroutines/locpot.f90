@@ -233,8 +233,7 @@ contains
        call radmsh(rmt,a,nr,rofi)
        call radwgt(rmt,a,nr,rwgt)
        !     ... Write true density to file rhoMT.ib
-       if (cmdopt0('--wrhomt')) then
-          call wrhomt('rhoMT.','density',ib,sv_p_orhoat(1,ib)%v,rofi,nr,nlml,nsp)
+       if(cmdopt0('--wrhomt'))call wrhomt('rhoMT.','density',ib,sv_p_orhoat(1,ib)%v,rofi,nr,nlml,nsp)
        endif
        !   --- Make potential and energy terms at this site ---
        call locpt2 ( z , rmt , rg , a , nr , nsp , cofg , cofh & ! job
@@ -265,8 +264,7 @@ contains
           close(ibx)
        endif
        !   ... Write true potential to file vtrue.ib
-       if(cmdopt0('--wpotmt')) then
-          call wrhomt('vtrue.','potential',ib,v1,rofi,nr,nlml,nsp)
+       if(cmdopt0('--wpotmt'))call wrhomt('vtrue.','potential',ib,v1,rofi,nr,nlml,nsp)
        endif
        !   ... Update the potential used to define basis set
        if (lfltwf) then
@@ -274,24 +272,27 @@ contains
              ssite(ib)%rv_a_ov0(1+nr*i: nr+nr*i) = y0*v1(1+nr*nlml*i : nr+nr*nlml*i)
           enddo
        endif
-       !! spin averaged oV0 to generate phi and phidot. takaoAug2019
-       phispinsym= cmdopt0('--phispinsym')
-       if(phispinsym) then
-          if(master_mpi .AND. nsp==2) then
-             write(6,*) 'locpot: --phispinsym mode: use spin-averaged potential for phi and phidot'
-          endif
-          do ir=1,nr
-             ov0mean = 0d0
-             do isp=1,nsp
-                ov0mean = ov0mean + ssite(ib)%rv_a_ov0( ir + nr*(isp-1) )
-             enddo
-             ov0mean = ov0mean/nsp
-             do isp=1,nsp
-                ssite(ib)%rv_a_ov0(ir + nr*(isp-1))= ov0mean
-             enddo
-          enddo
-       endif
        
+       
+       phispinsym: block ! spin averaged oV0 to generate phi and phidot. takaoAug2019
+         phispinsym= cmdopt0('--phispinsym')
+         if(phispinsym) then
+            if(master_mpi .AND. nsp==2) then
+               write(6,*) 'locpot: --phispinsym mode: use spin-averaged potential for phi and phidot'
+            endif
+            do ir=1,nr
+               ov0mean = 0d0
+               do isp=1,nsp
+                  ov0mean = ov0mean + ssite(ib)%rv_a_ov0( ir + nr*(isp-1) )
+               enddo
+               ov0mean = ov0mean/nsp
+               do isp=1,nsp
+                  ssite(ib)%rv_a_ov0(ir + nr*(isp-1))= ov0mean
+               enddo
+            enddo
+         endif
+       endblock phispinsym
+     
        v0fix_experimental: block ! experimental case --v0fix
          v0fix= cmdopt0('--v0fix')
          if(v0fix) then
@@ -312,7 +313,6 @@ contains
                call rx('no v0pot files')
             endif
          endif
-         ! cccccc
          v0write= cmdopt0('--v0write')
          if(v0write) then
             do ir=1,nr
@@ -402,9 +402,7 @@ contains
           !             call adddipole(v1,rofi,nr,nlml,nsp,idipole,ssite(ib)%pos(idipole)*alat)
           !             call adddipole(v2,rofi,nr,nlml,nsp,idipole,ssite(ib)%pos(idipole)*alat)
           !          endif
-          if( .NOT. novxc .AND. cmdopt0('--socmatrix') ) then
-             lsox=1
-          endif
+          if( .NOT. novxc .AND. cmdopt0('--socmatrix') ) lsox=1
           if (ipr >= 20) write(stdo,467) y0*(gpot0(j1)-gpotb(1))
 467       format(' potential shift to crystal energy zero:',f12.6)
           call augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax , nlml &
@@ -588,21 +586,15 @@ contains
          vesn1,vesn2,vnucl,vsum,vtr,y0,ddot,a1,a2,smrhoc
     double precision :: qs(2)
     real(8), allocatable :: fl(:,:,:)
-    logical:: debug=.false.
+    logical:: debug=.false.,topl
     real(8):: ves1int,ves2int, w2(2)!dummy
     integer:: ifivesint
     call tcn('locpt2')
     ipr = iprint()
-!    isw =  mod(job/1000,10)
-!    isw2 = mod(job/100000,10)*10
     rveps = 0
     rvvxc = 0
     alocc = 0
-!    if (isw /= 0) then
-!       allocate (fl(nr,nlml,nsp+1))
-!    else
        allocate (fl(1,1,1))
-!    endif
     pi = 4d0*datan(1d0)
     srfpi = dsqrt(4d0*pi)
     y0 = 1d0/srfpi
@@ -814,8 +806,7 @@ contains
     if (lfoc == 0) then
        call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun, & !isw+isw2
             w2,w2,w2,w2,w2,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
-       !     Otherwise v2 += vxc(rho2 + sm core), directly or perturbatively:
-    else if (lfoc == 1) then
+    else if (lfoc == 1) then !  Otherwise v2 += vxc(rho2 + sm core), directly or perturbatively:
        if (ipr > 40) print *, 'exchange for smooth density, foca=1:'
        do  isp = 1, nsp
           rho2(1:nr,1,isp)=rho2(1:nr,1,isp) + y0/nsp*rhochs(1:nr)
@@ -836,7 +827,6 @@ contains
     !    enddo
     !    rveps = rveps - (tmp(1) + tmp(2))
     ! endif
-    if(debug) print *,'locpt2: 666661111'
     call poppr
     ! --- Integrals over core times effective potential ---
     vefc1 = 0d0
@@ -854,23 +844,23 @@ contains
     if (ipr >= 40 .AND. nsp == 2) write(stdo,353)
     do  ilm = 1, nlml
        do  isp = 1, nsp
-          rvtr(isp) = 0d0
-          rvsm(isp) = 0d0
-          do  i = 2, nr
-             vtr = v1(i,ilm,isp)
-             if (ilm == 1) vtr = vtr - srfpi*2d0*z/rofi(i)
-             rvtr(isp) = rvtr(isp) + rwgt(i)*rho1(i,ilm,isp)*vtr
-             rvsm(isp) = rvsm(isp) + rwgt(i)*rho2(i,ilm,isp)*v2(i,ilm,isp)
-          enddo
+!          rvtr(isp) = 0d0
+!          rvsm(isp) = 0d0
+          rvtr(isp)= sum(rwgt(2:nr)*rho1(2:nr,ilm,isp)*v1(2:nr,ilm,isp))
+          if(ilm==1) rvtr(isp)=rvtr(isp)- srfpi*2d0*z*sum(rwgt(2:nr)*rho1(2:nr,ilm,isp)/rofi(2:nr))
+          rvsm(isp)= sum(rwgt(2:nr)*rho2(2:nr,ilm,isp)*v2(2:nr,ilm,isp))
+!          do  i = 2, nr
+!             vtr = v1(i,ilm,isp)
+!             if (ilm == 1) vtr = vtr - srfpi*2d0*z/rofi(i)
+!             rvtr(isp) = rvtr(isp) + rwgt(i)*rho1(i,ilm,isp)*vtr
+!             rvsm(isp) = rvsm(isp) + rwgt(i)*rho2(i,ilm,isp)*v2(i,ilm,isp)
+!          enddo
           vefv1 = vefv1 + rvtr(isp)
           vefv2 = vefv2 + rvsm(isp)
        enddo
-       top = dmax1(dabs(rvsm(1)),dabs(rvtr(1)))
-       if (ipr >= 40 .AND. top >= 1d-6 .AND. nsp == 1) &
-            write(stdo,350) ilm,rvtr(1),rvsm(1)
-       if (ipr >= 40 .AND. top >= 1d-6 .AND. nsp == 2) &
-            write(stdo,352) ilm,rvtr(1),rvtr(2),rvtr(1)+rvtr(2), &
-            rvsm(1),rvsm(2),rvsm(1)+rvsm(2)
+       topl = dmax1(dabs(rvsm(1)),dabs(rvtr(1)))>1d-6.and.ipr>=40
+       if(topl.AND.nsp == 1)write(stdo,350) ilm,rvtr(1),rvsm(1)
+       if(topl.AND.nsp == 2)write(stdo,352) ilm,rvtr(1),rvtr(2),rvtr(1)+rvtr(2),rvsm(1),rvsm(2),rvsm(1)+rvsm(2)
 350    format(i4,3x,2f15.6)
 352    format(i4,3x,3f12.6,2x,3f12.6,2x)
 351    format(/' ilm',09x,'rho*vtrue',07x,'rho*vsm')
@@ -893,14 +883,10 @@ contains
     ! --- Charges, printout ---
     if (ipr >= 40) then
        write(stdo,251)
-       write(stdo,250) rep1(1)+rep1(2),rep2(1)+rep2(2), &
-            rhoexc(1)+rhoexc(2), &
-            rmu1(1),rmu2(1),rhovxc(1)
-       if (nsp == 2) write(stdo,253) rmu1(2),rmu2(2),rhovxc(2), &
-            rmu1(1)+rmu1(2),rmu2(1)+rmu2(2), &
-            rhovxc(1)+rhovxc(2)
+       write(stdo,250) rep1(1)+rep1(2),rep2(1)+rep2(2),rhoexc(1)+rhoexc(2),rmu1(1),rmu2(1),rhovxc(1)
+       if(nsp==2)write(stdo,253)rmu1(2),rmu2(2),rhovxc(2),rmu1(1)+rmu1(2),rmu2(1)+rmu2(2),rhovxc(1)+rhovxc(2)
        write(stdo,252) vefv1,vefv2,valvef,qv1,qv2,qloc
-       if (nsp == 2) write(stdo,254) a1,a2,aloc,alocc
+       if(nsp == 2) write(stdo,254) a1,a2,aloc,alocc
        write(stdo,255) qcor1,qcor2,qlocc
 251    format(/' local terms:     true',11x,'smooth',9x,'local')
 250    format(' rhoeps:  ',3f15.6/' rhomu:   ',3f15.6)
