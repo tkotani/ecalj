@@ -1111,7 +1111,7 @@ contains
        call lmhelp(prgnam)
        call rx0('end of help mode')
     endif
-    !!  end of read input parameter ccccccccccccccccccccccccccxxxxxxxxxxxxxxxx
+    !!  end of read input parameter 
 
     !! Stage 2  Reorganize ctrl_* in module m_lmfinit ---------------------
     ctrl_noinv = isw(noinv)  ! T->1 F->0
@@ -1162,8 +1162,6 @@ contains
     allocate(iv_a_oidxcg(abs(lnxcg)))
     call sylmnc ( rv_a_ocy , lmxcy )
     call scg ( lmxcg , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg )
-    !!
-!    ham_elind=elind
     ham_nkaph=nkaph
     ham_pmax=pmax
     ham_pmin=pmin

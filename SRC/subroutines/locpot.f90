@@ -10,9 +10,9 @@ contains
          rveps , rvvxc , valvef , xcore , focexc , focex , focec , focvxc &
          , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , &
          nlibu , lmaxu , vorb , lldau,novxc)!,idipole )
-    use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkaph,lxcf,lhh,nkapii,nkaphh,alat
-    use m_lmfinit,only: n0,nppn,nab,nrmx,nkap0,nlmx,nbas,nsp,lso,ssite=>v_ssite, sspec=>v_sspec,mxcst4,&
-         slabl,idu,coreh
+    use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkaph,lxcf,lhh,nkapii,nkaphh,alat,&
+         n0,nppn,nab,nrmx,nkap0,nlmx,nbas,nsp,lso,ssite=>v_ssite, sspec=>v_sspec,mxcst4,&
+         slabl,idu,coreh,ham_frzwf
     use m_MPItk,only: master_mpi
     use m_struc_def
     use m_uspecb,only:uspecb
@@ -29,22 +29,6 @@ contains
     !i         :phi0~ is the estatic potential of the interstitial
     !i   job   :1s  digit
     !i         : 1 make core and augmentation matrices
-    !i         :10s digit
-    !i         : 0 update potential used to define basis,
-    !i         :   provided 1s digit job is also set
-    !i         : 1 do not update potential
-    !i         :   NB: Caller can also suppress update for specific species
-    !i         :   through 4's bit of species->mxcst.
-    !i         :100s digit
-    !i         : 1 exclude exchange-correlation potential in making
-    !i         :   matrix elements of the potential.
-    !i         :   Also implies floating potential.
-    !i         :1000s digit
-    !i         :1 Make rveps and rvvxc
-    !i         :10000s digit
-    !i         :1 write sphere density for site ib to file rhoMT.ib
-    !i         :100000s digit
-    !i         :1 write sphere density for site ib to file rhoMT.ib
     !i  rhobg  :compensating background density
     !i  lso    :if nonzero, calculate LzSz matrix elements
     !i  lcplxp=1 only now :0 if ppi is real; 1 if ppi is complex
@@ -220,8 +204,7 @@ contains
        !       Float wave functions if:
        !         100's digit job > 0 set   OR:
        !         4's bit mxcst=0   AND   10's digit job=0  AND  1's digit job=1
-       !        lfltwf = mod(job,1000) .ge. 100 .or.
-       lfltwf = (.not.mxcst4(is)) .and. mod(job/10,10).eq.0 .and. mod(job,10).eq.1
+       lfltwf = (.not.mxcst4(is)).and.(.not.ham_frzwf).and.job==1 ! modify b.c. of rad.wave func.
        call corprm(sspec,is,qcorg,qcorh,qsca,cofg,cofh,ceh,lfoc,rfoc,z)
        chole=coreh(is)
        call gtpcor(sspec,is,kcor,lcor,qcor)
@@ -240,7 +223,8 @@ contains
                '   a=',f5.3,'  nlml=',i2,'  rg=',f5.3,'  Vfloat=',l1)
           if (kcor /= 0) then
              if (qcor(1) /= 0 .OR. qcor(2) /= 0) then
-                call info5(30,0,0,' core hole:  kcor=%i  lcor=%i  qcor=%d  amom=%d',kcor,lcor,qcor,qcor(2),0)
+                !call info5(30,0,0,' core hole:  kcor=%i  lcor=%i  qcor=%d  amom=%d',kcor,lcor,qcor,qcor(2),0)
+                if(ipr>=30)write(stdo,ftox)' core hole: kcor=',kcor,'lcor=',lcor,'qcor=',qcor,'amom=',qcor(2)
              endif
           endif
        endif
@@ -249,15 +233,15 @@ contains
        call radmsh(rmt,a,nr,rofi)
        call radwgt(rmt,a,nr,rwgt)
        !     ... Write true density to file rhoMT.ib
-       if (mod(job/10000,10) == 1 .OR. mod(job/10000,10) == 3) then
+       if (cmdopt0('--wrhomt')) then
           call wrhomt('rhoMT.','density',ib,sv_p_orhoat(1,ib)%v,rofi,nr,nlml,nsp)
        endif
        !   --- Make potential and energy terms at this site ---
-       call locpt2 (job , z , rmt , rg , a , nr , nsp , cofg , cofh &
+       call locpt2 ( z , rmt , rg , a , nr , nsp , cofg , cofh & ! job
             , ceh , rfoc , lfoc , nlml , qmom ( j1 ) , vval ( j1 ) , rofi &
             , rwgt , sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v , &
             sv_p_orhoat( 3 , ib )%v , rhol1 , rhol2 , v1 , v2 , v1es , v2es &
-            , wk , valvs , cpnvs , rhexc , rhex , rhec , rhvxc , rvepvl , &
+            ,  valvs , cpnvs , rhexc , rhex , rhec , rhvxc , rvepvl , & !wk ,
             rvexl , rvecl , rvvxvl , rveptl , rvvxtl , valvt , xcor , qloc &
             , qlocc , aloc , alocc , gpotb , fcexc , fcex , fcec , fcvxc &
             , rhobg , efg ( 1 , ib ),ifivesint,lxcf) 
@@ -281,7 +265,7 @@ contains
           close(ibx)
        endif
        !   ... Write true potential to file vtrue.ib
-       if (mod(job/10000,10) == 2 .OR. mod(job/10000,10) == 3) then
+       if(cmdopt0('--wpotmt')) then
           call wrhomt('vtrue.','potential',ib,v1,rofi,nr,nlml,nsp)
        endif
        !   ... Update the potential used to define basis set
@@ -397,7 +381,7 @@ contains
           saloc = saloc + qcor(2)
        endif
        !   --- Make augmentation matrices sig, tau, ppi ---
-       if (mod(job,10)==1) then !     ... Smooth Hankel tails for local orbitals
+       if (job==1) then !     ... Smooth Hankel tails for local orbitals
           rsmh= 0d0
           eh  = 0d0
           call uspecb(is,rsmh,eh)
@@ -438,7 +422,7 @@ contains
     !     Electric field gradient
     if (ipr > 40) call elfigr(nbas,stdo,zz,efg)
     deallocate(efg,zz)
-    deallocate(wk,rhol1,rhol2,v1,v2,v1es,v2es)
+    deallocate(rhol1,rhol2,v1,v2,v1es,v2es)
     call tcx('locpot')
   end subroutine locpot
 
@@ -456,18 +440,15 @@ contains
   !$$$      enddo
   !$$$      end
 
-  subroutine locpt2(job,z,rmt,rg,a,nr,nsp,cofg,cofh,ceh,rfoc,lfoc, &
+  subroutine locpt2(z,rmt,rg,a,nr,nsp,cofg,cofh,ceh,rfoc,lfoc, &
        nlml,qmom,vval,rofi,rwgt,rho1,rho2,rhoc,rhol1,rhol2,v1,v2,v1es, &
-       v2es,wk,vvesat,cpnves,rhoexc,rhoex,rhoec,rhovxc,rvepsv, &
+       v2es,vvesat,cpnves,rhoexc,rhoex,rhoec,rhovxc,rvepsv, & !wk,
        rvexv,rvecv,rvvxcv,rveps,rvvxc,valvef,xcore,qloc, &
        qlocc,aloc,alocc,gpotb,focexc,focex,focec,focvxc,rhobg,efg,ifivesint,lxcfun)
     use m_ftox
     !- Makes the potential at one site, and associated energy terms.
     ! ----------------------------------------------------------------------
     !i Inputs
-    !i   job   :1s digit - 100s digit not used here.
-    !i         :1000s digit
-    !i         :1 Make rveps and rvvxc
     !i   z     :nuclear charge
     !i   rmt   :augmentation radius
     !i   rg    :smoothing radius for compensating gaussians used to
@@ -496,7 +477,6 @@ contains
     !i   rho2  :local smoothed valence density, defined as rho1
     !i         :Local atomic valence density is rho1-rho2
     !i   rhoc  :core density times 4*pi*r*r
-    !i   wk    :work array of dimension nr*nlml*nsp
     !i   rhobg: compensating background density
     !o Outputs
     !o   cpnves:integral of core+nucleus times electrostatic potential
@@ -583,7 +563,7 @@ contains
     !u   15 Aug 01 Generates rvepsv and rvvxcv
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: nr,nsp,lfoc,nlml,job
+    integer :: nr,nsp,lfoc,nlml
     double precision :: z,rmt,rg,a,cofg,cofh,ceh,rfoc,xcore,qloc,qlocc, &
          aloc,alocc,rhoexc(2),rhoex(2),rhoec(2),rhovxc(2),focexc(2), &
          focex(2),focec(2),focvxc(2),valvef,vvesat, &
@@ -596,8 +576,8 @@ contains
          v2(nr,nlml,nsp),v2es(nr,nlml,nsp), &
          wk(nr,nlml,nsp),rhoc(nr,nsp)
     double precision :: efg(5)
-    integer :: ipr,iprint,ll,i,isp,ilm,l,lxcfun,nglob,nrml, &
-         isw,isw2
+    integer :: ipr,iprint,ll,i,isp,ilm,l,lxcfun,nglob,nrml
+!         isw,isw2
     double precision :: rhochs(nr*2),rhonsm(nr),df(0:20),cof(nlml), &
          rhocsm(nr),xi(0:20,2),tmp(2),xil(0:20)
     double precision :: afoc,ag,b,cof0,fac,gnu,pi,qv1,qv2,qcor1,qcor2, &
@@ -613,16 +593,16 @@ contains
     integer:: ifivesint
     call tcn('locpt2')
     ipr = iprint()
-    isw = mod(job/1000,10)
-    isw2 = mod(job/100000,10)*10
+!    isw =  mod(job/1000,10)
+!    isw2 = mod(job/100000,10)*10
     rveps = 0
     rvvxc = 0
     alocc = 0
-    if (isw /= 0) then
-       allocate (fl(nr,nlml,nsp+1))
-    else
+!    if (isw /= 0) then
+!       allocate (fl(nr,nlml,nsp+1))
+!    else
        allocate (fl(1,1,1))
-    endif
+!    endif
     pi = 4d0*datan(1d0)
     srfpi = dsqrt(4d0*pi)
     y0 = 1d0/srfpi
@@ -655,9 +635,6 @@ contains
        rhocsm(i) = srfpi*cofg*gnu + smrhoc
        rhochs(i) = smrhoc
        sumh  = sumh + rwgt(i)*rhochs(i)
-       !       qcor1 = qcor1 + rwgt(i)*rhoc(i)
-       !       qcor2 = qcor2 + rwgt(i)*rhocsm(i)
-       !       sum1 = sum1 + rwgt(i)*rhonsm(i)
     enddo
     samh = -y0*cofh*4d0*pi*dexp(ceh*rfoc*rfoc*0.25d0)/ceh
     if (ipr >= 20 .AND. dabs(samh) > 1d-6) &
@@ -798,14 +775,12 @@ contains
     v2es=v2 !call dcopy(nrml*nsp,v2,1,v2es,1)
     ! ... Generate valence-only rvepsv and rvvxcv (uses v1 as work array)
     call pshpr(max(ipr-31,min(ipr,10)))
-    !lxcfun = lxcf
-    if(debug) print *,'locpt2: 55551111 isw2 lxcfun=',isw2,lxcfun
     if(debug) write(6,'(a)')' === rho1 valence true density ==='
-    call vxcnsp(isw2,a,rofi,nr,rwgt,nlml,nsp,rho1,lxcfun,w2,w2,w2,w2,w2, &
+    call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho1,lxcfun,w2,w2,w2,w2,w2, & !isw2
          rep1,rep1x,rep1c,rmu1,v1,fl,qs)
     if(debug) print *,'locpt2: 55551111aaaa'
     if(debug) write(6,'(a)')' === rho2 valence counter density ==='
-    call vxcnsp(isw2,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,w2,w2,w2,w2,w2, &
+    call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,w2,w2,w2,w2,w2, & !isw2
          rep2,rep2x,rep2c,rmu2,v1,fl,qs)
     rvvxcv = rmu1(1) - rmu2(1) + rmu1(2) - rmu2(2)
     rvepsv = rep1(1) - rep2(1) + rep1(2) - rep2(2)
@@ -816,31 +791,28 @@ contains
     if(debug) print *,'locpt2: 5555222'
     ! --- Add xc potentials to v1 and v2 ---
     call pshpr(max(ipr-11,min(ipr,10)))
-    !xcfun = lxcf 
     focexc=0d0
     focex=0d0
     focec=0d0
     focvxc=0d0
-    call info0(30,0,0,' Exchange for true density:')
-    if(debug) write(6,'(a)')' === rhol1 valence+core density ==='
-    call vxcnsp(isw+isw2,a,rofi,nr,rwgt,nlml,nsp,rhol1,lxcfun, &
+    if(ipr>=30) write(stdo,*)' Exchange for true density:'
+    if(debug) write(stdo,'(a)')' === rhol1 valence+core density ==='
+    call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rhol1,lxcfun, & !isw+isw2
          w2,w2,w2,w2,w2,rep1,rep1x,rep1c,rmu1,v1,fl,qs)
-    if (isw == 1) then
-       call dpzero(tmp,2)
-       call vxcns5(1,31,'rhov*vxc',nlml,nsp,nr,rofi,rwgt,rho1,fl,xi,tmp)
-       rvvxc = tmp(1) + tmp(2)
-       do  isp = 1, nsp
-          call vxcns5(1,31,'rhov*exc',nlml,1,nr,rofi,rwgt,rho1(1,1,isp), fl(1,1,3),xi,tmp(isp))
-       enddo
-       rveps = tmp(1) + tmp(2)
-    endif
-    if(debug) print *,'locpt2: 5555333'
-
+    ! if (isw == 1) then
+    !    call dpzero(tmp,2)
+    !    call vxcns5(1,31,'rhov*vxc',nlml,nsp,nr,rofi,rwgt,rho1,fl,xi,tmp)
+    !    rvvxc = tmp(1) + tmp(2)
+    !    do  isp = 1, nsp
+    !       call vxcns5(1,31,'rhov*exc',nlml,1,nr,rofi,rwgt,rho1(1,1,isp), fl(1,1,3),xi,tmp(isp))
+    !    enddo
+    !    rveps = tmp(1) + tmp(2)
+    ! endif
     !     call prrmsh('v1',rofi,v1,nr,nr,nlml)
     !     If no core treatment v2 += vxc(rho2)
-    if(debug)write(6,'(a)')' === rho2 ->valence+smooth core density ==='
+    if(debug)write(stdo,'(a)')' === rho2 ->valence+smooth core density ==='
     if (lfoc == 0) then
-       call vxcnsp(isw+isw2,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun, &
+       call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun, & !isw+isw2
             w2,w2,w2,w2,w2,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
        !     Otherwise v2 += vxc(rho2 + sm core), directly or perturbatively:
     else if (lfoc == 1) then
@@ -848,7 +820,7 @@ contains
        do  isp = 1, nsp
           rho2(1:nr,1,isp)=rho2(1:nr,1,isp) + y0/nsp*rhochs(1:nr)
        enddo
-       call vxcnsp(isw+isw2,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun, &
+       call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun, & !isw+isw2
             w2,w2,w2,w2,w2,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
        do  isp = 1, nsp
           rho2(1:nr,1,isp)=rho2(1:nr,1,isp)-y0/nsp*rhochs(1:nr)
@@ -856,14 +828,14 @@ contains
     else
        call rxi('locpt2: cannot handle lfoc = ',lfoc)
     endif
-    if (isw == 1) then
-       call vxcns5(1,31,'rhov*vxc',nlml,nsp,nr,rofi,rwgt,rho2,fl,xi,tmp)
-       rvvxc = rvvxc - (tmp(1) + tmp(2))
-       do  isp = 1, nsp
-          call vxcns5(1,31,'rhov*exc',nlml,1,nr,rofi,rwgt,rho2(1,1,isp), fl(1,1,3),xi,tmp(isp))
-       enddo
-       rveps = rveps - (tmp(1) + tmp(2))
-    endif
+    ! if (isw == 1) then
+    !    call vxcns5(1,31,'rhov*vxc',nlml,nsp,nr,rofi,rwgt,rho2,fl,xi,tmp)
+    !    rvvxc = rvvxc - (tmp(1) + tmp(2))
+    !    do  isp = 1, nsp
+    !       call vxcns5(1,31,'rhov*exc',nlml,1,nr,rofi,rwgt,rho2(1,1,isp), fl(1,1,3),xi,tmp(isp))
+    !    enddo
+    !    rveps = rveps - (tmp(1) + tmp(2))
+    ! endif
     if(debug) print *,'locpt2: 666661111'
     call poppr
     ! --- Integrals over core times effective potential ---

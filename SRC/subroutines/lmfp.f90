@@ -173,7 +173,7 @@ subroutine lmfp(llmfgw)
        ! Relax atomic positions. Get new poss. Shear mode removed.
        call Relax(ssite,itrlx,indrx_iv,natrlx,force,p_rv,hess,0,[0d0],pos0,poss,icom)
        if (itrlx==nitrlx) then !Set minimum gradient positions if this is last step.
-          write(stdo,"(a)")'lmfp: restore positions for minimum g'
+          write(stdo,"(a)")'lmfp: restore positions for minimum g (given by relax)'
           do i = 1, natrlx
              poss(indrx_iv(1,i),indrx_iv(2,i)) = p_rv(i,nm) !nm=3. this is given by relax-gradzr
           enddo !call Prelx1(1 , nm , .false. , natrlx , indrx_iv , p_rv, poss )
@@ -189,7 +189,7 @@ subroutine lmfp(llmfgw)
           close(ifipos)
        endif
        ! call Smshft(ctrl_lfrce,poss,pos0)!New density after atom shifts.
-       ! Smshft is wrong idea. See TK paper.
+       ! Smshft is not cmpable with current implementation (or wrong idea). See TK paper.
        if (master_mpi) then 
           write(stdo,*)' Delete mixing and band weights files ...'
           open(newunit=ifi, file='mixm.'//trim(sname)); close(ifi, status='delete')

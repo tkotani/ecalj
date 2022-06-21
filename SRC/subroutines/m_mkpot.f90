@@ -26,14 +26,12 @@ module m_mkpot ! http://dx.doi.org/10.7566/JPSJ.84.034702
   !      type(s_cv1),allocatable,protected,public  :: sv_p_oppixd(:,:,:)
   !      complex(8),allocatable,protected ,public  :: spotxd(:,:,:,:,:)
 
-  !!---------------------------------------------------------------------------
   private
   real(8),allocatable,protected,private :: gpot0(:),vval(:),vab_rv(:) !dummy
   type(s_sblock),allocatable,private  :: ohsozzx(:,:),ohsopmx(:,:) !dummy for SOC
   type(s_rv1),allocatable,protected,private  :: sv_p_otaux(:,:) !dummy
   type(s_rv1),allocatable,protected,private  :: sv_p_osigx(:,:) !dummy
 contains
-
   subroutine m_mkpot_novxc()
     ! output: sv_p_oppix, spotx
     use m_supot,only: k1,k2,k3
@@ -55,11 +53,8 @@ contains
     spotx=0d0
     allocate( sv_p_osigx(3,nbas), sv_p_otaux(3,nbas), sv_p_oppix(3,nbas))
     call dfaugm(sv_p_osigx, sv_p_otaux, sv_p_oppix, ohsozzx,ohsopmx)!for sig,tau,ppi without XC(LDA)
-    lfrzw = 0
-    if(ham_frzwf) lfrzw = 1   !freeze all augmentation wave
-    ilfzw = 1 + 10*lfrzw
     !     We obtain sv_p_osigx, sv_p_otaux, sv_p_oppix, smpotx  without XC
-    call mkpot(ilfzw, osmrho , orhoat , &
+    call mkpot(1, osmrho , orhoat , &
          spotx,sv_p_osigx,sv_p_otaux,sv_p_oppix,  fes1_rv,ohsozzx,ohsopmx, &
          novxc_) !when novxc_ exists, we exclud XC(LDA) part.
     deallocate(vesrmt,qmom,ppnl_rv,hab_rv,vab_rv,sab_rv,gpot0,vval,fes1_rv,ohsozzx,ohsopmx)
@@ -126,12 +121,7 @@ contains
     !! Make the potential and total energy terms for given density (smrho,rhoat,qbg)  ---
     !! mkpot calls locpot. and locpot calls augmat. augmat calculates sig,tau,ppi.
     i = 1 + 10*lfrzw
-    if (cmdopt0('--wrhomt')) then
-       i = i + 10000 !write rhomt mode
-    else if (cmdopt0('--wpotmt')) then
-       i = i + 20000 !write potmt mode
-    endif
-    if(llmfgw) i = i + 10000 !GW driver mode
+!    if(llmfgw) i = i + 10000 !GW driver mode
     !! Arrays used in the generation of the potential ---
     allocate( vesrmt(nbas))
     allocate( osmpot(k1,k2,k3,nsp)) !smooth potential without XC
@@ -146,7 +136,7 @@ contains
     allocate( sv_p_osig(3,nbas), sv_p_otau(3,nbas), sv_p_oppi(3,nbas))
     allocate( ohsozz(3,nbas), ohsopm(3,nbas))
     call dfaugm(sv_p_osig,sv_p_otau,sv_p_oppi,ohsozz,ohsopm) !allocation for sig,tau,ppi integrals
-    call mkpot (i, osmrho , orhoat, &
+    call mkpot (1, osmrho , orhoat, &
          osmpot, sv_p_osig , sv_p_otau , sv_p_oppi, fes1_rv, ohsozz,ohsopm)
     call tcx('m_mkpot_init')
   end subroutine m_mkpot_init
@@ -159,7 +149,7 @@ contains
     call tcn('m_mkpot_energyterms')
     if(allocated(fes2_rv)) deallocate(fes2_rv)
     allocate( fes2_rv(3*nbas))
-    call mkpot (0, smrho_out , orhoat_out , &
+    call mkpot(0, smrho_out , orhoat_out , &
          osmpot, sv_p_osig , sv_p_otau , sv_p_oppi, fes2_rv, ohsozz,ohsopm)
     call tcx('m_mkpot_energyterms')
   end subroutine m_mkpot_energyterms
@@ -376,7 +366,7 @@ contains
           write(ifi,'(2i5)') nbas,1
           do i = 1, nbas
              ispec=ssite(i)%spec
-             write(ifi,'(i4,2x,3f10.5)') int(sspec(ispec)%z),(rv_a_opos(i2,i)*alat*0.529177208,i2=1,3)
+             write(ifi,'(i4,2x,3f10.5)') sspec(ispec)%z,(rv_a_opos(i2,i)*alat*0.529177208,i2=1,3)
           enddo
           write(ifi,'("BEGIN_BLOCK_DATAGRID_3D")')
           write(ifi,'("charge_density_spin_",i1)') isp
@@ -392,52 +382,11 @@ contains
     else
        secondcall=.true.
     endif
-    !!
     ipr = iprint()
     ipl = ipr
-    !      if (lso/=0 .and. lcplxp==0) call rx('mkpot: incompatible lso,lcplxp')
-    !      if (isum(nbas,lldau,1)/=0 .and. lcplxp==0) call rx('mkpot: incompatible ldau,lcplxp')
     lxcfun = lxcf
     ngabc=lat_nabc
     vol=lat_vol
-    !$$$ enforce_positive_smrho() is now used only in smvxc2 Nov30 2010.
-    !$$$      if(enforce_positive_smrho()) then
-    !$$$!!== negative smrho check==
-    !$$$!! We need full mesh method(all G numner is needed) or so,
-    !$$$!! to assure positive definite, xcpbe seems to interpret abs(rho) when rho is negative.
-    !$$$!!  ---> see xcpbe.F90 (especially, invcb).
-    !$$$       do isp=1,nsp
-    !$$$        nnn=0
-    !$$$        smmin(isp)=0d0
-    !$$$        do i1=1,n1
-    !$$$        do i2=1,n2
-    !$$$        do i3=1,n3
-    !$$$c          print *,i1,i2,i3,isp
-    !$$$c          print *,i1,i2,i3,isp,smrho(i1,i2,i3,isp)
-    !$$$          sss=dreal(smrho(i1,i2,i3,isp))
-    !$$$          if(sss<0d0) then
-    !$$$            nnn=nnn+1
-    !$$$            if(sss<smmin(isp)) then
-    !$$$              smmin(isp)=sss
-    !$$$            endif
-    !$$$          endif
-    !$$$        enddo
-    !$$$        enddo
-    !$$$        enddo
-    !$$$        if(nnn>0) then
-    !$$$          write(6,*) 'mkpot negative smrho; isp,number,min(smrho)='
-    !$$$     &    ,isp,nnn,smmin(isp)
-    !$$$        else
-    !$$$          write(6,*) 'all smrho is positive for isp=',isp
-    !$$$        endif
-    !$$$       enddo
-    !$$$       if(sum(smmin(1:nsp))/=0d0) then
-    !$$$         srshift = minimumrho + maxval(abs(smmin(1:nsp)))
-    !$$$         smrho(:,:,:,1:nsp) = smrho(:,:,:,1:nsp) + srshift
-    !$$$         print *,'enforce positive smrho, to which we add srshift=',srshift
-    !$$$       endif
-    !$$$      endif
-
     ! --- Printout for smooth background charge ---
     if (qbg /= 0) then
        rhobg = (3d0/4d0/pi*vol)**(1d0/3d0)
@@ -483,15 +432,15 @@ contains
        if (allocated(smvxc_zv)) deallocate(smvxc_zv)
     else
        novxc=.true.
-       call dpzero(repsm,2)
-       call dpzero(repsmx,2)
-       call dpzero(repsmc,2)
-       call dpzero(rmusm,2)
-       call dpzero(rvmusm,2)
-       call dpzero(fcexc0,2)
-       call dpzero(fcex0,2)
-       call dpzero(fcec0,2)
-       call dpzero(fcvxc0,2)
+       repsm=0d0
+       repsmx=0d0
+       repsmc=0d0
+       rmusm=0d0
+       rvmusm=0d0
+       fcexc0=0d0
+       fcex0=0d0
+       fcec0=0d0
+       fcvxc0=0d0
     endif
     !! Add dipole contribution (x,y,z) to smpot (we only need <i|x|j> and so on, but because of technical reason,
     !! Calculate <i|x|j> by subtraction. nov2021 (this is stupid implementation--- See MLWF paper.
@@ -653,7 +602,7 @@ contains
     integer :: ib,igetss,is,kmax,lmxa,lmxh,nelt1,nelt2,nglob,nlma,nlmh,nelt !,nso
     logical:: cmdopt0
     do  ib = 1, nbas
-       is = int(ssite(ib)%spec)
+       is = ssite(ib)%spec
        lmxa=sspec(is)%lmxa
        lmxh=sspec(is)%lmxb
        kmax=sspec(is)%kmxt

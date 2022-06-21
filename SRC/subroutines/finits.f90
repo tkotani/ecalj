@@ -53,7 +53,7 @@ subroutine fexit0(retval,strng)
   character :: datim*26,hostnm*20
   character(9):: ftoa9
   logical :: isopen
-  integer :: master,procid,ierr,ia,iii
+  integer :: master,procid,ierr,ia
   parameter (master = 0)
   include "mpif.h"
   ia=0
@@ -99,6 +99,7 @@ subroutine fexit0(retval,strng)
 10      format('CPU time:', f9.3,a1,5x,a,' on process=',i0)
      endif
   endif
+  write(stdo,*)'finalizing procid=',procid
   if(procid==master) call tcprt(stdo)
   if(retval/=0) then
      write(stdo,"(a,i0,a,i0,a,3d15.8)") &
@@ -107,7 +108,7 @@ subroutine fexit0(retval,strng)
   else
      if(procid==master)write(stdo,"(a,i0,a,3d15.8)")'Exit 0 procid= ',procid,' '//trim(strng),(argss(ix),ix=1,ia)
   endif
-  call MPI_FINALIZE(iii)
+  call MPI_FINALIZE(ierr)
   call exit(retval)
 end subroutine fexit0
 
