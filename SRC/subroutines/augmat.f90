@@ -306,13 +306,33 @@ subroutine augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax &
   !u   13 Jun 00 spin polarized
   !u   17 May 00 Adapted from nfp augmats.f
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
+
+  ! --- Augmentation matrices for cases P*P, H*H, H*P ---
+  ! NOTE for SO
+  !     We calculate limited parts of SO interaction. H(head),P(tail)
+  !
+  !     ohsozz(3,ib)%sdiag(:,isp) = <H isp | Lz(diag)|H isp>
+  !     ohsozz(2,ib)%sdiag(:,isp) = <H isp | Lz(diag)|P isp>
+  !     ohsozz(1,ib)%sdiag(:,isp) = <P isp | Lz(diag)|P isp>
+  !
+  !     ohsopm is desined for (1,2) element of LdotS matrix.
+  !     ohsopm(1,ib)%soffd(:,isp) = <P isp | L-|P ispo> ;ispo=2 for isp=1, ispo=1 for isp=2
+  !                                  (ispo means opposite spin to isp), (up:isp=1,dn:isp=2)
+  !     ohsopm(2,ib)%soffd(:,isp) = <H isp | L-|P ispo>, this means
+  !        > ohsopm(2,ib)%soffd(:,1)= <H isp=1|L-|P isp=2>
+  !        > ohsopm(2,ib)%soffd(:,2)= <H isp=2|L+|P isp=1> => dagger(soffd(:,2))=<P isp=1|L-|H isp=2>
+  !     ohsopm(3,ib)%soffd(:,isp) = <H isp | L-(diag)|H ispo> ;ispo=2 for isp=1, ispo=1 for isp=2
+  !
+  !   For SO=1 with spin=001 axis (liqinPRB2019 001 case),
+  !   we neither use ohsopm(1,ib)%soffd(:,isp=2) and ohsopm(3,ib)%soffd(:,isp=2).
+  !
+  !     Generally speaking, we may need to calculate all blocks ohsozz%soffd, ohsopm%sdiag, ohsopp
+  
+  
+  implicit none
   integer :: lmxa,kmax,nlml,nr,nsp,nkaph,nkapi,lmxh,lso!,lcplxp
-  !      integer n0,nkap0,nppn,nab
   integer :: lmaxu,lldau,iblu,idu(4)
-  double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
-  !      parameter (n0=10,nkap0=3,nppn=12,nab=9)
+  complex(8):: vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
   double precision :: z,rmt,rsma,a
   integer:: jcg(1) , indxcg(1) , lh(nkap0)
   type(s_cv1) :: sv_p_oppi(3)
@@ -327,76 +347,42 @@ subroutine augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax &
        rs3,vmtz
   ! ... Local parameters
   integer :: k,ll,lmxl,nlma,nlmh,i
-  double precision :: pi,y0,pp(n0,2,5)
-  integer :: lmxx
-  parameter (lmxx=25)
+  double precision :: pp(n0,2,5)
   integer :: lxa(0:kmax)
   double precision :: vdif(nr*nsp),sodb(nab,n0,nsp,2), &
-       qum((lmxa+1)**2*(lmxx+1)*6*nsp),vum((lmxa+1)**2*nlml*6*nsp), &
+       vum((lmxa+1)**2*nlml*6*nsp), &
        fh(nr*(lmxh+1)*nkap0),xh(nr*(lmxh+1)*nkap0), &
        vh((lmxh+1)*nkap0),fp(nr*(lmxa+1)*(kmax+1)), &
        dh((lmxh+1)*nkap0),xp(nr*(lmxa+1)*(kmax+1)), &
        vp((lmxa+1)*(kmax+1)),dp((lmxa+1)*(kmax+1))
-  double complex vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,nab,2,0:lmaxu)
+  complex(8):: vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,nab,2,0:lmaxu)
+  real(8),allocatable:: qum(:)
+  real(8),parameter:: pi   = 4d0*datan(1d0),  y0   = 1d0/dsqrt(4d0*pi)
   call tcn('augmat')
-  pi   = 4d0*datan(1d0)
-  y0   = 1d0/dsqrt(4d0*pi)
+  do  k = 1, lmxh+1 ! check; see description of rsmh above
+     if (pnz(k,1) /= 0 .AND. pnz(k,1) < 10 .AND. rsmh(k,nkapi+1) /= 0) &
+          call rx1('augmat: illegal value for rsmh',rsmh(k,nkapi+1))
+  enddo
   nlma = (lmxa+1)**2
   lmxl = ll(nlml)
-  if (lmxl > lmxx) call rxi('augmat: increase lmxx to',lmxl)
-  ! --- Make hab,vab,sab and potential parameters pp ---
+  lxa=lmxa
+  allocate(qum((lmxa+1)**2*(lmxl+1)*6*nsp))
   do  i = 1, nsp
-     call dpcopy(v1(1,1,i),vdif(1+nr*(i-1)),1,nr,y0)
-     vdif(1+nr*(i-1):1+nr*i)=vdif(1+nr*(i-1):1+nr*i)-v0(1:nr,i)
+     vdif(1+nr*(i-1):1+nr*i)= y0*v1(1:nr,1,i) - v0(1:nr,i)
   enddo
-  !     NB:rofi MUST be dimensioned rofi(1..nrx) if V is to be extrapol.
+  ! --- Make hab,vab,sab and potential parameters pp ---
   call potpus(z,rmt,lmxa,v0,vdif,a,nr,nsp,lso,rofi,pnu,pnz,ehl,rsml, &
        rs3,vmtz,nab,n0,pp,ppnl,hab,vab,sab,sodb)
   ! --- Moments and potential integrals of ul*ul, ul*sl, sl*sl ---
   call momusl(z,rmt,lmxa,pnu,pnz,rsml,ehl,lmxl,nlml,a,nr,nsp,rofi, &
        rwgt,v0,v1,qum,vum)
   ! --- Set up all radial head and tail functions, and their BC's ---
-  do  k = 0, kmax
-     lxa(k) = lmxa
-  enddo
-  !     Debugging check; see description of rsmh above
-  do  k = 1, lmxh+1
-     if (pnz(k,1) /= 0 .AND. pnz(k,1) < 10 .AND. &
-          rsmh(k,nkapi+1) /= 0) &
-          call rx1('augmat: illegal value for rsmh',rsmh(k,nkapi+1))
-  enddo
   nlmh = (lmxh+1)**2
-  call dpzero(fh,nr*(lmxh+1)*nkap0)
+  fh=0d0
   call fradhd(nkaph,eh,rsmh,lh,lmxh,nr,rofi,fh,xh,vh,dh)
   call fradpk(kmax,rsma,lmxa,nr,rofi,fp,xp,vp,dp)
-  ! ... LDA+U: rotate vorb from (phi,phidot) to (u,s) for all l with U
-  !     at this site and store in vumm
-  if (lldau > 0) then
-     call vlm2us(lmaxu,rmt,idu,lmxa,iblu,vorb,ppnl,vumm)
-  endif
-
-  ! --- Augmentation matrices for cases P*P, H*H, H*P ---
-  ! NOTE for SO
-  !     We calculate limited parts of SO interaction. H(head),P(tail)
-
-  !     ohsozz(3,ib)%sdiag(:,isp) = <H isp | Lz(diag)|H isp>
-  !     ohsozz(2,ib)%sdiag(:,isp) = <H isp | Lz(diag)|P isp>
-  !     ohsozz(1,ib)%sdiag(:,isp) = <P isp | Lz(diag)|P isp>
-
-  !     ohsopm is desined for (1,2) element of LdotS matrix.
-  !     ohsopm(1,ib)%soffd(:,isp) = <P isp | L-|P ispo> ;ispo=2 for isp=1, ispo=1 for isp=2
-  !                                  (ispo means opposite spin to isp), (up:isp=1,dn:isp=2)
-  !     ohsopm(2,ib)%soffd(:,isp) = <H isp | L-|P ispo>, this means
-  !        > ohsopm(2,ib)%soffd(:,1)= <H isp=1|L-|P isp=2>
-  !        > ohsopm(2,ib)%soffd(:,2)= <H isp=2|L+|P isp=1> => dagger(soffd(:,2))=<P isp=1|L-|H isp=2>
-  !     ohsopm(3,ib)%soffd(:,isp) = <H isp | L-(diag)|H ispo> ;ispo=2 for isp=1, ispo=1 for isp=2
-
-  !   For SO=1 with spin=001 axis (liqinPRB2019 001 case),
-  !   we neither use ohsopm(1,ib)%soffd(:,isp=2) and ohsopm(3,ib)%soffd(:,isp=2).
-
-  !     Generally speaking, we may need to calculate all blocks ohsozz%soffd, ohsopm%sdiag, ohsopp
-
-
+  ! ... LDA+U: rotate vorb from (phi,phidot) to (u,s) for all l with U at this site and store in vumm
+  if (lldau > 0) call vlm2us(lmaxu,rmt,idu,lmxa,iblu,vorb,ppnl,vumm)
   ! ... Pkl*Pkl !tail x tail
   call gaugm ( nr , nsp , lso , rofi , rwgt , lmxa , lmxl &
   , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , &

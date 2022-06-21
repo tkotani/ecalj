@@ -3681,6 +3681,37 @@ contains
   end subroutine pkl2ro
 end module m_mixrho
 
+subroutine splrho(mode,nsp,nr,nlml,rho1,rho2,rhoc)
+  !- Overwrite spin pol local rho+,rho- with rho,rho+ - rho-, or reverse
+  ! ----------------------------------------------------------------------
+  !i Inputs
+  !i   mode  :1s digit
+  !i         :0 input (rho+,rho-) -> (rho+ + rho-, rho+ - rho-)
+  !i         :1 input (rho+ + rho-, rho+ - rho-) -> (rho+,rho-)
+  !i         :10s digit
+  !i         :1 suppress splitting of rho2
+  !i         :2 suppress splitting of rhoc
+  !i         :3 suppress both
+  !i   nsp   :2 for spin-polarized case, otherwise 1
+  !i   nr    :number of radial mesh points
+  !i   nlml  :L-cutoff
+  !i   rho1  :local true density, tabulated on a radial mesh
+  !i   rho2  :local smoothed density, tabulated on a radial mesh
+  !i   rhoc  :core density
+  !r Remarks
+  !u Updates
+  ! ----------------------------------------------------------------------
+  implicit none
+  integer :: mode,nsp,nr,nlml
+  double precision :: rho1(nr,nlml,nsp),rho2(nr,nlml,nsp),rhoc(nr,nsp)
+  double precision :: fac
+  if (nsp == 1) return
+  fac = 1
+  if (mod(mode,10) /= 0) fac = .5d0
+  call dsumdf(nr*nlml,fac,rho1,0,1,rho1(1,1,2),0,1)
+  if (mod(mod(mode/10,10),2)  == 0) call dsumdf(nr*nlml,fac,rho2,0,1,rho2(1,1,2),0,1)
+  if (mod(mod(mode/10,10)/2,2) == 0) call dsumdf(nr,fac,rhoc,0,1,rhoc(1,2),0,1)
+end subroutine splrho
 
 subroutine lgstar(mode,ng,n,gv,ng0,ips0,cg)
   !- Compresses F.T. of a real function, using fact it is hermitian

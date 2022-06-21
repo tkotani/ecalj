@@ -1,5 +1,4 @@
-subroutine momusl(z,rmt,lmxa,pnu,pnz,rsml,ehl,lmxl,nlml,a,nr,nsp, &
-     rofi,rwgt,v0,v1,qum,vum)
+subroutine momusl(z,rmt,lmxa,pnu,pnz,rsml,ehl,lmxl,nlml,a,nr,nsp, rofi,rwgt,v0,v1,qum,vum)
   !- Moments of ul*ul, ul*sl, sl*sl and their integrals with true pot.
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -54,15 +53,13 @@ subroutine momusl(z,rmt,lmxa,pnu,pnz,rsml,ehl,lmxl,nlml,a,nr,nsp, &
   !u   13 Jun 00 spin polarized
   !u   16 May 00 Adapted from nfp momusl.f
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
+  implicit none
   integer :: lmxa,lmxl,nlml,nr,nsp,n0
   parameter (n0=10)
   double precision :: rmt,a,z,rofi(nr),rwgt(nr),rsml(n0),ehl(n0), &
        v0(nr,nsp),v1(nr,nlml,nsp),pnu(n0,nsp),pnz(n0,nsp), &
        qum(0:lmxa,0:lmxa,0:lmxl,6,nsp), &
        vum(0:lmxa,0:lmxa,nlml,6,nsp)
-  ! ... Local parameters
   logical :: lpz1,lpz2
   integer :: l1,l2,lm,i,mlm,isp
   double precision :: pi,srfpi,xx, &
@@ -70,14 +67,11 @@ subroutine momusl(z,rmt,lmxa,pnu,pnz,rsml,ehl,lmxl,nlml,a,nr,nsp, &
        ul(nr,0:lmxa,nsp),ruu(nr,0:lmxa,2,nsp), &
        sl(nr,0:lmxa,nsp),rus(nr,0:lmxa,2,nsp), &
        gz(nr,0:lmxa,nsp),rss(nr,0:lmxa,2,nsp)
-
   call tcn('momusl')
   pi = 4d0*datan(1d0)
   srfpi = dsqrt(4d0*pi)
-  call dpzero(gz,nr*(lmxa+1)*nsp)
-  call makusp(n0,z,nsp,rmt,lmxa,v0,a,nr,xx,xx,pnu,pnz,rsml,ehl, &
-       ul,sl,gz,ruu,rus,rss)
-
+  gz=0d0
+  call makusp(n0,z,nsp,rmt,lmxa,v0,a,nr,xx,xx,pnu,pnz,rsml,ehl, ul,sl,gz,ruu,rus,rss)
   ! --- Moments ---
   do  isp = 1, nsp
      do  l1 = 0, lmxa
@@ -132,14 +126,6 @@ subroutine momusl(z,rmt,lmxa,pnu,pnz,rsml,ehl,lmxl,nlml,a,nr,nsp, &
         enddo
      enddo
   enddo
-
-  !     These should correspond to sabs, made by potpus
-  !      do  l1 = 0, lmxa
-  !        print 333, (qum(l1,l1,0,i,1), i=1,6)
-  !  333   format(6f12.6)
-  !      enddo
-  !      pause
-
   ! --- Integrals ul*ul*V_M, ul*sl*V_M, sl*sl*V_M ---
   do  isp = 1, nsp
      do  mlm = 1, nlml
@@ -196,102 +182,5 @@ subroutine momusl(z,rmt,lmxa,pnu,pnz,rsml,ehl,lmxl,nlml,a,nr,nsp, &
         enddo
      enddo
   enddo
-
-  !     These should correspond to vabs, made by potpus
-  !      do  l1 = 0, lmxa
-  !        print 333, (vum(l1,l1,1,i,1)/srfpi, i=1,6)
-  !  333   format(6f12.6)
-  !      enddo
-  !      pause
-
-  !      if (pnz(2,1) .ne. 0) then
-  !        call wrupw(1,2,nr,rofi,sl,gz,nlml,v1,rwgt)
-  !      endif
-
-
   call tcx('momusl')
 end subroutine momusl
-!      subroutine wrupw(lm1,lm2,nr,rofi,f1,f2,nlmv,vlm,rwgt)
-!C- Brute force integration of wf(1)*V*wf(2) in sphere
-!      implicit none
-!      integer lm1,lm2,nr,nlmv
-!      double precision f1(nr,0:1),f2(nr,0:1),rofi(nr),rwgt(nr)
-!      double precision vlm(nr,nlmv)
-!      integer nth,nnn,nlmx
-!      parameter(nth=-62,nnn=62,nlmx=64)
-!      double precision p(3,nnn),wp(nnn),p2(nnn*3),r2(nnn)
-!      double precision yl(nnn,nlmx),flm(nr,nlmx),sum
-!      double precision f1p(nr,nnn),f2p(nr,nnn),vp(nr,nnn)
-!      integer np,l1,l2,ll,nlm1,nlm2,ir,ip,lmax
-
-!      l1 = ll(lm1)
-!      l2 = ll(lm2)
-!      nlm1 = (l1+1)**2
-!      nlm2 = (l2+1)**2
-
-!      print *, '!!'
-!      vlm(:,1) = 0
-
-!      call fpiint(nth,0,np,p,wp)
-!      if (np .ne. nnn) stop 'oops'
-!      call dmcpy(p,1,3,p2,np,1,np,3)
-!      lmax = max(l1,l2,ll(nlmv))
-!      call ropyln(np,p2,p2(1+np),p2(1+2*np),lmax+1,np,yl,r2)
-
-!C ... f1(l) -> f1(lm) -> f1(sphere)
-!      flm = 0
-!      do  ir = 1, nr
-!        flm(ir,lm1) = f1(ir,l1)
-!      enddo
-!      call dgemm('N','T',nr,np,nlm1,1d0,flm,nr,yl,np,0d0,f1p,nr)
-!c     call wrhomt('f1p','f1(pointwise)',0,f1p,rofi,nr,nlm1,1)
-
-!      sum = 0
-!      do  ip = 1, np
-!      do  ir = 1, nr
-!        sum = sum + f1p(ir,ip)**2 *rwgt(ir)*wp(ip)
-!      enddo
-!      enddo
-!      print 333, 'f1*f1 = ', sum
-!  333 format(1x,a,f12.6)
-
-!C ... f2(l) -> f2(lm) -> f2(sphere)
-!      flm = 0
-!      do  ir = 1, nr
-!        flm(ir,lm2) = f2(ir,l2)
-!      enddo
-!      call dgemm('N','T',nr,np,nlm2,1d0,flm,nr,yl,np,0d0,f2p,nr)
-!C     call wrhomt('f2p','f2(pointwise)',0,f2p,rofi,nr,nlm2,1)
-
-!C ... v(lm) > v(sphere)
-!      call dgemm('N','T',nr,np,nlmv,1d0,vlm,nr,yl,np,0d0,vp,nr)
-!      call wrhomt('vp','v(pointwise)',0,vp,rofi,nr,nlm2,1)
-
-!      sum = 0
-!      do  ip = 1, np
-!      do  ir = 1, nr
-!        sum = sum + f2p(ir,ip)**2 *rwgt(ir)*wp(ip)
-!      enddo
-!      enddo
-!      print 333, 'f2*f2 = ', sum
-
-!      sum = 0
-!      do  ip = 1, np
-!      do  ir = 1, nr
-!        sum = sum + f1p(ir,ip)*f2p(ir,ip) *rwgt(ir)*wp(ip)
-!      enddo
-!      enddo
-!      print 333, 'f1*f2 = ', sum
-
-!      sum = 0
-!      do  ip = 1, np
-!      do  ir = 1, nr
-!        sum = sum + f1p(ir,ip)*vp(ir,ip)*f2p(ir,ip) *rwgt(ir)*wp(ip)
-!      enddo
-!      enddo
-!      print *, 'f1*v*f2 = ', sum
-
-
-
-!      end
-
