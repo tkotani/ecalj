@@ -3441,83 +3441,6 @@ contains
     endif
   end subroutine parmx0
 
-  !$$$      block data dparmx
-  !$$$      integer lstblk,lstitj
-  !$$$      double precision errmin
-  !$$$      common /parmx1/ lstblk,lstitj,errmin
-  !$$$      data lstblk /0/ lstitj /0/ errmin /0d0/
-  !$$$      end block data dparmx
-
-  ! ... testing parmxp
-  !      subroutine fmain
-  !      implicit none
-  !      character*90 strn,mixnam*8
-  !      integer i,ip,it(100),iter,nkill,nmix,i1,i2
-  !      double precision wgt(3),beta,betv,wc,rmserr
-  !      real ran1
-  !      logical lbroy,parmxp
-
-  !      nmix = -1
-  !      iter = -1
-  !      wc = -1
-  !      beta = .7d0
-  !      betv = .01d0
-  !      wgt(1) = 1
-  !      wgt(2) = 1
-  !      wgt(3) = 1
-  !      rmserr = -1
-  !      mixnam = 'MiXm'
-  !      strn = ' B30,n=4,w=2,1,wa=9,fn=mxm,wc=11,b=1; A,k=3,bv=.11,.22'
-  !      if (.not. parmxp(iter,strn,len(strn),lbroy,nmix,wgt,beta,mixnam,
-  !     .    wc,nkill,betv,rmserr)) stop
-  !      print *, '-----'
-  !      do  10  iter = 3, 12
-  !      if (.not. parmxp(iter,strn,len(strn),lbroy,nmix,wgt,beta,mixnam,
-  !     .    wc,nkill,betv,rmserr)) stop
-  !      print 333, iter,lbroy,nmix,wgt,beta,mixnam,wc,nkill,betv,rmserr
-  !  333 format('iter=',i3,' lbroy=',l1,' nmix=',i2,' wgt=',3f8.4,' beta=',
-  !     . f8.4,' mixnam=',a,' wc=',f8.4,' nkill=',i3,' betv,rmserr=',2f8.4)
-  !      print *, ' '
-  !   10 continue
-
-  !      call parmx0(2,2,0d0)
-
-  !      strn = ' B30,n=4,w=2,1,wa=9,fn=mxm,wc=11,b=1;'//
-  !     .  ' A,k=3,bv=.11,.22,n=3;A,b=.88,r<.2,n=2,bv=.11,.33'
-  !      strn = ' B30,n=4,w=2,1,wa=9,fn=mxm,wc=11,b=1;'//
-  !     .  ' A,k=3,bv=.11,.22,n=3;A,b=.88,r<errmin+.2,n=2,bv=.11,.33'
-  !      if (.not. parmxp(-1,strn,len(strn),lbroy,nmix,wgt,beta,mixnam,
-  !     .    wc,nkill,betv,rmserr)) stop
-  !      call ran1in(1)
-  !      print *, '-----'
-  !      do  20  iter = 3, 18
-  !      rmserr = ran1()
-  !      if (.not. parmxp(iter,strn,len(strn),lbroy,nmix,wgt,beta,mixnam,
-  !     .    wc,nkill,betv,rmserr)) stop
-  !      call parmx0(0,0,rmserr)
-  !      print 333, iter,lbroy,nmix,wgt,beta,mixnam,wc,nkill,betv,rmserr
-  !      print *, ' '
-  !   20 continue
-
-  !C      strn = ' '
-  !C      read(*,'(a70)') strn
-  !C      if (.not. parmxp(iter,strn,len(strn),lbroy,nmix,wgt,beta,mixnam,
-  !C     .  wc,nkill,betv,rmserr)) stop
-
-  !C      call parms0(i1,i2,rmserr,1)
-  !C      print *, i1,i2,rmserr
-  !C      i1 = 8
-  !C      i2 = -15
-  !C      rmserr = .1234d0
-  !C      call parms0(i1,i2,rmserr,-1)
-  !C      i1 = 0
-  !C      i2 = 0
-  !C      rmserr = 0
-  !C      call parms0(i1,i2,rmserr,1)
-  !C      print *, i1,i2,rmserr
-
-  !     end
-
   subroutine dpsadd(adest,asrc,nel,n1,n2,fac)
     !- shift and add. nel=number of elements, n1,n2= start in asrc,adest
     !     implicit none
@@ -3526,8 +3449,6 @@ contains
     call daxpy(nel,fac,asrc(n2),1,adest(n1),1)
   end subroutine dpsadd
 
-
-
   subroutine dpsdmp(array,n1,n2,ifile)
     !- Binary I/O of an array segment
     integer :: n1,n2,ifile,length
@@ -3535,8 +3456,6 @@ contains
     length = n2-n1+1
     if (length > 0) call dpdump(array(n1),length,ifile)
   end subroutine dpsdmp
-
-
 
   subroutine pkl2ro(mode,ib,rsm,kmax,nr,nlml,nsp,rofi,rwgt,k0,nlm0, &
        fklc,fklr,rho1,rho2,qmx)

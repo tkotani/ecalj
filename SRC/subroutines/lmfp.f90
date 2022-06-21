@@ -2,7 +2,7 @@ subroutine lmfp(llmfgw)
   use m_lmfinit,only: lhf, maxit,nbas,nsp, ctrl_ldos,ctrl_nitmv,ctrl_nvario, &
        ham_seref,ctrl_lfrce,  sspec=>v_sspec, ssite=>v_ssite, slabl,&
        nlibu,stdo,lrout,leks,plbnd,lpzex, nitrlx, &
-       indrx_iv,natrlx,xyzfrz,pdim,qtol,etol
+       indrx_iv,natrlx,xyzfrz,pdim,qtol,etol,alat
   use m_lattic,only: qlat=>lat_qlat,rv_a_opos
   use m_bandcal,only: dmatu
   use m_mkpot,only:   amom
@@ -49,7 +49,7 @@ subroutine lmfp(llmfgw)
   character(10):: i2char
   logical:: cmdopt2
   character(20):: outs=''
-  integer:: ierr
+  integer:: ierr,iv
   logical:: irpos,hsign,iatom
   character(256):: strn,strn2
   real(8),allocatable:: poss(:,:),pos0(:,:)
@@ -145,7 +145,6 @@ subroutine lmfp(llmfgw)
         seref   = ham_seref !   ... reference energy
         etot(1) = etot(1) - seref
         if (etot(2)/=0) etot(2) = etot(2) - seref
-        flush(6)
         call mpi_barrier(MPI_COMM_WORLD,ierr)
         if(master_mpi) then
            !==   convergence check by call nwit
@@ -163,13 +162,14 @@ subroutine lmfp(llmfgw)
            if (iter >= maxit) lsc = 1
            if (iter < maxit) lsc = 3
         endif
+        if(master_mpi) flush(stdo)
         if( cmdopt0('--quit=band')) call rx0('lmf-MPIK : exit (--quit=band)')
         if( lsc <= 2) exit  !self-consistency exit
 1000 enddo Eleloop              ! ---------------- SCF (iteration) loop end ----
      if(nitrlx==0) exit     !no molecular dynamics (=no atomic position relaxation)
      !==== Molecular dynamics (relaxiation).
      MDblock: Block !Not maintained well recently. Relax and Smshft may need to be corrected.
-       pos0 = poss !keep poss to pos0
+       pos0 = poss !keep old poss to pos0
        ! Relax atomic positions. Get new poss. Shear mode removed.
        call Relax(ssite,itrlx,indrx_iv,natrlx,force,p_rv,hess,0,[0d0],pos0,poss,icom)
        if (itrlx==nitrlx) then !Set minimum gradient positions if this is last step.
@@ -188,9 +188,19 @@ subroutine lmfp(llmfgw)
           enddo
           close(ifipos)
        endif
+       
+       ! Smshft is not on wrong idea. See TK paper.
+       !   1. nothing to do means nuleus+core shift.
+       !   2. simple superposition of atoms rdovfa
        ! call Smshft(ctrl_lfrce,poss,pos0)!New density after atom shifts.
-       ! Smshft is not cmpable with current implementation (or wrong idea). See TK paper.
-       if (master_mpi) then 
+       if (alat*sum((poss-pos0)**2)**.5>0.05d0) then! 0.05 a.u. is intuitively given. 2022-6-22
+          iv=iprint()
+          call setprint(-1) !supress print out to stdo
+          call Rdovfa() !superposition of atom density
+          call setprint(iv)
+       endif   
+
+       if (master_mpi) then
           write(stdo,*)' Delete mixing and band weights files ...'
           open(newunit=ifi, file='mixm.'//trim(sname)); close(ifi, status='delete')
           open(newunit=ifi, file='wkp.'//trim(sname)); close(ifi, status='delete')
@@ -229,6 +239,6 @@ subroutine readatompos(nbas,pos)
         !write(6,ftox)i,ftof(p)
      enddo
   enddo
-1010 continue
   close(ifipos)
+1010 continue
 end subroutine readatompos

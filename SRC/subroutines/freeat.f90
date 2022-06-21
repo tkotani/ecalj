@@ -768,7 +768,6 @@ contains
     !u Updates
     ! ----------------------------------------------------------------------
     implicit none
-    ! ... Passed parameters
     integer :: lmxa,nr,nrmt,nsp,n0,isw
     double precision :: a,rmax,rmt,z
     parameter (n0=10)
@@ -785,17 +784,13 @@ contains
     real(8) ,allocatable :: gp_rv(:)
     real(8) ,allocatable :: h_rv(:)
     real(8) ,allocatable :: psi_rv(:)
-
     double precision :: b,deh,deh0,dphi,dphip,drsm,drsm0,e1,e2,e3,eadd, &
          eaddx,eh,elim1,elim2,enew,enu,eval,p,phi,phip,pnu,qvl,radd, &
          raddx,rlim1,rlim2,rnew,rsm,stife,stifr,sume1,sume2,qrmt,rmtmx
-    ! ... Heap
-
     ipr = iprint()
     !      if (z .lt. 0.99d0) lrel = 0 !takao think lrel here was not used may2021
     if (lmxa > 8) call rx('optfab:  lmax too large')
     b = rmax/(dexp(a*nr-a)-1d0)
-
     do  80  isp = 1, nsp
        if(ipr>=20) write(stdo,ftox) &
             ' Optimise free-atom basis for species '//spid, 'Rmt=',ftof(rmt)
@@ -1048,7 +1043,7 @@ contains
     logical :: cmdopt
     character spid*8, strn*80, flg(2)*1
     integer:: ipr , iprint , i , konfig , l , info , nn &
-         , lplawv , loclo , nfit , isw
+         , lplawv , loclo=-999 , nfit , isw
     real(8) ,allocatable :: g_rv(:)
     real(8) ,allocatable :: gp_rv(:)
     real(8) ,allocatable :: h_rv(:)

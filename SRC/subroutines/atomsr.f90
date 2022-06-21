@@ -45,14 +45,12 @@ contains
     !u Updates
     !u   19 Apr 01 core wave functions may be saved in gcore
     !  ---------------------------------------------------------------------
-    !     implicit none
-    ! ... Passed parameters
+    implicit none
     integer:: isw,ipr,lmax,konfig(0:lmax),nr,nsp,kcor,lcor
     double precision :: a,b,z,g(nr,2),rho(nr,nsp),rofi(nr),tol,qcor(2), &
          sumec(nsp),sumtc(nsp),v(nr,nsp),ec(*)
     real(8),optional:: gcore(nr,2,*)
     integer,optional:: nmcore
-    ! ... Local parameters
     character(1) :: pqn(9),ang(6)
     integer :: icore,isp,konf,l,ll,nodes,nre,iprint,ir
     double precision :: deg,dlml,e1,e2,ecor0,ecore,qcore,rhorim,rmax, &
@@ -136,6 +134,75 @@ contains
             '  rho(rmax)',f8.5)
 80  enddo
   end subroutine rhocor
+  subroutine xyrhsr(ecore,l,z,a,b,nr,nre,g,rofi,v,rho,deg,vrho, rhormx)
+    !- Make density and integrate potential*density for one core state
+    ! ----------------------------------------------------------------------
+    !i Inputs
+    !i   ecore :core eigenvalue
+    !i   l     :l quantum number
+    !i   z     :nuclear charge
+    !i   a     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
+    !i   b     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
+    !i   nr    :number of radial mesh points
+    !i   nre   :Make density to the smaller of nr and nre
+    !i   g     :normalized wave function times r
+    !i   rofi  :radial mesh points
+    !i   v     :electronic part of spherical potential
+    !i   deg   :occupation number
+    !o Outputs
+    !o   rho   :contribution core density from this state from 1..min(nr,nre)
+    !o   vrho  :integral
+    !o   rhormx:contribution to true density at nr from this state
+    !r Remarks
+    !r   xyrhsr makes the density at points 1..min(nr,nre), and the integral
+    !r   of rho*density from 1..nre.  Thus:
+    !r     if nre .eq. nr, the density and integral are the same
+    !r     if nre .lt. nr  g**2 is negligible at nr (deep core state)
+    !r     if nre .gt. nr  (large sphere) contribution to rho*v is included
+    !u Updates
+    ! ----------------------------------------------------------------------
+    implicit none
+    ! ... Passed parameters
+    integer :: nr,nre,l
+    double precision :: a,b,z,ecore,g(nr,2),rofi(*),v(nr),rho(nr),rhormx
+    ! ... Local parameters
+    integer :: nrmx,ir
+    double precision :: fpi,fllp1,vrho,r,wgt,tmc,c,gfac,rhoir,deg,rmax
+    !     Speed of light, or infinity in nonrelativistic case
+    common /cc/ c
+    fpi = 16d0*datan(1d0)
+    fllp1 = l*(l+1)
+    vrho = 0
+    nrmx = min0(nr,nre)
+    ! ... Make rho, and integrate vrho for points 1..nrmx
+    rhoir=-1d99
+    do  11  ir = 2, nrmx
+       r = rofi(ir)
+       wgt = 2*(mod(ir+1,2)+1)
+       if (ir == nre) wgt = 1
+       tmc = c - (v(ir) - 2*z/r - ecore)/c
+       gfac = 1 + fllp1/(tmc*r)**2
+       rhoir = gfac*g(ir,1)**2 + g(ir,2)**2
+       vrho = vrho + wgt*rhoir * (v(ir)-2*z/r) * (r+b)
+       rho(ir) = rho(ir) + deg*rhoir
+11  enddo
+    rmax = rofi(nr)
+    rhormx = 0
+    !     nfp has the following line:
+    !     if (nre .ge. nr) rhormx = deg*g(nr,1)**2/(rmax*rmax*fpi)
+    if (nre >= nr) rhormx = deg*rhoir/(fpi*rmax**2)
+    ! ... Integrate rho*v from nrmx+1 .. nre
+    do  12  ir = nrmx+1, nre
+       r = rofi(ir)
+       wgt = 2*(mod(ir+1,2)+1)
+       if (ir == nre) wgt = 1
+       tmc = c - (v(ir) - 2*z/r - ecore)/c
+       gfac = 1 + fllp1/(tmc*r)**2
+       rhoir = gfac*g(ir,1)**2 + g(ir,2)**2
+       vrho = vrho + wgt*rhoir * (v(ir)-2*z/r) * (r+b)
+12  enddo
+    vrho = vrho*a/3
+  end subroutine xyrhsr
 end module m_rhocor
 
 
@@ -353,7 +420,8 @@ subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, &
   else if (job /= 'rho') then
      call rx('atomsc: job not pot|rho|gue')
   endif
-  call dpscop ( rhoin , rho_rv , nr * nsp , 1 , 1 + nr * nsp* ( nmix + 2 ) , 1d0 )
+!  call dpscop ( rhoin , rho_rv , nr * nsp , 1 , 1 + nr * nsp* ( nmix + 2 ) , 1d0 )
+  rho_rv(1+nr*nsp*(nmix+2):nr*nsp+nr*nsp*(nmix+2))= reshape(rhoin(1:nr,1:nsp),[nr*nsp])
   ! --- Start self-consistency loop ---
   drho = 100d0
   last = .false.
@@ -404,12 +472,12 @@ subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, &
            vrhoc = vrhoc + rofi(ir,2)*ea*rhoc(ir,isp)
 41      enddo
 40   enddo
-     call dcopy ( nr * nsp , rho , 1 , rho_rv , 1 )
+!     call dcopy ( nr * nsp , rho , 1 , rho_rv , 1 )
+     rho_rv(1:nr*nsp)=reshape(rho(1:nr,1:nsp),[nr*nsp])
      jmix = amix ( nr * nsp , min ( jmix , nmix ) , nmix , 0 , beta1 &
-          , iprint ( ) - 70 , .9d0 ,  rho_rv , & !norm , awk ( 1 , 2 )
-          awk , rmsdel )
-     call dpscop ( rho_rv , rhoin , nr * nsp , 1 + nr * nsp * ( &
-          nmix + 2 ) , 1 , 1d0 )
+          , iprint ( ) - 70 , .9d0 ,  rho_rv , awk , rmsdel )
+     !call dpscop ( rho_rv , rhoin , nr * nsp , 1 + nr * nsp * (nmix + 2 ) , 1 , 1d0 )
+     rhoin(1:nr,1:nsp) = reshape(rho_rv(1+nr*nsp*(nmix+2):nr*nsp+nr*nsp*(nmix+2)),[nr,nsp])
      if (last) goto 90
      if (iprint() >= 41 .OR. iprint() >= 30 .AND. &
           (drho < tolch .OR. iter == niter-1 .OR. iter == 1)) &
@@ -470,38 +538,18 @@ subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, &
 55 enddo
   vrmax(2) = 0d0
   if (nsp == 2) vrmax(2) = v(nr,1)-v(nr,2)
-  !$$$C --- write out rho if requested ---
-  !$$$      if (cmdopt('--dumprho',8,0,strn)) then
-  !$$$        call prrmsh('rho for atom ',rofi,rho,nr,nr,nsp)
-  !$$$        call prrmsh('pot for atom ',rofi,v,nr,nr,nsp)
-  !$$$        call prrmsh('rhoc for atom ',rofi,rhoc,nr,nr,nsp)
-  !$$$        allocate(rho_rv(abs(-nr*nl*nsp)))
-  !$$$        if (-nr*nl*nsp<0) rho_rv(:)=0.0d0
-  !$$$
-  !$$$        call newrho ( z , lrel , lgdd , nl , nl , lmax , a , b , nr ,
-  !$$$     .  rofi , v , rho_rv , rhoc , kcor , lcor , qcor , pnu , qnu
-  !$$$     .  , sec , stc , sev , ec , ev , tl , nsp , lfrz , 000,plplus,qlplus,nmcore)
-  !$$$
-  !$$$        call prrmsh ( 'rhol for atom ' , rofi , rho_rv , nr , nr ,
-  !$$$     .  nl * nsp )
-  !$$$
-  !$$$        if (allocated(rho_rv)) deallocate(rho_rv)
-  !$$$
-  !$$$      endif
 end subroutine atomsc
 
 subroutine addzbk(rofi,nr,nsp,rho,rhozbk,scale)
   !     implicit none
   integer :: nr,nsp
-  double precision :: rofi(*),rho(nr,*),rhozbk,scale
+  double precision :: rofi(nr),rho(nr,*),rhozbk,scale
   integer :: ir,isp
   double precision :: s
   if (rhozbk == 0) return
-  s = 16*datan(1d0)*scale*rhozbk
-  do   isp = 1, nsp
-     do  ir = 2, nr
-        rho(ir,isp) = rho(ir,isp) + s*rofi(ir)*rofi(ir)
-     enddo
+  s = 16d0*datan(1d0)*scale*rhozbk
+  do isp = 1, nsp
+     rho(:,isp) = rho(:,isp) + s*rofi(:)**2
   enddo
 end subroutine addzbk
 
@@ -971,162 +1019,6 @@ subroutine newrho(z,lrel,lgdd,nl,nlr,lmax,a,b,nr,rofi,v,rho,rhoc, &
 end subroutine newrho
 
 
-subroutine xyrhsr(ecore,l,z,a,b,nr,nre,g,rofi,v,rho,deg,vrho, rhormx)
-  !- Make density and integrate potential*density for one core state
-  ! ----------------------------------------------------------------------
-  !i Inputs
-  !i   ecore :core eigenvalue
-  !i   l     :l quantum number
-  !i   z     :nuclear charge
-  !i   a     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
-  !i   b     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
-  !i   nr    :number of radial mesh points
-  !i   nre   :Make density to the smaller of nr and nre
-  !i   g     :normalized wave function times r
-  !i   rofi  :radial mesh points
-  !i   v     :electronic part of spherical potential
-  !i   deg   :occupation number
-  !o Outputs
-  !o   rho   :contribution core density from this state from 1..min(nr,nre)
-  !o   vrho  :integral
-  !o   rhormx:contribution to true density at nr from this state
-  !r Remarks
-  !r   xyrhsr makes the density at points 1..min(nr,nre), and the integral
-  !r   of rho*density from 1..nre.  Thus:
-  !r     if nre .eq. nr, the density and integral are the same
-  !r     if nre .lt. nr  g**2 is negligible at nr (deep core state)
-  !r     if nre .gt. nr  (large sphere) contribution to rho*v is included
-  !u Updates
-  ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
-  integer :: nr,nre,l
-  double precision :: a,b,z,ecore,g(nr,2),rofi(*),v(nr),rho(nr),rhormx
-  ! ... Local parameters
-  integer :: nrmx,ir
-  double precision :: fpi,fllp1,vrho,r,wgt,tmc,c,gfac,rhoir,deg,rmax
-  !     Speed of light, or infinity in nonrelativistic case
-  common /cc/ c
-  fpi = 16d0*datan(1d0)
-  fllp1 = l*(l+1)
-  vrho = 0
-  nrmx = min0(nr,nre)
-  ! ... Make rho, and integrate vrho for points 1..nrmx
-  rhoir=-1d99
-  do  11  ir = 2, nrmx
-     r = rofi(ir)
-     wgt = 2*(mod(ir+1,2)+1)
-     if (ir == nre) wgt = 1
-     tmc = c - (v(ir) - 2*z/r - ecore)/c
-     gfac = 1 + fllp1/(tmc*r)**2
-     rhoir = gfac*g(ir,1)**2 + g(ir,2)**2
-     vrho = vrho + wgt*rhoir * (v(ir)-2*z/r) * (r+b)
-     rho(ir) = rho(ir) + deg*rhoir
-11 enddo
-  rmax = rofi(nr)
-  rhormx = 0
-  !     nfp has the following line:
-  !     if (nre .ge. nr) rhormx = deg*g(nr,1)**2/(rmax*rmax*fpi)
-  if (nre >= nr) rhormx = deg*rhoir/(fpi*rmax**2)
-  ! ... Integrate rho*v from nrmx+1 .. nre
-  do  12  ir = nrmx+1, nre
-     r = rofi(ir)
-     wgt = 2*(mod(ir+1,2)+1)
-     if (ir == nre) wgt = 1
-     tmc = c - (v(ir) - 2*z/r - ecore)/c
-     gfac = 1 + fllp1/(tmc*r)**2
-     rhoir = gfac*g(ir,1)**2 + g(ir,2)**2
-     vrho = vrho + wgt*rhoir * (v(ir)-2*z/r) * (r+b)
-12 enddo
-  vrho = vrho*a/3
-end subroutine xyrhsr
-
-
-!      subroutine phidot(z,l,v,e,a,b,rofi,nr,g,val,slo,tol,nn,
-!     .  gp,phi,dphi,phip,dphip,p)
-!C- Generate Phidot,Phidotdot for a prescribed energy
-!C ----------------------------------------------------------------
-! i Inputs:
-! i   z:     nuclear charge
-! i   l:     l quantum number for this g
-! i   v:     potential
-! i   a,b:   defines shifted logarithmic mesh (rmesh.f)
-! i   rofi:  list of points; must be consistent with a,b
-! i   nr:    number of mesh points
-! i   e:     Energy
-! i   val:   Value of r * wave function at sphere radius (rseq)
-! i   slo:   Derivative of r * wave function at sphere radius (rseq)
-! i   g:     Wave function times r normalized so that int (g*g) dr = 1
-! i   tol:   precision to which wave function is integrated
-! i   nn:    number of nodes
-! o Outputs:
-! o   gp:    first four energy derivatives to G
-! o   phi:   wave function at rmax, i.e. g/rmax
-! o   dphi:  slope of wave function at rmax, i.e. d(g/rmax)/dr
-! o   phip:  energy derivative of wave function at rmax
-! o   dphip: energy derivative of slope of wave function at rmax
-! o   p:     <gp**2> (potential parameter)
-! r Remarks:
-! r   This version makes energy derivatives by numerical differentiation
-! r   of wave function phi, and has the same calling sequence as the
-! r   analytic version phidot.  The only difference is that this routine
-! r   returns four derivatives of phi, whereas the analytic version only
-! r   returns two and is applicable only to the nonrelativistic case.
-!C ----------------------------------------------------------------
-!      implicit none
-!C passed parameters
-!      integer l,nr,nn
-!      double precision z,e,a,b,val,slo,phi,dphi,phip,dphip,p,tol
-!      double precision v(1),rofi(1)
-!      double precision g(2*nr),gp(2*nr,4)
-!C local variables
-!      integer nre,i,iprint,nptdif
-!      double precision rmax,eb1,eb2,dele,ddde,sum1,
-!     .                 vali(5),sloi(5),ei(4),de1,de2,del1,del2
-!      parameter (nptdif = 2)
-
-!      rmax = rofi(nr)
-!      eb1 = -50d0
-!      eb2 = 20d0
-
-!c      dele = tol**.2D0
-!      dele = .002d0
-!      if (tol .gt. 1d-9 .and. iprint() .ge. 0)
-!     .  print *, 'phidot: tol too high for reliable num. diff'
-
-!      ddde = -rmax/g(nr)**2
-!      ei(1) = 1
-!      ei(2) = -1
-!      ei(3) = 1.5d0
-!      ei(4) = -1.5d0
-!      do  10  i = 1, nptdif
-!        sloi(i) = slo + dele*ei(i)*ddde*val/rmax
-!        ei(i) = e + dele*ei(i)
-!        call rseq(eb1,eb2,ei(i),tol,z,l,nn,val,sloi(i),v,gp(1,i),
-!     .            sum1,a,b,rofi,nr,nre)
-!        vali(i) = val/dsqrt(sum1)
-!        sloi(i) = sloi(i)/dsqrt(sum1)
-!   10 continue
-!      de1  = (ei(1) - ei(2))/2
-!      del1 = (ei(1) + ei(2))/2 - e
-!      de2  = (ei(3) - ei(4))/2
-!      del2 = (ei(3) + ei(4))/2 - e
-!C     Energy derivatives of value and slope
-!      call dfphi(de1,del1,de2,del2,1,val,vali,nptdif.eq.4)
-!      call dfphi(de1,del1,de2,del2,1,slo,sloi,nptdif.eq.4)
-
-!      call dfphi(de1,del1,de2,del2,2*nr,g,gp,nptdif.eq.4)
-!      call gintsr(gp,gp,a,b,nr,z,e,l,v,rofi,p)
-
-!C ... Get phi,dphi from val,slo = (r*phi),(r*phi)' at rmax
-!      phi = val/rmax
-!      dphi = (slo - phi)/rmax
-!      phip = vali(1)/rmax
-!      dphip = (sloi(1) - phip)/rmax
-
-!      if (iprint() .ge. 111) print 749, phi,dphi,phip,dphip
-!  749 format(' PHIDOT:  phi,phip,phip,dphip=',4f12.6)
-!      end
 
 subroutine gintsr(g1,g2,a,b,nr,z,e,l,v,rofi,sum)
   !- Integrate inner product of two wave equations
@@ -1211,235 +1103,3 @@ subroutine gintsl(g1,g2,a,b,nr,rofi,sum)
   sum = sum*a/3
 end subroutine gintsl
 
-
-!$$$      subroutine asprjq(mode,clabl,nl,nsp,eula,neul,pnu,qnu,
-!$$$     .pnuloc,qnuloc,bhat,amom)
-!$$$
-!$$$C- Find average magnetization axis and project ASA moments onto it
-!$$$C ----------------------------------------------------------------------
-!$$$Ci Inputs
-!$$$Ci   mode  :1s digit affects bhat
-!$$$Ci         :0 use bhat as input
-!$$$Ci         :1 Print out mag. dir. from eula and qnu; make amom
-!$$$Ci         :2 make bhat from eula and qnu; make amom
-!$$$Ci         :3 combination of 1+2
-!$$$Ci         :10s digit affects qnuloc,pnuloc
-!$$$Ci         :0 do nothing to qnuloc,pnuloc
-!$$$Ci         :1 copy pnu->pnuloc and qnu->qnuloc
-!$$$Ci         :2 copy and rotate to bhat coordinates
-!$$$Ci         :10s digit affects B,qnuloc when magnetization < 0
-!$$$Ci         :1 scale B by -1 when
-!$$$Ci   mode  :0 do nothing; just return
-!$$$Ci   clabl :class name (for printout only)
-!$$$Ci   nl    :(global maximum l) + 1
-!$$$Ci   nsp   :2 for spin-polarized case, otherwise 1
-!$$$Ci   eula  :Euler angles for noncollinear spins
-!$$$Ci   neul  :1, nl, or nl**2 if Euler angles are: l-independent,
-!$$$Ci         :l-dependent, or lm-dependent, respectively
-!$$$Ci   pnu   :boundary conditions.  If Dl = log. deriv. at rmax,
-!$$$Ci          pnu = .5 - atan(Dl)/pi + (princ.quant.number).
-!$$$Ci   qnu   :energy-weighted moments of the sphere charges
-!$$$Cio Inputs/Outputs
-!$$$Cio  bhat  :direction vector for B-field; see 1s digit mode
-!$$$Co Outputs
-!$$$Co   amom  :projection of magnetization onto bhat
-!$$$Co   pnuloc:projection of pnu onto bhat
-!$$$Co   qnuloc:projection of qnu onto bhat
-!$$$Cr Remarks
-!$$$Cr   If asprjq computes the B-field, it is taken to be parallel to
-!$$$Cr   the average magnetization, which is computed by summing the
-!$$$Cr   (vector) magnetization over all orbitals.
-!$$$Cu Updates
-!$$$Cu   06 Apr 04 First created
-!$$$C ----------------------------------------------------------------------
-!$$$C     implicit none
-!$$$C ... Passed parameters
-!$$$      integer mode,nl,nsp,neul
-!$$$      double precision pnu(nl,nsp),qnu(3,nl,nsp),eula(neul,3),
-!$$$     .amom,bhat(3),pnuloc(nl,nsp),qnuloc(3,nl,nsp)
-!$$$      character clabl*8
-!$$$C ... Local parameters
-!$$$      logical lwrite
-!$$$      integer i,k,l,m,ilm,stdo,lgunit,ipr,PRT1,PRT2,mode0,mode1,mode2
-!$$$      double precision ql,al,alpha,beta,gamma,hatm(3),ploc,qloc(3),
-!$$$     .dploc,aloc(3),dotp,ddot,dsqrt,rotm(3,3),sal
-!$$$      character strn*5
-!$$$      parameter (PRT1=40,PRT2=50)
-!$$$
-!$$$      stdo = lgunit(1)
-!$$$      call getpr(ipr)
-!$$$
-!$$$C --- Construct the average magnetization (direction, amplitude) ---
-!$$$      mode0 = mod(mode,10)
-!$$$      mode2 = mod(mode/100,10)
-!$$$      if (mode0 .ne. 0 .and. nsp .eq. 2) then
-!$$$        lwrite = .true.
-!$$$        if (mod(mode0,2) .eq. 0 .or. ipr .lt. PRT2) lwrite = .false.
-!$$$        if (neul .le. 1) lwrite = .false.
-!$$$        strn = '    l'
-!$$$        if (neul .eq. nl*nl) strn = '  ilm'
-!$$$        if (lwrite .and. mode0 .ge. 2) write(stdo,345) strn
-!$$$        if (lwrite .and. mode0 .lt. 2) write(stdo,345) strn,'mhat.bxc'
-!$$$  345   format(a,'     ql       mom',9x,'alpha     beta      gamma',
-!$$$     .  19x,'mhat':17x,a)
-!$$$
-!$$$        ilm = 0
-!$$$        call dpzero(aloc,3)
-!$$$        sal = 0
-!$$$        do  l = 0, nl-1
-!$$$          do   m = -l, l
-!$$$            ilm = ilm+1
-!$$$            if (neul .eq. nl) then
-!$$$              alpha = eula(l+1,1)
-!$$$              beta  = eula(l+1,2)
-!$$$              gamma = eula(l+1,3)
-!$$$            elseif (neul .eq. nl*nl) then
-!$$$              alpha = eula(ilm,1)
-!$$$              beta  = eula(ilm,2)
-!$$$              gamma = eula(ilm,3)
-!$$$            elseif (neul .eq. 1) then
-!$$$              alpha = eula(1,1)
-!$$$              beta  = eula(1,2)
-!$$$              gamma = eula(1,3)
-!$$$            else
-!$$$              call rxi('atscpp: bad value neul=',neul)
-!$$$            endif
-!$$$
-!$$$C         Charge, magnetic moments, quantization axis for these angles
-!$$$            ql = qnu(1,l+1,1)+qnu(1,l+1,2)
-!$$$            al = qnu(1,l+1,1)-qnu(1,l+1,2)
-!$$$            sal = sal + al/(2*l+1)
-!$$$C         The local magnetization points along V = zhat(loc).
-!$$$C         In global coordinates V = rotm^-1 zhat(loc) because
-!$$$C         rotm*V = zhat(loc) when V points along M as
-!$$$C         described in eua2rm.  V is then
-!$$$C         hatm(1) = dcos(alpha)*dsin(beta)
-!$$$C         hatm(2) = dsin(alpha)*dsin(beta)
-!$$$C         hatm(3) = dcos(beta)
-!$$$            call eua2rm(alpha,beta,gamma,rotm)
-!$$$            hatm(1) = rotm(3,1)
-!$$$            hatm(2) = rotm(3,2)
-!$$$            hatm(3) = rotm(3,3)
-!$$$
-!$$$C         Add to total magnetization
-!$$$            call daxpy(3,al/(2*l+1),hatm,1,aloc,1)
-!$$$
-!$$$C         Printout
-!$$$            if (neul .eq. nl**2 .and. lwrite .and. mode0 .ge. 2) then
-!$$$              write(stdo,'(i5,2f10.6,3x,3f10.6,3x,3f10.6,3x,f10.6)')
-!$$$     .        ilm, ql/(2*l+1), al/(2*l+1), alpha, beta, gamma, hatm
-!$$$            elseif (neul .eq. nl**2 .and. lwrite .and. mode0 .lt. 2) then
-!$$$              write(stdo,'(i5,2f10.6,3x,3f10.6,3x,3f10.6,3x,f10.6)')
-!$$$     .        ilm, ql/(2*l+1), al/(2*l+1), alpha, beta, gamma, hatm,
-!$$$     .        ddot(3,hatm,1,bhat,1)
-!$$$            elseif (neul .eq. nl .and. lwrite .and. mode0 .ge. 2) then
-!$$$              write(stdo,'(i5,2f10.6,3x,3f10.6,3x,3f10.6,3x,f10.6)')
-!$$$     .        l, ql, al, alpha, beta, gamma, hatm
-!$$$              lwrite = .false.
-!$$$            elseif (neul .eq. nl .and. lwrite .and. mode0 .lt. 2) then
-!$$$              write(stdo,'(i5,2f10.6,3x,3f10.6,3x,3f10.6,3x,f10.6)')
-!$$$     .        l, ql, al, alpha, beta, gamma, hatm, ddot(3,hatm,1,bhat,1)
-!$$$              lwrite = .false.
-!$$$            endif
-!$$$
-!$$$          enddo
-!$$$          lwrite = .true.
-!$$$          if (mod(mode0,2) .eq. 0 .or. ipr .lt. PRT2) lwrite = .false.
-!$$$        enddo
-!$$$        amom = dsqrt(ddot(3,aloc,1,aloc,1))
-!$$$
-!$$$        if (amom .ne. 0) then
-!$$$C       Assign bhat to point along magnetization direction
-!$$$          if (mode0 .ge. 2) call dpcopy(aloc,bhat,1,3,1/amom)
-!$$$
-!$$$C       If sum moments < 0, optionally reverse B
-!$$$          if (sal .lt. 0 .and. mode2 .eq. 1 .and. mode0 .ge. 2) then
-!$$$            if (mode0 .ge. 2) call dpcopy(aloc,bhat,1,3,-1/amom)
-!$$$          endif
-!$$$
-!$$$C       Printout of bhat, moment, angle
-!$$$          call info5(PRT1,0,0,' ATOM='//clabl//
-!$$$     .    '%a  bhat=%3;10,6D  |M|=%;6,6d  bhat.M/|M|=%;6d',bhat,
-!$$$     .    amom,ddot(3,aloc,1,bhat,1)/amom,0,0)
-!$$$
-!$$$        else
-!$$$          bhat(1) = 0
-!$$$          bhat(2) = 0
-!$$$          bhat(3) = 1
-!$$$        endif
-!$$$
-!$$$C     End of block to contruct bhat
-!$$$      endif
-!$$$
-!$$$C --- Rotate the qnu along projection bhat ---
-!$$$      mode1 = mod(mode/10,10)
-!$$$      if (mode1 .eq. 0) return
-!$$$
-!$$$      if (nsp .eq. 1 .or. mode1 .eq. 1 .or.
-!$$$     .ddot(3,bhat,1,bhat,1) .eq. 0d0) then
-!$$$        call dcopy(3*nl*nsp,qnu,1,qnuloc,1)
-!$$$        call dcopy(1*nl*nsp,pnu,1,pnuloc,1)
-!$$$        return
-!$$$      endif
-!$$$
-!$$$      call dpzero(qnuloc,3*nl*nsp)
-!$$$      ilm = 0
-!$$$      do  l = 0, nl-1
-!$$$        call dpzero(aloc,3)
-!$$$        dploc = 0
-!$$$        do   m = -l, l
-!$$$          ilm = ilm+1
-!$$$          if (neul .eq. nl) then
-!$$$            alpha = eula(l+1,1)
-!$$$            beta  = eula(l+1,2)
-!$$$C           gamma = eula(l+1,3)
-!$$$          elseif (neul .eq. nl*nl) then
-!$$$            alpha = eula(ilm,1)
-!$$$            beta  = eula(ilm,2)
-!$$$C           gamma = eula(ilm,3)
-!$$$          elseif (neul .eq. 1) then
-!$$$            alpha = eula(1,1)
-!$$$            beta  = eula(1,2)
-!$$$C           gamma = eula(1,3)
-!$$$          else
-!$$$            call rxi('atscpp: bad value neul=',neul)
-!$$$          endif
-!$$$
-!$$$C         Charge, magnetic moments, quantization axis for these angles
-!$$$          hatm(1) = dcos(alpha)*dsin(beta)
-!$$$          hatm(2) = dsin(alpha)*dsin(beta)
-!$$$          hatm(3) = dcos(beta)
-!$$$          dotp = hatm(1)*bhat(1) + hatm(2)*bhat(2) + hatm(3)*bhat(3)
-!$$$
-!$$$          do  i = 1, 3
-!$$$            aloc(i) = aloc(i) + (qnu(i,l+1,1)-qnu(i,l+1,2))/(2*l+1)*dotp
-!$$$          enddo
-!$$$          dploc = dploc + (pnu(l+1,1)-pnu(l+1,2))/(2*l+1)*dotp
-!$$$
-!$$$        enddo
-!$$$
-!$$$        do  i = 1, 3
-!$$$          qloc(i) = qnu(i,l+1,1) + qnu(i,l+1,2)
-!$$$C         aloc(i) = qnu(i,l+1,1) - qnu(i,l+1,2)
-!$$$          qnuloc(i,l+1,1) = (qloc(i) + aloc(i))/2
-!$$$          qnuloc(i,l+1,2) = (qloc(i) - aloc(i))/2
-!$$$        enddo
-!$$$        ploc = pnu(l+1,1) + pnu(l+1,2)
-!$$$        pnuloc(l+1,1) = (ploc + dploc)/2
-!$$$        pnuloc(l+1,2) = (ploc - dploc)/2
-!$$$
-!$$$      enddo
-!$$$
-!$$$      if (ipr .ge. PRT2) then
-!$$$        write(stdo,'(''  l isp'',19x,''qnu'',37x,''qloc'')')
-!$$$        do  k = 1, 2
-!$$$          do  l = 0, nl-1
-!$$$            write(stdo,'(2i3,1x,3f13.7:1x,3f13.7)')
-!$$$     .      l,k,(qnu(i,l+1,k),i=1,3),(qnuloc(i,l+1,k),i=1,3)
-!$$$          enddo
-!$$$        enddo
-!$$$      endif
-!$$$
-!$$$      end subroutine asprjq
-!$$$
-!$$$

@@ -71,14 +71,14 @@ subroutine rdovfa()
      open(ifi,file='atm.'//trim(sname))
   endif
   do  10  is = 1, nspec
-     allocate(rv_a_orhofa(is)%v(abs(-nrmx*nsp)))
-     rv_a_orhofa(is)%v(:)=0.0d0
+     allocate(rv_a_orhofa(is)%v(nrmx*nsp))
+     rv_a_orhofa(is)%v(:)=0d0
      if (allocated(sspec(is)%rv_a_orhoc)) deallocate(sspec(is)%rv_a_orhoc)
      allocate(sspec(is)%rv_a_orhoc(   nrmx*nsp) )
-     sspec(is)%rv_a_orhoc=0.0d0
+     sspec(is)%rv_a_orhoc=0d0
      allocate(rv_a_ov0a(is)%v(nrmx*nsp))
-     rv_a_ov0a(is)%v(:)=0.0d0
-     spid(is)=slabl(is) !sspec(is)%name
+     rv_a_ov0a(is)%v(:)=0d0
+     spid(is)=slabl(is)
      a=sspec(is)%a
      nr=sspec(is)%nr
      rmt=sspec(is)%rmt
@@ -102,10 +102,9 @@ subroutine rdovfa()
            ceh=0
            stc=0
            if (allocated(rv_a_ov0a(is)%v)) deallocate(rv_a_ov0a(is)%v)
-           !            deallocate(sspec(is)%rv_a_orhoc)
            if (allocated(rv_a_orhofa(is)%v)) deallocate(rv_a_orhofa(is)%v)
         else
-           nr0=nrmx ! %rv_a_orhoc(nrmx*nsp)
+           nr0=nrmx 
            lfail = ( iofa ( spidr , n0 , nxi ( is ) , exi ( 1 , is ) , hfc &
                 ( 1 , 1 , is ) , hfct ( 1 , 1 , is ) , rsmfa ( is ) , z0 , rmt0 &
                 , a0 , nr0 , qc , ccof , ceh , stc , rv_a_orhofa( is )%v , sspec &
@@ -115,27 +114,20 @@ subroutine rdovfa()
      call mpibc1(nr0,1,2,mlog,'rdovfa','nr0')
      call mpibc1(lfail,1,1,mlog,'rdovfa','read error')
      if (lfail) call rxs('missing species data, species ',spid(is))
-     !       i = mpipid(3)
-     !   ... Broadcast file data
      call mpibc1(nxi(is),1,2,mlog,'rdovfa','nxi')
      call mpibc1(exi(1,is),nxi(is),4,mlog,'rdovfa','exi')
      call mpibc1(hfc(1,1,is),nsp*n0,4,mlog,'rdovfa','hfc')
      call mpibc1(hfct(1,1,is),nsp*n0,4,mlog,'rdovfa','hfct')
      call mpibc1(rsmfa(is),1,4,mlog,'rdovfa','rsmfa')
      call mpibc1(a0,1,4,mlog,'rdovfa','a0')
-     call mpibc1 ( rv_a_orhofa( is )%v , nr0 * nsp , 4 , mlog , 'rdovfa' &
-          , 'rhofa' )
-     ! ino Dec.28.2011:          call mpibc1(sspec(is)%rv_p_orhoc,nr0*nsp,4,mlog,'rdovfa','rhoca')
+     call mpibc1 ( rv_a_orhofa( is )%v , nr0 * nsp , 4 , mlog , 'rdovfa'  , 'rhofa' )
      call mpibc1(sspec(is)%rv_a_orhoc,nr0*nsp,4,mlog,'rdovfa','rhoca')
      call mpibc1 ( rv_a_ov0a( is )%v , nr0 * nsp , 4 , mlog , 'rdovfa', 'v0a' )
      i = mpipid(3)
-     ! ...   Defaults
      if (procid == master) then
         call strip(spid(is),i1,nch)
-        if (ipr >= 30 .AND. rmt0 /= 0) &
-             write(stdo,400) spid(is)(1:nch),spidr,rmt0,nr0,a0
-400     format(' rdovfa: expected ',a,',',T27,' read ',a, &
-             ' with rmt=',f8.4,'  mesh',i6,f7.3)
+        if (ipr >= 30 .AND. rmt0 /= 0) write(stdo,400) spid(is)(1:nch),spidr,rmt0,nr0,a0
+400     format(' rdovfa: expected ',a,',',T27,' read ',a, ' with rmt=',f8.4,'  mesh',i6,f7.3)
      endif
      if (nr <= 0)   nr = nr0
      if (a <= 1d-6) a = a0
@@ -143,13 +135,10 @@ subroutine rdovfa()
         a = 0
         nr = 0
      endif
-
-     ! ...   Sanity checks
      if (procid == master) then
         call fsanrg(z0,z,z,0d-9,msg,'z',.true.)
         call fsanrg(rmt0,rmt,rmt,1d-6,msg,'rmt',.true.)
         call fsanrg(a0,a,a,0d-9,msg,'a',.true.)
-        ! ino isanrg is logical function,           call isanrg(nr0,nr,nr,msg,'nr',.true.)
         l_dummy_isanrg=isanrg(nr0,nr,nr,msg,'nr',.true.)
      endif
      sspec(is)%a=a
@@ -172,13 +161,12 @@ subroutine rdovfa()
   do i_spec=1,nspec
      call mpibc1_s_spec(sspec(i_spec),'rdovfa_sspec')
   enddo
-
   if (procid == master) close(ifi)
-
   ! --- Define arrays for local densities rho1,rho2,rhoc and v0,v1 ---
   ztot = 0d0
   ctot = 0d0
   corm = 0d0
+  if(allocated(sv_p_orhoat)) deallocate(sv_p_orhoat)
   allocate(sv_p_orhoat(3,nbas))
   do  20  ib = 1, nbas
      is = int(ssite(ib)%spec)
@@ -237,6 +225,7 @@ subroutine rdovfa()
 20 enddo
 
   !! allocate array for iteration
+  if(allocated(zv_a_osmrho)) deallocate(zv_a_osmrho)
   allocate(zv_a_osmrho(k1*k2*k3*nsp))
   zv_a_osmrho(:)=0d0
 

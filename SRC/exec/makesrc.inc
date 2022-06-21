@@ -5,7 +5,6 @@ diagcv2.o \
 m_shortn3.o\
 m_shortn3_plat.o\
 m_smhankel.o\
-derfc.o\
 m_orbl.o\
 m_ftox.o\
 getgv2.o\
@@ -56,7 +55,6 @@ chgmsh.o \
 config.o \
 defpq.o \
 defwsr.o \
-delstd.o \
 delstp.o \
 dfphi.o \
 dostet.o \
@@ -207,7 +205,6 @@ fradhd.o \
 fradpk.o \
 fsmbl.o \
 fsmbpw.o \
-ftlxp.o \
 gaugm.o \
 gklft.o \
 gvsym.o \
@@ -234,7 +231,6 @@ mshvmt.o \
 ovlocr.o \
 ovlpfa.o \
 paug1.o \
-pkl2ro.o \
 pnunew.o \
 poinsp.o \
 potpus.o \
@@ -249,7 +245,6 @@ sgvsym.o \
 smhsbl.o \
 smves.o \
 sopert.o \
-splrho.o \
 suphas.o \
 supot.o \
 suylg.o \

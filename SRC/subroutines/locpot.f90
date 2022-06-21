@@ -271,7 +271,6 @@ contains
           enddo
        endif
        
-       
        phispinsymB: block ! spin averaged oV0 to generate phi and phidot. takaoAug2019
          phispinsym= cmdopt0('--phispinsym')
          if(phispinsym) then
@@ -386,15 +385,13 @@ contains
           nkapi=nkapii(is)
           nkape=nkaphh(is)
           if (nkape > nkapi) then
-             rsml=rsmh(:,nkaph) !call dcopy(n0,rsmh(1,nkaph),1,rsml,1)
-             ehl =  eh(:,nkaph) !call dcopy(n0,eh(1,nkaph),  1,ehl, 1)
+             rsml=rsmh(:,nkaph)
+             ehl =  eh(:,nkaph)
           endif
-          !     ... Use effective potentials with modified xc
-          if (novxc) then
-             v1=v1es !call dcopy(nrml*nsp,v1es,1,v1,1)
-             v2=v2es !call dcopy(nrml*nsp,v2es,1,v2,1)
+          if (novxc) then !  ... Use effective potentials with modified xc
+             v1=v1es 
+             v2=v2es 
           endif
-          !!
           lsox=lso
           !          if(idipole/=0) then
           !             call adddipole(v1,rofi,nr,nlml,nsp,idipole,ssite(ib)%pos(idipole)*alat)
@@ -633,14 +630,12 @@ contains
        rhol2(:,1,isp) = rhol2(:,1,isp) + y0/nsp*(rhocsm(:)+rhonsm(:))
     enddo
     ! ... Combine separate spin densities for electrostatics
-!    call splrho(0,nsp,nr,nlml,rho1,rho2,rhoc)
-    !    call splrho(20,nsp,nr,nlml,rhol1,rhol2,rhoc)
     if(nsp==2) then
-    call swapF(rho1, nr*nlml)
-    call swapF(rho2, nr*nlml)
-    call swapF(rhol1,nr*nlml)
-    call swapF(rhol2,nr*nlml)
-    call swapF(rhoc, nr)
+       call swapF(rho1, nr*nlml)
+       call swapF(rho2, nr*nlml)
+       call swapF(rhol1,nr*nlml)
+       call swapF(rhol2,nr*nlml)
+       call swapF(rhoc, nr)
     endif
     ! ... Add background density to spherical rhol1 and rhol2
     rhol1(:,1,1)=rhol1(:,1,1)+srfpi*rhobg*rofi(:)**2 !Subtract background before exchange correlation
@@ -704,8 +699,6 @@ contains
     rhol2(:,1,1)=rhol2(:,1,1)-srfpi*rhobg*rofi(:)**2
     ! ... Restore separate spin densities; copy estat pot to spin2
     if (nsp == 2) then
-!       call splrho(1,nsp,nr,nlml,rho1,rho2,rhoc)
-!       call splrho(21,nsp,nr,nlml,rhol1,rhol2,rhoc)
        call swapR(rho1,nr*nlml)
        call swapR(rho2,nr*nlml)
        call swapR(rhol1,nr*nlml)
@@ -715,17 +708,14 @@ contains
        v2(:,:,2)=v2(:,:,1) !call dcopy(nrml,v2,1,v2(1,1,2),1)
     endif
     ! ... Preserve potentials without exchange-correlation
-    v1es=v1 !call dcopy(nrml*nsp,v1,1,v1es,1)
-    v2es=v2 !call dcopy(nrml*nsp,v2,1,v2es,1)
+    v1es=v1
+    v2es=v2
     ! ... Generate valence-only rvepsv and rvvxcv (uses v1 as work array)
     call pshpr(max(ipr-31,min(ipr,10)))
     if(debug) write(6,'(a)')' === rho1 valence true density ==='
-    call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho1,lxcfun,w2,w2,w2,w2,w2, & !isw2
-         rep1,rep1x,rep1c,rmu1,v1,fl,qs)
-    if(debug) print *,'locpt2: 55551111aaaa'
+    call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho1,lxcfun,w2,w2,w2,w2,w2,rep1,rep1x,rep1c,rmu1,v1,fl,qs)
     if(debug) write(6,'(a)')' === rho2 valence counter density ==='
-    call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,w2,w2,w2,w2,w2, & !isw2
-         rep2,rep2x,rep2c,rmu2,v1,fl,qs)
+    call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,w2,w2,w2,w2,w2,rep2,rep2x,rep2c,rmu2,v1,fl,qs)
     rvvxcv = rmu1(1) - rmu2(1) + rmu1(2) - rmu2(2)
     rvepsv = rep1(1) - rep2(1) + rep1(2) - rep2(2)
     rvexv  = rep1x(1) - rep2x(1) + rep1x(2) - rep2x(2)
@@ -740,18 +730,15 @@ contains
     focvxc=0d0
     if(ipr>=30) write(stdo,*)' Exchange for true density:'
     if(debug) write(stdo,'(a)')' === rhol1 valence+core density. rho2->valence+smooth ==='
-    call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rhol1,lxcfun, & 
-         w2,w2,w2,w2,w2,rep1,rep1x,rep1c,rmu1,v1,fl,qs)
-    if (lfoc == 0) then
-       call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun, & 
-            w2,w2,w2,w2,w2,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
+    call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rhol1,lxcfun,w2,w2,w2,w2,w2,rep1,rep1x,rep1c,rmu1,v1,fl,qs)
+    if(lfoc == 0) then
+      call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,w2,w2,w2,w2,w2,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
     else if (lfoc == 1) then !  Otherwise v2 += vxc(rho2 + sm core), directly or perturbatively:
        if (ipr > 40) print *, 'exchange for smooth density, foca=1:'
        do  isp = 1, nsp
           rho2(1:nr,1,isp)=rho2(1:nr,1,isp) + y0/nsp*rhochs(1:nr)
        enddo
-       call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun, & !isw+isw2
-            w2,w2,w2,w2,w2,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
+      call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,w2,w2,w2,w2,w2,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
        do  isp = 1, nsp
           rho2(1:nr,1,isp)=rho2(1:nr,1,isp)-y0/nsp*rhochs(1:nr)
        enddo
@@ -763,8 +750,9 @@ contains
     ! --- Integrals involving the full nonspherical potential ---
     vefv2 = 0d0
     vefv1 = 0d0
-    if (ipr >= 40 .AND. nsp == 1) write(stdo,351)
-    if (ipr >= 40 .AND. nsp == 2) write(stdo,353)
+    if (ipr>=40 .AND. nsp == 1) write(stdo,"(/' ilm',09x,'rho*vtrue',07x,'rho*vsm')")
+    if (ipr>=40 .AND. nsp == 2) write(stdo,"(/' ilm',19x,'rho*vtrue',30x,'rho*vsm'/13x, &
+         'spin1',7x,'spin2',7x,'tot',11x,'spin1',7x,'spin2',7x,'tot')")
     do  ilm = 1, nlml
        do  isp = 1, nsp
           rvtr(isp)= sum(rwgt(2:nr)*rho1(2:nr,ilm,isp)*v1(2:nr,ilm,isp))
@@ -774,13 +762,9 @@ contains
           vefv2 = vefv2 + rvsm(isp)
        enddo
        topl = dmax1(dabs(rvsm(1)),dabs(rvtr(1)))>1d-6.and.ipr>=40
-       if(topl.AND.nsp == 1)write(stdo,350) ilm,rvtr(1),rvsm(1)
-       if(topl.AND.nsp == 2)write(stdo,352) ilm,rvtr(1),rvtr(2),rvtr(1)+rvtr(2),rvsm(1),rvsm(2),rvsm(1)+rvsm(2)
-350    format(i4,3x,2f15.6)
-352    format(i4,3x,3f12.6,2x,3f12.6,2x)
-351    format(/' ilm',09x,'rho*vtrue',07x,'rho*vsm')
-353    format(/' ilm',19x,'rho*vtrue',30x,'rho*vsm'/13x, &
-            'spin1',7x,'spin2',7x,'tot',11x,'spin1',7x,'spin2',7x,'tot')
+       if(topl.AND.nsp == 1)write(stdo,"(i4,3x,2f15.6)") ilm,rvtr(1),rvsm(1)
+       if(topl.AND.nsp == 2)write(stdo,"(i4,3x,3f12.6,2x,3f12.6,2x)") ilm,rvtr(1),rvtr(2),&
+            rvtr(1)+rvtr(2),rvsm(1),rvsm(2),rvsm(1)+rvsm(2)
     enddo
     ! ... Smooth xc potential includes foca head; undo in integral
     vefv2  = vefv2 - focvxc(1)-focvxc(2)
@@ -849,10 +833,8 @@ contains
        ifi = stdo
        if(i == 2) ifi=71
        write(ifi,'(/," Electric Field Gradient:")')
-       write(ifi,'(" Site ",5x,"Tensor axes",5x,"esu/cm^2",2x, &
-            "  V/m^2  ",4x,"eta",4x,"line splitting")')
-       write(ifi,'("      ",5x,"           ",5x," x10^13 ",2x, &
-            "  x10^19 ",4x,"   ",4x,"    (mm/s)")')
+       write(ifi,'(" Site ",5x,"Tensor axes",5x,"esu/cm^2",4x,"V/m^2 ",4x,"eta",4x,"line splitting")')
+       write(ifi,'("      ",5x,"           ",5x," x10^13 ",4x,"x10^19",4x,"   ",4x,"    (mm/s)")')
     enddo
     do  ic = 1, nc
        if (z(ic) > 0.01d0) then

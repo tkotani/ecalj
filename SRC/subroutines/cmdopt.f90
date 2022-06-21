@@ -1,14 +1,12 @@
 logical function cmdopt0(argstr)
-  !! new version of cmdopt
-  !! Check a command-line argument exist. Then return it in outstr
+  !! Check a command-line argument exist. 
   ! ----------------------------------------------------------------
   !i Inputs
   !i   argstr: command-line string to search; search to strln chars
   !o Outputs
   !o   cmdopt: T if argument found, else F
-  !o   outstr: output string
   ! ----------------------------------------------------------------
-  !     implicit none
+  implicit none
   character(*):: argstr
   integer ::     nargs,strln !dummy
   ! Local parameters
@@ -36,12 +34,10 @@ logical function cmdopt2(argstr,outstr)
   !o   cmdopt: T if argument found, else F
   !o   outstr: output string
   ! ----------------------------------------------------------------
-  !     implicit none
-  ! Passed parameters
+  implicit none
   character(*):: argstr
   character(*):: outstr
   integer ::      nargs,strln !dummy
-  ! Local parameters
   logical :: lsequ
   integer :: iarg,nargf,idum,nxarg,strlnx
   character(120) :: strn
@@ -58,7 +54,6 @@ logical function cmdopt2(argstr,outstr)
 end function cmdopt2
 
 logical function cmdopt(argstr,strln,nargs,outstr)
-  !!                                   dummy,dummy
   !! Check a command-line argument exist. Then return it in outstr
   ! ----------------------------------------------------------------
   !i Inputs
@@ -67,8 +62,7 @@ logical function cmdopt(argstr,strln,nargs,outstr)
   !o   cmdopt: T if argument found, else F
   !o   outstr: output string
   ! ----------------------------------------------------------------
-  !     implicit none
-  ! Passed parameters
+  implicit none
   character(*):: argstr
   character(*):: outstr
   integer ::     nargs,strln !dummy
@@ -87,4 +81,3 @@ logical function cmdopt(argstr,strln,nargs,outstr)
      endif
   enddo
 end function cmdopt
-

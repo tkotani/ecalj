@@ -915,8 +915,6 @@ contains
     logical :: fin
     character(72) :: fmt
     parameter(fpi3=4.18879020478639053d0,tiny=1d-5)
-    ! ... External calls
-    external dcopy,dpzero,dscal,errmsg,getpr,iinit
 
     avw  = avwsr(plat,alat,vol,nbas)
     gw   = avw*gamma
@@ -1542,7 +1540,6 @@ contains
     integer :: i1mach,isw,ir,i,j,j1,j2,ls,m,lstyle, &! & op
          iv,parg,nlstc,mxint,nclass,ib,ic,iclbsj,maxit,ipr,n!,lgunit
     character dc*1
-    external mxint
     integer,allocatable:: olist(:)
     real(8),allocatable:: w_opos(:,:),w_oz(:),w_ormax(:),w_oips(:),w_op(:)
     ! --- Print out positions and overlaps ---

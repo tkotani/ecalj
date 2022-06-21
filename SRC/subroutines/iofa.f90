@@ -48,7 +48,6 @@ integer function iofa(spid,nxi0,nxi,exi,hfc,hfct,rsm,z,rmt,a,nr, &
      read(jfi,201,end=998,err=998) spid
 201  format(9x,a8/)
      read(jfi,102) z,a,nsp0,lrel0,nr,rmt,rsm
-     ! ...   Sanity checks
      if (isanrg(lrel0, lrel,lrel,msg,'lrel', .TRUE. )) stop
      if (isanrg(nsp0,  nsp,nsp,  msg,'nsp', .TRUE. )) stop
      read(jfi,103) nxi
@@ -60,12 +59,12 @@ integer function iofa(spid,nxi0,nxi,exi,hfc,hfct,rsm,z,rmt,a,nr, &
      if (nsp == 2) read(jfi,*) (hfct(i,2),i=1,nxi)
      read (jfi,210) qc,ccof,ceh,stc
 210  format(5x,4f16.7)
-     read(ifi,333) rho(1:nr) !call dfdump(rho,nr,ifi)
-     if (nsp == 2) read(ifi,333) rho(nr+1:2*nr) !call dfdump(rho(1+nr),nr,ifi)
-     read(ifi,333) rhoc(1:nr) !call dfdump(rhoc,nr,ifi)
-     if (nsp == 2) read(ifi,333) rhoc(nr+1:2*nr) !call dfdump(rhoc(1+nr),nr,ifi)
-     read(ifi,333) v(1:nr) !call dfdump(v,nr,ifi)
-     if (nsp == 2) read(ifi,333) v(nr+1:2*nr) !call dfdump(v(1+nr),nr,ifi)
+     read(ifi,333) rho(1:nr)
+     if (nsp == 2) read(ifi,333) rho(nr+1:2*nr)
+     read(ifi,333) rhoc(1:nr)
+     if (nsp == 2) read(ifi,333) rhoc(nr+1:2*nr)
+     read(ifi,333) v(1:nr)
+     if (nsp == 2) read(ifi,333) v(nr+1:2*nr)
   endif
   ! --- Output ---
   if (ifi < 0)  then
@@ -95,8 +94,6 @@ integer function iofa(spid,nxi0,nxi,exi,hfc,hfct,rsm,z,rmt,a,nr, &
   endif
   iofa = 0
   return
-  ! ... Error handling
-998 if (ipr > 0) &
-       write(stdo,'('' iofa  : missing species id ... nothing read'')')
+998 if(ipr > 0) write(stdo,'('' iofa  : missing species id ... nothing read'')')
 333 format(1p,4e20.13)
 end function iofa

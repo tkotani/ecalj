@@ -156,6 +156,7 @@ contains
    
   subroutine mkpot(job, smrho, sv_p_orhoat, &
        smpot, sv_p_osig, sv_p_otau, sv_p_oppi, fes, ohsozz,ohsopm, novxc_) !dipole_)
+    ! job=1 => make core and augmentation matrices
     ! xxx problematic option dipole_ removed. (for <i|{\bf r}|j> matrix for novxc)
     use m_lmfinit,only:lso,nbas,ssite=>v_ssite,sspec=>v_sspec,nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex
     use m_lattic,only: lat_plat,lat_qlat, lat_vol,rv_a_opos

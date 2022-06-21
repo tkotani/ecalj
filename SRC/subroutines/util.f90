@@ -692,3 +692,7 @@ subroutine rwdd (ifi, ldim,n, a)
   return
 end subroutine rwdd
 
+real(8) function derfc(x)
+  real(8)::x
+  derfc= 1d0 - erf(x)
+end function derfc
