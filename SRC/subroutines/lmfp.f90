@@ -194,7 +194,9 @@ subroutine lmfp(llmfgw)
        !   2. simple superposition of atoms rdovfa
        ! call Smshft(ctrl_lfrce,poss,pos0)!New density after atom shifts.
        if (alat*sum((poss-pos0)**2)**.5>0.05d0) then! 0.05 a.u. is intuitively given. 2022-6-22
+          write(stdo,*)'RRR: Reset density by atom superposition'
           iv=iprint()
+          call Setopos( poss ) ! Set position of atoms before Rdovfa
           call setprint(-1) !supress print out to stdo
           call Rdovfa() !superposition of atom density
           call setprint(iv)
