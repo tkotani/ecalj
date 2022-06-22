@@ -63,8 +63,8 @@ subroutine writeband(eferm,evtop,ecbot)!, etolv,etolc)
      ifglts(jsp)=ifglt
      fname='bandplot.isp'//char(48+jsp)
      open(unit=ifglt, file=trim(fname)//'.glt')
-     write(ifglt,'(a)')'#set terminal postscript enhanced color eps'
-     write(ifglt,'(a)')'#set output "'//trim(fname)//'.band.eps"'
+     write(ifglt,'(a)')'set terminal postscript enhanced color eps'
+     write(ifglt,'(a)')'set output "'//trim(fname)//'.band.eps"'
      write(ifglt,'(a)')'set xzeroaxis'
      write(ifglt,'(a)')'set grid'
      write(ifglt,'(a)')'set ylabel "Energy-Efermi(eV)"'
@@ -131,7 +131,6 @@ subroutine writeband(eferm,evtop,ecbot)!, etolv,etolc)
               ikp = ikpoff(isyml)+iq
               write(ifbndsp(jsp),"(i5, (1x,f12.8), 2(1x,f16.10),x,3f9.5)") &
                    i,xdatt(ikp),(evlall(i,jsp,ikp)-eferm)*rydberg,diffeb(iq), qplist(:,ikp)
-
               !! write qplist.dat (xaxis, q, efermi) used for band plot
               if(i==1 .AND. jsp==1) then
                  if(iq==1 .AND. isyml==1) write(iqplist,"(f16.10,' ! ef')") eferm
@@ -139,9 +138,7 @@ subroutine writeband(eferm,evtop,ecbot)!, etolv,etolc)
                  write(iqplist,"(f16.10,x,3f9.5,' !x q')") &
                       xdatt(ikp), qplist(:,ikp)
               endif
-
            enddo
-
            deallocate(diffeb)
            write(ifbndsp(jsp),*)
 5113    enddo
@@ -315,7 +312,6 @@ subroutine writeband(eferm,evtop,ecbot)!, etolv,etolc)
                       (evlall(i,jsp,ikps+ix-1)-eferm)*rydberg, &
                       (evlall(i,jsp,ikps+ix-1)-evlall(i,jsp,ikps))*rydberg, &
                       mass2d,  massd,  trim(acrossef)
-                 !    &         isyml,i,jsp,(evlall(i,jsp,ikps)- eferm)*rydberg, (2d0/(2d0*eqq/qqq**2) xxxxxxxxxxxxxx
               enddo
               close(ifmass(jsp))
               write(aaa,"(a,f13.5,a)") '" u ($5/tpia+',disoff(isyml),'):($6) lt'
@@ -330,26 +326,28 @@ subroutine writeband(eferm,evtop,ecbot)!, etolv,etolc)
 2111 enddo
 
   do jsp=1,nspx
-     write(ifglts(jsp),"(/,a)")'pause -1'
-     write(ifglts(jsp),*)
+     ifglt=ifglts(jsp)
+     write(ifglt,*)
+     write(ifglt,'(a)')'set terminal x11'
+     write(ifglt,'(a)')'replot'
      close(ifglts(jsp))
   enddo
 
-  !! bnds.* is only for backward compatibility.
-  open(newunit=ifbndo,file='bnds.'//trim(sname))
-  write(ifbndo,"(i5,f10.5,i6)") sum(nqp_syml(1:nsyml)),eferm,0
-  do 3111 isyml = 1,nsyml
-     ne = nqp_syml(isyml)
-     write(ifbndo,"(i5)") ne
-     do iq = 1,ne
-        ikp = ikpoff(isyml) + iq
-        do jsp = 1, nspx
-           write(ifbndo,"(3f10.5,i6)") qplist(:,ikp),nevls(ikp,jsp)
-           write(ifbndo,"(10f8.4)")(evlall(i,jsp,ikp),i=1,nevls(ikp,jsp))
-        enddo
-     enddo
-3111 enddo
-  write(ifbndo,"(i6)") 0
-  close(ifbndo)
+!   !! bnds.* is only for backward compatibility.
+!   open(newunit=ifbndo,file='bnds.'//trim(sname))
+!   write(ifbndo,"(i5,f10.5,i6)") sum(nqp_syml(1:nsyml)),eferm,0
+!   do 3111 isyml = 1,nsyml
+!      ne = nqp_syml(isyml)
+!      write(ifbndo,"(i5)") ne
+!      do iq = 1,ne
+!         ikp = ikpoff(isyml) + iq
+!         do jsp = 1, nspx
+!            write(ifbndo,"(3f10.5,i6)") qplist(:,ikp),nevls(ikp,jsp)
+!            write(ifbndo,"(10f8.4)")(evlall(i,jsp,ikp),i=1,nevls(ikp,jsp))
+!         enddo
+!      enddo
+! 3111 enddo
+!   write(ifbndo,"(i6)") 0
+!   close(ifbndo)
 end subroutine writeband
 

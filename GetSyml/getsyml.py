@@ -1,20 +1,18 @@
 #!/usr/bin/env python3
-###!/usr/bin/env python2
 # takao kotani jan2017 for symmetry line based on https://github.com/giovannipizzi/seekpath
-#
+
 import numpy as np
 import sys,string,re,os,math,seekpath
 from math import *
 import getpaths
 np.set_printoptions(precision=16)
 
-if len(sys.argv)!=2:
-    print (' Usage: >getsyml.py nio ')
+if len(sys.argv)<2:
+    print (' Usage: >getsyml.py nio [-nobzview]')
     print ('  for ctrl.nio. We run lmchk internally in getsyml !!!')
     print ('  this is based on https://github.com/giovannipizzi/seekpath')
     print ('  we have to cite Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017) ).')
     sys.exit(-1)
-
 
 ### We have to improve lmchk, so that plinfo and siteinfo are directry written.
 os.system('lmchk '+sys.argv[1]+'> outlmchk')
@@ -203,6 +201,8 @@ sfile.close()
 print ('OK! Check ',symlfile,' file!----------')
 print ('    For better plot, improve ecalj/Getsyml/brillouinzone/brillouinzone_takao.py')
 print ()
+
+if '-nobzview'  in sys.argv: sys.exit()
 from brillouinzone import brillouinzone_takao
 brillouinzone_takao.plotws(qlat[0],qlat[1],qlat[2])
 

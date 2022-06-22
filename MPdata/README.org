@@ -1,0 +1,20 @@
+This is to take file from Material project and perform LDA level calculations.
+
+Example
+>job_mp 148 149 150 |& tee out |grep OK 
+
+This performs 
+1. Get POSCAR of mp-148 from Material project
+2. Convert POSCAR to ctrl file
+3. lmfa and lmf-MPIK
+4. getsyml to get syml.* file
+5. job_band 
+6. job_tdos.
+
+Finally, we have 
+mp-148/
+mp-149/
+mp-150/
+In these directories, we have LDA results.
+*.eps contains dos and band plot.
+Check save.* files for convergence.

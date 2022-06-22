@@ -1,0 +1,27 @@
+#!/usr/bin/env python3
+
+import os,sys,subprocess
+import datetime
+import creplot
+
+args = sys.argv
+#print(args)
+
+if len(args) == 1 or args[1] == "--help":
+    print("get tdos and band plot ")
+    print("Usage: job_mp your_apikey mp-10 mp-21 ...")
+    print(" In advance, set your API key at https://materialsproject.org/open")
+    print(" to apikey in job_mp")
+    print("")
+
+else:
+    apikey = "FRaVT8iIl5JXLimgwLg"
+    #del args[:2]
+    print(args)
+    for i in args[1:]:
+        starttime = datetime.datetime.now()
+        creplot.createplot(i,apikey)
+        endtime = datetime.datetime.now()
+        print('mp-id=',i,"start:",starttime, "end:",endtime)
+
+
