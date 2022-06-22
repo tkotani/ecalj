@@ -23,13 +23,13 @@ subroutine radwgt(rmax,a,nr,wt)
   b = rmax / (dexp(a*nr-a)-1d0)
   xx = 2d0*a*b/3d0
   ea = dexp(a)
-  do  1  ir = 1, nr
+  do   ir = 1, nr
      wt(ir) = xx
      xx = xx*ea
-1 enddo
-  do  2  ir = 2, nr-1, 2
+  enddo
+  do    ir = 2, nr-1, 2
      wt(ir) = 2d0*wt(ir)
-2 enddo
+  enddo
   wt(1) = wt(1)/2
   wt(nr) = wt(nr)/2
 end subroutine radwgt

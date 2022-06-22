@@ -131,6 +131,7 @@ module m_lmfinit
 
   integer,allocatable,public,target:: ltabx(:,:),ktabx(:,:),offlx(:,:),ndimxx(:),norbx(:)
 
+  integer,allocatable,public,protected:: jma(:),jml(:)
   !! ... molecular dynamics section DYN (only relaxiation now 2022-6-22)
   !   structure of mdprm:
   !   arg 1: 0 no relaxation or dynamics
@@ -1286,6 +1287,13 @@ contains
       nvl= sum([( (lmxl(v_ssite(ib)%spec)+1)**2,ib=1,nbas )])
       pot_nlma=nvi
       pot_nlml=nvl
+      allocate(jml(nbas),jma(nbas))
+      jml(1)=1
+      jma(1)=1
+      do  i = 1, nbas-1
+         jml(i+1)= (lmxl(v_ssite(i)%spec)+1)**2 +jml(i)
+         jma(i+1)= (lmxa(v_ssite(i)%spec)+1)**2 +jma(i)
+      enddo   
       !     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
       if (procid == master) then
          nat = nbas

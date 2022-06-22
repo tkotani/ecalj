@@ -39,16 +39,14 @@ def createplot(mpid,key):
             struc = mpr.get_structure_by_material_id(item['material_id'])
             struc.to(fmt='poscar', filename='POSCAR')
 
-
         subprocess.run("pwd")
-
         subprocess.run(["vasp2ctrl POSCAR"],shell=True)
         subprocess.run(["cp ctrls.POSCAR.vasp2ctrl ctrls."+num],shell=True)
         subprocess.run(["ctrlgenM1.py "+num],shell=True)
         subprocess.run(["cp ctrlgenM1.ctrl."+num+" ctrl."+num],shell=True)
         subprocess.run(["lmfa",num])
         subprocess.run(["mpirun","-np","4","lmf-MPIK",num])
-        subprocess.run(["getsyml",num,'-nobzview'],stdout=f)
+        subprocess.run(["getsyml",num,'-nobzview'])
         subprocess.run(["job_band "+num+" -np 4 NoGnuplot"],shell=True)
         subprocess.run(["job_tdos "+num+" -np 4 NoGnuplot"],shell=True)
 

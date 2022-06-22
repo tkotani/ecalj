@@ -24,34 +24,20 @@ subroutine rhomom (sv_p_orhoat, qmom,vsum)
   !u   11 Jun 00 spin polarized
   !u   22 Apr 00 Adapted from nfp rhomom.f
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
+  implicit none
   type(s_rv1) :: sv_p_orhoat(3,*)
   real(8):: qmom(1) , vsum
-  ! ... Local parameters
-  integer:: ipr , iprint, nrmx , &
-       j1 , ib , is , igetss , lmxl , nr , nlml , ilm , j , lfoc
-  real(8) ,allocatable :: rofi_rv(:)
-  real(8) ,allocatable :: rwgt_rv(:)
-  real(8) ,allocatable :: h_rv(:)
-  real(8) ,allocatable :: v_rv(:)
-  parameter( nrmx=1501)
-  double precision :: fpi,y0,z,qc,a,rmt,qcorg,qcorh,qsc,cofg,cofh,rg,ceh,rfoc,vs1,vs2
-  ! --- Setup ---
+  integer:: ipr,iprint,j1,ib,is,igetss,lmxl,nr,nlml,ilm,j,lfoc
+  real(8) ,allocatable :: rofi(:),rwgt(:), h_rv(:), v_rv(:)
+  real(8):: z,qc,a,rmt,qcorg,qcorh,qsc,cofg,cofh,rg,ceh,rfoc,vs1,vs2
+  real(8),parameter:: fpi  = 16d0*datan(1d0), y0 = 1d0/dsqrt(fpi)
+  real(8),parameter:: pi = 4d0*datan(1d0), srfpi = dsqrt(4d0*pi)
   ipr  = iprint()
-  !      stdo = lgunit(1)
-  fpi  = 16d0*datan(1d0)
-  y0   = 1d0/dsqrt(fpi)
-  allocate(rofi_rv(nrmx))
-  allocate(rwgt_rv(nrmx))
-  allocate(h_rv(nrmx))
-  allocate(v_rv(nrmx))
   if (ipr >= 40) write(stdo,221)
-  ! --- Loop over sites ---
   j1 = 1
   vsum = 0d0
   do  ib = 1, nbas
-     is = int(ssite(ib)%spec)
+     is = ssite(ib)%spec
      lmxl=sspec(is)%lmxl
      z=sspec(is)%z
      qc=sspec(is)%qc
@@ -59,15 +45,16 @@ subroutine rhomom (sv_p_orhoat, qmom,vsum)
      nr=sspec(is)%nr
      rmt=sspec(is)%rmt
      rg=sspec(is)%rg
-     if (lmxl == -1) goto 10
+     if (lmxl == -1) cycle
+     allocate(rofi(nr),rwgt(nr))
      call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
      qc = qcorg+qcorh
      nlml = (lmxl+1)**2
-     call radmsh ( rmt , a , nr , rofi_rv )
-     call radwgt ( rmt , a , nr , rwgt_rv )
-     call pvrhom ( nlml , nr , nsp , rofi_rv , rwgt_rv , sv_p_orhoat( 1 , ib )%v &
-          , sv_p_orhoat( 2 , ib )%v , sv_p_orhoat( 3 , ib )%v , cofg , &
-          cofh , rg , ceh , rfoc , z , h_rv , qmom ( j1 ) )
+     call radmsh( rmt , a , nr , rofi )
+     call radwgt( rmt , a , nr , rwgt )
+     call pvrhom(a,nlml, nr, nsp, rofi, rwgt,&
+          sv_p_orhoat(1,ib)%v, sv_p_orhoat(2,ib)%v, sv_p_orhoat(3,ib)%v,&
+          cofg, cofh, rg, ceh, rfoc, z, qmom(j1), vs1,vs2)
      if (ipr >= 40) then
         write(stdo,220) ib,1,qmom(j1),qmom(j1)/y0,qc,z
         do  ilm = 2, nlml
@@ -75,25 +62,18 @@ subroutine rhomom (sv_p_orhoat, qmom,vsum)
            if (dabs(qmom(j)) > 1d-6) write(stdo,220) ib,ilm,qmom(j)
         enddo
      endif
-220  format(i13,i6,f12.6,f12.6,2f9.2)
-221  format(/' rhomom:   ib   ilm      qmom',8x,'Qval',7x, &
-          'Qc',8x,'Z')
-     call pvrhm2 ( z , a , nr , nlml , nsp , rofi_rv , rwgt_rv , sv_p_orhoat( 1 , ib )%v &
-          , sv_p_orhoat( 2 , ib )%v , sv_p_orhoat( 3 , ib )%v , qmom ( &
-          j1 ) , cofg , cofh , rg , ceh , rfoc , h_rv , v_rv , vs1 , vs2   )
+!     call pvrhm2(z,a,nr, nlml , nsp , rofi , rwgt , sv_p_orhoat( 1 , ib )%v &
+!          , sv_p_orhoat( 2 , ib )%v , sv_p_orhoat( 3 , ib )%v , qmom ( &
+!          j1 ) , cofg , cofh , rg , ceh , rfoc, vs1 , vs2   )
      vsum = vsum+vs1-vs2
      j1 = j1+nlml
-10   continue
+     deallocate(rofi,rwgt)
   enddo
-  if (allocated(v_rv)) deallocate(v_rv)
-  if (allocated(h_rv)) deallocate(h_rv)
-  if (allocated(rwgt_rv)) deallocate(rwgt_rv)
-  if (allocated(rofi_rv)) deallocate(rofi_rv)
+220  format(i13,i6,f12.6,f12.6,2f9.2)
+221  format(/' rhomom:   ib   ilm      qmom',8x,'Qval',7x, 'Qc',8x,'Z')
 end subroutine rhomom
 
-
-subroutine pvrhom(nlml,nr,nsp,rofi,rwgt,rho1,rho2,rhoc, &
-     cofg,cofh,rg,ceh,rfoc,z,h,qmom)
+subroutine pvrhom(a,nlml,nr,nsp,rofi,rwgt,rho1,rho2,rhoc,cofg,cofh,rg,ceh,rfoc,z,qmom,vsum1,vsum2)
   !- Multipole moments for one site
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -119,97 +99,82 @@ subroutine pvrhom(nlml,nr,nsp,rofi,rwgt,rho1,rho2,rhoc, &
   !r   The core spillout term is:
   !r      qcore(rhoc)-z  - sm_qcore-sm_qnuc
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
+  implicit none
   integer :: nlml,nr,nsp
-  double precision :: ceh,cofg,cofh,rfoc,rg,z
-  double precision :: rofi(*),rwgt(*),h(*),qmom(nlml),rhoc(nr,nsp), &
-       rho1(nr,nlml,nsp),rho2(nr,nlml,nsp)
-  ! ... Local parameters
+  real(8) :: ceh,cofg,cofh,rfoc,rg,z
+  real(8) :: rofi(nr),rwgt(nr),h(nr),qmom(nlml),rhoc(nr,nsp), &
+       rho1(nr,nlml,nsp),rho2(nr,nlml,nsp),xi0(nr),a,vsum1,vsum2
   integer :: n0,i,ilm,l,m,lmxl,ll,isp
   parameter (n0=10)
-  double precision :: ag,delq,fac,gnu,pi,qcor1,qcor2,qnuc2,r, &
-       rhochs,rhocsm,rhonsm,srfpi,sum,sumg,xi(0:n0),qcor1s
-  !     double precision sumh,samh,y0
-
-  pi = 4d0*datan(1d0)
-  srfpi = dsqrt(4d0*pi)
-  lmxl = ll(nlml)
-  do  i = 1, nr
-     h(i) = rwgt(i)
-  enddo
-  ilm = 0
-  do  l = 0, lmxl
-     do m = -l, l
-        ilm = ilm+1
-        sum = 0d0
-        do  isp = 1, nsp
-           do  i = 1, nr
-              sum = sum + h(i)*(rho1(i,ilm,isp)-rho2(i,ilm,isp))
-           enddo
-        enddo
-        qmom(ilm) = sum
-     enddo
-     do  i = 1, nr
-        h(i) = h(i)*rofi(i)
-     enddo
-  enddo
-
+  real(8):: ag,delq,fac,qcor1,qcor2,qnuc2,r, &
+       rhochs,rhocsm,rhonsm,ssum,sumg,xi(0:n0),qcor1s,gnu(nr)
+  real(8),parameter:: pi=4d0*datan(1d0), srfpi = dsqrt(4d0*pi),y0 = 1d0/srfpi,fpi = 4d0*pi
   ! ... l=0 includes core; some might be spilled out
-  ag = 1d0/rg
-  fac = 4*pi*(ag*ag/pi)**1.5d0
-
-  ! ... Renormalize gaussian
-  sumg = 0d0
-  do  i = 2, nr
-     r = rofi(i)
-     gnu = fac* r*r * dexp(-ag*ag*r*r)
-     sumg = sumg + rwgt(i)*gnu
-  enddo
-  fac = fac/sumg
-
-  !     Make:
   !     qcor1 = true core charge inside rmax
   !     qcor2 = smooth core charge inside rmax * fac
   !     qnuc2 = smooth nuclear charge inside rmax * fac
   !     delq = (true core q-z) - (sm core q - sm z) * fac
-  !     sumh = 0d0
-  qcor2 = 0d0
-  qnuc2 = 0d0
-  qcor1 = 0d0
-  qcor1s= 0d0
-  do  i = 2, nr
-     r = rofi(i)
-     gnu = fac * r*r * dexp(-ag*ag*r*r)
-     call hansmr(r,ceh,1d0/rfoc,xi,1)
-     rhonsm = -z*gnu
-     rhochs = srfpi*cofh*xi(0)*r*r
-     rhocsm = srfpi*cofg*gnu + rhochs
-     !       sumh = sumh + rwgt(i)*rhochs
-     qcor2 = qcor2 + rwgt(i)*rhocsm
-     qnuc2 = qnuc2 + rwgt(i)*rhonsm
-     qcor1 = qcor1 + rwgt(i)*rhoc(i,1)
-     qcor1s= qcor1s + rwgt(i)*rhoc(i,nsp)
+  do ilm=1,nlml 
+     l=ll(ilm)
+     qmom(ilm)= sum([ (sum(rwgt*rofi**l*(rho1(:,ilm,isp)-rho2(:,ilm,isp))), isp=1,nsp) ])
   enddo
+  ag  = 1d0/rg
+  fac = 1d0/sum(rwgt*rofi**2*exp(-ag**2*rofi**2)) 
+  gnu = fac * rofi**2 * dexp(-ag**2*rofi**2) ! ... Renormalize gaussian
+  xi0(1)=0d0
+  do  i = 2, nr
+     call hansmr(rofi(i),ceh,1d0/rfoc,xi,1)
+     xi0(i)=xi(0)
+  enddo
+  qcor2 = srfpi*cofh*sum(rwgt*xi0*rofi**2) + srfpi*cofg*sum(rwgt*gnu)
+  qnuc2 = -z*sum(rwgt*gnu)
+  qcor1 = sum(rwgt*rhoc(:,1))
+  qcor1s= sum(rwgt*rhoc(:,nsp))
   if (nsp == 2) qcor1 = qcor1+qcor1s
-  !     samh = -y0*cofh*4d0*pi*dexp(ceh*rfoc*rfoc*0.25d0)/ceh
   delq = qcor1-z - qcor2-qnuc2
   qmom(1) = qmom(1) + delq/srfpi
-
-  !      y0 = 1d0/srfpi
-  !      samh = -y0*cofh*4d0*pi*dexp(ceh*rfoc*rfoc*0.25d0)/ceh
-  !      write(stdo,942) samh,sumh,samh-sumh
-  !  942 format(' integral in smH core:',2f12.6/
-  !     .   ' Core spill-out charge is',f12.6)
-  !      write(stdo,821) delq
-  !  821 format('delq=',f12.6)
-
+  !------------------------------------------
+  block
+    real(8):: b,q1,facs,vhrho,vsum,r,cg,ag,af,fac,q2,v(nr)
+  b = rofi(nr)/(dexp(a*nr-a)-1d0)
+  q1 = 0d0
+  facs = 1d0/(3-nsp)
+  do  i = 1, nr
+     h(i) = facs*(srfpi*(rho1(i,1,1)+rho1(i,1,nsp)) + rhoc(i,1) + rhoc(i,nsp))
+     q1 = q1 + rwgt(i)*h(i)
+  enddo
+  call poiss0(z,a,b,rofi,h,nr,0d0,v,vhrho,vsum,1)
+  vsum1 = 0d0
+  do  i = 2, nr
+     r = rofi(i)
+     vsum1 = vsum1 + 4*pi*rwgt(i)*r*r*(v(i)-2*z/r)
+  enddo
+  ! ... Smooth density, including compensating gaussians
+  cg = qmom(1) + cofg - y0*z
+  ag = 1d0/rg
+  af = 1d0/rfoc
+  fac = fpi*(ag*ag/pi)**1.5d0
+  q2 = 0d0
+  facs = 1d0/(3-nsp)
+  do  i = 1, nr
+     r = rofi(i)
+     !gnu =  r*r * dexp(-ag*ag*r*r)
+     call hansmr(r,ceh,af,xi,1)
+     h(i) = srfpi*(facs*(rho2(i,1,1)+rho2(i,1,nsp)) &
+          + cg*fac*gnu(i) + cofh*xi(0)*r*r)
+     q2 = q2 + rwgt(i)*h(i)
+  enddo
+  call poiss0(0d0,a,b,rofi,h,nr,0d0,v,vhrho,vsum,1)
+  vsum2 = 0d0
+  do  i = 2, nr
+     r = rofi(i)
+     vsum2 = vsum2 + 4*pi*rwgt(i)*r*r*v(i)
+  enddo
+  endblock
 end subroutine pvrhom
 
-
 subroutine pvrhm2(z,a,nr,nlml,nsp,rofi,rwgt,rho1,rho2,rhoc,qmom, &
-     cofg,cofh,rg,ceh,rfoc,h,v,vsum1,vsum2)
-
+     cofg,cofh,rg,ceh,rfoc,vsum1,vsum2)
   !- Integral over electrostatic potential, to fix energy origin
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -239,18 +204,14 @@ subroutine pvrhm2(z,a,nr,nlml,nsp,rofi,rwgt,rho1,rho2,rhoc,qmom, &
   !r Remarks
   !u Updates
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
+  implicit none
   integer :: nr,nlml,nsp
-  double precision :: a,ceh,cofg,cofh,rfoc,rg,vsum1,vsum2,z,rofi(*), &
-       rwgt(*),rho1(nr,nlml,nsp),rho2(nr,nlml,nsp),h(*),v(nr),qmom(*), &
+  double precision :: a,ceh,cofg,cofh,rfoc,rg,vsum1,vsum2,z,rofi(nr), &
+       rwgt(nr),rho1(nr,nlml,nsp),rho2(nr,nlml,nsp),h(nr),v(nr),qmom(*), &
        rhoc(nr,nsp)
-  ! ... Local parameters
   integer :: n0,i
   parameter (n0=10)
-  double precision :: af,ag,b,cg,fac,facs,fpi,gnu,pi,q1,q2,r,srfpi, &
-       vhrho,vsum,y0,xi(0:n0)
-
+  double precision :: af,ag,b,cg,fac,facs,fpi,gnu,pi,q1,q2,r,srfpi, vhrho,vsum,y0,xi(0:n0)
   pi = 4d0*datan(1d0)
   fpi = 4d0*pi
   srfpi = dsqrt(fpi)
@@ -261,8 +222,7 @@ subroutine pvrhm2(z,a,nr,nlml,nsp,rofi,rwgt,rho1,rho2,rhoc,qmom, &
   q1 = 0d0
   facs = 1d0/(3-nsp)
   do  i = 1, nr
-     h(i) = facs*(srfpi*(rho1(i,1,1)+rho1(i,1,nsp)) &
-          + rhoc(i,1) + rhoc(i,nsp))
+     h(i) = facs*(srfpi*(rho1(i,1,1)+rho1(i,1,nsp)) + rhoc(i,1) + rhoc(i,nsp))
      q1 = q1 + rwgt(i)*h(i)
   enddo
   call poiss0(z,a,b,rofi,h,nr,0d0,v,vhrho,vsum,1)
