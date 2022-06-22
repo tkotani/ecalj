@@ -43,7 +43,8 @@ module m_struc_def
      real(8):: rsma !rsm for augmentation expansion
      real(8):: rg !rsm for gaussians to fix multipole moments
      integer:: lmxa !  l cutoff for augmentation expansion
-     integer:: lmxl !cutoff for local density
+     integer:: lmxl !  l cutoff for local density and potential
+     integer:: lmxb !  highest l in basis
      integer:: kmxt !  k cutoffs for tail augmentation expansion
      real(8):: rsmv !  rsmv  =rmt*.5d0 in defspc from m_lmfinit. smoothing radius of gaussian
      real(8):: a !a for mesh
@@ -52,13 +53,12 @@ module m_struc_def
      real(8):: ctail !coefficients to fit of free-atom core tail by unsm. Hankel
      real(8):: etail !energy to fit of free-atom core tail
      real(8):: stc !core kinetic energy
-     integer:: lmxb !  highest l in basis
      real(8):: rfoca ! smoothing radius for frozen core overlap approx
-     integer:: nxi !Number of energies in fit of free-atom density tails
-     real(8):: qc !core charge
-     integer:: kmxv !  k-cutoff for 1-center projection of free-atom rho
-     real(8):: rcfa(2) !renormalization radius of free atom density, and width
-     real(8):: exi(n0) !Hankel energies for fit to c.d.;For free atoms,fit to free-atom density tails.
+     real(8):: qc    !core charge
+     integer:: nxi    ! Number of energies in fit of free-atom density tails
+     integer:: kmxv   ! k-cutoff for 1-center projection of free-atom rho
+     real(8):: rcfa(2)! renormalization radius of free atom density, and width
+     real(8):: exi(n0)! Hankel energies for fit to c.d.; fit to free-atom density tails.
      real(8):: chfa(n0,2) ! coefficients to fit of free-atom density tails
   end type s_spec
   type s_site
@@ -75,7 +75,7 @@ module m_struc_def
   end type s_site
 end module m_struc_def
 
-     
+! Removed from s_spec     
 !     real(8)::   q(n0,2)  !starting q's (charges)
 !     real(8)::  p(n0) !log derivative for spec taken from ctrl file !shown by >lmfa si |grep conf
 !     real(8)::   pz(n0) !log derivative for spec taken from ctrl file
@@ -94,6 +94,7 @@ end module m_struc_def
 !     integer   ::   idmod(n0) !see m_lmfinit.F
 !  end type s_spec
 
+! removed from s_site...
 !     real(8) ::   pos(3)  !fixed during do 1000 in lmfp.F  Coordinates of atom
 !     real(8) ::   pos0(3) ! atomic pos in previous loop of do 2000 in lmfp.F smshit (for MD)
 !  end type s_site

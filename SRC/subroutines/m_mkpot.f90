@@ -41,13 +41,13 @@ contains
     write(stdo,"(a)")' m_mkpot_novxc: Making one-particle potential without XC part ...'
     allocate( vesrmt(nbas))
     allocate(  qmom(nvl)) !rhomom
-    allocate( ppnl_rv(nppn,n0,nsp,nbas))
     allocate(  hab_rv(nab*n0*nsp*nbas))
     allocate(  vab_rv(nab*n0*nsp*nbas))
     allocate(  sab_rv(nab*n0*nsp*nbas))
     allocate(  gpot0(nvl))
     allocate(  vval(nchan))
-    allocate(  fes1_rv(3*nbas))
+    allocate( ppnl_rv(nppn,n0,nsp,nbas))
+        allocate(  fes1_rv(3*nbas))
     allocate( ohsozzx(3,nbas), ohsopmx(3,nbas)) !dummy
     allocate( spotx(k1,k2,k3,nsp)) !smooth potential without XC
     spotx=0d0
@@ -57,7 +57,7 @@ contains
     call mkpot(1, osmrho , orhoat , &
          spotx,sv_p_osigx,sv_p_otaux,sv_p_oppix,  fes1_rv,ohsozzx,ohsopmx, &
          novxc_) !when novxc_ exists, we exclud XC(LDA) part.
-    deallocate(vesrmt,qmom,ppnl_rv,hab_rv,vab_rv,sab_rv,gpot0,vval,fes1_rv,ohsozzx,ohsopmx)
+    deallocate(ppnl_rv,vesrmt,qmom,hab_rv,vab_rv,sab_rv,gpot0,vval,fes1_rv,ohsozzx,ohsopmx)
   end subroutine m_mkpot_novxc
   !!
   !$$$      subroutine m_mkpot_novxc_dipole()

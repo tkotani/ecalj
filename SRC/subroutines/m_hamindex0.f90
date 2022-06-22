@@ -48,7 +48,7 @@ contains
     implicit none
     integer:: ibas,k,l,ndim,ipr,nglob,off,offs,specw,fieldw,iorb,offsi,ib,is
     integer:: nkabc(3),nkp,lshft(3),napwx,ig,nini,nk1,nk2,nk3,ik1,ik2,ik3,ikt,nkt
-    integer:: i_copy_size,i_spacks,i_spackv,ifi,nbas_in,ifisym,i,ifiqibz,igg,iqq,iqi,irr,iqi_,jobgw
+    integer:: i_spacks,i_spackv,ifi,nbas_in,ifisym,i,ifiqibz,igg,iqq,iqi,irr,iqi_,jobgw
     integer:: iout,nout,nlatout(3,noutmx),iapw ,iprint,ngadd,igadd,igaf
     integer:: ngp, ifiqg,iq,nnn(3),ixx,ndummy,nqbz___ ,ifatomlist
     integer,allocatable:: ltabx(:,:),ktabx(:,:),offlx(:,:),iqtt(:), kv(:)
@@ -121,10 +121,8 @@ contains
     do  ipqn = 1, 3
        do  ib = 1, nbas
           lmaxa=lmxa(ib)
-          i_copy_size=size(ssite(ib)%pnu)
-          call dcopy(i_copy_size ,ssite(ib)%pnu,1,pnu,1)
-          i_copy_size=size(ssite(ib)%pnu)
-          call dcopy(i_copy_size,ssite(ib)%pz, 1,pnz,1)
+          pnu=ssite(ib)%pnu
+          pnz=ssite(ib)%pz
           do  l = 0, lmaxa
              npqn = 2
              if (pnz(l+1,1) /= 0) npqn = 3

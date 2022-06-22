@@ -67,15 +67,15 @@ subroutine vcdmel(nl,ssite,sspec,nlmax,ndham,ndimh,&
   real(8),allocatable:: wk_rv(:),dos_rv(:,:,:)
   real(8):: emin,dosw(2),emax,del
   call tcn ('vcdmel')
-  rsml=0d0 !call dpzero(rsml,n0)
-  ehl=0d0  !call dpzero(ehl,n0)
+  rsml=0d0
+  ehl=0d0 
   do  i = 1, nsite
      ib = isite(i)
      ncls = iclsn(i)
      lcls = iclsl(i)
      is = ssite(ib)%spec
-     call dcopy(n0*2,ssite(ib)%pnu,1,pnu,1)
-     call dcopy(n0*2,ssite(ib)%pz,1,pnz,1)
+     pnu=ssite(ib)%pnu
+     pnz=ssite(ib)%pz
      clabl=slabl(is) !sspec(is)%name
      a=sspec(is)%a
      nr=sspec(is)%nr
@@ -125,7 +125,8 @@ subroutine vcdmel(nl,ssite,sspec,nlmax,ndham,ndimh,&
            endif
         enddo
         ! --- Scale weights arbitrarily by 100 for plotting etc ..
-        call dscal ( 3 * ndimh * nsite * 2, 1d2 , s_rv(1,isp,iq) , 1 )
+        s_rv(:,isp,iq)= 1d2*s_rv(:,isp,iq)
+        !call dscal ( 3 * ndimh * nsite * 2, 1d2 , s_rv(1,isp,iq) , 1 )
      enddo
   enddo
   nbandx = ndimh*nspc       !q-dependent only for no PW case.
@@ -141,12 +142,11 @@ subroutine vcdmel(nl,ssite,sspec,nlmax,ndham,ndimh,&
        , s_rv(1:nchan*nbandx,1:nsp,1:nq), npts, emin, emax, lidos , wk_rv , dos_rv )
   del = 0d0
   open(newunit=ifdos,file='dos-vcdmel.'//trim(sname))
-  write(ifdos,760) emin,emax,npts,nchan,nsp,ef,del
+  write(ifdos,"(2f10.5,3i5,2f10.5,i5)") emin,emax,npts,nchan,nsp,ef,del
   do ie=1,npts
      write(ifdos,"(15f14.6)") &
           emin+(emax-emin)/(npts-1d0)*(ie-1),((dos_rv(ie,isp,ild),ild=1,nchan),isp=1,nsp)
   enddo
-760 format(2f10.5,3i5,2f10.5,i5)
   if (allocated(s_rv)) deallocate(s_rv)
   call tcx ('vcdmel')
 end subroutine vcdmel

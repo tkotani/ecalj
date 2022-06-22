@@ -93,7 +93,7 @@ module m_lmfinit
   !!
   integer,protected:: pwmode,ncutovl ,ndimx    !ncutovl is by takao. not in lm-7.0beta.npwpad,
   real(8),protected:: pwemax,pwemin,oveps!,delta_stabilize
-  integer,allocatable,protected ::  iv_a_oips (:)   ,  lpz(:),lpzex(:),lhh(:,:),iprmb(:)
+  integer,allocatable,protected ::  iv_a_oips (:)   ,  lpz(:),lpzex(:),lhh(:,:)
   !! CG coefficient
   real(8) , allocatable,protected  ::  rv_a_ocg (:)
   real(8) , allocatable,protected  ::  rv_a_ocy (:)
@@ -131,7 +131,7 @@ module m_lmfinit
 
   integer,allocatable,public,target:: ltabx(:,:),ktabx(:,:),offlx(:,:),ndimxx(:),norbx(:)
 
-  integer,allocatable,public,protected:: jma(:),jml(:)
+  integer,allocatable,public,protected:: jma(:),jnlml(:)
   !! ... molecular dynamics section DYN (only relaxiation now 2022-6-22)
   !   structure of mdprm:
   !   arg 1: 0 no relaxation or dynamics
@@ -1139,7 +1139,6 @@ contains
          enddo
       enddo
       !      ham_delta_stabilize=delta_stabilize !takao sep2010
-      ! --- Allocate and copy input to sspec ---
       eh3=-.5d0
       rs3=.5d0
       allocate(v_sspec(nspec))
@@ -1150,11 +1149,11 @@ contains
          v_sspec(j)%nxi=nxi(j)
          v_sspec(j)%exi=exi(:,j)
          v_sspec(j)%kmxt=kmxt(j)
-         v_sspec(j)%lfoca=lfoca(j)
+         v_sspec(j)%lfoca=lfoca(j) !lfoca=1,usually (frozen core)
          v_sspec(j)%rsmv=rsmv(j)
-         v_sspec(j)%lmxa=lmxa(j)
-         v_sspec(j)%lmxb=lmxb(j)
-         v_sspec(j)%lmxl=lmxl(j)
+         v_sspec(j)%lmxa=lmxa(j) !lmx for augmentation
+         v_sspec(j)%lmxb=lmxb(j) !lmx for base
+         v_sspec(j)%lmxl=lmxl(j) !lmx for rho and density
          v_sspec(j)%rfoca=rfoca(j)
          v_sspec(j)%rg=rg(j)
          v_sspec(j)%rmt=rmt(j)
@@ -1163,13 +1162,13 @@ contains
       enddo
       allocate(v_ssite(nbas))
       do j=1,nbas
-         v_ssite(j)%spec=ips(j)
-         v_ssite(j)%class=ips(j)
-         !v_ssite(j)%pos=pos(1:3,j)
-         v_ssite(j)%relax=irlx(:,j)
-         v_ssite(j)%iantiferro=iantiferro(j)
+         !v_ssite(j)%pos=pos(1:3,j) !atomic position. See poss in lmfp.F 
+         v_ssite(j)%spec =ips(j)  ! atomic species
+         v_ssite(j)%class=ips(j)  ! atomic class  
+         v_ssite(j)%relax=irlx(:,j) !DYN relaxiation directions.
+         v_ssite(j)%iantiferro=iantiferro(j) !antiferro pair condition
          is=v_ssite(j)%spec
-         v_ssite(j)%pnu= pnu(1:n0,1:nsp,is)! v_ssite%pnu and v_ssite%pz can be changing during iteration
+         v_ssite(j)%pnu= pnu(1:n0,1:nsp,is)! v_ssite%pnu,pz can be changing during iteration
          v_ssite(j)%pz = pz(1:n0,1:nsp,is) !
       enddo
       sstrnmix=trim(iter_mix)
@@ -1185,14 +1184,14 @@ contains
          ctrl_noinv=1
       endif
       sstrnsymg=trim(symg)
-      if (cmdopt0('--rdbasp')) call rx('not support --rdbasp')
-
+      !if (cmdopt0('--rdbasp')) call rx('not support --rdbasp')
+      !
       !!  Add dalat to alat
       !!   lat_alat=(lat_alat)+dalat !this is a bug; this should be commented out. This
       !!   is a bug for lm7K when I started lm7K. I had included this bug here. Fixed at 28May2010.
-
+      !
       !! Dirac equation requires spin polarization
-      if( nsp==1 .AND. int(ctrl_lrel)==2 ) call rx('rdccat: Dirac equation requires NSPIN=2')
+      !if( nsp==1 .AND. int(ctrl_lrel)==2 ) call rx('rdccat: Dirac equation requires NSPIN=2')
       !! ... Suppress inversion when noncollinear magnetism, SX, NLO
       if(lso /= 0) ctrl_noinv=1 !lqp = lqp-bitand(lqp,1)+1
 
@@ -1207,26 +1206,39 @@ contains
       if( lso==1 ) nspc = 2
 
       !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      allocate( iprmb(nbas * nl**2 * maxp ) )
-      iprmb=-1
-      nlmto = 0
-      do 110 ib = 1,nbas
-         is = v_ssite(ib)%spec
-         iposn = mxorb*(ib-1)
-         do 1121 ik = 1, nkaph
-            do  l = 0, nl-1
-               do  m = -l, l
-                  iposn = iposn+1
-                  if(idxdn(l+1,ik,is)==1) then
-                     nlmto = nlmto+1
-                     iprmb(iposn) = nlmto
-                  endif
-               enddo
-            enddo
-1121     enddo
-110   enddo
-      block
+      !o Outputs
+      !o   norb  :number of orbital types for ib; see Remarks
+      !o   ltab  :table of l-quantum numbers for each type
+      !o   ktab  :table of energy index for each type
+      !o   offl  :offl(norb) offset in h to this block of orbitals
+      !o   ndim  :dimension of hamiltonian for this site
+      !r Remarks
+      !r   Each orbital type is label by a 'l' and a 'k' index
+      !r   Each orbital corresponds to a unique radial wave function at the
+      !r   site where the orbit is centered.  There can be multiple 'k'
+      !r   indices (radial wave function shapes) for a particular l.
+      !r
+      orb: block
+        integer:: ib,l,lmr,ia
         integer:: nnrlx,lmri,ik,nnrl,nnrli,li
+        integer:: iprmb(nbas * nl**2 * maxp )
+        iprmb=-1
+        nlmto = 0
+        do 110 ib = 1,nbas
+           is = v_ssite(ib)%spec
+           iposn = mxorb*(ib-1)
+           do 1121 ik = 1, nkaph
+              do  l = 0, nl-1
+                 do  m = -l, l
+                    iposn = iposn+1
+                    if(idxdn(l+1,ik,is)==1) then
+                       nlmto = nlmto+1
+                       iprmb(iposn) = nlmto
+                    endif
+                 enddo
+              enddo
+1121       enddo
+110     enddo
         nnrlx=0
         do ib = 1,nbas
            lmri = nl*nl*nkaph*(ib-1)
@@ -1242,21 +1254,6 @@ contains
         enddo
         nnrl = nnrlx
         ndimx=nnrl
-      end block
-      !o Outputs
-      !o   norb  :number of orbital types for ib; see Remarks
-      !o   ltab  :table of l-quantum numbers for each type
-      !o   ktab  :table of energy index for each type
-      !o   offl  :offl(norb) offset in h to this block of orbitals
-      !o   ndim  :dimension of hamiltonian for this site
-      !r Remarks
-      !r   Each orbital type is label by a 'l' and a 'k' index
-      !r   Each orbital corresponds to a unique radial wave function at the
-      !r   site where the orbit is centered.  There can be multiple 'k'
-      !r   indices (radial wave function shapes) for a particular l.
-      !r
-      orb: block
-        integer:: ib,ik,l,lmr,ia
         allocate(ltabx(n00,nbas),ktabx(n00,nbas),offlx(n00,nbas),ndimxx(nbas),norbx(nbas))
         norbx=0
         ndimxx=0
@@ -1278,7 +1275,6 @@ contains
            if (norbx(ib) > n00) call rx('orbl: norb> n00')
         enddo
       endblock orb
-      deallocate(iprmb)
       !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       !  
       nspx  = nsp
@@ -1287,13 +1283,14 @@ contains
       nvl= sum([( (lmxl(v_ssite(ib)%spec)+1)**2,ib=1,nbas )])
       pot_nlma=nvi
       pot_nlml=nvl
-      allocate(jml(nbas),jma(nbas))
-      jml(1)=1
+      allocate(jnlml(nbas),jma(nbas))
+      jnlml(1)=1 ! (ilm,ib) index
       jma(1)=1
       do  i = 1, nbas-1
-         jml(i+1)= (lmxl(v_ssite(i)%spec)+1)**2 +jml(i)
+         jnlml(i+1)= (lmxl(v_ssite(i)%spec)+1)**2 +jnlml(i)
          jma(i+1)= (lmxa(v_ssite(i)%spec)+1)**2 +jma(i)
-      enddo   
+      enddo
+      
       !     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
       if (procid == master) then
          nat = nbas
