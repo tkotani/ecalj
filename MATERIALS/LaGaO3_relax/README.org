@@ -1,0 +1,13 @@
+Sample of Relaxiation
+
+>mpirun -np 4 lmf-MPIK lagao3 >& output
+
+See 
+save.lagao3.
+and 
+force.dat, which is 'grep force output |grep Max'
+
+CAUTION! Atomic position
+AtomPos.* is written when DYN_MODE/=0
+If AtomPos.* exist, we read atom position at the end of AtomPos.*
+Now, we don't write atomic position in rst file.
