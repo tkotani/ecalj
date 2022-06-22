@@ -42,7 +42,6 @@ def createplot(mpid,key):
 
         subprocess.run("pwd")
 
-        f=open("llmfa","w")
         subprocess.run(["vasp2ctrl POSCAR"],shell=True)
         subprocess.run(["cp ctrls.POSCAR.vasp2ctrl ctrls."+num],shell=True)
         subprocess.run(["ctrlgenM1.py "+num],shell=True)
