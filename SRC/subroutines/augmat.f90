@@ -372,7 +372,7 @@ subroutine augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax &
   enddo
   ! --- Make hab,vab,sab and potential parameters pp ---
   call potpus(z,rmt,lmxa,v0,vdif,a,nr,nsp,lso,rofi,pnu,pnz,ehl,rsml, &
-       rs3,vmtz,nab,n0,pp,ppnl,hab,vab,sab,sodb)
+       rs3,vmtz,nab,n0,ppnl,hab,vab,sab,sodb)
   ! --- Moments and potential integrals of ul*ul, ul*sl, sl*sl ---
   call momusl(z,rmt,lmxa,pnu,pnz,rsml,ehl,lmxl,nlml,a,nr,nsp,rofi, &
        rwgt,v0,v1,qum,vum)

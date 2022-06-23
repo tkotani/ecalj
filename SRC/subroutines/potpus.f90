@@ -1,6 +1,6 @@
 subroutine potpus(z,rmax,lmxa,v,vdif,a,nr,nsp,lso,rofi,pnu,pnz, &
-     ehl,rsml,rs3,vmtz,nab,n0,pp,ppnl,hab,vab,sab,sodb)
-  use m_lmfinit,only: stdo,lrel_g=>lrel
+     ehl,rsml,rs3,vmtz,nab,n0,ppnl,hab,vab,sab,sodb)
+  use m_lmfinit,only: stdo,lrel,cc
   use m_ftox
   !- Potential parameters for potential and boundary condition
   ! ----------------------------------------------------------------------
@@ -137,12 +137,10 @@ subroutine potpus(z,rmax,lmxa,v,vdif,a,nr,nsp,lso,rofi,pnu,pnz, &
        hab(nab,n0,nsp),sab(nab,n0,nsp),vab(nab,n0,nsp),vdif(nr,nsp), &
        sodb(nab,n0,nsp,2),rs3,vmtz
   ! ... Local parameters
-  integer :: ipr,ir,i,j,k,l,lpz,lpzi(0:n0),nrbig, &
-       lorthz,lrel
-  integer :: nrx
-  parameter (nrx=1501)
+  integer :: ipr,ir,i,j,k,l,lpz,lpzi(0:n0),nrbig
+!       lorthz,lrel
   !      character*80 outs
-  double precision :: m21,m11,m22,m12,cc,d00,d10,d11,det,vi, &
+  double precision :: m21,m11,m22,m12,d00,d10,d11,det,vi, &
        fllp1,gfac,gf11,gf22,gf12,h00,h01,h10,h11, &
        phmins,phplus,q,r,s00,s01,s10,s11,tmc, &
        umegam,umegap,v00,v01,v10,v11,vl,xx,xxx,yyy,zzz, &
@@ -154,7 +152,9 @@ subroutine potpus(z,rmax,lmxa,v,vdif,a,nr,nsp,lso,rofi,pnu,pnz, &
   double precision :: ev,phi,dphi,phip,dphip,p, dlphi,dlphip
   double precision :: ez,phz,dphz,phzp,dphzp,pz,dlphz,dlphzp,phz2,dphz2
   !     double precision ul,sl,D
-  double precision :: rwgt(nrx),gzbig(nrx*2)
+  integer :: nrx
+  parameter (nrx=1501)
+  double precision :: rwgtx(nrx),gzbig(nrx*2)
   !     double precision gbig(nrx*2),gpbig(nrx*8),vbig(nrx,2)
   !     Spin-Orbit related parameters
   integer :: moda(0:lmxa)
@@ -165,29 +165,28 @@ subroutine potpus(z,rmax,lmxa,v,vdif,a,nr,nsp,lso,rofi,pnu,pnz, &
        enum(0:8,nsp),wrk(nr,4),m(2,2,0:lmxa,nsp), &
        x21,x11,x22,x12,vx00,vx01,vx10,vx11, &
        vx0z,vxz0,vx1z,vxz1,vxzz,vxzu,vxuz,vxzs,vxsz
-  common /cc/ cc
-  lrel = lrel_g !globalvariables%lrel
+  real(8):: rwgt(nr)
+!  common /cc/ cc
+!  lrel = lrel_g !globalvariables%lrel
   call getpr(ipr)
-  lorthz = 0
-  if (lorthz /= 0) call rx('lorthz not implemented')
-  call vxtrap(1,z,rmax,lmxa,v,a,nr,nsp,pnz,rs3,vmtz,nrx,lpz,nrbig,rofi,rwgt,xx)
-  b = rmax/(dexp(a*nr - a) - 1d0)
+!  lorthz = 0
+!  if (lorthz /= 0) call rx('lorthz not implemented')
+  call vxtrap(1,z,rmax,lmxa,v,a,nr,nsp,pnz,rs3,vmtz,nrx,lpz,nrbig,rofi,rwgtx,xx)
+  rwgt= rwgtx(1:nr)
+  b   = rmax/(dexp(a*nr - a) - 1d0)
   ! ... Gradient of average v (for spin-orbit)
   if (lso /= 0) then
      if (lrel == 0) call rx('spin-orbit requires REL=1')
-     if (nsp == 1) call rx('spin-orbit requires NSPIN=2')
-     do ir = 1, nr
-        vavg(ir) = .5d0*(v(ir,1)+v(ir,2))
-     enddo
+     if (nsp == 1)  call rx('spin-orbit requires NSPIN=2')
+     vavg = .5d0*(v(:,1)+v(:,2))
      call radgra(a,b,nr,rofi,vavg,dv)
   endif
   ! --- Loop over spins, lmxa ---
+  hab=0d0
+  vab=0d0
+  sab=0d0
+  if(lso/=0) sodb=0d0
   do  80  i = 1, nsp
-     call dpzero(hab(1,1,i),nab*n0)
-     call dpzero(vab(1,1,i),nab*n0)
-     call dpzero(sab(1,1,i),nab*n0)
-     if (lso /= 0) call dpzero(sodb(1,1,i,1),nab*n0)
-     if (lso /= 0) call dpzero(sodb(1,1,i,2),nab*n0)
      if (ipr >= 40) then
         write(stdo,ftox)' potpus spin=',i,'pnu=',ftof(pnu(1:lmxa+1,i),3)
         if (lpz /= 0) write(stdo,ftox), 'pnz=',ftof(pnz(1:lmxa+1,i),3)
@@ -200,9 +199,9 @@ subroutine potpus(z,rmax,lmxa,v,vdif,a,nr,nsp,lso,rofi,pnu,pnz, &
      do  10  l = 0, lmxa
         k = l+1
         lpzi(l) = 0
-        if (pnz(k,i) >  0) lpzi(l) = 1
+        if (pnz(k,i) >  0)  lpzi(l) = 1
         if (pnz(k,i) >= 10) lpzi(l) = 2
-        if (pnz(k,i) >= 20) lpzi(l) = 3
+!        if (pnz(k,i) >= 20) lpzi(l) = 3
         moda(l) = 5
         if (lpzi(l) /= 0) moda(l) = 6
         ! ... Semicore wf gz and its sphere boundary parameters
@@ -394,21 +393,20 @@ subroutine potpus(z,rmax,lmxa,v,vdif,a,nr,nsp,lso,rofi,pnu,pnz, &
            ! ... This branch computes integrals with products of (g,gp)
            !     Convention: 00 (phi,phi) 10 (dot,phi) 11 (dot,dot)
            if (lpzi(l) == 0) then
-
-              do  ir = 2, nr
-                 r = rofi(ir)
-                 vi = v(ir,i) - 2d0*z/r
-                 tmc = cc - (vi-ev)/cc
-                 gfac = 1d0 + fllp1/(tmc*r)**2
-                 xxx = rwgt(ir)*vi
-                 yyy = rwgt(ir)*vdif(ir,i)
-                 d00 = d00 + yyy*(gfac*g(ir,1)*g(ir,1)  + g(ir,2)*g(ir,2))
-                 d10 = d10 + yyy*(gfac*gp(ir,1)*g(ir,1) + gp(ir,2)*g(ir,2))
-                 d11 = d11 + yyy*(gfac*gp(ir,1)*gp(ir,1)+ gp(ir,2)*gp(ir,2))
-                 v00 = v00 + xxx*(gfac*g(ir,1)*g(ir,1)  + g(ir,2)*g(ir,2))
-                 v10 = v10 + xxx*(gfac*gp(ir,1)*g(ir,1) + gp(ir,2)*g(ir,2))
-                 v11 = v11 + xxx*(gfac*gp(ir,1)*gp(ir,1)+ gp(ir,2)*gp(ir,2))
-              enddo
+           block
+             real(8):: vii(nr),tmcc(nr),gfac(nr)
+             vii(1)=0d0
+             vii(2:nr) = v(2:nr,i) - 2d0*z/rofi(2:nr)
+             tmcc = cc - (vii-ev)/cc
+             gfac(1)=0d0
+             gfac(2:nr) = 1d0 + fllp1/(tmcc(2:nr)*rofi(2:nr))**2
+             d00= sum(rwgt*vdif(:,i)* (gfac* g(:,1)*g(:,1)+ g(:,2)*g(:,2)) ) 
+             d10= sum(rwgt*vdif(:,i)* (gfac* gp(:,1)*g(:,1)+ gp(:,2)*g(:,2)) ) 
+             d11= sum(rwgt*vdif(:,i)* (gfac*gp(:,1)*gp(:,1)+gp(:,2)*gp(:,2)) )
+             v00= sum(rwgt*vii*       (gfac* g(:,1)* g(:,1)+ g(:,2)* g(:,2)) ) 
+             v10= sum(rwgt*vii*       (gfac*gp(:,1)* g(:,1)+gp(:,2)* g(:,2)) )
+             v11= sum(rwgt*vii*       (gfac*gp(:,1)*gp(:,1)+gp(:,2)*gp(:,2)) )
+           endblock
 
               ! ... This branch computes integrals with products of (g,gp,gz)
               !     Convention: 0z (phi,sc) 1z (dot,sc) zz (sc,sc)

@@ -41,7 +41,7 @@ module m_lmfinit
        ,ham_oveps,ham_scaledsigma !ham_elind,ham_delta_stabilize
   !! ... OPTIONS
   integer,protected :: smalit, lstonr(3)=0,nl,lpfloat
-  real(8),protected:: rmines,rmaxes
+  real(8),protected:: rmines,rmaxes,   cc !speed of light
   logical,protected :: lhf,lcd4
   !! ... STRUC
   real(8),protected:: dlat,alat=NULLR,dalat=NULLR,vol,avw !lat_slat(3,3),
@@ -1345,6 +1345,13 @@ contains
       endif
       if(lhf) maxit= 1
       !! scalar rel
+      if (lrel /= 0) then
+         !       should be:
+         !       c = 274.072d0
+         cc = 274.074d0
+      else
+         cc = 1d10
+      endif
       call setcc(lrel) !lrel/=0 means scalar relativistiv c=274.074d0 in a.u.
       !!
       fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !fullmesh stop just after do 2010 iq loop.
