@@ -2,4 +2,6 @@
 pushd .
 cd SRC/exec
 make cleanall
+echo rm -rf */OBJ*
+rm -rf */OBJ*
 popd

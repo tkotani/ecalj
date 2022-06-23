@@ -301,26 +301,26 @@ end subroutine matzwz
 !$$$      deallocate(CC)
 !$$$      end subroutine matzwz2
 !$$$!sssssssssssssssssssssssssssssssssssssssssssssssssssssss
-complex(8) function alagr3zwgt (x,xi,wgt)
-  implicit real*8 (a-h,o-z)
-  ! three-point interpolation with arbitrary mesh
-  ! f(x) = [ { (x-x2)(x-x3) } / { (x1-x2)(x1-x3) } ] f1
-  !      + [ { (x-x1)(x-x3) } / { (x2-x1)(x2-x3) } ] f2
-  !      + [ { (x-x1)(x-x2) } / { (x3-x1)(x3-x2) } ] f3
-  !      = wg1(1)* f1+ wgt(2)*f2 +wgt(3)*f3
-  ! x     = the point at which the function is to be interpolated
-  ! xi(3) = points where the function is given
-  real(8):: xi(3),wgt(3)
-  xx1        = x-xi(1)
-  xx2        = x-xi(2)
-  xx3        = x-xi(3)
-  x12        = xi(1)-xi(2)
-  x13        = xi(1)-xi(3)
-  x23        = xi(2)-xi(3)
-  wgt(1)     =   xx2*xx3/(x12*x13)
-  wgt(2)     =   xx1*xx3/(-x12*x23)
-  wgt(3)     =   xx1*xx2/(x13*x23)
-END function alagr3zwgt
+! complex(8) function alagr3zwgt (x,xi,wgt)
+!   implicit real*8 (a-h,o-z)
+!   ! three-point interpolation with arbitrary mesh
+!   ! f(x) = [ { (x-x2)(x-x3) } / { (x1-x2)(x1-x3) } ] f1
+!   !      + [ { (x-x1)(x-x3) } / { (x2-x1)(x2-x3) } ] f2
+!   !      + [ { (x-x1)(x-x2) } / { (x3-x1)(x3-x2) } ] f3
+!   !      = wg1(1)* f1+ wgt(2)*f2 +wgt(3)*f3
+!   ! x     = the point at which the function is to be interpolated
+!   ! xi(3) = points where the function is given
+!   real(8):: xi(3),wgt(3)
+!   xx1        = x-xi(1)
+!   xx2        = x-xi(2)
+!   xx3        = x-xi(3)
+!   x12        = xi(1)-xi(2)
+!   x13        = xi(1)-xi(3)
+!   x23        = xi(2)-xi(3)
+!   wgt(1)     =   xx2*xx3/(x12*x13)
+!   wgt(2)     =   xx1*xx3/(-x12*x23)
+!   wgt(3)     =   xx1*xx2/(x13*x23)
+! END function alagr3zwgt
 ! sssssssssssssssssssssssssssssssssssssssssss
 !> even function version of alagr3z2wgt
 subroutine alagr3z2wgt(x,xi, wgt)

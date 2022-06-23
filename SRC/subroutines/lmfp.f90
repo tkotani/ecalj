@@ -59,7 +59,8 @@ subroutine lmfp(llmfgw)
   ipr = iprint()
   allocate(pos0(3,nbas),poss(3,nbas))
   poss = rv_a_opos ! Use atomic positon in m_lattic
-  call ReadAtomPos(nbas,poss)! Overwrite pos in AtomPos if it exists. 
+  call ReadAtomPos(nbas,poss)! Overwrite pos in AtomPos if it exists.
+  call mpi_barrier(MPI_COMM_WORLD,ierr)
      ! Sep2020 " Shorten site positions" here removed.
   etot = 0d0 ! Total energy mode --etot ==>moved to m_lmfinit ---
   if(nitrlx>0 ) then ! Atomic position Relaxation setup (MDloop)
