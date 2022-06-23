@@ -149,7 +149,7 @@ contains
     !      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
     integer :: ntab(n0*nkap0),blks(n0*nkap0)
     double precision :: pnu(n0,2),pnz(n0,2),qcorg,qcorh,qsc,cofg,cofh
-    integer ::iwdummy,i_copy_size,ifx!,nlmto
+    integer ::iwdummy,ifx!,nlmto
     real(8):: dat(6,nbas)
     logical:: mmtargetx=.false.
     !      nlmto= ham_ldham(1)
@@ -180,11 +180,9 @@ contains
        nkapi=nkapii(is)
        call orblib(ib)!norb , ltab , ktab , xx , offl , xx )
        call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
-       is=ssite(ib)%spec
-       i_copy_size=size(ssite(ib)%pnu)
-       call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
-       i_copy_size=size(ssite(ib)%pz)
-       call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
+       is =ssite(ib)%spec
+       pnu=ssite(ib)%pnu
+       pnz=ssite(ib)%pz
        call gtpcor(sspec,is,kcor,lcor,qcor)
        nlml = (lmxl+1)**2
        nlma = (lmxa+1)**2

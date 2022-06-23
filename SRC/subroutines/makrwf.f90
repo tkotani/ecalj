@@ -1,5 +1,4 @@
-subroutine makrwf(mode,z,rmax,l,v,a,nr,rofi,pnu,nptdif,g,gp, &
-     enu,phi,dphi,phip,dphip,p)
+subroutine makrwf(mode,z,rmax,l,v,a,nr,rofi,pnu,nptdif,g,gp, enu,phi,dphi,phip,dphip,p)
   !- Radial wave functions and energy derivative
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -36,19 +35,12 @@ subroutine makrwf(mode,z,rmax,l,v,a,nr,rofi,pnu,nptdif,g,gp, &
   !u   22 Dec 01 Adjustments to accomodate changes in phidx
   !u   16 May 00 New routine
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
-  integer :: mode,l,nr,nptdif
-  double precision :: a,rmax,z,rofi(1),v(nr,1),pnu(1:l+1), &
-       g(nr,2),gp(nr,2,4),phi,phip,dphi,dphip,p
-  ! ... Local parameters
-  integer :: konf,nn,nre,modep
-  double precision :: b,dnu,eb1,eb2,enu,pi,slo(5),sum,tol,val(5)
-
-  pi = 4d0*datan(1d0)
-  tol = 1d-12
-  !     for now, rmax must match to rofi(nr)
-  call fsanrg(rmax,rofi(nr),rofi(nr),1d-8,'makrwf:','rmax',.true.)
+  implicit none
+  integer :: mode,l,nr,nptdif, konf,nn,nre,modep
+  real(8):: a,rmax,z,rofi(1),v(nr,1),pnu(1:l+1),g(nr,2),gp(nr,2,4),phi,phip,dphi,dphip,p,&
+       b,dnu,eb1,eb2,enu,slo(5),sum,val(5)
+  real(8),parameter:: pi = 4d0*datan(1d0), tol = 1d-12
+  call fsanrg(rmax,rofi(nr),rofi(nr),1d-8,'makrwf:','rmax',.true.)! rmax must match to rofi(nr)
   if (mod(mode,10) == 0) then
      b   = rmax/(dexp(a*nr-a)-1d0)
      konf = mod(pnu(l+1),10d0)
@@ -60,30 +52,13 @@ subroutine makrwf(mode,z,rmax,l,v,a,nr,rofi,pnu,nptdif,g,gp, &
      eb2 =  20d0
      if (z == 1 .AND. l > 2) eb2 = 100
      enu = -0.5d0
-     call rseq(eb1,eb2,enu,tol,z,l,nn,val,slo,v,g,sum,a,b,rofi,nr, &
-          nre)
+     call rseq(eb1,eb2,enu,tol,z,l,nn,val,slo,v,g,sum,a,b,rofi,nr,  nre)
      val(1) = val(1)/dsqrt(sum)
      slo(1) = slo(1)/dsqrt(sum)
-     !        call phidot(z,l,v,enu,a,b,rofi,nr,g,val,slo,tol,nn,
-     !     .    gp,phi,dphi,phip,dphip,p)
      modep = 1
   else
      modep = 2
   endif
-  ! cccccccccccccccccccc
-  !            print *,' vvveeeeeeeeee=',l,enu
-  ! cccccccccccccccccccc
-
-  !      print *, '!! makrwf'
-  !     if (mode .ge. 10) modep = modep+10
-
-  !      print *,'xxxxxxxxxxxxxxx test111'
   call phidx(modep,z,l,v,0d0,0d0,rofi,nr,nptdif,tol,enu,val,slo, &
        nn,g,gp,phi,dphi,phip,dphip,p,0d0,0d0,0d0,0d0)
-  !      print *,'xxxxxxxxxxxxxxx test222'
-  !     dphip = (sloi(2)-phip)/rmax
-
-  !     call prrmsh('ul',rofi,ul,nr,nr,1+lmxa)
-
 end subroutine makrwf
-

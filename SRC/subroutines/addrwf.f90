@@ -36,11 +36,9 @@ contains
     !u   12 Jul 04 ndg,n1 arguments (altered argument list)
     !u   14 Feb 02 New routine
     ! ----------------------------------------------------------------------
-    !     implicit none
-    ! ... Passed parameters
+    implicit none
     integer :: l,ndg,n1,nr,mode
-    real(8):: fac,rofi(nr),rwgt(nr), &
-         gadd(ndg,2),g(ndg,2),s
+    real(8):: fac,rofi(nr),rwgt(nr), gadd(ndg,2),g(ndg,2),s
     real(8),optional:: z,v(nr),ev,eadd
     ! ... Local parameters
     integer :: ir
@@ -114,18 +112,15 @@ subroutine wf2lo(l,a,nr,rofi,rwgt,phi,dphi,phip,dphip,phz,dphz, &
   !u   04 Sep 04 Adapted to extended local orbitals
   !u   06 Mar 02 New routine
   ! ----------------------------------------------------------------------
-  !     implicit none
   use m_addrwf
-  ! ... Passed parameters
+  implicit none
   integer :: l,nr
   double precision :: a,rofi(nr),rwgt(nr),rsml(*),ehl(*)
   double precision :: phi,dphip,dphi,phip,phz,dphz,phzp,dphzp,pnz(*)
   double precision :: g0(nr,2),g1(nr,2),gz(nr,2)
-  ! ... Local parameters
-  integer :: k,lpzi,nrmx
-  parameter (nrmx=1501)
+  integer :: k,lpzi
   double precision :: det,au,bu,as,bs,fac,x,xx
-  double precision :: gzbig(nrmx*2)
+  double precision :: gzbig(nr*2)
   k = l+1
   lpzi = 0
   if (pnz(k) >  0) lpzi = 1
@@ -165,6 +160,7 @@ subroutine wf2lo(l,a,nr,rofi,rwgt,phi,dphi,phip,dphip,phz,dphz, &
 end subroutine wf2lo
 
 subroutine ortrwf(mode,z,l,v,ng,n1,nr,rofi,rwgt,e0,e1,ez,g0,g1,gz,D)
+  use m_addrwf
   !- Orthogonalize a radial wave function gz to a pair of other functions
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -207,19 +203,16 @@ subroutine ortrwf(mode,z,l,v,ng,n1,nr,rofi,rwgt,e0,e1,ez,g0,g1,gz,D)
   !u   12 Jul 04 Add option 3 to mode.  New argument list
   !u   06 Mar 02 New routine
   ! ----------------------------------------------------------------------
-  !     implicit none
-  use m_addrwf
-  ! ... Passed parameters
+  implicit none
   integer :: mode,l,ng,n1,nr
   double precision :: z,v(nr),rofi(nr),rwgt(nr),e0,e1,ez,D
   double precision :: g0(ng,2),g1(ng,2),gz(ng,2)
-  ! ... Local parameters
   integer :: mode0,mode1
   double precision :: s00,s01,s11,s0z,s1z,szz,x,s01hat,s11hat,s1zhat
   mode0 = mod(mode,10)
   mode1 = mod(mode/10,10)
   ! --- mode 2 : orthonormalize g0 and g1 ---
-  if (mode0 == 2) then
+  if (mode0 == 2) then 
      !       <g0 g0>
      call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,e0,0d0,g0,g0,s00)
      call dscal(nr,1/sqrt(s00),g0(1,1),1)
@@ -232,10 +225,6 @@ subroutine ortrwf(mode,z,l,v,ng,n1,nr,rofi,rwgt,e0,e1,ez,g0,g1,gz,D)
      call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e1,e1,0d0,g1,g1,s11)
      call dscal(nr,1/sqrt(s11),g1(1,1),1)
      call dscal(nr,1/sqrt(s11),g1(1,2),1)
-     !       Check
-     !        call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,e0,0d0,g0,g0,s00)
-     !        call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,e1,0d0,g0,g1,s01)
-     !        call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e1,e1,0d0,g1,g1,s11)
      return
      ! --- mode 3 : orthogonalize g1 to g0 ---
   elseif (mode0 == 3) then

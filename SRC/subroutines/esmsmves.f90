@@ -1,13 +1,17 @@
 !! this file is from M.Obata (Kanazawa univ).
-subroutine esmsmves( nbas , ssite , sspec , cy , qmom ,&
-  ng , gv , kv , cv , cg1 , cgsum , k1 , k2 ,  k3 , smrho, qbg, smpot , &
+subroutine esmsmves( nbas, ssite, sspec, cy, qmom, ng, gv, kv, &
+                                                              cv, cg1 ,&
+     cgsum, k1 , k2 ,  k3 , smrho, qbg, smpot , &
+       f , gpot0 , hpot0 , qsmc , zsum , vrmt )
+  intent(in)::    nbas,  ssite, sspec, cy, qmom, ng, gv, kv, &
+     cgsum, k1,  k2,   k3,  smrho, qbg, smpot
+  intent(out)::                                                cv, cg1 ,&
        f , gpot0 , hpot0 , qsmc , zsum , vrmt )
   use m_struc_def
   use m_lmfinit,only: nsp, lat_alat
   use m_MPItk,only: master_mpi,mlog
   use m_lattic,only: lat_vol,lat_plat
   use m_lgunit,only:stdo
-
   ! Make ESM electrostatic potential of density given in real space
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -17,18 +21,15 @@ subroutine esmsmves( nbas , ssite , sspec , cy , qmom ,&
   ! ----------------------------------------------------------------------
   implicit none
   include "mpif.h"
-  ! ... Passed parameters
-  integer, intent(in) :: nbas, ng
-  integer, intent(in) :: kv(ng,3), k1 ,k2, k3
-  real(8), intent(in) :: gv(ng,3), cy(*), qmom(*), qbg
-  real(8), intent(out) :: f(3,nbas), gpot0(*), hpot0(nbas), vrmt(nbas)
-  real(8), intent(out) :: zsum, qsmc
-  complex(kind(0d0)), intent(in) :: smrho(k1, k2, k3, 2), cgsum(ng)
-  complex(kind(0d0)), intent(out) :: smpot(k1, k2, k3), cv(ng), cg1(ng)
+  integer:: nbas, ng
+  integer:: kv(ng,3), k1 ,k2, k3
+  real(8):: gv(ng,3), cy(*), qmom(*), qbg
+  real(8) :: f(3,nbas), gpot0(*), hpot0(nbas), vrmt(nbas)
+  real(8) :: zsum, qsmc
+  complex(8) :: smrho(k1, k2, k3, 2), cgsum(ng)
+  complex(8) :: smpot(k1, k2, k3), cv(ng), cg1(ng)
   type(s_site)::ssite(*)
   type(s_spec)::sspec(*)
-
-  ! ... Local parameters
   integer, save :: jesm = 0, jtresm
   real(8), save :: sa0, tresm, z1esm, z2esm, z0esm, vesmp, vesmm, eesmp, eesmm
   logical, save :: esm_init = .true.
@@ -39,22 +40,16 @@ subroutine esmsmves( nbas , ssite , sspec , cy , qmom ,&
   real(8), parameter ::angstr=1d0/0.5291769, ev=2d0/27.2113834, eps=1d-10
   real(8) :: alat, plat(3,3), vol, eh, tau(3), vg(3), ddot, gvr, rmt, fac, gvb, g2
   real(8) :: pi, epi, tpiba, tpiba2
-
-  complex(kind(0d0)), parameter :: ci=(0d0, 1d0)
-  complex(kind(0d0)), allocatable:: vtmp(:,:,:), cwork(:)
-
+  complex(8), parameter :: ci=(0d0, 1d0)
+  complex(8), allocatable:: vtmp(:,:,:), cwork(:)
+  real(8),parameger:: pi  = 4d0*datan(1d0),epi = 8d0*pi
   call tcn('esmsmves')
   allocate(vtmp(k1, k2, k3), cwork(ng))
-
-  pi  = 4d0*datan(1d0)
-  epi = 8d0*pi
   alat = lat_alat
   vol = lat_vol
-  tpiba = 2*pi/alat
+  tpiba  = 2d0*pi/alat
   tpiba2 = tpiba*tpiba
-  !      stdo = lgunit(1)
   plat = lat_plat
-
   if( esm_init ) then
      jtresm=0
      tresm=0d0
@@ -80,7 +75,6 @@ subroutine esmsmves( nbas , ssite , sspec , cy , qmom ,&
         call tcx('esmsmves')
         return
      endif
-
      if (master_mpi ) then
         tresm=-tresm
         z0esm =  alat*plat(3,3)*0.5d0
@@ -96,34 +90,32 @@ subroutine esmsmves( nbas , ssite , sspec , cy , qmom ,&
         write(stdo,'(A,3F10.3,A,F10.2)') ' z0esm,z1esm,z2esm=',z0esm,z1esm,z2esm,' sa0=',sa0
         if( jesm == 1 ) then
            write(stdo,*)'system : vaccum(-z)/slab/vaccum(+z) '
-           write(stdo,'(A,2F10.5,A,F10.5)')' vesmp,vesmm=',vesmp,vesmm,' vave=',(vesmp+vesmm)*0.5d0
+           write(stdo,ftox)' vesmp,vesmm=',ftof([vesmp,vesmm]),' vave=',ftof((vesmp+vesmm)*0.5d0)
         elseif( jesm == 2 ) then
            write(stdo,*)'system : metal(-z)/slab/metal(+z) '
-           write(stdo,'(A,2F10.5,A,F10.5)')' vesmp,vesmm=',vesmp,vesmm,' qbg=',qbg
+           write(stdo,ftox)' vesmp,vesmm=',ftof([vesmp,vesmm]),' qbg=',ftof(qbg)
         elseif( jesm == 3 ) then
            write(stdo,*)'system : vaccum(-z)/slab/metal(+z) '
-           write(stdo,'(A,2F10.5)')' qbg=',qbg
+           write(stdo,ftox)' qbg=',ftom(qbg)
         elseif( jesm == 4 ) then
            write(stdo,*)'system : metal(-z)/slab/vaccum(+z) '
-           write(stdo,'(A,2F10.5)')' qbg=',qbg
+           write(stdo,ftof)' qbg=',ftof(qbg)
         elseif( jesm == 5 ) then
            write(stdo,*)'system : vacuum(-z)/slab/vacuum(+z) '
-           write(stdo,'(A,2F10.5)')' eesmp,eesmm=',eesmp,eesmm
+           write(stdo,ftof)' eesmp,eesmm=',ftof(eesmp),ftof(eesmm)
         elseif( jesm == 6 ) then
            write(stdo,*)'system : metal(-z)/slab/metal(+z) '
-           write(stdo,'(A,2F10.5)')' vesmp,eesmm=',vesmp,eesmm
+           write(stdo,ftox)' vesmp,eesmm=',ftof(vesmp),ftof(eesmm)
         elseif( jesm == 7 ) then
            write(stdo,*)'system : metal(-z)/slab/metal(+z) '
-           write(stdo,'(A,2F10.5)')' vesmm,eesmp=',vesmm,eesmp
+           write(stdo,ftox)' vesmm,eesmp=',ftof(vesmm),ftof(eesmp)
         elseif( jesm == 10 .OR. jesm == 11 ) then
            write(stdo,*)'same as jesm=0, but employ esm scheme '
            write(stdo,*)'system : vaccum(-z)/slab/vaccum(+z) '
         endif
         write(stdo,*)
      endif
-
      call mpi_barrier(mpi_comm_world,ierr)
-     !        call mpibc1_int (jesm,  1         ,'esmsmves_jesm')
      call mpibc1_int (jtresm,1,'esmsmves_jtresm')
      call mpibc1_real(tresm, 1,'esmsmves_tresm')
      call mpibc1_real(z1esm, 1,'esmsmves_z1esm')
@@ -134,38 +126,29 @@ subroutine esmsmves( nbas , ssite , sspec , cy , qmom ,&
      call mpibc1_real(eesmm, 1,'esmsmves_eesmm')
      call mpibc1_real(z0esm, 1,'esmsmves_z0esm')
      call mpibc1_real(sa0,   1,'esmsmves_sa0')
-     
      if( jesm == 0 ) then
         if ( master_mpi ) write(stdo,*)'jesm=0 return'
         esm_init = .false.
         call tcx('esmsmves')
         return
      endif
-
      esm_init = .false.
   endif
-
   if( jesm == 0 ) then
      if ( master_mpi ) write(stdo,*)'jesm=0 return'
      call tcx('esmsmves')
      return
   endif
-
   call esmhartp(cgsum, smrho, gv, kv, ng, eh, k1, k2, k3, cv, cg1, cwork, smpot, 'charge_pot.dat')
-
-  cv(1) = (0d0, 0d0)
+  cv(1) = 0d0
   do  ig = 2, ng
      g2 = tpiba*tpiba*(gv(ig,1)**2+gv(ig,2)**2+gv(ig,3)**2)
      cv(ig) = epi*cgsum(ig)/g2
   enddo
-
   call gvputf(ng, 1, kv, k1, k2, k3, cv, vtmp)
-
   smpot(1:k1,1:k2,1:k3) = smpot(1:k1,1:k2,1:k3) - vtmp(1:k1,1:k2,1:k3)
-
   call vesgcm ( nbas , ssite , sspec , cy , qmom ,&
        ng , gv , kv , cv , cg1 , cwork, k1 , k2,  k3 , smpot, f , gpot0 , hpot0 , qsmc , zsum , vrmt)
-
   if ( master_mpi ) write(stdo,*) "eh=",eh
   call tcx('esmsmves')
   return
