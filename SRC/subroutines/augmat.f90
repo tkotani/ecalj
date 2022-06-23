@@ -246,6 +246,7 @@ subroutine augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax &
   !r   they have no corresponding smooth part.  Orbitals of the second type
   !r   extend into the interstitial by attaching a Hankel tail.
   !r
+  !RRRR important note
   !r  *Structure of sig,tau,ppi, and hab,vab,sab.
   !r   All these arrays contain matrix elements between combinations
   !r   of valence states and local orbitals and are linear combinations of

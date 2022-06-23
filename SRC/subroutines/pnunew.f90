@@ -1,7 +1,6 @@
 subroutine pnunew(eferm)
   use m_ftox
   use m_MPItk,only: master_mpi
-  use m_mkpot,only: hab=>hab_rv,sab=>sab_rv
   use m_lmfinit,only:nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,ham_frzwf,idmodis=>idmod,slabl,&
        pmin=>ham_pmin,pmax=>ham_pmax,n0,nab,mxcst4
   use m_mkrout,only: hbyl=>hbyl_rv,qbyl=>qbyl_rv

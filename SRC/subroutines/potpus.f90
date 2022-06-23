@@ -61,7 +61,7 @@ subroutine potpus(z,rmax,lmxa,v,vdif,a,nr,nsp,lso,rofi,pnu,pnz, &
   !o         :SO = 1/(2*m^2*c^2)*(dV/dr*1/r), m=.5, c=274 (at. Rydberg units)
   !o         :Notice that for now only spin-diagonal matrix
   !o         :elements are evaluated, since we plan to calculate
-  !o         :only H_so = so*sz*lz
+  !o         :only H_so = so*sz*lz   ===>SO calcualtion aughsoc
   !l Local variables
   !l   lorthd:if 0, phi,phidot constructed by calling phidx (normal mode)
   !l         :if 1, orthonormalize phidot to phi
@@ -241,7 +241,7 @@ subroutine potpus(z,rmax,lmxa,v,vdif,a,nr,nsp,lso,rofi,pnu,pnz, &
         !     <g H gp> = <g (H-e) gp> + e <g gp> = <g g> = 1
         !     <gp H gp> = <gp (H-e) gp> + e <gp gp> = <gp g> + e p = ep
         ghg = ev
-        ghgp = 1
+        ghgp = 1d0
         gphgp = ev*p
         dlphi  = rmax*dphi/phi
         dlphip = rmax*dphip/phip
@@ -327,7 +327,7 @@ subroutine potpus(z,rmax,lmxa,v,vdif,a,nr,nsp,lso,rofi,pnu,pnz, &
            ! ... NMTO potential parameters, no backwards integration, <phi phi>=1
            call dpzero(ppnl(1,k,i),nppn)
            ppnl(1,k,i) = 0
-           ppnl(2,k,i) = 1
+           ppnl(2,k,i) = 1d0
            ppnl(3,k,i) = rmax * dlphi
            ppnl(4,k,i) = rmax * dlphip
            ppnl(5,k,i) = phi
@@ -661,49 +661,49 @@ subroutine potpus(z,rmax,lmxa,v,vdif,a,nr,nsp,lso,rofi,pnu,pnz, &
               ppnl(9,k,i)  = s0z - phi *xxx - dphi *yyy
               ppnl(10,k,i) = s1z - phip*xxx - dphip*yyy
            endif
-
 10      enddo
-
-        ! --- Printout ---
-        if (ipr >= 40) then
-           write(stdo,301)
-301        format(/' l,E',6x,'  a      <phi phi>       a*D', &
-                '        a*Ddot      phi(a)      phip(a)')
-           do  l = 0, lmxa
-              write(stdo,311) l,rmax,(ppnl(k,l+1,i),k=2,6)
-311           format(i2,2x,2f12.6,f13.6,10f12.6)
-           enddo
-        endif
-
-        if (ipr >= 60) then
-           write(stdo,810)
-810        format(/'  l',9x,'val-val',5x,'val-slo',5x,'slo-val', &
-                5x,'slo-slo')
-           do   l = 0, lmxa
-              k  = l+1
-              write(stdo,811) l,'s',(sab(ir,k,i),ir=1,4)
-              write(stdo,812)   'h',(hab(ir,k,i),ir=1,4)
-              write(stdo,812)   'v',(vab(ir,k,i),ir=1,4)
-           enddo
-811        format(i3,3x,a1,6f12.6)
-812        format(3x,3x,a1,6f12.6)
-
-           if (lpz /= 0) then
-              write(stdo,815)
-815           format(/'  l',9x,' val-sc',5x,' slo-sc',5x,' sc-sc ', &
-                   5x,'sc-val',6x,'sc-slo')
-              do   l = 0, lmxa
-                 k  = l+1
-                 if (pnz(k,1) > 0) then
-                    write(stdo,811) l,'s',(sab(ir,k,i),ir=5,9)
-                    write(stdo,812)   'h',(hab(ir,k,i),ir=5,9)
-                    write(stdo,812)   'v',(vab(ir,k,i),ir=5,9)
-                 endif
-              enddo
-
-           endif
-        endif
 80   enddo
+
+!         ! --- Printout ---
+!         if (ipr >= 40) then
+!            write(stdo,301)
+! 301        format(/' l,E',6x,'  a      <phi phi>       a*D', &
+!                 '        a*Ddot      phi(a)      phip(a)')
+!            do  l = 0, lmxa
+!               write(stdo,311) l,rmax,(ppnl(k,l+1,i),k=2,6)
+! 311           format(i2,2x,2f12.6,f13.6,10f12.6)
+!            enddo
+!         endif
+
+!         if (ipr >= 60) then
+!            write(stdo,810)
+! 810        format(/'  l',9x,'val-val',5x,'val-slo',5x,'slo-val', &
+!                 5x,'slo-slo')
+!            do   l = 0, lmxa
+!               k  = l+1
+!               write(stdo,811) l,'s',(sab(ir,k,i),ir=1,4)
+!               write(stdo,812)   'h',(hab(ir,k,i),ir=1,4)
+!               write(stdo,812)   'v',(vab(ir,k,i),ir=1,4)
+!            enddo
+! 811        format(i3,3x,a1,6f12.6)
+! 812        format(3x,3x,a1,6f12.6)
+
+!            if (lpz /= 0) then
+!               write(stdo,815)
+! 815           format(/'  l',9x,' val-sc',5x,' slo-sc',5x,' sc-sc ', &
+!                    5x,'sc-val',6x,'sc-slo')
+!               do   l = 0, lmxa
+!                  k  = l+1
+!                  if (pnz(k,1) > 0) then
+!                     write(stdo,811) l,'s',(sab(ir,k,i),ir=5,9)
+!                     write(stdo,812)   'h',(hab(ir,k,i),ir=5,9)
+!                     write(stdo,812)   'v',(vab(ir,k,i),ir=5,9)
+!                  endif
+!               enddo
+
+!            endif
+!         endif
+!80   enddo
 
      ! ... Calculate spin-orbit parameters
      if (lso /= 0) then

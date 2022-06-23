@@ -64,7 +64,7 @@ contains
     !      use m_lmfgw,only: M_lmfgw_init !,jobgw !,sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx
     use m_mkpot,only: M_mkpot_init,M_mkpot_deallocate, M_mkpot_energyterms,M_mkpot_novxc,& ! & M_mkpot_novxc_dipole,
     osmpot, qmom, vconst, sv_p_osig, sv_p_otau, sv_p_oppi &
-         , hab_rv , sab_rv , qval , qsc , fes1_rv , fes2_rv
+         , qval , qsc , fes1_rv , fes2_rv
     use m_clsmode,only: M_clsmode_init,m_clsmode_set1,m_clsmode_finalize
     use m_qplist,only:  qplist,nkp,xdatt,labeli,labele,dqsyml,etolc,etolv, &
          nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml, &
