@@ -17,6 +17,7 @@ program hbasfp0
   use m_anf,only: ibasf,laf,anfcond !may2015takao
   !      use m_lgunit,only: m_lgunit_init
   !      use m_mpi,only: MPI__Initialize
+  use m_mpi,only: MPI__Initialize !no mpi now but used for exit routine rx, finalizing MPI
   implicit none
   integer:: &
        ifphiv(2),ifphic(2), iphiv(2),iphivd(2),iphic(2),iphi(2),iphidot(2), &
@@ -32,7 +33,7 @@ program hbasfp0
   character(12) :: aaa
   character(11) :: ffaln
   character(20):: outs=''
-  !      call M_lgunit_init()
+  call MPI__Initialize() !this is for rx 
   write(6,'(a)') ' --- Input normal(=0); coremode(=3);'// &
        ' ptest(=4); Excore(=5); for core-valence Ex(=6);'// &
        ' val-val Ex(7);  normal+<rho_spin|B> (8); version(-9999) ?'

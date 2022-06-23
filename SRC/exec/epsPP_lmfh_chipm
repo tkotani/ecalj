@@ -28,7 +28,7 @@ $echo_run echo $TARGET
 argin=0; run_arg $argin $NO_MPI  $nfpgw  /lmf-MPIK  llmfgw00 $TARGET  --novxc --jobgw
 argin=4; run_arg $argin $NO_MPI  $nfpgw  /qg4gw lqg4gw04   #Generate requied q+G v
 
-argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmf-MPIK llmfgw01 $TARGET --jobgw
+argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmf-MPIK llmfgw01 $TARGET --jobgw --wrhomt
 #run_arg  '---' $NO_MPI   $nfpgw /lmf2gw     llmf2gw  #reform data for gw
 run_arg $argin $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files
 rm gwa gwb.*
