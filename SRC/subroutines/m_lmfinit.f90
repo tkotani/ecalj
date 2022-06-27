@@ -52,14 +52,14 @@ module m_lmfinit
   integer,protected:: lmxbx=-1,lmxax,nkaph,nkapi
   logical,allocatable,protected:: mxcst2(:),mxcst4(:)
   integer,allocatable,protected:: &
-       lmxb(:),lmxa(:),idmod(:,:),idu(:,:),kmxt(:),lfoca(:),lmxl(:),nxi(:),nr(:),& !,kmxv(:)
+       lmxb(:),lmxa(:),idmod(:,:),idu(:,:),kmxt(:),lfoca(:),lmxl(:),nr(:),& !,kmxv(:)
        nmcore(:), nkapii(:),nkaphh(:)
   real(8),allocatable,protected:: rsmh1(:,:),rsmh2(:,:),eh1(:,:),eh2(:,:), &
        rs3(:),rham(:),alpha(:,:),ehvl(:,:), uh(:,:),jh(:,:), eh3(:),&
        qpol(:,:),stni(:), &
        pnu(:,:,:),qnu(:,:,:),      pnudefault(:,:),qnudefault(:,:),qnudummy(:,:), &
        coreq(:,:), rg(:),rsma(:),rfoca(:),rcfa(:,:), &
-       exi(:,:),rmt(:),pz(:,:,:), &
+       rmt(:),pz(:,:,:), &
        amom(:,:),spec_a(:),z(:),eref(:),rsmv(:)
 
 !!!!!!!!!!!!!!!!!!!
@@ -490,7 +490,7 @@ contains
            ehvl(n0,nspec), qpol(n0,nspec),stni(nspec), &
            rg(nspec),rsma(nspec),rfoca(nspec),rcfa(2,nspec), & !,rsmfa(nspec)
            rham(nspec),rmt(nspec),rsmv(nspec), &
-           nxi(nspec),exi(n0,nspec), spec_a(nspec),z(nspec),nr(nspec),eref(nspec), &
+            spec_a(nspec),z(nspec),nr(nspec),eref(nspec), &
            coreh(nspec),coreq(2,nspec), idxdn(n0,nkap0,nspec), idu(4,nspec),uh(4,nspec),jh(4,nspec), &
            mxcst2(nspec),mxcst4(nspec), kmxt(nspec),lfoca(nspec),lmxl(nspec),lmxa(nspec),&
            lmxb(nspec),nmcore(nspec),rs3(nspec),eh3(nspec))
@@ -516,7 +516,7 @@ contains
          rcfa(:,j) = NULLR; rfoca(j) = 0d0; rg(j) = 0d0
          rham(j) = NULLR; rsma(j) = 0d0 !; rsmfa(j) = 0d0
          spec_a(j) = NULLR; nr(j) = NULLI
-         exi(:,j) = NULLR
+         !exi(:,j) = NULLR
          coreh(j) = ' '; coreq(:,j) = NULLR
          eref(j) = 0d0
          if (io_help /= 0) then
@@ -634,7 +634,7 @@ contains
          lfoca(j) = 0            !If sought, default will be reset below
          nmcore(j)=0
          lmxl(j) =  lmxaj        !Use lmxaj in case not sought (ASA:mpol)
-         nxi(j) = NULLI          !If sought, default will be set below
+         !nxi(j) = NULLI          !If sought, default will be set below
          pnu(:,:,j)=0d0
          pz(:,:,j)=0d0
          rs3(j) = NULLI          !If sought, default will be set below
@@ -1312,8 +1312,7 @@ contains
       call suldau(nbas,v_sspec,v_ssite,nlibu,k,wowk)!Count LDA+U blocks (printout only)
       ham_nlibu=nlibu
       call poppr
-      deallocate(wowk,amom, qpol,stni,rg,rfoca,nxi, &
-           exi,rham,idxdn, rmt,  lfoca,lmxl, spec_a,z,nr,rsmv, ips,irlx) 
+      deallocate(wowk,amom, qpol,stni,rg,rfoca,rham,idxdn, rmt,  lfoca,lmxl, spec_a,z,nr,rsmv, ips,irlx) 
       !! --- takao embed contents in susite here. This is only for lmf and lmfgw.
       allocate(iv_a_oips(nbas),source=[(v_ssite(ib)%spec, ib=1,nbas)])
       seref= sum([(eref(v_ssite(ib)%spec),ib=1,nbas)])
