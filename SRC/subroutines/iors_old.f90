@@ -508,13 +508,13 @@ contains
           call mpibc1_real( ssite(ib)%rv_a_ov1 , size(ssite(ib)%rv_a_ov1) , 'iors_v1' )
           !          endif
           !     ... store data in strucs
-          sspec(is)%a=a
-          sspec(is)%nr=nr
-          sspec(is)%rmt=rmt
-          sspec(is)%z=z
-          sspec(is)%lmxa=lmxa
-          sspec(is)%lmxl=lmxl
-          sspec(is)%kmxt=kmax
+          !sspec(is)%a=a
+          !sspec(is)%nr=nr
+          !sspec(is)%rmt=rmt
+          !sspec(is)%z=z
+          !sspec(is)%lmxa=lmxa
+          !sspec(is)%lmxl=lmxl
+          !sspec(is)%kmxt=kmax
           sspec(is)%qc=qc
 20        continue
        enddo

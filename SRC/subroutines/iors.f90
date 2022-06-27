@@ -233,15 +233,6 @@ contains
        use=trim(use)//'use window,'
        call m_bndfp_ef_SET(wk(1)) !bz_ef00) !,bz_def00)
        line = 'site data' !Read atomic positions,forces,velocities ---
-!       if (irs3 /= 0) then
-!          ignore=trim(ignore)//'positions,'
-!       else
-!          use=trim(use)//' positions,'
-!          if (nbas0 < nbas) then
-!             call info0(1,0,0,'%9f oops ... cannot use file site positions (site mismatch)')
-!             if (isanrg(nbas0, nbas,nbas,msg,'nbas', .TRUE. )) goto 999
-!          endif
-!       endif
        do ib = 1, nbas0
           if (procid == master) read(jfi,err=999,end=999) jb,pos,force
           !call mpibc1_real(pos,  3,'iors_pos')
@@ -253,11 +244,7 @@ contains
           ssite(ib)%force=force
        enddo
        !   --- Read information for local densities ---
-!       if (irs5 /= 0) then
-!          ignore=trim(ignore)//' pnu,'
-!       else
-          use=trim(use)//' pnu,'
-!       endif
+       use=trim(use)//' pnu,'
        if (ipr >= 10) then
           write(stdo,*)trim(use)
           write(stdo,*)trim(ignore)
@@ -328,56 +315,31 @@ contains
              read(jfi) (idmod(l+1), l=0,lmxa0)
              read(jfi) (idmoz(l+1), l=0,lmxa0)
           endif
-          !          pnus =sspec(is)%p
-          !          pnzs =sspec(is)%pz
-!          if  (irs5 == 0 ) then
-             ssite(ib)%pnu=pnu
-             ssite(ib)%pz=pnz
-             !            sspec(is)%p=  pnu !int?
-             !            sspec(is)%pz= pnz
-             !     ... Verify lowest valence pnu compatible with file
-             !            lfail = .false.
-             !            ltmp1 = .false.
-             !            ltmp2 = .false.
-             !            do  i = 1, lmxa+1
-             !              vec0(1) = mod(pnz(i,1),10d0)
-             !              if (vec0(1) .eq. 0) vec0(1) = pnu(i,1)
-             !              vec0(2) = mod(pnzs(i,1),10d0)
-             !              if (vec0(2) .eq. 0) vec0(2) = pnus(i,1)
-             !              ltmp1 = ltmp1 .or. int(pnu(i,1)) .ne. int(pnus(i,1))
-             !              ltmp2 = ltmp2 .or.
-             !     .        int(mod(pnz(i,1),10d0)) .ne. int(mod(pnzs(i,1),10d0))
-             !              lfail = lfail .or. min(int(pnu(i,1)),int(vec0(1))) .ne.
-             !     .        min(int(pnus(i,1)),int(vec0(2)))
-             !            enddo
-             if (ipr >= 20) write(stdo,203) ib,spid,'file pnu',(pnu(i,1), i=1,lmxa+1)
-             !            if (ltmp1 .and. ipr.ge.20) write(stdo,204) 'given pnu is',(pnus(i,1), i=1,lmxa+1)
-             if (ipr >= 20) write(stdo,203) ib,spid,'file pz ',(pnz(i,1), i=1,lmxa+1)
-             !            if (ltmp2 .and. ipr.ge.20) write(stdo,204) 'given pz  is',(pnzs(i,1), i=1,lmxa+1)
-203          format(9x,'site',i4,':',a,':',a,' is',8f6.2)
-204          format(26x,a,8f6.2)
-!             if (lfail .AND. irs5 == 1) then
-!                call rx('iors: file''s pnu is incompatible with input')
-!             endif
-             nlml0 = (lmxl0+1)**2
-             nlml = (lmxl+1)**2
-             if (nr <= 0)   nr = nr0
-             if (a <= 1d-6) a = a0
-             if (procid == master) then
-                call fsanrg(rmt0,rmt,rmt,1d-3,msg,'rmt',.true.)
-                call fsanrg(rmt0,rmt,rmt,1d-6,msg,'rmt',.false.)
-                call fsanrg(z0,z,z,1d-6,msg,'z',.true.)
-                call fsanrg(a0,a,a,0d-9,msg,'a',.true.)
-                lfail = isanrg(nr0,nr,nr,msgw,'nr',.false.)
-                if (isanrg(lmxl,  0,lmxa,  msg,'lmxl', .FALSE. )) goto 999
-                if (kmax0 /= kmax .AND. ipr >= 10) write(stdo,201) ib,spid,'kmax',kmax0,kmax
-                if (lmxa0 /= lmxa .AND. ipr >= 10) write(stdo,201) ib,spid,'lmax',lmxa0,lmxa
-201             format(9x,'site',i4,', species ',a,': augmentation ',a,' changed from',i2,' to',i2)
-             endif
-!          else
-!             lmxl = lmxl0
-!             nr = nr0
-!          endif
+          ssite(ib)%pnu=pnu
+          ssite(ib)%pz=pnz
+          if (ipr >= 20) write(stdo,203) ib,spid,'file pnu',(pnu(i,1), i=1,lmxa+1)
+          if (ipr >= 20) write(stdo,203) ib,spid,'file pz ',(pnz(i,1), i=1,lmxa+1)
+203       format(9x,'site',i4,':',a,':',a,' is',8f6.2)
+204       format(26x,a,8f6.2)
+          nlml0 = (lmxl0+1)**2
+          nlml = (lmxl+1)**2
+          if (nr <= 0)   nr = nr0
+          if (a <= 1d-6) a = a0
+          if (procid == master) then
+             call fsanrg(rmt0,rmt,rmt,1d-3,msg,'rmt',.true.)
+             call fsanrg(rmt0,rmt,rmt,1d-6,msg,'rmt',.false.)
+             call fsanrg(z0,z,z,1d-6,msg,'z',.true.)
+             call fsanrg(a0,a,a,0d-9,msg,'a',.true.)
+             lfail = isanrg(nr0,nr,nr,msgw,'nr',.false.)
+             if (isanrg(lmxl,  0,lmxa,  msg,'lmxl', .FALSE. )) goto 999
+             if (kmax0 /= kmax .AND. ipr >= 10) write(stdo,201) ib,spid,'kmax',kmax0,kmax
+             if (lmxa0 /= lmxa .AND. ipr >= 10) write(stdo,201) ib,spid,'lmax',lmxa0,lmxa
+201          format(9x,'site',i4,', species ',a,': augmentation ',a,' changed from',i2,' to',i2)
+          endif
+          !          else
+          !             lmxl = lmxl0
+          !             nr = nr0
+          !          endif
           !!
           nlml0 = (lmxl0+1)**2
           nlml  = (lmxl+1)**2
@@ -407,13 +369,13 @@ contains
           call mpibc1_real( orhoat(3,ib)%v, size(orhoat(3,ib)%v), 'iors_rhoat(3)' )
           call mpibc1_real( ssite(ib)%rv_a_ov0 , size(ssite(ib)%rv_a_ov0) , 'iors_v0' )
           call mpibc1_real( ssite(ib)%rv_a_ov1 , size(ssite(ib)%rv_a_ov1) , 'iors_v1' )
-          sspec(is)%a=a
-          sspec(is)%nr=nr
-          sspec(is)%rmt=rmt
-          sspec(is)%z=z
-          sspec(is)%lmxa=lmxa
-          sspec(is)%lmxl=lmxl
-          sspec(is)%kmxt=kmax
+          !sspec(is)%a=a
+          !sspec(is)%nr=nr
+          !sspec(is)%rmt=rmt
+          !sspec(is)%z=z
+          !sspec(is)%lmxa=lmxa
+          !sspec(is)%lmxl=lmxl
+          !sspec(is)%kmxt=kmax
           sspec(is)%qc=qc
 20        continue
        enddo
@@ -473,7 +435,6 @@ contains
           sspec(is)%chfa=hfc
           sspec(is)%rsmfa=rsmfa
 30     enddo
-
        !   ... Copy or rescale cores, in case foca was switched on or off
        do  ib = 1, nbas
           is = int(ssite(ib)%spec)
@@ -506,8 +467,7 @@ contains
        do i_spec=1,nspec
           call mpibc1_s_spec(sspec(i_spec),'iors_sspec')
        enddo
-       ! --- Output for master---
-    else
+    else! --- Output for master---
        if (procid /= master) then
           iors = 0
           call rx('iors: something wrong duplicated writing by cores?')
