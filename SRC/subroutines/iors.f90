@@ -117,7 +117,7 @@ contains
     double precision :: pnu(n0,2),pnz(n0,2),ql(n0,2*n0),pos(3)=99999, &
          force(3),plat0(3,3),qlat0(3,3), &
          exi(n0),hfc(n0,2),vec0(3),wk(100),rh,vrmax(2),pnus(n0,2), &
-         pnzs(n0,2),dval,rsmfa
+         pnzs(n0,2),dval,rsmfa,eferm0
     character spid*8,spid0*8,fid0*68,line*20,msg*23,use*80,ignore*80, &
          msgw*17,datimp*32,usernm*32,hostnm*32,jobid*32,ffmt*32,ifmt*32
     integer:: fextg, i_dummy_fextg,ifile_handle,n
@@ -228,19 +228,15 @@ contains
        call mpibc1_complex(osmrho, size(osmrho), 'iors_smrho' )
 115    continue
        !   --- Read information related to dynamics ---
-       if (procid == master) read(jfi) wk
-       call mpibc1_real(wk,1,'iors:eferm')
+       if (procid == master) read(jfi) eferm0
+       call mpibc1_real(eferm0,1,'iors:eferm')
        use=trim(use)//'use window,'
-       call m_bndfp_ef_SET(wk(1)) !bz_ef00) !,bz_def00)
+       call m_bndfp_ef_SET(eferm0) 
        line = 'site data' !Read atomic positions,forces,velocities ---
-       do ib = 1, nbas0
-          if (procid == master) read(jfi,err=999,end=999) jb,pos,force
-          !call mpibc1_real(pos,  3,'iors_pos')
+       do ib = 1, nbas0 
+          if (procid == master) read(jfi,err=999,end=999)force
+          if(ib > nbas) cycle !This is for TestInstall/te, which has nbas0=12 but nbas=3
           call mpibc1_real(force,3,'iors_force')
-          if(ib > nbas) cycle
-          !if(irs3 /= 0) pos=ssite(ib)%pos
-          !ssite(ib)%pos  =pos
-          !ssite(ib)%pos0 =pos
           ssite(ib)%force=force
        enddo
        !   --- Read information for local densities ---
@@ -291,9 +287,9 @@ contains
           idmod=0
           idmoz=0
           if (procid == master) then
+             read(jfi) ((pnu(l+1,isp), l=0,lmxa0),isp=1,nsp0)
+             read(jfi) ((pnz(l+1,isp), l=0,lmxa0),isp=1,nsp0)
              do  isp = 1, nsp0
-                read(jfi) (pnu(l+1,isp), l=0,lmxa0)
-                read(jfi) (pnz(l+1,isp), l=0,lmxa0)
                 if (nsp > nsp0) then
                    do  l = 0, lmxa0
                       pnu(l+1,2) = pnu(l+1,1)
@@ -307,8 +303,7 @@ contains
              call mpibc1_real(pnz(1,isp),lmxa0+1,'iors_pnu')
              !       ... For backwards compatibility: prior versions wrote pnu for pnz
              do  l = 0, lmxa0+1
-                if (pnu(l+1,isp) == mod(pnz(l+1,isp),10d0)) &
-                     pnz(l+1,isp) = 0
+                if (pnu(l+1,isp) == mod(pnz(l+1,isp),10d0)) pnz(l+1,isp) = 0
              enddo
           enddo
           if (procid == master) then
@@ -467,25 +462,22 @@ contains
        do i_spec=1,nspec
           call mpibc1_s_spec(sspec(i_spec),'iors_sspec')
        enddo
-    else! --- Output for master---
+    endif
+!=======================================================================    
+    if(rwrw=='write') then ! --- Output for master---
        if (procid /= master) then
           iors = 0
           call rx('iors: something wrong duplicated writing by cores?')
        endif
        jfi = ifi
-       !        rewind jfi
        fid0 = fid
-       call strip(fid0,i0,i1)
-       jobid = sname !datimp(2:)
+       jobid = sname 
        call ftime(datimp)
        hostnm = ' '
        usernm = ' '
        call get_environment_variable('HOST',hostnm)
        call get_environment_variable('USER',usernm)
-       call strip(datimp,i,i2)
-       call strip(usernm,i,i3)
-       call strip(hostnm,i,i4)
-       if (ipr >= 40) write(stdo,710) fid(1:i1), usernm(1:i3),hostnm(1:i4),datimp(1:i2)
+       if (ipr >= 40) write(stdo,710) trim(fid), trim(usernm),trim(hostnm),trim(datimp)
 721    format('----------------------- ',a,' -----------------------')
        write(jfi) vs
        write(jfi) fid0
@@ -495,16 +487,10 @@ contains
        write(jfi) alat,vol,plat
        write(jfi) n1,n2,n3
        write(jfi) osmrho
-       !   --- Write information related to dynamics ---
-       wk=1d99 !call dpzero(wk,100)
-       wk(1)= eferm !sbz%ef !dummy ! we use wk(1) only wk(2:100) are dummy
-       write(jfi) wk !call dpdump(wk,100,-jfi)
-       do  110  ib = 1, nbas
-          !pos  =ssite(ib)%pos
-          force=ssite(ib)%force     !          vel  =ssite(ib)%vel
-          write(jfi) ib,pos,force   !,vel
-110    enddo
-       !   --- Write information for local densities ---
+       write(jfi) eferm 
+       do ib = 1, nbas
+          write(jfi)ssite(ib)%force
+       enddo
        if (ipr >= 50) write(stdo,364)
        do  120  ib = 1, nbas
           ic=ssite(ib)%class
@@ -525,26 +511,22 @@ contains
           kmax=sspec(is)%kmxt
           pnu=ssite(ib)%pnu
           pnz=ssite(ib)%pz
-          if (lmxa == -1) goto 120
+          if (lmxa == -1) cycle
           write(jfi) is,spid,lmxa,lmxl,nr,rmt,a,z,qc ! Some extra info. lots of it useless or obsolete
           lmxr = 0
           lmxv = 0
           rsmr = 0
           write(jfi) rsma(is),rsmr,rsmv,lmxv,lmxr,lmxb,kmax !  ... Write augmentation data
-          do  122  isp = 1, nsp
-             write(jfi) (pnu(l+1,isp), l=0,lmxa)
-             write(jfi) (pnz(l+1,isp), l=0,lmxa)
-122       enddo
+          write(jfi) ((pnu(l+1,isp), l=0,lmxa),isp=1,nsp)
+          write(jfi) ((pnz(l+1,isp), l=0,lmxa),isp=1,nsp)
           write(jfi) (idmod(l+1), l=0,lmxa) !         Write for compatibility with nfp
           write(jfi) (idmod(l+1), l=0,lmxa)
-          !     ... Write arrays for local density and potential
-          nlml = (lmxl+1)**2
-          !print *,'nnnnnnnwrite',ib,nr*nlml*nsp,nr,nlml,nsp
-          write(jfi) orhoat( 1 , ib )%v !, nr , nlml , nlml , nsp  , nsp , lbin , -jfi )
-          write(jfi) orhoat( 2 , ib )%v !, nr , nlml , nlml , nsp  , nsp , lbin , -jfi )
-          write(jfi) orhoat( 3 , ib )%v !, nr , 1 , 1 , nsp , nsp   , lbin , -jfi )
-          write(jfi) ssite(ib)%rv_a_ov0 !, nr , 1 , 1 , nsp , nsp , lbin , -jfi  )
-          write(jfi) ssite(ib)%rv_a_ov1 !, nr , 1 , 1 , nsp , nsp , lbin , -jfi  )
+          nlml = (lmxl+1)**2 !     ... Write arrays for local density and potential
+          write(jfi) orhoat( 1 , ib )%v 
+          write(jfi) orhoat( 2 , ib )%v 
+          write(jfi) orhoat( 3 , ib )%v 
+          write(jfi) ssite(ib)%rv_a_ov0 
+          write(jfi) ssite(ib)%rv_a_ov1 
           if (ipr >= 50) then
              write(stdo,349) ib,spid,lmxa,lmxl,rmt,nr,a, (pnu(l+1,1),l=0,lmxa)
              if (nsp == 2)  write(stdo,350) (pnu(l+1,2), l=0,lmxa)
@@ -565,7 +547,7 @@ contains
           exi=sspec(is)%exi
           hfc=sspec(is)%chfa
           rsmfa = sspec(is)%rsmfa
-          if (lmxa == -1) goto 130
+          if (lmxa == -1) cycle
           write(jfi) nr,a,qc,cof,eh,stc,lfoc,rfoc
           write(jfi) sspec(is)%rv_a_orhoc
           write(jfi) rsmfa,nxi
