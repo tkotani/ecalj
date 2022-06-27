@@ -4,7 +4,7 @@ contains
   subroutine freeat()
     use m_ext,only:sname
     use m_lmfinit,only: smalit,ctrl_lxcf,ham_seref,nsp,nspec, sspec=>v_sspec,&
-         idmod,slabl,vmtz,eref,rs3,eh3,nmcore,coreh,coreq,rcfa,pnux=>pnu,pzx=>pz,qnu
+         idmod,slabl,vmtz,eref,rs3,eh3,nmcore,coreh,coreq,rcfa,pnux=>pnu,pzx=>pz,qnu,rsmfa
     use m_ftox
     !- For each species, makes free atom self-consistent
     ! ----------------------------------------------------------------------
@@ -36,7 +36,7 @@ contains
          n0,nkap0,nxi,nxi0,nrmix,lxcfun,igets,lmxa,kcor,lcor
     character(8) :: spid,chole(8)
     parameter ( nrmx=1501, nxi0=10, n0=10, nkap0=3)
-    double precision :: qc,ccof,ceh,z,rmt,rfoca,rsmfa,qcor(2),a,sumec, &
+    double precision :: qc,ccof,ceh,z,rmt,rfoca,qcor(2),a,sumec, &
          sumtc,seref,dgets,dgetss,etot
     double precision :: hfc(nxi0,2),exi(nxi0),hfct(nxi0,2)
     double precision :: v(nrmx*2),rho(nrmx*2),rhoc(nrmx*2),rofi(nrmx*2)
@@ -77,7 +77,7 @@ contains
        nrmix=smalit
        lxcfun = int(ctrl_lxcf)
        spid = slabl(is) !sspec(is)%name
-       rsmfa= sspec(is)%rsmfa
+!       rsmfa= sspec(is)%rsmfa
        rfoca= sspec(is)%rfoca
        qcor = coreq(:,is)
        chole= coreh(is)
@@ -100,7 +100,7 @@ contains
        !vmtz=sspec(is)%vmtz
        !rcfa=sspec(is)%rcfa
        print *,'goto freats'
-       call freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,kcor,lcor,qcor, &
+       call freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa(is),kcor,lcor,qcor, &
             nrmix,1,lxcfun,z,rmt,a,nrmt,pnu,pz,qat,rs3(is),eh3(is),vmtz(is),rcfa(:,is), &
             idmod(:,is),lmxa,eref(is),rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof, &
             ceh,sumec,sumtc,v,etot,nmcore(is),ifives,ifiwv)
@@ -111,7 +111,7 @@ contains
           call dcopy(nrmt,rhoc(1+nr),1,rhoc(1+nrmt),1)
           call dcopy(nrmt,v(1+nr),1,v(1+nrmt),1)
        endif
-       i_dum = iofa(spid,nxi0,nxi,exi,hfc,hfct,rsmfa,z,rmt, &
+       i_dum = iofa(spid,nxi0,nxi,exi,hfc,hfct,rsmfa(is),z,rmt, &
             a,nrmt,qc,ccof,ceh,sumtc,rho,rhoc,v,-ifi)
     enddo
     close(ifi)

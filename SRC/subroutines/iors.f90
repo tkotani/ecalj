@@ -13,7 +13,7 @@ contains
     use m_supot,only: lat_nabc
     use m_struc_func,only: mpibc1_s_spec,mpibc1_s_site
     use m_lmfinit,only: alat=>lat_alat,nsp,lrel,nl,ssite=>v_ssite,sspec=>v_sspec, nbas,nat,nspec,n0,&
-         idmodis=>idmod,slabl
+         idmodis=>idmod,slabl,rsma,rsmfa
     use m_lattic,only: plat=>lat_plat,vol=>lat_vol,qlat=>lat_qlat
     use m_ext,only:sname
     use m_ftox
@@ -113,7 +113,7 @@ contains
     integer :: idmod(n0),idmoz(n0) !,lrs(10)
     logical :: isanrg,lfail,ltmp1,ltmp2,latvec,cmdopt,mlog !,lshear
     double precision :: a,a0,alat0,cof,eh,fac,qc,rfoc,rfoc0,rmt, &
-         rmt0,rsma,rsma0,rsmfa,rsmr,rsmr0,rsmv,rsmv0,stc,sum,vfac,vol0,vs,vs1,z,z0
+         rmt0,rsma0,rsmr,rsmr0,rsmv,rsmv0,stc,sum,vfac,vol0,vs,vs1,z,z0
     double precision :: pnu(n0,2),pnz(n0,2),ql(n0,2*n0),pos(3)=99999, &
          force(3),plat0(3,3),qlat0(3,3), &
          exi(n0),hfc(n0,2),vec0(3),wk(100),rh,vrmax(2),pnus(n0,2), &
@@ -453,7 +453,7 @@ contains
           call dpzero(exi,n0)
           call dpzero(hfc,n0*2)
           if (procid == master) then
-             read(jfi,err=999,end=999) rsmfa,nxi
+             read(jfi,err=999,end=999) rsmfa(is),nxi
              read(jfi,err=999,end=999) ((exi(i),hfc(i,isp),i=1,nxi),isp=1,nsp0)
              if (nsp > nsp0) then
                 i = n0
@@ -461,7 +461,7 @@ contains
                 call dpscop(hfc,hfc,i,1,1+i,1d0)
              endif
           endif
-          call mpibc1_real(rsmfa,1,'iors_rsmfa')
+          call mpibc1_real(rsmfa(is),1,'iors_rsmfa')
           call mpibc1_int(nxi,1,'iors_nxi')
           call mpibc1_real(exi,nxi,'iors_exi')
           call mpibc1_real(hfc,nsp*nxi,'iors_hfc')
@@ -471,7 +471,7 @@ contains
           sspec(is)%nxi=nxi
           sspec(is)%exi=exi
           sspec(is)%chfa=hfc
-          sspec(is)%rsmfa=rsmfa
+!          sspec(is)%rsmfa=rsmfa
 30     enddo
 
        !   ... Copy or rescale cores, in case foca was switched on or off
@@ -556,7 +556,7 @@ contains
           z=sspec(is)%z
           qc=sspec(is)%qc
           idmod=idmodis(:,is) !sspec(is)%idmod
-          rsma=sspec(is)%rsma
+          !rsma=sspec(is)%rsma
           lmxa=sspec(is)%lmxa
           lmxl=sspec(is)%lmxl
           lmxb=sspec(is)%lmxb
@@ -570,7 +570,7 @@ contains
           lmxr = 0
           lmxv = 0
           rsmr = 0
-          write(jfi) rsma,rsmr,rsmv,lmxv,lmxr,lmxb,kmax !  ... Write augmentation data
+          write(jfi) rsma(is),rsmr,rsmv,lmxv,lmxr,lmxb,kmax !  ... Write augmentation data
           do  122  isp = 1, nsp
              write(jfi) (pnu(l+1,isp), l=0,lmxa)
              write(jfi) (pnz(l+1,isp), l=0,lmxa)
@@ -604,11 +604,11 @@ contains
           nxi =sspec(is)%nxi
           exi=sspec(is)%exi
           hfc=sspec(is)%chfa
-          rsmfa = sspec(is)%rsmfa
+          !rsmfa = sspec(is)%rsmfa
           if (lmxa == -1) goto 130
           write(jfi) nr,a,qc,cof,eh,stc,lfoc,rfoc
           write(jfi) sspec(is)%rv_a_orhoc
-          write(jfi) rsmfa,nxi
+          write(jfi) rsmfa(is),nxi
           write(jfi) ((exi(i),hfc(i,isp),i=1,nxi),isp=1,nsp)
 130    enddo
     endif

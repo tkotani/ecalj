@@ -12,7 +12,7 @@ contains
          nlibu , lmaxu , vorb , lldau,novxc)!,idipole )
     use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkaph,lxcf,lhh,nkapii,nkaphh,alat,&
          n0,nppn,nab,nrmx,nkap0,nlmx,nbas,nsp,lso,ssite=>v_ssite, sspec=>v_sspec,mxcst4,&
-         slabl,idu,coreh,ham_frzwf
+         slabl,idu,coreh,ham_frzwf,rsma
     use m_MPItk,only: master_mpi
     use m_struc_def
     use m_uspecb,only:uspecb
@@ -125,7 +125,7 @@ contains
     double precision :: eh(n0,nkap0),rsmh(n0,nkap0)
     double precision :: ehl(n0),rsml(n0)
     double precision :: pi,srfpi,y0,rofi(nrmx),rwgt(nrmx),pnu(n0,2), &
-         pnz(n0,2),gpotb(81),z,a,rmt,rsma,qc,ceh,rfoc, &
+         pnz(n0,2),gpotb(81),z,a,rmt,qc,ceh,rfoc, &
          qcorg,qcorh,qsc,cofg,cofh,qsca,rg,qv,valvs,cpnvs, &
          rhexc(2),rhex(2),rhec(2),rhvxc(2),qloc,qlocc,valvt,xcor, &
          fcexc(2),fcex(2),fcec(2),fcvxc(2),aloc,alocc,rvepvl,rvexl, &
@@ -194,7 +194,7 @@ contains
        a=sspec(is)%a
        nr=sspec(is)%nr
        rmt=sspec(is)%rmt
-       rsma=sspec(is)%rsma
+!       rsma=sspec(is)%rsma
        lmxa=sspec(is)%lmxa
        lmxl=sspec(is)%lmxl
        lmxb=sspec(is)%lmxb
@@ -400,7 +400,7 @@ contains
           if( .NOT. novxc .AND. cmdopt0('--socmatrix') ) lsox=1
           if (ipr >= 20) write(stdo,467) y0*(gpot0(j1)-gpotb(1))
 467       format(' potential shift to crystal energy zero:',f12.6)
-          call augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax , nlml &
+          call augmat ( z , rmt , rsma(is) , lmxa , pnu , pnz , kmax , nlml &
                , a , nr , nsp , lsox , rofi , rwgt , rv_a_ocg, iv_a_ojcg, iv_a_oidxcg &
                , ssite(ib)%rv_a_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , &
                lmxb , lhh(:,is) , eh , rsmh, ehl , rsml , rs3 , vmtz ,  lmaxu& ! & lcplxp ,

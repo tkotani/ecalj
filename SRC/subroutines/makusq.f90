@@ -1,5 +1,5 @@
 subroutine makusq(mode,nsites,isite, nev,isp,iq,q,evec,  aus)
-  use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nkapii,lhh
+  use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nkapii,lhh,rsma
   use m_suham,only: ndham=>ham_ndham
   use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
   use m_mkpot,only: ppnl=>ppnl_rv
@@ -95,7 +95,7 @@ subroutine makusq(mode,nsites,isite, nev,isp,iq,q,evec,  aus)
   ! ... Local parameters
   integer :: nkap0
   parameter (nkap0=3)
-  double precision :: eh(n0,nkap0),rsmh(n0,nkap0),rsma,a,rmt
+  double precision :: eh(n0,nkap0),rsmh(n0,nkap0),a,rmt
   integer :: igetss,ib,nkapi,is,nr,kmax,lmxa,lmxl,lmxh,i
   real(8) ,allocatable :: rofi_rv(:)
   real(8) ,allocatable :: fh_rv(:)
@@ -115,7 +115,7 @@ subroutine makusq(mode,nsites,isite, nev,isp,iq,q,evec,  aus)
         ib = isite(i)
      endif
      is = ssite(ib)%spec
-     rsma=sspec(is)%rsma
+!     rsma=sspec(is)%rsma
      lmxa=sspec(is)%lmxa
      lmxl=sspec(is)%lmxl
      kmax=sspec(is)%kmxt
@@ -139,7 +139,7 @@ subroutine makusq(mode,nsites,isite, nev,isp,iq,q,evec,  aus)
      allocate(xp_rv(nr*(lmxa+1)*(kmax+1)))
      allocate(vp_rv((lmxa+1)*(kmax+1)))
      allocate(dp_rv((lmxa+1)*(kmax+1)))
-     call fradpk(kmax,rsma,lmxa,nr,rofi_rv,fp_rv,xp_rv,vp_rv,dp_rv)
+     call fradpk(kmax,rsma(is),lmxa,nr,rofi_rv,fp_rv,xp_rv,vp_rv,dp_rv)
      !   --- Add to the coefficient for the projection onto (u,s) for this site
      call pusq1 ( mode , ib , isp , nspc , nlmax , lmxh &
           , nbas , ssite , sspec ,  q , ndham , ndimh , napw , igvapw& ! & slat ,
@@ -235,7 +235,7 @@ subroutine pusq1(mode,ia,isp,nspc,nlmax,lmxh,nbas,ssite, &
   parameter (nkap0=3,nlmxx=121)
   complex(8) ,allocatable :: a_zv(:) !b_zv(:),
   integer :: isa,lmxa,lmxha,kmax,nlma,ivec, ilm,k,ll,nkape,ksp,ispc,nlmto
-  real(8) :: rsma,pa(3),rmt, phi,phip,dphi,dlphi,dphip,dlphip,det,rotp(nlmxx,2,2),&
+  real(8) :: pa(3),rmt, phi,phip,dphi,dlphi,dphip,dlphip,det,rotp(nlmxx,2,2),&
        eh(n0,nkap0),rsmh(n0,nkap0)
   call tcn ('pusq1')
   isa =ssite(ia)%spec
@@ -244,7 +244,7 @@ subroutine pusq1(mode,ia,isp,nspc,nlmax,lmxh,nbas,ssite, &
   if (lmxa == -1) return
   lmxha=sspec(isa)%lmxb
   kmax=sspec(isa)%kmxt
-  rsma=sspec(isa)%rsma
+!  rsma=sspec(isa)%rsma
   rmt=sspec(isa)%rmt
   nlmto = ndimh-napw
   nlma  = (lmxa+1)**2

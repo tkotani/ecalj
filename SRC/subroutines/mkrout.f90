@@ -57,7 +57,7 @@ contains
   !!-------------------------------
   subroutine mkrout( sv_p_oqkkl, sv_p_oeqkkl, orhoat_out, hab,sab, qbyl, hbyl)
     use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,procid,master,nkaph &
-         , sspec=>v_sspec,ssite=>v_ssite,nbas,nsp,lekkl,lrout,n0,nab,nlmto,nmcore
+         , sspec=>v_sspec,ssite=>v_ssite,nbas,nsp,lekkl,lrout,n0,nab,nlmto,nmcore,rsma
     use m_lgunit,only: stdo
     use m_struc_def
     use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
@@ -140,7 +140,7 @@ contains
     real(8) ,allocatable :: chh_rv(:)
     real(8) ,allocatable :: chp_rv(:)
     real(8) ,allocatable :: cpp_rv(:)
-    double precision :: a,ceh,pi,qcor(2),rfoc,rmt,rsma,smec,smtc,stc0, &
+    double precision :: a,ceh,pi,qcor(2),rfoc,rmt,smec,smtc,stc0, &
          sum1,sum2,sums1,sums2,xx,y0,z,ddot,res,rsml(n0),ehl(n0)
     integer :: nkap0,nkapi,nkape,nglob
     parameter (nkap0=3)
@@ -164,7 +164,7 @@ contains
     if(procid==master) inquire(file='mmtarget.aftest',exist=mmtargetx)
     do  ib = 1, nbas
        is = int(ssite(ib)%spec)
-       rsma=sspec(is)%rsma
+!       rsma=sspec(is)%rsma
        lmxa=sspec(is)%lmxa
        lmxl=sspec(is)%lmxl
        kmax=sspec(is)%kmxt
@@ -205,7 +205,7 @@ contains
           allocate(xp_rv(nr*(lmxa+1)*(kmax+1)))
           allocate(vp_rv((lmxa+1)*(kmax+1)))
           allocate(dp_rv((lmxa+1)*(kmax+1)))
-          call fradpk(kmax, rsma, lmxa , nr , rofi_rv , fp_rv, xp_rv , vp_rv , dp_rv )
+          call fradpk(kmax, rsma(is), lmxa , nr , rofi_rv , fp_rv, xp_rv , vp_rv , dp_rv )
           !   ... Augmented wave functions
           allocate(ul_rv(nr*(lmxa+1)*nsp))
           allocate(sl_rv(nr*(lmxa+1)*nsp))

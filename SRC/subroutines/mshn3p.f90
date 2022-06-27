@@ -63,7 +63,7 @@ subroutine mshn3p ( nbas , ssite , sspec , lmet , lrout , lfrce &
   double complex smrho(k1,k2,k3,3,2)
   integer :: ib,ipl,is,kmax,lmxa,lmxh,lmxl,m,nelt1,nelt2,nelt3,nlma,nlmh,lgunit,ipr,iprint
   double precision :: a,b,c,def1,disc,eadd,efold,p(3),px,py,pz, &
-       q1,q2,q3,a1,a2,a3,rsm,sen,sev,sqv,sav,w1,w2,w3,x,x1,x2,xlin
+       q1,q2,q3,a1,a2,a3,sen,sev,sqv,sav,w1,w2,w3,x,x1,x2,xlin
   equivalence (px,p(1)),(py,p(2)),(pz,p(3))
   ipr = iprint()
   ipl = ipr
@@ -168,7 +168,7 @@ subroutine mshn3p ( nbas , ssite , sspec , lmet , lrout , lfrce &
      do  ib = 1, nbas
         is=ssite(ib)%spec
         p=rv_a_opos(:,ib)
-        rsm=sspec(is)%rsma
+!        rsm=sspec(is)%rsma
         lmxl=sspec(is)%lmxl
         lmxh=sspec(is)%lmxb
         lmxa=sspec(is)%lmxa

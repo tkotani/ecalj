@@ -45,11 +45,11 @@ contains
   
   subroutine m_bstrux_init() !q for qplist --> not yet for sugw.
     use m_qplist,only: qplist,iqini,iqend
-    use m_lmfinit,only: lfrce=>ctrl_lfrce,nlmax,kmxt,nspec,nbas,ssite=>v_ssite,sspec=>v_sspec
+    use m_lmfinit,only: lfrce=>ctrl_lfrce,nlmax,kmxt,nspec,nbas,ssite=>v_ssite,sspec=>v_sspec,rsma
     use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat,rv_a_opos
     use m_igv2x,only: napw, igvapw=>igv2x, ndimh,m_Igv2x_setiq !igvapwin=>igv2x,
     integer:: kmaxx,ia,isa,lmxa,lmxb,kmax,nlmb,nlma,mode,inn(3),ig,iq,ndimhmax
-    real(8):: pa(3),qin(3),q(3),qlatinv(3,3),rsma,qss(3)
+    real(8):: pa(3),qin(3),q(3),qlatinv(3,3),qss(3)
     !    integer,allocatable:: igvapw(:,:)
     call tcn('m_bstrux_init')
     if(allocated(qall)) deallocate(qall,p_bstr,p_dbstr)
@@ -79,7 +79,7 @@ contains
           pa=rv_a_opos(:,ia) !ssite(ia)%pos
           lmxa=sspec(isa)%lmxa !max l of augmentation
           kmax=sspec(isa)%kmxt !max of radial k
-          rsma=sspec(isa)%rsma
+!          rsma=sspec(isa)%rsma
           nlma = (lmxa+1)**2
           if (lmxa == -1) cycle
           allocate(                p_bstr(ia,iq)%cv3(ndimh,nlma,0:kmax) )
@@ -88,7 +88,7 @@ contains
           mode = 2
           if(lfrce/=0) mode=1
           qss = q+ [1d-8,2d-8,3d-8] !for stabilizing deneracy ordering (this works well?)
-          call bstrux (mode,ia,pa,rsma,qss,kmax,nlma,ndimh,napw,igvapw, p_bstr(ia,iq)%cv3,p_dbstr(ia,iq)%cv4)
+          call bstrux (mode,ia,pa,rsma(isa),qss,kmax,nlma,ndimh,napw,igvapw, p_bstr(ia,iq)%cv3,p_dbstr(ia,iq)%cv4)
        enddo
        !       deallocate(igvapw)
        qall(:,iq)=q

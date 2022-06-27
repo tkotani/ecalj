@@ -144,12 +144,12 @@ include "show_programinfo.fpp" !this is for 'call show_programinfo'
 
 subroutine praugm() !print out only
   use m_struc_def 
-  use m_lmfinit,only: nspec,stdo,sspec=>v_sspec,slabl
+  use m_lmfinit,only: nspec,stdo,sspec=>v_sspec,slabl,rsma
   implicit none
   integer :: is
   integer :: is1,is2,js,kmxt,lmxa,lgunit
   integer :: kmxv,lmxl,lfoca
-  double precision :: rmt,rsma,rfoca,rg,rsmv
+  double precision :: rmt,rfoca,rg,rsmv
   character spid*8
   write (stdo,501)
 501 format(/' species data:  augmentation',27x,'density'/ &
@@ -157,7 +157,7 @@ subroutine praugm() !print out only
   do js = 1,nspec
      spid=slabl(js) !sspec(js)%name
      rmt =sspec(js)%rmt
-     rsma=sspec(js)%rsma
+!     rsma=sspec(js)%rsma
      lmxa=sspec(js)%lmxa
      kmxt=sspec(js)%kmxt
      lmxl=sspec(js)%lmxl
@@ -165,7 +165,7 @@ subroutine praugm() !print out only
      rsmv=sspec(js)%rsmv
      lfoca=sspec(js)%lfoca
      rfoca=sspec(js)%rfoca
-     write (stdo,500) spid,rmt,rsma,lmxa,kmxt, lmxl,rg,rsmv,lfoca,rfoca
+     write (stdo,500) spid,rmt,rsma(js),lmxa,kmxt, lmxl,rg,rsmv,lfoca,rfoca
 500  format(1x,a,f6.3,f7.3,2i5,6x,i4,2f7.3,i5,f8.3)
   enddo
 end subroutine praugm

@@ -58,9 +58,16 @@ module m_lmfinit
        rs3(:),rham(:),alpha(:,:),ehvl(:,:), uh(:,:),jh(:,:), eh3(:),&
        qpol(:,:),stni(:), &
        pnu(:,:,:),qnu(:,:,:),      pnudefault(:,:),qnudefault(:,:),qnudummy(:,:), &
-       coreq(:,:), rg(:),rsma(:),rfoca(:), rsmfa(:),rcfa(:,:), &
+       coreq(:,:), rg(:),rsma(:),rfoca(:),rcfa(:,:), &
        exi(:,:),rmt(:),pz(:,:,:), &
        amom(:,:),spec_a(:),z(:),eref(:),rsmv(:)
+
+!!!!!!!!!!!!!!!!!!!
+  real(8),allocatable:: rsmfa(:)
+
+
+
+  
   character*(8),allocatable,protected:: coreh(:)
   !! ... SITE
   character(8),protected:: alabl
@@ -1155,8 +1162,8 @@ contains
          v_sspec(j)%rfoca=rfoca(j)
          v_sspec(j)%rg=rg(j)
          v_sspec(j)%rmt=rmt(j)
-         v_sspec(j)%rsma=rsma(j)
-         v_sspec(j)%rsmfa=rsmfa(j)
+!         v_sspec(j)%rsma=rsma(j)
+!         v_sspec(j)%rsmfa=rsmfa(j)
       enddo
       allocate(v_ssite(nbas))
       do j=1,nbas
@@ -1305,7 +1312,7 @@ contains
       call suldau(nbas,v_sspec,v_ssite,nlibu,k,wowk)!Count LDA+U blocks (printout only)
       ham_nlibu=nlibu
       call poppr
-      deallocate(wowk,amom, qpol,stni,rg,rsma,rfoca,rsmfa,nxi, &
+      deallocate(wowk,amom, qpol,stni,rg,rfoca,nxi, &
            exi,rham,idxdn, rmt,  lfoca,lmxl, spec_a,z,nr,rsmv, ips,irlx) 
       !! --- takao embed contents in susite here. This is only for lmf and lmfgw.
       allocate(iv_a_oips(nbas),source=[(v_ssite(ib)%spec, ib=1,nbas)])

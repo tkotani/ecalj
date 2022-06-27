@@ -166,7 +166,7 @@ subroutine rlocbl ( ssite , sspec , lfrce , nbas , isp  &
   !i     Stored:    *
   !i     Passed to: bstrux
   !i   sspec :struct for species-specific information; see routine uspec
-  !i     Elts read: lmxa kmxt lmxb rsma
+  !i     Elts read: lmxa kmxt lmxb
   !i     Stored:    *
   !i     Passed to: bstrux
   !i   slat  :struct for lattice information; see routine ulat
@@ -256,7 +256,7 @@ subroutine rlocbl ( ssite , sspec , lfrce , nbas , isp  &
   double precision :: alat,qlat(3,3)
   integer :: ia,isa,ivec,kmax,lmxa,nlma,lmxha,nlmha,ispc,ksp
   integer:: ob , odb
-  double precision :: pa(3),rsma,pi,tpiba
+  double precision :: pa(3),pi,tpiba
   complex(8),allocatable:: cPkL(:),da(:),wk(:)
   integer ::iwdummy, iaini,iaend
   complex(8),allocatable::w_ob(:),w_odb(:,:,:,:),force(:)
@@ -297,7 +297,7 @@ subroutine rlocbl ( ssite , sspec , lfrce , nbas , isp  &
      if (lmxa == -1) cycle !goto 10
      lmxha=sspec(isa)%lmxb
      kmax= sspec(isa)%kmxt
-     rsma= sspec(isa)%rsma
+!     rsma= sspec(isa)%rsma
      nlmha = (lmxha+1)**2
      nlma  = (lmxa+1)**2
      OQPP => sv_p_oqkkl(1,ia)%v

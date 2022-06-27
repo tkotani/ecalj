@@ -13,7 +13,8 @@ contains
 
     use m_supot,only: lat_nabc
     use m_struc_func,only: mpibc1_s_spec,mpibc1_s_site
-    use m_lmfinit,only: lat_alat,nsp,lrel,nl,ssite=>v_ssite,sspec=>v_sspec, nbas,nat,nspec,n0,idmodis=>idmod,slabl
+    use m_lmfinit,only: lat_alat,nsp,lrel,nl,ssite=>v_ssite,sspec=>v_sspec, nbas,nat,nspec,n0,idmodis=>idmod,slabl,&
+         rsma,rsmfa
     use m_lattic,only: lat_plat
     use m_ext,only:sname
     !!- I/O for charge density to rst or rsta. ssite sspec are readin
@@ -112,7 +113,7 @@ contains
     integer :: idmod(n0),idmoz(n0) !,lrs(10)
     logical :: isanrg,lfail,ltmp1,ltmp2,latvec,cmdopt,mlog !,lshear
     double precision :: a,a0,alat,alat0,cof,eh,fac,qc,rfoc,rfoc0,rmt, &
-         rmt0,rsma,rsma0,rsmfa,rsmr,rsmr0,rsmv,rsmv0,stc,sum,vfac,vol,vol0,vs,vs1,z,z0
+         rmt0,rsma0,rsmr,rsmr0,rsmv,rsmv0,stc,sum,vfac,vol,vol0,vs,vs1,z,z0
     double precision :: pnu(n0,2),pnz(n0,2),ql(n0,2*n0),pos(3)=-9999, &
          pos0(3),force(3),plat(3,3),plat0(3,3),qlat(3,3),qlat0(3,3), &
          exi(n0),hfc(n0,2),vec0(3),wk(100),rh,vrmax(2),pnus(n0,2), &
@@ -558,7 +559,7 @@ contains
           call dpzero(exi,n0)
           call dpzero(hfc,n0*2)
           if (procid == master) then
-             read(jfi,err=999,end=999) rsmfa,nxi
+             read(jfi,err=999,end=999) rsmfa(is),nxi
              read(jfi,err=999,end=999) &
                   ((exi(i),hfc(i,isp),i=1,nxi),isp=1,nsp0)
              if (nsp > nsp0) then
@@ -567,7 +568,7 @@ contains
                 call dpscop(hfc,hfc,i,1,1+i,1d0)
              endif
           endif
-          call mpibc1_real(rsmfa,1,'iors_rsmfa')
+          call mpibc1_real(rsmfa(is),1,'iors_rsmfa')
           call mpibc1_int(nxi,1,'iors_nxi')
           call mpibc1_real(exi,nxi,'iors_exi')
           call mpibc1_real(hfc,nsp*nxi,'iors_hfc')
@@ -577,7 +578,7 @@ contains
           sspec(is)%nxi=nxi
           sspec(is)%exi=exi
           sspec(is)%chfa=hfc
-          sspec(is)%rsmfa=rsmfa
+!          sspec(is)%rsmfa=rsmfa
 30     enddo
 
        !   ... Copy or rescale cores, in case foca was switched on or off
@@ -672,7 +673,7 @@ contains
           z=sspec(is)%z
           qc=sspec(is)%qc
           idmod=idmodis(:,is) !sspec(is)%idmod
-          rsma=sspec(is)%rsma
+!          rsma=sspec(is)%rsma
           lmxa=sspec(is)%lmxa
           lmxl=sspec(is)%lmxl
           lmxb=sspec(is)%lmxb
@@ -687,7 +688,7 @@ contains
           lmxr = 0
           lmxv = 0
           rsmr = 0
-          write(jfi) rsma,rsmr,rsmv,lmxv,lmxr,lmxb,kmax
+          write(jfi) rsma(is),rsmr,rsmv,lmxv,lmxr,lmxb,kmax
           !     ... Write augmentation data
           do  122  isp = 1, nsp
              write(jfi) (pnu(l+1,isp), l=0,lmxa)

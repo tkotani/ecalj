@@ -246,7 +246,7 @@ subroutine augmbl(ssite,sspec,isp, &
      lmxa=sspec(isa)%lmxa !max l of augmentation
      lmxb=sspec(isa)%lmxb !max l of basis
      kmax=sspec(isa)%kmxt !max of radial k
-     rsma=sspec(isa)%rsma
+!     rsma=sspec(isa)%rsma
      nlmb = (lmxb+1)**2
      nlma = (lmxa+1)**2
      if (lmxa == -1) cycle
