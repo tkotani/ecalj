@@ -57,7 +57,7 @@ module m_struc_def
      real(8):: qc    !core charge
      integer:: nxi    ! Number of energies in fit of free-atom density tails
      integer:: kmxv   ! k-cutoff for 1-center projection of free-atom rho
-     real(8):: rcfa(2)! renormalization radius of free atom density, and width
+!     real(8):: rcfa(2)! renormalization radius of free atom density, and width
      real(8):: exi(n0)! Hankel energies for fit to c.d.; fit to free-atom density tails.
      real(8):: chfa(n0,2) ! coefficients to fit of free-atom density tails
   end type s_spec

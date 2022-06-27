@@ -745,35 +745,33 @@ contains
                   call rx('LFOCA should be 0 or 1 (Aug2010): 2 is not allowed')
                endif
             endif
-            nm='SPEC_ATOM_KMXA'; call gtv(trim(nm),tksw(prgnam,nm), &
-                 kmxt(j),def_i4=3,cindx=jj,note='k-cutoff for projection of wave functions in sphere.')
-            !     Cannot set default here: need set after rescaling of rmt
-            !     xxx = 0.40d0*rmt(j); if (io_help .eq. 1) xxx = NULLI
-            xxx = 0d0; if (io_help .eq. 1) xxx = NULLI
-            nm='SPEC_ATOM_RSMA'; call gtv(trim(nm),tksw(prgnam,nm),rsma(j), &
-                 def_r8=xxx,cindx=jj,note='Smoothing for projection of wave functions in sphere.'// &
+            nm='SPEC_ATOM_KMXA'; call gtv(trim(nm),tksw(prgnam,nm), kmxt(j),def_i4=3,&
+                 cindx=jj,note='k-cutoff for projection of wave functions in sphere.')
+! radius            
+            xxx = 0d0
+            if(io_help==1) xxx = NULLI
+            nm='SPEC_ATOM_RSMA'; call gtv(trim(nm),tksw(prgnam,nm), rsma(j), def_r8=xxx,cindx=jj,&
+                 note='Smoothing for projection of wave functions in sphere.'// &
                  '%N%3finput<0 => choose default * -input')
-            xxx = 0d0; if (io_help .eq. 1) xxx = NULLI
-            nm='SPEC_ATOM_RSMG'; call gtv(trim(nm),tksw(prgnam,nm),rg(j), &
-                 def_r8=xxx,cindx=jj,note='Smoothing for projection of charge in sphere.'// &
-                 '%N%3finput<0 => choose default * -input')
-            xxx = 0d0; if (io_help .eq. 1) xxx = NULLI
-            nm='SPEC_ATOM_RFOCA'; call gtv(trim(nm),tksw(prgnam,nm),rfoca(j), &
-                 def_r8=xxx,cindx=jj,note='Smoothing for core tail.  input<0 => choose default * -input')
-            xxx = 0d0; if (io_help .eq. 1) xxx = NULLI
-            nm='SPEC_ATOM_RSMFA'; call gtv(trim(nm),tksw(prgnam,nm),rsmfa(j), def_r8=xxx,cindx=jj,note= &
-                 'Smoothing for free atom.  input<0 => choose default * -input')
-            nm='SPEC_ATOM_RCFA'; call gtv(trim(nm),tksw(prgnam,nm),rcfa(1:2,j) &
-                 ,def_r8v=zerov,nmin=2,cindx=jj,note= &
+            nm='SPEC_ATOM_RSMG'; call gtv(trim(nm),tksw(prgnam,nm),    rg(j), def_r8=xxx,cindx=jj,&
+                 note='Smoothing for projection of charge in sphere.')
+            nm='SPEC_ATOM_RFOCA'; call gtv(trim(nm),tksw(prgnam,nm),rfoca(j), def_r8=xxx,cindx=jj,&
+                 note='Smoothing for core tail.')
+            nm='SPEC_ATOM_RSMFA'; call gtv(trim(nm),tksw(prgnam,nm),rsmfa(j), def_r8=xxx,cindx=jj,&
+                 note='Smoothing for free atom.  input<0 => choose default * -input')
+            if (rg(j)   == 0)  rg(j)  = 0.25d0*rmt(j)
+            if (rsma(j) == 0) rsma(j) = 0.4d0*rmt(j)
+            if (rfoca(j)== 0) rfoca(j)= 0.4d0*rmt(j)
+            if (rsmfa(j)== 0) rsmfa(j)= 0.5d0*rmt(j)
+       
+            nm='SPEC_ATOM_RCFA'; call gtv(trim(nm),tksw(prgnam,nm), rcfa(1:2,j),def_r8v=zerov,&
+                 nmin=2,cindx=jj,note= &
                  'Cutoff radius for renormalization of free atom density'// &
                  '(WARN:takao rnatm.F is not tested).'//'%N%3fOptional 2nd argument = width'// &
                  '%N%3fRCFA<0 => renormalize potential instead of density')
-            !     Negative radii: convert to actual numbers
-            !          nm='SPEC_ATOM_IDXDN'; removed...
-            if (rg(j)    < 0) rg(j)    = -rg(j)*0.25d0*rmt(j)
-            if (rsma(j)  < 0) rsma(j)  = -rsma(j)*0.4d0*rmt(j)
-            if (rfoca(j) < 0) rfoca(j) = -rfoca(j)*0.4d0*rmt(j)
-            if (rsmfa(j) < 0) rsmfa(j) = -rsmfa(j)*0.5d0*rmt(j)
+
+            !    nm='SPEC_ATOM_IDXDN'; removed...
+
             !          nm='SPEC_ATOM_RS3'; call gtv(trim(nm),tksw(prgnam,nm),rs3(j), &
             !               def_r8=0.5d0,cindx=jj, &
             !          note='Minimum smoothing radius for local orbital')
@@ -1150,7 +1148,7 @@ contains
          v_sspec(j)%exi=exi(:,j)
          v_sspec(j)%kmxt=kmxt(j)
          v_sspec(j)%lfoca=lfoca(j) !lfoca=1,usually (frozen core)
-         v_sspec(j)%rsmv=rsmv(j)
+         v_sspec(j)%rsmv= rmt(j)*.5d0 !rsmv(j)
          v_sspec(j)%lmxa=lmxa(j) !lmx for augmentation
          v_sspec(j)%lmxb=lmxb(j) !lmx for base
          v_sspec(j)%lmxl=lmxl(j) !lmx for rho and density
@@ -1199,7 +1197,7 @@ contains
       !      j=3+10 ! no downfolding j=3 ; j=+10 nfp-style basis:
       !      call suidx(nkaph,j,nspec,v_sspec)
       !! Set default values for species data
-      call defspc(v_sspec,nspec)
+      !call defspc(v_sspec,nspec)
       !!
       lxcf = ctrl_lxcf
       nspc = 1
@@ -1485,35 +1483,6 @@ contains
     call tcx('m_lmfinit')
   end subroutine m_lmfinit_init
 
-  ! sssssssssssssssssssss
-  subroutine defspc(sspec,nspec)
-    use m_struc_def,only:s_spec
-    integer:: nspec
-    type(s_spec)::sspec(*)
-    double precision :: dgetss,rg,rsma,rfoca,rsmfa,rmt
-    integer :: is
-    do  is = 1, nspec
-       rmt = (sspec(is)%rmt)
-       rmt=sspec(is)%rmt
-       rg=sspec(is)%rg
-       rsma=sspec(is)%rsma
-       rfoca=sspec(is)%rfoca
-       rsmfa=sspec(is)%rsmfa
-       if (rg    == 0) rg    = -1
-       if (rg    < 0) rg    = -rg*0.25d0*rmt
-       if (rsma  == 0) rsma  = -1
-       if (rsma  < 0) rsma  = -rsma*0.4d0*rmt
-       if (rfoca == 0) rfoca = -1
-       if (rfoca < 0) rfoca = -rfoca*0.4d0*rmt
-       if (rsmfa == 0) rsmfa = -1
-       if (rsmfa < 0) rsmfa = -rsmfa*0.5d0*rmt
-       sspec(is)%rg=rg
-       sspec(is)%rsma=rsma
-       sspec(is)%rfoca=rfoca
-       sspec(is)%rsmfa=rsmfa
-       sspec(is)%rsmv=rmt*.5d0
-    enddo
-  end subroutine defspc
   ! sssssssssssssssssssss
   subroutine getiout(a,iin,iout) !a(1:iout) can be nonzero.
     integer:: iin,iout,i
