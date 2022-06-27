@@ -30,10 +30,10 @@ contains
          , master, MPI_COMM_WORLD,ierr)
     call mpi_bcast(struc%rmt, 1,MPI_REAL8 &
          , master, MPI_COMM_WORLD,ierr)
-    call mpi_bcast(struc%rsmfa, 1,MPI_REAL8 &
-         , master, MPI_COMM_WORLD,ierr)
-    call mpi_bcast(struc%rsma, 1,MPI_REAL8 &
-         , master, MPI_COMM_WORLD,ierr)
+!    call mpi_bcast(struc%rsmfa, 1,MPI_REAL8 &
+!         , master, MPI_COMM_WORLD,ierr)
+!    call mpi_bcast(struc%rsma, 1,MPI_REAL8 &
+!         , master, MPI_COMM_WORLD,ierr)
     call mpi_bcast(struc%rg, 1,MPI_REAL8 &
          , master, MPI_COMM_WORLD,ierr)
     call mpi_bcast(struc%lmxa, 1,MPI_INTEGER &

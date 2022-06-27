@@ -251,7 +251,7 @@ subroutine pvdf1 ( job , ssite , sspec ,  nsp , ib , iv0 & ! & slat ,
        , ceps , cdvxc , cvin , sv_p_orhoat , fes1 , fes2 , fxc )
   use m_struc_def  !Cgetarg
   use m_lmfinit,only: nbas
-  use m_lmfinit,only:lat_alat,pnux=>pnu,pzx=>pz,rsmfa
+  use m_lmfinit,only:lat_alat,pnux=>pnu,pzx=>pz
   use m_lattic,only: lat_vol,rv_a_opos
   use m_supot,only: lat_nabc
   ! need to modify texts.
@@ -307,7 +307,7 @@ subroutine pvdf1 ( job , ssite , sspec ,  nsp , ib , iv0 & ! & slat ,
        vol,y0,z,v(3),df(0:20),feso(3),qcor(2),gpot0(nlmx,3),fesdn(3), &
        fesgg(3),pnu(n0),pnz(n0),a,rmt,qloc,exi(n0),hfc(n0,2), &
        qfat,gam,qall,qc,qval,qg,e,aa,q0(3),sum
-  double precision :: rwgt(nrmx),cc,gamf,cfoc,cvol
+  double precision :: rwgt(nrmx),cc,gamf,cfoc,cvol,rsmfa
   !     parameter (k0=3)
   !     double complex gkl(0:k0,nlmx)
   double complex tpia,cxx,phase,gc0,xc0,cof(nlmx)
@@ -345,8 +345,8 @@ subroutine pvdf1 ( job , ssite , sspec ,  nsp , ib , iv0 & ! & slat ,
      nxi=sspec(is)%nxi
      exi=sspec(is)%exi
      hfc=sspec(is)%chfa
-!     rsmfa=sspec(is)%rsmfa
-     gam  = 0.25d0*rsmfa(is)**2
+     rsmfa=sspec(is)%rsmfa
+     gam  = 0.25d0*rsmfa**2
      call gtpcor(sspec,is,kcor,lcor,qcor)
      if (nr > nrmx) call rx('dfrce: nr gt nrmx')
      call radwgt(rmt,a,nr,rwgt)

@@ -14,7 +14,7 @@ contains
     use m_supot,only: lat_nabc
     use m_struc_func,only: mpibc1_s_spec,mpibc1_s_site
     use m_lmfinit,only: lat_alat,nsp,lrel,nl,ssite=>v_ssite,sspec=>v_sspec, nbas,nat,nspec,n0,idmodis=>idmod,slabl,&
-         rsma,rsmfa
+         rsma
     use m_lattic,only: lat_plat
     use m_ext,only:sname
     !!- I/O for charge density to rst or rsta. ssite sspec are readin
@@ -117,7 +117,7 @@ contains
     double precision :: pnu(n0,2),pnz(n0,2),ql(n0,2*n0),pos(3)=-9999, &
          pos0(3),force(3),plat(3,3),plat0(3,3),qlat(3,3),qlat0(3,3), &
          exi(n0),hfc(n0,2),vec0(3),wk(100),rh,vrmax(2),pnus(n0,2), &
-         pnzs(n0,2),dval
+         pnzs(n0,2),dval,rsmfa
     character spid*8,spid0*8,fid0*68,line*20,msg*23,use*80,ignore*80, &
          msgw*17,datimp*32,usernm*32,hostnm*32,jobid*32,ffmt*32,ifmt*32
     integer:: fextg, i_dummy_fextg,ifile_handle
@@ -559,7 +559,7 @@ contains
           call dpzero(exi,n0)
           call dpzero(hfc,n0*2)
           if (procid == master) then
-             read(jfi,err=999,end=999) rsmfa(is),nxi
+             read(jfi,err=999,end=999) rsmfa,nxi
              read(jfi,err=999,end=999) &
                   ((exi(i),hfc(i,isp),i=1,nxi),isp=1,nsp0)
              if (nsp > nsp0) then
@@ -568,7 +568,7 @@ contains
                 call dpscop(hfc,hfc,i,1,1+i,1d0)
              endif
           endif
-          call mpibc1_real(rsmfa(is),1,'iors_rsmfa')
+          call mpibc1_real(rsmfa,1,'iors_rsmfa')
           call mpibc1_int(nxi,1,'iors_nxi')
           call mpibc1_real(exi,nxi,'iors_exi')
           call mpibc1_real(hfc,nsp*nxi,'iors_hfc')
@@ -578,7 +578,7 @@ contains
           sspec(is)%nxi=nxi
           sspec(is)%exi=exi
           sspec(is)%chfa=hfc
-!          sspec(is)%rsmfa=rsmfa
+          sspec(is)%rsmfa=rsmfa
 30     enddo
 
        !   ... Copy or rescale cores, in case foca was switched on or off

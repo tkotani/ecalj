@@ -40,7 +40,6 @@ module m_struc_def
      real(8):: z !atomic number
      real(8):: rmt !augmentation radius
      real(8):: rsmfa !rsm to fit free atom density
-     real(8):: rsma !rsm for augmentation expansion
      real(8):: rg !rsm for gaussians to fix multipole moments
      integer:: lmxa !  l cutoff for augmentation expansion
      integer:: lmxl !  l cutoff for local density and potential
@@ -76,6 +75,7 @@ module m_struc_def
 end module m_struc_def
 
 ! Removed from s_spec     
+!     real(8):: rsma !rsm for augmentation expansion
 !     real(8)::   q(n0,2)  !starting q's (charges)
 !     real(8)::  p(n0) !log derivative for spec taken from ctrl file !shown by >lmfa si |grep conf
 !     real(8)::   pz(n0) !log derivative for spec taken from ctrl file

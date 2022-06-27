@@ -13,7 +13,7 @@ contains
     use m_supot,only: lat_nabc
     use m_struc_func,only: mpibc1_s_spec,mpibc1_s_site
     use m_lmfinit,only: alat=>lat_alat,nsp,lrel,nl,ssite=>v_ssite,sspec=>v_sspec, nbas,nat,nspec,n0,&
-         idmodis=>idmod,slabl,rsma,rsmfa
+         idmodis=>idmod,slabl,rsma!,rsmfa
     use m_lattic,only: plat=>lat_plat,vol=>lat_vol,qlat=>lat_qlat
     use m_ext,only:sname
     use m_ftox
@@ -117,7 +117,7 @@ contains
     double precision :: pnu(n0,2),pnz(n0,2),ql(n0,2*n0),pos(3)=99999, &
          force(3),plat0(3,3),qlat0(3,3), &
          exi(n0),hfc(n0,2),vec0(3),wk(100),rh,vrmax(2),pnus(n0,2), &
-         pnzs(n0,2),dval
+         pnzs(n0,2),dval,rsmfa
     character spid*8,spid0*8,fid0*68,line*20,msg*23,use*80,ignore*80, &
          msgw*17,datimp*32,usernm*32,hostnm*32,jobid*32,ffmt*32,ifmt*32
     integer:: fextg, i_dummy_fextg,ifile_handle,n
@@ -453,7 +453,7 @@ contains
           call dpzero(exi,n0)
           call dpzero(hfc,n0*2)
           if (procid == master) then
-             read(jfi,err=999,end=999) rsmfa(is),nxi
+             read(jfi,err=999,end=999) rsmfa,nxi
              read(jfi,err=999,end=999) ((exi(i),hfc(i,isp),i=1,nxi),isp=1,nsp0)
              if (nsp > nsp0) then
                 i = n0
@@ -461,7 +461,7 @@ contains
                 call dpscop(hfc,hfc,i,1,1+i,1d0)
              endif
           endif
-          call mpibc1_real(rsmfa(is),1,'iors_rsmfa')
+          call mpibc1_real(rsmfa,1,'iors_rsmfa')
           call mpibc1_int(nxi,1,'iors_nxi')
           call mpibc1_real(exi,nxi,'iors_exi')
           call mpibc1_real(hfc,nsp*nxi,'iors_hfc')
@@ -471,7 +471,7 @@ contains
           sspec(is)%nxi=nxi
           sspec(is)%exi=exi
           sspec(is)%chfa=hfc
-!          sspec(is)%rsmfa=rsmfa
+          sspec(is)%rsmfa=rsmfa
 30     enddo
 
        !   ... Copy or rescale cores, in case foca was switched on or off
@@ -604,11 +604,11 @@ contains
           nxi =sspec(is)%nxi
           exi=sspec(is)%exi
           hfc=sspec(is)%chfa
-          !rsmfa = sspec(is)%rsmfa
+          rsmfa = sspec(is)%rsmfa
           if (lmxa == -1) goto 130
           write(jfi) nr,a,qc,cof,eh,stc,lfoc,rfoc
           write(jfi) sspec(is)%rv_a_orhoc
-          write(jfi) rsmfa(is),nxi
+          write(jfi) rsmfa,nxi
           write(jfi) ((exi(i),hfc(i,isp),i=1,nxi),isp=1,nsp)
 130    enddo
     endif

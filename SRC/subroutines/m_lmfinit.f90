@@ -63,7 +63,7 @@ module m_lmfinit
        amom(:,:),spec_a(:),z(:),eref(:),rsmv(:)
 
 !!!!!!!!!!!!!!!!!!!
-  real(8),allocatable:: rsmfa(:)
+!  real(8),allocatable:: rsmfa(:)
 
 
 
@@ -488,7 +488,7 @@ contains
       allocate(pnu(n0,nsp,nspec),qnu(n0,nsp,nspec), pz(n0,nsp,nspec),amom(n0,nspec),idmod(n0,nspec), &
            rsmh1(n0,nspec),eh1(n0,nspec),rsmh2(n0,nspec),eh2(n0,nspec), &
            ehvl(n0,nspec), qpol(n0,nspec),stni(nspec), &
-           rg(nspec),rsma(nspec),rfoca(nspec),rsmfa(nspec),rcfa(2,nspec), &
+           rg(nspec),rsma(nspec),rfoca(nspec),rcfa(2,nspec), & !,rsmfa(nspec)
            rham(nspec),rmt(nspec),rsmv(nspec), &
            nxi(nspec),exi(n0,nspec), spec_a(nspec),z(nspec),nr(nspec),eref(nspec), &
            coreh(nspec),coreq(2,nspec), idxdn(n0,nkap0,nspec), idu(4,nspec),uh(4,nspec),jh(4,nspec), &
@@ -514,7 +514,7 @@ contains
       do 1111 j = 1, nspec
          if(debug) print *,'nspec mxcst j-loop j nspec',j,nspec
          rcfa(:,j) = NULLR; rfoca(j) = 0d0; rg(j) = 0d0
-         rham(j) = NULLR; rsma(j) = 0d0; rsmfa(j) = 0d0
+         rham(j) = NULLR; rsma(j) = 0d0 !; rsmfa(j) = 0d0
          spec_a(j) = NULLR; nr(j) = NULLI
          exi(:,j) = NULLR
          coreh(j) = ' '; coreq(:,j) = NULLR
@@ -764,12 +764,12 @@ contains
                  note='Smoothing for projection of charge in sphere.')
             nm='SPEC_ATOM_RFOCA'; call gtv(trim(nm),tksw(prgnam,nm),rfoca(j), def_r8=xxx,cindx=jj,&
                  note='Smoothing for core tail.')
-            nm='SPEC_ATOM_RSMFA'; call gtv(trim(nm),tksw(prgnam,nm),rsmfa(j), def_r8=xxx,cindx=jj,&
-                 note='Smoothing for free atom.  input<0 => choose default * -input')
+            !nm='SPEC_ATOM_RSMFA'; call gtv(trim(nm),tksw(prgnam,nm),rsmfa(j), def_r8=xxx,cindx=jj,&
+            !     note='Smoothing for free atom.  input<0 => choose default * -input')
             if (rg(j)   == 0)  rg(j)  = 0.25d0*rmt(j)
             if (rsma(j) == 0) rsma(j) = 0.4d0*rmt(j)
             if (rfoca(j)== 0) rfoca(j)= 0.4d0*rmt(j)
-            if (rsmfa(j)== 0) rsmfa(j)= 0.5d0*rmt(j)
+!            if (rsmfa(j)== 0) rsmfa(j)= 0.5d0*rmt(j)
        
             nm='SPEC_ATOM_RCFA'; call gtv(trim(nm),tksw(prgnam,nm), rcfa(1:2,j),def_r8v=zerov,&
                  nmin=2,cindx=jj,note= &
@@ -1151,8 +1151,8 @@ contains
          v_sspec(j)%z=z(j)
          v_sspec(j)%a=spec_a(j)
          v_sspec(j)%nr=nr(j)
-         v_sspec(j)%nxi=nxi(j)
-         v_sspec(j)%exi=exi(:,j)
+!         v_sspec(j)%nxi=nxi(j)
+!         v_sspec(j)%exi=exi(:,j)
          v_sspec(j)%kmxt=kmxt(j)
          v_sspec(j)%lfoca=lfoca(j) !lfoca=1,usually (frozen core)
          v_sspec(j)%rsmv= rmt(j)*.5d0 !rsmv(j)
