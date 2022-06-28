@@ -760,23 +760,23 @@ contains
             nm='SPEC_ATOM_RSMA'; call gtv(trim(nm),tksw(prgnam,nm), rsma(j), def_r8=xxx,cindx=jj,&
                  note='Smoothing for projection of wave functions in sphere.'// &
                  '%N%3finput<0 => choose default * -input')
-            nm='SPEC_ATOM_RSMG'; call gtv(trim(nm),tksw(prgnam,nm),    rg(j), def_r8=xxx,cindx=jj,&
-                 note='Smoothing for projection of charge in sphere.')
-            nm='SPEC_ATOM_RFOCA'; call gtv(trim(nm),tksw(prgnam,nm),rfoca(j), def_r8=xxx,cindx=jj,&
-                 note='Smoothing for core tail.')
+            ! nm='SPEC_ATOM_RSMG'; call gtv(trim(nm),tksw(prgnam,nm),    rg(j), def_r8=xxx,cindx=jj,&
+            !      note='Smoothing for projection of charge in sphere.')
+            ! nm='SPEC_ATOM_RFOCA'; call gtv(trim(nm),tksw(prgnam,nm),rfoca(j), def_r8=xxx,cindx=jj,&
+            !      note='Smoothing for core tail.')
             !nm='SPEC_ATOM_RSMFA'; call gtv(trim(nm),tksw(prgnam,nm),rsmfa(j), def_r8=xxx,cindx=jj,&
             !     note='Smoothing for free atom.  input<0 => choose default * -input')
-            if (rg(j)   == 0)  rg(j)  = 0.25d0*rmt(j)
-            if (rsma(j) == 0) rsma(j) = 0.4d0*rmt(j)
-            if (rfoca(j)== 0) rfoca(j)= 0.4d0*rmt(j)
-!            if (rsmfa(j)== 0) rsmfa(j)= 0.5d0*rmt(j)
+             if(rsma(j)==0d0) rsma(j) = 0.4d0*rmt(j)
+             rg(j)= 0.25d0*rmt(j)
+             rfoca(j)= 0.4d0*rmt(j)
        
-            nm='SPEC_ATOM_RCFA'; call gtv(trim(nm),tksw(prgnam,nm), rcfa(1:2,j),def_r8v=zerov,&
-                 nmin=2,cindx=jj,note= &
-                 'Cutoff radius for renormalization of free atom density'// &
-                 '(WARN:takao rnatm.F is not tested).'//'%N%3fOptional 2nd argument = width'// &
-                 '%N%3fRCFA<0 => renormalize potential instead of density')
-
+            !nm='SPEC_ATOM_RCFA'; call gtv(trim(nm),tksw(prgnam,nm), rcfa(1:2,j),def_r8v=zerov,&
+            !     nmin=2,cindx=jj,note= &
+            !     'Cutoff radius for renormalization of free atom density'// &
+            !     '(WARN:takao rnatm.F is not tested).'//'%N%3fOptional 2nd argument = width'// &
+            !     '%N%3fRCFA<0 => renormalize potential instead of density')
+            rcfa=0d0
+            
             !    nm='SPEC_ATOM_IDXDN'; removed...
 
             !          nm='SPEC_ATOM_RS3'; call gtv(trim(nm),tksw(prgnam,nm),rs3(j), &
@@ -881,7 +881,7 @@ contains
             write(stdo,ftox)' ... Site ',j
          endif
          jj=(/1,j/)
-         nm='SITE_ATOM'; call gtv(trim(nm),tksw(prgnam,nm),alabl,nmin=10, cindx=jj,note='Species label')
+         nm='SITE_ATOM';call gtv(trim(nm),tksw(prgnam,nm),alabl,nmin=10, cindx=jj,note='Species label')
          if(io_help /= 1) then
             do  i = 1, nspec
                if (trim(alabl) == trim(slabl(i)) ) then
@@ -1008,7 +1008,8 @@ contains
               'Tolerance in energy change from prior iteration for self-consistency')
          nm='ITER_CONVC'; call gtv(trim(nm),tksw(prgnam,nm),qtol, &
               def_r8=1d-4,note='Tolerance in output-input charge for self-consistency')
-         nm='ITER_UMIX';call gtv(trim(nm),tksw(prgnam,nm),mix_umix,def_r8=.5d0,note='Mixing parameter for densmat in LDA+U') !2022mar9 default umix=0.5
+         nm='ITER_UMIX';call gtv(trim(nm),tksw(prgnam,nm),mix_umix,def_r8=.5d0,note='Mixing parameter for densmat in LDA+U')
+         !2022mar9 default umix=0.5
          nm='ITER_TOLU';call gtv(trim(nm),tksw(prgnam,nm),mix_tolu,def_r8=0d0,note='Tolerance for densmat in LDA+U')
       endif                     ! iterations category
 

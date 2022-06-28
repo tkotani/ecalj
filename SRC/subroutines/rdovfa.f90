@@ -8,6 +8,7 @@ subroutine rdovfa()
   use m_struc_func, only: mpibc1_s_spec
   use m_ext,only: sname
   use m_lgunit,only:stdo,stdl
+  use m_ftox
   !!- Read and overlap free atom densities.
   !  allocates orhoca with free-atom core density.
   ! ----------------------------------------------------------------------
@@ -25,73 +26,63 @@ subroutine rdovfa()
   !o         :  smrho = smrho(k1,k2,k3)
   ! ----------------------------------------------------------------------
   implicit none
-  integer :: procid, master, mpipid
-  integer :: nrmx, n0
+  integer :: procid, master, mpipid, nrmx, n0,i_spec,ifile_handle
   parameter ( nrmx=1501, n0=10 )
   integer:: nxi(nspec)
   type(s_rv1) :: rv_a_orhofa(nspec)
   type(s_rv1) :: rv_a_ov0a(nspec)
-  double precision :: rsmfa(nspec),pnu(n0,2),exi(n0,nspec), &
-       hfc(n0,2,nspec),hfct(n0,2,nspec)
+  real(8):: rsmfa(nspec),pnu(n0,2),exi(n0,nspec), hfc(n0,2,nspec),hfct(n0,2,nspec),&
+       alat,plat(3,3),a,rmt,z,rfoc,z0,rmt0,a0,qc,ccof, &
+       ceh,stc,ztot,ctot,corm,sum,fac,sum1,sum2,sqloc,dq,vol,smom, slmom,qcor(2)
   character(8) :: spid(nspec),spidr
-  integer:: ipr , iprint , ngabc(3) , n1 , n2 , n3 , k1 , k2 , &
-       k3 , i , ifi , is &
-       , nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ng &
-       , iofa , kcor , lcor
+  integer:: ipr , iprint , ngabc(3) , n1 , n2 , n3 , k1 , k2 , iofa , kcor , lcor,&
+       k3 , i , ifi , is, nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ng 
   real(8) ,allocatable :: rwgt_rv(:)
   complex(8) ,allocatable :: cv_zv(:)
   equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-  double precision :: alat,plat(3,3),a,rmt,z,rfoc,z0,rmt0,a0,qc,ccof, &
-       ceh,stc,ztot,ctot,corm,sum,fac,sum1,sum2,sqloc,dq,vol,smom, &
-       slmom,qcor(2)
   character msg*23, strn*120
-  logical :: mlog,cmdopt,lfail
-  logical:: l_dummy_isanrg,isanrg
-  integer:: i_copy_size,i_spec,ifile_handle
+  logical :: mlog,cmdopt,lfail, l_dummy_isanrg,isanrg
   call tcn('rdovfa')
   ipr   = iprint()
-  !      stdo  = lgunit(1)
-  !      stdl  = lgunit(2)
   msg   = '         File mismatch:'
   procid = mpipid(1)
   master = 0
   mlog = cmdopt('--mlog',6,0,strn)
-  if (ipr >= 10) write(stdo,700)
-700 format(/' rdovfa: read and overlap free-atom densities',' (mesh density) ...')
+  if(ipr>=10)write(stdo,"(/'rdovfa: read and overlap free-atom densities',' (mesh density) ...')")
   alat=lat_alat
   plat=lat_plat
   ngabc=lat_nabc
   vol=lat_vol
   call fftz30(n1,n2,n3,k1,k2,k3)
-  call dpzero(hfc,n0*2*nspec)
-  call dpzero(pnu,n0*2)
-  !! Read free-atom density for all species ---
+  hfc=0d0
+  pnu=0d0
+  exi=0d0
+  hfc=0d0
+  hfct=0d0
   if (procid == master) then
      ifi=ifile_handle()
-     open(ifi,file='atm.'//trim(sname))
+     open(ifi,file='atm.'//trim(sname))  !! Read free-atom density for all species ---
   endif
   do  10  is = 1, nspec
-     allocate(rv_a_orhofa(is)%v(nrmx*nsp))
-     rv_a_orhofa(is)%v(:)=0d0
-     if (allocated(sspec(is)%rv_a_orhoc)) deallocate(sspec(is)%rv_a_orhoc)
-     allocate(sspec(is)%rv_a_orhoc(   nrmx*nsp) )
-     sspec(is)%rv_a_orhoc=0d0
-     allocate(rv_a_ov0a(is)%v(nrmx*nsp))
-     rv_a_ov0a(is)%v(:)=0d0
      spid(is)=slabl(is)
      a=sspec(is)%a
      nr=sspec(is)%nr
+     
+     allocate(rv_a_orhofa(is)%v(nr*nsp))
+     rv_a_orhofa(is)%v=0d0
+     if(allocated(sspec(is)%rv_a_orhoc)) deallocate(sspec(is)%rv_a_orhoc)
+     allocate(sspec(is)%rv_a_orhoc(nr*nsp) )
+     sspec(is)%rv_a_orhoc=0d0
+     allocate(rv_a_ov0a(is)%v(nr*nsp))
+     rv_a_ov0a(is)%v(:)=0d0
+     
      rmt=sspec(is)%rmt
      z=sspec(is)%z
      lfoc=sspec(is)%lfoca
      rfoc=sspec(is)%rfoca
-     lfail = .false.
      if (procid == master) then
         if (z == 0 .AND. rmt == 0) then
            nxi(is) = 0
-           call dpzero(exi(1,is),n0)
-           call dpzero(hfc(1,1,is),2*n0)
-           call dpzero(hfct(1,1,is),2*n0)
            rsmfa(is) = 0
            z0=0
            rmt0=0
@@ -105,24 +96,25 @@ subroutine rdovfa()
            if (allocated(rv_a_orhofa(is)%v)) deallocate(rv_a_orhofa(is)%v)
         else
            nr0=nrmx 
-           lfail = ( iofa ( spidr , n0 , nxi ( is ) , exi ( 1 , is ) , hfc &
+           lfail = .false.
+           lfail = iofa ( spidr , n0 , nxi ( is ) , exi ( 1 , is ) , hfc &
                 ( 1 , 1 , is ) , hfct ( 1 , 1 , is ) , rsmfa ( is ) , z0 , rmt0 &
                 , a0 , nr0 , qc , ccof , ceh , stc , rv_a_orhofa( is )%v , sspec &
-                ( is ) %rv_a_orhoc , rv_a_ov0a ( is ) %v , ifi ) .lt. 0 )
+                ( is ) %rv_a_orhoc , rv_a_ov0a ( is ) %v , ifi )&
+                <0
+           if (lfail) call rxs('missing species data, species ',spid(is))
         endif
      endif
      call mpibc1(nr0,1,2,mlog,'rdovfa','nr0')
-     call mpibc1(lfail,1,1,mlog,'rdovfa','read error')
-     if (lfail) call rxs('missing species data, species ',spid(is))
      call mpibc1(nxi(is),1,2,mlog,'rdovfa','nxi')
      call mpibc1(exi(1,is),nxi(is),4,mlog,'rdovfa','exi')
      call mpibc1(hfc(1,1,is),nsp*n0,4,mlog,'rdovfa','hfc')
      call mpibc1(hfct(1,1,is),nsp*n0,4,mlog,'rdovfa','hfct')
      call mpibc1(rsmfa(is),1,4,mlog,'rdovfa','rsmfa')
      call mpibc1(a0,1,4,mlog,'rdovfa','a0')
-     call mpibc1 ( rv_a_orhofa( is )%v , nr0 * nsp , 4 , mlog , 'rdovfa'  , 'rhofa' )
+     call mpibc1(rv_a_orhofa( is )%v , nr0 * nsp , 4 , mlog , 'rdovfa'  , 'rhofa' )
      call mpibc1(sspec(is)%rv_a_orhoc,nr0*nsp,4,mlog,'rdovfa','rhoca')
-     call mpibc1 ( rv_a_ov0a( is )%v , nr0 * nsp , 4 , mlog , 'rdovfa', 'v0a' )
+     call mpibc1( rv_a_ov0a( is )%v , nr0 * nsp , 4 , mlog , 'rdovfa', 'v0a' )
      i = mpipid(3)
      if (procid == master) then
         call strip(spid(is),i1,nch)
@@ -145,19 +137,15 @@ subroutine rdovfa()
      sspec(is)%nr=nr
      sspec(is)%qc=qc
      sspec(is)%nxi=nxi(is)
-     i_copy_size=size(sspec(is)%exi)
-     call dcopy(i_copy_size,exi(1,is),1,sspec(is)%exi,1)
-     i_copy_size=size(sspec(is)%chfa)
-     call dcopy(i_copy_size,hfc(1,1,is),1,sspec(is)%chfa,1)
+     sspec(is)%exi=exi(:,is)
+     sspec(is)%chfa=hfc(:,:,is)
      sspec(is)%rsmfa=rsmfa(is)
      sspec(is)%ctail=ccof
      sspec(is)%etail=ceh
      sspec(is)%stc=stc
 10 enddo
-  !     Wait for all proccesses to synchronize
   i = mpipid(3)
   !     Re-broadcast entire species structure, and arrays used below
-  ! i      call mpibc1(sspec,nspec*nint(sspec(1)%size),4,0,'rdovfa','sspec')
   do i_spec=1,nspec
      call mpibc1_s_spec(sspec(i_spec),'rdovfa_sspec')
   enddo
@@ -186,7 +174,6 @@ subroutine rdovfa()
      allocate(ssite(ib)%rv_a_ov0(abs(nr*nsp)))
      if (allocated(ssite(ib)%rv_a_ov1)) deallocate(ssite(ib)%rv_a_ov1)
      allocate(ssite(ib)%rv_a_ov1(abs(nr*nsp)))
-
      !       Core magnetic moment (possible if magnetized core hole)
      if (nsp == 2 .AND. lmxl > -1) then
         allocate(rwgt_rv(nr))
@@ -196,8 +183,8 @@ subroutine rdovfa()
         sum2 = sum - sum1
         call gtpcor(sspec,is,kcor,lcor,qcor)
         if (dabs(qcor(2)-(sum1-sum2)) > 0.01d0) then
-           call info5(10,0,0,' (warning) core moment mismatch spec %i:' &
-                //'  input file=%;6d  atom file=%;6d', is,qcor(2),sum1-sum2,0,0)
+           if(ipr>=10) write(stdo,ftox)' (warning) core moment mismatch spec ',is, &
+                'input file=',ftof(qcor(2)),'atom file=',ftof(sum1-sum2)
         endif
         corm = corm + qcor(2)
         if (allocated(rwgt_rv)) deallocate(rwgt_rv)
@@ -223,12 +210,9 @@ subroutine rdovfa()
      ctot = ctot+qc
      !     end loop over sites
 20 enddo
-
-  !! allocate array for iteration
   if(allocated(zv_a_osmrho)) deallocate(zv_a_osmrho)
   allocate(zv_a_osmrho(k1*k2*k3*nsp))
   zv_a_osmrho(:)=0d0
-
   ! --- Overlap smooth hankels to get smooth interstitial density ---
   ng=lat_ng
   allocate(cv_zv(ng*nsp))
@@ -250,13 +234,11 @@ subroutine rdovfa()
        hfc , rsmfa , rv_a_orhofa , sv_p_orhoat , sqloc , slmom )
   ! --- Add compensating uniform electron density to compensate background
   call adbkql ( sv_p_orhoat , nbas , nsp , qbg , vol , - 1d0 , sspec , ssite )
-  if (abs(qbg) /= 0) call info(10,0,0,' Uniform '// &
-       'density added to neutralize background, q=%;6,6d',qbg,0)
-  ! --- Print charges ---
-  dq = sum1+sqloc+ctot-ztot+qbg
+  if (abs(qbg)/=0d0.and. ipr>=10) write(stdo,ftox) ' Uniform '// &
+       'density added to neutralize background q=',ftof(qbg)
+  dq = sum1+sqloc+ctot-ztot+qbg !charge
   if (nsp == 1) then
-     if (ipr >= 10) &
-          write(stdo,895) sum1,sqloc,sum1+sqloc,ctot,-ztot,qbg,dq
+     if (ipr >= 10) write(stdo,895) sum1,sqloc,sum1+sqloc,ctot,-ztot,qbg,dq
 895  format(/' Smooth charge on mesh:    ',f16.6 &
           /    ' Sum of local charges:     ',f16.6 &
           /    ' Total valence charge:     ',f16.6 &
