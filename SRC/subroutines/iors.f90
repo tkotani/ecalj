@@ -13,7 +13,7 @@ contains
     use m_supot,only: lat_nabc
     use m_struc_func,only: mpibc1_s_spec,mpibc1_s_site
     use m_lmfinit,only: alat=>lat_alat,nsp,lrel,nl,ssite=>v_ssite,sspec=>v_sspec, nbas,nat,nspec,n0,&
-         idmodis=>idmod,slabl,rsma!,rsmfa
+         idmodis=>idmod,slabl!,rsma!,rsmfa
     use m_lattic,only: plat=>lat_plat,vol=>lat_vol,qlat=>lat_qlat
     use m_ext,only:sname
     use m_ftox
@@ -113,7 +113,7 @@ contains
     integer :: idmod(n0),idmoz(n0) !,lrs(10)
     logical :: isanrg,lfail,ltmp1,ltmp2,latvec,cmdopt,mlog !,lshear
     double precision :: a,a0,alat0,cof,eh,fac,qc,rfoc,rfoc0,rmt, &
-         rmt0,rsma0,rsmr,rsmr0,rsmv,rsmv0,stc,sum,vfac,vol0,vs,vs1,z,z0
+         rmt0,rsma0,rsmv0,stc,sum,vfac,vol0,vs,vs1,z,z0
     double precision :: pnu(n0,2),pnz(n0,2),ql(n0,2*n0),pos(3)=99999, &
          force(3),plat0(3,3),qlat0(3,3), &
          exi(n0),hfc(n0,2),vec0(3),wk(100),rh,vrmax(2),pnus(n0,2), &
@@ -271,7 +271,7 @@ contains
              endif
 380          format('   atom',i4,'    species',i4,':',a:a)
              !     ... read(but don't use) extra info since record is present
-             read(jfi) rsma0,rsmr0,rsmv0,lmxv0,lmxr,lmxb0,kmax0
+             read(jfi) lmxv0,lmxr,lmxb0,kmax0
           endif
           call mpibc1_int(lmxa0,1,'iors_lmxa0')
           call mpibc1_int(lmxl0,1,'iors_lmxl0')
@@ -371,7 +371,6 @@ contains
           !sspec(is)%lmxa=lmxa
           !sspec(is)%lmxl=lmxl
           !sspec(is)%kmxt=kmax
-          sspec(is)%qc=qc
 20        continue
        enddo
        if (isanrg(ibaug, nat,nat,  msg,'nat', .FALSE. )) goto 999
@@ -429,6 +428,7 @@ contains
           sspec(is)%exi=exi
           sspec(is)%chfa=hfc
           sspec(is)%rsmfa=rsmfa
+          sspec(is)%qc=qc
 30     enddo
        !   ... Copy or rescale cores, in case foca was switched on or off
        do  ib = 1, nbas
@@ -502,12 +502,10 @@ contains
           z=sspec(is)%z
           qc=sspec(is)%qc
           idmod=idmodis(:,is) !sspec(is)%idmod
-          !rsma=sspec(is)%rsma
           lmxa=sspec(is)%lmxa
           lmxl=sspec(is)%lmxl
           lmxb=sspec(is)%lmxb
-          !kmxv=sspec(is)%kmxv
-          rsmv=sspec(is)%rsmv
+!          rsmv=sspec(is)%rsmv
           kmax=sspec(is)%kmxt
           pnu=ssite(ib)%pnu
           pnz=ssite(ib)%pz
@@ -515,8 +513,7 @@ contains
           write(jfi) is,spid,lmxa,lmxl,nr,rmt,a,z,qc ! Some extra info. lots of it useless or obsolete
           lmxr = 0
           lmxv = 0
-          rsmr = 0
-          write(jfi) rsma(is),rsmr,rsmv,lmxv,lmxr,lmxb,kmax !  ... Write augmentation data
+          write(jfi) lmxv,lmxr,lmxb,kmax !  ... Write augmentation data
           write(jfi) ((pnu(l+1,isp), l=0,lmxa),isp=1,nsp)
           write(jfi) ((pnz(l+1,isp), l=0,lmxa),isp=1,nsp)
           write(jfi) (idmod(l+1), l=0,lmxa) !         Write for compatibility with nfp

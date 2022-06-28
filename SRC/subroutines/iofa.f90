@@ -30,7 +30,7 @@ integer function iofa(spid,nxi0,nxi,exi,hfc,hfct,rsm,z,rmt,a,nr, &
   !u   10 Jun 00 spin polarized
   !u   20 May 00 adapted from nfp rw_fa.f
   ! ----------------------------------------------------------------------
-  !     implicit none
+  implicit none
   ! ... Passed parameters
   integer :: ifi,nr,nxi,nxi0
   character spid*8
