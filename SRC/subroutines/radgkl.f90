@@ -33,20 +33,14 @@ subroutine radgkl(r,rsm,kmax,lmax,n0,g)
   !r
   !u Updates
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
-  integer :: kmax,lmax,n0
-  double precision :: r,rsm,g(0:n0,0:lmax)
-  ! ... Local parameters
-  integer :: l,k
-  double precision :: pi,a,ta2,g0,x,y
-
+  implicit none
+  integer :: kmax,lmax,n0,l,k
+  real(8):: r,rsm,g(0:n0,0:lmax), pi,a,ta2,g0,x,y
   pi = 4d0*datan(1d0)
   a = 1d0/rsm
-  ta2 = 2*a*a
+  ta2 = 2d0*a*a
   if (kmax < 0 .OR. lmax < 0) return
   g0 = dexp(-a*a*r*r) * (a*a/pi)**1.5d0
-
   ! --- Do explicitly for k=0,1; See Eqs. 5.14 and 5.15 ---
   do  6  l = 0, lmax
      g(0,l) = ta2**l * g0
@@ -55,7 +49,6 @@ subroutine radgkl(r,rsm,kmax,lmax,n0,g)
   do  7  l = 0, lmax
      g(1,l) = ta2**(l+1)*(2d0*a*a*r*r-3-2*l) * g0
 7 enddo
-
   ! --- Recursion for higher k; see Eq. 5.19 ---
   do    k = 2, kmax
      do    l = 0, lmax
@@ -65,28 +58,3 @@ subroutine radgkl(r,rsm,kmax,lmax,n0,g)
      enddo
   enddo
 end subroutine radgkl
-!      subroutine fmain
-!      integer n0,kmax,lmax,k,l
-!      parameter (n0=4,kmax=3,lmax=3)
-!      double precision pkl(0:n0,0:lmax),gkl(0:n0,0:lmax)
-!      double precision r,rsm,pi,a,g0
-
-!      r = 1.7d0
-!      rsm = 1d0
-!      pi = 4d0*datan(1d0)
-!      a = 1d0/rsm
-!      g0 = dexp(-a*a*r*r) * (a*a/pi)**1.5d0
-
-!      call radgkl(r,rsm,kmax,lmax,n0,gkl)
-!      call radpkl(r,rsm,kmax,lmax,n0,pkl)
-
-!      do  k = 0, kmax
-!        print 333, (gkl(k,l), l=0,lmax)
-!        print 333, (gkl(k,l)/g0, l=0,lmax)
-!        print 333, (pkl(k,l), l=0,lmax)
-!        print 333, (gkl(k,l)/pkl(k,l), l=0,lmax)
-!        print *, ' '
-!  333   format(5f14.8)
-!      enddo
-!      end
-

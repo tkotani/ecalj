@@ -1547,6 +1547,7 @@ contains
   subroutine popta5(lmax,rtab,etab,itab,z,pl,rmax,rmt,nr,nrmt, &
        rofi,psi,v,g,a,b,spid)
     use m_ext,only:sname
+    use m_hansr,only:hansmr
     !- Write wave functions to plot file
     ! ----------------------------------------------------------------------
     !i Inputs

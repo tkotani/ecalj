@@ -70,8 +70,7 @@ gtpcor.o \
 gvctof.o \
 gvlst2.o \
 gvmtch.o \
-hansmr.o \
-hansr.o \
+m_hansr.o \
 hnsmft.o \
 hsmq.o \
 iclbas.o \
@@ -142,7 +141,6 @@ switch.o \
 rdsigm2.o\
 pvsms2.o \
 getcor.o \
-radgra.o \
 xcpbe.o \
 m_ext.o\
 fsubs.o \

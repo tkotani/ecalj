@@ -127,6 +127,7 @@ contains
   subroutine loctsh(mode0,spid,z,a,nr,nrmt,nsp,lmxb,rofi,v,pnu,pnz, &
        rs3,eh3,vmtz,vsel,rsml,ehl)
     use m_lmfinit,only: stdo
+    use m_hansr,only:hansmr
     use m_ftox
     !- Fit value and slope of local orbitals to smoothed Hankel
     ! ----------------------------------------------------------------------

@@ -1,6 +1,7 @@
 subroutine corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc, rfoc,z)
   use m_struc_def
   use m_lmfinit,only: pnux=>pnu,pzx=>pz
+  use m_hansr,only: hansmr
   !- Returns parameters for smooth core+nucleus representation
   ! ----------------------------------------------------------------------
   !i Inputs

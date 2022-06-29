@@ -138,6 +138,7 @@ end subroutine p1ovlc
 subroutine p2ovlc(ib,nsp,rsmv,kmxv,nr,nlml,acof,rofi,rwgt, &
      nxi0,nxi,exi,hfc,rsmfa,rhofa,rhoc,lfoca,qcsm,qloc,amom,rho1,rho2)
   use m_lgunit,only:stdo
+  use m_hansr,only: hansmr
   !- Assemble local density from P_kl expansion for one site
   ! ----------------------------------------------------------------------
   !i Inputs

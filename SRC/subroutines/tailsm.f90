@@ -1,7 +1,7 @@
 subroutine tailsm(lrhot,nr,nrmt,nsp,a,b,rmt,rsm,nxi0,nxi,exi,rofi, &
      rho,rhot,hfc,hfct)
   use m_lgunit,only:stdo
-  use m_hansr,only :hansr
+  use m_hansr,only :hansr,hansmr
   !- Fit tails of rho to smoothed Hankel functions
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -31,16 +31,13 @@ subroutine tailsm(lrhot,nr,nrmt,nsp,a,b,rmt,rsm,nxi0,nxi,exi,rofi, &
   !u Updates
   !u   19 Apr 02 Move rsq to a local array.  Altered argument list.
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
+  implicit none
   integer :: lrhot,nsp,nr,nrmt,nxi0,nxi
   double precision :: a,b,rmt,rsm
   double precision :: hfc(nxi0,nsp),exi(nxi),rho(*),rofi(nr)
   double precision :: hfct(nxi0,nsp),rhot(*)
-  ! ... Local parameters
   logical :: lzero
   integer:: lx0(20) , isp , ie , ir , ipr
-  !      real(8) ,allocatable :: wk_rv(:)
   integer,allocatable :: idx_rv(:)
   real(8) ,allocatable :: xi_rv(:)
 
@@ -103,30 +100,23 @@ subroutine tailsm(lrhot,nr,nrmt,nsp,a,b,rmt,rsm,nxi0,nxi,exi,rofi, &
         endif
         qcst0(ie) = qcst(ie)
 14   enddo
-
      !   ... Fit for this spin
      call hnsmft ( rofi , rho ( 1 + ( isp - 1 ) * nr ) , nr , qout &
           , a , b , nrmt , exi , qcst , xi_rv , hfc ( 1 , isp ) , nxi &
           , err )
-
-
      !        if (isp .eq. 1 .and. ipr .ge. 20 .and. ipr .lt. 30)
      !     .  call awrit3('%N tailsm:  fit tails to %i functions with'
      !     .  //' rsm=%;7g.  rms error=%;7F',' ',80,stdo,nxi,rsm,err)
      if (isp==1 .AND. ipr>=20)  write(stdo,"(' tailsm:  fit tails to ',i8,' functions with' &
           //' rsm=',d13.5,' rms error=',d13.5)") nxi,rsm,err
-
      !   ... Fit a second time for the full density in rhot
      if (lrhot /= 0) then
         do  15  ie=1,nxi
            qcst(ie)=qcst0(ie)
 15      enddo
         call hnsmft ( rofi , rhot ( 1 + ( isp - 1 ) * nr ) , nr , qout &
-             , a , b , nrmt , exi , qcst , xi_rv , hfct ( 1 , isp ) , nxi &
-             , err )
-
+             , a , b , nrmt , exi , qcst , xi_rv , hfct ( 1 , isp ) , nxi , err )
      endif
-
      !C   ... Evaluate integral of smoothed charge density (printout)
      !        qsm = 0
      !        qsmr = 0
@@ -155,13 +145,8 @@ subroutine tailsm(lrhot,nr,nrmt,nsp,a,b,rmt,rsm,nxi0,nxi,exi,rofi, &
      !  345   format (' valence:   qsm(r<rmt)=',f10.6,
      !     .     '  qsm(all space)=',f10.6/
      !     .     ' val+core:  qsm(r<rmt)=',f10.6,'  qsm(all space)=',f10.6)
-
-
-
 20 enddo
   if (allocated(xi_rv)) deallocate(xi_rv)
-
-
-  print *,'tailsm: end'
+  !print *,'tailsm: end'
 end subroutine tailsm
 

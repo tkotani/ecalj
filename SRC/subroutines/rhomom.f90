@@ -5,24 +5,14 @@ subroutine rhomom (sv_p_orhoat, qmom,vsum)
   !- Multipole moments of valence sphere densities
   ! ----------------------------------------------------------------------
   !i Inputs
-  !i   nbas  :size of basis
-  !i   ssite :struct containing site-specific information
-  !i     Elts read: spec
-  !i   sspec :struct containing species-specific information
-  !i     Elts read: lmxl z qc a nr rmt rg
-  !i     Passed to: corprm
   !i   orhoat:vector of offsets containing site density
+  !i jnlml(ib): address of (ilm,ib) index. qmom(j:j+nlml-1) is for ib. Search jnlm below.
   !o Outputs
   !o   qmom  :Multipole moments, stored as a single long vector.
   !o         := integral r^l Y_L (rho1-rho2) + core spillout
   !o   vsum  :sum over all sites ib of difference vs1_ib - vs2_ib
   !o         :vs1_ib = integral in sphere of estat potential[true rho]
   !o         :vs2_ib = integral in sphere of estat potential[sm rho]
-  !r Remarks
-  !u Updates
-  !u   01 Jul 05 handle sites with lmxl=-1 -> no augmentation
-  !u   11 Jun 00 spin polarized
-  !u   22 Apr 00 Adapted from nfp rhomom.f
   ! ----------------------------------------------------------------------
   implicit none
   type(s_rv1) :: sv_p_orhoat(3,*)
@@ -60,8 +50,8 @@ subroutine rhomom (sv_p_orhoat, qmom,vsum)
   vsum=sum(vs1-vs2)
   220 format(i13,i6,f12.6,f12.6,2f9.2)
 end subroutine rhomom
-
 subroutine pvrhom(rmt,a,nlml,nr,nsp,rho1,rho2,rhoc,cofg,cofh,rg,ceh,rfoc,z,qmom,vsum1,vsum2)
+  use m_hansr,only: hansmr
   !- Multipole moments for one site
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -83,8 +73,7 @@ subroutine pvrhom(rmt,a,nlml,nr,nsp,rho1,rho2,rhoc,cofg,cofh,rg,ceh,rfoc,z,qmom,
   !o   qmom  :multipole moments for one site
   !r Remarks
   !r   Q_L = integral r^l (rho1-rho2) + l=0 contr. from core spillout
-  !r   The core spillout term is:
-  !r      qcore(rhoc)-z  - sm_qcore-sm_qnuc
+  !r   The core spillout term is:   qcore(rhoc)-z  - sm_qcore-sm_qnuc
   ! ----------------------------------------------------------------------
   implicit none
   integer :: nlml,nr,nsp,i,ilm,l,m,lmxl,ll,isp
@@ -107,8 +96,7 @@ subroutine pvrhom(rmt,a,nlml,nr,nsp,rho1,rho2,rhoc,cofg,cofh,rg,ceh,rfoc,z,qmom,
      call hansmr(rofi(i),ceh,1d0/rfoc,xi,0)
      xi0(i)=xi(0)
   enddo
-  qcor2 = srfpi*cofh*sum(rwgt*xi0*rofi**2) + srfpi*cofg*fac *sum(rwgt*gnu)
-          ! smooth core charge inside rmax*fac
+  qcor2 = srfpi*cofh*sum(rwgt*xi0*rofi**2) + srfpi*cofg*fac*sum(rwgt*gnu) !smooth core charge inside rmax*fac
   qnuc2 = -z*fac *sum(rwgt*gnu) !smooth nuclear charge inside rmax * fac
   qcor1 = sum(rwgt*rhoc(:,1))  ! true core charge inside rmax
   qcor1s= sum(rwgt*rhoc(:,nsp))
@@ -128,33 +116,3 @@ subroutine pvrhom(rmt,a,nlml,nr,nsp,rho1,rho2,rhoc,cofg,cofh,rg,ceh,rfoc,z,qmom,
   call poiss0(0d0,a,b,rofi,h,nr,0d0,v,vhrho,vsum,1)
   vsum2 = fpi*sum(rwgt*rofi**2*v)
 end subroutine pvrhom
-
-!- Integral over electrostatic potential, to fix energy origin
-! ----------------------------------------------------------------------
-!i Inputs
-!i   z     :nuclear charge
-!i   a     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
-!i   nr    :number of radial mesh points
-!i   nlml  :L-cutoff for charge
-!i   nsp   :number of spins
-!i   rofi  :radial mesh points
-!i   rwgt  :radial integration weights
-!i   rho1  :local true density, tabulated on a radial mesh
-!i   rho2  :local smoothed density, tabulated on a radial mesh
-!i   rhoc  :core density
-!i   qmom  :multipole moments for one site (only l=0 term used)
-!i   cofg  :coefficient to Gaussian part of pseudocore density (corprm)
-!i         := y0 * pseudocore charge
-!i   cofh  :coefficient to Hankel part of pseudocore density (corprm)
-!i   rg    :smoothing radius for compensating gaussians
-!i   ceh   :energy of hankel function to fit core tail
-!i   rfoc  :smoothing radius for hankel head fitted to core tail
-!i   h     :work array of dimension nr
-!i   v     :work array (holds spherical estat potential - poiss0.f)
-!o Outputs
-!o   vsum1 :integral in sphere of electrostatic potential for true rho
-!o   vsum2 :integral in sphere of electrostatic potential for smooth rho
-!o         :including compensating gaussians
-!r Remarks
-!u Updates
-! ----------------------------------------------------------------------

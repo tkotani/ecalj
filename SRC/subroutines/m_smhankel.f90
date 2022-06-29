@@ -1,10 +1,10 @@
-module m_smhankel !Bloch sum of Hankel, Gaussians.
+module m_smhankel !Bloch sum of smooth Hankel, Gaussians.
   ! JMP39:
   ! Bott, E., M. Methfessel, W. Krabs, and P. C. Schmidt.
   ! “Nonsingular Hankel Functions as a New Basis for Electronic Structure Calculations.”
   ! Journal of Mathematical Physics 39, no. 6 (June 1, 1998): 3393–3425.
   ! https://doi.org/doi:10.1063/1.532437.
-  public hxpbl, hxpgbl, hhigbl, hhibl,hhugbl, hgugbl, ggugbl  !bl means blochsum
+  public hxpbl, hxpgbl, hhigbl, hhibl,hhugbl, hgugbl, ggugbl  !*bl means blochsum 
   private
 contains
 subroutine hhugbl(mode,p1,p2,rsm1,rsm2,e1,e2,nlm1,nlm2,ndim1,ndim2,wk,dwk, s,ds)

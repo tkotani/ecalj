@@ -128,9 +128,8 @@ subroutine rhogkl ( ib1 , ib2 , nsp , mode , ssite , sspec , &
 end subroutine rhogkl
 
 
-subroutine pvrgkl(mode,kmax,nlml,nr,nsp,rofi,rwgt,rho1,rho2,rhoc, &
-     pkl,cofh,rg,ceh,rfoc,z,qkl)
-
+subroutine pvrgkl(mode,kmax,nlml,nr,nsp,rofi,rwgt,rho1,rho2,rhoc, pkl,cofh,rg,ceh,rfoc,z,qkl)
+  use m_hansr,only:hansmr
   !- Multipole moments for one site
   ! ----------------------------------------------------------------------
   !i Inputs

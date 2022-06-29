@@ -11,10 +11,6 @@ subroutine toksw_init(debug)
   character*(50) sscale
   character*(200):: dyn_mstat, dyn_md
   logical:: debug
-  ! new design
-  !      call tadd(" IO_SHOW ",req,"LM LMF LMFGWD")
-  !      call tadd(" IO_SHOW ",iopt,"LM LMF LMFGWD")
-  ! - Store data into arrays above -----
   call clear_swtok(debug)
   io_sw = ' HEADER~ CONST~ CMD~ IO_SHOW~ IO_HELP~ IO_VERBOS~ '// &
        'IO_WKP~ IO_IACTIV~ IO_TIM~ OPTIONS_Q~'
@@ -83,7 +79,6 @@ subroutine toksw_init(debug)
   call tkadd(" SITE_MODE~")
   call tkadd(" SITE_ATOM")
   call tkadd(" SITE_ATOM_DPOS~")
-  !     call tkadd(" SITE_ATOM_PL~")
   call tkadd(" SITE_ATOM_POS")
   call tkadd(" SITE_ATOM_XPOS")
   call tkadd(" SITE_ATOM_RELAX~")
@@ -165,7 +160,6 @@ subroutine toksw_init(debug)
   call tkadd(" SITE_MODE~")
   call tkadd(" SITE_ATOM")
   call tkadd(" SITE_ATOM_DPOS~")
-  !     call tkadd(" SITE_ATOM_PL~")
   call tkadd(" SITE_ATOM_POS")
   call tkadd(" SITE_ATOM_XPOS")
   call tkadd(" SITE_ATOM_RELAX~")

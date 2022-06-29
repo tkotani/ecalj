@@ -438,6 +438,7 @@ contains
        v2es,vvesat,cpnves,rhoexc,rhoex,rhoec,rhovxc,rvepsv, & !wk,
        rvexv,rvecv,rvvxcv,rveps,rvvxc,valvef,xcore,qloc, &
        qlocc,aloc,alocc,gpotb,focexc,focex,focec,focvxc,rhobg,efg,ifivesint,lxcfun)
+    use m_hansr,only:hansmr
     use m_ftox
     !- Makes the potential at one site, and associated energy terms.
     ! ----------------------------------------------------------------------
