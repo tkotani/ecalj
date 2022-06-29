@@ -67,6 +67,7 @@ contains
     nspec=ctrl_nspec
     nsp=ctrl_nspin
     !      modep = ctrl_modep
+    modep=99999 !bug fix 2022-6-29 (no initialization before. No problem as long as lmchk works.)
     lpbc = 0
     nclasp=ctrl_nclass !sarray%nclasp
     avw=lat_avw
