@@ -551,7 +551,6 @@ subroutine shoist(istab,nbas,ag,g,ng)
 333  format(i4,':',48i3)
 30 enddo
 end subroutine shoist
-
 subroutine poseof(iunit)
   !- Positions file handle at end-of-file
   integer :: iunit
@@ -568,16 +567,14 @@ subroutine poseof(iunit)
   backspace iunit
 91 continue
 end subroutine poseof
-
 SUBROUTINE GTBVEC(K,B,SHIFT,V)
-  !     implicit none
+  implicit none
   integer :: K(3)
   double precision :: V(3),B(3,3),SHIFT(3)
   V(1) = SHIFT(1) + K(1)*B(1,1) + K(2)*B(1,2) + K(3)*B(1,3)
   V(2) = SHIFT(2) + K(1)*B(2,1) + K(2)*B(2,2) + K(3)*B(2,3)
   V(3) = SHIFT(3) + K(1)*B(3,1) + K(2)*B(3,2) + K(3)*B(3,3)
 END SUBROUTINE GTBVEC
-
 logical function isanrg(i,i1,i2,t1,t2,lreqd)
   logical :: lreqd
   integer :: i,i1,i2,lgunit,iprint,k1,k2,it1
@@ -588,7 +585,6 @@ logical function isanrg(i,i1,i2,t1,t2,lreqd)
   isanrg=.true.
   call rx(trim(t1)//' '//trim(t2))
 end function isanrg
-
 subroutine fsanrg(f,f1,f2,tol,t1,t2,lreqd)
   logical :: lreqd
   double precision :: f,f1,f2,tol
@@ -598,63 +594,22 @@ subroutine fsanrg(f,f1,f2,tol,t1,t2,lreqd)
   if (f1==f2 .AND. f>=f1-tol/2d0 .AND. f<=f2+tol/2d0) return
   call rx(trim(t1)//' '//trim(t2))
 end subroutine fsanrg
-
-subroutine strip(str,i1,i2) !- Returns indices to first and last nonblank characters in a string
-  implicit none
-  integer :: i1,i2
-  character*(*) str
-  integer :: i
-  i1 = 0
-  do  i = 1, len(str)
-     if(str(i:i) /= ' ') then
-        i1 = i
-        goto 2
-     endif
-  enddo
-  i1 = 1
-  i2 = 0
-  return
-2 continue
-  i2 = len(str) + 1
-  do  i = len(str), 1, -1
-     if(str(i:i) /= ' ') then
-        i2 = i
-        exit
-     endif
-  enddo
-end subroutine strip
-
 subroutine setfac(n,fac) !- set up array of factorials.
-  implicit none
-  integer :: n,i
-  double precision :: fac(0:n)
-  fac(0) = 1d0
-  do    i = 1, n
-     fac(i) = i*fac(i-1)
-  enddo
+  integer :: n,i,ik,m
+  real(8):: fac(0:n)
+  fac=[(product([(ik,ik=1,m)]),m=0,n)]
 end subroutine setfac
-
 subroutine stdfac(n,df) !- Set up array of double factorials.
   !  for odd numbers,  makes 1*3*5*..*n
   !  for even numbers, makes 2*4*6*..*n
-  implicit none
-  integer :: n,i
-  double precision :: df(0:n)
-  if(mod(n,2)==0) stdfac=product([ik=2,n,2])
-  if(mod(n,2)==1) stdfac=product([ik=1,n,2])
-  product([i=1,n
-  df(0) = 1d0
-  df(1) = 1d0
-  do  i = 2, n
-     df(i) = i*df(i-2)
-  enddo
+  integer :: n,ik,m
+  real(8):: df(0:n)
+  df=[(product([(ik,ik=m,1,-2)]),m=0,n)]
 end subroutine stdfac
-
 integer function nargf()
   integer :: iargc
   nargf = iargc() + 1
 end function nargf
-
 subroutine ftime(datim)!fortran-callable date and time
   character datim*(*)
   call fdate(datim)
@@ -674,26 +629,6 @@ subroutine readx(ifil,n)
 10 enddo
   call rx( 'readx: cannot find the string(rw.f)')
 end subroutine readx
-
-subroutine rwdd (ifi, ldim,n, a)
-  ! 92.02.07
-  ! direct access read (ifi>0) or write (ifi<0)
-  ! ldim = leading dimension of a
-  implicit real*8  (a-h,o-z)
-  integer:: ldim,n,ifi,j,i
-  dimension a(ldim,n)
-  if (ifi == 0) call rx( 'rwdd: ifi == 0')
-  if (ifi > 0) then
-     do       j = 1,n
-        read (ifi,rec=j) (a(i,j),i=1,ldim)
-     end do
-  elseif (ifi < 0) then
-     do       j = 1,n
-        write (-ifi,rec=j) (a(i,j),i=1,ldim)
-     end do
-  endif
-  return
-end subroutine rwdd
 
 real(8) function derfc(x)
   real(8)::x

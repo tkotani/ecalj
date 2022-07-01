@@ -211,12 +211,11 @@ contains
           call dinv33(plat0,1,qlat0,fac)
           !          lshear = .not. latvec(3,1d-6,qlat,plat0)
           fid = fid0
-          call strip(fid,i,i1)
-          call strip(datimp,i,i2)
-          call strip(usernm,i,i3)
-          call strip(hostnm,i,i4)
-          if (ipr >= 40) write(stdo,710) fid(1:i1), &
-               usernm(1:i3),hostnm(1:i4),datimp(1:i2)
+          !call strip(fid,i,i1)
+          !call strip(datimp,i,i2)
+          !call strip(usernm,i,i3)
+          !call strip(hostnm,i,i4)
+          if (ipr >= 40) write(stdo,710) trim(fid),trim(usernm),trim(hostnm),trim(datimp)
 710       format(9x,'id -  ',a,/9x,'written by -  ',a,' on ',a,' at: ',a)
           !       Number of real atoms may not increase
           if (nat > nat0) then
@@ -622,17 +621,17 @@ contains
        jfi = -ifi
        rewind jfi
        fid0 = fid
-       call strip(fid0,i0,i1)
+!       call strip(fid0,i0,i1)
        jobid = sname !datimp(2:)
        call ftime(datimp)
        hostnm = ' '
        usernm = ' '
        call get_environment_variable('HOST',hostnm)
        call get_environment_variable('USER',usernm)
-       call strip(datimp,i,i2)
-       call strip(usernm,i,i3)
-       call strip(hostnm,i,i4)
-       if (ipr >= 40) write(stdo,710) fid(1:i1), usernm(1:i3),hostnm(1:i4),datimp(1:i2)
+!       call strip(datimp,i,i2)
+!       call strip(usernm,i,i3)
+!       call strip(hostnm,i,i4)
+       if (ipr >= 40) write(stdo,710) trim(fid),trim(usernm),trim(hostnm),trim(datimp)
 721    format('----------------------- ',a,' -----------------------')
        write(jfi) vs
        write(jfi) fid0

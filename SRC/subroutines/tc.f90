@@ -165,9 +165,9 @@ subroutine tcinit(ltrace,lprof,levelinit)
 99      continue
         if (last == 1) tt(lv) = '`--'
         tavg = ttot(i)/max(ncall(i),1)
-        call strip(name(i),j1,j2)
+!        call strip(name(i),j1,j2)
         if (iprint() > 0) write (ifi,700) iwk0(i),iwk2(i),iwk3(i),ncall(i), &
-             tavg,ttot(i),(tt(l),l=0,lev(i)),name(i)(j1:j2)
+             tavg,ttot(i),(tt(l),l=0,lev(i)),trim(name(i))
 700     format(3i7,i9,2f11.2,3x,30a)
         lvl = lv
      endif

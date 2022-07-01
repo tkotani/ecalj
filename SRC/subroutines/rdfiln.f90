@@ -1,3 +1,4 @@
+! this is too expensive to maintain in future.
 module m_rdfiln
   public M_rdfiln_init, recln,recrd,nrecs,mxrecs
 
@@ -2382,3 +2383,27 @@ subroutine eostr(strn,lstr,opt,delim,is)
   endif
   is = min(i2,lstr+1)
 end subroutine eostr
+subroutine strip(str,i1,i2) !- Returns indices to first and last nonblank characters in a string
+  implicit none
+  integer :: i1,i2
+  character*(*) str
+  integer :: i
+  i1 = 0
+  do  i = 1, len(str)
+     if(str(i:i) /= ' ') then
+        i1 = i
+        goto 2
+     endif
+  enddo
+  i1 = 1
+  i2 = 0
+  return
+2 continue
+  i2 = len(str) + 1
+  do  i = len(str), 1, -1
+     if(str(i:i) /= ' ') then
+        i2 = i
+        exit
+     endif
+  enddo
+end subroutine strip

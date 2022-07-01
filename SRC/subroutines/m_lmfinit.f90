@@ -308,8 +308,7 @@ contains
       call tcn('m_lmfinit')
       !! CONST --- for backword compatibility. We will remove this.
       call numsyv(nvario)
-      nm='CONST';call gtv(trim(nm),tksw(prgnam,nm), bigstr, note='Constants may declared for use in expressions'// &
-           '%N  Variables may also be set from the command-line:  -vnam=#',nout=nout)
+      nm='CONST';call gtv(trim(nm),tksw(prgnam,nm), bigstr, note='obsolate: This is for old version',nout=nout)
       if (nout == 1) then
          i = 0
          call parsyv(bigstr,len_trim(bigstr),1999,0,i)

@@ -10,9 +10,7 @@ module m_iqindx_qtt
   private
   integer,allocatable,private:: key(:,:),kk1(:),kk2(:),kk3(:),iqkkk(:,:,:)
   integer,private:: nkey(3)
-  !      real(8),private:: ginv(3,3)
   real(8),private:: epsd=1d-7 !key parameter to map to integer index
-
 contains
   !!
   subroutine iqindx2_(q, iqindx,qu)
@@ -46,9 +44,7 @@ contains
     integer:: isig,i,ix,kkk,kkk3(3),ik1,ik2,ik3,iq,ik
     integer,allocatable:: ieord(:)
     logical::debug=.false.
-    !      ginv=ginv_
     allocate(ieord(nqtt))
-    if(debug) write(6,"(a,2i5,20f9.4)")' iiiiii nqtt=',nqtt,size(qtt),ginv(1:3,1:3)
     allocate(key(3,0:nqtt),qxx(3,nqtt))
     key=-99999
     do iq=1,nqtt
@@ -72,7 +68,7 @@ contains
        nkey(ix)=ik
     enddo
     deallocate(ieord)
-    !!  key is reallocated. inverse mattping, iqkkk
+    !!  key is reallocated. inverse mapping, iqkkk
     allocate( kk1(nkey(1)),kk2(nkey(2)),kk3(nkey(3)) )
     kk1(:) = key(1,1:nkey(1))
     kk2(:) = key(2,1:nkey(2))

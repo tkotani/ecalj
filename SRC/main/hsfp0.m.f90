@@ -149,7 +149,7 @@ program hsfp0
   integer:: timevalues(8)  ,isp,dest,ificlass,ifiq0p
   character(128) :: ixcc
 
-  integer:: nw,ifcoh !,ifief
+  integer:: nw,ifcoh, ixx(2)
   real(8)::dwdummy, ef
   !...  mode switch. --------------
   call MPI__Initialize()
@@ -636,8 +636,11 @@ program hsfp0
      deallocate( eband,qz)  !, ene ) ! pointer for
      !!     -- ibzx denote the index of k{FBZ for given k{1BZ.
      allocate(ibzx(nqbz))
-     call invkibzx(irk,nqibz,ngrp,nqbz, &
-          ibzx)
+!     call invkibzx(irk,nqibz,ngrp,nqbz, ibzx)
+     do iqx  = 1,nqbz
+        ixx = findloc(irk(:,:)-iqx,value=0)
+        ibzx(iqx)= ixx(1)
+     enddo
      if (tote) then
         do i=1,nband
            if( sum(abs(wtet(i,:,:,0))) == 0d0 ) exit
@@ -979,3 +982,19 @@ contains
     write(6,*)' End of ExSpectrum section ---'
   end subroutine Hswrite4
 end program hsfp0
+!       subroutine invkibzx(irk,nqibz,ngrp,nqbz,  ibzx)
+! c find k in IBZ for given k in FBZ.
+!       integer(4) :: irk(nqibz,ngrp),ibzx(nqbz),nqbz,ngrp,iqx,iqi,ig,nqibz
+!       do iqx  = 1,nqbz
+!         do iqi= 1,nqibz
+!           do ig = 1,ngrp
+!             if(irk(iqi,ig)==iqx) then
+!               ibzx(iqx)=iqi
+!               goto 999
+!             endif
+!           enddo
+!         enddo
+!         call rx( ' invkibzx: can not find ibzx')
+!   999   continue
+!       enddo
+!       end

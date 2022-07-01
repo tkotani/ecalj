@@ -1,4 +1,4 @@
-  
+program hmaxloc
   !-------------------------------------------------------------
   ! construct maximally localized Wannier functions
   
@@ -1318,7 +1318,42 @@
 990 format(3f12.6)
   call cputid(0)
   call rx0s('hmaxloc: ixc=2 ok')
-END PROGRAM
+END PROGRAM hmaxloc
+
+real(8) function nocctotg2(ispin, ef,esmr,qbz,wbz, nband,nqbz)
+  use m_readeigen, only: readeval
+  ! Count the total number of electrons under Ef.
+  ! use readeval
+  ! ispin   = 1, paramagnetic
+  !           2, ferromagnetic
+  ! ef      = fermi level
+  ! nband   = no. states
+  ! nqbz    = no. k-points
+  implicit none
+  integer ::it,is,k,ispin,nqbz,nband
+  real(8):: wbz(nqbz),qbz(3,nqbz),ekt(nband),esmr,ef,wgt,wiocc
+  nocctotg2 = 0d0
+  wgt       = 0d0
+  do is = 1,ispin
+     do k   = 1,nqbz
+        ekt= readeval(qbz(:,k),is)
+        wiocc = 0d0
+        do it = 1,nband
+           if(    ekt(it)  + 0.5d0*esmr < ef  ) then
+              wiocc = wiocc  + 1d0
+           elseif(ekt(it) - 0.5d0*esmr < ef  ) then
+              wiocc  = wiocc + (ef- (ekt(it)-0.5d0*esmr))/esmr
+           endif
+        enddo
+        nocctotg2 = nocctotg2 + wbz(k)* wiocc
+        wgt       = wgt       + wbz(k)
+     enddo
+  enddo
+  if(ispin==1) nocctotg2 = nocctotg2*2
+  write(6,*)' Ef=',ef
+  write(6,*)' wgt nocc=',wgt,nocctotg2
+END function nocctotg2
+!------------------------------------------------------------------
 
 !$$$c-----------------------------------------------------------------------
 !$$$      subroutine chk_amnkweight(qbz,iko_ix,iko_fx,amnk,

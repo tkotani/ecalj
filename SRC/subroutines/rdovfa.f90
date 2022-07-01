@@ -117,8 +117,8 @@ subroutine rdovfa()
      call mpibc1( rv_a_ov0a( is )%v , nr0 * nsp , 4 , mlog , 'rdovfa', 'v0a' )
      i = mpipid(3)
      if (procid == master) then
-        call strip(spid(is),i1,nch)
-        if (ipr >= 30 .AND. rmt0 /= 0) write(stdo,400) spid(is)(1:nch),spidr,rmt0,nr0,a0
+        !call strip(spid(is),i1,nch)
+        if (ipr >= 30 .AND. rmt0 /= 0) write(stdo,400) trim(spid(is)),spidr,rmt0,nr0,a0
 400     format(' rdovfa: expected ',a,',',T27,' read ',a, ' with rmt=',f8.4,'  mesh',i6,f7.3)
      endif
      if (nr <= 0)   nr = nr0
