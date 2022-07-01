@@ -640,6 +640,9 @@ subroutine stdfac(n,df) !- Set up array of double factorials.
   implicit none
   integer :: n,i
   double precision :: df(0:n)
+  if(mod(n,2)==0) stdfac=product([ik=2,n,2])
+  if(mod(n,2)==1) stdfac=product([ik=1,n,2])
+  product([i=1,n
   df(0) = 1d0
   df(1) = 1d0
   do  i = 2, n

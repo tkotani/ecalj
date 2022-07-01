@@ -515,9 +515,7 @@ subroutine gklbl(p,rsm,e,q,kmax,nlm,k0,cy,gkl)
   ppin=matmul(transpose(qlat),p) 
   call shortn3_plat(ppin) 
   p1= matmul(plat,ppin+nlatout(:,1))
-
-  sp = 2*pi*(q(1)*(p(1)-p1(1))+q(2)*(p(2)-p1(2))+q(3)*(p(3)-p1(3)))
-  phase = dcmplx(dcos(sp),dsin(sp))
+  phase = exp(img*2*pi*sum(q*(p-p1)))
   lmax = ll(nlm)
   rwald = 1d0/awald
   ! ... If the smoothing radius is larger than the Ewald parameter,
@@ -527,16 +525,10 @@ subroutine gklbl(p,rsm,e,q,kmax,nlm,k0,cy,gkl)
   else
      call gklbld ( p1 , rsm , q , kmax , nlm , k0 , alat , rv_a_odlv , nkd , gkl )
   endif
-  cfac = (0d0,1d0)*dexp(0.25d0*e*rsm*rsm)*phase
-  ilm = 0
-  do    l = 0, lmax
-     cfac = cfac*(0d0,-1d0)
-     do    m = 1, 2*l+1
-        ilm = ilm+1
-        do    k = 0, kmax
-           gkl(k,ilm) = cfac*cy(ilm)*gkl(k,ilm)
-        enddo
-     enddo
+  cfac = exp(0.25d0*e*rsm*rsm)*phase
+  do ilm=1,nlm
+     l=ll(ilm)
+     gkl(0:kmax,ilm) = cfac*cy(ilm)*(-img)**l*gkl(0:kmax,ilm)
   enddo
 end subroutine gklbl
 ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
@@ -566,24 +558,20 @@ subroutine gklbld(p,rsm,q,kmax,nlm,k0,alat,dlv,nkd,gkl)
   integer :: ilm,ir,k,l,ll,lmax,m,nm
   integer,parameter:: nlm0=144
   real(8),parameter:: tpi = 8d0*datan(1d0)
-  double precision :: yl(nlm0),r(3),qdotr,r1,r2
+  real(8) :: yl(nlm),r(3),qdotr,r1,r2
   real(8),allocatable:: wk(:,:)
-  if (nlm > nlm0) call rxi('increase nlm0 in gklbld; need',nlm)
   lmax = ll(nlm)
   allocate(wk(0:kmax,0:lmax))
   gkl = 0d0
-  do  20  ir = 1, nkd
+  do  ir = 1, nkd
      call sylm(alat*(p(:)-dlv(:,ir)), yl,lmax,r2)
-     call radgkl(dsqrt(r2),rsm,kmax,lmax,kmax,wk)
+     call radgkl(r2**.5d0,rsm,kmax,lmax,kmax,wk)
      cfac = exp(img*tpi*sum(q(:)*dlv(:,ir)))
-     ilm = 0
-     do l = 0, lmax
-        do  m = 1, 2*l+1
-           ilm = ilm+1
-           gkl(0:kmax,ilm) = gkl(0:kmax,ilm) + yl(ilm)*cfac*wk(0:kmax,l)*img**l
-        enddo
+     do ilm=1,nlm
+        l=ll(ilm)
+        gkl(0:kmax,ilm) = gkl(0:kmax,ilm) + yl(ilm)*cfac*wk(0:kmax,l)*img**l
      enddo
-20 enddo
+  enddo
 end subroutine gklbld
 subroutine gklblq(p,rsm,q,kmax,nlm,k0,alat,qlv,nkq,vol,gkl)
   !- Evaluate gkl in reciprocal space
@@ -606,14 +594,12 @@ subroutine gklblq(p,rsm,q,kmax,nlm,k0,alat,qlv,nkq,vol,gkl)
   ! ----------------------------------------------------------------------
   implicit none
   integer :: k0,kmax,nkq,nlm
-  double precision :: alat,rsm,vol,q(3),p(3),qlv(3,nkq)
-  double complex gkl(0:k0,nlm)
+  real(8) :: alat,rsm,vol,q(3),p(3),qlv(3,nkq)
+  complex(8):: gkl(0:k0,nlm)
   integer :: ilm,ir,k,ll,lmax,nlm0
-  parameter (nlm0=144)
-  double precision :: a,gamma,r2,scalp,tpi,tpiba,vfac,r(3),yl(nlm0)
-  double complex eiphi,add,add0
+  real(8) :: a,gamma,r2,scalp,tpi,tpiba,vfac,r(3),yl(nlm)
+  complex(8):: eiphi,add,add0
   complex(8):: img=(0d0,1d0)
-  if (nlm > nlm0) call rxi('increase nlm0 in gklblq; need',nlm)
   tpi = 8d0*datan(1d0)
   a = 1d0/rsm
   gamma = .25d0/(a*a)
@@ -622,16 +608,11 @@ subroutine gklblq(p,rsm,q,kmax,nlm,k0,alat,qlv,nkq,vol,gkl)
   lmax = ll(nlm)
   gkl=0d0
   do ir = 1,nkq
-     r(:) = tpiba*(q(:)+qlv(:,ir))
+     r = tpiba*(q(:)+qlv(:,ir))
      eiphi = exp(img*alat*sum(r*p))
      call sylm(r,yl,lmax,r2)
-     add0 = vfac*dexp(-gamma*r2)
      do ilm = 1, nlm
-        add = add0
-        do k = 0, kmax
-           gkl(k,ilm) = gkl(k,ilm) + yl(ilm)*eiphi*add
-           add = -r2*add
-        enddo
+        gkl(0:kmax,ilm)=gkl(0:kmax,ilm)+ eiphi*vfac*exp(-gamma*r2)*[((-r2)**k,k=0,kmax)]*yl(ilm)
      enddo
   enddo
 end subroutine gklblq
@@ -662,11 +643,11 @@ subroutine hklbl(p,rsm,e,q,kmax,nlm,k0,cy,hkl)
   implicit none
   integer :: k0,kmax,nlm
   real(8):: e , rsm , q(3) , p(3) , cy(1)
-  double complex hkl(0:k0,nlm)
+  complex(8):: hkl(0:k0,nlm)
   integer:: nlm0 , ilm , job , k , ll , lmax , nkd , nkq , nrx, owk , oyl
   parameter (nlm0=144)
-  double precision :: alat,awald,sp,vol,plat(3,3), qlat(3,3),p1(3),ppin(3)
-  double complex hsm(nlm0),hsmp(nlm0),phase,gklsav,gklnew
+  real(8) :: alat,awald,sp,vol,plat(3,3), qlat(3,3),p1(3),ppin(3)
+  complex(8):: hsm(nlm0),hsmp(nlm0),phase,gklsav,gklnew
   real(8),allocatable:: wk(:),yl(:)
   complex(8):: img=(0d0,1d0)
   real(8),parameter:: pi = 4d0*datan(1d0),fpi = 4d0*pi,faca=1d0
@@ -692,7 +673,7 @@ subroutine hklbl(p,rsm,e,q,kmax,nlm,k0,cy,hkl)
        , nlm , wk , yl , awald , alat , rv_a_oqlv , nkq , rv_a_odlv &
        , nkd , vol , hsm , hsmp )
   if (rsm > faca/awald) then
-     call gklbl(p1,rsm,e,q,kmax-1,nlm,k0,cy, hkl) !slat,
+     call gklbl(p1,rsm,e,q,kmax-1,nlm,k0,cy, hkl) 
   else
      job = 2
      call gklq ( lmax , rsm , q , p1 , e , kmax - 1 , k0 , alat , &
@@ -746,7 +727,7 @@ subroutine fklbl(p,rsm,kmax,nlm,k0,cy,fkl)
   real(8):: p(3) , cy(*) , rsm,ppin(3)
   integer:: nlm0 , lmax , ll, nrx , owk , oyl , job, ilm , k
   parameter ( nlm0=196 )
-  double precision :: q(3),p1(3),faca,fpi,y0,e
+  real(8) :: q(3),p1(3),faca,fpi,y0,e
   complex(8):: fsm(nlm0),gklsav,gklnew,fkl(0:k0,nlm)
   parameter (faca=1d0)
   real(8),allocatable:: wk(:),yl(:)
@@ -765,7 +746,7 @@ subroutine fklbl(p,rsm,kmax,nlm,k0,cy,fkl)
   call hsmqe0 ( lmax , rsm , 0 , q , p1 , nrx , nlm , wk , yl , &
        awald , alat , rv_a_oqlv , nkq , rv_a_odlv , nkd , vol , fsm  )
   if (rsm > faca/awald) then
-     call gklbl(p1,rsm,e,q,kmax-1,nlm,k0,cy, fkl) !slat,
+     call gklbl(p1,rsm,e,q,kmax-1,nlm,k0,cy, fkl) 
   else
      job = 2
      call gklq ( lmax , rsm , q , p1 , e , kmax - 1 , k0 , alat , &
@@ -820,20 +801,17 @@ subroutine gfigbl(pg,ph,rsmg,rsmh,nlmg,nlmh,kmax,ndim1,ndim2,kdim, &
   ! ----------------------------------------------------------------------
   implicit none
   integer :: jcg(*),indxcg(*),nlmg,nlmh,kmax,ndim1,ndim2,kdim
-  double precision :: ph(3),pg(3),cg(1),cy(1),rsmg,rsmh !,slat(1)
-  double complex s(ndim1,ndim2,0:kdim),ds(ndim1,ndim2,0:kdim,3)
+  real(8) :: ph(3),pg(3),cg(1),cy(1),rsmg,rsmh !,slat(1)
+  complex(8):: s(ndim1,ndim2,0:kdim),ds(ndim1,ndim2,0:kdim,3)
   integer :: nlm0,ktop0,m,lmaxh,ll,lmaxg,lmaxx,nlmx,nlmxp1,ktop,ktopp1, &
-       ilm,kz,kx1,kx2,ky1,ky2,k,jlm,ilg,lg,ilh,lh,ii,indx,icg1,icg2, &
-       icg,lm,ip,nlmxx
-  double precision :: dr(3),gamh,gamg,rsmx,cz,cx1,cx2,cy1,cy2,fac
+       ilm,kz,kx1,kx2,ky1,ky2,k,jlm,ilg,lg,ilh,lh,ii,indx,icg1,icg2, icg,lm,ip,nlmxx
+  real(8) :: dr(3),gamh,gamg,rsmx,cz,cx1,cx2,cy1,cy2,fac
   complex(8),allocatable:: hkl(:,:),ghkl(:,:,:)
   if (nlmh == 0 .OR. nlmg == 0) return
   gamh = 0.25d0*rsmh*rsmh
   gamg = 0.25d0*rsmg*rsmg
   rsmx = 2d0*dsqrt(gamg+gamh)
-  do  1  m = 1, 3
-     dr(m) = pg(m)-ph(m)
-1 enddo
+  dr=pg-ph
   lmaxh = ll(nlmh)
   lmaxg = ll(nlmg)
   lmaxx = lmaxg+lmaxh
@@ -849,7 +827,7 @@ subroutine gfigbl(pg,ph,rsmg,rsmh,nlmg,nlmh,kmax,ndim1,ndim2,kdim, &
   ! ... Make functions for connecting vector
   call fklbl(dr,rsmx,ktopp1,nlmxp1,ktop0,cy, hkl) 
   ! ... Make gradients using CGs for p functions
-  call dpzero(ghkl, 2*(ktop0+1)*nlm0*3)
+  ghkl=0d0 
   nlmxx = lmaxx*lmaxx
   do  ilm = 1, nlmx
      call scglp1(ilm,kz,cz,kx1,kx2,cx1,cx2,ky1,ky2,cy1,cy2)
@@ -866,17 +844,8 @@ subroutine gfigbl(pg,ph,rsmg,rsmh,nlmg,nlmh,kmax,ndim1,ndim2,kdim, &
         endif
      enddo
   enddo
-
-  do    k = 0, kmax
-     do    jlm = 1, nlmh
-        do    ilm = 1, nlmg
-           s(ilm,jlm,k)    = dcmplx(0d0,0d0)
-           ds(ilm,jlm,k,1) = dcmplx(0d0,0d0)
-           ds(ilm,jlm,k,2) = dcmplx(0d0,0d0)
-           ds(ilm,jlm,k,3) = dcmplx(0d0,0d0)
-        enddo
-     enddo
-  enddo
+  s=0d0
+  ds=0d0
   ! --- Combine with Clebsch-Gordan coefficients ---
   do  1111  ilg = 1, nlmg
      lg = ll(ilg)
@@ -893,16 +862,14 @@ subroutine gfigbl(pg,ph,rsmg,rsmh,nlmg,nlmh,kmax,ndim1,ndim2,kdim, &
            fac = (-1d0)**lg*cg(icg)
            do  12  ip = 0, kmax
               s(ilg,ilh,ip) = s(ilg,ilh,ip) + fac*hkl(k+ip,ilm)
-              ds(ilg,ilh,ip,1) = ds(ilg,ilh,ip,1)+fac*ghkl(k+ip,ilm,1)
-              ds(ilg,ilh,ip,2) = ds(ilg,ilh,ip,2)+fac*ghkl(k+ip,ilm,2)
-              ds(ilg,ilh,ip,3) = ds(ilg,ilh,ip,3)+fac*ghkl(k+ip,ilm,3)
+              ds(ilg,ilh,ip,:) = ds(ilg,ilh,ip,:)+fac*ghkl(k+ip,ilm,:)
 12         enddo
 11      enddo
 111  enddo
 1111 enddo
   deallocate(hkl,ghkl)
 end subroutine gfigbl
-subroutine ggugbl(p1,p2,rsm1,rsm2,nlm1,nlm2,ndim1,ndim2,s,ds) !slat,
+subroutine ggugbl(p1,p2,rsm1,rsm2,nlm1,nlm2,ndim1,ndim2,s,ds) 
   use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
   !- Estatic energy integrals between Bloch gaussians, and gradients.
   ! ----------------------------------------------------------------------
@@ -931,7 +898,7 @@ subroutine ggugbl(p1,p2,rsm1,rsm2,nlm1,nlm2,ndim1,ndim2,s,ds) !slat,
   ! ... Passed parameters
   integer :: nlm1,nlm2,ndim1,ndim2
   real(8):: rsm1 , rsm2 , p1(3) , p2(3)
-  double complex s(ndim1,ndim2),ds(ndim1,ndim2,3)
+  complex(8):: s(ndim1,ndim2),ds(ndim1,ndim2,3)
   !! ... Local parameters
   integer:: kmax , kdim , ilm2 , ilm1
   kmax = 0
@@ -948,7 +915,7 @@ subroutine ggugbl(p1,p2,rsm1,rsm2,nlm1,nlm2,ndim1,ndim2,s,ds) !slat,
      enddo
   enddo
 end subroutine ggugbl
-subroutine hklgbl(p,rsm,e,q,kmax,nlm,k0,nlm0,cy,hkl,ghkl)!slat,
+subroutine hklgbl(p,rsm,e,q,kmax,nlm,k0,nlm0,cy,hkl,ghkl)
   !- Bloch-sums of k,L-dependent smooth hankel functions and gradients
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -974,11 +941,11 @@ subroutine hklgbl(p,rsm,e,q,kmax,nlm,k0,nlm0,cy,hkl,ghkl)!slat,
   implicit none
   ! ... Passed parameters
   integer :: k0,kmax,nlm,nlm0
-  double precision :: q(3),p(3),cy(1),e,rsm!slat(1),
-  double complex hkl(0:k0,nlm0),ghkl(0:k0,nlm0,3)
+  real(8) :: q(3),p(3),cy(1),e,rsm!slat(1),
+  complex(8):: hkl(0:k0,nlm0),ghkl(0:k0,nlm0,3)
   ! ... Local parameters
   integer :: ilm,k,kx1,kx2,ky1,ky2,kz,ll,lmax,m,nlm1
-  double precision :: cx1,cx2,cy1,cy2,cz
+  real(8) :: cx1,cx2,cy1,cy2,cz
   if (nlm == 0) return
   lmax = ll(nlm)
   nlm1 = (lmax+2)**2
@@ -1040,9 +1007,9 @@ subroutine ghibl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax, ndim1,ndim2,cg,indxcg,j
   implicit none
   ! ... Passed parameters
   integer :: nlmg,nlmh,kmax,ndim1,ndim2,jcg(1),indxcg(1)
-  double precision :: rsmg,rsmh(1),eg,eh(1)
-  double precision :: ph(3),pg(3),cg(1),cy(1),q(3)!,slat(1)
-  double complex s(ndim1,ndim2,0:*)
+  real(8) :: rsmg,rsmh(1),eg,eh(1)
+  real(8) :: ph(3),pg(3),cg(1),cy(1),q(3)!,slat(1)
+  complex(8):: s(ndim1,ndim2,0:*)
   ! ... Local parameters
   integer :: nlm0,ktop0,icg,icg1,icg2,ii,ilg,ilh,ilm,indx,ip,jlm,k, &
        ktop,lg,lh,ll,lm,lmaxg,lmaxh,lmaxx,m,nlmx,l1,l2,ilm1,ilm2
@@ -1050,9 +1017,9 @@ subroutine ghibl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax, ndim1,ndim2,cg,indxcg,j
   complex(8),allocatable:: hkl(:,:)
   ! FCPP#else
   ! FCPP      parameter (nlm0=144, ktop0=21)
-  ! FCPP      double complex hkl(0:ktop0,nlm0)
+  ! FCPP      complex(8):: hkl(0:ktop0,nlm0)
   ! FCPP#endif
-  double precision :: ee,fac,gamg,gamh,rsmx,dr(3),e,rsm
+  real(8) :: ee,fac,gamg,gamh,rsmx,dr(3),e,rsm
 
   if (nlmh == 0 .OR. nlmg == 0) return
 
@@ -1157,13 +1124,13 @@ subroutine ghigbl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax, &
   !     implicit none
   ! ... Passed parameters
   integer :: k0,kmax,ndim1,ndim2,nlmg,nlmh,jcg(1),indxcg(1)
-  double precision :: rsmg,rsmh(1),eg,eh(1)
-  double precision :: ph(3),pg(3),cg(1),cy(1),q(3)!,slat(1)
-  double complex s(ndim1,ndim2,0:k0),ds(ndim1,ndim2,0:k0,3)
+  real(8) :: rsmg,rsmh(1),eg,eh(1)
+  real(8) :: ph(3),pg(3),cg(1),cy(1),q(3)!,slat(1)
+  complex(8):: s(ndim1,ndim2,0:k0),ds(ndim1,ndim2,0:k0,3)
   ! ... Local parameters
   integer :: icg,icg1,icg2,ii,ilg,ilh,ilm,ilm1,ilm2,indx,ip,jlm,k,ktop, &
        ktop0,l1,l2,lg,lh,ll,lm,lmaxg,lmaxh,lmaxx,m,nlm0,nlmx
-  double precision :: ee,fac,gamg,gamh,rsmx,dr(3),e,rsm
+  real(8) :: ee,fac,gamg,gamh,rsmx,dr(3),e,rsm
   complex(8),allocatable:: hkl(:,:),dhkl(:,:,:)
   if (nlmh == 0 .OR. nlmg == 0) return
   ! ... rsmh- and eh- independent setup
@@ -1278,10 +1245,10 @@ subroutine hxpbl(ph,pg,q,rsmh,rsmg,eh,kmax,nlmh,nlmg,k0,ndim, &
   ! ----------------------------------------------------------------------
   implicit none
   integer :: k0,kmax,ndim,nlmg,nlmh,jcg(1),indxcg(1)
-  double precision :: eh(1),rsmg,rsmh(1),ph(3),pg(3),cg(1),cy(1),q(3)
-  double complex c(0:k0,ndim,1)
+  real(8) :: eh(1),rsmg,rsmh(1),ph(3),pg(3),cg(1),cy(1),q(3)
+  complex(8):: c(0:k0,ndim,1)
   integer :: ndim1,ndim2,ktop0,ilmg,ilmh,k,l,ll,lmaxg,m,nm
-  double precision :: a,dfact,eg,fac,factk,fpi
+  real(8) :: a,dfact,eg,fac,factk,fpi
   complex(8),allocatable:: s(:,:,:)
   if (nlmg == 0 .OR. nlmh == 0) return
   fpi = 16d0*datan(1d0)
@@ -1359,10 +1326,10 @@ subroutine hxpgbl(ph,pg,q,rsmh,rsmg,eh,kmax,nlmh,nlmg,k0,ndimh, ndimg,cg,indxcg,
   ! ----------------------------------------------------------------------
   implicit none
   integer :: k0,kmax,ndimg,ndimh,nlmg,nlmh,jcg(1),indxcg(1)
-  double precision :: eh(1),rsmg,rsmh(1),ph(3),pg(3),cg(1),cy(1),q(3)
-  double complex c(0:k0,ndimg,ndimh),dc(0:k0,ndimg,ndimh,3)
+  real(8) :: eh(1),rsmg,rsmh(1),ph(3),pg(3),cg(1),cy(1),q(3)
+  complex(8):: c(0:k0,ndimg,ndimh),dc(0:k0,ndimg,ndimh,3)
   integer :: ndim1,ndim2,ktop0,ilmg,ilmh,k,l,ll,lmaxg,m,nm
-  double precision :: a,dfact,eg,fac,factk,fpi
+  real(8) :: a,dfact,eg,fac,factk,fpi
   complex(8),allocatable:: s(:,:,:),ds(:,:,:,:)
   if (nlmg == 0 .OR. nlmh == 0) return
   fpi = 16d0*datan(1d0)
@@ -1443,12 +1410,12 @@ subroutine gklq(lmax,rsm,q,p,e,kmax,k0,alat,dlv,nkd,nrx,yl,wk,job, gkl)
   ! ---------------------------------------------------------------
   !     implicit none
   integer :: k0,kmax,lmax,nkd,nrx,job
-  double precision :: alat,rsm,p(3),q(3),dlv(3,nkd),wk(nrx,*),yl(nrx,1)
+  real(8) :: alat,rsm,p(3),q(3),dlv(3,nkd),wk(nrx,*),yl(nrx,1)
   complex(8) :: gkl(0:k0,(lmax+1)**2),img=(0d0,1d0)
   real(8):: e
   ! Local variables
   integer :: ilm,ir,k,l,m,nlm,ik1,ik2,lc1,ls1,lc2,ls2,job0,job1
-  double precision :: qdotr,pi,tpi,y0,ta2,x,y,a2,g0fac,xx1,xx2,x1,x2, y2,p1(3),sp,cosp,sinp,pp(3)
+  real(8) :: qdotr,pi,tpi,y0,ta2,x,y,a2,g0fac,xx1,xx2,x1,x2, y2,p1(3),sp,cosp,sinp,pp(3)
   if (kmax < 0 .OR. lmax < 0 .OR. rsm == 0d0) return
   job0 = mod(job,10)
   job1 = mod(job/10,10)
@@ -1549,8 +1516,8 @@ subroutine gklq(lmax,rsm,q,p,e,kmax,k0,alat,dlv,nkd,nrx,yl,wk,job, gkl)
 30   enddo
 301 enddo
   ! ... Put in phase to undo shortening, or different phase convention
-  sp = tpi*(q(1)*(p(1)-p1(1))+q(2)*(p(2)-p1(2))+q(3)*(p(3)-p1(3)))
-  if (job1 >= 2) sp = sp-tpi*(q(1)*p1(1)+q(2)*p1(2)+q(3)*p1(3))
+  sp = tpi*sum(q*(p-p1)) !(q(1)*(p(1)-p1(1))+q(2)*(p(2)-p1(2))+q(3)*(p(3)-p1(3)))
+  if (job1 >= 2) sp = sp-tpi*sum(q*p1) !(q(1)*p1(1)+q(2)*p1(2)+q(3)*p1(3))
   if (sp /= 0d0) then
      cosp = dcos(sp)
      sinp = dsin(sp)
@@ -1597,9 +1564,9 @@ subroutine hsmbl(p,rsm,e,q,lmax,cy,hsm,hsmp) !,slat
   implicit none
   integer :: lmax
   real(8):: rsm , e , q(3) , p(3) , cy(1), ppin(3)
-  double complex hsm(1),hsmp(1)
-  integer:: nkd , nkq , ilm , l , m
-  double precision :: alat,p1(3),plat(3,3),qlat(3,3),sp,rwald,awald,asm, tol,vol
+  complex(8):: hsm(1),hsmp(1)
+  integer:: nkd , nkq , ilm , l , m,ll
+  real(8) :: alat,p1(3),plat(3,3),qlat(3,3),sp,rwald,awald,asm, tol,vol
   real(8),parameter:: pi = 4d0*datan(1d0)
   complex(8):: cfac,phase,img=(0d0,1d0)
   alat=lat_alat
@@ -1623,15 +1590,10 @@ subroutine hsmbl(p,rsm,e,q,lmax,cy,hsm,hsmp) !,slat
      call hsmblq ( p1 , e , q , asm , lmax , alat , rv_a_oqlv , nkq   , vol , hsm , hsmp )
   endif
   ! ... Multiply by phase to undo shortening
-  cfac = img*phase
-  ilm = 0
-  do    l = 0, lmax
-     cfac = -img*cfac
-     do    m = 1, 2*l+1
-        ilm = ilm+1
-        hsm(ilm)  = cfac*cy(ilm)*hsm(ilm)
-        hsmp(ilm) = cfac*cy(ilm)*hsmp(ilm)
-     enddo
+  do ilm=1,(lmax+1)**2
+     l=ll(ilm)
+     hsm(ilm)  = phase*cy(ilm)*hsm(ilm)*(-img)**l
+     hsmp(ilm) = phase*cy(ilm)*hsmp(ilm)*(-img)**l
   enddo
 end subroutine hsmbl
 subroutine hsmblq(p,e,q,a,lmax,alat,qlv,nkq,vol,dl,dlp)
@@ -1654,13 +1616,13 @@ subroutine hsmblq(p,e,q,a,lmax,alat,qlv,nkq,vol,dl,dlp)
   ! ----------------------------------------------------------------------
   implicit none
   integer :: nkq,lmax
-  double precision :: a,alat,e,vol, q(3),p(3),qlv(3,nkq)
+  real(8) :: a,alat,e,vol, q(3),p(3),qlv(3,nkq)
   complex(8):: dl((lmax+1)**2),dlp((lmax+1)**2),img=(0d0,1d0)
   integer :: lmxx,nlm,ilm,ir
   parameter (lmxx=11)
-  double precision :: r(3),tpi,gamma,fpibv,tpiba,scalp,r2,den0,den1
-  double precision :: yl((lmax+1)**2)
-  double complex eiphi
+  real(8) :: r(3),tpi,gamma,fpibv,tpiba,scalp,r2,den0,den1
+  real(8) :: yl((lmax+1)**2)
+  complex(8):: eiphi
   tpi = 8d0*datan(1d0)
   gamma = .25d0/(a*a)
   fpibv = 2d0*tpi/vol
@@ -1668,14 +1630,14 @@ subroutine hsmblq(p,e,q,a,lmax,alat,qlv,nkq,vol,dl,dlp)
   nlm = (lmax+1)**2
   dl=0d0
   dlp=0d0
-  do  26  ir = 1, nkq
+  do ir = 1, nkq
      r(:) = tpiba*(q(:)+qlv(:,ir))
      eiphi = exp(img*alat*sum(r*p))
      call sylm(r,yl,lmax,r2)
      den0 = dexp(gamma*(e-r2))/(r2-e)
      dl(1:nlm)  = dl(1:nlm)  + yl(1:nlm)*eiphi*den0
      dlp(1:nlm) = dlp(1:nlm) + yl(1:nlm)*eiphi*den0/(r2-e)
-26 enddo
+  enddo
   dl(1:nlm)  = fpibv*dl(1:nlm)
   dlp(1:nlm) = fpibv*dlp(1:nlm) + gamma*dl(1:nlm)
 end subroutine hsmblq
@@ -1685,15 +1647,15 @@ subroutine hsmbld(p,rsm,e,q,a,lmax,alat,dlv,nkd,dl,dlp)
   !u   10 May 07 New protections to handle error functions underflow
   implicit none
   integer :: lmxx,ilm,ir,l,lmax,m,nkd,nm
-  double precision :: q(3),p(3),dlv(3,nkd)
-  double complex dl(1),dlp(1)
+  real(8) :: q(3),p(3),dlv(3,nkd)
+  complex(8):: dl(1),dlp(1)
   logical :: lpos,lzero
   parameter (lmxx=11)
-  double precision :: a,a2,akap,alat,asm,asm2,cc,ccsm,derfc,e,emkr,gl, &
+  real(8) :: a,a2,akap,alat,asm,asm2,cc,ccsm,derfc,e,emkr,gl, &
        qdotr,r1,r2,rsm,srpi,ta,ta2,tasm,tasm2,umins,uplus,tpi,kap
-  double precision :: yl((lmxx+1)**2),chi1(-1:10),chi2(-1:10),r(3)
-  double complex cfac,zikap,expikr,zuplus,zerfc
-  double precision :: srfmax,fmax
+  real(8) :: yl((lmxx+1)**2),chi1(-1:10),chi2(-1:10),r(3)
+  complex(8):: cfac,zikap,expikr,zuplus,zerfc
+  real(8) :: srfmax,fmax
   parameter (srfmax=16d0, fmax=srfmax*srfmax)
   if (lmax > lmxx) call rxi('hsmbld: increase lmxx to',lmax)
   tpi = 8.d0*datan(1.d0)
@@ -1721,10 +1683,10 @@ subroutine hsmbld(p,rsm,e,q,a,lmax,alat,dlv,nkd,dl,dlp)
      lzero = .false.
      ! --- Make the xi's from -1 to lmax ---
      if (r1 < 1d-6) then
-        do  31  l = 1, lmax
+        do  l = 1, lmax
            chi1(l) = 0d0
            chi2(l) = 0d0
-31      enddo
+        enddo
         if (lpos) then
            zuplus = zerfc(zikap/ta)
            chi1(0) = -zikap*zuplus &
@@ -1855,17 +1817,14 @@ subroutine hxpos(rsmh,rsmg,eh,kmax,nlmh,k0,c)
   !u   24 Apr 00 Adapted from nfp hxp_os.f
   ! ----------------------------------------------------------------------
   integer :: k0,kmax,nlmh
-  double precision :: eh(1),rsmg,rsmh(1),c(0:k0,nlmh)
-  integer :: ndim,ktop0,ilm,k,l,ll,lmax,m,nm
-  double precision :: a,dfact,eg,fac,factk,fpi,sig
-  real(8),allocatable:: s(:,:)
+  real(8) :: eh(1),rsmg,rsmh(1),c(0:k0,nlmh)
+  integer :: ndim,ilm,k,l,ll,lmax,m,nm
+  real(8) :: a,dfact,eg,fac,factk,sig
+  real(8):: s(nlmh,0:kmax)
+  real(8),parameter:: fpi = 16d0*datan(1d0)
   if (nlmh == 0) return
-  fpi = 16d0*datan(1d0)
-  ktop0 = kmax
-  ndim  = nlmh
-  allocate(s(ndim,0:ktop0))
   eg = 0d0
-  call ghios(rsmg,rsmh,eg,eh,nlmh,kmax,ndim,s)! Make integrals with gaussians G_kL
+  call ghios(rsmg,rsmh,eg,eh,nlmh,kmax,nlmh,s)! Make integrals with gaussians G_kL
   ! ... Scale integrals to get coefficients of the P_kL
   a = 1d0/rsmg
   lmax = ll(nlmh)
@@ -1879,15 +1838,13 @@ subroutine hxpos(rsmh,rsmg,eh,kmax,nlmh,k0,c)
         factk = 1d0
         if (rsmh(l+1) > 0) then
            do  k = 0, kmax
-              fac = (4*a*a)**k * a**l * factk * dfact
-              c(k,ilm) = s(ilm,k)*(fpi/fac)
+              c(k,ilm) = s(ilm,k)*fpi/( (4*a*a)**k * a**l * factk * dfact )
               factk = factk*(k+1)
            enddo
         endif
      enddo
      dfact = dfact*(2*l+3)
   enddo
-  deallocate(s)
 end subroutine hxpos
 subroutine ghios(rsmg,rsmh,eg,eh,nlmh,kmax,ndim,s)
   !- Integrals between 3D Gaussians and smooth Hankels at same site.
@@ -1914,14 +1871,13 @@ subroutine ghios(rsmg,rsmh,eg,eh,nlmh,kmax,ndim,s)
   !u   18 May 00 Made rsmh,eh l-dependent
   !u   24 Apr 00 Adapted from nfp ghi_os.f
   ! ----------------------------------------------------------------------
+  implicit none
   integer :: kmax,ndim,nlmh
-  double precision :: eg,eh(*),rsmg,rsmh(*),s(ndim,0:kmax)
-  integer :: ktop0,ilm,k,ktop,l,ll,lmaxh,l1,l2,ilm1,ilm2
-  parameter( ktop0=50 )
-  double precision :: fac,fpi,gamg,gamh,rsmx,y0,h0k(0:ktop0),rsm,e
+  integer :: ilm,k,ktop,l,ll,lmaxh,l1,l2,ilm1,ilm2
+  real(8) :: eg,eh(lmaxh+1),rsmg,rsmh(lmaxh+1),s(ndim,0:kmax)
+  real(8) :: fac,gamg,gamh,rsmx,rsm,e
+  real(8),parameter:: fpi = 16d0*datan(1d0), y0 = 1d0/dsqrt(fpi)
   if (nlmh == 0) return
-  fpi = 16d0*datan(1d0)
-  y0 = 1d0/dsqrt(fpi)
   lmaxh = ll(nlmh)
   l2 = -1
   do  20  l1  = 0, lmaxh ! --- Loop over sequences of l with a common rsm,e ---
@@ -1937,12 +1893,14 @@ subroutine ghios(rsmg,rsmh,eg,eh,nlmh,kmax,ndim,s)
      rsmx = 2d0*dsqrt(gamg+gamh)
      !   ... Make hankels for l=0 and k=0..kmax
      ktop = l2+kmax
-     if(ktop > ktop0) call rxi('ghios: increase ktop0, need',ktop)
+     block 
+     real(8) :: h0k(0:ktop)
      call hklos(rsmx,e,ktop,h0k)
      do  ilm = ilm1, ilm2 ! .. Evaluate what is left of Clebsch-Gordan sum
         l = ll(ilm)
         s(ilm,0:kmax) = y0*dexp(gamg*(eg-e)) * (-1)**l * h0k(l+0:l+kmax)
      enddo
+     endblock
 20 enddo
 end subroutine ghios
 subroutine hklos(rsm,e,kmax,h0k)
@@ -1962,19 +1920,17 @@ subroutine hklos(rsm,e,kmax,h0k)
   ! ----------------------------------------------------------------------
   implicit none
   integer :: kmax,k
-  double precision :: rsm,e,h0k(0:kmax)
-  double precision :: akap,asm,cc,derfc,gam,gg,hh
+  real(8) :: rsm,e,h0k(0:kmax)
+  real(8) :: akap,asm,cc,derfc,gam,gg,hh
   real(8),parameter:: pi = 4d0*datan(1d0),y0 = 1d0/dsqrt(4*pi)
   gam = rsm*rsm/4d0
   asm = 0.5d0/dsqrt(gam)
-  ! ... Make smooth Hankel at zero
-  if (e > 0d0) call rx('hklos: e is positive')
+  if(e > 0d0) call rx('hklos: e is positive')! ... Make smooth Hankel at zero
   akap = sqrt(abs(e))
   hh = 4d0*asm**3*exp(gam*e)/sqrt(pi)/(2*asm*asm)-akap*erfc(akap/(2*asm))
   h0k(0) = hh*y0
-  ! ... Upward recursion for laplace**k h0
   gg = exp(gam*e) * (asm*asm/pi)**1.5d0
-  do k = 1,kmax
+  do k = 1,kmax ! ... Upward recursion for laplace**k h0
      hh = -e*hh - 4*pi*gg
      h0k(k) = hh*y0
      gg = -2*asm*asm*(2*k+1)*gg
@@ -1996,7 +1952,7 @@ subroutine gtbsl2(l1,lmxh,eh,rsmh,l2)
   ! ----------------------------------------------------------------------
   implicit none
   integer :: l1,l2,lmxh
-  double precision :: rsmh(0:lmxh),eh(0:lmxh), e,rsm
+  real(8) :: rsmh(0:lmxh),eh(0:lmxh), e,rsm
   e = eh(l1)
   rsm = rsmh(l1)
   l2 = l1
