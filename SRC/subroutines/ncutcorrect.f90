@@ -9,9 +9,6 @@ subroutine ncutcorrect(ncut,n,gv,ng)
   implicit none
   integer:: i,n,ni,ng,ig, ncut(n) !,ncut0(n)
   real(8):: gv(ng,3),gg, eps=1d-6
-  !      ncut=100000
-  !      return
-  !      ncut0=ncut
   do i=1,n
      ni = ncut(i)
      if(ni>ng) then
@@ -28,8 +25,4 @@ subroutine ncutcorrect(ncut,n,gv,ng)
      ncut(i)=ng
 99   continue
   enddo
-  ! cccccccccccccccccccc
-  !      write(6,"(a,100i6)")' hhh0: ng ncut=',ng,ncut0
-  !      write(6,"(a,100i6)")' hhh1: ng ncut=',ng,ncut
-  ! cccccccccccccccccccc
 end subroutine ncutcorrect

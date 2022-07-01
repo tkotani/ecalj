@@ -2,9 +2,7 @@
 real(8) function rydberg()
   rydberg=13.6058d0
 END function rydberg
-
-integer function ifile_handle()
-  !! find unused file handle
+integer function ifile_handle() ! find unused file handle
   implicit none
   integer:: i
   logical:: nexist
@@ -30,11 +28,10 @@ integer function ifile_handle()
   enddo
   call rx('ifile_handle: we did not find open file handle')
 end function ifile_handle
-! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-subroutine rangedq(qin, qout) !renewed jun2015
-  implicit none! qout is in [-0.5d0,0.5d0)
-  intent(in)::       qin
-  intent(out)::           qout
+subroutine rangedq(qin, qout) ! qout is in [-0.5d0,0.5d0)
+  implicit none
+  intent(in)::     qin
+  intent(out)::         qout
   integer :: ix
   real(8):: qin(3),qout(3),tol=1d-12
   qout= qin-nint(qin)
@@ -42,7 +39,6 @@ subroutine rangedq(qin, qout) !renewed jun2015
      if(qout(ix)>0.5d0-tol) qout(ix)=-0.5d0 !this is needed to distinguish 0.5d0 and -0.5d0.
   enddo
 end subroutine rangedq
-! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
 character(10) function i2char(numin)
   !! convert num to char. See charnum3 to understand this.
   implicit none
@@ -57,7 +53,6 @@ character(10) function i2char(numin)
   i2char = trim(i2char)//char(48+mod(num,10)) !1st digit
   if(numin<0) i2char = '-'//trim(i2char)//char(48+mod(num,10)) !1st digit
 END function i2char
-! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
 character(8) function charext(num)
   integer(4) ::num
   charext = char(48+mod(num,10))
@@ -165,7 +160,6 @@ character(20) function xxt(num1,num2)
   if(num>99999) xxt = char(48+mod(num/100000,10))//xxt
   if(num>999999) call rx( ' xxt:can not produce')
 END function xxt
-
 real(8) function tripl(a,b,c)
   !! == tripl (determinant of 3x3 matrix) ==
   !     implicit none
@@ -173,7 +167,6 @@ real(8) function tripl(a,b,c)
   tripl = a(1)*b(2)*c(3) + a(2)*b(3)*c(1) + a(3)*b(1)*c(2) &
        -a(3)*b(2)*c(1) - a(2)*b(1)*c(3) - a(1)*b(3)*c(2)
 END function tripl
-
 subroutine cross(a,b,c)
   implicit none
   intent(in)  ::   a,b
@@ -184,10 +177,9 @@ subroutine cross(a,b,c)
   c(3)=a(1)*b(2)-a(2)*b(1)
   return
 end subroutine cross
-
 !> This is a replacement of dinv33 of Ferdi's GW  => dinv33(plat,1,qlat,det)
 !! the SAME as the one of dinv33 in extens.f in ferdi/lmto/extens.f
-subroutine minv33tp(  plat,qlat)
+subroutine minv33tp(plat,qlat)
   implicit none
   real(8),intent(in)::  plat(3,3)
   real(8),intent(out):: qlat(3,3)
@@ -198,14 +190,9 @@ subroutine minv33tp(  plat,qlat)
   det  = sum( plat(1:3,1)*qlat(1:3,1) )
   qlat = qlat/det
 end subroutine minv33tp
-
-!>- Inverts 3X3 matrix
-subroutine minv33(matrix,inverse)
-  !o Outputs
-  !o   inverse, as modified according to iopt
-  !o   det:      determinant
+subroutine minv33(matrix,inverse) !Inverts 3X3 matrix
+  !o   inverse
   implicit none
-  !      integer:: iopt=0
   real(8), intent(in) :: matrix(3,3)
   real(8), intent(out) :: inverse(3,3)
   real(8) :: det,ddot
@@ -217,7 +204,6 @@ subroutine minv33(matrix,inverse)
   inverse = transpose(inverse)
   inverse = inverse/det
 end subroutine minv33
-
 subroutine dinv33(matrix,iopt,invrse,det)
   !- Inverts 3x3 matrix
   ! ----------------------------------------------------------------
@@ -254,10 +240,8 @@ subroutine dinv33(matrix,iopt,invrse,det)
   endif
   call dscal(9,1/det,invrse,1)
 end subroutine dinv33
-
-subroutine dpcopy(afrom,ato,n1,n2,fac)
-  !- Copy and scale a portion of a vector
-  !     implicit none
+subroutine dpcopy(afrom,ato,n1,n2,fac) !- Copy and scale a portion of a vector
+  implicit none
   integer :: n1,n2,i
   double precision :: afrom(1),ato(1),fac
   if (fac /= 1d0) goto 100
@@ -268,7 +252,6 @@ subroutine dpcopy(afrom,ato,n1,n2,fac)
      ato(i) = fac*afrom(i)
   enddo
 end subroutine dpcopy
-
 subroutine cinit(array,leng)
   !- Initializes complex array to zero
   integer :: leng
@@ -365,7 +348,6 @@ subroutine lvset(array,i1,i2,val)
      array(i) = val
   enddo
 end subroutine lvset
-
 subroutine dpscop(afrom,ato,nel,n1,n2,fac)
   !- shift and copy.
   !i nel number of elements
@@ -385,7 +367,6 @@ subroutine dpscop(afrom,ato,nel,n1,n2,fac)
      ato(i+iadd) = fac*afrom(i)
   enddo
 end subroutine dpscop
-
 !> taken from https://community.intel.com/t5/Intel-Fortran-Compiler/Weird-Fortran/td-p/1185072?
 !> for f90
 function i1mach(i) result(s)
@@ -594,11 +575,13 @@ subroutine fsanrg(f,f1,f2,tol,t1,t2,lreqd)
   if (f1==f2 .AND. f>=f1-tol/2d0 .AND. f<=f2+tol/2d0) return
   call rx(trim(t1)//' '//trim(t2))
 end subroutine fsanrg
+
 subroutine setfac(n,fac) !- set up array of factorials.
   integer :: n,i,ik,m
   real(8):: fac(0:n)
   fac=[(product([(ik,ik=1,m)]),m=0,n)]
 end subroutine setfac
+
 subroutine stdfac(n,df) !- Set up array of double factorials.
   !  for odd numbers,  makes 1*3*5*..*n
   !  for even numbers, makes 2*4*6*..*n
@@ -606,6 +589,7 @@ subroutine stdfac(n,df) !- Set up array of double factorials.
   real(8):: df(0:n)
   df=[(product([(ik,ik=m,1,-2)]),m=0,n)]
 end subroutine stdfac
+
 integer function nargf()
   integer :: iargc
   nargf = iargc() + 1
@@ -616,7 +600,6 @@ subroutine ftime(datim)!fortran-callable date and time
   datim=datim(1:24) !takao. If this is not, write(6,*) gives CR at the ene of datim*26.
 end subroutine ftime
 
-! These routines are taken from Ferdi's rw.f
 subroutine readx(ifil,n)
   integer::ifil,n,i,j
   character(72) :: rchar

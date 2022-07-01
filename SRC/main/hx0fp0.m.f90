@@ -385,7 +385,16 @@ program hx0fp0
   !! Get eigenvector corresponds to exp(iqr) (q is almost zero).
   if(epsmode) allocate(epsi(nw_i:nw,neps))
   !! Tetrahedron initialization
-  noccxv = maxocc2 (nspin,ef, nband, qbze,nqbze) ! maximum no. occupied valence states
+  !noccxv = maxocc2 (nspin,ef, nband, qbze,nqbze) ! maximum no. occupied valence states
+  block
+    real(8):: ekt(nband,nqbze,nspin)
+    do is = 1,nspin
+       do iq = 1,nqbze
+          ekt(:,iq,is)= readeval(qbze(:,iq),is)
+       enddo
+    enddo
+    noccxv = maxval(count(ekt(1:nband,1:nqbze,1:nspin)<ef,1))
+  endblock
   if(noccxv>nband) call rx( 'hx0fp0: all the bands filled! too large Ef')
   noccx  = noccxv + nctot
   if (MPI__root) then

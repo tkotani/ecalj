@@ -12,51 +12,40 @@ module m_iqindx_qtt
   integer,private:: nkey(3)
   real(8),private:: epsd=1d-7 !key parameter to map to integer index
 contains
-  !!
-  subroutine iqindx2_(q, iqindx,qu)
-    intent(in)::        q
-    intent(out)::          iqindx,qu ! qu(i) = q(i) + matmul(qlat(i,:)* nxx(:))
-    !> Find index as q=qq(:,iq) with modulo of premitive vector.===
+  subroutine iqindx2_(q, iqindx,qu) !Find index for q=qq(:,iqindx).Modulo of premitive vector.
+    intent(in)::      q
+    intent(out)::        iqindx,qu ! qu(i) = q(i) + matmul(qlat(i,:)* nxx(:))
     !! ginv is the inverse of plat (premitive translation vector).
-    !! Use kk1,kk2,kk3,nkey(1:3),iqkkk to get iqindx.
-    real(8) :: q(3)
-    integer :: iqindx
-    real(8) :: qu(3)
-    integer:: i_out, iq,iqx ,kkk3(3),ik1,ik2,ik3
-    real(8):: qx(3),qzz(3)
-    call rangedq(matmul(ginv,q), qzz)
-    !! we generate qzz integer index for qzz
+    real(8) :: q(3),qu(3),qx(3),qzz(3)
+    integer :: iqindx, kkk3(3), ik1(1),ik2(1),ik3(1)
+    call rangedq(matmul(ginv,q), qzz) ! we generate qzz integer index for qzz
     kkk3 = (qzz+0.5d0*epsd)/epsd
-    call tabkk(kkk3(1), kk1,nkey(1), ik1)
-    call tabkk(kkk3(2), kk2,nkey(2), ik2)
-    call tabkk(kkk3(3), kk3,nkey(3), ik3)
-    iqindx = iqkkk(ik1,ik2,ik3)
+    ik1= findloc(kkk3(1)-kk1,value=0)
+    ik2= findloc(kkk3(2)-kk2,value=0)
+    ik3= findloc(kkk3(3)-kk3,value=0)
+    iqindx = iqkkk(ik1(1),ik2(1),ik3(1))
     qu =qtt(:,iqindx)
   end subroutine iqindx2_
-  !!----
   subroutine init_iqindx_qtt()
     !! === mapping of qtt ===
     !! nkey, kk1,kk2,kk3, iqkkk are to get iqindx.
     !!  q --> call rangedq(matmul(ginv,q), qx) ---> n= (qx+0.5*epsd)/epsd
-    !!       --->  ik1,ik2,ik3= tabkk(kkk,iqk,nkey) ---> iqkkk(ik1,ik2,ik3)
     real(8):: qzz(3)
+    integer:: isig,i,ix,kkk,kkk3(3),ik1(1),ik2(1),ik3(1),iq,ik
     real(8),allocatable:: qxx(:,:)
-    integer:: isig,i,ix,kkk,kkk3(3),ik1,ik2,ik3,iq,ik
     integer,allocatable:: ieord(:)
-    logical::debug=.false.
-    allocate(ieord(nqtt))
-    allocate(key(3,0:nqtt),qxx(3,nqtt))
-    key=-99999
+    allocate(ieord(nqtt),key(3,0:nqtt),qxx(3,nqtt))
     do iq=1,nqtt
        call rangedq(matmul(ginv,qtt(:,iq)), qxx(:,iq))
     enddo
     !! get key and nkey for each ix.
-    key(:,0)=0 !dummy
+    key=-99999
+    key(:,0)=0 
     do ix =1,3
        call sortea(qxx(ix,:),ieord,nqtt,isig)
        ik=0
        do i=1,nqtt
-          kkk=(qxx(ix,ieord(i))+0.5d0*epsd)/epsd  !kkk is digitized by 1/epsd
+          kkk=(qxx(ix,ieord(i))+0.5d0*epsd)/epsd  !qxx is digitized by \pm 0.5*epsd 
           if(i==1 .OR. key(ix,ik)<kkk) then
              ik=ik+1
              key(ix,ik) = kkk
@@ -67,52 +56,21 @@ contains
        enddo
        nkey(ix)=ik
     enddo
-    deallocate(ieord)
     !!  key is reallocated. inverse mapping, iqkkk
     allocate( kk1(nkey(1)),kk2(nkey(2)),kk3(nkey(3)) )
     kk1(:) = key(1,1:nkey(1))
     kk2(:) = key(2,1:nkey(2))
     kk3(:) = key(3,1:nkey(3))
-    deallocate(key)
+    deallocate(ieord,key)
     allocate( iqkkk(nkey(1),nkey(2),nkey(3)) )
     iqkkk=-99999
     do i=1,nqtt
-       kkk3= (qxx(:,i)+0.5d0*epsd)/epsd !kkk is digitized by 1/epsd
-       call tabkk(kkk3(1), kk1,nkey(1), ik1)
-       call tabkk(kkk3(2), kk2,nkey(2), ik2)
-       call tabkk(kkk3(3), kk3,nkey(3), ik3)
-       iqkkk(ik1,ik2,ik3)=i
+       kkk3= (qxx(:,i)+0.5d0*epsd)/epsd 
+       ik1= findloc(kkk3(1)-kk1,value=0)
+       ik2= findloc(kkk3(2)-kk2,value=0)
+       ik3= findloc(kkk3(3)-kk3,value=0)
+       iqkkk(ik1(1),ik2(1),ik3(1))=i
     enddo
     deallocate(qxx)
   end subroutine init_iqindx_qtt
-
-  !! ---
-  subroutine tabkk(kkin, kktable,n, nout)
-    intent(in)::     kkin, kktable,n
-    intent(out)::                     nout
-    integer:: nout,n, kkin, kktable(n),i,mm,i1,i2
-    i1=1
-    i2=n
-    if(kkin==kktable(1)) then
-       nout=1
-       return
-    elseif(kkin==kktable(n)) then
-       nout=n
-       return
-    endif
-    do i=1,n
-       mm=(i1+i2)/2
-       if(kkin==kktable(mm)) then
-          nout=mm
-          return
-       elseif(kkin>kktable(mm)) then
-          i1=mm
-       else
-          i2=mm
-       endif
-    enddo
-    write(6,*) 'xxxxx takk ', i1,i2,kkin
-    write(6,*) 'xxxxx takk ',kktable(i1),kktable(i2)
-    call rx( 'takk: error')
-  end subroutine tabkk
 end module m_iqindx_qtt

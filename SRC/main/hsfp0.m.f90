@@ -412,11 +412,20 @@ program hsfp0
   if(tote) then
      ddw= .5d0
      ddw= 10d0
-     if(ixc==6) then
-        noccxv = maxocc2 (nspin, ef2+ ddw*esmr2, nband,qbz,nqbz)
-     else
-        noccxv = maxocc2 (nspin, ef + ddw*esmr,  nband, qbz,nqbz)
-     endif
+     block
+       real(8):: ekt(nband,nqbz,nspin),eff
+       if(ixc==6) then
+          eff= ef2+ ddw*esmr2
+       else
+          eff= ef + ddw*esmr
+       endif
+       do is = 1,nspin
+          do iq = 1,nqbz
+             ekt(:,iq,is)= readeval(qbz(:,iq),is)
+          enddo
+       enddo
+       noccxv = maxval(count(ekt(1:nband,1:nqbz,1:nspin)<eff,1))
+     endblock
   endif
   !     noccxv = maxocc (ifev,nspin, ef+0.5d0*esmr, nband,nqbz)  ! maximum no. of occupied valence states
   !     maxocc seems to give (the maxmum number of occ + 1).
