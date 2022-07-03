@@ -22,7 +22,7 @@ contains
     !! Use kk1,kk2,kk3,nkey(1:3),iqkkk to get iqindx.
     real(8):: q(3),qu(3)
     integer:: iqindx
-    integer:: i_out, iq,iqx ,kkk3(3),ik1,ik2,ik3
+    integer:: i_out, iq,iqx ,kkk3(3),ik1(1),ik2(1),ik3(1)
     real(8):: qx(3),qzz(3)
     logical::debug=.true., init=.true.
     if (init) then
@@ -48,12 +48,15 @@ contains
     if(debug) write(6,*)'kk1=',kk1
     if(debug) write(6,*)'kk2=',kk2
     if(debug) write(6,*)'kk3=',kk3
-    call tabkk(kkk3(1), kk1,nkey(1), ik1)
-    call tabkk(kkk3(2), kk2,nkey(2), ik2)
-    call tabkk(kkk3(3), kk3,nkey(3), ik3)
+    ik1= findloc(kkk3(1)-kk1,value=0)
+    ik2= findloc(kkk3(2)-kk2,value=0)
+    ik3= findloc(kkk3(3)-kk3,value=0)
+!    call tabkk(kkk3(1), kk1,nkey(1), ik1)
+!    call tabkk(kkk3(2), kk2,nkey(2), ik2)
+!    call tabkk(kkk3(3), kk3,nkey(3), ik3)
     if(debug) write(6,"(' 222222a q=',3i8,3f18.12)") kkk3,qzz
     if(debug) write(6,"(' 222222a ik1,ik2,ik3,q=',3i8,3f18.12)") ik1,ik2,ik3,q
-    iqindx = iqkkk(ik1,ik2,ik3)
+    iqindx = iqkkk(ik1(1),ik2(1),ik3(1))
     if(debug) then
        do iqx=1,nqtt
           write(6,"(i5,3f13.5)")iqx,qtt(:,iqx)
@@ -84,7 +87,7 @@ contains
     !!       --->  ik1,ik2,ik3= tabkk(kkk,iqk,nkey) ---> iqkkk(ik1,ik2,ik3)
     real(8):: qzz(3)
     real(8),allocatable:: qxx(:,:)
-    integer:: isig,i,ix,kkk,kkk3(3),ik1,ik2,ik3,iq,ik
+    integer:: isig,i,ix,kkk,kkk3(3),ik1(1),ik2(1),ik3(1),iq,ik
     integer,allocatable:: ieord(:)
     logical::debug=.false.
     !      ginv=ginv_
@@ -126,12 +129,52 @@ contains
     iqkkk=-99999
     do i=1,nqtt
        kkk3= (qxx(:,i)+0.5d0*epsd)/epsd !kkk is digitized by 1/epsd
-       call tabkk(kkk3(1), kk1,nkey(1), ik1)
-       call tabkk(kkk3(2), kk2,nkey(2), ik2)
-       call tabkk(kkk3(3), kk3,nkey(3), ik3)
-       iqkkk(ik1,ik2,ik3)=i
+       ik1= findloc(kkk3(1)-kk1,value=0)
+       ik2= findloc(kkk3(2)-kk2,value=0)
+       ik3= findloc(kkk3(3)-kk3,value=0)
+!       call tabkk(kkk3(1), kk1,nkey(1), ik1)
+!       call tabkk(kkk3(2), kk2,nkey(2), ik2)
+!       call tabkk(kkk3(3), kk3,nkey(3), ik3)
+       iqkkk(ik1(1),ik2(1),ik3(1))=i
     enddo
     deallocate(qxx)
   end subroutine init_iqindx_wan
 end module m_iqindx_wan
 
+! !!------------------------------------------------
+! subroutine tabkk(kkin, kktable,n, nout)
+!   integer, intent(in) :: n,kkin, kktable(n)
+!   integer, intent(out) :: nout
+!   integer:: i,mm,i1,i2
+!   i1=1
+!   i2=n
+!   if(kkin==kktable(1)) then
+!      nout=1
+!      return
+!   elseif(kkin==kktable(n)) then
+!      nout=n
+!      return
+!   endif
+!   do i=1,n
+!      mm=(i1+i2)/2
+!      if(kkin==kktable(mm)) then
+!         nout=mm
+!         return
+!      elseif(kkin>kktable(mm)) then
+!         i1=mm
+!      else
+!         i2=mm
+!      endif
+!   enddo
+!   !$$$      do i=1,n
+!   !$$$         if(kkin==kktable(i)) then
+!   !$$$            nout=i
+!   !$$$            return
+!   !$$$         endif
+!   !$$$      enddo
+!   ! un2016
+!   !      call rx( 'takk: error')
+!   !      write(6,*) i1,i2,kkin
+!   !      write(6,*) kktable(i1),kktable(i2)
+!   nout=-999999
+! end subroutine tabkk

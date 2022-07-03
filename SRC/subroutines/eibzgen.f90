@@ -20,7 +20,7 @@ subroutine eibzgen(nqibz,symgg,ngrp,qibze,iqxini,iqxend,qbz,nqbz,timereversal,gi
   integer,allocatable:: nxx(:,:,:),ibznxx(:,:),nww(:,:),igx_(:,:),igxt_(:,:)
 
   real(8)::    epd=1d-5
-  integer:: nkey(3),isig,kkk,kkk3(3),ik1,ik2,ik3,ix,ifi,ifiese
+  integer:: nkey(3),isig,kkk,kkk3(3),ik1(1),ik2(1),ik3(1),ix,ifi,ifiese
   integer,allocatable:: ieord(:)
   integer,allocatable:: key(:,:),kk1(:),kk2(:),kk3(:),iqkkk(:,:,:)
   real(8),allocatable:: qbzl(:,:)
@@ -80,10 +80,13 @@ subroutine eibzgen(nqibz,symgg,ngrp,qibze,iqxini,iqxend,qbz,nqbz,timereversal,gi
   if(debug) write(6,*)' initqqq nqbz=',nqbz
   do i=1,nqbz
      kkk3= (qbzl(:,i)+0.5*epd)/epd !kkk is digitized by 1/epd
-     call tabkk(kkk3(1), kk1,nkey(1), ik1)
-     call tabkk(kkk3(2), kk2,nkey(2), ik2)
-     call tabkk(kkk3(3), kk3,nkey(3), ik3)
-     iqkkk(ik1,ik2,ik3)=i
+!     call tabkk(kkk3(1), kk1,nkey(1), ik1)
+!     call tabkk(kkk3(2), kk2,nkey(2), ik2)
+!     call tabkk(kkk3(3), kk3,nkey(3), ik3)
+     ik1= findloc(kkk3(1)-kk1,value=0)
+     ik2= findloc(kkk3(2)-kk2,value=0)
+     ik3= findloc(kkk3(3)-kk3,value=0)
+     iqkkk(ik1(1),ik2(1),ik3(1))=i
      if(debug) write(6,"(' iqkkk ik1,ik2,ik3,=',i4,3i3,x,3i6)")i,ik1,ik2,ik3,kkk3(:)
   enddo
   if(debug) then
@@ -202,12 +205,15 @@ subroutine eibzgen(nqibz,symgg,ngrp,qibze,iqxini,iqxend,qbz,nqbz,timereversal,gi
               endif
               kkk3 = nxx(:,ibz,im)
               if(debug) write(6,*)'uuuuu ibz,im kkk3=',ibz,im,kkk3
-              call tabkk(kkk3(1), kk1,nkey(1), ik1)
-              call tabkk(kkk3(2), kk2,nkey(2), ik2)
-              call tabkk(kkk3(3), kk3,nkey(3), ik3)
-              if(ik1==-999999 .OR. ik2==-999999 .OR. ik3==-999999) cycle !! june2016
+!              call tabkk(kkk3(1), kk1,nkey(1), ik1)
+!              call tabkk(kkk3(2), kk2,nkey(2), ik2)
+!              call tabkk(kkk3(3), kk3,nkey(3), ik3)
+              ik1= findloc(kkk3(1)-kk1,value=0)
+              ik2= findloc(kkk3(2)-kk2,value=0)
+              ik3= findloc(kkk3(3)-kk3,value=0)
+              if(ik1(1)+ik2(1)+ik3(1)==0) cycle 
               if(debug) write(6,*)'uuuuu ik=',ik1,ik2,ik3
-              ibzx = iqkkk(ik1,ik2,ik3)
+              ibzx = iqkkk(ik1(1),ik2(1),ik3(1))
               if(mqbz(ibzx)==1) then
                  cycle
               else
@@ -290,40 +296,3 @@ subroutine eibzgen(nqibz,symgg,ngrp,qibze,iqxini,iqxend,qbz,nqbz,timereversal,gi
   !      stop 'test stop -------- end of eibzgen ----------'
 end subroutine eibzgen
 
-!!------------------------------------------------
-subroutine tabkk(kkin, kktable,n, nout)
-  integer, intent(in) :: n,kkin, kktable(n)
-  integer, intent(out) :: nout
-  integer:: i,mm,i1,i2
-  i1=1
-  i2=n
-  if(kkin==kktable(1)) then
-     nout=1
-     return
-  elseif(kkin==kktable(n)) then
-     nout=n
-     return
-  endif
-  do i=1,n
-     mm=(i1+i2)/2
-     if(kkin==kktable(mm)) then
-        nout=mm
-        return
-     elseif(kkin>kktable(mm)) then
-        i1=mm
-     else
-        i2=mm
-     endif
-  enddo
-  !$$$      do i=1,n
-  !$$$         if(kkin==kktable(i)) then
-  !$$$            nout=i
-  !$$$            return
-  !$$$         endif
-  !$$$      enddo
-  ! un2016
-  !      call rx( 'takk: error')
-  !      write(6,*) i1,i2,kkin
-  !      write(6,*) kktable(i1),kktable(i2)
-  nout=-999999
-end subroutine tabkk
