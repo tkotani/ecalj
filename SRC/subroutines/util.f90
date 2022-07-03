@@ -617,3 +617,24 @@ real(8) function derfc(x)
   real(8)::x
   derfc= 1d0 - erf(x)
 end function derfc
+
+subroutine getqkey(qx,nqtt,epsd,  nkey,key) !qx is digitized by epsd
+!!NOTE: use this with ik=findloc( int(qinput+0.5d0*epsd) - key,value=0)
+  intent(in)::    qx,nqtt,epsd
+  intent(out)::                  nkey,key
+  integer:: nqtt, key(nqtt),isig,ieord(nqtt),nkey,i,ik,kkk,mm
+  real(8):: qx(nqtt),epsd
+  call sortea(qx,ieord,nqtt,isig)
+  ik=0
+  do i=1,nqtt
+     kkk=(qx(ieord(i))+0.5d0*epsd)/epsd  !kkk is digitized by 1/epsd
+     if(i==1 .OR. key(ik)<kkk) then
+        ik=ik+1
+        key(ik) = kkk
+     elseif (key(ik)>kkk) then
+        write(6,*) ik,i, key(ik), qx(ieord(i))
+        call rx( 'iqindx: bug not sorted well')
+     endif
+  enddo
+  nkey=ik
+end subroutine getqkey

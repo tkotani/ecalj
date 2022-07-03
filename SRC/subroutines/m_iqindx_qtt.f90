@@ -34,28 +34,14 @@ contains
     integer:: isig,i,ix,kkk,kkk3(3),ik1(1),ik2(1),ik3(1),iq,ik
     real(8),allocatable:: qxx(:,:)
     integer,allocatable:: ieord(:)
-    allocate(ieord(nqtt),key(3,0:nqtt),qxx(3,nqtt))
+    allocate(ieord(nqtt),key(3,nqtt),qxx(3,nqtt))
     do iq=1,nqtt
        call rangedq(matmul(ginv,qtt(:,iq)), qxx(:,iq))
     enddo
     !! get key and nkey for each ix.
-    key=-99999
-    key(:,0)=0 
-    do ix =1,3
-       call sortea(qxx(ix,:),ieord,nqtt,isig)
-       ik=0
-       do i=1,nqtt
-          kkk=(qxx(ix,ieord(i))+0.5d0*epsd)/epsd  !qxx is digitized by \pm 0.5*epsd 
-          if(i==1 .OR. key(ix,ik)<kkk) then
-             ik=ik+1
-             key(ix,ik) = kkk
-          elseif (key(ix,ik)>kkk) then
-             write(6,*)ix, ik,i, key(ix,ik), qxx(ix,ieord(i))
-             call rx( 'iqindx: bug not sorted well')
-          endif
-       enddo
-       nkey(ix)=ik
-    enddo
+    call getqkey(qxx(1,:),nqtt,epsd, nkey(1),key(1,:))
+    call getqkey(qxx(2,:),nqtt,epsd, nkey(2),key(2,:))
+    call getqkey(qxx(3,:),nqtt,epsd, nkey(3),key(3,:))
     !!  key is reallocated. inverse mapping, iqkkk
     allocate( kk1(nkey(1)),kk2(nkey(2)),kk3(nkey(3)) )
     kk1(:) = key(1,1:nkey(1))
