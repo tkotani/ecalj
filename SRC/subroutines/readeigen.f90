@@ -5,9 +5,8 @@
 !!----------------
 module m_readeigen
   use m_iqindx_qtt,only: Iqindx2_, Init_iqindx_qtt
-  use m_hamindex,only:   ngpmx, nqtt, nqi, nqnum, qtt,iqimap, &
-       iqmap,igmap,shtvg,qlat,symops,plat,invgx, &
-       miat,tiat,dlmm,shtvg,symops,lxxa,nbas
+  use m_hamindex,only:   ngpmx, nqtt, nqi, nqnum, qtt,iqimap, iqmap,igmap,shtvg,qlat,symops
+  use m_hamindex,only:   plat,invgx, miat,tiat,dlmm,shtvg,symops,lxxa,nbas
   use m_read_bzdata,only: ginv
   use m_genallcf_v3,only: nsp =>nspin ,ldim2=>nlmto
   use m_readhbe,only: mrecb, mrece,nband, mrecg
@@ -16,9 +15,8 @@ module m_readeigen
   !!                  See lmfgw (q-vector with irr flag in QGpsi (output of qg4gw).
   implicit none
   !-------------------------------
-  public:: Readeval, Readgeigf, Readcphif, Readcphifq, Init_readeigen, Init_readeigen2, Lowesteval, &
-       Onoff_write_pkm4crpa, &
-       Init_readeigen_mlw_noeval, Init_readeigen_phi_noeval, Readcphiw, Readgeigw
+  public::Readeval, Readgeigf, Readcphif, Readcphifq, Init_readeigen, Init_readeigen2, Lowesteval
+  public::Onoff_write_pkm4crpa, Init_readeigen_mlw_noeval, Init_readeigen_phi_noeval, Readcphiw, Readgeigw
   integer,public:: nwf
   !------------------------------
   private
@@ -31,16 +29,14 @@ module m_readeigen
   real(8),allocatable,private:: evud(:,:,:)!, ginv(:,:)
   logical,private:: init=.true.,init2=.true.,keepeig
   integer,allocatable,private:: ngp(:)
-  integer,private:: nprecb, &
-       nnnn, ifcphi,ifgeig !,mrecg,mrecb ,ldim2!,mrece,
+  integer,private:: nprecb, nnnn, ifcphi,ifgeig
   complex(8),allocatable,private:: geig(:,:,:,:),cphi(:,:,:,:)
   real(8),private:: leval
   integer,private :: ifcphi_mlw,ifgeig_mlw, nqixx
   complex(8),allocatable,private:: geig_mlw(:,:,:,:), cphi_mlw(:,:,:,:)
   logical,private:: debug=.false.
   integer,allocatable,private:: ngvecp(:,:,:), ngvecprev(:,:,:,:)
-  integer,allocatable,private:: l_tbl(:),k_tbl(:),ibas_tbl(:) &
-       ,offset_tbl(:),offset_rev_tbl(:,:,:)
+  integer,allocatable,private:: l_tbl(:),k_tbl(:),ibas_tbl(:),offset_tbl(:),offset_rev_tbl(:,:,:)
   logical,private:: Wpkm4crpa=.false.
   real(8),private :: quu(3)
 
@@ -119,8 +115,7 @@ contains
     igxt=1 !not timereversal
     call rotipw(qtt(:,iqq),qtt(:,iq),ngp(iqq),nband, &
          platt,qlat,symops(:,:,igg),ngvecp(:,:,iqq),ngvecprev(:,:,:,iq),shtvg(:,igg),igxt,imx, &
-         geigenr(1:ngp(iqq),1:nband), &
-         geigen(1:ngp(iq),1:nband))
+         geigenr(1:ngp(iqq),1:nband), geigen(1:ngp(iq),1:nband))
   end subroutine readgeig
   ! sssssssssssssssssssssssssssssssssssssssssssss
   function readcphif(q,isp) result(cphif)
@@ -146,8 +141,7 @@ contains
     integer, intent(in)  :: isp
     real(8), intent(out)  :: qu(3)
     complex(8), intent(out)  :: cphif(ldim2,nband)
-    integer:: iq,iqindx,ikpisp,iqq,iorb,ibaso,ibas,k,l, &
-         ini1,ini2,iend1,iend2,igg,ig,iqi,i,igxt
+    integer:: iq,iqindx,ikpisp,iqq,iorb,ibaso,ibas,k,l,ini1,ini2,iend1,iend2,igg,ig,iqi,i,igxt
     real(8)   :: qrot(3) ,qout(3)
     complex(8):: phase,cphifr(ldim2,nband),phaseatom !takao 1->*->nband
     complex(8),parameter:: img=(0d0,1d0) ! MIZUHO-IR
@@ -169,14 +163,11 @@ contains
     if(debug) write(6,"('readcphi:: xxx sum of cphifr=',3i4,4d23.16)")ldim2,ldim2,norbtx, &
          sum(cphifr(1:ldim2,1:nband)),sum(abs(cphifr(1:ldim2,1:nband)))
     igxt=1 !not timereversal (for future)
-    call rotmto(qtt(:,iqq),ldim2,nband, &
-         norbtx,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl, &
+    call rotmto(qtt(:,iqq),ldim2,nband,norbtx,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl, &
          maxval(ibas_tbl),maxval(l_tbl),maxval(k_tbl), &
          symops(1,1,igg),shtvg(:,igg),dlmm(:,:,:,igg),lxxa,miat(:,igg),tiat(:,:,igg),igxt,nbas, &
-         cphifr, &
-         cphif)
+         cphifr, cphif)
   end subroutine readcphi
-
   ! sssssssssssssssssssssssssssssssssssssssssssss
   subroutine init_readeigen() !nband_in,mrece_in)
     !!-- initialization. Save QpGpsi EVU EVD to arrays.--
@@ -229,21 +220,6 @@ contains
     leval= minval(evud)
     init=.false.
   end subroutine init_readeigen
-  !$$$!ssssssssssssssssssssssssssssssssssssssssssssss
-  !$$$      subroutine findemaxmin_r(emax,emin)
-  !$$$      real(8):: emax,emin,eee
-  !$$$      integer:: ib,iq,isp
-  !$$$      emax=-1d9
-  !$$$      do ib=1,nband
-  !$$$         do iq=1,nqixx
-  !$$$            do isp=1,nsp
-  !$$$               eee= evud(ib,iq,isp)
-  !$$$               if(eee>Emax.and.eee<1d9) Emax=eee
-  !$$$            enddo
-  !$$$         enddo
-  !$$$      enddo
-  !$$$      emin = minval(evud)
-  !$$$      end subroutine
   ! sssssssssssssssssssssssssssssssssssssssssssss
   real(8) function lowesteval()
     lowesteval=leval
@@ -274,7 +250,6 @@ contains
     close(ifgeig)
     close(ifcphi)
   end subroutine init_readeigen2
-
   subroutine readmnla_cphi()
     !! === readin @MNLA_CPHI for rotation of MTO part of eigenfunction cphi ===
     implicit none
@@ -311,16 +286,12 @@ contains
     close(ifoc)
   end subroutine readmnla_cphi
   ! sssssssssssssssssssssssssssssssssssssssssssss
-
-
-  ! sssssssssssssssssssssssssssssssssssssssssssss
   subroutine init_readeigen_mlw_noeval()
     ! replace cphi and geig
     ! for hwmat
     ! this should be called after init_readgeigen2
     implicit none
-    integer:: iq,is,ifiqg,ikp, &
-         isx,mrecb_o,ikpisp,mrecg_o, &
+    integer:: iq,is,ifiqg,ikp, isx,mrecb_o,ikpisp,mrecg_o, &
          nwf_o,nband_o,ifmlw,ifmlwe,nqbz,nqbze,nqbze2,iqbz,iqbz2,nwf2, &
          ib,iwf,iwf2,iko_ix,iko_fx,in,ifcphi_o,ifgeig_o, &
          ifuu,nqbz2,nq0i,iko_ix2,iko_fx2,iq0i,iq0i2,j1,j2
@@ -367,9 +338,7 @@ contains
              read(ifuu)iqbz2,iq0i2
              if (iqbz2 /= iqbz) call rx( 'init_readeigen_mlw: iqbz error')
              if (iq0i2 /= iq0i) call rx( 'init_readeigen_mlw: iq0i error')
-             read(ifuu) &
-                  ((uum(j1,j2,iqbz,iq0i,is), &
-                  j1=iko_ix,iko_fx),j2=iko_ix,iko_fx)
+             read(ifuu)((uum(j1,j2,iqbz,iq0i,is), j1=iko_ix,iko_fx),j2=iko_ix,iko_fx)
           enddo
        enddo
        if (is == 1) then
@@ -418,8 +387,7 @@ contains
              ! psi^B : bloch fn. corresponding to maxloc Wannier fn.
              do ib = iko_ix,iko_fx
                 do iwf= 1,nwf
-                   cbwf(ib,iwf,ikp,is) = &
-                        sum( conjg(uum(iko_ix:iko_fx,ib,iqbz,iq0i,is)) &
+                   cbwf(ib,iwf,ikp,is) = sum( conjg(uum(iko_ix:iko_fx,ib,iqbz,iq0i,is)) &
                         *dnk(iko_ix:iko_fx,iwf,iqbz,is) )
                 enddo
              enddo
@@ -464,7 +432,6 @@ contains
     deallocate(dnk,uum)
     mrecb_o = mrecb * nwf / nband
     mrecg_o = mrecg * nwf / nband
-
     if(keepeig) then
        write(6,*)' xxx nband=',nband
        allocate(geig2(ngpmx,nband))  !nqtt -->nqi
@@ -546,8 +513,7 @@ contains
     ! for hwmat_phi
     ! this should be called after init_readgeigen2
     implicit none
-    integer:: iq,is,ifiqg,ikp, &
-         isx,mrecb_o,ikpisp,mrecg_o, &
+    integer:: iq,is,ifiqg,ikp, isx,mrecb_o,ikpisp,mrecg_o, &
          nwf_o,nband_o,ifmlw,ifmlwe,nqbz,nqbz2,nqbze,nqbze2, &
          iqbz,iqbz2,nwf2,nsp2,nlmto2,ngpmx2, &
          ib,iwf,iwf2,iko_ix,iko_fx,in,ifcphi_o,ifgeig_o,ifdim
