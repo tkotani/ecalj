@@ -31,15 +31,12 @@ subroutine totfrc(leks,fes1,fes2,dfhf,fin,fout)
   double precision :: fev1(3),fev2(3),fhar(3),fks(3),c,ddot,fmax,dfmax
   call tcn('totfrc')
   f=fin
-  !      stdo = lgunit(1)
-  !      stdl = lgunit(2)
   if (leks < 0) return
   c = 1000d0
   call getpr(ipr)
   ipl = 1
   fmax = -1
   dfmax = -1
-
   if (ipr >= 30) then
      if (ddot(3*nbas,dfhf,1,dfhf,1) /= 0) then
         write(stdo,'(/'' Forces, with eigenvalue correction'')')
@@ -49,7 +46,6 @@ subroutine totfrc(leks,fes1,fes2,dfhf,fin,fout)
      write(stdo,201)
 201  format('  ib',11x,'estatic',18x,'eigval',20x,'total')
   endif
-
   do ib = 1, nbas
      fev1 = f(:,ib) + dfhf(:,ib)
      fev2 = f(:,ib)
@@ -76,15 +72,14 @@ subroutine totfrc(leks,fes1,fes2,dfhf,fin,fout)
              write (stdl,711) ib,(c*fhar(m),m=1,3),(c*fks(m),m=1,3)
 711     format('fp ib',i4,'  fh ',3f8.2,'   fks ',3f8.2)
      endif
-     ssite(ib)%force = f(:,ib)
+!     ssite(ib)%force = f(:,ib)
   enddo
   call info5(10,0,0,' Maximum Harris force = %;3g mRy/au (site %i)' &
        //'%?#n#  Max eval correction = %;1d##',c*fmax,ibmx,isw(dfmax.gt.0),c*dfmax,0)
-
   !     Symmetrize forces to machine precision
   ng=lat_nsgrp
   if (ng > 1) then
-     call info(30,1,0,' Symmetrize forces ...',0,0)
+     if(ipr>=30) write(stdo,*)' Symmetrize forces ...'
      allocate(wk_rv(3*nbas))
      call symfor ( nbas , 1 , rv_a_osymgr , ng , iv_a_oistab , wk_rv , f )
      if (allocated(wk_rv)) deallocate(wk_rv)

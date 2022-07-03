@@ -33,6 +33,7 @@ contains
     use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp, iclasstaf_,symops_af_,ag_af_,ngrpaf_
     use m_shortn3,only: shortn3_initialize,shortn3
     use m_MPItk,only: master_mpi
+    use m_density,only: pnzall,pnuall
     !!-- Set up m_hamiltonian. Index for Hamiltonian. --
     !!  Generated index are stored into m_hamindex
     !!  Only include q-point information for GW (QGpsi).
@@ -88,7 +89,7 @@ contains
     norb=0
     do  ib = 1, nbas
        is  = ssite(ib)%spec
-       pnz = ssite(ib)%pz
+       pnz(:,1:nsp) = pnzall(:,1:nsp,ib) !ssite(ib)%pz
        do  l = 0, lmxa(ib)
           npqn = 2
           if (pnz(l+1,1) /= 0) npqn = 3
@@ -100,8 +101,8 @@ contains
     lmxax = maxval(lmxa)  
     allocate(konft(0:lmxax,nbas,nsp))
     do ib = 1, nbas
-       pnu=ssite(ib)%pnu
-       pnz=ssite(ib)%pz
+       pnu(:,1:nsp)=pnuall(:,1:nsp,ib) !ssite(ib)%pnu
+       pnz(:,1:nsp)=pnzall(:,1:nsp,ib) !ssite(ib)%pz
        do  isp = 1, nsp
           do  l  = 0, lmxa(ib)
              konft(l,ib,isp) = pnu(l+1,isp)
@@ -121,8 +122,8 @@ contains
     do  ipqn = 1, 3
        do  ib = 1, nbas
           lmaxa=lmxa(ib)
-          pnu=ssite(ib)%pnu
-          pnz=ssite(ib)%pz
+          pnu=pnuall(:,1:nsp,ib) !ssite(ib)%pnu
+          pnz=pnzall(:,1:nsp,ib) !ssite(ib)%pz
           do  l = 0, lmaxa
              npqn = 2
              if (pnz(l+1,1) /= 0) npqn = 3

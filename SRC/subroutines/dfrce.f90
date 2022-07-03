@@ -251,7 +251,7 @@ subroutine pvdf1 ( job , ssite , sspec ,  nsp , ib , iv0 & ! & slat ,
        , ceps , cdvxc , cvin , sv_p_orhoat , fes1 , fes2 , fxc )
   use m_struc_def  !Cgetarg
   use m_lmfinit,only: nbas
-  use m_lmfinit,only:lat_alat,pnux=>pnu,pzx=>pz
+  use m_lmfinit,only:lat_alat,pnux=>pnusp,pzx=>pzsp
   use m_lattic,only: lat_vol,rv_a_opos
   use m_supot,only: lat_nabc
   ! need to modify texts.

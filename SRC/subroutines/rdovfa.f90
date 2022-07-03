@@ -1,5 +1,5 @@
 subroutine rdovfa()
-  use m_density,only: zv_a_osmrho=>osmrho,sv_p_orhoat=>orhoat
+  use m_density,only: zv_a_osmrho=>osmrho,sv_p_orhoat=>orhoat,v1pot,v0pot !these are allocated
 
   use m_supot,only: lat_nabc,lat_ng,rv_a_ogv,iv_a_okv,rv_a_ogv
   use m_lmfinit,only:lat_alat,nsp,nbas,nspec,ssite=>v_ssite,sspec=>v_sspec,qbg=>zbak,slabl
@@ -31,7 +31,7 @@ subroutine rdovfa()
   integer:: nxi(nspec)
   type(s_rv1) :: rv_a_orhofa(nspec)
   type(s_rv1) :: rv_a_ov0a(nspec)
-  real(8):: rsmfa(nspec),pnu(n0,2),exi(n0,nspec), hfc(n0,2,nspec),hfct(n0,2,nspec),&
+  real(8):: rsmfa(nspec),exi(n0,nspec), hfc(n0,2,nspec),hfct(n0,2,nspec),&
        alat,plat(3,3),a,rmt,z,rfoc,z0,rmt0,a0,qc,ccof, &
        ceh,stc,ztot,ctot,corm,sum,fac,sum1,sum2,sqloc,dq,vol,smom, slmom,qcor(2)
   character(8) :: spid(nspec),spidr
@@ -55,7 +55,6 @@ subroutine rdovfa()
   vol=lat_vol
   call fftz30(n1,n2,n3,k1,k2,k3)
   hfc=0d0
-  pnu=0d0
   exi=0d0
   hfc=0d0
   hfct=0d0
@@ -154,6 +153,8 @@ subroutine rdovfa()
   ztot = 0d0
   ctot = 0d0
   corm = 0d0
+  if(allocated(v0pot)) deallocate(v0pot,v1pot) !this may cause mem leak?(v0pot%v is not deallocated).
+  allocate(v1pot(nbas),v0pot(nbas))
   if(allocated(sv_p_orhoat)) deallocate(sv_p_orhoat)
   allocate(sv_p_orhoat(3,nbas))
   do  20  ib = 1, nbas
@@ -170,10 +171,10 @@ subroutine rdovfa()
      allocate(sv_p_orhoat(1,ib)%v(nr*nlml*nsp))
      allocate(sv_p_orhoat(2,ib)%v(nr*nlml*nsp))
      allocate(sv_p_orhoat(3,ib)%v(nr*nsp))
-     if (allocated(ssite(ib)%rv_a_ov0)) deallocate(ssite(ib)%rv_a_ov0)
-     allocate(ssite(ib)%rv_a_ov0(abs(nr*nsp)))
-     if (allocated(ssite(ib)%rv_a_ov1)) deallocate(ssite(ib)%rv_a_ov1)
-     allocate(ssite(ib)%rv_a_ov1(abs(nr*nsp)))
+!     if (allocated(ssite(ib)%rv_a_ov0)) deallocate(ssite(ib)%rv_a_ov0)
+!     allocate(ssite(ib)%rv_a_ov0(abs(nr*nsp)))
+!     if (allocated(ssite(ib)%rv_a_ov1)) deallocate(ssite(ib)%rv_a_ov1)
+!     allocate(ssite(ib)%rv_a_ov1(abs(nr*nsp)))
      !       Core magnetic moment (possible if magnetized core hole)
      if (nsp == 2 .AND. lmxl > -1) then
         allocate(rwgt_rv(nr))
@@ -190,8 +191,12 @@ subroutine rdovfa()
         if (allocated(rwgt_rv)) deallocate(rwgt_rv)
      endif
      if (lmxl > -1) then
-        call dpcopy ( rv_a_ov0a( is )%v , ssite(ib)%rv_a_ov0 , 1 , nr * nsp , 1d0  )
-        call dpcopy ( rv_a_ov0a( is )%v , ssite(ib)%rv_a_ov1 , 1 , nr * nsp , 1d0  )
+       allocate(v0pot(ib)%v(nr*nsp))
+       allocate(v1pot(ib)%v(nr*nsp))
+       v0pot(ib)%v=rv_a_ov0a( is )%v
+       v1pot(ib)%v=rv_a_ov0a( is )%v
+!        call dpcopy ( rv_a_ov0a( is )%v , ssite(ib)%rv_a_ov0 , 1 , nr * nsp , 1d0  )
+!        call dpcopy ( rv_a_ov0a( is )%v , ssite(ib)%rv_a_ov1 , 1 , nr * nsp , 1d0  )
         call dpcopy ( sspec ( is ) %rv_a_orhoc , sv_p_orhoat( 3 , ib )%v, 1 , nr * nsp , 1d0 )
         if (lfoc == 0) then
            allocate(rwgt_rv(nr))

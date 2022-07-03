@@ -1,4 +1,4 @@
-subroutine vcdmel(nl,ssite,sspec,nlmax,ndham,ndimh,&
+subroutine vcdmel(nl,ssite,sspec,nlmax,ndham,ndimh,& !- Valence-core dipole matrix elements
      nq,nsp,nspc,ef,evl,aus,nsite,isite,iclsl,iclsn,dosw)
   use m_lmfinit,only: rv_a_ocg , iv_a_ojcg , iv_a_oidxcg
   use m_mkqp,only: iv_a_oidtet ,bz_nabc, bz_ntet
@@ -6,7 +6,7 @@ subroutine vcdmel(nl,ssite,sspec,nlmax,ndham,ndimh,&
   use m_ext,only: sname     !extention for file
   use m_lmfinit,only: bz_ndos,bz_dosmax,slabl
   use m_elocp,only: rsmlss=>rsml,ehlss=>ehl
-  !- Valence-core dipole matrix elements
+  use m_density,only: v0pot,pnuall,pnzall
   ! ----------------------------------------------------------------------
   !i Inputs:
   !i   sctrl :struct containing parameters governing program flow
@@ -59,7 +59,8 @@ subroutine vcdmel(nl,ssite,sspec,nlmax,ndham,ndimh,&
   real(8) ,allocatable :: rss_rv(:)
   real(8) ,allocatable :: g_rv(:)
   real(8) ,allocatable :: s_rv(:,:,:)
-  double precision pnu(n0,2),pnz(n0,2),a,rmt,z,xx,rsml(n0),ehl(n0)
+  real(8),pointer:: pnu(:,:),pnz(:,:)!pnu(n0,2),pnz(n0,2)
+  real(8):: a,rmt,z,xx,rsml(n0),ehl(n0)
   double precision ume(0:lmxax,nsp,nsite),sme(0:lmxax,nsp,nsite)
   character clabl*8
   integer:: nbandx,nspx,npts,ifid,ikp,ichib,ifile_handle,ifdos,ie,ild
@@ -74,8 +75,10 @@ subroutine vcdmel(nl,ssite,sspec,nlmax,ndham,ndimh,&
      ncls = iclsn(i)
      lcls = iclsl(i)
      is = ssite(ib)%spec
-     pnu=ssite(ib)%pnu
-     pnz=ssite(ib)%pz
+     pnu=>pnuall(:,:,ib)
+     pnz=>pnzall(:,:,ib)
+!     pnu=ssite(ib)%pnu
+!     pnz=ssite(ib)%pz
      clabl=slabl(is) !sspec(is)%name
      a=sspec(is)%a
      nr=sspec(is)%nr
@@ -95,12 +98,12 @@ subroutine vcdmel(nl,ssite,sspec,nlmax,ndham,ndimh,&
      allocate(rss_rv(nr*(lmxa+1)*2*nsp))
      rsml= rsmlss(:,is)
      ehl = ehlss(:,is)
-     call makusp ( n0 , z , nsp , rmt , lmxa , ssite(ib)%rv_a_ov0 , a , nr , &
+     call makusp ( n0 , z , nsp , rmt , lmxa , v0pot(ib)%v , a , nr , &
           xx , xx , pnu , pnz , rsml , ehl , ul_rv , sl_rv , gz_rv, ruu_rv , rus_rv , rss_rv )
      !   --- Matrix elements of u,s with core
      write(6,"('CLS atom: ib name n l=',i5,' ',a,2i5)") ib, trim(clabl),ncls,lcls
      allocate(g_rv(nr*2))
-     call pvcdm1 ( ncls , lcls , g_rv , z , lmxa , ssite(ib)%rv_a_ov0 , a &
+     call pvcdm1 ( ncls , lcls , g_rv , z , lmxa , v0pot(ib)%v , a &
           , nr , rofi_rv , ul_rv , sl_rv , nsp , lmxax , ume(0,1,i ) , sme ( 0 , 1 , i ) )
      deallocate(g_rv,rss_rv,rus_rv,ruu_rv,gz_rv,sl_rv,ul_rv,rofi_rv)
   enddo

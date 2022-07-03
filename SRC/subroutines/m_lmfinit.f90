@@ -3,6 +3,7 @@ module m_lmfinit
   use m_struc_def,only: s_spec,s_site ! spec and site structures.
   use m_MPItk,only: master_mpi
   use m_lgunit,only: stdo,stdl
+  use m_density,only: pnuall,pnzall
   implicit none
   !! All data set to run lmfp.F rdctrl2 read ctrl file and set these data
   !! rdctrls made from three stages. Search the word 'Stage' in the followings.
@@ -59,9 +60,9 @@ module m_lmfinit
   real(8),allocatable,protected:: rsmh1(:,:),rsmh2(:,:),eh1(:,:),eh2(:,:), &
        rs3(:),rham(:),alpha(:,:),ehvl(:,:), uh(:,:),jh(:,:), eh3(:),&
        qpol(:,:),stni(:), &
-       pnu(:,:,:),qnu(:,:,:),      pnudefault(:,:),qnudefault(:,:),qnudummy(:,:), &
+       pnusp(:,:,:),qnu(:,:,:),      pnuspdefault(:,:),qnudefault(:,:),qnudummy(:,:), &
        coreq(:,:), rg(:),rsma(:),rfoca(:),rcfa(:,:), &
-       rmt(:),pz(:,:,:), &
+       rmt(:),pzsp(:,:,:), &
        amom(:,:),spec_a(:),z(:),eref(:),rsmv(:)
 
 !!!!!!!!!!!!!!!!!!!
@@ -213,11 +214,11 @@ contains
          iprt,isw,ifi,ix(n0*nkap0),j,k,l,lfrzw,lrs,lstsym,ltb,nclasp,nglob,scrwid,k1,k2,mpipid 
     character*(8),allocatable::clabl(:)
     integer,allocatable:: ipc(:),initc(:),ics(:)
-    real(8),allocatable:: pnuc(:,:,:),qnuc(:,:,:,:),pp(:,:,:,:),ves(:),zc(:)
+    real(8),allocatable:: pnuspc(:,:,:),qnuc(:,:,:,:),pp(:,:,:,:),ves(:),zc(:)
     integer:: dvec1(3)=1, dvec2(3)=0
     double precision :: orbp(n0,2,nkap0)
-    integer :: ohave,oics,opnu,opp,oqnu,osgw,osoptc,oves,owk !osordn,
-    real(8):: pnux(20) ,temp33(9)
+    integer :: ohave,oics,opnusp,opp,oqnu,osgw,osoptc,oves,owk !osordn,
+    real(8):: pnuspx(20) ,temp33(9)
     integer:: nnn
     integer:: i_copy_size,i_spacks,iendx,inix,i_spackv
     real(8):: seref
@@ -486,7 +487,8 @@ contains
       endif
       !! SPEC_ATOM_*
       if (nspec == 0) goto 79
-      allocate(pnu(n0,nsp,nspec),qnu(n0,nsp,nspec), pz(n0,nsp,nspec),amom(n0,nspec),idmod(n0,nspec), &
+      allocate(pnuall(n0,nsp,nbas),pnzall(n0,nsp,nbas))
+      allocate(pnusp(n0,nsp,nspec),qnu(n0,nsp,nspec), pzsp(n0,nsp,nspec),amom(n0,nspec),idmod(n0,nspec), &
            rsmh1(n0,nspec),eh1(n0,nspec),rsmh2(n0,nspec),eh2(n0,nspec), &
            ehvl(n0,nspec), qpol(n0,nspec),stni(nspec), &
            rg(nspec),rsma(nspec),rfoca(nspec),rcfa(2,nspec), & !,rsmfa(nspec)
@@ -636,21 +638,21 @@ contains
          nmcore(j)=0
          lmxl(j) =  lmxaj        !Use lmxaj in case not sought (ASA:mpol)
          !nxi(j) = NULLI          !If sought, default will be set below
-         pnu(:,:,j)=0d0
-         pz(:,:,j)=0d0
+         pnusp(:,:,j)=0d0
+         pzsp(:,:,j)=0d0
          rs3(j) = NULLI          !If sought, default will be set below
          idxdn(:,:,j) = 1
-         pnu(1,1,j) = NULLI      !If sought, default will be set below
+         pnusp(1,1,j) = NULLI      !If sought, default will be set below
          qnu(1,1,j) = NULLI      !If sought, default will be set below
          if (nlaj /= 0) then
             nm='SPEC_ATOM_LMXL'; call gtv(trim(nm),tksw(prgnam,nm),lmxl(j), &
                  cindx=jj,def_i4=lmxaj,note='lmax for which to accumulate rho,V in sphere')
             !     ... Set up default P,Q in absence of explicit specification
-            pnu(:,:,j)=0d0
+            pnusp(:,:,j)=0d0
             qnu(:,:,j)=0d0
             ! -- takao move back default value of dev_r8v to zero june2012 --
             nm='SPEC_ATOM_P'; call gtv(trim(nm),tksw(prgnam,nm), &
-                 pnu(1:nlaj,1,j),def_r8v=zerov,cindx=jj,note= &
+                 pnusp(1:nlaj,1,j),def_r8v=zerov,cindx=jj,note= &
                  'Starting log der. parameters for each l')
             nm='SPEC_ATOM_Q'; call gtv(trim(nm),tksw(prgnam,nm), &
                  qnu(1:nlaj,1,j),def_r8v=zerov,cindx=jj,note= &
@@ -669,23 +671,23 @@ contains
                if (io_show /= 0) call pshpr(50)
                !     ! -- takao jun2012. qnu is set by default p. --
                !     ! This looks too complicated. Fix this in future.
-               !     ! In anyway, we expect pnu and qnu are correctly returned (qnu does not care value of given P).
+               !     ! In anyway, we expect pnusp and qnu are correctly returned (qnu does not care value of given P).
                !     print *,'qnuin ',sum(abs(qnu(:,:,j))),qnu(:,:,j)
-               !     ! set default pnu. See the following section 'correct qnu'
+               !     ! set default pnusp. See the following section 'correct qnu'
                !     ! isp=1 means charge. isp=2 means mmom
-               if(allocated(pnudefault)) deallocate(pnudefault,qnudefault,qnudummy)
-               allocate(pnudefault(n0,nsp),qnudefault(n0,nsp),qnudummy(n0,nsp))
-               pnudefault=0d0
+               if(allocated(pnuspdefault)) deallocate(pnuspdefault,qnudefault,qnudummy)
+               allocate(pnuspdefault(n0,nsp),qnudefault(n0,nsp),qnudummy(n0,nsp))
+               pnuspdefault=0d0
                qnudefault=0d0
                qnudummy=0d0
                iqnu=1
                if(sum(abs(qnu(:,1,j)))<1d-8) iqnu=0 !check initial Q is given or not.
-               call defpq(z(j),lmxaj,1,pnudefault,qnudefault) ! qnu is given here for default pnu.
-               call defpq(z(j),lmxaj,1,pnu(1,1,j),qnudummy) ! set pnu. qnu is kept (but not used here).
+               call defpq(z(j),lmxaj,1,pnuspdefault,qnudefault) ! qnu is given here for default pnusp.
+               call defpq(z(j),lmxaj,1,pnusp(1,1,j),qnudummy) ! set pnusp. qnu is kept (but not used here).
                if(iqnu==0) qnu(:,1,j)=qnudefault(:,1)
                if (io_show /= 0) call poppr
             endif
-            if (nsp == 2) call dcopy(n0,pnu(1,1,j),1,pnu(1,2,j),1)
+            if (nsp == 2) call dcopy(n0,pnusp(1,1,j),1,pnusp(1,2,j),1)
             if (nsp == 2 .OR. io_help == 1) then
                nm='SPEC_ATOM_MMOM'; call gtv(trim(nm),tksw(prgnam,nm), &
                     qnu(1:nlaj,2,j),def_r8v=zerov,cindx=jj,note= &
@@ -697,15 +699,15 @@ contains
                  def_i4=0,cindx=jj,note='spin-averaged core: jun2012takao'// &
                  '%N%3f0(default): spin-polarized core'// &
                  '%N%3f1         : spin-averaged core density is from spin-averaged potential')
-            nm='SPEC_ATOM_PZ'; call gtv(trim(nm),tksw(prgnam,nm),pz(1:nlaj,1,j),def_r8v=zerov,cindx=jj,note= &
+            nm='SPEC_ATOM_PZ'; call gtv(trim(nm),tksw(prgnam,nm),pzsp(1:nlaj,1,j),def_r8v=zerov,cindx=jj,note= &
                  'Starting semicore log der. parameters'// &
                  '%N%10fAdd 10 to attach Hankel tail',nout=nout) !zero default by zerov
-            if(nsp==2) pz(1:n0,2,j) = pz(1:n0,1,j) !takao
+            if(nsp==2) pzsp(1:n0,2,j) = pzsp(1:n0,1,j) !takao
 
-            !! lmxb corrected by pz
+            !! lmxb corrected by pzsp
             nnx=nout
             do i=nout,1,-1
-               if(pz(i,1,j)/=0d0) then
+               if(pzsp(i,1,j)/=0d0) then
                   nnx=i
                   lmxb(j)=max(lmxb(j),nnx-1)
                   exit
@@ -713,15 +715,15 @@ contains
             enddo
 
             if (nout>0) then
-               if (dasum(nlaj,pz(1,1,j),1) /= 0) then
+               if (dasum(nlaj,pzsp(1,1,j),1) /= 0) then
                   lpzi = max(lpzi,1) !,2
                   lpz(j)=1
-                  if ( sum(int(pz(1:nlaj,1,j)/10))>0 ) then
+                  if ( sum(int(pzsp(1:nlaj,1,j)/10))>0 ) then
                      lpzex(j)=1
                   endif
                endif
             endif
-            if(maxval(pz(1:nout,1,j))>10d0) lpztail= .TRUE. ! PZ +10 mode exist or not.
+            if(maxval(pzsp(1:nout,1,j))>10d0) lpztail= .TRUE. ! PZ +10 mode exist or not.
             !     ! correct qnu jun2012takao  2012july->mod(int(pz...,10)
             !     ! our four cases are
             !     !  P=Pdefault      ! qnu
@@ -730,13 +732,13 @@ contains
             !     !  Pz=Pdefault < P ! qnu
             if(iqnu==0) then
                do lx=0,lmxaj     !correct valence number of electrons.
-                  if(pz(lx+1,1,j)<1d-8) then ! PZ(local orbital) not exist
-                     if( int(pnudefault(lx+1,1)) < int(pnu(lx+1,1,j)) ) then
-                        qnu(lx+1,1,j)= 0d0 ! pnudefault is filled and no q for pnu. (core hole case or so)
+                  if(pzsp(lx+1,1,j)<1d-8) then ! PZSP(local orbital) not exist
+                     if( int(pnuspdefault(lx+1,1)) < int(pnusp(lx+1,1,j)) ) then
+                        qnu(lx+1,1,j)= 0d0 ! pnuspdefault is filled and no q for pnusp. (core hole case or so)
                      endif
                   else           !PZ exist
                      !     print *,'qnu=',lx,qnu(lx+1,1,j)
-                     if( mod(int(pz(lx+1,1,j)),10)<int(pnudefault(lx+1,1)) ) then
+                     if( mod(int(pzsp(lx+1,1,j)),10)<int(pnuspdefault(lx+1,1)) ) then
                         qnu(lx+1,1,j)= qnu(lx+1,1,j)+ 2d0*(2d0*lx+1d0)
                      endif
                   endif
@@ -1135,9 +1137,9 @@ contains
             if (ik == nkaph .AND. sum(lpz)>0) then
                idxdn(:,ik,j)=3  !call ivset(idxdn(1,ik,j),1,n0,4)
                do  lp1  = 1, lmxb(j)+1
-                  if (pz(lp1,1,j) /=  0) then
-                     if(pz(lp1,1,j)>=10) idxdn(lp1,ik,j)=1 !11
-                     if(pz(lp1,1,j)>  0) idxdn(lp1,ik,j)=1 !10
+                  if (pzsp(lp1,1,j) /=  0) then
+                     if(pzsp(lp1,1,j)>=10) idxdn(lp1,ik,j)=1 !11
+                     if(pzsp(lp1,1,j)>  0) idxdn(lp1,ik,j)=1 !10
                   endif
                enddo
             endif
@@ -1175,8 +1177,10 @@ contains
          v_ssite(j)%relax=irlx(:,j) !DYN relaxiation directions.
          v_ssite(j)%iantiferro=iantiferro(j) !antiferro pair condition
          is=v_ssite(j)%spec
-         v_ssite(j)%pnu= pnu(1:n0,1:nsp,is)! v_ssite%pnu,pz can be changing during iteration
-         v_ssite(j)%pz = pz(1:n0,1:nsp,is) !
+         v_ssite(j)%pnu(1:n0,1:nsp)= pnusp(1:n0,1:nsp,is)
+         v_ssite(j)%pz(1:n0,1:nsp)=  pzsp(1:n0,1:nsp,is) 
+         pnuall(:,1:nsp,j) = pnusp(1:n0,1:nsp,is)! v_ssite%pnusp,pzsp can be changing during iteration
+         pnzall(:,1:nsp,j) = pzsp(1:n0,1:nsp,is) !
       enddo
       sstrnmix=trim(iter_mix)
 
@@ -1416,7 +1420,7 @@ contains
          lmxbj = lmxb(i)
          call getiout(rsmh1(1,i), lmxbj+1,lhh(1,i))
          if(nkapii(i)==2) call getiout(rsmh2(1,i),lmxbj+1,lhh(2,i))
-         if(lpz(i)==1 )   call getiout(pz(1,1,i),lmxbj+1,lhh(nkaph,i))!lh for lo
+         if(lpz(i)==1 )   call getiout(pzsp(1,1,i),lmxbj+1,lhh(nkaph,i))!lh for lo
       enddo
       if(master_mpi) then
          write(stdo,*)
@@ -1428,7 +1432,7 @@ contains
             write(stdo,"('mmm   eh1 ',i4,100f6.2)")i,   eh1(1:lhh(1,i)+1,i)
             if(nkapii(i)==2) write(stdo,"('mmm rsmh2 ',i4,100f6.2)")i, rsmh2(1:lhh(2,i)+1,i)
             if(nkapii(i)==2) write(stdo,"('mmm  eh2  ',i4,100f6.2)")i,   eh2(1:lhh(2,i)+1,i)
-            if(lpzex(i)==1 ) write(stdo,"('mmm pz    ',i4,100f6.2)")i,    pz(1:lhh(nkaph,i)+1,1,i)
+            if(lpzex(i)==1 ) write(stdo,"('mmm pz    ',i4,100f6.2)")i,    pzsp(1:lhh(nkaph,i)+1,1,i)
             write(stdo,"('mmm lh    ',i4,100i3)")  lhh(1:nkaph,i)
          enddo
       endif
@@ -1630,7 +1634,7 @@ end module m_lmfinit
 !r          16 Write new density to restart file, ascii format
 !r          32 read site positions from input file
 !r          64 read starting fermi level from input file
-!r         128 read starting pnu level from input file
+!r         128 read starting pnusp level from input file
 !r         256 rotate local density after reading
 !r   lscr    0 do nothing
 !r           1 Make P0(0)
@@ -1791,8 +1795,8 @@ end module m_lmfinit
 !r  oqsig  list of qp at which sigma can be computed
 !r  oveps  When diagonalizing hamiltonian, discard part of hibert space
 !r         corresponding to evals of overlap < oveps
-!r  pmax   global minimum allowed values for pnu
-!r  pmin   global minimum allowed values for pnu
+!r  pmax   global minimum allowed values for pnusp
+!r  pmin   global minimum allowed values for pnusp
 !r  pwemax High Energy cutoff for PW part of basis
 !r  pwemin Low Energy cutoff for PW part of basis
 !r  pwmode Controls PW part of basis
@@ -1910,7 +1914,7 @@ end module m_lmfinit
 !r  opfr    ASA potential functions (mkptfp),
 !r          fully relativistic case
 !r  opmpol  multipole integrals of phi,phidot
-!r  opnu    P-nu (Methfessel's log derivative function)
+!r  opnusp    P-nu (Methfessel's log derivative function)
 !r  opp     potential parameters
 !r  oppi    not used now
 !r  oppn    NMTO generation potential parameters

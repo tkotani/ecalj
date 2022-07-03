@@ -61,6 +61,7 @@ contains
     use m_lgunit,only: stdo
     use m_struc_def
     use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
+    use m_density,only: v0pot,v1pot,pnuall,pnzall !read
     !- Assembles local output densities out of the qkkl, and core states
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -148,7 +149,8 @@ contains
     double precision :: eh(n0,nkap0),rsmh(n0,nkap0)
     !      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
     integer :: ntab(n0*nkap0),blks(n0*nkap0)
-    double precision :: pnu(n0,2),pnz(n0,2),qcorg,qcorh,qsc,cofg,cofh
+    double precision :: qcorg,qcorh,qsc,cofg,cofh !pnu(n0,2),pnz(n0,2),
+    real(8),pointer:: pnu(:,:),pnz(:,:)
     integer ::iwdummy,ifx!,nlmto
     real(8):: dat(6,nbas)
     logical:: mmtargetx=.false.
@@ -164,7 +166,6 @@ contains
     if(procid==master) inquire(file='mmtarget.aftest',exist=mmtargetx)
     do  ib = 1, nbas
        is = int(ssite(ib)%spec)
-!       rsma=sspec(is)%rsma
        lmxa=sspec(is)%lmxa
        lmxl=sspec(is)%lmxl
        kmax=sspec(is)%kmxt
@@ -175,14 +176,13 @@ contains
        lmxh=sspec(is)%lmxb
        stc0=sspec(is)%stc
        call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
-       !        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
        call uspecb(is,rsmh,eh)
        nkapi=nkapii(is)
        call orblib(ib)!norb , ltab , ktab , xx , offl , xx )
        call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
        is =ssite(ib)%spec
-       pnu=ssite(ib)%pnu
-       pnz=ssite(ib)%pz
+       pnu=>pnuall(:,1:nsp,ib)
+       pnz=>pnzall(:,1:nsp,ib)
        call gtpcor(sspec,is,kcor,lcor,qcor)
        nlml = (lmxl+1)**2
        nlma = (lmxa+1)**2
@@ -192,8 +192,8 @@ contains
        call radmsh( rmt , a , nr , rofi_rv )
        call radwgt( rmt , a , nr , rwgt_rv )
        if (lrout /= 0) then
-          call dpzero( orhoat_out( 1 , ib )%v , nr * nlml * nsp )
-          call dpzero( orhoat_out( 2 , ib )%v , nr * nlml * nsp )
+          orhoat_out(1, ib )%v=0d0
+          orhoat_out(2, ib )%v=0d0
           !   --- Assemble rho1 = products of augmented functions ---
           !   ... Set up all radial head and tail envelope functions, and their bc's
           allocate(fh_rv(nr*(lmxh+1)*nkaph))
@@ -216,7 +216,7 @@ contains
           !     call uspecb(0,4,sspec,is,is,lh,rsml,ehl,k)
           rsml= rsmlss(:,is)
           ehl=  ehlss(:,is)
-          call makusp(n0 , z , nsp , rmt , lmxa , ssite(ib)%rv_a_ov0 , a , nr , &
+          call makusp(n0 , z , nsp , rmt , lmxa , v0pot(ib)%v, a , nr , &
                xx , xx , pnu , pnz , rsml , ehl , ul_rv , sl_rv , gz_rv , ruu_rv &
                , rus_rv , rss_rv )
           !   ... Contracted density matrix as coffs to products of (u,s,gz)
@@ -270,7 +270,6 @@ contains
              call mkrou3( mode=1 , lmxa=lmxa, nlml=nlml1 , nsp=nsp &
                   , pnz= pnz, dmatl=dmatl_rv, sab=sab( 1 , 1 , 1 , ib ), qsum=hbyl(1,1,ib )  )
           endif
-
           !   --- Print charges for information ---
           call radsum ( nr , nr , nlml , nsp , rwgt_rv , orhoat_out( 1 , ib )%v, sum1 )
           call radsum ( nr , nr , nlml , nsp , rwgt_rv , orhoat_out( 2 , ib )%v, sum2 )
@@ -316,7 +315,7 @@ contains
        if (lfoc == 0) then
           call pshpr(ipr+11)
           !write(stdo,*)
-          call getcor ( 0 , z , a , pnu , pnz , nr , lmxa , rofi_rv , ssite(ib)%rv_a_ov1 &
+          call getcor ( 0 , z , a , pnu , pnz , nr , lmxa , rofi_rv , v1pot(ib)%v & !ssite(ib)%rv_a_ov1 &
                , kcor , lcor , qcor , smec , smtc , orhoat_out( 3 , ib )%v &
                , ncore , 0d0 , 0d0,   nmcore(is))
           call poppr
@@ -353,7 +352,7 @@ contains
 10     continue
     enddo
     if (ipr >= 30 .AND. lrout > 0) then
-       !          write(stdo,"(a)")' mkrout: site(class) decomposed charge and magnetic moment. class->lmchk'
+       ! write(stdo,"(a)")' mkrout: site(class) decomposed charge and magnetic moment. class->lmchk'
        if (nsp == 1) write(stdo,201)
        if (nsp == 2) write(stdo,202)
 201    format(/' mkrout:  Qtrue      sm,loc       local')

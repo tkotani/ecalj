@@ -4,7 +4,7 @@ contains
   subroutine freeat()
     use m_ext,only:sname
     use m_lmfinit,only: smalit,ctrl_lxcf,ham_seref,nsp,nspec, sspec=>v_sspec,&
-         idmod,slabl,vmtz,eref,rs3,eh3,nmcore,coreh,coreq,rcfa,pnux=>pnu,pzx=>pz,qnu
+         idmod,slabl,vmtz,eref,rs3,eh3,nmcore,coreh,coreq,rcfa,pnux=>pnusp,pzx=>pzsp,qnu
     use m_ftox
     !- For each species, makes free atom self-consistent
     ! ----------------------------------------------------------------------

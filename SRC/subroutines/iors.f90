@@ -2,12 +2,11 @@ module m_iors
   use m_struc_def
   use m_lgunit,only:stdo
   public iors
-  type(s_rv1),public,allocatable :: v1pot(:),v0pot(:)
   private
 
 contains
   integer function iors(nit,rwrw) 
-    use m_density,only: osmrho, orhoat !these are allocated
+    use m_density,only: osmrho, orhoat,v1pot,v0pot !these are allocated
     use m_bndfp,only: m_bndfp_ef_SET,eferm
 
     use m_supot,only: lat_nabc
@@ -17,6 +16,7 @@ contains
     use m_lattic,only: plat=>lat_plat,vol=>lat_vol,qlat=>lat_qlat
     use m_ext,only:sname
     use m_ftox
+    use m_density,only: pnuall,pnzall
     !!- I/O for charge density to rst or rsta. ssite sspec are readin
     !! read write
     !!     smrho, rhoat
@@ -114,8 +114,10 @@ contains
     logical :: isanrg,lfail,ltmp1,ltmp2,latvec,cmdopt,mlog !,lshear
     double precision :: a,a0,alat0,cof,eh,fac,qc,rfoc,rfoc0,rmt, &
          rmt0,rsma0,rsmv0,stc,sum,vfac,vol0,vs,vs1,z,z0
-    double precision :: pnu(n0,2),pnz(n0,2),ql(n0,2*n0),pos(3)=99999, &
-         force(3),plat0(3,3),qlat0(3,3), &
+    real(8),pointer:: pnu(:,:),pnz(:,:)
+!    real(8):: pnu(n0,2),pnz(n0,2)
+    real(8):: ql(n0,2*n0),pos(3)=99999, &
+         forcexxx(3)=999,plat0(3,3),qlat0(3,3), &
          exi(n0),hfc(n0,2),vec0(3),wk(100),rh,vrmax(2),pnus(n0,2), &
          pnzs(n0,2),dval,rsmfa,eferm0
     character spid*8,spid0*8,fid0*68,line*20,msg*23,use*80,ignore*80, &
@@ -232,12 +234,12 @@ contains
        call mpibc1_real(eferm0,1,'iors:eferm')
        use=trim(use)//'use window,'
        call m_bndfp_ef_SET(eferm0) 
-       line = 'site data' !Read atomic positions,forces,velocities ---
+       line = 'site data' !Read atomic positions,forcexxxs,velocities ---
        do ib = 1, nbas0 
-          if (procid == master) read(jfi,err=999,end=999)force
+          if (procid == master) read(jfi,err=999,end=999)forcexxx
           if(ib > nbas) cycle !This is for TestInstall/te, which has nbas0=12 but nbas=3
-          call mpibc1_real(force,3,'iors_force')
-          ssite(ib)%force=force
+          !call mpibc1_real(force,3,'iors_force')
+          !ssite(ib)%force=force
        enddo
        !   --- Read information for local densities ---
        use=trim(use)//' pnu,'
@@ -279,11 +281,13 @@ contains
           call mpibc1_real(a0,1,'iors_a0')
           call mpibc1_real(qc,1,'iors_qc')
           if (is == -1 ) call rx('iors: need check for is==-1')
+          pnu=>pnuall(:,:,ib)
+          pnz=>pnzall(:,:,ib)
           pnu=0d0
           pnz=0d0
           ql=0d0
-          pnu=ssite(ib)%pnu
-          pnz=ssite(ib)%pz
+          pnu=ssite(ib)%pnu(:,1:nsp)
+          pnz=ssite(ib)%pz(:,1:nsp)
           idmod=0
           idmoz=0
           if (procid == master) then
@@ -310,8 +314,10 @@ contains
              read(jfi) (idmod(l+1), l=0,lmxa0)
              read(jfi) (idmoz(l+1), l=0,lmxa0)
           endif
-          ssite(ib)%pnu=pnu
-          ssite(ib)%pz=pnz
+          ssite(ib)%pnu(:,1:nsp)=pnu(:,1:nsp)
+          ssite(ib)%pz(:,1:nsp)=pnz(:,1:nsp)
+          pnuall(:,1:nsp,ib)=pnu(:,1:nsp)
+          pnzall(:,1:nsp,ib)=pnz(:,1:nsp)
           if (ipr >= 20) write(stdo,203) ib,spid,'file pnu',(pnu(i,1), i=1,lmxa+1)
           if (ipr >= 20) write(stdo,203) ib,spid,'file pz ',(pnz(i,1), i=1,lmxa+1)
 203       format(9x,'site',i4,':',a,':',a,' is',8f6.2)
@@ -342,8 +348,8 @@ contains
           allocate(orhoat(1,ib)%v(nr*nlml*nsp)) !FP local densities rho1,rho2,rhoc and potentials v0, v1
           allocate(orhoat(2,ib)%v(nr*nlml*nsp))
           allocate(orhoat(3,ib)%v(nr*nsp))
-          allocate(ssite(ib)%rv_a_ov0(nr*nsp))
-          allocate(ssite(ib)%rv_a_ov1(nr*nsp))
+!          allocate(ssite(ib)%rv_a_ov0(nr*nsp))
+!          allocate(ssite(ib)%rv_a_ov1(nr*nsp))
           allocate(v0pot(ib)%v(nr*nsp))
           allocate(v1pot(ib)%v(nr*nsp))
           if (procid == master) then
@@ -351,19 +357,19 @@ contains
              call readrho(ifi,nr,nlml0,nsp0,nlml,nsp,orhoat(1,ib)%v)
              call readrho(ifi,nr,nlml0,nsp0,nlml,nsp,orhoat(2,ib)%v)
              call readrho(ifi,nr,1,nsp0,1,nsp,orhoat(3,ib)%v)
-             call readrhos(ifi,nr,nsp0,nsp,ssite(ib)%rv_a_ov0)
-             call readrhos(ifi,nr,nsp0,nsp,ssite(ib)%rv_a_ov1)
+             call readrhos(ifi,nr,nsp0,nsp,v0pot(ib)%v) !ssite(ib)%rv_a_ov0)
+             call readrhos(ifi,nr,nsp0,nsp,v1pot(ib)%v)  !ssite(ib)%rv_a_ov1)
              if(nlml0 > nlml .AND. ipr >= 10) write(stdo,202) ib,spid,'truncate',nlml0,nlml
              if(nlml0 < nlml .AND. ipr >= 10) write(stdo,202) ib,spid,'inflate',nlml0,nlml
 202          format(9x,'site',i4,', species ',a,': ',a,' local density from nlm=',i3,' to',i3)
-             v0pot(ib)%v = ssite(ib)%rv_a_ov0
-             v1pot(ib)%v = ssite(ib)%rv_a_ov1
+             !v0pot(ib)%v = ssite(ib)%rv_a_ov0
+             !v1pot(ib)%v = ssite(ib)%rv_a_ov1
           endif
           call mpibc1_real( orhoat(1,ib)%v, size(orhoat(1,ib)%v), 'iors_rhoat(1)' )
           call mpibc1_real( orhoat(2,ib)%v, size(orhoat(2,ib)%v), 'iors_rhoat(2)' )
           call mpibc1_real( orhoat(3,ib)%v, size(orhoat(3,ib)%v), 'iors_rhoat(3)' )
-          call mpibc1_real( ssite(ib)%rv_a_ov0 , size(ssite(ib)%rv_a_ov0) , 'iors_v0' )
-          call mpibc1_real( ssite(ib)%rv_a_ov1 , size(ssite(ib)%rv_a_ov1) , 'iors_v1' )
+          call mpibc1_real( v0pot(ib)%v,size(v0pot(ib)%v) , 'iors_v0' )
+          call mpibc1_real( v1pot(ib)%v,size(v1pot(ib)%v) , 'iors_v1' )
           !sspec(is)%a=a
           !sspec(is)%nr=nr
           !sspec(is)%rmt=rmt
@@ -432,7 +438,7 @@ contains
 30     enddo
        !   ... Copy or rescale cores, in case foca was switched on or off
        do  ib = 1, nbas
-          is = int(ssite(ib)%spec)
+          is = ssite(ib)%spec
           a=sspec(is)%a
           nr=sspec(is)%nr
           rmt=sspec(is)%rmt
@@ -489,7 +495,7 @@ contains
        write(jfi) osmrho
        write(jfi) eferm 
        do ib = 1, nbas
-          write(jfi)ssite(ib)%force
+          write(jfi)forcexxx !ssite(ib)%force
        enddo
        if (ipr >= 50) write(stdo,364)
        do  120  ib = 1, nbas
@@ -507,8 +513,10 @@ contains
           lmxb=sspec(is)%lmxb
 !          rsmv=sspec(is)%rsmv
           kmax=sspec(is)%kmxt
-          pnu=ssite(ib)%pnu
-          pnz=ssite(ib)%pz
+          pnu=>pnuall(:,1:nsp,ib)
+          pnz=>pnzall(:,1:nsp,ib)
+          pnu=ssite(ib)%pnu(:,1:nsp)
+          pnz=ssite(ib)%pz(:,1:nsp)
           if (lmxa == -1) cycle
           write(jfi) is,spid,lmxa,lmxl,nr,rmt,a,z,qc ! Some extra info. lots of it useless or obsolete
           lmxr = 0
@@ -522,8 +530,8 @@ contains
           write(jfi) orhoat( 1 , ib )%v 
           write(jfi) orhoat( 2 , ib )%v 
           write(jfi) orhoat( 3 , ib )%v 
-          write(jfi) ssite(ib)%rv_a_ov0 
-          write(jfi) ssite(ib)%rv_a_ov1 
+          write(jfi) v0pot(ib)%v !ssite(ib)%rv_a_ov0 
+          write(jfi) v1pot(ib)%v !ssite(ib)%rv_a_ov1 
           if (ipr >= 50) then
              write(stdo,349) ib,spid,lmxa,lmxl,rmt,nr,a, (pnu(l+1,1),l=0,lmxa)
              if (nsp == 2)  write(stdo,350) (pnu(l+1,2), l=0,lmxa)

@@ -26,6 +26,8 @@ contains
     use m_qplist,only: qplist,ngplist,ngvecp, iqini,iqend,ispini,ispend,iqibzmax      !for current rank iprocq,
     use m_hamindex0,only: Readhamindex0, nlindx
     use m_ftox
+    use m_density,only: v0pot,pnuall,pnzall
+   
     implicit none
     !! == Driver for fpgw (to prepare eigenfuncitons for fpgw) ==
     !! NOTE: following documents are not carefully examined. Not believe everything.
@@ -72,7 +74,7 @@ contains
     ! o           q, vxc
     !! memo: check shortned mechanism.
     !! ----------------------------------------------------------------------
-    integer:: i_copy_size,ham_lsig
+    integer:: ham_lsig
     integer:: jobgw=1 , lh(n0)
     real(8):: rsml(n0), ehl(n0) ,eferm
     logical :: lwvxc,cmdopt0
@@ -89,9 +91,10 @@ contains
     complex(8),allocatable :: aus_zv(:)
     real(8),allocatable :: ww_rv(:)
     real(8):: QpGcut_psi,QpGcut_cou,dum,dval, &
-         xx(5),gmax,pnu(n0,2),pnz(n0,2),ecore(50),a,z,rmt(nbas),b,vshft, &
+         xx(5),gmax,ecore(50),a,z,rmt(nbas),b,vshft, &
          alat,alfa,ef0,plat(3,3),qlat(3,3),qp(3),qpos,q_p(3), &! & ,qx(3)
-         epsovl,dgets
+         epsovl,dgets!, pnu(n0,2),pnz(n0,2)
+    real(8),pointer:: pnu(:,:),pnz(:,:)
     integer,allocatable:: ips(:),ipc(:),ipcx(:),lmxa(:), &
          ngvecp_p(:,:) !takao feb2012 ,ngvecc(:,:) ,ngvecp(:,:)
     integer,allocatable :: konft(:,:,:),iiyf(:),ibidx(:,:),nqq(:)
@@ -202,7 +205,9 @@ contains
     do  ib = 1, nbas
        is=ssite(ib)%spec
        lmaxa=sspec(is)%lmxa
-       pnz  =ssite(ib)%pz
+       !pnz  =ssite(ib)%pz
+       pnz=>pnzall(:,1:nsp,ib)
+       if(sum(abs(pnz(:,1:nsp)-pnzall(:,1:nsp,ib)))>1d-9) call rx('sugw xxx1aaa')
        lmxax = max(lmxax,lmaxa)
        if (lmaxa > -1) then
           do  l = 0, lmaxa
@@ -223,7 +228,7 @@ contains
     allocate(ips(nbas),lmxa(nat),bas(3,nat),iantiferro(nat))
     iat = 0
     do  i = 1, nbas
-       lmaxa = int( sspec(int(ssite(i)%spec))%lmxa )
+       lmaxa = sspec(int(ssite(i)%spec))%lmxa 
        if (lmaxa > -1) then
           iat = iat + 1
           if (iat > nat) call rx('bug in sugw')
@@ -235,18 +240,22 @@ contains
     print *,'iantiferro=',iantiferro
     !!   ... Determine nphimx
     nphimx = 0
-    do  i = 1, nbas
-       is=ssite(i)%spec
-       pnu=ssite(i)%pnu
-       pnz=ssite(i)%pz
+    do  ib = 1, nbas
+       is=ssite(ib)%spec
+!       pnu=ssite(i)%pnu
+!       pnz=ssite(i)%pz
+!       if(sum(abs(pnz(:,1:nsp)-pnzall(:,1:nsp,i)))>1d-9) call rx('sugw xxx111')
+!       if(sum(abs(pnu(:,1:nsp)-pnuall(:,1:nsp,i)))>1d-9) call rx('sugw xxx222')
+       pnu=>pnuall(:,1:nsp,ib)
+       pnz=>pnzall(:,1:nsp,ib)
        a=sspec(is)%a
        nr=sspec(is)%nr
        z=sspec(is)%z
-       rmt(i)=sspec(is)%rmt
+       rmt(ib)=sspec(is)%rmt
        lmaxa = int(sspec(is)%lmxa)
        nmcore= nmcorex(is)
        if (lmaxa > -1) then
-          call atwf(0,a,lmaxa,nr,nsp,pnu,pnz,rsml,ehl,rmt(i),z,w,i1,ncore,konfig,ecore,w,w,nmcore)
+          call atwf(0,a,lmaxa,nr,nsp,pnu,pnz,rsml,ehl,rmt(ib),z,w,i1,ncore,konfig,ecore,w,w,nmcore)
           nphimx = max(nphimx,i1)
        endif
     enddo
@@ -256,8 +265,10 @@ contains
     nrmx=0
     do  ib = 1, nbas
        is=ssite(ib)%spec
-       pnu=ssite(ib)%pnu
-       pnz=ssite(ib)%pz
+!       pnu=ssite(ib)%pnu
+!       pnz=ssite(ib)%pz
+       pnu=>pnuall(:,1:nsp,ib)
+       pnz=>pnzall(:,1:nsp,ib)
        a=sspec(is)%a
        nr=sspec(is)%nr
        z=sspec(is)%z
@@ -266,7 +277,7 @@ contains
        spid=slabl(is) !sspec(is)%name
        if (lmaxa > -1) then
           call atwf ( 0 , a , lmaxa , nr , nsp , pnu , pnz , rsml , ehl &
-               , rmt ( ib ) , z , ssite(ib)%rv_a_ov0 , i1 , ncore , konfig , ecore , w &
+               , rmt ( ib ) , z , v0pot(ib)%v , i1 , ncore , konfig , ecore , w &
                , w ,nmcore)
           allocate(rofi(nr),rwgt(nr),gcore(nr,2,ncore))
           allocate(gval(nr,2,0:lmaxa,nphimx,nsp))
@@ -275,7 +286,7 @@ contains
           rsml=rsmlss(:,is)
           ehl= ehlss(:,is)
           call atwf ( 03 , a , lmaxa , nr , nsp , pnu , pnz , rsml , ehl &
-               , rmt ( ib ) , z , ssite(ib)%rv_a_ov0 , nphimx , ncore , konfig , ecore &
+               , rmt ( ib ) , z , v0pot(ib)%v , nphimx , ncore , konfig , ecore &
                , gcore , gval ,nmcore)
           if(nr     >nrmx   ) nrmx    = nr
           if(ncore  >ncoremx) ncoremx = ncore
@@ -322,7 +333,7 @@ contains
                   do ie=-12,10
                      pnux= [0d0,0d0,0d0,4.65d0 + ie*0.05d0] !pnu is changing
                      if(ie==7) cycle
-                     call makrwf(0,z,rmt(ib),l,ssite(ib)%rv_a_ov0(1+(i-1)*nr:nr*i) &
+                     call makrwf(0,z,rmt(ib),l,v0pot(ib)%v(1+(i-1)*nr:nr*i) &
                           ,a,nr,rofi,pnux,2,  gfun,gpfun,enu, phi,dphi,phip,dphip,p)
                      call gintxx(gfun(1:nr,1),gfun(1:nr,1),a,b,nr,sum1)
                      rgfun=[(rofi(ir)*gfun(ir,1),ir=1,nr)]
@@ -337,7 +348,7 @@ contains
                do i = 1, nsp
                   do ie=-10,10
                      enu= eferm + 0.2d0*ie !enu is changing
-                     call makrwf(1,z,rmt(ib),l,ssite(ib)%rv_a_ov0(1+(i-1)*nr:nr*i) &
+                     call makrwf(1,z,rmt(ib),l,v0pot(ib)%v(1+(i-1)*nr:nr*i) &
                           ,a,nr,rofi,1d10,2,  gfun,gpfun,enu, phi,dphi,phip,dphip,p)
                      call gintxx(gfun(1:nr,1),gfun(1:nr,1),a,b,nr,sum1)
                      rgfun=[(rofi(ir)*gfun(ir,1),ir=1,nr)]

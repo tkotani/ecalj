@@ -7,6 +7,7 @@ module m_elocp
 contains
   subroutine elocp()!- Make envlope parameters for extended local orbitals
     use m_lmfinit,only: nkaph,stdo,nspec,nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,n0,nkapii,slabl,vmtz,rs3,eh3
+    use m_density,only: v0pot,pnuall,pnzall
     ! ----------------------------------------------------------------------
     !i Inputs
     !i         : 0 do nothing ; just return
@@ -26,7 +27,9 @@ contains
     integer:: nkape,idamax,nkapex
     integer,allocatable :: ips_iv(:)
     real(8):: z,a,rmt,xx, rofi(nrmx),vseli(4,n0),vsel(4,n0,nbas), &
-         pnu(n0,2),pnz(n0,2),eh(n0,nkap0),rsmh(n0,nkap0), pnui(n0,2),pnzi(n0,2)
+         eh(n0,nkap0),rsmh(n0,nkap0) !
+    real(8),pointer:: pnu(:,:),pnz(:,:),pnui(:,:),pnzi(:,:)
+!    real(8)::  pnui(n0,2),pnzi(n0,2),pnu(n0,2),pnz(n0,2)
     real(8):: ehls(n0*2),rsmls(n0*2),wdummy(1)
     ! --- Setup ---
     call tcn('elocp')
@@ -38,8 +41,10 @@ contains
     ! --- Find val, slo, K.E. for all sites ---
     do  ib = 1, nbas
        is=ssite(ib)%spec
-       pnu=ssite(ib)%pnu
-       pnz=ssite(ib)%pz
+!       pnu=ssite(ib)%pnu
+!       pnz=ssite(ib)%pz
+       pnu=>pnuall(:,:,ib)
+       pnz=>pnzall(:,:,ib)
        spid = slabl(is) !sspec(is)%name
        a=sspec(is)%a
        nr=sspec(is)%nr
@@ -52,7 +57,7 @@ contains
        eloc = .true.
        call radmsh(rmt,a,nr,rofi)
        call loctsh ( 1 , spid , z , a , nr , nr , nsp , lmxa , rofi & !1101
-            , ssite(ib)%rv_a_ov0 , pnu , pnz , xx , xx , vmtz(is) , vsel ( 1 , 1 , ib ) &
+            , v0pot(ib)%v , pnu , pnz , xx , xx , vmtz(is) , vsel ( 1 , 1 , ib ) &
             , rsml , ehl )
 10     continue
     enddo
@@ -74,35 +79,38 @@ contains
        nrspec = iabs ( iclbsj ( is , ips_iv , - nbas , nbas ) )
        if (nrspec == 0) goto 20
        ib = iclbsj ( is , ips_iv , nbas , 1 )
-       pnui=ssite(ib)%pnu
-       pnzi=ssite(ib)%pz
+!       pnui=ssite(ib)%pnu
+!       pnzi=ssite(ib)%pz
+       pnui=>pnuall(:,:,ib)
+       pnzi=>pnzall(:,:,ib)
+       
        if (pnzi(idamax(lmxb+1,pnzi,1),1) < 10) goto 20
        !   ... Average over sites within this species
        vseli=0d0
        do  ibs = 1, nrspec
           ib = iclbsj ( is , ips_iv , nbas , ibs )
-          pnz=ssite(ib)%pz
+          !pnz=ssite(ib)%pz
           if (pnzi(idamax(lmxb+1,pnzi,1),1) < 10) goto 22
           vseli = vseli + vsel(:,:,ib)/dble(nrspec)
 22        continue
        enddo
-       !   ... Printout of input for parameters
-       if (ipr >= 90/1) then
-          write(stdo,261) spid
-261       format(/'  l  site    Eval        Val         Slo         K.E.', &
-               5x,'species ',a)
-          do  l = 0, lmxb
-             if (pnz(l+1,1) < 10) goto 24
-             do  ibs = 1, nrspec
-                ib = iclbsj ( is , ips_iv , nbas , ibs )
-                write (stdo,260) l,ib,vsel(4,l+1,ib),(vsel(k,l+1,ib),k=2,4)
-260             format(i3,i4,4f12.6:a)
-262             format(i3,' avg',4f12.6)
-             enddo
-             write (stdo,262) l,vseli(4,l+1),(vseli(k,l+1),k=2,4)
-24           continue
-          enddo
-       endif
+!        !   ... Printout of input for parameters
+!        if (ipr >= 90/1) then
+!           write(stdo,261) spid
+! 261       format(/'  l  site    Eval        Val         Slo         K.E.', &
+!                5x,'species ',a)
+!           do  l = 0, lmxb
+!              if (pnz(l+1,1) < 10) goto 24
+!              do  ibs = 1, nrspec
+!                 ib = iclbsj ( is , ips_iv , nbas , ibs )
+!                 write (stdo,260) l,ib,vsel(4,l+1,ib),(vsel(k,l+1,ib),k=2,4)
+! 260             format(i3,i4,4f12.6:a)
+! 262             format(i3,' avg',4f12.6)
+!              enddo
+!              write (stdo,262) l,vseli(4,l+1),(vseli(k,l+1),k=2,4)
+! 24           continue
+!           enddo
+!        endif
        !rs3= sspec(is)%rs3
        !eh3= sspec(is)%eh3
        !vmtz=sspec(is)%vmtz

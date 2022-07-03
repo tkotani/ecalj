@@ -17,6 +17,7 @@ contains
          rsma
     use m_lattic,only: lat_plat
     use m_ext,only:sname
+    use m_density,only: pnuall,pnzall
     !!- I/O for charge density to rst or rsta. ssite sspec are readin
     !! read write
     !!     smrho, rhoat
@@ -114,8 +115,9 @@ contains
     logical :: isanrg,lfail,ltmp1,ltmp2,latvec,cmdopt,mlog !,lshear
     double precision :: a,a0,alat,alat0,cof,eh,fac,qc,rfoc,rfoc0,rmt, &
          rmt0,rsma0,rsmr,rsmr0,rsmv,rsmv0,stc,sum,vfac,vol,vol0,vs,vs1,z,z0
-    double precision :: pnu(n0,2),pnz(n0,2),ql(n0,2*n0),pos(3)=-9999, &
-         pos0(3),force(3),plat(3,3),plat0(3,3),qlat(3,3),qlat0(3,3), &
+    real(8),pointer:: pnu(:,:),pnz(:,:)
+    double precision :: ql(n0,2*n0),pos(3)=-9999, &
+         pos0(3),forcexxx(3)=999d0,plat(3,3),plat0(3,3),qlat(3,3),qlat0(3,3), &
          exi(n0),hfc(n0,2),vec0(3),wk(100),rh,vrmax(2),pnus(n0,2), &
          pnzs(n0,2),dval,rsmfa
     character spid*8,spid0*8,fid0*68,line*20,msg*23,use*80,ignore*80, &
@@ -309,10 +311,10 @@ contains
 !       endif
        do  ib = 1, nbas0
           if (procid == master) then
-             read(jfi,err=999,end=999) jb,pos,force!,vel
+             read(jfi,err=999,end=999) jb,pos,forcexxx!,vel
           endif
           !call mpibc1_real(pos,3,'iors_pos')
-          call mpibc1_real(force,3,'iors_force')
+          !call mpibc1_real(force,3,'iors_force')
           !          call mpibc1_real(vel,3,'iors_vel')
           if (ib > nbas) goto 10
           !         rst file positions in pos0
@@ -327,7 +329,7 @@ contains
           !endif
           !ssite(ib)%pos  =pos
           !ssite(ib)%pos0 =pos0
-          ssite(ib)%force=force
+          !ssite(ib)%force=force
           !           ssite(ib)%vel  =vel
 10        continue
        enddo
@@ -377,11 +379,13 @@ contains
           call mpibc1_real(a0,1,'iors_a0')
           call mpibc1_real(qc,1,'iors_qc')
           if (is == -1 ) call rx('iors: need check for is==-1')
+          pnu=>pnuall(:,:,ib)
+          pnz=>pnzall(:,:,ib)
           pnu=0d0
           pnz=0d0
           ql=0d0
-          pnu=ssite(ib)%pnu
-          pnz=ssite(ib)%pz
+          pnu=ssite(ib)%pnu(:,1:nsp)
+          pnz=ssite(ib)%pz(:,1:nsp)
           idmod=0
           idmoz=0
           if (procid == master) then
@@ -412,10 +416,10 @@ contains
           !          pnus =sspec(is)%p
           !          pnzs =sspec(is)%pz
 !          if  (irs5 == 0 ) then
-             ssite(ib)%pnu=pnu
-             ssite(ib)%pz=pnz
-             !            sspec(is)%p=  pnu !int?
-             !            sspec(is)%pz= pnz
+             ssite(ib)%pnu(:,1:nsp)=pnu(:,1:nsp)
+             ssite(ib)%pz(:,1:nsp)=pnz(:,1:nsp)
+             pnuall(:,1:nsp,ib)=pnu(:,1:nsp)
+             pnzall(:,1:nsp,ib)=pnz(:,1:nsp)
              !$$$C     ... Verify lowest valence pnu compatible with file
              !$$$            lfail = .false.
              !$$$            ltmp1 = .false.
@@ -469,15 +473,15 @@ contains
           !     --- Allocate and read arrays for local density and potential ---
           nlml0 = (lmxl0+1)**2
           nlml = (lmxl+1)**2
-          if (allocated(ssite(ib)%rv_a_ov0)) deallocate(ssite(ib)%rv_a_ov0)
-          allocate(ssite(ib)%rv_a_ov0(abs(nr*nsp)))
+!          if (allocated(ssite(ib)%rv_a_ov0)) deallocate(ssite(ib)%rv_a_ov0)
+!          allocate(ssite(ib)%rv_a_ov0(abs(nr*nsp)))
           !     ... FP local densities rho1,rho2,rhoc and potentials v0, v1
           if (nr /= nr0) call rx('iors not set up to convert radial mesh')
           allocate(orhoat(1,ib)%v(abs(nr*nlml*nsp)))
           allocate(orhoat(2,ib)%v(abs(nr*nlml*nsp)))
           allocate(orhoat(3,ib)%v(abs(nr*nsp)))
-          if (allocated(ssite(ib)%rv_a_ov1)) deallocate(ssite(ib)%rv_a_ov1)
-          allocate(ssite(ib)%rv_a_ov1(abs(nr*nsp)))
+!          if (allocated(ssite(ib)%rv_a_ov1)) deallocate(ssite(ib)%rv_a_ov1)
+!          allocate(ssite(ib)%rv_a_ov1(abs(nr*nsp)))
           ! cccccccccccccccccccccccccc
           allocate(v0pot(ib)%v(nr*nsp))
           allocate(v1pot(ib)%v(nr*nsp))
@@ -489,22 +493,24 @@ contains
              if (nlml0 < nlml .AND. ipr >= 10) write(stdo,202) ib,spid,'inflate',nlml0,nlml
 202          format(9x,'site',i4,', species ',a,': ',a,' local density from nlm=',i3,' to',i3)
              call dpdbyl(orhoat(3,ib)%v,nr0,1,1,nsp0, nsp , lbin , jfi )
-             call dpdbyl ( ssite(ib)%rv_a_ov0, nr0, 1, 1, nsp0, nsp , lbin , jfi )
-             call dpdbyl ( ssite(ib)%rv_a_ov1, nr0, 1, 1, nsp0, nsp , lbin , jfi )
+             call dpdbyl ( v0pot(ib)%v, nr0, 1, 1, nsp0, nsp , lbin , jfi )
+             call dpdbyl ( v1pot(ib)%v, nr0, 1, 1, nsp0, nsp , lbin , jfi )
              if (nsp0 < nsp) then
-                call dscal ( nr0 * 2 , 2d0 , ssite(ib)%rv_a_ov0 , 1 )
-                call dscal ( nr0 * 2 , 2d0 , ssite(ib)%rv_a_ov1 , 1 )
+                call dscal ( nr0 * 2 , 2d0 , v0pot(ib)%v , 1 )
+                call dscal ( nr0 * 2 , 2d0 , v1pot(ib)%v , 1 )
              endif
              ! cccccccccccccccccccc
-             v0pot(ib)%v = ssite(ib)%rv_a_ov0
-             v1pot(ib)%v = ssite(ib)%rv_a_ov1
+!             v0pot(ib)%v = ssite(ib)%rv_a_ov0
+!             v1pot(ib)%v = ssite(ib)%rv_a_ov1
              ! cccccccccccccccccccc
           endif
           call mpibc1_real( orhoat(1,ib)%v, size(orhoat(1,ib)%v), 'iors_rhoat(1)' )
           call mpibc1_real( orhoat(2,ib)%v, size(orhoat(2,ib)%v), 'iors_rhoat(2)' )
           call mpibc1_real( orhoat(3,ib)%v, size(orhoat(3,ib)%v), 'iors_rhoat(3)' )
-          call mpibc1_real( ssite(ib)%rv_a_ov0 , size(ssite(ib)%rv_a_ov0) , 'iors_v0' )
-          call mpibc1_real( ssite(ib)%rv_a_ov1 , size(ssite(ib)%rv_a_ov1) , 'iors_v1' )
+!          call mpibc1_real( ssite(ib)%rv_a_ov0 , size(ssite(ib)%rv_a_ov0) , 'iors_v0' )
+!          call mpibc1_real( ssite(ib)%rv_a_ov1 , size(ssite(ib)%rv_a_ov1) , 'iors_v1' )
+          call mpibc1_real( v0pot(ib)%v,size(v0pot(ib)%v) , 'iors_v0' )
+          call mpibc1_real( v1pot(ib)%v,size(v1pot(ib)%v) , 'iors_v1' )
           !          endif
           !     ... store data in strucs
           !sspec(is)%a=a
@@ -656,9 +662,9 @@ contains
        call dpdump(wk,100,-jfi)
        do  110  ib = 1, nbas
           !pos  =ssite(ib)%pos
-          force=ssite(ib)%force
+          !force=ssite(ib)%force
           !          vel  =ssite(ib)%vel
-          write(jfi) ib,pos,force!,vel
+          write(jfi) ib,pos,forcexxx!,vel
 110    enddo
        !   --- Write information for local densities ---
        if (ipr >= 50) write(stdo,364)
@@ -679,8 +685,10 @@ contains
           !kmxv=sspec(is)%kmxv
           rsmv=sspec(is)%rsmv
           kmax=sspec(is)%kmxt
-          pnu=ssite(ib)%pnu
-          pnz=ssite(ib)%pz
+          pnu=>pnuall(:,:,ib)
+          pnz=>pnzall(:,:,ib)
+          pnu=ssite(ib)%pnu(:,1:nsp)
+          pnz=ssite(ib)%pz(:,1:nsp)
           if (lmxa == -1) goto 120
           write(jfi) is,spid,lmxa,lmxl,nr,rmt,a,z,qc
           !     ... Some extra info... lots of it useless or obsolete
@@ -701,8 +709,8 @@ contains
           call dpdbyl ( orhoat( 1 , ib )%v , nr , nlml , nlml , nsp  , nsp , lbin , - jfi )
           call dpdbyl ( orhoat( 2 , ib )%v , nr , nlml , nlml , nsp  , nsp , lbin , - jfi )
           call dpdbyl ( orhoat( 3 , ib )%v , nr , 1 , 1 , nsp , nsp   , lbin , - jfi )
-          call dpdbyl ( ssite(ib)%rv_a_ov0 , nr , 1 , 1 , nsp , nsp , lbin , - jfi  )
-          call dpdbyl ( ssite(ib)%rv_a_ov1 , nr , 1 , 1 , nsp , nsp , lbin , - jfi  )
+          call dpdbyl ( v0pot(ib)%v , nr , 1 , 1 , nsp , nsp , lbin , - jfi  )
+          call dpdbyl ( v1pot(ib)%v , nr , 1 , 1 , nsp , nsp , lbin , - jfi  )
           if (ipr >= 50) then
              write(stdo,349) ib,spid,lmxa,lmxl,rmt,nr,a, (pnu(l+1,1),l=0,lmxa)
              if (nsp == 2)  write(stdo,350) (pnu(l+1,2), l=0,lmxa)

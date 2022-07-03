@@ -5,6 +5,8 @@ subroutine pnunew(eferm)
        pmin=>ham_pmin,pmax=>ham_pmax,n0,nab,mxcst4
   use m_mkrout,only: hbyl=>hbyl_rv,qbyl=>qbyl_rv
   use m_lgunit,only:stdo
+
+  use m_density,only: v0pot,pnuall,pnzall
   !!= Makes new boundary conditions pnu for phi,phidot =
   !!* takao sep2010. P is setted to that at efermi if PZ is for semicore.
   ! ----------------------------------------------------------------------
@@ -51,7 +53,9 @@ subroutine pnunew(eferm)
   real(8) ,allocatable :: gp_rv(:)
   real(8) ,allocatable :: rofi_rv(:)
   real(8) ,allocatable :: v0i_rv(:)
-  double precision pi,rmt,p1,ebar,a,d0l,pfree,pold,ptry,z,val(5),slo(5),dl,phi,dphi,pnu(n0,2),pnz(n0,2)
+  double precision pi,rmt,p1,ebar,a,d0l,pfree,pold,ptry,z,val(5),slo(5),dl,phi,dphi
+!  real(8):: pnu(n0,2),pnz(n0,2)
+  real(8),pointer:: pnu(:,:),pnz(:,:)
   double precision ez,umegam,phip,dphip,dlphi,dlphip,cz
   double precision pznew,fi(0:10),gi(0:10),xx,dnz
   character spid*8
@@ -76,8 +80,10 @@ subroutine pnunew(eferm)
   ! --- For each site, do ---
   do  ib = 1, nbas
      is=ssite(ib)%spec
-     pnu=ssite(ib)%pnu
-     pnz=ssite(ib)%pz
+     pnu=>pnuall(:,:,ib)
+     pnz=>pnzall(:,:,ib)
+!     pnu=ssite(ib)%pnu
+!     pnz=ssite(ib)%pz
      lmxa=sspec(is)%lmxa
      rmt=sspec(is)%rmt
      idmod=idmodis(:,is)
@@ -113,7 +119,7 @@ subroutine pnunew(eferm)
               allocate(rofi_rv(nr*2))
               call radmsh ( rmt , a , nr , rofi_rv )
               allocate(v0i_rv(nr))
-              call dpscop ( ssite(ib)%rv_a_ov0 , v0i_rv , nr , 1 + nr * ( isp - 1 ) , 1 , 1d0 )
+              call dpscop ( v0pot(ib)%v , v0i_rv , nr , 1 + nr * ( isp - 1 ) , 1 , 1d0 )
               if (mod(idmod(m),10) .eq. 3) then
                  val(1) = rmt
                  dl = dtan(pi*(0.5d0-mod(pnu(m,isp),10d0)))
@@ -252,8 +258,10 @@ subroutine pnunew(eferm)
            endif
         endif
      enddo 
-     ssite(ib)%pnu=pnu
-     ssite(ib)%pz=pnz
+     !ssite(ib)%pnu=pnu
+     !ssite(ib)%pz=pnz
+     pnuall(:,1:nsp,ib)=pnu(:,1:nsp)
+     pnzall(:,1:nsp,ib)=pnz(:,1:nsp)
 10   continue
   enddo
   call tcx('pnunew')

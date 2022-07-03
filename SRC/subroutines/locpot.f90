@@ -17,6 +17,9 @@ contains
     use m_struc_def
     use m_uspecb,only:uspecb
     use m_ftox
+
+    use m_density,only: v0pot,v1pot   !writing
+    use m_density,only: pnzall,pnuall  
     !      use m_iors,only: v1pot
     !- Make the potential at the atomic sites and augmentation matrices.
     ! ----------------------------------------------------------------------
@@ -124,12 +127,13 @@ contains
     integer :: lh(nkap0),nkapi,nkape,k
     double precision :: eh(n0,nkap0),rsmh(n0,nkap0)
     double precision :: ehl(n0),rsml(n0)
-    double precision :: pi,srfpi,y0,rofi(nrmx),rwgt(nrmx),pnu(n0,2), &
-         pnz(n0,2),gpotb(81),z,a,rmt,qc,ceh,rfoc, &
+    double precision :: pi,srfpi,y0,rofi(nrmx),rwgt(nrmx), &
+         gpotb(81),z,a,rmt,qc,ceh,rfoc, &!,pnu(n0,2)pnz(n0,2),
          qcorg,qcorh,qsc,cofg,cofh,qsca,rg,qv,valvs,cpnvs, &
          rhexc(2),rhex(2),rhec(2),rhvxc(2),qloc,qlocc,valvt,xcor, &
          fcexc(2),fcex(2),fcec(2),fcvxc(2),aloc,alocc,rvepvl,rvexl, &
          rvecl,rvvxvl,rveptl,rvvxtl
+    real(8),pointer:: pnu(:,:),pnz(:,:)
     ! ... for sm. Hankel tails
     double precision :: rs3,vmtz
     character chole*8
@@ -185,8 +189,10 @@ contains
     if(master_mpi) open(newunit=ifivesint,file='vesintloc',form='formatted',status='unknown')
     do  ib = 1, nbas
        is=ssite(ib)%spec
-       pnu=ssite(ib)%pnu
-       pnz=ssite(ib)%pz
+       !pnu=ssite(ib)%pnu
+       !pnz=ssite(ib)%pz
+       pnu=>pnuall(:,:,ib)
+       pnz=>pnzall(:,:,ib)
        z=sspec(is)%z
        qc=sspec(is)%qc
        rg=sspec(is)%rg
@@ -267,7 +273,7 @@ contains
        !   ... Update the potential used to define basis set
        if (lfltwf) then
           do i = 0, nsp-1
-             ssite(ib)%rv_a_ov0(1+nr*i: nr+nr*i) = y0*v1(1+nr*nlml*i : nr+nr*nlml*i)
+             v0pot(ib)%v(1+nr*i: nr+nr*i) = y0*v1(1+nr*nlml*i : nr+nr*nlml*i)
           enddo
        endif
        
@@ -280,11 +286,11 @@ contains
             do ir=1,nr
                ov0mean = 0d0
                do isp=1,nsp
-                  ov0mean = ov0mean + ssite(ib)%rv_a_ov0( ir + nr*(isp-1) )
+                  ov0mean = ov0mean + v0pot(ib)%v( ir + nr*(isp-1) )
                enddo
                ov0mean = ov0mean/nsp
                do isp=1,nsp
-                  ssite(ib)%rv_a_ov0(ir + nr*(isp-1))= ov0mean
+                  v0pot(ib)%v(ir + nr*(isp-1))= ov0mean
                enddo
             enddo
          endif
@@ -295,17 +301,17 @@ contains
          if(v0fix) then
             inquire(file='v0pot.'//char(48+ib),exist=readov0)
             if(readov0) then
-               v0pot:block
+               v0potb:block
                  real(8):: ov0(nr)
                  open(newunit=ifi,file='v0pot.'//char(48+ib),form='unformatted')
                  read(ifi) ov0(1:nr)
                  close(ifi)
                  do ir=1,nr
                     do isp=1,nsp
-                       ssite(ib)%rv_a_ov0(ir + nr*(isp-1))= ov0(ir)
+                       v0pot(ib)%v(ir + nr*(isp-1))= ov0(ir)
                     enddo
                  enddo
-               endblock v0pot
+               endblock v0potb
             else
                call rx('no v0pot files')
             endif
@@ -315,15 +321,15 @@ contains
             do ir=1,nr
                ov0mean = 0d0
                do isp=1,nsp
-                  ov0mean = ov0mean + ssite(ib)%rv_a_ov0( ir + nr*(isp-1) )
+                  ov0mean = ov0mean + v0pot(ib)%v( ir + nr*(isp-1) )
                enddo
                ov0mean = ov0mean/nsp !spin averaged
                do isp=1,nsp
-                  ssite(ib)%rv_a_ov0(ir + nr*(isp-1))= ov0mean
+                  v0pot(ib)%v(ir + nr*(isp-1))= ov0mean
                enddo
             enddo
             open(newunit=ifi,file='v0pot.'//char(48+ib),form='unformatted')
-            write(ifi) ssite(ib)%rv_a_ov0(1:nr)
+            write(ifi) v0pot(ib)%v(1:nr)
             close(ifi)
             if(ib==nbas) readov0= .TRUE. 
          endif
@@ -336,7 +342,7 @@ contains
        endif
        !   ... Store the potential used in mkrout to calculate the core
        do  i = 0, nsp-1
-          ssite(ib)%rv_a_ov1(1+nr*i: nr+nr*i) = y0*v1(1+nr*nlml*i : nr+nr*nlml*i)
+          v1pot(ib)%v(1+nr*i: nr+nr*i) = y0*v1(1+nr*nlml*i : nr+nr*nlml*i)
        enddo
        !   ... Accumulate terms for LDA total energy
        vvesat = vvesat + valvs
@@ -402,7 +408,7 @@ contains
 467       format(' potential shift to crystal energy zero:',f12.6)
           call augmat ( z , rmt , rsma(is) , lmxa , pnu , pnz , kmax , nlml &
                , a , nr , nsp , lsox , rofi , rwgt , rv_a_ocg, iv_a_ojcg, iv_a_oidxcg &
-               , ssite(ib)%rv_a_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , &
+               , v0pot(ib)%v , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , &
                lmxb , lhh(:,is) , eh , rsmh, ehl , rsml , rs3 , vmtz ,  lmaxu& ! & lcplxp ,
                , vorb, lldau(ib), iblu, idu, sv_p_osig(1,ib) , sv_p_otau(1,ib), &
                sv_p_oppi(1,ib),ohsozz(1,ib),ohsopm(1,ib), ppnl(1,1,1,ib) , &

@@ -66,9 +66,9 @@ module m_struc_def
      integer ::   class    !fixed. class index
      integer ::   relax(3) !fixed.(dynamics) flags which coordinates to relax
 
-     real(8) ::   force(3)  ! Force
-     real(8) , allocatable ::  rv_a_ov0(:)! pointer to potential that defines wave functions
-     real(8) , allocatable ::  rv_a_ov1(:)! pointer to spherical part of MT potential
+!     real(8) ::   force(3)  ! Force
+!     real(8) , allocatable ::  rv_a_ov0(:)! pointer to potential that defines wave functions
+!     real(8) , allocatable ::  rv_a_ov1(:)! pointer to spherical part of MT potential
      real(8) ::   pnu(n0,2) ! log derivative parameter
      real(8) ::   pz(n0,2)  ! log derivative parameter for LO
   end type s_site
