@@ -90,11 +90,11 @@ contains
   end subroutine rotwvigg
   ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine rotmto(qin,nbloch,nband, &
-       norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl, &
-       sym,shtvg,dlmm,lxxa,miat,tiat,igxt,nbas,  cphiin, &
-       cphiout)
+         norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl, &
+         sym,shtvg,dlmm,lxxa,miat,tiat,igxt,nbas,  cphiin, &
+         cphiout)
     implicit none
-    intent(in)::      qin,nbloch,nband, &
+    intent(in)::    qin,nbloch,nband, &
          norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl, &
          sym,shtvg,dlmm,lxxa,miat,tiat,igxt,nbas,  cphiin
     intent(out):: &
@@ -190,6 +190,7 @@ contains
        if(igxt==-1) qpgr=-qpgr ! xxxxxxxx need to check!
        nnn = nint( matmul(platt,qpgr-qtarget)) ! integer-representation of G=qpgr-qtarget
        ig2 = ngvecprev(nnn(1),nnn(2),nnn(3))   ! index for G
+!       ig2 = findloc(ngvecp,val=nnn)
        geigenout(ig2,:)= geigenin(ig,:) * exp( -img2pi*sum(qpgr*shtvg) )
     enddo
   end subroutine rotipw

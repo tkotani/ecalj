@@ -48,9 +48,9 @@ contains
     if(debug) write(6,*)'kk1=',kk1
     if(debug) write(6,*)'kk2=',kk2
     if(debug) write(6,*)'kk3=',kk3
-    ik1= findloc(kkk3(1)-kk1,value=0)
-    ik2= findloc(kkk3(2)-kk2,value=0)
-    ik3= findloc(kkk3(3)-kk3,value=0)
+    ik1= findloc(kk1,value=kkk3(1))
+    ik2= findloc(kk2,value=kkk3(2))
+    ik3= findloc(kk3,value=kkk3(3))
 !    call tabkk(kkk3(1), kk1,nkey(1), ik1)
 !    call tabkk(kkk3(2), kk2,nkey(2), ik2)
 !    call tabkk(kkk3(3), kk3,nkey(3), ik3)
@@ -129,9 +129,9 @@ contains
     iqkkk=-99999
     do i=1,nqtt
        kkk3= (qxx(:,i)+0.5d0*epsd)/epsd !kkk is digitized by 1/epsd
-       ik1= findloc(kkk3(1)-kk1,value=0)
-       ik2= findloc(kkk3(2)-kk2,value=0)
-       ik3= findloc(kkk3(3)-kk3,value=0)
+       ik1= findloc(kk1,value=kkk3(1))
+       ik2= findloc(kk2,value=kkk3(2))
+       ik3= findloc(kk3,value=kkk3(3))
 !       call tabkk(kkk3(1), kk1,nkey(1), ik1)
 !       call tabkk(kkk3(2), kk2,nkey(2), ik2)
 !       call tabkk(kkk3(3), kk3,nkey(3), ik3)

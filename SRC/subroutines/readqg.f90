@@ -222,9 +222,9 @@ contains
     deallocate(key)
     do i=1,nqtt
        kkk3= (qxx(:,i)+0.5*epsd)/epsd !kkk is digitized by 1/epsd
-       ik1= findloc(kkk3(1)-kk1,value=0)
-       ik2= findloc(kkk3(2)-kk2,value=0)
-       ik3= findloc(kkk3(3)-kk3,value=0)
+       ik1= findloc(kk1,value=kkk3(1))
+       ik2= findloc(kk2,value=kkk3(2))
+       ik3= findloc(kk3,value=kkk3(3))
        iqkkk(ik1(1),ik2(1),ik3(1))=i
     enddo
     deallocate(qxx)
@@ -254,9 +254,9 @@ contains
     endif
     call rangedq(matmul(ginv,q), qzz)
     kkk3 = (qzz+0.5*epsd)/epsd
-    ik1= findloc(kkk3(1)-kk1,value=0)
-    ik2= findloc(kkk3(2)-kk2,value=0)
-    ik3= findloc(kkk3(3)-kk3,value=0)
+    ik1= findloc(kk1,value=kkk3(1))
+    ik2= findloc(kk2,value=kkk3(2))
+    ik3= findloc(kk3,value=kkk3(3))
     iqindx = iqkkk(ik1(1),ik2(1),ik3(1))
     qu = qtt(:,iqindx)
   end subroutine iqindx2qg

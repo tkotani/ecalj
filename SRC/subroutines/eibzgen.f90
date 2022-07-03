@@ -83,9 +83,9 @@ subroutine eibzgen(nqibz,symgg,ngrp,qibze,iqxini,iqxend,qbz,nqbz,timereversal,gi
 !     call tabkk(kkk3(1), kk1,nkey(1), ik1)
 !     call tabkk(kkk3(2), kk2,nkey(2), ik2)
 !     call tabkk(kkk3(3), kk3,nkey(3), ik3)
-     ik1= findloc(kkk3(1)-kk1,value=0)
-     ik2= findloc(kkk3(2)-kk2,value=0)
-     ik3= findloc(kkk3(3)-kk3,value=0)
+     ik1= findloc(kk1,value=kkk3(1))
+     ik2= findloc(kk2,value=kkk3(2))
+     ik3= findloc(kk3,value=kkk3(3))
      iqkkk(ik1(1),ik2(1),ik3(1))=i
      if(debug) write(6,"(' iqkkk ik1,ik2,ik3,=',i4,3i3,x,3i6)")i,ik1,ik2,ik3,kkk3(:)
   enddo
@@ -208,9 +208,9 @@ subroutine eibzgen(nqibz,symgg,ngrp,qibze,iqxini,iqxend,qbz,nqbz,timereversal,gi
 !              call tabkk(kkk3(1), kk1,nkey(1), ik1)
 !              call tabkk(kkk3(2), kk2,nkey(2), ik2)
 !              call tabkk(kkk3(3), kk3,nkey(3), ik3)
-              ik1= findloc(kkk3(1)-kk1,value=0)
-              ik2= findloc(kkk3(2)-kk2,value=0)
-              ik3= findloc(kkk3(3)-kk3,value=0)
+              ik1= findloc(kk1,value=kkk3(1))
+              ik2= findloc(kk2,value=kkk3(2))
+              ik3= findloc(kk3,value=kkk3(3))
               if(ik1(1)+ik2(1)+ik3(1)==0) cycle 
               if(debug) write(6,*)'uuuuu ik=',ik1,ik2,ik3
               ibzx = iqkkk(ik1(1),ik2(1),ik3(1))
