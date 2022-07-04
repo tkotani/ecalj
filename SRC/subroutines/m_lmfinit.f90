@@ -1172,18 +1172,21 @@ contains
       allocate(v_ssite(nbas))
       do j=1,nbas
          !v_ssite(j)%pos=pos(1:3,j) !atomic position. See poss in lmfp.F 
+         !v_ssite(j)%pnu(1:n0,1:nsp)= pnusp(1:n0,1:nsp,is)
+         !v_ssite(j)%pz(1:n0,1:nsp)=  pzsp(1:n0,1:nsp,is) 
          v_ssite(j)%spec =ips(j)  ! atomic species
          v_ssite(j)%class=ips(j)  ! atomic class  
          v_ssite(j)%relax=irlx(:,j) !DYN relaxiation directions.
          v_ssite(j)%iantiferro=iantiferro(j) !antiferro pair condition
          is=v_ssite(j)%spec
-         v_ssite(j)%pnu(1:n0,1:nsp)= pnusp(1:n0,1:nsp,is)
-         v_ssite(j)%pz(1:n0,1:nsp)=  pzsp(1:n0,1:nsp,is) 
-         pnuall(:,1:nsp,j) = pnusp(1:n0,1:nsp,is)! v_ssite%pnusp,pzsp can be changing during iteration
-         pnzall(:,1:nsp,j) = pzsp(1:n0,1:nsp,is) !
       enddo
       sstrnmix=trim(iter_mix)
 
+      do j=1,nbas
+         is=v_ssite(j)%spec
+         pnuall(:,1:nsp,j) = pnusp(1:n0,1:nsp,is)
+         pnzall(:,1:nsp,j) = pzsp(1:n0,1:nsp,is) 
+      enddo
       !! ... Suppress symmetry operations for special circumstances
       !     !     Switches that automatically turn of all symops
       !     ! --pdos mar2003 added. Also in lmv7.F

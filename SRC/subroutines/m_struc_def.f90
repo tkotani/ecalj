@@ -1,8 +1,6 @@
 !! explanations are old, some are obsolate
 module m_struc_def
   integer,parameter::  n0=10,nkap0=3
-  !      use m_lmfinit,only:n0,nkap0
-
   public s_rv1, s_nv2, s_cv1, s_cv2,s_cv3,s_cv4, s_spec, s_site, s_sblock
   private
 
@@ -35,7 +33,7 @@ module m_struc_def
      complex(8),allocatable:: cv4(:,:,:,:)
   end type s_cv4
 
-  type s_spec               !I think all of them are fixed during iteration cycle of lmf-MPIK
+  type s_spec  !I think all of them are fixed during iteration cycle of lmf-MPIK
      real(8),allocatable :: rv_a_orhoc(:) !pointer to core density
      real(8):: z !atomic number
      real(8):: rmt !augmentation radius
@@ -49,6 +47,7 @@ module m_struc_def
      real(8):: a !a for mesh
      integer:: nr !nr for mesh
      integer:: lfoca !switch specifying treatment of core density
+! followings are given in lmfa. And read by rdovfa->iofa, I think.     
      real(8):: ctail !coefficients to fit of free-atom core tail by unsm. Hankel
      real(8):: etail !energy to fit of free-atom core tail
      real(8):: stc !core kinetic energy
@@ -56,25 +55,19 @@ module m_struc_def
      real(8):: qc    !core charge
      integer:: nxi    ! Number of energies in fit of free-atom density tails
      integer:: kmxv   ! k-cutoff for 1-center projection of free-atom rho
-!     real(8):: rcfa(2)! renormalization radius of free atom density, and width
      real(8):: exi(n0)! Hankel energies for fit to c.d.; fit to free-atom density tails.
      real(8):: chfa(n0,2) ! coefficients to fit of free-atom density tails
   end type s_spec
-  type s_site
-     integer :: iantiferro  !fixed during lmf-MPIK.
-     integer ::   spec     !fixed. species index
-     integer ::   class    !fixed. class index
-     integer ::   relax(3) !fixed.(dynamics) flags which coordinates to relax
-
-!     real(8) ::   force(3)  ! Force
-!     real(8) , allocatable ::  rv_a_ov0(:)! pointer to potential that defines wave functions
-!     real(8) , allocatable ::  rv_a_ov1(:)! pointer to spherical part of MT potential
-     real(8) ::   pnu(n0,2) ! log derivative parameter
-     real(8) ::   pz(n0,2)  ! log derivative parameter for LO
+  type s_site !given at m_lmfinit
+     integer :: iantiferro ! antiferro pair index
+     integer ::   spec     ! species index
+     integer ::   class    ! class index
+     integer ::   relax(3) ! for dynamics, relaxation direction switch
   end type s_site
 end module m_struc_def
 
 ! Removed from s_spec     
+!     real(8):: rcfa(2)! renormalization radius of free atom density, and width
 !     real(8):: rsma !rsm for augmentation expansion
 !     real(8)::   q(n0,2)  !starting q's (charges)
 !     real(8)::  p(n0) !log derivative for spec taken from ctrl file !shown by >lmfa si |grep conf
@@ -97,5 +90,10 @@ end module m_struc_def
 ! removed from s_site...
 !     real(8) ::   pos(3)  !fixed during do 1000 in lmfp.F  Coordinates of atom
 !     real(8) ::   pos0(3) ! atomic pos in previous loop of do 2000 in lmfp.F smshit (for MD)
+!     real(8) ::   force(3)  ! Force
+!     real(8) , allocatable ::  rv_a_ov0(:)! pointer to potential that defines wave functions
+!     real(8) , allocatable ::  rv_a_ov1(:)! pointer to spherical part of MT potential
+!     real(8) ::   pnu(n0,2) ! log derivative parameter
+!     real(8) ::   pz(n0,2)  ! log derivative parameter for LO
 !  end type s_site
 

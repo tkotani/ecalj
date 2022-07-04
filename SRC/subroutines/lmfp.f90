@@ -54,12 +54,12 @@ subroutine lmfp(llmfgw)
   character(256):: strn,strn2
   real(8),allocatable:: poss(:,:),pos0(:,:)
   include "mpif.h"
-  
+ 
   call tcn('lmfp')
   ipr = iprint()
   allocate(pos0(3,nbas),poss(3,nbas))
   poss = rv_a_opos ! Use atomic positon in m_lattic
-  call ReadAtomPos(nbas,poss)! Overwrite pos in AtomPos if it exists.
+  call ReadAtomPos(nbas,poss)! Overwrite pos in the file AtomPos.* if it exists.
   call mpi_barrier(MPI_COMM_WORLD,ierr)
      ! Sep2020 " Shorten site positions" here removed.
   etot = 0d0 ! Total energy mode --etot ==>moved to m_lmfinit ---
