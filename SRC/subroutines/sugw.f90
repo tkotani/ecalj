@@ -10,7 +10,7 @@ contains
     use m_lmfinit, only: &
          ham_pwmode,pwemin,pwemax,ham_oveps,lrsig=>ham_lsig,nlmto,lso, &
          ham_scaledsigma,lat_alat,mxorb,nkaph,nsp,nspc,nl,mxorb,ssite=>v_ssite,sspec=>v_sspec,&
-         nbas,n0,nppn,nkap0,slabl,nmcorex=>nmcore
+         nbas,n0,nppn,nkap0,slabl,nmcorex=>nmcore,iantiferro
     use m_lattic,only: lat_plat, lat_qlat,rv_a_opos
     use m_supot,only: lat_nabc, lat_gmax
     use m_rdsigm2,only: getsenex, senex,dsene
@@ -145,7 +145,7 @@ contains
     real(8):: qqq(3)
     integer:: mode,iwdummy,jx
     complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),ovlmtoi(:,:),ovliovl(:,:) ,hammhso(:,:,:)
-    integer,allocatable:: iantiferro(:)
+!    integer,allocatable:: iantiferro(:)
     integer:: lpdiag=0,nrmx,ncoremx!,ndham
     character spid*8
     character(8) :: xt
@@ -225,7 +225,7 @@ contains
     sprocid='procid'//trim(xt(procid))
     if(master_mpi) open(newunit=ifigwa,file='gwa',form='unformatted')
     ef0 = 1d99        !dummy
-    allocate(ips(nbas),lmxa(nat),bas(3,nat),iantiferro(nat))
+    allocate(ips(nbas),lmxa(nat),bas(3,nat))!,iantiferro(nat))
     iat = 0
     do  i = 1, nbas
        lmaxa = sspec(int(ssite(i)%spec))%lmxa 
@@ -234,7 +234,7 @@ contains
           if (iat > nat) call rx('bug in sugw')
           bas(:,iat)=rv_a_opos(:,i) !ssite(i)%pos
           lmxa(iat) = lmaxa
-          iantiferro(iat)=ssite(i)%iantiferro
+!          iantiferro(iat)=ssite(i)%iantiferro
        endif
     enddo
     print *,'iantiferro=',iantiferro

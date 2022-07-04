@@ -63,7 +63,7 @@ module m_lmfinit
   real(8),allocatable,protected :: pos(:,:)!,vel(:,:)!,vshft(:)
   integer,allocatable,protected :: ips(:),ifrlx(:,:),ndelta(:) !,ipl(:),plv(:)
   real(8),allocatable,protected :: delta(:,:),mpole(:),dpole(:,:)
-  integer,allocatable,protected ::iantiferro(:) !reserved
+  integer,allocatable,protected ::iantiferro(:)
   !! ... BZ
   integer,protected:: bz_lshft(3)=0, &
        bz_lmet,bz_n,bz_lmull,ctrl_ldos,bz_fsmommethod
@@ -1149,7 +1149,7 @@ contains
          v_ssite(j)%spec =ips(j)  ! atomic species
          !v_ssite(j)%class=ips(j)  ! atomic class ==>given at m_mksym
 !         v_ssite(j)%relax=ifrlx(:,j) !DYN relaxiation directions.
-         v_ssite(j)%iantiferro=iantiferro(j) !antiferro pair condition
+!         v_ssite(j)%iantiferro=iantiferro(j) !antiferro pair condition
 !         is=v_ssite(j)%spec
       enddo
       sstrnmix=trim(iter_mix)

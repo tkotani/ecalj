@@ -19,9 +19,9 @@ module m_mksym
   integer, allocatable,protected ::  iv_a_onrc (:)
 contains
   ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  subroutine m_mksym_init(prgnam) !latsym(prgnam)
+  subroutine m_mksym_init(prgnam)
     use m_lmfinit,only: v_ssite,nbas,sstrnsymg,ctrl_noinv, &
-         symgaf,iv_a_oips,slabl,mxspec,procid,master
+         symgaf,iv_a_oips,slabl,mxspec,procid,master,iantiferro
     ! v_ssite%pos modified
     use m_lattic,only: rv_a_opos,m_lattic_init,rv_a_opos
     !! Driver for calling mksymaf and mksym
@@ -71,40 +71,40 @@ contains
           write(6,"(a)")       ' AF: Antiferro mode: SPGGRAF='//trim(symgaf)
           write(6,"(a)")       ' AF:  (neglct waring in GENSYM) '
           do j=1,nbas
-             write(6,"(a,2i3)") ' AF:  ibas,AF=',j,v_ssite(j)%iantiferro
+             write(6,"(a,2i3)") ' AF:  ibas,AF=',j,iantiferro(j)
           enddo
        endif
        strn2=trim(strn)//' '//trim(symgaf)
-       call mksymaf(v_ssite,iv_a_oips,nbas,procid==master,strn2,lc,slabl,mxspec)
+       call mksymaf(iantiferro,iv_a_oips,nbas,procid==master,strn2,lc,slabl,mxspec)
        if(ipr10) write(6,"(a)") ' AF: ===== end of AF section================= '
        if(ipr10) write(6,"(a)")
     endif
     if(procid==master) call pshpr(60)
     allocate(iclasst(nbas))
-    call mksym(lc,slabl,strn,v_ssite,iv_a_oips,iclasst,nbas)
+    call mksym(lc,slabl,strn,iv_a_oips,iclasst,nbas)
     if(procid==master) call poppr
     call tcx('m_mksym_init')
   end subroutine m_mksym_init
 
   ! SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
-  subroutine mksymaf(v_ssite,iv_a_oips_in,nbas,imaster,strn2,lc,slabl,mxspec)!all input
+  subroutine mksymaf(iantiferro,iv_a_oips_in,nbas,imaster,strn2,lc,slabl,mxspec)!all input
     !     mksymaf sets data above used in sugw.F. a little complicated...
     use m_struc_def,only: s_site
-    intent(in)::       v_ssite,iv_a_oips_in,nbas,imaster,strn2,lc,slabl,mxspec
-    logical::                         imaster
-    character strn2*(*)
+    intent(in)::     iantiferro,iv_a_oips_in,nbas,imaster,strn2,lc,slabl,mxspec
+    logical::  imaster
+    character  strn2*(*)
     character(8) :: slabl(mxspec)
-    type(s_site):: v_ssite(nbas)
-    type(s_site),allocatable:: v_ssite2(:) !pos is rewritten in lmfp
-    integer:: inumaf,iv_a_oips_in(nbas),j,k,nbas,  lc,       mxspec,ib
+!    type(s_site):: v_ssite(nbas)
+!    type(s_site),allocatable:: v_ssite2(:) !pos is rewritten in lmfp
+    integer:: inumaf,iv_a_oips_in(nbas),j,k,nbas,  lc, mxspec,ib,iantiferro(nbas)
     integer,allocatable::iv_a_oips(:)
-    allocate(v_ssite2(nbas),iv_a_oips(nbas))
-    v_ssite2 = v_ssite
+    allocate(iv_a_oips(nbas))!v_ssite2(nbas),
+!    v_ssite2 = v_ssite
     iv_a_oips=iv_a_oips_in
     inumaf = 0
     do j=1,nbas
        do k=j,nbas
-          if( v_ssite2(j)%iantiferro+v_ssite2(k)%iantiferro==0) then
+          if( iantiferro(j)+iantiferro(k)==0) then
              iv_a_oips(k) = iv_a_oips(j) !to drive mksymx
              inumaf=inumaf+1
              exit
@@ -114,7 +114,7 @@ contains
     ngrpaf_     = lat_nsgrp
     allocate(iclasstaf_(nbas),symops_af_(3,3,ngrpaf_),ag_af_(3,ngrpaf_))
     if(imaster) call pshpr(60)
-    call mksym(lc,slabl,strn2,v_ssite2,iv_a_oips,iclasstaf_,nbas) !strn2 and v_ssite2 are used.
+    call mksym(lc,slabl,strn2,iv_a_oips,iclasstaf_,nbas) !strn2 and v_ssite2 are used.
     if(imaster) call poppr()
     if(imaster) write(6,"(a)")' AF: mksym, generator= SYMGRP+SYMGRPAF= '//trim(strn2)
     call dcopy ( ngrpaf_ * 9 , rv_a_osymgr , 1 , symops_af_ , 1 )
@@ -123,11 +123,11 @@ contains
 !    do ib=1,nbas
 !       iclasstaf_(ib)=v_ssite2(ib)%class
 !    enddo
-    deallocate(v_ssite2)
+!    deallocate(v_ssite2)
   end subroutine mksymaf
 
   ! SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSs
-  subroutine mksym(mode,slabl,ssymgr,ssite,iv_a_oips,iclass,nbas)
+  subroutine mksym(mode,slabl,ssymgr,iv_a_oips,iclass,nbas)
     use m_ftox
     use m_struc_def
     use m_lattic,only: lat_plat,rv_a_opos!,lat_dist
@@ -198,7 +198,7 @@ contains
     !u   31 May 00 revised meaning of mode
     ! ----------------------------------------------------------------------
     implicit none
-    type(s_site)::ssite(*)
+!    type(s_site)::ssite(*)
     character(8) :: slabl(*),ssymgr*(*)
     integer :: mode,nsgrp,npgrp,ibas
     integer ::iwdummy ,iwdummy1(1)
