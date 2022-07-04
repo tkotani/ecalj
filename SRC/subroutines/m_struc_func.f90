@@ -75,9 +75,9 @@ contains
     master=0
     call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
     call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
-    call mpi_bcast(struc%class, 1,MPI_INTEGER , master, MPI_COMM_WORLD,ierr)
+!    call mpi_bcast(struc%class, 1,MPI_INTEGER , master, MPI_COMM_WORLD,ierr)
     call mpi_bcast(struc%spec,  1,MPI_INTEGER , master, MPI_COMM_WORLD,ierr)
-    call mpi_bcast(struc%relax,size(struc%relax),MPI_INTEGER, master, MPI_COMM_WORLD,ierr)
+!    call mpi_bcast(struc%relax,size(struc%relax),MPI_INTEGER, master, MPI_COMM_WORLD,ierr)
     if (mlog) then
        call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
        call strcop(shortname(procid),name,10,'.',ierr)

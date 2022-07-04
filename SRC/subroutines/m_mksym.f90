@@ -4,14 +4,14 @@ module m_mksym
   public :: m_mksym_init, &
        ! ibas ==> iclass=ipc(ibas),iv_a_oipc ==> ispec=ics(iclass),iv_a_oics
        rv_a_oag,   iv_a_oics, iv_a_oipc , lat_npgrp, lat_nsgrp, &
-       rv_a_osymgr,iv_a_oistab, ctrl_nclass, iclasstaf_, symops_af_,ag_af_,ngrpaf_
+       rv_a_osymgr,iv_a_oistab, ctrl_nclass, iclasstaf_, symops_af_,ag_af_,ngrpaf_,iclasst
 
   integer, allocatable,protected ::  iv_a_oics (:)
   integer,  allocatable,protected ::  iv_a_oipc(:)
   real(8) , allocatable,protected ::  rv_a_oag (:)
   real(8) , allocatable,protected ::  rv_a_osymgr (:)
   integer , allocatable,protected ::  iv_a_oistab (:)
-  integer,allocatable,protected:: iclasstaf_(:)
+  integer,allocatable,protected:: iclasstaf_(:),iclasst(:)
   real(8),allocatable,protected:: symops_af_(:,:,:), ag_af_(:,:)
   integer,protected:: lat_npgrp, lat_nsgrp, ctrl_nclass, ngrpaf_
 
@@ -80,7 +80,8 @@ contains
        if(ipr10) write(6,"(a)")
     endif
     if(procid==master) call pshpr(60)
-    call mksym(lc,slabl,strn,v_ssite,iv_a_oips)
+    allocate(iclasst(nbas))
+    call mksym(lc,slabl,strn,v_ssite,iv_a_oips,iclasst,nbas)
     if(procid==master) call poppr
     call tcx('m_mksym_init')
   end subroutine m_mksym_init
@@ -110,23 +111,23 @@ contains
           endif
        enddo
     enddo
-    if(imaster) call pshpr(60)
-    call mksym(lc,slabl,strn2,v_ssite2,iv_a_oips) !strn2 and v_ssite2 are used.
-    if(imaster) call poppr()
-    if(imaster) write(6,"(a)")' AF: mksym, generator= SYMGRP+SYMGRPAF= '//trim(strn2)
     ngrpaf_     = lat_nsgrp
     allocate(iclasstaf_(nbas),symops_af_(3,3,ngrpaf_),ag_af_(3,ngrpaf_))
+    if(imaster) call pshpr(60)
+    call mksym(lc,slabl,strn2,v_ssite2,iv_a_oips,iclasstaf_,nbas) !strn2 and v_ssite2 are used.
+    if(imaster) call poppr()
+    if(imaster) write(6,"(a)")' AF: mksym, generator= SYMGRP+SYMGRPAF= '//trim(strn2)
     call dcopy ( ngrpaf_ * 9 , rv_a_osymgr , 1 , symops_af_ , 1 )
     call dcopy ( ngrpaf_ * 3 , rv_a_oag ,    1 , ag_af_ , 1 )
     if(imaster) write(6,"(a,i3)") ' AF: ngrpaf=',ngrpaf_
-    do ib=1,nbas
-       iclasstaf_(ib)=v_ssite2(ib)%class
-    enddo
+!    do ib=1,nbas
+!       iclasstaf_(ib)=v_ssite2(ib)%class
+!    enddo
     deallocate(v_ssite2)
   end subroutine mksymaf
 
   ! SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSs
-  subroutine mksym(mode,slabl,ssymgr,ssite,iv_a_oips)
+  subroutine mksym(mode,slabl,ssymgr,ssite,iv_a_oips,iclass,nbas)
     use m_ftox
     use m_struc_def
     use m_lattic,only: lat_plat,rv_a_opos!,lat_dist
@@ -212,7 +213,7 @@ contains
     character(120) :: gens,strn(72)
     double precision :: gen(9,ngnmx),plat(3,3),qlat(3,3),xx !,dist(3,3)
     integer:: i_copy_size,i_data_size,i_spackv
-    integer:: iv_a_oips(:)
+    integer:: iv_a_oips(:),iclass(nbas)
     nbas =ctrl_nbas
     nspec=ctrl_nspec
     plat =lat_plat
@@ -295,7 +296,8 @@ contains
     call symtbl(1, nbas, iwdummy1, rv_a_opos , rv_a_osymgr, rv_a_oag, nsgrp, qlat, iv_a_oistab)
     ! ... poke ipc into ssite
     do ibas=1,nbas
-       ssite(ibas)%class = iv_a_oipc(ibas)
+       iclass(ibas)=iv_a_oipc(ibas)
+!       ssite(ibas)%class = iv_a_oipc(ibas)
     enddo
     ! --- Cleanup: poke class and symmetry info into structures ---
     ctrl_nclass=nclass

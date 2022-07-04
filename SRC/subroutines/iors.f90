@@ -250,7 +250,7 @@ contains
        allocate(orhoat(3,nbas), v1pot(nbas),v0pot(nbas))
        ibaug = 0
        do  ib = 1, nbas
-          ic=ssite(ib)%class
+          !ic=ssite(ib)%class
           is=ssite(ib)%spec !     is = -1 -> spec struc does not have these parameters
           if (is /= -1) then
              spid=slabl(is) !sspec(is)%name
@@ -497,7 +497,7 @@ contains
        enddo
        if (ipr >= 50) write(stdo,364)
        do  120  ib = 1, nbas
-          ic=ssite(ib)%class
+          !ic=ssite(ib)%class
           is=ssite(ib)%spec
           spid=slabl(is) !sspec(is)%name
           a=sspec(is)%a

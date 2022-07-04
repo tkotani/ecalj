@@ -6,7 +6,7 @@ module m_relax
 contains
   subroutine relax(ssite,it,indrlx,natrlx,force, p,w,nelts,delta,basin,bas,icom)
     use m_struc_def
-    use m_lmfinit,only:ctrl_nbas,ctrl_nitmv,ctrl_mdprm,slabl
+    use m_lmfinit,only:ctrl_nbas,ctrl_nitmv,ctrl_mdprm,slabl,ifrlx
     use m_ext,only:     sname
     use m_gradzr,only :Gradzr
     !- Relax atomic positions and volume using variable metric algorithm
@@ -53,7 +53,7 @@ contains
     integer :: indrlx(2,natrlx)
     real(8):: force(3,*), w(natrlx,natrlx) , p(natrlx,6) , delta(nelts,*), bas(:,:),basin(:,:)
     type(s_site)::ssite(*)
-    integer :: i,j,ipr,ifi,ix,lgunit,nbas,ltb,ifrlx(3),natrlx2,natrlx3, &
+    integer :: i,j,ipr,ifi,ix,lgunit,nbas,ltb,natrlx2,natrlx3, &
          ir,iprint,isw,rdm,lrlx,is,idamax,nd,ns,nkill
     parameter (nd=4,ns=6)
     logical :: rdhess,lpp,cmdopt,a2bin,lshr ,readhess
@@ -224,19 +224,19 @@ contains
        do  70  j = 1, nbas
           is=ssite(j)%spec
           clablj=slabl(is) !sspec(is)%name
-          ifrlx=ssite(j)%relax
-          write (stdo,130) j,clablj,(bas(ix,j),ifrlx(ix).eq.1,ix=1,3)
+!          ifrlx=ssite(j)%relax
+          write (stdo,130) j,clablj,(bas(ix,j),ifrlx(ix,j).eq.1,ix=1,3)
 70     enddo
     endif
     ! ... Write new atom positions to LOG file, for use in CTRL file
     if (ipr >= 20 .AND. .NOT. lshr) then
        dumstr = 'SITE'
        do  80  j = 1, nbas
-          ifrlx=ssite(j)%relax
+!          ifrlx=ssite(j)%relax
           if (j == 2) dumstr = ' '
           is=ssite(j)%spec
           clablj=slabl(is) 
-          write(stdl,ftox)dumstr//'ATOM='//clablj,' POS=',ftof(bas(1:3,j),2),'RELAX=',ifrlx
+          write(stdl,ftox)dumstr//'ATOM='//clablj,' POS=',ftof(bas(1:3,j),2),'RELAX=',ifrlx(:,j)
 80     enddo
     endif
     if (icom == 0 .AND. wkg(28) < 0) icom = -1

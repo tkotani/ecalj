@@ -61,7 +61,7 @@ module m_lmfinit
   !! ... SITE
   character(8),protected:: alabl
   real(8),allocatable,protected :: pos(:,:)!,vel(:,:)!,vshft(:)
-  integer,allocatable,protected :: ips(:),irlx(:,:),ndelta(:) !,ipl(:),plv(:)
+  integer,allocatable,protected :: ips(:),ifrlx(:,:),ndelta(:) !,ipl(:),plv(:)
   real(8),allocatable,protected :: delta(:,:),mpole(:),dpole(:,:)
   integer,allocatable,protected ::iantiferro(:) !reserved
   !! ... BZ
@@ -844,8 +844,8 @@ contains
               'token ATOM apply to one site.'/3x,'Alternatively, all ', &
               'site data can be read in via the SITE file.')
       endif
-      allocate(pos(3,nbas),ips(nbas),irlx(3,nbas),iantiferro(nbas))
-      irlx = 0
+      allocate(pos(3,nbas),ips(nbas),ifrlx(3,nbas),iantiferro(nbas))
+      ifrlx = 0
       ips  = NULLI
       pos  = NULLR
       ! ITE_ATOM_*
@@ -878,7 +878,7 @@ contains
             xvv=pos(:,j)
             pos(:,j)= matmul(plat,xvv) 
          endif
-         nm='SITE_ATOM_RELAX'; call gtv(trim(nm),tksw(prgnam,nm),irlx(:,j), &
+         nm='SITE_ATOM_RELAX'; call gtv(trim(nm),tksw(prgnam,nm),ifrlx(:,j), &
               def_i4v=(/(1,i=1,n0)/),cindx=jj,note= &
               'relax site positions (lattice dynamics) or Euler angles (spin dynamics)')
          nm='SITE_ATOM_AF'; call gtv(trim(nm),tksw(prgnam,nm),iantiferro(j), cindx=jj,def_i4=0, &
@@ -1147,10 +1147,10 @@ contains
          !v_ssite(j)%pnu(1:n0,1:nsp)= pnusp(1:n0,1:nsp,is)
          !v_ssite(j)%pz(1:n0,1:nsp)=  pzsp(1:n0,1:nsp,is) 
          v_ssite(j)%spec =ips(j)  ! atomic species
-         v_ssite(j)%class=ips(j)  ! atomic class  
-         v_ssite(j)%relax=irlx(:,j) !DYN relaxiation directions.
+         !v_ssite(j)%class=ips(j)  ! atomic class ==>given at m_mksym
+!         v_ssite(j)%relax=ifrlx(:,j) !DYN relaxiation directions.
          v_ssite(j)%iantiferro=iantiferro(j) !antiferro pair condition
-         is=v_ssite(j)%spec
+!         is=v_ssite(j)%spec
       enddo
       sstrnmix=trim(iter_mix)
 
@@ -1293,7 +1293,7 @@ contains
       call suldau(nbas,v_sspec,v_ssite,nlibu,k,wowk)!Count LDA+U blocks (printout only)
       ham_nlibu=nlibu
       call poppr
-      deallocate(wowk,amom, qpol,stni,rg,rfoca,rham,idxdn, rmt,  lfoca,lmxl, spec_a,z,nr,rsmv, ips,irlx) 
+      deallocate(wowk,amom, qpol,stni,rg,rfoca,rham,idxdn, rmt,  lfoca,lmxl, spec_a,z,nr,rsmv, ips)!,ifrlx) 
       !! --- takao embed contents in susite here. This is only for lmf and lmfgw.
       allocate(iv_a_oips(nbas),source=[(v_ssite(ib)%spec, ib=1,nbas)])
       seref= sum([(eref(v_ssite(ib)%spec),ib=1,nbas)])
@@ -1421,7 +1421,7 @@ contains
       if( nitrlx>0 ) then       !nitrlx >0 is for atomic position relaxiation
          allocate(indrx_iv(2,3*nbas))
          rlxx: block
-           integer:: i,j,k,ifrlx(3),lrlx,iprint
+           integer:: i,j,k,lrlx,iprint !,ifrlx(3)
            logical:: force,mdxx
            force = ctrl_lfrce>0
            if ( .NOT. force .OR. nint(mdprm(1)) == 0) goto 9299
@@ -1433,9 +1433,9 @@ contains
               goto 9299
            elseif (force) then
               do  i = 1, nbas
-                 ifrlx=v_ssite(i)%relax
+                 !ifrlx=v_ssite(i)%relax
                  do  k = 1, 3
-                    if (ifrlx(k) == 1) then
+                    if (ifrlx(k,i) == 1) then
                        j = j + 1
                        indrx_iv(1,j) = k
                        indrx_iv(2,j) = i

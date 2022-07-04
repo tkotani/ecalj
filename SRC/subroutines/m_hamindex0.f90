@@ -9,9 +9,9 @@ module m_hamindex0
   integer,protected,public:: nqi=NaN, nqnum=NaN, ngrp=NaN, lxx=NaN, kxx=NaN,norbmto=NaN, &
        nqtt=NaN, ndimham=NaN, napwmx=NaN, lxxa=NaN, ngpmx=NaN, imx=NaN,nbas=NaN
   integer,allocatable,protected,public:: iclasstaf(:), offH (:), &
-       ltab(:),ktab(:),offl(:),ispec(:), iclasst(:),offlrev(:,:,:),ibastab(:), &
+       ltab(:),ktab(:),offl(:),ispec(:),offlrev(:,:,:),ibastab(:), &
        iqimap(:),iqmap(:),igmap(:),invgx(:),miat(:,:),ibasindex(:), &
-       igv2(:,:,:),napwk(:),igv2rev(:,:,:,:)
+       igv2(:,:,:),napwk(:),igv2rev(:,:,:,:),iclasst(:)
   real(8),allocatable,protected,public:: symops_af(:,:,:), ag_af(:,:), &
        symops(:,:,:),ag(:,:),tiat(:,:,:),shtvg(:,:), dlmm(:,:,:,:),qq(:,:), &
        qtt(:,:),qtti(:,:)
@@ -30,7 +30,7 @@ module m_hamindex0
 contains
   ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine m_hamindex0_init()
-    use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp, iclasstaf_,symops_af_,ag_af_,ngrpaf_
+    use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp, iclasstaf_,symops_af_,ag_af_,ngrpaf_,iclasstin=>iclasst
     use m_shortn3,only: shortn3_initialize,shortn3
     use m_MPItk,only: master_mpi
     use m_density,only: pnzall,pnuall
@@ -75,16 +75,16 @@ contains
     allocate(symops(3,3,ngrp),ag(3,ngrp))
     call dcopy ( ngrp * 9 , rv_a_osymgr , 1 , symops , 1 )
     call dcopy ( ngrp * 3 , rv_a_oag , 1 , ag , 1 )
-    allocate(iclasst(nbas),invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp), &
+    allocate(invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp), & !iclasst(nbas),
          shtvg(3,ngrp),spid(nbas),lmxa(nbas))
     do ib=1,nbas
        is=ssite(ib)%spec
-       iclasst(ib)=ssite(ib)%class
+!       iclasst(ib)=ssite(ib)%class
        spid(ib) =slabl(is) !sspec(is)%name
        lmxa(ib) =sspec(is)%lmxa !we assume lmxa>-1
     enddo
     !! get space group information ---- translation informations also in miat tiat invgx, shtvg
-    call mptauof( symops, ngrp,plat,nbas,rv_a_opos, iclasst,miat,tiat,invgx,shtvg )
+    call mptauof( symops, ngrp,plat,nbas,rv_a_opos, iclasstin,miat,tiat,invgx,shtvg )
     ndima = 0
     norb=0
     do  ib = 1, nbas
@@ -149,12 +149,12 @@ contains
     if(norb/=iorb) call rx('m_hamindex0:norb/=iorb')
     alat=lat_alat
     npqn=3
-    nclass=maxval(iclasst)
+    nclass=maxval(iclasstin)
     call wkonfchk(alat,plat,nbas,lmxax,lmxa,nsp,konft)
     open(newunit=ifi,file='HAMindex0',form='unformatted')
     write(ifi) alat,plat,qlat,nbas,lmxax,nsp,ngrp,ndima,norb,npqn,nclass,nphimx
     write(ifi) konft(0:lmxax,1:nbas,1:nsp),lmxa(1:nbas),nlindx(1:npqn,0:lmxax,1:nbas)
-    write(ifi) iclasst(1:nbas),spid(1:nbas)
+    write(ifi) iclasstin(1:nbas),spid(1:nbas)
     write(ifi)  nindx(1:ndima),lindx(1:ndima),ibasindx(1:ndima),caption(1:ndima)
     write(ifi) symops(1:3,1:3,1:ngrp),invgx(1:ngrp),shtvg(1:3,1:ngrp)
     close(ifi)

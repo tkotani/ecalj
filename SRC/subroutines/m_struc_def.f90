@@ -61,8 +61,8 @@ module m_struc_def
   type s_site !given at m_lmfinit
      integer :: iantiferro ! antiferro pair index
      integer ::   spec     ! species index
-     integer ::   class    ! class index
-     integer ::   relax(3) ! for dynamics, relaxation direction switch
+!     integer ::   class    ! class index
+!     integer ::   relax(3) ! for dynamics, relaxation direction switch
   end type s_site
 end module m_struc_def
 

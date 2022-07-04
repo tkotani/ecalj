@@ -1,5 +1,5 @@
 subroutine rlxstp(natrlx,indrx_iv,xyzfrz,pdim)
-  use m_lmfinit,only:  ctrl_nbas,ctrl_nitmv,ctrl_mdprm,ctrl_defm,ctrl_lfrce,ssite=>v_ssite
+  use m_lmfinit,only:  ctrl_nbas,ctrl_nitmv,ctrl_mdprm,ctrl_defm,ctrl_lfrce,ssite=>v_ssite,ifrlx
   !- Set up variables for relaxation
   ! ----------------------------------------------------------------------
   !i Inputs:
@@ -22,7 +22,7 @@ subroutine rlxstp(natrlx,indrx_iv,xyzfrz,pdim)
   logical :: xyzfrz(3)
   integer :: indrx_iv(2,*),nvar,natrlx,nitrlx,pdim
   double precision :: mdprm(6),defm(6)
-  integer :: nbas,i,j,k,iprint,i1mach,ifrlx(3),igets,lrlx !,ltb
+  integer :: nbas,i,j,k,iprint,i1mach,igets,lrlx !,ltb
   logical :: force,mdxx
   nbas  = ctrl_nbas
   nitrlx= ctrl_nitmv
@@ -46,9 +46,9 @@ subroutine rlxstp(natrlx,indrx_iv,xyzfrz,pdim)
      enddo
   elseif (force) then
      do  i = 1, nbas
-        call icopy(size(ssite(i)%relax),ssite(i)%relax,1,ifrlx,1)
+        !call icopy(size(ssite(i)%relax),ssite(i)%relax,1,ifrlx,1)
         do  k = 1, 3
-           if (ifrlx(k) == 1) then
+           if (ifrlx(k,i) == 1) then
               j = j + 1
               indrx_iv(1,j) = k
               indrx_iv(2,j) = i

@@ -13,7 +13,7 @@ module m_hamindex
   integer,protected,public:: nqi=NaN, nqnum=NaN, ngrp=NaN, lxx=NaN, kxx=NaN,norbmto=NaN, &
        nqtt=NaN, ndimham=NaN, napwmx=NaN, lxxa=NaN, ngpmx=NaN, imx=NaN,nbas=NaN
   integer,allocatable,protected,public:: iclasstaf(:), offH (:), &
-       ltab(:),ktab(:),offl(:),ispec(:), iclasst(:),offlrev(:,:,:),ibastab(:), &
+       ltab(:),ktab(:),offl(:),ispec(:), offlrev(:,:,:),ibastab(:), & !iclasst(:),
        iqimap(:),iqmap(:),igmap(:),invgx(:),miat(:,:),ibasindex(:), &
        igv2(:,:,:),napwk(:),igv2rev(:,:,:,:)
   real(8),allocatable,protected,public:: symops_af(:,:,:), ag_af(:,:), &
@@ -25,7 +25,7 @@ module m_hamindex
 contains
   ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine m_hamindex_init(jobgw)
-    use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp, iclasstaf_,symops_af_,ag_af_,ngrpaf_
+    use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp, iclasstaf_,symops_af_,ag_af_,ngrpaf_,iclasst
     use m_struc_def
     use m_MPItk,only: master_mpi
     !!-- Set up m_hamiltonian. Index for Hamiltonian. --
@@ -70,10 +70,10 @@ contains
     allocate(symops(3,3,ngrp),ag(3,ngrp))
     call dcopy ( ngrp * 9 , rv_a_osymgr , 1 , symops , 1 )
     call dcopy ( ngrp * 3 , rv_a_oag , 1 , ag , 1 )
-    allocate(iclasst(nbas),invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp))
-    do ib=1,nbas
-       iclasst(ib)=ssite(ib)%class
-    enddo
+    allocate(invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp)) !iclasst(nbas),
+!    do ib=1,nbas
+!       iclasst(ib)=ssite(ib)%class
+!    enddo
     !! get space group information ---- translation informations also in miat tiat invgx, shtvg
     call mptauof(symops, ngrp , plat , nbas , rv_a_opos, iclasst, miat , tiat , invgx , shtvg )
     norbmto=0

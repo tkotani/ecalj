@@ -139,7 +139,7 @@ subroutine mshvmt(nbas,ssite,sspec,ng,gv, kv,cv,k1,k2,k3,smpot,vval)
 end subroutine mshvmt
 
 subroutine symvvl(nbas,ssite,sspec,vval,vrmt)
-  use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp
+  use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp,ipc=>iclasst
   use m_struc_def
   use m_lattic,only:lat_plat,rv_a_opos
   use m_lgunit,only:stdo
@@ -176,7 +176,7 @@ subroutine symvvl(nbas,ssite,sspec,vval,vrmt)
   type(s_site)::ssite(*)
   type(s_spec)::sspec(*)
   integer :: ic,ib,ilm,mxint,nclass,ipa(nbas),nrclas,iv0
-  integer :: ipc(nbas),ips(nbas),lmxl(nbas)
+  integer :: ips(nbas),lmxl(nbas) !ipc(nbas),
   double precision :: pos(3,nbas),posc(3,nbas),plat(3,3),pi,y0
   integer:: igetss , nlml ,ipr , jpr , ngrp , nn , iclbas,ibas
   real(8) ,allocatable :: qwk_rv(:)
@@ -186,7 +186,7 @@ subroutine symvvl(nbas,ssite,sspec,vval,vrmt)
   plat=lat_plat
   ngrp=lat_nsgrp
   do ibas=1,nbas
-     ipc(ibas)  = ssite(ibas)%class
+!     ipc(ibas)  = ssite(ibas)%class
      ips(ibas)  = ssite(ibas)%spec
      pos(:,ibas)= rv_a_opos(:,ibas) !ssite(i_spackv)%pos
   enddo

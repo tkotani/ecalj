@@ -53,7 +53,7 @@ end subroutine symrhoat
 
 subroutine symrat( ssite, sspec, nbas, nsp, lf, sv_p_orhoat , qbyl , hbyl , f )
   use m_struc_def
-  use m_mksym,only: iv_a_oistab , rv_a_osymgr, rv_a_oag,lat_nsgrp
+  use m_mksym,only: iv_a_oistab , rv_a_osymgr, rv_a_oag,lat_nsgrp,ipc_iv=>iclasst
   use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
   use m_lgunit,only:stdo
   !     - Symmetrize the atomic charge densities and the forces.
@@ -100,7 +100,7 @@ subroutine symrat( ssite, sspec, nbas, nsp, lf, sv_p_orhoat , qbyl , hbyl , f )
        , lmxl , nclass , ngrp , nlml , nlmx , nr , nrclas , igetss , &
        mxint , ival,ibas
   integer ,allocatable :: ipa_iv(:)
-  integer ,allocatable :: ipc_iv(:)
+!  integer ,allocatable :: ipc_iv(:)
   integer ,allocatable :: ips_iv(:)
   real(8) ,allocatable :: pos_rv(:)
   real(8) ,allocatable :: pos0_rv(:,:)
@@ -113,10 +113,10 @@ subroutine symrat( ssite, sspec, nbas, nsp, lf, sv_p_orhoat , qbyl , hbyl , f )
   qlat=lat_qlat
   ngrp=lat_nsgrp
   allocate(ips_iv(nbas))
-  allocate(ipc_iv(nbas))
+!  allocate(ipc_iv(nbas))
   allocate(pos0_rv(3,nbas))
   do ibas=1,nbas
-     ipc_iv(ibas)= ssite(ibas)%class
+!     ipc_iv(ibas)= ssite(ibas)%class
      pos0_rv(:,ibas)= rv_a_opos(:,ibas) !ssite(i_spackv)%pos
   enddo
   nclass = mxint ( nbas , ipc_iv )
@@ -160,7 +160,7 @@ subroutine symrat( ssite, sspec, nbas, nsp, lf, sv_p_orhoat , qbyl , hbyl , f )
   if (allocated(pos_rv)) deallocate(pos_rv)
   if (allocated(ipa_iv)) deallocate(ipa_iv)
   if (allocated(pos0_rv)) deallocate(pos0_rv)
-  if (allocated(ipc_iv)) deallocate(ipc_iv)
+!  if (allocated(ipc_iv)) deallocate(ipc_iv)
   if (allocated(ips_iv)) deallocate(ips_iv)
   call tcx('symrat')
 end subroutine symrat
