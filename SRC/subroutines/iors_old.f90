@@ -379,13 +379,11 @@ contains
           call mpibc1_real(a0,1,'iors_a0')
           call mpibc1_real(qc,1,'iors_qc')
           if (is == -1 ) call rx('iors: need check for is==-1')
+          ql=0d0
           pnu=>pnuall(:,:,ib)
           pnz=>pnzall(:,:,ib)
-          pnu=0d0
-          pnz=0d0
-          ql=0d0
-          pnu=ssite(ib)%pnu(:,1:nsp)
-          pnz=ssite(ib)%pz(:,1:nsp)
+          !pnu=ssite(ib)%pnu(:,1:nsp)
+          !pnz=ssite(ib)%pz(:,1:nsp)
           idmod=0
           idmoz=0
           if (procid == master) then
@@ -416,8 +414,8 @@ contains
           !          pnus =sspec(is)%p
           !          pnzs =sspec(is)%pz
 !          if  (irs5 == 0 ) then
-             ssite(ib)%pnu(:,1:nsp)=pnu(:,1:nsp)
-             ssite(ib)%pz(:,1:nsp)=pnz(:,1:nsp)
+             !ssite(ib)%pnu(:,1:nsp)=pnu(:,1:nsp)
+             !ssite(ib)%pz(:,1:nsp)=pnz(:,1:nsp)
              pnuall(:,1:nsp,ib)=pnu(:,1:nsp)
              pnzall(:,1:nsp,ib)=pnz(:,1:nsp)
              !$$$C     ... Verify lowest valence pnu compatible with file
@@ -687,8 +685,8 @@ contains
           kmax=sspec(is)%kmxt
           pnu=>pnuall(:,:,ib)
           pnz=>pnzall(:,:,ib)
-          pnu=ssite(ib)%pnu(:,1:nsp)
-          pnz=ssite(ib)%pz(:,1:nsp)
+          !pnu=ssite(ib)%pnu(:,1:nsp)
+          !pnz=ssite(ib)%pz(:,1:nsp)
           if (lmxa == -1) goto 120
           write(jfi) is,spid,lmxa,lmxl,nr,rmt,a,z,qc
           !     ... Some extra info... lots of it useless or obsolete
