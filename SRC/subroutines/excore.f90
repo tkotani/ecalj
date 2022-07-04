@@ -722,10 +722,7 @@ end subroutine intn_smp_g
 ! ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 real(8) function igan(i)
   integer:: i,ix
-  igan  = 1d0
-  do ix =1,i
-     igan=igan*ix
-  enddo
+  igan= product([(ix,ix=1,i)])
 END function igan
 
 

@@ -3,15 +3,13 @@ module m_lmfinit
   use m_struc_def,only: s_spec,s_site ! spec and site structures.
   use m_MPItk,only: master_mpi
   use m_lgunit,only: stdo,stdl
-  use m_density,only: pnuall,pnzall
+  use m_density,only: pnuall,pnzall !these are set here! log-derivative of radial functions.
   implicit none
-  !! All data set to run lmfp.F rdctrl2 read ctrl file and set these data
-  !! rdctrls made from three stages. Search the word 'Stage' in the followings.
+  !! All data set to run lmfp.F
+  !! m_lmfinit_init have three stages. Search the word 'Block' in the followings.
   !! At the bottom of this code, I put old document for variables such as ctrl_*, ham_* and so on (search 'old doc')
-  !! We can believe the old document not completely, however, it may be a help to read the code.
-  !! We have to move data to the modules where data is generated.
-  !   ! We will have to reorganize redundant data. In addition, we need to protect all variables given in this module.
-
+  !! The old document may/maynot be a help to read the code.
+  !! >lmf-MPIK --help show useful help.
   !i   alat  :length scale of lattice and basis vectors, a.u.
   !i   ng    :number of G-vectors
   !i   gv    :list of reciprocal lattice vectors G (gvlist.f)
@@ -25,9 +23,8 @@ module m_lmfinit
   integer,parameter::  NULLI=-99999,nkap0=3,mxspec=256,lstrn=10000
   integer,parameter::  n0=10,nppn=12, nab=9, nrmx=1501,nlmx=64 ,n00=n0*nkap0
   real(8),parameter::  NULLR =-99999, fs = 20.67098d0, degK = 6.3333d-6 ! defaults for MD
-  real(8),parameter:: fpi  = 16d0*datan(1d0), y0 = 1d0/dsqrt(fpi)
-  real(8),parameter:: pi = 4d0*datan(1d0), srfpi = dsqrt(4d0*pi)
-
+  real(8),parameter::  fpi  = 16d0*datan(1d0), y0 = 1d0/dsqrt(fpi)
+  real(8),parameter::  pi = 4d0*datan(1d0), srfpi = dsqrt(4d0*pi)
   integer,protected::  io_show,io_help=0,nvario=0, lat_nkqmx,nat,lxcf !,irs4
   integer(2),protected:: nono
   character(lstrn),protected:: sstrnmix,sstrnsymg
@@ -35,8 +32,7 @@ module m_lmfinit
   logical,protected :: ham_frzwf,ham_ewald
   integer,protected:: nspc,procid,nproc,master=0,nspx,& ! & ,stdo,stdl
        ctrl_lxcf,ctrl_nbas,ctrl_lrel, maxit ,ctrl_nl,ctrl_nitmv,ctrl_nspin, &
-       ctrl_nspec,ctrl_nvario,ctrl_pfloat &
-       ,ham_lxcf,gga,ftmesh(3),nmto=0,lrsigx=0 &
+       ctrl_nspec,ctrl_nvario,ctrl_pfloat,ham_lxcf,gga,ftmesh(3),nmto=0,lrsigx=0 &
        ,nsp=1,lrel=1,lso=0
   real(8),protected:: pmin(n0),pmax(n0),ham_pmax(10),ham_pmin(10), &
        ctrl_defm(6), ctrl_wsrmax,ctrl_rmaxes, &
@@ -47,30 +43,20 @@ module m_lmfinit
   real(8),protected:: rmines,rmaxes,   cc !speed of light
   logical,protected :: lhf,lcd4
   !! ... STRUC
-  real(8),protected:: dlat,alat=NULLR,dalat=NULLR,vol,avw !lat_slat(3,3),
+  real(8),protected:: dlat,alat=NULLR,dalat=NULLR,vol,avw 
   integer,protected:: nbas=NULLI,nspec
   !! ... SPEC
   real(8),protected:: omax1(3),omax2(3),wsrmax,sclwsr,vmtz(mxspec)=-.5d0
   character*8,allocatable,protected:: slabl(:)
   integer,protected:: lmxbx=-1,lmxax,nkaph,nkapi
   logical,allocatable,protected:: mxcst2(:),mxcst4(:)
-  integer,allocatable,protected:: &
-       lmxb(:),lmxa(:),idmod(:,:),idu(:,:),kmxt(:),lfoca(:),lmxl(:),nr(:),& !,kmxv(:)
+  integer,allocatable,protected:: lmxb(:),lmxa(:),idmod(:,:),idu(:,:),kmxt(:),lfoca(:),lmxl(:),nr(:),& 
        nmcore(:), nkapii(:),nkaphh(:)
   real(8),allocatable,protected:: rsmh1(:,:),rsmh2(:,:),eh1(:,:),eh2(:,:), &
        rs3(:),rham(:),alpha(:,:),ehvl(:,:), uh(:,:),jh(:,:), eh3(:),&
-       qpol(:,:),stni(:), &
-       pnusp(:,:,:),qnu(:,:,:),      pnuspdefault(:,:),qnudefault(:,:),qnudummy(:,:), &
-       coreq(:,:), rg(:),rsma(:),rfoca(:),rcfa(:,:), &
-       rmt(:),pzsp(:,:,:), &
-       amom(:,:),spec_a(:),z(:),eref(:),rsmv(:)
-
-!!!!!!!!!!!!!!!!!!!
+       qpol(:,:),stni(:), pnusp(:,:,:),qnu(:,:,:),     pnuspdefault(:,:),qnudefault(:,:),qnudummy(:,:), &
+       coreq(:,:), rg(:),rsma(:),rfoca(:),rcfa(:,:), rmt(:),pzsp(:,:,:), amom(:,:),spec_a(:),z(:),eref(:),rsmv(:)
 !  real(8),allocatable:: rsmfa(:)
-
-
-
-  
   character*(8),allocatable,protected:: coreh(:)
   !! ... SITE
   character(8),protected:: alabl
@@ -92,68 +78,54 @@ module m_lmfinit
   integer,protected:: str_mxnbr
   !! ... Iteration, MIX
   character(128),protected :: iter_mix=' '
-  real(8),protected:: etol,qtol !ctrl_tol(3)=1d-4
+  real(8),protected:: etol,qtol 
   integer,protected:: iter_maxit=1
   integer,protected:: mix_kill,mix_lxpot,mix_mmix,mix_mode,mix_nmix,mix_nsave !mix_nitu,
   real(8),protected:: mix_b,mix_bv,mix_tolu,mix_umix,mix_w(3),mix_wc !,mix_elind
   character(8),protected:: mix_fn
-  !! DYN
-  real(8),protected:: mdprm(6)
-  integer,protected:: nitmv
   !!
   integer,protected:: pwmode,ncutovl ,ndimx    !ncutovl is by takao. not in lm-7.0beta.npwpad,
   real(8),protected:: pwemax,pwemin,oveps!,delta_stabilize
   integer,allocatable,protected ::  iv_a_oips (:)   ,  lpz(:),lpzex(:),lhh(:,:)
-  !! CG coefficient
-  real(8) , allocatable,protected  ::  rv_a_ocg (:)
-  real(8) , allocatable,protected  ::  rv_a_ocy (:)
-  integer, allocatable,protected  ::  iv_a_oidxcg (:)
-  integer, allocatable,protected  ::  iv_a_ojcg (:)
+  !! ClebshGordon coefficient (GW part use clebsh_t)
+  real(8) , allocatable,protected :: rv_a_ocg (:), rv_a_ocy (:)
+  integer, allocatable,protected  :: iv_a_oidxcg(:), iv_a_ojcg (:)
   !!
-  integer,protected:: ham_pwmode,ham_nkaph,ham_nlibu, &
-       ctrl_noinv,nlmax,mxorb,ctrl_lfrce,bz_nevmx, &
-       ham_nbf,ham_lsig,bz_nabcin(3)=NULLI, &
-       bz_ndos              !bndfp
-  !     &     lat_ldist=0
-  !      logical,protected:: irs1x10!,irsrot !(irsrot is not tested)
+  integer,protected:: ham_pwmode,ham_nkaph,ham_nlibu, ctrl_noinv,nlmax,mxorb,ctrl_lfrce
+  integer,protected:: bz_nevmx, ham_nbf,ham_lsig,bz_nabcin(3)=NULLI, bz_ndos
   real(8),protected:: ham_seref, bz_w,lat_platin(3,3),lat_alat,lat_avw,lat_tolft,lat_gmaxin
-  real(8),protected:: &
-       lat_gam(1:4)=[0d0,0d0,1d0,1d0], ctrl_mdprm(6)
-  integer,protected:: lekkl!,lcplxp !now we fix lcplxp=1 and removed from m_lmfinit
+  real(8),protected:: lat_gam(1:4)=[0d0,0d0,1d0,1d0], ctrl_mdprm(6)
+  integer,protected:: lekkl  ! we fix lcplxp=1 now
   integer,protected:: lmaxu,nlibu
   integer,allocatable,protected::lldau(:)
   logical,protected:: lpztail=.false.
-  integer,protected:: leks,lrout,plbnd,  pot_nlma,  pot_nlml,ham_nspx !,ham_ldham(16)
-  !      integer,protected,target::ldham(16)
-  integer,protected:: nlmto !total number of MTOs
-
-  !! For SOC
-  real(8),protected:: socaxis(3)
-
+  integer,protected:: leks,lrout,plbnd,  pot_nlma,  pot_nlml,ham_nspx 
+  integer,protected:: nlmto !total number of MTOs 
+  real(8),protected:: socaxis(3) !SOC
   integer,protected:: nitrlx,natrlx,pdim
   logical,protected:: xyzfrz(3)
   integer,allocatable:: indrx_iv(:,:)
   real(8),protected:: defm(6)
-
-  !! sspec and ssite are unprotected (be careful)
+  !! sspec and ssite are unprotected, but there are changed only by iors/rdovfa (see lmfp.f90)
   type(s_spec),allocatable:: v_sspec(:) !(nspec: number of species in the cell)
   type(s_site),allocatable:: v_ssite(:) !(nbas: number of atoms)
-
   integer,allocatable,public,target:: ltabx(:,:),ktabx(:,:),offlx(:,:),ndimxx(:),norbx(:)
-
   integer,allocatable,public,protected:: jma(:),jnlml(:)
+  !! DYN
+  real(8),protected:: mdprm(6)
+  integer,protected:: nitmv
   !! ... molecular dynamics section DYN (only relaxiation now 2022-6-22)
-  !   structure of mdprm:
+  !   search mdprm. structure of mdprm: we now support only relaxation mode
   !   arg 1: 0 no relaxation or dynamics
   !          4 relax with conjugate gradients
   !          5 relax with variable metric
   !          6 relax with Broyden
   !   arg 2: statics: switch
   !          1 read hessian matrix
-  !   arg 3: (stat) relaxation x-tolerance
-  !   arg 4: (stat) relaxation g-tolerance
-  !   arg 5: (stat) step length
-  !   arg 6: (stat) Remove hessian after this many steps
+  !   arg 3: relaxation x-tolerance
+  !   arg 4: relaxation g-tolerance
+  !   arg 5: step length
+  !   arg 6: Remove hessian after this many steps
 contains
   subroutine m_lmfinit_init(prgnam)
     use m_rdfiln,only: recln,nrecs,recrd
@@ -1155,8 +1127,6 @@ contains
          v_sspec(j)%z=z(j)
          v_sspec(j)%a=spec_a(j)
          v_sspec(j)%nr=nr(j)
-!         v_sspec(j)%nxi=nxi(j)
-!         v_sspec(j)%exi=exi(:,j)
          v_sspec(j)%kmxt=kmxt(j)
          v_sspec(j)%lfoca=lfoca(j) !lfoca=1,usually (frozen core)
          v_sspec(j)%rsmv= rmt(j)*.5d0 !rsmv(j)
@@ -1166,6 +1136,8 @@ contains
          v_sspec(j)%rfoca=rfoca(j)
          v_sspec(j)%rg=rg(j)
          v_sspec(j)%rmt=rmt(j)
+!         v_sspec(j)%nxi=nxi(j)
+!         v_sspec(j)%exi=exi(:,j)
 !         v_sspec(j)%rsma=rsma(j)
 !         v_sspec(j)%rsmfa=rsmfa(j)
       enddo
