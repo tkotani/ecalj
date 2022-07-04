@@ -12,7 +12,7 @@ contains
     use m_bndfp,only: m_bndfp_ef_SET,eferm
 
     use m_supot,only: lat_nabc
-    use m_struc_func,only: mpibc1_s_spec,mpibc1_s_site
+    use m_struc_func,only: mpibc1_s_spec!,mpibc1_s_site
     use m_lmfinit,only: lat_alat,nsp,lrel,nl,ssite=>v_ssite,sspec=>v_sspec, nbas,nat,nspec,n0,idmodis=>idmod,slabl,&
          rsma
     use m_lattic,only: lat_plat
@@ -610,9 +610,9 @@ contains
           endif
 40        continue
        enddo
-       do i_site=1,nbas
-          call mpibc1_s_site(ssite(i_site),'iors_ssite')
-       enddo
+!       do i_site=1,nbas
+!          call mpibc1_s_site(ssite(i_site),'iors_ssite')
+!       enddo
        do i_spec=1,nspec
           call mpibc1_s_spec(sspec(i_spec),'iors_sspec')
        enddo

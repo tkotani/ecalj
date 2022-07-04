@@ -238,7 +238,7 @@ subroutine rdovfa()
   call ovlocr ( nbas , ssite , sspec ,  n0 , nxi , exi ,&
        hfc , rsmfa , rv_a_orhofa , sv_p_orhoat , sqloc , slmom )
   ! --- Add compensating uniform electron density to compensate background
-  call adbkql ( sv_p_orhoat , nbas , nsp , qbg , vol , - 1d0 , sspec , ssite )
+  call adbkql ( sv_p_orhoat , nbas , nsp , qbg , vol , - 1d0 )!, sspec )!, ssite )
   if (abs(qbg)/=0d0.and. ipr>=10) write(stdo,ftox) ' Uniform '// &
        'density added to neutralize background q=',ftof(qbg)
   dq = sum1+sqloc+ctot-ztot+qbg !charge

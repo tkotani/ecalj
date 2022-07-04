@@ -46,6 +46,7 @@ module m_lmfinit
   real(8),protected:: dlat,alat=NULLR,dalat=NULLR,vol,avw 
   integer,protected:: nbas=NULLI,nspec
   !! ... SPEC
+!  integer,allocatable:: specie(:)
   real(8),protected:: omax1(3),omax2(3),wsrmax,sclwsr,vmtz(mxspec)=-.5d0
   character*8,allocatable,protected:: slabl(:)
   integer,protected:: lmxbx=-1,lmxax,nkaph,nkapi
@@ -1123,7 +1124,7 @@ contains
       eh3=-.5d0
       rs3=.5d0
       allocate(v_sspec(nspec))
-      do j=1,nspec
+      do j=1,nspec !additional data supplied from rdovfa.f90 and iors.f90
          v_sspec(j)%z=z(j)
          v_sspec(j)%a=spec_a(j)
          v_sspec(j)%nr=nr(j)
@@ -1136,22 +1137,12 @@ contains
          v_sspec(j)%rfoca=rfoca(j)
          v_sspec(j)%rg=rg(j)
          v_sspec(j)%rmt=rmt(j)
-!         v_sspec(j)%nxi=nxi(j)
-!         v_sspec(j)%exi=exi(:,j)
-!         v_sspec(j)%rsma=rsma(j)
-!         v_sspec(j)%rsmfa=rsmfa(j)
       enddo
-      allocate(v_ssite(nbas))
+      allocate(v_ssite(nbas)) !,specie(nbas))
       do j=1,nbas
-         !v_ssite(j)%pos=pos(1:3,j) !atomic position. See poss in lmfp.F 
-         !v_ssite(j)%pnu(1:n0,1:nsp)= pnusp(1:n0,1:nsp,is)
-         !v_ssite(j)%pz(1:n0,1:nsp)=  pzsp(1:n0,1:nsp,is) 
          v_ssite(j)%spec =ips(j)  ! atomic species
-         !v_ssite(j)%class=ips(j)  ! atomic class ==>given at m_mksym
-!         v_ssite(j)%relax=ifrlx(:,j) !DYN relaxiation directions.
-!         v_ssite(j)%iantiferro=iantiferro(j) !antiferro pair condition
-!         is=v_ssite(j)%spec
-      enddo
+!         specie(j)=ips(j)
+      enddo   
       sstrnmix=trim(iter_mix)
 
       do j=1,nbas

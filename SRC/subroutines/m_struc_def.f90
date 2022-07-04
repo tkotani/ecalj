@@ -59,10 +59,7 @@ module m_struc_def
      real(8):: chfa(n0,2) ! coefficients to fit of free-atom density tails
   end type s_spec
   type s_site !given at m_lmfinit
-!     integer :: iantiferro ! antiferro pair index
      integer ::   spec     ! species index
-!     integer ::   class    ! class index
-!     integer ::   relax(3) ! for dynamics, relaxation direction switch
   end type s_site
 end module m_struc_def
 
@@ -88,6 +85,9 @@ end module m_struc_def
 !  end type s_spec
 
 ! removed from s_site...
+!     integer :: iantiferro ! antiferro pair index
+!     integer ::   class    ! class index
+!     integer ::   relax(3) ! for dynamics, relaxation direction switch
 !     real(8) ::   pos(3)  !fixed during do 1000 in lmfp.F  Coordinates of atom
 !     real(8) ::   pos0(3) ! atomic pos in previous loop of do 2000 in lmfp.F smshit (for MD)
 !     real(8) ::   force(3)  ! Force

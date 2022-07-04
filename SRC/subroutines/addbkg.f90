@@ -15,8 +15,9 @@ subroutine addbkgsm(smrho,k1,k2,k3,nsp,qbg,vol,fac)
   smrho(:,:,:,:)=smrho(:,:,:,:)+rhobg*fac/nsp
 end subroutine addbkgsm
 
-subroutine adbkql( sv_p_orhoat , nbas , nsp , qbg , vol , fac , sspec , ssite )
-  use m_struc_def  
+subroutine adbkql( sv_p_orhoat , nbas , nsp , qbg , vol , fac )
+  use m_struc_def
+  use m_lmfinit,only: ssite=>v_ssite, sspec=>v_sspec
   !- Add uniform bkg charge density to local smooth rho
   !i orhoat: pointers to local density in spheres
   !i nbas: number of atoms in basis
@@ -34,13 +35,11 @@ subroutine adbkql( sv_p_orhoat , nbas , nsp , qbg , vol , fac , sspec , ssite )
   integer:: nsp
   type(s_rv1) :: sv_p_orhoat(3,nbas)
   real(8):: qbg , fac
-  type(s_spec)::sspec(*)
-  type(s_site)::ssite(*)
   integer :: ib,nr,is
   double precision :: rhobkg,vol,a,rmt,rofi(nrmx)
   rhobkg = fac*qbg/vol
   do  ib = 1, nbas
-     is=ssite(ib)%spec
+     is=ssite(ib)%spec !specie(ib)
      a=sspec(is)%a
      nr=sspec(is)%nr
      rmt=sspec(is)%rmt
