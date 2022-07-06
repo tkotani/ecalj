@@ -3,7 +3,7 @@ module m_procar
   use m_suham,only: ndhamx=>ham_ndhamx,ndham=>ham_ndham,nspx=>ham_nspx
   use m_igv2x,only: igv2x,napw
   use m_mkpot,only: ppnl_rv
-  use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize,procid
+  use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize,procid,xmpbnd2
   use m_qplist,only: nkp,xdatt,qplist
 
   public m_procar_init, m_procar_closeprocar, m_procar_writepdos, dwgtall,nchanp
@@ -23,7 +23,6 @@ contains
     inquire(iprocar2,exist=nexist)
     if(nexist) close(iprocar2)
   end subroutine m_procar_closeprocar
-
   subroutine m_procar_init(iq,isp,ef0,evl,ndimh,jsp,qp,nev,evec,ndimhx,nmx)
     implicit none
     complex(8):: evec(ndimhx,nmx)
@@ -32,16 +31,12 @@ contains
     complex(8):: au,as,az
     real(8):: s11,s22,s33,s12,s13,s23,dwgt(100),dwgtt(100),xdat,qold(3),qp(3)
     complex(8),allocatable:: auspp(:,:,:,:,:)
-    integer:: iq,isp,jspini,jspend,jspp,iprocar,iband,is,ilm,ndimh,nspc,jsp,ib, &
-         nev,i,m,l,ndimhx,nmx
+    integer:: iq,isp,jspini,jspend,jspp,iprocar,iband,is,ilm,ndimh,nspc,jsp,ib,nev,i,m,l,ndimhx,nmx
     real(8):: rydberg=13.6058d0,evl(ndhamx,nspx)
     logical:: cmdopt0
-    !! Decompose to alm components. PROCAR generation.
-    !     ! ??? no nsites is used? ! Compare following codes with those of mkpdos.F (PDOS).
-    fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !fullmesh stop just after do 2010 iq loop.
+    fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface')
     debug = cmdopt0('--debugbndfp')
     PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
-
     if(isp1init .AND. isp==1) then
        open(newunit=iprocar1,file='PROCAR.UP.'//trim(strprocid))
        isp1init=.false.
@@ -55,19 +50,11 @@ contains
        dwgtall=0d0
        init=.false.
     endif
-
     allocate( auspp(nlmax,ndhamx,3,nsp,nbas) )
     auspp = 0d0
     call makusq(1, nbas,0, nev,jsp,1,qp,evec, auspp )
-    !      if(nspx==1) then !spinoffdiagmode
-    !         jspini=1
-    !         jspend=2
-    !      else
     jspini=isp
     jspend=isp
-    !      endif
-    !      do jspp= jspini, jspend
-    !     print *,'jspp=',jspp
     jspp=isp
     if(jspp==1) iprocar=iprocar1
     if(jspp==2) iprocar=iprocar2
@@ -94,11 +81,11 @@ contains
                 au = auspp(ilm,iband,1,jspp,ib)
                 as = auspp(ilm,iband,2,jspp,ib)
                 az = auspp(ilm,iband,3,jspp,ib)
-                ! cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-                !     Note au,as,az are coefficients for phi1*Ylm phi2*Ylm phi3*Ylm. If --ylmc, Ylm(complex) is assumed.
-                !          phi1:  linear combination of val funciton (phi and phidot) with val at MT is zero
-                !          phi2:  linear combination of slo funciton (phi and phidot) with slo at MT is zero
-                !          phi3:  LO  (phi + phidot) with slo at MT is zero
+                !Note au,as,az are coefficients for phi1*Ylm phi2*Ylm phi3*Ylm.
+                ! If --ylmc, Ylm(complex) is assumed.
+                !  phi1:  linear combination of val funciton (phi and phidot) with val at MT is zero
+                !  phi2:  linear combination of slo funciton (phi and phidot) with slo at MT is zero
+                !  phi3:  LO  (phi + phidot) with slo at MT is zero
                 pdosc: Block
                   complex(8):: img=(0d0,1d0)
                   integer:: ilmm
@@ -117,11 +104,10 @@ contains
                      endif
                   endif
                 EndBlock pdosc
-                ! ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                 s11 = dconjg(au)*au*ppnl_rv(2,l+1,jspp,ib)
                 s22 = dconjg(as)*as*ppnl_rv(7,l+1,jspp,ib)
                 s33 = dconjg(az)*az*ppnl_rv(8,l+1,jspp,ib)
-                s12 = 0
+                s12 = 0d0
                 s13 = 2*dconjg(au)*az*ppnl_rv(9,l+1,jspp,ib)
                 s23 = 2*dconjg(as)*az*ppnl_rv(10,l+1,jspp,ib)
                 dwgt(ilm)= s11+s22+s33 + s12+s13+s23
@@ -134,11 +120,8 @@ contains
           if(fullmesh) dwgtall(1:nchanp,ib,iband,jspp,iq) = dwgt(1:nchanp)
        enddo
     enddo
-    !      enddo
-    !      if(debug) print *,'mmmmmmmm procid sum dwgt check=',procid,iq,jsp,sum(dwgtall),nev
     deallocate( auspp )
   end subroutine m_procar_init
-
   !!--------------------------------------------------------
   subroutine m_procar_writepdos(evlall,nev_,ef0,kpproc)
     use m_mkqp,only: nkabc=> bz_nabc
@@ -146,7 +129,6 @@ contains
     use m_ext,only:sname
     real(8) evlall(:,:,:)
     integer:: nev_(:)
-    !     include "mpif.h"
     logical:: cmdopt0
     integer:: kpproc(*)
     integer,allocatable:: ipqe(:,:,:),idtete(:,:)
@@ -156,15 +138,10 @@ contains
     nkk2=nkabc(2)
     nkk3=nkabc(3)
     nevmin=minval(nev_(1:nkp))
-
     !! pdos mode (--mkprocar and --fullmesh). ===
     if(debug) print *,'mmmm procid sum dwgt check=',procid,sum(dwgtall)
-    !      if(PROCARon.and.fullmesh) then
-    !         call mpi_barrier(MPI_comm_world,ierr)
     call xmpbnd2(kpproc,nbas*nchanp*ndhamx,nkp,nspx,dwgtall)
     if(master_mpi) then
-       !            if(debug) print *,'mmmmm tot procid sum dwgt check=',procid,sum(dwgtall)
-       !! tetrahedron without symmetry
        allocate(idtete(0:4,6*nkp),ipqe(nkk1,nkk2,nkk3))
        iq=0
        do ik3 = 1, nkk3
@@ -172,36 +149,26 @@ contains
              do ik1 = 1, nkk1
                 iq = iq+1
                 ipqe(ik1,ik2,ik3)=iq
-                qx = (ik1-1)*qlat(:,1)/nkk1 + (ik2-1)*qlat(:,2)/nkk2+ (ik3-1)*qlat(:,3)/nkk3
-                if(abs(sum(qx-qplist(:,iq)))>1d-6) then !sanity check
-                   call rx("bndfp: qx/=qplist something strang")
-                endif
+                qx = matmul(qlat, [(ik1-1)/nkk1,(ik2-1)/nkk2, (ik3-1)/nkk3])
+                if(abs(sum(qx-qplist(:,iq)))>1d-6)call rx("bndfp: qx/=qplist something strang")
              enddo
           enddo
        enddo
        call tetirr(qlat, nkk1,nkk2,nkk3, ipqe, ntete,idtete) !tetrahedron
        write(*,*)" ntete 6*nkk1*nkk2*nkk3 nkp=",ntete,6*nkk1*nkk2*nkk3,nkp
-       !! doswt(1:nchanp=16,ndhamx,nsp,nkp)
-       !! dwgtall(1:16,nbas,ndhamx,nsp,nkp)
-       !!   If we will have a memory problem for dwgtall, we may store dwgtall(i,...) for a file.
-       !!   and repeat nchanp times.
-       !            eminp=-25.0/rydberg
-       !            emaxp=30.0/rydberg
-       !            ndos=5500
-       write(stdo,"(' pdosmode: ndhamx nsp nspx =',4i7)") ndhamx, nsp, nspx,nevmin !nevmx
-       !            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,ndos, emin,emax,ef0
-       write(stdo,"(' pdosmode: nchanp nbas ef0=',2i7,3f12.5)") nchanp,nbas,ef0 !mar2015
+       write(stdo,"(' pdosmode: ndhamx nsp nspx =',4i7)") ndhamx, nsp, nspx,nevmin 
+       write(stdo,"(' pdosmode: nchanp nbas ef0=',2i7,3f12.5)") nchanp,nbas,ef0
        open(newunit=ifip,file='pdosdata.'//trim(sname),form='unformatted')
-       write(ifip) ndhamx,nsp,nspx,nevmin,nchanp,nbas,nkk1,nkk2,nkk3,ntete,nkp !ndos,nkp mar2015
-       write(ifip) idtete,ipqe ! allocate(idtete(0:4,6*nkp),ipqe(nkk1,nkk2,nkk3))
-       write(ifip) evlall  !  allocate(evlall(ndhamx,nspx,nkp))
-       write(ifip) dwgtall !  allocate(dwgtall(nchanp,nbas,ndhamx,nspx,nkp))
-       write(ifip) ef0 !eminp,emaxp,ef0
+       write(ifip) ndhamx,nsp,nspx,nevmin,nchanp,nbas,nkk1,nkk2,nkk3,ntete,nkp 
+       write(ifip) idtete,ipqe 
+       write(ifip) evlall  
+       write(ifip) dwgtall 
+       write(ifip) ef0
        close(ifip)
        if(nkp/=nkk1*nkk2*nkk3) call rx('pdosmode but nkp/=nkk1*nkk2*nkk3')
        if( cmdopt0('--tetraw')) then
           open(newunit=ifip,file='tetradata.dat',form='unformatted')
-          write(ifip) ndhamx,nkp,ntete !ndos,nkp mar2015
+          write(ifip) ndhamx,nkp,ntete
           write(ifip) idtete
           close(ifip)
           open(newunit=ifip,file='qplistf.dat')
@@ -209,9 +176,8 @@ contains
              write(ifip,"(3f15.8)") qplist(:,iq)
           enddo
           close(ifip)
-       endif               !! we need evlall(ndhamx,nkp) for qplist
-       deallocate(idtete,ipqe) !remove this if you uncomment above lines.
+       endif
+       deallocate(idtete,ipqe) 
     endif
-    !      endif
   end subroutine m_procar_writepdos
 end module m_procar

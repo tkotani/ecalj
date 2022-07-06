@@ -330,7 +330,6 @@ m_freq.o \
 readpomat.o \
 keyvalue.o \
 rppovl.o \
-nocctotg.o \
 wfacx.o \
 efsimplef.o \
 extension.o \
@@ -340,7 +339,6 @@ rgwinf_mod.o \
 cputid.o \
 mate.o \
 bib1.o \
-maxocc2.o \
 reindx.o \
 bz.o \
 genqbz.o \

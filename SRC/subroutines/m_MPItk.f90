@@ -2,7 +2,8 @@ module m_MPItk
   use m_ext,only:sname
   use m_lgunit,only: stml,stdl
   public :: &
-       m_MPItk_init, m_MPItk_finalize, procid, strprocid,master,nsize,master_mpi,mlog,mlog_MPIiq
+       m_MPItk_init, m_MPItk_finalize, procid, strprocid,master,nsize,master_mpi,mlog,mlog_MPIiq,&
+       xmpbnd2
 
   private
   integer:: procid,master=0,nsize
@@ -80,5 +81,44 @@ contains
        write(stml,"(a)")trim(aaachar)
     endif
   end subroutine mlog_MPIiq
+
+  ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+  subroutine xmpbnd2(kpproc,ndham,nkp,nspx,eb)
+    !use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
+    !- Collect eb from various processors (MPI)
+    ! ----------------------------------------------------------------------
+    !i Inputs
+    !i   kpproc
+    !i   ndham :leading dimension of eb
+    !i   nkp   :number of irreducible k-points (bzmesh.f)
+    !i   nsp   :2 for spin-polarized case, otherwise 1
+    !i   eb    :energy bands; alias eband
+    !o Outputs
+    ! ----------------------------------------------------------------------
+    implicit none
+    include "mpif.h"
+    integer:: kpproc(0:*),ndham,nkp,nspx
+    double precision :: eb(ndham,nspx*nkp)
+    integer :: i,ista,iend, ierr
+    integer, dimension(:),allocatable :: offset,length
+    real(8) ,allocatable :: buf_rv(:,:)
+    allocate (offset(0:nsize), stat=ierr)
+    allocate (length(0:nsize), stat=ierr)
+    offset(0) = 0
+    do  i = 0, nsize-1
+       ista = kpproc(i)
+       iend = kpproc(i+1)-1
+       length(i) = (iend - ista + 1)*ndham !nsp*ndham
+       offset(i+1) = offset(i) + length(i)
+    enddo
+    ista = kpproc(procid)
+    allocate(buf_rv(ndham,nkp*nspx))
+    call mpi_allgatherv(eb(1,ista),length(procid),mpi_double_precision,buf_rv,length,offset &
+         , mpi_double_precision , mpi_comm_world , ierr )
+    eb= buf_rv 
+    deallocate(buf_rv)
+    deallocate(offset, stat=ierr)
+    deallocate(length, stat=ierr)
+  end subroutine xmpbnd2
 
 end module m_MPItk

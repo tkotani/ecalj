@@ -60,7 +60,7 @@ contains
     use m_rdsigm2,only: M_rdsigm2_init
     use m_subzi, only: M_subzi_init, lwtkb,rv_a_owtkb,M_subzi_setlwtkb,M_subzi_bzintegration
     use m_rsibl, only : Rsibl_ev ! to plot wavefunction in the fat band mode
-    use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
+    use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq,xmpbnd2
     !      use m_lmfgw,only: M_lmfgw_init !,jobgw !,sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx
     use m_mkpot,only: M_mkpot_init,M_mkpot_deallocate, M_mkpot_energyterms,M_mkpot_novxc,& ! & M_mkpot_novxc_dipole,
     osmpot, qmom, vconst, sv_p_osig, sv_p_otau, sv_p_oppi &
@@ -301,7 +301,10 @@ contains
           call bzints(nkabc(1),nkabc(2),nkabc(3), evlall &
                , dum , nkp , ndhamx , ndhamx , nspx , dosw(1),dosw(2), dosi_rv , ndos ,xxx , &
                1, ntet , iv_a_oidtet , dum , dum ) !job=1 give IntegratedDos to dosi_rv
-          call xxxdif(dosw(1),dosw(2),ndos,nspx,0,dosi_rv,dos_rv)!integrated DOS dosi_rv->DOS dos_rv
+!          call xxxdif(dosw(1),dosw(2),ndos,nspx,0,dosi,dos_rv)!integrated DOS dosi_rv->DOS dos_rv
+          dos_rv(2:ndos-1,:)=(dosi_rv(3:ndos,:)-dosi_rv(1:ndos-2,:))/(2d0*(dosw(2)-dosw(1))/(ndos-1))
+          dos_rv(1,:)    = dos_rv(2,:)
+          dos_rv(ndos,:) = dos_rv(ndos-1,:)
        else
           call makdos (nkp, ndhamx, ndhamx, nspx, rv_a_owtkp, evlall,bz_n, bz_w &
                , -6d0, dosw(1),dosw(2), ndos , dos_rv )
@@ -315,7 +318,7 @@ contains
           eee= dosw(1)+ (ipts-1d0)*(dosw(2)-dosw(1))/(ndos-1d0)-eferm
           dosi(1:nspx)= dosi(1:nspx) + dos_rv(ipts,1:nspx)*dee
           write(ifi,"(255(f13.5,x))") eee,  (dos_rv(ipts,isp),isp=1,nspx) !dos
-          write(ifii,"(255(f13.5,x))") eee, (dosi(isp),isp=1,nspx)        !integrated dos
+          write(ifii,"(255(f13.5,x))") eee, (dosi_rv(ipts,isp),isp=1,nspx)        !integrated dos
        enddo
        close(ifi)
        close(ifii)
@@ -399,119 +402,47 @@ contains
     call m_bandcal_clean()
     call tcx('bndfp')
   end subroutine bndfp
-  ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  subroutine xxxdif(emin,emax,npts,ndos,mode,dosi,dos)
-    !! Differentiate Number of States to make DOS
-    implicit none
-    integer :: npts,ndos,mode
-    real(8):: dosi(npts,ndos), dos(npts,ndos),emin,emax
-    integer :: ip,idos,k
-    double precision :: bin
-    bin = 2*(emax-emin)/dble(npts-1)
-    do  idos = 1, ndos
-       do ip = 2, npts-1
-          dos(ip,idos) = (dosi(ip+1,idos) - dosi(ip-1,idos)) / bin
-       enddo
-       dos(1,idos)    = dos(2,idos)
-       dos(npts,idos) = dos(npts-1,idos)
-    enddo
-  end subroutine xxxdif
-  !$$$!!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  !$$$      subroutine writeqpyl()
-  !$$$      use m_ext,only: sname
-  !$$$      use m_lmfinit,only:nbas,ssite=>v_ssite,sspec=>v_sspec,nsp
-  !$$$      use m_mkrout,only: qbyl_rv
-  !$$$      integer::ib,ispec,ifqbyl,il
-  !$$$      open(newunit=ifqbyl,file='qbyl.'//trim(sname))
-  !$$$      write(ifqbyl,"(i5)") nbas
-  !$$$      do  ib = 1, nbas
-  !$$$         ispec=ssite(ib)%spec
-  !$$$         write(ifqbyl,"(i4, i3,i2,10f12.6)")
-  !$$$     &   ib,ispec,sspec(ispec)%lmxa,( sum(qbyl_rv(il,1:nsp,ib)), il=1,sspec(ispec)%lmxa+1)
-  !$$$      enddo
-  !$$$      close(ifqbyl)
-  !$$$      end
-  ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  !      subroutine readindensitymodesetting()
-  !! If necessary, need to recover this but it should be much simpler.
-  !! By chaningt wtkb, this will give density for given iq ib.
-  !!  We have electron density plot by '--density' mode
-  !$$$!! Density mode. wtkb is the weight for iq,ib. With this setting,
-  !$$$!! we can plot |\psi_{iq,ib}(\bfr)|**2 in the manner of electron density
-  !$$$!     ! lmf --density,iq=12,ib=3,4,5   (here ib=3,4,5 are superposed).
-  !$$$      if(cmdopt('--density',9,0,strn)) then
-  !$$$         iqread=0
-  !$$$         iqindex=index(strn(10:),'iq=')+2
-  !$$$         if(iqindex==2) then
-  !$$$            iqread=-999
-  !$$$         else
-  !$$$            read(strn(10+iqindex:),*) iqread
-  !$$$         endif
-  !$$$         ibindex=index(strn(10:),'ib=')+2
-  !$$$         if(ibindex==2) then
-  !$$$            ibread=-999
-  !$$$         else
-  !$$$            do nibread=1,100
-  !$$$               read(strn(10+ibindex:),*,err=2019,end=2019) ibread(1:nibread)
-  !$$$c     print *,'xxx ibread=',ibread(1:nibread)
-  !$$$            enddo
-  !$$$ 2019       continue
-  !$$$            nibread=nibread-1
-  !$$$         endif
-  !$$$         if(iqread>0) then
-  !$$$            if(maxval(ibread(1:nibread))<=0) call rx('--density mode: wrong ib=foobar. Try,e.g. --density,iq=12,ib=5')
-  !$$$            write(stdo,"('--density bandmode: psi**2 for iq=',i5,' ib=',255i5)") iqread,ibread(1:nibread)
-  !$$$            rv_a_owtkb(:,:,:)=0d0
-  !$$$            do ib=1,nibread
-  !$$$               rv_a_owtkb(ibread(ib),:,iqread)=1d0
-  !$$$            enddo
-  !$$$            do ib=1,ndimh
-  !$$$               if(abs(rv_a_owtkb(ib,jsp,iq))>1d-3) write(stdo,"('ib wtkb=',i5,2f13.6)") ib,rv_a_owtkb(ib,jsp,iq)
-  !$$$            enddo
-  !$$$         endif
-  !$$$      endif
-  !     end
 end module m_bndfp
 
-
 ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-subroutine xmpbnd2(kpproc,ndham,nkp,nspx,eb)
-  use m_lmfinit, only: stdo,stdl,procid,master
-  use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
-  !- Collect eb from various processors (MPI)
-  ! ----------------------------------------------------------------------
-  !i Inputs
-  !i   kpproc
-  !i   ndham :leading dimension of eb
-  !i   nkp   :number of irreducible k-points (bzmesh.f)
-  !i   nsp   :2 for spin-polarized case, otherwise 1
-  !i   eb    :energy bands; alias eband
-  !o Outputs
-  ! ----------------------------------------------------------------------
-  implicit none
-  include "mpif.h"
-  integer:: kpproc(0:*),ndham,nkp,nspx
-  double precision :: eb(ndham,*)
-  integer :: i,ista,iend, ierr
-  integer, dimension(:),allocatable :: offset,length
-  real(8) ,allocatable :: buf_rv(:)
-  allocate (offset(0:numprocs), stat=ierr)
-  allocate (length(0:numprocs), stat=ierr)
-  offset(0) = 0
-  do  i = 0, numprocs-1
-     ista = kpproc(i)
-     iend = kpproc(i+1)-1
-     length(i) = (iend - ista + 1)*ndham !nsp*ndham
-     offset(i+1) = offset(i) + length(i)
-  enddo
-  ista = kpproc(procid)
-  allocate(buf_rv(ndham*nkp*nspx))
-  call mpi_allgatherv(eb(1,ista),length(procid),mpi_double_precision,buf_rv,length,offset &
-       , mpi_double_precision , mpi_comm_world , ierr )
-  call dcopy ( ndham * nspx * nkp , buf_rv , 1 , eb , 1 )
-  if (allocated(buf_rv)) deallocate(buf_rv)
-  deallocate(offset, stat=ierr)
-  deallocate(length, stat=ierr)
-end subroutine xmpbnd2
-
+!      subroutine readindensitymodesetting()
+!! If necessary, need to recover this but it should be much simpler.
+!! By chaningt wtkb, this will give density for given iq ib.
+!!  We have electron density plot by '--density' mode
+!$$$!! Density mode. wtkb is the weight for iq,ib. With this setting,
+!$$$!! we can plot |\psi_{iq,ib}(\bfr)|**2 in the manner of electron density
+!$$$!     ! lmf --density,iq=12,ib=3,4,5   (here ib=3,4,5 are superposed).
+!$$$      if(cmdopt('--density',9,0,strn)) then
+!$$$         iqread=0
+!$$$         iqindex=index(strn(10:),'iq=')+2
+!$$$         if(iqindex==2) then
+!$$$            iqread=-999
+!$$$         else
+!$$$            read(strn(10+iqindex:),*) iqread
+!$$$         endif
+!$$$         ibindex=index(strn(10:),'ib=')+2
+!$$$         if(ibindex==2) then
+!$$$            ibread=-999
+!$$$         else
+!$$$            do nibread=1,100
+!$$$               read(strn(10+ibindex:),*,err=2019,end=2019) ibread(1:nibread)
+!$$$c     print *,'xxx ibread=',ibread(1:nibread)
+!$$$            enddo
+!$$$ 2019       continue
+!$$$            nibread=nibread-1
+!$$$         endif
+!$$$         if(iqread>0) then
+!$$$            if(maxval(ibread(1:nibread))<=0) call rx('--density mode: wrong ib=foobar. Try,e.g. --density,iq=12,ib=5')
+!$$$            write(stdo,"('--density bandmode: psi**2 for iq=',i5,' ib=',255i5)") iqread,ibread(1:nibread)
+!$$$            rv_a_owtkb(:,:,:)=0d0
+!$$$            do ib=1,nibread
+!$$$               rv_a_owtkb(ibread(ib),:,iqread)=1d0
+!$$$            enddo
+!$$$            do ib=1,ndimh
+!$$$               if(abs(rv_a_owtkb(ib,jsp,iq))>1d-3) write(stdo,"('ib wtkb=',i5,2f13.6)") ib,rv_a_owtkb(ib,jsp,iq)
+!$$$            enddo
+!$$$         endif
+!$$$      endif
+!     end
+!end module m_bndfp
 
