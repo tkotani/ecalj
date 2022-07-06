@@ -1,6 +1,7 @@
-subroutine gwcphi(ssite,sspec,isp,nsp,nlmax,ndham,nev,nbas,ipb,lmxax,nlindx,ndima,ppnl,aus,  cphi,cphin)
+subroutine gwcphi(sspec,isp,nsp,nlmax,ndham,nev,nbas,ipb,lmxax,nlindx,ndima,ppnl,aus,  cphi,cphin)
   use m_struc_def
   use m_density,only: pnzall
+  use m_lmfinit,only: ispec
   !- Project (phi,phidot) onto MT sphere, Kotani's GW conventions
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -119,7 +120,7 @@ subroutine gwcphi(ssite,sspec,isp,nsp,nlmax,ndham,nev,nbas,ipb,lmxax,nlindx,ndim
   integer :: isp,nsp,nlmax,ndham,nbas,nev,lmxax,ndima,ipb(nbas), nlindx(3,0:lmxax,nbas)
   integer :: n0,nppn
   parameter (n0=10,nppn=12)
-  type(s_site)::ssite(*)
+!  type(s_site)::ssite(*)
   type(s_spec)::sspec(*)
   double precision :: ppnl(nppn,n0,nsp,*),cphin(2,nev)
   double complex aus(nlmax,ndham,3,nsp,*),cphi(ndima,nev)
@@ -130,9 +131,8 @@ subroutine gwcphi(ssite,sspec,isp,nsp,nlmax,ndham,nev,nbas,ipb,lmxax,nlindx,ndim
   call dpzero(lmat,9)
   call dpzero(cphin,2*nev)
   do  ib = 1, nbas
-     is = ssite(ib)%spec
+     is = ispec(ib) !ssite(ib)%spec
      ia = ipb(ib)
-     !     pnz =ssite(ib)%pz
      pnz(:,1:nsp)=pnzall(:,1:nsp,ib)
      lmxa=sspec(is)%lmxa
      if (lmxa == -1) goto 10

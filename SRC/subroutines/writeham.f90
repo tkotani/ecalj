@@ -89,7 +89,7 @@ contains
   end subroutine m_writeham_init
   !--------------------------------------------
   subroutine m_writeham_write()
-    use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,lso,nsp
+    use m_lmfinit,only: sspec=>v_sspec,lso,nsp,ispec
     use m_lmfinit,only: nlmto,stdo,slabl
     !      use m_hamindex, only: norbmto
     use m_hamindex, only: ngrp,symops,norbmto,ibastab,ltab,ktab,offl,ib_table,k_table,l_table
@@ -119,7 +119,7 @@ contains
     if(writeham) write(ifspec,*) ldim,nsp
     do i= 1, ldim
        ib   = ib_table(i)
-       is   = ssite(ib)%spec
+       is   = ispec(ib) !ssite(ib)%spec
        spid = slabl(is) !sspec(is)%name
        write(6,"(i3,x,3i3,x,a)")i, ib_table(i),l_table(i),k_table(i),trim(spid)
        write(ifspec,"(i3,x,a,x,3i4)") i,trim(spid),ib_table(i),l_table(i),k_table(i) !sakakibara

@@ -149,22 +149,17 @@ contains
   end subroutine prlcb3
 end module m_prlcb
 !!
-subroutine rlocbl ( ssite , sspec , lfrce , nbas , isp  &
-  , q , ndham , ndimh , nspc , napw , igvapw ,  nevec &
+subroutine rlocbl(lfrce , nbas , isp, q , ndham , ndimh , nspc , napw , igvapw ,  nevec &
        , evec , ewgt , evl , sv_p_osig , sv_p_otau , sv_p_oppi &
   , lekkl , sv_p_oqkkl , sv_p_oeqkkl , f )
   use m_struc_def,only: s_site,s_spec,s_rv1,s_cv1
   use m_prlcb,only:   prlcb2,prlcb3
-  use m_lmfinit,only: iv_a_oidxcg,iv_a_ojcg,rv_a_ocy,rv_a_ocg,lat_alat,nkaph
+  use m_lmfinit,only: iv_a_oidxcg,iv_a_ojcg,rv_a_ocy,rv_a_ocg,lat_alat,nkaph,ispec,sspec=>v_sspec
   use m_lattic,only: lat_qlat,rv_a_opos
   use m_bstrux,only: bstrux_set,bstr,dbstr
   !- Accumulates the local atomic densities.
   ! ----------------------------------------------------------------------
   !i Inputs
-  !i   ssite :struct for site-specific information; see routine usite
-  !i     Elts read: spec pos
-  !i     Stored:    *
-  !i     Passed to: bstrux
   !i   sspec :struct for species-specific information; see routine uspec
   !i     Elts read: lmxa kmxt lmxb
   !i     Stored:    *
@@ -247,8 +242,6 @@ subroutine rlocbl ( ssite , sspec , lfrce , nbas , isp  &
   real(8),pointer:: OQPP(:), OQHP(:),OQHH(:),OEQPP(:),OEQHP(:),OEQHH(:),OSIGPP(:), OSIGHP(:)
   complex(8),pointer:: OPPIPP(:),OPPIHP(:)
   real(8):: q(3), ewgt(nevec) , evl(ndham,isp) , f(3,nbas)
-  type(s_site)::ssite(*)
-  type(s_spec)::sspec(*)
   double complex evec(ndimh,nspc,nevec)
   integer :: is,nlmbx,nlmx,ktop0,npmx,nkap0,n0
   parameter (nlmbx=25,  nkap0=3, n0=10) !npmx=32,
@@ -267,7 +260,7 @@ subroutine rlocbl ( ssite , sspec , lfrce , nbas , isp  &
   nlmax = 0
   kmaxx = 0
   do  ia = 1, nbas
-     isa = int(ssite(ia)%spec)
+     isa = ispec(ia) !(ssite(ia)%spec)
      lmxa=sspec(isa)%lmxa
      kmax=sspec(isa)%kmxt
      nlma = (lmxa+1)**2
@@ -291,7 +284,7 @@ subroutine rlocbl ( ssite , sspec , lfrce , nbas , isp  &
   endif
   !! Loop over augmentation sites ---
   do ia = 1,nbas ! iaini,iaend
-     isa= ssite(ia)%spec
+     isa= ispec(ia) !ssite(ia)%spec
      pa = rv_a_opos(:,ia) !ssite(ia)%pos(1:3)
      lmxa= sspec(isa)%lmxa
      if (lmxa == -1) cycle !goto 10

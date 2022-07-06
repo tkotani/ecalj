@@ -231,7 +231,7 @@ contains
           dmatl_rv=0d0
           call mkrou1(nsp, nlmh , nlma , nlml , kmax , rv_a_ocg , iv_a_ojcg &
                , iv_a_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks &
-               , sv_p_oqkkl(3,ib)%v, sv_p_oqkkl(2,ib)%v, sv_p_oqkkl(1,ib)%v&  ! & , OQHH, OQHP , OQPP ,
+               , sv_p_oqkkl(3,ib)%v, sv_p_oqkkl(2,ib)%v, sv_p_oqkkl(1,ib)%v& !, OQHH, OQHP , OQPP ,
                , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv &
                , chp_rv , cpp_rv , dmatl_rv )
           !   ... True local density for this sphere 1st component
@@ -286,7 +286,6 @@ contains
 
           if(nsp==1) dat(1:3,ib) = [sum1,sum2,sum1-sum2]
           if(nsp==2) dat(1:6,ib) = [sum1,sum2,sum1-sum2, -sums1,-sums2,-sums1+sums2]
-
           ! cccccccccccccccccccccccccccccccccccccccccccccccccccccc
           !! experimental block to keep magnetic moment for AF.controlled by uhval.aftest file. See elsewhere.
           if( nsp==2 .AND. procid==master .AND. mmtargetx) then
@@ -301,7 +300,6 @@ contains
           endif
           ! ccccccccccccccccccccccccccccccccccccccccccccccccc
        endif
-
        !       Contribution to mag outsite rmt: extrapolate tail to infinity
        call mkrou6 ( rofi_rv , orhoat_out( 1 , ib )%v , nr , nlml , &
             nsp , xx , xx , res )
@@ -310,7 +308,6 @@ contains
 211       format(7x,'contr. to mm extrapolated for r>rmt:',f11.6, &
                ' est. true mm =',f9.6)
        endif
-
        !   --- Make new core density and core eigenvalue sum ---
        if (lfoc == 0) then
           call pshpr(ipr+11)
@@ -362,13 +359,10 @@ contains
 200       format(i4,3f12.6,2x,3f12.6)
        enddo
     endif
-
     ! --- Put sumec,sumtc into etot struct ---
     !      ham_eterms=eterms
     call tcx('mkrout')
   end subroutine mkrout
-
-
 
   subroutine mkrou1(nsp,nlmh,nlma,nlml,kmax,cg,jcg,indxcg, &
        nkaph,nkapi,norb,ltab,ktab,blks,qhh,qhp,qpp,vh,dh,vp,dp, &
@@ -418,7 +412,7 @@ contains
     !u Updates
     !u   29 Jul 08 Adapted from mkrout.f
     ! ----------------------------------------------------------------------
-    !     implicit none
+    implicit none
     ! ... Passed parameters
     integer :: nsp,nlmh,nlma,nlml,kmax,norb,nkaph,nkapi
     integer :: jcg(1),indxcg(1)
@@ -432,21 +426,12 @@ contains
     !     chh = chh(nkaph,nkaph,0:lmxh,0:lmxh,nlml,nsp)
     !     chp = chp(nkaph,kmax+1,0:lmxh,0:lmxa,nlml,nsp)
     !     cpp = cpp(kmax+1,kmax+1,0:lmxa,0:lmxa,nlml,nsp)
-    double precision :: dmatl(*),vh(*),dh(*),vp(*),dp(*), &
-         chh(*),chp(*),cpp(*)
-
+    double precision :: dmatl(*),vh(*),dh(*),vp(*),dp(*), chh(*),chp(*),cpp(*)
     double precision :: cg(1)
     integer :: ll,k,lmxa,lmxh
     integer :: n0,nkap0
     parameter (n0=10,nkap0=3)
     integer :: ltba(n0*nkap0),ktba(n0*nkap0),blka(n0*nkap0)
-
-    ! ccccccccccccccccccc
-    !      print *,'sumcheck qhh,qhp,qpp=',sum(qhh),sum(qhp),sum(qpp)
-    !      stop 'test end'
-    ! ccccccccccccccccccc
-
-    !     lmxl = ll(nlml)
     lmxa = ll(nlma)
     lmxh = ll(nlmh)
     do  k = 0, kmax
@@ -454,7 +439,6 @@ contains
        ktba(k+1) = k+1
        blka(k+1) = nlma
     enddo
-
     ! ... Contracted density-matrix chh,chp,cpp from qhh,qhp,qpp
     !     H H product
     call mkrou4(nsp,nlml,cg,jcg,indxcg, &
@@ -488,13 +472,9 @@ contains
          kmax+1,kmax+1,vp,dp,lmxa, &
          kmax+1,kmax+1,vp,dp,lmxa, &
          cpp,dmatl)
-
   end subroutine mkrou1
 
-
-  subroutine mkrou2(nsp,lmxa,nlml,pnz,dmatl,nr,ul,sl,gz,ruu,rus,rss, &
-       rho)
-
+  subroutine mkrou2(nsp,lmxa,nlml,pnz,dmatl,nr,ul,sl,gz,ruu,rus,rss, rho)
     !- Assemble true site density from product function coefficients
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -533,8 +513,7 @@ contains
     !u Updates
     !u   28 aug 01 extended to local orbitals.  altered argument list.
     ! ----------------------------------------------------------------------
-    !     implicit none
-    ! ... passed parameters
+    implicit none
     integer :: nsp,lmxa,nlml,nr,n0
     parameter (n0=10)
     double precision :: rho(nr,nlml,nsp),pnz(n0,nsp), &
@@ -547,7 +526,6 @@ contains
     integer :: l,i,mlm,l1,l2,isp
     double precision :: xuu,xus,xsu,xss,xuz,xsz,xzu,xzs,xzz
     !     double precision top
-
     call tcn('mkrou2')
     ! ccccccccc
     !      print *,'ddd ', sum(abs(dmatl(:,:,:,1:2,1:2,:)))
@@ -634,14 +612,10 @@ contains
                      +xuz*ruu(i,l,2,isp)+xsz*rus(i,l,2,isp)+xzz*rss(i,l,2,isp)
              enddo
           endif
-
        enddo
     enddo
-
     call tcx('mkrou2')
   end subroutine mkrou2
-
-
 
   subroutine mkrou4(nsp,nlml,cg,jcg,indxcg, &
        nk1,norb1,ltab1,ktab1,blks1,lmx1,ndim1, &
@@ -936,20 +910,14 @@ contains
     double precision :: xx
 
     call tcn('mkrou5')
-
+!    rho(:,:,:) =rho(:,:,:)+ ckk(k1,k2,l1,l2,:,:)*[(f1(ir,l1,k1)*f2(:,l2,k2),ir=1,nr)]
     do  isp = 1, nsp
        do  mlm = 1, nlml
           do  k2 = 1, nf2s
              do  k1 = 1, nf1s
                 do  l2 = 0, lmx2
                    do  l1 = 0, lmx1
-                      xx = ckk(k1,k2,l1,l2,mlm,isp)
-                      if (dabs(xx) > 1d-16) then
-                         do  i= 1, nr
-                            rho(i,mlm,isp) = rho(i,mlm,isp) &
-                                 + xx*f1(i,l1,k1)*f2(i,l2,k2)
-                         enddo
-                      endif
+                      rho(:,mlm,isp)=rho(:,mlm,isp) +ckk(k1,k2,l1,l2,mlm,isp)*f1(:,l1,k1)*f2(:,l2,k2)
                    enddo
                 enddo
              enddo
@@ -988,7 +956,6 @@ contains
     ! ... Local parameters
     integer :: ir
     double precision :: norm(2,2),tnorm(2,2),rhs(2),y,dy,fac,y0,r0,pi,a,b
-
     res = 0
     if (nr < 10 .OR. nsp == 1) return
     call dpzero(norm,4)
@@ -1000,16 +967,13 @@ contains
        !       If the spin density changes sign, nonsensical to try and fit
        if (y <= 0) return
        dy = dlog(y)
-
        norm(1,1) = norm(1,1) + 1
        norm(1,2) = norm(1,2) + rofi(ir)
        norm(2,1) = norm(2,1) + rofi(ir)
        norm(2,2) = norm(2,2) + rofi(ir)**2
-
        rhs(1) = rhs(1) + dy
        rhs(2) = rhs(2) + rofi(ir)*dy
     enddo
-
     call dinv22(norm,tnorm)
     a = tnorm(1,1)*rhs(1) + tnorm(1,2)*rhs(2)
     b = tnorm(2,1)*rhs(1) + tnorm(2,2)*rhs(2)
@@ -1017,20 +981,13 @@ contains
     y0 = 1d0/dsqrt(4d0*pi)
     a = fac*exp(a)/y0
     b = -b
-
     !     Nonsensical if density not decaying fast enough
     if (b < 1) return
     r0 = rofi(nr)
-
-    !      a = 1d6
-    !      b = 2.5d0
-    !      r0 = 3
-
     !     Integral a*exp(-b*r)*r*r = (2+2*b*r0+b**2*r0*2)/b**3*exp(-b*r0)
     res = a*(2+2*b*r0+b**2*r0**2)/b**3*exp(-b*r0)
     decay = b
     rho0 = a
-
   end subroutine mkrou6
 
   subroutine mkrou3(mode,lmxa,nlml,nsp,pnz,dmatl,hab,sab,qsum,hsum)
@@ -1124,13 +1081,9 @@ contains
     double precision :: det,aloc(2,2)
     det = a(1,1)*a(2,2) - a(1,2)*a(2,1)
     if (det == 0d0) call rx('INV22: vanishing determinant')
-    aloc(1,1) = a(2,2)/det
-    aloc(2,2) = a(1,1)/det
-    aloc(1,2) = -a(1,2)/det
-    aloc(2,1) = -a(2,1)/det
-    ainv(1,1) = aloc(1,1)
-    ainv(2,2) = aloc(2,2)
-    ainv(1,2) = aloc(1,2)
-    ainv(2,1) = aloc(2,1)
+    ainv(1,1) = a(2,2)/det
+    ainv(2,2) = a(1,1)/det
+    ainv(1,2) = -a(1,2)/det
+    ainv(2,1) = -a(2,1)/det
   end subroutine dinv22
 end module m_mkrout

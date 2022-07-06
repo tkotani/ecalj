@@ -1,9 +1,10 @@
-subroutine fsmbpw(nbas,ssite,sspec,vavg,ndimh,nlmto, &
+subroutine fsmbpw(vavg,ndimh,nlmto, &
      nevec,evl,evec,ewgt,napw,qpgv,qpg2v,ylv,nlmax,lmxax,alat,sqv,f)
   use m_struc_def
   use m_uspecb,only:uspecb
   use m_orbl,only: Orblib1,ktab1,ltab1,offl1,norb1
   use m_lattic,only: rv_a_opos
+  use m_lmfinit,only: nbas,sspec=>v_sspec,ispec
   !- Force from smoothed hamiltonian (constant potential), PW contribution
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -38,13 +39,11 @@ subroutine fsmbpw(nbas,ssite,sspec,vavg,ndimh,nlmto, &
   !u   04 Jul 08 (T. Kotani) first created
   ! ----------------------------------------------------------------------
   implicit none
-  integer :: nbas,ndimh,napw,nlmax,nlmto,nevec,lmxax
+  integer :: ndimh,napw,nlmax,nlmto,nevec,lmxax
   integer,parameter:: n0=10, nkap0=3
   real(8),parameter:: pi = 4d0*datan(1d0), fpi = 4*pi
   real(8):: evl(ndimh),f(3,nbas),ewgt(nevec),vavg,qpgv(3,napw),qpg2v(napw),qpg2,alat,sqv
   real(8):: gam,denom, e1(n0,nkap0),rsm1(n0,nkap0),p1(3),xx(n0),wt,ylv(napw,nlmax),ssum(3)
-  type(s_site)::ssite(*)
-  type(s_spec)::sspec(*)
   integer :: i1,i2,ib1,ilm1,io1,iq,is1,l1,ik1,ig,ivec,nglob, nlm11,nlm12,m
   integer:: blks1(n0*nkap0),ntab1(n0*nkap0),lh1(nkap0),nkap1
   complex(8):: phase,fach,ovl,ccc(3),sum, srm1l(0:n0),evec(ndimh,ndimh),img=(0d0,1d0)
@@ -58,7 +57,7 @@ subroutine fsmbpw(nbas,ssite,sspec,vavg,ndimh,nlmto, &
   enddo
   ! --- Loop over first and second site indices ---
   do 1000 ib1=1,nbas
-     is1=ssite(ib1)%spec
+     is1=ispec(ib1) !ssite(ib1)%spec
      p1=rv_a_opos(:,ib1) !ssite(ib1)%pos
      call uspecb(is1,rsm1,e1)
      call orblib1(ib1) !norb1,ltab1,ktab1,xx,offl1,xx)

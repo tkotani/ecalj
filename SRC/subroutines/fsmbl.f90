@@ -1,6 +1,6 @@
-subroutine fsmbl(nbas,ssite,sspec,vavg,q,ndimh,nlmto, &
+subroutine fsmbl(vavg,q,ndimh,nlmto, &
   nevec,evl,evec,ewgt,f)
-  use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,lhh,nkaphh
+  use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,lhh,nkaphh,ispec,nbas,sspec=>v_sspec
   use m_uspecb,only:uspecb
   use m_struc_def
   use m_orbl,only: Orblib1,Orblib2,ktab1,ltab1,offl1,norb1,ktab2,ltab2,offl2,norb2
@@ -10,10 +10,6 @@ subroutine fsmbl(nbas,ssite,sspec,vavg,q,ndimh,nlmto, &
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   nbas  :size of basis
-  !i   ssite :struct for site-specific information; see routine usite
-  !i     Elts read: spec pos
-  !i     Stored:    *
-  !i     Passed to: *
   !i   sspec :struct for species-specific information; see routine uspec
   !i     Elts read: *
   !i     Stored:    *
@@ -40,10 +36,8 @@ subroutine fsmbl(nbas,ssite,sspec,vavg,q,ndimh,nlmto, &
   !u   23 May 00 Adapted from nfp fsm_q.f
   ! ----------------------------------------------------------------------
   implicit none
-  integer :: nbas,ndimh,nlmto,nevec
+  integer :: ndimh,nlmto,nevec
   real(8):: q(3)
-  type(s_site)::ssite(*)
-  type(s_spec)::sspec(*)
   double precision :: evl(ndimh),f(3,nbas),ewgt(nevec),vavg
   double complex evec(ndimh,ndimh)
   integer :: nlms,k0,n0,nkap0
@@ -58,13 +52,13 @@ subroutine fsmbl(nbas,ssite,sspec,vavg,q,ndimh,nlmto, &
   if (nevec <= 0) return
   call tcn ('fsmbl')
   do ib1=1,nbas
-     is1=ssite(ib1)%spec
+     is1=ispec(ib1) !ssite(ib1)%spec
      p1 =rv_a_opos(:,ib1) !ssite(ib1)%pos
      call uspecb(is1,rsm1,e1)
      call orblib1(ib1) !norb1,ltab1,ktab1,offl1
      call gtbsl1(4+16,norb1,ltab1,ktab1,rsm1,e1,ntab1,blks1)
      do ib2=ib1+1,nbas
-        is2=ssite(ib2)%spec
+        is2=ispec(ib2) !ssite(ib2)%spec
         p2 =rv_a_opos(:,ib2) !ssite(ib2)%pos
         call uspecb(is2,rsm2,e2)
         call orblib2(ib2)

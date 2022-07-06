@@ -638,3 +638,13 @@ subroutine getqkey(qx,nqtt,epsd,  nkey,key) !qx is digitized by epsd
   enddo
   nkey=ik
 end subroutine getqkey
+
+function zxx(a,b) result(ab)
+  integer:: i,j
+  complex(8) :: a(:),b(:),ab(size(a),size(b))
+  do i=1,size(a)
+     do j=1,size(b)
+        ab(i,j)=dconjg(a(i))*b(j)
+     enddo
+  enddo
+end function zxx

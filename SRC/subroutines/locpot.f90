@@ -11,7 +11,7 @@ contains
          , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , &
          nlibu , lmaxu , vorb , lldau,novxc)!,idipole )
     use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkaph,lxcf,lhh,nkapii,nkaphh,alat,&
-         n0,nppn,nab,nrmx,nkap0,nlmx,nbas,nsp,lso,ssite=>v_ssite, sspec=>v_sspec,mxcst4,&
+         n0,nppn,nab,nrmx,nkap0,nlmx,nbas,nsp,lso,ispec, sspec=>v_sspec,mxcst4,&
          slabl,idu,coreh,ham_frzwf,rsma
     use m_MPItk,only: master_mpi
     use m_struc_def
@@ -188,9 +188,7 @@ contains
     ifivesint=-999
     if(master_mpi) open(newunit=ifivesint,file='vesintloc',form='formatted',status='unknown')
     do  ib = 1, nbas
-       is=ssite(ib)%spec
-       !pnu=ssite(ib)%pnu
-       !pnz=ssite(ib)%pz
+       is=ispec(ib) 
        pnu=>pnuall(:,:,ib)
        pnz=>pnzall(:,:,ib)
        z=sspec(is)%z

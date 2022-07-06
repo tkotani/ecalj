@@ -3,10 +3,9 @@ module  m_rsibl
   public rsibl,rsibl_ev
   private
 contains
-  subroutine rsibl(ssite,sspec,lfrce,nbas,isp,q,iq,ndimh,nspc,& 
-       napw,igapw,nevec,evec,ewgt,k1,k2,k3,smpot,smrho,f)
+  subroutine rsibl(lfrce,isp,q,iq,ndimh,nspc,napw,igapw,nevec,evec,ewgt,k1,k2,k3,smpot,smrho,f)
     use m_struc_def  
-    use m_lmfinit,only: lat_alat,nspec
+    use m_lmfinit,only: lat_alat,nspec,nbas
     use m_lattic,only: lat_qlat, lat_vol,lat_plat
     use m_supot,only: lat_nabc, lat_ng, lat_gmax
     use m_uspecb,only:uspecb
@@ -15,18 +14,10 @@ contains
     !i Inputs
     !i   lfrce :if nonzero, accumulate contribution to force
     !i   nbas  :size of basis
-    !i   ssite :struct for site-specific information; see routine usite
-    !i     Elts read: spec pos
-    !i     Stored:    *
-    !i     Passed to: rsibl1
     !i   sspec :struct for species-specific information; see routine uspec
     !i     Elts read: ngcut
     !i     Stored:    *
     !i     Passed to: tbhsi rsibl1 uspecb
-    !i   slat  :struct for lattice information; see routine ulat
-    !i     Elts read: alat plat qlat gmax nabc ng ogv okv vol
-    !i     Stored:    *
-    !i     Passed to: *
     !i   lfrce :1 calculate contribution to forces
     !i   nbas  :size of basis
     !i   q     :Bloch vector
@@ -70,10 +61,8 @@ contains
     implicit none
     integer :: procid, master, nproc, mpipid
     integer :: lfrce,isp,k1,k2,k3,ndimh,nevec,iq,nspc
-    integer :: napw,igapw(3,napw),nbas
+    integer :: napw,igapw(3,napw)
     real(8):: q(3) , ewgt(nevec) , f(3,nbas)
-    type(s_site)::ssite(*)
-    type(s_spec)::sspec(*)
     complex(8):: evec(ndimh,nspc,nevec),smrho(k1,k2,k3,isp), smpot(k1,k2,k3,isp)
     ! ... Local parameters
     integer :: n0,nkap0,nermx,npmx,nblk,nlmto
@@ -129,7 +118,7 @@ contains
        allocate(ivp(1))
     endif
     ! --- Tables of energies, rsm, indices to them ---
-    call tbhsi(sspec,nspec,nermx,net,etab,ipet,nrt,rtab,iprt,ltop)
+    call tbhsi(nspec,nermx,net,etab,ipet,nrt,rtab,iprt,ltop)
     ! --- Allocate and occupy arrays for yl, energy factors, rsm factors ---
     nlmtop = (ltop+1)**2
     allocate(w_ogq(ng*3),w_oyl(ng*nlmtop),w_oylw(ng*nlmtop), w_og2(ng), w_ohe(ng*net), w_ohr(ng*nrt))
@@ -150,7 +139,7 @@ contains
     ivecend= nevec
     do  ivec = ivecini,ivecend, nblk !blocked calculation for future
        nvec = min(nblk, nevec-ivec+1)
-       call rsibl1(0,ssite,sspec,q,nbas,ng,w_ogq,w_oiv,n1,n2, &
+       call rsibl1(0,q,nbas,ng,w_ogq,w_oiv,n1,n2, &
             n3,qlat,cosi,sini,w_oyl,w_oylw,w_ohe,w_ohr,wk, &
             wk2,vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc, &
             ewgt,ivec,nvec,evec,w,psi,wff)
@@ -188,7 +177,7 @@ contains
        endblock rsibl2block
        !    --- Add to forces ---
        if (lfrce /= 0) then
-          call rsibl1(1,ssite,sspec,q,nbas,ng,w_ogq,w_oiv,n1,n2, &
+          call rsibl1(1,q,nbas,ng,w_ogq,w_oiv,n1,n2, &
                n3,qlat,cosi,sini,w_oyl,w_oylw,w_ohe,w_ohr, &
                wk,wk2,vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc, &
                ewgt,ivec,nvec,evec,vpsi(:,:,1:nvec),psi(:,:,1:nvec),f)
@@ -201,7 +190,7 @@ contains
     call tcx('rsibl')
   end subroutine rsibl
 
-  subroutine rsibl1(mode,ssite,sspec,q,nbas,ng,gq,iv,n1,n2,n3, &
+  subroutine rsibl1(mode,q,nbas,ng,gq,iv,n1,n2,n3, &
        qlat,cosgp,singp,yl,ylw,he,hr,psi0,wk2,vol,iprt,ipet,etab,rtab, &
        ndimh,nlmto,nspc,ewgt,ivec,nvec,evec,vpsi,psi,f)
     use m_uspecb,only:uspecb
@@ -209,13 +198,12 @@ contains
     use m_orbl,only: Orblib,ktab,ltab,offl,norb
     use m_sugcut,only:ngcut
     use m_lattic,only:rv_a_opos
+    use m_lmfinit,only: ispec
     !- Make wave function for a block of evecs, or add contr. to forces
     ! ----------------------------------------------------------------------
     !i Inputs
     !i   mode  :0 make wave function
     !i         :1 Add 2*Re( (v psi+) grad(psi) ) to f
-    !i   ssite :struct containing site-specific information
-    !i   sspec :struct containing species-specific information
     !i   q     :Bloch wave number
     !i   nbas  :size of basis
     !i   ng    :number of G-vectors
@@ -251,8 +239,6 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     real(8):: q(3)
-    type(s_site)::ssite(*)
-    type(s_spec)::sspec(*)
     integer :: mode,nbas,ng,ndimh,nlmto,nspc,ivec,nvec,iv(ng,3), n1,n2,n3,n0,nkap0,i_copy_size
     parameter (n0=10,nkap0=3)
     integer :: iprt(n0,nkap0,*),ipet(n0,nkap0,*)
@@ -268,7 +254,7 @@ contains
     psi=0d0 
     if(nlmto == 0) return
     do ib = 1, nbas
-       is=ssite(ib)%spec
+       is=ispec(ib) !ssite(ib)%spec
        p=rv_a_opos(:,ib) !ssite(ib)%pos
        ncut=ngcut(:,:,is)
        call suphas(q,p,ng,iv,n1,n2,n3,qlat,cosgp,singp)
@@ -363,11 +349,10 @@ contains
     enddo
   end subroutine gvgvcomp
 
-  subroutine rsibl_ev(ssite,sspec,nbas,isp,q,iq,ndimh,nspc,&
-       napw,igapw,nevec,evec,k1,k2,k3, n_eiglist,eiglist)
+  subroutine rsibl_ev(isp,q,iq,ndimh,nspc,napw,igapw,nevec,evec,k1,k2,k3, n_eiglist,eiglist)
     use m_struc_def
     use m_w_psir
-    use m_lmfinit,only:  lat_alat,nspec
+    use m_lmfinit,only:  lat_alat,nspec,ispec,sspec=>v_sspec,nbas
     use m_lattic,only: lat_qlat
     use m_lattic,only: lat_vol
     use m_supot,only: lat_nabc
@@ -436,8 +421,6 @@ contains
     integer :: isp,k1,k2,k3,ndimh,nevec,iq,nspc
     integer :: napw,igapw(3,napw)
     real(8):: q(3)
-    type(s_site)::ssite(*)
-    type(s_spec)::sspec(*)
     double complex evec(ndimh,nspc,nevec)
     integer:: n_eiglist
     integer:: eiglist(n_eiglist)
@@ -457,7 +440,7 @@ contains
     integer,allocatable:: ivp(:)
     complex(8),allocatable::psi(:,:,:),psir(:,:,:),vpsi(:,:,:), wk(:,:,:)
     real(8),allocatable:: cosi(:),sini(:),wk2(:)
-    integer:: ivecini,ivecend,nbas
+    integer:: ivecini,ivecend
     integer,allocatable:: w_oiv(:)
     real(8),allocatable:: w_ogq(:),w_oyl(:),w_oylw(:),w_og2(:),w_ohe(:),w_ohr(:)
     complex(8),allocatable:: w_osmbuf(:)
@@ -525,7 +508,7 @@ contains
        nvec = min(nblk, nevec-ivec+1)
        !   ... Add together total smooth wavefunction
        ! ino   rsibl1 calculates fourier transformed smoothed Hankel, H(G), to psi
-       call rsibl1(0,ssite,sspec,q,nbas,ng,w_ogq,w_oiv,n1,n2, &
+       call rsibl1(0,q,nbas,ng,w_ogq,w_oiv,n1,n2, &
             n3,qlat,cosi,sini,w_oyl,w_oylw,w_ohe,w_ohr,wk, &
             wk2,vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc, &
             ewgt,ivec,nvec,evec,wpsidummy,psi,w)
@@ -538,7 +521,7 @@ contains
        if ( .TRUE. ) then
           call w_psir(ng , nspc , nvec , psi , n1 , n2 , n3 , k1 , k2 &
                , k3 , iv_a_okv , isp, q ,iq,  n_eiglist,eiglist &
-               , plat,alat, nbas, rv_a_opos, sspec(ssite(1:nbas)%spec)%z, psir )
+               , plat,alat, nbas, rv_a_opos, sspec(ispec(1:nbas))%z, psir )
        endif
     enddo ivecloop
     deallocate(psi,vpsi,wk,psir,cosi,sini,wk2)

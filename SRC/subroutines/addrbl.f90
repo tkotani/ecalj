@@ -19,7 +19,7 @@ contains
     use m_struc_def
     use m_suham,only: &
          ndham=>ham_ndham,ndhamx=>ham_ndhamx,nspx=>ham_nspx
-    use m_lmfinit,only:alat=>lat_alat,nbas, ssite=>v_ssite,sspec=>v_sspec,nsp,nspc,lmet=>bz_lmet,&
+    use m_lmfinit,only:alat=>lat_alat,nbas, ispec,sspec=>v_sspec,nsp,nspc,lmet=>bz_lmet,&
          lekkl, zbak 
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol
     use m_supot,only: lat_nabc,k1,k2,k3
@@ -32,7 +32,6 @@ contains
     !- Adds to the smooth and local output density and to eigval sum
     ! ----------------------------------------------------------------------
     !i Inputs
-    !i   ssite :struct for site-specific information; see routine usite
     !i   sspec :struct for species-specific information; see routine uspec
     !i   isp   :current spin channel
     !i   nsp   :2 for spin-polarized case, otherwise 1
@@ -122,7 +121,7 @@ contains
     nlmto = ndimh-napw
     lmxax = -1
     do  i = 1, nbas
-       k=ssite(i)%spec
+       k=ispec(i) 
        lmxa=sspec(k)%lmxa
        lmxax = max(lmxax,lmxa)
     enddo
@@ -157,21 +156,19 @@ contains
        call rxx(nspc.ne.1,'forces not implemented in noncoll case')
        vavg = vconst
        if (nlmto>0) then
-          call fsmbl ( nbas , ssite , sspec ,  vavg , q , ndimh ,&
-          nlmto, nevec, evl(1,isp) , evec ,  ewgt , f )
+          call fsmbl(vavg , q , ndimh , nlmto, nevec, evl(1,isp) , evec ,  ewgt , f )
        endif
        if (napw>0) then
-          call fsmbpw ( nbas , ssite , sspec , vavg , ndimh , nlmto &
-               , nevec , evl(1,isp) , evec , ewgt , napw , qpgv &
-               , qpg2v , ylv , nlmax , lmxax , alat , dsqrt ( vol ) , f )
+          call fsmbpw (vavg, ndimh , nlmto, nevec , evl(1,isp), evec , ewgt , napw, qpgv, &
+               qpg2v , ylv , nlmax , lmxax , alat , dsqrt ( vol ) , f )
        endif
     endif
     ! ... Add to smooth density
-    call rsibl ( ssite , sspec , lfrce , nbas , isp , q , &
+    call rsibl( lfrce, isp , q , &
          iq , ndimh , nspc , napw , igapw , nevec &
          , evec , ewgt , k1 , k2 , k3 , smpot , smrho , f )
     ! ... Add to local density coefficients
-    call rlocbl ( ssite , sspec , lfrce , nbas , isp , q , &
+    call rlocbl (lfrce , nbas , isp , q , &
          ndham , ndimh , nspc , napw , igapw , nevec &
          , evec , ewgt , evl , sv_p_osig , sv_p_otau , sv_p_oppi &
     , lekkl , sv_p_oqkkl , sv_p_oeqkkl , f )

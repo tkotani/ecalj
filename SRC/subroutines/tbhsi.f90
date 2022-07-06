@@ -1,6 +1,5 @@
-subroutine tbhsi(sspec,nspec,nermx,net,et,ipet,nrt,rt,iprt,ltop)
+subroutine tbhsi(nspec,nermx,net,et,ipet,nrt,rt,iprt,ltop)
   use m_uspecb,only:uspecb
-  use m_struc_def,only:s_spec
   use m_lmfinit,only: nkaphh,lhh
   !- Table of orbital envelope energies and smoothing radii
   ! ----------------------------------------------------------------------
@@ -26,9 +25,7 @@ subroutine tbhsi(sspec,nspec,nermx,net,et,ipet,nrt,rt,iprt,ltop)
   !u   10 Apr 02 Redimensionsed ipet,iprt to accomodate larger lmax
   !u   18 May 00 Adapted from nfp tb_hsi.f
   ! ----------------------------------------------------------------------
-  !      implicit none
-  !     ... Passed parameters
-  type(s_spec):: sspec(*)
+  implicit none
   integer :: nspec,nermx,net,nrt,ltop,n0,nkap0
   parameter (n0=10,nkap0=3)
   integer :: ipet(n0,nkap0,nspec),iprt(n0,nkap0,nspec)

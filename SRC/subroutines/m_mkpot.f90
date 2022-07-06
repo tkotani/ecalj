@@ -613,21 +613,21 @@ contains
        !   ... Case Pkl*Pkl
        nelt1 = (kmax+1)*(kmax+1)*(lmxa+1)*nsp
        nelt2 = (kmax+1)*(kmax+1)*nlma*nlma*nsp!*nspc!*nso
-       allocate(sv_p_osig(1,ib)%v(abs(nelt1)))
-       allocate(sv_p_otau(1,ib)%v(abs(nelt1)))
+       allocate(sv_p_osig(1,ib)%v(nelt1))
+       allocate(sv_p_otau(1,ib)%v(nelt1))
        allocate(sv_p_oppi(1,ib)%cv(nelt2))
        !   ... Case Hsm*Hsm
        nelt1 = nkaph*nkaph*(lmxh+1)*nsp
        nelt2 = nkaph*nkaph*nlmh*nlmh*nsp!*nspc !*nso
-       allocate(sv_p_osig(3,ib)%v(abs(nelt1)))
-       allocate(sv_p_otau(3,ib)%v(abs(nelt1)))
+       allocate(sv_p_osig(3,ib)%v(nelt1))
+       allocate(sv_p_otau(3,ib)%v(nelt1))
        allocate(sv_p_oppi(3,ib)%cv(nelt2))
        !   ...  Case Hsm*Pkl
        if (lmxh > lmxa) call rx('dfaugm: lmxh > lmxa unexpected')
        nelt1 = nkaph*(kmax+1)*(lmxh+1)*nsp
        nelt2 = nkaph*(kmax+1)*nlmh*nlma*nsp!*nspc !*nso
-       allocate(sv_p_osig(2,ib)%v(abs(nelt1)))
-       allocate(sv_p_otau(2,ib)%v(abs(nelt1)))
+       allocate(sv_p_osig(2,ib)%v(nelt1))
+       allocate(sv_p_otau(2,ib)%v(nelt1))
        allocate(sv_p_oppi(2,ib)%cv(nelt2))
        if(lso/=0 .OR. cmdopt0('--socmatrix')) then !spin-orbit copling matrix elements
           nelt = (kmax+1)*(kmax+1)*nlma*nlma !ohsopm (L- and L+) is irrelevant for lso=2

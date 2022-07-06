@@ -132,40 +132,39 @@ program lmf
      if(master_mpi) call Getqmode()
      call Rx0('--getq mode done')
   endif
-  call praugm() !print out properties of species
+!  call praugm() !print out properties of species
   call Lmfp(jobgw==1) !main routine
   call Rx0("OK! end of "//trim(prgnam)//" ======================")
 end program Lmf
-
 
 include "show_programinfo.fpp" !this is for 'call show_programinfo'
 ! preprocessed from show_programinfo.f90 by Makefile
 
 
-subroutine praugm() !print out only
-  use m_struc_def 
-  use m_lmfinit,only: nspec,stdo,sspec=>v_sspec,slabl,rsma
-  implicit none
-  integer :: is
-  integer :: is1,is2,js,kmxt,lmxa,lgunit
-  integer :: kmxv,lmxl,lfoca
-  double precision :: rmt,rfoca,rg,rsmv
-  character spid*8
-  write (stdo,501)
-501 format(/' species data:  augmentation',27x,'density'/ &
-       ' spec       rmt   rsma lmxa kmxa',5x,' lmxl     rg   rsmv foca   rfoca')
-  do js = 1,nspec
-     spid=slabl(js) !sspec(js)%name
-     rmt =sspec(js)%rmt
-!     rsma=sspec(js)%rsma
-     lmxa=sspec(js)%lmxa
-     kmxt=sspec(js)%kmxt
-     lmxl=sspec(js)%lmxl
-     rg=sspec(js)%rg
-     rsmv=sspec(js)%rsmv
-     lfoca=sspec(js)%lfoca
-     rfoca=sspec(js)%rfoca
-     write (stdo,500) spid,rmt,rsma(js),lmxa,kmxt, lmxl,rg,rsmv,lfoca,rfoca
-500  format(1x,a,f6.3,f7.3,2i5,6x,i4,2f7.3,i5,f8.3)
-  enddo
-end subroutine praugm
+! subroutine praugm() !print out only
+!   use m_struc_def 
+!   use m_lmfinit,only: nspec,stdo,sspec=>v_sspec,slabl,rsma
+!   implicit none
+!   integer :: is
+!   integer :: is1,is2,js,kmxt,lmxa,lgunit
+!   integer :: kmxv,lmxl,lfoca
+!   double precision :: rmt,rfoca,rg,rsmv
+!   character spid*8
+!   write (stdo,501)
+! 501 format(/' species data:  augmentation',27x,'density'/ &
+!        ' spec       rmt   rsma lmxa kmxa',5x,' lmxl     rg   rsmv foca   rfoca')
+!   do js = 1,nspec
+!      spid=slabl(js) !sspec(js)%name
+!      rmt =sspec(js)%rmt
+! !     rsma=sspec(js)%rsma
+!      lmxa=sspec(js)%lmxa
+!      kmxt=sspec(js)%kmxt
+!      lmxl=sspec(js)%lmxl
+!      rg=sspec(js)%rg
+!      rsmv=sspec(js)%rsmv
+!      lfoca=sspec(js)%lfoca
+!      rfoca=sspec(js)%rfoca
+!      write (stdo,500) spid,rmt,rsma(js),lmxa,kmxt, lmxl,rg,rsmv,lfoca,rfoca
+! 500  format(1x,a,f6.3,f7.3,2i5,6x,i4,2f7.3,i5,f8.3)
+!   enddo
+! end subroutine praugm

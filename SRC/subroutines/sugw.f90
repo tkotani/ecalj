@@ -539,7 +539,7 @@ contains
           allocate(aus_zv(nlmax*ndham*3*nsp*nbas))
           aus_zv(:)=0.0d0
           call makusq ( 1 ,  nbas,0, nev,  isp, 1 , qp , evec , aus_zv )
-          call gwcphi ( ssite , sspec , isp , nsp , nlmax , ndham , nev &
+          call gwcphi (sspec , isp , nsp , nlmax , ndham , nev &
                , nbas , ipb , lmxax , nlindx , ndima , ppn , aus_zv , cphi &
                ( 1 , 1 , isp ) , cphin ( 1 , 1 , isp ) )
           if (allocated(aus_zv)) deallocate(aus_zv)

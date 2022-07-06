@@ -62,7 +62,7 @@ module m_lmfinit
   !! ... SITE
   character(8),protected:: alabl
   real(8),allocatable,protected :: pos(:,:)!,vel(:,:)!,vshft(:)
-  integer,allocatable,protected :: ips(:),ifrlx(:,:),ndelta(:) !,ipl(:),plv(:)
+  integer,allocatable,protected :: ispec(:),ifrlx(:,:),ndelta(:) !,ipl(:),plv(:)
   real(8),allocatable,protected :: delta(:,:),mpole(:),dpole(:,:)
   integer,allocatable,protected ::iantiferro(:)
   !! ... BZ
@@ -195,7 +195,7 @@ contains
     integer:: nnn
     integer:: i_copy_size,i_spacks,iendx,inix,i_spackv
     real(8):: seref
-    integer:: ib , ispec
+    integer:: ib 
     integer,allocatable:: wowk(:)
     logical:: isanrg,l_dummy_isanrg
     integer:: lmxcg,lmxcy,lnjcg,lnxcg,nlm
@@ -845,9 +845,9 @@ contains
               'token ATOM apply to one site.'/3x,'Alternatively, all ', &
               'site data can be read in via the SITE file.')
       endif
-      allocate(pos(3,nbas),ips(nbas),ifrlx(3,nbas),iantiferro(nbas))
+      allocate(pos(3,nbas),ispec(nbas),ifrlx(3,nbas),iantiferro(nbas))
       ifrlx = 0
-      ips  = NULLI
+      ispec  = NULLI
       pos  = NULLR
       ! ITE_ATOM_*
       do  j = 1, nbas
@@ -861,7 +861,7 @@ contains
          if(io_help /= 1) then
             do  i = 1, nspec
                if (trim(alabl) == trim(slabl(i)) ) then
-                  ips(j) = i
+                  ispec(j) = i
                   goto 881
                endif
             enddo
@@ -1140,8 +1140,7 @@ contains
       enddo
       allocate(v_ssite(nbas)) !,specie(nbas))
       do j=1,nbas
-         v_ssite(j)%spec =ips(j)  ! atomic species
-!         specie(j)=ips(j)
+         v_ssite(j)%spec =ispec(j)  ! atomic species
       enddo   
       sstrnmix=trim(iter_mix)
 
@@ -1284,7 +1283,7 @@ contains
       call suldau(nbas,v_sspec,v_ssite,nlibu,k,wowk)!Count LDA+U blocks (printout only)
       ham_nlibu=nlibu
       call poppr
-      deallocate(wowk,amom, qpol,stni,rg,rfoca,rham,idxdn, rmt,  lfoca,lmxl, spec_a,z,nr,rsmv, ips)!,ifrlx) 
+      deallocate(wowk,amom, qpol,stni,rg,rfoca,rham,idxdn, rmt,  lfoca,lmxl, spec_a,z,nr,rsmv)
       !! --- takao embed contents in susite here. This is only for lmf and lmfgw.
       allocate(iv_a_oips(nbas),source=[(v_ssite(ib)%spec, ib=1,nbas)])
       seref= sum([(eref(v_ssite(ib)%spec),ib=1,nbas)])

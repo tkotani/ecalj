@@ -1,12 +1,12 @@
 !! vbmmode !Get VBM and CBM relative to vaccum (a simple approximaiton. need fixing.).
 subroutine vbmmode()
   !! write vbmcbm.*
-  use m_lmfinit,only: sspec=>v_sspec,ssite=>v_ssite,nbas,ctrl_nspec,vol
+  use m_lmfinit,only: sspec=>v_sspec,ispec,nbas,ctrl_nspec,vol
   use m_ext,only:sname
   implicit none
   character(120):: vbmlll
   real(8):: rydberg=13.6058d0,esold
-  integer:: ifvesatm,ispec,ifves,ifvesintloc,ib,ifvbm,ifvesintatm
+  integer:: ifvesatm,ifves,ifvesintloc,ib,ifvbm,ifvesintatm,ispe
   real(8):: vessm,sumvesloc,sumvesatm,vref,vesloc,evbm,ecbm
   real(8),allocatable::vesatm(:)
   logical:: lfill=.false.,ixx
@@ -16,9 +16,9 @@ subroutine vbmmode()
   open(newunit=ifvesintatm,file='vesintatm.'//trim(sname),status='old',err=9898)
   !! vesintatm is given by lmfa. electrostatic potential integrals.
   allocate(vesatm(ctrl_nspec))
-  do ispec=1,ctrl_nspec
-     if(sspec(ispec)%z==0d0 .AND. sspec(ispec)%rmt==0d0 ) cycle
-     read(ifvesintatm,*,err=9898,end=9898) vesatm(ispec)
+  do ispe=1,ctrl_nspec
+     if(sspec(ispe)%z==0d0 .AND. sspec(ispe)%rmt==0d0 ) cycle
+     read(ifvesintatm,*,err=9898,end=9898) vesatm(ispe)
   enddo
   close(ifvesintatm)
   open(newunit=ifves,file='vessm.'//trim(sname),status='old')
@@ -28,11 +28,11 @@ subroutine vbmmode()
   sumvesloc=0d0
   sumvesatm=0d0
   do ib=1,nbas
-     ispec=ssite(ib)%spec
-     if(sspec(ispec)%z==0d0 .AND. sspec(ispec)%rmt==0d0 )  cycle
+     !ispec=ssite(ib)%spec
+     if(sspec(ispec(ib))%z==0d0 .AND. sspec(ispec(ib))%rmt==0d0 )  cycle
      read(ifvesintloc,*) vesloc
      sumvesloc = sumvesloc + vesloc
-     sumvesatm = sumvesatm + vesatm(ssite(ib)%spec)
+     sumvesatm = sumvesatm + vesatm(ispec(ib))
   enddo
   close(ifvesintloc)
   deallocate(vesatm)

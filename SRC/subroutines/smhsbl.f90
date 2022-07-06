@@ -1,13 +1,13 @@
-subroutine smhsbl(ssite,sspec,vavg,q,ndimh, napw,igapw, h,s)
+subroutine smhsbl(vavg,q,ndimh, napw,igapw, h,s)
   use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg, lat_alat,nbas,nkaphh,lhh
+  use m_lmfinit,only:ssite=>v_ssite,sspec=>v_sspec
   use m_lattic,only: lat_vol,lat_plat,rv_a_opos
   use m_uspecb,only:uspecb
   use m_orbl,only: Orblib1,Orblib2,ktab1,ltab1,offl1,norb1,ktab2,ltab2,offl2,norb2
   use m_ropyln,only: ropyln
   use m_smhankel,only:hhibl
-  use m_struc_def
   implicit none
-  intent(in)::    ssite,sspec,vavg,q,ndimh, napw,igapw 
+  intent(in)::    vavg,q,ndimh, napw,igapw 
   !- Smoothed Bloch Hamiltonian (constant potential) and overlap matrix
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -85,8 +85,8 @@ subroutine smhsbl(ssite,sspec,vavg,q,ndimh, napw,igapw, h,s)
   parameter (nlms=25, kdim=1, n0=10, nkap0=3)
   integer :: procid,master, mode,ndimh,napw,igapw(3,napw)
   real(8):: q(3) , vavg
-  type(s_site)::ssite(*)
-  type(s_spec)::sspec(*)
+!  type(s_site)::ssite(*)
+!  type(s_spec)::sspec(*)
   complex(8):: h(ndimh,ndimh),s(ndimh,ndimh)
   integer :: nlmto, i1,i2,ib1,ib2,ilm1,ilm2,io1,io2,is1,is2,nlm1,nlm2,l1,l2,ig,&
        lmxax,lmxa,nlmax, lh1(nkap0),lh2(nkap0),nkap1,nkap2, &
@@ -132,13 +132,13 @@ subroutine smhsbl(ssite,sspec,vavg,q,ndimh, napw,igapw, h,s)
      enddo
   endif
   if(nlmto >0 ) then
-     do 1010 ib1=1,nbas
+     ib1loop: do 1010 ib1=1,nbas
         is1=ssite(ib1)%spec
         p1 =rv_a_opos(:,ib1) !ssite(ib1)%pos
         call uspecb(is1,rsm1,e1)
         call orblib1(ib1)!norb1,ltab1,ktab1,offl1
         call gtbsl1(8+16,norb1,ltab1,ktab1,rsm1,e1,ntab1,blks1)
-        do  ib2 = ib1, nbas
+        ib2loop: do  ib2 = ib1, nbas
            is2=ssite(ib2)%spec
            p2=rv_a_opos(:,ib2) !ssite(ib2)%pos
            call uspecb(is2,rsm2,e2)
@@ -157,33 +157,30 @@ subroutine smhsbl(ssite,sspec,vavg,q,ndimh, napw,igapw, h,s)
               enddo
            enddo
            do  io2 = 1, norb2 !  ... Loop over orbital indices, poke block of integrals into s,h
-              if (blks2(io2) /= 0) then
-                 l2  = ltab2(io2)!  l2,ik2 = l and kaph indices, needed to locate block in s0
-                 ik2 = ktab2(io2)
-                 i2 = offl2(io2)
-                 do  ilm2 = l2**2+1, (l2+1)**2
-                    i2 = i2+1
-                    do  io1 = 1, norb1
-                       if (blks1(io1) /= 0) then
-                          !     l1,ik1 = l and kaph indices, needed to locate block in s0
-                          l1  = ltab1(io1)
-                          ik1 = ktab1(io1)
-                          i1 = offl1(io1)
-                          do  ilm1 = l1**2+1, (l1+1)**2
-                             i1 = i1+1
-                             s(i1,i2) = s(i1,i2) + s0(ilm1,ilm2,0,ik1,ik2)
-                             h(i1,i2) = h(i1,i2) - s0(ilm1,ilm2,1,ik1,ik2) &
-                                  + vavg*s0(ilm1,ilm2,0,ik1,ik2)
-                          enddo
-                       endif
+              if (blks2(io2) == 0) cycle
+              l2  = ltab2(io2)!  l2,ik2 = l and kaph indices, needed to locate block in s0
+              ik2 = ktab2(io2)
+              i2 = offl2(io2)
+              do  ilm2 = l2**2+1, (l2+1)**2
+                 i2 = i2+1
+                 do  io1 = 1, norb1
+                    if (blks1(io1)==0) cycle
+                    !     l1,ik1 = l and kaph indices, needed to locate block in s0
+                    l1  = ltab1(io1)
+                    ik1 = ktab1(io1)
+                    i1 = offl1(io1)
+                    do  ilm1 = l1**2+1, (l1+1)**2
+                       i1 = i1+1
+                       s(i1,i2) = s(i1,i2) + s0(ilm1,ilm2,0,ik1,ik2)
+                       h(i1,i2) = h(i1,i2) - s0(ilm1,ilm2,1,ik1,ik2) &
+                            + vavg*s0(ilm1,ilm2,0,ik1,ik2)
                     enddo
                  enddo
-              endif
+              enddo
            enddo
-           !     ... end loop over ib2
-        enddo
+        enddo ib2loop
         !     ... Hsm (i1) \times PW (i2)  Takao. Similar logic in fsmbl
-        do  ig = 1, napw
+        igloop: do  ig = 1, napw
            i2 = ig + nlmto
            qpg2 = qpg2v(ig)
            phase = exp(srm1*alat*ddot(3,qpgv(1,ig),1,p1,1))
@@ -194,33 +191,25 @@ subroutine smhsbl(ssite,sspec,vavg,q,ndimh, napw,igapw, h,s)
               i1  = offl1(io1)
               denom = e1(l1+1,ik1) - qpg2
               gam   = 1d0/4d0*rsm1(l1+1,ik1)**2
-              !     Note: fach depends on l.
               fach  = -fpi/denom * phase * srm1l(l1) * exp(gam*denom)
               do  ilm1 = l1**2+1, (l1+1)**2
                  i1 = i1+1
                  !     <Hsm^bloch | exp(i q+G r)/srvol > and
                  !     <Hsm^bloch | nabla + vavg |  exp(i q+G r)/srvol > in a cell.
                  ovl = fach * ylv(ig,ilm1)/srvol ! JMP Eq.(9.4)
-                 !     gradient of ovl
-                 !     ovl = srm1*qpgv(1,ig) * ovl
-                 !     #if MPI
-                 !     sbuf(i1,i2) = sbuf(i1,i2) + ovl
-                 !     hbuf(i1,i2) = hbuf(i1,i2) + qpg2*ovl + vavg*ovl
                  s(i1,i2) = s(i1,i2) + ovl
                  h(i1,i2) = h(i1,i2) + qpg2*ovl + vavg*ovl
               enddo
            enddo
-        enddo
-1010 enddo
+        enddo igloop
+1010 enddo ib1loop
   endif
   do  ig = 1, napw !! ... PW x PW part (diagonal matrix)
      i2 = ig + nlmto
      s(i2,i2) = s(i2,i2) + 1
      h(i2,i2) = h(i2,i2) + qpg2v(ig) + vavg
   enddo
-  if (napw > 0) then
-     deallocate(yl,ylv,qpgv,qpg2v,srm1l)
-  endif
+  if (napw > 0)deallocate(yl,ylv,qpgv,qpg2v,srm1l)
   do  i1 = 1, ndimh !! ... Occupy second half of matrix
      do  i2 = i1, ndimh
         h(i2,i1) = dconjg(h(i1,i2))

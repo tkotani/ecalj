@@ -1,5 +1,5 @@
 subroutine totfrc(leks,fes1,fes2,dfhf,fin,fout)
-  use m_lmfinit,only: nbas,ssite=>v_ssite
+  use m_lmfinit,only: nbas
   use m_mksym,only:  rv_a_osymgr , iv_a_oistab ,lat_nsgrp
   use m_struc_def
   use m_lgunit,only:stdo,stdl
@@ -72,7 +72,6 @@ subroutine totfrc(leks,fes1,fes2,dfhf,fin,fout)
              write (stdl,711) ib,(c*fhar(m),m=1,3),(c*fks(m),m=1,3)
 711     format('fp ib',i4,'  fh ',3f8.2,'   fks ',3f8.2)
      endif
-!     ssite(ib)%force = f(:,ib)
   enddo
   call info5(10,0,0,' Maximum Harris force = %;3g mRy/au (site %i)' &
        //'%?#n#  Max eval correction = %;1d##',c*fmax,ibmx,isw(dfmax.gt.0),c*dfmax,0)

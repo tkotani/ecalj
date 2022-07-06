@@ -149,7 +149,7 @@ contains
              do ik1 = 1, nkk1
                 iq = iq+1
                 ipqe(ik1,ik2,ik3)=iq
-                qx = matmul(qlat, [(ik1-1)/nkk1,(ik2-1)/nkk2, (ik3-1)/nkk3])
+                qx = matmul(qlat, [dble(ik1-1)/nkk1,dble(ik2-1)/nkk2, dble(ik3-1)/nkk3])
                 if(abs(sum(qx-qplist(:,iq)))>1d-6)call rx("bndfp: qx/=qplist something strang")
              enddo
           enddo
