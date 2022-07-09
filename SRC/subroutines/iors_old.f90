@@ -13,7 +13,7 @@ contains
 
     use m_supot,only: lat_nabc
     use m_struc_func,only: mpibc1_s_spec!,mpibc1_s_site
-    use m_lmfinit,only: lat_alat,nsp,lrel,nl,ssite=>v_ssite,sspec=>v_sspec, nbas,nat,nspec,n0,idmodis=>idmod,slabl,&
+    use m_lmfinit,only: lat_alat,nsp,lrel,nl,ispec,sspec=>v_sspec, nbas,nat,nspec,n0,idmodis=>idmod,slabl,&
          rsma
     use m_lattic,only: lat_plat
     use m_ext,only:sname
@@ -347,7 +347,7 @@ contains
        ibaug = 0
        do  ib = 1, nbas
           !ic=ssite(ib)%class
-          is=ssite(ib)%spec
+          is=ispec(ib) !ssite(ib)%spec
           !         is = -1 -> spec struc does not have these parameters
           !         lskip = .false.
           if (is /= -1) then
@@ -586,7 +586,7 @@ contains
 
        !   ... Copy or rescale cores, in case foca was switched on or off
        do  ib = 1, nbas
-          is = int(ssite(ib)%spec)
+          is = ispec(ib) !int(ssite(ib)%spec)
           a=sspec(is)%a
           nr=sspec(is)%nr
           rmt=sspec(is)%rmt
@@ -668,7 +668,7 @@ contains
        if (ipr >= 50) write(stdo,364)
        do  120  ib = 1, nbas
           !ic=ssite(ib)%class
-          is=ssite(ib)%spec
+          is=ispec(ib) !ssite(ib)%spec
           spid=slabl(is) !sspec(is)%name
           a=sspec(is)%a
           nr=sspec(is)%nr

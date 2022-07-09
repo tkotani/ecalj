@@ -1,5 +1,5 @@
 subroutine makusq(mode,nsites,isite, nev,isp,iq,q,evec,  aus)
-  use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nkapii,lhh,rsma
+  use m_lmfinit,only: ispec,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nkapii,lhh,rsma
   use m_suham,only: ndham=>ham_ndham
   use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
   use m_mkpot,only: ppnl=>ppnl_rv
@@ -10,19 +10,6 @@ subroutine makusq(mode,nsites,isite, nev,isp,iq,q,evec,  aus)
   !i Inputs
   !i   mode  :0 generate coefficients to values, slopes
   !i         :1 generate coefficients to phi,phidot
-  !i   ssite :struct containing site-specific information
-  !i     Elts read: spec pos
-  !i     Passed to: pusq1
-  !i   sspec :struct containing species-specific information
-  !i     Elts read: rsma lmxa lmxl kmxt a nr rmt lmxb
-  !i     Stored:
-  !i     Passed to: uspecb pusq1
-  !i   slat  :struct containing information about the lattice
-  !i     Elts read: ocg ojcg oidxcg ocy
-  !i     Stored:
-  !i     Passed to: pusq1 hxpbl
-  !i   sham  :struct containing information about the hamiltonian
-  !i     Elts read: oindxo
   !i   nbas  :number of basis atoms
   !i   nsites:If zero, coefficients are made all sites.
   !i         :If nonzero, coefficients are made just for a subset
@@ -114,8 +101,7 @@ subroutine makusq(mode,nsites,isite, nev,isp,iq,q,evec,  aus)
      else
         ib = isite(i)
      endif
-     is = ssite(ib)%spec
-!     rsma=sspec(is)%rsma
+     is = ispec(ib)
      lmxa=sspec(is)%lmxa
      lmxl=sspec(is)%lmxl
      kmax=sspec(is)%kmxt
@@ -142,7 +128,7 @@ subroutine makusq(mode,nsites,isite, nev,isp,iq,q,evec,  aus)
      call fradpk(kmax,rsma(is),lmxa,nr,rofi_rv,fp_rv,xp_rv,vp_rv,dp_rv)
      !   --- Add to the coefficient for the projection onto (u,s) for this site
      call pusq1 ( mode , ib , isp , nspc , nlmax , lmxh &
-          , nbas , ssite , sspec ,  q , ndham , ndimh , napw , igvapw& ! & slat ,
+          , nbas , sspec ,  q , ndham , ndimh , napw , igvapw& ! & slat ,
           , nev , evec , vh_rv , dh_rv , vp_rv , dp_rv , ppnl ( 1 , 1 , &
           1 , ib ) , aus ( 1 , 1 , 1 , 1 , i , iq ) , aus ( 1 , 1 , 2 , &
           1 , i , iq ) , aus ( 1 , 1 , 3 , 1 , i , iq ) )
@@ -160,10 +146,10 @@ subroutine makusq(mode,nsites,isite, nev,isp,iq,q,evec,  aus)
   call tcx('makusq')
 end subroutine makusq
 ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-subroutine pusq1(mode,ia,isp,nspc,nlmax,lmxh,nbas,ssite, &
+subroutine pusq1(mode,ia,isp,nspc,nlmax,lmxh,nbas, &
      sspec,q,ndham,ndimh,napw,igvapw,nev,evec,vh,dh,vp,dp,ppnl, &
      au,as,az)
-  use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkapii
+  use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkapii,ispec
   use m_uspecb,only: uspecb
   use m_bstrux,only: bstrux_set,bstr
   use m_struc_def
@@ -224,7 +210,6 @@ subroutine pusq1(mode,ia,isp,nspc,nlmax,lmxh,nbas,ssite, &
        nbas,ndham,ndimh,napw,igvapw(3,napw),nev,nlmbx,n0,nppn
   parameter (nlmbx=25, n0=10, nppn=12)
   real(8):: ppnl(nppn,n0,2),q(3),vp(*),dp(*),vh(*),dh(*)
-  type(s_site)::ssite(*)
   type(s_spec)::sspec(*)
   complex(8):: evec(ndimh,nspc,ndimh), &
        au(nlmax,ndham*nspc,3,2), &
@@ -238,7 +223,7 @@ subroutine pusq1(mode,ia,isp,nspc,nlmax,lmxh,nbas,ssite, &
   real(8) :: pa(3),rmt, phi,phip,dphi,dlphi,dphip,dlphip,det,rotp(nlmxx,2,2),&
        eh(n0,nkap0),rsmh(n0,nkap0)
   call tcn ('pusq1')
-  isa =ssite(ia)%spec
+  isa =ispec(ia)!%spec
   pa  =rv_a_opos(:,ia) !ssite(ia)%pos
   lmxa=sspec(isa)%lmxa
   if (lmxa == -1) return

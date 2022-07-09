@@ -17,7 +17,7 @@ module m_mksym
 contains
   ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine m_mksym_init(prgnam) ! Driver for calling mksymaf and mksym
-    use m_lmfinit,only: v_ssite,nbas,sstrnsymg,ctrl_noinv, &
+    use m_lmfinit,only: nbas,sstrnsymg,ctrl_noinv, &
          symgaf,iv_a_oips,slabl,mxspec,procid,master,iantiferro
     use m_lattic,only: rv_a_opos,m_lattic_init,rv_a_opos
     !-------------

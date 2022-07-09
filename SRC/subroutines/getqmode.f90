@@ -2,7 +2,7 @@
 !! spin symmetic (or nspin=1, not 2 channell binded and so on...
 ! sssssssssssssssssssssssssssssssssssssssssssssssssss
 subroutine getqmode()     !no output. getq mode just output. Not return variables.
-  use m_lmfinit, only: nspec=>ctrl_nspec,sspec=>v_sspec,ssite=>v_ssite,nbas,stdo
+  use m_lmfinit, only: nspec=>ctrl_nspec,sspec=>v_sspec,ispec,nbas,stdo
   use m_ext,only:sname
   ! read veswavatm.* and qbyl.*
   implicit none
@@ -44,7 +44,7 @@ subroutine getqmode()     !no output. getq mode just output. Not return variable
   allocate(ql(0:lmxa,nspec))
   do ib=1,nbas
      read(ifiqb,*)ibas,isp,idummy,qlx(0:lmxa)
-     is = ssite(ib)%spec
+     is = ispec(ib)
      ql(0:lmxa,is)=qlx(0:lmxa)
      write(6,"(' ibas ql=',i3,20f12.6)") ib,ql(0:lmxa,is)
   enddo

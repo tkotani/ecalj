@@ -109,7 +109,7 @@ module m_lmfinit
   real(8),protected:: defm(6)
   !! sspec and ssite are unprotected, but there are changed only by iors/rdovfa (see lmfp.f90)
   type(s_spec),allocatable:: v_sspec(:) !(nspec: number of species in the cell)
-  type(s_site),allocatable:: v_ssite(:) !(nbas: number of atoms)
+!  type(s_site),allocatable:: v_ssite(:) !(nbas: number of atoms)
   integer,allocatable,public,target:: ltabx(:,:),ktabx(:,:),offlx(:,:),ndimxx(:),norbx(:)
   integer,allocatable,public,protected:: jma(:),jnlml(:)
   !! DYN
@@ -1138,14 +1138,14 @@ contains
          v_sspec(j)%rg=rg(j)
          v_sspec(j)%rmt=rmt(j)
       enddo
-      allocate(v_ssite(nbas)) !,specie(nbas))
-      do j=1,nbas
-         v_ssite(j)%spec =ispec(j)  ! atomic species
-      enddo   
+!      allocate(v_ssite(nbas)) !,specie(nbas))
+!      do j=1,nbas
+!         v_ssite(j)%spec =ispec(j)  ! atomic species
+!      enddo   
       sstrnmix=trim(iter_mix)
 
       do j=1,nbas
-         is=v_ssite(j)%spec
+         is=ispec(j) !v_ssite(j)%spec
          pnuall(:,1:nsp,j) = pnusp(1:n0,1:nsp,is)
          pnzall(:,1:nsp,j) = pzsp(1:n0,1:nsp,is) 
       enddo
@@ -1201,7 +1201,7 @@ contains
         iprmb=-1
         nlmto = 0
         do 110 ib = 1,nbas
-           is = v_ssite(ib)%spec
+           is = ispec(ib) !v_ssite(ib)%spec
            iposn = mxorb*(ib-1)
            do 1121 ik = 1, nkaph
               do  l = 0, nl-1
@@ -1255,23 +1255,23 @@ contains
       !  
       nspx  = nsp
       if(lso/=0) nspx = 1
-      nvi= sum([( (lmxa(v_ssite(ib)%spec)+1)**2,ib=1,nbas )])
-      nvl= sum([( (lmxl(v_ssite(ib)%spec)+1)**2,ib=1,nbas )])
+      nvi= sum([( (lmxa(ispec(ib))+1)**2,ib=1,nbas )])
+      nvl= sum([( (lmxl(ispec(ib))+1)**2,ib=1,nbas )])
       pot_nlma=nvi
       pot_nlml=nvl
       allocate(jnlml(nbas),jma(nbas))
       jnlml(1)=1 ! (ilm,ib) index
       jma(1)=1
       do  i = 1, nbas-1
-         jnlml(i+1)= (lmxl(v_ssite(i)%spec)+1)**2 +jnlml(i)
-         jma(i+1)= (lmxa(v_ssite(i)%spec)+1)**2 +jma(i)
+         jnlml(i+1)= (lmxl(ispec(i))+1)**2 +jnlml(i)
+         jma(i+1)= (lmxa(ispec(i))+1)**2 +jma(i)
       enddo
       
       !     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
       if (procid == master) then
          nat = nbas
          do  i = 1, nbas
-            j=v_ssite(i)%spec
+            j=ispec(i) !v_ssite(i)%spec
             l=v_sspec(j)%lmxa
             if (l == -1) nat = nat-1
          enddo
@@ -1280,13 +1280,13 @@ contains
       allocate(wowk(nbas))
       wowk=0
       call pshpr(0)
-      call suldau(nbas,v_sspec,v_ssite,nlibu,k,wowk)!Count LDA+U blocks (printout only)
+      call suldau(nbas,v_sspec,nlibu,k,wowk)!Count LDA+U blocks (printout only)
       ham_nlibu=nlibu
       call poppr
       deallocate(wowk,amom, qpol,stni,rg,rfoca,rham,idxdn, rmt,  lfoca,lmxl, spec_a,z,nr,rsmv)
       !! --- takao embed contents in susite here. This is only for lmf and lmfgw.
-      allocate(iv_a_oips(nbas),source=[(v_ssite(ib)%spec, ib=1,nbas)])
-      seref= sum([(eref(v_ssite(ib)%spec),ib=1,nbas)])
+      allocate(iv_a_oips(nbas),source=[(ispec(ib), ib=1,nbas)])
+      seref= sum([(eref(ispec(ib)),ib=1,nbas)])
       ham_seref= seref
       if (procid == master) then
          if (iprint() >= 20) then
@@ -1365,7 +1365,7 @@ contains
       lldau = 0
       if(master_mpi) write(stdo,*)
       do  ib = 1, nbas
-         is = v_ssite(ib)%spec
+         is = ispec(ib) !v_ssite(ib)%spec
          do  lx = 0, min(v_sspec(is)%lmxa,3)
             if (idu(lx+1,is) /= 0) then
                if (lldau(ib) ==0) lldau(ib) = nlibu+1

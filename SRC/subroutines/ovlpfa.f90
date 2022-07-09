@@ -1,5 +1,5 @@
-subroutine ovlpfa(ssite,nbas,nxi,nxi0,exi,hfc,rsmfa,ng,ngmx,  gv,cv)
-  use m_lmfinit,only:lat_alat,nsp
+subroutine ovlpfa(nbas,nxi,nxi0,exi,hfc,rsmfa,ng,ngmx,  gv,cv)
+  use m_lmfinit,only:lat_alat,nsp,ispec
   use m_lattic,only: lat_vol,rv_a_opos
   use m_lgunit,only:stdo
   use m_ftox
@@ -37,7 +37,7 @@ subroutine ovlpfa(ssite,nbas,nxi,nxi0,exi,hfc,rsmfa,ng,ngmx,  gv,cv)
   implicit none
   integer :: nbas,nxi(1),nxi0,ng,ngmx
   real(8):: gv(ngmx,3) , rsmfa(1) , exi(nxi0,1) , hfc(nxi0,2,1)
-  type(s_site)::ssite(*)
+!  type(s_site)::ssite(*)
   double complex cv(ng,*)
   integer :: ipr,iprint,ib,is,nx,i,ixi,ig,isp
   double precision :: v(3),pi,y0,alat,vol,tpiba,sum(2),px,py,pz,pos(3), &
@@ -59,7 +59,7 @@ subroutine ovlpfa(ssite,nbas,nxi,nxi0,exi,hfc,rsmfa,ng,ngmx,  gv,cv)
   ibini=1
   ibend=nbas
   do ib=ibini,ibend
-     is=ssite(ib)%spec
+     is=ispec(ib) !ssite(ib)%spec
      pos=rv_a_opos(:,ib) !ssite(ib)%pos
      nx = nxi(is)
      !   ... Loop over Hankels at this site

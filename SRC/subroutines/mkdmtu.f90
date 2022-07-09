@@ -1,5 +1,5 @@
 subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu)
-  use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nl,n0,nppn,nlibu,lmaxu,nlibu,lldau,idu
+  use m_lmfinit,only: ispec,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nl,n0,nppn,nlibu,lmaxu,nlibu,lldau,idu
   use m_mkpot,only: ppnl=>ppnl_rv
   use m_subzi, only: wtkb=>rv_a_owtkb
   use m_igv2x,only: ndimh
@@ -54,7 +54,7 @@ subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu)
   iblu = 0
   do  ib = 1, nbas
      if (lldau(ib) == 0) goto 10
-     is = ssite(ib)%spec
+     is = ispec(ib) !ssite(ib)%spec
      lmxa=sspec(is)%lmxa
      !idu= sspec(is)%idu
      rmt= sspec(is)%rmt

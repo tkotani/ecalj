@@ -228,7 +228,7 @@ contains
   ! ssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine chkdmu(eks, dmatu,dmatuo,vorb)
     use m_struc_def,only: s_site,s_spec
-    use m_lmfinit,only: stdl,nbas,nsp,nlibu,lmaxu,ssite=>v_ssite,sspec=>v_sspec,lldau, &
+    use m_lmfinit,only: stdl,nbas,nsp,nlibu,lmaxu,ispec,sspec=>v_sspec,lldau, &
          tolu=>mix_tolu,umix=>mix_umix,stdo,idu,uh,jh
     use m_MPItk,only: master_mpi
     use m_mksym,only: g=>rv_a_osymgr,istab=>iv_a_oistab, ng =>lat_nsgrp
@@ -282,20 +282,20 @@ contains
     ipl = 1
     ivsiz = nsp*nlibu*(lmaxu*2+1)**2
     ! --- Symmetrize output dmatu (req. real harmonics); compare diff ---
-    if(iprint()>=60) call praldm(0,60,60,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite, &
+    if(iprint()>=60) call praldm(0,60,60,havesh,nbas,nsp,lmaxu,lldau,sspec, &
          ' Unsymmetrized output dmats',dmatu)
-    call symdmu(nlibu,dmatu, nbas,nsp, lmaxu, sspec, ssite, ng, g, istab, lldau, xx)
+    call symdmu(nlibu,dmatu, nbas,nsp, lmaxu, sspec, ng, g, istab, lldau, xx)
     ddmat = dsqrt(ddot(2*ivsiz,dmatu-dmatuo,1,dmatu-dmatuo,1)/(2*ivsiz))
     if(master_mpi)write(stdo,ftox)
     if(master_mpi)write(stdo,ftox)'chkdmu: LDA+U. RMSdiff of dmat from symmetrization =',ftod(xx,2)
     ! --- Compute U contribution to total energy; make vorb ---
-    call rotycs(1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau) !mode=1, dmatu is from rh to sh
+    call rotycs(1,dmatu,nbas,nsp,lmaxu,sspec,lldau) !mode=1, dmatu is from rh to sh
     havesh = 1
     eorb = 0
     iblu = 0
     do  ib = 1, nbas
        if (lldau(ib) /= 0) then
-          is = ssite(ib)%spec
+          is = ispec(ib) !ssite(ib)%spec
           lmxa=sspec(is)%lmxa
           !idu=sspec(is)%idu
           !uh=sspec(is)%uh
@@ -315,11 +315,11 @@ contains
     if(master_mpi)write(stdl,ftox)'ldau EHK',ftof(eks),'U',ftof(eorb),'ELDA+U',ftof(eks+eorb)
 
     ! --- Restore dmatu, vorb to real harmonics
-    call rotycs(-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau) !-1, from sh to rh idvsh=0
+    call rotycs(-1,dmatu,nbas,nsp,lmaxu,sspec,lldau) !-1, from sh to rh idvsh=0
     havesh = 0
     if(master_mpi)write(stdo,ftox)'LDA+U update density matrix ... RMS diff in densmat',ftod(ddmat)
     dmatu = umix*dmatu+(1d0-umix)*dmatuo ! new*umix + old*(1-umix)
-    call rotycs(1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau) !from rh to sh
+    call rotycs(1,dmatu,nbas,nsp,lmaxu,sspec,lldau) !from rh to sh
     havesh = 1
 
     !$$$cccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -383,7 +383,7 @@ contains
     iblu = 0
     do  ib = 1, nbas
        if (lldau(ib) /= 0) then
-          is = ssite(ib)%spec
+          is = ispec(ib)!ssite(ib)%spec
           lmxa=sspec(is)%lmxa
           !idu=sspec(is)%idu
           !uh=sspec(is)%uh
@@ -401,36 +401,36 @@ contains
        endif
     enddo
     !  ... Symmetrize vorb to check (symdmu requires real harmonics)
-    call rotycs(-1,vorb,nbas,nsp,lmaxu,sspec,ssite,lldau) !vorb from sh to rh
-    call symdmu(nlibu,vorb,nbas , nsp , lmaxu , sspec, ssite , ng , g , istab , lldau , xx )
-    call rotycs(1,vorb,nbas,nsp,lmaxu,sspec,ssite,lldau) !vorb from rh to sh
+    call rotycs(-1,vorb,nbas,nsp,lmaxu,sspec,lldau) !vorb from sh to rh
+    call symdmu(nlibu,vorb,nbas , nsp , lmaxu , sspec, ng , g , istab , lldau , xx )
+    call rotycs(1,vorb,nbas,nsp,lmaxu,sspec,lldau) !vorb from rh to sh
 
     !!=>  At this point, dmatu and vorb are in spherical harmonics
     if(Iprint()>20) write(6,ftox)'RMS change in vorb from symmetrization =',ftod(xx)
     if(xx>.0001d0 .AND. iprint()>30) write(6,'(a)')' (warning) RMS change unexpectely large'
     if(iprint()>0) write(6,ftox)'=== representation in spherical harmonics dmatu ==='
-    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite, 'Mixed dmats',dmatu)
+    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec, 'Mixed dmats',dmatu)
     if(iprint()>0) write(6,ftox)'=== representation in spherical harmonics vorb ==='
-    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite, 'New vorb',vorb)
+    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec, 'New vorb',vorb)
     if (master_mpi) then
        idmat = ifile_handle()
        open(idmat,file='dmats.'//trim(sname)) !havesh mush be 1
-       call praldm(idmat,0,0,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,' mixed dmats',dmatu)
+       call praldm(idmat,0,0,havesh,nbas,nsp,lmaxu,lldau,sspec,' mixed dmats',dmatu)
        close(idmat)
     endif
     !! write in real harmonics
-    call rotycs(-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau) !from sh to rh
-    call rotycs(-1,vorb,nbas,nsp,lmaxu,sspec,ssite,lldau)  !from sh to rh
+    call rotycs(-1,dmatu,nbas,nsp,lmaxu,sspec,lldau) !from sh to rh
+    call rotycs(-1,vorb,nbas,nsp,lmaxu,sspec,lldau)  !from sh to rh
     havesh=0                  !I recovered this 2022May8
     if(iprint()>0) write(6,ftox)'=== represenation in real harmonics dmatu==='
-    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,'Mixed dmats',dmatu)
+    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,'Mixed dmats',dmatu)
     if(iprint()>0) write(6,ftox)'=== represenation in real harmonics vorb==='
-    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,'New vorb',vorb)
+    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,'New vorb',vorb)
   end subroutine chkdmu
   ! sssssssssssssssssssssssssssssssssssssssssssssss
   subroutine sudmtu(dmatu,vorb)
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
-    use m_lmfinit,only: nbas,nsp,nlibu,lmaxu,lldau,ssite=>v_ssite,sspec=>v_sspec,stdo,slabl,idu,uh,jh
+    use m_lmfinit,only: nbas,nsp,nlibu,lmaxu,lldau,ispec,sspec=>v_sspec,stdo,slabl,idu,uh,jh
     use m_mksym,only: g=>rv_a_osymgr,istab=>iv_a_oistab, ng =>lat_nsgrp
     !- Initialize site density matrix and vorb  for LDA+U
     ! ----------------------------------------------------------------------
@@ -500,7 +500,7 @@ contains
     sss=0d0
     do  ib = 1, nbas
        if (lldau(ib) /= 0) then
-          is = ssite(ib)%spec
+          is = ispec(ib) !ssite(ib)%spec
           sss = sss + sum(abs(uh(:,is)))+sum(abs(jh(:,is)))
        endif
     enddo
@@ -532,7 +532,7 @@ contains
        iblu = 0
        do  ib = 1, nbas
           if (lldau(ib) /= 0) then
-             is = ssite(ib)%spec
+             is = ispec(ib) !ssite(ib)%spec
              lmxa=sspec(is)%lmxa
              !idu=sspec(is)%idu
              do l = 0, min(lmxa,3)
@@ -575,7 +575,7 @@ contains
        iblu = 0
        do  ib = 1, nbas
           if (lldau(ib) /= 0) then
-             is = int(ssite(ib)%spec)
+             is = ispec(ib) !int(ssite(ib)%spec)
              lmxa=sspec(is)%lmxa
              !idu=sspec(is)%idu
              do l = 0,min(lmxa,3)
@@ -612,25 +612,25 @@ contains
 1185 continue
 
     ! ... Initial printout
-    call praldm(0,51,51,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,' dmats read from disk',dmatu)
+    call praldm(0,51,51,havesh,nbas,nsp,lmaxu,lldau,sspec,' dmats read from disk',dmatu)
     ivsiz = nsp*nlibu*(lmaxu*2+1)**2
     call mpibc1(dmatu,2*ivsiz,4,mlog,'sudmtu','dmatu')
     call mpibc1(havesh,1,2,.false.,' ',' ')
     ! ... Density matrix in real or spherical harmonics (fixed by idvsh)
     if (havesh /= idvsh) then
-       call rotycs(2*idvsh-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
+       call rotycs(2*idvsh-1,dmatu,nbas,nsp,lmaxu,sspec,lldau)
        havesh = idvsh
     endif
     ! ... Symmetrize dmatu (symdmu requires real harmonics)
     dmwk_zv=dmatu
     if (havesh == 1) then
-       call rotycs(-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
+       call rotycs(-1,dmatu,nbas,nsp,lmaxu,sspec,lldau)
        havesh = 0
     endif
-    call symdmu(nlibu,dmatu , nbas , nsp , lmaxu , sspec, ssite , ng , g , istab , lldau , xx )
+    call symdmu(nlibu,dmatu , nbas , nsp , lmaxu , sspec, ng , g , istab , lldau , xx )
     if (havesh /= idvsh) then
-       call rotycs(2*idvsh-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
-       call rotycs(2*idvsh-1,dmwk_zv,nbas,nsp,lmaxu,sspec,ssite, lldau )
+       call rotycs(2*idvsh-1,dmatu,nbas,nsp,lmaxu,sspec, lldau)
+       call rotycs(2*idvsh-1,dmwk_zv,nbas,nsp,lmaxu,sspec, lldau )
        havesh = idvsh
     endif
     if (ng /= 0) then
@@ -640,23 +640,23 @@ contains
        call daxpy ( ivsiz * 2 , - 1d0 , dmatu , 1 , dmwk_zv , 1 )
        if(ipr>=60) write(stdo,*)' change in dmat wrought by symmetrization'
        call praldm ( 0 , 60 , 60 , 0 , nbas , nsp , lmaxu , lldau , &
-            sspec , ssite , ' ' , dmwk_zv )
+            sspec , ' ' , dmwk_zv )
     endif
     !     Print dmats in specified harmonics
     dmwk_zv=dmatu
     if (havesh /= idvsh) then
-       call rotycs ( 2 * idvsh - 1 , dmwk_zv , nbas , nsp , lmaxu, sspec , ssite , lldau )
+       call rotycs ( 2 * idvsh - 1 , dmwk_zv , nbas , nsp , lmaxu, sspec , lldau )
     endif
     if(master_mpi)write(stdo,*)
-    call praldm(0,30,30,idvsh,nbas,nsp,lmaxu,lldau,sspec , ssite , ' Symmetrized dmats' , dmwk_zv )
+    call praldm(0,30,30,idvsh,nbas,nsp,lmaxu,lldau,sspec, ' Symmetrized dmats' , dmwk_zv )
     !     Print dmats in complementary harmonics
     i = 1-idvsh
-    call rotycs(2 * i - 1 , dmwk_zv , nbas , nsp , lmaxu , sspec , ssite , lldau )
+    call rotycs(2 * i - 1 , dmwk_zv , nbas , nsp , lmaxu, sspec, lldau )
     if(master_mpi)write(stdo,*)
-    call praldm(0,30,30,i,nbas,nsp,lmaxu,lldau,sspec,ssite, ' Symmetrized dmats' , dmwk_zv )
+    call praldm(0,30,30,i,nbas,nsp,lmaxu,lldau,sspec, ' Symmetrized dmats' , dmwk_zv )
     ! ... Make Vorb (ldau requires spherical harmonics)
     if (havesh /= 1) then
-       call rotycs(1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
+       call rotycs(1,dmatu,nbas,nsp,lmaxu,sspec,lldau)
        havesh = 1
     endif
     !$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -684,7 +684,7 @@ contains
     iblu = 0
     do  20  ib = 1, nbas
        if (lldau(ib) == 0) goto 20
-       is = int(ssite(ib)%spec)
+       is = ispec(ib) !int(ssite(ib)%spec)
        lmxa=sspec(is)%lmxa
        !idu=sspec(is)%idu
        !uh=sspec(is)%uh
@@ -700,17 +700,17 @@ contains
           endif
 22     enddo
 20  enddo
-    call praldm(0,60,60,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,' Unsymmetrized vorb',vorb)
+    call praldm(0,60,60,havesh,nbas,nsp,lmaxu,lldau,sspec,' Unsymmetrized vorb',vorb)
     !==>     At this point, dmatu and vorb are in spherical harmonics
     ! ... Symmetrize vorb to check (symdmu requires real harmonics)
-    call rotycs(-1,vorb,nbas,nsp,lmaxu,sspec,ssite,lldau)
-    call symdmu (nlibu, vorb, nbas , nsp , lmaxu , sspec , ssite , ng , g , istab , lldau , xx )
+    call rotycs(-1,vorb,nbas,nsp,lmaxu,sspec,lldau)
+    call symdmu (nlibu, vorb, nbas , nsp , lmaxu , sspec , ng , g , istab , lldau , xx )
     !     EITHER: vorb =>  spherical harmonics OR dmatu => real harmonics
     if (idvsh == 1) then
-       call rotycs(1,vorb,nbas,nsp,lmaxu,sspec,ssite,lldau)
+       call rotycs(1,vorb,nbas,nsp,lmaxu,sspec,lldau)
        havesh = 1
     else
-       call rotycs(-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
+       call rotycs(-1,dmatu,nbas,nsp,lmaxu,sspec,lldau)
        havesh = 0
     endif
     if (master_mpi.and.ng /= 0) then
@@ -719,12 +719,12 @@ contains
        write(stdo,*)
     endif
     !     Print vorb in specified harmonics
-    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,' Symmetrized vorb',vorb)
+    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,' Symmetrized vorb',vorb)
     i = 1-idvsh
     dmwk_zv=vorb
-    call rotycs( 2 * i - 1 , dmwk_zv , nbas , nsp , lmaxu , sspec  , ssite , lldau )
+    call rotycs( 2 * i - 1 , dmwk_zv , nbas , nsp , lmaxu , sspec , lldau )
     write(stdo,*) !vorb in complementary harmonics
-    call praldm(0,30,30, i , nbas , nsp , lmaxu , lldau , sspec , ssite , ' Vorb' , dmwk_zv )
+    call praldm(0,30,30, i , nbas , nsp , lmaxu , lldau , sspec , ' Vorb' , dmwk_zv )
     eorb = 0d0
     ! --- Error exit ---
     return
@@ -734,9 +734,9 @@ contains
   end subroutine sudmtu
 
   ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  subroutine rotycs(mode,a,nbas,nsp,lmaxu,sspec,ssite,lldau)
-    use m_struc_def  !Cgetarg
-    use m_lmfinit,only:idu
+  subroutine rotycs(mode,a,nbas,nsp,lmaxu,sspec,lldau)
+    use m_struc_def  
+    use m_lmfinit,only:idu,ispec
     !- Rotate matrix a from real to spherical harmonics
     ! for LDA+U objects densmat and vorb
     !-------------------------------------
@@ -747,7 +747,6 @@ contains
     !i nsp  : number of spins
     !i lmaxu: lmax for U
     !i sspec: species info
-    !i ssite: sites info
     !i lldau  :lldau(ib)=0 => no U on this site otherwise
     !i        :U on site ib with dmat in dmats(*,lldau(ib))
     !o a rotated in place
@@ -766,7 +765,6 @@ contains
     integer :: nbas,lldau(nbas),mode,lmaxu,nsp,i_copy_size
     complex(8),target:: a(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
     type(s_spec)::sspec(*)
-    type(s_site)::ssite(*)
     integer:: ib,m,l,is,igetss,i,j,k,ll,isp,iblu
     complex(8):: b(2,2),c(2,2),add,bb(2,2)
     complex(8),parameter:: s2= 1/dsqrt(2d0), img=(0d0,1d0)
@@ -785,7 +783,7 @@ contains
     iblu = 0
     do  ib = 1, nbas
        if (lldau(ib)==0) cycle
-       is  = ssite(ib)%spec
+       is  = ispec(ib) !ssite(ib)%spec
        do  l = 0, min(sspec(is)%lmxa,3)
           if (idu(l+1,is) ==0) cycle
           iblu = iblu+1

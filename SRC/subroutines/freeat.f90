@@ -664,7 +664,7 @@ contains
 !!! print out qbyl
     !      open('qinrmt.'//trim(sname))
     !      do  ib = 1, nbas
-    !        ispec=ssite(ib)%spec
+    !        ispec(ib)
     !        write(ifqbyl,"(i3,10f12.6)") sspec(ispec)%lmxa, (sum(qbyl_rv(il,1:nsp,ib)),il=1,lmaxa)
     !      enddo
     !      close(ifqbyl)

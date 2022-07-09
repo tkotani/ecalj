@@ -45,7 +45,7 @@ contains
   
   subroutine m_bstrux_init() !q for qplist --> not yet for sugw.
     use m_qplist,only: qplist,iqini,iqend
-    use m_lmfinit,only: lfrce=>ctrl_lfrce,nlmax,kmxt,nspec,nbas,ssite=>v_ssite,sspec=>v_sspec,rsma
+    use m_lmfinit,only: lfrce=>ctrl_lfrce,nlmax,kmxt,nspec,nbas,ispec,sspec=>v_sspec,rsma
     use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat,rv_a_opos
     use m_igv2x,only: napw, igvapw=>igv2x, ndimh,m_Igv2x_setiq !igvapwin=>igv2x,
     integer:: kmaxx,ia,isa,lmxa,lmxb,kmax,nlmb,nlma,mode,inn(3),ig,iq,ndimhmax
@@ -75,8 +75,8 @@ contains
        !       enddo
        !igvapw(1:3,1:napw) = igvapwin(1:3,1:napw)
        do ia=1,nbas
-          isa=ssite(ia)%spec
-          pa=rv_a_opos(:,ia) !ssite(ia)%pos
+          isa=ispec(ia) 
+          pa=rv_a_opos(:,ia) 
           lmxa=sspec(isa)%lmxa !max l of augmentation
           kmax=sspec(isa)%kmxt !max of radial k
 !          rsma=sspec(isa)%rsma
@@ -106,7 +106,7 @@ contains
   subroutine bstrux(mode,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igapw,  b, db)
     use m_smhankel,only: hxpbl,hxpgbl
     use m_struc_def
-    use m_lmfinit,only:alat=>lat_alat,lhh,nkaphh,nkapii,ssite=>v_ssite,sspec=>v_sspec,cg=>rv_a_ocg, &
+    use m_lmfinit,only:alat=>lat_alat,lhh,nkaphh,nkapii,ispec,sspec=>v_sspec,cg=>rv_a_ocg, &
          indxcg=>iv_a_oidxcg,jcg=>iv_a_ojcg,cy=>rv_a_ocy,nbas
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol,rv_a_opos
     use m_uspecb,only: uspecb
@@ -118,14 +118,6 @@ contains
     !i   mode  :0 Only b            b = b(0:kmax, nlma, ndimh)
     !i          1 Both b and db     b = b(ndimh, nlma, 0:kmax)
     !i          2 Only b            b = b(ndimh, nlma, 0:kmax)
-    !i   slat  :struct for lattice information; see routine ulat
-    !i     Elts read: alat qlat vol
-    !i     Stored:
-    !i     Passed to: hxpbl hxpgbl
-    !i   ssite :struct for site-specific information; see routine usite
-    !i     Elts read: spec pos
-    !i     Stored:
-    !i     Passed to:
     !i   sspec :struct for species-specific information; see routine uspec
     !i     Elts read:
     !i     Stored:
@@ -195,10 +187,9 @@ contains
           allocate(db0((kmax+1)*nlma*nlmbx*3))
        endif
        do  ib = 1, nbas
-          is= ssite(ib)%spec
-          p = rv_a_opos(:,ib) !ssite(ib)%pos
-          call uspecb(is,rsmh,eh)
-          !       Position in h; l,k indices for orbitals connected w/ ib
+          is= ispec(ib) 
+          p = rv_a_opos(:,ib) 
+          call uspecb(is,rsmh,eh)!  Position in h; l,k indices for orbitals connected w/ ib
           call orblib(ib) !return norb,ltab,ktab,offl
           !       Loop over blocks of envelope functions
           do  ik = 1, nkaphh(is)

@@ -1,5 +1,5 @@
 subroutine phispinsym_ssite_set()
-  use m_lmfinit,only: nbas,nsp,sspec=>v_sspec,n0,ssite=>v_ssite
+  use m_lmfinit,only: nbas,nsp,sspec=>v_sspec,n0,ispec !ssite=>v_ssite
   use m_MPItk,only:master_mpi
   use m_struc_def
   use m_lgunit,only:stdo
@@ -14,7 +14,7 @@ subroutine phispinsym_ssite_set()
 !     pnz = ssite(ib)%pz
      pnu=>pnuall(:,1:nsp,ib)
      pnz=>pnzall(:,1:nsp,ib)
-     is   = ssite(ib)%spec
+     is   = ispec(ib) !ssite(ib)%spec
      lmxa = sspec(is)%lmxa
      do l=0,lmxa
         pmean = sum(pnu(l+1,1:nsp))/nsp

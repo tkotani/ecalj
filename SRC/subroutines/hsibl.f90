@@ -3,7 +3,7 @@ module m_hsibl
   private
 contains
   subroutine hsibl(k1,k2,k3,vsm,isp,q,ndimh,napw,igapw,h)
-    use m_lmfinit,only: alat=>lat_alat,nspec,nbas,v_ssite
+    use m_lmfinit,only: alat=>lat_alat,nspec,nbas,ispec
     use m_lattic,only: qlat=>lat_qlat,vol=>lat_vol,rv_a_opos
     use m_supot,only: ngabc=>lat_nabc
     use m_supot,only: lat_ng
@@ -42,7 +42,6 @@ contains
     implicit none
     integer :: k1,k2,k3,isp,ndimh,napw,igapw(3,napw)
     real(8):: q(3)
-!    type(s_site)::ssite(*)
     double complex h(ndimh,ndimh),vsm(k1,k2,k3,isp)
     integer :: n0,npmx,nkap0,nkape,nlmto,nermx
     parameter (n0=10,nkap0=3,nkape=2,nermx=100)
@@ -122,7 +121,7 @@ contains
        ib1loop: do  iloop = ibini,ibend
           ib1=iloop
           ndim1 = 0
-          is1=v_ssite(ib1)%spec
+          is1=ispec(ib1)
           call orblib1(ib1) !norb1,ltab1,ktab1,xx,offl1,xx)
           ofh1 = offl1(1)
           call uspecb(is1,rsmh1,eh1)!       Block routines into groups with common (e,rsm)
@@ -154,7 +153,7 @@ contains
             enddo
           endblock fvsm
           ib2loop: do 1010 ib2 = ib1, nbas !   ... Loop over second of (ib1,ib2) site pairs
-             is2 =v_ssite(ib2)%spec
+             is2 =ispec(ib2)
              ncut=ngcut(:,:,is2)
              call orblib2(ib2) !norb2,ltab2,ktab2,offl2
              ofh2 = offl2(1)

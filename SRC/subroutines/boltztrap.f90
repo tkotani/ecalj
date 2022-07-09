@@ -1,5 +1,5 @@
 subroutine writeboltztrap(eferm)
-  use m_lmfinit,only: nlmax,nsp,nbas,stdo,sspec=>v_sspec,ssite=>v_ssite,nlmax,nspc,qbg=>zbak,alat=>lat_alat
+  use m_lmfinit,only: nlmax,nsp,nbas,stdo,sspec=>v_sspec,nlmax,nspc,qbg=>zbak,alat=>lat_alat
   use m_suham,only: ndhamx=>ham_ndhamx,ndham=>ham_ndham
   use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize,procid
   use m_qplist,only: nkp,xdatt,qplist

@@ -1,6 +1,6 @@
 subroutine rhomom (sv_p_orhoat, qmom,vsum)
   use m_struc_def
-  use m_lmfinit,only: nsp,nbas,ssite=>v_ssite,sspec=>v_sspec,jnlml
+  use m_lmfinit,only: nsp,nbas,sspec=>v_sspec,jnlml,ispec
   use m_lgunit,only:stdo
   !- Multipole moments of valence sphere densities
   ! ----------------------------------------------------------------------
@@ -25,7 +25,7 @@ subroutine rhomom (sv_p_orhoat, qmom,vsum)
   ipr  = iprint()
   if (ipr >= 40) write(stdo,"(/' rhomom:   ib   ilm      qmom',8x,'Qval',7x, 'Qc',8x,'Z')")
   do  ib = 1, nbas
-     is = ssite(ib)%spec
+     is = ispec(ib) !ssite(ib)%spec
      lmxl=sspec(is)%lmxl
      z  = sspec(is)%z
      a  = sspec(is)%a

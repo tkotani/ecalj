@@ -1,6 +1,6 @@
 subroutine lmfp(llmfgw)
   use m_lmfinit,only: lhf, maxit,nbas,nsp, ctrl_ldos,ctrl_nitmv,ctrl_nvario, &
-       ham_seref,ctrl_lfrce,  sspec=>v_sspec, ssite=>v_ssite, slabl,&
+       ham_seref,ctrl_lfrce,  sspec=>v_sspec, ispec, slabl,&
        nlibu,stdo,lrout,leks,plbnd,lpzex, nitrlx, &
        indrx_iv,natrlx,xyzfrz,pdim,qtol,etol,alat
   use m_lattic,only: qlat=>lat_qlat,rv_a_opos
@@ -120,7 +120,7 @@ subroutine lmfp(llmfgw)
         do i = 1, nbas
            xvcart = poss(:,i) !cartesian coordinate
            xvfrac = matmul(transpose(qlat),xvcart) !fractional coodinate
-           write(stdo,"(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)")i,trim(slabl(ssite(i)%spec)),xvcart,xvfrac
+           write(stdo,"(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)")i,trim(slabl(ispec(i))),xvcart,xvfrac
         enddo
      endif
      Eleloop: do 1000 iter = 1,max(1,maxit)!For electronic structure scf. Atomic forces calculated
@@ -172,7 +172,7 @@ subroutine lmfp(llmfgw)
      MDblock: Block !Not maintained well recently. Relax and Smshft may need to be corrected.
        pos0 = poss !keep old poss to pos0
        ! Relax atomic positions. Get new poss. Shear mode removed.
-       call Relax(ssite,itrlx,indrx_iv,natrlx,force,p_rv,hess,0,[0d0],pos0,poss,icom)
+       call Relax(itrlx,indrx_iv,natrlx,force,p_rv,hess,0,[0d0],pos0,poss,icom)
        if (itrlx==nitrlx) then !Set minimum gradient positions if this is last step.
           write(stdo,"(a)")'lmfp: restore positions for minimum g (given by relax)'
           do i = 1, natrlx

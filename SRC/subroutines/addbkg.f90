@@ -39,7 +39,7 @@ subroutine adbkql( sv_p_orhoat , nbas , nsp , qbg , vol , fac )
   double precision :: rhobkg,vol,a,rmt,rofi(nrmx)
   rhobkg = fac*qbg/vol
   do  ib = 1, nbas
-     is=ispec(ib) !ssite(ib)%spec !specie(ib)
+     is=ispec(ib)
      a=sspec(is)%a
      nr=sspec(is)%nr
      rmt=sspec(is)%rmt

@@ -1,13 +1,13 @@
-subroutine ugcomp(nbas,ssite,sspec,qmom,gpot0,hpot0,ugg,f) !slat,
+subroutine ugcomp(qmom,gpot0,hpot0,ugg,f)
   use m_struc_def           !Cgetarg
   use m_lgunit,only:stml
   use m_smhankel,only:hhugbl,hgugbl,ggugbl
   use m_lattic,only: rv_a_opos
+  use m_lmfinit,only: ispec,sspec=>v_sspec,nbas
   !- Part of the smooth estatic energy from compensating G's alone.
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   nbas  :size of basis
-  !i   ssite :struct containing site-specific information
   !i   sspec :struct containing species-specific information
   !i   slat  :struct containing information about the lattice
   !i   qmom  :multipole moments of on-site densities (rhomom.f)
@@ -33,10 +33,7 @@ subroutine ugcomp(nbas,ssite,sspec,qmom,gpot0,hpot0,ugg,f) !slat,
   !u   22 Apr 00 Adapted from nfp ugcomp
   ! ----------------------------------------------------------------------
   implicit none
-  integer :: nbas
   real(8):: qmom(*) , gpot0(*) , f(3,nbas) , hpot0(nbas) , ugg
-  type(s_site)::ssite(*)
-  type(s_spec)::sspec(*)
   integer :: ndim,ndim0,i,ib,ilm1,ilm2,is,iv0,jb,js,jv0,nvl,l1,l2, &
        lfoc1,lfoc2,ll,lmax1,lmax2,m,nlm1,nlm2
   parameter (ndim=49, ndim0=2)
@@ -69,8 +66,8 @@ subroutine ugcomp(nbas,ssite,sspec,qmom,gpot0,hpot0,ugg,f) !slat,
   ibini=1
   ibend=nbas
   do ib=ibini,ibend
-     is=ssite(ib)%spec
-     tau1=rv_a_opos(:,ib) !ssite(ib)%pos
+     is=ispec(ib) 
+     tau1=rv_a_opos(:,ib) 
      lmax1=sspec(is)%lmxl
      rg1=sspec(is)%rg
      call corprm(sspec,is,qcorg1,qcorh1,qsc1,cofg1,cofh1,ceh1,lfoc1, &
@@ -80,8 +77,8 @@ subroutine ugcomp(nbas,ssite,sspec,qmom,gpot0,hpot0,ugg,f) !slat,
      if (lmax1 > -1) then
         jv0 = 0
         do  jb = 1, nbas
-           js=ssite(jb)%spec
-           tau2=rv_a_opos(:,jb) !ssite(jb)%pos
+           js=ispec(jb)
+           tau2=rv_a_opos(:,jb) 
            lmax2=sspec(js)%lmxl
            rg2=sspec(js)%rg
            if (lmax2 > -1) then

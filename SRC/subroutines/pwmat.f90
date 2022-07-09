@@ -1,7 +1,7 @@
 ! Matrix elements (IPW,IPW) and (IPW,envelope function)
-subroutine pwmat(ssite,sspec,nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
+subroutine pwmat(sspec,nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
   use m_struc_def     
-  use m_lmfinit,only: alat=>lat_alat
+  use m_lmfinit,only: alat=>lat_alat,ispec
   use m_lattic,only:  qlat=>lat_qlat, vol=>lat_vol,plat=>lat_plat,rv_a_opos
   use m_uspecb,only:uspecb
   use m_orbl,only: Orblib,ktab,ltab,offl,norb
@@ -60,7 +60,7 @@ subroutine pwmat(ssite,sspec,nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,inn,ppo
   real(8):: q(3),GcutH,tpiba,xx,tripl,dgetss,bas(3,nbas),rmax(nbas),qpg(3),qpg2(1),denom,gam,srvol,&
        eh(n0,nkap0),rsmh(n0,nkap0)
   complex(8):: ppovl(ngp,ngp), pwhovl(ngp,ndimh),phase,img,fach,mimgl(0:n0)
-  type(s_site)::ssite(*)
+!  type(s_site)::ssite(*)
   type(s_spec)::sspec(*)
   integer,allocatable:: igvx(:,:),kv(:,:)
   real(8),allocatable:: yl(:)
@@ -75,8 +75,8 @@ subroutine pwmat(ssite,sspec,nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,inn,ppo
   enddo
   do  ib = 1, nbas
      bas(:,ib)=rv_a_opos(:,ib)!,ssite(ib)%pos
-     ips(ib) = ssite(ib)%spec
-     is = ssite(ib)%spec
+     ips(ib) = ispec(ib) !ssite(ib)%spec
+     is = ispec(ib) !ssite(ib)%spec
      rmax(ib) = sspec(is)%rmt
   enddo
   nlmto = ndimh-napw
@@ -101,7 +101,7 @@ subroutine pwmat(ssite,sspec,nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,inn,ppo
      call ropyln(1,qpg(1),qpg(2),qpg(3),lmxax,1,yl,qpg2)
      do  ib = 1, nbas
         phase = exp( -img * sum( qpg*bas(:,ib)*alat )  )
-        is = ssite(ib)%spec
+        is = ispec(ib) !ssite(ib)%spec
         call uspecb(is,rsmh,eh)
         call orblib(ib)!return norb,ltab,ktab,offl
         call gtbsl1(8+16,norb,ltab,ktab,rsmh,eh,ntab,blks)

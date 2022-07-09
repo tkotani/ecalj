@@ -1,25 +1,18 @@
 subroutine pnunew(eferm)
   use m_ftox
   use m_MPItk,only: master_mpi
-  use m_lmfinit,only:nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,ham_frzwf,idmodis=>idmod,slabl,&
+  use m_lmfinit,only:nbas,nsp,ispec,sspec=>v_sspec,ham_frzwf,idmodis=>idmod,slabl,&
        pmin=>ham_pmin,pmax=>ham_pmax,n0,nab,mxcst4
   use m_mkrout,only: hbyl=>hbyl_rv,qbyl=>qbyl_rv
   use m_lgunit,only:stdo
 
-  use m_density,only: v0pot,pnuall,pnzall
+  use m_density,only: v0pot,pnuall,pnzall !output
+  
   !!= Makes new boundary conditions pnu for phi,phidot =
   !!* takao sep2010. P is setted to that at efermi if PZ is for semicore.
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   nbas  :size of basis
-  !i   ssite :struct for site-specific information; see routine usite
-  !i     Elts read: spec pnu pz ov0
-  !i     Stored:    pnu pz
-  !i     Passed to: *
-  !i   sspec :struct for species-specific information; see routine uspec
-  !i     Elts read: lmxa rmt idmod mxcst z a nr
-  !i     Stored:    *
-  !i     Passed to: *
   !i   lfrzw :0, float pnu to band !G, provided IDMOD=0 for that channel
   !i         :1 freeze all pnu for all species.
   !i         :  NB: pnu are also frozen for specific species
@@ -34,8 +27,6 @@ subroutine pnunew(eferm)
   !l Local variables
   !l   lfrzv  if T, freeze valence pnu
   !l   lfrzz  if T, freeze local orbital pnz
-  !o Outputs
-  !i   ssite->pnu :are floated to their band CG
   !r Remarks
   !u Updates
   !u   28 Jun 06 Handles case idmod=3; New constraints pmin,pmax
@@ -79,7 +70,7 @@ subroutine pnunew(eferm)
   endif
   ! --- For each site, do ---
   do  ib = 1, nbas
-     is=ssite(ib)%spec
+     is=ispec(ib) !ssite(ib)%spec
      pnu=>pnuall(:,:,ib)
      pnz=>pnzall(:,:,ib)
 !     pnu=ssite(ib)%pnu
@@ -111,7 +102,7 @@ subroutine pnunew(eferm)
            endif
            if (dabs(qbyl(m,isp,ib)) .gt. 1d-8) then
               ebar = hbyl(m,isp,ib)/qbyl(m,isp,ib)
-              is=ssite(ib)%spec
+              is=ispec(ib) !ssite(ib)%spec
               z=sspec(is)%z
               a=sspec(is)%a
               nr=sspec(is)%nr

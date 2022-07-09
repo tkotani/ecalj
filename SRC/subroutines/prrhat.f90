@@ -1,18 +1,14 @@
-subroutine prrhat ( nbas , ssite , sspec , sv_p_orhoat )
+subroutine prrhat (sv_p_orhoat )
   use m_struc_def
-  use m_lmfinit,only: nsp
+  use m_lmfinit,only: nsp,nbas, sspec=>v_sspec,ispec
   use m_lgunit,only:stdo
-  integer:: nbas
   type(s_rv1) :: sv_p_orhoat(3,nbas)
-  type(s_site)::ssite(*)
-  type(s_spec)::sspec(*)
-  ! ... Local parameters
   integer:: ib , lmxl , nr , nlml , is , igetss
   real(8) ,allocatable :: rofi_rv(:)
   real(8) ,allocatable :: rwgt_rv(:)
   double precision :: a,rmt
   do  ib = 1, nbas
-     is = int(ssite(ib)%spec)
+     is = ispec(ib) !int(ssite(ib)%spec)
      lmxl=sspec(is)%lmxl
      a=sspec(is)%a
      nr=sspec(is)%nr

@@ -1,7 +1,7 @@
-subroutine symdmu(nlibu,dmatu,nbas,nsp,lmaxu,sspec,ssite,ng,g, istab,lldau,rms)
+subroutine symdmu(nlibu,dmatu,nbas,nsp,lmaxu,sspec,ng,g, istab,lldau,rms)
   use m_struc_def
   use m_ftox
-  use m_lmfinit,only:idu
+  use m_lmfinit,only:idu,ispec
   use m_lgunit,only:stdo
   !- Symmetrize LDA+U density matrix dmatu
   ! ----------------------------------------------------------------------
@@ -14,8 +14,6 @@ subroutine symdmu(nlibu,dmatu,nbas,nsp,lmaxu,sspec,ssite,ng,g, istab,lldau,rms)
   !i   lmaxu :dimensioning parameter for U matrix
   !i   sspec :struct for species-specific information; see routine uspec
   !i         Elts read: lmxa idu
-  !i   ssite :struct for site-specific information; see routine usite
-  !i         Elts read: spec
   !i   ng    :number of group operations.  Program does nothing if ng=0
   !i   g     :point group operations
   !i   istab :table of site permutations for each group op (mksym.f,symtbl.f)
@@ -44,7 +42,7 @@ subroutine symdmu(nlibu,dmatu,nbas,nsp,lmaxu,sspec,ssite,ng,g, istab,lldau,rms)
   implicit none
   integer :: nbas,lldau(nbas),ng,nsp,lmaxu,istab(nbas,ng),i_copy_size
   type(s_spec)::sspec(*)
-  type(s_site)::ssite(*)
+!  type(s_site)::ssite(*)
   integer :: is,igetss,lmxa,m1,m2,ilm1,ilm2,ib,l,isp,m3,m4,ig,iblu,nlibu,jb,jblu,ofjbl,lwarn
   real(8):: rmat(16,16),r(-3:3,-3:3),ddot,g(9,*),rms,ddet33,xx
   complex(8):: sdmat(-3:3,-3:3,2,2),&  ! ... for spinor rotations
@@ -73,7 +71,7 @@ subroutine symdmu(nlibu,dmatu,nbas,nsp,lmaxu,sspec,ssite,ng,g, istab,lldau,rms)
   iblu = 0
   do  ib = 1, nbas
      if (lldau(ib) /= 0) then
-        is = ssite(ib)%spec
+        is = ispec(ib) !ssite(ib)%spec
         lmxa=sspec(is)%lmxa
         ofjbl = -1
         do  l = 0, min(lmxa,3)

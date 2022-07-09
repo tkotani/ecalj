@@ -1924,7 +1924,7 @@ contains
 
   subroutine ovlchk(nbas,nbasp,pos,alat,rmax,rmt,dclabl, &
        ips,mode,plat,fovl,volsph)
-    use m_lmfinit,only: ssite=>v_ssite
+    use m_lmfinit,only: ispec!ssite=>v_ssite
     use m_ftox
     !- Check volume and sphere overlaps
     ! ----------------------------------------------------------------
@@ -2008,7 +2008,7 @@ contains
 
     do  20  ibas = 1, nbasp
        ic = ips(ibas) !class id
-       is = ssite(ibas)%spec
+       is = ispec(ibas) !ssite(ibas)%spec
        if (ipr <= 10) goto 20
        if (ibas == nbas+1) write(stdo,'(''  ... Padding basis'')')
        !        call r8tos8(dclabl(ic),clabl)
@@ -2058,7 +2058,7 @@ contains
     if ( .NOT. lrmt .AND. ipr > 10) write(stdo,463)
     do  301  ibas = 1, nbasp
        ic = ips(ibas)
-       is = ssite(ibas)%spec
+       is = ispec(ibas) !ssite(ibas)%spec
        if (ipr >= 10) then
           !          call r8tos8(dclabl(ic),clabl)
           clabl = trim(dclabl(is))//i2char(ic)
@@ -2067,7 +2067,7 @@ contains
        endif
        do  30  jbas = ibas, nbasp
           jc = ips(jbas)
-          js = ssite(jbas)%spec
+          js = ispec(jbas) !ssite(jbas)%spec
           if (rmax(ic) == 0 .AND. rmax(jc) == 0) then
              goto 30
           endif

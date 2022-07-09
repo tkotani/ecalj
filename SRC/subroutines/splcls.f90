@@ -1,7 +1,5 @@
-subroutine splcls(nosplt,bas,nbas,ng,istab,nspec,slabl,nclass,ipc, &
-     ics,nrclas)
+subroutine splcls(nosplt,bas,nbas,ng,istab,nspec,slabl,nclass,ipc, ics,nrclas)
   use m_lgunit,only:stdo
-  use m_lmfinit,only: v_ssite
   !- Splits species into classes
   ! ----------------------------------------------------------------------
   !i Inputs:

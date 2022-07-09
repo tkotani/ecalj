@@ -5,29 +5,17 @@ subroutine dfrce (job, sv_p_orhoat , sv_p_orhat1 ,  qmom , smrho , smrout , dfh 
   use m_lmfinit,only: nvl=>pot_nlml
   use m_supot,only: rv_a_ogv,iv_a_okv
   use m_struc_def
-  use m_lmfinit,only:lat_alat,nsp,nbas,nspec,ssite=>v_ssite,sspec=>v_sspec
+  use m_lmfinit,only:lat_alat,nsp,nbas,nspec,ispec,sspec=>v_sspec
   use m_lattic,only: lat_qlat, lat_vol,lat_plat
   use m_supot,only: lat_nabc,k1,k2,k3,lat_ng
   use m_lgunit,only:stdo
   ! Correction to force theorem, Harris functional
   ! ----------------------------------------------------------------------
   !i Inputs
-  !i   ssite :struct for site-specific information; see routine usite
-  !i     Elts read: spec pos
-  !i     Stored:    *
-  !i     Passed to: pvdf4 pvdf2 rhomom pvdf1 smvxcm
   !i   sspec :struct for species-specific information; see routine uspec
   !i     Elts read: lmxl z p pz lmxa a nr rmt nxi exi chfa rsmfa rg
   !i     Stored:    *
   !i     Passed to: pvdf4 pvdf2 rhomom pvdf1 gtpcor corprm smvxcm
-  !i   slat  :struct for lattice information; see routine ulat
-  !i     Elts read: nabc ng ogv okv vol alat plat qlat
-  !i     Stored:    *
-  !i     Passed to: pvdf4 pvdf2 pvdf1 smvxcm
-  !i   sctrl :struct for program flow parameters; see routine uctrl
-  !i     Elts read: lfrce
-  !i     Stored:    *
-  !i     Passed to: *
   !i   k1..3 :dimensions smrho
   !i   nvl   :sum of local (lmxl+1)**2, lmxl = density l-cutoff
   !i   orhoat:vector of offsets containing site density
@@ -127,7 +115,7 @@ subroutine dfrce (job, sv_p_orhoat , sv_p_orhat1 ,  qmom , smrho , smrout , dfh 
   if(nsp==2) call daxpy(2*nn, 1d0, smrho (1,1,1,2), 1, smro_zv, 1)
   call fftz3 ( smro_zv , n1 , n2 , n3 , k1 , k2 , k3 , 1 , 0 , - 1 )
   call gvgetf ( ng , 1 , iv_a_okv , k1 , k2 , k3 , smro_zv , cvin_zv )
-  call pvdf4 ( ssite , sspec ,  qmom , ng , g2_rv , yl_rv , cs_ , sn_ , iv_iv , qlat , cvin_zv )
+  call pvdf4 ( sspec ,  qmom , ng , g2_rv , yl_rv , cs_ , sn_ , iv_iv , qlat , cvin_zv )
   if (allocated(smro_zv)) deallocate(smro_zv)
   deallocate(cs_,sn_)
   ! --- Make dVxc(in)/dn ---
@@ -139,7 +127,7 @@ subroutine dfrce (job, sv_p_orhoat , sv_p_orhat1 ,  qmom , smrho , smrout , dfh 
   allocate(wk2_zv(nn*nsp))
   allocate(wk3_zv(nn*nsp))
   call dpcopy ( smrho , smro_zv , 1 , 2 * nn * nsp , 1d0 )
-  call pvdf2 ( nbas , nsp , ssite , sspec ,  n1 , n2 , n3 & ! & slat ,
+  call pvdf2 ( nbas , nsp , sspec ,  n1 , n2 , n3 & ! & slat ,
   , k1 , k2 , k3 , smro_zv , vxcp_zv , vxcm_zv , wk1_zv &
        , wk2_zv , wk3_zv , dvxc_zv )
   deallocate(wk3_zv)
@@ -193,7 +181,7 @@ subroutine dfrce (job, sv_p_orhoat , sv_p_orhat1 ,  qmom , smrho , smrout , dfh 
   ! ... Setup array iv0 offset of qmom to ibas
   iv0 = 0
   do ib = 1, nbas
-     is = ssite(ib)%spec
+     is = ispec(ib)
      lmxl = sspec(is)%lmxl
      nlm = (lmxl+1)**2
      iiv0(ib) = iv0
@@ -202,11 +190,11 @@ subroutine dfrce (job, sv_p_orhoat , sv_p_orhat1 ,  qmom , smrho , smrout , dfh 
   ibini=1
   ibend=nbas
   do ib = ibini, ibend
-     is   = ssite(ib)%spec
+     is   = ispec(ib)
      lmxl = sspec(is)%lmxl
      if (lmxl == -1) goto 20
      nlm = (lmxl+1)**2
-     call pvdf1 ( job , ssite , sspec , nsp , ib , iiv0(ib), qmom &
+     call pvdf1 ( job , sspec , nsp , ib , iiv0(ib), qmom &
           , qmout_rv , ng , rv_a_ogv , g2_rv , yl_rv , iv_iv , qlat , 0 &
           , cnomi_zv , ceps_zv , cdvx_zv , cvin_zv , sv_p_orhoat ( 1 , &
           ib ) , fes1 , fes2 , fxc )
@@ -246,11 +234,11 @@ subroutine dfrce (job, sv_p_orhoat , sv_p_orhat1 ,  qmom , smrho , smrout , dfh 
   call tcx('dfrce')
 end subroutine dfrce
 
-subroutine pvdf1 ( job , ssite , sspec ,  nsp , ib , iv0 & ! & slat ,
+subroutine pvdf1 ( job , sspec ,  nsp , ib , iv0 & ! & slat ,
   , qmom , qmout , ng , gv , g2 , yl , iv , qlat , kmax , cnomin &
        , ceps , cdvxc , cvin , sv_p_orhoat , fes1 , fes2 , fxc )
   use m_struc_def  !Cgetarg
-  use m_lmfinit,only: nbas
+  use m_lmfinit,only: nbas,ispec
   use m_lmfinit,only:lat_alat,pnux=>pnusp,pzx=>pzsp
   use m_lattic,only: lat_vol,rv_a_opos
   use m_supot,only: lat_nabc
@@ -258,7 +246,6 @@ subroutine pvdf1 ( job , ssite , sspec ,  nsp , ib , iv0 & ! & slat ,
   !- Estimate shift in local density for one site
   ! ----------------------------------------------------------------------
   !i Inputs
-  !i   ssite,sspec,slat
   !i   ng,gv,kmax
   !i   orhoat
   !i   job: 1  shift in free-atom density
@@ -290,10 +277,7 @@ subroutine pvdf1 ( job , ssite , sspec ,  nsp , ib , iv0 & ! & slat ,
 
   real(8):: qmom(*) , qmout(*) , gv(ng,3) , tau(3) , fes1(3) , &
        fes2(3) , fxc(3) , g2(ng) , yl(ng,1) , cs(ng) , sn(ng) , qlat(3,3)
-  type(s_site)::ssite(*)
   type(s_spec)::sspec(*)
-  !      type(s_lat)::slat
-
   double complex cdn0(ng,nsp),cdn(ng),cdv(ng),ceps(ng), &
        cnomin(ng),cdvxc(ng,nsp),cvin(ng)
   ! ... Local parameters
@@ -329,8 +313,8 @@ subroutine pvdf1 ( job , ssite , sspec ,  nsp , ib , iv0 & ! & slat ,
   call dpzero(fxc,3)
   call dpzero(fesdn,3)
   call dpzero(gpot0,nlmx*3)
-  is=ssite(ib)%spec
-  tau=rv_a_opos(:,ib) !ssite(ib)%pos(1:3)
+  is=ispec(ib) 
+  tau=rv_a_opos(:,ib) 
   call suphas(q0,tau,ng,iv,n1,n2,n3,qlat,cs,sn)
   ! --- Unscreened rigid charge density shift, job 1, in cdn0 ---
   if (job0 == 1) then
@@ -385,8 +369,8 @@ subroutine pvdf1 ( job , ssite , sspec ,  nsp , ib , iv0 & ! & slat ,
      enddo
   endif
   ! --- Coefficients defining local valence + core density ---
-  is=ssite(ib)%spec
-  tau=rv_a_opos(:,ib) !ssite(ib)%pos
+  is=ispec(ib)
+  tau=rv_a_opos(:,ib) 
   lmxl=sspec(is)%lmxl
   rg=sspec(is)%rg
   call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
@@ -475,8 +459,8 @@ subroutine pvdf1 ( job , ssite , sspec ,  nsp , ib , iv0 & ! & slat ,
   call dpzero(feso,3)
   jv0 = 0
   do  40  jb = 1, nbas
-     js=ssite(jb)%spec
-     tau=rv_a_opos(:,jb) !ssite(jb)%pos
+     js=ispec(jb) 
+     tau=rv_a_opos(:,jb)
      lmxl=sspec(js)%lmxl
      rg=sspec(js)%rg
      nlm = (lmxl+1)**2
@@ -519,14 +503,14 @@ subroutine pvdf1 ( job , ssite , sspec ,  nsp , ib , iv0 & ! & slat ,
 end subroutine pvdf1
 
 
-subroutine pvdf2(nbas,nsp,ssite,sspec,n1,n2,n3,k1,k2,k3, smrho,vxcp,vxcm,wk1,wk2,wk3,dvxc)
+subroutine pvdf2(nbas,nsp,sspec,n1,n2,n3,k1,k2,k3, smrho,vxcp,vxcm,wk1,wk2,wk3,dvxc)
   use m_struc_def
   use m_smvxcm,only: smvxcm
+  use m_lmfinit,only:ispec
   !- Makes derivative of smoothed xc potential wrt density.
   implicit none
   ! ... Passed parameters
   integer :: nbas,nsp,n1,n2,n3,k1,k2,k3
-  type(s_site)::ssite(*)
   type(s_spec)::sspec(*)
   complex(8):: vxcp(k1,k2,k3,nsp),vxcm(k1,k2,k3,nsp), &
        dvxc(k1,k2,k3,nsp),smrho(k1,k2,k3,nsp), &
@@ -561,7 +545,7 @@ subroutine pvdf2(nbas,nsp,ssite,sspec,n1,n2,n3,k1,k2,k3, smrho,vxcp,vxcm,wk1,wk2
   call dpzero(wk1, nn*2*nsp)
   call dpzero(wk2, nn*2*nsp)
   call dpzero(wk3, nn*2)
-  call smvxcm(ssite,sspec,nbas,0,k1,k2,k3,smrho, &
+  call smvxcm(sspec,nbas,0,k1,k2,k3,smrho, &
   vxcp,dvxc,wk1,wk2,wk3,repsm,repsmx,repsmc,rmusm, &
        rvmusm,rvepsm,fcexc0,fcex0,fcec0,fcvxc0,ff)
   ! ... Replace fac*rho with -fac*rho
@@ -580,7 +564,7 @@ subroutine pvdf2(nbas,nsp,ssite,sspec,n1,n2,n3,k1,k2,k3, smrho,vxcp,vxcm,wk1,wk2
   endif
   ! ... vxcm = vxc (smrho-drho)
   call dpzero(vxcm, nn*2*nsp)
-  call smvxcm(ssite,sspec,nbas,0,k1,k2,k3,smrho,&
+  call smvxcm(sspec,nbas,0,k1,k2,k3,smrho,&
   vxcm,dvxc,wk1,wk2,wk3,repsm,repsmx,repsmc,rmusm, &
        rvmusm,rvepsm,fcexc0,fcex0,fcec0,fcvxc0,ff)
   ! ... Restore rho+, rho-
@@ -617,7 +601,7 @@ subroutine pvdf2(nbas,nsp,ssite,sspec,n1,n2,n3,k1,k2,k3, smrho,vxcp,vxcm,wk1,wk2
   enddo
   ! ... vxcm = vxc (smrho)
   call dpzero(vxcm, nn*2*nsp)
-  call smvxcm(ssite,sspec,nbas,0,k1,k2,k3,smrho,&
+  call smvxcm(sspec,nbas,0,k1,k2,k3,smrho,&
        vxcm,dvxc,wk1,wk2,wk3,repsm,repsmx,repsmc,rmusm, &
        rvmusm,rvepsm,fcexc0,fcex0,fcec0,fcvxc0,ff)
   ! ... dvxc/drho into dvxc
@@ -657,18 +641,14 @@ subroutine pvdf3(n1,n2,n3,k1,k2,k3,nsp,deln0,dvxc)
   enddo
 end subroutine pvdf3
 
-subroutine pvdf4(ssite,sspec,qmom,ng,g2,yl,cs,sn,iv,qlat,cv) !slat,
+subroutine pvdf4(sspec,qmom,ng,g2,yl,cs,sn,iv,qlat,cv)
   use m_struc_def
-  use m_lmfinit,only: nbas
+  use m_lmfinit,only: nbas,ispec
   use m_lattic,only: lat_vol,rv_a_opos
   use m_supot,only: lat_nabc
   !- Makes smoothed ves from smoothed density and qmom, incl nuc. charge
   ! ----------------------------------------------------------------------
   !i Inputs
-  !i   ssite :struct for site-specific information; see routine usite
-  !i     Elts read: spec pos
-  !i     Stored:    *
-  !i     Passed to: *
   !i   sspec :struct for species-specific information; see routine uspec
   !i     Elts read: lmxl rg
   !i     Stored:    *
@@ -701,7 +681,6 @@ subroutine pvdf4(ssite,sspec,qmom,ng,g2,yl,cs,sn,iv,qlat,cv) !slat,
   implicit none
   integer :: ng,iv(ng,3),i_copy_size
   real(8):: qmom(1) , g2(ng) , yl(ng,1) , cs(ng) , sn(ng) , qlat(3,3)
-  type(s_site)::ssite(*)
   type(s_spec)::sspec(*)
   double complex cv(ng)
   integer :: ig,ib,ilm,is,iv0,l,lmxl,m,nlm,nlmx,nglob,n1,n2,n3, ngabc(3),lfoc
@@ -720,8 +699,8 @@ subroutine pvdf4(ssite,sspec,qmom,ng,g2,yl,cs,sn,iv,qlat,cv) !slat,
   ! --- FT of gaussian density, all sites, for list of G vectors ---
   iv0 = 0
   do  10  ib = 1, nbas
-     is=ssite(ib)%spec
-     tau=rv_a_opos(:,ib) !ssite(ib)%pos
+     is=ispec(ib)
+     tau=rv_a_opos(:,ib) 
      lmxl=sspec(is)%lmxl
      rg=sspec(is)%rg
      if (lmxl == -1) goto 10

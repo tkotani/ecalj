@@ -1,6 +1,6 @@
 subroutine mkekin(sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,smpot,smrho,sumev, sumtv)
   use m_struc_def
-  use m_lmfinit,only:lso,nkaph,nsp,nspc,stdo,nbas,ssite=>v_ssite,sspec=>v_sspec,nlmto
+  use m_lmfinit,only:lso,nkaph,nsp,nspc,stdo,nbas,ispec,sspec=>v_sspec,nlmto
   use m_lattic,only: lat_vol
   use m_supot,only: lat_nabc,k1,k2,k3
   use m_orbl,only: Orblib,ktab,ltab,offl,norb
@@ -10,22 +10,6 @@ subroutine mkekin(sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,smpot,smrho,su
   !i Inputs
   !i   nbas  :size of basis
   !i   nlmto :dimension of hamiltonian (MTO)
-  !i   ssite :struct for site-specific information; see routine usite
-  !i     Elts read: spec
-  !i     Stored:    *
-  !i     Passed to: *
-  !i   sspec :struct for species-specific information; see routine uspec
-  !i     Elts read: lmxa kmxt lmxb
-  !i     Stored:    *
-  !i     Passed to: *
-  !i   slat  :struct for lattice information; see routine ulat
-  !i     Elts read: nabc vol
-  !i     Stored:    *
-  !i     Passed to: *
-  !i   sham  :struct for parameters defining hamiltonian; see routine uham
-  !i     Elts read: oindxo
-  !i     Stored:    *
-  !i     Passed to: lgors
   !i   lcplxp=1 only now: 0 if ppi is real; 1 if ppi is complex
   !i   osig  :augmentation overlap integrals
   !i   otau  :augmentation kinetic energy integrals
@@ -186,7 +170,7 @@ subroutine mkekin(sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,smpot,smrho,su
   ! --- Integral rhout*veff, part from augmentation ---
   sraugm = 0d0
   do  ib = 1, nbas
-     is = int(ssite(ib)%spec)
+     is = ispec(ib) !int(ssite(ib)%spec)
      lmxa=sspec(is)%lmxa
      kmax=sspec(is)%kmxt
      lmxh=sspec(is)%lmxb

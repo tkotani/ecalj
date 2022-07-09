@@ -1,6 +1,6 @@
-subroutine ovlocr ( nbas , ssite , sspec ,  nxi0 , nxi &
+subroutine ovlocr ( nbas , sspec ,  nxi0 , nxi &
      , exi , hfc , rsmfa , rv_a_orhofa , sv_p_orhoat , sqloc, slmom )
-  use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nsp
+  use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nsp,ispec
   use m_struc_def
   use m_lgunit,only:stdo
   use m_smhankel,only: hxpbl
@@ -36,7 +36,7 @@ subroutine ovlocr ( nbas , ssite , sspec ,  nxi0 , nxi &
   type(s_rv1) :: sv_p_orhoat(3,nbas)
   type(s_rv1) :: rv_a_orhofa(nbas)
   real(8):: rsmfa(1) , exi(nxi0,1) , hfc(nxi0,2,1) , sqloc , slmom
-  type(s_site)::ssite(*)
+!  type(s_site)::ssite(*)
   type(s_spec)::sspec(*)
   integer:: ib , ipr , iprint , is , jb , je , js , lfoca &
        , lmxl , nlmh , nlml , nr , i
@@ -57,7 +57,7 @@ subroutine ovlocr ( nbas , ssite , sspec ,  nxi0 , nxi &
   ibini= 1
   ibend= nbas
   do  ib = ibini,ibend
-     is=ssite(ib)%spec
+     is=ispec(ib) !ssite(ib)%spec
      p1(:)=rv_a_opos(:,ib) !ssite(ib)%pos(:)
      lmxl=sspec(is)%lmxl
      !kmxv=sspec(is)%kmxv
@@ -77,7 +77,7 @@ subroutine ovlocr ( nbas , ssite , sspec ,  nxi0 , nxi &
      call radwgt(rmt,a,nr,rwgt)
      !   ... Loop over other sites, add up tail expansion
      do  jb = 1, nbas
-        js=ssite(jb)%spec
+        js=ispec(jb) !ssite(jb)%spec
         p2(:)=rv_a_opos(:,jb) !ssite(jb)%pos(:)
         do  je = 1, nxi(js)
            rsmh = rsmfa(js)

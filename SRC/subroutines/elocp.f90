@@ -6,7 +6,7 @@ module m_elocp
   private
 contains
   subroutine elocp()!- Make envlope parameters for extended local orbitals
-    use m_lmfinit,only: nkaph,stdo,nspec,nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,n0,nkapii,slabl,vmtz,rs3,eh3
+    use m_lmfinit,only: nkaph,stdo,nspec,nbas,nsp,ispec,sspec=>v_sspec,n0,nkapii,slabl,vmtz,rs3,eh3
     use m_density,only: v0pot,pnuall,pnzall
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -40,9 +40,7 @@ contains
     vsel=0d0
     ! --- Find val, slo, K.E. for all sites ---
     do  ib = 1, nbas
-       is=ssite(ib)%spec
-!       pnu=ssite(ib)%pnu
-!       pnz=ssite(ib)%pz
+       is=ispec(ib) 
        pnu=>pnuall(:,:,ib)
        pnz=>pnzall(:,:,ib)
        spid = slabl(is) !sspec(is)%name
@@ -67,7 +65,7 @@ contains
     ! --- Determine shape of smooth Hankel tails for local orbitals ---
     allocate(ips_iv(nbas))
     do ib=1,nbas
-       ips_iv(ib)=ssite(ib)%spec
+       ips_iv(ib)=ispec(ib)
     enddo
     ! ... Loop over species containing extended local orbitals
     do  is = 1, nspec
@@ -79,8 +77,6 @@ contains
        nrspec = iabs ( iclbsj ( is , ips_iv , - nbas , nbas ) )
        if (nrspec == 0) goto 20
        ib = iclbsj ( is , ips_iv , nbas , 1 )
-!       pnui=ssite(ib)%pnu
-!       pnzi=ssite(ib)%pz
        pnui=>pnuall(:,:,ib)
        pnzi=>pnzall(:,:,ib)
        
@@ -89,7 +85,6 @@ contains
        vseli=0d0
        do  ibs = 1, nrspec
           ib = iclbsj ( is , ips_iv , nbas , ibs )
-          !pnz=ssite(ib)%pz
           if (pnzi(idamax(lmxb+1,pnzi,1),1) < 10) goto 22
           vseli = vseli + vsel(:,:,ib)/dble(nrspec)
 22        continue

@@ -1,6 +1,6 @@
 module m_hamindex  
   use m_lmfinit,only: ham_pwmode,pwemax,ldim=>nlmto,noutmx,nsp_in=>nsp,stdo, &
-       alat=>lat_alat,nl,ctrl_nbas,ssite=>v_ssite,sspec=>v_sspec,n0,nkap0,zbak_read=>zbak,slabl
+       alat=>lat_alat,nl,ctrl_nbas,ispec,sspec=>v_sspec,n0,nkap0,zbak_read=>zbak,slabl
   use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
   use NaNum,only: NaN       !for initialization, but not working well
   use m_suham,only: ndham_read=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
@@ -13,7 +13,7 @@ module m_hamindex
   integer,protected,public:: nqi=NaN, nqnum=NaN, ngrp=NaN, lxx=NaN, kxx=NaN,norbmto=NaN, &
        nqtt=NaN, ndimham=NaN, napwmx=NaN, lxxa=NaN, ngpmx=NaN, imx=NaN,nbas=NaN
   integer,allocatable,protected,public:: iclasstaf(:), offH (:), &
-       ltab(:),ktab(:),offl(:),ispec(:), offlrev(:,:,:),ibastab(:), & !iclasst(:),
+       ltab(:),ktab(:),offl(:), offlrev(:,:,:),ibastab(:), & !iclasst(:),
        iqimap(:),iqmap(:),igmap(:),invgx(:),miat(:,:),ibasindex(:), &
        igv2(:,:,:),napwk(:),igv2rev(:,:,:,:)
   real(8),allocatable,protected,public:: symops_af(:,:,:), ag_af(:,:), &
@@ -81,7 +81,7 @@ contains
     lxx=-1
     ndimham = 0               !dimension of mto part of hamiltonian
     do  ib = 1, nbas
-       is=ssite(ib)%spec
+       is=ispec(ib) !ssite(ib)%spec
        do iorb = 1, norbx(ib)
           norbmto = norbmto+1
           if(ltabx(iorb,ib)>lxx)  lxx = ltabx(iorb,ib)
@@ -97,7 +97,7 @@ contains
     allocate(offH(nbas+1)) !offH looks
     offH=0
     do  ib = 1, nbas
-       is=ssite(ib)%spec
+       is=ispec(ib) !ssite(ib)%spec
        !        spid(ib)=sspec(is)%name
        do  iorb = 1, norbx(ib) !(ib,irob) specify a block of MTO part Hamiltonian
           norbmto=norbmto+1
@@ -125,7 +125,7 @@ contains
     allocate(ib_table(ldim),l_table(ldim),k_table(ldim))
     do iorb = 1, norbmto      !Total number of MTO's (without m)
        ib   = ibastab(iorb)
-       is   = ssite(ib)%spec
+       is   = ispec(ib) !ssite(ib)%spec
        spid=slabl(is) !sspec(is)%name
        ib_table(offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ib
        l_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ltab(iorb)

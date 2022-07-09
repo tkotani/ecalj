@@ -1,6 +1,6 @@
 module m_clsmode
   !! CLS: Core-level spectroscopy !We use CLSinput instead of --cls option.
-  use m_lmfinit, only: lmet=>bz_lmet,nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,nlmax,nspc,nl,lso,stdo
+  use m_lmfinit, only: lmet=>bz_lmet,nbas,nsp,sspec=>v_sspec,nlmax,nspc,nl,lso,stdo
   use m_suham,only:   ndham=>ham_ndham
   use m_mkqp,only: nkp=>bz_nkp
   use m_MPItk,only: master_mpi
@@ -75,7 +75,7 @@ contains
     real(8),intent(in) :: bz_ef,dosw(2)
     real(8):: eferm,evlall(ndhamx,nspx,nkp)
     eferm=bz_ef
-    call vcdmel ( nl , ssite , sspec ,  nlmax , ndham ,&
+    call vcdmel ( nl , sspec ,  nlmax , ndham ,&
          ndimh , nkp , nsp , nspc , eferm , evlall , ausc_zv , &
          nsites , isite , iclsl , iclsn ,dosw) !sbz,
     call rx0('done generating core level spectra')

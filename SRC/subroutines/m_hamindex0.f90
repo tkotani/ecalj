@@ -1,7 +1,7 @@
 !!  originally HAMIndex0 contains informatio of SYMOPS,LATTC,CLASS,NLAindx.
 module m_hamindex0
   use m_lmfinit,only: ham_pwmode,pwemax,ldim=>nlmto,noutmx,nsp_in=>nsp, &
-       lat_alat,nl,ctrl_nbas,ssite=>v_ssite,sspec=>v_sspec,n0,nkap0,zbak_read=>zbak,slabl
+       lat_alat,nl,ctrl_nbas,ispec,sspec=>v_sspec,n0,nkap0,zbak_read=>zbak,slabl
   use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
   use NaNum,only: NaN       !for initialization, but not working well
 
@@ -9,7 +9,7 @@ module m_hamindex0
   integer,protected,public:: nqi=NaN, nqnum=NaN, ngrp=NaN, lxx=NaN, kxx=NaN,norbmto=NaN, &
        nqtt=NaN, ndimham=NaN, napwmx=NaN, lxxa=NaN, ngpmx=NaN, imx=NaN,nbas=NaN
   integer,allocatable,protected,public:: iclasstaf(:), offH (:), &
-       ltab(:),ktab(:),offl(:),ispec(:),offlrev(:,:,:),ibastab(:), &
+       ltab(:),ktab(:),offl(:),offlrev(:,:,:),ibastab(:), &
        iqimap(:),iqmap(:),igmap(:),invgx(:),miat(:,:),ibasindex(:), &
        igv2(:,:,:),napwk(:),igv2rev(:,:,:,:),iclasst(:)
   real(8),allocatable,protected,public:: symops_af(:,:,:), ag_af(:,:), &
@@ -78,7 +78,7 @@ contains
     allocate(invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp), & !iclasst(nbas),
          shtvg(3,ngrp),spid(nbas),lmxa(nbas))
     do ib=1,nbas
-       is=ssite(ib)%spec
+       is=ispec(ib) !ssite(ib)%spec
 !       iclasst(ib)=ssite(ib)%class
        spid(ib) =slabl(is) !sspec(is)%name
        lmxa(ib) =sspec(is)%lmxa !we assume lmxa>-1
@@ -88,7 +88,7 @@ contains
     ndima = 0
     norb=0
     do  ib = 1, nbas
-       is  = ssite(ib)%spec
+       is  = ispec(ib) !ssite(ib)%spec
        pnz(:,1:nsp) = pnzall(:,1:nsp,ib) !ssite(ib)%pz
        do  l = 0, lmxa(ib)
           npqn = 2

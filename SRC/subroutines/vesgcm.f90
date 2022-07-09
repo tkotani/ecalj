@@ -1,25 +1,17 @@
-subroutine vesgcm(nbas,ssite,sspec,cy,qmom,ng,gv,&
-  kv,cv,cg1,cgsum,k1,k2,k3,smpot,f,gpot0,hpot0,qsmc,zsum,vrmt)
+subroutine vesgcm(qmom,ng,gv,kv,cv,cg1,cgsum,smpot,f,gpot0,hpot0,qsmc,zsum,vrmt)
   use m_struc_def 
-  use m_lmfinit,only:lat_alat
+  use m_lmfinit,only:lat_alat,ispec,sspec=>v_sspec,nbas,cy=>rv_a_ocy
   use m_lattic,only: lat_vol,rv_a_opos
   use m_lgunit,only:stdo
+  use m_supot,only: k1,k2,k3
   !- Adds contribution from compensating gaussians to smooth estat pot.
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   nbas  :size of basis
-  !i   ssite :struct for site-specific information; see routine usite
-  !i     Elts read: spec pos
-  !i     Stored:    *
-  !i     Passed to: *
   !i   sspec :struct for species-specific information; see routine uspec
   !i     Elts read: lmxl rg rmt
   !i     Stored:    *
   !i     Passed to: corprm
-  !i   slat  :struct for lattice information; see routine ulat
-  !i     Elts read: alat vol
-  !i     Stored:    *
-  !i     Passed to: *
   !i   cy    :Normalization constants for spherical harmonics
   !i   qmom  :multipole moments of on-site the local density:
   !i         :integral r^l (rho1-rho2) + l=0 contr. from core spillout
@@ -62,11 +54,9 @@ subroutine vesgcm(nbas,ssite,sspec,cy,qmom,ng,gv,&
   !u   23 Apr 00 Adapted from nfp ves_gcomp.f
   ! ----------------------------------------------------------------------
   implicit none
-  integer :: k1,k2,k3,nbas,ng,kv(ng,3)
+  integer :: ng,kv(ng,3)
   double precision :: qsmc,zsum
-  real(8):: qmom(*) , gv(ng,3) , cy(*) , f(3,nbas) , gpot0(*) , hpot0(nbas) , vrmt(nbas)
-  type(s_site)::ssite(*)
-  type(s_spec)::sspec(*)
+  real(8):: qmom(*) , gv(ng,3), f(3,nbas) , gpot0(*) , hpot0(nbas) , vrmt(nbas)
   double complex smpot(k1,k2,k3),cv(ng),cg1(ng),cgsum(ng)
   integer :: k0,nlmx,i,ib,ilm,iprint,is,iv0,kb,kmax,l,ll, lmxl,m,nlm,lfoc
   parameter (k0=3, nlmx=64)
@@ -90,8 +80,8 @@ subroutine vesgcm(nbas,ssite,sspec,cy,qmom,ng,gv,&
   qsmc = 0d0
   zsum = 0d0
   do  ib = 1, nbas
-     is=ssite(ib)%spec
-     tau=rv_a_opos(:,ib) !ssite(ib)%pos
+     is=ispec(ib)
+     tau=rv_a_opos(:,ib) 
      lmxl=sspec(is)%lmxl
      rg=sspec(is)%rg
      if (lmxl == -1) goto 10
@@ -169,8 +159,8 @@ subroutine vesgcm(nbas,ssite,sspec,cy,qmom,ng,gv,&
   call dpzero(vrmt,nbas)
   img = (0d0,1d0)
   do  ib = 1, nbas
-     is=ssite(ib)%spec
-     tau=rv_a_opos(:,ib) !ssite(ib)%pos
+     is=ispec(ib)
+     tau=rv_a_opos(:,ib) 
      call dscal(3,alat,tau,1)
      rmt=sspec(is)%rmt
      !       Add a negligibly small amount to rmt to handle case rmt=0

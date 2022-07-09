@@ -2,9 +2,8 @@ module m_mkpot ! http://dx.doi.org/10.7566/JPSJ.84.034702
   use m_lmfinit,only: nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nab,nppn &
        ,lfrce=>ctrl_lfrce,stdl, nchan=>pot_nlma, nvl=>pot_nlml,nkaph
   use m_struc_def,only: s_rv1,s_cv1,s_sblock
-!  use m_MPItk,only: master_mpi,mlog
+  public:: m_mkpot_init, m_mkpot_deallocate, m_mkpot_energyterms, m_mkpot_novxc !,m_Mkpot_novxc_dipole
   !! output ------------------------------------------------------------------
-  public::  m_Mkpot_init, m_Mkpot_deallocate, m_Mkpot_energyterms, m_Mkpot_novxc!,m_Mkpot_novxc_dipole
   type(s_sblock),allocatable,protected,public  :: ohsozz(:,:),ohsopm(:,:) !SOC matrix
   ! Generated at mkpot-locpot-augmat-gaugm
   type(s_cv1),allocatable,protected,public  :: sv_p_oppi(:,:) !pi-integral Eq.(C.6)
@@ -12,6 +11,7 @@ module m_mkpot ! http://dx.doi.org/10.7566/JPSJ.84.034702
   type(s_rv1),allocatable,protected,public  :: sv_p_osig(:,:) !sigma          (C.4)
   complex(8),allocatable,protected ,public  :: osmpot(:,:,:,:)!0th component of Eq.(34)
 
+  ! by m_mkpot_novxc
   type(s_cv1),allocatable,protected,public  :: sv_p_oppix(:,:) !pi-integral without xc term
   complex(8),allocatable,protected ,public  :: spotx(:,:,:,:)
 
@@ -32,11 +32,10 @@ module m_mkpot ! http://dx.doi.org/10.7566/JPSJ.84.034702
   type(s_rv1),allocatable,protected,private  :: sv_p_otaux(:,:) !dummy
   type(s_rv1),allocatable,protected,private  :: sv_p_osigx(:,:) !dummy
 contains
-  subroutine m_mkpot_novxc()
-    ! output: sv_p_oppix, spotx
+  
+  subroutine m_mkpot_novxc() ! outputs are sv_p_oppix and spotx (for no vxc terms).
     use m_supot,only: k1,k2,k3
     use m_density,only: osmrho, orhoat !main input density
-    integer:: lfrzw,ilfzw
     logical:: novxc_
     write(stdo,"(a)")' m_mkpot_novxc: Making one-particle potential without XC part ...'
     allocate( vesrmt(nbas))
@@ -110,8 +109,8 @@ contains
   subroutine m_mkpot_init(llmfgw)
     use m_supot,only: k1,k2,k3
     use m_density,only: osmrho, orhoat !main input density
-    use m_lmfinit,only: lso,nbas, ssite=>v_ssite, sspec=>v_sspec, nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex
-    integer:: i,lfrzw,is,ib,kmax,lmxa,lmxh,nelt2,nlma,nlmh,iprint!,lfrce
+    use m_lmfinit,only: lso,nbas,sspec=>v_sspec, nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex
+    integer:: i,lfrzw,is,ib,kmax,lmxa,lmxh,nelt2,nlma,nlmh,iprint
     real(8) ::qbz
     logical :: llmfgw,fsmode,fullmesh,cmdopt0
     call tcn('m_mkpot_init')
@@ -140,25 +139,26 @@ contains
          osmpot, sv_p_osig , sv_p_otau , sv_p_oppi, fes1_rv, ohsozz,ohsopm)
     call tcx('m_mkpot_init')
   end subroutine m_mkpot_init
-  ! ssssssssssssssssssssssssssssssssssssssssssssssssssssss
   
-  subroutine m_mkpot_energyterms(smrho_out,orhoat_out)
+  subroutine m_mkpot_energyterms(smrho_out,orhoat_out)!get smrho_out,orhoat_out
     use m_struc_def
     type(s_rv1):: orhoat_out(:,:)
     complex(8) :: smrho_out(:)
     call tcn('m_mkpot_energyterms')
     if(allocated(fes2_rv)) deallocate(fes2_rv)
     allocate( fes2_rv(3*nbas))
-    call mkpot(0, smrho_out , orhoat_out , &
+    call mkpot(0, smrho_out , orhoat_out , & !job=0 is for no augmentation term
          osmpot, sv_p_osig , sv_p_otau , sv_p_oppi, fes2_rv, ohsozz,ohsopm)
     call tcx('m_mkpot_energyterms')
   end subroutine m_mkpot_energyterms
    
+  !- Make the potential from the density.
   subroutine mkpot(job, smrho, sv_p_orhoat, &
        smpot, sv_p_osig, sv_p_otau, sv_p_oppi, fes, ohsozz,ohsopm, novxc_) !dipole_)
+    ! job=0 => not make core and augmentation matrices
     ! job=1 => make core and augmentation matrices
     ! xxx problematic option dipole_ removed. (for <i|{\bf r}|j> matrix for novxc)
-    use m_lmfinit,only:lso,nbas,ssite=>v_ssite,sspec=>v_sspec,nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex
+    use m_lmfinit,only:lso,nbas,ispec,sspec=>v_sspec,nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex
     use m_lattic,only: lat_plat,lat_qlat, lat_vol,rv_a_opos
     use m_supot,only: k1,k2,k3,lat_nabc
     use m_MPItk,only: master_mpi
@@ -169,7 +169,7 @@ contains
     use m_locpot,only: Locpot
     use m_smvxcm,only: smvxcm
     use m_ftox
-    ! ote other output in module area
+    ! other other output in module variables
     ! for job=0
     !o         utot   = total electrostatic energy
     !o         valves = valence rho * estat potential
@@ -182,38 +182,22 @@ contains
     !o         amom   = system magnetic moment
 
     !! documents below are under construction.
-    !- Make the potential from the density.
     ! ----------------------------------------------------------------------
     !i Inputs
-    !i   nbas  :size of basis
-    !i   ssite :struct containing site-specific information
-    !i     Passed to: rhomom smves smvxcm locpot
-    !i   sspec :struct containing species-specific information
-    !i     Elts read:
-    !i     Passed to: rhomom smves smvxcm locpot
     !i   lfrce :nonzero =>  contribution to forces
     !i   lcplxp=1 only ::0 if ppi is real; 1 if ppi is complex
     !i   k1,k2,k3 dimensions of smrho for smooth crystal density
     !i   smrho :smooth crystal density, on a uniform mesh
     !i   orhoat:local atomic densities (true and smooth parts)
     !i   qbg   :homogeneous background charge
-    !i   job   :1s digit
-    !i         : 0 stops after energy terms
-    !i         : 1 makes potpars also
-    !i         :10s digit
-    !i         :1 suppress updating potential used to make potpars
-    !i         :100s digit
-    !i         :1 exclude exchange-correlation potential
-    ! xxx         :1000s digit
-    ! xxx         :1 Make rveps and rvvxc
-    !i         :10000s digit
-    !i         :1 write sphere density for each site ib to file rhoMT.ib
+    
     !i ... The following are LDA+U inputs
     !i   vorb  :orbital dependent potential
     !i   nlibu :number of U blocks  used to dimension vorb
     !i   lmaxu :max l for U blocks  used to dimension vorb
     !i   lldau :lldau(ib)=0 => no U on this site otherwise
     !i         :U on site ib with dmat beginning at dmats(*,lldau(ib))
+    
     !o Outputs:
     !o   smpot :smooth potential on a uniform mesh:
     !o         :Ves~ + vxc = Ves(n0 + compensating gaussians) + vxc
@@ -233,6 +217,7 @@ contains
     !l Local variables
     !l   rvmusm:int rhosm * vxc(rhosm+smcor1) where smcor1 is portion
     !l         :of smooth core density treated nonperturbatively.
+
     ! xxx   rvepsm:int rhosm * exc(rhosm+smcor1) where smcor1 is portion
     ! xxx         :of smooth core density treated nonperturbatively.
     ! Cl   rvepsv:integral of valence density times exc(valence density) !removed now
@@ -248,6 +233,7 @@ contains
     !l         :vefv1 - vefv2
     !l         := int[rho1*(v1-2*Z/r) - (rho2*v2)] - (n0~-n0)*gpotb - focvxc
     !l   lso   :nonzero => spin orbit coupling
+    
     !r Remarks
     !r *The total density is a sum of three terms,
     !r
@@ -281,39 +267,9 @@ contains
     !r    the electrostatic energy of  n0~  +
     !r    the electrostatic energy of (neutral) local parts
     !r
-    !r  The first term is computed in subroutine smves;
-    !r  the second term is computed in subroutine locpot.
-    !u Updates
-    !u   01 Jul 05 handle sites with lmxa=-1 -> no augmentation
-    !u   27 Apr 05 Added LDA+U stuff (Lambrecht)
-    !u   24 Dec 04 Changes for full L.S coupling
-    !u    1 Sep 04 Adapted mkpot to handle complex ppi; fold so into ppi
-    !u   15 Jul 04 (Chantis) Matrix elements Lz.Sz for spin-orbit coupling
-    !u   14 Jan 02 rvexv and rvecv (T. Miyake)
-    !u   17 Sep 01 Returns qsc.  Altered argument list.
-    !u   24 Aug 01 Extended to local orbitals.  Altered argument list.
-    !u             Local potentials now have correct boundary conditions
-    !u   15 Aug 01 Generates rvepsv and rvvxcv.  Changed call to locpot.
-    !u   20 Apr 01 Generates vesrmt
-    !u   18 Apr 01 Added ability to exclude exchange-correlation potential
-    !u   20 Feb 01 Added ppn to potential parameters generated
-    !u   15 Jun 00 spin polarized
-    !u   22 Apr 00 Adapted from nfp mk_potential.f
-    ! ------------------------------------------------------------
-    ! to do:
-    ! 1. check that rhov*vxc approximately the same in locpot as smvxc
-    ! 2. ditto for rhov*exc; need finish making rhov*exc in smvxc
-    ! 3. ? See about understanding and changing foxexc both in locpot
-    !    and smvxc.  The total energy seems to come out just right,
-    !    but focexc isn't real correction to rhov*exc.  Does it matter?
-    !    Maybe can't use lfoca=2 is all.
-    ! 4. enable 1000s digit job to pass through
-    ! 5. change locpot so that rvvxcv etc is make only if appropriate
-    !    1000s job bit set.
-    ! 6. Make <vxc_nn> and compare to integrals made here.
-    !    If problems, Maybe even look at sm part only, or local part only.
+
     implicit none
-    integer :: job,i1,i2,i3,ispec
+    integer :: job,i1,i2,i3
     type(s_rv1) :: sv_p_orhoat(*)
     type(s_cv1) :: sv_p_oppi(*)
     type(s_sblock) :: ohsozz(*),ohsopm(*)
@@ -366,8 +322,7 @@ contains
           write(ifi,'("PRIMCOORD")')
           write(ifi,'(2i5)') nbas,1
           do i = 1, nbas
-             ispec=ssite(i)%spec
-             write(ifi,'(i4,2x,3f10.5)') sspec(ispec)%z,(rv_a_opos(i2,i)*alat*0.529177208,i2=1,3)
+             write(ifi,'(i4,2x,3f10.5)')sspec(ispec(i))%z,(rv_a_opos(i2,i)*alat*0.529177208,i2=1,3)
           enddo
           write(ifi,'("BEGIN_BLOCK_DATAGRID_3D")')
           write(ifi,'("charge_density_spin_",i1)') isp
@@ -399,8 +354,7 @@ contains
     allocate(hpot0_rv(nbas))
     !      i = 1
     !      if (cmdopt0('--oldvc')) i = 0
-    call smves(nbas , ssite , sspec ,  k1 , k2 , k3 , &
-         qmom , gpot0 , vval , hpot0_rv , sgp0 , smrho , smpot , vconst &
+    call smves(qmom , gpot0 , vval , hpot0_rv , sgp0 , smrho , smpot , vconst &
          , smq , qsmc , fes , rhvsm , zvnsm , zsum , vesrmt , qbg )
     smag = 0
     if (nsp == 2) then
@@ -421,7 +375,7 @@ contains
        !   ... Smooth exchange-correlation potential
        smvxc_zv=0d0
        smexc_zv=0d0
-       call smvxcm ( ssite , sspec , nbas , lfrce , k1 , k2 ,&
+       call smvxcm(sspec , nbas , lfrce , k1 , k2 ,&
        k3 , smrho , smpot , smvxc_zv , smvx_zv , smvc_zv , &
             smexc_zv , repsm , repsmx , repsmc , rmusm , rvmusm , rvepsm &
             , fcexc0 , fcex0 , fcec0 , fcvxc0 , fxc_rv )
@@ -576,7 +530,7 @@ contains
 
   subroutine dfaugm ( sv_p_osig, sv_p_otau , sv_p_oppi, ohsozz,ohsopm )
     use m_struc_def,only:s_rv1,s_cv1,s_sblock
-    use m_lmfinit,only: lso,nkaph,nsp,nbas,ssite=>v_ssite,sspec=>v_sspec
+    use m_lmfinit,only: lso,nkaph,nsp,nbas,ispec,sspec=>v_sspec
     !- Allocate augmentation matrices sigma,tau,pi for all atoms
     ! ----------------------------------------------------------------------
     !o Outputs
@@ -603,7 +557,7 @@ contains
     integer :: ib,igetss,is,kmax,lmxa,lmxh,nelt1,nelt2,nglob,nlma,nlmh,nelt !,nso
     logical:: cmdopt0
     do  ib = 1, nbas
-       is = ssite(ib)%spec
+       is = ispec(ib)
        lmxa=sspec(is)%lmxa
        lmxh=sspec(is)%lmxb
        kmax=sspec(is)%kmxt

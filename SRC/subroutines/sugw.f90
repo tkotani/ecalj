@@ -9,7 +9,7 @@ contains
     use m_suham,only: ndham=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
     use m_lmfinit, only: &
          ham_pwmode,pwemin,pwemax,ham_oveps,lrsig=>ham_lsig,nlmto,lso, &
-         ham_scaledsigma,lat_alat,mxorb,nkaph,nsp,nspc,nl,mxorb,ssite=>v_ssite,sspec=>v_sspec,&
+         ham_scaledsigma,lat_alat,mxorb,nkaph,nsp,nspc,nl,mxorb,ispec,sspec=>v_sspec,&
          nbas,n0,nppn,nkap0,slabl,nmcorex=>nmcore,iantiferro
     use m_lattic,only: lat_plat, lat_qlat,rv_a_opos
     use m_supot,only: lat_nabc, lat_gmax
@@ -187,7 +187,7 @@ contains
     !!  Count number of atoms : exclude floating orbitals
     nat = 0
     do  i = 1, nbas
-       is = ssite(i)%spec
+       is = ispec(i) !ssite(i)%spec
        lmaxa = int(sspec(is)%lmxa)
        if (lmaxa > -1) then
           nat = nat + 1
@@ -203,7 +203,7 @@ contains
     ndima = 0
     lmxax = -1
     do  ib = 1, nbas
-       is=ssite(ib)%spec
+       is=ispec(ib) !ssite(ib)%spec
        lmaxa=sspec(is)%lmxa
        !pnz  =ssite(ib)%pz
        pnz=>pnzall(:,1:nsp,ib)
@@ -228,7 +228,7 @@ contains
     allocate(ips(nbas),lmxa(nat),bas(3,nat))!,iantiferro(nat))
     iat = 0
     do  i = 1, nbas
-       lmaxa = sspec(int(ssite(i)%spec))%lmxa 
+       lmaxa = sspec(ispec(i))%lmxa 
        if (lmaxa > -1) then
           iat = iat + 1
           if (iat > nat) call rx('bug in sugw')
@@ -241,7 +241,7 @@ contains
     !!   ... Determine nphimx
     nphimx = 0
     do  ib = 1, nbas
-       is=ssite(ib)%spec
+       is=ispec(ib) !ssite(ib)%spec
 !       pnu=ssite(i)%pnu
 !       pnz=ssite(i)%pz
 !       if(sum(abs(pnz(:,1:nsp)-pnzall(:,1:nsp,i)))>1d-9) call rx('sugw xxx111')
@@ -264,7 +264,7 @@ contains
     ncoremx=0
     nrmx=0
     do  ib = 1, nbas
-       is=ssite(ib)%spec
+       is=ispec(ib) !ssite(ib)%spec
 !       pnu=ssite(ib)%pnu
 !       pnz=ssite(ib)%pz
        pnu=>pnuall(:,1:nsp,ib)
@@ -588,7 +588,7 @@ contains
 !!!!  do not need to be short enough).
              !             if(sum(abs(qp-q))>1d-8) stop 'sugw:qp/=q; qp=p sep2012'
              inn=0
-             call pwmat (  ssite , sspec , nbas , ndimh , napw,&
+             call pwmat(sspec , nbas , ndimh , napw,&
                   igv2x, qp , ngp , nlmax , ngvecp(1,1,iq) , gmax , inn, ppovl, phovl )
              pwz=matmul(phovl,evec)
              ! all zgemm('N','N',ngp,ndimh,ndimh,(1d0,0d0),phovl,ngp, evec,ndimh,(0d0,0d0),pwz,ngp)

@@ -1,5 +1,5 @@
 subroutine hambl(isp,qin, smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi, h, s)
-  use m_lmfinit,only: nbas , ssite=>v_ssite , sspec=>v_sspec,nsp
+  use m_lmfinit,only: nbas , sspec=>v_sspec,nsp
   use m_igv2x,only: napw, igvapwin=>igv2x, ndimh
   use m_supot,only: k1,k2,k3
   use m_struc_def,only: s_rv1,s_cv1

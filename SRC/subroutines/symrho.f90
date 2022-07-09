@@ -2,24 +2,12 @@ subroutine symrhoat ( sv_p_orhoat, qbyl, hbyl, f)
   use m_supot,only:  rv_a_ogv , iv_a_oips0 , zv_a_obgv ,iv_a_okv
   use m_mksym,only: iv_a_oistab , rv_a_osymgr, rv_a_oag
   use m_struc_def
-  use m_lmfinit,only: nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,lf=>ctrl_lfrce
+  use m_lmfinit,only: nbas,nsp,lf=>ctrl_lfrce
   use m_supot,only: lat_nabc
   use m_lgunit,only:stdo
   !- Symmetrize charge density and related quantities
   ! ----------------------------------------------------------------------
   !i Inputs
-  !i   ssite :struct for site-specific information; see routine usite
-  !i     Elts read: spec
-  !i     Stored:    class pos
-  !i     Passed to: spackv
-  !i   sspec :struct for species-specific information; see routine uspec
-  !i     Elts read: lmxl lmxa nr
-  !i     Stored:    *
-  !i     Passed to: *
-  !i   slat  :struct for lattice information; see routine ulat
-  !i     Elts read: ocg ojcg oidxcg ocy plat qlat oistab nsgrp osymgr oag
-  !i     Stored:    *
-  !i     Passed to: *
   !i   lf    :>0 symmetrize forces
   !i Inputs/Outputs
   ! ox  smrho :smooth density
@@ -46,31 +34,20 @@ subroutine symrhoat ( sv_p_orhoat, qbyl, hbyl, f)
   if(iprint()>=10) write(stdo,*)' Symmetrize density..'
   ngabc=lat_nabc
   call fftz30(n1,n2,n3,k1,k2,k3)
-  call symrat ( ssite , sspec , nbas , nsp , lf , sv_p_orhoat , qbyl , hbyl , f )
-  if ( iprint ( ) > 50 ) call prrhat (nbas , ssite , sspec, sv_p_orhoat )
+  call symrat ( nbas , nsp , lf , sv_p_orhoat , qbyl , hbyl , f )
+  if ( iprint ( ) > 50 ) call prrhat (sv_p_orhoat )
   call tcx('symrhoat')
 end subroutine symrhoat
 
-subroutine symrat( ssite, sspec, nbas, nsp, lf, sv_p_orhoat , qbyl , hbyl , f )
+subroutine symrat(nbas, nsp, lf, sv_p_orhoat , qbyl , hbyl , f )
   use m_struc_def
   use m_mksym,only: iv_a_oistab , rv_a_osymgr, rv_a_oag,lat_nsgrp,ipc_iv=>iclasst
   use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
   use m_lgunit,only:stdo
+  use m_lmfinit,only: ispec,sspec=>v_sspec
   !     - Symmetrize the atomic charge densities and the forces.
   ! ----------------------------------------------------------------------
   !i Inputs
-  !i   ssite :struct for site-specific information; see routine usite
-  !i     Elts read: spec
-  !i     Stored:    class pos
-  !i     Passed to: spackv
-  !i   sspec :struct for species-specific information; see routine uspec
-  !i     Elts read: lmxl lmxa nr
-  !i     Stored:    *
-  !i     Passed to: *
-  !i   slat  :struct for lattice information; see routine ulat
-  !i     Elts read: ocg ojcg oidxcg ocy plat qlat oistab nsgrp osymgr oag
-  !i     Stored:    *
-  !i     Passed to: *
   !i   nbas  :size of basis
   !i   nsp   :2 for spin-polarized case, otherwise 1
   !i   lf    :>0 symmetrize forces
@@ -93,8 +70,8 @@ subroutine symrat( ssite, sspec, nbas, nsp, lf, sv_p_orhoat , qbyl , hbyl , f )
   type(s_rv1) :: sv_p_orhoat(3,nbas)
   parameter (n0=10)
   real(8):: f(3,nbas) , qbyl(n0,nsp,nbas) , hbyl(n0,nsp,nbas)
-  type(s_site)::ssite(*)
-  type(s_spec)::sspec(*)
+!  type(s_site)::ssite(*)
+!  type(s_spec)::sspec(*)
   !      type(s_lat)::slat
   integer:: ib0 , ic , ipr , iprint , is , lmxa &
        , lmxl , nclass , ngrp , nlml , nlmx , nr , nrclas , igetss , &
@@ -130,7 +107,7 @@ subroutine symrat( ssite, sspec, nbas, nsp, lf, sv_p_orhoat , qbyl , hbyl , f )
           , ipa_iv , nrclas )
      if (nrclas > 0) then
         ib0 = ival ( ipa_iv , 1 )
-        is = int(ssite(ib0)%spec)
+        is = ispec(ib0) !int(ssite(ib0)%spec)
         lmxl=sspec(is)%lmxl
         lmxa=sspec(is)%lmxa
         nr=sspec(is)%nr

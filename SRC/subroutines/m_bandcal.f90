@@ -342,7 +342,7 @@ contains
   end subroutine m_bandcal_symsmrho
 
   subroutine mkorbm(isp,nev,iq,qp,evec, orbtm)
-    use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nl,n0,nppn,nab
+    use m_lmfinit,only: ispec,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nl,n0,nppn,nab
     use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
     use m_mkpot,only: ppnl=>ppnl_rv
     use m_subzi, only: wtkb=>rv_a_owtkb
@@ -399,7 +399,7 @@ contains
     iot = dcmplx(0d0,1d0)
     ichan = 0
     ibloop: do  ib = 1, nbas
-       is = ssite(ib)%spec
+       is = ispec(ib)
        lmxa=sspec(is)%lmxa
        rmt= sspec(is)%rmt
        lmxa = min(lmxa,lmxax)

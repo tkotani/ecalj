@@ -1,5 +1,5 @@
 subroutine iorbtm()
-  use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,nl,nsp,nbas,slabl
+  use m_lmfinit,only: ispec,sspec=>v_sspec,nl,nsp,nbas,slabl
   use m_bandcal,only: orbtm=>orbtm_rv
   use m_lgunit,only:stdo
   !- Printout of orbital moments
@@ -25,7 +25,7 @@ subroutine iorbtm()
   write(stdo,332)
 332 format(/'IORBTM:  orbital moments :'/' ibas  Spec        spin   Moment decomposed by l ...')
   do  ibas = 1,nbas
-     is = ssite(ibas)%spec
+     is = ispec(ibas)
      amom = 0
      do  isp = 1, nsp
         orbl=0d0

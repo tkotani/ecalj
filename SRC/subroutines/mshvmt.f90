@@ -1,18 +1,14 @@
-subroutine mshvmt(nbas,ssite,sspec,ng,gv, kv,cv,k1,k2,k3,smpot,vval)
+subroutine mshvmt(ng,gv, kv,cv,smpot,vval)
   use m_struc_def
   use m_lattic,only:lat_plat,rv_a_opos
-  use m_lmfinit,only:lat_alat
-  use m_supot,only: lat_nabc
+  use m_lmfinit,only:lat_alat,nbas,ispec,sspec=>v_sspec
+  use m_supot,only: lat_nabc,k1,k2,k3
   use m_ropyln,only: ropyln
   use m_ropbes,only: ropbes
 !- Makes potential at MT surfaces given potential on a uniform mesh
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   nbas  :size of basis
-  !i   ssite :struct for site-specific information; see routine usite
-  !i     Elts read: spec pos
-  !i     Stored:    class spec pos
-  !i     Passed to: *
   !i   sspec :struct for species-specific information; see routine uspec
   !i     Elts read: rmt lmxl
   !i     Stored:    *
@@ -43,10 +39,8 @@ subroutine mshvmt(nbas,ssite,sspec,ng,gv, kv,cv,k1,k2,k3,smpot,vval)
   !u   22 Aug 01 Newly created.
   ! ----------------------------------------------------------------------
   implicit none
-  integer :: k1,k2,k3,nbas,ng,kv(ng,3)
+  integer :: ng,kv(ng,3)
   real(8):: gv(ng,3) , vval(1)
-  type(s_site)::ssite(*)
-  type(s_spec)::sspec(*)
   double complex smpot(k1,k2,k3),cv(ng)
   integer :: i,ib,is,lmxx,nlmx,iv0,lmxl,nlm,ngabc(3), n1,n2,n3,m,ilm,l,ipr
   double precision :: alat,pi,tpiba,tau(3),rmt,fac,plat(3,3)
@@ -73,8 +67,8 @@ subroutine mshvmt(nbas,ssite,sspec,ng,gv, kv,cv,k1,k2,k3,smpot,vval)
   enddo
   iv0 = 0
   do  ib = 1, nbas
-     is=ssite(ib)%spec
-     tau=rv_a_opos(:,ib) !ssite(ib)%pos
+     is=ispec(ib)
+     tau=rv_a_opos(:,ib) 
      rmt=sspec(is)%rmt
      lmxl=sspec(is)%lmxl
      if (lmxl == -1) goto 10
@@ -138,21 +132,17 @@ subroutine mshvmt(nbas,ssite,sspec,ng,gv, kv,cv,k1,k2,k3,smpot,vval)
   call tcx('mshvmt')
 end subroutine mshvmt
 
-subroutine symvvl(nbas,ssite,sspec,vval,vrmt)
+subroutine symvvl(vval,vrmt)
   use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp,ipc=>iclasst
   use m_struc_def
   use m_lattic,only:lat_plat,rv_a_opos
   use m_lgunit,only:stdo
+  use m_lmfinit,only:ispec,sspec=>v_sspec,nbas
   !- Symmetrizes the potential at the MT boundary.
   ! ----------------------------------------------------------------------
   !i Inputs
-  !i   nbas  :size of basis
-  !i   ssite :struct for site-specific information; see routine usite
-  !i     Elts read: spec pos
   !i   sspec :struct for species-specific information; see routine uspec
   !i     Elts read: lmxl rmt
-  !i   slat  :struct for lattice information; see routine ulat
-  !i     Elts read: plat nsgrp osymgr oag alat nabc
   !o Outputs
   ! o  vval  :On input,  unsymmetrized potential
   ! o        :On output, elements of potential for sites in the same
@@ -171,10 +161,7 @@ subroutine symvvl(nbas,ssite,sspec,vval,vrmt)
   !u   23 Aug 01 Newly created.
   ! ----------------------------------------------------------------------
   implicit none
-  integer :: nbas
   real(8):: vval(1) , vrmt(nbas)
-  type(s_site)::ssite(*)
-  type(s_spec)::sspec(*)
   integer :: ic,ib,ilm,mxint,nclass,ipa(nbas),nrclas,iv0
   integer :: ips(nbas),lmxl(nbas) !ipc(nbas),
   double precision :: pos(3,nbas),posc(3,nbas),plat(3,3),pi,y0
@@ -186,8 +173,7 @@ subroutine symvvl(nbas,ssite,sspec,vval,vrmt)
   plat=lat_plat
   ngrp=lat_nsgrp
   do ibas=1,nbas
-!     ipc(ibas)  = ssite(ibas)%class
-     ips(ibas)  = ssite(ibas)%spec
+     ips(ibas)  = ispec(ibas) 
      pos(:,ibas)= rv_a_opos(:,ibas) !ssite(i_spackv)%pos
   enddo
   nclass = mxint(nbas,ipc)

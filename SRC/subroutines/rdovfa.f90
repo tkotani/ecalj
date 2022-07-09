@@ -2,7 +2,7 @@ subroutine rdovfa()
   use m_density,only: zv_a_osmrho=>osmrho,sv_p_orhoat=>orhoat,v1pot,v0pot !these are allocated
 
   use m_supot,only: lat_nabc,lat_ng,rv_a_ogv,iv_a_okv,rv_a_ogv
-  use m_lmfinit,only:lat_alat,nsp,nbas,nspec,ssite=>v_ssite,sspec=>v_sspec,qbg=>zbak,slabl
+  use m_lmfinit,only:lat_alat,nsp,nbas,nspec,ispec,sspec=>v_sspec,qbg=>zbak,slabl
   use m_lattic,only: lat_plat,lat_vol
   use m_struc_def,only: s_rv1
   use m_struc_func, only: mpibc1_s_spec
@@ -158,7 +158,7 @@ subroutine rdovfa()
   if(allocated(sv_p_orhoat)) deallocate(sv_p_orhoat)
   allocate(sv_p_orhoat(3,nbas))
   do  20  ib = 1, nbas
-     is = int(ssite(ib)%spec)
+     is = ispec(ib) !int(ssite(ib)%spec)
      a=sspec(is)%a
      nr=sspec(is)%nr
      rmt=sspec(is)%rmt
@@ -221,7 +221,7 @@ subroutine rdovfa()
   ! --- Overlap smooth hankels to get smooth interstitial density ---
   ng=lat_ng
   allocate(cv_zv(ng*nsp))
-  call ovlpfa ( ssite , nbas , nxi , n0 , exi , hfc , rsmfa, ng , ng , rv_a_ogv , cv_zv )
+  call ovlpfa ( nbas , nxi , n0 , exi , hfc , rsmfa, ng , ng , rv_a_ogv , cv_zv )
   call gvputf ( ng , nsp , iv_a_okv , k1 , k2 , k3 , cv_zv , zv_a_osmrho )
   if (allocated(cv_zv)) deallocate(cv_zv)
   ! ... FFT to real-space mesh
@@ -235,7 +235,7 @@ subroutine rdovfa()
      smom = 2*smom - sum1
   endif
   ! --- Set up local densities using rmt from atm file ---
-  call ovlocr ( nbas , ssite , sspec ,  n0 , nxi , exi ,&
+  call ovlocr ( nbas , sspec ,  n0 , nxi , exi ,&
        hfc , rsmfa , rv_a_orhofa , sv_p_orhoat , sqloc , slmom )
   ! --- Add compensating uniform electron density to compensate background
   call adbkql ( sv_p_orhoat , nbas , nsp , qbg , vol , - 1d0 )!, sspec )!, ssite )

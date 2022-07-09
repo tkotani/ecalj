@@ -120,7 +120,6 @@ subroutine gwcphi(sspec,isp,nsp,nlmax,ndham,nev,nbas,ipb,lmxax,nlindx,ndima,ppnl
   integer :: isp,nsp,nlmax,ndham,nbas,nev,lmxax,ndima,ipb(nbas), nlindx(3,0:lmxax,nbas)
   integer :: n0,nppn
   parameter (n0=10,nppn=12)
-!  type(s_site)::ssite(*)
   type(s_spec)::sspec(*)
   double precision :: ppnl(nppn,n0,nsp,*),cphin(2,nev)
   double complex aus(nlmax,ndham,3,nsp,*),cphi(ndima,nev)
@@ -131,7 +130,7 @@ subroutine gwcphi(sspec,isp,nsp,nlmax,ndham,nev,nbas,ipb,lmxax,nlindx,ndima,ppnl
   call dpzero(lmat,9)
   call dpzero(cphin,2*nev)
   do  ib = 1, nbas
-     is = ispec(ib) !ssite(ib)%spec
+     is = ispec(ib) 
      ia = ipb(ib)
      pnz(:,1:nsp)=pnzall(:,1:nsp,ib)
      lmxa=sspec(is)%lmxa

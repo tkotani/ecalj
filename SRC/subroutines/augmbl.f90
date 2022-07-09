@@ -84,7 +84,7 @@ subroutine aughsoc(qp,ohsozz,ohsopm, ndimh, hso)
   !sss call shorbz(qp,q,qlat,plat) !is this fine?
   q=qp !sss 
   do ibas = 1,nbas
-     isa =ispec(ibas) !ssite(ibas)%spec
+     isa =ispec(ibas) 
      lmxa=sspec(isa)%lmxa !max l of augmentation
      lmxb=sspec(isa)%lmxb !max l of basis
      kmax=sspec(isa)%kmxt !max of radial k
@@ -236,11 +236,8 @@ subroutine augmbl(isp, q , sv_p_osig , sv_p_otau , sv_p_oppi, ndimh , h,s )
   real(8),pointer:: sig1(:),sig2(:),sig3(:)
   !--------------------------
   call tcn ('augmbl')
-!  alat=lat_alat
-!  qlat=lat_qlat
-!  vol=lat_vol
   do ibas = 1,nbas
-     isa = ispec(ibas) !ssite(ibas)%spec
+     isa = ispec(ibas) 
      pa  =rv_a_opos(:,ibas) 
      lmxa=sspec(isa)%lmxa !max l of augmentation
      lmxb=sspec(isa)%lmxb !max l of basis

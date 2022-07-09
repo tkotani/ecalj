@@ -1,6 +1,6 @@
-subroutine vcdmel(nl,ssite,sspec,nlmax,ndham,ndimh,& !- Valence-core dipole matrix elements
+subroutine vcdmel(nl,sspec,nlmax,ndham,ndimh,& !- Valence-core dipole matrix elements
      nq,nsp,nspc,ef,evl,aus,nsite,isite,iclsl,iclsn,dosw)
-  use m_lmfinit,only: rv_a_ocg , iv_a_ojcg , iv_a_oidxcg
+  use m_lmfinit,only: rv_a_ocg , iv_a_ojcg , iv_a_oidxcg,ispec
   use m_mkqp,only: iv_a_oidtet ,bz_nabc, bz_ntet
   use m_struc_def
   use m_ext,only: sname     !extention for file
@@ -9,14 +9,6 @@ subroutine vcdmel(nl,ssite,sspec,nlmax,ndham,ndimh,& !- Valence-core dipole matr
   use m_density,only: v0pot,pnuall,pnzall
   ! ----------------------------------------------------------------------
   !i Inputs:
-  !i   sctrl :struct containing parameters governing program flow
-  !i     Elts read: nl
-  !i   ssite :struct containing site-specific information
-  !i     Elts read: spec pnu ov0 pz
-  !i   sspec :struct containing species-specific information
-  !i     Elts read: a nr rmt z lmxa
-  !i   slat  :struct containing information about the lattice
-  !i     Elts read: ocg ojcg oidxcg ocy
   !i   nlmax :first dimension of aus; largest augmentation (l+1)^2
   !i   ndham :second dimension of aus, at least as large as ndimh
   !i   ndimh :number of eigenvalues
@@ -43,7 +35,7 @@ subroutine vcdmel(nl,ssite,sspec,nlmax,ndham,ndimh,& !- Valence-core dipole matr
   integer nlmax,ndham,ndimh,nq,nsp,nspc,nsite
   integer isite(nsite),iclsl(nsite),iclsn(nsite)
   real(8):: ef , evl(ndham,nsp,nq)
-  type(s_site)::ssite(nsite)
+!  type(s_site)::ssite(nsite)
   type(s_spec)::sspec(*)
   double complex aus(nlmax,ndham,3,nsp,nsite,nq)
   integer n0,lmxax
@@ -74,7 +66,7 @@ subroutine vcdmel(nl,ssite,sspec,nlmax,ndham,ndimh,& !- Valence-core dipole matr
      ib = isite(i)
      ncls = iclsn(i)
      lcls = iclsl(i)
-     is = ssite(ib)%spec
+     is = ispec(ib) !ssite(ib)%spec
      pnu=>pnuall(:,:,ib)
      pnz=>pnzall(:,:,ib)
 !     pnu=ssite(ib)%pnu
@@ -118,7 +110,7 @@ subroutine vcdmel(nl,ssite,sspec,nlmax,ndham,ndimh,& !- Valence-core dipole matr
         do  i = 1, nsite
            lcls = iclsl(i)
            ib   = isite(i)
-           is   = ssite(ib)%spec
+           is   = ispec(ib) !ssite(ib)%spec
            lmxa = sspec(is)%lmxa
            nlma = (lmxa+1)**2
            if (lmxa .gt. -1) then

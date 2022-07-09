@@ -4,9 +4,9 @@ module m_relax
   public relax,prelx1
   private
 contains
-  subroutine relax(ssite,it,indrlx,natrlx,force, p,w,nelts,delta,basin,bas,icom)
+  subroutine relax(it,indrlx,natrlx,force, p,w,nelts,delta,basin,bas,icom)
     use m_struc_def
-    use m_lmfinit,only:ctrl_nbas,ctrl_nitmv,ctrl_mdprm,slabl,ifrlx
+    use m_lmfinit,only:ctrl_nbas,ctrl_nitmv,ctrl_mdprm,slabl,ifrlx,ispec
     use m_ext,only:     sname
     use m_gradzr,only :Gradzr
     !- Relax atomic positions and volume using variable metric algorithm
@@ -52,7 +52,7 @@ contains
     integer :: it,nit,natrlx,nelts,icom,procid,master,mpipid
     integer :: indrlx(2,natrlx)
     real(8):: force(3,*), w(natrlx,natrlx) , p(natrlx,6) , delta(nelts,*), bas(:,:),basin(:,:)
-    type(s_site)::ssite(*)
+!    type(s_site)::ssite(*)
     integer :: i,j,ipr,ifi,ix,lgunit,nbas,ltb,natrlx2,natrlx3, &
          ir,iprint,isw,rdm,lrlx,is,idamax,nd,ns,nkill
     parameter (nd=4,ns=6)
@@ -222,7 +222,7 @@ contains
        write(stdo,"(/' Updated atom positions:')")
        print *,' Site   Class                      Position(relaxed)'
        do  70  j = 1, nbas
-          is=ssite(j)%spec
+          is=ispec(j) !ssite(j)%spec
           clablj=slabl(is) !sspec(is)%name
 !          ifrlx=ssite(j)%relax
           write (stdo,130) j,clablj,(bas(ix,j),ifrlx(ix,j).eq.1,ix=1,3)
@@ -234,7 +234,7 @@ contains
        do  80  j = 1, nbas
 !          ifrlx=ssite(j)%relax
           if (j == 2) dumstr = ' '
-          is=ssite(j)%spec
+          is=ispec(j) !ssite(j)%spec
           clablj=slabl(is) 
           write(stdl,ftox)dumstr//'ATOM='//clablj,' POS=',ftof(bas(1:3,j),2),'RELAX=',ifrlx(:,j)
 80     enddo

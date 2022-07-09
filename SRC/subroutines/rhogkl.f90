@@ -1,8 +1,7 @@
-subroutine rhogkl ( ib1 , ib2 , nsp , mode , ssite , sspec , &
-     sv_p_orhoat , kmax , qkl )
+subroutine rhogkl ( ib1 , ib2 , nsp , mode , sspec , sv_p_orhoat , kmax , qkl )
   use m_lgunit,only:stdo
   use m_struc_def  !Cgetarg
-
+  use m_lmfinit,only: ispec
   !- G_kL expansion of valence sphere densities
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -43,7 +42,7 @@ subroutine rhogkl ( ib1 , ib2 , nsp , mode , ssite , sspec , &
   type(s_rv1) :: sv_p_orhoat(3,1)
 
   real(8):: qkl(0:kmax,1)
-  type(s_site)::ssite(*)
+!  type(s_site)::ssite(*)
   type(s_spec)::sspec(*)
 
   ! ... Local parameters
@@ -71,7 +70,7 @@ subroutine rhogkl ( ib1 , ib2 , nsp , mode , ssite , sspec , &
   ! --- Loop over sites ---
   j1 = 1
   do  ib = ib1, ib2
-     is = int(ssite(ib)%spec)
+     is = ispec(ib)! int(ssite(ib)%spec)
      lmxl=sspec(is)%lmxl
      z=sspec(is)%z
      qc=sspec(is)%qc

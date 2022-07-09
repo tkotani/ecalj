@@ -1,5 +1,5 @@
 module m_procar
-  use m_lmfinit,only: nlmax,nsp,nbas,stdo,sspec=>v_sspec,ssite=>v_ssite,nlmax,nspc
+  use m_lmfinit,only: nlmax,nsp,nbas,stdo,sspec=>v_sspec,ispec,nlmax,nspc
   use m_suham,only: ndhamx=>ham_ndhamx,ndham=>ham_ndham,nspx=>ham_nspx
   use m_igv2x,only: igv2x,napw
   use m_mkpot,only: ppnl_rv
@@ -72,7 +72,7 @@ contains
        write(iprocar,*)
        dwgtt=0d0
        do ib = 1, nbas
-          is  = ssite(ib)%spec
+          is  = ispec(ib)!ssite(ib)%spec
           ilm = 0
           dwgt=0d0
           do  l = 0, sspec(is)%lmxa

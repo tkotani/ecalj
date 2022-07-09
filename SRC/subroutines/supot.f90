@@ -6,8 +6,9 @@ module m_supot
   real(8),   allocatable,protected ::  rv_a_ogv (:,:)
   integer,   allocatable,protected ::  iv_a_okv (:,:)
   real(8),protected:: lat_gmax
-  integer,protected:: lat_nabc(3)
-  integer,protected:: lat_ng,k1 , k2 , k3
+  integer,protected:: lat_nabc(3),lat_ng,k1 , k2 , k3
+  integer,protected,target,private::  ngabc(3)
+  integer,protected,pointer:: n1,n2,n3
 contains
 
   subroutine m_supot_init()
@@ -24,14 +25,15 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     integer,parameter:: mode=0
-    integer:: nbas ,  nsp , nkd , nkq , igets , ngabc(3) &
-         , n1 , n2 , n3 , ngmx , ng , ngrp , iprint
-    equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
+    integer:: nbas ,  nsp , nkd , nkq , ngmx , ng , ngrp , iprint
     double precision :: awald,alat,vol,plat(3,3),gmax,xx
     integer ::iwdummy
     real(8):: wdummy(3)=0d0
     call tcn('m_supot_init')
-    !write(stdo,*)' supot : allocate potential and gv setup ... '
+    n1=>ngabc(1)
+    n2=>ngabc(2)
+    n3=>ngabc(3)
+    ngabc=ftmesh !initial condition for mshsiz
     nbas=ctrl_nbas
     nsp=ctrl_nspin
     alat=lat_alat
@@ -41,7 +43,6 @@ contains
     nkq=lat_nkq
     ! --- Setup for FT charge density, potential representation ---
     gmax = lat_gmaxin
-    ngabc= ftmesh
     if (lcd4) then
        alat = lat_alat
        plat = lat_plat
