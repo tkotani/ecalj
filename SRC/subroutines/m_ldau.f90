@@ -227,7 +227,6 @@ contains
 
   ! ssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine chkdmu(eks, dmatu,dmatuo,vorb)
-    use m_struc_def,only: s_site,s_spec
     use m_lmfinit,only: stdl,nbas,nsp,nlibu,lmaxu,ispec,sspec=>v_sspec,lldau, &
          tolu=>mix_tolu,umix=>mix_umix,stdo,idu,uh,jh
     use m_MPItk,only: master_mpi

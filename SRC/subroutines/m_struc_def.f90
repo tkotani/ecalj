@@ -1,7 +1,8 @@
 !! explanations are old, some are obsolate
 module m_struc_def
   integer,parameter::  n0=10,nkap0=3
-  public s_rv1, s_nv2, s_cv1, s_cv2,s_cv3,s_cv4, s_spec, s_site, s_sblock
+  public s_rv1, s_nv2, s_cv1, s_cv2,s_cv3,s_cv4, s_sblock, s_spec
+
   private
 
   type s_rv1
@@ -58,10 +59,8 @@ module m_struc_def
      real(8):: exi(n0)! Hankel energies for fit to c.d.; fit to free-atom density tails.
      real(8):: chfa(n0,2) ! coefficients to fit of free-atom density tails
   end type s_spec
-  type s_site !given at m_lmfinit
-     integer ::   spec     ! species index
-  end type s_site
 end module m_struc_def
+
 
 ! Removed from s_spec     
 !     real(8):: rcfa(2)! renormalization radius of free atom density, and width
@@ -85,6 +84,9 @@ end module m_struc_def
 !  end type s_spec
 
 ! removed from s_site...
+!  type s_site !given at m_lmfinit
+!     integer ::   spec     ! species index
+!  end type s_site
 !     integer :: iantiferro ! antiferro pair index
 !     integer ::   class    ! class index
 !     integer ::   relax(3) ! for dynamics, relaxation direction switch

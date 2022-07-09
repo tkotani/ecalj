@@ -152,7 +152,7 @@ end module m_prlcb
 subroutine rlocbl(lfrce , nbas , isp, q , ndham , ndimh , nspc , napw , igvapw ,  nevec &
        , evec , ewgt , evl , sv_p_osig , sv_p_otau , sv_p_oppi &
   , lekkl , sv_p_oqkkl , sv_p_oeqkkl , f )
-  use m_struc_def,only: s_site,s_spec,s_rv1,s_cv1
+  use m_struc_def,only: s_spec,s_rv1,s_cv1
   use m_prlcb,only:   prlcb2,prlcb3
   use m_lmfinit,only: iv_a_oidxcg,iv_a_ojcg,rv_a_ocy,rv_a_ocg,lat_alat,nkaph,ispec,sspec=>v_sspec
   use m_lattic,only: lat_qlat,rv_a_opos

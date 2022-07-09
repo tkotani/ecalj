@@ -1,6 +1,6 @@
 module m_lmfinit
-  use m_ext,only :sname               ! sname contains extension. foobar of ctrl.foobar
-  use m_struc_def,only: s_spec,s_site ! spec and site structures.
+  use m_ext,only :sname        ! sname contains extension. foobar of ctrl.foobar
+  use m_struc_def,only: s_spec ! spec structures.
   use m_MPItk,only: master_mpi
   use m_lgunit,only: stdo,stdl
   use m_density,only: pnuall,pnzall !these are set here! log-derivative of radial functions.

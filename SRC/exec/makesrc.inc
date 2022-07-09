@@ -139,7 +139,6 @@ xlgen.o \
 ylmrtg.o \
 switch.o \
 rdsigm2.o\
-pvsms2.o \
 getcor.o \
 xcpbe.o \
 m_ext.o\
@@ -219,12 +218,10 @@ mkdmtu.o \
 mkehkf.o \
 mkekin.o \
 mkewgt.o \
-mkpdos.o \
 mkrout.o \
 momusl.o \
 mshdot.o \
 mshint.o \
-mshn3p.o \
 mshvmt.o \
 ovlocr.o \
 ovlpfa.o \

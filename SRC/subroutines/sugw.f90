@@ -5,29 +5,24 @@ module m_sugw
 contains
   subroutine m_sugw_init (socmatrix,eferm) !dipolematrix,
     use m_ext,only:   sname
-    use m_struc_def,only: s_rv1, s_spec, s_site
+    use m_struc_def,only: s_rv1, s_spec
     use m_suham,only: ndham=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
-    use m_lmfinit, only: &
-         ham_pwmode,pwemin,pwemax,ham_oveps,lrsig=>ham_lsig,nlmto,lso, &
-         ham_scaledsigma,lat_alat,mxorb,nkaph,nsp,nspc,nl,mxorb,ispec,sspec=>v_sspec,&
-         nbas,n0,nppn,nkap0,slabl,nmcorex=>nmcore,iantiferro
+    use m_lmfinit,only: ham_pwmode,pwemin,pwemax,ham_oveps,lrsig=>ham_lsig,nlmto,lso
+    use m_lmfinit,only: ham_scaledsigma,lat_alat,mxorb,nkaph,nsp,nspc,nl,mxorb,ispec,sspec=>v_sspec
+    use m_lmfinit,only: nbas,n0,nppn,nkap0,slabl,nmcorex=>nmcore,iantiferro
     use m_lattic,only: lat_plat, lat_qlat,rv_a_opos
     use m_supot,only: lat_nabc, lat_gmax
     use m_rdsigm2,only: getsenex, senex,dsene
     use m_mksym,only: lat_npgrp,lat_nsgrp
-    !      use m_shortn3,only: shortn3_initialize,shortn3
-    use m_mkpot,only: &
-         smpot=>osmpot, sv_p_osig, sv_p_otau, sv_p_oppi, vconst, vesrmt, &
-         sv_p_osig, sv_p_otau, sv_p_oppi, ohsozz,ohsopm, ppn=>ppnl_rv, &
-         sv_p_oppix,spotx!, spotxd, sv_p_oppixd
+    use m_mkpot,only: smpot=>osmpot, sv_p_osig, sv_p_otau, sv_p_oppi, vconst, vesrmt
+    use m_mkpot,only: sv_p_osig, sv_p_otau, sv_p_oppi, ohsozz,ohsopm, ppn=>ppnl_rv, sv_p_oppix,spotx
     use m_MPItk,only: numproc=>nsize,procid,master,master_mpi
     use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_setiq,ndimhall
     use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
-    use m_qplist,only: qplist,ngplist,ngvecp, iqini,iqend,ispini,ispend,iqibzmax      !for current rank iprocq,
+    use m_qplist,only: qplist,ngplist,ngvecp, iqini,iqend,ispini,ispend,iqibzmax
     use m_hamindex0,only: Readhamindex0, nlindx
-    use m_ftox
     use m_density,only: v0pot,pnuall,pnzall
-   
+    use m_ftox
     implicit none
     !! == Driver for fpgw (to prepare eigenfuncitons for fpgw) ==
     !! NOTE: following documents are not carefully examined. Not believe everything.
@@ -90,13 +85,10 @@ contains
          ificlass,ifievec,ifievecx,ifigw2,ifiqbz,ifievv
     complex(8),allocatable :: aus_zv(:)
     real(8),allocatable :: ww_rv(:)
-    real(8):: QpGcut_psi,QpGcut_cou,dum,dval, &
-         xx(5),gmax,ecore(50),a,z,rmt(nbas),b,vshft, &
-         alat,alfa,ef0,plat(3,3),qlat(3,3),qp(3),qpos,q_p(3), &! & ,qx(3)
-         epsovl,dgets!, pnu(n0,2),pnz(n0,2)
+    real(8):: QpGcut_psi,QpGcut_cou,dum,dval,xx(5),gmax,ecore(50),a,z,rmt(nbas),b,vshft, &
+         alat,alfa,ef0,plat(3,3),qlat(3,3),qp(3),qpos,q_p(3), epsovl! pnu(n0,2),pnz(n0,2)
     real(8),pointer:: pnu(:,:),pnz(:,:)
-    integer,allocatable:: ips(:),ipc(:),ipcx(:),lmxa(:), &
-         ngvecp_p(:,:) !takao feb2012 ,ngvecc(:,:) ,ngvecp(:,:)
+    integer,allocatable:: ips(:),ipc(:),ipcx(:),lmxa(:), ngvecp_p(:,:) 
     integer,allocatable :: konft(:,:,:),iiyf(:),ibidx(:,:),nqq(:)
     real(8),allocatable:: wk(:,:), &
          bas(:,:),rofi(:),rwgt(:),gcore(:,:,:),gval(:,:,:,:,:),evl(:,:),vxclda(:)
@@ -111,24 +103,12 @@ contains
     character strn*120
     integer :: pwmode
     double precision :: pwgmin,pwgmax,eomin
-
-    ! ... for reading self-energy
-    !      integer nqsig
-    ! ... for band plotting
-    !      real(8),allocatable :: ovvx(:,:,:)
-    !      real(8) ::ovvpp
-    !      integer idxdn(n0,nkap0)
-    !      character lsym(0:n0-1)*1, lorb(3)*1, dig(9)*1, strn4*4
-    !      data lsym /'s','p','d','f','g','5','6','7','8','9'/
-    !      data lorb /'p','d','l'/
-    !      data dig /'1','2','3','4','5','6','7','8','9'/
     integer:: w(1) !! dummy
     real(8):: dnn(3),qlatinv(3,3),qout(3),qtarget(3),qrr(3),axx,bxx,qxxx(3),qxx1(3),qxx2(3)
     integer:: inn(3),iqzz,nqzz,iiiii
     logical:: debug=.false.
     complex(8),allocatable:: evecout(:,:),evecr(:,:)
     real(8),allocatable:: qzz(:,:)
-    !      integer,allocatable:: igv2(:,:)
     logical:: l_dummy_isanrg,isanrg,oncewrite,newsigmasw,sigmamode !,noshorbz
     integer::   irr,nqirr, nmcore !feb2012takao nk1,nk2,nk3,
     integer:: nbalance,nrr,ifiproc,iproc,iadd,ldw
@@ -145,22 +125,17 @@ contains
     real(8):: qqq(3)
     integer:: mode,iwdummy,jx
     complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),ovlmtoi(:,:),ovliovl(:,:) ,hammhso(:,:,:)
-!    integer,allocatable:: iantiferro(:)
     integer:: lpdiag=0,nrmx,ncoremx!,ndham
     character spid*8
     character(8) :: xt
     logical,optional:: socmatrix !dipolematrix,
     integer:: ispSS,ispEE
-!#if MPI | MPIK
     include "mpif.h"
-!#endif
-    !! --- Setup ---
+    
     call tcn ('m_sugw_init')
-    !      stdo = lgunit(1)
     if(master_mpi) write(stdo,"(a)") 'm_sugw_init: start'
     sigmamode = mod(lrsig,10) .ne. 0
-    !! june2013 magfield is added
-    open(newunit=ifimag,file='MagField',status='old',err=112)
+    open(newunit=ifimag,file='MagField',status='old',err=112)! june2013 magfield is added
     read(ifimag,*,err=112) vnow
     close(ifimag)
     magexist=.true.
@@ -169,7 +144,6 @@ contains
 112 continue
     magexist=.false.
 113 continue
-
     !!--------------------
     call getpr(ipr)
     alat=lat_alat
@@ -188,24 +162,20 @@ contains
     nat = 0
     do  i = 1, nbas
        is = ispec(i) !ssite(i)%spec
-       lmaxa = int(sspec(is)%lmxa)
+       lmaxa = sspec(is)%lmxa
        if (lmaxa > -1) then
           nat = nat + 1
        endif
        ipb(i) = nat
     enddo
     if(nat/=nbas) call rx('sugw: gw is only for no floating orbital case') !2022jan
-
-    !      lsig = 1
     ldim=nlmto
     pwmode= ham_pwmode
-    !! ndima
     ndima = 0
     lmxax = -1
     do  ib = 1, nbas
-       is=ispec(ib) !ssite(ib)%spec
+       is=ispec(ib)
        lmaxa=sspec(is)%lmxa
-       !pnz  =ssite(ib)%pz
        pnz=>pnzall(:,1:nsp,ib)
        if(sum(abs(pnz(:,1:nsp)-pnzall(:,1:nsp,ib)))>1d-9) call rx('sugw xxx1aaa')
        lmxax = max(lmxax,lmaxa)
@@ -217,8 +187,7 @@ contains
           enddo
        endif
     enddo
-    !! ==== Read file NLAindx ====
-    call Readhamindex0()
+    call Readhamindex0() ! ==== Read file NLAindx ====
     open(newunit=ifiqg,file='QGpsi',form='unformatted')
     read(ifiqg ) nqnum, ngpmx ,QpGcut_psi,nqbz,nqirr,imx,nqibz
     !! ==== Write, or read past header information, file gwb ====
@@ -234,25 +203,19 @@ contains
           if (iat > nat) call rx('bug in sugw')
           bas(:,iat)=rv_a_opos(:,i) !ssite(i)%pos
           lmxa(iat) = lmaxa
-!          iantiferro(iat)=ssite(i)%iantiferro
        endif
     enddo
     print *,'iantiferro=',iantiferro
-    !!   ... Determine nphimx
     nphimx = 0
     do  ib = 1, nbas
-       is=ispec(ib) !ssite(ib)%spec
-!       pnu=ssite(i)%pnu
-!       pnz=ssite(i)%pz
-!       if(sum(abs(pnz(:,1:nsp)-pnzall(:,1:nsp,i)))>1d-9) call rx('sugw xxx111')
-!       if(sum(abs(pnu(:,1:nsp)-pnuall(:,1:nsp,i)))>1d-9) call rx('sugw xxx222')
+       is=ispec(ib) 
        pnu=>pnuall(:,1:nsp,ib)
        pnz=>pnzall(:,1:nsp,ib)
        a=sspec(is)%a
        nr=sspec(is)%nr
        z=sspec(is)%z
        rmt(ib)=sspec(is)%rmt
-       lmaxa = int(sspec(is)%lmxa)
+       lmaxa = sspec(is)%lmxa
        nmcore= nmcorex(is)
        if (lmaxa > -1) then
           call atwf(0,a,lmaxa,nr,nsp,pnu,pnz,rsml,ehl,rmt(ib),z,w,i1,ncore,konfig,ecore,w,w,nmcore)
@@ -264,21 +227,18 @@ contains
     ncoremx=0
     nrmx=0
     do  ib = 1, nbas
-       is=ispec(ib) !ssite(ib)%spec
-!       pnu=ssite(ib)%pnu
-!       pnz=ssite(ib)%pz
+       is=ispec(ib) 
        pnu=>pnuall(:,1:nsp,ib)
        pnz=>pnzall(:,1:nsp,ib)
        a=sspec(is)%a
        nr=sspec(is)%nr
        z=sspec(is)%z
        rmt(ib)=sspec(is)%rmt
-       lmaxa = int(sspec(is)%lmxa)
-       spid=slabl(is) !sspec(is)%name
+       lmaxa = sspec(is)%lmxa
+       spid=slabl(is)
        if (lmaxa > -1) then
           call atwf ( 0 , a , lmaxa , nr , nsp , pnu , pnz , rsml , ehl &
-               , rmt ( ib ) , z , v0pot(ib)%v , i1 , ncore , konfig , ecore , w &
-               , w ,nmcore)
+               , rmt ( ib ) , z , v0pot(ib)%v , i1 , ncore , konfig , ecore , w , w ,nmcore)
           allocate(rofi(nr),rwgt(nr),gcore(nr,2,ncore))
           allocate(gval(nr,2,0:lmaxa,nphimx,nsp))
           gval=0d0
@@ -369,18 +329,16 @@ contains
        write(ifigwa) iantiferro(1:nat) !iantiferro may2015
        close(ifigwa)
     endif
-
     !     ndham= maxval(ndimhall) !some inconsistency if we assume this.
     !      See npwpad in suham.F I think npwpad=0 if essentially ok. but current version cause inconsistency.
     if(master_mpi) then
        open(newunit=ifigwbhead,file='gwb.head',form='unformatted')
-       write(ifigwbhead) nat,nsp,ndima,ndham, maxval(lmxa(1:nat)),ncoremx/nsp,nrmx,plat,alat,nqirr,nqibz
+       write(ifigwbhead)nat,nsp,ndima,ndham,maxval(lmxa(1:nat)),ncoremx/nsp,nrmx,plat,alat,nqirr,nqibz
        write(ifigwbhead) bas,lmxa,qplist,ngplist,ndimhall
        close(ifigwbhead)
     endif
     deallocate(ips,lmxa)
     allocate(evl(ndham,nsp),vxclda(ndham))
-
     !! == GW setup loop over k-points ==
     if (lchk>=1 ) then
        open(newunit=ifinormchk,file='norm.'//trim(sprocid)//'.chk')
@@ -391,7 +349,7 @@ contains
     !!    Note: this routine should use only irr qp.
     !! == Main loop for eigenfunction generation ==
     if(ham_scaledsigma/=1d0 .AND. sigmamode) write(stdo,*)' Scaled Sigma method: ScaledSigma=',ham_scaledsigma
-    do 1001 iq = iqini,iqend ! iqini:iqend for this procid
+    iqloop: do 1001 iq = iqini,iqend ! iqini:iqend for this procid
        !        if (dipolematrix.and.iq>nqbz) exit
        qp  = qplist(:,iq)     !  ... For this qp, G vectors for PW basis and hamiltonian dimension
        ngp = ngplist(iq)
@@ -410,7 +368,7 @@ contains
           allocate(hammhso(ndimh,ndimh,3))
           call aughsoc(qp, ohsozz,ohsopm, ndimh, hammhso)
        endif
-       do 1002 isp = ispSS,ispEE
+       isploop: do 1002 isp = ispSS,ispEE
           open(newunit=ifigwb,file='gwb'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
           if(lwvxc) then !lsig>0 .AND. ( .NOT. cmdopt0('--novxc'))) then
              open(newunit=ifievec,   file='evec'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
@@ -428,7 +386,7 @@ contains
           !! LDA Hamiltonian and overlap matrices for this qp ---
           call hambl(isp,qp,spotx,vconst,sv_p_osig, sv_p_otau,sv_p_oppix, vxc,ovl)!vxc=<F_i|H(LDA)-vxc(LDA)|F_j>
           call hambl(isp,qp,smpot,vconst,sv_p_osig, sv_p_otau, sv_p_oppi, ham,ovl)!ham=<F_i|H(LDA)|F_j> and ovl=<F_i|F_j>
-          if(lso==2) ham(:,:) = ham(:,:) + hammhso(:,:,isp) !diagonal part of SOC matrix added for Lz.Sz mode.
+          if(lso==2) ham(:,:)=ham(:,:)+hammhso(:,:,isp) !diagonal part of SOC matrix added for Lz.Sz mode.
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
           !          qp  = qplist(:,iq)-[1d-6,2d-6,3d-6] !A trick to shift qp to avoid ambiguity of degeneracy
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -537,12 +495,12 @@ contains
           !     nlmax = globalvariables%mxorb / globalvariables%nkaph
           nlmax = mxorb / nkaph
           allocate(aus_zv(nlmax*ndham*3*nsp*nbas))
-          aus_zv(:)=0.0d0
+          aus_zv=0d0
           call makusq ( 1 ,  nbas,0, nev,  isp, 1 , qp , evec , aus_zv )
           call gwcphi (sspec , isp , nsp , nlmax , ndham , nev &
                , nbas , ipb , lmxax , nlindx , ndima , ppn , aus_zv , cphi &
                ( 1 , 1 , isp ) , cphin ( 1 , 1 , isp ) )
-          if (allocated(aus_zv)) deallocate(aus_zv)
+          deallocate(aus_zv)
           !     ! We keep note in the followings, but be careful (may contain bugs)...
           !     !  --- Overlap of IPWs, PW expansion of eigenfunctions pwz ---
           !     !      The IPW basis consisting of PWs with holes knocked out of spheres,
@@ -570,7 +528,6 @@ contains
           !     PZOVL_G1,n = <IPW(G1) psi_n> = sum_G2 O_G1_G2 PWZ_G2,n
           !     PZOVL = O * PWZ (matrix form) <--- old
           !     Note: pzovl is only used as an intermediate construction, old branch
-          if(debug) print *,'ppppppppppp ngp=',ngp
           if(ngp > 0) then
              allocate(ppovl(ngp,ngp),pwz(ngp,ndimh))
              allocate(phovl(ngp,ndimh))
@@ -620,7 +577,6 @@ contains
           if (lchk >= 1 .AND. ngp > 0) then
              allocate(testc(ndimh,ndimh),testcd(ndimh))
              testc=matmul(transpose(dconjg(pzovl)),pwz)
-             !             call zgemm('C','N',ndimh,ndimh,ngp,(1d0,0d0),pzovl,ngp,pwz,ngp,(0d0,0d0),testc,ndimh)
              deallocate(pzovl)
              !     ! call zprm('(PWZ)+^-1 O_i^-1 (PWZ)',2,testc,ndimh,ndimh, ndimh)
              do  i = 1, ndimh
@@ -653,7 +609,6 @@ contains
              write(ifinormchk,*)
           endif                 !------------- end of lchk=1
           allocate(testc(ndimh,ndimh))
-          !          call zgemm('C','N',ndimh,ndimh,ndimh,(1d0,0d0),evec,ndimh,vxc,ndimh,(0d0,0d0),testc,ndimh)
           testc=matmul(transpose(dconjg(evec)),vxc)
           do i1 = 1, ndimh
              vxclda(i1) =  sum(testc(i1,1:ndimh) * evec(1:ndimh,i1))  !<i|Vxc^lda|i>
@@ -666,43 +621,14 @@ contains
              close(ifievec)
           endif
           continue             ! Loop over spins
-1002   enddo
+1002   enddo isploop
        if(allocated(hammhso)) deallocate(hammhso)
        !       if(allocated(dipo)) deallocate(dipo)
        deallocate(ham,ovl,evec,vxc,cphi,cphin)
        continue ! ===== Loop over qp ===============================
-1001 enddo
+1001 enddo iqloop
     deallocate(evl)
     close(ifiqg)
     call tcx('m_sugw_init')
   end subroutine m_sugw_init
 end module m_sugw
-
-!$$$      subroutine ioaindx(npqn,lmxax,nbas,ndima,nlindx)
-!$$$C-  read NlAindx
-!$$$C ----------------------------------------------------------------------
-!$$$Ci Inputs
-!$$$Ci   npqn  :leading dimension of nlindx
-!$$$Ci   lmxax :second dimension of nlindx
-!$$$Ci   nbas  :size of basis
-!$$$Ci   ndima :number of augmentation channels
-!$$$Ci   nlindx:pointer to augmentation channels by site
-!$$$      implicit none
-!$$$      integer npqn,lmxax,nbas,ndima,ifi,nlindx(npqn,0:lmxax,nbas)
-!$$$      character outs*80
-!$$$      integer i,ipqn,l,ib,ii
-!$$$      open(newunit=ifi,file='NLAindx')
-!$$$      nlindx = -1
-!$$$      read(ifi,'(a)') outs
-!$$$      read(ifi,*) i
-!$$$      if (ndima .gt. 0 .and. i .ne. ndima)
-!$$$     .  call rx('ioaindx: file mismatch NLAindx')
-!$$$      ndima = i
-!$$$      do  i = 1, ndima
-!$$$          read(ifi,'(a)',err=101,end=101) outs
-!$$$          read(outs,*) ipqn,l,ib,ii
-!$$$          nlindx(ipqn,l,ib) = ii
-!$$$       enddo
-!$$$ 101   continue
-!$$$      close(ifi)
-!$$$      end subroutine ioaindx
