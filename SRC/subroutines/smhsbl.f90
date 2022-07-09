@@ -1,7 +1,7 @@
 subroutine smhsbl(vavg,q,ndimh, napw,igapw, h,s)
-  use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg, lat_alat,nbas,nkaphh,lhh
+  use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg, alat=>lat_alat,nbas,nkaphh,lhh
   use m_lmfinit,only:ispec,sspec=>v_sspec
-  use m_lattic,only: lat_vol,lat_plat,rv_a_opos
+  use m_lattic,only: lat_plat,rv_a_opos,qlat=>lat_qlat,vol=>lat_vol
   use m_uspecb,only:uspecb
   use m_orbl,only: Orblib1,Orblib2,ktab1,ltab1,offl1,norb1,ktab2,ltab2,offl2,norb2
   use m_ropyln,only: ropyln
@@ -11,12 +11,9 @@ subroutine smhsbl(vavg,q,ndimh, napw,igapw, h,s)
   !- Smoothed Bloch Hamiltonian (constant potential) and overlap matrix
   ! ----------------------------------------------------------------------
   !i Inputs
-  !i   mode  :0 compute both hamiltonian and overlap
-  !i         :  otherwise, compute overlap only.
-  !i         :  In this case, vavg is not used
   !i   vavg  :constant potential (MT zero) to be added to h
-  !i   q     :Bloch wave vector
-  !i   ndimh :dimension of hamiltonian
+  !i   q     : q wave vector
+  !i   ndimh : dimension of hamiltonian
   !o Outputs
   !o   h     :smooth Bloch hamiltonian added to h (= s * vavg)
   !o   s     :smooth Bloch overlap added to s
@@ -39,7 +36,7 @@ subroutine smhsbl(vavg,q,ndimh, napw,igapw, h,s)
   !r     -------  ---------------------------------
   !r
   !r     uspecb    Extract orbital parameters for all orbital types.
-  !r    (sspec)    rsmh(l,ik),eh(l,ik), l=0,lh(ik), ik=1..nkapi.
+  !r               rsmh(l,ik),eh(l,ik), l=0,lh(ik), ik=1..nkapi.
   !r               Entries for which rsmh(l,ik)>0 have envelopes.
   !r               Entries for which ik=nkapi and pz(l)>0 are local orbitals.
   !r               Note that these possiblities can simultaneously occur.
@@ -85,8 +82,6 @@ subroutine smhsbl(vavg,q,ndimh, napw,igapw, h,s)
   parameter (nlms=25, kdim=1, n0=10, nkap0=3)
   integer :: procid,master, mode,ndimh,napw,igapw(3,napw)
   real(8):: q(3) , vavg
-!  type(s_site)::ssite(*)
-!  type(s_spec)::sspec(*)
   complex(8):: h(ndimh,ndimh),s(ndimh,ndimh)
   integer :: nlmto, i1,i2,ib1,ib2,ilm1,ilm2,io1,io2,is1,is2,nlm1,nlm2,l1,l2,ig,&
        lmxax,lmxa,nlmax, lh1(nkap0),lh2(nkap0),nkap1,nkap2, &
@@ -94,25 +89,19 @@ subroutine smhsbl(vavg,q,ndimh, napw,igapw, h,s)
   integer:: iloop,iloopmx
   real(8) :: e1(n0,nkap0),rsm1(n0,nkap0),p1(3),e2(n0,nkap0),rsm2(n0,nkap0),p2(3),xx
   complex(8):: s0(nlms,nlms,0:kdim,nkap0,nkap0)
-  real(8) :: qpg2,alat,plat(3,3),qlat(3,3),vol,srvol,tpiba,pi,denom,gam,fpi,ddot
+  real(8) :: qpg2,srvol,tpiba,denom,gam,ddot
   real(8),allocatable:: yl(:),ylv(:,:),qpgv(:,:),qpg2v(:)
   complex(8),allocatable:: srm1l(:)
   complex(8):: ovl,srm1,phase,fach
+  real(8),parameter::pi = 4d0*datan(1d0),fpi = 4*pi
   parameter (srm1=(0d0,1d0))
   call tcn('smhsbl')
   procid = 0
   master = 0
   nlmto = ndimh-napw
+  tpiba = 2d0*pi/alat
+  srvol = dsqrt(vol)
   if(napw > 0) then
-     alat=lat_alat
-     plat=lat_plat
-     vol=lat_vol
-     pi = 4d0*datan(1d0)
-     tpiba = 2d0*pi/alat
-     srvol = dsqrt(vol)
-     fpi = 4*pi
-     call dinv33(plat,1,qlat,vol)
-     vol = dabs(vol)*(alat**3)
      lmxax = -1
      do  ib1 = 1, nbas !!     Find largest lmxa ... should be made elsewhere
         is1=ispec(ib1) !ssite(ib1)%spec
@@ -133,10 +122,10 @@ subroutine smhsbl(vavg,q,ndimh, napw,igapw, h,s)
   endif
   if(nlmto >0 ) then
      ib1loop: do 1010 ib1=1,nbas
-        is1=ispec(ib1) !ssite(ib1)%spec
-        p1 =rv_a_opos(:,ib1) !ssite(ib1)%pos
-        call uspecb(is1,rsm1,e1)
-        call orblib1(ib1)!norb1,ltab1,ktab1,offl1
+        is1=ispec(ib1) 
+        p1 =rv_a_opos(:,ib1) !site position
+        call uspecb(is1,rsm1,e1) 
+        call orblib1(ib1) !norb1,ltab1,ktab1,offl1
         call gtbsl1(8+16,norb1,ltab1,ktab1,rsm1,e1,ntab1,blks1)
         ib2loop: do  ib2 = ib1, nbas
            is2=ispec(ib2) !ssite(ib2)%spec
@@ -165,15 +154,13 @@ subroutine smhsbl(vavg,q,ndimh, napw,igapw, h,s)
                  i2 = i2+1
                  do  io1 = 1, norb1
                     if (blks1(io1)==0) cycle
-                    !     l1,ik1 = l and kaph indices, needed to locate block in s0
-                    l1  = ltab1(io1)
+                    l1  = ltab1(io1)! l1,ik1 = l and kaph indices, needed to locate block in s0
                     ik1 = ktab1(io1)
                     i1 = offl1(io1)
                     do  ilm1 = l1**2+1, (l1+1)**2
                        i1 = i1+1
-                       s(i1,i2) = s(i1,i2) + s0(ilm1,ilm2,0,ik1,ik2)
-                       h(i1,i2) = h(i1,i2) - s0(ilm1,ilm2,1,ik1,ik2) &
-                            + vavg*s0(ilm1,ilm2,0,ik1,ik2)
+                       s(i1,i2)= s(i1,i2) + s0(ilm1,ilm2,0,ik1,ik2)
+                       h(i1,i2)= h(i1,i2) - s0(ilm1,ilm2,1,ik1,ik2) +vavg*s0(ilm1,ilm2,0,ik1,ik2)
                     enddo
                  enddo
               enddo
@@ -218,5 +205,3 @@ subroutine smhsbl(vavg,q,ndimh, napw,igapw, h,s)
   enddo
   call tcx('smhsbl')
 end subroutine smhsbl
-
-

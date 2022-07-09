@@ -2,7 +2,9 @@ module m_mkpot ! http://dx.doi.org/10.7566/JPSJ.84.034702
   use m_lmfinit,only: nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nab,nppn &
        ,lfrce=>ctrl_lfrce,stdl, nchan=>pot_nlma, nvl=>pot_nlml,nkaph
   use m_struc_def,only: s_rv1,s_cv1,s_sblock
-  public:: m_mkpot_init, m_mkpot_deallocate, m_mkpot_energyterms, m_mkpot_novxc !,m_Mkpot_novxc_dipole
+
+  public:: m_mkpot_init, m_mkpot_deallocate, m_mkpot_energyterms, m_mkpot_novxc
+  !,m_Mkpot_novxc_dipole
   !! output ------------------------------------------------------------------
   type(s_sblock),allocatable,protected,public  :: ohsozz(:,:),ohsopm(:,:) !SOC matrix
   ! Generated at mkpot-locpot-augmat-gaugm
@@ -32,7 +34,6 @@ module m_mkpot ! http://dx.doi.org/10.7566/JPSJ.84.034702
   type(s_rv1),allocatable,protected,private  :: sv_p_otaux(:,:) !dummy
   type(s_rv1),allocatable,protected,private  :: sv_p_osigx(:,:) !dummy
 contains
-  
   subroutine m_mkpot_novxc() ! outputs are sv_p_oppix and spotx (for no vxc terms).
     use m_supot,only: k1,k2,k3
     use m_density,only: osmrho, orhoat !main input density
@@ -267,7 +268,6 @@ contains
     !r    the electrostatic energy of  n0~  +
     !r    the electrostatic energy of (neutral) local parts
     !r
-
     implicit none
     integer :: job,i1,i2,i3
     type(s_rv1) :: sv_p_orhoat(*)
@@ -304,8 +304,7 @@ contains
     real(8):: plat(3,3),alat
     integer:: ifi,isp
     character strn*120
-    logical:: secondcall=.false.
-    !      integer,optional:: dipole_
+    logical:: secondcall=.false.     !      integer,optional:: dipole_
     integer:: j,k !dipole,
     real(8),parameter::  pi=4d0*datan(1d0),tpi=2d0*pi
     call tcn('mkpot')
@@ -352,8 +351,6 @@ contains
     ! --- Smooth electrostatic potential ---
     call rhomom (sv_p_orhoat,  qmom,vsum)
     allocate(hpot0_rv(nbas))
-    !      i = 1
-    !      if (cmdopt0('--oldvc')) i = 0
     call smves(qmom , gpot0 , vval , hpot0_rv , sgp0 , smrho , smpot , vconst &
          , smq , qsmc , fes , rhvsm , zvnsm , zsum , vesrmt , qbg )
     smag = 0
@@ -451,7 +448,6 @@ contains
     fcvxca(1) = fcvxca(1) + fcvxca(2)
     ! ... Integral of valence density times estatic potential
     valves = rhvsm + vvesat
-
     ! ... Valence density times veff.
     !    *Associate term (n0~-n0) Ves(n0~) with local part
     !     because of the ppi matrix elements
@@ -490,7 +486,6 @@ contains
     utot = usm + uat
     dq = smq+sqloc + qsmc+sqlocc + qbg -zsum
     amom = smag+saloc
-
     ! --- Printout ---
     if (ipr >= 20) write(stdo,'(1x)')
     if (ipr >= 30) then
@@ -595,13 +590,10 @@ contains
        endif
     enddo
   end subroutine dfaugm
-  !!------------------------------------------------------
-  
   subroutine m_mkpot_deallocate()
     if (allocated(vesrmt)) then
        deallocate(vesrmt,fes1_rv,ppnl_rv,sab_rv,vab_rv,hab_rv,vval,gpot0,qmom, &
             sv_p_oppi,sv_p_otau,sv_p_osig,osmpot,ohsozz,ohsopm)
     endif
   end subroutine m_mkpot_deallocate
-  
 end module m_mkpot

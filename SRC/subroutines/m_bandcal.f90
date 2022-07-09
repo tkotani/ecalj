@@ -1,4 +1,4 @@
-module m_bandcal
+module m_bandcal !band structure calculation
   use m_struc_def,only: s_rv1
   use m_suham,  only: ndhamx=>ham_ndhamx,nspx=>ham_nspx
   use m_qplist, only: nkp
@@ -296,7 +296,6 @@ contains
   ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine m_bandcal_clean()
     if (allocated(orbtm_rv)) deallocate(orbtm_rv)
-    !      if (allocated(dos_rv))   deallocate(dos_rv)
     if (allocated(smrho_out)) deallocate(smrho_out)
     if (allocated(frcband))  deallocate(frcband)
     if (allocated(ndimhx_))  deallocate(ndimhx_,nev_,nevls)
@@ -309,7 +308,6 @@ contains
   subroutine m_bandcal_allreduce(lwtkb)
     integer:: nnn,ib,i,lwtkb
     if(debug) print *,'goto m_bandcal_allreduce'
-    !      if (lrout .ne. 0) then
     nnn=size(sumqv);    call mpibc2_real(sumqv,nnn,'bndfp_sumqv')
     nnn=size(sumev);    call mpibc2_real(sumev,nnn,'bndfp_sumev')
     nnn=size(smrho_out); call mpibc2_complex(smrho_out,nnn,'bndfp_smrho')

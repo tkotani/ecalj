@@ -17,17 +17,6 @@ subroutine hambl(isp,qin, smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi, h, s)
   !o Outputs
   !o   h     :Hamiltonian matrix
   !o   s     :overlap matrix
-  !u See update log via git log after 2009
-  !u   04 Jul 08 (T. Kotani) New PW addition to basis
-  !u   03 Feb 05 (A. Chantis) calculate hso
-  !u    1 Sep 04 Adapted to handle complex ppi; S.O. put into ppi
-  !u   25 Aug 04 modifications for extended local orbitals
-  !u   15 Jul 04 (Chantis) Add Lz.Sz spin-orbit coupling
-  !u   10 Jan 03 Remove addition from hambl.  See hambls.f
-  !u   10 Jan 03 put sigma back into Bloch transform only
-  !u   14 Aug 02 Added overlap-only option and option for orthog sigm
-  !u   20 Jul 02 Can add Bloch transform of sigma matrix to ham
-  !u   18 May 00 Adapted from nfp mk_hamiltonian.f
   !     ----------------------------------------------------------------------
   implicit none
   integer:: mode,igvapw(3,napw),isp
@@ -50,6 +39,7 @@ subroutine hambl(isp,qin, smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi, h, s)
   !!   qlat*igapw = qlat*igqwin + (qin-q) ---> igvapw = igvapwin + matmul(qlatinv,qin-q)
   
   !q=qin !when q is not shortned (but q=qin works well. So I don't know shortn3 is needed or not).
+  
   qq= matmul(transpose(plat),qin) !qq:fractional on qlat, qin cartesian 
   call shortn3_qlat(qq)
   q=matmul(qlat,qq)
@@ -69,3 +59,15 @@ subroutine hambl(isp,qin, smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi, h, s)
   enddo
   call tcx('hambl')
 end subroutine hambl
+
+  !u See update log via git log after 2009
+  !u   04 Jul 08 (T. Kotani) New PW addition to basis
+  !u   03 Feb 05 (A. Chantis) calculate hso
+  !u    1 Sep 04 Adapted to handle complex ppi; S.O. put into ppi
+  !u   25 Aug 04 modifications for extended local orbitals
+  !u   15 Jul 04 (Chantis) Add Lz.Sz spin-orbit coupling
+  !u   10 Jan 03 Remove addition from hambl.  See hambls.f
+  !u   10 Jan 03 put sigma back into Bloch transform only
+  !u   14 Aug 02 Added overlap-only option and option for orthog sigm
+  !u   20 Jul 02 Can add Bloch transform of sigma matrix to ham
+  !u   18 May 00 Adapted from nfp mk_hamiltonian.f
