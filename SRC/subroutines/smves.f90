@@ -235,7 +235,7 @@ subroutine smves(qmom,gpot0, &
   iv0 = 0
   do  ib = 1, nbas
      is = ispec(ib)
-     call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
+     call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
      lmxl = sspec(is)%lmxl
      if (lmxl > -1) then
         nlm = (lmxl+1)**2

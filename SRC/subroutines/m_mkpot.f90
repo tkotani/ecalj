@@ -375,8 +375,7 @@ contains
        !   ... Smooth exchange-correlation potential
        smvxc_zv=0d0
        smexc_zv=0d0
-       call smvxcm(sspec , nbas , lfrce , k1 , k2 ,&
-       k3 , smrho , smpot , smvxc_zv , smvx_zv , smvc_zv , &
+       call smvxcm(lfrce, smrho , smpot , smvxc_zv , smvx_zv , smvc_zv , &
             smexc_zv , repsm , repsmx , repsmc , rmusm , rvmusm , rvepsm &
             , fcexc0 , fcex0 , fcec0 , fcvxc0 , fxc_rv )
        if ( lfrce /= 0 ) fes = fes+fxc_rv

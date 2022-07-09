@@ -7,8 +7,10 @@ module m_lmfinit
   implicit none
   !! All data set to run lmfp.F
   !! m_lmfinit_init have three stages. Search the word 'Block' in the followings.
-  !! At the bottom of this code, I put old document for variables such as ctrl_*, ham_* and so on (search 'old doc')
+  !! At the bottom of this code,
+  !! I put old document for variables such as ctrl_*, ham_* and so on (search 'old doc')
   !! The old document may/maynot be a help to read the code.
+  
   !! >lmf-MPIK --help show useful help.
   !i   alat  :length scale of lattice and basis vectors, a.u.
   !i   ng    :number of G-vectors
@@ -46,7 +48,6 @@ module m_lmfinit
   real(8),protected:: dlat,alat=NULLR,dalat=NULLR,vol,avw 
   integer,protected:: nbas=NULLI,nspec
   !! ... SPEC
-!  integer,allocatable:: specie(:)
   real(8),protected:: omax1(3),omax2(3),wsrmax,sclwsr,vmtz(mxspec)=-.5d0
   character*8,allocatable,protected:: slabl(:)
   integer,protected:: lmxbx=-1,lmxax,nkaph,nkapi
@@ -60,14 +61,14 @@ module m_lmfinit
 !  real(8),allocatable:: rsmfa(:)
   character*(8),allocatable,protected:: coreh(:)
   !! ... SITE
+  integer,allocatable,protected :: ispec(:)
   character(8),protected:: alabl
-  real(8),allocatable,protected :: pos(:,:)!,vel(:,:)!,vshft(:)
-  integer,allocatable,protected :: ispec(:),ifrlx(:,:),ndelta(:) !,ipl(:),plv(:)
+  real(8),allocatable,protected :: pos(:,:) 
+  integer,allocatable,protected :: ifrlx(:,:),ndelta(:) 
   real(8),allocatable,protected :: delta(:,:),mpole(:),dpole(:,:)
   integer,allocatable,protected ::iantiferro(:)
   !! ... BZ
-  integer,protected:: bz_lshft(3)=0, &
-       bz_lmet,bz_n,bz_lmull,ctrl_ldos,bz_fsmommethod
+  integer,protected:: bz_lshft(3)=0, bz_lmet,bz_n,bz_lmull,ctrl_ldos,bz_fsmommethod
   real(8),protected:: bz_efmax,bz_zval,bz_fsmom, &
        bz_semsh(10),zbak,bz_lcond(4),bz_range=5d0,bz_dosmax
   logical,protected:: bz_lio2,bz_tetrahedron !ctrl_lmet2
@@ -107,9 +108,8 @@ module m_lmfinit
   logical,protected:: xyzfrz(3)
   integer,allocatable:: indrx_iv(:,:)
   real(8),protected:: defm(6)
-  !! sspec and ssite are unprotected, but there are changed only by iors/rdovfa (see lmfp.f90)
-  type(s_spec),allocatable:: v_sspec(:) !(nspec: number of species in the cell)
-!  type(s_site),allocatable:: v_ssite(:) !(nbas: number of atoms)
+  !! sspec unprotected, but there are changed only by readin parts, iors/rdovfa (see lmfp.f90)
+  type(s_spec),allocatable:: v_sspec(:) !nspec: number of species in the cell)
   integer,allocatable,public,target:: ltabx(:,:),ktabx(:,:),offlx(:,:),ndimxx(:),norbx(:)
   integer,allocatable,public,protected:: jma(:),jnlml(:)
   !! DYN

@@ -1,6 +1,6 @@
-subroutine corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc, rfoc,z)
+subroutine corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc, rfoc,z)
   use m_struc_def
-  use m_lmfinit,only: pnux=>pnusp,pzx=>pzsp
+  use m_lmfinit,only: pnux=>pnusp,pzx=>pzsp,sspec=>v_sspec
   use m_hansr,only: hansmr
   !- Returns parameters for smooth core+nucleus representation
   ! ----------------------------------------------------------------------
@@ -55,7 +55,7 @@ subroutine corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc, rfoc,z)
   implicit none
   integer :: is,i_copy_size
   real(8):: qcorg , qcorh , qsc , cofg , cofh , ceh , rfoc , z
-  type(s_spec)::sspec(is)
+!  type(s_spec)::sspec(is)
   integer:: n0 , lfoc , lmxb , l,isp
   parameter (n0=10)
   real(8):: pnu(n0),pz(n0),ccof,q0,q1,qc,rmt,rsm,stc,x0(0:n0), xi(0:n0),dgetss

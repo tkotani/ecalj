@@ -1,6 +1,5 @@
-subroutine ovlocr ( nbas , sspec ,  nxi0 , nxi &
-     , exi , hfc , rsmfa , rv_a_orhofa , sv_p_orhoat , sqloc, slmom )
-  use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nsp,ispec
+subroutine ovlocr(nbas,nxi0,nxi,exi,hfc,rsmfa,rv_a_orhofa, sv_p_orhoat , sqloc, slmom )
+  use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nsp,ispec,sspec=>v_sspec
   use m_struc_def
   use m_lgunit,only:stdo
   use m_smhankel,only: hxpbl
@@ -37,7 +36,7 @@ subroutine ovlocr ( nbas , sspec ,  nxi0 , nxi &
   type(s_rv1) :: rv_a_orhofa(nbas)
   real(8):: rsmfa(1) , exi(nxi0,1) , hfc(nxi0,2,1) , sqloc , slmom
 !  type(s_site)::ssite(*)
-  type(s_spec)::sspec(*)
+!  type(s_spec)::sspec(*)
   integer:: ib , ipr , iprint , is , jb , je , js , lfoca &
        , lmxl , nlmh , nlml , nr , i
   double precision :: ceh,cofg,cofh,eh,qcorg,qcorh,qsc,qcsm,qloc,rfoca,rmt,rsmh,rsmv,z,amom
@@ -69,7 +68,7 @@ subroutine ovlocr ( nbas , sspec ,  nxi0 , nxi &
      a=sspec(is)%a
      nr=sspec(is)%nr
      rmt=sspec(is)%rmt
-     call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoca,rfoca, z)
+     call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoca,rfoca, z)
      qcsm = qcorg+qcorh
      if (lmxl == -1) goto 10
      allocate(rofi(nr),rwgt(nr))

@@ -1,28 +1,19 @@
 module m_smvxcm
   public smvxcm
   contains
-subroutine smvxcm(sspec,nbas,lfrce,k1,k2,k3,smrho,&
-  smpot,smvxc,smvx,smvc,smexc,repsm,repsmx,repsmc,rmusm,rvmusm, &
+subroutine smvxcm(lfrce,smrho,smpot,smvxc,smvx,smvc,smexc,repsm,repsmx,repsmc,rmusm,rvmusm, &
        rvepsm,focexc,focex,focec,focvxc,f)
   use m_supot,only: rv_a_ogv,iv_a_okv
   use m_struc_def
-  use m_lmfinit,only: rv_a_ocy,   lat_alat, lxcf,nsp
+  use m_lmfinit,only: rv_a_ocy,   lat_alat, lxcf,nsp,nbas
   use m_lattic,only: lat_vol
   use m_supot,only: lat_nabc
-  use m_supot,only: lat_ng
+  use m_supot,only: lat_ng,k1,k2,k3
   use m_lgunit,only:stdo
   use m_xclda,only: evxcp,evxcv
   !- XC potential for smooth mesh density
   ! ----------------------------------------------------------------------
   !i Inputs
-  !i   sspec :struct containing species-specific information
-  !i     Elts read:
-  !i     Stored:
-  !i     Passed to: smcorm smvxc4 corprm
-  !i   slat  :struct containing information about the lattice
-  !i     Elts read: nabc ng ogv okv vol alat ocy
-  !i     Stored:
-  !i     Passed to: smcorm
   !i   nbas  :size of basis
   !i   lfrce :1, calculate contribution to forces
   !i   k1,k2,k3 dimensions smooth crystal densities, potentials on a mesh
@@ -81,12 +72,10 @@ subroutine smvxcm(sspec,nbas,lfrce,k1,k2,k3,smrho,&
   !u    1 May 00 Adapted from nfp sxc_smooth.f
   ! ----------------------------------------------------------------------
   implicit none
-  ! ... Passed parameters
-  integer :: nbas,lfrce,k1,k2,k3,ngabc(3),lxcfun
+  integer :: lfrce,ngabc(3),lxcfun
   equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
   real(8):: f(3,nbas) , repsm(2) , repsmx(2) , repsmc(2) , rmusm(2) &
        , rvmusm(2) , rvepsm(2) , focexc(2) , focex(2) , focec(2) , focvxc(2)
-  type(s_spec)::sspec(*)
   double complex smrho(k1,k2,k3,*),smpot(k1,k2,k3,*), &
        smvxc(k1,k2,k3,*),smvx(k1,k2,k3,*),smvc(k1,k2,k3,*), &
        smexc(k1,k2,k3)
@@ -130,7 +119,7 @@ subroutine smvxcm(sspec,nbas,lfrce,k1,k2,k3,smrho,&
   allocate(smrho_w(k1*k2*k3*nsp))
   smrho_w=0d0
   allocate(cgh1_zv(ng), cgh2_zv(ng))
-  call smcorm(nbas,sspec,ng,rv_a_ogv,cgh1_zv,cgh2_zv, lfoc1,lfoc2)
+  call smcorm(nbas,ng,rv_a_ogv,cgh1_zv,cgh2_zv, lfoc1,lfoc2)
   ! ... smrho_w = smrho + smoothed core from foca hankel heads
   k123 = 2*k1*k2*k3
   if(lfoc1 == 1) then
@@ -268,7 +257,7 @@ subroutine smvxcm(sspec,nbas,lfrce,k1,k2,k3,smrho,&
      if (lfoc1 > 0 .OR. lfoc2 > 0) then
         call fftz3(smvxc,n1,n2,n3,k1,k2,k3,nsp,0,-1)
         call gvgetf(ng, nsp, iv_a_okv , k1 , k2 , k3 , smvxc , cgh1_zv  )
-        call smvxc4(nbas, nsp, sspec, alat, vol, rv_a_ocy, ng , rv_a_ogv , cgh1_zv , f )
+        call smvxc4(nbas, nsp, alat, vol, rv_a_ocy, ng , rv_a_ogv , cgh1_zv , f )
      endif
      if (allocated(cgh1_zv)) deallocate(cgh1_zv)
   endif
@@ -616,9 +605,9 @@ subroutine smvxc3(vol,nsp,n1,n2,n3,k1,k2,k3,smrho,smcor,dsmvxc, &
 
 end subroutine smvxc3
 
-subroutine smvxc4(nbas,nsp,sspec,alat,vol,cy,ng,gv,cvxc,f)
+subroutine smvxc4(nbas,nsp,alat,vol,cy,ng,gv,cvxc,f)
   use m_lgunit,only:stdo
-  use m_struc_def  !Cgetarg
+  use m_struc_def  
   use m_lattic,only: rv_a_opos
   use m_lmfinit,only: ispec
   !- For foca, adds force from shift of smH-head against Vxc.
@@ -626,10 +615,6 @@ subroutine smvxc4(nbas,nsp,sspec,alat,vol,cy,ng,gv,cvxc,f)
   !i Inputs
   !i   nbas  :size of basis
   !i   nsp   :number of spin channels
-  !i   sspec :struct for species-specific information; see routine uspec
-  !i     Elts read: *
-  !i     Stored:    *
-  !i     Passed to: corprm
   !i   cy    :Normalization constants for spherical harmonics
   !i   ng    :number of G-vectors
   !i   gv    :list of reciprocal lattice vectors G (gvlist.f)
@@ -642,30 +627,23 @@ subroutine smvxc4(nbas,nsp,sspec,alat,vol,cy,ng,gv,cvxc,f)
   !u    1 May 00  Adapted from nfp smc_force.f
   ! ----------------------------------------------------------------------
   implicit none
-  ! ... Passed parameters
   integer :: nbas,nsp,ng
   real(8):: gv(ng,3) , alat , vol , cy(1) , f(3,nbas)
-  type(s_spec)::sspec(*)
-
   double complex cvxc(ng,nsp)
-  ! ... Local parameters
   integer :: k0,nlmx,kmax,ib,is,lfoc,i,kb,iprint
   double precision :: tau(3),v(3),pi,tpiba,qcorg,qcorh,qsc,cofg, &
        cofh,ceh,rfoc,z,sum1,sum2,sum3,xx
   parameter (k0=3, nlmx = 9)
   double complex gkl(0:k0,nlmx),ccc,cvxci
-
-  !      stdo = lgunit(1)
   pi = 4d0*datan(1d0)
   tpiba = 2d0*pi/alat
   kmax = 0
-
   ! --- Loop over sites ---
   if (iprint() >= 50) write(stdo,400)
   do  ib = 1, nbas
      is=ispec(ib)
      tau=rv_a_opos(:,ib) 
-     call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
+     call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
      if (lfoc > 0 .AND. cofh /= 0) then
         sum1 = 0d0
         sum2 = 0d0
@@ -938,7 +916,7 @@ subroutine vxcnlm(lxcg,nsp,k1,k2,k3,smrho,repnl,rmunl,vavgnl,vxnl,vcnl,vxcnl)
      !!--------------------------------------------------------------
 end subroutine vxcnlm
    
-subroutine smcorm(nbas,sspec,ng,gv,  cgh1,cgh2,lfoc1,lfoc2)
+subroutine smcorm(nbas,ng,gv,  cgh1,cgh2,lfoc1,lfoc2)
   use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,ispec
   use m_struc_def           
   use m_lmfinit,only:lat_alat
@@ -947,14 +925,6 @@ subroutine smcorm(nbas,sspec,ng,gv,  cgh1,cgh2,lfoc1,lfoc2)
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   nbas  :size of basis
-  !i   sspec :struct for species-specific information; see routine uspec
-  !i     Elts read:
-  !i     Stored:    *
-  !i     Passed to: corprm
-  !i   slat  :struct for lattice information; see routine ulat
-  !i     Elts read: alat vol ocy
-  !i     Stored:    *
-  !i     Passed to: *
   !i   ng    :number of G-vectors
   !i   gv    :list of reciprocal lattice vectors G (gvlist.f)
   !o Outputs
@@ -970,10 +940,7 @@ subroutine smcorm(nbas,sspec,ng,gv,  cgh1,cgh2,lfoc1,lfoc2)
   ! ... Passed parameters
   integer :: ng,nbas,lfoc1,lfoc2
   real(8):: gv(ng,3)
-  type(s_spec)::sspec(*)
-  !      type(s_lat)::slat
   double complex cgh1(ng),cgh2(ng)
-  ! ... Local parameters
   integer:: k0 , nlmx , kmax , ib , is , lfoc , i
   double precision :: tau(3),v(3),alat,vol,qcorg,qcorh,qsc,cofg,cofh, &
        ceh,rfoc,z
@@ -990,7 +957,7 @@ subroutine smcorm(nbas,sspec,ng,gv,  cgh1,cgh2,lfoc1,lfoc2)
   do  ib = 1, nbas
      is=ispec(ib)
      tau=rv_a_opos(:,ib) 
-     call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
+     call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
      !       qc = qcorg+qcorh
      !        if (iprint() .ge. 50) write(stdo,351) qc,lfoc,qcorg,qcorh
      !  351   format(' qc=',f12.6,'   lfoc',i2,'   qcorg,qcorh',2f12.6)

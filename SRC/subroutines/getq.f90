@@ -134,7 +134,7 @@ subroutine getq(nsp,nl,lmx,nc,z,pnu,qnu,ics,sspec,qc,qt,dq)
         lcor = 0
      else
         is = ics(ic)
-        call gtpcor(sspec,is,kcor,lcor,qcor)
+        call gtpcor(is,kcor,lcor,qcor)
      endif
      call getqvc(nsp,nl,lmx(ic),z(ic),pnu(1,1,ic),qnu(1,1,1,ic),0,0, &
           kcor,lcor,qcor,qc(ic),qt(ic),dq(ic))

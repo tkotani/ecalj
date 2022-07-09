@@ -175,7 +175,7 @@ contains
        rmt=sspec(is)%rmt
        lmxh=sspec(is)%lmxb
        stc0=sspec(is)%stc
-       call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
+       call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
        call uspecb(is,rsmh,eh)
        nkapi=nkapii(is)
        call orblib(ib)!norb , ltab , ktab , xx , offl , xx )
@@ -183,7 +183,7 @@ contains
        is =ispec(ib) !ssite(ib)%spec
        pnu=>pnuall(:,1:nsp,ib)
        pnz=>pnzall(:,1:nsp,ib)
-       call gtpcor(sspec,is,kcor,lcor,qcor)
+       call gtpcor(is,kcor,lcor,qcor)
        nlml = (lmxl+1)**2
        nlma = (lmxa+1)**2
        nlmh = (lmxh+1)**2

@@ -209,9 +209,9 @@ contains
        !         100's digit job > 0 set   OR:
        !         4's bit mxcst=0   AND   10's digit job=0  AND  1's digit job=1
        lfltwf = (.not.mxcst4(is)).and.(.not.ham_frzwf).and.job==1 ! modify b.c. of rad.wave func.
-       call corprm(sspec,is,qcorg,qcorh,qsca,cofg,cofh,ceh,lfoc,rfoc,z)
+       call corprm(is,qcorg,qcorh,qsca,cofg,cofh,ceh,lfoc,rfoc,z)
        chole=coreh(is)
-       call gtpcor(sspec,is,kcor,lcor,qcor)
+       call gtpcor(is,kcor,lcor,qcor)
        call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc0,qv,qsc0)
        if (qsc0 /= qsca .OR. qc /= qc0-qsc0) then
           if(iprint()>0)write(stdo,ftox)' is=',is,'qsc0=',ftof(qsc0),'qsca',ftof(qsca),'qc',ftof(qc),'qc0',ftof(qc0)

@@ -546,8 +546,8 @@ contains
     nda = 0
     do  ib = 1, nbas
        is = ispec(ib)!int(ssite(ib)%spec)
-       nr = int(sspec(is)%nr)
-       lmxl = int(sspec(is)%lmxl)
+       nr = sspec(is)%nr
+       lmxl = sspec(is)%lmxl
        nlml = (lmxl+1)**2
        if (lmxl == -1) goto 20
        !       include spherical part of local densities only
@@ -633,14 +633,14 @@ contains
     !     NB: For now, nx must be zero
     k9 = 10
     call pvmix5 ( nmix , mxsav , fnam , ifi , .true. , rmsdel , locmix &
-         , k9 , nbas , kmxr , nlm0 , sspec , nsp , sv_p_orhold &
+         , k9 , nbas , kmxr , nlm0 ,  nsp , sv_p_orhold &
          , sv_p_orhnew , co_rv , w_ocn , ng2 , ng02 , (/0/) , nda , w_oa , w_oqkl &
          , rms2 , nmixr )
     rmsdel = rms2
     nmix = min(nmix,nmixr)
     ! ... Write this and prior iterations onto disk
     call pvmix5 ( nmix , mxsav , fnam , - ifi , .true. , rmsdel , &
-         locmix , k9 , nbas , kmxr , nlm0 ,  sspec , nsp , sv_p_orhold &
+         locmix , k9 , nbas , kmxr , nlm0 ,   nsp , sv_p_orhold &
          , sv_p_orhnew , co_rv , w_ocn , ng , ng02 , (/0/) , nda , w_oa , w_oqkl &
          , rms2 , nmixr )
     if (nkill < 0) then
@@ -671,7 +671,7 @@ contains
 101 format(' mmom   ',2f14.6,28x,f14.6)
 
     ! --- 10. Linear mixing of local densities  ---
-    call pvmix3 ( sspec , nbas , nsp , beta , locmix , wt &
+    call pvmix3 ( nbas , nsp , beta , locmix , wt &
          , kmxr , nlm0 , k9 , w_oqkl , sv_p_orhold , sv_p_orhnew , difx &
          )
     difxu = difx
@@ -727,7 +727,7 @@ contains
     ! ... 14. Poke mixed smooth and local densities into smrho,rhoold
     !      call defcc(owk,kkk)
     allocate(w_owk(kkk))
-    call pvmix7 (  sspec , nbas , nsp , nda , w_oa , n1 , &
+    call pvmix7 (   nbas , nsp , nda , w_oa , n1 , &
          n2 , n3 , k1 , k2 , k3 , locmix , wt , k9 , kmxr , nlm0 , w_oqkl &
          , ng , ng2, ng02 , iv_a_okv , ips0_iv , rv_a_ogv , co_rv , w_owk , &
          sv_p_orhold , smrho, wgtsmooth )
@@ -958,10 +958,10 @@ contains
 
 
 
-  subroutine pvmix3 ( sspec , nbas , nsp , beta , locmix &
+  subroutine pvmix3 ( nbas , nsp , beta , locmix &
        , wt , kmxr , nlm0 , k9 , qkl , sv_p_orhold , sv_p_orhnew , difx  )
     use m_struc_def  
-    use m_lmfinit,only: ispec
+    use m_lmfinit,only: ispec,sspec=>v_sspec
     !- Linearly mix local densities, possibly subtracting G_kL expansion
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -1014,7 +1014,7 @@ contains
     ! ino wt(3)      real(8):: difx , beta , wt(2) , qkl(0:kmxr,nlm0,nsp,4,nbas)
     real(8):: difx , beta , wt(3) , qkl(0:kmxr,nlm0,nsp,4,nbas)
 !    type(s_site)::ssite(*)
-    type(s_spec)::sspec(*)
+!    type(s_spec)::sspec(*)
 
     ! ... Local parameters
     integer :: ib,is,igetss,nr,nlml,m,lmxl,k9l
@@ -1263,10 +1263,10 @@ contains
 
 
   subroutine pvmix5 ( nmix , mxsav , fnam , ifi , lbin , rmsdel &
-       , locmix , k9 , nbas , kmxr , nlm0 , sspec , nsp , sv_p_orhold &
+       , locmix , k9 , nbas , kmxr , nlm0 , nsp , sv_p_orhold &
        , sv_p_orhnew , co , cn , ng2 , ng02 , cnst , nda , a , qkl , rms2 &
        , nmixr )
-    use m_lmfinit,only:ispec
+    use m_lmfinit,only:ispec,sspec=>v_sspec
     use m_struc_def  
     !- Copy rho into holding array, read prior iterations from disk
     ! ----------------------------------------------------------------------
@@ -1368,7 +1368,7 @@ contains
     double precision :: a(nda,nsp,mxsav+2,2),rms2,rmsdel
     real(8):: co(ng2,nsp) , cn(ng2,nsp) , qkl(0:kmxr,nlm0,nsp,4,1)
 !    type(s_site)::ssite(*)
-    type(s_spec)::sspec(*)
+!    type(s_spec)::sspec(*)
 
     character fnam*8
     ! ... Local parameters
@@ -1495,16 +1495,16 @@ contains
           if (locmix >= 2) then
              do  i = 1, nsp
                 call pshpr(iprint()-30)
-                call rhogkl ( ib , ib , i , 2 ,  sspec , sv_p_orhold , &
+                call rhogkl ( ib , ib , i , 2 , sv_p_orhold , &
                      kmxr , qkl ( 0 , 1 , i , 1 , ib ) )
 
-                call rhogkl ( ib , ib , i , 3 , sspec , sv_p_orhold , &
+                call rhogkl ( ib , ib , i , 3 , sv_p_orhold , &
                      kmxr , qkl ( 0 , 1 , i , 2 , ib ) )
 
-                call rhogkl ( ib , ib , i , 2 ,  sspec , sv_p_orhnew , &
+                call rhogkl ( ib , ib , i , 2 , sv_p_orhnew , &
                      kmxr , qkl ( 0 , 1 , i , 3 , ib ) )
 
-                call rhogkl ( ib , ib , i , 3 ,  sspec , sv_p_orhnew , &
+                call rhogkl ( ib , ib , i , 3 , sv_p_orhnew , &
                      kmxr , qkl ( 0 , 1 , i , 4 , ib ) )
 
                 call poppr
@@ -1767,11 +1767,11 @@ contains
   end subroutine pvmix6
 
 
-  subroutine pvmix7 ( sspec , nbas , nsp , nda , a , n1 &
+  subroutine pvmix7 ( nbas , nsp , nda , a , n1 &
        , n2 , n3 , k1 , k2 , k3 , locmix , wt , k9 , kmxr , nlm0 , qkl &
        , ng , ng2, ng02 , kv , ips0 , gv , crho , wk , sv_p_orhold , smrho &
        ,wgtsmooth)
-    use m_lmfinit,only: ispec
+    use m_lmfinit,only: ispec,sspec=>v_sspec
     use m_struc_def 
     !- Restore mixed density into specific arrays
     ! ----------------------------------------------------------------------
@@ -1821,7 +1821,7 @@ contains
     real(8):: gv(ng,3) , a(nda,nsp) , qkl(0:kmxr,nlm0,nsp,4,nbas) &
          , rf , wt(2), wgtsmooth
 !    type(s_site)::ssite(*)
-    type(s_spec)::sspec(*)
+!    type(s_spec)::sspec(*)
 
     double complex smrho(k1,k2,k3,nsp),wk(k1,k2,k3)
     real(8):: crho(ng2,nsp)

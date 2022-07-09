@@ -182,7 +182,7 @@ subroutine rdovfa()
         call radsum ( nr , nr , 1 , nsp , rwgt_rv , sspec(is)%rv_a_orhoc , sum )
         call radsum ( nr , nr , 1 , 1 , rwgt_rv , sspec(is)%rv_a_orhoc , sum1 )
         sum2 = sum - sum1
-        call gtpcor(sspec,is,kcor,lcor,qcor)
+        call gtpcor(is,kcor,lcor,qcor)
         if (dabs(qcor(2)-(sum1-sum2)) > 0.01d0) then
            if(ipr>=10) write(stdo,ftox)' (warning) core moment mismatch spec ',is, &
                 'input file=',ftof(qcor(2)),'atom file=',ftof(sum1-sum2)
@@ -235,7 +235,7 @@ subroutine rdovfa()
      smom = 2*smom - sum1
   endif
   ! --- Set up local densities using rmt from atm file ---
-  call ovlocr ( nbas , sspec ,  n0 , nxi , exi ,&
+  call ovlocr ( nbas , n0 , nxi , exi ,&
        hfc , rsmfa , rv_a_orhofa , sv_p_orhoat , sqloc , slmom )
   ! --- Add compensating uniform electron density to compensate background
   call adbkql ( sv_p_orhoat , nbas , nsp , qbg , vol , - 1d0 )!, sspec )!, ssite )

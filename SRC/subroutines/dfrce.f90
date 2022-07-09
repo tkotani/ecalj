@@ -97,7 +97,7 @@ subroutine dfrce (job, sv_p_orhoat , sv_p_orhat1 ,  qmom , smrho , smrout , dfh 
   ! ... Set up for vectorized Y_lm and gaussians
   ltop = 0
   do   is = 1, nspec
-     lmxl = int(sspec(is)%lmxl)
+     lmxl = sspec(is)%lmxl
      ltop = max0(ltop,lmxl)
   enddo
   nlmtop = (ltop+1)**2
@@ -115,7 +115,7 @@ subroutine dfrce (job, sv_p_orhoat , sv_p_orhat1 ,  qmom , smrho , smrout , dfh 
   if(nsp==2) call daxpy(2*nn, 1d0, smrho (1,1,1,2), 1, smro_zv, 1)
   call fftz3 ( smro_zv , n1 , n2 , n3 , k1 , k2 , k3 , 1 , 0 , - 1 )
   call gvgetf ( ng , 1 , iv_a_okv , k1 , k2 , k3 , smro_zv , cvin_zv )
-  call pvdf4 ( sspec ,  qmom , ng , g2_rv , yl_rv , cs_ , sn_ , iv_iv , qlat , cvin_zv )
+  call pvdf4 (  qmom , ng , g2_rv , yl_rv , cs_ , sn_ , iv_iv , qlat , cvin_zv )
   if (allocated(smro_zv)) deallocate(smro_zv)
   deallocate(cs_,sn_)
   ! --- Make dVxc(in)/dn ---
@@ -127,7 +127,7 @@ subroutine dfrce (job, sv_p_orhoat , sv_p_orhat1 ,  qmom , smrho , smrout , dfh 
   allocate(wk2_zv(nn*nsp))
   allocate(wk3_zv(nn*nsp))
   call dpcopy ( smrho , smro_zv , 1 , 2 * nn * nsp , 1d0 )
-  call pvdf2 ( nbas , nsp , sspec ,  n1 , n2 , n3 & ! & slat ,
+  call pvdf2 ( nbas , nsp ,  n1 , n2 , n3 & ! & slat ,
   , k1 , k2 , k3 , smro_zv , vxcp_zv , vxcm_zv , wk1_zv &
        , wk2_zv , wk3_zv , dvxc_zv )
   deallocate(wk3_zv)
@@ -194,7 +194,7 @@ subroutine dfrce (job, sv_p_orhoat , sv_p_orhat1 ,  qmom , smrho , smrout , dfh 
      lmxl = sspec(is)%lmxl
      if (lmxl == -1) goto 20
      nlm = (lmxl+1)**2
-     call pvdf1 ( job , sspec , nsp , ib , iiv0(ib), qmom &
+     call pvdf1 ( job , nsp , ib , iiv0(ib), qmom &
           , qmout_rv , ng , rv_a_ogv , g2_rv , yl_rv , iv_iv , qlat , 0 &
           , cnomi_zv , ceps_zv , cdvx_zv , cvin_zv , sv_p_orhoat ( 1 , &
           ib ) , fes1 , fes2 , fxc )
@@ -234,11 +234,11 @@ subroutine dfrce (job, sv_p_orhoat , sv_p_orhat1 ,  qmom , smrho , smrout , dfh 
   call tcx('dfrce')
 end subroutine dfrce
 
-subroutine pvdf1 ( job , sspec ,  nsp , ib , iv0 & ! & slat ,
+subroutine pvdf1 ( job ,  nsp , ib , iv0 & ! & slat ,
   , qmom , qmout , ng , gv , g2 , yl , iv , qlat , kmax , cnomin &
        , ceps , cdvxc , cvin , sv_p_orhoat , fes1 , fes2 , fxc )
   use m_struc_def  !Cgetarg
-  use m_lmfinit,only: nbas,ispec
+  use m_lmfinit,only: nbas,ispec,sspec=>v_sspec
   use m_lmfinit,only:lat_alat,pnux=>pnusp,pzx=>pzsp
   use m_lattic,only: lat_vol,rv_a_opos
   use m_supot,only: lat_nabc
@@ -277,7 +277,7 @@ subroutine pvdf1 ( job , sspec ,  nsp , ib , iv0 & ! & slat ,
 
   real(8):: qmom(*) , qmout(*) , gv(ng,3) , tau(3) , fes1(3) , &
        fes2(3) , fxc(3) , g2(ng) , yl(ng,1) , cs(ng) , sn(ng) , qlat(3,3)
-  type(s_spec)::sspec(*)
+!  type(s_spec)::sspec(*)
   double complex cdn0(ng,nsp),cdn(ng),cdv(ng),ceps(ng), &
        cnomin(ng),cdvxc(ng,nsp),cvin(ng)
   ! ... Local parameters
@@ -331,7 +331,7 @@ subroutine pvdf1 ( job , sspec ,  nsp , ib , iv0 & ! & slat ,
      hfc=sspec(is)%chfa
      rsmfa=sspec(is)%rsmfa
      gam  = 0.25d0*rsmfa**2
-     call gtpcor(sspec,is,kcor,lcor,qcor)
+     call gtpcor(is,kcor,lcor,qcor)
      if (nr > nrmx) call rx('dfrce: nr gt nrmx')
      call radwgt(rmt,a,nr,rwgt)
      nlml = (lmxl+1)**2
@@ -373,7 +373,7 @@ subroutine pvdf1 ( job , sspec ,  nsp , ib , iv0 & ! & slat ,
   tau=rv_a_opos(:,ib) 
   lmxl=sspec(is)%lmxl
   rg=sspec(is)%rg
-  call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
+  call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
   nlm = (lmxl+1)**2
   if (nlm > nlmx) call rxi('pvdf1: increase nlmx to',nlm)
   ilm = 0
@@ -503,15 +503,15 @@ subroutine pvdf1 ( job , sspec ,  nsp , ib , iv0 & ! & slat ,
 end subroutine pvdf1
 
 
-subroutine pvdf2(nbas,nsp,sspec,n1,n2,n3,k1,k2,k3, smrho,vxcp,vxcm,wk1,wk2,wk3,dvxc)
+subroutine pvdf2(nbas,nsp,n1,n2,n3,k1,k2,k3, smrho,vxcp,vxcm,wk1,wk2,wk3,dvxc)
   use m_struc_def
   use m_smvxcm,only: smvxcm
-  use m_lmfinit,only:ispec
+  use m_lmfinit,only:ispec,sspec=>v_sspec
   !- Makes derivative of smoothed xc potential wrt density.
   implicit none
   ! ... Passed parameters
   integer :: nbas,nsp,n1,n2,n3,k1,k2,k3
-  type(s_spec)::sspec(*)
+!  type(s_spec)::sspec(*)
   complex(8):: vxcp(k1,k2,k3,nsp),vxcm(k1,k2,k3,nsp), &
        dvxc(k1,k2,k3,nsp),smrho(k1,k2,k3,nsp), &
        wk1(k1,k2,k3,nsp),wk2(k1,k2,k3,nsp), &
@@ -545,8 +545,7 @@ subroutine pvdf2(nbas,nsp,sspec,n1,n2,n3,k1,k2,k3, smrho,vxcp,vxcm,wk1,wk2,wk3,d
   call dpzero(wk1, nn*2*nsp)
   call dpzero(wk2, nn*2*nsp)
   call dpzero(wk3, nn*2)
-  call smvxcm(sspec,nbas,0,k1,k2,k3,smrho, &
-  vxcp,dvxc,wk1,wk2,wk3,repsm,repsmx,repsmc,rmusm, &
+  call smvxcm(0,smrho, vxcp,dvxc,wk1,wk2,wk3,repsm,repsmx,repsmc,rmusm, &
        rvmusm,rvepsm,fcexc0,fcex0,fcec0,fcvxc0,ff)
   ! ... Replace fac*rho with -fac*rho
   if (nsp == 1) then
@@ -564,8 +563,7 @@ subroutine pvdf2(nbas,nsp,sspec,n1,n2,n3,k1,k2,k3, smrho,vxcp,vxcm,wk1,wk2,wk3,d
   endif
   ! ... vxcm = vxc (smrho-drho)
   call dpzero(vxcm, nn*2*nsp)
-  call smvxcm(sspec,nbas,0,k1,k2,k3,smrho,&
-  vxcm,dvxc,wk1,wk2,wk3,repsm,repsmx,repsmc,rmusm, &
+  call smvxcm(0,smrho,  vxcm,dvxc,wk1,wk2,wk3,repsm,repsmx,repsmc,rmusm, &
        rvmusm,rvepsm,fcexc0,fcex0,fcec0,fcvxc0,ff)
   ! ... Restore rho+, rho-
   if (nsp == 1) then
@@ -601,8 +599,7 @@ subroutine pvdf2(nbas,nsp,sspec,n1,n2,n3,k1,k2,k3, smrho,vxcp,vxcm,wk1,wk2,wk3,d
   enddo
   ! ... vxcm = vxc (smrho)
   call dpzero(vxcm, nn*2*nsp)
-  call smvxcm(sspec,nbas,0,k1,k2,k3,smrho,&
-       vxcm,dvxc,wk1,wk2,wk3,repsm,repsmx,repsmc,rmusm, &
+  call smvxcm(0,smrho, vxcm,dvxc,wk1,wk2,wk3,repsm,repsmx,repsmc,rmusm, &
        rvmusm,rvepsm,fcexc0,fcex0,fcec0,fcvxc0,ff)
   ! ... dvxc/drho into dvxc
   do  i = 1, nsp
@@ -641,9 +638,9 @@ subroutine pvdf3(n1,n2,n3,k1,k2,k3,nsp,deln0,dvxc)
   enddo
 end subroutine pvdf3
 
-subroutine pvdf4(sspec,qmom,ng,g2,yl,cs,sn,iv,qlat,cv)
+subroutine pvdf4(qmom,ng,g2,yl,cs,sn,iv,qlat,cv)
   use m_struc_def
-  use m_lmfinit,only: nbas,ispec
+  use m_lmfinit,only: nbas,ispec,sspec=>v_sspec
   use m_lattic,only: lat_vol,rv_a_opos
   use m_supot,only: lat_nabc
   !- Makes smoothed ves from smoothed density and qmom, incl nuc. charge
@@ -681,7 +678,7 @@ subroutine pvdf4(sspec,qmom,ng,g2,yl,cs,sn,iv,qlat,cv)
   implicit none
   integer :: ng,iv(ng,3),i_copy_size
   real(8):: qmom(1) , g2(ng) , yl(ng,1) , cs(ng) , sn(ng) , qlat(3,3)
-  type(s_spec)::sspec(*)
+!  type(s_spec)::sspec(*)
   double complex cv(ng)
   integer :: ig,ib,ilm,is,iv0,l,lmxl,m,nlm,nlmx,nglob,n1,n2,n3, ngabc(3),lfoc
   equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
@@ -704,7 +701,7 @@ subroutine pvdf4(sspec,qmom,ng,g2,yl,cs,sn,iv,qlat,cv)
      lmxl=sspec(is)%lmxl
      rg=sspec(is)%rg
      if (lmxl == -1) goto 10
-     call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
+     call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
      call suphas(q0,tau,ng,iv,n1,n2,n3,qlat,cs,sn)
      nlm = (lmxl+1)**2
      if (nlm > nlmx) call rxi('pvdf4: increase nlmx to',nlm)

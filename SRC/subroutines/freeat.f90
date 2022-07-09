@@ -81,7 +81,7 @@ contains
        rfoca= sspec(is)%rfoca
        qcor = coreq(:,is)
        chole= coreh(is)
-       call gtpcor(sspec,is,kcor,lcor,qcor)
+       call gtpcor(is,kcor,lcor,qcor)
        z   = sspec(is)%z
        rmt = sspec(is)%rmt
        rsmfa=.5d0*rmt            ! moved to here 2022-6-27

@@ -1,4 +1,4 @@
-subroutine gtpcor(sspec,is,kcore,lcore,qcore)
+subroutine gtpcor(is,kcore,lcore,qcore)
   use m_struc_def 
   use m_lmfinit,only:coreq,coreh
   !- Unpacks parameters related to partial core occpation
@@ -16,7 +16,6 @@ subroutine gtpcor(sspec,is,kcore,lcore,qcore)
   implicit none
   integer :: is,kcore,lcore,i_copy_size
   real(8):: qcore(2)
-  type(s_spec)::sspec(*)
   character(8) :: ch
   kcore = 0
   lcore = -1

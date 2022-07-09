@@ -34,7 +34,7 @@ subroutine rhomom (sv_p_orhoat, qmom,vsum)
      rg = sspec(is)%rg
      j1 = jnlml(ib)! (ilm,ib) index
      if (lmxl == -1) cycle
-     call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
+     call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
      qc = qcorg+qcorh
      nlml = (lmxl+1)**2
      call pvrhom(rmt,a,nlml, nr, nsp, &

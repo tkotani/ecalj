@@ -70,7 +70,7 @@ subroutine ugcomp(qmom,gpot0,hpot0,ugg,f)
      tau1=rv_a_opos(:,ib) 
      lmax1=sspec(is)%lmxl
      rg1=sspec(is)%rg
-     call corprm(sspec,is,qcorg1,qcorh1,qsc1,cofg1,cofh1,ceh1,lfoc1, &
+     call corprm(is,qcorg1,qcorh1,qsc1,cofg1,cofh1,ceh1,lfoc1, &
           rh1,z1)
      nlm1 = (lmax1+1)**2
      !   ... Loop over sites where charge lump sees the potential
@@ -82,7 +82,7 @@ subroutine ugcomp(qmom,gpot0,hpot0,ugg,f)
            lmax2=sspec(js)%lmxl
            rg2=sspec(js)%rg
            if (lmax2 > -1) then
-              call corprm(sspec,js,qcorg2,qcorh2,qsc2,cofg2,cofh2,ceh2, lfoc2,rh2,z2)
+              call corprm(js,qcorg2,qcorh2,qsc2,cofg2,cofh2,ceh2, lfoc2,rh2,z2)
               nlm2 = (lmax2+1)**2
               if (nlm1 > ndim) call rxi('ugcomp: ndim < nlm1=',nlm1)
               if (nlm2 > ndim) call rxi('ugcomp: ndim < nlm2=',nlm2)

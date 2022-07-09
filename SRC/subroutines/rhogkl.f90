@@ -1,7 +1,7 @@
-subroutine rhogkl ( ib1 , ib2 , nsp , mode , sspec , sv_p_orhoat , kmax , qkl )
+subroutine rhogkl ( ib1 , ib2 , nsp , mode , sv_p_orhoat , kmax , qkl )
   use m_lgunit,only:stdo
-  use m_struc_def  !Cgetarg
-  use m_lmfinit,only: ispec
+  use m_struc_def  
+  use m_lmfinit,only: ispec,sspec=>v_sspec
   !- G_kL expansion of valence sphere densities
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -36,41 +36,25 @@ subroutine rhogkl ( ib1 , ib2 , nsp , mode , sspec , sv_p_orhoat , kmax , qkl )
   !u Updates
   !u   19 Oct 01 Adapted from rhomom.f
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
+  implicit none
   integer:: ib1 , ib2 , nsp , mode , kmax
   type(s_rv1) :: sv_p_orhoat(3,1)
-
   real(8):: qkl(0:kmax,1)
-!  type(s_site)::ssite(*)
-  type(s_spec)::sspec(*)
-
-  ! ... Local parameters
   integer:: ipr , iprint, nrmx , j1 , ib , is &
        , igetss , lmxl , nr , nlml , ilm , j , lfoc , k , l , m
   real(8) ,allocatable :: rofi_rv(:)
   real(8) ,allocatable :: rwgt_rv(:)
   real(8) ,allocatable :: h_rv(:)
-
   parameter( nrmx=1501)
-  double precision :: z,qc,a,rmt,qcorg,qcorh,qsc,cofg,cofh,rg, &
-       ceh,rfoc,df(0:20)
-  ! ... Heap
-
-  ! --- Setup ---
+  double precision :: z,qc,a,rmt,qcorg,qcorh,qsc,cofg,cofh,rg, ceh,rfoc,df(0:20)
   ipr  = iprint()
-  !      stdo = lgunit(1)
   allocate(rofi_rv(nrmx))
-
   allocate(rwgt_rv(nrmx))
-
   call stdfac(20,df)
   if (ipr >= 40) write(stdo,221)
-
-  ! --- Loop over sites ---
   j1 = 1
   do  ib = ib1, ib2
-     is = ispec(ib)! int(ssite(ib)%spec)
+     is = ispec(ib)
      lmxl=sspec(is)%lmxl
      z=sspec(is)%z
      qc=sspec(is)%qc
@@ -80,7 +64,7 @@ subroutine rhogkl ( ib1 , ib2 , nsp , mode , sspec , sv_p_orhoat , kmax , qkl )
      rg=sspec(is)%rg
 
      if (lmxl == -1) goto 10
-     call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
+     call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
      qc = qcorg+qcorh
      nlml = (lmxl+1)**2
      call radmsh ( rmt , a , nr , rofi_rv )
