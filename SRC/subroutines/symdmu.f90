@@ -1,7 +1,7 @@
-subroutine symdmu(nlibu,dmatu,nbas,nsp,lmaxu,sspec,ng,g, istab,lldau,rms)
+subroutine symdmu(nlibu,dmatu,nbas,nsp,lmaxu,ng,g, istab,lldau,rms)
   use m_struc_def
   use m_ftox
-  use m_lmfinit,only:idu,ispec
+  use m_lmfinit,only:idu,ispec,sspec=>v_sspec
   use m_lgunit,only:stdo
   !- Symmetrize LDA+U density matrix dmatu
   ! ----------------------------------------------------------------------
@@ -41,7 +41,7 @@ subroutine symdmu(nlibu,dmatu,nbas,nsp,lmaxu,sspec,ng,g, istab,lldau,rms)
   !--------------------------------------------------------------
   implicit none
   integer :: nbas,lldau(nbas),ng,nsp,lmaxu,istab(nbas,ng),i_copy_size
-  type(s_spec)::sspec(*)
+!  type(s_spec)::sspec(*)
 !  type(s_site)::ssite(*)
   integer :: is,igetss,lmxa,m1,m2,ilm1,ilm2,ib,l,isp,m3,m4,ig,iblu,nlibu,jb,jblu,ofjbl,lwarn
   real(8):: rmat(16,16),r(-3:3,-3:3),ddot,g(9,*),rms,ddet33,xx

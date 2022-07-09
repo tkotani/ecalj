@@ -1280,7 +1280,7 @@ contains
       allocate(wowk(nbas))
       wowk=0
       call pshpr(0)
-      call suldau(nbas,v_sspec,nlibu,k,wowk)!Count LDA+U blocks (printout only)
+      call suldau(nbas,nlibu,k,wowk)!Count LDA+U blocks (printout only)
       ham_nlibu=nlibu
       call poppr
       deallocate(wowk,amom, qpol,stni,rg,rfoca,rham,idxdn, rmt,  lfoca,lmxl, spec_a,z,nr,rsmv)

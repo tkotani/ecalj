@@ -1,7 +1,7 @@
-subroutine gwcphi(sspec,isp,nsp,nlmax,ndham,nev,nbas,ipb,lmxax,nlindx,ndima,ppnl,aus,  cphi,cphin)
+subroutine gwcphi(isp,nsp,nlmax,ndham,nev,nbas,ipb,lmxax,nlindx,ndima,ppnl,aus,  cphi,cphin)
   use m_struc_def
   use m_density,only: pnzall
-  use m_lmfinit,only: ispec
+  use m_lmfinit,only: ispec,sspec=>v_sspec
   !- Project (phi,phidot) onto MT sphere, Kotani's GW conventions
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -120,7 +120,7 @@ subroutine gwcphi(sspec,isp,nsp,nlmax,ndham,nev,nbas,ipb,lmxax,nlindx,ndima,ppnl
   integer :: isp,nsp,nlmax,ndham,nbas,nev,lmxax,ndima,ipb(nbas), nlindx(3,0:lmxax,nbas)
   integer :: n0,nppn
   parameter (n0=10,nppn=12)
-  type(s_spec)::sspec(*)
+!  type(s_spec)::sspec(*)
   double precision :: ppnl(nppn,n0,nsp,*),cphin(2,nev)
   double complex aus(nlmax,ndham,3,nsp,*),cphi(ndima,nev)
   double precision :: lmat(3,3),pnz(n0,2)

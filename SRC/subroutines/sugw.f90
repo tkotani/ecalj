@@ -497,7 +497,7 @@ contains
           allocate(aus_zv(nlmax*ndham*3*nsp*nbas))
           aus_zv=0d0
           call makusq ( 1 ,  nbas,0, nev,  isp, 1 , qp , evec , aus_zv )
-          call gwcphi (sspec , isp , nsp , nlmax , ndham , nev &
+          call gwcphi ( isp , nsp , nlmax , ndham , nev &
                , nbas , ipb , lmxax , nlindx , ndima , ppn , aus_zv , cphi &
                ( 1 , 1 , isp ) , cphin ( 1 , 1 , isp ) )
           deallocate(aus_zv)
@@ -545,7 +545,7 @@ contains
 !!!!  do not need to be short enough).
              !             if(sum(abs(qp-q))>1d-8) stop 'sugw:qp/=q; qp=p sep2012'
              inn=0
-             call pwmat(sspec , nbas , ndimh , napw,&
+             call pwmat(nbas , ndimh , napw,&
                   igv2x, qp , ngp , nlmax , ngvecp(1,1,iq) , gmax , inn, ppovl, phovl )
              pwz=matmul(phovl,evec)
              ! all zgemm('N','N',ngp,ndimh,ndimh,(1d0,0d0),phovl,ngp, evec,ndimh,(0d0,0d0),pwz,ngp)

@@ -75,7 +75,7 @@ contains
     real(8),intent(in) :: bz_ef,dosw(2)
     real(8):: eferm,evlall(ndhamx,nspx,nkp)
     eferm=bz_ef
-    call vcdmel ( nl , sspec ,  nlmax , ndham ,&
+    call vcdmel ( nl , nlmax , ndham ,&
          ndimh , nkp , nsp , nspc , eferm , evlall , ausc_zv , &
          nsites , isite , iclsl , iclsn ,dosw) !sbz,
     call rx0('done generating core level spectra')

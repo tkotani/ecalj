@@ -1,7 +1,7 @@
 ! Matrix elements (IPW,IPW) and (IPW,envelope function)
-subroutine pwmat(sspec,nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
+subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
   use m_struc_def     
-  use m_lmfinit,only: alat=>lat_alat,ispec
+  use m_lmfinit,only: alat=>lat_alat,ispec,sspec=>v_sspec
   use m_lattic,only:  qlat=>lat_qlat, vol=>lat_vol,plat=>lat_plat,rv_a_opos
   use m_uspecb,only:uspecb
   use m_orbl,only: Orblib,ktab,ltab,offl,norb
@@ -61,7 +61,7 @@ subroutine pwmat(sspec,nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,inn,ppovl,pwh
        eh(n0,nkap0),rsmh(n0,nkap0)
   complex(8):: ppovl(ngp,ngp), pwhovl(ngp,ndimh),phase,img,fach,mimgl(0:n0)
 !  type(s_site)::ssite(*)
-  type(s_spec)::sspec(*)
+!  type(s_spec)::sspec(*)
   integer,allocatable:: igvx(:,:),kv(:,:)
   real(8),allocatable:: yl(:)
   complex(8),allocatable:: pwh(:,:),ppovlx(:,:)

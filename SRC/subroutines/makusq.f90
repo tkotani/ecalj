@@ -128,7 +128,7 @@ subroutine makusq(mode,nsites,isite, nev,isp,iq,q,evec,  aus)
      call fradpk(kmax,rsma(is),lmxa,nr,rofi_rv,fp_rv,xp_rv,vp_rv,dp_rv)
      !   --- Add to the coefficient for the projection onto (u,s) for this site
      call pusq1 ( mode , ib , isp , nspc , nlmax , lmxh &
-          , nbas , sspec ,  q , ndham , ndimh , napw , igvapw& ! & slat ,
+          , nbas,  q , ndham , ndimh , napw , igvapw& ! & slat ,
           , nev , evec , vh_rv , dh_rv , vp_rv , dp_rv , ppnl ( 1 , 1 , &
           1 , ib ) , aus ( 1 , 1 , 1 , 1 , i , iq ) , aus ( 1 , 1 , 2 , &
           1 , i , iq ) , aus ( 1 , 1 , 3 , 1 , i , iq ) )
@@ -147,9 +147,9 @@ subroutine makusq(mode,nsites,isite, nev,isp,iq,q,evec,  aus)
 end subroutine makusq
 ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
 subroutine pusq1(mode,ia,isp,nspc,nlmax,lmxh,nbas, &
-     sspec,q,ndham,ndimh,napw,igvapw,nev,evec,vh,dh,vp,dp,ppnl, &
+     q,ndham,ndimh,napw,igvapw,nev,evec,vh,dh,vp,dp,ppnl, &
      au,as,az)
-  use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkapii,ispec
+  use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkapii,ispec,sspec=>v_sspec
   use m_uspecb,only: uspecb
   use m_bstrux,only: bstrux_set,bstr
   use m_struc_def
@@ -210,7 +210,7 @@ subroutine pusq1(mode,ia,isp,nspc,nlmax,lmxh,nbas, &
        nbas,ndham,ndimh,napw,igvapw(3,napw),nev,nlmbx,n0,nppn
   parameter (nlmbx=25, n0=10, nppn=12)
   real(8):: ppnl(nppn,n0,2),q(3),vp(*),dp(*),vh(*),dh(*)
-  type(s_spec)::sspec(*)
+!  type(s_spec)::sspec(*)
   complex(8):: evec(ndimh,nspc,ndimh), &
        au(nlmax,ndham*nspc,3,2), &
        as(nlmax,ndham*nspc,3,2), &

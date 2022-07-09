@@ -1,6 +1,6 @@
-subroutine praldm(ifi,ipr1,ipr2,sharm,nbas,nsp,lmaxu,lldau,sspec, strn,dmatu)
+subroutine praldm(ifi,ipr1,ipr2,sharm,nbas,nsp,lmaxu,lldau,strn,dmatu)
   use m_struc_def
-  use m_lmfinit,only:idu,ispec
+  use m_lmfinit,only:idu,ispec,sspec=>v_sspec
   !- Writes out a site density-matrix-like object for all sites
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -35,7 +35,7 @@ subroutine praldm(ifi,ipr1,ipr2,sharm,nbas,nsp,lmaxu,lldau,sspec, strn,dmatu)
   ! ----------------------------------------------------------------------
   implicit none
   integer :: nbas,nsp,lldau(nbas),ifi,lmaxu,ipr1,ipr2,sharm,i_copy_size
-  type(s_spec)::sspec(*)
+!  type(s_spec)::sspec(*)
   real(8)::   dmatu(2,-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
   character strn*(*)
   integer :: iblu,ib,is,igetss,lmxa,l !,idu(4)
