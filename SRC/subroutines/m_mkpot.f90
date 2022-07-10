@@ -419,13 +419,12 @@ contains
 
     ! --- Make local potential at atomic sites and augmentation matrices ---
     rhobg=qbg/vol
-    call locpot ( &
-         sv_p_orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau , &
-         sv_p_oppi,ohsozz,ohsopm, ppnl_rv , hab_rv , vab_rv , sab_rv , vvesat , cpnvsa , repat , &
+    call locpot(sv_p_orhoat,qmom,vval,gpot0,job,rhobg,nlibu,lmaxu,vorb,lldau,novxc, & !,idipole )
+         sv_p_osig,sv_p_otau, sv_p_oppi,ohsozz,ohsopm, ppnl_rv,&
+         hab_rv , vab_rv , sab_rv , vvesat , cpnvsa , repat , &
          repatx , repatc , rmuat , rvepva , rvexva , rvecva , rvvxva , &
          rvepsa , rvvxca , valvfa , xcore , fcexca , fcexa , fceca , fcvxca &
-         , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , &
-         nlibu, lmaxu, vorb, lldau,  novxc)!,dipole)
+         , sqloc , sqlocc , saloc , qval , qsc )
     if(cmdopt0('--density') .AND. master_mpi .AND. secondcall) return
 
     ! ... Combine spin-up and spin-down integrals

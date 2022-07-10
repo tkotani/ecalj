@@ -4,24 +4,24 @@ module m_locpot
   public locpot
   private
 contains
-  subroutine locpot (sv_p_orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau  &
-    , sv_p_oppi, ohsozz,ohsopm, ppnl , hab , vab , sab , vvesat , cpnvsa , rhoexc &
-         , rhoex , rhoec , rhovxc , rvepsv , rvexv , rvecv , rvvxcv , &
-         rveps , rvvxc , valvef , xcore , focexc , focex , focec , focvxc &
-         , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , &
-         nlibu , lmaxu , vorb , lldau,novxc)!,idipole )
-    use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkaph,lxcf,lhh,nkapii,nkaphh,alat,&
-         n0,nppn,nab,nrmx,nkap0,nlmx,nbas,nsp,lso,ispec, sspec=>v_sspec,mxcst4,&
-         slabl,idu,coreh,ham_frzwf,rsma
+  !- Make the potential at the atomic sites and augmentation matrices.
+  subroutine locpot(sv_p_orhoat,qmom,vval,gpot0,job,rhobg,nlibu,lmaxu,vorb,lldau,novxc, &!,idipole 
+       sv_p_osig , sv_p_otau, sv_p_oppi, ohsozz,ohsopm, ppnl ,&
+       hab , vab , sab , vvesat , cpnvsa , rhoexc, &
+       rhoex , rhoec , rhovxc , rvepsv , rvexv , rvecv , rvvxcv , &
+       rveps , rvvxc , valvef , xcore , focexc , focex , focec , focvxc, &
+       sqloc , sqlocc , saloc , qval , qsc )
+    use m_lmfinit,only:rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkaph,lxcf,lhh,nkapii,nkaphh
+    use m_lmfinit,only:n0,nppn,nab,nrmx,nkap0,nlmx,nbas,nsp,lso,ispec, sspec=>v_sspec,mxcst4
+    use m_lmfinit,only:slabl,idu,coreh,ham_frzwf,rsma,alat
     use m_MPItk,only: master_mpi
-    use m_struc_def
     use m_uspecb,only:uspecb
     use m_ftox
-
+    use m_struc_def
     use m_density,only: v0pot,v1pot   !writing
-    use m_density,only: pnzall,pnuall  
-    !      use m_iors,only: v1pot
-    !- Make the potential at the atomic sites and augmentation matrices.
+    use m_density,only: pnzall,pnuall !writing
+    implicit none
+    intent(in)::    sv_p_orhoat,qmom,vval,gpot0,job,rhobg,nlibu,lmaxu,vorb,lldau,novxc
     ! ----------------------------------------------------------------------
     !i Inputs
     !i   orhoat:vector of offsets containing site density
@@ -108,7 +108,6 @@ contains
     !u    1 May 00 Adapted from nfp locpot.f
     !u   17 Jun 98 Adapted from DLN to run parallel on SGI
     ! ----------------------------------------------------------------------
-    implicit none
     integer::  job , i_copy_size,ibx,ir,isp,l,lm !lcplxp,
     type(s_rv1) :: sv_p_orhoat(3,nbas)
     type(s_cv1) :: sv_p_oppi(3,nbas)
@@ -198,7 +197,7 @@ contains
        a=sspec(is)%a
        nr=sspec(is)%nr
        rmt=sspec(is)%rmt
-!       rsma=sspec(is)%rsma
+       !       rsma=sspec(is)%rsma
        lmxa=sspec(is)%lmxa
        lmxl=sspec(is)%lmxl
        lmxb=sspec(is)%lmxb
@@ -222,13 +221,12 @@ contains
        nlml = (lmxl+1)**2
        nrml = nr*nlml
        if (ipr >= 20) then
-          write(stdo,200) ib,z,rmt,nr,a,nlml,rg,lfltwf
-200       format(/' site',i3,'  z=',f5.1,'  rmt=',f8.5,'  nr=',i3, &
-               '   a=',f5.3,'  nlml=',i2,'  rg=',f5.3,'  Vfloat=',l1)
+          write(stdo,"(/' site',i3,'  z=',f5.1,'  rmt=',f8.5,'  nr=',i3,'   a=',f5.3, &
+               '  nlml=',i2,'  rg=',f5.3,'  Vfloat=',l1)") ib,z,rmt,nr,a,nlml,rg,lfltwf
           if (kcor /= 0) then
              if (qcor(1) /= 0 .OR. qcor(2) /= 0) then
-                !call info5(30,0,0,' core hole:  kcor=%i  lcor=%i  qcor=%d  amom=%d',kcor,lcor,qcor,qcor(2),0)
-                if(ipr>=30)write(stdo,ftox)' core hole: kcor=',kcor,'lcor=',lcor,'qcor=',qcor,'amom=',qcor(2)
+                if(ipr>=30)write(stdo,ftox) &
+                     ' core hole: kcor=',kcor,'lcor=',lcor,'qcor=',qcor,'amom=',qcor(2)
              endif
           endif
        endif
@@ -274,7 +272,7 @@ contains
              v0pot(ib)%v(1+nr*i: nr+nr*i) = y0*v1(1+nr*nlml*i : nr+nr*nlml*i)
           enddo
        endif
-       
+
        phispinsymB: block ! spin averaged oV0 to generate phi and phidot. takaoAug2019
          phispinsym= cmdopt0('--phispinsym')
          if(phispinsym) then
@@ -293,7 +291,7 @@ contains
             enddo
          endif
        endblock phispinsymB
-     
+
        v0fix_experimental: block ! experimental case --v0fix
          v0fix= cmdopt0('--v0fix')
          if(v0fix) then
@@ -332,7 +330,7 @@ contains
             if(ib==nbas) readov0= .TRUE. 
          endif
        endblock v0fix_experimental
-     
+
        if(master_mpi .AND. nsp==2)then
           do l=0,lmxa
              write(6,"('  ibas l=',2i3,' pnu(1:nsp) pnz(1:nsp)=',4f10.5)") ib,l,pnu(l+1,1:nsp),pnz(l+1,1:nsp)
@@ -416,10 +414,8 @@ contains
     enddo
     if(cmdopt0('--density') .AND. master_mpi) secondcall= .TRUE. 
     if(master_mpi) close(ifivesint)
-    !     Electric field gradient
-    if (ipr > 40) call elfigr(nbas,stdo,zz,efg)
-    deallocate(efg,zz)
-    deallocate(rhol1,rhol2,v1,v2,v1es,v2es)
+    if (ipr > 40) call elfigr(nbas,stdo,zz,efg)!  Electric field gradient
+    deallocate(efg,zz,rhol1,rhol2,v1,v2,v1es,v2es)
     call tcx('locpot')
   end subroutine locpot
 
@@ -575,7 +571,7 @@ contains
          wk(nr,nlml,nsp),rhoc(nr,nsp)
     double precision :: efg(5)
     integer :: ipr,iprint,ll,i,isp,ilm,l,lxcfun,nglob,nrml
-!         isw,isw2
+    !         isw,isw2
     double precision :: rhochs(nr*2),rhonsm(nr),df(0:20),cof(nlml), &
          rhocsm(nr),xi(0:20,2),tmp(2),xil(0:0),xill(nr)
     double precision :: afoc,ag,b,cof0,fac,qv1,qv2,qcor1,qcor2, &
@@ -611,7 +607,7 @@ contains
     do i=1,nr
        call hansmr(rofi(i),ceh,afoc,xil,0)
        xill(i)=xil(0)
-    enddo   
+    enddo
     ! --- Make core and nucleus pseudodensities ---
     rhonsm(:) = -z*fac *gg(:) ! nucleus Gaussian (negative sign)
     rhochs(:) = srfpi*cofh*xill(:)*rofi(:)**2 !pseudocore
@@ -737,13 +733,13 @@ contains
     if(debug) write(stdo,'(a)')' === rhol1 valence+core density. rho2->valence+smooth ==='
     call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rhol1,lxcfun,w2,w2,w2,w2,w2,rep1,rep1x,rep1c,rmu1,v1,fl,qs)
     if(lfoc == 0) then
-      call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,w2,w2,w2,w2,w2,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
+       call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,w2,w2,w2,w2,w2,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
     else if (lfoc == 1) then !  Otherwise v2 += vxc(rho2 + sm core), directly or perturbatively:
        if (ipr > 40) print *, 'exchange for smooth density, foca=1:'
        do  isp = 1, nsp
           rho2(1:nr,1,isp)=rho2(1:nr,1,isp) + y0/nsp*rhochs(1:nr)
        enddo
-      call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,w2,w2,w2,w2,w2,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
+       call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,w2,w2,w2,w2,w2,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
        do  isp = 1, nsp
           rho2(1:nr,1,isp)=rho2(1:nr,1,isp)-y0/nsp*rhochs(1:nr)
        enddo
@@ -885,7 +881,7 @@ contains
             vv=v+img*vi
             call diagcv(oo,vv,tt,n,d,nmx,1d99,nev)
             tr=dreal(tt)
-          endblock diag  
+          endblock diag
           !     write(stdo,99) ic
           ! 99  format(/' EFG, class = ',I3)
           do  i = 1, 3
@@ -946,4 +942,4 @@ subroutine swapR(a,n)
   a(:,1)=(t+d)/2d0
   a(:,2)=(t-d)/2d0
 end subroutine swapR
-  
+
