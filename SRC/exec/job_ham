@@ -25,5 +25,5 @@ cat HamiltonianPMT.* >HamiltonianPMT
 rm HamiltonianPMT.* 
 
 # Read HamiltonianMTO.
-#~/ecalj/lm7K/lmfham
+lmfham1
 

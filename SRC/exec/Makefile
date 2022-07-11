@@ -23,7 +23,7 @@ hx0init hhilbert hrcxq hx0zmel
 progsw  = hmaxloc huumat_MPI hpsig_MPI wanplot hwmatK_MPI hsocmat
 
 # targets generaged by make prog2
-progslm2 = lmfham mkhamloc plotmodel initmlo mkinput
+progslm2 = lmfham mkhamloc plotmodel initmlo mkinput lmfham1
 progsgw2 = hhomogas  hef convgwin kino_input_test hqpe_qsgw hecor eout eout2 
 progsw2  = huumat hpsig htbplot
 
@@ -127,8 +127,8 @@ $(obj_path)/qg4gw.m.o:  $(main)show_programinfo.fpp
 #	$(FC) $(FFLAGS_NONE) -c $< -o $@
 #$(obj_path)/lmfham.o: $(main)lmfham.F
 #	$(FC) $(FFLAGS_NONE) -c $< -o $@
-#$(obj_path)/lmfham1.o: $(main)lmfham1.F
-#	$(FC) $(FFLAGS_NONE) -c $< -o $@
+$(obj_path)/lmfham1.o: $(main)lmfham1.f90
+	$(FC) $(FFLAGS_NONE) -c $< -o $@
 $(obj_path)/mkhamloc.o: $(main)mkhamloc.f90
 	$(FC) $(FFLAGS_NONE) -c $< -o $@
 $(obj_path)/plotmodel.o: $(main)plotmodel.f90
