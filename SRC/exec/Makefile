@@ -24,7 +24,7 @@ progsw  = hmaxloc huumat_MPI hpsig_MPI wanplot hwmatK_MPI hsocmat
 
 # targets generaged by make prog2
 progslm2 = lmfham mkhamloc plotmodel initmlo mkinput
-progsgw2 = hef hqpe_qsgw convgwin kino_input_test hecor eout eout2 hhomogas 
+progsgw2 = hhomogas  hef convgwin kino_input_test hqpe_qsgw hecor eout eout2 
 progsw2  = huumat hpsig htbplot
 
 script  = cleargw* dqpu eps* gw_* gwg* gws* gwp*  mkG* chipm_mat genMLWF genMLWF_vw genMLWF2 genMLWFmod RPAWannier* FLEX_interaction.py genMLWFhso
@@ -42,7 +42,7 @@ moduledepends.inc: $(subr)*.f90 $(main)*.f90 $(maxloc)*.f90
 	@echo 'init: Generate module-dependency file, moduledepends.$(PLATFORM).inc'
 	@[ -d moduledepends.inc ] || exec ../../TOOLS/checkmodule $(subr)*.f90 $(main)*.f90 $(maxloc)*.f90 
 
-prog2: $(progslm2) $(progsgw2) $(progsw2)
+prog2: $(progslm2) #$(progsw2) #$(progsgw2) 
 
 init:
 	rm moduledepends.*
@@ -172,11 +172,11 @@ lmf-MPIK: $(obj_path)/lmf-MPIK.o $(ELIB) $(MPI)
 progs: $(progslm) $(progsgw) $(progsw)
 
 clean:
-	rm -f  $(progslm)  $(progsgw) $(progsw)
+	rm -f  $(progslm)  $(progsgw) $(progsw) $(progslm2)
 cleanall:
-	rm -rf $(progslm) $(progsgw) $(progsw) $(obj_path) moduledepends.* 
+	rm -rf $(progslm) $(progsgw) $(progsw) $(progslm2) $(obj_path) moduledepends.* 
 install: 
-	cp $(script) $(progslm) $(progsgw) $(progsw) ctrlgen*.py job* run_arg* $(BINDIR)
+	cp $(script) $(progslm) $(progsgw) $(progsw) $(prog2) ctrlgen*.py job* run_arg* $(BINDIR)
 dep:
 	@echo 'This generate a call-caller data set for SRC/*/*.f90 .'
 	@echo 'No arguments required. This drives ../TOOLS/f_calltree.py '

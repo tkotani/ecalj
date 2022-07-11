@@ -1,5 +1,7 @@
 !! -- Read HamiltionanMTOinfo and HamiltonianMTO. Then convert HamMTO to HamRsMTO  ------
 module m_hamMTO
+!  public :: ReadHamMTOInfo,resetMTOInfo,geninitmloinfo
+!  private
   real(8),allocatable,protected:: plat(:,:),pos(:,:),qplist(:,:),qlat(:,:),qprs(:,:),weight(:)
   integer,allocatable,protected:: nlat(:,:,:,:),npair(:,:),ipivot(:) &
        ,ib_table(:),l_table(:),k_table(:),m_table(:),nqwgt(:,:,:),itor(:),ir(:,:),ilo(:,:),ib(:)
