@@ -194,9 +194,9 @@ contains
        if (procid == master) then
           read(jfi,err=999,end=999) n11,n21,n31
           if (n11 == n1 .AND. n21 == n2 .AND. n31 == n3) then
-             read(jfi)osmrho
+             n =k1*k2*k3
+             read(jfi) osmrho(1:k1*k2*k3*nsp0)
              if (nsp > nsp0) then
-                n =k1*k2*k3
                 osmrho(1:n   )=.5d0*osmrho(1:n)
                 osmrho(1+n:n+n)= osmrho(1:n)
              endif
@@ -205,7 +205,7 @@ contains
 450          format(9x,'remesh density from  ',i4,'  *',i4,'  *',i4,'    to  ',i4,'  *',i4,'  *',i4)
              call fftz30(n11,n21,n31,k11,k21,k31)
              allocate(h_zv(k11*k21*k31*nsp))
-             read(jfi)h_zv
+             read(jfi)h_zv(1:k11*k21*k31*nsp0)
              if (nsp > nsp0) then
                 n  = k11*k21*k31
                 h_zv(1:n    ) = .5d0 *h_zv(1:n)
@@ -398,11 +398,10 @@ contains
           call mpibc1_real(stc,1,'iors_stc')
           !     ... FP core densities
           if (allocated(sspec(is)%rv_a_orhoc)) deallocate(sspec(is)%rv_a_orhoc)
-          allocate(sspec(is)%rv_a_orhoc(abs(nr*nsp)))
-          if (nr*nsp<0) sspec(is)%rv_a_orhoc(:)=0.0d0
+          allocate(sspec(is)%rv_a_orhoc(nr*nsp))
           if (procid == master) then
              if (nr /= nr0) call rx('iors not set up to convert core radial mesh')
-             read(jfi) sspec(is)%rv_a_orhoc !, nr * nsp0 , jfi )
+             read(jfi) sspec(is)%rv_a_orhoc(1:nr*nsp0) !, nr * nsp0 , jfi )
              if (nsp > nsp0) then !spin-split core density
                 i = nr
                 call dscal ( i , 0.5d0 , sspec(is)%rv_a_orhoc , 1 )
