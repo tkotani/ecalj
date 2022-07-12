@@ -308,12 +308,10 @@ contains
   subroutine m_bandcal_allreduce(lwtkb)
     integer:: nnn,ib,i,lwtkb
     if(debug) print *,'goto m_bandcal_allreduce'
-    nnn=size(sumqv);    call mpibc2_real(sumqv,nnn,'bndfp_sumqv')
-    nnn=size(sumev);    call mpibc2_real(sumev,nnn,'bndfp_sumev')
-    nnn=size(smrho_out); call mpibc2_complex(smrho_out,nnn,'bndfp_smrho')
-    if (lswtk==1) then
-       nnn=size(swtk);  call mpibc2_complex(swtk,'bndfp_swtk')
-    endif
+    call mpibc2_real(sumqv,size(sumqv),'bndfp_sumqv')
+    call mpibc2_real(sumev,size(sumev),'bndfp_sumev')
+    call mpibc2_complex(smrho_out,size(smrho_out),'bndfp_smrho')
+    if(lswtk==1) call mpibc2_complex(swtk,size(swtk),'bndfp_swtk')
     do  ib = 1, nbas
        do  i = 1, 3
           if(allocated(sv_p_oqkkl(i,ib)%v)) then

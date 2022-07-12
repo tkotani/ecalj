@@ -301,7 +301,6 @@ contains
           call bzints(nkabc(1),nkabc(2),nkabc(3), evlall &
                , dum , nkp , ndhamx , ndhamx , nspx , dosw(1),dosw(2), dosi_rv , ndos ,xxx , &
                1, ntet , iv_a_oidtet , dum , dum ) !job=1 give IntegratedDos to dosi_rv
-!          call xxxdif(dosw(1),dosw(2),ndos,nspx,0,dosi,dos_rv)!integrated DOS dosi_rv->DOS dos_rv
           dos_rv(2:ndos-1,:)=(dosi_rv(3:ndos,:)-dosi_rv(1:ndos-2,:))/(2d0*(dosw(2)-dosw(1))/(ndos-1))
           dos_rv(1,:)    = dos_rv(2,:)
           dos_rv(ndos,:) = dos_rv(ndos-1,:)
