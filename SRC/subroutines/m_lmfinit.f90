@@ -320,7 +320,7 @@ contains
       lpfloat=1
       !!HAM
       nm='HAM_NSPIN';call gtv(trim(nm),tksw(prgnam,nm),nsp,def_i4=1,note='Set to 2 for spin polarized calculations')
-      if(io_help/=0.and.(nsp/=1.and.nsp/=2)) call rx('nsp=1 or 2')
+      if(io_help==0.and.(nsp/=1.and.nsp/=2)) call rx('nsp=1 or 2')
       lcd4=F
       if (prgnam == 'LMF' .OR. prgnam == 'LMFGWD') lcd4=T
       nm='HAM_REL'; call gtv(trim(nm),tksw(prgnam,nm),lrel,def_i4=1, &
