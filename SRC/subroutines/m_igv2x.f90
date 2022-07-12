@@ -74,7 +74,7 @@ contains
     real(8):: ppin(3),qp(3),qqq(3),pwgmin,pwgmax,dum
     logical:: debug,cmdopt0
     logical,save:: init=.true.
-!    integer,parameter:: noutmx=48
+    !    integer,parameter:: noutmx=48
     integer:: iout,iapw,napwx !,nout,nlatout(3,noutmx)
     call tcn('m_igv2x_init')
     debug = cmdopt0('--debugbndfp')

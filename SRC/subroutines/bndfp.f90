@@ -27,7 +27,7 @@ module m_bndfp
   use m_mixrho,only: Mixrho
   real(8),protected:: ham_ehf, ham_ehk, sev  !output
   real(8),protected:: eferm, qdiff  !output
-  real(8),allocatable:: force(:,:)
+  real(8),protected,allocatable:: force(:,:)
   !! other ouput are in modules m_mkpot, m_bandcal
   logical,private:: binit=.true.,initd=.true.
 contains
