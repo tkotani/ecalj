@@ -21,7 +21,7 @@ subroutine ropyln(n,x,y,z,lmax,nd,yl,rsq)
   !u Updates
   !u  25 Jun 03 (Kino) initialize cx to zero
   ! ----------------------------------------------------------------------
-  !     implicit none
+  implicit none
   integer:: nd , n , i , m , lmax , l , kk=-999
   real(8) ,allocatable :: cm_rv(:)
   real(8) ,allocatable :: sm_rv(:)
@@ -33,14 +33,10 @@ subroutine ropyln(n,x,y,z,lmax,nd,yl,rsq)
   if (n > nd) call rx('ropyln: nd too small')
   fpi = 16*datan(1d0)
   allocate(cm_rv(n),sm_rv(n),q_rv(n*2),h_rv(n))
-
   do  2  i = 1, n
      rsq(i) = x(i)*x(i)+y(i)*y(i)+z(i)*z(i)
 2 enddo
-  cx(1) = 0
-  cx(2) = 0
-  cx(3) = 0
-
+  cx = 0d0
   ! --- Loop over m: cx are normalizations for l, l-1, l-2 ---
   f2m = 1d0
   do  10  m = 0, lmax
@@ -53,8 +49,7 @@ subroutine ropyln(n,x,y,z,lmax,nd,yl,rsq)
      endif
      do  11  l = m, lmax
         call ropqln ( m , l , n , rsq , z , cx , q_rv , kk )
-        call ropynx ( m , l , kk , n , q_rv , cm_rv , sm_rv &
-             , nd , yl )
+        call ropynx ( m , l , kk , n , q_rv , cm_rv , sm_rv, nd , yl )
         cx(3) = cx(2)
         cx(2) = cx(1)
         cx(1) = cx(1)*dsqrt(dble((l+1-m)*(2*l+3))/dble((l+1+m)*(2*l+1)))
@@ -78,7 +73,6 @@ subroutine ropqln(m,l,n,r2,z,cx,q,kk)
   integer :: mm,n,i,l,m,kk,k2,k1
   double precision :: q(n,2),r2(n),z(n),cx(3)
   double precision :: a,b,xx,yy
-
   ! --- Case l=m ---
   if (l == m) then
      a = 1d0
@@ -92,7 +86,6 @@ subroutine ropqln(m,l,n,r2,z,cx,q,kk)
 2    enddo
      return
   endif
-
   ! --- Case l=m+1 ---
   if (l == m+1) then
      b = 1d0
@@ -106,7 +99,6 @@ subroutine ropqln(m,l,n,r2,z,cx,q,kk)
 4    enddo
      return
   endif
-
   ! --- Case l=m+2 and higher by recursion ---
   if (l >= m+2) then
      k2 = kk

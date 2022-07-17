@@ -143,7 +143,6 @@ subroutine hhigbl(mode,p1,p2,q,rsm1,rsm2,e1,e2,nlm1,nlm2,kmax, &
   !u   28 Apr 97 adapted to handle case q=0 and e1 or e2 zero.
   ! ----------------------------------------------------------------------
   implicit none
-  ! ... Passed parameters
   integer :: mode,jcg(1),indxcg(1),nlm1,nlm2,kmax,ndim1,ndim2,k0
   real(8):: p1(3) , p2(3) , q(3) , cg(1) , cy(1) , rsm1(0:*) ,rsm2(0:*) , e1(0:*) , e2(0:*)
   complex(8):: s(ndim1,ndim2,0:k0),ds(ndim1,ndim2,0:k0,3)
@@ -205,7 +204,6 @@ subroutine phhigb(dr,q,rsm1,rsm2,e1,e2,mlm1,nlm1,mlm2,nlm2, &
   !i   indxcg:index for Clebsch Gordon coefficients
   !i   jcg   :L q.n. for the C.G. coefficients (scg.f)
   !i   cy    :Normalization constants for spherical harmonics
-  !i   slat  :struct containing information about the lattice
   !o Outputs
   !o   s     :integrals between smooth Bloch Hankels; see Remarks
   !o   ds    :gradient of s; see Remarks
@@ -223,7 +221,6 @@ subroutine phhigb(dr,q,rsm1,rsm2,e1,e2,mlm1,nlm1,mlm2,nlm2, &
   integer :: ktop0,lmax1,ll,lmax2,lmaxx,nlmx,nlmxp1,ktop,ktopp1, &
        k,ilm,kz,kx1,kx2,ky1,ky2,ilm1,l1,ilm2,l2,ii,indx,icg1,icg2, icg,lm,ip
   real(8) :: gam1,fpi,gam2,gamx,rsmx,qq,fac1,fac2,e,cz,cx1, cx2,cy1,cy2,fac,add,dgets
-!  parameter (ktop0=10)
   fpi = 16d0*datan(1.d0)
   gam1 = 0.25d0*rsm1*rsm1
   gam2 = 0.25d0*rsm2*rsm2
@@ -614,9 +611,9 @@ subroutine gklblq(p,rsm,q,kmax,nlm,k0,alat,qlv,nkq,vol,gkl)
   enddo
 end subroutine gklblq
 subroutine hklbl(p,rsm,e,q,kmax,nlm,k0,cy,hkl)
-  use m_lmfinit,only: lat_alat
-  use m_lattic,only: rv_a_oqlv,rv_a_odlv,lat_plat
-  use m_lattic,only: lat_qlat, lat_vol, lat_awald,lat_nkd,lat_nkq
+  use m_lmfinit,only: alat=>lat_alat
+  use m_lattic,only: rv_a_oqlv,rv_a_odlv,plat=>lat_plat
+  use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, awald=>lat_awald,nkd=>lat_nkd,nkq=>lat_nkq
   use m_shortn3_plat,only: shortn3_plat,nout,nlatout
   !- Bloch-sums of k,L-dependent smooth Hankel functions.
   ! ----------------------------------------------------------------------
@@ -641,9 +638,9 @@ subroutine hklbl(p,rsm,e,q,kmax,nlm,k0,cy,hkl)
   integer :: k0,kmax,nlm
   real(8):: e , rsm , q(3) , p(3) , cy(1)
   complex(8):: hkl(0:k0,nlm)
-  integer:: nlm0 , ilm , job , k , ll , lmax , nkd , nkq , nrx, owk , oyl
+  integer:: nlm0 , ilm , job , k , ll , lmax , nrx, owk , oyl
   parameter (nlm0=144)
-  real(8) :: alat,awald,sp,vol,plat(3,3), qlat(3,3),p1(3),ppin(3)
+  real(8) :: sp,p1(3),ppin(3)
   complex(8):: hsm(nlm0),hsmp(nlm0),phase,gklsav,gklnew
   real(8),allocatable:: wk(:),yl(:)
   complex(8):: img=(0d0,1d0)
@@ -651,19 +648,11 @@ subroutine hklbl(p,rsm,e,q,kmax,nlm,k0,cy,hkl)
   if (nlm == 0) return
   if (nlm > nlm0) call rxi('increase nlm0 in hklbl need',nlm)
   lmax = ll(nlm)
-  ! ... Shorten p, multiply by corresponding phase later
-  alat=lat_alat
-  plat=lat_plat
-  qlat=lat_qlat
   ppin=matmul(transpose(qlat),p) 
   call shortn3_plat(ppin) 
   p1= matmul(plat,ppin+nlatout(:,1)) !ppin (fractional) is shortened to be  p1
   sp = 2*pi*sum(q*(p-p1))
-  phase = exp(img*sp) !dcmplx(dcos(sp),dsin(sp))
-  awald=lat_awald
-  vol=lat_vol
-  nkd=lat_nkd
-  nkq=lat_nkq
+  phase = exp(img*sp) 
   nrx = max(nkd,nkq)
   allocate(wk(nrx*(2*lmax+10)),yl(nrx*(lmax+1)**2))
   call hsmq ( 1 , 0 , ll ( nlm ) , e , rsm , 0000 , q , p1 , nrx &
@@ -672,9 +661,7 @@ subroutine hklbl(p,rsm,e,q,kmax,nlm,k0,cy,hkl)
   if (rsm > faca/awald) then
      call gklbl(p1,rsm,e,q,kmax-1,nlm,k0,cy, hkl) 
   else
-     job = 2
-     call gklq ( lmax , rsm , q , p1 , e , kmax - 1 , k0 , alat , &
-          rv_a_odlv , nkd , nrx , yl , wk , job , hkl )
+     call gklq(lmax,rsm,q,p1,e, kmax - 1 , k0 , alat , rv_a_odlv , nkd , nrx , yl , wk , hkl )
   endif
   deallocate(wk,yl)
   ! --- H_kL by recursion ---
@@ -687,14 +674,7 @@ subroutine hklbl(p,rsm,e,q,kmax,nlm,k0,cy,hkl)
         gklsav = gklnew
      enddo
   enddo
-  ! ... Put in phase to undo shortening
-  if (sp /= 0) then
-     do  20  ilm = 1,nlm
-        do  22  k = 0,kmax
-           hkl(k,ilm) = phase*hkl(k,ilm)
-22      enddo
-20   enddo
-  endif
+  if (sp /= 0) hkl(0:kmax,:) = phase*hkl(0:kmax,:)! ... Put in phase to undo shortening
 end subroutine hklbl
 subroutine fklbl(p,rsm,kmax,nlm,k0,cy,fkl)
   use m_lattic,only: rv_a_odlv,rv_a_oqlv,plat=>lat_plat
@@ -710,7 +690,6 @@ subroutine fklbl(p,rsm,kmax,nlm,k0,cy,fkl)
   !i   nlm   :L-cutoff for gkl
   !i   k0    :leading dimension of gkl
   !i   cy    :Normalization constants for spherical harmonics
-  !i   slat  :struct containing information about the lattice
   !o Outputs
   !o   fkl   :Bloch-summed Hankels for q=0 and e=0
   !r Remarks
@@ -739,15 +718,13 @@ subroutine fklbl(p,rsm,kmax,nlm,k0,cy,fkl)
   call shortn3_plat(ppin) 
   p1= matmul(plat,ppin+nlatout(:,1))
   nrx = max(nkd,nkq)
-  allocate(wk(nrx*(2*lmax+10)),yl(nrx*(lmax+1)**2))
+  allocate(wk(nrx*(2*lmax+10)), yl(nrx*(lmax+1)**2))
   call hsmqe0 ( lmax , rsm , 0 , q , p1 , nrx , nlm , wk , yl , &
        awald , alat , rv_a_oqlv , nkq , rv_a_odlv , nkd , vol , fsm  )
   if (rsm > faca/awald) then
      call gklbl(p1,rsm,e,q,kmax-1,nlm,k0,cy, fkl) 
   else
-     job = 2
-     call gklq ( lmax , rsm , q , p1 , e , kmax - 1 , k0 , alat , &
-          rv_a_odlv , nkd , nrx , yl , wk , job , fkl )
+     call gklq(lmax,rsm,q,p1,e,kmax-1,k0,alat, rv_a_odlv , nkd , nrx , yl , wk ,  fkl )
   endif
   deallocate(wk,yl)
   ! ... Upward recursion in k: mainly sets fkl = -4*pi * g(k-1,l)
@@ -762,9 +739,7 @@ subroutine fklbl(p,rsm,kmax,nlm,k0,cy,fkl)
   enddo
   fkl(1,1) = fkl(1,1) + fpi*y0/vol !! ... Add extra term to F(k=1,l=0)
 end subroutine fklbl
-
-subroutine gfigbl(pg,ph,rsmg,rsmh,nlmg,nlmh,kmax,ndim1,ndim2,kdim, &
-     cg,indxcg,jcg,cy,s,ds)!,slat
+subroutine gfigbl(pg,ph,rsmg,rsmh,nlmg,nlmh,kmax,ndim1,ndim2,kdim, cg,indxcg,jcg,cy,s,ds)
   !- Integrals between smooth hankels(eh=0,q=0) and gaussians
   !  with some power of the laplace operator, and their gradients.
   ! ----------------------------------------------------------------------
@@ -1102,22 +1077,18 @@ subroutine ghigbl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax,ndim1,ndim2,k0,cg,indxc
   !u   25 May 00 Made rsmh,eh l-dependent
   !u   25 May 00 Adapted from nfp ghig_bl.f
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
+  implicit none
   integer :: k0,kmax,ndim1,ndim2,nlmg,nlmh,jcg(1),indxcg(1)
   real(8) :: rsmg,rsmh(1),eg,eh(1)
   real(8) :: ph(3),pg(3),cg(1),cy(1),q(3)!,slat(1)
   complex(8):: s(ndim1,ndim2,0:k0),ds(ndim1,ndim2,0:k0,3)
-  ! ... Local parameters
   integer :: icg,icg1,icg2,ii,ilg,ilh,ilm,ilm1,ilm2,indx,ip,jlm,k,ktop, &
        ktop0,l1,l2,lg,lh,ll,lm,lmaxg,lmaxh,lmaxx,m,nlm0,nlmx
   real(8) :: ee,fac,gamg,gamh,rsmx,dr(3),e,rsm
   complex(8),allocatable:: hkl(:,:),dhkl(:,:,:)
   if (nlmh == 0 .OR. nlmg == 0) return
   ! ... rsmh- and eh- independent setup
-  do  1  m = 1, 3
-     dr(m) = pg(m)-ph(m)
-1 enddo
+  dr= pg-ph
   lmaxh = ll(nlmh)
   lmaxg = ll(nlmg)
   lmaxx = lmaxg+lmaxh
@@ -1136,7 +1107,6 @@ subroutine ghigbl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax,ndim1,ndim2,k0,cg,indxc
         enddo
      enddo
   enddo
-
   ! --- Loop over sequences of l with a common rsm,e ---
   l2 = -1
   do  20  l1 = 0, lmaxh
@@ -1343,7 +1313,7 @@ subroutine hxpgbl(ph,pg,q,rsmh,rsmg,eh,kmax,nlmh,nlmg,k0,ndimh, ndimg,cg,indxcg,
   enddo
   deallocate(s,ds)
 end subroutine hxpgbl
-subroutine gklq(lmax,rsm,q,p,e,kmax,k0,alat,dlv,nkd,nrx,yl,wk,job, gkl)
+subroutine gklq(lmax,rsm,q,p,e,kmax,k0,alat,dlv,nkd,nrx,yl,wk, gkl)
   use m_ropyln,only: ropyln
   use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
   use m_shortn3_plat,only: shortn3_plat,nout,nlatout
@@ -1358,18 +1328,10 @@ subroutine gklq(lmax,rsm,q,p,e,kmax,k0,alat,dlv,nkd,nrx,yl,wk,job, gkl)
   !i   alat  :length scale of lattice and basis vectors, a.u.
   !i  dlv,nkd:direct lattice vectors, and number
   !i   nrx   :leading dimension of wk,yl
-  !i   yl    :work array, dimensioned nrx*(lmax+1)**2
-  !i   wk    :work array, dimensioned at least nrx*(2*lmax+10)
+  !i   yl    :dimensioned nrx*(lmax+1)**2
+  !i   wk    : dimensioned at least nrx*(2*lmax+10)
+  !i     Assume wk(1,2,3,4) and yl have been generated already
   !i   nrx   :dimensions work arrays yl, and must be >= max(nkq,nkd)
-  !i   job   :1s digit
-  !i         :0, generate wk(1,2,3,4)
-  !i          1  assume wk(1,3,4) and yl have been generated already
-  !i          2  assume wk(1,2,3,4) and yl have been generated already
-  !i         :10s digit
-  !i         :0  use standard phase convention, do not shorten p
-  !i         :1  use standard phase convention, but shorten p
-  !i         :2  scale standard phase convention by exp(-i q . p)
-  !i         :3  like 2, but also shorten p
   !i   k0    :leading dimension of gkl
   !o Outputs:
   !o   yl:  ylm(1..nkd,1..(lmax+1)**2) for points alat*(p-dlv(1..nkd))
@@ -1382,17 +1344,17 @@ subroutine gklq(lmax,rsm,q,p,e,kmax,k0,alat,dlv,nkd,nrx,yl,wk,job, gkl)
   !u Updates
   !u  15 Aug 00 extended to e>0; added 1000 digit job
   ! ---------------------------------------------------------------
-  !     implicit none
+  implicit none
   integer :: k0,kmax,lmax,nkd,nrx,job
-  real(8) :: alat,rsm,p(3),q(3),dlv(3,nkd),wk(nrx,*),yl(nrx,1)
-  complex(8) :: gkl(0:k0,(lmax+1)**2),img=(0d0,1d0)
+  real(8) :: alat,rsm,p(3),q(3),dlv(3,nkd),wk(nrx,2*lmax+10),yl(nrx,(lmax+1)**2)
+  complex(8) :: gkl(0:k0,(lmax+1)**2),img=(0d0,1d0),phase
   real(8):: e
   ! Local variables
   integer :: ilm,ir,k,l,m,nlm,ik1,ik2,lc1,ls1,lc2,ls2,job0,job1
   real(8) :: qdotr,pi,tpi,y0,ta2,x,y,a2,g0fac,xx1,xx2,x1,x2, y2,p1(3),sp,cosp,sinp,pp(3)
   if (kmax < 0 .OR. lmax < 0 .OR. rsm == 0d0) return
-  job0 = mod(job,10)
-  job1 = mod(job/10,10)
+!  job0 = 2! mod(job,10)
+!  job1 = 0 !mod(job/10,10)
   nlm = (lmax+1)**2
   pi  = 4*datan(1d0)
   tpi = 2*pi
@@ -1400,35 +1362,22 @@ subroutine gklq(lmax,rsm,q,p,e,kmax,k0,alat,dlv,nkd,nrx,yl,wk,job, gkl)
   a2  = 1/rsm**2
   ta2 = 2*a2
   gkl=0d0
+  
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1111111
+  wk(:,5:2*lmax+10)=0d0
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+  
   ! ... Shorten connecting vector; need to adjust phase later
-  if (job1 == 1 .OR. job1 == 3) then
-     !call shortn(p,p1,dlv,nkd)
-     pp=matmul(transpose(qlat),p)
-     call shortn3_plat(pp)
-     p1 = matmul(plat,pp+nlatout(:,1))
-  else
-     p1=p
-  endif
+  ! if (job1 == 1 .OR. job1 == 3) then
+  !    !call shortn(p,p1,dlv,nkd)
+  !    pp=matmul(transpose(qlat),p)
+  !    call shortn3_plat(pp)
+  !    p1 = matmul(plat,pp+nlatout(:,1))
+  ! else
+  !  p1=p
+  !endif
+  p1=p
   ! --- Put ylm in yl and alat**2*(p-dlv)**2 in wk(1) ---
-  if (job0 == 0) then
-     do  20  ir = 1, nkd
-        wk(ir,2) = alat*(p1(1)-dlv(1,ir))
-        wk(ir,3) = alat*(p1(2)-dlv(2,ir))
-        wk(ir,4) = alat*(p1(3)-dlv(3,ir))
-20   enddo
-     call ropyln(nkd,wk(1,2),wk(1,3),wk(1,4),lmax,nrx,yl,wk)
-     ! ...   cos(q.dlv), sin(q.dlv) -> wk(3,4), Y0 exp(-(a dlv)**2) -> wk(2)
-     do  22  ir = 1, nkd
-        qdotr = 2*pi*(q(1)*dlv(1,ir)+ q(2)*dlv(2,ir)+ q(3)*dlv(3,ir))
-        wk(ir,3) = dcos(qdotr)
-        wk(ir,4) = dsin(qdotr)
-        wk(ir,2) = y0*dexp(-wk(ir,1)*a2)
-22   enddo
-  elseif (job0 == 1) then
-     do  24  ir = 1, nkd
-        wk(ir,2) = y0*dexp(-wk(ir,1)*a2)
-24   enddo
-  endif
   lc1 = 5
   ls1 = 6
   lc2 = 7
@@ -1436,6 +1385,9 @@ subroutine gklq(lmax,rsm,q,p,e,kmax,k0,alat,dlv,nkd,nrx,yl,wk,job, gkl)
   ik1 = 9
   ik2 = 10+lmax
   ! --- Outer loop over k (in blocks of 2), and over l ---
+  wkblock: block
+    real(8):: wk1(nkd,0:lmax),wk2(nkd,0:lmax)
+    complex(8):: wkc1(nkd),wkc2(nkd)
   do  301  k = 0, kmax, 2
      do  30  l = 0, lmax
         g0fac = 1/rsm*ta2**(l+1)/pi * dexp(e*rsm*rsm/4)
@@ -1444,12 +1396,10 @@ subroutine gklq(lmax,rsm,q,p,e,kmax,k0,alat,dlv,nkd,nrx,yl,wk,job, gkl)
            do  32  ir = 1, nkd
               xx1 = g0fac*wk(ir,2)
               xx2 = (ta2*wk(ir,1)-3-2*l)* ta2 * xx1
-              wk(ir,ik1+l) = xx1
-              wk(ir,ik2+l) = xx2
-              wk(ir,lc1) = wk(ir,3)*xx1
-              wk(ir,ls1) = wk(ir,4)*xx1
-              wk(ir,lc2) = wk(ir,3)*xx2
-              wk(ir,ls2) = wk(ir,4)*xx2
+              wk1(ir,l) = xx1
+              wk2(ir,l) = xx2
+              wkc1(ir) = (wk(ir,3)+img*wk(ir,4))*xx1
+              wkc2(ir) = (wk(ir,3)+img*wk(ir,4))*xx2
 32         enddo
            !   ... Make radial part of the G_kl(1..nkd) for k, k+1 from k-1, k-2
            !       and cos(q.dlv) * G_kl and sin(q.dlv) * G_kl
@@ -1459,14 +1409,16 @@ subroutine gklq(lmax,rsm,q,p,e,kmax,k0,alat,dlv,nkd,nrx,yl,wk,job, gkl)
            x2 = 2*k*(2*(k+1) + 2*l-1)
            y2 = 4*(k+1) + 2*l-1
            do  34  ir = 1, nkd
-              xx1 = ta2*((ta2*wk(ir,1)-y)*wk(ir,ik2+l) - x*ta2*wk(ir,ik1+l))
-              xx2 = ta2*((ta2*wk(ir,1)-y2)*xx1         -x2*ta2*wk(ir,ik2+l))
-              wk(ir,ik1+l) = xx1
-              wk(ir,ik2+l) = xx2
-              wk(ir,lc1) = wk(ir,3)*xx1
-              wk(ir,ls1) = wk(ir,4)*xx1
-              wk(ir,lc2) = wk(ir,3)*xx2
-              wk(ir,ls2) = wk(ir,4)*xx2
+              xx1 = ta2*((ta2*wk(ir,1)-y)*wk2(ir,l) - x*ta2*wk1(ir,l))
+              xx2 = ta2*((ta2*wk(ir,1)-y2)*xx1      -x2*ta2*wk2(ir,l))
+              wk1(ir,l) = xx1
+              wk2(ir,l) = xx2
+              wkc1(ir)= (wk(ir,3)+img*wk(ir,4))*xx1
+              wkc2(ir)= (wk(ir,3)+img*wk(ir,4))*xx2
+!              wk(ir,lc1) = wk(ir,3)*xx1
+!              wk(ir,ls1) = wk(ir,4)*xx1
+!              wk(ir,lc2) = wk(ir,3)*xx2
+!              wk(ir,ls2) = wk(ir,4)*xx2
 34         enddo
         endif
         !   ... For each point, add G_kl Y_L exp(i q.dlv) into Bloch G_kL
@@ -1475,32 +1427,34 @@ subroutine gklq(lmax,rsm,q,p,e,kmax,k0,alat,dlv,nkd,nrx,yl,wk,job, gkl)
            do  36  m = -l, l
               ilm = ilm+1
               do  38  ir = nkd, 1, -1
-                 gkl(k,ilm)   = gkl(k,ilm)   + wk(ir,lc1)*yl(ir,ilm)+img*wk(ir,ls1)*yl(ir,ilm)
-                 gkl(k+1,ilm) = gkl(k+1,ilm) + wk(ir,lc2)*yl(ir,ilm)+img*wk(ir,ls2)*yl(ir,ilm)
+                 gkl(k,ilm)   = gkl(k,ilm)   + wkc1(ir)*yl(ir,ilm)
+                 gkl(k+1,ilm) = gkl(k+1,ilm) + wkc2(ir)*yl(ir,ilm) !(wk(ir,lc2)+img*wk(ir,ls2))*yl(ir,ilm)
 38            enddo
 36         enddo
         else
            do  46  m = -l, l
               ilm = ilm+1
               do  48  ir = nkd, 1, -1
-                 gkl(k,ilm) = gkl(k,ilm) + wk(ir,lc1)*yl(ir,ilm)+img*wk(ir,ls1)*yl(ir,ilm)
+                 gkl(k,ilm) = gkl(k,ilm) + wkc1(ir)*yl(ir,ilm) !(wk(ir,lc1)+img*wk(ir,ls1))*yl(ir,ilm)
 48            enddo
 46         enddo
         endif
 30   enddo
 301 enddo
+endblock wkblock
   ! ... Put in phase to undo shortening, or different phase convention
-  sp = tpi*sum(q*(p-p1)) !(q(1)*(p(1)-p1(1))+q(2)*(p(2)-p1(2))+q(3)*(p(3)-p1(3)))
-  if (job1 >= 2) sp = sp-tpi*sum(q*p1) !(q(1)*p1(1)+q(2)*p1(2)+q(3)*p1(3))
+  sp = tpi*sum(q*(p-p1)) 
+!  if (job1 >= 2) sp = sp-tpi*sum(q*p1) 
   if (sp /= 0d0) then
-     cosp = dcos(sp)
-     sinp = dsin(sp)
+!     cosp = dcos(sp)
+!     sinp = dsin(sp)
+     phase= exp(img*sp)
      do    ilm = 1, nlm
-        do    k   = 0, kmax
-           x1 = dreal(gkl(k,ilm))
-           x2 = dimag(gkl(k,ilm))
-           gkl(k,ilm) = (x1*cosp - x2*sinp)+img*( x2*cosp + x1*sinp)
-        enddo
+!        do    k   = 0, kmax
+!           x1 = dreal(gkl(k,ilm))
+!           x2 = dimag(gkl(k,ilm))
+           gkl(0:kmax,ilm) = gkl(0:kmax,ilm)*phase !(x1*cosp - x2*sinp)+img*( x2*cosp + x1*sinp)
+!        enddo
      enddo
   endif
 end subroutine gklq

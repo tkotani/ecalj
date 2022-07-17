@@ -53,95 +53,62 @@ subroutine strxq(mode,e,q,p,nlma,nlmh,ndim,alat,vol,awald,nkd,nkq, &
   !r   S_R'L',RL = 4 pi Sum_l" C_{LL'L"} (-1)^l (-E)^(l+l'-l")/2 H_L"(E,R-R')
   ! ---
   implicit none
-  ! ... Passed parameters
   integer :: mode,ndim,nlma,nlmh
   integer :: indxcg(*),jcg(*),nkd,nkq
   double precision :: p(3),q(3),alat,awald,vol,e,cg(*), dlv(*),qlv(*)
   double complex s(ndim,nlmh),sd(ndim,nlmh)
-  ! ... Local parameters
   integer :: lmxx,nrxmx,nlm0
-  !      parameter (lmxx=12,nlm0=(lmxx+1)**2,nrxmx=2000)
   double precision :: fpi,p1(3),sp
-  !     .  wk((lmxx*2+10)*nrxmx),yl(nrxmx*(lmxx+1)**2),efac(0:lmxx)
   real(8),allocatable :: wk(:),yl(:),efac(:)
   complex(8),allocatable :: dl(:),dlp(:)
   integer(4),allocatable :: sig(:)
   double complex phase,sumx,sud !dl(nlm0),dlp(nlm0)
-  integer :: icg,icg1,icg2,ii,indx,ipow,l,lmax,nrx,nlm, &
-       ilm,ilma,la,ilmb,lh !sig(0:lmxx),
+  integer :: icg,icg1,icg2,ii,indx,ipow,l,lmax,nrx,nlm, ilm,ilma,la,ilmb,lh !sig(0:lmxx),
   logical :: ldot
   integer(4) :: job
-  !$$$#ifdef COMMONLL
-  !$$$      integer(4):: ll(51**2)
-  !$$$      common/llblock/ll
-  !$$$#else
-  !$$$      integer(4)::ll
-  !$$$#endif
-  !!    to avoid warinig jan2013takao
   integer ::lmax_(1)
   real(8):: e_(1),rsm_(1),pp(3)
-  ! ... Setup
   ldot = .false.
   lmax = ll(nlma)+ll(nlmh)
   nlm = (lmax+1)**2
   nrx  = max(nkd,nkq)
   fpi  = 16d0*datan(1d0)
-
   if (nlma > ndim) call rxi('strxq: increase ndim: need',nlma)
-  !      if (lmax .gt. lmxx) call rxi('strxq: increase lmxx: need',lmax)
-  !      if (nrx .gt. nrxmx) call rxi('strxq: increase nrxmx: need',nrx)
   lmxx = lmax
   nlm0 =(lmxx+1)**2
   nrxmx= nrx
   allocate( wk((lmxx*2+10)*nrxmx),yl(nrxmx*(lmxx+1)**2), &
        efac(0:lmxx),sig(0:lmxx),dl(nlm0),dlp(nlm0))
-
-  ! ???
-  !      allocate( wk((lmax*2+10)*nrxmx),yl(nrxmx*(lmax+1)**2),
-  !     &  efac(0:lmax),sig(0:lmax),dl(nlm0),dlp(nlm0))
-
-  ! --- Reduced structure constants ---
-  pp=matmul(transpose(qlat),p)
+  pp= matmul(transpose(qlat),p)
   call shortn3_plat(pp)
   p1 = matmul(plat,pp+nlatout(:,1))
-  
   sp = fpi/2*(q(1)*(p(1)-p1(1))+q(2)*(p(2)-p1(2))+q(3)*(p(3)-p1(3)))
   phase = dcmplx(dcos(sp),dsin(sp))
   job = 0
   if( sum(abs(p))<1d-10 ) job = 10
-  !!
   lmax_(1)=lmax
   e_(1)=e
   rsm_(1)=0d0
-  !      print *," goto hsm e=",e
   if (e < 0) then
-     call hsmq(1,0,lmax_,e_,rsm_,job,q,p1,nrx,nlm0,wk,yl, &
-          awald,alat,qlv,nkq,dlv,nkd,vol,dl,dlp)
+     call hsmq(1,0,lmax_,e_,rsm_,job,q,p1,nrx,nlm0,wk,yl,awald,alat,qlv,nkq,dlv,nkd,vol,dl,dlp)
   else
-     call hsmqe0(lmax,0d0,job,q,p1,nrx,nlm0,wk,yl, &
-          awald,alat,qlv,nkq,dlv,nkd,vol,dl)
+     call hsmqe0(lmax,0d0,job,q,p1,nrx,nlm0,wk,yl, awald,alat,qlv,nkq,dlv,nkd,vol,dl)
      ldot = .false.
   endif
-  !      print *," end of hsm"
-
-  ! ... Put in phase to undo shortening
   if (sp /= 0d0) then
      do  20  ilm = 1, nlm
-        dl(ilm) = phase*dl(ilm)
+        dl(ilm) = phase*dl(ilm) ! ... Put in phase to undo shortening
         if (ldot) dlp(ilm) = phase*dl(ilm)
 20   enddo
   endif
-
-  !      print *," end of do 20"
   ! --- Combine with Clebsch-Gordan coefficients ---
   ! ... efac(l)=(-e)**l; sig(l)=(-)**l
   efac(0) = 1
   sig(0) = 1
-  do  1  l = 1, lmax
+  do  l = 1, lmax
      efac(l) = -e*efac(l-1)
      sig(l) = -sig(l-1)
-1 enddo
-  !      print *," goto do11"
+  enddo
   do  11  ilma = 1, nlma
      la = ll(ilma)
      do  14  ilmb = 1, nlmh
@@ -152,8 +119,6 @@ subroutine strxq(mode,e,q,p,nlma,nlmh,ndim,alat,vol,awald,nkd,nkq, &
         icg2 = indxcg(indx+1)-1
         sumx = 0d0
         sud = 0d0
-        !      print *," xxx 2"
-        !      print *," xxx =",ilma,ilmb,ll(ilma),ll(ilmb)
         if (ldot) then
            do  16  icg = icg1, icg2
               ilm  = jcg(icg)
@@ -168,7 +133,6 @@ subroutine strxq(mode,e,q,p,nlma,nlmh,ndim,alat,vol,awald,nkd,nkq, &
               sumx  = sumx + cg(icg)*efac(ipow)*dl(ilm)
 15         enddo
         endif
-        !      print *," xxx 3"
         s(ilma,ilmb) = fpi*sig(lh)*dconjg(sumx)
         if (ldot) sd(ilma,ilmb) = fpi*dconjg(sud)*sig(lh)
 14   enddo

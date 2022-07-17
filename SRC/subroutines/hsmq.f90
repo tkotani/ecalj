@@ -65,19 +65,21 @@ subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dl
   logical :: dcmpre,ltmp
   real(8):: pp(3)
   dcmpre(x1,x2) = dabs(x1-x2) .lt. 1d-8
-  job0 = mod(job,10)
-  if (nG /= 0) job0 = 0
+!  job0 = 0 !mod(job,10)
+!  if (nG /= 0) job0 = 0
   job1 = mod(job/10,10)
-  job2 = mod(job/100,10)
-  job3 = mod(job/1000,10)
+!  job2 = 0 !mod(job/100,10)
+!  job3 = 0 !mod(job/1000,10)
+!  job1=0
+!  if( sum(abs(p1))<1d-10 ) job1 = 1
   ! ... Shorten connecting vector; adjust phase later
-  if (job3 == 1 .OR. job3 == 3) then
-     pp=matmul(transpose(qlat),p)
-     call shortn3_plat(pp)
-     p1 = matmul(plat,pp+nlatout(:,1))
-  else
+!  if (job3 == 1 .OR. job3 == 3) then
+!     pp=matmul(transpose(qlat),p)
+!     call shortn3_plat(pp)
+!     p1 = matmul(plat,pp+nlatout(:,1))
+!  else
      p1=p !call dcopy(3,p,1,p1,1)
-  endif
+!  endif
   pi = 4d0*datan(1d0)
   tpi = 2d0*pi
   lmax = -1
@@ -95,7 +97,7 @@ subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dl
         do   ie = 1, nxi
            ltmp = ltmp .and. abs(rsm(ie)-rsm(1)) .lt. 1d-12
         enddo
-        ltmp = ltmp .or. job2 .eq. 1
+        ltmp = ltmp !.or. job2 .eq. 1
         if (ltmp) then
            a = 1/rsm(1)
            nDx = 1
@@ -130,7 +132,7 @@ subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dl
           wk(1,2),wk(1,3),wk(1,4),wk(1,5),wk(1,6),wk(1,7),hsm,hsmp)
   endif
   ! --- Energy-independent setup for direct-space part ---
-  if (job0 == 0) then
+!  if (job0 == 0) then
      !   ... Put ylm in yl and alat**2*(p-dlv)**2 in wk(1)
      do  20  ir = 1, nD
         wk(ir,2) = alat*(p1(1)-dlv(1,ir))
@@ -151,7 +153,7 @@ subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dl
 23      enddo
         call dpzero(wk(1,4),nD)
      endif
-  endif
+!  endif
   ! ... If we are doing Ewald sums, we need this to make H(1/a) (hansr4)
   if (nG /= 0) then
      do  24  ir = 1, nDx
@@ -163,17 +165,17 @@ subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dl
   do  30  ie = 1, nxi
      if (lx(ie) < lmxa) goto 30
      ir1 = 1
-     if (job2 /= 0) then
-        rsmi = rsm(1)
-     else
+!     if (job2 /= 0) then
+!        rsmi = rsm(1)
+!     else
         rsmi = rsm(ie)
-     endif
+!     endif
      !   ... Case connecting vector p=0
      if (dcmpre(wk(1,1),0d0)) then
         if(job1==1) ir1 = 2
         if(job1==0 .AND. dcmpre(rsmi,0d0))call rx('hsmq: 10s digit job=0 and rsm=0 not allowed')
      endif
-     if (job1 > 1) ir1 = 2
+     !if (job1 > 1) ir1 = 2
      if (lx(ie) > lmax) call rx('hsmq: lxi > lmax')
      lc = 7
      ls = lx(ie)+9
@@ -283,7 +285,7 @@ subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dl
 32   enddo
      !   ... Put in phase to undo shortening, or different phase convention
      sp = tpi*sum(q*(p-p1)) !(q(1)*(p(1)-p1(1))+q(2)*(p(2)-p1(2))+q(3)*(p(3)-p1(3)))
-     if (job3 >= 2) sp = sp-tpi*sum(q*p1) !(q(1)*p1(1)+q(2)*p1(2)+q(3)*p1(3))
+!     if (job3 >= 2) sp = sp-tpi*sum(q*p1) !(q(1)*p1(1)+q(2)*p1(2)+q(3)*p1(3))
      if (sp /= 0d0) then
         cosp = dcos(sp)
         sinp = dsin(sp)
@@ -364,31 +366,33 @@ subroutine hsmqe0(lmax,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dlv,nD,vol,h
   logical :: dcmpre,lqzero
   real(8):: pp(3)
   dcmpre(x1,x2) = dabs(x1-x2) .lt. 1d-8
-  job0 = mod(job,10)
-  if (nG /= 0) job0 = 0
+!  job0 = 0 !mod(job,10)
+!  if (nG /= 0) job0 = 0
   job1 = mod(job/10,10)
-  job2 = mod(job/100,10)
-  job3 = mod(job/1000,10)
+!  job2 = 0 !mod(job/100,10)
+!  job3 = 0 !mod(job/1000,10)
+  !job1=0
+  !if( sum(abs(p1))<1d-10 ) job1 = 1
   if ((lmax+1)**2 > nlmx) call rx('hsmqe0: lmax gt ll(nlmx)')
   if ((lmax+1)**2 > nlmxx) call rx('hsmqe0: lmax gt ll(nlmxx)')
   if (nrx < max(nD,nG)) call rx('hsmqe0: nrx < nD or nG')
   ! ... Shorten connecting vector; adjust phase later
-  if (job3 == 1 .OR. job3 == 3) then
-     pp=matmul(transpose(qlat),p)
-     call shortn3_plat(pp)
-     p1 = matmul(plat,pp+nlatout(:,1))
-  else
-     call dcopy(3,p,1,p1,1)
-  endif
+!  if (job3 == 1 .OR. job3 == 3) then
+!     pp=matmul(transpose(qlat),p)
+!     call shortn3_plat(pp)
+!     p1 = matmul(plat,pp+nlatout(:,1))
+!  else
+     p1=p !call dcopy(3,p,1,p1,1)
+!  endif
   pi = 4d0*datan(1d0)
   y0 = 1/dsqrt(4d0*pi)
   tpi = 2d0*pi
   call dpzero(hsm, 2*nlmx)
-  if (job2 > 0) then
-     call dpzero(q0,3)
-  else
+!  if (job2 > 0) then
+!     call dpzero(q0,3)
+!  else
      call dpcopy(q,q0,1,3,1d0)
-  endif
+!  endif
   lqzero = dcmpre(dabs(q0(1))+dabs(q0(2))+dabs(q0(3)),0d0)
   ! ... If rsm ge 1/a, set a = 1/rsm and skip r.s. part
   a = awald
@@ -424,7 +428,7 @@ subroutine hsmqe0(lmax,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dlv,nD,vol,h
           wk(1,2),wk(1,3),wk(1,4),wk(1,5),wk(1,6),wk(1,7),hsm,hsm)
   endif
   ! --- Energy-independent setup for direct-space part ---
-  if (job0 == 0) then
+!  if (job0 == 0) then
      !   ... Put ylm in yl and alat**2*(p-dlv)**2 in wk(1)
      do  20  ir = 1, nDx
         wk(ir,2) = alat*(p1(1)-dlv(1,ir))
@@ -445,7 +449,7 @@ subroutine hsmqe0(lmax,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dlv,nD,vol,h
 23      enddo
         call dpzero(wk(1,4),nDx)
      endif
-  endif
+!  endif
   ! ... If we are doing Ewald sums, we need this to make H(1/a) (hansr5)
   if (nG /= 0) then
      do  24  ir = 1, nDx
@@ -459,7 +463,7 @@ subroutine hsmqe0(lmax,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dlv,nD,vol,h
      if (job1 == 1) ir1 = 2
      if (job1 == 0 .AND. dcmpre(rsm,0d0)) call rx('hsmqe0: job=0 and rsm=0 not allowed')
   endif
-  if (job1 > 1) ir1 = 2
+  !if (job1 > 1) ir1 = 2
   lc = 7
   ls = lmax+8
   ! ... chi = H(rsm) - H(1/a) = (H(0) - H(1/a)) - (H(0) - H(rsm))
@@ -520,7 +524,7 @@ subroutine hsmqe0(lmax,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dlv,nD,vol,h
 32   enddo
   endif
   sp = tpi*(q(1)*(p(1)-p1(1))+q(2)*(p(2)-p1(2))+q(3)*(p(3)-p1(3)))
-  if (job3 >= 2) sp = sp-tpi*(q(1)*p1(1)+q(2)*p1(2)+q(3)*p1(3))
+!  if (job3 >= 2) sp = sp-tpi*(q(1)*p1(1)+q(2)*p1(2)+q(3)*p1(3))
   cosp = dcos(sp)
   sinp = dsin(sp)
   do  36  l = 0, lmax
