@@ -1,4 +1,6 @@
 !! == Main program for lmf part. Now we use MPI for all program
+ !  Based on the paper  [1] TK. H.Kino H.Akai, JPSJ84,034702(2015)
+!                ecalj/Document/PAPERandPRESENTATION/KotaniKinoAkai2015FormulationPMT.pdf
 !  lmf-MPIK and lmfgw-MPIK
 !     We use module-based programing.
 !     In principle, all the data are generared and stored in some modules with 'protection'.

@@ -69,7 +69,6 @@ contains
     use m_qplist,only:  qplist,nkp,xdatt,labeli,labele,dqsyml,etolc,etolv, &
          nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml, &
          iqini,iqend,ispini,ispend,kpproc    ! MPIK divider. iqini:iqend are node-dependent
-    use m_shortn3,only: Shortn3, Shortn3_initialize
     use m_igv2x,only: napw,ndimh,ndimhx,igv2x
     use m_procar,only: M_procar_init,dwgtall,nchanp,m_procar_closeprocar,m_procar_writepdos
     use m_bandcal,only: M_bandcal_init,M_bandcal_2nd,M_bandcal_clean,M_bandcal_allreduce, &

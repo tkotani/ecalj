@@ -24,7 +24,6 @@ contains
     use m_mkqp,only: nkabc=> bz_nabc,bz_nkp
     use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
     use m_ext,only: sname
-    use m_shortn3_qlat,only: shortn3_qlat,nlatout
     intent(in)::             plbnd,llmfgw
     integer:: nqp2_syml(nsymlmax),nqp2s_syml(nsymlmax),nqp2e_syml(nsymlmax)
     logical:: masslineon(nsymlmax),llmfgw

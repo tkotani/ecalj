@@ -36,7 +36,7 @@ contains
        do ik2=-nmax(2),nmax(2)
           do ik3=-nmax(3),nmax(3)
              ik=ik+1
-             nlat0(:,ik) = (/ik1,ik2,ik3/)
+             nlat0(:,ik) = [ik1,ik2,ik3]
              rr= pin + nlat0(:,ik)
              rnorm(ik) = sum(rr*matmul(rlatp,rr))
              if(rnorm(ik)<rmin) rmin=rnorm(ik)
@@ -127,7 +127,7 @@ subroutine ellipsoidxmax(nn, xmx2)
   ainv(2,2)=  n22/det
   ainv(1,2)= -n23/det
   ainv(2,1)= -n32/det
-  nv2  = (/n12,n13/)
+  nv2  = [n12,n13]
   fac = n11-sum(nv2 *matmul(ainv,nv2))
   ! rint *,'ainv=',ainv
   ! rint *,'ainv*nv=',matmul(ainv,nv2)
@@ -138,7 +138,7 @@ subroutine ellipsoidxmax(nn, xmx2)
   ainv(2,2)=  n33/det
   ainv(1,2)= -n31/det
   ainv(2,1)= -n13/det
-  nv2  = (/n23,n21/)
+  nv2  = [n23,n21]
   fac = n22-sum(nv2 *matmul(ainv,nv2))
   xmx2(2) = 1d0/fac
 
@@ -147,7 +147,7 @@ subroutine ellipsoidxmax(nn, xmx2)
   ainv(2,2)=  n11/det
   ainv(1,2)= -n12/det
   ainv(2,1)= -n21/det
-  nv2  = (/n31,n32/)
+  nv2  = [n31,n32]
   fac = n33-sum(nv2 *matmul(ainv,nv2))
   xmx2(3) = 1d0/fac
 end subroutine ellipsoidxmax

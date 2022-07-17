@@ -101,10 +101,7 @@ subroutine strxq(mode,e,q,p,nlma,nlmh,ndim,alat,vol,awald,nkd,nkq, &
   !     &  efac(0:lmax),sig(0:lmax),dl(nlm0),dlp(nlm0))
 
   ! --- Reduced structure constants ---
-  !call shortn(p,p1,dlv,nkd)
   pp=matmul(transpose(qlat),p)
-  !call shortn4_initialize(plat)
-  !call shortn4(pp)
   call shortn3_plat(pp)
   p1 = matmul(plat,pp+nlatout(:,1))
   

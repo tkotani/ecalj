@@ -142,7 +142,7 @@ subroutine smhsbl(vavg,q,ndimh, napw,igapw, h,s)
                  call hhibl ( 11 , p1 , p2 , q , rsm1 ( 1 , i1 ) , rsm2 ( 1 , &
                       i2 ) , e1 ( 1 , i1 ) , e2 ( 1 , i2 ) , nlm1 , nlm2 , 1 , nlms &
                       , nlms , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy &
-                      , s0 ( 1 , 1 , 0 , i1 , i2 ) )
+                      , s0 ( 1 , 1 , 0 , i1 , i2 ) ) !F0*F0 and F0*\laplacian F0 integrals (smH parts)
               enddo
            enddo
            do  io2 = 1, norb2 !  ... Loop over orbital indices, poke block of integrals into s,h
@@ -161,6 +161,7 @@ subroutine smhsbl(vavg,q,ndimh, napw,igapw, h,s)
                        i1 = i1+1
                        s(i1,i2)= s(i1,i2) + s0(ilm1,ilm2,0,ik1,ik2)
                        h(i1,i2)= h(i1,i2) - s0(ilm1,ilm2,1,ik1,ik2) +vavg*s0(ilm1,ilm2,0,ik1,ik2)
+                       !                                 1:kinetic                    !0: constant
                     enddo
                  enddo
               enddo
@@ -193,7 +194,7 @@ subroutine smhsbl(vavg,q,ndimh, napw,igapw, h,s)
   endif
   do  ig = 1, napw !! ... PW x PW part (diagonal matrix)
      i2 = ig + nlmto
-     s(i2,i2) = s(i2,i2) + 1
+     s(i2,i2) = s(i2,i2) + 1d0
      h(i2,i2) = h(i2,i2) + qpg2v(ig) + vavg
   enddo
   if (napw > 0)deallocate(yl,ylv,qpgv,qpg2v,srm1l)

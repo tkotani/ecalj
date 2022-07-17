@@ -1,4 +1,4 @@
-module m_igv2x
+module m_igv2x !Return G vectors (integer sets) for given q points specifiec by qplist(:,iq)
   use m_struc_def,only: s_nv2
   public:: m_igv2xall_init, m_igv2x_setiq
   integer,protected,pointer,public :: igv2x(:,:)
@@ -11,46 +11,22 @@ module m_igv2x
   integer,allocatable,target,protected,private:: napwall(:),ndimhxall(:),igv2x_z(:,:)
   logical,private:: init=.true.
 contains
-
   !!-----------------------------
-  subroutine m_Igv2x_setiq(iq) ! Get napw and so on for given qp
+  subroutine m_Igv2x_setiq(iq) ! Return G vectors for given qplist(:,iq)
     integer:: iq
     napw  => napwall(iq)
-    ndimh => ndimhall(iq)
-    ndimhx=> ndimhxall(iq)
+    ndimh => ndimhall(iq)  !nlmto+napw
+    ndimhx=> ndimhxall(iq) !nlmto+napw (but x2 when SO=1)
     igv2x => igv2xall(iq)%nv2
   end subroutine m_Igv2x_setiq
-
-  !$$$!!-----------------------------
-  !$$$      subroutine m_Igv2x_set(qpin) ! Get napw and so on for given qp
-  !$$$      use m_qplist,only: qplist,iqini,iqend
-  !$$$      real(8)::qpin(3),qp(3)
-  !$$$      integer::iq,iqx
-  !$$$c      if(init) then
-  !$$$c         call m_igv2xall_init()
-  !$$$c         init=.false.
-  !$$$c      endif
-  !$$$      do iqx= iqini,iqend
-  !$$$         qp = qplist(:,iqx)
-  !$$$         if(sum((qp-qpin)**2)<1d-8) then
-  !$$$            iq=iqx
-  !$$$            exit
-  !$$$         endif
-  !$$$      enddo
-  !$$$      napw  => napwall(iq)
-  !$$$      ndimh => ndimhall(iq)
-  !$$$      ndimhx=> ndimhxall(iq)
-  !$$$      igv2x => igv2xall(iq)%n
-  !$$$      end
-  !!-----------------------------
-  subroutine m_igv2xall_init(iqini,iqend) !iqini,iqend)
-    use m_qplist,only: qplist !,iqini,iqend
+  subroutine m_igv2xall_init(iqini,iqend) !initialization for qplist(iqini:iqend)  
+    use m_qplist,only: qplist 
     use m_MPItk,only: master_mpi,procid,master
     integer:: iqini,iqend,iq
     real(8):: qp(3)
     call tcn('m_igv2xall_init')
     allocate(igv2xall(iqini:iqend),napwall(iqini:iqend),ndimhall(iqini:iqend),ndimhxall(iqini:iqend))
-    do iq = iqini, iqend !This is a big iq loop
+    do iq = iqini, iqend
        qp = qplist(:,iq)
        call m_Igv2x_init(qp)   ! Get napw and so on for given qp
        allocate( igv2xall(iq)%nv2(3,napw_z) )
@@ -61,8 +37,6 @@ contains
     enddo
     call tcx('m_igv2xall_init')
   end subroutine m_igv2xall_init
-
-  !!-----------------------------
   subroutine m_igv2x_init(qp) !Set napw and igv2x_z for given qp
     use m_lmfinit,only: pwmode=>ham_pwmode,pwemin,pwemax,alat=>lat_alat,stdo,nspc
     use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
@@ -74,14 +48,13 @@ contains
     real(8):: ppin(3),qp(3),qqq(3),pwgmin,pwgmax,dum
     logical:: debug,cmdopt0
     logical,save:: init=.true.
-    !    integer,parameter:: noutmx=48
     integer:: iout,iapw,napwx !,nout,nlatout(3,noutmx)
     call tcn('m_igv2x_init')
     debug = cmdopt0('--debugbndfp')
-    if(0<pwmode .and. pwmode<10) then
-       ppin=matmul(transpose(plat),qp) !ppin is fractional coordinate of qp(Cartesian).
-       call shortn3_qlat(ppin)
-    endif
+!    if(0<pwmode .and. pwmode<10) then
+!       ppin=matmul(transpose(plat),qp) !ppin is fractional coordinate of qp(Cartesian).
+!       call shortn3_qlat(ppin) !this returns nlatout for ppin+nlatout(1:3,1:nout).
+!    endif
     if(allocated(igv2x_z)) deallocate(igv2x_z)
     if (0<pwemax .and. mod(pwmode,10)>0) then
        pwgmin = pwemin**.5d0
@@ -94,11 +67,11 @@ contains
        allocate(igv2x_z(3,napw_z), kv_iv(3,napw_z))
        call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,2,napw_z,napw_z,kv_iv,dum,dum,igv2x_z)
        call poppr
-       if (pwmode<10) then
-          do iapw=1,napw_z
-             igv2x_z(:,iapw)=igv2x_z(:,iapw)+nlatout(:,1)
-          enddo
-       endif
+!       if (pwmode<10) then
+!          do iapw=1,napw_z
+!             igv2x_z(:,iapw)=igv2x_z(:,iapw)+nlatout(:,1)  ! shortest set of G 
+!          enddo
+!       endif
        deallocate(kv_iv)     
     else
        napw_z=0

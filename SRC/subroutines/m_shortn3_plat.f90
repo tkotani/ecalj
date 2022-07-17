@@ -1,4 +1,8 @@
-module m_shortn3_plat
+module m_shortn3_plat !shortest p (real space) vector)
+! usage 2022-jul  
+!  pp=matmul(transpose(qlat),p)
+!  call shortn3_plat(pp)
+!  p1 = matmul(plat,pp+nlatout(:,1)) !this is one of shortest vector
   implicit none
   public shortn3_plat,qlatx,platx
   integer,private,parameter:: noutmx=48
@@ -31,7 +35,11 @@ contains
 end module m_shortn3_plat
 
 
-module m_shortn3_qlat 
+module m_shortn3_qlat !shortest q 
+! usage 2022-jul  
+!  pp=matmul(transpose(qlat),p)
+!  call shortn3_plat(pp)
+!  p1 = matmul(plat,pp+nlatout(:,1)) !this is one of shortest vector
   implicit none
   public shortn3_qlat
   integer,private,parameter:: noutmx=48

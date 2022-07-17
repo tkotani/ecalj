@@ -3,7 +3,6 @@ subroutine writefs(ef0)
   use m_lmfinit, only: nsp,nspc
   use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
   use m_mkqp,only: bz_nabc
-  use m_shortn3,only: shortn3_initialize,shortn3
   use m_suham,only: ndhamx=>ham_ndhamx,nspx=>ham_nspx
   use m_qplist,only:nkp,qplist
   use m_bandcal,only: evlall

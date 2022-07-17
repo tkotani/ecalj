@@ -195,11 +195,10 @@ contains
           do  ik = 1, nkaphh(is)
              nlmh = (lhh(ik,is)+1)**2
              if (nlmh > nlmbx) call rxi('augmbl: need nlmbx',nlmh)
-             if (nlmh > nlma .AND. ia == ib) &
-                  call rx('augmbl: nlmh > nlma')
+             if (nlmh > nlma .AND. ia == ib) call rx('augmbl: nlmh > nlma')
              if (mode == 0 .OR. mode == 2) then
                 call hxpbl(p,pa,q,rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh, &
-                     nlma,kmax,nlma,cg,indxcg,jcg,cy,b0)!,slat
+                     nlma,kmax,nlma,cg,indxcg,jcg,cy,b0)
              elseif (mode == 1) then
                 call hxpgbl(p,pa,q,rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh, &
                      nlma,kmax,nlmbx,nlma,cg,indxcg,jcg,cy,b0, db0)
@@ -212,11 +211,9 @@ contains
              endif
              !         Note: indices of b are ordered differently by mode (see Outputs)
              if (mode == 0) then
-                call paugq1(kmax,nlma,kmax,ik,norb,ltab,ktab,rsmh,offl, &
-                     b0,b)
+                call paugq1(kmax,nlma,kmax,ik,norb,ltab,ktab,rsmh,offl, b0,b)
              elseif (mode == 1) then
-                call prlcb1(1,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx, &
-                     nlma,kmax,b0,db0,b,db)
+                call prlcb1(1,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,  nlma,kmax,b0,db0,b,db)
              elseif (mode == 2) then
                 call prlcb1(mode=0,ndimh=ndimh,ik=ik,norb=norb,ltab=ltab, &
                      ktab=ktab,rsmh=rsmh,offl=offl,nlmbx=nlmbx, &
@@ -230,9 +227,7 @@ contains
     call paugqp(mode,kmax,nlma,kmax,ndimh,napw,igapw,alat,qlat,srvol,q,pa,rsma,b,b,db)
     call tcx('bstrux')
   end subroutine bstrux
-  !!
-  subroutine prlcb1(mode,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx, &
-       nlma,kmax,b0,db0,b,db)
+  subroutine prlcb1(mode,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,nlma,kmax,b0,db0,b,db)
     !- Poke strux and grads from b0,db0 to full arrays b,db
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -289,9 +284,7 @@ contains
        enddo
     enddo
   end subroutine prlcb1
-
-
-  subroutine paugq1(kmax,nlma,k0,ik,norb,ltab,ktab,rsmh,offl,b0,b)
+  subroutine paugq1(kmax,nlma,k0,ik,norb,ltab,ktab,rsmh,offl,b0, b)
     !- Poke strux from b0 to full array b
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -316,7 +309,6 @@ contains
     !u   25 Aug 04 Adapted to extended local orbitals
     ! ----------------------------------------------------------------------
     implicit none
-    ! ... Passed parameters
     integer :: kmax,nlma,k0,norb,ltab(norb),ktab(norb),offl(norb),ik
     integer :: n0,nkap0
     parameter (n0=10,nkap0=3)
@@ -338,9 +330,7 @@ contains
        endif
     enddo
   end subroutine paugq1
-
-  subroutine paugqp(mode,kmax,nlma,k0,ndimh,napw,igapw,alat,qlat, &
-       srvol,q,pa,rsma,b0,b1,db)
+  subroutine paugqp(mode,kmax,nlma,k0,ndimh,napw,igapw,alat,qlat,srvol,q,pa,rsma, b0,b1,db)
     use m_ropyln,only: ropyln
     !- Make PW part of strux b
     ! ----------------------------------------------------------------------
@@ -368,11 +358,9 @@ contains
     !u   05 Jul 08 (T. Kotani) first created
     ! ----------------------------------------------------------------------
     implicit none
-    ! ... Passed parameters
     integer :: mode,kmax,nlma,k0,napw,igapw(3,napw),ndimh
     double precision :: rsma,alat,qlat(3,3),q(3),srvol,pa(3)
-    double complex b0(0:k0,nlma,ndimh),b1(ndimh,nlma,0:k0), &
-         db(ndimh,nlma,0:k0,3)
+    complex(8):: b0(0:k0,nlma,ndimh),b1(ndimh,nlma,0:k0), db(ndimh,nlma,0:k0,3)
     integer :: k,lmxa,ll,l,ig,ilm,m,nlmto
     double precision :: gamma,qpg(3),pi,tpiba,qpg2(1),ddot,facexp, &
          rsmal,pgint,dfac(0:kmax),fac2l(0:nlma),yl(nlma),fpi,fac ,qk
@@ -421,7 +409,6 @@ contains
              rsmal = rsmal*rsma
              srm1l = srm1l * srm1
           enddo
-
        elseif (mode == 1 .OR. mode == 2) then
           do  l = 0, lmxa
              do  m = 1, 2*l+1
@@ -458,8 +445,6 @@ contains
        else
           call rxi('paugqp: bad mode',mode)
        endif
-
-
        ! cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
        !        print *,' --- test code: Pkl fitting vs. true (bessel) ---'
        !        call upack('spec rmt',sspec,isa,rmt,0,0,0)
@@ -513,10 +498,8 @@ contains
        !            enddo
        !          enddo
        !        endif
-
     enddo
   end subroutine paugqp
-
   subroutine paugq2(kmax,nlmh,nlma,bos,b0)
     !- Subtract on-site strux for ib=ia, leaving tail expansion
     ! ----------------------------------------------------------------------

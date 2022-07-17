@@ -1,5 +1,5 @@
 module m_ext
-  character(512),public,protected::sname='???notyet???'
+  character(512),public,protected::sname='temp'
   public:: m_ext_init
 contains
   subroutine m_ext_init()

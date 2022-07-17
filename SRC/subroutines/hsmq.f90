@@ -1,6 +1,7 @@
 subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dlv,nD,vol,hsm,hsmp)
   use m_ropyln,only: ropyln
   use m_shortn3_plat,only: shortn3_plat,nout,nlatout,plat=>platx,qlat=>qlatx
+  implicit none
   intent(in)::  nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,      awald,alat,qlv,nG,dlv,nD,vol
   !- Bloch-sum of smooth Hankel functions and energy derivatives at p
   !  by Ewald summation, for nxi groups of parameters (lxi,exi,rsm).
@@ -51,13 +52,10 @@ subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dl
   !u   7 May 98 handles case rsm>1/a by strict q-space summation
   !u  16 Sep 98 fixed dimensioning error arising when nD > nG
   ! ---------------------------------------------------------------
-  !     implicit none
   integer :: nxi,lmxa,lmax,nG,nD,nlmx,nrx,lxi(nxi),job
   double precision :: alat,awald,vol,exi(nxi),rsm(nxi),p(3),q(3), &
        wk(nrx,*),yl(nrx,*),qlv(3,*),dlv(3,*), hsm(2,nlmx,*),hsmp(2,nlmx,*)
-  ! Local variables
-  integer :: ie,ir,ilm,l,m,ir1,lc,ls,job0,job1,job2,job3,lm,nlmxx, &
-       lx(20),ndx
+  integer :: ie,ir,ilm,l,m,ir1,lc,ls,job0,job1,job2,job3,lm,nlmxx, lx(20),ndx
   parameter (nlmxx=(200+1)**2) !(nlmxx=(16+1)**2)
   double precision :: qdotr,y0,a2,pi,sp,gam,tpiba,tpi,rsmi, &
        x1,x2,xx,xx0,xx1(nlmxx),xx2(nlmxx),xx3(nlmxx),xx4(nlmxx), &
@@ -67,8 +65,6 @@ subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dl
   logical :: dcmpre,ltmp
   real(8):: pp(3)
   dcmpre(x1,x2) = dabs(x1-x2) .lt. 1d-8
-
-  ! --- Setup ---
   job0 = mod(job,10)
   if (nG /= 0) job0 = 0
   job1 = mod(job/10,10)
@@ -79,29 +75,26 @@ subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dl
      pp=matmul(transpose(qlat),p)
      call shortn3_plat(pp)
      p1 = matmul(plat,pp+nlatout(:,1))
-     !call shortn(p,p1,dlv,nD)
   else
-     call dcopy(3,p,1,p1,1)
+     p1=p !call dcopy(3,p,1,p1,1)
   endif
-
   pi = 4d0*datan(1d0)
   tpi = 2d0*pi
-  ! ... lx(ie) = lxi(ie) + lmxa
   lmax = -1
   if (nxi > 20) call rx('hsmq: increase dim of lx')
-  do  5  ie = 1, nxi
-     lx(ie) = lxi(ie)+lmxa
+  do   ie = 1, nxi
+     lx(ie) = lxi(ie)+lmxa ! ... lx(ie) = lxi(ie) + lmxa
      lmax = max(lmax,lx(ie))
-5 enddo
+  enddo
   ! ... If all rsm are equal to 1/a, no real-space part
   a = awald
   nDx = nD
   if (nG > 0 .AND. a /= 0) then
      if (rsm(1) > faca/a) then
         ltmp = .true.
-        do  6  ie = 1, nxi
+        do   ie = 1, nxi
            ltmp = ltmp .and. abs(rsm(ie)-rsm(1)) .lt. 1d-12
-6       enddo
+        enddo
         ltmp = ltmp .or. job2 .eq. 1
         if (ltmp) then
            a = 1/rsm(1)
@@ -109,7 +102,6 @@ subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dl
         endif
      endif
   endif
-
   if ((lmax+1)**2 > nlmx) call rx('hsmq: lxi gt ll(nlmx)')
   if ((lmax+1)**2 > nlmxx) call rx('hsmq: lxi gt ll(nlmxx)')
   if (nrx < max(nD,nG)) call rx('hsmq: nrx < nD or nG')
@@ -117,7 +109,6 @@ subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dl
   a2 = a*a
   call dpzero(hsm, 2*nlmx*nxi)
   call dpzero(hsmp,2*nlmx*nxi)
-
   ! --- Energy-independent setup for Q-space part ---
   if (nG > 0) then
      tpiba = 2d0*pi/alat
@@ -134,12 +125,10 @@ subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dl
         wk(ir,2) = -dble(xxc)
         wk(ir,3) = -dimag(xxc)
 12   enddo
-
      !   ... Q-space part of reduced strx for all energies
      call pvhsmq(0,nxi,lmxa,lx,exi,a,vol,nG,wk,nrx,yl,nlmx, &
           wk(1,2),wk(1,3),wk(1,4),wk(1,5),wk(1,6),wk(1,7),hsm,hsmp)
   endif
-
   ! --- Energy-independent setup for direct-space part ---
   if (job0 == 0) then
      !   ... Put ylm in yl and alat**2*(p-dlv)**2 in wk(1)
@@ -169,7 +158,6 @@ subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dl
         wk(ir,6) = y0*dexp(-wk(ir,1)*a2)
 24   enddo
   endif
-
   ! --- D-space part of reduced strx for each energy: chi(l)=wk(l+lc)---
   xx0 = 0
   do  30  ie = 1, nxi
@@ -182,15 +170,13 @@ subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dl
      endif
      !   ... Case connecting vector p=0
      if (dcmpre(wk(1,1),0d0)) then
-        if (job1 == 1) ir1 = 2
-        if (job1 == 0 .AND. dcmpre(rsmi,0d0)) &
-             call rx('hsmq: 10s digit job=0 and rsm=0 not allowed')
+        if(job1==1) ir1 = 2
+        if(job1==0 .AND. dcmpre(rsmi,0d0))call rx('hsmq: 10s digit job=0 and rsm=0 not allowed')
      endif
      if (job1 > 1) ir1 = 2
      if (lx(ie) > lmax) call rx('hsmq: lxi > lmax')
      lc = 7
      ls = lx(ie)+9
-
      !  ...  Check whether to omit r.s. part
      nDx = nD
      if (nG > 0) then
@@ -201,8 +187,7 @@ subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dl
      !        endif
      !   ... chi = H(rsm) - H(1/a) = (H(0) - H(1/a)) - (H(0) - H(rsm))
      if (nG > 0) then
-        call hansr4(wk,lx(ie),nrx,nDx,exi(ie),1/a,wk(1,6), &
-             wk(1,5),wk(1,lc))
+        call hansr4(wk,lx(ie),nrx,nDx,exi(ie),1/a,wk(1,6), wk(1,5),wk(1,lc))
      else
         do    l = 0, lx(ie)+1
            do    ir = ir1, nDx
@@ -219,16 +204,13 @@ subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dl
               wk(ir,2) = y0*dexp(-wk(ir,1)*xx)
 33         enddo
         endif
-        call hansr4(wk,lx(ie),nrx,nDx,exi(ie),rsmi,wk(1,2), &
-             wk(1,5),wk(1,ls))
-        !         call prm('H(0) - H(rsm)',wk(1,ls),nrx,nDx,lx(ie)+2)
+        call hansr4(wk,lx(ie),nrx,nDx,exi(ie),rsmi,wk(1,2), wk(1,5),wk(1,ls))
         do    l = 0, lx(ie)+1
            do    ir = ir1, nDx
               wk(ir,l+lc) = wk(ir,l+lc) - wk(ir,l+ls)
            enddo
         enddo
      endif
-
      !  --- Special treatment of on-site term ---
      !      Subtract Ewald contribution from G-vectors, hsm(p,a).
      !      Already generated by hansr4:
@@ -259,7 +241,6 @@ subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dl
         xx = 4d0*a*y0*dexp(-(akap/a/2)**2 - (r*a)**2)
         do  31  l = 1, lx(ie)
            wk(1,l+lc+1) = ((2*l-1)*wk(1,l+lc) -exi(ie)*wk(1,l+lc-1) + xx) /wk(1,1)
-           !          print *, wk(1,l+lc+1)
            xx = 2d0*a**2*xx
 31      enddo
         !     ... debugging check
@@ -270,7 +251,6 @@ subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dl
      endif
      !   ... debugging check
      !       call hansmr(0d0,exi(ie),a,xx1,lx(ie))
-
      !   ... Make sin(qR)*(H(rsm,r)-H(1/a,r)), cos(qR)*(H(rsm,r)-H(1/a,r))
      do  34  l = 0, lx(ie)+1
         do  35  ir = 1, nDx
@@ -301,10 +281,9 @@ subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dl
            hsmp(2,ilm,ie) = (hsmp(2,ilm,ie) + xx4(m)/2)
 38      enddo
 32   enddo
-
      !   ... Put in phase to undo shortening, or different phase convention
-     sp = tpi*(q(1)*(p(1)-p1(1))+q(2)*(p(2)-p1(2))+q(3)*(p(3)-p1(3)))
-     if (job3 >= 2) sp = sp-tpi*(q(1)*p1(1)+q(2)*p1(2)+q(3)*p1(3))
+     sp = tpi*sum(q*(p-p1)) !(q(1)*(p(1)-p1(1))+q(2)*(p(2)-p1(2))+q(3)*(p(3)-p1(3)))
+     if (job3 >= 2) sp = sp-tpi*sum(q*p1) !(q(1)*p1(1)+q(2)*p1(2)+q(3)*p1(3))
      if (sp /= 0d0) then
         cosp = dcos(sp)
         sinp = dsin(sp)
@@ -322,11 +301,10 @@ subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dl
 30 enddo
 end subroutine hsmq
 
-subroutine hsmqe0(lmax,rsm,job,q,p,nrx,nlmx,wk,yl, &
-     awald,alat,qlv,nG,dlv,nD,vol,hsm)
+subroutine hsmqe0(lmax,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dlv,nD,vol,hsm)
   use m_ropyln,only: ropyln
   use m_shortn3_plat,only: shortn3_plat,nout,nlatout,plat=>platx,qlat=>qlatx
-!  use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat
+  !  use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat
   !- Bloch-sum of smooth Hankel functions for energy 0
   ! ---------------------------------------------------------------
   !i Inputs:
@@ -373,11 +351,10 @@ subroutine hsmqe0(lmax,rsm,job,q,p,nrx,nlmx,wk,yl, &
   !u  25 Jun 03 (Kino) call pvhsmq with arrays for lmax, e=0
   !u   7 May 98 handles case rsm>1/a by strict q-space summation
   ! ---------------------------------------------------------------
-  !     implicit none
+  implicit none
   integer :: lmax,nG,nD,nlmx,nrx,job
   double precision :: alat,awald,vol,rsm,p(3),q(3), &
        wk(nrx,*),yl(nrx,*),qlv(3,*),dlv(3,*), hsm(2,nlmx)
-  ! Local variables
   integer :: ir,ilm,l,m,ir1,lc,ls,job0,job1,job2,job3,lm,nlmxx,nDx, &
        lx1(1)
   parameter (nlmxx=(200+1)**2) !(nlmxx=(16+1)**2)
@@ -388,7 +365,6 @@ subroutine hsmqe0(lmax,rsm,job,q,p,nrx,nlmx,wk,yl, &
   logical :: dcmpre,lqzero
   real(8):: pp(3)
   dcmpre(x1,x2) = dabs(x1-x2) .lt. 1d-8
-
   ! --- Setup ---
   job0 = mod(job,10)
   if (nG /= 0) job0 = 0
@@ -403,7 +379,6 @@ subroutine hsmqe0(lmax,rsm,job,q,p,nrx,nlmx,wk,yl, &
      pp=matmul(transpose(qlat),p)
      call shortn3_plat(pp)
      p1 = matmul(plat,pp+nlatout(:,1))
-     !call shortn(p,p1,dlv,nD)
   else
      call dcopy(3,p,1,p1,1)
   endif
@@ -427,7 +402,6 @@ subroutine hsmqe0(lmax,rsm,job,q,p,nrx,nlmx,wk,yl, &
      endif
   endif
   a2 = a*a
-
   ! --- Setup for Q-space part ---
   if (nG > 0) then
      tpiba = 2d0*pi/alat
@@ -444,7 +418,6 @@ subroutine hsmqe0(lmax,rsm,job,q,p,nrx,nlmx,wk,yl, &
         wk(ir,2) = -dble(xxc)
         wk(ir,3) = -dimag(xxc)
 12   enddo
-
      !   --- Q-space part hsm(1/a,e,r) of reduced strx for all energies ---
      !   ... bug fix: copy scalars to arrays for call (Kino)
      lx1(1) = lmax
@@ -452,7 +425,6 @@ subroutine hsmqe0(lmax,rsm,job,q,p,nrx,nlmx,wk,yl, &
      call pvhsmq(1,1,lmax,lx1,ex1,a,vol,nG,wk,nrx,yl,nlmx, &
           wk(1,2),wk(1,3),wk(1,4),wk(1,5),wk(1,6),wk(1,7),hsm,hsm)
   endif
-
   ! --- Energy-independent setup for direct-space part ---
   if (job0 == 0) then
      !   ... Put ylm in yl and alat**2*(p-dlv)**2 in wk(1)
@@ -488,13 +460,11 @@ subroutine hsmqe0(lmax,rsm,job,q,p,nrx,nlmx,wk,yl, &
   ! ... Case connecting vector p=0
   if (dcmpre(wk(1,1),0d0)) then
      if (job1 == 1) ir1 = 2
-     if (job1 == 0 .AND. dcmpre(rsm,0d0)) &
-          call rx('hsmqe0: job=0 and rsm=0 not allowed')
+     if (job1 == 0 .AND. dcmpre(rsm,0d0)) call rx('hsmqe0: job=0 and rsm=0 not allowed')
   endif
   if (job1 > 1) ir1 = 2
   lc = 7
   ls = lmax+8
-
   ! ... chi = H(rsm) - H(1/a) = (H(0) - H(1/a)) - (H(0) - H(rsm))
   if (nG > 0) then
      call hansr5(wk,lmax,nrx,nDx,1/a,wk(1,6),wk(1,5),wk(1,lc))
@@ -519,7 +489,6 @@ subroutine hsmqe0(lmax,rsm,job,q,p,nrx,nlmx,wk,yl, &
         enddo
      enddo
   endif
-
   ! --- Special treatment of on-site term ---
   !     Subtract Ewald contribution from G-vectors, hsm(p,a).
   !     Already generated by hansr5:
@@ -542,7 +511,6 @@ subroutine hsmqe0(lmax,rsm,job,q,p,nrx,nlmx,wk,yl, &
         xx = 2d0*a**2*xx
 31   enddo
   endif
-
   ! ... Make sin(qR)*(H(rsm,r)-H(1/a,r)), cos(qR)*(H(rsm,r)-H(1/a,r))
   if ( .NOT. lqzero) then
      do  32  l = 0, lmax
@@ -585,7 +553,6 @@ subroutine hsmqe0(lmax,rsm,job,q,p,nrx,nlmx,wk,yl, &
            hsm(2,ilm)  = (hsm(2,ilm) + xx2(m))
 38      enddo
      endif
-
      !   ... Put in phase to undo shortening
      if (sp /= 0d0) then
         do  40  m = 1, 2*l+1
@@ -596,12 +563,9 @@ subroutine hsmqe0(lmax,rsm,job,q,p,nrx,nlmx,wk,yl, &
            hsm(2,ilm) = x2*cosp + x1*sinp
 40      enddo
      endif
-
 36 enddo
-
   ! --- Add extra term for l=0 when e=0 and q=0 ---
   if (lqzero) hsm(1,1) = hsm(1,1) + rsm**2/(4d0*vol*y0)
-
 end subroutine hsmqe0
 subroutine pvhsmq(job,nx,lmxa,lxi,exi,a,vol,n,qsq,nyl,yl,nlmx, &
      cs,sn,cs2,sn2,cs3,sn3,hl,hlp)
@@ -609,12 +573,11 @@ subroutine pvhsmq(job,nx,lmxa,lxi,exi,a,vol,n,qsq,nyl,yl,nlmx, &
   !  job=1 : make hl but not hlp
   !  Skips any ie for which lxi(ie)<lmxa.
   !  This is a kernel called by hsmq.
-  !     implicit none
+  implicit none
   integer :: n,nx,lmxa,lxi(nx),nlmx,job,nyl
   double precision :: cof,e,gam,pi,vol
   double precision :: cs(n),sn(n),cs2(n),sn2(n),cs3(n),sn3(n), &
        a,exi(1),qsq(n),yl(nyl,*),hl(2,nlmx,*),hlp(2,nlmx,*) !kino
-  ! Local variables
   integer :: i,i1,ie,ilm,l,lx,m,je,lm,nlmxx
   parameter (nlmxx=(200+1)**2)! (nlmxx=(16+1)**2)
   double precision :: c,s,xx,x1,x2
@@ -628,7 +591,6 @@ subroutine pvhsmq(job,nx,lmxa,lxi,exi,a,vol,n,qsq,nyl,yl,nlmx, &
      e = exi(ie)
      lx = lxi(ie)
      if (lxi(ie) < lmxa) goto 20
-
      !   ... Copy existing hl,hlp if already calculated for this exi
      do  30  je = 1, ie-1
         if (dabs(exi(je)-exi(ie)) > 1d-8) goto 30
@@ -637,7 +599,6 @@ subroutine pvhsmq(job,nx,lmxa,lxi,exi,a,vol,n,qsq,nyl,yl,nlmx, &
         hlp(1:2,1:(lxi(ie)+1)**2,ie)= hlp(1:2,1:(lxi(ie)+1)**2,je)
         goto 20
 30   enddo
-
      i1 = 1
      if (dcmpre(e-qsq(1),0d0)) i1 = 2
      do  22  i = i1, n
@@ -726,14 +687,12 @@ subroutine pvhsmq(job,nx,lmxa,lxi,exi,a,vol,n,qsq,nyl,yl,nlmx, &
            endif
         endif
 21   enddo
-
      ! --- Add extra term for l=0 when e=0 and q=0 ---
-     if (dcmpre(e-qsq(1),0d0)) hl(1,1,ie) = hl(1,1,ie) - &
-          sqrt(4d0*pi)/vol*gam
+     if(dcmpre(e-qsq(1),0d0)) hl(1,1,ie)= hl(1,1,ie) - sqrt(4d0*pi)/vol*gam
 20 enddo
 end subroutine pvhsmq
-
 subroutine hansr4(rsq,lmax,nrx,nr,e,rsm,wk,wk2,chi)
+  use m_ftox
   !- Difference between true,smoothed hankels for l=-1...lmax
   !  for e nonzero.  Vectorizes for negative e.
   ! ---------------------------------------------------------------
@@ -837,65 +796,20 @@ subroutine hansr4(rsq,lmax,nrx,nr,e,rsm,wk,wk2,chi)
   !u Updates
   !u  15 Aug 00 extended to e>0 (but erfc not vectorized)
   ! ---------------------------------------------------------------
-  !     implicit none
+  implicit none
+  real(8),parameter::   pi = 4d0*datan(1d0),  y0 = 1/dsqrt(4d0*pi)
   integer :: nrx,nr,lmax
-  double precision :: rsq(1),e,chi(nrx,-1:*),rsm,wk(nr),wk2(nr)
-  ! Local variables
+  real(8):: rsq(1),e,chi(nrx,-1:*),rsm,wk(nr),wk2(nr),erfcee
   logical :: lpos
   integer :: l,ir,ir1
   real(8):: sre,r2,xx,ra,h0,arsm,earsm,kappa=0d0,ta=1d99, akap,a,r,um,up,x,facgl
-  complex(8):: zikap=-99999d0,zerfc,eikr,zuplus
-
-  ! ... erfc(x) is evaluated inline as a ratio of polynomials,
-  !     to a relative precision of <10^-15 for x<5.
-  !     Different polynomials are used for x<1.3 and x>1.3.
-  !     Numerators and denominators are t,b respectively.
-  double precision :: w,f1,f2, &
-       t10,t11,t12,t13,t14,t15,t16,t17,b11,b12,b13,b14,b15,b16,b17,b18, &
-       t20,t21,t22,t23,t24,t25,t26,t27,b21,b22,b23,b24,b25,b26,b27,b28
-  parameter ( &
-       t10=2.1825654430601881683921d0, t20=0.9053540999623491587309d0, &
-       t11=3.2797163457851352620353d0, t21=1.3102485359407940304963d0, &
-       t12=2.3678974393517268408614d0, t22=0.8466279145104747208234d0, &
-       t13=1.0222913982946317204515d0, t23=0.3152433877065164584097d0, &
-       t14=0.2817492708611548747612d0, t24=0.0729025653904144545406d0, &
-       t15=0.0492163291970253213966d0, t25=0.0104619982582951874111d0, &
-       t16=0.0050315073901668658074d0, t26=0.0008626481680894703936d0, &
-       t17=0.0002319885125597910477d0, t27=0.0000315486913658202140d0, &
-       b11=2.3353943034936909280688d0, b21=1.8653829878957091311190d0, &
-       b12=2.4459635806045533260353d0, b22=1.5514862329833089585936d0, &
-       b13=1.5026992116669133262175d0, b23=0.7521828681511442158359d0, &
-       b14=0.5932558960613456039575d0, b24=0.2327321308351101798032d0, &
-       b15=0.1544018948749476305338d0, b25=0.0471131656874722813102d0, &
-       b16=0.0259246506506122312604d0, b26=0.0061015346650271900230d0, &
-       b17=0.0025737049320207806669d0, b27=0.0004628727666611496482d0, &
-       b18=0.0001159960791581844571d0, b28=0.0000157743458828120915d0)
-  ! ... f1(w=x-1/2) is erfc(x) for x<1.3, if xx is y0*dexp(-x*x)
-  f1(w) = xx*(((((((t17*w+t16)*w+t15)*w+t14)*w+t13)*w+t12)* &
-       w+t11)*w+t10)/((((((((b18*w+b17)*w+b16)*w+b15)*w+b14)* &
-       w+b13)*w+b12)*w+b11)*w+1)
-  ! ... f2(w=x-2) is erfc(x) for x>1.3, if xx is y0*dexp(-x*x)
-  f2(w) = xx*(((((((t27*w+t26)*w+t25)*w+t24)*w+t23)*w+t22)* &
-       w+t21)*w+t20)/((((((((b28*w+b27)*w+b26)*w+b25)*w+b24)* &
-       w+b23)*w+b22)*w+b21)*w+1)
-
-  ! --- Setup ---
+  if (e>0d0) call rx('EH >0 not supported')
   if (lmax < 0 .OR. nr == 0) return
   a = 1/rsm
-  lpos = e .gt. 0d0
-  if (lpos) then
-     kappa  =  dsqrt(e)
-     zikap  = dcmplx(0d0,1d0)*kappa
-     ta = 2d0*a
-     !       facgl = 4*a*exp(e/(2*a)**2)
-     facgl = 4d0*a*exp(e/ta**2)
-  else
-     akap = dsqrt(-e)
-     arsm = akap*rsm/2
-     earsm = dexp(-arsm**2)/2
-     !       facgl = 4*a*exp(e/(2*a)**2)
-     facgl = 8*a*earsm
-  endif
+  akap = dsqrt(-e)
+  arsm = akap*rsm/2
+  earsm = dexp(-arsm**2)/2
+  facgl = 8*a*earsm
   ! --- chi(*,-1), chi(*,0) = true - sm hankel for each r ---
   ! ... chi(r,-1) = (h0 - um - up)*r/akap   and
   !     chi(r,0)  = (h0 - um + up)          with
@@ -907,83 +821,46 @@ subroutine hansr4(rsq,lmax,nrx,nr,e,rsm,wk,wk2,chi)
   ! ... See Remarks for derivation of expressions in this case
   if (rsq(1) < 1d-12) then
      ir1 = 2
-     if (lpos) then
-        chi(1,0)  = zerfc(zikap/ta)*zikap-facgl/dsqrt(16d0*datan(1d0))
-        chi(1,-1) = -dimag(zerfc(zikap/ta))/kappa
-     else
-        !     ... make h0 = erfc(arsm) = erfc(akap*rsm/2)
-        xx = earsm/dsqrt(4d0*datan(1d0))
-        if (arsm > 1.3d0) then
-           h0 = f2(arsm-2d0)
-        else
-           h0 = f1(arsm-.5d0)
-        endif
-        !         chi(-1) -> erfc(akap/2a)/akap for r=0
-        chi(1,0)  = akap*h0 - 4d0*a*xx
-        chi(1,-1) = -h0/akap
-     endif
+     xx = earsm/dsqrt(4d0*datan(1d0))
+     h0 = erfc(arsm)
+     !         chi(-1) -> erfc(akap/2a)/akap for r=0
+     chi(1,0)  = akap*h0 - 4d0*a*xx
+     chi(1,-1) = -h0/akap
   endif
   ! ... Make chi(r,rsm->0,l) - chi(r,rsm,l) for l=-1, 0
-  if (lpos) then
-     do  22  ir = ir1, nr
-        r2 = rsq(ir)
-        r = dsqrt(r2)
-        ra = r*a
-        eikr = exp(zikap*r)
-        !         h_0  - h^s_0  =  Re (U+) /r;  h_-1 - h^s_-1 = -Im (U+) / kappa
-        zuplus  = zerfc(r*a + zikap/ta)*eikr
-
-        chi(ir,0)  =  dble(zuplus)/r
-        chi(ir,-1) = -dimag(zuplus)/kappa
-        wk2(ir) = facgl*wk(ir)
-22   enddo
-  else
-     do  20  ir = ir1, nr
-        r2 = rsq(ir)
-        r = dsqrt(r2)
-        ra = r*a
-        sre = akap*r
-        h0 = dexp(-sre)/r
-        xx = earsm*wk(ir)/r
-        !     ... Evaluate um; use (akap/2a-ra)^2 = (akap/2a)^2+(ra)^2-akap*r
-        x = ra - arsm
-        if (x > 1.3d0) then
-           um = h0 - f2(x-2d0)
-        elseif (x > 0) then
-           um = h0 - f1(x-.5d0)
-        elseif (x > -1.3d0) then
-           um = f1(-x-.5d0)
-        else
-           um = f2(-x-2d0)
-        endif
-        !     ... Evaluation of up assumes x gt 0
-        x = ra + arsm
-        if (x > 1.3d0) then
-           up = f2(x-2d0)
-        else
-           up = f1(x-.5d0)
-        endif
-        !     ... Make chi(r,rsm->0,l) - chi(r,rsm,l) for l=-1, 0
-        chi(ir,-1) = (h0 - um - up)*r/akap
-        chi(ir,0)  =  h0 - um + up
-        wk2(ir) = facgl*wk(ir)
-20   enddo
-  endif
+  do  20  ir = ir1, nr
+     r2 = rsq(ir)
+     r = dsqrt(r2)
+     ra = r*a
+     sre = akap*r
+     h0 = dexp(-sre)/r
+     xx = earsm*wk(ir)/r
+     !     ... Evaluate um; use (akap/2a-ra)^2 = (akap/2a)^2+(ra)^2-akap*r
+     x = ra - arsm
+     if(x>0d0) then
+        um=h0-xx*erfcee(x)   !erfc(x )*xx/y0/exp(-x**2)
+     elseif(x<0d0) then
+        um=   xx*erfcee(x)   !erfc(-x)*xx/y0/exp(-x**2)
+     endif  !    write(6,ftox)'111aaax',ftod(x),ftod(erfc(x) / (erfcee(x)*y0*exp(-x**2)) )
+     !     ... Evaluation of up assumes x gt 0
+     x = ra + arsm
+     up = xx*erfcee(x) !erfc(x )*xx/y0/exp(-x**2)
+     !     ... Make chi(r,rsm->0,l) - chi(r,rsm,l) for l=-1, 0
+     chi(ir,-1) = (h0 - um - up)*r/akap
+     chi(ir,0)  =  h0 - um + up
+     wk2(ir) = facgl*wk(ir)
+20 enddo
   ! --- chi(ir,l) for l>1 by upward recursion ---
   facgl = 2d0*a**2
-  do  31  l = 1, lmax
-     chi(1,l) = 0
-31 enddo
+  chi(1,1:lmax) = 0
   do  30  l = 1, lmax
      xx = 2*l-1
-     do  7  ir = ir1, nr
-        chi(ir,l) = (xx*chi(ir,l-1) - e*chi(ir,l-2) + wk2(ir))/rsq(ir)
-        wk2(ir) = facgl*wk2(ir)
-7    enddo
+     chi(ir1:nr,l) = [((xx*chi(ir,l-1) - e*chi(ir,l-2) + wk2(ir))/rsq(ir),ir=ir1,nr)]
+     wk2(ir1:nr) = facgl*wk2(ir1:nr)
 30 enddo
 end subroutine hansr4
-
 subroutine hansr5(rsq,lmax,nrx,nr,rsm,wk,wk2,chi)
+  use m_ftox
   !- Difference between true,smoothed hankels for l=0...lmax, e=0
   ! ---------------------------------------------------------------
   !i Inputs
@@ -1001,16 +878,48 @@ subroutine hansr5(rsq,lmax,nrx,nr,rsm,wk,wk2,chi)
   !r   chi(1,0), which is returned as the -hsm(e=0,r=0) i.e.
   !r   the infinite unsmoothed part is discarded.
   ! ---------------------------------------------------------------
-  !     implicit none
+  implicit none
   integer :: nrx,nr,lmax
   double precision :: rsq(1),chi(nrx,0:lmax),rsm,wk(nr),wk2(nr)
   double precision :: xx,ra,a,r,facgl
   integer :: l,ir,ir1
+  real(8),parameter::   pi = 4d0*datan(1d0),  y0 = 1/dsqrt(4d0*pi)
+  real(8):: erfcee
+  if (lmax < 0 .OR. nr == 0) return
+  a = 1/rsm
+  facgl = 4d0*a
+  ! --- chi(*0), chi(*,1) ---
+  ir1 = 1
+  if (rsq(1) < 1d-6) then
+     ir1 = 2
+     chi(1,0) = -2d0*a/dsqrt(4d0*datan(1d0))!   ... hsm(e=0,r=0) = 4*a*y0
+  endif
+  do  20  ir = ir1, nr
+     r = rsq(ir)**.5d0
+     chi(ir,0)= wk(ir)/r * erfcee(r*a) !=xx*erfc(ra)/y0/exp(-ra**2)
+     wk2(ir) = facgl*wk(ir)
+20 enddo
+  ! --- chi(ir,l) for l>0 by upward recursion ---
+  facgl = 2*a**2
+  chi(1,1:lmax)=0d0
+  do  30  l = 1, lmax
+     xx = 2*l-1
+     do  7  ir = ir1, nr
+        chi(ir,l) = (xx*chi(ir,l-1) + wk2(ir))/rsq(ir)
+        wk2(ir) = facgl*wk2(ir)
+7    enddo
+30 enddo
+end subroutine hansr5
+
+real(8) function erfcee(ra) ! erfcee(x)= erfc(|x|)/y0/exp(-x*x)
+  ! We still use this because gfortran gives NaN for large x.
+  ! For example, I observed erfc(25.3526)=NaN (gfortran compilar bug. it must be zero).
   ! ... erfc(x) is evaluated as a ratio of polynomials,
   !     to a relative precision of <10^-15 for x<5.
   !     Different polynomials are used for x<1.3 and x>1.3.
   !     Numerators and denominators are t,b respectively.
-  double precision :: w,f1,f2, &
+  integer:: i
+  real(8)::w, f1,f2, ra,&
        t10,t11,t12,t13,t14,t15,t16,t17,b11,b12,b13,b14,b15,b16,b17,b18, &
        t20,t21,t22,t23,t24,t25,t26,t27,b21,b22,b23,b24,b25,b26,b27,b28
   parameter ( &
@@ -1030,48 +939,21 @@ subroutine hansr5(rsq,lmax,nrx,nr,rsm,wk,wk2,chi)
        b16=0.0259246506506122312604d0, b26=0.0061015346650271900230d0, &
        b17=0.0025737049320207806669d0, b27=0.0004628727666611496482d0, &
        b18=0.0001159960791581844571d0, b28=0.0000157743458828120915d0)
-  ! ... f1(w=x-1/2) is erfc(x) for x<1.3, if xx is y0*dexp(-x*x)
-  f1(w) = xx*(((((((t17*w+t16)*w+t15)*w+t14)*w+t13)*w+t12)* &
+  ! ... y0*dexp(-x*x)*f1(w=x-1/2) is erfc(x) for x<1.3
+  f1(w) = (((((((t17*w+t16)*w+t15)*w+t14)*w+t13)*w+t12)* &
        w+t11)*w+t10)/((((((((b18*w+b17)*w+b16)*w+b15)*w+b14)* &
        w+b13)*w+b12)*w+b11)*w+1)
-  ! ... f2(w=x-2) is erfc(x) for x>1.3, if xx is y0*dexp(-x*x)
-  f2(w) = xx*(((((((t27*w+t26)*w+t25)*w+t24)*w+t23)*w+t22)* &
+  ! ... y0*dexp(-x*x)*f2(w=x-2) is erfc(x) for x>1.3
+  f2(w) = (((((((t27*w+t26)*w+t25)*w+t24)*w+t23)*w+t22)* &
        w+t21)*w+t20)/((((((((b28*w+b27)*w+b26)*w+b25)*w+b24)* &
        w+b23)*w+b22)*w+b21)*w+1)
-  ! --- Setup ---
-  if (lmax < 0 .OR. nr == 0) return
-  a = 1/rsm
-  facgl = 4d0*a
-  ! --- chi(*0), chi(*,1) ---
-  ir1 = 1
-  if (rsq(1) < 1d-6) then
-     ir1 = 2
-     !   ... hsm(e=0,r=0) = 4*a*y0
-     chi(1,0) = -2d0*a/dsqrt(4d0*datan(1d0))
-  endif
-  do  20  ir = ir1, nr
-     r = dsqrt(rsq(ir))
-     ra = r*a
-     xx = wk(ir)/r
-     if (ra > 1.3d0) then
-        chi(ir,0) = f2(ra-2d0)
-     else
-        chi(ir,0) = f1(ra-.5d0)
-     endif
-
-     wk2(ir) = facgl*wk(ir)
-20 enddo
-  ! --- chi(ir,l) for l>0 by upward recursion ---
-  facgl = 2*a**2
-  do  31  l = 1, lmax
-     chi(1,l) = 0
-31 enddo
-  do  30  l = 1, lmax
-     xx = 2*l-1
-     do  7  ir = ir1, nr
-        chi(ir,l) = (xx*chi(ir,l-1) + wk2(ir))/rsq(ir)
-        wk2(ir) = facgl*wk2(ir)
-7    enddo
-30 enddo
-end subroutine hansr5
-
+      if (ra > 1.3d0) then
+         erfcee = f2(ra-2d0)
+      elseif (ra > 0) then
+         erfcee = f1(ra-.5d0)
+      elseif (ra > -1.3d0) then
+         erfcee = f1(-ra-.5d0)
+      else
+         erfcee = f2(-ra-2d0)
+      endif
+end function erfcee

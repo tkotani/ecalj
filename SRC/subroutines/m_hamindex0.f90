@@ -31,7 +31,6 @@ contains
   ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine m_hamindex0_init()
     use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp, iclasstaf_,symops_af_,ag_af_,ngrpaf_,iclasstin=>iclasst
-    use m_shortn3,only: shortn3_initialize,shortn3
     use m_MPItk,only: master_mpi
     use m_density,only: pnzall,pnuall
     !!-- Set up m_hamiltonian. Index for Hamiltonian. --

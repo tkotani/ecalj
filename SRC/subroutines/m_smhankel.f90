@@ -1,6 +1,5 @@
 module m_smhankel !Bloch sum of smooth Hankel, Gaussians.
-  ! JMP39:
-  ! Bott, E., M. Methfessel, W. Krabs, and P. C. Schmidt.
+  ! JMP39: Bott, E., M. Methfessel, W. Krabs, and P. C. Schmidt.
   ! “Nonsingular Hankel Functions as a New Basis for Electronic Structure Calculations.”
   ! Journal of Mathematical Physics 39, no. 6 (June 1, 1998): 3393–3425.
   ! https://doi.org/doi:10.1063/1.532437.
@@ -218,26 +217,19 @@ subroutine phhigb(dr,q,rsm1,rsm2,e1,e2,mlm1,nlm1,mlm2,nlm2, &
   !u   28 Apr 97 adapted to handle case q=0 and e1 or e2 zero.
   ! ----------------------------------------------------------------------
   implicit none
-  ! ... Passed parameters
   integer :: jcg(1),indxcg(1),nlm1,nlm2,kmax,ndim1,ndim2,k0,mlm1,mlm2
   real(8):: q(3) , cg(1) , cy(1) , dr(3) , rsm1 , rsm2 , e1 , e2
-
   complex(8):: s(ndim1,ndim2,0:k0),ds(ndim1,ndim2,0:k0,3)
-  ! ... Local parameters
-  integer :: nlm0,ktop0,lmax1,ll,lmax2,lmaxx,nlmx,nlmxp1,ktop,ktopp1, &
-       k,ilm,kz,kx1,kx2,ky1,ky2,ilm1,l1,ilm2,l2,ii,indx,icg1,icg2, &
-       icg,lm,ip
-  real(8) :: gam1,fpi,gam2,gamx,rsmx,qq,fac1,fac2,e,cz,cx1, &
-       cx2,cy1,cy2,fac,add,dgets
-  parameter (nlm0=100, ktop0=10)
-  complex(8):: hkl1(0:ktop0,nlm0),hkl2(0:ktop0,nlm0), &
-       ghkl(0:ktop0,nlm0,3),hsm(nlm0),hsmp(nlm0)
+  integer :: ktop0,lmax1,ll,lmax2,lmaxx,nlmx,nlmxp1,ktop,ktopp1, &
+       k,ilm,kz,kx1,kx2,ky1,ky2,ilm1,l1,ilm2,l2,ii,indx,icg1,icg2, icg,lm,ip
+  real(8) :: gam1,fpi,gam2,gamx,rsmx,qq,fac1,fac2,e,cz,cx1, cx2,cy1,cy2,fac,add,dgets
+!  parameter (ktop0=10)
   fpi = 16d0*datan(1.d0)
   gam1 = 0.25d0*rsm1*rsm1
   gam2 = 0.25d0*rsm2*rsm2
   gamx = gam1+gam2
   rsmx = 2d0*dsqrt(gamx)
-  qq = sum(q**2)**.5 !dsqrt(q(1)*q(1)+q(2)*q(2)+q(3)*q(3))
+  qq = sum(q**2)**.5 
   lmax1 = ll(nlm1)
   lmax2 = ll(nlm2)
   lmaxx = lmax1+lmax2
@@ -245,76 +237,81 @@ subroutine phhigb(dr,q,rsm1,rsm2,e1,e2,mlm1,nlm1,mlm2,nlm2, &
   nlmxp1 = (lmaxx+2)**2
   ktop = max0(lmax1,lmax2)+kmax
   ktopp1 = ktop+1
-  if (nlmxp1 > nlm0)  call rxi('hhigbl: need nlm0 ge',nlmxp1)
-  if (ktopp1 > ktop0) call rxi('hhigbl: need ktop0 ge',ktopp1)
-  ! --- Set up functions for connecting vector p2-p1 ---
-  if (dabs(e1-e2) > 1d-5) then
-     fac1 = exp(gam2*(e2-e1))/(e1-e2)
-     fac2 = exp(gam1*(e1-e2))/(e2-e1)
-     if (dabs(e1) > 1d-6) then
-        call hklbl(dr,rsmx,e1,q,ktopp1,nlmxp1,ktop0,cy,hkl1) 
-     else
-        if (qq > 1d-6) call rx('hhigbl: e1=0 only allowed if q=0')
-        call fklbl(dr,rsmx,ktopp1,nlmxp1,ktop0,cy,hkl1) 
-     endif
-     if (dabs(e2) > 1d-6) then
-        call hklbl(dr,rsmx,e2,q,ktopp1,nlmxp1,ktop0,cy,hkl2) 
-     else
-        if (qq > 1d-6) call rx('hhigbl: e2=0 only allowed if q=0')
-        call fklbl(dr,rsmx,ktopp1,nlmxp1,ktop0,cy,hkl2) 
-     endif
-     hkl1(0:ktopp1,1:nlmxp1) = fac1*hkl1(0:ktopp1,1:nlmxp1) + fac2*hkl2(0:ktopp1,1:nlmxp1)
-  else
-     e = .5d0*(e1+e2)
-     if(qq<1d-6 .AND. dabs(e) < 1d-6) call rx('hhigbl: case q=0 and e1=e2=0 not available')
-     call hklbl(dr,rsmx,e,q,ktopp1,nlmxp1,ktop0,cy,hkl2) 
-     call hsmbl(dr,rsmx,e,q,lmaxx+1,cy,hsm,hsmp) 
-     do  6  ilm = 1, nlmxp1
-        hkl1(0,ilm) = hsmp(ilm) - gamx*hsm(ilm)
-        do  7  k = 1, ktopp1
-           hkl1(k,ilm) = -e*hkl1(k-1,ilm) - hkl2(k-1,ilm)
-7       enddo
-6    enddo
-  endif
-  ! ... Make gradients using CGs for p functions
-  ghkl=0d0
-  do  ilm = 1, nlmx
-     call scglp1(ilm,kz,cz,kx1,kx2,cx1,cx2,ky1,ky2,cy1,cy2)
-     do  k = 0, ktop
-        ghkl(k,ilm,1) = ghkl(k,ilm,1)-cx1*hkl1(k,kx1)-cx2*hkl1(k,kx2)
-        ghkl(k,ilm,2) = ghkl(k,ilm,2)-cy1*hkl1(k,ky1)-cy2*hkl1(k,ky2)
-        ghkl(k,ilm,3) = ghkl(k,ilm,3)-cz*hkl1(k,kz)
-        if (ilm <= lmaxx*lmaxx) then
-           ghkl(k,kx1,1) = ghkl(k,kx1,1) - cx1*hkl1(k+1,ilm)
-           ghkl(k,kx2,1) = ghkl(k,kx2,1) - cx2*hkl1(k+1,ilm)
-           ghkl(k,ky1,2) = ghkl(k,ky1,2) - cy1*hkl1(k+1,ilm)
-           ghkl(k,ky2,2) = ghkl(k,ky2,2) - cy2*hkl1(k+1,ilm)
-           ghkl(k,kz,3)  = ghkl(k,kz,3)  - cz *hkl1(k+1,ilm)
-        endif
-     enddo
-  enddo
-  ! ... Combine with Clebsch-Gordan coefficients
-  do  1111  ilm1 = mlm1, nlm1
-     l1 = ll(ilm1)
-     do  111  ilm2 = mlm2, nlm2
-        l2 = ll(ilm2)
-        ii = max0(ilm1,ilm2)
-        indx = (ii*(ii-1))/2 + min0(ilm1,ilm2)
-        icg1 = indxcg(indx)
-        icg2 = indxcg(indx+1)-1
-        do  11  icg = icg1, icg2
-           ilm = jcg(icg)
-           lm = ll(ilm)
-           k = (l1+l2-lm)/2
-           fac = fpi*(-1d0)**l1*cg(icg)
-           do  12  ip = 0, kmax
-              s(ilm1,ilm2,ip)    = s(ilm1,ilm2,ip)    + fac*hkl1(k+ip,ilm)
-              ds(ilm1,ilm2,ip,:) = ds(ilm1,ilm2,ip,:) + fac*ghkl(k+ip,ilm,:)
-12         enddo
-11      enddo
-111  enddo
+  ktop0=ktopp1
+  hklblock: block
+    complex(8):: hkl1(0:ktop0,nlmxp1),hkl2(0:ktop0,nlmxp1), &
+         ghkl(0:ktop0,nlmxp1,3),hsm(nlmxp1),hsmp(nlmxp1)
+    !  if (nlmxp1 > nlmxp1)  call rxi('hhigbl: need nlmxp1 ge',nlmxp1)
+    if (ktopp1 > ktop0) call rxi('hhigbl: need ktop0 ge',ktopp1)
+    ! --- Set up functions for connecting vector p2-p1 ---
+    if (dabs(e1-e2) > 1d-5) then
+       fac1 = exp(gam2*(e2-e1))/(e1-e2)
+       fac2 = exp(gam1*(e1-e2))/(e2-e1)
+       if (dabs(e1) > 1d-6) then
+          call hklbl(dr,rsmx,e1,q,ktopp1,nlmxp1,ktop0,cy,hkl1) 
+       else
+          if (qq > 1d-6) call rx('hhigbl: e1=0 only allowed if q=0')
+          call fklbl(dr,rsmx,ktopp1,nlmxp1,ktop0,cy,hkl1) 
+       endif
+       if (dabs(e2) > 1d-6) then
+          call hklbl(dr,rsmx,e2,q,ktopp1,nlmxp1,ktop0,cy,hkl2) 
+       else
+          if (qq > 1d-6) call rx('hhigbl: e2=0 only allowed if q=0')
+          call fklbl(dr,rsmx,ktopp1,nlmxp1,ktop0,cy,hkl2) 
+       endif
+       hkl1(0:ktopp1,1:nlmxp1) = fac1*hkl1(0:ktopp1,1:nlmxp1) + fac2*hkl2(0:ktopp1,1:nlmxp1)
+    else
+       e = .5d0*(e1+e2)
+       if(qq<1d-6 .AND. dabs(e) < 1d-6) call rx('hhigbl: case q=0 and e1=e2=0 not available')
+       call hklbl(dr,rsmx,e,q,ktopp1,nlmxp1,ktop0,cy,hkl2) 
+       call hsmbl(dr,rsmx,e,q,lmaxx+1,cy,hsm,hsmp) 
+       do  6  ilm = 1, nlmxp1
+          hkl1(0,ilm) = hsmp(ilm) - gamx*hsm(ilm)
+          do  7  k = 1, ktopp1
+             hkl1(k,ilm) = -e*hkl1(k-1,ilm) - hkl2(k-1,ilm)
+7         enddo
+6      enddo
+    endif
+    ! ... Make gradients using CGs for p functions
+    ghkl=0d0
+    do  ilm = 1, nlmx
+       call scglp1(ilm,kz,cz,kx1,kx2,cx1,cx2,ky1,ky2,cy1,cy2)
+       do  k = 0, ktop
+          ghkl(k,ilm,1) = ghkl(k,ilm,1)-cx1*hkl1(k,kx1)-cx2*hkl1(k,kx2)
+          ghkl(k,ilm,2) = ghkl(k,ilm,2)-cy1*hkl1(k,ky1)-cy2*hkl1(k,ky2)
+          ghkl(k,ilm,3) = ghkl(k,ilm,3)-cz*hkl1(k,kz)
+          if (ilm <= lmaxx*lmaxx) then
+             ghkl(k,kx1,1) = ghkl(k,kx1,1) - cx1*hkl1(k+1,ilm)
+             ghkl(k,kx2,1) = ghkl(k,kx2,1) - cx2*hkl1(k+1,ilm)
+             ghkl(k,ky1,2) = ghkl(k,ky1,2) - cy1*hkl1(k+1,ilm)
+             ghkl(k,ky2,2) = ghkl(k,ky2,2) - cy2*hkl1(k+1,ilm)
+             ghkl(k,kz,3)  = ghkl(k,kz,3)  - cz *hkl1(k+1,ilm)
+          endif
+       enddo
+    enddo
+    ! ... Combine with Clebsch-Gordan coefficients
+    do  1111  ilm1 = mlm1, nlm1
+       l1 = ll(ilm1)
+       do  111  ilm2 = mlm2, nlm2
+          l2 = ll(ilm2)
+          ii = max0(ilm1,ilm2)
+          indx = (ii*(ii-1))/2 + min0(ilm1,ilm2)
+          icg1 = indxcg(indx)
+          icg2 = indxcg(indx+1)-1
+          do  11  icg = icg1, icg2
+             ilm = jcg(icg)
+             lm = ll(ilm)
+             k = (l1+l2-lm)/2
+             fac = fpi*(-1d0)**l1*cg(icg)
+             do  12  ip = 0, kmax
+                s(ilm1,ilm2,ip)    = s(ilm1,ilm2,ip)    + fac*hkl1(k+ip,ilm)
+                ds(ilm1,ilm2,ip,:) = ds(ilm1,ilm2,ip,:) + fac*ghkl(k+ip,ilm,:)
+12           enddo
+11        enddo
+111    enddo
 1111 enddo
-  ! ... Extra term when e1 or e2 is zero (but not both)
+  endblock hklblock
+! ... Extra term when e1 or e2 is zero (but not both)
   if (mlm1 == 1 .AND. mlm2 == 1) then
      add = 0d0
      if (dabs(e2) < 1d-6) add = fpi*dexp(gam1*e1)/(vol*e1*e1)
@@ -660,8 +657,8 @@ subroutine hklbl(p,rsm,e,q,kmax,nlm,k0,cy,hkl)
   qlat=lat_qlat
   ppin=matmul(transpose(qlat),p) 
   call shortn3_plat(ppin) 
-  p1= matmul(plat,ppin+nlatout(:,1))
-  sp = 2*pi*sum(q*(p-p1)) !   (q(1)*(p(1)-p1(1))+q(2)*(p(2)-p1(2))+q(3)*(p(3)-p1(3)))
+  p1= matmul(plat,ppin+nlatout(:,1)) !ppin (fractional) is shortened to be  p1
+  sp = 2*pi*sum(q*(p-p1))
   phase = exp(img*sp) !dcmplx(dcos(sp),dsin(sp))
   awald=lat_awald
   vol=lat_vol
@@ -1005,28 +1002,17 @@ subroutine ghibl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax, ndim1,ndim2,cg,indxcg,j
   !u   24 Apr 00 Adapted from nfp ghi_bl.f
   ! ----------------------------------------------------------------------
   implicit none
-  ! ... Passed parameters
   integer :: nlmg,nlmh,kmax,ndim1,ndim2,jcg(1),indxcg(1)
   real(8) :: rsmg,rsmh(1),eg,eh(1)
   real(8) :: ph(3),pg(3),cg(1),cy(1),q(3)!,slat(1)
   complex(8):: s(ndim1,ndim2,0:*)
-  ! ... Local parameters
   integer :: nlm0,ktop0,icg,icg1,icg2,ii,ilg,ilh,ilm,indx,ip,jlm,k, &
        ktop,lg,lh,ll,lm,lmaxg,lmaxh,lmaxx,m,nlmx,l1,l2,ilm1,ilm2
-  ! FCPP#if F90
   complex(8),allocatable:: hkl(:,:)
-  ! FCPP#else
-  ! FCPP      parameter (nlm0=144, ktop0=21)
-  ! FCPP      complex(8):: hkl(0:ktop0,nlm0)
-  ! FCPP#endif
   real(8) :: ee,fac,gamg,gamh,rsmx,dr(3),e,rsm
-
   if (nlmh == 0 .OR. nlmg == 0) return
-
   ! ... rsmh- and eh- independent setup
-  do  1  m = 1, 3
-     dr(m) = pg(m)-ph(m)
-1 enddo
+  dr=pg-ph
   lmaxh = ll(nlmh)
   lmaxg = ll(nlmg)
   lmaxx = lmaxg+lmaxh
@@ -1042,7 +1028,6 @@ subroutine ghibl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax, ndim1,ndim2,cg,indxcg,j
         enddo
      enddo
   enddo
-
   ! --- Loop over sequences of l with a common rsm,e ---
   l2 = -1
   do  20  l1 = 0, lmaxh
@@ -1060,7 +1045,6 @@ subroutine ghibl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax, ndim1,ndim2,cg,indxcg,j
      rsmx = 2d0*dsqrt(gamg+gamh)
      ktop = max0(lmaxg,l2)+kmax
      call hklbl(dr,rsmx,e,q,ktop,nlmx,ktop0,cy,hkl)!,slat
-
      !   ... Combine with Clebsch-Gordan coefficients
      ee = dexp(gamg*(eg-e))
      do  1111  ilg = 1, nlmg
@@ -1084,9 +1068,7 @@ subroutine ghibl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax, ndim1,ndim2,cg,indxcg,j
 1111 enddo
 20 enddo
 end subroutine ghibl
-  
-subroutine ghigbl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax, &
-     ndim1,ndim2,k0,cg,indxcg,jcg,cy,s,ds)!,slat
+subroutine ghigbl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax,ndim1,ndim2,k0,cg,indxcg,jcg,cy, s,ds)
   !- Block of integrals between smooth hankels and gaussians with some
   !  power of the laplace operator, and gradients.
   ! ----------------------------------------------------------------------
@@ -1110,7 +1092,6 @@ subroutine ghigbl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax, &
   !i   indxcg:index for Clebsch Gordon coefficients
   !i   jcg   :L q.n. for the C.G. coefficients stored in condensed form (scg.f)
   !i   cy    :Normalization constants for spherical harmonics
-  !i   slat  :struct containing information about the lattice
   !o Outputs
   !o   s     :integrals of gaussian and Hankels; see Remarks
   !o   ds    :gradients of s; see Remarks
@@ -1201,9 +1182,7 @@ subroutine ghigbl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax, &
 20 enddo
   deallocate(hkl,dhkl)
 end subroutine ghigbl
-
-subroutine hxpbl(ph,pg,q,rsmh,rsmg,eh,kmax,nlmh,nlmg,k0,ndim, &
-     cg,indxcg,jcg,cy,c) !,slat
+subroutine hxpbl(ph,pg,q,rsmh,rsmg,eh,kmax,nlmh,nlmg,k0,ndim, cg,indxcg,jcg,cy,c)
   !- Coefficients to expand smooth bloch hankels centered at ph
   !  into a sum of polynomials P_kL centered at pg.
   ! ----------------------------------------------------------------------
@@ -1252,37 +1231,33 @@ subroutine hxpbl(ph,pg,q,rsmh,rsmg,eh,kmax,nlmh,nlmg,k0,ndim, &
   complex(8),allocatable:: s(:,:,:)
   if (nlmg == 0 .OR. nlmh == 0) return
   fpi = 16d0*datan(1d0)
-  ndim1 = nlmg
-  ndim2 = nlmh
+  nlmg = nlmg
+  nlmh = nlmh
   ktop0 = kmax
-  allocate(s(ndim1,ndim2,0:ktop0))
-  if (kmax > ktop0) call rxi('hxpbl: increase ktop0, need',kmax)
-  if (nlmg > ndim1) call rxi('hxpbl: increase ndim1, need',nlmg)
-  if (nlmh > ndim2) call rxi('hxpbl: increase ndim2, need',nlmh)
-  if (nlmg > ndim1) call rxi('hxpbl: increase ndim1, need',nlmg)
+  allocate(s(nlmg,nlmh,0:kmax))
   ! ... Integrals of gaussians and smoothed Hankels
   eg = 0d0
-  call ghibl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax,ndim1,ndim2,cg, indxcg,jcg,cy,s)
+  call ghibl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax,nlmg,nlmh,cg, indxcg,jcg,cy,s)
   ! ... Scale to get coefficients of the P_kL
   a = 1d0/rsmg
   lmaxg = ll(nlmg)
   ilmg = 0
   dfact = 1d0
-  do  1  l = 0, lmaxg
+  do l = 0, lmaxg
      nm = 2*l+1
-     do  2  m = 1, nm
+     do m = 1, nm
         ilmg = ilmg+1
         factk = 1d0
-        do  3  k = 0, kmax
+        do   k = 0, kmax
            fac = fpi / ((4*a*a)**k * a**l * factk * dfact)
-           do  5  ilmh = 1, nlmh
+           do    ilmh = 1, nlmh
               c(k,ilmg,ilmh) = s(ilmg,ilmh,k)*fac
-5          enddo
+           enddo
            factk = factk*(k+1)
-3       enddo
-2    enddo
+        enddo
+     enddo
      dfact = dfact*(2*l+3)
-1 enddo
+  enddo
   deallocate(s)
 end subroutine hxpbl
 subroutine hxpgbl(ph,pg,q,rsmh,rsmg,eh,kmax,nlmh,nlmg,k0,ndimh, ndimg,cg,indxcg,jcg,cy,c,dc)
@@ -1342,31 +1317,30 @@ subroutine hxpgbl(ph,pg,q,rsmh,rsmg,eh,kmax,nlmh,nlmg,k0,ndimh, ndimg,cg,indxcg,
   if (nlmh > ndim2) call rxi('hxpgbl: increase ndim2, need',nlmh)
   ! ... Integrals of Hankels with Gaussians
   eg = 0d0
-  call ghigbl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax,ndim1,ndim2, &
-       ktop0,cg,indxcg,jcg,cy,s,ds)!,slat
+  call ghigbl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax,ndim1,ndim2,ktop0,cg,indxcg,jcg,cy,s,ds)
   ! ... Scale to get coefficients of the PkL
   a = 1d0/rsmg
   lmaxg = ll(nlmg)
   ilmg = 0
   dfact = 1d0
-  do  1  l = 0, lmaxg
+  do l = 0, lmaxg
      nm = 2*l+1
-     do  2  m = 1, nm
+     do m = 1, nm
         ilmg = ilmg+1
         factk = 1d0
-        do  3  k = 0, kmax
+        do  k = 0, kmax
            fac = fpi/ ((4*a*a)**k * a**l * factk * dfact)
-           do  5  ilmh = 1, nlmh
+           do    ilmh = 1, nlmh
               c(k,ilmg,ilmh) = s(ilmg,ilmh,k)*fac
               dc(k,ilmg,ilmh,1) = -ds(ilmg,ilmh,k,1)*fac
               dc(k,ilmg,ilmh,2) = -ds(ilmg,ilmh,k,2)*fac
               dc(k,ilmg,ilmh,3) = -ds(ilmg,ilmh,k,3)*fac
-5          enddo
+           enddo
            factk = factk*(k+1)
-3       enddo
-2    enddo
+        enddo
+     enddo
      dfact = dfact*(2*l+3)
-1 enddo
+  enddo
   deallocate(s,ds)
 end subroutine hxpgbl
 subroutine gklq(lmax,rsm,q,p,e,kmax,k0,alat,dlv,nkd,nrx,yl,wk,job, gkl)
@@ -1662,8 +1636,9 @@ subroutine hsmbld(p,rsm,e,q,a,lmax,alat,dlv,nkd,dl,dlp)
   srpi = dsqrt(tpi/2.d0)
   lpos = e .gt. 0d0
   if (lpos) then !Methfessl's 'akap' is sqrt(-e) = i kap by standard kap=sqrt(e)
-     kap = dsqrt(e)
-     zikap = dcmplx(0d0,1d0)*kap
+     call rx('EH >0 not supported')
+     !kap = dsqrt(e)
+     !zikap = dcmplx(0d0,1d0)*kap
   else
      akap = dsqrt(-e)
   endif
@@ -1688,14 +1663,15 @@ subroutine hsmbld(p,rsm,e,q,a,lmax,alat,dlv,nkd,dl,dlp)
            chi2(l) = 0d0
         enddo
         if (lpos) then
-           zuplus = zerfc(zikap/ta)
-           chi1(0) = -zikap*zuplus &
-                +2/dsqrt(4*datan(1d0))*a * cdexp(-(zikap/ta)**2)
-           zuplus = zerfc(zikap/tasm)
-           chi2(0) = -zikap*zuplus &
-                +2/dsqrt(4*datan(1d0))*asm * cdexp(-(zikap/tasm)**2)
-           chi1(-1) = -zerfc(-zikap/ta)/zikap
-           chi2(-1) = -zerfc(-zikap/tasm)/zikap
+           call rx('EH >0 not supported')
+           !zuplus = zerfc(zikap/ta)
+           !chi1(0) = -zikap*zuplus &
+           !     +2/dsqrt(4*datan(1d0))*a * cdexp(-(zikap/ta)**2)
+           !zuplus = zerfc(zikap/tasm)
+           !chi2(0) = -zikap*zuplus &
+           !     +2/dsqrt(4*datan(1d0))*asm * cdexp(-(zikap/tasm)**2)
+           !chi1(-1) = -zerfc(-zikap/ta)/zikap
+           !chi2(-1) = -zerfc(-zikap/tasm)/zikap
         else
            chi1(0) = ta*dexp(e/(2d0*ta2))/srpi - akap*derfc(akap/ta)
            chi1(-1) = derfc(akap/ta)/akap
@@ -1704,10 +1680,11 @@ subroutine hsmbld(p,rsm,e,q,a,lmax,alat,dlv,nkd,dl,dlp)
         endif
      else
         if (lpos) then
-           expikr = exp(zikap*r1)
-           zuplus = zerfc(zikap/ta+r1*a)*expikr
-           chi1(0) = expikr/r1 - dble(zuplus)/r1
-           chi1(-1)= expikr/zikap + dimag(zuplus)/kap
+           call rx('EH >0 not supported')
+!           expikr = exp(zikap*r1)
+!           zuplus = zerfc(zikap/ta+r1*a)*expikr
+!           chi1(0) = expikr/r1 - dble(zuplus)/r1
+!           chi1(-1)= expikr/zikap + dimag(zuplus)/kap
         else
            !         If large, these are -log(uplus),-log(umins); then chi->0
            !r        If both (akap*rsm/2 -/+ r/rsm) >> 1, we have
@@ -1741,11 +1718,10 @@ subroutine hsmbld(p,rsm,e,q,a,lmax,alat,dlv,nkd,dl,dlp)
         !        chi2 is complex; so is chi1, but the imaginary part
         !        is the same, so the difference is real
         if (lpos) then
-           zuplus = zerfc(zikap/tasm+r1*asm)*expikr
-           chi2(0) = expikr/r1 - dble(zuplus)/r1
-           chi2(-1) = expikr/zikap + dimag(zuplus)/kap
-           !          zchi2(0) = expikr/r1 - dble(zuplus)/r1
-           !          zchi2(-1) = expikr/zikap + dimag(zuplus)/kap
+           call rx('EH >0 not supported')
+           !zuplus = zerfc(zikap/tasm+r1*asm)*expikr
+           !chi2(0) = expikr/r1 - dble(zuplus)/r1
+           !chi2(-1) = expikr/zikap + dimag(zuplus)/kap
         else
            if (.5d0*akap/asm+r1*asm > srfmax .AND. &
                 .5d0*akap/asm-r1*asm > srfmax .OR. akap*r1 > fmax)then

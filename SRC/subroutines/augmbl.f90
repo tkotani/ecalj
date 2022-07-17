@@ -64,7 +64,9 @@ subroutine augmbl(isp, q , sv_p_osig , sv_p_otau , sv_p_oppi, ndimh , h,s )
      nlmb = (lmxb+1)**2
      nlma = (lmxa+1)**2
      if (lmxa == -1) cycle
-     call bstrux_set(ibas,q) !--- Set strux b to expand all orbitals at site ia ---
+     call bstrux_set(ibas,q) !--- Set bloch sum of structure constant b
+     ! to expand all orbitals at site ia. (Bloch sum of C^i_akL (C.1) in Ref.[1])
+     !
      if(allocated(b)) deallocate(b)
      allocate( b(0:kmax,nlma,ndimh) )
      do lm=1,nlma
@@ -282,7 +284,6 @@ subroutine aughsoc(qp,ohsozz,ohsopm, ndimh, hso)
   !i   hsozz,hsopm : atomic parts of SOC (Lz and L-)
   !i   ndimh :dimension of halimtonian.
   !o   hso   :spin diagonal and off-diagonal block of spin-orbit hamiltonian
-  ! note  qp is shortened to be q as in the same manner of hambl.
   ! note  'shorbz need to be improved in future (the method in shortn3)'.
   ! note  We obtain Lz,L+,and L- (Lzz Lmm Lpp) in this routine. From their linear combinatios, we have hso.
   implicit none
@@ -355,7 +356,6 @@ subroutine aughsoc(qp,ohsozz,ohsopm, ndimh, hso)
   ! sumev=      -27.088951  val*vef=    -388.462096   sumtv=     361.373145
 
   hso=0d0
-  !sss call shorbz(qp,q,qlat,plat) !is this fine?
   q=qp !sss 
   do ibas = 1,nbas
      isa =ispec(ibas) 
