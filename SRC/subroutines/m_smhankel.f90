@@ -1350,7 +1350,7 @@ subroutine gklq(lmax,rsm,q,p,e,kmax,k0,alat,dlv,nkd,nrx,yl,wk, gkl)
   complex(8) :: gkl(0:k0,(lmax+1)**2),img=(0d0,1d0),phase
   real(8):: e
   ! Local variables
-  integer :: ilm,ir,k,l,m,nlm,ik1,ik2,lc1,ls1,lc2,ls2,job0,job1
+  integer :: ilm,ir,k,l,m,nlm,job0,job1
   real(8) :: qdotr,pi,tpi,y0,ta2,x,y,a2,g0fac,xx1,xx2,x1,x2, y2,p1(3),sp,cosp,sinp,pp(3)
   if (kmax < 0 .OR. lmax < 0 .OR. rsm == 0d0) return
 !  job0 = 2! mod(job,10)
@@ -1362,11 +1362,9 @@ subroutine gklq(lmax,rsm,q,p,e,kmax,k0,alat,dlv,nkd,nrx,yl,wk, gkl)
   a2  = 1/rsm**2
   ta2 = 2*a2
   gkl=0d0
-  
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1111111
   wk(:,5:2*lmax+10)=0d0
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
-  
   ! ... Shorten connecting vector; need to adjust phase later
   ! if (job1 == 1 .OR. job1 == 3) then
   !    !call shortn(p,p1,dlv,nkd)
@@ -1378,14 +1376,9 @@ subroutine gklq(lmax,rsm,q,p,e,kmax,k0,alat,dlv,nkd,nrx,yl,wk, gkl)
   !endif
   p1=p
   ! --- Put ylm in yl and alat**2*(p-dlv)**2 in wk(1) ---
-  lc1 = 5
-  ls1 = 6
-  lc2 = 7
-  ls2 = 8
-  ik1 = 9
-  ik2 = 10+lmax
   ! --- Outer loop over k (in blocks of 2), and over l ---
   wkblock: block
+    integer:: li,le
     real(8):: wk1(nkd,0:lmax),wk2(nkd,0:lmax)
     complex(8):: wkc1(nkd),wkc2(nkd)
   do  301  k = 0, kmax, 2
@@ -1415,48 +1408,22 @@ subroutine gklq(lmax,rsm,q,p,e,kmax,k0,alat,dlv,nkd,nrx,yl,wk, gkl)
               wk2(ir,l) = xx2
               wkc1(ir)= (wk(ir,3)+img*wk(ir,4))*xx1
               wkc2(ir)= (wk(ir,3)+img*wk(ir,4))*xx2
-!              wk(ir,lc1) = wk(ir,3)*xx1
-!              wk(ir,ls1) = wk(ir,4)*xx1
-!              wk(ir,lc2) = wk(ir,3)*xx2
-!              wk(ir,ls2) = wk(ir,4)*xx2
 34         enddo
         endif
         !   ... For each point, add G_kl Y_L exp(i q.dlv) into Bloch G_kL
-        ilm = l*l
-        if (k < kmax) then
-           do  36  m = -l, l
-              ilm = ilm+1
-              do  38  ir = nkd, 1, -1
-                 gkl(k,ilm)   = gkl(k,ilm)   + wkc1(ir)*yl(ir,ilm)
-                 gkl(k+1,ilm) = gkl(k+1,ilm) + wkc2(ir)*yl(ir,ilm) !(wk(ir,lc2)+img*wk(ir,ls2))*yl(ir,ilm)
-38            enddo
-36         enddo
-        else
-           do  46  m = -l, l
-              ilm = ilm+1
-              do  48  ir = nkd, 1, -1
-                 gkl(k,ilm) = gkl(k,ilm) + wkc1(ir)*yl(ir,ilm) !(wk(ir,lc1)+img*wk(ir,ls1))*yl(ir,ilm)
-48            enddo
-46         enddo
+        li=l*l+1
+        le=l*l+2*l+1
+        gkl(k,li:le)   = gkl(k,li:le) + [(sum([(wkc1(ir)*yl(ir,ilm),ir=nkd,1,-1)]), ilm=li,le)]
+        if(k<kmax) then
+           gkl(k+1,li:le) = gkl(k+1,li:le) + [(sum([(wkc2(ir)*yl(ir,ilm),ir=nkd,1,-1)]),ilm=li,le)]
         endif
 30   enddo
 301 enddo
 endblock wkblock
   ! ... Put in phase to undo shortening, or different phase convention
   sp = tpi*sum(q*(p-p1)) 
-!  if (job1 >= 2) sp = sp-tpi*sum(q*p1) 
-  if (sp /= 0d0) then
-!     cosp = dcos(sp)
-!     sinp = dsin(sp)
-     phase= exp(img*sp)
-     do    ilm = 1, nlm
-!        do    k   = 0, kmax
-!           x1 = dreal(gkl(k,ilm))
-!           x2 = dimag(gkl(k,ilm))
-           gkl(0:kmax,ilm) = gkl(0:kmax,ilm)*phase !(x1*cosp - x2*sinp)+img*( x2*cosp + x1*sinp)
-!        enddo
-     enddo
-  endif
+  phase = exp(img*sp)
+  if(sp/=0d0) gkl(0:kmax,1:nlm) = gkl(0:kmax,1:nlm)*phase
 end subroutine gklq
 subroutine hsmbl(p,rsm,e,q,lmax,cy,hsm,hsmp) 
   use m_lattic,only: rv_a_oqlv,rv_a_odlv,plat=>lat_plat
