@@ -17,6 +17,7 @@ subroutine lmfp(llmfgw)
   use m_mixrho,only: Parms0
   use m_lattic,only: Setopos
   use m_ftox
+  use m_rdovfa,only:rdovfa
   !!= Main routine of lmf = (following document is roughly checked at May2021)
   !! lmfp contains two loops after initialization
   !!   1  outer  MDloop:  do 2000 is for molecular dynamics (relaxiation).

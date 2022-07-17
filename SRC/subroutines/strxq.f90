@@ -4,6 +4,7 @@ subroutine strxq(mode,e,q,p,nlma,nlmh,ndim,alat,vol,awald,nkd,nkq, &
   !use m_shortn4,only: shortn4,shortn4_initialize,nout,nlatout
   use m_hamindex,only:   plat,qlat
   use m_shortn3_plat,only: shortn3_plat,nout,nlatout
+  use m_hsmq,only: hsmq,hsmqe0
   !- One-center expansion coefficents to j of Bloch summed h (strux)
   ! ----------------------------------------------------------------
   !r  Onsite contribution is not contained in the bloch sum in the case of p=0.
@@ -90,7 +91,7 @@ subroutine strxq(mode,e,q,p,nlma,nlmh,ndim,alat,vol,awald,nkd,nkq, &
   e_(1)=e
   rsm_(1)=0d0
   if (e < 0) then
-     call hsmq(1,0,lmax_,e_,rsm_,job,q,p1,nrx,nlm0,wk,yl,awald,alat,qlv,nkq,dlv,nkd,vol,dl,dlp)
+     call hsmq(1,0,lmax_,e_,rsm_,job,q,p1,nrx,nlm0,yl,awald,alat,qlv,nkq,dlv,nkd,vol,dl,dlp)
   else
      call hsmqe0(lmax,0d0,job,q,p1,nrx,nlm0,wk,yl, awald,alat,qlv,nkq,dlv,nkd,vol,dl)
      ldot = .false.

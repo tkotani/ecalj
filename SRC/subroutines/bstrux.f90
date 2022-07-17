@@ -111,6 +111,7 @@ contains
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol,rv_a_opos
     use m_uspecb,only: uspecb
     use m_orbl,only: Orblib, norb,ltab,ktab,offl
+    use m_smhankel,only: hxpos
     !- Structure constants for P_kL expansion of Bloch lmto + PW around site ia
     ! ----------------------------------------------------------------------
     !i Inputs

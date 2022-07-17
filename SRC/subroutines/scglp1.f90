@@ -1,5 +1,5 @@
 subroutine scglp1(mlm,kz,cz,kx1,kx2,cx1,cx2,ky1,ky2,cy1,cy2)
-  !- Makes Clebsch-Gordan coefficients coupling to l+1 for one mlm
+  !- Makes Clebsch-Gordan coefficients coupling to l+1 for one mlm. See ropylg and m_smhankel
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   mlm
