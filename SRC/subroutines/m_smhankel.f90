@@ -1504,15 +1504,14 @@ subroutine gklq(lmax,rsm,q,p,e,kmax,k0,alat,dlv,nkd,nrx,yl,wk,job, gkl)
      enddo
   endif
 end subroutine gklq
-subroutine hsmbl(p,rsm,e,q,lmax,cy,hsm,hsmp) !,slat
-  use m_lattic,only: rv_a_oqlv,rv_a_odlv,lat_plat
-  use m_struc_def           !Cgetarg
-  use m_lmfinit,only: lat_alat,lat_tol
-  use m_lattic,only: lat_qlat
-  use m_lattic,only: lat_vol
-  use m_lattic,only: lat_awald
-  use m_lattic,only: lat_nkd
-  use m_lattic,only: lat_nkq
+subroutine hsmbl(p,rsm,e,q,lmax,cy,hsm,hsmp) 
+  use m_lattic,only: rv_a_oqlv,rv_a_odlv,plat=>lat_plat
+  use m_lmfinit,only: alat=>lat_alat,tol=>lat_tol
+  use m_lattic,only: qlat=>lat_qlat
+  use m_lattic,only: vol=>lat_vol
+  use m_lattic,only: awald=>lat_awald
+  use m_lattic,only: nkd=>lat_nkd
+  use m_lattic,only: nkq=>lat_nkq
   use m_shortn3_plat,only: shortn3_plat,nout,nlatout
   !- Bloch-sum of smooth Hankel functions and energy derivatives
   ! ----------------------------------------------------------------------
@@ -1539,29 +1538,21 @@ subroutine hsmbl(p,rsm,e,q,lmax,cy,hsm,hsmp) !,slat
   integer :: lmax
   real(8):: rsm , e , q(3) , p(3) , cy(1), ppin(3)
   complex(8):: hsm(1),hsmp(1)
-  integer:: nkd , nkq , ilm , l , m,ll
-  real(8) :: alat,p1(3),plat(3,3),qlat(3,3),sp,rwald,awald,asm, tol,vol
+  integer:: ilm , l , m,ll
+  real(8) :: p1(3),sp,rwald,asm
   real(8),parameter:: pi = 4d0*datan(1d0)
   complex(8):: cfac,phase,img=(0d0,1d0)
-  alat=lat_alat
-  plat=lat_plat
-  qlat=lat_qlat
   ppin=matmul(transpose(qlat),p) 
   call shortn3_plat(ppin) 
-  p1= matmul(plat,ppin+nlatout(:,1))
+  p1= matmul(plat,ppin+nlatout(:,1)) ! p is shortened to be p1
   phase = exp(img*2*pi*sum(q*(p-p1)))
-  awald=lat_awald
-  tol=lat_tol
-  vol=lat_vol
-  nkd=lat_nkd
-  nkq=lat_nkq
   rwald = 1d0/awald
   asm = 1d0/rsm
   if (rsm < rwald) then
-     call hsmblq ( p1 , e , q , awald , lmax , alat , rv_a_oqlv , nkq , vol , hsm , hsmp )
-     call hsmbld ( p1 , rsm , e , q , awald , lmax , alat , rv_a_odlv , nkd , hsm , hsmp )
+     call hsmblq(p1 , e , q , awald , lmax , alat , rv_a_oqlv , nkq , vol , hsm , hsmp )
+     call hsmbld(p1 , rsm , e , q , awald , lmax , alat , rv_a_odlv , nkd , hsm , hsmp )
   else
-     call hsmblq ( p1 , e , q , asm , lmax , alat , rv_a_oqlv , nkq   , vol , hsm , hsmp )
+     call hsmblq(p1 , e , q , asm , lmax , alat , rv_a_oqlv , nkq   , vol , hsm , hsmp )
   endif
   ! ... Multiply by phase to undo shortening
   do ilm=1,(lmax+1)**2
@@ -1615,15 +1606,12 @@ subroutine hsmblq(p,e,q,a,lmax,alat,qlv,nkq,vol,dl,dlp)
   dl(1:nlm)  = fpibv*dl(1:nlm)
   dlp(1:nlm) = fpibv*dlp(1:nlm) + gamma*dl(1:nlm)
 end subroutine hsmblq
-subroutine hsmbld(p,rsm,e,q,a,lmax,alat,dlv,nkd,dl,dlp)
-  !- Adds real space part of reduced structure constants (ewald).
-  !u Updates
-  !u   10 May 07 New protections to handle error functions underflow
+subroutine hsmbld(p,rsm,e,q,a,lmax,alat,dlv,nkd,dl,dlp)! Adds real space part of reduced structure constants (ewald).
   implicit none
   integer :: lmxx,ilm,ir,l,lmax,m,nkd,nm
   real(8) :: q(3),p(3),dlv(3,nkd)
   complex(8):: dl(1),dlp(1)
-  logical :: lpos,lzero
+  logical ::lzero
   parameter (lmxx=11)
   real(8) :: a,a2,akap,alat,asm,asm2,cc,ccsm,derfc,e,emkr,gl, &
        qdotr,r1,r2,rsm,srpi,ta,ta2,tasm,tasm2,umins,uplus,tpi,kap
@@ -1631,17 +1619,11 @@ subroutine hsmbld(p,rsm,e,q,a,lmax,alat,dlv,nkd,dl,dlp)
   complex(8):: cfac,zikap,expikr,zuplus,zerfc
   real(8) :: srfmax,fmax
   parameter (srfmax=16d0, fmax=srfmax*srfmax)
+  if (e>0d0) call rx('EH >0 not supported') !lpos mode removed
   if (lmax > lmxx) call rxi('hsmbld: increase lmxx to',lmax)
   tpi = 8.d0*datan(1.d0)
   srpi = dsqrt(tpi/2.d0)
-  lpos = e .gt. 0d0
-  if (lpos) then !Methfessl's 'akap' is sqrt(-e) = i kap by standard kap=sqrt(e)
-     call rx('EH >0 not supported')
-     !kap = dsqrt(e)
-     !zikap = dcmplx(0d0,1d0)*kap
-  else
-     akap = dsqrt(-e)
-  endif
+  akap = dsqrt(-e)
   ta = 2d0*a
   a2 = a*a
   ta2 = 2d0*a2
@@ -1662,46 +1644,26 @@ subroutine hsmbld(p,rsm,e,q,a,lmax,alat,dlv,nkd,dl,dlp)
            chi1(l) = 0d0
            chi2(l) = 0d0
         enddo
-        if (lpos) then
-           call rx('EH >0 not supported')
-           !zuplus = zerfc(zikap/ta)
-           !chi1(0) = -zikap*zuplus &
-           !     +2/dsqrt(4*datan(1d0))*a * cdexp(-(zikap/ta)**2)
-           !zuplus = zerfc(zikap/tasm)
-           !chi2(0) = -zikap*zuplus &
-           !     +2/dsqrt(4*datan(1d0))*asm * cdexp(-(zikap/tasm)**2)
-           !chi1(-1) = -zerfc(-zikap/ta)/zikap
-           !chi2(-1) = -zerfc(-zikap/tasm)/zikap
-        else
-           chi1(0) = ta*dexp(e/(2d0*ta2))/srpi - akap*derfc(akap/ta)
-           chi1(-1) = derfc(akap/ta)/akap
-           chi2(0) = tasm*dexp(e/(2d0*tasm2))/srpi - akap*derfc(akap/tasm)
-           chi2(-1) = derfc(akap/tasm)/akap
-        endif
+        chi1(0) = ta*dexp(e/(2d0*ta2))/srpi - akap*derfc(akap/ta)
+        chi1(-1) = derfc(akap/ta)/akap
+        chi2(0) = tasm*dexp(e/(2d0*tasm2))/srpi - akap*derfc(akap/tasm)
+        chi2(-1) = derfc(akap/tasm)/akap
      else
-        if (lpos) then
-           call rx('EH >0 not supported')
-!           expikr = exp(zikap*r1)
-!           zuplus = zerfc(zikap/ta+r1*a)*expikr
-!           chi1(0) = expikr/r1 - dble(zuplus)/r1
-!           chi1(-1)= expikr/zikap + dimag(zuplus)/kap
+        !         If large, these are -log(uplus),-log(umins); then chi->0
+        !r        If both (akap*rsm/2 -/+ r/rsm) >> 1, we have
+        !r        -log u(+/-) -> (akap*rsm/2 -/+ r/rsm)^2 -/+ akap*r
+        !r                    =  (akap*rsm/2)^2 + (r/rsm)^2 >> 1
+        !r         u(+/-)     -> exp[-(akap*rsm/2)^2 - (r/rsm)^2] -> 0
+        !r        Also if akap*r >> 1,   chi < dexp(-akap*r1) -> 0
+        emkr = dexp(-akap*r1)
+        if (.5d0*akap/a+r1*a > srfmax .AND. &
+             .5d0*akap/a-r1*a > srfmax .OR. akap*r1 > fmax) then
+           lzero = .true.
         else
-           !         If large, these are -log(uplus),-log(umins); then chi->0
-           !r        If both (akap*rsm/2 -/+ r/rsm) >> 1, we have
-           !r        -log u(+/-) -> (akap*rsm/2 -/+ r/rsm)^2 -/+ akap*r
-           !r                    =  (akap*rsm/2)^2 + (r/rsm)^2 >> 1
-           !r         u(+/-)     -> exp[-(akap*rsm/2)^2 - (r/rsm)^2] -> 0
-           !r        Also if akap*r >> 1,   chi < dexp(-akap*r1) -> 0
-           emkr = dexp(-akap*r1)
-           if (.5d0*akap/a+r1*a > srfmax .AND. &
-                .5d0*akap/a-r1*a > srfmax .OR. akap*r1 > fmax) then
-              lzero = .true.
-           else
-              uplus = derfc(.5d0*akap/a+r1*a)/emkr
-              umins = derfc(.5d0*akap/a-r1*a)*emkr
-              chi1(0) = 0.5d0*(umins-uplus)/r1
-              chi1(-1) = (umins+uplus)/(2.d0*akap)
-           endif
+           uplus = derfc(.5d0*akap/a+r1*a)/emkr
+           umins = derfc(.5d0*akap/a-r1*a)*emkr
+           chi1(0) = 0.5d0*(umins-uplus)/r1
+           chi1(-1) = (umins+uplus)/(2.d0*akap)
         endif
         if (lzero) then
            do  30  l = -1, lmax
@@ -1717,21 +1679,14 @@ subroutine hsmbld(p,rsm,e,q,a,lmax,alat,dlv,nkd,dl,dlp)
         endif
         !        chi2 is complex; so is chi1, but the imaginary part
         !        is the same, so the difference is real
-        if (lpos) then
-           call rx('EH >0 not supported')
-           !zuplus = zerfc(zikap/tasm+r1*asm)*expikr
-           !chi2(0) = expikr/r1 - dble(zuplus)/r1
-           !chi2(-1) = expikr/zikap + dimag(zuplus)/kap
+        if (.5d0*akap/asm+r1*asm > srfmax .AND. &
+             .5d0*akap/asm-r1*asm > srfmax .OR. akap*r1 > fmax)then
+           lzero = .true.
         else
-           if (.5d0*akap/asm+r1*asm > srfmax .AND. &
-                .5d0*akap/asm-r1*asm > srfmax .OR. akap*r1 > fmax)then
-              lzero = .true.
-           else
-              uplus = derfc(.5d0*akap/asm+r1*asm)/emkr
-              umins = derfc(.5d0*akap/asm-r1*asm)*emkr
-              chi2(0) = 0.5d0*(umins-uplus)/r1
-              chi2(-1) = (umins+uplus)/(2d0*akap)
-           endif
+           uplus = derfc(.5d0*akap/asm+r1*asm)/emkr
+           umins = derfc(.5d0*akap/asm-r1*asm)*emkr
+           chi2(0) = 0.5d0*(umins-uplus)/r1
+           chi2(-1) = (umins+uplus)/(2d0*akap)
         endif
         if (lzero) then
            do  40  l = -1, lmax

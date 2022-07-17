@@ -353,19 +353,17 @@ subroutine hsmqe0(lmax,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dlv,nD,vol,h
   ! ---------------------------------------------------------------
   implicit none
   integer :: lmax,nG,nD,nlmx,nrx,job
-  double precision :: alat,awald,vol,rsm,p(3),q(3), &
-       wk(nrx,*),yl(nrx,*),qlv(3,*),dlv(3,*), hsm(2,nlmx)
-  integer :: ir,ilm,l,m,ir1,lc,ls,job0,job1,job2,job3,lm,nlmxx,nDx, &
-       lx1(1)
+  integer :: ir,ilm,l,m,ir1,lc,ls,job0,job1,job2,job3,lm,nlmxx,nDx, lx1(1)
   parameter (nlmxx=(200+1)**2) !(nlmxx=(16+1)**2)
-  double precision :: qdotr,y0,a2,pi,sp,gam,tpiba,tpi,p1(3),ex1(1), &
+  real(8) :: qdotr,y0,a2,pi,sp,gam,tpiba,tpi,p1(3),ex1(1), &
        x1,x2,xx,xx1(nlmxx),xx2(nlmxx),r,h0,q0(3),a,faca,cosp,sinp
+  real(8):: alat,awald,vol,rsm,p(3),q(3), &
+       wk(nrx,*),yl(nrx,*),qlv(3,*),dlv(3,*), hsm(2,nlmx)  
   parameter (faca=1d0)
-  double complex xxc
+  complex(8):: xxc
   logical :: dcmpre,lqzero
   real(8):: pp(3)
   dcmpre(x1,x2) = dabs(x1-x2) .lt. 1d-8
-  ! --- Setup ---
   job0 = mod(job,10)
   if (nG /= 0) job0 = 0
   job1 = mod(job/10,10)
@@ -415,7 +413,7 @@ subroutine hsmqe0(lmax,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dlv,nD,vol,h
      do  12  ir = 1, nG
         sp = alat*(wk(ir,2)*p1(1) + wk(ir,3)*p1(2) + wk(ir,4)*p1(3))
         xxc = cdexp(dcmplx(-gam*wk(ir,1), sp))
-        wk(ir,2) = -dble(xxc)
+        wk(ir,2) = -dreal(xxc)
         wk(ir,3) = -dimag(xxc)
 12   enddo
      !   --- Q-space part hsm(1/a,e,r) of reduced strx for all energies ---
@@ -454,7 +452,6 @@ subroutine hsmqe0(lmax,rsm,job,q,p,nrx,nlmx,wk,yl,awald,alat,qlv,nG,dlv,nD,vol,h
         wk(ir,6) = y0*dexp(-wk(ir,1)*a2)
 24   enddo
   endif
-
   ! --- D-space part of reduced strx for each energy: chi(l)=wk(l+lc)---
   ir1 = 1
   ! ... Case connecting vector p=0
@@ -817,14 +814,13 @@ subroutine hansr4(rsq,lmax,nrx,nr,e,rsm,wk,wk2,chi)
   !     up = erfc(akap*rsm/2+r/rsm)*exp(akap*r)/(2r)
   !     um = erfc(akap*rsm/2-r/rsm)/exp(akap*r)/(2r)
   !     um,up correspond to umins/(2r),uplus/(2r) in hansmr
-  ir1 = 1
   ! ... See Remarks for derivation of expressions in this case
+  ir1 = 1
   if (rsq(1) < 1d-12) then
      ir1 = 2
      xx = earsm/dsqrt(4d0*datan(1d0))
      h0 = erfc(arsm)
-     !         chi(-1) -> erfc(akap/2a)/akap for r=0
-     chi(1,0)  = akap*h0 - 4d0*a*xx
+     chi(1,0)  = akap*h0 - 4d0*a*xx !  chi(-1) -> erfc(akap/2a)/akap for r=0
      chi(1,-1) = -h0/akap
   endif
   ! ... Make chi(r,rsm->0,l) - chi(r,rsm,l) for l=-1, 0
@@ -835,29 +831,27 @@ subroutine hansr4(rsq,lmax,nrx,nr,e,rsm,wk,wk2,chi)
      sre = akap*r
      h0 = dexp(-sre)/r
      xx = earsm*wk(ir)/r
-     !     ... Evaluate um; use (akap/2a-ra)^2 = (akap/2a)^2+(ra)^2-akap*r
      x = ra - arsm
-     if(x>0d0) then
+     if(x>0d0) then ! ... Evaluate um; use (akap/2a-ra)^2 = (akap/2a)^2+(ra)^2-akap*r
         um=h0-xx*erfcee(x)   !erfc(x )*xx/y0/exp(-x**2)
      elseif(x<0d0) then
         um=   xx*erfcee(x)   !erfc(-x)*xx/y0/exp(-x**2)
      endif  !    write(6,ftox)'111aaax',ftod(x),ftod(erfc(x) / (erfcee(x)*y0*exp(-x**2)) )
      !     ... Evaluation of up assumes x gt 0
      x = ra + arsm
-     up = xx*erfcee(x) !erfc(x )*xx/y0/exp(-x**2)
-     !     ... Make chi(r,rsm->0,l) - chi(r,rsm,l) for l=-1, 0
-     chi(ir,-1) = (h0 - um - up)*r/akap
+     up = xx*erfcee(x) ! = xx* erfc(x )/y0/exp(-x**2)
+     chi(ir,-1) = (h0 - um - up)*r/akap ! Make chi(r,rsm->0,l) - chi(r,rsm,l) for l=-1, 0
      chi(ir,0)  =  h0 - um + up
      wk2(ir) = facgl*wk(ir)
 20 enddo
   ! --- chi(ir,l) for l>1 by upward recursion ---
   facgl = 2d0*a**2
   chi(1,1:lmax) = 0
-  do  30  l = 1, lmax
+  do l = 1, lmax
      xx = 2*l-1
      chi(ir1:nr,l) = [((xx*chi(ir,l-1) - e*chi(ir,l-2) + wk2(ir))/rsq(ir),ir=ir1,nr)]
      wk2(ir1:nr) = facgl*wk2(ir1:nr)
-30 enddo
+  enddo
 end subroutine hansr4
 subroutine hansr5(rsq,lmax,nrx,nr,rsm,wk,wk2,chi)
   use m_ftox
@@ -894,21 +888,19 @@ subroutine hansr5(rsq,lmax,nrx,nr,rsm,wk,wk2,chi)
      ir1 = 2
      chi(1,0) = -2d0*a/dsqrt(4d0*datan(1d0))!   ... hsm(e=0,r=0) = 4*a*y0
   endif
-  do  20  ir = ir1, nr
+  do  ir = ir1, nr
      r = rsq(ir)**.5d0
      chi(ir,0)= wk(ir)/r * erfcee(r*a) !=xx*erfc(ra)/y0/exp(-ra**2)
      wk2(ir) = facgl*wk(ir)
-20 enddo
+  enddo
   ! --- chi(ir,l) for l>0 by upward recursion ---
   facgl = 2*a**2
   chi(1,1:lmax)=0d0
-  do  30  l = 1, lmax
+  do   l = 1, lmax
      xx = 2*l-1
-     do  7  ir = ir1, nr
-        chi(ir,l) = (xx*chi(ir,l-1) + wk2(ir))/rsq(ir)
-        wk2(ir) = facgl*wk2(ir)
-7    enddo
-30 enddo
+     chi(ir1:nr,l) = [((xx*chi(ir,l-1) + wk2(ir))/rsq(ir),ir=ir1,nr)]
+     wk2(ir1:nr) = facgl*wk2(ir1:nr)
+  enddo
 end subroutine hansr5
 
 real(8) function erfcee(ra) ! erfcee(x)= erfc(|x|)/y0/exp(-x*x)
