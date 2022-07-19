@@ -1,5 +1,4 @@
-subroutine makusp(n0,z,nsp,rmax,lmxa,v,a,nr,rs3,vmtz,pnu,pnz, &
-     rsml,ehl,ul,sl,gz,ruu,rus,rss)
+subroutine makusp(n0,z,nsp,rmax,lmxa,v,a,nr,rs3,vmtz,pnu,pnz,rsml,ehl, ul,sl,gz,ruu,rus,rss)
   use m_hansr,only: hansr
   !- Augmentation fcts of pure val,slo (times r) from spherical V and b.c.
   ! ----------------------------------------------------------------------
@@ -68,14 +67,12 @@ subroutine makusp(n0,z,nsp,rmax,lmxa,v,a,nr,rs3,vmtz,pnu,pnz, &
   !u   21 Aug 01 Extended to local orbitals.  Altered argument list.
   !u   16 May 00 Adapted from nfp makusp, makusr and potpsr.
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
+  implicit none
   integer :: lmxa,nr,nsp,n0
   double precision :: a,rmax,z,rs3,vmtz,rsml(0:lmxa),ehl(0:lmxa), &
        v(nr,1),pnu(n0,2),pnz(n0,2), &
        ul(nr,lmxa+1,1),sl(nr,lmxa+1,1),gz(nr,lmxa+1,1), &
        ruu(nr,lmxa+1,2,1),rus(nr,lmxa+1,2,1),rss(nr,lmxa+1,2,1)
-  ! ... Local parameters
   integer :: i,l,k,nrx,lpz,lpzi,nrbig,idx
   parameter (nrx=1501)
   double precision :: dphi,dphip,enu,ez,p,phi,phip, &
@@ -83,13 +80,10 @@ subroutine makusp(n0,z,nsp,rmax,lmxa,v,a,nr,rs3,vmtz,pnu,pnz, &
   double precision :: rofi(nrx),rwgt(nrx),vbig(nrx,2)
   double precision :: xi(0:n0),wk(2),fac1
   logical:: isanrg, l_dummy_isanrg
-
   ! --- Make rofi,rwgt, and possibly extended mesh ---
-  call vxtrap(1,z,rmax,lmxa,v,a,nr,nsp,pnz,rs3,vmtz,nrx, &
-       lpz,nrbig,rofi,rwgt,vbig)
+  call vxtrap(1,z,rmax,lmxa,v,a,nr,nsp,pnz,rs3,vmtz,nrx,lpz,nrbig,rofi,rwgt,vbig)
   ! ino isanrg is logical function,       call isanrg(nrbig,nr,nrx,'makusp:','nrbig',.true.)
   l_dummy_isanrg=isanrg(nrbig,nr,nrx,'makusp:','nrbig',.true.)
-
   ! --- Loop over spins and l ---
   do  i = 1, nsp
      do  l = 0, lmxa
@@ -104,7 +98,6 @@ subroutine makusp(n0,z,nsp,rmax,lmxa,v,a,nr,rs3,vmtz,pnu,pnz, &
                 gzl,gp,ez,phz,dphz,phip,dphip,p)
            !         Scale extended local orbital
            if (lpzi > 1) then
-              !              call hansr(rsml(l),0,l,1,l,ehl(l),rmax**2,1,1,idx,wk,11,xi)
               call hansr(rsml(l),0,l,1,[l],[ehl(l)],[rmax**2],1,1,[idx],11,xi)
               fac1 = gzl(nr,1)/rmax/xi(l)
               call dscal(2*nr,1/fac1,gzl,1)
@@ -133,18 +126,9 @@ subroutine makusp(n0,z,nsp,rmax,lmxa,v,a,nr,rs3,vmtz,pnu,pnz, &
         enddo
      enddo
   endif
-
-  !     call prrmsh('ul',rofi,ul,nr,nr,1+lmxa)
-  !      call wrhomt('ul','ul',0,ul,rofi,nr,1+lmxa,nsp)
-  !      call wrhomt('sl','sl',0,sl,rofi,nr,1+lmxa,nsp)
-  !      if (lpz .ne. 0) then
-  !      call wrhomt('gz','gz',0,gz,rofi,nr,1+lmxa,nsp)
-  !      endif
-
-
 end subroutine makusp
 subroutine makus2(lpz,nr,rofi,g,gp,gz,phi,dphi,phip,dphip,phz, &
-     dphz,l,e,ez,z,v,ul,sl,ruu,rus,rss,ruz,rsz,rzz)
+     dphz,l,e,ez,z,v,  ul,sl,ruu,rus,rss,ruz,rsz,rzz)
   !- Kernel to make u and s from g and gp, for one l
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -190,18 +174,15 @@ subroutine makus2(lpz,nr,rofi,g,gp,gz,phi,dphi,phip,dphip,phz, &
   !u   13 Jul 04 First implementation of extended local orbitals
   !u   21 Aug 01 extended to computation of semicore states
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
+  implicit none
   integer :: l,nr,lpz
   double precision :: dphi,dphip,e,ez,phi,phip,phz,dphz,z
   double precision :: g(nr*2),gp(nr*2),gz(nr*2),rofi(nr),v(nr),ul(nr), &
        sl(nr),ruu(nr),rus(nr),rss(nr),ruz(nr),rsz(nr),rzz(nr)
-  ! ... Local parameters
   integer :: ir,jr
   double precision :: as,au,bs,bu,det,fllp1,gfac,gf11,gf12,gf22,r,sx, &
        tmcr,ux,c,phzl,dphzl
   common /cc/ c
-
   fllp1 = l*(l+1)
   det = phi*dphip - dphi*phip
   au = dphip/det
@@ -215,9 +196,7 @@ subroutine makus2(lpz,nr,rofi,g,gp,gz,phi,dphi,phip,dphip,phz, &
      phzl = phz
      dphzl = dphz
   endif
-
   if (z /= 0) then
-
      !       This branch computes products of (g,gp,gz)
      if (lpz /= 0) then
         do  ir = 1, nr
@@ -265,9 +244,7 @@ subroutine makus2(lpz,nr,rofi,g,gp,gz,phi,dphi,phip,dphip,phz, &
            rus(ir) = gfac*ul(ir)*sl(ir) + ux*sx
            rss(ir) = gfac*sl(ir)*sl(ir) + sx*sx
         enddo
-
      endif
-
      ! --- Treat z=0 nonrelativistically ---
   else
      if (lpz /= 0) then
@@ -290,24 +267,11 @@ subroutine makus2(lpz,nr,rofi,g,gp,gz,phi,dphi,phip,dphip,phz, &
         do  ir = 1, nr
            ul(ir) = au*g(ir) + bu*gp(ir)
            sl(ir) = as*g(ir) + bs*gp(ir)
-
            ruu(ir) = ul(ir)*ul(ir)
            rus(ir) = ul(ir)*sl(ir)
            rss(ir) = sl(ir)*sl(ir)
         enddo
      endif
   endif
-
-  !      call prrmsh('ruu',rofi,ruu,nr,nr,1)
-  !      call prrmsh('rus',rofi,rus,nr,nr,1)
-  !      call prrmsh('rss',rofi,rss,nr,nr,1)
-  !      if (lpz) then
-  !        call prrmsh('ul',rofi,ul,nr,nr,1)
-  !        call prrmsh('sl',rofi,sl,nr,nr,1)
-  !        call prrmsh('gz',rofi,gz,nr,nr,2)
-  !         call prrmsh('ruz',rofi,ruz,nr,nr,1)
-  !         call prrmsh('rsz',rofi,rsz,nr,nr,1)
-  !         call prrmsh('rzz',rofi,rzz,nr,nr,1)
-  !      endif
 end subroutine makus2
 

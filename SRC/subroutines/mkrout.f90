@@ -95,31 +95,10 @@ contains
     type(s_rv1) :: sv_p_oqkkl(3,nbas)
     real(8):: qbyl(n0,nsp,nbas) , hbyl(n0,nsp,nbas) , sab(nab,n0,nsp,nbas), hab(nab,n0,nsp,nbas)
     integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc &
-         , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , &
-         nr , ncore , igetss
-    real(8) ,allocatable :: dmatl_rv(:)
-    real(8) ,allocatable :: dh_rv(:)
-    real(8) ,allocatable :: dp_rv(:)
-    real(8) ,allocatable :: fh_rv(:)
-    real(8) ,allocatable :: fp_rv(:)
-    real(8) ,allocatable :: rofi_rv(:)
-    real(8) ,allocatable :: rss_rv(:)
-    real(8) ,allocatable :: rus_rv(:)
-    real(8) ,allocatable :: ruu_rv(:)
-    real(8) ,allocatable :: rwgt_rv(:)
-    real(8) ,allocatable :: sl_rv(:)
-    real(8) ,allocatable :: ul_rv(:)
-    real(8) ,allocatable :: gz_rv(:)
-    real(8) ,allocatable :: vh_rv(:)
-    real(8) ,allocatable :: vp_rv(:)
-    real(8) ,allocatable :: xh_rv(:)
-    real(8) ,allocatable :: xp_rv(:)
-    real(8) ,allocatable :: chh_rv(:)
-    real(8) ,allocatable :: chp_rv(:)
-    real(8) ,allocatable :: cpp_rv(:)
+         , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , r , ncore , igetss
     double precision :: a,ceh,pi,qcor(2),rfoc,rmt,smec,smtc,stc0, &
          sum1,sum2,sums1,sums2,xx,y0,z,ddot,res,rsml(n0),ehl(n0)
-    integer :: nkap0,nkapi,nkape,nglob
+    integer :: nkap0,nkapi,nkape,nr
     parameter (nkap0=3)
     integer :: lh(nkap0)
     double precision :: eh(n0,nkap0),rsmh(n0,nkap0)
@@ -129,6 +108,7 @@ contains
     integer ::iwdummy,ifx!,nlmto
     real(8):: dat(6,nbas)
     logical:: mmtargetx=.false.
+    real(8),allocatable:: rofi_rv(:),rwgt_rv(:)
     ipr  = iprint()
     pi   = 4d0*datan(1d0)
     y0   = 1d0/dsqrt(4d0*pi)
@@ -161,120 +141,104 @@ contains
        nlml = (lmxl+1)**2
        nlma = (lmxa+1)**2
        nlmh = (lmxh+1)**2
-       allocate(rofi_rv(nr))
-       allocate(rwgt_rv(nr))
+       allocate(rofi_rv(nr),rwgt_rv(nr))
        call radmsh( rmt , a , nr , rofi_rv )
        call radwgt( rmt , a , nr , rwgt_rv )
        if (lrout /= 0) then
-          orhoat_out(1, ib )%v=0d0
-          orhoat_out(2, ib )%v=0d0
+          orhoat_out(1,ib)%v=0d0
+          orhoat_out(2,ib)%v=0d0
           !   --- Assemble rho1 = products of augmented functions ---
           !   ... Set up all radial head and tail envelope functions, and their bc's
-          allocate(fh_rv(nr*(lmxh+1)*nkaph))
-          allocate(xh_rv(nr*(lmxh+1)*nkaph))
-          allocate(vh_rv((lmxh+1)*nkaph))
-          allocate(dh_rv((lmxh+1)*nkaph))
-          call fradhd(nkaph, eh, rsmh, lhh(:,is), lmxh , nr, rofi_rv, fh_rv , xh_rv , vh_rv , dh_rv )
-          allocate(fp_rv(nr*(lmxa+1)*(kmax+1)))
-          allocate(xp_rv(nr*(lmxa+1)*(kmax+1)))
-          allocate(vp_rv((lmxa+1)*(kmax+1)))
-          allocate(dp_rv((lmxa+1)*(kmax+1)))
-          call fradpk(kmax, rsma(is), lmxa , nr , rofi_rv , fp_rv, xp_rv , vp_rv , dp_rv )
-          !   ... Augmented wave functions
-          allocate(ul_rv(nr*(lmxa+1)*nsp))
-          allocate(sl_rv(nr*(lmxa+1)*nsp))
-          allocate(gz_rv(nr*(lmxa+1)*nsp))
-          allocate(ruu_rv(nr*(lmxa+1)*2*nsp))
-          allocate(rus_rv(nr*(lmxa+1)*2*nsp))
-          allocate(rss_rv(nr*(lmxa+1)*2*nsp))
-          rsml= rsmlss(:,is)
-          ehl=  ehlss(:,is)
-          call makusp(n0 , z , nsp , rmt , lmxa , v0pot(ib)%v, a , nr , &
-               xx , xx , pnu , pnz , rsml , ehl , ul_rv , sl_rv , gz_rv , ruu_rv &
-               , rus_rv , rss_rv )
-          !   ... Contracted density matrix as coffs to products of (u,s,gz)
           k = max(nkaph,1+kmax)**2*(lmxa+1)**2*nlml*nsp
-          allocate(chh_rv(k))
-          chh_rv=0d0
-          allocate(chp_rv(k))
-          chp_rv=0d0
-          allocate(cpp_rv(k))
-          cpp_rv=0d0
-          allocate(dmatl_rv((lmxa+1)**2*nlml*nsp*9))
-          dmatl_rv=0d0
-          call mkrou1(nsp, nlmh , nlma , nlml , kmax  &
-               ,  nkaph , nkapi , norb , ltab , ktab , blks &
-               , sv_p_oqkkl(3,ib)%v, sv_p_oqkkl(2,ib)%v, sv_p_oqkkl(1,ib)%v& !, OQHH, OQHP , OQPP ,
-               , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv &
-               , chp_rv , cpp_rv , dmatl_rv )
-          !   ... True local density for this sphere 1st component
-          call mkrou2( nsp , lmxa , nlml , pnz , dmatl_rv , nr , ul_rv &
-               , sl_rv , gz_rv , ruu_rv , rus_rv , rss_rv , orhoat_out( 1 , ib )%v )
-          !   --- Assemble rho2 = unaugmented products Pkl*Pk'l' ---
-          !       H H product.  Include local orbitals w/ envelopes (nkapi->nkaph)
-          call mkrou5( nsp , nr , nlml , nkaph , nkaph , fh_rv , lmxh &
-               , nkaph , nkaph , fh_rv , lmxh , chh_rv , orhoat_out( 2 , ib )%v  )
-          !       H Pkl product
-          call mkrou5( nsp , nr , nlml , nkaph , nkaph , fh_rv , lmxh &
-               , kmax + 1 , kmax + 1 , fp_rv , lmxa , chp_rv , orhoat_out( 2 , ib )%v   )
-          !       Pkl Pkl product
-          call mkrou5( nsp , nr , nlml , kmax + 1 , kmax + 1 , fp_rv , &
-               lmxa, kmax+1, kmax + 1 , fp_rv , lmxa , cpp_rv , orhoat_out( 2 , ib )%v   )
-          !   ... Site charge and eigenvalue sum decomposed by l
-          !! As I describe below, hbyl give here is wrong (bug). maybe because of wrong hab.
-          call mkrou3(2, lmxa , nlml , nsp , pnz , dmatl_rv , hab &
-               (1, 1,1,ib), sab(1, 1, 1, ib ) , qbyl (1 , 1 ,ib ) , hbyl ( 1 , 1 , ib ) )
-          ! Remake hbyl from energy-weighted density matrix
-          ! This is because above codes to give hbyl is wrong. So, we need to go though anothe pass with lekkl=1
-          !! (OPTION_PFLOAT=1). In future, code above to generate hbyl will be removed.
-          ! ino Jan.04.2012:           rv_p_oqhh => sv_p_oeqkkl(3,ib)%v
-          if(lekkl /= 0) then
-             nlml1 = 1
-             call dpzero( dmatl_rv , ( lmxa + 1) ** 2 * nlml1 * nsp * 9 )
-             k = max(nkaph,1+kmax)**2*(lmxa+1)**2*nlml1*nsp
-             call dpzero(chh_rv , k )
-             call dpzero(chp_rv , k )
-             call dpzero(cpp_rv , k )
-             call mkrou1(nsp, nlmh, nlma, nlml1 , kmax & 
-                  ,  nkaph , nkapi , norb , ltab , ktab , blks &
-                  , sv_p_oeqkkl(3,ib)%v, sv_p_oeqkkl(2,ib)%v,sv_p_oeqkkl(1,ib)%v& ! & , OQHH , OQHP , OQPP,
-                  , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv &
-                  , chp_rv , cpp_rv , dmatl_rv ) !dmatl_rv is energy weighted. c.f. previous call to mkrou1.
-             call mkrou3( mode=1 , lmxa=lmxa, nlml=nlml1 , nsp=nsp &
-                  , pnz= pnz, dmatl=dmatl_rv, sab=sab( 1 , 1 , 1 , ib ), qsum=hbyl(1,1,ib )  )
-          endif
-          !   --- Print charges for information ---
-          call radsum ( nr , nr , nlml , nsp , rwgt_rv , orhoat_out( 1 , ib )%v, sum1 )
-          call radsum ( nr , nr , nlml , nsp , rwgt_rv , orhoat_out( 2 , ib )%v, sum2 )
-          sum1 = sum1/y0
-          sum2 = sum2/y0
-          if (nsp == 2) then
-             sums1 = sum1 - 2d0 * ddot ( nr , rwgt_rv , 1 , orhoat_out( 1 , ib )%v, 1 ) / y0
-             sums2 = sum2 - 2d0 * ddot ( nr , rwgt_rv , 1 , orhoat_out( 2 , ib )%v, 1 ) / y0
-          endif
-          !          if (ipr.ge.30 .and. nsp .eq. 1) write(stdo,200) ib,sum1,sum2,sum1-sum2
-          !          if (ipr.ge.30 .and. nsp .eq. 2)
-          !     .      write(stdo,200) ib,sum1,sum2,sum1-sum2, -sums1,-sums2,-sums1+sums2
-          ! 200      format(i4,3f12.6,2x,3f12.6)
-
-          if(nsp==1) dat(1:3,ib) = [sum1,sum2,sum1-sum2]
-          if(nsp==2) dat(1:6,ib) = [sum1,sum2,sum1-sum2, -sums1,-sums2,-sums1+sums2]
-          ! cccccccccccccccccccccccccccccccccccccccccccccccccccccc
-          !! experimental block to keep magnetic moment for AF.controlled by uhval.aftest file. See elsewhere.
-          if( nsp==2 .AND. procid==master .AND. mmtargetx) then
-             if(ib==1) then
-                open(newunit=ifx,file='mmagfield.aftest',position='append')
-                write(ifx,"('          ',f23.15)",advance='no') -sums1
-             else
-                write(ifx,"(2x,f23.15)",advance='no') -sums1
-             endif
-             if(ib==nbas) write(ifx,*)
-             if(ib==nbas) close(ifx)
-          endif
-          ! ccccccccccccccccccccccccccccccccccccccccccccccccc
+          fhblock: block
+            real(8):: chh_rv(k),chp_rv(k),cpp_rv(k),dmatl_rv((lmxa+1)**2*nlml*nsp*9)
+            real(8):: ddot,&
+                 fh_rv(nr*(lmxh+1)*nkaph),xh_rv(nr*(lmxh+1)*nkaph),&  !h:head
+                 vh_rv((lmxh+1)*nkaph),dh_rv((lmxh+1)*nkaph),&
+                 fp_rv(nr*(lmxa+1)*(kmax+1)),xp_rv(nr*(lmxa+1)*(kmax+1)),& !p:tail
+                 vp_rv((lmxa+1)*(kmax+1)),dp_rv((lmxa+1)*(kmax+1)),&
+                 ul_rv(nr*(lmxa+1)*nsp),sl_rv(nr*(lmxa+1)*nsp),&     !u value function
+                 gz_rv(nr*(lmxa+1)*nsp),ruu_rv(nr*(lmxa+1)*2*nsp),&  !s slope function
+                 rus_rv(nr*(lmxa+1)*2*nsp),rss_rv(nr*(lmxa+1)*2*nsp) !gz local orbital
+            call fradhd(nkaph,eh,rsmh,lhh(:,is),lmxh,nr,rofi_rv, fh_rv,xh_rv,vh_rv,dh_rv) !head
+            call fradpk(kmax,rsma(is),lmxa,nr,rofi_rv, fp_rv,xp_rv,vp_rv,dp_rv) !tail
+            rsml= rsmlss(:,is)
+            ehl=  ehlss(:,is)
+            call makusp(n0,z,nsp,rmt,lmxa,v0pot(ib)%v, a,nr,&! Augmented wave functions
+                 xx,xx,pnu,pnz,rsml,ehl,ul_rv,sl_rv,gz_rv,ruu_rv, rus_rv,rss_rv )
+            !   ... Contracted density matrix as coffs to products of (u,s,gz)
+            chh_rv=0d0
+            chp_rv=0d0
+            cpp_rv=0d0
+            dmatl_rv=0d0
+            call mkrou1(nsp, nlmh,nlma,nlml,kmax  &
+                 , nkaph,nkapi,norb,ltab,ktab,blks &
+                 ,sv_p_oqkkl(3,ib)%v,sv_p_oqkkl(2,ib)%v,sv_p_oqkkl(1,ib)%v&!,OQHH,OQHP,OQPP,
+                 ,vh_rv,dh_rv,vp_rv,dp_rv,chh_rv, chp_rv,cpp_rv,dmatl_rv )
+            !   ... True local density for this sphere 1st component
+            call mkrou2( nsp,lmxa,nlml,pnz,dmatl_rv,nr,ul_rv &
+                 ,sl_rv,gz_rv,ruu_rv,rus_rv,rss_rv,orhoat_out( 1,ib )%v )
+            !   --- Assemble rho2 = unaugmented products Pkl*Pk'l' ---
+            !       H H product.  Include local orbitals w/ envelopes (nkapi->nkaph)
+            call mkrou5( nsp,nr,nlml,nkaph,nkaph,fh_rv,lmxh &
+                 ,nkaph,nkaph,fh_rv,lmxh,chh_rv,orhoat_out( 2,ib )%v  )
+            !       H Pkl product
+            call mkrou5( nsp,nr,nlml,nkaph,nkaph,fh_rv,lmxh &
+                 ,kmax + 1,kmax + 1,fp_rv,lmxa,chp_rv,orhoat_out( 2,ib )%v   )
+            !       Pkl Pkl product
+            call mkrou5( nsp,nr,nlml,kmax + 1,kmax + 1,fp_rv,&
+                 lmxa, kmax+1, kmax + 1,fp_rv,lmxa,cpp_rv,orhoat_out( 2,ib )%v   )
+            !   ... Site charge and eigenvalue sum decomposed by l
+            !! As I describe below, hbyl give here is wrong (bug). maybe because of wrong hab.
+            call mkrou3(2, lmxa,nlml,nsp,pnz,dmatl_rv,hab &
+                 (1, 1,1,ib), sab(1, 1, 1, ib ),qbyl (1,1 ,ib ),hbyl ( 1,1,ib ) )
+            !! Remake hbyl from energy-weighted density matrix
+            ! This is because above codes to give hbyl is wrong.
+            ! So, we need to go though anothe pass with lekkl=1 (OPTION_PFLOAT=1).
+            ! In future, code above to generate hbyl will be removed.
+            ! ino Jan.04.2012:           rv_p_oqhh => sv_p_oeqkkl(3,ib)%v
+            if(lekkl /= 0) then
+               nlml1 = 1
+               dmatl_rv=0d0 !call dpzero( dmatl_rv,( lmxa + 1) ** 2 * nlml1 * nsp * 9 )
+               k = max(nkaph,1+kmax)**2*(lmxa+1)**2*nlml1*nsp
+               chh_rv=0d0
+               chp_rv=0d0
+               cpp_rv=0d0
+               call mkrou1(nsp, nlmh, nlma, nlml1,kmax & 
+                    ,nkaph,nkapi,norb,ltab,ktab,blks &
+                    ,sv_p_oeqkkl(3,ib)%v, sv_p_oeqkkl(2,ib)%v,sv_p_oeqkkl(1,ib)%v& !&,OQHH,OQHP,OQPP,
+                    ,vh_rv,dh_rv,vp_rv,dp_rv,chh_rv &
+                    ,chp_rv,cpp_rv,dmatl_rv)!dmatl_rv is energy weighted. c.f.previous call to mkrou1.
+               call mkrou3( mode=1,lmxa=lmxa, nlml=nlml1,nsp=nsp &
+                    ,pnz= pnz, dmatl=dmatl_rv, sab=sab( 1,1,1,ib ), qsum=hbyl(1,1,ib )  )
+            endif
+            call radsum ( nr,nr,nlml,nsp,rwgt_rv,orhoat_out( 1,ib )%v, sum1 )
+            call radsum ( nr,nr,nlml,nsp,rwgt_rv,orhoat_out( 2,ib )%v, sum2 )
+            sum1 = sum1/y0
+            sum2 = sum2/y0
+            if (nsp == 2) then
+               sums1 = sum1 - 2d0 * ddot ( nr,rwgt_rv,1,orhoat_out( 1,ib )%v, 1 ) / y0
+               sums2 = sum2 - 2d0 * ddot ( nr,rwgt_rv,1,orhoat_out( 2,ib )%v, 1 ) / y0
+            endif
+            if(nsp==1) dat(1:3,ib) = [sum1,sum2,sum1-sum2]
+            if(nsp==2) dat(1:6,ib) = [sum1,sum2,sum1-sum2, -sums1,-sums2,-sums1+sums2]
+            ! cccccccccccccccccccccccccccccccccccccccccccccccccccccc
+            !!exper. block to keep mag.moment for AF.controlled by uhval.aftest file. See elsewhere.
+            if( nsp==2 .AND. procid==master .AND. mmtargetx) then
+               if(ib==1) then
+                  open(newunit=ifx,file='mmagfield.aftest',position='append')
+                  write(ifx,"('          ',f23.15)",advance='no') -sums1
+               else
+                  write(ifx,"(2x,f23.15)",advance='no') -sums1
+               endif
+               if(ib==nbas) write(ifx,*)
+               if(ib==nbas) close(ifx)
+            endif
+            ! ccccccccccccccccccccccccccccccccccccccccccccccccc
+          endblock fhblock
        endif
        !       Contribution to mag outsite rmt: extrapolate tail to infinity
-       call mkrou6 ( rofi_rv , orhoat_out( 1 , ib )%v , nr , nlml , nsp , xx , xx , res )
+       call mkrou6 ( rofi_rv,orhoat_out( 1,ib )%v,nr,nlml,nsp,xx,xx,res )
        if (ipr >= 30 .AND. res /= 0) then
           write(stdo,211) res,res-sums1
 211       format(7x,'contr. to mm extrapolated for r>rmt:',f11.6,' est. true mm =',f9.6)
@@ -282,37 +246,18 @@ contains
        !   --- Make new core density and core eigenvalue sum ---
        if (lfoc == 0) then
           call pshpr(ipr+11)
-          call getcor ( 0 , z , a , pnu , pnz , nr , lmxa , rofi_rv , v1pot(ib)%v & !ssite(ib)%rv_a_ov1 &
-               , kcor , lcor , qcor , smec , smtc , orhoat_out( 3 , ib )%v &
-               , ncore , 0d0 , 0d0,   nmcore(is))
+          call getcor ( 0,z,a,pnu,pnz,nr,lmxa,rofi_rv,v1pot(ib)%v & 
+              ,kcor,lcor,qcor,smec,smtc,orhoat_out( 3,ib )%v & !core
+              ,ncore,0d0,0d0,   nmcore(is))
           call poppr
           sumtc = sumtc + smtc
           sumec = sumec + smec
        else
           sumtc = sumtc + stc0
           sumt0 = sumt0 + stc0
-          call dpcopy ( sspec(is)%rv_a_orhoc , orhoat_out( 3 , ib )%v , 1 , nr* nsp , 1d0 )
+          call dpcopy ( sspec(is)%rv_a_orhoc,orhoat_out( 3,ib )%v,1,nr* nsp,1d0 ) !core
        endif
-       if (allocated(dmatl_rv)) deallocate(dmatl_rv)
-       if (allocated(cpp_rv)) deallocate(cpp_rv)
-       if (allocated(chp_rv)) deallocate(chp_rv)
-       if (allocated(chh_rv)) deallocate(chh_rv)
-       if (allocated(rss_rv)) deallocate(rss_rv)
-       if (allocated(rus_rv)) deallocate(rus_rv)
-       if (allocated(ruu_rv)) deallocate(ruu_rv)
-       if (allocated(gz_rv)) deallocate(gz_rv)
-       if (allocated(sl_rv)) deallocate(sl_rv)
-       if (allocated(ul_rv)) deallocate(ul_rv)
-       if (allocated(dp_rv)) deallocate(dp_rv)
-       if (allocated(vp_rv)) deallocate(vp_rv)
-       if (allocated(xp_rv)) deallocate(xp_rv)
-       if (allocated(fp_rv)) deallocate(fp_rv)
-       if (allocated(dh_rv)) deallocate(dh_rv)
-       if (allocated(vh_rv)) deallocate(vh_rv)
-       if (allocated(xh_rv)) deallocate(xh_rv)
-       if (allocated(fh_rv)) deallocate(fh_rv)
-       if (allocated(rwgt_rv)) deallocate(rwgt_rv)
-       if (allocated(rofi_rv)) deallocate(rofi_rv)
+       deallocate(rofi_rv,rwgt_rv)
     enddo ibloop
     if (ipr >= 30 .AND. lrout > 0) then
        ! write(stdo,"(a)")' mkrout: site(class) decomposed charge and magnetic moment. class->lmchk'
@@ -325,8 +270,6 @@ contains
 200       format(i4,3f12.6,2x,3f12.6)
        enddo
     endif
-    ! --- Put sumec,sumtc into etot struct ---
-    !      ham_eterms=eterms
     call tcx('mkrout')
   end subroutine mkrout
   subroutine mkrou1(nsp,nlmh,nlma,nlml,kmax, &
@@ -673,10 +616,10 @@ contains
                 do  l2 = 0, lmx2
                    do  l1 = 0, lmx1
                       xx = ckk(k1,k2,l1,l2,mlm,isp)
-                      dmatl(l1,l2,mlm,1,1,isp) = dmatl(l1,l2,mlm,1,1,isp)+ xx*val1(l1,k1) * val2(l2,k2)
-                      dmatl(l1,l2,mlm,1,2,isp) = dmatl(l1,l2,mlm,1,2,isp)+ xx*val1(l1,k1) * slo2(l2,k2)
-                      dmatl(l1,l2,mlm,2,1,isp) = dmatl(l1,l2,mlm,2,1,isp)+ xx*slo1(l1,k1) * val2(l2,k2)
-                      dmatl(l1,l2,mlm,2,2,isp) = dmatl(l1,l2,mlm,2,2,isp)+ xx*slo1(l1,k1) * slo2(l2,k2)
+                      dmatl(l1,l2,mlm,1,1,isp)= dmatl(l1,l2,mlm,1,1,isp)+ xx*val1(l1,k1) * val2(l2,k2)
+                      dmatl(l1,l2,mlm,1,2,isp)= dmatl(l1,l2,mlm,1,2,isp)+ xx*val1(l1,k1) * slo2(l2,k2)
+                      dmatl(l1,l2,mlm,2,1,isp)= dmatl(l1,l2,mlm,2,1,isp)+ xx*slo1(l1,k1) * val2(l2,k2)
+                      dmatl(l1,l2,mlm,2,2,isp)= dmatl(l1,l2,mlm,2,2,isp)+ xx*slo1(l1,k1) * slo2(l2,k2)
                    enddo
                 enddo
              enddo
@@ -793,8 +736,7 @@ contains
     if (rho(nr,1,1) < rho(nr,1,2)) fac = -1
     do  ir = nr-5, nr
        y = fac*(rho(ir,1,1) - rho(ir,1,2))/rofi(ir)**2
-       !       If the spin density changes sign, nonsensical to try and fit
-       if (y <= 0) return
+       if (y <= 0) return ! If the spin density changes sign, nonsensical to try and fit
        dy = dlog(y)
        norm(1,1) = norm(1,1) + 1
        norm(1,2) = norm(1,2) + rofi(ir)
@@ -810,8 +752,7 @@ contains
     y0 = 1d0/dsqrt(4d0*pi)
     a = fac*exp(a)/y0
     b = -b
-    !     Nonsensical if density not decaying fast enough
-    if (b < 1) return
+    if (b < 1) return !   Nonsensical if density not decaying fast enough
     r0 = rofi(nr)
     !     Integral a*exp(-b*r)*r*r = (2+2*b*r0+b**2*r0*2)/b**3*exp(-b*r0)
     res = a*(2+2*b*r0+b**2*r0**2)/b**3*exp(-b*r0)

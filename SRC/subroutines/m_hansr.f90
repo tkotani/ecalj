@@ -1,9 +1,9 @@
+module m_hansr !Smooth Hankel functions in real space.
   ! JMP39:
   ! Bott, E., M. Methfessel, W. Krabs, and P. C. Schmidt.
   ! “Nonsingular Hankel Functions as a New Basis for Electronic Structure Calculations.”
   ! Journal of Mathematical Physics 39, no. 6 (June 1, 1998): 3393–3425.
   ! https://doi.org/doi:10.1063/1.532437.
-module m_hansr !Smooth Hankel funcitons in real space.
   public hansr,hanr,hansmd, hansmr
   ! hansmr is equilvaent to hansr except numerical accuracy problem. See note of hansmr
   private
