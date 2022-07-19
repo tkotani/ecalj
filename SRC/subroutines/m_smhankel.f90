@@ -85,7 +85,7 @@ contains
     !u   22 Apr 00 Adapted from nfp hgug_bl.f
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: nlm1,nlm2,ndim1,ndim2
+    integer :: nlm1,nlm2,ndim1,ndim2,l,ll
     real(8):: rsm1 , rsm2 , p1(3) , p2(3) , e1
     complex(8):: s(ndim1,ndim2),ds(ndim1,ndim2,3)
     integer:: kmax , kdim , ilm2 , ilm1
@@ -94,9 +94,8 @@ contains
     kmax = 0
     kdim = 0
     e2 = 0d0
-    call hhigbl ( 0 , p1 , p2 , q , [rsm1] , [rsm2] , [e1] , [e2] , nlm1 &
-         , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_a_ocg , iv_a_oidxcg &
-         , iv_a_ojcg , rv_a_ocy ,  s , ds )
+    call hhigbl(0,p1,p2,q,[(rsm1,l=0,ll(nlm1))],[(rsm2,l=0,ll(nlm2))],[(e1,l=0,ll(nlm1))],[(e2,l=0,ll(nlm2))], &
+         nlm1,nlm2 ,kmax ,ndim1 ,ndim2 ,kdim ,rv_a_ocg ,iv_a_oidxcg,iv_a_ojcg,rv_a_ocy, s,ds)
     s(1:nlm1,1:nlm2)   = 2d0*s(1:nlm1,1:nlm2)
     ds(1:nlm1,1:nlm2,:)= 2d0*ds(1:nlm1,1:nlm2,:)
   end subroutine hgugbl

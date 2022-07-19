@@ -112,15 +112,14 @@ subroutine ugcomp(qmom,gpot0,hpot0,ugg,f)
               !     --- Additional h*h, h*g, g*h terms for foca ---
               if (lfoc1 > 0 .OR. lfoc2 > 0) then
                  call hhugbl(0,tau1,tau2,[rh1],[rh2],[ceh1],[ceh2],1,1,ndim0,ndim0, &
-                      wk,dwk,s0,ds0) !slat,
+                      wk,dwk,s0,ds0)
                  xugg(ip) = xugg(ip) + cofh1*s0(1,1)*cofh2
                  xhpot0(jb,ip) = xhpot0(jb,ip) + cofh1*s0(1,1)
                  ff(1) = ff(1) + 0.5d0*cofh1*cofh2*ds0(1,1,1)
                  ff(2) = ff(2) + 0.5d0*cofh1*cofh2*ds0(1,1,2)
                  ff(3) = ff(3) + 0.5d0*cofh1*cofh2*ds0(1,1,3)
 
-                 call hgugbl(tau1,tau2,rh1,rg2,ceh1,1,nlm2,ndim,ndim, &
-                      s,ds) !slat,
+                 call hgugbl(tau1,tau2,rh1,rg2,ceh1,1,nlm2,ndim,ndim, s,ds)
                  do  ilm2 = 1, nlm2
                     l2 = ll(ilm2)
                     qm2 = qmom(jv0+ilm2)
