@@ -199,10 +199,10 @@ contains
              if (nlmh > nlma .AND. ia == ib) call rx('augmbl: nlmh > nlma')
              if (mode == 0 .OR. mode == 2) then
                 call hxpbl(p,pa,q,rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh, &
-                     nlma,kmax,nlma,cg,indxcg,jcg,cy,b0)
+                     nlma,kmax,nlma,b0)  !,cg,indxcg,jcg,cy
              elseif (mode == 1) then
                 call hxpgbl(p,pa,q,rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh, &
-                     nlma,kmax,nlmbx,nlma,cg,indxcg,jcg,cy,b0, db0)
+                     nlma,kmax,nlmbx,nlma,b0, db0) !cg,indxcg,jcg,cy,
              else
                 call rxi('bfactor: bad mode',mode)
              endif

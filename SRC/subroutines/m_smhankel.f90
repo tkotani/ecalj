@@ -1,4 +1,5 @@
 module m_smhankel !Bloch sum of smooth Hankel, Gaussians. Expansion and Integrals.
+    use m_lmfinit,only: cg=>rv_a_ocg,indxcg=>iv_a_oidxcg,jcg=>iv_a_ojcg,cy=>rv_a_ocy
   ! JMP39: Bott, E., M. Methfessel, W. Krabs, and P. C. Schmidt.
   ! “Nonsingular Hankel Functions as a New Basis for Electronic Structure Calculations.”
   ! Journal of Mathematical Physics 39, no. 6 (June 1, 1998): 3393–3425.
@@ -8,7 +9,6 @@ module m_smhankel !Bloch sum of smooth Hankel, Gaussians. Expansion and Integral
   private
 contains
   subroutine hhugbl(mode,p1,p2,rsm1,rsm2,e1,e2,nlm1,nlm2,ndim1,ndim2,wk,dwk, s,ds)
-    use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
     use m_lattic,only:vol=>lat_vol
     !- Estatic energy integrals between Bloch Hankels, and gradients.
     ! ----------------------------------------------------------------------
@@ -44,11 +44,9 @@ contains
     kmax = 0
     kdim = 0
     call hhigbl ( mode , p1 , p2 , q , rsm1 , rsm2 , e1 , e2 , nlm1 &
-         , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_a_ocg , iv_a_oidxcg &
-         , iv_a_ojcg , rv_a_ocy ,  s , ds )
+         , nlm2 , kmax , ndim1 , ndim2 , kdim,   s , ds )
     call hhigbl ( mode , p1 , p2 , q , rsm1 , rsm2 , e1 , zer , nlm1 &
-         , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_a_ocg , iv_a_oidxcg &
-         , iv_a_ojcg , rv_a_ocy , wk , dwk )
+         , nlm2 , kmax , ndim1 , ndim2 , kdim,  wk , dwk )
     do  i2 = 1, nlm2
        l = ll(i2)
        if (mode == 0) l = 0
@@ -63,7 +61,6 @@ contains
     s(1,1) = s(1,1) -2*xx1*xx2*vol/e2(0) ! ... Extra term for l1=l2=0
   end subroutine hhugbl
   subroutine hgugbl(p1,p2,rsm1,rsm2,e1,nlm1,nlm2,ndim1,ndim2,  s,ds)
-    use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
     !- Estatic energy integrals between Bloch Hankels and gaussians, and grad
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -95,11 +92,11 @@ contains
     kdim = 0
     e2 = 0d0
     call hhigbl(0,p1,p2,q,[(rsm1,l=0,ll(nlm1))],[(rsm2,l=0,ll(nlm2))],[(e1,l=0,ll(nlm1))],[(e2,l=0,ll(nlm2))], &
-         nlm1,nlm2 ,kmax ,ndim1 ,ndim2 ,kdim ,rv_a_ocg ,iv_a_oidxcg,iv_a_ojcg,rv_a_ocy, s,ds)
+         nlm1,nlm2 ,kmax ,ndim1 ,ndim2 ,kdim, s,ds)
     s(1:nlm1,1:nlm2)   = 2d0*s(1:nlm1,1:nlm2)
     ds(1:nlm1,1:nlm2,:)= 2d0*ds(1:nlm1,1:nlm2,:)
   end subroutine hgugbl
-  subroutine hhigbl(mode,p1,p2,q,rsm1,rsm2,e1,e2,nlm1,nlm2,kmax,ndim1,ndim2,k0,cg,indxcg,jcg,cy, s,ds) 
+  subroutine hhigbl(mode,p1,p2,q,rsm1,rsm2,e1,e2,nlm1,nlm2,kmax,ndim1,ndim2,k0, s,ds)
     !- Integrals between smooth hankels with k-th power of Laplace operator
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -138,8 +135,8 @@ contains
     !u   28 Apr 97 adapted to handle case q=0 and e1 or e2 zero.
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: mode,jcg(1),indxcg(1),nlm1,nlm2,kmax,ndim1,ndim2,k0
-    real(8):: p1(3) , p2(3) , q(3) , cg(1) , cy(1) , rsm1(0:*) ,rsm2(0:*) , e1(0:*) , e2(0:*)
+    integer :: mode,nlm1,nlm2,kmax,ndim1,ndim2,k0 !jcg(1),indxcg(1)
+    real(8):: p1(3) , p2(3) , q(3) , rsm1(0:*) ,rsm2(0:*) , e1(0:*) , e2(0:*) !cg(1) , cy(1)
     complex(8):: s(ndim1,ndim2,0:k0),ds(ndim1,ndim2,0:k0,3)
     integer :: ilm,jlm,k,l1,l1t,l2,l2t,ll,lm11,lm12,lm21,lm22,lmx1,lmx2,m
     real(8) :: dr(3)
@@ -171,12 +168,12 @@ contains
           lm22 = (l2t+1)**2
           if (mode/10 == 1 .AND. rsm1(l1)*rsm2(l2) == 0) cycle
           call phhigb(dr,q,rsm1(l1),rsm2(l2),e1(l1),e2(l2),lm11,lm12, &
-               lm21,lm22,kmax,ndim1,ndim2,k0,cg,indxcg,jcg,cy, s,ds)
+               lm21,lm22,kmax,ndim1,ndim2,k0, s,ds) !cg,indxcg,jcg,cy,
        enddo
 20  enddo
   end subroutine hhigbl
-  subroutine phhigb(dr,q,rsm1,rsm2,e1,e2,mlm1,nlm1,mlm2,nlm2,kmax,ndim1,ndim2,k0,cg,indxcg,jcg,cy, s,ds)
-    use m_lattic,only:vol=>lat_vol
+  subroutine phhigb(dr,q,rsm1,rsm2,e1,e2,mlm1,nlm1,mlm2,nlm2,kmax,ndim1,ndim2,k0, s,ds)
+    use m_lattic,only:vol=>lat_vol !cg,indxcg,jcg,cy,
     !- Integrals between smooth hankels with k-th power of Laplace operator
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -209,8 +206,8 @@ contains
     !u   28 Apr 97 adapted to handle case q=0 and e1 or e2 zero.
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: jcg(1),indxcg(1),nlm1,nlm2,kmax,ndim1,ndim2,k0,mlm1,mlm2
-    real(8):: q(3) , cg(1) , cy(1) , dr(3) , rsm1 , rsm2 , e1 , e2
+    integer :: nlm1,nlm2,kmax,ndim1,ndim2,k0,mlm1,mlm2 !jcg(1),indxcg(1),
+    real(8):: q(3) ,  dr(3) , rsm1 , rsm2 , e1 , e2 !cg(1) , cy(1) 
     complex(8):: s(ndim1,ndim2,0:k0),ds(ndim1,ndim2,0:k0,3)
     integer :: ktop0,lmax1,ll,lmax2,lmaxx,nlmx,nlmxp1,ktop,ktopp1, &
          k,ilm,kz,kx1,kx2,ky1,ky2,ilm1,l1,ilm2,l2,ii,indx,icg1,icg2, icg,lm,ip
@@ -238,23 +235,23 @@ contains
          fac1 = exp(gam2*(e2-e1))/(e1-e2)
          fac2 = exp(gam1*(e1-e2))/(e2-e1)
          if (dabs(e1) > 1d-6) then
-            call hklbl(dr,rsmx,e1,q,ktopp1,nlmxp1,ktop0,cy,hkl1) 
+            call hklbl(dr,rsmx,e1,q,ktopp1,nlmxp1,ktop0,hkl1) 
          else
             if (qq > 1d-6) call rx('hhigbl: e1=0 only allowed if q=0')
-            call fklbl(dr,rsmx,ktopp1,nlmxp1,ktop0,cy,hkl1) 
+            call fklbl(dr,rsmx,ktopp1,nlmxp1,ktop0,hkl1) 
          endif
          if (dabs(e2) > 1d-6) then
-            call hklbl(dr,rsmx,e2,q,ktopp1,nlmxp1,ktop0,cy,hkl2) 
+            call hklbl(dr,rsmx,e2,q,ktopp1,nlmxp1,ktop0,hkl2) 
          else
             if (qq > 1d-6) call rx('hhigbl: e2=0 only allowed if q=0')
-            call fklbl(dr,rsmx,ktopp1,nlmxp1,ktop0,cy,hkl2) 
+            call fklbl(dr,rsmx,ktopp1,nlmxp1,ktop0,hkl2) 
          endif
          hkl1(0:ktopp1,1:nlmxp1) = fac1*hkl1(0:ktopp1,1:nlmxp1) + fac2*hkl2(0:ktopp1,1:nlmxp1)
       else
          e = .5d0*(e1+e2)
          if(qq<1d-6 .AND. dabs(e) < 1d-6) call rx('hhigbl: case q=0 and e1=e2=0 not available')
-         call hklbl(dr,rsmx,e,q,ktopp1,nlmxp1,ktop0,cy,hkl2) 
-         call hsmbl(dr,rsmx,e,q,lmaxx+1,cy,hsm,hsmp) 
+         call hklbl(dr,rsmx,e,q,ktopp1,nlmxp1,ktop0,hkl2) 
+         call hsmbl(dr,rsmx,e,q,lmaxx+1,hsm,hsmp) 
          do  6  ilm = 1, nlmxp1
             hkl1(0,ilm) = hsmp(ilm) - gamx*hsm(ilm)
             do    k = 1, ktopp1
@@ -292,7 +289,7 @@ contains
        s(1,1,0) = s(1,1,0) + add
     endif
   end subroutine phhigb
-  subroutine hhibl(p1,p2,q,rsm1,rsm2,e1,e2,nlm1,nlm2,kmax, ndim1,ndim2,cg,indxcg,jcg,cy, s)
+  subroutine hhibl(p1,p2,q,rsm1,rsm2,e1,e2,nlm1,nlm2,kmax, ndim1,ndim2, s) !cg,indxcg,jcg,cy,
     !- Integrals between smooth Hankels with k-th power of Laplace operator.
     ! ----------------------------------------------------------------------
     !   do not calculate strux for any (l1,l2) pairs if rsm(l1) or rsm(l2) is zero.
@@ -326,8 +323,8 @@ contains
     !u   18 May 00 Adapted from nfp hhi_bl.f
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: jcg(1),indxcg(1),nlm1,nlm2,kmax,ndim1,ndim2
-    real(8) :: p1(3),p2(3),q(3),cg(1),cy(1),rsm1(0:*),rsm2(0:*),e1(0:*),e2(0:*)
+    integer :: nlm1,nlm2,kmax,ndim1,ndim2 !jcg(1),indxcg(1),
+    real(8) :: p1(3),p2(3),q(3),rsm1(0:*),rsm2(0:*),e1(0:*),e2(0:*) !cg(1),cy(1),
     complex(8):: s(ndim1,ndim2,0:kmax)
     integer :: m,lmx1,lmx2,ll,l1,l2,k,jlm,ilm,lm11,lm21,lm12,lm22,l1t,l2t
     real(8) :: dr(3)
@@ -350,12 +347,12 @@ contains
           lm22 = (l2t+1)**2
           if (rsm1(l1)*rsm2(l2) == 0) cycle
           call phhibl(dr,q,rsm1(l1),rsm2(l2),e1(l1),e2(l2),lm11,lm12, &
-               lm21,lm22,kmax,ndim1,ndim2,cg,indxcg,jcg,cy,s)
+               lm21,lm22,kmax,ndim1,ndim2,s) !,cg,indxcg,jcg,cy
        enddo
 20  enddo
   end subroutine hhibl
-  subroutine phhibl(dr,q,rsm1,rsm2,e1,e2,mlm1,nlm1,mlm2,nlm2,kmax, ndim1,ndim2,cg,indxcg,jcg,cy, s)
-    !- Integrals between smooth Hankels with k-th power of Laplace operator.
+  subroutine phhibl(dr,q,rsm1,rsm2,e1,e2,mlm1,nlm1,mlm2,nlm2,kmax, ndim1,ndim2, s)
+    !- Integrals between smooth Hankels with k-th power of Laplace operator. !,cg,indxcg,jcg,cy
     ! ----------------------------------------------------------------------
     !i Inputs
     !i   dr    :p1-p2
@@ -381,8 +378,8 @@ contains
     !u   18 May 00 Adapted from nfp hhi_bl.f
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: jcg(1),indxcg(1),mlm1,nlm1,mlm2,nlm2,kmax,ndim1,ndim2
-    real(8) :: dr(3),q(3),cg(1),cy(1),rsm1, rsm2,e1,e2
+    integer :: mlm1,nlm1,mlm2,nlm2,kmax,ndim1,ndim2 !jcg(1),indxcg(1),
+    real(8) :: dr(3),q(3),rsm1, rsm2,e1,e2 !,cg(1),cy(1)
     complex(8):: s(ndim1,ndim2,0:kmax)
     ! ... Local parameters
     integer :: nlm0,ktop0,icg,icg1,icg2,ii,ilm,ilm1,ilm2,indx,ip,k, &
@@ -406,8 +403,8 @@ contains
     if (dabs(e1-e2) > 1d-5) then
        fac1 = dexp(gam2*(e2-e1))/(e1-e2)
        fac2 = dexp(gam1*(e1-e2))/(e2-e1)
-       call hklbl(dr,rsmx,e1,q,ktop,nlmx,ktop0,cy, hkl1) 
-       call hklbl(dr,rsmx,e2,q,ktop,nlmx,ktop0,cy, hkl2) 
+       call hklbl(dr,rsmx,e1,q,ktop,nlmx,ktop0, hkl1) 
+       call hklbl(dr,rsmx,e2,q,ktop,nlmx,ktop0, hkl2) 
        do  4  ilm = 1, nlmx
           do  5  k = 0, ktop
              hkl1(k,ilm) = fac1*hkl1(k,ilm) + fac2*hkl2(k,ilm)
@@ -415,8 +412,8 @@ contains
 4      enddo
     else
        e = .5d0*(e1+e2)
-       call hklbl(dr,rsmx,e,q,ktop,nlmx,ktop0,cy, hkl2) 
-       call hsmbl(dr,rsmx,e,q,lmaxx,cy, hsm,hsmp) 
+       call hklbl(dr,rsmx,e,q,ktop,nlmx,ktop0, hkl2) 
+       call hsmbl(dr,rsmx,e,q,lmaxx, hsm,hsmp) 
        do  6  ilm = 1, nlmx
           hkl1(0,ilm) = hsmp(ilm) - gamx*hsm(ilm)
           do  7  k = 1, ktop
@@ -445,7 +442,7 @@ contains
 111    enddo
 1111 enddo
   end subroutine phhibl
-  subroutine gklbl(p,rsm,e,q,kmax,nlm,k0,cy, gkl)
+  subroutine gklbl(p,rsm,e,q,kmax,nlm,k0, gkl)
     use m_lattic,only: rv_a_oqlv,rv_a_odlv,plat=>lat_plat
     use m_lmfinit,only:alat=> lat_alat
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol,awald=>lat_awald, nkd=>lat_nkd, nkq=>lat_nkq
@@ -468,7 +465,7 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     integer :: k0,kmax,nlm
-    real(8):: e , rsm , q(3) , p(3) , cy(1),pi,sp,p1(3),rwald,ppin(3)
+    real(8):: e , rsm , q(3) , p(3) ,pi,sp,p1(3),rwald,ppin(3) !, cy(1)
     complex(8):: gkl(0:k0,nlm),cfac,phase,img=(0d0,1d0)
     integer:: ilm , k , ll , lmax , owk , l , m
     if (nlm == 0) return
@@ -577,7 +574,7 @@ contains
        enddo
     enddo
   end subroutine gklblq
-  subroutine hklbl(p,rsm,e,q,kmax,nlm,k0,cy, hkl)
+  subroutine hklbl(p,rsm,e,q,kmax,nlm,k0, hkl)
     use m_lmfinit,only: alat=>lat_alat
     use m_lattic,only: rv_a_oqlv,rv_a_odlv,plat=>lat_plat
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, awald=>lat_awald,nkd=>lat_nkd,nkq=>lat_nkq
@@ -604,7 +601,7 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     integer :: k0,kmax,nlm
-    real(8):: e , rsm , q(3) , p(3) , cy(1)
+    real(8):: e , rsm , q(3) , p(3) !, cy(1)
     complex(8):: hkl(0:k0,nlm)
     integer:: nlm0 , ilm , job , k , ll , lmax , nrx, owk , oyl
     parameter (nlm0=144)
@@ -627,7 +624,7 @@ contains
          , nlm , yl , awald , alat , rv_a_oqlv , nkq , rv_a_odlv &
          , nkd , vol , hsm , hsmp )
     if (rsm > faca/awald) then
-       call gklbl(p1,rsm,e,q,kmax-1,nlm,k0,cy, hkl) 
+       call gklbl(p1,rsm,e,q,kmax-1,nlm,k0, hkl) 
     else
        call gklq(lmax,rsm,q,p1,e, kmax - 1 , k0 , alat , rv_a_odlv , nkd , nrx , yl , hkl )
     endif
@@ -644,7 +641,7 @@ contains
     enddo
     if (sp /= 0) hkl(0:kmax,:) = phase*hkl(0:kmax,:)! ... Put in phase to undo shortening
   end subroutine hklbl
-  subroutine fklbl(p,rsm,kmax,nlm,k0,cy, fkl)
+  subroutine fklbl(p,rsm,kmax,nlm,k0, fkl)
     use m_lattic,only: rv_a_odlv,rv_a_oqlv,plat=>lat_plat
     use m_lmfinit,only: alat=>lat_alat,tol=>lat_tol
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, awald=>lat_awald, nkd=>lat_nkd, nkq=>lat_nkq
@@ -669,7 +666,7 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     integer :: kmax,nlm,k0
-    real(8):: p(3) , cy(*) , rsm,ppin(3)
+    real(8):: p(3) , rsm,ppin(3)
     integer:: nlm0 , lmax , ll, nrx , owk , oyl , job, ilm , k
     parameter ( nlm0=196 )
     real(8) :: q(3),p1(3),faca,fpi,y0,e
@@ -691,7 +688,7 @@ contains
     call hsmqe0 ( lmax , rsm , 0 , q , p1 , nrx , nlm , wk , yl , &
          awald , alat , rv_a_oqlv , nkq , rv_a_odlv , nkd , vol , fsm  )
     if (rsm > faca/awald) then
-       call gklbl(p1,rsm,e,q,kmax-1,nlm,k0,cy, fkl) 
+       call gklbl(p1,rsm,e,q,kmax-1,nlm,k0, fkl) 
     else
        call gklq(lmax,rsm,q,p1,e,kmax-1,k0,alat, rv_a_odlv , nkd , nrx , yl , fkl )
     endif
@@ -708,8 +705,8 @@ contains
     enddo
     fkl(1,1) = fkl(1,1) + fpi*y0/vol !! ... Add extra term to F(k=1,l=0)
   end subroutine fklbl
-  subroutine gfigbl(pg,ph,rsmg,rsmh,nlmg,nlmh,kmax,ndim1,ndim2,kdim, cg,indxcg,jcg,cy, s,ds)
-    !- Integrals between smooth hankels(eh=0,q=0) and gaussians
+  subroutine gfigbl(pg,ph,rsmg,rsmh,nlmg,nlmh,kmax,ndim1,ndim2,kdim, s,ds)
+    !- Integrals between smooth hankels(eh=0,q=0) and gaussians 
     !  with some power of the laplace operator, and their gradients.
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -740,8 +737,8 @@ contains
     !u   22 Apr 00 Adapted from nfp hhig_bl.f
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: jcg(*),indxcg(*),nlmg,nlmh,kmax,ndim1,ndim2,kdim
-    real(8) :: ph(3),pg(3),cg(1),cy(1),rsmg,rsmh 
+    integer :: nlmg,nlmh,kmax,ndim1,ndim2,kdim !jcg(*),indxcg(*),
+    real(8) :: ph(3),pg(3),rsmg,rsmh  !,cg(1),cy(1)
     complex(8):: s(ndim1,ndim2,0:kdim),ds(ndim1,ndim2,0:kdim,3)
     integer :: nlm0,ktop0,m,lmaxh,ll,lmaxg,lmaxx,nlmx,nlmxp1,ktop,ktopp1, &
          ilm,kz,kx1,kx2,ky1,ky2,k,jlm,ilg,lg,ilh,lh,ii,indx,icg1,icg2, icg,lm,ip,nlmxx
@@ -764,7 +761,7 @@ contains
     allocate(hkl(0:ktop0,nlm0),ghkl(0:ktop0,nlm0,3))
     if (nlmxp1 > nlm0)  call rxi('gfigbl: need nlm0 ge',nlmxp1)
     if (ktopp1 > ktop0) call rxi('gfigbl: need ktop0 ge',ktopp1)
-    call fklbl(dr,rsmx,ktopp1,nlmxp1,ktop0,cy, hkl)  ! hkl for connecting vector dr
+    call fklbl(dr,rsmx,ktopp1,nlmxp1,ktop0, hkl)  ! hkl for connecting vector dr
     call ropylg2(lmaxx*lmaxx,ktop,nlmx,ktop0,nlm0,hkl, ghkl) !gradiend of hkl
     s=0d0
     ds=0d0
@@ -792,7 +789,6 @@ contains
     deallocate(hkl,ghkl)
   end subroutine gfigbl
   subroutine ggugbl(p1,p2,rsm1,rsm2,nlm1,nlm2,ndim1,ndim2, s,ds) 
-    use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
     !- Estatic energy integrals between Bloch gaussians, and gradients.
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -821,8 +817,7 @@ contains
     integer:: kmax , kdim , ilm2 , ilm1
     kmax = 0
     kdim = 0
-    call gfigbl(p1,p2,rsm1,rsm2,nlm1,nlm2,kmax,ndim1,&
-        ndim2,kdim,rv_a_ocg,iv_a_oidxcg,iv_a_ojcg,rv_a_ocy, s,ds) 
+    call gfigbl(p1,p2,rsm1,rsm2,nlm1,nlm2,kmax,ndim1,ndim2,kdim, s,ds)  
     do  ilm2 = 1, nlm2
        do  ilm1 = 1, nlm1
           s(ilm1,ilm2)    = 2d0*s(ilm1,ilm2)
@@ -830,7 +825,7 @@ contains
        enddo
     enddo
   end subroutine ggugbl
-  subroutine hklgbl(p,rsm,e,q,kmax,nlm,k0,nlm0,cy, hkl,ghkl)
+  subroutine hklgbl(p,rsm,e,q,kmax,nlm,k0,nlm0,hkl,ghkl)
     !- Bloch-sums of k,L-dependent smooth hankel functions and gradients
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -855,17 +850,17 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     integer :: k0,kmax,nlm,nlm0,lmax,nlm1,ll
-    real(8) :: q(3),p(3),cy(1),e,rsm
+    real(8) :: q(3),p(3),e,rsm
     complex(8):: hkl(0:k0,nlm0),ghkl(0:k0,nlm0,3)
     if (nlm == 0) return
     lmax = ll(nlm)
     nlm1 = (lmax+2)**2
     if (nlm1 > nlm0) call rxi('hklgbl: need nlm0 ge ',nlm1)
     if (kmax+1 > k0) call rxi('hklgbl: need k0 ge ',kmax+1)
-    call hklbl(p,rsm,e,q,kmax+1,nlm1,k0,cy, hkl) ! ... Make Hkl's up to one higher in l and k
+    call hklbl(p,rsm,e,q,kmax+1,nlm1,k0, hkl) ! ... Make Hkl's up to one higher in l and k
     call ropylg2(lmax**2,kmax,nlm,k0,nlm0,hkl, ghkl) !gradiend of hkl
   end subroutine hklgbl
-  subroutine ghibl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax,ndim1,ndim2,cg,indxcg,jcg,cy, s)
+  subroutine ghibl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax,ndim1,ndim2, s) !,cg,indxcg,jcg,cy
     !- Block of integrals between smooth hankels and gaussians with some power
     !  of the laplace operator.
     ! ----------------------------------------------------------------------
@@ -899,8 +894,8 @@ contains
     !u   24 Apr 00 Adapted from nfp ghi_bl.f
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: nlmg,nlmh,kmax,ndim1,ndim2,jcg(1),indxcg(1)
-    real(8) :: rsmg,rsmh(1),eg,eh(1), ph(3),pg(3),cg(1),cy(1),q(3)!,slat(1)
+    integer :: nlmg,nlmh,kmax,ndim1,ndim2 !,jcg(1),indxcg(1)
+    real(8) :: rsmg,rsmh(1),eg,eh(1), ph(3),pg(3),q(3) !,cg(1),cy(1)
     complex(8):: s(ndim1,ndim2,0:kmax)
     integer :: nlm0,ktop0,icg,icg1,icg2,ii,ilg,ilh,ilm,indx,ip,jlm,k, &
          ktop,lg,lh,ll,lm,lmaxg,lmaxh,lmaxx,m,nlmx,l1,l2,ilm1,ilm2
@@ -932,7 +927,7 @@ contains
        gamg = 0.25d0*rsmg*rsmg
        rsmx = 2d0*dsqrt(gamg+gamh)
        ktop = max0(lmaxg,l2)+kmax
-       call hklbl(dr,rsmx,e,q,ktop,nlmx,ktop0,cy, hkl)
+       call hklbl(dr,rsmx,e,q,ktop,nlmx,ktop0, hkl)
        ee = dexp(gamg*(eg-e)) ! Combine with Clebsch-Gordan coefficients
        do  1111  ilg = 1, nlmg
           lg = ll(ilg)
@@ -950,7 +945,7 @@ contains
 1111   enddo
 20  enddo
   end subroutine ghibl
-  subroutine ghigbl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax,ndim1,ndim2,k0,cg,indxcg,jcg,cy, s,ds)
+  subroutine ghigbl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax,ndim1,ndim2,k0, s,ds) !,cg,indxcg,jcg,cy
     !- Block of integrals between smooth hankels and gaussians with some
     !  power of the laplace operator, and gradients.
     ! ----------------------------------------------------------------------
@@ -985,9 +980,9 @@ contains
     !u   25 May 00 Adapted from nfp ghig_bl.f
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: k0,kmax,ndim1,ndim2,nlmg,nlmh,jcg(1),indxcg(1)
+    integer :: k0,kmax,ndim1,ndim2,nlmg,nlmh!,jcg(1),indxcg(1)
     real(8) :: rsmg,rsmh(1),eg,eh(1)
-    real(8) :: ph(3),pg(3),cg(1),cy(1),q(3)!,slat(1)
+    real(8) :: ph(3),pg(3),q(3)!,cg(1),cy(1)
     complex(8):: s(ndim1,ndim2,0:k0),ds(ndim1,ndim2,0:k0,3)
     integer :: icg,icg1,icg2,ii,ilg,ilh,ilm,ilm1,ilm2,indx,ip,jlm,k,ktop, &
          ktop0,l1,l2,lg,lh,ll,lm,lmaxg,lmaxh,lmaxx,m,nlm0,nlmx
@@ -1030,7 +1025,7 @@ contains
        gamg = 0.25d0*rsmg*rsmg
        rsmx = 2d0*dsqrt(gamg+gamh)
        ktop = max0(lmaxg,l2)+kmax
-       call hklgbl(dr,rsmx,e,q,ktop,nlmx,ktop0,nlm0,cy, hkl,dhkl)
+       call hklgbl(dr,rsmx,e,q,ktop,nlmx,ktop0,nlm0, hkl,dhkl)
        ee = dexp(gamg*(eg-e))
        do  1111  ilg = 1, nlmg !   ... Combine with Clebsch-Gordan coefficients
           lg = ll(ilg)
@@ -1055,7 +1050,7 @@ contains
 20  enddo
     deallocate(hkl,dhkl)
   end subroutine ghigbl
-  subroutine hxpbl(ph,pg,q,rsmh,rsmg,eh,kmax,nlmh,nlmg,k0,ndim, cg,indxcg,jcg,cy, c)
+  subroutine hxpbl(ph,pg,q,rsmh,rsmg,eh,kmax,nlmh,nlmg,k0,ndim, c) ! cg,indxcg,jcg,cy
     !- Coefficients to expand smooth bloch hankels centered at ph
     !  into a sum of polynomials P_kL centered at pg.
     ! ----------------------------------------------------------------------
@@ -1096,8 +1091,8 @@ contains
     !u   24 Apr 00 Adapted from nfp hxp_bl.f
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: k0,kmax,ndim,nlmg,nlmh,jcg(1),indxcg(1)
-    real(8) :: eh(1),rsmg,rsmh(1),ph(3),pg(3),cg(1),cy(1),q(3)
+    integer :: k0,kmax,ndim,nlmg,nlmh!,jcg(1),indxcg(1)
+    real(8) :: eh(1),rsmg,rsmh(1),ph(3),pg(3),q(3) !,cg(1),cy(1)
     complex(8):: c(0:k0,ndim,1)
     integer :: ndim1,ndim2,ktop0,ilmg,ilmh,k,l,ll,lmaxg,m,nm
     real(8) :: a,dfact,eg,fac,factk,fpi
@@ -1110,7 +1105,7 @@ contains
     allocate(s(nlmg,nlmh,0:kmax))
     ! ... Integrals of gaussians and smoothed Hankels
     eg = 0d0
-    call ghibl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax,nlmg,nlmh,cg,indxcg,jcg,cy, s)
+    call ghibl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax,nlmg,nlmh, s) !,cg,indxcg,jcg,cy
     a = 1d0/rsmg
     lmaxg = ll(nlmg)
     ilmg = 0
@@ -1132,7 +1127,7 @@ contains
     enddo
     deallocate(s)
   end subroutine hxpbl
-  subroutine hxpgbl(ph,pg,q,rsmh,rsmg,eh,kmax,nlmh,nlmg,k0,ndimh, ndimg,cg,indxcg,jcg,cy, c,dc)
+  subroutine hxpgbl(ph,pg,q,rsmh,rsmg,eh,kmax,nlmh,nlmg,k0,ndimh, ndimg, c,dc) !cg,indxcg,jcg,cy,
     !- Coefficients to expand smooth bloch hankels and grads centered at ph
     !  into a sum of polynomials P_kL centered at pg.
     ! ----------------------------------------------------------------------
@@ -1172,8 +1167,8 @@ contains
     !u   25 May 00 Adapted from nfp hxpg_bl.f
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: k0,kmax,ndimg,ndimh,nlmg,nlmh,jcg(1),indxcg(1)
-    real(8) :: eh(1),rsmg,rsmh(1),ph(3),pg(3),cg(1),cy(1),q(3)
+    integer :: k0,kmax,ndimg,ndimh,nlmg,nlmh!,jcg(1),indxcg(1)
+    real(8) :: eh(1),rsmg,rsmh(1),ph(3),pg(3),q(3) !,cg(1),cy(1)
     complex(8):: c(0:k0,ndimg,ndimh),dc(0:k0,ndimg,ndimh,3)
     integer :: ndim1,ndim2,ktop0,ilmg,ilmh,k,l,ll,lmaxg,m,nm
     real(8) :: a,dfact,eg,fac,factk,fpi
@@ -1189,7 +1184,7 @@ contains
     if (nlmh > ndim2) call rxi('hxpgbl: increase ndim2, need',nlmh)
     ! ... Integrals of Hankels with Gaussians
     eg = 0d0
-    call ghigbl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax,ndim1,ndim2,ktop0,cg,indxcg,jcg,cy,s,ds)
+    call ghigbl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax,ndim1,ndim2,ktop0,s,ds) !cg,indxcg,jcg,cy
     ! ... Scale to get coefficients of the PkL
     a = 1d0/rsmg
     lmaxg = ll(nlmg)
@@ -1304,7 +1299,7 @@ contains
     phase = exp(img*sp)
     if(sp/=0d0) gkl(0:kmax,1:nlm) = gkl(0:kmax,1:nlm)*phase
   end subroutine gklq
-  subroutine hsmbl(p,rsm,e,q,lmax,cy, hsm,hsmp) 
+  subroutine hsmbl(p,rsm,e,q,lmax, hsm,hsmp) 
     use m_lattic,only: rv_a_oqlv,rv_a_odlv,plat=>lat_plat
     use m_lmfinit,only: alat=>lat_alat,tol=>lat_tol
     use m_lattic,only: qlat=>lat_qlat
@@ -1336,7 +1331,7 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     integer :: lmax
-    real(8):: rsm , e , q(3) , p(3) , cy(1), ppin(3)
+    real(8):: rsm , e , q(3) , p(3) , ppin(3)
     complex(8):: hsm(1),hsmp(1)
     integer:: ilm , l , m,ll
     real(8) :: p1(3),sp,rwald,asm

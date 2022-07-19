@@ -354,7 +354,7 @@ contains
              eh   = exi(je,js)
              nlmh = 1
              call hxpbl ( p2 , p1 , q , [rsmh], rsmv , [eh] , kmxv , nlmh , nlml &
-                  , kmxv , nlml , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy ,  b ) 
+                  , kmxv , nlml ,   b ) !rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy ,
              allocate(b0(0:kmxv,nlmh))
              b0=0d0
              if (ib == jb) call hxpos([rsmh],rsmv,[eh],kmxv,nlmh,kmxv,b0)

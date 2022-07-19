@@ -70,7 +70,7 @@ subroutine fsmbl(vavg,q,ndimh,nlmto, &
               nlm2 = (lhh(i2,is2)+1)**2
               if (nlm1 > nlms .OR. nlm2 > nlms) call rx('fsmbl: increase nlms')
               call hhigbl(11,p1,p2,q,rsm1(1,i1),rsm2(1,i2),e1(1,i1),e2(1,i2),nlm1,nlm2,1,nlms, &
-                   nlms , k0 , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy , &
+                   nlms , k0 ,& !rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy , &
                    s(1,1,0,i1,i2), ds(1,1,0,1,i1,i2) )
            enddo
         enddo
