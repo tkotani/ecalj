@@ -149,10 +149,9 @@ end subroutine makusq
 subroutine pusq1(mode,ia,isp,nspc,nlmax,lmxh,nbas, &
      q,ndham,ndimh,napw,igvapw,nev,evec,vh,dh,vp,dp,ppnl, &
      au,as,az)
-  use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkapii,ispec,sspec=>v_sspec
+  use m_lmfinit,only: nkapii,ispec,sspec=>v_sspec
   use m_uspecb,only: uspecb
   use m_bstrux,only: bstrux_set,bstr
-  use m_struc_def
   use m_lattic,only: rv_a_opos
   !- Add to the coefficient for the projection onto (u,s) for one site
   ! ----------------------------------------------------------------------
@@ -165,18 +164,6 @@ subroutine pusq1(mode,ia,isp,nspc,nlmax,lmxh,nbas, &
   !i   nlmax :dimensions au,as
   !i   lmxh  :basis l-cutoff
   !i   nbas  :size of basis
-  !i   ssite :struct for site-specific information; see routine usite
-  !i     Elts read: spec pos
-  !i     Stored:    *
-  !i     Passed to: *
-  !i   sspec :struct for species-specific information; see routine uspec
-  !i     Elts read: lmxa lmxb kmxt rsma rmt
-  !i     Stored:    *
-  !i     Passed to: uspecb
-  !i   slat  :struct for lattice information; see routine ulat
-  !i     Elts read: ocg ojcg oidxcg ocy
-  !i     Stored:    *
-  !i     Passed to: hxpbl
   !i   q     :bloch vector
   !i   ndham :dimensions au,as,az
   !i   ndimh :dimension of hamiltonian, evec
@@ -210,7 +197,6 @@ subroutine pusq1(mode,ia,isp,nspc,nlmax,lmxh,nbas, &
        nbas,ndham,ndimh,napw,igvapw(3,napw),nev,nlmbx,n0,nppn
   parameter (nlmbx=25, n0=10, nppn=12)
   real(8):: ppnl(nppn,n0,2),q(3),vp(*),dp(*),vh(*),dh(*)
-!  type(s_spec)::sspec(*)
   complex(8):: evec(ndimh,nspc,ndimh), &
        au(nlmax,ndham*nspc,3,2), &
        as(nlmax,ndham*nspc,3,2), &

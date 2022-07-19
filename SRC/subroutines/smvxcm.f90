@@ -134,7 +134,6 @@ subroutine smvxcm(lfrce,smrho,smpot,smvxc,smvx,smvc,smexc,repsm,repsmx,repsmc,rm
   else
      call dpcopy(smrho,smrho_w,1,k123*nsp,1d0)
   endif
-
   if(enforce_positive_smrho()) then
      !!== negative smrho check== This is also similar with what is done in mkpot.
      !! For GGA, we have to supply positive rho. See enforce_positive_smrho section in mkpot.
@@ -142,8 +141,7 @@ subroutine smvxcm(lfrce,smrho,smpot,smvxc,smvx,smvc,smexc,repsm,repsmx,repsmc,rm
      swmin=0d0
      do i=1,k1*k2*k3*nsp
         sss=dreal(smrho_w(i))
-        !        if(sss<0d0) then
-        if(sss<minimumrho) then !25July 2011 for the case of He with alat =15Ang (even when all positive, we have NaN for vxc).
+        if(sss<minimumrho) then 
            nnn=nnn+1
            if(sss<swmin) then
               swmin=sss
@@ -151,7 +149,6 @@ subroutine smvxcm(lfrce,smrho,smpot,smvxc,smvx,smvc,smexc,repsm,repsmx,repsmc,rm
         endif
      enddo
      if(nnn>0) then
-        !         write(6,*) 'smvxcm: negative smrho_w number,min(smrho_w)=',nnn,swmin
         if(iprx) write(6,*) 'smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=',nnn,swmin !25july2011
         srshift = minimumrho + abs(swmin)
         smrho_w = smrho_w + srshift
@@ -160,7 +157,6 @@ subroutine smvxcm(lfrce,smrho,smpot,smvxc,smvx,smvc,smexc,repsm,repsmx,repsmc,rm
         if(iprx) write(6,*) 'smvxcm: all smrho_w is positive'
      endif
   endif
-
   ! ... Force density strictly positive definite
   !      print *, 'density strictly pos def?'
   !      call smrpos(w(osmrho),k1,k2,k3,n1,n2,n3)
@@ -169,7 +165,6 @@ subroutine smvxcm(lfrce,smrho,smpot,smvxc,smvx,smvc,smexc,repsm,repsmx,repsmc,rm
   focex(2)  = 0d0
   focec(2)  = 0d0
   focvxc(2) = 0d0
-
   ! --- Direct branch (lfoc2 .eq. 0) ---
   if (lfoc2 == 0) then
      call mshint(vol,1,n1,n2,n3,k1,k2,k3,smrho_w,sum1,sum2)
@@ -188,68 +183,11 @@ subroutine smvxcm(lfrce,smrho,smpot,smvxc,smvx,smvc,smexc,repsm,repsmx,repsmc,rm
      focec(1)  = 0d0
      focvxc(1) = 0d0
   endif
-
   ! --- Perturbation branch (lfoc2 .ne. 0) ---
   if (lfoc2 /= 0) then
      call rx('smvxcm: not suppor perturbation branch now')
-     !$$$        allocate(dxcv_zv(k1*k2*k3*nsp))
-     !$$$        call smvxc2 ( 1 , slat,nsp , lxcfun , vol , n1 , n2 , n3 , k1 , k2
-     !$$$     .  , k3 , smrho_w , smvxc , smvx , smvc , smexc , dxcv_zv
-     !$$$     .  , repsm , repsmx , repsmc , rmusm , vxcavg )
-     !$$$        call dpadd(smpot,smvxc,1,2*k1*k2*k3*nsp,1d0)
-     !$$$        do  i = 1, nsp
-     !$$$          call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smvxc(1,1,1,i),
-     !$$$     .    smrho(1,1,1,i),rvmusm(i),x2)
-     !$$$          call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smexc(1,1,1),
-     !$$$     .    smrho(1,1,1,i),rvepsm(i),x2)
-     !$$$        enddo
-     !$$$        deallocate(smrho_w)
-     !$$$C   ... Assemble core tails for linearized treatment on mesh
-     !$$$C       w(osmcor) = portion of core treated perturbatively
-     !$$$c        osmcor = osmrho
-     !$$$        allocate(smcor_w(k1*k2*k3*nsp))
-     !$$$Cchp1         call gvputf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , cgh2_zv
-     !$$$Cchp1      .  , smcor_w) !w ( osmcor ) )
-     !$$$         call gvputf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , cgh2_zv , smcor_w
-     !$$$     .   )
-     !$$$        call fftz3(smcor_w,n1,n2,n3,k1,k2,k3,1,0,1)
-     !$$$        call mshint(vol,1,n1,n2,n3,k1,k2,k3,smcor_w,sum1,sum2)
-     !$$$        call dpzero(focexc,2)
-     !$$$        call dpzero(focex,2)
-     !$$$        call dpzero(focec,2)
-     !$$$        do  i = 1, nsp
-     !$$$          call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smvx(1,1,1,i),smcor_w,
-     !$$$     .    x1,x2)
-     !$$$          focex(i)  = x1/nsp
-     !$$$          call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smvc(1,1,1,i),smcor_w,
-     !$$$     .    x1,x2)
-     !$$$          focec(i)  = x1/nsp
-     !$$$          call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smvxc(1,1,1,i),smcor_w,
-     !$$$     .    x1,x2)
-     !$$$          focexc(i) = x1/nsp
-     !$$$C         Add this term to focexc to make focexc=pert corr to rhov*exc
-     !$$$C          call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smexc(1,1,1),w(osmcor),
-     !$$$C     .      x1,x2)
-     !$$$        enddo
-     !$$$C       Peturbation correction to smvxc
-     !$$$        call smvxc3 ( vol , nsp , n1 , n2 , n3 , k1 , k2 , k3 , smrho
-     !$$$     .  , smcor_w , dxcv_zv , smvxc , focvxc )
-     !$$$        call dpadd(smpot,smvxc,1,2*k1*k2*k3*nsp,1d0)
-     !$$$        if (iprint() .ge. 30) then
-     !$$$          outs = ' '
-     !$$$          call awrit8('%x   foca'//
-     !$$$     .    ' rhoeps =%;12,6D %?#n==2#(%;11,6D,%;11,6D)%N   foca#%2j#'//
-     !$$$     .    '  rhomu =%;12,6D %?#n==2#(%;11,6D,%;11,6D)#%2j#',
-     !$$$     .    outs,len(outs),0,
-     !$$$     .    focexc(1)+focexc(2),nsp,focexc,focexc(2),
-     !$$$     .    focvxc(1)+focvxc(2),nsp,focvxc,focvxc(2))
-     !$$$          call awrit1('%a  charge  =%;12,6D',outs,len(outs),-stdo,sum1)
-     !$$$        endif
-     !$$$        deallocate(smcor_w,dxcv_zv)
   endif
   deallocate(cgh2_zv,cgh1_zv)
-  !      call rlse(osmrho)
-
   ! --- Force from foca sm-head; cgh1 is workspace ---
   if (lfrce /= 0) then
      allocate(cgh1_zv(ng*nsp))
@@ -263,15 +201,11 @@ subroutine smvxcm(lfrce,smrho,smpot,smvxc,smvx,smvc,smexc,repsm,repsmx,repsmc,rm
   endif
   call tcx('smvxc')
 end subroutine smvxcm
-
-
 subroutine smvxc2(mode,nsp,lxcfun,vol,n1,n2,n3,k1,k2,k3,smrho, &
      smvxc,smvx,smvc,smexc,       rhoeps,rhoex,rhoec,rhomu,vxcavg)
   use m_ftox
   use m_lgunit,only:stdo
-!  use m_vxcnlm,only:vxcnlm
   use m_xclda,only: evxcv,evxcp
-  !      use m_struc_def, only: s_lat
   !! Not documented well yet.
   !!= Makes smooth part of xc potential smvxc and optionally dsmvxc/drho =
   ! no perturbation branch (dsmvxc)
@@ -542,22 +476,10 @@ subroutine smvxc2(mode,nsp,lxcfun,vol,n1,n2,n3,k1,k2,k3,smrho, &
              ,i,ftof(rhoeps(i)),ftof(rhomu(i)),ftof(vxcavg(i))
      enddo
   endif
-
-  !      call zprm3('smvxc',0,smvxc,n1,n2,n3)
-  !      call zprm3('dsmvxc',0,dsmvxc,n1,n2,n3)
-  !      if (nsp .eq. 2) then
-  !        call zprm3('smvxc spin 2',0,smvxc(1,1,1,2),n1,n2,n3)
-  !        call zprm3('dsmvxc spin 2',0,dsmvxc(1,1,1,2),n1,n2,n3)
-  !      endif
-
   call tcx('smvxc2')
 end subroutine smvxc2
-
-
-subroutine smvxc3(vol,nsp,n1,n2,n3,k1,k2,k3,smrho,smcor,dsmvxc, &
-     smvxc,rmuxcc)
+subroutine smvxc3(vol,nsp,n1,n2,n3,k1,k2,k3,smrho,smcor,dsmvxc, smvxc,rmuxcc)
   use m_lgunit,only:stdo
-
   !- Smooth core density times dvxc/drho
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -575,15 +497,12 @@ subroutine smvxc3(vol,nsp,n1,n2,n3,k1,k2,k3,smrho,smcor,dsmvxc, &
   !u Updates
   ! ----------------------------------------------------------------------
   implicit none
-  ! ... Passed parameters
   integer :: nsp,k1,k2,k3,n1,n2,n3
   double precision :: rmuxcc(nsp),vol
   double complex smvxc(k1,k2,k3,nsp),smcor(k1,k2,k3), &
        dsmvxc(k1,k2,k3,nsp),smrho(k1,k2,k3,nsp)
-  ! ... Local parameters
   integer :: i,i1,i2,i3
   double complex cadd,csum(2)
-
   rmuxcc(2) = 0
   do  i = 1, nsp
      csum(i) = 0d0
@@ -599,12 +518,7 @@ subroutine smvxc3(vol,nsp,n1,n2,n3,k1,k2,k3,smrho,smcor,dsmvxc, &
      csum(i) = csum(i)*vol/(n1*n2*n3)
      rmuxcc(i) = dble(csum(i))
   enddo
-
-  !     write(stdo,862) csum
-  ! 862 format(' csum=',2f14.8)
-
 end subroutine smvxc3
-
 subroutine smvxc4(nbas,nsp,alat,vol,cy,ng,gv,cvxc,f)
   use m_lgunit,only:stdo
   use m_struc_def  
@@ -673,18 +587,14 @@ subroutine smvxc4(nbas,nsp,alat,vol,cy,ng,gv,cvxc,f)
         enddo
      endif
   enddo
-  if (iprint() >= 50) &
-       write(stdo,340) (ib,f(1,ib),f(2,ib),f(3,ib),ib = 1,nbas)
+  if (iprint() >= 50) write(stdo,340) (ib,f(1,ib),f(2,ib),f(3,ib),ib = 1,nbas)
 340 format(i4,3f12.6)
 400 format(/' xc-force from foca:')
-
 end subroutine smvxc4
-
 !!= Gradient correction to smoothed rho(q) tabulated on a mesh =
 !!*Kotani's version newmode with xcpbe.F in abinit Aug2010
 subroutine vxcnlm(lxcg,nsp,k1,k2,k3,smrho,repnl,rmunl,vavgnl,vxnl,vcnl,vxcnl)
   use m_supot,only: iv_a_okv,rv_a_ogv
-  !      use m_struc_def, only:s_lat
   use m_xcpbe,  only: xcpbe
   use m_lmfinit,only:    lat_alat
   use m_lattic,only: lat_vol
@@ -800,19 +710,12 @@ subroutine vxcnlm(lxcg,nsp,k1,k2,k3,smrho,repnl,rmunl,vavgnl,vxnl,vcnl,vxcnl)
      allocate( dvxcdgr(k1,k2,k3,3))
      fac=1d0/2d0  !This fac is required since rp (:,:,isp=1) contains total density in the case of nsp=1.
      if(nsp==2) fac=1d0
-     ! i
      allocate(r_smrho(k1,k2,k3,nsp))
      r_smrho=fac*dreal(smrho)
      ! allocate for calling a subroutine
      allocate(grho2_updn_forcall(n1,n2,n3,2*nsp-1))
      do isp=1,2*nsp-1
-        do i3=1,n3
-           do i2=1,n2
-              do i1=1,n1
-                 grho2_updn_forcall(i1,i2,i3,isp)=fac**2*grho2_updn(i1,i2,i3,isp)
-              enddo
-           enddo
-        enddo
+        grho2_updn_forcall(:,:,:,isp)=fac**2*grho2_updn(:,:,:,isp)
      enddo
      call xcpbe(exci=enl,npts=n1*n2*n3,nspden=nsp, &
           option=2,&!  Choice of the functional =2:PBE-GGA
@@ -823,7 +726,6 @@ subroutine vxcnlm(lxcg,nsp,k1,k2,k3,smrho,repnl,rmunl,vavgnl,vxnl,vcnl,vxcnl)
           dvxcdgr=dvxcdgr, grho2_updn=grho2_updn_forcall)   !Optional Arguments
      deallocate(grho2_updn_forcall) ! deallocate temporary data
      deallocate(r_smrho)
-
      !!=== Output: converted to Ry.===
      enl = 2d0*enl !in Ry.
      vnl = 2d0*vnl !in Ry.
@@ -835,37 +737,20 @@ subroutine vxcnlm(lxcg,nsp,k1,k2,k3,smrho,repnl,rmunl,vavgnl,vxnl,vcnl,vxcnl)
      allocate(fgrd(k1,k2,k3))
      do isp=1,nsp
         do j=1,3 !x,y,z components of grho.
-           fn(:,:,:) = fac*grho(:,:,:,j,isp)*dvxcdgr(:,:,:,isp)      !exchange part for spin density
-           do i1=1,n1
-              do i2=1,n2
-                 do i3=1,n3
-                    fn(i1,i2,i3) = fn(i1,i2,i3) &
-                         + sum(grho(i1,i2,i3,j,1:nsp)) * dvxcdgr(i1,i2,i3,3) !correlation part for total density
-                    ! sum(grho(:,:,:,j,1:nsp),dim=5) means that a sum only for 1:nsp.-->this cause compile error in gfortran
-                    ! n (complex)
-                    !          print *,'sumcheck fn j =',sum(abs(fn))
-                 enddo
-              enddo
-           enddo
+           fn = fac*grho(:,:,:,j,isp)*dvxcdgr(:,:,:,isp)      !exchange part for spin density
+           fn=fn+ sum(grho(:,:,:,j,:),dim=4)*dvxcdgr(:,:,:,3) !correlation part for total density
            call fftz3(fn,n1,n2,n3,k1,k2,k3,1,0,-1)  ! fn (complex) is converted from real space to reciprocal space
-           call gvgetf(ng,1,iv_a_okv,k1,k2,k3,fn,fg(1,j))
-           !          print *,'sumcheck fg j =',sum(abs(fg(:,j)))
+           call gvgetf(ng,1,iv_a_okv,k1,k2,k3,fn,fg(1,j))  !     print *,'sumcheck fg j =',sum(abs(fg(:,j)))
         enddo
         !!== make i G fg ---> FFT back ==
-        !         print *, 'check xxx fg(1,1:3) sum =',sum(abs(gv(1,1:3) *fg(1,1:3)))
         pi = 4d0*datan(1d0)
         tpiba = 2d0*pi/alat
         tpibai = dcmplx(0d0,1d0)*tpiba
-        do ig=1,ng
-           fgg(ig) =  tpibai*sum( gv(ig,1:3) * fg(ig,1:3))
-           !           print *, ig,abs(fgg(ig)),sum(gv(ig,1:3)**2),sum(fg(ig,1:3)**2)
-        enddo
-        !         print *, 'check xxx fgg sum =',sum(abs(fgg)),ng,sum(abs(gv)),sum(abs(fg))
+        fgg =  tpibai*[(sum(gv(ig,1:3)*fg(ig,1:3)),ig=1,ng)]
         call gvputf(ng,1,iv_a_okv,k1,k2,k3,fgg,fgrd)
         call fftz3(fgrd,n1,n2,n3,k1,k2,k3,1,0,1)
         vxcnl(:,:,:,isp) = vnl(:,:,:,isp) - dreal(fgrd)
      enddo
-
      !!=== plottest check write for debug ===
      if(plottest) then
         isp=1
@@ -887,21 +772,11 @@ subroutine vxcnlm(lxcg,nsp,k1,k2,k3,smrho,repnl,rmunl,vavgnl,vxnl,vcnl,vxcnl)
      !!=== vxnl and vcnl are dummy now ===
      vxnl=0d0 !dummy now
      vcnl=0d0 !dummy now
-
      !!== Make reps, rmu ==
-     repnl=0d0
-     rmunl=0d0
-     vavgnl=0d0
      do  i = 1, nsp
-        do i3 = 1, n3
-           do i2 = 1, n2
-              do i1 = 1, n1
-                 repnl(i) = repnl(i) + dble(smrho(i1,i2,i3,i))*enl(i1,i2,i3)
-                 rmunl(i) = rmunl(i) + dble(smrho(i1,i2,i3,i))*vxcnl(i1,i2,i3,i) !all total
-                 vavgnl(i) = vavgnl(i) + vxcnl(i1,i2,i3,i)                       !all total
-              enddo
-           enddo
-        enddo
+        repnl(i) = sum(dble(smrho(:,:,:,i))*enl(:,:,:))
+        rmunl(i) = sum(dble(smrho(:,:,:,i))*vxcnl(:,:,:,i)) !all total
+        vavgnl(i)= sum(vxcnl(:,:,:,i))                  !all total
         repnl(i)  = repnl(i)*vol/(n1*n2*n3)
         rmunl(i)  = rmunl(i)*vol/(n1*n2*n3)
         vavgnl(i) = vavgnl(i)/(n1*n2*n3)
@@ -915,7 +790,6 @@ subroutine vxcnlm(lxcg,nsp,k1,k2,k3,smrho,repnl,rmunl,vavgnl,vxnl,vcnl,vxcnl)
      !!* This is the end of newmode.
      !!--------------------------------------------------------------
 end subroutine vxcnlm
-   
 subroutine smcorm(nbas,ng,gv,  cgh1,cgh2,lfoc1,lfoc2)
   use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,ispec
   use m_struc_def           
@@ -942,16 +816,15 @@ subroutine smcorm(nbas,ng,gv,  cgh1,cgh2,lfoc1,lfoc2)
   real(8):: gv(ng,3)
   double complex cgh1(ng),cgh2(ng)
   integer:: k0 , nlmx , kmax , ib , is , lfoc , i
-  double precision :: tau(3),v(3),alat,vol,qcorg,qcorh,qsc,cofg,cofh, &
-       ceh,rfoc,z
+  double precision :: tau(3),v(3),alat,vol,qcorg,qcorh,qsc,cofg,cofh, ceh,rfoc,z
   parameter (k0=3, nlmx=25)
   double complex gkl(0:k0,nlmx)
   alat=lat_alat
   vol=lat_vol
   kmax = 0
   ! --- Accumulate FT of smooth-Hankel foca heads ---
-  call dpzero(cgh1,  2*ng)
-  call dpzero(cgh2,  2*ng)
+  cgh1=0d0
+  cgh2=0d0
   lfoc1 = 0
   lfoc2 = 0
   do  ib = 1, nbas

@@ -1,6 +1,5 @@
 subroutine smhsbl(vavg,q,ndimh, napw,igapw, h,s)
-  use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg, alat=>lat_alat,nbas,nkaphh,lhh
-  use m_lmfinit,only:ispec,sspec=>v_sspec
+  use m_lmfinit,only: alat=>lat_alat,nbas,nkaphh,lhh, ispec,sspec=>v_sspec
   use m_lattic,only: lat_plat,rv_a_opos,qlat=>lat_qlat,vol=>lat_vol
   use m_uspecb,only:uspecb
   use m_orbl,only: Orblib1,Orblib2,ktab1,ltab1,offl1,norb1,ktab2,ltab2,offl2,norb2
@@ -140,7 +139,7 @@ subroutine smhsbl(vavg,q,ndimh, napw,igapw, h,s)
                  nlm2 = (lhh(i2,is2)+1)**2
                  if (nlm1 > nlms .OR. nlm2 > nlms) call rx('smhsbl: increase nlms')
                  call hhibl(p1,p2,q,rsm1(1,i1),rsm2(1,i2),e1(1,i1),e2(1,i2),nlm1,nlm2,1,nlms &
-                      ,nlms,s0(1,1,0,i1,i2)) !rv_a_ocg,iv_a_oidxcg,iv_a_ojcg,rv_a_ocy,
+                      ,nlms,s0(1,1,0,i1,i2)) 
                  !F0*F0 and F0*\laplacian F0 integrals (smH parts)
               enddo
            enddo

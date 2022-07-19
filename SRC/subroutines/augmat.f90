@@ -1,9 +1,10 @@
 subroutine augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax &
-     , nlml , a , nr , nsp , lso , rofi , rwgt , cg , jcg , indxcg &
+     , nlml , a , nr , nsp , lso , rofi , rwgt & !cg , jcg , indxcg &
      , v0 , v1 , v2 , gpotb , gpot0 , nkaph , nkapi , lmxh , lh , &
      eh , rsmh , ehl , rsml , rs3 , vmtz ,  lmaxu , vorb ,  &
      lldau , iblu , idu , sv_p_osig , sv_p_otau , sv_p_oppi,ohsozz,ohsopm, ppnl &
      , hab , vab , sab )
+  use m_lmfinit,only: cg=>rv_a_ocg,indxcg=>iv_a_oidxcg,jcg=>iv_a_ojcg,cy=>rv_a_ocy
   use m_lmfinit,only: n0,nkap0,nppn,nab
   use m_struc_def, only: s_rv1,s_cv1,s_sblock
   !- Make augmentation matrices sig,tau,pi for one site
@@ -335,12 +336,12 @@ subroutine augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax &
   integer :: lmaxu,lldau,iblu,idu(4)
   complex(8):: vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
   double precision :: z,rmt,rsma,a
-  integer:: jcg(1) , indxcg(1) , lh(nkap0)
+  integer::  lh(nkap0) !jcg(1) , indxcg(1)
   type(s_cv1) :: sv_p_oppi(3)
   type(s_sblock):: ohsozz(3),ohsopm(3)
   type(s_rv1) :: sv_p_otau(3)
   type(s_rv1) :: sv_p_osig(3)
-  double precision :: rofi(nr),rwgt(nr),v0(nr,nsp),cg(1), &
+  double precision :: rofi(nr),rwgt(nr),v0(nr,nsp), & !,cg(1)
        pnu(n0,nsp),pnz(n0,nsp),ppnl(nppn,n0,2), &
        v1(nr,nlml,nsp),v2(nr,nlml,nsp),gpot0(nlml),gpotb(nlml), &
        hab(nab,n0,nsp),vab(nab,n0,nsp),sab(nab,n0,nsp), &

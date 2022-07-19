@@ -1,7 +1,6 @@
 subroutine augmbl(isp, q , sv_p_osig , sv_p_otau , sv_p_oppi, ndimh , h,s )
   use m_lmfinit,only: nsp,nlmto, sspec=>v_sspec
   use m_struc_def
-  use m_lmfinit,only: rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy
   use m_lmfinit,only: nbas,nkaph,alat=>lat_alat,ispec
   use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol,rv_a_opos
   use m_bstrux,only: Bstrux_set, bstr

@@ -11,7 +11,7 @@ contains
        rhoex , rhoec , rhovxc , rvepsv , rvexv , rvecv , rvvxcv , &
        rveps , rvvxc , valvef , xcore , focexc , focex , focec , focvxc, &
        sqloc , sqlocc , saloc , qval , qsc )
-    use m_lmfinit,only:rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkaph,lxcf,lhh,nkapii,nkaphh
+    use m_lmfinit,only:nkaph,lxcf,lhh,nkapii,nkaphh
     use m_lmfinit,only:n0,nppn,nab,nrmx,nkap0,nlmx,nbas,nsp,lso,ispec, sspec=>v_sspec,mxcst4
     use m_lmfinit,only:slabl,idu,coreh,ham_frzwf,rsma,alat
     use m_MPItk,only: master_mpi
@@ -402,11 +402,11 @@ contains
           if( .NOT. novxc .AND. cmdopt0('--socmatrix') ) lsox=1
           if (ipr >= 20) write(stdo,467) y0*(gpot0(j1)-gpotb(1))
 467       format(' potential shift to crystal energy zero:',f12.6)
-          call augmat ( z , rmt , rsma(is) , lmxa , pnu , pnz , kmax , nlml &
-               , a , nr , nsp , lsox , rofi , rwgt , rv_a_ocg, iv_a_ojcg, iv_a_oidxcg &
-               , v0pot(ib)%v , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , &
-               lmxb , lhh(:,is) , eh , rsmh, ehl , rsml , rs3 , vmtz ,  lmaxu& ! & lcplxp ,
-               , vorb, lldau(ib), iblu, idu, sv_p_osig(1,ib) , sv_p_otau(1,ib), &
+          call augmat ( z , rmt , rsma(is) , lmxa , pnu , pnz , kmax , nlml, &
+               a , nr , nsp , lsox , rofi , rwgt ,& 
+               v0pot(ib)%v , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , &
+               lmxb , lhh(:,is) , eh , rsmh, ehl , rsml , rs3 , vmtz ,  lmaxu,& ! & lcplxp ,
+               vorb, lldau(ib), iblu, idu, sv_p_osig(1,ib) , sv_p_otau(1,ib), &
                sv_p_oppi(1,ib),ohsozz(1,ib),ohsopm(1,ib), ppnl(1,1,1,ib) , &
                hab(1,1,1,ib),vab (1,1,1,ib), sab(1,1,1,ib) )
        endif

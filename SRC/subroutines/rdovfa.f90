@@ -269,7 +269,7 @@ contains
   end subroutine rdovfa
 
   subroutine ovlocr(nbas,nxi0,nxi,exi,hfc,rsmfa,rv_a_orhofa, sv_p_orhoat , sqloc, slmom )
-    use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nsp,ispec,sspec=>v_sspec
+    use m_lmfinit,only: nsp,ispec,sspec=>v_sspec
     use m_struc_def
     use m_lgunit,only:stdo
     use m_smhankel,only: hxpbl
@@ -353,8 +353,7 @@ contains
              rsmh = rsmfa(js)
              eh   = exi(je,js)
              nlmh = 1
-             call hxpbl ( p2 , p1 , q , [rsmh], rsmv , [eh] , kmxv , nlmh , nlml &
-                  , kmxv , nlml ,   b ) !rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy ,
+             call hxpbl ( p2,p1,q,[rsmh], rsmv,[eh],kmxv,nlmh,nlml, kmxv,nlml,  b ) 
              allocate(b0(0:kmxv,nlmh))
              b0=0d0
              if (ib == jb) call hxpos([rsmh],rsmv,[eh],kmxv,nlmh,kmxv,b0)
@@ -364,10 +363,9 @@ contains
              deallocate(b0)
           enddo
        enddo
-       call p2ovlc ( ib , nsp , rsmv , kmxv , nr , nlml , acof , rofi &
-            , rwgt , nxi0 , nxi ( is ) , exi ( 1 , is ) , hfc ( 1 &
-            , 1 , is ) , rsmfa ( is ) , rv_a_orhofa ( is ) %v , sv_p_orhoat( 3 , ib )%v &
-            , lfoca , qcsm , qloc , amom , sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v )
+       call p2ovlc ( ib,nsp,rsmv,kmxv,nr,nlml,acof,rofi &
+           ,rwgt,nxi0,nxi(is),exi(1,is),hfc(1,1,is),rsmfa(is),rv_a_orhofa(is)%v,sv_p_orhoat(3,ib)%v &
+           ,lfoca,qcsm,qloc,amom,sv_p_orhoat(1,ib)%v,sv_p_orhoat( 2,ib )%v )
        sqloc = sqloc + qloc
        slmom = slmom + amom
        deallocate(rofi,rwgt)
@@ -376,8 +374,6 @@ contains
     enddo
     call tcx('ovlocr')
   end subroutine ovlocr
-
-
   subroutine p1ovlc(kmxv,nlml,hfc,b,b0,a)
     !- Adds contribution to P_kl expansion of density from one basis function
     ! ----------------------------------------------------------------------

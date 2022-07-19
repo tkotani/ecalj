@@ -1,7 +1,6 @@
 module m_prlcb
 contains
-  subroutine prlcb2(job,ia,nkaph,nlmha,kmax,nlma,isp,cPkL, &
-       nlmto,evec,ewgt,evl,qhh,qhp)
+  subroutine prlcb2(job,ia,nkaph,nlmha,kmax,nlma,isp,cPkL,nlmto,evec,ewgt,evl, qhh,qhp)
     use m_orbl,only: Orblib,ktab,ltab,offl,norb
     !- Add one and two-center terms to density coeffs
     ! ----------------------------------------------------------------------
@@ -32,16 +31,12 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     integer :: job,ia,kmax,nkaph,isp,nlmto,nlma,nlmha
-    double precision :: qhh(nkaph,nkaph,nlmha,nlmha,isp), &
-         qhp(nkaph,0:kmax,nlmha,nlma,isp),ewgt !(numq)
+    double precision :: qhh(nkaph,nkaph,nlmha,nlmha,isp),qhp(nkaph,0:kmax,nlmha,nlma,isp),ewgt
     real(8),optional::evl
     double complex evec(nlmto),cPkL(0:kmax,nlma)
-    ! ... Local parameters
-    integer :: i1,i2,ilm1,ilm2,ilma,io1,io2,iq,k,ik1,ik2, &
-         l1,l2,n0,nkap0,nlm11,nlm12,nlm21,nlm22
+    integer :: i1,i2,ilm1,ilm2,ilma,io1,io2,iq,k,ik1,ik2,l1,l2,n0,nkap0,nlm11,nlm12,nlm21,nlm22
     parameter (n0=10,nkap0=3)
-    integer ::  blks(n0*nkap0),ntab(n0*nkap0)
-    ! orb,ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),
+    integer ::  blks(n0*nkap0),ntab(n0*nkap0)! orb,ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),
     double precision :: xx
     if (nlmto == 0) return
     call tcn('prlcb2')
@@ -101,7 +96,6 @@ contains
     enddo
     call tcx('prlcb2')
   end subroutine prlcb2
-  !!
   subroutine prlcb3(job,kmax,nlma,isp,cPkL,ewgt,evl,qpp)
     !- Add to local density coefficients for one state
     ! ----------------------------------------------------------------------
@@ -149,25 +143,16 @@ contains
   end subroutine prlcb3
 end module m_prlcb
 !!
-subroutine rlocbl(lfrce , nbas , isp, q , ndham , ndimh , nspc , napw , igvapw ,  nevec &
-       , evec , ewgt , evl , sv_p_osig , sv_p_otau , sv_p_oppi &
-  , lekkl , sv_p_oqkkl , sv_p_oeqkkl , f )
+subroutine rlocbl(lfrce,nbas,isp, q,ndham,ndimh,nspc,napw,igvapw, nevec &
+      ,evec,ewgt,evl,sv_p_osig,sv_p_otau,sv_p_oppi,lekkl,sv_p_oqkkl,sv_p_oeqkkl,f )
   use m_struc_def,only: s_spec,s_rv1,s_cv1
   use m_prlcb,only:   prlcb2,prlcb3
-  use m_lmfinit,only: iv_a_oidxcg,iv_a_ojcg,rv_a_ocy,rv_a_ocg,lat_alat,nkaph,ispec,sspec=>v_sspec
+  use m_lmfinit,only: lat_alat,nkaph,ispec,sspec=>v_sspec
   use m_lattic,only: lat_qlat,rv_a_opos
   use m_bstrux,only: bstrux_set,bstr,dbstr
   !- Accumulates the local atomic densities.
   ! ----------------------------------------------------------------------
   !i Inputs
-  !i   sspec :struct for species-specific information; see routine uspec
-  !i     Elts read: lmxa kmxt lmxb
-  !i     Stored:    *
-  !i     Passed to: bstrux
-  !i   slat  :struct for lattice information; see routine ulat
-  !i     Elts read: ocg ojcg oidxcg ocy alat qlat
-  !i     Stored:    *
-  !i     Passed to: bstrux
   !i   lfrce :if nonzero, accumulate contribution to force
   !i   nbas  :size of basis
   !i   isp   :spin channel
@@ -241,21 +226,20 @@ subroutine rlocbl(lfrce , nbas , isp, q , ndham , ndimh , nspc , napw , igvapw ,
        sv_p_oeqkkl(3,1), sv_p_oqkkl(3,1)
   real(8),pointer:: OQPP(:), OQHP(:),OQHH(:),OEQPP(:),OEQHP(:),OEQHH(:),OSIGPP(:), OSIGHP(:)
   complex(8),pointer:: OPPIPP(:),OPPIHP(:)
-  real(8):: q(3), ewgt(nevec) , evl(ndham,isp) , f(3,nbas)
+  real(8):: q(3), ewgt(nevec),evl(ndham,isp),f(3,nbas)
   double complex evec(ndimh,nspc,nevec)
   integer :: is,nlmbx,nlmx,ktop0,npmx,nkap0,n0
   parameter (nlmbx=25,  nkap0=3, n0=10) !npmx=32,
   integer :: kmaxx,nlmax,igetss,nglob,nlmto !mp,
   double precision :: alat,qlat(3,3)
   integer :: ia,isa,ivec,kmax,lmxa,nlma,lmxha,nlmha,ispc,ksp
-  integer:: ob , odb
+  integer:: ob,odb
   double precision :: pa(3),pi,tpiba
   complex(8),allocatable:: cPkL(:),da(:),wk(:)
   integer ::iwdummy, iaini,iaend
   complex(8),allocatable::w_ob(:),w_odb(:,:,:,:),force(:)
   if (nevec <= 0) return
   call tcn('rlocbl')
-  !      nkaph = globalvariables%nkaph
   ! ... Find maximum sizes needed to allocate strux; allocate them
   nlmax = 0
   kmaxx = 0
@@ -304,7 +288,7 @@ subroutine rlocbl(lfrce , nbas , isp, q , ndham , ndimh , nspc , napw , igvapw ,
      OSIGPP => sv_p_osig(1,ia)%v
      OSIGHP => sv_p_osig(2,ia)%v
      !   --- Strux to expand all orbitals and their gradients at site ia ---
-     !call bstrux(1, ia, pa, rsma, q, kmax, nlma, ndimh, napw, igvapw, w_ob , w_odb )
+     !call bstrux(1, ia, pa, rsma, q, kmax, nlma, ndimh, napw, igvapw, w_ob,w_odb )
      call bstrux_set(ia,q) !bset, dbstr
      !   --- Loop over eigenstates ---
      !       In noncollinear case, isp=1 always => need internal ispc=1..2
@@ -318,21 +302,21 @@ subroutine rlocbl(lfrce , nbas , isp, q , ndham , ndimh , nspc , napw , igvapw ,
            !!  ... Pkl expansion of eigenvector
            call rlocb1(ndimh,nlma,kmax, evec(1,ispc,ivec),bstr, cPkL) !, w_ob,cPkl) !
            !!  ... Add to local density coefficients for one state
-           call prlcb3 ( job=0 , kmax=kmax , nlma=nlma , isp=ksp , cpkl=cpkl, ewgt=ewgt(ivec), qpp=OQPP)
-           call prlcb2 ( job=0 , ia=ia , nkaph=nkaph , &
-                nlmha=nlmha , kmax=kmax, nlma=nlma, isp=ksp , cpkl=cpkl, nlmto=nlmto , &
-                evec=evec(1,ispc,ivec), ewgt=ewgt(ivec),    qhh=OQHH, qhp=OQHP)
+           call prlcb3 ( job=0,kmax=kmax,nlma=nlma,isp=ksp,cpkl=cpkl, ewgt=ewgt(ivec), qpp=OQPP)
+           call prlcb2 ( job=0,ia=ia,nkaph=nkaph,&
+                nlmha=nlmha,kmax=kmax,nlma=nlma,isp=ksp,cpkl=cpkl, nlmto=nlmto,&
+                evec=evec(1,ispc,ivec),ewgt=ewgt(ivec),    qhh=OQHH, qhp=OQHP)
            if (lekkl == 1) then
-              call prlcb3(1, kmax, nlma, ksp, cpkl, ewgt(ivec), evl(ivec,isp) , OEQPP)
-              call prlcb2(1, ia, nkaph,nlmha,kmax,nlma ,ksp , cpkl , nlmto , &
-                   evec(1,ispc,ivec), ewgt(ivec),  evl ( ivec , isp ) , OEQHH , OEQHP)
+              call prlcb3(1, kmax, nlma, ksp, cpkl, ewgt(ivec),evl(ivec,isp), OEQPP)
+              call prlcb2(1, ia, nkaph,nlmha,kmax,nlma ,ksp,cpkl,nlmto,&
+                   evec(1,ispc,ivec), ewgt(ivec),evl ( ivec,isp ), OEQHH,OEQHP)
            endif
            !! ... Contribution to forces
            if (lfrce/=0) then
               call rxx(nspc.ne.1,'forces not implemented in noncoll case')
-              call flocbl ( nbas , ia , kmax , nkaph , lmxha , nlmha , nlma, &
-                   lmxa,nlmto,ndimh,ksp,evl(ivec,isp),evec(1,ispc,ivec),ewgt(ivec),cpkl, dbstr,&  !w_odb, &!
-                   OSIGPP, OSIGHP , OPPIPP, OPPIHP, force ) 
+              call flocbl( nbas,ia,kmax,nkaph,lmxha,nlmha,nlma, &
+                   lmxa,nlmto,ndimh,ksp,evl(ivec,isp),evec(1,ispc,ivec),ewgt(ivec),cpkl,dbstr,&  
+                   OSIGPP, OSIGHP,OPPIPP,OPPIHP, force ) 
            endif
         enddo
      enddo

@@ -106,8 +106,7 @@ contains
   subroutine bstrux(mode,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igapw,  b, db)
     use m_smhankel,only: hxpbl,hxpgbl
     use m_struc_def
-    use m_lmfinit,only:alat=>lat_alat,lhh,nkaphh,nkapii,ispec,sspec=>v_sspec,cg=>rv_a_ocg, &
-         indxcg=>iv_a_oidxcg,jcg=>iv_a_ojcg,cy=>rv_a_ocy,nbas
+    use m_lmfinit,only:alat=>lat_alat,lhh,nkaphh,nkapii,ispec,sspec=>v_sspec,nbas
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol,rv_a_opos
     use m_uspecb,only: uspecb
     use m_orbl,only: Orblib, norb,ltab,ktab,offl

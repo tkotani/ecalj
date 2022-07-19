@@ -1,12 +1,11 @@
-subroutine fsmbl(vavg,q,ndimh,nlmto, &
-  nevec,evl,evec,ewgt,f)
-  use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,lhh,nkaphh,ispec,nbas,sspec=>v_sspec
+subroutine fsmbl(vavg,q,ndimh,nlmto,nevec,evl,evec,ewgt, f)
+  !- Force from smoothed hamiltonian (constant potential) and overlap
+  use m_lmfinit,only: lhh,nkaphh,ispec,nbas,sspec=>v_sspec
   use m_uspecb,only:uspecb
   use m_struc_def
   use m_orbl,only: Orblib1,Orblib2,ktab1,ltab1,offl1,norb1,ktab2,ltab2,offl2,norb2
   use m_smhankel,only: hhigbl
   use m_lattic,only: rv_a_opos
-  !- Force from smoothed hamiltonian (constant potential) and overlap
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   nbas  :size of basis
@@ -15,7 +14,6 @@ subroutine fsmbl(vavg,q,ndimh,nlmto, &
   !i     Stored:    *
   !i     Passed to: uspecb
   !i   slat  :struct for lattice information; see routine ulat
-  !i     Elts read: ocg ojcg oidxcg ocy
   !i     Stored:    *
   !i     Passed to: hhigbl
   !i   vavg  :constant potential (MT zero) to be added to h
@@ -69,9 +67,8 @@ subroutine fsmbl(vavg,q,ndimh,nlmto, &
               nlm1 = (lhh(i1,is1)+1)**2
               nlm2 = (lhh(i2,is2)+1)**2
               if (nlm1 > nlms .OR. nlm2 > nlms) call rx('fsmbl: increase nlms')
-              call hhigbl(11,p1,p2,q,rsm1(1,i1),rsm2(1,i2),e1(1,i1),e2(1,i2),nlm1,nlm2,1,nlms, &
-                   nlms , k0 ,& !rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy , &
-                   s(1,1,0,i1,i2), ds(1,1,0,1,i1,i2) )
+              call hhigbl(11,p1,p2,q,rsm1(1,i1),rsm2(1,i2),e1(1,i1),e2(1,i2),nlm1,nlm2,1,nlms,nlms,k0,&
+                   s(1,1,0,i1,i2), ds(1,1,0,1,i1,i2))
            enddo
         enddo
         do io2= 1, norb2
