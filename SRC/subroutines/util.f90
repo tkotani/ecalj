@@ -579,7 +579,7 @@ end subroutine fsanrg
 subroutine setfac(n,fac) !- set up array of factorials.
   integer :: n,i,ik,m
   real(8):: fac(0:n)
-  fac=[(product([(ik,ik=1,m)]),m=0,n)]
+  fac=[(product([(dble(ik),ik=1,m)]),m=0,n)]
 end subroutine setfac
 
 subroutine stdfac(n,df) !- Set up array of double factorials.
@@ -587,7 +587,7 @@ subroutine stdfac(n,df) !- Set up array of double factorials.
   !  for even numbers, makes 2*4*6*..*n
   integer :: n,ik,m
   real(8):: df(0:n)
-  df=[(product([(ik,ik=m,1,-2)]),m=0,n)]
+  df=[(product([(dble(ik),ik=m,1,-2)]),m=0,n)]
 end subroutine stdfac
 
 integer function nargf()
@@ -648,3 +648,15 @@ function zxx(a,b) result(ab)
      enddo
   enddo
 end function zxx
+
+module m_factorial
+  real(8),allocatable,protected:: factorial(:),factorial2(:)
+contains
+  subroutine factorial_init(kmaxf,lmaxf)
+    integer:: kmaxf,lmaxf
+    if(allocated(factorial)) deallocate(factorial,factorial2)
+    allocate(factorial(0:kmaxf),factorial2(0:lmaxf))
+    call setfac(kmaxf,factorial)
+    call stdfac(lmaxf,factorial2)
+  end subroutine factorial_init
+end module m_factorial

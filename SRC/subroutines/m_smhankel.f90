@@ -1,4 +1,5 @@
 module m_smhankel !Bloch sum of smooth Hankel, Gaussians. Expansion and Integrals.
+    use m_factorial,only: factorial_init,factorial2,factorial
     use m_lmfinit,only: cg=>rv_a_ocg,indxcg=>iv_a_oidxcg,jcg=>iv_a_ojcg,cy=>rv_a_ocy
   ! JMP39: Bott, E., M. Methfessel, W. Krabs, and P. C. Schmidt.
   ! “Nonsingular Hankel Functions as a New Basis for Electronic Structure Calculations.”
@@ -1093,7 +1094,7 @@ contains
     implicit none
     integer :: k0,kmax,ndim,nlmg,nlmh!,jcg(1),indxcg(1)
     real(8) :: eh(1),rsmg,rsmh(1),ph(3),pg(3),q(3) !,cg(1),cy(1)
-    complex(8):: c(0:k0,ndim,1)
+    complex(8):: c(0:k0,ndim,nlmh)
     integer :: ndim1,ndim2,ktop0,ilmg,ilmh,k,l,ll,lmaxg,m,nm
     real(8) :: a,dfact,eg,fac,factk,fpi
     complex(8),allocatable:: s(:,:,:)
@@ -1108,22 +1109,16 @@ contains
     call ghibl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax,nlmg,nlmh, s) !,cg,indxcg,jcg,cy
     a = 1d0/rsmg
     lmaxg = ll(nlmg)
+    call factorial_init(kmax,2*lmaxg+1)
     ilmg = 0
-    dfact = 1d0
     do l = 0, lmaxg 
        nm = 2*l+1
        do m = 1, nm
           ilmg = ilmg+1
-          factk = 1d0
-          do   k = 0, kmax
-             fac = fpi / ((4*a*a)**k * a**l * factk * dfact)
-             do    ilmh = 1, nlmh
-                c(k,ilmg,ilmh) = s(ilmg,ilmh,k)*fac ! ... Scale to get coefficients of the P_kL
-             enddo
-             factk = factk*(k+1)
+          do   k = 0, kmax ! ... Scale to get coefficients of the P_kL
+             c(k,ilmg,:) = s(ilmg,:,k)*fpi / ((4*a*a)**k * a**l *factorial(k)*factorial2(2*l+1))
           enddo
        enddo
-       dfact = dfact*(2*l+3)
     enddo
     deallocate(s)
   end subroutine hxpbl
@@ -1188,25 +1183,18 @@ contains
     ! ... Scale to get coefficients of the PkL
     a = 1d0/rsmg
     lmaxg = ll(nlmg)
+    call factorial_init(kmax,2*lmaxg+1)
     ilmg = 0
-    dfact = 1d0
     do l = 0, lmaxg
        nm = 2*l+1
        do m = 1, nm
           ilmg = ilmg+1
-          factk = 1d0
           do  k = 0, kmax
-             fac = fpi/ ((4*a*a)**k * a**l * factk * dfact)
-             do    ilmh = 1, nlmh
-                c(k,ilmg,ilmh) = s(ilmg,ilmh,k)*fac
-                dc(k,ilmg,ilmh,1) = -ds(ilmg,ilmh,k,1)*fac
-                dc(k,ilmg,ilmh,2) = -ds(ilmg,ilmh,k,2)*fac
-                dc(k,ilmg,ilmh,3) = -ds(ilmg,ilmh,k,3)*fac
-             enddo
-             factk = factk*(k+1)
+             fac = fpi/ ((4*a*a)**k * a**l *factorial(k)*factorial2(2*l+1)) !* factk * dfact)
+              c(k,ilmg,1:nlmh)     =   s(ilmg,1:nlmh,k)*fac
+             dc(k,ilmg,1:nlmh,1:3) = -ds(ilmg,1:nlmh,k,1:3)*fac
           enddo
        enddo
-       dfact = dfact*(2*l+3)
     enddo
     deallocate(s,ds)
   end subroutine hxpgbl
@@ -1436,10 +1424,8 @@ contains
        lzero = .false.
        ! --- Make the xi's from -1 to lmax ---
        if (r1 < 1d-6) then
-          do  l = 1, lmax
-             chi1(l) = 0d0
-             chi2(l) = 0d0
-          enddo
+          chi1(1:lmax) = 0d0
+          chi2(1:lmax) = 0d0
           chi1(0) = ta*dexp(e/(2d0*ta2))/srpi - akap*derfc(akap/ta)
           chi1(-1) = derfc(akap/ta)/akap
           chi2(0) = tasm*dexp(e/(2d0*tasm2))/srpi - akap*derfc(akap/tasm)
@@ -1462,9 +1448,7 @@ contains
              chi1(-1) = (umins+uplus)/(2.d0*akap)
           endif
           if (lzero) then
-             do  30  l = -1, lmax
-                chi1(l) = 0
-30           enddo
+             chi1(-1:lmax) = 0
              lzero = .false.
           else
              gl = cc*dexp(-a2*r2)/ta2
@@ -1557,10 +1541,9 @@ contains
        gamh = 0.25d0*rsm*rsm
        gamg = 0.25d0*rsmg*rsmg
        rsmx = 2d0*dsqrt(gamg+gamh)
-       !   ... Make hankels for l=0 and k=0..kmax
        ktop = l2+kmax
        block 
-         real(8) :: h0k(0:ktop)
+         real(8) :: h0k(0:ktop) !   ... Make hankels for l=0 and k=0..kmax
          call hklos(rsmx,e,ktop,h0k)
          do  ilm = ilm1, ilm2 ! .. Evaluate what is left of Clebsch-Gordan sum
             l = ll(ilm)
@@ -1656,7 +1639,7 @@ contains
     !u   18 May 00 Made rsmh,eh l-dependent
     !u   24 Apr 00 Adapted from nfp hxp_os.f
     ! ----------------------------------------------------------------------
-    integer :: k0,kmax,nlmh
+    integer :: k0,kmax,nlmh,ik,i1,i2,i
     real(8) :: eh(1),rsmg,rsmh(1),c(0:k0,nlmh)
     integer :: ndim,ilm,k,l,ll,lmax,m,nm
     real(8) :: a,dfact,eg,fac,factk,sig
@@ -1668,22 +1651,15 @@ contains
     ! ... Scale integrals to get coefficients of the P_kL
     a = 1d0/rsmg
     lmax = ll(nlmh)
-    ilm = 0
-    dfact = 1d0
+    call factorial_init(kmax,2*lmax+1)
     c=0d0
     do  l = 0, lmax
-       nm = 2*l+1
-       do  m = 1, nm
-          ilm = ilm+1
-          factk = 1d0
-          if (rsmh(l+1) > 0) then
-             do  k = 0, kmax
-                c(k,ilm) = s(ilm,k)*fpi/( (4*a*a)**k * a**l * factk * dfact )
-                factk = factk*(k+1)
-             enddo
-          endif
-       enddo
-       dfact = dfact*(2*l+3)
+       if(rsmh(l+1) <= 0) cycle
+       i1=l**2+1
+       i2=l**2+2*l+1
+       do i=i1,i2
+          c(0:kmax,i) = [(s(i,k)*fpi/( (4*a*a)**k * a**l* factorial(k)*factorial2(2*l+1)), k=0,kmax)]
+       enddo   
     enddo
   end subroutine hxpos
   subroutine ropylg2(lmax2,kmax,nlm,kmax0,nlm0,hkl, ghkl) !ghkl derivative of hkl wrt (x,y,z)

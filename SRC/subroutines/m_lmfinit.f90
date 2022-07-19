@@ -1306,6 +1306,8 @@ contains
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
       if( cmdopt0('--quit=show') ) call rx0(trim(prgnam)//' --quit=show')
+!
+
     endblock stage2
 
     stage3 :block ! initial settings,  Total energy mode setting

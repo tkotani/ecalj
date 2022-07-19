@@ -42,7 +42,7 @@ contains
     use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
     use m_MPItk,only: master_mpi,procid,master
     use m_lmfinit,only: nlmto
-    use m_shortn3_qlat,only: shortn3_qlat,nout,nlatout
+!    use m_shortn3_qlat,only: shortn3_qlat,nout,nlatout
     integer:: ifiese
     integer,allocatable ::  kv_iv(:,:)
     real(8):: ppin(3),qp(3),qqq(3),pwgmin,pwgmax,dum
