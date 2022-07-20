@@ -1,8 +1,4 @@
-subroutine writeband(eferm,evtop,ecbot)!, etolv,etolc)
-  !      subroutine writeband(stdo,nkp,nsyml,nspx,nsp,ndhamx,
-  !     & xdatt,nqp_syml,nqp2n_syml,nevls,evlall,qplist,labeli,labele,alat,
-  !     & eferm,evtop,ecbot,sname,nqps_syml,nqpe_syml,nsymln,dqsyml,
-  !     &     etolv,etolc)
+subroutine writeband(eferm,evtop,ecbot)
   use m_lmfinit,only:stdo,nsp,alat=>lat_alat
   use m_qplist,only: nkp,nsyml,xdatt,nqp_syml,nqp2n_syml,qplist,labeli,labele, &
        nqps_syml,nqpe_syml,dqsyml,etolv,etolc
@@ -11,15 +7,7 @@ subroutine writeband(eferm,evtop,ecbot)!, etolv,etolc)
   use m_ext,only: sname
   !! == write band file ==
   implicit none
-  !      integer,intent(in):: nkp,nsyml,nspx,ndhamx,nsp,  nevls(nkp,nspx),stdo,nsymln
-  !      real(8),intent(in):: evlall(ndhamx,nspx,nkp),qplist(3,nkp),xdatt(nkp),alat  !vnow,
-  !      integer,intent(in):: nqp_syml(nsyml),nqp2n_syml(nsyml),nqps_syml(nsyml),nqpe_syml(nsyml)
   real(8),intent(in):: eferm,evtop,ecbot ! evtop is max of n-th band. !evbot is bottom of bands upper than n+1
-  !                                             ! if evtop <evbot ---> insulator
-  !      real(8),intent(in):: dqsyml(nsyml),etolv,etolc
-  !      character*20,intent(in)::labeli(nsyml),labele(nsyml)
-  !      character(*),intent(in)::sname
-
   integer:: ifbndo,ikp,isyml,jsp
   character*300::filenm(2),bchar
   real(8):: rydberg=13.6058d0 !,vadd
@@ -42,10 +30,8 @@ subroutine writeband(eferm,evtop,ecbot)!, etolv,etolc)
   logical:: scd
   real(8)::kef
   real(8),allocatable:: kabs(:)
-
   scd= evtop <ecbot
   tpiba = 2d0*4d0*datan(1d0)/alat
-
   !! ikpoffset
   allocate(ikpoff(nsyml+1),disoff(nsyml+1))
   ikpoff(1)=0
@@ -55,7 +41,6 @@ subroutine writeband(eferm,evtop,ecbot)!, etolv,etolc)
      disoff(isyml) = disoff(isyml-1)+dqsyml(isyml-1)
      write(stdo,"('ikpoff=',2i5)") isyml,ikpoff(isyml)
   enddo
-
   !! write bandplot.glt for gnuplot
   allocate(fnameb(nsyml,nspx))
   do jsp = 1, nspx
@@ -227,8 +212,7 @@ subroutine writeband(eferm,evtop,ecbot)!, etolv,etolc)
   !$$$c        close(ifmglt)
   !$$$c        close(ifmglt2)
   !      enddo
-
-
+  
   !! Write Band*Syml*Spin*.dat : These are between [VBM(left)-etolv(Ry), CBM(left) + etolc(Ry)]
   allocate(fnamem(minval(nevls(:,:)),nsyml,nspx))
   do jsp = 1, nspx
@@ -324,7 +308,6 @@ subroutine writeband(eferm,evtop,ecbot)!, etolv,etolc)
 2112 enddo
      deallocate(diffeb,diff2eb)
 2111 enddo
-
   do jsp=1,nspx
      ifglt=ifglts(jsp)
      write(ifglt,*)
@@ -332,7 +315,6 @@ subroutine writeband(eferm,evtop,ecbot)!, etolv,etolc)
      write(ifglt,'(a)')'replot'
      close(ifglts(jsp))
   enddo
-
 !   !! bnds.* is only for backward compatibility.
 !   open(newunit=ifbndo,file='bnds.'//trim(sname))
 !   write(ifbndo,"(i5,f10.5,i6)") sum(nqp_syml(1:nsyml)),eferm,0

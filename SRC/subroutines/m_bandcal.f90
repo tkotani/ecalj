@@ -12,8 +12,7 @@ module m_bandcal !band structure calculation
   use m_MPItk,only: mlog, master_mpi, procid,strprocid, numprocs=>nsize, mlog_MPIiq
   use m_subzi, only: nevmx,lswtk,rv_a_owtkb
   use m_supot, only: k1,k2,k3
-  use m_mkpot,only: m_Mkpot_init,m_Mkpot_deallocate, osmpot,vconst, &
-       osig=>sv_p_osig, otau=>sv_p_otau, oppi=>sv_p_oppi,ohsozz,ohsopm
+  use m_mkpot,only: m_Mkpot_init,m_Mkpot_deallocate, osmpot,vconst, osig, otau, oppi,ohsozz,ohsopm
   use m_rdsigm2,only: senex,sene,getsenex,dsene,ndimsig
   use m_procar,only: m_procar_init,m_procar_closeprocar
   use m_clsmode,only: m_clsmode_set1

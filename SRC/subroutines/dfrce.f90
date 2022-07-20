@@ -519,8 +519,8 @@ subroutine pvdf2(nbas,nsp,n1,n2,n3,k1,k2,k3, smrho,vxcp,vxcm,wk1,wk2,wk3,dvxc)
   ! ... Local parameters
   integer :: i1,i2,i3,i,nn
   double precision :: fac,dmach,f1,f2,f,alfa,dfdr,rrho,dvdr, &
-       rmusm(2),rvmusm(2),rvepsm(2),repsm(2),repsmx(2),repsmc(2), &
-       fcexc0(2),fcex0(2),fcec0(2),fcvxc0(2),ff(1,1)
+       rmusm(nsp),rvmusm(nsp),rvepsm(nsp),repsm(nsp),repsmx(nsp),repsmc(nsp), ff(1,1)
+  !fcexc0(nsp),fcex0(nsp),fcec0(nsp),fcvxc0(nsp),
   fac = dmach(1)**(1d0/3d0)
   alfa = 2d0/3d0
   nn = k1*k2*k3
@@ -546,7 +546,7 @@ subroutine pvdf2(nbas,nsp,n1,n2,n3,k1,k2,k3, smrho,vxcp,vxcm,wk1,wk2,wk3,dvxc)
   call dpzero(wk2, nn*2*nsp)
   call dpzero(wk3, nn*2)
   call smvxcm(0,smrho, vxcp,dvxc,wk1,wk2,wk3,repsm,repsmx,repsmc,rmusm, &
-       rvmusm,rvepsm,fcexc0,fcex0,fcec0,fcvxc0,ff)
+       rvmusm,rvepsm,ff) !,fcexc0,fcex0,fcec0,fcvxc0
   ! ... Replace fac*rho with -fac*rho
   if (nsp == 1) then
      call dpcopy(smrho,smrho,1,nn*2,(1d0-fac)/(1d0+fac))
@@ -564,7 +564,7 @@ subroutine pvdf2(nbas,nsp,n1,n2,n3,k1,k2,k3, smrho,vxcp,vxcm,wk1,wk2,wk3,dvxc)
   ! ... vxcm = vxc (smrho-drho)
   call dpzero(vxcm, nn*2*nsp)
   call smvxcm(0,smrho,  vxcm,dvxc,wk1,wk2,wk3,repsm,repsmx,repsmc,rmusm, &
-       rvmusm,rvepsm,fcexc0,fcex0,fcec0,fcvxc0,ff)
+       rvmusm,rvepsm,ff) !,fcexc0,fcex0,fcec0,fcvxc0
   ! ... Restore rho+, rho-
   if (nsp == 1) then
      call dpcopy(smrho,smrho,1,nn*2,1/(1d0-fac))
@@ -600,7 +600,7 @@ subroutine pvdf2(nbas,nsp,n1,n2,n3,k1,k2,k3, smrho,vxcp,vxcm,wk1,wk2,wk3,dvxc)
   ! ... vxcm = vxc (smrho)
   call dpzero(vxcm, nn*2*nsp)
   call smvxcm(0,smrho, vxcm,dvxc,wk1,wk2,wk3,repsm,repsmx,repsmc,rmusm, &
-       rvmusm,rvepsm,fcexc0,fcex0,fcec0,fcvxc0,ff)
+       rvmusm,rvepsm,ff) !,fcexc0,fcex0,fcec0,fcvxc0
   ! ... dvxc/drho into dvxc
   do  i = 1, nsp
      do i3=1,n3

@@ -1,4 +1,4 @@
-module m_vxcatom
+module m_vxcatom !Vxc LDA for sites
   public vxcnsp,vxc0sp,vxcns5
   private
   contains
@@ -64,39 +64,30 @@ subroutine vxcnsp(isw,a,ri,nr,rwgt,nlm,nsp,rl,lxcfun,rc, &
   !u   13 Jun 00 spin polarized
   !u    3 Jun 00 Adapted from old FP vxcnsp; pert. corr from nfp vxcdnsp.f
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
+  implicit none
   integer :: isw,nr,nlm,lxcfun,nsp
-  double precision :: ri(nr),reps(2),rmu(2),repsx(2),repsc(2), &
+  double precision :: ri(nr),reps(nsp),rmu(nsp),repsx(nsp),repsc(nsp), &
        rwgt(nr),rc(nr),rl(nr,nlm,nsp),vl(nr,nlm,nsp),fl(nr,nlm,1+nsp)
-  double precision :: focexc(2),focex(2),focec(2),focvxc(2)
-  double precision :: qs(2)
-  ! ... Local parameters
+  double precision :: focexc(nsp),focex(nsp),focec(nsp),focvxc(nsp)
+  double precision :: qs(nsp)
   integer :: nnn,nlmx
   parameter(nnn=122,nlmx=64)
   logical :: lpert
   integer :: ipr,ll,lmax,np,nph,nth,nxl(0:7),lxcf,lxcg
   double precision :: p(3,nnn),wp(nnn),p2(nnn,3),r2(nnn),fpi
-  !     double precision yl(nnn*nlmx)
-  !      real(8), allocatable :: ylwp(:)
   real(8), allocatable :: yl(:),rp(:,:,:),gyl(:,:),grp(:,:),agrp(:), &
        ggrp(:),agrl(:),vxcnl(:),excnl(:)
-
   data nxl /-12,-20,-32,-32,-62,-92,-122,-122/
   logical:: debug=.false.
   real(8):: a !takao used to get derivetive of ri. See vxcnls.F
   real(8),allocatable::vlxc(:,:,:)
-
-  !      stdo = lgunit(1)
   call getpr(ipr)
   lxcf = mod(lxcfun,100)
   lxcg = mod(lxcfun/100,100)
   lpert = lxcfun .ge. 10000
   fpi = 16d0*datan(1d0)
-
   ! ... Create angular integration mesh
   lmax = ll(nlm)
-  !     if (lxcg .ne. 0) lmax = lmax+1
   if (lmax > 6) then
      nth = 2*lmax+2
      nph = 0
@@ -106,23 +97,19 @@ subroutine vxcnsp(isw,a,ri,nr,rwgt,nlm,nsp,rl,lxcfun,rc, &
   endif
   call fpiint(nth,nph,np,p,wp)
   if(ipr >= 30) write(stdo,200) nth,nph,np,nr
-200 format(' mesh:   nth,nph=',2i4,'   gives',i4,'  angular points,', &
-       '   nrad=',i4)
+200 format(' mesh:   nth,nph=',2i4,'   gives',i4,'  angular points,','   nrad=',i4)
   if (np > nnn) call rxi('vxcnsp: increase nnn, need',np)
   if ((lmax+2)**2*np > nlmx*nnn) call rx('vxcnsp: increase nlm')
-
-  rmu(2)  = 0
-  reps(2) = 0
-  repsx(2) = 0
-  repsc(2) = 0
-
+  rmu  = 0
+  reps = 0
+  repsx = 0
+  repsc = 0
   !!== Scale rl to true density ==
   call vxcns3(nr,nlm,nsp,ri,rl,1)
   if (lpert) then
      call vxcns3(nr,1,1,ri,rc,1)
      call dscal(nr,1/fpi,rc,1)
   endif
-
   p2=transpose(p)
   !!== XC part ==
   allocate(vlxc(nr,nlm,nsp))
@@ -136,31 +123,24 @@ subroutine vxcnsp(isw,a,ri,nr,rwgt,nlm,nsp,rl,lxcfun,rc, &
           vlxc,fl,qs)
      deallocate (yl)
   else
-     !!=== GGA ===
      !!    GGA case:  Need both YL to lmax+1 to make grad YL
-     allocate (yl(np*(lmax+2)**2)) !,ylwp(np*(lmax+2)**2))
+     allocate (yl(np*(lmax+2)**2)) 
      call ropyln(np,p2(1,1),p2(1,2),p2(1,3),lmax+1,np,yl,r2)
      allocate (gyl(np*nlm,3))
      call ropylg(1,lmax,nlm,np,np,p2(1,1),p2(1,2),p2(1,3),r2,yl,gyl)
-     !        allocate(grp(nr*np*nsp,3),agrp(nr*np*nsp),ggrp(nr*np*nsp))
-     !        allocate(rp(nr,np,nsp))
-     !        allocate(agrl(nr*nlm*nsp))!,vxcnl(nr*nlm*nsp),excnl(nr*nlm*nsp))
      if(debug) print *,'goto vxcnls'
      call vxcnls(a,ri,nr,np,nlm,nsp, yl,gyl,rwgt,wp,rl,lxcg, vlxc,reps,rmu)
-     deallocate(yl,gyl) !,grp,agrp,ggrp,agrl)!,vxcnl,excnl,rp)
+     deallocate(yl,gyl) 
   endif
   vl=vl+vlxc
   deallocate(vlxc)
-
   ! ... Undo the rl scaling
   call vxcns3(nr,nlm,nsp,ri,rl,0)
   if (lpert) then
      call vxcns3(nr,1,1,ri,rc,0)
      call dscal(nr,fpi,rc,1)
   endif
-
 end subroutine vxcnsp
-
 subroutine vxcns2(isw,ri,nr,rwgt,np,wp,yl,nlm,nsp,rl,rc,lxcf, &
      lpert,focexc,focex,focec,focvxc,rep,repx,repc,rmu,vl,fl,qs)
   use m_lgunit,only:stdo
@@ -225,18 +205,15 @@ subroutine vxcns2(isw,ri,nr,rwgt,np,wp,yl,nlm,nsp,rl,rc,lxcf, &
   !u    3 Jun 00 adapted from old FP code
   !u    10.07.96 dln: modified for Perdew GGA
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
+  implicit none
   logical :: lpert
   integer :: nr,nlm,nsp,lxcf,np,isw
-  double precision :: ri(1),yl(np,nlm),wp(np),rep(2),repx(2),repc(2), &
-       rmu(2),rwgt(nr),focexc(2),focex(2),focec(2),focvxc(2), &
+  double precision :: ri(nr),yl(np,nlm),wp(np),rep(nsp),repx(nsp),repc(nsp), &
+       rmu(nsp),rwgt(nr),focexc(nsp),focex(nsp),focec(nsp),focvxc(nsp), &
        rl(nr,nlm,nsp),vl(nr,nlm,nsp),fl(nr,nlm,nsp+1),rc(nr) &
        ,ylwp(np,nlm)  !to avoid confusion. Sep2010 takao
-  ! ... Local parameters
-  integer :: ilm,ip,ipr,ir,i,n1,ineg(2),isw1
-  ! ino size 41->42      double precision weight,suml(0:40),fac,dmach,alfa,sum(2)
-  double precision :: weight,suml(0:41),fac,dmach,alfa,sum(2)
+  integer :: ilm,ip,ipr,ir,i,n1,ineg(nsp),isw1
+  double precision :: weight,suml(0:41),fac,dmach,alfa,ssum(nsp)
   double precision :: rhot,f1,f2,dfdr,dvdr,f
   double precision :: qs(2),tol
   real(8), allocatable :: rp(:,:),rps(:,:,:),exc(:,:), &
@@ -244,45 +221,29 @@ subroutine vxcns2(isw,ri,nr,rwgt,np,wp,yl,nlm,nsp,rl,rc,lxcf, &
   real(8), allocatable :: vxc(:,:,:),vx(:,:,:), &
        vc(:,:,:),vxc2(:,:,:),vx2(:,:,:),vc2(:,:,:)
   real(8),allocatable:: vlxc(:,:,:)
-
-
   allocate (rp(nr,np),rps(nr,np,nsp),exc(nr,np), &
        excx(nr,np),excc(nr,np))
   allocate (vxc(nr,np,nsp),vx(nr,np,nsp),vc(nr,np,nsp), &
        vxc2(nr,np,nsp),vx2(nr,np,nsp),vc2(nr,np,nsp))
-
-  !     stdo = lgunit(1)
   call getpr(ipr)
-
-  !     'small' density
   tol = 1d-15
   isw1 = mod(isw/10,10)
-
   !     for numerical differentiation
   fac = dmach(1)**(1d0/3d0)
   alfa = 2d0/3d0
   n1 = nr*np
-  !     call prrmsh('rl',rl,rl,nr,nr,nlm*2)
-
   ! --- Generate density point-wise through sphere ---
   call dpzero(rp,n1)
-  ineg(1) = 0
-  ineg(2) = 0
+  ineg = 0
   do  i = 1, nsp
-     call dgemm('N','T',nr,np,nlm,1d0,rl(1,1,i),nr,yl,np,0d0, &
-          rps(1,1,i),nr)
-
-     ! cccccccccccccccccccccccccc
+     call dgemm('N','T',nr,np,nlm,1d0,rl(1,1,i),nr,yl,np,0d0, rps(1,1,i),nr)
      do  ip = 1, np
         do  ir = 1, nr
            if (rps(ir,ip,i) < 0d0) then
-              !                print *,'xxx vvv', ir,ip,rps(ir,ip,i)
               ineg(i) = ineg(i) + 1
            endif
         enddo
      enddo
-     ! cccccccccccccccccccccccccc
-
      !   ... Counts number of points with negative density; reset to pos.
      if (isw1 == 1) then
         do  ip = 1, np
@@ -294,27 +255,17 @@ subroutine vxcns2(isw,ri,nr,rwgt,np,wp,yl,nlm,nsp,rl,rc,lxcf, &
            enddo
         enddo
      endif
-
      call daxpy(n1,1d0,rps(1,1,i),1,rp,1)
   enddo
-
-
-  if (ineg(1)+ineg(2) /= 0) then
+  if (sum(ineg) /= 0) then
      write(6,"(a,i10,a,2i10)") ' vxcns2 (warning): nr*np=',nr*np, &
           "  negative density # of points=", ineg(1:nsp)
-     !        call info5(5,0,0,' vxcns2 (warning):  negative density,'
-     !     .  //' %i points %?#n==2#(spin 1) %i points (spin 2)##',
-     !     .  ineg(1),nsp,ineg(2),0,0)
   endif
-
   ! --- Perturbation treatment: df/dr in vxc2 ---
   if (lpert) then
-
      ! --- Stop if GGA ---
      if (lxcf > 2) &
-          call rx('vxcnsp: Perturbation treatment'// &
-          ' is not implemented for GGA')
-
+          call rx('vxcnsp: Perturbation treatment is not implemented for GGA')
      !       Add rp*fac/2 into rp+, rp- and fac*rp into rp
      if (nsp == 2) then
         do  i = 1, nsp
@@ -367,9 +318,7 @@ subroutine vxcns2(isw,ri,nr,rwgt,np,wp,yl,nlm,nsp,rl,rc,lxcf, &
      call dpzero(excx,n1)
      call dpzero(excc,n1)
   endif
-
   ! --- vxc, exc for unperturbed density ---
-  !     print *, '!!'; lxcf=1
   if (lxcf > 2) then
      call evxcp(rps,rps(1,1,nsp),n1,nsp,lxcf,excx,excc,exc, &
           vx(1,1,1),vx(1,1,2),vc(1,1,1),vc(1,1,2), &
@@ -393,55 +342,15 @@ subroutine vxcns2(isw,ri,nr,rwgt,np,wp,yl,nlm,nsp,rl,rc,lxcf, &
         enddo
      enddo
   endif
-
-  ! cccccccccccccccccccccc
-  !      print *,' np=',np
-  !      do ir=1,nr
-  !        write(6,"(i5,5d13.5)") ir,exc(ir,np-4:np)
-  !      enddo
-  !      stop 'xxxxxxxxxxxx test exc vxcnsp'
-  ! cccccccccccccccccccccc
-
-  ! --- Integrals rep, rmu ---
-  !      rpneg = 0
-  !      do  24  i = 1, nsp
-  !        qs(i) = 0d0
-  !        rep(i) = 0d0
-  !        repx(i) = 0d0
-  !        repc(i) = 0d0
-  !        rmu(i) = 0d0
-  !        do  22  ip = 1, np
-  !        do  22  ir = 1, nr
-  !        rpneg = min(rpneg,rps(ir,ip,i))
-  !        weight = (ri(ir)**2*rwgt(ir))*wp(ip)
-  !        qs(i)  = qs(i)  + rps(ir,ip,i)*weight
-  !        rep(i) = rep(i) + exc(ir,ip)*rps(ir,ip,i)*weight
-  !        repx(i) = repx(i) + excx(ir,ip)*rps(ir,ip,i)*weight
-  !        repc(i) = repc(i) + excc(ir,ip)*rps(ir,ip,i)*weight
-  !   22   rmu(i) = rmu(i) + vxc(ir,ip,i)*rps(ir,ip,i)*weight
-  !        if (ipr.ge.30 .and. i.eq.1) write(stdo,725) rmu(i),rep(i),qs(i)
-  !        if (ipr.ge.30 .and. i.eq.2) write(stdo,726) rmu(i),rep(i),qs(i),
-  !     .    rmu(1)+rmu(2),rep(1)+rep(2),qs(1)+qs(2)
-  !  725   format(' vxcnsp: loc rmu=',f11.6,'  rep=',f11.6,'  q = ',f10.6)
-  !  726   format(' spin 2:         ',f11.6,'      ',f11.6,'      ',f10.6/
-  !     .         '  total:         ',f11.6,'      ',f11.6,'      ',f10.6)
-  !   24 continue
-  !      if (rpneg .lt. 0 .and. ipr .ge. 20) write(stdo,727) rpneg
-  !  727 format(' vxcnsp (warning): negative rho: min val = ',1pe10.2)
   call vxcns4(0,ri,nr,rwgt,np,wp,nsp,rps,exc,excx,excc,vxc, &
        rep,repx,repc,rmu,qs)
-
   ! --- Add perturbation to vxc ---
   !     Integrals focexc = int rc vxc, focvxc= rc * dvxc/dr * rhot
   if (lpert) then
-     focvxc(1) = 0
-     focvxc(2) = 0
-     focexc(1) = 0
-     focexc(2) = 0
-     focex(1)  = 0
-     focex(2)  = 0
-     focec(1)  = 0
-     focec(2)  = 0
+     focvxc = 0
+     focexc = 0
+     focex  = 0
+     focec  = 0
      do  i  = 1, nsp
         do  ip = 1, np
            do  ir = 1, nr
@@ -471,7 +380,6 @@ subroutine vxcns2(isw,ri,nr,rwgt,np,wp,yl,nlm,nsp,rl,rc,lxcf, &
         enddo
      enddo
   endif
-
   ! --- Scale yl by wp for fast multiplication --- ---
   do   ilm = 1, nlm
      do   ip = 1, np
@@ -480,24 +388,8 @@ subroutine vxcns2(isw,ri,nr,rwgt,np,wp,yl,nlm,nsp,rl,rc,lxcf, &
   enddo
   ! --- Add Yl-projection of vxc into vl ---
   do  30  i = 1, nsp
-     call dgemm('N','N',nr,nlm,np,1d0,vxc(1,1,i),nr,ylwp,np,1d0, &
-          vl(1,1,i),nr)
+     call dgemm('N','N',nr,nlm,np,1d0,vxc(1,1,i),nr,ylwp,np,1d0, vl(1,1,i),nr)
 30 enddo
-
-
-  !$$$ccccccccccccccccccccccc
-  !      allocate(vlxc(nr,nlm,nsp))
-  !      do   i = 1, nsp
-  !        call dgemm('N','N',nr,nlm,np,1d0,vxc(1,1,i),nr,yl,np,0d0,
-  !     .  vlxc(1,1,i),nr)
-  !      enddo
-  !      isp=1
-  !      do ir=1,nr
-  !       write(6,"(i5,8d12.4)") ir, vxc(ir,1:8,isp) !vlxc(ir,1:8,isp)
-  !      enddo
-  !$$$      stop 'xxxxxxxxxxxxxxxxxxxxxxxxxxx test end vxcnsp 123'
-  !$$$cccccccccccccccccccccc
-
   ! --- Optionally make l-resolved vxc_L,exc_L ---
   if (mod(isw,10) == 1) then
      do  i = 1, nsp
@@ -506,24 +398,8 @@ subroutine vxcns2(isw,ri,nr,rwgt,np,wp,yl,nlm,nsp,rl,rc,lxcf, &
      call dgemm('N','N',nr,nlm,np,1d0,exc,nr,ylwp,np,0d0, & ! & yl-->ylwp
      fl(1,1,1+nsp),nr)
   endif
-
   ! --- Print out int (rl*vl) resolved by l ---
-  if (ipr > 30) then
-     call vxcns5(0,ipr,'rho*vtot',nlm,nsp,nr,ri,rwgt,rl,vl,suml,sum)
-     !      lmax = ll(nlm)
-     !      do  42  i = 1, nsp
-     !      do  43  l = 0, lmax
-     !   43 suml(l) = 0d0
-     !      do  40  ilm = 1, nlm
-     !      l = ll(ilm)
-     !      do  40  ir = 1, nr
-     !   40 suml(l) = suml(l) + rl(ir,ilm,i)*vl(ir,ilm,i)*ri(ir)**2*rwgt(ir)
-     !      if (i .eq. 1) write(stdo,341) (suml(l),l = 0,lmax)
-     !      if (i .eq. 2) write(stdo,342) (suml(l),l = 0,lmax)
-     !  341 format(' rho*vxc by l: ',f13.6,4f10.6:/(18x,4f10.6))
-     !  342 format('       spin 2: ',f13.6,4f10.6:/(18x,4f10.6))
-     !   42 continue
-  endif
+  if (ipr > 30) call vxcns5(0,ipr,'rho*vtot',nlm,nsp,nr,ri,rwgt,rl,vl,suml,ssum)
   deallocate (rp,rps,exc,excx,excc)
   deallocate (vxc,vx,vc,vxc2,vx2,vc2)
 end subroutine vxcns2
@@ -605,20 +481,14 @@ subroutine vxcns4(isw,ri,nr,rwgt,np,wp,nsp,rp,exc,excx,excc,vxc, &
   !u Updates
   !u   12 Mar 04 created from vxcns2
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
+  implicit none
   integer :: nr,nsp,np,isw
-  double precision :: ri(1),wp(np),rep(2),repx(2),repc(2),rmu(2), &
-       rwgt(nr),rp(nr,np,nsp),exc(nr,np),excx(nr,np),excc(nr,np), &
-       vxc(nr,np,nsp)
-  ! ... Local parameters
+  double precision :: ri(nr),wp(np),rep(nsp),repx(nsp),repc(nsp),rmu(nsp), &
+       rwgt(nr),rp(nr,np,nsp),exc(nr,np),excx(nr,np),excc(nr,np), vxc(nr,np,nsp)
   integer :: ip,ipr,ir,i,isw1
-  double precision :: weight,rpneg,qs(2)
-
-  !      stdo = lgunit(1)
+  double precision :: weight,rpneg,qs(nsp)
   call getpr(ipr)
   isw1 = mod(isw/10,10)
-
   ! --- Integrals reps, rmu ---
   rpneg = 0
   do  24  i = 1, nsp
@@ -640,31 +510,21 @@ subroutine vxcns4(isw,ri,nr,rwgt,np,wp,nsp,rp,exc,excx,excc,vxc, &
                  vxc(ir,ip,i) = 0
               endif
            endif
-           !         Debugging
-           !          if (rp(ir,ip,1) .lt. 0 .or. rp(ir,ip,nsp) .lt. 0) then
-           !            if (vxc(ir,ip,i) .ne. 0) then
-           !              print *, vxc(ir,ip,i)
-           !              stop 'oops'
-           !            endif
-           !          endif
            rep(i) = rep(i) + exc(ir,ip)*rp(ir,ip,i)*weight
            repx(i) = repx(i) + excx(ir,ip)*rp(ir,ip,i)*weight
            repc(i) = repc(i) + excc(ir,ip)*rp(ir,ip,i)*weight
            rmu(i) = rmu(i) + vxc(ir,ip,i)*rp(ir,ip,i)*weight
         enddo
      enddo
-     if (ipr >= 30 .AND. i == 1) write(stdo,725) rmu(i),rep(i),qs(i)
-     if (ipr >= 30 .AND. i == 2) write(stdo,726) rmu(i),rep(i),qs(i), &
-          rmu(1)+rmu(2),rep(1)+rep(2),qs(1)+qs(2)
+     if(ipr>=30.AND.i == 1)write(stdo,725)rmu(i),rep(i),qs(i)
+     if(ipr>=30.AND.i == 2)write(stdo,726)rmu(i),rep(i),qs(i),sum(rmu),sum(rep),sum(qs)
 725  format(' vxcnsp: loc rmu=',f11.6,'  rep=',f11.6,'  q = ',f10.6)
 726  format(' spin 2:         ',f11.6,'      ',f11.6,'      ',f10.6/ &
           '  total:         ',f11.6,'      ',f11.6,'      ',f10.6)
 24 enddo
   if (rpneg < 0 .AND. ipr >= 10) write(stdo,727) rpneg
 727 format(' vxcnsp (warning): negative rho: min val = ',1pe10.2)
-
 end subroutine vxcns4
-
 subroutine vxcns5(isw,ipr,strn,nlml,nsp,nr,ri,rwgt,rl,vl,suml,ssum)
   use m_lgunit,only:stdo
   !- Integrals of rl*vl resolved by l
@@ -688,7 +548,7 @@ subroutine vxcns5(isw,ipr,strn,nlml,nsp,nr,ri,rwgt,rl,vl,suml,ssum)
   implicit none
   character strn*(*)
   integer :: isw,ipr,nlml,nsp,nr
-  double precision :: ri(nr),rwgt(nr),rl(nr,nlml,nsp),vl(nr,nlml,nsp), suml(0:20,2),ssum(2)
+  double precision :: ri(nr),rwgt(nr),rl(nr,nlml,nsp),vl(nr,nlml,nsp), suml(0:20,nsp),ssum(nsp)
   integer :: ir,lmax,ilm,isp,l,ll
   double precision :: dot3
   lmax = ll(nlml)
@@ -718,21 +578,6 @@ subroutine vxcns5(isw,ipr,strn,nlml,nsp,nr,ri,rwgt,rl,vl,suml,ssum)
      endif
   enddo
 end subroutine vxcns5
-
-!      subroutine fp2yl(nr,nlm,nsp,np,wp,fp,yl,fl)
-!C- Add Yl-projection of function tabulated on a mesh
-!      implicit none
-!      integer nr,nlm,np,ip,ilm,ir,i,nsp
-!      double precision fl(nr,nlm,nsp),fp(nr,np,nsp),yl(np,nlm),wp(np),xx
-
-!      do  20  i = 1, nsp
-!      do  20  ip = 1, np
-!      do  20  ilm = 1, nlm
-!      xx = wp(ip)*yl(ip,ilm)
-!      do  20  ir = 1, nr
-!   20 fl(ir,ilm,i) = fl(ir,ilm,i) + fp(ir,ip,i)*xx
-!      end
-
 subroutine vxcnls(a,ri,nr,np,nlm,nsp, yl,gyl,rwgt,wp,rl,lxcg, vl,rep,rmu) 
   use m_xcpbe,  only: xcpbe
   !!= Gradient correction to nspher. density on a radial and angular mesh =
@@ -776,7 +621,7 @@ subroutine vxcnls(a,ri,nr,np,nlm,nsp, yl,gyl,rwgt,wp,rl,lxcg, vl,rep,rmu)
   implicit none
   integer :: lcut=0,nr,np,nlm,nsp,lxcg
   double precision :: ri(nr),gyl(np,nlm,3),ylwp(np,nlm), &
-       wp(np),rep(2),rmu(2),rwgt(nr),vxcnl(nr,nlm,nsp),excnl(nr,nlm), &
+       wp(np),rep(nsp),rmu(nsp),rwgt(nr),vxcnl(nr,nlm,nsp),excnl(nr,nlm), &
        rl(nr,nlm,nsp),agrl(nr,nlm,nsp),agrp(nr,np,nsp), &
        vl(nr,nlm,nsp),rp(nr,np,nsp),grp(nr,np,3,nsp),ggrp(nr,np,nsp)
 
@@ -1223,7 +1068,7 @@ subroutine vxcnls(a,ri,nr,np,nlm,nsp, yl,gyl,rwgt,wp,rl,lxcg, vl,rep,rmu)
         enddo
         if(ipr>41) then
            if ( i == 1) print 7256, rmu(i),rep(i)
-           if ( i == 2) print 7266, rmu(i),rep(i), rmu(1)+rmu(2),rep(1)+rep(2)
+           if ( i == 2) print 7266, rmu(i),rep(i), sum(rmu),sum(rep)
         endif
 7256    format(' vxc_gga  : rho*vxc=',f11.6,' rho*exc=',f11.6,a)
 7266    format('    spin 2:         ',f11.6,'         ',f11.6/ &
@@ -1380,8 +1225,7 @@ subroutine vxcnls(a,ri,nr,np,nlm,nsp, yl,gyl,rwgt,wp,rl,lxcg, vl,rep,rmu)
         enddo
      enddo
      if (ipr >-1 .AND. i == 1) print 725, rmunl(i),repnl(i)
-     if (ipr >-1 .AND. i == 2) print 726, rmunl(i),repnl(i), &
-          rmunl(1)+rmunl(2),repnl(1)+repnl(2)
+     if (ipr >-1 .AND. i == 2) print 726, rmunl(i),repnl(i), sum(rmunl),sum(repnl)
 725  format(' vxcnls: nlc rmu=',f11.6,'  rep=',f11.6,a)
 726  format(' spin 2:         ',f11.6,'      ',f11.6/ &
           '  total:         ',f11.6,'      ',f11.6)
@@ -1438,7 +1282,7 @@ subroutine vxcnls(a,ri,nr,np,nlm,nsp, yl,gyl,rwgt,wp,rl,lxcg, vl,rep,rmu)
   ! -- rho*exc, rho*vxc ---
   do i = 1, nsp
      if ( i == 1) print 7251, rmu(i),rep(i)
-     if ( i == 2) print 7261, rmu(i),rep(i),rmu(1)+rmu(2),rep(1)+rep(2)
+     if ( i == 2) print 7261, rmu(i),rep(i),sum(rmu),sum(rep)
   enddo
 7251 format(' origmode vxcnls:     rmu=',f11.6,'  rep=',f11.6,a)
 7261 format(' origmode spin 2:         ',f11.6,'      ',f11.6/ &
@@ -1689,7 +1533,7 @@ subroutine vxc0gc(nr,nsp,rofi,rwgt,rho,vxc,exc,rep,rmu,lxcfun)
   ! ... Local parameters
   integer :: nrmx
   parameter (nrmx=1501)
-  double precision :: pi,rho2,rho3,ub4pi,rp(nrmx*2),rho0(2)
+  double precision :: pi,rho2,rho3,ub4pi,rp(nrmx*nsp),rho0(nsp)
   integer :: i,ir,isp,ogrh,oagrh,oggrh,ogrgag
 
   pi = 4d0*datan(1d0)
@@ -1761,14 +1605,11 @@ subroutine vxc0sp(a,b,rofi,rho,nr,v,rho0,rep,rmu,nsp,exrmx)
   !!   vxc0sp contained in lm7.0 beta compiled by M.van Schilfgaarde.
   !! ----------------------------------------------------------------------
   implicit none
-  ! ... Passed parameters
   integer :: nr,nsp
   double precision :: a,b,rofi(nr),v(nr,nsp),rho(nr,nsp), &
-       rep(nsp),rmu(nsp),rho0(2),qs(2),exrmx
-  ! ... Local parameters
-  !      parameter (nrmx=1501)
+       rep(nsp),rmu(nsp),rho0(nsp),qs(nsp),exrmx
   double precision :: pi,rho2,rho3, &
-       ub4pi,wgt,exc(nr),vxc(nr,2),rp(nr,2),repl(2),rmul(2) !exc(nrmx)-->exc(nr) automatic array.
+       ub4pi,wgt,exc(nr),vxc(nr,nsp),rp(nr,nsp),repl(nsp),rmul(nsp) !exc(nrmx)-->exc(nr) automatic array.
   integer:: lx ,  i , ir , isp , iprint , nglob, lxcfun,lxcf
   real(8) ,allocatable :: grh_rv(:)
   real(8) ,allocatable :: agrh_rv(:)
@@ -1828,10 +1669,6 @@ subroutine vxc0sp(a,b,rofi,rho,nr,v,rho0,rep,rmu,nsp,exrmx)
         enddo
         deallocate(vxcc_rv,vxcx_rv,excc_rv,excx_rv)
      else
-
-        !         np=1
-        !         wp(1)=4d0*pi
-
         nph=0
         call fpiint(-4,nph,np,p,wp)
         p2=transpose(p)
@@ -1851,8 +1688,6 @@ subroutine vxc0sp(a,b,rofi,rho,nr,v,rho0,rep,rmu,nsp,exrmx)
              yl,gyl,rwgt,wp,sqrt(4d0*pi)*rp(:,1:nsp),lxcfun-100,  vxc,rep,rmu)
         deallocate(yl,gyl)
         vxc= vxc/sqrt(4d0*pi)
-        !         deallocate(rll)
-
      endif
   elseif(lxcfun==1 .OR. lxcfun==2) then
      allocate(excx_rv(nr))
@@ -1861,26 +1696,20 @@ subroutine vxc0sp(a,b,rofi,rho,nr,v,rho0,rep,rmu,nsp,exrmx)
      allocate(vxcc_rv(nr))
      if (nsp == 1) then
         call evxcv ( rp , rp , nr , nsp , lxcf, &
-             exc , excx_rv , excc_rv , &
-             vxc , vxcx_rv , vxcc_rv )
+             exc , excx_rv , excc_rv , vxc , vxcx_rv , vxcc_rv )
      else
         rp(1:nr,2)= rp(1:nr,1)+rp(1:nr,2)
-        !          call dpadd(rp(1,2),rp,1,nr,1d0)
         call evxcv ( rp ( 1 , 2 ) , rp , nr , 2 , lxcf, exc , excx_rv &
              , excc_rv , vxc , vxcx_rv , vxcc_rv )
         rp(1:nr,2) = rp(1:nr,2) - rp(1:nr,1)
         rp(1:nr,1) = rp(1:nr,1) + rp(1:nr,2)
-        !          call dpadd(rp(1,2),rp,1,nr,-1d0)
-        !          call dpadd(rp,rp(1,2),1,nr,1d0)
         call evxcv ( rp , rp ( 1 , 2 ) , nr , 2 , lxcf, exc , excx_rv &
              , excc_rv , vxc ( 1 , 2 ) , vxcx_rv , vxcc_rv )
         rp(1:nr,1) = rp(1:nr,1) - rp(1:nr,2)
-        !          call dpadd(rp,rp(1,2),1,nr,-1d0)
      endif
      deallocate(vxcc_rv,vxcx_rv,excc_rv,excx_rv)
      !! === Integrals ===
      do  14  i  = 1, nsp
-        !        qs(i)  = 0d0
         rep(i) = 0d0
         rmu(i) = 0d0
         do  12  ir = 1, nr
@@ -1895,19 +1724,7 @@ subroutine vxc0sp(a,b,rofi,rho,nr,v,rho0,rep,rmu,nsp,exrmx)
         !        rmul(i) = rmu(i)
 14   enddo
   endif
-
-  !$$$C --- Gradient correction ---
-  !      if(.false.) then
   if (lxcfun==103 .AND. ( .NOT. newv)) then
-     !      if (lxcg /= 0) then
-     !        allocate(grh_rv(nrmx*nsp))
-     !        allocate(ggrh_rv(nrmx*nsp))
-     !        allocate(agrh_rv(nrmx*(3*nsp-2)))
-     !        allocate(grgag_rv(nrmx*(2*nsp-1)))
-     !        call vxcgr2 ( nr , nsp , nrmx , rofi , rp , grh_rv , ggrh_rv
-     !     .  , agrh_rv , grgag_rv , exc , vxc )
-     !        deallocate(grgag_rv,agrh_rv,ggrh_rv,grh_rv)
-     !        call vxcgr2 ( nr , nsp , nrmx , rofi , rp , exc , vxc )
      call vxcgr2 ( nr , nsp , nr , rofi , rp , exc , vxc )
      ! ...   Redo integrals, with gradient correction
      do  24  i  = 1, nsp
@@ -1924,30 +1741,11 @@ subroutine vxc0sp(a,b,rofi,rho,nr,v,rho0,rep,rmu,nsp,exrmx)
 22      enddo
 24   enddo
   endif
-  !      endif
-
-  ! ccccccccccccccccccccccccccccccccccc
-  !      do   i = 1, nsp
-  !      do  ir = 1, nr
-  !         print *, 'pppp ', ir,i,  vxc(ir,i)
-  !      enddo
-  !      enddo
-  !      stop 'xxxxxxxxxxxx vxc0sp xxxxxxxxxxxxxxx'
-  ! ccccccccccccccccccccccccccccccccc
-
   !! --- Add to V ---
-  !      call dpadd(v,vxc,1,nr,1d0)
-  !      if (nsp .eq. 2) call dpadd(v(1,2),vxc(1,2),1,nr,1d0)
   v(:,1:nsp)=v(:,1:nsp)+vxc(:,1:nsp)
   exrmx = exc(nr)
-
-  !! --- Undo background rho for purposes of calculating vxc ---
-  !     call addzbk(rofi,nr,1,nsp,rho,rhobg,-1d0)
+  !! --- Undo background rho for purposes of calculating vxc !call addzbk(rofi,nr,1,nsp,rho,rhobg,-1d0)
   if (iprint() < 80) return
-  !      if (lxcg .eq. 0) write(stdo,333)
-  !  333 format(/' vxc0sp: reps(l)     rmu(l)')
-  !      if (lxcg .ne. 0) write(stdo,334)
-  !  334 format(/' vxc0sp: reps(l)     rmu(l)      reps(nl)    rmu(nl)')
   write(stdo,"(/' vxc0sp: reps        rmu   ')")
   do i = 1, nsp
      st = ' '
@@ -1955,37 +1753,7 @@ subroutine vxc0sp(a,b,rofi,rho,nr,v,rho0,rep,rmu,nsp,exrmx)
      if (i == 2)   st = 'dn'
      write(stdo,335) st, rep(i),  rmu(i)
   enddo
-  if(nsp==2) write(stdo,335) '  ', rep(1)+rep(2), rmu(1)+rmu(2)
+  if(nsp==2) write(stdo,335) '  ', sum(rep), sum(rmu)
 335 format(1x,a2,2x,4f12.6)
-  !      if (lxcg .ne. 0) write(stdo,335) st, repl(i), rmul(i),
-  !     .  rep(i)-repl(i), rmu(i)-rmul(i)
-  !      if (lxcg .eq. 0) write(stdo,335) st, rep(i),  rmu(i)
-  !      if (lxcg .ne. 0) write(stdo,335) st, repl(i), rmul(i),
-  !     .  rep(i)-repl(i), rmu(i)-rmul(i)
-  !      if (nsp .eq. 2 .and. lxcg .eq. 0)
-  !     .write(stdo,335) '  ', rep(1)+rep(2), rmu(1)+rmu(2)
-  !      if (nsp .eq. 2 .and. lxcg .ne. 0)
-  !     .write(stdo,335) '  ', repl(1)+repl(2), rmul(1)+rmul(2),
-  !     .rep(1)+rep(2)-repl(1)-repl(2), rmu(1)+rmu(2)-rmul(1)-rmul(2)
-  !$$$      if (lxcg .eq. 0) print 333
-  !$$$      if (lxcg .ne. 0) print 334
-  !$$$  333 format(/' vxc0sp: reps(l)     rmu(l)')
-  !$$$  334 format(/' vxc0sp: reps(l)     rmu(l)      reps(nl)    rmu(nl)')
-  !$$$      do  30  i = 1, nsp
-  !$$$        st = ' '
-  !$$$        if (i .lt. nsp) st = 'up'
-  !$$$        if (i .eq. 2)   st = 'dn'
-  !$$$        if (lxcg .eq. 0) print 335, st, rep(i),  rmu(i)
-  !$$$        if (lxcg .ne. 0) print 335, st, repl(i), rmul(i),
-  !$$$     .  rep(i)-repl(i), rmu(i)-rmul(i)
-  !$$$  335   format(1x,a2,2x,4f12.6)
-  !$$$   30 continue
-  !$$$      if (nsp .eq. 2 .and. lxcg .eq. 0)
-  !$$$     .print 335, '  ', rep(1)+rep(2), rmu(1)+rmu(2)
-  !$$$      if (nsp .eq. 2 .and. lxcg .ne. 0)
-  !$$$     .print 335, '  ', repl(1)+repl(2), rmul(1)+rmul(2),
-  !$$$     .rep(1)+rep(2)-repl(1)-repl(2), rmu(1)+rmu(2)-rmul(1)-rmul(2)
 end subroutine vxc0sp
-
-
 end module m_vxcatom

@@ -14,8 +14,8 @@ contains
     use m_supot,only: lat_nabc, lat_gmax
     use m_rdsigm2,only: getsenex, senex,dsene
     use m_mksym,only: lat_npgrp,lat_nsgrp
-    use m_mkpot,only: smpot=>osmpot, sv_p_osig, sv_p_otau, sv_p_oppi, vconst, vesrmt
-    use m_mkpot,only: sv_p_osig, sv_p_otau, sv_p_oppi, ohsozz,ohsopm, ppn=>ppnl_rv, sv_p_oppix,spotx
+    use m_mkpot,only: smpot=>osmpot, vconst, vesrmt
+    use m_mkpot,only: osig, otau, oppi, ohsozz,ohsopm, ppn=>ppnl_rv, oppix,spotx
     use m_MPItk,only: numproc=>nsize,procid,master,master_mpi
     use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_setiq,ndimhall
     use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
@@ -281,7 +281,6 @@ contains
                 enddo
              enddo
           enddo
-
           !   radial integral test block radial functions when energy/pnu are changing.
           radint: block
             integer::ir,ie
@@ -384,8 +383,8 @@ contains
           !            call hambl(isp,qp,spotxd(:,:,:,:,3),vconst,sv_p_osig,sv_p_otau,sv_p_oppixd(:,:,3),dipo(:,:,3),ovl)
           !          endif
           !! LDA Hamiltonian and overlap matrices for this qp ---
-          call hambl(isp,qp,spotx,vconst,sv_p_osig, sv_p_otau,sv_p_oppix, vxc,ovl)!vxc=<F_i|H(LDA)-vxc(LDA)|F_j>
-          call hambl(isp,qp,smpot,vconst,sv_p_osig, sv_p_otau, sv_p_oppi, ham,ovl)!ham=<F_i|H(LDA)|F_j> and ovl=<F_i|F_j>
+          call hambl(isp,qp,spotx,vconst,osig, otau, oppix, vxc,ovl)!vxc=<F_i|H(LDA)-vxc(LDA)|F_j>
+          call hambl(isp,qp,smpot,vconst,osig, otau, oppi, ham,ovl)!ham=<F_i|H(LDA)|F_j> and ovl=<F_i|F_j>
           if(lso==2) ham(:,:)=ham(:,:)+hammhso(:,:,isp) !diagonal part of SOC matrix added for Lz.Sz mode.
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
           !          qp  = qplist(:,iq)-[1d-6,2d-6,3d-6] !A trick to shift qp to avoid ambiguity of degeneracy
@@ -578,10 +577,7 @@ contains
              allocate(testc(ndimh,ndimh),testcd(ndimh))
              testc=matmul(transpose(dconjg(pzovl)),pwz)
              deallocate(pzovl)
-             !     ! call zprm('(PWZ)+^-1 O_i^-1 (PWZ)',2,testc,ndimh,ndimh, ndimh)
-             do  i = 1, ndimh
-                testcd(i) = sum(dconjg(pwz(:,i))*ppovld*pwz(:,i))
-             enddo
+             testcd = [(sum(dconjg(pwz(:,i))*ppovld*pwz(:,i)),i=1,ndimh)]
              deallocate(ppovld)
              !     xx(1) = sum over all augmentation w.f.  cphi+ ovl cphi
              !     xx(2) = sum over augmentation phi only.
@@ -590,19 +586,13 @@ contains
              !             if (abs(sum(q-qp)) .gt. 1d-10) then
              !                write(ifinormchk,555) iq,qp,qp
              !             else
-             write(ifinormchk,555) iq,qp
-             !             endif
-555          format('# iq',i5,'   q',3f12.6:'  shortened q',3f12.6)
+             write(ifinormchk,"('# iq',i5,'   q',3f12.6:'  shortened q',3f12.6)") iq,qp
              do  i1 = 1, ndimh
-                xx(1) = cphin(1,i1,isp)
-                xx(2) = cphin(2,i1,isp)
+                xx = cphin(:,i1,isp)
                 do  i2 = 1, ndimh
-                   !     xx(1) = sum(dconjg(cphi(1:ndima,i1,isp))*cphi(1:ndima,i2,isp))
-                   !     xx(2) = sum(dconjg(cphi(1:nchan,i1,isp))*cphi(1:nchan,i2,isp))
                    xx(3) = testc(i1,i2)
                    xx(4) = testcd(i1)
-                   if (i1==i2) write(ifinormchk,'(f12.5,5f14.6)') &
-                        evl(i1,isp),xx(3),xx(4),xx(1),xx(2),xx(1)+xx(3)
+                   if(i1==i2)write(ifinormchk,'(f12.5,5f14.6)')evl(i1,isp),xx(3),xx(4),xx(1),xx(2),xx(1)+xx(3)
                 enddo
              enddo
              deallocate(testc,testcd)

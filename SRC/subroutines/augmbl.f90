@@ -1,4 +1,4 @@
-subroutine augmbl(isp, q , sv_p_osig , sv_p_otau , sv_p_oppi, ndimh , h,s )
+subroutine augmbl(isp, q , osig , otau , oppi, ndimh , h,s )
   use m_lmfinit,only: nsp,nlmto, sspec=>v_sspec
   use m_struc_def
   use m_lmfinit,only: nbas,nkaph,alat=>lat_alat,ispec
@@ -37,9 +37,9 @@ subroutine augmbl(isp, q , sv_p_osig , sv_p_otau , sv_p_oppi, ndimh , h,s )
   !b   and 3-center terms.
   ! ----------------------------------------------------------------------
   implicit none
-  type(s_cv1),target :: sv_p_oppi(3,nbas) !, ohsozz(3,nbas),ohsopm(3,nbas)
-  type(s_rv1),target :: sv_p_otau(3,nbas)
-  type(s_rv1),target :: sv_p_osig(3,nbas)
+  type(s_cv1),target :: oppi(3,nbas) !, ohsozz(3,nbas),ohsopm(3,nbas)
+  type(s_rv1),target :: otau(3,nbas)
+  type(s_rv1),target :: osig(3,nbas)
   integer:: isp , ndimh , napw ,i_copy_size,numprocs !lcplxp ,
   real(8):: q(3)
   complex(8):: h(ndimh,ndimh),s(ndimh,ndimh)
@@ -71,12 +71,12 @@ subroutine augmbl(isp, q , sv_p_osig , sv_p_otau , sv_p_oppi, ndimh , h,s )
      do lm=1,nlma
         b(:,lm,:) = transpose(bstr(:,lm,:))
      enddo
-     ppi1=>sv_p_oppi(1,ibas)%cv !pi integral
-     ppi2=>sv_p_oppi(2,ibas)%cv
-     ppi3=>sv_p_oppi(3,ibas)%cv 
-     sig1=>sv_p_osig(1,ibas)%v  !sigma integral
-     sig2=>sv_p_osig(2,ibas)%v
-     sig3=>sv_p_osig(3,ibas)%v
+     ppi1=>oppi(1,ibas)%cv !pi integral
+     ppi2=>oppi(2,ibas)%cv
+     ppi3=>oppi(3,ibas)%cv 
+     sig1=>osig(1,ibas)%v  !sigma integral
+     sig2=>osig(2,ibas)%v
+     sig3=>osig(3,ibas)%v
      !!  --- Add 1-center and 2-center terms ---
      call augq2z(ibas,isp,nkaph,lmxb,nlmb,kmax,nlma, b,ndimh, sig3,sig2,ppi3,ppi2, s,h)
      call augq3z(kmax,nlma,ndimh,isp,  b,                ppi1,           h) !B+ ppi B to h
