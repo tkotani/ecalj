@@ -175,12 +175,10 @@ ppfac.o \
 ran1.o \
 rdfiln.o \
 rfalsi.o \
-ropylg.o \
 strings.o \
 symvar.o \
 symvec.o \
 words.o \
-zerfc.o \
 zhev.o \
 tc.o \
 scglp1.o \
@@ -223,7 +221,6 @@ momusl.o \
 mshdot.o \
 mshint.o \
 mshvmt.o \
-ovlocr.o \
 ovlpfa.o \
 paug1.o \
 pnunew.o \

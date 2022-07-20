@@ -13,7 +13,7 @@ module m_bandcal !band structure calculation
   use m_subzi, only: nevmx,lswtk,rv_a_owtkb
   use m_supot, only: k1,k2,k3
   use m_mkpot,only: m_Mkpot_init,m_Mkpot_deallocate, osmpot,vconst, &
-       sv_p_osig, sv_p_otau, sv_p_oppi,ohsozz,ohsopm
+       osig=>sv_p_osig, otau=>sv_p_otau, oppi=>sv_p_oppi,ohsozz,ohsopm
   use m_rdsigm2,only: senex,sene,getsenex,dsene,ndimsig
   use m_procar,only: m_procar_init,m_procar_closeprocar
   use m_clsmode,only: m_clsmode_set1
@@ -135,8 +135,8 @@ contains
             hamm=0d0
             ovlm=0d0
             if(lso==1) then !L.S case nspc=2
-               call hambl(1,qp,osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi, hamm(1,1,1),ovlm(1,1,1))
-               call hambl(2,qp,osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi, hamm(1,1,2),ovlm(1,1,2))
+               call hambl(1,qp,osmpot,vconst,osig,otau,oppi, hamm(1,1,1),ovlm(1,1,1))
+               call hambl(2,qp,osmpot,vconst,osig,otau,oppi, hamm(1,1,2),ovlm(1,1,2))
                hamm(:,:,1:2)= hamm(:,:,1:2)+hammhso(:,:,1:2) !spin-diag SOC elements (1,1), (2,2) added
                hamm(:,:, 3) = hammhso(:,:,3) !spin-offdiagonal SOC elements (1,2) added
                if(sigmamode) then
@@ -154,7 +154,7 @@ contains
                call sopert2 ( hamm , hamm ) !L.S case. re-ordered to be 2x2 spin matrix.
                call sopert2 ( ovlm , ovlm )
             else ! lso=0 (No SO) or lso=2(Lz.Sz)  Spin Diagonal case.spin diagonal)
-               call hambl(isp,qp,osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,hamm(1,1,1),ovlm(1,1,1))
+               call hambl(isp,qp,osmpot,vconst,osig,otau,oppi,hamm(1,1,1),ovlm(1,1,1))
                if(lso==2) hamm(:,:, 1) = hamm(:,:, 1) + hammhso(:,:,isp)
                if(sigmamode) then !!Add  Vxc(QSGW)-Vxc
                   call getsenex(qp,isp,ndimh,ovlm(1,1,1))
@@ -210,7 +210,7 @@ contains
           endif
           if(lrout/=0 .AND. lwtkb>=0) then ! accumulate output density and sampling DOS.
              call addrbl (jsp, qp &
-                  , iq , lfrce,  osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi &
+                  , iq , lfrce,  osmpot,vconst,osig,otau,oppi &
                   , evec,evl,nev, smrho_out, sumqv, sumev, sv_p_oqkkl,sv_p_oeqkkl, frcband)
           endif
           if(PROCARon) call m_procar_init(iq,isp,ef0,evl,ndimh,jsp,qp,nev,evec,ndimhx,nmx)
@@ -277,7 +277,7 @@ contains
           if( nlibu>0 .AND. nev>0) call mkdmtu(jsp, iq,qp, nev, evec,  dmatu)
           if( cmdopt0('--cls'))  call m_clsmode_set1(nmx,jsp,iq,qp,nev,evec) !all inputs
           call addrbl (jsp, qp &
-               , iq , lfrce,  osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi &
+               , iq , lfrce,  osmpot,vconst,osig,otau,oppi &
                , evec,evl,nev, smrho_out, sumqv, sumev, sv_p_oqkkl,sv_p_oeqkkl, frcband)
           if(allocated(evec)) deallocate(evec)
 12005  enddo isploop
