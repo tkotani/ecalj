@@ -10,7 +10,7 @@ contains
        sv_p_osig , sv_p_otau, sv_p_oppi, ohsozz,ohsopm, ppnl ,&
        hab , vab , sab , vvesat , cpnvsa , rhoexc, &
        rhoex , rhoec , rhovxc , rvepsv , rvexv , rvecv , rvvxcv , &
-       rveps , rvvxc , valvef , xcore , & !focexc , focex , focec , &!focvxc, &
+       rveps , rvvxc , valvef , xcore ,&! focexc , focex , focec , focvxc, &
        sqloc , sqlocc , saloc , qval , qsc )
     use m_lmfinit,only:nkaph,lxcf,lhh,nkapii,nkaphh
     use m_lmfinit,only:n0,nppn,nab,nrmx,nkap0,nlmx,nbas,nsp,lso,ispec, sspec=>v_sspec,mxcst4
@@ -116,7 +116,7 @@ contains
     type(s_rv1) :: sv_p_osig(3,nbas)
     integer :: nlibu,lmaxu,lldau(nbas),iblu
     double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
-    real(8):: qmom(1) , vval(1),qsc
+    real(8):: qmom(1) , vval(1)
     double precision :: cpnvsa,rhoexc(nsp),rhoex(nsp),rhoec(nsp),rhovxc(nsp), &
          qval,sqloc,sqlocc,saloc, & !,focvxc(nsp)focexc(nsp),focex(nsp),focec(nsp),
          valvef,vvesat,rvepsv,rvexv,rvecv,rvvxcv,xcore,rveps,rvvxc, &
@@ -128,7 +128,7 @@ contains
     double precision :: ehl(n0),rsml(n0)
     double precision :: rofi(nrmx),rwgt(nrmx), &
          gpotb(81),z,a,rmt,qc,ceh,rfoc, &!,pnu(n0,2)pnz(n0,2),
-         qcorg,qcorh,cofg,cofh,rg,cpnvs, &
+         qcorg,qcorh,qsc,cofg,cofh,qsca,rg,qv,cpnvs, &
          qloc,qlocc,xcor, & !rhexc(nsp),rhex(nsp),rhec(nsp),rhvxc(nsp)
          aloc,alocc,rvepvl,rvexl, & !fcexc(nsp),fcex(nsp),fcec(nsp),fcvxc(nsp),
          rvecl,rvvxvl,rveptl,rvvxtl
@@ -154,18 +154,50 @@ contains
     ipr = iprint()
     if (ipr >= 30) write(stdo,"(/' locpot:')")
     k = nrmx*nlmx*nsp
-    allocate(rhol1(k),rhol2(k),v1(k),v2(k),v1es(k),v2es(k),efg(5,nbas),zz(nbas))
+    allocate(wk(k),rhol1(k),rhol2(k),v1(k),v2(k),v1es(k),v2es(k))
+    allocate(efg(5,nbas),zz(nbas))
+    if (ipr >= 30) write(stdo,"(/' locpot:')")
+    vvesat = 0d0
+    cpnvsa = 0d0
+    rhoexc = 0d0
+    rhoex  = 0d0
+    rhoec  = 0d0
+    rhovxc = 0d0
+    rvepsv  = 0d0
+    rvexv   = 0d0
+    rvecv   = 0d0
+    rvvxcv  = 0d0
+    rveps   = 0d0
+    rvvxc   = 0d0
+    valvef  = 0d0
+    xcore   = 0d0
+    qval    = 0d0
+    qsc     = 0d0
+    sqloc   = 0d0
+    sqlocc  = 0d0
+    saloc   = 0d0
+    j1 = 1
+    iblu = 0
+    ifivesint=-999
     if(master_mpi) open(newunit=ifivesint,file='vesintloc',form='formatted',status='unknown')
     ibblock: block
-      real(8):: valvs(nbas),cpnvs(nbas),valvt(nbas),rvepvl(nbas),rvecl(nbas),rvexl(nbas)
-      real(8)::rvvxvl(nbas),rveptl(nbas),rvvxtl(nbas),qloc(nbas),aloc(nbas),qlocc(nbas),alocc(nbas)
-      real(8):: rhexc(nsp,nbas),rhex(nsp,nbas),rhec(nsp,nbas),rhvxc(nsp,nbas)
-      real(8):: xcor(nbas),qv(nbas),qsca(nbas)
-      valvs=0d0;cpnvs=0d0;valvt=0d0;rvepvl=0d0;rvecl=0d0;rvexl=0d0
-      rvvxvl=0d0;rveptl=0d0;rvvxtl=0d0;qloc=0d0;aloc=0d0;qlocc=0d0;alocc=0d0
-      rhexc=0d0;rhex=0d0;rhec=0d0;rhvxc=0d0;xcor=0d0;qv=0d0;qsca=0d0
-      iblu = 0
-      j1 = 1
+      real(8):: valvs(nbas),cpnvs(nbas),valvt(nbas),rvepvl(nbas),rveptl(nbas),rvecl(nbas),rvexl(nbas)
+      real(8)::rvvxvl(nbas),rvvxtl(nbas)
+!      real(8):: qloc(nbas),aloc(nbas),qlocc(nbas),alocc(nbas)
+!      real(8):: rhexc(nsp,nbas),rhex(nsp,nbas),rhec(nsp,nbas),rhvxc(nsp,nbas)
+      
+!      real(8):: valvs,cpnvs,valvt,rvepvl,rvecl,rvexl,rveptl
+!      real(8)::rvvxvl,rvvxtl
+      real(8):: rhexc(nsp),rhex(nsp),rhec(nsp),rhvxc(nsp),qlocc,alocc,qloc,aloc
+      valvs=0d0
+      cpnvs=0d0
+      valvt=0d0
+      rvepvl=0d0
+      rveptl=0d0
+      rvecl=0d0
+      rvexl=0d0
+      rvvxvl=0d0
+      rvvxtl=0d0
     ibloop: do  ib = 1, nbas
        is=ispec(ib) 
        pnu=>pnuall(:,:,ib)
@@ -173,38 +205,40 @@ contains
        z=sspec(is)%z
        qc=sspec(is)%qc
        rg=sspec(is)%rg
-       spid=slabl(is) 
+       spid=slabl(is) !sspec(is)%name
        a=sspec(is)%a
        nr=sspec(is)%nr
        rmt=sspec(is)%rmt
+       !       rsma=sspec(is)%rsma
        lmxa=sspec(is)%lmxa
        lmxl=sspec(is)%lmxl
        lmxb=sspec(is)%lmxb
        zz(ib)=z
        if (lmxa == -1) cycle ! floating orbital
        kmax=sspec(is)%kmxt
-       ! Float wave functions if: 
-       !   100's digit job > 0 set OR: 4's bit mxcst=0 AND 10's digit job=0  AND  1's digit job=1
+       !       Float wave functions if:
+       !         100's digit job > 0 set   OR:
+       !         4's bit mxcst=0   AND   10's digit job=0  AND  1's digit job=1
        lfltwf = (.not.mxcst4(is)).and.(.not.ham_frzwf).and.job==1 ! modify b.c. of rad.wave func.
-       call corprm(is,qcorg,qcorh,qsca(ib),cofg,cofh,ceh,lfoc,rfoc,z)
+       call corprm(is,qcorg,qcorh,qsca,cofg,cofh,ceh,lfoc,rfoc,z)
        chole=coreh(is)
-       call gtpcor(is,kcor,lcor,qcor) !qcor(1:2) is meaningful only when kcor/=0 
-       call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc0,qv(ib),qsc0)
-       if (qsc0 /= qsca(ib) .OR. qc /= qc0-qsc0) then
-          if(iprint()>0)write(stdo,ftox)' is=',is,'qsc0=',ftof(qsc0),'qsca',ftof(qsca(ib)),'qc',ftof(qc),'qc0',ftof(qc0)
+       call gtpcor(is,kcor,lcor,qcor) !qcor is meaningful only when kcor/=0 
+       call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc0,qv,qsc0)
+       if (qsc0 /= qsca .OR. qc /= qc0-qsc0) then
+          if(iprint()>0)write(stdo,ftox)' is=',is,'qsc0=',ftof(qsc0),'qsca',ftof(qsca),'qc',ftof(qc),'qc0',ftof(qc0)
           call rxs('problem in locpot -- possibly low LMXA or orbital mismatch, species ',spid)
        endif
-!       qval = qval+qv+qsca
-!       qsc  = qsc+qsca
+       qval = qval+qv+qsca
+       qsc  = qsc+qsca
        nlml = (lmxl+1)**2
        nrml = nr*nlml
        if (ipr >= 20) then
           write(stdo,"(/' site',i3,'  z=',f5.1,'  rmt=',f8.5,'  nr=',i3,'   a=',f5.3, &
                '  nlml=',i2,'  rg=',f5.3,'  Vfloat=',l1)") ib,z,rmt,nr,a,nlml,rg,lfltwf
-          if (kcor/= 0) then
-             if(sum(abs(qcor)) /= 0 ) then
-                if(ipr>=30)write(stdo,ftox)' core hole: kcor=',kcor,'lcor=',lcor,&
-                     'qcor amom=',ftof(qcor)
+          if (kcor /= 0) then
+             if (sum(abs(qcor)) /= 0 ) then
+                if(ipr>=30)write(stdo,ftox) &
+                     ' core hole: kcor=',kcor,'lcor=',lcor,'qcor amom=',ftof(qcor)
              endif
           endif
        endif
@@ -214,17 +248,18 @@ contains
        call radwgt(rmt,a,nr,rwgt)
        !     ... Write true density to file rhoMT.ib
        if(cmdopt0('--wrhomt'))call wrhomt('rhoMT.','density',ib,sv_p_orhoat(1,ib)%v,rofi,nr,nlml,nsp)
-       call locpt2 ( z,rmt,rg,a,nr,nsp,cofg,cofh & ! Make potential and energy terms at this site ---
-           ,ceh,rfoc,lfoc,nlml,qmom ( j1 ),vval ( j1 ),rofi &
-           ,rwgt,sv_p_orhoat( 1,ib )%v,sv_p_orhoat( 2,ib )%v,&
-            sv_p_orhoat( 3,ib )%v,rhol1,rhol2,v1,v2,v1es,v2es, &
-            valvs(ib),cpnvs(ib),rhexc(:,ib),rhex(:,ib),rhec(:,ib),rhvxc(:,ib),rvepvl(ib),&
-            rvexl(ib),rvecl(ib),rvvxvl(ib),rveptl(ib),rvvxtl(ib), valvt(ib),xcor(ib) ,qloc(ib), &
-            qlocc(ib),aloc(ib),alocc(ib),gpotb,& !fcexc,fcex,fcec,fcvxc &
-            rhobg,efg ( 1,ib ),ifivesint,lxcf) 
+       !   --- Make potential and energy terms at this site ---
+       call locpt2 ( z , rmt , rg , a , nr , nsp , cofg , cofh & ! job
+            , ceh , rfoc , lfoc , nlml , qmom ( j1 ) , vval ( j1 ) , rofi &
+            , rwgt , sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v , &
+            sv_p_orhoat( 3 , ib )%v , rhol1 , rhol2 , v1 , v2 , v1es , v2es &
+            ,  valvs(ib) , cpnvs(ib) , rhexc , rhex , rhec , rhvxc , rvepvl(ib) , & !wk ,
+            rvexl(ib) , rvecl(ib) , rvvxvl(ib) , rveptl(ib) , rvvxtl(ib) , valvt(ib) , xcor , qloc &
+            , qlocc , aloc , alocc , gpotb , &!fcexc , fcex , fcec , fcvxc &
+            rhobg , efg ( 1 , ib ),ifivesint,lxcf) 
        !! write density 1st(true) component and counter components.
        if(cmdopt0('--density') .AND. master_mpi .AND. secondcall) then
-          write(stdo,"(' TotalValenceChange diff in MT;  ib,\int(rho2-rho1)=',i5,f13.5)") ib,qloc(ib)
+          write(stdo,"(' TotalValenceChange diff in MT;  ib,\int(rho2-rho1)=',i5,f13.5)") ib,qloc
           write(strib,'(i10)') ib
           open(newunit=ibx,file='rho1MT.'//trim(adjustl(strib)))
           do isp=1,nsp
@@ -249,7 +284,7 @@ contains
              v0pot(ib)%v(1+nr*i: nr+nr*i) = y0*v1(1+nr*nlml*i : nr+nr*nlml*i)
           enddo
        endif
-!
+
        phispinsymB: block ! spin averaged oV0 to generate phi and phidot. takaoAug2019
          phispinsym= cmdopt0('--phispinsym')
          if(phispinsym) then
@@ -317,11 +352,36 @@ contains
        do  i = 0, nsp-1
           v1pot(ib)%v(1+nr*i: nr+nr*i) = y0*v1(1+nr*nlml*i : nr+nr*nlml*i)
        enddo
+       !   ... Accumulate terms for LDA total energy
+!       vvesat = vvesat + valvs
+!       cpnvsa = cpnvsa + cpnvs
+!       valvef = valvef + valvt
+!       rvepsv = rvepsv + rvepvl
+!       rvexv  = rvexv  + rvexl
+!       rvecv  = rvecv  + rvecl
+!       rvvxcv = rvvxcv + rvvxvl
+!       rveps  = rveps  + rveptl
+!       rvvxc  = rvvxc  + rvvxtl
+       sqloc  = sqloc  + qloc
+       saloc  = saloc  + aloc
+       sqlocc = sqlocc + qlocc
+       rhoexc(1) = rhoexc(1) + rhexc(1)
+       rhoex(1)  = rhoex(1)  + rhex(1)
+       rhoec(1)  = rhoec(1)  + rhec(1)
+       rhovxc(1) = rhovxc(1) + rhvxc(1)
+       if (nsp == 2) then
+          rhoexc(2) = rhoexc(2) + rhexc(2)
+          rhoex(2)  = rhoex(2)  + rhex(2)
+          rhoec(2)  = rhoec(2)  + rhec(2)
+          rhovxc(2) = rhovxc(2) + rhvxc(2)
+       endif
+       if (lfoc==0) xcore = xcore + xcor
        if (kcor/=0) then !  Check for core moment mismatch ; add to total moment
-          if (dabs(qcor(2)-alocc(ib)) > 0.01d0) then
+          if (dabs(qcor(2)-alocc) > 0.01d0) then
              if(ipr>=10) write(stdo,ftox) ' (warning) core moment mismatch spec=',is,&
-                  'input file=',qcor(2),'core density=',alocc(ib)
+                  'input file=',qcor(2),'core density=',alocc
           endif
+          saloc = saloc + qcor(2)
        endif
        !   --- Make augmentation matrices sig, tau, ppi ---
        if (job==1) then !     ... Smooth Hankel tails for local orbitals
@@ -346,12 +406,12 @@ contains
           if( .NOT. novxc .AND. cmdopt0('--socmatrix') ) lsox=1
           if (ipr >= 20) write(stdo,467) y0*(gpot0(j1)-gpotb(1))
 467       format(' potential shift to crystal energy zero:',f12.6)
-          call augmat ( z,rmt,rsma(is),lmxa,pnu,pnz,kmax,nlml, &
-               a,nr,nsp,lsox,rofi,rwgt ,& 
-               v0pot(ib)%v,v1,v2,gpotb,gpot0 ( j1 ),nkaph,nkapi,&
-               lmxb,lhh(:,is),eh,rsmh, ehl,rsml,rs3,vmtz, lmaxu,& ! & lcplxp ,
-               vorb, lldau(ib), iblu, idu, sv_p_osig(1,ib),sv_p_otau(1,ib), &
-               sv_p_oppi(1,ib),ohsozz(1,ib),ohsopm(1,ib), ppnl(1,1,1,ib),&
+          call augmat ( z , rmt , rsma(is) , lmxa , pnu , pnz , kmax , nlml, &
+               a , nr , nsp , lsox , rofi , rwgt ,& 
+               v0pot(ib)%v , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , &
+               lmxb , lhh(:,is) , eh , rsmh, ehl , rsml , rs3 , vmtz ,  lmaxu,& ! & lcplxp ,
+               vorb, lldau(ib), iblu, idu, sv_p_osig(1,ib) , sv_p_otau(1,ib), &
+               sv_p_oppi(1,ib),ohsozz(1,ib),ohsopm(1,ib), ppnl(1,1,1,ib) , &
                hab(1,1,1,ib),vab (1,1,1,ib), sab(1,1,1,ib) )
        endif
        j1 = j1+nlml
@@ -360,26 +420,22 @@ contains
     cpnvsa = sum(cpnvs)
     valvef=  sum(valvt)
     rvepsv = sum(rvepvl)
-    rvexv  = sum(rvexl)
-    rvecv  = sum(rvecl)
-    rvvxcv =  sum(rvvxvl)
+!    rvexv  = sum(rvexl)
+!    rvecv  = sum(rvecl)
+!    rvvxcv =  sum(rvvxvl)
     rveps  =  sum(rveptl)
-    rvvxc  =  sum(rvvxtl)
-    sqloc  =  sum(qloc)
-    saloc  =  sum(aloc)
-    if(kcor/=0) saloc = sum(aloc) + qcor(2)
-    sqlocc =  sum(qlocc)
-    rhoexc =  sum(rhexc,dim=2)
-    rhoex  =  sum(rhex,dim=2)
-    rhoec  =  sum(rhec,dim=2)
-    rhovxc =  sum(rhvxc,dim=2)
-    if (lfoc==0) xcore = sum(xcor)
-    qval = sum(qv)+sum(qsca)
-    qsc  = sum(qsca)
+!    rvvxc  =  sum(rvvxtl)
+!    sqloc  =  sum(qloc)
+!    saloc  =  sum(aloc)
+!    sqlocc =  sum(qlocc)
+!    rhoexc =  sum(rhexc,dim=2)
+!    rhoex  =  sum(rhex,dim=2)
+!    rhoec  =  sum(rhec,dim=2)
+!    rhovxc =  sum(rhvxc,dim=2)
   endblock ibblock
     if(cmdopt0('--density') .AND. master_mpi) secondcall= .TRUE. 
     if(master_mpi) close(ifivesint)
-     if(cmdopt0('--egradient')) call elfigr(nbas,stdo,zz,efg)!  Electric field gradient
+    if (ipr > 40) call elfigr(nbas,stdo,zz,efg)!  Electric field gradient
     deallocate(efg,zz,rhol1,rhol2,v1,v2,v1es,v2es)
     call tcx('locpot')
   end subroutine locpot
