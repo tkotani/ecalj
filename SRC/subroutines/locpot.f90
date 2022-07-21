@@ -197,8 +197,6 @@ contains
           if(iprint()>0)write(stdo,ftox)' is=',is,'qsc0=',ftof(qsc0),'qsca',ftof(qsca(ib)),'qc',ftof(qc),'qc0',ftof(qc0)
           call rxs('problem in locpot -- possibly low LMXA or orbital mismatch, species ',spid)
        endif
-!       qval = qval+qv+qsca
-!       qsc  = qsc+qsca
        nlml = (lmxl+1)**2
        nrml = nr*nlml
        if (ipr >= 20) then
@@ -584,7 +582,25 @@ contains
        enddo
        rhol2(:,1,isp) = rhol2(:,1,isp) + y0/nsp*(rhocsm(:)+rhonsm(:))
     enddo
-    ! ... Combine separate spin densities for electrostatics
+    ! ... amom
+    if(nsp==2) then
+       a1    = srfpi*ddot(nr,rwgt,1,rho1(:,1,1)-rho1(:,1,2),1)
+       a2    = srfpi*ddot(nr,rwgt,1,rho2(:,1,1)-rho2(:,1,2),1)
+       aloc  = a1-a2
+       alocc = ddot(nr,rwgt,1,rhoc(:,1)-rhoc(:,2),1)
+    else
+       aloc=0d0
+       alocc=0d0
+    endif
+    
+    rhototal: block
+      real(8):: ddot,rho1t(nr,nlml),rhol1t(nr,nlml), &
+           rho2t(nr,nlml),rhol2t(nr,nlml),rhoct(nr)
+    rho1t =sum(rho1(:,:,1:nsp),dim=3)
+    rho2t =sum(rho2(:,:,1:nsp),dim=3)
+    rhol1t=sum(rhol1(:,:,1:nsp),dim=3)
+    rhol2t=sum(rhol2(:,:,1:nsp),dim=3)
+    rhoct =sum(rhoc(:,1:nsp),dim=2)
     if(nsp==2) then
        call swapF(rho1, nr*nlml)
        call swapF(rho2, nr*nlml)
@@ -593,35 +609,46 @@ contains
        call swapF(rhoc, nr)
     endif
     ! ... Add background density to spherical rhol1 and rhol2
-    rhol1(:,1,1)=rhol1(:,1,1)+srfpi*rhobg*rofi(:)**2 !Subtract background before exchange correlation
-    rhol2(:,1,1)=rhol2(:,1,1)+srfpi*rhobg*rofi(:)**2
+!    rhol1(:,1,1)=rhol1(:,1,1)+srfpi*rhobg*rofi(:)**2 !Subtract background before exchange correlation
+!    rhol2(:,1,1)=rhol2(:,1,1)+srfpi*rhobg*rofi(:)**2
+    ! ... Add background density to spherical rhol1 and rhol2
+    rhol1t(:,1)=rhol1t(:,1)+srfpi*rhobg*rofi(:)**2 !Subtract background before exchange correlation
+    rhol2t(:,1)=rhol2t(:,1)+srfpi*rhobg*rofi(:)**2
     ! ... Sphere charges; also check sphere neutrality for safety
-    qv1   = srfpi*ddot(nr,rwgt,1,rho1,1)
-    qv2   = srfpi*ddot(nr,rwgt,1,rho2,1)
-    a1    = srfpi*ddot(nr,rwgt,1,rho1(1,1,nsp),1)
-    a2    = srfpi*ddot(nr,rwgt,1,rho2(1,1,nsp),1)
-    qcor1 =       ddot(nr,rwgt,1,rhoc,1)
+    qv1   = srfpi*ddot(nr,rwgt,1,rho1t,1)
+    qv2   = srfpi*ddot(nr,rwgt,1,rho2t,1)
+!    a1    = srfpi*ddot(nr,rwgt,1,rho1(1,1),1)
+!    a2    = srfpi*ddot(nr,rwgt,1,rho2(1,1),1)
+!    qv1   = srfpi*ddot(nr,rwgt,1,rho1,1)
+!    qv2   = srfpi*ddot(nr,rwgt,1,rho2,1)
+!    a1    = srfpi*ddot(nr,rwgt,1,rho1(1,1,nsp),1)
+!    a2    = srfpi*ddot(nr,rwgt,1,rho2(1,1,nsp),1)
+!    print *,'mmm222 a1-a2=',a1-a2
+!    qcor1 =       ddot(nr,rwgt,1,rhoc,1)
+    qcor1 =       ddot(nr,rwgt,1,rhoct,1)
     qcor2 =       ddot(nr,rwgt,1,rhocsm,1)
     qlocc = qcor1-qcor2
-    if(nsp==2) alocc = ddot(nr,rwgt,1,rhoc(1,2),1)
+!    if(nsp==2) alocc = ddot(nr,rwgt,1,rhoc(1,2),1)
     qloc  = qv1-qv2
-    sum1  = srfpi*ddot(nr,rwgt,1,rhol1,1) - z
-    sum2  = srfpi*ddot(nr,rwgt,1,rhol2,1)
+!    sum1  = srfpi*ddot(nr,rwgt,1,rhol1,1) - z
+!    sum2  = srfpi*ddot(nr,rwgt,1,rhol2,1)
+    sum1  = srfpi*ddot(nr,rwgt,1,rhol1t,1) - z
+    sum2  = srfpi*ddot(nr,rwgt,1,rhol2t,1)
     qlocc = qcor1-qcor2
     qloc  = qv1-qv2
-    aloc  = a1-a2
-    if(nsp == 1) aloc = 0d0
     if(dabs(sum1-sum2)>1d-6)call rx1('locpt2: sphere not neutral: charge = %d',sum1-sum2)
-    !     v1 = Ves[rho1]: true ES pot without nuclear contribution
+    !     v1 = Ves[rho1t]: true ES pot without nuclear contribution
     if(debug) print *,'locpt2: 4444'
-    call poinsp(z,vval,nlml,a,b,v1,rofi,rhol1,wk,nr,rvs1,rhves1,  vnucl,vsum)
+    call poinsp(z,vval,nlml,a,b,v1,rofi,rhol1t,wk,nr,rvs1,rhves1,  vnucl,vsum)
+!    call poinsp(z,vval,nlml,a,b,v1,rofi,rhol1,wk,nr,rvs1,rhves1,  vnucl,vsum)
     if (nlml >= 9 .AND. z > 0.01) then
        efg(1:5)=v1(5,5:9,1)/rofi(5)**2
     else
        efg(1:5)=0d0
     endif
     !     v2 = Ves[rhol2 = rho2+gval+gcor+gnuc] ---
-    call poinsp(0d0,vval,nlml,a,b,v2,rofi,rhol2,wk,nr,rvs2,rhves2, vnucl,vsum)
+    call poinsp(0d0,vval,nlml,a,b,v2,rofi,rhol2t,wk,nr,rvs2,rhves2, vnucl,vsum)
+!    call poinsp(0d0,vval,nlml,a,b,v2,rofi,rhol2,wk,nr,rvs2,rhves2, vnucl,vsum)
     ! --- gpotb = integrals of compensating gaussians times smooth ves ---
     sgpotb = 0d0
     do  ilm = 1, nlml
@@ -632,10 +659,12 @@ contains
        sgpotb = sgpotb + qmom(ilm)*gpotb(ilm)
     enddo
     ! --- Electrostatic integrals involving spherical terms only ---
-    vesc1 = sum(rwgt(2:nr)*rhoc(2:nr,1)*(y0*v1(2:nr,1,1) - 2d0*z/rofi(2:nr)))
+    vesc1 = sum(rwgt(2:nr)*rhoct(2:nr)*(y0*v1(2:nr,1,1) - 2d0*z/rofi(2:nr)))
+!    vesc1 = sum(rwgt(2:nr)*rhoc(2:nr,1)*(y0*v1(2:nr,1,1) - 2d0*z/rofi(2:nr)))
     vesn2 = sum(rwgt*rhonsm*y0*v2(:,1,1))
     vesc2 = sum(rwgt*rhocsm*y0*v2(:,1,1))
-    vnucl = sum(rwgt(2:nr)*rhol1(2:nr,1,1)*(1d0/rofi(2:nr)-1d0/rmt))
+    vnucl = sum(rwgt(2:nr)*rhol1t(2:nr,1)*(1d0/rofi(2:nr)-1d0/rmt))
+!    vnucl = sum(rwgt(2:nr)*rhol1(2:nr,1,1)*(1d0/rofi(2:nr)-1d0/rmt))
     ves1int = 4d0*pi*(sum(rwgt*y0*v1(:,1,1)*rofi(:)**2) - z*rofi(nr)**2)
     ves2int = 4d0*pi*sum(rwgt*y0*v2(:,1,1)*rofi(:)**2)
     if(master_mpi)write(ifivesint,"(3f23.15,a)")ves1int-ves2int,ves1int,ves2int,' ! vesint1-vesint2 ves1int ves2int'
@@ -649,15 +678,10 @@ contains
     vcpn1  = vesc1 + vesn1
     vcpn2  = vesn2 + vesc2
     cpnves = vcpn1 - vcpn2
-    ! ... Subtract background before doing exchange correlation
-    rhol1(:,1,1)=rhol1(:,1,1)-srfpi*rhobg*rofi(:)**2
-    rhol2(:,1,1)=rhol2(:,1,1)-srfpi*rhobg*rofi(:)**2
-    
-!    rho1t =sum(rho1(:,:,1:nsp),dim=3)
-!    rho2t =sum(rho2(:,:,1:nsp),dim=3)
-!    rhol1t=sum(rhol1(:,:,1:nsp),dim=3)
-!    rhol2t=sum(rhol2(:,:,1:nsp),dim=3)
-!    rhoct =sum(rhoc(:,1:nsp),dim=3)
+  endblock rhototal
+  ! ... Subtract background before doing exchange correlation
+!    rhol1(:,1,1)=rhol1(:,1,1)-srfpi*rhobg*rofi(:)**2
+!    rhol2(:,1,1)=rhol2(:,1,1)-srfpi*rhobg*rofi(:)**2
     ! ... Restore separate spin densities; copy estat pot to spin2
     if (nsp == 2) then
        call swapR(rho1,nr*nlml)
