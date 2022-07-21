@@ -1,4 +1,5 @@
 module m_locpot
+  use m_MPItk,only: master_mpi
   use m_lgunit,only:stdo
   use m_vxcatom,only: vxcnsp,vxcns5
   public locpot
@@ -14,7 +15,6 @@ contains
     use m_lmfinit,only:nkaph,lxcf,lhh,nkapii,nkaphh
     use m_lmfinit,only:n0,nppn,nab,nrmx,nkap0,nlmx,nbas,nsp,lso,ispec, sspec=>v_sspec,mxcst4
     use m_lmfinit,only:slabl,idu,coreh,ham_frzwf,rsma,alat
-    use m_MPItk,only: master_mpi
     use m_uspecb,only:uspecb
     use m_ftox
     use m_struc_def
@@ -116,7 +116,7 @@ contains
     type(s_rv1) :: sv_p_osig(3,nbas)
     integer :: nlibu,lmaxu,lldau(nbas),iblu
     double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
-    real(8):: qmom(1) , vval(1)
+    real(8):: qmom(1) , vval(1),qsc
     double precision :: cpnvsa,rhoexc(nsp),rhoex(nsp),rhoec(nsp),rhovxc(nsp), &
          qval,sqloc,sqlocc,saloc, & !,focvxc(nsp)focexc(nsp),focex(nsp),focec(nsp),
          valvef,vvesat,rvepsv,rvexv,rvecv,rvvxcv,xcore,rveps,rvvxc, &
@@ -126,9 +126,9 @@ contains
     integer :: lh(nkap0),nkapi,nkape,k
     double precision :: eh(n0,nkap0),rsmh(n0,nkap0)
     double precision :: ehl(n0),rsml(n0)
-    double precision :: pi,srfpi,y0,rofi(nrmx),rwgt(nrmx), &
+    double precision :: rofi(nrmx),rwgt(nrmx), &
          gpotb(81),z,a,rmt,qc,ceh,rfoc, &!,pnu(n0,2)pnz(n0,2),
-         qcorg,qcorh,qsc,cofg,cofh,qsca,rg,qv,cpnvs, &
+         qcorg,qcorh,cofg,cofh,rg,cpnvs, &
          qloc,qlocc,xcor, & !rhexc(nsp),rhex(nsp),rhec(nsp),rhvxc(nsp)
          aloc,alocc,rvepvl,rvexl, & !fcexc(nsp),fcex(nsp),fcec(nsp),fcvxc(nsp),
          rvecl,rvvxvl,rveptl,rvvxtl
@@ -149,47 +149,23 @@ contains
     character*20::strib
     character strn*120
     real(8):: ov0mean,pmean
-    !      integer:: idipole
+    real(8),parameter:: pi = 4d0*datan(1d0),srfpi = dsqrt(4d0*pi),y0 = 1d0/srfpi  !integer:: idipole
     call tcn('locpot')
     ipr = iprint()
-    pi = 4d0*datan(1d0)
-    srfpi = dsqrt(4d0*pi)
-    y0 = 1d0/srfpi
-    k = nrmx*nlmx*nsp
-    allocate(wk(k),rhol1(k),rhol2(k),v1(k),v2(k),v1es(k),v2es(k))
-    allocate(efg(5,nbas),zz(nbas))
     if (ipr >= 30) write(stdo,"(/' locpot:')")
-    vvesat = 0d0
-    cpnvsa = 0d0
-    rhoexc = 0d0
-    rhoex  = 0d0
-    rhoec  = 0d0
-    rhovxc = 0d0
-!    focexc = 0d0
-!    focex  = 0d0
-!    focec  = 0d0
-!    focvxc = 0d0
-    rvepsv  = 0d0
-    rvexv   = 0d0
-    rvecv   = 0d0
-    rvvxcv  = 0d0
-    rveps   = 0d0
-    rvvxc   = 0d0
-!    valvef  = 0d0
-    xcore   = 0d0
-    qval    = 0d0
-    qsc     = 0d0
-    sqloc   = 0d0
-    sqlocc  = 0d0
-    saloc   = 0d0
-    j1 = 1
-    iblu = 0
-    ifivesint=-999
+    k = nrmx*nlmx*nsp
+    allocate(rhol1(k),rhol2(k),v1(k),v2(k),v1es(k),v2es(k),efg(5,nbas),zz(nbas))
     if(master_mpi) open(newunit=ifivesint,file='vesintloc',form='formatted',status='unknown')
     ibblock: block
       real(8):: valvs(nbas),cpnvs(nbas),valvt(nbas),rvepvl(nbas),rvecl(nbas),rvexl(nbas)
       real(8)::rvvxvl(nbas),rveptl(nbas),rvvxtl(nbas),qloc(nbas),aloc(nbas),qlocc(nbas),alocc(nbas)
       real(8):: rhexc(nsp,nbas),rhex(nsp,nbas),rhec(nsp,nbas),rhvxc(nsp,nbas)
+      real(8):: xcor(nbas),qv(nbas),qsca(nbas)
+      valvs=0d0;cpnvs=0d0;valvt=0d0;rvepvl=0d0;rvecl=0d0;rvexl=0d0
+      rvvxvl=0d0;rveptl=0d0;rvvxtl=0d0;qloc=0d0;aloc=0d0;qlocc=0d0;alocc=0d0
+      rhexc=0d0;rhex=0d0;rhec=0d0;rhvxc=0d0;xcor=0d0;qv=0d0;qsca=0d0
+      iblu = 0
+      j1 = 1
     ibloop: do  ib = 1, nbas
        is=ispec(ib) 
        pnu=>pnuall(:,:,ib)
@@ -197,40 +173,38 @@ contains
        z=sspec(is)%z
        qc=sspec(is)%qc
        rg=sspec(is)%rg
-       spid=slabl(is) !sspec(is)%name
+       spid=slabl(is) 
        a=sspec(is)%a
        nr=sspec(is)%nr
        rmt=sspec(is)%rmt
-       !       rsma=sspec(is)%rsma
        lmxa=sspec(is)%lmxa
        lmxl=sspec(is)%lmxl
        lmxb=sspec(is)%lmxb
        zz(ib)=z
        if (lmxa == -1) cycle ! floating orbital
        kmax=sspec(is)%kmxt
-       !       Float wave functions if:
-       !         100's digit job > 0 set   OR:
-       !         4's bit mxcst=0   AND   10's digit job=0  AND  1's digit job=1
+       ! Float wave functions if: 
+       !   100's digit job > 0 set OR: 4's bit mxcst=0 AND 10's digit job=0  AND  1's digit job=1
        lfltwf = (.not.mxcst4(is)).and.(.not.ham_frzwf).and.job==1 ! modify b.c. of rad.wave func.
-       call corprm(is,qcorg,qcorh,qsca,cofg,cofh,ceh,lfoc,rfoc,z)
+       call corprm(is,qcorg,qcorh,qsca(ib),cofg,cofh,ceh,lfoc,rfoc,z)
        chole=coreh(is)
-       call gtpcor(is,kcor,lcor,qcor) !qcor is meaningful only when kcor/=0 
-       call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc0,qv,qsc0)
-       if (qsc0 /= qsca .OR. qc /= qc0-qsc0) then
-          if(iprint()>0)write(stdo,ftox)' is=',is,'qsc0=',ftof(qsc0),'qsca',ftof(qsca),'qc',ftof(qc),'qc0',ftof(qc0)
+       call gtpcor(is,kcor,lcor,qcor) !qcor(1:2) is meaningful only when kcor/=0 
+       call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc0,qv(ib),qsc0)
+       if (qsc0 /= qsca(ib) .OR. qc /= qc0-qsc0) then
+          if(iprint()>0)write(stdo,ftox)' is=',is,'qsc0=',ftof(qsc0),'qsca',ftof(qsca(ib)),'qc',ftof(qc),'qc0',ftof(qc0)
           call rxs('problem in locpot -- possibly low LMXA or orbital mismatch, species ',spid)
        endif
-       qval = qval+qv+qsca
-       qsc  = qsc+qsca
+!       qval = qval+qv+qsca
+!       qsc  = qsc+qsca
        nlml = (lmxl+1)**2
        nrml = nr*nlml
        if (ipr >= 20) then
           write(stdo,"(/' site',i3,'  z=',f5.1,'  rmt=',f8.5,'  nr=',i3,'   a=',f5.3, &
                '  nlml=',i2,'  rg=',f5.3,'  Vfloat=',l1)") ib,z,rmt,nr,a,nlml,rg,lfltwf
-          if (kcor /= 0) then
-             if (sum(abs(qcor)) /= 0 ) then
-                if(ipr>=30)write(stdo,ftox) &
-                     ' core hole: kcor=',kcor,'lcor=',lcor,'qcor amom=',ftof(qcor)
+          if (kcor/= 0) then
+             if(sum(abs(qcor)) /= 0 ) then
+                if(ipr>=30)write(stdo,ftox)' core hole: kcor=',kcor,'lcor=',lcor,&
+                     'qcor amom=',ftof(qcor)
              endif
           endif
        endif
@@ -245,7 +219,7 @@ contains
            ,rwgt,sv_p_orhoat( 1,ib )%v,sv_p_orhoat( 2,ib )%v,&
             sv_p_orhoat( 3,ib )%v,rhol1,rhol2,v1,v2,v1es,v2es, &
             valvs(ib),cpnvs(ib),rhexc(:,ib),rhex(:,ib),rhec(:,ib),rhvxc(:,ib),rvepvl(ib),&
-            rvexl(ib),rvecl(ib),rvvxvl(ib),rveptl(ib),rvvxtl(ib), valvt(ib),xcor ,qloc(ib), &
+            rvexl(ib),rvecl(ib),rvvxvl(ib),rveptl(ib),rvvxtl(ib), valvt(ib),xcor(ib) ,qloc(ib), &
             qlocc(ib),aloc(ib),alocc(ib),gpotb,& !fcexc,fcex,fcec,fcvxc &
             rhobg,efg ( 1,ib ),ifivesint,lxcf) 
        !! write density 1st(true) component and counter components.
@@ -343,13 +317,11 @@ contains
        do  i = 0, nsp-1
           v1pot(ib)%v(1+nr*i: nr+nr*i) = y0*v1(1+nr*nlml*i : nr+nr*nlml*i)
        enddo
-       if (lfoc==0) xcore = xcore + xcor
        if (kcor/=0) then !  Check for core moment mismatch ; add to total moment
           if (dabs(qcor(2)-alocc(ib)) > 0.01d0) then
              if(ipr>=10) write(stdo,ftox) ' (warning) core moment mismatch spec=',is,&
                   'input file=',qcor(2),'core density=',alocc(ib)
           endif
-          saloc = saloc + qcor(2)
        endif
        !   --- Make augmentation matrices sig, tau, ppi ---
        if (job==1) then !     ... Smooth Hankel tails for local orbitals
@@ -395,11 +367,15 @@ contains
     rvvxc  =  sum(rvvxtl)
     sqloc  =  sum(qloc)
     saloc  =  sum(aloc)
+    if(kcor/=0) saloc = sum(aloc) + qcor(2)
     sqlocc =  sum(qlocc)
     rhoexc =  sum(rhexc,dim=2)
     rhoex  =  sum(rhex,dim=2)
     rhoec  =  sum(rhec,dim=2)
     rhovxc =  sum(rhvxc,dim=2)
+    if (lfoc==0) xcore = sum(xcor)
+    qval = sum(qv)+sum(qsca)
+    qsc  = sum(qsca)
   endblock ibblock
     if(cmdopt0('--density') .AND. master_mpi) secondcall= .TRUE. 
     if(master_mpi) close(ifivesint)
@@ -658,7 +634,7 @@ contains
     vnucl = sum(rwgt(2:nr)*rhol1(2:nr,1,1)*(1d0/rofi(2:nr)-1d0/rmt))
     ves1int = 4d0*pi*(sum(rwgt*y0*v1(:,1,1)*rofi(:)**2) - z*rofi(nr)**2)
     ves2int = 4d0*pi*sum(rwgt*y0*v2(:,1,1)*rofi(:)**2)
-    if(ifivesint>0)write(ifivesint,"(3f23.15,a)")ves1int-ves2int,ves1int,ves2int,' ! vesint1-vesint2 ves1int ves2int'
+    if(master_mpi)write(ifivesint,"(3f23.15,a)")ves1int-ves2int,ves1int,ves2int,' ! vesint1-vesint2 ves1int ves2int'
     vnucl = 2d0*srfpi*vnucl + 2d0*z/rmt + y0*vval(1)
     vesn1 = -z*vnucl
     ! ... Valence density times electrostatic potential
@@ -672,6 +648,12 @@ contains
     ! ... Subtract background before doing exchange correlation
     rhol1(:,1,1)=rhol1(:,1,1)-srfpi*rhobg*rofi(:)**2
     rhol2(:,1,1)=rhol2(:,1,1)-srfpi*rhobg*rofi(:)**2
+    
+!    rho1t =sum(rho1(:,:,1:nsp),dim=3)
+!    rho2t =sum(rho2(:,:,1:nsp),dim=3)
+!    rhol1t=sum(rhol1(:,:,1:nsp),dim=3)
+!    rhol2t=sum(rhol2(:,:,1:nsp),dim=3)
+!    rhoct =sum(rhoc(:,1:nsp),dim=3)
     ! ... Restore separate spin densities; copy estat pot to spin2
     if (nsp == 2) then
        call swapR(rho1,nr*nlml)
@@ -679,6 +661,8 @@ contains
        call swapR(rhol1,nr*nlml)
        call swapR(rhol2,nr*nlml)
        call swapR(rhoc,nr)
+    endif
+    if (nsp == 2) then
        v1(:,:,2)=v1(:,:,1) 
        v2(:,:,2)=v2(:,:,1) 
     endif
@@ -699,10 +683,6 @@ contains
     call poppr
     ! --- Add xc potentials to v1 and v2 ---
     call pshpr(max(ipr-11,min(ipr,10)))
-!    focexc=0d0
-!    focex=0d0
-!    focec=0d0
-!    focvxc=0d0
     if(ipr>=30) write(stdo,*)' Exchange for true density:'
     if(debug) write(stdo,'(a)')' === rhol1 valence+core density. rho2->valence+smooth ==='
     call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rhol1,lxcfun,w2,w2,w2,w2,w2,rep1,rep1x,rep1c,rmu1,v1,fl,qs)
