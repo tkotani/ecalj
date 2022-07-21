@@ -156,17 +156,17 @@ contains
     k = nrmx*nlmx*nsp
     allocate(rhol1(k),rhol2(k),v1(k),v2(k),v1es(k),v2es(k),efg(5,nbas),zz(nbas))
     xcore   = 0d0
-    qval    = 0d0
-    qsc     = 0d0
+!    qval    = 0d0
+!    qsc     = 0d0
     if(master_mpi) open(newunit=ifivesint,file='vesintloc',form='formatted',status='unknown')
     ibblock: block
       real(8):: valvs(nbas),cpnvs(nbas),valvt(nbas),rvepvl(nbas),rvecl(nbas),rvexl(nbas)
       real(8)::rvvxvl(nbas),rveptl(nbas),rvvxtl(nbas),qloc(nbas),aloc(nbas),qlocc(nbas),alocc(nbas)
       real(8):: rhexc(nsp,nbas),rhex(nsp,nbas),rhec(nsp,nbas),rhvxc(nsp,nbas)
-!      real(8):: xcor(nbas),qv(nbas),qsca(nbas)
+      real(8):: xcor(nbas),qv(nbas),qsca(nbas)
       valvs=0d0;cpnvs=0d0;valvt=0d0;rvepvl=0d0;rvecl=0d0;rvexl=0d0
       rvvxvl=0d0;rveptl=0d0;rvvxtl=0d0;qloc=0d0;aloc=0d0;qlocc=0d0;alocc=0d0
-      rhexc=0d0;rhex=0d0;rhec=0d0;rhvxc=0d0 !;xcor=0d0;qv=0d0;qsca=0d0
+      rhexc=0d0;rhex=0d0;rhec=0d0;rhvxc=0d0 ;xcor=0d0;qv=0d0;qsca=0d0
       iblu = 0
       j1 = 1
     ibloop: do  ib = 1, nbas
@@ -176,40 +176,38 @@ contains
        z=sspec(is)%z
        qc=sspec(is)%qc
        rg=sspec(is)%rg
-       spid=slabl(is) !sspec(is)%name
+       spid=slabl(is) 
        a=sspec(is)%a
        nr=sspec(is)%nr
        rmt=sspec(is)%rmt
-       !       rsma=sspec(is)%rsma
        lmxa=sspec(is)%lmxa
        lmxl=sspec(is)%lmxl
        lmxb=sspec(is)%lmxb
        zz(ib)=z
        if (lmxa == -1) cycle ! floating orbital
        kmax=sspec(is)%kmxt
-       !       Float wave functions if:
-       !         100's digit job > 0 set   OR:
-       !         4's bit mxcst=0   AND   10's digit job=0  AND  1's digit job=1
+       ! Float wave functions if: 
+       !   100's digit job > 0 set OR: 4's bit mxcst=0 AND 10's digit job=0  AND  1's digit job=1
        lfltwf = (.not.mxcst4(is)).and.(.not.ham_frzwf).and.job==1 ! modify b.c. of rad.wave func.
-       call corprm(is,qcorg,qcorh,qsca,cofg,cofh,ceh,lfoc,rfoc,z)
+       call corprm(is,qcorg,qcorh,qsca(ib),cofg,cofh,ceh,lfoc,rfoc,z)
        chole=coreh(is)
-       call gtpcor(is,kcor,lcor,qcor) !qcor is meaningful only when kcor/=0 
-       call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc0,qv,qsc0)
-       if (qsc0 /= qsca .OR. qc /= qc0-qsc0) then
-          if(iprint()>0)write(stdo,ftox)' is=',is,'qsc0=',ftof(qsc0),'qsca',ftof(qsca),'qc',ftof(qc),'qc0',ftof(qc0)
+       call gtpcor(is,kcor,lcor,qcor) !qcor(1:2) is meaningful only when kcor/=0 
+       call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc0,qv(ib),qsc0)
+       if (qsc0 /= qsca(ib) .OR. qc /= qc0-qsc0) then
+          if(iprint()>0)write(stdo,ftox)' is=',is,'qsc0=',ftof(qsc0),'qsca',ftof(qsca(ib)),'qc',ftof(qc),'qc0',ftof(qc0)
           call rxs('problem in locpot -- possibly low LMXA or orbital mismatch, species ',spid)
        endif
-       qval = qval+qv+qsca
-       qsc  = qsc+qsca
+!       qval = qval+qv+qsca
+!       qsc  = qsc+qsca
        nlml = (lmxl+1)**2
        nrml = nr*nlml
        if (ipr >= 20) then
           write(stdo,"(/' site',i3,'  z=',f5.1,'  rmt=',f8.5,'  nr=',i3,'   a=',f5.3, &
                '  nlml=',i2,'  rg=',f5.3,'  Vfloat=',l1)") ib,z,rmt,nr,a,nlml,rg,lfltwf
-          if (kcor /= 0) then
-             if (sum(abs(qcor)) /= 0 ) then
-                if(ipr>=30)write(stdo,ftox) &
-                     ' core hole: kcor=',kcor,'lcor=',lcor,'qcor amom=',ftof(qcor)
+          if (kcor/= 0) then
+             if(sum(abs(qcor)) /= 0 ) then
+                if(ipr>=30)write(stdo,ftox)' core hole: kcor=',kcor,'lcor=',lcor,&
+                     'qcor amom=',ftof(qcor)
              endif
           endif
        endif
@@ -219,15 +217,14 @@ contains
        call radwgt(rmt,a,nr,rwgt)
        !     ... Write true density to file rhoMT.ib
        if(cmdopt0('--wrhomt'))call wrhomt('rhoMT.','density',ib,sv_p_orhoat(1,ib)%v,rofi,nr,nlml,nsp)
-       !   --- Make potential and energy terms at this site ---
-       call locpt2 ( z , rmt , rg , a , nr , nsp , cofg , cofh & ! job
-            , ceh , rfoc , lfoc , nlml , qmom ( j1 ) , vval ( j1 ) , rofi &
-            , rwgt , sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v , &
-            sv_p_orhoat( 3 , ib )%v , rhol1 , rhol2 , v1 , v2 , v1es , v2es &
-            ,  valvs(ib) , cpnvs(ib) , rhexc(:,ib) , rhex(:,ib) , rhec(:,ib) , rhvxc(:,ib) , rvepvl(ib) , & !wk ,
-            rvexl(ib) , rvecl(ib) , rvvxvl(ib) , rveptl(ib) , rvvxtl(ib) , valvt(ib) , xcor , qloc(ib) &
-            , qlocc(ib) , aloc(ib) , alocc(ib) , gpotb , &!fcexc , fcex , fcec , fcvxc &
-            rhobg , efg ( 1 , ib ),ifivesint,lxcf) 
+       call locpt2 ( z,rmt,rg,a,nr,nsp,cofg,cofh & ! Make potential and energy terms at this site ---
+           ,ceh,rfoc,lfoc,nlml,qmom ( j1 ),vval ( j1 ),rofi &
+           ,rwgt,sv_p_orhoat( 1,ib )%v,sv_p_orhoat( 2,ib )%v,&
+            sv_p_orhoat( 3,ib )%v,rhol1,rhol2,v1,v2,v1es,v2es, &
+            valvs(ib),cpnvs(ib),rhexc(:,ib),rhex(:,ib),rhec(:,ib),rhvxc(:,ib),rvepvl(ib),&
+            rvexl(ib),rvecl(ib),rvvxvl(ib),rveptl(ib),rvvxtl(ib), valvt(ib),xcor(ib) ,qloc(ib), &
+            qlocc(ib),aloc(ib),alocc(ib),gpotb,& !fcexc,fcex,fcec,fcvxc &
+            rhobg,efg ( 1,ib ),ifivesint,lxcf) 
        !! write density 1st(true) component and counter components.
        if(cmdopt0('--density') .AND. master_mpi .AND. secondcall) then
           write(stdo,"(' TotalValenceChange diff in MT;  ib,\int(rho2-rho1)=',i5,f13.5)") ib,qloc(ib)
@@ -255,7 +252,7 @@ contains
              v0pot(ib)%v(1+nr*i: nr+nr*i) = y0*v1(1+nr*nlml*i : nr+nr*nlml*i)
           enddo
        endif
-
+!
        phispinsymB: block ! spin averaged oV0 to generate phi and phidot. takaoAug2019
          phispinsym= cmdopt0('--phispinsym')
          if(phispinsym) then
@@ -323,30 +320,7 @@ contains
        do  i = 0, nsp-1
           v1pot(ib)%v(1+nr*i: nr+nr*i) = y0*v1(1+nr*nlml*i : nr+nr*nlml*i)
        enddo
-       !   ... Accumulate terms for LDA total energy
-!       vvesat = vvesat + valvs
-!       cpnvsa = cpnvsa + cpnvs
-!       valvef = valvef + valvt
-!       rvepsv = rvepsv + rvepvl
-!       rvexv  = rvexv  + rvexl
-!       rvecv  = rvecv  + rvecl
-!       rvvxcv = rvvxcv + rvvxvl
-!       rveps  = rveps  + rveptl
-!       rvvxc  = rvvxc  + rvvxtl
-!       sqloc  = sqloc  + qloc
-!       saloc  = saloc  + aloc
-!       sqlocc = sqlocc + qlocc
-       ! rhoexc(1) = rhoexc(1) + rhexc(1)
-       ! rhoex(1)  = rhoex(1)  + rhex(1)
-       ! rhoec(1)  = rhoec(1)  + rhec(1)
-       ! rhovxc(1) = rhovxc(1) + rhvxc(1)
-       ! if (nsp == 2) then
-       !    rhoexc(2) = rhoexc(2) + rhexc(2)
-       !    rhoex(2)  = rhoex(2)  + rhex(2)
-       !    rhoec(2)  = rhoec(2)  + rhec(2)
-       !    rhovxc(2) = rhovxc(2) + rhvxc(2)
-       ! endif
-       if (lfoc==0) xcore = xcore + xcor
+       if (lfoc==0) xcore = xcore + xcor(ib)
        if (kcor/=0) then !  Check for core moment mismatch ; add to total moment
           if (dabs(qcor(2)-alocc(ib)) > 0.01d0) then
              if(ipr>=10) write(stdo,ftox) ' (warning) core moment mismatch spec=',is,&
@@ -377,12 +351,12 @@ contains
           if( .NOT. novxc .AND. cmdopt0('--socmatrix') ) lsox=1
           if (ipr >= 20) write(stdo,467) y0*(gpot0(j1)-gpotb(1))
 467       format(' potential shift to crystal energy zero:',f12.6)
-          call augmat ( z , rmt , rsma(is) , lmxa , pnu , pnz , kmax , nlml, &
-               a , nr , nsp , lsox , rofi , rwgt ,& 
-               v0pot(ib)%v , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , &
-               lmxb , lhh(:,is) , eh , rsmh, ehl , rsml , rs3 , vmtz ,  lmaxu,& ! & lcplxp ,
-               vorb, lldau(ib), iblu, idu, sv_p_osig(1,ib) , sv_p_otau(1,ib), &
-               sv_p_oppi(1,ib),ohsozz(1,ib),ohsopm(1,ib), ppnl(1,1,1,ib) , &
+          call augmat ( z,rmt,rsma(is),lmxa,pnu,pnz,kmax,nlml, &
+               a,nr,nsp,lsox,rofi,rwgt ,& 
+               v0pot(ib)%v,v1,v2,gpotb,gpot0 ( j1 ),nkaph,nkapi,&
+               lmxb,lhh(:,is),eh,rsmh, ehl,rsml,rs3,vmtz, lmaxu,& ! & lcplxp ,
+               vorb, lldau(ib), iblu, idu, sv_p_osig(1,ib),sv_p_otau(1,ib), &
+               sv_p_oppi(1,ib),ohsozz(1,ib),ohsopm(1,ib), ppnl(1,1,1,ib),&
                hab(1,1,1,ib),vab (1,1,1,ib), sab(1,1,1,ib) )
        endif
        j1 = j1+nlml
@@ -404,6 +378,8 @@ contains
     rhoex  =  sum(rhex,dim=2)
     rhoec  =  sum(rhec,dim=2)
     rhovxc =  sum(rhvxc,dim=2)
+    qval = sum(qv)+sum(qsca)
+    qsc  = sum(qsca)
   endblock ibblock
     if(cmdopt0('--density') .AND. master_mpi) secondcall= .TRUE. 
     if(master_mpi) close(ifivesint)
