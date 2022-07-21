@@ -59,10 +59,6 @@ contains
     !o   rvvxc :int rhov*vxc(rhotot) (only made if 1000's digit job set)
     !o   valvef:integral (rho1*(v1-2Z/r) - rho2*vsm) ??
     !o   xcore :integral rhoc*(v1-2Z/r)
-    !oxxx   focexc:integral of smoothed core and xc energy
-    !oxxx   focex :integral of smoothed core and exchange energy
-    !oxxx   focec :integral of smoothed core and correlation energy
-    !oxxx   focvxc:integral of smoothed core and xc potential
     !o   sqloc :total valence charge rho1-rho2 in sphere
     !o   saloc :total valence magnetic moment in sphere
     !o         :+core moment for sites with core hole
@@ -127,11 +123,9 @@ contains
     double precision :: eh(n0,nkap0),rsmh(n0,nkap0)
     double precision :: ehl(n0),rsml(n0)
     double precision :: rofi(nrmx),rwgt(nrmx), &
-         gpotb(81),z,a,rmt,qc,ceh,rfoc, &!,pnu(n0,2)pnz(n0,2),
+         gpotb(81),z,a,rmt,qc,ceh,rfoc, &
          qcorg,qcorh,qsc,cofg,cofh,qsca,rg,qv,cpnvs, &
-         qloc,qlocc,xcor, & !rhexc(nsp),rhex(nsp),rhec(nsp),rhvxc(nsp)
-         aloc,alocc,rvepvl,rvexl, & !fcexc(nsp),fcex(nsp),fcec(nsp),fcvxc(nsp),
-         rvecl,rvvxvl,rveptl,rvvxtl
+         qloc,qlocc,xcor, aloc,alocc,rvepvl,rvexl, rvecl,rvvxvl,rveptl,rvvxtl
     real(8),pointer:: pnu(:,:),pnz(:,:)
     ! ... for sm. Hankel tails
     double precision :: rs3,vmtz
@@ -156,8 +150,6 @@ contains
     k = nrmx*nlmx*nsp
     allocate(rhol1(k),rhol2(k),v1(k),v2(k),v1es(k),v2es(k),efg(5,nbas),zz(nbas))
     xcore   = 0d0
-    !    qval    = 0d0
-    !    qsc     = 0d0
     if(master_mpi) open(newunit=ifivesint,file='vesintloc',form='formatted',status='unknown')
     ibblock: block
       real(8):: valvs(nbas),cpnvs(nbas),valvt(nbas),rvepvl(nbas),rvecl(nbas),rvexl(nbas)
@@ -186,13 +178,11 @@ contains
          zz(ib)=z
          if (lmxa == -1) cycle ! floating orbital
          kmax=sspec(is)%kmxt
-         ! Float wave functions if: 
-         !   100's digit job > 0 set OR: 4's bit mxcst=0 AND 10's digit job=0  AND  1's digit job=1
-         lfltwf = (.not.mxcst4(is)).and.(.not.ham_frzwf).and.job==1 ! modify b.c. of rad.wave func.
-         call corprm(is,qcorg,qcorh,qsca(ib),cofg,cofh,ceh,lfoc,rfoc,z)
+         lfltwf = (.not.mxcst4(is)).and.(.not.ham_frzwf).and.job==1 ! modify b.c. of Rad.wave func.
+         call corprm(is, qcorg,qcorh,qsca(ib),cofg,cofh,ceh,lfoc,rfoc,z)
          chole=coreh(is)
-         call gtpcor(is,kcor,lcor,qcor) !qcor(1:2) is meaningful only when kcor/=0 
-         call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc0,qv(ib),qsc0)
+         call gtpcor(is, kcor,lcor,qcor) !qcor(1:2) is meaningful only when kcor/=0 
+         call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor, qc0,qv(ib),qsc0)
          if (qsc0 /= qsca(ib) .OR. qc /= qc0-qsc0) then
             if(iprint()>0)write(stdo,ftox)' is=',is,'qsc0=',ftof(qsc0),'qsca',ftof(qsca(ib)),'qc',ftof(qc),'qc0',ftof(qc0)
             call rxs('problem in locpot -- possibly low LMXA or orbital mismatch, species ',spid)
@@ -221,7 +211,7 @@ contains
               sv_p_orhoat( 3,ib )%v,rhol1,rhol2,v1,v2,v1es,v2es, &
               valvs(ib),cpnvs(ib),rhexc(:,ib),rhex(:,ib),rhec(:,ib),rhvxc(:,ib),rvepvl(ib),&
               rvexl(ib),rvecl(ib),rvvxvl(ib),rveptl(ib),rvvxtl(ib), valvt(ib),xcor(ib) ,qloc(ib), &
-              qlocc(ib),aloc(ib),alocc(ib),gpotb,& !fcexc,fcex,fcec,fcvxc &
+              qlocc(ib),aloc(ib),alocc(ib),gpotb,& 
               rhobg,efg ( 1,ib ),ifivesint,lxcf) 
          !! write density 1st(true) component and counter components.
          if(cmdopt0('--density') .AND. master_mpi .AND. secondcall) then
@@ -244,13 +234,12 @@ contains
          endif
          !   ... Write true potential to file vtrue.ib
          if(cmdopt0('--wpotmt'))call wrhomt('vtrue.','potential',ib,v1,rofi,nr,nlml,nsp)
-         !   ... Update the potential used to define basis set
-         if (lfltwf) then
+         if (lfltwf) then !   ... Update the potential used to define basis set
             do i = 0, nsp-1
                v0pot(ib)%v(1+nr*i: nr+nr*i) = y0*v1(1+nr*nlml*i : nr+nr*nlml*i)
             enddo
          endif
-         !
+         
          phispinsymB: block ! spin averaged oV0 to generate phi and phidot. takaoAug2019
            phispinsym= cmdopt0('--phispinsym')
            if(phispinsym) then
@@ -314,8 +303,8 @@ contains
                write(6,"(' ibas l=',2i3,' pnu(1:nsp) pnz(1:nsp)=',4f10.5)") ib,l,pnu(l+1,1:nsp),pnz(l+1,1:nsp)
             enddo
          endif
-         !   ... Store the potential used in mkrout to calculate the core
-         do  i = 0, nsp-1
+         
+         do  i = 0, nsp-1 ! Store the potential used in mkrout to calculate the core
             v1pot(ib)%v(1+nr*i: nr+nr*i) = y0*v1(1+nr*nlml*i : nr+nr*nlml*i)
          enddo
          if (lfoc==0) xcore = xcore + xcor(ib)
@@ -324,7 +313,6 @@ contains
                if(ipr>=10) write(stdo,ftox) ' (warning) core moment mismatch spec=',is,&
                     'input file=',qcor(2),'core density=',alocc
             endif
-            !          saloc = saloc + qcor(2)
          endif
          !   --- Make augmentation matrices sig, tau, ppi ---
          if (job==1) then !     ... Smooth Hankel tails for local orbitals
@@ -349,10 +337,9 @@ contains
             if( .NOT. novxc .AND. cmdopt0('--socmatrix') ) lsox=1
             if (ipr >= 20) write(stdo,467) y0*(gpot0(j1)-gpotb(1))
 467         format(' potential shift to crystal energy zero:',f12.6)
-            call augmat ( z,rmt,rsma(is),lmxa,pnu,pnz,kmax,nlml, &
-                 a,nr,nsp,lsox,rofi,rwgt ,& 
+            call augmat ( z,rmt,rsma(is),lmxa,pnu,pnz,kmax,nlml, a,nr,nsp,lsox,rofi,rwgt ,& 
                  v0pot(ib)%v,v1,v2,gpotb,gpot0 ( j1 ),nkaph,nkapi,&
-                 lmxb,lhh(:,is),eh,rsmh, ehl,rsml,rs3,vmtz, lmaxu,& ! & lcplxp ,
+                 lmxb,lhh(:,is),eh,rsmh, ehl,rsml,rs3,vmtz, lmaxu,&
                  vorb, lldau(ib), iblu, idu, sv_p_osig(1,ib),sv_p_otau(1,ib), &
                  sv_p_oppi(1,ib),ohsozz(1,ib),ohsopm(1,ib), ppnl(1,1,1,ib),&
                  hab(1,1,1,ib),vab (1,1,1,ib), sab(1,1,1,ib) )
@@ -453,12 +440,6 @@ contains
     !o         :This is a local analog of gpot0 generated for the smooth
     !o         :density.  Here gpotb is generated in a Y_lm expansion
     !o         :of the gaussian orbitals
-    !oxxx   focexc:(lfoc=2): integral rhochs * vxc
-    !oxxx        :otherwise, 0
-    !oxxx   focex :integral of smoothed core and exchange energy
-    !oxxx   focec :integral of smoothed core and correlation energy
-    !oxxx   focvxc:If lfoc=2, integral rhochs * (dvxc/drho2 * rho2)
-    !oxxx        :Otherwise, 0
     !o   rhol1 :full true electron density, rho1 + rhoc
     !o   rhol2 :full smooth density, i.e. uncompensated rho2 plus
     !o         :compensating gaussians + pseudocore charge
@@ -469,7 +450,6 @@ contains
     !o         : = ves[rhol2] + ...
     !o         :   ... lfoc=0 : vxc(rho2)
     !o         :       lfoc=1 : vxc(rho2+sm-rhoc)
-    !oxxx         :       lfoc=2 : vxc(rho2) + dvxc/drho * sm-rhoc
     !o         :Apart from differences in l-truncation in the XC potential
     !o         :(i.e. true and local sm. densities are different),
     !o         :v1(nr,1,1)-2*z/y0/rmt = v2(nr,1,1)
@@ -485,7 +465,6 @@ contains
     !l         : = int n1 * v1~
     !l   vefv2 :int (valence smooth density)* (total smooth potential):
     !l         : = int (n2*v2~) +  sum_L qmom_L gpotb_L
-    !lxxx         :   [- perturbation (focvxc(1)+focvxc(2)) if lfoc=2]
     !l   qcor1 :true core charge inside rmt
     !l   qcor2 :smoothed core charge inside rmt
     !l   rhonsm:nuclear density smoothed into gaussian of width rg
@@ -710,8 +689,6 @@ contains
        if(topl.AND.nsp == 2)write(stdo,"(i4,3x,3f12.6,2x,3f12.6,2x)") ilm,rvtr(1),rvtr(2),&
             rvtr(1)+rvtr(2),rvsm(1),rvsm(2),rvsm(1)+rvsm(2)
     enddo
-    ! ... Smooth xc potential includes foca head; undo in integral
-    !    vefv2  = vefv2 - sum(focvxc)
     rhoexc = rep1 - rep2
     rhoex  = rep1x - rep2x
     rhoec  = rep1c - rep2c
