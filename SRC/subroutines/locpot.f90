@@ -154,50 +154,21 @@ contains
     ipr = iprint()
     if (ipr >= 30) write(stdo,"(/' locpot:')")
     k = nrmx*nlmx*nsp
-    allocate(wk(k),rhol1(k),rhol2(k),v1(k),v2(k),v1es(k),v2es(k))
-    allocate(efg(5,nbas),zz(nbas))
-    if (ipr >= 30) write(stdo,"(/' locpot:')")
-    vvesat = 0d0
-    cpnvsa = 0d0
-    rhoexc = 0d0
-    rhoex  = 0d0
-    rhoec  = 0d0
-    rhovxc = 0d0
-    rvepsv  = 0d0
-    rvexv   = 0d0
-    rvecv   = 0d0
-    rvvxcv  = 0d0
-    rveps   = 0d0
-    rvvxc   = 0d0
-    valvef  = 0d0
+    allocate(rhol1(k),rhol2(k),v1(k),v2(k),v1es(k),v2es(k),efg(5,nbas),zz(nbas))
     xcore   = 0d0
     qval    = 0d0
     qsc     = 0d0
-    sqloc   = 0d0
-    sqlocc  = 0d0
-    saloc   = 0d0
-    j1 = 1
-    iblu = 0
-    ifivesint=-999
     if(master_mpi) open(newunit=ifivesint,file='vesintloc',form='formatted',status='unknown')
     ibblock: block
-      real(8):: valvs(nbas),cpnvs(nbas),valvt(nbas),rvepvl(nbas),rveptl(nbas),rvecl(nbas),rvexl(nbas)
-      real(8)::rvvxvl(nbas),rvvxtl(nbas)
-!      real(8):: qloc(nbas),aloc(nbas),qlocc(nbas),alocc(nbas)
-!      real(8):: rhexc(nsp,nbas),rhex(nsp,nbas),rhec(nsp,nbas),rhvxc(nsp,nbas)
-      
-!      real(8):: valvs,cpnvs,valvt,rvepvl,rvecl,rvexl,rveptl
-!      real(8)::rvvxvl,rvvxtl
-      real(8):: rhexc(nsp),rhex(nsp),rhec(nsp),rhvxc(nsp),qlocc,alocc,qloc,aloc
-      valvs=0d0
-      cpnvs=0d0
-      valvt=0d0
-      rvepvl=0d0
-      rveptl=0d0
-      rvecl=0d0
-      rvexl=0d0
-      rvvxvl=0d0
-      rvvxtl=0d0
+      real(8):: valvs(nbas),cpnvs(nbas),valvt(nbas),rvepvl(nbas),rvecl(nbas),rvexl(nbas)
+      real(8)::rvvxvl(nbas),rveptl(nbas),rvvxtl(nbas),qloc(nbas),aloc(nbas),qlocc(nbas),alocc(nbas)
+      real(8):: rhexc(nsp,nbas),rhex(nsp,nbas),rhec(nsp,nbas),rhvxc(nsp,nbas)
+!      real(8):: xcor(nbas),qv(nbas),qsca(nbas)
+      valvs=0d0;cpnvs=0d0;valvt=0d0;rvepvl=0d0;rvecl=0d0;rvexl=0d0
+      rvvxvl=0d0;rveptl=0d0;rvvxtl=0d0;qloc=0d0;aloc=0d0;qlocc=0d0;alocc=0d0
+      rhexc=0d0;rhex=0d0;rhec=0d0;rhvxc=0d0 !;xcor=0d0;qv=0d0;qsca=0d0
+      iblu = 0
+      j1 = 1
     ibloop: do  ib = 1, nbas
        is=ispec(ib) 
        pnu=>pnuall(:,:,ib)
@@ -253,13 +224,13 @@ contains
             , ceh , rfoc , lfoc , nlml , qmom ( j1 ) , vval ( j1 ) , rofi &
             , rwgt , sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v , &
             sv_p_orhoat( 3 , ib )%v , rhol1 , rhol2 , v1 , v2 , v1es , v2es &
-            ,  valvs(ib) , cpnvs(ib) , rhexc , rhex , rhec , rhvxc , rvepvl(ib) , & !wk ,
-            rvexl(ib) , rvecl(ib) , rvvxvl(ib) , rveptl(ib) , rvvxtl(ib) , valvt(ib) , xcor , qloc &
-            , qlocc , aloc , alocc , gpotb , &!fcexc , fcex , fcec , fcvxc &
+            ,  valvs(ib) , cpnvs(ib) , rhexc(:,ib) , rhex(:,ib) , rhec(:,ib) , rhvxc(:,ib) , rvepvl(ib) , & !wk ,
+            rvexl(ib) , rvecl(ib) , rvvxvl(ib) , rveptl(ib) , rvvxtl(ib) , valvt(ib) , xcor , qloc(ib) &
+            , qlocc(ib) , aloc(ib) , alocc(ib) , gpotb , &!fcexc , fcex , fcec , fcvxc &
             rhobg , efg ( 1 , ib ),ifivesint,lxcf) 
        !! write density 1st(true) component and counter components.
        if(cmdopt0('--density') .AND. master_mpi .AND. secondcall) then
-          write(stdo,"(' TotalValenceChange diff in MT;  ib,\int(rho2-rho1)=',i5,f13.5)") ib,qloc
+          write(stdo,"(' TotalValenceChange diff in MT;  ib,\int(rho2-rho1)=',i5,f13.5)") ib,qloc(ib)
           write(strib,'(i10)') ib
           open(newunit=ibx,file='rho1MT.'//trim(adjustl(strib)))
           do isp=1,nsp
@@ -362,26 +333,26 @@ contains
 !       rvvxcv = rvvxcv + rvvxvl
 !       rveps  = rveps  + rveptl
 !       rvvxc  = rvvxc  + rvvxtl
-       sqloc  = sqloc  + qloc
-       saloc  = saloc  + aloc
-       sqlocc = sqlocc + qlocc
-       rhoexc(1) = rhoexc(1) + rhexc(1)
-       rhoex(1)  = rhoex(1)  + rhex(1)
-       rhoec(1)  = rhoec(1)  + rhec(1)
-       rhovxc(1) = rhovxc(1) + rhvxc(1)
-       if (nsp == 2) then
-          rhoexc(2) = rhoexc(2) + rhexc(2)
-          rhoex(2)  = rhoex(2)  + rhex(2)
-          rhoec(2)  = rhoec(2)  + rhec(2)
-          rhovxc(2) = rhovxc(2) + rhvxc(2)
-       endif
+!       sqloc  = sqloc  + qloc
+!       saloc  = saloc  + aloc
+!       sqlocc = sqlocc + qlocc
+       ! rhoexc(1) = rhoexc(1) + rhexc(1)
+       ! rhoex(1)  = rhoex(1)  + rhex(1)
+       ! rhoec(1)  = rhoec(1)  + rhec(1)
+       ! rhovxc(1) = rhovxc(1) + rhvxc(1)
+       ! if (nsp == 2) then
+       !    rhoexc(2) = rhoexc(2) + rhexc(2)
+       !    rhoex(2)  = rhoex(2)  + rhex(2)
+       !    rhoec(2)  = rhoec(2)  + rhec(2)
+       !    rhovxc(2) = rhovxc(2) + rhvxc(2)
+       ! endif
        if (lfoc==0) xcore = xcore + xcor
        if (kcor/=0) then !  Check for core moment mismatch ; add to total moment
-          if (dabs(qcor(2)-alocc) > 0.01d0) then
+          if (dabs(qcor(2)-alocc(ib)) > 0.01d0) then
              if(ipr>=10) write(stdo,ftox) ' (warning) core moment mismatch spec=',is,&
                   'input file=',qcor(2),'core density=',alocc
           endif
-          saloc = saloc + qcor(2)
+!          saloc = saloc + qcor(2)
        endif
        !   --- Make augmentation matrices sig, tau, ppi ---
        if (job==1) then !     ... Smooth Hankel tails for local orbitals
@@ -420,18 +391,19 @@ contains
     cpnvsa = sum(cpnvs)
     valvef=  sum(valvt)
     rvepsv = sum(rvepvl)
-!    rvexv  = sum(rvexl)
-!    rvecv  = sum(rvecl)
-!    rvvxcv =  sum(rvvxvl)
+    rvexv  = sum(rvexl)
+    rvecv  = sum(rvecl)
+    rvvxcv =  sum(rvvxvl)
     rveps  =  sum(rveptl)
-!    rvvxc  =  sum(rvvxtl)
-!    sqloc  =  sum(qloc)
-!    saloc  =  sum(aloc)
-!    sqlocc =  sum(qlocc)
-!    rhoexc =  sum(rhexc,dim=2)
-!    rhoex  =  sum(rhex,dim=2)
-!    rhoec  =  sum(rhec,dim=2)
-!    rhovxc =  sum(rhvxc,dim=2)
+    rvvxc  =  sum(rvvxtl)
+    sqloc  =  sum(qloc)
+    saloc  =  sum(aloc)
+    if(kcor/=0) saloc = sum(aloc) + qcor(2)
+    sqlocc =  sum(qlocc)
+    rhoexc =  sum(rhexc,dim=2)
+    rhoex  =  sum(rhex,dim=2)
+    rhoec  =  sum(rhec,dim=2)
+    rhovxc =  sum(rhvxc,dim=2)
   endblock ibblock
     if(cmdopt0('--density') .AND. master_mpi) secondcall= .TRUE. 
     if(master_mpi) close(ifivesint)
