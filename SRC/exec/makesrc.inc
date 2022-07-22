@@ -43,7 +43,6 @@ m_gtv.o \
 addrwf.o \
 atomsr.o \
 atwf.o \
-avwsr.o \
 besslr.o \
 bloch.o \
 bzints.o \
@@ -142,7 +141,6 @@ rdsigm2.o\
 getcor.o \
 xcpbe.o \
 m_ext.o\
-fsubs.o \
 a2bin.o \
 a2bina.o \
 a2vec.o \
