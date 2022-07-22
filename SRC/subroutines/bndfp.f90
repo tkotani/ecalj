@@ -25,10 +25,13 @@ module m_bndfp
   use m_ftox
   use m_density,only: orhoat,osmrho !input/output unprotected
   use m_mixrho,only: Mixrho
-  real(8),protected:: ham_ehf, ham_ehk, sev  !output
-  real(8),protected:: eferm, qdiff  !output
-  real(8),protected,allocatable:: force(:,:)
-  !! other ouput are in modules m_mkpot, m_bandcal
+  real(8),protected,public:: ham_ehf, ham_ehk, sev  !output
+  real(8),protected,public:: eferm, qdiff  !output
+  real(8),protected,allocatable,public:: force(:,:) !output
+  ! NOTE: other ouput of bndfp are stored in modules
+  ! m_mkpot(potential), m_bandcal(band,dmatu), m_density(density)
+  public bndfp, m_bndfp_ef_set
+  private
   logical,private:: binit=.true.,initd=.true.
 contains
 
@@ -46,12 +49,12 @@ contains
     use m_supot,only: ngabc=>lat_nabc,k1,k2,k3 !for charge mesh
     use m_suham,only: ndham=>ham_ndham, ndhamx=>ham_ndhamx,nspx=>ham_nspx
     use m_lmfinit, only: n0,nab,nppn,ncutovl,lso,ndos=>bz_ndos,bz_w,fsmom=>bz_fsmom, &
-    bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n, &
+         bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n, &
          ctrl_nspec,ctrl_pfloat,ldos=>ctrl_ldos,qbg=>zbak,lfrce=>ctrl_lfrce, &
          pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps, &
          ham_scaledsigma, &
          alat=>lat_alat,stdo,stdl,procid,master, &! & bz_doswin,
-    nkaph,nlmax,nl,nbas,nsp, ham_frzwf, bz_dosmax, &
+         nkaph,nlmax,nl,nbas,nsp, ham_frzwf, bz_dosmax, &
          lekkl,lmaxu,nlibu,lldau,lpztail,leks,lrout &
          ,  nchan=>pot_nlma, nvl=>pot_nlml,nspc
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)

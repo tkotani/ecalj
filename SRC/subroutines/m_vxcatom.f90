@@ -1,10 +1,10 @@
-module m_vxcatom !Vxc LDA for sites
+module m_vxcatom !Vxc LDA for sites (spherical expansion)
   public vxcnsp,vxc0sp,vxcns5
   private
   contains
 subroutine vxcnsp(isw,a,ri,nr,rwgt,nlm,nsp,rl,lxcfun,rc, &
      focexc,focex,focec,focvxc,reps,repsx,repsc,rmu,vl,fl,qs)
-  use m_lgunit,only:stdo
+  use m_lgunit,only: stdo
   use m_ropyln,only: ropyln,ropylg
 !  use m_vxcfunc,only: vxcgga
   !- Add vxc to potential in sphere and make integrals rho*vxc,rho*exc
@@ -72,7 +72,7 @@ subroutine vxcnsp(isw,a,ri,nr,rwgt,nlm,nsp,rl,lxcfun,rc, &
   double precision :: qs(nsp)
   integer :: nnn,nlmx
   parameter(nnn=122,nlmx=64)
-  logical :: lpert
+!  logical :: lpert
   integer :: ipr,ll,lmax,np,nph,nth,nxl(0:7),lxcf,lxcg
   double precision :: p(3,nnn),wp(nnn),p2(nnn,3),r2(nnn),fpi
   real(8), allocatable :: yl(:),rp(:,:,:),gyl(:,:),grp(:,:),agrp(:), &
@@ -83,8 +83,8 @@ subroutine vxcnsp(isw,a,ri,nr,rwgt,nlm,nsp,rl,lxcfun,rc, &
   real(8),allocatable::vlxc(:,:,:)
   call getpr(ipr)
   lxcf = mod(lxcfun,100)
-  lxcg = mod(lxcfun/100,100)
-  lpert = lxcfun .ge. 10000
+  lxcg = mod(lxcfun/100,100) !GGA
+!  lpert = .false. !lxcfun .ge. 10000
   fpi = 16d0*datan(1d0)
   ! ... Create angular integration mesh
   lmax = ll(nlm)
@@ -106,10 +106,10 @@ subroutine vxcnsp(isw,a,ri,nr,rwgt,nlm,nsp,rl,lxcfun,rc, &
   repsc = 0
   !!== Scale rl to true density ==
   call vxcns3(nr,nlm,nsp,ri,rl,1)
-  if (lpert) then
-     call vxcns3(nr,1,1,ri,rc,1)
-     call dscal(nr,1/fpi,rc,1)
-  endif
+!  if (lpert) then
+!     call vxcns3(nr,1,1,ri,rc,1)
+!     call dscal(nr,1/fpi,rc,1)
+!  endif
   p2=transpose(p)
   !!== XC part ==
   allocate(vlxc(nr,nlm,nsp))
@@ -119,7 +119,7 @@ subroutine vxcnsp(isw,a,ri,nr,rwgt,nlm,nsp,rl,lxcfun,rc, &
      call ropyln(np,p2(1,1),p2(1,2),p2(1,3),lmax,np,yl,r2)
      vlxc=0d0
      call vxcns2(isw,ri,nr,rwgt,np,wp,yl,nlm,nsp,rl,rc,lxcf, &
-          lpert,focexc,focex,focec,focvxc,reps,repsx,repsc,rmu, &
+          reps,repsx,repsc,rmu, & !,focexc,focex,focec,focvxc lpert,
           vlxc,fl,qs)
      deallocate (yl)
   else
@@ -136,13 +136,13 @@ subroutine vxcnsp(isw,a,ri,nr,rwgt,nlm,nsp,rl,lxcfun,rc, &
   deallocate(vlxc)
   ! ... Undo the rl scaling
   call vxcns3(nr,nlm,nsp,ri,rl,0)
-  if (lpert) then
-     call vxcns3(nr,1,1,ri,rc,0)
-     call dscal(nr,fpi,rc,1)
-  endif
+!  if (lpert) then
+!     call vxcns3(nr,1,1,ri,rc,0)
+!     call dscal(nr,fpi,rc,1)
+!  endif
 end subroutine vxcnsp
 subroutine vxcns2(isw,ri,nr,rwgt,np,wp,yl,nlm,nsp,rl,rc,lxcf, &
-     lpert,focexc,focex,focec,focvxc,rep,repx,repc,rmu,vl,fl,qs)
+     rep,repx,repc,rmu,vl,fl,qs) !,focexc,focex,focec,focvxc lpert,
   use m_lgunit,only:stdo
   use m_xclda,only:evxcv,evxcp
   !- Make vxc, rep and rmu in sphere, for local XC functional.
@@ -167,7 +167,7 @@ subroutine vxcns2(isw,ri,nr,rwgt,np,wp,yl,nlm,nsp,rl,rc,lxcf, &
   !i         :  1    Ceperly-Alder
   !i         :  2    Barth-Hedin (ASW fit)
   !i         :  3,4  LD part of PW91 and PBE
-  !i   lpert :Make perturbation integrals focexc and focvxc
+  !i   lpert=F :Make perturbation integrals focexc and focvxc
   !i   yl    :Spherical harmonics YL(rp) !sep2010 takao. yl is not overwritten by ylwp now.
   !o Outputs
   !o   focexc:(lpert only): integral rc * vxc
@@ -206,7 +206,7 @@ subroutine vxcns2(isw,ri,nr,rwgt,np,wp,yl,nlm,nsp,rl,rc,lxcf, &
   !u    10.07.96 dln: modified for Perdew GGA
   ! ----------------------------------------------------------------------
   implicit none
-  logical :: lpert
+!  logical :: lpert
   integer :: nr,nlm,nsp,lxcf,np,isw
   double precision :: ri(nr),yl(np,nlm),wp(np),rep(nsp),repx(nsp),repc(nsp), &
        rmu(nsp),rwgt(nr),focexc(nsp),focex(nsp),focec(nsp),focvxc(nsp), &
@@ -262,62 +262,62 @@ subroutine vxcns2(isw,ri,nr,rwgt,np,wp,yl,nlm,nsp,rl,rc,lxcf, &
           "  negative density # of points=", ineg(1:nsp)
   endif
   ! --- Perturbation treatment: df/dr in vxc2 ---
-  if (lpert) then
-     ! --- Stop if GGA ---
-     if (lxcf > 2) &
-          call rx('vxcnsp: Perturbation treatment is not implemented for GGA')
-     !       Add rp*fac/2 into rp+, rp- and fac*rp into rp
-     if (nsp == 2) then
-        do  i = 1, nsp
-           call daxpy(n1,fac/2,rp,1,rps(1,1,i),1)
-        enddo
-     endif
-     call dscal(n1,1+fac,rp,1)
-     !       Exchange potential at rp+drho
-     do  i = 1, nsp
-        call evxcv(rp,rps(1,1,i),n1,1,lxcf, &
-             exc,excx,excc,vxc2(1,1,i),vx2(1,1,i),vc2(1,1,i))
-     enddo
-     !       Restore rp,rps; also add -drho to rp and -drho/2 to rps
-     call dscal(n1,1/(1+fac),rp,1)
-     if (nsp == 2) then
-        do  i = 1, nsp
-           call daxpy(n1,-fac,rp,1,rps(1,1,i),1)
-        enddo
-     endif
-     call dscal(n1,(1-fac),rp,1)
-     !       Exchange potential at rp-drho
-     do  i = 1, nsp
-        call evxcv(rp,rps(1,1,i),n1,1,lxcf, &
-             exc,excx,excc,vxc(1,1,i),vx(1,1,i),vc(1,1,i))
-     enddo
-     !       Restore rp,rps
-     call dscal(n1,1/(1-fac),rp,1)
-     if (nsp == 2) then
-        do  i = 1, nsp
-           call daxpy(n1,fac/2,rp,1,rps(1,1,i),1)
-        enddo
-     endif
+  ! if (lpert) then
+  !    ! --- Stop if GGA ---
+  !    if (lxcf > 2) &
+  !         call rx('vxcnsp: Perturbation treatment is not implemented for GGA')
+  !    !       Add rp*fac/2 into rp+, rp- and fac*rp into rp
+  !    if (nsp == 2) then
+  !       do  i = 1, nsp
+  !          call daxpy(n1,fac/2,rp,1,rps(1,1,i),1)
+  !       enddo
+  !    endif
+  !    call dscal(n1,1+fac,rp,1)
+  !    !       Exchange potential at rp+drho
+  !    do  i = 1, nsp
+  !       call evxcv(rp,rps(1,1,i),n1,1,lxcf, &
+  !            exc,excx,excc,vxc2(1,1,i),vx2(1,1,i),vc2(1,1,i))
+  !    enddo
+  !    !       Restore rp,rps; also add -drho to rp and -drho/2 to rps
+  !    call dscal(n1,1/(1+fac),rp,1)
+  !    if (nsp == 2) then
+  !       do  i = 1, nsp
+  !          call daxpy(n1,-fac,rp,1,rps(1,1,i),1)
+  !       enddo
+  !    endif
+  !    call dscal(n1,(1-fac),rp,1)
+  !    !       Exchange potential at rp-drho
+  !    do  i = 1, nsp
+  !       call evxcv(rp,rps(1,1,i),n1,1,lxcf, &
+  !            exc,excx,excc,vxc(1,1,i),vx(1,1,i),vc(1,1,i))
+  !    enddo
+  !    !       Restore rp,rps
+  !    call dscal(n1,1/(1-fac),rp,1)
+  !    if (nsp == 2) then
+  !       do  i = 1, nsp
+  !          call daxpy(n1,fac/2,rp,1,rps(1,1,i),1)
+  !       enddo
+  !    endif
 
-     do  i = 1, nsp
-        do  ip = 1, np
-           do  ir = 1, nr
-              rhot = rp(ir,ip)
-              if (rhot > 0) then
-                 f1 = vxc (ir,ip,i)*(rhot*(1-fac))**alfa
-                 f2 = vxc2(ir,ip,i)*(rhot*(1+fac))**alfa
-                 dfdr = (f2-f1)/(2d0*fac*rhot)
-                 vxc2(ir,ip,i) = dfdr
-              else
-                 vxc2(ir,ip,i) = 0
-              endif
-           enddo
-        enddo
-     enddo
-  else
+  !    do  i = 1, nsp
+  !       do  ip = 1, np
+  !          do  ir = 1, nr
+  !             rhot = rp(ir,ip)
+  !             if (rhot > 0) then
+  !                f1 = vxc (ir,ip,i)*(rhot*(1-fac))**alfa
+  !                f2 = vxc2(ir,ip,i)*(rhot*(1+fac))**alfa
+  !                dfdr = (f2-f1)/(2d0*fac*rhot)
+  !                vxc2(ir,ip,i) = dfdr
+  !             else
+  !                vxc2(ir,ip,i) = 0
+  !             endif
+  !          enddo
+  !       enddo
+  !    enddo
+  ! else
      call dpzero(excx,n1)
      call dpzero(excc,n1)
-  endif
+  !endif
   ! --- vxc, exc for unperturbed density ---
   if (lxcf > 2) then
      call evxcp(rps,rps(1,1,nsp),n1,nsp,lxcf,excx,excc,exc, &
@@ -346,40 +346,40 @@ subroutine vxcns2(isw,ri,nr,rwgt,np,wp,yl,nlm,nsp,rl,rc,lxcf, &
        rep,repx,repc,rmu,qs)
   ! --- Add perturbation to vxc ---
   !     Integrals focexc = int rc vxc, focvxc= rc * dvxc/dr * rhot
-  if (lpert) then
-     focvxc = 0
-     focexc = 0
-     focex  = 0
-     focec  = 0
-     do  i  = 1, nsp
-        do  ip = 1, np
-           do  ir = 1, nr
-              rhot = rp(ir,ip)
-              if (rhot <= 0 .OR. rps(ir,ip,i) <= 0) then
-                 vxc2(ir,ip,i) = 0
-              endif
-              !             Debugging
-              !              if (rps(ir,ip,i) .lt. 0 .or. rhot .lt. 0) then
-              !                if (vxc(ir,ip,i) .ne. 0 .or. vxc2(ir,ip,i) .ne. 0) then
-              !                  print *, vxc(ir,ip,i), vxc2(ir,ip,i)
-              !                  stop 'oops'
-              !                endif
-              !              endif
-              if (rps(ir,ip,i) > 0 .AND. rhot > 0) then
-                 f  = vxc(ir,ip,i)*rhot**alfa
-                 dfdr = vxc2(ir,ip,i)
-                 dvdr = (dfdr - alfa*f/rhot) / rhot**alfa
-                 weight = (ri(ir)**2*rwgt(ir))*wp(ip) * rc(ir)
-                 focvxc(i) = focvxc(i) + weight*dvdr*rps(ir,ip,i)
-                 focexc(i) = focexc(i) + weight*vxc(ir,ip,i)/nsp
-                 focex(i)  = focex(i)  + weight*vx(ir,ip,i)/nsp
-                 focec(i)  = focec(i)  + weight*vc(ir,ip,i)/nsp
-                 vxc(ir,ip,i) = vxc(ir,ip,i) + dvdr*rc(ir)
-              endif
-           enddo
-        enddo
-     enddo
-  endif
+  ! if (lpert) then
+  !    focvxc = 0
+  !    focexc = 0
+  !    focex  = 0
+  !    focec  = 0
+  !    do  i  = 1, nsp
+  !       do  ip = 1, np
+  !          do  ir = 1, nr
+  !             rhot = rp(ir,ip)
+  !             if (rhot <= 0 .OR. rps(ir,ip,i) <= 0) then
+  !                vxc2(ir,ip,i) = 0
+  !             endif
+  !             !             Debugging
+  !             !              if (rps(ir,ip,i) .lt. 0 .or. rhot .lt. 0) then
+  !             !                if (vxc(ir,ip,i) .ne. 0 .or. vxc2(ir,ip,i) .ne. 0) then
+  !             !                  print *, vxc(ir,ip,i), vxc2(ir,ip,i)
+  !             !                  stop 'oops'
+  !             !                endif
+  !             !              endif
+  !             if (rps(ir,ip,i) > 0 .AND. rhot > 0) then
+  !                f  = vxc(ir,ip,i)*rhot**alfa
+  !                dfdr = vxc2(ir,ip,i)
+  !                dvdr = (dfdr - alfa*f/rhot) / rhot**alfa
+  !                weight = (ri(ir)**2*rwgt(ir))*wp(ip) * rc(ir)
+  !                focvxc(i) = focvxc(i) + weight*dvdr*rps(ir,ip,i)
+  !                focexc(i) = focexc(i) + weight*vxc(ir,ip,i)/nsp
+  !                focex(i)  = focex(i)  + weight*vx(ir,ip,i)/nsp
+  !                focec(i)  = focec(i)  + weight*vc(ir,ip,i)/nsp
+  !                vxc(ir,ip,i) = vxc(ir,ip,i) + dvdr*rc(ir)
+  !             endif
+  !          enddo
+  !       enddo
+  !    enddo
+  ! endif
   ! --- Scale yl by wp for fast multiplication --- ---
   do   ilm = 1, nlm
      do   ip = 1, np

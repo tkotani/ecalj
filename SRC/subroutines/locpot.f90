@@ -10,16 +10,15 @@ contains
        sv_p_osig , sv_p_otau, sv_p_oppi, ohsozz,ohsopm, ppnl ,&
        hab , vab , sab , vvesat , cpnvsa , rhoexc, &
        rhoex , rhoec , rhovxc , rvepsv , rvexv , rvecv , rvvxcv , &
-       rveps , rvvxc , valvef , xcore ,&! focexc , focex , focec , focvxc, &
-       sqloc , sqlocc , saloc , qval , qsc )
+       rveps , rvvxc , valvef , xcore , sqloc , sqlocc , saloc , qval , qsc )
     use m_lmfinit,only:nkaph,lxcf,lhh,nkapii,nkaphh
     use m_lmfinit,only:n0,nppn,nab,nrmx,nkap0,nlmx,nbas,nsp,lso,ispec, sspec=>v_sspec,mxcst4
     use m_lmfinit,only:slabl,idu,coreh,ham_frzwf,rsma,alat
     use m_uspecb,only:uspecb
     use m_ftox
     use m_struc_def
-    use m_density,only: v0pot,v1pot   !writing
-    use m_density,only: pnzall,pnuall !writing
+    use m_density,only: v0pot,v1pot   !output
+    use m_density,only: pnzall,pnuall !output
     implicit none
     intent(in)::    sv_p_orhoat,qmom,vval,gpot0,job,rhobg,nlibu,lmaxu,vorb,lldau,novxc
     ! ----------------------------------------------------------------------
