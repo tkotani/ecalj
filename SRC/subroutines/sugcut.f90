@@ -23,7 +23,7 @@ subroutine sugcut(mode)
   !u    9 May 00 Adapted from nfp su_gvcut.f
   ! ----------------------------------------------------------------------
   implicit none
-  integer:: mode,lh(nkap0) !, ngcut(n0,nkap0)
+  integer:: mode,lh(nkap0) 
   integer:: ipr,iprint,is,irep,icut,i,ik,l,lcut,nkapi,nkap1,nkap2
   real(8):: rsmh(n0,nkap0),eh(n0,nkap0),tpi,tpiba2,gg0,gg,e,rsm,gam,gmax,top
   character(8) :: spid
@@ -43,7 +43,7 @@ subroutine sugcut(mode)
   gg = -1
   if(mode==1) ngcut=0
   do  is = 1, nspec
-     spid = slabl(is) !sspec(is)%name
+     spid = slabl(is) 
      nkap1 = 1
      call uspecb(is,rsmh,eh)
      nkap2 = nkaphh(is)
@@ -53,7 +53,6 @@ subroutine sugcut(mode)
      else
         nkap2 = nkapi
      endif
-!     if(mode==2 ) ngcut=sspec(is)%ngcut
      gg0 = gg
      do  ik = nkap1, nkap2
         lcut = -1
@@ -68,7 +67,7 @@ subroutine sugcut(mode)
                     if (rsmh(lcut+2,ik) == rsm .AND. eh(lcut+2,ik) == e) goto 12
                  endif
               endif
-              !     ... Get cutoff radius where exp(-gam*gmax)*gmax**l equals tol
+              !     ... Get cutoff radius where exp(-gam*gmax)*gmax**l> tol
               gam = rsm*rsm/4d0
               gmax = 1d0
               do  irep = 1, 10
@@ -95,8 +94,6 @@ subroutine sugcut(mode)
            endif
         enddo
      enddo
-!     sspec(is)%ngcut=ngcut
   enddo
 end subroutine sugcut
-
 end module m_sugcut

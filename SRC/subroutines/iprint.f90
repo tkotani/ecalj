@@ -18,17 +18,14 @@ integer function iprint()
   verbose=ix
   return
 end function iprint
-
 subroutine pshpr(vb)
   integer:: setprint,vb,i
   i=setprint(vb)
 end subroutine pshpr
-
 subroutine poppr()
   integer:: set0,i
   i=set0()
 end subroutine poppr
-
 subroutine getpr(ix)
   integer:: iprint,ix
   ix=iprint()

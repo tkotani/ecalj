@@ -185,7 +185,7 @@ contains
              enddo iorb2loop
              !     ... Scalar products phi1*vsm*phi2 for all orbitals in (ib1,ib2)
              ! ncuti are only at Gamma point; thus symmetry can not be kept well for other k points.
-             call ncutcorrect ( ncuti , ndim2 , gvv , ng )
+             !call ncutcorrect ( ncuti , ndim2 , gvv , ng )
              hssblock: block
                integer::ncut,i2, io1,io2,ofw1,ofw2
                complex(8)::hss(ndim1,ndim2) 

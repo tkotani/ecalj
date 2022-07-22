@@ -612,12 +612,10 @@ subroutine readx(ifil,n)
 10 enddo
   call rx( 'readx: cannot find the string(rw.f)')
 end subroutine readx
-
 real(8) function derfc(x)
   real(8)::x
   derfc= 1d0 - erf(x)
 end function derfc
-
 subroutine getqkey(qx,nqtt,epsd,  nkey,key) !qx is digitized by epsd
 !!NOTE: use this with ik=findloc( int(qinput+0.5d0*epsd) - key,value=0)
   intent(in)::    qx,nqtt,epsd
@@ -638,7 +636,6 @@ subroutine getqkey(qx,nqtt,epsd,  nkey,key) !qx is digitized by epsd
   enddo
   nkey=ik
 end subroutine getqkey
-
 function zxx(a,b) result(ab)
   integer:: i,j
   complex(8) :: a(:),b(:),ab(size(a),size(b))
@@ -648,6 +645,47 @@ function zxx(a,b) result(ab)
      enddo
   enddo
 end function zxx
+
+real(8) function avwsr(plat,alat,vol,nbas)
+  !- Calculate the average ws radius
+  !     implicit none
+  integer :: nbas
+  double precision :: plat(3,3),alat,vol
+  vol = alat**3*dabs( &
+       plat(1,1)*(plat(2,2)*plat(3,3) - plat(2,3)*plat(3,2)) + &
+       plat(1,2)*(plat(2,3)*plat(3,1) - plat(2,1)*plat(3,3)) + &
+       plat(1,3)*(plat(2,1)*plat(3,2) - plat(2,2)*plat(3,1)))
+  avwsr = (3/(16*datan(1.d0)*nbas)*vol)**(1.d0/3.d0)
+END function avwsr
+
+subroutine cexit(pv,ps)
+  implicit none
+  include 'mpif.h'
+  integer:: pv,ps,i
+  integer:: status,ierr
+  if (ps /= 0) then
+     if (pv == 0) then
+        call MPI_finalized(status,ierr)
+        if (status == 0) then
+           call MPI_finalize(ierr)
+        endif
+     endif
+     call exit(pv)
+  endif
+end subroutine cexit
+
+subroutine locase(ps)
+  character(*) ps
+  integer::i,n,shift
+  n=len_trim(ps)
+  shift=-ichar('A')+ichar('a')
+  do i=1,n
+     if ( ichar(ps(i:i)) >= ichar('A') &
+          .AND. ichar(ps(i:i)) <= ichar('Z') ) then
+        ps(i:i) = char( ichar(ps(i:i))+ shift )
+     endif
+  enddo
+end subroutine locase
 
 module m_factorial
   real(8),allocatable,protected:: factorial(:),factorial2(:)

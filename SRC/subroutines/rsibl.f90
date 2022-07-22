@@ -277,7 +277,7 @@ contains
           rsm = rtab(ir)
           e   = etab(ie)
           ncutt=ncut(lt+1,kp) ! takao Apr2009
-          call ncutcorrect(ncutt,1,gq,ng)
+!          call ncutcorrect(ncutt,1,gq,ng)
           ! kino rsibl5 calculates 4 pi exp(e gamma) and {cal Y}_L(-iG)
           !      and make psi0(G), which is H(-iG), with hr and he.
           ! ... Phase and other factors
@@ -295,8 +295,6 @@ contains
                enddo
             enddo
           endblock rsibl5block 
-          !  call rsibl5(ie,ir,e,rsm,vol,nlm1,nlm2,ng,min(ng,ncutt) &
-          !         ,yl,ylw,he,hr,wk2,ioff,evec(1,1,ivec),ndimh,nspc,nvec,psi0)
        enddo
        do  i = 1,ng  ! psi= exp(i G R_i) * psi0
           psi(i,:,:) = psi(i,:,:)+ psi0(i,:,:)*dcmplx(cosgp(i),singp(i)) 
@@ -531,150 +529,3 @@ contains
     deallocate(ivp)
   end subroutine rsibl_ev
 end module m_rsibl
-
-  ! subroutine rsibl2(ng,nspc,nev,psi,n1,n2,n3,k1,k2,k3,kv,ewgt, lfrce,smpot,f,smrho,vpsi)
-  !   !- FT wave function to real space and add square into mesh density
-  !   !  and optionally make smpot * psi
-  !   ! ----------------------------------------------------------------------
-  !   !i Inputs
-  !   !i   ng    :number of G-vectors
-  !   !i   nspc  :2 for coupled spins; otherwise 1
-  !   !i   nev   :number of wave functions
-  !   !i   psi   :wave function in reciprocal space
-  !   !i   n1..3 :size of FT mesh
-  !   !i   k1..3 :dimensions smpot,smrho
-  !   !i   kv    :indices for gather/scatter operations (gvlist.f)
-  !   !i   ewgt  :weights for each of the trial fermi levels
-  !   !i   lfrce :if nonzero, make vpsi
-  !   !i   smpot :potential, needed if lfrce is nonzero
-  !   !o Outputs
-  !   !o   f     :psi in real space
-  !   !o   smrho :ewgt (f+)f added to smooth density
-  !   !o   vpsi  :FT (smpot * r.s. wave function) if lfrce is nonzero
-  !   !r Remarks
-  !   ! ----------------------------------------------------------------------
-  !   implicit none
-  !   integer :: k1,k2,k3,n1,n2,n3,ng,nspc,nev,kv(ng,3),lfrce
-  !   double precision :: ewgt(nev)
-  !   double complex psi(ng,nspc,nev),vpsi(ng,nspc,nev),f(k1,k2,k3)
-  !   double complex smrho(k1,k2,k3,nspc),smpot(k1,k2,k3,nspc)
-  !   integer :: i1,i2,i3,iq,i,ispc
-  !   double precision :: wgt1
-  !   call tcn('rsibl2')
-  !   do  ispc = 1, nspc
-  !      do  i = 1, nev
-  !         call gvputf(ng,1,kv,k1,k2,k3,psi(1,ispc,i),f)
-  !         call fftz3(f,n1,n2,n3,k1,k2,k3,1,0,1)
-  !         wgt1 = ewgt(i)
-  !         do  i3 = 1, n3
-  !            do  i2 = 1, n2
-  !               do  i1 = 1, n1
-  !                  smrho(i1,i2,i3,ispc)=smrho(i1,i2,i3,ispc)+ wgt1*dconjg(f(i1,i2,i3))*f(i1,i2,i3)
-  !               enddo
-  !            enddo
-  !         enddo
-  !         if (lfrce /= 0) then
-  !            do  i3 = 1, n3
-  !               do  i2 = 1, n2
-  !                  do  i1 = 1, n1
-  !                     f(i1,i2,i3) = f(i1,i2,i3)*smpot(i1,i2,i3,ispc)
-  !                  enddo
-  !               enddo
-  !            enddo
-  !            call fftz3(f,n1,n2,n3,k1,k2,k3,1,0,-1)
-  !            call gvgetf(ng,1,kv,k1,k2,k3,f,vpsi(1,ispc,i))
-  !         endif
-  !      enddo
-  !   enddo
-  !   call tcx('rsibl2')
-  ! end subroutine rsibl2
-
-  ! subroutine rsibl5(ie,ir,e,rsm,vol,nlm1,nlm2,ng,ncut,yl,ylw,he,hr, &
-  !      wk,ioff,evec,ndimh,nspc,nvec,psi)
-  !   !- Add contribution to wave function from one block of orbitals
-  !   ! ----------------------------------------------------------------------
-  !   !i Inputs
-  !   !i   ie    :index to appropriate entry in energy factor table he
-  !   !i   ir    :index to appropriate entry in sm radius factor table hr
-  !   !i   e     :hankel energy
-  !   !i   rsm   :smoothing radius
-  !   !i   vol   :cell volume
-  !   !i   nlm1  :starting orbital L for which to accumulate wave function
-  !   !i   nlm2  :final orbital L for which to accumulate wave function
-  !   !i   ng    :number of G-vectors
-  !   !i   ncut  :G-cutoff for wave function
-  !   !i   yl    :spherical harmonics for ng vectors
-  !   !i   ylw   :work array dimensioned same as yl
-  !   !i   he    :table of energy factors
-  !   !i   hr    :table of smoothing radius factors
-  !   !i   wk    :work array of dimension at least ncut
-  !   !i   ioff  :offset to hamiltonian (eigenvector) for this orbital block
-  !   !i   ndimh :dimension of hamiltonian
-  !   !i   nspc  :2 for coupled spins; otherwise 1
-  !   !i   evec  :eigenvectors
-  !   !i   nvec  :number of eigenvectors
-  !   !o Outputs
-  !   !o   psi   :contribution to psi from this block accumulated
-  !   !r Remarks
-  !   !u Updates
-  !   !u   23 Dec 04 Extended to noncollinear case
-  !   ! ----------------------------------------------------------------------
-  !   implicit none
-  !   integer :: ie,ioff,ir,ncut,ng,nlm1,nlm2,ndimh,nspc,nvec
-  !   double precision :: e,rsm,vol,yl(ng,*),ylw(ng,*),he(ng,*),hr(ng,*), wk(ncut)
-  !   double complex evec(ndimh,nspc,nvec),psi(ng,nspc,nvec)
-  !   integer :: i,ii,ilm,l,ll,lmax,m,iv,nlmx,ispc
-  !   parameter (nlmx=100)
-  !   double complex cfac(nlmx),cc,evp(nlmx,nspc,nvec)
-  !   double precision :: pi,fac
-  !   parameter (pi=3.1415926535897931d0)
-  !   if (nlm2 == 0) return
-  !   call tcn('rsibl5')
-  !   ! ... Phase and other factors
-  !   lmax = ll(nlm2)
-  !   fac = -4d0*pi*dexp(e*rsm*rsm*0.25d0)/vol
-  !   cc = (0d0,1d0)*fac
-  !   ilm = 0
-  !   do  l = 0, lmax
-  !      cc = cc*(0d0,-1d0)
-  !      do m = -l,l
-  !         ilm = ilm+1
-  !         cfac(ilm) = cc
-  !      enddo
-  !   enddo
-  !   ! ... Combine G-dependent energy, rsm and YL factors
-  !   do  ilm = nlm1, nlm2 ! ... Make vector evec*phase
-  !      do i = 1, ncut
-  !         psi(i,1:nspc,1:nvec) = psi(i,1:nspc,1:nvec)  &
-  !         + he(i,ie)*hr(i,ir)*yl(i,ilm)*cfac(ilm)*evec(ilm-nlm1+ioff+1,1:nspc,1:nvec)
-  !      enddo
-  !   enddo
-  !   call tcx('rsibl5')
-  ! end subroutine rsibl5
-
-
-  ! subroutine rsiblp(ng,ndimh,nlmto,nspc,napw,ivp,nvec,sqv,evec,psi)
-  !   !- Plane wave part of evec
-  !   ! ----------------------------------------------------------------------
-  !   !i Inputs
-  !   !i   ng    :number of G-vectors
-  !   !i   nvec  :number of eigenstates to generate
-  !   !i   evec  :eigenvectors
-  !   !i   vspi  :potential * wave function, needed only for mode=1
-  !   !i   sqv   :square root of volume
-  !   !o Outputs
-  !   !o   psi   :wave function
-  !   !r Remarks
-  !   !u Updates
-  !   !u   05 Jul 08 (T. Kotani) first created
-  !   ! ----------------------------------------------------------------------
-  !   implicit none
-  !   integer :: ng,ndimh,nlmto,nspc,nvec
-  !   integer :: napw,ivp(napw)
-  !   double precision :: sqv
-  !   double complex psi(ng,nspc,nvec),evec(ndimh,nspc,nvec)
-  !   integer :: i,ispc,igv
-  !   if (napw <= 0) return
-  !   psi(ivp(:),:,:) = psi(ivp(:),:,:) + evec(nlmto+1:nlmto+napw,:,:)/sqv
-  ! end subroutine rsiblp
-
