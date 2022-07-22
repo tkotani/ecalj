@@ -1,5 +1,5 @@
 module m_xclda
-  public evxcp,evxcv,vxcgr2,vxnloc,vxcgga
+  public evxcp,evxcv ,vxcgr2,vxnloc !,vxcgga
   private
 contains
 subroutine vxcgga(lxcg,n,nsp,rhop,rhom,grhop,grhom,ggrhop,ggrhom, &

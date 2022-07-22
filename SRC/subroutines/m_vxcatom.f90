@@ -1,9 +1,8 @@
 module m_vxcatom !Vxc LDA for sites (spherical expansion)
-  public vxcnsp,vxc0sp,vxcns5
+  public vxcnsp,vxc0sp 
   private
   contains
-subroutine vxcnsp(isw,a,ri,nr,rwgt,nlm,nsp,rl,lxcfun,rc, &
-     focexc,focex,focec,focvxc,reps,repsx,repsc,rmu,vl,fl,qs)
+subroutine vxcnsp(isw,a,ri,nr,rwgt,nlm,nsp,rl,lxcfun, reps,repsx,repsc,rmu,vl,fl,qs) 
   use m_lgunit,only: stdo
   use m_ropyln,only: ropyln,ropylg
 !  use m_vxcfunc,only: vxcgga
@@ -29,10 +28,10 @@ subroutine vxcnsp(isw,a,ri,nr,rwgt,nlm,nsp,rl,lxcfun,rc, &
   !!         lpert=T  is not supported now.
   !!
   !o Outputs
-  !o   focex :(100s digit lxcfun): integral rc * vx
-  !o   focec :(100s digit lxcfun): integral rc * vc
-  !o   focexc:(100s digit lxcfun): integral rc * vxc
-  !o   focvxc:(100s digit lxcfun): integral rc * (dvxc/drho * rho)
+  !ox   focex :(100s digit lxcfun): integral rc * vx
+  !ox   focec :(100s digit lxcfun): integral rc * vc
+  !ox   focexc:(100s digit lxcfun): integral rc * vxc
+  !ox   focvxc:(100s digit lxcfun): integral rc * (dvxc/drho * rho)
   !o         : for these integrals, see Remarks
   !o   reps  :integral rl*exc
   !o   repsx :integral rl*ex
@@ -47,14 +46,14 @@ subroutine vxcnsp(isw,a,ri,nr,rwgt,nlm,nsp,rl,lxcfun,rc, &
   !l   yl    :YL(rp)
   !l   lxcf  :LD part of LDA+GGA functional
   !r Remarks
-  !r   Perturbation treatment:
-  !r     vxc[rho + rc] = vxc[rho] + rc * (dvxc/drho)
-  !r   Correction to int rho * vxc:
-  !r     int rho * vxc = int rho*vxc[rho] + int rho*rc*(dvxc/drho)
-  !r     Correction = focvxc = int rho * rc * (dvxc/drho)
-  !r   Correction to int rho * exc:
-  !r     Corr = int rho * rc * (dexc/drho) = int rho * rc * (vxc-exc)/rho
-  !r          = int rc * (vxc-exc) = focexc - int rc exc
+  !rxxx   Perturbation treatment:
+  !rxxx     vxc[rho + rc] = vxc[rho] + rc * (dvxc/drho)
+  !rxxx   Correction to int rho * vxc:
+  !rxxx     int rho * vxc = int rho*vxc[rho] + int rho*rc*(dvxc/drho)
+  !rxxx     Correction = focvxc = int rho * rc * (dvxc/drho)
+  !rxxx   Correction to int rho * exc:
+  !rxxx     Corr = int rho * rc * (dexc/drho) = int rho * rc * (vxc-exc)/rho
+  !rxxx          = int rc * (vxc-exc) = focexc - int rc exc
   !r     Second term is not retained.
   !u Updates
   !u   06 Apr 09 Routine calls vxcnls to handle some GGA potentials
@@ -67,8 +66,8 @@ subroutine vxcnsp(isw,a,ri,nr,rwgt,nlm,nsp,rl,lxcfun,rc, &
   implicit none
   integer :: isw,nr,nlm,lxcfun,nsp
   double precision :: ri(nr),reps(nsp),rmu(nsp),repsx(nsp),repsc(nsp), &
-       rwgt(nr),rc(nr),rl(nr,nlm,nsp),vl(nr,nlm,nsp),fl(nr,nlm,1+nsp)
-  double precision :: focexc(nsp),focex(nsp),focec(nsp),focvxc(nsp)
+       rwgt(nr),rl(nr,nlm,nsp),vl(nr,nlm,nsp),fl(nr,nlm,1+nsp) !,rc(nr)
+!  double precision :: focexc(nsp),focex(nsp),focec(nsp),focvxc(nsp)
   double precision :: qs(nsp)
   integer :: nnn,nlmx
   parameter(nnn=122,nlmx=64)
@@ -118,8 +117,8 @@ subroutine vxcnsp(isw,a,ri,nr,rwgt,nlm,nsp,rl,lxcfun,rc, &
      allocate (yl(np*nlm))
      call ropyln(np,p2(1,1),p2(1,2),p2(1,3),lmax,np,yl,r2)
      vlxc=0d0
-     call vxcns2(isw,ri,nr,rwgt,np,wp,yl,nlm,nsp,rl,rc,lxcf, &
-          reps,repsx,repsc,rmu, & !,focexc,focex,focec,focvxc lpert,
+     call vxcns2(isw,ri,nr,rwgt,np,wp,yl,nlm,nsp,rl,lxcf, & 
+          reps,repsx,repsc,rmu, & !,focexc,focex,focec,focvxc lpert,,rc
           vlxc,fl,qs)
      deallocate (yl)
   else
@@ -141,8 +140,8 @@ subroutine vxcnsp(isw,a,ri,nr,rwgt,nlm,nsp,rl,lxcfun,rc, &
 !     call dscal(nr,fpi,rc,1)
 !  endif
 end subroutine vxcnsp
-subroutine vxcns2(isw,ri,nr,rwgt,np,wp,yl,nlm,nsp,rl,rc,lxcf, &
-     rep,repx,repc,rmu,vl,fl,qs) !,focexc,focex,focec,focvxc lpert,
+subroutine vxcns2(isw,ri,nr,rwgt,np,wp,yl,nlm,nsp,rl,lxcf, & 
+     rep,repx,repc,rmu,vl,fl,qs) !,focexc,focex,focec,focvxc lpert, ,rc
   use m_lgunit,only:stdo
   use m_xclda,only:evxcv,evxcp
   !- Make vxc, rep and rmu in sphere, for local XC functional.
@@ -209,8 +208,8 @@ subroutine vxcns2(isw,ri,nr,rwgt,np,wp,yl,nlm,nsp,rl,rc,lxcf, &
 !  logical :: lpert
   integer :: nr,nlm,nsp,lxcf,np,isw
   double precision :: ri(nr),yl(np,nlm),wp(np),rep(nsp),repx(nsp),repc(nsp), &
-       rmu(nsp),rwgt(nr),focexc(nsp),focex(nsp),focec(nsp),focvxc(nsp), &
-       rl(nr,nlm,nsp),vl(nr,nlm,nsp),fl(nr,nlm,nsp+1),rc(nr) &
+       rmu(nsp),rwgt(nr), & !,focexc(nsp),focex(nsp),focec(nsp),focvxc(nsp)
+       rl(nr,nlm,nsp),vl(nr,nlm,nsp),fl(nr,nlm,nsp+1) & !,rc(nr)
        ,ylwp(np,nlm)  !to avoid confusion. Sep2010 takao
   integer :: ilm,ip,ipr,ir,i,n1,ineg(nsp),isw1
   double precision :: weight,suml(0:41),fac,dmach,alfa,ssum(nsp)

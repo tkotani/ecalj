@@ -1,7 +1,7 @@
 module m_locpot
   use m_MPItk,only: master_mpi
   use m_lgunit,only:stdo
-  use m_vxcatom,only: vxcnsp,vxcns5
+  use m_vxcatom,only: vxcnsp
   public locpot
   private
 contains
@@ -639,9 +639,9 @@ contains
     ! ... Generate valence-only rvepsv and rvvxcv (uses v1 as work array)
     call pshpr(max(ipr-31,min(ipr,10)))
     if(debug) write(6,'(a)')' === rho1 valence true density ==='
-    call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho1,lxcfun,w2,w2,w2,w2,w2,rep1,rep1x,rep1c,rmu1,v1,fl,qs)
+    call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho1,lxcfun,rep1,rep1x,rep1c,rmu1,v1,fl,qs)
     if(debug) write(6,'(a)')' === rho2 valence counter density ==='
-    call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,w2,w2,w2,w2,w2,rep2,rep2x,rep2c,rmu2,v1,fl,qs)
+    call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,rep2,rep2x,rep2c,rmu2,v1,fl,qs)
     rvvxcv = sum(rmu1) - sum(rmu2)
     rvepsv = sum(rep1) - sum(rep2)
     rvexv  = sum(rep1x)- sum(rep2x)
@@ -652,15 +652,15 @@ contains
     call pshpr(max(ipr-11,min(ipr,10)))
     if(ipr>=30) write(stdo,*)' Exchange for true density:'
     if(debug) write(stdo,'(a)')' === rhol1 valence+core density. rho2->valence+smooth ==='
-    call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rhol1,lxcfun,w2,w2,w2,w2,w2,rep1,rep1x,rep1c,rmu1,v1,fl,qs)
+    call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rhol1,lxcfun,rep1,rep1x,rep1c,rmu1,v1,fl,qs)
     if(lfoc == 0) then
-       call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,w2,w2,w2,w2,w2,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
+       call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
     else if (lfoc == 1) then !frozen core method.
        if (ipr > 40) print *, 'exchange for smooth density, foca=1:'
        do  isp = 1, nsp
           rho2(1:nr,1,isp)=rho2(1:nr,1,isp) + y0/nsp*rhochs(1:nr)
        enddo
-       call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,w2,w2,w2,w2,w2,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
+       call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
        do  isp = 1, nsp
           rho2(1:nr,1,isp)=rho2(1:nr,1,isp)-y0/nsp*rhochs(1:nr)
        enddo
