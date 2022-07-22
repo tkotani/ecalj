@@ -1,5 +1,6 @@
 subroutine makusp(n0,z,nsp,rmax,lmxa,v,a,nr,rs3,vmtz,pnu,pnz,rsml,ehl, ul,sl,gz,ruu,rus,rss)
   use m_hansr,only: hansr
+  use m_vxtrap,only: vxtrap
   !- Augmentation fcts of pure val,slo (times r) from spherical V and b.c.
   ! ----------------------------------------------------------------------
   !i Inputs

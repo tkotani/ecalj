@@ -67,7 +67,7 @@ subroutine sugcut(mode)
                     if (rsmh(lcut+2,ik) == rsm .AND. eh(lcut+2,ik) == e) goto 12
                  endif
               endif
-              !     ... Get cutoff radius where exp(-gam*gmax)*gmax**l> tol
+              !     ... Get cutoff radius where exp(-gam*gmax)*gmax**l equals tol
               gam = rsm*rsm/4d0
               gmax = 1d0
               do  irep = 1, 10

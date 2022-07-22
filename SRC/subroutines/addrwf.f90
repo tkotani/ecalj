@@ -1,6 +1,7 @@
 module m_addrwf
 contains
   subroutine addrwf(mode,z,l,v,ndg,n1,nr,rofi,rwgt,eadd,ev,fac,gadd, g,s)
+    use m_vxtrap,only: rwftai
     !- Add constant * radial wave function to another radial wave function
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -112,7 +113,8 @@ subroutine wf2lo(l,a,nr,rofi,rwgt,phi,dphi,phip,dphip,phz,dphz, &
   !u   04 Sep 04 Adapted to extended local orbitals
   !u   06 Mar 02 New routine
   ! ----------------------------------------------------------------------
-  use m_addrwf
+  use m_addrwf,only: addrwf
+  use m_vxtrap,only: rwftai
   implicit none
   integer :: l,nr
   double precision :: a,rofi(nr),rwgt(nr),rsml(*),ehl(*)

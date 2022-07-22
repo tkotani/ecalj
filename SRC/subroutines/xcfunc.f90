@@ -854,13 +854,14 @@ end subroutine vxnloc
     ! ln  parameter(um=0.2195149727645171d0,uk=0.8040d0,ul=um/uk)
     ! ln  parameter(um=0.2195149727645171d0,uk=0.4040d0,ul=um/uk)
     parameter(um=0.2195149727645171d0)
-    save uk
-    data uk/0d0/
+!    save uk
+!    data uk/0d0/
 !    logical :: testwritexcfun
-
-    !.....dln: now can change uk
-    if (uk == 0d0) call setuk(0.8040d0)
-    call getuk(uk)
+!
+!.....dln: now can change uk
+!    if (uk == 0d0) call setuk(0.8040d0)
+    !    call getuk(uk)
+    uk=0.8040d0
     ul=um/uk
     !----------------------------------------------------------------------
     !----------------------------------------------------------------------
@@ -1267,17 +1268,6 @@ end subroutine vxnloc
     !     DVCDN = 0.0D0
     RETURN
   end SUBROUTINE CORpw91
-
-  subroutine setuk(uk)
-    implicit none
-    double precision :: uk,uk_value
-    common/ukstor/uk_value
-    uk_value=uk
-    return
-    entry getuk(uk)
-    uk=uk_value
-    return
-  end subroutine setuk
 
   logical function testwritexcfun()
     testwritexcfun=.false.

@@ -127,14 +127,6 @@ subroutine pnunew(eferm)
                  umegam = -(phi/phip)*(-l-1-dlphi)/(-l-1-dlphip)
                  cz = ebar + umegam
                  ebar = cz
-                 !         ... estimate for log der. of wf for constant pot of value C
-                 !             dh_l/dr = l*h_l/r - h_l+1, h=g_l/r**(l+1)
-                 !             when cz -> 0,  dl -> -l-1
-                 !             call bessl(cz*rmt**2,m,fi,gi)
-                 !             dl = (l*gi(l) - gi(l+1))/gi(l)
-                 !             p1 = 0.5d0 - datan(dl)/pi
-                 !             val(1) = rmt
-                 !             slo(1) = dl + 1d0
               endif
               if(lsemicorepz)then
                  ebar=eferm

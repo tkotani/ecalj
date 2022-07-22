@@ -344,7 +344,6 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, &
               call bessl(absqg2*r(ir)**2,lxx,phij,psij)!lmin must be larger than 1,right?
               phij(0:lxx) = phij(0:lxx)*fac2l(0:lxx)*0.5d0 !Andersen factor
               psij(0:lxx) = psij(0:lxx)/fac2l(0:lxx)       !Andersen factor
-             !call bessl2x(absqg2*r(ir)**2,max(2,lx),phij,psij)!second argument must be larger than 1.
               rprod(ir,iprad) = phij(lx)* r(ir) **(lx +1)
            enddo
            print *,' sumchk rprod=',lx,n1,sum(abs(rprod(1:nrofi,iprad)))
@@ -495,7 +494,6 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, &
         !       if(n==2) absqg2 = 2.598177**2
         if(n==2) absqg2 =  .612396**2
         do ir =1,nrofi
-           !call bessl2x(absqg2*r(ir)**2, lxx, phij, psij)
            call bessl(absqg2*r(ir)**2, lxx, phij, psij)
            phij(0:lxx) = phij(0:lxx)*fac2l(0:lxx)*0.5d0 !Andersen factor
            psij(0:lxx) = psij(0:lxx)/fac2l(0:lxx)       !Andersen factor
@@ -789,110 +787,6 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, &
   if (allocated(lprc))    deallocate(lprc)
   return
 end subroutine basnfp_v2
-
-! ! ----------------------------------------------------------------
-! subroutine bessl2x(y,lmax,phi,psi) !I think this is equilavent to bessl2(y,0,lmax,phi,psi)
-!   !- Radial part of Bessel functions
-!   ! ----------------------------------------------------------------
-!   !i Inputs
-!   !i   Y = E * R**2;  lmax
-!   !o Outputs
-!   !o   phi:  first (lmax+1) spherical bessel functions / r^l
-!   !o         for e -> 0 returns phi(l) = 1/(2l+1)!!
-!   !o   psi:  first (lmax+1) spherical hankel functions * r^(l+1)
-!   !o         for e -> 0 returns psi(l) = (2l-1)!!
-!   !r Remarks
-!   ! xxx   Andersen's definition in the limit E->0:
-!   ! xxx   bessel phi(OKA) is phi * (2l-1)!!/2  and
-!   ! xxx   hankel psi(OKA) is psi / (2l-1)!!, making
-!   ! xxx   H(OKA) = r^-l-1 and  J(OKA) = r^l/(2(2l+1))
-!   ! ----------------------------------------------------------------
-!   implicit none
-!   integer :: lmax
-!   double precision :: y
-!   double precision :: phi(lmax+1),psi(lmax+1)
-!   integer :: i,isn,j1,j2,k,l,lmux,lmuxp1,lmuxp2,lp1,nf,tlp1,tmp1,tmp2
-!   double precision :: dt,dt1,dt2,exppr,my,srmy,t,t1,tol
-!   double precision :: dum(420)
-!   !C#ifdef OKA
-!   !C A table of (2l-1)!!
-!   !      integer fac2l(10)
-!   !      data fac2l /1,1,3,15,105,945,10395,135135,2027025,34459425/
-!   !C#endif
-!   real(8):: fac2l
-!   lmux = max0(lmax,2)
-!   if (lmux > 9) call rx( 'bessl2: lmax gt 9')
-!   tol = 1.d-8
-!   my = -y
-!   l = lmux
-! 1 tlp1 = l+l+1
-!   i = 1
-!   do  2  k = 3, tlp1, 2
-!      i = i*k
-! 2 enddo
-!   t1 = 1.d0/dble(i)
-!   dt = 1.d0
-!   t = 1.d0
-!   i = 0
-!   do  3  k = 1, 10000
-!      i = i+2
-!      dt1 = i
-!      dt2 = i+tlp1
-!      dt = dt*my/(dt1*dt2)
-!      t = t+dt
-!      if (dabs(dt) < tol) goto 4
-! 3 enddo
-!   goto 10
-! 4 if (l < lmux) goto 5
-!   dum(1) = t1*t
-!   l = lmux-1
-!   goto 1
-! 5 dum(2) = t1*t
-!   tmp1 = lmux + lmux + 1
-!   tmp2 = tmp1 + 1
-!   nf = tmp1
-!   do  6  k = 3, tmp2
-!      nf = nf-2
-!      dum(k) = nf*dum(k-1) - y*dum(k-2)
-! 6 enddo
-!   lmuxp1 = lmux+1
-!   lmuxp2 = lmux+2
-!   isn = -1
-!   do  7  k = 1, lmuxp1
-!      isn = -isn
-!      j1 = lmuxp2-k
-!      j2 = lmuxp1+k
-!      phi(k) = dum(j1)        !memo: corresponding to fi in besslr (2022-6-10 tk)
-!      psi(k) = dum(j2)*isn
-! 7 enddo
-!   if (y >= 0d0) goto 40
-!   ! ------- NEGATIVE ENERGY CASE ----------
-!   srmy = dsqrt(-y)
-!   psi(2) = 1.d0+srmy
-!   psi(1) = 1.d0
-!   if (lmux < 2) goto 23
-!   tlp1 = 1
-!   do  21  lp1 = 3, lmuxp1
-!      tlp1 = tlp1+2
-!      psi(lp1) = tlp1*psi(lp1-1) - y*psi(lp1-2)
-! 21 enddo
-! 23 exppr = 1.d0/dexp(srmy)
-!   do  22  lp1 = 1, lmuxp1
-!      psi(lp1) = psi(lp1)*exppr
-! 22 enddo
-!   ! -------- EXIT --------
-! 40 continue
-!   ! ifdef OKA 
-!   do  42  lp1 = 1, lmuxp1
-!      phi(lp1) = (phi(lp1)*fac2l(lp1))/2d0 !memo loka=1 case (do 68) of besslr (2022-6-10 tk)
-!      psi(lp1) =  psi(lp1)/fac2l(lp1)
-! 42 enddo
-!   ! endif
-!   return
-! 10 write(*,11) y
-! 11 format(' BESSL2: power series not convergent, E*r**2=',e12.4)
-!   call rx( '')
-! end subroutine bessl2x
 
 real(8) function fac2l(i)
   !C A table of (2l-1)!!

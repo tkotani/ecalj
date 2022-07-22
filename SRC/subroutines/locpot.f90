@@ -19,6 +19,7 @@ contains
     use m_struc_def
     use m_density,only: v0pot,v1pot   !output
     use m_density,only: pnzall,pnuall !output
+    use m_augmat,only: augmat
     implicit none
     intent(in)::    sv_p_orhoat,qmom,vval,gpot0,job,rhobg,nlibu,lmaxu,vorb,lldau,novxc
     ! ----------------------------------------------------------------------

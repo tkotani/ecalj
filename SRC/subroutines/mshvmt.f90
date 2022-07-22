@@ -79,17 +79,6 @@ subroutine mshvmt(ng,gv, kv,cv,smpot,vval)
      !   --- j_l(|rmt*q|)/rmt**l for each G and l=0..lmax ---
      !       Does not evolve correctly in the correct large r limit
      call ropbes(agv,rmt**2,lmxl,cgp,sgp,phil,ng)
-     ! Patch for now
-     !       do  i = 1, ng
-     !         call besslr(agv(i)**2*rmt**2,0,0,phil(i,0),yl)
-     !       enddo
-
-     !   ... Phases exp(-i.G.tau), fast version
-     !       call suphs0(plat,ng,gv,gv2)
-     !       call dinv33(plat,1,qlat,fac)
-     !       call dpzero(q,3)
-     !       call suphas(q,tau,ng,gv2,n1,n2,n3,qlat,cgp,sgp)
-     !   ... Phases calculated straightforwardly.  Fast enough not to matter.
      call dscal(3,alat,tau,1)
      do  i = 1, ng
         fac = -(tau(1)*gv2(i,1)+tau(2)*gv2(i,2)+tau(3)*gv2(i,3))

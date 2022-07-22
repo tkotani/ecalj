@@ -1,6 +1,4 @@
-!- Radial part of Bessel and Hankel functions, Standard definitions. 
-subroutine bessl(y,lmax,fi,gi)
-!subroutine besslr(y,lmin,lmax,fi,gi)!(y,loka,lmin,lmax,fi,gi) !loka=0 only now 2022-6-10
+subroutine bessl(y,lmax,fi,gi)!- Radial part of Bessel and Hankel functions, Standard definitions. 
   ! ----------------------------------------------------------------------
   !i Inputs:
   !i   y     :y = e*r**2 = z**2 = (kappa*r)**2 = -(akap*r)**2, Im kappa>=0
@@ -278,57 +276,3 @@ subroutine bessl(y,lmax,fi,gi)
 ! 68   enddo
 !  endif
 end subroutine bessl
-
-
-! subroutine bessl(y,lmax,fi,gi) ! Bessel and Hankel functions, standard definitions
-!   implicit none
-!   integer :: lmax,lmin=0
-!   double precision :: y,fi(0:lmax),gi(0:lmax)
-!   call besslr(y,lmin,lmax,fi,gi)
-! end subroutine bessl
-
-! subroutine bessl2(y,lmin,lmax,fi,gi)!- Bessel and Hankel functions, Andersen's definitions
-!   implicit none
-!   integer :: lmin,lmax,l
-!   double precision :: y,fi(lmin:lmax),gi(lmin:lmax),fac2l(0:lmax)
-!   call besslr(y,lmin,lmax,fi,gi)
-!   ! !Andersen's factor multipled (do 68 in besslr)
-!   fac2l(0) = 1d0
-!   do  l = 1, lmax
-!      fac2l(l) = fac2l(l-1) * (l+l-1)
-!   enddo
-!   do  68  l = lmin, lmax 
-!      fi(l) = fi(l)*fac2l(l)*0.5d0
-!      gi(l) = gi(l)/fac2l(l)
-! 68 enddo
-! end subroutine bessl2
-
-! subroutine besslm(y,lmax,fi,gi)
-!   !- Radial part of Bessel functions, standard definitions
-!   !  See besslr for definitions.
-!   !  For y=0, fi(l) = (2l-1)!!, gi(l) = 1/(2l+1)!!
-!   !     implicit none
-!   ! Passed variables:
-!   integer :: lmax
-!   double precision :: y,fi(0:lmax),gi(0:lmax)
-!   call besslr(y,0,lmax,fi,gi)
-! end subroutine besslm
-
-
-!      subroutine fmain
-!      implicit none
-!      integer lmin,lmax,il
-!      double precision fi(-3:10),gi(-3:10),y
-
-!      fi = -99d0
-!      gi = -99d0
-!      lmin = -1
-!      lmax =  2
-!      y = 1.1d0
-
-!      call besslr(y,0,lmin,lmax,fi(lmin),gi(lmin))
-!      print *, sngl(fi(lmin:lmax+1))
-!      print *, sngl(gi(lmin:lmax+1))
-
-!      end
-
