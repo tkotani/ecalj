@@ -19,6 +19,7 @@ module m_bandcal !band structure calculation
   use m_addrbl,only: Addrbl,swtk,Swtkzero
   use m_lgunit,only:stdo
   use m_augmbl,only: aughsoc
+  use m_makusq,only: makusq
   use m_ftox
   !! outputs ---------------------------
   public m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce,m_bandcal_symsmrho
@@ -390,7 +391,7 @@ contains
     complex(8),allocatable ::aus(:,:,:,:,:)
     allocate(aus(nlmax,ndham*nspc,3,nsp,nbas))
     aus=0d0
-    call makusq(0 , nbas,0, nev, isp,1,qp,evec, aus )
+    call makusq(0 , nbas,[-999], nev, isp,1,qp,evec, aus )
     lmxax = ll(nlmax)
     iot = dcmplx(0d0,1d0)
     ichan = 0

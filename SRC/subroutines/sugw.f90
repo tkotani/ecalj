@@ -23,6 +23,7 @@ contains
     use m_hamindex0,only: Readhamindex0, nlindx
     use m_density,only: v0pot,pnuall,pnzall
     use m_augmbl,only: aughsoc
+    use m_makusq,only: makusq
     use m_ftox
     implicit none
     !! == Driver for fpgw (to prepare eigenfuncitons for fpgw) ==
@@ -496,7 +497,7 @@ contains
           nlmax = mxorb / nkaph
           allocate(aus_zv(nlmax*ndham*3*nsp*nbas))
           aus_zv=0d0
-          call makusq ( 1 ,  nbas,0, nev,  isp, 1 , qp , evec , aus_zv )
+          call makusq ( 1 ,  nbas,[-999], nev,  isp, 1 , qp , evec , aus_zv )
           call gwcphi ( isp , nsp , nlmax , ndham , nev &
                , nbas , ipb , lmxax , nlindx , ndima , ppn , aus_zv , cphi &
                ( 1 , 1 , isp ) , cphin ( 1 , 1 , isp ) )

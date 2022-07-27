@@ -145,15 +145,12 @@ subroutine gennlat(pos,nbas,plat,nk1,nk2,nk3,npairmx,npair,nlat,nqwgt,nlatS,nlat
            enddo
         enddo
         npair(ib1,ib2)= nnn
-        !$$$c check write
-        !$$$          if(debug>0) then
         !$$$            write(6,"(a,2i4,2x,i6)") ' ib1 ib2 npair=',ib1,ib2,npair(ib1,ib2)
         !$$$            do ni = 1,npair(ib1,ib2)
         !$$$              posp =  pos(:,ib1)-pos(:,ib2) + matmul(plat,nlat(:,ni,ib1,ib2))
         !$$$              rrr = sqrt(sum(posp**2))
         !$$$              write(6,"(i6,3x,3i3,f8.3,i5)") ni,nlat(1:3,ni,ib1,ib2),rrr,nqwgt(ni,ib1,ib2)
         !$$$            enddo
-        !$$$          endif
      enddo
   enddo
   do ib1=1,nbas

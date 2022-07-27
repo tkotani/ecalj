@@ -250,14 +250,18 @@ contains
     double precision :: xx(n0),wt,p(3)
     integer :: ib,is,io,jo,l2,kp,ie,ir,ioff,nlm1,nlm2,iq,kb,lt,i
     integer::ncutt
-!    
+    complex(8):: phase(ng),img=(0d0,1d0)
+    real(8),parameter:: pi = 4d0*datan(1d0),tpi = 2d0*pi
     psi=0d0 
     if(nlmto == 0) return
     do ib = 1, nbas
        is=ispec(ib) !ssite(ib)%spec
        p=rv_a_opos(:,ib) !ssite(ib)%pos
        ncut=ngcut(:,:,is)
-       call suphas(q,p,ng,iv,n1,n2,n3,qlat,cosgp,singp)
+!       call suphas(q,p,ng,iv,n1,n2,n3,qlat,cosgp,singp)
+       phase = exp(-img*tpi*sum(p*q)) * exp(-img*tpi*matmul(p, matmul(qlat, transpose(iv))))
+!       cosgp=dreal(cc)
+!       singp=dimag(cc)
        call orblib(ib) !Return norb,ltab,ktab,offl
        call uspecb(is,rsmh,eh)
        call gtbsl1(7+16,norb,ltab,ktab,rsmh,eh,ntab,blks)
@@ -297,7 +301,7 @@ contains
           endblock rsibl5block 
        enddo
        do  i = 1,ng  ! psi= exp(i G R_i) * psi0
-          psi(i,:,:) = psi(i,:,:)+ psi0(i,:,:)*dcmplx(cosgp(i),singp(i)) 
+          psi(i,:,:) = psi(i,:,:)+ psi0(i,:,:)*phase(i) !dcmplx(cosgp(i),singp(i)) 
        enddo
        if (mode == 1) then
           rsibl4block: block
@@ -480,7 +484,7 @@ contains
        allocate(ivp(1))
     endif
     ! --- Tables of energies, rsm, indices to them ---
-    call tbhsi(sspec,nspec,nermx,net,etab,ipet,nrt,rtab,iprt,ltop)
+    call tbhsi(nspec,nermx,net,etab,ipet,nrt,rtab,iprt,ltop)
     ! --- Allocate and occupy arrays for yl, energy factors, rsm factors ---
     nlmtop = (ltop+1)**2
     allocate(w_ogq(ng*3),w_oyl(ng*nlmtop),w_oylw(ng*nlmtop), w_og2(ng), w_ohe(ng*net), w_ohr(ng*nrt))

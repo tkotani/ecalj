@@ -63,6 +63,7 @@ contains
 
   subroutine m_clsmode_set1(nmx,jsp,iq,qp,nev,t_zv)
     use m_igv2x,only: ndimhx
+    use m_makusq,only: makusq
     integer:: nmx,jsp,iq,nev
     real(8)::qp(3)
     complex(8):: t_zv(1:ndimhx,1:nmx)

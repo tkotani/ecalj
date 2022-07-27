@@ -275,6 +275,7 @@ contains
     use m_smhankel,only: hxpbl
     use m_lattic,only: rv_a_opos
     use m_smhankel,only: hxpos
+    use m_hansr,only:corprm
     !- Makes the site densities for overlapped free atoms.
     ! ----------------------------------------------------------------------
     !i Inputs

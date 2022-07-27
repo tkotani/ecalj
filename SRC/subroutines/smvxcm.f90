@@ -7,6 +7,7 @@ contains
     use m_lattic,only: lat_vol
     use m_lgunit,only:stdo
     use m_xclda,only: evxcp,evxcv
+    use m_hansr,only:corprm
     !- XC potential for smooth mesh density
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -388,6 +389,7 @@ contains
     use m_struc_def  
     use m_lattic,only: rv_a_opos
     use m_lmfinit,only: ispec
+    use m_hansr,only:corprm
     !- For foca, adds force from shift of smH-head against Vxc.
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -651,6 +653,7 @@ contains
     use m_struc_def           
     use m_lmfinit,only:lat_alat
     use m_lattic,only: lat_vol,rv_a_opos
+    use m_hansr,only:corprm
     !- For foca, add together density of smoothed part of core
     ! ----------------------------------------------------------------------
     !i Inputs

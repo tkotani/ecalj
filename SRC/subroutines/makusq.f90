@@ -1,3 +1,7 @@
+module m_makusq
+  public makusq
+  private
+  contains
 subroutine makusq(mode,nsites,isite, nev,isp,iq,q,evec,  aus)
   use m_lmfinit,only: ispec,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nkapii,lhh,rsma
   use m_suham,only: ndham=>ham_ndham
@@ -146,13 +150,13 @@ subroutine makusq(mode,nsites,isite, nev,isp,iq,q,evec,  aus)
   call tcx('makusq')
 end subroutine makusq
 ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-subroutine pusq1(mode,ia,isp,nspc,nlmax,lmxh,nbas, &
-     q,ndham,ndimh,napw,igvapw,nev,evec,vh,dh,vp,dp,ppnl, &
+subroutine pusq1(mode,ia,isp,nspc,nlmax,lmxh,nbas,q,ndham,ndimh,napw,igvapw,nev,evec,vh,dh,vp,dp,ppnl, &
      au,as,az)
   use m_lmfinit,only: nkapii,ispec,sspec=>v_sspec
   use m_uspecb,only: uspecb
   use m_bstrux,only: bstrux_set,bstr
   use m_lattic,only: rv_a_opos
+  use m_rlocbl,only: rlocb1
   !- Add to the coefficient for the projection onto (u,s) for one site
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -257,9 +261,7 @@ subroutine pusq1(mode,ia,isp,nspc,nlmax,lmxh,nbas, &
   deallocate(a_zv) 
   call tcx('pusq1')
 end subroutine pusq1
-
-subroutine pusq2(mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma, &
-     cPkL,r,evec,vh,dh,vp,dp,au,as,az)
+subroutine pusq2(mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma,cPkL,r,evec,vh,dh,vp,dp, au,as,az)
   use m_orbl,only: Orblib,ktab,ltab,offl,norb
   !- Extract projection of eigenstate onto (u,s,z) for sphere at site ia
   ! ----------------------------------------------------------------------
@@ -354,3 +356,4 @@ subroutine pusq2(mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma, &
   endif
   !     call tcx('pusq2')
 end subroutine pusq2
+end module m_makusq

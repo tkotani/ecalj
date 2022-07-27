@@ -242,6 +242,7 @@ subroutine pvdf1 ( job ,  nsp , ib , iv0 & ! & slat ,
   use m_lmfinit,only:lat_alat,pnux=>pnusp,pzx=>pzsp
   use m_lattic,only: lat_vol,rv_a_opos
   use m_supot,only: lat_nabc
+  use m_hansr,only:corprm
   ! need to modify texts.
   !- Estimate shift in local density for one site
   ! ----------------------------------------------------------------------
@@ -643,6 +644,7 @@ subroutine pvdf4(qmom,ng,g2,yl,cs,sn,iv,qlat,cv)
   use m_lmfinit,only: nbas,ispec,sspec=>v_sspec
   use m_lattic,only: lat_vol,rv_a_opos
   use m_supot,only: lat_nabc
+  use m_hansr,only:corprm
   !- Makes smoothed ves from smoothed density and qmom, incl nuc. charge
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -738,5 +740,19 @@ subroutine pvdf4(qmom,ng,g2,yl,cs,sn,iv,qlat,cv)
 40 enddo
   call tcx('pvdf4')
 end subroutine pvdf4
-
+subroutine suphs0(plat,ng,gv,iv)
+  integer :: ng,iv(ng,3)
+  double precision :: gv(ng,3),plat(3,3)
+  iv = nint(matmul(gv,plat))
+end subroutine suphs0
+subroutine suphas(q,p,ng,iv,n1,n2,n3,qlat,cosgp,singp)! exp(-i p* (q+G)) for a list of reciprocal lattice vectors
+  implicit none
+  integer :: ng,iv(ng,3),n1,n2,n3
+  double precision :: p(3),cosgp(ng),singp(ng),qlat(3,3),q(3),gg(3,ng)
+  complex(8):: cc(ng),img=(0d0,1d0)
+  real(8):: tpi = 8d0*datan(1d0)
+  cc = exp(-img*tpi*sum(p*q)) * exp(-img*tpi*matmul(p, matmul(qlat, transpose(iv))))
+  cosgp=dreal(cc)
+  singp=dimag(cc)
+end subroutine suphas
 end module m_dfrce

@@ -2,6 +2,7 @@ subroutine rhogkl ( ib1 , ib2 , nsp , mode , sv_p_orhoat , kmax , qkl )
   use m_lgunit,only:stdo
   use m_struc_def  
   use m_lmfinit,only: ispec,sspec=>v_sspec
+  use m_hansr,only:corprm
   !- G_kL expansion of valence sphere densities
   ! ----------------------------------------------------------------------
   !i Inputs

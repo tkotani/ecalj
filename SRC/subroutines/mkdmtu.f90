@@ -4,6 +4,7 @@ subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu)
   use m_subzi, only: wtkb=>rv_a_owtkb
   use m_igv2x,only: ndimh
   use m_suham,only: ndham=>ham_ndham,ndhamx=>ham_ndhamx
+  use m_makusq,only: makusq
   !- Calculate density matrix for LDA+U channels
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -50,7 +51,7 @@ subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu)
   real(8)::qp(3)
   allocate(aus(nlmax,ndham*nspc,3,nsp,nbas))! aus(2*nlmax*ndhamx*3*nsp*nbas))
   aus=0d0
-  call makusq(0, nbas,0 , nev,  isp, 1, qp, evec, aus )
+  call makusq(0, nbas,[0] , nev,  isp, 1, qp, evec, aus )
   iblu = 0
   do  ib = 1, nbas
      if (lldau(ib) == 0) goto 10

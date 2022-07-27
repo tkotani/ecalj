@@ -168,6 +168,7 @@ contains
     use m_elocp,only: elocp
     use m_locpot,only: Locpot
     use m_smvxcm,only: smvxcm
+    use m_smves,only: smves
     use m_ftox
     ! other other output in module variables
     ! for job=0

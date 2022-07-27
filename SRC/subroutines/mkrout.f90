@@ -55,6 +55,7 @@ contains
     use m_struc_def
     use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
     use m_density,only: v0pot,v1pot,pnuall,pnzall !read
+    use m_hansr,only:corprm
     !- Assembles local output densities out of the qkkl, and core states
     ! ----------------------------------------------------------------------
     !i Inputs

@@ -2,6 +2,7 @@ subroutine rhomom (sv_p_orhoat, qmom,vsum)
   use m_struc_def
   use m_lmfinit,only: nsp,nbas,sspec=>v_sspec,jnlml,ispec
   use m_lgunit,only:stdo
+  use m_hansr,only:corprm
   !- Multipole moments of valence sphere densities
   ! ----------------------------------------------------------------------
   !i Inputs

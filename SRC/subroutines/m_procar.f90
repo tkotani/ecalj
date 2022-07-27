@@ -24,6 +24,7 @@ contains
     if(nexist) close(iprocar2)
   end subroutine m_procar_closeprocar
   subroutine m_procar_init(iq,isp,ef0,evl,ndimh,jsp,qp,nev,evec,ndimhx,nmx)
+    use m_makusq,only: makusq
     implicit none
     complex(8):: evec(ndimhx,nmx)
     character*1000::ccc
@@ -52,7 +53,7 @@ contains
     endif
     allocate( auspp(nlmax,ndhamx,3,nsp,nbas) )
     auspp = 0d0
-    call makusq(1, nbas,0, nev,jsp,1,qp,evec, auspp )
+    call makusq(1, nbas,[-999], nev,jsp,1,qp,evec, auspp )
     jspini=isp
     jspend=isp
     jspp=isp

@@ -4,6 +4,7 @@ subroutine vesgcm(qmom,ng,gv,kv,cv,cg1,cgsum,smpot,f,gpot0,hpot0,qsmc,zsum,vrmt)
   use m_lattic,only: lat_vol,rv_a_opos
   use m_lgunit,only:stdo
   use m_supot,only: k1,k2,k3
+  use m_hansr,only:corprm
   !- Adds contribution from compensating gaussians to smooth estat pot.
   ! ----------------------------------------------------------------------
   !i Inputs
