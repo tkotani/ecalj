@@ -3589,6 +3589,57 @@ contains
     call splrho(i+1,nsp,nr,nlml,rho1,rho2,sum1)
 
   end subroutine pkl2ro
+
+subroutine rhoqm(smrho,k1,k2,k3,n1,n2,n3,nsp,vol,qsum)
+  !- Return charge, magnetic moment of smooth density
+  ! ----------------------------------------------------------------------
+  !i Inputs
+  !i   smrho :smooth density on uniform mesh
+  !i   k1..k3:
+  !i   n1..n3:
+  !i   nsp   :2 for spin-polarized case, otherwise 1
+  !i   vol   :cell volume
+  !o Outputs
+  !o   qsum  :qsum(1) = smrho(+) + smrho(-)
+  !o         :qsum(2) = smrho(+) - smrho(-) (for nsp=2 only)
+  !l Local variables
+  !l         :
+  !r Remarks
+  !r   Input smrho is assumed to be (rho1, rho2)
+  !r   If instead smrho=(rho1+rho2,rho1-rho2) => qsum(1,2) = q+amom, q-amom
+  !u Updates
+  !u   13 Dec 08 First created
+  ! ----------------------------------------------------------------------
+  implicit none
+  ! ... Passed parameters
+  integer :: k1,k2,k3,n1,n2,n3,nsp
+  double complex smrho(k1,k2,k3,nsp)
+  double precision :: vol,qsum(2)
+  ! ... Local parameters
+  integer :: i,i1,i2,i3
+  double precision :: sumi,q1,fac
+  qsum(1) = 0
+  qsum(2) = 0
+  fac = vol/(n1*n2*n3)
+  q1 = 0
+  do  i = 1, nsp
+     sumi = 0
+     do  i3 = 1, n3
+        do  i2 = 1, n2
+           do  i1 = 1, n1
+              sumi = sumi + dble(smrho(i1,i2,i3,i))
+           enddo
+        enddo
+     enddo
+     if (i == 2) qsum(2) = qsum(2) + q1-sumi
+     q1 = sumi
+     qsum(1) = qsum(1) + sumi
+  enddo
+  qsum(1) = fac*qsum(1)
+  qsum(2) = fac*qsum(2)
+  !     write(*,333) qsum
+  ! 333 format(' rhoqm : istl charge, moment = ',2f13.7)
+end subroutine rhoqm
 end module m_mixrho
 
 subroutine splrho(mode,nsp,nr,nlml,rho1,rho2,rhoc)

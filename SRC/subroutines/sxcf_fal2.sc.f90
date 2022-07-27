@@ -245,13 +245,12 @@ contains
                   nwxic(icount)=nwxi     ! get_nwx is not written clearly, but works and not time-consuming.
                   nwxc(icount)=nwx
                   nt_maxc(icount)=nt_max
-150            enddo !continue
-140         enddo !continue
-120      enddo !continue
-130   enddo !continue
+150            enddo 
+140         enddo 
+120      enddo
+130   enddo 
       if(icount/=count(irkip/=0)) call rx('sxcf: icount/=count(irkip/=0)')
     EndBlock IcountBlock
-
     ! open WV* files     
     if(.not.exchange) then
        allocate(ifrcw(iqini:iqend),ifrcwi(iqini:iqend))
@@ -349,9 +348,7 @@ contains
          complex(8):: zmelcww(1:ntqxx,1:nstate,1:ngb)
          zmelcww=0d0
          allocate(zmelc(1:ntqxx,1:nstate,1:ngb))
-         do itp=1,ntqxx
-            zmelc(itp,:,:)=transpose(dconjg(zmel(:,:,itp))) !zmelc
-         enddo
+         forall(itp=1:ntqxx) zmelc(itp,:,:)=transpose(dconjg(zmel(:,:,itp))) 
          !-----
          CorrelationSelfEnergyImagAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
            real(8):: esmrx(nstate),omegat(ntqxx),wgtim(0:npm*niw,ntqxx,nstate)
@@ -410,8 +407,7 @@ contains
              do ix = nwxi,nwx 
                 do itp=lbound(zsec,1),ubound(zsec,1)
                    nit_(itp,ix)=count([((.not.ititpskip(it,itp)).and.iwgt3(it,itp)==ix,it=1,nt_max)])
-                   if(nit_(itp,ix)/=0)write(6,"('icou ix itp ncou/nall=',10i5)")&
-                        &          icount,ix,itp,nit_(itp,ix), ntqxx*nt_max
+                   if(nit_(itp,ix)/=0)write(6,"('icou ix itp ncou/nall=',10i5)")icount,ix,itp,nit_(itp,ix),ntqxx*nt_max
                 enddo
              enddo
              ncoumx=maxval(nit_)
@@ -447,8 +443,8 @@ contains
                    do iit=1,nit_(itp,ix) !for it for given itp,ix
                       it =itc(iit,ix,itp)  !wv33 gives interpolated value of W(we_(it,itp))
                       wv33 = wv3(:,:,0)*wgt3(0,it,itp) &
-                           &             + wv3(:,:,1)*wgt3(1,it,itp) &
-                           &             + wv3(:,:,2)*wgt3(2,it,itp) 
+                           + wv3(:,:,1)*wgt3(1,it,itp) &
+                           + wv3(:,:,2)*wgt3(2,it,itp) 
                       zmelcww(itp,it,:)= zmelcww(itp,it,:) +  matmul(zmelc(itp,it,:),wv33)
                    enddo
                 enddo
@@ -457,11 +453,9 @@ contains
          EndBlock CorrelationSelfEnergyRealAxis
          !  zsec accumulated
          call matma(zmelcww,[(transpose(zmel(:,:,itpp)),itpp=lbound(zmel,3),ubound(zmel,3))],zsec,&
-              &      size(zsec,1), size(zmelcww,2)*size(zmelcww,3), size(zsec,2))
+              size(zsec,1), size(zmelcww,2)*size(zmelcww,3), size(zsec,2))
        EndBlock zmelcww
-       do itp=lbound(zsec,1),ubound(zsec,1)
-          zsec(itp,itp)= dreal(zsec(itp,itp))+img*min(dimag(zsec(itp,itp)),0d0) !enforce Imzsec<0
-       enddo
+       forall(itp=lbound(zsec,1):ubound(zsec,1)) zsec(itp,itp)=dreal(zsec(itp,itp))+img*min(dimag(zsec(itp,itp)),0d0) !enforce Imzsec<0
        call Deallocate_zmel()
        deallocate(zmelc)
        if(verbose()>50) call timeshow("11after alagr3z iw,itp,it cycles")

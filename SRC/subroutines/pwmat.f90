@@ -1,3 +1,7 @@
+module m_pwmat
+  public pwmat
+  private
+  contains
 ! Matrix elements (IPW,IPW) and (IPW,envelope function)
 subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
   use m_struc_def     
@@ -204,6 +208,8 @@ subroutine ipwovl(alat,plat,qlat,ng1,igv1,ng2,igv2,nbas, rmax,bas,ppovl)
   enddo
   deallocate(ppox)
 end subroutine ipwovl
+end module m_pwmat
+
 subroutine matgg2(alat,bas,rmax,nbas,vol,tpibaqlat,igv,ppovl)
   ! ----------------------------------------------------------------------
   !i Inputs

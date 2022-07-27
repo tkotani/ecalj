@@ -69,7 +69,7 @@ subroutine dfrce (job, sv_p_orhoat , sv_p_orhat1 ,  qmom , smrho , smrout , dfh 
   real(8) ,allocatable :: yl_rv(:)
   real(8) ,allocatable :: g2_rv(:)
   real(8) ,allocatable :: g_rv(:)
-  integer ,allocatable :: iv_iv(:)
+  integer ,allocatable :: iv_iv(:,:)
   complex(8) ,allocatable :: wk1_zv(:)
   complex(8) ,allocatable :: wk2_zv(:)
   complex(8) ,allocatable :: wk3_zv(:)
@@ -106,8 +106,8 @@ subroutine dfrce (job, sv_p_orhoat , sv_p_orhat1 ,  qmom , smrho , smrout , dfh 
   allocate(g_rv(ng*3))
   call suylg ( ltop , alat , ng , rv_a_ogv , g_rv , g2_rv , yl_rv)
   if (allocated(g_rv)) deallocate(g_rv)
-  allocate(iv_iv(ng*3))
-  call suphs0 ( plat , ng , rv_a_ogv , iv_iv )
+  allocate(iv_iv(ng,3))
+  iv_iv = nint(matmul(rv_a_ogv,plat))
   ! --- Make ves(rhoin,q) ---
   allocate(smro_zv(nn))
   allocate(cs_(ng), sn_(ng))
@@ -233,10 +233,8 @@ subroutine dfrce (job, sv_p_orhoat , sv_p_orhat1 ,  qmom , smrho , smrout , dfh 
   if (allocated(ceps_zv)) deallocate(ceps_zv)
   call tcx('dfrce')
 end subroutine dfrce
-
-subroutine pvdf1 ( job ,  nsp , ib , iv0 & ! & slat ,
-  , qmom , qmout , ng , gv , g2 , yl , iv , qlat , kmax , cnomin &
-       , ceps , cdvxc , cvin , sv_p_orhoat , fes1 , fes2 , fxc )
+subroutine pvdf1(job,nsp,ib,iv0,qmom, qmout,ng,gv,g2,yl,iv,qlat,kmax,cnomin &
+       ,ceps,cdvxc,cvin , sv_p_orhoat, fes1 , fes2 , fxc )
   use m_struc_def  !Cgetarg
   use m_lmfinit,only: nbas,ispec,sspec=>v_sspec
   use m_lmfinit,only:lat_alat,pnux=>pnusp,pzx=>pzsp
@@ -272,39 +270,29 @@ subroutine pvdf1 ( job ,  nsp , ib , iv0 & ! & slat ,
   !o   fes1,fes2,fxc
   ! ----------------------------------------------------------------------
   implicit none
-  ! ... Passed parameters
   integer:: ng , nsp , iv0 , kmax , ib , job , iv(ng,3),i_copy_size
   type(s_rv1) :: sv_p_orhoat(3)
-
   real(8):: qmom(*) , qmout(*) , gv(ng,3) , tau(3) , fes1(3) , &
        fes2(3) , fxc(3) , g2(ng) , yl(ng,1) , cs(ng) , sn(ng) , qlat(3,3)
-!  type(s_spec)::sspec(*)
   double complex cdn0(ng,nsp),cdn(ng),cdv(ng),ceps(ng), &
        cnomin(ng),cdvxc(ng,nsp),cvin(ng)
-  ! ... Local parameters
-  integer :: ig,ilm,l,lmxl,m,nlm,nlmx,k,is,jv0,jb,js,ll,n0, &
-       nrmx
+  integer :: ig,ilm,l,lmxl,m,nlm,nlmx,k,is,jv0,jb,js,ll,n0, nrmx
   parameter (nlmx=64, nrmx=1501, n0=10)
-  integer :: lmxa,nr,nxi,ie,ixi,job0,kcor,lcor,lfoc,i, &
-       ngabc(3),n1,n2,n3,nlml
+  integer :: lmxa,nr,nxi,ie,ixi,job0,kcor,lcor,lfoc,i, ngabc(3),n1,n2,n3,nlml
   equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-  double precision :: pi,alat,ceh,cofg,cofh,qcorg,qcorh,qsc,rfoc,rg, &
-       vol,y0,z,v(3),df(0:20),feso(3),qcor(2),gpot0(nlmx,3),fesdn(3), &
+  double precision :: alat,ceh,cofg,cofh,qcorg,qcorh,qsc,rfoc,rg, &
+       vol,z,v(3),df(0:20),feso(3),qcor(2),gpot0(nlmx,3),fesdn(3), &
        fesgg(3),pnu(n0),pnz(n0),a,rmt,qloc,exi(n0),hfc(n0,2), &
-       qfat,gam,qall,qc,qval,qg,e,aa,q0(3),sum
+       qfat,gam,qall,qc,qval,qg,e,aa,q0(3),ssum
   double precision :: rwgt(nrmx),cc,gamf,cfoc,cvol,rsmfa
-  !     parameter (k0=3)
-  !     double complex gkl(0:k0,nlmx)
-  double complex tpia,cxx,phase,gc0,xc0,cof(nlmx)
-  ! ... Heap
+  complex(8):: tpia,cxx,gc0,xc0,cof(nlmx),phase(ng),img=(0d0,1d0)
+  real(8),parameter:: pi = 4d0*datan(1d0),tpi=2d0*pi,y0 = 1d0/dsqrt(4d0*pi)
   data q0 /0d0,0d0,0d0/
   call tcn('pvdf1')
   ngabc=lat_nabc
   alat=lat_alat
   vol=lat_vol
   call stdfac(20,df)
-  pi = 4d0*datan(1d0)
-  y0 = 1d0/dsqrt(4d0*pi)
   tpia = 2*pi*dcmplx(0d0,-1d0)/alat
   job0 = mod(job,10)
   call dpzero(cdn,2*ng)
@@ -316,7 +304,9 @@ subroutine pvdf1 ( job ,  nsp , ib , iv0 & ! & slat ,
   call dpzero(gpot0,nlmx*3)
   is=ispec(ib) 
   tau=rv_a_opos(:,ib) 
-  call suphas(q0,tau,ng,iv,n1,n2,n3,qlat,cs,sn)
+!  call suphas(q0,tau,ng,iv,n1,n2,n3,qlat,cs,sn)
+  phase = exp(-img*tpi*sum(q0*tau)) * exp(-img*tpi*matmul(tau, matmul(qlat, transpose(iv))))
+  
   ! --- Unscreened rigid charge density shift, job 1, in cdn0 ---
   if (job0 == 1) then
      z=sspec(is)%z
@@ -337,8 +327,8 @@ subroutine pvdf1 ( job ,  nsp , ib , iv0 & ! & slat ,
      call radwgt(rmt,a,nr,rwgt)
      nlml = (lmxl+1)**2
      call radsum ( nr , nr , nlml , nsp , rwgt , sv_p_orhoat( 1 )%v , qloc )
-     call radsum ( nr , nr , nlml , nsp , rwgt , sv_p_orhoat( 2 )%v , sum )
-     qloc = (qloc-sum)/y0
+     call radsum ( nr , nr , nlml , nsp , rwgt , sv_p_orhoat( 2 )%v , ssum )
+     qloc = (qloc-ssum)/y0
      qfat = 0d0
      do  i  = 1, nsp
         do  ie = 1, nxi
@@ -355,7 +345,7 @@ subroutine pvdf1 ( job ,  nsp , ib , iv0 & ! & slat ,
            cc = -4d0*pi*hfc(ixi,i)*y0/vol
            do  15  ig = 1, ng
               aa = cc*dexp(gam*(e-g2(ig)))/(e-g2(ig))
-              cdn0(ig,i) = cdn0(ig,i) + aa*dcmplx(cs(ig),sn(ig))
+              cdn0(ig,i) = cdn0(ig,i) + aa*phase(ig) !dcmplx(cs(ig),sn(ig))
 15         enddo
 142     enddo
 141  enddo
@@ -365,7 +355,7 @@ subroutine pvdf1 ( job ,  nsp , ib , iv0 & ! & slat ,
      cc = qg/vol/nsp
      do   i = 1, nsp
         do   ig = 1, ng
-           cdn0(ig,i)=cdn0(ig,i)+cc*dcmplx(cs(ig),sn(ig))*dexp(-gam*g2(ig))
+           cdn0(ig,i)=cdn0(ig,i)+cc*phase(ig)*dexp(-gam*g2(ig))
         enddo
      enddo
   endif
@@ -396,8 +386,8 @@ subroutine pvdf1 ( job ,  nsp , ib , iv0 & ! & slat ,
   do  30  ig = 2, ng
      v = gv(ig,:)
      !   ... Accumulate unscreened smoothed core+nuclear density
-     phase = dcmplx(cs(ig),sn(ig))
-     gc0 = phase*dexp(-gam*g2(ig))*cvol
+     !phase = dcmplx(cs(ig),sn(ig))
+     gc0 = phase(ig)*dexp(-gam*g2(ig))*cvol
      xc0 = dcmplx(0d0,1d0)*dconjg(tpia*cvin(ig))*gc0*vol
      ilm = 0
      do  32  l = 0, lmxl
@@ -412,7 +402,7 @@ subroutine pvdf1 ( job ,  nsp , ib , iv0 & ! & slat ,
 32   enddo
      !   ... Accumulate unscreened foca density
      aa = dexp(gamf*(ceh-g2(ig)))/(ceh-g2(ig))
-     cdn(ig) = cdn(ig) + cfoc*aa*phase
+     cdn(ig) = cdn(ig) + cfoc*aa*phase(ig)
      !   ... Make the screened shift in input density n0~
      !       Job 1: cdn0 = (valence part of) cdn^u ; cdn = cdn^u
      if (job0 == 1) then
@@ -467,13 +457,14 @@ subroutine pvdf1 ( job ,  nsp , ib , iv0 & ! & slat ,
      nlm = (lmxl+1)**2
      ! ... For this jb, mesh density for all G vectors
      if (nlm > nlmx) call rxi('pvdf1: increase nlmx to',nlm)
-     call suphas(q0,tau,ng,iv,n1,n2,n3,qlat,cs,sn)
+!     call suphas(q0,tau,ng,iv,n1,n2,n3,qlat,cs,sn)
+     phase = exp(-img*tpi*sum(q0*tau)) * exp(-img*tpi*matmul(tau, matmul(qlat, transpose(iv))))
      call dpzero(gpot0,nlmx*3)
      gam = 0.25d0*rg*rg
      do  50  ig = 2, ng
         aa = dexp(-gam*g2(ig))
         gc0 = dcmplx(0d0,1d0)*aa* &
-             dconjg(tpia*cdv(ig))*dcmplx(cs(ig),sn(ig))
+             dconjg(tpia*cdv(ig))*phase(ig) !dcmplx(cs(ig),sn(ig))
         ilm = 0
         do  55  l = 0, lmxl
            gc0 = gc0*dcmplx(0d0,-1d0)
@@ -685,14 +676,13 @@ subroutine pvdf4(qmom,ng,g2,yl,cs,sn,iv,qlat,cv)
   integer :: ig,ib,ilm,is,iv0,l,lmxl,m,nlm,nlmx,nglob,n1,n2,n3, ngabc(3),lfoc
   equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
   parameter (nlmx=64)
-  double precision :: tau(3),df(0:20),pi,y0,vol,rg,qcorg,qcorh,qsc, &
+  double precision :: tau(3),df(0:20),vol,rg,qcorg,qcorh,qsc, &
        cofg,cofh,ceh,rfoc,z,q0(3),gam,gamf,cfoc,cvol,aa
-  double complex cof(nlmx),cfac,phase
+  complex(8):: cof(nlmx),cfac,phase(ng),img=(0d0,1d0)
+  real(8),parameter:: pi = 4d0*datan(1d0),tpi = 2d0*pi,y0 = 1d0/dsqrt(4d0*pi)
   data q0 /0d0,0d0,0d0/
   call tcn('pvdf4')
   call stdfac(20,df)
-  pi = 4d0*datan(1d0)
-  y0 = 1d0/dsqrt(4d0*pi)
   ngabc=lat_nabc
   vol=lat_vol
   ! --- FT of gaussian density, all sites, for list of G vectors ---
@@ -704,7 +694,8 @@ subroutine pvdf4(qmom,ng,g2,yl,cs,sn,iv,qlat,cv)
      rg=sspec(is)%rg
      if (lmxl == -1) goto 10
      call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
-     call suphas(q0,tau,ng,iv,n1,n2,n3,qlat,cs,sn)
+!     call suphas(q0,tau,ng,iv,n1,n2,n3,qlat,cs,sn)
+     phase = exp(-img*tpi*sum(q0*tau)) * exp(-img*tpi*matmul(tau, matmul(qlat, transpose(iv))))
      nlm = (lmxl+1)**2
      if (nlm > nlmx) call rxi('pvdf4: increase nlmx to',nlm)
      ilm = 0
@@ -722,14 +713,13 @@ subroutine pvdf4(qmom,ng,g2,yl,cs,sn,iv,qlat,cv)
      cfoc = -4d0*pi*y0*cofh/vol
      cvol = 1d0/vol
      do  30  ig = 1, ng
-        phase = dcmplx(cs(ig),sn(ig))
         aa = dexp(-gam*g2(ig))*cvol
         do  32  ilm = 1, nlm
-           cv(ig) = cv(ig) + aa*yl(ig,ilm)*cof(ilm)*phase
+           cv(ig) = cv(ig) + aa*yl(ig,ilm)*cof(ilm)*phase(ig)
 32      enddo
         !     ... Add foca hankel part
         aa = dexp(gamf*(ceh-g2(ig)))/(ceh-g2(ig))
-        cv(ig) = cv(ig) + cfoc*aa*phase
+        cv(ig) = cv(ig) + cfoc*aa*phase(ig)
 30   enddo
      iv0 = iv0+nlm
 10 enddo
@@ -745,14 +735,4 @@ subroutine suphs0(plat,ng,gv,iv)
   double precision :: gv(ng,3),plat(3,3)
   iv = nint(matmul(gv,plat))
 end subroutine suphs0
-subroutine suphas(q,p,ng,iv,n1,n2,n3,qlat,cosgp,singp)! exp(-i p* (q+G)) for a list of reciprocal lattice vectors
-  implicit none
-  integer :: ng,iv(ng,3),n1,n2,n3
-  double precision :: p(3),cosgp(ng),singp(ng),qlat(3,3),q(3),gg(3,ng)
-  complex(8):: cc(ng),img=(0d0,1d0)
-  real(8):: tpi = 8d0*datan(1d0)
-  cc = exp(-img*tpi*sum(p*q)) * exp(-img*tpi*matmul(p, matmul(qlat, transpose(iv))))
-  cosgp=dreal(cc)
-  singp=dimag(cc)
-end subroutine suphas
 end module m_dfrce

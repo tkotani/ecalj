@@ -3,7 +3,7 @@ module m_rlocbl
   private
 contains
   subroutine prlcb2(job,ia,nkaph,nlmha,kmax,nlma,isp,cPkL,nlmto,evec,ewgt,evl, qhh,qhp)
-    use m_orbl,only: Orblib,ktab,ltab,offl,norb
+    use m_orbl,only: Orblib,ktab,ltab,offl,norb, ntab,blks
     !- Add one and two-center terms to density coeffs
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -38,14 +38,14 @@ contains
     double complex evec(nlmto),cPkL(0:kmax,nlma)
     integer :: i1,i2,ilm1,ilm2,ilma,io1,io2,iq,k,ik1,ik2,l1,l2,n0,nkap0,nlm11,nlm12,nlm21,nlm22
     parameter (n0=10,nkap0=3)
-    integer ::  blks(n0*nkap0),ntab(n0*nkap0)! orb,ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),
+!    integer ::  blks(n0*nkap0),ntab(n0*nkap0)! orb,ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),
     double precision :: xx
     if (nlmto == 0) return
     call tcn('prlcb2')
     ! --- Loop over all orbitals centered at site ia, incl. local orbs ---
     call orblib(ia)! norb,ltab,ktab,offl
     !     Block into groups of consecutive l
-    call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
+!    call gtbsl4(ia) !1(4,norb,ltab,ktab,xx,xx,ntab,blks)
     do io1 = 1, norb
        l1  = ltab(io1)
        ik1 = ktab(io1)
@@ -356,7 +356,7 @@ contains
 
   subroutine flocbl(nbas,ia,kmax,nkaph,lmxha,nlmha,nlma,lmxa,nlmto, &
        ndimh,isp,evl,evec,ewgt,cPkL,db, sigpp,sighp,ppippz,ppihpz,f)
-    use m_orbl,only: Orblib, norb,ltab,ktab,offl
+    use m_orbl,only: Orblib, norb,ltab,ktab,offl, ntab,blks
     !- Force contribution from augmentation at site ia.
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -404,7 +404,7 @@ contains
     double complex ppippz(0:kmax,0:kmax,nlma,nlma,isp)
     integer :: i,ib,ilm,ilmb,io,iq,k,l2,m,nlm1,nlm2,n0,nkap0
     parameter (n0=10,nkap0=3)
-    integer :: blks(n0*nkap0),ntab(n0*nkap0),oi,ol,iblk
+    integer ::oi,ol,iblk ! blks(n0*nkap0),ntab(n0*nkap0),
     double precision :: wt,xx,ssum(3)
     if (nlmto == 0) return
     call tcn('flocbl')
@@ -415,7 +415,7 @@ contains
     do  ib = 1, nbas
        if (ib == ia) cycle
        call orblib(ib)!norb,ltab,ktab,offl
-       call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
+!       call gtbsl4(ib) !1(4,norb,ltab,ktab,xx,xx,ntab,blks)
        !   ... Grad of psi expansion coeffs from a virtual shift at site ib
        da=0d0 !da can be written as {d cPkL}/{d R}.See rlocb1 to make cPkL. b is used instead of db
        do io = 1, norb
@@ -446,7 +446,7 @@ contains
 
   subroutine flocb2(ia,nlmto,kmax,nkaph,nlmha,nlma,evl,evec, &
        ppippz,sigpp,ppihpz,sighp,cPkL,wk)!lcplxp,
-    use m_orbl,only: Orblib, norb,ltab,ktab,offl
+    use m_orbl,only: Orblib, norb,ltab,ktab,offl, ntab,blks
     !- Make (ppi-evl*sig)*evec
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -486,13 +486,13 @@ contains
     integer :: i,ilm,ilma,ilmb,io,jlm,k,k1,k2,l,ll,nlm1,nlm2,n0,nkap0,ik
     !     .norb
     parameter (n0=10,nkap0=3)
-    integer :: blks(n0*nkap0),ntab(n0*nkap0)!ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),
+!    integer :: blks(n0*nkap0),ntab(n0*nkap0)!ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),
     double precision :: xx
     wk=0d0
     ! ... Add Hsm*Pkl block of ppi-evl*sig times evec
     call orblib(ia)!norb,ltab,ktab,offl
     !     Block evl*ppi contribution in groups of consecutive l
-    call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
+!    call gtbsl4(ia) !1(4,norb,ltab,ktab,xx,xx,ntab,blks)
     do  io = 1, norb
        !       l,ik = l and kaph indices, needed for sigma
        l  = ltab(io)

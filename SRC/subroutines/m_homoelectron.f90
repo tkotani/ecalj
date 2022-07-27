@@ -70,7 +70,7 @@ contains
     !     integer(4),intent(in):: ntot
     real(8):: ntot,alat,plat(3,3)
     real(8):: efz
-    real(8):: voltot,pi,alpha,det33 !,tripl
+    real(8):: voltot,pi,alpha !,tripl
     real(8):: qfermi,spene,rydberg,rs
 
     pi=4d0*datan(1d0)

@@ -1478,9 +1478,8 @@ contains
 
   end subroutine popta3
 
-  subroutine popta4(l,z,rmt,nrmt,rofi,v,g,gp,a,b,pnu,enu,p,phi,dphi, &
-       phip,dphip)
-
+  subroutine popta4(l,z,rmt,nrmt,rofi,v,g,gp,a,b,pnu,enu,p,phi,dphi,phip,dphip)
+  use m_phidx,only: phidx
     !- Potential parameters at MT sphere
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -1534,7 +1533,7 @@ contains
     !     .  phip,dphip,p)
 
     call phidx(1,z,l,v,0d0,0d0,rofi,nrmt,2,tol,enu,val,slo,nn,g,gp, &
-         phi,dphi,phip,dphip,p,0d0,0d0,0d0,0d0)
+         phi,dphi,phip,dphip,p,0d0,[0d0],0d0,[0d0])
     !     dphip = (slo(2)-phip)/rmt
 
 

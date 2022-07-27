@@ -1,4 +1,4 @@
-subroutine gtbsl1(mode,norb,ltab,ktab,rsmh,eh,ntab,blks)
+subroutine gtbsl1(mode,norb,ltab,ktab,rsmh,eh, ntab,blks)
   !- Marks blocks of contiguous l for which rsm and e are unchanged
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -35,46 +35,40 @@ subroutine gtbsl1(mode,norb,ltab,ktab,rsmh,eh,ntab,blks)
   ! ----------------------------------------------------------------------
   implicit none
   integer :: nkap0,n0,mode,norb
-  integer :: ltab(norb),ktab(norb),ntab(norb),blks(norb)
+  integer :: ltab(norb),ktab(norb), ntab(norb),blks(norb)
   parameter (nkap0=3,n0=10)
   double precision :: rsmh(n0,nkap0),eh(n0,nkap0)
-  integer :: iorb,jorb,ki,kj,li,lj,lk,kk
+  integer :: iorb,jorb,ki,kj,li,lj,lk,kk,init,io
   double precision :: x1,x2
-  logical :: neq,deq,lreqe,lreqr,lreql,lreqz,lnever,bittst,match
-  logical:: l_dummy_isanrg,isanrg
-  neq(x1,x2) = dabs(x1-x2) > 1d-8
+  logical :: neq,deq,lreqe,lreqr,lreql,lreqz,lnever
+  real(8),parameter:: eps=1d-8
   lreqr = mod(mode,2)==1   ! +1
   lreqe = mod(mode/2,2)==1 ! +2
   lreql = mod(mode/4,2)==1 ! +4
   lnever= mod(mode/8,2)==1 ! +8
-  lreqz = mod(mode/16,2)==1! +16
-  blks=-1 
+!  lreqz = T !mod(mode/16,2)==1! +16
+  ntab=-1 
   do  iorb = 1, norb
-     if (blks(iorb)==0) cycle !if iorb block is already sumsumed.
+     if (ntab(iorb)==0) cycle !if iorb block is already sumsumed.
      ki = ktab(iorb) ! Radial funciton index
      li = ltab(iorb) ! l index
-     if (lreqz.and. rsmh(li+1,ki)<= 0) then
-        blks(iorb) = 0
-        ntab(iorb) = iorb
-        cycle 
-     endif
+     ntab(iorb) = iorb
+     if (lnever) cycle
+     if (lreqz.and. rsmh(li+1,ki)<= 0) cycle 
      lk = li
      kk = ki
-     blks(iorb) = 2*li+1 !  original block size for iorb = 2*l+1 
-     ntab(iorb) = iorb
      do  jorb = iorb+1, norb
         kj = ktab(jorb)
         lj = ltab(jorb)
-        if (lnever) exit 
-        if (lreqe.and.neq(eh(lj+1,kj),eh(li+1,ki))) exit
-        if (lreqr.and.neq(rsmh(lj+1,kj),rsmh(li+1,ki))) exit
-        if (lreql.and..not.(lj==lk+1  .and. kj==kk)) exit
-        ntab(iorb) = jorb !           Increment upper limit
-        blks(iorb) = blks(iorb) + 2*lj+1 !  Increment block size(iorb) by size jorb
-        blks(jorb) = 0 ! Flag that jorb is subsumed
+        if (lreqe.and.abs(  eh(lj+1,kj)-  eh(li+1,ki))>eps) exit
+        if (lreqr.and.abs(rsmh(lj+1,kj)-rsmh(li+1,ki))>eps) exit
+        if (lreql.and. .not.(lj==lk+1.and.kj==kk)) exit
+        ntab(iorb) = jorb !   Increment upper limit
         ntab(jorb) = 0
         lk = lj
         kk = kj
      enddo
   enddo
+  blks =[(sum( [ (2*ltab(io)+1, io=iorb,ntab(iorb)) ] ),iorb=1,norb)]
+  where( [(rsmh(ltab(iorb)+1,ktab(iorb)) <= 0, iorb=1,norb)] ) blks = 0 !if(lreqz)
 end subroutine gtbsl1

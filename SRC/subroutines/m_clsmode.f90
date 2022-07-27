@@ -72,13 +72,13 @@ contains
   end subroutine m_clsmode_set1
 
   subroutine m_clsmode_finalize(bz_ef,ndimh,ndhamx,nspx,nkp,dosw,evlall)
+  use m_vcdmel,only:vcdmel
     integer:: ndimh,ndhamx,nspx,nkp
     real(8),intent(in) :: bz_ef,dosw(2)
     real(8):: eferm,evlall(ndhamx,nspx,nkp)
     eferm=bz_ef
-    call vcdmel ( nl , nlmax , ndham ,&
-         ndimh , nkp , nsp , nspc , eferm , evlall , ausc_zv , &
-         nsites , isite , iclsl , iclsn ,dosw) !sbz,
+    call vcdmel( nl , nlmax , ndham , ndimh , nkp , nsp , nspc , eferm , evlall , ausc_zv , &
+         nsites , isite , iclsl , iclsn ,dosw)
     call rx0('done generating core level spectra')
   end subroutine m_clsmode_finalize
 end module m_clsmode

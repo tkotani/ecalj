@@ -1,3 +1,7 @@
+module m_vesgcm
+  private
+  public vesgcm
+  contains
 subroutine vesgcm(qmom,ng,gv,kv,cv,cg1,cgsum,smpot,f,gpot0,hpot0,qsmc,zsum,vrmt)
   use m_struc_def 
   use m_lmfinit,only:lat_alat,ispec,sspec=>v_sspec,nbas,cy=>rv_a_ocy
@@ -181,3 +185,4 @@ subroutine vesgcm(qmom,ng,gv,kv,cv,cg1,cgsum,smpot,f,gpot0,hpot0,qsmc,zsum,vrmt)
   call gvputf(ng,1,kv,k1,k2,k3,cv,smpot)
   call tcx('vesgcm')
 end subroutine vesgcm
+end module m_vesgcm

@@ -1,4 +1,8 @@
-!! -----------------------------------------
+!module m_tetwt5
+!  public integtetn,hisrange,tetwt5x_dtet4,rsvwwk00_4
+!  private
+!  contains
+  !! -----------------------------------------
 subroutine  tetwt5x_dtet4(npm, ncc, &
      q, eband1,eband2, &
      qbas,ginv,efermi, &
@@ -99,7 +103,7 @@ subroutine  tetwt5x_dtet4(npm, ncc, &
   real(8) :: qk(3),qkm(3),qbz(3) 
   !- For tetrahedra
   integer:: kk(0:3),kq(0:3),kr(0:3),i ,j
-  real(8)   ::  det33 , kvec(3,0:3), ea(0:3), eb(0:3) ,x(0:3),am(3,3)
+  real(8)   ::  kvec(3,0:3), ea(0:3), eb(0:3) ,x(0:3),am(3,3)
   complex(8):: wtt(0:3,3)
   integer:: noccx_kxx, noccx_k, noccx_kq !, noccx1
   !      real(8),parameter:: eps=0d0 !1d-12 ! cutoff check to determine cancellation.
@@ -152,7 +156,7 @@ subroutine  tetwt5x_dtet4(npm, ncc, &
   !      real(8):: fermi_dS(3,3) !not yet used...
   logical:: eibzmode, usetetrakbt
   integer:: nwgt(nqbz)
-  real(8):: ebmx,  voltet
+  real(8):: ebmx,  voltet,det33
   integer:: nbmx,ifile_handle
   logical,optional:: wan
 !!! tetrakbt
@@ -885,11 +889,11 @@ subroutine inttetrac6(kkv,kk,xx, itetx, &
   implicit none
   integer:: itetx(4),ix,i
   real(8) ::  kk(3,1:8),xx(1:8), am(3,3) &
-       ,kin(3,4), xin(4), det33, intttvv,  intttv,intvv,work !Kx(3,1:4),xKx(1:4),
+       ,kin(3,4), xin(4), intttvv,  intttv,intvv,work !Kx(3,1:4),xKx(1:4),
   integer:: nwhis
   real(8):: frhis(nwhis+1),wtthis(nwhis,4),voltet,kkv4bm(3),bm(3,3)
   logical:: chkwrt=.false.,matrix_linear
-  real(8) ::  kkv(3,4), kkvkin(4,4)
+  real(8) ::  kkv(3,4), kkvkin(4,4),det33
 
   if(chkwrt) print *, ' inttetrac6: === '
   xin(    1:4) = xx(    itetx(1:4))
@@ -1337,233 +1341,4 @@ subroutine rsvwwk00_4(jpm,iwgt, nqbz,nband,nctot,ncc,nbnbx,  n1b,n2b,noccxv,nbnb
   enddo
   write(6,*) ' rsvwwk: kx nbnbmax=',kx, maxval(nbnb)
 end subroutine rsvwwk00_4
-
-!! ---------------------------------
-SUBROUTINE TETFBZF_notused(qbas,N1,N2,N3,rk,nqbz, skipgammacell,half,nadd, &
-     IDTET,qbzw,ib1bz,ntetf)
-  use m_keyvalue,only: getkeyvalue
-  !!  Finds tetrahedra in all 1st BZ. takao mod. from tertirr
-  ! ----------------------------------------------------------------------
-  !i Inputs:
-  !i  qb,n1,n2,n3,ipq, output from BZMESH;
-  !i  nq, no. of irreducible k-points;
-  !o Outputs:
-  !o  ntet, No. of different tetrahedra
-  !o  idtet(1-4,i), Identifies the i'th tetrahedron in terms of the four
-  !o  idtet(0,i), no. of tetrahedra of the i'th kind
-  !m Memory:
-  !m  No large internal storage; heap not accessed.
-  !r    This require subroutine CCUTUP (lmto-3).
-  ! ----------------------------------------------------------------------
-  implicit none
-  integer:: indexkw(0:n1,0:n2,0:n3),kount, &
-       indexk(0:n1,0:n2,0:n3), &
-       i,i1,i2,i3,j1,j2,j3, IPQ(N1,N2,N3), &
-       IBTR(3,3),KCUT(3,4,6),IMC(0:1,0:1,0:1), &
-       idtet(4, 6*n1*n2*n3),iq(4), &
-       ntet,k1,k2,k3,itet,ic &
-       ,ib1bz((n1+1)*(n2+1)*(n3+1)) !icase=1 fixed
-  real(8) :: QB(3,3),QB1(3,3), qbas(3,3), qbzx(3) &
-       , qbzw(3,(n1+1)*(n2+1)*(n3+1)),half(3)
-  real(8),parameter :: epss = 1d-12
-  logical,save ::chk=.true.
-  logical:: skipgammacell,qbzreg
-
-  real(8),intent(in) :: rk(3,nqbz)
-  integer,intent(in):: n1,n2,n3,nqbz,nadd
-  integer,intent(out)::ntetf
-
-  integer:: ngcell,i1x,i2x,i3x,ndx
-  real(8):: qqqx(3),rb(3,3),rrr(3),xvec(3),qh(3)
-  !------------------------------------------------------------------
-  !      hf=0d0
-  !      if(icase==2) hf=0.5d0
-  QB(1:3,1) = QBAS(1:3,1)/N1
-  QB(1:3,2) = QBAS(1:3,2)/N2
-  QB(1:3,3) = QBAS(1:3,3)/N3
-  qh=matmul(qbas,half)
-  call minv33(qb,rb)
-  !- index for k in 1st BZ. See genqbz in BZ.FOR.
-  kount      = 0
-  do      i1 = 1,n1+nadd
-     do      i2 = 1,n2+nadd
-        do      i3 = 1,n3+nadd
-           kount    = kount + 1
-           indexk(i1-1,i2-1,i3-1) = kount
-           xvec = (/I1-1,I2-1,I3-1/)
-           if(chk) then
-              !  qbzx(1:3)= qb(1:3,1)*(i1-1+hf) +qb(1:3,2)*(i2-1+hf) +qb(1:3,3)*(i3-1+hf)
-              qbzx(1:3)= matmul(qb,xvec) + qh
-              ! ccccccccccccccccccc
-              !      write(6,"(3d26.18)") rk(1:3,kount)
-              !      write(6,"(3d26.18)") qbzx(1:3)
-              !      write(6,*)
-              ! ccccccccccccccccccc
-              if( sum(abs(rk(1:3,kount)-qbzx(1:3))) > epss ) call rx( 'tetfbzf: rk /= qbzx')
-           endif
-        end do
-     end do
-  end do
-  chk=.false.
-  if (kount /= (n1+nadd)*(n2+nadd)*(n3+nadd)) call rx( ' kount: wrong no. k-points 111')
-  if (nqbz  /= kount ) call rx( ' kount: wrong no. k-points 222')
-  ! cccccccccccccccccccccccccc
-  !      DO  j1 = 0,n1-1
-  !      DO  j2 = 0,n2-1
-  !      DO  j3 = 0,n3-1
-  !        write(6,"(' j1j2j3=',3i4,' ix=',i6)") J1,J2,J3,indexk(J1,J2,J3)
-  !      enddo
-  !      enddo
-  !      enddo
-  !      write(6,*)
-  ! cccccccccccccccccccccccccc
-  ! ccccccccccccc
-  if(nadd==0) then
-     kount      = 0
-     do      i1 = 1,n1+1
-        do    i2 = 1,n2+1
-           do  i3 = 1,n3+1
-              kount    = kount + 1
-              indexkw(i1-1,i2-1,i3-1) = kount
-              qbzw(1:3,kount) = &
-                   qb(1:3,1)*(i1-1+half(1)) + qb(1:3,2)*(i2-1+half(2)) + qb(1:3,3)*(i3-1+half(3))
-              ib1bz(kount) = indexk(mod(i1-1,n1), mod(i2-1,n2), mod(i3-1,n3))
-           end do
-        end do
-     end do
-  elseif(nadd==1) then
-     !        qbzw(:,1:nqbz)= rk(:,1:nqbz) !NOTE: nqbz=kount=(n1+nadd)*(n2+nadd)*(n3+nadd)
-     kount      = 0
-     do     i1 = 1,n1+1
-        do   i2 = 1,n2+1
-           do i3 = 1,n3+1
-              kount    = kount + 1
-              indexkw(i1-1,i2-1,i3-1) = kount
-              qbzw(1:3,kount) = &
-                   qb(1:3,1)*(i1-1+half(1)) + qb(1:3,2)*(i2-1+half(2)) + qb(1:3,3)*(i3-1+half(3))
-              ib1bz(kount) = indexk(i1-1, i2-1, i3-1)
-              ! cccccccccccccccccccccc
-              !              qqqx = qbzw(1:3,kount) -
-              !     &         (qb(1:3,1)*(i1-1+hf) + qb(1:3,2)*(i2-1+hf) + qb(1:3,3)*(i3-1+hf))
-              !              if(sum(abs(qqqx))>1d-6) then
-              !                write(6,*) 'qbzw=',qbzw(1:3,kount)
-              !                write(6,*) 'qbx=',(qb(1:3,1)*(i1-1+hf) + qb(1:3,2)*(i2-1+hf) + qb(1:3,3)*(i3-1+hf))
-              !                call rx('qbzw error')
-              !              endif
-              ! cccccccccccccccccccccc
-           enddo
-        enddo
-     enddo
-  else
-     call rx('tetfbzf:wrong nadd')
-  endif
-
-  CALL CCUTUP(QB,QB1,IBTR,KCUT) !This is from LMTO-3
-  ntet = 0
-  ! ----- START LOOPING OVER MICROCELLS ---------
-  call getkeyvalue("GWinput","ngcell",ngcell,default=1)
-
-  DO 20  I3 = 1, N3
-     DO 21  I2 = 1, N2
-        DO 22  I1 = 1, N1
-           if(skipgammacell) then
-              i1x = i1-n1
-              i2x = i2-n2
-              i3x = i3-n3
-              if(i1<n1/2) i1x=i1
-              if(i2<n2/2) i2x=i2
-              if(i3<n3/2) i3x=i3
-              ndx=0
-              if(qbzreg()) ndx=1
-              if( i1x<ngcell .AND. -ngcell< i1x-ndx) then
-                 if( i2x<ngcell .AND. -ngcell< i2x-ndx) then
-                    if( i3x<ngcell .AND. -ngcell< i3x-ndx) then
-                       kount= indexkw(i1-1,i2-1,i3-1)
-                       rrr=matmul(rb,qbzw(1:3,kount))
-                       write(6,"('qqqqx qbzw=',3i3, 3f9.5)") i1x,i2x,i3x, rrr
-                       ! cccccccccccccccccccccccc
-                       !             goto 3010
-                       ! cccccccccccccccccccccccc
-                       cycle
-                    endif
-                 endif
-              endif
-           endif
-
-           ! ccccccccccccccccccc
-           !        cycle
-           ! 3010   continue
-           ! cccccccccccccccccccc
-
-
-           !         write(6,"(' k1k2k3=',3i4,' ix=',i6,' ii=',2i6)")
-           !     &    indexkw(J1,J2,J3)
-           !     &    ,indexkw(J1,J2,J3), ib1bz(indexkw(J1,J2,J3))
-           !     &    ,indexk(mod(j1,n1), mod(j2,n2), mod(j3,n3))
-           ! cccccccccccc
-           ! ----- SET UP IDENTIFIERS AT 8 CORNERS OF MICROCELL ------
-           !        write(6,*)
-           !        print *,'xxxxxxxx qqqq xxxxxxxx ',i1,i2,i3
-           do K1 = 0, 1
-              J1 = I1 -1 + K1
-              do K2 = 0, 1
-                 J2 = I2 -1 + K2
-                 do K3 = 0, 1
-                    J3 = I3 -1 + K3
-                    IMC(K1,K2,K3)  = indexkw(J1,J2,J3)
-                    ! cccccccccccc
-                    !         if(k1==0.and.k2==0.and.k3==0) then
-                    !           kount= indexkw(j1,j2,j3)
-                    !           write(6,"('qqqq qbzw=',3i3,3f9.5)") j1,j2,j3,matmul(rb,qbzw(1:3,kount))
-                    !         endif
-                    ! cccccccccccc
-                 enddo
-              enddo
-           enddo
-
-           ! ccccccccccccccccccccccccc
-           !         if(i1==1.and.i2==1.and.i3==1) then
-           !           goto 4010
-           !         endif
-
-           !         if(i1==4.and.i2==4.and.i3==4) then
-           !           goto 4010
-           !         endif
-           ! ccccccccc
-           !        write(6,"('ffff =',3i3)") i1,i2,i3
-
-           !         if(i1==1.and.i2==1.and.i3==n3) then
-           !          goto 4010
-           !        endif
-
-           !         if(i1==4.and.i2==4.and.i3==1) then
-           !           goto 4010
-           !         endif
-
-           !         cycle
-           ! 4010    continue
-           ! cccccccccccccccccccccccc
-
-           ! ----- LOOP OVER TETRAHEDRA --------------
-           ! ccccccccccccccccccccccccc
-           do 10 ITET = 1, 6
-              !        do 10 ITET = 3,3
-              ! ccccccccccccccccccccccccc
-              do  IC = 1, 4
-                 K1 = KCUT(1,IC,ITET)
-                 K2 = KCUT(2,IC,ITET)
-                 K3 = KCUT(3,IC,ITET)
-                 IQ(IC) = IMC(K1,K2,K3)
-              enddo
-              ntet=ntet+1
-              do  i = 1, 4
-                 idtet(i,ntet) = iq(i)
-              enddo
-10         enddo
-           write(6,"('ntet=',3i3,2x,i6)")i1,i2,i3,ntet
-22      enddo
-21   enddo
-20 enddo
-  write(6, "(1x,'TETFBZF: ',2i8 )")  ntet, 6*n1*n2*n3
-  ntetf=ntet
-end SUBROUTINE TETFBZF_notused
+!end module m_tetwt5

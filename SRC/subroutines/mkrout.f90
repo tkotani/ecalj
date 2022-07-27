@@ -2,7 +2,8 @@ module m_mkrout
   use m_struc_def
   use m_uspecb,only:uspecb
   use m_lmfinit,only:nkapii,lhh
-  use m_orbl,only: Orblib,ktab,ltab,offl,norb
+  use m_orbl,only: Orblib,ktab,ltab,offl,norb, ntab,blks
+  use m_symrhoat,only:symrhoat
   public:: m_Mkrout_init, orhoat_out, frcbandsym, qbyl_rv,hbyl_rv, sumec,sumtc,sumt0
   type(s_rv1),protected,allocatable :: orhoat_out(:,:)
   real(8),allocatable,protected::  frcbandsym(:,:), hbyl_rv(:,:,:), qbyl_rv(:,:,:)
@@ -14,6 +15,7 @@ contains
     use m_bandcal,only: sv_p_oqkkl,sv_p_oeqkkl,frcband
     use m_mkpot,only: hab_rv,sab_rv
     use m_suham,only: ham_ndham
+    use m_rhocor,only: getcor
     integer:: ib,is,nr,lmxl,nlml
     call tcn('m_mkrout_init')
     if(ctrl_lfrce>0 ) then
@@ -56,6 +58,7 @@ contains
     use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
     use m_density,only: v0pot,v1pot,pnuall,pnzall !read
     use m_hansr,only:corprm
+    use m_rhocor,only: getcor
     !- Assembles local output densities out of the qkkl, and core states
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -103,7 +106,7 @@ contains
     parameter (nkap0=3)
     integer :: lh(nkap0)
     double precision :: eh(n0,nkap0),rsmh(n0,nkap0)
-    integer :: ntab(n0*nkap0),blks(n0*nkap0)
+!    integer :: ntab(n0*nkap0),blks(n0*nkap0)
     double precision :: qcorg,qcorh,qsc,cofg,cofh !pnu(n0,2),pnz(n0,2),
     real(8),pointer:: pnu(:,:),pnz(:,:)
     integer ::iwdummy,ifx!,nlmto
@@ -133,9 +136,8 @@ contains
        call corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
        call uspecb(is,rsmh,eh)
        nkapi=nkapii(is)
-       call orblib(ib)!norb , ltab , ktab , xx , offl , xx )
-       call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
-       is =ispec(ib) !ssite(ib)%spec
+       call orblib(ib)!norb , ltab , ktab , norb, ntab,blks
+       is =ispec(ib)
        pnu=>pnuall(:,1:nsp,ib)
        pnz=>pnzall(:,1:nsp,ib)
        call gtpcor(is,kcor,lcor,qcor)
@@ -247,9 +249,8 @@ contains
        !   --- Make new core density and core eigenvalue sum ---
        if (lfoc == 0) then
           call pshpr(ipr+11)
-          call getcor ( 0,z,a,pnu,pnz,nr,lmxa,rofi_rv,v1pot(ib)%v & 
-              ,kcor,lcor,qcor,smec,smtc,orhoat_out( 3,ib )%v & !core
-              ,ncore,0d0,0d0,   nmcore(is))
+          call getcor(0,z,a,pnu,pnz,nr,lmxa,rofi_rv,v1pot(ib)%v & 
+              ,kcor,lcor,qcor,smec,smtc,orhoat_out( 3,ib )%v,ncore,[0d0],[0d0],nmcore(is))
           call poppr
           sumtc = sumtc + smtc
           sumec = sumec + smec

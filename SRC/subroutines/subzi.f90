@@ -136,6 +136,7 @@ contains
     use m_mkpot,only: qval
     use m_suham,only: ndham=>ham_ndham,ndhamx=>ham_ndhamx,nspx=>ham_nspx
     use m_ext,only: sname
+    use m_bzwts,only: bzwtsf,bzwtsf2
     implicit none
     intent(in)::                     evlall,swtk
     intent(out)::                                 eferm,sev,sumqv,vnow

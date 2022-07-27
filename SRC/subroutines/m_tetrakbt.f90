@@ -1,5 +1,6 @@
 module m_tetrakbt
   use m_keyvalue,only: getkeyvalue
+!  use m_tetwt5,only: integtetn,hisrange,tetwt5x_dtet4,rsvwwk00_4
   implicit none
   public:: tetrakbt_init, tetrakbt, kbt
 

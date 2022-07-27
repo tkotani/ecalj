@@ -262,7 +262,7 @@ subroutine pusq1(mode,ia,isp,nspc,nlmax,lmxh,nbas,q,ndham,ndimh,napw,igvapw,nev,
   call tcx('pusq1')
 end subroutine pusq1
 subroutine pusq2(mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma,cPkL,r,evec,vh,dh,vp,dp, au,as,az)
-  use m_orbl,only: Orblib,ktab,ltab,offl,norb
+  use m_orbl,only: Orblib,ktab,ltab,offl,norb,ntab,blks
   !- Extract projection of eigenstate onto (u,s,z) for sphere at site ia
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -306,7 +306,7 @@ subroutine pusq2(mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma,cPkL,r,evec,vh,dh,vp,dp
   complex(8):: au(nlma),as(nlma),az(nlma), evec(nlmto),cPkL(0:kmax,nlma)
   integer :: n0,nkap0
   parameter (n0=10,nkap0=3)
-  integer :: blks(n0*nkap0),ntab(n0*nkap0)
+!  integer :: blks(n0*nkap0),ntab(n0*nkap0)
   integer :: io1,l1,ik1,nlm11,nlm12,ilm1,i1,ilma,k
   integer :: l,ll
   double precision :: xx
@@ -317,7 +317,7 @@ subroutine pusq2(mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma,cPkL,r,evec,vh,dh,vp,dp
   ! --- Loop over all orbitals centered at this site ---
   call orblib(ia)!norb,ltab,ktab,xx,offl,xx)
   !     Block into groups of consecutive l
-  call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
+!  call gtbsl4(ia) !1(4,norb,ltab,ktab,xx,xx,ntab,blks)
   !     Contribution from head part
   do  io1 = 1, norb
      l1  = ltab(io1)

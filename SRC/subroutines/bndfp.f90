@@ -407,7 +407,7 @@ contains
     use m_lmfinit,only:lso,nkaph,nsp,nspc,stdo,nbas,ispec,sspec=>v_sspec,nlmto
     use m_lattic,only: lat_vol
     use m_supot,only: lat_nabc,k1,k2,k3
-    use m_orbl,only: Orblib,ktab,ltab,offl,norb
+    use m_orbl,only: Orblib,ktab,ltab,offl,norb,ntab,blks
     !- Evaluate the valence kinetic energy
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -528,7 +528,6 @@ contains
     !u   20 Jun 00 adapted from nfp get_ekin
     ! ----------------------------------------------------------------------
     implicit none
-    ! ... Passed parameters
     integer :: i_copy_size
     type(s_cv1),target :: sv_p_oppi(3,nbas)
     type(s_rv1),target :: sv_p_otau(3,1)
@@ -542,17 +541,14 @@ contains
     double complex smpot(k1,k2,k3,2),smrho(k1,k2,k3,2)
     ! ... Local parameters
     integer :: ib,igetss,ipr,is,kmax,lgunit,lmxa,lmxh,n0,n1,n2,n3, &
-         ngabc(3),nglob,nkap0,nlma,nlmh!,norb
-    ! lso,isw
+         ngabc(3),nglob,nkap0,nlma,nlmh!,norb   ! lso,isw
     logical :: lgors
     parameter (n0=10,nkap0=3)
-    !      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),
-    integer:: ntab(n0*nkap0),blks(n0*nkap0)
     double precision :: qum1,qum2,sraugm,srhov,srmesh,sum1,sum2,sumh, &
          sumq,sumt,vol,xx
     equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
     include 'mpif.h'
-    integer:: procid=0,ier=0
+    integer:: procid=0,ier=0,io,iorb
     integer,parameter::master=0
     logical:: iprx
     call mpi_comm_rank(mpi_comm_world,procid,ier)
@@ -572,14 +568,12 @@ contains
     ! --- Integral rhout*veff, part from augmentation ---
     sraugm = 0d0
     do  ib = 1, nbas
-       is = ispec(ib) !int(ssite(ib)%spec)
+       is = ispec(ib) 
        lmxa=sspec(is)%lmxa
        kmax=sspec(is)%kmxt
        lmxh=sspec(is)%lmxb
        if (lmxa == -1) goto 10
-       call orblib(ib) ! norb , ltab , ktab , offl 
-       !       Block into groups of consecutive l
-       call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
+       call orblib(ib) ! norb , ltab , ktab , offl ,ntab,blks
        nlma = (lmxa+1)**2
        nlmh = (lmxh+1)**2
        OQHH => sv_p_oqkkl(3,ib)%v
@@ -703,59 +697,122 @@ contains
        enddo
        ! ... Hsm*Hsm
        do  io2 = 1, norb
-          if (blks(io2) /= 0) then
-             !       k2,l2 = k and starting l index for this block
-             l2 = ltab(io2)
-             k2 = ktab(io2)
-             nlm21 = l2**2+1
-             nlm22 = nlm21 + blks(io2)-1
-             do  io1 = 1, norb
-                if (blks(io1) /= 0) then
-                   !         k1,l1 = k and starting l index for this block
-                   l1 = ltab(io1)
-                   k1 = ktab(io1)
-                   nlm11 = l1**2+1
-                   nlm12 = nlm11 + blks(io1)-1
-                   do  ilm1 = nlm11, nlm12
-                      l1 = ll(ilm1)
-                      do  ilm2 = nlm21, nlm22
-                         if (ilm1 == ilm2) then
-                            sumt = sumt + qhh(k1,k2,ilm1,ilm2,i)*tauhh(k1,k2,l1,i)
-                            sumq = sumq + qhh(k1,k2,ilm1,ilm2,i)*sighh(k1,k2,l1,i)
-                         endif
-                         sumh = sumh+qhh(k1,k2,ilm1,ilm2,i)*ppihhz(k1,k2,ilm1,ilm2,i)
-                      enddo
-                   enddo
-                endif
-             enddo
-          endif
-       enddo
-       ! ... Hsm*Pkl
-       do  io1 = 1, norb
-          if (blks(io1) /= 0) then
-             !       k1,l1 = k and starting l index for this block
+          if (blks(io2)==0) cycle ! /= 0) then
+          !       k2,l2 = k and starting l index for this block
+          l2 = ltab(io2)
+          k2 = ktab(io2)
+          nlm21 = l2**2+1
+          nlm22 = nlm21 + blks(io2)-1
+          do  io1 = 1, norb
+             if (blks(io1)==0) cycle ! /= 0) then
+             !         k1,l1 = k and starting l index for this block
              l1 = ltab(io1)
              k1 = ktab(io1)
              nlm11 = l1**2+1
              nlm12 = nlm11 + blks(io1)-1
-             do  k2 = 0, kmax
-                do  ilm1 = nlm11, nlm12
-                   l1 = ll(ilm1)
-                   do  ilm2 = 1, nlma
-                      if (ilm1 == ilm2) then
-                         sumt = sumt + qhp(k1,k2,ilm1,ilm2,i)*tauhp(k1,k2,l1,i)
-                         sumq = sumq + qhp(k1,k2,ilm1,ilm2,i)*sighp(k1,k2,l1,i)
-                      endif
-                      sumh = sumh+qhp(k1,k2,ilm1,ilm2,i)*ppihpz(k1,k2,ilm1,ilm2,i)
-                   enddo
+             do  ilm1 = nlm11, nlm12
+                l1 = ll(ilm1)
+                do  ilm2 = nlm21, nlm22
+                   if (ilm1 == ilm2) then
+                      sumt = sumt + qhh(k1,k2,ilm1,ilm2,i)*tauhh(k1,k2,l1,i)
+                      sumq = sumq + qhh(k1,k2,ilm1,ilm2,i)*sighh(k1,k2,l1,i)
+                   endif
+                   sumh = sumh+qhh(k1,k2,ilm1,ilm2,i)*ppihhz(k1,k2,ilm1,ilm2,i)
                 enddo
              enddo
-          endif
+          enddo
+       enddo
+       ! ... Hsm*Pkl
+       do  io1 = 1, norb
+          if (blks(io1)==0) cycle ! /= 0) then
+          !       k1,l1 = k and starting l index for this block
+          l1 = ltab(io1)
+          k1 = ktab(io1)
+          nlm11 = l1**2+1
+          nlm12 = nlm11 + blks(io1)-1
+          do  k2 = 0, kmax
+             do  ilm1 = nlm11, nlm12
+                l1 = ll(ilm1)
+                do  ilm2 = 1, nlma
+                   if (ilm1 == ilm2) then
+                      sumt = sumt + qhp(k1,k2,ilm1,ilm2,i)*tauhp(k1,k2,l1,i)
+                      sumq = sumq + qhp(k1,k2,ilm1,ilm2,i)*sighp(k1,k2,l1,i)
+                   endif
+                   sumh = sumh+qhp(k1,k2,ilm1,ilm2,i)*ppihpz(k1,k2,ilm1,ilm2,i)
+                enddo
+             enddo
+          enddo
        enddo
     enddo
   end subroutine pvgtkn
-
-
+  subroutine makdos(nqp,nband,nbmx,nsp,wgts,evl,n,w,tol,emin,emax, ndos,dos) !- Make density of states from bands
+    !-----------------------------------------------------------------------
+    !i  Input
+    !i   nqp   :number of q-points
+    !i   nband :number of bands
+    !i   nsp   :2 for spin-polarized case, otherwise 1
+    !i   wgts  :band weights
+    !i   evl   :band eigenvalues
+    !i   n,w   :Methfessel-Paxton order and broadening parameters
+    !i   tol   :(tol>0) allowed error in DOS due to truncating the gaussian,
+    !i         :        to a finite energy range (number of bins)
+    !i         :(tol<0) dimensionless energy window specifying truncation
+    !i         :        of gaussian.  Energy window for which gaussian is
+    !i         :        taken to be nonzero is set to -tol*w
+    !i   emin, emax, ndos: energy range and number of energy mesh points
+    !i   nbmx  :leading dimension of evl
+    !o  Ouput
+    !o    dos: density of states
+    !-----------------------------------------------------------------------
+    implicit none
+    integer :: nqp,nband,nbmx,nsp,n,ndos
+    double precision :: wgts(nqp),evl(nbmx,nsp,nqp),dos(0:ndos-1,nsp),w,emin,emax,tol,wt,emesh
+    integer :: i,isp,iband,iq,meshpt,mesh1,mesh2,mrange=999999,iprint
+    double precision :: e,x,range,test,step,d,s,xx
+    external delstp
+    call dpzero(dos,nsp*ndos)
+    step = (emax - emin) / (ndos - 1)
+    if ( tol > 0d0 ) then
+       do  2  i = 0, ndos-1
+          x = i * step / w
+          call delstp(0,x,test,s,xx)
+          if ( test < tol ) then
+             mrange = i + 1
+             goto 3
+          endif
+2      enddo
+       if (iprint() > 30) print *,'makdos (warning) : tol too small'
+3      continue
+       range = 2 * mrange * step
+       test = tol
+    else
+       range = -tol * w
+       mrange = range / ( 2 * step )
+       call delstp(0,-tol/2,test,s,xx)
+    endif
+    if (iprint() > 30) write (*,100) range/w,2*mrange,test
+    iqloop: do  7  iq = 1, nqp
+       wt = abs(wgts(iq)) / nsp
+       ibandloop: do  61  iband = 1, nband
+          isploop: do  6  isp = 1, nsp
+             e = evl(iband,isp,iq)
+             meshpt = (e - emin) / step
+             mesh1 = meshpt - mrange
+             mesh2 = meshpt + mrange
+             if (mesh2 >= ndos) mesh2 = ndos-1
+             if (mesh1 < 0) mesh1 = 0
+             do   meshpt = mesh1, mesh2
+                emesh = emin + meshpt * step
+                x = (emesh - e) / w
+                call delstp(n,x,d,s,xx)
+                dos(meshpt,isp) = dos(meshpt,isp) + wt * d / w
+             enddo
+6         enddo isploop
+61     enddo ibandloop
+7   enddo iqloop
+100 format(/1x,'MAKDOS :  range of gaussians is ',f5.2,'W (',i4,' bins).' &
+         /11x,'Error estimate in DOS : ',1pe9.2,' per state.')
+  end subroutine makdos
 end module m_bndfp
 
 ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss

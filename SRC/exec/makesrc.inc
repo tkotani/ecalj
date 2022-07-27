@@ -42,6 +42,7 @@ m_struc_def.o \
 m_gtv.o \
 addrwf.o \
 atomsr.o \
+m_rhocor.o\
 atwf.o \
 besslr.o \
 bloch.o \

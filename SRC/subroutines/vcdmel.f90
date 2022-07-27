@@ -1,3 +1,7 @@
+module m_vcdmel
+  public vcdmel
+  private
+contains  
 subroutine vcdmel(nl,nlmax,ndham,ndimh,& !- Valence-core dipole matrix elements
      nq,nsp,nspc,ef,evl,aus,nsite,isite,iclsl,iclsn,dosw)
   use m_lmfinit,only: rv_a_ocg , iv_a_ojcg , iv_a_oidxcg,ispec,sspec=>v_sspec
@@ -145,8 +149,6 @@ subroutine vcdmel(nl,nlmax,ndham,ndimh,& !- Valence-core dipole matrix elements
   if (allocated(s_rv)) deallocate(s_rv)
   call tcx ('vcdmel')
 end subroutine vcdmel
-
-
 subroutine pvcdm1(ncls,lcls,gcore,z,lmxa,v,a,nr,rofi,ul,sl,nsp,lmxax,ume,sme)
   !- Radial matrix elements < (u,s) | r | core >
   implicit none
@@ -216,7 +218,6 @@ subroutine pvcdm1(ncls,lcls,gcore,z,lmxa,v,a,nr,rofi,ul,sl,nsp,lmxax,ume,sme)
      enddo
   enddo
 end subroutine pvcdm1
-
 subroutine pvcdm2(isite,nsite,ndham,ndimh,nlma,nlmax,aus,ume,sme,lcls,cg,jcg,indxcg,s)
   !- Kernel called by vcmdel
   ! ----------------------------------------------------------------------
@@ -280,5 +281,4 @@ subroutine pvcdm2(isite,nsite,ndham,ndimh,nlma,nlmax,aus,ume,sme,lcls,cg,jcg,ind
      enddo
   enddo
 end subroutine pvcdm2
-
-
+end module m_vcdmel

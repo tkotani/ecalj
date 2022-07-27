@@ -7,6 +7,7 @@ contains
     use m_lmfinit,only: bz_lshft,bz_tetrahedron,bz_lmet,ctrl_ldos,bz_nabcin
     use m_lattic,only:  lat_plat
     use m_mksym,only:   rv_a_osymgr,lat_nsgrp,lat_npgrp
+    use m_tetirr,only: tetirr
     !! Set up k-points and related quantities for BZ integration
     !! ----------------------------------------------------------------------
     !! gettet: = bz_lmet/=0 .or. ctrl_ldos/=0 given at setup

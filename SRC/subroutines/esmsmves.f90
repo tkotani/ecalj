@@ -12,6 +12,7 @@ contains
     use m_lattic,only: vol=>lat_vol,plat=>lat_plat
     use m_lgunit,only:stdo
     use m_supot,only:k1,k2,k3
+    use m_vesgcm,only: vesgcm
     implicit none
     include "mpif.h"
     integer, intent(in) :: ng, kv(ng,3)

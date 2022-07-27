@@ -5,6 +5,7 @@ subroutine pnunew(eferm)
        pmin=>ham_pmin,pmax=>ham_pmax,n0,nab,mxcst4
   use m_mkrout,only: hbyl=>hbyl_rv,qbyl=>qbyl_rv
   use m_lgunit,only:stdo
+  use m_phidx,only: phidx
 
   use m_density,only: v0pot,pnuall,pnzall !output
   
@@ -119,7 +120,7 @@ subroutine pnunew(eferm)
                  allocate(gp_rv(8*nr))
                  call phidx ( 0 , z , l , v0i_rv , 0d0 , 0d0 , rofi_rv , &
                       nr , 2 , 1d-12 , ebar , val , slo , nn , g_rv , gp_rv &
-                      , phi , dphi , phip , dphip , xx , xx , xx , xx , xx )
+                      , phi , dphi , phip , dphip , xx , xx , [xx] , xx , [xx] )
                  !         ... cz = estimate for energy of orbital with b.c. connecting
                  !             to Hankel of energy 0
                  dlphi = rmt*dphi/phi
@@ -133,8 +134,8 @@ subroutine pnunew(eferm)
                  if(ipr>40) write(6,"(' pnunew: valence with semicore ebar=efermi=',f12.6)")ebar
               endif
               call phidx ( 2 , z , l , v0i_rv , 0d0 , 0d0 , rofi_rv , nr ,  &
-                   0 , 1d-12 , ebar , val , slo , nn , g_rv , iwdummy , phi , &
-                   dphi , iwdummy , iwdummy , iwdummy , iwdummy , iwdummy , iwdummy , iwdummy )
+                   0 , 1d-12 , ebar , val , slo , nn , g_rv , gp_rv , phi , &
+                   dphi , 0d0 , 0d0 , 0d0 , 0d0 , [0d0] , 0d0 , [0d0] )
               nnv=nn
               if (nn .eq. int(pnu(m,1))-l-1) then
                  dl = rmt*slo(1)/val(1) - 1
@@ -156,7 +157,7 @@ subroutine pnunew(eferm)
                  allocate(gp_rv(8*nr))
                  call phidx ( 0 , z , l , v0i_rv , 0d0 , 0d0 , rofi_rv , &
                       nr , 2 , 1d-12 , ez , val , slo , nn , g_rv , gp_rv , &
-                      phi , dphi , phip , dphip , xx , xx , xx , xx , xx )
+                      phi , dphi , phip , dphip , xx , xx , [xx] , xx , [xx] )
                  dlphi = rmt*dphi/phi
                  dlphip = rmt*dphip/phip
                  umegam = -(phi/phip)*(-l-1-dlphi)/(-l-1-dlphip)

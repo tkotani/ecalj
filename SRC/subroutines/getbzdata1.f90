@@ -15,6 +15,7 @@ module m_get_bzdata1
 contains
   subroutine getbzdata1(qlat,nnn, symops,ngrp,tetrai,tetraf,mtet,gammacellctrl)
     use m_keyvalue,only: getkeyvalue
+    use m_tetirr,only: ccutup
     implicit none
     intent(in)::        qlat,nnn, symops,ngrp,tetrai,tetraf,mtet,gammacellctrl
 !! all arguments are inputs. getbzdata1 returns all variables in the module m_get_bzdata1

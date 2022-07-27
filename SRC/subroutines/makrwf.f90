@@ -1,4 +1,5 @@
 subroutine makrwf(mode,z,rmax,l,v,a,nr,rofi,pnu,nptdif,g,gp, enu,phi,dphi,phip,dphip,p)
+  use m_phidx,only: phidx
   !- Radial wave functions and energy derivative
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -60,5 +61,5 @@ subroutine makrwf(mode,z,rmax,l,v,a,nr,rofi,pnu,nptdif,g,gp, enu,phi,dphi,phip,d
      modep = 2
   endif
   call phidx(modep,z,l,v,0d0,0d0,rofi,nr,nptdif,tol,enu,val,slo, &
-       nn,g,gp,phi,dphi,phip,dphip,p,0d0,0d0,0d0,0d0)
+       nn,g,gp,phi,dphi,phip,dphip,p,0d0,[0d0],0d0,[0d0])
 end subroutine makrwf
