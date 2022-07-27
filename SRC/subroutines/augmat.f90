@@ -1,14 +1,13 @@
-module m_augmat
+module m_augmat !- Make augmentation matrices sig,tau,pi for one site
   public augmat
   private
 contains
   subroutine augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax &
-       , nlml , a , nr , nsp , lso , rofi , rwgt & !cg , jcg , indxcg &
+       , nlml , a , nr , nsp , lso , rofi , rwgt & 
        , v0 , v1 , v2 , gpotb , gpot0 , nkaph , nkapi , lmxh , lh , &
        eh , rsmh , ehl , rsml , rs3 , vmtz ,  lmaxu , vorb ,  &
        lldau , iblu , idu , sv_p_osig , sv_p_otau , sv_p_oppi,ohsozz,ohsopm, ppnl &
        , hab , vab , sab )
-    use m_lmfinit,only: cg=>rv_a_ocg,indxcg=>iv_a_oidxcg,jcg=>iv_a_ojcg,cy=>rv_a_ocy
     use m_lmfinit,only: n0,nkap0,nppn,nab
     use m_struc_def, only: s_rv1,s_cv1,s_sblock
     use m_gaugm,only: gaugm
@@ -394,21 +393,21 @@ contains
     ! ... Pkl*Pkl !tail x tail
     call gaugm ( nr , nsp , lso , rofi , rwgt , lmxa , lmxl &
          , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , &
-         vum , cg , jcg , indxcg , kmax + 1 , kmax + 1 , lmxa , lxa , &
+         vum , kmax + 1 , kmax + 1 , lmxa , lxa , &
          fp , xp , vp , dp , kmax + 1 , kmax + 1 , lmxa , lxa , fp , xp, vp , dp , lmxa , &
          sv_p_osig(1)%v , sv_p_otau (1)%v , nlma , nlma , &
          sv_p_oppi(1)%cv,ohsozz(1)%sdiag,ohsopm(1)%soffd , lmaxu , vumm , lldau , idu )
     ! ... Hsm*Pkl !head x tail
     call gaugm ( nr , nsp , lso ,  rofi , rwgt , lmxa , lmxl &
          , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , &
-         vum , cg , jcg , indxcg , nkaph , nkapi , lmxh , lh , fh , xh &
+         vum , nkaph , nkapi , lmxh , lh , fh , xh &
          , vh , dh , kmax + 1 , kmax + 1 , lmxa , lxa , fp , xp , vp , dp , lmxh , &
          sv_p_osig(2)%v , sv_p_otau(2) %v , nlmh , nlma, &
          sv_p_oppi(2)%cv,ohsozz(2)%sdiag,ohsopm(2)%soffd, lmaxu , vumm , lldau , idu )
     ! ... Hsm*Hsm !head x head
     call gaugm ( nr , nsp , lso ,  rofi , rwgt , lmxa , lmxl &
          , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , &
-         vum , cg , jcg , indxcg , nkaph , nkapi , lmxh , lh , fh , xh &
+         vum , nkaph , nkapi , lmxh , lh , fh , xh &
          , vh , dh , nkaph , nkapi , lmxh , lh , fh , xh , vh , dh , lmxh, &
          sv_p_osig(3)%v, sv_p_otau(3)%v, nlmh,nlmh, &
          sv_p_oppi(3)%cv,ohsozz(3)%sdiag,ohsopm(3)%soffd, lmaxu , vumm , lldau , idu )
@@ -628,84 +627,54 @@ contains
     !u   08 Jun 05 (MvS) extended to local orbitals
     !u   30 Apr 05 Lambrecht first created
     ! ----------------------------------------------------------------------
-    !     implicit none
-    ! ... Passed parameters
+    implicit none
     integer :: lmaxu,lmxa,iblu,idu(4)
     double precision :: rmt
     integer :: n0,nppn,nab
     parameter (n0=10,nppn=12,nab=9)
     double precision :: ppnl(nppn,n0,2)
-    double complex Vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,2,*), &
-         vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,nab,2,0:lmaxu)
-    ! ... Local parameters
     integer :: m1,m2,l,i
     double precision :: phi,dlphi,phip,dlphip,dphi,dphip
     double precision :: r12,r21,r11,r22,det
     double precision :: phz,dphz
-    double complex vzz,vuz,vsz,vzu,vzs
-
-    !     call prmx('vorb',vorb(1,1,2,1),2*lmaxu+1,2*lmaxu+1,2*lmaxu+1)
-
+    complex(8):: vzz,vuz,vsz,vzu,vzs, Vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,2,*), &
+         vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,nab,2,0:lmaxu)
     ! ... Rotate Vorb from phi,phidot basis to u,s basis
     do  l = 0, min(lmxa,3)
-       if (idu(l+1) /= 0) then
-          iblu = iblu+1
-          do  i = 1, 2
-             dlphi  = ppnl(3,l+1,i)/rmt
-             dlphip = ppnl(4,l+1,i)/rmt
-             phi    = ppnl(5,l+1,i)
-             phip   = ppnl(6,l+1,i)
-             dphi   = phi*dlphi/rmt
-             dphip  = dlphip/rmt*phip
-             det = phi*dphip - dphi*phip
-             r11 = dphip/det
-             !           r12 = -dphi/det
-             r21 = -phip/det
-             !           r22 = phi/det
-             do  m1 = -l, l
-                do  m2 = -l, l
-                   vumm(m1,m2,1,i,l) = Vorb(m1,m2,i,iblu)*r11*r11
-                   vumm(m1,m2,2,i,l) = Vorb(m1,m2,i,iblu)*r11*r21
-                   vumm(m1,m2,3,i,l) = Vorb(m1,m2,i,iblu)*r21*r11
-                   vumm(m1,m2,4,i,l) = Vorb(m1,m2,i,iblu)*r21*r21
-                enddo
-             enddo
-
-             phz  = ppnl(11,l+1,i)
-             dphz = ppnl(12,l+1,i)
-
-             if (phz /= 0) then
-                do  m1 = -l, l
-                   do  m2 = -l, l
-                      vzz = phz**2*vumm(m1,m2,1,i,l) + &
-                           phz*dphz*(vumm(m1,m2,2,i,l)+vumm(m1,m2,3,i,l)) + &
-                           dphz**2*vumm(m1,m2,4,i,l)
-                      vuz = - phz*vumm(m1,m2,1,i,l) - dphz*vumm(m1,m2,2,i,l)
-                      vsz = - phz*vumm(m1,m2,3,i,l) - dphz*vumm(m1,m2,4,i,l)
-                      vzu = - phz*vumm(m1,m2,1,i,l) - dphz*vumm(m1,m2,3,i,l)
-                      vzs = - phz*vumm(m1,m2,2,i,l) - dphz*vumm(m1,m2,4,i,l)
-
-                      vumm(m1,m2,5,i,l) = vuz
-                      vumm(m1,m2,6,i,l) = vsz
-                      vumm(m1,m2,7,i,l) = vzz
-                      vumm(m1,m2,8,i,l) = vzu
-                      vumm(m1,m2,9,i,l) = vzs
-
-                   enddo
-                enddo
-             endif
-
-             !            if (l .eq. 3) then
-             !              print *, 'Vorb before rotation isp=',i,'l=',l
-             !              print ('(7f8.4)'),((Vorb(m1,m2,i,iblu),m2=-l,l),m1=-l,l)
-             !              print *, 'rotated vumm'
-             !              print ('(7(2f8.4,1x))'),
-             !     .          (((vumm(m1,m2,k,i,l),m2=-l,l),m1=-l,l),k=1,4)
-             !              stop
-             !            endif
-
-          enddo
-       endif
+       if (idu(l+1) == 0) cycle
+       iblu = iblu+1
+       do  i = 1, 2
+          dlphi  = ppnl(3,l+1,i)/rmt
+          dlphip = ppnl(4,l+1,i)/rmt
+          phi    = ppnl(5,l+1,i)
+          phip   = ppnl(6,l+1,i)
+          dphi   = phi*dlphi/rmt
+          dphip  = dlphip/rmt*phip
+          det = phi*dphip - dphi*phip
+          r11 = dphip/det           !           r12 = -dphi/det
+          r21 = -phip/det           !           r22 = phi/det
+          vumm(-l:l,-l:l,1,i,l) = Vorb(-l:l,-l:l,i,iblu)*r11*r11
+          vumm(-l:l,-l:l,2,i,l) = Vorb(-l:l,-l:l,i,iblu)*r11*r21
+          vumm(-l:l,-l:l,3,i,l) = Vorb(-l:l,-l:l,i,iblu)*r21*r11
+          vumm(-l:l,-l:l,4,i,l) = Vorb(-l:l,-l:l,i,iblu)*r21*r21
+          phz  = ppnl(11,l+1,i)
+          dphz = ppnl(12,l+1,i)
+          if (phz /= 0) then
+             vumm(m1,m2,5,i,l) = - phz*vumm(m1,m2,1,i,l) - dphz*vumm(m1,m2,2,i,l) !vuz
+             vumm(m1,m2,6,i,l) = - phz*vumm(m1,m2,3,i,l) - dphz*vumm(m1,m2,4,i,l) !vsz
+             vumm(m1,m2,7,i,l) =   phz**2*vumm(m1,m2,1,i,l) + &
+                  phz*dphz*(vumm(m1,m2,2,i,l)+vumm(m1,m2,3,i,l)) + &
+                  dphz**2*vumm(m1,m2,4,i,l) !vzz
+             vumm(m1,m2,8,i,l) = - phz*vumm(m1,m2,1,i,l) - dphz*vumm(m1,m2,3,i,l) !vzu
+             vumm(m1,m2,9,i,l) = - phz*vumm(m1,m2,2,i,l) - dphz*vumm(m1,m2,4,i,l) !vzs
+          endif
+          !              print *, 'Vorb before rotation isp=',i,'l=',l
+          !              print ('(7f8.4)'),((Vorb(m1,m2,i,iblu),m2=-l,l),m1=-l,l)
+          !              print *, 'rotated vumm'
+          !              print ('(7(2f8.4,1x))'),
+          !     .          (((vumm(m1,m2,k,i,l),m2=-l,l),m1=-l,l),k=1,4)
+          !              stop
+       enddo
     enddo
   end subroutine vlm2us
 end module m_augmat

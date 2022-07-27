@@ -1,14 +1,14 @@
-module m_gaugm
+module m_gaugm !Generic routine to make augmentation matrices
   public gaugm
   private
 contains
   subroutine gaugm(nr,nsp,lso,rofi,rwgt,lmxa,lmxl,nlml,vsm, &
-       gpotb,gpot0,hab,vab,sab,sodb,qum,vum,cg,jcg,indxcg, &
+       gpotb,gpot0,hab,vab,sab,sodb,qum,vum,&
        nf1,nf1s,lmx1,lx1,f1,x1,v1,d1, &
        nf2,nf2s,lmx2,lx2,f2,x2,v2,d2, &
        lmux,sig,tau,nlx1,nlx2,ppi,hsozz,hsopm, &
        lmaxu,vumm,lldau,idu)
-    use m_lmfinit,only: nab,n0
+    use m_lmfinit,only: nab,n0,cg=>rv_a_ocg,jcg=>iv_a_ojcg,indxcg=>iv_a_oidxcg
     use m_lgunit,only:stdo
     !- Generic routine to make augmentation matrices
     ! ----------------------------------------------------------------------
@@ -200,11 +200,10 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     integer :: nr,nsp,lmxa,lmxl,nlml,lmux,lso, & 
-         nf1,nf1s,lmx1,nlx1,lx1(nf1),jcg(1),indxcg(1), &
-         nf2,nf2s,lmx2,nlx2,lx2(nf2)
+         nf1,nf1s,lmx1,nlx1,lx1(nf1),nf2,nf2s,lmx2,nlx2,lx2(nf2)
     integer :: lmaxu,lldau,idu(4)
     double complex vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,nab,2,0:lmaxu)
-    double precision :: rofi(nr),rwgt(nr),vsm(nr,nlml,nsp),cg(1), &
+    double precision :: rofi(nr),rwgt(nr),vsm(nr,nlml,nsp), &
          qum(0:lmxa,0:lmxa,0:lmxl,6,nsp),gpotb(1),gpot0(1), &
          hab(nab,n0,nsp),vab(nab,n0,nsp),sab(nab,n0,nsp), &
          f1(nr,0:lmx1,nf1s),v1(0:lmx1,nf1s),d1(0:lmx1,nf1s), &

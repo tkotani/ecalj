@@ -5,6 +5,7 @@ subroutine hambl(isp,qin, smpot,vconst,osig,otau,oppi, h, s)
   use m_supot,only: k1,k2,k3
   use m_struc_def,only: s_rv1,s_cv1
   use m_lattic,only:plat=>lat_plat,qlat=>lat_qlat
+  use m_augmbl,only: augmbl
   use m_hsibl,only:hsibl
   !i   isp   :spin index
   !i   qin    :Bloch vector (k-point).

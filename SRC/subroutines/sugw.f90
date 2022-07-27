@@ -22,6 +22,7 @@ contains
     use m_qplist,only: qplist,ngplist,ngvecp, iqini,iqend,ispini,ispend,iqibzmax
     use m_hamindex0,only: Readhamindex0, nlindx
     use m_density,only: v0pot,pnuall,pnzall
+    use m_augmbl,only: aughsoc
     use m_ftox
     implicit none
     !! == Driver for fpgw (to prepare eigenfuncitons for fpgw) ==
