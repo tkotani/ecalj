@@ -606,8 +606,7 @@ contains
   end subroutine mkekin
   subroutine pvgtkn(kmax,lmxa,nlma,nkaph,norb,ltab,ktab,blks,lmxh, &
        nlmh,tauhh,sighh,ppihhz,tauhp,sighp,ppihpz, &
-       taupp,sigpp,ppippz,lso,qhh,qhp,qpp,nsp,nspc,&
-       sumt,sumq,sumh)
+       taupp,sigpp,ppippz,lso,qhh,qhp,qpp,nsp,nspc,   sumt,sumq,sumh)
     !- Local contribution to kinetic energy for one site
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -649,18 +648,17 @@ contains
     implicit none
     integer :: kmax,lmxa,nlma,lmxh,nlmh,nsp,nspc,lso
     integer :: nkaph,norb,ltab(norb),ktab(norb),blks(norb)
-    double precision :: &
-         tauhh(nkaph,nkaph,0:lmxh,1),sighh(nkaph,nkaph,0:lmxh,1), &
-         tauhp(nkaph,0:kmax,0:lmxh,1),sighp(nkaph,0:kmax,0:lmxh,1), &
-         taupp(0:kmax,0:kmax,0:lmxa,1),sigpp(0:kmax,0:kmax,0:lmxa,1), &
-         qhh(nkaph,nkaph,nlmh,nlmh,1), &
-         qhp(nkaph,0:kmax,nlmh,nlma,1), &
-         qpp(0:kmax,0:kmax,nlma,nlma,1)
-    double complex &
-         ppihhz(nkaph,nkaph,nlmh,nlmh,1), &
-         ppihpz(nkaph,0:kmax,nlmh,nlma,1), &
-         ppippz(0:kmax,0:kmax,nlma,nlma,1)
-    ! ... Local parameters
+    real(8):: &
+         tauhh(nkaph,nkaph,0:lmxh,nsp),sighh(nkaph,nkaph,0:lmxh,nsp), &
+         tauhp(nkaph,0:kmax,0:lmxh,nsp),sighp(nkaph,0:kmax,0:lmxh,nsp), &
+         taupp(0:kmax,0:kmax,0:lmxa,nsp),sigpp(0:kmax,0:kmax,0:lmxa,nsp), &
+         qhh(nkaph,nkaph,nlmh,nlmh,nsp), &
+         qhp(nkaph,0:kmax,nlmh,nlma,nsp), &
+         qpp(0:kmax,0:kmax,nlma,nlma,nsp)
+    complex(8)::&
+         ppihhz(nkaph,nkaph,nlmh,nlmh,nsp), &
+         ppihpz(nkaph,0:kmax,nlmh,nlma,nsp), &
+         ppippz(0:kmax,0:kmax,nlma,nlma,nsp)
     integer :: ilm1,ilm2,k1,k2,ll,nlm11,nlm12,nlm21,nlm22,i
     double precision :: sumt,sumq,sumh,xx
     integer :: io1,io2,l1,l2
@@ -678,71 +676,39 @@ contains
     !      endif
     ! ccccccccccccccccccccccccccccccccccccc
 
-    sumt = 0d0
-    sumq = 0d0
-    sumh = 0d0
     ! ... Pkl*Pkl
-    do  i = 1, nsp
-       do  k1 = 0, kmax
-          do  k2 = 0, kmax
-             do  ilm1 = 1, nlma
-                l1 = ll(ilm1)
-                sumt = sumt + qpp(k1,k2,ilm1,ilm1,i)*taupp(k1,k2,l1,i)
-                sumq = sumq + qpp(k1,k2,ilm1,ilm1,i)*sigpp(k1,k2,l1,i)
-                do  ilm2 = 1, nlma
-                   sumh = sumh + qpp(k1,k2,ilm1,ilm2,i)*ppippz(k1,k2,ilm1,ilm2,i)
-                enddo
-             enddo
-          enddo
+    sumt = sum([(sum(qpp(:,:,ilm1,ilm1,:)*taupp(:,:,ll(ilm1),:)),ilm1=1,nlma)])
+    sumq = sum([(sum(qpp(:,:,ilm1,ilm1,:)*sigpp(:,:,ll(ilm1),:)),ilm1=1,nlma)])
+    sumh = sum(qpp(:,:,:,:,:)*ppippz(:,:,:,:,:))
+    ! ... Hsm*Hsm
+    do  io2 = 1, norb;    if(blks(io2)==0) cycle 
+       do  io1 = 1, norb; if(blks(io1)==0) cycle 
+          associate(k2 => ktab(io2),nlm21=>ltab(io2)**2+1,k1=>ktab(io1),nlm11 => ltab(io1)**2+1)
+            do  ilm1 = nlm11, nlm11+ blks(io1)-1
+               do  ilm2 = nlm21, nlm21 + blks(io2)-1
+                  if (ilm1 == ilm2) then
+                     sumt = sumt + sum(qhh(k1,k2,ilm1,ilm1,:)*tauhh(k1,k2,ll(ilm1),:))
+                     sumq = sumq + sum(qhh(k1,k2,ilm1,ilm1,:)*sighh(k1,k2,ll(ilm1),:))
+                  endif
+               enddo
+               sumh = sumh+sum(qhh(k1,k2,ilm1,:,:)*ppihhz(k1,k2,ilm1,:,:))
+            enddo
+          end associate
        enddo
-       ! ... Hsm*Hsm
-       do  io2 = 1, norb
-          if (blks(io2)==0) cycle ! /= 0) then
-          !       k2,l2 = k and starting l index for this block
-          l2 = ltab(io2)
-          k2 = ktab(io2)
-          nlm21 = l2**2+1
-          nlm22 = nlm21 + blks(io2)-1
-          do  io1 = 1, norb
-             if (blks(io1)==0) cycle ! /= 0) then
-             !         k1,l1 = k and starting l index for this block
-             l1 = ltab(io1)
-             k1 = ktab(io1)
-             nlm11 = l1**2+1
-             nlm12 = nlm11 + blks(io1)-1
-             do  ilm1 = nlm11, nlm12
-                l1 = ll(ilm1)
-                do  ilm2 = nlm21, nlm22
-                   if (ilm1 == ilm2) then
-                      sumt = sumt + qhh(k1,k2,ilm1,ilm2,i)*tauhh(k1,k2,l1,i)
-                      sumq = sumq + qhh(k1,k2,ilm1,ilm2,i)*sighh(k1,k2,l1,i)
-                   endif
-                   sumh = sumh+qhh(k1,k2,ilm1,ilm2,i)*ppihhz(k1,k2,ilm1,ilm2,i)
-                enddo
-             enddo
-          enddo
-       enddo
-       ! ... Hsm*Pkl
-       do  io1 = 1, norb
-          if (blks(io1)==0) cycle ! /= 0) then
-          !       k1,l1 = k and starting l index for this block
-          l1 = ltab(io1)
-          k1 = ktab(io1)
-          nlm11 = l1**2+1
-          nlm12 = nlm11 + blks(io1)-1
-          do  k2 = 0, kmax
-             do  ilm1 = nlm11, nlm12
-                l1 = ll(ilm1)
-                do  ilm2 = 1, nlma
-                   if (ilm1 == ilm2) then
-                      sumt = sumt + qhp(k1,k2,ilm1,ilm2,i)*tauhp(k1,k2,l1,i)
-                      sumq = sumq + qhp(k1,k2,ilm1,ilm2,i)*sighp(k1,k2,l1,i)
-                   endif
-                   sumh = sumh+qhp(k1,k2,ilm1,ilm2,i)*ppihpz(k1,k2,ilm1,ilm2,i)
-                enddo
-             enddo
-          enddo
-       enddo
+    enddo
+    ! ... Hsm*Pkl
+    do  io1 = 1, norb; if (blks(io1)==0) cycle
+       associate(k1=>ktab(io1), nlm11=> ltab(io1)**2+1 )
+         do  ilm1 = nlm11, nlm11+blks(io1)-1
+            do  ilm2 = 1, nlma
+               if (ilm1 == ilm2) then
+                  sumt = sumt + sum(qhp(k1,:,ilm1,ilm1,:)*tauhp(k1,:,ll(ilm1),:))
+                  sumq = sumq + sum(qhp(k1,:,ilm1,ilm1,:)*sighp(k1,:,ll(ilm1),:))
+               endif
+            enddo
+            sumh = sumh+sum(qhp(k1,:,ilm1,:,:)*ppihpz(k1,:,ilm1,:,:))
+         enddo
+       end associate
     enddo
   end subroutine pvgtkn
   subroutine makdos(nqp,nband,nbmx,nsp,wgts,evl,n,w,tol,emin,emax, ndos,dos) !- Make density of states from bands
@@ -769,8 +735,7 @@ contains
     double precision :: wgts(nqp),evl(nbmx,nsp,nqp),dos(0:ndos-1,nsp),w,emin,emax,tol,wt,emesh
     integer :: i,isp,iband,iq,meshpt,mesh1,mesh2,mrange=999999,iprint
     double precision :: e,x,range,test,step,d,s,xx
-    external delstp
-    call dpzero(dos,nsp*ndos)
+    dos=0d0
     step = (emax - emin) / (ndos - 1)
     if ( tol > 0d0 ) then
        do  2  i = 0, ndos-1

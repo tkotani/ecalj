@@ -266,7 +266,7 @@ contains
     integer :: blks(norb),ntab(norb),ol,oi,iblk
     double precision :: xx
     !     Block into groups of consecutive l
-    call gtbsl1(4+16,norb,ltab,ktab,rsmh,xx,ntab,blks)
+    call gtbsl1(0,norb,ltab,ktab,rsmh,xx,ntab,blks)
     do  iorb = 1, norb
        ik1 = ktab(iorb)
        if(ik1 /= ik) cycle
@@ -317,7 +317,7 @@ contains
     integer :: ilmb,ilma,k,iorb,l1,ik1,i1,nlm1,nlm2
     integer :: blks(norb),ntab(norb),oi,ol,nn
     double precision :: xx
-    call gtbsl1(4+16,norb,ltab,ktab,rsmh,xx,ntab,blks) !! Block into groups of consecutive l
+    call gtbsl1(0,norb,ltab,ktab,rsmh,xx,ntab,blks) !! Block into groups of consecutive l
     do  iorb = 1, norb
        ik1 = ktab(iorb) ! Loop only over orbitals belonging to this energy block
        nn = blks(iorb)

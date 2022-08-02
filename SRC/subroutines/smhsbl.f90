@@ -42,7 +42,7 @@ subroutine smhsbl(vavg,q,ndimh, napw,igapw, h,s)
   !r
   !r     orbl      norb : (total number of orbital types)
   !r
-  !r     gtbsl1    Serves two purposes.
+  !r     gtbsl    Serves two purposes.
   !r     (norb,    1. Blocks orbitals with common (rsmh,eh) and
   !r     ltab,     consecutive l so that mesh tabulations are more
   !r     ktab,     efficiently generated.
@@ -125,13 +125,13 @@ subroutine smhsbl(vavg,q,ndimh, napw,igapw, h,s)
         p1 =rv_a_opos(:,ib1) !site position
         call uspecb(is1,rsm1,e1) 
         call orblib1(ib1) !norb1,ltab1,ktab1,offl1
-        call gtbsl1(8+16,norb1,ltab1,ktab1,rsm1,e1,ntab1,blks1)
+        call gtbsl8(norb1,ltab1,ktab1,rsm1,e1,ntab1,blks1)
         ib2loop: do  ib2 = ib1, nbas
            is2=ispec(ib2) !ssite(ib2)%spec
            p2=rv_a_opos(:,ib2) !ssite(ib2)%pos
            call uspecb(is2,rsm2,e2)
            call orblib2(ib2) !norb2,ltab2,ktab2,xx,offl2,xx)
-           call gtbsl1(8+16,norb2,ltab2,ktab2,rsm2,e2,ntab2,blks2)
+           call gtbsl8(norb2,ltab2,ktab2,rsm2,e2,ntab2,blks2)
            !     ... M.E. <1> and <T> between all envelopes connecting ib1 and ib2
            do  i1 = 1, nkaphh(is1) !nkap1
               do  i2 = 1, nkaphh(is2) !nkap2

@@ -37,14 +37,13 @@ contains
   
   subroutine gtbsl4(ia)
     !- Marks blocks of contiguous l for which rsm and e are unchanged
-    ! ----------------------------------------------------------------------
-    !i Inputs
-    !i   mode  :4  requires l be consecutive and kappa index be constant in contiguous block
+    ! requires l be consecutive and kappa index be constant in contiguous block
     !i   norb  :number of orbital types, i.e. kinds of radial functions 
     !i   ltab  :table of l-quantum numbers for each type (orbl.f)
     !i   ktab  :table of energy index for each type (orbl.f)
     !o Outputs
     !o   ntab  :table of upper ranges for each orbital block
+    !o   blks sum of 2*l+1
     ! ----------------------------------------------------------------------
     implicit none
     integer :: ia,iorb,jorb,io,iorbe
@@ -64,5 +63,5 @@ contains
     enddo
     blks =[(sum( [ (2*ltabx(io,ia)+1, io=iorb,ntab(iorb)) ] ),iorb=1,norb)]
   end subroutine gtbsl4
-
+  
 end module m_orbl

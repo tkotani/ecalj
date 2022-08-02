@@ -108,7 +108,7 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
         is = ispec(ib) !ssite(ib)%spec
         call uspecb(is,rsmh,eh)
         call orblib(ib)!return norb,ltab,ktab,offl
-        call gtbsl1(8+16,norb,ltab,ktab,rsmh,eh,ntab,blks)
+        call gtbsl8(norb,ltab,ktab,rsmh,eh,ntab,blks)
         do  io = 1, norb
            l  = ltab(io) ! l,ik = l and kaph indices, needed to address eh,rsmh
            ik = ktab(io)

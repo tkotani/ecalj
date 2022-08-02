@@ -372,13 +372,13 @@ contains
        p1 =rv_a_opos(:,ib1) !ssite(ib1)%pos
        call uspecb(is1,rsm1,e1)
        call orblib1(ib1) !norb1,ltab1,ktab1,offl1
-       call gtbsl1(4+16,norb1,ltab1,ktab1,rsm1,e1,ntab1,blks1)
+       call gtbsl1(0,norb1,ltab1,ktab1,rsm1,e1,ntab1,blks1)
        do ib2=ib1+1,nbas
           is2=ispec(ib2) !ssite(ib2)%spec
           p2 =rv_a_opos(:,ib2) !ssite(ib2)%pos
           call uspecb(is2,rsm2,e2)
           call orblib2(ib2)
-          call gtbsl1(4+16,norb2,ltab2,ktab2,rsm2,e2,ntab2,blks2)
+          call gtbsl1(0,norb2,ltab2,ktab2,rsm2,e2,ntab2,blks2)
           !     ... M.E. <1> and <KE> between all envelopes connecting ib1 and ib2
           do i1 = 1, nkaphh(is1) !nkap1
              do i2 = 1, nkaphh(is2) !nkap2
@@ -472,20 +472,19 @@ contains
     do  l1 = 1, lmxax
        srm1l(l1) = img**l1
     enddo
-    ! --- Loop over first and second site indices ---
-    do 1000 ib1=1,nbas
+    ib1loop: do 1000 ib1=1,nbas
        is1=ispec(ib1) !ssite(ib1)%spec
        p1=rv_a_opos(:,ib1) !ssite(ib1)%pos
        call uspecb(is1,rsm1,e1)
        call orblib1(ib1) !norb1,ltab1,ktab1,xx,offl1,xx)
-       call gtbsl1(8+16,norb1,ltab1,ktab1,rsm1,e1,ntab1,blks1)
+       call gtbsl8(norb1,ltab1,ktab1,rsm1,e1,ntab1,blks1)
        !   ... Hsm (i1) \times i(q+G)[(q+G)**2+const] PW (i2) Takao. Taken from smhsbl.f
        !       i1--> Hsm, i2--> PW
-       do 2000 ig = 1, napw
+       igloop: do 2000 ig = 1, napw
           i2 = ig + nlmto
           qpg2 = qpg2v(ig)
           phase = exp(img*alat*sum(qpgv(:,ig)*p1))
-          do 3000 io1 = 1, norb1
+          iorbloop: do 3000 io1 = 1, norb1
              l1  = ltab1(io1)
              ik1 = ktab1(io1)
              ol1 = ltab1(io1)**2
@@ -493,7 +492,7 @@ contains
              denom = e1(l1+1,ik1) - qpg2
              gam   = 1d0/4d0*rsm1(l1+1,ik1)**2
              fach  = -fpi/denom * phase * srm1l(l1) * exp(gam*denom)
-             do 3010 ibl1 = 1,blks1(io1) 
+             iorbblock: do 3010 ibl1 = 1,blks1(io1) 
                 !             s(i1,i2) = ovl
                 !             h(i1,i2) = (qpg2 + vavg) * ovl
                 ovl = fach * ylv(ig,ol1+ibl1)/sqv ! Eq. 9.4 in JMP39 3393
@@ -502,10 +501,10 @@ contains
                    ssum = ewgt(ivec)*[(dconjg(evec(oi1+ibl1,ivec))*ccc(m)*evec(i2,ivec),m=1,3)]
                    f(:,ib1) = f(:,ib1) - 2d0*ssum
                 enddo
-3010         enddo
-3000      enddo
-2000   enddo
-1000 enddo
+3010         enddo iorbblock
+3000      enddo iorbloop
+2000   enddo igloop
+1000 enddo ib1loop
     call tcx ('fsmbpw')
   end subroutine fsmbpw
 end module m_addrbl

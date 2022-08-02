@@ -264,7 +264,7 @@ contains
 !       singp=dimag(cc)
        call orblib(ib) !Return norb,ltab,ktab,offl
        call uspecb(is,rsmh,eh)
-       call gtbsl1(7+16,norb,ltab,ktab,rsmh,eh,ntab,blks)
+       call gtbsl1(1,norb,ltab,ktab,rsmh,eh,ntab,blks)
        psi0=0d0
        if(mode == 1) psi=0d0
        do io = 1, norb
