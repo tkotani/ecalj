@@ -684,14 +684,12 @@ contains
     do  io2 = 1, norb;    if(blks(io2)==0) cycle 
        do  io1 = 1, norb; if(blks(io1)==0) cycle 
           associate(k2 => ktab(io2),nlm21=>ltab(io2)**2+1,k1=>ktab(io1),nlm11 => ltab(io1)**2+1)
+            sumh = sumh+sum([( sum(qhh(k1,k2,ilm1,:,:)*ppihhz(k1,k2,ilm1,:,:)), ilm1=nlm11,nlm11+blks(io1)-1)])
             do  ilm1 = nlm11, nlm11+ blks(io1)-1
-               do  ilm2 = nlm21, nlm21 + blks(io2)-1
-                  if (ilm1 == ilm2) then
-                     sumt = sumt + sum(qhh(k1,k2,ilm1,ilm1,:)*tauhh(k1,k2,ll(ilm1),:))
-                     sumq = sumq + sum(qhh(k1,k2,ilm1,ilm1,:)*sighh(k1,k2,ll(ilm1),:))
-                  endif
-               enddo
-               sumh = sumh+sum(qhh(k1,k2,ilm1,:,:)*ppihhz(k1,k2,ilm1,:,:))
+               if( nlm21<= ilm1 .and. ilm1<=nlm21+blks(io2)-1) then
+                  sumt = sumt + sum(qhh(k1,k2,ilm1,ilm1,:)*tauhh(k1,k2,ll(ilm1),:))
+                  sumq = sumq + sum(qhh(k1,k2,ilm1,ilm1,:)*sighh(k1,k2,ll(ilm1),:))
+               endif
             enddo
           end associate
        enddo
@@ -699,14 +697,10 @@ contains
     ! ... Hsm*Pkl
     do  io1 = 1, norb; if (blks(io1)==0) cycle
        associate(k1=>ktab(io1), nlm11=> ltab(io1)**2+1 )
-         do  ilm1 = nlm11, nlm11+blks(io1)-1
-            do  ilm2 = 1, nlma
-               if (ilm1 == ilm2) then
-                  sumt = sumt + sum(qhp(k1,:,ilm1,ilm1,:)*tauhp(k1,:,ll(ilm1),:))
-                  sumq = sumq + sum(qhp(k1,:,ilm1,ilm1,:)*sighp(k1,:,ll(ilm1),:))
-               endif
-            enddo
-            sumh = sumh+sum(qhp(k1,:,ilm1,:,:)*ppihpz(k1,:,ilm1,:,:))
+         sumh = sumh+sum([(sum(qhp(k1,:,ilm1,:,:)*ppihpz(k1,:,ilm1,:,:)),ilm1=nlm11,nlm11+blks(io1)-1)])
+         do  ilm1 = nlm11, min(nlm11+blks(io1)-1,nlma)
+            sumt = sumt + sum(qhp(k1,:,ilm1,ilm1,:)*tauhp(k1,:,ll(ilm1),:))
+            sumq = sumq + sum(qhp(k1,:,ilm1,ilm1,:)*sighp(k1,:,ll(ilm1),:))
          enddo
        end associate
     enddo
