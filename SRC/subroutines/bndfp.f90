@@ -696,13 +696,11 @@ contains
     enddo
     ! ... Hsm*Pkl
     do  io1 = 1, norb; if (blks(io1)==0) cycle
-       associate(k1=>ktab(io1), nlm11=> ltab(io1)**2+1 )
-         sumh = sumh+sum([(sum(qhp(k1,:,ilm1,:,:)*ppihpz(k1,:,ilm1,:,:)),ilm1=nlm11,nlm11+blks(io1)-1)])
-         do  ilm1 = nlm11, min(nlm11+blks(io1)-1,nlma)
-            sumt = sumt + sum(qhp(k1,:,ilm1,ilm1,:)*tauhp(k1,:,ll(ilm1),:))
-            sumq = sumq + sum(qhp(k1,:,ilm1,ilm1,:)*sighp(k1,:,ll(ilm1),:))
-         enddo
-       end associate
+       associate(k1=>ktab(io1), nlm11=>ltab(io1)**2+1, nlm11e=>min(ltab(io1)**2+1 + blks(io1)-1,nlma) )
+         sumh= sumh+sum([(sum(qhp(k1,:,ilm1,:,:)*ppihpz(k1,:,ilm1,:,:)),    ilm1= nlm11,nlm11+blks(io1)-1)])
+         sumt= sumt+sum([(sum(qhp(k1,:,ilm1,ilm1,:)*tauhp(k1,:,ll(ilm1),:)),ilm1= nlm11,nlm11e)])
+         sumq= sumq+sum([(sum(qhp(k1,:,ilm1,ilm1,:)*sighp(k1,:,ll(ilm1),:)),ilm1= nlm11,nlm11e)])
+       endassociate
     enddo
   end subroutine pvgtkn
   subroutine makdos(nqp,nband,nbmx,nsp,wgts,evl,n,w,tol,emin,emax, ndos,dos) !- Make density of states from bands

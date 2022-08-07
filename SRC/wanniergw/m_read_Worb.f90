@@ -132,7 +132,7 @@ contains
           l_number = ll(cbas_mlwf(i,iclass)) !l for Wannier
           !          print *, "l_number, iclassin(iclass)", l_number , iclassin(iclass)
           mm = cbas_mlwf(i,iclass) - l_number**2
-          iphi   (nphix,iwf) = ioffset(l_number,iclass) + mm
+          iphi  (nphix,iwf) = ioffset(l_number,iclassin(iclass)) + mm !bugfix 2022-8-7 (based on Suzuki report.)
           iphidot(nphix,iwf) = iphi(nphix,iwf) + l_number*2+1
           iwf = iwf +1
        enddo
