@@ -27,7 +27,7 @@ subroutine defpq(z,lmax,nsp,p,q)
   double precision :: z,p(n0,2),q(n0,2)
   ! ... Local parameters
   logical :: lchange
-  integer :: l,k0(n0),q0(n0),q02(n0),iz,iz2,kl,lmx,lgunit,iprint,lmin !,k02(n0)
+  integer :: l,k0(n0),q0(n0),q02(n0),iz,iz2,kl,lmx,lgunit,iprint,lmin ,k02(n0)
   double precision :: pdef(0:3,0:100),dasum,w1,w2
   integer :: NULLI
   parameter (NULLI=-99999)
@@ -212,9 +212,9 @@ subroutine defpq(z,lmax,nsp,p,q)
   !      call atmoms(k0,q0,dble(iz))
   !      call atmoms(k0,q02,dble(iz2))
   k0=0
-  !$$$      k02=0
-  !$$$      call atmoms(k02,q02,dble(iz2))
   call atmoms(k0,q0,dble(iz)) !takao think this is correct order to obtain k0. Nov29 2010
+  k02=0
+  call atmoms(k02,q02,dble(iz2)) !2022-8-16 recover q02
 
   !$$$ Sakakibara found this is wrong for Na0.5Co2O4
   !$$$!! Sanity check for virtual crystal approx. takao Nov29 2010.

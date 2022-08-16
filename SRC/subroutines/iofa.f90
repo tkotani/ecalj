@@ -45,20 +45,18 @@ integer function iofa(spid,nxi0,nxi,exi,hfc,hfct,rsm,z,rmt,a,nr, &
   ! --- Input ---
   if (ifi > 0) then
      jfi = ifi
-     read(jfi,201,end=998,err=998) spid
-201  format(9x,a8/)
-     read(jfi,102) z,a,nsp0,lrel0,nr,rmt,rsm
+     read(jfi,*,end=998,err=998) spid
+     read(jfi,*) z,a,nsp0,lrel0,nr,rmt,rsm
      if (isanrg(lrel0, lrel,lrel,msg,'lrel', .TRUE. )) stop
      if (isanrg(nsp0,  nsp,nsp,  msg,'nsp', .TRUE. )) stop
-     read(jfi,103) nxi
-     read(jfi,205) (exi(i),i=1,nxi)
-     read(jfi,205) (hfc(i,1),i=1,nxi)
-     read(jfi,205) (hfct(i,1),i=1,nxi)
-205  format(5d16.8)
+     read(jfi,*) nxi
+     read(jfi,*) (exi(i),i=1,nxi)
+     read(jfi,*) (hfc(i,1),i=1,nxi)
+     read(jfi,*) (hfct(i,1),i=1,nxi)
      if (nsp == 2) read(jfi,*) (hfc(i,2),i=1,nxi)
      if (nsp == 2) read(jfi,*) (hfct(i,2),i=1,nxi)
-     read (jfi,210) qc,ccof,ceh,stc
-210  format(5x,4f16.7)
+     read(jfi,*)
+     read(jfi,*) qc,ccof,ceh,stc
      read(ifi,333) rho(1:nr)
      if (nsp == 2) read(ifi,333) rho(nr+1:2*nr)
      read(ifi,333) rhoc(1:nr)
@@ -69,11 +67,9 @@ integer function iofa(spid,nxi0,nxi,exi,hfc,hfct,rsm,z,rmt,a,nr, &
   ! --- Output ---
   if (ifi < 0)  then
      jfi = -ifi
-     write(jfi,101) spid
-101  format('-------- ',a8,' ----------'/ &
-          '     z       a      nsp lrel  nr     rmt          rsm')
+     write(jfi,"(a,a)")spid,' ===  z       a      nsp   lrel   nr   rmt  rsm'
      write(jfi,102) z,a,nsp,lrel,nr,rmt,rsm
-102  format(f8.2,f9.4,3i5,2f13.7)
+102  format(2d24.16,3i5,2d24.16)
      write(jfi,103) nxi
 103  format(i4)
      write(jfi,105) (exi(i),i=1,nxi)
@@ -81,9 +77,10 @@ integer function iofa(spid,nxi0,nxi,exi,hfc,hfct,rsm,z,rmt,a,nr, &
      write(jfi,105) (hfct(i,1),i=1,nxi)
      if (nsp == 2) write(jfi,105) (hfc(i,2),i=1,nxi)
      if (nsp == 2) write(jfi,105) (hfct(i,2),i=1,nxi)
-105  format(1p,5d16.8)
-     write (jfi,110) qc,ccof,ceh,stc
-110  format(' core',4f16.7)
+105  format(100d24.16)
+     write(jfi,*) ' core'
+     write(jfi,110) qc,ccof,ceh,stc
+110  format(100d24.16)
      write(jfi,333) rho(1:nr) !call dfdump(rho,nr,-jfi)
      if (nsp == 2) write(jfi,333) rho(nr+1:2*nr) !call dfdump(rho(1+nr),nr,-jfi)
      write(jfi,333) rhoc(1:nr) !call dfdump(rhoc,nr,-jfi)
@@ -95,5 +92,5 @@ integer function iofa(spid,nxi0,nxi,exi,hfc,hfct,rsm,z,rmt,a,nr, &
   iofa = 0
   return
 998 if(ipr > 0) write(stdo,'('' iofa  : missing species id ... nothing read'')')
-333 format(1p,4e20.13)
+333 format(1p,4e26.16)
 end function iofa

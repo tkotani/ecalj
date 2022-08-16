@@ -125,6 +125,7 @@ contains
           nr = 0
        endif
        if (procid == master) then
+          print *,'zzzzzzzzz',z,z-z0
           call fsanrg(z0,z,z,0d-9,msg,'z',.true.)
           call fsanrg(rmt0,rmt,rmt,1d-6,msg,'rmt',.true.)
           call fsanrg(a0,a,a,0d-9,msg,'a',.true.)
@@ -195,8 +196,7 @@ contains
              fac = 1d0
              if(dabs(sum) > 1d-7) fac = qc/sum
              if (ipr >= 40) write(stdo,787) is,qc,sum,fac
-787          format(' scale foca=0 core species',i2,': qc,sum,scale=', &
-                  3f12.6,f12.6)
+787          format(' scale foca=0 core species',i2,': qc,sum,scale=', 3f12.6,f12.6)
              call dpcopy ( sv_p_orhoat( 3 , ib )%v , sv_p_orhoat( 3 , ib )%v, 1 , nr * nsp , fac )
              if (allocated(rwgt_rv)) deallocate(rwgt_rv)
           endif
@@ -210,8 +210,8 @@ contains
     ! --- Overlap smooth hankels to get smooth interstitial density ---
     ng=lat_ng
     allocate(cv_zv(ng*nsp))
-    call ovlpfa ( nbas , nxi , n0 , exi , hfc , rsmfa, ng , ng , rv_a_ogv , cv_zv )
-    call gvputf ( ng , nsp , iv_a_okv , k1 , k2 , k3 , cv_zv , zv_a_osmrho )
+    call ovlpfa( nbas , nxi , n0 , exi , hfc , rsmfa, ng , ng , rv_a_ogv , cv_zv )
+    call gvputf( ng , nsp , iv_a_okv , k1 , k2 , k3 , cv_zv , zv_a_osmrho )
     if (allocated(cv_zv)) deallocate(cv_zv)
     ! ... FFT to real-space mesh
     call fftz3 ( zv_a_osmrho , n1 , n2 , n3 , k1 , k2 , k3 , nsp, 0 , 1 )
@@ -224,8 +224,7 @@ contains
        smom = 2*smom - sum1
     endif
     ! --- Set up local densities using rmt from atm file ---
-    call ovlocr ( nbas , n0 , nxi , exi ,&
-         hfc , rsmfa , rv_a_orhofa , sv_p_orhoat , sqloc , slmom )
+    call ovlocr(nbas,n0,nxi,exi,hfc,rsmfa,rv_a_orhofa,sv_p_orhoat,sqloc,slmom)
     ! --- Add compensating uniform electron density to compensate background
     call adbkql ( sv_p_orhoat , nbas , nsp , qbg , vol , - 1d0 )!, sspec )!, ssite )
     if (abs(qbg)/=0d0.and. ipr>=10) write(stdo,ftox) ' Uniform '// &
@@ -241,8 +240,7 @@ contains
             /    ' Homogeneous background:   ',f16.6 &
             /    ' Deviation from neutrality:',f16.6)
        if (ipr >= 10) write (stdl,710) sum1+sqloc,sum1,sqloc,qbg,dq
-710    format('ov qvl',f11.6,'  sm',f11.6,'  loc',f11.6, &
-            '   bg',f10.6,'  dQ',f10.6)
+710    format('ov qvl',f11.6,'  sm',f11.6,'  loc',f11.6,'   bg',f10.6,'  dQ',f10.6)
     else
        if (ipr >= 10) write(stdo,896) sum1,smom,sqloc,slmom, &
             sum1+sqloc,smom+slmom,ctot,corm,-ztot,qbg,dq
@@ -253,13 +251,10 @@ contains
             /    ' Sum of nuclear charges:   ',f16.6 &
             /    ' Homogeneous background:   ',f16.6 &
             /    ' Deviation from neutrality:',f16.6)
-       if (ipr >= 10) &
-            write (stdl,711) sum1+sqloc,sum1,sqloc,qbg,smom+slmom
-711    format('ov qvl',f11.6,'  sm',f11.6,'  loc',f11.6, &
-            '   bg',f11.6,' mm',f11.6)
+       if (ipr >= 10) write (stdl,711) sum1+sqloc,sum1,sqloc,qbg,smom+slmom
+711    format('ov qvl',f11.6,'  sm',f11.6,'  loc',f11.6,'   bg',f11.6,' mm',f11.6)
     endif
-    if (dabs(dq) > 1d-4 .AND. ipr > 0) &
-         write(stdo,"(' rdovfa (warning) overlapped' &
+    if (dabs(dq) > 1d-4 .AND. ipr>0) write(stdo,"(' rdovfa (warning) overlapped' &
          //' density not neutral'//', dq= ',d13.5)") dq
     do is=1,nspec
        if (allocated(rv_a_ov0a(is)%v)) deallocate(rv_a_ov0a(is)%v)
