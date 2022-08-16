@@ -45,23 +45,18 @@ atomsr.o \
 m_rhocor.o\
 atwf.o \
 besslr.o \
-bloch.o \
 bzints.o \
 bzmesh.o \
 bzwts.o \
-bzwtsf.o \
-ccutup.o \
 chgmsh.o \
 config.o \
 defpq.o \
 defwsr.o \
 delstp.o \
-dfphi.o \
 dostet.o \
 dstrbp.o \
 dvdos.o \
 fermi.o \
-fixef0.o \
 freeat.o \
 fswgts.o \
 getq.o \
@@ -84,7 +79,6 @@ latlim.o \
 lattic.o \
 ldau.o \
 madmat.o \
-makdos.o \
 maknos.o \
 makrot.o \
 makrwf.o \
@@ -92,7 +86,6 @@ mkqp.o \
 mkrtab.o \
 m_mksym.o \
 m_mksym_util.o \
-mshsiz.o \
 mtchae.o \
 nwit.o \
 phidx.o \
@@ -117,7 +110,6 @@ scg.o \
 shftpp.o \
 siteid.o \
 slinz.o \
-soprm.o \
 splcls.o \
 splwts.o \
 strx00.o \
@@ -139,7 +131,6 @@ xlgen.o \
 ylmrtg.o \
 switch.o \
 rdsigm2.o\
-getcor.o \
 xcpbe.o \
 m_ext.o\
 a2bin.o \
@@ -171,7 +162,6 @@ platsl.o \
 poldvm.o \
 polint.o \
 ppfac.o \
-ran1.o \
 rdfiln.o \
 rfalsi.o \
 strings.o \
@@ -188,19 +178,14 @@ augmat.o \
 augmbl.o \
 bndfp.o \
 bstrux.o \
-corprm.o \
 dfqkkl.o \
 dfrce.o \
 efldos.o \
 elocp.o \
 esmsmves.o \
-flocbl.o \
 fradhd.o \
 fradpk.o \
-fsmbl.o \
-fsmbpw.o \
 gaugm.o \
-gklft.o \
 gvsym.o \
 hambl.o \
 hklft.o \
@@ -213,15 +198,10 @@ makusq.o \
 mixrho.o \
 mkdmtu.o \
 mkehkf.o \
-mkekin.o \
-mkewgt.o \
 mkrout.o \
-momusl.o \
 mshdot.o \
 mshint.o \
-mshvmt.o \
 ovlpfa.o \
-paug1.o \
 pnunew.o \
 poinsp.o \
 potpus.o \
@@ -236,17 +216,13 @@ sgvsym.o \
 smhsbl.o \
 smves.o \
 sopert.o \
-suphas.o \
 supot.o \
 suylg.o \
 symrho.o \
 tbhsi.o \
 totfrc.o \
-ugcomp.o \
 vcdmel.o \
-vesft.o \
 vesgcm.o \
-vlm2us.o \
 vxtrap.o \
 wrhomt.o \
 ncutcorrect.o \
@@ -254,7 +230,6 @@ stonerpb.o \
 stonerrsa.o \
 polinta.o \
 lmaux.o \
-gwcphi.o \
 pwmat.o \
 sugw.o \
 grfmsh.o \
