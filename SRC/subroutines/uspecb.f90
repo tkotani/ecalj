@@ -1,4 +1,4 @@
-module m_uspecb
+module m_uspecb !Get rsmh and eh. a little complicated when PZ is self-consistently determined.
 contains
   subroutine uspecb(is,rsmh,eh)
     use m_lmfinit,only: nkaph,nspec,nkapii,n0,nkap0, &

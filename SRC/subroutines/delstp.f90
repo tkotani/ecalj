@@ -1,5 +1,4 @@
-subroutine delstp(n,x,d,s,e)
-  !- Returns generalised delta and step functions (Methfessel & Paxton)
+subroutine delstp(n,x,d,s,e)! Returns generalised delta and step functions (Methfessel & Paxton)
   !-----------------------------------------------------------------------
   !i  Inputs
   !i    n  : order of approximant; see Remarks
@@ -26,13 +25,12 @@ subroutine delstp(n,x,d,s,e)
   !u Updates
   !u   23 May 00 extended to handle Fermi-Dirac broadening
   !-----------------------------------------------------------------------
-  !     implicit none
+  implicit none
   integer :: n
   double precision :: x,d,s,e
   integer :: i,k
   double precision :: a,h1,h2,h3,s0,ex2,derfc,srpi
   srpi = dsqrt(4d0*datan(1d0))
-
   ! ... Fermi-Dirac broadening
   if (n < 0) then
      if (x < -36d0) goto 91
@@ -42,7 +40,6 @@ subroutine delstp(n,x,d,s,e)
      e = -( s*dlog(s) + (1-s)*dlog(1-s) )
      return
   endif
-
   ! ... Methfessel-Paxton broadening
   if (x < -6d0) goto 91
   if (x >  6d0) goto 92
@@ -71,17 +68,14 @@ subroutine delstp(n,x,d,s,e)
   s = s0 + s*ex2
   e = 0.5d0*a*h1*ex2
   return
-
   ! ... Branch for very small or very large x
 91 s = 1d0
   e = 0d0
   d = 0d0
   return
-
 92 s = 0d0
   e = 0d0
   d = 0d0
   return
-
 end subroutine delstp
 

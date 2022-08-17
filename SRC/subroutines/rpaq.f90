@@ -1,8 +1,6 @@
-subroutine calcpv2 (zw,rv,cv, &
-     !     w                wpv,ovlp, !wdiag,iwdiag,
-     !     w                evec,eval,
-     nbloch, &
-     rpv,cpv,rw,cw )
+module m_rpaq
+  contains
+subroutine calcpv2 (zw,rv,cv, nbloch, rpv,cpv,rw,cw )
   !- calculate v^{1/2}Pv^{1/2} for given P and v --------
   !i zw : P, the polarization function. <\tilde{M}_i | P | \tilde{M}_j >
   !i rv+ i cv: v, the Coulomb matrix    <M_i |v |M_j>
@@ -22,13 +20,8 @@ subroutine calcpv2 (zw,rv,cv, &
   dimension   rv(nbloch,nbloch),cv(nbloch,nbloch), &
        rpv(nbloch,nbloch),cpv(nbloch,nbloch), &
        rw(nbloch,nbloch),cw(nbloch,nbloch)
-  !     w            wpv(nbloch,nbloch,2),ovlp(nbloch,nbloch,2),
-  !     w            wdiag(11*nbloch),iwdiag(nbloch),
-  !     w            evec(nbloch,nbloch,2),eval(nbloch)
   complex(8) zw(nbloch,nbloch)
-  real(8),allocatable:: rp(:,:),cp(:,:), &
-       rw1(:,:),cw1(:,:),rw2(:,:),cw2(:,:)
-
+  real(8),allocatable:: rp(:,:),cp(:,:), rw1(:,:),cw1(:,:),rw2(:,:),cw2(:,:)
   logical :: debug = .false.
   integer(4):: verbose
   !-----------------------------------------
@@ -38,27 +31,22 @@ subroutine calcpv2 (zw,rv,cv, &
   allocate ( rp(nbloch,nbloch), cp(nbloch,nbloch), &
        rw1(nbloch,nbloch),cw1(nbloch,nbloch), &
        rw2(nbloch,nbloch),cw2(nbloch,nbloch))
-
   !... Polarization function is decompsed into rp + i cp
   rp = dreal(zw(1:nbloch,1:nbloch))
   cp = dimag(zw(1:nbloch,1:nbloch))
-
   !... symmetrize the matrix
   call hermat  (rv,cv,nbloch)
   call hermat  (rp,cp,nbloch)
-
   !... calculate Pv
   if (debug) write(*,*)'debug> mmulc vP in'
   call mmulc   (rp,cp,nbloch, &
-       rv,cv,nbloch, &
-       nbloch,nbloch,nbloch,nbloch, &
+       rv,cv,nbloch, nbloch,nbloch,nbloch,nbloch, &
        rpv,cpv )
   rw1       = - rpv
   cw1       = - cpv
   do i      = 1,nbloch
      rw1(i,i)  = 1d0 + rw1(i,i)
   end do
-
   !... calculate vP
   if (debug) write(*,*)'debug> mmulc vP in'
   call mmulc   (rv,cv,nbloch, &
@@ -520,3 +508,4 @@ subroutine mmulc (ra,ca,lda, &
   return
 end subroutine mmulc
 
+end module m_rpaq

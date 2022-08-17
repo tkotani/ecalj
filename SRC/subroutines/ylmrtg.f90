@@ -1,6 +1,5 @@
-subroutine ylmrtg(nlm,rotp,rmat)
+subroutine ylmrtg(nlm,rotp,rmat)! Matrix to rotate cubic harmonics for a given rotation matrix
   use m_ropyln,only: ropyln
-  !- Matrix to rotate cubic harmonics for a given rotation matrix
   ! ----------------------------------------------------------------------
   !i Inputs:
   !i   nlm: (lmax+1)**2 for rmat
@@ -43,9 +42,7 @@ subroutine ylmrtg(nlm,rotp,rmat)
        0.540,-.137,-.773, &
        -.758,-.992,-.561, &
        0.321,-.363,-.988/
-
   !     call tcn('ylmrtg')
-
   ! --- Initialization  ---
   lmax = ll(nlm)
   mmax = 2*lmax+1
@@ -53,18 +50,14 @@ subroutine ylmrtg(nlm,rotp,rmat)
 
   ! --- Set up and invert matrix ylm(p) ---
   if (nlm > nlmsav) then
-     call dpzero(y,ndim**2)
-
+     y=0d0
      !   ... Normalize p, make ylm(p)
      do  8  i = 1, mmax
         ! i          call dscal(3,1/dsqrt(p(i,1)**2+p(2,i)**2+p(3,i)**2),p(1,i),1)
         call dscal(3,1/dsqrt(p(1,i)**2+p(2,i)**2+p(3,i)**2),p(1,i),1)
-        rp(i,1) =p(1,i)
-        rp(i,2) =p(2,i)
-        rp(i,3) =p(3,i)
+        rp(i,:) =p(:,i)
 8    enddo
      call ropyln(mmax,rp,rp(1,2),rp(1,3),lmax,mmx,ylm,rr)
-
      !   ... Generate matrix y(p)
      do  10  i = 1, mmax
         do  12  l = 0, lmax
@@ -77,28 +70,20 @@ subroutine ylmrtg(nlm,rotp,rmat)
            endif
 12      enddo
 10   enddo
-
      !   ... Invert matrix y(p)
      y(1,1) = 1/y(1,1)
      do  16  l = 1, lmax
         offs = l**2
         nlmi = 2*l+1
-
-        !         call prmx('y',y(offs+1,offs+1),ndim,nlmi,nlmi)
         call dgetrf(nlmi,nlmi,y(offs+1,offs+1),ndim,iwk,ierr)
         if (ierr /= 0) call rx('ylmrtg cannot invert for rmat')
         call dgetri(nlmi,y(offs+1,offs+1),ndim,iwk,yp,ndim,ierr)
         !         call prmx('y',y(offs+1,offs+1),ndim,nlmi,nlmi)
 16   enddo
-
      nlmsav = nlm
-     !       print *, 'generated setup for ylmrtg'
-
   endif
-
   ! --- Set up matrix ylm(rotp*p) ---
-  call dpzero(rmat,nlm**2)
-
+  rmat=0d0 !call dpzero(rmat,nlm**2)
   ! ... Make rp = rotp*p in with rp dimensioned (3,mmax)
   !     call dgemm('N','N',3,mmax,3,1d0,rotp,3,p,3,0d0,rp,3)
   !     call prmx('rp',rp,3,3,mmax)
@@ -106,7 +91,6 @@ subroutine ylmrtg(nlm,rotp,rmat)
   call dgemm('T','T',mmax,3,3,1d0,p,3,rotp,3,0d0,rp,mmx)
   !     call prmx('rp',rp,mmx,mmax,3)
   call ropyln(mmax,rp,rp(1,2),rp(1,3),lmax,mmx,ylm,rr)
-
   ! ... Make matrix y(rp)
   do  20  i = 1, mmax
      do  22  l = 0, lmax
@@ -119,19 +103,15 @@ subroutine ylmrtg(nlm,rotp,rmat)
         endif
 22   enddo
 20 enddo
-
   ! --- rmat = yrot * y^-1 ---
   rmat(1,1) = yp(1,1)*y(1,1)
   do  40  l = 1, lmax
      offs = l**2
      nlmi = 2*l+1
-
      call dgemm('N','N',nlmi,nlmi,nlmi,1d0,yp(offs+1,offs+1),ndim, &
           y(offs+1,offs+1),ndim,0d0,rmat(offs+1,offs+1),nlm)
-
 40 enddo
   !      call prmx('ylmrtg: rmat',rmat,nlm,nlm,nlm)
-
   !     call tcx('ylmrtg')
 end subroutine ylmrtg
 

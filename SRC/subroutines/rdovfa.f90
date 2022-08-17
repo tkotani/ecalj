@@ -34,7 +34,7 @@ contains
     type(s_rv1) :: rv_a_ov0a(nspec)
     real(8):: rsmfa(nspec),exi(n0,nspec), hfc(n0,2,nspec),hfct(n0,2,nspec),&
          alat,plat(3,3),a,rmt,z,rfoc,z0,rmt0,a0,qc,ccof, &
-         ceh,stc,ztot,ctot,corm,sum,fac,sum1,sum2,sqloc,dq,vol,smom, slmom,qcor(2)
+         ceh,stc,ztot,ctot,corm,ssum,fac,sum1,sum2,sqloc,dq,vol,smom, slmom,qcor(2)
     character(8) :: spid(nspec),spidr
     integer:: ipr , iprint , ngabc(3) , n1 , n2 , n3 , k1 , k2 , iofa , kcor , lcor,&
          k3 , i , ifi , is, nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ng 
@@ -172,9 +172,9 @@ contains
        if (nsp == 2 .AND. lmxl > -1) then
           allocate(rwgt_rv(nr))
           call radwgt ( rmt , a , nr , rwgt_rv )
-          call radsum ( nr , nr , 1 , nsp , rwgt_rv , sspec(is)%rv_a_orhoc , sum )
+          call radsum ( nr , nr , 1 , nsp , rwgt_rv , sspec(is)%rv_a_orhoc , ssum )
           call radsum ( nr , nr , 1 , 1 , rwgt_rv , sspec(is)%rv_a_orhoc , sum1 )
-          sum2 = sum - sum1
+          sum2 = ssum - sum1
           call gtpcor(is,kcor,lcor,qcor)
           if (dabs(qcor(2)-(sum1-sum2)) > 0.01d0) then
              if(ipr>=10) write(stdo,ftox)' (warning) core moment mismatch spec ',is, &
@@ -192,10 +192,10 @@ contains
           if (lfoc == 0) then
              allocate(rwgt_rv(nr))
              call radwgt ( rmt , a , nr , rwgt_rv )
-             call radsum ( nr , nr , 1 , nsp , rwgt_rv , sv_p_orhoat( 3 , ib )%v , sum )
+             call radsum ( nr , nr , 1 , nsp , rwgt_rv , sv_p_orhoat( 3 , ib )%v , ssum )
              fac = 1d0
-             if(dabs(sum) > 1d-7) fac = qc/sum
-             if (ipr >= 40) write(stdo,787) is,qc,sum,fac
+             if(dabs(ssum) > 1d-7) fac = qc/ssum
+             if (ipr >= 40) write(stdo,787) is,qc,ssum,fac
 787          format(' scale foca=0 core species',i2,': qc,sum,scale=', 3f12.6,f12.6)
              call dpcopy ( sv_p_orhoat( 3 , ib )%v , sv_p_orhoat( 3 , ib )%v, 1 , nr * nsp , fac )
              if (allocated(rwgt_rv)) deallocate(rwgt_rv)
@@ -205,8 +205,8 @@ contains
        ctot = ctot+qc
 20  enddo ibloop
     if(allocated(zv_a_osmrho)) deallocate(zv_a_osmrho)
-    allocate(zv_a_osmrho(k1*k2*k3*nsp))
-    zv_a_osmrho(:)=0d0
+    allocate(zv_a_osmrho(k1*k2*k3,nsp))
+    zv_a_osmrho=0d0
     ! --- Overlap smooth hankels to get smooth interstitial density ---
     ng=lat_ng
     allocate(cv_zv(ng*nsp))
@@ -216,13 +216,15 @@ contains
     ! ... FFT to real-space mesh
     call fftz3 ( zv_a_osmrho , n1 , n2 , n3 , k1 , k2 , k3 , nsp, 0 , 1 )
     ! ... Add compensating uniform electron density to compensate background
-    call addbkgsm ( zv_a_osmrho , k1 , k2 , k3 , nsp , qbg , vol, - 1d0 )
+!    call addbkgsm ( zv_a_osmrho , k1 , k2 , k3 , nsp , qbg , vol, - 1d0 )
+    zv_a_osmrho=zv_a_osmrho-qbg/vol/nsp
     ! ... integrate
-    call mshint ( vol , nsp , n1 , n2 , n3 , k1 , k2 , k3 , zv_a_osmrho, sum1 , sum2 )
-    if (nsp == 2) then
-       call mshint ( vol , 1 , n1 , n2 , n3 , k1 , k2 , k3 , zv_a_osmrho, smom , sum2 )
-       smom = 2*smom - sum1
-    endif
+    !call mshint ( vol , nsp , n1 , n2 , n3 , k1 , k2 , k3 , zv_a_osmrho, sum1 , sum2 )
+    !if (nsp == 2) then
+    !  call mshint ( vol , 1 , n1 , n2 , n3 , k1 , k2 , k3 , zv_a_osmrho, smom , sum2 )
+    !endif
+    sum1 = dreal(sum(zv_a_osmrho(:,:)))*vol/(n1*n2*n3)
+    if(nsp==2) smom = 2d0*dreal(sum(zv_a_osmrho(:,1)))*vol/(n1*n2*n3) - sum1
     ! --- Set up local densities using rmt from atm file ---
     call ovlocr(nbas,n0,nxi,exi,hfc,rsmfa,rv_a_orhofa,sv_p_orhoat,sqloc,slmom)
     ! --- Add compensating uniform electron density to compensate background
@@ -564,4 +566,53 @@ contains
 810 format(i5,6f12.6)
 811 format(' amom',6f12.6)
   end subroutine p2ovlc
+  subroutine adbkql( sv_p_orhoat , nbas , nsp , qbg , vol , fac )
+    use m_struc_def
+    use m_lmfinit,only: ispec, sspec=>v_sspec
+    !- Add uniform bkg charge density to local smooth rho
+    !i orhoat: pointers to local density in spheres
+    !i nbas: number of atoms in basis
+    !i qbg: background charge
+    !i sspec: species structure
+    !i nsp: spins
+    !i vol: vol of cell
+    !i fac: fac * backg density is added
+    !u Updates
+    !u   01 Jul 05 Zero-radius sites skipped over
+    !----------------------------------------
+    implicit none
+    integer :: nrmx,nlmx,nlml,lmxl,nbas
+    parameter (nrmx=1501,nlmx=64)
+    integer:: nsp
+    type(s_rv1) :: sv_p_orhoat(3,nbas)
+    real(8):: qbg , fac
+    integer :: ib,nr,is
+    double precision :: rhobkg,vol,a,rmt,rofi(nrmx)
+    rhobkg = fac*qbg/vol
+    do  ib = 1, nbas
+       is=ispec(ib)
+       a=sspec(is)%a
+       nr=sspec(is)%nr
+       rmt=sspec(is)%rmt
+       lmxl=sspec(is)%lmxl
+       if (lmxl == -1) goto 10
+       nlml=(lmxl+1)**2
+       call rxx(nr .gt. nrmx,  'addbkgloc: increase nrmx')
+       call rxx(nlml .gt. nlmx,'addbkgloc: increase nlmx')
+       call radmsh(rmt,a,nr,rofi)
+       call addbkgl(sv_p_orhoat(1,ib )%v,sv_p_orhoat(2,ib)%v, rhobkg , nr , nsp , rofi , nlml )
+10     continue
+    enddo
+  end subroutine adbkql
+  subroutine addbkgl(rho1,rho2,rhobkg,nr,nsp,rofi,nlml)
+    ! adds uniform background to local smooth density at this site for l=0 component (ilm=1) 
+    implicit none
+    integer :: nsp,is,nr,nlml,i
+    real(8):: rho1(nr,nlml,nsp),rho2(nr,nlml,nsp),rofi(nr),rhobkg
+    real(8),parameter:: pi = 4d0*datan(1d0),srfpi = dsqrt(4*pi)
+    do is = 1, nsp
+       rho1(:,1,is) = rho1(:,1,is)+srfpi*rofi(:)**2*rhobkg/nsp
+       rho2(:,1,is) = rho2(:,1,is)+srfpi*rofi(:)**2*rhobkg/nsp
+    enddo
+  end subroutine addbkgl
 end module m_rdovfa

@@ -1,5 +1,4 @@
-subroutine wrhomt(filnam,descr,ib,rhol,rofi,nr,nlml,nsp)
-  !- Writes augmented charge density or potential to file for 1 sphere
+subroutine wrhomt(filnam,descr,ib,rhol,rofi,nr,nlml,nsp)! Write augmented charge density or potential to file for 1 sphere
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   filnam:file name

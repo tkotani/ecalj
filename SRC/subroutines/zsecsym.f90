@@ -1,5 +1,5 @@
 subroutine zsecsym(zsec,ntq,nq,nband,nbandmx,nspinmx,nspin, eibzsym,ngrp,tiii,q,is)
-  !! --- symmetrize zsec for eibz4sig mode. -----------------
+! symmetrize zsec for eibz4sig mode. 
   use m_readeigen,only: READEVAL
   use m_rotwave,only: Rotwvigg
   implicit none

@@ -20,7 +20,7 @@
 !  sev     : sum of band energy
 !     eksham   : DFT(Kohn-Sham)  total energy
 !     eharris  : Harris foulkner total energy.
-!        eharris is not correct for LDA+U case (valv locpot2 do not include U contribution).
+!       NOTE=>eharris is not correct for LDA+U case (valv locpot2 do not include U contribution).
 module m_bndfp
   use m_ftox
   use m_density,only: orhoat,osmrho !input/output unprotected
@@ -34,13 +34,11 @@ module m_bndfp
   private
   logical,private:: binit=.true.,initd=.true.
 contains
-
   subroutine m_bndfp_ef_set(bz_ef00) !called from iors.F. grep 'use m_bndfp'
     real(8):: bz_ef00
     eferm  = bz_ef00
     binit=.false.
   end subroutine m_bndfp_ef_set
-
   subroutine bndfp(iter, llmfgw, plbnd)
     ! llmfgw=T is for generating eigenfunctions for GW calculations, no iteration.
     ! plbnd/=0 means band plot mode. no iteration.
@@ -66,7 +64,7 @@ contains
     use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq,xmpbnd2
     !      use m_lmfgw,only: M_lmfgw_init !,jobgw !,sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx
     use m_mkpot,only: M_mkpot_init,M_mkpot_deallocate, M_mkpot_energyterms,M_mkpot_novxc,& ! & M_mkpot_novxc_dipole,
-    osmpot, qmom, vconst, osig,otau,oppi, qval , qsc , fes1_rv , fes2_rv
+         osmpot, qmom, vconst, osig,otau,oppi, qval , qsc , fes1_rv , fes2_rv
     use m_clsmode,only: M_clsmode_init,m_clsmode_set1,m_clsmode_finalize
     use m_qplist,only:  qplist,nkp,xdatt,labeli,labele,dqsyml,etolc,etolv, &
          nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml, &
@@ -402,6 +400,7 @@ contains
     call m_bandcal_clean()
     call tcx('bndfp')
   end subroutine bndfp
+!========================================================  
   subroutine mkekin(sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,smpot,smrho,sumev, sumtv)
     use m_struc_def
     use m_lmfinit,only:lso,nkaph,nsp,nspc,stdo,nbas,ispec,sspec=>v_sspec,nlmto
@@ -528,7 +527,6 @@ contains
     !u   20 Jun 00 adapted from nfp get_ekin
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: i_copy_size
     type(s_cv1),target :: sv_p_oppi(3,nbas)
     type(s_rv1),target :: sv_p_otau(3,1)
     type(s_rv1),target :: sv_p_osig(3,1)
@@ -538,14 +536,12 @@ contains
          OTAUHH(:),OTAUHP(:),OTAUPP(:)
     complex(8),pointer:: OPPIHH(:),OPPIHP(:),OPPIPP(:)
     real(8):: sumev , sumtv , vconst
-    double complex smpot(k1,k2,k3,2),smrho(k1,k2,k3,2)
-    ! ... Local parameters
+    complex(8):: smpot(k1,k2,k3,nsp),smrho(k1,k2,k3,nsp)
     integer :: ib,igetss,ipr,is,kmax,lgunit,lmxa,lmxh,n0,n1,n2,n3, &
-         ngabc(3),nglob,nkap0,nlma,nlmh!,norb   ! lso,isw
+         ngabc(3),nglob,nkap0,nlma,nlmh
     logical :: lgors
     parameter (n0=10,nkap0=3)
-    double precision :: qum1,qum2,sraugm,srhov,srmesh,sum1,sum2,sumh, &
-         sumq,sumt,vol,xx
+    double precision :: qum1,qum2,sraugm,srhov,srmesh,sum1,sum2,sumh,sumq,sumt,vol,xx
     equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
     include 'mpif.h'
     integer:: procid=0,ier=0,io,iorb
@@ -555,16 +551,12 @@ contains
     iprx=.false.
     if(procid==master) iprx= .TRUE. 
     call tcn('mkekin')
-    !      ndimh=ham_ldham(1)
     call getpr(ipr)
     ngabc=lat_nabc
     vol=lat_vol
     ! --- Integral n0(out) (Ves0~ + Vxc0), contribution from mesh ---
     !     Note that it does not include the term (n0~-n0) Ves0~
-    !      print *,' mkekin: procid sumsmpot sumsmrho sum1 sum2=',procid,sum(abs(smpot)),sum(abs(smrho)),sum1,sum2
-    call mshdot(vol,nsp,n1,n2,n3,k1,k2,k3,smpot,smrho,sum1,sum2)
-    call mshint(vol,nsp,n1,n2,n3,k1,k2,k3,smrho,qum1,qum2)
-    srmesh = sum1 + vconst*qum1
+    srmesh = (dreal(sum(smpot*smrho)) + vconst*dreal(sum(smrho))) *vol/(n1*n2*n3)
     ! --- Integral rhout*veff, part from augmentation ---
     sraugm = 0d0
     do  ib = 1, nbas
@@ -576,9 +568,9 @@ contains
        call orblib(ib) ! norb , ltab , ktab , offl ,ntab,blks
        nlma = (lmxa+1)**2
        nlmh = (lmxh+1)**2
-       OQHH => sv_p_oqkkl(3,ib)%v
-       OQHP => sv_p_oqkkl(2,ib)%v
-       OQPP => sv_p_oqkkl(1,ib)%v
+       OQHH => sv_p_oqkkl(3,ib)%v !head x head index=3
+       OQHP => sv_p_oqkkl(2,ib)%v !head x tail index=2
+       OQPP => sv_p_oqkkl(1,ib)%v !tail x tail index=1
        OTAUHH =>sv_p_otau(3,ib)%v
        OTAUHP =>sv_p_otau(2,ib)%v
        OTAUPP =>sv_p_otau(1,ib)%v
@@ -588,12 +580,11 @@ contains
        OPPIHH =>sv_p_oppi(3,ib)%cv
        OPPIHP =>sv_p_oppi(2,ib)%cv
        OPPIPP =>sv_p_oppi(1,ib)%cv
-       call pvgtkn ( kmax , lmxa , nlma , nkaph , norb , ltab , ktab &
-            , blks , lmxh , nlmh , OTAUHH , OSIGHH , OPPIHH &
-            , OTAUHP , OSIGHP , OPPIHP &
-            , OTAUPP , OSIGPP , OPPIPP  &
-            , lso , OQHH , OQHP , OQPP , nsp , nspc , sumt &
-            , sumq , sumh )
+       call pvgtkn(kmax,lmxa,nlma,nkaph,norb,ltab,ktab, blks,lmxh,nlmh &
+           ,OTAUHH,OSIGHH,OPPIHH &
+           ,OTAUHP,OSIGHP,OPPIHP &
+           ,OTAUPP,OSIGPP,OPPIPP &
+           ,lso, OQHH,OQHP,OQPP, nsp,nspc, sumt, sumq, sumh )
        !       Add site augmentation contribution to rhout * (ham - ke)
        sraugm = sraugm + sumh - sumt
 10     continue
@@ -662,20 +653,6 @@ contains
     integer :: ilm1,ilm2,k1,k2,ll,nlm11,nlm12,nlm21,nlm22,i
     double precision :: sumt,sumq,sumh,xx
     integer :: io1,io2,l1,l2
-
-    !   ... Remove SO part from potential.
-    ! 26gau2021 takao: I don't exactly know why I can skip this.
-    ! From the beginnig definition of ppi only includes z-axis contribution (25aug2021).
-    ! Since ppi is the pi integral plus LzSz part), do we need to remove LzSz contribution from ppihhz?
-    ! But, anyway, it seems that skiping 'call ppi2z2' passs old tests'. I don't know why...
-
-    !      if ( lso .ne. 0) then
-    !        call ppi2z2(6,nsp,nspc,nkaph,nkaph,nlmh,nlmh,  ppihhz)
-    !        call ppi2z2(6,nsp,nspc,nkaph,1+kmax,nlmh,nlma, ppihpz)
-    !        call ppi2z2(6,nsp,nspc,1+kmax,1+kmax,nlma,nlma,ppippz)
-    !      endif
-    ! ccccccccccccccccccccccccccccccccccccc
-
     ! ... Pkl*Pkl
     sumt = sum([(sum(qpp(:,:,ilm1,ilm1,:)*taupp(:,:,ll(ilm1),:)),ilm1=1,nlma)])
     sumq = sum([(sum(qpp(:,:,ilm1,ilm1,:)*sigpp(:,:,ll(ilm1),:)),ilm1=1,nlma)])
@@ -691,7 +668,7 @@ contains
                   sumq = sumq + sum(qhh(k1,k2,ilm1,ilm1,:)*sighh(k1,k2,ll(ilm1),:))
                endif
             enddo
-          end associate
+          endassociate
        enddo
     enddo
     ! ... Hsm*Pkl
@@ -703,7 +680,7 @@ contains
        endassociate
     enddo
   end subroutine pvgtkn
-  subroutine makdos(nqp,nband,nbmx,nsp,wgts,evl,n,w,tol,emin,emax, ndos,dos) !- Make density of states from bands
+  subroutine makdos(nqp,nband,nbmx,nsp,wgts,evl,n,w,tol,emin,emax, ndos,dos)! Make density of states from bands
     !-----------------------------------------------------------------------
     !i  Input
     !i   nqp   :number of q-points
@@ -730,14 +707,14 @@ contains
     dos=0d0
     step = (emax - emin) / (ndos - 1)
     if ( tol > 0d0 ) then
-       do  2  i = 0, ndos-1
+       do   i = 0, ndos-1
           x = i * step / w
           call delstp(0,x,test,s,xx)
           if ( test < tol ) then
              mrange = i + 1
              goto 3
           endif
-2      enddo
+       enddo
        if (iprint() > 30) print *,'makdos (warning) : tol too small'
 3      continue
        range = 2 * mrange * step
@@ -751,7 +728,7 @@ contains
     iqloop: do  7  iq = 1, nqp
        wt = abs(wgts(iq)) / nsp
        ibandloop: do  61  iband = 1, nband
-          isploop: do  6  isp = 1, nsp
+          isploop: do   isp = 1, nsp
              e = evl(iband,isp,iq)
              meshpt = (e - emin) / step
              mesh1 = meshpt - mrange
@@ -764,7 +741,7 @@ contains
                 call delstp(n,x,d,s,xx)
                 dos(meshpt,isp) = dos(meshpt,isp) + wt * d / w
              enddo
-6         enddo isploop
+          enddo isploop
 61     enddo ibandloop
 7   enddo iqloop
 100 format(/1x,'MAKDOS :  range of gaussians is ',f5.2,'W (',i4,' bins).' &

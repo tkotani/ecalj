@@ -35,7 +35,6 @@ subroutine praldm(ifi,ipr1,ipr2,sharm,nbas,nsp,lmaxu,lldau,strn,dmatu)
   ! ----------------------------------------------------------------------
   implicit none
   integer :: nbas,nsp,lldau(nbas),ifi,lmaxu,ipr1,ipr2,sharm,i_copy_size
-!  type(s_spec)::sspec(*)
   real(8)::   dmatu(2,-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
   character strn*(*)
   integer :: iblu,ib,is,igetss,lmxa,l !,idu(4)
@@ -48,16 +47,13 @@ subroutine praldm(ifi,ipr1,ipr2,sharm,nbas,nsp,lmaxu,lldau,strn,dmatu)
         do  l = 0, min(lmxa,3)
            if (idu(l+1,is) /= 0) then
               iblu = iblu+1
-              call prdmts(ifi,ipr1,ipr2,sharm,strn,ib,l,lmaxu,iblu,dmatu, &
-                   nsp,1)
+              call prdmts(ifi,ipr1,ipr2,sharm,strn,ib,l,lmaxu,iblu,dmatu, nsp,1)
            endif
         enddo
      endif
   enddo
 end subroutine praldm
-
-subroutine prdmts(ifi,ipr1,ipr2,sharm,strn,ib,l,lmaxu,iblu,dmats, &
-     nsp,nspc)
+subroutine prdmts(ifi,ipr1,ipr2,sharm,strn,ib,l,lmaxu,iblu,dmats, nsp,nspc)
   use m_ftox
   use m_lmfinit,only: stdo
   !- Writes out a site density-matrix-like object for a single l
@@ -86,8 +82,7 @@ subroutine prdmts(ifi,ipr1,ipr2,sharm,strn,ib,l,lmaxu,iblu,dmats, &
   !u   09 Nov 05 dmats changed to a complex matrix
   !u   02 Jun 05 First created
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
+  implicit none
   integer :: ifi,ipr1,ipr2,l,ib,lmaxu,nsp,nspc,iblu,sharm
   double precision :: dmats(2,-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,iblu)
   character strn*(*)

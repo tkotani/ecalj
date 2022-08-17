@@ -1,3 +1,4 @@
+!utils for self-energy things.
 subroutine checkeq(i,j)
   integer::i,j
   if(i/=j) call rx( " checkeq in hsfp0: dim of WVR and WVI not compatible")

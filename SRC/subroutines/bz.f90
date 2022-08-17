@@ -1,5 +1,4 @@
-subroutine fermi2( qval,dos,ndos,emin,emax,  eferm,e1,e2,dosef)
-  !- Makes fermi energy from integrated density
+subroutine fermi2( qval,dos,ndos,emin,emax,  eferm,e1,e2,dosef)!Makes fermi energy from integrated density
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   qval, number of electrons to fermi level; dos(i) integrated
@@ -13,22 +12,11 @@ subroutine fermi2( qval,dos,ndos,emin,emax,  eferm,e1,e2,dosef)
   !r   emin and e1 (and emax and e2) may point to the same address.
   ! ----------------------------------------------------------------------
   implicit none
-  ! Passed parameters
   integer:: ndos
   real(8):: qval,dos,emin,emax,eferm,e1,e2,dosef
-  ! Local parameters
   integer:: i1,ie
   real(8):: de,q,q1,q2,d1mach
-  ! External procedures
-  !external:: d1mach
   DIMENSION DOS(NDOS)
-  ! ccccccccccccccccc
-  !      DE = (EMAX-EMIN)/(NDOS-1)
-  !      do i1=1,ndos
-  !        write(6,"(' e dostot =',i4,d13.6,d13.6)")i1, emin + de*(i1 - 1),dos(i1)
-  !      enddo
-  !      write(6,"(' qval =',d13.6)") qval
-  ! ccccccccccccccccccc
   if (dos(1) > qval) print *, 'FERMI: EMIN,EMAX=', emin,emax
   if (dos(1) > qval) call rx( 'FERMI: Fermi energy lies below EMIN')
   if (dos(ndos) < qval) print *, 'FERMI: EMIN,EMAX=', emin,emax
@@ -38,18 +26,15 @@ subroutine fermi2( qval,dos,ndos,emin,emax,  eferm,e1,e2,dosef)
   DE = (EMAX-EMIN)/(NDOS-1)
   I1 = 1
   q = qval + d1mach(3)
-  DO  1  IE = 2, NDOS
+  DO   IE = 2, NDOS
      I1 = IE
-     IF ( DOS(IE) > q ) goto 2
-1 enddo
-2 continue
+     IF ( DOS(IE) > q ) exit
+  enddo
   i1 = i1 - 1
   Q1 = DOS(I1)
   Q2 = DOS(I1+1)
-  ! ------------------
   e1 = emin + de*(i1 - 1)
   e2 = e1 + de
-  ! rite(6,"('fermi:: i1,e1,qval,q1,q2,de',I7,5E13.5)") i1,e1,qval,q1,q2,de
   EFERM = e1 + (QVAL-Q1)/(Q2-Q1)*DE
   dosef = (q2-q1)/de
 end subroutine fermi2
@@ -81,8 +66,6 @@ subroutine fermi_kbt( qval,dos,ndos,emin,emax, kbt, eferm_init, &
   real(8):: de,q,q1,q2,d1mach
   real(8):: idos, idos_old, idos_l, rydberg
   real(8):: eferm_i(4) !!Efermi(i+1),Efermi(i),Efermi(i-1),Efermi(i-2)
-  ! External procedures
-  external d1mach
   logical:: debug = .false.
   logical:: lessqval, moreqval
   DIMENSION dos(ndos)
@@ -92,10 +75,6 @@ subroutine fermi_kbt( qval,dos,ndos,emin,emax, kbt, eferm_init, &
      write(6,"('emin,emax',2E13.5)") emin,emax
      write(6,"('kbt,efermi_init',2E13.5)") kbt,efermi_init
   endif
-  !$$$      do ii = 2,ndos
-  !$$$         write(6,*) "aaaaaaaa:",ii,dos(ii)-dos(ii-1)
-  !$$$      enddo
-  !$$$      call rx("end")
   if (dos(1) > qval) print *, 'FERMI: EMIN,EMAX=', emin,emax
   if (dos(1) > qval) call rx( 'FERMI: Fermi energy lies below EMIN')
   if (dos(ndos) < qval) print *, 'FERMI: EMIN,EMAX=', emin,emax
@@ -153,7 +132,6 @@ subroutine fermi_kbt( qval,dos,ndos,emin,emax, kbt, eferm_init, &
            moreqval = .true.
         endif
      endif
-     ! ferm_i(1)=-8888
      write(6,"(' fermi_i  iter =',I5,':',4E13.5)") ii,eferm_i(1:4)
      ii_conv=ii
      continue !! unless converged
@@ -167,6 +145,5 @@ subroutine fermi_kbt( qval,dos,ndos,emin,emax, kbt, eferm_init, &
   write(6,"(' fermi_kbt:: Efermi(T), Efermi(0) [Ry]',2f15.7)") eferm_i(1),eferm_init
   write(6,"(' fermi_kbt:: Efermi(T), Efermi(0) [eV]',2f15.7)") eferm_i(1)*rydberg(),eferm_init*rydberg()
   write(6,*) "--------------------------------------------------------------------"
-!!! return
   eferm_kbt = eferm_i(1)
 end subroutine fermi_kbt

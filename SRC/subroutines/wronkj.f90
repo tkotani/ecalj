@@ -1,5 +1,4 @@
-subroutine wronkj(e1,e2,r,lmax,fkk,fkj,fjk,fjj)
-  !  wronskians for hankels and bessels on one sphere.
+subroutine wronkj(e1,e2,r,lmax,fkk,fkj,fjk,fjj)! Wronskians for hankels and bessels on one sphere.
   !  fxy is continuous as e1-->e1.
   !  fkk,fjj are symmetric in e1,e2.  fkj(e1,e2)=fjk(e2,e1).
   implicit real*8 (a-h,p-z), integer(o)

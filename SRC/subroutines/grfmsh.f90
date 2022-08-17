@@ -1,5 +1,4 @@
-subroutine grfmsh(isw,alat,ng,gv,kv,k1,k2,k3,n1,n2,n3,fn, &
-     fgrd,flap)
+subroutine grfmsh(isw,alat,ng,gv,kv,k1,k2,k3,n1,n2,n3,fn, fgrd,flap)
   !- Gradient and Laplacian of a function tabulated on a uniform mesh
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -40,93 +39,55 @@ subroutine grfmsh(isw,alat,ng,gv,kv,k1,k2,k3,n1,n2,n3,fn, &
   !u Updates
   !u   08 Apr 09 First created
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
+  implicit none
   integer :: ng,isw,k1,k2,k3,n1,n2,n3
   integer :: kv(ng,3)
   double precision :: alat,gv(ng,3)
   double complex fn(k1,k2,k3),fgrd(k1,k2,k3,3),flap(k1,k2,k3)
-  ! ... Local parameters
   integer :: i,isw0,isw1,isw2
   double precision :: pi,tpiba,g2
   double complex tpibai,gi(3)
   complex(8),allocatable:: fg(:),fgg(:,:),fg2(:)
-
   call tcn('grfmsh')
   pi   = 4d0*datan(1d0)
   tpiba=2*pi/alat
   isw0 = mod(isw,10)
   isw1 = mod(isw/10,10)
   isw2 = mod(isw/100,10)
-  if (isw0 /= 1) &
-       call rx('grfmsh: gradient of real function not implemented')
-
+  if (isw0 /= 1) call rx('grfmsh: gradient of real function not implemented')
   ! ... FT of smooth function to reciprocal space
-  if (isw1 == 0) then
-     !       call zprm3('fn(r)',0,fn,n1,n2,n3)
-     call fftz3(fn,n1,n2,n3,k1,k2,k3,1,0,-1)
-     !       call zprm3('fn(G)',0,fn,n1,n2,n3)
-  endif
-
+  if (isw1 == 0) call fftz3(fn,n1,n2,n3,k1,k2,k3,1,0,-1)
   ! ... Gather function G coefficients
   allocate(fg(ng))
   call gvgetf(ng,1,kv,k1,k2,k3,fn,fg)
-
   ! ... Restore given function to real space
-  if (isw1 == 0) then
-     call fftz3(fn,n1,n2,n3,k1,k2,k3,1,0,1)
-  endif
-
+  if (isw1 == 0) call fftz3(fn,n1,n2,n3,k1,k2,k3,1,0,1)
   ! ... Make iG * f(G)  and (iG)^2 * f(G)
   fg(1) = 0
   tpibai = dcmplx(0d0,1d0)*tpiba
   allocate(fgg(ng,3),fg2(ng))
   do  i = 1, ng
-
-     gi(1) = tpibai*(gv(i,1))
-     gi(2) = tpibai*(gv(i,2))
-     gi(3) = tpibai*(gv(i,3))
+     gi(:) = tpibai*(gv(i,:))
      g2 = -tpiba*tpiba*(gv(i,1)**2+gv(i,2)**2+gv(i,3)**2)
-
-     fgg(i,1) = gi(1) * fg(i)
-     fgg(i,2) = gi(2) * fg(i)
-     fgg(i,3) = gi(3) * fg(i)
-     !       fgg(i,1) = gi(1)
-     !       fgg(i,2) = gi(2)
-     !       fgg(i,3) = gi(3)
+     fgg(i,:) = gi(:) * fg(i)
      fg2(i)   = g2    * fg(i)
-
   enddo
-
   ! ... Scatter gradient, laplacian into respective arrays
   if (isw2 == 1 .OR. isw2 == 2 .OR. isw2 == 5 .OR. isw2 == 6) then
      call gvputf(ng,1,kv,k1,k2,k3,fgg(1,1),fgrd(1,1,1,1))
      call gvputf(ng,1,kv,k1,k2,k3,fgg(1,2),fgrd(1,1,1,2))
      call gvputf(ng,1,kv,k1,k2,k3,fgg(1,3),fgrd(1,1,1,3))
-     !       call zprm3('i Gx fn(G)',0,fgrd(1,1,1,1),n1,n2,n3)
-     !       call zprm3('i Gy fn(G)',0,fgrd(1,1,1,2),n1,n2,n3)
-     !       call zprm3('i Gz fn(G)',0,fgrd(1,1,1,3),n1,n2,n3)
   endif
   if (isw2 == 3 .OR. isw2 == 4 .OR. isw2 == 5 .OR. isw2 == 6) then
      call gvputf(ng,1,kv,k1,k2,k3,fg2,     flap)
   endif
-
   ! ... Gradient, laplacian in real space
   if (isw2 == 2 .OR. isw2 == 6) then
      call fftz3(fgrd(1,1,1,1),n1,n2,n3,k1,k2,k3,1,0,1)
      call fftz3(fgrd(1,1,1,2),n1,n2,n3,k1,k2,k3,1,0,1)
      call fftz3(fgrd(1,1,1,3),n1,n2,n3,k1,k2,k3,1,0,1)
-     !       call zprm3('gradx fn(r)',0,fgrd(1,1,1,1),n1,n2,n3)
-     !       call zprm3('grady fn(r)',0,fgrd(1,1,1,2),n1,n2,n3)
-     !       call zprm3('gradz fn(r)',0,fgrd(1,1,1,3),n1,n2,n3)
   endif
-  if (isw2 == 4 .OR. isw2 == 6) then
-     call fftz3(flap         ,n1,n2,n3,k1,k2,k3,1,0,1)
-     !       call zprm3('lap fn(r)',0,flap,n1,n2,n3)
-  endif
-
+  if (isw2 == 4 .OR. isw2 == 6) call fftz3(flap,n1,n2,n3,k1,k2,k3,1,0,1)
   deallocate(fg,fgg,fg2)
-
   call tcx('grfmsh')
 end subroutine grfmsh
-

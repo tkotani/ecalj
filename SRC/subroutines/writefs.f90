@@ -1,5 +1,4 @@
-subroutine writefs(ef0)
-  !!  no output fermi surface mode (eigenvalues in full BZ). Not return variables.
+subroutine writefs(ef0)!Fermi surface mode (eigenvalues in full BZ). No output variables.
   use m_lmfinit, only: nsp,nspc
   use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
   use m_mkqp,only: bz_nabc
@@ -7,14 +6,12 @@ subroutine writefs(ef0)
   use m_qplist,only:nkp,qplist
   use m_bandcal,only: evlall
   use m_shortn3_qlat,only: shortn3_qlat,nout,nlatout
-
   implicit none
   logical:: cmdopt0,allband
   real(8):: ppin(3),ef0
   integer:: ip,i,isp,ififm,ifile_handle,nbxx,iq,ib,nkk1,nkk2,nkk3,ifi
   real(8):: rlatp(3,3),xmx2(3),vadd,qshort(3)
-  !integer,parameter:: noutmx=48
-  integer:: iout !,nout,nlatout(3,noutmx)
+  integer:: iout 
   nkk1=bz_nabc(1)
   nkk2=bz_nabc(2)
   nkk3=bz_nabc(3)

@@ -1,5 +1,4 @@
-subroutine writepdos(ext)
-  !! == readin pdosinput, and print out pdos files. ==
+subroutine writepdos(ext)! Readin pdosinput, and print out pdos files.
   implicit none
   integer:: ifip,ndhamx,nsp,nspx,nevmin,nchanp,nbas,nkk1,nkk2,nkk3,ntete,ndos,nkp &
        ,ibas,jsp,ifi,init,iend,ipts,j,ndos_,ichan,isp,itet,ksp,i,ib

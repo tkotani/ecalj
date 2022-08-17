@@ -1,11 +1,9 @@
+!finite temperature tetrahedron method.
 logical function usetetrakbt()
   usetetrakbt=.false.
 end function usetetrakbt
-
 !! ---------------------
-subroutine tetrakbt(ebfin,eafin,v,voltet, frhis, nwhis, kbt, &
-     wtthis ) !this is accumlating variable
-  !! kbt vertion
+subroutine tetrakbt(ebfin,eafin,v,voltet,frhis,nwhis,kbt,  wtthis ) !tetrahedron method at kbt
   !! Histgram weights for each bin.
   !! The i-th bin of the Histgrams is [frhis(i) frhis(i+1)].
   !! wtthis(ihis) += \int_{frhis(ihis)^{frhis(ihis+1)} d \omega  \int d^3k (fb-fa) * \delta(\omega +v(k) )

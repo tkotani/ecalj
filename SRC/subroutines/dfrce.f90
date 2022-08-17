@@ -201,12 +201,10 @@ subroutine dfrce (job, sv_p_orhoat , sv_p_orhat1 ,  qmom , smrho , smrout , dfh 
      do  i = 1, 3
         dfh(i,ib) = -(fes1(i) + fes2(i) + fxc(i))
      enddo
-     ! if ! (MPI | MPIK)
      if (iprint() >= 30) &
           write(stdo,200) ib,(c*(fes1(m)+fes2(m)),m=1,3), &
           (c*fxc(m),m=1,3),(c*dfh(m,ib),m=1,3)
 200  format(i4,3f8.2,1x,3f8.2,1x,3f8.2:1x,3f8.2)
-     ! endif
 20   continue
   enddo
   avgdf=0d0
@@ -301,12 +299,10 @@ subroutine pvdf1(job,nsp,ib,iv0,qmom, qmout,ng,gv,g2,yl,iv,qlat,kmax,cnomin &
   call dpzero(fes1,3)
   call dpzero(fxc,3)
   call dpzero(fesdn,3)
-  call dpzero(gpot0,nlmx*3)
+  gpot0=0d0
   is=ispec(ib) 
   tau=rv_a_opos(:,ib) 
-!  call suphas(q0,tau,ng,iv,n1,n2,n3,qlat,cs,sn)
   phase = exp(-img*tpi*sum(q0*tau)) * exp(-img*tpi*matmul(tau, matmul(qlat, transpose(iv))))
-  
   ! --- Unscreened rigid charge density shift, job 1, in cdn0 ---
   if (job0 == 1) then
      z=sspec(is)%z
@@ -386,7 +382,6 @@ subroutine pvdf1(job,nsp,ib,iv0,qmom, qmout,ng,gv,g2,yl,iv,qlat,kmax,cnomin &
   do  30  ig = 2, ng
      v = gv(ig,:)
      !   ... Accumulate unscreened smoothed core+nuclear density
-     !phase = dcmplx(cs(ig),sn(ig))
      gc0 = phase(ig)*dexp(-gam*g2(ig))*cvol
      xc0 = dcmplx(0d0,1d0)*dconjg(tpia*cvin(ig))*gc0*vol
      ilm = 0
@@ -395,9 +390,7 @@ subroutine pvdf1(job,nsp,ib,iv0,qmom, qmout,ng,gv,g2,yl,iv,qlat,kmax,cnomin &
         do  33  m = -l, l
            ilm = ilm+1
            cdn(ig) = cdn(ig) + yl(ig,ilm)*cof(ilm)*gc0
-           gpot0(ilm,1) = gpot0(ilm,1) + yl(ig,ilm)*gv(ig,1)*xc0
-           gpot0(ilm,2) = gpot0(ilm,2) + yl(ig,ilm)*gv(ig,2)*xc0
-           gpot0(ilm,3) = gpot0(ilm,3) + yl(ig,ilm)*gv(ig,3)*xc0
+           gpot0(ilm,:) = gpot0(ilm,:) + yl(ig,ilm)*gv(ig,:)*xc0
 33      enddo
 32   enddo
      !   ... Accumulate unscreened foca density
@@ -420,17 +413,13 @@ subroutine pvdf1(job,nsp,ib,iv0,qmom, qmout,ng,gv,g2,yl,iv,qlat,kmax,cnomin &
      !   ... Electrostatic potential shift = 1/eps dv [n0~]
      !       g2 = tpiba*tpiba*(gv(ig,1)**2+gv(ig,2)**2+gv(ig,3)**2)
      cdv(ig)  = cdn(ig) * (8*pi/g2(ig))
-     do  36  k = 1, 3
-        fes1(k) = fes1(k) + dconjg(cnomin(ig)) * tpia*v(k)*cdv(ig)
-        do  i = 1, nsp
-           fxc(k)  = fxc(k)  + dconjg(cdvxc(ig,i)) * tpia*v(k)*cdn0(ig,i)
-        enddo
-36   enddo
+     fes1(:) = fes1(:) + dconjg(cnomin(ig)) * tpia*v(:)*cdv(ig)
+     do  i = 1, nsp
+        fxc(:)  = fxc(:)  + dconjg(cdvxc(ig,i)) * tpia*v(:)*cdn0(ig,i)
+     enddo
 30 enddo
-  do  37  k = 1, 3
-     fxc(k)  = fxc(k)*vol
-     fes1(k) = fes1(k)*vol
-37 enddo
+  fxc  = fxc*vol
+  fes1 = fes1*vol
   ! --- Integral of grad g (output-input local charge) ves~ ---
   fesgg=0d0 !call dpzero(fesgg,3)
   do  k = 1, 3
@@ -446,8 +435,8 @@ subroutine pvdf1(job,nsp,ib,iv0,qmom, qmout,ng,gv,g2,yl,iv,qlat,kmax,cnomin &
   !  339 format(a,6p,3f8.2)
 
   ! --- Integral of dves~ (output-input local charge) for all sites ---
-  call dpzero(fes2,3)
-  call dpzero(feso,3)
+  fes2=0d0
+  feso=0d0 
   jv0 = 0
   do  40  jb = 1, nbas
      js=ispec(jb) 
@@ -459,7 +448,7 @@ subroutine pvdf1(job,nsp,ib,iv0,qmom, qmout,ng,gv,g2,yl,iv,qlat,kmax,cnomin &
      if (nlm > nlmx) call rxi('pvdf1: increase nlmx to',nlm)
 !     call suphas(q0,tau,ng,iv,n1,n2,n3,qlat,cs,sn)
      phase = exp(-img*tpi*sum(q0*tau)) * exp(-img*tpi*matmul(tau, matmul(qlat, transpose(iv))))
-     call dpzero(gpot0,nlmx*3)
+     gpot0=0d0
      gam = 0.25d0*rg*rg
      do  50  ig = 2, ng
         aa = dexp(-gam*g2(ig))
@@ -470,9 +459,7 @@ subroutine pvdf1(job,nsp,ib,iv0,qmom, qmout,ng,gv,g2,yl,iv,qlat,kmax,cnomin &
            gc0 = gc0*dcmplx(0d0,-1d0)
            do  56  m = -l,l
               ilm = ilm+1
-              gpot0(ilm,1) = gpot0(ilm,1)+dble(gc0)*yl(ig,ilm)*gv(ig,1)
-              gpot0(ilm,2) = gpot0(ilm,2)+dble(gc0)*yl(ig,ilm)*gv(ig,2)
-              gpot0(ilm,3) = gpot0(ilm,3)+dble(gc0)*yl(ig,ilm)*gv(ig,3)
+              gpot0(ilm,:) = gpot0(ilm,:)+dble(gc0)*yl(ig,ilm)*gv(ig,:)
 56         enddo
 55      enddo
 50   enddo
@@ -481,11 +468,9 @@ subroutine pvdf1(job,nsp,ib,iv0,qmom, qmout,ng,gv,g2,yl,iv,qlat,kmax,cnomin &
      do  60  l = 0, lmxl
         do  62  m = -l, l
            ilm = ilm+1
-           do  64  k = 1, 3
-              gpot0(ilm,k) = gpot0(ilm,k)*4d0*pi/df(2*l+1)
-              feso(k) = feso(k) + qmom(jv0+ilm)*gpot0(ilm,k)
-              fes2(k) = fes2(k) + qmout(jv0+ilm)*gpot0(ilm,k)
-64         enddo
+           gpot0(ilm,:) = gpot0(ilm,:)*4d0*pi/df(2*l+1)
+           feso(:) = feso(:) + qmom(jv0+ilm)*gpot0(ilm,:)
+           fes2(:) = fes2(:) + qmout(jv0+ilm)*gpot0(ilm,:)
 62      enddo
 60   enddo
      jv0 = jv0+nlm

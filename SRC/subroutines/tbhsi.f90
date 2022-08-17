@@ -30,7 +30,6 @@ subroutine tbhsi(nspec,nermx,net,et,ipet,nrt,rt,iprt,ltop)
   parameter (n0=10,nkap0=3)
   integer :: ipet(n0,nkap0,nspec),iprt(n0,nkap0,nspec)
   double precision :: et(nermx),rt(nermx)
-  ! ... Local parameters
   integer :: is,j,k
   integer :: lh(nkap0),nkape,ik,l
   double precision :: x1,x2,rsmh(n0,nkap0),eh(n0,nkap0)
@@ -63,7 +62,6 @@ subroutine tbhsi(nspec,nermx,net,et,ipet,nrt,rt,iprt,ltop)
                  et(net) = eh(l+1,ik)
                  ipet(l+1,ik,is) = net
               endif
-
               !     ... Find rmsh, or add it to list
               j = 0
               do  k = 1, nrt
@@ -85,12 +83,5 @@ subroutine tbhsi(nspec,nermx,net,et,ipet,nrt,rt,iprt,ltop)
         enddo
      enddo
   enddo
-  ! ... Debugging printout
-  !      write (*,400) net,nrt,ltop
-  !  400 format(/' tbhsi: ',i4,' energies,',i4,'  radii,  ltop=',i3)
-  !      write (*,401) (et(j),j=1,net)
-  !  401 format('  E=',10f8.3)
-  !      write (*,402) (rt(j),j=1,nrt)
-  !  402 format('  R=',10f8.3)
 end subroutine tbhsi
 

@@ -355,8 +355,8 @@ contains
         ,smq,qsmc,fes,rhvsm,zvnsm,zsum,vesrmt,qbg )
     smag = 0
     if (nsp == 2) then
-       call mshint(vol,1,n1,n2,n3,k1,k2,k3,smrho,smag,sum2)
-       smag = 2d0*smag - smq
+       !call mshint(vol,1,n1,n2,n3,k1,k2,k3,smrho,smag,sum2)
+       smag = 2d0*dreal(sum(smrho(:,:,:,1)))*vol/(n1*n2*n3) - smq
     endif
     if (allocated(hpot0_rv)) deallocate(hpot0_rv)
     ! --- Add smooth exchange-correlation potential ---

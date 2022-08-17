@@ -151,7 +151,7 @@ contains
          , vrmt(nbas),qsmc,smq,rhvsm,sgp0,vconst,zsum,zvnsm,qbg
     real(8):: ceh,cofg,cofh,dgetss,hsum,qcorg,qcorh,qsc, &
          rfoc,rmt,s1,s2,sbar,sumx,sum1,sum2,u00,u0g,ugg,usm,vbar, vcnsto,z,R,eint
-    complex(8):: smrho(k1,k2,k3,2),smpot(k1,k2,k3,2)
+    complex(8):: smrho(k1,k2,k3,nsp),smpot(k1,k2,k3,nsp)
     complex(8) ,allocatable :: cg1_zv(:), cgsum_zv(:), cv_zv(:)
     real(8),parameter::pi = 4d0*datan(1d0), srfpi = dsqrt(4d0*pi), y0= 1d0/srfpi
     call tcn('smves')
@@ -223,9 +223,11 @@ contains
        call info(30,0,0,' cell interaction energy from homogeneous'// &
             ' background (q=%d) is %;6,6d',qbg,eint)
     endif
-    call mshint(vol,1,n1,n2,n3,k1,k2,k3,smrho,sum1,sum2)!     Integral n0
-    smq = sum1
-    call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smrho,smpot,s1,s2)!     Integral n0 phi0~
+    !call mshint(vol,1,n1,n2,n3,k1,k2,k3,smrho,sum1,sum2)!     Integral n0
+    !call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smrho,smpot,s1,s2)!     Integral n0 phi0~
+    !smq=sum1
+    smq = dreal(sum(smrho(:,:,:,1)))               *vol/(n1*n2*n3)  !Integral n0
+    s1  = dreal(sum(smrho(:,:,:,1)*smpot(:,:,:,1)))*vol/(n1*n2*n3)  !Integral n0*phi0~
     u0g = s1 - u00
     call ugcomp(qmom,gpot0,hpot0,ugg,f) 
     if (ipr >= 50) write (stdo,231) (ib,(f(m,ib),m=1,3),ib=1,nbas)

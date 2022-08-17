@@ -1,5 +1,4 @@
-subroutine vecpkl(r,rsm,nr,kmax,lmax,nrx,k0,wk,lrl,p,gp)
-  !- Vector of p_kl polynomials, or r^l p_kl
+subroutine vecpkl(r,rsm,nr,kmax,lmax,nrx,k0,wk,lrl,p,gp)! Vector of p_kl polynomials, or r^l p_kl
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   r     :vector of points

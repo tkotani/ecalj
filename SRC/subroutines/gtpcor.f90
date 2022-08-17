@@ -1,7 +1,6 @@
-subroutine gtpcor(is,kcore,lcore,qcore)
+subroutine gtpcor(is,kcore,lcore,qcore)!- Unpacks parameters related to partial core occpation
   use m_struc_def 
   use m_lmfinit,only:coreq,coreh
-  !- Unpacks parameters related to partial core occpation
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   sspec :struct containing species-specific information

@@ -1,5 +1,4 @@
-subroutine xlgen(plat,rmax,rmax2,nvmax,opts,mode,nv,vecs)
-  !- Generate a list of lattice vectors, subject to constraints
+subroutine xlgen(plat,rmax,rmax2,nvmax,opts,mode,nv,vecs)! Generate a list of lattice vectors, subject to constraints
   ! ----------------------------------------------------------------
   !i Inputs
   !i   plat  :dimensionless primitive lattice vectors

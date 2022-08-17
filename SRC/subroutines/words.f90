@@ -1,5 +1,4 @@
-subroutine words(str,nw)
-  !- Count blank-delimited words in str
+subroutine words(str,nw) !- Count blank-delimited words in str
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   str   :string

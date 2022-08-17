@@ -1,9 +1,8 @@
-subroutine totfrc(leks,fes1,fes2,dfhf,fin,fout)
+subroutine totfrc(leks,fes1,fes2,dfhf,fin,fout)! Add together and print contributions to force
   use m_lmfinit,only: nbas
   use m_mksym,only:  rv_a_osymgr , iv_a_oistab ,lat_nsgrp
   use m_struc_def
   use m_lgunit,only:stdo,stdl
-  !- Add together and print contributions to force
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   nbas  :size of basis
@@ -43,8 +42,7 @@ subroutine totfrc(leks,fes1,fes2,dfhf,fin,fout)
      else
         write(stdo,'(/''Forces:'')')
      endif
-     write(stdo,201)
-201  format('  ib',11x,'estatic',18x,'eigval',20x,'total')
+     write(stdo,"('  ib',11x,'estatic',18x,'eigval',20x,'total')")
   endif
   do ib = 1, nbas
      fev1 = f(:,ib) + dfhf(:,ib)
@@ -86,5 +84,3 @@ subroutine totfrc(leks,fes1,fes2,dfhf,fin,fout)
   fout=f
   call tcx('totfrc')
 end subroutine totfrc
-
-

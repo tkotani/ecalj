@@ -188,17 +188,17 @@ contains
        call mpibc1_real(plat,9,'iors_plat')
        call mpibc1_int(nit,1,'iors_nit')
        !   --- Read smooth charge density ---
-       allocate(osmrho(k1*k2*k3*nsp))
+       allocate(osmrho(k1*k2*k3,nsp))
        osmrho=0d0
        line = 'smoothed density'
        if (procid == master) then
           read(jfi,err=999,end=999) n11,n21,n31
           if (n11 == n1 .AND. n21 == n2 .AND. n31 == n3) then
              n =k1*k2*k3
-             read(jfi) osmrho(1:k1*k2*k3*nsp0)
+             read(jfi) osmrho(1:k1*k2*k3,1:nsp0)
              if (nsp > nsp0) then
-                osmrho(1:n   )=.5d0*osmrho(1:n)
-                osmrho(1+n:n+n)= osmrho(1:n)
+                osmrho(1:n,1)=.5d0*osmrho(1:n,1)
+                osmrho(1:n,2)= osmrho(1:n,1)
              endif
           else                 !... or read and remesh
              if (ipr >= 10) write(stdo,450) n11,n21,n31,n1,n2,n3

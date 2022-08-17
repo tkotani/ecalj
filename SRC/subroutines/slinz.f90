@@ -1,5 +1,4 @@
-subroutine slinz(volwgt,ec,emin,emax,dosi,nr)
-  !- Adds to number-of-states for one tetrahedron
+subroutine slinz(volwgt,ec,emin,emax,dosi,nr)! Adds to number-of-states for one tetrahedron
   ! ----------------------------------------------------------------
   !i Inputs
   !i   volwgt:weight on tetrahedron
@@ -14,18 +13,15 @@ subroutine slinz(volwgt,ec,emin,emax,dosi,nr)
   !u Updates
   !u   19 Jun 04 Put in guard against integer overflow
   ! ----------------------------------------------------------------
-  !     implicit none
-  ! Passed parameters
+  implicit none
   integer :: nr
   double precision :: ec(4),dosi(nr),volwgt,emin,emax
-  ! Local parameters
   integer :: i,i01,i02,i03,i04,i1,i2,i3,i4,j
   double precision :: c0,c1,c2,c3,cc,de,e,e1,e2,e3,e4,x
   double precision :: fuzz,mxmin,xx
   parameter (fuzz=1d-8)
   !     Guard against overflow, underflow. Make -1 < i0[1..4] < nr+1
   mxmin(xx) = min(max(xx,-2*de),nr*de)/de+1.9999999d0
-
   ! --- Sort the ec ---
   do   i = 1, 3
      do   j = 1, 4-i
@@ -49,7 +45,6 @@ subroutine slinz(volwgt,ec,emin,emax,dosi,nr)
   i02 = mxmin(e2-emin)
   i03 = mxmin(e3-emin)
   i04 = mxmin(e4-emin)
-
   ! --------------------------------
   i1 = max0(i01,1)
   i2 = min0(i02-1,nr)

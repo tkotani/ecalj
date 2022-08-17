@@ -1,15 +1,13 @@
-subroutine mkQG2(iq0pin, gammacellctrl,lnq0iadd,lmagnon)
+subroutine mkQG2(iq0pin, gammacellctrl,lnq0iadd,lmagnon)! Make required q and G to expand eigenfunctions for GW.
   use m_get_bzdata1,only: Getbzdata1, nqbz, nqibz, nqbzw,ntetf,nteti,nqbzm, &
        qbz,wbz,qibz,wibz, qbzw, idtetf, ib1bz, idteti, irk, nstar, nstbz, qbzm, qbzwm
   use m_q0p,only: Getallq0p, &
-       nq0i,nq0itrue,nq0iadd,  q0i,wt, epslgroup, lxklm, &
-       epinv,wklm, dmlx, epinvq0i,ixyz
+       nq0i,nq0itrue,nq0iadd,  q0i,wt, epslgroup, lxklm, epinv,wklm, dmlx, epinvq0i,ixyz
   use m_ftox
   use m_keyvalue,only: getkeyvalue
   use m_hamindex0,only: Readhamindex0, symops,ngrp,alat,plat,qlat
   implicit none
-  intent(in)::     iq0pin, gammacellctrl,lnq0iadd,lmagnon
-  !! == Make required q and G in the expansion of GW. ==
+  intent(in)::   iq0pin, gammacellctrl,lnq0iadd,lmagnon
   !!     |q+G| < QpGcut_psi for eigenfunction psi.
   !!     |q+G| < QpGcut_Cou for coulomb interaction
   !!
@@ -27,22 +25,18 @@ subroutine mkQG2(iq0pin, gammacellctrl,lnq0iadd,lmagnon)
   integer:: nqnumm,ifiqmtet,verbose,nn1,nn2,ifiqbz,iqbz !,auxfunq0p
   real(8)  :: q(3),dummy,qp(3), &
        QpGcut_psi, QpGcut_Cou,QpGcut,alpv(3),q0smean,sumt,alp, &
-       volum,voltot,q0(3),qlat0(3,3),tripl, &
-       xx,qqx(3),alpm
+       volum,voltot,q0(3),qlat0(3,3),tripl, xx,qqx(3),alpm
   real(8)::aaij,bbij
   real(8) :: vol,ginv(3,3),dq(3) !,www
   integer,allocatable:: ngvecp(:,:), ngvecc(:,:), &
        ngpn(:),ngcn(:), nqq(:)
-  real(8),allocatable :: &
-       qq(:,:),qq1(:,:),qq2(:,:),qqm(:,:)
+  real(8),allocatable :: qq(:,:),qq1(:,:),qq2(:,:),qqm(:,:)
   logical ::tetrai,tetraf,tetra_hsfp0
   integer :: ifbz
   logical:: qbzreg, qreduce ,qreduce0
   real(8),allocatable:: qsave(:,:)
   integer:: imx,ifinin,il,imx0
   integer,allocatable :: ngvecprev(:,:,:),ngveccrev(:,:,:)
-  !      integer(4):: bzcase=1
-  !     logical :: readgwinput
   real(8):: ddq(3)
   logical :: offmesh=.false. ,offmeshg=.false.
   logical :: regmesh=.false. ,regmeshg=.false. ,  timereversal
@@ -69,23 +63,7 @@ subroutine mkQG2(iq0pin, gammacellctrl,lnq0iadd,lmagnon)
   real(8),parameter:: pi=4d0* atan(1d0)
   !------------------------------------------------
   write(6,"('mkqg2: ')")
-  ! initial set up
-  !      open (newunit=ifi, file='LATTC',form='unformatted')
-  !      read(ifi) alat,plat
-  !      close(ifi)
-
-  !      open (newunit=ifi, file='SYMOPS')
-  !      read(ifi,*) ngrp
-  !      allocate(symops(3,3,ngrp))
-  !      do ig = 1,ngrp
-  !        read(ifi,*)
-  !        do i=1,3
-  !          read(ifi,*) symops(i,1:3,ig)
-  !        enddo
-  !      enddo
-  !      close(ifi)
   call readhamindex0()
-
   call getkeyvalue("GWinput", "n1n2n3", nnn,3)
   if(lmagnon) call getkeyvalue("GWinput", "n1n2n3eps",nnn,3,default=nnn)
   call getkeyvalue("GWinput", "QpGcut_psi",QpGx2)
@@ -101,30 +79,17 @@ subroutine mkQG2(iq0pin, gammacellctrl,lnq0iadd,lmagnon)
      QpGcut_psi=0d0
      QpGcut_Cou=0d0
   endif
-
   qreduce0 = qreduce()
   newoffsetG=.true.
-  !      call minv33tp(plat,qlat)
   ginv = transpose(plat)
-
   !! NOTE: we use only mtet=[1,1,1]. If we like to recover general case, examine code again.
   call getkeyvalue("GWinput","multitet",mtet,3,default=[1,1,1])
   write(6,"('  SYMOPS ngrp=',i3)") ngrp
   write(6,"('  unit(a.u.) alat  =',f13.6 )") alat
   write(6,"('  ---  |k+G| < QpG(psi) QpG(Cou)=',2d13.6)") QpGcut_psi, QpGcut_Cou
   write(6,"('  --- k points for GW from GWinput =',3i3)") nnn(1:3)
-  ! debug
-  !      voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
-  !      imat33=0d0
-  !      imat33(1,1)=1d0
-  !      imat33(2,2)=1d0
-  !      imat33(3,3)=1d0
-  !      if(sum(abs(matmul(transpose(qlat),plat)-imat33))>tolq()) call rx('qlat*plat err')
-  !      if(sum(abs(ginv-transpose(plat)))       >tolq()) call rx('ginv=transpose(qlat) err')
-
   open(newunit=ifiqg ,file='QGpsi',form='unformatted')
   open(newunit=ifiqgc,file='QGcou',form='unformatted')
-
   !     ! gammacellctrl=2 is a special mode. We only consider tetrahedron method within the Gammacell.
   !! The Gammacell is a part of BZ made from three vectors following qlatbz=(qlat(:,1)/n1q,...)
   !! Then the Gamma point is in the middle of micro_qlat = (qlat(:,1)/n1q,qlat(:,2)/n2q,...)
@@ -164,38 +129,16 @@ subroutine mkQG2(iq0pin, gammacellctrl,lnq0iadd,lmagnon)
      tetraf=.false.
   endif
   call Getbzdata1(qlatbz,nnn,symops,ngrp,tetrai,tetraf,mtet,gammacellctrl) !all inputs
-!!! Write QIBZ
-  !      write(6,*)' qibz are written in QIBZ file...'
-  !      open (newunit=ifiqibz, file='QIBZ',form='unformatted') !write q-points in IBZ.
-  !      write(ifiqibz) nqibz
-  !      write(ifiqibz) qibz(1:3,1:nqibz),wibz(1:nqibz)
-  !      close(ifiqibz)
-  !! Write QBZ
   open (newunit=ifiqbz, file='QBZ.chk') !write q-points in IBZ.
   write(ifiqbz,"(i10)") nqbz
   do iqbz = 1,nqbz
      write(ifiqbz,"(3d24.16,3x,d24.16)") qbz(1:3,iqbz)
   enddo
   close(ifiqbz)
-!  !!  Write KPNTin1BZ.mkqg.chk (files *.chk is only for check.).
-!  open(newunit=ifkpt,file='KPTin1BZ.mkqg.chk')
-!  write(ifkpt,*)"  qbz --> shoten(qbz)"
-!  do i1 = 1,nqbz
-!     call shorbz(qbz(1,i1),qp,qlat,plat)
-!     write (ifkpt,"(1x,i7,4f10.5,'   ',3f10.5)") &
-!          i1,qbz(1,i1),qbz(2,i1),qbz(3,i1),wbz(i1),qp
-!  enddo
-!  close (ifkpt)
   write(6,"('  --- TOTAL num of q nqbz and nqibz=)',2i6)") nqbz,nqibz
   write(6,'("  qibz = ",i6,3f12.5)')(i,qibz(1:3,i),i=1,min(10,nqibz))
   write(6,*)" ... QIBZ is written in QIBZ file ..."
   write(6,*)
-
-  !! Getallq0p; Q0P is offset Gamma or k point given in GWinput
-  !! See use m_q0p =>  q0i,wt,nq0i,nq0itrue are outputs
-  !! After 'call Getallq0p', we have q0i(:,nq0i+1,nq0i+nq0iadd).
-  !!    q0i(:,1:nq0i+n0qiadd) contains all q0x(:,i)= qlat(:,i)/nnn(i)/2d0*deltaq_scale() for i=1,3.
-  ! alpha is for auxially function of the offset Gamma method.
   call getkeyvalue("GWinput","alpha_OffG",alp,default=-1d60)
   alpv(:)=alp
   if(alp==-1d60) then
@@ -209,27 +152,7 @@ subroutine mkQG2(iq0pin, gammacellctrl,lnq0iadd,lmagnon)
   do i=nq0i+1,nq0i+nq0iadd
      write(6,"('  q0iadd=  ', i3, 3f10.5)") i,q0i(:,i)
   enddo
-
-  !$$$      if(iq0pin==1) then
-  !$$$         open (newunit=ifi0,file='Q0P')
-  !$$$         write(ifi0,"(3i5,' !nq0i iq0pin nq0iadd; weight q0p(1:3) ix')") nq0i,iq0pin,nq0iadd
-  !$$$         write(ifi0,"(d24.16,3x, 3d24.16,x,i1)" ) (wt(i),q0i(1:3,i),ixyz(i),i=1,nq0i+nq0iadd)
-  !$$$         close(ifi0)
-  !$$$         open(newunit=ifidmlx,file='EPSwklm',form='unformatted')
-  !$$$         write(ifidmlx) nq0i,lxklm
-  !$$$         write(ifidmlx) dmlx, epinv(1:3,1:3,1:nq0i),epinvq0i
-  !$$$         write(ifidmlx) wklm
-  !$$$         close(ifidmlx)
-  !$$$      elseif(iq0pin==2) then
-  !$$$         open (newunit=ifi00,file='Q0P')
-  !$$$         write(ifi00,"(3i5,a)") nq0i,iq0pin,0, " !nq0i iq0pin ---"//
-  !$$$     &        "This is readin Q0P from GWinput <QforEPS> ---"
-  !$$$         write(ifi00,"(d24.16,3x, 3d24.16,2i3)") (wt(i),q0i(1:3,i),0,epslgroup(i),i=1,nq0i)
-  !$$$         close(ifi00)
-  !$$$      endif
-  !! Write BZDATA
   print *,' Writing BZDATA...'
-!  write(6,ftox)' nqbz,nqibz, nqbzw, ntetf', nqbz,nqibz, nqbzw, ntetf, 'vvv', nteti,ngrp,nnn 
   open (newunit=ifbz, file='BZDATA',form='unformatted')
   write(ifbz) nqbz,nqibz, nqbzw, ntetf, nteti,ngrp,nnn ,qlat,ginv
   write(ifbz) qibz(1:3,1:nqibz),wibz(1:nqibz),nstar(1:nqibz),irk(1:nqibz,1:ngrp)
@@ -248,10 +171,8 @@ subroutine mkQG2(iq0pin, gammacellctrl,lnq0iadd,lmagnon)
      write(ifbz) epslgroup(1:nq0i)
   endif
   close(ifbz)
-
   !! ---------
   if (lmagnon) return       !! exit because we get QforEPSL data only (21 Feb, 2020)
-
   !! Four kinds of mesh points setting. Q0P means offset Gamma (slightly different from Gamma).
   !! Which we need?
   !! 1. regular
@@ -330,33 +251,6 @@ subroutine mkQG2(iq0pin, gammacellctrl,lnq0iadd,lmagnon)
   enddo
   ix=ix+1
   qq(1:3,ix)=0d0
-  !$$$!! (this mtet block is not used now) Get qqm; q point for eigenvalues.
-  !$$$!! Saved to Qmtet. Not so much used now...
-  !$$$!! We need check again if we like to use this branch again (2016apr)
-  !$$$      if(sum(abs(mtet))/=3) then
-  !$$$         nqnumm= nqbzm * (nq0i+ nq0iadd +1)
-  !$$$         allocate( qqm(1:3,nqnumm) )
-  !$$$         ix=0
-  !$$$         do iq00 = 1, 1 + nq0i+ nq0iadd
-  !$$$            do iq   = 1, nqbzm
-  !$$$               ix = ix+1
-  !$$$               if(iq00==1) then
-  !$$$                  qqm(1:3,ix) = qbzm(1:3,iq)
-  !$$$               else
-  !$$$                  qqm(1:3,ix) = q0i(1:3,iq00-1) + qbzm(1:3,iq)
-  !$$$               endif
-  !$$$            enddo
-  !$$$         enddo
-  !$$$c         ifiqmtet=ifile_handle()
-  !$$$         open(newunit=ifiqmtet, file='Qmtet')
-  !$$$         write(ifiqmtet,"(i10)") nqnumm
-  !$$$         do iq=1,nqnumm
-  !$$$            write(ifiqmtet,"(3d24.16)") qqm(1:3,iq)
-  !$$$         enddo
-  !$$$         close(ifiqmtet)
-  !$$$         deallocate(qqm)
-  !$$$  endif
-
   !! Remove equivalent q point by the translational symmetry
   if( qreduce0 ) then
      call cputid (0)
@@ -376,9 +270,7 @@ subroutine mkQG2(iq0pin, gammacellctrl,lnq0iadd,lmagnon)
      qq(:,1:imx)=qsave(:,1:imx)
      deallocate(qsave)
   endif
-  !! ------------------------------------------
 2001 continue
-  !! ------------------------------------------
 
   !! Here we get all requied q points. We do reduce them by space group symmetry.
   if(allocated(wt0)) deallocate(wt0)
@@ -387,7 +279,6 @@ subroutine mkQG2(iq0pin, gammacellctrl,lnq0iadd,lmagnon)
   !! Set irreducible k-point flag. irr=1 for (irredusible point) flag, otherwise =0.
   !! irr(iq)=1 for irreducile qq(:,iq), iq=1,nqnum
   call q0irre(qibz,nqibz,qq,wt0,nqnum,symops,ngrp, qi,nqi,wti,plat,.true.,0,irr,nqbz)
-
   if(cmdopt0('--allqbz')) nqnum=nqbz
   !! nqnum is the finally obtained number of q points.
   allocate(ngpn(nqnum), ngcn(nqnum))

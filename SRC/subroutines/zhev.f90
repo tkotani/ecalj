@@ -1,6 +1,4 @@
-subroutine zhevx(n,lh,h,s,lov,lx,nmx,emx,nev,wk,linv,e,lz,z)
-  !- Eigenvalues and/or some eigenvectors of a Hermitian matrix
-  ! ----------------------------------------------------------------
+subroutine zhevx(n,lh,h,s,lov,lx,nmx,emx,nev,wk,linv,e,lz,z)! Eigenvalues and/or some eigenvectors of a Hermitian matrix
   !i Inputs:
   !i   n:    order of h and s
   !i   lh:   leading dimension of h and s

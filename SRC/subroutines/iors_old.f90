@@ -241,8 +241,8 @@ contains
        call mpibc1_real(plat,9,'iors_plat')
        call mpibc1_int(nit,1,'iors_nit')
        !   --- Read smooth charge density ---
-       allocate(osmrho(k1*k2*k3*nsp))
-       osmrho(:)=0d0
+       allocate(osmrho(k1*k2*k3,nsp))
+       osmrho=0d0
        line = 'smoothed density'
        if (procid == master) then
           read(jfi,err=999,end=999) n11,n21,n31

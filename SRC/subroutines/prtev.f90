@@ -1,6 +1,5 @@
-subroutine prtev(t,n,evl,nmx,nev)
+subroutine prtev(t,n,evl,nmx,nev)!- Printout the eigenvalues
   use m_lgunit,only:stdo
-  !- Printout the eigenvalues
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   evl   :eigenvalues
@@ -11,16 +10,14 @@ subroutine prtev(t,n,evl,nmx,nev)
   !u Updates
   !u   28 Aug 04 prints out |evec| at high verbosities
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
+  implicit none
   integer :: n,nmx,nev
   double precision :: evl(nev)
   double complex t(n,nmx)
-  ! ... Local parameters
   integer :: i,ipr,j
-  !      stdo = lgunit(1)
-  call getpr(ipr)
-  ipr = 30 !100
+!!!!!!!!!!!!!!!!!!!!  
+  ipr = 30 
+!!!!!!!!!!!!!!!!!!!
   if (ipr >= 30 .AND. ipr < 100) then
      j = min(9,nmx)
      if (ipr >= 35) j = nev

@@ -1,5 +1,4 @@
-! Sigular Value Decmoposition zzz= matmul(UU,matmul(SS,VT)) ------------
-subroutine zgesvdnn(ngb,zzz, SS,UU,VT)
+subroutine zgesvdnn(ngb,zzz, SS,UU,VT)! Sigular Value Decomp. zzz= matmul(UU,matmul(SS,VT))
   implicit none
   integer(4)::lwork,info,ngb,i
   complex(8):: zzz(ngb,ngb),UU(ngb,ngb),VT(ngb,ngb)

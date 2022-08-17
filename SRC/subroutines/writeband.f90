@@ -1,11 +1,10 @@
-subroutine writeband(eferm,evtop,ecbot)
+subroutine writeband(eferm,evtop,ecbot) !write band file. bnd* and bandplot.isp*.glt
   use m_lmfinit,only:stdo,nsp,alat=>lat_alat
   use m_qplist,only: nkp,nsyml,xdatt,nqp_syml,nqp2n_syml,qplist,labeli,labele, &
        nqps_syml,nqpe_syml,dqsyml,etolv,etolc
   use m_suham,only: ndham=>ham_ndham, ndhamx=>ham_ndhamx,nspx=>ham_nspx
   use m_bandcal,only:nevls,evlall
   use m_ext,only: sname
-  !! == write band file ==
   implicit none
   real(8),intent(in):: eferm,evtop,ecbot ! evtop is max of n-th band. !evbot is bottom of bands upper than n+1
   integer:: ifbndo,ikp,isyml,jsp

@@ -1,6 +1,4 @@
-
-subroutine freq01 (nx,ua,   freqx,freqw,wx,expa)
-  ! generates a gaussian point x between (0,1) and w = (1-x)/x
+subroutine freq01 (nx,ua,   freqx,freqw,wx,expa)!Generates a gaussian point x between (0,1) and w = (1-x)/x 
   ! and the weights in x
   ! also generates expa = exp(-ua^2 w^2)
   ! nx    = no. gaussian points
@@ -23,7 +21,7 @@ subroutine freq01 (nx,ua,   freqx,freqw,wx,expa)
   return
 end subroutine freq01
 !--------------------------------------------------------------------
-subroutine freq01x (nx,    freqx,freqw,wx) !,expa)
+subroutine freq01x (nx,    freqx,freqw,wx)
   ! 92.02.27
   ! generates a gaussian point x between (0,1) and w = (1-x)/x
   ! and the weights in x
