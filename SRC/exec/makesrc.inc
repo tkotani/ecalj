@@ -56,7 +56,6 @@ delstp.o \
 dostet.o \
 dstrbp.o \
 dvdos.o \
-fermi.o \
 freeat.o \
 fswgts.o \
 getq.o \
@@ -83,18 +82,13 @@ maknos.o \
 makrot.o \
 makrwf.o \
 mkqp.o \
-mkrtab.o \
 m_mksym.o \
 m_mksym_util.o \
 mtchae.o \
 nwit.o \
 phidx.o \
 phvsfp.o \
-pkli.o \
-pptrns.o \
 prdmts.o \
-prjpos.o \
-projql.o \
 radgkl.o \
 radmsh.o \
 radpkl.o \
@@ -107,8 +101,6 @@ ropyln.o \
 rseq.o \
 s2sph.o \
 scg.o \
-shftpp.o \
-siteid.o \
 slinz.o \
 splcls.o \
 splwts.o \
@@ -120,7 +112,6 @@ suldau.o \
 sylm.o \
 symdmu.o \
 symfor.o \
-symprj.o \
 symq.o \
 symstr.o \
 tailsm.o \
@@ -161,7 +152,6 @@ nintsp.o \
 platsl.o \
 poldvm.o \
 polint.o \
-ppfac.o \
 rdfiln.o \
 rfalsi.o \
 strings.o \
@@ -171,7 +161,6 @@ words.o \
 zhev.o \
 tc.o \
 scglp1.o \
-addbkg.o \
 addrbl.o \
 atqval.o \
 augmat.o \
@@ -180,7 +169,6 @@ bndfp.o \
 bstrux.o \
 dfqkkl.o \
 dfrce.o \
-efldos.o \
 elocp.o \
 esmsmves.o \
 fradhd.o \
@@ -199,13 +187,10 @@ mixrho.o \
 mkdmtu.o \
 mkehkf.o \
 mkrout.o \
-mshdot.o \
-mshint.o \
 ovlpfa.o \
 pnunew.o \
 poinsp.o \
 potpus.o \
-prrhat.o \
 prtev.o \
 rdovfa.o \
 rhogkl.o \
@@ -226,7 +211,6 @@ vesgcm.o \
 vxtrap.o \
 wrhomt.o \
 ncutcorrect.o \
-stonerpb.o \
 stonerrsa.o \
 polinta.o \
 lmaux.o \
@@ -279,7 +263,6 @@ hilbertmat.o\
 dpsion5.o\
 m_homoelectron.o \
 m_readwan.o \
-diagcv3.o \
 m_w0w0i.o \
 getwemax.o \
 wse.o \
