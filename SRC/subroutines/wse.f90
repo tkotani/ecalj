@@ -1,8 +1,8 @@
 !utils for self-energy things.
-subroutine checkeq(i,j)
-  integer::i,j
-  if(i/=j) call rx( " checkeq in hsfp0: dim of WVR and WVI not compatible")
-end subroutine checkeq
+! subroutine checkeq(i,j)
+!   integer::i,j
+!   if(i/=j) call rx( " checkeq in hsfp0: dim of WVR and WVI not compatible")
+! end subroutine checkeq
 !--------------------------------------------------------------------
 subroutine rsexx2 (nspin, itq, q, ntq,nq,ginv, symgg,ng, vxco)
   implicit real*8 (a-h,o-z)
@@ -192,11 +192,3 @@ subroutine q0iwgt3(allq0i,symops,ngrp,wqt,q0i,nq0i, wgt0)
      endif
   enddo !i
 end subroutine q0iwgt3
-!---------------------------------------------------
-integer*4 function ivsumxxx(ia,n)
-  integer(4) ::ia(n),n,i
-  ivsumxxx=0
-  do i=1,n
-     if(ia(i)/=0) ivsumxxx=ivsumxxx+1
-  enddo
-END function ivsumxxx

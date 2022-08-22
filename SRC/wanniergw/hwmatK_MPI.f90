@@ -527,7 +527,8 @@ program hwmatK_MPI
      ! nblochpmx from WV.d oct2005
      if (Is_IO_Root_RSMPI()) write(6,"(' Readin WV.d =', 10i5)") &
           nprecx, mrecl, nblochpmx, nwp, niwt, nqnum, nw_i
-     call checkeq(nprecx,ndble)
+     !call checkeq(nprecx,ndble)
+     if(nprecx/=ndble)call rx("hwmatK_MPI: WVR and WVI not compatible")!call checkeq(nprecx,ndble)
      !       call checkeq(nblochpmx,nblochpmx2)
      !       if (nwt /= nw)   stop 'hwmatK: wrong nw'
      !       nw = nwt
@@ -838,10 +839,8 @@ program hwmatK_MPI
   !c      deltax0 = 0d0
   !c      call writeemesh(ifemesh,freqw,niw,freq_r,nwp,deltax0)
   ! c
-  iii=ivsumxxx(irk,nqibz*ngrp)
-  if (Is_IO_Root_RSMPI()) &
-       write(6,*) " sum of nonzero iirk=",iii, nqbz
-
+  iii=count(irk/=0) !ivsumxxx(irk,nqibz*ngrp)
+  if (Is_IO_Root_RSMPI()) write(6,*) " sum of nonzero iirk=",iii, nqbz
   !... Read pomatr
   if(smbasis()) then
      call RSMPI_Stop('hwmatK_MPI: smbasis notimplemented!')

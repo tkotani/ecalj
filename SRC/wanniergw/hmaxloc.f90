@@ -567,7 +567,7 @@ program hmaxloc
   ! --- info
   call winfo(6,nspin,nq,ntq,is,nbloch &
        ,0,0,nqbz,nqibz,ef,deltaw,alat,esmr)
-  iii=ivsumxxx(irk,nqibz*ngrp)
+  iii=count(irk/=0) !ivsumxxx(irk,nqibz*ngrp)
   write(6,*) " sum of nonzero iirk=",iii, nqbz
 
   ! Rt vectors
