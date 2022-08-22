@@ -412,3 +412,40 @@ contains
 
 end program hsfp0_sc
 
+subroutine rsexx (nspin, itq, q, ntq,nq,ginv, vxco)
+  implicit real*8 (a-h,o-z)
+  implicit integer (i-n)
+  dimension vxco(ntq,nq,nspin),q(3,nq),itq(ntq) !itq is not dependent on q, right?
+  real(8),allocatable :: qqq(:,:),vxcfpx(:,:,:)
+  logical ::nocore,lfind
+  real(8)::  rydberg,tolq=1d-5,qx(3),ginv(3,3)
+  integer:: ikpx=999999
+  write(6,*)' OPEN VXCFP '
+  open(newunit=ifvxcfp,file='VXCFP',form='unformatted')
+  read(ifvxcfp) ldim,nqbz
+  write(6,*)' rsexx ldim,nqbz',ldim,nqbz
+  allocate(qqq(3,nqbz),vxcfpx(ldim,nqbz,nspin))
+  do ikp = 1,nqbz
+     read(ifvxcfp) qqq(1:3,ikp),vxcfpx(1:ldim,ikp,1:nspin)
+     write(6,"(i5,100d13.5)") ikp,qqq(1:3,ikp)
+  enddo
+  close(ifvxcfp)
+  do iq=1,nq
+     do ikp=1,nqbz
+        lfind=.false.
+        if(sum( (qqq(1:3,ikp)-q(1:3,iq))**2) <tolq) then
+           lfind=.true.
+        else
+           call rangedq( matmul(ginv,q(1:3,iq)-qqq(:,ikp)), qx)
+           if(sum(abs(qx))< tolq) lfind= .TRUE. 
+        endif
+        if(lfind) then
+           ikpx=ikp
+           goto 100
+        endif
+     enddo
+     call rx( ' rsexx: not find ikp')
+100  continue
+     vxco(1:ntq,iq,1:nspin)=rydberg()*vxcfpx(itq(1:ntq),ikpx,1:nspin)
+  enddo
+end subroutine rsexx

@@ -5,11 +5,8 @@ program hsfp0
   use m_readeigen,only: Init_readeigen,Readeval,Lowesteval,Init_readeigen2
   use m_read_bzdata,only: Read_bzdata, &
        nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,ginv,qlat, &
-       dq_,qbz,wbz,qibz,wibz,qbzw, &
-       idtetf,ib1bz,idteti, &
-       nstar,irk,nstbz, &
-       lxklm,dmlx,epinvq0i,wklm, &
-       wqt=>wt,q0i,nq0i
+       dq_,qbz,wbz,qibz,wibz,qbzw, idtetf,ib1bz,idteti, &
+       nstar,irk,nstbz, lxklm,dmlx,epinvq0i,wklm, wqt=>wt,q0i,nq0i
   use m_hamindex,only: ngrp, symgg=>symops
   use m_genallcf_v3,only: Genallcf_v3, &
        nclass,natom,nspin,nl,nn, nlmto,nlnmx, nctot,niw, &
@@ -17,12 +14,8 @@ program hsfp0
        plat, pos,z,ecore,  konf,nlnx
   use m_keyvalue,only: Getkeyvalue
   use m_rdpp,only: Rdpp, nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx
-  use m_zmel,only: &
-       Mptauof_zmel !Ppbafp_v2_zmel,
-  use m_itq,only: Setitq_hsfp0, &
-       itq,ntq
-  !     &   nband,itq,ngcmx,ngpmx,
-  !     &   miat,tiat,shtvg, ntq, ppbir
+  use m_zmel,only: Mptauof_zmel
+  use m_itq,only: Setitq_hsfp0, itq,ntq
   use m_mpi,only: &
        MPI__Initialize,MPI__real8send,MPI__real8recv,MPI__send_iv,MPI__recv_iv,MPI__sxcf_rankdivider, &
        MPI__Finalize,MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum, &
@@ -934,3 +927,45 @@ contains !followings are only for writing files.
     write(6,*)' End of ExSpectrum section ---'
   end subroutine Hswrite4
 end program hsfp0
+
+subroutine rsexx2 (nspin, itq, q, ntq,nq,ginv, symgg,ng, vxco)
+  implicit real*8 (a-h,o-z)
+  implicit integer (i-n)
+  dimension vxco(ntq,nq,nspin),q(3,nq),itq(ntq) !itq is not dependent on q, right?
+  real(8),allocatable :: qqq(:,:),vxcfpx(:,:,:)
+  logical ::nocore,lfind
+  real(8)::  rydberg,tolq=1d-5,qx(3),ginv(3,3),qr(3),symgg(3,3,ng),sym(3,3)
+  integer:: ikpx=999999
+  write(6,*)' OPEN VXCFP '
+  open(newunit=ifvxcfp,file='VXCFP',form='unformatted')
+  read(ifvxcfp) ldim,nqbz
+  write(6,*)' rsexx ldim,nqbz',ldim,nqbz
+  allocate(qqq(3,nqbz),vxcfpx(ldim,nqbz,nspin))
+  do ikp = 1,nqbz
+     read(ifvxcfp) qqq(1:3,ikp),vxcfpx(1:ldim,ikp,1:nspin)
+     write(6,"(i5,100d13.5)") ikp,qqq(1:3,ikp)
+  enddo
+  close(ifvxcfp)
+  do iq=1,nq
+     do ikp=1,nqbz
+        do ig = 1,ng
+           sym = symgg(:,:,ig)
+           qr=matmul(sym,qqq(1:3,ikp))
+           lfind=.false.
+           if(sum( (qr-q(1:3,iq))**2) <tolq) then
+              lfind=.true.
+           else
+              call rangedq( matmul(ginv,q(1:3,iq)-qr), qx)
+              if(sum(abs(qx))< tolq) lfind= .TRUE. 
+           endif
+           if(lfind) then
+              ikpx=ikp
+              goto 100
+           endif
+        enddo
+     enddo
+     call rx( ' rsexx: not find ikp')
+100  continue
+     vxco(1:ntq,iq,1:nspin)=rydberg()*vxcfpx(itq(1:ntq),ikpx,1:nspin)
+  enddo
+end subroutine rsexx2

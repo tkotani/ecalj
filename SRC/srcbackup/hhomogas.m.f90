@@ -647,3 +647,24 @@ END PROGRAM hhomogas
 !$$$      endif
 
 
+! double precision  function egex (q,ef)
+!   ! 92.02.22
+!   ! electron gas bare exchange
+!   ! SEx(q) = -(kf/pi) { 1 + ((kf^2-q^2)/2q*kf) ln|q+kf/q-kf|
+!   ! ef     = kf^2
+!   ! q      = magnitude of q-vector
+!   ! ef     = fermi energy in Rydberg
+!   ! egex   = exchange energy in Hartree
+!   implicit real*8 (a-h,o-z)
+!   implicit integer (i-n)
+!   pi         = 4.d0*datan(1.d0)
+!   qf         = dsqrt(ef)
+!   if(q==0d0) then
+!      fac =  1d0
+!   else
+!      fac =  ((qf*qf-q*q)/(2.d0*q*qf) )*dlog(dabs( (q+qf)/(q-qf) ))
+!   endif
+!   egex  = -(qf/pi)*(1d0 + fac)
+!   return
+! END function egex
+

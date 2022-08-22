@@ -11,7 +11,6 @@ program hhilbert
   !    (3) During the main loop, a few of module variables are rewritten by module functions
   !        (tetrahedron weight, matrix elements ...). Be careful, and clarify it.
   !    (4) Do now write long fortran program. One MPI loop and one OpenMP loop.
-
   use m_ReadEfermi,only: Readefermi,ef
   use m_readqg,only: Readngmx2,ngpmx,ngcmx
   use m_hamindex,only:   Readhamindex
@@ -19,29 +18,20 @@ program hhilbert
   use m_read_bzdata,only: Read_bzdata,  ngrp2=>ngrp,nqbz,nqibz,n1,n2,n3,ginv, &
        dq_,qbz,wbz,qibz,wibz, ntetf,idtetf,ib1bz, qbzw,nqbzw,q0i,nq0i ,nq0iadd !for tetrahedron
   use m_genallcf_v3,only: Genallcf_v3, &
-       nclass,natom,nspin,nl,nn, &
-       nlmto,nlnmx, nctot, alat, clabl,iclass, &
+       nclass,natom,nspin,nl,nn, nlmto,nlnmx, nctot, alat, clabl,iclass, &
        il, in, im, nlnm, plat, pos, ecore
   use m_rdpp,only: Rdpp,  nxx,lx,nx,mdimx,nbloch,cgr,ppbrd ,nblochpmx,mrecl,nprecx
   use m_zmel,only: Mptauof_zmel, Setppovlz !Ppbafp_v2_zmel,
   use m_itq,only: Setitq !set itq,ntq,nband,ngcmx,ngpmx to m_itq
-  !! Frequency
   use m_freq,only: Getfreq2, frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,niw !output of getfreq
-  !! Antiferro
-  !     use m_anf,only: anfcond,
-  !     & laf,ibasf !,ldima,pos,natom
-  !! Tetwt
   use m_tetwt,only: Tetdeallocate, Gettetwt, whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb
   use m_w0w0i,only:       W0w0i,     w0,w0i,llmat
   use m_readVcoud,only:   Readvcoud, vcousq,zcousq,ngb,ngc
-  use m_readgwinput,only: ReadGwinputKeys, &
-       egauss,ecut,ecuts,nbcut,nbcut2,mtet,ebmx,nbmx,imbas
+  use m_readgwinput,only: ReadGwinputKeys, egauss,ecut,ecuts,nbcut,nbcut2,mtet,ebmx,nbmx,imbas
   use m_qbze,only:    Setqbze, nqbze,nqibze,qbze,qibze
   use m_readhbe,only: Readhbe, nband !, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-  !      use m_eibz,only:    Seteibz, nwgt,neibz,igx,igxt,eibzsym
-  use m_x0kf,only:    X0kf_v4hz, X0kf_v4hz_symmetrize, X0kf_v4hz_init,x0kf_v4hz_init_write,x0kf_v4hz_init_read
+  use m_x0kf,only:X0kf_v4hz,X0kf_v4hz_symmetrize,X0kf_v4hz_init,x0kf_v4hz_init_write,x0kf_v4hz_init_read
   use m_llw,only:     WVRllwR,WVIllwI,w4pmode,MPI__sendllw
-  !! MPI
   use m_mpi,only: MPI__hx0fp0_rankdivider2Q, MPI__Qtask, &
        MPI__Initialize, MPI__Finalize,MPI__root, &
        MPI__Broadcast, MPI__rank,MPI__size, MPI__consoleout,MPI__barrier
