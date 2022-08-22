@@ -1,5 +1,4 @@
-!- Make the LDA/GGA Hamiltonian and overlap matrix for a k-point. No SOC added.
-subroutine hambl(isp,qin, smpot,vconst,osig,otau,oppi, h, s)
+subroutine hambl(isp,qin,smpot,vconst,osig,otau,oppi, h,s)! Make LDA/GGA Hamiltonian and overlap matrix for a k-point. No SOC added.
   use m_lmfinit,only: nbas , sspec=>v_sspec,nsp
   use m_igv2x,only: napw, igvapwin=>igv2x, ndimh
   use m_supot,only: k1,k2,k3
@@ -31,11 +30,9 @@ subroutine hambl(isp,qin, smpot,vconst,osig,otau,oppi, h, s)
   call tcn('hambl')
   h = 0d0 !Hamiltonian for the basis of MTO+APW
   s = 0d0 !Overlap matrix for the basis of MTO+APW
-  
-  call augmbl(isp,qin, osig,otau,oppi,ndimh, h,s)! Augmentation parts of h,s
+    call augmbl(isp,qin,osig,otau,oppi,ndimh, h,s)! Augmentation parts of h,s
   !    product sum f structure constant C_akL^i in Eq.(C.1)-(C.2) in Ref.[1].
-  
-  call smhsbl(vconst,      qin,ndimh,napw,igvapwin, h,s)!Smooth and Constant potential parts.
+  call smhsbl(vconst,qin,ndimh,napw,igvapwin,          h,s)!Smooth and Constant potential parts.
   call hsibl(k1,k2,k3,smpot,isp,qin,ndimh,napw,igvapwin, h)!Smooth potential part, 1st term of (C.3) in Ref.[1]
   do i=1,ndimh
      h(i+1:ndimh,i)=dconjg(h(i,i+1:ndimh))
