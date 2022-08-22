@@ -179,27 +179,9 @@ complex(8) function wintzsg_npm(npm,v,v0,x,wt,a,expa,we, nx,esmr)
   wintzsg_npm = -sum/pi  + sumgauss
   if(verbose()>90) &
        write(1116, "(' we sig wintzsg_npm =',2f8.3,4f14.6)" )we,sig,wintzsg_npm
-  !$$$      return
-  !$$$c---test code
-  !$$$      print *,' sum= ', sum
-  !$$$      print *,' awe1= ', a*we
-  !$$$      print *,' erf1= ', derfcx(a*we)
-  !$$$      print *,' awe2= ', sqrt(a**2+1d0/sig2)*we
-  !$$$      print *,' erf2= ', derfcx(sqrt(a**2+1d0/sig2)*we)
-  !$$$      print *,' dexp= ', dexp(we2*a**2)
-  !$$$      print *,' erf3= ', derfcx(aw)
-  !$$$      print *,' erf4= ', derfcx(sqrt(aw2+eee))
-  !$$$      print *,' aw2= ', aw2
-  !$$$      aw = a*we
-  !$$$      write(6, "(' wintzsg_npm chk1=',2f8.3, 4d18.10)" )we,sig,
-  !$$$     &  - .5d0*v0*  dexp(aw**2)*( derfcx(aw) - derfcx(sqrt(a**2+1d0/sig2)*we)  )
-  !$$$      write(6, "(' wintzsg_npm chk2=',2f8.3, 4d18.10)" )we,sig,sumgauss1
-  !$$$      write(6, "(' wintzsg_npm chk3=',2f8.3, 4d18.10)" )we,sig,sumgauss2
-  !$$$      return
 END function wintzsg_npm
 ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-complex(8) function wintz_npm(npm,v,v0,x,wt,a,expa,we, nx)
-  ! takao complex version of wint by ferdi
+complex(8) function wintz_npm(npm,v,v0,x,wt,a,expa,we, nx) ! takao complex version of wint by ferdi
   implicit real*8 (a-h,o-z)
   integer:: nx,i,npm
   real(8):: x(nx),wt(nx),expa(nx)
@@ -253,76 +235,6 @@ subroutine matzwz(zw,zmel, ntp0,nstate,ngb, zwz)
   enddo
   deallocate(CC)
 end subroutine matzwz
-!$$$!sssssssssssssssssssssssssssssssssssssssssssssssssssssss
-!$$$      subroutine matzwz2(iSigma_en ,zw,zmel, ntq,nstate,ngb, zwz)
-!$$$      use m_mpi, only: mpi__rank
-!$$$      implicit none
-!$$$      integer(4), intent(in) :: iSigma_en
-!$$$      complex(8), intent(in) :: zw(ngb,ngb),zmel(ngb,nstate,ntq)
-!$$$      integer(4), intent(in) :: nstate,ntq,ngb
-!$$$      complex(8), intent(out) :: zwz(nstate,ntq,ntq)
-!$$$      integer(4) :: itp,itpp,it
-!$$$      complex(8) :: zdotc
-!$$$      complex(8), allocatable :: CC(:,:,:)
-!$$$      complex(8),allocatable:: z1r(:,:),z2r(:,:), zwzi(:,:)
-!$$$      integer :: ivc,verbose
-!$$$      allocate(CC(ngb,nstate,ntq) )
-!$$$      call matm(zw,zmel,cc, ngb, ngb, nstate*ntq) !most time consuming part
-!$$$      if (iSigma_en==1.or.iSigma_en==5) then
-!$$$        zwz=0d0
-!$$$        do itp = 1,ntq
-!$$$          do  it = 1,nstate
-!$$$            zwz(it,itp,itp)=
-!$$$     &    zdotc(ngb,zmel(1,it,itp),1,CC(1,it,itp),1 )
-!$$$          enddo
-!$$$        enddo
-!$$$      elseif (iSigma_en==2 .or. iSigma_en==3 ) then
-!$$$        if(verbose()>39)write(*,*)'info: USE GEMM FOR SUM (zwz=zmel*cc)'
-!$$$        allocate(z1r(ntq,ngb),z2r(ngb,ntq),zwzi(ntq,ntq))
-!$$$        do  it = 1, nstate
-!$$$          do  itp = 1, ntq
-!$$$            do  ivc = 1, ngb
-!$$$              z1r(itp,ivc) = dconjg(zmel(ivc,it,itp))
-!$$$              z2r(ivc,itp) = CC(ivc,it,itp)
-!$$$            enddo
-!$$$          enddo
-!$$$          call zgemm('N','N',ntq,ntq,ngb,(1d0,0d0),z1r,ntq,
-!$$$     .      z2r,ngb,(0d0,0d0),zwzi,ntq)
-!$$$          do  itp = 1, ntq
-!$$$            do itpp = 1, ntq
-!$$$              zwz(it,itp,itpp) = zwzi(itp,itpp)
-!$$$            enddo
-!$$$          enddo
-!$$$        enddo
-!$$$        deallocate(z1r,z2r,zwzi)
-!$$$      else
-!$$$        call rx( "sxcf, matzwz2: iSigma_en /= 0,1,2,3")
-!$$$      endif
-!$$$      deallocate(CC)
-!$$$      end subroutine matzwz2
-!$$$!sssssssssssssssssssssssssssssssssssssssssssssssssssssss
-! complex(8) function alagr3zwgt (x,xi,wgt)
-!   implicit real*8 (a-h,o-z)
-!   ! three-point interpolation with arbitrary mesh
-!   ! f(x) = [ { (x-x2)(x-x3) } / { (x1-x2)(x1-x3) } ] f1
-!   !      + [ { (x-x1)(x-x3) } / { (x2-x1)(x2-x3) } ] f2
-!   !      + [ { (x-x1)(x-x2) } / { (x3-x1)(x3-x2) } ] f3
-!   !      = wg1(1)* f1+ wgt(2)*f2 +wgt(3)*f3
-!   ! x     = the point at which the function is to be interpolated
-!   ! xi(3) = points where the function is given
-!   real(8):: xi(3),wgt(3)
-!   xx1        = x-xi(1)
-!   xx2        = x-xi(2)
-!   xx3        = x-xi(3)
-!   x12        = xi(1)-xi(2)
-!   x13        = xi(1)-xi(3)
-!   x23        = xi(2)-xi(3)
-!   wgt(1)     =   xx2*xx3/(x12*x13)
-!   wgt(2)     =   xx1*xx3/(-x12*x23)
-!   wgt(3)     =   xx1*xx2/(x13*x23)
-! END function alagr3zwgt
-! sssssssssssssssssssssssssssssssssssssssssss
-!> even function version of alagr3z2wgt
 subroutine alagr3z2wgt(x,xi, wgt)
   implicit none
   intent(in) ::          x,xi
@@ -346,11 +258,11 @@ complex(8) function alagr3zz(x,xi,fi)
   amat(1:3,2) = xi(1:3)**2
   amat(1:3,3) = xi(1:3)**4
   call minv33(amat,amatinv)
-  alagr3zz = dcmplx ( &
+  alagr3zz=dcmplx( &
        sum (matmul(amatinv,dreal(fi)) * (/1d0,x**2,x**4/) ), &
        sum (matmul(amatinv,dimag(fi)) * (/1d0,x**2,x**4/) ) )
   if(dimag(alagr3zz)>0d0) alagr3zz = dcmplx( dreal(alagr3zz),0d0)
-END function alagr3zz
+ENDfunction alagr3zz
 ! sssssssssssssssssssssssssssssssssssssssssssssssssssss
 subroutine timeshow(info)
   character*(*) :: info

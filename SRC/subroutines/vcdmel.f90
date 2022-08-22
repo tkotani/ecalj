@@ -2,8 +2,7 @@ module m_vcdmel
   public vcdmel
   private
 contains  
-subroutine vcdmel(nl,nlmax,ndham,ndimh,& !- Valence-core dipole matrix elements
-     nq,nsp,nspc,ef,evl,aus,nsite,isite,iclsl,iclsn,dosw)
+subroutine vcdmel(nl,nlmax,ndham,ndimh,nq,nsp,nspc,ef,evl,aus,nsite,isite,iclsl,iclsn,dosw)! Valence-core dipole matrix elements
   use m_lmfinit,only: rv_a_ocg , iv_a_ojcg , iv_a_oidxcg,ispec,sspec=>v_sspec
   use m_mkqp,only: iv_a_oidtet ,bz_nabc, bz_ntet
   use m_struc_def
@@ -39,8 +38,6 @@ subroutine vcdmel(nl,nlmax,ndham,ndimh,& !- Valence-core dipole matrix elements
   integer nlmax,ndham,ndimh,nq,nsp,nspc,nsite
   integer isite(nsite),iclsl(nsite),iclsn(nsite)
   real(8):: ef , evl(ndham,nsp,nq)
-!  type(s_site)::ssite(nsite)
-!  type(s_spec)::sspec(*)
   double complex aus(nlmax,ndham,3,nsp,nsite,nq)
   integer n0,lmxax
   parameter (n0=10,lmxax=10)

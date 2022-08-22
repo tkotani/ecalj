@@ -46,7 +46,7 @@ contains
     call mpi_bcast(struc%chfa,size(struc%chfa),MPI_REAL8, master, MPI_COMM_WORLD,ierr)
     if (mlog) then
        call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
-       call strcop(shortname(procid),name,10,'.',ierr)
+       shortname(procid)= name !call strcop(shortname(procid),name,10,'.',ierr)
        namelen(procid) = ierr-1
        call gettime(datim)
        write(stml,ftox)'  '//datim//' Process ',procid,' of ',numprocs,' on ' &

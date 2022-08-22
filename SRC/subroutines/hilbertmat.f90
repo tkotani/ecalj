@@ -73,42 +73,5 @@ subroutine hilbertmat (zz,nwhis, his_L,his_C,his_R, rmat)
      if(iw/=-nwhis .AND. iw/=1) then
         rmat(iw-1) = rmat(iw-1) - rl_fac(iw)*domega_C/delta_l     !+ ddl
      endif
-     ! ccccccccccccccccccccccc
-     ! no-derivarive test
-     !          rmat(iw)  =  rr_fac(iw) + rl_fac(iw)
-     ! ccccccccccccccccccccccc
   enddo
 end subroutine hilbertmat
-
-!$$$      subroutine reducezmel(aold, ngbo,ngb,nx,
-!$$$     i       io,   in,   nmat, pmat,
-!$$$     i     io_q, in_q, nmat_q, pmat_q,
-!$$$     o      anew)
-!$$$c   For given q+G basis, we augment the basis within MT.
-!$$$c   For given atom and l  prod and prodd at MT boundary (reserved in PPBRD
-!$$$      integer(4):: nmat,io(nmat),in(nmat),nmat_q,io_q(nmat),in_q(nmat)
-!$$$      complex(8):: aold(ngbo,nx), anew(ngb,nx),pmat(nmat) ,pmat_q(nmat)
-!$$$      anew=0d0
-!$$$      do ix=1,nmat
-!$$$          anew(in(ix), :)
-!$$$     &  = anew(in(ix), :)   +  pmat(ix) * aold(io(ix), :)
-!$$$      enddo
-!$$$      do ix=1,nmat_q
-!$$$          anew(in_q(ix), :)
-!$$$     &  = anew(in_q(ix), :)  + dconjg(pmat_q(ix)) * aold(io_q(ix), :)
-!$$$      enddo
-!$$$      end
-
-
-!$$$      logical function checkbelong(qin, qall, nq,ieibz) !ieibz is also returned
-!$$$        integer:: nq,ieibz
-!$$$        real(8):: qin(3), qall(3,nq),tolq=1d-8
-!$$$        checkbelong=.false.
-!$$$        do i=1,nq
-!$$$           if(sum(abs(qin-qall(:,i)))<tolq) then
-!$$$              ieibz=i
-!$$$              checkbelong=.true.
-!$$$              return
-!$$$           endif
-!$$$        enddo
-!$$$        end

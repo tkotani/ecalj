@@ -150,9 +150,7 @@ end subroutine wcf
 !      end
 
 !------------
-subroutine chknbnb( n1b,n2b,   nbnb, &
-     n1b0,n2b0, nbnb0, &
-     nqbz,nbnbx)
+subroutine chknbnb( n1b,n2b,nbnb,n1b0,n2b0,nbnb0,nqbz,nbnbx)
   implicit none
   integer(4) :: nband, niwtnwt, nqbz, nbnbx ,iq,ibib
   integer(4) :: n1b(nbnbx,nqbz),n2b(nbnbx,nqbz),nbnb(nqbz)
@@ -160,7 +158,6 @@ subroutine chknbnb( n1b,n2b,   nbnb, &
   do iq   = 1,nqbz
      if( nbnb(iq)/=nbnb0(iq) ) then
         print *, 'chknbnb: nbnb(iq)/=',nbnb(iq),nbnb0(iq)
-        ! top2rx 2013.08.09 kino          stop 'chknbnb: nbnb(iq)/=nbnb0(iq)'
         call rx( 'chknbnb: nbnb(iq)/=nbnb0(iq)')
      endif
      do ibib = 1,nbnb(iq)
@@ -168,7 +165,6 @@ subroutine chknbnb( n1b,n2b,   nbnb, &
              n2b(ibib,iq)/=n2b0(ibib,iq) ) then
            print *, 'chknbnb: n1b',ibib,iq,n1b(ibib,iq),n1b0(ibib,iq)
            print *, 'chknbnb: n2b',ibib,iq,n2b(ibib,iq),n2b0(ibib,iq)
-           ! top2rx 2013.08.09 kino            stop 'chknbnb: '
            call rx( 'chknbnb: ')
         endif
      enddo
@@ -176,15 +172,11 @@ subroutine chknbnb( n1b,n2b,   nbnb, &
 end subroutine chknbnb
 !---------------
 
-subroutine anfx0k(natom,nclass,mdim,iclass, bas,nbloch,ngci, &
-     q,ngvecc,qlat,     &  !for q+G
-     anfvec,iaf,  & ! these are antiferro informations.
-     zxq)  ! i/o
+subroutine anfx0k(natom,nclass,mdim,iclass,bas,nbloch,ngci,q,ngvecc,qlat,anfvec,iaf, zxq) 
   !- antiferro part is added to x0k
   ! We assume that the crystal has a magnetic symmetry described by (translataion + spin flip).
   ! The translation is specified by a vector,
   !   AFvector = anfvec(1:3)*alat, which is the true real vector in Cartesian coodinate.
-
   ! Each mixed basis is mapped to the other mixed basis.
   ! E.g. the product basis B({\bf r}-{\bf a}) is mapped to
   !  B({\bf r}-{\bf a}-{\bf A}) = B({\bf r}-{\bf a}'-{\bf T}_0),
@@ -193,34 +185,27 @@ subroutine anfx0k(natom,nclass,mdim,iclass, bas,nbloch,ngci, &
   !  In this code you see,
   !      bas(1:3,ia1)+ anfvec  = bas(1:3,iaf(ia1)) + transaf(1:3,ia1)
   !  ==   {\bf a}    +{\bf A}  = {\bf a}'          + {\bf T}_0
-
   ! ---- The corresponding atoms should have the same product basis.
-
   implicit none
   integer :: natom, nbloch, nclass,ngci,ngb
   integer :: mdim(nclass), iaf(natom), iof(natom),iclass(natom), &
        ix,ia1,ia2,ic1,ic2,ifi,i,j, iaf1,iaf2,igp,im1,im2
   integer(4):: iam(nbloch), ngvecc(1:3,ngci),imf(nbloch+ngci)
-  real(8) :: qt(natom), rf,cf,q(3),qlat(3,3),bas(3,natom), &
-       anfvec(3),transaf(3,natom),qg(3)
+  real(8) :: qt(natom), rf,cf,q(3),qlat(3,3),bas(3,natom),anfvec(3),transaf(3,natom),qg(3)
   complex(8) :: zxq (nbloch+ngci,nbloch+ngci),fac(nbloch+ngci)
   complex(8):: imagtwopi ,imag=(0d0,1d0)
   complex(8),allocatable :: zxqw(:,:)
   real(8) :: pi=3.1415926535897932
   integer(4):: verbose
-  !r
   !r    True_q(1:3)     = 2*pi/alat * q(1:3)
   !r  True G is given by
   !r    True_G(1:3,igp) = 2*pi/alat * matmul(qlat * ngvecc(1:3,igp)) ,igp=1,ngp
   !------------------------
   imagtwopi = 2d0*(0d0,3.1415926535897932)
-
   do ia1 = 1, natom
      transaf(1:3,ia1)= bas(1:3,ia1)+ anfvec - bas(1:3,iaf(ia1))
-     if(verbose()>=200) &
-          write(6,"(' ia1 transaf=',i3, 3f13.5)") ia1,transaf(1:3,ia1)
+     if(verbose()>=200)write(6,"(' ia1 transaf=',i3, 3f13.5)") ia1,transaf(1:3,ia1)
   enddo
-
   iof(1) = 0
   do ia1 = 1, natom-1
      iof(ia1+1)= iof(ia1) + mdim( iclass(ia1) )
@@ -228,49 +213,31 @@ subroutine anfx0k(natom,nclass,mdim,iclass, bas,nbloch,ngci, &
   enddo
   iam(iof(natom)+1:nbloch) = natom
   write(6,*) (ia1, mdim( iclass(ia1) ),ia1 = 1, natom)
-  if( nbloch /= iof(natom) +mdim(iclass(natom)) ) &
-       ! top2rx 2013.08.09 kino     &  stop ' anfx0k: nbloch.ne....'
-       call rx( ' anfx0k: nbloch /= ...')
+  if( nbloch /= iof(natom) +mdim(iclass(natom)) ) call rx( ' anfx0k: nbloch /= ...')
   ! phase shifts
   do ia1 = 1, natom
      qt(ia1) = 2d0*pi*sum(q*transaf(1:3,ia1))
-     if(verbose()>=200) &
-          write( 6, "(i3,2x,f10.5)") iaf(ia1),  qt(ia1)
+     if(verbose()>=200) write( 6, "(i3,2x,f10.5)") iaf(ia1),  qt(ia1)
   enddo
-
-  if(verbose()>=200) &
-       write(6,*) ' anfx0k:  nbloch=',nbloch
-
+  if(verbose()>=200) write(6,*) ' anfx0k:  nbloch=',nbloch
   do im1 = 1,nbloch
      ia1  = iam(im1)
      i    = im1 - iof(ia1)
      imf (im1) = i + iof(iaf(ia1))
      fac (im1) = exp( imag*qt(ia1) )
-     ! cccccccccccccccccccccc
-     !        write( 669, "(5i4,2d13.5)") ia1,iaf(ia1), i, im1, imf(im1)
-     !     &  ,fac(im1)
-     ! cccccccccccccccccccccc
   enddo
-
   do igp = 1,ngci
      im1 = nbloch+igp
      imf (im1) = im1
      qg = q + matmul(qlat, ngvecc(1:3,igp))
      fac(im1) = exp( imagtwopi*sum(qg*anfvec(1:3)))
   enddo
-
-  !      write(6,*) ' anfx0k: 1'
-
   ngb=nbloch + ngci
   allocate(zxqw(ngb,ngb))
   zxqw = zxq
-
-  !      write(6,*) ' anfx0k: 2'
-
   do im1 = 1,ngb
      do im2 = 1,ngb
-        zxq(im1, im2)= zxq (im1,im2) &
-             + zxqw(imf(im1),imf(im2))*fac(im1)*dconjg(fac(im2))
+        zxq(im1, im2)= zxq (im1,im2) + zxqw(imf(im1),imf(im2))*fac(im1)*dconjg(fac(im2))
      enddo
   enddo
   deallocate(zxqw)

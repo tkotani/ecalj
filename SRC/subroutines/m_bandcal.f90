@@ -210,9 +210,8 @@ contains
              if(cmdopt0('--cls'))  call m_clsmode_set1(nmx,jsp,iq,qp,nev,evec) !all inputs
           endif
           if(lrout/=0 .AND. lwtkb>=0) then ! accumulate output density and sampling DOS.
-             call addrbl (jsp, qp &
-                  , iq , lfrce,  osmpot,vconst,osig,otau,oppi &
-                  , evec,evl,nev, smrho_out, sumqv, sumev, sv_p_oqkkl,sv_p_oeqkkl, frcband)
+             call addrbl(jsp,qp,iq,osmpot,vconst,osig,otau,oppi, evec,evl,nev, &
+                  smrho_out, sumqv, sumev, sv_p_oqkkl,sv_p_oeqkkl, frcband)
           endif
           if(PROCARon) call m_procar_init(iq,isp,ef0,evl,ndimh,jsp,qp,nev,evec,ndimhx,nmx)
           if(allocated(evec)) deallocate(evec)
@@ -277,9 +276,8 @@ contains
           if( lso/=0)            call mkorbm(jsp, nev, iq,qp, evec,  orbtm_rv)
           if( nlibu>0 .AND. nev>0) call mkdmtu(jsp, iq,qp, nev, evec,  dmatu)
           if( cmdopt0('--cls'))  call m_clsmode_set1(nmx,jsp,iq,qp,nev,evec) !all inputs
-          call addrbl (jsp, qp &
-               , iq , lfrce,  osmpot,vconst,osig,otau,oppi &
-               , evec,evl,nev, smrho_out, sumqv, sumev, sv_p_oqkkl,sv_p_oeqkkl, frcband)
+          call addrbl(jsp, qp, iq , osmpot,vconst,osig,otau,oppi,evec,evl,nev, &
+               smrho_out, sumqv, sumev, sv_p_oqkkl,sv_p_oeqkkl, frcband)
           if(allocated(evec)) deallocate(evec)
 12005  enddo isploop
 12010 enddo iqloop

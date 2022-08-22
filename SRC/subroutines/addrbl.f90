@@ -11,14 +11,13 @@ contains
   subroutine swtkzero()
     swtk=0d0
   end subroutine swtkzero
-  subroutine addrbl ( isp,q, &
-       iq,lfrce, smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi, &
-       evec,evl,nevl,  smrho, sumqv,sumev, sv_p_oqkkl,sv_p_oeqkkl, f)
+  subroutine addrbl(isp,q,iq,smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,evec,evl,nevl,&
+       smrho,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl,f)
     use m_struc_def
     use m_suham,only: &
          ndham=>ham_ndham,ndhamx=>ham_ndhamx,nspx=>ham_nspx
     use m_lmfinit,only:alat=>lat_alat,nbas, ispec,sspec=>v_sspec,nsp,nspc,lmet=>bz_lmet,&
-         lekkl, zbak 
+         lekkl, zbak ,lfrce=>ctrl_lfrce
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol
     use m_supot,only: lat_nabc,k1,k2,k3
     use m_igv2x,only: napw,ndimh,ndimhx,igapw=>igv2x
@@ -98,7 +97,7 @@ contains
     !u   22 May 00 Adapted from nfp add_densw.f
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: isp,iq,lfrce
+    integer :: isp,iq!,lfrce
     integer :: nevl
     double precision :: emax,emin,qval,vconst
     real(8):: q(3), evl(ndham,nsp), sumev(2,3), sumqv(3,2), f(3,*)

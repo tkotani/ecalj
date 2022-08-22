@@ -105,8 +105,7 @@ double precision  function egex (q,ef)
   return
 END function egex
 
-subroutine winfo(ifi,nspin,nq,ntq,is,nbloch,ngp,ngc,nqbz,nqibz,ef &
-     ,deltaw,alat,esmr)
+subroutine winfo(ifi,nspin,nq,ntq,is,nbloch,ngp,ngc,nqbz,nqibz,ef,deltaw,alat,esmr)
   implicit none
   integer(4) :: ifi,nspin,nq,ntq,is,nbloch,ngp,ngc,nqbz,nqibz
   real(8) :: ef,deltaw,alat,esmr
@@ -136,8 +135,7 @@ subroutine readxx(ifil)
   call rx( 'readx: cannot find the string (gwsrc/wse.f/readxx)')
 end subroutine readxx
 !-------------------------------------------------------------------
-subroutine winfo2(ifi,nspin,nq,ntq,is,nbloch,ngp,ngc,nqbz,nqibz,ef &
-     ,ef2,deltaw,alat,esmr,esmr2)
+subroutine winfo2(ifi,nspin,nq,ntq,is,nbloch,ngp,ngc,nqbz,nqibz,ef,ef2,deltaw,alat,esmr,esmr2)
   implicit none
   integer(4) :: ifi,nspin,nq,ntq,is,nbloch,ngp,ngc,nqbz,nqibz
   real(8) :: ef,ef2,deltaw,alat,esmr,esmr2
@@ -155,8 +153,7 @@ subroutine winfo2(ifi,nspin,nq,ntq,is,nbloch,ngp,ngc,nqbz,nqibz,ef &
 6700 format (1x,3i4,'  nspin  nq  ntq')
 end subroutine winfo2
 !! ---------------------------------------------------------
-subroutine q0iwgt3(allq0i,symops,ngrp,wqt,q0i,nq0i, &
-     wgt0)
+subroutine q0iwgt3(allq0i,symops,ngrp,wqt,q0i,nq0i, wgt0)
   !! Get weight for each k-points near 0.
   !! wgt0(irreducible-k, irotation)
   implicit none

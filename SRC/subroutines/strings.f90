@@ -12,21 +12,15 @@ logical function lsequ(s1,s2,len,term,i)
   !r   string comparison continues until terminator encountered or
   !r   len characters are checked.
   ! ----------------------------------------------------------------
-  !     implicit none
+  implicit none
   integer :: i,len
   character(1) :: s1(len),s2(len),term
-  !     lsequ = .true.
-  !     do  10  i = 1, len
-  !       lsequ = (lsequ .and. s1(i) .eq. s2(i))
-  !       if (s1(i) .eq. term) return
-  !  10 continue
   lsequ = .false.
-  do  10  i = 1, len
+  do  i = 1, len
      if (s1(i) /= s2(i)) return
-     if (s1(i) == term) goto 15
-10 enddo
-15 lsequ = .true.
-  return
+     if (s1(i) == term) exit
+  enddo
+  lsequ = .true.
 end function lsequ
 subroutine strcop(dest,source,len,term,i)
   !- copy one string to another
@@ -40,15 +34,18 @@ subroutine strcop(dest,source,len,term,i)
   !r   string copy continues until term encountered or
   !r   len characters are checked.
   ! ----------------------------------------------------------------
-  !     implicit none
+  implicit none
   integer :: len
   character(1) :: dest(len),source(len),term
   integer :: i
   i = 0
   if (len == 0) return
-10 i = i+1
-  dest(i) = source(i)
-  if (dest(i) /= term .AND. i < len) goto 10
+  do
+     i = i+1
+     dest(i) = source(i)
+     if (dest(i) /= term .AND. i < len) cycle
+     exit
+  enddo
 end subroutine strcop
 subroutine strcat(s1,len1,term1,s2,len2,term2,i)
   !- concatenate one string to another
@@ -69,7 +66,6 @@ subroutine strcat(s1,len1,term1,s2,len2,term2,i)
   integer :: len1,len2
   character(1) :: s1(len1),s2(len2),term1,term2
   integer :: i,j
-
   i = 0
 10 i = i+1
   if (s1(i) /= term1 .AND. i < len1) goto 10
@@ -117,7 +113,6 @@ logical function parstr(s1,s2,reclen,len,term,i,j)
   integer :: reclen,len,i,j
   character(1) :: s1(0:*),s2(0:*),term
   logical :: lsequ
-
   parstr = .false.
   i = i-1
 10 i = i+1
@@ -167,7 +162,6 @@ subroutine chrps2(s,ch,nch,maxch,ich,iterm)
   integer :: ich,maxch,iterm,nch
   character(1) :: ch(nch),s(0:*)
   integer :: i
-
   iterm = 0
 10 do  20  i = 1, nch
      if (s(ich) /= ch(i)) goto 20
@@ -237,31 +231,3 @@ subroutine tokmat(string,token,n,len,term,itoken,ltoken,lopt)
      call cexit(-1,1)
   endif
 end subroutine tokmat
-!      subroutine fmain
-!      character*42 s
-!      integer i,j
-!      i=0
-!      s = 'hello there world'
-!      call skipbl(s,len(s),i)
-!      print *, i
-!      call skp2bl(s,len(s),i)
-!      print *, i, s(1:i), '|'
-!      call skp2bl(s,len(s),i)
-!      print *, i, s(1:i), '|'
-!      call skipbl(s,len(s),i)
-!      print *, i, s(1:i), '|'
-!      call skipbl(s,len(s),i)
-!      print *, i, s(1:i), '|'
-!      call skp2bl(s,len(s),i)
-!      print *, i, s(1:i), '|'
-!      call skipbl(s,len(s),i)
-!      print *, i, s(1:i), '|'
-!      call skp2bl(s,len(s),i)
-!      print *, i, s(1:i), '|'
-!      call skipbl(s,len(s),i)
-!      print *, i, s(1:i), '|'
-!      call skp2bl(s,len(s),i)
-!      print *, i, s(1:i), '|'
-
-!      end
-

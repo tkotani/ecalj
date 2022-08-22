@@ -1,5 +1,4 @@
-subroutine bzints(n1,n2,n3,ep,wp,nq,nband,nbmx,nsp,emin,emax, &
-     dos,nr,ef,job,ntet,idtet,sumev,sumwp)
+subroutine bzints(n1,n2,n3,ep,wp,nq,nband,nbmx,nsp,emin,emax,dos,nr,ef,job,ntet,idtet,sumev,sumwp)
   use m_lgunit,only:stdo
   !- BZ integrations by linear method
   ! ----------------------------------------------------------------------
@@ -31,21 +30,15 @@ subroutine bzints(n1,n2,n3,ep,wp,nq,nband,nbmx,nsp,emin,emax, &
   !u   17 Jan 05 Returns sumwp
   ! ----------------------------------------------------------------------
   implicit none
-  ! Passed parameters
   integer :: n1,n2,n3,nq,nband,nbmx,nsp,idtet(0:4,*),nr,job,ntet
-  double precision :: ep(nbmx,nsp,nq),dos(nr,nsp),wp(nband,nsp,nq), &
-       emin,emax,ef,sumev,sumwp
-  ! Local parameters
+  double precision :: ep(nbmx,nsp,nq),dos(nr,nsp),wp(nband,nsp,nq),emin,emax,ef,sumev,sumwp
   integer :: ib,iq,iq1,iq2,iq3,iq4,isp,itet,jjob
   integer :: ipr
-  double precision :: ec(4),wc(4,2),ebot,etop,sev1,sev2,sumwm, &
-       volwgt
+  double precision :: ec(4),wc(4,2),ebot,etop,sev1,sev2,sumwm, volwgt
   character(10):: i2char
   call getpr(ipr)
-  !      stdo = lgunit(1)
-  !     stdl = lgunit(2)
   jjob = iabs(job)
-  if (job < 0 .AND. nsp == 2 .OR. jjob /= 1 .AND. jjob /= 2) &
+  if(job < 0 .AND. nsp == 2 .OR. jjob /= 1 .AND. jjob /= 2) &
        call rx('Exit -1 BZINTS: job='//trim(i2char(job))//' and nsp='//trim(i2char(nsp))//' not allowed')
   if (jjob == 1) call dpzero(dos,nsp*nr)
   if (jjob == 2) call dpzero(wp,nband*nsp*nq)
@@ -118,14 +111,10 @@ subroutine bzints(n1,n2,n3,ep,wp,nq,nband,nbmx,nsp,emin,emax, &
      !     .  ' %,6;6d  sev %,6;6d  Blo %,6;6d',' ',80,stdl,ef,sumwp,sumwm,
      !     .  sev1+sev2,sev2)
   endif
-
-
 922 format(1x,'BZINTS: Fermi energy:',f14.6,';',F11.6,' electrons'/ &
-       9x,'Sum occ. bands:',f12.6, &
-       ', incl. Bloechl correction:',f10.6)
+       9x,'Sum occ. bands:',f12.6, ', incl. Bloechl correction:',f10.6)
 923 format(' BZINTS: Fermi energy:',f14.6,';',F11.6,' electrons', &
-       '  amom=',f8.4/9x,'Sum occ. bands:',f12.6, &
-       ', incl. Bloechl correction:',f10.6)
+       '  amom=',f8.4/9x,'Sum occ. bands:',f12.6,', incl. Bloechl correction:',f10.6)
 924 format(' (warning): non-integral number of electrons ---', &
        ' possible band crossing at E_f')
 end subroutine bzints

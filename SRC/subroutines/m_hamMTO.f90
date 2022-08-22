@@ -76,7 +76,7 @@ contains
     return
   end subroutine ReadHamMTOInfo
 
-  subroutine resetMTOInfo
+  subroutine resetMTOInfo()
     if(allocated(plat)) deallocate(plat)
     if(allocated(qlat)) deallocate(qlat)
     if(allocated(nlat)) deallocate(nlat)
@@ -92,7 +92,7 @@ contains
     return
   end subroutine resetMTOInfo
 
-  subroutine geninitmloinfo !need ReadHamMTOInfo in advance!
+  subroutine geninitmloinfo() !need ReadHamMTOInfo in advance!
     implicit none
     integer:: ififft,i,access,if2,ifind,lold,kold,aold,m,ifis
     character*4:: cccx
@@ -191,7 +191,7 @@ contains
     if(abs(wdum/dble(nsp)-1.0d0) > 1d-10) stop "error! sum of weight is NOT 1"
   end subroutine ibzweight
 
-  subroutine mkpivot   !for initmlo.F
+  subroutine mkpivot()   !for initmlo.F
     implicit none
     integer::lold,i,j,n,if1,idum,access,ifi,ii,jj,iflg,ib1,l1,k1,m1,ib2,l2,k2,m2,ip,jp,jpf &
          ,di,dib,dk,dm,look(1000,3,16),ifim,len,ifo,lk,lk2,ioir,nmodel,outmodel,nlo,nk2,nlosub=0

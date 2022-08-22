@@ -1,14 +1,10 @@
-subroutine dpsion5( realomega,   imagomega, rcxq, nmbas1,nmbas2, zxq,zxqi, &
-     chipm,schi,isp, ecut,ecuts)
+subroutine dpsion5(realomega,imagomega,rcxq,nmbas1,nmbas2, zxq,zxqi, chipm,schi,isp,ecut,ecuts)
   use m_freq,only:  frhis, freqr=>freq_r,freqi=>freq_i, nwhis, npm, nw_i, nw_w=>nw, niwt=>niw
   use m_readgwinput,only: egauss
   use m_GaussianFilter,only: GaussianFilter
   implicit none
-  intent(in):: &
-       realomega,   imagomega, rcxq, nmbas1,nmbas2, &
-       chipm,schi,isp, ecut,ecuts
-  intent(out):: &
-       zxq,zxqi
+  intent(in)::     realomega,imagomega,rcxq,nmbas1,nmbas2,            chipm,schi,isp,ecut,ecuts
+  intent(out)::                                            zxq,zxqi
   !     - Calculate W-v zxqi(on the imaginary axis) and zxq(real axis) from sperctum weight rcxq.
   !     r v4 works for timereversal=F (npm=2 case).
   !     r  See rcxq_zcxq for rcxq, which contains the spectrum weight for given bins along the real-axis.
@@ -39,7 +35,7 @@ subroutine dpsion5( realomega,   imagomega, rcxq, nmbas1,nmbas2, zxq,zxqi, &
   integer(4)::isp,ispx      !, nmbas
   !     complex(8):: rcxqmean(nwhis,npm,nmbas,nmbas)  !takao sep2006 add nmbas
   !...  ecut mode
-  real(8):: ecut,ecuts,wcut,wcutef,dee,schi
+  real(8):: ecut,ecuts,wcut,dee,schi !,wcutef
   logical ::debug=.false.
   real(8),allocatable :: his_L(:),his_R(:),his_C(:)
   integer(4) it
@@ -118,7 +114,7 @@ subroutine dpsion5( realomega,   imagomega, rcxq, nmbas1,nmbas2, zxq,zxqi, &
 
   do iw= 1, nwhis
      if(ecut<1d9) then
-        wfac= wcutef(his_C(iw), ecut,ecuts)
+        wfac= exp( -(his_C(iw)/ecut)**2 ) ! wcutef(his_C(iw), ecut,ecuts)
      else
         wfac= 1d0
      endif
@@ -278,8 +274,8 @@ subroutine dpsion5( realomega,   imagomega, rcxq, nmbas1,nmbas2, zxq,zxqi, &
   call cputid(0)
 end subroutine dpsion5
 
-real(8) function wcutef(e,ecut,ecuts)
-  real(8):: e,ecut,ecuts
-  !     wcutef = 1d0/( exp((e-ecut)/ecuts)+ 1d0)
-  wcutef = exp( -(e/ecut)**2 ) ! ecuts is not used in this case
-END function wcutef
+! real(8) function wcutef(e,ecut,ecuts)
+!   real(8):: e,ecut,ecuts
+!   !     wcutef = 1d0/( exp((e-ecut)/ecuts)+ 1d0)
+!   wcutef = exp( -(e/ecut)**2 ) ! ecuts is not used in this case
+! END function wcutef

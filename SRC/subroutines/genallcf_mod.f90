@@ -1,5 +1,4 @@
-module m_genallcf_v3
-  !!-- Read basis data ----------------------------------
+module m_genallcf_v3 !-- Read basis data ----------------------------------
 !!! here is old memo
   !! - structure
   !!  -  o                   plat,alat,natom,nclass,pos,
@@ -24,39 +23,29 @@ module m_genallcf_v3
   public:: Setesmr,Genallcf_v3
   integer,protected,public:: nrx,lcutmx
   real(8),allocatable,public::cutbase(:)
-  integer,allocatable,protected,public:: &
-       iclass(:), &
+  integer,allocatable,protected,public:: iclass(:), &
        nindxv(:,:),nindxc(:,:),ncwf(:,:,:) , &
        il(:,:), in(:,:), im(:,:),   ilnm(:),  nlnm(:), &
-  ilv(:),inv(:),imv(:),  ilnmv(:), nlnmv(:), &
+       ilv(:),inv(:),imv(:),  ilnmv(:), nlnmv(:), &
        ilc(:),inc(:),imc(:),  ilnmc(:), nlnmc(:), &
        nindx(:,:),konf(:,:),icore(:,:),ncore(:), &
-       occv(:,:,:),unoccv(:,:,:) &
-       ,occc(:,:,:),unoccc(:,:,:), &
+       occv(:,:,:),unoccv(:,:,:), &
+       occc(:,:,:),unoccc(:,:,:), &
        nocc(:,:,:),nunocc(:,:,:)
   integer,protected,public:: nclass,natom,nspin,nl,nn,nnv,nnc,&
        nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw
-  real(8),protected,public:: &
-       plat(3,3),alat,deltaw,esmr,delta,tpioa
-  real(8), allocatable,protected,public:: &
-       pos(:,:),z(:),ecore(:,:) !,symgg(:,:,:)
-  logical,protected,public:: &
-       done_genallcf_v3=.false.
-  character(8),allocatable,protected,public:: &
-       spid(:)
-  !      character(120),protected,public:: symgrp
+  real(8),protected,public::  plat(3,3),alat,deltaw,esmr,delta,tpioa
+  real(8), allocatable,protected,public:: pos(:,:),z(:),ecore(:,:) !,symgg(:,:,:)
+  logical,protected,public:: done_genallcf_v3=.false.
+  character(8),allocatable,protected,public:: spid(:)
   character(8),allocatable,protected,public :: clabl(:)
-
   private
-  !-----------------------------------------------------------------------
 contains
-
   subroutine setesmr(esmr_in)
     intent(in)::       esmr_in
     real(8):: esmr_in
     esmr=esmr_in
   end subroutine setesmr
-
   subroutine genallcf_v3(incwfx)
     use m_keyvalue,only: getkeyvalue
     implicit none
@@ -70,13 +59,10 @@ contains
     ! We may need to clean them up in modern fortran.
     !! --------------------------------------------------------
     integer::incwfx,ifec,i,j, &
-         lmx, lmx2,nlmto2,nprodxc,nlnaxc,nlnaxv,nprodx,ifi,ig,is &
-         ,nprodxv,nlnax,ix,ixoff,lx
-    !     & ,noflmto
+         lmx, lmx2,nlmto2,nprodxc,nlnaxc,nlnaxv,nprodx,ifi,ig,is,nprodxv,nlnax,ix,ixoff,lx
     integer:: infwfx,ret, n1,n2,n3,imagw,n,ic
     logical :: nocore,readon
     real(8)::efin
-    !      character(120):: symgrpt
     character(1000) :: tolchar
     real(8),   allocatable:: ecoret(:,:,:,:)
     integer(4),allocatable::ncwf2(:,:,:),  ooo(:,:,:)
@@ -225,13 +211,9 @@ contains
     !      nocc  (:,nore+1:ncore+nval,:)= occv(:,1:nval,:)
     !      nunocc(:,nore+1:ncore+nval,:)= unoccv(:,1:nval,:)
     !      nindx= nindxc + nindxv
-
-    call maxdim  (occc,unoccc,nindxc,nl,nnc,nclass, &
-         nprodxc,nlnxc,nlnmxc,nlnaxc)
-    call maxdim  (occv,unoccv,nindxv,nl,nnv,nclass, &
-         nprodxv,nlnxv,nlnmxv,nlnaxv)
-    call maxdim  (nocc,nunocc,nindx,nl,nn,nclass, &
-         nprodx,nlnx,nlnmx,nlnax)
+    call maxdim  (occc,unoccc,nindxc,nl,nnc,nclass, nprodxc,nlnxc,nlnmxc,nlnaxc)
+    call maxdim  (occv,unoccv,nindxv,nl,nnv,nclass, nprodxv,nlnxv,nlnmxv,nlnaxv)
+    call maxdim  (nocc,nunocc,nindx,nl,nn,nclass,   nprodx,nlnx,nlnmx,nlnax)
     !! index for allowed core states
     allocate(icore(nl**2*nnc,nclass),ncore(nclass))
     icore=9999999
@@ -309,21 +291,16 @@ contains
          ilv,inv,imv,ilnmv, &
          ilc,inc,imc,ilnmc)
     allocate(nlnmv(nclass),nlnmc(nclass),nlnm(nclass))
-    call nolnma  (nindxv,nl,nclass, &
-         nlnmv )
-    call nolnma  (nindxc,nl,nclass, &
-         nlnmc )
-    call nolnma  (nindx,nl,nclass, &
-         nlnm )
+    call nolnma  (nindxv,nl,nclass, nlnmv )
+    call nolnma  (nindxc,nl,nclass, nlnmc )
+    call nolnma  (nindx,nl,nclass,  nlnm )
     call cputid(0)
     write(6,*) 'genallcf_v3'
   end subroutine genallcf_v3
 
   ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  subroutine nolnma  (nindx,nl,nclass, &
-       nlnm )
+  subroutine nolnma  (nindx,nl,nclass, nlnm )! number of l,n,m for all classes
     ! 92.jan.07
-    ! number of l,n,m for all classes
     implicit real*8(a-h,o-z)
     integer:: ic,nclass,noflnm,l,nl, &
          nindx(0:nl-1,nclass), nlnm(nclass)
@@ -337,9 +314,7 @@ contains
     return
   end subroutine nolnma
   ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  subroutine incor  (ncwf,nindxc,iclass, &
-       nl,nnc,nclass,natom, &
-       icore,ncore,nctot)
+  subroutine incor(ncwf,nindxc,iclass,nl,nnc,nclass,natom,icore,ncore,nctot)
     ! 92.03.18
     ! sorts out allowed core states and count the number of core states
     ! ncwf(l,n,cl) = 1 ==> allowed, 0 ==> not allowed

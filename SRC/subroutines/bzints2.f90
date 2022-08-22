@@ -1,6 +1,4 @@
-! taken from the gwx1/lib/tetra.for
-SUBROUTINE BZINTS2x(volwgt,EP,WP,NQ,nband,NB, &
-     NSP,EMIN,EMAX,DOS,NR,EF,JOB,NTET,IDTET)
+SUBROUTINE BZINTS2x(volwgt,EP,WP,NQ,nband,NB,NSP,EMIN,EMAX,DOS,NR,EF,JOB,NTET,IDTET)
   !-  Bz integrations by linear method.
   ! ----------------------------------------------------------------------
   !i Inputs:
@@ -393,9 +391,7 @@ subroutine efrang3(nsp,nkp,nband,zval,eband, e1,e2,elo,ehi,bandgap)
 end subroutine efrang3
 
 !--------------------------------------------------
-subroutine getvaln( &
-     konfig,z,nl,natom,iclass,nclass, &
-     valn)
+subroutine getvaln(konfig,z,nl,natom,iclass,nclass, valn)
   ! - Get valn
   !o valn    = number of valence electron.
 

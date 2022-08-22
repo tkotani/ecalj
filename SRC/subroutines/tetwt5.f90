@@ -3,20 +3,14 @@
 !  private
 !  contains
   !! -----------------------------------------
-subroutine  tetwt5x_dtet4(npm, ncc, &
-     q, eband1,eband2, &
-     qbas,ginv,efermi, &
-     ntetf, nqbzw, nband,nqbz, &
-     nctot,ecore,  idtetf,qbzw,ib1bz, &
-     job, &
-     iwgt,nbnb,  &        ! & job=0
-     demin, demax,   &    ! & job=0  real(4) --->real(8) 2022june for simplicity
+subroutine tetwt5x_dtet4(npm,ncc,q,eband1,eband2,qbas,ginv,efermi,ntetf, nqbzw, nband,nqbz, &
+     nctot,ecore,  idtetf,qbzw,ib1bz, job, &
+     iwgt,nbnb,demin,demax,   &    !  job=0  
      frhis,nwhis, &
-     nbnbx,ibjb,nhwtot, ihw,nhw,jhw,& ! & job=1
-     whw,             &               ! & job=1
-     iq,isp1,isp2,nqibz,eibzmode,nwgt, &! &  2016jun
+     nbnbx,ibjb,nhwtot,ihw,nhw,jhw,whw, & !  job=1
+     iq,isp1,isp2,nqibz,eibzmode,nwgt, &
      nbmx,ebmx,mtet, &
-     wan)                 !
+     wan)                 
   use m_keyvalue,only: getkeyvalue
   use m_tetrakbt,only: tetrakbt_init, tetrakbt
   !> Obtain weights (imaginary part) for Dielectric function by tetrahedron method.
@@ -577,8 +571,7 @@ end subroutine tetwt5x_dtet4
 
 
 !----------------------------------------------------------------
-subroutine hisrange(frhis,nwhis, demin,demax, &
-     ihw,nhw)
+subroutine hisrange(frhis,nwhis, demin,demax, ihw,nhw)
   !- determine the pointer ihw and number of pointer.
   implicit none
   integer:: nwhis,ihw,nhw,ihis
@@ -747,9 +740,7 @@ end subroutine lindtet6
 
 
 !-----------------------------------------------------
-subroutine inttetra6(kkv,kk_,xx_,ebf,itetx, &
-     frhis, nwhis, &
-     wtthis )
+subroutine inttetra6(kkv,kk_,xx_,ebf,itetx,frhis,nwhis, wtthis)
   ! calculate tetrahedron integral Eq.(16).
   ! the four corners and denoted by itetx.
   !i kk (k1-k4) and xx (value of denominator)
@@ -877,9 +868,7 @@ subroutine inttetra6(kkv,kk_,xx_,ebf,itetx, &
 end subroutine inttetra6
 
 !-----------------------------------
-subroutine inttetrac6(kkv,kk,xx, itetx, &
-     frhis, nwhis, &
-     wtthis )
+subroutine inttetrac6(kkv,kk,xx, itetx,frhis,nwhis, wtthis)
   !- Calculate tetrahedron integral Eq.(16).
   ! The four corners and denoted by itetx(1:4).
   !i kk (k1-k4) and xx (value of denominator)
@@ -894,7 +883,6 @@ subroutine inttetrac6(kkv,kk,xx, itetx, &
   real(8):: frhis(nwhis+1),wtthis(nwhis,4),voltet,kkv4bm(3),bm(3,3)
   logical:: chkwrt=.false.,matrix_linear
   real(8) ::  kkv(3,4), kkvkin(4,4),det33
-
   if(chkwrt) print *, ' inttetrac6: === '
   xin(    1:4) = xx(    itetx(1:4))
   kin(1:3,1:4) = kk(1:3,itetx(1:4))
@@ -920,22 +908,17 @@ subroutine inttetrac6(kkv,kk,xx, itetx, &
         kkvkin(4,i)= 1d0 - sum(kkvkin(1:3,i))
      enddo
   endif
-
   call intttvc6(kkvkin, xin,voltet, &
        frhis, nwhis, &
        wtthis )
 end subroutine inttetrac6
 
 !---------------------------------------------------------------------------------------------
-subroutine intttvc6(kkvkin, v,voltet, &
-     frhis, nwhis, &
-     wtthis ) !this is accumlating variable
-  !- Histgram weights for each bin.
+subroutine intttvc6(kkvkin,v,voltet,frhis,nwhis, wtthis) ! Histgram weights for each bin.
   !r The i-th bin of the Histgrams is [frhis(i) frhis(i+1)].
   !r  wtthis(ihis) += \int_{frhis(ihis)^{frhis(ihis+1)} d \omega  \int d^3k \delta(\omega +v(k) )
   !r  Total sum of the histgram weight is equal to voltet.
   !o  wtthis(ihis): Note this is accumulating variable.
-
   !r Note wtthis(nwhis,0:3)
   !r if matrix_linear()=T, wtthis is calculated assuming
   !r                       the linear-dependency of matrix elements. takao /dec/2003
@@ -947,43 +930,17 @@ subroutine intttvc6(kkvkin, v,voltet, &
   real(8):: frhis(nwhis+1),wtthis(nwhis,4),intega,integb,stot,xxx,wx
   logical ::chkwrt=.false., matrix_linear
   real(8):: kkvkin(4,4),www(1:4)=.25d0,ec,wcg(4),wttt
-! #ifdef EXPAND_SORTEA
-!   n=4
-!   !      isig = 1
-!   ! option noparallel
-!   do i = 1,n
-!      ieaord(i) = i
-!   enddo
-!   ! option noparallel
-!   do ix= 2,n
-!      ! option noparallel
-!      do i=ix,2,-1
-!         if( -v(ieaord(i-1)) > -v(ieaord(i) ) ) then
-!            itmp = ieaord(i-1)
-!            ieaord(i-1) = ieaord(i)
-!            ieaord(i) = itmp
-!            !            isig= -isig
-!            cycle
-!         endif
-!         exit
-!      enddo
-!   enddo
-! #else
   call sortea( -v,ieaord,4,isig)
-!#endif
   WW(1:4) = -v( ieaord(1:4) )
-
   !  ww(1)<ww(2)<ww(3)<ww(4)
   if(( .NOT. (WW(1)<=WW(2))) .OR. ( .NOT. (WW(2)<=WW(3))) .OR. ( .NOT. (WW(3)<=WW(4))) ) then
      write(6,"(/,' --- intttvc6: wrong order WW=',4d14.6)") WW
      ! top2rx 2013.08.09 kino        stop 'intttvc6: wrong order of WW'
      call rx( 'intttvc6: wrong order of WW')
   endif
-
   if(chkwrt) then
      write(ichk,"(/,' --- intttvc6: e=',4d23.16)") WW
   endif
-
   inihis= -999
   iedhis= -999
   ix=1
@@ -999,7 +956,6 @@ subroutine intttvc6(kkvkin, v,voltet, &
   enddo
   if(iedhis==-999 .OR. inihis==-999) then
      print *,' intttvc6: can not find inihis iedhis'
-     ! top2rx 2013.08.09 kino        stop    ' intttvc6: can not find inihis iedhis'
      call rx( ' intttvc6: can not find inihis iedhis')
   endif
   !      if(chkwrt) print *,' inihis iedhis=', inihis,iedhis
@@ -1037,12 +993,10 @@ subroutine intttvc6(kkvkin, v,voltet, &
      else
         wtthis(ihis,1) = wtthis(ihis,1) + pvn*(integb - intega)
      endif
-
      if(chkwrt) then
         write(ichk,"(' ihis [Init End] wtt=', i5,3f11.6)") &
              ihis, frhis(ihis), frhis(ihis+1), pvn*(integb-intega)
      endif
-
      intega = integb
   enddo
   !      if(chkwrt) then
@@ -1056,8 +1010,6 @@ subroutine intttvc6(kkvkin, v,voltet, &
   !      endif
   if(chkwrt) write(ichk,*) ' end of intttvc6'
 end subroutine intttvc6
-
-
 !--------------------------------------------------------------
 subroutine integtetn(e, ee, integb)
   !> Calculate primitive integral of integb = 1/pi Imag[\int^ee dE' 1/(E' -e(k))] = \int^ee dE' S[E']
@@ -1084,7 +1036,6 @@ subroutine integtetn(e, ee, integb)
   elseif (ee>e(4) ) then
      call rx( ' integtetn: ee>e(4)')
   endif
-
   !--- case1. poor numerical accuracy for cases.
   if( .FALSE. ) then
      e1 = e(1)-3d-6
@@ -1132,7 +1083,6 @@ subroutine integtetn(e, ee, integb)
   elseif( ee==e4 ) then
      integb = 1d0
   endif
-
   !-----------------------------------------------------------
   !      D2 = (V2-V4)*(V2-V3)*(V2-V1) !>0
   !      D3 = (V3-V4)*(V3-V2)*(V3-V1) !<0
@@ -1153,9 +1103,6 @@ subroutine integtetn(e, ee, integb)
   !         write(6,*) ' integb=',integb
   !      endif
 end subroutine integtetn
-
-
-!-----------------------------------------------------
 subroutine mkwcg(e, ee, wcg)
   !- calculate wweight for each corners.---------
   !i e(1:4),ee
@@ -1220,8 +1167,6 @@ subroutine wab(ea,eb,ee,wa,wb)
   wa= (eb-ee)/eet
   wb= (ee-ea)/eet
 end subroutine wab
-
-
 !---
 subroutine addsciss(delta, ef, nnn, eig)
   integer::nnn,i
@@ -1231,7 +1176,6 @@ subroutine addsciss(delta, ef, nnn, eig)
      if(eig(i)>ef) eig(i)= eig(i)+delta
   enddo
 end subroutine addsciss
-
 !-----------------------------------
 subroutine midk3(kk,ee,xx,yy,i,j,   kout,xout,yout)
   !- Calculate x and k(3) at the Fermi energy on the like k(i)---k(j).
@@ -1244,7 +1188,6 @@ subroutine midk3(kk,ee,xx,yy,i,j,   kout,xout,yout)
   yout      = yy(i)     + ratio * (yy(j)-yy(i))
   kout(1:3) = kk(1:3,i) + ratio * (kk(1:3,j)-kk(1:3,i))
 end subroutine midk3
-
 real(8) function det33(am)
   implicit none
   real(8),intent(in) :: am(3,3)
@@ -1255,7 +1198,6 @@ real(8) function det33(am)
        +am(3,1)*am(1,2)*am(2,3) &
        -am(3,1)*am(2,2)*am(1,3)
 END function det33
-
 subroutine chkdgn(ene,ndat,  nrank,ixini,ixend,iof,ipr)
   implicit none
   integer :: ndat,i,ix, ixini(ndat),ixend(ndat),nrank,iof
@@ -1266,7 +1208,6 @@ subroutine chkdgn(ene,ndat,  nrank,ixini,ixend,iof,ipr)
      nrank =0
      return
   endif
-
   ixini(1) = 1
   if(ndat==1) then
      ixend(1) = 1
@@ -1287,7 +1228,6 @@ subroutine chkdgn(ene,ndat,  nrank,ixini,ixend,iof,ipr)
         ixend(i) = ndat
      endif
   enddo
-
   nrank = i
   ! option noparallel
   do i =1,nrank
@@ -1307,7 +1247,6 @@ subroutine chkdgn(ene,ndat,  nrank,ixini,ixend,iof,ipr)
      enddo
   endif
 end subroutine chkdgn
-
 subroutine midk(kk,ee,xx,i,j,   kout,xout)
   !     - Calculate x and k(3) at the Fermi energy on the like k(i)---k(j).
   integer:: i,j
@@ -1316,7 +1255,6 @@ subroutine midk(kk,ee,xx,i,j,   kout,xout)
   xout      = xx(i)     + ratio * (xx(j)-xx(i))
   kout(1:3) = kk(1:3,i) + ratio * (kk(1:3,j)-kk(1:3,i))
 end subroutine midk
-
 subroutine rsvwwk00_4(jpm,iwgt, nqbz,nband,nctot,ncc,nbnbx,  n1b,n2b,noccxv,nbnb)
   !- get (n1b n2b) corresponding to non-zero wgt.
   implicit none

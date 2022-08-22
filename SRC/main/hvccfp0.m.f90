@@ -16,7 +16,7 @@ program hvccfp0
   use m_readgwinput,only: ReadGwinputKeys, &
        keeppositivecou
   use m_lgunit,only: m_lgunit_init
-  
+  use m_vcoulq,only: vcoulq_4,mkjb_4,mkjp_4,genjh
   implicit none
   integer :: ifvcfpout,ifhvccfp,is,  lmxcg,if1011,if3011, ifplane,ngpmx, ngcmx, nblochpmx, nbloch,&
        ibas,ic,lxx,nxx,nrx,l,n,k,isx,kdummy, nkdmx,nkqmx,lmax,nkdest,nkrest,ngp,ngc,nlxx,i,lnjcg,lnxcg, &

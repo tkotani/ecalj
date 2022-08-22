@@ -1,10 +1,9 @@
-subroutine vcoulq_4(q,nbloch, ngc, &
-     nbas, lx,lxx, nx,nxx, &
-     alat, qlat, vol, ngvecc, &
-     strx,rojp,rojb, sgbb,sgpb, fouvb, nblochpmx,bas,rmax, &
-     eee, aa,bb,nr,nrx,rkpr,rkmr,rofi, &
-                                !         These inputs are to generate sgpp on the fly.
-     vcoul)
+module  m_vcoulq
+  public vcoulq_4,mkjb_4,mkjp_4,genjh
+  contains
+subroutine vcoulq_4(q,nbloch,ngc,nbas,lx,lxx,nx,nxx,alat,qlat,vol,ngvecc, &
+     strx,rojp,rojb,sgbb,sgpb,fouvb,nblochpmx,bas,rmax, &
+     eee, aa,bb,nr,nrx,rkpr,rkmr,rofi, vcoul)
   !o Coulmb matrix for each q. -----------------------------------------------
   !i strx:  Structure factors
   !i nlx corresponds to (lx+1)**2 . lx corresponds to 2*lmxax.
@@ -428,10 +427,8 @@ end subroutine vcoulq_4
 
 
 !==========================================================================
-subroutine mkjp_4( q,ngc,ngvecc, alat, qlat, lxx,lx,nxx,nx, &
-     bas, a,b,rmax,nr,nrx,rprodx, &
-     eee,rofi,rkpr,rkmr, &
-     rojp,sgpb,fouvb)
+subroutine mkjp_4(q,ngc,ngvecc,alat,qlat,lxx,lx,nxx,nx,bas,a,b,rmax,nr,nrx,rprodx, &
+     eee,rofi,rkpr,rkmr, rojp,sgpb,fouvb)
   !- Make integrals in each MT. and the Fourier matrix.
   !r the integrals rojp, fouvb,fouvp
   !r are for  J_L(r)= j_l(sqrt(e) r)/sqrt(e)**l Y_L,
@@ -444,27 +441,16 @@ subroutine mkjp_4( q,ngc,ngvecc, alat, qlat, lxx,lx,nxx,nx, &
   use m_lldata,only: ll
   implicit none
   integer(4) :: ngc,ngvecc(3,ngc), lxx, lx, nxx,nx(0:lxx),nr,nrx
-  real(8)    :: q(3),bas(3), rprodx(nrx,nxx,0:lxx),a,b,rmax,alat, &
-       qlat(3,3)
+  real(8)    :: q(3),bas(3), rprodx(nrx,nxx,0:lxx),a,b,rmax,alat, qlat(3,3)
   !i rho-type onsite integral
   complex(8) :: rojp(ngc, (lxx+1)**2)
   !i sigma-type onsite integral
   complex(8) :: sgpb(ngc,  nxx,  (lxx+1)**2)
-  !     &              sgpp(ngc,  ngc,  (lxx+1)**2)
   real(8),allocatable::cy(:),yl(:)
   !i Fourier
   complex(8) :: &
        fouvb(ngc,  nxx, (lxx+1)**2)
-  !     &              fouvp(ngc,  ngc, (lxx+1)**2)
-  ! internal
   integer(4) :: nlx,ig1,ig2,l,n,ir,n1,n2,lm !, ibas
-  !$$$#ifdef COMMONLL
-  !$$$      integer(4)::ll(51**2)
-  !$$$      common/llblock/ll
-  !$$$#else
-  !$$$      integer(4) :: ll
-  !$$$      external ll
-  !$$$#endif
   real(8)    :: pi,fpi,tpiba, qg1(3), &
        fkk(0:lx),fkj(0:lx),fjk(0:lx),fjj(0:lx),absqg1,absqg2, &
        fac,radint,radsigo(0:lx),radsig(0:lx),phi(0:lx),psi(0:lx) &
@@ -502,7 +488,6 @@ subroutine mkjp_4( q,ngc,ngvecc, alat, qlat, lxx,lx,nxx,nx, &
         ! <jlyl | exp i q+G r> projection of exp(i q+G r) to jl yl  on MT
      enddo
   enddo
-
   !c rofi and aj = r**l / (2l+1)!! \times r. Sperical Bessel at e=0.
   !      rofi(1) = 0d0
   !      do ir   = 1, nr
@@ -513,7 +498,6 @@ subroutine mkjp_4( q,ngc,ngvecc, alat, qlat, lxx,lx,nxx,nx, &
   !        rkmr(2:nr,l) = rofi(2:nr)**(-l-1   +1 )
   !        rkmr(1,l)    = rkmr(2,l)
   !      enddo
-
   ! rojp
   if(debug) print *,' mkjp_4: rojp'
   do ig1 = 1,ngc
@@ -524,7 +508,6 @@ subroutine mkjp_4( q,ngc,ngvecc, alat, qlat, lxx,lx,nxx,nx, &
         rojp(ig1,lm) = (-fjj(l))* pjyl(lm,ig1)
      enddo
   enddo
-
   ! ajr
   do ig1 = 1,ngc
      do ir  = 1,nr
@@ -533,15 +516,8 @@ subroutine mkjp_4( q,ngc,ngvecc, alat, qlat, lxx,lx,nxx,nx, &
            ajr(ir,l,ig1) = phi(l)* rofi(ir) **(l +1 )
            ! ajr = j_l(sqrt(e) r) * r / (sqrt(e))**l
         enddo
-        ! ccccccccccccccccccccccccc
-        !        write(116,'(i3,10d13.6)') ir, rofi(ir), ajr(ir,0:lx,ig1)
-        ! ccccccccccccccccccccccccc
      enddo
-     ! ccccccccccccccccccccccccc
-     !        write(6,*) ig1,sum(ajr(1:nr,0:lx,ig1))
-     ! ccccccccccccccccccccccccc
   enddo
-
   !-------------------------
   if(eee==0d0) then
      !        print *,' mkjp_4: use sigintAn1 eee=0(r0c=infty) mode'
@@ -576,14 +552,6 @@ subroutine mkjp_4( q,ngc,ngvecc, alat, qlat, lxx,lx,nxx,nx, &
         enddo
      enddo
   enddo
-  ! ccccccccccccccccccccccc
-  !      stop 'test end======================'
-  ! cccccccccccccccccccccc
-
-  !---------------------------------------
-  ! sgpp block------->removed
-  !---------------------------------------
-
   ! Fourier
   ! fouvb
   if(debug) print *,' mkjp_4: Four'
@@ -592,37 +560,15 @@ subroutine mkjp_4( q,ngc,ngvecc, alat, qlat, lxx,lx,nxx,nx, &
      do lm  = 1,nlx
         l = ll(lm)
         do n =1,nx(l)
-           ! cccccccccccccccccccccccccccccccccccccccccccc
-           !         print *,' ig1 lm l n=',ig1,lm,l,n
-           ! cccccccccccccccccccccccccccccccccccccccccccc
-           call gintxx(ajr(1,l,ig1), rprodx(1,n,l), a,b,nr, &
-                radint )
-           ! cccccccccccccccccccccccccccccccccccccccccccc
-           !         print *,' radint=',radint
-           ! cccccccccccccccccccccccccccccccccccccccccccc
-           fouvb(ig1, n, lm) = &
-                fpi/(absqg(ig1)**2-eee) *dconjg(pjyl(lm,ig1))*radint !eee is supposed to be negative
-
+           call gintxx(ajr(1,l,ig1), rprodx(1,n,l), a,b,nr, radint )
+           fouvb(ig1, n, lm) = fpi/(absqg(ig1)**2-eee) *dconjg(pjyl(lm,ig1))*radint !eee is supposed to be negative
         enddo
      enddo
   enddo
-  ! ccccccccccccccccccc
-  !        write(6,*)' fourvb sum=',sum (fouvb)
-  ! ccccccccccccccccccc
-
-  !-----------------------------
-  ! fouvp block --->removed
-  !-----------------------------
-
   deallocate(ajr,a1,   qg,absqg,   pjyl)
   if (allocated( cy )) deallocate(cy)
   if (allocated( yl )) deallocate(yl)
 end subroutine mkjp_4
-
-
-
-
-
 
 real(8) function fac2m(i)
   !C A table of (2l-1)!!
@@ -639,8 +585,7 @@ real(8) function fac2m(i)
   fac2m=fac2mm(i)
 END function fac2m
 !=====================================================================
-subroutine genjh(eee,nr,a,b,lx, nrx,lxx, &
-     rofi,rkpr,rkmr)
+subroutine genjh(eee,nr,a,b,lx,nrx,lxx, rofi,rkpr,rkmr)
   !-- Generate radial mesh rofi, spherical bessel, and hankel functions
   !r  rkpr, rkmr are real fucntions --
   !i eee=E= -kappa**2 <0
@@ -652,7 +597,7 @@ subroutine genjh(eee,nr,a,b,lx, nrx,lxx, &
   implicit none
   integer(4):: nr,lx, nrx,lxx,ir,l
   real(8):: a,b,eee,psi(0:lx),phi(0:lx)
-  real(8):: rofi(nrx),rkpr(nrx,0:lxx),rkmr(nrx,0:lxx),fac2m
+  real(8):: rofi(nrx),rkpr(nrx,0:lxx),rkmr(nrx,0:lxx) !,fac2m
   rofi(1)    = 0d0
   do ir      = 1, nr
      rofi(ir) = b*( exp(a*(ir-1)) - 1d0)
@@ -677,10 +622,7 @@ subroutine genjh(eee,nr,a,b,lx, nrx,lxx, &
   endif
 end subroutine genjh
 !=============================================================
-subroutine mkjb_4( lxx,lx,nxx,nx, &
-     a,b,nr,nrx,rprodx, &
-     rofi,rkpr,rkmr, &
-     rojb,sgbb)
+subroutine mkjb_4( lxx,lx,nxx,nx,a,b,nr,nrx,rprodx,rofi,rkpr,rkmr, rojb,sgbb)
   !--make integrals in each MT. and the Fourier matrix.
   implicit none
   integer(4) :: lxx, lx, nxx, nx(0:lxx),nr,nrx
@@ -755,9 +697,6 @@ subroutine mkjb_4( lxx,lx,nxx,nx, &
   ! cccccccccccccccccccccccccccccccccccccc
   !      deallocate(rkpr,rkmr)
 end subroutine mkjb_4
-
-
-!-------------------------------------------------------------
 subroutine sigint_4(rkp,rkm,kmx,a,b,nr,phi1,phi2,rofi, sig)
   implicit none
   integer(4) :: nr,kmx,k,ir
@@ -770,13 +709,11 @@ subroutine sigint_4(rkp,rkm,kmx,a,b,nr,phi1,phi2,rofi, sig)
   b1(1:nr) = phi1(1:nr)
   call intn_smpxxx(a1,b1,int1x,a,b,rofi,nr,0)
   call intn_smpxxx(a2,b1,int2x,a,b,rofi,nr,0)
-
   a1(1) = 0d0; a1(2:nr) = &
        rkm(2:nr) *( int1x(1)-int1x(2:nr) )+ rkp(2:nr) * int2x(2:nr)
   b1(1:nr) = phi2(1:nr)
   call gintxx(a1,b1,A,B,NR, sig )
 end subroutine sigint_4
-
 !---------------------------------------------------------------
 subroutine intn_smpxxx(g1,g2,int,a,b,rofi,nr,lr0)
   !-- intergral of two wave function. used in ppdf
@@ -890,4 +827,4 @@ subroutine sigintpp( absqg1, absqg2, lx, rmax, &
           ) /(e1*e2)
   enddo
 end subroutine sigintpp
-
+endmodule m_vcoulq

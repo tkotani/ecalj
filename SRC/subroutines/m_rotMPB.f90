@@ -16,11 +16,9 @@ module m_rotMPB2
   integer:: lxxa
   real(8),allocatable:: dlmm(:,:,:,:)
 contains
-  subroutine RotMPB2(nbloch,ngbb,qin,igx,igxt,ginv, &
-       zrotm)    !zcousqr=Rotate_igx(zcousq) igxt=-1 means timereversal case.
-    intent(in)::       nbloch,ngbb,qin,igx,igxt,ginv
-    intent(out):: &
-         zrotm
+  subroutine RotMPB2(nbloch,ngbb,qin,igx,igxt,ginv, zrotm) !zcousqr=Rotate_igx(zcousq) igxt=-1 means timereversal case.
+    intent(in)::     nbloch,ngbb,qin,igx,igxt,ginv
+    intent(out)::                                   zrotm
     !! --- zrotm(J,J') = <Mbar^k_J| \hat{A}^k_i Mbar^k_J'>. ---
     !! See Eq.(51) around in PRB81 125102(2010).
     !! Eq. (51) can be written as

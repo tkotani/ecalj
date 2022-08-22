@@ -94,8 +94,7 @@ contains
     !      lat_dist=dist
     call tcx('m_lattic_init')
   end subroutine m_lattic_init
-  subroutine lattdf(ldist,defgrd,plat,nbas,bas,ngen,gen)
-    !- Rotates or deforms lattice
+  subroutine lattdf(ldist,defgrd,plat,nbas,bas,ngen,gen) !- Rotates or deforms lattice
     ! ----------------------------------------------------------------
     !i Inputs
     !i   ldist: 0, no deformations.  For abs(ldist):
@@ -175,9 +174,8 @@ contains
     endif
     if (allocated(bwk_rv)) deallocate(bwk_rv)
   end subroutine lattdf
-  subroutine shear(nbas,plat,tau,alpha,eps,s)
+  subroutine shear(nbas,plat,tau,alpha,eps,s)!- Apply a pure strain to lattice and basis vectors
     use m_lmfinit,only: stdo
-    !- Apply a pure strain to lattice and basis vectors
     ! ----------------------------------------------------------------------
     !i Inputs
     !i   nbas  :size of basis.  nbas=0 => plat, tau not sheared
@@ -247,8 +245,7 @@ contains
 60  format (6(5x,2i1,5x))
 70  format (6f12.6)
   end subroutine shear
-  subroutine xxxes(e,s,det)
-    ! Make deformation tensor
+  subroutine xxxes(e,s,det)  ! Make deformation tensor
     double precision :: e(6),s(3,3),det
     s(1,1) = 1 + e(1)
     s(2,2) = 1 + e(2)
@@ -263,8 +260,7 @@ contains
          +s(1,3)*s(2,1)*s(3,2)-s(1,3)*s(2,2)*s(3,1) &
          -s(1,2)*s(2,1)*s(3,3)-s(1,1)*s(2,3)*s(3,2)
   end subroutine xxxes
-  subroutine xxxse(s,e)
-    ! Make engineering strains
+  subroutine xxxse(s,e) ! Make engineering strains
     double precision :: s(3,3),e(6)
     integer :: i
     do  1  i = 1, 3
@@ -274,9 +270,8 @@ contains
     e(5) = 2*s(1,3)
     e(6) = 2*s(1,2)
   end subroutine xxxse
-  subroutine xxxadd(i,j,n,e,ind,x)
-    ! Add to list of non-zero elastic constant coefficients
-    !     implicit none
+  subroutine xxxadd(i,j,n,e,ind,x)! Add to list of non-zero elastic constant coefficients
+    implicit none
     integer :: i,j,n,ind(2,21)
     double precision :: e(6),x(21),xx
     xx = e(i)*e(j)
@@ -290,11 +285,9 @@ contains
   end subroutine xxxadd
 end module m_lattic
 
-subroutine lattc(as,tol,rpad,alat,alat0,platin,g1,g2,g3,gt,plat, &
-     qlat,lmax,vol,awald,dlat,nkd,glat,nkg,nkdmx,nkgmx)
+subroutine lattc(as,tol,rpad,alat,alat0,platin,g1,g2,g3,gt,plat,qlat,lmax,vol,awald,dlat,nkd,glat,nkg,nkdmx,nkgmx)  ! Sets up the real and reciprocal space lattice vectors for Ewald
   use m_ftox
   use m_lgunit,only:stdo
-  !- Sets up the real and reciprocal space lattice vectors for Ewald
   ! ----------------------------------------------------------------
   !i Inputs
   !i   as    :dimensionless Ewald parameter (2 is suggested).
@@ -395,9 +388,7 @@ subroutine lattc(as,tol,rpad,alat,alat0,platin,g1,g2,g3,gt,plat, &
 342 format(9x,'r1=',f7.3,'   nkd=',i4,'      q1=',f7.3,'   nkg=',i4)
 60 if(dabs(alat0/alat-1d0) > 0.04d0) call rx('lattc: alat and alat0 deviate by more than 4 %')
 end subroutine lattc
-
-subroutine lctoff(a0,v0,lmax,tol,r0,q0)
-  !- makes limits r0,q0 for sums in real and recip space for a lattice
+subroutine lctoff(a0,v0,lmax,tol,r0,q0) !- makes limits r0,q0 for sums in real and recip space for a lattice
   !  with lattice constant 1.
   !u Updates
   !u   25 Jun 03 (Kino) bug fix in dimension of f and g
@@ -433,9 +424,7 @@ subroutine lctoff(a0,v0,lmax,tol,r0,q0)
   ! 957 format(' lcut: q0=',f12.6,'   try=',f12.6,'   r0=',f12.6,
   !|   .  '   f=',f12.6)
 end subroutine lctoff
-
-subroutine dlmtor(r,a,lmax,f,fbar)
-  !- Radial part of damped lmtos f and fbar, l=0 to lmax
+subroutine dlmtor(r,a,lmax,f,fbar)  !- Radial part of damped lmtos f and fbar, l=0 to lmax
   !     implicit none
   integer :: l,lmax
   double precision :: a,f(0:lmax),fbar(0:lmax),r
@@ -458,9 +447,7 @@ subroutine dlmtor(r,a,lmax,f,fbar)
      g = g*ta2r
 10 enddo
 end subroutine dlmtor
-
-subroutine qdist(q,q1,ux,uy,uz,gam)
-  !  (from msm) new version of 03.10.89. u=(ux,uy,uz) gives direction,
+subroutine qdist(q,q1,ux,uy,uz,gam) !  (from msm) new version of 03.10.89. u=(ux,uy,uz) gives direction,
   !  gam is multiplier in real space along u, volume is conserved.
   !     implicit none
   double precision :: q(3),q1(3),ux,uy,uz,gam
@@ -487,8 +474,7 @@ subroutine rdist(v,v1,ux,uy,uz,g)
   v1(2) = xxx*v(2)+yyy*uy
   v1(3) = xxx*v(3)+yyy*uz
 end subroutine rdist
-subroutine rdistn(a1,a2,na,gx,gy,gz,gt)
-  !- distort na real-space vectors in array a1 into array a2
+subroutine rdistn(a1,a2,na,gx,gy,gz,gt)  !- distort na real-space vectors in array a1 into array a2
   !     implicit none
   integer :: na,ia
   double precision :: a1(3,na),a2(3,na),gx,gy,gz,gt
@@ -496,8 +482,7 @@ subroutine rdistn(a1,a2,na,gx,gy,gz,gt)
      call rdist(a1(1,ia),a2(1,ia),gx,gy,gz,gt)
 10 enddo
 end subroutine rdistn
-subroutine qdistn(a1,a2,na,gx,gy,gz,gt)
-  !- distort na q-space vectors in array a1 into array a2
+subroutine qdistn(a1,a2,na,gx,gy,gz,gt)  !- distort na q-space vectors in array a1 into array a2
   !     implicit none
   integer :: na,ia
   double precision :: a1(3,na),a2(3,na),gx,gy,gz,gt

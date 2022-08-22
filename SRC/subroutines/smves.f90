@@ -443,7 +443,7 @@ contains
        !   ... Make nrclas,ipa,posc
        call psymr0(lmxl,ic,nbas,ipc,pos,posc,ipa,nrclas)
        if (nrclas > 0) then
-          ib = iclbas(ic,ipc)
+          ib = iclbas(ic,ipc) !findloc(ipc,value=ic) !
           if (lmxl(ib) > -1) then
              nlml = (lmxl(ib)+1)**2
              if (ipr >= 50) write(stdo,800) ic,nrclas,nlml
@@ -470,7 +470,7 @@ contains
        ic = ipc(ib)
        jpr = 0
        if (ipr > 60) jpr = 2
-       if (ib == iclbas(ic,ipc)) then
+       if (ib == iclbas(ic,ipc)) then !findloc(ipc,value=ic) ) then !
           if (ipr >= 45) jpr = 1
           if (ipr >= 50) jpr = 2
        endif

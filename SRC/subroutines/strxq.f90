@@ -1,5 +1,4 @@
-subroutine strxq(mode,e,q,p,nlma,nlmh,ndim,alat,vol,awald,nkd,nkq, &
-     dlv,qlv,cg,indxcg,jcg,s,sd)
+subroutine strxq(mode,e,q,p,nlma,nlmh,ndim,alat,vol,awald,nkd,nkq,dlv,qlv,cg,indxcg,jcg, s,sd)
   use m_lldata,only: ll
   !use m_shortn4,only: shortn4,shortn4_initialize,nout,nlatout
   use m_hamindex,only:   plat,qlat

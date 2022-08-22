@@ -137,7 +137,8 @@ subroutine mpibc1(vec,n,cast,mlog,funnam,label)
 
   if (mlog) then
      call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
-     call strcop(shortname(procid),name,10,'.',ierr)
+     !call strcop(shortname(procid),name,10,'.',ierr)
+     shortname(procid)=name
      namelen(procid) = ierr-1
      call gettime(datim)
      !        strn = ' '//funnam//' '//datim//' Process %i of %i on '
@@ -223,7 +224,8 @@ subroutine mpibc2(vec,n,cast,mlog,funnam,label)
 
   if (mlog) then
      call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
-     call strcop(shortname(procid),name,10,'.',ierr)
+     !call strcop(shortname(procid),name,10,'.',ierr)
+     shortname(procid)=name
      namelen(procid) = ierr-1
      call gettime(datim)
      !        call awrit2(strn,' ',-256,lgunit(3),procid,numprocs)

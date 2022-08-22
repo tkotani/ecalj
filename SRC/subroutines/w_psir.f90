@@ -1,7 +1,6 @@
 module m_w_psir
 contains
-  subroutine psir_minmax(n1,n2,n3, k1,k2,k3,   f, &
-       emin,emax,norm,imagmax,imaxi)
+  subroutine psir_minmax(n1,n2,n3,k1,k2,k3,f, emin,emax,norm,imagmax,imaxi)
     implicit none
     integer,intent(in):: n1,n2,n3,k1,k2,k3
     complex(8),intent(in):: f(k1,k2,k3)
@@ -35,9 +34,7 @@ contains
        enddo
     enddo
   end subroutine psir_minmax
-
-  subroutine w_psir_xcrysden(ifi,plat,alat,nbas,pos,z &
-       ,n1,n2,n3,k1,k2,k3,psi  )
+  subroutine w_psir_xcrysden(ifi,plat,alat,nbas,pos,z,n1,n2,n3,k1,k2,k3,psi)
     implicit none
     real(8),intent(in):: plat(3,3),alat,pos(3,nbas),z(nbas)
     integer,intent(in):: nbas ,ifi
@@ -72,15 +69,13 @@ contains
        elseif (isp == 2) then
           do i3=1,n3
              do i2=1,n2
-                write(ifi,psiform) &
-                     (dimag(psi(i1,i2,i3)),i1=1,n1)
+                write(ifi,psiform) (dimag(psi(i1,i2,i3)),i1=1,n1)
              enddo
           enddo
        elseif (isp == 3) then
           do i3=1,n3
              do i2=1,n2
-                write(ifi,psiform) &
-                     (dimag(psi(i1,i2,i3))**2+dreal(psi(i1,i2,i3))**2,i1=1,n1)
+                write(ifi,psiform)(dimag(psi(i1,i2,i3))**2+dreal(psi(i1,i2,i3))**2,i1=1,n1)
              enddo
           enddo
        endif
@@ -89,11 +84,7 @@ contains
     enddo
   end subroutine w_psir_xcrysden
   !!
-  subroutine w_psir(ng,nspc,nev,psi,n1,n2,n3,k1,k2,k3,kv,isp,q,iq &
-       ,n_eiglist, eiglist &
-       ,plat,alat,nbas,pos,z &
-       ,f)
-    !- FT wave function to real space and add square into mesh density
+  subroutine w_psir(ng,nspc,nev,psi,n1,n2,n3,k1,k2,k3,kv,isp,q,iq,n_eiglist,eiglist,plat,alat,nbas,pos,z,f) ! FT wave function to real space and add square into mesh density
     !  and optionally make smpot * psi
     ! ----------------------------------------------------------------------
     !i Inputs

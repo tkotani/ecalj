@@ -1,5 +1,4 @@
 module m_gradzr
-  !use m_mathlib,only:chkhss
   use m_ftox
   use m_lmfinit,only:stdo
   public:: gradzr
@@ -831,8 +830,7 @@ contains
 
     pgrada = gtll
   END function pgrada
-  subroutine pgradz(itol,n,amp,p,g,xtol,gtol,dxmx,resx,dgmx,resg, &
-       gx,cnvgx,cnvgg)
+  subroutine pgradz(itol,n,amp,p,g,xtol,gtol,dxmx,resx,dgmx,resg, gx,cnvgx,cnvgg)
     !- Evaluates convergence criteria in x and g
     ! ----------------------------------------------------------------------
     !i Inputs

@@ -2,10 +2,9 @@ module m_elocp
   use m_lmfinit,only: nspec,n0
   real(8),allocatable,protected,public:: ehl(:,:),rsml(:,:)
   public:: elocp
-
   private
 contains
-  subroutine elocp()!- Make envlope parameters for extended local orbitals
+  subroutine elocp()! Make envlope parameters for extended local orbitals
     use m_lmfinit,only: nkaph,stdo,nspec,nbas,nsp,ispec,sspec=>v_sspec,n0,nkapii,slabl,vmtz,rs3,eh3
     use m_density,only: v0pot,pnuall,pnzall
     ! ----------------------------------------------------------------------
@@ -127,8 +126,7 @@ contains
     if (allocated(ips_iv)) deallocate(ips_iv)
   end subroutine elocp
 
-  subroutine loctsh(mode0,spid,z,a,nr,nrmt,nsp,lmxb,rofi,v,pnu,pnz, &
-       rs3,eh3,vmtz,vsel,rsml,ehl)
+  subroutine loctsh(mode0,spid,z,a,nr,nrmt,nsp,lmxb,rofi,v,pnu,pnz,rs3,eh3,vmtz, vsel,rsml,ehl)
     use m_lmfinit,only: stdo
     use m_hansr,only:hansmr
     use m_ftox

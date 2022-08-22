@@ -1,5 +1,4 @@
-subroutine efsimplef2ax ( legas, esmr, &
-     valn,ef)
+subroutine efsimplef2ax ( legas, esmr, valn,ef)
   use m_READ_BZDATA,only: &
        nqbz,nqibz,ginv,  qibz,wibz,qbz
   use m_genallcf_v3,only: nspin,z,natom,nclass,iclass,nl,konfig=>konf
@@ -225,10 +224,9 @@ subroutine efsimplef2ax ( legas, esmr, &
   endif
 end subroutine efsimplef2ax
 !----------------------------------------------------------------------------
-subroutine efsimplef2a (nspin,wibz,qibz,ginv, &
-     nband,nqibz, konfig,z,nl,natom,iclass,nclass, &
+subroutine efsimplef2a (nspin,wibz,qibz,ginv,nband,nqibz, konfig,z,nl,natom,iclass,nclass, &
      valn, legas, esmr, &! & input only for empty case
-  qbz,nqbz, &! & index_qbz, n_index_qbz,
+     qbz,nqbz, &
   ef)
   use m_readeigen, only: readeval
   use m_mpi, only: mpi__root
@@ -493,8 +491,7 @@ END function enumef
 
 
 !---------------------------------------------------------------
-subroutine findemaxmin(nband,qbz,nqbz,nspin, &
-     emax,emin)
+subroutine findemaxmin(nband,qbz,nqbz,nspin, emax,emin)
   use m_readeigen, only: readeval
   implicit none
   integer(4) :: nband,nqbz,nspin,isp,kx,i !,ifev(2)

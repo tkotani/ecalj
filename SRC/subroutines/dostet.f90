@@ -1,6 +1,4 @@
-subroutine dostet(nbmx,nsp,nspx,nevmx,nchan,n1,n2,n3,ntet, &
-     idtet,eband,doswt,npts,emin,emax,lidos,wk,zos)
-  !- Density of states to third order by tetrahedron method
+subroutine dostet(nbmx,nsp,nspx,nevmx,nchan,n1,n2,n3,ntet,idtet,eband,doswt,npts,emin,emax,lidos,wk,zos)! Density of states to third order by tetrahedron method
   ! ----------------------------------------------------------------------
   !i Inputs:
   !i   nbmx, first dim. of eband;
@@ -16,18 +14,13 @@ subroutine dostet(nbmx,nsp,nspx,nevmx,nchan,n1,n2,n3,ntet, &
   !o Outputs:
   !o   zos : DOS (or integrated DOS for lidos=T) for each spin and nchan
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
+  implicit none
   integer :: nchan,nsp,nspx,nbmx,npts,ntet,idtet(0:4,*),n1,n2,n3,nevmx
   double precision :: eband(nbmx,nspx,1),emin,emax,wk(npts), &
        zos(npts,nsp,nchan),doswt(nchan,nbmx,nsp,1)
   logical :: lidos
-  ! ... Local parameters
   integer :: isp,ib,i,itet,ichan,iq1,iq2,iq3,iq4,nspc,jsp,ksp
   double precision :: bin,eigen(4),v,wt,ebot,dmin1,eg0(4)
-  ! ... External calls
-  external dcopy,dpzero,slinz
-
   if (npts <= 1 .OR. npts <= 2 .AND. .NOT. lidos) call rx1( &
        'dostet: npts(=%i) too small for DOS : require npts>2',npts)
   nspc = nsp / nspx
@@ -35,14 +28,12 @@ subroutine dostet(nbmx,nsp,nspx,nevmx,nchan,n1,n2,n3,ntet, &
   bin = npts - 1
   bin = (emax - emin) / bin
   v = ( 3d0  -  nsp ) / ( n1 * n2 * n3 * 6d0 )
-
   ! --- Loop over tetrahedra ---
   do  5  itet = 1, ntet
      iq1 = idtet(1,itet)
      iq2 = idtet(2,itet)
      iq3 = idtet(3,itet)
      iq4 = idtet(4,itet)
-
      ! --- Loop over spins and sum over bands ---
      do  4  isp = 1, nspx
         do  3  ib = 1, nevmx
@@ -53,7 +44,6 @@ subroutine dostet(nbmx,nsp,nspx,nevmx,nchan,n1,n2,n3,ntet, &
            call dcopy(4,eigen,1,eg0,1)
            ebot = dmin1(eigen(1),eigen(2),eigen(3),eigen(4))
            if (ebot > emax) goto 3
-
            do  21  jsp = 1, nspc
               !       ... ksp is isp for uncoupled spins, and jsp for coupled spins
               ksp = max(jsp,isp)
@@ -71,9 +61,7 @@ subroutine dostet(nbmx,nsp,nspx,nevmx,nchan,n1,n2,n3,ntet, &
 3       enddo
 4    enddo
 5 enddo
-
   if (lidos) return
-
   ! --- DOS from finite difference of NOS ---
   bin = 2d0 * bin
   do  111  isp  = 1, nsp

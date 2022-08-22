@@ -553,7 +553,6 @@ contains
        enddo
     endif
   end subroutine getq0p
-
   integer function llxxx(ilm)
     integer,parameter :: lmx=50
     integer,save:: lla((lmx+1)**2)

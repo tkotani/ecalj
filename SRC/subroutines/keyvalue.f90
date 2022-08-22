@@ -312,7 +312,7 @@ contains
   end  subroutine input_reopen
 
   !----------------------------------------------------------
-  subroutine input_close
+  subroutine input_close()
     implicit none
     close(nf_input)
     nf_input=0
@@ -1385,10 +1385,7 @@ contains
 
   !-----------------------------------------------------------
 
-  subroutine getkeyvalue_c(filename,key,var, default, &
-       unit, &
-       errstop, &
-       status)
+  subroutine getkeyvalue_c(filename,key,var, default, unit, errstop, status)
     implicit none
     character(*),intent(in) :: filename
     character(*),intent(in) :: key
