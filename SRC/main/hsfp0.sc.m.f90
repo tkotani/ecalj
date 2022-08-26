@@ -156,16 +156,13 @@ program hsfp0_sc
   endif
   call GENALLCF_V3(incwfin)    ! readin basic data
   call READ_BZDATA() ! Readin BZ data. See gwsrc/rwbzdata.f ===
-  ! CAUTION!!  WE currently ASSUME iclass(iatom)= iatom (because of historical reason)
-  if(nclass /= natom ) call rx('hsfp0_sc: sanitiy check nclass /= natom ')
+  if(nclass /= natom ) call rx('hsfp0_sc: sanitiy check nclass /= natom ')! CAUTION. ASSUME iclass(iatom)= iatom (because of historical reason)
   write(6,"(' nqbz nqibz ngrp=',3i12)") nqbz,nqibz,ngrp
   esmr  = esmr_in !read from GWinput
   esmref= esmr
   call ReadGwinputKeys()
-  !      if(diagonly) call SetIsigMode(5)
   call pshpr(30)
   voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3))) ! primitive cell volume
-  !!
   if(ixc==1) then
      exchange = .true.
      write(6,*) ' --- Exchange mode --- '

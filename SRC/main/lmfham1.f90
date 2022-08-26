@@ -105,8 +105,8 @@ contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!       
        hammwgt:block
          integer:: nx
-         real(8)::beta,emu,val,wgt(ndimPMT),evlmto(ndimMTO),evl(ndimPMT)
-         complex(8):: oz(ndimPMT,ndimPMT),wnj(ndimPMT,ndimMTO),wnm(ndimPMT,ndimMTO)
+         real(8)::beta,emu,val,wgt(ndimPMT),evlmto(ndimMTO),evl(ndimPMT),evlx(ndimMTO)
+         complex(8):: oz(ndimPMT,ndimPMT),wnj(ndimPMT,ndimMTO),wnm(ndimPMT,ndimMTO),wnn(ndimMTO,ndimMTO),wnmbk(ndimPMT,ndimMTO)
          complex(8):: evecmto(ndimMTO,ndimMTO),evecpmt(ndimPMT,ndimPMT)
          complex(8):: ovlmx(ndimPMT,ndimPMT),hammx(ndimPMT,ndimPMT),fac(ndimPMT,ndimMTO),ddd(ndimMTO,ndimMTO)
          ovlmx= ovlm
@@ -124,9 +124,8 @@ contains
             if(jsp==2) write(6,"('eigenPMT_spin2 ',3i4,f15.5)") iq,jsp,i,evl(i)
          enddo
          write(6,*)" ndimPMT=",ndimPMT
-         nx=ndimPMT          
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-         !beta= 2d0 ! 1/Ry
+         beta= 1d0 ! 1/Ry
          !val= ndimMTO !*nspx/nspx !test for si
          !call detemu(beta,val,evl,ndimPMT, emu) !determine emu for nocc=val
          !wgt = 1d0 /(exp(beta*(evl(:)-emu))+1d0)
@@ -137,17 +136,30 @@ contains
          do j=1,ndimMTO
             do i=1,ndimPMT
                fac(i,j)= sum(dconjg(evecpmt(:,i))*matmul(ovlm(:,1:ndimMTO),evecmto(1:ndimMTO,j)))
-               wnm(i,j)= fac(i,j) *abs(fac(i,j))
-            !write(6,ftox)'i j',i,j, ftof((wnm(i,j)**2))
+               wnm(i,j)= fac(i,j) *abs(fac(i,j)) !* exp( beta* (abs(fac(i,j))**2-1d0))  !write(6,ftox)'i j',i,j, ftof((wnm(i,j)**2))
             enddo
-            !i= maxloc(abs(fac(:,j)),dim=1)
-            !wnm(i,j)=1d0
             !write(6,ftox)'j',j, ftof(sum(abs(fac(:,j))**2))
          enddo
-!         do j=1,ndimMTO
-!            write(6,ftox)'j ',j,(ftof(abs(fac(i,j))**2,2),i=1,20)
-!         enddo
+         !         do j=1,ndimMTO
+         !            write(6,ftox)'j ',j,(ftof(abs(fac(i,j))**2,2),i=1,20)
+         !         enddo
+         ! wnmbk=wnm
+         ! wnm(:,1)=wnmbk(:,4)
+         ! wnm(:,2)=wnmbk(:,5)
+         ! wnm(:,3)=wnmbk(:,2)
+         ! wnm(:,4)=wnmbk(:,3)
+         ! wnm(:,5)=wnmbk(:,1)
          call GramSchmidt(ndimPMT,ndimMTO,wnm)
+         ! wnmbk=wnm
+         ! wnm(:,4)=wnmbk(:,1)
+         ! wnm(:,5)=wnmbk(:,2)
+         ! wnm(:,2)=wnmbk(:,3)
+         ! wnm(:,3)=wnmbk(:,4)
+         ! wnm(:,1)=wnmbk(:,5)
+         do j=1,ndimMTO
+            write(6,ftox)'mmm m=',j,'Anm=',ftof(abs(wnm(1:16,j)))
+         enddo
+! unitatiry check         
          ddd=matmul(dconjg(transpose(wnm)),wnm)
          do i=1,ndimMTO
             do j=1,ndimMTO
@@ -155,23 +167,31 @@ contains
                if(i/=j.and. abs(ddd(i,j))>1d-7)     write(6,ftox)'eeeeeeee i j',i,j,ddd(i,j)
             enddo
          enddo
-!!!!!!!!!!!!!!!!!!!!!!         
-!         wnm=0d0
-!         do j=1,ndimMTO
-!            wnm(j,j)=1d0
-!         enddo
-         wnj = matmul(wnm,matmul(transpose(dconjg(evecmto(:,:))),ovlm(1:ndimMTO,1:ndimMTO)))
+         ! Mapping operator
+         wnj = matmul(wnm,matmul(transpose(dconjg(evecmto(:,:))),ovlm(1:ndimMTO,1:ndimMTO)))    !evl(5:)=evl(5:)+0.002
+         !evl(17:)=evl(17:)+1.0
+         nx=ndimPMT          
          do i=1,ndimMTO
             do j=1,ndimMTO
-               hamm(i,j)= sum( dconjg(wnj(1:nx,i))*evl(1:nx)*wnj(1:nx,j) )
+               hamm(i,j)= sum( dconjg(wnj(1:nx,i))*evl(1:nx)*wnj(1:nx,j)) !+ 0.02*hammx(i,j)
                ovlm(i,j)= sum( dconjg(wnj(1:nx,i))*wnj(1:nx,j) )
             enddo
          enddo
+         !! Hamiltonian modified. Psi_MLO are eigenfunctions
+         !wnn = matmul(transpose(dconjg(evecmto(:,:))),ovlm(1:ndimMTO,1:ndimMTO))
+         !nx=ndimMTO
+         !do i=1,ndimMTO
+         !   evlx(i) = evl(i) !sum(dconjg(wnm(1:ndimPMT,i))*evl(1:ndimPMT)*wnm(1:ndimPMT,i))
+         !enddo   
+         !do i=1,ndimMTO
+         !   do j=1,ndimMTO
+         !      hamm(i,j)= sum( dconjg(wnn(1:nx,i))*evlx(1:nx)*wnn(1:nx,j)) 
+         !      ovlm(i,j)= sum( dconjg(wnn(1:nx,i))*wnn(1:nx,j) )
+         !   enddo
+         !enddo
        endblock hammwgt
-!       deallocate(evl,ovlmx)
-!       endif
-       !! H(k) ->  H(T) FourierTransformation to real space
-       !!       only MTO part ndimMTO (ndimPMT = ndimMTO + ndimAPW)
+       !! Real space Hamiltonian. H(k) ->  H(T) FourierTransformation to real space
+       !!       Only MTO part ndimMTO (ndimPMT = ndimMTO + ndimAPW)
        do i=1,ndimMTO
           do j=1,ndimMTO
              ib1 = mod(ib_table(i),ldim)

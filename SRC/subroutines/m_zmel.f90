@@ -228,7 +228,7 @@ contains
   end subroutine get_zmel_modex0
   !! ------------------------------------
   subroutine Get_zmel_init(q,kvec,irot,rkvec,isp, nmmax,nqmax, nctot,ncc,iprx)
-    intent(in)::             q,kvec,irot,rkvec,isp, nmmax,nqmax, nctot,ncc,iprx
+    intent(in)::           q,kvec,irot,rkvec,isp, nmmax,nqmax, nctot,ncc,iprx
     !! Get zmel= <phiq(q,ncc+nqmax,ispq) |phim(q-rkvec,nctot+nmmax,ispm) MPB(rkvec,ngb)> ZO^-1
     !! kvec is in the IBZ, rk = Rot_irot(kvec)
     !! \parameter all inputs

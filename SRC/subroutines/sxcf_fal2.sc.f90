@@ -15,6 +15,7 @@ module m_sxcfsc !self-energy calculation
   use m_eibzhs,only: nrkip=>nrkip_all,irkip_all
   use m_readgwinput,only: ua_,  corehole,wcorehole
   use m_mpi,only: MPI__sxcf_rankdivider
+  use m_ftox
   implicit none
   !---------------------------------      
   public sxcf_scz, zsecall
@@ -187,7 +188,7 @@ contains
     real(8),parameter:: pi=4d0*datan(1d0), fpi=4d0*pi, tpi=8d0*datan(1d0),ddw=10d0
     integer:: ncount,kxold,nccc
     integer,allocatable:: ispc(:),kxc(:),irotc(:),ipc(:),krc(:)
-    integer,allocatable:: nwxic(:), nwxc(:), nt_maxc(:),irkip(:,:,:,:)
+    integer,allocatable:: nwxic(:), nwxc(:), nt_maxc(:),irkip(:,:,:,:),nstateMax(:)
     complex(8),allocatable:: zmelc(:,:,:)
     !!----------------------------------------------------------------
     if(npm==2) call rx('sxcf: npm=2 need to be examined')
@@ -198,11 +199,11 @@ contains
     !  Total number of none zero irkip for all ranks is the number of nonzero irkip_all
     allocate(irkip(nspinmx,nqibz,ngrp,nq)) ! nrkip is weight correspoinding to irkip for a node.
     call MPI__sxcf_rankdivider(irkip_all,nspinmx,nqibz,ngrp,nq,  irkip)
-    !  icount mechanism
-    IcountBlock: Block
+    ! icount mechanism for sum in main loop 3030
+    IcountBlock: Block !quick loop to gather index sets for main loop
       ncount=count(irkip/=0)
       allocate(ispc(ncount),kxc(ncount),irotc(ncount),ipc(ncount),krc(ncount))
-      allocate(nwxic(ncount), nwxc(ncount), nt_maxc(ncount))
+      allocate(nwxic(ncount), nwxc(ncount), nt_maxc(ncount),nstateMax(ncount))
       iqini = 1
       iqend = nqibz             !no sum for offset-Gamma points.
       icount=0
@@ -233,15 +234,13 @@ contains
                   nt0m = count(ekq<ef-ddw*esmr) +nctot
                   ntqxx = nbandmx(ip,isp) ! ntqxx is number of bands for <i|sigma|j>.
                   write(6,*) icount, ispc(icount),kxc(icount),' irot ',irot,ip,kr
-                  if(exchange) cycle
-                  !   correlation case only nwxi,nwx nt_max
+                  if(exchange) cycle ! Followings are only for correlation
                   ebmx=1d10 !this is needed probably for filling 1d99 for ekc(i) above boundary.
                   nbmxe = count(ekc<ebmx)-nctot !nocc (ekc,ebmx,nstatetot)-nctot!
                   nbmax  = min(nband,nbmxe) 
-                  nstate = nctot + nbmax ! = nstate for the case of correlation
-                  call get_nwx(omega,ntq,ntqxx,nt0p,nt0m,nstate,freq_r,&
-                       nw_i,nw,esmr,ef,ekc,wfaccut,nctot,nband,debug,&
-                       nwxi,nwx,nt_max)  ! Get index nwxi nwx nt_max. 
+                  nstateMax(icount) = nctot + nbmax ! = nstate for the case of correlation
+                  call get_nwx(omega,ntq,ntqxx,nt0p,nt0m,nstateMax(icount),freq_r,&
+                       nw_i,nw,esmr,ef,ekc,wfaccut,nctot,nband,debug,nwxi,nwx,nt_max) !Get index nwxi nwx nt_max. 
                   nwxic(icount)=nwxi     ! get_nwx is not written clearly, but works and not time-consuming.
                   nwxc(icount)=nwx
                   nt_maxc(icount)=nt_max
@@ -251,24 +250,21 @@ contains
 130   enddo 
       if(icount/=count(irkip/=0)) call rx('sxcf: icount/=count(irkip/=0)')
     EndBlock IcountBlock
-    ! open WV* files     
-    if(.not.exchange) then
+    if(.not.exchange) then! Read WV* containing W-v in MPB
        allocate(ifrcw(iqini:iqend),ifrcwi(iqini:iqend))
        do kx=iqini,iqend
           if(any(kx==kxc)) then !only for requied files for this rank
-             open(newunit=ifrcw(kx),  file='WVR.'//i2char(kx), action='read',form='unformatted',&
-                  &           status='unknown',access='direct',recl=mrecl)
-             open(newunit=ifrcwi(kx), file='WVI.'//i2char(kx), action='read',form='unformatted',&
-                  &           status='unknown',access='direct',recl=mrecl)
+             open(newunit=ifrcw(kx), file='WVR.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
+             open(newunit=ifrcwi(kx),file='WVI.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
           endif
        enddo
     endif
-
-    !  main loop do 3030    
+    ! main loop do 3030    
     if(nctot/=0) ekc(1:nctot)= ecore(1:nctot,isp) ! core
     kxold=-9999
     nccc= max(ncount/50,1) !just for printing
-    do 3030 icount=1,ncount   !we only consider bzcase()==1 now
+    icountloop: do 3030 icount=1,ncount   !we only consider bzcase()==1 now
+       write(6,*)'do 3030 icount=',icount
        isp =ispc(icount)
        kx  =kxc(icount) !for W(kx), kx is irreducible
        irot=irotc(icount)
@@ -285,14 +281,13 @@ contains
        qk =  q - qbz_kr        
        ekq = readeval(qk, isp) 
        ekc(nctot+1:nctot+nband) = ekq (1:nband)
-       nt0 = count(ekc<ef) 
+       nt0  = count(ekc<ef) 
        nt0p = count(ekq<ef+ddw*esmr) +nctot 
        nt0m = count(ekq<ef-ddw*esmr) +nctot
        ntqxx = nbandmx(ip,isp) ! ntqxx is number of bands for <i|sigma|j>.
        zsec => zsecall(1:ntqxx,1:ntqxx,ip,isp)
        wtt = wk(kr)
        if(eibz4sig()) wtt=wtt*nrkip(isp,kx,irot,ip)
-
        !! Get zmel(ib,itpp,it) = <M(qbz_kr,ib) phi(itpp,q-qbz_kr) |phi(q(ip),it)> , qbz_kr= irot(qibz_k)
        if(kxold/=kx) then
           call Readvcoud(qibz_k,kx,NoVcou=.false.) !Readin ngc,ngb,vcousq ! Coulomb matrix
@@ -301,42 +296,35 @@ contains
           kxold =kx
        endif
        if(exchange) then
-          nbmax = nt0p-nctot
+          nstate = nt0p
        else
-          ebmx=1d10  !this is needed probably because to fill 1d99 for ekc(i) above boundary.
-          nbmxe = count(ekc<ebmx)-nctot !nocc (ekc,ebmx,nstatetot)-nctot!
-          nbmax  = min(nband,nbmxe)
+          nstate = nstateMAX(icount) ! for the case of correlation
        endif
-       nstate = nctot + nbmax ! = nstate for the case of correlation
        !! zmelc zmel         
-       if(mod(icount,nccc)==0)  write(6,"('sxcf: isp kx ip',i2,2i4,&
-            &    ' icount/ncount ntqxx nstate ngb=',12i5)") isp,kx,ip,icount,ncount,ntqxx,nstate,ngb
-       call Get_zmel_init(q,qibz_k,irot,qbz_kr,isp, nbmax,ntqxx,nctot,ncc=0,iprx=debug)
-
-       !---------
+       if(mod(icount,nccc)==0)write(6,ftox)'sxcf: isp kx ip',isp,kx,ip,&
+            ' icount,ncount ntqxx nstate ngb=',icount,ncount,ntqxx,nstate,ngb
+       call Get_zmel_init(q,qibz_k,irot,qbz_kr,isp, nstate-nctot,ntqxx,nctot,ncc=0,iprx=debug)
        ExchangeSelfEnergy: Block
          real(8):: wfacx
          if(exchange) then      
-            allocate(vcoud_(ngb),wtff(nctot+nbmax),w3p(nctot+nbmax)) 
+            allocate(vcoud_(ngb),wtff(nstate),w3p(nstate)) 
             vcoud_= vcoud
             if(kx == iqini) vcoud_(1) = wklm(1)* fpi*sqrt(fpi) /wk(kx)
             !voud_(1) is effective v(q=0) averaged in the Gamma cell.
-            wtff= [(wfacx(-1d99, ef, ekc(it), esmr),it=1,nctot+nbmax)]
+            wtff= [(wfacx(-1d99, ef, ekc(it), esmr),it=1,nstate)]
             do itpp= lbound(zsec,2),ubound(zsec,2)
                do itp = lbound(zsec,1),ubound(zsec,1)
-                  w3p =[(sum(dconjg(zmel(:,it,itp)) * vcoud_(:)* zmel(:,it,itpp)),it=1,nctot+nbmax)]
-                  w3p(nctot+1:nctot+nbmax) = w3p(nctot+1:nctot+nbmax) * wtff(nctot+1:nctot+nbmax)
+                  w3p =[(sum(dconjg(zmel(:,it,itp)) * vcoud_(:)* zmel(:,it,itpp)),it=1,nstate)]
+                  w3p(nctot+1:nstate) = w3p(nctot+1:nstate) * wtff(nctot+1:nstate)
                   if(corehole) w3p(1:nctot) = w3p(1:nctot) * wcorehole(1:nctot,isp) 
                   zsec(itp,itpp) = zsec(itp,itpp) - wtt * sum( w3p(:) )
                enddo
             enddo
-            deallocate(vcoud_,wtff,w3p)!,zmelc)
-            cycle               
+            deallocate(vcoud_,wtff,w3p)
+            if(timemix) call timeshow("ExchangeSelfEnergy cycle")
+            cycle  !end of exchange mode             
          endif                  ! end of if(exchange)
        EndBlock ExchangeSelfEnergy
-
-       if(timemix) call timeshow("33333 k-cycle")
-
        !     ! Integration along imag axis for zwz(omega) for given it,itp,itpp
        !     ! itp  : left-hand end of expternal band index.
        !     ! itpp : right-hand end of expternal band index.
@@ -350,6 +338,7 @@ contains
          allocate(zmelc(1:ntqxx,1:nstate,1:ngb))
          forall(itp=1:ntqxx) zmelc(itp,:,:)=transpose(dconjg(zmel(:,:,itp))) 
          !-----
+         if(timemix) call timeshow(" CorrelationSelfEnergyImagAxis:")
          CorrelationSelfEnergyImagAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
            real(8):: esmrx(nstate),omegat(ntqxx),wgtim(0:npm*niw,ntqxx,nstate)
            complex(8),target:: zw(nblochpmx,nblochpmx),zwz(nstate,ntqxx,ntqxx)
@@ -375,6 +364,7 @@ contains
            enddo iwimag
          EndBlock CorrelationSelfEnergyImagAxis
          !---------
+         if(timemix) call timeshow(" CorrelationSelfEnergyRealAxis:")
          CorrelationSelfEnergyRealAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
            real(8):: we_(nt_max,ntqxx),wfac_(nt_max,ntqxx)
            integer:: ixss(nt_max,ntqxx),iirx(ntqxx)
@@ -384,6 +374,7 @@ contains
            call weightset4intreal(nctot,esmr,omega,ekc,freq_r,nw_i,nw,&
                 ntqxx,nt0m,nt0p,ef,nwx,nwxi,nt_max,wfaccut,wtt,&
                 we_,wfac_,ixss,ititpskip,iirx)
+           if(timemix) call timeshow(" CorrR2:")
            CorrR2:Block
              real(8):: wgt3(0:2,nt_max,ntqxx)    ! 3-point interpolation weight for we_(it,itp) 
              complex(8)::zadd(ntqxx),wv33(ngb,ngb) ! ixss is starting index of omega
@@ -407,7 +398,7 @@ contains
              do ix = nwxi,nwx 
                 do itp=lbound(zsec,1),ubound(zsec,1)
                    nit_(itp,ix)=count([((.not.ititpskip(it,itp)).and.iwgt3(it,itp)==ix,it=1,nt_max)])
-                   if(nit_(itp,ix)/=0)write(6,"('icou ix itp ncou/nall=',10i5)")icount,ix,itp,nit_(itp,ix),ntqxx*nt_max
+                   if(nit_(itp,ix)/=0)write(6,ftox)'icou ix itp ncou/nall=',icount,ix,itp,nit_(itp,ix),ntqxx*nt_max
                 enddo
              enddo
              ncoumx=maxval(nit_)
@@ -451,16 +442,15 @@ contains
              enddo
            Endblock CorrR2
          EndBlock CorrelationSelfEnergyRealAxis
-         !  zsec accumulated
+         if(timemix) call timeshow(" End of CorrelationSelfEnergyRealAxis:")
          call matma(zmelcww,[(transpose(zmel(:,:,itpp)),itpp=lbound(zmel,3),ubound(zmel,3))],zsec,&
-              size(zsec,1), size(zmelcww,2)*size(zmelcww,3), size(zsec,2))
+              size(zsec,1), size(zmelcww,2)*size(zmelcww,3), size(zsec,2)) !  zsec accumulated
        EndBlock zmelcww
        forall(itp=lbound(zsec,1):ubound(zsec,1)) zsec(itp,itp)=dreal(zsec(itp,itp))+img*min(dimag(zsec(itp,itp)),0d0) !enforce Imzsec<0
        call Deallocate_zmel()
        deallocate(zmelc)
-       if(verbose()>50) call timeshow("11after alagr3z iw,itp,it cycles")
-3030 enddo !continue
-
+       if(timemix) call timeshow("   end icount do 3030")
+3030 enddo icountloop 
   end subroutine sxcf_scz
 
 
