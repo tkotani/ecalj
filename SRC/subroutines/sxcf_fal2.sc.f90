@@ -236,9 +236,17 @@ contains
 1140         enddo 
 1120      enddo
 1130  enddo
+
+      
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!      
                      ! ndivide = 2 
-      nstateavl = 1000 ! nstateavl=max(sum(nstatemax)/(ncount*ndivide),1)
-                     ! size of average load of middle states (in G)
+      nstateavl = 10  ! nstateavl=max(sum(nstatemax)/(ncount*ndivide),1)
+      if(ixc==3) nstateavl= maxval(nstatemax)
+      ! size of average load of middle states (in G)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+      
       allocate(ndiv(ncount))
       ndiv = (nstatemax-1)/nstateavl + 1  !number of division for icount
       ndivmx = maxval(ndiv)
@@ -402,7 +410,7 @@ contains
                   w3p(ns1v:ns2) = w3p(ns1v:ns2) * wtff(ns1v:ns2)
                   if(corehole) then !not checked well
                      ns2c= min(ns2,nctot) !ns2c upper limit of core index of core+valence
-                     ns1c= min(ns1,nctot) !ns1c lower limit of core index of core+valence
+                     ns1c= ns1 !ns1c lower limit of core index of core+valence
                      w3p(ns1c:ns2c) = w3p(ns1c:ns2c) * wcorehole(ns1c:ns2c,isp)
                   endif   
                   zsec(itp,itpp) = zsec(itp,itpp) - wtt * sum( w3p(:) )

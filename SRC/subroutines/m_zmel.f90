@@ -343,7 +343,7 @@ contains
       nadd = nint(matmul(qlatinv,qdiff)) !nadd: difference in the unit of reciprocal lattice vectors.
       call melpln2t(ngp1, ngvecpB1 &
            ,  ngp2, ngvecpB2,   ngc,  nadd, &
-!??????????? ok???
+! bugfix (probably affects to interband,intraband dielectric function cases?) 2022-8-28
 !           geig1(1:ngp1,nqini-1+itq(1:ntp0)), ntp0,& ! &  q1=(shifted q) ->iq ngp1 1:ntp0 q-point
 !           geig2(1:ngp2,1:nt0), nt0, &! &  q2=(shifted q-rk) -> kp ngp2 1:nt0  occupied
            geig1(1:ngp1, itq(nqini:nqmax)),ntp0,& ! &  q1=(shifted q) ->iq ngp1 1:ntp0 q-point
