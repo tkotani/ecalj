@@ -317,10 +317,8 @@ contains
       if(ncc>0 .OR. nctot>0) then
          call psicb_v3  ( nctot,ncc,nmmax,nqmax,iclass,expikt, &
               cphim(1,nmini), & ! & middle phi
-         cphiq(1,nqini),  &! & end phi
-         ppb,&! & ppb,
-         nblocha, &! & mdim,
-         imdim,iatomp, &
+              cphiq(1,nqini), &! & end phi
+              ppb,  nblocha, imdim,iatomp, &
               mdimx,nlmto,nbloch,nlnmx,natom,nclass, &
               icore,ncore,nl,nnc, &
               zmelt(1:nbloch,:,:))
@@ -328,11 +326,9 @@ contains
       !! MTO Valence part
       if(nmmax*nqmax>0) then      ! val num of nm  ! val num of nq
          call psi2b_v3( nctot,ncc, nmmax-nmini+1,   nqmax-nqini+1, iclass,expikt, &
-         cphim(1,nmini), &
+              cphim(1,nmini), &
               cphiq(1,nqini), &
-              ppb,&! &  ppb,
-         nblocha, &! & mdim,
-         imdim,iatomp, &
+              ppb, nblocha, imdim,iatomp, &
               mdimx,nlmto,nbloch,nlnmx, natom,nclass, &
               zmelt(1:nbloch,:,:))
       endif
@@ -347,10 +343,12 @@ contains
       nadd = nint(matmul(qlatinv,qdiff)) !nadd: difference in the unit of reciprocal lattice vectors.
       call melpln2t(ngp1, ngvecpB1 &
            ,  ngp2, ngvecpB2,   ngc,  nadd, &
-           geig1(1:ngp1,nqini-1+itq(1:ntp0)), ntp0,& ! &  q1=(shifted q) ->iq ngp1 1:ntp0 q-point
-           geig2(1:ngp2,1:nt0), nt0, &! &  q2=(shifted q-rk) -> kp ngp2 1:nt0  occupied
-           shtv, matmul(symope,kvec),kvec, symope, qlat, &
-           qt, &
+!??????????? ok???
+!           geig1(1:ngp1,nqini-1+itq(1:ntp0)), ntp0,& ! &  q1=(shifted q) ->iq ngp1 1:ntp0 q-point
+!           geig2(1:ngp2,1:nt0), nt0, &! &  q2=(shifted q-rk) -> kp ngp2 1:nt0  occupied
+           geig1(1:ngp1, itq(nqini:nqmax)),ntp0,& ! &  q1=(shifted q) ->iq ngp1 1:ntp0 q-point
+           geig2(1:ngp2,     nmini:nmmax), nt0, & ! &  q2=(shifted q-rk) -> kp ngp2 1:nt0  occupied
+           shtv, matmul(symope,kvec),kvec, symope, qlat, qt, &
            zmelt(nbloch+1:nbloch+ngc,nctot+1:nctot+nt0,ncc+1:ncc+ntp0))
       nbb=ngb
       if(nbbx/=0) nbb=nbbx
