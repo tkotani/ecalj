@@ -236,16 +236,13 @@ contains
 1140         enddo 
 1120      enddo
 1130  enddo
-
       
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!      
                      ! ndivide = 2 
-      nstateavl = 10  ! nstateavl=max(sum(nstatemax)/(ncount*ndivide),1)
+      nstateavl = 16  ! nstateavl=max(sum(nstatemax)/(ncount*ndivide),1)
       if(ixc==3) nstateavl= maxval(nstatemax)
       ! size of average load of middle states (in G)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
       
       allocate(ndiv(ncount))
       ndiv = (nstatemax-1)/nstateavl + 1  !number of division for icount
@@ -258,14 +255,14 @@ contains
          nrem = nnn - ndiv(icount)*nloadav !remnant count
          nload(1:nrem) = nloadav+1
          nload(nrem+1:ndiv(icount)) = nloadav !write(6,ftox)'nload=',nload(1:ndiv(icount))
-         nstatei(:,icount)= [(sum(nload(1:idiv-1))+1,idiv=1,ndiv(icount))] !init for icount
-         nstatee(:,icount)= [(sum(nload(1:idiv)),    idiv=1,ndiv(icount))] !end
+         nstatei(:,icount)= [(sum(nload(1:idiv-1))+1,idiv=1,ndiv(icount))]!init index for(idiv,icount)
+         nstatee(:,icount)= [(sum(nload(1:idiv)),    idiv=1,ndiv(icount))]!end  index
       enddo
-      do icount=1,ncount
-      do j=1,ndiv(icount)
-        write(6,ftox)'nnnx icou ndiv=',icount,j,nstatei(j,icount),nstatee(j,icount),nstatemax(icount)
-      enddo
-      enddo
+!      do icount=1,ncount
+!      do j=1,ndiv(icount)
+!        write(6,ftox)'nnnx icou ndiv=',icount,j,nstatei(j,icount),nstatee(j,icount),nstatemax(icount)
+!      enddo
+!      enddo
       deallocate(nload,nstatemax)
     EndBlock PreIcountBlock
 
@@ -290,7 +287,7 @@ contains
                   kr = irkip(isp,kx,irot,ip) ! index for rotated kr in the FBZ
                   if(kr==0) cycle
                   icount0=icount0+1
-                  do idiv=1,ndiv(icount0)
+                  do idiv=1,ndiv(icount0) !icount loop have further division by ndiv
                      icount=icount+1
                      nstti(icount)=nstatei(idiv,icount0) ![nstti,nstte] specify range of int. states.
                      nstte(icount)=nstatee(idiv,icount0) !
@@ -311,7 +308,7 @@ contains
                      nt0p = count(ekq<ef+ddw*esmr) +nctot 
                      nt0m = count(ekq<ef-ddw*esmr) +nctot
                      ntqxx = nbandmx(ip,isp) ! ntqxx is number of bands for <i|sigma|j>.
-                     write(6,*) icount, ispc(icount),kxc(icount),' irot ',irot,ip,kr
+                     !write(6,*) icount, ispc(icount),kxc(icount),' irot ',irot,ip,kr
                      if(exchange) then
                         nstateMax(icount) = nt0p
                      else   
@@ -348,7 +345,7 @@ contains
 !    
     if(nctot/=0) ekc(1:nctot)= ecore(1:nctot,isp) ! core
     kxold=-9999
-    nccc= max(ncount/50,1) !just for printing
+    !nccc= max(ncount/50,1) !just for printing
     MAINicountloop: do 3030 icount=1,ncount   !we only consider bzcase()==1 now
        !write(6,*)'do 3030 icount=',icount
        isp =ispc(icount)
@@ -386,8 +383,7 @@ contains
        !nstate_e= nstateec(icount)
        ns1=nstti(icount)
        ns2=nstte(icount)
-       write(6,ftox)'do3030:isp kx ip',isp,kx,ip,'icou/ncou=',icount,ncount,'ntqxx ns1 ns2=',ntqxx,ns1,ns2!,nctot
-       
+       write(6,ftox)'do3030:isp kx ip',isp,kx,ip,'icou/ncou=',icount,ncount,'ns1:ns2=',ns1,ns2
        !! zmelc zmel         
        ! if(mod(icount,nccc)==0)
        call get_zmel_modex0(ns1,1,isp,isp) !set lower bound of middle state
@@ -435,7 +431,7 @@ contains
          forall(itp=1:ntqxx) zmelc(itp,:,:)=transpose(dconjg(zmel(:,:,itp))) 
          !-----
          if(timemix) call timeshow(" CorrelationSelfEnergyImagAxis:")
-         print *,'ns1ns2=',ns1,ns2,ntqxx
+         !print *,'ns1ns2=',ns1,ns2,ntqxx
          CorrelationSelfEnergyImagAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
            real(8):: esmrx(nstate)
            real(8):: omegat(ntqxx)
