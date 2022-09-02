@@ -223,17 +223,23 @@ program h_uumatrix
 
   ! read EF from 'BNDS' if exists
   if (ixc == 5 .OR. ixc == 6) then
-     lbnds=.false.
-     inquire(file='BNDS',exist=lbnds)
-     if (lbnds) then
-        write(*,*)'Read EF from BNDS'
-        if99=ifile_handle()
-        open(if99,file='BNDS',status='old')
-        read(if99,*)ntmp,ef
-        close(if99)
-     else ! lbnds
-        call RSMPI_Stop( ' huumat_MPI: Cannot find BNDS')
-     endif ! lbnds
+     block
+       integer:: ifi
+       open(newunit=ifi,file='efermi.lmf')
+       read(ifi,*) ef
+       close(ifi)
+     endblock
+     ! lbnds=.false.
+     ! inquire(file='BNDS',exist=lbnds)
+     ! if (lbnds) then
+     !    write(*,*)'Read EF from BNDS'
+     !    if99=ifile_handle()
+     !    open(if99,file='BNDS',status='old')
+     !    read(if99,*)ntmp,ef
+     !    close(if99)
+     ! else ! lbnds
+     !    call RSMPI_Stop( ' huumat_MPI: Cannot find BNDS')
+     ! endif ! lbnds
   endif ! ixc
 
 !!!! WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!

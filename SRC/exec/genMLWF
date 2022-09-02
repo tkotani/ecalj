@@ -16,7 +16,7 @@ MATERIAL=$1
 MPI_SIZE=$3
 NO_MPI=0
 ### end of processing input arguments ###
-if [ ! -e bnds.$1 ];then 
+if [ ! -e bnd001.spin1 ];then 
     $echo_run echo "!!! Perform job_band in advance!" 
     exit
 fi
@@ -27,9 +27,9 @@ source $nfpgw/run_arg
 
 ######## start here ##########
 $echo_run echo "### START genMLWF: MPI size= " $MPI_SIZE, "MATERIAL= "$MATERIAL
-rm -f SYML BNDS
+rm -f SYML 
 ln -s syml.${MATERIAL} SYML
-ln -s bnds.${MATERIAL} BNDS
+#ln -s bnds.${MATERIAL} BNDS
 ## Make softlink from sigm --> simg.$MATERIAL.
 ## If sigm and sigm.$MATERIAL coexist, sigm.$MATERIAL is moved to sigm.$MATERIAL.backup in advance.
 if [ -e sigm ]; then 

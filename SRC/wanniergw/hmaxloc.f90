@@ -134,7 +134,7 @@ program hmaxloc
   logical :: leout,lein,lbin,lq0p,lsyml,lbnds
   logical :: debug=.false.
 
-  integer(4):: nlinex,ntmp
+  integer(4):: nlinex!,ntmp
   parameter (nlinex=100)
   integer(4)::nline,np(nlinex)
   real(8):: qi(3,nlinex),qf(3,nlinex)
@@ -328,17 +328,23 @@ program hmaxloc
   !      if (nspin==2) ifev(2) = iopen('EVD', 0,0,mrece)
 
   ! read EF from 'BNDS' if exists
-  lbnds=.false.
-  inquire(file='BNDS',exist=lbnds)
-  if (lbnds) then
-     write(*,*)'Read EF from BNDS'
-     ifh=ifile_handle()
-     open(ifh,file='BNDS',status='old')
-     read(ifh,*)ntmp,ef
-     close(ifh)
-  else ! lbnds
-     call rx('you have to perform job_band in advance')
-  endif
+  block
+  integer:: ifi
+  open(newunit=ifi,file='efermi.lmf')
+  read(ifi,*) ef
+  close(ifi)
+  endblock
+  ! lbnds=.false.
+  ! inquire(file='BNDS',exist=lbnds)
+  ! if (lbnds) then
+  !    write(*,*)'Read EF from BNDS'
+  !    ifh=ifile_handle()
+  !    open(ifh,file='BNDS',status='old')
+  !    read(ifh,*)ntmp,ef
+  !    close(ifh)
+  ! else ! lbnds
+  !    call rx('you have to perform job_band in advance')
+  ! endif
   !$$$c --- determine Fermi energy ef for given valn (legas case) or corresponding charge given by z and konf.
   !$$$! When esmr is negative, esmr is geven automatically by efsimplef.
   !$$$        write(*,*)'Calculate EF in efsimplef2a'
