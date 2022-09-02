@@ -87,25 +87,24 @@ contains
        !     nspx*nspc=nsp
        if(master_mpi)write(stdo,ftox)'suham: PW basis Emin Emax',ftof([pwemin,pwemax],3),'npw ndham',npw,ndham
        !    ...  Printout
-       if (iprint() >= 40) then
-          call pshpr(0)
-          call dpzero(q,3)
-          call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx, &
-               xx,xx,xx)
-          call poppr
-          write(stdo,*)' G vectors at the Gamma point:'
-          allocate(igv2_iv(3*npw))
-          allocate(kv_iv(3*npw))
-          allocate(rv_a_ogvx(abs(3*npw))); rv_a_ogvx(:)=0.0d0
-          !          call pshpr(iprint())
-          !          if (iprint() .ge. 50) call setpr(100)
-          call gvlst2 ( alat , plat , q , 0 , 0 , 0 , gmin , gmax , 0 , &
-               8 + 2 , npw , npw , kv_iv , rv_a_ogvx , xx , igv2_iv )
-          !          call poppr
-          if (allocated(kv_iv)) deallocate(kv_iv)
-          if (allocated(igv2_iv)) deallocate(igv2_iv)
-          deallocate(rv_a_ogvx)
-       endif
+       ! if (iprint() >= 40) then
+       !    call pshpr(0)
+       !    call dpzero(q,3)
+       !    call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,xx,xx,xx)
+       !    call poppr
+       !    write(stdo,*)' G vectors at the Gamma point:'
+       !    allocate(igv2_iv(3*npw))
+       !    allocate(kv_iv(3*npw))
+       !    allocate(rv_a_ogvx(abs(3*npw))); rv_a_ogvx(:)=0.0d0
+       !    !          call pshpr(iprint())
+       !    !          if (iprint() .ge. 50) call setpr(100)
+       !    call gvlst2 ( alat , plat , q , 0 , 0 , 0 , gmin , gmax , 0 , &
+       !         8 + 2 , npw , npw , kv_iv , rv_a_ogvx , xx , igv2_iv )
+       !    !          call poppr
+       !    if (allocated(kv_iv)) deallocate(kv_iv)
+       !    if (allocated(igv2_iv)) deallocate(igv2_iv)
+       !    deallocate(rv_a_ogvx)
+       ! endif
     endif
     if(nspc==2 .AND. nsp==2) then
        !         spinoffdiag=.true.
