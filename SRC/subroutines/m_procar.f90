@@ -65,7 +65,7 @@ contains
          "                                                                                 tot"
     write(iprocar,*)
     write(iprocar,*)
-    write(iprocar,"('k-point ',i4,' :    ',3f11.8,'     weight = -------  : x =',f15.8)")iq,qp,xdatt(iq)
+    write(iprocar,"('k-point ',i4,' :    ',3f13.8,'     weight = -------  : x =',f15.8)")iq,qp,xdatt(iq)
     write(iprocar,*)
     do iband = 1, nev
        write(iprocar,*)

@@ -177,7 +177,7 @@ contains
     real(8),allocatable:: qtt_(:,:),qtti_(:,:)
     write(6,*) 'init_readeigen:'
     if(nsp<0 .OR. nsp>2) call rx( 'init_reaeigen:nsp wrong')
-    write(*,*)'nqi=',nqi!,nqnum
+    !write(*,*)'nqi=',nqi!,nqnum
     call init_iqindx_qtt()
     ifiqg  = ifile_handle()
     open(ifiqg ,file='QGpsi',form='unformatted')

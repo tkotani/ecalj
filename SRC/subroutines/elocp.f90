@@ -63,9 +63,7 @@ contains
 199 format(/' elocp:')
     ! --- Determine shape of smooth Hankel tails for local orbitals ---
     allocate(ips_iv(nbas))
-    do ib=1,nbas
-       ips_iv(ib)=ispec(ib)
-    enddo
+    ips_iv=ispec
     ! ... Loop over species containing extended local orbitals
     do  is = 1, nspec
        spid=slabl(is) !sspec(is)%name

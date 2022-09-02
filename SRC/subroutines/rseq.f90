@@ -1,5 +1,4 @@
-subroutine rseq(eb1,eb2,e,tol,z,l,nod,val,slo,v,g,q,a,b,rofi,nr, &
-     nre)
+subroutine rseq(eb1,eb2,e,tol,z,l,nod,val,slo,v,g,q,a,b,rofi,nr,nre)
   !- Solves radial wave equation for given BCs and number of nodes
   ! ----------------------------------------------------------------------
   !i Inputs:
