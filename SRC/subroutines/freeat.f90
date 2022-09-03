@@ -421,16 +421,16 @@ contains
 
     ! --- Print info about free-atom wavefunctions ---
     if (lwf /= 0) then
-       if (ipr > 30) then
+!       if (ipr > 30) then
           allocate(g_rv(nr*2))
           allocate(psi_rv(nr*(lmxa+1)*nsp))
           lplawv = 0
           if (ipr >= 50) lplawv = 1
-          call pratfs ( spid , lplawv , z , a , nr , rmax , nrmt , lmxa &
+          call pratfs (is, spid , lplawv , z , a , nr , rmax , nrmt , lmxa &
                , pl , nsp , v , rofi , g_rv , psi_rv, plplus,qlplus,ifiwv)
           deallocate(psi_rv)
           deallocate(g_rv)
-       endif
+!       endif
 
        ! --- Optimise smooth-Hankel basis ---
        call dvset(rtab,1,n0,-1d0)
@@ -515,8 +515,7 @@ contains
   end subroutine freats
 
 
-  subroutine pratfs(spid,lplawv,z,a,nr,rmax,nrmt,lmaxa,pl,nsp,v, &
-       rofi,g,psi,plplus,qlplus,ifiwv)
+  subroutine pratfs(is,spid,lplawv,z,a,nr,rmax,nrmt,lmaxa,pl,nsp,v,rofi,g,psi,plplus,qlplus,ifiwv)
     use m_ext,only:sname
     !- Prints out core and valence energy levels of free-atom
     ! ----------------------------------------------------------------------
@@ -540,7 +539,6 @@ contains
     !u Updates
     ! ----------------------------------------------------------------------
     implicit none
-    ! ... Passed parameters
     integer :: n0,nr,lmaxa,nrmt,lplawv,nsp
     parameter (n0=10)
     double precision :: z,a,rmax,pl(n0,nsp),v(nr,nsp),rofi(nr), &
@@ -554,12 +552,14 @@ contains
     character:: spid*8
     character(15)::  str
     data lsym /'s','p','d','f','g','5','6','7','8','9'/
-    integer::iz,ifiwv
+    integer::iz,ifiwv,ifipnu,is
+    real(8):: pnu
     !! feb2011 "plplus,qlplus" mechanism is a fixing. Previous version did not allow SPEC_ATOM_Q setting for l with PZ.
     !! Now, the "plplus,qlplus" mechanism allows to set Q (valence charge, not including semicore charge).
     !! Our current version assumes MTOcore(specified by PZ) is below MTO(specified by P).
     real(8):: plplus(0:lmaxa,nsp),qlplus(0:lmaxa,nsp)
     real(8):: sumr !mar2013
+    character(8):: charext
     pi   = 4d0*datan(1d0)
     if (lmaxa > n0-1) call rx('pratfs:  lmax too large')
     b = rmax/(dexp(a*nr-a)-1d0)
@@ -567,10 +567,9 @@ contains
     tol = 1d-8
     write(stdo,580)
 580 format(/' Free-atom wavefunctions:')
-
     !      allocate(qinrmt(0:lmxa),
-
     if(ifiwv>0) write(ifiwv,"(i2,i3,' !nsp,lmaxa')")nsp,lmaxa
+    open(newunit=ifipnu,file='atmpnu.'//trim(charext(is))//'.'//trim(sname))
     do  80  isp = 1, nsp
        ! --- Valence states ---
        if (isp == 1) write(stdo,401)
@@ -595,16 +594,29 @@ contains
                   rofi,nr,nre)
              call gintsl(g,g,a,b,nr,rofi,sum)
              call gintsl(g,g,a,b,nrmt,rofi,pmax)
+             block
+               real(8)::g1,g2,g3,g4,g5,drdi,valu,slou,du,dphi
+               g1 = g(nrmt-2)
+               g2 = g(nrmt-1)
+               g3 = g(nrmt)
+               g4 = g(nrmt+1)
+               g5 = g(nrmt+2)
+               drdi = a*(rmt+b)
+               valu = g3
+               slou = (-2*g5+16*g4-16*g2+2*g1)/(24d0*drdi)
+               du   = rmt*slou/valu
+               dphi = du-1
+               pnu  = nn+l+1 + (0.5d0-datan(dphi)/pi)
+             endblock
              sum = sum - pmax
              sumr=pmax
-
              call ppratf(ev(l),z,nr,nre,rofi,a,b,v(1,isp),g,pzero,pmax,ctp)
              cc = ' '
              if (dabs(ctp-rmax) < 1d-3) cc = '*'
-             write(stdo,400) konfig,lsym(l),ev(l),pzero,pmax,ctp,cc,sum
-400          format(i4,a1,f14.5,2x,3f12.3,a,f12.6)
-401          format(' valence:',6x,'eval',7x,'node at',6x,'max at',7x, &
-                  'c.t.p.   rho(r>rmt)')
+             write(stdo,400) konfig,lsym(l),ev(l),pzero,pmax,ctp,cc,sum,pnu
+             write(ifipnu,"(f23.16,i4,x,i4,a1,f14.5)") pnu,l,konfig,lsym(l),ev(l)
+400          format(i4,a1,f14.5,2x,3f12.3,a,f12.6,f12.3)
+401          format(' valence:',6x,'eval',7x,'node at',6x,'max at',7x,'c.t.p.   rho(r>rmt)       pnu')
              if(ifiwv>0) write(ifiwv,"(i2,i3,i3,d23.15,d23.15,' !isp,l,eval,last is norm within MT')") isp,l,konfig,ev(l),sumr
              !   ... Copy valence wavefunction to psi
              do  24  i = 1, nr
@@ -612,13 +624,11 @@ contains
 24           enddo
 20        enddo
 201    enddo
-
        ! --- Core states ---
        write(stdo,403)
        eb1 = -2.5d0*z*z-5d0
        eb2 = 50d0
        call config(pl,lmaxa,z,konfg,lmaxc)
-
        do  4011  konf = 1, 8
           do  40  l = 0, min(konf-1,lmaxc)
              konfig = konfg(l)
@@ -627,27 +637,23 @@ contains
              ecor = -50d0
              val = 1d-30
              slo = -val
-             call rseq(eb1,eb2,ecor,tol,z,l,nn,val,slo,v(1,isp),g,sum,a,b,rofi, &
-                  nr,nre)
+             call rseq(eb1,eb2,ecor,tol,z,l,nn,val,slo,v(1,isp),g,sum,a,b,rofi,nr,nre)
              call gintsl(g,g,a,b,nr,rofi,sum)
              call gintsl(g,g,a,b,nrmt,rofi,pmax)
              sum = sum - pmax
              call ppratf(ecor,z,nr,nre,rofi,a,b,v(1,isp),g,pzero,pmax,ctp)
-             write(stdo,400) konf,lsym(l),ecor,pzero,pmax,ctp,' ',sum
-403          format(/' core:        ecore',7x,'node at',6x,'max at', &
-                  7x,'c.t.p.   rho(r>rmt)')
+             write(stdo,400) konf,lsym(l),ecor,pzero,pmax,ctp,' ',sum 
+403          format(/' core:        ecore',7x,'node at',6x,'max at',7x,'c.t.p.   rho(r>rmt)')
 40        enddo
 4011   enddo
-
 80  enddo
+    close(ifipnu)
     if(ifiwv>0) write(ifiwv,"('9 9 9 9 9 --------! this is terminator for an atom section')")
-
     ! --- Write file with valence wavefunctions
     if (lplawv == 1) then
        write (str,'(''wf_'',a)') spid
        write (stdo,344) str
 344    format(/' Write valence wavefunctions to plot file: ',a)
-       !        ifi = fopna(str,-1,0)
        open(newunit=ifi,file=trim(str)//'.'//trim(sname))
        write (ifi,490) spid,rmax,rmt,nr,lmaxa,nr,1+nsp*(lmaxa+1)
 490    format('# Free-atom wavefunctions (divided by r) for species ', &
@@ -739,8 +745,7 @@ contains
   end subroutine ppratf
 
 
-  subroutine optfab(isw,z,a,nr,rmax,nrmt,rmt,lmxa,pl,ql,nsp,v,rofi, &
-       spid,itab,rtab,etab)
+  subroutine optfab(isw,z,a,nr,rmax,nrmt,rmt,lmxa,pl,ql,nsp,v,rofi, spid,itab,rtab,etab)
     use m_ftox
     !- Optimise a minimal smooth-Hankel basis for the free atom.
     ! ----------------------------------------------------------------------
@@ -793,8 +798,7 @@ contains
     if (lmxa > 8) call rx('optfab:  lmax too large')
     b = rmax/(dexp(a*nr-a)-1d0)
     do  80  isp = 1, nsp
-       if(ipr>=20) write(stdo,ftox) &
-            ' Optimise free-atom basis for species '//spid, 'Rmt=',ftof(rmt)
+       if(ipr>=20) write(stdo,ftox)' Optimise free-atom basis for species '//spid, 'Rmt=',ftof(rmt)
        allocate(h_rv(nr))
        allocate(g_rv(2*nr))
        allocate(gp_rv(2*nr*4))
@@ -833,16 +837,12 @@ contains
           nn = konfig-l-1
           qvl = ql(1,l+1,isp)
           !   ... Get exact fa wavefunction, eigval, pnu at rmt
-          call popta3 ( 0 , l , z , nn , rmt , nr , nrmt , rofi , v ( 1 &
-               , isp ) , a , b , eval , pnu , g_rv )
-
-          if (eval > 0d0) goto 10
+          call popta3 ( 0,l,z,nn,rmt,nr,nrmt,rofi, v ( 1, isp ),a,b,eval,pnu,g_rv )
+          if (eval > 0d0) cycle !goto 10
           sume1 = sume1 + qvl*eval
           !   ... Potential parameters at MT sphere
-          call popta4 ( l , z , rmt , nrmt , rofi , v ( 1 , isp ) , g_rv &
-               , gp_rv , a , b , pnu , enu , p , phi , dphi , phip , dphip &
-               )
-
+          call popta4 ( l,z,rmt,nrmt,rofi,v ( 1,isp ),g_rv &
+              ,gp_rv,a,b,pnu,enu,p,phi,dphi,phip,dphip )
           !          rsm = rmt
           rsm = rmt*.5
           eh = -1
@@ -852,19 +852,19 @@ contains
           do  12  irep = 1, 50
              nrep = irep
              !     ... Get center energy
-             call popta1 ( rsm , eh , l , z , rmt , nr , nrmt , rofi , h_rv &
-                  , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip , dphip &
-                  , e2 , qrmt )
+             call popta1 ( rsm,eh,l,z,rmt,nr,nrmt,rofi,h_rv &
+                 ,v ( 1,isp ),a,b,enu,p,phi,dphi,phip,dphip &
+                 ,e2,qrmt )
              !            print *,' ttt center e=',irep,eh,e2
              !     ... Vary rsm
              !            drsm = drsm0
-             !            call popta1 ( rsm + drsm , eh , l , z , rmt , nr , nrmt , rofi
-             !     .      , h_rv , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip
-             !     .      , dphip , e3 , qrmt )
+             !            call popta1 ( rsm + drsm,eh,l,z,rmt,nr,nrmt,rofi
+             !     .     ,h_rv,v ( 1,isp ),a,b,enu,p,phi,dphi,phip
+             !     .     ,dphip,e3,qrmt )
 
-             !            call popta1 ( rsm - drsm , eh , l , z , rmt , nr , nrmt , rofi
-             !     .      , h_rv , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip
-             !     .      , dphip , e1 , qrmt )
+             !            call popta1 ( rsm - drsm,eh,l,z,rmt,nr,nrmt,rofi
+             !     .     ,h_rv,v ( 1,isp ),a,b,enu,p,phi,dphi,phip
+             !     .     ,dphip,e1,qrmt )
 
              !            call popta2(l,rsm,eh,drsm,e1,e2,e3,rlim1,rlim2,raddx,rnew,
              !     .      stifr,jpr)
@@ -872,12 +872,12 @@ contains
              !     ... Vary eh
              deh = deh0
              !         if (eh+deh.gt.-0.01d0) deh=-eh-0.01d0
-             call popta1 ( rsm , eh + deh , l , z , rmt , nr , nrmt , rofi &
-                  , h_rv , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip &
-                  , dphip , e3 , qrmt )
-             call popta1 ( rsm , eh - deh , l , z , rmt , nr , nrmt , rofi &
-                  , h_rv , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip &
-                  , dphip , e1 , qrmt )
+             call popta1 ( rsm,eh + deh,l,z,rmt,nr,nrmt,rofi &
+                 ,h_rv,v ( 1,isp ),a,b,enu,p,phi,dphi,phip &
+                 ,dphip,e3,qrmt )
+             call popta1 ( rsm,eh - deh,l,z,rmt,nr,nrmt,rofi &
+                 ,h_rv,v ( 1,isp ),a,b,enu,p,phi,dphi,phip &
+                 ,dphip,e1,qrmt )
              call popta2(l,eh,rsm,deh,e1,e2,e3,elim1,elim2,eaddx,enew, &
                   stife,jpr)
              !            radd = rnew-rsm
@@ -892,11 +892,10 @@ contains
           !   ... End of iteration loop
 
           sume2 = sume2 + qvl*e2
-          if (ipr >= 20) &
+!          if (ipr >= 20) &
                write (stdo,260) l,nrep,rsm,eh,stifr,stife,e2,eval,pnu,qvl
 260       format(i2,i4,2f8.3,1x,2f9.1,1x,2f10.5,f8.2,f7.2)
-261       format(' l  it    Rsm      Eh     stiffR   stiffE', &
-               '      Eval      Exact     Pnu    Ql')
+261       format(' l  it    Rsm      Eh     stiffR   stiffE      Eval      Exact     Pnu    Ql')
           istifr = stifr+0.5d0
           istife = stife+0.5d0
           write (stdl,710) l,nrep,rsm,eh,istifr,istife,e2,eval,pnu,qvl
@@ -923,20 +922,20 @@ contains
                 nrep = irep
                 print *,' ttt2 center e=',e2
                 !     ... Get center energy
-                call popta1 ( rsm , eh , l , z , rmt , nr , nrmt , rofi , h_rv &
-                     , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip , dphip &
-                     , e2 , qrmt )
+                call popta1 ( rsm,eh,l,z,rmt,nr,nrmt,rofi,h_rv &
+                    ,v ( 1,isp ),a,b,enu,p,phi,dphi,phip,dphip &
+                    ,e2,qrmt )
 
                 !     ... Vary eh
                 deh = deh0
                 !         if (eh+deh.gt.-0.01d0) deh=-eh-0.01d0
-                call popta1 ( rsm , eh + deh , l , z , rmt , nr , nrmt , rofi &
-                     , h_rv , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip &
-                     , dphip , e3 , qrmt )
+                call popta1 ( rsm,eh + deh,l,z,rmt,nr,nrmt,rofi &
+                    ,h_rv,v ( 1,isp ),a,b,enu,p,phi,dphi,phip &
+                    ,dphip,e3,qrmt )
 
-                call popta1 ( rsm , eh - deh , l , z , rmt , nr , nrmt , rofi &
-                     , h_rv , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip &
-                     , dphip , e1 , qrmt )
+                call popta1 ( rsm,eh - deh,l,z,rmt,nr,nrmt,rofi &
+                    ,h_rv,v ( 1,isp ),a,b,enu,p,phi,dphi,phip &
+                    ,dphip,e1,qrmt )
 
                 call popta2(l,eh,rsm,deh,e1,e2,e3,elim1,elim2,eaddx,enew, &
                      stife,jpr)
@@ -983,8 +982,8 @@ contains
        if (nsp == 2) call rx('optfab is not spinpol yet')
        allocate(psi_rv(nr*lmxa))
 
-       call popta5 ( lmxa , rtab , etab , itab , z , pl , rmax , rmt &
-            , nr , nrmt , rofi , psi_rv , v , g_rv , a , b , spid )
+       call popta5 ( lmxa,rtab,etab,itab,z,pl,rmax,rmt &
+           ,nr,nrmt,rofi,psi_rv,v,g_rv,a,b,spid )
 
        if (allocated(psi_rv)) deallocate(psi_rv)
 
@@ -1043,8 +1042,8 @@ contains
     ! ... Local parameters
     logical :: cmdopt
     character spid*8, strn*80, flg(2)*1
-    integer:: ipr , iprint , i , konfig , l , info , nn &
-         , lplawv , loclo=-999 , nfit , isw
+    integer:: ipr,iprint,i,konfig,l,info,nn &
+        ,lplawv,loclo=-999,nfit,isw
     real(8) ,allocatable :: g_rv(:)
     real(8) ,allocatable :: gp_rv(:)
     real(8) ,allocatable :: h_rv(:)
@@ -1120,8 +1119,8 @@ contains
           !   ... Get exact fa wavefunction, eigval, pnu_l at rmt
           if (loclo == 1) then
              nn = konfig-l-1
-             call popta3 ( 0 , l , z , nn , rmt , nr , nrmt , rofi , v ( 1 &
-                  , i ) , a , b , eval , pnul , g_rv )
+             call popta3 ( 0,l,z,nn,rmt,nr,nrmt,rofi,v ( 1 &
+                 ,i ),a,b,eval,pnul,g_rv )
 
              !       Finish if in future, need w.f. at r>rmt
              !        else
@@ -1131,8 +1130,8 @@ contains
           pl(l+1,i) = pnul
 
           !   ... Potential parameters at MT sphere
-          call popta4 ( l , z , rmt , nrmt , rofi , v ( 1 , i ) , g_rv &
-               , gp_rv , a , b , pnul , eval , p , phi , dphi , phip , dphip &
+          call popta4 ( l,z,rmt,nrmt,rofi,v ( 1,i ),g_rv &
+              ,gp_rv,a,b,pnul,eval,p,phi,dphi,phip,dphip &
                )
 
 
@@ -1179,9 +1178,9 @@ contains
           endif
 
           !  ... Get energy of this wave function
-          call popta1 ( rsm , eh , l , z , rmt , nr , nrmt , rofi , h_rv &
-               , v ( 1 , i ) , a , b , eval , p , phi , dphi , phip , dphip &
-               , e2 , qrmt )
+          call popta1 ( rsm,eh,l,z,rmt,nr,nrmt,rofi,h_rv &
+              ,v ( 1,i ),a,b,eval,p,phi,dphi,phip,dphip &
+              ,e2,qrmt )
 
 
           if (ipr >= 20) &
@@ -1211,8 +1210,8 @@ contains
        if (nsp == 2) call rx('optfab is not spinpol yet')
        allocate(psi_rv(nr*lmxa))
 
-       call popta5 ( lmxa , rtab , etab , itab , z , pl , rmax , rmt &
-            , nr , nrmt , rofi , psi_rv , v , g_rv , a , b , spid )
+       call popta5 ( lmxa,rtab,etab,itab,z,pl,rmax,rmt &
+           ,nr,nrmt,rofi,psi_rv,v,g_rv,a,b,spid )
 
        deallocate(psi_rv)
 
@@ -1392,11 +1391,10 @@ contains
 
     if (jpr > 0) write (stdo,810)l,x0,y0,ee1,ee2,ee3,aa,een,xnew
 810 format(i3,f8.3,f8.3,f10.3,2f9.3,f9.1,f10.3,f8.3,a)
-
   end subroutine popta2
 
   subroutine popta3(mode,l,z,nn,rmt,nr,nrmt,rofi,v,a,b,evl,pnu,g)
-
+    use m_ftox
     !- Get exact fa wavefunction, eigval, pnu at Rmt.
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -1470,6 +1468,7 @@ contains
     d0l = l
     p0l = nn+l+1 + 0.5d0-datan(d0l)/pi
     p0l = nn+l+1 + 0.1d0
+!    write(6,ftox)' l pnu',l,ftof(pnu)
     if (pnu < p0l) then
        write (stdo,145) l,pnu,p0l
 145    format(' l=',i1,'  increase Pnu=',f8.3,'  to ',f8.3)
@@ -1644,8 +1643,7 @@ contains
     !      ifi = fopna(str,-1,0)
     open(newunit=ifi,file=trim(str)//'.'//trim(sname))
     write (ifi,490) spid,rmax,rmt,(ltab(i),i=1,n)
-490 format('# Free-atom opt basis (divided by r) for species ', &
-         a/'# rmax=',f7.3,'   rmt=',f7.3,'   l=',8i2)
+490 format('# Free-atom opt basis (divided by r) for species ',a/'# rmax=',f7.3,'   rmt=',f7.3,'   l=',8i2)
     write (ifi,'(''% rows '',i5,'' cols '',i3)') nr,n+1
     do  30  i = 1, nr
        write (ifi,495) rofi(i),(psi(i,m),m=1,n)

@@ -123,7 +123,6 @@ contains
     call tcx('elocp')
     if (allocated(ips_iv)) deallocate(ips_iv)
   end subroutine elocp
-
   subroutine loctsh(mode0,spid,z,a,nr,nrmt,nsp,lmxb,rofi,v,pnu,pnz,rs3,eh3,vmtz, vsel,rsml,ehl)
     use m_lmfinit,only: stdo
     use m_hansr,only:hansmr
@@ -205,13 +204,7 @@ contains
     ipr = iprint()
     if (lmxb > 8) call rx('loctsh:  lmax too large')
     rmt = rofi(nrmt)
-!    mode0 = mod(mode,10)
-!    mode1 = 0 !mod(mode/10,10)
-!    mode2 = 1 !mod(mode/100,10)
-!    mode3 = 1 !mod(mode/1000,10)
-!    mode4 = 0 !mod(mode/10000,10)
     nfit = 0
-    !    do  i = 1, nsp
     allocate(h_rv(nr))
     allocate(g_rv(2*nr))
     allocate(gp_rv(2*nr*4))
@@ -253,9 +246,7 @@ contains
              vv= v
           endif
           !     ... Wave function and potential parameters at MT sphere
-          call makrwf ( 0 , z , rmt , l , vv( 1 , i ) , a , nrmt , rofi &
-               , pnz ( 1 , i ) , 4 , g_rv , gp_rv , eval , phi , dphi &
-               , phip , dphip , p )
+          call makrwf(0,z,rmt,l,vv(1,i),a,nrmt,rofi,pnz(1,i),4,g_rv,gp_rv,eval,phi,dphi,phip,dphip,p)
           vsel(1,l+1) = phi
           vsel(2,l+1) = dphi
           vmine = eval - (v(nrmt,i)-2*z/rmt)
@@ -272,20 +263,17 @@ contains
           rsmin = rs3
           rsmax = 5
           rsmax = rmt !if (mode2 == 1) 
-          if (eval < emin) &
-               call rx1('increase emin in loctsh: eval=%;4g',eval)
+          if (eval < emin) call rx1('increase emin in loctsh: eval=%;4g',eval)
           !   ... Match val,slo, and K.E. of Hankel to phi,dphi,vmine
           if (modei == 2 .OR. modei == 3) then
              rsm = 0
              eh = min(eval-vmtz,emax)
-             call mtchre(103,l,rsmin,rsmax,emin,emax,rmt,rmt,phi,dphi, &
-                  vmine,dphi,rsm,eh,ekin,info)
+             call mtchre(103,l,rsmin,rsmax,emin,emax,rmt,rmt,phi,dphi,vmine,dphi,rsm,eh,ekin,info)
              !   ... Vary rsm to match sm Hankel to phi,dphi
           elseif (modei == 4 .OR. modei == 5) then
              call rx('this branch not checked')
              rsm = rsmin
-             call mtchre(100,l,rsmin,rsmax,emin,emax,rmt,rmt,phi,dphi,phi, &
-                  dphi,rsm,eh,ekin,info)
+             call mtchre(100,l,rsmin,rsmax,emin,emax,rmt,rmt,phi,dphi,phi,dphi,rsm,eh,ekin,info)
           else
              call rxi('loctsh: not implemented fitting mode=',modei)
           endif
@@ -306,8 +294,7 @@ contains
                 sum2 = sum2 + rwgtx(ir)*h**2
              enddo
              qrmt = sum2/(sum1+sum2)
-             write (stdo,260) l,orbit(2-loclo),pnul,eval,vmine,rsm,eh,qrmt,ekin, &
-                  flg(2-isw(dabs(ekin-vmine).gt.1d-5))
+             write(stdo,260) l,orbit(2-loclo),pnul,eval,vmine,rsm,eh,qrmt,ekin,flg(2-isw(dabs(ekin-vmine).gt.1d-5))
 261          format('  l  type    Pnu      Eval        K.E.',7x,'Rsm       Eh      Q(r>rmt)    Fit K.E.')
 260          format(i3,2x,a,f8.3,2f12.6,3f10.5,f12.6,a1)
           endif

@@ -39,41 +39,31 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     integer :: k1,k2,k3,isp,ndimh,napw,igapw(3,napw)
-    real(8):: q(3)
-    double complex h(ndimh,ndimh),vsm(k1,k2,k3,isp)
-    integer :: n0,npmx,nkap0,nkape,nlmto,nermx
-    parameter (n0=10,nkap0=3,nkape=2,nermx=100)
-    integer:: ltop , n1 , n2 , n3 , net , nglob , nlmtop , nrt , iprint
-    real(8) ,allocatable :: gg(:)
-    real(8) ,allocatable :: g2(:)
-    real(8) ,allocatable :: gvv(:)
-    real(8) ,allocatable :: he(:,:)
-    real(8) ,allocatable :: hr(:,:)
-    integer ,allocatable :: kv(:)
-    real(8) ,allocatable :: yl(:,:)
-    double precision :: q0(3)
-    double precision :: etab(nermx),rtab(nermx)
     integer:: i , ib1 , ib2 , ie , ofh1 , ofh2 , ip , ir , is1 , &
          is2 , j , nlm1 , nlm2 , ik1 , ik2 , l1 , iorb1 , l2 , l2t &
          , iorb2 , jorb2 , osin1 , osin2 , oc1 , ocf1 , oc2 , ocf2 , ocos1 &
          , ocos2 , of , owk , ndim1 , ndim2 , nkap1 , nkap2
-    integer ,allocatable :: iv(:,:),ncuti(:)
+    integer,parameter:: n0=10,nkap0=3,nkape=2,nermx=100
+    real(8):: q(3)
+    real(8) :: eh1(n0,nkap0),rsmh1(n0,nkap0)
+    real(8) :: eh2(n0,nkap0),rsmh2(n0,nkap0)
+    real(8) :: xx(n0),p1(3),p2(3)
+    complex(8):: h(ndimh,ndimh),vsm(k1,k2,k3,isp)
+    integer :: npmx,nlmto
+    integer:: ltop , n1 , n2 , n3 , net , nglob , nlmtop , nrt , iprint
+    real(8) ,allocatable :: gg(:), g2(:), gvv(:),he(:,:), hr(:,:),yl(:,:)
+    real(8) :: q0(3), etab(nermx),rtab(nermx)
+    integer ,allocatable :: kv(:),iv(:,:),ncuti(:)
     complex(8) ,allocatable :: wk2_zv(:)
     integer :: iprt(n0,nkap0,nermx),ipet(n0,nkap0,nermx), ncut(n0,nkap0)!,lh(nkap0)
     integer:: blks1(n0*nkap0),ntab1(n0*nkap0)
     integer:: blks2(n0*nkap0),ntab2(n0*nkap0)
-    double precision :: eh1(n0,nkap0),rsmh1(n0,nkap0)
-    double precision :: eh2(n0,nkap0),rsmh2(n0,nkap0)
-    double precision :: xx(n0),p1(3),p2(3)
-    integer:: xxxx(nkap0)
-    integer :: ig1,i1,ig2,i2,igx(3),igx1,igx2,igx3,oiv1, iloop
+    integer:: xxxx(nkap0), ig1,i1,ig2,i2,igx(3),igx1,igx2,igx3,oiv1, iloop,ng
+    integer:: ibini,ibend,nnrl,lmri,li,nnrlx,nnrli,ik,ib,ndim,ilm,offi,ll
     complex(8) ,allocatable :: h_zv(:),phase(:,:)
-    integer:: ng
     complex(8),allocatable,target:: w_oc1(:,:),w_ocf1(:),w_oc2(:,:),w_ocf2(:),ff(:)
     real(8),allocatable:: w_ocos1(:,:), w_osin1(:,:),w_ocos2(:,:), w_osin2(:,:),w_owk(:,:)
     real(8):: gmin=0d0,fac1
-    integer:: ibini,ibend
-    integer:: nnrl,lmri,li,nnrlx,nnrli,ik,ib,ndim,ilm,offi,ll
     complex(8):: img=(0d0,1d0)
     real(8),parameter:: pi=4d0*atan(1d0),tpi=2d0*pi
     call tcn('hsibl')
@@ -112,7 +102,7 @@ contains
        ibend=nbas
        do  ib1 = ibini,ibend
           p1=rv_a_opos(:,ib1)
-          phase(:,ib1) = exp(-img*tpi*sum(p1*q)) * exp(-img*tpi*matmul(p1, matmul(qlat, transpose(iv))))
+          phase(:,ib1)=exp(-img*tpi*sum(p1*q)) *exp(-img*tpi*matmul(p1, matmul(qlat, transpose(iv))))
        enddo
        ib1loop: do  iloop = ibini,ibend
           ib1=iloop
@@ -284,10 +274,9 @@ contains
     !o   hr    :dexp(-(rsm/2)**2*g2(i)) for all inequivalent rsm and g-vecs
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: ltop,net,ng,nrt,i,ie,ir
-    double precision :: alat,q0(3),gvv(ng,3),gg(ng,3),yl(ng,1),he(ng,net), &
-         hr(ng,nrt),g2(ng),etab(net),rtab(nrt)
-    double precision :: tpiba,gam
+    integer:: ltop,net,ng,nrt,i,ie,ir
+    real(8):: alat,q0(3),gvv(ng,3),gg(ng,3),yl(ng,1),he(ng,net),hr(ng,nrt),g2(ng),etab(net),rtab(nrt)
+    real(8):: tpiba,gam
     real(8),parameter:: pi = 4d0*datan(1d0)
     do  i = 1, ng
        gg(i,:) = 2d0*pi/alat*(gvv(i,:)+q0(:)) ! ... Make (2*pi/alat)*(gvv+q) in g

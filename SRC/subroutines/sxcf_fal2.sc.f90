@@ -177,7 +177,7 @@ contains
     complex(8), parameter :: img=(0d0,1d0)
     character(10) :: i2char
     real(8)::polinta, wfacx, wfacx2, weavx2, wexx,ua2_(niw),freqw1,q_r(3),qk(3)
-    logical,parameter :: debug=.false.,timemix=.false.
+    logical,parameter :: debug=.false.,timemix=.true.
     logical ::   oncew, onceww, eibz4sig  
     real(8),allocatable:: we_(:,:),wfac_(:,:)
     complex(8),allocatable:: w3p(:),wtff(:)
@@ -265,7 +265,7 @@ contains
 !      enddo
       deallocate(nload,nstatemax)
     EndBlock PreIcountBlock
-
+    write(6,*)'nnn init ncount=',ncount
     ncount = ncount*ndivmx
     ! icount mechanism for sum in MAINicountloop 3030
     IcountBlock: Block !quick loop to gather index sets for main loop
@@ -332,6 +332,7 @@ contains
       if(icount0/=count(irkip/=0)) call rx('sxcf: icount/=count(irkip/=0)')
       ncount=icount
     EndBlock IcountBlock
+    write(6,*)'nnn dev  ncount=',ncount
     
     if(.not.exchange) then! Read WV* containing W-v in MPB
        allocate(ifrcw(iqini:iqend),ifrcwi(iqini:iqend))

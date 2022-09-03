@@ -1121,10 +1121,11 @@ contains
          enddo
       enddo
       !      ham_delta_stabilize=delta_stabilize !takao sep2010
-      eh3=-.5d0
-      rs3=.5d0
       allocate(v_sspec(nspec))
+      eh3=-0.5d0
+      rs3= 0.5d0
       do j=1,nspec !additional data supplied from rdovfa.f90 and iors.f90
+!!!!!!
          v_sspec(j)%z=z(j)
          v_sspec(j)%a=spec_a(j)
          v_sspec(j)%nr=nr(j)
@@ -1138,17 +1139,41 @@ contains
          v_sspec(j)%rg=rg(j)
          v_sspec(j)%rmt=rmt(j)
       enddo
-!      allocate(v_ssite(nbas)) !,specie(nbas))
-!      do j=1,nbas
-!         v_ssite(j)%spec =ispec(j)  ! atomic species
-!      enddo   
       sstrnmix=trim(iter_mix)
+
+      
+! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!        readatmpnu:block
+!         integer:: ifipnu,i,lr,lro
+!         real(8):: pnur
+!         character(8):: charext
+!         lro=0
+!         do j=1,nspec
+!            open(newunit=ifipnu,file='atmpnu.'//trim(charext(j))//'.'//trim(sname))
+!            i=0
+!            do
+!               i=i+1
+!               read(ifipnu,*,end=1015) pnur,lr
+!               print *,'vvvvvvvvvvvv',pnur,lr
+!               if(j==1.and.lr==2.and.int(pnur)==3) pzsp(lr+1,1:nsp,j)=pnur+10d0 !for test
+!               pnusp(lr+1,1:nsp,j)=pnur
+!            enddo
+! 1015       continue
+!            close(ifipnu)
+!         enddo
+!       endblock readatmpnu
+! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!      
 
       do j=1,nbas
          is=ispec(j) !v_ssite(j)%spec
          pnuall(:,1:nsp,j) = pnusp(1:n0,1:nsp,is)
-         pnzall(:,1:nsp,j) = pzsp(1:n0,1:nsp,is) 
+         pnzall(:,1:nsp,j) = pzsp(1:n0,1:nsp,is)
+         write(6,ftox)'pnuall=',ftof(pnuall(1:lmxa(is)+1,1,is),2)
+         write(6,ftox)'pnzall=',ftof(pnzall(1:lmxa(is)+1,1,is),2)
       enddo
+
+    
+      !!
       !! ... Suppress symmetry operations for special circumstances
       !     !     Switches that automatically turn of all symops
       !     ! --pdos mar2003 added. Also in lmv7.F

@@ -264,6 +264,7 @@ contains
            v0fix= cmdopt0('--v0fix')
            if(v0fix) then
               inquire(file='v0pot.'//char(48+ib),exist=readov0)
+              write(6,*)'v0fixmode=',readov0
               if(readov0) then
                  v0potb:block
                    real(8):: ov0(nr)
@@ -295,7 +296,8 @@ contains
               open(newunit=ifi,file='v0pot.'//char(48+ib),form='unformatted')
               write(ifi) v0pot(ib)%v(1:nr)
               close(ifi)
-              if(ib==nbas) readov0= .TRUE. 
+              if(ib==nbas) readov0= .TRUE.
+              call rx0('end of v0write')
            endif
          endblock v0fix_experimental
 
@@ -546,8 +548,8 @@ contains
     rhocsm(:) = srfpi*cofg*fac *gg(:)   + rhochs(:) ! pcore= pseudocore - Gaussian
     sumh  = sum(rwgt*rhochs)
     samh = -y0*cofh*4d0*pi*dexp(ceh*rfoc*rfoc*0.25d0)/ceh
-    if(ipr>=20.AND.dabs(samh)>1d-6)write(stdo,ftox)'sm core charge=',ftof(sumh),&
-         '=(sphere)+(spillout)=',ftof(samh-sumh),ftof(samh)
+    if(ipr>=20.AND.dabs(samh)>1d-6) write(stdo,ftox)'sm core charge in MT=',ftof(sumh),&
+         '=total-spillout=',ftof(samh),'-',ftof(samh-sumh)
     rhol1 = rho1
     rhol1(:,1,:)= rhol1(:,1,:)+ y0*rhoc(:,:) ! full electron density = rho1 + rhoc 
     ! --- rhol2 = full smooth compensated density rho2+gval +gnuc + pcore 

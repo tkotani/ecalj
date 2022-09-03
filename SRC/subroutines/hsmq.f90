@@ -551,7 +551,7 @@ contains
   end subroutine hansr5
 
   real(8) function erfcee(ra) ! erfcee(x)= erfc(|x|)/y0/exp(-x*x)
-    ! We still use this because gfortran gives NaN for large x.
+    ! We still use erfcee because gfortran erfc gives NaN for large x at 2022-7.
     ! For example, I observed erfc(25.3526)=NaN (gfortran compilar bug. it must be zero).
     ! ... erfc(x) is evaluated as a ratio of polynomials,
     !     to a relative precision of <10^-15 for x<5.

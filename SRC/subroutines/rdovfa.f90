@@ -204,6 +204,33 @@ contains
        ztot = ztot+z
        ctot = ctot+qc
 20  enddo ibloop
+    
+    block
+      real(8):: ov0mean
+      integer:: ir,isp
+      logical:: cmdopt0,v0write
+      character(8):: charext
+      v0write= cmdopt0('--v0write')
+      if(v0write) then
+         do ib=1,nbas
+            do ir=1,nr
+               ov0mean = 0d0
+               do isp=1,nsp
+                  ov0mean = ov0mean + v0pot(ib)%v( ir + nr*(isp-1) )
+               enddo
+               ov0mean = ov0mean/nsp !spin averaged
+               do isp=1,nsp
+                  v0pot(ib)%v(ir + nr*(isp-1))= ov0mean
+               enddo
+            enddo
+            open(newunit=ifi,file='v0pot.'//trim(charext(ib)),form='unformatted')
+            write(ifi) v0pot(ib)%v(1:nr)
+            close(ifi)
+         enddo
+         call rx0('end of v0write')
+      endif
+    endblock
+  
     if(allocated(zv_a_osmrho)) deallocate(zv_a_osmrho)
     allocate(zv_a_osmrho(k1*k2*k3,nsp))
     zv_a_osmrho=0d0

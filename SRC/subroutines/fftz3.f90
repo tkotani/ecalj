@@ -34,11 +34,11 @@ subroutine fftz3(c,n1,n2,n3,k1,k2,k3,nfft,iset,isig)
   parameter (FFTW_ESTIMATE=64,FFTW_MEASURE=0)
   parameter (FFTW_PRESERVE_INPUT=16)
   call tcn('fftz3')
-  if (n1 == 1 .AND. n2 == 1 .AND. n3 == 1) goto 99
+  if (n1 == 1 .AND. n2 == 1 .AND. n3 == 1) return
   jsig = 0
   if (isig == -1) jsig = FFTW_FORWARD
   if (isig ==  1) jsig = FFTW_BACKWARD
-  do  10  ifft = 1, nfft
+  do  ifft = 1, nfft
      if (n2 == 1 .AND. n3 == 1) then
         call dfftw_plan_dft_1d(plan,n1,c(1,1,1,ifft),c(1,1,1,ifft),      jsig,FFTW_ESTIMATE)
      elseif (n3 == 1) then
@@ -48,20 +48,10 @@ subroutine fftz3(c,n1,n2,n3,k1,k2,k3,nfft,iset,isig)
      endif
      call dfftw_execute(plan,c(1,1,1,ifft),c(1,1,1,ifft))
      call dfftw_destroy_plan(plan)
-10 enddo
-  ! ... Renormalize forward transform
-  if (isig > 0 .OR. isig < -10) goto 99
-  scale = 1/dble(n1*n2*n3)
-  do    ifft = 1, nfft
-     do   i3 = 1, n3
-        do  i2 = 1, n2
-           do  i1 = 1, n1
-              c(i1,i2,i3,ifft) = scale*c(i1,i2,i3,ifft)
-           enddo
-        enddo
-     enddo
   enddo
-99 continue
+!  if (isig > 0 .OR. isig < -10) goto 99
+  if(jsig==FFTW_FORWARD) c = c/dble(n1*n2*n3) ! ... Renormalize forward transform
+!99 continue
   call tcx('fftz3')
   return
 end subroutine fftz3
