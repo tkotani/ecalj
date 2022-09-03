@@ -288,7 +288,6 @@ contains
           if (nsp == 2 .AND. pnul == 0) pl(l+1,i) = pl(l+1,1)
           ql(2,l+1,i) = 0d0
           ql(3,l+1,i) = 0d0
-
           if(iprint()>60) then
              if (pzl/=0 .AND. int(pnul-1)==int(pzl)) then !pz is deeper than pnul
                 if(nsp==1)write(stdo,"(a,i2,3f8.3)")'=== Charge for l: Qtot Qpz Qv=',l,qvaltot,ql(1,l+1,i),qlplus(l,i)
@@ -427,7 +426,7 @@ contains
           lplawv = 0
           if (ipr >= 50) lplawv = 1
           call pratfs (is, spid , lplawv , z , a , nr , rmax , nrmt , lmxa &
-               , pl , nsp , v , rofi , g_rv , psi_rv, plplus,qlplus,ifiwv)
+               , pl,pz, nsp , v , rofi , g_rv , psi_rv, plplus,qlplus,ifiwv)
           deallocate(psi_rv)
           deallocate(g_rv)
 !       endif
@@ -515,7 +514,7 @@ contains
   end subroutine freats
 
 
-  subroutine pratfs(is,spid,lplawv,z,a,nr,rmax,nrmt,lmaxa,pl,nsp,v,rofi,g,psi,plplus,qlplus,ifiwv)
+  subroutine pratfs(is,spid,lplawv,z,a,nr,rmax,nrmt,lmaxa,pl,pz,nsp,v,rofi,g,psi,plplus,qlplus,ifiwv)
     use m_ext,only:sname
     !- Prints out core and valence energy levels of free-atom
     ! ----------------------------------------------------------------------
@@ -541,7 +540,7 @@ contains
     implicit none
     integer :: n0,nr,lmaxa,nrmt,lplawv,nsp
     parameter (n0=10)
-    double precision :: z,a,rmax,pl(n0,nsp),v(nr,nsp),rofi(nr), &
+    double precision :: z,a,rmax,pl(n0,nsp),v(nr,nsp),rofi(nr), pz(n0,nsp),&
          g(2*nr),psi(nr,0:lmaxa,nsp)
     ! ... Local parameters
     integer :: nglob,isp,l,konfig,nn,nre,i,konf, &
@@ -552,7 +551,7 @@ contains
     character:: spid*8
     character(15)::  str
     data lsym /'s','p','d','f','g','5','6','7','8','9'/
-    integer::iz,ifiwv,ifipnu,is
+    integer::iz,ifiwv,ifipnu,is,ipz
     real(8):: pnu
     !! feb2011 "plplus,qlplus" mechanism is a fixing. Previous version did not allow SPEC_ATOM_Q setting for l with PZ.
     !! Now, the "plplus,qlplus" mechanism allows to set Q (valence charge, not including semicore charge).
@@ -581,6 +580,8 @@ contains
              if(iz==1 .AND. plplus(l,isp)<= 0d0) cycle !feb2011
              konfig = pl(l+1,isp)
              if(iz==1) konfig=plplus(l,isp)
+             ipz=0
+             if(konfig==mod(int(pz(l+1,is)),10)) ipz=1 !ipz=1 for local orbital
              dl = dtan(pi*(0.5d0-pl(l+1,isp)))
              nn = konfig-l-1
              ev(l) = -0.5d0
@@ -613,9 +614,10 @@ contains
              call ppratf(ev(l),z,nr,nre,rofi,a,b,v(1,isp),g,pzero,pmax,ctp)
              cc = ' '
              if (dabs(ctp-rmax) < 1d-3) cc = '*'
-             write(stdo,400) konfig,lsym(l),ev(l),pzero,pmax,ctp,cc,sum,pnu
-             write(ifipnu,"(f23.16,i4,x,i4,a1,f14.5)") pnu,l,konfig,lsym(l),ev(l)
-400          format(i4,a1,f14.5,2x,3f12.3,a,f12.6,f12.3)
+             write(stdo,400) konfig,lsym(l),ev(l),pzero,pmax,ctp,cc,sum,pnu,ipz
+             write(ifipnu,"(f23.16,i2,2x,i2,i4,a1,f14.5,x,i2)") pnu,ipz,l,konfig,lsym(l),ev(l)
+             !   write default pnu setting to atmpnu file.
+400          format(i4,a1,f14.5,2x,3f12.3,a,f12.6,f12.3,x,i2)
 401          format(' valence:',6x,'eval',7x,'node at',6x,'max at',7x,'c.t.p.   rho(r>rmt)       pnu')
              if(ifiwv>0) write(ifiwv,"(i2,i3,i3,d23.15,d23.15,' !isp,l,eval,last is norm within MT')") isp,l,konfig,ev(l),sumr
              !   ... Copy valence wavefunction to psi
@@ -1105,43 +1107,32 @@ contains
           endif
 
           !       Skip high-lying local orbitals unless specifically sought
-          if (loclo == 0 .AND. .NOT. cmdopt('--getallloc',11,0,strn)) &
-               goto 10
-
+          if (loclo == 0 .AND. .NOT. cmdopt('--getallloc',11,0,strn)) goto 10
           nfit = nfit + 1
           if (nfit == 1) then
-             call info2(20,1,0, &
-                  ' Fit local orbitals to sm hankels, species '//spid// &
+             call info2(20,1,0,' fff:Fit local orbitals to sm hankels, species '//spid// &
                   '%a, rmt=%;7g',rmt,0)
              if (ipr >= 20) write (stdo,261)
           endif
-
           !   ... Get exact fa wavefunction, eigval, pnu_l at rmt
           if (loclo == 1) then
              nn = konfig-l-1
-             call popta3 ( 0,l,z,nn,rmt,nr,nrmt,rofi,v ( 1 &
-                 ,i ),a,b,eval,pnul,g_rv )
-
+             call popta3 ( 0,l,z,nn,rmt,nr,nrmt,rofi,v(1,i ),a,b,eval,pnul,g_rv )
              !       Finish if in future, need w.f. at r>rmt
              !        else
              !          call popta3(1,l,z,nn,rmt,nr,nrmt,rofi,v(1,i),a,b,eval,
              !     .      pnul,w(og))
           endif
           pl(l+1,i) = pnul
-
           !   ... Potential parameters at MT sphere
           call popta4 ( l,z,rmt,nrmt,rofi,v ( 1,i ),g_rv &
-              ,gp_rv,a,b,pnul,eval,p,phi,dphi,phip,dphip &
-               )
-
-
+              ,gp_rv,a,b,pnul,eval,p,phi,dphi,phip,dphip )
           !   ... Set conditions on envelope functions ... For now
           rsmin = rs3
           rsmax = 5
           if (icst == 1) rsmax = rmt
           !       Use r->infty value for energy
           eh = min(-.02d0,eval)
-
           !   ... Match Hankel to phi,dphi
           !        rsm = rsmin
           !        emax = -.02d0
@@ -1161,40 +1152,24 @@ contains
           !       if (ipr .ge. 20) call poppr
           !       Match failed ... turn up verbosity and repeat for info
           if (info == -1) then
-             call info2(0,2,1, &
-                  ' *** ftfalo (fatal) cannot fit smooth Hankel to w.f.'// &
-                  ' class '//spid// &
-                  '%N ... possibly reduce RS3 (current value = %,1d)',rs3,0)
+             call info2(0,2,1,' *** ftfalo (fatal) cannot fit smooth Hankel to w.f.'// &
+                  ' class '//spid//'%N ... possibly reduce RS3 (current value = %,1d)',rs3,0)
              call pshpr(max(ipr,110))
-             call mtchr2(1,l,emin,emax,(emin+emax)/2, &
-                  rmt,phi,dphi,rsmin,eh,ekin,i)
+             call mtchr2(1,l,emin,emax,(emin+emax)/2, rmt,phi,dphi,rsmin,eh,ekin,i)
              call poppr
-             !         call pshpr(max(ipr,110))
-             !         call mtchre(103,l,rsmin,rsmax,emin,emax,rmt,rmt,phi,dphi,tphi,
-             !    .      dphi,rsm,eh,ekin,info)
-             call fexit2(-1,111, &
-                  ' Exit -1 : ftfalo : failed to match log der=%,1;3d'// &
+             call fexit2(-1,111,' Exit -1 : ftfalo : failed to match log der=%,1;3d'// &
                   ' to envelope, l=%i',dphi/phi,l)
           endif
-
           !  ... Get energy of this wave function
           call popta1 ( rsm,eh,l,z,rmt,nr,nrmt,rofi,h_rv &
-              ,v ( 1,i ),a,b,eval,p,phi,dphi,phip,dphip &
-              ,e2,qrmt )
-
-
-          if (ipr >= 20) &
-               write (stdo,260) l,rsm,eh,qrmt,e2,eval,pnul,tphi,ekin, &
+              ,v(1,i),a,b,eval,p,phi,dphi,phip,dphip,e2,qrmt )
+          if (ipr >= 20) write (stdo,260) l,rsm,eh,qrmt,e2,eval,pnul,tphi,ekin, &
                flg(2-isw(dabs(ekin-tphi) > 1d-5))
-
 260       format(i2,2f8.3,3f10.5,f9.3,2f10.5,a1,f10.5)
-261       format(' l    Rsm     Eh     Q(r>rmt)   Eval', &
-               '      Exact      Pnu     K.E.    fit K.E.')
-
+261       format(' l    Rsm     Eh     Q(r>rmt)   Eval      Exact      Pnu     K.E.    fit K.E.')
           itab(l+1,i) = 1
           rtab(l+1,i) = rsm
           etab(l+1,i) = eh
-
 10     enddo
        ! akao moved deallocation to here
        deallocate(gp_rv)

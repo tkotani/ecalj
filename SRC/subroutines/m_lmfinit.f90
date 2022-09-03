@@ -676,7 +676,28 @@ contains
                  'Starting semicore log der. parameters'// &
                  '%N%10fAdd 10 to attach Hankel tail',nout=nout) !zero default by zerov
             if(nsp==2) pzsp(1:n0,2,j) = pzsp(1:n0,1,j) !takao
-
+            !
+            
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      if (prgnam /= 'LMFA') then
+         readatmpnu:block
+           integer:: ifipnu,lr,iz
+           real(8):: pnur
+           character(8):: charext
+!           do j=1,nspec
+              open(newunit=ifipnu,file='atmpnu.'//trim(charext(j))//'.'//trim(sname))
+              do
+                 read(ifipnu,*,end=1015) pnur,iz,lr
+                 if(iz==1) pzsp (lr+1,1:nsp,j)= pnur+10d0 !for test 10+ mode
+                 if(iz==0) pnusp(lr+1,1:nsp,j)= pnur
+              enddo
+1015          continue
+              close(ifipnu)
+!           enddo
+      endblock readatmpnu
+      endif
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!      
+            
             !! lmxb corrected by pzsp
             nnx=nout
             do i=nout,1,-1
@@ -1140,29 +1161,7 @@ contains
          v_sspec(j)%rmt=rmt(j)
       enddo
       sstrnmix=trim(iter_mix)
-
       
-! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!        readatmpnu:block
-!         integer:: ifipnu,i,lr,lro
-!         real(8):: pnur
-!         character(8):: charext
-!         lro=0
-!         do j=1,nspec
-!            open(newunit=ifipnu,file='atmpnu.'//trim(charext(j))//'.'//trim(sname))
-!            i=0
-!            do
-!               i=i+1
-!               read(ifipnu,*,end=1015) pnur,lr
-!               print *,'vvvvvvvvvvvv',pnur,lr
-!               if(j==1.and.lr==2.and.int(pnur)==3) pzsp(lr+1,1:nsp,j)=pnur+10d0 !for test
-!               pnusp(lr+1,1:nsp,j)=pnur
-!            enddo
-! 1015       continue
-!            close(ifipnu)
-!         enddo
-!       endblock readatmpnu
-! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!      
 
       do j=1,nbas
          is=ispec(j) !v_ssite(j)%spec
