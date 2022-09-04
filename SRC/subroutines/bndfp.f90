@@ -80,6 +80,7 @@ contains
     use m_gennlat_sig,only: M_gennlat_init_sig
     use m_dfrce,only: dfrce
     use m_sugcut,only:sugcut
+
     !i   nbas  : size of basis
     !i   nsp   : number of spins
     !i   nlibu : total number of LDA+U blocks (used to dimension dmatu and vorb)

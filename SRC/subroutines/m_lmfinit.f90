@@ -127,6 +127,8 @@ module m_lmfinit
   !   arg 4: relaxation g-tolerance
   !   arg 5: step length
   !   arg 6: Remove hessian after this many steps
+
+  logical:: readpnu,v0fix
 contains
   subroutine m_lmfinit_init(prgnam)
     use m_rdfiln,only: recln,nrecs,recrd
@@ -227,7 +229,7 @@ contains
     logical:: sexist
     integer:: ibas,ierr,lc, iqnu=0
     !      logical:: ltet
-    integer:: ifzbak,nn1,nn2,nnx,lmxxx,nlaj
+    integer:: ifzbak,nn1,nn2,nnx,lmxxx,nlaj,isp
     integer,allocatable :: iv_a_oips_bakup (:)
     integer :: ctrl_nspec_bakup,inumaf,iin,iout,ik,iprior,ibp1,indx,iposn,m,nvi,nvl
     logical :: ipr10,fullmesh,lzz
@@ -676,27 +678,36 @@ contains
                  'Starting semicore log der. parameters'// &
                  '%N%10fAdd 10 to attach Hankel tail',nout=nout) !zero default by zerov
             if(nsp==2) pzsp(1:n0,2,j) = pzsp(1:n0,1,j) !takao
-            !
             
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      if (prgnam /= 'LMFA') then
-         readatmpnu:block
-           integer:: ifipnu,lr,iz
-           real(8):: pnur
-           character(8):: charext
-!           do j=1,nspec
-              open(newunit=ifipnu,file='atmpnu.'//trim(charext(j))//'.'//trim(sname))
-              do
-                 read(ifipnu,*,end=1015) pnur,iz,lr
-                 if(iz==1) pzsp (lr+1,1:nsp,j)= pnur+10d0 !for test 10+ mode
-                 if(iz==0) pnusp(lr+1,1:nsp,j)= pnur
-              enddo
-1015          continue
-              close(ifipnu)
-!           enddo
-      endblock readatmpnu
-      endif
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!      
+! Pnu taken from lmfa calculation. pzsp and pnusp are overwritten. 2022-9-5 takao
+            nm='HAM_READP'; call gtv(trim(nm),tksw(prgnam,nm),readpnu,def_lg=F, &
+                 note='Read Pnu from atm calculation')
+            nm='HAM_V0FIX'; call gtv(trim(nm),tksw(prgnam,nm),v0fix,def_lg=F, &
+                 note='Fix potential of radial functions-->Fix radial func. if READP=T together')
+            readpnublock:block
+              integer:: ifipnu,lr,iz,nspx,lrmx,isp,ispx
+              real(8):: pnur,pzav(n0),pnav(n0)
+              character(8):: charext
+              if (prgnam /= 'LMFA'.and.ReadPnu) then
+                 open(newunit=ifipnu,file='atmpnu.'//trim(charext(j))//'.'//trim(sname))
+                 write(stdo,*)'READP=T: read pnu from atmpnu.*'
+                 do
+                    read(ifipnu,*,end=1015) pnur,iz,lr,isp
+                    if(iz==1) pzsp (lr+1,isp,j)= pnur ! +10d0 caused probelm for 3P of Fe.
+                    if(iz==0) pnusp(lr+1,isp,j)= pnur
+                    lrmx=lr
+                    nspx=isp
+                 enddo
+1015             continue
+                 pzav(1:lrmx+1)=sum(pzsp(1:lrmx+1,1:nspx,j), dim=2)/nspx !spin averaged
+                 pnav(1:lrmx+1)=sum(pnusp(1:lrmx+1,1:nspx,j),dim=2)/nspx
+                 do ispx=1,nspx
+                    pzsp(1:lrmx+1, ispx,j) = pzav(1:lrmx+1)
+                    pnusp(1:lrmx+1,ispx,j)=  pnav(1:lrmx+1)
+                 enddo
+                 close(ifipnu)
+              endif
+            endblock readpnublock
             
             !! lmxb corrected by pzsp
             nnx=nout
@@ -1167,11 +1178,11 @@ contains
          is=ispec(j) !v_ssite(j)%spec
          pnuall(:,1:nsp,j) = pnusp(1:n0,1:nsp,is)
          pnzall(:,1:nsp,j) = pzsp(1:n0,1:nsp,is)
-         write(6,ftox)'pnuall=',ftof(pnuall(1:lmxa(is)+1,1,is),2)
-         write(6,ftox)'pnzall=',ftof(pnzall(1:lmxa(is)+1,1,is),2)
+         do isp=1,nsp
+         write(6,ftox)'isp pnuall=',isp,ftof(pnuall(1:lmxa(is)+1,isp,is),6)
+         write(6,ftox)'isp pnzall=',isp,ftof(pnzall(1:lmxa(is)+1,isp,is),6)
+         enddo
       enddo
-
-    
       !!
       !! ... Suppress symmetry operations for special circumstances
       !     !     Switches that automatically turn of all symops

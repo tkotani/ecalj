@@ -78,6 +78,7 @@ subroutine lmfp(llmfgw)
         close(ifipos)
      endif
   endif
+  
   ! switch were here [irs1,irs2,irs3,irs5,irs1x10] ==> removed 2022-6-20
 
   ! Read atomic- and smooth-part density(rhoat smrho in m_density) from atm.* or rst.*
@@ -94,17 +95,18 @@ subroutine lmfp(llmfgw)
   k=-1 !try to read rst files containing density
   if(vs==2d0) then       !2020-5-14
      k = iors(nit1,'read') ! read rst file. sspec ssite maybe modified
-  else                   !vs=1.04d0
+  else!vs=1.04d0 for backward compatibility                  
      k = iors_old(nit1,'read') ! read rst file. sspec ssite maybe modified
   endif
   call Mpibc1_int(k,1,'lmv7:lmfp_k')
   if(k<0) then 
-     call Rdovfa()  ! Initial potential from atm file if rst can not read
+     call Rdovfa()  ! Initial potential from atm file (lmfa) if rst can not read
      nit1 = 0
      iatom=.true.
   else
      iatom=.false.
   endif
+  call Mpi_barrier(MPI_COMM_WORLD,ierr)
   !smshft is not correct. See T.kotani JPSJ paper for formulation.
   !if(k>=0 .AND. irs1x10) call Smshft(1,poss,poss) ! modify denity after reading rst when irs1x10=True
 
@@ -131,11 +133,11 @@ subroutine lmfp(llmfgw)
               write(stdo,*)
               write(stdo,"(a)") trim(" --- BNDFP:  begin iteration "//aaachar)
            endif
-           call bndfp(iter,llmfgw,plbnd)!Main of band calculation. Get total energies ham_ehf and ham_ehk
+           call bndfp(iter,llmfgw,plbnd)!Main. Band cal. Get total energies ham_ehf and ham_ehk
         endif
-        ! Check conv. of dmatu (density matrix for LDA+U) and update it. Get vorbdmat (U potential)
-        if(nlibu>0.AND.lrout>0)call m_ldau_vorbset(ham_ehk,dmatu) !set new vorb from dmat by bndfp-mkpot
-        !Things for --density (plot density) are in locpot.F(rho1mt and rho2mt) and mkpot.F(smooth part).
+        !Check conv. of dmatu(density matrix for LDA+U) and update it. Get vorbdmat (U potential)
+        if(nlibu>0.AND.lrout>0)call m_ldau_vorbset(ham_ehk,dmatu)!set new vorb of dmat by bndfp-mkpot
+        !Things of --density(plot density) are in locpot.f90(rho1mt and rho2mt) and mkpot.f90(smooth part).
         ! Write restart file (skip if --quit=band) ---
         if(master_mpi .AND. ( .NOT. cmdopt0('--quit=band'))) then
            if(lrout>0 .OR. maxit==0) k=iors(iter, 'write')  ! = iors_old ( iter , 'write' ,irs5)

@@ -37,7 +37,7 @@ contains
          ceh,stc,ztot,ctot,corm,ssum,fac,sum1,sum2,sqloc,dq,vol,smom, slmom,qcor(2)
     character(8) :: spid(nspec),spidr
     integer:: ipr , iprint , ngabc(3) , n1 , n2 , n3 , k1 , k2 , iofa , kcor , lcor,&
-         k3 , i , ifi , is, nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ng 
+         k3 , i , ifi , is, nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ng,ierr 
     real(8) ,allocatable :: rwgt_rv(:)
     complex(8) ,allocatable :: cv_zv(:)
     equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
@@ -205,13 +205,14 @@ contains
        ctot = ctot+qc
 20  enddo ibloop
     
-    block
-      real(8):: ov0mean
-      integer:: ir,isp
-      logical:: cmdopt0,v0write
-      character(8):: charext
-      v0write= cmdopt0('--v0write')
-      if(v0write) then
+    if(procid == master) then
+       v0wrireblock:block
+         real(8):: ov0mean
+         integer:: ir,isp
+         logical:: cmdopt0,v0write
+         character(8):: charext
+         !v0write=cmdopt0('--v0write')
+         !if(v0write) then
          do ib=1,nbas
             do ir=1,nr
                ov0mean = 0d0
@@ -227,10 +228,10 @@ contains
             write(ifi) v0pot(ib)%v(1:nr)
             close(ifi)
          enddo
-         call rx0('end of v0write')
-      endif
-    endblock
-  
+         !endif
+       endblock v0wrireblock
+    endif
+
     if(allocated(zv_a_osmrho)) deallocate(zv_a_osmrho)
     allocate(zv_a_osmrho(k1*k2*k3,nsp))
     zv_a_osmrho=0d0

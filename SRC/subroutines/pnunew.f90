@@ -204,13 +204,13 @@ subroutine pnunew(eferm)
                  if (ptry .gt. ipqn+pmax(m)) pnu(m,isp) = ipqn+pmax(m)
               endif
            endif
-           if (ipr>40 .and. isp .eq. 1) write(stdo,310) &
-                l,idmod(m),qbyl(m,isp,ib),ebar,pold,ptry,pfree,pnu(m,isp)
-           if (ipr>40 .and. isp .eq. 2) write(stdo,410) &
-                idmod(m),qbyl(m,isp,ib),ebar,pold,ptry,pfree,pnu(m,isp)
-310        format(i2,i6,6f12.6,l)
-410        format(' spn 2',i2,6f12.6,l)
-311        format(' l  idmod     ql',9x,'ebar',7x,' pold',8x,'ptry',8x,'pfree',8x,'pnew',8x)
+           if (ipr>40) write(stdo,310) &
+                l,isp,idmod(m),qbyl(m,isp,ib),ebar,pold,ptry,pfree,pnu(m,isp)
+!           if (ipr>40 .and. isp .eq. 2) write(stdo,410) &
+!                idmod(m),qbyl(m,isp,ib),ebar,pold,ptry,pfree,pnu(m,isp)
+310        format(i2,i2,i6,6f12.6,l)
+!410        format(' spn 2',i2,6f12.6,l)
+311        format(' l isp idmod     ql',9x,'ebar',7x,' pold',8x,'ptry',8x,'pfree',8x,'pnew',8x)
            !     --- Set the new pnz ---
            if (lpz) then
               pold = mod(pnz(m,isp),10d0)
@@ -224,10 +224,10 @@ subroutine pnunew(eferm)
                  d0l = l
                  if (ptry .lt. pfree) pnz(m,isp) = pfree + (pnz(m,isp)-mod(pnz(m,isp),10d0))
               endif
-              if (ipr>40.and. isp .eq. 1) write(stdo,520)l,idmod(m),ez,pold,ptry,pfree,pnz(m,isp)
-              if (ipr>40.and. isp .eq. 2) write(stdo,620)idmod(m),ez,pold,ptry,pfree,pnz(m,isp)
-520           format(i2,i6,'      ---   ',6f12.6)
-620           format(' spn 2',i2,'      ---   ',6f12.6)
+              if (ipr>40) write(stdo,520)l,isp,idmod(m),ez,pold,ptry,pfree,pnz(m,isp)
+!              if (ipr>40.and. isp .eq. 2) write(stdo,520)l,isp,idmod(m),ez,pold,ptry,pfree,pnz(m,isp)
+520           format(i2,i2,i6,'      ---   ',6f12.6)
+!620           format(' spn 2',i2,'      ---   ',6f12.6)
            elseif (lpz) then
            endif
         enddo !end of spin loop

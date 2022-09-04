@@ -13,7 +13,7 @@ contains
        rveps , rvvxc , valvef , xcore , sqloc , sqlocc , saloc , qval , qsc )
     use m_lmfinit,only:nkaph,lxcf,lhh,nkapii,nkaphh
     use m_lmfinit,only:n0,nppn,nab,nrmx,nkap0,nlmx,nbas,nsp,lso,ispec, sspec=>v_sspec,mxcst4
-    use m_lmfinit,only:slabl,idu,coreh,ham_frzwf,rsma,alat
+    use m_lmfinit,only:slabl,idu,coreh,ham_frzwf,rsma,alat,v0fix
     use m_uspecb,only:uspecb
     use m_ftox
     use m_struc_def
@@ -139,7 +139,7 @@ contains
     integer:: i , nglob , ipr , iprint , j1 , ib , is , lmxl &
          , lmxa , nr , lmxb , kmax , lfoc , nrml , nlml,ifivesint,ifi
     logical,save:: secondcall=.false.
-    logical :: phispinsym,cmdopt0,readov0,v0fix,v0write,novxc
+    logical :: phispinsym,cmdopt0,readov0,v0write,novxc
     integer::lsox
     character*20::strib
     character strn*120
@@ -260,8 +260,25 @@ contains
            endif
          endblock phispinsymB
 
-         v0fix_experimental: block ! experimental case --v0fix
-           v0fix= cmdopt0('--v0fix')
+         v0fixblock: block ! experimental case --v0fix
+           v0write=cmdopt0('--v0write')
+           if(v0write) then !v0write is rdovfa 
+              do ir=1,nr
+                 ov0mean = 0d0
+                 do isp=1,nsp
+                    ov0mean = ov0mean + v0pot(ib)%v( ir + nr*(isp-1) )
+                 enddo
+                 ov0mean = ov0mean/nsp !spin averaged
+                 do isp=1,nsp
+                    v0pot(ib)%v(ir + nr*(isp-1))= ov0mean
+                 enddo
+              enddo
+              open(newunit=ifi,file='v0pot.'//char(48+ib),form='unformatted')
+              write(ifi) v0pot(ib)%v(1:nr)
+              close(ifi)
+              if(ib==nbas) readov0= .TRUE.
+              call rx0('end of v0write')
+           endif
            if(v0fix) then
               inquire(file='v0pot.'//char(48+ib),exist=readov0)
               write(6,*)'v0fixmode=',readov0
@@ -281,25 +298,7 @@ contains
                  call rx('no v0pot files')
               endif
            endif
-           v0write= cmdopt0('--v0write')
-           if(v0write) then
-              do ir=1,nr
-                 ov0mean = 0d0
-                 do isp=1,nsp
-                    ov0mean = ov0mean + v0pot(ib)%v( ir + nr*(isp-1) )
-                 enddo
-                 ov0mean = ov0mean/nsp !spin averaged
-                 do isp=1,nsp
-                    v0pot(ib)%v(ir + nr*(isp-1))= ov0mean
-                 enddo
-              enddo
-              open(newunit=ifi,file='v0pot.'//char(48+ib),form='unformatted')
-              write(ifi) v0pot(ib)%v(1:nr)
-              close(ifi)
-              if(ib==nbas) readov0= .TRUE.
-              call rx0('end of v0write')
-           endif
-         endblock v0fix_experimental
+         endblock v0fixblock
 
          if(master_mpi .AND. nsp==2)then
             do l=0,lmxa

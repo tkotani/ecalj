@@ -615,7 +615,7 @@ contains
              cc = ' '
              if (dabs(ctp-rmax) < 1d-3) cc = '*'
              write(stdo,400) konfig,lsym(l),ev(l),pzero,pmax,ctp,cc,sum,pnu,ipz
-             write(ifipnu,"(f23.16,i2,2x,i2,i4,a1,f14.5,x,i2)") pnu,ipz,l,konfig,lsym(l),ev(l)
+             write(ifipnu,"(f23.16,i2,2x,i2,i2,i4,a1,f14.5,x,i2)") pnu,ipz,l,isp,konfig,lsym(l),ev(l)
              !   write default pnu setting to atmpnu file.
 400          format(i4,a1,f14.5,2x,3f12.3,a,f12.6,f12.3,x,i2)
 401          format(' valence:',6x,'eval',7x,'node at',6x,'max at',7x,'c.t.p.   rho(r>rmt)       pnu')

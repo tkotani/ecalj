@@ -49,6 +49,9 @@ contains
        z=sspec(is)%z
        lmxa=sspec(is)%lmxa
        lmxb=sspec(is)%lmxb
+!       do l=0,lmxa
+!       write(6,"('eee ibas l=',2i3,' pnu(1:nsp) pnz(1:nsp)=',4f10.5)") ib,l,pnu(l+1,1:nsp),pnz(l+1,1:nsp)
+!       enddo
        if (lmxa == -1) goto 10
        if (pnz(idamax(lmxb+1,pnz,1),1) < 10) goto 10
        eloc = .true.
