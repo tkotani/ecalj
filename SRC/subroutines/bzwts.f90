@@ -175,7 +175,7 @@ contains
        ! --- BZ weights, sumev and E_f by tetrahedron method (Blochl wts) ---
     else if (tetra) then
        if (ipr .ge. 30) write (stdo,103)
-103    format(/' BZWTS : --- Tetrahedron Integration ---')
+103    format(/' bzwts: --- Tetrahedron Integration ---')
        if (lfill) then
           egap = emax-emin
           if(ipr>=30)write(stdo,ftox)' ... only filled or empty bands encountered: ev=',&

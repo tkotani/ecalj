@@ -131,7 +131,7 @@ subroutine lmfp(llmfgw)
            if (master_mpi) then
               aaachar=trim(i2char(iter))//" of "//trim(i2char(maxit))
               write(stdo,*)
-              write(stdo,"(a)") trim(" --- BNDFP:  begin iteration "//aaachar)
+              write(stdo,"(a)") trim("--- BNDFP:  begin iteration "//aaachar)
            endif
            call bndfp(iter,llmfgw,plbnd)!Main. Band cal. Get total energies ham_ehf and ham_ehk
         endif

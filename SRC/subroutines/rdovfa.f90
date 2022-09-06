@@ -5,7 +5,7 @@ contains
     use m_density,only: zv_a_osmrho=>osmrho,sv_p_orhoat=>orhoat,v1pot,v0pot !Outputs. allocated
 
     use m_supot,only: lat_nabc,lat_ng,rv_a_ogv,iv_a_okv,rv_a_ogv
-    use m_lmfinit,only:lat_alat,nsp,nbas,nspec,ispec,sspec=>v_sspec,qbg=>zbak,slabl
+    use m_lmfinit,only:lat_alat,nsp,nbas,nspec,ispec,sspec=>v_sspec,qbg=>zbak,slabl,v0fix
     use m_lattic,only: lat_plat,lat_vol
     use m_struc_def,only: s_rv1
     use m_struc_func, only: mpibc1_s_spec
@@ -114,7 +114,6 @@ contains
        call mpibc1( rv_a_ov0a( is )%v , nr0 * nsp , 4 , mlog , 'rdovfa', 'v0a' )
        i = mpipid(3)
        if (procid == master) then
-          !call strip(spid(is),i1,nch)
           if (ipr >= 30 .AND. rmt0 /= 0) write(stdo,400) trim(spid(is)),spidr,rmt0,nr0,a0
 400       format(' rdovfa: expected ',a,',',T27,' read ',a, ' with rmt=',f8.4,'  mesh',i6,f7.3)
        endif
@@ -143,8 +142,7 @@ contains
        sspec(is)%stc=stc
 10  enddo isloop
     i = mpipid(3)
-    !     Re-broadcast entire species structure, and arrays used below
-    do i_spec=1,nspec
+    do i_spec=1,nspec ! Re-broadcast entire species structure, and arrays used below
        call mpibc1_s_spec(sspec(i_spec),'rdovfa_sspec')
     enddo
     if (procid == master) close(ifi)
@@ -152,7 +150,7 @@ contains
     ztot = 0d0
     ctot = 0d0
     corm = 0d0
-    if(allocated(v0pot)) deallocate(v0pot,v1pot) !this may cause mem leak?(v0pot%v is not deallocated).
+    if(allocated(v0pot))deallocate(v0pot,v1pot)!this may cause mem leak?(v0pot%v is not deallocated).
     allocate(v1pot(nbas),v0pot(nbas))
     if(allocated(sv_p_orhoat)) deallocate(sv_p_orhoat)
     allocate(sv_p_orhoat(3,nbas))
@@ -205,16 +203,14 @@ contains
        ctot = ctot+qc
 20  enddo ibloop
     
-    if(procid == master) then
-       v0wrireblock:block
+    v0wrireblock:block
+      if(v0fix.and.procid == master) then
          real(8):: ov0mean
          integer:: ir,isp
          logical:: cmdopt0,v0write
          character(8):: charext
-         !v0write=cmdopt0('--v0write')
-         !if(v0write) then
          do ib=1,nbas
-            is = ispec(ib) !int(ssite(ib)%spec)
+            is = ispec(ib) 
             nr=sspec(is)%nr
             do ir=1,nr
                ov0mean = 0d0
@@ -226,34 +222,25 @@ contains
                   v0pot(ib)%v(ir + nr*(isp-1))= ov0mean
                enddo
             enddo
-            write(stdo,*)' writing v0pot',ib,nr
+            write(stdo,*)' v0fix=T: writing v0pot',ib,nr
             open(newunit=ifi,file='v0pot.'//trim(charext(ib)),form='unformatted')
             write(ifi) v0pot(ib)%v(1:nr)
             close(ifi)
          enddo
-         !endif
-       endblock v0wrireblock
-    endif
+      endif
+    endblock v0wrireblock
 
     if(allocated(zv_a_osmrho)) deallocate(zv_a_osmrho)
     allocate(zv_a_osmrho(k1*k2*k3,nsp))
-    zv_a_osmrho=0d0
     ! --- Overlap smooth hankels to get smooth interstitial density ---
+    zv_a_osmrho=0d0
     ng=lat_ng
     allocate(cv_zv(ng*nsp))
     call ovlpfa( nbas , nxi , n0 , exi , hfc , rsmfa, ng , ng , rv_a_ogv , cv_zv )
     call gvputf( ng , nsp , iv_a_okv , k1 , k2 , k3 , cv_zv , zv_a_osmrho )
     if (allocated(cv_zv)) deallocate(cv_zv)
-    ! ... FFT to real-space mesh
-    call fftz3 ( zv_a_osmrho , n1 , n2 , n3 , k1 , k2 , k3 , nsp, 0 , 1 )
-    ! ... Add compensating uniform electron density to compensate background
-!    call addbkgsm ( zv_a_osmrho , k1 , k2 , k3 , nsp , qbg , vol, - 1d0 )
-    zv_a_osmrho=zv_a_osmrho-qbg/vol/nsp
-    ! ... integrate
-    !call mshint ( vol , nsp , n1 , n2 , n3 , k1 , k2 , k3 , zv_a_osmrho, sum1 , sum2 )
-    !if (nsp == 2) then
-    !  call mshint ( vol , 1 , n1 , n2 , n3 , k1 , k2 , k3 , zv_a_osmrho, smom , sum2 )
-    !endif
+    call fftz3(zv_a_osmrho , n1 , n2 , n3 , k1 , k2 , k3 , nsp, 0 , 1 )! ... FFT to real-space mesh
+    zv_a_osmrho=zv_a_osmrho-qbg/vol/nsp !Add compensating uniform density to compensate background
     sum1 = dreal(sum(zv_a_osmrho(:,:)))*vol/(n1*n2*n3)
     if(nsp==2) smom = 2d0*dreal(sum(zv_a_osmrho(:,1)))*vol/(n1*n2*n3) - sum1
     ! --- Set up local densities using rmt from atm file ---

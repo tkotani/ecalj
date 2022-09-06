@@ -1176,15 +1176,16 @@ contains
       enddo
       sstrnmix=trim(iter_mix)
       
-
       do j=1,nbas
          is=ispec(j) !v_ssite(j)%spec
          pnuall(:,1:nsp,j) = pnusp(1:n0,1:nsp,is)
          pnzall(:,1:nsp,j) = pzsp(1:n0,1:nsp,is)
+         if(procid==master) then
          do isp=1,nsp
-         write(6,ftox)'isp pnuall=',isp,ftof(pnuall(1:lmxa(is)+1,isp,is),6)
-         write(6,ftox)'isp pnzall=',isp,ftof(pnzall(1:lmxa(is)+1,isp,is),6)
+         write(6,ftox)'pnuall: j isp pnu=',j,isp,ftof(pnuall(1:lmxa(is)+1,isp,is),6)
+         write(6,ftox)'pnzall: j isp  pz=',j,isp,ftof(pnzall(1:lmxa(is)+1,isp,is),6)
          enddo
+         endif
       enddo
       !!
       !! ... Suppress symmetry operations for special circumstances

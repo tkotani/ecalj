@@ -53,7 +53,7 @@ contains
        endif
        call mpibc1_int(jesm, 1,'esmsmves_jesm')
        if(jesm==0) then
-          if(master_mpi) write(stdo,"(a)") ' esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode'
+          if(master_mpi) write(stdo,"(a)")'  esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode'
           call tcx('esmsmves')
           return
        endif
@@ -62,7 +62,7 @@ contains
           z0esm =  alat*plat(3,3)*0.5d0
           sa0 = alat*alat*abs(plat(1,1)*plat(2,2)-plat(2,1)*plat(1,2))
           write(stdo,*)
-          write(stdo,*) 'esmsmves'
+          write(stdo,*) '  esmsmves'
           write(stdo, '(3I5,2I10)') k1, k2, k3, ng, ng
           write(stdo,'(3F10.5)') (alat*plat(1,i),i=1,3)
           write(stdo,'(3F10.5)') (alat*plat(2,i),i=1,3)

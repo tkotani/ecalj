@@ -147,7 +147,7 @@ contains
     real(8),parameter:: pi = 4d0*datan(1d0),srfpi = dsqrt(4d0*pi),y0 = 1d0/srfpi  !integer:: idipole
     call tcn('locpot')
     ipr = iprint()
-    if (ipr >= 30) write(stdo,"(/' locpot:')")
+    if (ipr >= 30) write(stdo,"('  locpot:')")
     k = nrmx*nlmx*nsp
     allocate(rhol1(k),rhol2(k),v1(k),v2(k),v1es(k),v2es(k),efg(5,nbas),zz(nbas))
     xcore   = 0d0
@@ -191,7 +191,7 @@ contains
          nlml = (lmxl+1)**2
          nrml = nr*nlml
          if (ipr >= 20) then
-            write(stdo,"(/' site',i3,'  z=',f5.1,'  rmt=',f8.5,'  nr=',i3,'   a=',f5.3, &
+            write(stdo,"('   site',i3,'  z=',f5.1,'  rmt=',f8.5,'  nr=',i3,'   a=',f5.3, &
                  '  nlml=',i2,'  rg=',f5.3,'  Vfloat=',l1)") ib,z,rmt,nr,a,nlml,rg,lfltwf
             if (kcor/= 0) then
                if(sum(abs(qcor)) /= 0 ) then
@@ -339,7 +339,7 @@ contains
             !          endif
             if( .NOT. novxc .AND. cmdopt0('--socmatrix') ) lsox=1
             if (ipr >= 20) write(stdo,467) y0*(gpot0(j1)-gpotb(1))
-467         format(' potential shift to crystal energy zero:',f12.6)
+467         format('     potential shift to crystal energy zero:',f12.6)
             call augmat ( z,rmt,rsma(is),lmxa,pnu,pnz,kmax,nlml, a,nr,nsp,lsox,rofi,rwgt ,& 
                  v0pot(ib)%v,v1,v2,gpotb,gpot0 ( j1 ),nkaph,nkapi,&
                  lmxb,lhh(:,is),eh,rsmh, ehl,rsml,rs3,vmtz, lmaxu,&
@@ -548,7 +548,7 @@ contains
     rhocsm(:) = srfpi*cofg*fac *gg(:)   + rhochs(:) ! pcore= pseudocore - Gaussian
     sumh  = sum(rwgt*rhochs)
     samh = -y0*cofh*4d0*pi*dexp(ceh*rfoc*rfoc*0.25d0)/ceh
-    if(ipr>=20.AND.dabs(samh)>1d-6) write(stdo,ftox)'sm core charge in MT=',ftof(sumh),&
+    if(ipr>=20.AND.dabs(samh)>1d-6) write(stdo,ftox)'    sm core charge in MT=',ftof(sumh),&
          '=total-spillout=',ftof(samh),'-',ftof(samh-sumh)
     rhol1 = rho1
     rhol1(:,1,:)= rhol1(:,1,:)+ y0*rhoc(:,:) ! full electron density = rho1 + rhoc 
@@ -654,7 +654,7 @@ contains
     call poppr
     ! --- Add xc potentials to v1 and v2 ---
     call pshpr(max(ipr-11,min(ipr,10)))
-    if(ipr>=30) write(stdo,*)' Exchange for true density:'
+    !if(ipr>=30) write(stdo,*)' Exchange for true density:'
     if(debug) write(stdo,'(a)')' === rhol1 valence+core density. rho2->valence+smooth ==='
     call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rhol1,lxcfun,rep1,rep1x,rep1c,rmu1,v1,fl,qs)
     if(lfoc == 0) then

@@ -187,7 +187,7 @@ contains
     vcnsto = vconst
     vconst = -vbar !  if (mode /= 0) vconst = -vbar
     if (ipr >= 20) write (stdo,232) vbar,vcnsto,vconst
-232 format(' smves:: avg es pot at rmt=',f9.6,'  avg sphere pot=',f9.6,'  vconst=',f9.6)
+232 format('  smves: avg es pot at rmt=',f9.6,'  avg sphere pot=',f9.6,'  vconst=',f9.6)
     if(master_mpi) then
        open(newunit=ifivsmconst,file='vessm.'//trim(sname))
        write(ifivsmconst,"(d23.15)") vconst
@@ -258,7 +258,7 @@ contains
     sgp0 = sumx
     usm = 0.5d0*(rhvsm+zvnsm)
     if (ipr >= 30) write (stdo,500) usm,smq
-500 format(/' smooth rhoves',f14.6,'   charge',f13.6)
+500 format('   smooth rhoves',f14.6,'   charge',f13.6)
     if (allocated(cv_zv)) deallocate(cv_zv)
     smrho(:,:,:,1)=smrho(:,:,:,1)-qbg/vol! ... subtract background
     smq=smq-qbg

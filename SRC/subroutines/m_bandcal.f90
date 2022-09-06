@@ -45,7 +45,8 @@ contains
     logical:: ltet,cmdopt0,dmatuinit=.true.,wsene
     character(3):: charnum3
     call tcn('m_bandcal_init')
-    if(master_mpi) write(stdo,*)' m_bandcal_init: start'
+    if(master_mpi) write(stdo,ftox)
+    if(master_mpi) write(stdo,ftox)' m_bandcal_init: start'
     sigmamode = mod(lrsig,10)/=0
     writeham= cmdopt0('--writeham')
     PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
@@ -244,7 +245,8 @@ contains
     complex(8),allocatable :: evec(:,:)
     logical:: cmdopt0
     call tcn('m_bandcal_2nd')
-    if(master_mpi) write(stdo,*)' mmmmm m_bandcal_2nd'
+    if(master_mpi) write(stdo,ftox)
+    if(master_mpi) write(stdo,ftox)' m_bandcal_2nd: to fill eigenfunctions**2 up to Efermi'
     call dfqkkl( sv_p_oqkkl ) !zero clear
     if(lekkl==1) call dfqkkl( sv_p_oeqkkl ) !zero clear
     if (lfrce>0)  frcband  = 0d0

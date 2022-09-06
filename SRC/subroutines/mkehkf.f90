@@ -35,7 +35,7 @@ contains
     if (ipr >= 30) then
        write(stdo,660) sev,valvef,sumtv,sumec,xcore,ttcor,rhoexc,utot, &
             eh
-660    format(/' Harris energy:' &
+660    format(/' m_mkehkf_etot1: Harris energy:' &
             /' sumev= ',f15.6,'  val*vef=',f15.6,'   sumtv=',f15.6 &
             /' sumec= ',f15.6,'  cor*vef=',f15.6,'   ttcor=',f15.6 &
             /' rhoeps=',f15.6,'     utot=',f15.6,'    ehar=',f15.6)
@@ -81,7 +81,7 @@ contains
        if ( .FALSE. ) then !rhosig /= -99 .AND. rhosig /= 0) then
        else
           write (stdo,410) sumtv,sumtc,ekin,rhoexc,utot,eks
-410       format(/' Kohn-Sham energy:' &
+410       format(/' m_mkehkf_etot2: Kohn-Sham energy:' &
                /' sumtv= ',f15.6,'  sumtc=',f17.6,'   ekin=',f16.6 &
                /' rhoep= ',f15.6,'   utot=',f17.6,'   ehks=',f16.6)
        endif

@@ -3198,7 +3198,7 @@ contains
     iblk = 0
     nitj = 0
     np = 0
-    outs = ' mixing: mode=A'
+    outs = ' mixrho: mixing mode=A'
 
     ! --- Entry point for parsing a new set of switches ---
 10  continue

@@ -141,10 +141,13 @@ contains
   end subroutine m_mkpot_init
   
   subroutine m_mkpot_energyterms(smrho_out,orhoat_out)!get smrho_out,orhoat_out
+    use m_MPItk,only: master_mpi
     use m_struc_def
     type(s_rv1):: orhoat_out(:,:)
     complex(8) :: smrho_out(:)
     call tcn('m_mkpot_energyterms')
+    if(master_mpi) write(stdo,*)
+    if(master_mpi) write(stdo,"(' m_mkpot_energyterms')")
     if(allocated(fes2_rv)) deallocate(fes2_rv)
     allocate( fes2_rv(3*nbas))
     call mkpot(0, smrho_out , orhoat_out , & !job=0 is for no augmentation term
@@ -474,7 +477,7 @@ contains
     dq = smq+sqloc + qsmc+sqlocc + qbg -zsum
     amom = smag+saloc
     ! --- Printout ---
-    if (ipr >= 20) write(stdo,'(1x)')
+    !if (ipr >= 20) write(stdo,'(1x)')
     if (ipr >= 30) then
        write (stdo,681)
        write (stdo,680) 'rhoval*vef ',valfsm,valftr,valvef, &
@@ -490,9 +493,9 @@ contains
        write (stdo,670) smq+sqloc,qsmc+sqlocc,-zsum,qbg,dq
     endif
 680 format(3x,a,4x,3f17.6)
-681 format(' Energy terms:',13x,'smooth',11x,'local',11x,'total')
-670 format(/' Charges:  valence',f12.5,'   cores',f12.5, &
-         '   nucleii',f12.5/'    hom background',f12.5, &
+681 format('  mkpot:',/'   Energy terms:',11x,'smooth',11x,'local',11x,'total')
+670 format('   Charges:  valence',f12.5,'   cores',f12.5, &
+         '   nucleii',f12.5/'   hom background',f12.5, &
          '   deviation from neutrality: ',f12.5)
     if (ipl >= 1) then
        write (stdl,710) smq+sqloc,smq,sqloc,qbg,dq

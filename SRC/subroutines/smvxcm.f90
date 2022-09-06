@@ -120,9 +120,9 @@ contains
           if(iprx) write(6,*) 'smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=',nnn,swmin !25july2011
           srshift = minimumrho + abs(swmin)
           smrho_w = smrho_w + srshift
-          if(iprx) write(6,*) 'smvxcm: enforce positive smrho_w. Add srshift=',srshift
+          if(iprx) write(6,"(a)") '  smvxcm: enforce positive smrho_w. Add srshift=',srshift
        else
-          if(iprx) write(6,*) 'smvxcm: all smrho_w is positive'
+          if(iprx) write(6,"(a)") '  smvxcm: all smrho_w is positive'
        endif
     endif
     ! ... Force density strictly positive definite
@@ -158,6 +158,7 @@ contains
     endif
     call tcx('smvxc')
   end subroutine smvxcm
+  
   subroutine smvxc2(mode,nsp,lxcfun,vol,n1,n2,n3,k1,k2,k3,smrho, &
        smvxc,smvx,smvc,smexc,       rhoeps,rhoex,rhoec,rhomu,vxcavg)
     use m_ftox
@@ -339,7 +340,7 @@ contains
     endif
     if (iprint() >= 30) then! ... Printout, total potential
        do i=1,nsp
-          write(stdo,ftox)'smooth isp rhoeps rhomu vxcavg=' &
+          write(stdo,ftox)'  smvxc2: smooth isp rhoeps rhomu vxcavg=' &
                ,i,ftof(rhoeps(i)),ftof(rhomu(i)),ftof(vxcavg(i))
        enddo
     endif

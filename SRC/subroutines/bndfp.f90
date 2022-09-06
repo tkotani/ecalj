@@ -294,7 +294,7 @@ contains
        emin = eeem-0.01d0 
        dosw(1)= emin ! lowest energy limit to plot dos
        dosw(2)= eferm+bz_dosmax
-       write(stdo,"(a,3f9.4)") 'Generating TDOS: efermi, and dos window= ',eferm,dosw
+       write(stdo,"(a,3f9.4)")' bndfp:Generating TDOS: efermi, and dos window= ',eferm,dosw
        allocate( dosi_rv(ndos,nspx),dos_rv(ndos,nspx)) !for xxxdif
        if(cmdopt0('--tdostetf')) ltet= .FALSE. ! Set tetrahedron=F
        if(ltet) then
@@ -326,6 +326,7 @@ contains
     !! AllReduce band quantities.
     if(lrout/=0) call m_bandcal_allreduce(lwtkb)
     emin=1d9
+    if(master_mpi) write(stdo,ftox)
     do iq = 1, nkp
        qp=qplist(:,iq)
        do isp = 1, nspx
@@ -594,8 +595,9 @@ contains
     enddo
     srhov = srmesh + sraugm
     sumtv = sumev - srhov
+    if (ipr >= 30) write(stdo,"(/a)")' mkekin:'
     if (ipr >= 30) write(stdo,340) srmesh,sraugm,srhov,sumev,sumtv
-340 format(/' srhov:',3f14.6,' sumev=',f12.6,'   sumtv=',f12.6)
+340 format('   srhov:',3f14.6,' sumev=',f12.6,'   sumtv=',f12.6)
     call tcx('mkekin')
   end subroutine mkekin
   subroutine pvgtkn(kmax,lmxa,nlma,nkaph,norb,ltab,ktab,blks,lmxh, &
