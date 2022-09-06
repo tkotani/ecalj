@@ -348,7 +348,7 @@ contains
     ! --- Printout for smooth background charge ---
     if (qbg /= 0) then
        rhobg = (3d0/4d0/pi*vol)**(1d0/3d0)
-       write(stdo,ftox)' Energy for background charge', &
+       if(master_mpi) write(stdo,ftox)' Energy for background charge', &
             ' q=',ftod(qbg),'radius r=',rhobg,'E=9/5*q*q/r=',1.8d0*qbg*qbg/rhobg
     endif
     

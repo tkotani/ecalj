@@ -283,8 +283,8 @@ contains
           if (is == -1 ) call rx('iors: need check for is==-1')
           !pnu=ssite(ib)%pnu(:,1:nsp)
           !pnz=ssite(ib)%pz(:,1:nsp)
-          skiprstpnu=cmdopt0('--skiprstpnu')
-          if(skiprstpnu) then
+          !skiprstpnu=cmdopt0('--skiprstpnu')
+          if(readpnu) then !skiprstpnu) then
              read(jfi)
              read(jfi)
           else   

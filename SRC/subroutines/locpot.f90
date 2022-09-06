@@ -245,7 +245,7 @@ contains
            phispinsym= cmdopt0('--phispinsym')
            if(phispinsym) then
               if(master_mpi .AND. nsp==2) then
-                 write(6,*) 'locpot: --phispinsym mode: use spin-averaged potential for phi and phidot'
+                write(6,*) 'locpot: --phispinsym mode: use spin-averaged potential for phi and phidot'
               endif
               do ir=1,nr
                  ov0mean = 0d0

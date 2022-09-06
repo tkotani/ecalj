@@ -8,6 +8,7 @@ contains
     use m_lgunit,only:stdo
     use m_xclda,only: evxcp,evxcv
     use m_hansr,only:corprm
+    use m_ftox
     !- XC potential for smooth mesh density
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -120,9 +121,9 @@ contains
           if(iprx) write(6,*) 'smvxcm: smrho_w<minimumrho(jun2011) number,min(smrho_w)=',nnn,swmin !25july2011
           srshift = minimumrho + abs(swmin)
           smrho_w = smrho_w + srshift
-          if(iprx) write(6,"(a)") '  smvxcm: enforce positive smrho_w. Add srshift=',srshift
+          if(iprx) write(6,ftox) '  smvxcm: enforce positive smrho_w. Add srshift=',srshift
        else
-          if(iprx) write(6,"(a)") '  smvxcm: all smrho_w is positive'
+          if(iprx) write(6,ftox) '  smvxcm: all smrho_w is positive'
        endif
     endif
     ! ... Force density strictly positive definite

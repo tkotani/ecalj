@@ -204,11 +204,11 @@ contains
 20  enddo ibloop
     
     v0wrireblock:block
+      real(8):: ov0mean
+      integer:: ir,isp
+      logical:: cmdopt0,v0write
+      character(8):: charext
       if(v0fix.and.procid == master) then
-         real(8):: ov0mean
-         integer:: ir,isp
-         logical:: cmdopt0,v0write
-         character(8):: charext
          do ib=1,nbas
             is = ispec(ib) 
             nr=sspec(is)%nr
