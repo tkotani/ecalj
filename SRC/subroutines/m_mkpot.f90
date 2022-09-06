@@ -111,16 +111,16 @@ contains
     use m_supot,only: k1,k2,k3
     use m_density,only: osmrho, orhoat !main input density
     use m_lmfinit,only: lso,nbas,sspec=>v_sspec, nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex
-    integer:: i,lfrzw,is,ib,kmax,lmxa,lmxh,nelt2,nlma,nlmh,iprint
+    integer:: i,is,ib,kmax,lmxa,lmxh,nelt2,nlma,nlmh,iprint !,lfrzw
     real(8) ::qbz
     logical :: llmfgw,fsmode,fullmesh,cmdopt0
     call tcn('m_mkpot_init')
     if(iprint()>=10) write(stdo,"(a)")' m_mkpot_init: Making one-particle potential ...'
-    lfrzw = 0
-    if(ham_frzwf) lfrzw = 1   !freeze all augmentation wave
+!    lfrzw = 0
+!    if(ham_frzwf) lfrzw = 1   !freeze all augmentation wave
     !! Make the potential and total energy terms for given density (smrho,rhoat,qbg)  ---
     !! mkpot calls locpot. and locpot calls augmat. augmat calculates sig,tau,ppi.
-    i = 1 + 10*lfrzw
+!    i = 1 + 10*lfrzw
 !    if(llmfgw) i = i + 10000 !GW driver mode
     !! Arrays used in the generation of the potential ---
     allocate( vesrmt(nbas))

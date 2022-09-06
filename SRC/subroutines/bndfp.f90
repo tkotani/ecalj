@@ -52,9 +52,9 @@ contains
          pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps, &
          ham_scaledsigma, &
          alat=>lat_alat,stdo,stdl,procid,master, &! & bz_doswin,
-         nkaph,nlmax,nl,nbas,nsp, ham_frzwf, bz_dosmax, &
+         nkaph,nlmax,nl,nbas,nsp, bz_dosmax, &
          lekkl,lmaxu,nlibu,lldau,lpztail,leks,lrout &
-         ,  nchan=>pot_nlma, nvl=>pot_nlml,nspc
+         ,  nchan=>pot_nlma, nvl=>pot_nlml,nspc,pnufix
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
     use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
@@ -358,7 +358,9 @@ contains
     if (lrout/=0) call m_bandcal_symsmrho()  !Get smrho_out Symmetrize smooth density
     call m_mkrout_init() !Get force frcbandsym, symmetrized atomic densities orhoat_out, and weights hbyl,qbyl
     !!  New boundary conditions pnu for phi and phidot
-    if (lrout/=0) call pnunew(eferm) !ssite%pnu ssite%pz are revised.
+    if(.not.PNUFIX) then
+       if (lrout/=0) call pnunew(eferm) !ssite%pnu ssite%pz are revised.
+    endif   
     !  if(master_mpi) call writeqpyl() !if you like to print writeqbyl
     !! Evaluate Harris-foukner energy (note: we now use NonMagneticCORE mode as default)
     call m_mkehkf_etot1(sev, eharris)

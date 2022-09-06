@@ -12,7 +12,7 @@ contains
     use m_supot,only: lat_nabc
     use m_struc_func,only: mpibc1_s_spec !,mpibc1_s_site
     use m_lmfinit,only: alat=>lat_alat,nsp,lrel,nl,ispec,sspec=>v_sspec, nbas,nat,nspec,n0,&
-         idmodis=>idmod,slabl!,rsma!,rsmfa
+         idmodis=>idmod,slabl,readpnu!,rsma!,rsmfa
     use m_lattic,only: plat=>lat_plat,vol=>lat_vol,qlat=>lat_qlat
     use m_ext,only:sname
     use m_ftox
@@ -111,7 +111,7 @@ contains
     real(8) ,allocatable :: rwgt_rv(:)
     equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
     integer :: idmod(n0),idmoz(n0) !,lrs(10)
-    logical :: isanrg,lfail,ltmp1,ltmp2,latvec,cmdopt,mlog !,lshear
+    logical :: isanrg,lfail,ltmp1,ltmp2,latvec,cmdopt,mlog,skiprstpnu,cmdopt0 !,lshear
     double precision :: a,a0,alat0,cof,eh,fac,qc,rfoc,rfoc0,rmt, &
          rmt0,rsma0,rsmv0,stc,sum,vfac,vol0,vs,vs1,z,z0
     real(8),pointer:: pnu(:,:),pnz(:,:)
@@ -283,41 +283,45 @@ contains
           if (is == -1 ) call rx('iors: need check for is==-1')
           !pnu=ssite(ib)%pnu(:,1:nsp)
           !pnz=ssite(ib)%pz(:,1:nsp)
-          pnu=>pnuall(:,:,ib)
-          pnz=>pnzall(:,:,ib)
-          ql=0d0
+          skiprstpnu=cmdopt0('--skiprstpnu')
+          if(skiprstpnu) then
+             read(jfi)
+             read(jfi)
+          else   
+             pnu=>pnuall(:,:,ib)
+             pnz=>pnzall(:,:,ib)
+             if (procid == master) then
+                read(jfi) ((pnu(l+1,isp), l=0,lmxa0),isp=1,nsp0)
+                read(jfi) ((pnz(l+1,isp), l=0,lmxa0),isp=1,nsp0)
+                do  isp = 1, nsp0
+                   if (nsp > nsp0) then
+                      do  l = 0, lmxa0
+                         pnu(l+1,2) = pnu(l+1,1)
+                         pnz(l+1,2) = pnz(l+1,1)
+                      enddo
+                   endif
+                enddo
+             endif
+             do  isp = 1, nsp
+                call mpibc1_real(pnu(1,isp),lmxa0+1,'iors_pnu')
+                call mpibc1_real(pnz(1,isp),lmxa0+1,'iors_pnu')
+                !       ... For backwards compatibility: prior versions wrote pnu for pnz
+                do  l = 0, lmxa0+1
+                   if (pnu(l+1,isp) == mod(pnz(l+1,isp),10d0)) pnz(l+1,isp) = 0
+                enddo
+             enddo
+             pnuall(:,1:nsp,ib)=pnu(:,1:nsp)
+             pnzall(:,1:nsp,ib)=pnz(:,1:nsp)
+             if (ipr >= 20) write(stdo,203) ib,spid,'file pnu',(pnu(i,1), i=1,lmxa+1)
+             if (ipr >= 20) write(stdo,203) ib,spid,'file pz ',(pnz(i,1), i=1,lmxa+1)
+          endif
+       
           idmod=0
           idmoz=0
-          if (procid == master) then
-             read(jfi) ((pnu(l+1,isp), l=0,lmxa0),isp=1,nsp0)
-             read(jfi) ((pnz(l+1,isp), l=0,lmxa0),isp=1,nsp0)
-             do  isp = 1, nsp0
-                if (nsp > nsp0) then
-                   do  l = 0, lmxa0
-                      pnu(l+1,2) = pnu(l+1,1)
-                      pnz(l+1,2) = pnz(l+1,1)
-                   enddo
-                endif
-             enddo
-          endif
-          do  isp = 1, nsp
-             call mpibc1_real(pnu(1,isp),lmxa0+1,'iors_pnu')
-             call mpibc1_real(pnz(1,isp),lmxa0+1,'iors_pnu')
-             !       ... For backwards compatibility: prior versions wrote pnu for pnz
-             do  l = 0, lmxa0+1
-                if (pnu(l+1,isp) == mod(pnz(l+1,isp),10d0)) pnz(l+1,isp) = 0
-             enddo
-          enddo
           if (procid == master) then
              read(jfi) (idmod(l+1), l=0,lmxa0)
              read(jfi) (idmoz(l+1), l=0,lmxa0)
           endif
-          !ssite(ib)%pnu(:,1:nsp)=pnu(:,1:nsp)
-          !ssite(ib)%pz(:,1:nsp)=pnz(:,1:nsp)
-          pnuall(:,1:nsp,ib)=pnu(:,1:nsp)
-          pnzall(:,1:nsp,ib)=pnz(:,1:nsp)
-          if (ipr >= 20) write(stdo,203) ib,spid,'file pnu',(pnu(i,1), i=1,lmxa+1)
-          if (ipr >= 20) write(stdo,203) ib,spid,'file pz ',(pnz(i,1), i=1,lmxa+1)
 203       format(9x,'site',i4,':',a,':',a,' is',8f6.2)
 204       format(26x,a,8f6.2)
           nlml0 = (lmxl0+1)**2

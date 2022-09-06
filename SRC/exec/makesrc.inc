@@ -79,7 +79,6 @@ lattic.o \
 ldau.o \
 madmat.o \
 maknos.o \
-makrot.o \
 makrwf.o \
 mkqp.o \
 m_mksym.o \

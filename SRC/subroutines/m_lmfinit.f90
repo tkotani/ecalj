@@ -128,7 +128,7 @@ module m_lmfinit
   !   arg 5: step length
   !   arg 6: Remove hessian after this many steps
 
-  logical:: readpnu,v0fix
+  logical:: readpnu,v0fix,pnufix
 contains
   subroutine m_lmfinit_init(prgnam)
     use m_rdfiln,only: recln,nrecs,recrd
@@ -681,9 +681,12 @@ contains
             
 ! Pnu taken from lmfa calculation. pzsp and pnusp are overwritten. 2022-9-5 takao
             nm='HAM_READP'; call gtv(trim(nm),tksw(prgnam,nm),readpnu,def_lg=F, &
-                 note='Read Pnu from atm calculation')
+                 note='Read Pnu and PZ (b.c. of radial func) from atmpnu.*(by lmfa) ' &
+                 //'when we have no rst file')
             nm='HAM_V0FIX'; call gtv(trim(nm),tksw(prgnam,nm),v0fix,def_lg=F, &
                  note='Fix potential of radial functions-->Fix radial func. if READP=T together')
+            nm='HAM_PNUFIX'; call gtv(trim(nm),tksw(prgnam,nm),pnufix,def_lg=F, &
+                 note='Fix b.c. of radial functions')
             readpnublock:block
               integer:: ifipnu,lr,iz,nspx,lrmx,isp,ispx
               real(8):: pnur,pzav(n0),pnav(n0)

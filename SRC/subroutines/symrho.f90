@@ -92,7 +92,7 @@ subroutine symrat(nbas, nsp, lf, sv_p_orhoat , qbyl , hbyl , f )
   nclass = mxint ( nbas,ipc_iv )
   allocate(ipa_iv(nbas))
   allocate(pos_rv(3*nbas))
-  if (iprint() >= 35) then
+  if (iprint() >= 40) then
      write(stdo,"(a)")'                qbyl        hbyl        ebar   '
   endif
   do  ic = 1, nclass
@@ -169,7 +169,7 @@ subroutine psymrq(nrclas,nsp,ipa,lmxa,qbyl,hbyl)!- Symmetrize l-decomposed site 
         enddo
      enddo
   enddo
-  if (iprint() >= 35) then
+  if (iprint() >= 40) then
      !         write(stdo,"(a)")'                qbyl        hbyl        ebar   '
      !        write(stdo,"(a)")'   ebar=hbyl/qbyl= center of gravity of occpied states'
      !        write(stdo,770) (ipa(ia),ia = 1,nrclas)

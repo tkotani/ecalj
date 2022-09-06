@@ -95,6 +95,9 @@ contains
        lmxa = sspec(is)%lmxa
        pz(:,1) =  pzx(1:n0,1,is) ! sspec(is)%pz
        if(nsp==2) pz(:,2)= pz(:,1)
+       
+       write(6,ftox)'xxx isp pz=',is,ftof(pz(1:lmxa+1,1),6)
+      
 !       eref = eref(is)
        !rs3=sspec(is)%rs3
        !eh3=sspec(is)%eh3
@@ -516,6 +519,7 @@ contains
 
   subroutine pratfs(is,spid,lplawv,z,a,nr,rmax,nrmt,lmaxa,pl,pz,nsp,v,rofi,g,psi,plplus,qlplus,ifiwv)
     use m_ext,only:sname
+    use m_ftox
     !- Prints out core and valence energy levels of free-atom
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -566,7 +570,7 @@ contains
     tol = 1d-8
     write(stdo,580)
 580 format(/' Free-atom wavefunctions:')
-    !      allocate(qinrmt(0:lmxa),
+!    write(6,ftox)'zzz isp pz=',is,ftof(pz(1:lmaxa+1,1),6)
     if(ifiwv>0) write(ifiwv,"(i2,i3,' !nsp,lmaxa')")nsp,lmaxa
     open(newunit=ifipnu,file='atmpnu.'//trim(charext(is))//'.'//trim(sname))
     do  80  isp = 1, nsp
@@ -581,7 +585,8 @@ contains
              konfig = pl(l+1,isp)
              if(iz==1) konfig=plplus(l,isp)
              ipz=0
-             if(konfig==mod(int(pz(l+1,is)),10)) ipz=1 !ipz=1 for local orbital
+             if(konfig==mod(int(pz(l+1,isp)),10)) ipz=1 !ipz=1 for local orbital
+             !write(6,*) 'konfig=',konfig,l,iz,'pz=',pz(l+1,isp)
              dl = dtan(pi*(0.5d0-pl(l+1,isp)))
              nn = konfig-l-1
              ev(l) = -0.5d0

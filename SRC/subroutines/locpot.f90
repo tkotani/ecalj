@@ -195,8 +195,7 @@ contains
                  '  nlml=',i2,'  rg=',f5.3,'  Vfloat=',l1)") ib,z,rmt,nr,a,nlml,rg,lfltwf
             if (kcor/= 0) then
                if(sum(abs(qcor)) /= 0 ) then
-                  if(ipr>=30)write(stdo,ftox)' core hole: kcor=',kcor,'lcor=',lcor,&
-                       'qcor amom=',ftof(qcor)
+                  if(ipr>=30)write(stdo,ftox)' core hole: kcor=',kcor,'lcor=',lcor,'qcor amom=',ftof(qcor)
                endif
             endif
          endif
@@ -204,9 +203,9 @@ contains
          call rxx(nlml .gt. nlmx,'locpot: increase nlmx')
          call radmsh(rmt,a,nr,rofi)
          call radwgt(rmt,a,nr,rwgt)
-         !     ... Write true density to file rhoMT.ib
+         !   ... Write true density to file rhoMT.ib
          if(cmdopt0('--wrhomt'))call wrhomt('rhoMT.','density',ib,sv_p_orhoat(1,ib)%v,rofi,nr,nlml,nsp)
-         call locpt2 ( z,rmt,rg,a,nr,nsp,cofg,cofh & ! Make potential and energy terms at this site ---
+         call locpt2(z,rmt,rg,a,nr,nsp,cofg,cofh & ! Make potential and energy terms at this site ---
               ,ceh,rfoc,lfoc,nlml,qmom ( j1 ),vval ( j1 ),rofi &
               ,rwgt,sv_p_orhoat( 1,ib )%v,sv_p_orhoat( 2,ib )%v,&
               sv_p_orhoat( 3,ib )%v,rhol1,rhol2,v1,v2,v1es,v2es, &
@@ -216,7 +215,7 @@ contains
               rhobg,efg ( 1,ib ),ifivesint,lxcf) 
          !! write density 1st(true) component and counter components.
          if(cmdopt0('--density') .AND. master_mpi .AND. secondcall) then
-            write(stdo,"(' TotalValenceChange diff in MT;  ib,\int(rho2-rho1)=',i5,f13.5)") ib,qloc(ib)
+            write(stdo,"(' TotalValenceChange diff in MT; ib,\int(rho2-rho1)=',i5,f13.5)") ib,qloc(ib)
             write(strib,'(i10)') ib
             open(newunit=ibx,file='rho1MT.'//trim(adjustl(strib)))
             do isp=1,nsp
@@ -233,6 +232,7 @@ contains
             enddo
             close(ibx)
          endif
+         
          !   ... Write true potential to file vtrue.ib
          if(cmdopt0('--wpotmt'))call wrhomt('vtrue.','potential',ib,v1,rofi,nr,nlml,nsp)
          if (lfltwf) then !   ... Update the potential used to define basis set
@@ -261,31 +261,32 @@ contains
          endblock phispinsymB
 
          v0fixblock: block ! experimental case --v0fix
-           v0write=cmdopt0('--v0write')
-           if(v0write) then !v0write is rdovfa 
-              do ir=1,nr
-                 ov0mean = 0d0
-                 do isp=1,nsp
-                    ov0mean = ov0mean + v0pot(ib)%v( ir + nr*(isp-1) )
-                 enddo
-                 ov0mean = ov0mean/nsp !spin averaged
-                 do isp=1,nsp
-                    v0pot(ib)%v(ir + nr*(isp-1))= ov0mean
-                 enddo
-              enddo
-              open(newunit=ifi,file='v0pot.'//char(48+ib),form='unformatted')
-              write(ifi) v0pot(ib)%v(1:nr)
-              close(ifi)
-              if(ib==nbas) readov0= .TRUE.
-              call rx0('end of v0write')
-           endif
+           character charext*8
+           ! v0write=cmdopt0('--v0write')
+           ! if(v0write) then !v0write is rdovfa 
+           !    do ir=1,nr
+           !       ov0mean = 0d0
+           !       do isp=1,nsp
+           !          ov0mean = ov0mean + v0pot(ib)%v( ir + nr*(isp-1) )
+           !       enddo
+           !       ov0mean = ov0mean/nsp !spin averaged
+           !       do isp=1,nsp
+           !          v0pot(ib)%v(ir + nr*(isp-1))= ov0mean
+           !       enddo
+           !    enddo
+           !    open(newunit=ifi,file='v0pot.'//trim(charext(ib)),form='unformatted')
+           !    write(ifi) v0pot(ib)%v(1:nr)
+           !    close(ifi)
+           !    if(ib==nbas) readov0= .TRUE.
+           !    call rx0('end of v0write')
+           ! endif
            if(v0fix) then
-              inquire(file='v0pot.'//char(48+ib),exist=readov0)
-              write(6,*)'v0fixmode=',readov0
+              inquire(file='v0pot.'//trim(charext(ib)),exist=readov0)
+              write(6,*)'v0fixmode=',readov0,ib,nr
               if(readov0) then
                  v0potb:block
                    real(8):: ov0(nr)
-                   open(newunit=ifi,file='v0pot.'//char(48+ib),form='unformatted')
+                   open(newunit=ifi,file='v0pot.'//trim(charext(ib)),form='unformatted')
                    read(ifi) ov0(1:nr)
                    close(ifi)
                    do ir=1,nr

@@ -218,6 +218,7 @@ subroutine toksw_init(debug)
   call tkadd(" HAM_FRZWF~")
   call tkadd(" HAM_READP~") !2022-9-5
   call tkadd(" HAM_V0FIX~") !2022-9-5
+  call tkadd(" HAM_PNUFIX~") !2022-9-5
   call tkadd(" HAM_FTMESH")
   call tkadd(" HAM_GMAX")
   call tkadd(" HAM_PMAX~")
@@ -348,6 +349,7 @@ subroutine toksw_init(debug)
   call tkadd(" HAM_FRZWF~")
   call tkadd(" HAM_READP~") !2022-9-5
   call tkadd(" HAM_V0FIX~") !2022-9-5
+  call tkadd(" HAM_PNUFIX~") !2022-9-5
   call tkadd(" HAM_FTMESH")
   call tkadd(" HAM_GMAX")
   call tkadd(" HAM_OVEPS~ HAM_STABILIZE~") !  HAM_OVNCUT~ ")

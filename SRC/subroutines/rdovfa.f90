@@ -214,6 +214,8 @@ contains
          !v0write=cmdopt0('--v0write')
          !if(v0write) then
          do ib=1,nbas
+            is = ispec(ib) !int(ssite(ib)%spec)
+            nr=sspec(is)%nr
             do ir=1,nr
                ov0mean = 0d0
                do isp=1,nsp
@@ -224,6 +226,7 @@ contains
                   v0pot(ib)%v(ir + nr*(isp-1))= ov0mean
                enddo
             enddo
+            write(stdo,*)' writing v0pot',ib,nr
             open(newunit=ifi,file='v0pot.'//trim(charext(ib)),form='unformatted')
             write(ifi) v0pot(ib)%v(1:nr)
             close(ifi)
