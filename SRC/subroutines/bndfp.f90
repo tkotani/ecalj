@@ -584,11 +584,12 @@ contains
        OPPIHH =>sv_p_oppi(3,ib)%cv
        OPPIHP =>sv_p_oppi(2,ib)%cv
        OPPIPP =>sv_p_oppi(1,ib)%cv
-       call pvgtkn(kmax,lmxa,nlma,nkaph,norb,ltab,ktab, blks,lmxh,nlmh &
-           ,OTAUHH,OSIGHH,OPPIHH &
-           ,OTAUHP,OSIGHP,OPPIHP &
-           ,OTAUPP,OSIGPP,OPPIPP &
-           ,lso, OQHH,OQHP,OQPP, nsp,nspc, sumt, sumq, sumh )
+       call pvgtkn ( kmax , lmxa , nlma , nkaph , norb , ltab , ktab &
+            , blks , lmxh , nlmh , OTAUHH , OSIGHH , OPPIHH &
+            , OTAUHP , OSIGHP , OPPIHP &
+            , OTAUPP , OSIGPP , OPPIPP  &
+            , OQHH , OQHP , OQPP , nsp , nspc , sumt &
+            , sumq , sumh )
        !       Add site augmentation contribution to rhout * (ham - ke)
        sraugm = sraugm + sumh - sumt
 10     continue
@@ -602,7 +603,8 @@ contains
   end subroutine mkekin
   subroutine pvgtkn(kmax,lmxa,nlma,nkaph,norb,ltab,ktab,blks,lmxh, &
        nlmh,tauhh,sighh,ppihhz,tauhp,sighp,ppihpz, &
-       taupp,sigpp,ppippz,lso,qhh,qhp,qpp,nsp,nspc,   sumt,sumq,sumh)
+       taupp,sigpp,ppippz,qhh,qhp,qpp,nsp,nspc,&
+       sumt,sumq,sumh) !lso  !   ... Remove SO part from potential.
     !- Local contribution to kinetic energy for one site
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -626,7 +628,6 @@ contains
     !i   sigpp :tail-tail overlap integrals (augmat.f)
     !i   ppipp :tail-tail potential integrals (augmat.f)
     !i   lcplxp=1 only:0 if ppi is real; 1 if ppi is complex
-    !i   lso   :1 include L.S coupling; 2 include LzSz part only
     !i   qhh   :head-head density matrix for this site
     !i   qhp   :head-tail density matrix for this site
     !i   qpp   :tail-tail density matrix for this site
@@ -642,7 +643,7 @@ contains
     !u   28 Aug 01 Extended to local orbitals.
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: kmax,lmxa,nlma,lmxh,nlmh,nsp,nspc,lso
+    integer :: kmax,lmxa,nlma,lmxh,nlmh,nsp,nspc
     integer :: nkaph,norb,ltab(norb),ktab(norb),blks(norb)
     real(8):: &
          tauhh(nkaph,nkaph,0:lmxh,nsp),sighh(nkaph,nkaph,0:lmxh,nsp), &
@@ -664,9 +665,14 @@ contains
     sumh = sum(qpp(:,:,:,:,:)*ppippz(:,:,:,:,:))
     ! ... Hsm*Hsm
     do  io2 = 1, norb;    if(blks(io2)==0) cycle 
+       k2 = ktab(io2)
+       nlm21 = ltab(io2)**2+1
+       nlm22 = nlm21 + blks(io2)-1
        do  io1 = 1, norb; if(blks(io1)==0) cycle 
-          associate(k2 => ktab(io2),nlm21=>ltab(io2)**2+1,k1=>ktab(io1),nlm11 => ltab(io1)**2+1)
-            sumh = sumh+sum([( sum(qhh(k1,k2,ilm1,:,:)*ppihhz(k1,k2,ilm1,:,:)), ilm1=nlm11,nlm11+blks(io1)-1)])
+          associate(k1=>ktab(io1),nlm11 => ltab(io1)**2+1)
+            sumh = sumh+sum([( &
+                 sum(qhh(k1,k2,ilm1,nlm21:nlm22,:)*ppihhz(k1,k2,ilm1,nlm21:nlm22,:)) &
+                 ,ilm1=nlm11,nlm11+blks(io1)-1) ])
             do  ilm1 = nlm11, nlm11+ blks(io1)-1
                if( nlm21<= ilm1 .and. ilm1<=nlm21+blks(io2)-1) then
                   sumt = sumt + sum(qhh(k1,k2,ilm1,ilm1,:)*tauhh(k1,k2,ll(ilm1),:))
