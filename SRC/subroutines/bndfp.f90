@@ -143,7 +143,7 @@ contains
     logical,save:: siginit=.true.
     integer:: iter,i,ifi,ipr,iq,isp,jsp,iprint,ipts
     integer:: idummy, unlink,ifih,ifii,ib
-    real(8):: sumtv,eharris,eksham,  dosw(2),dum,evtop,ecbot,qp(3),rydberg,xxx,eeem
+    real(8):: ekinval,eharris,eksham,  dosw(2),dum,evtop,ecbot,qp(3),rydberg,xxx,eeem
     real(8):: fh_rv(3,nbas),vnow,eee,dosi(2),dee,efermxxx,emin,qvalm(2)
     real(8),allocatable:: dosi_rv(:,:),dos_rv(:,:),qmom_in(:)
     real(8),parameter::  NULLR =-99999,pi=4d0*datan(1d0)
@@ -371,13 +371,13 @@ contains
        qmom_in=qmom !multipole moments.
        eksham = 0d0 !   ... Evaluate KS total energy and output magnetic moment
        if(leks>=1) then
-          call mkekin(osig,otau,oppi,sv_p_oqkkl,vconst,osmpot,smrho_out,sev,  sumtv)
+          call mkekin(osig,otau,oppi,sv_p_oqkkl,vconst,osmpot,smrho_out,sev,  ekinval)
           call m_mkpot_energyterms(smrho_out, orhoat_out) !qmom is revised for given orhoat_out
           if(cmdopt0('--density')) then
              call mpi_barrier(MPI_comm_world,ierr)
              call rx0('end of --density mode')
           endif
-          call m_mkehkf_etot2(sev,sumtv, eksham)
+          call m_mkehkf_etot2(ekinval, eksham)
        endif
        !! --- Add together force terms ---
        !! fes1_rv: contribution to HF forces from estat + xc potential
@@ -405,13 +405,14 @@ contains
     call tcx('bndfp')
   end subroutine bndfp
 !========================================================  
-  subroutine mkekin(sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,smpot,smrho,sumev, sumtv)
+  subroutine mkekin(sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,smpot,smrho,sumev, ekinval)
     use m_struc_def
-    use m_lmfinit,only:lso,nkaph,nsp,nspc,stdo,nbas,ispec,sspec=>v_sspec,nlmto
+    use m_lmfinit,only:nkaph,nsp,nspc,stdo,nbas,ispec,sspec=>v_sspec,nlmto
     use m_lattic,only: lat_vol
     use m_supot,only: lat_nabc,k1,k2,k3
     use m_orbl,only: Orblib,ktab,ltab,offl,norb,ntab,blks
     !- Evaluate the valence kinetic energy
+    !NOTE: When SOC included, ek contains HSO, because ek= Eband- V*n where Eband contains SO contr.
     ! ----------------------------------------------------------------------
     !i Inputs
     !i   nbas  :size of basis
@@ -428,14 +429,13 @@ contains
     !i   smrho :smooth output density n0 (no gaussians n0~-n0)
     !i   sumev :sum of eigenvalues
     !o Outputs
-    !o   sumtv :kinetic energy
+    !o   ekinval :kinetic energy
     !l Local variables
     !l   sraugm:sum_ib q * (tau+ppi-tau) : corresponds to valftr in mkpot.f
     !l   smresh:sm rho * sm V ; corresponds to valfsm in mkpot.f
-    !l   lso   :1 include L.S coupling; 2 include LzSz part only
     !r Remarks
     !r   The valence kinetic energy is evaluated in the usual way as
-    !r        sumtv = sumev - srhov
+    !r        ekinval = sumev - srhov
     !r   where sumev is the sum-of-eigenvalues and srhov is the integral
     !r   of the output density and input potential.
     !r   Integrals of the density with the xc potential are folded into the
@@ -539,7 +539,7 @@ contains
          OSIGHH(:),OSIGHP(:),OSIGPP(:), &
          OTAUHH(:),OTAUHP(:),OTAUPP(:)
     complex(8),pointer:: OPPIHH(:),OPPIHP(:),OPPIPP(:)
-    real(8):: sumev , sumtv , vconst
+    real(8):: sumev , ekinval , vconst
     complex(8):: smpot(k1,k2,k3,nsp),smrho(k1,k2,k3,nsp)
     integer :: ib,igetss,ipr,is,kmax,lgunit,lmxa,lmxh,n0,n1,n2,n3, &
          ngabc(3),nglob,nkap0,nlma,nlmh
@@ -594,17 +594,18 @@ contains
        sraugm = sraugm + sumh - sumt
 10     continue
     enddo
-    srhov = srmesh + sraugm
-    sumtv = sumev - srhov
+    srhov = srmesh + sraugm != n_out*Vin
+    ekinval = sumev - srhov   != Eband - nout*Vin (V do not include SO term)
     if (ipr >= 30) write(stdo,"(/a)")' mkekin:'
-    if (ipr >= 30) write(stdo,340) srmesh,sraugm,srhov,sumev,sumtv
-340 format('   srhov:',3f14.6,' sumev=',f12.6,'   sumtv=',f12.6)
+    if (ipr >= 30) write(stdo,340) srmesh,sraugm,srhov,sumev,ekinval
+340 format('   nout*Vin = smpart,onsite,total=:',3f14.6,&
+         /'    E_B(band energy sum)=',f12.6,'  E_B-nout*Vin=',f12.6)
     call tcx('mkekin')
   end subroutine mkekin
   subroutine pvgtkn(kmax,lmxa,nlma,nkaph,norb,ltab,ktab,blks,lmxh, &
        nlmh,tauhh,sighh,ppihhz,tauhp,sighp,ppihpz, &
        taupp,sigpp,ppippz,qhh,qhp,qpp,nsp,nspc,&
-       sumt,sumq,sumh) !lso  !   ... Remove SO part from potential.
+       sumt,sumq,sumh) 
     !- Local contribution to kinetic energy for one site
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -684,10 +685,10 @@ contains
     enddo
     ! ... Hsm*Pkl
     do  io1 = 1, norb; if (blks(io1)==0) cycle
-       associate(k1=>ktab(io1), nlm11=>ltab(io1)**2+1, nlm11e=>min(ltab(io1)**2+1 + blks(io1)-1,nlma) )
-         sumh= sumh+sum([(sum(qhp(k1,:,ilm1,:,:)*ppihpz(k1,:,ilm1,:,:)),    ilm1= nlm11,nlm11+blks(io1)-1)])
-         sumt= sumt+sum([(sum(qhp(k1,:,ilm1,ilm1,:)*tauhp(k1,:,ll(ilm1),:)),ilm1= nlm11,nlm11e)])
-         sumq= sumq+sum([(sum(qhp(k1,:,ilm1,ilm1,:)*sighp(k1,:,ll(ilm1),:)),ilm1= nlm11,nlm11e)])
+       associate(k1=>ktab(io1), nlm11=>ltab(io1)**2+1, nlm11e=>min(ltab(io1)**2+1 +blks(io1)-1,nlma) )
+         sumh=sumh+sum([(sum(qhp(k1,:,ilm1,:,:)*ppihpz(k1,:,ilm1,:,:)),ilm1= nlm11,nlm11+blks(io1)-1)])
+         sumt=sumt+sum([(sum(qhp(k1,:,ilm1,ilm1,:)*tauhp(k1,:,ll(ilm1),:)),ilm1= nlm11,nlm11e)])
+         sumq=sumq+sum([(sum(qhp(k1,:,ilm1,ilm1,:)*sighp(k1,:,ll(ilm1),:)),ilm1= nlm11,nlm11e)])
        endassociate
     enddo
   end subroutine pvgtkn
