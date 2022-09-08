@@ -84,6 +84,7 @@ contains
     !o   hab   :matrix elements of the ham. with true w.f.  See Remarks.
     !o   vab   :matrix elements of the pot. with true w.f.  See Remarks.
     !o   sab   :matrix elements of    unity with true w.f.  See Remarks.
+    !o   hsozz,hsopm
     !r Remarks
     !r   This subroutine implements the computation of matrices
     !r   sigma, tau, ppi that comprise the local (augmented) part of
@@ -388,7 +389,7 @@ contains
     fh=0d0
     call fradhd(nkaph,eh,rsmh,lh,lmxh,nr,rofi,fh,xh,vh,dh)
     call fradpk(kmax,rsma,lmxa,nr,rofi,fp,xp,vp,dp)
-    ! ... LDA+U: rotate vorb from (phi,phidot) to (u,s) for all l with U at this site and store in vumm
+    ! LDA+U: rotate vorb from (phi,phidot) to (u,s) for all l with U at this site and store in vumm
     if (lldau > 0) call vlm2us(lmaxu,rmt,idu,lmxa,iblu,vorb,ppnl,vumm)
     ! ... Pkl*Pkl !tail x tail
     call gaugm ( nr , nsp , lso , rofi , rwgt , lmxa , lmxl &

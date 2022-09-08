@@ -221,15 +221,13 @@ contains
     complex(8):: hsozz(nf1,nf2,nlx1,nlx2,nsp)
     complex(8):: hsopm(nf1,nf2,nlx1,nlx2,nsp) !offdiag parts for <isp|ispo> (see sodb(*,2))
     real(8)::   ppir(nf1,nf2,nlx1,nlx2,nsp)
-    !      stdo = lgunit(1)
-    !      allocate(hso(nf1,nf2,nlx1,nlx2,nsp,2),ppiz(nf1,nf2,nlx1,nlx2,nsp,2))
     allocate(ppiz(nf1,nf2,nlx1,nlx2,nsp))
     if(lso/=0)  hsozz=0d0
     if(lso/=0)  hsopm=0d0
     if(lldau/=0) ppiz=0d0
     ppir=0d0
     do i = 1, nsp
-       call dpcopy(vsm(1,1,i),vsms,1,nr,y0) !Spherical part of the smooth potential
+       vsms=y0*vsm(1:nr,1,i)!Spherical part of the smooth potential
        ! --- Make sig, tau, ppi0 = spherical part of ppi ---
        !     pvagm2: smooth f1^*f2^ part of sig and corresponding tau, ppi0
        call pvagm2(nf1,lmx1,lx1,f1,x1,nf2,lmx2,lx2,f2,x2, &
@@ -241,7 +239,6 @@ contains
             hab(1,1,i),vab(1,1,i),sab(1,1,i), &
             sodb(1,1,i,1),sodb(1,1,i,2),lmux, &
             sig(1,1,0,i),tau(1,1,0,i),ppi0, &
-                                !     .  hso(1,1,1,1,i,1),hso(1,1,1,1,i,2))
             hsozz(1,1,1,1,i),hsopm(1,1,1,1,i))
        !     pvagm1: augm. f1~f2~ part of sig and corresponding tau,ppi0
        !     for local orbitals
@@ -250,9 +247,7 @@ contains
             hab(1,1,i),vab(1,1,i),sab(1,1,i), &
             sodb(1,1,i,1),sodb(1,1,i,2), &
             lmux,sig(1,1,0,i),tau(1,1,0,i),ppi0, &
-                                !     .  hso(1,1,1,1,i,1),hso(1,1,1,1,i,2))
             hsozz(1,1,1,1,i),hsopm(1,1,1,1,i))
-
        ! --- Contribution to ppi from non-spherical potential ---
        !     paug2: smooth integral f1^ (-vsm) f2^ for nonspherical part of vsm
        !     Also include local orbitals; require f=0 if no smooth part.
@@ -266,77 +261,61 @@ contains
        call pvagm3(nf1,nf1s,lmx1,lx1,f1,v1,d1,nf2,nf2s,lmx2,lx2,f2,v2,d2, &
             nr,rofi,rwgt,lmxa,qum(0,0,0,1,i),lmxl,qm)
        ! --- Add any LDA+U contribution that exists
-       if (lldau /= 0) then
-          call paugnl(nf1,nf1s,lmx1,lx1,v1,d1,nf2,nf2s,lmx2,lx2,v2,d2, &
+       if (lldau /= 0) call paugnl(nf1,nf1s,lmx1,lx1,v1,d1,nf2,nf2s,lmx2,lx2,v2,d2, &
                lmaxu,vumm,nlx1,nlx2,ppiz(1,1,1,1,i),i,idu)
-       endif
        ! --- Assemble ppi from ppi0, non-spherical part and multipole contr ---
        call paug3(nf1,lmx1,lx1,nf2,lmx2,lx2,lmxl,nlml,cg,jcg, &
             indxcg,qm,gpotb,gpot0,lmux,ppi0,nlx1,nlx2,ppir(1,1,1,1,i))
        ! --- Add tau into ppi ---
        do  i1 = 1, nf1
           do  i2 = 1, nf2
-             nlm1 = (lx1(i1)+1)**2
-             nlm2 = (lx2(i2)+1)**2
-             nlm = min0(nlm1,nlm2)
-             do  ilm = 1, nlm
-                l = ll(ilm)
-                ppir(i1,i2,ilm,ilm,i) = ppir(i1,i2,ilm,ilm,i) &
-                     + tau(i1,i2,l,i)
+             do  ilm = 1, min0((lx1(i1)+1)**2,(lx2(i2)+1)**2)
+                ppir(i1,i2,ilm,ilm,i) = ppir(i1,i2,ilm,ilm,i) + tau(i1,i2,ll(ilm),i)
              enddo
           enddo
        enddo
-       ! --- debug Print diagonal augmentation matrices ---
-       if(iprint() >=80) then
-          write(stdo,501) i
-          do  i1 = 1, nf1
-             do  i2 = 1, nf2
-                nlm1 = (lx1(i1)+1)**2
-                nlm2 = (lx2(i2)+1)**2
-                nlm = min0(nlm1,nlm2)
-                write(stdo,*) ' '
-                do  ilm = 1, nlm
-                   l=ll(ilm)
-                   write(stdo,500) i1,i2,ilm,sig(i1,i2,l,i),tau(i1,i2,l,i), &
-                        ppir(i1,i2,ilm,ilm,i)
-500                format(2i4,i6,3f14.8)
-501                format(/'# diagonal aug matrices spin',i2,':' &
-                        /'# i1  i2   ilm',8x,'sig',11x,'tau',11x,'ham')
-                enddo
-             enddo
-          enddo
-          ! ... Print LL' potential matrix (which includes tau)
-          write(stdo,'(''#pi matrix:'')')
-          write(stdo,'(''#i1 i2  ilm1 ilm2     ham'')')
-          do  i1 = 1, nf1
-             do  i2 = 1, nf2
-                nlm1 = (lx1(i1)+1)**2
-                nlm2 = (lx2(i2)+1)**2
-                do  ilm1 = 1, nlm1
-                   do  ilm2 = 1, nlm2
-                      if (dabs(ppir(i1,i2,ilm1,ilm2,i)) >= 1d-8) &
-                           write(stdo,320) i1,i2,ilm1,ilm2,ppir(i1,i2,ilm1,ilm2,i)
-320                   format(2i3,2i5,f14.8)
-
-                   enddo
-                enddo
-             enddo
-          enddo
-       endif
     enddo
-    !---------------------------------
-    ! Convert ppi(:,:,:,:,nsp,ispc=1) to complex form
+!        ! --- debug Print diagonal augmentation matrices ---
+!        if(iprint() >=80) then
+!           write(stdo,501) i
+!           do  i1 = 1, nf1
+!              do  i2 = 1, nf2
+!                 nlm1 = (lx1(i1)+1)**2
+!                 nlm2 = (lx2(i2)+1)**2
+!                 nlm = min0(nlm1,nlm2)
+!                 write(stdo,*) ' '
+!                 do  ilm = 1, nlm
+!                    l=ll(ilm)
+!                    write(stdo,500) i1,i2,ilm,sig(i1,i2,l,i),tau(i1,i2,l,i), &
+!                         ppir(i1,i2,ilm,ilm,i)
+! 500                format(2i4,i6,3f14.8)
+! 501                format(/'# diagonal aug matrices spin',i2,':' &
+!                         /'# i1  i2   ilm',8x,'sig',11x,'tau',11x,'ham')
+!                 enddo
+!              enddo
+!           enddo
+!           ! ... Print LL' potential matrix (which includes tau)
+!           write(stdo,'(''#pi matrix:'')')
+!           write(stdo,'(''#i1 i2  ilm1 ilm2     ham'')')
+!           do  i1 = 1, nf1
+!              do  i2 = 1, nf2
+!                 nlm1 = (lx1(i1)+1)**2
+!                 nlm2 = (lx2(i2)+1)**2
+!                 do  ilm1 = 1, nlm1
+!                    do  ilm2 = 1, nlm2
+!                       if (dabs(ppir(i1,i2,ilm1,ilm2,i)) >= 1d-8) &
+!                            write(stdo,320) i1,i2,ilm1,ilm2,ppir(i1,i2,ilm1,ilm2,i)
+! 320                   format(2i3,2i5,f14.8)
+!                    enddo
+!                 enddo
+!              enddo
+!           enddo
+!        endif
+!    enddo
     ppi = ppir
-    ! Add U contribituon to ppi
     if(lldau/=0) call zaxpy(nf1*nf2*nlx1*nlx2*nsp,1d0,ppiz,1,ppi,1)
     deallocate(ppiz)
-    !c!! Add SO contribution to ppi
-    !      if (lso/=0) then
-    !         ppi(:,:,:,:,1)= ppi(:,:,:,:,1) +  0.5d0* hsozz(:,:,:,:,1)!isp=1
-    !         ppi(:,:,:,:,2)= ppi(:,:,:,:,2) -  0.5d0* hsozz(:,:,:,:,2)!isp=2
-    !      endif
   end subroutine gaugm
-
   subroutine pvagm1(nf1,nf1s,lmx1,lx1,nlx1,v1,d1,isp, &
        nf2,nf2s,lmx2,lx2,nlx2,v2,d2,lso, &
        hab,vab,sab,sodb,sondb,lmux,sig,tau,ppi, &
@@ -734,33 +713,8 @@ contains
              enddo
           enddo
        enddo
-
     endif
-
-    !      if (lso .ne. 0) then
-    !        print *, '!! zero out hsopm'
-    !        call dpzero(hsopm, nf1*nf2*nlx1*nlx2*2)
-    !C       call dpzero(hsozz, nf1*nf2*nlx1*nlx2*2)
-    !      endif
-
-
-    !      print *, 'pvaug1'
-    !      do  i1 = 1, nf1s
-    !        do  i2 = 1, nf2s
-    !          lmax1 = lx1(i1)
-    !          lmax2 = lx2(i2)
-    !          lmax = min0(lmax1,lmax2)
-    !          write(*,*) ' '
-    !          do  l = 0, lmax
-    !            write(*,500) i1,i2,l,sig(i1,i2,l),tau(i1,i2,l)
-    !  500       format(2i4,i6,3f14.8)
-    !          enddo
-    !        enddo
-    !      enddo
-    !      stop
-
   end subroutine pvagm1
-
   subroutine pvaglc(nf1,nf1s,lmx1,lx1,nlx1,v1,d1,isp, &
        nf2,nf2s,lmx2,lx2,nlx2,v2,d2,lso, &
        hab,vab,sab,sodb,sondb, &
@@ -839,8 +793,7 @@ contains
     !u Updates
     !u   26 Sep 05 (A. Chantis) added matrix elements for SO coupling
     ! ----------------------------------------------------------------------
-    !     implicit none
-    ! ... Passed parameters
+    implicit none
     integer :: lmux,lmx1,lmx2,nf1,nf2,nf1s,nf2s,lx1(nf1),lx2(nf2),isp,nlx1,nlx2
     double precision :: hab(nab,0:n0-1),sab(nab,0:n0-1),vab(nab,0:n0-1), &
          v1(0:lmx1,nf1),d1(0:lmx1,nf1), &
@@ -849,22 +802,17 @@ contains
     !     Spin-Orbit related
     double precision :: sodb(nab,0:n0-1),sondb(nab,0:n0-1)
     double complex hsozz(nf1,nf2,nlx1,nlx2),hsopm(nf1,nf2,nlx1,nlx2)
-    ! ... Local parameters
     integer :: i1,i2,lmax1,lmax2,lmax,l
     !     Spin-Orbit related
     integer :: m1,m2,l1,l2,lso
     double precision :: tmp(nf1,nf2,nlx1,nlx2),tmp1(nf1,nf2,nlx1,nlx2), &
          a1,a2
     double complex img
-
-    if (nf1s >= nf1 .AND. nf2s >= nf2) return
-
     if (lso /= 0) then
        img = dcmplx(0d0,1d0)
        call dpzero(tmp,   nf1*nf2*nlx1*nlx2)
        call dpzero(tmp1,  nf1*nf2*nlx1*nlx2)
     endif
-
     do  i1 = 1, nf1
        do  i2 = 1, nf2
           if (i1 > nf1s .OR. i2 > nf2s) then
@@ -874,13 +822,6 @@ contains
              l1 = 0
              l2 = 0
              do  l = 0, lmax
-
-                !            print *, '!! zero'
-                !            v2(l,i2) = 0
-                !            d2(l,i2) = 1
-                !            v1(l,i1) = 0
-                !            d1(l,i1) = 1
-
                 !       ... hzz,vzz,szz
                 if (i1 > nf1s .AND. i2 > nf2s) then
                    sig(i1,i2,l) = -sig(i1,i2,l) + sab(7,l)
@@ -1172,27 +1113,7 @@ contains
           endif
        enddo
     enddo
-
-    !      print *, 'pvaglc'
-    !      print *, ' i1  i2     l      sig           tau           ppi0'
-    !      do  i1 = 1, nf1
-    !        do  i2 = 1, nf2
-    !          if (i1 .gt. nf1s .or. i2 .gt. nf2s) then
-    !          lmax1 = lx1(i1)
-    !          lmax2 = lx2(i2)
-    !          lmax = min0(lmax1,lmax2)
-    !          if (lmax .ge. 0) write(*,*) ' '
-    !          do  l = 0, lmax
-    !            write(*,500) i1,i2,l,sig(i1,i2,l),
-    !     .        tau(i1,i2,l)+0*ppi(i1,i2,l),ppi(i1,i2,l)
-    !  500       format(2i4,i6,3f14.8)
-    !          enddo
-    !        endif
-    !        enddo
-    !      enddo
-    !      stop
   end subroutine pvaglc
-
   subroutine pvagm2(nf1,lmx1,lx1,f1,x1,nf2,lmx2,lx2,f2,x2, &
        nr,rofi,rwgt,vsms,lmux,sig,tau,ppi)
     !- Smooth part of sig, tau, ppi (spherical part of local smooth pot)
@@ -1256,23 +1177,17 @@ contains
     !u             Envelopes f1,f2 must be zero for all channels that
     !u             have no smooth counterparts to subtract.
     ! ----------------------------------------------------------------------
-    !     implicit none
-    ! ... Passed parameters
+    implicit none
     integer :: lmux,lmx1,lmx2,nf1,nf2,nr,lx1(nf1),lx2(nf2)
     double precision :: rofi(nr),rwgt(nr),vsms(nr), &
          f1(nr,0:lmx1,nf1),x1(nr,0:lmx1,nf1), &
          f2(nr,0:lmx2,nf2),x2(nr,0:lmx2,nf2), &
          ppi(nf1,nf2,0:lmux),sig(nf1,nf2,0:lmux),tau(nf1,nf2,0:lmux)
-    ! ... Local parameters
     integer :: i1,i2,lmax1,lmax2,lmax,l,i
     double precision :: sum,sim,tum,vum,xbc
-
     call dpzero(sig, nf1*nf2*(lmux+1))
     call dpzero(tau, nf1*nf2*(lmux+1))
     call dpzero(ppi, nf1*nf2*(lmux+1))
-    !     print *, '!! skip pvagm2'
-    !     return
-
     do  i1 = 1, nf1
        do  i2 = 1, nf2
           lmax1 = lx1(i1)
@@ -1297,30 +1212,7 @@ contains
           enddo
        enddo
     enddo
-
-    !      call dvset(sig,1,nf1*nf2*(lmux+1),-99d0)
-
-    !      print *, 'pvagm2'
-    !      print *, ' i1  i2     l      sig           tau           ppi0'
-    !      do  i1 = 1, nf1
-    !        do  i2 = 1, nf2
-    !          lmax1 = lx1(i1)
-    !          lmax2 = lx2(i2)
-    !          lmax = min0(lmax1,lmax2)
-    !          if (lmax .ge. 0) write(*,*) ' '
-    !          do  l = 0, lmax
-    !            write(*,500) i1,i2,l,sig(i1,i2,l),tau(i1,i2,l),ppi(i1,i2,l)
-    !  500       format(2i4,i6,3f14.8)
-    !          enddo
-    !        enddo
-    !      enddo
-    !      stop
-
-    !     call prrmsh('f1',rofi,f1(1,0,1),nr,nr,lx1(1)+1)
-    !     call prrmsh('f2',rofi,f1(1,0,2),nr,nr,lx1(2)+1)
-
   end subroutine pvagm2
-
   subroutine pvagm3(nf1,nf1s,lmx1,lx1,f1,v1,d1,nf2,nf2s,lmx2,lx2,f2, &
        v2,d2,nr,rofi,rwgt,lmxa,qum,lmxl,qm)
     !- Moments of f1~*f2~ - f1*f2
@@ -1415,8 +1307,7 @@ contains
     !u   20 Jul 04 bug fix: improper indices in qum for local orbitals
     !u   14 Sep 01 Added treatment for local orbitals.  Altered argument list.
     ! ----------------------------------------------------------------------
-    !     implicit none
-    ! ... Passed parameters
+    implicit none
     integer :: nf1,nf2,nf1s,nf2s,lmx1,lmx2,lmxa,lmxl,nr
     integer :: lx1(nf1),lx2(nf2)
     double precision :: rofi(nr),rwgt(nr), &
@@ -1424,38 +1315,25 @@ contains
          f1(nr,0:lmx1,nf1),v1(0:lmx1,nf1s),d1(0:lmx1,nf1s), &
          f2(nr,0:lmx2,nf2),v2(0:lmx2,nf2s),d2(0:lmx2,nf2s), &
          qum(0:lmxa,0:lmxa,0:lmxl,6)
-    ! ... Local parameters
     integer :: i1,i2,l1,l2,lm,i
-    double precision :: sum,sam
-
-    call dpzero(qm,nf1*nf2*(lmx1+1)*(lmx2+1)*(lmxl+1))
-
+    double precision :: ssum,sam
+    qm=0d0 !call dpzero(qm,nf1*nf2*(lmx1+1)*(lmx2+1)*(lmxl+1))
     do  i1 = 1, nf1s
        do  i2 = 1, nf2s
           do  l1 = 0, lx1(i1)
              do  l2 = 0, lx2(i2)
                 do  lm = 0, lmxl
-
-                   !           ... Part from smooth functions
-                   sum = 0d0
-                   do  i = 2, nr
-                      sum = sum+rwgt(i)*f1(i,l1,i1)*f2(i,l2,i2)*rofi(i)**lm
-                   enddo
-
-                   !           ... Part from augmented functions
-                   sam = v1(l1,i1) * v2(l2,i2) * qum(l1,l2,lm,1) &
+                   qm(i1,i2,l1,l2,lm) = &
+                        v1(l1,i1) * v2(l2,i2) * qum(l1,l2,lm,1) & !from augmented functions
                         + v1(l1,i1) * d2(l2,i2) * qum(l1,l2,lm,2) &
                         + d1(l1,i1) * v2(l2,i2) * qum(l2,l1,lm,2) &
-                        + d1(l1,i1) * d2(l2,i2) * qum(l1,l2,lm,3)
-
-                   qm(i1,i2,l1,l2,lm) = sam-sum
-
+                        + d1(l1,i1) * d2(l2,i2) * qum(l1,l2,lm,3) &
+                        - sum([(rwgt(i)*f1(i,l1,i1)*f2(i,l2,i2)*rofi(i)**lm,i=2,nr)])!from smooth fun.
                 enddo
              enddo
           enddo
        enddo
     enddo
-
     ! --- Moments involving local orbitals ---
     if (nf1s >= nf1 .AND. nf2s >= nf2) return
     do  i1 = 1, nf1
@@ -1464,36 +1342,21 @@ contains
              do  l1 = 0, lx1(i1)
                 do  l2 = 0, lx2(i2)
                    do  lm = 0, lmxl
-
-                      !           ... Part from smooth functions (zero for true loc. orbitals)
-                      sum = 0d0
-                      do  i = 2, nr
-                         sum = sum+rwgt(i)*f1(i,l1,i1)*f2(i,l2,i2)*rofi(i)**lm
-                      enddo
-
+                      !ssum = 0d0
+                      !do  i = 2, nr
+                      !   ssum = ssum+rwgt(i)*f1(i,l1,i1)*f2(i,l2,i2)*rofi(i)**lm
+                      !enddo
+                      ssum = sum([(rwgt(i)*f1(i,l1,i1)*f2(i,l2,i2)*rofi(i)**lm,i=2,nr)])
                       !               Both f1~ and f2~ are local orbitals
                       if (i1 > nf1s .AND. i2 > nf2s) then
-                         sam = qum(l1,l2,lm,6)
-                         !               f1~ is local, f2~ is linear combination of (u,s)
-                      elseif (i1 > nf1s) then
-                         sam = v2(l2,i2) * qum(l2,l1,lm,4) &
-                              + d2(l2,i2) * qum(l2,l1,lm,5)
-                         !               f1~ is linear combination of (u,s), f2~ is local
-                      elseif (i2 > nf2s) then
-                         sam = v1(l1,i1) * qum(l1,l2,lm,4) &
-                              + d1(l1,i1) * qum(l1,l2,lm,5)
+                         sam = qum(l1,l2,lm,6) 
+                      elseif (i1 > nf1s) then!  f1~ is local, f2~ is linear combination of (u,s)
+                         sam = v2(l2,i2) * qum(l2,l1,lm,4) + d2(l2,i2) * qum(l2,l1,lm,5)
+                      elseif (i2 > nf2s) then !f1~ is linear combination of (u,s), f2~ is local
+                         sam = v1(l1,i1) * qum(l1,l2,lm,4) + d1(l1,i1) * qum(l1,l2,lm,5)
                       endif
-
-                      if (sam == 0 .AND. sum /= 0) then
-                         call rx( &
-                              'gaugm: inconsistent treatment of local orbitals')
-                      endif
-
-                      !               if (sam .ne. 0) print 43, i1,i2,l1,l2,lm,sam,sum,sum/sam
-                      !  43           format(5i5,3f12.6)
-
-                      qm(i1,i2,l1,l2,lm) = sam-sum
-
+                      if(sam==0.AND.ssum/=0)call rx('gaugm: inconsistent treatment of local orbitals')
+                      qm(i1,i2,l1,l2,lm) = sam-ssum
                    enddo
                 enddo
              enddo
@@ -1554,18 +1417,14 @@ contains
     !u Updates
     !u   27 Aug 01 Extended to local orbitals.  Altered argument list.
     ! ----------------------------------------------------------------------
-    !     implicit none
-    ! ... Passed parameters
+         implicit none
     integer :: lmx1,lmx2,lmxa,nf1,nf1s,nf2,nf2s,nlml,nlx1,nlx2
     integer :: lx1(nf1),lx2(nf2),jcg(1),indxcg(1)
     double precision :: vum(0:lmxa,0:lmxa,nlml,6), &
          v1(0:lmx1,nf1),d1(0:lmx1,nf1), &
-         v2(0:lmx2,nf2),d2(0:lmx2,nf2), &
-         ppi(nf1,nf2,nlx1,nlx2),cg(1)
-    ! ... Local parameters
+         v2(0:lmx2,nf2),d2(0:lmx2,nf2), ppi(nf1,nf2,nlx1,nlx2),cg(1)
     integer :: i1,i2,icg,ilm1,ilm2,ix,l1,l2,ll,mlm,nlm1,nlm2
     double precision :: add=1d99
-
     ! ... Combine with CG coefficents
     do  i1 = 1, nf1s
        do  i2 = 1, nf2s
@@ -1580,22 +1439,17 @@ contains
                 do  icg = indxcg(ix),indxcg(ix+1)-1
                    mlm = jcg(icg)
                    if (mlm > 1 .AND. mlm <= nlml) then
-
                       add = v1(l1,i1) * v2(l2,i2) * vum(l1,l2,mlm,1) &
                            + v1(l1,i1) * d2(l2,i2) * vum(l1,l2,mlm,2) &
                            + d1(l1,i1) * v2(l2,i2) * vum(l2,l1,mlm,2) &
                            + d1(l1,i1) * d2(l2,i2) * vum(l1,l2,mlm,3)
-                      ppi(i1,i2,ilm1,ilm2) = ppi(i1,i2,ilm1,ilm2) &
-                           + cg(icg)*add
-
+                      ppi(i1,i2,ilm1,ilm2) = ppi(i1,i2,ilm1,ilm2)+ cg(icg)*add
                    endif
                 enddo
              enddo
           enddo
        enddo
     enddo
-
-
     ! --- Matrix elements involving local orbitals ---
     if (nf1s >= nf1 .AND. nf2s >= nf2) return
     do  i1 = 1, nf1
@@ -1612,26 +1466,14 @@ contains
                    do  icg = indxcg(ix),indxcg(ix+1)-1
                       mlm = jcg(icg)
                       if (mlm > 1 .AND. mlm <= nlml) then
-                         !                 <g | V | g>
-                         if (i1 > nf1s .AND. i2 > nf2s) then
+                         if (i1 > nf1s .AND. i2 > nf2s) then!    <g | V | g>
                             add = vum(l1,l2,mlm,6)
-                            !                 <g | V | (u,s)>
-                         elseif (i1 > nf1s) then
-                            !                   Bug fix 27 Jun 05
-                            add = vum(l2,l1,mlm,4) * v2(l2,i2) &
-                                 + vum(l2,l1,mlm,5) * d2(l2,i2)
-                            !                   add = v2(l2,i2) * vum(l1,l2,mlm,4)
-                            !     .                 + d2(l2,i2) * vum(l1,l2,mlm,5)
-                            !                 <(u,s) | V | g>
-                         elseif (i2 > nf2s) then
-                            !                   Bug fix 27 Jun 05
-                            add = v1(l1,i1) * vum(l1,l2,mlm,4) &
-                                 + d1(l1,i1) * vum(l1,l2,mlm,5)
-                            !                   add = v1(l1,i1) * vum(l1,l2,mlm,4)
-                            !     .                 + d1(l1,i1) * vum(l2,l1,mlm,5)
+                         elseif (i1 > nf1s) then  !              <g | V | (u,s)>
+                            add = vum(l2,l1,mlm,4) * v2(l2,i2) + vum(l2,l1,mlm,5) * d2(l2,i2)  
+                         elseif (i2 > nf2s) then !               <(u,s) | V | g>
+                            add = v1(l1,i1) * vum(l1,l2,mlm,4) + d1(l1,i1) * vum(l1,l2,mlm,5)
                          endif
-                         ppi(i1,i2,ilm1,ilm2) = ppi(i1,i2,ilm1,ilm2) &
-                              + cg(icg)*add
+                         ppi(i1,i2,ilm1,ilm2) = ppi(i1,i2,ilm1,ilm2) + cg(icg)*add
                       endif
                    enddo
                 enddo
@@ -1639,11 +1481,9 @@ contains
           endif
        enddo
     enddo
-
   end subroutine paug1
-
   subroutine paug2(nr,nlml,v2,rwgt,cg,jcg,indxcg, &
-       nf1,nf1s,lmx1,lx1,f1,nf2,nf2s,lmx2,lx2,f2,sum,nlx1,nlx2,ppi)
+       nf1,nf1s,lmx1,lx1,f1,nf2,nf2s,lmx2,lx2,f2,ssum,nlx1,nlx2,ppi)
     !- Put in ppi constribution from smooth pot, smooth wave functions
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -1680,35 +1520,21 @@ contains
     !u Updates
     !u   24 Aug 01 Extended to local orbitals, which have no smooth part
     ! ----------------------------------------------------------------------
-    !     implicit none
-    ! ... Passed parameters
+    implicit none
     integer :: lmx1,lmx2,nf1,nf2,nf1s,nf2s,nlml,nlx1,nlx2,nr
     integer :: lx1(nf1),lx2(nf2),jcg(1),indxcg(1)
     double precision :: v2(nr,nlml),rwgt(nr), &
          ppi(nf1,nf2,nlx1,nlx2),f1(nr,0:lmx1,nf1s),f2(nr,0:lmx2,nf2s), &
-         cg(1),sum(0:lmx1,0:lmx2,nlml)
-    ! ... Local parameters
-    integer :: i1,i2,icg,ilm1,ilm2,ix,l1,l2,ll,mlm,nlm1,nlm2
+         cg(1),ssum(0:lmx1,0:lmx2,nlml)
+    integer :: i1,i2,icg,ilm1,ilm2,ix,l1,l2,ll,mlm,nlm1,nlm2,i
     double precision :: sam
-
-    ! ... Zero out ppi
-    call dpzero(ppi, nf1*nf2*nlx1*nlx2)
-
+    ppi=0d0 
     ! ... Sum over CG coefficients, make radial integrals as needed
     do  i1 = 1, nf1s
        do  i2 = 1, nf2s
           nlm1 = (lx1(i1)+1)**2
           nlm2 = (lx2(i2)+1)**2
-
-          !         Set flag for all integrals --- integral not yet calculated
-          do  l1 = 0, lx1(i1)
-             do  l2 = 0, lx2(i2)
-                do  mlm = 1, nlml
-                   sum(l1,l2,mlm) = 2d10
-                enddo
-             enddo
-          enddo
-
+          ssum(0:lx1(i1),0:lx2(i2),1:nlml) = 2d10 ! --- integral not yet calculated
           do  ilm1 = 1, nlm1
              l1 = ll(ilm1)
              do  ilm2 = 1, nlm2
@@ -1718,24 +1544,17 @@ contains
                 do icg = indxcg(ix),indxcg(ix+1)-1
                    mlm = jcg(icg)
                    if (mlm > 1 .AND. mlm <= nlml) then
-                      if (sum(l1,l2,mlm) > 1d10) then
-                         call paug4(lmx1,f1,lmx2,f2,i1,i2,l1,l2,mlm, &
-                              nr,rwgt,v2,sam)
-                         sum(l1,l2,mlm) = sam
-                         !                   if (sam .ne. 0) write(*,500) i1,i2,ilm1,ilm2,sam
-                         ! 500               format(2i4,2x,2i4,f14.8)
+                      if (ssum(l1,l2,mlm) > 1d10) then
+                         ssum(l1,l2,mlm) = sum([(rwgt(i)*v2(i,mlm)*f1(i,l1,i1)*f2(i,l2,i2),i=2,nr)])
                       endif
-                      ppi(i1,i2,ilm1,ilm2) = ppi(i1,i2,ilm1,ilm2) &
-                           - cg(icg)*sum(l1,l2,mlm)
+                      ppi(i1,i2,ilm1,ilm2) = ppi(i1,i2,ilm1,ilm2) - cg(icg)*ssum(l1,l2,mlm)
                    endif
                 enddo
              enddo
           enddo
        enddo
     enddo
-
   end subroutine paug2
-
   subroutine paug3(nf1,lmx1,lx1,nf2,lmx2,lx2,lmxl,nlml, &
        cg,jcg,indxcg,qm,gpotb,gpot0,lmux,ppi0,nlx1,nlx2,ppi)
     !- Assemble the final potential augmentation matrix
@@ -1779,22 +1598,12 @@ contains
     !u   14 Sep 01 Extended to local orbitals, which have no smooth part
     !u   17 May 00 Adapted from nfp paug1.f
     ! ----------------------------------------------------------------------
-    !     implicit none
-    ! ... Passed parameters
+    implicit none
     integer :: lmux,lmx1,lmx2,lmxl,nf1,nf2,nlml,nlx1,nlx2
     integer :: lx1(nf1),lx2(nf2),jcg(1),indxcg(1)
     double precision :: ppi0(nf1,nf2,0:lmux),ppi(nf1,nf2,nlx1,nlx2), &
          cg(1),gpotb(nlml),gpot0(nlml),qm(nf1,nf2,0:lmx1,0:lmx2,0:lmxl)
-    ! ... Local parameters
     integer :: i1,i2,nlm1,nlm2,ilm1,ilm2,l1,l2,ll,ix,icg,mlm,lm
-
-    !     print *, 'paug3 zero'
-    !     ppi = 0
-    !     ppi0 = 0
-    !     gpot0 = 0
-    !     gpotb = 0
-    !     gpot0(1) = 1
-
     ! ... Add terms from moments of f~g~ - fg and ppi0 to ppi
     do  i1 = 1, nf1
        do  i2 = 1, nf2
@@ -1804,7 +1613,6 @@ contains
              l1 = ll(ilm1)
              if (ilm1 <= nlm2) &
                   ppi(i1,i2,ilm1,ilm1) = ppi(i1,i2,ilm1,ilm1) + ppi0(i1,i2,l1)
-             !           if (i1 .le. nf1s .and. i2 .le. nf2s) then
              do  ilm2 = 1, nlm2
                 l2 = ll(ilm2)
                 ix = max0(ilm1,ilm2)
@@ -1818,31 +1626,10 @@ contains
                    endif
                 enddo
              enddo
-             !           endif
           enddo
        enddo
     enddo
-
-    !      print *, nf1,nf2
-    !      write(66) ppi
   end subroutine paug3
-
-  subroutine paug4(lmx1,f1,lmx2,f2,i1,i2,l1,l2,mlm,nr,rwgt,v2,sam)
-    !- Make an integral f1*V_mlm*f2
-    !     implicit none
-    ! ... Passed parameters
-    integer :: i1,i2,l1,l2,lmx1,lmx2,mlm,nr
-    double precision :: sam,v2(nr,1),rwgt(nr), &
-         f1(nr,0:lmx1,1),f2(nr,0:lmx2,1)
-    ! ... Local parameters
-    integer :: i
-
-    sam = 0d0
-    do  i = 2, nr
-       sam = sam + rwgt(i)*v2(i,mlm)*f1(i,l1,i1)*f2(i,l2,i2)
-    enddo
-
-  end subroutine paug4
   subroutine paugnl(nf1,nf1s,lmx1,lx1,v1,d1,nf2,nf2s,lmx2,lx2,v2,d2, &
        lmaxu,vumm,nlx1,nlx2,ppiz,isp,idu)
     !- Add to ppi contribution from non local part of pot (LDA+U)
@@ -1902,14 +1689,8 @@ contains
     ! ... Local parameters
     integer :: i1,i2,ilm1,ilm2,l1,l2,m1,m2
     double complex add
-
-    !     call zprm('paugnl, init ppiz',2,ppiz,nf1*nf2,nf1*nf2,nlx1*nlx2)
-    !     ilm1 = 2*lmaxu+1
-    !     call zprm('paugnl, vumm',2,vumm,ilm1,ilm1,ilm1)
-
     do  i1 = 1, nf1
        do  i2 = 1, nf2
-
           !     ... Matrix elements of vumm constructed from (u,s)
           ilm1 = 0
           do  l1 = 0, min(lx1(i1),lmaxu)
@@ -1920,38 +1701,29 @@ contains
                    do  m2 = -l2, l2
                       ilm2 = ilm2+1
                       if (idu(l1+1) /= 0 .AND. l1 == l2) then
-
                          !           ... (u,s)V(u,s)
                          if (i1 <= nf1s .AND. i2 <= nf2s) then
                             add = v1(l1,i1) * v2(l2,i2) * vumm(m1,m2,1,isp,l1) &
                                  + v1(l1,i1) * d2(l2,i2) * vumm(m1,m2,2,isp,l1) &
                                  + d1(l1,i1) * v2(l2,i2) * vumm(m1,m2,3,isp,l1) &
                                  + d1(l1,i1) * d2(l2,i2) * vumm(m1,m2,4,isp,l1)
-
                             !           ... zVz
                          elseif (i1 > nf1s .AND. i2 > nf2s) then
                             add = vumm(m1,m2,7,isp,l1)
                             !           ... zV(u,s)
                          elseif (i1 > nf1s) then
-                            add = vumm(m1,m2,8,isp,l1) * v2(l2,i2) &
-                                 + vumm(m1,m2,9,isp,l1) * d2(l2,i2)
+                            add = vumm(m1,m2,8,isp,l1) * v2(l2,i2) + vumm(m1,m2,9,isp,l1) * d2(l2,i2)
                             !           ... (u,s)Vz
                          elseif (i2 > nf2s) then
-                            add = v1(l1,i1) * vumm(m1,m2,5,isp,l1) &
-                                 + d1(l1,i1) * vumm(m1,m2,6,isp,l1)
+                            add = v1(l1,i1) * vumm(m1,m2,5,isp,l1) + d1(l1,i1) * vumm(m1,m2,6,isp,l1)
                          endif
-
                          ppiz(i1,i2,ilm1,ilm2) = ppiz(i1,i2,ilm1,ilm2) + add
                       endif
                    enddo
                 enddo
              enddo
           enddo
-
        enddo
     enddo
-
   end subroutine paugnl
-
-
 end module m_gaugm
