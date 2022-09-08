@@ -59,7 +59,6 @@ contains
     !i   rs3   :smoothing radius for extrapolation of MT potential
     !i   vmtz  :muffin-tin zero: subtracted from V in the fitting procedure.
     !i         :The asymptotic form of V-vmtz is taken to be zero.
-    !i  lcplxp :0 if ppi is real; 1 if ppi is complex
     !i   ...   The following are LDA+U-related
     !i   lmaxu :dimensioning parameter for U matrix
     !i   vorb  :orbital dependent potential matrices
@@ -178,8 +177,8 @@ contains
     !r
     !r  Local orbitals : local orbitals occur in one of these types:
     !r  1. val,slo=0 at rmt                         (10s digit pnz=0)
-    !r  2. val,slo matches sm hankel                (10s digit pnz=1)
-    !r  3. val,slo matches sm hankel, perturbative  (10s digit pnz=2)
+    !rxxx  2. val,slo matches sm hankel                (10s digit pnz=1)
+    !rxxx  3. val,slo matches sm hankel, perturbative  (10s digit pnz=2)
     !r  In all cases tails are not expanded about other sites.  Thus local
     !r  orbitals involve only one- and two-center terms.
     !r
@@ -338,7 +337,7 @@ contains
 
 
     implicit none
-    integer :: lmxa,kmax,nlml,nr,nsp,nkaph,nkapi,lmxh,lso!,lcplxp
+    integer :: lmxa,kmax,nlml,nr,nsp,nkaph,nkapi,lmxh,lso
     integer :: lmaxu,lldau,iblu,idu(4)
     complex(8):: vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
     double precision :: z,rmt,rsma,a

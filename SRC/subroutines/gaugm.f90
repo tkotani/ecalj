@@ -392,36 +392,20 @@ contains
          v1(0:lmx1,nf1),d1(0:lmx1,nf1), &
          v2(0:lmx2,nf2),d2(0:lmx2,nf2), &
          sig(nf1,nf2,0:lmux),tau(nf1,nf2,0:lmux),ppi(nf1,nf2,0:lmux)
-    !     Spin-Orbit related
     double precision :: sodb(nab,0:n0-1),sondb(nab,0:n0-1)
-    double precision :: tmp(nf1,nf2,nlx1,nlx2),a1,a2
+    double precision :: tmp(nf1,nf2,nlx1,nlx2),a1,a2,vd1(2),vd2(2)
     double complex hsozz(nf1,nf2,nlx1,nlx2),hsopm(nf1,nf2,nlx1,nlx2)
-    ! ... Local parameters
     integer :: i1,i2,lmax1,lmax2,lmax,l
-    !     Spin-Orbit related
     integer :: m1,m2,l1,l2,lso
     double complex img
     do  i1 = 1, nf1s
        do  i2 = 1, nf2s
-          lmax1 = lx1(i1)
-          lmax2 = lx2(i2)
-          lmax = min0(lmax1,lmax2)
-          do  l = 0, lmax
-             sig(i1,i2,l) = -sig(i1,i2,l) &
-                  + v1(l,i1)*sab(1,l)*v2(l,i2) &
-                  + v1(l,i1)*sab(2,l)*d2(l,i2) &
-                  + d1(l,i1)*sab(3,l)*v2(l,i2) &
-                  + d1(l,i1)*sab(4,l)*d2(l,i2)
-             tau(i1,i2,l) = -tau(i1,i2,l) &
-                  + v1(l,i1)*(hab(1,l)-vab(1,l))*v2(l,i2) &
-                  + v1(l,i1)*(hab(2,l)-vab(2,l))*d2(l,i2) &
-                  + d1(l,i1)*(hab(3,l)-vab(3,l))*v2(l,i2) &
-                  + d1(l,i1)*(hab(4,l)-vab(4,l))*d2(l,i2)
-             ppi(i1,i2,l) = -ppi(i1,i2,l) &
-                  + v1(l,i1)*vab(1,l)*v2(l,i2) &
-                  + v1(l,i1)*vab(2,l)*d2(l,i2) &
-                  + d1(l,i1)*vab(3,l)*v2(l,i2) &
-                  + d1(l,i1)*vab(4,l)*d2(l,i2)
+          do  l = 0, min0(lx1(i1),lx2(i2))
+             vd1= [v1(l,i1),d1(l,i1)]
+             vd2= [v2(l,i2),d2(l,i2)]
+             sig(i1,i2,l)= -sig(i1,i2,l) + sum(vd2*matmul(reshape(sab(1:4,l)           ,[2,2]),vd1))
+             tau(i1,i2,l)= -tau(i1,i2,l) + sum(vd2*matmul(reshape(hab(1:4,l)-vab(1:4,l),[2,2]),vd1))
+             ppi(i1,i2,l)= -ppi(i1,i2,l) + sum(vd2*matmul(reshape(vab(1:4,l)           ,[2,2]),vd1))
           enddo
        enddo
     enddo
@@ -807,27 +791,14 @@ contains
                    ppi(i1,i2,l) = -ppi(i1,i2,l) + vab(7,l)
                    !       ... hzu,vzu,szs
                 elseif (i1 > nf1s) then
-                   sig(i1,i2,l) = -sig(i1,i2,l) &
-                        + sab(8,l)*v2(l,i2) &
-                        + sab(9,l)*d2(l,i2)
-                   tau(i1,i2,l) = -tau(i1,i2,l) &
-                        + (hab(8,l)-vab(8,l))*v2(l,i2) &
-                        + (hab(9,l)-vab(9,l))*d2(l,i2)
-                   ppi(i1,i2,l) = -ppi(i1,i2,l) &
-                        + vab(8,l)*v2(l,i2) &
-                        + vab(9,l)*d2(l,i2)
-
+                   sig(i1,i2,l)= -sig(i1,i2,l) +sab(8,l)*v2(l,i2) + sab(9,l)*d2(l,i2)
+                   tau(i1,i2,l)= -tau(i1,i2,l) +(hab(8,l)-vab(8,l))*v2(l,i2) + (hab(9,l)-vab(9,l))*d2(l,i2)
+                   ppi(i1,i2,l) = -ppi(i1,i2,l) + vab(8,l)*v2(l,i2) + vab(9,l)*d2(l,i2)
                    !       ... huz,vuz,ssz
                 elseif (i2 > nf2s) then
-                   sig(i1,i2,l) = -sig(i1,i2,l) &
-                        + v1(l,i1)*sab(5,l) &
-                        + d1(l,i1)*sab(6,l)
-                   tau(i1,i2,l) = -tau(i1,i2,l) &
-                        + v1(l,i1)*(hab(5,l)-vab(5,l)) &
-                        + d1(l,i1)*(hab(6,l)-vab(6,l))
-                   ppi(i1,i2,l) = -ppi(i1,i2,l) &
-                        + v1(l,i1)*vab(5,l) &
-                        + d1(l,i1)*vab(6,l)
+                   sig(i1,i2,l) = -sig(i1,i2,l) + v1(l,i1)*sab(5,l) + d1(l,i1)*sab(6,l)
+                   tau(i1,i2,l) = -tau(i1,i2,l) + v1(l,i1)*(hab(5,l)-vab(5,l))+ d1(l,i1)*(hab(6,l)-vab(6,l))
+                   ppi(i1,i2,l) = -ppi(i1,i2,l) + v1(l,i1)*vab(5,l)+ d1(l,i1)*vab(6,l)
                 endif
              enddo
           endif
@@ -1174,31 +1145,19 @@ contains
          f2(nr,0:lmx2,nf2),x2(nr,0:lmx2,nf2), &
          ppi(nf1,nf2,0:lmux),sig(nf1,nf2,0:lmux),tau(nf1,nf2,0:lmux)
     integer :: i1,i2,lmax1,lmax2,lmax,l,i
-    double precision :: sum,sim,tum,vum,xbc
-    call dpzero(sig, nf1*nf2*(lmux+1))
-    call dpzero(tau, nf1*nf2*(lmux+1))
-    call dpzero(ppi, nf1*nf2*(lmux+1))
+    double precision :: ssum,sim,tum,vum,xbc
+    sig=0d0 !call dpzero(sig, nf1*nf2*(lmux+1))
+    tau=0d0 !call dpzero(tau, nf1*nf2*(lmux+1))
+    ppi=0d0 !call dpzero(ppi, nf1*nf2*(lmux+1))
     do  i1 = 1, nf1
        do  i2 = 1, nf2
-          lmax1 = lx1(i1)
-          lmax2 = lx2(i2)
-          lmax = min0(lmax1,lmax2)
-          do  l = 0, lmax
-             sum = 0d0
-             sim = 0d0
-             tum = 0d0
-             vum = 0d0
-             do  i = 2, nr
-                sum = sum + rwgt(i)*f1(i,l,i1)*f2(i,l,i2)
-                sim = sim + rwgt(i)*f1(i,l,i1)*f2(i,l,i2)/rofi(i)**2
-                tum = tum + rwgt(i)*x1(i,l,i1)*x2(i,l,i2)
-                vum = vum + rwgt(i)*f1(i,l,i1)*f2(i,l,i2)*vsms(i)
-             enddo
-             sig(i1,i2,l) = sum
-             !           See Remarks for surface term in kinetic energy
+          do  l = 0, min0(lx1(i1),lx2(i2)) !lmax
+             sig(i1,i2,l) = sum([(rwgt(i)*f1(i,l,i1)*f2(i,l,i2),i=2,nr)])
+             ppi(i1,i2,l) = sum([(rwgt(i)*f1(i,l,i1)*f2(i,l,i2)*vsms(i),i=2,nr)])
+             sim  =  sum([(rwgt(i)*f1(i,l,i1)*f2(i,l,i2)/rofi(i)**2,i=2,nr)])
+             tum  =  sum([(rwgt(i)*x1(i,l,i1)*x2(i,l,i2),i=2,nr)])
              xbc = f1(nr,l,i1) * x2(nr,l,i2)
              tau(i1,i2,l) = tum + l*(l+1)*sim - xbc
-             ppi(i1,i2,l) = vum
           enddo
        enddo
     enddo
@@ -1332,10 +1291,6 @@ contains
              do  l1 = 0, lx1(i1)
                 do  l2 = 0, lx2(i2)
                    do  lm = 0, lmxl
-                      !ssum = 0d0
-                      !do  i = 2, nr
-                      !   ssum = ssum+rwgt(i)*f1(i,l1,i1)*f2(i,l2,i2)*rofi(i)**lm
-                      !enddo
                       ssum = sum([(rwgt(i)*f1(i,l1,i1)*f2(i,l2,i2)*rofi(i)**lm,i=2,nr)])
                       !               Both f1~ and f2~ are local orbitals
                       if (i1 > nf1s .AND. i2 > nf2s) then
