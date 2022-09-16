@@ -403,10 +403,14 @@ contains
     !$$$         enddo
     !$$$         enddo
     !$$$      endif
+    
     ! --- Make parameters for extended local orbitals ---
-    call elocp() ! set ehl and rsml for local orbitals
-    if(sum(lpzex)/=0) call m_bstrux_init()!computes structure constant (C_akL Eq.(38) in /JPSJ.84.034702)
-    ! when we have extended local orbital.
+    !eloc==.false.
+    !do ib = 1, nbas
+    !   if(sspec(ispec(ib))%lmxa>=0 .and. maxval(pnzall(:,:,ib)) >= 10) eloc = .true.
+    !enddo
+    call elocp() ! set ehl and rsml for extendet local orbitals
+    if(sum(lpzex)/=0) call m_bstrux_init()!computes structure constant (C_akL Eq.(38) in /JPSJ.84.034702) when we have extended local orbital.
 
     ! --- Make local potential at atomic sites and augmentation matrices ---
     rhobg=qbg/vol

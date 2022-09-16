@@ -1,5 +1,7 @@
 module m_freeat
   use m_lgunit,only: stdo,stdl
+  public freeat,freats
+  private
 contains
   subroutine freeat()
     use m_ext,only:sname
@@ -422,7 +424,7 @@ contains
     !     call prrmsh('ending total rho',rofi,rhot,nr,nr,nsp)
 
     ! --- Print info about free-atom wavefunctions ---
-    if (lwf /= 0) then
+!    if (lwf /= 0) then
 !       if (ipr > 30) then
           allocate(g_rv(nr*2))
           allocate(psi_rv(nr*(lmxa+1)*nsp))
@@ -434,25 +436,25 @@ contains
           deallocate(g_rv)
 !       endif
 
-       ! --- Optimise smooth-Hankel basis ---
-       call dvset(rtab,1,n0,-1d0)
-       call dpzero(etab,n0)
-       i = 1
-       if ( .NOT. cmdopt('--noopt',7,0,strn)) then
-          if (cmdopt('--norscnst',10,0,strn)) i = 0
-          if (z > 0) then
-             !c     stop 'xxxxxxxxxxxxxxx end cccccxxx000'
-             !             write(stdo,*) '111 ',i,z,a,nr,rmax,nrmt,rmt,lmxa,pl,ql,nsp
-             !             write(stdo,*) '222 ',sum(v(1:nr)),sum(rofi(1:nr)),spid
-             ! cccccccccccccccccccccccccc
-             call optfab(i,z,a,nr,rmax,nrmt,rmt,lmxa,pl,ql,nsp,v, &
-                  rofi,spid,itab,rtab,etab)
-             !   ... Fit value and slope of local orbitals
-             call ftfalo(i,z,a,nr,rmax,nrmt,rmt,lmxa,pnu,pz,rs3,eh3,vmtz, &
-                  nsp,v,rofi,spid)
-          endif
-       endif
-    endif
+       ! ! --- Optimise smooth-Hankel basis ---
+       ! call dvset(rtab,1,n0,-1d0)
+       ! call dpzero(etab,n0)
+       ! i = 1
+       ! if ( .NOT. cmdopt('--noopt',7,0,strn)) then
+       !    if (cmdopt('--norscnst',10,0,strn)) i = 0
+       !    if (z > 0) then
+       !       !c     stop 'xxxxxxxxxxxxxxx end cccccxxx000'
+       !       !             write(stdo,*) '111 ',i,z,a,nr,rmax,nrmt,rmt,lmxa,pl,ql,nsp
+       !       !             write(stdo,*) '222 ',sum(v(1:nr)),sum(rofi(1:nr)),spid
+       !       ! cccccccccccccccccccccccccc
+       !       call optfab(i,z,a,nr,rmax,nrmt,rmt,lmxa,pl,ql,nsp,v, &
+       !            rofi,spid,itab,rtab,etab)
+       !       !   ... Fit value and slope of local orbitals
+       !       call ftfalo(i,z,a,nr,rmax,nrmt,rmt,lmxa,pnu,pz,rs3,eh3,vmtz, &
+       !            nsp,v,rofi,spid)
+       !    endif
+       ! endif
+!    endif
 
     ! --- Print charges within/outside MT sphere ---
     if (z > 0) then
@@ -488,7 +490,6 @@ contains
     else
        qvt = 0
     endif
-
     ! --- Attach smooth Hankel tails to valence density ---
     !     lplfa = nglob('lplfa')
     lplfa = 0
@@ -750,455 +751,6 @@ contains
        pmax = b*(dexp(a*(ir+x))-1d0)
     endif
   end subroutine ppratf
-
-
-  subroutine optfab(isw,z,a,nr,rmax,nrmt,rmt,lmxa,pl,ql,nsp,v,rofi, spid,itab,rtab,etab)
-    use m_ftox
-    !- Optimise a minimal smooth-Hankel basis for the free atom.
-    ! ----------------------------------------------------------------------
-    !i Inputs
-    !i   isw   :1 constrain rsm to be <= rmt
-    !i   z     :nuclear charge
-    !i   a     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
-    !i   nr    :number of radial mesh points
-    !i   rmax  :muffin-tin radius, in a.u.
-    !i   nrmt  :number of points between 0..rmt
-    !i   rmt   :muffin-tin radius, in a.u.
-    !i   lmxa  :muffin-tin l-cutoff
-    !i   pl    :boundary conditions.  If Dl = log. deriv. at rmax,,
-    !i         :pl = .5 - atan(Dl)/pi + (princ.quant.number).
-    !i   ql    :sphere moments
-    !i   nsp   :2 for spin-polarized case, otherwise 1
-    !i   v     :spherical potential (atomsr.f)
-    !i   rofi  :radial mesh points
-    !i   spid  :species label
-    !o Outputs
-    !o   itab  :itab(l+1)=1  optimized wave function was found for this l
-    !o   rtab  :smoothing radius for optimized wave function
-    !o   etab  :energy for optimized wave function
-    !l Local variables
-    !r Remarks
-    !u Updates
-    ! ----------------------------------------------------------------------
-    implicit none
-    integer :: lmxa,nr,nrmt,nsp,n0,isw
-    double precision :: a,rmax,rmt,z
-    parameter (n0=10)
-    double precision :: rofi(1),v(nr,nsp),pl(n0,nsp),ql(3,n0,nsp)
-    character spid*8
-    ! ... Local parameters
-    logical :: cmdopt
-    character strn*80
-    integer :: itab(n0,2)
-    double precision :: rtab(n0,2),etab(n0,2)
-    integer:: ipr , iprint , irep , isp , istife , istifr , jpr , &
-         konfig , l ,  lplawv , nn , nrep
-    real(8) ,allocatable :: g_rv(:)
-    real(8) ,allocatable :: gp_rv(:)
-    real(8) ,allocatable :: h_rv(:)
-    real(8) ,allocatable :: psi_rv(:)
-    double precision :: b,deh,deh0,dphi,dphip,drsm,drsm0,e1,e2,e3,eadd, &
-         eaddx,eh,elim1,elim2,enew,enu,eval,p,phi,phip,pnu,qvl,radd, &
-         raddx,rlim1,rlim2,rnew,rsm,stife,stifr,sume1,sume2,qrmt,rmtmx
-    ipr = iprint()
-    !      if (z .lt. 0.99d0) lrel = 0 !takao think lrel here was not used may2021
-    if (lmxa > 8) call rx('optfab:  lmax too large')
-    b = rmax/(dexp(a*nr-a)-1d0)
-    do  80  isp = 1, nsp
-       if(ipr>=20) write(stdo,ftox)' Optimise free-atom basis for species '//spid, 'Rmt=',ftof(rmt)
-       allocate(h_rv(nr))
-       allocate(g_rv(2*nr))
-       allocate(gp_rv(2*nr*4))
-
-       ! --- Parameters for minimisation ---
-       drsm0 = 0.1d0
-       ! takao makes "safer setting"
-       ! akao
-       !      rlim1 = 0.9d0
-       !        rlim1 = 0.3d0 !original
-       rlim1 = 0.5*rmt !original
-       !      rlim1 = 0.8d0
-
-       rlim2 = 2*rmt
-       ! akao
-       !      rlim2 = rmt+1d-6
-
-       raddx = 0.2d0
-
-       deh0  = 0.05d0
-       ! akao
-       elim1 = -2.5d0
-       elim2 = -0.10d0
-       !     elim2 = -0.20d0
-       eaddx = 0.099d0
-       jpr=0
-       if (ipr >= 50) jpr=1
-
-       ! --- Loop over bound valence states ---
-       if (ipr >= 20) write (stdo,261)
-       sume1 = 0d0
-       sume2 = 0d0
-       do  10  l = 0, lmxa
-          itab(l+1,isp) = 0
-          konfig = pl(l+1,isp)
-          nn = konfig-l-1
-          qvl = ql(1,l+1,isp)
-          !   ... Get exact fa wavefunction, eigval, pnu at rmt
-          call popta3 ( 0,l,z,nn,rmt,nr,nrmt,rofi, v ( 1, isp ),a,b,eval,pnu,g_rv )
-          if (eval > 0d0) cycle !goto 10
-          sume1 = sume1 + qvl*eval
-          !   ... Potential parameters at MT sphere
-          call popta4 ( l,z,rmt,nrmt,rofi,v ( 1,isp ),g_rv &
-              ,gp_rv,a,b,pnu,enu,p,phi,dphi,phip,dphip )
-          !          rsm = rmt
-          rsm = rmt*.5
-          eh = -1
-          if (jpr > 0) write (stdo,340)
-340       format('  L   parin    aux      E1       E2       E3', &
-               '       stiff    Eout     parout')
-          do  12  irep = 1, 50
-             nrep = irep
-             !     ... Get center energy
-             call popta1 ( rsm,eh,l,z,rmt,nr,nrmt,rofi,h_rv &
-                 ,v ( 1,isp ),a,b,enu,p,phi,dphi,phip,dphip &
-                 ,e2,qrmt )
-             !            print *,' ttt center e=',irep,eh,e2
-             !     ... Vary rsm
-             !            drsm = drsm0
-             !            call popta1 ( rsm + drsm,eh,l,z,rmt,nr,nrmt,rofi
-             !     .     ,h_rv,v ( 1,isp ),a,b,enu,p,phi,dphi,phip
-             !     .     ,dphip,e3,qrmt )
-
-             !            call popta1 ( rsm - drsm,eh,l,z,rmt,nr,nrmt,rofi
-             !     .     ,h_rv,v ( 1,isp ),a,b,enu,p,phi,dphi,phip
-             !     .     ,dphip,e1,qrmt )
-
-             !            call popta2(l,rsm,eh,drsm,e1,e2,e3,rlim1,rlim2,raddx,rnew,
-             !     .      stifr,jpr)
-
-             !     ... Vary eh
-             deh = deh0
-             !         if (eh+deh.gt.-0.01d0) deh=-eh-0.01d0
-             call popta1 ( rsm,eh + deh,l,z,rmt,nr,nrmt,rofi &
-                 ,h_rv,v ( 1,isp ),a,b,enu,p,phi,dphi,phip &
-                 ,dphip,e3,qrmt )
-             call popta1 ( rsm,eh - deh,l,z,rmt,nr,nrmt,rofi &
-                 ,h_rv,v ( 1,isp ),a,b,enu,p,phi,dphi,phip &
-                 ,dphip,e1,qrmt )
-             call popta2(l,eh,rsm,deh,e1,e2,e3,elim1,elim2,eaddx,enew, &
-                  stife,jpr)
-             !            radd = rnew-rsm
-             radd=0d0
-             eadd = enew-eh
-             !            rsm = rnew
-             eh = enew
-             if (dabs(radd) < 5d-3 .AND. dabs(eadd) < 5d-3) goto 90
-12        enddo
-90        continue
-
-          !   ... End of iteration loop
-
-          sume2 = sume2 + qvl*e2
-!          if (ipr >= 20) &
-               write (stdo,260) l,nrep,rsm,eh,stifr,stife,e2,eval,pnu,qvl
-260       format(i2,i4,2f8.3,1x,2f9.1,1x,2f10.5,f8.2,f7.2)
-261       format(' l  it    Rsm      Eh     stiffR   stiffE      Eval      Exact     Pnu    Ql')
-          istifr = stifr+0.5d0
-          istife = stife+0.5d0
-          write (stdl,710) l,nrep,rsm,eh,istifr,istife,e2,eval,pnu,qvl
-710       format('fa op',i2,i4,2f7.3,'  stf',2i6,'  ev',2f9.5, &
-               '  pq',2f6.2)
-
-          !   ... Possibly constrain rsm
-          ! akao
-          ! akao dec15 2010
-          rmtmx= rmt*.5d0+1d-10
-          if(rmtmx<.5d0) rmtmx=.5d0
-          !          if(l>=2) rmtmx=rmt
-
-          if (mod(isw,10) == 1 .AND. rsm > rmtmx) then
-             if (ipr >= 20) &
-                  write(stdo, &
-                  '('' ...rsm exceeded rmtmx.. repeat with rsm= rmtmx ='',f8.5)') rmtmx
-             !            rsm = rmtmx
-             rsm = 0.5d0*rmtmx
-
-             sume2 = sume2 - qvl*e2
-
-             do  112  irep = 1,50
-                nrep = irep
-                print *,' ttt2 center e=',e2
-                !     ... Get center energy
-                call popta1 ( rsm,eh,l,z,rmt,nr,nrmt,rofi,h_rv &
-                    ,v ( 1,isp ),a,b,enu,p,phi,dphi,phip,dphip &
-                    ,e2,qrmt )
-
-                !     ... Vary eh
-                deh = deh0
-                !         if (eh+deh.gt.-0.01d0) deh=-eh-0.01d0
-                call popta1 ( rsm,eh + deh,l,z,rmt,nr,nrmt,rofi &
-                    ,h_rv,v ( 1,isp ),a,b,enu,p,phi,dphi,phip &
-                    ,dphip,e3,qrmt )
-
-                call popta1 ( rsm,eh - deh,l,z,rmt,nr,nrmt,rofi &
-                    ,h_rv,v ( 1,isp ),a,b,enu,p,phi,dphi,phip &
-                    ,dphip,e1,qrmt )
-
-                call popta2(l,eh,rsm,deh,e1,e2,e3,elim1,elim2,eaddx,enew, &
-                     stife,jpr)
-
-                eadd = enew-eh
-                eh = enew
-                if (dabs(eadd) < 5d-3) goto 190
-112          enddo
-190          continue
-             !   ... End of iteration loop
-
-             sume2 = sume2 + qvl*e2
-             if (ipr >= 20) &
-                  write (stdo,260) l,nrep,rsm,eh,stifr,stife,e2,eval,pnu,qvl
-             istife = stife+0.5d0
-             write (stdl,710) l,nrep,rsm,eh,istifr,istife,e2,eval,pnu,qvl
-          endif
-
-          itab(l+1,isp) = 1
-          rtab(l+1,isp) = rsm
-          etab(l+1,isp) = eh
-10     enddo
-
-
-       if (ipr >= 20) write (stdo,320) sume1,sume2,sume2-sume1
-320    format(' eigenvalue sum:  exact',f10.5,'    opt basis',f10.5, &
-            '    error',f8.5)
-       write (stdl,720) sume1,sume2,sume2-sume1
-720    format('fa op sumev',f11.5,'   opt basis',f11.5,'   err',f9.5)
-
-       ! i
-       if (allocated(gp_rv)) deallocate(gp_rv)
-       if (allocated(g_rv)) deallocate(g_rv)
-       if (allocated(h_rv)) deallocate(h_rv)
-
-
-80  enddo
-
-    ! --- Make plot file ---
-    !     lplawv=nglob('lplawv')
-    lplawv = 0
-    if (cmdopt('--plotwf',8,0,strn)) lplawv = 1
-    if (lplawv == 1) then
-       if (nsp == 2) call rx('optfab is not spinpol yet')
-       allocate(psi_rv(nr*lmxa))
-
-       call popta5 ( lmxa,rtab,etab,itab,z,pl,rmax,rmt &
-           ,nr,nrmt,rofi,psi_rv,v,g_rv,a,b,spid )
-
-       if (allocated(psi_rv)) deallocate(psi_rv)
-
-    endif
-
-    ! i      call rlse (oh)
-
-    ! i#error ERROR, try to release name= opsi ,but list=null at linenumber= 1031 list= (None)
-
-
-  end subroutine optfab
-
-
-  subroutine ftfalo(icst,z,a,nr,rmax,nrmt,rmt,lmxa,pnu,pz,rs3,eh3, &
-       vmtz,nsp,v,rofi,spid)
-
-    !- Fit value and slope of local orbitals to smoothed Hankel
-    ! ----------------------------------------------------------------------
-    !i Inputs
-    !i   icst  :1 constrain rsm to be <= rmt
-    !i   z     :nuclear charge
-    !i   a     :the mesh points are given by rofi(ir) = b [e^(a(ir-1)) -1]
-    !i   nr    :number of radial mesh points
-    !i   rmax  :muffin-tin radius, in a.u.
-    !i   nrmt  :number of points between 0..rmt
-    !i   rmt   :muffin-tin radius, in a.u.
-    !i   lmxa  :muffin-tin l-cutoff
-    !i   pl    :boundary conditions for valence wavefunctions.
-    !i   pz    :boundary conditions for local orbital. pz=0 -> no loc. orb.
-    !i         :10s digit controls how local orbital included in hamiltonian
-    !i         :10s digit nonzero -> smooth Hankel tail is attached.
-    !i   rs3   :minimum allowed smoothing radius in attaching Hankel tails
-    !i         :to local orbitals
-    !i   eh3   :Hankel energy when attaching Hankel tails to high-lying
-    !i         :local orbitals
-    !i   vmtz  :parameter used in attaching Hankel tails to local orbitals
-    !i         :It is used as a constant shift to Hankel energies for the
-    !i         :fitting of local orbitals to Hankel tails. Thus vmtz
-    !i         :is an estimate for the potential at the MT radius.
-    !i   nsp   :2 for spin-polarized case, otherwise 1
-    !i   v     :spherical potential (atomsr.f)
-    !i   rofi  :radial mesh points
-    !i   spid  :species label
-    !o Outputs
-    !l Local variables
-    !r Remarks
-    !u Updates
-    !u   16 Jun 04 First created
-    ! ----------------------------------------------------------------------
-    implicit none
-    ! ... Passed parameters
-    integer :: lmxa,nr,nrmt,nsp,n0,icst
-    double precision :: a,rmax,rmt,z,rs3,eh3,vmtz
-    parameter (n0=10)
-    double precision :: rofi(1),v(nr,nsp),pz(n0,nsp),pnu(n0,nsp)
-    ! ... Local parameters
-    logical :: cmdopt
-    character spid*8, strn*80, flg(2)*1
-    integer:: ipr,iprint,i,konfig,l,info,nn &
-        ,lplawv,loclo=-999,nfit,isw
-    real(8) ,allocatable :: g_rv(:)
-    real(8) ,allocatable :: gp_rv(:)
-    real(8) ,allocatable :: h_rv(:)
-
-    real(8) ,allocatable :: psi_rv(:)
-
-    double precision :: b,dasum,dphi,dphip,e2,eh,eval,p,phi,phip, &
-         pnul,rsm,rsmin,rsmax,ekin
-    !     emin and emax are the maximum allowed ranges in Hankel energies
-    !     for the fitting of local orbitals to Hankel tails.
-    double precision :: emin,emax,tphi
-    !     For plotting wave functions
-    integer :: itab(n0,2)
-    double precision :: rtab(n0,2),etab(n0,2),pl(n0,nsp),qrmt
-    data flg/'*',' '/
-    ipr = iprint()
-    if (lmxa > 8) call rx('ftfalo:  lmax too large')
-    b = rmax/(dexp(a*nr-a)-1d0)
-    nfit = 0
-
-    if (dasum(lmxa+1,pz,1) == 0) return
-
-    do  80  i = 1, nsp
-       allocate(h_rv(nr))
-
-       allocate(g_rv(2*nr))
-
-       allocate(gp_rv(2*nr*4))
-
-
-       ! --- Loop over local orbitals ---
-       !      sume1 = 0d0
-       !      sume2 = 0d0
-       do  10  l = 0, lmxa
-
-          itab(l+1,i) = 0
-          pnul = pnu(l+1,i)
-          pl(l+1,i) = pnu(l+1,i)
-          konfig = mod(pz(l+1,1),10d0)
-
-          !       Skip all but local orbitals with tails attached
-          if (pz(l+1,1) < 10) goto 10
-
-          !       Case local orbital deeper than valence
-          if (int(pnul-1) == int(mod(pz(l+1,1),10d0))) then
-             loclo = 1
-             !         Not needed, actually, since overwritten by popta3
-             !         pnul = mod(pz(l+1,1),10d0)
-
-             !       Case local orbital higher than the valence state
-          elseif (int(pnul+1) == int(mod(pz(l+1,1),10d0))) then
-             pnul = mod(pz(l+1,1),10d0)
-             loclo = 0
-
-             !       Local orbital neither one: error
-          else
-             call fexit3(-1,111,' Exit -1 freeat, l=%i:  sc '// &
-                  'PZ=%d incompatible with valence P=%;3d',l,pz(l+1,1),pnul)
-          endif
-
-          !       Skip high-lying local orbitals unless specifically sought
-          if (loclo == 0 .AND. .NOT. cmdopt('--getallloc',11,0,strn)) goto 10
-          nfit = nfit + 1
-          if (nfit == 1) then
-             call info2(20,1,0,' fff:Fit local orbitals to sm hankels, species '//spid// &
-                  '%a, rmt=%;7g',rmt,0)
-             if (ipr >= 20) write (stdo,261)
-          endif
-          !   ... Get exact fa wavefunction, eigval, pnu_l at rmt
-          if (loclo == 1) then
-             nn = konfig-l-1
-             call popta3 ( 0,l,z,nn,rmt,nr,nrmt,rofi,v(1,i ),a,b,eval,pnul,g_rv )
-             !       Finish if in future, need w.f. at r>rmt
-             !        else
-             !          call popta3(1,l,z,nn,rmt,nr,nrmt,rofi,v(1,i),a,b,eval,
-             !     .      pnul,w(og))
-          endif
-          pl(l+1,i) = pnul
-          !   ... Potential parameters at MT sphere
-          call popta4 ( l,z,rmt,nrmt,rofi,v ( 1,i ),g_rv &
-              ,gp_rv,a,b,pnul,eval,p,phi,dphi,phip,dphip )
-          !   ... Set conditions on envelope functions ... For now
-          rsmin = rs3
-          rsmax = 5
-          if (icst == 1) rsmax = rmt
-          !       Use r->infty value for energy
-          eh = min(-.02d0,eval)
-          !   ... Match Hankel to phi,dphi
-          !        rsm = rsmin
-          !        emax = -.02d0
-          !        emin = -5d0
-          !        call mtchre(100,l,rsmin,rsmax,emin,emax,rmt,rmt,phi,dphi,phi,
-          !     .    dphi,rsm,eh,ekin,info)
-
-          !   ... Match slope and K.E. of Hankel to phi,dphi
-          tphi = eval - (v(nrmt,i)-2*z/rmt)
-          rsm = 0
-          eh = min(eval-vmtz,-.02d0)
-          emax = -.02d0
-          emin = -10d0
-          !       if (ipr .ge. 20) call pshpr(max(ipr,50))
-          call mtchre(003,l,rsmin,rsmax,emin,emax,rmt,rmt,phi,dphi,tphi, &
-               dphi,rsm,eh,ekin,info)
-          !       if (ipr .ge. 20) call poppr
-          !       Match failed ... turn up verbosity and repeat for info
-          if (info == -1) then
-             call info2(0,2,1,' *** ftfalo (fatal) cannot fit smooth Hankel to w.f.'// &
-                  ' class '//spid//'%N ... possibly reduce RS3 (current value = %,1d)',rs3,0)
-             call pshpr(max(ipr,110))
-             call mtchr2(1,l,emin,emax,(emin+emax)/2, rmt,phi,dphi,rsmin,eh,ekin,i)
-             call poppr
-             call fexit2(-1,111,' Exit -1 : ftfalo : failed to match log der=%,1;3d'// &
-                  ' to envelope, l=%i',dphi/phi,l)
-          endif
-          !  ... Get energy of this wave function
-          call popta1 ( rsm,eh,l,z,rmt,nr,nrmt,rofi,h_rv &
-              ,v(1,i),a,b,eval,p,phi,dphi,phip,dphip,e2,qrmt )
-          if (ipr >= 20) write (stdo,260) l,rsm,eh,qrmt,e2,eval,pnul,tphi,ekin, &
-               flg(2-isw(dabs(ekin-tphi) > 1d-5))
-260       format(i2,2f8.3,3f10.5,f9.3,2f10.5,a1,f10.5)
-261       format(' l    Rsm     Eh     Q(r>rmt)   Eval      Exact      Pnu     K.E.    fit K.E.')
-          itab(l+1,i) = 1
-          rtab(l+1,i) = rsm
-          etab(l+1,i) = eh
-10     enddo
-       ! akao moved deallocation to here
-       deallocate(gp_rv)
-       deallocate(g_rv)
-       deallocate(h_rv)
-80  enddo
-
-    ! --- Make plot file ---
-    !     lplawv=nglob('lplawv')
-    lplawv = 0
-    if (cmdopt('--plotwf',8,0,strn)) lplawv = 1
-    if (lplawv == 1) then
-       if (nsp == 2) call rx('optfab is not spinpol yet')
-       allocate(psi_rv(nr*lmxa))
-
-       call popta5 ( lmxa,rtab,etab,itab,z,pl,rmax,rmt &
-           ,nr,nrmt,rofi,psi_rv,v,g_rv,a,b,spid )
-
-       deallocate(psi_rv)
-
-    endif
-
-
-  end subroutine ftfalo
 
 
   subroutine popta1(rsm,eh,l,z,rmt,nr,nrmt,rofi,h,v,a,b,enu,p, &
@@ -1750,8 +1302,411 @@ contains
     !|      enddo
     !|      write(stdo,965) q
     !|  965 format(' integral over smoothed core:',f10.5)
-
   end subroutine fctail
-
-
 end module m_freeat
+
+!   subroutine optfab(isw,z,a,nr,rmax,nrmt,rmt,lmxa,pl,ql,nsp,v,rofi, spid,itab,rtab,etab)
+!     use m_ftox
+!     !- Optimise a minimal smooth-Hankel basis for the free atom.
+!     ! ----------------------------------------------------------------------
+!     !i Inputs
+!     !i   isw   :1 constrain rsm to be <= rmt
+!     !i   z     :nuclear charge
+!     !i   a     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
+!     !i   nr    :number of radial mesh points
+!     !i   rmax  :muffin-tin radius, in a.u.
+!     !i   nrmt  :number of points between 0..rmt
+!     !i   rmt   :muffin-tin radius, in a.u.
+!     !i   lmxa  :muffin-tin l-cutoff
+!     !i   pl    :boundary conditions.  If Dl = log. deriv. at rmax,,
+!     !i         :pl = .5 - atan(Dl)/pi + (princ.quant.number).
+!     !i   ql    :sphere moments
+!     !i   nsp   :2 for spin-polarized case, otherwise 1
+!     !i   v     :spherical potential (atomsr.f)
+!     !i   rofi  :radial mesh points
+!     !i   spid  :species label
+!     !o Outputs
+!     !o   itab  :itab(l+1)=1  optimized wave function was found for this l
+!     !o   rtab  :smoothing radius for optimized wave function
+!     !o   etab  :energy for optimized wave function
+!     !l Local variables
+!     !r Remarks
+!     !u Updates
+!     ! ----------------------------------------------------------------------
+!     implicit none
+!     integer :: lmxa,nr,nrmt,nsp,n0,isw
+!     double precision :: a,rmax,rmt,z
+!     parameter (n0=10)
+!     double precision :: rofi(1),v(nr,nsp),pl(n0,nsp),ql(3,n0,nsp)
+!     character spid*8
+!     ! ... Local parameters
+!     logical :: cmdopt
+!     character strn*80
+!     integer :: itab(n0,2)
+!     double precision :: rtab(n0,2),etab(n0,2)
+!     integer:: ipr , iprint , irep , isp , istife , istifr , jpr , &
+!          konfig , l ,  lplawv , nn , nrep
+!     real(8) ,allocatable :: g_rv(:)
+!     real(8) ,allocatable :: gp_rv(:)
+!     real(8) ,allocatable :: h_rv(:)
+!     real(8) ,allocatable :: psi_rv(:)
+!     double precision :: b,deh,deh0,dphi,dphip,drsm,drsm0,e1,e2,e3,eadd, &
+!          eaddx,eh,elim1,elim2,enew,enu,eval,p,phi,phip,pnu,qvl,radd, &
+!          raddx,rlim1,rlim2,rnew,rsm,stife,stifr,sume1,sume2,qrmt,rmtmx
+!     ipr = iprint()
+!     !      if (z .lt. 0.99d0) lrel = 0 !takao think lrel here was not used may2021
+!     if (lmxa > 8) call rx('optfab:  lmax too large')
+!     b = rmax/(dexp(a*nr-a)-1d0)
+!     do  80  isp = 1, nsp
+!        if(ipr>=20) write(stdo,ftox)' Optimise free-atom basis for species '//spid, 'Rmt=',ftof(rmt)
+!        allocate(h_rv(nr))
+!        allocate(g_rv(2*nr))
+!        allocate(gp_rv(2*nr*4))
+!        ! --- Parameters for minimisation ---
+!        drsm0 = 0.1d0
+!        ! takao makes "safer setting"
+!        ! takao
+!        !      rlim1 = 0.9d0
+!        !        rlim1 = 0.3d0 !original
+!        rlim1 = 0.5*rmt !original
+!        !      rlim1 = 0.8d0
+!        rlim2 = 2*rmt
+!        ! takao
+!        !      rlim2 = rmt+1d-6
+!        raddx = 0.2d0
+!        deh0  = 0.05d0
+!        ! takao
+!        elim1 = -2.5d0
+!        elim2 = -0.10d0
+!        !     elim2 = -0.20d0
+!        eaddx = 0.099d0
+!        jpr=0
+!        if (ipr >= 50) jpr=1
+!        ! --- Loop over bound valence states ---
+!        if (ipr >= 20) write (stdo,261)
+!        sume1 = 0d0
+!        sume2 = 0d0
+!        do  10  l = 0, lmxa
+!           itab(l+1,isp) = 0
+!           konfig = pl(l+1,isp)
+!           nn = konfig-l-1
+!           qvl = ql(1,l+1,isp)
+!           !   ... Get exact fa wavefunction, eigval, pnu at rmt
+!           call popta3(0,l,z,nn,rmt,nr,nrmt,rofi, v(1,isp),a,b,eval,pnu,g_rv )
+!           if (eval > 0d0) cycle !goto 10
+!           sume1 = sume1 + qvl*eval
+!           !   ... Potential parameters at MT sphere
+!           call popta4(l,z,rmt,nrmt,rofi,v ( 1,isp ),g_rv,gp_rv,a,b,pnu,enu,p,phi,dphi,phip,dphip)
+!           !          rsm = rmt
+!           rsm = rmt*.5
+!           eh = -1
+!           if (jpr > 0) write (stdo,340)
+! 340       format('  L   parin    aux      E1       E2       E3       stiff    Eout     parout')
+!           do  12  irep = 1, 50
+!              nrep = irep
+!              !     ... Get center energy
+!              call popta1 ( rsm,eh,l,z,rmt,nr,nrmt,rofi,h_rv &
+!                  ,v ( 1,isp ),a,b,enu,p,phi,dphi,phip,dphip &
+!                  ,e2,qrmt )
+!              !            print *,' ttt center e=',irep,eh,e2
+!              !     ... Vary rsm
+!              !            drsm = drsm0
+!              !            call popta1 ( rsm + drsm,eh,l,z,rmt,nr,nrmt,rofi
+!              !     .     ,h_rv,v ( 1,isp ),a,b,enu,p,phi,dphi,phip
+!              !     .     ,dphip,e3,qrmt )
+
+!              !            call popta1 ( rsm - drsm,eh,l,z,rmt,nr,nrmt,rofi
+!              !     .     ,h_rv,v ( 1,isp ),a,b,enu,p,phi,dphi,phip
+!              !     .     ,dphip,e1,qrmt )
+
+!              !            call popta2(l,rsm,eh,drsm,e1,e2,e3,rlim1,rlim2,raddx,rnew,
+!              !     .      stifr,jpr)
+
+!              !     ... Vary eh
+!              deh = deh0
+!              !         if (eh+deh.gt.-0.01d0) deh=-eh-0.01d0
+!              call popta1 ( rsm,eh + deh,l,z,rmt,nr,nrmt,rofi &
+!                  ,h_rv,v ( 1,isp ),a,b,enu,p,phi,dphi,phip &
+!                  ,dphip,e3,qrmt )
+!              call popta1 ( rsm,eh - deh,l,z,rmt,nr,nrmt,rofi &
+!                  ,h_rv,v ( 1,isp ),a,b,enu,p,phi,dphi,phip &
+!                  ,dphip,e1,qrmt )
+!              call popta2(l,eh,rsm,deh,e1,e2,e3,elim1,elim2,eaddx,enew, &
+!                   stife,jpr)
+!              !            radd = rnew-rsm
+!              radd=0d0
+!              eadd = enew-eh
+!              !            rsm = rnew
+!              eh = enew
+!              if (dabs(radd) < 5d-3 .AND. dabs(eadd) < 5d-3) goto 90
+! 12        enddo
+! 90        continue
+
+!           !   ... End of iteration loop
+
+!           sume2 = sume2 + qvl*e2
+! !          if (ipr >= 20) &
+!                write (stdo,260) l,nrep,rsm,eh,stifr,stife,e2,eval,pnu,qvl
+! 260       format(i2,i4,2f8.3,1x,2f9.1,1x,2f10.5,f8.2,f7.2)
+! 261       format(' l  it    Rsm      Eh     stiffR   stiffE      Eval      Exact     Pnu    Ql')
+!           istifr = stifr+0.5d0
+!           istife = stife+0.5d0
+!           write (stdl,710) l,nrep,rsm,eh,istifr,istife,e2,eval,pnu,qvl
+! 710       format('fa op',i2,i4,2f7.3,'  stf',2i6,'  ev',2f9.5, &
+!                '  pq',2f6.2)
+
+!           !   ... Possibly constrain rsm
+!           ! akao
+!           ! akao dec15 2010
+!           rmtmx= rmt*.5d0+1d-10
+!           if(rmtmx<.5d0) rmtmx=.5d0
+!           !          if(l>=2) rmtmx=rmt
+
+!           if (mod(isw,10) == 1 .AND. rsm > rmtmx) then
+!              if (ipr >= 20) &
+!                   write(stdo, &
+!                   '('' ...rsm exceeded rmtmx.. repeat with rsm= rmtmx ='',f8.5)') rmtmx
+!              !            rsm = rmtmx
+!              rsm = 0.5d0*rmtmx
+
+!              sume2 = sume2 - qvl*e2
+
+!              do  112  irep = 1,50
+!                 nrep = irep
+!                 print *,' ttt2 center e=',e2
+!                 !     ... Get center energy
+!                 call popta1 ( rsm,eh,l,z,rmt,nr,nrmt,rofi,h_rv &
+!                     ,v ( 1,isp ),a,b,enu,p,phi,dphi,phip,dphip &
+!                     ,e2,qrmt )
+
+!                 !     ... Vary eh
+!                 deh = deh0
+!                 !         if (eh+deh.gt.-0.01d0) deh=-eh-0.01d0
+!                 call popta1 ( rsm,eh + deh,l,z,rmt,nr,nrmt,rofi &
+!                     ,h_rv,v ( 1,isp ),a,b,enu,p,phi,dphi,phip &
+!                     ,dphip,e3,qrmt )
+
+!                 call popta1 ( rsm,eh - deh,l,z,rmt,nr,nrmt,rofi &
+!                     ,h_rv,v ( 1,isp ),a,b,enu,p,phi,dphi,phip &
+!                     ,dphip,e1,qrmt )
+
+!                 call popta2(l,eh,rsm,deh,e1,e2,e3,elim1,elim2,eaddx,enew, &
+!                      stife,jpr)
+
+!                 eadd = enew-eh
+!                 eh = enew
+!                 if (dabs(eadd) < 5d-3) goto 190
+! 112          enddo
+! 190          continue
+!              !   ... End of iteration loop
+
+!              sume2 = sume2 + qvl*e2
+!              if (ipr >= 20) &
+!                   write (stdo,260) l,nrep,rsm,eh,stifr,stife,e2,eval,pnu,qvl
+!              istife = stife+0.5d0
+!              write (stdl,710) l,nrep,rsm,eh,istifr,istife,e2,eval,pnu,qvl
+!           endif
+!           itab(l+1,isp) = 1
+!           rtab(l+1,isp) = rsm
+!           etab(l+1,isp) = eh
+! 10     enddo
+!        if (ipr >= 20) write (stdo,320) sume1,sume2,sume2-sume1
+! 320    format(' eigenvalue sum:  exact',f10.5,'    opt basis',f10.5, &
+!             '    error',f8.5)
+!        write (stdl,720) sume1,sume2,sume2-sume1
+! 720    format('fa op sumev',f11.5,'   opt basis',f11.5,'   err',f9.5)
+
+!        ! i
+!        if (allocated(gp_rv)) deallocate(gp_rv)
+!        if (allocated(g_rv)) deallocate(g_rv)
+!        if (allocated(h_rv)) deallocate(h_rv)
+! 80  enddo
+!     ! --- Make plot file ---
+!     !     lplawv=nglob('lplawv')
+!     lplawv = 0
+!     if (cmdopt('--plotwf',8,0,strn)) lplawv = 1
+!     if (lplawv == 1) then
+!        if (nsp == 2) call rx('optfab is not spinpol yet')
+!        allocate(psi_rv(nr*lmxa))
+!        call popta5 ( lmxa,rtab,etab,itab,z,pl,rmax,rmt &
+!            ,nr,nrmt,rofi,psi_rv,v,g_rv,a,b,spid )
+!        if (allocated(psi_rv)) deallocate(psi_rv)
+!     endif
+!   end subroutine optfab
+
+
+!   subroutine ftfalo(icst,z,a,nr,rmax,nrmt,rmt,lmxa,pnu,pz,rs3,eh3, &
+!        vmtz,nsp,v,rofi,spid)
+!     !- Fit value and slope of local orbitals to smoothed Hankel
+!     ! ----------------------------------------------------------------------
+!     !i Inputs
+!     !i   icst  :1 constrain rsm to be <= rmt
+!     !i   z     :nuclear charge
+!     !i   a     :the mesh points are given by rofi(ir) = b [e^(a(ir-1)) -1]
+!     !i   nr    :number of radial mesh points
+!     !i   rmax  :muffin-tin radius, in a.u.
+!     !i   nrmt  :number of points between 0..rmt
+!     !i   rmt   :muffin-tin radius, in a.u.
+!     !i   lmxa  :muffin-tin l-cutoff
+!     !i   pl    :boundary conditions for valence wavefunctions.
+!     !i   pz    :boundary conditions for local orbital. pz=0 -> no loc. orb.
+!     !i         :10s digit controls how local orbital included in hamiltonian
+!     !i         :10s digit nonzero -> smooth Hankel tail is attached.
+!     !i   rs3   :minimum allowed smoothing radius in attaching Hankel tails
+!     !i         :to local orbitals
+!     !i   eh3   :Hankel energy when attaching Hankel tails to high-lying
+!     !i         :local orbitals
+!     !i   vmtz  :parameter used in attaching Hankel tails to local orbitals
+!     !i         :It is used as a constant shift to Hankel energies for the
+!     !i         :fitting of local orbitals to Hankel tails. Thus vmtz
+!     !i         :is an estimate for the potential at the MT radius.
+!     !i   nsp   :2 for spin-polarized case, otherwise 1
+!     !i   v     :spherical potential (atomsr.f)
+!     !i   rofi  :radial mesh points
+!     !i   spid  :species label
+!     !o Outputs
+!     !l Local variables
+!     !r Remarks
+!     !u Updates
+!     !u   16 Jun 04 First created
+!     ! ----------------------------------------------------------------------
+!     implicit none
+!     ! ... Passed parameters
+!     integer :: lmxa,nr,nrmt,nsp,n0,icst
+!     double precision :: a,rmax,rmt,z,rs3,eh3,vmtz
+!     parameter (n0=10)
+!     double precision :: rofi(1),v(nr,nsp),pz(n0,nsp),pnu(n0,nsp)
+!     ! ... Local parameters
+!     logical :: cmdopt
+!     character spid*8, strn*80, flg(2)*1
+!     integer:: ipr,iprint,i,konfig,l,info,nn &
+!         ,lplawv,loclo=-999,nfit,isw
+!     real(8) ,allocatable :: g_rv(:)
+!     real(8) ,allocatable :: gp_rv(:)
+!     real(8) ,allocatable :: h_rv(:)
+!     real(8) ,allocatable :: psi_rv(:)
+!     double precision :: b,dasum,dphi,dphip,e2,eh,eval,p,phi,phip, &
+!          pnul,rsm,rsmin,rsmax,ekin
+!     !     emin and emax are the maximum allowed ranges in Hankel energies
+!     !     for the fitting of local orbitals to Hankel tails.
+!     double precision :: emin,emax,tphi
+!     !     For plotting wave functions
+!     integer :: itab(n0,2)
+!     double precision :: rtab(n0,2),etab(n0,2),pl(n0,nsp),qrmt
+!     data flg/'*',' '/
+!     ipr = iprint()
+!     if (lmxa > 8) call rx('ftfalo:  lmax too large')
+!     b = rmax/(dexp(a*nr-a)-1d0)
+!     nfit = 0
+!     if (dasum(lmxa+1,pz,1) == 0) return
+!     do  80  i = 1, nsp
+!        allocate(h_rv(nr))
+!        allocate(g_rv(2*nr))
+!        allocate(gp_rv(2*nr*4))
+!        ! --- Loop over local orbitals ---
+!        !      sume1 = 0d0
+!        !      sume2 = 0d0
+!        do  10  l = 0, lmxa
+!           itab(l+1,i) = 0
+!           pnul = pnu(l+1,i)
+!           pl(l+1,i) = pnu(l+1,i)
+!           konfig = mod(pz(l+1,1),10d0)
+!           !       Skip all but local orbitals with tails attached
+!           if (pz(l+1,1) < 10) goto 10
+!           !       Case local orbital deeper than valence
+!           if (int(pnul-1) == int(mod(pz(l+1,1),10d0))) then
+!              loclo = 1
+!              !         Not needed, actually, since overwritten by popta3
+!              !         pnul = mod(pz(l+1,1),10d0)
+!              !       Case local orbital higher than the valence state
+!           elseif (int(pnul+1) == int(mod(pz(l+1,1),10d0))) then
+!              pnul = mod(pz(l+1,1),10d0)
+!              loclo = 0
+!              !       Local orbital neither one: error
+!           else
+!              call fexit3(-1,111,' Exit -1 freeat, l=%i:  sc '// &
+!                   'PZ=%d incompatible with valence P=%;3d',l,pz(l+1,1),pnul)
+!           endif
+!           !       Skip high-lying local orbitals unless specifically sought
+!           if (loclo == 0 .AND. .NOT. cmdopt('--getallloc',11,0,strn)) goto 10
+!           nfit = nfit + 1
+!           if (nfit == 1) then
+!              call info2(20,1,0,' fff:Fit local orbitals to sm hankels, species '//spid// &
+!                   '%a, rmt=%;7g',rmt,0)
+!              if (ipr >= 20) write (stdo,261)
+!           endif
+!           !   ... Get exact fa wavefunction, eigval, pnu_l at rmt
+!           if (loclo == 1) then
+!              nn = konfig-l-1
+!              call popta3 ( 0,l,z,nn,rmt,nr,nrmt,rofi,v(1,i ),a,b,eval,pnul,g_rv )
+!              !       Finish if in future, need w.f. at r>rmt
+!              !        else
+!              !          call popta3(1,l,z,nn,rmt,nr,nrmt,rofi,v(1,i),a,b,eval,
+!              !     .      pnul,w(og))
+!           endif
+!           pl(l+1,i) = pnul
+!           !   ... Potential parameters at MT sphere
+!           call popta4 ( l,z,rmt,nrmt,rofi,v ( 1,i ),g_rv &
+!               ,gp_rv,a,b,pnul,eval,p,phi,dphi,phip,dphip )
+!           !   ... Set conditions on envelope functions ... For now
+!           rsmin = rs3
+!           rsmax = 5
+!           if (icst == 1) rsmax = rmt
+!           !       Use r->infty value for energy
+!           eh = min(-.02d0,eval)
+!           !   ... Match Hankel to phi,dphi
+!           !        rsm = rsmin
+!           !        emax = -.02d0
+!           !        emin = -5d0
+!           !        call mtchre(100,l,rsmin,rsmax,emin,emax,rmt,rmt,phi,dphi,phi,
+!           !     .    dphi,rsm,eh,ekin,info)
+!           !   ... Match slope and K.E. of Hankel to phi,dphi
+!           tphi = eval - (v(nrmt,i)-2*z/rmt)
+!           rsm = 0
+!           eh = min(eval-vmtz,-.02d0)
+!           emax = -.02d0
+!           emin = -10d0
+!           !       if (ipr .ge. 20) call pshpr(max(ipr,50))
+!           call mtchre(003,l,rsmin,rsmax,emin,emax,rmt,rmt,phi,dphi,tphi, &
+!                dphi,rsm,eh,ekin,info)
+!           !       if (ipr .ge. 20) call poppr
+!           !       Match failed ... turn up verbosity and repeat for info
+!           if (info == -1) then
+!              call info2(0,2,1,' *** ftfalo (fatal) cannot fit smooth Hankel to w.f.'// &
+!                   ' class '//spid//'%N ... possibly reduce RS3 (current value = %,1d)',rs3,0)
+!              call pshpr(max(ipr,110))
+!              call mtchr2(1,l,emin,emax,(emin+emax)/2, rmt,phi,dphi,rsmin,eh,ekin,i)
+!              call poppr
+!              call fexit2(-1,111,' Exit -1 : ftfalo : failed to match log der=%,1;3d'// &
+!                   ' to envelope, l=%i',dphi/phi,l)
+!           endif
+!           !  ... Get energy of this wave function
+!           call popta1 ( rsm,eh,l,z,rmt,nr,nrmt,rofi,h_rv &
+!               ,v(1,i),a,b,eval,p,phi,dphi,phip,dphip,e2,qrmt )
+!           if (ipr >= 20) write (stdo,260) l,rsm,eh,qrmt,e2,eval,pnul,tphi,ekin, &
+!                flg(2-isw(dabs(ekin-tphi) > 1d-5))
+! 260       format(i2,2f8.3,3f10.5,f9.3,2f10.5,a1,f10.5)
+! 261       format(' l    Rsm     Eh     Q(r>rmt)   Eval      Exact      Pnu     K.E.    fit K.E.')
+!           itab(l+1,i) = 1
+!           rtab(l+1,i) = rsm
+!           etab(l+1,i) = eh
+! 10     enddo
+!        ! akao moved deallocation to here
+!        deallocate(gp_rv)
+!        deallocate(g_rv)
+!        deallocate(h_rv)
+! 80  enddo
+!     ! --- Make plot file ---
+!     !     lplawv=nglob('lplawv')
+!     lplawv = 0
+!     if (cmdopt('--plotwf',8,0,strn)) lplawv = 1
+!     if (lplawv == 1) then
+!        if (nsp == 2) call rx('optfab is not spinpol yet')
+!        allocate(psi_rv(nr*lmxa))
+!        call popta5 ( lmxa,rtab,etab,itab,z,pl,rmax,rmt &
+!            ,nr,nrmt,rofi,psi_rv,v,g_rv,a,b,spid )
+!        deallocate(psi_rv)
+!     endif
+!   end subroutine ftfalo
+
+

@@ -5,7 +5,7 @@ module m_elocp
   private
 contains
   subroutine elocp()! Make envlope parameters for extended local orbitals
-    use m_lmfinit,only: nkaph,stdo,nspec,nbas,nsp,ispec,sspec=>v_sspec,n0,nkapii,slabl,vmtz,rs3,eh3
+    use m_lmfinit,only: nkaph,stdo,nspec,nbas,nsp,ispec,sspec=>v_sspec,n0,nkapii,slabl,vmtz,rs3,eh3,lpzex
     use m_density,only: v0pot,pnuall,pnzall
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -28,12 +28,12 @@ contains
     real(8):: z,a,rmt,xx, rofi(nrmx),vseli(4,n0),vsel(4,n0,nbas), &
          eh(n0,nkap0),rsmh(n0,nkap0) !
     real(8),pointer:: pnu(:,:),pnz(:,:),pnui(:,:),pnzi(:,:)
-!    real(8)::  pnui(n0,2),pnzi(n0,2),pnu(n0,2),pnz(n0,2)
     real(8):: ehls(n0*2),rsmls(n0*2),wdummy(1)
     ! --- Setup ---
     call tcn('elocp')
     if(allocated(ehl)) deallocate(ehl,rsml)
     allocate( ehl(n0,nspec),rsml(n0,nspec))
+!    if(sum(lpzex)/=0) return
     ipr = iprint()
     eloc = .false.
     vsel=0d0
@@ -49,9 +49,6 @@ contains
        z=sspec(is)%z
        lmxa=sspec(is)%lmxa
        lmxb=sspec(is)%lmxb
-!       do l=0,lmxa
-!       write(6,"('eee ibas l=',2i3,' pnu(1:nsp) pnz(1:nsp)=',4f10.5)") ib,l,pnu(l+1,1:nsp),pnz(l+1,1:nsp)
-!       enddo
        if (lmxa == -1) goto 10
        if (pnz(idamax(lmxb+1,pnz,1),1) < 10) goto 10
        eloc = .true.

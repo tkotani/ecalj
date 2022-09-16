@@ -1433,12 +1433,12 @@ contains
          write(stdo,"('mmm === MTO setting ===')")
          do i=1,nspec
             lmxbj = lmxb(i)
-            write(stdo,"('mmm ispec lmxb lpzex nkapii nkaphh=',10i5)")i,lmxb(i),lpzex(i),nkapii(i),nkaphh(i)
+            write(stdo,"('mmm ispec lmxb lpz nkapii nkaphh=',10i5)")i,lmxb(i),lpz(i),nkapii(i),nkaphh(i)
             write(stdo,"('mmm rsmh1 ',i4,100f6.2)")i, rsmh1(1:lhh(1,i)+1,i)
             write(stdo,"('mmm   eh1 ',i4,100f6.2)")i,   eh1(1:lhh(1,i)+1,i)
             if(nkapii(i)==2) write(stdo,"('mmm rsmh2 ',i4,100f6.2)")i, rsmh2(1:lhh(2,i)+1,i)
             if(nkapii(i)==2) write(stdo,"('mmm  eh2  ',i4,100f6.2)")i,   eh2(1:lhh(2,i)+1,i)
-            if(lpzex(i)==1 ) write(stdo,"('mmm pz    ',i4,100f6.2)")i,    pzsp(1:lhh(nkaph,i)+1,1,i)
+            if(lpz(i)==1 ) write(stdo,"('mmm pz    ',i4,100f6.2)")i,    pzsp(1:lhh(nkaph,i)+1,1,i)
             write(stdo,"('mmm lh    ',i4,100i3)")  lhh(1:nkaph,i)
          enddo
       endif
