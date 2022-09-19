@@ -1,0 +1,213 @@
+1002117 ERROR! ecalj no c in save
+1006880 ERROR! ecalj no save
+1009543 ERROR! ecalj no c in save
+1009639 ERROR! ecalj no c in save
+1009649 ERROR! ecalj no c in save
+1017507 ERROR! ecalj no c in save
+1018147 ERROR! ecalj no c in save
+1018711 ERROR! ecalj no c in save
+1018815 ERROR! ecalj no c in save
+1018902 ERROR! ecalj no c in save
+1019110 ERROR! ecalj no c in save
+1024951 ERROR! ecalj no save
+1024985 ERROR! ecalj no c in save
+1062 ERROR! ecalj no c in save
+1064300 ERROR! ecalj no c in save
+1064492 ERROR! ecalj no save  !takao CaO  Low symmetry probably. Now going on.
+1079305 ERROR! ecalj no c in save
+1079915 ERROR! ecalj no c in save
+1080485 ERROR! ecalj no c in save
+10879 ERROR! ecalj no c in save
+1097929 ERROR! ecalj no save
+1123 ERROR! ecalj no save        !takao works Hg
+11235 ERROR! ecalj no c in save
+11375 ERROR! ecalj no save
+11417 ERROR! ecalj no save
+11422 ERROR! ecalj no save
+11462 ERROR! ecalj no save
+11467 ERROR! ecalj no save
+11469 ERROR! ecalj no save
+11471 ERROR! ecalj no save
+11473 ERROR! ecalj no save
+11503 ERROR! ecalj no c in save
+1164 ERROR! ecalj no c in save !takao Th C slightly unstable  ==> nk=8
+1176 ERROR! ecalj no c in save
+1176 ERROR! ecalj no c in save   !takao TbTe slightly unstable (not so bad)
+11841 ERROR! ecalj no c in save
+1194 ERROR! ecalj no c in save
+11974 ERROR! ecalj no c in save
+1213 ERROR! ecalj no c in save !takao slightly unstable
+1224 ERROR! ecalj no save
+1224785 ERROR! ecalj no save
+1228806 ERROR! ecalj no save
+12753 ERROR! ecalj no c in save
+1279 ERROR! ecalj no c in save
+1279 ERROR! ecalj no c in save   
+1280 ERROR! ecalj no c in save
+12899 ERROR! ecalj no c in save
+1327 ERROR! ecalj no c in save
+13380 ERROR! ecalj no c in save
+1408 ERROR! ecalj no save        !takao Hg
+1526 ERROR! ecalj no save
+16342 ERROR! ecalj no save
+1644 ERROR! ecalj no c in save
+1670 ERROR! ecalj no c in save
+16734 ERROR! ecalj no c in save
+16751 ERROR! ecalj no c in save
+170 ERROR! ecalj no c in save
+17092 ERROR! NBAS >=
+162798 ERROR! NBAS >=
+162475 ERROR! ecalj no c in save
+1742 ERROR! ecalj no c in save
+1779 ERROR! ecalj no c in save
+18755 ERROR! ecalj no c in save
+1890 ERROR! ecalj no save
+19006 ERROR! ecalj no c in save
+19009 ERROR! ecalj no c in save
+19079 ERROR! ecalj no save
+1918 ERROR! ecalj no c in save
+1936 ERROR! ecalj no save
+1936 ERROR! ecalj no save         !takao TaAs working
+19714 ERROR! ecalj no c in save
+19745 ERROR! ecalj no c in save
+20023 ERROR! ecalj no c in save
+2012 ERROR! ecalj no save
+20122 ERROR! ecalj no save
+20132 ERROR! ecalj no save
+20281 ERROR! ecalj no c in save
+203 ERROR! ecalj no c in save
+20394 ERROR! ecalj no c in save
+20415 ERROR! ecalj no c in save
+20438 ERROR! ecalj no c in save
+2059 ERROR! ecalj no save
+2065 ERROR! ecalj no c in save
+20712 ERROR! ecalj no save
+2081 ERROR! NBAS >= 16865402 ERROR! ecalj no c in save
+20848 ERROR! ecalj no c in save
+20880 ERROR! ecalj no c in save
+21061 ERROR! ecalj no c in save
+21087 ERROR! ecalj no c in save
+21238 ERROR! ecalj no c in save
+21253 ERROR! ecalj no c in save
+21290 ERROR! ecalj no c in save
+21356 ERROR! ecalj no c in save
+2159 ERROR! ecalj no c in save
+2167 ERROR! ecalj no c in save
+22032 ERROR! ecalj no c in save
+2213 ERROR! ecalj no c in save
+22177 ERROR! ecalj no c in save
+2222 ERROR! ecalj no save
+22331 ERROR! ecalj no c in save
+22696 ERROR! ecalj no c in save
+22707 ERROR! ecalj no c in save
+22859 ERROR! ecalj no save
+2303 ERROR! ecalj no c in save
+23177 ERROR! ecalj no save
+23234 ERROR! ecalj no c in save
+238 ERROR! ecalj no c in save
+2399 ERROR! ecalj no save !Hg 
+2468 ERROR! ecalj no save
+2510 ERROR! ecalj no save
+2522 ERROR! ecalj no save
+2545 ERROR! ecalj no save
+255 ERROR! ecalj no save
+2556 ERROR! ecalj no c in save
+2627 ERROR! ecalj no c in save
+2627 ERROR! ecalj no c in save  !takao DyAs nk=8 and 32 iteration.
+2636 ERROR! ecalj no c in save
+2640 ERROR! ecalj no c in save
+2685 ERROR! ecalj no save !Hg
+2730 ERROR! ecalj no save
+2730 ERROR! ecalj no save        !takao works Hg
+27902 ERROR! ecalj no c in save
+27923 ERROR! ecalj no c in save
+2802 ERROR! ecalj no c in save
+2822 ERROR! ecalj no c in save
+29266 ERROR! ecalj no save
+3 ERROR! ecalj no save
+3 ERROR! ecalj no save 
+30609 ERROR! ecalj no c in save
+30732 ERROR! ecalj no c in save
+3074 ERROR! ecalj no save  !KAgO band cal error. pwemax=2 error(95 basis). pwemax=1(32 basis) works. OVEPS=1d-7 works.   (pwemax=3 OVEPS=1d-8 works. PW=151.)
+30799 ERROR! ecalj no c in save
+30878 ERROR! ecalj no c in save
+31413 ERROR! ecalj no c in save
+316 ERROR! ecalj no c in save
+33 ERROR! ecalj no c in save           !takao a little unstable. Ru nk=8 converges.
+345 ERROR! ecalj no save  !takao HfB lmfa error at B
+348 ERROR! ecalj no c in save
+4075 ERROR! ecalj no save
+451 ERROR! ecalj no save  !ZrB Boron error lmfa
+4651 ERROR! ecalj no save
+4854 ERROR! ecalj no save
+505511 ERROR! NBAS >= 1621237 ERROR! ecalj no c in save
+506 ERROR! ecalj no c in save
+5068 ERROR! ecalj no save
+5068 ERROR! ecalj no save           !takao nk=8 PNUFIX,READP converged.
+5068 ERROR! ecalj no save       !takao DyZrSb. Stop at first band calculation. Overcolete? PWMODE=0 works. Too much APWs? pwmax=2,3 fails (50 pws at pwmax=2). pwmax=1 is going on (95 PWs).
+510152 ERROR! ecalj no c in save
+510596 ERROR! ecalj no c in save
+542 ERROR! ecalj no save  !takao Hg ok!
+542584 ERROR! ecalj no c in save
+542632 ERROR! ecalj no c in save
+542757 ERROR! ecalj no c in save
+542779 ERROR! ecalj no c in save
+548469 ERROR! ecalj no save
+5519 ERROR! ecalj no c in save
+558071 ERROR! ecalj no save
+561066 ERROR! NBAS >= 162556 ERROR! ecalj no c in save
+567214 ERROR! ecalj no c in save
+567574 ERROR! ecalj no c in save
+567912 ERROR! ecalj no save
+572 ERROR! ecalj no c in save
+574283 ERROR! ecalj no c in save
+603640 ERROR! ecalj no save
+607004 ERROR! ecalj no c in save
+6166 ERROR! ecalj no c in save
+621351 ERROR! ecalj no c in save
+621362 ERROR! ecalj no c in save
+622620 ERROR! ecalj no c in save
+623 ERROR! ecalj no save
+623 ERROR! ecalj no save         !takao works. Hg
+672290 ERROR! ecalj no save
+684597 ERROR! ecalj no save
+684664 ERROR! ecalj no save
+702 ERROR! ecalj no save
+706 ERROR! ecalj no save
+7083 ERROR! ecalj no save
+7083 ERROR! ecalj no save             !takao OVLEPS=1d-8 working
+714885 ERROR! ecalj no save
+715262 ERROR! ecalj no c in save
+72 ERROR! ecalj no c in save
+721 ERROR! ecalj no c in save
+7239 ERROR! ecalj no c in save
+734 ERROR! ecalj no save
+734 ERROR! ecalj no save  !takao Hg
+7469 ERROR! ecalj no save
+7526 ERROR! ecalj no save
+756436 ERROR! ecalj no save
+7870 ERROR! ecalj no c in save
+8053 ERROR! ecalj no save
+8121 ERROR! ecalj no c in save
+814 ERROR! ecalj no c in save
+820 ERROR! ecalj no save !takao Hg
+919 ERROR! ecalj no c in save
+9194 ERROR! ecalj no c in save
+945 ERROR! ecalj no c in save
+949 ERROR! ecalj no c in save
+957 ERROR! ecalj no save
+966800 ERROR! ecalj no save
+971648 ERROR! ecalj no save
+974062 ERROR! ecalj no c in save
+974307 ERROR! ecalj no c in save
+978918 ERROR! ecalj no c in save
+979972 ERROR! ecalj no c in save
+982596 ERROR! ecalj no c in save
+9830 ERROR! ecalj no save
+985 ERROR! ecalj no c in save
+9954 ERROR! ecalj no save
+9970 ERROR! ecalj no save
+998911 ERROR! ecalj no save
+999335 ERROR! ecalj no save
+999335 ERROR! ecalj no save  !
+11462 ERROR! ecalj no save      !takao lmfa error. P need to set for Hg. ctrlgenM1 corrected. too many basis?
