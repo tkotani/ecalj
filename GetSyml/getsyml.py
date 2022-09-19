@@ -191,7 +191,7 @@ for ipath in a['path']:
     ppp= ppp[0]*qqq[0]+ppp[1]*qqq[1] +ppp[2]*qqq[2]
     ee1,ee2,ee3 = [ float(ppp[ix]) for ix in range(0,3)]
     dis= ((ee1-ii1)**2+(ee2-ii2)**2+(ee3-ii3)**2)**.5
-    ndiv=int(totalbandpoint*dis/distot) #this controls number of divisions
+    ndiv=max(int(totalbandpoint*dis/distot),3) #this controls number of divisions
     print(ii1,ii2,ii3,ii)
     linex= '{0}  {1} {2} {3}  {4} {5} {6}  {7} {8}\n'.format(ndiv,ii1,ii2,ii3,ee1,ee2,ee3,ii,ee)
     sfile.write(linex)

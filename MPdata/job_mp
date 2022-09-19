@@ -6,22 +6,53 @@ import creplot
 
 args = sys.argv
 #print(args)
-
 if len(args) == 1 or args[1] == "--help":
     print("get tdos and band plot ")
-    print("Usage: job_mp your_apikey mp-10 mp-21 ...")
+    print("Usage: prepare job_mp_list and then run list.job_mp")
+    print("       put mp-id per line in list.job_mp")
     print(" In advance, set your API key at https://materialsproject.org/open")
     print(" to apikey in job_mp")
     print("")
 
-else:
-    apikey = "FRaVT8iIl5JXLimgwLg"
-    #del args[:2]
-    print(args)
-    for i in args[1:]:
-        starttime = datetime.datetime.now()
-        creplot.createplot(i,apikey)
-        endtime = datetime.datetime.now()
-        print('mp-id=',i,"start:",starttime, "end:",endtime)
+with open('list.job_mp') as f:
+    joblist=[]
+    datax=f.read()
+    #print(datax)
+    ddd=datax.split('\n')
+    for m,i in enumerate(ddd):
+        joblist.append(i.split(' ')[0])
+    print(joblist)
+apikey = "FRaVT8iIl5JXLimgwLg"
+
+fout=open('log.job_mp','w')
+#del args[:2]
+print(args)
+for i in joblist: #args[1:]:
+    starttime = datetime.datetime.now()
+    outc=creplot.createplot(i,apikey,fout)
+    endtime = datetime.datetime.now()
+    diff1=(endtime-starttime)
+    difft=diff1.seconds
+    print('mp-id=',i,"start@",starttime.strftime('%x %X'),":",difft," sec")
+    print('mp-id=',i,"start@",starttime.strftime('%x %X'),":",difft," sec",outc.decode('utf-8'),file=fout,end='')
+sys.exit()
+
+
+# if len(args) == 1 or args[1] == "--help":
+#     print("get tdos and band plot ")
+#     print("Usage: job_mp your_apikey mp-10 mp-21 ...")
+#     print(" In advance, set your API key at https://materialsproject.org/open")
+#     print(" to apikey in job_mp")
+#     print("")
+
+# else:
+#     apikey = "FRaVT8iIl5JXLimgwLg"
+#     #del args[:2]
+#     print(args)
+#     for i in joblist: #args[1:]:
+#         starttime = datetime.datetime.now()
+#         creplot.createplot(i,apikey)
+#         endtime = datetime.datetime.now()
+#         print('mp-id=',i,"start:",starttime, "end:",endtime)
 
 
