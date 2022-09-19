@@ -1961,7 +1961,7 @@ contains
     double precision :: dd(3),dd1,dd2,sumrs,summt,ovlprs,ovlpmt, &
          ctrs,ctmt,ddot,dlat(3),xx,avwsr,vol
     double precision :: qlat(3,3),volspp
-    integer :: ibas,jbas,ic,jc,kc,m,ipr,i1mach,m1,m2,m3,isw,stdo,istdo
+    integer :: ibas,jbas,ic,jc,kc,m,ipr,i1mach,m1,m2,m3,isw,istdo
     character(80) :: a, ch(1)
     logical :: lterse,cmdopt,lrmt
     character(8) :: clabl,clablj
@@ -2017,11 +2017,11 @@ contains
        if (lrmt) then
           write(stdo,450) ibas,ic,clabl,rmax(ic),rmt(ic),(pos(m,ibas),m=1,3)
           write(ifp,450)  ibas,ic,clabl,rmax(ic),rmt(ic), (pos(m,ibas),m=1,3)
-450       format(i5,3x,i4,2x,a8,2f12.6,3f11.5)
+450       format('conf ',i5,3x,i4,2x,a8,2f12.6,3f11.5)
        else
           write(stdo,351) ibas,ic,clabl,rmax(ic),(pos(m,ibas),m=1,3)
           write(ifp,351)ibas,ic,clabl,rmax(ic),(pos(m,ibas),m=1,3)
-351       format(i5,3x,i4,2x,a8,f12.6,3f11.6)
+351       format('conf ',i5,3x,i4,2x,a8,f8.6,2x,3f11.6)
           if (ipr >= 41) then
              call dgemm('T','N',3,1,3,1d0,qlat,3,pos(1,ibas),3,0d0,dd,3)
              !          do  m = 1, 3

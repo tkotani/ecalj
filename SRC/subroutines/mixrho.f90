@@ -205,14 +205,8 @@ contains
     integer::  iter , procid , master
     type(s_rv1) :: sv_p_orhold(3,1)
     type(s_rv1) :: sv_p_orhnew(3,1)
-    !      character*(*) mixmod
-    !      type(s_site)::ssite(*)
-    !      type(s_spec)::sspec(*)
-    !      type(s_lat)::slat
-
     double precision :: qval,elind=0d0
     double complex smrnew(k1,k2,k3,nsp),smrho(k1,k2,k3,nsp)
-    ! ... Local parameters
     integer :: i,i1,i2,i3,ib,ipl,ipr,is,k0,k9, &
          lmxl,n1,n2,n3,ng,nglob,nlml,nr,nmixr,nmix,nda,mxsav,ifi,nlm0, &
          kkk,nnnew,nnmix,ngabc(3),igetss,broy,nx, &
@@ -227,7 +221,6 @@ contains
     real(8) ,allocatable :: rwgt_rv(:)
     real(8) ,allocatable :: wk1_rv(:)
     real(8) ,allocatable :: wk2_rv(:)
-
     equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
     parameter (nlm0=49)
     double precision :: a,beta0,beta,dif,difx,difxu,fac,rms,rmt, &
@@ -261,46 +254,7 @@ contains
        call parms0(0,0,0d0,0) !reset mixing block
        initd=.false.
     endif
-
-    nnnew=0
-    !      open(1898,file='test2vvv_smrho')
-    do  i3 = 1, k3
-       do  i2 = 1, k2
-          do  i1 = 1, k1
-             if (sum(dreal(smrho(i1,i2,i3,1:nsp))) < 0) nnnew = nnnew+1
-             !        if( (i1==1.and.i2==1).or.
-             !     &      (i3==1.and.i2==1).or.
-             !     &      (i1==1.and.i3==1) ) then
-             !        write(1898,"(3i5,2d13.5)")i1,i2,i3,smrho(i1,i2,i3,1)
-             !        endif
-          enddo
-       enddo
-    enddo
-    !      close(1898)
-    !      print *,'vvv'
-    !      print *,'mixrho: sum smrho  init =',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1))),nnnew
-    !      write(6,"(a,3d13.6,i8)")' mixrho: sum smrho  init =',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1))),nnnew
-    !---
-    nnnew=0
-    !      open(1898,file='test2vvv_smrnew')
-    do  i3 = 1, k3
-       do  i2 = 1, k2
-          do  i1 = 1, k1
-             if (sum(dreal(smrnew(i1,i2,i3,1:nsp))) < 0) nnnew = nnnew+1
-             !        if( (i1==1.and.i2==1).or.
-             !     &      (i3==1.and.i2==1).or.
-             !     &      (i1==1.and.i3==1) ) then
-             !          write(1898,"(3i5,2d13.5)")i1,i2,i3,smrnew(i1,i2,i3,1)-smrho(i1,i2,i3,1)
-             !        endif
-          enddo
-       enddo
-    enddo
-    !      close(1898)
-    !      print *,'mixrho: sum smrnew new  =',sum(smrnew(:,:,:,1)),sum(abs(smrnew(:,:,:,1))),nnnew
-    !      write(6,"(a,3d13.6,i8)")' mixrho: sum smrnew new  =',sum(smrnew(:,:,:,1)),sum(abs(smrnew(:,:,:,1))),nnnew
     ! ccccccccccccccccccccccccccccccccccc
-
-
     call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
     call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
     call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
@@ -308,10 +262,6 @@ contains
     namelen(procid) = i-1
     master = 0
     mlog = cmdopt('--mlog',6,0,strn)
-
-    !      nbas = globalvariables%nbas
-    !      stdo = globalvariables%stdo
-    !      stdl = globalvariables%stdl
     call getpr(ipr)
     ipl = 1
     nx = 0
@@ -327,7 +277,6 @@ contains
     elinl = elind
     kmxs = 3
     kmxr = 8
-
     ! --- Iteration-dependent mixing parameters ---
     broy  = dmxp(1)
     beta  = dmxp(2)
@@ -345,8 +294,7 @@ contains
     rms2 = 0
     if (ipr >= 20) write(stdo,*) ' '
     if ( .NOT. parmxp(iter,mixmod,len(mixmod),broy,nmix,wt,beta,elinl, &
-         fnam,wc,nkill,dmxp(9),rms2)) call rx( &
-         'MIXRHO: parse in parmxp failed')
+         fnam,wc,nkill,dmxp(9),rms2)) call rx('MIXRHO: parse in parmxp failed')
 
     !     In case parmxp doesn't touch wt, unset flag
     if (wt(3) == -9) wt(3) = 0
@@ -360,18 +308,18 @@ contains
     !     .  broy,nmix)
     !      call rx('done')
 
-    ! ... Interactively reset mix-parms block
-    i1 = 0
-    i2 = 0
-    !      call query('mix-parms-block',2,i1)
-    !      call query('block-iter',2,i2)
-    if (i1 > 0 .OR. i2 > 0) then
-       if (i2 <= 0) i2 = 1
-       call parmx0(i1,i2,0d0)
-       if ( .NOT. parmxp(iter,mixmod,len(mixmod),broy,nmix,wt,beta, &
-            elinl,fnam,wc,nkill,dmxp(9),rms2))call rx( &
-            'MIXRHO: parse in parmxp failed')
-    endif
+    ! ! ... Interactively reset mix-parms block
+    ! i1 = 0
+    ! i2 = 0
+    ! !      call query('mix-parms-block',2,i1)
+    ! !      call query('block-iter',2,i2)
+    ! if (i1 > 0 .OR. i2 > 0) then
+    !    if (i2 <= 0) i2 = 1
+    !    call parmx0(i1,i2,0d0)
+    !    if ( .NOT. parmxp(iter,mixmod,len(mixmod),broy,nmix,wt,beta, &
+    !         elinl,fnam,wc,nkill,dmxp(9),rms2))call rx( &
+    !         'MIXRHO: parse in parmxp failed')
+    ! endif
 
     if (nsp == 1) wt(2) = 0
     if (wt(1)**2+wt(2)**2+wt(3)**2 == 0) &
@@ -503,44 +451,21 @@ contains
        rsmv=sspec(is)%rsmv
        !kmxv=sspec(is)%kmxv
        if (lmxl < 0) cycle
-
        nlml = (lmxl+1)**2
        if (nlml > nlm0) call rxi('mixrho: nlml > nlm0, need',nlml)
        allocate(rofi_rv(nr))
        allocate(rwgt_rv(nr))
        call radmsh ( rmt , a , nr , rofi_rv)
        call radwgt ( rmt , a , nr , rwgt_rv)
-
-       ! if( .NOT. noelind()) then
-       !    !       Overwrite rho+, rho- with rho, rho+ - rho-
-       !    call splrho ( 0 , nsp , nr , nlml , sv_p_orhnew( 1 , ib )%v , &
-       !         sv_p_orhnew( 2 , ib )%v , sv_p_orhnew( 3 , ib )%v )
-       !    !   ... Add site-projected screening density to rhn1,rhn2
-       !    call pkl2ro ( 110 , ib , rsmv , kmxv , nr , nlml , 1 , rofi_rv &
-       !         , rwgt_rv , k0 , nlm0 , fkl_zv , wdummy , sv_p_orhnew ( 1 , &
-       !         ib ) %v , sv_p_orhnew ( 2 , ib ) %v , qmx )
-       !    !       Restore rho+, rho-
-       !    call splrho ( 1 , nsp , nr , nlml , sv_p_orhnew( 1 , ib )%v , &
-       !         sv_p_orhnew( 2 , ib )%v , sv_p_orhnew( 3 , ib )%v )
-       ! endif
-
-       !   ...  Always work with rho1+rho2, rho1-rho2
-       !        print *, 'ib=',ib
-       !        call prrmsh('rhold1',w(orofi),w(orhold(1,1)),nr,nr,nlml*nsp)
-       !        call prrmsh('rhold2',w(orofi),w(orhold(2,1)),nr,nr,nlml*nsp)
-
        call pvmix9 ( 1 , 0 , nr , nlml * nsp , 0 , 0d0 , rofi_rv , sv_p_orhold( 1 , ib )%v &
             , sv_p_orhold( 2 , ib )%v )
        call pvmix9 ( 1 , 0 , nr , nlml * nsp , 0 , 0d0 , rofi_rv , sv_p_orhnew( 1 , ib )%v &
             , sv_p_orhnew( 2 , ib )%v )
        if (allocated(rwgt_rv)) deallocate(rwgt_rv)
        if (allocated(rofi_rv)) deallocate(rofi_rv)
-
     enddo                     ! Loop over sites
     if (allocated(fkl_zv)) deallocate(fkl_zv)
     if(allocated(w_ocn)) deallocate(w_ocn)
-
-
     ! --- Fancy mixing of smoothed + some representation of local rho ---
     ! ... Count number of elts from local densities for fancy mixing scheme
     nda = 0
@@ -669,15 +594,10 @@ contains
 100 format(' charges:',7x,'old',11x,'new',9x,'screened', &
          6x,'rms diff',7x,'lin mix'/' smooth ',5f14.6)
 101 format(' mmom   ',2f14.6,28x,f14.6)
-
     ! --- 10. Linear mixing of local densities  ---
     call pvmix3 ( nbas , nsp , beta , locmix , wt &
-         , kmxr , nlm0 , k9 , w_oqkl , sv_p_orhold , sv_p_orhnew , difx &
-         )
+         , kmxr , nlm0 , k9 , w_oqkl , sv_p_orhold , sv_p_orhnew , difx )
     difxu = difx
-
-
-
 
     !!== Main Mixing part ==
     !!=== 11. Spin polarized case: separate weighting for spin channels ===
@@ -695,7 +615,6 @@ contains
        if (wt(3) /= 0) naa = naa+nx
        offx = 0                !offset to extra elements (none now)
        off2 = (nsp-1)*nda      !offset to spin down part of a
-       !        call defdr(oaa,-naa*(mxsav+2)*2)
        allocate(w_oaa(naa*(mxsav+2)*2))
        w_oaa=0d0
        call pqsclf(0,nda*nsp,nda,offx,off2,nx,naa,mxsav,wt, &
@@ -711,21 +630,16 @@ contains
        beta0 = beta
        call pvmix6(broy,nmix,nmixr,mxsav,beta,wc,naa,w_oaa)
        !!=== 13. Restore matrix a to rho+, rho===
-       !       if (nsp .eq. 2 .or. nx .gt. 0) then
        call pqsclb(nda*nsp,nda,offx,off2,nx,naa,mxsav,wt,w_oa,w_oaa)
        call pqsclc(nda*nsp,nda*nsp,nx,mxsav,w_oa)
-       !       call rlse(oaa)
        deallocate(w_oaa)
-       !       endif
     else
-       !        oaa = oa
        naa = nda
        !!=== 12. Mix the soup of densities ===
        beta0 = beta
        call pvmix6(broy,nmix,nmixr,mxsav,beta,wc,naa,w_oa)
     endif
     ! ... 14. Poke mixed smooth and local densities into smrho,rhoold
-    !      call defcc(owk,kkk)
     allocate(w_owk(kkk))
     call pvmix7 (   nbas , nsp , nda , w_oa , n1 , &
          n2 , n3 , k1 , k2 , k3 , locmix , wt , k9 , kmxr , nlm0 , w_oqkl &
@@ -740,14 +654,11 @@ contains
     call dpzero(qmix,2)
     do  ib = 1, nbas
        is = ispec(ib)!int(ssite(ib)%spec)
-
        a=sspec(is)%a
        nr=sspec(is)%nr
        rmt=sspec(is)%rmt
-
        lmxl=sspec(is)%lmxl
        rsmv=sspec(is)%rsmv
-
        if (lmxl < 0) cycle
        nlml = (lmxl+1)**2
        if (nlml > nlm0) call rxi('mixrho: nlml > nlm0, need',nlml)
@@ -755,47 +666,27 @@ contains
        allocate(rwgt_rv(nr))
        call radmsh ( rmt , a , nr , rofi_rv)
        call radwgt ( rmt , a , nr , rwgt_rv)
-
        call pvmix9 ( 1 , - 1 , nr , nlml * nsp , 0 , 0d0 , rofi_rv , &
             sv_p_orhold( 1 , ib )%v , sv_p_orhold( 2 , ib )%v )
-
-
        call pvmix9 ( 1 , - 1 , nr , nlml * nsp , 0 , 0d0 , rofi_rv , &
             sv_p_orhnew( 1 , ib )%v , sv_p_orhnew( 2 , ib )%v )
-
-       !       debugging
-       !        print *, 'ib=',ib
-       !        call prrmsh('1 final',w(orofi),w(orhold(1,1)),nr,nr,nlml*nsp)
-       !        call prrmsh('2 final',w(orofi),w(orhold(2,1)),nr,nr,nlml*nsp)
-
        !   ... Add net local charge to qmix
        do  i = 1, nsp
           off2 = 1 + nr*nlml*(i-1)
           allocate(wk1_rv(nr))
           allocate(wk2_rv(nr))
-          call dpscop ( sv_p_orhold( 1 , ib )%v , wk1_rv , nr , off2 , &
-               1 , 1d0 )
-
-
-          call dpscop ( sv_p_orhold( 2 , ib )%v , wk2_rv , nr , off2 , &
-               1 , 1d0 )
-
-
-          qmx = srfpi * ( ddot ( nr , wk1_rv , 1 , rwgt_rv , 1) &
-               - ddot ( nr , wk2_rv , 1 , rwgt_rv , 1))
-
+          call dpscop ( sv_p_orhold( 1 , ib )%v , wk1_rv , nr , off2 , 1 , 1d0 )
+          call dpscop ( sv_p_orhold( 2 , ib )%v , wk2_rv , nr , off2 , 1 , 1d0 )
+          qmx = srfpi*(ddot(nr,wk1_rv,1,rwgt_rv,1)- ddot ( nr , wk2_rv , 1 , rwgt_rv , 1))
           !         print *, 'spin, qmx',i,qmx
           if (i == 2) qmix(2) = qmix(2) + qmx-q1
           q1 = qmx
           qmix(1) = qmix(1) + qmx
           if (allocated(wk2_rv)) deallocate(wk2_rv)
           if (allocated(wk1_rv)) deallocate(wk1_rv)
-
        enddo
-
        if (allocated(rwgt_rv)) deallocate(rwgt_rv)
        if (allocated(rofi_rv)) deallocate(rofi_rv)
-
     enddo                     !Loop over sites
 
     ! ... Force density positive
@@ -874,13 +765,7 @@ contains
        call awrit3('%a  sm-dq %;3g  mx loc %;3g  dq %;3g',sout,80, &
             -stdl,rms,difx,rmsdel)
     endif
-
-    !      call zprm3('exit sm rho, spin1',0,smrho(1,1,1,1),k1,k2,k3)
-    !      call zprm3('exit sm rho, spin2',0,smrho(1,1,1,2),k1,k2,k3)
-
     call tcx('mixrho')
-    !     print *, '!!' ; call poppr
-    !     stop 'for now'
     nnnew = 0
     nnmix = 0
     do  i3 = 1, n3
@@ -894,12 +779,10 @@ contains
              xxc = beta*smrnew(i1,i2,i3,1) + (1d0-beta)*smrho(i1,i2,i3,1)
              if (dble(smrnew(i1,i2,i3,1)) < 0) nnnew = nnnew+1
              if (dble(xxc) < 0) nnmix = nnmix+1
-             !       smrho(i1,i2,i3) = xxc
              summ = summ + dble(xxc)
           enddo
        enddo
     enddo
-
     ! cccccccccccccccccccccccccccccccccc
     do isp=1,nsp
        nnnx = 0
@@ -907,8 +790,6 @@ contains
        do i1=1,k1
           do i2=1,k2
              do i3=1,k3
-                !         print *,i1,i2,i3,isp
-                !         print *,i1,i2,i3,isp,smrho(i1,i2,i3,isp)
                 sss=dreal(smrho(i1,i2,i3,isp))
                 if(sss<0d0) then
                    nnnx=nnnx+1
@@ -927,35 +808,7 @@ contains
           if(iprint()>45) write(6,"(a,i3)") ' mixrho: all smrho are positive for isp=',isp
        endif
     enddo
-    !$$$      nnnew=0
-    !$$$c      open(1898,file='test3vvv')
-    !$$$      do  i3 = 1, k3
-    !$$$        do  i2 = 1, k2
-    !$$$          do  i1 = 1, k1
-    !$$$c        write(1898,"(3i5,2d13.5)")i1,i2,i3,smrho(i1,i2,i3,1)
-    !$$$            if (dreal(smrho(i1,i2,i3,1)) .lt. 0) nnnew = nnnew+1
-    !$$$          enddo
-    !$$$        enddo
-    !$$$      enddo
-    !$$$c      close(1898)
-    !$$$c      print *,'mixrho: sum smrho output=',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1))),nnnew
-    !$$$      write(6,"(a,3d13.6,i8)")
-    !$$$    & ' mixrho: sum smrho output=',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1))),nnnew
-    !      nnnew=0
-    !      do  i3 = 1, k3
-    !      do  i2 = 1, k2
-    !      do  i1 = 1, k1
-    !        if(dreal(smrho(i1,i2,i3,1))<1d-10) smrho(i1,i2,i3,1)=1d-10
-    !        if (dreal(smrho(i1,i2,i3,1)) .lt. 0) nnnew = nnnew+1
-    !      enddo
-    !      enddo
-    !      enddo
-    !      print *,'vvv mixrho sum smrho output 222=',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1))),nnnew
-    ! ccccccccccccccccccccccccccccccc
   end subroutine mixrho
-
-
-
 
 
   subroutine pvmix3 ( nbas , nsp , beta , locmix &
@@ -1686,7 +1539,6 @@ contains
 
   subroutine pvmix6(broy,nmix,mmix,mxsav,beta,wc,nda,a)
     use m_amix,only: amix
-
     !- Mixing of the total density
     ! ------------------------------------------------------------------
     !i  broy   : 0 for Anderson mixing
@@ -1716,11 +1568,9 @@ contains
     !     integer idamax
     !     double precision dval,rmskm(100),rmsmx
     parameter (tjmax = 5d0)
-
     ! ... This is the result of linear mixing, q=0 smooth rho
     !     sqmix = a(1,0,1)*beta + a(1,0,2)*(1-beta)
     real(8),allocatable:: aaa(:)
-
     !$$$ccccccccccccccccccccccccccccccccccccccccc
     !$$$c takao simple mixing test
     !$$$      print *,' vvv: takao simple mixing test'
@@ -1736,8 +1586,6 @@ contains
     !$$$      deallocate(aaa)
     !$$$      return
     !$$$cccccccccccccccccccccccccccccccccccccccccc
-
-
     ! --- Anderson mixing ---
     if (nmix == 0 .OR. nmix == 1 .OR. broy == 0) then
        ! ... amix needs f-x for prior iterations
@@ -1751,7 +1599,6 @@ contains
        !     call prm('a out',a,nda,nda,(mxsav+2)*2)
        ! ... Copy x*=a(*,0,2) to a(*,0,1)
        call dcopy(nda,a(1,0,2),1,a(1,0,1),1)
-
        ! --- Broyden mixing, Duane Johnson's approach ---
     elseif (broy == 1) then
        call pqmixb(nda,nmix,mmix,mxsav,beta,wc,rms2,a,wctrue)
@@ -1760,12 +1607,9 @@ contains
     else
        call rx('pvmix6: bad value for broy')
     endif
-
     ! ... Add the change relative to linear mixing
     !     sqmix = (a(1,0,1) - sqmix)*vol
-
   end subroutine pvmix6
-
 
   subroutine pvmix7 ( nbas , nsp , nda , a , n1 &
        , n2 , n3 , k1 , k2 , k3 , locmix , wt , k9 , kmxr , nlm0 , qkl &
@@ -1960,66 +1804,8 @@ contains
     enddo                     !Loop over sites
     na = na-1
     if (nda /= na) call rx('mixrho: bug in pvmix7')
-
   end subroutine pvmix7
-
-
-  !      subroutine pvmix8(mode,nr,nlml,nsp,rho1,rho2)
-  !C- Handle possible constraints for change in smooth density
-  !C ----------------------------------------------------------------------
-  ! i Inputs
-  ! i   mode  :a compound of digits :
-  ! i         :10s digit
-  ! i         :  0 apply to rho1 only; rho2 is not touched
-  ! i         :  1 apply to both rho1 and rho2
-  ! i         :100s digit for spin polarized case
-  ! i         :  1 zero out charge, rho1+ + rho1- (and rho2+ + rho2-)
-  ! i         :  2 zero out spin, rho1+ - rho1- (and rho2+ + rho2-)
-  ! i   nr    :number of radial mesh points
-  ! i   nlml  :L-cutoff for rho1,rho2
-  ! i   nsp   :2 for spin-polarized case, otherwise 1
-  ! io Inputs/Outputs
-  ! io  rho1  :overwritten with constraints controlled by mode
-  ! io  rho2  :overwritten with constraints controlled by mode
-  ! r Remarks
-  ! u Updates
-  ! u   16 Dec 08 First created
-  !C ----------------------------------------------------------------------
-  !      implicit none
-  !C ... Passed parameters
-  !      integer mode,nr,nlml,nsp
-  !      double precision rho1(nr,nlml,nsp),rho2(nr,nlml,nsp)
-  !C ... Local parameters
-  !      integer np,mode0,mode1,mode2,i
-  !      double precision xx
-
-  !C ... Setup
-  !      mode0 = mod(mode,10)
-  !      mode1 = mod(mode/10,10)
-  !      mode2 = mod(mode/100,10)
-  !      np = nr*nlml
-  !      if (mode2 .eq. 0 .or. nsp .ne. 2) return
-
-  !      i = 20                   ! No core
-  !      if (mode1 .eq. 0) i = 30 ! No rho2
-  !      call splrho(i,nsp,nr,nlml,rho1,rho2,xx)
-  !      if (mode2 .eq. 1) then   ! Zero density
-  !        call dpzero(rho1(1,1,1),np)
-  !        if (mode1 .ne. 0) then ! Including rho2
-  !          call dpzero(rho2(1,1,1),np)
-  !        endif
-  !      endif
-  !      if (mode2 .eq. 2) then   ! Zero spin
-  !        call dpzero(rho1(1,1,nsp),np)
-  !        if (mode1 .ne. 0) then ! Including rho2
-  !          call dpzero(rho2(1,1,nsp),np)
-  !        endif
-  !      endif
-  !      call splrho(i+1,nsp,nr,nlml,rho1,rho2,xx)
-
-  !      end
   subroutine pvmix9(mode,linv,nr,nlml,off,rf,rofi,rho1,rho2)
-
     !- Transformation of local densities rho1,rho2 for mixing
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -2350,226 +2136,8 @@ contains
        a(ia,is,1) = a(ia,is,2)
     enddo
     !     stop 'here'
-
   end subroutine pqsclc
 
-  subroutine pqmixa(nda,nmix,mmix,mxsav,beta,rms2,a,tj)
-    !      use m_lgunit,only:stdo
-    use m_amix,only: amix
-    use m_ftox
-    !- Anderson mixing of a vector
-    !i  mmix: number of iterates available to mix
-    ! o nmix: nmix > 0: number of iter to try and mix
-    !i        nmix < 0: use mmix instead of nmix.
-    !o  nmix: (abs)  number of iter actually mixed.
-    !o        (sign) <0, intended that caller update nmix for next call.
-    implicit none
-    integer :: nda,nmix,mmix,mxsav
-    double precision :: rms2,tj(1),a(nda,0:mxsav+1,2),beta
-    integer:: im , imix , jmix , iprint , i1mach !, amix
-    real(8),allocatable :: norm_rv(:)
-    integer,allocatable :: kpvt_iv(:)
-    real(8),allocatable :: a_rv(:)
-
-    double precision :: tjmax
-    parameter (tjmax = 10d0)
-    ! heap
-    !      integer w(1)
-    !      common /w/ w
-
-    ! ... default nmix
-    if (nmix < 0) nmix = 2
-    nmix = min(mmix,nmix)
-    allocate(norm_rv(mxsav**2))
-
-    allocate(kpvt_iv(mxsav))
-
-    if (beta < 0) nmix = -nmix
-    ! ... imix is a local copy of nmix
-    imix = nmix
-    if (imix < 0) imix = mmix
-    ! ... save PQ array
-    allocate(a_rv(nda*(mxsav+2)*2))
-
-    call dcopy ( nda * ( mxsav + 2 ) * 2 , a , 1 , a_rv , 1 )
-
-
-    ! ... for iterations 1,2,... amix needs F-x
-1   continue
-    do  10  jmix = 1, nmix
-       call daxpy(nda,-1d0,a(1,jmix,2),1,a(1,jmix,1),1)
-10  enddo
-
-    !      call query('beta',4,beta)
-    jmix = min(mmix,iabs(imix))
-    imix = amix ( nda , jmix , mxsav , 0 , dabs ( beta ) , iprint &
-         ( ) , tjmax  , a , tj , rms2 ) !, norm_rv , kpvt_iv
-
-    im = imix
-    !      if (iprint() .gt. 30) call query('redo, nmix=',2,imix)
-    if (iabs(imix) > mmix .AND. imix /= im) &
-         write(stdo,ftox)' (warning) only',mmix,'iter available'
-    if (im /= imix) then
-       call dcopy ( nda * ( mxsav + 2 ) * 2 , a_rv , 1 , a , 1 )
-
-       goto 1
-    endif
-    nmix = imix
-
-    ! ... Restore PQ array, updating new x
-    call dpscop ( a , a_rv , nda , 1 + nda * ( mxsav + 2 ) , 1 &
-         + nda * ( mxsav + 2 ) , 1d0 )
-
-    call dcopy ( nda * ( mxsav + 2 ) * 2 , a_rv , 1 , a , 1 )
-
-    if (allocated(a_rv)) deallocate(a_rv)
-    if (allocated(kpvt_iv)) deallocate(kpvt_iv)
-    if (allocated(norm_rv)) deallocate(norm_rv)
-
-
-  end subroutine pqmixa
-  !      subroutine pqmixb(nda,nmix,mmix,mxsav,wc,rms2,a,wctrue)
-  !C- Broyden mixing of a vector, old style
-  !C ------------------------------------------------------------------
-  ! i  mmix: number of iterates available to mix
-  ! i  a:    (*,i,1)  output values for prev. iteration i
-  ! i        (*,i,2)  input  values for prev. iteration i
-  ! io nmix: nmix > 0: number of iter to try and mix
-  ! i        nmix < 0: use mmix instead of nmix.
-  ! o  nmix: (abs)  number of iter actually mixed.
-  ! o        (sign) <0, intended that caller update nmix for next call.
-  ! r  Notations:
-  ! r  x^(m): input vector for iteration m
-  ! r  F^(m): difference between output and input vector in iteration m
-  !C ------------------------------------------------------------------
-  !      implicit none
-  !      integer nda,nmix,mmix,mxsav
-  !      double precision wc,rms2,wctrue,a(nda,0:mxsav+1,2)
-  !      double precision tol,ddot,dFm,diff,dval
-  !      parameter (tol=1d-12)
-  !      integer im,info,i,j,iprint,i1mach,imix,jmix,
-  !     .  obt,obtx,ojac,obet,ogam,okpvt,oFmp1,oxmp1,odFm,odxm
-  !c heap
-  !      integer w(1)
-  !      common /w/ w
-
-  !C --- Allocate some arrays ---
-  !      call defdr(obt,nda)
-  !      call defdr(obtx,nda)
-  !      call defdr(ojac,nda**2)
-  !      call defdr(obet,nda**2)
-  !      call defdr(ogam,nda**2)
-  !      call defdr(oFmp1,nda)
-  !      call defdr(oxmp1,nda)
-  !      call defdr(odFm,nda)
-  !      call defdr(odxm,nda)
-  !      okpvt = obt
-  !      wctrue = 0
-  !C ... imix is a local copy of nmix
-  !      imix = nmix
-  !      if (imix .lt. 0) imix = mmix
-
-  !C --- First Jacobian matrix ---
-  !C ... See Eq. A6; for beta, eq. A14; for gamma, eq. A15.
-  !C ... x^(2) = x^(1) + [J^(1)]**(-1) * F^(m), so
-  !C     J^(1) = F^(1) / [x^(2) - x^(1)]
-  !C     Also, beta^(1) = 1 and gamma^(1) = J^(1)
-  !    1 continue
-  !      call dpzero(w(ojac),nda**2)
-  !      call dpzero(w(obet),nda**2)
-  !      call dpzero(w(ogam),nda**2)
-  !      call dcopy(nda,a(1,mmix,1),1,w(odFm),1)
-  !      call daxpy(nda,-1d0,a(1,mmix,2),1,w(odFm),1)
-  !      call dcopy(nda,a(1,mmix-1,2),1,w(oxmp1),1)
-  !      call dcopy(nda,a(1,mmix,2),1,w(odxm),1)
-  !      j = 1
-  !      do  20  i = 1, nda
-  !        call dvset(w(ogam),j,j,1d0)
-  !        call dvset(w(obet),j,j,1d0)
-  !        diff = dval(w(oxmp1),i) - dval(w(odxm),i)
-  !        dFm  = dval(w(odFm),i)
-  !        if (dabs(diff) .gt. tol .and. dFm .ne. 0)
-  !     .    call dvset(w(ogam),j,j,dFm/diff)
-  !        j = j + 1 + nda
-  !   20 continue
-
-  !C --- Starting from iteration mmix, build the Jacobian matrix ---
-  !      jmix = min(mmix,iabs(imix))
-  !      do  10  im = jmix, 1, -1
-  !C  ...  F^(m+1) -> a(*,im-1,1)  x^(m+1) -> a(*,im-1,2)
-  !C  ...  dF^(m)  -> a(*,im,1)    dx^(m)  -> a(*,im,2)
-  !        call dcopy(nda,a(1,im-1,2),1,w(oxmp1),1)
-  !        call dcopy(nda,a(1,im-1,1),1,w(oFmp1),1)
-  !        call daxpy(nda,-1d0,w(oxmp1),1,w(oFmp1),1)
-  !        call dcopy(nda,w(oxmp1),1,w(odxm),1)
-  !        call dcopy(nda,w(oFmp1),1,w(odFm),1)
-  !        call daxpy(nda,-1d0,a(1,im,2),1,w(odxm),1)
-  !        call daxpy(nda,-1d0,a(1,im,1),1,w(odFm),1)
-  !        call daxpy(nda, 1d0,a(1,im,2),1,w(odFm),1)
-  !        rms2 = dsqrt(ddot(nda,w(oFmp1),1,w(oFmp1),1)/(nda-0))
-
-  !C ---   Determine wc_true if wc < 0 ---
-  !        if (wc .lt. 0) then
-  !          wctrue = -wc/dsqrt(nda*rms2**2)
-  !        else
-  !          wctrue = wc
-  !        endif
-
-  !C ---   Broyden updates gamma,beta,J, making J^(m+1) ---
-  !        call broydn(w(ojac),w(odFm),w(odxm),w(obet),w(ogam),
-  !     .    w(obt),w(obtx),nda,wctrue)
-
-  !C ---   Factor Jacobian; linear mixing if singular ---
-  !        call dgefa(w(ojac),nda,nda,w(okpvt),info)
-  !        if (info .ne. 0) then
-  !          if (iprint() .ge. 30)
-  !     .      call awrit1(' PQMIXB Broyden iter %i: Jacobian matrix '//
-  !     .      'singular',' ',80,i1mach(2),jmix-im+1)
-  !        else
-  !C     ... Solve J^(m+1) * y = F^(m+1)  with  y = x^(m+2) - x^(m+1)
-  !          call dgesl(w(ojac),nda,nda,w(okpvt),w(oFmp1),0)
-  !C     ... Make x^(m+2) = y + x^(m+1)
-  !          call daxpy(nda,1d0,w(oFmp1),1,w(oxmp1),1)
-  !          if (iprint() .gt. 40 .or. iprint() .ge. 30 .and. im .eq. 1)
-  !     .      call awrit5(' PQMIXB  Broyden iter %i:  rms(F-x)='//
-  !     .      '%1;3e  rms(dx)=%1;3e  wc=%1;3g  nelts=%i',' ',80,i1mach(2),
-  !     .      jmix-im+1,dsqrt(ddot(nda,w(oFmp1),1,w(oFmp1),1)/nda),
-  !     .      rms2,wctrue,nda)
-  !        endif
-
-  !   10 continue
-
-  !C --- Check for interactive change of nmix ---
-  !C NB negative sign signals request for permanent change in nmix
-  !      im = imix
-  !      if (iprint() .gt. 30) call query('redo, nmix=',2,imix)
-  !      if (iabs(imix) .gt. mmix .and. imix .ne. im)
-  !     .  call awrit1(' (warning) only %i iter available',
-  !     .  ' ',80,i1mach(2),mmix)
-  !      if (im .ne. imix) goto 1
-  !      nmix = imix
-  !C ... If no prior iter allowed, give up on nmix
-  !      if (nmix .eq. 0) return
-
-  !C --- Printout ---
-  !      if (iprint() .gt. 40) then
-  !        print 310
-  !        do  12  i = 1, nda
-  !          if (dabs(a(i,0,1)-a(i,0,2)) .ge. 5d-9)  print 311, i,
-  !     .      a(i,0,2),a(i,0,1),a(i,0,1)-a(i,0,2),dval(w(oxmp1),i)
-  !   12   continue
-  !  311   format(i5,4f14.6)
-  !  310   format(14x,'Old',11x,' New',9x,'Diff',10x,'Mixed')
-  !      endif
-
-  !C --- Save x^(m+2) into a(*,0,2) and exit ---
-  !      if (info .ne. 0) then
-  !        nmix = 0
-  !        return
-  !      endif
-  !      call dcopy(nda,w(oxmp1),1,a(1,0,2),1)
-  !      call rlse(obt)
-  !      end
   subroutine pqmixb(nda,nmix,mmix,mxsav,beta,wc,rms2,a,wctrue)
     !      use m_lgunit,only:stdo
     use m_ftox
