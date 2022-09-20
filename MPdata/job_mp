@@ -1,5 +1,4 @@
 #!/usr/bin/env python3 
-
 import os,sys,subprocess
 import datetime
 import creplot
@@ -9,20 +8,20 @@ sys.stderr = os.fdopen(sys.stderr.fileno(), 'w', buffering=1)
 sys.stdin = os.fdopen(sys.stdin.fileno(), 'r', buffering=1)
 apikey = "FRaVT8iIl5JXLimgwLg"
 
-
 args = sys.argv
-# if len(args) != 3 or args[1] == "--help":
-#     print("Compute Crystal structures in MaterialProjects")
-#     print("Usage: ./job_mp ncore mplistfile ")
-#     print("      For example, >./job_mp 32 list.job_mp ")
-#     print("      Set your API key at https://materialsproject.org/open in job_mp")
-#     print("      log.job_mp contains minimum log")
-#     print("")
-#     sys.exit()
-    
+if len(args) <2 or args[1] == "--help":
+    print("Compute Crystal structures in MaterialProjects")
+    print("Usage: ./job_mp ncore [mplistfile] [list of mpid] ")
+    print("      For example, >./job_mp 32 list.job_mp ")
+    print("      For example, >./job_mp 32 168 192 33  ")
+    print("      Set your API key at https://materialsproject.org/open in job_mp")
+    print("      log.job_mp contains minimum log")
+    print("")
+    sys.exit()
 ncore   =args[1] 
 listname=args[2]
-try:
+
+try: #open listname if it is a file
     with open(listname) as f:
         joblist=[]
         datax=f.read()
@@ -35,9 +34,12 @@ except:
 
 print('job_mp core=',ncore)
 print('')
-    
 fout=open('log.'+listname,'w')
-for i in joblist+args[3:]:
+for i in joblist+args[2:]:
+    try:
+       xxx=int(i)
+    except:
+       continue
     if(len(i)==0): continue
     starttime = datetime.datetime.now()
     outc=creplot.createplot(i,apikey,ncore)
@@ -47,24 +49,3 @@ for i in joblist+args[3:]:
     difft=diff1.seconds
     print('mp-id=',i,"start@",starttime.strftime('%x %X'),":",difft," sec",outc.decode('utf-8'))
     print('mp-id=',i,"start@",starttime.strftime('%x %X'),":",difft," sec",outc.decode('utf-8'),file=fout,end='',flush=True)
-sys.exit()
-
-
-# if len(args) == 1 or args[1] == "--help":
-#     print("get tdos and band plot ")
-#     print("Usage: job_mp your_apikey mp-10 mp-21 ...")
-#     print(" In advance, set your API key at https://materialsproject.org/open")
-#     print(" to apikey in job_mp")
-#     print("")
-
-# else:
-#     apikey = "FRaVT8iIl5JXLimgwLg"
-#     #del args[:2]
-#     print(args)
-#     for i in joblist: #args[1:]:
-#         starttime = datetime.datetime.now()
-#         creplot.createplot(i,apikey)
-#         endtime = datetime.datetime.now()
-#         print('mp-id=',i,"start:",starttime, "end:",endtime)
-
-
