@@ -13,11 +13,11 @@ module m_mkpot ! http://dx.doi.org/10.7566/JPSJ.84.034702
   type(s_rv1),allocatable,protected,public  :: osig(:,:) !sigma          (C.4)
   complex(8),allocatable,protected ,public  :: osmpot(:,:,:,:)!0th component of Eq.(34)
 
-  ! by m_mkpot_novxc
+  ! given by call m_mkpot_novxc
   type(s_cv1),allocatable,protected,public  :: oppix(:,:) !pi-integral without xc term
-  complex(8),allocatable,protected ,public  :: spotx(:,:,:,:)
+  complex(8),allocatable,protected ,public  :: spotx(:,:,:,:)!0th component of Eq.(34) without xc term
 
-  real(8),protected,public:: utot,rhoexc,xcore,valvef,amom,  valves,cpnves,rhovxc !energy terms
+  real(8),protected,public:: utot,rhoexc,xcore,valvef,amom, valves,cpnves,rhovxc !energy terms
   real(8),allocatable,protected,public:: fes1_rv(:), fes2_rv(:) !force terms
   real(8),allocatable,protected,public:: hab_rv(:), sab_rv(:), ppnl_rv(:,:,:,:), qmom(:),vesrmt(:)
   real(8),protected,public:: qval,vconst,qsc

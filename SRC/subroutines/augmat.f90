@@ -6,8 +6,8 @@ contains
        , nlml , a , nr , nsp , lso , rofi , rwgt & 
        , v0 , v1 , v2 , gpotb , gpot0 , nkaph , nkapi , lmxh , lh , &
        eh , rsmh , ehl , rsml , rs3 , vmtz ,  lmaxu , vorb ,  &
-       lldau , iblu , idu , sv_p_osig , sv_p_otau , sv_p_oppi,ohsozz,ohsopm, ppnl &
-       , hab , vab , sab )
+       lldau , iblu , idu, &
+       sv_p_osig, sv_p_otau, sv_p_oppi, ohsozz,ohsopm, ppnl, hab, vab, sab)
     use m_lmfinit,only: n0,nkap0,nppn,nab
     use m_struc_def, only: s_rv1,s_cv1,s_sblock
     use m_gaugm,only: gaugm
@@ -335,33 +335,25 @@ contains
     !
     !     Generally speaking, we may need to calculate all blocks ohsozz%soffd, ohsopm%sdiag, ohsopp
 
-
     implicit none
-    integer :: lmxa,kmax,nlml,nr,nsp,nkaph,nkapi,lmxh,lso
-    integer :: lmaxu,lldau,iblu,idu(4)
-    complex(8):: vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
-    double precision :: z,rmt,rsma,a
-    integer::  lh(nkap0) !jcg(1) , indxcg(1)
     type(s_cv1) :: sv_p_oppi(3)
     type(s_sblock):: ohsozz(3),ohsopm(3)
     type(s_rv1) :: sv_p_otau(3)
     type(s_rv1) :: sv_p_osig(3)
-    double precision :: rofi(nr),rwgt(nr),v0(nr,nsp), & !,cg(1)
-         pnu(n0,nsp),pnz(n0,nsp),ppnl(nppn,n0,2), &
+    real(8):: ppnl(nppn,n0,2), hab(nab,n0,nsp),vab(nab,n0,nsp),sab(nab,n0,nsp)
+
+    integer :: lmxa,kmax,nlml,nr,nsp,nkaph,nkapi,lmxh,lso, lmaxu,lldau,iblu,idu(4)
+    integer::  lh(nkap0), k,ll,lmxl,nlma,nlmh,i, lxa(0:kmax)
+    real(8):: z,rmt,rsma,a,rofi(nr),rwgt(nr),v0(nr,nsp), pnu(n0,nsp),pnz(n0,nsp),&
          v1(nr,nlml,nsp),v2(nr,nlml,nsp),gpot0(nlml),gpotb(nlml), &
-         hab(nab,n0,nsp),vab(nab,n0,nsp),sab(nab,n0,nsp), &
-         eh(n0,nkaph),rsmh(n0,*),ehl(n0),rsml(n0), &
-         rs3,vmtz
-    ! ... Local parameters
-    integer :: k,ll,lmxl,nlma,nlmh,i
-    double precision :: pp(n0,2,5)
-    integer :: lxa(0:kmax)
-    double precision :: vdif(nr*nsp),sodb(nab,n0,nsp,2), &
+         eh(n0,nkaph),rsmh(n0,*),ehl(n0),rsml(n0), rs3,vmtz,&
+         pp(n0,2,5), vdif(nr*nsp),sodb(nab,n0,nsp,2), &
          vum((lmxa+1)**2*nlml*6*nsp), &
          fh(nr*(lmxh+1)*nkap0),xh(nr*(lmxh+1)*nkap0), &
          vh((lmxh+1)*nkap0),fp(nr*(lmxa+1)*(kmax+1)), &
          dh((lmxh+1)*nkap0),xp(nr*(lmxa+1)*(kmax+1)), &
          vp((lmxa+1)*(kmax+1)),dp((lmxa+1)*(kmax+1))
+    complex(8):: vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
     complex(8):: vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,nab,2,0:lmaxu)
     real(8),allocatable:: qum(:)
     real(8),parameter:: pi   = 4d0*datan(1d0),  y0   = 1d0/dsqrt(4d0*pi)
@@ -653,27 +645,24 @@ contains
           det = phi*dphip - dphi*phip
           r11 = dphip/det           !           r12 = -dphi/det
           r21 = -phip/det           !           r22 = phi/det
-          vumm(-l:l,-l:l,1,i,l) = Vorb(-l:l,-l:l,i,iblu)*r11*r11
-          vumm(-l:l,-l:l,2,i,l) = Vorb(-l:l,-l:l,i,iblu)*r11*r21
-          vumm(-l:l,-l:l,3,i,l) = Vorb(-l:l,-l:l,i,iblu)*r21*r11
-          vumm(-l:l,-l:l,4,i,l) = Vorb(-l:l,-l:l,i,iblu)*r21*r21
           phz  = ppnl(11,l+1,i)
           dphz = ppnl(12,l+1,i)
-          if (phz /= 0) then
-             vumm(m1,m2,5,i,l) = - phz*vumm(m1,m2,1,i,l) - dphz*vumm(m1,m2,2,i,l) !vuz
-             vumm(m1,m2,6,i,l) = - phz*vumm(m1,m2,3,i,l) - dphz*vumm(m1,m2,4,i,l) !vsz
-             vumm(m1,m2,7,i,l) =   phz**2*vumm(m1,m2,1,i,l) + &
-                  phz*dphz*(vumm(m1,m2,2,i,l)+vumm(m1,m2,3,i,l)) + &
-                  dphz**2*vumm(m1,m2,4,i,l) !vzz
-             vumm(m1,m2,8,i,l) = - phz*vumm(m1,m2,1,i,l) - dphz*vumm(m1,m2,3,i,l) !vzu
-             vumm(m1,m2,9,i,l) = - phz*vumm(m1,m2,2,i,l) - dphz*vumm(m1,m2,4,i,l) !vzs
+          block
+            integer::irr
+            real(8):: rrr(4)
+            rrr=[r11*r11, r11*r21, r21*r11, r21*r21]
+            do irr=1,4
+               vumm(-l:l,-l:l,irr,i,l) = Vorb(-l:l,-l:l,i,iblu)*rrr(irr)
+            enddo
+          endblock
+          if (phz /= 0) then !bugfix 2022-9-20 m1,m2 -->:,:
+             vumm(:,:,5,i,l) = - phz*vumm(:,:,1,i,l) - dphz*vumm(:,:,2,i,l) !vuz
+             vumm(:,:,6,i,l) = - phz*vumm(:,:,3,i,l) - dphz*vumm(:,:,4,i,l) !vsz
+             vumm(:,:,7,i,l) =   phz**2*vumm(:,:,1,i,l) + &
+                  phz*dphz*(vumm(:,:,2,i,l)+vumm(:,:,3,i,l)) + dphz**2*vumm(:,:,4,i,l) !vzz
+             vumm(:,:,8,i,l) = - phz*vumm(:,:,1,i,l) - dphz*vumm(:,:,3,i,l) !vzu
+             vumm(:,:,9,i,l) = - phz*vumm(:,:,2,i,l) - dphz*vumm(:,:,4,i,l) !vzs
           endif
-          !              print *, 'Vorb before rotation isp=',i,'l=',l
-          !              print ('(7f8.4)'),((Vorb(m1,m2,i,iblu),m2=-l,l),m1=-l,l)
-          !              print *, 'rotated vumm'
-          !              print ('(7(2f8.4,1x))'),
-          !     .          (((vumm(m1,m2,k,i,l),m2=-l,l),m1=-l,l),k=1,4)
-          !              stop
        enddo
     enddo
   end subroutine vlm2us

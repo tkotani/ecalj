@@ -7,8 +7,8 @@ module m_locpot
 contains
   !- Make the potential at the atomic sites and augmentation matrices.
   subroutine locpot(sv_p_orhoat,qmom,vval,gpot0,job,rhobg,nlibu,lmaxu,vorb,lldau,novxc, &!,idipole 
-       sv_p_osig , sv_p_otau, sv_p_oppi, ohsozz,ohsopm, ppnl ,&
-       hab , vab , sab , vvesat , cpnvsa , rhoexc, &
+       sv_p_osig , sv_p_otau, sv_p_oppi, ohsozz,ohsopm, ppnl, hab , vab , sab , &
+       vvesat , cpnvsa , rhoexc, &
        rhoex , rhoec , rhovxc , rvepsv , rvexv , rvecv , rvvxcv , &
        rveps , rvvxc , valvef , xcore , sqloc , sqlocc , saloc , qval , qsc )
     use m_lmfinit,only:nkaph,lxcf,lhh,nkapii,nkaphh
@@ -133,11 +133,9 @@ contains
     character chole*8
     integer :: kcor,lcor
     double precision :: qcor(2),qc0,qsc0
-    real(8),allocatable:: wk(:),rhol1(:),rhol2(:), &
-         v1(:),v2(:),v1es(:),v2es(:),efg(:,:),zz(:)
+    real(8),allocatable:: wk(:),rhol1(:),rhol2(:), v1(:),v2(:),v1es(:),v2es(:),efg(:,:),zz(:)
     logical :: lfltwf
-    integer:: i , nglob , ipr , iprint , j1 , ib , is , lmxl &
-         , lmxa , nr , lmxb , kmax , lfoc , nrml , nlml,ifivesint,ifi
+    integer:: i,nglob,ipr,iprint,j1,ib,is,lmxl,lmxa,nr,lmxb,kmax,lfoc,nrml,nlml,ifivesint,ifi
     logical,save:: secondcall=.false.
     logical :: phispinsym,cmdopt0,readov0,v0write,novxc
     integer::lsox
@@ -343,9 +341,9 @@ contains
             call augmat ( z,rmt,rsma(is),lmxa,pnu,pnz,kmax,nlml, a,nr,nsp,lsox,rofi,rwgt ,& 
                  v0pot(ib)%v,v1,v2,gpotb,gpot0 ( j1 ),nkaph,nkapi,&
                  lmxb,lhh(:,is),eh,rsmh, ehl,rsml,rs3,vmtz, lmaxu,&
-                 vorb, lldau(ib), iblu, idu, sv_p_osig(1,ib),sv_p_otau(1,ib), &
-                 sv_p_oppi(1,ib),ohsozz(1,ib),ohsopm(1,ib), ppnl(1,1,1,ib),&
-                 hab(1,1,1,ib),vab (1,1,1,ib), sab(1,1,1,ib) )
+                 vorb, lldau(ib), iblu, idu, &
+                 sv_p_osig(1,ib), sv_p_otau(1,ib), sv_p_oppi(1,ib), ohsozz(1,ib), ohsopm(1,ib), &
+                 ppnl(1,1,1,ib), hab(1,1,1,ib),vab (1,1,1,ib), sab(1,1,1,ib) )
          endif
          j1 = j1+nlml
       enddo ibloop
