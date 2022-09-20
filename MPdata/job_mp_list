@@ -11,33 +11,29 @@ apikey = "FRaVT8iIl5JXLimgwLg"
 
 
 args = sys.argv
-# if len(args) != 3 or args[1] == "--help":
-#     print("Compute Crystal structures in MaterialProjects")
-#     print("Usage: ./job_mp ncore mplistfile ")
-#     print("      For example, >./job_mp 32 list.job_mp ")
-#     print("      Set your API key at https://materialsproject.org/open in job_mp")
-#     print("      log.job_mp contains minimum log")
-#     print("")
-#     sys.exit()
-    
+if len(args) != 3 or args[1] == "--help":
+    print("Compute Crystal structures in MaterialProjects")
+    print("Usage: ./job_mp ncore mplistfile ")
+    print("      For example, >./job_mp 32 list.job_mp ")
+    print("      Set your API key at https://materialsproject.org/open in job_mp")
+    print("      log.job_mp contains minimum log")
+    print("")
+    sys.exit()
 ncore   =args[1] 
 listname=args[2]
-try:
-    with open(listname) as f:
-        joblist=[]
-        datax=f.read()
-        ddd=datax.split('\n')
-        for m,i in enumerate(ddd):
-            joblist.append(i.split(' ')[0])
-            print(joblist)
-except:
+with open(listname) as f:
     joblist=[]
+    datax=f.read()
+    #print(datax)
+    ddd=datax.split('\n')
+    for m,i in enumerate(ddd):
+        joblist.append(i.split(' ')[0])
+    print(joblist)
 
 print('job_mp core=',ncore)
 print('')
-    
 fout=open('log.'+listname,'w')
-for i in joblist+args[3:]:
+for i in joblist: #args[1:]:
     if(len(i)==0): continue
     starttime = datetime.datetime.now()
     outc=creplot.createplot(i,apikey,ncore)

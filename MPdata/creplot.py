@@ -39,14 +39,16 @@ def createplot(mpid,key,ncore):
         outc=subprocess.check_output(["tail -n1 save."+num],shell=True)
         print(outc.decode('utf-8'),end='')
 
-        aaa="getsyml "+num+' -nobzview >& lgetsyml'
+        aaa="getsyml "+num+' -nobzview > lgetsyml '
         print(aaa)
         os.system(aaa)
 
-        aaa="job_band "+num+" -np "+ncore+" NoGnuplot >& ljobband"
+        aaa="job_band "+num+" -np "+ncore+" NoGnuplot > ljobband "
         print(aaa)
         os.system(aaa)
-        aaa="job_tdos "+num+" -np "+ncore+" NoGnuplot >& ljobtdos"
+        aaa="job_tdos "+num+" -np "+ncore+" NoGnuplot > ljobtdos"
+        print(aaa)
+        os.system(aaa)
 
         for iglt in "bandplot.isp1.glt","bandplot.isp2.glt","tdos."+num+".glt":
             if os.path.isfile(iglt) == True:
