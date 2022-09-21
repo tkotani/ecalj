@@ -28,7 +28,7 @@ try: #open listname if it is a file
         ddd=datax.split('\n')
         for m,i in enumerate(ddd):
             joblist.append(i.split(' ')[0])
-            print(joblist)
+            #print(joblist)
 except:
     joblist=[]
 

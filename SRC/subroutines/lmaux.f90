@@ -316,7 +316,7 @@ contains
     ! C Local variables:
     character*8 spid,strn*80
     integer nrmx,nxi0,n0,niax,mxcsiz,npmx,pass
-    parameter (nrmx=1501,nxi0=10,n0=10,niax=10,mxcsiz=400,npmx=mxcsiz)
+    parameter (nrmx=1501,nxi0=10,n0=10,niax=10,mxcsiz=4000,npmx=mxcsiz)
     integer nxi,nrmix(2),lxcfun,is,opt0,opt1,opt2,opt3
     integer idmod(n0),lmxa,nrmt,nr,ib,nttab,k,ir,np,ipr, nrspec
     integer ntab(nbas+1),iax(niax,mxcsiz),ipa(nbas)
@@ -676,7 +676,7 @@ contains
     logical :: les
     double precision :: dovl1(3),dovl2(3),gamma,range(nbas),wsrs(nspec)
     double precision :: facr,tiny,avw,vol,avwsr,volnew,volnes,volold
-    parameter(niax=10,mxcsiz=200,facr=2d0,tiny=1d-5)
+    parameter(niax=10,mxcsiz=2000,facr=2d0,tiny=1d-5)
     integer:: istdo
 
     !     omax1(1) = -.01
