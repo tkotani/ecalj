@@ -13,8 +13,8 @@ ffile='list.job_mp'
 f=open(ffile,'w')
 
 RG='He Ne Ar Xe Kr Xe Rn '
-LN='La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu '
-AC='Ac Th Pa U Np Pu Am Cm Bk Cf Es Fm Md No Lr '
+LN='Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu ' #La can be contained.
+AC='Th Pa U Np Pu Am Cm Bk Cf Es Fm Md No Lr '  #Ac can be contained.
 noelements=(RG+LN+AC).split()
 print(noelements)
 with MPRester(apikey) as mpr:
