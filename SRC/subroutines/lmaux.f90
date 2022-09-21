@@ -334,7 +334,7 @@ contains
 
     !C     Sets scale for neighbor table
     double precision facr,facri
-    parameter (facr=2d0,facri=1.02d0)
+    parameter (facr=4d0,facri=1.02d0) !enlarge facr because mp-632250 (H only failed)
     !C     Relative positions
     double precision rpos(3,mxcsiz),ri,rbar,rmin,vrmax,cur,slo,di
     character*1 sym(2)
