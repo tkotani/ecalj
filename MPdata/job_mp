@@ -47,5 +47,5 @@ for i in joblist+args[2:]:
     endtime = datetime.datetime.now()
     diff1=(endtime-starttime)
     difft=diff1.seconds
-    print('mp-id=',i,"start@",starttime.strftime('%x %X'),":",difft," sec",outc.decode('utf-8'))
-    print('mp-id=',i,"start@",starttime.strftime('%x %X'),":",difft," sec",outc.decode('utf-8'),file=fout,end='',flush=True)
+    print('mp-id=',i,"start@",starttime.strftime('%x %X'),":",difft," sec",outc)
+    print('mp-id=',i,"start@",starttime.strftime('%x %X'),":",difft," sec",outc,file=fout,end='',flush=True)

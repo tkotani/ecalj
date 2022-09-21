@@ -36,13 +36,17 @@ def createplot(mpid,key,ncore):
         subprocess.run(["mpirun","-np",ncore,"lmf-MPIK",num],stdout=f)
         print('lmf-MPIK finished')
 
-        outc=subprocess.check_output(["tail -n1 save."+num],shell=True)
-        print(outc.decode('utf-8'),end='')
+        aaa="tail -n1 save."+num+" >savet"
+        os.system(aaa)
+        with open('savet') as f:
+            outc=f.read()
+            print(outc,end='')
+        #outc=subprocess.check_output(["tail -n1 save."+num],shell=True)
+        #print(outc.decode('utf-8'),end='')
 
         aaa="getsyml "+num+' -nobzview > lgetsyml '
         print(aaa)
         os.system(aaa)
-
         aaa="job_band "+num+" -np "+ncore+" NoGnuplot > ljobband "
         print(aaa)
         os.system(aaa)

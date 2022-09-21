@@ -40,12 +40,12 @@ subroutine bzints(n1,n2,n3,ep,wp,nq,nband,nbmx,nsp,emin,emax,dos,nr,ef,job,ntet,
   jjob = iabs(job)
   if(job < 0 .AND. nsp == 2 .OR. jjob /= 1 .AND. jjob /= 2) &
        call rx('Exit -1 BZINTS: job='//trim(i2char(job))//' and nsp='//trim(i2char(nsp))//' not allowed')
-  if (jjob == 1) call dpzero(dos,nsp*nr)
-  if (jjob == 2) call dpzero(wp,nband*nsp*nq)
+  if (jjob == 1) dos=0d0
+  if (jjob == 2) wp=0d0
   sev1 = 0d0
   sev2 = 0d0
-  volwgt = dble(3-nsp)/(n1*n2*n3*6)
-  if (job < 0) volwgt = volwgt/2
+  volwgt = dble(3d0-nsp)/(n1*n2*n3*6d0)
+  if (job < 0) volwgt = volwgt/2d0
   do  40  isp = 1, nsp
      ! --- Loop over tetrahedra ---
      do  201  itet = 1, ntet
@@ -62,15 +62,12 @@ subroutine bzints(n1,n2,n3,ep,wp,nq,nband,nbmx,nsp,emin,emax,dos,nr,ef,job,ntet,
            etop = dmax1(ec(1),ec(2),ec(3),ec(4))
            ebot = dmin1(ec(1),ec(2),ec(3),ec(4))
            if (jjob == 1) then
-              if ( ebot < emax ) &
-                   call slinz(volwgt*idtet(0,itet),ec,emin,emax,dos(1,isp),nr)
+              if( ebot < emax ) call slinz(volwgt*idtet(0,itet),ec,emin,emax,dos(1,isp),nr)
            else
-              if ( ef >= ebot ) then
+              if( ef >= ebot ) then
                  call fswgts(volwgt*idtet(0,itet),ec,ef,etop,wc)
-                 sev1 = sev1 + wc(1,1)*ec(1) + wc(2,1)*ec(2) + &
-                      wc(3,1)*ec(3) + wc(4,1)*ec(4)
-                 sev2 = sev2 + wc(1,2)*ec(1) + wc(2,2)*ec(2) + &
-                      wc(3,2)*ec(3) + wc(4,2)*ec(4)
+                 sev1 = sev1 + wc(1,1)*ec(1) + wc(2,1)*ec(2) + wc(3,1)*ec(3) + wc(4,1)*ec(4)
+                 sev2 = sev2 + wc(1,2)*ec(1) + wc(2,2)*ec(2) + wc(3,2)*ec(3) + wc(4,2)*ec(4)
                  wp(ib,isp,iq1) = wp(ib,isp,iq1) + wc(1,1) + wc(1,2)
                  wp(ib,isp,iq2) = wp(ib,isp,iq2) + wc(2,1) + wc(2,2)
                  wp(ib,isp,iq3) = wp(ib,isp,iq3) + wc(3,1) + wc(3,2)
@@ -83,33 +80,19 @@ subroutine bzints(n1,n2,n3,ep,wp,nq,nband,nbmx,nsp,emin,emax,dos,nr,ef,job,ntet,
   if (jjob == 2) then
      sumev = sev1 + sev2
      sumwp = 0d0
-     do    isp = 1, nsp
-        sumwm = 0d0
-        do    ib = 1, nband
-           do    iq = 1, nq
-              sumwm = sumwm + wp(ib,isp,iq)
-              sumwp = sumwp + wp(ib,isp,iq)
-           enddo
-        enddo
+     do   isp = 1, nsp
+        sumwm = sum(wp(1:nband,isp,1:nq))
+        sumwp = sumwp + sum(wp(1:nband,isp,1:nq))
      enddo
-     if ( ipr >= 10 ) then
-        !     ... when bands are coupled, moment from bands makes no sense
+     if ( ipr >= 10 ) then ! when bands are coupled, moment from bands makes no sense
         if (nsp == 1) then
            write(stdo,922) ef,sumwp,sev1+sev2,sev2
-           !           write(stdl,922) ef,sumwp,sev1+sev2, sev2
         elseif (nsp == 2 .AND. job > 0) then
            sumwm = sumwp-2*sumwm
            write(stdo,923) ef,sumwp,sumwm,sev1+sev2,sev2
         endif
-        if (dabs(sumwp-nint(sumwp)) > 1d-6) then
-           write(stdo,924)
-        endif
+        if (dabs(sumwp-nint(sumwp)) > 1d-6) write(stdo,924)
      endif
-     !      if (nsp .eq. 1) call awrit4('bzi tetra ef %,6;6d  q %,6;6d  '//
-     !     .    'sev %,6;6d  Blo %,6;6d',' ',80,stdl,ef,sumwp,sev1+sev2,sev2)
-     !      if (nsp .eq. 2) call awrit5('bzi tetra ef %,6;6d  q %,6;6d  mom'//
-     !     .  ' %,6;6d  sev %,6;6d  Blo %,6;6d',' ',80,stdl,ef,sumwp,sumwm,
-     !     .  sev1+sev2,sev2)
   endif
 922 format(1x,'BZINTS: Fermi energy:',f14.6,';',F11.6,' electrons'/ &
        9x,'Sum occ. bands:',f12.6, ', incl. Bloechl correction:',f10.6)
