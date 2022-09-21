@@ -96,7 +96,6 @@ contains
     !o Outputs
     ! ----------------------------------------------------------------------
     implicit none
-    include "mpif.h"
     integer:: kpproc(0:*),ndham,nkp,nspx
     double precision :: eb(ndham,nspx*nkp)
     integer :: i,ista,iend, ierr
