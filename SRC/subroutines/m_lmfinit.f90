@@ -417,8 +417,8 @@ contains
            '%N%6f1: Mixed LMTO+PW'// &
            '%N%6f2: PW basis only'// &
            '%N%3f10s digit:'// &
-           '%N%6f0: PW basis fixed'// &
-           '%N%6f1: PW basis q-dependent')
+           '%N%6f0: PW basis G is given at q=0'// &
+           '%N%6f1: PW basis q-dependent. q+G cutoff')
       if(pwmode==10) pwmode=0   !takao added. corrected Sep2011
 !!!!!!!!!!!!!!!!!!!!!!!!
       if(prgnam=='LMFGWD') pwmode=10+ mod(pwmode,10)
