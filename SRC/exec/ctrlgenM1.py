@@ -175,7 +175,7 @@ def manip_argset(argset):
     xcfun_val=103
     mmom_val="#MMOM=0,0,0,0"
     systype_val="bulk"
-    nk_val1="6"
+    nk_val1="8"
     nk_val2="-999999"
     nk_val3="-999999"
     mmom_val='#MMOM=0 0 1 0'
@@ -806,7 +806,8 @@ metali_val= '%i' % metali
 tail="""
 \n"""
 tail = tail+ "% const pwemax=2 nk1="+nk_val1+" nk2="+nk_val2+" nk3="+nk_val3+" nit=80  gmax=12  nspin="+nspin_val+ " metal="+ metali_val +" so=" +so_val +" xcfun="+xcfun_val+" ssig="+str(ssig_val)+"\n"
-tail = tail + "BZ    NKABC={nk1} {nk2} {nk3} # division of BZ for q points.\n"\
+tail = tail + "BZ    #ZBAK=0.1 For exmple, at Si ZBAK=0.1 gives 8-0.1=7.9 total electrons\n"\
+            + "      NKABC={nk1} {nk2} {nk3} # division of BZ for q points.\n"\
             + "      METAL={metal}"\
 """
                 # METAL=3 is safe setting (double path method but not repeat diagonalization), 
@@ -925,10 +926,11 @@ tail = tail + "      XCFUN={xcfun}"+ """
           #   (subs/evxc.F had a problem when =2 if rho(up)=0 or rho(down)=0).
                 # =103 PBE-GGA
 
-      PWMODE=11  # 0:  MTO basis only (LMTO) !2021feb. I set PWMODE=1 as default (for smooth band plot).
-                # 11: APW+MTO        (PMT)   !2022jun17 PWMODE=1 causes problem for QSGW
-                                              (even when PWMODE=1, I enforce PWMODE=11 for lmfgw mode).
-                # 12: APW basis only (LAPW)
+      PWMODE=1  # 0:  MTO basis only (LMTO) !2021feb. I set PWMODE=1 as default (for smooth bandplot).
+                # 1 : APW+MTO        (PMT)  !2022jun17 PWMODE=1 causes problem for QSGW
+                                            (even when PWMODE=1, I enforce PWMODE=11 for lmfgw mode).
+                # 11: APW+MTO        (PMT)  ! |q+G|cutoff
+                # 12: APW basis only (LAPW) ! |q+G|cutoff
                 #
       PWEMAX={pwemax} # (in Ry). When you use larger pwemax more than 5, be careful
                       # about overcompleteness. In cases, e.g.Fe, you may need larger KMXA for larger PWEMAX.
