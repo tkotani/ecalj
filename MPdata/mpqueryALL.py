@@ -48,6 +48,9 @@ def getlist(avoided,required,minsite,maxsite,ffile):
             nn =m['nsites']
             count = count+1
             print(m['task_id'].strip('mp-'),nn,m['formula'],bg,bm,file=ff)
+            print(m['task_id'])
+            struc = mpr.get_structure_by_material_id(m['task_id'])
+            struc.to(fmt='poscar', filename='POSCARALL/POSCAR.'+m['task_id'])
         ff.close()
         print('### file    =',ffile)
         print('  maxsite =',maxsite)
@@ -59,7 +62,6 @@ def getlist(avoided,required,minsite,maxsite,ffile):
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', buffering=1)
 sys.stderr = os.fdopen(sys.stderr.fileno(), 'w', buffering=1)
 sys.stdin  = os.fdopen(sys.stdin.fileno(), 'r', buffering=1)
-
 
 maxsite=8
 minsite=1

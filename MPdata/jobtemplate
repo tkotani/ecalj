@@ -1,0 +1,11 @@
+#!/bin/sh
+#$ -N job_mp
+#$ -pe smp 4
+#$ -cwd
+#$ -V
+#$ -q all.q
+export OMP_NUM_THREADS=1
+NPROCS=`wc -l <$PBS_NODEFILE`
+cd $PBS_O_WORKDIR
+./job_mp 4 mmmmm >& mmmmm.out
+

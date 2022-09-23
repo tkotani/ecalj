@@ -2,33 +2,21 @@ import pymatgen.core as mg
 from pymatgen.ext.matproj import MPRester
 import os,sys,subprocess
 
-def createplot(mpid,key,ncore):
+def createplot(mpid,key,ncore,lmxa6):
     num = 'mp-'+ mpid
     print('num=',num)
-    API_KEY = key
-    with MPRester(API_KEY) as mpr:
-        material = mpr.get_data(num)
-    if len(material) == 0:
-        print("APIdate is empty")
-        print()
-        return ''
-    else:
-        for item in material:
-            mate = item["pretty_formula"]
-            os.makedirs(num,exist_ok=True)
-            os.chdir(num)
-            #print(item['material_id'])    # result is 'mp-101'
-            struc = mpr.get_structure_by_material_id(item['material_id'])
-            struc.to(fmt='poscar', filename='POSCAR')
-
+    if True:
+        os.system('cp POSCARALL/POSCAR.'+num+' POSCAR')
         subprocess.run("pwd")
         f=open('llmf','w')
         subprocess.run(["vasp2ctrl POSCAR"],shell=True,stdout=f)
         subprocess.run(["cp ctrls.POSCAR.vasp2ctrl ctrls."+num],shell=True,stdout=f)
         subprocess.run(["ctrlgenM1.py "+num],shell=True,stdout=f,stderr=f)
         subprocess.run(["cp ctrlgenM1.ctrl."+num+" ctrl."+num],shell=True,stdout=f)
+        if lmxa6:
+            os.system("sed -e 's/LMXA=4/LMXA=6/g' ctrl."+num+'> temp')
+            os.system('cp temp ctrl.'+num)
         subprocess.run(["lmchk "+num+"|grep conf"],shell=True)        
-
         subprocess.run(["lmfa",num],stdout=f)
         print('lmfa finished')
 

@@ -32,6 +32,9 @@ try: #open listname if it is a file
 except:
     joblist=[]
 
+lmxa6=False
+if '--lmxa6' in args: lmxa6=True
+print('lmxa6= ',lmxa6)
 print('job_mp core=',ncore)
 print('')
 fout=open('log.'+listname,'w')
@@ -42,7 +45,7 @@ for i in joblist+args[2:]:
        continue
     if(len(i)==0): continue
     starttime = datetime.datetime.now()
-    outc=creplot.createplot(i,apikey,ncore)
+    outc=creplot.createplot(i,apikey,ncore,lmxa6)
     if(len(outc)==0): continue
     endtime = datetime.datetime.now()
     diff1=(endtime-starttime)
