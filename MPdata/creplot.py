@@ -1,7 +1,6 @@
 import pymatgen.core as mg
 from pymatgen.ext.matproj import MPRester
 import os,sys,subprocess
-import editglt
 
 def createplot(mpid,key,ncore):
     num = 'mp-'+ mpid
@@ -53,11 +52,15 @@ def createplot(mpid,key,ncore):
         aaa="job_tdos "+num+" -np "+ncore+" NoGnuplot > ljobtdos"
         print(aaa)
         os.system(aaa)
-
-        for iglt in "bandplot.isp1.glt","bandplot.isp2.glt","tdos."+num+".glt":
-            if os.path.isfile(iglt) == True:
-                os.system('grep -v x11    '+ iglt+' >temp0.glt')
-                os.system('grep -v replot temp0.glt >temp.glt')
-                os.system("gnuplot temp.glt")
+        aaa="job_pdos "+num+" -np "+ncore+" NoGnuplot > ljobpdos"
+        print(aaa)
+        os.system(aaa)
+        
+        for iglt in os.listdir('.'):
+            files = os.listdir('.')
+            if not ('.glt' in iglt): continue
+            os.system('grep -v x11    '+ iglt+' >temp0.gxx')
+            os.system('grep -v replot temp0.gxx >temp.gxx')
+            os.system("gnuplot temp.gxx")
         os.chdir("../")
         return outc
