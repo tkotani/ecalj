@@ -1,5 +1,15 @@
 This is to take file from Material project and perform LDA level calculations.
 
+#---------------------------
+step 1.
+>Run mpqueryALL.py 
+Get data from mp. Change nxx and GetPOSOCAR
+as you like. All POSCAR is is POSCARALL/
+
+step 2.
+
+
+
 Example
 >job_mp 148 149 150 |& tee out |grep OK 
 

@@ -26,7 +26,8 @@ def getlist(avoided,required,minsite,maxsite,ffile):
         material = mpr.query(criteria=c,properties=p)
         #print('number of files query returned=',len(material))
         
-        nxx= 100 #divided to ~nxx jobs per file 
+        nxx= 500 #divided to ~nxx jobs per file 
+        GetPOSCAR=False
         ndiv=(len(material)//nxx+1) 
         nsize=len(material)//ndiv+1 
         print(ndiv,nsize)
@@ -48,9 +49,10 @@ def getlist(avoided,required,minsite,maxsite,ffile):
             nn =m['nsites']
             count = count+1
             print(m['task_id'].strip('mp-'),nn,m['formula'],bg,bm,file=ff)
-            print(m['task_id'])
-            struc = mpr.get_structure_by_material_id(m['task_id'])
-            struc.to(fmt='poscar', filename='POSCARALL/POSCAR.'+m['task_id'])
+            #print(m['task_id'])
+            if(GetPOSCAR):
+                struc = mpr.get_structure_by_material_id(m['task_id'])
+                struc.to(fmt='poscar', filename='POSCARALL/POSCAR.'+m['task_id'])
         ff.close()
         print('### file    =',ffile)
         print('  maxsite =',maxsite)
