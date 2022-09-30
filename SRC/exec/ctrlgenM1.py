@@ -644,7 +644,7 @@ f.write(alltmp+specsec0)
 f.close()
 
 
-
+print('goto lmchk --getwsr tmp')
 #### Get touching MT radius and make rdic ########################
 rlmchk=0
 #print type(touchingratio)
@@ -658,7 +658,7 @@ if(rlmchk==1):
     try:
         listr = lineReadfile("rmt.tmp")
     except:
-        print( ' Error: Can not readin rmt.tmp! ')
+        print( ' Error: Can not readin rmt.tmp! Check structure by >viewvesta ctrls.foobar! ')
         sys.exit()
     print( listr)
     rdic={}

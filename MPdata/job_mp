@@ -36,19 +36,30 @@ lmxa6=False
 if '--lmxa6' in args: lmxa6=True
 print('lmxa6= ',lmxa6)
 print('job_mp core=',ncore)
-print('')
 fout=open('log.'+listname,'w')
+op1='-vnit=40 -vnk1=6 -vnk2=6 -vnk3=6'
+op2='-vnit=20 -vnk1=8 -vnk2=8 -vnk3=8'
+op3='-vnit=20 -vnk1=10 -vnk2=10 -vnk3=10'
+op4='-vnit=20 -vnk1=12 -vnk2=12 -vnk3=12'
+op5='-vnit=20 -vnk1=14 -vnk2=14 -vnk3=14'
 for i in joblist+args[2:]:
+    print()
     try:
        xxx=int(i)
     except:
        continue
     if(len(i)==0): continue
     starttime = datetime.datetime.now()
-    outc=creplot.createplot(i,apikey,ncore,lmxa6)
-    if(len(outc)==0): continue
+    for option in [op1,op2,op3,op4,op5]:
+        #print('option=',option)
+        outc=creplot.createplot(i,apikey,ncore,lmxa6,option)
+        if(len(outc)==0): continue
+        if outc.split()[0]=='c': break
+        if outc.split()[0]=='i': #normal exit is c or x, if i, it means some strange exit.
+            outc='ERROR:lmf-MPIK'
+            break
     endtime = datetime.datetime.now()
     diff1=(endtime-starttime)
     difft=diff1.seconds
-    print('mp-id=',i,"start@",starttime.strftime('%x %X'),":",difft," sec",outc)
-    print('mp-id=',i,"start@",starttime.strftime('%x %X'),":",difft," sec",outc,file=fout,end='',flush=True)
+    print(i,"start@",starttime.strftime('%x %X'),":",difft," sec",outc)
+    print(i,"start@",starttime.strftime('%x %X'),":",difft," sec",outc, file=fout,end='',flush=True)
