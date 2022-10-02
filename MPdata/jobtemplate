@@ -2,10 +2,11 @@
 #$ -N job_mp
 #$ -pe smp 4
 #$ -cwd
+#$ -M takaokotani@gmail.com
+#$ -m be
 #$ -V
-#$ -q all.q
+#$ -S /bin/bash
+
 export OMP_NUM_THREADS=1
-NPROCS=`wc -l <$PBS_NODEFILE`
-cd $PBS_O_WORKDIR
 ./job_mp 4 mmmmm >& mmmmm.out
 

@@ -26,11 +26,12 @@ def getlist(avoided,required,minsite,maxsite,ffile):
         material = mpr.query(criteria=c,properties=p)
         #print('number of files query returned=',len(material))
         
-        nxx= 50000 #divided to ~nxx jobs per file 
-        GetPOSCAR=False
-        ndiv=(len(material)//nxx+1) 
-        nsize=len(material)//ndiv+1 
-        print(ndiv,nsize)
+        #nxx= 1000000 #divided to ~nxx jobs per file 
+        GetPOSCAR=True
+        os.makedirs('./POSCARALL',exist_ok=True)
+        #ndiv=(len(material)//nxx+1) 
+        #nsize=len(material)//ndiv+1 
+        #print(ndiv,nsize)
         count=0
         ff=open(ffile,'w')
         fnum=0
