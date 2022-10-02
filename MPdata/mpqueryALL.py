@@ -26,7 +26,7 @@ def getlist(avoided,required,minsite,maxsite,ffile):
         material = mpr.query(criteria=c,properties=p)
         #print('number of files query returned=',len(material))
         
-        nxx= 500 #divided to ~nxx jobs per file 
+        nxx= 50000 #divided to ~nxx jobs per file 
         GetPOSCAR=False
         ndiv=(len(material)//nxx+1) 
         nsize=len(material)//ndiv+1 
@@ -35,11 +35,11 @@ def getlist(avoided,required,minsite,maxsite,ffile):
         ff=open(ffile,'w')
         fnum=0
         for m in material:
-            if count % nsize==0:
-                fnum=fnum+1
-                ff.close()
-                ff=open(ffile+'.'+str(fnum),'w')
-                print(count)
+            #if count % nsize==0:
+            ##    fnum=fnum+1
+            #    ff.close()
+            #    ff=open(ffile+'.'+str(fnum),'w')
+            #    print(count)
             if(m['task_id'][0:3]!='mp-'): continue #I found mvc-15384. is it mp file?
             try:
                 bm = m["elasticity"]['K_Voigt_Reuss_Hill']
@@ -65,8 +65,8 @@ sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', buffering=1)
 sys.stderr = os.fdopen(sys.stderr.fileno(), 'w', buffering=1)
 sys.stdin  = os.fdopen(sys.stdin.fileno(), 'r', buffering=1)
 
-maxsite=8
 minsite=1
+maxsite=6
 avoided='RG AC LN'
 required='ANY'
 ffile='list.job_mp.no4f'

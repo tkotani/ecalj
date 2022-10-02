@@ -66,7 +66,7 @@ def createplot(mpid,key,ncore,lmxa6,option):
         aaa="job_tdos "+num+" -np "+ncore+" NoGnuplot > ljobtdos"
         print(aaa)
         os.system(aaa)
-        aaa="job_pdos "+num+" -np "+ncore+" NoGnuplot > ljobpdos"
+        aaa="job_pdosw "+num+" -np "+ncore+" NoGnuplot > ljobpdosw"
         print(aaa)
         os.system(aaa)
         
