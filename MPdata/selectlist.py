@@ -32,6 +32,6 @@ for line in ff:
             fnum=fnum+1
             if(fnum!=1): ffw.close()
             ffw=open(ffile+'.'+str(fnum),'w',)
-        print(count,line,file=ffw)
+        print(line,file=ffw)
         
 sys.exit()
