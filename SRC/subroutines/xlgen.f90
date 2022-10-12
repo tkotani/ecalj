@@ -1,4 +1,5 @@
 subroutine xlgen(plat,rmax,rmax2,nvmax,opts,mode,nv,vecs)! Generate a list of lattice vectors, subject to constraints
+  use m_ftox
   ! ----------------------------------------------------------------
   !i Inputs
   !i   plat  :dimensionless primitive lattice vectors
@@ -37,7 +38,9 @@ subroutine xlgen(plat,rmax,rmax2,nvmax,opts,mode,nv,vecs)! Generate a list of la
   integer :: i,j,k,imx(3),nv,m,ivck(3),iprint,lgunit,iv,jv,oiwk,owk
   integer,allocatable:: w_oiwk(:)
   real(8),allocatable:: w_owk(:)
+  character(8):: xt
   call latlim(plat,rmax,imx(1),imx(2),imx(3))
+  write(6,*)"imx=",imx
   ivck = 0
   do  10  i = 1, 3  !  Switches flagging whether this plat in lattice vectors
      if (mod(opts,10) == 1) ivck(i) = 1
@@ -59,6 +62,7 @@ subroutine xlgen(plat,rmax,rmax2,nvmax,opts,mode,nv,vecs)! Generate a list of la
               vj(m) = i*plat(m,1) + j*plat(m,2) + k*plat(m,3)
               v2 = v2 + vj(m)**2
            enddo
+           write(6,ftox)'i,j,k',i,j,k,v2,rsqr,ivck,iabs(i) + iabs(j) + iabs(k) 
            if (v2 > rsqr) cycle !!   --- A lattice vector found ---
            !   ... Flag any plat in this vec as being present
            if (iabs(i) + iabs(j) + iabs(k) == 1) then
@@ -66,9 +70,10 @@ subroutine xlgen(plat,rmax,rmax2,nvmax,opts,mode,nv,vecs)! Generate a list of la
               if (j == 1) ivck(2) = 0
               if (k == 1) ivck(3) = 0
            endif
+           write(6,ftox)' goto ivckxxx',ivck
            !   ... Increment nv and copy to vec(nv)
            nv = nv+1
-           if(nv>nvmax.and.mod(opts/10,10)/=2)call fexit(-1,111,' xlgen: too many vectors, n=%i',nv)
+           if(nv>nvmax.and.mod(opts/10,10)/=2)call rx('xlgen: too many vectors n='//trim(xt(nv)))
            if (mod(opts/10,10) == 2) then
            elseif (mod(opts/100,10) == 1) then
               vecs(:,nv) = [i,j,k]
@@ -99,8 +104,8 @@ subroutine xlgen(plat,rmax,rmax2,nvmax,opts,mode,nv,vecs)! Generate a list of la
         if(iprint() >= 20) print 333, ivck, rmax, rmax2
 333     format(/' xlgen: added missing plat: ivck=',3i2, &
              '  rmax=',f8.3,'  rpad*rmax=',f8.3)
-        if(3*nv > nvmax) call fexit(-1,111,' xlgen: too many vectors, n=%i',3*nv)
-        if(ivck(1)+ivck(2)+ivck(3)/=1) call rx('lgen: more than 1 missing plat')
+        if(3*nv > nvmax) call rx(' xlgen: too many vectors xxx n='//xt(3*nv))
+        if(ivck(1)+ivck(2)+ivck(3)/=1) call rx('xlgen:mmm more than 1 missing plat')
         do  31  m = 1, 3
            v2 = ivck(1)*plat(m,1)+ivck(2)*plat(m,2)+ivck(3)*plat(m,3)
            if (mod(opts/100,10) == 1) v2 = ivck(m)

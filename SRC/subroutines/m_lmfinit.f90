@@ -73,7 +73,7 @@ module m_lmfinit
        bz_semsh(10),zbak,bz_lcond(4),bz_range=5d0,bz_dosmax
   logical,protected:: bz_lio2,bz_tetrahedron !ctrl_lmet2
   !! ... Ewald
-  real(8),protected:: lat_as,lat_tol,lat_rpad
+  real(8),protected:: lat_as,lat_tol,lat_rpad=0d0
   integer,protected:: lat_nkdmx
   !! ... STR
   real(8),protected:: str_rmax=nullr
@@ -986,7 +986,7 @@ contains
       if (io_show+io_help/=0 .AND. tksw(prgnam,'EWALD')/=2) write(stdo,*)' --- Parameters for Ewald sums ---'
       nm='EWALD_AS'; call gtv(trim(nm),tksw(prgnam,nm),lat_as, def_r8=2d0,note='Ewald smoothing parameter')
       nm='EWALD_TOL'; call gtv(trim(nm),tksw(prgnam,nm),lat_tol, def_r8=1d-8,note='Ewald tolerance')
-      nm='EWALD_NKDMX'; call gtv(trim(nm),tksw(prgnam,nm),lat_nkdmx, def_i4=800,note='Ewald tolerance')
+      nm='EWALD_NKDMX'; call gtv(trim(nm),tksw(prgnam,nm),lat_nkdmx, def_i4=3000,note='Ewald tolerance')
       !! Iterations (formerly MIX) ---
       mix_b = NULLI            ! Not set
       if (tksw(prgnam,'ITER')/=2) then

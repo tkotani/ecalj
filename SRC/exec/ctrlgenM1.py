@@ -710,6 +710,7 @@ for ispec in uniq(sitename):
         else:
             rrr = float(getdataa(dicatom[speckey],'R='))/0.529177 #*r_mul_val
         print( rrr)
+        if(rrr>3.0 and float(z)>2.8 and float(z) <3.2 ): rrr=2.9 #upper limit of R for Li
         if(rrr>3.0): rrr=3.0 #upper limit of R
         rrrh = rrr/2.0
         if(rrrh<0.5): rrrh=0.5 #lower limit of RSMH
@@ -805,7 +806,7 @@ else:
 metali_val= '%i' % metali
 tail="""
 \n"""
-tail = tail+ "% const pwemax=2 nk1="+nk_val1+" nk2="+nk_val2+" nk3="+nk_val3+" nit=80  gmax=12  nspin="+nspin_val+ " metal="+ metali_val +" so=" +so_val +" xcfun="+xcfun_val+" ssig="+str(ssig_val)+"\n"
+tail = tail+ "% const pwemax=2 nk1="+nk_val1+" nk2="+nk_val2+" nk3="+nk_val3+" nit=80  gmax=12  nspin="+nspin_val+ " metal="+ metali_val +" so=" +so_val +" xcfun="+xcfun_val+" ssig="+str(ssig_val)+" tetra=T \n"
 tail = tail + "BZ    #ZBAK=0.1 For exmple, at Si ZBAK=0.1 gives 8-0.1=7.9 total electrons\n"\
             + "      NKABC={nk1} {nk2} {nk3} # division of BZ for q points.\n"\
             + "      METAL={metal}"\
@@ -838,7 +839,7 @@ tail = tail + "BZ    #ZBAK=0.1 For exmple, at Si ZBAK=0.1 gives 8-0.1=7.9 total 
              # KNOWN BUG: For a hydrogen in a large cell, METAL=0 for (NSPIN=2 MMOM=1 0 0) 
              # results in non-magnetic solution. Use METAL=3 for a while in this case.
 
-      # TETRA=0 N=-1 W=0.001 FSMOM below
+      TETRA={tetra} N=-1 W=0.005 !FSMOM below
       #  are for molecules. No tetrahedron integration. (Smearing)
 """
 

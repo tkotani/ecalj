@@ -359,8 +359,9 @@ subroutine lattc(as,tol,rpad,alat,alat0,platin,g1,g2,g3,gt,plat,qlat,lmax,vol,aw
   integer :: k,iprint,m,i1mach,modeg(3),isw
   double precision :: qlat0(3,3),vol0,plat0(3,3),radd,qadd
   double precision :: qdist0,a0,rdist0,tol1,r0,q0,one(3,3),oned(3,3)
-  integer:: ifile_handle,ifp
-  call dcopy(9,platin,1,plat0,1)
+  integer:: ifile_handle,ifp,i
+  real(8):: rxx,qxx
+  plat0=platin !call dcopy(9,platin,1,plat0,1)
   call dinv33(plat0,1,qlat0,vol0)
   vol0 = dabs(vol0)
   call rdistn(plat0,plat,3,g1,g2,g3,gt)
@@ -370,8 +371,7 @@ subroutine lattc(as,tol,rpad,alat,alat0,platin,g1,g2,g3,gt,plat,qlat,lmax,vol,aw
   write(stdo,351)
 351 format(/t17,'Plat',t55,'Qlat')
   write (stdo,350) ((plat0(m,k),m=1,3),(qlat0(m,k),m=1,3),k=1,3)
-  ifp=ifile_handle()
-  open(ifp,file='PlatQlat.chk')
+  open(newunit=ifp,file='PlatQlat.chk')
   write (ifp,350) ((plat0(m,k),m=1,3),(qlat0(m,k),m=1,3),k=1,3)
   write (ifp,"('             PLAT              and         QLAT    ')")
   close(ifp)
@@ -379,7 +379,7 @@ subroutine lattc(as,tol,rpad,alat,alat0,platin,g1,g2,g3,gt,plat,qlat,lmax,vol,aw
   if (dabs(gt-1d0) > 1.d-5) then
      write(stdo,ftox)' Distorted with gx,y,z=',ftof(g1),ftof(g2),ftof(g3),'gt=:',ftof(gt)
      write(stdo,350) ((plat(m,k),m=1,3),(qlat(m,k),m=1,3),k=1,3)
-     call dpzero(one,9)
+     one=0
      one(1,1) = 1
      one(2,2) = 1
      one(3,3) = 1
@@ -397,8 +397,8 @@ subroutine lattc(as,tol,rpad,alat,alat0,platin,g1,g2,g3,gt,plat,qlat,lmax,vol,aw
   ! on the safe side.
   rdist0 = vol0**(1d0/3d0)
   qdist0 = 1d0/rdist0
-  radd = .7d0*rdist0
-  qadd = .7d0*qdist0
+  radd = 0.7d0*rdist0 
+  qadd = 0.7d0*qdist0 
   a0 = as/rdist0
   awald = a0/alat
   tol1 = tol*alat0**(lmax+1)
@@ -406,8 +406,12 @@ subroutine lattc(as,tol,rpad,alat,alat0,platin,g1,g2,g3,gt,plat,qlat,lmax,vol,aw
   modeg(1) = 2
   modeg(2) = 2
   modeg(3) = 2
-  call xlgen(plat0,r0+radd,rpad*(r0+radd),nkdmx,11,modeg,nkd,dlat)
-  call xlgen(qlat0,q0+qadd,rpad*(q0+qadd),nkgmx,11,modeg,nkg,glat)
+!  rxx=r0+radd
+!  qxx=q0+qadd
+  rxx= maxval([r0+radd,(sum(plat0(:,i)**2)**.5*1.05,i=1,3)]) !2022-10-12 for very anisotropic cases safer.
+  qxx= maxval([q0+qadd,(sum(qlat0(:,i)**2)**.5*1.05,i=1,3)]) !2022-10-12
+  call xlgen(plat0,rxx,rpad*(r0+radd),nkdmx,11,modeg,nkd,dlat)
+  call xlgen(qlat0,qxx,rpad*(q0+qadd),nkgmx,11,modeg,nkg,glat)
   call rdistn(dlat,dlat,nkd,g1,g2,g3,gt)
   call qdistn(glat,glat,nkg,g1,g2,g3,gt)
   ! --- Printout ---

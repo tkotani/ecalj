@@ -439,6 +439,7 @@ contains
     do  ib = 1, nbas
        is = ips(ib)
        range(ib) = facr * rmtl(is)
+       print *,'rrrrrrr',ib,range(ib)
     enddo
 
     !C --- For each site, find rmti = initial estimate for rmtl ---
