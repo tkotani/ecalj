@@ -7,6 +7,9 @@ function my_error() {
     exit 1
 }
 
+CORES=`nproc`
+echo $CORES
+
 ###
 mkdir ${BINDIR}
 echo Going to install required binaries and scripts to ${BINDIR} !
@@ -25,8 +28,8 @@ popd
 
 pushd .
 cd SRC/exec
-make PLATFORM=ifort LIBMATH="$MATH" FC=mpifort LK=mpifort ||my_error
-make PLATFORM=ifort BINDIR=$BINDIR  FC=mpifort LK=mpifort install ||my_error
+make -j $CORES PLATFORM=ifort LIBMATH="$MATH" FC=mpifort LK=mpifort ||my_error
+make -j $CORES PLATFORM=ifort BINDIR=$BINDIR  FC=mpifort LK=mpifort install ||my_error
 popd
 
 echo '=== goto test ==='
