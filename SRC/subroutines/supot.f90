@@ -12,12 +12,14 @@ module m_supot
 contains
 
   subroutine m_supot_init()
-    use m_lattic,only: rv_a_odlv,rv_a_oqlv,lat_plat,rv_a_opos
+    use m_lattic,only: rv_a_odlv,rv_a_oqlv,lat_plat,rv_a_opos,lat_qlat
     use m_mksym,only:   rv_a_osymgr,rv_a_oag
     use m_lmfinit,only : lcd4,ctrl_nbas,ctrl_nspin,lat_alat,ftmesh,lat_gmaxin,stdo
     use m_lattic,only: lat_vol, lat_awald
     use m_lattic,only: lat_nkd, lat_nkq
     use m_mksym,only:  lat_nsgrp
+    use m_shortn3,only: shortn3_initialize,shortn3,nout,nlatout
+    use m_ftox
     !- Initialization for G vectors bgv,ips0,gv,kv !See gvlst2 and sgvsym
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -28,7 +30,8 @@ contains
     integer:: nbas ,  nsp , nkd , nkq , ngmx , ng , ngrp , iprint
     double precision :: awald,alat,vol,plat(3,3),gmax,xx
     integer ::iwdummy
-    real(8):: wdummy(3)=0d0
+    real(8):: wdummy(3)=0d0,qpg(3),gg,qlat1(3,3),gmax2,gs(3),qlat(3,3),tpiba,  tol=1d-8
+    integer:: ig,j1,j2,j3
     call tcn('m_supot_init')
     n1=>ngabc(1)
     n2=>ngabc(2)
@@ -46,16 +49,41 @@ contains
     if (lcd4) then
        alat = lat_alat
        plat = lat_plat
+       qlat = lat_qlat
        !   ... Generate energy cutoff gmax or n1..n3
-       call mshsiz(alat,plat,0,gmax,ngabc,ngmx)
-!!!!!!!!!!!!!!!!!!!!c
-!       ngmx=20809
-!!!!!!!!!!!!!!       
+       call mshsiz(alat,plat,0,gmax,ngabc,ngmx) !return n1 n2 n3 (=ngabc) satisfying gmax
+!        write(6,ftox) 'n1n2n3=',n1,n2,n3,ftof(gmax)
+!        write(6,ftox)ftof(qlat(:,1))
+!        write(6,ftox)ftof(qlat(:,2))
+!        write(6,ftox)ftof(qlat(:,3))
+! !!!!!!!!!!!!!!!!!!!!c
+!        tpiba = 2*4d0*atan(1d0)/alat
+!        gmax2 = (gmax/tpiba)**2
+!        qlat1(:,1) = qlat(:,1)*n1
+!        qlat1(:,2) = qlat(:,2)*n2
+!        qlat1(:,3) = qlat(:,3)*n3
+!        call shortn3_initialize(qlat1) !initialization for m_shoten3
+!        ig=0
+!        do   j1 = 0,n1-1 
+!           do    j2 = 0,n2-1 
+!              do   j3 = 0,n3-1 
+!                 qpg= [j1/dble(n1), j2/dble(n2), j3/dble(n3)]
+!                 call shortn3(qpg) ! return nout,nlatout
+!                 gs= matmul(qlat1(:,:), (qpg+nlatout(:,1)))
+!                 if(sum(gs**2) < gmax2) then
+!                    ig = ig+1
+!                    write(6,ftox) ftof(qpg+nlatout(:,1))
+!                 endif
+!              enddo
+!           enddo
+!        enddo
+!        write(6,*)"nnngggggggg ig ngmx=",ig,ngmx
+! !!!!!!!!!!!!!!
        call fftz30(n1,n2,n3,k1,k2,k3)
        !   ... Make list of lattice vectors within cutoff
        allocate(rv_a_ogv(ngmx,3))
        allocate(iv_a_okv(ngmx,3))
-       print *,'sumpot goto gvlst2'
+       !print *,'sumpot goto gvlst2'
        call gvlst2(alat, plat, wdummy, n1,n2,n3, 0d0,gmax,0,8, ngmx, ng, iv_a_okv, rv_a_ogv, xx, xx)
        if (ng /= ngmx) then
           print *,' gmax,ng ngmx=',gmax,ng,ngmx
@@ -72,7 +100,7 @@ contains
        iv_a_oips0(:)=0.0d0
        zv_a_obgv(:)=0.0d0
        ngrp = lat_nsgrp
-       print *,'sumpot goto sgvsym'
+       !print *,'sumpot goto sgvsym'
        call sgvsym ( ngrp , rv_a_osymgr , rv_a_oag , ng , rv_a_ogv , iv_a_oips0 , zv_a_obgv )
     endif
     call tcx('m_supot_init')
