@@ -1,5 +1,6 @@
 subroutine sgvsym(ngrp,g,ag,ng,gv,ips0,bgv)
   use m_lgunit,only:stdo
+  use m_ftox
   !- Setup for symmetrization of a function in Fourier representation.
   ! ----------------------------------------------------------------------
   !i Inputs:
@@ -28,19 +29,13 @@ subroutine sgvsym(ngrp,g,ag,ng,gv,ips0,bgv)
   ! ... Passed parameters
   integer :: ngrp,ng,ips0(ng)
   double precision :: g(3,3,1),ag(3,1),gv(ng,3)
-  double complex bgv(ng)
-  ! ... Local parameters
+  complex(8):: bgv(ng)
   integer :: i,i00,irep,i0,nstar,k,j,j0,iprint,ksum,kstar
-  double precision :: tpi,df,scalp,gg0,gg,fac,vv,v(3)
-
-  !      stdo = lgunit(1)
-  tpi = 8d0*datan(1d0)
-
-  do  10  i = 1, ng
-     ips0(i) = 0
-     bgv(i) = (0d0,0d0)
-10 enddo
-
+  real(8)::df,scalp,gg0,gg,fac,vv,v(3)
+  integer:: jx
+  real(8),parameter:: tpi = 8d0*datan(1d0)
+  ips0 = 0
+  bgv = 0d0
   ! --- Main loop: look for next unclassified vector ---
   i00 = 1
   do  20  irep = 1, ng+1
@@ -51,7 +46,6 @@ subroutine sgvsym(ngrp,g,ag,ng,gv,ips0,bgv)
 22   enddo
      goto 81
 80   continue
-
      !   --- Apply all point ops, find in list, add to phase sum ---
      nstar = irep
      do  30  k = 1, ngrp
@@ -62,8 +56,16 @@ subroutine sgvsym(ngrp,g,ag,ng,gv,ips0,bgv)
         do  32  j = i0, ng
            df = (v(1)-gv(j,1))**2+(v(2)-gv(j,2))**2+(v(3)-gv(j,3))**2
            j0 = j
-           if (df < 1d-8) goto 70
+           if (df < 1d-8) then
+              goto 70
+           endif   
 32      enddo
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!        
+        do  jx = i0, ng
+           df = (v(1)-gv(jx,1))**2+(v(2)-gv(jx,2))**2+(v(3)-gv(jx,3))**2
+           write(6,ftox)jx,'v= ',ftof(v),'v-gv',ftof(v-gv(jx,:)),'gvi0=',ftof(gv(i0,:))
+        enddo
+!ccccccccccccccccccccc
         write(stdo,601) i0,k,gv(i0,1),gv(i0,2),gv(i0,3),v
 601     format(' ---- vec',i6,'   op',i3,2x,3f8.4,'  ->',3f8.4)
         call rxi('SGVSYM: cannot find mapped vector in list:',i0)

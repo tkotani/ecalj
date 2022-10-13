@@ -100,20 +100,20 @@ contains
             rmaxs,rmaxs/avw,rmaxs/alat,0,0)
     endif
     ! ... Get neighbor table iax for each atom in the cluster
-    if (lpbc == 0) then
-       i = 3
+!    if (lpbc == 0) then
+       i = 3 !3dim
        j = -1
-    elseif (lpbc == 1 .OR. lpbc == 11) then
-       i = 2
-       j = 1
-    else
-       call rx('ASASTR: not implemented for lpbc>1')
-    endif
+!    elseif (lpbc == 1 .OR. lpbc == 11) then
+!       i = 2
+!       j = 1
+!    else
+!       call rx('ASASTR: not implemented for lpbc>1')
+!    endif
     mxcsiz = str_mxnbr !int(sstr%mxnbr)
 
     call pshpr(iprint()-20)
     call pairs ( nbas , nbasp , alat , plat ,(/ rmaxs / 2/) , rv_a_opos &
-         , (/- 1/) , i , j , w_dummy , nttab , iv_a_ontab , iv_a_oiax , mxcsiz )
+         , (/- 1/), w_dummy , nttab , iv_a_ontab , iv_a_oiax , mxcsiz ) !, i,j
     call poppr
 
     ! --- Print out a few superlattice vectors ---
@@ -1217,7 +1217,7 @@ contains
 300 format(6x,a,3f13.7)
   end subroutine sclws2
 
-  subroutine pairs(nbas,nbasp,alat,plat,rmax,baspp,ipsp,nd,iltab, &
+  subroutine pairs(nbas,nbasp,alat,plat,rmax,baspp,ipsp, & !nd,iltab, &
        pltab,nttab,iv_a_ontab,iv_a_oiax,mxcsiz)
     !- Allocate memory for and create neighbor table for a crystal
     ! ----------------------------------------------------------------------
@@ -1250,7 +1250,7 @@ contains
     !o   mxcsiz  :size of the largest cluster encountered
     ! ----------------------------------------------------------------------
     implicit none
-    integer:: nbas , nbasp , ipsp(1) , pltab(1) , nttab , nd , iltab,i_data_size
+    integer:: nbas , nbasp , ipsp(1) , pltab(1) , nttab , nd , iltab=-1,i_data_size
     integer,allocatable :: iv_a_ontab(:)
     integer,allocatable :: iv_a_oiax(:,:)
     double precision :: alat,plat(9),rmax(1),baspp(3,1)
@@ -1271,11 +1271,11 @@ contains
     allocate(iv_a_oiax(niax,mxnbr))
     iv_a_oiax=0
     allocate(wk_rv(3*mxnbr))
-    do  10  i = 1, 3
-       modep(i) = 2
-       if (i > nd) modep(i) = 0
-10  END DO
-
+    modep=2
+!    do  10  i = 1, 3
+!       modep(i) = 2
+!       if (i > nd) modep(i) = 0
+!10  END DO
     ! ... This makes the neighbor table
     nttab = mxnbr
     isw = 0
@@ -1408,26 +1408,17 @@ contains
     if (moder == 0) r1 = 2*r1
     r1 = 2*r1
     ! ... List of lattice vectors to add to pos(ib)-pos(jb)
-    call xlgen ( plat , r1 / alat , 0d0 , 0 , 20 , mode , i , iwdummy &
-         )
-
+    call xlgen ( plat , r1 / alat , 0d0 , 0 , 20 , mode , i , iwdummy )
     allocate(lat_rv(3*i))
-
-    call xlgen ( plat , r1 / alat , 0d0 , i , 0 , mode , nlat , lat_rv &
-         )
-
+    call xlgen ( plat , r1 / alat , 0d0 , i , 0 , mode , nlat , lat_rv)
     ! ... qlat = (plat^-1)^T so that qlat^T . plat = 1
     call mkqlat(plat,qlat,rr)
     ! ... Save true pos in opos
     !     and ctr in octr in case same address space used for ctr
     allocate(pos_rv(3*nbasp))
-
     call dpcopy ( pos , pos_rv , 1 , 3 * nbasp , 1d0 )
-
     allocate(ctr_rv(3*nsite))
-
     call dpcopy ( ctr , ctr_rv , 1 , 3 * nsite , 1d0 )
-
 
     ! --- For each ib, find all pairs for which dr < range ---
     nttab = 1

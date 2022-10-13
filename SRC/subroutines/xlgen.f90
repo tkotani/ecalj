@@ -39,38 +39,26 @@ subroutine xlgen(plat,rmax,rmax2,nvmax,opts,mode,nv,vecs)! Generate a list of la
   integer,allocatable:: w_oiwk(:)
   real(8),allocatable:: w_owk(:)
   character(8):: xt
+  !we ssume mode=11 or 2
   call latlim(plat,rmax,imx(1),imx(2),imx(3))
   write(6,*)"imx=",imx
   ivck = 0
-  do  10  i = 1, 3  !  Switches flagging whether this plat in lattice vectors
-     if (mod(opts,10) == 1) ivck(i) = 1
-     if (mode(i) == 0) then
-        imx(i) = 0
-        ivck(i) = 0
-     else
-        imx(i) = max(imx(i),1)
-     endif
-10 enddo
+  if (mod(opts,10) == 1) ivck = 1
   rsqr = rmax*rmax
   nv = 0
   ! --- Loop over all triples, paring out those within rmax ---
   do  202  i = -imx(1), imx(1)
      do  201  j = -imx(2), imx(2)
         do  200  k = -imx(3), imx(3)
-           v2 = 0d0
-           do  m = 1, 3
-              vj(m) = i*plat(m,1) + j*plat(m,2) + k*plat(m,3)
-              v2 = v2 + vj(m)**2
-           enddo
-           write(6,ftox)'i,j,k',i,j,k,v2,rsqr,ivck,iabs(i) + iabs(j) + iabs(k) 
-           if (v2 > rsqr) cycle !!   --- A lattice vector found ---
+           vj = matmul(plat,[i,j,k]) !i*plat(m,1) + j*plat(m,2) + k*plat(m,3)
+           if (sum(vj**2) > rsqr) cycle !!   --- A lattice vector found ---
            !   ... Flag any plat in this vec as being present
            if (iabs(i) + iabs(j) + iabs(k) == 1) then
               if (i == 1) ivck(1) = 0
               if (j == 1) ivck(2) = 0
               if (k == 1) ivck(3) = 0
            endif
-           write(6,ftox)' goto ivckxxx',ivck
+           !write(6,ftox)' goto ivckxxx',ivck
            !   ... Increment nv and copy to vec(nv)
            nv = nv+1
            if(nv>nvmax.and.mod(opts/10,10)/=2)call rx('xlgen: too many vectors n='//trim(xt(nv)))
@@ -78,7 +66,7 @@ subroutine xlgen(plat,rmax,rmax2,nvmax,opts,mode,nv,vecs)! Generate a list of la
            elseif (mod(opts/100,10) == 1) then
               vecs(:,nv) = [i,j,k]
            else
-              vecs(1:3,nv) = vj(1:3)
+              vecs(:,nv) = vj
            endif
 200     enddo
 201  enddo

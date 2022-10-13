@@ -48,10 +48,14 @@ contains
        plat = lat_plat
        !   ... Generate energy cutoff gmax or n1..n3
        call mshsiz(alat,plat,0,gmax,ngabc,ngmx)
+!!!!!!!!!!!!!!!!!!!!c
+!       ngmx=20809
+!!!!!!!!!!!!!!       
        call fftz30(n1,n2,n3,k1,k2,k3)
        !   ... Make list of lattice vectors within cutoff
        allocate(rv_a_ogv(ngmx,3))
        allocate(iv_a_okv(ngmx,3))
+       print *,'sumpot goto gvlst2'
        call gvlst2(alat, plat, wdummy, n1,n2,n3, 0d0,gmax,0,8, ngmx, ng, iv_a_okv, rv_a_ogv, xx, xx)
        if (ng /= ngmx) then
           print *,' gmax,ng ngmx=',gmax,ng,ngmx
@@ -68,6 +72,7 @@ contains
        iv_a_oips0(:)=0.0d0
        zv_a_obgv(:)=0.0d0
        ngrp = lat_nsgrp
+       print *,'sumpot goto sgvsym'
        call sgvsym ( ngrp , rv_a_osymgr , rv_a_oag , ng , rv_a_ogv , iv_a_oips0 , zv_a_obgv )
     endif
     call tcx('m_supot_init')
