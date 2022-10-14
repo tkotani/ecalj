@@ -121,6 +121,9 @@ $(obj_path)/lmfham.o:   $(main)show_programinfo.fpp
 $(obj_path)/lmfham1.o:  $(main)show_programinfo.fpp
 $(obj_path)/qg4gw.m.o:  $(main)show_programinfo.fpp
 
+
+
+### conditional compile to avoid compilar bug
 #$(obj_path)/lmfa.o: $(main)lmfa.F sysinfo
 #	$(FC) $(FFLAGS_NONE) -c $< -o $@
 #$(obj_path)/lmchk.o: $(main)lmchk.F 
@@ -137,6 +140,11 @@ $(obj_path)/initmlo.o: $(main)initmlo.f90
 	$(FC) $(FFLAGS_NONE) -c $< -o $@
 $(obj_path)/mkinput.o: $(main)mkinput.f90
 	$(FC) $(FFLAGS_NONE) -c $< -o $@
+
+$(obj_path)/chgmsh.o: $(subr)chgmsh.f90
+	$(FC) $(FFLAGS_NONE) -c $< -o $@
+
+
 
 ########################################
 # progslm
