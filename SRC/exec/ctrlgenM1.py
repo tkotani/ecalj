@@ -695,7 +695,7 @@ for ispec in uniq(sitename):
 #    aaa=aaa+ ' R='+ '%6.3f' %
     if(zspec):
         z=spec2z[ispec]
-        speckey=z2dicatom[z]
+        speckey=z2qdicatom[z]
     else:
         speckey=ispec
         z=dicatom[speckey].split('atomz=')[1].split('@')[0]
@@ -839,7 +839,7 @@ tail = tail + "BZ    #ZBAK=0.1 For exmple, at Si ZBAK=0.1 gives 8-0.1=7.9 total 
              # KNOWN BUG: For a hydrogen in a large cell, METAL=0 for (NSPIN=2 MMOM=1 0 0) 
              # results in non-magnetic solution. Use METAL=3 for a while in this case.
 
-      TETRA={tetra} N=-1 W=0.005 !FSMOM below
+      TETRA={tetra} N=-1 W=0.01 !FSMOM below W=0.01 means T=1573K (N=-1 means W is temperature in Ry.)
       #  are for molecules. No tetrahedron integration. (Smearing)
 """
 

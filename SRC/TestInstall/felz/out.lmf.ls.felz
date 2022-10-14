@@ -2,10 +2,10 @@ INFO: Ubuntu 20.04.4 LTS \n \l
 INFO: GNU Fortran (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
 INFO: -O2 -g -fimplicit-none -ffixed-line-length-132 -JOBJ.gfortran -IOBJ.gfortran
 INFO: MATH: -lmkl_rt
-INFO: git: commit 6bfdb2ee2eaa61e6c5ffd2b51e721f524be30478
+INFO: git: commit d75d55d3b6654513dbac10e844ad6917b261cd36
 INFO:    : Author: Takao Kotani <takaokotani@gmail.com>
-INFO:    : Date:   Sun Jun 19 17:13:24 2022 +0900
-INFO: linked at Sun Jun 19 18:36:33 JST 2022
+INFO:    : Date:   Sat Oct 15 08:43:12 2022 +0900
+INFO: linked at Sat Oct 15 09:08:15 JST 2022
 ===START LMF with   ===
  mpisize=           4
   Token           Input   cast  (size,min,read,def)     result
@@ -32,7 +32,6 @@ INFO: linked at Sun Jun 19 18:36:33 JST 2022
  STRUC_NBAS        reqd   i4       1,  1,   1, --       1
  STRUC_PLAT        reqd   r8v      9,  9,   9, --       0.5  0.5  0.5  0.5 -0.5  0.5  0.5  0.5 -0.5
  ... found 1 species in SPEC category
-  --- Program Options ---
  HAM_NSPIN         opt    i4       1,  1,   1,  0       2
  HAM_REL           opt    i4       1,  1,   1,  0       1
  HAM_SO            opt    i4       1,  1,   1,  0       1
@@ -86,12 +85,21 @@ INFO: linked at Sun Jun 19 18:36:33 JST 2022
  ITER_CONV         opt    r8       1,  1,   1,  0       0.0001
  ITER_CONVC        opt    r8       1,  1,   1,  0       0.0001
   --- Parameters for dynamics and statics ---
- DYN_MSTAT         opt    ---                           missing
   bndfp (warning): no sigm file found ... LDA calculation only
+pnuall: j isp pnu= 1 1 4.660000  4.410000  3.800000  4.130000
+pnzall: j isp  pz= 1 1 0.000000  0.000000  0.000000  0.000000
+pnuall: j isp pnu= 1 2 4.660000  4.410000  3.800000  4.130000
+pnzall: j isp  pz= 1 2 0.000000  0.000000  0.000000  0.000000
+ imx=           3           3           3
+ imx=           4           4           4
+ imx=           3           3           3
+ imx=           4           4           4
+ imx=           3           3           3
+ imx=           4           4           4
 
 
 mmm === MTO setting ===
-mmm ispec lmxb lpzex nkapii nkaphh=    1    3    0    2    2
+mmm ispec lmxb lpz nkapii nkaphh=    1    3    0    2    2
 mmm rsmh1    1  1.16  1.16  1.16  1.16
 mmm   eh1    1 -0.10 -0.10 -0.10 -0.10
 mmm rsmh2    1  1.16  1.16  1.16
@@ -105,6 +113,8 @@ mmm lh       3  2
    0.500000  -0.500000   0.500000        1.000000  -1.000000   0.000000
    0.500000   0.500000  -0.500000        1.000000   0.000000  -1.000000
   Cell vol=   79.765082
+ imx=           3           3           3
+ imx=           4           4           4
 
  LATTC:  as= 2.000   tol= 1.00E-08   alat= 5.42352   awald= 0.465
          r1=  2.466   nkd= 137      q1=  4.687   nkg= 201
@@ -122,11 +132,11 @@ SPLCLS: ibas iclass ispec label(ispec)
  TETIRR: sorting      384 tetrahedra ...
  >>      0.03   exit  m_mkqp_init     0.00
  >> level: 1  CPUsec=      0.03  enter m_supot_init
-MSHSIZ: mesh has 16 x 16 x 16 divisions; length =     0.294     0.294     0.294
-      generated from gmax (a.u.)=     13.0000: 2899 vectors of 4096 (70%)
-gvlst2: gmax=  13.000 a.u. created 2899 vectors of 4096 ( 70 %)
- SGVSYM: 2899 symmetry stars found for 2899 reciprocal lattice vectors
- >>      0.05   exit  m_supot_init    0.01
+MSHSIZ: mesh has 18 x 18 x 18 divisions; length =     0.261     0.261     0.261
+      generated from gmax (a.u.)=     13.1100: 3055 vectors of 5832 (52%)
+gvlst2: gmax=  13.110 a.u. created 3055 vectors of 5832 ( 52 %)
+ SGVSYM: 3055 symmetry stars found for 3055 reciprocal lattice vectors
+ >>      0.05   exit  m_supot_init    0.02
 
  sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-06
  spec      l    rsm    eh     gmax    last term    cutoff
@@ -141,29 +151,13 @@ gvlst2: gmax=  13.000 a.u. created 2899 vectors of 4096 ( 70 %)
  >>      0.05   exit  m_suham_init    0.00
  >> level: 1  CPUsec=      0.05  enter m_qplist_init
  m_qplistinit:start
-
- species data:  augmentation                           density
- spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv foca   rfoca
- Fe       2.325  0.930    3    4         3  0.581  1.162    1   0.930
  >>      0.05   exit  m_qplist_ini    0.00
  >> level: 1  CPUsec=      0.05  enter m_qplist_qpsdivider
  >>      0.05   exit  m_qplist_qps    0.00
  >> level: 1  CPUsec=      0.05  enter m_igv2xall_init
  >>      0.05   exit  m_igv2xall_i    0.00
-
- species data:  augmentation                           density
- spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv foca   rfoca
  >> level: 1  CPUsec=      0.05  enter m_hamindex_init
-
- species data:  augmentation                           density
  >>      0.05   exit  m_hamindex_i    0.00
-
- species data:  augmentation                           density
- spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv foca   rfoca
- Fe       2.325  0.930    3    4         3  0.581  1.162    1   0.930
- Fe       2.325  0.930    3    4         3  0.581  1.162    1   0.930
- spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv foca   rfoca
- Fe       2.325  0.930    3    4         3  0.581  1.162    1   0.930
  >> level: 1  CPUsec=      0.05  enter lmfp
 lmv7: Read rst version ID=  2.00
 
@@ -177,40 +171,229 @@ lmv7: Read rst version ID=  2.00
  site spec        pos (Cartesian coordinates)         pos (multiples of plat)
    1        Fe  0.000000   0.000000   0.000000    0.000000   0.000000   0.000000
 
- --- BNDFP:  begin iteration 1 of 1
+--- BNDFP:  begin iteration 1 of 1
  m_mkpot_init: Making one-particle potential ...
- esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
- smves:: avg es pot at rmt= 0.635847  avg sphere pot= 0.000000  vconst=-0.635847
-
- smooth rhoves     11.851201   charge     3.782310
- smvxcm: all smrho_w is positive
-smooth isp rhoeps rhomu vxcavg= 1 -1.389777 -1.759746 -0.841938
-smooth isp rhoeps rhomu vxcavg= 2 -1.729931 -2.301804 -0.874779
-
- locpot:
-
- site  1  z= 26.0  rmt= 2.32497  nr=321   a=0.030  nlml=16  rg=0.581  Vfloat=T
- sm core charge=  0.687311 =(sphere)+(spillout)=  0.014701  0.702013
-  ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   4.59190   4.59047   0.00000   0.00000
-  ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   4.34412   4.33895   0.00000   0.00000
-  ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.75324   3.87140   0.00000   0.00000
-  ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.12653   4.12608   0.00000   0.00000
- potential shift to crystal energy zero:    0.000642
-
- Energy terms:             smooth           local           total
-   rhoval*vef             -6.442169       -85.695408       -92.137577
+  esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
+  smves: avg es pot at rmt= 0.635847  avg sphere pot= 0.000000  vconst=-0.635847
+   smooth rhoves     11.851200   charge     3.782310
+  smvxcm: all smrho_w is positive
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -1.389777 -1.759746 -0.841938
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -1.729931 -2.301804 -0.874779
+  locpot:
+   site  1  z= 26.0  rmt= 2.32497  nr=321   a=0.030  nlml=16  rg=0.581  Vfloat=T
+    sm core charge in MT=  0.687311 =total-spillout=  0.702013 -  0.014701
+ makrwf goto rseq l=           0           3
+ makrwf goto rseq l=           0           3
+end makrwf rseq l= 0 3 -0.308250
+goto phidx modep 1
+end makrwf rseq l= 0 3 -0.308250
+goto phidx modep 1
+ makrwf goto rseq l=           1           2
+ makrwf goto rseq l=           1           2
+end makrwf rseq l= 1 2 -0.150522
+goto phidx modep 1
+end makrwf rseq l= 1 2 -0.150522
+goto phidx modep 1
+ makrwf goto rseq l=           2           0
+ makrwf goto rseq l=           2           0
+end makrwf rseq l= 2 0 -0.073667
+goto phidx modep 1
+end makrwf rseq l= 2 0 -0.073667
+goto phidx modep 1
+ makrwf goto rseq l=           3           0
+ makrwf goto rseq l=           3           0
+end makrwf rseq l= 3 0 -0.117069
+goto phidx modep 1
+end makrwf rseq l= 3 0 -0.117069
+goto phidx modep 1
+ makrwf goto rseq l=           0           3
+end makrwf rseq l= 0 3 -0.372863
+goto phidx modep 1
+ makrwf goto rseq l=           0           3
+ makrwf goto rseq l=           1           2
+end makrwf rseq l= 0 3 -0.372863
+goto phidx modep 1
+end makrwf rseq l= 1 2 -0.229154
+goto phidx modep 1
+ makrwf goto rseq l=           1           2
+ makrwf goto rseq l=           2           0
+end makrwf rseq l= 1 2 -0.229154
+goto phidx modep 1
+end makrwf rseq l= 2 0 -0.105832
+goto phidx modep 1
+ makrwf goto rseq l=           2           0
+ makrwf goto rseq l=           3           0
+end makrwf rseq l= 2 0 -0.105832
+goto phidx modep 1
+end makrwf rseq l= 3 0 -0.165261
+goto phidx modep 1
+ makrwf goto rseq l=           3           0
+end makrwf rseq l= 3 0 -0.165261
+goto phidx modep 1
+ makrwf goto rseq l=           0           3
+end makrwf rseq l= 0 3 -0.308250
+goto phidx modep 1
+ makrwf goto rseq l=           0           3
+ makrwf goto rseq l=           1           2
+end makrwf rseq l= 0 3 -0.308250
+goto phidx modep 1
+end makrwf rseq l= 1 2 -0.150522
+goto phidx modep 1
+ makrwf goto rseq l=           1           2
+ makrwf goto rseq l=           2           0
+end makrwf rseq l= 1 2 -0.150522
+goto phidx modep 1
+end makrwf rseq l= 2 0 -0.073667
+goto phidx modep 1
+ makrwf goto rseq l=           2           0
+ makrwf goto rseq l=           3           0
+end makrwf rseq l= 2 0 -0.073667
+goto phidx modep 1
+end makrwf rseq l= 3 0 -0.117069
+goto phidx modep 1
+ makrwf goto rseq l=           3           0
+ makrwf goto rseq l=           0           3
+end makrwf rseq l= 0 3 -0.372863
+goto phidx modep 1
+end makrwf rseq l= 3 0 -0.117069
+goto phidx modep 1
+ makrwf goto rseq l=           1           2
+ makrwf goto rseq l=           0           3
+end makrwf rseq l= 1 2 -0.229154
+goto phidx modep 1
+end makrwf rseq l= 0 3 -0.372863
+goto phidx modep 1
+ makrwf goto rseq l=           2           0
+ makrwf goto rseq l=           1           2
+end makrwf rseq l= 2 0 -0.105832
+goto phidx modep 1
+end makrwf rseq l= 1 2 -0.229154
+goto phidx modep 1
+ makrwf goto rseq l=           3           0
+ makrwf goto rseq l=           2           0
+end makrwf rseq l= 3 0 -0.165261
+goto phidx modep 1
+end makrwf rseq l= 2 0 -0.105832
+goto phidx modep 1
+ makrwf goto rseq l=           3           0
+end makrwf rseq l= 3 0 -0.165261
+goto phidx modep 1
+ makrwf goto rseq l=           0           3
+end makrwf rseq l= 0 3 -0.308250
+goto phidx modep 1
+ makrwf goto rseq l=           1           2
+end makrwf rseq l= 1 2 -0.150522
+goto phidx modep 1
+ ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   4.59190   4.59047   0.00000   0.00000
+ ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   4.34412   4.33895   0.00000   0.00000
+ ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.75324   3.87140   0.00000   0.00000
+ ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.12653   4.12608   0.00000   0.00000
+     potential shift to crystal energy zero:    0.000642
+ makrwf goto rseq l=           2           0
+ makrwf goto rseq l=           0           3
+end makrwf rseq l= 2 0 -0.073667
+goto phidx modep 1
+end makrwf rseq l= 0 3 -0.308250
+goto phidx modep 1
+ makrwf goto rseq l=           3           0
+ makrwf goto rseq l=           1           2
+end makrwf rseq l= 1 2 -0.150522
+goto phidx modep 1
+end makrwf rseq l= 3 0 -0.117069
+goto phidx modep 1
+ makrwf goto rseq l=           2           0
+ makrwf goto rseq l=           0           3
+end makrwf rseq l= 2 0 -0.073667
+goto phidx modep 1
+end makrwf rseq l= 0 3 -0.372863
+goto phidx modep 1
+ makrwf goto rseq l=           3           0
+ makrwf goto rseq l=           1           2
+end makrwf rseq l= 3 0 -0.117069
+goto phidx modep 1
+end makrwf rseq l= 1 2 -0.229154
+goto phidx modep 1
+ makrwf goto rseq l=           0           3
+end makrwf rseq l= 0 3 -0.372863
+goto phidx modep 1
+ makrwf goto rseq l=           2           0
+end makrwf rseq l= 2 0 -0.105832
+goto phidx modep 1
+ makrwf goto rseq l=           1           2
+end makrwf rseq l= 1 2 -0.229154
+goto phidx modep 1
+ makrwf goto rseq l=           3           0
+ makrwf goto rseq l=           2           0
+end makrwf rseq l= 3 0 -0.165261
+goto phidx modep 1
+end makrwf rseq l= 2 0 -0.105832
+goto phidx modep 1
+ makrwf goto rseq l=           3           0
+end makrwf rseq l= 3 0 -0.165261
+goto phidx modep 1
+ makrwf goto rseq l=           0           3
+end makrwf rseq l= 0 3 -0.308250
+goto phidx modep 1
+ makrwf goto rseq l=           1           2
+ makrwf goto rseq l=           0           3
+end makrwf rseq l= 0 3 -0.308250
+goto phidx modep 1
+end makrwf rseq l= 1 2 -0.150522
+goto phidx modep 1
+ makrwf goto rseq l=           1           2
+ makrwf goto rseq l=           2           0
+end makrwf rseq l= 1 2 -0.150522
+goto phidx modep 1
+end makrwf rseq l= 2 0 -0.073667
+goto phidx modep 1
+ makrwf goto rseq l=           2           0
+ makrwf goto rseq l=           3           0
+end makrwf rseq l= 2 0 -0.073667
+goto phidx modep 1
+end makrwf rseq l= 3 0 -0.117069
+goto phidx modep 1
+ makrwf goto rseq l=           3           0
+end makrwf rseq l= 3 0 -0.117069
+goto phidx modep 1
+ makrwf goto rseq l=           0           3
+ makrwf goto rseq l=           0           3
+end makrwf rseq l= 0 3 -0.372863
+goto phidx modep 1
+end makrwf rseq l= 0 3 -0.372863
+goto phidx modep 1
+ makrwf goto rseq l=           1           2
+ makrwf goto rseq l=           1           2
+end makrwf rseq l= 1 2 -0.229154
+goto phidx modep 1
+end makrwf rseq l= 1 2 -0.229154
+goto phidx modep 1
+ makrwf goto rseq l=           2           0
+ makrwf goto rseq l=           2           0
+end makrwf rseq l= 2 0 -0.105832
+goto phidx modep 1
+end makrwf rseq l= 2 0 -0.105832
+goto phidx modep 1
+ makrwf goto rseq l=           3           0
+ makrwf goto rseq l=           3           0
+end makrwf rseq l= 3 0 -0.165261
+goto phidx modep 1
+end makrwf rseq l= 3 0 -0.165261
+goto phidx modep 1
+  mkpot:
+   Energy terms:           smooth           local           total
+   rhoval*vef             -6.442168       -85.695409       -92.137577
    rhoval*ves            -30.496466       -45.915093       -76.411559
-   psnuc*ves              54.198868     -9995.808244     -9941.609376
-   utot                   11.851201     -5020.861668     -5009.010468
+   psnuc*ves              54.198866     -9995.808242     -9941.609376
+   utot                   11.851200     -5020.861667     -5009.010468
    rho*exc                -3.119708      -104.188865      -107.308573
-   rho*vxc                -4.061551      -137.932215      -141.993766
+   rho*vxc                -4.061550      -137.932215      -141.993766
    valence chg             3.782310         4.217690         8.000000
    valence mag            -0.454609        -1.760400        -2.215009
    core charge            18.000000        -0.000000        18.000000
+   Charges:  valence     8.00000   cores    18.00000   nucleii   -26.00000
+   hom background     0.00000   deviation from neutrality:     -0.00000
 
- Charges:  valence     8.00000   cores    18.00000   nucleii   -26.00000
-    hom background     0.00000   deviation from neutrality:     -0.00000
-  m_bandcal_init: start
+ m_bandcal_init: start
  bndfp: kpt     1 of    32 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    25   25    0
  bndfp: kpt     2 of    32 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    25   25    0
  bndfp: kpt     3 of    32 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    25   25    0
@@ -219,26 +402,125 @@ smooth isp rhoeps rhomu vxcavg= 2 -1.729931 -2.301804 -0.874779
  bndfp: kpt     6 of    32 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    25   25    0
  bndfp: kpt     7 of    32 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
  bndfp: kpt     8 of    32 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
- ... Done MPI k-loop: elapsed time=   0.1746
+ ... Done MPI k-loop: elapsed time=   0.2521
 
- BZWTS : --- Tetrahedron Integration ---
+ bzwts: --- Tetrahedron Integration ---
  spin weights not available ... no spin moment calculated
  spin weights not available ... no spin moment calculated
  spin weights not available ... no spin moment calculated
  BZINTS: Fermi energy:      0.043044;   8.000000 electrons
          Sum occ. bands:   -1.048846, incl. Bloechl correction: -0.005986
  spin weights not available ... no spin moment calculated
-Generating TDOS: efermi, and dos window=    0.0430  -0.5343   2.9830
-  mmmmm m_bandcal_2nd
+ bndfp:Generating TDOS: efermi, and dos window=    0.0430  -0.5343   2.9830
 
- IORBTM:  orbital moments :
+
+ m_bandcal_2nd: to fill eigenfunctions**2 up to Efermi
+  Smooth density not symmetrized (ngrp=1)
+  Smooth density not symmetrized (ngrp=1)
+  Smooth density not symmetrized (ngrp=1)
+
+IORBTM:  orbital moments :
  ibas  Spec        spin   Moment decomposed by l ...
     1    Fe           1    0.000000   -0.001597   -0.063405    0.000262
     1    Fe           2    0.000000    0.002140    0.037737    0.000003
  total orbital moment   1:   -0.024860
-
- Smooth density not symmetrized (ngrp=1)
-
+  Smooth density not symmetrized (ngrp=1)
+ makrwf goto rseq l=           0           3
+ makrwf goto rseq l=           0           3
+ makrwf goto rseq l=           0           3
+end makrwf rseq l= 0 3 -0.308250
+goto phidx modep 1
+end makrwf rseq l= 0 3 -0.308250
+goto phidx modep 1
+ makrwf goto rseq l=           0           3
+end makrwf rseq l= 0 3 -0.308250
+goto phidx modep 1
+end makrwf rseq l= 0 3 -0.308250
+goto phidx modep 1
+ makrwf goto rseq l=           1           2
+ makrwf goto rseq l=           1           2
+end makrwf rseq l= 1 2 -0.150522
+goto phidx modep 1
+ makrwf goto rseq l=           1           2
+ makrwf goto rseq l=           1           2
+end makrwf rseq l= 1 2 -0.150522
+goto phidx modep 1
+end makrwf rseq l= 1 2 -0.150522
+goto phidx modep 1
+end makrwf rseq l= 1 2 -0.150522
+goto phidx modep 1
+ makrwf goto rseq l=           2           0
+ makrwf goto rseq l=           2           0
+ makrwf goto rseq l=           2           0
+end makrwf rseq l= 2 0 -0.073667
+goto phidx modep 1
+end makrwf rseq l= 2 0 -0.073667
+goto phidx modep 1
+ makrwf goto rseq l=           2           0
+end makrwf rseq l= 2 0 -0.073667
+goto phidx modep 1
+ makrwf goto rseq l=           3           0
+ makrwf goto rseq l=           3           0
+end makrwf rseq l= 2 0 -0.073667
+goto phidx modep 1
+ makrwf goto rseq l=           3           0
+end makrwf rseq l= 3 0 -0.117069
+goto phidx modep 1
+end makrwf rseq l= 3 0 -0.117069
+goto phidx modep 1
+end makrwf rseq l= 3 0 -0.117069
+goto phidx modep 1
+ makrwf goto rseq l=           3           0
+ makrwf goto rseq l=           0           3
+ makrwf goto rseq l=           0           3
+ makrwf goto rseq l=           0           3
+end makrwf rseq l= 0 3 -0.372863
+goto phidx modep 1
+end makrwf rseq l= 3 0 -0.117069
+goto phidx modep 1
+end makrwf rseq l= 0 3 -0.372863
+goto phidx modep 1
+end makrwf rseq l= 0 3 -0.372863
+goto phidx modep 1
+ makrwf goto rseq l=           1           2
+ makrwf goto rseq l=           1           2
+ makrwf goto rseq l=           1           2
+ makrwf goto rseq l=           0           3
+end makrwf rseq l= 1 2 -0.229154
+goto phidx modep 1
+end makrwf rseq l= 1 2 -0.229154
+goto phidx modep 1
+end makrwf rseq l= 1 2 -0.229154
+goto phidx modep 1
+end makrwf rseq l= 0 3 -0.372863
+goto phidx modep 1
+ makrwf goto rseq l=           2           0
+ makrwf goto rseq l=           2           0
+ makrwf goto rseq l=           2           0
+end makrwf rseq l= 2 0 -0.105832
+goto phidx modep 1
+ makrwf goto rseq l=           1           2
+end makrwf rseq l= 2 0 -0.105832
+goto phidx modep 1
+end makrwf rseq l= 2 0 -0.105832
+goto phidx modep 1
+ makrwf goto rseq l=           3           0
+end makrwf rseq l= 1 2 -0.229154
+goto phidx modep 1
+ makrwf goto rseq l=           3           0
+ makrwf goto rseq l=           3           0
+end makrwf rseq l= 3 0 -0.165261
+goto phidx modep 1
+end makrwf rseq l= 3 0 -0.165261
+goto phidx modep 1
+end makrwf rseq l= 3 0 -0.165261
+goto phidx modep 1
+ makrwf goto rseq l=           2           0
+end makrwf rseq l= 2 0 -0.105832
+goto phidx modep 1
+ makrwf goto rseq l=           3           0
+end makrwf rseq l= 3 0 -0.165261
+goto phidx modep 1
        contr. to mm extrapolated for r>rmt:  -0.001820 est. true mm =-2.260350
 
  mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
@@ -246,75 +528,78 @@ Generating TDOS: efermi, and dos window=    0.0430  -0.5343   2.9830
   Symmetrize density..
  Make new boundary conditions for phi,phidot..
 
- Harris energy:
- sumev=       -1.048846  val*vef=     -92.137577   sumtv=      91.088731
- sumec=        0.000000  cor*vef=       0.000000   ttcor=    2484.196936
- rhoeps=    -107.308573     utot=   -5009.010468    ehar=   -2541.033374
+ m_mkehkf_etot1: Harris energy: (B.1) in JPSJ84,034702
+ Eb(band sum)=       -1.048846 Vin*nin=     -92.137577 Ek=Eb-Vin*nin=      91.088731
+ Ek(core)=    2484.196936 Exc=    -107.308573 Ees=   -5009.010468 Eharris=   -2541.033374
 
- srhov:     -5.022942    -84.664216    -89.687158 sumev=   -1.048846   sumtv=   88.638312
- esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
- smves:: avg es pot at rmt= 0.650488  avg sphere pot=-0.635847  vconst=-0.650488
+ mkekin:
+   nout*Vin = smpart,onsite,total=:     -5.022942    -84.664217    -89.687159
+    E_B(band energy sum)=   -1.048846  E_B-nout*Vin=   88.638312
 
- smooth rhoves     11.783168   charge     3.589299
- smvxcm: all smrho_w is positive
-smooth isp rhoeps rhomu vxcavg= 1 -1.336189 -1.706900 -0.842304
-smooth isp rhoeps rhomu vxcavg= 2 -1.557216 -2.058576 -0.865398
-
- locpot:
-
- site  1  z= 26.0  rmt= 2.32497  nr=321   a=0.030  nlml=16  rg=0.581  Vfloat=F
- sm core charge=  0.687311 =(sphere)+(spillout)=  0.014701  0.702013
-  ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   4.59423   4.59547   0.00000   0.00000
-  ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   4.34902   4.34614   0.00000   0.00000
-  ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.73812   3.86786   0.00000   0.00000
-  ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.12806   4.12779   0.00000   0.00000
-
- Energy terms:             smooth           local           total
-   rhoval*vef             -5.071662       -85.407836       -90.479499
-   rhoval*ves            -30.654743       -44.342987       -74.997731
+ m_mkpot_energyterms
+  esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
+  smves: avg es pot at rmt= 0.650488  avg sphere pot=-0.635847  vconst=-0.650488
+   smooth rhoves     11.783168   charge     3.589299
+  smvxcm: all smrho_w is positive
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -1.336189 -1.706900 -0.842304
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -1.557216 -2.058576 -0.865398
+  locpot:
+   site  1  z= 26.0  rmt= 2.32497  nr=321   a=0.030  nlml=16  rg=0.581  Vfloat=F
+    sm core charge in MT=  0.687311 =total-spillout=  0.702013 -  0.014701
+ ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   4.59423   4.59547   0.00000   0.00000
+ ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   4.34902   4.34614   0.00000   0.00000
+ ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.73812   3.86786   0.00000   0.00000
+ ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.12806   4.12779   0.00000   0.00000
+  mkpot:
+   Energy terms:           smooth           local           total
+   rhoval*vef             -5.071663       -85.407836       -90.479499
+   rhoval*ves            -30.654743       -44.342988       -74.997731
    psnuc*ves              54.221079     -9992.815725     -9938.594646
-   utot                   11.783168     -5018.579356     -5006.796188
+   utot                   11.783168     -5018.579357     -5006.796189
    rho*exc                -2.893406      -104.169717      -107.063122
    rho*vxc                -3.765476      -137.903351      -141.668827
    valence chg             3.589299         4.410701         8.000000
    valence mag            -0.306239        -1.923827        -2.230065
    core charge            18.000000        -0.000000        18.000000
+   Charges:  valence     8.00000   cores    18.00000   nucleii   -26.00000
+   hom background     0.00000   deviation from neutrality:      0.00000
 
- Charges:  valence     8.00000   cores    18.00000   nucleii   -26.00000
-    hom background     0.00000   deviation from neutrality:      0.00000
-
- Kohn-Sham energy:
- sumtv=       88.638312  sumtc=      2484.196936   ekin=     2572.835249
- rhoep=     -107.063122   utot=     -5006.796188   ehks=    -2541.024062
- mag. mom=    -2.230065
+ m_mkehkf_etot2: Kohn-Sham energy:  Ek = Eband-Vin*nout
+ Ek=       88.638312 Ekcore=      2484.196936 Ektot    =     2572.835249
+ Exc=    -107.063122 Ees   =     -5006.796189 EKohnSham=    -2541.024062
+ Magnetic moment=    -2.230065
   
- mixing: mode=A  nmix=6  beta=.5  kill=3
+ mixrho: mixing mode=A  nmix=6  beta=.5  kill=3
  mixrealsmooth= T
- wgtsmooth=   1.5625000000000000E-002
- mixrho:  sought 6 iter from file mixm; read 1.  RMS DQ=6.78e-3
- AMIX: nmix=1 mmix=8  nelts= 10052  beta=0.50000  tm= 5.00000  rmsdel= 3.39D-03
+ wgtsmooth=   1.3094570021973102E-002
+ mixrho:  sought 6 iter from file mixm; read 1.  RMS DQ=5.85e-3
+ AMIX: nmix=1 mmix=8  nelts= 13524  beta=0.50000  tm= 5.00000  rmsdel= 2.92D-03
    tj:-0.22506
- mixrho: add corrections to qcell smrho = -0.19803D-07 -0.12414D-09
+ mixrho: add corrections to qcell smrho = -0.19803D-07 -0.12413D-09
 
  iors  : write rst restart file (binary mesh density)
 
    it  1  of  1    ehf=   -2541.033374   ehk=   -2541.024062
-x rel= 1 nit= 1 so= 1 mmom=-2.230065 ehf(eV)=-34572.791879 ehk(eV)=-34572.665186 sev(eV)=-14.270390
- >>      0.42   exit  lmfp            0.37
-CPU time:    0.422s     Sun Jun 19 18:37:51 2022   on process=0
+x rel= 1 nit= 1 so= 1 mmom=-2.230065 ehf(eV)=-34572.791880 ehk(eV)=-34572.665186 sev(eV)=-14.270393
+ finalizing procid=           3
+ finalizing procid=           2
+ finalizing procid=           1
+ >>      0.55   exit  lmfp            0.50
+CPU time:    0.551s     Sat Oct 15 09:09:27 2022   on process=0
+ finalizing procid=           0
 
   ==== procid=0 ====     calls      == cpu time ===   depth 1
   entry   xxxx  xxxx                per call  total  (depth is by TIM= in ctrl.*.)
-      0      0      0        1       0.42       0.42   main
+      0      0      0        1       0.55       0.55   main
       0      0      0        1       0.03       0.03   |--m_lmfinit
       0      0      0        1       0.00       0.00   |--m_lattic_init
       0      0      0        1       0.00       0.00   |--m_mksym_init
       0      0      0        1       0.00       0.00   |--m_mkqp_init
-      0      0      0        1       0.01       0.01   |--m_supot_init
+      0      0      0        1       0.02       0.02   |--m_supot_init
       0      0      0        1       0.00       0.00   |--m_suham_init
       0      0      0        1       0.00       0.00   |--m_qplist_init
       0      0      0        1       0.00       0.00   |--m_qplist_qpsdivider
       0      0      0        1       0.00       0.00   |--m_igv2xall_init
       0      0      0        1       0.00       0.00   |--m_hamindex_init
-      0      0      0        1       0.37       0.37   `--lmfp
+      0      0      0        1       0.50       0.50   `--lmfp
 Exit 0 procid= 0 OK! end of LMF ======================

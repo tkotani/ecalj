@@ -119,7 +119,7 @@ contains
     endif
     do  10  igen = 1, ngen
        call grpprd(gen(1,igen),plat,platt)
-       if ( .NOT. latvec(3,1d-5,qlat,platt)) &
+       if ( .NOT. latvec(3,toll,qlat,platt)) &
             call fexit(-1,111,' Exit -1 GENSYM: '// &
             'generator %i imcompatible with underlying lattice',igen)
 10  enddo
@@ -366,7 +366,7 @@ contains
           enddo
        enddo
        rfrac = matmul(d,qb)
-       if(sum(abs(rfrac-nint(rfrac)))< 1d-4) then
+       if(sum(abs(rfrac-nint(rfrac)))< toll) then
           ja = ka
           return
        endif
@@ -831,7 +831,7 @@ contains
              call csymop(-1,mat,.false.,nrot(m),vecg)
              call grpprd(mat,platcp,platt)
              !       ... Add it and i*symop, if allowed
-             if (latvec(3,1d-5,qlatcp,platt)) then
+             if (latvec(3,toll,qlatcp,platt)) then
                 call csymop(-1,grp(1,ngrp+1),.false.,nrot(m),vecg)
                 call csymop(-1,grp(1,ngrp+2),.true. ,nrot(m),vecg)
                 ngrp = ngrp+2
@@ -906,24 +906,17 @@ contains
     ng0 = ng
     ng = 0
     do  30  ig = 1, ng0
-       !   ... Rotate the basis by g
-       bast= matmul(g(:,:,ig),bas)
+       bast= matmul(g(:,:,ig),bas)!   ... Rotate the basis by g
        do  20  nj = 1, nrclas(icmin)
           jbas = iclbsj(icmin,ipc,nbas,nj)
-          !     ... This is a candidate for translation ag
-          do  22  m = 1, 3
-             ag(m,ng+1) = bas(m,jbas)-bast(m,ibas)
-22        enddo
-          !          call shorbz(ag(1,ng+1),ag(1,ng+1),plat,qlat)
+          ag(:,ng+1) = bas(:,jbas)-bast(:,ibas) ! This is a candidate for translation ag
           rfrac = matmul(ag(:,ng+1)-epsr,qlat)
           ag(:,ng+1) = matmul(plat,rfrac -nint(rfrac)+epsr)
           do  10  kbas = 1, nbas
              kc = ipc(kbas)
              do  12  nm = 1, nrclas(kc)
                 mbas = iclbsj(kc,ipc,nbas,nm)
-                do  14  m = 1,3
-                   dbas(m) = bas(m,mbas)-bast(m,kbas)-ag(m,ng+1)
-14              enddo
+                dbas(:) = bas(:,mbas)-bast(:,kbas)-ag(:,ng+1)
                 if (latvec(1,tol1,qlat,dbas)) then
                    istab(kbas,ng+1) = mbas
                    goto 10
@@ -1400,7 +1393,7 @@ contains
     double precision :: c,ca,dc
     spgeql=.true.
     do 10 m=1,9
-       if (dabs(g1(m)-g2(m)) > 1.d-5) then
+       if (dabs(g1(m)-g2(m)) > toll) then
           spgeql=.false.
           return
        endif
@@ -1411,7 +1404,7 @@ contains
        ca=dabs(c)
        iac=ca+0.5d0
        dc=ca-iac
-       if (dabs(dc) > 1.d-5) then
+       if (dabs(dc) > toll) then
           spgeql=.false.
           return
        endif

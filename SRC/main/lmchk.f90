@@ -43,11 +43,8 @@ program lmchk
      call Setprint(k)
   endif
   if( .NOT. master_mpi) call setprint(-100) !iprint() is negative except master
-  print *,'ggggggggggggg goto m_lattic_init'
   call m_lattic_init() ! lattice setup (for ewald sum)
-  print *,'ggggggggggggg goto m_mksym_init'
   call m_mksym_init(prgnam) ! symmetry go into m_lattic and m_mksym
-  print *,'ggggggggggggg goto lmaux'
   call Lmaux()      !check crystal structure
   call m_MPItk_finalize()
   if(master_mpi) write(6,"(a)") "OK! end of "//trim(prgnam)//" ======================"
