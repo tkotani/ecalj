@@ -1,0 +1,74 @@
+* This is to take file from Material project and perform LDA level calculations.
+All the procedure in in job file. But MPqueryAll is time consuming.
+So It may be bette to run things step by step.
+In addition, you have to improve/modify/customize MPqueryAll and so on 
+for your calculations. 
+
+** Step 1.
+>MPqueryALL
+Get data from mateirial project. 
+All POSCAR is is POSCARALL/
+We get two files 
+ list.job_mp.no4f
+ list.job_mp.4f
+in our current setting.
+Look into MPqueryAll. 
+GetPOSCAR=.false. reduces execution time.
+
+** Step 2.
+>SelelctDivideList list.job_mp.no4f
+>SelelctDivideList list.job_mp.4f
+This select and divide list.job_mp.* files into smaller files like 
+ list.job_mp.no4f.1
+ list.job_mp.no4f.2
+ list.job_mp.no4f.3
+ list.job_mp.no4f.4
+ list.job_mp.no4f.5
+ list.job_mp.no4f.6
+ list.job_mp.no4f.7
+ list.job_mp.no4f.8
+ list.job_mp.no4f.9
+ list.job_mp.no4f.10
+We now select only PBE bandgap>0. Look into SelectDivideList.
+ndiv in SelectDivdeList is the number of division of files.
+
+The number of lines, shown by 'wc list.job_mp.no4f.1', gives how many cases we calculate.
+The list contains mp number (first column).
+
+** Step 3.
+>joballqsub
+This generates jobx.list.job_mp.no4f.1, and so on. Then qsub one by one.
+(you can set number of cores in jobtemplate)
+
+To monitor current status  
+>wc log.list.job_mp.no*|grep -v out |grep -v finished
+ 
+log.list.job_mp.no4f.1 contains one line per one mpid. 
+(c is the sign of congvergence. If fails in cases, it shows x,i, or ERROR).
+list.job_mp.no4f.1.out show detailed log.
+
+** NOTE1
+Now(2022-10-15), no problem to perform no4f case.
+T.Kotani is trying to fix problematic cases of 4f.
+We need to check agreement of current results with 
+old results because of our new automatic setting.
+
+** NOTE2
+Additional Memo. Further Example for test
+>job_mp 148 149 150 |& tee out |grep OK 
+
+This performs 
+1. Get POSCAR of mp-148 from Material project
+2. Convert POSCAR to ctrl file
+3. lmfa and lmf-MPIK
+4. getsyml to get syml.* file
+5. job_band 
+6. job_tdos.
+7. job_pdos
+Finally, we have 
+mp-148/
+mp-149/
+mp-150/
+In these directories, we have LDA results.
+*.eps contains dos and band plot.
+Check save.* files for convergence.
