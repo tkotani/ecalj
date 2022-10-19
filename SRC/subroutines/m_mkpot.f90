@@ -208,8 +208,8 @@ contains
 
     ! xxx   rvepsm:int rhosm * exc(rhosm+smcor1) where smcor1 is portion
     ! xxx         :of smooth core density treated nonperturbatively.
-    ! Cl   rvepsv:integral of valence density times exc(valence density) !removed now
-    ! Cl   rvvxcv:integral of valence density times vxc(valence density) !removed now
+    ! !Cl   rvepsv:integral of valence density times exc(valence density) !removed now
+    ! !Cl   rvvxcv:integral of valence density times vxc(valence density) !removed now
     !l   rhvsm :integral n0~ phi0~
     !l   sgp0  :compensating gaussians * sm-Ves = int (n0~-n0) phi0~
     !l   valfsm:rhvsm - sgp0 + rvmusm + fcvxc0 = n0 (phi0~ + Vxc(n0))
@@ -277,10 +277,10 @@ contains
     double precision :: dq,cpnvsa, & 
          qsmc,smq,smag,sum2,rhoex,rhoec,rhvsm,sgp0, &
          sqloc,sqlocc,saloc,uat,usm,valfsm,valftr, &
-         rvepva,rvexva,rvecva,rvvxva,rvepsa,rvvxca,valvfa,vvesat, &
-         vol,vsum,zsum,zvnsm,rvepsv(nsp),rvexv(nsp),rvecv(nsp), &
-         rvvxcv(nsp),rveps(nsp),rvvxc(nsp),  &
-         rvmusm(nsp),rvepsm(nsp),rmusm(nsp), &
+         valvfa,vvesat, & !rvepva,rvexva,rvecva,rvvxva,rvepsa,rvvxca,
+         vol,vsum,zsum,zvnsm, & !rvepsv(nsp),rvexv(nsp),rvecv(nsp), &
+         rvvxcv(nsp),rvvxc(nsp),  & !,rveps(nsp)
+         rvmusm(nsp),rmusm(nsp), rvepsm(nsp), &
          vxcavg(nsp),repat(nsp),repatx(nsp),repatc(nsp), & !,fcvxca(nsp),fcvxc0(nsp)
          rmuat(nsp),repsm(nsp),repsmx(nsp),repsmc(nsp),rhobg
     equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
@@ -388,24 +388,21 @@ contains
     ! --- Make local potential at atomic sites and augmentation matrices ---
     rhobg=qbg/vol
     call locpot(orhoat,qmom,vval,gpot0,job,rhobg,nlibu,lmaxu,vorb,lldau,novxc, & !,idipole )
-         osig,otau, oppi,ohsozz,ohsopm, ppnl_rv,&
-         hab_rv,vab_rv,sab_rv,vvesat,cpnvsa,repat,&
-         repatx,repatc,rmuat,rvepva,rvexva,rvecva,rvvxva,&
-         rvepsa,rvvxca,valvfa,xcore, &!, fcexca,fcexa,fceca ,&! fcvxca &
-         sqloc,sqlocc,saloc,qval,qsc )
+         osig,otau, oppi,ohsozz,ohsopm, ppnl_rv,hab_rv,vab_rv,sab_rv,  &
+         vvesat,cpnvsa, repat,repatx,repatc,rmuat, valvfa,xcore, sqloc,sqlocc,saloc,qval,qsc )
     if(cmdopt0('--density') .AND. master_mpi .AND. secondcall) return
     ! ... Integral of valence density times estatic potential
-    valves = rhvsm + vvesat !    ! ... Valence density times Vestatic
+    valves = rhvsm + vvesat ! ... Valence density times Vestatic
     ! *Associate term (n0~-n0) Ves(n0~) with local part because of the ppi matrix elements
     ! *Also add fcvxc0(1) to smooth part because rvmusm+fcvxc0 is perturbative approximation for rvmusm
     !  when cores are not treated perturbatively.
-    valfsm = rhvsm + sum(rvmusm) - sgp0 - vconst*qbg
-    valftr = valvfa + sgp0
+    valfsm = rhvsm + sum(rvmusm) - sgp0 - vconst*qbg !rho*Ves +rho*Vxc - Qmom*Ves -vconst*qbg
+    valftr = valvfa + sgp0    ! atomic rho*veff + Qmom*Ves
     valvef = valfsm + valftr
     cpnves = zvnsm + cpnvsa! ... Integral of core+nucleus times Ves(estatic potential)
     rhoexc = sum(repsm) + sum(repat) ! Exc=\int rho*exc 
     rhoex  = sum(repsmx)+ sum(repatx)! Ex 
-    rhoec  = sum(repsmc)+ sum(repatc)! Ec 
+    rhoec  = sum(repsmc)+ sum(repatc)! Ec
     rhovxc = sum(rmusm) + sum(rmuat) ! \int rho*Vxc
     usm = 0.5d0*(rhvsm+zvnsm)
     uat = 0.5d0*(vvesat+cpnvsa)
@@ -414,7 +411,7 @@ contains
     amom = smag+saloc !magnetic moment
     if (ipr >= 30) then
        write (stdo,"('  mkpot:',/'   Energy terms:',11x,'smooth',11x,'local',11x,'total')")
-       write (stdo,680) 'rhoval*vef ',valfsm,valftr,valvef, &
+       write (stdo,680) 'rhoval*veff ',valfsm,valftr,valvef, & !\int rho Veff
             'rhoval*ves ',rhvsm,vvesat,valves, & !\int rho Ves
             'psnuc*ves  ',zvnsm,cpnvsa,cpnves, & !\int rho(Z+core) Ves
             'utot       ',usm,uat,utot, & !total electrostatic energy

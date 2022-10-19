@@ -7,10 +7,8 @@ module m_locpot
 contains
   !- Make the potential at the atomic sites and augmentation matrices.
   subroutine locpot(sv_p_orhoat,qmom,vval,gpot0,job,rhobg,nlibu,lmaxu,vorb,lldau,novxc, &!,idipole 
-       sv_p_osig , sv_p_otau, sv_p_oppi, ohsozz,ohsopm, ppnl, hab , vab , sab , &
-       vvesat , cpnvsa , rhoexc, &
-       rhoex , rhoec , rhovxc , rvepsv , rvexv , rvecv , rvvxcv , &
-       rveps , rvvxc , valvef , xcore , sqloc , sqlocc , saloc , qval , qsc )
+       sv_p_osig , sv_p_otau, sv_p_oppi, ohsozz,ohsopm, ppnl, hab, vab, sab, & !!rvexv,rvecv,rvvxcv , rvvxc , &
+       vvesat,cpnvsa, rhoexc,rhoex,rhoec,rhovxc, valvef, xcore, sqloc,sqlocc,saloc, qval,qsc )
     use m_lmfinit,only:nkaph,lxcf,lhh,nkapii,nkaphh
     use m_lmfinit,only:n0,nppn,nab,nrmx,nkap0,nlmx,nbas,nsp,lso,ispec, sspec=>v_sspec,mxcst4
     use m_lmfinit,only:slabl,idu,coreh,ham_frzwf,rsma,alat,v0fix
@@ -52,12 +50,12 @@ contains
     !o   rhoex :integral of density times exch. energy density
     !o   rhoec :integral of density times corr. energy density
     !o   rhovxc:integral of density times xc potential
-    !o   rvepsv:integral of valence density times exc(valence density)
-    !o   rvexv :integral of valence density times ex(valence density)
-    !o   rvecv :integral of valence density times ec(valence density)
-    !o   rvvxcv:integral of valence density times vxc(valence density)
-    !o   rveps :int rhov*exc(rhotot) (only made if 1000's digit job set)
-    !o   rvvxc :int rhov*vxc(rhotot) (only made if 1000's digit job set)
+    !!o   rvepsv:integral of valence density times exc(valence density)
+    !!o   rvexv :integral of valence density times ex(valence density)
+    !!o   rvecv :integral of valence density times ec(valence density)
+    !!o   rvvxcv:integral of valence density times vxc(valence density)
+    !!o   rveps :int rhov*exc(rhotot) (only made if 1000's digit job set)
+    !!o   rvvxc :int rhov*vxc(rhotot) (only made if 1000's digit job set)
     !o   valvef:integral (rho1*(v1-2Z/r) - rho2*vsm) ??
     !o   xcore :integral rhoc*(v1-2Z/r)
     !o   sqloc :total valence charge rho1-rho2 in sphere
@@ -116,7 +114,7 @@ contains
     real(8):: qmom(1) , vval(1)
     double precision :: cpnvsa,rhoexc(nsp),rhoex(nsp),rhoec(nsp),rhovxc(nsp), &
          qval,sqloc,sqlocc,saloc, & !,focvxc(nsp)focexc(nsp),focex(nsp),focec(nsp),
-         valvef,vvesat,rvepsv,rvexv,rvecv,rvvxcv,xcore,rveps,rvvxc, &
+         valvef,vvesat,xcore,& !rvvxc, & !,rveps rvepsv, ,rvexv,rvecv,rvvxcv
          hab(nab,n0,nsp,nbas),vab(nab,n0,nsp,nbas),sab(nab,n0,nsp,nbas), &
          gpot0(1),ppnl(nppn,n0,nsp,nbas),rhobg
     character spid*8
@@ -126,7 +124,7 @@ contains
     double precision :: rofi(nrmx),rwgt(nrmx), &
          gpotb(81),z,a,rmt,qc,ceh,rfoc, &
          qcorg,qcorh,qsc,cofg,cofh,qsca,rg,qv,cpnvs, &
-         qloc,qlocc,xcor, aloc,alocc,rvepvl,rvexl, rvecl,rvvxvl,rveptl,rvvxtl
+         qloc,qlocc,xcor, aloc,alocc!,rvexl, rvecl,rvvxvl,rvvxtl !,rvepvl,rveptl
     real(8),pointer:: pnu(:,:),pnz(:,:)
     ! ... for sm. Hankel tails
     double precision :: rs3,vmtz
@@ -151,12 +149,12 @@ contains
     xcore   = 0d0
     if(master_mpi) open(newunit=ifivesint,file='vesintloc',form='formatted',status='unknown')
     ibblock: block
-      real(8):: valvs(nbas),cpnvs(nbas),valvt(nbas),rvepvl(nbas),rvecl(nbas),rvexl(nbas)
-      real(8)::rvvxvl(nbas),rveptl(nbas),rvvxtl(nbas),qloc(nbas),aloc(nbas),qlocc(nbas),alocc(nbas)
+      real(8):: valvs(nbas),cpnvs(nbas),valvt(nbas)!,rvecl(nbas),rvexl(nbas) !rvepvl(nbas)
+      real(8)::qloc(nbas),aloc(nbas),qlocc(nbas),alocc(nbas) !,rveptl(nbas) !rvvxvl(nbas),rvvxtl(nbas),
       real(8):: rhexc(nsp,nbas),rhex(nsp,nbas),rhec(nsp,nbas),rhvxc(nsp,nbas)
       real(8):: xcor(nbas),qv(nbas),qsca(nbas)
-      valvs=0d0;cpnvs=0d0;valvt=0d0;rvepvl=0d0;rvecl=0d0;rvexl=0d0
-      rvvxvl=0d0;rveptl=0d0;rvvxtl=0d0;qloc=0d0;aloc=0d0;qlocc=0d0;alocc=0d0
+      valvs=0d0;cpnvs=0d0;valvt=0d0 !;rvecl=0d0;rvexl=0d0 rvvxvl=0d0;rvvxtl=0d0;
+      qloc=0d0;aloc=0d0;qlocc=0d0;alocc=0d0
       rhexc=0d0;rhex=0d0;rhec=0d0;rhvxc=0d0 ;xcor=0d0;qv=0d0;qsca=0d0
       iblu = 0
       j1 = 1
@@ -207,10 +205,9 @@ contains
               ,ceh,rfoc,lfoc,nlml,qmom ( j1 ),vval ( j1 ),rofi &
               ,rwgt,sv_p_orhoat( 1,ib )%v,sv_p_orhoat( 2,ib )%v,&
               sv_p_orhoat( 3,ib )%v,rhol1,rhol2,v1,v2,v1es,v2es, &
-              valvs(ib),cpnvs(ib),rhexc(:,ib),rhex(:,ib),rhec(:,ib),rhvxc(:,ib),rvepvl(ib),&
-              rvexl(ib),rvecl(ib),rvvxvl(ib),rveptl(ib),rvvxtl(ib), valvt(ib),xcor(ib) ,qloc(ib), &
-              qlocc(ib),aloc(ib),alocc(ib),gpotb,& 
-              rhobg,efg ( 1,ib ),ifivesint,lxcf) 
+              valvs(ib),cpnvs(ib),rhexc(:,ib),rhex(:,ib),rhec(:,ib),rhvxc(:,ib),&
+              valvt(ib),xcor(ib) ,qloc(ib),qlocc(ib),aloc(ib),alocc(ib),gpotb,& 
+              rhobg,efg(1,ib),ifivesint,lxcf) 
          !! write density 1st(true) component and counter components.
          if(cmdopt0('--density') .AND. master_mpi .AND. secondcall) then
             write(stdo,"(' TotalValenceChange diff in MT; ib,\int(rho2-rho1)=',i5,f13.5)") ib,qloc(ib)
@@ -350,12 +347,6 @@ contains
       vvesat = sum(valvs)
       cpnvsa = sum(cpnvs)
       valvef=  sum(valvt)
-      rvepsv = sum(rvepvl)
-      rvexv  = sum(rvexl)
-      rvecv  = sum(rvecl)
-      rvvxcv =  sum(rvvxvl)
-      rveps  =  sum(rveptl)
-      rvvxc  =  sum(rvvxtl)
       sqloc  =  sum(qloc)
       saloc  =  sum(aloc)
       if(kcor/=0) saloc = sum(aloc) + qcor(2)
@@ -376,8 +367,8 @@ contains
 
   subroutine locpt2(z,rmt,rg,a,nr,nsp,cofg,cofh,ceh,rfoc,lfoc, &
        nlml,qmom,vval,rofi,rwgt,rho1,rho2,rhoc,rhol1,rhol2,v1,v2,v1es, &
-       v2es,vvesat,cpnves,rhoexc,rhoex,rhoec,rhovxc,rvepsv, & 
-       rvexv,rvecv,rvvxcv,rveps,rvvxc,valvef,xcore,qloc, &
+       v2es,vvesat,cpnves,rhoexc,rhoex,rhoec,rhovxc,& !rvepsv, & 
+       valvef,xcore,qloc, & !rveps, rvexv,rvecv,rvvxcv,rvvxc,
        qlocc,aloc,alocc,gpotb,rhobg,efg,ifivesint,lxcfun) !,focvxc,focexc,focex,focec
     use m_hansr,only:hansmr
     use m_ftox
@@ -423,10 +414,6 @@ contains
     !o   rhoex :integral of valence density times exch. energy density
     !o   rhoec :integral of valence density times corr. energy density
     !o   rhovxc:integral of valence density times xc potential
-    !o   rvepsv:integral of valence density exc(valence density)
-    !o   rvexv :integral of valence density ex(valence density)
-    !o   rvecv :integral of valence density ec(valence density)
-    !o   rvvxcv:integral of valence density vxc(valence density)
     !o   valvef:integral valence density times full potential:
     !o         :used to compute double-counting for kinetic energy.
     !o         : = vefv1 - vefv2; defined in Local variables below
@@ -486,15 +473,12 @@ contains
     !u   12 Aug 04 First implementation of extended local orbitals
     !u   19 Sep 02 added uniform bkg potential interactions (WRL)
     !u    8 Feb 02 rhoex and rhoec (T. Miyake)
-    !u   14 Jan 02 rvexv and rvecv (T. Miyake)
-    !u   15 Aug 01 Generates rvepsv and rvvxcv
     ! ----------------------------------------------------------------------
     implicit none
     integer :: nr,nsp,lfoc,nlml
     double precision :: z,rmt,rg,a,cofg,cofh,ceh,rfoc,xcore,qloc,qlocc, &
-         aloc,alocc,rhoexc(nsp),rhoex(nsp),rhoec(nsp),rhovxc(nsp), &!focexc(nsp), &
-         valvef,vvesat, & !,focvxc(nsp)focex(nsp),focec(nsp),
-         cpnves,rvepsv,rvexv,rvecv,rvvxcv,rveps,rvvxc,rhobg
+         aloc,alocc,rhoexc(nsp),rhoex(nsp),rhoec(nsp),rhovxc(nsp), &
+         valvef,vvesat, cpnves,rhobg
     real(8):: rofi(nr),rwgt(nr), &
          qmom(nlml),vval(nlml),gpotb(nlml), &
          rho1(nr,nlml,nsp),rhol1(nr,nlml,nsp), &
@@ -521,8 +505,6 @@ contains
     call tcn('locpt2')
     call stdfac(20,df)
     ipr = iprint()
-    rveps = 0d0
-    rvvxc = 0d0
     alocc = 0d0
     b = rmt/(dexp(a*nr-a)-1)
     ag = 1d0/rg
@@ -644,10 +626,6 @@ contains
     call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho1,lxcfun,rep1,rep1x,rep1c,rmu1,v1,fl,qs)
     if(debug) write(6,'(a)')' === rho2 valence counter density ==='
     call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,rep2,rep2x,rep2c,rmu2,v1,fl,qs)
-    rvvxcv = sum(rmu1) - sum(rmu2)
-    rvepsv = sum(rep1) - sum(rep2)
-    rvexv  = sum(rep1x)- sum(rep2x)
-    rvecv  = sum(rep1c)- sum(rep2c)
     v1=v1es 
     call poppr
     ! --- Add xc potentials to v1 and v2 ---
@@ -827,7 +805,6 @@ contains
           !    +         /,12X,3F12.6)
           ! 97  format(/' eta = ',F12.4/)
           ! 96  format(/' eta = ',F12.4,' line splitting = ',F12.4,' mm/s'/)
-
           do  i = 1, 3
              if(i == 1) then
                 write(ifi,'(i4,3x,3f6.3,2x,f8.2,2x,f8.2,5x,f6.3,5x,f8.5)') &
