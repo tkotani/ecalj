@@ -7,16 +7,16 @@ module m_locpot
 contains
   !- Make the potential at the atomic sites and augmentation matrices.
   subroutine locpot(sv_p_orhoat,qmom,vval,gpot0,job,rhobg,nlibu,lmaxu,vorb,lldau,novxc, &!,idipole 
-       sv_p_osig , sv_p_otau, sv_p_oppi, ohsozz,ohsopm, ppnl, hab, vab, sab, & !!rvexv,rvecv,rvvxcv , rvvxc , &
+       sv_p_osig , sv_p_otau, sv_p_oppi, ohsozz,ohsopm, ppnl, hab, vab, sab, & 
        vvesat,cpnvsa, rhoexc,rhoex,rhoec,rhovxc, valvef, xcore, sqloc,sqlocc,saloc, qval,qsc )
+    use m_density,only: v0pot,v1pot   !output
+    use m_density,only: pnzall,pnuall !output
     use m_lmfinit,only:nkaph,lxcf,lhh,nkapii,nkaphh
     use m_lmfinit,only:n0,nppn,nab,nrmx,nkap0,nlmx,nbas,nsp,lso,ispec, sspec=>v_sspec,mxcst4
     use m_lmfinit,only:slabl,idu,coreh,ham_frzwf,rsma,alat,v0fix
     use m_uspecb,only:uspecb
     use m_ftox
     use m_struc_def
-    use m_density,only: v0pot,v1pot   !output
-    use m_density,only: pnzall,pnuall !output
     use m_augmat,only: augmat
     use m_hansr,only:corprm
     implicit none
@@ -103,7 +103,7 @@ contains
     !u    1 May 00 Adapted from nfp locpot.f
     !u   17 Jun 98 Adapted from DLN to run parallel on SGI
     ! ----------------------------------------------------------------------
-    integer::  job , i_copy_size,ibx,ir,isp,l,lm !lcplxp,
+    integer::  job,ibx,ir,isp,l,lm
     type(s_rv1) :: sv_p_orhoat(3,nbas)
     type(s_cv1) :: sv_p_oppi(3,nbas)
     type(s_sblock):: ohsozz(3,nbas),ohsopm(3,nbas)
@@ -149,11 +149,11 @@ contains
     xcore   = 0d0
     if(master_mpi) open(newunit=ifivesint,file='vesintloc',form='formatted',status='unknown')
     ibblock: block
-      real(8):: valvs(nbas),cpnvs(nbas),valvt(nbas)!,rvecl(nbas),rvexl(nbas) !rvepvl(nbas)
-      real(8)::qloc(nbas),aloc(nbas),qlocc(nbas),alocc(nbas) !,rveptl(nbas) !rvvxvl(nbas),rvvxtl(nbas),
+      real(8):: valvs(nbas),cpnvs(nbas),valvt(nbas)
+      real(8)::qloc(nbas),aloc(nbas),qlocc(nbas),alocc(nbas) 
       real(8):: rhexc(nsp,nbas),rhex(nsp,nbas),rhec(nsp,nbas),rhvxc(nsp,nbas)
       real(8):: xcor(nbas),qv(nbas),qsca(nbas)
-      valvs=0d0;cpnvs=0d0;valvt=0d0 !;rvecl=0d0;rvexl=0d0 rvvxvl=0d0;rvvxtl=0d0;
+      valvs=0d0;cpnvs=0d0;valvt=0d0 
       qloc=0d0;aloc=0d0;qlocc=0d0;alocc=0d0
       rhexc=0d0;rhex=0d0;rhec=0d0;rhvxc=0d0 ;xcor=0d0;qv=0d0;qsca=0d0
       iblu = 0
@@ -367,9 +367,8 @@ contains
 
   subroutine locpt2(z,rmt,rg,a,nr,nsp,cofg,cofh,ceh,rfoc,lfoc, &
        nlml,qmom,vval,rofi,rwgt,rho1,rho2,rhoc,rhol1,rhol2,v1,v2,v1es, &
-       v2es,vvesat,cpnves,rhoexc,rhoex,rhoec,rhovxc,& !rvepsv, & 
-       valvef,xcore,qloc, & !rveps, rvexv,rvecv,rvvxcv,rvvxc,
-       qlocc,aloc,alocc,gpotb,rhobg,efg,ifivesint,lxcfun) !,focvxc,focexc,focex,focec
+       v2es,vvesat,cpnves,rhoexc,rhoex,rhoec,rhovxc, valvef,xcore,qloc, & 
+       qlocc,aloc,alocc,gpotb,rhobg,efg,ifivesint,lxcfun) 
     use m_hansr,only:hansmr
     use m_ftox
     !- Makes the potential at one site, and associated energy terms.
@@ -544,8 +543,7 @@ contains
        enddo
        rhol2(:,1,isp) = rhol2(:,1,isp) + y0/nsp*(rhocsm(:)+rhonsm(:))
     enddo
-    ! ... amom
-    if(nsp==2) then
+    if(nsp==2) then !magnetic moments 
        a1    = srfpi*ddot(nr,rwgt,1,rho1(:,1,1)-rho1(:,1,2),1)
        a2    = srfpi*ddot(nr,rwgt,1,rho2(:,1,1)-rho2(:,1,2),1)
        aloc  = a1-a2
@@ -554,7 +552,6 @@ contains
        aloc=0d0
        alocc=0d0
     endif
-
     rhototal: block
       real(8):: ddot,rho1t(nr,nlml),rhol1t(nr,nlml), rho2t(nr,nlml),rhol2t(nr,nlml),rhoct(nr)
       rho1t =sum(rho1(:,:,1:nsp),dim=3) !spin sum total density
@@ -562,11 +559,9 @@ contains
       rhol1t=sum(rhol1(:,:,1:nsp),dim=3)
       rhol2t=sum(rhol2(:,:,1:nsp),dim=3)
       rhoct =sum(rhoc(:,1:nsp),dim=2)
-      ! ... Add background density to spherical rhol1 and rhol2
-      rhol1t(:,1)=rhol1t(:,1)+srfpi*rhobg*rofi(:)**2
+      rhol1t(:,1)=rhol1t(:,1)+srfpi*rhobg*rofi(:)**2 ! ... Add background density to spherical rhol1 and rhol2
       rhol2t(:,1)=rhol2t(:,1)+srfpi*rhobg*rofi(:)**2
-      ! ... Sphere charges; also check sphere neutrality for safety
-      qv1   = srfpi*ddot(nr,rwgt,1,rho1t,1)
+      qv1   = srfpi*ddot(nr,rwgt,1,rho1t,1) ! ... Sphere charges; also check sphere neutrality for safety
       qv2   = srfpi*ddot(nr,rwgt,1,rho2t,1)
       qcor1 =       ddot(nr,rwgt,1,rhoct,1)
       qcor2 =       ddot(nr,rwgt,1,rhocsm,1)
@@ -604,12 +599,10 @@ contains
       if(master_mpi)write(ifivesint,"(3f23.15,a)")ves1int-ves2int,ves1int,ves2int,' ! vesint1-vesint2 ves1int ves2int'
       vnucl = 2d0*srfpi*vnucl + 2d0*z/rmt + y0*vval(1)
       vesn1 = -z*vnucl
-      ! ... Valence density times electrostatic potential
-      vales1 = rvs1-vesc1
+      vales1 = rvs1-vesc1 ! ... Valence density times electrostatic potential
       vales2 = rvs2-vesn2-vesc2
       vvesat = vales1-vales2
-      ! ... Core plus nucleus times estatic potential
-      vcpn1  = vesc1 + vesn1
+      vcpn1  = vesc1 + vesn1 ! ... Core plus nucleus times estatic potential
       vcpn2  = vesn2 + vesc2
       cpnves = vcpn1 - vcpn2
     endblock rhototal
@@ -617,21 +610,15 @@ contains
        v1(:,:,2)=v1(:,:,1) 
        v2(:,:,2)=v2(:,:,1) 
     endif
-    ! ... Preserve potentials without exchange-correlation
-    v1es=v1
+    v1es=v1 !! ... Preserve potentials without exchange-correlation
     v2es=v2
-    ! ... Generate valence-only rvepsv and rvvxcv (uses v1 as work array)
-    call pshpr(max(ipr-31,min(ipr,10)))
-    if(debug) write(6,'(a)')' === rho1 valence true density ==='
-    call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho1,lxcfun,rep1,rep1x,rep1c,rmu1,v1,fl,qs)
-    if(debug) write(6,'(a)')' === rho2 valence counter density ==='
+    call pshpr(max(ipr-31,min(ipr,10)))!  if(debug) write(6,'(a)')' === rho1 valence true density ==='
+    call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho1,lxcfun,rep1,rep1x,rep1c,rmu1,v1,fl,qs)! if(debug) write(6,'(a)')' === rho2 valence counter density ==='
     call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,rep2,rep2x,rep2c,rmu2,v1,fl,qs)
     v1=v1es 
     call poppr
     ! --- Add xc potentials to v1 and v2 ---
-    call pshpr(max(ipr-11,min(ipr,10)))
-    !if(ipr>=30) write(stdo,*)' Exchange for true density:'
-    if(debug) write(stdo,'(a)')' === rhol1 valence+core density. rho2->valence+smooth ==='
+    call pshpr(max(ipr-11,min(ipr,10))) !if(debug) write(stdo,'(a)')' === rhol1 valence+core density. rho2->valence+smooth ==='
     call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rhol1,lxcfun,rep1,rep1x,rep1c,rmu1,v1,fl,qs)
     if(lfoc == 0) then
        call vxcnsp(0,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
@@ -647,15 +634,14 @@ contains
     else
        call rxi('locpt2: cannot handle lfoc = ',lfoc)
     endif
-    call poppr !need this for make cheker collece value for gasls test'
+    call poppr 
     vefc1 = sum([(sum(rwgt(2:nr)*rhoc(2:nr,isp)*(y0*v1(2:nr,1,isp)-2d0*z/rofi(2:nr))),isp=1,nsp)])
-    ! --- Integrals involving the full nonspherical potential ---
     vefv2 = 0d0
     vefv1 = 0d0
     if (ipr>=40 .AND. nsp == 1) write(stdo,"(/' ilm',09x,'rho*vtrue',07x,'rho*vsm')")
     if (ipr>=40 .AND. nsp == 2) write(stdo,"(/' ilm',19x,'rho*vtrue',30x,'rho*vsm'/13x, &
          'spin1',7x,'spin2',7x,'tot',11x,'spin1',7x,'spin2',7x,'tot')")
-    do  ilm = 1, nlml
+    do  ilm = 1, nlml ! --- Integrals involving the full nonspherical potential ---
        do  isp = 1, nsp
           rvtr(isp)= sum(rwgt(2:nr)*rho1(2:nr,ilm,isp)*v1(2:nr,ilm,isp))
           if(ilm==1) rvtr(isp)=rvtr(isp)- srfpi*2d0*z*sum(rwgt(2:nr)*rho1(2:nr,ilm,isp)/rofi(2:nr))
@@ -676,18 +662,12 @@ contains
     vefv2  = vefv2 + sgpotb
     valvef = vefv1 - vefv2
     if (ipr >= 40) then
-       write(stdo,251)
-       write(stdo,250) sum(rep1),sum(rep2),sum(rhoexc),rmu1(1),rmu2(1),rhovxc(1)
-       if(nsp==2)write(stdo,253)rmu1(2),rmu2(2),rhovxc(2),sum(rmu1),sum(rmu2),sum(rhovxc)
-       write(stdo,252) vefv1,vefv2,valvef,qv1,qv2,qloc
-       if(nsp == 2) write(stdo,254) a1,a2,aloc,alocc
-       write(stdo,255) qcor1,qcor2,qlocc
-251    format(/' local terms:     true',11x,'smooth',9x,'local')
-250    format(' rhoeps:  ',3f15.6/' rhomu:   ',3f15.6)
-253    format(' spin2:   ',3f15.6/' total:   ',3f15.6)
-252    format(' val*vef  ',3f15.6/' val chg: ',3f15.6)
-254    format(' val mom: ',3f15.6,'    core:',f11.6)
-255    format(' core chg:',3f15.6)
+       write(stdo,"(/' local terms:     true',11x,'smooth',9x,'local')")
+       write(stdo,"(' rhoeps:  ',3f15.6/' rhomu:   ',3f15.6)") sum(rep1),sum(rep2),sum(rhoexc),rmu1(1),rmu2(1),rhovxc(1)
+       if(nsp==2)write(stdo,"(' spin2:   ',3f15.6/' total:   ',3f15.6)")rmu1(2),rmu2(2),rhovxc(2),sum(rmu1),sum(rmu2),sum(rhovxc)
+       write(stdo,"(' val*vef  ',3f15.6/' val chg: ',3f15.6)") vefv1,vefv2,valvef,qv1,qv2,qloc
+       if(nsp == 2) write(stdo,"(' val mom: ',3f15.6,'    core:',f11.6)") a1,a2,aloc,alocc
+       write(stdo,"(' core chg:',3f15.6)") qcor1,qcor2,qlocc
     endif
     call tcx('locpt2')
   end subroutine locpt2
