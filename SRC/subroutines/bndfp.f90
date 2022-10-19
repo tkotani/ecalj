@@ -178,7 +178,7 @@ contains
     if(llmfgw) call m_mkpot_novxc() !Get osigx,otaux oppix spotx (without XC(LDA)) !
     !      if(llmfgw.and.cmdopt0('--dipolematrix')) call m_mkpot_novxc_dipole()
     !! Generate one-body potential and energy-related quantities. See use m_mkpot:
-    call m_mkpot_init(llmfgw) !from (smrho,rhoat), get one-particle potential.
+    call m_mkpot_init() !from (smrho,rhoat), get one-particle potential.
     !  mkpot->locpot->augmat. augmat calculates sig,tau,ppi.
     if(cmdopt0('--quit=mkpot')) call rx0('--quit=mkpot')
     !! Setup for wtkb for BZ integration.

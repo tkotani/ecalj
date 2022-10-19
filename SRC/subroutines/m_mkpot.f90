@@ -3,8 +3,7 @@ module m_mkpot ! http://dx.doi.org/10.7566/JPSJ.84.034702
        ,lfrce=>ctrl_lfrce,stdl, nchan=>pot_nlma, nvl=>pot_nlml,nkaph
   use m_struc_def,only: s_rv1,s_cv1,s_sblock
 
-  public:: m_mkpot_init, m_mkpot_deallocate, m_mkpot_energyterms, m_mkpot_novxc
-  !,m_Mkpot_novxc_dipole
+  public:: m_mkpot_init, m_mkpot_deallocate, m_mkpot_energyterms, m_mkpot_novxc !,m_Mkpot_novxc_dipole
   !! output ------------------------------------------------------------------
   type(s_sblock),allocatable,protected,public  :: ohsozz(:,:),ohsopm(:,:) !SOC matrix
   ! Generated at mkpot-locpot-augmat-gaugm
@@ -12,11 +11,10 @@ module m_mkpot ! http://dx.doi.org/10.7566/JPSJ.84.034702
   type(s_rv1),allocatable,protected,public  :: otau(:,:) !tau            (C.5)
   type(s_rv1),allocatable,protected,public  :: osig(:,:) !sigma          (C.4)
   complex(8),allocatable,protected ,public  :: osmpot(:,:,:,:)!0th component of Eq.(34)
-
-  ! given by call m_mkpot_novxc
+  ! these are given by call m_mkpot_novxc
   type(s_cv1),allocatable,protected,public  :: oppix(:,:) !pi-integral without xc term
   complex(8),allocatable,protected ,public  :: spotx(:,:,:,:)!0th component of Eq.(34) without xc term
-
+  !
   real(8),protected,public:: utot,rhoexc,xcore,valvef,amom, valves,cpnves,rhovxc !energy terms
   real(8),allocatable,protected,public:: fes1_rv(:), fes2_rv(:) !force terms
   real(8),allocatable,protected,public:: hab_rv(:), sab_rv(:), ppnl_rv(:,:,:,:), qmom(:),vesrmt(:)
@@ -40,26 +38,24 @@ contains
     logical:: novxc_
     write(stdo,"(a)")' m_mkpot_novxc: Making one-particle potential without XC part ...'
     allocate( vesrmt(nbas))
-    allocate(  qmom(nvl)) !rhomom
-    allocate(  hab_rv(nab*n0*nsp*nbas))
-    allocate(  vab_rv(nab*n0*nsp*nbas))
-    allocate(  sab_rv(nab*n0*nsp*nbas))
-    allocate(  gpot0(nvl))
-    allocate(  vval(nchan))
+    allocate( qmom(nvl)) !rhomom
+    allocate( hab_rv(nab*n0*nsp*nbas))
+    allocate( vab_rv(nab*n0*nsp*nbas))
+    allocate( sab_rv(nab*n0*nsp*nbas))
+    allocate( gpot0(nvl))
+    allocate( vval(nchan))
     allocate( ppnl_rv(nppn,n0,nsp,nbas))
-        allocate(  fes1_rv(3*nbas))
+    allocate( fes1_rv(3*nbas))
     allocate( ohsozzx(3,nbas), ohsopmx(3,nbas)) !dummy
     allocate( spotx(k1,k2,k3,nsp)) !smooth potential without XC
     spotx=0d0
     allocate( osigx(3,nbas), otaux(3,nbas), oppix(3,nbas))
-    call dfaugm(osigx, otaux, oppix, ohsozzx,ohsopmx)!for sig,tau,ppi without XC(LDA)
-    !     We obtain osigx, otaux, oppix, smpotx  without XC
-    call mkpot(1, osmrho , orhoat , &
-         spotx,osigx,otaux,oppix,  fes1_rv,ohsozzx,ohsopmx, &
-         novxc_) !when novxc_ exists, we exclud XC(LDA) part.
+    call dfaugm(osigx, otaux, oppix, ohsozzx,ohsopmx) !for sig,tau,ppi without XC(LDA)
+    !     We obtain osigx,otaux,oppix,smpotx  (without XC)
+    call mkpot(1, osmrho,orhoat, spotx,osigx,otaux,oppix, fes1_rv,ohsozzx,ohsopmx, novxc_) !when novxc_ exists, we exclud XC(LDA) part.
     deallocate(ppnl_rv,vesrmt,qmom,hab_rv,vab_rv,sab_rv,gpot0,vval,fes1_rv,ohsozzx,ohsopmx)
   end subroutine m_mkpot_novxc
-  !!
+
   !$$$      subroutine m_mkpot_novxc_dipole()
   !$$$! output: oppixd, spotxd
   !$$$! Assuming osigx,otaux are allocated already by calling m_mkpot_novxc in advance.
@@ -106,31 +102,21 @@ contains
   !$$$      deallocate(vesrmt,qmom,ppnl_rv,hab_rv,vab_rv,sab_rv,gpot0,vval,fes1_rv,ohsozzx,ohsopmx)
   !$$$      end subroutine
 
-  ! ssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  subroutine m_mkpot_init(llmfgw)
+  subroutine m_mkpot_init()
     use m_supot,only: k1,k2,k3
     use m_density,only: osmrho, orhoat !main input density
     use m_lmfinit,only: lso,nbas,sspec=>v_sspec, nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex
-    integer:: i,is,ib,kmax,lmxa,lmxh,nelt2,nlma,nlmh,iprint !,lfrzw
-    real(8) ::qbz
-    logical :: llmfgw,fsmode,fullmesh,cmdopt0
+    integer:: i,is,ib,kmax,lmxa,lmxh,nelt2,nlma,nlmh,iprint
     call tcn('m_mkpot_init')
     if(iprint()>=10) write(stdo,"(a)")' m_mkpot_init: Making one-particle potential ...'
-!    lfrzw = 0
-!    if(ham_frzwf) lfrzw = 1   !freeze all augmentation wave
-    !! Make the potential and total energy terms for given density (smrho,rhoat,qbg)  ---
-    !! mkpot calls locpot. and locpot calls augmat. augmat calculates sig,tau,ppi.
-!    i = 1 + 10*lfrzw
-!    if(llmfgw) i = i + 10000 !GW driver mode
-    !! Arrays used in the generation of the potential ---
     allocate( vesrmt(nbas))
-    allocate( osmpot(k1,k2,k3,nsp)) !smooth potential without XC
+    allocate( osmpot(k1,k2,k3,nsp)) 
     allocate( qmom(nvl))
     allocate( gpot0(nvl))
     allocate( vval(nchan))
-    allocate(  hab_rv(nab*n0*nsp*nbas))
-    allocate(  vab_rv(nab*n0*nsp*nbas))
-    allocate(  sab_rv(nab*n0*nsp*nbas))
+    allocate( hab_rv(nab*n0*nsp*nbas))
+    allocate( vab_rv(nab*n0*nsp*nbas))
+    allocate( sab_rv(nab*n0*nsp*nbas))
     allocate( ppnl_rv(nppn,n0,nsp,nbas))
     allocate( fes1_rv(3*nbas))
     allocate( osig(3,nbas), otau(3,nbas), oppi(3,nbas))
@@ -140,7 +126,7 @@ contains
     call tcx('m_mkpot_init')
   end subroutine m_mkpot_init
   
-  subroutine m_mkpot_energyterms(smrho_out,orhoat_out)!get smrho_out,orhoat_out
+  subroutine m_mkpot_energyterms(smrho_out,orhoat_out) 
     use m_MPItk,only: master_mpi
     use m_struc_def
     type(s_rv1):: orhoat_out(:,:)
@@ -149,15 +135,13 @@ contains
     if(master_mpi) write(stdo,*)
     if(master_mpi) write(stdo,"(' m_mkpot_energyterms')")
     if(allocated(fes2_rv)) deallocate(fes2_rv)
-    allocate( fes2_rv(3*nbas))
-    call mkpot(0, smrho_out , orhoat_out , & !job=0 is for no augmentation term
-         osmpot, osig , otau , oppi, fes2_rv, ohsozz,ohsopm)
+    allocate(fes2_rv(3*nbas))
+    call mkpot(0, smrho_out,orhoat_out, osmpot,osig,otau,oppi,fes2_rv,ohsozz,ohsopm) !job=0 is for no augmentation term
     call tcx('m_mkpot_energyterms')
   end subroutine m_mkpot_energyterms
    
-  !- Make the potential from the density.
-  subroutine mkpot(job, smrho, orhoat, &
-       smpot, osig, otau, oppi, fes, ohsozz,ohsopm, novxc_) !dipole_)
+  !- Make the potential from the density (smrho, orhoat)
+  subroutine mkpot(job,smrho,orhoat, smpot,osig,otau,oppi,fes,ohsozz,ohsopm, novxc_) !dipole_)
     ! job=0 => not make core and augmentation matrices
     ! job=1 => make core and augmentation matrices
     ! xxx problematic option dipole_ removed. (for <i|{\bf r}|j> matrix for novxc)
@@ -351,25 +335,20 @@ contains
        if(master_mpi) write(stdo,ftox)' Energy for background charge', &
             ' q=',ftod(qbg),'radius r=',rhobg,'E=9/5*q*q/r=',1.8d0*qbg*qbg/rhobg
     endif
-    
     call rhomom(orhoat,  qmom,vsum) !multipole moments
     allocate(hpot0_rv(nbas))
     call smves(qmom,gpot0,vval,hpot0_rv,sgp0,smrho,smpot,vconst & ! Smooth electrostatic potential ---
         ,smq,qsmc,fes,rhvsm,zvnsm,zsum,vesrmt,qbg )
     smag = 0
-    if (nsp == 2) then
-       !call mshint(vol,1,n1,n2,n3,k1,k2,k3,smrho,smag,sum2)
-       smag = 2d0*dreal(sum(smrho(:,:,:,1)))*vol/(n1*n2*n3) - smq
-    endif
-    if (allocated(hpot0_rv)) deallocate(hpot0_rv)
-    ! --- Add smooth exchange-correlation potential ---
-    if( .NOT. present(novxc_)) then
+    if(nsp == 2) smag = 2d0*dreal(sum(smrho(:,:,:,1)))*vol/(n1*n2*n3) - smq !spin part.
+    if(allocated(hpot0_rv)) deallocate(hpot0_rv)
+    if( .NOT. present(novxc_)) then ! Add smooth exchange-correlation potential 
        novxc=.false.
        allocate(smvxc_zv(k1*k2*k3*nsp),smvx_zv(k1*k2*k3*nsp), &
             smvc_zv(k1*k2*k3*nsp),smexc_zv(k1*k2*k3), fxc_rv(3,nbas))
        smvx_zv =0d0
        smvc_zv =0d0
-       smvxc_zv=0d0 !   ... Smooth exchange-correlation potential
+       smvxc_zv=0d0 ! ... Smooth exchange-correlation potential
        smexc_zv=0d0
        fxc_rv  =0d0
        call smvxcm(lfrce, smrho,smpot,smvxc_zv,smvx_zv,smvc_zv,&
@@ -404,14 +383,8 @@ contains
     !$$$         enddo
     !$$$      endif
     
-    ! --- Make parameters for extended local orbitals ---
-    !eloc==.false.
-    !do ib = 1, nbas
-    !   if(sspec(ispec(ib))%lmxa>=0 .and. maxval(pnzall(:,:,ib)) >= 10) eloc = .true.
-    !enddo
     call elocp() ! set ehl and rsml for extendet local orbitals
     if(sum(lpzex)/=0) call m_bstrux_init()!computes structure constant (C_akL Eq.(38) in /JPSJ.84.034702) when we have extended local orbital.
-
     ! --- Make local potential at atomic sites and augmentation matrices ---
     rhobg=qbg/vol
     call locpot(orhoat,qmom,vval,gpot0,job,rhobg,nlibu,lmaxu,vorb,lldau,novxc, & !,idipole )
@@ -421,96 +394,45 @@ contains
          rvepsa,rvvxca,valvfa,xcore, &!, fcexca,fcexa,fceca ,&! fcvxca &
          sqloc,sqlocc,saloc,qval,qsc )
     if(cmdopt0('--density') .AND. master_mpi .AND. secondcall) return
-
-    ! ... Combine spin-up and spin-down integrals
-!    repsm(1)  = repsm(1) + repsm(2)
-!    repsmx(1) = repsmx(1)+ repsmx(2)
-!    repsmc(1) = repsmc(1)+ repsmc(2)
-!    rmusm(1)  = rmusm(1) + rmusm(2)
-!    rvmusm(1) = rvmusm(1) + rvmusm(2)
-!    repat(1)  = repat(1) + repat(2)
-!    repatx(1) = repatx(1)+ repatx(2)
-!    repatc(1) = repatc(1)+ repatc(2)
-!    rmuat(1)  = rmuat(1) + rmuat(2)
-!    fcexc0(1) = fcexc0(1) + fcexc0(2)
-!    fcex0(1)  = fcex0(1) + fcex0(2)
-!    fcec0(1)  = fcec0(1) + fcec0(2)
-!    fcvxc0(1) = fcvxc0(1) + fcvxc0(2)
-!    fcexca(1) = fcexca(1) + fcexca(2)
-!    fcexa(1)  = fcexa(1) + fcexa(2)
-!    fceca(1)  = fceca(1) + fceca(2)
-!    fcvxca(1) = fcvxca(1) + fcvxca(2)
     ! ... Integral of valence density times estatic potential
-    valves = rhvsm + vvesat
-    ! ... Valence density times veff.
-    !    *Associate term (n0~-n0) Ves(n0~) with local part
-    !     because of the ppi matrix elements
-    !    *Also add fcvxc0(1) to smooth part because
-    !     rvmusm+fcvxc0 is perturbative approximation for rvmusm
-    !     when cores are not treated perturbatively.
+    valves = rhvsm + vvesat !    ! ... Valence density times Vestatic
+    ! *Associate term (n0~-n0) Ves(n0~) with local part because of the ppi matrix elements
+    ! *Also add fcvxc0(1) to smooth part because rvmusm+fcvxc0 is perturbative approximation for rvmusm
+    !  when cores are not treated perturbatively.
     valfsm = rhvsm + sum(rvmusm) - sgp0 - vconst*qbg
     valftr = valvfa + sgp0
-!    valfsm = valfsm + fcvxc0(1)
-!    valftr = valftr - fcvxca(1)
     valvef = valfsm + valftr
-    ! ... Integral of core+nucleus times estatic potential
-    cpnves = zvnsm + cpnvsa
-    ! ... Total xc energy and potential integral
-!    focexc = fcexc0(1) - fcexca(1)
-    !     focex  = fcex0(1)  - fcexa(1)
-    !     focec  = fcec0(1)  - fceca(1)
-!    focvxc = fcvxc0(1) !- fcvxca(1)
-!    if (ipr >= 30 .AND. dabs(focexc) > 1d-6) write (stdo,850) focexc,focvxc
-!850 format(' foca xc integrals for spillout charge:',2f12.6)
-!    repsm(1) = repsm(1) + fcexc0(1)
-!    repsmx(1)= repsmx(1)+ fcex0(1)
-!    repsmc(1)= repsmc(1)+ fcec0(1)
-!    repat(1) = repat(1) - fcexca(1)
-!    repatx(1)= repatx(1)- fcexa(1)
-!    repatc(1)= repatc(1)- fceca(1)
-!    rmusm(1) = rmusm(1) + fcvxc0(1) + fcexc0(1)
-!    rmuat(1) = rmuat(1)             - fcexca(1) !- fcvxca(1)
-    rhoexc = sum(repsm) + sum(repat)
-    rhoex  = sum(repsmx)+ sum(repatx)
-    rhoec  = sum(repsmc)+ sum(repatc)
-    rhovxc = sum(rmusm) + sum(rmuat)
-    ! ... Total electrostatic energy
+    cpnves = zvnsm + cpnvsa! ... Integral of core+nucleus times Ves(estatic potential)
+    rhoexc = sum(repsm) + sum(repat) ! Exc=\int rho*exc 
+    rhoex  = sum(repsmx)+ sum(repatx)! Ex 
+    rhoec  = sum(repsmc)+ sum(repatc)! Ec 
+    rhovxc = sum(rmusm) + sum(rmuat) ! \int rho*Vxc
     usm = 0.5d0*(rhvsm+zvnsm)
     uat = 0.5d0*(vvesat+cpnvsa)
-    utot = usm + uat
-    dq = smq+sqloc + qsmc+sqlocc + qbg -zsum
-    amom = smag+saloc
-    ! --- Printout ---
-    !if (ipr >= 20) write(stdo,'(1x)')
+    utot = usm + uat !total electro static energy
+    dq = smq+sqloc + qsmc+sqlocc + qbg -zsum !smooth part + local part + smoothcore + core local + qbackground -Z
+    amom = smag+saloc !magnetic moment
     if (ipr >= 30) then
-       write (stdo,681)
+       write (stdo,"('  mkpot:',/'   Energy terms:',11x,'smooth',11x,'local',11x,'total')")
        write (stdo,680) 'rhoval*vef ',valfsm,valftr,valvef, &
-            'rhoval*ves ',rhvsm,vvesat,valves, &
-            'psnuc*ves  ',zvnsm,cpnvsa,cpnves, &
-            'utot       ',usm,uat,utot, &
+            'rhoval*ves ',rhvsm,vvesat,valves, & !\int rho Ves
+            'psnuc*ves  ',zvnsm,cpnvsa,cpnves, & !\int rho(Z+core) Ves
+            'utot       ',usm,uat,utot, & !total electrostatic energy
             'rho*exc    ',sum(repsm),sum(repat),rhoexc, &
             'rho*vxc    ',sum(rmusm),sum(rmuat),rhovxc, &
-            'valence chg',smq,sqloc,smq+sqloc
-       if (nsp == 2) &
-            write (stdo,680) 'valence mag',smag,saloc,amom
+            'valence chg',smq,sqloc,smq+sqloc !valence electron density, smooth part + local part
+       if (nsp == 2) write (stdo,680) 'valence mag',smag,saloc,amom
        write (stdo,680) 'core charge',qsmc,sqlocc,qsmc+sqlocc
        write (stdo,670) smq+sqloc,qsmc+sqlocc,-zsum,qbg,dq
     endif
 680 format(3x,a,4x,3f17.6)
-681 format('  mkpot:',/'   Energy terms:',11x,'smooth',11x,'local',11x,'total')
-670 format('   Charges:  valence',f12.5,'   cores',f12.5, &
-         '   nucleii',f12.5/'   hom background',f12.5, &
+670 format('   Charges:  valence',f12.5,'   cores',f12.5,'   nucleii',f12.5/'   hom background',f12.5, &
          '   deviation from neutrality: ',f12.5)
     if (ipl >= 1) then
-       write (stdl,710) smq+sqloc,smq,sqloc,qbg,dq
-710    format('fp qvl',f11.6,'  sm',f11.6,'  loc',f11.6, &
-            '  qbg',f11.6,' dQ',f11.6)
-       if (nsp == 2) write (stdl,711) smag+saloc,smag,saloc
-711    format('fp mag ',f11.5,'  sm ',f11.5,'  loc ',f11.5)
-       write (stdl,720) rhovxc,rhoexc,utot
-720    format('fp pot  rvxc',f18.7,'  rexc ',f18.7,'  rves ',f16.7)
-       write (stdl,721) rhoex,rhoec
-721    format('fp pot  rex ',f18.7,'  rec ',f19.7)
+       write (stdl,"('fp qvl',f11.6,'  sm',f11.6,'  loc',f11.6,'  qbg',f11.6,' dQ',f11.6)") smq+sqloc,smq,sqloc,qbg,dq
+       if (nsp == 2) write (stdl,"('fp mag ',f11.5,'  sm ',f11.5,'  loc ',f11.5)") smag+saloc,smag,saloc
+       write (stdl,"('fp pot  rvxc',f18.7,'  rexc ',f18.7,'  rves ',f16.7)") rhovxc,rhoexc,utot
+       write (stdl,"('fp pot  rex ',f18.7,'  rec ',f19.7)") rhoex,rhoec
     endif
     if (dabs(dq)>1d-3) write(stdo,"(a,f13.6)")' (warning) system not neutral, dq=',dq
     call tcx('mkpot')
@@ -586,8 +508,7 @@ contains
   end subroutine dfaugm
   subroutine m_mkpot_deallocate()
     if (allocated(vesrmt)) then
-       deallocate(vesrmt,fes1_rv,ppnl_rv,sab_rv,vab_rv,hab_rv,vval,gpot0,qmom, &
-            oppi,otau,osig,osmpot,ohsozz,ohsopm)
+       deallocate(vesrmt,fes1_rv,ppnl_rv,sab_rv,vab_rv,hab_rv,vval,gpot0,qmom,oppi,otau,osig,osmpot,ohsozz,ohsopm)
     endif
   end subroutine m_mkpot_deallocate
 end module m_mkpot
