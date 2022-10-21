@@ -141,8 +141,13 @@ contains
          ddd=matmul(dconjg(transpose(wnm)),wnm)
          do i=1,ndimMTO
             do j=1,ndimMTO
-               if(i==j.and. abs(ddd(i,j)-1d0)>1d-7) write(6,ftox)'eeeeeeee i i',i,i,ddd(i,j)
-               if(i/=j.and. abs(ddd(i,j))>1d-7)     write(6,ftox)'eeeeeeee i j',i,j,ddd(i,j)
+               if(i==j.and. abs(ddd(i,j)-1d0)>1d-7) then
+                  write(6,ftox)'eeeeeeee i i',i,i,ddd(i,j)
+                  call rx('xxxxxxxxxxxx')
+               elseif(i/=j.and. abs(ddd(i,j))>1d-7) then
+                  write(6,ftox)'eeeeeeee i j',i,j,ddd(i,j)
+                  call rx('xxxxxxxxxxxx')
+               endif
             enddo
          enddo
          ! Mapping operator
