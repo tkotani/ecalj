@@ -76,11 +76,11 @@ contains
     !
     nnn=0
     do i=1,ldim
+       if(l_table(i)>=3) cycle
+       !if(l_table(i)>=2.and.k_table(i)>=2) cycle
        write(6,*) i,ib_table(i),l_table(i),k_table(i)
-       if(l_table(i)<=2) then
-          nnn=nnn+1
-          ix(nnn)=i
-       endif   
+       nnn=nnn+1
+       ix(nnn)=i
     enddo
     ndimMTO=nnn
 !    stop 'vvvvvvvvvvvv'
@@ -119,11 +119,11 @@ contains
          complex(8):: oz(ndimPMT,ndimPMT),wnj(ndimPMT,ndimMTO),wnm(ndimPMT,ndimMTO),wnn(ndimMTO,ndimMTO)
          complex(8):: evecmto(ndimMTO,ndimMTO),evecpmt(ndimPMT,ndimPMT)
          complex(8):: ovlmx(ndimPMT,ndimPMT),hammx(ndimPMT,ndimPMT),fac(ndimPMT,ndimMTO),ddd(ndimMTO,ndimMTO)
+         
          ovlmx= ovlm
          hammx= hamm
          nmx = ndimMTO
          call zhev_tk4(ndimMTO,hamm(ix(1:ndimMTO),ix(1:ndimMTO)),ovlm(ix(1:ndimMTO),ix(1:ndimMTO)), &
-              !hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO), &
               nmx,nev, evlmto, evecmto, epsovl)
          
          ovlm= ovlmx
@@ -131,6 +131,7 @@ contains
          nmx = ndimPMT
          call zhev_tk4(ndimPMT,hamm(1:ndimPMT,1:ndimPMT),ovlm(1:ndimPMT,1:ndimPMT), &
               nmx,nev, evl,    evecpmt, epsovl)
+         
 !         do i=1,6! nev
 !            if(jsp==1) write(6,"('eigenPMT_spin1 pmt',3i4,f15.5)") iq,jsp,i,evl(i)
 !            if(jsp==1) write(6,"('eigenPMT_spin1 mto',3i4,f15.5)") iq,jsp,i,evlmto(i)
