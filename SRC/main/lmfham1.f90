@@ -71,11 +71,26 @@ contains
     real(8),allocatable:: evl(:)
     complex(8):: img=(0d0,1d0),aaaa,phase
     real(8)::qp(3),pi=4d0*atan(1d0)
+    integer:: ix(ldim),nnn
     !ifih=ifile_handle()
+    !
+    nnn=0
+    do i=1,ldim
+       write(6,*) i,ib_table(i),l_table(i),k_table(i)
+       if(l_table(i)<=2) then
+          nnn=nnn+1
+          ix(nnn)=i
+       endif   
+    enddo
+    ndimMTO=nnn
+!    stop 'vvvvvvvvvvvv'
+       
     open(newunit=ifih,file='HamiltonianPMT',form='unformatted')
     write(6,*)'Reaing HamiltonianPMT...'
-    ndimMTO=ldim
+!    
+    !ndimMTO=ldim
     if(lso==1) ldim=ldim*2 !L.S mode
+    
     nspx=nsp
     if(lso==1) nspx=1
     allocate(ovlmr(1:ndimMTO,1:ndimMTO,npairmx,nspx), hammr(1:ndimMTO,1:ndimMTO,npairmx,nspx))
@@ -96,19 +111,21 @@ contains
        !! Diagonalization test (H-eO)z=0
        !!    These eigenvalues must generate the same eigenvalues as
        !!    we perfermoed lmf-MPIK --writeham mode to generete HamiltonianPMT
-       epsovl=0d0
+       epsovl=1d-8
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!       
        hammwgt:block
          integer:: nx
          real(8)::beta,emu,val,wgt(ndimPMT),evlmto(ndimMTO),evl(ndimPMT),evlx(ndimMTO)
-         complex(8):: oz(ndimPMT,ndimPMT),wnj(ndimPMT,ndimMTO),wnm(ndimPMT,ndimMTO),wnn(ndimMTO,ndimMTO),wnmbk(ndimPMT,ndimMTO)
+         complex(8):: oz(ndimPMT,ndimPMT),wnj(ndimPMT,ndimMTO),wnm(ndimPMT,ndimMTO),wnn(ndimMTO,ndimMTO)
          complex(8):: evecmto(ndimMTO,ndimMTO),evecpmt(ndimPMT,ndimPMT)
          complex(8):: ovlmx(ndimPMT,ndimPMT),hammx(ndimPMT,ndimPMT),fac(ndimPMT,ndimMTO),ddd(ndimMTO,ndimMTO)
          ovlmx= ovlm
          hammx= hamm
          nmx = ndimMTO
-         call zhev_tk4(ndimMTO,hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO), &
+         call zhev_tk4(ndimMTO,hamm(ix(1:ndimMTO),ix(1:ndimMTO)),ovlm(ix(1:ndimMTO),ix(1:ndimMTO)), &
+              !hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO), &
               nmx,nev, evlmto, evecmto, epsovl)
+         
          ovlm= ovlmx
          hamm= hammx
          nmx = ndimPMT
@@ -122,7 +139,7 @@ contains
 !         enddo
          !write(6,*)" ndimPMT=",ndimPMT
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-         beta= 1d0 ! 1/Ry
+         !beta= 1d0 ! 1/Ry
          !val= ndimMTO !*nspx/nspx !test for si
          !call detemu(beta,val,evl,ndimPMT, emu) !determine emu for nocc=val
          !wgt = 1d0 /(exp(beta*(evl(:)-emu))+1d0)
@@ -132,33 +149,46 @@ contains
          wnm=0d0
          do j=1,ndimMTO
             do i=1,ndimPMT
-               fac(i,j)= sum(dconjg(evecpmt(:,i))*matmul(ovlm(:,1:ndimMTO),evecmto(1:ndimMTO,j)))
-               wnm(i,j)= fac(i,j) *abs(fac(i,j)) 
+               fac(i,j)= sum(dconjg(evecpmt(:,i))*matmul(ovlmx(:,ix(1:ndimMTO)),evecmto(1:ndimMTO,j)))
+               wnm(i,j)= fac(i,j) *abs(fac(i,j))
+               !wnm(i,j)=0d0
+               !if(i==j) wnm(i,j)= 1d0
+               !wnm(i,j)= sum(dconjg(evecpmt(:,i))*matmul(ovlmx(:,ix(1:ndimMTO)),evecmto(1:ndimMTO,j)))
+               !wnm(i,j)= fac(i,j) !*abs(fac(i,j))
             enddo
          enddo
          call GramSchmidt(ndimPMT,ndimMTO,wnm)
-! unitatiry check         
-         ddd=matmul(dconjg(transpose(wnm)),wnm)
+
+         ddd=matmul(dconjg(transpose(wnm)),wnm) ! unitatiry check         
          do i=1,ndimMTO
             do j=1,ndimMTO
                if(i==j.and. abs(ddd(i,j)-1d0)>1d-7) then
                   write(6,ftox)'eeeeeeee i i',i,i,ddd(i,j)
-                  call rx('xxxxxxxxxxxx')
+                  call rx('xxxxxxxxxxxx111')
                elseif(i/=j.and. abs(ddd(i,j))>1d-7) then
                   write(6,ftox)'eeeeeeee i j',i,j,ddd(i,j)
-                  call rx('xxxxxxxxxxxx')
+                  call rx('xxxxxxxxxxxx222')
                endif
             enddo
          enddo
          ! Mapping operator
-         wnj = matmul(wnm,matmul(transpose(dconjg(evecmto(:,:))),ovlm(1:ndimMTO,1:ndimMTO)))
+         wnj = matmul(wnm,matmul(transpose(dconjg(evecmto(:,:))),ovlmx(ix(1:ndimMTO),ix(1:ndimMTO))))
          nx=ndimPMT          
          do i=1,ndimMTO
             do j=1,ndimMTO
-               hamm(i,j)= sum( dconjg(wnj(1:nx,i))*evl(1:nx)*wnj(1:nx,j)) !+ 0.02*hammx(i,j)
+               hamm(i,j)= sum( dconjg(wnj(1:nx,i))*evl(1:nx)*wnj(1:nx,j))
                ovlm(i,j)= sum( dconjg(wnj(1:nx,i))*wnj(1:nx,j) )
             enddo
          enddo
+         
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11111
+!         do i=1,ndimMTO
+!            do j=1,ndimMTO
+!               hamm(i,j)= hammx(ix(i),ix(j))
+!               ovlm(i,j)= ovlmx(ix(i),ix(j))
+!            enddo
+!         enddo
+
          !! Hamiltonian modified. Psi_MLO are eigenfunctions
          !wnn = matmul(transpose(dconjg(evecmto(:,:))),ovlm(1:ndimMTO,1:ndimMTO))
          !nx=ndimMTO
@@ -171,21 +201,21 @@ contains
          !      ovlm(i,j)= sum( dconjg(wnn(1:nx,i))*wnn(1:nx,j) )
          !   enddo
          !enddo
-       !! Real space Hamiltonian. H(k) ->  H(T) FourierTransformation to real space
-       !!       Only MTO part ndimMTO (ndimPMT = ndimMTO + ndimAPW)
-       do i=1,ndimMTO
-          do j=1,ndimMTO
-             ib1 = mod(ib_table(i),ldim)
-             ib2 = mod(ib_table(j),ldim)
-             do it =1,npair(ib1,ib2)! hammr_ij (T)= \sum_k hamm(k) exp(ikT). it is the index for T
-                phase = 1d0/dble(nkp)* exp(img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
-                hammr(i,j,it,jsp)= hammr(i,j,it,jsp)+ hamm(i,j)*phase
-                ovlmr(i,j,it,jsp)= ovlmr(i,j,it,jsp)+ ovlm(i,j)*phase
-!                hammr(i,j,it,jsp)= hammr(i,j,it,jsp)+ hammx(i,j)*phase !original MTO only 
-!                ovlmr(i,j,it,jsp)= ovlmr(i,j,it,jsp)+ ovlmx(i,j)*phase
-             enddo
-          enddo
-       enddo
+         !! Real space Hamiltonian. H(k) ->  H(T) FourierTransformation to real space
+         !!       Only MTO part ndimMTO (ndimPMT = ndimMTO + ndimAPW)
+         do i=1,ndimMTO
+            do j=1,ndimMTO
+               ib1 = ib_table(ix(i)) !mod(ib_table(i),ldim)
+               ib2 = ib_table(ix(j)) !mod(ib_table(j),ldim)
+               do it =1,npair(ib1,ib2)! hammr_ij (T)= \sum_k hamm(k) exp(ikT). it is the index for T
+                  phase = 1d0/dble(nkp)* exp(img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
+                  hammr(i,j,it,jsp)= hammr(i,j,it,jsp)+ hamm(i,j)*phase
+                  ovlmr(i,j,it,jsp)= ovlmr(i,j,it,jsp)+ ovlm(i,j)*phase
+                  !   hammr(i,j,it,jsp)= hammr(i,j,it,jsp)+ hammx(i,j)*phase !original MTO only 
+                  !   ovlmr(i,j,it,jsp)= ovlmr(i,j,it,jsp)+ ovlmx(i,j)*phase
+               enddo
+            enddo
+         enddo
        endblock hammwgt
        deallocate(ovlm,hamm)
        !! skip diagonalization test or not ---> daigonalization test should reproduce original enery bands.
@@ -199,7 +229,7 @@ contains
     open(newunit=ifihmto,file='HamRsMTO',form='unformatted')
     write(ifihmto) ndimMTO,npairmx,nspx
     write(ifihmto) hammr(1:ndimMTO,1:ndimMTO,1:npairmx,1:nspx),&
-         ovlmr(1:ndimMTO,1:ndimMTO,1:npairmx,1:nspx)
+         ovlmr(1:ndimMTO,1:ndimMTO,1:npairmx,1:nspx),ix(1:ndimMTO)
     close(ifihmto)
     print*,' OK: Wrote HamRsMTO file!'
   end subroutine HamPMTtoHamRsMTO
@@ -246,6 +276,7 @@ end module m_HamPMT
 module m_HamRsMTO
   !! read real-space MTO Hamiltonian
   integer,private:: ndimMTO,npairmx,nspx
+  integer,allocatable,protected:: ix(:)
   complex(8),allocatable,protected:: ovlmr(:,:,:,:),hammr(:,:,:,:)
 contains
   !! read RealSpace MTO Hamiltonian
@@ -254,9 +285,10 @@ contains
     !ifihmto=ifile_handle()
     open(newunit=ifihmto,file='HamRsMTO',form='unformatted')
     read(ifihmto) ndimMTO,npairmx,nspx
+    allocate(ix(ndimMTO))
     write(6,*)'ndimMTO,npairmx,nspx=',ndimMTO,npairmx,nspx
     allocate(ovlmr(1:ndimMTO,1:ndimMTO,npairmx,nspx), hammr(1:ndimMTO,1:ndimMTO,npairmx,nspx))
-    read(ifihmto) hammr(1:ndimMTO,1:ndimMTO,1:npairmx,1:nspx), ovlmr(1:ndimMTO,1:ndimMTO,1:npairmx,1:nspx)
+    read(ifihmto) hammr(1:ndimMTO,1:ndimMTO,1:npairmx,1:nspx), ovlmr(1:ndimMTO,1:ndimMTO,1:npairmx,1:nspx),ix(1:ndimMTO)
     close(ifihmto)
     print*,' OK: Read HamRsMTO file!'
   end subroutine ReadHamRsMTO
@@ -268,7 +300,7 @@ program lmfham1
   use m_HamPMT, only: plat, npair,nlat,nqwgt, ldim, ndimMTO, nkp,qplist, epsovl,&
        ib_table,alat,npairmx,nspx, ReadHamPMTInfo, HamPMTtoHamRsMTO
   ! note.  HamPMTtoHamRsMTO do not change variables. Only generate HamRsMTO file.
-  use m_HamRsMTO,  only: hammr,ovlmr,  ReadHamRsMTO
+  use m_HamRsMTO,  only: hammr,ovlmr,  ReadHamRsMTO,ix
   use m_readqplist,only: eferm,qplistsy,ndat,xdat, Readqplistsy
   use m_mpi,only: MPI__hx0fp0_rankdivider2Q, MPI__Qtask, &
        MPI__Initialize, MPI__Finalize,MPI__root, &
@@ -318,8 +350,8 @@ program lmfham1
         hamm = 0d0
         do i=1,ndimMTO
            do j=1,ndimMTO
-              ib1 = mod(ib_table(i),ldim) !atomic-site index in the primitive cell
-              ib2 = mod(ib_table(j),ldim)
+              ib1 = ib_table(ix(i))!,ldim) !atomic-site index in the primitive cell
+              ib2 = ib_table(ix(j))!,ldim)
               do it =1,npair(ib1,ib2)
                  phase=1d0/nqwgt(it,ib1,ib2)*exp(-img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
                  hamm(i,j)= hamm(i,j)+ hammr(i,j,it,jsp)*phase
