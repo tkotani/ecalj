@@ -72,15 +72,15 @@ contains
     logical:: lprint=.true.,savez=.false.,getz=.false.,skipdiagtest=.false.
     real(8),allocatable:: evl(:)
     complex(8):: img=(0d0,1d0),aaaa,phase
-    real(8)::qp(3),pi=4d0*atan(1d0),fff,ef
+    real(8)::qp(3),pi=4d0*atan(1d0),fff,ef,fff1=8,fff2=8
     integer:: ix(ldim),ixm(ldim),iix(ldim),nnn,ib,k,l,ix5,ix21,imin,ixx,ndimMTO2,j2
     
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1    
     nnn=0
     do i=1,ldim
        if(l_table(i)>=3) cycle
-       if(l_table(i)>=2.and.k_table(i)==2) cycle
-!       if(k_table(i)==2) cycle
+!       if(l_table(i)>=2.and.k_table(i)==2) cycle
+       if(k_table(i)==2) cycle
        write(6,*) i,ib_table(i),l_table(i),k_table(i)
        nnn=nnn+1
        ixm(nnn)=i
@@ -91,7 +91,7 @@ contains
     do i=1,ldim
        if(l_table(i)>=3) cycle
        !if(l_table(i)>=2.and.k_table(i)>=2) cycle
-       !if(k_table(i)==2) cycle
+!       if(k_table(i)==2) cycle
        write(6,*) i,ib_table(i),l_table(i),k_table(i)
        nnn=nnn+1
        ix(nnn)=i
@@ -153,12 +153,18 @@ contains
                fac(i,j)= sum(dconjg(evecpmt(:,i))*matmul(ovlmx(:,ix(1:ndimMTO)),evecmto(1:ndimMTO,j)))
                !fff= 1.5d0/(exp( (evl(i)-(ef+5d0))/1d0 )+ 1d0)
                fff= 1d0/(exp( (evl(i)-(eferm+5d0))/1d0 )+ 1d0)
-               wnm(i,j)= fac(i,j) *abs(fac(i,j)) **fff ! Without abs(fac(i,j)), simple projection.
+               wnm(i,j)= fac(i,j) *abs(fac(i,j)) **fff1 !**fff ! Without abs(fac(i,j)), simple projection.
             enddo
          enddo
          call GramSchmidt(ndimPMT,ndimMTO,wnm)
+         do i=1,ndimPMT
+            do j=1,ndimMTO !wnm is corrected matrix element of <psi_PMT|psi_MTO>
+               if(abs(wnm(i,j))>.1) write(6,*)'wnm matrix ',i,j,abs(wnm(i,j))
+            enddo
+         enddo
          ! Mapping operator wnm*<psi_MTO|F_i>, where F_i is MTO basis.
-         wnj = matmul(wnm(1:ndimPMT,1:ndimMTO),matmul(transpose(dconjg(evecmto(:,:))),ovlmx(ix(1:ndimMTO),ix(1:ndimMTO))))
+         wnj = matmul(wnm(1:ndimPMT,1:ndimMTO),matmul(transpose(dconjg(evecmto(:,:))),&
+              ovlmx(ix(1:ndimMTO),ix(1:ndimMTO))))
          nx=ndimPMT          
          do i=1,ndimMTO
             do j=1,ndimMTO
@@ -166,6 +172,7 @@ contains
                ovlm(i,j)= sum( dconjg(wnj(1:nx,i))*wnj(1:nx,j) ) !<MLO|MLO>
             enddo
          enddo
+
          
          ! <PsiMLO|PsiMLO2> xxxxxxxxxxxxxxxxxxxxxxx
          secondreduction: block 
@@ -185,8 +192,8 @@ contains
            do i=1,ndimMTO !mlo !<psi_mlo|psi_mlo2>
               do j=1,ndimMTO2 !mlo2
                  ovlmm(i,j)=sum(dconjg(evecmlo(:,i))* matmul(ovlm(1:ndimMTO,iix(1:ndimMTO2)),evecmlo2(:,j)))
-                 fff= 1d0/(exp( (evlmlo(i)-(eferm+5d0))/1d0 )+ 1d0)
-                 wnm2(i,j)= ovlmm(i,j)*abs(ovlmm(i,j))**2 !**fff ! When fff=0, simple projection.
+                 fff= 2d0/(exp( (evlmlo(i)-(eferm+1d0))/1d0 )+ 1d0)
+                 wnm2(i,j)= ovlmm(i,j)*abs(ovlmm(i,j))**fff2 ! When fff=0, simple projection.
               enddo
            enddo
            call GramSchmidt(ndimMTO,ndimMTO2,wnm2) !wnm2(MLO,MLO2)
@@ -208,18 +215,22 @@ contains
                  ovlm(i,j)= sum( dconjg(wnj2(1:nx,i))*wnj2(1:nx,j) ) !<MLO2|MLO2>
               enddo
            enddo
-           ! block
-           !   complex(8):: hh(1:ndimMTO2,1:ndimMTO2),oo(1:ndimMTO2,1:ndimMTO2)
-           !   hh=hamm(1:ndimMTO2,1:ndimMTO2)
-           !   oo=ovlm(1:ndimMTO2,1:ndimMTO2)
-           !   nmx = ndimMTO2
-           !   call zhev_tk4(ndimMTO2,hh,oo, nmx,nev,evlmlo2x, evecmlo2, epsovl) !PsiMLO
-           !   do i=1,ndimMTO2
-           !      write(6,"(a,i5,3f12.4)")'mmmmm', i,evlmlo(i),evlmlo2(i)-evlmlo2x(i)
-           !   enddo
-           !   !stop 'vvvvvvvvvvvvvvvvv'
-           ! endblock
+           
+           echeck: block
+             complex(8):: hh(1:ndimMTO2,1:ndimMTO2),oo(1:ndimMTO2,1:ndimMTO2)
+             if(sum([qp(2),qp(3)]**2)<1d-3) then
+                hh=hamm(1:ndimMTO2,1:ndimMTO2)
+                oo=ovlm(1:ndimMTO2,1:ndimMTO2)
+                nmx = ndimMTO2
+                call zhev_tk4(ndimMTO2,hh,oo, nmx,nev,evlmlo2x, evecmlo2, epsovl) !PsiMLO
+                do i=1,ndimMTO2
+                   write(6,"(a,i5,3f12.4)")'mmmmm', i,evlmlo(i),evlmlo2(i)-evlmlo(i),evlmlo2x(i)-evlmlo(i) !evmlo,evmlo2,evmlo2x
+                enddo
+                !if(abs(qp(1)-1)<1d-4) stop 'vvvvvvvvqp'
+             endif
+           endblock echeck
          endblock secondreduction
+         
          !! Real space Hamiltonian. H(k) ->  H(T) FourierTransformation to real space
          !!       Only MTO part ndimMTO (ndimPMT = ndimMTO + ndimAPW)
          do i=1,ndimMTO2
