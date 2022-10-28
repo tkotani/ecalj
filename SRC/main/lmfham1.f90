@@ -72,7 +72,7 @@ contains
     logical:: lprint=.true.,savez=.false.,getz=.false.,skipdiagtest=.false.
     real(8),allocatable:: evl(:)
     complex(8):: img=(0d0,1d0),aaaa,phase
-    real(8)::qp(3),pi=4d0*atan(1d0),fff,ef,fff1=8,fff2=8
+    real(8)::qp(3),pi=4d0*atan(1d0),fff,ef,fff1=8,fff2=4 !,fff1=2,fff2=2
     integer:: ix(ldim),ixm(ldim),iix(ldim),nnn,ib,k,l,ix5,ix21,imin,ixx,ndimMTO2,j2
     
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1    
@@ -157,11 +157,11 @@ contains
             enddo
          enddo
          call GramSchmidt(ndimPMT,ndimMTO,wnm)
-         do i=1,ndimPMT
-            do j=1,ndimMTO !wnm is corrected matrix element of <psi_PMT|psi_MTO>
-               if(abs(wnm(i,j))>.1) write(6,*)'wnm matrix ',i,j,abs(wnm(i,j))
-            enddo
-         enddo
+         ! do i=1,ndimPMT
+         !    do j=1,ndimMTO !wnm is corrected matrix element of <psi_PMT|psi_MTO>
+         !       if(abs(wnm(i,j))>.1) write(6,*)'wnm matrix ',i,j,abs(wnm(i,j))
+         !    enddo
+         ! enddo
          ! Mapping operator wnm*<psi_MTO|F_i>, where F_i is MTO basis.
          wnj = matmul(wnm(1:ndimPMT,1:ndimMTO),matmul(transpose(dconjg(evecmto(:,:))),&
               ovlmx(ix(1:ndimMTO),ix(1:ndimMTO))))
