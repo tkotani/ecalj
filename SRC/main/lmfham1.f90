@@ -72,7 +72,7 @@ contains
     logical:: lprint=.true.,savez=.false.,getz=.false.,skipdiagtest=.false.
 !    real(8),allocatable:: evl(:)
     complex(8):: img=(0d0,1d0),aaaa,phase
-    real(8)::qp(3),pi=4d0*atan(1d0),fff,ef,fff1=8,fff2=4,fff3=4 !,fff1=2,fff2=2 8,4,4
+    real(8)::qp(3),pi=4d0*atan(1d0),fff,ef,fff1=8,fff2=8,fff3=8 !,fff1=2,fff2=2 8,4,4
     integer:: ix(ldim),ix1(ldim),ix2(ldim),ix3(ldim),ix12(ldim),ix23(ldim),nnn,ib,k,l,ix5,imin,ixx &
          ,ndimMTO2,j2,j1,j3,ndimMTO3
     integer:: nx
@@ -140,36 +140,36 @@ contains
        read(ifih) ovlm(1:ndimPMT,1:ndimPMT)
        read(ifih) hamm(1:ndimPMT,1:ndimPMT)
        epsovl=1d-8
-!!!!!!!!!!!!!!!!!!!!!!!!!
-         ndimMTO2=ndimMTO
+!!!!!!!!!!!!!!!!!!!!!!!!! skip 2nd step
+       ndimMTO2=ndimMTO
+       ix23(1:ndimMTO3)=ix12(1:ndimMTO3)
 !!!!!!!!!!!!!!!!!!!!!!!!!       
        eigen: block
          real(8):: evlmlo(ndimMTO),evl(ndimPMT),evlmlo2(ndimMTO2),evlmlo3(ndimMTO3)
          ! <PsiPMT|PsiMLO> 
-         call Hreduction(ndimPMT,hamm(1:ndimPMT,1:ndimPMT),ovlm(1:ndimPMT,1:ndimPMT), &
+         call Hreduction(.false.,ndimPMT,hamm(1:ndimPMT,1:ndimPMT),ovlm(1:ndimPMT,1:ndimPMT), &
               ndimMTO,ix1,fff1,   evl,hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO))
          ! <PsiMLO|PsiMLO2> 
-!         call Hreduction(ndimMTO,hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO),&
+!         call Hreduction(iprx,ndimMTO,hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO),&
 !              ndimMTO2,ix12,fff2, evlmlo,hamm(1:ndimMTO2,1:ndimMTO2),ovlm(1:ndimMTO2,1:ndimMTO2))
          ! <PsiMLO2|PsiMLO3> 
-!         call Hreduction(ndimMTO2,hamm(1:ndimMTO2,1:ndimMTO2),ovlm(1:ndimMTO2,1:ndimMTO2),&
-         !              ndimMTO3,ix23,fff3, evlmlo2,hamm(1:ndimMTO3,1:ndimMTO3),ovlm(1:ndimMTO3,1:ndimMTO3))
-         call Hreduction(ndimMTO2,hamm(1:ndimMTO2,1:ndimMTO2),ovlm(1:ndimMTO2,1:ndimMTO2),&
-              ndimMTO3,ix12,fff3, evlmlo2,hamm(1:ndimMTO3,1:ndimMTO3),ovlm(1:ndimMTO3,1:ndimMTO3))
+!         call Hreduction(iprx,ndimMTO2,hamm(1:ndimMTO2,1:ndimMTO2),ovlm(1:ndimMTO2,1:ndimMTO2),&
+         !    ndimMTO3,ix23,fff3, evlmlo2,hamm(1:ndimMTO3,1:ndimMTO3),ovlm(1:ndimMTO3,1:ndimMTO3))
+         call Hreduction(.false.,ndimMTO2,hamm(1:ndimMTO2,1:ndimMTO2),ovlm(1:ndimMTO2,1:ndimMTO2),&
+              ndimMTO3,ix23,fff3, evlmlo2,hamm(1:ndimMTO3,1:ndimMTO3),ovlm(1:ndimMTO3,1:ndimMTO3))
 
-         echeck: block
+         finaleigen: block
            complex(8):: evec(ndimMTO3**2), hh(ndimMTO3,ndimMTO3),oo(ndimMTO3,ndimMTO3)
            if(sum([qp(2),qp(3)]**2)<1d-3) then
               hh=hamm(1:ndimMTO3,1:ndimMTO3)
               oo=ovlm(1:ndimMTO3,1:ndimMTO3)
               nmx = ndimMTO3
               call zhev_tk4(ndimMTO3,hh,oo, nmx,nev,evlmlo3, evec, epsovl) 
-              do i=1,ndimMTO3
-!                 write(6,"(a,i5,4f12.4)")'mmm', i,evl(i),evlmlo(i)-evl(i),evlmlo2(i)-evl(i),evlmlo3(i)-evl(i)
+              do i=1,ndimMTO3!'mmm', i,evl(i),evlmlo(i)-evl(i),evlmlo2(i)-evl(i),evlmlo3(i)-evl(i)
                  write(6,"(a,i5,4f12.4)")'mmm', i,evl(i),evlmlo2(i)-evl(i),evlmlo3(i)-evl(i)
               enddo !   if(abs(qp(1)-1)<1d-4) stop 'vvvvvvvvqp'
            endif
-         endblock echeck
+         endblock finaleigen
        endblock eigen
        !! Real space Hamiltonian. H(k) ->  H(T) FourierTransformation to real space
        do i=1,ndimMTO3
@@ -360,7 +360,7 @@ program lmfham1
 endprogram
 
 
-subroutine Hreduction(ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,ovlmout)
+subroutine Hreduction(iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,ovlmout)
   !       call Hreduction(ndimPMT,hamm,ovlm, ndimMTO,ix,fff1, hamm,ovlm)
   !       firstreduction:block
   use m_readqplist,only: eferm
@@ -374,6 +374,7 @@ subroutine Hreduction(ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,ovlmout)
   complex(8):: hamm(ndimPMT,ndimPMT),ovlm(ndimPMT,ndimPMT)
   complex(8):: hammout(ndimMTO,ndimMTO),ovlmout(ndimMTO,ndimMTO)
   real(8):: epsovl=1d-8,fff1,fff
+  logical:: iprx
   ovlmx= ovlm
   hammx= hamm
   nmx = ndimMTO
@@ -391,17 +392,18 @@ subroutine Hreduction(ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,ovlmout)
   do j=1,ndimMTO !wnm is corrected matrix element of <psi_PMT|psi_MTO>
      do i=1,ndimPMT
         fac(i,j)= sum(dconjg(evecpmt(:,i))*matmul(ovlmx(:,ix(1:ndimMTO)),evecmto(1:ndimMTO,j)))
-        !fff= 1.5d0/(exp( (evl(i)-(ef+5d0))/1d0 )+ 1d0)
-        fff= 1d0/(exp( (evl(i)-(eferm+5d0))/1d0 )+ 1d0)
-        wnm(i,j)= fac(i,j) *abs(fac(i,j)) **fff1 !**fff ! Without abs(fac(i,j)), simple projection.
+        !fff= 1.5d0/(exp( (evl(i)-(eferm+5d0))/1d0 )+ 1d0)
+        wnm(i,j)= fac(i,j) *abs(fac(i,j)) **fff1 !1 !**fff ! Without abs(fac(i,j)), simple projection.
      enddo
   enddo
   call GramSchmidt(ndimPMT,ndimMTO,wnm)
-  ! do i=1,ndimPMT
-  !    do j=1,ndimMTO !wnm is corrected matrix element of <psi_PMT|psi_MTO>
-  !       if(abs(wnm(i,j))>.1) write(6,*)'wnm matrix ',i,j,abs(wnm(i,j))
-  !    enddo
-  ! enddo
+  if(iprx) then
+     do j=1,ndimMTO !wnm is corrected matrix element of <psi_PMT|psi_MTO>
+        do i=1,ndimPMT
+           if(abs(wnm(i,j))>.1) write(6,*)'wnm matrix ',j,i,abs(wnm(i,j))**2
+        enddo
+     enddo
+  endif
   ! Mapping operator wnm*<psi_MTO|F_i>, where F_i is MTO basis.
   wnj = matmul(wnm(1:ndimPMT,1:ndimMTO),matmul(transpose(dconjg(evecmto(:,:))),&
        ovlmx(ix(1:ndimMTO),ix(1:ndimMTO))))
