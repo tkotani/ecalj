@@ -73,38 +73,32 @@ contains
 !    real(8),allocatable:: evl(:)
     complex(8):: img=(0d0,1d0),aaaa,phase
     real(8)::qp(3),pi=4d0*atan(1d0),fff,ef,fff1=8,fff2=4 !,fff1=2,fff2=2
-    integer:: ix(ldim),ixm(ldim),iix(ldim),nnn,ib,k,l,ix5,ix21,imin,ixx,ndimMTO2,j2
+    integer:: ix(ldim),ix1(ldim),ix2(ldim),ix12(ldim),nnn,ib,k,l,ix5,imin,ixx,ndimMTO2,j2,j1
     integer:: nx
     
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1    
     nnn=0
     do i=1,ldim
-       if(l_table(i)>=3) cycle
-!       if(l_table(i)>=2.and.k_table(i)==2) cycle
+       if(l_table(i)>=3) cycle !   if(l_table(i)>=2.and.k_table(i)==2) cycle
        if(k_table(i)==2) cycle
        write(6,*) i,ib_table(i),l_table(i),k_table(i)
        nnn=nnn+1
-       ixm(nnn)=i
+       ix2(nnn)=i
     enddo
     ndimMTO2=nnn
 !
     nnn=0
     do i=1,ldim !MLO dimention 
-       if(l_table(i)>=3) cycle
-       !if(l_table(i)>=2.and.k_table(i)>=2) cycle
-!       if(k_table(i)==2) cycle
+       if(l_table(i)>=3) cycle !  !if(l_table(i)>=2.and.k_table(i)>=2) cycle      if(k_table(i)==2) cycle
        write(6,*) i,ib_table(i),l_table(i),k_table(i)
        nnn=nnn+1
-       ix(nnn)=i
+       ix1(nnn)=i
     enddo
     ndimMTO=nnn
 !
     do j2=1,ndimMTO2
-       do j=1,ndimMTO
-          if(ixm(j2)==ix(j)) then
-             iix(j2)=j        !index for MLO ndimMTO
-             !exit
-          endif
+       do j1=1,ndimMTO
+          if(ix2(j2)==ix1(j1)) ix12(j2)=j1  
        enddo
     enddo
     
@@ -116,7 +110,6 @@ contains
     if(lso==1) nspx=1
     allocate(ovlmr(1:ndimMTO,1:ndimMTO,npairmx,nspx), hammr(1:ndimMTO,1:ndimMTO,npairmx,nspx))
     write(6,"('ndimMTO ldim lso=',i6,4i3)") ndimMTO,ldim,lso
-    
     hammr=0d0
     ovlmr=0d0
     iq=0
@@ -130,15 +123,14 @@ contains
        read(ifih) ovlm(1:ndimPMT,1:ndimPMT)
        read(ifih) hamm(1:ndimPMT,1:ndimPMT)
        epsovl=1d-8
-
        eigen: block
          real(8):: evlmlo(ndimMTO),evl(ndimPMT) !,evlmlo2(ndimMTO2),evlmlo2x(ndimMTO2)
          ! <PsiPMT|PsiMLO> 
          call Hreduction(ndimPMT,hamm(1:ndimPMT,1:ndimPMT),ovlm(1:ndimPMT,1:ndimPMT), &
-              ndimMTO,ix,fff1,   evl,hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO))
+              ndimMTO,ix1,fff1,   evl,hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO))
          ! <PsiMLO|PsiMLO2> 
          call Hreduction(ndimMTO,hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO),&
-              ndimMTO2,iix,fff2, evlmlo,hamm(1:ndimMTO2,1:ndimMTO2),ovlm(1:ndimMTO2,1:ndimMTO2))
+              ndimMTO2,ix12,fff2, evlmlo,hamm(1:ndimMTO2,1:ndimMTO2),ovlm(1:ndimMTO2,1:ndimMTO2))
 
          echeck: block
            complex(8):: evecmlo2(ndimMTO2,ndimMTO2)
@@ -157,11 +149,10 @@ contains
          endblock echeck
        endblock eigen
        !! Real space Hamiltonian. H(k) ->  H(T) FourierTransformation to real space
-       !!       Only MTO part ndimMTO (ndimPMT = ndimMTO + ndimAPW)
        do i=1,ndimMTO2
           do j=1,ndimMTO2
-             ib1 = ib_table(ixm(i)) 
-             ib2 = ib_table(ixm(j)) 
+             ib1 = ib_table(ix2(i)) 
+             ib2 = ib_table(ix2(j)) 
              do it =1,npair(ib1,ib2)! hammr_ij (T)= \sum_k hamm(k) exp(ikT). it is the index for T
                 phase = 1d0/dble(nkp)* exp(img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
                 hammr(i,j,it,jsp)= hammr(i,j,it,jsp)+ hamm(i,j)*phase
@@ -176,7 +167,7 @@ contains
     close(ifih)
    
     ndimMTO=ndimMTO2
-    ix(1:ndimMTO)=ixm(1:ndimMTO) !for atom idex
+    ix(1:ndimMTO)=ix2(1:ndimMTO) !for atom idex
    
     !! write RealSpace MTO Hamiltonian
     write(6,*)' Writing HamRsMTO... ndimMTO=',ndimMTO
