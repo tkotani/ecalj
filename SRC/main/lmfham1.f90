@@ -72,7 +72,7 @@ contains
     logical:: lprint=.true.,savez=.false.,getz=.false.,skipdiagtest=.false.
 !    real(8),allocatable:: evl(:)
     complex(8):: img=(0d0,1d0),aaaa,phase
-    real(8)::qp(3),pi=4d0*atan(1d0),fff,ef,fff1=6,fff2=6,fff3=6 !,fff1=2,fff2=2 8,4,4
+    real(8)::qp(3),pi=4d0*atan(1d0),fff,ef,fff1=8,fff2=4,fff3=4 !,fff1=2,fff2=2 8,4,4
     integer:: ix(ldim),ix1(ldim),ix2(ldim),ix3(ldim),ix12(ldim),ix23(ldim),nnn,ib,k,l,ix5,imin,ixx &
          ,ndimMTO2,j2,j1,j3,ndimMTO3
     integer:: nx
@@ -140,17 +140,22 @@ contains
        read(ifih) ovlm(1:ndimPMT,1:ndimPMT)
        read(ifih) hamm(1:ndimPMT,1:ndimPMT)
        epsovl=1d-8
+!!!!!!!!!!!!!!!!!!!!!!!!!
+         ndimMTO2=ndimMTO
+!!!!!!!!!!!!!!!!!!!!!!!!!       
        eigen: block
          real(8):: evlmlo(ndimMTO),evl(ndimPMT),evlmlo2(ndimMTO2),evlmlo3(ndimMTO3)
          ! <PsiPMT|PsiMLO> 
          call Hreduction(ndimPMT,hamm(1:ndimPMT,1:ndimPMT),ovlm(1:ndimPMT,1:ndimPMT), &
               ndimMTO,ix1,fff1,   evl,hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO))
          ! <PsiMLO|PsiMLO2> 
-         call Hreduction(ndimMTO,hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO),&
-              ndimMTO2,ix12,fff2, evlmlo,hamm(1:ndimMTO2,1:ndimMTO2),ovlm(1:ndimMTO2,1:ndimMTO2))
+!         call Hreduction(ndimMTO,hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO),&
+!              ndimMTO2,ix12,fff2, evlmlo,hamm(1:ndimMTO2,1:ndimMTO2),ovlm(1:ndimMTO2,1:ndimMTO2))
          ! <PsiMLO2|PsiMLO3> 
+!         call Hreduction(ndimMTO2,hamm(1:ndimMTO2,1:ndimMTO2),ovlm(1:ndimMTO2,1:ndimMTO2),&
+         !              ndimMTO3,ix23,fff3, evlmlo2,hamm(1:ndimMTO3,1:ndimMTO3),ovlm(1:ndimMTO3,1:ndimMTO3))
          call Hreduction(ndimMTO2,hamm(1:ndimMTO2,1:ndimMTO2),ovlm(1:ndimMTO2,1:ndimMTO2),&
-              ndimMTO3,ix23,fff3, evlmlo2,hamm(1:ndimMTO3,1:ndimMTO3),ovlm(1:ndimMTO3,1:ndimMTO3))
+              ndimMTO3,ix12,fff3, evlmlo2,hamm(1:ndimMTO3,1:ndimMTO3),ovlm(1:ndimMTO3,1:ndimMTO3))
 
          echeck: block
            complex(8):: evec(ndimMTO3**2), hh(ndimMTO3,ndimMTO3),oo(ndimMTO3,ndimMTO3)
@@ -160,7 +165,8 @@ contains
               nmx = ndimMTO3
               call zhev_tk4(ndimMTO3,hh,oo, nmx,nev,evlmlo3, evec, epsovl) 
               do i=1,ndimMTO3
-                 write(6,"(a,i5,4f12.4)")'mmm', i,evl(i),evlmlo(i)-evl(i),evlmlo2(i)-evl(i),evlmlo3(i)-evl(i)
+!                 write(6,"(a,i5,4f12.4)")'mmm', i,evl(i),evlmlo(i)-evl(i),evlmlo2(i)-evl(i),evlmlo3(i)-evl(i)
+                 write(6,"(a,i5,4f12.4)")'mmm', i,evl(i),evlmlo2(i)-evl(i),evlmlo3(i)-evl(i)
               enddo !   if(abs(qp(1)-1)<1d-4) stop 'vvvvvvvvqp'
            endif
          endblock echeck
