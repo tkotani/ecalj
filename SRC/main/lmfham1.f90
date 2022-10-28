@@ -72,15 +72,27 @@ contains
     logical:: lprint=.true.,savez=.false.,getz=.false.,skipdiagtest=.false.
 !    real(8),allocatable:: evl(:)
     complex(8):: img=(0d0,1d0),aaaa,phase
-    real(8)::qp(3),pi=4d0*atan(1d0),fff,ef,fff1=8,fff2=4 !,fff1=2,fff2=2
-    integer:: ix(ldim),ix1(ldim),ix2(ldim),ix12(ldim),nnn,ib,k,l,ix5,imin,ixx,ndimMTO2,j2,j1
+    real(8)::qp(3),pi=4d0*atan(1d0),fff,ef,fff1=6,fff2=6,fff3=6 !,fff1=2,fff2=2 8,4,4
+    integer:: ix(ldim),ix1(ldim),ix2(ldim),ix3(ldim),ix12(ldim),ix23(ldim),nnn,ib,k,l,ix5,imin,ixx &
+         ,ndimMTO2,j2,j1,j3,ndimMTO3
     integer:: nx
-    
+
+!    [fff1,fff2,fff3]=[8d0,8d0,8d0]
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1    
     nnn=0
     do i=1,ldim
+       if(l_table(i)>=3) cycle 
+       if(k_table(i)==2) cycle !.and.l_table(i)>=1) cycle
+       write(6,*) i,ib_table(i),l_table(i),k_table(i)
+       nnn=nnn+1
+       ix3(nnn)=i
+    enddo
+    ndimMTO3=nnn
+!
+    nnn=0
+    do i=1,ldim
        if(l_table(i)>=3) cycle !   if(l_table(i)>=2.and.k_table(i)==2) cycle
-       if(k_table(i)==2) cycle
+       if(k_table(i)==2) cycle !.and.l_table(i)>=2) cycle
        write(6,*) i,ib_table(i),l_table(i),k_table(i)
        nnn=nnn+1
        ix2(nnn)=i
@@ -99,6 +111,11 @@ contains
     do j2=1,ndimMTO2
        do j1=1,ndimMTO
           if(ix2(j2)==ix1(j1)) ix12(j2)=j1  
+       enddo
+    enddo
+    do j3=1,ndimMTO3
+       do j2=1,ndimMTO2
+          if(ix3(j3)==ix2(j2)) ix23(j3)=j2  
        enddo
     enddo
     
@@ -124,35 +141,35 @@ contains
        read(ifih) hamm(1:ndimPMT,1:ndimPMT)
        epsovl=1d-8
        eigen: block
-         real(8):: evlmlo(ndimMTO),evl(ndimPMT) !,evlmlo2(ndimMTO2),evlmlo2x(ndimMTO2)
+         real(8):: evlmlo(ndimMTO),evl(ndimPMT),evlmlo2(ndimMTO2),evlmlo3(ndimMTO3)
          ! <PsiPMT|PsiMLO> 
          call Hreduction(ndimPMT,hamm(1:ndimPMT,1:ndimPMT),ovlm(1:ndimPMT,1:ndimPMT), &
               ndimMTO,ix1,fff1,   evl,hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO))
          ! <PsiMLO|PsiMLO2> 
          call Hreduction(ndimMTO,hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO),&
               ndimMTO2,ix12,fff2, evlmlo,hamm(1:ndimMTO2,1:ndimMTO2),ovlm(1:ndimMTO2,1:ndimMTO2))
+         ! <PsiMLO2|PsiMLO3> 
+         call Hreduction(ndimMTO2,hamm(1:ndimMTO2,1:ndimMTO2),ovlm(1:ndimMTO2,1:ndimMTO2),&
+              ndimMTO3,ix23,fff3, evlmlo2,hamm(1:ndimMTO3,1:ndimMTO3),ovlm(1:ndimMTO3,1:ndimMTO3))
 
          echeck: block
-           complex(8):: evecmlo2(ndimMTO2,ndimMTO2)
-           real(8):: evlmlo2(ndimMTO2),evlmlo2x(ndimMTO2)
-           complex(8):: hh(1:ndimMTO2,1:ndimMTO2),oo(1:ndimMTO2,1:ndimMTO2)
+           complex(8):: evec(ndimMTO3**2), hh(ndimMTO3,ndimMTO3),oo(ndimMTO3,ndimMTO3)
            if(sum([qp(2),qp(3)]**2)<1d-3) then
-              hh=hamm(1:ndimMTO2,1:ndimMTO2)
-              oo=ovlm(1:ndimMTO2,1:ndimMTO2)
-              nmx = ndimMTO2
-              call zhev_tk4(ndimMTO2,hh,oo, nmx,nev,evlmlo2x, evecmlo2, epsovl) !PsiMLO
-              do i=1,ndimMTO2
-                 write(6,"(a,i5,3f12.4)")'mmmmm', i,evl(i),evlmlo(i),evlmlo2x(i)-evlmlo(i)
-              enddo
-              !if(abs(qp(1)-1)<1d-4) stop 'vvvvvvvvqp'
+              hh=hamm(1:ndimMTO3,1:ndimMTO3)
+              oo=ovlm(1:ndimMTO3,1:ndimMTO3)
+              nmx = ndimMTO3
+              call zhev_tk4(ndimMTO3,hh,oo, nmx,nev,evlmlo3, evec, epsovl) 
+              do i=1,ndimMTO3
+                 write(6,"(a,i5,4f12.4)")'mmm', i,evl(i),evlmlo(i)-evl(i),evlmlo2(i)-evl(i),evlmlo3(i)-evl(i)
+              enddo !   if(abs(qp(1)-1)<1d-4) stop 'vvvvvvvvqp'
            endif
          endblock echeck
        endblock eigen
        !! Real space Hamiltonian. H(k) ->  H(T) FourierTransformation to real space
-       do i=1,ndimMTO2
-          do j=1,ndimMTO2
-             ib1 = ib_table(ix2(i)) 
-             ib2 = ib_table(ix2(j)) 
+       do i=1,ndimMTO3
+          do j=1,ndimMTO3
+             ib1 = ib_table(ix3(i)) 
+             ib2 = ib_table(ix3(j)) 
              do it =1,npair(ib1,ib2)! hammr_ij (T)= \sum_k hamm(k) exp(ikT). it is the index for T
                 phase = 1d0/dble(nkp)* exp(img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
                 hammr(i,j,it,jsp)= hammr(i,j,it,jsp)+ hamm(i,j)*phase
@@ -166,8 +183,8 @@ contains
     write(6,*)'Read: total # of q for Ham=',iq
     close(ifih)
    
-    ndimMTO=ndimMTO2
-    ix(1:ndimMTO)=ix2(1:ndimMTO) !for atom idex
+    ndimMTO=ndimMTO3
+    ix(1:ndimMTO)=ix3(1:ndimMTO) !for atom idex
    
     !! write RealSpace MTO Hamiltonian
     write(6,*)' Writing HamRsMTO... ndimMTO=',ndimMTO
@@ -323,13 +340,13 @@ program lmfham1
     write(6,"(a)")'!!! OK! band_lmfham_spin*.dat has generated! MTO only band plot'
     write(6,"(a)")'See README_MATERIALS.org for how to make a plot for band_lmfham_spin*.dat'
     write(6,"(a)")'  For example, gnuplot scrpt can be'
-    write(6,"(a)")' plot \'
-    write(6,"(a)")' "bnd001.spin1" u ($2):($3) lt 1 pt 1 w lp,\'
-    write(6,"(a)")' "bnd002.spin1" u ($2):($3) lt 1 pt 1 w lp,\'
-    write(6,"(a)")' "bnd003.spin1" u ($2):($3) lt 1 pt 1 w lp,\'
-    write(6,"(a)")' "bnd004.spin1" u ($2):($3) lt 1 pt 1 w lp,\'
-    write(6,"(a)")' "bnd005.spin1" u ($2):($3) lt 1 pt 1 w lp,\'
-    write(6,"(a)")' "bnd006.spin1" u ($2):($3) lt 1 pt 1 w lp,\'
+    write(6,"(a)")' plot \ '
+    write(6,"(a)")' "bnd001.spin1" u ($2):($3) lt 1 pt 1 w lp,\ '
+    write(6,"(a)")' "bnd002.spin1" u ($2):($3) lt 1 pt 1 w lp,\ '
+    write(6,"(a)")' "bnd003.spin1" u ($2):($3) lt 1 pt 1 w lp,\ '
+    write(6,"(a)")' "bnd004.spin1" u ($2):($3) lt 1 pt 1 w lp,\ '
+    write(6,"(a)")' "bnd005.spin1" u ($2):($3) lt 1 pt 1 w lp,\ '
+    write(6,"(a)")' "bnd006.spin1" u ($2):($3) lt 1 pt 1 w lp,\ '
     write(6,"(a)")' "band_lmfham_spin1.dat" u ($1):(13.605*($2-ef)) pt 2'
     write(6,"(a)")' pause -1'
     deallocate(ovlm,hamm)
@@ -356,6 +373,9 @@ subroutine Hreduction(ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,ovlmout)
   nmx = ndimMTO
   call zhev_tk4(ndimMTO,hamm(ix(1:ndimMTO),ix(1:ndimMTO)),ovlm(ix(1:ndimMTO),ix(1:ndimMTO)), &
        nmx,nev, evlmto, evecmto, epsovl) !MTO
+!  do i=1,nev
+!     write(6,*)'eeee000 evl=',i,evlmto(i)
+!  enddo
   ovlm= ovlmx
   hamm= hammx
   nmx = ndimPMT
