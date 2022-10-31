@@ -72,7 +72,7 @@ contains
     logical:: lprint=.true.,savez=.false.,getz=.false.,skipdiagtest=.false.
 !    real(8),allocatable:: evl(:)
     complex(8):: img=(0d0,1d0),aaaa,phase
-    real(8)::qp(3),pi=4d0*atan(1d0),fff,ef,fff1=8,fff2=8,fff3=8 !,fff1=2,fff2=2 8,4,4
+    real(8)::qp(3),pi=4d0*atan(1d0),fff,ef,fff1=8,fff2=0,fff3=0 !,fff1=2,fff2=2 8,4,4
     integer:: ix(ldim),ix1(ldim),ix2(ldim),ix3(ldim),ix12(ldim),ix23(ldim),nnn,ib,k,l,ix5,imin,ixx &
          ,ndimMTO2,j2,j1,j3,ndimMTO3
     integer:: nx
@@ -80,53 +80,56 @@ contains
 !    [fff1,fff2,fff3]=[8d0,8d0,8d0]
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1    
     nnn=0
-    do i=1,ldim
+    do i=1,ldim !MLO3 dimension
        if(l_table(i)>=3) cycle 
-       if(k_table(i)==2) cycle !.and.l_table(i)>=1) cycle
-       write(6,*) i,ib_table(i),l_table(i),k_table(i)
+!       if(k_table(i)==2) cycle !.and.l_table(i)>=1) cycle
+!       if(k_table(i)==2.and.l_table(i)>=2) cycle
+       write(6,*) 'ham3 index', i,ib_table(i),l_table(i),k_table(i)
        nnn=nnn+1
        ix3(nnn)=i
     enddo
     ndimMTO3=nnn
 !
     nnn=0
-    do i=1,ldim
+    do i=1,ldim !MLO2 dimension
        if(l_table(i)>=3) cycle !   if(l_table(i)>=2.and.k_table(i)==2) cycle
-       if(k_table(i)==2) cycle !.and.l_table(i)>=2) cycle
-       write(6,*) i,ib_table(i),l_table(i),k_table(i)
+!       if(k_table(i)==2) cycle !.and.l_table(i)>=2) cycle
+!       if(k_table(i)==2.and.l_table(i)>=2) cycle
+       write(6,*) 'ham2 index',i,ib_table(i),l_table(i),k_table(i)
        nnn=nnn+1
        ix2(nnn)=i
     enddo
     ndimMTO2=nnn
 !
     nnn=0
-    do i=1,ldim !MLO dimention 
+    do i=1,ldim !MLO dimension 
        if(l_table(i)>=3) cycle !  !if(l_table(i)>=2.and.k_table(i)>=2) cycle      if(k_table(i)==2) cycle
-       write(6,*) i,ib_table(i),l_table(i),k_table(i)
+!       if(k_table(i)==2) cycle !.and.l_table(i)>=2) cycle
+       write(6,*) 'ham1 index', i,ib_table(i),l_table(i),k_table(i)
        nnn=nnn+1
        ix1(nnn)=i
     enddo
     ndimMTO=nnn
 !
-    do j2=1,ndimMTO2
+    do j2=1,ndimMTO2 !Map from MLO2->MLO
        do j1=1,ndimMTO
           if(ix2(j2)==ix1(j1)) ix12(j2)=j1  
        enddo
     enddo
-    do j3=1,ndimMTO3
+    do j3=1,ndimMTO3 !Map from MLO3->MLO2
        do j2=1,ndimMTO2
           if(ix3(j3)==ix2(j2)) ix23(j3)=j2  
        enddo
     enddo
     
     open(newunit=ifih,file='HamiltonianPMT',form='unformatted')
-    write(6,*)'Reaing HamiltonianPMT...'
+    write(6,*)'Reaing HamiltonianPMT ...'
     if(lso==1) ldim=ldim*2 !L.S mode
-    
     nspx=nsp
     if(lso==1) nspx=1
-    allocate(ovlmr(1:ndimMTO,1:ndimMTO,npairmx,nspx), hammr(1:ndimMTO,1:ndimMTO,npairmx,nspx))
     write(6,"('ndimMTO ldim lso=',i6,4i3)") ndimMTO,ldim,lso
+    
+    allocate(ovlmr(1:ndimMTO,1:ndimMTO,npairmx,nspx), hammr(1:ndimMTO,1:ndimMTO,npairmx,nspx))
     hammr=0d0
     ovlmr=0d0
     iq=0
@@ -141,8 +144,8 @@ contains
        read(ifih) hamm(1:ndimPMT,1:ndimPMT)
        epsovl=1d-8
 !!!!!!!!!!!!!!!!!!!!!!!!! skip 2nd step
-       ndimMTO2=ndimMTO
-       ix23(1:ndimMTO3)=ix12(1:ndimMTO3)
+!       ndimMTO2=ndimMTO
+!       ix23(1:ndimMTO3)=ix12(1:ndimMTO3)
 !!!!!!!!!!!!!!!!!!!!!!!!!       
        eigen: block
          real(8):: evlmlo(ndimMTO),evl(ndimPMT),evlmlo2(ndimMTO2),evlmlo3(ndimMTO3)
@@ -150,14 +153,11 @@ contains
          call Hreduction(.false.,ndimPMT,hamm(1:ndimPMT,1:ndimPMT),ovlm(1:ndimPMT,1:ndimPMT), &
               ndimMTO,ix1,fff1,   evl,hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO))
          ! <PsiMLO|PsiMLO2> 
-!         call Hreduction(iprx,ndimMTO,hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO),&
-!              ndimMTO2,ix12,fff2, evlmlo,hamm(1:ndimMTO2,1:ndimMTO2),ovlm(1:ndimMTO2,1:ndimMTO2))
+         call Hreduction(.false.,ndimMTO,hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO),&
+              ndimMTO2,ix12,fff2, evlmlo,hamm(1:ndimMTO2,1:ndimMTO2),ovlm(1:ndimMTO2,1:ndimMTO2))
          ! <PsiMLO2|PsiMLO3> 
-!         call Hreduction(iprx,ndimMTO2,hamm(1:ndimMTO2,1:ndimMTO2),ovlm(1:ndimMTO2,1:ndimMTO2),&
-         !    ndimMTO3,ix23,fff3, evlmlo2,hamm(1:ndimMTO3,1:ndimMTO3),ovlm(1:ndimMTO3,1:ndimMTO3))
          call Hreduction(.false.,ndimMTO2,hamm(1:ndimMTO2,1:ndimMTO2),ovlm(1:ndimMTO2,1:ndimMTO2),&
               ndimMTO3,ix23,fff3, evlmlo2,hamm(1:ndimMTO3,1:ndimMTO3),ovlm(1:ndimMTO3,1:ndimMTO3))
-
          finaleigen: block
            complex(8):: evec(ndimMTO3**2), hh(ndimMTO3,ndimMTO3),oo(ndimMTO3,ndimMTO3)
            if(sum([qp(2),qp(3)]**2)<1d-3) then
@@ -188,11 +188,9 @@ contains
 2019 continue
     write(6,*)'Read: total # of q for Ham=',iq
     close(ifih)
-   
+    !! write RealSpace MTO Hamiltonian
     ndimMTO=ndimMTO3
     ix(1:ndimMTO)=ix3(1:ndimMTO) !for atom idex
-   
-    !! write RealSpace MTO Hamiltonian
     write(6,*)' Writing HamRsMTO... ndimMTO=',ndimMTO
     open(newunit=ifihmto,file='HamRsMTO',form='unformatted')
     write(ifihmto) ndimMTO,npairmx,nspx
@@ -229,7 +227,7 @@ contains
           ov(itt) = sum( dconjg(zmel(:,itt))*vec(:))
        enddo
        vec = vec - matmul(zmel(:,1:it-1),ov(1:it-1))
-       zmel(:,it) = vec/sum(dconjg(vec)*vec)**.5
+       zmel(:,it) = vec/sum(dconjg(vec)*vec)**.5d0
     enddo
   end subroutine GramSchmidt
 end module m_HamPMT
@@ -253,116 +251,8 @@ contains
     print*,' OK: Read HamRsMTO file!'
   end subroutine ReadHamRsMTO
 end module m_HamRsMTO
-!! -----------------------------------------------------------------------------------      
-program lmfham1
-  !! Read HamiltonianPMT and generates MTO-only Hamiltonian
-  use m_HamPMT, only: plat, npair,nlat,nqwgt, ldim, nkp,qplist,&
-       ib_table,alat, ReadHamPMTInfo, HamPMTtoHamRsMTO
-  ! note.  HamPMTtoHamRsMTO do not change variables. Only generate HamRsMTO file.
-  use m_HamRsMTO,  only: hammr,ovlmr,ndimMTO,  ReadHamRsMTO,ix,npairmx,nspx
-  use m_readqplist,only: eferm,qplistsy,ndat,xdat, Readqplistsy
-  use m_mpi,only: MPI__hx0fp0_rankdivider2Q, MPI__Qtask, &
-       MPI__Initialize, MPI__Finalize,MPI__root, &
-       MPI__Broadcast, MPI__rank,MPI__size, MPI__consoleout,MPI__barrier
-  implicit none
-  integer:: i,j,ikp,ib1,ib2,it,nmx,nev,jsp
-  complex(8)::img=(0d0,1d0),phase
-  complex(8),allocatable:: hamm(:,:),ovlm(:,:),t_zv(:,:)
-  real(8),allocatable:: evl(:)
-  real(8)::qp(3),pi=4d0*atan(1d0),epsovl=1d-8
-  logical:: lprint=.true.,savez=.false.,getz=.false. !dummy
-  integer:: ifig=-999       !dummy
-  integer:: ndatx,ifsy1,ifsy2,ifile_handle,ifsy,iix(36)
-  logical:: symlcase=.true.
-  call MPI__Initialize()
-  call ReadHamPMTInfo()! Read infomation for Hamiltonian (lattice structures and index of basis).
-  call HamPMTtoHamRsMTO() ! HamRsMTO (real-space MTO based Hamiltonian) is generated.
-                          ! HamPMT is for k mesh points, and Get H(T) (real space Hamiltonian).  
-  call ReadHamRsMTO() !Read HamRsMTO. ! If HamRSMTO exist, you can skip 'call HamPMTtoHamRsMTO()'.
 
-  GetEigenvaluesForSYML: block!Get Hamitonian at k points for hammr,ovlmr(realspace), then diagnalize.
-    ! bands by original ecalj (by job_band), and TB hamiltonian read by ReadHamiltonianPMTInfo.
-    if(symlcase) then ! When symlcase=T, read qplist.dat (q points list, see bndfp.F). 
-       call readqplistsy()
-       open(newunit=ifsy1,file='band_lmfham_spin1.dat')
-       !if(nspx==2) ifsy2 = ifile_handle()
-       if(nspx==2) open(newunit=ifsy2,file='band_lmfham_spin2.dat')
-       write(6,*)  'ndat =',ndat
-    endif
-    !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !  ndimMTO=8
-    !  iix(1:4)=[1,2,3,4]+9 !,6,7,8,9]
-    !  iix(4+1:4+4)=[1,2,3,4]+18+9 !,5,6,7,8,9]+9+9
-    !  iix(18+1:18+9)=[1,2,3,4,5,6,7,8,9]+18
-    !  iix(27+1:27+9)=[1,2,3,4,5,6,7,8,9]+27
-
-    write(6,*)  'ndimMTO=',ndimMTO 
-    allocate(ovlm(1:ndimMTO,1:ndimMTO),hamm(1:ndimMTO,1:ndimMTO))
-    allocate(t_zv(ndimMTO,ndimMTO),evl(ndimMTO))
-    nmx = ndimMTO
-    ndatx = nkp
-    if(symlcase) ndatx=ndat
-    do ikp=1,ndatx
-       if(symlcase) then
-          qp= qplistsy(:,ikp)
-       else
-          qp = qplist(:,ikp) 
-       endif
-       write(6,"(' ikp along qplist, q=',i5,3f9.4)")ikp,qp! true q(i)= 2pi/alat * qplist(i,ikp)
-       do jsp=1,nspx !nsp is the number of spin.  When lso=1(Lz.Sz), nspx=1
-          ovlm = 0d0
-          hamm = 0d0
-          do i=1,ndimMTO
-             do j=1,ndimMTO
-                ib1 = ib_table(ix(i))!,ldim) !atomic-site index in the primitive cell
-                ib2 = ib_table(ix(j))!,ldim)
-                !              ib1 = ib_table(ix(iix(i)))!,ldim) !atomic-site index in the primitive cell
-                !              ib2 = ib_table(ix(iix(j)))!,ldim)
-                do it =1,npair(ib1,ib2)
-                   phase=1d0/nqwgt(it,ib1,ib2)*exp(-img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
-                   !                 hamm(i,j)= hamm(i,j)+ hammr(iix(i),iix(j),it,jsp)*phase
-                   !                 ovlm(i,j)= ovlm(i,j)+ ovlmr(iix(i),iix(j),it,jsp)*phase
-                   hamm(i,j)= hamm(i,j)+ hammr(i,j,it,jsp)*phase
-                   ovlm(i,j)= ovlm(i,j)+ ovlmr(i,j,it,jsp)*phase
-                enddo
-             enddo
-          enddo
-          call zhev_tk4(ndimMTO,hamm,ovlm,nmx,nev, evl,t_zv, epsovl)!Diangonale (hamm- evl ovlm) z=0
-          !do i=1,12
-          !   write(6,"(i2,f9.3,2x,9f5.1,2x,9f5.1)")i,evl(i),(abs(t_zv(j,i)),j=1,ndimMTO/2)
-          !enddo   
-          if(symlcase) then
-             if(jsp==1) ifsy=ifsy1
-             if(jsp==2) ifsy=ifsy2
-             do i=1,nev
-                write(ifsy,"(f15.5,f15.5,2i4)") xdat(ikp),evl(i),jsp,i
-             enddo
-          endif
-       enddo
-    enddo
-    close(ifsy1)
-    if(nspx==2) close(ifsy2)
-    write(6,"(a)")'!!! OK! band_lmfham_spin*.dat has generated! MTO only band plot'
-    write(6,"(a)")'See README_MATERIALS.org for how to make a plot for band_lmfham_spin*.dat'
-    write(6,"(a)")'  For example, gnuplot scrpt can be'
-    write(6,"(a)")' plot \ '
-    write(6,"(a)")' "bnd001.spin1" u ($2):($3) lt 1 pt 1 w lp,\ '
-    write(6,"(a)")' "bnd002.spin1" u ($2):($3) lt 1 pt 1 w lp,\ '
-    write(6,"(a)")' "bnd003.spin1" u ($2):($3) lt 1 pt 1 w lp,\ '
-    write(6,"(a)")' "bnd004.spin1" u ($2):($3) lt 1 pt 1 w lp,\ '
-    write(6,"(a)")' "bnd005.spin1" u ($2):($3) lt 1 pt 1 w lp,\ '
-    write(6,"(a)")' "bnd006.spin1" u ($2):($3) lt 1 pt 1 w lp,\ '
-    write(6,"(a)")' "band_lmfham_spin1.dat" u ($1):(13.605*($2-ef)) pt 2'
-    write(6,"(a)")' pause -1'
-    deallocate(ovlm,hamm)
-  end block GetEigenvaluesForSYML
-endprogram
-
-
-subroutine Hreduction(iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,ovlmout)
-  !       call Hreduction(ndimPMT,hamm,ovlm, ndimMTO,ix,fff1, hamm,ovlm)
-  !       firstreduction:block
+subroutine Hreduction(iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,ovlmout)!Reduce H(ndimPMT) to H(ndimMTO)
   use m_readqplist,only: eferm
   use m_HamPMT,only: GramSchmidt
   implicit none
@@ -392,8 +282,8 @@ subroutine Hreduction(iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,ovlmou
   do j=1,ndimMTO !wnm is corrected matrix element of <psi_PMT|psi_MTO>
      do i=1,ndimPMT
         fac(i,j)= sum(dconjg(evecpmt(:,i))*matmul(ovlmx(:,ix(1:ndimMTO)),evecmto(1:ndimMTO,j)))
-        !fff= 1.5d0/(exp( (evl(i)-(eferm+5d0))/1d0 )+ 1d0)
-        wnm(i,j)= fac(i,j) *abs(fac(i,j)) **fff1 !1 !**fff ! Without abs(fac(i,j)), simple projection.
+        fff= 1.5d0/(exp( (evl(i)-(eferm+5d0))/1d0 )+ 1d0)
+        wnm(i,j)= fac(i,j) *abs(fac(i,j)) **fff  !1 !**fff ! Without abs(fac(i,j)), simple projection.
      enddo
   enddo
   call GramSchmidt(ndimPMT,ndimMTO,wnm)
@@ -414,5 +304,93 @@ subroutine Hreduction(iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,ovlmou
         ovlmout(i,j)= sum( dconjg(wnj(1:nx,i))*wnj(1:nx,j) ) !<MLO|MLO>
      enddo
   enddo
-  !       endblock firstreduction
 end subroutine Hreduction
+
+!! -----------------------------------------------------------------------------------      
+program lmfham1
+  !! Read HamiltonianPMT and generates MTO-only Hamiltonian
+  use m_HamPMT, only: plat, npair,nlat,nqwgt, ldim, nkp,qplist,&
+       ib_table,alat, ReadHamPMTInfo, HamPMTtoHamRsMTO
+  ! note.  HamPMTtoHamRsMTO do not change variables. Only generate HamRsMTO file.
+  use m_HamRsMTO,  only: hammr,ovlmr,ndimMTO,  ReadHamRsMTO,ix,npairmx,nspx
+  use m_readqplist,only: eferm,qplistsy,ndat,xdat, Readqplistsy
+  use m_mpi,only: MPI__hx0fp0_rankdivider2Q, MPI__Qtask, &
+       MPI__Initialize, MPI__Finalize,MPI__root, &
+       MPI__Broadcast, MPI__rank,MPI__size, MPI__consoleout,MPI__barrier
+  implicit none
+  integer:: i,j,ikp,ib1,ib2,it,nmx,nev,jsp
+  complex(8)::img=(0d0,1d0),phase
+  complex(8),allocatable:: hamm(:,:),ovlm(:,:),t_zv(:,:)
+  real(8),allocatable:: evl(:)
+  real(8)::qp(3),pi=4d0*atan(1d0),epsovl=1d-8
+  logical:: lprint=.true.,savez=.false.,getz=.false. !dummy
+  integer:: ifig=-999       !dummy
+  integer:: ndatx,ifsy1,ifsy2,ifile_handle,ifsy,iix(36)
+  logical:: symlcase=.true.
+  call MPI__Initialize()
+  call ReadHamPMTInfo()! Read infomation for Hamiltonian (lattice structures and index of basis).
+  call HamPMTtoHamRsMTO() ! HamRsMTO (real-space Hamiltonian hammr,ovlmr) is generated.
+  call ReadHamRsMTO() !Read HamRsMTO. ! If HamRSMTO exist, you can skip 'call HamPMTtoHamRsMTO()'.
+  GetEigenvaluesForSYML: block! Get Hamitonian at k points from hammr,ovlmr(realspace), then diagnalize.
+    ! bands by original ecalj (by job_band), and TB hamiltonian read by ReadHamiltonianPMTInfo.
+    if(symlcase) then ! When symlcase=T, read qplist.dat (q points list, see bndfp.F). 
+       call readqplistsy()
+       open(newunit=ifsy1,file='band_lmfham_spin1.dat')
+       !if(nspx==2) ifsy2 = ifile_handle()
+       if(nspx==2) open(newunit=ifsy2,file='band_lmfham_spin2.dat')
+       write(6,*)  'ndat =',ndat
+    endif
+    write(6,*)  'ndimMTO=',ndimMTO 
+    allocate(ovlm(1:ndimMTO,1:ndimMTO),hamm(1:ndimMTO,1:ndimMTO))
+    allocate(t_zv(ndimMTO,ndimMTO),evl(ndimMTO))
+    nmx = ndimMTO
+    ndatx = nkp
+    if(symlcase) ndatx=ndat
+    do ikp=1,ndatx
+       if(symlcase) then
+          qp= qplistsy(:,ikp)
+       else
+          qp = qplist(:,ikp) 
+       endif
+       write(6,"(' ikp along qplist, q=',i5,3f9.4)")ikp,qp! true q(i)= 2pi/alat * qplist(i,ikp)
+       do jsp=1,nspx !nsp is the number of spin.  When lso=1(Lz.Sz), nspx=1
+          ovlm = 0d0
+          hamm = 0d0
+          do i=1,ndimMTO
+             do j=1,ndimMTO
+                ib1 = ib_table(ix(i)) !atomic-site index in the primitive cell
+                ib2 = ib_table(ix(j))
+                do it =1,npair(ib1,ib2)
+                   phase=1d0/nqwgt(it,ib1,ib2)*exp(-img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
+                   hamm(i,j)= hamm(i,j)+ hammr(i,j,it,jsp)*phase
+                   ovlm(i,j)= ovlm(i,j)+ ovlmr(i,j,it,jsp)*phase
+                enddo
+             enddo
+          enddo
+          call zhev_tk4(ndimMTO,hamm,ovlm,nmx,nev, evl,t_zv, epsovl)!Diangonale (hamm- evl ovlm) z=0
+          if(symlcase) then
+             if(jsp==1) ifsy=ifsy1
+             if(jsp==2) ifsy=ifsy2
+             do i=1,nev
+                write(ifsy,"(f15.5,f15.5,2i4)") xdat(ikp),evl(i),jsp,i
+             enddo
+          endif
+       enddo
+    enddo
+    close(ifsy1)
+    if(nspx==2) close(ifsy2)
+    write(6,"(a)")'!!! OK! band_lmfham_spin*.dat has generated! MTO only band plot'
+    write(6,"(a)")'See README_MATERIALS.org for how to make a plot for band_lmfham_spin*.dat'
+    write(6,"(a)")'  For example, gnuplot scrpt can be'
+    write(6,"(a)")' plot \ '
+    write(6,"(a)")' "bnd001.spin1" u ($2):($3) lt 1 pt 1 w lp,\ '
+    write(6,"(a)")' "bnd002.spin1" u ($2):($3) lt 1 pt 1 w lp,\ '
+    write(6,"(a)")' "bnd003.spin1" u ($2):($3) lt 1 pt 1 w lp,\ '
+    write(6,"(a)")' "bnd004.spin1" u ($2):($3) lt 1 pt 1 w lp,\ '
+    write(6,"(a)")' "bnd005.spin1" u ($2):($3) lt 1 pt 1 w lp,\ '
+    write(6,"(a)")' "bnd006.spin1" u ($2):($3) lt 1 pt 1 w lp,\ '
+    write(6,"(a)")' "band_lmfham_spin1.dat" u ($1):(13.605*($2-ef)) pt 2'
+    write(6,"(a)")' pause -1'
+    deallocate(ovlm,hamm)
+  end block GetEigenvaluesForSYML
+endprogram
