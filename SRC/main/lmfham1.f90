@@ -72,7 +72,7 @@ contains
     logical:: lprint=.true.,savez=.false.,getz=.false.,skipdiagtest=.false.
 !    real(8),allocatable:: evl(:)
     complex(8):: img=(0d0,1d0),aaaa,phase
-    real(8)::qp(3),pi=4d0*atan(1d0),fff,ef,fff1=8,fff2=0,fff3=0 !,fff1=2,fff2=2 8,4,4
+    real(8)::qp(3),pi=4d0*atan(1d0),fff,ef,fff1=1,fff2=0,fff3=0 !,fff1=2,fff2=2 8,4,4
     integer:: ix(ldim),ix1(ldim),ix2(ldim),ix3(ldim),ix12(ldim),ix23(ldim),nnn,ib,k,l,ix5,imin,ixx &
          ,ndimMTO2,j2,j1,j3,ndimMTO3
     integer:: nx
@@ -104,7 +104,8 @@ contains
     nnn=0
     do i=1,ldim !MLO dimension 
        if(l_table(i)>=3) cycle !  !if(l_table(i)>=2.and.k_table(i)>=2) cycle      if(k_table(i)==2) cycle
-!       if(k_table(i)==2) cycle !.and.l_table(i)>=2) cycle
+!       if(k_table(i)==2) cycle
+!       if(k_table(i)==2.and.l_table(i)>=2) cycle
        write(6,*) 'ham1 index', i,ib_table(i),l_table(i),k_table(i)
        nnn=nnn+1
        ix1(nnn)=i
@@ -147,6 +148,9 @@ contains
 !       ndimMTO2=ndimMTO
 !       ix23(1:ndimMTO3)=ix12(1:ndimMTO3)
 !!!!!!!!!!!!!!!!!!!!!!!!!       
+       ndimMTO3=ndimMTO2
+       ix3(1:ndimMTO2)=ix2(1:ndimMTO2)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!       
        eigen: block
          real(8):: evlmlo(ndimMTO),evl(ndimPMT),evlmlo2(ndimMTO2),evlmlo3(ndimMTO3)
          ! <PsiPMT|PsiMLO> 
@@ -155,9 +159,9 @@ contains
          ! <PsiMLO|PsiMLO2> 
          call Hreduction(.false.,ndimMTO,hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO),&
               ndimMTO2,ix12,fff2, evlmlo,hamm(1:ndimMTO2,1:ndimMTO2),ovlm(1:ndimMTO2,1:ndimMTO2))
-         ! <PsiMLO2|PsiMLO3> 
-         call Hreduction(.false.,ndimMTO2,hamm(1:ndimMTO2,1:ndimMTO2),ovlm(1:ndimMTO2,1:ndimMTO2),&
-              ndimMTO3,ix23,fff3, evlmlo2,hamm(1:ndimMTO3,1:ndimMTO3),ovlm(1:ndimMTO3,1:ndimMTO3))
+!         ! <PsiMLO2|PsiMLO3> 
+!         call Hreduction(.false.,ndimMTO2,hamm(1:ndimMTO2,1:ndimMTO2),ovlm(1:ndimMTO2,1:ndimMTO2),&
+!              ndimMTO3,ix23,fff3, evlmlo2,hamm(1:ndimMTO3,1:ndimMTO3),ovlm(1:ndimMTO3,1:ndimMTO3))
          finaleigen: block
            complex(8):: evec(ndimMTO3**2), hh(ndimMTO3,ndimMTO3),oo(ndimMTO3,ndimMTO3)
            if(sum([qp(2),qp(3)]**2)<1d-3) then
@@ -166,7 +170,8 @@ contains
               nmx = ndimMTO3
               call zhev_tk4(ndimMTO3,hh,oo, nmx,nev,evlmlo3, evec, epsovl) 
               do i=1,ndimMTO3!'mmm', i,evl(i),evlmlo(i)-evl(i),evlmlo2(i)-evl(i),evlmlo3(i)-evl(i)
-                 write(6,"(a,i5,4f12.4)")'mmm', i,evl(i),evlmlo2(i)-evl(i),evlmlo3(i)-evl(i)
+!                 write(6,"(a,i5,4f12.4)")'mmm', i,evl(i),evlmlo2(i)-evl(i),evlmlo3(i)-evl(i)
+                 write(6,"(a,i5,4f12.4)")'mmm', i,evl(i),evlmlo3(i)-evl(i)
               enddo !   if(abs(qp(1)-1)<1d-4) stop 'vvvvvvvvqp'
            endif
          endblock finaleigen
@@ -256,7 +261,7 @@ subroutine Hreduction(iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,ovlmou
   use m_readqplist,only: eferm
   use m_HamPMT,only: GramSchmidt
   implicit none
-  integer::i,j,ndimPMT,ndimMTO,nx,nmx,ix(ndimMTO),nev
+  integer::i,j,ndimPMT,ndimMTO,nx,nmx,ix(ndimMTO),nev,nxx
   real(8)::beta,emu,val,wgt(ndimPMT),evlmto(ndimMTO),evl(ndimPMT),evlx(ndimPMT)
   complex(8):: oz(ndimPMT,ndimPMT),wnj(ndimPMT,ndimMTO),wnm(ndimPMT,ndimMTO),wnn(ndimMTO,ndimMTO)
   complex(8):: evecmto(ndimMTO,ndimMTO),evecpmt(ndimPMT,ndimPMT)
@@ -268,6 +273,7 @@ subroutine Hreduction(iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,ovlmou
   ovlmx= ovlm
   hammx= hamm
   nmx = ndimMTO
+!  write(6,*)'Hreduction: eferm=',eferm
   call zhev_tk4(ndimMTO,hamm(ix(1:ndimMTO),ix(1:ndimMTO)),ovlm(ix(1:ndimMTO),ix(1:ndimMTO)), &
        nmx,nev, evlmto, evecmto, epsovl) !MTO
 !  do i=1,nev
@@ -282,10 +288,22 @@ subroutine Hreduction(iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,ovlmou
   do j=1,ndimMTO !wnm is corrected matrix element of <psi_PMT|psi_MTO>
      do i=1,ndimPMT
         fac(i,j)= sum(dconjg(evecpmt(:,i))*matmul(ovlmx(:,ix(1:ndimMTO)),evecmto(1:ndimMTO,j)))
-        fff= 1.5d0/(exp( (evl(i)-(eferm+5d0))/1d0 )+ 1d0)
+        fff= 0.5d0 !1d0 !2d0/(exp( (evl(i)-(eferm+5d0))/1d0 )+ 1d0)
+        !fff= 1d0/(exp( (evl(i)-(eferm+3d0))*2d0 )+ 1d0)
+        !fff= 2d0
+        !if(evl(i)- eferm>2d0) fff=0d0
         wnm(i,j)= fac(i,j) *abs(fac(i,j)) **fff  !1 !**fff ! Without abs(fac(i,j)), simple projection.
      enddo
   enddo
+  
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+!  do i=1,12
+!     write(6,*)i
+!  do j=1,ndimMTO !wnm is corrected matrix element of <psi_PMT|psi_MTO>
+!     if(abs(wnm(i,j))>0.1) write(6,*)i,j,abs(wnm(i,j))
+!  enddo
+!  enddo
+  
   call GramSchmidt(ndimPMT,ndimMTO,wnm)
   if(iprx) then
      do j=1,ndimMTO !wnm is corrected matrix element of <psi_PMT|psi_MTO>
@@ -297,7 +315,14 @@ subroutine Hreduction(iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,ovlmou
   ! Mapping operator wnm*<psi_MTO|F_i>, where F_i is MTO basis.
   wnj = matmul(wnm(1:ndimPMT,1:ndimMTO),matmul(transpose(dconjg(evecmto(:,:))),&
        ovlmx(ix(1:ndimMTO),ix(1:ndimMTO))))
-  nx=ndimPMT          
+  nx=ndimPMT
+  !nxx=18
+  !evl(1:nxx)=evl(1:nxx)
+  !evl(nxx+1:nx)=eferm+1.5d0
+  
+  !do i=1,nx
+  !   if(evl(i)>eferm+1d0) evl(i)=eferm+1d0 !evl(ndimMTO)
+  !enddo
   do i=1,ndimMTO
      do j=1,ndimMTO
         hammout(i,j)= sum( dconjg(wnj(1:nx,i))*evl(1:nx)*wnj(1:nx,j))
@@ -328,19 +353,19 @@ program lmfham1
   integer:: ndatx,ifsy1,ifsy2,ifile_handle,ifsy,iix(36)
   logical:: symlcase=.true.
   call MPI__Initialize()
+  if(symlcase) then ! When symlcase=T, read qplist.dat (q points list, see bndfp.F). 
+     call readqplistsy()
+     open(newunit=ifsy1,file='band_lmfham_spin1.dat')
+     !if(nspx==2) ifsy2 = ifile_handle()
+     if(nspx==2) open(newunit=ifsy2,file='band_lmfham_spin2.dat')
+     write(6,*)  'ndat =',ndat
+  endif
   call ReadHamPMTInfo()! Read infomation for Hamiltonian (lattice structures and index of basis).
   call HamPMTtoHamRsMTO() ! HamRsMTO (real-space Hamiltonian hammr,ovlmr) is generated.
   call ReadHamRsMTO() !Read HamRsMTO. ! If HamRSMTO exist, you can skip 'call HamPMTtoHamRsMTO()'.
   GetEigenvaluesForSYML: block! Get Hamitonian at k points from hammr,ovlmr(realspace), then diagnalize.
     ! bands by original ecalj (by job_band), and TB hamiltonian read by ReadHamiltonianPMTInfo.
-    if(symlcase) then ! When symlcase=T, read qplist.dat (q points list, see bndfp.F). 
-       call readqplistsy()
-       open(newunit=ifsy1,file='band_lmfham_spin1.dat')
-       !if(nspx==2) ifsy2 = ifile_handle()
-       if(nspx==2) open(newunit=ifsy2,file='band_lmfham_spin2.dat')
-       write(6,*)  'ndat =',ndat
-    endif
-    write(6,*)  'ndimMTO=',ndimMTO 
+    write(6,*)  'eferm ndimMTO=',eferm,ndimMTO 
     allocate(ovlm(1:ndimMTO,1:ndimMTO),hamm(1:ndimMTO,1:ndimMTO))
     allocate(t_zv(ndimMTO,ndimMTO),evl(ndimMTO))
     nmx = ndimMTO
