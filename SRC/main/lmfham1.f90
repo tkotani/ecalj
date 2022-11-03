@@ -334,7 +334,7 @@ subroutine Hreduction(iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,ovlmou
     if(fff1>=0d0) then
        fff= fff1
     else
-       fff= 2d0
+       fff= 1d0
     endif
     ecut=2d0
     mulfac=0d0
