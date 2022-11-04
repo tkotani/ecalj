@@ -103,9 +103,11 @@ contains
 !
     nnn=0
     do i=1,ldim !MLO dimension 
-       if(l_table(i)>=3) cycle !  !if(l_table(i)>=2.and.k_table(i)>=2) cycle      if(k_table(i)==2) cycle
+       if(l_table(i)>=3) cycle 
        if(k_table(i)==2) cycle
-!       if(k_table(i)==2.and.l_table(i)>=2) cycle
+
+!       if(l_table(i)>=2) cycle 
+!       if(k_table(i)>=2.and.l_table(i)==1) cycle
        write(6,*) 'ham1 index', i,ib_table(i),l_table(i),k_table(i)
        nnn=nnn+1
        ix1(nnn)=i
@@ -149,22 +151,23 @@ contains
        ix3(1:ndimMTO3)=ix1(1:ndimMTO)
 !       ndimMTO3=ndimMTO2
 !       ix3(1:ndimMTO2)=ix2(1:ndimMTO2)
-       
        eigen: block
          real(8):: evlmlo(ndimMTO),evl(ndimPMT),evlmlo2(ndimMTO2),evlmlo3(ndimMTO3)
+         complex(8)::hh(ndimMTO3,ndimMTO3),oo(ndimMTO3,ndimMTO3)
          ! <PsiPMT|PsiMLO> 
          call Hreduction(.false.,ndimPMT,hamm(1:ndimPMT,1:ndimPMT),ovlm(1:ndimPMT,1:ndimPMT), &
               ndimMTO,ix1,fff1,   evl,hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO))
-         ! <PsiMLO|PsiMLO2> 
+!
+! <PsiMLO|PsiMLO2> 
 !         call Hreduction(.false.,ndimMTO,hamm(1:ndimMTO,1:ndimMTO),ovlm(1:ndimMTO,1:ndimMTO),&
 !              ndimMTO2,ix12,fff2, evlmlo,hamm(1:ndimMTO2,1:ndimMTO2),ovlm(1:ndimMTO2,1:ndimMTO2))
-!         ! <PsiMLO2|PsiMLO3> 
+! <PsiMLO2|PsiMLO3> 
 !         call Hreduction(.false.,ndimMTO2,hamm(1:ndimMTO2,1:ndimMTO2),ovlm(1:ndimMTO2,1:ndimMTO2),&
          !              ndimMTO3,ix23,fff3, evlmlo2,hamm(1:ndimMTO3,1:ndimMTO3),ovlm(1:ndimMTO3,1:ndimMTO3))
-         print *,'goto finaleigen'
+!         print *,'goto finaleigen'
          finaleigen: block
            complex(8):: evec(ndimMTO3**2), hh(ndimMTO3,ndimMTO3),oo(ndimMTO3,ndimMTO3)
-!           if(sum([qp(2),qp(3)]**2)<1d-3) then
+           if(sum([qp(2),qp(3)]**2)<1d-3) then
               hh=hamm(1:ndimMTO3,1:ndimMTO3)
               oo=ovlm(1:ndimMTO3,1:ndimMTO3)
               nmx = ndimMTO3
@@ -175,7 +178,7 @@ contains
                  !if(sum([qp(2),qp(3)]**2)<1d-3)  write(6,"(a,i5,4f12.4)")'mmmx', i,evl(i),evlmlo3(i)-evl(i)
                  write(6,"(a,i5,4f12.4)")'mmm', i,evl(i),evlmlo3(i)-evl(i)
               enddo
-!           endif
+           endif
          endblock finaleigen
        endblock eigen
        !! Real space Hamiltonian. H(k) ->  H(T) FourierTransformation to real space
@@ -336,13 +339,13 @@ subroutine Hreduction(iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,ovlmou
     else
        fff= 1d0
     endif
-    ecut=2d0
+    ecut=1d0
     mulfac=0d0
     mulfacw=0d0
     do j=1,ndimMTO 
        do i=1,ndimPMT
           fffx=fff
-          !if(evlmto(j)>eferm+ecut) fffx=0d0
+          if(evlmto(j)>eferm+ecut) fffx=0d0
           ibx=idxevl(i)
           jx=idxevlmto(j)
           mulfac (ibx,jx) = mulfac(ibx,jx)+ abs(fac(i,j))**fffx
@@ -351,14 +354,9 @@ subroutine Hreduction(iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,ovlmou
     enddo
     mulfac=mulfac/mulfacw
     wnm = fac * mulfac(idxevl(:),idxevlmto(:))
-    !do j=1,ndimMTO 
-    !   do i=1,ndimPMT
-    !      wnm(i,j)= fac(i,j) * mulfac(idxevl(i),idxevlmto(j))/mulfacw(idxevl(i),idxevlmto(j))
-    !   enddo
-    !enddo
   endblock mulfac
 
-!  wnm=fac
+  !wnm=fac
   
   ! if(fff1<0) then
   !    do j=1,8 !ndimMTO !wnm is corrected matrix element of <psi_PMT|psi_MTO>
@@ -394,9 +392,9 @@ subroutine Hreduction(iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,ovlmou
   
   nx=ndimPMT
 !  if(fff1<0) then
-!     nxx=15
+!     nxx=8
 !     evl(1:nxx)=evl(1:nxx)
-!     evl(nxx+1:nx)=eferm+1d0
+!     evl(nxx+1:nx)=eferm+1.5d0
   !  endif
   
 !  do i=1,nx
@@ -407,6 +405,8 @@ subroutine Hreduction(iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, evl,hammout,ovlmou
      do j=1,ndimMTO
         hammout(i,j)= sum( dconjg(wnj(1:nx,i))*evl(1:nx)*wnj(1:nx,j))
         ovlmout(i,j)= sum( dconjg(wnj(1:nx,i))*wnj(1:nx,j) ) !<MLO|MLO>
+!        hammout(i,j)= hammx(ix(i),ix(j))
+!        ovlmout(i,j)= ovlmx(ix(i),ix(j))
      enddo
   enddo
 end subroutine Hreduction
