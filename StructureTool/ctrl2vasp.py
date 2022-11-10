@@ -40,7 +40,8 @@ openfile = open(argvs[1]).read().split('\n')
 perfectopen = convctrl.fileopen(openfile)
 variable_val = convctrl.constlist(openfile)
 print ('defined variables are:',variable_val)
-
+T=1
+F=0
 for const in range(len(variable_val)):
         print(variable_val[const])
         exec( variable_val[const] )
