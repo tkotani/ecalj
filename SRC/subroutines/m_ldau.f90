@@ -499,7 +499,7 @@ contains
     sss=0d0
     do  ib = 1, nbas
        if (lldau(ib) /= 0) then
-          is = ispec(ib) !ssite(ib)%spec
+          is = ispec(ib) 
           sss = sss + sum(abs(uh(:,is)))+sum(abs(jh(:,is)))
        endif
     enddo
@@ -560,7 +560,7 @@ contains
           endif
        enddo
     elseif(occe) then         !if no occunum.* initial dmatu=0
-       write(stdo,*) ' sudmtu:  initial (diagonal) density-matrix from occ numbers'
+       write(stdo,*) 'sudmtu: initial (diagonal) density-matrix from occ numbers'
        open(newunit=foccn,file='occnum.'//trim(sname))
        havesh = 1
 12     if ( .NOT. rdstrn(foccn,str,len(str), .FALSE. )) goto 99
@@ -572,32 +572,28 @@ contains
           backspace foccn
        endif
        iblu = 0
+       dmatu=0d0
        do  ib = 1, nbas
           if (lldau(ib) /= 0) then
-             is = ispec(ib) !int(ssite(ib)%spec)
+             is = ispec(ib)
              lmxa=sspec(is)%lmxa
-             !idu=sspec(is)%idu
              do l = 0,min(lmxa,3)
-                if (idu(l+1,is) /= 0) then
+               if (idu(l+1,is) /= 0) then
                    iblu = iblu+1
                    do  isp = 1, 2
 11                    continue
                       if ( .NOT. rdstrn(foccn,str,len(str), .FALSE. )) goto 99
-                      !     Skip comment lines
-                      if (str(1:1) == '#') goto 11
+                      if (str(1:1) == '#') goto 11 !     Skip comment lines
                       i = 0
                       m = a2vec(str,len(str),i,4,', ',2,3,2*l+1,iv,nocc(-l,isp))
                       if (m < 0) goto 99
                    enddo
                    do isp=1,2
-                      write(stdo,ftox)' occ num: site',ib,'l',l,'isp',isp,' ',nocc(-l:l,isp)
+                      write(stdo,ftox)' occnum: site',ib,'l',l,'isp',isp,' ',ftof(nocc(-l:l,isp),3)
                    enddo
                    do isp = 1, 2
                       do m = -l, l
-                         do m2 = -l, l
-                            dmatu(m,m2,isp,iblu) = dcmplx(0d0,0d0)
-                         enddo
-                         dmatu(m,m,isp,iblu) = dcmplx(nocc(m,isp),0d0)
+                         dmatu(m,m,isp,iblu) = nocc(m,isp)
                       enddo
                    enddo
                 endif
@@ -609,7 +605,6 @@ contains
        dmatu=0d0
     endif
 1185 continue
-
     ! ... Initial printout
     call praldm(0,51,51,havesh,nbas,nsp,lmaxu,lldau,' dmats read from disk',dmatu)
     ivsiz = nsp*nlibu*(lmaxu*2+1)**2
@@ -638,21 +633,22 @@ contains
        if (xx > .01d0) write(stdo,*)'(warning) RMS change unexpectely large'
        call daxpy ( ivsiz * 2 , - 1d0 , dmatu , 1 , dmwk_zv , 1 )
        if(ipr>=60) write(stdo,*)' change in dmat wrought by symmetrization'
-       call praldm ( 0 , 60 , 60 , 0 , nbas , nsp , lmaxu , lldau , &
-             ' ' , dmwk_zv )
+       call praldm ( 0 , 60 , 60 , 0 , nbas , nsp , lmaxu , lldau ,' ' , dmwk_zv )
     endif
-    !     Print dmats in specified harmonics
+    !    Print dmats in specified harmonics
     dmwk_zv=dmatu
     if (havesh /= idvsh) then
        call rotycs ( 2 * idvsh - 1 , dmwk_zv , nbas , nsp , lmaxu, lldau )
     endif
     if(master_mpi)write(stdo,*)
     call praldm(0,30,30,idvsh,nbas,nsp,lmaxu,lldau,' Symmetrized dmats' , dmwk_zv )
+    stop 'vvvvvvvvvvvvvv'
     !     Print dmats in complementary harmonics
     i = 1-idvsh
     call rotycs(2 * i - 1 , dmwk_zv , nbas , nsp , lmaxu, lldau )
     if(master_mpi)write(stdo,*)
     call praldm(0,30,30,i,nbas,nsp,lmaxu,lldau, ' Symmetrized dmats' , dmwk_zv )
+
     ! ... Make Vorb (ldau requires spherical harmonics)
     if (havesh /= 1) then
        call rotycs(1,dmatu,nbas,nsp,lmaxu,lldau)
@@ -722,7 +718,7 @@ contains
     i = 1-idvsh
     dmwk_zv=vorb
     call rotycs( 2 * i - 1 , dmwk_zv , nbas , nsp , lmaxu , lldau )
-    write(stdo,*) !vorb in complementary harmonics
+    if(ipr>0) write(stdo,*) !vorb in complementary harmonics
     call praldm(0,30,30, i , nbas , nsp , lmaxu , lldau , ' Vorb' , dmwk_zv )
     eorb = 0d0
     ! --- Error exit ---
