@@ -294,11 +294,8 @@ contains
     iblu = 0
     do  ib = 1, nbas
        if (lldau(ib) /= 0) then
-          is = ispec(ib) !ssite(ib)%spec
+          is = ispec(ib) 
           lmxa=sspec(is)%lmxa
-          !idu=sspec(is)%idu
-          !uh=sspec(is)%uh
-          !jh=sspec(is)%jh
           do  l = 0, min(lmxa,3)
              if (idu(l+1,is) /= 0) then
                 iblu = iblu+1
@@ -312,7 +309,6 @@ contains
     ! --- LDA total energy terms ---
     if(master_mpi)write(stdo,ftox)'eks =',ftof(eks),'e[U]=',ftof(eorb),'Etot(LDA+U)=',ftof(eks+eorb)
     if(master_mpi)write(stdl,ftox)'ldau EHK',ftof(eks),'U',ftof(eorb),'ELDA+U',ftof(eks+eorb)
-
     ! --- Restore dmatu, vorb to real harmonics
     call rotycs(-1,dmatu,nbas,nsp,lmaxu,lldau) !-1, from sh to rh idvsh=0
     havesh = 0
@@ -382,11 +378,8 @@ contains
     iblu = 0
     do  ib = 1, nbas
        if (lldau(ib) /= 0) then
-          is = ispec(ib)!ssite(ib)%spec
+          is = ispec(ib)
           lmxa=sspec(is)%lmxa
-          !idu=sspec(is)%idu
-          !uh=sspec(is)%uh
-          !jh=sspec(is)%jh
           do  l = 0, min(lmxa,3)
              if (idu(l+1,is) /= 0) then
                 iblu = iblu+1
@@ -400,13 +393,12 @@ contains
        endif
     enddo
     !  ... Symmetrize vorb to check (symdmu requires real harmonics)
-    call rotycs(-1,vorb,nbas,nsp,lmaxu,lldau) !vorb from sh to rh
+    call rotycs(-1,vorb,nbas,nsp,lmaxu,lldau) !-1 means that vorb is converted from sh to rh
     call symdmu(nlibu,vorb,nbas , nsp , lmaxu , ng , g , istab , lldau , xx )
-    call rotycs(1,vorb,nbas,nsp,lmaxu,lldau) !vorb from rh to sh
-
+    call rotycs(1,vorb,nbas,nsp,lmaxu,lldau) !1 means that vorb is converted from rh to sh
     !!=>  At this point, dmatu and vorb are in spherical harmonics
     if(Iprint()>20) write(6,ftox)'RMS change in vorb from symmetrization =',ftod(xx)
-    if(xx>.0001d0 .AND. iprint()>30) write(6,'(a)')' (warning) RMS change unexpectely large'
+    if(xx>.0001d0 .AND. iprint()>30) write(6,'(a)')'(warning) RMS change unexpectely large'
     if(iprint()>0) write(6,ftox)'=== representation in spherical harmonics dmatu ==='
     call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau, 'Mixed dmats',dmatu)
     if(iprint()>0) write(6,ftox)'=== representation in spherical harmonics vorb ==='
@@ -418,8 +410,8 @@ contains
        close(idmat)
     endif
     !! write in real harmonics
-    call rotycs(-1,dmatu,nbas,nsp,lmaxu,lldau) !from sh to rh
-    call rotycs(-1,vorb,nbas,nsp,lmaxu,lldau)  !from sh to rh
+    call rotycs(-1,dmatu,nbas,nsp,lmaxu,lldau) !dmatu is converted from sh to rh
+    call rotycs(-1,vorb,nbas,nsp,lmaxu,lldau)  !vorb is converted from sh to rh
     havesh=0                  !I recovered this 2022May8
     if(iprint()>0) write(6,ftox)'=== represenation in real harmonics dmatu==='
     call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,'Mixed dmats',dmatu)
@@ -519,21 +511,20 @@ contains
           if (str(1:1) == '#') goto 825
           i = 0
           if (parstr(str,'sharm ',len(str)-6,5,' ',i,m)) then
-             havesh = 1
+             havesh = 1 
           else
-             havesh = 0
+             havesh = 0 
           endif
        endif
-       if(havesh ==1) bbb='spherical harmonics'
-       if(havesh ==0) bbb='real harmonics'
-       if(master_mpi)write(stdo,*)' sudmtu: reading density matrix from file dmats in '//trim(bbb)
+       if(havesh ==1) bbb='spherical harmonics' !complex harmonics
+       if(havesh ==0) bbb='real harmonics'      !real harmonics 
+       if(master_mpi) write(stdo,*)' sudmtu: reading density matrix from file dmats in '//trim(bbb)
        rewind idmat
        iblu = 0
        do  ib = 1, nbas
           if (lldau(ib) /= 0) then
-             is = ispec(ib) !ssite(ib)%spec
+             is = ispec(ib) 
              lmxa=sspec(is)%lmxa
-             !idu=sspec(is)%idu
              do l = 0, min(lmxa,3)
                 if (idu(l+1,is) /= 0) then
                    iblu = iblu+1
@@ -551,7 +542,6 @@ contains
                       enddo
                       readtemp=.true.
 9888                  continue
-                      !     readtemp = rdm(idmat,40,2*nlm**2,' ',tmp(1:nlm,1:nlm),nlm,nlm) .ne. 2
                       if( .NOT. readtemp) call rxi('sudmtu failed to read dmats for site',ib)
                       dmatu(-l:l,-l:l,isp,iblu)=tempr(1:nlm,1:nlm)+img*tempi(1:nlm,1:nlm)
                    enddo
@@ -574,9 +564,8 @@ contains
        iblu = 0
        do  ib = 1, nbas
           if (lldau(ib) /= 0) then
-             is = ispec(ib) !int(ssite(ib)%spec)
+             is = ispec(ib)
              lmxa=sspec(is)%lmxa
-             !idu=sspec(is)%idu
              do l = 0,min(lmxa,3)
                 if (idu(l+1,is) /= 0) then
                    iblu = iblu+1
