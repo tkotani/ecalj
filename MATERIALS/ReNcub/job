@@ -1,0 +1,31 @@
+#!/usr/bin/env python3
+nmcore='4'
+import os,shutil,sys,subprocess
+#lmfa='which lmfa'
+#lmf ='../SRC/exec/lmf-MPIK '
+files=os.listdir('.')
+fff= [f for f in files if 'ctrls.' in f]
+for m in fff:
+    mat=m.split('ctrls.')[1]
+    os.makedirs(mat,exist_ok=True)
+    shutil.copy(m,mat)
+    os.chdir(mat)
+    os.system('ctrlgenM1.py '+mat+'|tee init|tail -n 1')
+    cname=' ctrl.'+mat
+    os.system('cp ctrlgenM1.ctrl.'+mat+ ' tempx')
+    os.system('sed -e "s/#IDU/IDU/g" -e "s/##MMOM/MMOM/g" -e "s/nspin=1/nspin=2/g" -e "s/so=0/so=2/g" '+ ' tempx >'+ cname)
+    os.system('lmfa '+ mat + ' > llmfa')
+    
+    aaa='mpirun -np '+nmcore+' lmf-MPIK '+ mat + '|tee llmf |grep mmom'
+    print(aaa)
+    subprocess.run(aaa,shell=True)
+
+    aaa='getsyml '+mat+ ' -nobzview '
+    print(aaa)
+    subprocess.run(aaa,shell=True)
+
+    aaa='job_band '+mat+' -np '+nmcore+' NoGnuplot'
+    print(aaa)
+    subprocess.run(aaa,shell=True)
+
+    os.chdir('..')
