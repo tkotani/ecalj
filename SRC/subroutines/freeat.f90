@@ -561,7 +561,7 @@ contains
     !! feb2011 "plplus,qlplus" mechanism is a fixing. Previous version did not allow SPEC_ATOM_Q setting for l with PZ.
     !! Now, the "plplus,qlplus" mechanism allows to set Q (valence charge, not including semicore charge).
     !! Our current version assumes MTOcore(specified by PZ) is below MTO(specified by P).
-    real(8):: plplus(0:lmaxa,nsp),qlplus(0:lmaxa,nsp)
+    real(8):: plplus(0:lmaxa,nsp),qlplus(0:lmaxa,nsp),pfree
     real(8):: sumr !mar2013
     character(8):: charext
     pi   = 4d0*datan(1d0)
@@ -613,7 +613,9 @@ contains
                slou = (-2*g5+16*g4-16*g2+2*g1)/(24d0*drdi)
                du   = rmt*slou/valu
                dphi = du-1
-               pnu  = nn+l+1 + (0.5d0-datan(dphi)/pi)
+               pnu  = nn+l+1  + (0.5d0-datan(dphi)/pi)
+               pfree = nn+l+1 + 0.5d0 - datan(dble(l))/pi
+               if(pnu<pfree) pnu=pfree
              endblock
              sum = sum - pmax
              sumr=pmax

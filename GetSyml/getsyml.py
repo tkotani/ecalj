@@ -15,7 +15,9 @@ if len(sys.argv)<2:
     sys.exit(-1)
 
 ### We have to improve lmchk, so that plinfo and siteinfo are directry written.
+#print('lmchk '+sys.argv[1]+'> outlmchk')
 os.system('lmchk '+sys.argv[1]+'> outlmchk')
+#sys.exit()
 #os.system('grep Plat -A3 outlmchk > plinfo')
 plfile = open('PlatQlat.chk','r').read().split('\n')
 i=0

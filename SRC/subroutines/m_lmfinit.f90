@@ -1,4 +1,4 @@
-module m_lmfinit !Intiaial reading of ctrl file into module variables. Execpt v_sspec, all are protected.
+module m_lmfinit
   use m_ext,only :sname        ! sname contains extension. foobar of ctrl.foobar
   use m_struc_def,only: s_spec ! spec structures.
   use m_MPItk,only: master_mpi
@@ -707,6 +707,13 @@ contains
 1015             continue
                  pzav(1:lrmx+1)=sum(pzsp(1:lrmx+1,1:nspx,j), dim=2)/nspx !spin averaged
                  pnav(1:lrmx+1)=sum(pnusp(1:lrmx+1,1:nspx,j),dim=2)/nspx
+
+! push up p =floor(p)+0.5 if we have lower orbital
+                 do l=1,lrmx+1
+                    if(pzav(l)>pnav(l)) pzav(l)=floor(pzav(l))+.5d0
+                    if(pzav(l)>1d-8.and.pnav(l)>pzav(l)) pnav(l)=floor(pnav(l))+.5d0
+                 enddo
+
                  do ispx=1,nspx
                     pzsp(1:lrmx+1, ispx,j) = pzav(1:lrmx+1)
                     pnusp(1:lrmx+1,ispx,j)=  pnav(1:lrmx+1)
@@ -1162,26 +1169,27 @@ contains
       allocate(v_sspec(nspec))
       eh3=-0.5d0
       rs3= 0.5d0
-      do j=1,nspec !To v_sspec, additional data are overwritten by rdovfa.f90 and iors.f90 calling from lmfp.f90.
-         v_sspec(j)%z=z(j)  ! atmoic number z 
-         v_sspec(j)%a=spec_a(j) !name of atom
-         v_sspec(j)%nr=nr(j)    !number of radial mesh
-         v_sspec(j)%kmxt=kmxt(j) !number of radial funcitons to expand density.
+      do j=1,nspec !additional data supplied from rdovfa.f90 and iors.f90
+!!!!!!
+         v_sspec(j)%z=z(j)
+         v_sspec(j)%a=spec_a(j)
+         v_sspec(j)%nr=nr(j)
+         v_sspec(j)%kmxt=kmxt(j)
          v_sspec(j)%lfoca=lfoca(j) !lfoca=1,usually (frozen core)
          v_sspec(j)%rsmv= rmt(j)*.5d0 !rsmv(j)
          v_sspec(j)%lmxa=lmxa(j) !lmx for augmentation
          v_sspec(j)%lmxb=lmxb(j) !lmx for base
          v_sspec(j)%lmxl=lmxl(j) !lmx for rho and density
-         v_sspec(j)%rfoca=rfoca(j) !
+         v_sspec(j)%rfoca=rfoca(j)
          v_sspec(j)%rg=rg(j)
-         v_sspec(j)%rmt=rmt(j) !MT size 
+         v_sspec(j)%rmt=rmt(j)
       enddo
       sstrnmix=trim(iter_mix)
       
       do j=1,nbas
          is=ispec(j) !v_ssite(j)%spec
-         pnuall(:,1:nsp,j) = pnusp(1:n0,1:nsp,is) ! log derivative (represented by the fractioanl quantum number P) for valence
-         pnzall(:,1:nsp,j) = pzsp(1:n0,1:nsp,is)  ! log derivative for local orbital.
+         pnuall(:,1:nsp,j) = pnusp(1:n0,1:nsp,is)
+         pnzall(:,1:nsp,j) = pzsp(1:n0,1:nsp,is)
          if(procid==master) then
          do isp=1,nsp
          write(6,ftox)'pnuall: j isp pnu=',j,isp,ftof(pnuall(1:lmxa(is)+1,isp,is),6)
@@ -1189,6 +1197,7 @@ contains
          enddo
          endif
       enddo
+      !!
       !! ... Suppress symmetry operations for special circumstances
       !     !     Switches that automatically turn of all symops
       !     ! --pdos mar2003 added. Also in lmv7.F
@@ -1346,6 +1355,8 @@ contains
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
       if( cmdopt0('--quit=show') ) call rx0(trim(prgnam)//' --quit=show')
+!
+
     endblock stage2
 
     stage3 :block ! initial settings,  Total energy mode setting
@@ -1532,11 +1543,12 @@ contains
        res(2:3) = res(1)
     endif
   end subroutine fill3in
+  
 end module m_lmfinit
 
 
-!! Hereafter I keep old document. Many are obsolate but may a help for something.
-! mmmmmm old doc mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+!! Hereafter are list of variables. Old document, but it maybe a help.
+! mmmmmm old doc mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
 ! def      Uncertainty in Fermi level
 ! dosw     Energy window over which DOS accumulated
 ! fsmom    fixed-spin moment (fixed spin moment method)

@@ -24,25 +24,24 @@ atomlist="""
 ### !!! CAUTION!!! R= in this table is in Angstrome. !!!!!
 
 ### eh.3 eh2.2 works OK?
-H=   " atomz=1@  pz=''@       p=''@          eh=-1*3@ eh2=-2*2@    R=0.38@" 
-He=  " atomz=2@  pz='PZ=2.5'@ p=''@          eh=-1*3@ eh2=-2*2@    R=1.17@"  
-Li=  " atomz=3@  pz='PZ=1.9'@ p=''@          eh=-1*3@ eh2=-2*2@    R=1.37@"        
-Be=  " atomz=4@  pz=''@ p=''@          eh=-1*3@ eh2=-2*2@    R=1.22@"        
-B=   " atomz=5@  pz=''@ p=''@          eh=-1*3@ eh2=-2*2@    R=0.77@"      
-C=   " atomz=6@  pz=''@ p=''@          eh=-1*3@ eh2=-2*2@    R=0.66@"       
-N=   " atomz=7@  pz=''@ p=''@          eh=-1*3@ eh2=-2*2@    R=0.55@"      
-O=   " atomz=8@  pz=''@ p=''@          eh=-1*3@ eh2=-2*2@    R=0.61@"      
-F=   " atomz=9@  pz=''@ p=''@          eh=-1*3@ eh2=-2*2@    R=0.71@"      
-Ne=  " atomz=10@ pz='PZ=3.5,3.5'@  p=''@     eh=-1*3@ eh2=-2*2@    R=1.28@"       
-
-Na=  " atomz=11@ pz='PZ=0,2.8'@  p=''@       eh=-1*4@ eh2=-2*3@    R=1.55@"   
-Mg=  " atomz=12@ pz=''@          p=''@       eh=-1*4@ eh2=-2*3@    R=1.75@"                 
-Al=  " atomz=13@ pz=''@          p=''@       eh=-1*4@ eh2=-2*3@    R=1.25@"
-Si=  " atomz=14@ pz=''@            p=''@     eh=-1*4@ eh2=-2*3@    R=1.15@"
-P=   " atomz=15@ pz=''@            p=''@     eh=-1*4@ eh2=-2*3@    R=0.96@"       
-S=   " atomz=16@ pz=''@            p=''@     eh=-1*4@ eh2=-2*3@    R=0.97@"       
-Cl=  " atomz=17@ pz=''@            p=''@     eh=-1*4@ eh2=-2*3@    R=1.03@"       
-Ar=  " atomz=18@ pz='PZ=4.3,4.3'@  p=''@     eh=-1*4@ eh2=-2*3@    R=1.72@"       
+H=   " atomz=1@               eh=-1*3@ eh2=-2*2@    R=0.38@" 
+He=  " atomz=2@  pz='PZ=2.5'@ eh=-1*3@ eh2=-2*2@    R=1.17@"  
+Li=  " atomz=3@  pz='PZ=1.9'@ eh=-1*3@ eh2=-2*2@    R=1.37@"        
+Be=  " atomz=4@               eh=-1*3@ eh2=-2*2@    R=1.22@"        
+B=   " atomz=5@               eh=-1*3@ eh2=-2*2@    R=0.77@"      
+C=   " atomz=6@               eh=-1*3@ eh2=-2*2@    R=0.66@"       
+N=   " atomz=7@               eh=-1*3@ eh2=-2*2@    R=0.55@"      
+O=   " atomz=8@               eh=-1*3@ eh2=-2*2@    R=0.61@"      
+F=   " atomz=9@               eh=-1*3@ eh2=-2*2@    R=0.71@"      
+Ne=  " atomz=10@ pz='PZ=3.5,3.5'@ eh=-1*3@ eh2=-2*2@  R=1.28@"       
+Na=  " atomz=11@ pz='PZ=0,2.8'@   eh=-1*4@ eh2=-2*3@  R=1.55@"   
+Mg=  " atomz=12@              eh=-1*4@ eh2=-2*3@   R=1.75@"                 
+Al=  " atomz=13@              eh=-1*4@ eh2=-2*3@   R=1.25@"
+Si=  " atomz=14@              eh=-1*4@ eh2=-2*3@   R=1.15@"
+P=   " atomz=15@              eh=-1*4@ eh2=-2*3@   R=0.96@"       
+S=   " atomz=16@              eh=-1*4@ eh2=-2*3@   R=0.97@"       
+Cl=  " atomz=17@              eh=-1*4@ eh2=-2*3@   R=1.03@"       
+Ar=  " atomz=18@ pz='PZ=4.3,4.3'@ eh=-1*4@ eh2=-2*3@  R=1.72@"       
 
 #################################################################################
 ##### For Fe2 dimer, using 3.9 (like PZ=0,0,3.9) is better for stable convergence
@@ -50,114 +49,103 @@ Ar=  " atomz=18@ pz='PZ=4.3,4.3'@  p=''@     eh=-1*4@ eh2=-2*3@    R=1.72@"
 ##### can introduce some unsystematic behevior.
 #################################################################################
 
-#K=   " atomz=19@ pz='PZ=3.9,3.9'@ p=''@ eh=-1*4@ eh2=-2*3@             R=2.00@"       
-#Ca=  " atomz=20@ pz='PZ=3.9,3.9'@ p=''@ eh=-1*4@ eh2=-2*3@             R=2.08@"       
-#Sc=  " atomz=21@ pz='PZ=3.9,3.9'@ p=''@ eh=-1*4@ eh2=-2*3@             R=1.31@"       
-### 3p is deep, but it may affect to band gaps and so on. ###
-#Fe= "  atomz=26@ pz='PZ=0,3.9,4.5'@ p=''@ eh=-1*4@ eh2=-2*3@ R=1.00@"
-#Co= "  atomz=27@ pz='PZ=0,3.9,4.5'@ p=''@ eh=-1*4@ eh2=-2*3@ R=1.00@"
-#Ni= "  atomz=28@ pz='PZ=0,3.9,4.5'@ p=''@ eh=-1*4@ eh2=-2*3@ R=1.06@"
-
-K=   " atomz=19@ pz='PZ=0,3.9'@   p=''@ eh=-1*4@ eh2=-2*3@          R=2.00@"       
-Ca=  " atomz=20@ pz='PZ=0,3.9'@   p=''@ eh=-1*4@ eh2=-2*3@          R=2.08@"       
-Sc=  " atomz=21@ pz='PZ=0,3.9'@   p=''@ eh=-1*4@ eh2=-2*3@          R=1.27@"       
-Ti=  " atomz=22@ pz='PZ=0,3.9'@   p=''@ eh=-1*4@ eh2=-2*3@          R=0.95@"       
-V=   " atomz=23@ pz='PZ=0,3.9'@   p=''@ eh=-1*4@ eh2=-2*3@          R=0.87@"       
-Cr=  " atomz=24@ pz='PZ=0,3.9'@   p=''@ eh=-1*4@ eh2=-2*3@          R=0.80@"       
-Mn=  " atomz=25@ pz='PZ=0,3.9'@   p=''@ eh=-1*4@ eh2=-2*3@          R=0.82@"       
-Fe= "  atomz=26@ pz='PZ=0,3.9'@   p=''@ eh=-1*4@ eh2=-2*3@   R=1.00@"
-Co= "  atomz=27@ pz='#PZ=0,3.9'@   p=''@ eh=-1*4@ eh2=-2*3@   R=1.00@"
-Ni= "  atomz=28@ pz='#PZ=0,3.9'@   p=''@ eh=-1*4@ eh2=-2*3@   R=1.06@"
-Cu= "  atomz=29@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@   R=1.13@"
+K=   " atomz=19@ pz='PZ=0,3.9'@   eh=-1*4@ eh2=-2*3@          R=2.00@"       
+Ca=  " atomz=20@ pz='PZ=0,3.9'@   eh=-1*4@ eh2=-2*3@          R=2.08@"       
+Sc=  " atomz=21@ pz='PZ=0,3.9'@   eh=-1*4@ eh2=-2*3@          R=1.27@"       
+Ti=  " atomz=22@ pz='PZ=0,3.9'@   eh=-1*4@ eh2=-2*3@          R=0.95@"       
+V=   " atomz=23@ pz='PZ=0,3.9'@   eh=-1*4@ eh2=-2*3@          R=0.87@"       
+Cr=  " atomz=24@ pz='PZ=0,3.9'@   eh=-1*4@ eh2=-2*3@          R=0.80@"       
+Mn=  " atomz=25@ pz='PZ=0,3.9'@   eh=-1*4@ eh2=-2*3@          R=0.82@"       
+Fe= "  atomz=26@ pz='PZ=0,3.9'@   eh=-1*4@ eh2=-2*3@   R=1.00@"
+Co= "  atomz=27@ pz='#PZ=0,3.9'@  eh=-1*4@ eh2=-2*3@   R=1.00@"
+Ni= "  atomz=28@ pz='#PZ=0,3.9'@  eh=-1*4@ eh2=-2*3@   R=1.06@"
+Cu= "  atomz=29@  eh=-1*4@ eh2=-2*3@   R=1.13@"
 Zn= "  atomz=30@ pz='PZ=0,0,3.9'@ p='P=0,0,4.5'@ eh=-1*4@ eh2=-2*3@   R=1.60@"
 Ga= "  atomz=31@ pz='PZ=0,0,3.9'@ p='P=0,0,4.5'@ eh=-1*4@ eh2=-2*3@   R=1.37@"
 Ge= "  atomz=32@ pz='PZ=0,0,3.9'@ p='P=0,0,4.5'@ eh=-1*4@ eh2=-2*3@   R=1.21@"
 As= "  atomz=33@ pz='#PZ=0,0,3.9'@ p='#P=0,0,4.5'@ eh=-1*4@ eh2=-2*3@   R=1.06@"
-Se= "  atomz=34@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@                      R=1.10@"
-Br= "  atomz=35@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@                      R=1.16@"
+Se= "  atomz=34@  eh=-1*4@ eh2=-2*3@                      R=1.10@"
+Br= "  atomz=35@  eh=-1*4@ eh2=-2*3@                      R=1.16@"
 Kr= "  atomz=36@ pz='PZ=5.3,5.3'@  eh=-1*4@ eh2=-2*3@                 R=1.88@"
 
 ## When we use large R, it may cause basis-independency error due to s-orbital
 ### Followings are not tested well ###
-#Sr  =" atomz=38@ pz='PZ=4.9,4.9'@ p=''@ eh=-1*4@ eh2=-2*3@   R=2.08@"       
-#Y   =" atomz=39@ pz='PZ=4.9,4.9'@ p=''@ eh=-1*4@ eh2=-2*3@   R=1.31@" (same R with Sc) OK???
-Rb  =" atomz=37@ pz='PZ=0,4.9'@ p=''@ eh=-1*4@ eh2=-2*3@   R=2.00@"
+#Sr  =" atomz=38@ pz='PZ=4.9,4.9'@ eh=-1*4@ eh2=-2*3@   R=2.08@"       
+#Y   =" atomz=39@ pz='PZ=4.9,4.9'@ eh=-1*4@ eh2=-2*3@   R=1.31@" (same R with Sc) OK???
+Rb  =" atomz=37@ pz='PZ=0,4.9'@ eh=-1*4@ eh2=-2*3@   R=2.00@"
 ### PZ=4.9,4.9 is for GW
-Sr  =" atomz=38@ pz='PZ=4.9,4.9'@ p=''@ eh=-1*4@ eh2=-2*3@   R=2.0@"       
+Sr  =" atomz=38@ pz='PZ=4.9,4.9'@ eh=-1*4@ eh2=-2*3@   R=2.0@"       
 ### PZ=4.9,4.9 is for GW
-Y   =" atomz=39@ pz=''@ p='PZ=4.9,4.9'@ eh=-1*4@ eh2=-2*3@   R=1.3@" (same R with Sc) OK???
-Zr  =" atomz=40@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@   R=?@"
-Nb  =" atomz=41@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@   R=?@" 
-Mo  =" atomz=42@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@   R=?@" 
-Tc  =" atomz=43@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@   R=?@" 
-Ru  =" atomz=44@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Rh  =" atomz=45@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Pd  =" atomz=46@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Ag  =" atomz=47@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Cd  =" atomz=48@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Y   =" atomz=39@  p='PZ=4.9,4.9'@ eh=-1*4@ eh2=-2*3@   R=1.3@" (same R with Sc) OK???
+Zr  =" atomz=40@  eh=-1*4@ eh2=-2*3@   R=?@"
+Nb  =" atomz=41@  eh=-1*4@ eh2=-2*3@   R=?@" 
+Mo  =" atomz=42@  eh=-1*4@ eh2=-2*3@   R=?@" 
+Tc  =" atomz=43@  eh=-1*4@ eh2=-2*3@   R=?@" 
+Ru  =" atomz=44@  eh=-1*4@ eh2=-2*3@ R=?@" 
+Rh  =" atomz=45@  eh=-1*4@ eh2=-2*3@ R=?@" 
+Pd  =" atomz=46@  eh=-1*4@ eh2=-2*3@ R=?@" 
+Ag  =" atomz=47@  eh=-1*4@ eh2=-2*3@ R=?@" 
+Cd  =" atomz=48@  eh=-1*4@ eh2=-2*3@ R=?@" 
 In= "  atomz=49@ pz='PZ=0,0,4.9'@ p='P=0,0,5.2'@ eh=-1*4@ eh2=-2*3@ R=1.37@"
 Sn  =" atomz=50@ pz='PZ=0,0,4.9'@ p='P=0,0,5.2'@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Sb  =" atomz=51@ pz='PZ=0,0,4.9'@ p='P=0,0,5.2'@ eh=-1*4@ eh2=-2*3@ R=?@" 
-#Sb  =" atomz=51@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Te  =" atomz=52@ pz='#PZ=0,0,4.9'@ p='#P=0,0,5.5'@ eh=-1*4@ eh2=-2*3@ R=?@" 
-I   =" atomz=53@ pz='#PZ=0,0,4.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Xe  =" atomz=54@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+I   =" atomz=53@ pz='#PZ=0,0,4.9'@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Xe  =" atomz=54@  eh=-1*4@ eh2=-2*3@ R=?@" 
 
 # We need to give P= for p channel for Cs excplicitly, because default is P=0,5 for p channel (due to historical reason...)
-Cs  =" atomz=55@ pz='PZ=5.9,5.9'@ p='P=6.2,6.2'@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Ba  =" atomz=56@ pz='PZ=0,5.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-#La  =" atomz=57@ pz='PZ=0,5.9'@ p=''@ eh=-1*4@ eh2=-2*3@  R=1.6@" ( R is just given for test) 
-La  =" atomz=57@ pz='PZ=0,5.9'@ p=''@ eh=-1*4@ eh2=-2*3@  R=1.6@" ( R is just given for test) 
-Ce  =" atomz=58@ pz='PZ=0,5.9'@ p=''@ eh=-1*4@ eh2=-2*4@ R=2.80@" 
-Pr  =" atomz=59@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Nd  =" atomz=60@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Pm  =" atomz=61@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Sm  =" atomz=62@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Eu  =" atomz=63@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Gd  =" atomz=64@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Tb  =" atomz=65@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Dy  =" atomz=66@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Ho  =" atomz=67@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Er  =" atomz=68@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Tm  =" atomz=69@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Yb  =" atomz=70@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Lu  =" atomz=71@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-#Hf  =" atomz=72@  pz='PZ=0,0,0,4.9'@ p=''@ eh=-1*5@ eh2=-2*4@  R=?@" 
-Hf  =" atomz=72@  pz='PZ=0,5.5,0,0'@ p='P=0,6.5,0,4.5 Q=2,6,2,14'@ eh=-1*5@ eh2=-2*4@
-#PZ=0,0,0,4.9'@ p=''@ eh=-1*5@ eh2=-2*4@  R=?@" 
-Ta  =" atomz=73@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-W   =" atomz=74@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Re  =" atomz=75@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Os  =" atomz=76@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Ir  =" atomz=77@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Pt  =" atomz=78@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Au  =" atomz=79@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Hg  =" atomz=80@ pz='PZ=0,0,5.9'@ p='P=0,0,6.9'@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Tl  =" atomz=81@ pz='PZ=0,0,5.9'@ p='P=0,0,6.9'@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Pb  =" atomz=82@ pz='PZ=0,0,5.9'@ p='P=0,0,6.9'@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Bi  =" atomz=83@ pz='PZ=0,0,5.9'@ p='P=0,0,6.9'@ eh=-1*4@ eh2=-2*3@ R=?@" 
-#Bi  =" atomz=83@ pz='PZ=0,0,5.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Cs  =" atomz=55@ pz='PZ=5,5'@ p='P=6.2,6.2'@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Ba  =" atomz=56@ pz='PZ=0,5'@ eh=-1*4@ eh2=-2*3@ R=?@" 
 
-Po  =" atomz=84@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-At  =" atomz=85@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Rn  =" atomz=86@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Fr  =" atomz=87@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Ra  =" atomz=88@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Ac  =" atomz=89@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Th  =" atomz=90@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Pa  =" atomz=91@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-U   =" atomz=92@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Np  =" atomz=93@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Pu  =" atomz=94@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Am  =" atomz=95@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Cm  =" atomz=96@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Bk  =" atomz=97@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Cf  =" atomz=98@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@"
-Es  =" atomz=99@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@"
-Fm  =" atomz=100@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@"
-Md  =" atomz=101@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@"
-No  =" atomz=102@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@"
-Lr  =" atomz=103@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@"
+La  =" atomz=57@ pz='PZ=0,5'@ eh=-1*4@ eh2=-2*3@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.549  JH=0 0 0 0.0727  ##MMOM=0 0 0 1'@" 
+Ce  =" atomz=58@ pz='PZ=0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.549  JH=0 0 0 0.0727  ##MMOM=0 0 0 1'@" 
+Pr  =" atomz=59@ pz='PZ=0,5'@ eh=-1*4@ eh2=-2*3@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.535  JH=0 0 0 0.0692  ##MMOM=0 0 0 2'@" 
+Nd  =" atomz=60@ pz='PZ=0,5'@ eh=-1*4@ eh2=-2*3@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.559  JH=0 0 0 0.0726  ##MMOM=0 0 0 3'@"
+Pm  =" atomz=61@ pz='PZ=0,5'@ eh=-1*4@ eh2=-2*3@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.583  JH=0 0 0 0.0757  ##MMOM=0 0 0 4'@" 
+Sm  =" atomz=62@ pz='PZ=0,5'@ eh=-1*4@ eh2=-2*3@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.604  JH=0 0 0 0.0787  ##MMOM=0 0 0 5'@" 
+Eu  =" atomz=63@ pz='PZ=0,5'@ eh=-1*4@ eh2=-2*3@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.625  JH=0 0 0 0.0815  ##MMOM=0.0 0 6'@" 
+Gd  =" atomz=64@ pz='PZ=0,5'@ eh=-1*4@ eh2=-2*3@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.676  JH=0 0 0 0.0882  ##MMOM=0 0 0 7'@" 
+Tb  =" atomz=65@ pz='PZ=0,5'@ eh=-1*4@ eh2=-2*3@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.696  JH=0 0 0 0.0924  ##MMOM=0 0 0 6'@" 
+Dy  =" atomz=66@ pz='PZ=0,5'@ eh=-1*4@ eh2=-2*3@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.685  JH=0 0 0 0.0895  ##MMOM=0 0 0 5'@"
+Ho  =" atomz=67@ pz='PZ=0,5'@ eh=-1*4@ eh2=-2*3@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.704  JH=0 0 0 0.0920  ##MMOM=0 0 0 4'@"
+Er  =" atomz=68@ pz='PZ=0,5'@ eh=-1*4@ eh2=-2*3@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.773  JH=0 0 0 0.0945  ##MMOM=0 0 0 3'@"
+Tm  =" atomz=69@ pz='PZ=0,5'@ eh=-1*4@ eh2=-2*3@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.741  JH=0 0 0 0.0968  ##MMOM=0 0 0 2'@"
+Yb  =" atomz=70@ pz='PZ=0,5'@ eh=-1*4@ eh2=-2*3@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.759  JH=0 0 0 0.0992  ##MMOM=0 0 0 1'@"
+Lu  =" atomz=71@ pz='PZ=0,5'@ eh=-1*4@ eh2=-2*3@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.804  JH=0 0 0 0.1065  ##MMOM=0 0 0 0'@"
+
+Hf  =" atomz=72@ pz='PZ=0,5.5'@ p='P=0,6.5,0,4.5 Q=2,6,2,14'@ eh=-1*5@ eh2=-2*4@
+Ta  =" atomz=73@ eh=-1*4@ eh2=-2*3@ R=?@" 
+W   =" atomz=74@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Re  =" atomz=75@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Os  =" atomz=76@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Ir  =" atomz=77@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Pt  =" atomz=78@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Au  =" atomz=79@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Hg  =" atomz=80@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Tl  =" atomz=81@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Pb  =" atomz=82@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Bi  =" atomz=83@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Po  =" atomz=84@ eh=-1*4@ eh2=-2*3@ R=?@" 
+At  =" atomz=85@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Rn  =" atomz=86@ eh=-1*4@ eh2=-2*3@ R=?@" 
+
+Fr  =" atomz=87@ pz='PZ=6,6'@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Ra  =" atomz=88@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Ac  =" atomz=89@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Th  =" atomz=90@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Pa  =" atomz=91@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*3@ R=?@" 
+U   =" atomz=92@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Np  =" atomz=93@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Pu  =" atomz=94@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Am  =" atomz=95@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Cm  =" atomz=96@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Bk  =" atomz=97@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Cf  =" atomz=98@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*3@ R=?@"
+Es  =" atomz=99@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*3@ R=?@"
+Fm  =" atomz=100@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*3@ R=?@"
+Md  =" atomz=101@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*3@ R=?@"
+No  =" atomz=102@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*3@ R=?@"
+Lr  =" atomz=103@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*3@ R=?@"
 ### CAUTION!!! R= in this table is in Angstrome.
 ### This gives smaller basis than those used in our dimer paper. ###
 """
@@ -736,9 +724,19 @@ for ispec in uniq(sitename):
 
         print('  ',rsize,rsizeh)
 
-        aaa= '    ATOM='+ispec +' Z='+ z + ' R='+rsize.strip()
-        aaa=aaa+  ' '+getdataa2( dicatom[speckey],'pz=')
-        aaa=aaa+  ' '+getdataa2( dicatom[speckey],'p=')+'\n'
+        aaa= '    ATOM='+ispec +' Z='+ z + ' R='+rsize.strip()+'\n'
+        try:
+            aaa=aaa+' '*6+getdataa2( dicatom[speckey],'pz=')+'\n'
+        except:
+            pass
+        try:
+            aaa=aaa+' '*6+getdataa2( dicatom[speckey],'p=')+'\n'
+        except:
+            pass
+        try:
+            aaa=aaa+' '*6+getdataa2( dicatom[speckey],'ext=')+'\n'
+        except:
+            pass
         if specextradata: aaa=aaa+ ' '*6+specextra[ispec] +'\n'  #mar2013
         aaa=aaa+ '      EH='+  eh1value*eh1count
         aaa=aaa+ ' RSMH='+(rsizeh.strip()+' ')*eh1count+'\n'
@@ -905,7 +903,7 @@ tail = tail + """      #For Molecule, you may also need to set FSMOM=n_up-n_dn, 
       # NOTE: because of inversion in space-group symmetry, we may have 
       #       |phi_sigm^\bfk|^2 = |phi_sigm^{-\bfk}|^2. This is not for NOINV.
 
-ITER MIX=A8,b=.15 CONV=1e-5 CONVC=1e-5 NIT={nit}
+ITER MIX=A8,b=.2 CONV=1e-5 CONVC=1e-5 NIT={nit}
 #ITER MIX=B CONV=1e-6 CONVC=1e-6 NIT={nit}
                 # MIX=A: Anderson mixing.
                 # MIX=B: Broyden mixing (default). 
