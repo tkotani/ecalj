@@ -1,0 +1,4 @@
+cprn_noso529pzUdR3 nosp PrN so=0,Ud,R3d
+
+1.step by step. converged, then add Ud : separated pdos without 4f at Ef
+2.no step by step --> pdos of 4f at Ef.
