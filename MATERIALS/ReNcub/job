@@ -6,8 +6,8 @@ fff= [f for f in files if 'ctrls.' in f]
 print(fff)
 for m in fff:
     mat=m.split('ctrls.')[1]
-    print()
-    print('====== '+mat+' =============')
+    print(flush=True)
+    print('====== '+mat+' =============',flush=True)
     os.makedirs(mat,exist_ok=True)
     shutil.copy('./INIT/'+m,mat)
     shutil.copy('./INIT/'+'occnum.'+mat,mat)
@@ -20,7 +20,7 @@ for m in fff:
     os.system('lmfa '+ mat + ' > llmfa')
     
     aaa='mpirun -np '+nmcore+' lmf-MPIK '+ mat + '|tee llmf |grep mmom'
-    print(aaa)
+    print(aaa,flush=True)
     subprocess.run(aaa,shell=True)
 
     #aaa='getsyml '+mat+ ' -nobzview '
@@ -28,7 +28,7 @@ for m in fff:
     #subprocess.run(aaa,shell=True)
 
     aaa='job_band '+mat+' -np '+nmcore+' NoGnuplot'
-    print(aaa)
+    print(aaa,flush=True)
     subprocess.run(aaa,shell=True)
 
     os.chdir('..')
