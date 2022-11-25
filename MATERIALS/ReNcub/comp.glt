@@ -1,0 +1,63 @@
+set terminal postscript enhanced color eps
+set output "bandplot.isp1.band.eps"
+set xzeroaxis
+set grid
+set ylabel "Energy-Efermi(eV)"
+# This is given written in subroutine writeband in lm7K/fp/bndfp.F
+set yrange [   -20.00000:    20.00000]
+set xrange [0.0:     4.48735]
+set xtics ('G'   0.0000000000,\
+'X'   1.0000000000,\
+'W'   1.5000000000,\
+'L'   2.2071067812,\
+'G'   3.0731321850,\
+'K'   4.1337923568,\
+'X'   4.4873457473)
+set x2tics ('X'   1.0000000000,\
+'W'   1.5000000000,\
+'L'   2.2071067812,\
+'G'   3.0731321850,\
+'K'   4.1337923568,\
+'X'   4.4873457473)
+tpia=2*3.1415926/     9.07068
+#ddd2 ="ctmn_stest4/"
+#ddd ="cdyn_noso503/"
+#ddd2="cdyn_noso503/"
+#ddd ="cprn_noso529_big/"
+#ddd2="cprn_noso529pz/"
+ddd ="ceun/"
+ddd2="ceun/"
+spin='spin1'
+spin2='spin2'
+set title "Band ".ddd.spin." ".ddd2.spin2
+plot \
+ddd."bnd001.".spin u ($2):($3) lt 1 w l,\
+ddd."bnd002.".spin u ($2):($3) lt 1 w l,\
+ddd."bnd003.".spin u ($2):($3) lt 1 w l,\
+ddd."bnd004.".spin u ($2):($3) lt 1 w l,\
+ddd."bnd005.".spin u ($2):($3) lt 1 w l,\
+ddd."bnd006.".spin u ($2):($3) lt 1 w l,\
+ddd2."bnd001.".spin2 u ($2):($3) lt 2 w l,\
+ddd2."bnd002.".spin2 u ($2):($3) lt 2 w l,\
+ddd2."bnd003.".spin2 u ($2):($3) lt 2 w l,\
+ddd2."bnd004.".spin2 u ($2):($3) lt 2 w l,\
+ddd2."bnd005.".spin2 u ($2):($3) lt 2 w l,\
+ddd2."bnd006.".spin2 u ($2):($3) lt 2 w l
+set terminal x11
+replot
+
+exit
+
+ddd2."bnd001.spin2" u ($2):($3) lt 2 w lp,\
+ddd2."bnd002.spin2" u ($2):($3) lt 2 w lp,\
+ddd2."bnd003.spin2" u ($2):($3) lt 2 w lp,\
+ddd2."bnd004.spin2" u ($2):($3) lt 2 w lp,\
+ddd2."bnd005.spin2" u ($2):($3) lt 2 w lp,\
+ddd2."bnd006.spin2" u ($2):($3) lt 2 w lp
+
+ddd2."bnd001.".spin u ($2):($3) lt 2 w l,\
+ddd2."bnd002.".spin u ($2):($3) lt 2 w l,\
+ddd2."bnd003.".spin u ($2):($3) lt 2 w l,\
+ddd2."bnd004.".spin u ($2):($3) lt 2 w l,\
+ddd2."bnd005.".spin u ($2):($3) lt 2 w l,\
+ddd2."bnd006.".spin u ($2):($3) lt 2 w l
