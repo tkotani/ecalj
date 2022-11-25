@@ -99,7 +99,7 @@ Ba  =" atomz=56@ pz='PZ=0,5'@ eh=-1*4@ eh2=-2*3@ R=?@"
 
 # Take U value from PRB75 045114 (2007) +1eV for stabilizing convergence 
 La  =" atomz=57@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.549  JH=0 0 0 0.0727  ##MMOM=0 0 0 0'@" 
-Ce  =" atomz=58@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.549  JH=0 0 0 0.0727  ##MMOM=0 0 0 1'@" 
+Ce  =" atomz=58@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.549+2*0.0735 JH=0 0 0 0.0727  ##MMOM=0 0 0 1'@" 
 Pr  =" atomz=59@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.535  JH=0 0 0 0.0692  ##MMOM=0 0 0 2'@" 
 Nd  =" atomz=60@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.559  JH=0 0 0 0.0726  ##MMOM=0 0 0 3'@"
 Pm  =" atomz=61@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.583  JH=0 0 0 0.0757  ##MMOM=0 0 0 4'@" 

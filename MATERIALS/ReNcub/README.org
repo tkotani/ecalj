@@ -11,13 +11,17 @@ Some differces but overall agreement looks reasonable (see below).
 
 ** We are using ctrlgenM1.py (ctrl file generator), whcih is modifed for this purpose.
 La  =" atomz=57@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.549  JH=0 0 0 0.0727  ##MMOM=0 0 0 0'@" 
-Ce  =" atomz=58@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.549  JH=0 0 0 0.0727  ##MMOM=0 0 0 1'@" ...
+Ce  =" atomz=58@ pz='PZ=0,5,0,5'@ eh=-1*4@ eh2=-2*4@ R=?@ ext='#IDU=0 0 0 12  UH=0 0 0 0.549+0.735*2  JH=0 0 0 0.0727  ##MMOM=0 0 0 1'@" ...
 ...
 See the scripnt ./job. So you need to install ctrlgenM1.py to your bin (run InstallAll.*) 
 This is with 5p and 5f with local orbital.
 UH,JH are taken from Phys.Rev.B75 045114(2007). DOI: 10.1103/PhysRevB.75.045114
-But Eu has UH=0 0 0 0.625+0.0735 to stabilize convergence (+0.0735 means +1eV to U of LDA+U). 
 We use four EH (s,p,d,f) and four, EH2 as well.
+
+CAUTION:
+As for Eu and Ce, we use a little larger UH to stabilize convergence.
+Eu has UH=0 0 0 0.625+0.0735 (+0.0735 means +1eV to U of LDA+U). 
+Ce has 0.549+0.735*2 as well. 
 
 In addition, new ctrlgenM1.py contains 
       READP=T  # Read P,PZ values from results of atom calculation.
@@ -49,10 +53,10 @@ P and PZ (EH, EH2 setting is different). Basis is large enough.
 
 On the Our setting (no Ud, so=2 (LzSz), r4z, basis setting is different but large enough and stable, I think).
 
-CeN is sensitive to the setting.If we use smaller lattice constant, I found it becomes paramagnetic.
+CeN is sensitive to the setting. If we use smaller lattice constant, I found it becomes paramagnetic.
 EuN is sensitive as well (one 4f is on Ef) in thier original setting. To avoid this sensitivity,
 I add +1eV as explaine above.
 
-To reproduce thier result, I tested cases with r3d (3-fold rotation), no SO, with Ud, theoretical value
+To reproduce thier result, I had tested cases with r3d (3-fold rotation), no SO, with Ud, theoretical value
 of lattice constant. Roughly speaking, resutls seems to give rea 
 Our setting seems to give good (or reasonable) agreements with their results. But a little difference
