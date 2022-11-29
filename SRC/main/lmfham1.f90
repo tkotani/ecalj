@@ -83,6 +83,8 @@ contains
     do i=1,ldim !MLO3 dimension
        if(l_table(i)>=3) cycle 
        if(k_table(i)==2) cycle !.and.l_table(i)>=1) cycle
+!       if( (ib_table(i)==3.or.ib_table(i)==4).and.l_table(i)>=2) cycle
+!       if( (ib_table(i)==3.or.ib_table(i)==4).and.l_table(i)==0) cycle
 !       if(k_table(i)==2.and.l_table(i)>=2) cycle
        write(6,*) 'ham3 index', i,ib_table(i),l_table(i),k_table(i)
        nnn=nnn+1
@@ -105,6 +107,8 @@ contains
     do i=1,ldim !MLO dimension 
        if(l_table(i)>=3) cycle 
        if(k_table(i)==2) cycle
+       if( (ib_table(i)==3.or.ib_table(i)==4).and.l_table(i)>=2) cycle !for Oxygen of NiO. skip 3d
+!       if( (ib_table(i)==3.or.ib_table(i)==4).and.l_table(i)==0) cycle
 
 !       if(l_table(i)>=2) cycle 
 !       if(k_table(i)>=2.and.l_table(i)==1) cycle
@@ -172,12 +176,12 @@ contains
               oo=ovlm(1:ndimMTO3,1:ndimMTO3)
               nmx = ndimMTO3
               call zhev_tk4(ndimMTO3,hh,oo, nmx,nev,evlmlo3, evec, epsovl)
-              do i=1,ndimMTO3 
+              !do i=1,ndimMTO3 
                  !if(i<=4.and.abs(evlmlo3(i)-evl(i))>1d-8) call rx('eeeeeeeee dif')
                  ! write(6,"(a,i5,4f12.4)")'mmm', i,evl(i),evlmlo2(i)-evl(i),evlmlo3(i)-evl(i)
                  !if(sum([qp(2),qp(3)]**2)<1d-3)  write(6,"(a,i5,4f12.4)")'mmmx', i,evl(i),evlmlo3(i)-evl(i)
-                 write(6,"(a,i5,4f12.4)")'mmm', i,evl(i),evlmlo3(i)-evl(i)
-              enddo
+              !   write(6,"(a,i5,4f12.4)")'mmm', i,evl(i),evlmlo3(i)-evl(i)
+              !enddo
            endif
          endblock finaleigen
        endblock eigen

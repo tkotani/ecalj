@@ -1,7 +1,7 @@
 !!  originally HAMIndex0 contains informatio of SYMOPS,LATTC,CLASS,NLAindx.
 module m_hamindex0
   use m_lmfinit,only: ham_pwmode,pwemax,ldim=>nlmto,noutmx,nsp_in=>nsp, &
-       lat_alat,nl,ctrl_nbas,ispec,sspec=>v_sspec,n0,nkap0,zbak_read=>zbak,slabl
+       lat_alat,nl,ctrl_nbas,ispec,sspec=>v_sspec,n0,nkap0,zbak_read=>zbak,slabl,z
   use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
   use NaNum,only: NaN       !for initialization, but not working well
 
@@ -14,7 +14,7 @@ module m_hamindex0
        igv2(:,:,:),napwk(:),igv2rev(:,:,:,:),iclasst(:)
   real(8),allocatable,protected,public:: symops_af(:,:,:), ag_af(:,:), &
        symops(:,:,:),ag(:,:),tiat(:,:,:),shtvg(:,:), dlmm(:,:,:,:),qq(:,:), &
-       qtt(:,:),qtti(:,:)
+       qtt(:,:),qtti(:,:),zz(:)
   real(8),protected,public:: plat(3,3)=NaN,qlat(3,3)=NaN,zbak
 
   real(8),protected,public::alat
@@ -81,6 +81,7 @@ contains
 !       iclasst(ib)=ssite(ib)%class
        spid(ib) =slabl(is) !sspec(is)%name
        lmxa(ib) =sspec(is)%lmxa !we assume lmxa>-1
+       zz(ib)=z(ib)
     enddo
     !! get space group information ---- translation informations also in miat tiat invgx, shtvg
     call mptauof( symops, ngrp,plat,nbas,rv_a_opos, iclasstin,miat,tiat,invgx,shtvg )
@@ -153,8 +154,8 @@ contains
     open(newunit=ifi,file='HAMindex0',form='unformatted')
     write(ifi) alat,plat,qlat,nbas,lmxax,nsp,ngrp,ndima,norb,npqn,nclass,nphimx
     write(ifi) konft(0:lmxax,1:nbas,1:nsp),lmxa(1:nbas),nlindx(1:npqn,0:lmxax,1:nbas)
-    write(ifi) iclasstin(1:nbas),spid(1:nbas)
-    write(ifi)  nindx(1:ndima),lindx(1:ndima),ibasindx(1:ndima),caption(1:ndima)
+    write(ifi) iclasstin(1:nbas),spid(1:nbas),zz(1:nbas)
+    write(ifi) nindx(1:ndima),lindx(1:ndima),ibasindx(1:ndima),caption(1:ndima)
     write(ifi) symops(1:3,1:3,1:ngrp),invgx(1:ngrp),shtvg(1:3,1:ngrp)
     close(ifi)
   end subroutine m_hamindex0_init
@@ -166,8 +167,8 @@ contains
     read(ifi) alat,plat,qlat,nbas,lmxax,nsp,ngrp,ndima,norb,npqn,nclass,nphimx
     allocate( konft(0:lmxax,1:nbas,1:nsp),lmxa(1:nbas),nlindx(1:npqn,0:lmxax,1:nbas))
     read(ifi) konft(0:lmxax,1:nbas,1:nsp),lmxa(1:nbas),nlindx(1:npqn,0:lmxax,1:nbas)
-    allocate( iclasst(1:nbas),spid(1:nbas))
-    read(ifi) iclasst(1:nbas),spid(1:nbas)
+    allocate( iclasst(1:nbas),spid(1:nbas),zz(1:nbas))
+    read(ifi) iclasst(1:nbas),spid(1:nbas),zz(1:nbas)
     allocate( nindx(1:ndima),lindx(1:ndima),ibasindx(1:ndima),caption(1:ndima))
     read(ifi) nindx(1:ndima),lindx(1:ndima),ibasindx(1:ndima),caption(1:ndima)
     allocate( symops(1:3,1:3,1:ngrp),invgx(1:ngrp),shtvg(1:3,1:ngrp))
