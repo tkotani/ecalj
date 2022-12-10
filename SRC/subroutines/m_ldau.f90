@@ -228,7 +228,7 @@ contains
   ! ssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine chkdmu(eks, dmatu,dmatuo,vorb)
     use m_lmfinit,only: stdl,nbas,nsp,nlibu,lmaxu,ispec,sspec=>v_sspec,lldau, &
-         tolu=>mix_tolu,umix=>mix_umix,stdo,idu,uh,jh
+         tolu=>mix_tolu,umix=>mix_umix,stdo,idu,uh,jh,ham_lsig
     use m_MPItk,only: master_mpi
     use m_mksym,only: g=>rv_a_osymgr,istab=>iv_a_oistab, ng =>lat_nsgrp
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
@@ -268,14 +268,26 @@ contains
     double precision :: ddmat,eorbi,eterms(20),ddot,xx !,uh(4),jh(4)
     logical:: fexist,mmtargetx,eee
     real(8),allocatable:: uhall(:,:)
-    real(8):: mmsite(nbas),uhxx,mmhist(10000),uhhist(10000),mmtarget,uhdiff
+    real(8):: mmsite(nbas),uhxx,mmhist(10000),uhhist(10000),mmtarget,uhdiff,ddo
     real(8),save::uhxnew,uhx,alpha,alphax
     integer:: nn,ibas,ifx,key,i,nit
     integer,save::ncount=0
     complex(8):: dmatuav(-lmaxu:lmaxu,-lmaxu:lmaxu)
     real(8):: sss(1),sigin
-    real(8):: fac
+    real(8):: fac,ssss
     if (nlibu == 0) return
+!    ssss=0d0
+!    do  ib = 1, nbas
+!       if (lldau(ib) /= 0) then
+!          is = ispec(ib) !ssite(ib)%spec
+!          ssss = ssss + sum(abs(uh(:,is)))+sum(abs(jh(:,is)))
+!       endif
+!    enddo
+!    if(sss<1d-6) then
+!       dmatu = 0d0
+!       havesh = 1
+!       goto 1185
+!    endif
     havesh =0
     idvsh  =0  ! We assume real harmonics for i/o
     ipl = 1
@@ -284,7 +296,6 @@ contains
     if(iprint()>=60) call praldm(0,60,60,havesh,nbas,nsp,lmaxu,lldau, &
          ' Unsymmetrized output dmats',dmatu)
     call symdmu(nlibu,dmatu, nbas,nsp, lmaxu, ng, g, istab, lldau, xx)
-    ddmat = dsqrt(ddot(2*ivsiz,dmatu-dmatuo,1,dmatu-dmatuo,1)/(2*ivsiz))
     if(master_mpi)write(stdo,ftox)
     if(master_mpi)write(stdo,ftox)'chkdmu: LDA+U. RMSdiff of dmat from symmetrization =',ftod(xx,2)
     ! --- Compute U contribution to total energy; make vorb ---
@@ -312,8 +323,12 @@ contains
     ! --- Restore dmatu, vorb to real harmonics
     call rotycs(-1,dmatu,nbas,nsp,lmaxu,lldau) !-1, from sh to rh idvsh=0
     havesh = 0
-    if(master_mpi)write(stdo,ftox)'LDA+U update density matrix ... RMS diff in densmat',ftod(ddmat)
-    dmatu = umix*dmatu+(1d0-umix)*dmatuo ! new*umix + old*(1-umix)
+    if(master_mpi)then
+       ddmat = sum(abs(dmatu-dmatuo)**2)**.5
+       write(stdo,ftox)'LDA+U update density matrix ... RMS diff in densmat',ftod(ddmat)
+    endif   
+    ddo = sum(abs(dmatuo)**2) !dmatuo=0d0 if no dmatu.* occnum.*
+    if(ddo>1d-10) dmatu = umix*dmatu+(1d0-umix)*dmatuo ! new*umix + old*(1-umix)
     call rotycs(1,dmatu,nbas,nsp,lmaxu,lldau) !from rh to sh
     havesh = 1
 
@@ -488,18 +503,18 @@ contains
     master = 0
     call getpr(ipr)
     !! When LDAU is dummy (usually just in order to print our dmats file).
-    sss=0d0
-    do  ib = 1, nbas
-       if (lldau(ib) /= 0) then
-          is = ispec(ib) !ssite(ib)%spec
-          sss = sss + sum(abs(uh(:,is)))+sum(abs(jh(:,is)))
-       endif
-    enddo
-    if(sss<1d-6) then
-       dmatu = 0d0
-       havesh = 1
-       goto 1185
-    endif
+!    sss=0d0
+!    do  ib = 1, nbas
+!       if (lldau(ib) /= 0) then
+!          is = ispec(ib) !ssite(ib)%spec
+!          sss = sss + sum(abs(uh(:,is)))+sum(abs(jh(:,is)))
+!       endif
+!    enddo
+!    if(sss<1d-6) then
+!       dmatu = 0d0
+!       havesh = 1
+!       goto 1185
+!    endif
     ! Read in dmatu if file  dmats.ext  exists ---
     if(procid /= master) goto 1185
     inquire(file='dmats.'//trim(sname),exist=dexist)
