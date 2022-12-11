@@ -26,7 +26,7 @@ program gwinit_v2
   !r    True_G(1:3,igp) = 2*pi/alat * matmul(qlat * ngvec(1:3,igp)) ,igp=1,ngp
   !! -----------------------------------------------------------
   use m_hamindex0,only: readhamindex0,alat,plat,nbas,lmxax,nsp,konft,lmxaa=>lmxa, &
-       nindx,lindx,mnla=>ndima,iat=>ibasindx,caption,spid,symops, ngrp,npqn,qlat
+       nindx,lindx,mnla=>ndima,iat=>ibasindx,caption,spid,symops, ngrp,npqn,qlat,zz,pqn
   use m_get_bzdata1,only:  getbzdata1, nqbz, nqibz, qbz,wbz,qibz,wibz
   implicit none
   integer ::n1q,n2q,n3q,ifiqg,ifiqgc,ifigw0,ifi,i,ig
@@ -204,7 +204,10 @@ program gwinit_v2
            do izz = 1, mnla
               if(iat(izz)==ibas .AND. lk==lindx(izz) .AND. nx==nindx(izz)) then
                  nocc = 1; nunocc = 1
-                 if(lindx(izz) >2 ) nocc   = 0
+                 if(lindx(izz) >2 .and. zz(ibas) <57.5) nocc   = 0 ! f orbital occ or not
+                 if(lindx(izz) >2 .and. zz(ibas) <57.5) nocc   = 0 ! f orbital occ or not
+                 if(lindx(izz) ==3 .and. pqn(izz)>=5 .and. zz(ibas)<89.5) nocc =0 
+                 if(lindx(izz) >3 ) nocc   = 0 
                  if(lindx(izz) >3 ) nunocc = 0
                  if(nindx(izz)==2) then
                     nocc   = 0

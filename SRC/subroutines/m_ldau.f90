@@ -100,8 +100,6 @@ contains
        close(ifx)
        if(init) init= .FALSE. 
     endif
-    !! broadcast uhx
-    !          call MPI_Bcast(uhx, 1, MPI_REAL8, 0, MPI_COMM_WORLD, ierr)
     call mpibc1_real(uhx,1,'m_ldau_magfield')
     vorbav=0d0
     do i=-lmaxu,lmaxu
@@ -258,7 +256,7 @@ contains
     ! ----------------------------------------------------------------------
     integer:: ierr
     include "mpif.h"
-    integer:: idvsh=0,i_copy_size
+    integer:: idvsh=0
     real(8):: eks, eorbxxx
     double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
     double complex dmatuo(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
@@ -276,25 +274,19 @@ contains
     real(8):: sss(1),sigin
     real(8):: fac,ssss
     if (nlibu == 0) return
-!    ssss=0d0
-!    do  ib = 1, nbas
-!       if (lldau(ib) /= 0) then
-!          is = ispec(ib) !ssite(ib)%spec
-!          ssss = ssss + sum(abs(uh(:,is)))+sum(abs(jh(:,is)))
-!       endif
-!    enddo
-!    if(sss<1d-6) then
-!       dmatu = 0d0
-!       havesh = 1
-!       goto 1185
-!    endif
+    ssss=0d0
+    do  ib = 1, nbas
+       if (lldau(ib) /= 0) then
+          is = ispec(ib) !ssite(ib)%spec
+          ssss = ssss + sum(abs(uh(:,is)))+sum(abs(jh(:,is)))
+       endif
+    enddo
     havesh =0
     idvsh  =0  ! We assume real harmonics for i/o
     ipl = 1
     ivsiz = nsp*nlibu*(lmaxu*2+1)**2
     ! --- Symmetrize output dmatu (req. real harmonics); compare diff ---
-    if(iprint()>=60) call praldm(0,60,60,havesh,nbas,nsp,lmaxu,lldau, &
-         ' Unsymmetrized output dmats',dmatu)
+    if(iprint()>=60) call praldm(0,60,60,havesh,nbas,nsp,lmaxu,lldau,' Unsymmetrized output dmats',dmatu)
     call symdmu(nlibu,dmatu, nbas,nsp, lmaxu, ng, g, istab, lldau, xx)
     if(master_mpi)write(stdo,ftox)
     if(master_mpi)write(stdo,ftox)'chkdmu: LDA+U. RMSdiff of dmat from symmetrization =',ftod(xx,2)
@@ -328,67 +320,9 @@ contains
        write(stdo,ftox)'LDA+U update density matrix ... RMS diff in densmat',ftod(ddmat)
     endif   
     ddo = sum(abs(dmatuo)**2) !dmatuo=0d0 if no dmatu.* occnum.*
-    if(ddo>1d-10) dmatu = umix*dmatu+(1d0-umix)*dmatuo ! new*umix + old*(1-umix)
+    if(ddo>1d-10.and.ssss>1d-10) dmatu = umix*dmatu+(1d0-umix)*dmatuo ! new*umix + old*(1-umix)
     call rotycs(1,dmatu,nbas,nsp,lmaxu,lldau) !from rh to sh
     havesh = 1
-
-    !$$$cccccccccccccccccccccccccccccccccccccccccccccccccccc
-    !$$$!! experimental block to keep magnetic moment for AF.
-    !$$$       inquire(file='mmtarget.aftest',exist=mmtargetx)
-    !$$$       if(mmtargetx) then
-    !$$$          if(master_mpi) then
-    !$$$             open(newunit=ifx,file='mmtarget.aftest')
-    !$$$             alpha  = .1d0
-    !$$$             read(ifx,*) mmtarget !,alpha
-    !$$$             close(ifx)
-    !$$$             open(newunit=ifx,file='uhval.aftest')
-    !$$$             nit=0
-    !$$$             mmsite=0d0
-    !$$$             uhx=0d0
-    !$$$             do
-    !$$$                read(ifx,*,end=1112,err=1112) uhx
-    !$$$                read(ifx,*,end=1112,err=1112) (mmsite(ibas),ibas=1,nbas)
-    !$$$                nit=nit+1
-    !$$$                mmhist(nit)=(mmsite(1)-mmsite(2))/2d0
-    !$$$                uhhist(nit)=uhx
-    !$$$             enddo
-    !$$$ 1112        continue
-    !$$$             close(ifx)
-    !$$$             write(6,"('uhval: ',i5,f10.6,2x,12f10.6)")nit,uhx,(mmsite(ibas),ibas=1,nbas)
-    !$$$!     ! Generate new uhx based on the  history of uhx mmsites for given mm
-    !$$$!     ! test uh
-    !$$$             uhx= uhx + alpha*(mmhist(nit)-mmtarget)**2 - 2d0*(mmhist(nit)-mmtarget)
-    !$$$             write(6,"('mmhist0: UH mm',i5, 3d13.4)" ) nit,uhx,mmhist(nit)
-    !$$$             sss(1)=uhx
-    !$$$             call mixuh(sss)
-    !$$$             uhx=sss(1)
-    !$$$             write(6,"('mmhist:  UH mm ',i5, 3d13.4)") nit,uhx,mmhist(nit)
-    !$$$             if(ncount==0) then
-    !$$$                open(newunit=ifx,file="mixuh.aftest")
-    !$$$                close(ifx,status='delete')
-    !$$$                ncount=1
-    !$$$             endif
-    !$$$             open(newunit=ifx,file='uhval.aftest',position='append')
-    !$$$             write(ifx,"(d23.15,' !uhx')") uhx !, uhxnew
-    !$$$             close(ifx)
-    !$$$          endif
-    !$$$!! broadcast uhx
-    !$$$          call MPI_Bcast(uhx, 1, MPI_REAL8, 0, MPI_COMM_WORLD, ierr)
-    !$$$! Averaged dmatu up dn.
-    !$$$          dmatuav=0d0
-    !$$$          do i=-lmaxu,lmaxu
-    !$$$             dmatuav(i,i) =  1d0
-    !$$$          enddo
-    !$$$          do iblu =1,2
-    !$$$             fac=1d0
-    !$$$             if(iblu==2) fac=-1d0
-    !$$$c             dmatuav(:,:) =  .5d0*dmatu(:,:,1,iblu) +.5d0*dmatu(:,:,2,iblu)
-    !$$$             dmatu(:,:,1,iblu) =  fac*dmatuav(:,:)
-    !$$$             dmatu(:,:,2,iblu) = -fac*dmatuav(:,:)
-    !$$$          enddo
-    !$$$
-    !$$$       endif
-    !$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
     vorb=1d99
     iblu = 0
     do  ib = 1, nbas
@@ -399,7 +333,6 @@ contains
              if (idu(l+1,is) /= 0) then
                 iblu = iblu+1
                 call pshpr(iprint()-20)
-                !$$$  if(.not.mmtargetx) uhx = uh(l+1)
                 uhx = uh(l+1,is)
                 call ldau(idu(l+1,is),l,iblu,uhx,jh(l+1,is),dmatu,nsp, lmaxu,vorb,eorbxxx) 
                 call poppr
@@ -412,26 +345,32 @@ contains
     call symdmu(nlibu,vorb,nbas , nsp , lmaxu , ng , g , istab , lldau , xx )
     call rotycs(1,vorb,nbas,nsp,lmaxu,lldau) !1 means that vorb is converted from rh to sh
     !!=>  At this point, dmatu and vorb are in spherical harmonics
-    if(Iprint()>20) write(6,ftox)'RMS change in vorb from symmetrization =',ftod(xx)
-    if(xx>.0001d0 .AND. iprint()>30) write(6,'(a)')'(warning) RMS change unexpectely large'
-    if(iprint()>0) write(6,ftox)'=== representation in spherical harmonics dmatu ==='
-    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau, 'Mixed dmats',dmatu)
-    if(iprint()>0) write(6,ftox)'=== representation in spherical harmonics vorb ==='
-    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau, 'New vorb',vorb)
+    if(Iprint()>20) write(stdo,ftox)'RMS change in vorb from symmetrization =',ftod(xx)
+    if(xx>.0001d0 .AND. iprint()>30) write(stdo,'(a)')'(warning) RMS change unexpectely large'
+!    if(iprint()>0) write(6,ftox)'=== representation in spherical harmonics dmatu ==='
+!    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau, 'Mixed dmats',dmatu)
+!    if(iprint()>0) write(6,ftox)'=== representation in spherical harmonics vorb ==='
+!    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau, 'New vorb',vorb)
     if (master_mpi) then
        idmat = ifile_handle()
        open(idmat,file='dmats.'//trim(sname)) !havesh mush be 1
-       call praldm(idmat,0,0,havesh,nbas,nsp,lmaxu,lldau,' mixed dmats',dmatu)
-       close(idmat)
+       if(iprint()>0) write(stdo,*)' ... Writing density matrix dmats.*... '
+       !write(idmat,ftox)'# === dmats in sph harmonics (read by lmfp-m_ldau_init-sudmtu)==='
+       call praldm(idmat,0,0,havesh,nbas,nsp,lmaxu,lldau,' dmats !spherical harmonics',dmatu)
+       write(idmat,ftox)'# --- We do not read following data. Just for check ---'
+       write(idmat,ftox)'# vorb in sph harmonics (not readin) ==='
+       call praldm(idmat,0,0,havesh,nbas,nsp,lmaxu,lldau, 'New vorb',vorb)
     endif
-    !! write in real harmonics
     call rotycs(-1,dmatu,nbas,nsp,lmaxu,lldau) !dmatu is converted from sh to rh
     call rotycs(-1,vorb,nbas,nsp,lmaxu,lldau)  !vorb is converted from sh to rh
     havesh=0                  !I recovered this 2022May8
-    if(iprint()>0) write(6,ftox)'=== represenation in real harmonics dmatu==='
-    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,'Mixed dmats',dmatu)
-    if(iprint()>0) write(6,ftox)'=== represenation in real harmonics vorb==='
-    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,'New vorb',vorb)
+    if (master_mpi) then ! write in real harmonics
+       write(idmat,ftox)'# dmatu in real harmonics (not readin) ==='
+       call praldm(idmat,0,0,havesh,nbas,nsp,lmaxu,lldau,'Mixed dmats',dmatu)
+       write(idmat,ftox)'# vorb  in real harmonics (not readin) ==='
+       call praldm(idmat,0,0,havesh,nbas,nsp,lmaxu,lldau,'New vorb',vorb)
+       close(idmat)
+    endif
   end subroutine chkdmu
   ! sssssssssssssssssssssssssssssssssssssssssssssss
   subroutine sudmtu(dmatu,vorb)
@@ -479,14 +418,13 @@ contains
     !-------------------------------------------------------------------
     use m_ldauu,only: ldau
     implicit none
-    integer:: idvsh=0,i_copy_size !nbas,nsp,nlibu,lmaxu,
-    double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
-    double complex Vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
-    logical :: rdstrn,parstr,mmtargetx,eee
+    integer:: idvsh=0
+    complex(8):: dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu),&
+         Vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
+    logical :: mmtargetx,eee
     integer :: i,isp,ib,l,lmxa,m,m2,foccn,havesh,ivsiz,ipr,ifx
-    double precision :: nocc(-3:3,2),iv(7)
-    integer:: igetss,is,idmat,fxst,iblu,nlm,nlmu,a2vec,nn,m1 !idu(4),
-    double precision :: eorb,xx !tmp(2,7,7) !uh(4),jh(4),
+    real(8):: nocc(-3:3,2),iv(7),eorb,xx
+    integer:: igetss,is,idmat,fxst,iblu,nlm,nlmu,nn,m1 !idu(4),
     complex(8):: tmp(7,7),img=(0d0,1d0)
     real(8):: tempr(7,7),tempi(7,7)
     character str*80,spid*8,aaa*24
@@ -495,7 +433,7 @@ contains
     ! ... MPI
     include "mpif.h"
     integer :: procid,master,mpipid,ierr
-    logical :: mlog,occe,dexist,readtemp
+    logical :: mlog,occe,dexist,readtemp,cmdopt0
     real(8)::sss
     character(128):: bbb
     call rxx(nsp.ne.2,'LDA+U must be spin-polarized!')
@@ -503,18 +441,6 @@ contains
     master = 0
     call getpr(ipr)
     !! When LDAU is dummy (usually just in order to print our dmats file).
-!    sss=0d0
-!    do  ib = 1, nbas
-!       if (lldau(ib) /= 0) then
-!          is = ispec(ib) !ssite(ib)%spec
-!          sss = sss + sum(abs(uh(:,is)))+sum(abs(jh(:,is)))
-!       endif
-!    enddo
-!    if(sss<1d-6) then
-!       dmatu = 0d0
-!       havesh = 1
-!       goto 1185
-!    endif
     ! Read in dmatu if file  dmats.ext  exists ---
     if(procid /= master) goto 1185
     inquire(file='dmats.'//trim(sname),exist=dexist)
@@ -522,14 +448,12 @@ contains
     if(dexist) then
        open(newunit=idmat,file='dmats.'//trim(sname))
 825    continue
-       if (rdstrn(idmat,str,len(str), .FALSE. )) then
-          if (str(1:1) == '#') goto 825
-          i = 0
-          if (parstr(str,'sharm ',len(str)-6,5,' ',i,m)) then
-             havesh = 1 
-          else
-             havesh = 0 
-          endif
+       read(idmat,*)str
+       if(str(1:1) == '#') goto 825
+       if(index(str,' sharm ')/=0) then
+          havesh = 1 !spherical(complex) harmonics
+       else
+          havesh = 0 !real harmonics
        endif
        if(havesh ==1) bbb='spherical harmonics' !complex harmonics
        if(havesh ==0) bbb='real harmonics'      !real harmonics 
@@ -568,13 +492,13 @@ contains
        write(stdo,*) ' sudmtu:  initial (diagonal) density-matrix from occ numbers'
        open(newunit=foccn,file='occnum.'//trim(sname))
        havesh = 1
-12     if ( .NOT. rdstrn(foccn,str,len(str), .FALSE. )) goto 99
+12     continue
+       read(foccn,*) str
        if (str(1:1) == '#') goto 12
        if (str(1:1) == '%') then
-          i = 0
-          if (parstr(str,'real ',len(str)-5,4,' ',i,m)) havesh = 0
+          if(index(str,' real ')/=0) havesh=0
        else
-          backspace foccn
+          backspace(foccn)
        endif
        iblu = 0
        do  ib = 1, nbas
@@ -586,15 +510,9 @@ contains
                    iblu = iblu+1
                    do  isp = 1, 2
 11                    continue
-                      if ( .NOT. rdstrn(foccn,str,len(str), .FALSE. )) goto 99
-                      !     Skip comment lines
                       if (str(1:1) == '#') goto 11
-                      i = 0
-                      m = a2vec(str,len(str),i,4,', ',2,3,2*l+1,iv,nocc(-l,isp))
-                      if (m < 0) goto 99
-                   enddo
-                   do isp=1,2
-                      write(stdo,ftox)' occ num: site',ib,'l',l,'isp',isp,' ',nocc(-l:l,isp)
+                      read(foccn,*) nocc(-l:l,isp)
+                      write(stdo,ftox)' occnum: site',ib,'l',l,'isp',isp,' ',ftof(nocc(-l:l,isp))
                    enddo
                    do isp = 1, 2
                       do m = -l, l
@@ -613,7 +531,6 @@ contains
        dmatu=0d0
     endif
 1185 continue
-
     ! ... Initial printout
     call praldm(0,51,51,havesh,nbas,nsp,lmaxu,lldau,' dmats read from disk',dmatu)
     ivsiz = nsp*nlibu*(lmaxu*2+1)**2
@@ -637,62 +554,40 @@ contains
        havesh = idvsh
     endif
     if (ng /= 0) then
-       if(master_mpi)write(stdo,ftox)'sudmtu:  RMS change in dmats'// &
-            ' from symmetrization',ftof(xx)
+       if(master_mpi)write(stdo,ftox)'sudmtu:  RMS change in dmats from symmetrization',ftof(xx)
        if (xx > .01d0) write(stdo,*)'(warning) RMS change unexpectely large'
        call daxpy ( ivsiz * 2 , - 1d0 , dmatu , 1 , dmwk_zv , 1 )
        if(ipr>=60) write(stdo,*)' change in dmat wrought by symmetrization'
-       call praldm ( 0 , 60 , 60 , 0 , nbas , nsp , lmaxu , lldau , &
-             ' ' , dmwk_zv )
+       call praldm ( 0 , 60 , 60 , 0 , nbas , nsp , lmaxu , lldau ,' ' , dmwk_zv )
     endif
     !     Print dmats in specified harmonics
     dmwk_zv=dmatu
     if (havesh /= idvsh) then
        call rotycs ( 2 * idvsh - 1 , dmwk_zv , nbas , nsp , lmaxu, lldau )
     endif
-    if(master_mpi)write(stdo,*)
-    call praldm(0,30,30,idvsh,nbas,nsp,lmaxu,lldau,' Symmetrized dmats' , dmwk_zv )
+    if(cmdopt0('--showdmat')) then
+       if(master_mpi)write(stdo,*)
+       call praldm(0,30,30,idvsh,nbas,nsp,lmaxu,lldau,' Symmetrized dmats' , dmwk_zv )
+    endif   
     !     Print dmats in complementary harmonics
     i = 1-idvsh
     call rotycs(2 * i - 1 , dmwk_zv , nbas , nsp , lmaxu, lldau )
-    if(master_mpi)write(stdo,*)
-    call praldm(0,30,30,i,nbas,nsp,lmaxu,lldau, ' Symmetrized dmats' , dmwk_zv )
+    if(cmdopt0('--showdmat')) then
+       if(master_mpi)write(stdo,*)
+       call praldm(0,30,30,i,nbas,nsp,lmaxu,lldau, ' Symmetrized dmats' , dmwk_zv )
+    endif   
     ! ... Make Vorb (ldau requires spherical harmonics)
     if (havesh /= 1) then
        call rotycs(1,dmatu,nbas,nsp,lmaxu,lldau)
        havesh = 1
     endif
-    !$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-    !$$$!! experimental block to keep magnetic moment for AF.
-    !$$$       inquire(file='mmtarget.aftest',exist=mmtargetx)
-    !$$$       inquire(file='mmagfield.aftest',exist=eee)
-    !$$$       if(mmtargetx.and. (procid==master)) then
-    !$$$          uhx=0d0
-    !$$$          open(newunit=ifx,file='mmagfield.aftest')
-    !$$$          do
-    !$$$             read(ifx,*,end=1112,err=1112) uhxx,aaa
-    !$$$             uhx=uhxx
-    !$$$             if(trim(aaa)=='!Magfield') uhx=uhxx
-    !$$$          enddo
-    !$$$ 1112     continue
-    !$$$          close(ifx)
-    !$$$          write(stdo,"('sudmtu: mmtarget mode. Readin Magfield from mmagfield.aftest=',f10.6)")uhx
-    !$$$          open(newunit=ifx,file='mmagfield.aftest')
-    !$$$          write(ifx,"(d23.15,1x,'!Magfield is read from previous mmagfield.aftest')") uhx
-    !$$$          close(ifx)
-    !$$$       endif
-    !$$$       call mpibc1_real(uhx,1,'sudmtu_uhx')
-    !$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
     if(master_mpi) write(stdo,*)
     iblu = 0
     do  20  ib = 1, nbas
        if (lldau(ib) == 0) goto 20
-       is = ispec(ib) !int(ssite(ib)%spec)
+       is = ispec(ib) 
        lmxa=sspec(is)%lmxa
-       !idu=sspec(is)%idu
-       !uh=sspec(is)%uh
-       !jh=sspec(is)%jh
-       spid=slabl(is) !sspec(is)%name
+       spid=slabl(is) 
        i = min(lmxa,3)
        if(master_mpi) write(stdo,ftox)'Species '//spid//'mode',idu(1:i+1,is),'U',ftof(uh(1:i+1,is),2),'J',ftof(jh(1:i+1,is),2)
        do  22  l = 0, i
@@ -704,7 +599,8 @@ contains
 22     enddo
 20  enddo
     call praldm(0,60,60,havesh,nbas,nsp,lmaxu,lldau,' Unsymmetrized vorb',vorb)
-    !==>     At this point, dmatu and vorb are in spherical harmonics
+    !!!! ==>     At this point, dmatu and vorb are in spherical harmonics (complex)
+    
     ! ... Symmetrize vorb to check (symdmu requires real harmonics)
     call rotycs(-1,vorb,nbas,nsp,lmaxu,lldau)
     call symdmu (nlibu, vorb, nbas , nsp , lmaxu , ng , g , istab , lldau , xx )
@@ -721,31 +617,30 @@ contains
        if (xx > .01d0) write(stdo,*)'          (warning) RMS change unexpectely large'
        write(stdo,*)
     endif
-    !     Print vorb in specified harmonics
-    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,' Symmetrized vorb',vorb)
+    if(cmdopt0('--showdmat')) call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,' Symmetrized vorb',vorb)
     i = 1-idvsh
     dmwk_zv=vorb
     call rotycs( 2 * i - 1 , dmwk_zv , nbas , nsp , lmaxu , lldau )
-    write(stdo,*) !vorb in complementary harmonics
-    call praldm(0,30,30, i , nbas , nsp , lmaxu , lldau , ' Vorb' , dmwk_zv )
+    if(cmdopt0('--showdmat')) then
+       write(stdo,*) ! vorb in complementary harmonics
+       call praldm(0,30,30, i , nbas , nsp , lmaxu , lldau , ' Vorb' , dmwk_zv )
+    endif   
     eorb = 0d0
-    ! --- Error exit ---
     return
-99  continue
+99  continue ! --- Error exit ---
     write(str,"('bad occnum file, site l= ',i5,i5)")ib,l
-    call rx(str)
+    call rx(trim(str))
   end subroutine sudmtu
 
-  ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine rotycs(mode,a,nbas,nsp,lmaxu,lldau)
-    use m_struc_def  
     use m_lmfinit,only:idu,ispec,sspec=>v_sspec
     !- Rotate matrix a from real to spherical harmonics
     ! for LDA+U objects densmat and vorb
     !-------------------------------------
-    !i mode =1 from real to spherical
-    !i      -1 from spherical to real
-    !i a matrix to be transformed a(m,m,isp,iblu)  could be vorb or densmat
+    !i mode =1 from real a to spherical a
+    !i      -1 from spherical a to real a
+    !i a: matrix to be transformed a(m,m,isp,iblu)  could be vorb or dmat
     !i nbas : number of sites
     !i nsp  : number of spins
     !i lmaxu: lmax for U
@@ -765,15 +660,15 @@ contains
     !u   30 Apr 05 Lambrecht first created
     !----------------------------------------------------------------
     implicit none
-    integer :: nbas,lldau(nbas),mode,lmaxu,nsp,i_copy_size
-    complex(8),target:: a(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
-!    type(s_spec)::sspec(*)
+    integer :: nbas,lldau(nbas),mode,lmaxu,nsp
+    complex(8),target:: a(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nbas)
     integer:: ib,m,l,is,igetss,i,j,k,ll,isp,iblu
     complex(8):: b(2,2),c(2,2),add,bb(2,2)
     complex(8),parameter:: s2= 1/dsqrt(2d0), img=(0d0,1d0)
     complex(8),pointer:: rot(:,:)
     complex(8),save,target::rott(2,2,5,-1:1)
     logical,save:: init=.true.
+    logical:: cmdopt0
     if(mode/=1 .AND. mode/=-1) call rx('ROTYCS: mode must be 1 or -1')
     if(init)then
        do m=1,5

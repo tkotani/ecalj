@@ -14,25 +14,10 @@ subroutine praldm(ifi,ipr1,ipr2,sharm,nbas,nsp,lmaxu,lldau,strn,dmatu)
   !i   lmaxu :dimensioning parameter for U matrix
   !i   lldau :lldau(ib)=0 => no U on this site otherwise
   !i          U on site ib with dmat in dmats(*,lldau(ib))
-  !i   sspec :struct for species-specific information; see routine uspec
-  !i     Elts read: lmxa idu
-  !i     Stored:
-  !i     Passed to:
-  !i   ssite :struct for site-specific information; see routine usite
-  !i     Elts read: spec
-  !i     Stored:
-  !i     Passed to:
   !i   strn  :string put into header
   !i   dmatu :density matrix for LDA+U
   !o Outputs
   !o   dmatu is written to file ifi
-  !l Local variables
-  !l         :
-  !r Remarks
-  !r
-  !u Updates
-  !u   27 Jan 06 First created
-  ! ----------------------------------------------------------------------
   implicit none
   integer :: nbas,nsp,lldau(nbas),ifi,lmaxu,ipr1,ipr2,sharm,i_copy_size
   real(8)::   dmatu(2,-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
@@ -41,9 +26,8 @@ subroutine praldm(ifi,ipr1,ipr2,sharm,nbas,nsp,lmaxu,lldau,strn,dmatu)
   iblu = 0
   do  ib = 1, nbas
      if (lldau(ib) /= 0) then
-        is = ispec(ib) !int(ssite(ib)%spec)
+        is = ispec(ib) 
         lmxa=sspec(is)%lmxa
-        !idu =sspec(is)%idu
         do  l = 0, min(lmxa,3)
            if (idu(l+1,is) /= 0) then
               iblu = iblu+1
@@ -74,14 +58,6 @@ subroutine prdmts(ifi,ipr1,ipr2,sharm,strn,ib,l,lmaxu,iblu,dmats, nsp,nspc)
   !i   nspc  :2 if spin-up and spin-down channels are coupled; else 1.
   !o Outputs
   !o  header and dmats are printed to stdo
-  !l Local variables
-  !l         :
-  !r Remarks
-  !r
-  !u Updates
-  !u   09 Nov 05 dmats changed to a complex matrix
-  !u   02 Jun 05 First created
-  ! ----------------------------------------------------------------------
   implicit none
   integer :: ifi,ipr1,ipr2,l,ib,lmaxu,nsp,nspc,iblu,sharm
   double precision :: dmats(2,-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,iblu)
@@ -93,17 +69,15 @@ subroutine prdmts(ifi,ipr1,ipr2,sharm,strn,ib,l,lmaxu,iblu,dmats, nsp,nspc)
   call getpr(ipr)
   nlm = 2*l+1
   if (ifi /= 0) then
-     if(sharm==0) lll='complex rharm'
-     if(sharm/=0) lll='complex sharm'
+     if(sharm==0) lll=' real    rharm'
+     if(sharm/=0) lll=' complex sharm'
      do  isp = 1, nsp
-        if (ipr >= ipr1) &
-             write(ifi,ftox)'% rows ',nlm,' cols ',nlm,' ', &
-             trim(lll),trim(strn),'l=',l,'site',ib,'spin',isp
-        if (ipr < ipr2) return
+        if (ipr>=ipr1)write(ifi,ftox)'% ',trim(lll),trim(strn),'l=',l,'site',ib,'spin',isp
+        if (ipr< ipr2)return
         do  m1 = -l, l
            write(ifi,'(7(f12.7,2x))') (dmats(1,m1,m2,isp,iblu),m2=-l,l)
         enddo
-        write(ifi,'(1x)')
+        write(ifi,*)
         do  m1 = -l, l
            write(ifi,'(7(f12.7,2x))') (dmats(2,m1,m2,isp,iblu),m2=-l,l)
         enddo
@@ -114,7 +88,6 @@ subroutine prdmts(ifi,ipr1,ipr2,sharm,strn,ib,l,lmaxu,iblu,dmats, nsp,nspc)
      else
         strnl = strn // ' spherical harmonics'
      endif
-     !       Header: printout l, ib (if ib>0), spin (if nsp=2, ipr2>=ipr)
      do  isp = 1, nsp
         if (ipr < ipr2) return
         write(stdo,ftox) trim(strnl),'l=',l,'ib',ib,'isp',isp

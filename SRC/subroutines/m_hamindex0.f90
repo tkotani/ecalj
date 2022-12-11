@@ -1,7 +1,7 @@
 !!  originally HAMIndex0 contains informatio of SYMOPS,LATTC,CLASS,NLAindx.
 module m_hamindex0
   use m_lmfinit,only: ham_pwmode,pwemax,ldim=>nlmto,noutmx,nsp_in=>nsp, &
-       lat_alat,nl,ctrl_nbas,ispec,sspec=>v_sspec,n0,nkap0,zbak_read=>zbak,slabl
+       lat_alat,nl,ctrl_nbas,ispec,sspec=>v_sspec,n0,nkap0,zbak_read=>zbak,slabl,z
   use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
   use NaNum,only: NaN       !for initialization, but not working well
 
@@ -14,12 +14,12 @@ module m_hamindex0
        igv2(:,:,:),napwk(:),igv2rev(:,:,:,:),iclasst(:)
   real(8),allocatable,protected,public:: symops_af(:,:,:), ag_af(:,:), &
        symops(:,:,:),ag(:,:),tiat(:,:,:),shtvg(:,:), dlmm(:,:,:,:),qq(:,:), &
-       qtt(:,:),qtti(:,:)
+       qtt(:,:),qtti(:,:),zz(:)
   real(8),protected,public:: plat(3,3)=NaN,qlat(3,3)=NaN,zbak
 
   real(8),protected,public::alat
   integer,protected,public::lmxax,nsp,ndima,norb,npqn,nclass,nphimx
-  integer,allocatable,public:: konft(:,:,:),iqnum(:,:),lmxa(:),nlindx(:,:,:)
+  integer,allocatable,public:: konft(:,:,:),iqnum(:,:),lmxa(:),nlindx(:,:,:),pqn(:)
   character(9),allocatable,public:: caption(:)
   character(8),allocatable,public::  spid(:)
   integer,allocatable,public:: nindx(:),lindx(:),ibasindx(:)
@@ -75,12 +75,13 @@ contains
     call dcopy ( ngrp * 9 , rv_a_osymgr , 1 , symops , 1 )
     call dcopy ( ngrp * 3 , rv_a_oag , 1 , ag , 1 )
     allocate(invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp), & !iclasst(nbas),
-         shtvg(3,ngrp),spid(nbas),lmxa(nbas))
+         shtvg(3,ngrp),spid(nbas),lmxa(nbas),zz(nbas))
     do ib=1,nbas
        is=ispec(ib) !ssite(ib)%spec
 !       iclasst(ib)=ssite(ib)%class
        spid(ib) =slabl(is) !sspec(is)%name
        lmxa(ib) =sspec(is)%lmxa !we assume lmxa>-1
+       zz(ib)=z(ib)
     enddo
     !! get space group information ---- translation informations also in miat tiat invgx, shtvg
     call mptauof( symops, ngrp,plat,nbas,rv_a_opos, iclasstin,miat,tiat,invgx,shtvg )
@@ -100,8 +101,8 @@ contains
     lmxax = maxval(lmxa)  
     allocate(konft(0:lmxax,nbas,nsp))
     do ib = 1, nbas
-       pnu(:,1:nsp)=pnuall(:,1:nsp,ib) !ssite(ib)%pnu
-       pnz(:,1:nsp)=pnzall(:,1:nsp,ib) !ssite(ib)%pz
+       pnu(:,1:nsp)=pnuall(:,1:nsp,ib) 
+       pnz(:,1:nsp)=pnzall(:,1:nsp,ib) 
        do  isp = 1, nsp
           do  l  = 0, lmxa(ib)
              konft(l,ib,isp) = pnu(l+1,isp)
@@ -114,7 +115,7 @@ contains
     open(newunit=ifinlaindx,file='NLAindx.chk')
     write(ifinlaindx,'(''----NLAindx start---------------''/I6)') ndima
     npqn=3
-    allocate(nlindx(npqn,0:lmxax,nbas),nindx(ndima),lindx(ndima),ibasindx(ndima),caption(ndima))
+    allocate(nlindx(npqn,0:lmxax,nbas),nindx(ndima),lindx(ndima),ibasindx(ndima),caption(ndima),pqn(ndima))
     iorb=0
     nlindx=-1
     ndima = 0
@@ -137,6 +138,7 @@ contains
                 lindx   (ndima+1:ndima+2*l+1)=l
                 ibasindx(ndima+1:ndima+2*l+1)=ib
                 caption (ndima+1:ndima+2*l+1)=strn4
+                pqn(ndima+1:ndima+2*l+1)=konf !principle quantum number
                 nphimx=max(nphimx,ipqn)
                 write(ifinlaindx,'(i6,i3,i4,i6,4x,a)')ipqn,l,ib,     ndima,strn4
                 ndima = ndima + (2*l+1)
@@ -153,8 +155,8 @@ contains
     open(newunit=ifi,file='HAMindex0',form='unformatted')
     write(ifi) alat,plat,qlat,nbas,lmxax,nsp,ngrp,ndima,norb,npqn,nclass,nphimx
     write(ifi) konft(0:lmxax,1:nbas,1:nsp),lmxa(1:nbas),nlindx(1:npqn,0:lmxax,1:nbas)
-    write(ifi) iclasstin(1:nbas),spid(1:nbas)
-    write(ifi)  nindx(1:ndima),lindx(1:ndima),ibasindx(1:ndima),caption(1:ndima)
+    write(ifi) iclasstin(1:nbas),spid(1:nbas),zz(1:nbas)
+    write(ifi) nindx(1:ndima),lindx(1:ndima),ibasindx(1:ndima),caption(1:ndima),pqn(1:ndima)
     write(ifi) symops(1:3,1:3,1:ngrp),invgx(1:ngrp),shtvg(1:3,1:ngrp)
     close(ifi)
   end subroutine m_hamindex0_init
@@ -166,10 +168,10 @@ contains
     read(ifi) alat,plat,qlat,nbas,lmxax,nsp,ngrp,ndima,norb,npqn,nclass,nphimx
     allocate( konft(0:lmxax,1:nbas,1:nsp),lmxa(1:nbas),nlindx(1:npqn,0:lmxax,1:nbas))
     read(ifi) konft(0:lmxax,1:nbas,1:nsp),lmxa(1:nbas),nlindx(1:npqn,0:lmxax,1:nbas)
-    allocate( iclasst(1:nbas),spid(1:nbas))
-    read(ifi) iclasst(1:nbas),spid(1:nbas)
-    allocate( nindx(1:ndima),lindx(1:ndima),ibasindx(1:ndima),caption(1:ndima))
-    read(ifi) nindx(1:ndima),lindx(1:ndima),ibasindx(1:ndima),caption(1:ndima)
+    allocate( iclasst(1:nbas),spid(1:nbas),zz(1:nbas))
+    read(ifi) iclasst(1:nbas),spid(1:nbas),zz(1:nbas)
+    allocate( nindx(1:ndima),lindx(1:ndima),ibasindx(1:ndima),caption(1:ndima),pqn(1:ndima))
+    read(ifi) nindx(1:ndima),lindx(1:ndima),ibasindx(1:ndima),caption(1:ndima),pqn(1:ndima)
     allocate( symops(1:3,1:3,1:ngrp),invgx(1:ngrp),shtvg(1:3,1:ngrp))
     read(ifi) symops(1:3,1:3,1:ngrp),invgx(1:ngrp),shtvg(1:3,1:ngrp)
     close(ifi)

@@ -1332,7 +1332,7 @@ contains
       call suldau(nbas,nlibu,k,wowk)!Count LDA+U blocks (printout only)
       ham_nlibu=nlibu
       call poppr
-      deallocate(wowk,amom, qpol,stni,rg,rfoca,rham,idxdn, rmt,  lfoca,lmxl, spec_a,z,nr,rsmv)
+      deallocate(wowk,amom, qpol,stni,rg,rfoca,rham,idxdn, rmt,  lfoca,lmxl, spec_a,nr,rsmv)
       !! --- takao embed contents in susite here. This is only for lmf and lmfgw.
       allocate(iv_a_oips(nbas),source=[(ispec(ib), ib=1,nbas)])
       seref= sum([(eref(ispec(ib)),ib=1,nbas)])
