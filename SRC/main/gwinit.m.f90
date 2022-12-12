@@ -61,7 +61,8 @@ program gwinit_v2
   integer:: ifatomlist,ifiq
   integer:: nband_sigm2, iatom, nwin, incwfin,nx
   real,parameter:: pi= 4d0* atan(1d0)
-
+  real(8):: pq,zc
+  integer:: lx,nxx
   n1q=4                     !defaultvalues
   n2q=4
   n3q=4
@@ -187,6 +188,11 @@ program gwinit_v2
        " lcutmx(atom) = maximum l-cutoff for the product basis. " &
        //" =4 is required for atoms with valence d, like Ni Ga"
   allocate(lcutmx(nbas)); lcutmx=4
+  do ibas=1,nbas
+     if(zz(ibas)<10.5) lcutmx(ibas)=2
+     if(57.001<zz(ibas).and.zz(ibas)<71.001) lcutmx(ibas)=6
+     if(89.001<zz(ibas).and.zz(ibas)<71.001) lcutmx(ibas)=6
+  enddo
   write(ifigwinv2,"(1000i3)") lcutmx(1:nbas)
   write(ifigwinv2,"(a)")  "  atom   l  nnvv  nnc " &
        //"! nnvv: num. of radial functions (valence) on the "// &
@@ -203,17 +209,41 @@ program gwinit_v2
         do nx = 1, npqn
            do izz = 1, mnla
               if(iat(izz)==ibas .AND. lk==lindx(izz) .AND. nx==nindx(izz)) then
-                 nocc = 1; nunocc = 1
-                 if(lindx(izz) >2 .and. zz(ibas) <57.5) nocc   = 0 ! f orbital occ or not
-                 if(lindx(izz) >2 .and. zz(ibas) <57.5) nocc   = 0 ! f orbital occ or not
-                 if(lindx(izz) ==3 .and. pqn(izz)>=5 .and. zz(ibas)<89.5) nocc =0 
-                 if(lindx(izz) >3 ) nocc   = 0 
-                 if(lindx(izz) >3 ) nunocc = 0
-                 if(nindx(izz)==2) then
-                    nocc   = 0
-                    nunocc = 0
-                 endif
-                 seg1='';if(iat(izz)/=iatbk) seg1=' -----'
+                 zc = zz(ibas)
+                 pq = pqn(izz)
+                 lx = lindx(izz)
+                 nxx = nindx(izz)
+                 nunocc = 1
+                 nocc=0
+                 ! s
+                 if(lx==0) nocc = 1
+                 if(lx==0.and.pq==1.and.zc>2.5 ) nunocc= 0
+                 if(lx==0.and.pq==2.and.zc>18.5) nunocc= 0
+                 if(lx==0.and.pq==3.and.zc>36.5) nunocc= 0
+                 if(lx==0.and.pq==4.and.zc>54.5) nunocc= 0
+                 ! p
+                 if(lx==1) nocc = 1
+                 if(lx==1.and.pq==2.and.zc>18.5) nunocc= 0
+                 if(lx==1.and.pq==3.and.zc>36.5) nunocc= 0
+                 if(lx==1.and.pq==4.and.zc>54.5) nunocc= 0
+                 ! d occupied
+                 if(lx==2 .and. zc >20.5 .and. pq==3 ) nocc=1 !3d
+                 if(lx==2 .and. zc >38.5 .and. pq==4 ) nocc=1 !4d
+                 if(lx==2 .and. zc >56.5 .and. pq==5 ) nocc=1 !5d
+                 if(lx==2 .and. zc >30.5 .and. pq==3 ) nunocc=0 !3d completely filled for Zn< zc
+                 if(lx==2 .and. zc >48.5 .and. pq==4 ) nunocc=0 !4d 
+                 ! f occupied
+                 if(lx==3 .and. zc >57.5 .and. pq==4 ) nocc=1 !4f
+                 if(lx==3 .and. zc >89.5 .and. pq==5 ) nocc=1 !5f
+                 if(lx==2 .and. zc >71.5 .and. pq==4 ) nunocc=0 !4f completely filled.
+                 ! g or more
+                 if(lx >3 ) nocc   = 0 
+                 if(lx >3 ) nunocc = 0
+                 !phidot skip
+                 if(nxx==2)  nocc   = 0 
+                 if(nxx==2)  nunocc = 0 
+                 seg1=''
+                 if(iat(izz)/=iatbk) seg1=' -----'
                  iatbk=iat(izz)
                  write(ifigwinv2,"(5i5,3x,a )") iat(izz),lindx(izz),nindx(izz) &
                       , nocc,nunocc, '! '//caption(izz)//trim(seg1)
