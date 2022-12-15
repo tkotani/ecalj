@@ -1,16 +1,14 @@
 ! == General purpose formatted write module m_FtoX ==
-! 
-! ftox: general format. usage: write(6,ftox) foobar,foobar1,foobar2
-! foobar can be integer, character, and something like
-!   ftof(dfloat/complex,m) 1234.123456 format.
+! m_ftox contains
+!  ftox: general format. usage: write(6,ftox) foobar,foobar1,foobar2
+!        foobar can be integer, character, and something like
+!  ftof: (dfloat/complex,m) 1234.123456 format.
 !                m digits below period. m is option (six when m is not given)
-!   ftod(dfloat/complex,m) 0.123456d+08 format.
-!   ftom(dfloat/complex)   truncate right-hand-side zeros. drealx can be real(8) arrays.
-! stdo: file handle for standard output
-! stdl: handle for log
+!  ftod: (dfloat/complex,m) 0.123456d+08 format.
+!  ftom: (dfloat/complex)   truncate right-hand-side zeros. drealx can be real(8) arrays.
 !==============
-! program test_ftox
-!   use m_ftox
+!Example: program test_ftox
+!   use m_ftox !contains ftox,ftof,ftod
 !   real(8):: w1,w2,aaa(5)
 !   character(12):: fff
 !   complex(8):: bb(2)
@@ -29,10 +27,10 @@
 !>nnn2 1.240000 4.560000 117.123459
 !>nnn3 0.12D+01 0.46D+01 0.12D+03 0.46D+07 0.91D+05
 module m_FtoX
-  public :: ftof,ftod,ftom, ftox
+  public :: ftof,ftod,ftom,ftox
+  
   character(11):: ftox='(*(g0,x))'
   private
-  
   !ftom is removing right-end zeros below decimal point.
   
   interface ftof !123.456789 format
@@ -190,7 +188,6 @@ contains
     integer,optional:: ixx
     integer:: i,j
     write(mmm,"(*(g0,x))")ftof(arg,16)
-!    print *,'vvvxxx=',trim(mmm)
     j=len(trim(mmm))
     do i=len(mmm),1,-1
        if(mmm(i:i)==' ') cycle
@@ -205,16 +202,16 @@ contains
     if(allocated(farg)) deallocate(farg)
     allocate(farg,source=mmm(1:j))
   end function ftom
- 
   character(3) function charnum3(num)
     integer(4) ::num
     charnum3=char(48+mod(num/100,10))//char(48+mod(num/10,10))//char(48+mod(num,10))
   end function charnum3
 end module m_FtoX
 
-
-
 module m_lgunit
+  !  stdo: file handle for standard output
+  !  stdl: handle for log
+  !  stml: mpilog
   public:: m_lgunit_init
   integer,public :: stdl,stdo=6,stml
   private
@@ -252,8 +249,6 @@ contains
     endif
   end function lgunit
 end module m_lgunit
-
-
 
  ! program test_ftox
  !   use m_ftox

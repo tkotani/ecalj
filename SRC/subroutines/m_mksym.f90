@@ -3,16 +3,19 @@ module m_mksym
   use m_mksym_util,only: gensym,grpgen,symtbl
   public :: m_mksym_init, &
        rv_a_oag,   iv_a_oics, iv_a_oipc , lat_npgrp, lat_nsgrp, &
-       rv_a_osymgr,iv_a_oistab, ctrl_nclass, iclasstaf_, symops_af_,ag_af_,ngrpaf_,iclasst
+       rv_a_osymgr,iv_a_oistab, ctrl_nclass,iclasst, &
+       iclasstaf_, symops_af_, ag_af_, ngrpaf_ !for antiferro symmetry
+  !antiferro sym y = matmul(symps_af_(:,:,ig),x)+ ag_af(:,ig), ig=1,ngrpaf_
   integer, allocatable,protected ::  iv_a_oics (:)
   integer,  allocatable,protected ::  iv_a_oipc(:)
   real(8) , allocatable,protected ::  rv_a_oag (:)
   real(8) , allocatable,protected ::  rv_a_osymgr (:)
   integer , allocatable,protected ::  iv_a_oistab (:)
   integer,allocatable,protected::  iclasst(:)    !class information, 
-  integer,allocatable,protected::  iclasstaf_(:) !AntiFerro class information 
-  real(8),allocatable,protected:: symops_af_(:,:,:), ag_af_(:,:)
-  integer,protected:: lat_npgrp, lat_nsgrp, ctrl_nclass, ngrpaf_
+  integer,allocatable,protected:: iclasstaf_(:) !AntiFerro class information 
+  real(8),allocatable,protected:: symops_af_(:,:,:), ag_af_(:,:) 
+  integer,protected:: lat_npgrp, lat_nsgrp, ctrl_nclass,&
+       ngrpaf_ ! antiferro
 
 contains
   ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss

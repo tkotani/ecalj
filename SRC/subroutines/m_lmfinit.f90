@@ -1,11 +1,13 @@
-module m_lmfinit
+module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa)
+  !                to run lmfp.F is stored in this module
+  ! call m_lmfinit_init set all initial data.
   use m_ext,only :sname        ! sname contains extension. foobar of ctrl.foobar
   use m_struc_def,only: s_spec ! spec structures.
   use m_MPItk,only: master_mpi
   use m_lgunit,only: stdo,stdl
   use m_density,only: pnuall,pnzall !these are set here! log-derivative of radial functions.
   implicit none
-  !! All data set to run lmfp.F
+  !
   !! m_lmfinit_init have three stages. Search the word 'Block' in the followings.
   !! At the bottom of this code,
   !! I put old document for variables such as ctrl_*, ham_* and so on (search 'old doc')
@@ -112,6 +114,7 @@ module m_lmfinit
   type(s_spec),allocatable:: v_sspec(:) !nspec: number of species in the cell)
   integer,allocatable,public,target:: ltabx(:,:),ktabx(:,:),offlx(:,:),ndimxx(:),norbx(:)
   integer,allocatable,public,protected:: jma(:),jnlml(:)
+  
   !! DYN
   real(8),protected:: mdprm(6)
   integer,protected:: nitmv
@@ -128,7 +131,8 @@ module m_lmfinit
   !   arg 5: step length
   !   arg 6: Remove hessian after this many steps
 
-  logical:: readpnu,v0fix,pnufix
+  logical,protected:: readpnu,v0fix,pnufix
+  
 contains
   subroutine m_lmfinit_init(prgnam)
     use m_rdfiln,only: recln,nrecs,recrd
@@ -690,7 +694,7 @@ contains
                  note='Fix potential of radial functions-->Fix radial func. if READP=T together')
             nm='HAM_PNUFIX'; call gtv(trim(nm),tksw(prgnam,nm),pnufix,def_lg=F, &
                  note='Fix b.c. of radial functions')
-            readpnublock:block
+            readpnublock:block ! P = PrincipleQnum - 0.5*atan(dphidr/phi)/pi
               integer:: ifipnu,lr,iz,nspx,lrmx,isp,ispx
               real(8):: pnur,pzav(n0),pnav(n0)
               character(8):: charext
@@ -707,13 +711,11 @@ contains
 1015             continue
                  pzav(1:lrmx+1)=sum(pzsp(1:lrmx+1,1:nspx,j), dim=2)/nspx !spin averaged
                  pnav(1:lrmx+1)=sum(pnusp(1:lrmx+1,1:nspx,j),dim=2)/nspx
-
 ! push up p =floor(p)+0.5 if we have lower orbital
                  do l=1,lrmx+1
                     if(pzav(l)>pnav(l)) pzav(l)=floor(pzav(l))+.5d0
                     if(pzav(l)>1d-8.and.pnav(l)>pzav(l)) pnav(l)=floor(pnav(l))+.5d0
                  enddo
-
                  do ispx=1,nspx
                     pzsp(1:lrmx+1, ispx,j) = pzav(1:lrmx+1)
                     pnusp(1:lrmx+1,ispx,j)=  pnav(1:lrmx+1)
