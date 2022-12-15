@@ -79,37 +79,38 @@ contains
 
 !    [fff1,fff2,fff3]=[8d0,8d0,8d0]
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1    
-    nnn=0
-    do i=1,ldim !MLO3 dimension
-       if(l_table(i)>=3) cycle 
-       if(k_table(i)==2) cycle !.and.l_table(i)>=1) cycle
-!       if( (ib_table(i)==3.or.ib_table(i)==4).and.l_table(i)>=2) cycle
-!       if( (ib_table(i)==3.or.ib_table(i)==4).and.l_table(i)==0) cycle
-!       if(k_table(i)==2.and.l_table(i)>=2) cycle
-       write(6,*) 'ham3 index', i,ib_table(i),l_table(i),k_table(i)
-       nnn=nnn+1
-       ix3(nnn)=i
-    enddo
-    ndimMTO3=nnn
-!
-    nnn=0
-    do i=1,ldim !MLO2 dimension
-       if(l_table(i)>=3) cycle !   if(l_table(i)>=2.and.k_table(i)==2) cycle
-       if(k_table(i)==2) cycle !.and.l_table(i)>=2) cycle
-!       if(k_table(i)==2.and.l_table(i)>=2) cycle
-       write(6,*) 'ham2 index',i,ib_table(i),l_table(i),k_table(i)
-       nnn=nnn+1
-       ix2(nnn)=i
-    enddo
-    ndimMTO2=nnn
+!     nnn=0
+!     do i=1,ldim !MLO3 dimension
+!        if(l_table(i)>=3) cycle 
+!        if(k_table(i)==2) cycle !.and.l_table(i)>=1) cycle
+! !       if( (ib_table(i)==3.or.ib_table(i)==4).and.l_table(i)>=2) cycle
+! !       if( (ib_table(i)==3.or.ib_table(i)==4).and.l_table(i)==0) cycle
+! !       if(k_table(i)==2.and.l_table(i)>=2) cycle
+!        write(6,*) 'ham3 index', i,ib_table(i),l_table(i),k_table(i)
+!        nnn=nnn+1
+!        ix3(nnn)=i
+!     enddo
+!     ndimMTO3=nnn
+    !
+    
+!     nnn=0
+!     do i=1,ldim !MLO2 dimension
+!        if(l_table(i)>=3) cycle !   if(l_table(i)>=2.and.k_table(i)==2) cycle
+!        if(k_table(i)==2) cycle !.and.l_table(i)>=2) cycle
+! !       if(k_table(i)==2.and.l_table(i)>=2) cycle
+!        write(6,*) 'ham2 index',i,ib_table(i),l_table(i),k_table(i)
+!        nnn=nnn+1
+!        ix2(nnn)=i
+!     enddo
+!     ndimMTO2=nnn
 !
     nnn=0
     do i=1,ldim !MLO dimension 
-       if(l_table(i)>=3) cycle 
-       if(k_table(i)==2) cycle
+       if(l_table(i)>=3) cycle !only spd
+       if(k_table(i)==2) cycle !only EH part, throw away EH2
        if( (ib_table(i)==3.or.ib_table(i)==4).and.l_table(i)>=2) cycle !for Oxygen of NiO. skip 3d
-!       if( (ib_table(i)==3.or.ib_table(i)==4).and.l_table(i)==0) cycle
 
+!       if( (ib_table(i)==3.or.ib_table(i)==4).and.l_table(i)==0) cycle
 !       if(l_table(i)>=2) cycle 
 !       if(k_table(i)>=2.and.l_table(i)==1) cycle
        write(6,*) 'ham1 index', i,ib_table(i),l_table(i),k_table(i)
@@ -118,16 +119,16 @@ contains
     enddo
     ndimMTO=nnn
 !
-    do j2=1,ndimMTO2 !Map from MLO2->MLO
-       do j1=1,ndimMTO
-          if(ix2(j2)==ix1(j1)) ix12(j2)=j1  
-       enddo
-    enddo
-    do j3=1,ndimMTO3 !Map from MLO3->MLO2
-       do j2=1,ndimMTO2
-          if(ix3(j3)==ix2(j2)) ix23(j3)=j2  
-       enddo
-    enddo
+    ! do j2=1,ndimMTO2 !Map from MLO2->MLO
+    !    do j1=1,ndimMTO
+    !       if(ix2(j2)==ix1(j1)) ix12(j2)=j1  
+    !    enddo
+    ! enddo
+!    do j3=1,ndimMTO3 !Map from MLO3->MLO2
+!       do j2=1,ndimMTO2
+!          if(ix3(j3)==ix2(j2)) ix23(j3)=j2  
+!       enddo
+!    enddo
     
     open(newunit=ifih,file='HamiltonianPMT',form='unformatted')
     write(6,*)'Reaing HamiltonianPMT ...'

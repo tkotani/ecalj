@@ -101,6 +101,6 @@ contains
     if(writeham) write(ififft)ib_table,l_table,k_table
     if(writeham) close(ififft)
     if(writeham) close(ifspec)
-    deallocate(ib_table,l_table,k_table)
+!    deallocate(ib_table,l_table,k_table)
   end subroutine m_writeham_write
 end module m_writeham

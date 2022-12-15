@@ -8,7 +8,7 @@ module m_hamindex
   use m_lgunit,only:stdo
   use m_ftox
   public:: m_hamindex_init, Readhamindex, getikt
-  integer,allocatable,public:: ib_table(:),k_table(:),l_table(:)
+  integer,protected,allocatable,public:: ib_table(:),k_table(:),l_table(:)
   integer,protected,public:: ngrpaf,ngrp_original,pwmode,ndham
   integer,protected,public:: nqi=NaN, nqnum=NaN, ngrp=NaN, lxx=NaN, kxx=NaN,norbmto=NaN, &
        nqtt=NaN, ndimham=NaN, napwmx=NaN, lxxa=NaN, ngpmx=NaN, imx=NaN,nbas=NaN

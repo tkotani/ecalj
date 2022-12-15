@@ -547,6 +547,8 @@ contains
     complex(8):: phase,img=(0d0,1d0)
     integer:: ik1,ik2,ik3,i,j,ib1,ib2,ix,nS,nE,nnn
     call tcn('bloch2')
+    write(6,*)'ndimsig=',ndimsig,nk1,nk2,nk3
+    write(6,*)'ibtable=',sum(ib_table(1:ndimsig))
     sll=0d0
     nnn=nk1*nk2*nk3
     do ik1=1,nk1

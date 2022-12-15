@@ -23,7 +23,7 @@ hx0init hhilbert hrcxq hx0zmel
 progsw  = hmaxloc huumat_MPI hpsig_MPI wanplot hwmatK_MPI hsocmat
 
 # targets generaged by make prog2
-progslm2 = lmfham mkhamloc plotmodel initmlo mkinput lmfham1
+progslm2 = mkhamloc plotmodel initmlo mkinput lmfham1
 progsgw2 = hhomogas  hef convgwin kino_input_test hqpe_qsgw hecor eout eout2 
 progsw2  = huumat hpsig htbplot
 
