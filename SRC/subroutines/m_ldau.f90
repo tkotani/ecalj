@@ -441,6 +441,21 @@ contains
     master = 0
     call getpr(ipr)
     !! When LDAU is dummy (usually just in order to print our dmats file).
+
+    !NOT set dmatu=0
+    ! sss=0d0
+    ! do  ib = 1, nbas
+    !    if (lldau(ib) /= 0) then
+    !       is = ispec(ib) 
+    !       sss = sss + sum(abs(uh(:,is)))+sum(abs(jh(:,is)))
+    !    endif
+    ! enddo
+    ! if(sss<1d-6) then
+    !    dmatu = 0d0
+    !    havesh = 1
+    !    goto 1185
+    ! endif
+    
     ! Read in dmatu if file  dmats.ext  exists ---
     if(procid /= master) goto 1185
     inquire(file='dmats.'//trim(sname),exist=dexist)
@@ -489,7 +504,7 @@ contains
           endif
        enddo
     elseif(occe) then         !if no occunum.* initial dmatu=0
-       write(stdo,*) ' sudmtu:  initial (diagonal) density-matrix from occ numbers'
+       write(stdo,*) 'sudmtu: initial (diagonal) density-matrix from occ numbers'
        open(newunit=foccn,file='occnum.'//trim(sname))
        havesh = 1
 12     continue
@@ -501,12 +516,13 @@ contains
           backspace(foccn)
        endif
        iblu = 0
+       dmatu=0d0
        do  ib = 1, nbas
           if (lldau(ib) /= 0) then
              is = ispec(ib)
              lmxa=sspec(is)%lmxa
              do l = 0,min(lmxa,3)
-                if (idu(l+1,is) /= 0) then
+               if (idu(l+1,is) /= 0) then
                    iblu = iblu+1
                    do  isp = 1, 2
 11                    continue
@@ -516,10 +532,7 @@ contains
                    enddo
                    do isp = 1, 2
                       do m = -l, l
-                         do m2 = -l, l
-                            dmatu(m,m2,isp,iblu) = dcmplx(0d0,0d0)
-                         enddo
-                         dmatu(m,m,isp,iblu) = dcmplx(nocc(m,isp),0d0)
+                         dmatu(m,m,isp,iblu) = nocc(m,isp)
                       enddo
                    enddo
                 endif
@@ -560,7 +573,7 @@ contains
        if(ipr>=60) write(stdo,*)' change in dmat wrought by symmetrization'
        call praldm ( 0 , 60 , 60 , 0 , nbas , nsp , lmaxu , lldau ,' ' , dmwk_zv )
     endif
-    !     Print dmats in specified harmonics
+    !    Print dmats in specified harmonics
     dmwk_zv=dmatu
     if (havesh /= idvsh) then
        call rotycs ( 2 * idvsh - 1 , dmwk_zv , nbas , nsp , lmaxu, lldau )
