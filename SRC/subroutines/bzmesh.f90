@@ -99,8 +99,7 @@ subroutine bzmesh(plat,qb,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx,igstar,lpbc)
   !u   23 Nov 01 Bug fix for long unit cells
   !r   19 Nov 97 (WRL) added lpbc option, projecting qp to 2D
   !-----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
+  implicit none
   logical :: lshft(3)
   integer :: n1,n2,n3,nqmx,ng,nq,igstar(0:*),ipq(n1,n2,n3),lpbc
   double precision :: qb(3,3),wgt(nqmx),plat(3,3),qp(3,nqmx),g(3,3,*)
@@ -110,6 +109,7 @@ subroutine bzmesh(plat,qb,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx,igstar,lpbc)
        nn2,nn3,nsgrp,mxxyz
   double precision :: w0,x1,x2,x3,swgt,v(3),v1(3),rb(3,3)
   character(1) :: chr(0:2)
+  real(8),parameter:: tolq=1d-4
   call getpr(ipr)
   !      stdo = lgunit(1)
   ndmx = mxxyz()
@@ -173,7 +173,7 @@ subroutine bzmesh(plat,qb,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx,igstar,lpbc)
            j1 = idnint(x1)
            j2 = idnint(x2)
            j3 = idnint(x3)
-           if (max(dabs(x1-j1),dabs(x2-j2),dabs(x3-j3)) > 1d-4) then
+           if (max(dabs(x1-j1),dabs(x2-j2),dabs(x3-j3)) > tolq) then
               !            call awrit2(' qp%3:1,3;3d -> %3:1,3;3d is not on k-mesh',' ',80,stdo,v,v1)
               write(stdo,"(a,3f9.4,' ',3f9.4)") ' qp mapped to is not on k-mesh',v,v1
               call rx('BZMESH: symops incompatible with this mesh')
