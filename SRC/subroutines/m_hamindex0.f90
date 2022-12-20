@@ -63,8 +63,7 @@ contains
     data dig /'1','2','3','4','5','6','7','8','9'/
     data lsym /'s','p','d','f','g','5','6','7','8','9'/
     data lorb /'phi','phidot','phiz'/
-    ! forget floating orbital case
-    !      ldim  = ham_ldham(1)
+    ! forget floating orbital case  !    ldim  = ham_ldham(1)
     nbas=ctrl_nbas !nbas_in
     ngrp=lat_nsgrp            !note nsgrp given in mksym.F is without inversion.
     nsp=nsp_in
@@ -77,11 +76,10 @@ contains
     allocate(invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp), & !iclasst(nbas),
          shtvg(3,ngrp),spid(nbas),lmxa(nbas),zz(nbas))
     do ib=1,nbas
-       is=ispec(ib) !ssite(ib)%spec
-!       iclasst(ib)=ssite(ib)%class
-       spid(ib) =slabl(is) !sspec(is)%name
+       is=ispec(ib) 
+       spid(ib) =slabl(is) 
        lmxa(ib) =sspec(is)%lmxa !we assume lmxa>-1
-       zz(ib)=z(ib)
+       zz(ib)=z(is)
     enddo
     !! get space group information ---- translation informations also in miat tiat invgx, shtvg
     call mptauof( symops, ngrp,plat,nbas,rv_a_opos, iclasstin,miat,tiat,invgx,shtvg )
@@ -160,7 +158,6 @@ contains
     write(ifi) symops(1:3,1:3,1:ngrp),invgx(1:ngrp),shtvg(1:3,1:ngrp)
     close(ifi)
   end subroutine m_hamindex0_init
-
   subroutine readhamindex0()
     implicit none
     integer:: ifi,ibas,i
@@ -176,10 +173,8 @@ contains
     read(ifi) symops(1:3,1:3,1:ngrp),invgx(1:ngrp),shtvg(1:3,1:ngrp)
     close(ifi)
   end subroutine readhamindex0
-
-  subroutine wkonfchk(alat,plat,nbas,lmxax,lmxa,nsp,konf)
-    !C- Write konf.chk file
-    ! xxx   ipb  ==>now we assume no floating orbitals added.
+  subroutine wkonfchk(alat,plat,nbas,lmxax,lmxa,nsp,konf) ! Write konf.chk file
+    ! We have no floating orbitals added.
     !i         :given site index including those orbitals
     !i   lmxax :global maximum of lmxa,  lmxa  :augmentation l-cutoff
     !i   konf  :principal quantum numbers
@@ -199,5 +194,4 @@ contains
     enddo
     close(ifi)
   end subroutine wkonfchk
-
 end module m_hamindex0

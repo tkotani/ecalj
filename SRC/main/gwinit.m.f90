@@ -73,7 +73,7 @@ program gwinit_v2
   isp=1 !konf is not spin-dependent
   konf=konft(:,:,isp)
   do ibas = 1,nbas
-     write(6,"(100i4)") ibas, lmxaa(ibas), konf(0:lmxaa(ibas),ibas)
+     write(6,"(i4,f9.4,100i4)") ibas, zz(ibas), lmxaa(ibas), konf(0:lmxaa(ibas),ibas)
      do l= 0,lmxaa(ibas)
         nncx(l,ibas) = konf(l,ibas) -1 -l   ! number of cores for each l ibas
      enddo
@@ -178,13 +178,13 @@ program gwinit_v2
   write(ifi,*)
   write(ifi,"(a)" ) '! ################################################# '
   write(ifi,"(a)")'<PRODUCT_BASIS> '
-  ifigwinv2=ifi
+!  ifi=ifi
   !! PRODUCT BASIS section
-  write(ifigwinv2,"(a)") " tolerance to remove products due to poor linear-independency"
-  write(ifigwinv2,"(a)") &
+  write(ifi,"(a)") " tolerance to remove products due to poor linear-independency"
+  write(ifi,"(a)") &
        " 1d-3 ! =tolopt; larger gives smaller num. of product basis."// &
        " See lbas and lbasC, which are output of hbasfp0."
-  write(ifigwinv2,"(a)") &
+  write(ifi,"(a)") &
        " lcutmx(atom) = maximum l-cutoff for the product basis. " &
        //" =4 is required for atoms with valence d, like Ni Ga"
   allocate(lcutmx(nbas)); lcutmx=4
@@ -193,16 +193,16 @@ program gwinit_v2
      if(57.001<zz(ibas).and.zz(ibas)<71.001) lcutmx(ibas)=6
      if(89.001<zz(ibas).and.zz(ibas)<71.001) lcutmx(ibas)=6
   enddo
-  write(ifigwinv2,"(1000i3)") lcutmx(1:nbas)
-  write(ifigwinv2,"(a)")  "  atom   l  nnvv  nnc " &
+  write(ifi,"(1000i3)") lcutmx(1:nbas)
+  write(ifi,"(a)")  "  atom   l  nnvv  nnc " &
        //"! nnvv: num. of radial functions (valence) on the "// &
        "augmentation-waves, nnc: num. for core."
   do ibas =1,nbas
      do lk   =0,lmxaa(ibas)
-        write(ifigwinv2,"(4i5)") ibas,lk, nnvv(lk,ibas), nncx(lk,ibas)
+        write(ifi,"(4i5)") ibas,lk, nnvv(lk,ibas), nncx(lk,ibas)
      enddo
   enddo
-  write(ifigwinv2,"(a)") "  atom   l    n  occ unocc  ! Valence(1=yes,0=no) "
+  write(ifi,"(a)") "  atom   l    n  occ unocc  ! Valence(1=yes,0=no) "
   iatbk=0
   do ibas= 1, nbas
      do lk   = 0, lmxaa(ibas)
@@ -245,7 +245,7 @@ program gwinit_v2
                  seg1=''
                  if(iat(izz)/=iatbk) seg1=' -----'
                  iatbk=iat(izz)
-                 write(ifigwinv2,"(5i5,3x,a )") iat(izz),lindx(izz),nindx(izz) &
+                 write(ifi,"(5i5,3x,a )") iat(izz),lindx(izz),nindx(izz) &
                       , nocc,nunocc, '! '//caption(izz)//trim(seg1)
                  exit
               endif
@@ -253,7 +253,7 @@ program gwinit_v2
         enddo
      enddo
   enddo
-  write(ifigwinv2,"(a)") '  atom   l    n  occ unocc  ForX0 ForSxc ! Core (1=yes, 0=no)'
+  write(ifi,"(a)") '  atom   l    n  occ unocc  ForX0 ForSxc ! Core (1=yes, 0=no)'
   do ibas  = 1,nbas
      do lk    = 0,lmxaa(ibas)
         if(lk==0) seg2='S'
@@ -266,7 +266,7 @@ program gwinit_v2
         do kkk   = lk+1,konf(lk,ibas)-1
            noccc=0; nunoccc=0; ncinc=0; ncinc2=0
            seg1='';if(lk==0.and.kkk==lk+1) seg1=' -----'
-           write(ifigwinv2,"(5i5,2x,2i5,a)") &
+           write(ifi,"(5i5,2x,2i5,a)") &
                 ibas,lk,kkk-lk,noccc,nunoccc,ncinc,ncinc2,'    ! '//char(48+kkk)//seg2//trim(seg1)
         enddo
      enddo
