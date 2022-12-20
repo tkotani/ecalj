@@ -33,7 +33,7 @@ subroutine rangedq(qin, qout) ! qout is in [-0.5d0,0.5d0)
   intent(in)::     qin
   intent(out)::         qout
   integer :: ix
-  real(8):: qin(3),qout(3),tol=1d-12
+  real(8):: qin(3),qout(3),tol=1d-6
   qout= qin-nint(qin)
   do ix=1,3
      if(qout(ix)>0.5d0-tol) qout(ix)=-0.5d0 !this is needed to distinguish 0.5d0 and -0.5d0.

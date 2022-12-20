@@ -229,7 +229,7 @@ contains
             nspx,emin,emin,emin,1,efermi,2*job,ntet,idtet,sumev,qval)
     else
        ! --- BZ weights, sumev and E_f by Methfessel-Paxton sampling ---
-       write(stdo,"(a,i0,a,f15.6)")' BZWTS : --- Brillouin Zone sampling; N=',n,' W=',width
+       if(ipr>0) write(stdo,"(a,i0,a,f15.6)")' BZWTS : --- Brillouin Zone sampling; N=',n,' W=',width
        !   ... Temporarily remove spin degeneracy if spins are coupled
        if (nsp .eq. 2 .and. nspx .eq. 1) call dscal(nkp,.5d0,wtkp,1)
        !   ... Find Fermi level, sampling
@@ -270,9 +270,9 @@ contains
           dosef(1) = 0
           dosef(2) = 0
           egap = emax-emin
-          write(stdo,ftox)' ... only filled or empty bands'//&
+          if(ipr>0) write(stdo,ftox)' ... only filled or empty bands'//&
                ' encountered:  ev=',ftof(emin),' ec=',ftof(emax)
-          write(stdo,ftox)' VBmax = ',ftof(emin),' CBmin = ',ftof(emax),' gap = ',&
+          if(ipr>0) write(stdo,ftox)' VBmax = ',ftof(emin),' CBmin = ',ftof(emax),' gap = ',&
                ftof(emax-emin),'Ry = ',ftof((emax-emin)*13.6058d0,3),'eV'
        endif
        ! ... (optional) Tabulate specific heat in file for list of T's
