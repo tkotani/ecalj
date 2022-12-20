@@ -121,7 +121,7 @@ contains
          exi(n0),hfc(n0,2),vec0(3),wk(100),rh,vrmax(2),pnus(n0,2), &
          pnzs(n0,2),dval,rsmfa,eferm0
     character spid*8,spid0*8,fid0*68,line*20,msg*23,use*80,ignore*80, &
-         msgw*17,datimp*32,usernm*32,hostnm*32,jobid*32,ffmt*32,ifmt*32
+         msgw*17,datimp*24,usernm*32,hostnm*32,jobid*32,ffmt*32,ifmt*32
     integer:: fextg, i_dummy_fextg,ifile_handle,n
     character(*)::rwrw
     data vec0 /0d0,0d0,0d0/

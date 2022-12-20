@@ -12,7 +12,7 @@ module m_MPItk
   integer :: numprocs, ierr, status(MPI_STATUS_SIZE)
   character*(MPI_MAX_PROCESSOR_NAME) name
   character*10,allocatable:: shortname(:)
-  character :: datim(26)
+  character :: datim(24)
   character(8) :: strprocid
   double precision :: starttime, endtime
   integer ::  resultlen, id,nproc

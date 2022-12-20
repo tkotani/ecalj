@@ -479,7 +479,7 @@ end subroutine icopy
 subroutine gettime(datim)
   !     implicit none
   character datim*(*)
-  datim = ' '
+!  datim = ' '
   call ftime(datim)
 end subroutine gettime
 
@@ -597,7 +597,7 @@ end function nargf
 subroutine ftime(datim)!fortran-callable date and time
   character datim*(*)
   call fdate(datim)
-  datim=datim(1:24) !takao. If this is not, write(6,*) gives CR at the ene of datim*26.
+!  datim=datim(1:24) !takao. If this is not, write(6,*) gives CR at the ene of datim*26.
 end subroutine ftime
 
 subroutine readx(ifil,n)

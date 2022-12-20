@@ -50,7 +50,7 @@ subroutine fexit0(retval,strng)
   double precision :: cpusec,tnew
   character(1) :: timeu
   character(256) :: strn
-  character :: datim*26,hostnm*20
+  character :: datim*24,hostnm*20
   character(9):: ftoa9
   logical :: isopen
   integer :: master,procid,ierr,ia
@@ -89,7 +89,7 @@ subroutine fexit0(retval,strng)
               tnew = tnew/60
            endif
         endif
-        datim = ' '
+        !datim = ' '
         call ftime(datim)
         !          hostnm = ' '
         !          call get_environment_variable('HOST',hostnm)
