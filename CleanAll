@@ -1,7 +1,8 @@
-#!/bin/bash
+#!/bin/bash -v
 pushd .
 cd SRC/exec
 make cleanall
-echo rm -rf */OBJ*
-rm -rf */OBJ*
+echo rm -rf OBJ*
+pwd
+rm -rf OBJ*
 popd
