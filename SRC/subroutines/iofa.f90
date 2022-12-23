@@ -1,5 +1,4 @@
-integer function iofa(spid,nxi0,nxi,exi,hfc,hfct,rsm,z,rmt,a,nr, &
-     qc,ccof,ceh,stc,rho,rhoc,v,ifi)
+integer function iofa(spid,nxi0,nxi,exi,hfc,hfct,rsm,z,rmt,a,nr,qc,ccof,ceh,stc,rho,rhoc,v,ifi)
   use m_lmfinit,only: nsp,lrel
   use m_lgunit,only:stdo
   !- I/O for free-atom data, one species
@@ -31,7 +30,6 @@ integer function iofa(spid,nxi0,nxi,exi,hfc,hfct,rsm,z,rmt,a,nr, &
   !u   20 May 00 adapted from nfp rw_fa.f
   ! ----------------------------------------------------------------------
   implicit none
-  ! ... Passed parameters
   integer :: ifi,nr,nxi,nxi0
   character spid*8
   double precision :: a,ccof,ceh,qc,rmt,rsm,stc,z, &

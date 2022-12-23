@@ -133,13 +133,13 @@ contains
        sspec(is)%a=a
        sspec(is)%nr=nr
        sspec(is)%qc=qc
-       sspec(is)%nxi=nxi(is)
-       sspec(is)%exi=exi(:,is)
-       sspec(is)%chfa=hfc(:,:,is)
        sspec(is)%rsmfa=rsmfa(is)
        sspec(is)%ctail=ccof
        sspec(is)%etail=ceh
        sspec(is)%stc=stc
+       sspec(is)%nxi=nxi(is)
+       sspec(is)%exi=exi(:,is)
+       sspec(is)%chfa=hfc(:,:,is)
 10  enddo isloop
     i = mpipid(3)
     do i_spec=1,nspec ! Re-broadcast entire species structure, and arrays used below
@@ -317,7 +317,8 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     integer:: kmxv=15 !Hardwired taken from original code.
-
+    ! kmxv = cutoff to expand smoothed potential.    hardwired for now
+!     integer:: kmxv   ! k-cutoff for 1-center projection of free-atom rho
     integer:: nbas , nxi(1) , nxi0
     type(s_rv1) :: sv_p_orhoat(3,nbas)
     type(s_rv1) :: rv_a_orhofa(nbas)

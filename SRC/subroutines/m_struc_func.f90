@@ -41,7 +41,6 @@ contains
     call mpi_bcast(struc%rfoca, 1,MPI_REAL8 , master, MPI_COMM_WORLD,ierr)
     call mpi_bcast(struc%nxi, 1,MPI_INTEGER , master, MPI_COMM_WORLD,ierr)
     call mpi_bcast(struc%qc, 1,MPI_REAL8    , master, MPI_COMM_WORLD,ierr)
-    call mpi_bcast(struc%kmxv, 1,MPI_INTEGER, master, MPI_COMM_WORLD,ierr)
     call mpi_bcast(struc%exi, size(struc%exi),MPI_REAL8 , master, MPI_COMM_WORLD,ierr) 
     call mpi_bcast(struc%chfa,size(struc%chfa),MPI_REAL8, master, MPI_COMM_WORLD,ierr)
     if (mlog) then

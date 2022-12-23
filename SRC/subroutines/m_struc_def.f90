@@ -48,14 +48,13 @@ module m_struc_def
      real(8):: a !a for mesh
      integer:: nr !nr for mesh
      integer:: lfoca !switch specifying treatment of core density
+     real(8):: rfoca ! smoothing radius for frozen core overlap approx
 ! followings are given in lmfa. And read by rdovfa->iofa, I think.     
      real(8):: ctail !coefficients to fit of free-atom core tail by unsm. Hankel
      real(8):: etail !energy to fit of free-atom core tail
      real(8):: stc !core kinetic energy
-     real(8):: rfoca ! smoothing radius for frozen core overlap approx
      real(8):: qc    !core charge
      integer:: nxi    ! Number of energies in fit of free-atom density tails
-     integer:: kmxv   ! k-cutoff for 1-center projection of free-atom rho
      real(8):: exi(n0)! Hankel energies for fit to c.d.; fit to free-atom density tails.
      real(8):: chfa(n0,2) ! coefficients to fit of free-atom density tails
   end type s_spec

@@ -8,7 +8,6 @@ contains
   integer function iors(nit,rwrw) 
     use m_density,only: osmrho, orhoat,v1pot,v0pot !these are allocated
     use m_bndfp,only: m_bndfp_ef_SET,eferm
-
     use m_supot,only: lat_nabc
     use m_struc_func,only: mpibc1_s_spec !,mpibc1_s_site
     use m_lmfinit,only: alat=>lat_alat,nsp,lrel,nl,ispec,sspec=>v_sspec, nbas,nat,nspec,n0,&
@@ -102,7 +101,7 @@ contains
     ! ... Local parameters
     integer :: procid,master,mpipid,nproc
     integer :: i,i0,i1,i2,i3,i4,ib,ipr,iprint,ic,is,is0,isp,jb,k1,k2,k3, &
-         igetss,jfi,k11,k21,k31,kmax,kmax0,l,lfoc,lfoc0,lmxa, & !kmxv,
+         igetss,jfi,k11,k21,k31,kmax,kmax0,l,lmxa, & !kmxv,lfoc,lfoc0
          lmxa0,lmxb,lmxb0,lmxl,lmxl0,lmxr,lmxv,lmxv0,lrel0,n11,n21, &
          n31,nbas0,nspec0,nlml,nlml0,npan,npan0,nr,nr0,nsp0, &
          nxi,nat0,ibaug
@@ -112,7 +111,7 @@ contains
     equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
     integer :: idmod(n0),idmoz(n0) !,lrs(10)
     logical :: isanrg,lfail,ltmp1,ltmp2,latvec,cmdopt,mlog,skiprstpnu,cmdopt0 !,lshear
-    double precision :: a,a0,alat0,cof,eh,fac,qc,rfoc,rfoc0,rmt, &
+    double precision :: a,a0,alat0,cof,eh,fac,qc,rmt, & !rfoc,rfoc0
          rmt0,rsma0,rsmv0,stc,sum,vfac,vol0,vs,vs1,z,z0
     real(8),pointer:: pnu(:,:),pnz(:,:)
 !    real(8):: pnu(n0,2),pnz(n0,2)
@@ -250,8 +249,7 @@ contains
        allocate(orhoat(3,nbas), v1pot(nbas),v0pot(nbas))
        ibaug = 0
        do  ib = 1, nbas
-          !ic=ssite(ib)%class
-          is=ispec(ib) !ssite(ib)%spec !     is = -1 -> spec struc does not have these parameters
+          is=ispec(ib) !  is = -1 -> spec struc does not have these parameters
           if (is /= -1) then
              spid=slabl(is) !sspec(is)%name
              a=sspec(is)%a
@@ -372,13 +370,6 @@ contains
           call mpibc1_real( orhoat(3,ib)%v, size(orhoat(3,ib)%v), 'iors_rhoat(3)' )
           call mpibc1_real( v0pot(ib)%v,size(v0pot(ib)%v) , 'iors_v0' )
           call mpibc1_real( v1pot(ib)%v,size(v1pot(ib)%v) , 'iors_v1' )
-          !sspec(is)%a=a
-          !sspec(is)%nr=nr
-          !sspec(is)%rmt=rmt
-          !sspec(is)%z=z
-          !sspec(is)%lmxa=lmxa
-          !sspec(is)%lmxl=lmxl
-          !sspec(is)%kmxt=kmax
 20        continue
        enddo
        if (isanrg(ibaug, nat,nat,  msg,'nat', .FALSE. )) goto 999
@@ -390,9 +381,9 @@ contains
           lmxa=sspec(is)%lmxa
           if (lmxa == -1) goto 30
           if (procid == master) then
-             read(jfi,err=999,end=999) nr0,a0,qc,cof,eh,stc,lfoc0,rfoc0
-             sspec(is)%lfoca=lfoc0
-             sspec(is)%rfoca=rfoc0
+             read(jfi,err=999,end=999) nr0,a0,qc,cof,eh,stc !,lfoc0 !,rfoc0
+!             sspec(is)%lfoca=lfoc0
+!             sspec(is)%rfoca=rfoc0
              lfail = isanrg(nr0,nr,nr,msgw,'nr',.false.)
              call fsanrg(a0,a,a,0d-9,msg,'spec a',.true.)
           endif
@@ -444,10 +435,9 @@ contains
           nr=sspec(is)%nr
           rmt=sspec(is)%rmt
           lmxa=sspec(is)%lmxa
-          lfoc=sspec(is)%lfoca
           qc=sspec(is)%qc
           if (lmxa == -1) goto 40
-          if (lfoc > 0) then
+          if (sspec(is)%lfoca > 0) then
              call dpcopy ( sspec(is)%rv_a_orhoc , orhoat( 3 , ib )%v , 1 , nr * nsp , 1d0 )
           else
              allocate(rwgt_rv(nr))
@@ -544,8 +534,8 @@ contains
           nr =sspec(is)%nr
           qc =sspec(is)%qc
           lmxa=sspec(is)%lmxa
-          lfoc=sspec(is)%lfoca
-          rfoc=sspec(is)%rfoca
+!          lfoc=sspec(is)%lfoca
+!          rfoc=sspec(is)%rfoca
           cof =sspec(is)%ctail
           eh  =sspec(is)%etail
           stc =sspec(is)%stc
@@ -554,7 +544,7 @@ contains
           hfc=sspec(is)%chfa
           rsmfa = sspec(is)%rsmfa
           if (lmxa == -1) cycle
-          write(jfi) nr,a,qc,cof,eh,stc,lfoc,rfoc
+          write(jfi) nr,a,qc,cof,eh,stc ,0,0 !lfoc,rfoc
           write(jfi) sspec(is)%rv_a_orhoc
           write(jfi) rsmfa,nxi
           write(jfi) ((exi(i),hfc(i,isp),i=1,nxi),isp=1,nsp)
