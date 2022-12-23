@@ -42,17 +42,16 @@ contains
     !b   and 3-center terms.
     ! ----------------------------------------------------------------------
     implicit none
-    type(s_cv1),target :: oppi(3,nbas) !, ohsozz(3,nbas),ohsopm(3,nbas)
+    type(s_cv1),target :: oppi(3,nbas)
     type(s_rv1),target :: otau(3,nbas)
     type(s_rv1),target :: osig(3,nbas)
-    integer:: isp , ndimh , napw ,i_copy_size,numprocs !lcplxp ,
+    integer:: isp , ndimh , napw 
     real(8):: q(3)
     complex(8):: h(ndimh,ndimh),s(ndimh,ndimh)
-    integer :: nlmbx,nlmax,ktop0
-    parameter (ktop0=20, nlmbx=49, nlmax=49)
+    integer,parameter :: ktop0=20, nlmbx=49, nlmax=49
     complex(8),allocatable:: b(:,:,:),bx(:,:,:),bb(:,:,:)
-    integer:: ibas , isa , kmax , lmxa , lmxb ,  nglob , nlma, nlmb !,   lso
-    double precision :: rsma,pa(3),xx !,alat,qlat(3,3),vol
+    integer:: ibas , isa , kmax , lmxa , lmxb ,  nglob , nlma, nlmb
+    real(8):: rsma,pa(3),xx 
     integer:: initbas, endbas,lm,iq,nh,np
     logical:: debug=.false.
     complex(8),pointer:: ppi1(:),ppi2(:),ppi3(:),Lm1(:),Lm2(:),Lm3(:),Lz1(:),Lz2(:),Lz3(:)
@@ -70,7 +69,6 @@ contains
        if (lmxa == -1) cycle
        call bstrux_set(ibas,q) !--- Set bloch sum of structure constant b
        ! to expand all orbitals at site ia. (Bloch sum of C^i_akL (C.1) in Ref.[1])
-       !
        if(allocated(b)) deallocate(b)
        allocate( b(0:kmax,nlma,ndimh) )
        do lm=1,nlma
@@ -83,14 +81,14 @@ contains
        sig2=>osig(2,ibas)%v
        sig3=>osig(3,ibas)%v
        !!  --- Add 1-center and 2-center terms ---
-       call augq2z(ibas,isp,nkaph,lmxb,nlmb,kmax,nlma, b,ndimh, sig3,sig2,ppi3,ppi2, s,h)
+       call augq2z(ibas,isp,nkaph,lmxb,nlmb,kmax,nlma, b,b,ndimh, sig3,sig2,ppi3,ppi2, s,h)
        call augq3z(kmax,nlma,ndimh,isp,  b,                ppi1,           h) !B+ ppi B to h
-       call augqs3(kmax,lmxa,nlma,ndimh,isp, b, sig1,  s) !B+ sig B to s
+       call augqs3(kmax,lmxa,nlma,ndimh,isp, b,b, sig1,  s) !B+ sig B to s
        deallocate(b)
     enddo
     call tcx ('augmbl')
   end subroutine augmbl
-  subroutine augq2z(ia,isp,nkaph,lmxb,nlmb,kmax,nlma,b,ndimh,sighh,sighp,ppihh,ppihp,s,h)
+  subroutine augq2z(ia,isp,nkaph,lmxb,nlmb,kmax,nlma,bL,bR,ndimh,sighh,sighp,ppihh,ppihp,s,h)
     use m_orbl,only: Orblib, norb,ltab,ktab,offl
     !- Add one and two-center terms to h,s for complex potential
     ! ----------------------------------------------------------------------
@@ -123,41 +121,28 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     integer :: mode,ia,isp,kmax,nkaph,nlma,lmxb,nlmb,ndimh
-    double precision :: &
-         sighh(nkaph,nkaph,0:lmxb,1),sighp(nkaph,0:kmax,0:lmxb,1)
+    real(8)::  sighh(nkaph,nkaph,0:lmxb,1),sighp(nkaph,0:kmax,0:lmxb,1),xx
     complex(8):: ppihh(nkaph,nkaph,nlmb,nlmb,*), ppihp(nkaph,0:kmax,nlmb,nlma,*),&
-         b(0:kmax,nlma,ndimh),s(ndimh,ndimh),h(ndimh,ndimh)
-    integer :: iorb,ik1,j,k,ilma,i1,i2,ilm1,ilm2,l1,n0,nkap0,jorb,ik2,l2,jsp,ksp
-    parameter (n0=10,nkap0=3)
-    double precision :: xx
-    double complex cadd,cadd1
+         bL(0:kmax,nlma,ndimh),bR(0:kmax,nlma,ndimh), &
+         s(ndimh,ndimh),h(ndimh,ndimh)!,cadd,cadd1
+    integer :: iorb,ik1,j,k,ilma,i1,i2,ilm1,ilm2,l1,jorb,ik2,l2,jsp,ksp
     complex(8),allocatable:: tso(:,:,:,:)
     call tcn ('augq2z')
     call orblib(ia) !See use section. Return norb,ltab,ktab,offl
     do  iorb = 1, norb
        l1  = ltab(iorb)
        ik1 = ktab(iorb)
-       i1 = offl(iorb)
        do  ilm1 = l1**2+1, (l1+1)**2
-          i1 = i1+1
-          do  j = 1, ndimh !Two-center terms
-             do  k = 0, kmax
-                cadd = sighp(ik1,k,l1,isp)*b(k,ilm1,j)
-                s(i1,j) = s(i1,j) + cadd
-                s(j,i1) = s(j,i1) + dconjg(cadd)
-                do  ilma = 1, nlma
-                   cadd = ppihp(ik1,k,ilm1,ilma,isp)*b(k,ilma,j)
-                   h(i1,j) = h(i1,j) + cadd
-                   h(j,i1) = h(j,i1) + dconjg(cadd)
-                enddo
-             enddo
-          enddo
+          i1 = offl(iorb)+ilm1-l1**2  !Two-center terms
+          s(i1,:) = s(i1,:) + [(       sum(sighp(ik1,:,l1,isp)*bR(:,ilm1,j)),  j=1,ndimh)]
+          s(:,i1) = s(:,i1) + [(dconjg(sum(bL(:,ilm1,j)*sighp(ik1,:,l1,isp))), j=1,ndimh)]
+          h(i1,:) = h(i1,:) + [(       sum(ppihp(ik1,:,ilm1,:,isp)*bR(:,:,j)), j=1,ndimh)]
+          h(:,i1) = h(:,i1) + [(dconjg(sum(bL(:,:,j)*ppihp(ik1,:,ilm1,:,isp))),j=1,ndimh)]
           do  jorb = 1, norb !one center terms
              l2  = ltab(jorb)
              ik2 = ktab(jorb)
-             i2 = offl(jorb)
              do  ilm2 = l2**2+1, (l2+1)**2
-                i2 = i2+1
+                i2 = offl(jorb)+ilm2-l2**2
                 h(i1,i2) = h(i1,i2) + ppihh(ik1,ik2,ilm1,ilm2,isp)
                 if (ilm1 == ilm2) s(i1,i2) = s(i1,i2) + sighh(ik1,ik2,l1,isp)
              enddo
@@ -191,10 +176,8 @@ contains
          hsoph(nkaph,0:kmax,nlmb,nlma),&! PH (index ordering is transposed. the same as HP)
          hsopp(0:kmax,0:kmax,nlma,nlma) ! PP
     double complex b(0:kmax,nlma,ndimh), hso(ndimh,ndimh), g(0:kmax,nlma)
-    integer :: iorb,ik1,j,k,ilma,i1,i2,ilm1,ilm2,l1,n0,nkap0,jorb,ik2,l2,jsp,ksp,isp1,isp2
-    parameter (n0=10,nkap0=3)
+    integer :: iorb,ik1,j,k,ilma,i1,i2,ilm1,ilm2,l1,jorb,ik2,l2,jsp,ksp,isp1,isp2
     double precision :: xx
-    double complex cadd,cadd1,fac
     integer :: jlm1,jlm2,k1,k2
     call tcn ('augq2zhs0')
     call orblib(ia) !return norb,ltab,ktab,offl...
@@ -247,7 +230,7 @@ contains
     enddo
     call tcx ('augq3z')
   end subroutine augq3z
-  subroutine augqs3(kmax,lmxa,nlma,ndimh,isp,b,sig,s)
+  subroutine augqs3(kmax,lmxa,nlma,ndimh,isp,bL,bR,sig,s)
     !- Add B+ sig B to s for L-diagonal sig
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -264,17 +247,15 @@ contains
     implicit none
     integer :: kmax,lmxa,nlma,ndimh,isp
     double precision :: sig(0:kmax,0:kmax,0:lmxa,isp)
-    double complex b(0:kmax,nlma,ndimh),s(ndimh,ndimh),g(0:kmax,nlma),csum
-    integer :: i1,i2,ilm,k1,k2,l,kjlm
-    integer :: ll
+    complex(8):: bL(0:kmax,nlma,ndimh),bR(0:kmax,nlma,ndimh),&
+         s(ndimh,ndimh),g(0:kmax,nlma),csum
+    integer :: i1,i2,ilm,k1,k2,l,kjlm, ll
     call tcn ('augqs3')
     do i2 = 1, ndimh
        do ilm = 1, nlma
-          g(:,ilm) = matmul(sig(:,:,ll(ilm),isp),b(:,ilm,i2))
+          g(:,ilm) = matmul(sig(:,:,ll(ilm),isp),bR(:,ilm,i2))
        enddo
-       do  i1 = 1, i2
-          s(i1,i2) = s(i1,i2) + sum( dconjg(b(:,:,i1))*g(:,:) )
-       enddo
+       s(1:i2,i2) = s(1:i2,i2) + [(sum( dconjg(bL(:,:,i1))*g(:,:) ),i1=1,i2)]
     enddo
     call tcx ('augqs3')
   end subroutine augqs3

@@ -102,8 +102,8 @@ subroutine smhsbl(vavg,q,ndimh, napw,igapw, h,s)
   srvol = dsqrt(vol)
   if(napw > 0) then
      lmxax = -1
-     do  ib1 = 1, nbas !!     Find largest lmxa ... should be made elsewhere
-        is1=ispec(ib1) !ssite(ib1)%spec
+     do  ib1 = 1, nbas 
+        is1=ispec(ib1) 
         lmxa=sspec(is1)%lmxa
         lmxax = max(lmxax,lmxa)
      enddo
@@ -122,19 +122,19 @@ subroutine smhsbl(vavg,q,ndimh, napw,igapw, h,s)
   if(nlmto >0 ) then
      ib1loop: do 1010 ib1=1,nbas
         is1=ispec(ib1) 
-        p1 =rv_a_opos(:,ib1) !site position
+        p1 =rv_a_opos(:,ib1)   !site at ib1
         call uspecb(is1,rsm1,e1) 
         call orblib1(ib1) !norb1,ltab1,ktab1,offl1
         call gtbsl8(norb1,ltab1,ktab1,rsm1,e1,ntab1,blks1)
-        ib2loop: do  ib2 = ib1, nbas
-           is2=ispec(ib2) !ssite(ib2)%spec
-           p2=rv_a_opos(:,ib2) !ssite(ib2)%pos
+        ib2loop: do  ib2 = ib1, nbas !Hsm x Hsm part
+           is2=ispec(ib2) 
+           p2=rv_a_opos(:,ib2) !site at ib2
            call uspecb(is2,rsm2,e2)
            call orblib2(ib2) !norb2,ltab2,ktab2,xx,offl2,xx)
            call gtbsl8(norb2,ltab2,ktab2,rsm2,e2,ntab2,blks2)
            !     ... M.E. <1> and <T> between all envelopes connecting ib1 and ib2
-           do  i1 = 1, nkaphh(is1) !nkap1
-              do  i2 = 1, nkaphh(is2) !nkap2
+           do  i1 = 1, nkaphh(is1) !nkap1 for ib1
+              do  i2 = 1, nkaphh(is2) !nkap2 for ib2
                  nlm1 = (lhh(i1,is1)+1)**2
                  nlm2 = (lhh(i2,is2)+1)**2
                  if (nlm1 > nlms .OR. nlm2 > nlms) call rx('smhsbl: increase nlms')
@@ -143,14 +143,14 @@ subroutine smhsbl(vavg,q,ndimh, napw,igapw, h,s)
                  !F0*F0 and F0*\laplacian F0 integrals (smH parts)
               enddo
            enddo
-           do  io2 = 1, norb2 !  ... Loop over orbital indices, poke block of integrals into s,h
+           do  io2 = 1, norb2 ! io2 for ib2 for orbital indices, poke block of integrals into s,h
               if (blks2(io2) == 0) cycle
-              l2  = ltab2(io2)!  l2,ik2 = l and kaph indices, needed to locate block in s0
+              l2  = ltab2(io2) ! l2,ik2 = l and kaph indices, needed to locate block in s0
               ik2 = ktab2(io2)
               i2 = offl2(io2)
               do  ilm2 = l2**2+1, (l2+1)**2
                  i2 = i2+1
-                 do  io1 = 1, norb1
+                 do  io1 = 1, norb1 !io1 for ib1
                     if (blks1(io1)==0) cycle
                     l1  = ltab1(io1)! l1,ik1 = l and kaph indices, needed to locate block in s0
                     ik1 = ktab1(io1)
@@ -165,7 +165,7 @@ subroutine smhsbl(vavg,q,ndimh, napw,igapw, h,s)
               enddo
            enddo
         enddo ib2loop
-        !     ... Hsm (i1) \times PW (i2)  Takao. Similar logic in fsmbl
+        ! Hsm x PW part  Hsm(i1) x PW (i2) Similar logic in fsmbl
         igloop: do  ig = 1, napw
            i2 = ig + nlmto
            qpg2 = qpg2v(ig)
