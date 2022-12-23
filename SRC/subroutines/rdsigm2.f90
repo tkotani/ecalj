@@ -177,7 +177,7 @@ contains
     print *,'rdsigm2:'
     sfz=1d99
     laf=allocated(symops_af) !jun2015takao
-    tolq = 1d-6
+    tolq = 1d-4
     lshft=0
     rewind ifis
     read(ifis) nsp_,ndimsig_r,nk1_,nk2_,nk3_,nqp_
@@ -235,7 +235,7 @@ contains
                    qir = qp_rv(:,iq1)
                    do ig= ngrp_original+1,ngrp !only AF symmetry (equivalent with symops_af)
                       call rangedq( matmul(platt,(qsmesh(:,i1,i2,i3) - matmul(symops(:,:,ig),qir))), diffq)
-                      if(sum(abs(diffq))<1d-6) then
+                      if(sum(abs(diffq))<tolq) then
                          ipqaf(i1,i2,i3) = iq1    !iq1 is pointer to the irreducible q point = qp_rv(:,iq1)
                          goto 1122
                       endif
@@ -390,6 +390,7 @@ contains
     complex(8),allocatable:: sigx(:,:)
     integer :: ldim,debugmode,iaf,ngini,ngend
     character(300)::aaa
+    real(8),parameter:: tolq=1d-4
     call tcn('rotsig')
     img2pi=2*4d0*datan(1d0)*img
     ierr=1
@@ -414,7 +415,7 @@ contains
     do igx=ngini,ngend
        if(debugmode()>0) print *, 'ddd=',matmul(platt,(qtarget-matmul(symops(:,:,igx),q)))
        call rangedq(   matmul(platt,(qtarget-matmul(symops(:,:,igx),q))), qx)
-       if(sum(abs(qx))<1d-6) then
+       if(sum(abs(qx))<tolq) then
           igg=igx
           if(debugmode()>0) then
              print *,'ttt: q      =',q

@@ -53,7 +53,7 @@ program hqpe_sc
   character*256,allocatable:: extp(:)
   integer,allocatable:: ifevec__(:),ifvxc__(:),iprocq(:,:)
   integer,allocatable:: ntqxx(:)
-  real(8):: eseavrmean,eseadd,tolq=1d-8
+  real(8):: eseavrmean,eseadd,tolq=1d-4
   integer,allocatable:: nev(:,:)
   complex(8),allocatable:: ovl(:,:)
   character(8):: xt
@@ -326,7 +326,7 @@ program hqpe_sc
      do ip=1,nq
         do itp=1,ntq
            do itpp=1,ntq    !make Sigma hermitian
-              if(abs(se(itpp,itp,ip)-dconjg(se(itp,itpp,ip)) ) > 1d-8) then
+              if(abs(se(itpp,itp,ip)-dconjg(se(itp,itpp,ip)) ) > tolq) then
                  write(*,*)'diff=', se(itpp,itp,ip)-dconjg(se(itp,itpp,ip))
                  write(*,*)'se   ', se(itpp,itp,ip), se(itp,itpp,ip)
                  write(*,*)'sex2 ',sex2(itpp,itp,ip),sex2(itp,itpp,ip)
@@ -472,13 +472,13 @@ program hqpe_sc
         !! - write SE_ij-Vxc_ij where ij are basis function indices
         do itp=1,ndimsig2
            do itpp=1,ndimsig2
-              if( abs(ev_se_ev(itpp,itp) - dconjg(ev_se_ev(itp,itpp)) )> 1d-8  ) then
+              if( abs(ev_se_ev(itpp,itp) - dconjg(ev_se_ev(itp,itpp)) )> tolq  ) then
                  write(6,*)itp,itpp
                  write(6,*)ev_se_ev(itpp,itp)
                  write(6,*)ev_se_ev(itp,itpp)
                  call rx( 'hqpe: Sigma_ij is not hermitian')
               endif
-              if(abs(v_xc(itp,itpp,ikpx,is)-dconjg(v_xc(itpp,itp,ikpx,is)))> 1d-8) &
+              if(abs(v_xc(itp,itpp,ikpx,is)-dconjg(v_xc(itpp,itp,ikpx,is)))> tolq) &
                    call rx( 'hqpe: v_xc is not hermitean')
            enddo
         enddo
