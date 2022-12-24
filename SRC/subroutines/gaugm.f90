@@ -231,19 +231,14 @@ contains
     do i = 1, nsp
        vsms=y0*vsm(1:nr,1,i)!Spherical part of the smooth potential
        ! --- Make sig, tau, ppi0 = spherical part of ppi ---
-       !     pvagm2: smooth f1^*f2^ part of sig and corresponding tau, ppi0
-       call pvagm2(nf1,lmx1,lx1,f1,x1,nf2,lmx2,lx2,f2,x2, &
+       call pvagm2(nf1,lmx1,lx1,f1,x1,nf2,lmx2,lx2,f2,x2, & ! smooth f1^*f2^ part of sig and corresponding tau, ppi0
             nr,rofi,rwgt,vsms,lmux,sig(1,1,0,i),tau(1,1,0,i),ppi0)
-       !     pvagm1: augm. f1~f2~ part of sig and corresponding tau,ppi0
-       !     for orbitals constructed out of (u,s)
-       call pvagm1(nf1,nf1s,lmx1,lx1,nlx1,v1,d1,i, &
+       call pvagm1(nf1,nf1s,lmx1,lx1,nlx1,v1,d1,i, & !f1~f2~ part of sig and corresponding tau,ppi0 for orbitals constructed out of (u,s)
             nf2,nf2s,lmx2,lx2,nlx2,v2,d2,lso, &
             hab(1,1,i),vab(1,1,i),sab(1,1,i), &
             sodb(1,1,i,1),sodb(1,1,i,2),lmux, &
             sig(1,1,0,i),tau(1,1,0,i),ppi0, &
-            hsozz(1,1,1,1,i),hsopm(1,1,1,1,i))
-       !     pvagm1: augm. f1~f2~ part of sig and corresponding tau,ppi0 
-       !     for local orbitals
+            hsozz(1,1,1,1,i),hsopm(1,1,1,1,i))  !  pvagm1: augm. f1~f2~ part of sig and corresponding tau,ppi0 for local orbitals
        call pvaglc(nf1,nf1s,lmx1,lx1,nlx1,v1,d1,i, &
             nf2,nf2s,lmx2,lx2,nlx2,v2,d2,lso, &
             hab(1,1,i),vab(1,1,i),sab(1,1,i), &
@@ -251,25 +246,18 @@ contains
             lmux,sig(1,1,0,i),tau(1,1,0,i),ppi0, &
             hsozz(1,1,1,1,i),hsopm(1,1,1,1,i))
        ! --- Contribution to ppi from non-spherical potential ---
-       !     paug2: smooth integral f1^ (-vsm) f2^ for nonspherical part of vsm
-       !     Also include local orbitals; require f=0 if no smooth part.
-       call paug2(nr,nlml,vsm(1,1,i),rwgt,cg,jcg,indxcg,nf1,nf1,lmx1, &
-            lx1,f1,nf2,nf2,lmx2,lx2,f2,sum,nlx1,nlx2,ppir(1,1,1,1,i))
-       !     paug1: augm integral f1~ vtrue f2~ for nonspherical part of vtrue
-       call paug1(nf1,nf1s,lmx1,lx1,v1,d1,nf2,nf2s,lmx2,lx2,v2,d2,lmxa, &
+       call paug2(nr,nlml,vsm(1,1,i),rwgt,cg,jcg,indxcg,nf1,nf1,lmx1, & !smooth integral f1^ (-vsm) f2^ for nonspherical part of vsm
+            lx1,f1,nf2,nf2,lmx2,lx2,f2,sum,nlx1,nlx2,ppir(1,1,1,1,i))   !Also include local orbitals; require f=0 if no smooth part.
+       call paug1(nf1,nf1s,lmx1,lx1,v1,d1,nf2,nf2s,lmx2,lx2,v2,d2,lmxa, & ! integral f1~ vtrue f2~ for nonspherical part of vtrue
             nlml,cg,jcg,indxcg,vum(0,0,1,1,i),nlx1,nlx2,ppir(1,1,1,1,i))
        ! --- Moments qm = (f1~*f2~ - f1^*f2^) r^m Y_m ---
-       !     Needed for the term qm * (gpot0-gpotb) added to ppi
-       call pvagm3(nf1,nf1s,lmx1,lx1,f1,v1,d1,nf2,nf2s,lmx2,lx2,f2,v2,d2, &
+       call pvagm3(nf1,nf1s,lmx1,lx1,f1,v1,d1,nf2,nf2s,lmx2,lx2,f2,v2,d2,& ! Needed for the term qm * (gpot0-gpotb) added to ppi
             nr,rofi,rwgt,lmxa,qum(0,0,0,1,i),lmxl,qm)
-       ! --- Add any LDA+U contribution that exists
-       if (lldau /= 0) call paugnl(nf1,nf1s,lmx1,lx1,v1,d1,nf2,nf2s,lmx2,lx2,v2,d2, &
-            lmaxu,vumm,nlx1,nlx2,ppiz(1,1,1,1,i),i,idu)
-       ! --- Assemble ppi from ppi0, non-spherical part and multipole contr ---
-       call paug3(nf1,lmx1,lx1,nf2,lmx2,lx2,lmxl,nlml,cg,jcg, &
+       if (lldau /= 0) call paugnl(nf1,nf1s,lmx1,lx1,v1,d1,nf2,nf2s,lmx2,lx2,v2,d2,& !LDA+U contribution that exists
+            lmaxu,vumm,nlx1,nlx2,ppiz(1,1,1,1,i),i,idu) 
+       call paug3(nf1,lmx1,lx1,nf2,lmx2,lx2,lmxl,nlml,cg,jcg, & !Assemble ppi from ppi0, non-spherical part and multipole contr ---
             indxcg,qm,gpotb,gpot0,lmux,ppi0,nlx1,nlx2,ppir(1,1,1,1,i))
-       ! --- Add tau into ppi ---
-       do  i1 = 1, nf1
+       do  i1 = 1, nf1 ! --- Add tau into ppi ---
           do  i2 = 1, nf2
              do  ilm = 1, min0((lx1(i1)+1)**2,(lx2(i2)+1)**2)
                 ppir(i1,i2,ilm,ilm,i) = ppir(i1,i2,ilm,ilm,i) + tau(i1,i2,ll(ilm),i)
