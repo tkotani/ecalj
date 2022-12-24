@@ -5,9 +5,9 @@ module m_locpot
   public locpot
   private
 contains
-  !- Make the potential at the atomic sites and augmentation matrices.
-  subroutine locpot(sv_p_orhoat,qmom,vval,gpot0,job,rhobg,nlibu,lmaxu,vorb,lldau,novxc, &!,idipole 
-       sv_p_osig , sv_p_otau, sv_p_oppi, ohsozz,ohsopm, ppnl, hab, vab, sab, & 
+  !- Make the potential axt the atomic sites and augmentation matrices.
+  subroutine locpot(orhoat,qmom,vval,gpot0,job,rhobg,nlibu,lmaxu,vorb,lldau,novxc, &!,idipole 
+       osig , otau, oppi, ohsozz,ohsopm, ppnl, hab, vab, sab, & 
        vvesat,cpnvsa, rhoexc,rhoex,rhoec,rhovxc, valvef, xcore, sqloc,sqlocc,saloc, qval,qsc )
     use m_density,only: v0pot,v1pot   !output
     use m_density,only: pnzall,pnuall !output
@@ -20,7 +20,7 @@ contains
     use m_augmat,only: augmat
     use m_hansr,only:corprm
     implicit none
-    intent(in)::    sv_p_orhoat,qmom,vval,gpot0,job,rhobg,nlibu,lmaxu,vorb,lldau,novxc
+    intent(in)::    orhoat,qmom,vval,gpot0,job,rhobg,nlibu,lmaxu,vorb,lldau,novxc
     ! ----------------------------------------------------------------------
     !i Inputs
     !i   orhoat:vector of offsets containing site density
@@ -104,11 +104,11 @@ contains
     !u   17 Jun 98 Adapted from DLN to run parallel on SGI
     ! ----------------------------------------------------------------------
     integer::  job,ibx,ir,isp,l,lm
-    type(s_rv1) :: sv_p_orhoat(3,nbas)
-    type(s_cv1) :: sv_p_oppi(3,nbas)
+    type(s_rv1) :: orhoat(3,nbas)
+    type(s_cv1) :: oppi(3,nbas)
     type(s_sblock):: ohsozz(3,nbas),ohsopm(3,nbas)
-    type(s_rv1) :: sv_p_otau(3,nbas)
-    type(s_rv1) :: sv_p_osig(3,nbas)
+    type(s_rv1) :: otau(3,nbas)
+    type(s_rv1) :: osig(3,nbas)
     integer :: nlibu,lmaxu,lldau(nbas),iblu
     double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
     real(8):: qmom(1) , vval(1)
@@ -200,11 +200,11 @@ contains
          call radmsh(rmt,a,nr,rofi)
          call radwgt(rmt,a,nr,rwgt)
          !   ... Write true density to file rhoMT.ib
-         if(cmdopt0('--wrhomt'))call wrhomt('rhoMT.','density',ib,sv_p_orhoat(1,ib)%v,rofi,nr,nlml,nsp)
+         if(cmdopt0('--wrhomt'))call wrhomt('rhoMT.','density',ib,orhoat(1,ib)%v,rofi,nr,nlml,nsp)
          call locpt2(z,rmt,rg,a,nr,nsp,cofg,cofh & ! Make potential and energy terms at this site ---
               ,ceh,rfoc,lfoc,nlml,qmom ( j1 ),vval ( j1 ),rofi &
-              ,rwgt,sv_p_orhoat( 1,ib )%v,sv_p_orhoat( 2,ib )%v,&
-              sv_p_orhoat( 3,ib )%v,rhol1,rhol2,v1,v2,v1es,v2es, &
+              ,rwgt,orhoat( 1,ib )%v,orhoat( 2,ib )%v,&
+              orhoat( 3,ib )%v,rhol1,rhol2,v1,v2,v1es,v2es, &
               valvs(ib),cpnvs(ib),rhexc(:,ib),rhex(:,ib),rhec(:,ib),rhvxc(:,ib),&
               valvt(ib),xcor(ib) ,qloc(ib),qlocc(ib),aloc(ib),alocc(ib),gpotb,& 
               rhobg,efg(1,ib),ifivesint,lxcf) 
@@ -335,11 +335,11 @@ contains
             if( .NOT. novxc .AND. cmdopt0('--socmatrix') ) lsox=1
             if (ipr >= 20) write(stdo,467) y0*(gpot0(j1)-gpotb(1))
 467         format('     potential shift to crystal energy zero:',f12.6)
-            call augmat ( z,rmt,rsma(is),lmxa,pnu,pnz,kmax,nlml, a,nr,nsp,lsox,rofi,rwgt ,& 
+            call augmat ( z,rmt,rsma(is),lmxa,pnu,pnz,kmax,nlml, a,nr,nsp,lsox,rwgt,& !rofi,
                  v0pot(ib)%v,v1,v2,gpotb,gpot0 ( j1 ),nkaph,nkapi,&
-                 lmxb,lhh(:,is),eh,rsmh, ehl,rsml,rs3,vmtz, lmaxu,&
-                 vorb, lldau(ib), iblu, idu, &
-                 sv_p_osig(1,ib), sv_p_otau(1,ib), sv_p_oppi(1,ib), ohsozz(1,ib), ohsopm(1,ib), &
+                 lmxb,lhh(:,is),eh,rsmh, ehl,rsml,rs3,vmtz, lmaxu, vorb, lldau(ib), idu, &
+                 iblu, &
+                 osig(1,ib), otau(1,ib), oppi(1,ib), ohsozz(1,ib), ohsopm(1,ib), &
                  ppnl(1,1,1,ib), hab(1,1,1,ib),vab (1,1,1,ib), sab(1,1,1,ib) )
          endif
          j1 = j1+nlml

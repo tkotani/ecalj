@@ -1,15 +1,17 @@
 module m_gaugm !Generic routine to make augmentation matrices
+  use m_lmfinit,only: n0,nab
   public gaugm
   private
 contains
-  subroutine gaugm(nr,nsp,lso,rofi,rwgt,lmxa,lmxl,nlml,vsm, &
-       gpotb,gpot0,hab,vab,sab,sodb,qum,vum,&
-       nf1,nf1s,lmx1,lx1,f1,x1,v1,d1, &
-       nf2,nf2s,lmx2,lx2,f2,x2,v2,d2, &
-       lmux,sig,tau,nlx1,nlx2,ppi,hsozz,hsopm, &
-       lmaxu,vumm,lldau,idu)
-    use m_lmfinit,only: nab,n0,cg=>rv_a_ocg,jcg=>iv_a_ojcg,indxcg=>iv_a_oidxcg
-    use m_lgunit,only:stdo
+  subroutine gaugm(&
+       nr,nsp,lso,rofi,rwgt,lmxa,lmxl,nlml,vsm,gpotb,gpot0,hab,vab,sab,sodb,qum,vum,&
+       lmaxu,vumm,lldau,idu,&
+       lmux, &
+       nf1,nf1s,lmx1,lx1,nlx1,f1,x1,v1,d1, &
+       nf2,nf2s,lmx2,lx2,nlx2,f2,x2,v2,d2, &
+       sig,tau,ppi,hsozz,hsopm)
+    use m_lmfinit,only: cg=>rv_a_ocg,jcg=>iv_a_ojcg,indxcg=>iv_a_oidxcg
+    use m_lgunit,only: stdo
     !- Generic routine to make augmentation matrices
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -240,7 +242,7 @@ contains
             sodb(1,1,i,1),sodb(1,1,i,2),lmux, &
             sig(1,1,0,i),tau(1,1,0,i),ppi0, &
             hsozz(1,1,1,1,i),hsopm(1,1,1,1,i))
-       !     pvagm1: augm. f1~f2~ part of sig and corresponding tau,ppi0
+       !     pvagm1: augm. f1~f2~ part of sig and corresponding tau,ppi0 
        !     for local orbitals
        call pvaglc(nf1,nf1s,lmx1,lx1,nlx1,v1,d1,i, &
             nf2,nf2s,lmx2,lx2,nlx2,v2,d2,lso, &
@@ -262,7 +264,7 @@ contains
             nr,rofi,rwgt,lmxa,qum(0,0,0,1,i),lmxl,qm)
        ! --- Add any LDA+U contribution that exists
        if (lldau /= 0) call paugnl(nf1,nf1s,lmx1,lx1,v1,d1,nf2,nf2s,lmx2,lx2,v2,d2, &
-               lmaxu,vumm,nlx1,nlx2,ppiz(1,1,1,1,i),i,idu)
+            lmaxu,vumm,nlx1,nlx2,ppiz(1,1,1,1,i),i,idu)
        ! --- Assemble ppi from ppi0, non-spherical part and multipole contr ---
        call paug3(nf1,lmx1,lx1,nf2,lmx2,lx2,lmxl,nlml,cg,jcg, &
             indxcg,qm,gpotb,gpot0,lmux,ppi0,nlx1,nlx2,ppir(1,1,1,1,i))
@@ -275,52 +277,55 @@ contains
           enddo
        enddo
     enddo
-!        ! --- debug Print diagonal augmentation matrices ---
-!        if(iprint() >=80) then
-!           write(stdo,501) i
-!           do  i1 = 1, nf1
-!              do  i2 = 1, nf2
-!                 nlm1 = (lx1(i1)+1)**2
-!                 nlm2 = (lx2(i2)+1)**2
-!                 nlm = min0(nlm1,nlm2)
-!                 write(stdo,*) ' '
-!                 do  ilm = 1, nlm
-!                    l=ll(ilm)
-!                    write(stdo,500) i1,i2,ilm,sig(i1,i2,l,i),tau(i1,i2,l,i), &
-!                         ppir(i1,i2,ilm,ilm,i)
-! 500                format(2i4,i6,3f14.8)
-! 501                format(/'# diagonal aug matrices spin',i2,':' &
-!                         /'# i1  i2   ilm',8x,'sig',11x,'tau',11x,'ham')
-!                 enddo
-!              enddo
-!           enddo
-!           ! ... Print LL' potential matrix (which includes tau)
-!           write(stdo,'(''#pi matrix:'')')
-!           write(stdo,'(''#i1 i2  ilm1 ilm2     ham'')')
-!           do  i1 = 1, nf1
-!              do  i2 = 1, nf2
-!                 nlm1 = (lx1(i1)+1)**2
-!                 nlm2 = (lx2(i2)+1)**2
-!                 do  ilm1 = 1, nlm1
-!                    do  ilm2 = 1, nlm2
-!                       if (dabs(ppir(i1,i2,ilm1,ilm2,i)) >= 1d-8) &
-!                            write(stdo,320) i1,i2,ilm1,ilm2,ppir(i1,i2,ilm1,ilm2,i)
-! 320                   format(2i3,2i5,f14.8)
-!                    enddo
-!                 enddo
-!              enddo
-!           enddo
-!        endif
-!    enddo
     ppi = ppir
-    if(lldau/=0) call zaxpy(nf1*nf2*nlx1*nlx2*nsp,1d0,ppiz,1,ppi,1)
+    if(lldau/=0) ppi=ppi+ppiz !call zaxpy(nf1*nf2*nlx1*nlx2*nsp,1d0,ppiz,1,ppi,1)
     deallocate(ppiz)
   end subroutine gaugm
+    !        if(iprint() >=80) then
+    !           write(stdo,501) i
+    !           do  i1 = 1, nf1
+    !              do  i2 = 1, nf2
+    !                 nlm1 = (lx1(i1)+1)**2
+    !                 nlm2 = (lx2(i2)+1)**2
+    !                 nlm = min0(nlm1,nlm2)
+    !                 write(stdo,*) ' '
+    !                 do  ilm = 1, nlm
+    !                    l=ll(ilm)
+    !                    write(stdo,500) i1,i2,ilm,sig(i1,i2,l,i),tau(i1,i2,l,i), &
+    !                         ppir(i1,i2,ilm,ilm,i)
+    ! 500                format(2i4,i6,3f14.8)
+    ! 501                format(/'# diagonal aug matrices spin',i2,':' &
+    !                         /'# i1  i2   ilm',8x,'sig',11x,'tau',11x,'ham')
+    !                 enddo
+    !              enddo
+    !           enddo
+    !           ! ... Print LL' potential matrix (which includes tau)
+    !           write(stdo,'(''#pi matrix:'')')
+    !           write(stdo,'(''#i1 i2  ilm1 ilm2     ham'')')
+    !           do  i1 = 1, nf1
+    !              do  i2 = 1, nf2
+    !                 nlm1 = (lx1(i1)+1)**2
+    !                 nlm2 = (lx2(i2)+1)**2
+    !                 do  ilm1 = 1, nlm1
+    !                    do  ilm2 = 1, nlm2
+    !                       if (dabs(ppir(i1,i2,ilm1,ilm2,i)) >= 1d-8) &
+    !                            write(stdo,320) i1,i2,ilm1,ilm2,ppir(i1,i2,ilm1,ilm2,i)
+    ! 320                   format(2i3,2i5,f14.8)
+    !                    enddo
+    !                 enddo
+    !              enddo
+    !           enddo
+    !        endif
+    !    enddo
+    !    ppi = ppir
+    !    if(lldau/=0) ppi=ppi+ppiz !call zaxpy(nf1*nf2*nlx1*nlx2*nsp,1d0,ppiz,1,ppi,1)
+    !    deallocate(ppiz)
+    !  end subroutine gaugm
   subroutine pvagm1(nf1,nf1s,lmx1,lx1,nlx1,v1,d1,isp, &
        nf2,nf2s,lmx2,lx2,nlx2,v2,d2,lso, &
        hab,vab,sab,sodb,sondb,lmux,sig,tau,ppi, &
        hsozz,hsopm)
-    use m_lmfinit,only: n0,nab
+    !use m_lmfinit,only: n0,nab
     !- Add augmentation part of sig and tau and ppi (spherical pot)
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -682,7 +687,6 @@ contains
        nf2,nf2s,lmx2,lx2,nlx2,v2,d2,lso, &
        hab,vab,sab,sodb,sondb, &
        lmux,sig,tau,ppi,hsozz,hsopm)
-    use m_lmfinit,only: n0,nab
     !- Augmentation part of sig and tau and ppi, loc. orbitals (spher. pot)
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -1362,7 +1366,7 @@ contains
     !u Updates
     !u   27 Aug 01 Extended to local orbitals.  Altered argument list.
     ! ----------------------------------------------------------------------
-         implicit none
+    implicit none
     integer :: lmx1,lmx2,lmxa,nf1,nf1s,nf2,nf2s,nlml,nlx1,nlx2
     integer :: lx1(nf1),lx2(nf2),jcg(1),indxcg(1)
     double precision :: vum(0:lmxa,0:lmxa,nlml,6), &

@@ -3,17 +3,26 @@ module m_augmat !- Make augmentation matrices sig,tau,pi for one site
   private
 contains
   subroutine augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax &
-       , nlml , a , nr , nsp , lso , rofi , rwgt & 
+       , nlml , a , nr , nsp , lso , rwgt  & !rofi,
        , v0 , v1 , v2 , gpotb , gpot0 , nkaph , nkapi , lmxh , lh , &
-       eh , rsmh , ehl , rsml , rs3 , vmtz ,  lmaxu , vorb ,  &
-       lldau , iblu , idu, &
-       sv_p_osig, sv_p_otau, sv_p_oppi, ohsozz,ohsopm, ppnl, hab, vab, sab)
-    use m_lmfinit,only: n0,nkap0,nppn,nab
+       eh , rsmh , ehl , rsml , rs3 , vmtz ,  lmaxu , vorb , lldau, idu, &
+       iblu,&
+       osig, otau, oppi, ohsozz,ohsopm, ppnl, hab, vab, sab)
+    use m_lmfinit,only: n0,nkap0,nppn,nab,nrmx
     use m_struc_def, only: s_rv1,s_cv1,s_sblock
-    use m_gaugm,only: gaugm
+    use m_gaugm,only:  gaugm
     use m_potpus,only: potpus
     !- Make augmentation matrices sig,tau,pi for one site
     ! ----------------------------------------------------------------------
+    !o Outputs
+    !o   osig  :augmentation overlap integrals; see Remarks.
+    !o   otau  :augmentation kinetic energy integrals; see Remarks.
+    !o   oppi  :augmentation kinetic + potential integrals; see Remarks.
+    !o   ppnl  :NMTO potential parameters
+    !o   hab   :matrix elements of the ham. with true w.f.  See Remarks.
+    !o   vab   :matrix elements of the pot. with true w.f.  See Remarks.
+    !o   sab   :matrix elements of    unity with true w.f.  See Remarks.
+    !o   hsozz,hsopm !spin orbit integrals
     !i Inputs
     !i   lso   :if nonzero, calculate radial spin-orbit integrals
     !i   z     :nuclear charge
@@ -69,21 +78,13 @@ contains
     ! o  iblu  :index to current LDA+U block
     ! o        :On input, index to last LDA+U block that was accessed
     ! o        :iblu will be incremented to from blocks at this site
-    ! o  rofi  :radial mesh points.  On input, rofi(1..nr) are made.
-    ! o        :if V is to be extrapolated outside its MT sphere, to
-    ! o        :V(1..nrbig), rofi(nr+1,nrbig) are also generated
-    ! o        :Thus MUST be dimensioned at least rofi(1..nrbig)
-    ! o        :nrbig is internally generated, but will not
-    ! o        :exceed parameter nrx defined vxtrap.
-    !o Outputs
-    !o   osig  :augmentation overlap integrals; see Remarks.
-    !o   otau  :augmentation kinetic energy integrals; see Remarks.
-    !o   oppi  :augmentation kinetic + potential integrals; see Remarks.
-    !o   ppnl  :NMTO potential parameters
-    !o   hab   :matrix elements of the ham. with true w.f.  See Remarks.
-    !o   vab   :matrix elements of the pot. with true w.f.  See Remarks.
-    !o   sab   :matrix elements of    unity with true w.f.  See Remarks.
-    !o   hsozz,hsopm
+    !
+    ! l  rofi  :radial mesh points.  rofi(1..nr) are made at first by radmsh.
+    ! l        :if V is to be extrapolated outside its MT sphere, to
+    ! l        :V(1..nrbig), rofi(nr+1,nrbig) are also generated
+    ! l        :Thus MUST be dimensioned at least rofi(1..nrbig)
+    ! l        :nrbig is internally generated, but will not
+    ! l        :exceed parameter nrx defined vxtrap.
     !r Remarks
     !r   This subroutine implements the computation of matrices
     !r   sigma, tau, ppi that comprise the local (augmented) part of
@@ -336,18 +337,18 @@ contains
     !     Generally speaking, we may need to calculate all blocks ohsozz%soffd, ohsopm%sdiag, ohsopp
 
     implicit none
-    type(s_cv1) :: sv_p_oppi(3)
+    type(s_cv1) :: oppi(3)
     type(s_sblock):: ohsozz(3),ohsopm(3)
-    type(s_rv1) :: sv_p_otau(3)
-    type(s_rv1) :: sv_p_osig(3)
+    type(s_rv1) :: otau(3)
+    type(s_rv1) :: osig(3)
     real(8):: ppnl(nppn,n0,2), hab(nab,n0,nsp),vab(nab,n0,nsp),sab(nab,n0,nsp)
 
     integer :: lmxa,kmax,nlml,nr,nsp,nkaph,nkapi,lmxh,lso, lmaxu,lldau,iblu,idu(4)
-    integer::  lh(nkap0), k,ll,lmxl,nlma,nlmh,i, lxa(0:kmax)
-    real(8):: z,rmt,rsma,a,rofi(nr),rwgt(nr),v0(nr,nsp), pnu(n0,nsp),pnz(n0,nsp),&
+    integer::  lh(nkap0), k,ll,lmxl,nlma,nlmh,i, lxa(0:kmax),kmax1
+    real(8):: z,rmt,rsma,a,rofi(nrmx),rwgt(nr),v0(nr,nsp), pnu(n0,nsp),pnz(n0,nsp),&
          v1(nr,nlml,nsp),v2(nr,nlml,nsp),gpot0(nlml),gpotb(nlml), &
          eh(n0,nkaph),rsmh(n0,*),ehl(n0),rsml(n0), rs3,vmtz,&
-         pp(n0,2,5), vdif(nr*nsp),sodb(nab,n0,nsp,2), &
+         pp(n0,2,5), vdif(nr,nsp),sodb(nab,n0,nsp,2), &
          vum((lmxa+1)**2*nlml*6*nsp), &
          fh(nr*(lmxh+1)*nkap0),xh(nr*(lmxh+1)*nkap0), &
          vh((lmxh+1)*nkap0),fp(nr*(lmxa+1)*(kmax+1)), &
@@ -358,21 +359,21 @@ contains
     real(8),allocatable:: qum(:)
     real(8),parameter:: pi   = 4d0*datan(1d0),  y0   = 1d0/dsqrt(4d0*pi)
     call tcn('augmat')
+    call radmsh(rmt,a,nr,rofi)
     do  k = 1, lmxh+1 ! check; see description of rsmh above
-       if (pnz(k,1) /= 0 .AND. pnz(k,1) < 10 .AND. rsmh(k,nkapi+1) /= 0) &
+       if(pnz(k,1) /= 0 .AND. pnz(k,1) < 10 .AND. rsmh(k,nkapi+1) /= 0) &
             call rx1('augmat: illegal value for rsmh',rsmh(k,nkapi+1))
     enddo
     nlma = (lmxa+1)**2
     lmxl = ll(nlml)
     lxa=lmxa
-    allocate(qum((lmxa+1)**2*(lmxl+1)*6*nsp))
-    do  i = 1, nsp
-       vdif(1+nr*(i-1):1+nr*i)= y0*v1(1:nr,1,i) - v0(1:nr,i)
-    enddo
+    vdif(1:nr,1:nsp) = y0*v1(1:nr,1,1:nsp) - v0(1:nr,1:nsp)
+    !vdif= extra part of spherical potential for deterimning radial function
     ! --- Make hab,vab,sab and potential parameters pp ---
     call potpus(z,rmt,lmxa,v0,vdif,a,nr,nsp,lso,rofi,pnu,pnz,ehl,rsml, &
          rs3,vmtz,nab,n0,ppnl,hab,vab,sab,sodb)
     ! --- Moments and potential integrals of ul*ul, ul*sl, sl*sl ---
+    allocate(qum((lmxa+1)**2*(lmxl+1)*6*nsp))
     call momusl(z,rmt,lmxa,pnu,pnz,rsml,ehl,lmxl,nlml,a,nr,nsp,rofi, &
          rwgt,v0,v1,qum,vum)
     ! --- Set up all radial head and tail functions, and their BC's ---
@@ -382,27 +383,28 @@ contains
     call fradpk(kmax,rsma,lmxa,nr,rofi,fp,xp,vp,dp)
     ! LDA+U: rotate vorb from (phi,phidot) to (u,s) for all l with U at this site and store in vumm
     if (lldau > 0) call vlm2us(lmaxu,rmt,idu,lmxa,iblu,vorb,ppnl,vumm)
-    ! ... Pkl*Pkl !tail x tail
-    call gaugm ( nr , nsp , lso , rofi , rwgt , lmxa , lmxl &
-         , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , &
-         vum , kmax + 1 , kmax + 1 , lmxa , lxa , &
-         fp , xp , vp , dp , kmax + 1 , kmax + 1 , lmxa , lxa , fp , xp, vp , dp , lmxa , &
-         sv_p_osig(1)%v , sv_p_otau (1)%v , nlma , nlma , &
-         sv_p_oppi(1)%cv,ohsozz(1)%sdiag,ohsopm(1)%soffd , lmaxu , vumm , lldau , idu )
-    ! ... Hsm*Pkl !head x tail
-    call gaugm ( nr , nsp , lso ,  rofi , rwgt , lmxa , lmxl &
-         , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , &
-         vum , nkaph , nkapi , lmxh , lh , fh , xh &
-         , vh , dh , kmax + 1 , kmax + 1 , lmxa , lxa , fp , xp , vp , dp , lmxh , &
-         sv_p_osig(2)%v , sv_p_otau(2) %v , nlmh , nlma, &
-         sv_p_oppi(2)%cv,ohsozz(2)%sdiag,ohsopm(2)%soffd, lmaxu , vumm , lldau , idu )
-    ! ... Hsm*Hsm !head x head
-    call gaugm ( nr , nsp , lso ,  rofi , rwgt , lmxa , lmxl &
-         , nlml , v2 , gpotb , gpot0 , hab , vab , sab , sodb , qum , &
-         vum , nkaph , nkapi , lmxh , lh , fh , xh &
-         , vh , dh , nkaph , nkapi , lmxh , lh , fh , xh , vh , dh , lmxh, &
-         sv_p_osig(3)%v, sv_p_otau(3)%v, nlmh,nlmh, &
-         sv_p_oppi(3)%cv,ohsozz(3)%sdiag,ohsopm(3)%soffd, lmaxu , vumm , lldau , idu )
+    !...Pkl*Pkl !tail x tail
+    kmax1=kmax+1
+    call gaugm(nr,nsp,lso,rofi,rwgt,lmxa,lmxl,nlml,v2,gpotb,gpot0,hab,vab,sab,sodb,qum,vum,&
+         lmaxu,vumm,lldau,idu,&
+         lmxa,&
+         kmax1,kmax1,lmxa,lxa,nlma, fp,xp,vp,dp,&
+         kmax1,kmax1,lmxa,lxa,nlma, fp,xp,vp,dp,&
+         osig(1)%v, otau(1)%v, oppi(1)%cv, ohsozz(1)%sdiag, ohsopm(1)%soffd)
+    !...Hsm*Pkl! head x tail
+    call gaugm(nr,nsp,lso,rofi,rwgt,lmxa,lmxl,nlml,v2,gpotb,gpot0,hab,vab,sab,sodb,qum,vum,&
+         lmaxu,vumm,lldau,idu,&
+         lmxh,&
+         nkaph,nkapi,lmxh,lh, nlmh, fh,xh,vh,dh,&
+         kmax1,kmax1,lmxa,lxa,nlma, fp,xp,vp,dp,&
+         osig(2)%v, otau(2)%v, oppi(2)%cv, ohsozz(2)%sdiag, ohsopm(2)%soffd)
+    !...Hsm*Hsm! head x head
+    call gaugm(nr,nsp,lso,rofi,rwgt,lmxa,lmxl,nlml,v2,gpotb,gpot0,hab,vab,sab,sodb,qum,vum,&
+         lmaxu,vumm,lldau,idu,&
+         lmxh,&
+         nkaph,nkapi,lmxh,lh,nlmh, fh,xh,vh,dh,&
+         nkaph,nkapi,lmxh,lh,nlmh, fh,xh,vh,dh,&
+         osig(3)%v, otau(3)%v, oppi(3)%cv, ohsozz(3)%sdiag, ohsopm(3)%soffd)
     call tcx('augmat')
   end subroutine augmat
   subroutine momusl(z,rmt,lmxa,pnu,pnz,rsml,ehl,lmxl,nlml,a,nr,nsp, rofi,rwgt,v0,v1,qum,vum)
