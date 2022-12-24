@@ -216,24 +216,37 @@ program gwinit_v2
                  nunocc = 1
                  nocc=0
                  ! s
-                 if(lx==0) nocc = 1
-                 if(lx==0.and.pq==1.and.zc>2.5 ) nunocc= 0
-                 if(lx==0.and.pq==2.and.zc>18.5) nunocc= 0
-                 if(lx==0.and.pq==3.and.zc>36.5) nunocc= 0
-                 if(lx==0.and.pq==4.and.zc>54.5) nunocc= 0
+                 if(lx==0.and.pq==2.and.zc>1.5)  nocc= 1
+                 if(lx==0.and.pq==3.and.zc>4.5)  nocc= 1 !sp boundary
+                 if(lx==0.and.pq==4.and.zc>12.5) nocc= 1
+                 if(lx==0.and.pq==5.and.zc>30.5) nocc= 1
+                 if(lx==0.and.pq==6.and.zc>48.5) nocc= 1
+                 if(lx==0.and.pq==7.and.zc>80.5) nocc= 1
+                 if(lx==0.and.pq==2.and.zc>10.5) nunocc= 0 !Ne+
+                 if(lx==0.and.pq==3.and.zc>18.5) nunocc= 0
+                 if(lx==0.and.pq==4.and.zc>36.5) nunocc= 0
+                 if(lx==0.and.pq==5.and.zc>54.5) nunocc= 0
+                 if(lx==0.and.pq==6.and.zc>86.5) nunocc= 0
                  ! p
-                 if(lx==1) nocc = 1
-                 if(lx==1.and.pq==2.and.zc>18.5) nunocc= 0
-                 if(lx==1.and.pq==3.and.zc>36.5) nunocc= 0
-                 if(lx==1.and.pq==4.and.zc>54.5) nunocc= 0
+                 if(lx==1.and.pq==2.and.zc>1.5)  nocc= 1
+                 if(lx==1.and.pq==3.and.zc>4.5)  nocc= 1
+                 if(lx==1.and.pq==4.and.zc>12.5) nocc= 1
+                 if(lx==1.and.pq==5.and.zc>30.5) nocc= 1
+                 if(lx==1.and.pq==6.and.zc>48.5) nocc= 1
+                 if(lx==1.and.pq==7.and.zc>80.5) nocc= 1
+                 if(lx==1.and.pq==2.and.zc>10.5) nunocc= 0
+                 if(lx==1.and.pq==3.and.zc>18.5) nunocc= 0
+                 if(lx==1.and.pq==4.and.zc>36.5) nunocc= 0
+                 if(lx==1.and.pq==5.and.zc>54.5) nunocc= 0
+                 if(lx==1.and.pq==6.and.zc>86.5) nunocc= 0
                  ! d occupied
-                 if(lx==2 .and. zc >20.5 .and. pq==3 ) nocc=1 !3d
+                 if(lx==2 .and. zc >20.5 .and. pq==3 ) nocc=1 !3d sd boundary
                  if(lx==2 .and. zc >38.5 .and. pq==4 ) nocc=1 !4d
                  if(lx==2 .and. zc >56.5 .and. pq==5 ) nocc=1 !5d
                  if(lx==2 .and. zc >30.5 .and. pq==3 ) nunocc=0 !3d completely filled for Zn< zc
                  if(lx==2 .and. zc >48.5 .and. pq==4 ) nunocc=0 !4d 
                  ! f occupied
-                 if(lx==3 .and. zc >57.5 .and. pq==4 ) nocc=1 !4f
+                 if(lx==3 .and. zc >57.5 .and. pq==4 ) nocc=1 !4f La+
                  if(lx==3 .and. zc >89.5 .and. pq==5 ) nocc=1 !5f
                  if(lx==2 .and. zc >71.5 .and. pq==4 ) nunocc=0 !4f completely filled.
                  ! g or more
