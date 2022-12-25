@@ -13,6 +13,21 @@ contains
     use m_lmfinit,only: cg=>rv_a_ocg,jcg=>iv_a_ojcg,indxcg=>iv_a_oidxcg
     use m_lgunit,only: stdo
     !- Generic routine to make augmentation matrices
+    !o Outputs
+    !o   sig   :augmentation overlap integrals; see Remarks.
+    !o   tau   :augmentation kinetic energy integrals
+    !o   ppi   :augmentation potential integrals
+    !o         :NB: tau is added to pi, so ppi = (kinetic energy + potential)
+    !o         :ppi is returned complex (lcplxp=1)
+    !o         :In the noncollinear case:
+    !o         :ppi(:,:,:,:,isp,1,1) = spin-diagonal part of potential ! last argment=2 means impart or work area?, a little confusing.
+    !o         :ppi(:,:,:,:,1,2,1) = up-down   (12) block of potential
+    !o         :ppi(:,:,:,:,2,2,1) = down-down (21) block of potential
+    !o         :In the SO case: the SO hamiltonian is added to ppi
+    !o         :and also stored in ppi(:,:,:,:,:,:,2)
+    !o    hsozz(:,:,:,:,isp) = SO diagonal  part of potential
+    !o    hsopm(:,:,:,:,1) = SO L-S+ up-down   (12) block of potential
+    !o    hsopm(:,:,:,:,2) = SO L+S- down-down (21) block of potential
     ! ----------------------------------------------------------------------
     !i Inputs
     !i   nr    :number of radial mesh points
@@ -74,26 +89,10 @@ contains
     !i   lldau :lldau=0 => no U on this site otherwise
     !i         :U on this site
     !i   idu   :idu(l+1)=1 => this l has a nonlocal U matrix
-    !o Outputs
-    !o   sig   :augmentation overlap integrals; see Remarks.
-    !o   tau   :augmentation kinetic energy integrals
-    !o   ppi   :augmentation potential integrals
-    !o         :NB: tau is added to pi, so ppi = (kinetic energy + potential)
-    !o         :ppi is returned complex (lcplxp=1)
-    !o         :In the noncollinear case:
-    !o         :ppi(:,:,:,:,isp,1,1) = spin-diagonal part of potential ! last argment=2 means impart or work area?, a little confusing.
-    !o         :ppi(:,:,:,:,1,2,1) = up-down   (12) block of potential
-    !o         :ppi(:,:,:,:,2,2,1) = down-down (21) block of potential
-    !o         :In the SO case: the SO hamiltonian is added to ppi
-    !o         :and also stored in ppi(:,:,:,:,:,:,2)
     !l Local variables
     !l   ppi0  :contribution to ppi from spherical part of potential
     !l   qm    :multipole moments; see Remarks
-    !l   hso   :matrix elements of SO hamiltonian inside sphere; see Remarks
-    !l         :hso(:,:,:,:,isp,1) = spin-diagonal part of potential
-    !l         :hso(:,:,:,:,1,2)   = up-down   (12) block of potential
-    !l         :hso(:,:,:,:,2,2)   = down-down (21) block of potential
-    !l         :On exit, hso is added to ppi; see ppi
+    !xxxxl         :On exit, hso is added to ppi; see ppi
     !r Remarks
     !r   This subroutine assembles the various terms in the computation of
     !r   sigma, tau, pi that comprise the local (augmented) part of the
@@ -205,7 +204,7 @@ contains
          nf1,nf1s,lmx1,nlx1,lx1(nf1),nf2,nf2s,lmx2,nlx2,lx2(nf2)
     integer :: lmaxu,lldau,idu(4)
     double complex vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,nab,2,0:lmaxu)
-    double precision :: rofi(nr),rwgt(nr),vsm(nr,nlml,nsp), &
+    real(8) :: rofi(nr),rwgt(nr),vsm(nr,nlml,nsp), &
          qum(0:lmxa,0:lmxa,0:lmxl,6,nsp),gpotb(1),gpot0(1), &
          hab(nab,n0,nsp),vab(nab,n0,nsp),sab(nab,n0,nsp), &
          f1(nr,0:lmx1,nf1s),v1(0:lmx1,nf1s),d1(0:lmx1,nf1s), &
@@ -213,26 +212,40 @@ contains
          x1(nr,0:lmx1,nf1s),x2(nr,0:lmx2,nf2s), &
          sig(nf1,nf2,0:lmux,nsp),tau(nf1,nf2,0:lmux,nsp),vum(0:lmxa,0:lmxa,nlml,6,nsp)
     double precision :: sodb(nab,n0,nsp,2) !Spin-Orbit related
-    integer :: ilm1,ilm2
-    integer :: i1,i2,ilm,l,ll,nlm,nlm1,nlm2,i,iprint
+    integer :: ilm1,ilm2,ix
+    integer :: i1,i2,ilm,l,ll,nlm,nlm1,nlm2,i,iprint,ii
     real(8),parameter:: pi= 4d0*datan(1d0),y0= 1d0/dsqrt(4d0*pi)
-    real(8):: vsms(nr),ppi0(nf1*nf2*(lmux+1)), &
-         qm(nf1*nf2*(lmx1+1)*(lmx2+1)*(lmxl+1)), sum((lmx1+1)*(lmx2+1)*nlml)
+    real(8):: vsms(nr),ppi0(nf1,nf2,0:lmux), &
+         qm(nf1*nf2*(lmx1+1)*(lmx2+1)*(lmxl+1)), ssum((lmx1+1)*(lmx2+1)*nlml)
     complex(8),allocatable:: hso(:,:,:,:,:,:),ppiz(:,:,:,:,:)
     complex(8):: ppi  (nf1,nf2,nlx1,nlx2,nsp)
     complex(8):: hsozz(nf1,nf2,nlx1,nlx2,nsp)
     complex(8):: hsopm(nf1,nf2,nlx1,nlx2,nsp) !offdiag parts for <isp|ispo> (see sodb(*,2))
-    real(8)::   ppir(nf1,nf2,nlx1,nlx2,nsp)
+    real(8)::   ppir(nf1,nf2,nlx1,nlx2,nsp),mmm
     allocate(ppiz(nf1,nf2,nlx1,nlx2,nsp))
     if(lso/=0)  hsozz=0d0
     if(lso/=0)  hsopm=0d0
     if(lldau/=0) ppiz=0d0
     ppir=0d0
+    sig=0d0 
+    tau=0d0 
+    ppi0=0d0 
     do i = 1, nsp
        vsms=y0*vsm(1:nr,1,i)!Spherical part of the smooth potential
        ! --- Make sig, tau, ppi0 = spherical part of ppi ---
-       call pvagm2(nf1,lmx1,lx1,f1,x1,nf2,lmx2,lx2,f2,x2, & ! smooth f1^*f2^ part of sig and corresponding tau, ppi0
-            nr,rofi,rwgt,vsms,lmux,sig(1,1,0,i),tau(1,1,0,i),ppi0)
+!       call pvagm2(nf1,lmx1,lx1,f1,x1,nf2,lmx2,lx2,f2,x2, & 
+!            nr,rofi,rwgt,vsms,lmux,sig(1,1,0,i),tau(1,1,0,i),ppi0)
+       do i1 =1,nf1 ! smooth f1^*f2^ part of sig and corresponding tau, ppi0
+          do i2=1,nf2
+             do l=0,min0(lx1(i1),lx2(i2)) !lmax
+                sig(i1,i2,l,i)= sum([(rwgt(ii)*f1(ii,l,i1)*f2(ii,l,i2), ii=2,nr)])
+                ppi0(i1,i2,l) = sum([(rwgt(ii)*f1(ii,l,i1)*f2(ii,l,i2)*vsms(ii), ii=2,nr)])
+                tau(i1,i2,l,i)= sum([(rwgt(ii)*x1(ii,l,i1)*x2(ii,l,i2), ii=2,nr)]) &
+                     + l*(l+1)* sum([(rwgt(ii)*f1(ii,l,i1)*f2(ii,l,i2)/rofi(ii)**2, ii=2,nr)]) &
+                     - f1(nr,l,i1)*x2(nr,l,i2)
+             enddo
+          enddo
+       enddo
        call pvagm1(nf1,nf1s,lmx1,lx1,nlx1,v1,d1,i, & !f1~f2~ part of sig and corresponding tau,ppi0 for orbitals constructed out of (u,s)
             nf2,nf2s,lmx2,lx2,nlx2,v2,d2,lso, &
             hab(1,1,i),vab(1,1,i),sab(1,1,i), &
@@ -245,9 +258,10 @@ contains
             sodb(1,1,i,1),sodb(1,1,i,2), &
             lmux,sig(1,1,0,i),tau(1,1,0,i),ppi0, &
             hsozz(1,1,1,1,i),hsopm(1,1,1,1,i))
+       
        ! --- Contribution to ppi from non-spherical potential ---
        call paug2(nr,nlml,vsm(1,1,i),rwgt,cg,jcg,indxcg,nf1,nf1,lmx1, & !smooth integral f1^ (-vsm) f2^ for nonspherical part of vsm
-            lx1,f1,nf2,nf2,lmx2,lx2,f2,sum,nlx1,nlx2,ppir(1,1,1,1,i))   !Also include local orbitals; require f=0 if no smooth part.
+            lx1,f1,nf2,nf2,lmx2,lx2,f2,ssum,nlx1,nlx2,ppir(1,1,1,1,i))   !Also include local orbitals; require f=0 if no smooth part.
        call paug1(nf1,nf1s,lmx1,lx1,v1,d1,nf2,nf2s,lmx2,lx2,v2,d2,lmxa, & ! integral f1~ vtrue f2~ for nonspherical part of vtrue
             nlml,cg,jcg,indxcg,vum(0,0,1,1,i),nlx1,nlx2,ppir(1,1,1,1,i))
        ! --- Moments qm = (f1~*f2~ - f1^*f2^) r^m Y_m ---
@@ -390,7 +404,7 @@ contains
     double complex hsozz(nf1,nf2,nlx1,nlx2),hsopm(nf1,nf2,nlx1,nlx2)
     integer :: i1,i2,lmax1,lmax2,lmax,l
     integer :: m1,m2,l1,l2,lso
-    double complex img
+    complex(8),parameter:: img=(0d0,1d0)
     do  i1 = 1, nf1s
        do  i2 = 1, nf2s
           do  l = 0, min0(lx1(i1),lx2(i2))
@@ -406,27 +420,29 @@ contains
     ! ... Spin-Orbit matrix elements in real harmonics.
     !     This is LxSx+LySy part
     if (lso /= 0) then
-       img = dcmplx(0d0,1d0)
-       call dpzero(tmp,   nf1*nf2*nlx1*nlx2)
-       call dpzero(hsopm, nf1*nf2*nlx1*nlx2*2)
-       call dpzero(hsozz, nf1*nf2*nlx1*nlx2*2)
+       tmp=0d0 
+       hsopm=0d0
+       hsozz=0d0
     endif
     if (lso == 1) then
-       do  i1 = 1, nf1s
-          do  i2 = 1, nf2s
+       i1loop: do  i1 = 1, nf1s
+          i2loop: do  i2 = 1, nf2s
              lmax1 = lx1(i1)
              lmax2 = lx2(i2)
              lmax = min0(lmax1,lmax2)
              l1 = 0
              l2 = 0
-             do  l = 0, lmax
-                do  m1 = -l, l
+             lloop: do  l = 0, lmax
+                m1loop: do  m1 = -l, l
                    l1 = l1 + 1
                    if (m1 >= (-l+1)) l2 = l2 - (2*l + 1)
-                   do  m2 = -l, l
+                   m2loop: do  m2 = -l, l
                       l2 = l2 + 1
                       a1 = dsqrt(dble((l-abs(m2))*(l+abs(m2)+1)))
                       a2 = dsqrt(dble((l+abs(m2))*(l-abs(m2)+1)))
+                      !vd1= [v1(l,i1),d1(l,i1)]
+                      !vd2= [v2(l,i2),d2(l,i2)]
+                      !tmp(i1,i2,l1,l2)= sum(vd2*matmul(reshape(sondb(1:4,l),[2,2]),vd1))
                       tmp(i1,i2,l1,l2) = &
                            ( v1(l,i1)*sondb(1,l)*v2(l,i2) &
                            + v1(l,i1)*sondb(2,l)*d2(l,i2) &
@@ -434,202 +450,100 @@ contains
                            + d1(l,i1)*sondb(4,l)*d2(l,i2))
                       !         ... Spin up-down block <l,m|L-|l,m'>
                       if (isp == 1) then
-                         !             Case A
-                         if (abs(m2) > 1 .AND. (abs(m2)+1) <= l) then
+                         if (abs(m2) > 1 .AND. (abs(m2)+1) <= l) then !             Case A
                             if (m2 > 0) then
-                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2) = &
-                                    (-1)**(2*m2-1)*a2*0.5d0*tmp(i1,i2,l1,l2)
-
-                               if ((abs(m2)-1) == -m1) hsopm(i1,i2,l1,l2) = &
-                                    img*(-1)**(2*m2-1)*a2*0.5d0*tmp(i1,i2,l1,l2)
-
-                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2) = &
-                                    a1*0.5d0*tmp(i1,i2,l1,l2)
-
-                               if ((abs(m2)+1) == -m1) hsopm(i1,i2,l1,l2) = &
-                                    -img*a1*0.5d0*tmp(i1,i2,l1,l2)
-
+                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2)=     (-1)**(2*m2-1)*a2*0.5d0*tmp(i1,i2,l1,l2)
+                               if ((abs(m2)-1) ==-m1) hsopm(i1,i2,l1,l2)= img*(-1)**(2*m2-1)*a2*0.5d0*tmp(i1,i2,l1,l2)
+                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2)=     a1*0.5d0*tmp(i1,i2,l1,l2)
+                               if ((abs(m2)+1) ==-m1) hsopm(i1,i2,l1,l2)=-img*a1*0.5d0*tmp(i1,i2,l1,l2)
                             else
-
-                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2) = &
-                                    -img*(-1)**(2*m2-1)*a2*0.5d0*tmp(i1,i2,l1,l2)
-
-                               if ((abs(m2)-1) == -m1) hsopm(i1,i2,l1,l2) = &
-                                    (-1)**(2*m2-1)*a2*0.5d0*tmp(i1,i2,l1,l2)
-
-                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2) = &
-                                    img*a1*0.5d0*tmp(i1,i2,l1,l2)
-
-                               if ((abs(m2)+1) == -m1) hsopm(i1,i2,l1,l2) = &
-                                    a1*0.5d0*tmp(i1,i2,l1,l2)
+                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2)=-img*(-1)**(2*m2-1)*a2*0.5d0*tmp(i1,i2,l1,l2)
+                               if ((abs(m2)-1) ==-m1) hsopm(i1,i2,l1,l2)=     (-1)**(2*m2-1)*a2*0.5d0*tmp(i1,i2,l1,l2)
+                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2)= img*a1*0.5d0*tmp(i1,i2,l1,l2)
+                               if ((abs(m2)+1) ==-m1) hsopm(i1,i2,l1,l2)=     a1*0.5d0*tmp(i1,i2,l1,l2)
                             endif
-
-                         endif
-
-                         !             Case B
-                         if (abs(m2) > 1 .AND. (abs(m2)+1) > l) then
-
+                         elseif (abs(m2) > 1 .AND. (abs(m2)+1) > l) then !             Case B
                             if (m2 > 0) then
-                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2) = &
-                                    (-1)**(2*m2+1)*a2*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)-1) == -m1) hsopm(i1,i2,l1,l2) = &
-                                    img*(-1)**(2*m2+1)*a2*0.5d0*tmp(i1,i2,l1,l2)
+                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2) =      (-1)**(2*m2+1)*a2*0.5d0*tmp(i1,i2,l1,l2)
+                               if ((abs(m2)-1) ==-m1) hsopm(i1,i2,l1,l2)=  img*(-1)**(2*m2+1)*a2*0.5d0*tmp(i1,i2,l1,l2)
                             endif
-
                             if (m2 < 0) then
-                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2) = &
-                                    -img*(-1)**(2*m2-1)*a2*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)-1) == -m1) hsopm(i1,i2,l1,l2) = &
-                                    (-1)**(2*m2-1)*a2*0.5d0*tmp(i1,i2,l1,l2)
+                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2) =  -img*(-1)**(2*m2-1)*a2*0.5d0*tmp(i1,i2,l1,l2)
+                               if ((abs(m2)-1) ==-m1) hsopm(i1,i2,l1,l2)=     (-1)**(2*m2-1)*a2*0.5d0*tmp(i1,i2,l1,l2)
                             endif
-
-                         endif
-
-                         !             Case C
-                         if (abs(m2) == 1 .AND. (abs(m2)+1) <= l) then
+                         elseif (abs(m2) == 1 .AND. (abs(m2)+1) <= l) then!             Case C
                             if (m2 > 0) then
-                               if (m1 == 0) hsopm(i1,i2,l1,l2) = &
-                                    (-1)**m2*a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2) = &
-                                    a1*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == -m1) hsopm(i1,i2,l1,l2) = &
-                                    -img*a1*0.5d0*tmp(i1,i2,l1,l2)
+                               if (m1 == 0) hsopm(i1,i2,l1,l2) =       (-1)**m2*a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
+                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2) =      a1*0.5d0*tmp(i1,i2,l1,l2)
+                               if ((abs(m2)+1) == -m1) hsopm(i1,i2,l1,l2)= -img*a1*0.5d0*tmp(i1,i2,l1,l2)
                             endif
-
                             if (m2 < 0) then
-                               if (m1 == 0) hsopm(i1,i2,l1,l2) = &
-                                    -img*(-1)**m2*a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2) = &
-                                    img*a1*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == -m1) hsopm(i1,i2,l1,l2) = &
-                                    a1*0.5d0*tmp(i1,i2,l1,l2)
+                               if (m1 == 0) hsopm(i1,i2,l1,l2) =           -img*(-1)**m2*a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
+                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2) =  img*a1*0.5d0*tmp(i1,i2,l1,l2)
+                               if ((abs(m2)+1) == -m1) hsopm(i1,i2,l1,l2)=     a1*0.5d0*tmp(i1,i2,l1,l2)
                             endif
-
-                         endif
-
-                         !             Case D
-                         if (abs(m2) == 1 .AND. (abs(m2)+1) > l) then
+                         elseif (abs(m2) == 1 .AND. (abs(m2)+1) > l) then!             Case D
                             if (m2 > 0) then
-                               if (m1 == 0) hsopm(i1,i2,l1,l2) = &
-                                    (-1)**m2*a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
+                               if (m1 == 0) hsopm(i1,i2,l1,l2) =       (-1)**m2*a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
                             endif
-
                             if (m2 < 0) then
-                               if (m1 == 0) hsopm(i1,i2,l1,l2) = &
-                                    -img*(-1)**m2*a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
+                               if (m1 == 0) hsopm(i1,i2,l1,l2) =  -img*(-1)**m2*a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
                             endif
+                         elseif (abs(m2) == 0) then!             Case m=0
+                            if (m1 == 1) hsopm(i1,i2,l1,l2  ) =       a1*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
+                            if (m1 == -1) hsopm(i1,i2,l1,l2) =    -img*a1*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
                          endif
-
-                         !             Case m=0
-                         if (abs(m2) == 0) then
-                            if (m1 == 1) hsopm(i1,i2,l1,l2) = &
-                                 a1*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
-                            if (m1 == -1) hsopm(i1,i2,l1,l2) = &
-                                 -img*a1*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
-                         endif
-
                          !         ... Spin down-up block ((2,1) block) <l,m|L+|l,m'>
                       else
-                         !               Case A
-                         if (abs(m2) > 1 .AND. (abs(m2)+1) <= l) then
-
+                         if (abs(m2) > 1 .AND. (abs(m2)+1) <= l) then!               Case A
                             if (m2 > 0) then
-                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2) = &
-                                    a2*0.5d0*tmp(i1,i2,l1,l2)
-
-                               if ((abs(m2)-1) == -m1) hsopm(i1,i2,l1,l2) = &
-                                    -img*a2*0.5d0*tmp(i1,i2,l1,l2)
-
-                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2) = &
-                                    (-1)**(2*m2+1)*a1*0.5d0*tmp(i1,i2,l1,l2)
-
-                               if ((abs(m2)+1) == -m1) hsopm(i1,i2,l1,l2) = &
-                                    img*(-1)**(2*m2+1)*a1*0.5d0*tmp(i1,i2,l1,l2)
-
+                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2) =   a2*0.5d0*tmp(i1,i2,l1,l2)
+                               if ((abs(m2)-1) == -m1) hsopm(i1,i2,l1,l2) =  -img*a2*0.5d0*tmp(i1,i2,l1,l2)
+                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2) =  (-1)**(2*m2+1)*a1*0.5d0*tmp(i1,i2,l1,l2)
+                               if ((abs(m2)+1) == -m1) hsopm(i1,i2,l1,l2) =   img*(-1)**(2*m2+1)*a1*0.5d0*tmp(i1,i2,l1,l2)
                             else
-
-                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2) = &
-                                    img*a2*0.5d0*tmp(i1,i2,l1,l2)
-
-                               if ((abs(m2)-1) == -m1) hsopm(i1,i2,l1,l2) = &
-                                    a2*0.5d0*tmp(i1,i2,l1,l2)
-
-                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2) = &
-                                    -img*a1*(-1)**(2*m2+1)*0.5d0*tmp(i1,i2,l1,l2)
-
-                               if ((abs(m2)+1) == -m1) hsopm(i1,i2,l1,l2) = &
-                                    (-1)**(2*m2+1)*a1*0.5d0*tmp(i1,i2,l1,l2)
+                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2) =  img*a2*0.5d0*tmp(i1,i2,l1,l2)
+                               if ((abs(m2)-1) == -m1) hsopm(i1,i2,l1,l2) =  a2*0.5d0*tmp(i1,i2,l1,l2)
+                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2) =  -img*a1*(-1)**(2*m2+1)*0.5d0*tmp(i1,i2,l1,l2)
+                               if ((abs(m2)+1) == -m1) hsopm(i1,i2,l1,l2) =      (-1)**(2*m2+1)*a1*0.5d0*tmp(i1,i2,l1,l2)
                             endif
-
-                         endif
-
-                         !               Case B
-                         if (abs(m2) > 1 .AND. (abs(m2)+1) > l) then
-
+                         elseif (abs(m2) > 1 .AND. (abs(m2)+1) > l) then !               Case B
                             if (m2 > 0) then
-                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2) = &
-                                    a2*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)-1) == -m1) hsopm(i1,i2,l1,l2) = &
-                                    -img*a2*0.5d0*tmp(i1,i2,l1,l2)
-                            endif
-
-                            if (m2 < 0) then
-                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2) = &
-                                    img*a2*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)-1) == -m1) hsopm(i1,i2,l1,l2) = &
-                                    a2*0.5d0*tmp(i1,i2,l1,l2)
-                            endif
-
-                         endif
-
-                         !               Case C
-                         if (abs(m2) == 1 .AND. (abs(m2)+1) <= l) then
-                            if (m2 > 0) then
-                               if (m1 == 0) hsopm(i1,i2,l1,l2) = &
-                                    a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2) = &
-                                    (-1)**(2*m2+1)*a1*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == -m1) hsopm(i1,i2,l1,l2) = &
-                                    img*(-1)**(2*m2+1)*a1*0.5d0*tmp(i1,i2,l1,l2)
-                            endif
-
-                            if (m2 < 0) then
-                               if (m1 == 0) hsopm(i1,i2,l1,l2) = &
-                                    img*a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2) = &
-                                    -img*(-1)**(2*m2+1)*a1*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == -m1) hsopm(i1,i2,l1,l2) = &
-                                    (-1)**(2*m2+1)*a1*0.5d0*tmp(i1,i2,l1,l2)
-                            endif
-
-                         endif
-
-                         !               Case D
-                         if (abs(m2) == 1 .AND. (abs(m2)+1) > l) then
-                            if (m2 > 0) then
-                               if (m1 == 0) hsopm(i1,i2,l1,l2) = &
-                                    a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
+                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2) =  a2*0.5d0*tmp(i1,i2,l1,l2)
+                               if ((abs(m2)-1) == -m1) hsopm(i1,i2,l1,l2)=     -img*a2*0.5d0*tmp(i1,i2,l1,l2)
                             endif
                             if (m2 < 0) then
-                               if (m1 == 0) hsopm(i1,i2,l1,l2) = &
-                                    img*a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
+                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2) =  img*a2*0.5d0*tmp(i1,i2,l1,l2)
+                               if ((abs(m2)-1) == -m1) hsopm(i1,i2,l1,l2)= a2*0.5d0*tmp(i1,i2,l1,l2)
                             endif
-                         endif
-                         !               Case m=0
-                         if (abs(m2) == 0) then
-                            if (m1 == 1) hsopm(i1,i2,l1,l2) = &
-                                 -a1*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
-                            if (m1 == -1) hsopm(i1,i2,l1,l2) = &
-                                 -img*a1*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
+                         elseif (abs(m2) == 1 .AND. (abs(m2)+1) <= l) then!               Case C
+                            if (m2 > 0) then
+                               if (m1 == 0) hsopm(i1,i2,l1,l2) =                a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
+                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2) =   (-1)**(2*m2+1)*a1*0.5d0*tmp(i1,i2,l1,l2)
+                               if ((abs(m2)+1) == -m1) hsopm(i1,i2,l1,l2)=  img*(-1)**(2*m2+1)*a1*0.5d0*tmp(i1,i2,l1,l2)
+                            endif
+                            if (m2 < 0) then
+                               if (m1 == 0) hsopm(i1,i2,l1,l2) =              img*a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
+                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2) =   -img*(-1)**(2*m2+1)*a1*0.5d0*tmp(i1,i2,l1,l2)
+                               if ((abs(m2)+1) == -m1) hsopm(i1,i2,l1,l2) =       (-1)**(2*m2+1)*a1*0.5d0*tmp(i1,i2,l1,l2)
+                            endif
+                         elseif (abs(m2) == 1 .AND. (abs(m2)+1) > l) then!               Case D
+                            if (m2 > 0) then
+                               if (m1 == 0) hsopm(i1,i2,l1,l2) =         a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
+                            endif
+                            if (m2 < 0) then
+                               if (m1 == 0) hsopm(i1,i2,l1,l2) =     img*a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
+                            endif
+                         elseif (abs(m2) == 0) then !               Case m=0
+                            if (m1 == 1) hsopm(i1,i2,l1,l2) =  -a1*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
+                            if (m1 == -1) hsopm(i1,i2,l1,l2)=  -img*a1*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
                          endif
                       endif
-                   enddo
-                   !         Ends loop over L
-                enddo
-             enddo
-             !       Ends loop over orbital pairs
-          enddo
-       enddo
+                   enddo m2loop
+                enddo m1loop
+             enddo lloop
+          enddo i2loop
+       enddo i1loop
     endif
     ! ... LzSz part
     if (lso /= 0) then
@@ -646,7 +560,6 @@ contains
                    if (m1 >= (-l+1)) l2 = l2 - (2*l + 1)
                    do  m2 = -l, l
                       l2 = l2 + 1
-
                       if (m1 /= 0 .AND. m2 /= 0) then
                          if (l1 < l2 .AND. m1 == -m2) then
                             hsozz(i1,i2,l1,l2) = abs(m1)* &
@@ -1067,93 +980,93 @@ contains
        enddo i2loop
     enddo i1loop
   end subroutine pvaglc
-  subroutine pvagm2(nf1,lmx1,lx1,f1,x1,nf2,lmx2,lx2,f2,x2, &
-       nr,rofi,rwgt,vsms,lmux,sig,tau,ppi)
-    !- Smooth part of sig, tau, ppi (spherical part of local smooth pot)
-    ! ----------------------------------------------------------------------
-    !i Inputs
-    !i   nf1   :number of 'bra' function types for each l
-    !i   lmx1  :dimensions f1
-    !i   lx1   :l-cutoffs for each of the nf1 functions
-    !i   f1    :'bra' unaugmented envelope fn (radial part * r).
-    !i         :Must be zero in channels that have no envelope functions.
-    !i         :See Remarks
-    !i   x1    :(radial derivative of 'bra' functions) * r = r*d(f1/r)/dr
-    !i   nf2   :number of 'ket' function types for each l
-    !i   lmx2  :dimensions f2
-    !i   lx2   :l-cutoffs for each of the nf2 functions
-    !i   f2    :'ket' unaugmented envelope fn (radial part . r).
-    !i         :Must be zero in channels that have no envelope functions
-    !i         :See Remarks.
-    !i   x2    :(radial derivative of 'ket' functions) * r = r*d(f2/r)/dr
-    !i   nr    :number of radial mesh points
-    !i   rofi  :radial mesh points
-    !i   rwgt  :radial mesh weights
-    !i   vsms  :spherical smooth potential V2~
-    !i   lmux  :maximum l for which to calculate sig,tau,ppi.
-    !i         :Usually min (largest lmx1, largest lmx2)
-    !o Outputs
-    !o   sig   :overlap matrix <f1 f2>, with f1,f2 on a radial mesh
-    !o   tau   :kinetic energy matrix <f1 -nabla f2>
-    !o         := <grad f1 grad f2> + l(l+1)< f1 r^-2 f2> + surface term
-    !o   ppi   :potential matrix integral <f1 vsms f2>, spherical part of vsms
-    !r Remarks
-    !r   This routine computes the matrix elements of smoothed functions
-    !r     <f1^ f2^>,  -<grad f1^ grad f2^>,   <f1^ (V2~_l=0) f2^>
-    !r   which correspond to the second term in Eq. 21 for overlap,
-    !    and the second half of the first term Eq. 29 of the
-    !r   Springer book chapter.  (pvagm2 computes only ppi matrix element
-    !r   for the spherical part of V2~).  Note that there are three
-    !r   flavors of sig,tau,ppi as described in the  Remarks in augmat.f:
-    !r        P op P     H op P      H op H
-    !r   with op = one of (1, -nabla, or V2~) and V2~ is the
-    !r   one-center repsn'f of the smooth potential.
-    !r   This routine makes one of these three; which one depends on
-    !r   the functions f1^,f2^ passed to pvagm2.
-    !r
-    !r   sig_kL,k'L' for k=1..nf1 and k'=1..nf2 is diagonal in LL' and
-    !r   depends only on l.  Only sig(nf1,nf2,0..l) is stored.  Ditto for
-    !r   tau and ppi (for spherical part of potential) treated here.
-    !r
-    !r   Formula for kinetic energy.  If f1=r*phi1, x1=r*phi1'  and
-    !r   f2=r*phi2,x2=r*phi2', the kinetic energy in the sphere to radius
-    !r   R for channel l, excluding angular part, is
-    !r     T_fg =  int_0^R (phi1) (-1/r d^2/dr^2) (r*phi2) r^2 dr
-    !r          = -int_0^R (r*phi1) (d^2/dr^2) (r*phi2) dr
-    !r          = -[(r phi1) d(r*phi2)/dr]_R
-    !r            +int_0^R d(r*phi1)/dr * d(r*phi2)/dr
-    !r          = -[r^2 phi1 dphi2/dr]_R + int_0^R r*(dphi1/dr)*r*(dphi2/dr)
-    !r          = -[f1*x2]_R + int_0^R r*x1 r*x2 dr
-    !r     The fourth step follows after some simple algebra.
-    !u Updates
-    !u   20 Jul 04 Added treatment for extended local orbitals.
-    !u             Envelopes f1,f2 must be zero for all channels that
-    !u             have no smooth counterparts to subtract.
-    ! ----------------------------------------------------------------------
-    implicit none
-    integer :: lmux,lmx1,lmx2,nf1,nf2,nr,lx1(nf1),lx2(nf2)
-    double precision :: rofi(nr),rwgt(nr),vsms(nr), &
-         f1(nr,0:lmx1,nf1),x1(nr,0:lmx1,nf1), &
-         f2(nr,0:lmx2,nf2),x2(nr,0:lmx2,nf2), &
-         ppi(nf1,nf2,0:lmux),sig(nf1,nf2,0:lmux),tau(nf1,nf2,0:lmux)
-    integer :: i1,i2,lmax1,lmax2,lmax,l,i
-    double precision :: ssum,sim,tum,vum,xbc
-    sig=0d0 !call dpzero(sig, nf1*nf2*(lmux+1))
-    tau=0d0 !call dpzero(tau, nf1*nf2*(lmux+1))
-    ppi=0d0 !call dpzero(ppi, nf1*nf2*(lmux+1))
-    do  i1 = 1, nf1
-       do  i2 = 1, nf2
-          do  l = 0, min0(lx1(i1),lx2(i2)) !lmax
-             sig(i1,i2,l) = sum([(rwgt(i)*f1(i,l,i1)*f2(i,l,i2),i=2,nr)])
-             ppi(i1,i2,l) = sum([(rwgt(i)*f1(i,l,i1)*f2(i,l,i2)*vsms(i),i=2,nr)])
-             sim  =  sum([(rwgt(i)*f1(i,l,i1)*f2(i,l,i2)/rofi(i)**2,i=2,nr)])
-             tum  =  sum([(rwgt(i)*x1(i,l,i1)*x2(i,l,i2),i=2,nr)])
-             xbc = f1(nr,l,i1) * x2(nr,l,i2)
-             tau(i1,i2,l) = tum + l*(l+1)*sim - xbc
-          enddo
-       enddo
-    enddo
-  end subroutine pvagm2
+  ! subroutine pvagm2(nf1,lmx1,lx1,f1,x1,nf2,lmx2,lx2,f2,x2, &
+  !      nr,rofi,rwgt,vsms,lmux,sig,tau,ppi)
+  !   !- Smooth part of sig, tau, ppi (spherical part of local smooth pot)
+  !   ! ----------------------------------------------------------------------
+  !   !i Inputs
+  !   !i   nf1   :number of 'bra' function types for each l
+  !   !i   lmx1  :dimensions f1
+  !   !i   lx1   :l-cutoffs for each of the nf1 functions
+  !   !i   f1    :'bra' unaugmented envelope fn (radial part * r).
+  !   !i         :Must be zero in channels that have no envelope functions.
+  !   !i         :See Remarks
+  !   !i   x1    :(radial derivative of 'bra' functions) * r = r*d(f1/r)/dr
+  !   !i   nf2   :number of 'ket' function types for each l
+  !   !i   lmx2  :dimensions f2
+  !   !i   lx2   :l-cutoffs for each of the nf2 functions
+  !   !i   f2    :'ket' unaugmented envelope fn (radial part . r).
+  !   !i         :Must be zero in channels that have no envelope functions
+  !   !i         :See Remarks.
+  !   !i   x2    :(radial derivative of 'ket' functions) * r = r*d(f2/r)/dr
+  !   !i   nr    :number of radial mesh points
+  !   !i   rofi  :radial mesh points
+  !   !i   rwgt  :radial mesh weights
+  !   !i   vsms  :spherical smooth potential V2~
+  !   !i   lmux  :maximum l for which to calculate sig,tau,ppi.
+  !   !i         :Usually min (largest lmx1, largest lmx2)
+  !   !o Outputs
+  !   !o   sig   :overlap matrix <f1 f2>, with f1,f2 on a radial mesh
+  !   !o   tau   :kinetic energy matrix <f1 -nabla f2>
+  !   !o         := <grad f1 grad f2> + l(l+1)< f1 r^-2 f2> + surface term
+  !   !o   ppi   :potential matrix integral <f1 vsms f2>, spherical part of vsms
+  !   !r Remarks
+  !   !r   This routine computes the matrix elements of smoothed functions
+  !   !r     <f1^ f2^>,  -<grad f1^ grad f2^>,   <f1^ (V2~_l=0) f2^>
+  !   !r   which correspond to the second term in Eq. 21 for overlap,
+  !   !    and the second half of the first term Eq. 29 of the
+  !   !r   Springer book chapter.  (pvagm2 computes only ppi matrix element
+  !   !r   for the spherical part of V2~).  Note that there are three
+  !   !r   flavors of sig,tau,ppi as described in the  Remarks in augmat.f:
+  !   !r        P op P     H op P      H op H
+  !   !r   with op = one of (1, -nabla, or V2~) and V2~ is the
+  !   !r   one-center repsn'f of the smooth potential.
+  !   !r   This routine makes one of these three; which one depends on
+  !   !r   the functions f1^,f2^ passed to pvagm2.
+  !   !r
+  !   !r   sig_kL,k'L' for k=1..nf1 and k'=1..nf2 is diagonal in LL' and
+  !   !r   depends only on l.  Only sig(nf1,nf2,0..l) is stored.  Ditto for
+  !   !r   tau and ppi (for spherical part of potential) treated here.
+  !   !r
+  !   !r   Formula for kinetic energy.  If f1=r*phi1, x1=r*phi1'  and
+  !   !r   f2=r*phi2,x2=r*phi2', the kinetic energy in the sphere to radius
+  !   !r   R for channel l, excluding angular part, is
+  !   !r     T_fg =  int_0^R (phi1) (-1/r d^2/dr^2) (r*phi2) r^2 dr
+  !   !r          = -int_0^R (r*phi1) (d^2/dr^2) (r*phi2) dr
+  !   !r          = -[(r phi1) d(r*phi2)/dr]_R
+  !   !r            +int_0^R d(r*phi1)/dr * d(r*phi2)/dr
+  !   !r          = -[r^2 phi1 dphi2/dr]_R + int_0^R r*(dphi1/dr)*r*(dphi2/dr)
+  !   !r          = -[f1*x2]_R + int_0^R r*x1 r*x2 dr
+  !   !r     The fourth step follows after some simple algebra.
+  !   !u Updates
+  !   !u   20 Jul 04 Added treatment for extended local orbitals.
+  !   !u             Envelopes f1,f2 must be zero for all channels that
+  !   !u             have no smooth counterparts to subtract.
+  !   ! ----------------------------------------------------------------------
+  !   implicit none
+  !   integer :: lmux,lmx1,lmx2,nf1,nf2,nr,lx1(nf1),lx2(nf2),ii
+  !   double precision :: rofi(nr),rwgt(nr),vsms(nr), &
+  !        f1(nr,0:lmx1,nf1),x1(nr,0:lmx1,nf1), &
+  !        f2(nr,0:lmx2,nf2),x2(nr,0:lmx2,nf2), &
+  !        ppi(nf1,nf2,0:lmux),sig(nf1,nf2,0:lmux),tau(nf1,nf2,0:lmux)
+  !   integer :: i1,i2,lmax1,lmax2,lmax,l,i
+  !   double precision :: ssum,sim,tum,vum,xbc
+  !   sig=0d0 !call dpzero(sig, nf1*nf2*(lmux+1))
+  !   tau=0d0 !call dpzero(tau, nf1*nf2*(lmux+1))
+  !   ppi=0d0 !call dpzero(ppi, nf1*nf2*(lmux+1))
+  !   do  i1 = 1, nf1
+  !      do  i2 = 1, nf2
+  !         do  l = 0, min0(lx1(i1),lx2(i2)) !lmax
+  !            sig(i1,i2,l) = sum([(rwgt(ii)*f1(ii,l,i1)*f2(ii,l,i2),ii=2,nr)])
+  !            ppi(i1,i2,l) = sum([(rwgt(ii)*f1(ii,l,i1)*f2(ii,l,i2)*vsms(ii),ii=2,nr)])
+  !            sim  =  sum([(rwgt(ii)*f1(ii,l,i1)*f2(ii,l,i2)/rofi(ii)**2,ii=2,nr)])
+  !            tum  =  sum([(rwgt(ii)*x1(ii,l,i1)*x2(ii,l,i2),ii=2,nr)])
+  !            xbc = f1(nr,l,i1) * x2(nr,l,i2)
+  !            tau(i1,i2,l) = tum + l*(l+1)*sim - xbc
+  !         enddo
+  !      enddo
+  !   enddo
+  ! end subroutine pvagm2
   subroutine pvagm3(nf1,nf1s,lmx1,lx1,f1,v1,d1,nf2,nf2s,lmx2,lx2,f2, &
        v2,d2,nr,rofi,rwgt,lmxa,qum,lmxl,qm)
     !- Moments of f1~*f2~ - f1*f2
@@ -1465,9 +1378,33 @@ contains
          cg(1),ssum(0:lmx1,0:lmx2,nlml)
     integer :: i1,i2,icg,ilm1,ilm2,ix,l1,l2,ll,mlm,nlm1,nlm2,i
     double precision :: sam
+    ! allocate(l1cou(
+    ! nnn=0
+    ! do  i1 = 1, nf1s ! Sum over CG coefficients, make radial integrals as needed
+    !    do  i2 = 1, nf2s
+    !       nlm1 = (lx1(i1)+1)**2
+    !       nlm2 = (lx2(i2)+1)**2
+    !       do  ilm1 = 1, nlm1
+    !          l1 = ll(ilm1)
+    !          do  ilm2 = 1, nlm2
+    !             l2 = ll(ilm2)
+    !             ix = max0(ilm1,ilm2)
+    !             ix = (ix*(ix-1))/2 + min0(ilm1,ilm2)
+    !             do icg = indxcg(ix),indxcg(ix+1)-1
+    !                mlm = jcg(icg)
+    !                if (mlm > 1 .AND. mlm <= nlml) then
+    !                   nnn=nnn+1
+    !                   l1cou(nnn,i1,i2)=l1
+    !                   l2cou(nnn,i1,i2)=l2
+    !                   mlmcou(nnn,i1,)=mlm
+    !                endif
+    !             enddo
+    !          enddo
+    !       enddo
+    !    enddo
+    ! enddo
     ppi=0d0 
-    ! ... Sum over CG coefficients, make radial integrals as needed
-    do  i1 = 1, nf1s
+    do  i1 = 1, nf1s ! Sum over CG coefficients, make radial integrals as needed
        do  i2 = 1, nf2s
           nlm1 = (lx1(i1)+1)**2
           nlm2 = (lx2(i2)+1)**2
@@ -1548,8 +1485,7 @@ contains
           nlm2 = (lx2(i2)+1)**2
           do  ilm1 = 1, nlm1
              l1 = ll(ilm1)
-             if (ilm1 <= nlm2) &
-                  ppi(i1,i2,ilm1,ilm1) = ppi(i1,i2,ilm1,ilm1) + ppi0(i1,i2,l1)
+             if (ilm1 <= nlm2) ppi(i1,i2,ilm1,ilm1) = ppi(i1,i2,ilm1,ilm1) + ppi0(i1,i2,l1)
              do  ilm2 = 1, nlm2
                 l2 = ll(ilm2)
                 ix = max0(ilm1,ilm2)
