@@ -206,7 +206,7 @@ contains
     double complex vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,nab,2,0:lmaxu)
     real(8) :: rofi(nr),rwgt(nr),vsm(nr,nlml,nsp), &
          qum(0:lmxa,0:lmxa,0:lmxl,6,nsp),gpotb(1),gpot0(1), &
-         hab(nab,n0,nsp),vab(nab,n0,nsp),sab(nab,n0,nsp), &
+         hab(3,3,n0,nsp),vab(3,3,n0,nsp),sab(3,3,n0,nsp), &
          f1(nr,0:lmx1,nf1s),v1(0:lmx1,nf1s),d1(0:lmx1,nf1s), &
          f2(nr,0:lmx2,nf2s),v2(0:lmx2,nf2s),d2(0:lmx2,nf2s), &
          x1(nr,0:lmx1,nf1s),x2(nr,0:lmx2,nf2s), &
@@ -248,13 +248,13 @@ contains
        enddo
        call pvagm1(nf1,nf1s,lmx1,lx1,nlx1,v1,d1,i, & !f1~f2~ part of sig and corresponding tau,ppi0 for orbitals constructed out of (u,s)
             nf2,nf2s,lmx2,lx2,nlx2,v2,d2,lso, &
-            hab(1,1,i),vab(1,1,i),sab(1,1,i), &
+            hab(1,1,1,i),vab(1,1,1,i),sab(1,1,1,i), &
             sodb(1,1,i,1),sodb(1,1,i,2),lmux, &
             sig(1,1,0,i),tau(1,1,0,i),ppi0, &
             hsozz(1,1,1,1,i),hsopm(1,1,1,1,i))  !  pvagm1: augm. f1~f2~ part of sig and corresponding tau,ppi0 for local orbitals
        call pvaglc(nf1,nf1s,lmx1,lx1,nlx1,v1,d1,i, &
             nf2,nf2s,lmx2,lx2,nlx2,v2,d2,lso, &
-            hab(1,1,i),vab(1,1,i),sab(1,1,i), &
+            hab(1,1,1,i),vab(1,1,1,i),sab(1,1,1,i), &
             sodb(1,1,i,1),sodb(1,1,i,2), &
             lmux,sig(1,1,0,i),tau(1,1,0,i),ppi0, &
             hsozz(1,1,1,1,i),hsopm(1,1,1,1,i))
@@ -395,7 +395,7 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     integer :: lmux,lmx1,lmx2,nf1,nf2,nf1s,nf2s,lx1(nf1),lx2(nf2), nlx1,nlx2,isp
-    double precision :: hab(nab,0:n0-1),sab(nab,0:n0-1),vab(nab,0:n0-1), &
+    double precision :: hab(3,3,0:n0-1),sab(3,3,0:n0-1),vab(3,3,0:n0-1), &
          v1(0:lmx1,nf1),d1(0:lmx1,nf1), &
          v2(0:lmx2,nf2),d2(0:lmx2,nf2), &
          sig(nf1,nf2,0:lmux),tau(nf1,nf2,0:lmux),ppi(nf1,nf2,0:lmux)
@@ -410,9 +410,9 @@ contains
           do  l = 0, min0(lx1(i1),lx2(i2))
              vd1= [v1(l,i1),d1(l,i1)]
              vd2= [v2(l,i2),d2(l,i2)]
-             sig(i1,i2,l)= -sig(i1,i2,l) + sum(vd2*matmul(reshape(sab(1:4,l)           ,[2,2]),vd1))
-             tau(i1,i2,l)= -tau(i1,i2,l) + sum(vd2*matmul(reshape(hab(1:4,l)-vab(1:4,l),[2,2]),vd1))
-             ppi(i1,i2,l)= -ppi(i1,i2,l) + sum(vd2*matmul(reshape(vab(1:4,l)           ,[2,2]),vd1))
+             sig(i1,i2,l)= -sig(i1,i2,l) + sum(vd2*matmul(sab(1:2,1:2,l),vd1))
+             tau(i1,i2,l)= -tau(i1,i2,l) + sum(vd2*matmul(hab(1:2,1:2,l)-vab(1:2,1:2,l),vd1))
+             ppi(i1,i2,l)= -ppi(i1,i2,l) + sum(vd2*matmul(vab(1:2,1:2,l),vd1))
           enddo
        enddo
     enddo
@@ -663,7 +663,7 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     integer :: lmux,lmx1,lmx2,nf1,nf2,nf1s,nf2s,lx1(nf1),lx2(nf2),isp,nlx1,nlx2
-    double precision :: hab(nab,0:n0-1),sab(nab,0:n0-1),vab(nab,0:n0-1), &
+    double precision :: hab(3,3,0:n0-1),sab(3,3,0:n0-1),vab(3,3,0:n0-1), &
          v1(0:lmx1,nf1),d1(0:lmx1,nf1), &
          v2(0:lmx2,nf2),d2(0:lmx2,nf2), &
          sig(nf1,nf2,0:lmux),tau(nf1,nf2,0:lmux),ppi(nf1,nf2,0:lmux)
@@ -691,19 +691,19 @@ contains
              do  l = 0, lmax
                 !       ... hzz,vzz,szz
                 if (i1 > nf1s .AND. i2 > nf2s) then
-                   sig(i1,i2,l) = -sig(i1,i2,l) + sab(7,l)
-                   tau(i1,i2,l) = -tau(i1,i2,l) + (hab(7,l)-vab(7,l))
-                   ppi(i1,i2,l) = -ppi(i1,i2,l) + vab(7,l)
+                   sig(i1,i2,l) = -sig(i1,i2,l) + sab(3,3,l)
+                   tau(i1,i2,l) = -tau(i1,i2,l) + (hab(3,3,l)-vab(3,3,l))
+                   ppi(i1,i2,l) = -ppi(i1,i2,l) + vab(3,3,l)
                    !       ... hzu,vzu,szs
                 elseif (i1 > nf1s) then
-                   sig(i1,i2,l)= -sig(i1,i2,l) +sab(8,l)*v2(l,i2) + sab(9,l)*d2(l,i2)
-                   tau(i1,i2,l)= -tau(i1,i2,l) +(hab(8,l)-vab(8,l))*v2(l,i2) + (hab(9,l)-vab(9,l))*d2(l,i2)
-                   ppi(i1,i2,l) = -ppi(i1,i2,l) + vab(8,l)*v2(l,i2) + vab(9,l)*d2(l,i2)
+                   sig(i1,i2,l)= -sig(i1,i2,l) +sab(3,1,l)*v2(l,i2) + sab(3,2,l)*d2(l,i2)
+                   tau(i1,i2,l)= -tau(i1,i2,l)+(hab(3,1,l)-vab(3,1,l))*v2(l,i2) + (hab(3,2,l)-vab(3,2,l))*d2(l,i2)
+                   ppi(i1,i2,l) = -ppi(i1,i2,l) + vab(3,1,l)*v2(l,i2) + vab(3,2,l)*d2(l,i2)
                    !       ... huz,vuz,ssz
                 elseif (i2 > nf2s) then
-                   sig(i1,i2,l) = -sig(i1,i2,l) + v1(l,i1)*sab(5,l) + d1(l,i1)*sab(6,l)
-                   tau(i1,i2,l) = -tau(i1,i2,l) + v1(l,i1)*(hab(5,l)-vab(5,l))+ d1(l,i1)*(hab(6,l)-vab(6,l))
-                   ppi(i1,i2,l) = -ppi(i1,i2,l) + v1(l,i1)*vab(5,l)+ d1(l,i1)*vab(6,l)
+                   sig(i1,i2,l) = -sig(i1,i2,l) + v1(l,i1)*sab(1,3,l) + d1(l,i1)*sab(2,3,l)
+                   tau(i1,i2,l) = -tau(i1,i2,l) + v1(l,i1)*(hab(1,3,l)-vab(1,3,l))+ d1(l,i1)*(hab(2,3,l)-vab(2,3,l))
+                   ppi(i1,i2,l) = -ppi(i1,i2,l) + v1(l,i1)*vab(1,3,l)+ d1(l,i1)*vab(2,3,l)
                 endif
              enddo
           endif

@@ -17,7 +17,7 @@ module m_mkpot ! http://dx.doi.org/10.7566/JPSJ.84.034702
   !
   real(8),protected,public:: utot,rhoexc,xcore,valvef,amom, valves,cpnves,rhovxc !energy terms
   real(8),allocatable,protected,public:: fes1_rv(:), fes2_rv(:) !force terms
-  real(8),allocatable,protected,public:: hab_rv(:), sab_rv(:), ppnl_rv(:,:,:,:), qmom(:),vesrmt(:)
+  real(8),allocatable,protected,public:: hab_rv(:,:,:), sab_rv(:,:,:), ppnl_rv(:,:,:,:), qmom(:),vesrmt(:)
   real(8),protected,public:: qval,vconst,qsc
 
   !! nov2021 dipole contribution added
@@ -27,7 +27,7 @@ module m_mkpot ! http://dx.doi.org/10.7566/JPSJ.84.034702
   !      complex(8),allocatable,protected ,public  :: spotxd(:,:,:,:,:)
 
   private
-  real(8),allocatable,protected,private :: gpot0(:),vval(:),vab_rv(:) !dummy
+  real(8),allocatable,protected,private :: gpot0(:),vval(:),vab_rv(:,:,:) !dummy
   type(s_sblock),allocatable,private  :: ohsozzx(:,:),ohsopmx(:,:) !dummy for SOC
   type(s_rv1),allocatable,protected,private  :: otaux(:,:) !dummy
   type(s_rv1),allocatable,protected,private  :: osigx(:,:) !dummy
@@ -39,9 +39,9 @@ contains
     write(stdo,"(a)")' m_mkpot_novxc: Making one-particle potential without XC part ...'
     allocate( vesrmt(nbas))
     allocate( qmom(nvl)) !rhomom
-    allocate( hab_rv(nab*n0*nsp*nbas))
-    allocate( vab_rv(nab*n0*nsp*nbas))
-    allocate( sab_rv(nab*n0*nsp*nbas))
+    allocate( hab_rv(3,3,n0*nsp*nbas))
+    allocate( vab_rv(3,3,n0*nsp*nbas))
+    allocate( sab_rv(3,3,n0*nsp*nbas))
     allocate( gpot0(nvl))
     allocate( vval(nchan))
     allocate( ppnl_rv(nppn,n0,nsp,nbas))
@@ -114,9 +114,9 @@ contains
     allocate( qmom(nvl))
     allocate( gpot0(nvl))
     allocate( vval(nchan))
-    allocate( hab_rv(nab*n0*nsp*nbas))
-    allocate( vab_rv(nab*n0*nsp*nbas))
-    allocate( sab_rv(nab*n0*nsp*nbas))
+    allocate( hab_rv(3,3,n0*nsp*nbas))
+    allocate( vab_rv(3,3,n0*nsp*nbas))
+    allocate( sab_rv(3,3,n0*nsp*nbas))
     allocate( ppnl_rv(nppn,n0,nsp,nbas))
     allocate( fes1_rv(3*nbas))
     allocate( osig(3,nbas), otau(3,nbas), oppi(3,nbas))

@@ -115,7 +115,7 @@ contains
     double precision :: cpnvsa,rhoexc(nsp),rhoex(nsp),rhoec(nsp),rhovxc(nsp), &
          qval,sqloc,sqlocc,saloc, & !,focvxc(nsp)focexc(nsp),focex(nsp),focec(nsp),
          valvef,vvesat,xcore,& !rvvxc, & !,rveps rvepsv, ,rvexv,rvecv,rvvxcv
-         hab(nab,n0,nsp,nbas),vab(nab,n0,nsp,nbas),sab(nab,n0,nsp,nbas), &
+         hab(3,3,n0,nsp,nbas),vab(3,3,n0,nsp,nbas),sab(3,3,n0,nsp,nbas), &
          gpot0(1),ppnl(nppn,n0,nsp,nbas),rhobg
     character spid*8
     integer :: lh(nkap0),nkapi,nkape,k
@@ -340,7 +340,7 @@ contains
                  lmxb,lhh(:,is),eh,rsmh, ehl,rsml,rs3,vmtz, lmaxu, vorb, lldau(ib), idu, &
                  iblu, &
                  osig(1,ib), otau(1,ib), oppi(1,ib), ohsozz(1,ib), ohsopm(1,ib), &
-                 ppnl(1,1,1,ib), hab(1,1,1,ib),vab (1,1,1,ib), sab(1,1,1,ib) )
+                 ppnl(1,1,1,ib), hab(1,1,1,1,ib),vab (1,1,1,1,ib), sab(1,1,1,1,ib) )
          endif
          j1 = j1+nlml
       enddo ibloop

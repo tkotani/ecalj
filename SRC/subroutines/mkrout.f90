@@ -52,7 +52,7 @@ contains
   !!-------------------------------
   subroutine mkrout( sv_p_oqkkl, sv_p_oeqkkl, orhoat_out, hab,sab, qbyl, hbyl)
     use m_lmfinit,only: procid,master,nkaph &
-         , sspec=>v_sspec,ispec,nbas,nsp,lekkl,lrout,n0,nab,nlmto,nmcore,rsma
+         , sspec=>v_sspec,ispec,nbas,nsp,lekkl,lrout,n0,nlmto,nmcore,rsma
     use m_lgunit,only: stdo
     use m_struc_def
     use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
@@ -97,7 +97,7 @@ contains
     type(s_rv1) :: orhoat_out(3,nbas)
     type(s_rv1) :: sv_p_oeqkkl(3,nbas)
     type(s_rv1) :: sv_p_oqkkl(3,nbas)
-    real(8):: qbyl(n0,nsp,nbas) , hbyl(n0,nsp,nbas) , sab(nab,n0,nsp,nbas), hab(nab,n0,nsp,nbas)
+    real(8):: qbyl(n0,nsp,nbas) , hbyl(n0,nsp,nbas) , sab(3,3,n0,nsp,nbas), hab(3,3,n0,nsp,nbas)
     integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc &
          , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , r , ncore , igetss
     double precision :: a,ceh,pi,qcor(2),rfoc,rmt,smec,smtc,stc0, &
@@ -193,8 +193,7 @@ contains
                  lmxa, kmax+1, kmax + 1,fp_rv,lmxa,cpp_rv,orhoat_out( 2,ib )%v   )
             !   ... Site charge and eigenvalue sum decomposed by l
             !! As I describe below, hbyl give here is wrong (bug). maybe because of wrong hab.
-            call mkrou3(2, lmxa,nlml,nsp,pnz,dmatl_rv,hab &
-                 (1, 1,1,ib), sab(1, 1, 1, ib ),qbyl (1,1 ,ib ),hbyl ( 1,1,ib ) )
+            call mkrou3(2, lmxa,nlml,nsp,pnz,dmatl_rv,hab(1,1,1,1,ib),sab(1,1,1,1,ib),qbyl(1,1,ib),hbyl(1,1,ib))
             !! Remake hbyl from energy-weighted density matrix
             ! This is because above codes to give hbyl is wrong.
             ! So, we need to go though anothe pass with lekkl=1 (OPTION_PFLOAT=1).
@@ -213,7 +212,7 @@ contains
                     ,vh_rv,dh_rv,vp_rv,dp_rv,chh_rv &
                     ,chp_rv,cpp_rv,dmatl_rv)!dmatl_rv is energy weighted. c.f.previous call to mkrou1.
                call mkrou3( mode=1,lmxa=lmxa, nlml=nlml1,nsp=nsp &
-                    ,pnz= pnz, dmatl=dmatl_rv, sab=sab( 1,1,1,ib ), qsum=hbyl(1,1,ib )  )
+                    ,pnz= pnz, dmatl=dmatl_rv, sab=sab(1,1,1,1,ib ), qsum=hbyl(1,1,ib )  )
             endif
             call radsum ( nr,nr,nlml,nsp,rwgt_rv,orhoat_out( 1,ib )%v, sum1 )
             call radsum ( nr,nr,nlml,nsp,rwgt_rv,orhoat_out( 2,ib )%v, sum2 )
@@ -788,10 +787,10 @@ contains
     !u   28 Aug 01 Extended to local orbitals.
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: mode,lmxa,n0,nab,nlml,nsp
-    parameter (n0=10,nab=9)
-    real(8),optional:: hab(nab,n0,nsp), hsum(n0,nsp)
-    real(8):: qsum(n0,nsp) ,sab(nab,n0,nsp), &
+    integer :: mode,lmxa,n0,nlml,nsp
+    parameter (n0=10)
+    real(8),optional:: hab(3,3,n0,nsp), hsum(n0,nsp)
+    real(8):: qsum(n0,nsp) ,sab(3,3,n0,nsp), &
          dmatl(0:lmxa,0:lmxa,nlml,3,3,nsp),pnz(n0,2)
     integer :: l,isp,m
     double precision :: pi,srfpi,qz,hz
@@ -809,32 +808,32 @@ contains
        do  l = 0, lmxa
           m = l+1
           qsum(m,isp) = &
-               + dmatl(l,l,1,1,1,isp)*sab(1,m,isp)*srfpi &
-               + dmatl(l,l,1,1,2,isp)*sab(2,m,isp)*srfpi &
-               + dmatl(l,l,1,2,1,isp)*sab(3,m,isp)*srfpi &
-               + dmatl(l,l,1,2,2,isp)*sab(4,m,isp)*srfpi
+               + dmatl(l,l,1,1,1,isp)*sab(1,1,m,isp)*srfpi &
+               + dmatl(l,l,1,1,2,isp)*sab(2,1,m,isp)*srfpi &
+               + dmatl(l,l,1,2,1,isp)*sab(1,2,m,isp)*srfpi &
+               + dmatl(l,l,1,2,2,isp)*sab(2,2,m,isp)*srfpi
           if (mode >= 2) then
              hsum(m,isp) = &
-                  + dmatl(l,l,1,1,1,isp)*hab(1,m,isp)*srfpi &
-                  + dmatl(l,l,1,1,2,isp)*hab(2,m,isp)*srfpi &
-                  + dmatl(l,l,1,2,1,isp)*hab(3,m,isp)*srfpi &
-                  + dmatl(l,l,1,2,2,isp)*hab(4,m,isp)*srfpi
+                  + dmatl(l,l,1,1,1,isp)*hab(1,1,m,isp)*srfpi &
+                  + dmatl(l,l,1,1,2,isp)*hab(2,1,m,isp)*srfpi &
+                  + dmatl(l,l,1,2,1,isp)*hab(1,2,m,isp)*srfpi &
+                  + dmatl(l,l,1,2,2,isp)*hab(2,2,m,isp)*srfpi
           endif
           if (pnz(m,1) /= 0) then!         ... uz, sz, zu, zs, zz terms
              qz = &
-                  + dmatl(l,l,1,1,3,isp)*sab(5,m,isp)*srfpi &
-                  + dmatl(l,l,1,2,3,isp)*sab(6,m,isp)*srfpi &
-                  + dmatl(l,l,1,3,1,isp)*sab(5,m,isp)*srfpi &
-                  + dmatl(l,l,1,3,2,isp)*sab(6,m,isp)*srfpi &
-                  + dmatl(l,l,1,3,3,isp)*sab(7,m,isp)*srfpi
+                  + dmatl(l,l,1,1,3,isp)*sab(1,3,m,isp)*srfpi &
+                  + dmatl(l,l,1,2,3,isp)*sab(2,3,m,isp)*srfpi &
+                  + dmatl(l,l,1,3,1,isp)*sab(1,3,m,isp)*srfpi &
+                  + dmatl(l,l,1,3,2,isp)*sab(2,3,m,isp)*srfpi &
+                  + dmatl(l,l,1,3,3,isp)*sab(3,3,m,isp)*srfpi
              qsum(m,isp) = qsum(m,isp) + qz  !qsum is including local orbital
              if (mode >= 2) then
                 hz = &
-                     + dmatl(l,l,1,1,3,isp)*hab(5,m,isp)*srfpi &
-                     + dmatl(l,l,1,2,3,isp)*hab(6,m,isp)*srfpi &
-                     + dmatl(l,l,1,3,1,isp)*hab(5,m,isp)*srfpi &
-                     + dmatl(l,l,1,3,2,isp)*hab(6,m,isp)*srfpi &
-                     + dmatl(l,l,1,3,3,isp)*hab(7,m,isp)*srfpi
+                     + dmatl(l,l,1,1,3,isp)*hab(1,3,m,isp)*srfpi &
+                     + dmatl(l,l,1,2,3,isp)*hab(2,3,m,isp)*srfpi &
+                     + dmatl(l,l,1,3,1,isp)*hab(1,3,m,isp)*srfpi &
+                     + dmatl(l,l,1,3,2,isp)*hab(2,3,m,isp)*srfpi &
+                     + dmatl(l,l,1,3,3,isp)*hab(3,3,m,isp)*srfpi
                 hsum(m,isp)=hsum(m,isp)+hz  !hsum is including local orbital
              endif
           endif

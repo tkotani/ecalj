@@ -140,7 +140,7 @@ contains
     parameter (nppn=12)
     double precision :: z,rmax,a,rofi(1),v(nr,nsp),ehl(n0),rsml(n0), &
          pnu(n0,nsp),pnz(n0,nsp),pp(n0,2,5),ppnl(nppn,n0,2), &
-         hab(nab,n0,nsp),sab(nab,n0,nsp),vab(nab,n0,nsp),vdif(nr,nsp), &
+         hab(3,3,n0,nsp),sab(3,3,n0,nsp),vab(3,3,n0,nsp),vdif(nr,nsp), &
          sodb(nab,n0,nsp,2),rs3,vmtz
     ! ... Local parameters
     integer :: ipr,ir,i,j,k,l,lpz,lpzi(0:n0),nrbig
@@ -534,24 +534,24 @@ contains
           !       endblock
 
           ! ... hab(1)=huu   hab(2)=hus   hab(3)=hsu   hab(4)=hss
-          hab(1,k,i) = m11*h00*m11 + m11*h01*m12 + m12*h10*m11 + m12*h11*m12
-          hab(2,k,i) = m11*h00*m21 + m11*h01*m22 + m12*h10*m21 + m12*h11*m22
-          hab(3,k,i) = m21*h00*m11 + m21*h01*m12 + m22*h10*m11 + m22*h11*m12
-          hab(4,k,i) = m21*h00*m21 + m21*h01*m22 + m22*h10*m21 + m22*h11*m22
+          hab(1,1,k,i) = m11*h00*m11 + m11*h01*m12 + m12*h10*m11 + m12*h11*m12
+          hab(2,1,k,i) = m11*h00*m21 + m11*h01*m22 + m12*h10*m21 + m12*h11*m22
+          hab(1,2,k,i) = m21*h00*m11 + m21*h01*m12 + m22*h10*m11 + m22*h11*m12
+          hab(2,2,k,i) = m21*h00*m21 + m21*h01*m22 + m22*h10*m21 + m22*h11*m22
           !     Next 2 lines put in Wronskian explicitly
           !     Should no longer be needed: Wronskian explicit in makrwf.
-          hab(2,k,i) = 0.5d0 * (hab(2,k,i)+hab(3,k,i)-rmax**2)
-          hab(3,k,i) = hab(2,k,i)+rmax**2
+          hab(2,1,k,i) = 0.5d0 * (hab(2,1,k,i)+hab(1,2,k,i)-rmax**2)
+          hab(1,2,k,i) = hab(2,1,k,i)+rmax**2
 
-          sab(1,k,i) = m11*s00*m11 + m11*s01*m12 + m12*s10*m11 + m12*s11*m12
-          sab(2,k,i) = m11*s00*m21 + m11*s01*m22 + m12*s10*m21 + m12*s11*m22
-          sab(3,k,i) = m21*s00*m11 + m21*s01*m12 + m22*s10*m11 + m22*s11*m12
-          sab(4,k,i) = m21*s00*m21 + m21*s01*m22 + m22*s10*m21 + m22*s11*m22
+          sab(1,1,k,i) = m11*s00*m11 + m11*s01*m12 + m12*s10*m11 + m12*s11*m12
+          sab(2,1,k,i) = m11*s00*m21 + m11*s01*m22 + m12*s10*m21 + m12*s11*m22
+          sab(1,2,k,i) = m21*s00*m11 + m21*s01*m12 + m22*s10*m11 + m22*s11*m12
+          sab(2,2,k,i) = m21*s00*m21 + m21*s01*m22 + m22*s10*m21 + m22*s11*m22
 
-          vab(1,k,i) = m11*v00*m11 + m11*v01*m12 + m12*v10*m11 + m12*v11*m12
-          vab(2,k,i) = m11*v00*m21 + m11*v01*m22 + m12*v10*m21 + m12*v11*m22
-          vab(3,k,i) = m21*v00*m11 + m21*v01*m12 + m22*v10*m11 + m22*v11*m12
-          vab(4,k,i) = m21*v00*m21 + m21*v01*m22 + m22*v10*m21 + m22*v11*m22
+          vab(1,1,k,i) = m11*v00*m11 + m11*v01*m12 + m12*v10*m11 + m12*v11*m12
+          vab(2,1,k,i) = m11*v00*m21 + m11*v01*m22 + m12*v10*m21 + m12*v11*m22
+          vab(1,2,k,i) = m21*v00*m11 + m21*v01*m12 + m22*v10*m11 + m22*v11*m12
+          vab(2,2,k,i) = m21*v00*m21 + m21*v01*m22 + m22*v10*m21 + m22*v11*m22
 
           ! --- Integrals of transformed gz with (new gz, u, s) ---
           !     New gz = (gz0 - gz0(rmax) u - r*(gz0/r)'(rmax) s)
@@ -577,34 +577,38 @@ contains
              ssz = m21*s0z + m22*s1z
              szu = sz0*m11 + sz1*m12
              szs = sz0*m21 + sz1*m22
-             szz = szz - phz*(suz+szu) - dphz*(ssz+szs) + phz**2*sab(1,k,i) + &
-                  phz*dphz*(sab(2,k,i)+sab(3,k,i)) + dphz**2*sab(4,k,i)
-             suz = suz - phz*sab(1,k,i) - dphz*sab(2,k,i)
-             ssz = ssz - phz*sab(3,k,i) - dphz*sab(4,k,i)
-             szu = szu - phz*sab(1,k,i) - dphz*sab(3,k,i)
-             szs = szs - phz*sab(2,k,i) - dphz*sab(4,k,i)
+             szz = szz - phz*(suz+szu) - dphz*(ssz+szs) + phz**2*sab(1,1,k,i) + &
+                  phz*dphz*(sab(2,1,k,i)+sab(1,2,k,i)) + dphz**2*sab(2,2,k,i)
+!             suz = suz - phz*sab(1,k,i) - dphz*sab(2,k,i)
+!             ssz = ssz - phz*sab(3,k,i) - dphz*sab(4,k,i)
+!             szu = szu - phz*sab(1,k,i) - dphz*sab(3,k,i)
+!             szs = szs - phz*sab(2,k,i) - dphz*sab(4,k,i)
+             suz = suz - phz*sab(1,1,k,i) - dphz*sab(2,1,k,i)
+             ssz = ssz - phz*sab(1,2,k,i) - dphz*sab(2,2,k,i)
+             szu = szu - phz*sab(1,1,k,i) - dphz*sab(1,2,k,i)
+             szs = szs - phz*sab(2,1,k,i) - dphz*sab(2,2,k,i)
 
              vuz = m11*v0z + m12*v1z
              vsz = m21*v0z + m22*v1z
              vzu = vz0*m11 + vz1*m12
              vzs = vz0*m21 + vz1*m22
-             vzz = vzz - phz*(vuz+vzu) - dphz*(vsz+vzs) + phz**2*vab(1,k,i) + &
-                  phz*dphz*(vab(2,k,i)+vab(3,k,i)) + dphz**2*vab(4,k,i)
-             vuz = vuz - phz*vab(1,k,i) - dphz*vab(2,k,i)
-             vsz = vsz - phz*vab(3,k,i) - dphz*vab(4,k,i)
-             vzu = vzu - phz*vab(1,k,i) - dphz*vab(3,k,i)
-             vzs = vzs - phz*vab(2,k,i) - dphz*vab(4,k,i)
+             vzz = vzz - phz*(vuz+vzu) - dphz*(vsz+vzs) + phz**2*vab(1,1,k,i) + &
+                  phz*dphz*(vab(2,1,k,i)+vab(1,2,k,i)) + dphz**2*vab(2,2,k,i)
+             vuz = vuz - phz*vab(1,1,k,i) - dphz*vab(2,1,k,i)
+             vsz = vsz - phz*vab(1,2,k,i) - dphz*vab(2,2,k,i)
+             vzu = vzu - phz*vab(1,1,k,i) - dphz*vab(1,2,k,i)
+             vzs = vzs - phz*vab(2,1,k,i) - dphz*vab(2,2,k,i)
 
              huz = m11*h0z + m12*h1z
              hsz = m21*h0z + m22*h1z
              hzu = hz0*m11 + hz1*m12
              hzs = hz0*m21 + hz1*m22
-             hzz = hzz - phz*(huz+hzu) - dphz*(hsz+hzs) + phz**2*hab(1,k,i) + &
-                  phz*dphz*(hab(2,k,i)+hab(3,k,i)) + dphz**2*hab(4,k,i)
-             huz = huz - phz*hab(1,k,i) - dphz*hab(2,k,i)
-             hsz = hsz - phz*hab(3,k,i) - dphz*hab(4,k,i)
-             hzu = hzu - phz*hab(1,k,i) - dphz*hab(3,k,i)
-             hzs = hzs - phz*hab(2,k,i) - dphz*hab(4,k,i)
+             hzz = hzz - phz*(huz+hzu) - dphz*(hsz+hzs) + phz**2*hab(1,1,k,i) + &
+                  phz*dphz*(hab(2,1,k,i)+hab(1,2,k,i)) + dphz**2*hab(2,2,k,i)
+             huz = huz - phz*hab(1,1,k,i) - dphz*hab(2,1,k,i)
+             hsz = hsz - phz*hab(1,2,k,i) - dphz*hab(2,2,k,i)
+             hzu = hzu - phz*hab(1,1,k,i) - dphz*hab(1,2,k,i)
+             hzs = hzs - phz*hab(2,1,k,i) - dphz*hab(2,2,k,i)
 
              ! ... New gz val,slo=0 => hamiltonian is hermitian
              if (lpzi(l) == 1) then
@@ -616,23 +620,23 @@ contains
 
              ! ... hab(5)=uz    hab(2)=sz    hab(7)=zz
              !     print *, 'zero out potpus local orbitals'
-             sab(5,k,i) = suz
-             sab(6,k,i) = ssz
-             sab(7,k,i) = szz
-             sab(8,k,i) = szu
-             sab(9,k,i) = szs
+             sab(1,3,k,i) = suz !5
+             sab(2,3,k,i) = ssz !6
+             sab(3,3,k,i) = szz !7
+             sab(3,1,k,i) = szu !8
+             sab(3,2,k,i) = szs !9
 
-             vab(5,k,i) = vuz
-             vab(6,k,i) = vsz
-             vab(7,k,i) = vzz
-             vab(8,k,i) = vzu
-             vab(9,k,i) = vzs
+             vab(1,3,k,i) = vuz
+             vab(2,3,k,i) = vsz
+             vab(3,3,k,i) = vzz
+             vab(3,1,k,i) = vzu
+             vab(3,2,k,i) = vzs
 
-             hab(5,k,i) = huz
-             hab(6,k,i) = hsz
-             hab(7,k,i) = hzz
-             hab(8,k,i) = hzu
-             hab(9,k,i) = hzs
+             hab(1,3,k,i) = huz
+             hab(2,3,k,i) = hsz
+             hab(3,3,k,i) = hzz
+             hab(3,1,k,i) = hzu
+             hab(3,2,k,i) = hzs
 
              ! ... NMTO potential parameters for local orbitals
              !     Note that (s0z,s1z) = <(phi,phidot)|gz0>. We need <(phi,phidot)|gz>.
@@ -648,8 +652,8 @@ contains
 
              !              The first term are matrix elements (s0z,s1z)
              ppnl(8,k,i)  = szz
-             xxx = (phz*sab(1,k,i) + dphz*sab(2,k,i))
-             yyy = (phz*sab(3,k,i) + dphz*sab(4,k,i))
+             xxx = (phz*sab(1,1,k,i) + dphz*sab(2,1,k,i))
+             yyy = (phz*sab(1,2,k,i) + dphz*sab(2,2,k,i))
              ppnl(9,k,i)  = s0z - phi *xxx - dphi *yyy
              ppnl(10,k,i) = s1z - phip*xxx - dphip*yyy
           endif
