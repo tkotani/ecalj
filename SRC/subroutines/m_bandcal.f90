@@ -403,7 +403,7 @@ contains
        if (lmxa == -1) cycle 
        nlma = (lmxa+1)**2
        lmdim = nlma
-       call phvsfp(nsp,lmxa,ppnl(1,1,1,ib),rmt,sab,sab,sab)
+       call phvsfp(nsp,lmxa,ppnl(1,1,1,ib),rmt,sab)
        !       In noncollinear case, isp=1 always => need internal ispc=1..2
        !       ksp is the current spin index in both cases:
        !       ksp = isp  in the collinear case

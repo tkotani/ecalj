@@ -1,5 +1,6 @@
-subroutine phvsfp(nsp,lmxa,ppnl,rmax,sab,vab,hab)
-  !- Convert potential parameters to hab,vab,sab
+subroutine phvsfp(nsp,lmxa,ppnl,rmax,sab)
+  use m_lmfinit,only: n0,nppn,nab
+  !- Convert potential parameters to sab
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   mode  :1s digit nonzero -> make sab
@@ -19,10 +20,10 @@ subroutine phvsfp(nsp,lmxa,ppnl,rmax,sab,vab,hab)
   !u   28 Mar 01 Created by MvS
   ! ----------------------------------------------------------------------
   implicit none
-  integer :: mode,nsp,lmxa,n0,nppn,nab
-  parameter (n0=10,nppn=12,nab=9)
+  integer :: mode,nsp,lmxa !,n0,nppn,nab
+  !parameter (n0=10,nppn=12,nab=9)
   double precision :: rmax,ppnl(nppn,n0,nsp)
-  double precision :: sab(nab,n0,nsp),vab(nab,n0,nsp),hab(nab,n0,nsp)
+  double precision :: sab(nab,n0,nsp)!,vab(nab,n0,nsp),hab(nab,n0,nsp)
   integer :: mode0,mode1,mode2,i,la,k
   double precision :: phi,phip,dphi,dphip,dlphi,dlphip,det
   double precision :: au,bu,as,bs,s00,s11,szz,s0z,s1z
