@@ -161,9 +161,7 @@ contains
           lpzi(l) = 0
           if (pnz(k,i) >  0)  lpzi(l) = 1
           if (pnz(k,i) >= 10) lpzi(l) = 2
-          !moda(l) = 5
           if (lpzi(l)/=0) then ! ... lo wf gz and its sphere boundary parameters
-             !moda(l) = 6 
              call makrwf(10,z,rmax,l,v(1,i),a,nr,rofi,pnz(1,i),4,gz,gp,ez,phz,dphz,phzp,dphzp,pz)
              if (lpzi(l)==2) then ! Extend local orbital to large mesh; match gz to envelope
                 allocate(gzbig(nrbig,2))
@@ -186,7 +184,6 @@ contains
           endif
           ! ... Valence wf g,gp, and their sphere boundary parameters
           call makrwf(10,z,rmax,l,v(1,i),a,nr,rofi,pnu(1,i),2,g,gp,ev,phi,dphi,phip,dphip,p)
-          
           ghg    = ev   ! <g H g> = e <g g> = e
           ghgp   = 1d0  ! <g H gp> = <g (H-e) gp> + e <g gp> = <g g> = 1
           gphgp  = ev*p ! <gp H gp> = <gp (H-e) gp> + e <gp gp> = <gp g> + e p = ep
@@ -198,6 +195,7 @@ contains
              dpsi(:,l,i)= gp(:,1)
              enumx(l,i) = ev
           endif
+          
           ppnl(:,k,i) = 0d0 ! potential parameters, no backwards integration, <phi phi>=1
           ppnl(1,k,i) = 0
           ppnl(2,k,i) = 1d0
@@ -210,8 +208,7 @@ contains
           ppnl(12,k,i) = dphz
           intg: block ! --- Integrals of w.f. products with spherical potential ---
           ! ... This branch computes integrals with products of (g,gp,gz)
-          !     Convention: 11 (phi,phi) 21 (dot,phi) 22 (dot,dot)
-          !     Convention: 13 (phi,lo) 23 (dot,lo) 33 (sc,lo)
+          !     Convention: 11 (phi,phi) 21 (dot,phi) 22 (dot,dot), 13 (phi,lo) 23 (dot,lo) 33 (lo,lo)
             integer:: fllp1
             real(8):: vii(nr),tmcc(nr),gf11(nr),gf22(nr),gf12(nr),xxxw(nr),yyyw(nr),zzzw(nr)
             fllp1 = l*(l+1)
@@ -222,10 +219,11 @@ contains
             gf11(2:nr) = 1d0 + fllp1/(tmcc(2:nr)*rofi(2:nr))**2
             dmat(1,1)= sum(rwgt*vdif(:,i)* (gf11* g(:,1)* g(:,1)+ g(:,2)*g(:,2)) ) 
             dmat(2,1)= sum(rwgt*vdif(:,i)* (gf11*gp(:,1)* g(:,1)+gp(:,2)*g(:,2)) ) 
-            dmat(1,2)=dmat(2,1)
+            dmat(1,2)= dmat(2,1)
             dmat(2,2)= sum(rwgt*vdif(:,i)* (gf11*gp(:,1)*gp(:,1)+gp(:,2)*gp(:,2)))
             vmat(1,1)= sum(rwgt*vii*       (gf11* g(:,1)* g(:,1)+ g(:,2)*g(:,2)) ) 
             vmat(2,1)= sum(rwgt*vii*       (gf11*gp(:,1)* g(:,1)+gp(:,2)*g(:,2)) )
+            vmat(1,2)= vmat(2,1)
             vmat(2,2)= sum(rwgt*vii*       (gf11*gp(:,1)*gp(:,1)+gp(:,2)*gp(:,2)))
             if(lpzi(l)/=0) then !computes integrals with products of (g,gp) x gz
                gf12(1)=0d0
@@ -244,7 +242,6 @@ contains
                smat(1,3) = sum(rwgt*(gf12*g(:,1) *gz(:,1)+ g(:,2) *gz(:,2)))
                smat(2,3) = sum(rwgt*(gf12*gp(:,1)*gz(:,1)+ gp(:,2)*gz(:,2)))
                smat(3,3) = sum(rwgt*(gf22*gz(:,1)*gz(:,1)+ gz(:,2)*gz(:,2)))
-               smat(3,2) = smat(2,3)
             endif
           endblock intg
           vmat(1,1) = vmat(1,1) + dmat(1,1)
@@ -274,30 +271,24 @@ contains
              hmat(3,2) = ev*smat(3,2) + smat(3,1) + dmat(2,3)
              hmat(3,3) = ez*smat(3,3) + dmat(3,3)
              call pvpus1(rmax,phi,dphi,phz,dphz,hmat(1,3),hmat(3,1)) ! Put in Wronskians explicitly
-             h1z = ez*smat(2,3) + dmat(2,3)
-             call pvpus1(rmax,phip,dphip,phz,dphz,h1z,hmat(3,2))
+             hmat(2,3) = ez*smat(2,3) + dmat(2,3)
+             call pvpus1(rmax,phip,dphip,phz,dphz,hmat(2,3),hmat(3,2))
           endif
-
           ! --- Integrals of u-s products from phi,phidot products ---
           !     Linear transformation between (u,s) and (phi,phidot)
-
           !       ( u(r) )        ( phi(r)    )
           !       (      ) =    M (           )
           !       ( s(r) )        ( phidot(r) )
-
           !     Conditions u=1,s=0 and u'=0,s'=1 at rmt = >
-
           !       (1  0)      (phi     dphi )                    ( dphip  -dphi )
           !       (    )  = M (             )  = >  M = (det)^-1 (              )
           !       (0  1)      (phip    dphip)                    (-phip    phi  )
-
           !     where det = phi*dphip - phip*dphi
-
           !     To compute matrix elements of (u,s) from elements (phi,phidot),
           !     let u_i = u or s and phi_i = phi or phidot; i=1 or 2
           !     <u_i|u_j> = <(M phi)_i|(M phi)_j> = sum_lm M_il <phi_l|phi_m> M_mj
           det = phi*dphip - dphi*phip
-          m11 = dphip/det
+          m11 = dphip/det !M matrix
           m12 = -dphi/det
           m21 = -phip/det
           m22 = phi/det
@@ -310,119 +301,38 @@ contains
           endif
           matmmm :block
             real(8):: mmm(2,2),mmmt(2,2) ! ... (u,s) x (u,s)
-            mmm(:,1)=[m11,m21]
+            mmm(:,1)=[m11,m21] !M matrix for u_i = \sum_j M_ij phi_j 
             mmm(:,2)=[m12,m22]
             mmmt= transpose(mmm)
-!            hab(1:2,1:2,k,i) = matmul(mmm,transpose(matmul(mmm,hmat(1:2,1:2))))
-!            sab(1:2,1:2,k,i) = matmul(mmm,transpose(matmul(mmm,smat(1:2,1:2))))
-!            vab(1:2,1:2,k,i) = matmul(mmm,transpose(matmul(mmm,vmat(1:2,1:2))))
-            hab(1:2,1:2,k,i) = matmul(mmm,matmul(hmat(1:2,1:2),mmmt))
-            sab(1:2,1:2,k,i) = matmul(mmm,matmul(smat(1:2,1:2),mmmt))
+            hab(1:2,1:2,k,i) = matmul(mmm,matmul(hmat(1:2,1:2),mmmt)) !<u,s|h|u,s>
+            sab(1:2,1:2,k,i) = matmul(mmm,matmul(smat(1:2,1:2),mmmt)) 
             vab(1:2,1:2,k,i) = matmul(mmm,matmul(vmat(1:2,1:2),mmmt))
-            
           endblock matmmm
-          
-          ! --- Integrals of transformed gz with (new gz, u, s) ---
-          !     New gz = (gz0 - gz0(rmax) u - r*(gz0/r)'(rmax) s)
-          !            = (gz0 - phz u - dphz s)
-          !     To compute <u or s | gz> = M < phi or phidot | gz> :
-          !     let u_i = u or s and phi_i = phi or phidot; i=1 or 2
-          !     <u_i|gz> = <(M phi)_i | gz> = sum_km M_ik <phi_k|gz>
-          !     <u_i|gz> = <(M phi)_i | gz> = <(M phi)_i | (gz0 - phz u - dphz s)>
-          !              = sum_km M_ik <phi_k|gz> - phz <u_i|u_1> - dphz <u_i|u_2>
-
-
-          ! ... Setup for transformation on gz -> local orbital
-          !     At this point, phz, dphz are amount of gz at rmt
-          !     Reuse phz,dphz to project amount of (u,s) onto gz.  Projection
-          !     only applies when local orbital is a true local orbital.
           if (lpzi(l) == 2) then
              phz = 0
              dphz = 0
           endif
-          if (lpzi(l) /= 0) then
-             suz = m11*smat(1,3) + m12*smat(2,3)
-             szu = smat(3,1)*m11 + smat(3,2)*m12
-             ssz = m21*smat(1,3) + m22*smat(2,3)
-             szs = smat(3,1)*m21 + smat(3,2)*m22
-             szz_= smat(3,3)-phz*(suz+szu)-dphz*(ssz+szs)+phz**2*sab(1,1,k,i)&
-                  +phz*dphz*(sab(2,1,k,i)+sab(1,2,k,i))+dphz**2*sab(2,2,k,i)
-             suz = suz - phz*sab(1,1,k,i) - dphz*sab(1,2,k,i)
-             szu = szu - phz*sab(1,1,k,i) - dphz*sab(2,1,k,i)
-             ssz = ssz - phz*sab(2,1,k,i) - dphz*sab(2,2,k,i)
-             szs = szs - phz*sab(1,2,k,i) - dphz*sab(2,2,k,i)
-
-             vuz = m11*vmat(1,3) + m12*vmat(2,3)
-             vsz = m21*vmat(1,3) + m22*vmat(2,3)
-             vzu = vmat(3,1)*m11 + vmat(3,2)*m12
-             vzs = vmat(3,1)*m21 + vmat(3,2)*m22
-             vzz_= vmat(3,3) - phz*(vuz+vzu) - dphz*(vsz+vzs) + phz**2*vab(1,1,k,i) &
-                  + phz*dphz*(vab(2,1,k,i)+vab(1,2,k,i)) + dphz**2*vab(2,2,k,i)
-             vuz = vuz - phz*vab(1,1,k,i) - dphz*vab(1,2,k,i)
-             vsz = vsz - phz*vab(2,1,k,i) - dphz*vab(2,2,k,i)
-             vzu = vzu - phz*vab(1,1,k,i) - dphz*vab(2,1,k,i)
-             vzs = vzs - phz*vab(1,2,k,i) - dphz*vab(2,2,k,i)
-
-             huz = m11*hmat(1,3) + m12*h1z
-             hsz = m21*hmat(1,3) + m22*h1z
-             hzu = hmat(3,1)*m11 + hmat(3,2)*m12
-             hzs = hmat(3,1)*m21 + hmat(3,2)*m22
-             hzz_= hmat(3,3) - phz*(huz+hzu) - dphz*(hsz+hzs) + phz**2*hab(1,1,k,i) &
-                  + phz*dphz*(hab(2,1,k,i)+hab(1,2,k,i)) + dphz**2*hab(2,2,k,i)
-             huz = huz - phz*hab(1,1,k,i) - dphz*hab(1,2,k,i)
-             hsz = hsz - phz*hab(2,1,k,i) - dphz*hab(2,2,k,i)
-             hzu = hzu - phz*hab(1,1,k,i) - dphz*hab(2,1,k,i)
-             hzs = hzs - phz*hab(1,2,k,i) - dphz*hab(2,2,k,i)
-             ! ... New gz val,slo=0 => hamiltonian is hermitian
-             if (lpzi(l) == 1) then
-                hzu = (hzu + huz)/2
-                huz = hzu
-                hzs = (hzs + hsz)/2
-                hsz = hzs
-             endif
-             ! ... hab(5)=uz    hab(2)=sz    hab(7)=zz
-             !     print *, 'zero out potpus local orbitals'
-             sab(1,3,k,i) = suz !5
-             sab(2,3,k,i) = ssz !6
-             sab(3,3,k,i) = szz_!7
-             sab(3,1,k,i) = szu !8
-             sab(3,2,k,i) = szs !9
-
-             vab(1,3,k,i) = vuz
-             vab(2,3,k,i) = vsz
-             vab(3,3,k,i) = vzz_
-             vab(3,1,k,i) = vzu
-             vab(3,2,k,i) = vzs
-
-             hab(1,3,k,i) = huz
-             hab(2,3,k,i) = hsz
-             hab(3,3,k,i) = hzz_
-             hab(3,1,k,i) = hzu
-             hab(3,2,k,i) = hzs
-             ! ... NMTO potential parameters for local orbitals
-             !     Note that (smat(1,3),smat(2,3)) = <(phi,phidot)|gz0>. We need <(phi,phidot)|gz>.
-             !     Let i=1 or 2 and define s_iz = (<phi|gz>,<phidot|gz>) for i=1,2
-
-             !     (s_1z)     (phi_1) |
-             !     (    ) = < (     ) | gz0 - phz u - dphz s>
-             !     (s_2z)     (phi_2) |
-
-             !                (phi_1) |             (u_1) |
-             !            = < (     ) | gz0 - M^-1< (   ) | phz u_1 - dphz u_2>
-             !                (phi_2) |             (u_2) |
-
-             !              The first term are matrix elements (smat(1,3),smat(2,3))
-             ppnl(8,k,i)  = szz_
+          if (lpzi(l) /= 0) then  ! <(u,s,gz) |h| (u,s,gz)>
+             lpzint: block   !  gz = (gz0 - gz0(rmax) u - r*(gz0/r)'(rmax) s) = (gz0 - phz u - dphz s)
+               real(8):: mm0(3,3),mmz(3,3),mmm(3,3),mmmt(3,3)
+               mm0(:,1)=[m11,m21, 0d0] !1st col (u s gz0)^t= MM0 t(phi phidot gz0)^t
+               mm0(:,2)=[m12,m22, 0d0] 
+               mm0(:,3)=[0d0,0d0, 1d0]
+               mmz(:,1)=[1d0,0d0,-phz] !1st col (u s gz)^t= MMz t(u s gz0)^t
+               mmz(:,2)=[0d0,1d0,-dphz]
+               mmz(:,3)=[0d0,0d0,1d0]
+               mmm=matmul(mmz,mm0)
+               mmmt=transpose(mmm)
+               sab(1:3,1:3,k,i) = matmul(mmm,matmul(smat(1:3,1:3),mmmt)) !<(u,s,gz)|(u,s,gz)>
+               vab(1:3,1:3,k,i) = matmul(mmm,matmul(vmat(1:3,1:3),mmmt)) !<(u,s,gz)|v|(u,s,gz)>
+               hab(1:3,1:3,k,i) = matmul(mmm,matmul(hmat(1:3,1:3),mmmt)) !<(u,s,gz)|h|(u,s,gz)>
+             endblock lpzint
+             ppnl(8,k,i)  = sab(3,3,k,i)!szz_
              xxx = (phz*sab(1,1,k,i) + dphz*sab(1,2,k,i))
              yyy = (phz*sab(2,1,k,i) + dphz*sab(2,2,k,i))
              ppnl(9,k,i)  = smat(1,3) - phi *xxx - dphi *yyy
              ppnl(10,k,i) = smat(2,3) - phip*xxx - dphip*yyy
           endif
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!          
-!            hab(1:2,1:2,k,i)=transpose(hab(1:2,1:2,k,i))
-!            sab(1:2,1:2,k,i)=transpose(sab(1:2,1:2,k,i))
-!            vab(1:2,1:2,k,i)=transpose(vab(1:2,1:2,k,i))
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!          
 10     enddo lloop
 80  enddo isploop
     ! ... Calculate spin-orbit parameters
