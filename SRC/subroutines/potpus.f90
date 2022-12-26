@@ -309,13 +309,19 @@ contains
              m(2,2,l,i) = m22
           endif
           matmmm :block
-            real(8):: mmm(2,2) ! ... (u,s) x (u,s)
+            real(8):: mmm(2,2),mmmt(2,2) ! ... (u,s) x (u,s)
             mmm(:,1)=[m11,m21]
             mmm(:,2)=[m12,m22]
-            hab(1:2,1:2,k,i) = matmul(mmm,transpose(matmul(mmm,hmat(1:2,1:2))))
-            sab(1:2,1:2,k,i) = matmul(mmm,transpose(matmul(mmm,smat(1:2,1:2))))
-            vab(1:2,1:2,k,i) = matmul(mmm,transpose(matmul(mmm,vmat(1:2,1:2))))
+            mmmt= transpose(mmm)
+!            hab(1:2,1:2,k,i) = matmul(mmm,transpose(matmul(mmm,hmat(1:2,1:2))))
+!            sab(1:2,1:2,k,i) = matmul(mmm,transpose(matmul(mmm,smat(1:2,1:2))))
+!            vab(1:2,1:2,k,i) = matmul(mmm,transpose(matmul(mmm,vmat(1:2,1:2))))
+            hab(1:2,1:2,k,i) = matmul(mmm,matmul(hmat(1:2,1:2),mmmt))
+            sab(1:2,1:2,k,i) = matmul(mmm,matmul(smat(1:2,1:2),mmmt))
+            vab(1:2,1:2,k,i) = matmul(mmm,matmul(vmat(1:2,1:2),mmmt))
+            
           endblock matmmm
+          
           ! --- Integrals of transformed gz with (new gz, u, s) ---
           !     New gz = (gz0 - gz0(rmax) u - r*(gz0/r)'(rmax) s)
           !            = (gz0 - phz u - dphz s)
@@ -341,10 +347,10 @@ contains
              szs = smat(3,1)*m21 + smat(3,2)*m22
              szz_= smat(3,3)-phz*(suz+szu)-dphz*(ssz+szs)+phz**2*sab(1,1,k,i)&
                   +phz*dphz*(sab(2,1,k,i)+sab(1,2,k,i))+dphz**2*sab(2,2,k,i)
-             suz = suz - phz*sab(1,1,k,i) - dphz*sab(2,1,k,i)
-             szu = szu - phz*sab(1,1,k,i) - dphz*sab(1,2,k,i)
-             ssz = ssz - phz*sab(1,2,k,i) - dphz*sab(2,2,k,i)
-             szs = szs - phz*sab(2,1,k,i) - dphz*sab(2,2,k,i)
+             suz = suz - phz*sab(1,1,k,i) - dphz*sab(1,2,k,i)
+             szu = szu - phz*sab(1,1,k,i) - dphz*sab(2,1,k,i)
+             ssz = ssz - phz*sab(2,1,k,i) - dphz*sab(2,2,k,i)
+             szs = szs - phz*sab(1,2,k,i) - dphz*sab(2,2,k,i)
 
              vuz = m11*vmat(1,3) + m12*vmat(2,3)
              vsz = m21*vmat(1,3) + m22*vmat(2,3)
@@ -352,10 +358,10 @@ contains
              vzs = vmat(3,1)*m21 + vmat(3,2)*m22
              vzz_= vmat(3,3) - phz*(vuz+vzu) - dphz*(vsz+vzs) + phz**2*vab(1,1,k,i) &
                   + phz*dphz*(vab(2,1,k,i)+vab(1,2,k,i)) + dphz**2*vab(2,2,k,i)
-             vuz = vuz - phz*vab(1,1,k,i) - dphz*vab(2,1,k,i)
-             vsz = vsz - phz*vab(1,2,k,i) - dphz*vab(2,2,k,i)
-             vzu = vzu - phz*vab(1,1,k,i) - dphz*vab(1,2,k,i)
-             vzs = vzs - phz*vab(2,1,k,i) - dphz*vab(2,2,k,i)
+             vuz = vuz - phz*vab(1,1,k,i) - dphz*vab(1,2,k,i)
+             vsz = vsz - phz*vab(2,1,k,i) - dphz*vab(2,2,k,i)
+             vzu = vzu - phz*vab(1,1,k,i) - dphz*vab(2,1,k,i)
+             vzs = vzs - phz*vab(1,2,k,i) - dphz*vab(2,2,k,i)
 
              huz = m11*hmat(1,3) + m12*h1z
              hsz = m21*hmat(1,3) + m22*h1z
@@ -363,10 +369,10 @@ contains
              hzs = hmat(3,1)*m21 + hmat(3,2)*m22
              hzz_= hmat(3,3) - phz*(huz+hzu) - dphz*(hsz+hzs) + phz**2*hab(1,1,k,i) &
                   + phz*dphz*(hab(2,1,k,i)+hab(1,2,k,i)) + dphz**2*hab(2,2,k,i)
-             huz = huz - phz*hab(1,1,k,i) - dphz*hab(2,1,k,i)
-             hsz = hsz - phz*hab(1,2,k,i) - dphz*hab(2,2,k,i)
-             hzu = hzu - phz*hab(1,1,k,i) - dphz*hab(1,2,k,i)
-             hzs = hzs - phz*hab(2,1,k,i) - dphz*hab(2,2,k,i)
+             huz = huz - phz*hab(1,1,k,i) - dphz*hab(1,2,k,i)
+             hsz = hsz - phz*hab(2,1,k,i) - dphz*hab(2,2,k,i)
+             hzu = hzu - phz*hab(1,1,k,i) - dphz*hab(2,1,k,i)
+             hzs = hzs - phz*hab(1,2,k,i) - dphz*hab(2,2,k,i)
              ! ... New gz val,slo=0 => hamiltonian is hermitian
              if (lpzi(l) == 1) then
                 hzu = (hzu + huz)/2
@@ -407,11 +413,16 @@ contains
 
              !              The first term are matrix elements (smat(1,3),smat(2,3))
              ppnl(8,k,i)  = szz_
-             xxx = (phz*sab(1,1,k,i) + dphz*sab(2,1,k,i))
-             yyy = (phz*sab(1,2,k,i) + dphz*sab(2,2,k,i))
+             xxx = (phz*sab(1,1,k,i) + dphz*sab(1,2,k,i))
+             yyy = (phz*sab(2,1,k,i) + dphz*sab(2,2,k,i))
              ppnl(9,k,i)  = smat(1,3) - phi *xxx - dphi *yyy
              ppnl(10,k,i) = smat(2,3) - phip*xxx - dphip*yyy
           endif
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!          
+            hab(1:2,1:2,k,i)=transpose(hab(1:2,1:2,k,i))
+            sab(1:2,1:2,k,i)=transpose(sab(1:2,1:2,k,i))
+            vab(1:2,1:2,k,i)=transpose(vab(1:2,1:2,k,i))
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!          
 10     enddo lloop
 80  enddo isploop
     ! ... Calculate spin-orbit parameters
