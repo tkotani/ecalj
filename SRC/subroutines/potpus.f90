@@ -115,10 +115,13 @@ contains
          sodb(3,3,n0,nsp,2),rs3,vmtz
     integer :: ipr,ir,i,j,k,l,lpz,lpzi(0:n0),nrbig
     double precision :: m21,m11,m22,m12,d00,d10,d11,det,vi, &
-         fllp1,gfac,gf11,gf22,gf12,h00,h01,h10,h11, &
+         h00,h01,h10,h11, &
          phmins,phplus,q,r,s00,s01,s10,s11,tmc, &
          umegam,umegap,v00,v01,v10,v11,vl,xx,xxx,yyy,zzz, &
          b,ghg,ghgp,gphgp !enu,c,srdel,qpar,ppar,
+    
+!    real(8):: ,gf11(nr),gf22(nr),gf12(nr)
+!    real(8):: gf11,gf22,gf12
     double precision :: d0z,d1z,dzz,v0z,v1z,s0z,s1z,vz0,vz1,sz0, &
          sz1,h0z,hz0,h1z,hz1,suz,ssz,szu,szs,szz, &
          vuz,vsz,vzu,vzs,vzz,huz,hsz,hzu,hzs,hzz
@@ -128,7 +131,8 @@ contains
     !     double precision ul,sl,D
     integer :: nrx
     parameter (nrx=1501)
-    double precision :: rwgtx(nrx),gzbig(nrx*2)
+    double precision :: rwgtx(nrx) !,gzbig(nrx,2)
+    real(8),allocatable:: gzbig(:,:)
     !     double precision gbig(nrx*2),gpbig(nrx*8),vbig(nrx,2)
     !     Spin-Orbit related parameters
     integer :: moda(0:lmxa)
@@ -155,67 +159,51 @@ contains
     vab=0d0
     sab=0d0
     if(lso/=0) sodb=0d0
-    isploop: do  80  i = 1, nsp
-       if(ipr>=40)write(stdo,ftox)' potpus spin=',i,'pnu=',ftof(pnu(1:lmxa+1,i),3)
-       if(ipr>=40.and.lpz/= 0) write(stdo,ftox), 'pnz=',ftof(pnz(1:lmxa+1,i),3)
+    isploop: do 80  i = 1, nsp
+       if(ipr>=40)             write(stdo,ftox)' potpus spin=',i,'pnu=',ftof(pnu(1:lmxa+1,i),3)
+       if(ipr>=40.and.lpz/= 0) write(stdo,ftox)' pnz=',ftof(pnz(1:lmxa+1,i),3)
        lloop: do  10  l = 0, lmxa
           k = l+1
           lpzi(l) = 0
           if (pnz(k,i) >  0)  lpzi(l) = 1
           if (pnz(k,i) >= 10) lpzi(l) = 2
           moda(l) = 5
-          if (lpzi(l) /= 0) moda(l) = 6
-          ! ... Semicore wf gz and its sphere boundary parameters
-          if (lpzi(l) /= 0) then
+          if (lpzi(l)/=0) then ! ... lo wf gz and its sphere boundary parameters
+             moda(l) = 6 
              call makrwf(10,z,rmax,l,v(1,i),a,nr,rofi,pnz(1,i),4,gz,gp,ez,phz,dphz,phzp,dphzp,pz)
-             !   ... Keep local copies of gz for SO coupling
-             if (lso /= 0) then
-                call dcopy(nr,gz,1,pzi(1,l,i),1)
-                ezum(l,i) = ez
-             endif
-             !       Extend local orbital to large mesh; match gz to envelope
-             if (lpzi(l) > 1) then
-                call dcopy(nr,gz,1,gzbig,1)
-                call dcopy(nr,gz(1,2),1,gzbig(1+nrbig),1)
+             if (lpzi(l)==2) then ! Extend local orbital to large mesh; match gz to envelope
+                allocate(gzbig(nrbig,2))
+                gzbig(1:nr,:) = gz(1:nr,:)
                 call rwftai(5,rmax,a,nr,nrbig,rofi,phz,dphz,xx,l,ehl(k), rsml(k),gzbig)
-                !         If rwftai scales gzbig, rescale phz,gz
-                if (gzbig(nr) /= gz(nr,1)) then
-                   xx = gzbig(nr)/gz(nr,1)
-                   phz   = phz*xx
-                   dphz  = dphz*xx
-                   phzp  = phzp*xx
-                   dphzp = dphzp*xx
-                   call dscal(nr,xx,gz(1,1),1)
-                   call dscal(nr,xx,gz(1,2),1)
+                if (gzbig(nr,1) /= gz(nr,1)) then !   If rwftai scales gzbig, rescale phz,gz
+                   xx = gzbig(nr,1)/gz(nr,1)
+                   phz  = phz*xx
+                   dphz = dphz*xx
+                   phzp = phzp*xx
+                   dphzp= dphzp*xx
+                   gz   = gz*xx !call dscal(nr,xx,gz(1,1),1) call dscal(nr,xx,gz(1,2),1)
                 endif
-                !     ... Recopy gz for SO coupling
-                if (lso /= 0) call dcopy(nr,gz,1,pzi(1,l,i),1)
              endif
+             if(lso/=0) ezum(l,i) = ez     !for SO
+             if(lso/=0) pzi(:,l,i)= gz(:,1)!for SO
           else
              phz = 0
              dphz = 0
           endif
-          ! ... Valence w.f. g,gp, and their sphere boundary parameters
+          ! ... Valence wf g,gp, and their sphere boundary parameters
           call makrwf(10,z,rmax,l,v(1,i),a,nr,rofi,pnu(1,i),2,g,gp,ev,phi,dphi,phip,dphip,p)
-          !     <g H g> = e <g g> = e
-          !     <g H gp> = <g (H-e) gp> + e <g gp> = <g g> = 1
-          !     <gp H gp> = <gp (H-e) gp> + e <gp gp> = <gp g> + e p = ep
-          ghg = ev
-          ghgp = 1d0
-          gphgp = ev*p
+          ghg    = ev   ! <g H g> = e <g g> = e
+          ghgp   = 1d0  ! <g H gp> = <g (H-e) gp> + e <g gp> = <g g> = 1
+          gphgp  = ev*p ! <gp H gp> = <gp (H-e) gp> + e <gp gp> = <gp g> + e p = ep
           dlphi  = rmax*dphi/phi
           dlphip = rmax*dphip/phip
-          ! ... Integrate g and gp outward on extended mesh --->removed here at 2022-dec-25
-          ! ... Keep local copies of phi and phidot for SO coupling
-          if(lso /= 0) then
-             do ir = 1, nr
-                psi(ir,l,i) = g(ir,1)
-                dpsi(ir,l,i)= gp(ir,1)
-             enddo
+          ! xxx Integrate g and gp outward on extended mesh --->removed here at 2022-dec-25
+          if(lso /= 0) then ! ... Keep local copies of phi and phidot for SO coupling
+             psi(:,l,i) = g(:,1)
+             dpsi(:,l,i)= gp(:,1)
              enumx(l,i) = ev
           endif
-          ! ... NMTO potential parameters, no backwards integration, <phi phi>=1
-          call dpzero(ppnl(1,k,i),nppn)
+          ppnl(:,k,i) = 0d0 ! potential parameters, no backwards integration, <phi phi>=1
           ppnl(1,k,i) = 0
           ppnl(2,k,i) = 1d0
           ppnl(3,k,i) = rmax * dlphi
@@ -225,80 +213,41 @@ contains
           ppnl(7,k,i) = p
           ppnl(11,k,i) = phz
           ppnl(12,k,i) = dphz
-          ! ... 2nd generation potential sc parameters (Methfessel scaling)
-          !     NB: overwrites c,vl,srdel,q,qpar
-          !     ppars not saved; only printed out
-          ! --- Integrals of w.f. products with spherical potential ---
-          fllp1 = l*(l+1)
-          v00 = 0d0
-          v10 = 0d0
-          v11 = 0d0
-          d00 = 0d0
-          d10 = 0d0
-          d11 = 0d0
-
-          s0z = 0d0
-          s1z = 0d0
-          szz = 0d0
-          v0z = 0d0
-          v1z = 0d0
-          vzz = 0d0
-          d0z = 0d0
-          d1z = 0d0
-          dzz = 0d0
-
-          ! ... This branch computes integrals with products of (g,gp)
+          intg: block ! --- Integrals of w.f. products with spherical potential ---
+          ! ... This branch computes integrals with products of (g,gp,gz)
           !     Convention: 00 (phi,phi) 10 (dot,phi) 11 (dot,dot)
-          if (lpzi(l) == 0) then
-             block
-               real(8):: vii(nr),tmcc(nr),gfac(nr)
-               vii(1)=0d0
-               vii(2:nr) = v(2:nr,i) - 2d0*z/rofi(2:nr)
-               tmcc = cc - (vii-ev)/cc
-               gfac(1)=0d0
-               gfac(2:nr) = 1d0 + fllp1/(tmcc(2:nr)*rofi(2:nr))**2
-               d00= sum(rwgt*vdif(:,i)* (gfac* g(:,1)*g(:,1)+ g(:,2)*g(:,2)) ) 
-               d10= sum(rwgt*vdif(:,i)* (gfac* gp(:,1)*g(:,1)+ gp(:,2)*g(:,2)) ) 
-               d11= sum(rwgt*vdif(:,i)* (gfac*gp(:,1)*gp(:,1)+gp(:,2)*gp(:,2)) )
-               v00= sum(rwgt*vii*       (gfac* g(:,1)* g(:,1)+ g(:,2)* g(:,2)) ) 
-               v10= sum(rwgt*vii*       (gfac*gp(:,1)* g(:,1)+gp(:,2)* g(:,2)) )
-               v11= sum(rwgt*vii*       (gfac*gp(:,1)*gp(:,1)+gp(:,2)*gp(:,2)) )
-             endblock
-             ! ... This branch computes integrals with products of (g,gp,gz)
-             !     Convention: 0z (phi,sc) 1z (dot,sc) zz (sc,sc)
-          else
-             do  ir = 2, nr
-                r = rofi(ir)
-                vi = v(ir,i) - 2d0*z/r
-                tmc = cc - (vi-ev)/cc
-                gf11 = 1d0 + fllp1/(tmc*r)**2
-                tmc = cc - (vi-ez)/cc
-                gf22 = 1d0 + fllp1/(tmc*r)**2
-                xxx = rwgt(ir)*vi
-                yyy = rwgt(ir)*vdif(ir,i)
-                gf12 = (gf11 + gf22)/2
-                zzz = rwgt(ir)
-
-                d0z = d0z + yyy*(gf12*g(ir,1)*gz(ir,1) + g(ir,2)*gz(ir,2))
-                d1z = d1z + yyy*(gf12*gp(ir,1)*gz(ir,1) + gp(ir,2)*gz(ir,2))
-                dzz = dzz + yyy*(gf22*gz(ir,1)*gz(ir,1) + gz(ir,2)*gz(ir,2))
-                v0z = v0z + xxx*(gf12*g(ir,1)*gz(ir,1) + g(ir,2)*gz(ir,2))
-                v1z = v1z + xxx*(gf12*gp(ir,1)*gz(ir,1) + gp(ir,2)*gz(ir,2))
-                vzz = vzz + xxx*(gf22*gz(ir,1)*gz(ir,1) + gz(ir,2)*gz(ir,2))
-
-                d00 = d00 + yyy*(gf11*g(ir,1)*g(ir,1) + g(ir,2)*g(ir,2))
-                d10 = d10 + yyy*(gf11*gp(ir,1)*g(ir,1) + gp(ir,2)*g(ir,2))
-                d11 = d11 + yyy*(gf11*gp(ir,1)*gp(ir,1) + gp(ir,2)*gp(ir,2))
-                v00 = v00 + xxx*(gf11*g(ir,1)*g(ir,1) + g(ir,2)*g(ir,2))
-                v10 = v10 + xxx*(gf11*gp(ir,1)*g(ir,1) + gp(ir,2)*g(ir,2))
-                v11 = v11 + xxx*(gf11*gp(ir,1)*gp(ir,1) + gp(ir,2)*gp(ir,2))
-
-                s0z = s0z + zzz*(gf12*g(ir,1)*gz(ir,1)+g(ir,2)*gz(ir,2))
-                s1z = s1z + zzz*(gf12*gp(ir,1)*gz(ir,1)+gp(ir,2)*gz(ir,2))
-                szz = szz + zzz*(gf22*gz(ir,1)*gz(ir,1)+gz(ir,2)*gz(ir,2))
-             enddo
-          endif
-
+          !     Convention: 0z (phi,sc) 1z (dot,sc) zz (sc,sc)
+            integer:: fllp1
+            real(8):: vii(nr),tmcc(nr),gf11(nr),gf22(nr),gf12(nr),xxxw(nr),yyyw(nr),zzzw(nr)
+            fllp1 = l*(l+1)
+            vii(1)=0d0
+            vii(2:nr) = v(2:nr,i) - 2d0*z/rofi(2:nr)
+            tmcc = cc - (vii-ev)/cc
+            gf11(1)=0d0
+            gf11(2:nr) = 1d0 + fllp1/(tmcc(2:nr)*rofi(2:nr))**2
+            d00= sum(rwgt*vdif(:,i)* (gf11* g(:,1)* g(:,1)+ g(:,2)*g(:,2)) ) 
+            d10= sum(rwgt*vdif(:,i)* (gf11*gp(:,1)* g(:,1)+gp(:,2)*g(:,2)) ) 
+            d11= sum(rwgt*vdif(:,i)* (gf11*gp(:,1)*gp(:,1)+gp(:,2)*gp(:,2)))
+            v00= sum(rwgt*vii*       (gf11* g(:,1)* g(:,1)+ g(:,2)*g(:,2)) ) 
+            v10= sum(rwgt*vii*       (gf11*gp(:,1)* g(:,1)+gp(:,2)*g(:,2)) )
+            v11= sum(rwgt*vii*       (gf11*gp(:,1)*gp(:,1)+gp(:,2)*gp(:,2)))
+            if(lpzi(l)/=0) then !computes integrals with products of (g,gp) x gz
+               gf12(1)=0d0
+               gf22(1)=0d0
+               tmcc= cc - (vii-ez)/cc
+               gf22(2:nr) = 1d0 + fllp1/(tmcc(2:nr)*rofi(2:nr))**2
+               gf12 = (gf11 + gf22)/2
+               d0z = sum(rwgt*vdif(:,i)*(gf12*g(:,1) *gz(:,1)+ g(:,2) *gz(:,2)))
+               d1z = sum(rwgt*vdif(:,i)*(gf12*gp(:,1)*gz(:,1)+ gp(:,2)*gz(:,2)))
+               dzz = sum(rwgt*vdif(:,i)*(gf22*gz(:,1)*gz(:,1)+ gz(:,2)*gz(:,2)))
+               v0z = sum(rwgt*vii*(gf12*g(:,1) *gz(:,1)+ g(:,2) *gz(:,2)))
+               v1z = sum(rwgt*vii*(gf12*gp(:,1)*gz(:,1)+ gp(:,2)*gz(:,2)))
+               vzz = sum(rwgt*vii*(gf22*gz(:,1)*gz(:,1)+ gz(:,2)*gz(:,2)))
+               s0z = sum(rwgt*(gf12*g(:,1) *gz(:,1)+ g(:,2) *gz(:,2)))
+               s1z = sum(rwgt*(gf12*gp(:,1)*gz(:,1)+ gp(:,2)*gz(:,2)))
+               szz = sum(rwgt*(gf22*gz(:,1)*gz(:,1)+ gz(:,2)*gz(:,2)))
+            endif
+          endblock intg
           v00 = v00 + d00
           v10 = v10 + d10
           v11 = v11 + d11
@@ -306,15 +255,11 @@ contains
           s00 = 1d0
           s10 = 0d0
           s01 = 0d0
-          s11 = p
-          !     h00 = <g H g> = e <g g> = e
-          !     h01 = <g H gp> = <g (H-e) gp> + e <g gp> = <g g>
-          !     h11 = <gp H gp> = <gp (H-e) gp> + e <gp gp>
-          !         = <gp g> + e p = ep
-          h00 = ghg   + d00
-          h01 = ghgp  + d10
-          h10 = 0d0   + d10
-          h11 = gphgp + d11
+          s11 = p           ! h+d
+          h00 = ghg   + d00 ! h00 = <g H g> = e <g g> = e                       
+          h01 = ghgp  + d10 ! h01 = <g H gp> = <g (H-e) gp> + e <g gp> = <g g>  
+          h10 = 0d0   + d10 ! h10 = <gp H g> = 0d0
+          h11 = gphgp + d11 ! h11 = <gp H gp> = <gp (H-e) gp> + e <gp gp> = <gp g> + e p = ep     
           !     Should not be needed since Wronskian explicit in makrwf
           call pvpus1(rmax,phi,dphi,phip,dphip,h01,h10)
           if (lpzi(l) /= 0) then
@@ -325,15 +270,12 @@ contains
              vz1 = v1z
              sz0 = s0z
              sz1 = s1z
-             h0z = ez*s0z + d0z
-             !??     h0z = ez*s0z + d0z - ev*(phz*m11 + dphz*m21) ! if gz has u,s subt.
+             h0z = ez*s0z + d0z!? h0z = ez*s0z + d0z - ev*(phz*m11 + dphz*m21) ! if gz has u,s subt.
              hz0 = ev*s0z + d0z
-             h1z = ez*s1z + d1z
-             !??     h1z = ez*s1z + d1z - ev*(phz*m12 + dphz*m22) ! if gz has u,s subt.
+             h1z = ez*s1z + d1z!? h1z = ez*s1z + d1z - ev*(phz*m12 + dphz*m22) ! if gz has u,s subt.
              hz1 = ev*sz1 + sz0 + d1z
              hzz = ez*szz + dzz
-             !       Put in Wronskians explicitly
-             call pvpus1(rmax,phi,dphi,phz,dphz,h0z,hz0)
+             call pvpus1(rmax,phi,dphi,phz,dphz,h0z,hz0) !       Put in Wronskians explicitly
              call pvpus1(rmax,phip,dphip,phz,dphz,h1z,hz1)
           endif
 
@@ -367,7 +309,6 @@ contains
              m(2,1,l,i) = m21
              m(2,2,l,i) = m22
           endif
-
           !        block
           !       real(8)::mm(2,2)
           !       mm=reshape([m11,m21,m12,m22],[2,2])
@@ -537,7 +478,6 @@ contains
                 sodb(3,1,k,i,1) = vzu
                 sodb(3,2,k,i,1) = vzs
              endif
-
           enddo
        enddo
        !   ... Make the spin off-diagonal radial integrals
@@ -716,8 +656,7 @@ contains
          wi(nr),sopz(0:lmxs,nsp,nsp,3),enu(0:8,nsp),ez(0:8,nsp)
     integer :: l,ir,is,is1,is2,ipr,mode0,lmin
     double precision :: c,pa,r,r1,r2,dot3,vavg,eavg,eavgz,dva,xx,xxz,xxavg,wkz(nr,4)
-    !     Speed of light, or infinity in nonrelativistic case
-    common /cc/ c !     c = 274.071979d0
+    common /cc/ c ! c = 274.071979d0 or 1d10 !  Speed of light, or infinity in nonrelativistic case
     data pa /1d0/
     call getpr(ipr)
     mode0 = mod(mode,4)  
@@ -729,25 +668,18 @@ contains
        do   is = 1, nsp
           do   l = 0, lmx
              r1 = dot3(nr,phi(1,l,is),phi(1,l,is),wi)
-             call dscal(nr,1/dsqrt(r1),phi(1,l,is),1)
+             phi(:,l,is) = phi(:,l,is)/dsqrt(r1) ! call dscal(nr,1,,1)
              r2 = dot3(nr,phi(1,l,is),phid(1,l,is),wi)
-             call daxpy(nr,-r2,phi(1,l,is),1,phid(1,l,is),1)
-             if (ipr > 50) write(stdo,334) is,l,r1,r2
-334          format('  spin',i2,'  l=',i1,2f13.6)
+             phid(:,l,is)=phid(:,l,is) -r2*phi(:,l,is)! daxpy(nr,-r2,phi(1,l,is),1,phid(1,l,is),1)
+             if (ipr > 50) write(stdo,"('  spin',i2,'  l=',i1,2f13.6)") is,l,r1,r2
           enddo
        enddo
     endif
-    if (mode0 == 0) return
+    if (mode0==0) return
     ! --- Matrix elements for each l ---
-    do  is = 1, 4
-       wk(1,is) = 0d0
-       wkz(1,is) = 0d0
-    enddo
-    if (mode0 == 2) then
-       do  ir = 2, nr
-          wk(ir,1) = wi(ir) * dv(ir)
-       enddo
-    endif
+    wk(1,:) = 0d0
+    wkz(1,:) = 0d0
+    if(mode0==2) wk(2:nr,1) = wi(2:nr) * dv(2:nr)
     ! .. Initialize matrix elements for s orbitals, in case not calculated
     l = 0
     do  is2 = 1, nsp
