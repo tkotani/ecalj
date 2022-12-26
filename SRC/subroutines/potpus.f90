@@ -109,33 +109,27 @@ contains
     implicit none
     integer :: lmxa,lso,nr,nsp,n0,nab,nppn
     parameter (nppn=12)
-    double precision :: z,rmax,a,rofi(1),v(nr,nsp),ehl(n0),rsml(n0), &
+    real(8):: z,rmax,a,rofi(1),v(nr,nsp),ehl(n0),rsml(n0), &
          pnu(n0,nsp),pnz(n0,nsp),ppnl(nppn,n0,2), & !,pp(n0,2,5)
          hab(3,3,n0,nsp),sab(3,3,n0,nsp),vab(3,3,n0,nsp),vdif(nr,nsp), &
          sodb(3,3,n0,nsp,2),rs3,vmtz
-    integer :: ipr,ir,i,j,k,l,lpz,lpzi(0:n0),nrbig
-    double precision :: m21,m11,m22,m12,d00,d10,d11,det,vi, &
-         h00,h01,h10,h11, &
-         phmins,phplus,q,r,s00,s01,s10,s11,tmc, &
-         umegam,umegap,v00,v01,v10,v11,vl,xx,xxx,yyy,zzz, &
-         b,ghg,ghgp,gphgp !enu,c,srdel,qpar,ppar,
-    
-!    real(8):: ,gf11(nr),gf22(nr),gf12(nr)
-!    real(8):: gf11,gf22,gf12
-    double precision :: d0z,d1z,dzz,v0z,v1z,s0z,s1z,vz0,vz1,sz0, &
-         sz1,h0z,hz0,h1z,hz1,suz,ssz,szu,szs,szz, &
-         vuz,vsz,vzu,vzs,vzz,huz,hsz,hzu,hzs,hzz
-    double precision :: g(nr,2),gp(nr,2*4),gz(nr,2)
-    double precision :: ev,phi,dphi,phip,dphip,p, dlphi,dlphip
-    double precision :: ez,phz,dphz,phzp,dphzp,pz,dlphz,dlphzp,phz2,dphz2
-    !     double precision ul,sl,D
+    integer:: ipr,ir,i,j,k,l,lpz,lpzi(0:n0),nrbig
+    real(8):: m21,m11,m22,m12,dmat(3,3),det,vi, &
+         hmat(3,3),phmins,phplus,q,r,smat(3,3),tmc, &
+         umegam,umegap,vmat(3,3),vl,xx,xxx,yyy,zzz, &
+         b,ghg,ghgp,gphgp, &
+         h1z,suz,ssz,szu,szs, &
+         vuz,vsz,vzu,vzs,huz,hsz,hzu,hzs,&
+         g(nr,2),gp(nr,2*4),gz(nr,2),&
+         ev,phi,dphi,phip,dphip,p, dlphi,dlphip,&
+         ez,phz,dphz,phzp,dphzp,pz,dlphz,dlphzp,phz2,dphz2
     integer :: nrx
     parameter (nrx=1501)
     double precision :: rwgtx(nrx) !,gzbig(nrx,2)
     real(8),allocatable:: gzbig(:,:)
     !     double precision gbig(nrx*2),gpbig(nrx*8),vbig(nrx,2)
     !     Spin-Orbit related parameters
-    integer :: moda(0:lmxa)
+!    integer :: moda(0:lmxa)
     double precision :: vavg(nr),dv(nr),sop(0:lmxa,nsp,nsp,3), &
          sopz(0:lmxa,nsp,nsp,3), &
          psi(nr,0:lmxa,nsp),dpsi(nr,0:lmxa,nsp), &
@@ -143,7 +137,7 @@ contains
          enumx(0:8,nsp),wrk(nr,4),m(2,2,0:lmxa,nsp), &
          x21,x11,x22,x12,vx00,vx01,vx10,vx11, &
          vx0z,vxz0,vx1z,vxz1,vxzz,vxzu,vxuz,vxzs,vxsz, xxxx(1,1)
-    real(8):: rwgt(nr)
+    real(8):: rwgt(nr),szz_,vzz_,hzz_
     call getpr(ipr)
     call vxtrap(1,z,rmax,lmxa,v,a,nr,nsp,pnz,rs3,vmtz,nrx,lpz,nrbig,rofi,rwgtx,xxxx(1,1))
     rwgt= rwgtx(1:nr)
@@ -167,9 +161,9 @@ contains
           lpzi(l) = 0
           if (pnz(k,i) >  0)  lpzi(l) = 1
           if (pnz(k,i) >= 10) lpzi(l) = 2
-          moda(l) = 5
+          !moda(l) = 5
           if (lpzi(l)/=0) then ! ... lo wf gz and its sphere boundary parameters
-             moda(l) = 6 
+             !moda(l) = 6 
              call makrwf(10,z,rmax,l,v(1,i),a,nr,rofi,pnz(1,i),4,gz,gp,ez,phz,dphz,phzp,dphzp,pz)
              if (lpzi(l)==2) then ! Extend local orbital to large mesh; match gz to envelope
                 allocate(gzbig(nrbig,2))
@@ -192,6 +186,7 @@ contains
           endif
           ! ... Valence wf g,gp, and their sphere boundary parameters
           call makrwf(10,z,rmax,l,v(1,i),a,nr,rofi,pnu(1,i),2,g,gp,ev,phi,dphi,phip,dphip,p)
+          
           ghg    = ev   ! <g H g> = e <g g> = e
           ghgp   = 1d0  ! <g H gp> = <g (H-e) gp> + e <g gp> = <g g> = 1
           gphgp  = ev*p ! <gp H gp> = <gp (H-e) gp> + e <gp gp> = <gp g> + e p = ep
@@ -215,8 +210,8 @@ contains
           ppnl(12,k,i) = dphz
           intg: block ! --- Integrals of w.f. products with spherical potential ---
           ! ... This branch computes integrals with products of (g,gp,gz)
-          !     Convention: 00 (phi,phi) 10 (dot,phi) 11 (dot,dot)
-          !     Convention: 0z (phi,sc) 1z (dot,sc) zz (sc,sc)
+          !     Convention: 11 (phi,phi) 21 (dot,phi) 22 (dot,dot)
+          !     Convention: 13 (phi,lo) 23 (dot,lo) 33 (sc,lo)
             integer:: fllp1
             real(8):: vii(nr),tmcc(nr),gf11(nr),gf22(nr),gf12(nr),xxxw(nr),yyyw(nr),zzzw(nr)
             fllp1 = l*(l+1)
@@ -225,58 +220,62 @@ contains
             tmcc = cc - (vii-ev)/cc
             gf11(1)=0d0
             gf11(2:nr) = 1d0 + fllp1/(tmcc(2:nr)*rofi(2:nr))**2
-            d00= sum(rwgt*vdif(:,i)* (gf11* g(:,1)* g(:,1)+ g(:,2)*g(:,2)) ) 
-            d10= sum(rwgt*vdif(:,i)* (gf11*gp(:,1)* g(:,1)+gp(:,2)*g(:,2)) ) 
-            d11= sum(rwgt*vdif(:,i)* (gf11*gp(:,1)*gp(:,1)+gp(:,2)*gp(:,2)))
-            v00= sum(rwgt*vii*       (gf11* g(:,1)* g(:,1)+ g(:,2)*g(:,2)) ) 
-            v10= sum(rwgt*vii*       (gf11*gp(:,1)* g(:,1)+gp(:,2)*g(:,2)) )
-            v11= sum(rwgt*vii*       (gf11*gp(:,1)*gp(:,1)+gp(:,2)*gp(:,2)))
+            dmat(1,1)= sum(rwgt*vdif(:,i)* (gf11* g(:,1)* g(:,1)+ g(:,2)*g(:,2)) ) 
+            dmat(2,1)= sum(rwgt*vdif(:,i)* (gf11*gp(:,1)* g(:,1)+gp(:,2)*g(:,2)) ) 
+            dmat(1,2)=dmat(2,1)
+            dmat(2,2)= sum(rwgt*vdif(:,i)* (gf11*gp(:,1)*gp(:,1)+gp(:,2)*gp(:,2)))
+            vmat(1,1)= sum(rwgt*vii*       (gf11* g(:,1)* g(:,1)+ g(:,2)*g(:,2)) ) 
+            vmat(2,1)= sum(rwgt*vii*       (gf11*gp(:,1)* g(:,1)+gp(:,2)*g(:,2)) )
+            vmat(2,2)= sum(rwgt*vii*       (gf11*gp(:,1)*gp(:,1)+gp(:,2)*gp(:,2)))
             if(lpzi(l)/=0) then !computes integrals with products of (g,gp) x gz
                gf12(1)=0d0
                gf22(1)=0d0
                tmcc= cc - (vii-ez)/cc
                gf22(2:nr) = 1d0 + fllp1/(tmcc(2:nr)*rofi(2:nr))**2
                gf12 = (gf11 + gf22)/2
-               d0z = sum(rwgt*vdif(:,i)*(gf12*g(:,1) *gz(:,1)+ g(:,2) *gz(:,2)))
-               d1z = sum(rwgt*vdif(:,i)*(gf12*gp(:,1)*gz(:,1)+ gp(:,2)*gz(:,2)))
-               dzz = sum(rwgt*vdif(:,i)*(gf22*gz(:,1)*gz(:,1)+ gz(:,2)*gz(:,2)))
-               v0z = sum(rwgt*vii*(gf12*g(:,1) *gz(:,1)+ g(:,2) *gz(:,2)))
-               v1z = sum(rwgt*vii*(gf12*gp(:,1)*gz(:,1)+ gp(:,2)*gz(:,2)))
-               vzz = sum(rwgt*vii*(gf22*gz(:,1)*gz(:,1)+ gz(:,2)*gz(:,2)))
-               s0z = sum(rwgt*(gf12*g(:,1) *gz(:,1)+ g(:,2) *gz(:,2)))
-               s1z = sum(rwgt*(gf12*gp(:,1)*gz(:,1)+ gp(:,2)*gz(:,2)))
-               szz = sum(rwgt*(gf22*gz(:,1)*gz(:,1)+ gz(:,2)*gz(:,2)))
+               dmat(1,3) = sum(rwgt*vdif(:,i)*(gf12*g(:,1) *gz(:,1)+ g(:,2) *gz(:,2)))
+               dmat(2,3) = sum(rwgt*vdif(:,i)*(gf12*gp(:,1)*gz(:,1)+ gp(:,2)*gz(:,2)))
+               dmat(3,3) = sum(rwgt*vdif(:,i)*(gf22*gz(:,1)*gz(:,1)+ gz(:,2)*gz(:,2)))
+               dmat(3,2) = dmat(2,3)
+               vmat(1,3) = sum(rwgt*vii*(gf12*g(:,1) *gz(:,1)+ g(:,2) *gz(:,2)))
+               vmat(2,3) = sum(rwgt*vii*(gf12*gp(:,1)*gz(:,1)+ gp(:,2)*gz(:,2)))
+               vmat(3,3) = sum(rwgt*vii*(gf22*gz(:,1)*gz(:,1)+ gz(:,2)*gz(:,2)))
+               vmat(3,2) = vmat(2,3)
+               smat(1,3) = sum(rwgt*(gf12*g(:,1) *gz(:,1)+ g(:,2) *gz(:,2)))
+               smat(2,3) = sum(rwgt*(gf12*gp(:,1)*gz(:,1)+ gp(:,2)*gz(:,2)))
+               smat(3,3) = sum(rwgt*(gf22*gz(:,1)*gz(:,1)+ gz(:,2)*gz(:,2)))
+               smat(3,2) = smat(2,3)
             endif
           endblock intg
-          v00 = v00 + d00
-          v10 = v10 + d10
-          v11 = v11 + d11
-          v01 = v10
-          s00 = 1d0
-          s10 = 0d0
-          s01 = 0d0
-          s11 = p           ! h+d
-          h00 = ghg   + d00 ! h00 = <g H g> = e <g g> = e                       
-          h01 = ghgp  + d10 ! h01 = <g H gp> = <g (H-e) gp> + e <g gp> = <g g>  
-          h10 = 0d0   + d10 ! h10 = <gp H g> = 0d0
-          h11 = gphgp + d11 ! h11 = <gp H gp> = <gp (H-e) gp> + e <gp gp> = <gp g> + e p = ep     
-          !     Should not be needed since Wronskian explicit in makrwf
-          call pvpus1(rmax,phi,dphi,phip,dphip,h01,h10)
+          vmat(1,1) = vmat(1,1) + dmat(1,1)
+          vmat(2,1) = vmat(2,1) + dmat(2,1)
+          vmat(2,2) = vmat(2,2) + dmat(2,2)
+          vmat(1,2) = vmat(2,1)
+          smat(1,1) = 1d0
+          smat(2,1) = 0d0
+          smat(1,2) = 0d0
+          smat(2,2) = p           ! h+d
+          hmat(1,1) = ghg   + dmat(1,1)! hmat(1,1)=<g H g> = e <g g> = e                       
+          hmat(1,2) = ghgp  + dmat(1,2)! hmat(1,2)=<g H gp> = <g (H-e) gp> + e <g gp> = <g g>  
+          hmat(2,1) = 0d0   + dmat(2,1)! hmat(2,1)=<gp H g> = 0d0
+          hmat(2,2) = gphgp + dmat(2,2)! hmat(2,2)=<gp H gp> = <gp (H-e) gp> + e <gp gp> = <gp g> + e p = ep
+          ! Should not be needed since Wronskian explicit in makrwf
+          call pvpus1(rmax,phi,dphi,phip,dphip,hmat(1,2),hmat(2,1))
           if (lpzi(l) /= 0) then
-             v0z = v0z + d0z
-             v1z = v1z + d1z
-             vzz = vzz + dzz
-             vz0 = v0z
-             vz1 = v1z
-             sz0 = s0z
-             sz1 = s1z
-             h0z = ez*s0z + d0z!? h0z = ez*s0z + d0z - ev*(phz*m11 + dphz*m21) ! if gz has u,s subt.
-             hz0 = ev*s0z + d0z
-             h1z = ez*s1z + d1z!? h1z = ez*s1z + d1z - ev*(phz*m12 + dphz*m22) ! if gz has u,s subt.
-             hz1 = ev*sz1 + sz0 + d1z
-             hzz = ez*szz + dzz
-             call pvpus1(rmax,phi,dphi,phz,dphz,h0z,hz0) !       Put in Wronskians explicitly
-             call pvpus1(rmax,phip,dphip,phz,dphz,h1z,hz1)
+             vmat(1,3) = vmat(1,3) + dmat(1,3)
+             vmat(2,3) = vmat(2,3) + dmat(2,3)
+             vmat(3,3) = vmat(3,3) + dmat(3,3)
+             vmat(3,1) = vmat(1,3)
+             vmat(3,2) = vmat(2,3)
+             smat(3,1) = smat(1,3)
+             smat(3,2) = smat(2,3)
+             hmat(1,3) = ez*smat(1,3) + dmat(1,3)
+             hmat(3,1) = ev*smat(1,3) + dmat(1,3)
+             hmat(3,2) = ev*smat(3,2) + smat(3,1) + dmat(2,3)
+             hmat(3,3) = ez*smat(3,3) + dmat(3,3)
+             call pvpus1(rmax,phi,dphi,phz,dphz,hmat(1,3),hmat(3,1)) ! Put in Wronskians explicitly
+             h1z = ez*smat(2,3) + dmat(2,3)
+             call pvpus1(rmax,phip,dphip,phz,dphz,h1z,hmat(3,2))
           endif
 
           ! --- Integrals of u-s products from phi,phidot products ---
@@ -310,29 +309,30 @@ contains
              m(2,2,l,i) = m22
           endif
           !        block
-          !       real(8)::mm(2,2)
+          !       real(8)::mm(3,3)
           !       mm=reshape([m11,m21,m12,m22],[2,2])
           !       endblock
 
           ! ... hab(1)=huu   hab(2)=hus   hab(3)=hsu   hab(4)=hss
-          hab(1,1,k,i) = m11*h00*m11 + m11*h01*m12 + m12*h10*m11 + m12*h11*m12
-          hab(2,1,k,i) = m11*h00*m21 + m11*h01*m22 + m12*h10*m21 + m12*h11*m22
-          hab(1,2,k,i) = m21*h00*m11 + m21*h01*m12 + m22*h10*m11 + m22*h11*m12
-          hab(2,2,k,i) = m21*h00*m21 + m21*h01*m22 + m22*h10*m21 + m22*h11*m22
+          hab(1,1,k,i) = m11*hmat(1,1)*m11 + m11*hmat(1,2)*m12 + m12*hmat(2,1)*m11 + m12*hmat(2,2)*m12
+          hab(2,1,k,i) = m11*hmat(1,1)*m21 + m11*hmat(1,2)*m22 + m12*hmat(2,1)*m21 + m12*hmat(2,2)*m22
+          hab(1,2,k,i) = m21*hmat(1,1)*m11 + m21*hmat(1,2)*m12 + m22*hmat(2,1)*m11 + m22*hmat(2,2)*m12
+          hab(2,2,k,i) = m21*hmat(1,1)*m21 + m21*hmat(1,2)*m22 + m22*hmat(2,1)*m21 + m22*hmat(2,2)*m22
+          !hab(:,:,k,i) = (matmul(mm,hmat),transpose(mm))
           !     Next 2 lines put in Wronskian explicitly
           !     Should no longer be needed: Wronskian explicit in makrwf.
           hab(2,1,k,i) = 0.5d0 * (hab(2,1,k,i)+hab(1,2,k,i)-rmax**2)
           hab(1,2,k,i) = hab(2,1,k,i)+rmax**2
 
-          sab(1,1,k,i) = m11*s00*m11 + m11*s01*m12 + m12*s10*m11 + m12*s11*m12
-          sab(2,1,k,i) = m11*s00*m21 + m11*s01*m22 + m12*s10*m21 + m12*s11*m22
-          sab(1,2,k,i) = m21*s00*m11 + m21*s01*m12 + m22*s10*m11 + m22*s11*m12
-          sab(2,2,k,i) = m21*s00*m21 + m21*s01*m22 + m22*s10*m21 + m22*s11*m22
+          sab(1,1,k,i) = m11*smat(1,1)*m11 + m11*smat(1,2)*m12 + m12*smat(2,1)*m11 + m12*smat(2,2)*m12
+          sab(2,1,k,i) = m11*smat(1,1)*m21 + m11*smat(1,2)*m22 + m12*smat(2,1)*m21 + m12*smat(2,2)*m22
+          sab(1,2,k,i) = m21*smat(1,1)*m11 + m21*smat(1,2)*m12 + m22*smat(2,1)*m11 + m22*smat(2,2)*m12
+          sab(2,2,k,i) = m21*smat(1,1)*m21 + m21*smat(1,2)*m22 + m22*smat(2,1)*m21 + m22*smat(2,2)*m22
 
-          vab(1,1,k,i) = m11*v00*m11 + m11*v01*m12 + m12*v10*m11 + m12*v11*m12
-          vab(2,1,k,i) = m11*v00*m21 + m11*v01*m22 + m12*v10*m21 + m12*v11*m22
-          vab(1,2,k,i) = m21*v00*m11 + m21*v01*m12 + m22*v10*m11 + m22*v11*m12
-          vab(2,2,k,i) = m21*v00*m21 + m21*v01*m22 + m22*v10*m21 + m22*v11*m22
+          vab(1,1,k,i) = m11*vmat(1,1)*m11 + m11*vmat(1,2)*m12 + m12*vmat(2,1)*m11 + m12*vmat(2,2)*m12
+          vab(2,1,k,i) = m11*vmat(1,1)*m21 + m11*vmat(1,2)*m22 + m12*vmat(2,1)*m21 + m12*vmat(2,2)*m22
+          vab(1,2,k,i) = m21*vmat(1,1)*m11 + m21*vmat(1,2)*m12 + m22*vmat(2,1)*m11 + m22*vmat(2,2)*m12
+          vab(2,2,k,i) = m21*vmat(1,1)*m21 + m21*vmat(1,2)*m22 + m22*vmat(2,1)*m21 + m22*vmat(2,2)*m22
 
           ! --- Integrals of transformed gz with (new gz, u, s) ---
           !     New gz = (gz0 - gz0(rmax) u - r*(gz0/r)'(rmax) s)
@@ -353,33 +353,33 @@ contains
              dphz = 0
           endif
           if (lpzi(l) /= 0) then
-             suz = m11*s0z + m12*s1z
-             ssz = m21*s0z + m22*s1z
-             szu = sz0*m11 + sz1*m12
-             szs = sz0*m21 + sz1*m22
-             szz = szz - phz*(suz+szu) - dphz*(ssz+szs) + phz**2*sab(1,1,k,i) + &
+             suz = m11*smat(1,3) + m12*smat(2,3)
+             ssz = m21*smat(1,3) + m22*smat(2,3)
+             szu = smat(3,1)*m11 + smat(3,2)*m12
+             szs = smat(3,1)*m21 + smat(3,2)*m22
+             szz_ = smat(3,3) - phz*(suz+szu) - dphz*(ssz+szs) + phz**2*sab(1,1,k,i) + &
                   phz*dphz*(sab(2,1,k,i)+sab(1,2,k,i)) + dphz**2*sab(2,2,k,i)
              suz = suz - phz*sab(1,1,k,i) - dphz*sab(2,1,k,i)
              ssz = ssz - phz*sab(1,2,k,i) - dphz*sab(2,2,k,i)
              szu = szu - phz*sab(1,1,k,i) - dphz*sab(1,2,k,i)
              szs = szs - phz*sab(2,1,k,i) - dphz*sab(2,2,k,i)
 
-             vuz = m11*v0z + m12*v1z
-             vsz = m21*v0z + m22*v1z
-             vzu = vz0*m11 + vz1*m12
-             vzs = vz0*m21 + vz1*m22
-             vzz = vzz - phz*(vuz+vzu) - dphz*(vsz+vzs) + phz**2*vab(1,1,k,i) + &
+             vuz = m11*vmat(1,3) + m12*vmat(2,3)
+             vsz = m21*vmat(1,3) + m22*vmat(2,3)
+             vzu = vmat(3,1)*m11 + vmat(3,2)*m12
+             vzs = vmat(3,1)*m21 + vmat(3,2)*m22
+             vzz_= vmat(3,3) - phz*(vuz+vzu) - dphz*(vsz+vzs) + phz**2*vab(1,1,k,i) + &
                   phz*dphz*(vab(2,1,k,i)+vab(1,2,k,i)) + dphz**2*vab(2,2,k,i)
              vuz = vuz - phz*vab(1,1,k,i) - dphz*vab(2,1,k,i)
              vsz = vsz - phz*vab(1,2,k,i) - dphz*vab(2,2,k,i)
              vzu = vzu - phz*vab(1,1,k,i) - dphz*vab(1,2,k,i)
              vzs = vzs - phz*vab(2,1,k,i) - dphz*vab(2,2,k,i)
 
-             huz = m11*h0z + m12*h1z
-             hsz = m21*h0z + m22*h1z
-             hzu = hz0*m11 + hz1*m12
-             hzs = hz0*m21 + hz1*m22
-             hzz = hzz - phz*(huz+hzu) - dphz*(hsz+hzs) + phz**2*hab(1,1,k,i) + &
+             huz = m11*hmat(1,3) + m12*h1z
+             hsz = m21*hmat(1,3) + m22*h1z
+             hzu = hmat(3,1)*m11 + hmat(3,2)*m12
+             hzs = hmat(3,1)*m21 + hmat(3,2)*m22
+             hzz_= hmat(3,3) - phz*(huz+hzu) - dphz*(hsz+hzs) + phz**2*hab(1,1,k,i) + &
                   phz*dphz*(hab(2,1,k,i)+hab(1,2,k,i)) + dphz**2*hab(2,2,k,i)
              huz = huz - phz*hab(1,1,k,i) - dphz*hab(2,1,k,i)
              hsz = hsz - phz*hab(1,2,k,i) - dphz*hab(2,2,k,i)
@@ -396,23 +396,23 @@ contains
              !     print *, 'zero out potpus local orbitals'
              sab(1,3,k,i) = suz !5
              sab(2,3,k,i) = ssz !6
-             sab(3,3,k,i) = szz !7
+             sab(3,3,k,i) = szz_!7
              sab(3,1,k,i) = szu !8
              sab(3,2,k,i) = szs !9
 
              vab(1,3,k,i) = vuz
              vab(2,3,k,i) = vsz
-             vab(3,3,k,i) = vzz
+             vab(3,3,k,i) = vzz_
              vab(3,1,k,i) = vzu
              vab(3,2,k,i) = vzs
 
              hab(1,3,k,i) = huz
              hab(2,3,k,i) = hsz
-             hab(3,3,k,i) = hzz
+             hab(3,3,k,i) = hzz_
              hab(3,1,k,i) = hzu
              hab(3,2,k,i) = hzs
              ! ... NMTO potential parameters for local orbitals
-             !     Note that (s0z,s1z) = <(phi,phidot)|gz0>. We need <(phi,phidot)|gz>.
+             !     Note that (smat(1,3),smat(2,3)) = <(phi,phidot)|gz0>. We need <(phi,phidot)|gz>.
              !     Let i=1 or 2 and define s_iz = (<phi|gz>,<phidot|gz>) for i=1,2
 
              !     (s_1z)     (phi_1) |
@@ -423,12 +423,12 @@ contains
              !            = < (     ) | gz0 - M^-1< (   ) | phz u_1 - dphz u_2>
              !                (phi_2) |             (u_2) |
 
-             !              The first term are matrix elements (s0z,s1z)
-             ppnl(8,k,i)  = szz
+             !              The first term are matrix elements (smat(1,3),smat(2,3))
+             ppnl(8,k,i)  = szz_
              xxx = (phz*sab(1,1,k,i) + dphz*sab(2,1,k,i))
              yyy = (phz*sab(1,2,k,i) + dphz*sab(2,2,k,i))
-             ppnl(9,k,i)  = s0z - phi *xxx - dphi *yyy
-             ppnl(10,k,i) = s1z - phip*xxx - dphip*yyy
+             ppnl(9,k,i)  = smat(1,3) - phi *xxx - dphi *yyy
+             ppnl(10,k,i) = smat(2,3) - phip*xxx - dphip*yyy
           endif
 10     enddo lloop
 80  enddo isploop
@@ -445,26 +445,26 @@ contains
              m12 = m(1,2,l,i)
              m21 = m(2,1,l,i)
              m22 = m(2,2,l,i)
-             v00 = sop(l,i,i,1)
-             v01 = sop(l,i,i,2)
-             v10 = v01
-             v11 = sop(l,i,i,3)
-             sodb(1,1,k,i,1) =m11*v00*m11+m11*v01*m12+m12*v10*m11+m12*v11*m12
-             sodb(2,1,k,i,1) =m11*v00*m21+m11*v01*m22+m12*v10*m21+m12*v11*m22
-             sodb(1,2,k,i,1) =m21*v00*m11+m21*v01*m12+m22*v10*m11+m22*v11*m12
-             sodb(2,2,k,i,1) =m21*v00*m21+m21*v01*m22+m22*v10*m21+m22*v11*m22
+             vmat(1,1) = sop(l,i,i,1)
+             vmat(1,2) = sop(l,i,i,2)
+             vmat(2,1) = vmat(1,2)
+             vmat(2,2) = sop(l,i,i,3)
+             sodb(1,1,k,i,1) =m11*vmat(1,1)*m11+m11*vmat(1,2)*m12+m12*vmat(2,1)*m11+m12*vmat(2,2)*m12
+             sodb(2,1,k,i,1) =m11*vmat(1,1)*m21+m11*vmat(1,2)*m22+m12*vmat(2,1)*m21+m12*vmat(2,2)*m22
+             sodb(1,2,k,i,1) =m21*vmat(1,1)*m11+m21*vmat(1,2)*m12+m22*vmat(2,1)*m11+m22*vmat(2,2)*m12
+             sodb(2,2,k,i,1) =m21*vmat(1,1)*m21+m21*vmat(1,2)*m22+m22*vmat(2,1)*m21+m22*vmat(2,2)*m22
              !  ...  Make the local orbitals spin diagonal integrals
-             if (moda(l) == 6) then
-                vzz = sopz(l,i,i,1)
-                v0z = sopz(l,i,i,2)
-                vz0 = v0z
-                v1z = sopz(l,i,i,3)
-                vz1 = v1z
-                vzu = vz0*m11 + vz1*m12
-                vuz = m11*v0z + m12*v1z
-                vzs = vz0*m21 + vz1*m22
-                vsz = m21*v0z + m22*v1z
-                vzz = vzz - phz*(vuz+vzu) - dphz*(vsz+vzs) + &
+             if (lpzi(l)/=0) then !moda(l) == 6) then
+                vmat(3,3) = sopz(l,i,i,1)
+                vmat(1,3) = sopz(l,i,i,2)
+                vmat(3,1) = vmat(1,3)
+                vmat(2,3) = sopz(l,i,i,3)
+                vmat(3,2) = vmat(2,3)
+                vzu = vmat(3,1)*m11 + vmat(3,2)*m12
+                vuz = m11*vmat(1,3) + m12*vmat(2,3)
+                vzs = vmat(3,1)*m21 + vmat(3,2)*m22
+                vsz = m21*vmat(1,3) + m22*vmat(2,3)
+                vzz_ = vmat(3,3) - phz*(vuz+vzu) - dphz*(vsz+vzs) + &
                      phz**2*sodb(1,1,k,i,1) + &
                      phz*dphz*(sodb(2,1,k,i,1)+sodb(1,2,k,i,1)) + &
                      dphz**2*sodb(2,2,k,i,1)
@@ -474,7 +474,7 @@ contains
                 vzs = vzs - phz*sodb(2,1,k,i,1) - dphz*sodb(2,2,k,i,1)
                 sodb(1,3,k,i,1) = vuz
                 sodb(2,3,k,i,1) = vsz
-                sodb(3,3,k,i,1) = vzz
+                sodb(3,3,k,i,1) = vzz_
                 sodb(3,1,k,i,1) = vzu
                 sodb(3,2,k,i,1) = vzs
              endif
@@ -495,45 +495,45 @@ contains
           x12 = m(1,2,l,2)
           x21 = m(2,1,l,2)
           x22 = m(2,2,l,2)
-          v00 = sop(l,1,2,1)
-          v01 = sop(l,1,2,2)
-          v10 = v01
-          v11 = sop(l,1,2,3)
+          vmat(1,1) = sop(l,1,2,1)
+          vmat(1,2) = sop(l,1,2,2)
+          vmat(2,1) = vmat(1,2)
+          vmat(2,2) = sop(l,1,2,3)
           vx00 = sop(l,2,1,1)
           vx01 = sop(l,2,1,2)
           vx10 = vx01
           vx11 = sop(l,2,1,3)
           !     ... up-down block
-          sodb(1,1,k,1,2)=m11*v00*x11+m11*v01*x12+m12*vx10*x11+m12*v11*x12
-          sodb(2,1,k,1,2)=m11*v00*x21+m11*v01*x22+m12*vx10*x21+m12*v11*x22
-          sodb(1,2,k,1,2)=m21*v00*x11+m21*v01*x12+m22*vx10*x11+m22*v11*x12
-          sodb(2,2,k,1,2)=m21*v00*x21+m21*v01*x22+m22*vx10*x21+m22*v11*x22
+          sodb(1,1,k,1,2)=m11*vmat(1,1)*x11+m11*vmat(1,2)*x12+m12*vx10*x11+m12*vmat(2,2)*x12
+          sodb(2,1,k,1,2)=m11*vmat(1,1)*x21+m11*vmat(1,2)*x22+m12*vx10*x21+m12*vmat(2,2)*x22
+          sodb(1,2,k,1,2)=m21*vmat(1,1)*x11+m21*vmat(1,2)*x12+m22*vx10*x11+m22*vmat(2,2)*x12
+          sodb(2,2,k,1,2)=m21*vmat(1,1)*x21+m21*vmat(1,2)*x22+m22*vx10*x21+m22*vmat(2,2)*x22
           !     ... down-up block
-          sodb(1,1,k,2,2) = x11*vx00*m11+x11*v01*m12+x12*vx10*m11 +x12*vx11*m12
-          sodb(2,1,k,2,2) = x11*vx00*m21+x11*v01*m22+x12*vx10*m21   +x12*vx11*m22
-          sodb(1,2,k,2,2) = x21*vx00*m11+x21*v01*m12+x22*vx10*m11   +x22*vx11*m12
-          sodb(2,2,k,2,2) = x21*vx00*m21+x21*v01*m22+x22*vx10*m21   +x22*vx11*m22
+          sodb(1,1,k,2,2) = x11*vx00*m11+x11*vmat(1,2)*m12+x12*vx10*m11 +x12*vx11*m12
+          sodb(2,1,k,2,2) = x11*vx00*m21+x11*vmat(1,2)*m22+x12*vx10*m21   +x12*vx11*m22
+          sodb(1,2,k,2,2) = x21*vx00*m11+x21*vmat(1,2)*m12+x22*vx10*m11   +x22*vx11*m12
+          sodb(2,2,k,2,2) = x21*vx00*m21+x21*vmat(1,2)*m22+x22*vx10*m21   +x22*vx11*m22
           !  ...  Make the local orbitals spin off-diagonal radial integrals
-          if (moda(l) == 6) then
-             vzz = sopz(l,1,2,1)
-             v0z = sopz(l,1,2,2)
-             vz0 = v0z
-             v1z = sopz(l,1,2,3)
-             vz1 = v1z
+          if (lpzi(l)/=0) then !moda(l) == 6) then
+             vmat(3,3) = sopz(l,1,2,1)
+             vmat(1,3) = sopz(l,1,2,2)
+             vmat(3,1) = vmat(1,3)
+             vmat(2,3) = sopz(l,1,2,3)
+             vmat(3,2) = vmat(2,3)
              vxzz = sopz(l,2,1,1)
              vx0z = sopz(l,2,1,2)
              vxz0 = vx0z
              vx1z = sopz(l,2,1,3)
              vxz1 = vx1z
-             vzu = vz0*x11 + vz1*x12
+             vzu = vmat(3,1)*x11 + vmat(3,2)*x12
              vuz = m11*vx0z + m12*vx1z
-             vzs = vz0*x21 + vz1*x22
+             vzs = vmat(3,1)*x21 + vmat(3,2)*x22
              vsz = m21*vx0z + m22*vx1z
              vxzu = vxz0*m11 + vxz1*m12
-             vxuz = x11*v0z + x12*v1z
+             vxuz = x11*vmat(1,3) + x12*vmat(2,3)
              vxzs = vxz0*m21 + vxz1*m22
-             vxsz = x21*v0z + x22*v1z
-             vzz = vzz - vzu*phz2 - vzs*dphz2 - vuz*phz - vsz*dphz &
+             vxsz = x21*vmat(1,3) + x22*vmat(2,3)
+             vzz_ = vmat(3,3) - vzu*phz2 - vzs*dphz2 - vuz*phz - vsz*dphz &
                   +  sodb(1,1,k,1,2)*phz*phz2 &
                   +  sodb(2,1,k,1,2)*phz*dphz2 &
                   +  sodb(1,2,k,1,2)*dphz*phz2 &
@@ -553,7 +553,7 @@ contains
              vxzs = vxzs - sodb(2,1,k,2,2)*phz2 - sodb(2,2,k,2,2)*dphz2
              sodb(1,3,k,1,2) = vuz
              sodb(2,3,k,1,2) = vsz
-             sodb(3,3,k,1,2) = vzz
+             sodb(3,3,k,1,2) = vzz_
              sodb(3,1,k,1,2) = vzu
              sodb(3,2,k,1,2) = vzs
              sodb(1,3,k,2,2) = vxuz
