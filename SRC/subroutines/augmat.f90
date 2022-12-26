@@ -341,14 +341,14 @@ contains
     type(s_sblock):: ohsozz(3),ohsopm(3)
     type(s_rv1) :: otau(3)
     type(s_rv1) :: osig(3)
-    real(8):: ppnl(nppn,n0,2), hab(nab,n0,nsp),vab(nab,n0,nsp),sab(nab,n0,nsp)
+    real(8):: ppnl(nppn,n0,2), hab(3,3,n0,nsp),vab(3,3,n0,nsp),sab(3,3,n0,nsp)
 
     integer :: lmxa,kmax,nlml,nr,nsp,nkaph,nkapi,lmxh,lso, lmaxu,lldau,iblu,idu(4)
     integer::  lh(nkap0), k,ll,lmxl,nlma,nlmh,i, lxa(0:kmax),kmax1
     real(8):: z,rmt,rsma,a,rofi(nrmx),rwgt(nr),v0(nr,nsp), pnu(n0,nsp),pnz(n0,nsp),&
          v1(nr,nlml,nsp),v2(nr,nlml,nsp),gpot0(nlml),gpotb(nlml), &
          eh(n0,nkaph),rsmh(n0,*),ehl(n0),rsml(n0), rs3,vmtz,&
-         pp(n0,2,5), vdif(nr,nsp),sodb(nab,n0,nsp,2), &
+         pp(n0,2,5), vdif(nr,nsp),sodb(3,3,n0,nsp,2), &
          vum((lmxa+1)**2*nlml*6*nsp), &
          fh(nr*(lmxh+1)*nkap0),xh(nr*(lmxh+1)*nkap0), &
          vh((lmxh+1)*nkap0),fp(nr*(lmxa+1)*(kmax+1)), &

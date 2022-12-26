@@ -4,7 +4,7 @@ module m_clsmode
   use m_suham,only:   ndham=>ham_ndham
   use m_mkqp,only: nkp=>bz_nkp
   use m_MPItk,only: master_mpi
-  use m_mkpot,only: ppnl_rv
+!  use m_mkpot,only: ppnl_rv
   use m_ftox,only: ftox
   integer,parameter,private:: nsitmx = 256
   integer,private::  icls=0 , isite(nsitmx) , iclsl(nsitmx), iclsn(nsitmx),nsites

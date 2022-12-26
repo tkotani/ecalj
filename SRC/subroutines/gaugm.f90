@@ -211,7 +211,7 @@ contains
          f2(nr,0:lmx2,nf2s),v2(0:lmx2,nf2s),d2(0:lmx2,nf2s), &
          x1(nr,0:lmx1,nf1s),x2(nr,0:lmx2,nf2s), &
          sig(nf1,nf2,0:lmux,nsp),tau(nf1,nf2,0:lmux,nsp),vum(0:lmxa,0:lmxa,nlml,6,nsp)
-    double precision :: sodb(nab,n0,nsp,2) !Spin-Orbit related
+    double precision :: sodb(3,3,n0,nsp,2) !Spin-Orbit related
     integer :: ilm1,ilm2,ix
     integer :: i1,i2,ilm,l,ll,nlm,nlm1,nlm2,i,iprint,ii
     real(8),parameter:: pi= 4d0*datan(1d0),y0= 1d0/dsqrt(4d0*pi)
@@ -249,13 +249,13 @@ contains
        call pvagm1(nf1,nf1s,lmx1,lx1,nlx1,v1,d1,i, & !f1~f2~ part of sig and corresponding tau,ppi0 for orbitals constructed out of (u,s)
             nf2,nf2s,lmx2,lx2,nlx2,v2,d2,lso, &
             hab(1,1,1,i),vab(1,1,1,i),sab(1,1,1,i), &
-            sodb(1,1,i,1),sodb(1,1,i,2),lmux, &
+            sodb(1,1,1,i,1),sodb(1,1,1,i,2),lmux, &
             sig(1,1,0,i),tau(1,1,0,i),ppi0, &
             hsozz(1,1,1,1,i),hsopm(1,1,1,1,i))  !  pvagm1: augm. f1~f2~ part of sig and corresponding tau,ppi0 for local orbitals
        call pvaglc(nf1,nf1s,lmx1,lx1,nlx1,v1,d1,i, &
             nf2,nf2s,lmx2,lx2,nlx2,v2,d2,lso, &
             hab(1,1,1,i),vab(1,1,1,i),sab(1,1,1,i), &
-            sodb(1,1,i,1),sodb(1,1,i,2), &
+            sodb(1,1,1,i,1),sodb(1,1,1,i,2), &
             lmux,sig(1,1,0,i),tau(1,1,0,i),ppi0, &
             hsozz(1,1,1,1,i),hsopm(1,1,1,1,i))
        
@@ -399,7 +399,7 @@ contains
          v1(0:lmx1,nf1),d1(0:lmx1,nf1), &
          v2(0:lmx2,nf2),d2(0:lmx2,nf2), &
          sig(nf1,nf2,0:lmux),tau(nf1,nf2,0:lmux),ppi(nf1,nf2,0:lmux)
-    double precision :: sodb(nab,0:n0-1),sondb(nab,0:n0-1)
+    double precision :: sodb(3,3,0:n0-1),sondb(3,3,0:n0-1)
     double precision :: tmp(nf1,nf2,nlx1,nlx2),a1,a2,vd1(2),vd2(2)
     double complex hsozz(nf1,nf2,nlx1,nlx2),hsopm(nf1,nf2,nlx1,nlx2)
     integer :: i1,i2,lmax1,lmax2,lmax,l
@@ -444,10 +444,10 @@ contains
                       !vd2= [v2(l,i2),d2(l,i2)]
                       !tmp(i1,i2,l1,l2)= sum(vd2*matmul(reshape(sondb(1:4,l),[2,2]),vd1))
                       tmp(i1,i2,l1,l2) = &
-                           ( v1(l,i1)*sondb(1,l)*v2(l,i2) &
-                           + v1(l,i1)*sondb(2,l)*d2(l,i2) &
-                           + d1(l,i1)*sondb(3,l)*v2(l,i2) &
-                           + d1(l,i1)*sondb(4,l)*d2(l,i2))
+                           ( v1(l,i1)*sondb(1,1,l)*v2(l,i2) &
+                           + v1(l,i1)*sondb(2,1,l)*d2(l,i2) &
+                           + d1(l,i1)*sondb(1,2,l)*v2(l,i2) &
+                           + d1(l,i1)*sondb(2,2,l)*d2(l,i2))
                       !         ... Spin up-down block <l,m|L-|l,m'>
                       if (isp == 1) then
                          if (abs(m2) > 1 .AND. (abs(m2)+1) <= l) then !             Case A
@@ -563,17 +563,17 @@ contains
                       if (m1 /= 0 .AND. m2 /= 0) then
                          if (l1 < l2 .AND. m1 == -m2) then
                             hsozz(i1,i2,l1,l2) = abs(m1)* &
-                                 (v1(l,i1)*dcmplx(0d0,sodb(1,l))*v2(l,i2) &
-                                 + v1(l,i1)*dcmplx(0d0,sodb(2,l))*d2(l,i2) &
-                                 + d1(l,i1)*dcmplx(0d0,sodb(3,l))*v2(l,i2) &
-                                 + d1(l,i1)*dcmplx(0d0,sodb(4,l))*d2(l,i2))
+                                 (v1(l,i1)*dcmplx(0d0,sodb(1,1,l))*v2(l,i2) &
+                                 + v1(l,i1)*dcmplx(0d0,sodb(2,1,l))*d2(l,i2) &
+                                 + d1(l,i1)*dcmplx(0d0,sodb(1,2,l))*v2(l,i2) &
+                                 + d1(l,i1)*dcmplx(0d0,sodb(2,2,l))*d2(l,i2))
                          endif
                          if (l1 > l2 .AND. m1 == -m2) then
                             hsozz(i1,i2,l1,l2) = -abs(m1)* &
-                                 (v1(l,i1)*dcmplx(0d0,sodb(1,l))*v2(l,i2) &
-                                 + v1(l,i1)*dcmplx(0d0,sodb(2,l))*d2(l,i2) &
-                                 + d1(l,i1)*dcmplx(0d0,sodb(3,l))*v2(l,i2) &
-                                 + d1(l,i1)*dcmplx(0d0,sodb(4,l))*d2(l,i2))
+                                 (v1(l,i1)*dcmplx(0d0,sodb(1,1,l))*v2(l,i2) &
+                                 + v1(l,i1)*dcmplx(0d0,sodb(2,1,l))*d2(l,i2) &
+                                 + d1(l,i1)*dcmplx(0d0,sodb(1,2,l))*v2(l,i2) &
+                                 + d1(l,i1)*dcmplx(0d0,sodb(2,2,l))*d2(l,i2))
                          endif
                       endif
 
@@ -668,7 +668,7 @@ contains
          v2(0:lmx2,nf2),d2(0:lmx2,nf2), &
          sig(nf1,nf2,0:lmux),tau(nf1,nf2,0:lmux),ppi(nf1,nf2,0:lmux)
     !     Spin-Orbit related
-    double precision :: sodb(nab,0:n0-1),sondb(nab,0:n0-1)
+    double precision :: sodb(3,3,0:n0-1),sondb(3,3,0:n0-1)
     double complex hsozz(nf1,nf2,nlx1,nlx2),hsopm(nf1,nf2,nlx1,nlx2)
     integer :: i1,i2,lmax1,lmax2,lmax,l
     !     Spin-Orbit related
@@ -732,11 +732,11 @@ contains
                    l2 = l2 + 1
                    !             ... hso_zz
                    if (i1 > nf1s .AND. i2 > nf2s) then
-                      tmp1(i1,i2,l1,l2) = sodb(7,l)
+                      tmp1(i1,i2,l1,l2) = sodb(3,3,l)
                    elseif (i1 > nf1s) then                      !             ... hso_zu
-                      tmp1(i1,i2,l1,l2) = sodb(8,l)*v2(l,i2) + sodb(9,l)*d2(l,i2)
+                      tmp1(i1,i2,l1,l2) = sodb(3,1,l)*v2(l,i2) + sodb(3,2,l)*d2(l,i2)
                    elseif (i2 > nf2s) then                      !             ... hso_uz
-                      tmp1(i1,i2,l1,l2) = v1(l,i1)*sodb(5,l) + d1(l,i1)*sodb(6,l)
+                      tmp1(i1,i2,l1,l2) = v1(l,i1)*sodb(1,3,l) + d1(l,i1)*sodb(2,3,l)
                    endif
                    if (m1 /= 0 .AND. m2 /= 0) then
                       if (l1 < l2 .AND. m1 == -m2) then
@@ -752,11 +752,11 @@ contains
                       a2 = dsqrt(dble((l+abs(m2))*(l-abs(m2)+1)))
                       !         ... hso_zz
                       if (i1 > nf1s .AND. i2 > nf2s) then
-                         tmp(i1,i2,l1,l2) = sondb(7,l)
+                         tmp(i1,i2,l1,l2) = sondb(3,3,l)
                       elseif (i1 > nf1s) then                         !         ... hso_zu
-                         tmp(i1,i2,l1,l2) = sondb(8,l)*v2(l,i2) + sondb(9,l)*d2(l,i2)
+                         tmp(i1,i2,l1,l2) = sondb(3,1,l)*v2(l,i2) + sondb(3,2,l)*d2(l,i2)
                       elseif (i2 > nf2s) then                         !         ... hso_uz
-                         tmp(i1,i2,l1,l2) = v1(l,i1)*sondb(5,l) + d1(l,i1)*sondb(6,l)
+                         tmp(i1,i2,l1,l2) = v1(l,i1)*sondb(1,3,l) + d1(l,i1)*sondb(2,3,l)
                       endif
                       !         ... Spin up-down block <l,m|L-|l,m'>
                       if (isp == 1) then                         !               Case A

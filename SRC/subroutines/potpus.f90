@@ -35,15 +35,9 @@ contains
     !i         :The asymptotic form of V-vmtz is taken to be zero.
     !i   nab,n0:first and second dimensions of hab, vab, sab
     !o Outputs
-    !ox   pp    :potential parameters pp(l+1,isp,j):
-    !ox         :(1): enu   linearization energies corresponding to input pnu
-    !ox         :(2): c     band center of gravity
-    !ox         :(3): srdel band width parameter
-    !ox         :(4): qpar  band distortion parameter
-    !ox         :(5): ppar  small parameter = integral phidot**2
     !o   ppnl  :NMTO pot pars (but no backward extrapolation; <phi phi>=1)
     !ox         :(1)  = inverse potential function (not created)
-    !ox         :(2)  = normalization of phi (= 1 here for now)
+    !o         :(2)  = normalization of phi (= 1 here for now)
     !   pvalue(:), pslope(:), ppovl(:,:)
     !o         :(3)  = rmax * log derivative of phi at rmax      
     !o         :(4)  = rmax * log derivative of phidot at rmax
@@ -53,8 +47,7 @@ contains
     !o         :(8)  = normalization <gz|gz> for local orbital
     !o         :(9)  = overlap <phi|gz>
     !o         :(10) = overlap <phidot|gz>
-    !o         :(11) = phz at rmax for local orbitals defined, before
-    !o                 (phi,phidot) subtracted
+    !o         :(11) = phz at rmax for local orbitals defined, before (phi,phidot) subtracted
     !o         :(12) = dphz (slope of phz) at rmax for local orbitals defined
     !o   hab   :matrix elements of the hamiltonian (spher. v) for this site
     !o         :specified by the potentials v, vdif and the boundary
@@ -69,10 +62,6 @@ contains
     !o         :elements are evaluated, since we plan to calculate
     !o         :only H_so = so*sz*lz   ===>SO calcualtion aughsoc
     !l Local variables
-    !l   lorthd:if 0, phi,phidot constructed by calling phidx (normal mode)
-    !l         :if 1, orthonormalize phidot to phi
-    !l   lorthz:if 0, phi,phidot constructed by calling phidx (normal mode)
-    !l         :if 1, orthonormalize phi and phidot to phiz in large sphere
     !l   lpzi  :flags how local orbitals is to be treated in current channel
     !l         :0 no local orbital gz
     !l         :1 value and slope of gz constructed to be zero at rmax
@@ -117,40 +106,19 @@ contains
     !r   hab(2) and hab(3) are related by a Wronskian, as are hab(5) and
     !r   hab(7), and hab(6) and hab(8); but both are kept for convenience,
     !r   because of the nonhermiticity in h.
-    !u Updates
-    !u   17 Jan 07 Fixed dimension of ezum (bug fix)
-    !u   26 Sep 05 (A. Chantis) Bug fix: local orbitals in conjunction w/ SO
-    !u   09 Jul 05 (MvS) bug fix for local orbitals and SO coupling
-    !u   08 Jun 05 (MvS) extended ppnl to return phz and dphz
-    !u   03 Feb 05 (A. Chantis) Revised parameters for full L.S
-    !u   24 Dec 04 (A. Chantis) radial matrix elements for full L.S
-    !u   12 Aug 04 First implementation of extended local orbitals
-    !u   29 Jun 04 (A. Chantis) spin-diagonal radial spin-orbit integrals
-    !u   06 Mar 02 potpus can work with scaled local orb gz (see SCALEGZ)
-    !u   13 Feb 02 New matrix elements ppnl(8..10) for local orbitals
-    !u   24 Aug 01 Extended to local orbitals.  Altered argument list.
-    !u   20 Feb 01 (mvs) returns potential parameters pp,ppn; new arg list
-    !u   16.05.00  (mvs) adapted from mc,nfp potpsr.f
-    !u   02.01.95  (mvs) spin polarized
-    !u   02.09.94  (msm) Potential vdif is included by perturbation.
-    ! ----------------------------------------------------------------------
     implicit none
-    ! ... Passed parameters
     integer :: lmxa,lso,nr,nsp,n0,nab,nppn
     parameter (nppn=12)
     double precision :: z,rmax,a,rofi(1),v(nr,nsp),ehl(n0),rsml(n0), &
-         pnu(n0,nsp),pnz(n0,nsp),pp(n0,2,5),ppnl(nppn,n0,2), &
+         pnu(n0,nsp),pnz(n0,nsp),ppnl(nppn,n0,2), & !,pp(n0,2,5)
          hab(3,3,n0,nsp),sab(3,3,n0,nsp),vab(3,3,n0,nsp),vdif(nr,nsp), &
-         sodb(nab,n0,nsp,2),rs3,vmtz
-    ! ... Local parameters
+         sodb(3,3,n0,nsp,2),rs3,vmtz
     integer :: ipr,ir,i,j,k,l,lpz,lpzi(0:n0),nrbig
-    !       lorthz,lrel
-    !      character*80 outs
     double precision :: m21,m11,m22,m12,d00,d10,d11,det,vi, &
          fllp1,gfac,gf11,gf22,gf12,h00,h01,h10,h11, &
          phmins,phplus,q,r,s00,s01,s10,s11,tmc, &
          umegam,umegap,v00,v01,v10,v11,vl,xx,xxx,yyy,zzz, &
-         enu,c,srdel,qpar,ppar,b,ghg,ghgp,gphgp
+         b,ghg,ghgp,gphgp !enu,c,srdel,qpar,ppar,
     double precision :: d0z,d1z,dzz,v0z,v1z,s0z,s1z,vz0,vz1,sz0, &
          sz1,h0z,hz0,h1z,hz1,suz,ssz,szu,szs,szz, &
          vuz,vsz,vzu,vzs,vzz,huz,hsz,hzu,hzs,hzz
@@ -188,26 +156,18 @@ contains
     sab=0d0
     if(lso/=0) sodb=0d0
     isploop: do  80  i = 1, nsp
-       if (ipr >= 40) then
-          write(stdo,ftox)' potpus spin=',i,'pnu=',ftof(pnu(1:lmxa+1,i),3)
-          if (lpz /= 0) write(stdo,ftox), 'pnz=',ftof(pnz(1:lmxa+1,i),3)
-       endif
-       if(ipr>=50) then
-          write(stdo,"(' l',8x,'enu',9x,'v',11x,'c',10x,'srdel',8x,'qpar',8x,'ppar')")
-       endif
-       ! --- Loop over l ---
+       if(ipr>=40)write(stdo,ftox)' potpus spin=',i,'pnu=',ftof(pnu(1:lmxa+1,i),3)
+       if(ipr>=40.and.lpz/= 0) write(stdo,ftox), 'pnz=',ftof(pnz(1:lmxa+1,i),3)
        lloop: do  10  l = 0, lmxa
           k = l+1
           lpzi(l) = 0
           if (pnz(k,i) >  0)  lpzi(l) = 1
           if (pnz(k,i) >= 10) lpzi(l) = 2
-          !        if (pnz(k,i) >= 20) lpzi(l) = 3
           moda(l) = 5
           if (lpzi(l) /= 0) moda(l) = 6
           ! ... Semicore wf gz and its sphere boundary parameters
           if (lpzi(l) /= 0) then
-             call makrwf(10,z,rmax,l,v(1,i),a,nr,rofi,pnz(1,i),4, &
-                  gz,gp,ez,phz,dphz,phzp,dphzp,pz)
+             call makrwf(10,z,rmax,l,v(1,i),a,nr,rofi,pnz(1,i),4,gz,gp,ez,phz,dphz,phzp,dphzp,pz)
              !   ... Keep local copies of gz for SO coupling
              if (lso /= 0) then
                 call dcopy(nr,gz,1,pzi(1,l,i),1)
@@ -245,84 +205,15 @@ contains
           gphgp = ev*p
           dlphi  = rmax*dphi/phi
           dlphip = rmax*dphip/phip
-          ! ... Integrate g and gp outward on extended mesh
-          !     large component gp done nonrelativistically ... ok for large r
-          !     small component gp computed large component gp
-          !      For this routine to work, uncomment call to vxtrap
-          !      if (lpzi(l) .gt. 1 .and. lorthz .ne. 0) then
-          !        call rx('lorthz not implemented')
-
-          !        call dmcpy(g,nr,1,gbig,nrbig,1,nr,2)
-          !        call dpzero(gpbig,2*nrx)
-          !        call dmcpy(gp,nr,1,gpbig,nrbig,1,nr,2)
-          !        call rsq1(nr+1,ev,l,z,vbig(1,i),nrbig,gbig,xxx,yyy,j,a,b,rofi,
-          !     .    nrbig)
-          !        call rsqnri(ev,l,vbig(1,i),z,a,rofi,nr+1,nrbig,gbig,j,xxx,yyy,
-          !     .    gpbig,q)
-          !        call rsqnrs(ev,l,vbig(1,i),z,rofi,nr+1,nrbig,gpbig)
-
-          !        call prrmsh('g-big before orth.',rofi,gbig,nrbig,nrbig,2)
-          !        call prrmsh('gp-big before orth',rofi,gpbig,nrbig,nrbig,2)
-          !        call ortrwf(4,z,l,vbig(1,i),nrbig,nr,nrbig,rofi,rwgt,ev,ev,ez,
-          !     .    gbig,gpbig,gzbig,D)
-          !        call prrmsh('g-big after orth.',rofi,gbig,nrbig,nrbig,2)
-          !        call prrmsh('gp-big after orth',rofi,gpbig,nrbig,nrbig,2)
-
-          !        call rx('done')
-          !      endif
-
+          ! ... Integrate g and gp outward on extended mesh --->removed here at 2022-dec-25
           ! ... Keep local copies of phi and phidot for SO coupling
           if(lso /= 0) then
              do ir = 1, nr
                 psi(ir,l,i) = g(ir,1)
-                dpsi(ir,l,i) = gp(ir,1)
+                dpsi(ir,l,i)= gp(ir,1)
              enddo
              enumx(l,i) = ev
           endif
-          !$$$C   ... Scale gz so that <|gz-P(g,gp)|^2> = 1
-          !$$$#if SCALEGZ
-          !$$$          if (lpzi(l) .ne. 0) then
-          !$$$
-          !$$$CC       debugging ... check that mode 0 works properly when g and gp
-          !$$$CC       are not orthogonal.  The next line
-          !$$$C        call ortrwf(10,z,l,v(1,i),nr,nr,nr,rofi,rwgt,ev,ev,ez,g,gp,gz,D)
-          !$$$CC       Should produce the same D as if g,gp were orthogonalized
-          !$$$CC       and then computed, as done in the next two lines
-          !$$$C        call ortrwf(12,z,l,v(1,i),nr,nr,nr,rofi,rwgt,ev,ev,ez,g,gp,gz,D)
-          !$$$C        call ortrwf(11,z,l,v(1,i),nr,nr,nr,rofi,rwgt,ev,ev,ez,g,gp,gz,D)
-          !$$$
-          !$$$            call ortrwf(0,z,l,v(1,i),nr,nr,nr,rofi,rwgt,ev,ev,ez,g,gp,gz,D)
-          !$$$            call dscal(nr*2,1/D,gz,1)
-          !$$$            phz = phz/D
-          !$$$            dphz = dphz/D
-          !$$$            phzp = phzp/D
-          !$$$            dphzp = dphzp/D
-          !$$$C       call prrmsh('gz',rofi,gz,nr,nr,2)
-          !$$$
-          !$$$          endif
-          !$$$#endif
-
-          ! ... 2nd generation potential parameters (Methfessel scaling)
-          umegam = -(phi*ghgp/phip)*(-l-1-dlphi)/(-l-1-dlphip)
-          umegap = -(phi*ghgp/phip)*(l-dlphi)/(l-dlphip)
-          phplus = phi + umegap*phip/ghgp
-          phmins = phi + umegam*phip/ghgp
-          enu = ev
-          c   = ev + umegam
-          vl  = ev + umegap
-          srdel = phmins*dsqrt(0.5d0*rmax)
-          q   = phmins/(2*(2*l+1)*phplus)
-          qpar = 1d0/q
-          ppar = 1d0/dsqrt(p)
-
-          if (ipr >= 50) write(stdo,699) l,'    ',ev,vl,c,srdel,qpar,ppar
-699       format(i2,a,f10.6,3f12.6,f12.4,f12.6)
-          pp(k,i,1) = enu
-          pp(k,i,2) = c
-          pp(k,i,3) = srdel
-          pp(k,i,4) = qpar
-          pp(k,i,5) = ppar
-
           ! ... NMTO potential parameters, no backwards integration, <phi phi>=1
           call dpzero(ppnl(1,k,i),nppn)
           ppnl(1,k,i) = 0
@@ -337,38 +228,6 @@ contains
           ! ... 2nd generation potential sc parameters (Methfessel scaling)
           !     NB: overwrites c,vl,srdel,q,qpar
           !     ppars not saved; only printed out
-          if (lpzi(l) /= 0 .AND. ipr >= 50) then
-             dlphz  = rmax*dphz/phz
-             dlphzp = rmax*dphzp/phzp
-             umegam = -(phz/phzp)*(-l-1-dlphz)/(-l-1-dlphzp)
-             umegap = -(phz/phzp)*(l-dlphz)/(l-dlphzp)
-             phplus = phz + umegap*phzp
-             phmins = phz + umegam*phzp
-             enu = ez
-             c   = ez + umegam
-             vl  = ez + umegap
-             srdel = phmins*dsqrt(0.5d0*rmax)
-             q   = phmins/(2*(2*l+1)*phplus)
-             qpar = 1d0/q
-             ppar = 1d0/dsqrt(pz)
-             write(stdo,699) l,'(sc)',ez,vl,c,srdel,qpar,ppar
-          endif
-
-          !$$$C --- Rescale gp parameters and normalization of gp ---
-          !$$$#if ORTHPHD
-          !$$$          if (lorthd .ne. 0) then
-          !$$$            call ortrwf(2,z,l,v,nrbig,nr,nrbig,rofi,rwgt,ev,ev,ez,g,gp,xx,xx)
-          !$$$C      <g H gp> = <g (H-e) gp> = 1/sqrt(p)
-          !$$$C      <gp H gp> = <gp (H-e) gp> + e <gp gp> = <gp g> + e = e
-          !$$$            ghgp = 1/sqrt(p)
-          !$$$            gphgp = ev
-          !$$$C      Scaling of gp -> phip, <gp gp> also scaled
-          !$$$            phip = phip/sqrt(p)
-          !$$$            dphip = dphip/sqrt(p)
-          !$$$            p = 1
-          !$$$          endif
-          !$$$#endif
-
           ! --- Integrals of w.f. products with spherical potential ---
           fllp1 = l*(l+1)
           v00 = 0d0
@@ -408,25 +267,6 @@ contains
              ! ... This branch computes integrals with products of (g,gp,gz)
              !     Convention: 0z (phi,sc) 1z (dot,sc) zz (sc,sc)
           else
-             !       This section overwrite gz with (gz - gz(rmax) u - gz'(rmax) s)
-             !       Instead, we leave gz untouched and correct integrals later.
-             !       It helps to avoid ambiguities about the meaning of inner
-             !       products of scalar-relativistic wave functions.
-             !        det = phi*dphip - dphi*phip
-             !        m11 = dphip/det
-             !        m12 = -dphi/det
-             !        m21 = -phip/det
-             !        m22 = phi/det
-             !        do  j  = 1, 2
-             !        do  ir = 2, nr
-             !          ul = m11*g(ir,j) + m12*gp(ir,j)
-             !          sl = m21*g(ir,j) + m22*gp(ir,j)
-             !          gz(ir,j) = gz(ir,j) - phz*ul - dphz*sl
-             !        enddo
-             !        enddo
-             !        call prrmsh('phi',rofi,g,nr,nr,2)
-             !        call prrmsh('phidot',rofi,gp,nr,nr,2)
-             !        call prrmsh('gz',rofi,gz,nr,nr,2)
              do  ir = 2, nr
                 r = rofi(ir)
                 vi = v(ir,i) - 2d0*z/r
@@ -571,7 +411,6 @@ contains
              phz = 0
              dphz = 0
           endif
-
           if (lpzi(l) /= 0) then
              suz = m11*s0z + m12*s1z
              ssz = m21*s0z + m22*s1z
@@ -579,10 +418,6 @@ contains
              szs = sz0*m21 + sz1*m22
              szz = szz - phz*(suz+szu) - dphz*(ssz+szs) + phz**2*sab(1,1,k,i) + &
                   phz*dphz*(sab(2,1,k,i)+sab(1,2,k,i)) + dphz**2*sab(2,2,k,i)
-!             suz = suz - phz*sab(1,k,i) - dphz*sab(2,k,i)
-!             ssz = ssz - phz*sab(3,k,i) - dphz*sab(4,k,i)
-!             szu = szu - phz*sab(1,k,i) - dphz*sab(3,k,i)
-!             szs = szs - phz*sab(2,k,i) - dphz*sab(4,k,i)
              suz = suz - phz*sab(1,1,k,i) - dphz*sab(2,1,k,i)
              ssz = ssz - phz*sab(1,2,k,i) - dphz*sab(2,2,k,i)
              szu = szu - phz*sab(1,1,k,i) - dphz*sab(1,2,k,i)
@@ -609,7 +444,6 @@ contains
              hsz = hsz - phz*hab(1,2,k,i) - dphz*hab(2,2,k,i)
              hzu = hzu - phz*hab(1,1,k,i) - dphz*hab(1,2,k,i)
              hzs = hzs - phz*hab(2,1,k,i) - dphz*hab(2,2,k,i)
-
              ! ... New gz val,slo=0 => hamiltonian is hermitian
              if (lpzi(l) == 1) then
                 hzu = (hzu + huz)/2
@@ -617,7 +451,6 @@ contains
                 hzs = (hzs + hsz)/2
                 hsz = hzs
              endif
-
              ! ... hab(5)=uz    hab(2)=sz    hab(7)=zz
              !     print *, 'zero out potpus local orbitals'
              sab(1,3,k,i) = suz !5
@@ -637,7 +470,6 @@ contains
              hab(3,3,k,i) = hzz
              hab(3,1,k,i) = hzu
              hab(3,2,k,i) = hzs
-
              ! ... NMTO potential parameters for local orbitals
              !     Note that (s0z,s1z) = <(phi,phidot)|gz0>. We need <(phi,phidot)|gz>.
              !     Let i=1 or 2 and define s_iz = (<phi|gz>,<phidot|gz>) for i=1,2
@@ -659,52 +491,9 @@ contains
           endif
 10     enddo lloop
 80  enddo isploop
-    !         ! --- Printout ---
-    !         if (ipr >= 40) then
-    !            write(stdo,301)
-    ! 301        format(/' l,E',6x,'  a      <phi phi>       a*D', &
-    !                 '        a*Ddot      phi(a)      phip(a)')
-    !            do  l = 0, lmxa
-    !               write(stdo,311) l,rmax,(ppnl(k,l+1,i),k=2,6)
-    ! 311           format(i2,2x,2f12.6,f13.6,10f12.6)
-    !            enddo
-    !         endif
-
-    !         if (ipr >= 60) then
-    !            write(stdo,810)
-    ! 810        format(/'  l',9x,'val-val',5x,'val-slo',5x,'slo-val', &
-    !                 5x,'slo-slo')
-    !            do   l = 0, lmxa
-    !               k  = l+1
-    !               write(stdo,811) l,'s',(sab(ir,k,i),ir=1,4)
-    !               write(stdo,812)   'h',(hab(ir,k,i),ir=1,4)
-    !               write(stdo,812)   'v',(vab(ir,k,i),ir=1,4)
-    !            enddo
-    ! 811        format(i3,3x,a1,6f12.6)
-    ! 812        format(3x,3x,a1,6f12.6)
-
-    !            if (lpz /= 0) then
-    !               write(stdo,815)
-    ! 815           format(/'  l',9x,' val-sc',5x,' slo-sc',5x,' sc-sc ', &
-    !                    5x,'sc-val',6x,'sc-slo')
-    !               do   l = 0, lmxa
-    !                  k  = l+1
-    !                  if (pnz(k,1) > 0) then
-    !                     write(stdo,811) l,'s',(sab(ir,k,i),ir=5,9)
-    !                     write(stdo,812)   'h',(hab(ir,k,i),ir=5,9)
-    !                     write(stdo,812)   'v',(vab(ir,k,i),ir=5,9)
-    !                  endif
-    !               enddo
-
-    !            endif
-    !         endif
-    !80   enddo
-
     ! ... Calculate spin-orbit parameters
     if (lso /= 0) then
-       call soprm(5,lpzi,psi,dpsi,pzi,nr,nsp,lmxa,lmxa,v,dv,enumx, &
-            ezum,z,rofi,rwgt,wrk,sop,sopz)
-
+       call soprm(5,lpzi,psi,dpsi,pzi,nr,nsp,lmxa,lmxa,v,dv,enumx, ezum,z,rofi,rwgt,wrk,sop,sopz)
        !   ... Make the spin diagonal radial integrals
        do i = 1, nsp
           do l = 0, lmxa
@@ -719,11 +508,10 @@ contains
              v01 = sop(l,i,i,2)
              v10 = v01
              v11 = sop(l,i,i,3)
-             sodb(1,k,i,1) =m11*v00*m11+m11*v01*m12+m12*v10*m11+m12*v11*m12
-             sodb(2,k,i,1) =m11*v00*m21+m11*v01*m22+m12*v10*m21+m12*v11*m22
-             sodb(3,k,i,1) =m21*v00*m11+m21*v01*m12+m22*v10*m11+m22*v11*m12
-             sodb(4,k,i,1) =m21*v00*m21+m21*v01*m22+m22*v10*m21+m22*v11*m22
-
+             sodb(1,1,k,i,1) =m11*v00*m11+m11*v01*m12+m12*v10*m11+m12*v11*m12
+             sodb(2,1,k,i,1) =m11*v00*m21+m11*v01*m22+m12*v10*m21+m12*v11*m22
+             sodb(1,2,k,i,1) =m21*v00*m11+m21*v01*m12+m22*v10*m11+m22*v11*m12
+             sodb(2,2,k,i,1) =m21*v00*m21+m21*v01*m22+m22*v10*m21+m22*v11*m22
              !  ...  Make the local orbitals spin diagonal integrals
              if (moda(l) == 6) then
                 vzz = sopz(l,i,i,1)
@@ -736,23 +524,22 @@ contains
                 vzs = vz0*m21 + vz1*m22
                 vsz = m21*v0z + m22*v1z
                 vzz = vzz - phz*(vuz+vzu) - dphz*(vsz+vzs) + &
-                     phz**2*sodb(1,k,i,1) + &
-                     phz*dphz*(sodb(2,k,i,1)+sodb(3,k,i,1)) + &
-                     dphz**2*sodb(4,k,i,1)
-                vuz = vuz - phz*sodb(1,k,i,1) - dphz*sodb(2,k,i,1)
-                vsz = vsz - phz*sodb(3,k,i,1) - dphz*sodb(4,k,i,1)
-                vzu = vzu - phz*sodb(1,k,i,1) - dphz*sodb(3,k,i,1)
-                vzs = vzs - phz*sodb(2,k,i,1) - dphz*sodb(4,k,i,1)
-                sodb(5,k,i,1) = vuz
-                sodb(6,k,i,1) = vsz
-                sodb(7,k,i,1) = vzz
-                sodb(8,k,i,1) = vzu
-                sodb(9,k,i,1) = vzs
+                     phz**2*sodb(1,1,k,i,1) + &
+                     phz*dphz*(sodb(2,1,k,i,1)+sodb(1,2,k,i,1)) + &
+                     dphz**2*sodb(2,2,k,i,1)
+                vuz = vuz - phz*sodb(1,1,k,i,1) - dphz*sodb(2,1,k,i,1)
+                vsz = vsz - phz*sodb(1,2,k,i,1) - dphz*sodb(2,2,k,i,1)
+                vzu = vzu - phz*sodb(1,1,k,i,1) - dphz*sodb(1,2,k,i,1)
+                vzs = vzs - phz*sodb(2,1,k,i,1) - dphz*sodb(2,2,k,i,1)
+                sodb(1,3,k,i,1) = vuz
+                sodb(2,3,k,i,1) = vsz
+                sodb(3,3,k,i,1) = vzz
+                sodb(3,1,k,i,1) = vzu
+                sodb(3,2,k,i,1) = vzs
              endif
 
           enddo
        enddo
-
        !   ... Make the spin off-diagonal radial integrals
        do l = 0, lmxa
           k = l + 1
@@ -777,20 +564,15 @@ contains
           vx10 = vx01
           vx11 = sop(l,2,1,3)
           !     ... up-down block
-          sodb(1,k,1,2)=m11*v00*x11+m11*v01*x12+m12*vx10*x11+m12*v11*x12
-          sodb(2,k,1,2)=m11*v00*x21+m11*v01*x22+m12*vx10*x21+m12*v11*x22
-          sodb(3,k,1,2)=m21*v00*x11+m21*v01*x12+m22*vx10*x11+m22*v11*x12
-          sodb(4,k,1,2)=m21*v00*x21+m21*v01*x22+m22*vx10*x21+m22*v11*x22
+          sodb(1,1,k,1,2)=m11*v00*x11+m11*v01*x12+m12*vx10*x11+m12*v11*x12
+          sodb(2,1,k,1,2)=m11*v00*x21+m11*v01*x22+m12*vx10*x21+m12*v11*x22
+          sodb(1,2,k,1,2)=m21*v00*x11+m21*v01*x12+m22*vx10*x11+m22*v11*x12
+          sodb(2,2,k,1,2)=m21*v00*x21+m21*v01*x22+m22*vx10*x21+m22*v11*x22
           !     ... down-up block
-          sodb(1,k,2,2) = x11*vx00*m11+x11*v01*m12+x12*vx10*m11 &
-               +x12*vx11*m12
-          sodb(2,k,2,2) = x11*vx00*m21+x11*v01*m22+x12*vx10*m21 &
-               +x12*vx11*m22
-          sodb(3,k,2,2) = x21*vx00*m11+x21*v01*m12+x22*vx10*m11 &
-               +x22*vx11*m12
-          sodb(4,k,2,2) = x21*vx00*m21+x21*v01*m22+x22*vx10*m21 &
-               +x22*vx11*m22
-
+          sodb(1,1,k,2,2) = x11*vx00*m11+x11*v01*m12+x12*vx10*m11 +x12*vx11*m12
+          sodb(2,1,k,2,2) = x11*vx00*m21+x11*v01*m22+x12*vx10*m21   +x12*vx11*m22
+          sodb(1,2,k,2,2) = x21*vx00*m11+x21*v01*m12+x22*vx10*m11   +x22*vx11*m12
+          sodb(2,2,k,2,2) = x21*vx00*m21+x21*v01*m22+x22*vx10*m21   +x22*vx11*m22
           !  ...  Make the local orbitals spin off-diagonal radial integrals
           if (moda(l) == 6) then
              vzz = sopz(l,1,2,1)
@@ -812,56 +594,35 @@ contains
              vxzs = vxz0*m21 + vxz1*m22
              vxsz = x21*v0z + x22*v1z
              vzz = vzz - vzu*phz2 - vzs*dphz2 - vuz*phz - vsz*dphz &
-                  +  sodb(1,k,1,2)*phz*phz2 &
-                  +  sodb(2,k,1,2)*phz*dphz2 &
-                  +  sodb(3,k,1,2)*dphz*phz2 &
-                  +  sodb(4,k,1,2)*dphz*dphz2
+                  +  sodb(1,1,k,1,2)*phz*phz2 &
+                  +  sodb(2,1,k,1,2)*phz*dphz2 &
+                  +  sodb(1,2,k,1,2)*dphz*phz2 &
+                  +  sodb(2,2,k,1,2)*dphz*dphz2
              vxzz = vxzz - vxzu*phz - vxzs*dphz - vxuz*phz2 - vxsz*dphz2 &
-                  +  sodb(1,k,2,2)*phz2*phz &
-                  +  sodb(2,k,2,2)*phz2*dphz &
-                  +  sodb(3,k,2,2)*dphz2*phz &
-                  +  sodb(4,k,2,2)*dphz2*dphz
-             vuz  = vuz  - sodb(1,k,1,2)*phz2 - sodb(2,k,1,2)*dphz2
-             vxuz = vxuz - sodb(1,k,2,2)*phz  - sodb(2,k,2,2)*dphz
-             vzu  = vzu  - sodb(1,k,1,2)*phz  - sodb(3,k,1,2)*dphz
-             vxzu = vxzu - sodb(1,k,2,2)*phz2 - sodb(3,k,2,2)*dphz2
-             vsz  = vsz  - sodb(3,k,1,2)*phz2 - sodb(4,k,1,2)*dphz2
-             vxsz = vxsz - sodb(3,k,2,2)*phz  - sodb(4,k,2,2)*dphz
-             vzs  = vzs  - sodb(2,k,1,2)*phz  - sodb(4,k,1,2)*dphz
-             vxzs = vxzs - sodb(2,k,2,2)*phz2 - sodb(4,k,2,2)*dphz2
-             sodb(5,k,1,2) = vuz
-             sodb(6,k,1,2) = vsz
-             sodb(7,k,1,2) = vzz
-             sodb(8,k,1,2) = vzu
-             sodb(9,k,1,2) = vzs
-             sodb(5,k,2,2) = vxuz
-             sodb(6,k,2,2) = vxsz
-             sodb(7,k,2,2) = vxzz
-             sodb(8,k,2,2) = vxzu
-             sodb(9,k,2,2) = vxzs
+                  +  sodb(1,1,k,2,2)*phz2*phz &
+                  +  sodb(2,1,k,2,2)*phz2*dphz &
+                  +  sodb(1,2,k,2,2)*dphz2*phz &
+                  +  sodb(2,2,k,2,2)*dphz2*dphz
+             vuz  = vuz  - sodb(1,1,k,1,2)*phz2 - sodb(2,1,k,1,2)*dphz2
+             vxuz = vxuz - sodb(1,1,k,2,2)*phz  - sodb(2,1,k,2,2)*dphz
+             vzu  = vzu  - sodb(1,1,k,1,2)*phz  - sodb(1,2,k,1,2)*dphz
+             vxzu = vxzu - sodb(1,1,k,2,2)*phz2 - sodb(1,2,k,2,2)*dphz2
+             vsz  = vsz  - sodb(1,2,k,1,2)*phz2  -sodb(2,2,k,1,2)*dphz2
+             vxsz = vxsz - sodb(1,2,k,2,2)*phz   -sodb(2,2,k,2,2)*dphz
+             vzs  = vzs  - sodb(2,1,k,1,2)*phz  - sodb(2,2,k,1,2)*dphz
+             vxzs = vxzs - sodb(2,1,k,2,2)*phz2 - sodb(2,2,k,2,2)*dphz2
+             sodb(1,3,k,1,2) = vuz
+             sodb(2,3,k,1,2) = vsz
+             sodb(3,3,k,1,2) = vzz
+             sodb(3,1,k,1,2) = vzu
+             sodb(3,2,k,1,2) = vzs
+             sodb(1,3,k,2,2) = vxuz
+             sodb(2,3,k,2,2) = vxsz
+             sodb(3,3,k,2,2) = vxzz
+             sodb(3,1,k,2,2) = vxzu
+             sodb(3,2,k,2,2) = vxzs
           endif
        enddo
-       !  ... Print the so radial integrals of phi,phidot
-       !        do   l = 0, lmxa
-       !          do i = 1, nsp
-       !            do j = 1, nsp
-       !              print*, l, i, j ,(sop(l,j,i,ir),ir=1,3)
-       !              write(stdo,811) l,'o',(sop(ir,j,i,2),ir=1,3)
-       !              write(stdo,811) l,'o',(sop(ir,j,i,3),ir=1,4)
-       !            enddo
-       !          enddo
-       !        enddo
-       !        stop
-
-       !   ... Write the so radial integrals of (u,s)
-       !        do i = 1, nsp
-       !          do   l = 0, lmxa
-       !            k  = l+1
-       !            write(stdo,811) l,'d',(sodb(ir,k,i,1),ir=1,4)
-       !            write(stdo,811) l,'o',(sodb(ir,k,i,2),ir=1,4)
-       !          enddo
-       !        enddo
-       !        stop
     endif
   end subroutine potpus
 
@@ -893,14 +654,8 @@ contains
     avg = Tfg+Tgf
     Tfg = (avg+diff)/2
     Tgf = (avg-diff)/2
-    !      print 333, (avg+diff)/2,(avg+diff)/2-Tfg,
-    !     .           (avg-diff)/2,(avg-diff)/2-Tgf
-    !  333 format(' Tfg now',f12.6,'  change=',f12.6,2x,
-    !     .       ' Tgf now',f12.6,'  change=',f12.6)
   end subroutine pvpus1
-
-  subroutine soprm(mode,lpzi,phi,phid,phiz,nr,nsp,lmxs,lmx,v,dv,enu, &
-       ez,z,ri,wi,wk,sop,sopz)
+  subroutine soprm(mode,lpzi,phi,phid,phiz,nr,nsp,lmxs,lmx,v,dv,enu, ez,z,ri,wi,wk,sop,sopz)
     use m_lgunit,only:stdo
     !- Radial matrix elements between orbitals of different spin
     ! ---------------------------------------------------------------------
@@ -953,35 +708,24 @@ contains
     !u   07 Feb 03 Added ability to compute matrix elements of external
     !u             field B.  New arg list and definition of mode.
     ! ---------------------------------------------------------------------
-    !     implicit none
-    ! ... Passed parameters
+    implicit none
     integer :: lmx,mode,lpzi(0:lmx),lmxs,nr,nsp
     double precision :: z, &
          phi(nr,0:lmxs,nsp),phid(nr,0:lmxs,nsp),phiz(nr,0:lmxs,nsp), &
          ri(nr),sop(0:lmxs,nsp,nsp,3),v(nr,nsp),wk(nr,4),dv(nr), &
          wi(nr),sopz(0:lmxs,nsp,nsp,3),enu(0:8,nsp),ez(0:8,nsp)
-    ! ... Local parameters
     integer :: l,ir,is,is1,is2,ipr,mode0,lmin
-    double precision :: c,pa,r,r1,r2,dot3,vavg,eavg,eavgz,dva,xx, &
-         xxz,xxavg,wkz(nr,4)
-    ! ... External calls
-    external daxpy,dscal,getpr
+    double precision :: c,pa,r,r1,r2,dot3,vavg,eavg,eavgz,dva,xx,xxz,xxavg,wkz(nr,4)
     !     Speed of light, or infinity in nonrelativistic case
-    common /cc/ c
+    common /cc/ c !     c = 274.071979d0
     data pa /1d0/
-
-    ! --- Setup ---
     call getpr(ipr)
-    !      stdo = lgunit(1)
-    mode0 = mod(mode,4)
-    !     c = 274.071979d0
+    mode0 = mod(mode,4)  
     lmin = 1
     if (mode0 == 2) lmin=0
-
     ! --- Orthonormalize phi, phidot, neglecting small component ---
     if (mode/4 /= 0) then
-       if (ipr > 50) &
-            print '(/'' soprm: overlaps  phi*phi     phi*phidot'')'
+       if (ipr > 50) print '(/'' soprm: overlaps  phi*phi     phi*phidot'')'
        do   is = 1, nsp
           do   l = 0, lmx
              r1 = dot3(nr,phi(1,l,is),phi(1,l,is),wi)
@@ -994,7 +738,6 @@ contains
        enddo
     endif
     if (mode0 == 0) return
-
     ! --- Matrix elements for each l ---
     do  is = 1, 4
        wk(1,is) = 0d0
@@ -1005,25 +748,19 @@ contains
           wk(ir,1) = wi(ir) * dv(ir)
        enddo
     endif
-
     ! .. Initialize matrix elements for s orbitals, in case not calculated
     l = 0
     do  is2 = 1, nsp
        do  is1 = 1, nsp
           do is = 1, 3
              sop(l,is1,is2,is) = 0d0
-             if (lpzi(l) /= 0) then
-                sopz(l,is1,is2,is) = 0d0
-             endif
+             if (lpzi(l) /= 0) sopz(l,is1,is2,is) = 0d0
           enddo
        enddo
     enddo
-
     do  l = lmin, lmx
        eavg = (enu(l,1)+enu(l,nsp))/2
-       if (lpzi(l) /= 0) then
-          eavgz = (ez(l,1)+ez(l,nsp))/2
-       endif
+       if (lpzi(l) /= 0) eavgz = (ez(l,1)+ez(l,nsp))/2
        do  is2 = 1, nsp
           do  is1 = 1, nsp
              if (mode0 == 1) then
@@ -1060,11 +797,9 @@ contains
              else
                 call rxi('soprm: bad mode:',mode)
              endif
-
           enddo
        enddo
     enddo
-
     ! --- Printout ---
     if (ipr <= 50) return
     if (mode0 == 1) write(stdo,332) 'spin-orbit coupling'
@@ -1073,38 +808,25 @@ contains
          13x,'l',4x,'<phi || phi>',2x,'<dot || phi>',2x,'<dot || dot>')
     if (nsp == 1) then
        do  l = lmin, lmx
-          write(stdo,333) '          ', &
-               l,sop(l,1,1,1),sop(l,1,1,2),sop(l,1,1,3)
-          if (lpzi(l) /= 0) then
-             write(stdo,333) '          ', &
-                  l,sopz(l,1,1,1),sopz(l,1,1,2),sopz(l,1,1,3)
-          endif
+          write(stdo,333) '          ',  l,sop(l,1,1,1),sop(l,1,1,2),sop(l,1,1,3)
+          if(lpzi(l)/=0)write(stdo,333) '          ', l,sopz(l,1,1,1),sopz(l,1,1,2),sopz(l,1,1,3)
        enddo
     else
        do  l = lmin, lmx
-          write(stdo,333) 'up   up   ', &
-               l,sop(l,1,1,1),sop(l,1,1,2),sop(l,1,1,3)
-          write(stdo,333) 'down down ', &
-               l,sop(l,2,2,1),sop(l,2,2,2),sop(l,2,2,3)
-          write(stdo,333) 'up   down ', &
-               l,sop(l,1,2,1),sop(l,1,2,2),sop(l,1,2,3)
-          write(stdo,333) 'down up   ', &
-               l,sop(l,2,1,1),sop(l,2,1,2),sop(l,2,1,3)
+          write(stdo,333) 'up   up   ', l,sop(l,1,1,1),sop(l,1,1,2),sop(l,1,1,3)
+          write(stdo,333) 'down down ', l,sop(l,2,2,1),sop(l,2,2,2),sop(l,2,2,3)
+          write(stdo,333) 'up   down ', l,sop(l,1,2,1),sop(l,1,2,2),sop(l,1,2,3)
+          write(stdo,333) 'down up   ', l,sop(l,2,1,1),sop(l,2,1,2),sop(l,2,1,3)
           write(stdo,333)
           if (lpzi(l) /= 0) then
-             write(stdo,335) 'up   up   ', &
-                  l,sopz(l,1,1,1),sopz(l,1,1,2),sopz(l,1,1,3)
-             write(stdo,335) 'down down ', &
-                  l,sopz(l,2,2,1),sopz(l,2,2,2),sopz(l,2,2,3)
-             write(stdo,335) 'up   down ', &
-                  l,sopz(l,1,2,1),sopz(l,1,2,2),sopz(l,1,2,3)
-             write(stdo,335) 'down up   ', &
-                  l,sopz(l,2,1,1),sopz(l,2,1,2),sopz(l,2,1,3)
+             write(stdo,335) 'up   up   ', l,sopz(l,1,1,1),sopz(l,1,1,2),sopz(l,1,1,3)
+             write(stdo,335) 'down down ', l,sopz(l,2,2,1),sopz(l,2,2,2),sopz(l,2,2,3)
+             write(stdo,335) 'up   down ', l,sopz(l,1,2,1),sopz(l,1,2,2),sopz(l,1,2,3)
+             write(stdo,335) 'down up   ', l,sopz(l,2,1,1),sopz(l,2,1,2),sopz(l,2,1,3)
              write(stdo,335)
           endif
        enddo
     endif
-    !  333 format(1x,a,i3,3f20.15)
 333 format(1x,a,i3,1x, 3f14.8)
 335 format(1x,a,i3,'l',3f14.8)
   end subroutine soprm
