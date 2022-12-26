@@ -410,9 +410,9 @@ contains
           do  l = 0, min0(lx1(i1),lx2(i2))
              vd1= [v1(l,i1),d1(l,i1)]
              vd2= [v2(l,i2),d2(l,i2)]
-             sig(i1,i2,l)= -sig(i1,i2,l) + sum(vd2*matmul(sab(1:2,1:2,l),vd1))
-             tau(i1,i2,l)= -tau(i1,i2,l) + sum(vd2*matmul(hab(1:2,1:2,l)-vab(1:2,1:2,l),vd1))
-             ppi(i1,i2,l)= -ppi(i1,i2,l) + sum(vd2*matmul(vab(1:2,1:2,l),vd1))
+             sig(i1,i2,l)= -sig(i1,i2,l) + sum(vd1*matmul(sab(1:2,1:2,l),vd2))
+             tau(i1,i2,l)= -tau(i1,i2,l) + sum(vd1*matmul(hab(1:2,1:2,l)-vab(1:2,1:2,l),vd2))
+             ppi(i1,i2,l)= -ppi(i1,i2,l) + sum(vd1*matmul(vab(1:2,1:2,l),vd2))
           enddo
        enddo
     enddo

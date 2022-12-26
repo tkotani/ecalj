@@ -809,14 +809,14 @@ contains
           m = l+1
           qsum(m,isp) = &
                + dmatl(l,l,1,1,1,isp)*sab(1,1,m,isp)*srfpi &
-               + dmatl(l,l,1,1,2,isp)*sab(2,1,m,isp)*srfpi &
-               + dmatl(l,l,1,2,1,isp)*sab(1,2,m,isp)*srfpi &
+               + dmatl(l,l,1,1,2,isp)*sab(1,2,m,isp)*srfpi &
+               + dmatl(l,l,1,2,1,isp)*sab(2,1,m,isp)*srfpi &
                + dmatl(l,l,1,2,2,isp)*sab(2,2,m,isp)*srfpi
           if (mode >= 2) then
              hsum(m,isp) = &
                   + dmatl(l,l,1,1,1,isp)*hab(1,1,m,isp)*srfpi &
-                  + dmatl(l,l,1,1,2,isp)*hab(2,1,m,isp)*srfpi &
-                  + dmatl(l,l,1,2,1,isp)*hab(1,2,m,isp)*srfpi &
+                  + dmatl(l,l,1,1,2,isp)*hab(1,2,m,isp)*srfpi &
+                  + dmatl(l,l,1,2,1,isp)*hab(2,1,m,isp)*srfpi &
                   + dmatl(l,l,1,2,2,isp)*hab(2,2,m,isp)*srfpi
           endif
           if (pnz(m,1) /= 0) then!         ... uz, sz, zu, zs, zz terms

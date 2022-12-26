@@ -419,9 +419,9 @@ contains
              ppnl(10,k,i) = smat(2,3) - phip*xxx - dphip*yyy
           endif
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!          
-            hab(1:2,1:2,k,i)=transpose(hab(1:2,1:2,k,i))
-            sab(1:2,1:2,k,i)=transpose(sab(1:2,1:2,k,i))
-            vab(1:2,1:2,k,i)=transpose(vab(1:2,1:2,k,i))
+!            hab(1:2,1:2,k,i)=transpose(hab(1:2,1:2,k,i))
+!            sab(1:2,1:2,k,i)=transpose(sab(1:2,1:2,k,i))
+!            vab(1:2,1:2,k,i)=transpose(vab(1:2,1:2,k,i))
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!          
 10     enddo lloop
 80  enddo isploop
