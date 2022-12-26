@@ -244,18 +244,13 @@ contains
                smat(3,3) = sum(rwgt*(gf22*gz(:,1)*gz(:,1)+ gz(:,2)*gz(:,2)))
             endif
           endblock intg
-          vmat(1,1) = vmat(1,1) + dmat(1,1)
-          vmat(2,1) = vmat(2,1) + dmat(2,1)
-          vmat(2,2) = vmat(2,2) + dmat(2,2)
-          vmat(1,2) = vmat(2,1)
-          smat(1,1) = 1d0
-          smat(2,1) = 0d0
-          smat(1,2) = 0d0
-          smat(2,2) = p           ! h+d
-          hmat(1,1) = ghg   + dmat(1,1)! hmat(1,1)=<g H g> = e <g g> = e                       
-          hmat(1,2) = ghgp  + dmat(1,2)! hmat(1,2)=<g H gp> = <g (H-e) gp> + e <g gp> = <g g>  
-          hmat(2,1) = 0d0   + dmat(2,1)! hmat(2,1)=<gp H g> = 0d0
-          hmat(2,2) = gphgp + dmat(2,2)! hmat(2,2)=<gp H gp> = <gp (H-e) gp> + e <gp gp> = <gp g> + e p = ep
+          vmat(1:2,1:2) = vmat(1:2,1:2) + dmat(1:2,1:2)
+          smat(1:2,1) = [1d0,0d0]
+          smat(1:2,2) = [0d0, p]
+          hmat(1:2,1) = [ghg,0d0]   ! hmat(1,1)=<g H g> = e <g g> = e                       
+          hmat(1:2,2) = [ghgp,gphgp]! hmat(1,2)=<g H gp> = <g (H-e) gp> + e <g gp> = <g g>  
+          ! hmat(2,1)=<gp H g> = 0d0, hmat(2,2)=<gp H gp> = <gp (H-e) gp> + e <gp gp> = <gp g> + e p = ep
+          hmat(1:2,1:2)=hmat(1:2,1:2)+dmat(1:2,1:2)
           ! Should not be needed since Wronskian explicit in makrwf
           call pvpus1(rmax,phi,dphi,phip,dphip,hmat(1,2),hmat(2,1))
           if (lpzi(l) /= 0) then
