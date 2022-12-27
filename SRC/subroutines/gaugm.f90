@@ -445,8 +445,8 @@ contains
                       !tmp(i1,i2,l1,l2)= sum(vd2*matmul(reshape(sondb(1:4,l),[2,2]),vd1))
                       tmp(i1,i2,l1,l2) = &
                            ( v1(l,i1)*sondb(1,1,l)*v2(l,i2) &
-                           + v1(l,i1)*sondb(2,1,l)*d2(l,i2) &
-                           + d1(l,i1)*sondb(1,2,l)*v2(l,i2) &
+                           + v1(l,i1)*sondb(1,2,l)*d2(l,i2) &
+                           + d1(l,i1)*sondb(2,1,l)*v2(l,i2) &
                            + d1(l,i1)*sondb(2,2,l)*d2(l,i2))
                       !         ... Spin up-down block <l,m|L-|l,m'>
                       if (isp == 1) then

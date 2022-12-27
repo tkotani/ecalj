@@ -352,44 +352,48 @@ contains
           dphz  = ppnl(12,k,1)
           phz2  = ppnl(11,k,2)
           dphz2 = ppnl(12,k,2)
-          m11 = m(1,1,l,1)
-          m12 = m(1,2,l,1)
-          m21 = m(2,1,l,1)
-          m22 = m(2,2,l,1)
-          x11 = m(1,1,l,2)
-          x12 = m(1,2,l,2)
-          x21 = m(2,1,l,2)
-          x22 = m(2,2,l,2)
-          vmat(1,1) = sop(l,1,2,1)
-          vmat(1,2) = sop(l,1,2,2)
-          vmat(2,1) = vmat(1,2)
-          vmat(2,2) = sop(l,1,2,3)
-          vx00 = sop(l,2,1,1)
-          vx01 = sop(l,2,1,2)
-          vx10 = vx01
-          vx11 = sop(l,2,1,3)
-          !     ... up-down block
-          sodb(1,1,k,1,2)=m11*vmat(1,1)*x11 +m11*vmat(1,2)*x12 +m12*vx10*x11 +m12*vmat(2,2)*x12
-          sodb(2,1,k,1,2)=m11*vmat(1,1)*x21+m11*vmat(1,2)*x22+m12*vx10*x21+m12*vmat(2,2)*x22
-          sodb(1,2,k,1,2)=m21*vmat(1,1)*x11+m21*vmat(1,2)*x12+m22*vx10*x11+m22*vmat(2,2)*x12
-          sodb(2,2,k,1,2)=m21*vmat(1,1)*x21+m21*vmat(1,2)*x22+m22*vx10*x21+m22*vmat(2,2)*x22
-          !     ... down-up block
-          sodb(1,1,k,2,2) = x11*vx00*m11+x11*vmat(1,2)*m12+x12*vx10*m11 +x12*vx11*m12
-          sodb(2,1,k,2,2) = x11*vx00*m21+x11*vmat(1,2)*m22+x12*vx10*m21   +x12*vx11*m22
-          sodb(1,2,k,2,2) = x21*vx00*m11+x21*vmat(1,2)*m12+x22*vx10*m11   +x22*vx11*m12
-          sodb(2,2,k,2,2) = x21*vx00*m21+x21*vmat(1,2)*m22+x22*vx10*m21   +x22*vx11*m22
+          sooff2: block
+            real(8),pointer::mmm1(:,:),mmm2(:,:)
+            real(8):: soud(2,2),sodu(2,2)
+            mmm1=>m(:,:,l,1)
+            mmm2=>m(:,:,l,2)
+            soud(:,1)=[sop(l,1,2,1),sop(l,2,1,2)] 
+            soud(:,2)=[sop(l,1,2,2),sop(l,1,2,3)]
+            sodu(:,1)=[sop(l,2,1,1),sop(l,2,1,2)]
+            sodu(:,2)=[sop(l,1,2,2),sop(l,2,1,3)]
+            sodb(:,:,k,1,2)= matmul(mmm1,matmul(soud,transpose(mmm2)))! up-dn block 
+            sodb(:,:,k,2,2)= matmul(mmm2,matmul(sodu,transpose(mmm1)))! dn-up block
+          endblock sooff2
+!            
+            m11 = m(1,1,l,1)
+            m12 = m(1,2,l,1)
+            m21 = m(2,1,l,1)
+            m22 = m(2,2,l,1)
+            x11 = m(1,1,l,2)
+            x12 = m(1,2,l,2)
+            x21 = m(2,1,l,2)
+            x22 = m(2,2,l,2)
+            vmat(1,1) = sop(l,1,2,1)
+            vmat(1,2) = sop(l,1,2,2)
+            vmat(2,1) = sop(l,1,2,2)
+            vmat(2,2) = sop(l,1,2,3)
+            vx00 = sop(l,2,1,1)
+            vx01 = sop(l,2,1,2)
+            vx10 = sop(l,2,1,2)
+            vx11 = sop(l,2,1,3)
           !  ...  Make the local orbitals spin off-diagonal radial integrals
-          if (lpzi(l)/=0) then !moda(l) == 6) then
+          if (lpzi(l)/=0) then 
              vmat(3,3) = sopz(l,1,2,1)
              vmat(1,3) = sopz(l,1,2,2)
-             vmat(3,1) = vmat(1,3)
+             vmat(3,1) = sopz(l,1,2,2)
              vmat(2,3) = sopz(l,1,2,3)
-             vmat(3,2) = vmat(2,3)
+             vmat(3,2) = sopz(l,1,2,3)
              vxzz = sopz(l,2,1,1)
              vx0z = sopz(l,2,1,2)
-             vxz0 = vx0z
+             vxz0 = sopz(l,2,1,2)
              vx1z = sopz(l,2,1,3)
-             vxz1 = vx1z
+             vxz1 = sopz(l,2,1,3)
+             
              vzu = vmat(3,1)*x11 + vmat(3,2)*x12
              vuz = m11*vx0z + m12*vx1z
              vzs = vmat(3,1)*x21 + vmat(3,2)*x22
@@ -400,22 +404,22 @@ contains
              vxsz = x21*vmat(1,3) + x22*vmat(2,3)
              vzz_ = vmat(3,3) - vzu*phz2 - vzs*dphz2 - vuz*phz - vsz*dphz &
                   +  sodb(1,1,k,1,2)*phz*phz2 &
-                  +  sodb(2,1,k,1,2)*phz*dphz2 &
-                  +  sodb(1,2,k,1,2)*dphz*phz2 &
+                  +  sodb(1,2,k,1,2)*phz*dphz2 &
+                  +  sodb(2,1,k,1,2)*dphz*phz2 &
                   +  sodb(2,2,k,1,2)*dphz*dphz2
              vxzz = vxzz - vxzu*phz - vxzs*dphz - vxuz*phz2 - vxsz*dphz2 &
                   +  sodb(1,1,k,2,2)*phz2*phz &
-                  +  sodb(2,1,k,2,2)*phz2*dphz &
-                  +  sodb(1,2,k,2,2)*dphz2*phz &
+                  +  sodb(1,2,k,2,2)*phz2*dphz &
+                  +  sodb(2,1,k,2,2)*dphz2*phz &
                   +  sodb(2,2,k,2,2)*dphz2*dphz
-             vuz  = vuz  - sodb(1,1,k,1,2)*phz2 - sodb(2,1,k,1,2)*dphz2
-             vxuz = vxuz - sodb(1,1,k,2,2)*phz  - sodb(2,1,k,2,2)*dphz
-             vzu  = vzu  - sodb(1,1,k,1,2)*phz  - sodb(1,2,k,1,2)*dphz
-             vxzu = vxzu - sodb(1,1,k,2,2)*phz2 - sodb(1,2,k,2,2)*dphz2
-             vsz  = vsz  - sodb(1,2,k,1,2)*phz2  -sodb(2,2,k,1,2)*dphz2
-             vxsz = vxsz - sodb(1,2,k,2,2)*phz   -sodb(2,2,k,2,2)*dphz
-             vzs  = vzs  - sodb(2,1,k,1,2)*phz  - sodb(2,2,k,1,2)*dphz
-             vxzs = vxzs - sodb(2,1,k,2,2)*phz2 - sodb(2,2,k,2,2)*dphz2
+             vuz  = vuz  - sodb(1,1,k,1,2)*phz2 - sodb(1,2,k,1,2)*dphz2
+             vxuz = vxuz - sodb(1,1,k,2,2)*phz  - sodb(1,2,k,2,2)*dphz
+             vzu  = vzu  - sodb(1,1,k,1,2)*phz  - sodb(2,1,k,1,2)*dphz
+             vxzu = vxzu - sodb(1,1,k,2,2)*phz2 - sodb(2,1,k,2,2)*dphz2
+             vsz  = vsz  - sodb(2,1,k,1,2)*phz2  -sodb(2,2,k,1,2)*dphz2
+             vxsz = vxsz - sodb(2,1,k,2,2)*phz   -sodb(2,2,k,2,2)*dphz
+             vzs  = vzs  - sodb(1,2,k,1,2)*phz  - sodb(2,2,k,1,2)*dphz
+             vxzs = vxzs - sodb(1,2,k,2,2)*phz2 - sodb(2,2,k,2,2)*dphz2
              sodb(1,3,k,1,2) = vuz
              sodb(2,3,k,1,2) = vsz
              sodb(3,3,k,1,2) = vzz_
