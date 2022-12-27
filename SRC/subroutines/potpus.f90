@@ -310,13 +310,13 @@ contains
           if (lpzi(l) /= 0) then  ! <(u,s,gz) |h| (u,s,gz)>
              lpzint: block   !  gz = (gz0 - gz0(rmax) u - r*(gz0/r)'(rmax) s) = (gz0 - phz u - dphz s)
                real(8):: mm0(3,3),mmz(3,3),mmm(3,3),mmmt(3,3)
-               mm0(:,1)=[m11,m21, 0d0] !1st col (u s gz0)^t= MM0 t(phi phidot gz0)^t
-               mm0(:,2)=[m12,m22, 0d0] 
-               mm0(:,3)=[0d0,0d0, 1d0]
-               mmz(:,1)=[1d0,0d0,-phz] !1st col (u s gz)^t= MMz t(u s gz0)^t
-               mmz(:,2)=[0d0,1d0,-dphz]
-               mmz(:,3)=[0d0,0d0,1d0]
-               mmm=matmul(mmz,mm0)
+               MM0(:,1)=[m11,m21, 0d0] !1st col (u s gz0)^t= MM0 t(phi phidot gz0)^t
+               MM0(:,2)=[m12,m22, 0d0] 
+               MM0(:,3)=[0d0,0d0, 1d0]
+               MMz(:,1)=[1d0,0d0,-phz] !1st col (u s gz)^t= MMz t(u s gz0)^t
+               MMz(:,2)=[0d0,1d0,-dphz]
+               MMz(:,3)=[0d0,0d0,1d0]
+               mmm=matmul(MMz,MM0)
                mmmt=transpose(mmm)
                sab(1:3,1:3,k,i) = matmul(mmm,matmul(smat(1:3,1:3),mmmt)) !<(u,s,gz)|(u,s,gz)>
                vab(1:3,1:3,k,i) = matmul(mmm,matmul(vmat(1:3,1:3),mmmt)) !<(u,s,gz)|v|(u,s,gz)>
@@ -354,34 +354,24 @@ contains
                mmmt= transpose(mmm)
                sodb(1:2,1:2,k,i,1) = matmul(mmm,matmul(vmat(1:2,1:2),mmmt))
              endblock sodbmat
-             !sodb(1,1,k,i,1) =m11*vmat(1,1)*m11+m11*vmat(1,2)*m12+m12*vmat(2,1)*m11+m12*vmat(2,2)*m12
-             !sodb(2,1,k,i,1) =m11*vmat(1,1)*m21+m11*vmat(1,2)*m22+m12*vmat(2,1)*m21+m12*vmat(2,2)*m22
-             !sodb(1,2,k,i,1) =m21*vmat(1,1)*m11+m21*vmat(1,2)*m12+m22*vmat(2,1)*m11+m22*vmat(2,2)*m12
-             !sodb(2,2,k,i,1) =m21*vmat(1,1)*m21+m21*vmat(1,2)*m22+m22*vmat(2,1)*m21+m22*vmat(2,2)*m22
-             !  ...  Make the local orbitals spin diagonal integrals
-             if (lpzi(l)/=0) then !moda(l) == 6) then
-                vmat(3,3) = sopz(l,i,i,1)
-                vmat(1,3) = sopz(l,i,i,2)
-                vmat(3,1) = vmat(1,3)
-                vmat(2,3) = sopz(l,i,i,3)
-                vmat(3,2) = vmat(2,3)
-                vzu = vmat(3,1)*m11 + vmat(3,2)*m12
-                vuz = m11*vmat(1,3) + m12*vmat(2,3)
-                vzs = vmat(3,1)*m21 + vmat(3,2)*m22
-                vsz = m21*vmat(1,3) + m22*vmat(2,3)
-                vzz_ = vmat(3,3) - phz*(vuz+vzu) - dphz*(vsz+vzs) + &
-                     phz**2*sodb(1,1,k,i,1) + &
-                     phz*dphz*(sodb(2,1,k,i,1)+sodb(1,2,k,i,1)) + &
-                     dphz**2*sodb(2,2,k,i,1)
-                vuz = vuz - phz*sodb(1,1,k,i,1) - dphz*sodb(1,2,k,i,1)
-                vsz = vsz - phz*sodb(2,1,k,i,1) - dphz*sodb(2,2,k,i,1)
-                vzu = vzu - phz*sodb(1,1,k,i,1) - dphz*sodb(2,1,k,i,1)
-                vzs = vzs - phz*sodb(1,2,k,i,1) - dphz*sodb(2,2,k,i,1)
-                sodb(1,3,k,i,1) = vuz
-                sodb(2,3,k,i,1) = vsz
-                sodb(3,3,k,i,1) = vzz_
-                sodb(3,1,k,i,1) = vzu
-                sodb(3,2,k,i,1) = vzs
+             if (lpzi(l)/=0) then !  ...  Make the local orbitals spin diagonal integrals
+             sodbint: block       !  gz = (gz0 - gz0(rmax) u - r*(gz0/r)'(rmax) s) = (gz0 - phz u - dphz s)
+               real(8):: mm0(3,3),mmz(3,3),mmm(3,3),mmmt(3,3)
+               mm0(:,1)=[m11,m21, 0d0] !1st col (u s gz0)^t= MM0 t(phi phidot gz0)^t
+               mm0(:,2)=[m12,m22, 0d0] 
+               mm0(:,3)=[0d0,0d0, 1d0]
+               mmz(:,1)=[1d0,0d0,-phz] !1st col (u s gz)^t= MMz t(u s gz0)^t
+               mmz(:,2)=[0d0,1d0,-dphz]
+               mmz(:,3)=[0d0,0d0,1d0]
+               mmm=matmul(mmz,mm0)
+               mmmt=transpose(mmm)
+               vmat(3,3) = sopz(l,i,i,1)
+               vmat(1,3) = sopz(l,i,i,2)
+               vmat(3,1) = vmat(1,3)
+               vmat(2,3) = sopz(l,i,i,3)
+               vmat(3,2) = vmat(2,3)
+               sodb(1:3,1:3,k,i,1) = matmul(mmm,matmul(vmat(1:3,1:3),mmmt)) !<(u,s,gz)|SO_diag|(u,s,gz)>
+             endblock sodbint
              endif
           enddo
        enddo
