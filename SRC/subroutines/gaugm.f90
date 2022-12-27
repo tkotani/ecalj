@@ -564,15 +564,15 @@ contains
                          if (l1 < l2 .AND. m1 == -m2) then
                             hsozz(i1,i2,l1,l2) = abs(m1)* &
                                  (v1(l,i1)*dcmplx(0d0,sodb(1,1,l))*v2(l,i2) &
-                                 + v1(l,i1)*dcmplx(0d0,sodb(2,1,l))*d2(l,i2) &
-                                 + d1(l,i1)*dcmplx(0d0,sodb(1,2,l))*v2(l,i2) &
+                                 + v1(l,i1)*dcmplx(0d0,sodb(1,2,l))*d2(l,i2) &
+                                 + d1(l,i1)*dcmplx(0d0,sodb(2,1,l))*v2(l,i2) &
                                  + d1(l,i1)*dcmplx(0d0,sodb(2,2,l))*d2(l,i2))
                          endif
                          if (l1 > l2 .AND. m1 == -m2) then
                             hsozz(i1,i2,l1,l2) = -abs(m1)* &
                                  (v1(l,i1)*dcmplx(0d0,sodb(1,1,l))*v2(l,i2) &
-                                 + v1(l,i1)*dcmplx(0d0,sodb(2,1,l))*d2(l,i2) &
-                                 + d1(l,i1)*dcmplx(0d0,sodb(1,2,l))*v2(l,i2) &
+                                 + v1(l,i1)*dcmplx(0d0,sodb(1,2,l))*d2(l,i2) &
+                                 + d1(l,i1)*dcmplx(0d0,sodb(2,1,l))*v2(l,i2) &
                                  + d1(l,i1)*dcmplx(0d0,sodb(2,2,l))*d2(l,i2))
                          endif
                       endif

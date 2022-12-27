@@ -294,7 +294,7 @@ contains
              m(2,1,l,i) = m21
              m(2,2,l,i) = m22
           endif
-          matmmm :block
+          matmmm :block !note original hab,sab,vab are transposed to avoid confusing defition. 2022-12-26
             real(8):: mmm(2,2),mmmt(2,2) ! ... (u,s) x (u,s)
             mmm(:,1)=[m11,m21] !M matrix for u_i = \sum_j M_ij phi_j 
             mmm(:,2)=[m12,m22]
@@ -347,10 +347,17 @@ contains
              vmat(1,2) = sop(l,i,i,2)
              vmat(2,1) = vmat(1,2)
              vmat(2,2) = sop(l,i,i,3)
-             sodb(1,1,k,i,1) =m11*vmat(1,1)*m11+m11*vmat(1,2)*m12+m12*vmat(2,1)*m11+m12*vmat(2,2)*m12
-             sodb(2,1,k,i,1) =m11*vmat(1,1)*m21+m11*vmat(1,2)*m22+m12*vmat(2,1)*m21+m12*vmat(2,2)*m22
-             sodb(1,2,k,i,1) =m21*vmat(1,1)*m11+m21*vmat(1,2)*m12+m22*vmat(2,1)*m11+m22*vmat(2,2)*m12
-             sodb(2,2,k,i,1) =m21*vmat(1,1)*m21+m21*vmat(1,2)*m22+m22*vmat(2,1)*m21+m22*vmat(2,2)*m22
+             sodbmat: block  !note original sodb is transposed to avoid confusing defition. 2022-12-26
+               real(8):: mmm(2,2),mmmt(2,2) ! ... (u,s) x (u,s)
+               mmm(:,1)=[m11,m21] !M matrix for u_i = \sum_j M_ij phi_j 
+               mmm(:,2)=[m12,m22]
+               mmmt= transpose(mmm)
+               sodb(1:2,1:2,k,i,1) = matmul(mmm,matmul(vmat(1:2,1:2),mmmt))
+             endblock sodbmat
+             !sodb(1,1,k,i,1) =m11*vmat(1,1)*m11+m11*vmat(1,2)*m12+m12*vmat(2,1)*m11+m12*vmat(2,2)*m12
+             !sodb(2,1,k,i,1) =m11*vmat(1,1)*m21+m11*vmat(1,2)*m22+m12*vmat(2,1)*m21+m12*vmat(2,2)*m22
+             !sodb(1,2,k,i,1) =m21*vmat(1,1)*m11+m21*vmat(1,2)*m12+m22*vmat(2,1)*m11+m22*vmat(2,2)*m12
+             !sodb(2,2,k,i,1) =m21*vmat(1,1)*m21+m21*vmat(1,2)*m22+m22*vmat(2,1)*m21+m22*vmat(2,2)*m22
              !  ...  Make the local orbitals spin diagonal integrals
              if (lpzi(l)/=0) then !moda(l) == 6) then
                 vmat(3,3) = sopz(l,i,i,1)
@@ -366,10 +373,10 @@ contains
                      phz**2*sodb(1,1,k,i,1) + &
                      phz*dphz*(sodb(2,1,k,i,1)+sodb(1,2,k,i,1)) + &
                      dphz**2*sodb(2,2,k,i,1)
-                vuz = vuz - phz*sodb(1,1,k,i,1) - dphz*sodb(2,1,k,i,1)
-                vsz = vsz - phz*sodb(1,2,k,i,1) - dphz*sodb(2,2,k,i,1)
-                vzu = vzu - phz*sodb(1,1,k,i,1) - dphz*sodb(1,2,k,i,1)
-                vzs = vzs - phz*sodb(2,1,k,i,1) - dphz*sodb(2,2,k,i,1)
+                vuz = vuz - phz*sodb(1,1,k,i,1) - dphz*sodb(1,2,k,i,1)
+                vsz = vsz - phz*sodb(2,1,k,i,1) - dphz*sodb(2,2,k,i,1)
+                vzu = vzu - phz*sodb(1,1,k,i,1) - dphz*sodb(2,1,k,i,1)
+                vzs = vzs - phz*sodb(1,2,k,i,1) - dphz*sodb(2,2,k,i,1)
                 sodb(1,3,k,i,1) = vuz
                 sodb(2,3,k,i,1) = vsz
                 sodb(3,3,k,i,1) = vzz_
@@ -402,7 +409,7 @@ contains
           vx10 = vx01
           vx11 = sop(l,2,1,3)
           !     ... up-down block
-          sodb(1,1,k,1,2)=m11*vmat(1,1)*x11+m11*vmat(1,2)*x12+m12*vx10*x11+m12*vmat(2,2)*x12
+          sodb(1,1,k,1,2)=m11*vmat(1,1)*x11 +m11*vmat(1,2)*x12 +m12*vx10*x11 +m12*vmat(2,2)*x12
           sodb(2,1,k,1,2)=m11*vmat(1,1)*x21+m11*vmat(1,2)*x22+m12*vx10*x21+m12*vmat(2,2)*x22
           sodb(1,2,k,1,2)=m21*vmat(1,1)*x11+m21*vmat(1,2)*x12+m22*vx10*x11+m22*vmat(2,2)*x12
           sodb(2,2,k,1,2)=m21*vmat(1,1)*x21+m21*vmat(1,2)*x22+m22*vx10*x21+m22*vmat(2,2)*x22
