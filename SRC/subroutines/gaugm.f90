@@ -280,49 +280,9 @@ contains
        enddo
     enddo
     ppi = ppir
-    if(lldau/=0) ppi=ppi+ppiz !call zaxpy(nf1*nf2*nlx1*nlx2*nsp,1d0,ppiz,1,ppi,1)
+    if(lldau/=0) ppi=ppi+ppiz 
     deallocate(ppiz)
   end subroutine gaugm
-    !        if(iprint() >=80) then
-    !           write(stdo,501) i
-    !           do  i1 = 1, nf1
-    !              do  i2 = 1, nf2
-    !                 nlm1 = (lx1(i1)+1)**2
-    !                 nlm2 = (lx2(i2)+1)**2
-    !                 nlm = min0(nlm1,nlm2)
-    !                 write(stdo,*) ' '
-    !                 do  ilm = 1, nlm
-    !                    l=ll(ilm)
-    !                    write(stdo,500) i1,i2,ilm,sig(i1,i2,l,i),tau(i1,i2,l,i), &
-    !                         ppir(i1,i2,ilm,ilm,i)
-    ! 500                format(2i4,i6,3f14.8)
-    ! 501                format(/'# diagonal aug matrices spin',i2,':' &
-    !                         /'# i1  i2   ilm',8x,'sig',11x,'tau',11x,'ham')
-    !                 enddo
-    !              enddo
-    !           enddo
-    !           ! ... Print LL' potential matrix (which includes tau)
-    !           write(stdo,'(''#pi matrix:'')')
-    !           write(stdo,'(''#i1 i2  ilm1 ilm2     ham'')')
-    !           do  i1 = 1, nf1
-    !              do  i2 = 1, nf2
-    !                 nlm1 = (lx1(i1)+1)**2
-    !                 nlm2 = (lx2(i2)+1)**2
-    !                 do  ilm1 = 1, nlm1
-    !                    do  ilm2 = 1, nlm2
-    !                       if (dabs(ppir(i1,i2,ilm1,ilm2,i)) >= 1d-8) &
-    !                            write(stdo,320) i1,i2,ilm1,ilm2,ppir(i1,i2,ilm1,ilm2,i)
-    ! 320                   format(2i3,2i5,f14.8)
-    !                    enddo
-    !                 enddo
-    !              enddo
-    !           enddo
-    !        endif
-    !    enddo
-    !    ppi = ppir
-    !    if(lldau/=0) ppi=ppi+ppiz !call zaxpy(nf1*nf2*nlx1*nlx2*nsp,1d0,ppiz,1,ppi,1)
-    !    deallocate(ppiz)
-    !  end subroutine gaugm
   subroutine pvagm1(nf1,nf1s,lmx1,lx1,nlx1,v1,d1,isp, &
        nf2,nf2s,lmx2,lx2,nlx2,v2,d2,lso, &
        hab,vab,sab,sodb,sondb,lmux,sig,tau,ppi, &
@@ -696,21 +656,20 @@ contains
                    ppi(i1,i2,l) = -ppi(i1,i2,l) + vab(3,3,l)
                    !       ... hzu,vzu,szs
                 elseif (i1 > nf1s) then
-                   sig(i1,i2,l)= -sig(i1,i2,l) +sab(3,1,l)*v2(l,i2) + sab(3,2,l)*d2(l,i2)
-                   tau(i1,i2,l)= -tau(i1,i2,l)+(hab(3,1,l)-vab(3,1,l))*v2(l,i2) + (hab(3,2,l)-vab(3,2,l))*d2(l,i2)
-                   ppi(i1,i2,l) = -ppi(i1,i2,l) + vab(3,1,l)*v2(l,i2) + vab(3,2,l)*d2(l,i2)
+                   sig(i1,i2,l)= -sig(i1,i2,l)  + sum(sab(3,1:2,l)*[v2(l,i2),d2(l,i2)])
+                   tau(i1,i2,l)= -tau(i1,i2,l)  + sum((hab(3,1:2,l)-vab(3,1:2,l))*[v2(l,i2),d2(l,i2)])
+                   ppi(i1,i2,l) = -ppi(i1,i2,l) + sum(vab(3,1:2,l)*[v2(l,i2),d2(l,i2)])
                    !       ... huz,vuz,ssz
                 elseif (i2 > nf2s) then
-                   sig(i1,i2,l) = -sig(i1,i2,l) + v1(l,i1)*sab(1,3,l) + d1(l,i1)*sab(2,3,l)
-                   tau(i1,i2,l) = -tau(i1,i2,l) + v1(l,i1)*(hab(1,3,l)-vab(1,3,l))+ d1(l,i1)*(hab(2,3,l)-vab(2,3,l))
-                   ppi(i1,i2,l) = -ppi(i1,i2,l) + v1(l,i1)*vab(1,3,l)+ d1(l,i1)*vab(2,3,l)
+                   sig(i1,i2,l) = -sig(i1,i2,l) + sum([v1(l,i1),d1(l,i1)]*sab(1:2,3,l))
+                   tau(i1,i2,l) = -tau(i1,i2,l) + sum([v1(l,i1),d1(l,i1)]*(hab(1:2,3,l)-vab(1:2,3,l)))
+                   ppi(i1,i2,l) = -ppi(i1,i2,l) + sum([v1(l,i1),d1(l,i1)]*vab(1:2,3,l))
                 endif
              enddo
           endif
        enddo
     enddo
     if (lso == 0) return
-
     !       ... Spin-Orbit matrix elements in real harmonics.
     i1loop: do  i1 = 1, nf1
        i2loop: do  i2 = 1, nf2
@@ -1052,7 +1011,7 @@ contains
              do  l2 = 0, lx2(i2)
                 do  lm = 0, lmxl
                    qm(i1,i2,l1,l2,lm) = &
-                        v1(l1,i1) * v2(l2,i2) * qum(l1,l2,lm,1) & !from augmented functions
+                          v1(l1,i1) * v2(l2,i2) * qum(l1,l2,lm,1) & !from augmented functions
                         + v1(l1,i1) * d2(l2,i2) * qum(l1,l2,lm,2) &
                         + d1(l1,i1) * v2(l2,i2) * qum(l2,l1,lm,2) &
                         + d1(l1,i1) * d2(l2,i2) * qum(l1,l2,lm,3) &
