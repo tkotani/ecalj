@@ -126,17 +126,14 @@ contains
     integer :: nrx
     parameter (nrx=1501)
     double precision :: rwgtx(nrx) !,gzbig(nrx,2)
-    real(8),allocatable:: gzbig(:,:)
-    !     double precision gbig(nrx*2),gpbig(nrx*8),vbig(nrx,2)
-    !     Spin-Orbit related parameters
-!    integer :: moda(0:lmxa)
-    double precision :: vavg(nr),dv(nr),sop(0:lmxa,nsp,nsp,3), &
+    real(8),allocatable:: gzbig(:,:)    !     double precision gbig(nrx*2),gpbig(nrx*8),vbig(nrx,2)
+    real(8):: vavg(nr),dv(nr),sop(0:lmxa,nsp,nsp,3), &     !     Spin-Orbit related parameters
          sopz(0:lmxa,nsp,nsp,3), &
          psi(nr,0:lmxa,nsp),dpsi(nr,0:lmxa,nsp), &
          pzi(nr,0:lmxa,nsp),ezum(0:8,nsp), &
-         enumx(0:8,nsp),wrk(nr,4),m(2,2,0:lmxa,nsp), &
-         x21,x11,x22,x12,vx00,vx01,vx10,vx11, &
+         enumx(0:8,nsp),wrk(nr,4), x21,x11,x22,x12,vx00,vx01,vx10,vx11, &
          vx0z,vxz0,vx1z,vxz1,vxzz,vxzu,vxuz,vxzs,vxsz, xxxx(1,1)
+    real(8),target:: m(2,2,0:lmxa,nsp)
     real(8):: rwgt(nr),szz_,vzz_,hzz_
     call getpr(ipr)
     call vxtrap(1,z,rmax,lmxa,v,a,nr,nsp,pnz,rs3,vmtz,nrx,lpz,nrbig,rofi,rwgtx,xxxx(1,1))
@@ -219,12 +216,12 @@ contains
             gf11(2:nr) = 1d0 + fllp1/(tmcc(2:nr)*rofi(2:nr))**2
             dmat(1,1)= sum(rwgt*vdif(:,i)* (gf11* g(:,1)* g(:,1)+ g(:,2)*g(:,2)) ) 
             dmat(2,1)= sum(rwgt*vdif(:,i)* (gf11*gp(:,1)* g(:,1)+gp(:,2)*g(:,2)) ) 
-            dmat(1,2)= dmat(2,1)
             dmat(2,2)= sum(rwgt*vdif(:,i)* (gf11*gp(:,1)*gp(:,1)+gp(:,2)*gp(:,2)))
             vmat(1,1)= sum(rwgt*vii*       (gf11* g(:,1)* g(:,1)+ g(:,2)*g(:,2)) ) 
             vmat(2,1)= sum(rwgt*vii*       (gf11*gp(:,1)* g(:,1)+gp(:,2)*g(:,2)) )
-            vmat(1,2)= vmat(2,1)
             vmat(2,2)= sum(rwgt*vii*       (gf11*gp(:,1)*gp(:,1)+gp(:,2)*gp(:,2)))
+            dmat(1,2)= dmat(2,1)
+            vmat(1,2)= vmat(2,1)
             if(lpzi(l)/=0) then !computes integrals with products of (g,gp) x gz
                gf12(1)=0d0
                gf22(1)=0d0
@@ -234,14 +231,18 @@ contains
                dmat(1,3) = sum(rwgt*vdif(:,i)*(gf12*g(:,1) *gz(:,1)+ g(:,2) *gz(:,2)))
                dmat(2,3) = sum(rwgt*vdif(:,i)*(gf12*gp(:,1)*gz(:,1)+ gp(:,2)*gz(:,2)))
                dmat(3,3) = sum(rwgt*vdif(:,i)*(gf22*gz(:,1)*gz(:,1)+ gz(:,2)*gz(:,2)))
-               dmat(3,2) = dmat(2,3)
                vmat(1,3) = sum(rwgt*vii*(gf12*g(:,1) *gz(:,1)+ g(:,2) *gz(:,2)))
                vmat(2,3) = sum(rwgt*vii*(gf12*gp(:,1)*gz(:,1)+ gp(:,2)*gz(:,2)))
                vmat(3,3) = sum(rwgt*vii*(gf22*gz(:,1)*gz(:,1)+ gz(:,2)*gz(:,2)))
-               vmat(3,2) = vmat(2,3)
                smat(1,3) = sum(rwgt*(gf12*g(:,1) *gz(:,1)+ g(:,2) *gz(:,2)))
                smat(2,3) = sum(rwgt*(gf12*gp(:,1)*gz(:,1)+ gp(:,2)*gz(:,2)))
                smat(3,3) = sum(rwgt*(gf22*gz(:,1)*gz(:,1)+ gz(:,2)*gz(:,2)))
+               dmat(3,1) = dmat(1,3)
+               dmat(3,2) = dmat(2,3)
+               vmat(3,1) = vmat(1,3)
+               vmat(3,2) = vmat(2,3)
+               smat(3,1) = smat(1,3)
+               smat(3,2) = smat(2,3)
             endif
           endblock intg
           vmat(1:2,1:2) = vmat(1:2,1:2) + dmat(1:2,1:2)
@@ -249,18 +250,14 @@ contains
           smat(1:2,2) = [0d0, p]
           hmat(1:2,1) = [ghg,0d0]   ! hmat(1,1)=<g H g> = e <g g> = e                       
           hmat(1:2,2) = [ghgp,gphgp]! hmat(1,2)=<g H gp> = <g (H-e) gp> + e <g gp> = <g g>  
-          ! hmat(2,1)=<gp H g> = 0d0, hmat(2,2)=<gp H gp> = <gp (H-e) gp> + e <gp gp> = <gp g> + e p = ep
-          hmat(1:2,1:2)=hmat(1:2,1:2)+dmat(1:2,1:2)
-          ! Should not be needed since Wronskian explicit in makrwf
-          call pvpus1(rmax,phi,dphi,phip,dphip,hmat(1,2),hmat(2,1))
+          hmat(1:2,1:2)=hmat(1:2,1:2)+dmat(1:2,1:2)! hmat(2,1)=<gp H g> = 0d0, hmat(2,2)=<gp H gp> = <gp (H-e) gp> + e <gp gp> = <gp g> + e p = ep
+          call pvpus1(rmax,phi,dphi,phip,dphip,hmat(1,2),hmat(2,1))! Should not be needed? since Wronskian explicit in makrwf
           if (lpzi(l) /= 0) then
              vmat(1,3) = vmat(1,3) + dmat(1,3)
              vmat(2,3) = vmat(2,3) + dmat(2,3)
              vmat(3,3) = vmat(3,3) + dmat(3,3)
-             vmat(3,1) = vmat(1,3)
-             vmat(3,2) = vmat(2,3)
-             smat(3,1) = smat(1,3)
-             smat(3,2) = smat(2,3)
+             vmat(3,1) = vmat(3,1) + dmat(3,1)
+             vmat(3,2) = vmat(3,2) + dmat(3,2)
              hmat(1,3) = ez*smat(1,3) + dmat(1,3)
              hmat(3,1) = ev*smat(1,3) + dmat(1,3)
              hmat(3,2) = ev*smat(3,2) + smat(3,1) + dmat(2,3)
@@ -288,16 +285,14 @@ contains
           m21 = -phip/det
           m22 = phi/det
           ! ... Keep local copies of mij for SO coupling
-          if (lso /= 0) then
-             m(1,1,l,i) = m11
-             m(1,2,l,i) = m12
-             m(2,1,l,i) = m21
-             m(2,2,l,i) = m22
-          endif
+          m(1,1,l,i) = m11  !M matrix for u_i = \sum_j M_ij phi_j 
+          m(1,2,l,i) = m12
+          m(2,1,l,i) = m21
+          m(2,2,l,i) = m22
           matmmm :block !note original hab,sab,vab are transposed to avoid confusing defition. 2022-12-26
-            real(8):: mmm(2,2),mmmt(2,2) ! ... (u,s) x (u,s)
-            mmm(:,1)=[m11,m21] !M matrix for u_i = \sum_j M_ij phi_j 
-            mmm(:,2)=[m12,m22]
+            real(8),pointer:: mmm(:,:)
+            real(8):: mmmt(2,2) ! ... (u,s) x (u,s)
+            mmm => m(:,:,l,i)
             mmmt= transpose(mmm)
             hab(1:2,1:2,k,i) = matmul(mmm,matmul(hmat(1:2,1:2),mmmt)) !<u,s|h|u,s>
             sab(1:2,1:2,k,i) = matmul(mmm,matmul(smat(1:2,1:2),mmmt)) 
@@ -310,13 +305,13 @@ contains
           if (lpzi(l) /= 0) then  ! <(u,s,gz) |h| (u,s,gz)>
              lpzint: block   !  gz = (gz0 - gz0(rmax) u - r*(gz0/r)'(rmax) s) = (gz0 - phz u - dphz s)
                real(8):: mm0(3,3),mmz(3,3),mmm(3,3),mmmt(3,3)
-               MM0(:,1)=[m11,m21, 0d0] !1st col (u s gz0)^t= MM0 t(phi phidot gz0)^t
-               MM0(:,2)=[m12,m22, 0d0] 
-               MM0(:,3)=[0d0,0d0, 1d0]
-               MMz(:,1)=[1d0,0d0,-phz] !1st col (u s gz)^t= MMz t(u s gz0)^t
-               MMz(:,2)=[0d0,1d0,-dphz]
-               MMz(:,3)=[0d0,0d0,1d0]
-               mmm=matmul(MMz,MM0)
+               MM0(:,1)=[m(:,1,l,i), 0d0] !1st col (u s gz0)^t= MM0 t(phi phidot gz0)^t
+               MM0(:,2)=[m(:,2,l,i), 0d0] 
+               MM0(:,3)=[0d0,   0d0, 1d0]
+               MMz(:,1)=[1d0,  0d0, -phz] !1st col (u s gz)^t= MMz t(u s gz0)^t
+               MMz(:,2)=[0d0,  1d0,-dphz]
+               MMz(:,3)=[0d0,  0d0,  1d0]
+               mmm =matmul(MMz,MM0)
                mmmt=transpose(mmm)
                sab(1:3,1:3,k,i) = matmul(mmm,matmul(smat(1:3,1:3),mmmt)) !<(u,s,gz)|(u,s,gz)>
                vab(1:3,1:3,k,i) = matmul(mmm,matmul(vmat(1:3,1:3),mmmt)) !<(u,s,gz)|v|(u,s,gz)>
@@ -339,39 +334,31 @@ contains
              phz = ppnl(11,l+1,i)
              dphz = ppnl(12,l+1,i)
              k = l + 1
-             m11 = m(1,1,l,i)
-             m12 = m(1,2,l,i)
-             m21 = m(2,1,l,i)
-             m22 = m(2,2,l,i)
-             vmat(1,1) = sop(l,i,i,1)
-             vmat(1,2) = sop(l,i,i,2)
-             vmat(2,1) = vmat(1,2)
-             vmat(2,2) = sop(l,i,i,3)
+             vmat(1:2,1) = [sop(l,i,i,1),sop(l,i,i,2)]
+             vmat(1:2,2) = [sop(l,i,i,2),sop(l,i,i,3)]
              sodbmat: block  !note original sodb is transposed to avoid confusing defition. 2022-12-26
-               real(8):: mmm(2,2),mmmt(2,2) ! ... (u,s) x (u,s)
-               mmm(:,1)=[m11,m21] !M matrix for u_i = \sum_j M_ij phi_j 
-               mmm(:,2)=[m12,m22]
+               real(8),pointer:: mmm(:,:)
+               real(8):: mmmt(2,2) ! ... (u,s) x (u,s)
+               mmm => m(:,:,l,i) !M matrix for u_i = \sum_j M_ij phi_j 
                mmmt= transpose(mmm)
                sodb(1:2,1:2,k,i,1) = matmul(mmm,matmul(vmat(1:2,1:2),mmmt))
              endblock sodbmat
              if (lpzi(l)/=0) then !  ...  Make the local orbitals spin diagonal integrals
-             sodbint: block       !  gz = (gz0 - gz0(rmax) u - r*(gz0/r)'(rmax) s) = (gz0 - phz u - dphz s)
-               real(8):: mm0(3,3),mmz(3,3),mmm(3,3),mmmt(3,3)
-               mm0(:,1)=[m11,m21, 0d0] !1st col (u s gz0)^t= MM0 t(phi phidot gz0)^t
-               mm0(:,2)=[m12,m22, 0d0] 
-               mm0(:,3)=[0d0,0d0, 1d0]
-               mmz(:,1)=[1d0,0d0,-phz] !1st col (u s gz)^t= MMz t(u s gz0)^t
-               mmz(:,2)=[0d0,1d0,-dphz]
-               mmz(:,3)=[0d0,0d0,1d0]
-               mmm=matmul(mmz,mm0)
-               mmmt=transpose(mmm)
-               vmat(3,3) = sopz(l,i,i,1)
-               vmat(1,3) = sopz(l,i,i,2)
-               vmat(3,1) = vmat(1,3)
-               vmat(2,3) = sopz(l,i,i,3)
-               vmat(3,2) = vmat(2,3)
-               sodb(1:3,1:3,k,i,1) = matmul(mmm,matmul(vmat(1:3,1:3),mmmt)) !<(u,s,gz)|SO_diag|(u,s,gz)>
-             endblock sodbint
+                sodbint: block       !  gz = (gz0 - gz0(rmax) u - r*(gz0/r)'(rmax) s) = (gz0 - phz u - dphz s)
+                  real(8):: mm0(3,3),mmz(3,3),mmm(3,3),mmmt(3,3)
+                  vmat(1:2,3) = [sopz(l,i,i,2),sopz(l,i,i,3)]
+                  vmat(3,1:2) = [sopz(l,i,i,2),sopz(l,i,i,3)]
+                  vmat(3,3) = sopz(l,i,i,1)
+                  mm0(:,1)=[m(:,1,l,i), 0d0] !1st col (u s gz0)^t= MM0 t(phi phidot gz0)^t
+                  mm0(:,2)=[m(:,2,l,i), 0d0] 
+                  mm0(:,3)=[0d0,  0d0,  1d0]
+                  mmz(:,1)=[1d0,  0d0, -phz] !1st col (u s gz)^t= MMz t(u s gz0)^t
+                  mmz(:,2)=[0d0,  1d0,-dphz]
+                  mmz(:,3)=[0d0,  0d0,  1d0]
+                  mmm =matmul(mmz,mm0)
+                  mmmt=transpose(mmm)
+                  sodb(1:3,1:3,k,i,1) = matmul(mmm,matmul(vmat,mmmt)) !<(u,s,gz)|SO_diag|(u,s,gz)>
+                endblock sodbint
              endif
           enddo
        enddo
