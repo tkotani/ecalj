@@ -175,9 +175,6 @@ contains
              endif
              if(lso/=0) ezum(l,i) = ez     !for SO
              if(lso/=0) pzi(:,l,i)= gz(:,1)!for SO
-          else
-             phz = 0
-             dphz = 0
           endif
           ! ... Valence wf g,gp, and their sphere boundary parameters
           call makrwf(10,z,rmax,l,v(1,i),a,nr,rofi,pnu(1,i),2,g,gp,ev,phi,dphi,phip,dphip,p)
@@ -193,16 +190,6 @@ contains
              enumx(l,i) = ev
           endif
           
-          ppnl(:,k,i) = 0d0 ! potential parameters, no backwards integration, <phi phi>=1
-          ppnl(1,k,i) = 0
-          ppnl(2,k,i) = 1d0
-          ppnl(3,k,i) = rmax * dlphi
-          ppnl(4,k,i) = rmax * dlphip
-          ppnl(5,k,i) = phi
-          ppnl(6,k,i) = phip
-          ppnl(7,k,i) = p
-          ppnl(11,k,i) = phz
-          ppnl(12,k,i) = dphz
           intg: block ! --- Integrals of w.f. products with spherical potential ---
           ! ... This branch computes integrals with products of (g,gp,gz)
           !     Convention: 11 (phi,phi) 21 (dot,phi) 22 (dot,dot), 13 (phi,lo) 23 (dot,lo) 33 (lo,lo)
@@ -317,11 +304,16 @@ contains
                vab(1:3,1:3,k,i) = matmul(mmm,matmul(vmat(1:3,1:3),mmmt)) !<(u,s,gz)|v|(u,s,gz)>
                hab(1:3,1:3,k,i) = matmul(mmm,matmul(hmat(1:3,1:3),mmmt)) !<(u,s,gz)|h|(u,s,gz)>
              endblock lpzint
-             ppnl(8,k,i)  = sab(3,3,k,i)!szz_
-             xxx = (phz*sab(1,1,k,i) + dphz*sab(1,2,k,i))
-             yyy = (phz*sab(2,1,k,i) + dphz*sab(2,2,k,i))
-             ppnl(9,k,i)  = smat(1,3) - phi *xxx - dphi *yyy
-             ppnl(10,k,i) = smat(2,3) - phip*xxx - dphip*yyy
+          endif
+          ppnl(1:7,k,i) = [0d0, 1d0, rmax*dlphi, rmax*dlphip, phi, phip, p]
+          if (lpzi(l) /= 0) then  ! <(u,s,gz) |h| (u,s,gz)>
+             ppnl(8,k,i)  = sab(3,3,k,i)
+             ppnl(9,k,i)  = smat(1,3) - sum([phi,  dphi]*matmul(sab(1:2,1:2,k,i),[phz,dphz]))
+             ppnl(10,k,i) = smat(2,3) - sum([phip,dphip]*matmul(sab(1:2,1:2,k,i),[phz,dphz]))
+             ppnl(11,k,i) = phz
+             ppnl(12,k,i) = dphz
+          else
+             ppnl(8:12,k,i) = 0d0 
           endif
 10     enddo lloop
 80  enddo isploop
