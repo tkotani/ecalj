@@ -361,33 +361,33 @@ contains
             soud(:,2)=[sop(l,1,2,2),sop(l,1,2,3)]
             sodu(:,1)=[sop(l,2,1,1),sop(l,2,1,2)]
             sodu(:,2)=[sop(l,1,2,2),sop(l,2,1,3)]
-            sodb(:,:,k,1,2)= matmul(mmm1,matmul(soud,transpose(mmm2)))! up-dn block 
-            sodb(:,:,k,2,2)= matmul(mmm2,matmul(sodu,transpose(mmm1)))! dn-up block
+            sodb(1:2,1:2,k,1,2)= matmul(mmm1,matmul(soud,transpose(mmm2)))! up-dn block 
+            sodb(1:2,1:2,k,2,2)= matmul(mmm2,matmul(sodu,transpose(mmm1)))! dn-up block
           endblock sooff2
-!            
-            m11 = m(1,1,l,1)
-            m12 = m(1,2,l,1)
-            m21 = m(2,1,l,1)
-            m22 = m(2,2,l,1)
-            x11 = m(1,1,l,2)
-            x12 = m(1,2,l,2)
-            x21 = m(2,1,l,2)
-            x22 = m(2,2,l,2)
-            vmat(1,1) = sop(l,1,2,1)
-            vmat(1,2) = sop(l,1,2,2)
-            vmat(2,1) = sop(l,1,2,2)
-            vmat(2,2) = sop(l,1,2,3)
-            vx00 = sop(l,2,1,1)
-            vx01 = sop(l,2,1,2)
-            vx10 = sop(l,2,1,2)
-            vx11 = sop(l,2,1,3)
           !  ...  Make the local orbitals spin off-diagonal radial integrals
           if (lpzi(l)/=0) then 
+             m11 = m(1,1,l,1)
+             m12 = m(1,2,l,1)
+             m21 = m(2,1,l,1)
+             m22 = m(2,2,l,1)
+             x11 = m(1,1,l,2)
+             x12 = m(1,2,l,2)
+             x21 = m(2,1,l,2)
+             x22 = m(2,2,l,2)
+             
+             vmat(1,1) = sop(l,1,2,1)
+             vmat(1,2) = sop(l,1,2,2)
+             vmat(2,1) = sop(l,1,2,2)
+             vmat(2,2) = sop(l,1,2,3)
              vmat(3,3) = sopz(l,1,2,1)
              vmat(1,3) = sopz(l,1,2,2)
              vmat(3,1) = sopz(l,1,2,2)
              vmat(2,3) = sopz(l,1,2,3)
              vmat(3,2) = sopz(l,1,2,3)
+             vx00 = sop(l,2,1,1)
+             vx01 = sop(l,2,1,2)
+             vx10 = sop(l,2,1,2)
+             vx11 = sop(l,2,1,3)
              vxzz = sopz(l,2,1,1)
              vx0z = sopz(l,2,1,2)
              vxz0 = sopz(l,2,1,2)
@@ -430,6 +430,40 @@ contains
              sodb(3,3,k,2,2) = vxzz
              sodb(3,1,k,2,2) = vxzu
              sodb(3,2,k,2,2) = vxzs
+          endif   
+          
+          !  ...  Make the local orbitals spin off-diagonal radial integrals
+          if (.false.) then !lpzi(l)/=0) then 
+             sooff3: block   !  gz = (gz0 - gz0(rmax) u - r*(gz0/r)'(rmax) s) = (gz0 - phz u - dphz s)
+               real(8):: mm1(3,3),mm2(3,3),mm1z(3,3),mm2z(3,3),mmm1(3,3),mmm2(3,3)
+               real(8):: soud(3,3),sodu(3,3)
+               MM1(:,1)=[m(:,1,l,1), 0d0] !L 1st col (u s gz0)^t= MM0 t(phi phidot gz0)^t
+               MM1(:,2)=[m(:,2,l,1), 0d0] 
+               MM1(:,3)=[0d0,   0d0, 1d0]
+               MM2(:,1)=[m(:,1,l,2), 0d0] !R 1st col (u s gz0)^t= MM0 t(phi phidot gz0)^t
+               MM2(:,2)=[m(:,2,l,2), 0d0] 
+               MM2(:,3)=[0d0,   0d0, 1d0]
+               MM1z(:,1)=[1d0,  0d0, -phz] !L 1st col (u s gz)^t= MMz t(u s gz0)^t
+               MM1z(:,2)=[0d0,  1d0,-dphz]
+               MM1z(:,3)=[0d0,  0d0,  1d0]
+               MM2z(:,1)=[1d0,  0d0, -phz2] !R 1st col (u s gz)^t= MMz t(u s gz0)^t
+               MM2z(:,2)=[0d0,  1d0,-dphz2]
+               MM2z(:,3)=[0d0,  0d0,  1d0]
+               mmm1 =matmul(MM1z,MM1)
+               mmm2 =matmul(MM2z,MM2)
+               soud(3,3) = sopz(l,1,2,1)
+               soud(1,3) = sopz(l,1,2,2)
+               soud(3,1) = sopz(l,1,2,2)
+               soud(2,3) = sopz(l,1,2,3)
+               soud(3,2) = sopz(l,1,2,3)
+               sodu(3,3) = sopz(l,2,1,1)
+               sodu(1,3) = sopz(l,2,1,2)
+               sodu(3,1) = sopz(l,2,1,2)
+               sodu(2,3) = sopz(l,2,1,3)
+               sodu(3,2) = sopz(l,2,1,3)
+               sodb(:,:,k,1,2)= matmul(mmm1,matmul(soud,transpose(mmm2)))! up-dn block <1|SOoff|2> 
+               sodb(:,:,k,2,2)= matmul(mmm2,matmul(sodu,transpose(mmm1)))! dn-up block 
+             endblock sooff3
           endif
        enddo
     endif
