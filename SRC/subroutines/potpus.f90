@@ -189,8 +189,7 @@ contains
              dpsi(:,l,i)= gp(:,1)
              enumx(l,i) = ev
           endif
-          
-          intg: block ! --- Integrals of w.f. products with spherical potential ---
+          integ: block ! --- Integrals of w.f. products with spherical potential ---
           ! ... This branch computes integrals with products of (g,gp,gz)
           !     Convention: 11 (phi,phi) 21 (dot,phi) 22 (dot,dot), 13 (phi,lo) 23 (dot,lo) 33 (lo,lo)
             integer:: fllp1
@@ -209,6 +208,13 @@ contains
             vmat(2,2)= sum(rwgt*vii*       (gf11*gp(:,1)*gp(:,1)+gp(:,2)*gp(:,2)))
             dmat(1,2)= dmat(2,1)
             vmat(1,2)= vmat(2,1)
+            vmat(1:2,1:2) = vmat(1:2,1:2) + dmat(1:2,1:2)
+            smat(1:2,1) = [1d0,0d0]
+            smat(1:2,2) = [0d0, p]
+            hmat(1:2,1) = [ghg,0d0]   ! hmat(1,1)=<g H g> = e <g g> = e                       
+            hmat(1:2,2) = [ghgp,gphgp]! hmat(1,2)=<g H gp> = <g (H-e) gp> + e <g gp> = <g g>  
+            hmat(1:2,1:2)=hmat(1:2,1:2)+dmat(1:2,1:2)! hmat(2,1)=<gp H g> = 0d0, hmat(2,2)=<gp H gp> = <gp (H-e) gp> + e <gp gp> = <gp g> + e p = ep
+            call pvpus1(rmax,phi,dphi,phip,dphip,hmat(1,2),hmat(2,1))! Should not be needed? since Wronskian explicit in makrwf
             if(lpzi(l)/=0) then !computes integrals with products of (g,gp) x gz
                gf12(1)=0d0
                gf22(1)=0d0
@@ -224,35 +230,21 @@ contains
                smat(1,3) = sum(rwgt*(gf12*g(:,1) *gz(:,1)+ g(:,2) *gz(:,2)))
                smat(2,3) = sum(rwgt*(gf12*gp(:,1)*gz(:,1)+ gp(:,2)*gz(:,2)))
                smat(3,3) = sum(rwgt*(gf22*gz(:,1)*gz(:,1)+ gz(:,2)*gz(:,2)))
-               dmat(3,1) = dmat(1,3)
-               dmat(3,2) = dmat(2,3)
-               vmat(3,1) = vmat(1,3)
-               vmat(3,2) = vmat(2,3)
-               smat(3,1) = smat(1,3)
-               smat(3,2) = smat(2,3)
+               dmat(3,1:2) = dmat(1:2,3)
+               vmat(3,1:2) = vmat(1:2,3)
+               smat(3,1:2) = smat(1:2,3)
+               vmat(1:2,3) = vmat(1:2,3) + dmat(1:2,3)
+               vmat(3,1:2) = vmat(3,1:2) + dmat(3,1:2)
+               vmat(3,3)   = vmat(3,3) + dmat(3,3)
+               hmat(1,3) = ez*smat(1,3) + dmat(1,3)
+               hmat(2,3) = ez*smat(2,3) + dmat(2,3)
+               hmat(3,3) = ez*smat(3,3) + dmat(3,3)
+               hmat(3,1) = ev*smat(1,3) + dmat(1,3)
+               hmat(3,2) = ev*smat(3,2) + smat(3,1) + dmat(2,3)
+               call pvpus1(rmax,phi,dphi,phz,dphz,hmat(1,3),hmat(3,1)) ! Put in Wronskians explicitly
+               call pvpus1(rmax,phip,dphip,phz,dphz,hmat(2,3),hmat(3,2))
             endif
-          endblock intg
-          vmat(1:2,1:2) = vmat(1:2,1:2) + dmat(1:2,1:2)
-          smat(1:2,1) = [1d0,0d0]
-          smat(1:2,2) = [0d0, p]
-          hmat(1:2,1) = [ghg,0d0]   ! hmat(1,1)=<g H g> = e <g g> = e                       
-          hmat(1:2,2) = [ghgp,gphgp]! hmat(1,2)=<g H gp> = <g (H-e) gp> + e <g gp> = <g g>  
-          hmat(1:2,1:2)=hmat(1:2,1:2)+dmat(1:2,1:2)! hmat(2,1)=<gp H g> = 0d0, hmat(2,2)=<gp H gp> = <gp (H-e) gp> + e <gp gp> = <gp g> + e p = ep
-          call pvpus1(rmax,phi,dphi,phip,dphip,hmat(1,2),hmat(2,1))! Should not be needed? since Wronskian explicit in makrwf
-          if (lpzi(l) /= 0) then
-             vmat(1,3) = vmat(1,3) + dmat(1,3)
-             vmat(2,3) = vmat(2,3) + dmat(2,3)
-             vmat(3,3) = vmat(3,3) + dmat(3,3)
-             vmat(3,1) = vmat(3,1) + dmat(3,1)
-             vmat(3,2) = vmat(3,2) + dmat(3,2)
-             hmat(1,3) = ez*smat(1,3) + dmat(1,3)
-             hmat(3,1) = ev*smat(1,3) + dmat(1,3)
-             hmat(3,2) = ev*smat(3,2) + smat(3,1) + dmat(2,3)
-             hmat(3,3) = ez*smat(3,3) + dmat(3,3)
-             call pvpus1(rmax,phi,dphi,phz,dphz,hmat(1,3),hmat(3,1)) ! Put in Wronskians explicitly
-             hmat(2,3) = ez*smat(2,3) + dmat(2,3)
-             call pvpus1(rmax,phip,dphip,phz,dphz,hmat(2,3),hmat(3,2))
-          endif
+          endblock integ
           ! --- Integrals of u-s products from phi,phidot products ---
           !     Linear transformation between (u,s) and (phi,phidot)
           !       ( u(r) )        ( phi(r)    )
@@ -310,8 +302,7 @@ contains
              ppnl(8,k,i)  = sab(3,3,k,i)
              ppnl(9,k,i)  = smat(1,3) - sum([phi,  dphi]*matmul(sab(1:2,1:2,k,i),[phz,dphz]))
              ppnl(10,k,i) = smat(2,3) - sum([phip,dphip]*matmul(sab(1:2,1:2,k,i),[phz,dphz]))
-             ppnl(11,k,i) = phz
-             ppnl(12,k,i) = dphz
+             ppnl(11:12,k,i) = [phz, dphz]
           else
              ppnl(8:12,k,i) = 0d0 
           endif
