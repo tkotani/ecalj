@@ -142,9 +142,9 @@ contains
     logical:: fsmode !for --fermisurface for xcrysden.
     logical,save:: siginit=.true.
     integer:: iter,i,ifi,ipr,iq,isp,jsp,iprint,ipts
-    integer:: idummy, unlink,ifih,ifii,ib,ix
+    integer:: idummy, unlink,ifih,ifii,ib,ix,ifimag
     real(8):: ekinval,eharris,eksham,  dosw(2),dum,evtop,ecbot,qp(3),rydberg,xxx,eeem
-    real(8):: fh_rv(3,nbas),vnow,eee,dosi(2),dee,efermxxx,emin,qvalm(2)
+    real(8):: fh_rv(3,nbas),vnow_magfield,eee,dosi(2),dee,efermxxx,emin,qvalm(2)
     real(8),allocatable:: dosi_rv(:,:),dos_rv(:,:),qmom_in(:)
     real(8),parameter::  NULLR =-99999,pi=4d0*datan(1d0)
     real(8):: elind=0d0
@@ -276,7 +276,13 @@ contains
     endif
     
     !! New eferm and wtkb determined from evlall
-    call m_subzi_bzintegration(evlall,swtk,eferm,sev,qvalm,vnow) !Get eferm and wtkb in m_subzi
+    call m_subzi_bzintegration(evlall,swtk, eferm,sev,qvalm,vnow_magfield) !Get the Fermi energy eferm,...
+    if(fsmom/=NULLR .AND. master_mpi) then !moved from m_subzi_bzintegration at 2022-dec
+       open(newunit=ifimag,file='MagField')
+       write(ifimag,"(d23.16,' !(in Ry) -vnow/2 for isp=1, +vnow/2 for isp=2')")vnow_magfield 
+       close(ifimag)
+    endif
+    ! -vnow_magfield/2 is added to isp=1, +vnow_magfield/2 to isp=2
     evtop=-9999
     ecbot=9999
     eeem=9999

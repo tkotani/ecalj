@@ -124,7 +124,7 @@ contains
           nr = 0
        endif
        if (procid == master) then
-          print *,'zzzzzzzzz',z,z-z0
+          !print *,'zzzzzzzzz',z,z-z0
           call fsanrg(z0,z,z,0d-9,msg,'z',.true.)
           call fsanrg(rmt0,rmt,rmt,1d-6,msg,'rmt',.true.)
           call fsanrg(a0,a,a,0d-9,msg,'a',.true.)
