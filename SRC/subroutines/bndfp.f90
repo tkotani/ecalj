@@ -142,7 +142,7 @@ contains
     logical:: fsmode !for --fermisurface for xcrysden.
     logical,save:: siginit=.true.
     integer:: iter,i,ifi,ipr,iq,isp,jsp,iprint,ipts
-    integer:: idummy, unlink,ifih,ifii,ib
+    integer:: idummy, unlink,ifih,ifii,ib,ix
     real(8):: ekinval,eharris,eksham,  dosw(2),dum,evtop,ecbot,qp(3),rydberg,xxx,eeem
     real(8):: fh_rv(3,nbas),vnow,eee,dosi(2),dee,efermxxx,emin,qvalm(2)
     real(8),allocatable:: dosi_rv(:,:),dos_rv(:,:),qmom_in(:)
@@ -242,17 +242,16 @@ contains
     call xmpbnd2(kpproc,ndhamx,nkp,nspx,evlall) !all eigenvalues broadcasted
     evtop=-9999
     ecbot=9999
-    eeem=9999
     do iq=1,nkp
-       do jsp=1,nspx          !nspx=1 for SO=1
-          if(lso==1) i = max(1,nint(qval-qbg))
-          if(lso/=1) i = max(1,nint(qval-qbg)/2)
-          evtop = max(evtop,evlall(i,jsp,iq))
-          ecbot = min(ecbot,evlall(i+1,jsp,iq))
-          eeem = min(eeem,evlall(1,jsp,iq))
+       do jsp=1,nspx     !nspx=1 for SO=1
+          do ix=1,ndhamx !2022dec evtop,ecbot for magnetic case
+             if(evlall(ix,jsp,iq)<eferm) evtop = max(evtop,evlall(ix,jsp,iq))
+             if(evlall(ix,jsp,iq)>eferm) ecbot = min(ecbot,evlall(ix,jsp,iq))
+          enddo
           if(master_mpi .AND. iq==1)write(stdl,"('fp evl',8f8.4)")(evlall(i,jsp,iq),i=1,nev_(iq))
        enddo
     enddo
+    
     !! pdos mode (--mkprocar and --fullmesh)
     fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface')
     PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
@@ -262,19 +261,33 @@ contains
     if( cmdopt0('--boltztrap')) call writeboltztrap(eferm)
     if( cmdopt0('--boltztrap')) call rx0('Done boltztrap: boltztrap.* are generated')
     !! Write bands in bands-plotting case: loop over qp getting evals from array ===
-    if(plbnd/=0 .AND. master_mpi .AND. fsmode) call writefs(eferm) !fermi surface
-    if(plbnd/=0 .AND. master_mpi) then
-       write(stdo,*)' Writing bands to bands file ...'
-       if(nsyml/=0) call writeband(eferm,evtop,ecbot)
+    if(plbnd/=0 ) then
+       if(master_mpi .AND. fsmode) call writefs(eferm) !fermi surface
+       if(master_mpi) then
+          write(stdo,*)' Writing bands to bands file for gnuplot ...'
+          if(nsyml/=0) call writeband(eferm,evtop,ecbot)
+       endif
+       if(fsmom/=NULLR) then
+          write(stdo,"(a)")'Caution: fsmom(fixed moment). In sc cycle, we use additional bias mag field  '
+          write(stdo,"(a)")'Caution: Mag.field is written in MagField. But it is not used for --band mode!'
+       endif
+       if(fsmode) call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
+       call rx0('plot band mode done') ! end of band plbnd/=0, that is, band plot mode.
     endif
-    if(plbnd/=0 .AND. fsmom/=NULLR) then
-       write(stdo,"(a)")'Caution: fsmom(fixed moment). In sc cycle, we use additional bias mag field  '
-       write(stdo,"(a)")'Caution: Mag.field is written in MagField. But it is not used for --band mode!'
-    endif
-    if(plbnd/=0 .AND. fsmode) call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
-    if(plbnd/=0) call rx0('plot band mode done') ! end of band plbnd/=0, that is, band plot mode.
+    
     !! New eferm and wtkb determined from evlall
-    call m_subzi_bzintegration(evlall,swtk,  eferm,sev,qvalm,vnow) !Get eferm and wtkb in m_subzi
+    call m_subzi_bzintegration(evlall,swtk,eferm,sev,qvalm,vnow) !Get eferm and wtkb in m_subzi
+    evtop=-9999
+    ecbot=9999
+    eeem=9999
+    do iq=1,nkp
+       do jsp=1,nspx     !nspx=1 for SO=1
+          do ix=1,ndhamx !2022dec evtop,ecbot for magnetic case
+             if(evlall(ix,jsp,iq)<eferm) evtop = max(evtop,evlall(ix,jsp,iq))
+             if(evlall(ix,jsp,iq)>eferm) ecbot = min(ecbot,evlall(ix,jsp,iq))
+          enddo
+       enddo
+    enddo
     if(lmet==0) eferm = (evtop+ecbot)/2d0 !for metal
     if(lmet==0 .AND. master_mpi) write(stdo,"(' HOMO; Ef; LUMO =',3f11.6)")evtop,eferm,ecbot
     if(master_mpi) then
@@ -289,6 +302,7 @@ contains
        write(ifi,"(i6,'# iter CAUTION! This file is overwritten by lmf-MPIK SC loop')")iter
        close(ifi)
     endif
+    
     !! Generate total DOS  emin=dosw(1) emax=dosw(2) dos range
     if(master_mpi .AND. (tdos .OR. ldos/=0)) then
        emin = eeem-0.01d0 
@@ -323,6 +337,7 @@ contains
        close(ifii)
     endif
     if(tdos) call rx0('Done tdos mode:')
+
     !! AllReduce band quantities.
     if(lrout/=0) call m_bandcal_allreduce(lwtkb)
     emin=1d9
