@@ -325,16 +325,13 @@ subroutine gvaddf(ng,kv,k1,k2,k3,c0,c)! Adds Fourier coefficients from list c0 i
      c(j1,j2,j3) = c(j1,j2,j3) + c0(ig)
 10 enddo
 end subroutine gvaddf
-subroutine mshsiz(alat,plat,job,gmax,ngabc,ng)
+subroutine mshsiz(alat,plat,gmax,ngabc,ng)
   use m_lgunit,only:stdo
   !- Finds dimensions for a mesh of G vectors that satisfy a cutoff
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   alat  :length scale of lattice and basis vectors, a.u.
   !i   plat  :primitive lattice vectors, in units of alat
-  !i   job   :0 only change input gmax if input is zero.
-  !i         :1 set output gmax to that generated from ngabc
-  !i         :not implemented ... probably doesn't make sense
   ! o Inputs/Outputs
   ! o  gmax  :On input, cutoff in reciprocal lattice vectors
   ! o        :Energy cutoff is gmax**2.
@@ -349,8 +346,6 @@ subroutine mshsiz(alat,plat,job,gmax,ngabc,ng)
   !o Outputs
   !o   ng    :number of G-vectors
   !r Remarks
-  !b Bugs
-  !b   job not implemented.
   !u Updates
   !u   31 Jul 06 fmax increased 160 -> 600, a warning added
   !u   15 Apr 05 Bug fix when ngabc(i)=2
@@ -429,7 +424,7 @@ subroutine mshsiz(alat,plat,job,gmax,ngabc,ng)
         gmax=1d10
         ng=ngabc(1)*ngabc(2)*ngabc(3)
         exit
-     endif   ! ... Count the number of G vectors for (smaller) trial n1..n3
+     endif   ! ... Count the number of G vectors for (smaller) trial ngabcn
      call gvlst2(alat,plat,q,ngabcn(1),ngabcn(2),ngabcn(3), 0d0,gmax,[0],000, 0,ngn,kxx,gxx,kxx,kxx)
      if (dble(ngn) >= nginit*tolg) then
         ng = ngn
@@ -438,19 +433,6 @@ subroutine mshsiz(alat,plat,job,gmax,ngabc,ng)
         exit
      endif
   enddo getngloop !21 continue !takao
-  
-  ! ... Count the number of G vectors for initial n1..n3
-  call pshpr(iprint()-30)
-  if(fullmesh()) then
-     gmax=1d10
-     ng=ngabc(1)*ngabc(2)*ngabc(3)
-  else
-     ngabcn=ngabc
-     ! ... Count the number of G vectors for (smaller) trial n1..n3
-     call gvlst2(alat,plat,q,ngabcn(1),ngabcn(2),ngabcn(3), 0d0,gmax,[0],000, 0,ngn,kxx,gxx,kxx)
-     ng=ngn
-     ngabc=ngabcn
-  endif
 
   call poppr
   i1 = ngabc(1)

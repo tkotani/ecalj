@@ -50,7 +50,7 @@ contains
        alat = lat_alat
        plat = lat_plat
        qlat = lat_qlat
-       call mshsiz(alat,plat,0,gmax,ngabc,ngmx) !return n1 n2 n3 (=ngabc) satisfying gmax
+       call mshsiz(alat,plat,gmax,ngabc,ngmx) !return n1 n2 n3 (=ngabc) satisfying gmax
        call fftz30(n1,n2,n3,k1,k2,k3)
        !   ... Make list of lattice vectors within cutoff
        allocate(rv_a_ogv(ngmx,3))
