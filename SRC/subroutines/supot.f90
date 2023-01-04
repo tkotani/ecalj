@@ -55,7 +55,7 @@ contains
        !   ... Make list of lattice vectors within cutoff
        allocate(rv_a_ogv(ngmx,3))
        allocate(iv_a_okv(ngmx,3))
-       call gvlst2(alat, plat, wdummy, n1,n2,n3, 0d0,gmax,0,8, ngmx, ng, iv_a_okv, rv_a_ogv, xx, xx)
+       call gvlst2(alat, plat, wdummy, n1,n2,n3, 0d0,gmax,0,8, ngmx, ng, iv_a_okv, rv_a_ogv, xx) 
        if (ng /= ngmx) then
           print *,' gmax,ng ngmx=',gmax,ng,ngmx
           call rx('supot: bug in gvlst2')

@@ -2,12 +2,12 @@
 !  public gvlst2,mshsiz
 !  private
 !  contains
-subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv) !,igv2)
+subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job0,ngmx, ng,kv,gv,igv) !,igv2)
   use m_ftox
   use m_shortn3,only: shortn3_initialize,shortn3,nout,nlatout
   use m_lgunit,only:stdo
   implicit none
-  intent(in)::    alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx  
+  intent(in)::    alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job0,ngmx  
   intent(out)::                                                   ng,kv,gv,igv !,igv2 
   !- Set up a list of recip vectors within cutoff |q+G| < gmax
   ! ----------------------------------------------------------------------
@@ -17,10 +17,10 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv) 
   !i   mshlst   if first entry is nonzero, a list of allowed values
   !i            n1,n2,n3 may take.  First entry is the size of
   !i            the list; then follows the list itself.
-  !i   job      1s digit
+  !i   job0      1s digit
   !i              0 return ng only
   !i              1 return kv and igv
-  !i              2 return kv and igv2
+  !ixxx              2 return kv and igv2
   !i              4 return kv and gv
   !i              8 return kv and gv, and sort list
   !i                any combination of 1,2,4 is allowed
@@ -45,7 +45,7 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv) 
   !o            three integers (the multiples of qlat)
   !o            gv and igv are related by:
   !o              gv(1:3,1:ng) = 2*pi/alat * (qlat * igv(1:ng))
-  !o   igv2     same as igv except first and second columns are permuted
+  !oxxx   igv2     same as igv except first and second columns are permuted
   !r Remarks
   !r   Collects a list of q + reciprocal lattice vectors (G+q) that lie
   !r   within a cutoff gmax.  List is optionally sorted by length (logical: lsort)
@@ -70,7 +70,7 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv) 
   !u   06 Mar 01 Bug fix for input n1..n3 and gmax nonzero
   !u   Routine was adapted from T. Kotani, routine getgv2
   ! ----------------------------------------------------------------------
-  integer :: n1,n2,n3,job,ng,ngmx,kv(ngmx,3),igv(ngmx,3),mshlst(0:*) !,igv2(3,*)
+  integer :: n1,n2,n3,ng,ngmx,kv(ngmx,3),igv(ngmx,3),mshlst(0:*) !,igv2(3,*)
   double precision :: alat,gmin,gmax,gv(ngmx,3),plat(3,3),q(3)
   integer :: ig,n1max,n1min,n2max,n2min,n3max,n3min,i1,i2,i3,nn,i
   integer :: n1l,n2l,n3l
@@ -91,7 +91,7 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv) 
   gmax0  = gmax/tpiba
   if (gmin < 0)  call rx('gvlst2: input gmin <= 0')
   if (gmax <= 0) call rx('gvlst2: input gmax <= 0')
-  job0 = mod(job,100)
+!  job0 = mod(job,100)
   job1 = mod(job0,2)
   job2 = mod(job0/2,2)
   ligv  = mod(job0,2)/=0
@@ -175,35 +175,15 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv) 
               if (job0 /= 0) then
                  if (ig > ngmx) then
                     print *,' ig ngmx=',ig,ngmx
-                    call rx('gvlist: ng exceeds ngmx')
+                    call rx2('gvlist: ng exceeds ngmx')
                  endif
-                 kv(ig,1) = k1!j1+1
-                 kv(ig,2) = k2!j2+1
-                 kv(ig,3) = k3!j3+1
-                 if (ligv) then ! .OR. ligv2) then
-                    jj1= j1 + nn1*nlatout(1,1)
-                    jj2= j2 + nn2*nlatout(2,1)
-                    jj3= j3 + nn3*nlatout(3,1)
-                    if (ligv) then
-                       igv(ig,1) = jj1
-                       igv(ig,2) = jj2
-                       igv(ig,3) = jj3
-                    endif
-                    ! if (ligv2) then
-                    !    igv2(1,ig) = jj1
-                    !    igv2(2,ig) = jj2
-                    !    igv2(3,ig) = jj3
-                    ! endif
-                 endif
+                 kv(ig,:) = [k1,k2,k3] !j1+1
+                 if (ligv) igv(ig,:) = [j1+nn1*nlatout(1,1), j2+nn2*nlatout(2,1), j3+nn3*nlatout(3,1)]
                  if (lgv) then
                     if (lgpq) then
-                       gv(ig,1) = gs(1)
-                       gv(ig,2) = gs(2)
-                       gv(ig,3) = gs(3)
+                       gv(ig,:) = gs
                     else
-                       gv(ig,1) = gs(1) - q(1)
-                       gv(ig,2) = gs(2) - q(2)
-                       gv(ig,3) = gs(3) - q(3)
+                       gv(ig,:) = gs - q
                     endif
                  endif
               endif
@@ -212,6 +192,8 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv) 
 211  enddo
 212 enddo
   ng = ig
+  if(lsort) call gvlsts(ngmx,ng,gv,kv,igv,job1)! --- Sort the list of vectors --
+
   if (ipr >= PRTG .AND. n1l*n2l*n3l == 0) then
      write(stdo,ftox)' GVLST2: gmax=',ftof(gmax0*tpiba,3),'created',ng,' recip. lattice vectors'
   elseif (ipr >= PRTG) then
@@ -221,10 +203,8 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv) 
      write(stdo,ftox)'gvlst2: gmax=',ftof(gmax,3),'a.u. created',ng,'vectors of',n1l*n2l*n3l,&
           '(',(ng*100)/(n1l*n2l*n3l),'%)'
   endif
-  if(lsort) call gvlsts(ngmx,ng,gv,kv,igv,job1)! --- Sort the list of vectors --
   if (ipr >= PRTG2 .AND. ng > 0 .AND. job1+job2 /= 0) then
-     write(stdo,333)
-333  format(' G vectors (multiples of reciprocal lattice vectors)'/ '   ig    G1   G2   G3     E')
+     write(stdo,"(' G vectors (multiples of reciprocal lattice vectors)'/ '   ig    G1   G2   G3     E')")
      do  ig = 1, ng
         if (job1 /= 0) then
            i1 = igv(ig,1)
@@ -235,9 +215,8 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv) 
            qpg(i)= q(i) + qlat(i,1)*i1 + qlat(i,2)*i2 + qlat(i,3)*i3
         enddo
         q2 = (qpg(1)**2+qpg(2)**2+qpg(3)**2) *tpiba**2
-        write(stdo,334)  ig,i1,i2,i3,q2
+        write(stdo,"(i5,1x,3i5,2x,f8.4)")  ig,i1,i2,i3,q2
         write(stdo,"('q  qpg=',3d13.5,3x,3d13.5)")  q,qpg
-334     format(i5,1x,3i5,2x,f8.4)
      enddo
   endif
 end subroutine gvlst2
@@ -332,30 +311,20 @@ subroutine mshsiz(alat,plat,gmax,ngabc,ng)
   !i Inputs
   !i   alat  :length scale of lattice and basis vectors, a.u.
   !i   plat  :primitive lattice vectors, in units of alat
-  ! o Inputs/Outputs
-  ! o  gmax  :On input, cutoff in reciprocal lattice vectors
+  ! io  gmax  :On input, cutoff in reciprocal lattice vectors
   ! o        :Energy cutoff is gmax**2.
   ! o        :If input gmax is zero, it will be generated it from ngabc
   ! o        :(It is an error for both gmax and any of ngabc to be zero.)
   ! o        :On output, gmax is computed if input n1..n3 are nonzero,
   ! o        :or if job = 1
-  ! o  ngabc :On input, max # divisions along the three recip lattice vecs.
+  ! io  ngabc :On input, max # divisions along the three recip lattice vecs.
   ! o        :(It is an error for both gmax and any of ngabc to be zero.)
   ! o        :Otherwise, those input ngabc initially zero are found that
   ! o        :satisfy cutoff criterion.
-  !o Outputs
-  !o   ng    :number of G-vectors
-  !r Remarks
-  !u Updates
-  !u   31 Jul 06 fmax increased 160 -> 600, a warning added
-  !u   15 Apr 05 Bug fix when ngabc(i)=2
-  !u   01 Jun 01 Redesigned with new gvlist
-  ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
+  ! o   ng    :number of G-vectors
+  implicit none
   integer :: ngabc(3),ng,job
   double precision :: alat,plat(3,3),gmax
-  ! ... Local parameters
   logical :: change
   integer :: npfac,pfac(10),fmax,i,indx,iprint,i1,i2,i3,nn,nmin,nmx(3),nmxn(3),k,ngabcn(3),ngn,nginit,PRTG,kxx(1,1)
   double precision :: gmaxn,xx,q(3),gmax0,qlat(3,3),tpiba,facg,tolg,s1,s2,s3,ddot,gxx(1,1)
@@ -363,25 +332,18 @@ subroutine mshsiz(alat,plat,gmax,ngabc,ng)
   parameter (fmax=600,tolg=1d0,PRTG=30)
   integer :: mshlst(0:3*fmax)
   logical:: fullmesh
-  !     print *,'mshsiz: gmax=',gmax
-  !      stdo = lgunit(1)
-  call dpzero(q,3)
-  ! ... If input gmax is zero assume n1..n3 available, and return w/ gmax
+  q=0d0
   if (gmax == 0) then
      call pshpr(iprint()-20)
      call gvctof(0,alat,plat,q,ngabc(1),ngabc(2),ngabc(3),gmax,ng)
      call poppr
      return
   endif
-  !      print *,'mmm2 mshsiz:'
-  ! ... gmax0 = dimensionless gmax
   tpiba = 2*4d0*datan(1d0)/alat
-  gmax0  = gmax/tpiba
+  gmax0  = gmax/tpiba ! ... gmax0 = dimensionless gmax
   call dinv33(plat,1,qlat,xx)
-  ! ... list of all allowed values of n1..n3
   mshlst(0) = 0
-  call gtpfac(npfac,pfac)
-  call ppfac(npfac,pfac,fmax,1,mshlst(1),mshlst)
+  call ppfac(fmax,1,mshlst(1),mshlst)  !list of all allowed values of n1..n3
   if (mshlst(1) == 0) call rx('mshsiz: null set of allowed mesh points')
   ! --- Upper bound for n1..n3 : guaranteed to hold all G<gmax ---
   do  i = 1, 3
@@ -391,23 +353,20 @@ subroutine mshsiz(alat,plat,gmax,ngabc,ng)
      nmx(i)=nn
      if (ngabc(i) == 0) ngabc(i) = nn
   enddo
-
-!!  
   gmaxn = gmax0
   facg = .995d0
-  ! ... Count the number of G vectors ng for initial n1..n3
   call pshpr(iprint()-30)
   call gvlst2(alat,plat,q,ngabc(1),ngabc(2),ngabc(3), 0d0,gmax,[0],000, 0,ng,kxx,gxx,kxx,kxx)
-  !     Hold on to the upper bound to know when we fall below tolerance
+  ! ... Count the number of G vectors ng for initial n1..n3
   nginit = ng
-  getngloop: do !Reduce ng slowly until at least one of n1..n3 changes
+  Getngloop: do !Reduce ng slowly until at least one of n1..n3 changes
      do  
         gmaxn = gmaxn * facg
         change = .false.
         do  i = 1, 3
            i2 = mod(i,3)+1
            i3 = mod(i2,3)+1
-           call gvlstn(qlat(1,i),qlat(1,i2),qlat(1,i3),q,mshlst,gmaxn,nn) !,    nmin,nmxn(i))
+           call gvlstn(qlat(1,i),qlat(1,i2),qlat(1,i3),q,mshlst,gmaxn,nn)
            nmxn(i)=nn
            if (nmxn(i) /= nmx(i)) change = .TRUE. 
            !       The granularity of gvlstn may be too coarse.
@@ -432,8 +391,7 @@ subroutine mshsiz(alat,plat,gmax,ngabc,ng)
      else
         exit
      endif
-  enddo getngloop !21 continue !takao
-
+  enddo Getngloop !21 continue !takao
   call poppr
   i1 = ngabc(1)
   i2 = ngabc(2)
@@ -447,7 +405,6 @@ subroutine mshsiz(alat,plat,gmax,ngabc,ng)
        'reached its maximal value fmax = ',i4/ &
        ' You might need to increase parameter fmax in mshsiz')
 301 format(/1x,79('*')/)
-  ! ... Printout
   if (iprint() >= PRTG) then
      s1 = alat*sqrt(ddot(3,plat(1,1),1,plat(1,1),1))/i1
      s2 = alat*sqrt(ddot(3,plat(1,2),1,plat(1,2),1))/i2
@@ -458,20 +415,7 @@ subroutine mshsiz(alat,plat,gmax,ngabc,ng)
           i0,' (',i0,'%)')")  gmax,ng,i1*i2*i3,(ng*100)/(i1*i2*i3)
   endif
 end subroutine mshsiz
-
-subroutine gtpfac(npfac,pfac)
-  !- Returns allowed prime factors in integers for uniform mesh
-  !     implicit none
-  integer :: npfac,pfac(5)
-  npfac = 5
-  pfac(1) = 2
-  pfac(2) = 3
-  pfac(3) = 5
-  pfac(4) = 7
-  pfac(5) = 11
-end subroutine gtpfac
-
-subroutine ppfac(npfac,pfac,fmax,job,fac,nfac)
+subroutine ppfac(fmax,job,fac,nfac) !npfac,pfac,
   !- Find all products of prime factors within some maximum
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -486,11 +430,10 @@ subroutine ppfac(npfac,pfac,fmax,job,fac,nfac)
   !o         :fac must be dimensioned at least nfac
   !o         :or 3*nfac if fac is returned sorted.
   !o   nfac  :length of fac
-  !r Remarks
-  !u Updates
   ! ----------------------------------------------------------------------
   implicit none
-  integer :: npfac,pfac(npfac),fac(*),fmax,job,nfac
+  integer,parameter:: npfac=5,pfac(1:npfac)=[2,3,5,7,11]
+  integer :: fac(*),fmax,job,nfac
   integer :: i,m,k,fack,nfaci
   nfac = 0
   nfaci = 0
@@ -515,4 +458,3 @@ subroutine ppfac(npfac,pfac,fmax,job,fac,nfac)
   if (job /= 0) call ivheap(1,nfac,fac,fac(1+2*nfac),0)
 end subroutine ppfac
 
-!end module m_gvlst2
