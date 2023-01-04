@@ -396,6 +396,49 @@ subroutine mshsiz(alat,plat,job,gmax,ngabc,ng)
      nmx(i)=nn
      if (ngabc(i) == 0) ngabc(i) = nn
   enddo
+
+!!  
+  gmaxn = gmax0
+  facg = .995d0
+  ! ... Count the number of G vectors ng for initial n1..n3
+  call pshpr(iprint()-30)
+  call gvlst2(alat,plat,q,ngabc(1),ngabc(2),ngabc(3), 0d0,gmax,[0],000, 0,ng,kxx,gxx,kxx,kxx)
+  !     Hold on to the upper bound to know when we fall below tolerance
+  nginit = ng
+  getngloop: do !Reduce ng slowly until at least one of n1..n3 changes
+     do  
+        gmaxn = gmaxn * facg
+        change = .false.
+        do  i = 1, 3
+           i2 = mod(i,3)+1
+           i3 = mod(i2,3)+1
+           call gvlstn(qlat(1,i),qlat(1,i2),qlat(1,i3),q,mshlst,gmaxn,nn) !,    nmin,nmxn(i))
+           nmxn(i)=nn
+           if (nmxn(i) /= nmx(i)) change = .TRUE. 
+           !       The granularity of gvlstn may be too coarse.
+           !       Don't assign, ngabcn(i) = nn but find next one smaller in mshlst
+           indx = 1
+           call hunti(mshlst(1),mshlst,ngabc(i),0,indx)
+           indx = max(indx,1)
+           ngabcn(i) = mshlst(indx)
+        enddo
+        if (change) exit
+     enddo
+     if(fullmesh()) then
+        ngabc=ngabcn
+        gmax=1d10
+        ng=ngabc(1)*ngabc(2)*ngabc(3)
+        exit
+     endif   ! ... Count the number of G vectors for (smaller) trial n1..n3
+     call gvlst2(alat,plat,q,ngabcn(1),ngabcn(2),ngabcn(3), 0d0,gmax,[0],000, 0,ngn,kxx,gxx,kxx,kxx)
+     if (dble(ngn) >= nginit*tolg) then
+        ng = ngn
+        ngabc=ngabcn
+     else
+        exit
+     endif
+  enddo getngloop !21 continue !takao
+  
   ! ... Count the number of G vectors for initial n1..n3
   call pshpr(iprint()-30)
   if(fullmesh()) then
@@ -404,7 +447,7 @@ subroutine mshsiz(alat,plat,job,gmax,ngabc,ng)
   else
      ngabcn=ngabc
      ! ... Count the number of G vectors for (smaller) trial n1..n3
-     call gvlst2(alat,plat,q,ngabcn(1),ngabcn(2),ngabcn(3), 0d0,gmax,[0],000, 0,ngn,kxx,gxx,kxx) !,kxx)
+     call gvlst2(alat,plat,q,ngabcn(1),ngabcn(2),ngabcn(3), 0d0,gmax,[0],000, 0,ngn,kxx,gxx,kxx)
      ng=ngn
      ngabc=ngabcn
   endif
