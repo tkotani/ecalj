@@ -9,7 +9,7 @@ module m_mksym
   integer, allocatable,protected ::  iv_a_oics (:)
   integer,  allocatable,protected ::  iv_a_oipc(:)
   real(8) , allocatable,protected ::  rv_a_oag (:)
-  real(8) , allocatable,protected ::  rv_a_osymgr (:)
+  real(8) , allocatable,protected ::  rv_a_osymgr (:,:,:)
   integer , allocatable,protected ::  iv_a_oistab (:)
   integer,allocatable,protected::  iclasst(:)    !class information, 
   integer,allocatable,protected:: iclasstaf_(:) !AntiFerro class information 
@@ -186,7 +186,7 @@ contains
 5   continue! ... Re-entry when ngmx was increased
     if(allocated(rv_a_oag)) deallocate(rv_a_oag,rv_a_osymgr,iv_a_oipc,iv_a_oics)
     allocate( rv_a_oag(3*ngmx)    )
-    allocate( rv_a_osymgr(9*ngmx) )
+    allocate( rv_a_osymgr(3,3,ngmx) )
     allocate( iv_a_oipc(nbas)  )
     allocate( iv_a_oics(nbas)  )
     allocate( nrspc_iv(nbas) )

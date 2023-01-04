@@ -2,12 +2,13 @@
 !  public gvlst2,mshsiz
 !  private
 !  contains
-subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job0,ngmx, ng,kv,gv,igv) !,igv2)
+subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv)
   use m_ftox
   use m_shortn3,only: shortn3_initialize,shortn3,nout,nlatout
   use m_lgunit,only:stdo
+  use m_mksym,only:  ngrp=>lat_nsgrp,gsym=>rv_a_osymgr
   implicit none
-  intent(in)::    alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job0,ngmx  
+  intent(in)::    alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx
   intent(out)::                                                   ng,kv,gv,igv !,igv2 
   !- Set up a list of recip vectors within cutoff |q+G| < gmax
   ! ----------------------------------------------------------------------
@@ -17,14 +18,13 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job0,ngmx, ng,kv,gv,igv)
   !i   mshlst   if first entry is nonzero, a list of allowed values
   !i            n1,n2,n3 may take.  First entry is the size of
   !i            the list; then follows the list itself.
-  !i   job0      1s digit
+  !i   job      1s digit
   !i              0 return ng only
   !i              1 return kv and igv
-  !ixxx              2 return kv and igv2
-  !i              4 return kv and gv
-  !i              8 return kv and gv, and sort list
-  !i                any combination of 1,2,4 is allowed
-  !i          +500: gv without q (sorted when lsort=T)
+  !i              8 return kv and gv, and then sorted
+  !i                any combination of 1,8 is allowed
+  !i          +500: gv without q 
+  !i          +1000: symcheck
   !i   ngmx     Leading dimension of kv,gv,igv
   !i   gmin     Lower bound for reciprocal lattice vectors, in a.u.
   !i  n1..3    On input, max # divisions along the three lattice vectors.
@@ -45,7 +45,6 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job0,ngmx, ng,kv,gv,igv)
   !o            three integers (the multiples of qlat)
   !o            gv and igv are related by:
   !o              gv(1:3,1:ng) = 2*pi/alat * (qlat * igv(1:ng))
-  !oxxx   igv2     same as igv except first and second columns are permuted
   !r Remarks
   !r   Collects a list of q + reciprocal lattice vectors (G+q) that lie
   !r   within a cutoff gmax.  List is optionally sorted by length (logical: lsort)
@@ -74,15 +73,17 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job0,ngmx, ng,kv,gv,igv)
   double precision :: alat,gmin,gmax,gv(ngmx,3),plat(3,3),q(3)
   integer :: ig,n1max,n1min,n2max,n2min,n3max,n3min,i1,i2,i3,nn,i
   integer :: n1l,n2l,n3l
-  integer :: PRTG,PRTG2,iset(3),ipr,job0,job1,job2,job8,k1,k2,k3
+  integer :: PRTG,PRTG2,iset(3),ipr,job,job0,job1,job8,k1,k2,k3
   double precision :: qlat(3,3),vol,pi,tpiba,qpg(3),q2
   double precision :: gmin0,gmax0,gmin2,gmax2,h1,h2,h3,ddot,tol
   character(256) :: outs
   parameter (PRTG=30,PRTG2=100,tol=1d-8)
+  real(8),parameter:: tolg=1d-5
   logical::  lgpq,lgv,lsort,ligv !,ligv2
   real(8):: plat1(3,3),qlat1(3,3),gg,gs(3)
-  integer:: j1,j2,j3,m,jj1,jj2,jj3,nn1,nn2,nn3
-  real(8):: rlatp(3,3),xmx2(3)
+  integer:: j1,j2,j3,m,jj1,jj2,jj3,nn1,nn2,nn3,i123(3),jjj(3),jg,igrp,jjg
+  real(8):: rlatp(3,3),xmx2(3),gvv(3),diffmin
+!  logical,optional:: symcheck
   call getpr(ipr)
   call dinv33(plat,1,qlat,vol)
   pi = 4d0*datan(1d0)
@@ -91,13 +92,10 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job0,ngmx, ng,kv,gv,igv)
   gmax0  = gmax/tpiba
   if (gmin < 0)  call rx('gvlst2: input gmin <= 0')
   if (gmax <= 0) call rx('gvlst2: input gmax <= 0')
-!  job0 = mod(job,100)
-  job1 = mod(job0,2)
-  job2 = mod(job0/2,2)
-  ligv  = mod(job0,2)/=0
-!  ligv2 = mod(job0/2,2)/=0
-  lgv   = mod(job0/4,4)/=0
-  lsort = mod(job0/8,2)/=0
+  job0 = mod(job,100)
+  ligv  = mod(job0,2)/=0    !1,9 !Get igv
+  lgv   = mod(job0/4,4)/=0  !8,9 !Get gv
+  lsort = mod(job0/8,2)/=0  !8,9 sorted
   lgpq  = mod(job/100,10)>4 !+500 or not
   !! ... Basis vectors for real-space mesh and recip-space supercell
   nn1=n1
@@ -121,101 +119,67 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job0,ngmx, ng,kv,gv,igv)
   n2l=nn2
   n3l=nn3
   !! --- Loop through g vectors, shorten, count and keep if within gmax ---
-  gmax2 = (gmax0-tol)**2
+  gmax2 = gmax0**2
   gmin2 = gmin0**2
   call shortn3_initialize(qlat1) !initialization for m_shoten3
 
-  ! Modifygmax2block: block !1d-3 separation for |q+G| vector
-  !   integer,allocatable:: iprm(:)
-  !   real(8),allocatable:: ggg(:)
-  !   real(8):: gmax22
-  !   allocate(ggg(nn1*nn2*nn3),iprm(nn1*nn2*nn3)) !two times larger allay
-  !   ig=0
-  !   do j1 = 0,nn1-1 
-  !      do j2 = 0,nn2-1 
-  !         do j3 = 0,nn3-1 
-  !            qpg= [j1, j2, j3] + matmul(q,plat(:,:))
-  !            qpg= [qpg(1)/dble(nn1), qpg(2)/dble(nn2), qpg(3)/dble(nn3)]
-  !            call shortn3(qpg) ! return nout,nlatout
-  !            ig=ig+1
-  !            gs= matmul(qlat1(:,:), (qpg+nlatout(:,1)))
-  !            ggg(ig) = (gs(1)**2+gs(2)**2+gs(3)**2)
-  !         enddo
-  !      enddo
-  !   enddo
-  !   ng=ig
-  !   call dvshel(1,ng,ggg, iprm,0)
-  !   gmax22=0d0
-  !   do ig=1,ng
-  !      if(gmin2<= ggg(ig) .AND. ggg(ig) < gmax2) then
-  !         gmax22=ggg(ig)
-  !      endif
-  !      if( ggg(ig) < gmax22+1d-3) then
-  !         gmax22=ggg(ig)+1d-8
-  !      endif
-  !   enddo ! write(stdo,ftox) 'gmax==> modified gmax=',ftof(gmax),ftof(gmax2**.5*tpiba), ftof(gmax22**.5*tpiba)
-  !   gmax2=gmax22
-  ! endblock Modifygmax2block
-
   ig=0
-  do  212  j1 = 0,nn1-1 
-     do  211  j2 = 0,nn2-1 
-        do  21  j3 = 0,nn3-1 
-           qpg= [j1, j2, j3] + matmul(q,plat(:,:))
-           qpg= [qpg(1)/dble(nn1), qpg(2)/dble(nn2), qpg(3)/dble(nn3)]
-           ! qpg is in the fractional corrdinate on qlat1.
+  j1loop: do j1 = 0,nn1-1 
+     j2loop: do j2 = 0,nn2-1 
+        j3loop: do j3 = 0,nn3-1 
+           qpg= [1d0/nn1, 1d0/nn2, 1d0/nn3] * ([j1,j2,j3] + matmul(q,plat(:,:))) ! fractional corrdinate on qlat1.
            call shortn3(qpg) ! return nout,nlatout
-           gs= matmul(qlat1(:,:), (qpg+nlatout(:,1)))
-           gg = (gs(1)**2+gs(2)**2+gs(3)**2)
-           k1 = j1+1 
-           k2 = j2+1 
-           k3 = j3+1 
+           gs = matmul(qlat1(:,:), (qpg+nlatout(:,1)))
+           gg = sum(gs**2)
            if(gmin2<= gg .AND. gg < gmax2) then
               ig = ig+1
-              if (job0 /= 0) then
-                 if (ig > ngmx) then
-                    print *,' ig ngmx=',ig,ngmx
-                    call rx2('gvlist: ng exceeds ngmx')
-                 endif
-                 kv(ig,:) = [k1,k2,k3] !j1+1
-                 if (ligv) igv(ig,:) = [j1+nn1*nlatout(1,1), j2+nn2*nlatout(2,1), j3+nn3*nlatout(3,1)]
-                 if (lgv) then
-                    if (lgpq) then
-                       gv(ig,:) = gs
-                    else
-                       gv(ig,:) = gs - q
-                    endif
-                 endif
-              endif
+              if (job0==0) cycle
+              if (ig > ngmx) write(stdo,*) 'ERROR: ig ngmx=',ig,ngmx
+              if (ig > ngmx) call rx('gvlist2: ng exceeds ngmx')
+              kv(ig,:) = [j1+1,j2+1,j3+1]
+              if(ligv) igv(ig,:) = [j1+nn1*nlatout(1,1), j2+nn2*nlatout(2,1), j3+nn3*nlatout(3,1)]
+              if(lgv.and.lgpq) gv(ig,:) = gs
+              if(lgv.and.(.not.lgpq)) gv(ig,:) = gs - q
            endif
-21      enddo
-211  enddo
-212 enddo
+        enddo j3loop
+   enddo j2loop
+  enddo j1loop
   ng = ig
-  if(lsort) call gvlsts(ngmx,ng,gv,kv,igv,job1)! --- Sort the list of vectors --
-
-  if (ipr >= PRTG .AND. n1l*n2l*n3l == 0) then
-     write(stdo,ftox)' GVLST2: gmax=',ftof(gmax0*tpiba,3),'created',ng,' recip. lattice vectors'
-  elseif (ipr >= PRTG) then
-     h1 = alat*sqrt(ddot(3,plat(1,1),1,plat(1,1),1))/n1l
-     h2 = alat*sqrt(ddot(3,plat(1,2),1,plat(1,2),1))/n2l
-     h3 = alat*sqrt(ddot(3,plat(1,3),1,plat(1,3),1))/n3l
-     write(stdo,ftox)'gvlst2: gmax=',ftof(gmax,3),'a.u. created',ng,'vectors of',n1l*n2l*n3l,&
-          '(',(ng*100)/(n1l*n2l*n3l),'%)'
+  
+  !symmetry checker (sgvsym). Some ig, which is not symmetrized (when gg<gmax2 truncation destory symmetry).
+  if(job>999) then !present(symcheck)) then
+     do ig = 1,ng
+        do igrp = 1, ngrp
+           gvv = matmul(gsym(:,:,igrp),gv(ig,:)) !  ... gvv = g(k) gv
+           do jg=1,ng
+              if (sum((gvv-gv(jg,:))**2) < tolg) goto 70
+           enddo
+           write(stdo,"('--- igvec',i6,' igrp',i4,' gv=',3f9.5,' gv**2 gmax=',2f12.8)") &
+                ig,igrp,gv(ig,:),sum(gv(ig,:)**2),gmax2
+           diffmin=9999
+           do jg=1,ng
+              if(diffmin>sum((gvv-gv(jg,:))**2)) then
+                 jjg=jg
+                 diffmin = sum((gvv-gv(jg,:))**2)
+              endif   
+           enddo
+           write(stdo,"('  ig diffmin=',i5,f18.10,' gv=',3f9.5,' gv**2 gmax=',2f12.8)") &
+                jjg,diffmin,gv(jjg,:), sum(gv(jjg,:)**2),gmax2
+           call rxi('gvlst2: cannot find mapped vector in list:',ig)
+70         continue
+        enddo
+     enddo
   endif
-  if (ipr >= PRTG2 .AND. ng > 0 .AND. job1+job2 /= 0) then
+
+  if(lsort) call gvlsts(ngmx,ng,gv,kv,igv,ligv)! --- Sort the list of vectors --
+  if(ipr >= PRTG) write(stdo,ftox)'gvlst2: gmax=',ftof(gmax,3),'a.u. created',ng,&
+       'vectors of',n1l*n2l*n3l,'(',(ng*100)/(n1l*n2l*n3l),'%)'
+  if(ipr >= PRTG2 .AND. ng > 0 .AND. ligv) then
      write(stdo,"(' G vectors (multiples of reciprocal lattice vectors)'/ '   ig    G1   G2   G3     E')")
      do  ig = 1, ng
-        if (job1 /= 0) then
-           i1 = igv(ig,1)
-           i2 = igv(ig,2)
-           i3 = igv(ig,3)
-        endif
-        do  i = 1, 3
-           qpg(i)= q(i) + qlat(i,1)*i1 + qlat(i,2)*i2 + qlat(i,3)*i3
-        enddo
-        q2 = (qpg(1)**2+qpg(2)**2+qpg(3)**2) *tpiba**2
-        write(stdo,"(i5,1x,3i5,2x,f8.4)")  ig,i1,i2,i3,q2
+        i123 = igv(ig,:)
+        qpg = q + matmul(qlat(:,:),i123)
+        write(stdo,"(i5,1x,3i5,2x,f8.4)")  ig,i123,sum(qpg**2)*tpiba**2
         write(stdo,"('q  qpg=',3d13.5,3x,3d13.5)")  q,qpg
      enddo
   endif
@@ -264,14 +228,15 @@ subroutine gvlstn(q0,q1,q2,qp,mshlst,gmax0,nn)
      nn = mshlst(min(indx+1,mshlst(0)))
   endif
 end subroutine gvlstn
-subroutine gvlsts(ngxx,ng,gv,kv,igv,job1)
+subroutine gvlsts(ngxx,ng,gv,kv,igv,ligv)
   implicit none
-  integer:: ng,kv(ng,3),igv(ng,3),job1,job2,ig,m,jg,iprm(ng),ngxx
+  integer:: ng,kv(ng,3),igv(ng,3),job1,ig,m,jg,iprm(ng),ngxx
   real(8):: gv(ng,3)
+  logical ligv
   call dvshel(1,ng, sum(gv**2,dim=2)*[((1d0 + 1d-15*ig),ig=1,ng)], iprm,1)
   gv(:,:) = gv(iprm+1,:)
   kv(:,:) = kv(iprm+1,:)
-  if(job1/=0) igv(:,:) =igv(iprm+1,:) 
+  if(ligv) igv(:,:) =igv(iprm+1,:) 
 end subroutine gvlsts
 subroutine gvgetf(ng,n,kv,k1,k2,k3,c,c0)!- Gathers Fourier coefficients from 3D array c into list c0.
   implicit none
