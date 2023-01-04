@@ -88,9 +88,14 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
   ! ... G vectors for the envelope (smooth hankel) functions
   !     Find ngmx = number of G's in PW expansion of basis for this qp:
   call pshpr(0)
-  call gvlst2(alat,plat,q,0,0,0,0d0,gcutH,0,100,1,    ngmx,xx,xx,xx,xx)
+  call gvlst2(alat,plat,q,0,0,0,0d0,gcutH,0,0,1,    ngmx,xx,xx,xx)
   allocate(igvx(3,ngmx),kv(3,ngmx))
-  call gvlst2(alat,plat,q,0,0,0,0d0,gcutH,0,102,ngmx, ngmx,kv,xx,xx,igvx)
+  block
+    integer:: igvxx(ngmx,3)
+    igvxx=0
+    call gvlst2(alat,plat,q,0,0,0,0d0,gcutH,0,1,ngmx, ngmx,kv,xx,igvxx)
+    igvx=transpose(igvxx)
+  endblock
   call poppr
   ! --- Expansion of envelope basis functions in PWs ---
   !     pwh(ig,j) = Fourier coff ig for envelope function j, where ig is index to igvx

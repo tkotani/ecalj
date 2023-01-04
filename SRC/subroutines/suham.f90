@@ -62,7 +62,7 @@ contains
                       q(m) = (qlat(m,1)/nqdiv)*j1 +(qlat(m,2)/nqdiv)*j2 +(qlat(m,3)/nqdiv)*j3
                    enddo
                    call pshpr(iprint()-40)
-                   call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,xx,xx,xx)
+                   call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,xx,xx)
                    call poppr
                    npwmin = min(npwmin,npw)
                    npwmax = max(npwmax,npw)
@@ -73,7 +73,7 @@ contains
        else
           q=0d0
           call pshpr(0)
-          call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,xx,xx,xx)
+          call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,xx,xx)
           call poppr
           npwmin = npw
           npwmax = npw

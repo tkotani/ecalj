@@ -2,13 +2,13 @@
 !  public gvlst2,mshsiz
 !  private
 !  contains
-subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv,igv2)
+subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv) !,igv2)
   use m_ftox
   use m_shortn3,only: shortn3_initialize,shortn3,nout,nlatout
   use m_lgunit,only:stdo
   implicit none
   intent(in)::    alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx  
-  intent(out)::                                                   ng,kv,gv,igv,igv2 
+  intent(out)::                                                   ng,kv,gv,igv !,igv2 
   !- Set up a list of recip vectors within cutoff |q+G| < gmax
   ! ----------------------------------------------------------------------
   !i   alat     Lattice constant
@@ -70,7 +70,7 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv,i
   !u   06 Mar 01 Bug fix for input n1..n3 and gmax nonzero
   !u   Routine was adapted from T. Kotani, routine getgv2
   ! ----------------------------------------------------------------------
-  integer :: n1,n2,n3,job,ng,ngmx,kv(ngmx,3),igv(ngmx,3),igv2(3,*),mshlst(0:*)
+  integer :: n1,n2,n3,job,ng,ngmx,kv(ngmx,3),igv(ngmx,3),mshlst(0:*) !,igv2(3,*)
   double precision :: alat,gmin,gmax,gv(ngmx,3),plat(3,3),q(3)
   integer :: ig,n1max,n1min,n2max,n2min,n3max,n3min,i1,i2,i3,nn,i
   integer :: n1l,n2l,n3l
@@ -79,7 +79,7 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv,i
   double precision :: gmin0,gmax0,gmin2,gmax2,h1,h2,h3,ddot,tol
   character(256) :: outs
   parameter (PRTG=30,PRTG2=100,tol=1d-8)
-  logical::  lgpq,lgv,lsort,ligv,ligv2
+  logical::  lgpq,lgv,lsort,ligv !,ligv2
   real(8):: plat1(3,3),qlat1(3,3),gg,gs(3)
   integer:: j1,j2,j3,m,jj1,jj2,jj3,nn1,nn2,nn3
   real(8):: rlatp(3,3),xmx2(3)
@@ -95,10 +95,10 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv,i
   job1 = mod(job0,2)
   job2 = mod(job0/2,2)
   ligv  = mod(job0,2)/=0
-  ligv2 = mod(job0/2,2)/=0
+!  ligv2 = mod(job0/2,2)/=0
   lgv   = mod(job0/4,4)/=0
   lsort = mod(job0/8,2)/=0
-  lgpq  = mod(job/100,10)>4
+  lgpq  = mod(job/100,10)>4 !+500 or not
   !! ... Basis vectors for real-space mesh and recip-space supercell
   nn1=n1
   nn2=n2
@@ -121,10 +121,43 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv,i
   n2l=nn2
   n3l=nn3
   !! --- Loop through g vectors, shorten, count and keep if within gmax ---
-  ig = 0
   gmax2 = (gmax0-tol)**2
   gmin2 = gmin0**2
   call shortn3_initialize(qlat1) !initialization for m_shoten3
+
+  ! Modifygmax2block: block !1d-3 separation for |q+G| vector
+  !   integer,allocatable:: iprm(:)
+  !   real(8),allocatable:: ggg(:)
+  !   real(8):: gmax22
+  !   allocate(ggg(nn1*nn2*nn3),iprm(nn1*nn2*nn3)) !two times larger allay
+  !   ig=0
+  !   do j1 = 0,nn1-1 
+  !      do j2 = 0,nn2-1 
+  !         do j3 = 0,nn3-1 
+  !            qpg= [j1, j2, j3] + matmul(q,plat(:,:))
+  !            qpg= [qpg(1)/dble(nn1), qpg(2)/dble(nn2), qpg(3)/dble(nn3)]
+  !            call shortn3(qpg) ! return nout,nlatout
+  !            ig=ig+1
+  !            gs= matmul(qlat1(:,:), (qpg+nlatout(:,1)))
+  !            ggg(ig) = (gs(1)**2+gs(2)**2+gs(3)**2)
+  !         enddo
+  !      enddo
+  !   enddo
+  !   ng=ig
+  !   call dvshel(1,ng,ggg, iprm,0)
+  !   gmax22=0d0
+  !   do ig=1,ng
+  !      if(gmin2<= ggg(ig) .AND. ggg(ig) < gmax2) then
+  !         gmax22=ggg(ig)
+  !      endif
+  !      if( ggg(ig) < gmax22+1d-3) then
+  !         gmax22=ggg(ig)+1d-8
+  !      endif
+  !   enddo ! write(stdo,ftox) 'gmax==> modified gmax=',ftof(gmax),ftof(gmax2**.5*tpiba), ftof(gmax22**.5*tpiba)
+  !   gmax2=gmax22
+  ! endblock Modifygmax2block
+
+  ig=0
   do  212  j1 = 0,nn1-1 
      do  211  j2 = 0,nn2-1 
         do  21  j3 = 0,nn3-1 
@@ -147,7 +180,7 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv,i
                  kv(ig,1) = k1!j1+1
                  kv(ig,2) = k2!j2+1
                  kv(ig,3) = k3!j3+1
-                 if (ligv .OR. ligv2) then
+                 if (ligv) then ! .OR. ligv2) then
                     jj1= j1 + nn1*nlatout(1,1)
                     jj2= j2 + nn2*nlatout(2,1)
                     jj3= j3 + nn3*nlatout(3,1)
@@ -156,11 +189,11 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv,i
                        igv(ig,2) = jj2
                        igv(ig,3) = jj3
                     endif
-                    if (ligv2) then
-                       igv2(1,ig) = jj1
-                       igv2(2,ig) = jj2
-                       igv2(3,ig) = jj3
-                    endif
+                    ! if (ligv2) then
+                    !    igv2(1,ig) = jj1
+                    !    igv2(2,ig) = jj2
+                    !    igv2(3,ig) = jj3
+                    ! endif
                  endif
                  if (lgv) then
                     if (lgpq) then
@@ -188,7 +221,7 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv,i
      write(stdo,ftox)'gvlst2: gmax=',ftof(gmax,3),'a.u. created',ng,'vectors of',n1l*n2l*n3l,&
           '(',(ng*100)/(n1l*n2l*n3l),'%)'
   endif
-  if(lsort) call gvlsts(ngmx,ng,gv,kv,igv,igv2,job1,job2)! --- Sort the list of vectors --
+  if(lsort) call gvlsts(ngmx,ng,gv,kv,igv,job1)! --- Sort the list of vectors --
   if (ipr >= PRTG2 .AND. ng > 0 .AND. job1+job2 /= 0) then
      write(stdo,333)
 333  format(' G vectors (multiples of reciprocal lattice vectors)'/ '   ig    G1   G2   G3     E')
@@ -197,11 +230,6 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv,i
            i1 = igv(ig,1)
            i2 = igv(ig,2)
            i3 = igv(ig,3)
-        endif
-        if (job2 /= 0) then
-           i1 = igv2(1,ig)
-           i2 = igv2(2,ig)
-           i3 = igv2(3,ig)
         endif
         do  i = 1, 3
            qpg(i)= q(i) + qlat(i,1)*i1 + qlat(i,2)*i2 + qlat(i,3)*i3
@@ -257,15 +285,14 @@ subroutine gvlstn(q0,q1,q2,qp,mshlst,gmax0,nn)
      nn = mshlst(min(indx+1,mshlst(0)))
   endif
 end subroutine gvlstn
-subroutine gvlsts(ngxx,ng,gv,kv,igv,igv2,job1,job2)
+subroutine gvlsts(ngxx,ng,gv,kv,igv,job1)
   implicit none
-  integer:: ng,kv(ng,3),igv(ng,3),igv2(3,ng),job1,job2,ig,m,jg,iprm(ng),ngxx
+  integer:: ng,kv(ng,3),igv(ng,3),job1,job2,ig,m,jg,iprm(ng),ngxx
   real(8):: gv(ng,3)
   call dvshel(1,ng, sum(gv**2,dim=2)*[((1d0 + 1d-15*ig),ig=1,ng)], iprm,1)
   gv(:,:) = gv(iprm+1,:)
   kv(:,:) = kv(iprm+1,:)
   if(job1/=0) igv(:,:) =igv(iprm+1,:) 
-  if(job2/=0) igv2(:,:)=igv2(iprm+1,:)
 end subroutine gvlsts
 subroutine gvgetf(ng,n,kv,k1,k2,k3,c,c0)!- Gathers Fourier coefficients from 3D array c into list c0.
   implicit none
@@ -369,66 +396,19 @@ subroutine mshsiz(alat,plat,job,gmax,ngabc,ng)
      nmx(i)=nn
      if (ngabc(i) == 0) ngabc(i) = nn
   enddo
-  gmaxn = gmax0
-  facg = .995d0
   ! ... Count the number of G vectors for initial n1..n3
   call pshpr(iprint()-30)
-  !      call gvlist(alat,plat,q,ngabc(1),ngabc(2),ngabc(3),gmax,000,0,ng,xx,xx,xx,xx)
-  call gvlst2(alat,plat,q,ngabc(1),ngabc(2),ngabc(3), 0d0,gmax,[0],000, 0,ng,kxx,gxx,kxx,kxx)
-  !     Hold on to the upper bound to know when we fall below tolerance
-  nginit = ng
-  ! akao
-  !      if(fullmesh()) then
-  !        print *, ' Full mesh mode: taka all G for charge density. n1*n2*n3'
-  !        ng = ngabc(1)*ngabc(2)*ngabc(3)
-  !      endif
-
-  ! ... Reduce gmax slowly until at least one of n1..n3 changes
-10 continue
-  do  k = 1, 99
-     gmaxn = gmaxn * facg
-     change = .false.
-     do  i = 1, 3
-        i2 = mod(i,3)+1
-        i3 = mod(i2,3)+1
-        call gvlstn(qlat(1,i),qlat(1,i2),qlat(1,i3),q,mshlst,gmaxn,nn) !,    nmin,nmxn(i))
-        nmxn(i)=nn
-        if (nmxn(i) /= nmx(i)) change = .TRUE. 
-        !       The granularity of gvlstn may be too coarse.
-        !       Don't assign, ngabcn(i) = nn but find next one smaller in mshlst
-        indx = 1
-        call hunti(mshlst(1),mshlst,ngabc(i),0,indx)
-        indx = max(indx,1)
-        ngabcn(i) = mshlst(indx)
-     enddo
-     if (change) goto 12
-  enddo
-12 continue
-  ! akao
-  ! 18   continue
   if(fullmesh()) then
-     ngabc=ngabcn
      gmax=1d10
      ng=ngabc(1)*ngabc(2)*ngabc(3)
-     !       print *,' zzz mshsiz ngn=',ngn
-     goto 21
-  endif
-  ! ... Count the number of G vectors for (smaller) trial n1..n3
-  ! cccccccccccccccccccccc
-  !      print *,' uuuuuuuu mshsiz ngabcn=',ngabcn(1),ngabcn(2),ngabcn(3)
-  !      call gvlist(alat,plat,q,ngabcn(1),ngabcn(2),ngabcn(3),gmax,000,0,ngn,xx,xx,xx,xx)
-  call gvlst2(alat,plat,q,ngabcn(1),ngabcn(2),ngabcn(3), 0d0,gmax,[0],000, 0,ngn,kxx,gxx,kxx,kxx)
-  !      print *,' uuuuuuuu mshsiz ngn=',ngn
-  ! ccccccccccccccccccccccc
-  !     If the G vector count doesn't fall by more than tolg, use trial
-  if (dble(ngn) >= nginit*tolg) then
-     ng = ngn
-     call icopy(3,ngabcn,1,ngabc,1)
-     goto 10
+  else
+     ngabcn=ngabc
+     ! ... Count the number of G vectors for (smaller) trial n1..n3
+     call gvlst2(alat,plat,q,ngabcn(1),ngabcn(2),ngabcn(3), 0d0,gmax,[0],000, 0,ngn,kxx,gxx,kxx) !,kxx)
+     ng=ngn
+     ngabc=ngabcn
   endif
 
-  ! ... Check if fmax is too small
-21 continue !takao
   call poppr
   i1 = ngabc(1)
   i2 = ngabc(2)

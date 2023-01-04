@@ -236,19 +236,24 @@ contains
     do ikt=1,nkt
        qqq=0d0 !call dpzero(xx,3)
        if (mod(pwmode/10,10) == 1) qqq=qq(:,ikt) !call dpcopy(qp,xx,1,3,1d0)
-       call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,0,0,napwx,dum,dum,dum,dum)
+       call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,0,0,napwx,dum,dum,dum)!,dum)
        napwk(ikt) = napwx
        if(napwmx<napwx) napwmx = napwx
     enddo
     call poppr
     ! nn
     if(master_mpi)print*,' --- gvlst2 generates G for APW part (we show cases for limited q) ---'
-    allocate( igv2(3,napwmx,nkt), kv(3*napwmx) )
+    allocate( igv2(3,napwmx,nkt), kv(3*napwmx))
     prpushed=.false.
     do ikt = 1,nkt
        qqq=0d0
        if (mod(pwmode/10,10) == 1) qqq=qq(:,ikt)
-       call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,2,napwmx,napwk(ikt),kv,dum,dum,igv2(1,1,ikt))
+       block
+         integer:: igvx(napwmx,3)
+         igvx=0
+         call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,1,napwmx,napwk(ikt),kv,dum,igvx) 
+         igv2(:,:,ikt) = transpose(igvx)
+       endblock
        if(master_mpi .AND. (ikt>5 .OR. ikt==nkt) .AND. ( .NOT. prpushed)) then
           call pshpr(0)
           prpushed=.true.

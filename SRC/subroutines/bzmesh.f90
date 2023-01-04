@@ -109,7 +109,7 @@ subroutine bzmesh(plat,qb,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx,igstar,lpbc)
        nn2,nn3,nsgrp,mxxyz
   double precision :: w0,x1,x2,x3,swgt,v(3),v1(3),rb(3,3)
   character(1) :: chr(0:2)
-  real(8),parameter:: tolq=1d-4
+  real(8),parameter:: tolq=1d-3
   call getpr(ipr)
   !      stdo = lgunit(1)
   ndmx = mxxyz()
@@ -176,6 +176,7 @@ subroutine bzmesh(plat,qb,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx,igstar,lpbc)
            if (max(dabs(x1-j1),dabs(x2-j2),dabs(x3-j3)) > tolq) then
               !            call awrit2(' qp%3:1,3;3d -> %3:1,3;3d is not on k-mesh',' ',80,stdo,v,v1)
               write(stdo,"(a,3f9.4,' ',3f9.4)") ' qp mapped to is not on k-mesh',v,v1
+              write(stdo,"(a,3f9.4,' ',3i5)")   '             x j=',x1,x2,x3,j1,j2,j3
               call rx('BZMESH: symops incompatible with this mesh')
            endif
            ! ..        scale shifted point or discard if shifted off mesh

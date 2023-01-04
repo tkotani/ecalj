@@ -33,7 +33,7 @@ subroutine sgvsym(ngrp,g,ag,ng,gv,ips0,bgv)
   integer :: i,i00,irep,i0,nstar,k,j,j0,iprint,ksum,kstar
   real(8)::df,scalp,gg0,gg,fac,vv,v(3)
   integer:: jx
-  real(8),parameter:: tpi = 8d0*datan(1d0)
+  real(8),parameter:: tpi = 8d0*datan(1d0),tol=1d-3,tol3=1d-3
   ips0 = 0
   bgv = 0d0
   ! --- Main loop: look for next unclassified vector ---
@@ -50,15 +50,10 @@ subroutine sgvsym(ngrp,g,ag,ng,gv,ips0,bgv)
      nstar = irep
      do  30  k = 1, ngrp
         !     ... Find G' = g(k) G; j0 is index to G'
-        v(1) = g(1,1,k)*gv(i0,1)+g(1,2,k)*gv(i0,2)+g(1,3,k)*gv(i0,3)
-        v(2) = g(2,1,k)*gv(i0,1)+g(2,2,k)*gv(i0,2)+g(2,3,k)*gv(i0,3)
-        v(3) = g(3,1,k)*gv(i0,1)+g(3,2,k)*gv(i0,2)+g(3,3,k)*gv(i0,3)
+        v = matmul(g(:,:,k),gv(i0,:))
         do  32  j = i0, ng
-           df = (v(1)-gv(j,1))**2+(v(2)-gv(j,2))**2+(v(3)-gv(j,3))**2
            j0 = j
-           if (df < 1d-8) then
-              goto 70
-           endif   
+           if (sum((v-gv(j,:))**2) < tol) goto 70
 32      enddo
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!        
         do  jx = i0, ng
@@ -94,7 +89,7 @@ subroutine sgvsym(ngrp,g,ag,ng,gv,ips0,bgv)
         do  42  i = i0, ng
            if (ips0(i) == i0) kstar = kstar+1
            gg = gv(i,1)**2+gv(i,2)**2+gv(i,3)**2
-           if (dabs(gg-gg0) > 1d-3) goto 78
+           if (dabs(gg-gg0) > tol) goto 78
 42      enddo
 78      continue
         ksum = ksum+kstar
@@ -102,7 +97,7 @@ subroutine sgvsym(ngrp,g,ag,ng,gv,ips0,bgv)
         do  44  i = i0, ng
            if (ips0(i) == i0) bgv(i) = bgv(i)*fac
            gg = gv(i,1)**2+gv(i,2)**2+gv(i,3)**2
-           if (dabs(gg-gg0) > 1d-3) goto 79
+           if (dabs(gg-gg0) > tol) goto 79
 44      enddo
 79      continue
      endif
