@@ -2,10 +2,10 @@ INFO: Ubuntu 20.04.4 LTS \n \l
 INFO: GNU Fortran (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
 INFO: -O2 -g -fimplicit-none -ffixed-line-length-132 -JOBJ.gfortran -IOBJ.gfortran
 INFO: MATH: -lmkl_rt
-INFO: git: commit d75d55d3b6654513dbac10e844ad6917b261cd36
+INFO: git: commit a56084d3af7da44f7ab6fd83d3968de561939dc4
 INFO:    : Author: Takao Kotani <takaokotani@gmail.com>
-INFO:    : Date:   Sat Oct 15 08:43:12 2022 +0900
-INFO: linked at Sat Oct 15 09:08:15 JST 2022
+INFO:    : Date:   Fri Jan 6 08:52:06 2023 +0900
+INFO: linked at Fri Jan  6 09:14:03 JST 2023
 === START LFMA ===
  mpisize=           1
   Token           Input   cast  (size,min,read,def)     result
@@ -162,10 +162,10 @@ INFO: Ubuntu 20.04.4 LTS \n \l
 INFO: GNU Fortran (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
 INFO: -O2 -g -fimplicit-none -ffixed-line-length-132 -JOBJ.gfortran -IOBJ.gfortran
 INFO: MATH: -lmkl_rt
-INFO: git: commit d75d55d3b6654513dbac10e844ad6917b261cd36
+INFO: git: commit a56084d3af7da44f7ab6fd83d3968de561939dc4
 INFO:    : Author: Takao Kotani <takaokotani@gmail.com>
-INFO:    : Date:   Sat Oct 15 08:43:12 2022 +0900
-INFO: linked at Sat Oct 15 09:08:15 JST 2022
+INFO:    : Date:   Fri Jan 6 08:52:06 2023 +0900
+INFO: linked at Fri Jan  6 09:14:03 JST 2023
 ===START LMF with   ===
  mpisize=           4
   Token           Input   cast  (size,min,read,def)     result
@@ -258,19 +258,19 @@ mmm === MTO setting ===
 mmm ispec lmxb lpz nkapii nkaphh=    1    3    0    2    2
 mmm rsmh1    1  1.16  1.16  1.16  1.16
 mmm   eh1    1 -0.10 -0.10 -0.10 -0.10
- imx=           3           3           3
 mmm rsmh2    1  1.16  1.16  1.16
 mmm  eh2     1 -1.10 -1.10 -1.10
 mmm lh       3  2
  imx=           3           3           3
+ >>      0.02   exit  m_lmfinit       0.02
+ >> level: 1  CPUsec=      0.02  enter m_lattic_init
  imx=           4           4           4
  imx=           3           3           3
- imx=           4           4           4
- imx=           4           4           4
- >>      0.03   exit  m_lmfinit       0.03
- >> level: 1  CPUsec=      0.03  enter m_lattic_init
+ imx=           3           3           3
 
                 Plat                                  Qlat
+ imx=           4           4           4
+ imx=           4           4           4
    0.500000   0.500000   0.500000        0.000000   1.000000   1.000000
    0.500000  -0.500000   0.500000        1.000000  -1.000000   0.000000
    0.500000   0.500000  -0.500000        1.000000   0.000000  -1.000000
@@ -280,25 +280,60 @@ mmm lh       3  2
 
  LATTC:  as= 2.000   tol= 1.00E-08   alat= 5.42352   awald= 0.465
          r1=  2.466   nkd= 137      q1=  4.687   nkg= 201
- >>      0.03   exit  m_lattic_ini    0.00
- >> level: 1  CPUsec=      0.03  enter m_mksym_init
+ >>      0.02   exit  m_lattic_ini    0.00
+ >> level: 1  CPUsec=      0.02  enter m_mksym_init
+ mshsiz   13.000000000000000     
  Generator 1 already in group as element 1
 SGROUP:  1 symmetry operations from 1
 MKSYM: found  1  space group operations
        adding inversion gives 2  operations
 SPLCLS: ibas iclass ispec label(ispec)
  SPLCLS     1    1    1     Fe
- >>      0.03   exit  m_mksym_init    0.00
- >> level: 1  CPUsec=      0.03  enter m_mkqp_init
+ >>      0.02   exit  m_mksym_init    0.00
+ mshsiz   13.000000000000000     
+ >> level: 1  CPUsec=      0.02  enter m_mkqp_init
  BZMESH:     32 irreducible QP from    4   4   4 shift=TTT
  TETIRR: sorting      384 tetrahedra ...
- >>      0.03   exit  m_mkqp_init     0.00
- >> level: 1  CPUsec=      0.03  enter m_supot_init
-MSHSIZ: mesh has 18 x 18 x 18 divisions; length =     0.261     0.261     0.261
-      generated from gmax (a.u.)=     13.1100: 3055 vectors of 5832 (52%)
-gvlst2: gmax=  13.110 a.u. created 3055 vectors of 5832 ( 52 %)
- SGVSYM: 3055 symmetry stars found for 3055 reciprocal lattice vectors
- >>      0.04   exit  m_supot_init    0.01
+ mshsiz   13.000000000000000     
+ >>      0.02   exit  m_mkqp_init     0.00
+ >> level: 1  CPUsec=      0.02  enter m_supot_init
+ mshsiz   13.000000000000000     
+gvlst2: gmax=  13.000 a.u. created 2899 vectors of 9261 ( 31 %)
+gvlst2: gmax=  13.000 a.u. created 2899 vectors of 9261 ( 31 %)
+gvlst2: gmax=  13.000 a.u. created 2899 vectors of 9261 ( 31 %)
+gvlst2: gmax=  13.000 a.u. created 2899 vectors of 9261 ( 31 %)
+gvlst2: gmax=  13.000 a.u. created 2899 vectors of 8000 ( 36 %)
+gvlst2: gmax=  13.000 a.u. created 2899 vectors of 8000 ( 36 %)
+gvlst2: gmax=  13.000 a.u. created 2899 vectors of 8000 ( 36 %)
+gvlst2: gmax=  13.000 a.u. created 2899 vectors of 8000 ( 36 %)
+gvlst2: gmax=  13.000 a.u. created 2899 vectors of 5832 ( 49 %)
+gvlst2: gmax=  13.000 a.u. created 2899 vectors of 5832 ( 49 %)
+gvlst2: gmax=  13.000 a.u. created 2899 vectors of 5832 ( 49 %)
+gvlst2: gmax=  13.000 a.u. created 2899 vectors of 5832 ( 49 %)
+gvlst2: gmax=  13.000 a.u. created 2899 vectors of 4096 ( 70 %)
+gvlst2: gmax=  13.000 a.u. created 2899 vectors of 4096 ( 70 %)
+gvlst2: gmax=  13.000 a.u. created 2899 vectors of 4096 ( 70 %)
+gvlst2: gmax=  13.000 a.u. created 2899 vectors of 4096 ( 70 %)
+gvlst2: gmax=  13.000 a.u. created 2827 vectors of 3375 ( 83 %)
+gvlst2: gmax=  13.000 a.u. created 2827 vectors of 3375 ( 83 %)
+MSHSIZ: mesh has 16 x 16 x 16 divisions; length =     0.294     0.294     0.294
+      generated from gmax (a.u.)=     13.0000: 2899 vectors of 4096 (70%)
+gvlst2: gmax=  13.000 a.u. created 2827 vectors of 3375 ( 83 %)
+gvlst2: gmax=  13.000 a.u. created 2827 vectors of 3375 ( 83 %)
+gvlst2: gmax=  13.000 a.u. created 2899 vectors of 4096 ( 70 %)
+ --- gmax ng ngmx=  13.000000 2899 2899
+ ogv(1:ng,1:3)   0.0000000000000000        0.0000000000000000        0.0000000000000000                1           1           1
+gvlst2: gmax=  13.000 a.u. created 2899 vectors of 4096 ( 70 %)
+ --- gmax ng ngmx=  13.000000 2899 2899
+ ogv(1:ng,1:3)   0.0000000000000000        0.0000000000000000        0.0000000000000000                1           1           1
+ SGVSYM: 2899 symmetry stars found for 2899 reciprocal lattice vectors
+gvlst2: gmax=  13.000 a.u. created 2899 vectors of 4096 ( 70 %)
+ --- gmax ng ngmx=  13.000000 2899 2899
+ ogv(1:ng,1:3)   0.0000000000000000        0.0000000000000000        0.0000000000000000                1           1           1
+gvlst2: gmax=  13.000 a.u. created 2899 vectors of 4096 ( 70 %)
+ --- gmax ng ngmx=  13.000000 2899 2899
+ ogv(1:ng,1:3)   0.0000000000000000        0.0000000000000000        0.0000000000000000                1           1           1
+ >>      0.04   exit  m_supot_init    0.02
 
  sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-06
  spec      l    rsm    eh     gmax    last term    cutoff
@@ -327,7 +362,6 @@ gvlst2: gmax=  13.110 a.u. created 3055 vectors of 5832 ( 52 %)
 
 rdovfa: read and overlap free-atom densities (mesh density) ...
  rdovfa: expected Fe,      read Fe       with rmt=  2.3250  mesh   321  0.030
- zzzzzzzzz   26.000000000000000        0.0000000000000000     
 
  Free atom and overlapped crystal site charges:
    ib    true(FA)    smooth(FA)  true(OV)    smooth(OV)    local
@@ -357,208 +391,16 @@ rdovfa: read and overlap free-atom densities (mesh density) ...
   locpot:
    site  1  z= 26.0  rmt= 2.32497  nr=321   a=0.030  nlml=16  rg=0.581  Vfloat=T
     sm core charge in MT=  0.687311 =total-spillout=  0.702013 -  0.014701
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 0 3 -0.139488
-goto phidx modep 1
-end makrwf rseq l= 0 3 -0.139488
-goto phidx modep 1
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 1 2  0.057261
-goto phidx modep 1
-end makrwf rseq l= 1 2  0.057261
-goto phidx modep 1
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 2 0 -0.021809
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.021809
-goto phidx modep 1
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 3 0 -0.006828
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.006828
-goto phidx modep 1
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 0 3 -0.210734
-goto phidx modep 1
-end makrwf rseq l= 0 3 -0.210734
-goto phidx modep 1
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 1 2 -0.013576
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.013576
-goto phidx modep 1
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 2 0 -0.161426
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.161426
-goto phidx modep 1
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 3 0 -0.056399
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.056399
-goto phidx modep 1
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 0 3 -0.139488
-goto phidx modep 1
-end makrwf rseq l= 0 3 -0.139488
-goto phidx modep 1
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 1 2  0.057261
-goto phidx modep 1
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 1 2  0.057261
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.021809
-goto phidx modep 1
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 2 0 -0.021809
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.006828
-goto phidx modep 1
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 3 0 -0.006828
-goto phidx modep 1
-end makrwf rseq l= 0 3 -0.210734
-goto phidx modep 1
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 0 3 -0.210734
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.013576
-goto phidx modep 1
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 1 2 -0.013576
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.161426
-goto phidx modep 1
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 2 0 -0.161426
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.056399
-goto phidx modep 1
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 3 0 -0.056399
-goto phidx modep 1
  ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   4.66000   4.66000   0.00000   0.00000
  ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   4.41000   4.41000   0.00000   0.00000
  ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.80000   3.80000   0.00000   0.00000
  ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.13000   4.13000   0.00000   0.00000
      potential shift to crystal energy zero:    0.000218
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 0 3 -0.139488
-goto phidx modep 1
-end makrwf rseq l= 0 3 -0.139488
-goto phidx modep 1
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 1 2  0.057261
-goto phidx modep 1
-end makrwf rseq l= 1 2  0.057261
-goto phidx modep 1
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 2 0 -0.021809
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.021809
-goto phidx modep 1
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 3 0 -0.006828
-goto phidx modep 1
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 3 0 -0.006828
-goto phidx modep 1
-end makrwf rseq l= 0 3 -0.210734
-goto phidx modep 1
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 1 2 -0.013576
-goto phidx modep 1
-end makrwf rseq l= 0 3 -0.210734
-goto phidx modep 1
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 2 0 -0.161426
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.013576
-goto phidx modep 1
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 3 0 -0.056399
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.161426
-goto phidx modep 1
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 3 0 -0.056399
-goto phidx modep 1
-end makrwf rseq l= 0 3 -0.139488
-goto phidx modep 1
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 1 2  0.057261
-goto phidx modep 1
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 2 0 -0.021809
-goto phidx modep 1
-end makrwf rseq l= 0 3 -0.139488
-goto phidx modep 1
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 3 0 -0.006828
-goto phidx modep 1
-end makrwf rseq l= 1 2  0.057261
-goto phidx modep 1
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 0 3 -0.210734
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.021809
-goto phidx modep 1
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 1 2 -0.013576
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.006828
-goto phidx modep 1
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 2 0 -0.161426
-goto phidx modep 1
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 0 3 -0.210734
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.056399
-goto phidx modep 1
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 1 2 -0.013576
-goto phidx modep 1
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 2 0 -0.161426
-goto phidx modep 1
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 3 0 -0.056399
-goto phidx modep 1
   mkpot:
    Energy terms:           smooth           local           total
-   rhoval*vef            -11.548677       -80.609456       -92.158133
+   rhoval*veff            -11.548677       -80.609456       -92.158133
    rhoval*ves            -30.476944       -45.958351       -76.435295
-   psnuc*ves              59.083153    -10000.910523     -9941.827369
+   psnuc*ves              59.083153    -10000.910523     -9941.827370
    utot                   14.303104     -5023.434437     -5009.131332
    rho*exc                -4.167291      -103.147236      -107.314527
    rho*vxc                -5.432570      -136.568615      -142.001185
@@ -569,149 +411,309 @@ goto phidx modep 1
    hom background     0.00000   deviation from neutrality:     -0.00000
 
  m_bandcal_init: start
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
  bndfp: kpt     1 of    32 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
  bndfp: kpt     1 of    32 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
  bndfp: kpt     2 of    32 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
  bndfp: kpt     2 of    32 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
  bndfp: kpt     3 of    32 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
  bndfp: kpt     3 of    32 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
  bndfp: kpt     4 of    32 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
  bndfp: kpt     4 of    32 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
  bndfp: kpt     5 of    32 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
  bndfp: kpt     5 of    32 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
  bndfp: kpt     6 of    32 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
  bndfp: kpt     6 of    32 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
  bndfp: kpt     7 of    32 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
  bndfp: kpt     7 of    32 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
  bndfp: kpt     8 of    32 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
  bndfp: kpt     8 of    32 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
- ... Done MPI k-loop: elapsed time=   0.2388
+ ... Done MPI k-loop: elapsed time=   0.1828
 
  bzwts: --- Tetrahedron Integration ---
   Seek potential shift for fixed-spin mom ...
   Seek potential shift for fixed-spin mom ...
   Seek potential shift for fixed-spin mom ...
- BZINTS: Fermi energy:      0.058137;   8.000000 electrons
+ BZINTS: Fermi energy:      0.058138;   8.000000 electrons
          Sum occ. bands:   -0.941999, incl. Bloechl correction: -0.005955
          Mag. moment:      -2.212026
   Seek potential shift for fixed-spin mom ...
- BZWTSF: potential shift bracketed. Unconstrained efermi=  0.058137 constraint fmom= -2.000000 actual mmom= -2.000109 ef=  0.065918 -Vup+Vdn=  0.04512703
+ BZWTSF: potential shift bracketed. Unconstrained efermi=  0.058138 constraint fmom= -2.000000 actual mmom= -2.000109 ef=  0.065918 -Vup+Vdn=  0.04512703
 
  bzwts: --- Tetrahedron Integration ---
  BZINTS: Fermi energy:      0.065924;   8.000000 electrons
          Sum occ. bands:   -0.895458, incl. Bloechl correction: -0.006213
          Mag. moment:      -1.999974
- bzwtsf: Set Bias field -Vup+Vdn=   0.045127032149842
- bndfp:Generating TDOS: efermi, and dos window=    0.0659  -0.5360   3.0058
+ bzwtsf: Set Bias field -Vup+Vdn=   0.045127032172427
+ bndfp:Generating TDOS: efermi, and dos window=    0.06599998.9900   3.0058
 
 
  m_bandcal_2nd: to fill eigenfunctions**2 up to Efermi
-  Smooth density not symmetrized (ngrp=1)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
   Smooth density not symmetrized (ngrp=1)
   Smooth density not symmetrized (ngrp=1)
 
 IORBTM:  orbital moments :
  ibas  Spec        spin   Moment decomposed by l ...
+  Smooth density not symmetrized (ngrp=1)
     1    Fe           1    0.000000   -0.001555   -0.064924    0.000200
     1    Fe           2    0.000000    0.002198    0.039677   -0.000030
  total orbital moment   1:   -0.024434
   Smooth density not symmetrized (ngrp=1)
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 0 3 -0.139488
-goto phidx modep 1
-end makrwf rseq l= 0 3 -0.139488
-goto phidx modep 1
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 0 3 -0.139488
-goto phidx modep 1
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 0 3 -0.139488
-goto phidx modep 1
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 1 2  0.057261
-goto phidx modep 1
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 1 2  0.057261
-goto phidx modep 1
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 1 2  0.057261
-goto phidx modep 1
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 1 2  0.057261
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.021809
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.021809
-goto phidx modep 1
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 2 0 -0.021809
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.006828
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.021809
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.006828
-goto phidx modep 1
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 3 0 -0.006828
-goto phidx modep 1
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 0 3 -0.210734
-goto phidx modep 1
-end makrwf rseq l= 0 3 -0.210734
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.006828
-goto phidx modep 1
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 0 3 -0.210734
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.013576
-goto phidx modep 1
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 1 2 -0.013576
-goto phidx modep 1
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 0 3 -0.210734
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.161426
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.013576
-goto phidx modep 1
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 2 0 -0.161426
-goto phidx modep 1
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 3 0 -0.056399
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.013576
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.161426
-goto phidx modep 1
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 3 0 -0.056399
-goto phidx modep 1
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 3 0 -0.056399
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.161426
-goto phidx modep 1
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 3 0 -0.056399
-goto phidx modep 1
        contr. to mm extrapolated for r>rmt:  -0.005059 est. true mm =-2.020912
 
  mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
@@ -743,8 +745,8 @@ goto phidx modep 1
  ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.12822   4.12834   0.00000   0.00000
   mkpot:
    Energy terms:           smooth           local           total
-   rhoval*vef             -5.180862       -84.546558       -89.727420
-   rhoval*ves            -30.753380       -43.625521       -74.378900
+   rhoval*veff             -5.180862       -84.546557       -89.727419
+   rhoval*ves            -30.753379       -43.625521       -74.378900
    psnuc*ves              54.967532     -9992.370108     -9937.402576
    utot                   12.107076     -5017.997814     -5005.890738
    rho*exc                -2.937870      -104.008781      -106.946650
@@ -762,15 +764,15 @@ goto phidx modep 1
   
  mixrho: mixing mode=A  nmix=6  beta=.5  kill=3
  mixrealsmooth= T
- wgtsmooth=   1.3094570021973102E-002
- mixrho:  sought 6 iter from file mixm; read 0.  RMS DQ=2.22e-2
- AMIX: nmix=0 mmix=8  nelts= 13524  beta=0.50000  tm= 5.00000  rmsdel= 1.11D-02
+ wgtsmooth=   1.5625000000000000E-002
+ mixrho:  sought 6 iter from file mixm; read 0.  RMS DQ=2.57e-2
+ AMIX: nmix=0 mmix=8  nelts= 10052  beta=0.50000  tm= 5.00000  rmsdel= 1.29D-02
  mixrho: add corrections to qcell smrho =  0.53264D-07  0.33388D-09
 
  iors  : write rst restart file (binary mesh density)
 
    it  1  of  3    ehf=   -2541.031375   ehk=   -2541.012103
-h rel= 1 nit= 3 so= 2 fsmom=-2 mmom=-1.999974 ehf(eV)=-34572.764683 ehk(eV)=-34572.502471 sev(eV)=-12.797408
+h rel= 1 nit= 3 so= 2 fsmom=-2 mmom=-1.999974 ehf(eV)=-34572.764683 ehk(eV)=-34572.502471 sev(eV)=-12.797405
 
 --- BNDFP:  begin iteration 2 of 3
  m_mkpot_init: Making one-particle potential ...
@@ -783,208 +785,16 @@ h rel= 1 nit= 3 so= 2 fsmom=-2 mmom=-1.999974 ehf(eV)=-34572.764683 ehk(eV)=-345
   locpot:
    site  1  z= 26.0  rmt= 2.32497  nr=321   a=0.030  nlml=16  rg=0.581  Vfloat=T
     sm core charge in MT=  0.687311 =total-spillout=  0.702013 -  0.014701
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 0 3 -0.326883
-goto phidx modep 1
-end makrwf rseq l= 0 3 -0.326883
-goto phidx modep 1
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           1           2
  ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   4.59499   4.59524   0.00000   0.00000
  ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   4.34924   4.34775   0.00000   0.00000
  ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.74791   3.86307   0.00000   0.00000
  ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.12822   4.12834   0.00000   0.00000
      potential shift to crystal energy zero:    0.000523
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 1 2 -0.161996
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.161996
-goto phidx modep 1
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 0 3 -0.326883
-goto phidx modep 1
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 0 3 -0.326883
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.155089
-goto phidx modep 1
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 2 0 -0.155089
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.161996
-goto phidx modep 1
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 3 0 -0.078936
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.078936
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.161996
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.155089
-goto phidx modep 1
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 0 3 -0.388141
-goto phidx modep 1
-end makrwf rseq l= 0 3 -0.388141
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.155089
-goto phidx modep 1
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 3 0 -0.078936
-goto phidx modep 1
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 1 2 -0.228032
-goto phidx modep 1
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 1 2 -0.228032
-goto phidx modep 1
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 0 3 -0.388141
-goto phidx modep 1
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 2 0 -0.190534
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.078936
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.190534
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.228032
-goto phidx modep 1
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 3 0 -0.114213
-goto phidx modep 1
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 3 0 -0.114213
-goto phidx modep 1
-end makrwf rseq l= 0 3 -0.388141
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.190534
-goto phidx modep 1
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 3 0 -0.114213
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.228032
-goto phidx modep 1
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 0 3 -0.326883
-goto phidx modep 1
-end makrwf rseq l= 0 3 -0.326883
-goto phidx modep 1
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 1 2 -0.161996
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.190534
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.161996
-goto phidx modep 1
-end makrwf rseq l= 0 3 -0.326883
-goto phidx modep 1
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 2 0 -0.155089
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.155089
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.161996
-goto phidx modep 1
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 3 0 -0.114213
-goto phidx modep 1
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 3 0 -0.078936
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.155089
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.078936
-goto phidx modep 1
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 0 3 -0.388141
-goto phidx modep 1
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 3 0 -0.078936
-goto phidx modep 1
-end makrwf rseq l= 0 3 -0.388141
-goto phidx modep 1
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 0 3 -0.326883
-goto phidx modep 1
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 1 2 -0.228032
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.228032
-goto phidx modep 1
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 0 3 -0.388141
-goto phidx modep 1
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 1 2 -0.161996
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.190534
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.228032
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.190534
-goto phidx modep 1
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 3 0 -0.114213
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.114213
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.155089
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.190534
-goto phidx modep 1
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 3 0 -0.114213
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.078936
-goto phidx modep 1
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 0 3 -0.388141
-goto phidx modep 1
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 1 2 -0.228032
-goto phidx modep 1
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 2 0 -0.190534
-goto phidx modep 1
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 3 0 -0.114213
-goto phidx modep 1
   mkpot:
    Energy terms:           smooth           local           total
-   rhoval*vef             -8.252342       -82.700639       -90.952981
-   rhoval*ves            -30.688516       -44.730342       -75.418858
-   psnuc*ves              57.025343     -9996.640315     -9939.614973
+   rhoval*veff             -8.252342       -82.700639       -90.952981
+   rhoval*ves            -30.688515       -44.730342       -75.418857
+   psnuc*ves              57.025342     -9996.640315     -9939.614973
    utot                   13.168414     -5020.685329     -5007.516915
    rho*exc                -3.513904      -103.615631      -107.129535
    rho*vxc                -4.576796      -137.179252      -141.756048
@@ -995,23 +805,151 @@ goto phidx modep 1
    hom background     0.00000   deviation from neutrality:     -0.00000
 
  m_bandcal_init: start
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
  bndfp: kpt     1 of    32 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
  bndfp: kpt     1 of    32 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
  bndfp: kpt     2 of    32 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
  bndfp: kpt     2 of    32 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
  bndfp: kpt     3 of    32 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
  bndfp: kpt     3 of    32 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
  bndfp: kpt     4 of    32 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
  bndfp: kpt     4 of    32 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
  bndfp: kpt     5 of    32 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
  bndfp: kpt     5 of    32 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
  bndfp: kpt     6 of    32 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
  bndfp: kpt     6 of    32 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
  bndfp: kpt     7 of    32 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
  bndfp: kpt     7 of    32 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
  bndfp: kpt     8 of    32 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
  bndfp: kpt     8 of    32 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
- ... Done MPI k-loop: elapsed time=   0.2540
+ ... Done MPI k-loop: elapsed time=   0.2010
 
  bzwts: --- Tetrahedron Integration ---
   Seek potential shift for fixed-spin mom ...
@@ -1027,11 +965,139 @@ goto phidx modep 1
  BZINTS: Fermi energy:     -0.028913;   8.000000 electrons
          Sum occ. bands:   -1.481871, incl. Bloechl correction: -0.005242
          Mag. moment:      -2.000008
- bzwtsf: Set Bias field -Vup+Vdn=   0.055716679612494
- bndfp:Generating TDOS: efermi, and dos window=   -0.0289  -0.5532   2.9110
+ bzwtsf: Set Bias field -Vup+Vdn=   0.055716679517357
+ bndfp:Generating TDOS: efermi, and dos window=   -0.02899998.9900   2.9110
 
 
  m_bandcal_2nd: to fill eigenfunctions**2 up to Efermi
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
   Smooth density not symmetrized (ngrp=1)
   Smooth density not symmetrized (ngrp=1)
   Smooth density not symmetrized (ngrp=1)
@@ -1042,102 +1108,6 @@ IORBTM:  orbital moments :
     1    Fe           2    0.000000    0.001859    0.037923    0.000006
  total orbital moment   1:   -0.036955
   Smooth density not symmetrized (ngrp=1)
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 0 3 -0.326883
-goto phidx modep 1
-end makrwf rseq l= 0 3 -0.326883
-goto phidx modep 1
-end makrwf rseq l= 0 3 -0.326883
-goto phidx modep 1
-end makrwf rseq l= 0 3 -0.326883
-goto phidx modep 1
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 1 2 -0.161996
-goto phidx modep 1
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 1 2 -0.161996
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.161996
-goto phidx modep 1
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 1 2 -0.161996
-goto phidx modep 1
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 2 0 -0.155089
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.155089
-goto phidx modep 1
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 2 0 -0.155089
-goto phidx modep 1
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 2 0 -0.155089
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.078936
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.078936
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.078936
-goto phidx modep 1
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 0 3 -0.388141
-goto phidx modep 1
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 0 3 -0.388141
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.078936
-goto phidx modep 1
-end makrwf rseq l= 0 3 -0.388141
-goto phidx modep 1
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 1 2 -0.228032
-goto phidx modep 1
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 1 2 -0.228032
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.228032
-goto phidx modep 1
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 0 3 -0.388141
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.190534
-goto phidx modep 1
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 2 0 -0.190534
-goto phidx modep 1
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 2 0 -0.190534
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.228032
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.114213
-goto phidx modep 1
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 3 0 -0.114213
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.114213
-goto phidx modep 1
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 2 0 -0.190534
-goto phidx modep 1
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 3 0 -0.114213
-goto phidx modep 1
 
  mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
    1    7.034319    2.394102    4.640217     -2.034690   -0.263381   -1.771308
@@ -1168,8 +1138,8 @@ goto phidx modep 1
  ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.12642   4.12584   0.00000   0.00000
   mkpot:
    Energy terms:           smooth           local           total
-   rhoval*vef             -4.640729       -88.671091       -93.311820
-   rhoval*ves            -30.074824       -47.344488       -77.419312
+   rhoval*veff             -4.640729       -88.671091       -93.311819
+   rhoval*ves            -30.074824       -47.344488       -77.419311
    psnuc*ves              50.839257     -9994.591443     -9943.752186
    utot                   10.382216     -5020.967965     -5010.585749
    rho*exc                -2.703573      -104.776278      -107.479851
@@ -1186,9 +1156,9 @@ goto phidx modep 1
  Magnetic moment=    -2.000008
   
  mixrho: mixing mode=A  nmix=6  beta=.5  kill=3
- wgtsmooth=   1.3094570021973102E-002
- mixrho:  sought 6 iter from file mixm; read 1.  RMS DQ=1.56e-2  last it=2.22e-2
- AMIX: nmix=1 mmix=8  nelts= 13524  beta=0.50000  tm= 5.00000  rmsdel= 7.82D-03
+ wgtsmooth=   1.5625000000000000E-002
+ mixrho:  sought 6 iter from file mixm; read 1.  RMS DQ=1.82e-2  last it=2.57e-2
+ AMIX: nmix=1 mmix=8  nelts= 10052  beta=0.50000  tm= 5.00000  rmsdel= 9.08D-03
    tj:-0.58241
  mixrho: add corrections to qcell smrho = -0.26948D-07 -0.16892D-09
 
@@ -1196,8 +1166,8 @@ goto phidx modep 1
 
    it  2  of  3    ehf=   -2541.034121   ehk=   -2541.017470
  From last iter    ehf=   -2541.031375   ehk=   -2541.012103
- diffe(q)= -0.002746 (0.015649)    tol= 0.000100 (0.000100)   more=T
-i rel= 1 nit= 3 so= 2 fsmom=-2 mmom=-2.000008 ehf(eV)=-34572.802043 ehk(eV)=-34572.575487 sev(eV)=-20.920117
+ diffe(q)= -0.002746 (0.018151)    tol= 0.000100 (0.000100)   more=T
+i rel= 1 nit= 3 so= 2 fsmom=-2 mmom=-2.000008 ehf(eV)=-34572.802043 ehk(eV)=-34572.575487 sev(eV)=-20.920114
 
 --- BNDFP:  begin iteration 3 of 3
  m_mkpot_init: Making one-particle potential ...
@@ -1210,207 +1180,15 @@ i rel= 1 nit= 3 so= 2 fsmom=-2 mmom=-2.000008 ehf(eV)=-34572.802043 ehk(eV)=-345
   locpot:
    site  1  z= 26.0  rmt= 2.32497  nr=321   a=0.030  nlml=16  rg=0.581  Vfloat=T
     sm core charge in MT=  0.687311 =total-spillout=  0.702013 -  0.014701
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 0 3 -0.296471
-goto phidx modep 1
-end makrwf rseq l= 0 3 -0.296471
-goto phidx modep 1
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 0 3 -0.296471
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.138407
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.138407
-goto phidx modep 1
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 1 2 -0.138407
-goto phidx modep 1
  ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   4.59159   4.58852   0.00000   0.00000
  ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   4.34336   4.33740   0.00000   0.00000
-end makrwf rseq l= 2 0 -0.023872
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.023872
-goto phidx modep 1
  ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   3.76236   3.86919   0.00000   0.00000
  ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.12642   4.12584   0.00000   0.00000
      potential shift to crystal energy zero:    0.000720
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 0 3 -0.296471
-goto phidx modep 1
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 3 0 -0.116112
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.116112
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.023872
-goto phidx modep 1
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 1 2 -0.138407
-goto phidx modep 1
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 0 3 -0.355556
-goto phidx modep 1
-end makrwf rseq l= 0 3 -0.355556
-goto phidx modep 1
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 3 0 -0.116112
-goto phidx modep 1
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 2 0 -0.023872
-goto phidx modep 1
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 1 2 -0.211017
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.211017
-goto phidx modep 1
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 0 3 -0.355556
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.116112
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.050239
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.050239
-goto phidx modep 1
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 0 3 -0.355556
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.159918
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.211017
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.159918
-goto phidx modep 1
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 1 2 -0.211017
-goto phidx modep 1
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 2 0 -0.050239
-goto phidx modep 1
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 0 3 -0.296471
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.050239
-goto phidx modep 1
-end makrwf rseq l= 0 3 -0.296471
-goto phidx modep 1
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 1 2 -0.138407
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.159918
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.159918
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.138407
-goto phidx modep 1
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 2 0 -0.023872
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.023872
-goto phidx modep 1
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 0 3 -0.296471
-goto phidx modep 1
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 0 3 -0.296471
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.116112
-goto phidx modep 1
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 3 0 -0.116112
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.138407
-goto phidx modep 1
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 0 3 -0.355556
-goto phidx modep 1
-end makrwf rseq l= 0 3 -0.355556
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.023872
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.138407
-goto phidx modep 1
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 1 2 -0.211017
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.211017
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.116112
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.023872
-goto phidx modep 1
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 2 0 -0.050239
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.050239
-goto phidx modep 1
-end makrwf rseq l= 0 3 -0.355556
-goto phidx modep 1
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 3 0 -0.116112
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.159918
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.159918
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.211017
-goto phidx modep 1
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 0 3 -0.355556
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.050239
-goto phidx modep 1
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 3 0 -0.159918
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.211017
-goto phidx modep 1
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 2 0 -0.050239
-goto phidx modep 1
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 3 0 -0.159918
-goto phidx modep 1
   mkpot:
    Energy terms:           smooth           local           total
-   rhoval*vef             -5.341218       -87.483796       -92.825014
-   rhoval*ves            -30.260316       -46.747693       -77.008008
+   rhoval*veff             -5.341217       -87.483796       -92.825014
+   rhoval*ves            -30.260315       -46.747693       -77.008008
    psnuc*ves              52.130880     -9995.019237     -9942.888357
    utot                   10.935282     -5020.883465     -5009.948183
    rho*exc                -2.864431      -104.541831      -107.406262
@@ -1422,23 +1200,151 @@ goto phidx modep 1
    hom background     0.00000   deviation from neutrality:     -0.00000
 
  m_bandcal_init: start
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
  bndfp: kpt     1 of    32 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
  bndfp: kpt     1 of    32 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
  bndfp: kpt     2 of    32 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
  bndfp: kpt     2 of    32 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
  bndfp: kpt     3 of    32 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
  bndfp: kpt     3 of    32 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
  bndfp: kpt     4 of    32 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
  bndfp: kpt     4 of    32 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
  bndfp: kpt     5 of    32 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
  bndfp: kpt     5 of    32 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
  bndfp: kpt     6 of    32 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
  bndfp: kpt     6 of    32 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
  bndfp: kpt     7 of    32 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
  bndfp: kpt     7 of    32 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
  bndfp: kpt     8 of    32 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
  bndfp: kpt     8 of    32 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
- ... Done MPI k-loop: elapsed time=   0.3004
+ ... Done MPI k-loop: elapsed time=   0.2438
 
  bzwts: --- Tetrahedron Integration ---
   Seek potential shift for fixed-spin mom ...
@@ -1454,14 +1360,139 @@ goto phidx modep 1
  BZINTS: Fermi energy:      0.103912;   8.000000 electrons
          Sum occ. bands:   -0.673371, incl. Bloechl correction: -0.006482
          Mag. moment:      -1.999659
- bzwtsf: Set Bias field -Vup+Vdn=   0.038920531037589
- bndfp:Generating TDOS: efermi, and dos window=    0.1039  -0.5187   3.0438
+ bzwtsf: Set Bias field -Vup+Vdn=   0.038920530837601
+ bndfp:Generating TDOS: efermi, and dos window=    0.10399998.9900   3.0438
 
 
  m_bandcal_2nd: to fill eigenfunctions**2 up to Efermi
-  Smooth density not symmetrized (ngrp=1)
-  Smooth density not symmetrized (ngrp=1)
-  Smooth density not symmetrized (ngrp=1)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
+gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
 
 IORBTM:  orbital moments :
  ibas  Spec        spin   Moment decomposed by l ...
@@ -1469,102 +1500,9 @@ IORBTM:  orbital moments :
     1    Fe           2    0.000000    0.002261    0.043291   -0.000042
  total orbital moment   1:   -0.014512
   Smooth density not symmetrized (ngrp=1)
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 0 3 -0.296471
-goto phidx modep 1
-end makrwf rseq l= 0 3 -0.296471
-goto phidx modep 1
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 0 3 -0.296471
-goto phidx modep 1
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 0 3 -0.296471
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.138407
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.138407
-goto phidx modep 1
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 1 2 -0.138407
-goto phidx modep 1
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 1 2 -0.138407
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.023872
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.023872
-goto phidx modep 1
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 2 0 -0.023872
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.116112
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.116112
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.023872
-goto phidx modep 1
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 0 3 -0.355556
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.116112
-goto phidx modep 1
-end makrwf rseq l= 0 3 -0.355556
-goto phidx modep 1
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 3 0 -0.116112
-goto phidx modep 1
- makrwf goto rseq l=           1           2
- makrwf goto rseq l=           0           3
-end makrwf rseq l= 1 2 -0.211017
-goto phidx modep 1
-end makrwf rseq l= 0 3 -0.355556
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.211017
-goto phidx modep 1
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           0           3
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 2 0 -0.050239
-goto phidx modep 1
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 0 3 -0.355556
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.211017
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.050239
-goto phidx modep 1
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           2           0
- makrwf goto rseq l=           1           2
-end makrwf rseq l= 3 0 -0.159918
-goto phidx modep 1
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 2 0 -0.050239
-goto phidx modep 1
-end makrwf rseq l= 1 2 -0.211017
-goto phidx modep 1
-end makrwf rseq l= 3 0 -0.159918
-goto phidx modep 1
- makrwf goto rseq l=           3           0
- makrwf goto rseq l=           2           0
-end makrwf rseq l= 3 0 -0.159918
-goto phidx modep 1
-end makrwf rseq l= 2 0 -0.050239
-goto phidx modep 1
- makrwf goto rseq l=           3           0
-end makrwf rseq l= 3 0 -0.159918
-goto phidx modep 1
+  Smooth density not symmetrized (ngrp=1)
+  Smooth density not symmetrized (ngrp=1)
+  Smooth density not symmetrized (ngrp=1)
        contr. to mm extrapolated for r>rmt:  -0.000645 est. true mm =-2.027445
 
  mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
@@ -1596,10 +1534,10 @@ goto phidx modep 1
  ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.12927   4.12907   0.00000   0.00000
   mkpot:
    Energy terms:           smooth           local           total
-   rhoval*vef             -5.369883       -82.926813       -88.296696
-   rhoval*ves            -30.949292       -42.204804       -73.154097
-   psnuc*ves              56.549192     -9991.454734     -9934.905542
-   utot                   12.799950     -5016.829769     -5004.029820
+   rhoval*veff             -5.369882       -82.926813       -88.296696
+   rhoval*ves            -30.949292       -42.204804       -73.154096
+   psnuc*ves              56.549192     -9991.454734     -9934.905543
+   utot                   12.799950     -5016.829769     -5004.029819
    rho*exc                -3.024727      -103.716446      -106.741174
    rho*vxc                -3.936597      -137.304967      -141.241564
    valence chg             3.746864         4.253136         8.000000
@@ -1610,14 +1548,14 @@ goto phidx modep 1
 
  m_mkehkf_etot2: Kohn-Sham energy:  Ek = Eband-Vin*nout
  Ek=       85.595148 Ekcore=      2484.196936 Ektot    =     2569.792084
- Exc=    -106.741174 Ees   =     -5004.029820 EKohnSham=    -2540.978909
+ Exc=    -106.741174 Ees   =     -5004.029819 EKohnSham=    -2540.978909
  Magnetic moment=    -1.999659
   
  mixrho: mixing mode=A  nmix=6  beta=.5  kill=3
- wgtsmooth=   1.3094570021973102E-002
- mixrho:  sought 6 iter from file mixm; read 2.  RMS DQ=8.12e-3  last it=1.56e-2
+ wgtsmooth=   1.5625000000000000E-002
+ mixrho:  sought 6 iter from file mixm; read 2.  RMS DQ=9.41e-3  last it=1.82e-2
  ...  deleting file mixm nkill=   -3
- AMIX: nmix=2 mmix=8  nelts= 13524  beta=0.50000  tm= 5.00000  rmsdel= 4.06D-03
+ AMIX: nmix=2 mmix=8  nelts= 10052  beta=0.50000  tm= 5.00000  rmsdel= 4.71D-03
    tj: 0.79199  -0.47292
  mixrho: add corrections to qcell smrho = -0.38318D-07 -0.24019D-09
 
@@ -1625,27 +1563,27 @@ goto phidx modep 1
 
    it  3  of  3    ehf=   -2541.044786   ehk=   -2540.978909
  From last iter    ehf=   -2541.034121   ehk=   -2541.017470
- diffe(q)= -0.010665 (0.008116)    tol= 0.000100 (0.000100)   more=F
-x rel= 1 nit= 3 so= 2 fsmom=-2 mmom=-1.999659 ehf(eV)=-34572.947148 ehk(eV)=-34572.050844 sev(eV)=-9.691295
- finalizing procid=           3
- >>      1.85   exit  lmfp            1.81
-CPU time:    1.852s     Sat Oct 15 09:09:23 2022   on process=0
- finalizing procid=           0
- finalizing procid=           2
+ diffe(q)= -0.010665 (0.009414)    tol= 0.000100 (0.000100)   more=F
+x rel= 1 nit= 3 so= 2 fsmom=-2 mmom=-1.999659 ehf(eV)=-34572.947148 ehk(eV)=-34572.050844 sev(eV)=-9.691292
  finalizing procid=           1
+ finalizing procid=           2
+ >>      1.56   exit  lmfp            1.52
+CPU time:    1.565s     Fri Jan  6 09:14:54 2023 on process=0
+ finalizing procid=           0
+ finalizing procid=           3
 
   ==== procid=0 ====     calls      == cpu time ===   depth 1
   entry   xxxx  xxxx                per call  total  (depth is by TIM= in ctrl.*.)
-      0      0      0        1       1.85       1.85   main
-      0      0      0        1       0.03       0.03   |--m_lmfinit
+      0      0      0        1       1.57       1.57   main
+      0      0      0        1       0.02       0.02   |--m_lmfinit
       0      0      0        1       0.00       0.00   |--m_lattic_init
       0      0      0        1       0.00       0.00   |--m_mksym_init
       0      0      0        1       0.00       0.00   |--m_mkqp_init
-      0      0      0        1       0.01       0.01   |--m_supot_init
+      0      0      0        1       0.02       0.02   |--m_supot_init
       0      0      0        1       0.00       0.00   |--m_suham_init
       0      0      0        1       0.00       0.00   |--m_qplist_init
       0      0      0        1       0.00       0.00   |--m_qplist_qpsdivider
       0      0      0        1       0.00       0.00   |--m_igv2xall_init
       0      0      0        1       0.00       0.00   |--m_hamindex_init
-      0      0      0        1       1.81       1.81   `--lmfp
+      0      0      0        1       1.52       1.52   `--lmfp
 Exit 0 procid= 0 OK! end of LMF ======================

@@ -170,42 +170,17 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv)
      enddo
   endif
   if(lsort) call gvlsts(ngmx,ng,gv,kv,igv,ligv)! --- Sort the list of vectors --
-! checkwrite
-  if (ipr >= PRTG) then
-     if(n1l*n2l*n3l == 0) write(stdo,ftox)' GVLST2: gmax=',ftof(gmax0*tpiba,3),'created',ng,' recip. lattice vectors'
-     h1 = alat*sqrt(ddot(3,plat(1,1),1,plat(1,1),1))/n1l
-     h2 = alat*sqrt(ddot(3,plat(1,2),1,plat(1,2),1))/n2l
-     h3 = alat*sqrt(ddot(3,plat(1,3),1,plat(1,3),1))/n3l
-     write(stdo,ftox)'gvlst2: gmax=',ftof(gmax,3),'a.u. created',ng,'vectors of',n1l*n2l*n3l,&
-          '(',(ng*100)/(n1l*n2l*n3l),'%)'
-  endif
-  if (ipr >= PRTG2 .AND. ng > 0 .AND. ligv) then
+  if(ipr >= PRTG) write(stdo,ftox)'gvlst2: gmax=',ftof(gmax,3),'a.u. created',ng,&
+       'vectors of',n1l*n2l*n3l, '(',(ng*100)/(n1l*n2l*n3l),'%)'
+  if(ipr >= PRTG2 .AND. ng > 0 .AND. ligv) then
      write(stdo,"(' G vectors (multiples of reciprocal lattice vectors)'/ '   ig    G1   G2   G3     E')")
      do  ig = 1, ng
-        if (ligv ) then
-           i1 = igv(ig,1)
-           i2 = igv(ig,2)
-           i3 = igv(ig,3)
-        endif
-        do  i = 1, 3
-           qpg(i)= q(i) + qlat(i,1)*i1 + qlat(i,2)*i2 + qlat(i,3)*i3
-        enddo
-        q2 = (qpg(1)**2+qpg(2)**2+qpg(3)**2) *tpiba**2
-        write(stdo,"(i5,1x,3i5,2x,f8.4)")  ig,i1,i2,i3,q2
+        i123 = igv(ig,:)
+        qpg= q + matmul(qlat,i123) !(i,1)*i1 + qlat(i,2)*i2 + qlat(i,3)*i3
+        write(stdo,"(i5,1x,3i5,2x,f8.4)")  ig,i123,sum(qpg**2) *tpiba**2
         write(stdo,"('q  qpg=',3d13.5,3x,3d13.5)")  q,qpg
      enddo
   endif
-  ! if(ipr >= PRTG) write(stdo,ftox)'gvlst2: gmax=',ftof(gmax,3),'a.u. created',ng,&
-  !      'vectors of',n1l*n2l*n3l,'(',(ng*100)/(n1l*n2l*n3l),'%)'
-  ! if(ipr >= PRTG2 .AND. ng > 0 .AND. ligv) then
-  !    write(stdo,"(' G vectors (multiples of reciprocal lattice vectors)'/ '   ig    G1   G2   G3     E')")
-  !    do  ig = 1, ng
-  !       i123 = igv(ig,:)
-  !       qpg = q + matmul(qlat(:,:),i123)
-  !       write(stdo,"(i5,1x,3i5,2x,f8.4)")  ig,i123,sum(qpg**2)*tpiba**2
-  !       write(stdo,"('q  qpg=',3d13.5,3x,3d13.5)")  q,qpg
-  !    enddo
-  ! endif
 end subroutine gvlst2
 subroutine gvlstn(q0,q1,q2,qp,mshlst,gmax0,nn)
   implicit none

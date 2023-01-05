@@ -28,6 +28,7 @@ subroutine gvctof(iopt,alat,plat,pos,n1,n2,n3,gmax,ng)
   double precision :: pi,vol,tpiba,tol,volg,volgs,gvol,h1, &
        h2,h3,gg,h0,voln,gbot,g1,g2,g3,gmax1,vol1,qlat(3,3), &
        g(3),gs(3),plat1(3,3),qlat1(3,3),gmax2
+  call pshpr(iprint()-20)
   ipr = iprint()
   pi = 4*datan(1d0)
   call dinv33(plat,1,qlat,vol)
@@ -119,5 +120,6 @@ subroutine gvctof(iopt,alat,plat,pos,n1,n2,n3,gmax,ng)
   if(ipr>=ipr0) write(stdo,ftox)' Reciprocal lattice: use sphere of radius', &
        ftof(gmax),'keeping',nv2,'vectors of',nv1
   ng = nv2
+  call poppr
 end subroutine gvctof
 

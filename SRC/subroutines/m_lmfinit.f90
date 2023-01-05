@@ -362,7 +362,7 @@ contains
          nm='HAM_GMAX';call gtv(trim(nm),sw,lat_gmaxin,nmin=1,nout=nout,note='Energy cutoff for plane-wave mesh',or=T)
          if (nout /= 0) then
             sw = 2
-            if( lat_gmaxin-int(lat_gmaxin)<1d-3) lat_gmaxin=lat_gmaxin+0.11d0
+!            if( lat_gmaxin-int(lat_gmaxin)<1d-3) lat_gmaxin=lat_gmaxin+0.11d0 !commented because gvlst2 improved. 2023-jan
          else
             lat_gmaxin = 0
          endif

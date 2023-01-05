@@ -31,8 +31,8 @@ subroutine sgvsym(ngrp,g,ag,ng,gv,ips0,bgv)
   double precision :: g(3,3,1),ag(3,1),gv(ng,3)
   complex(8):: bgv(ng)
   integer :: i,i00,irep,i0,nstar,k,j,j0,iprint,ksum,kstar
-  real(8)::df,scalp,gg0,gg,fac,vv,v(3)
-  integer:: jx
+  real(8)::df,scalp,gg0,gg,fac,vv,v(3),diffmin
+  integer:: jx,jg,jjg
   real(8),parameter:: tpi = 8d0*datan(1d0),tol=1d-3,tol3=1d-3
   ips0 = 0
   bgv = 0d0
@@ -48,22 +48,29 @@ subroutine sgvsym(ngrp,g,ag,ng,gv,ips0,bgv)
 80   continue
      !   --- Apply all point ops, find in list, add to phase sum ---
      nstar = irep
-     do  30  k = 1, ngrp
-        !     ... Find G' = g(k) G; j0 is index to G'
+     do  30  k = 1, ngrp  ! ... Find G' = g(k) G; j0 is index to G'
         v = matmul(g(:,:,k),gv(i0,:))
         do  32  j = i0, ng
            j0 = j
            if (sum((v-gv(j,:))**2) < tol) goto 70
 32      enddo
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!        
-        do  jx = i0, ng
-           df = (v(1)-gv(jx,1))**2+(v(2)-gv(jx,2))**2+(v(3)-gv(jx,3))**2
-           write(6,ftox)jx,'v= ',ftof(v),'v-gv',ftof(v-gv(jx,:)),'gvi0=',ftof(gv(i0,:))
+        write(6,ftox) i0,'absv=',ftof(sum(v**2)),' v=',ftof(v)
+        do  jx = 1, ng
+           write(6,ftox) jx,' absg=',ftof(sum(gv(jx,:)**2)),'gv',ftof(gv(jx,:))
         enddo
-!ccccccccccccccccccccc
-        write(stdo,601) i0,k,gv(i0,1),gv(i0,2),gv(i0,3),v
-601     format(' ---- vec',i6,'   op',i3,2x,3f8.4,'  ->',3f8.4)
-        call rxi('SGVSYM: cannot find mapped vector in list:',i0)
+        write(stdo,"('--- igvec',i6,' igrp',i4,' v=',3f9.5,' gv**2',f12.8)")i0,k,v,sum(v**2)
+         diffmin=9999
+         do jg=1,ng
+            if(diffmin>sum((v-gv(jg,:))**2)) then
+               jjg=jg
+               diffmin = sum((v-gv(jg,:))**2)
+            endif   
+         enddo
+         write(stdo,"(' nearest :',i5,13x,3f9.5,' gv**2 ',f12.8,' diff=',d8.2)") &
+              jjg, gv(jjg,:), sum(gv(jjg,:)**2),diffmin
+         call rxi('SGVSYM: cannot find mapped vector in list:',i0)
+!!!!!!!!!!!!!!!!!!!!!!!!!         
 70      continue
         ips0(j0) = i0
         scalp = gv(j0,1)*ag(1,k)+gv(j0,2)*ag(2,k)+gv(j0,3)*ag(3,k)
