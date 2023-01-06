@@ -5,7 +5,7 @@ module m_suham
   public m_suham_init
   private
 contains
-  subroutine m_suham_init()
+  subroutine m_suham_init() !Get Hamiltonian dimension
     use m_struc_def
     use m_lmfinit,only:lso, ctrl_nbas,ctrl_nspec, ctrl_nl,nspc,nsp,nlmto,nbas,nl,nspec, &
          pwmode=>ham_pwmode,pwemax,pwemin &
@@ -23,12 +23,10 @@ contains
     !l        : nqdiv is fineness of q-mesh.
     !l  npwpad: a 'safety' padding to npwmax in case npwmax
     !l        : underestimates actual upper limit !required???
-    !u     ndham = estimate for upper dimension of
-    !u             hamiltonian, including possible PW part
+    !u     ndham = estimate for upper dimension of hamiltonian, including possible PW part
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: hord,i,i1,i2,iprint, &
-         lidim,lihdim,nclasp,ndim,neul, &
+    integer :: hord,i,i1,i2,iprint, lidim,lihdim,nclasp,ndim,neul, &
          nlspcp,nspx,nttab,partok,igets,nvi,nvl, &
          ib,is,lmxa,lmxl,isw,nbf,lmxax, j1,j2,j3,m,npw,npwmin,npwmax
     integer:: ndham=0
@@ -38,8 +36,7 @@ contains
     double precision :: ckbas,cksumf,kap2(10)
     integer:: oalph , oiax , ontab , os , ng
     real(8),allocatable :: rv_a_ogvx(:)
-    integer,allocatable :: kv_iv(:)
-    integer,allocatable :: igv2_iv(:)
+    integer,allocatable :: kv_iv(:), igv2_iv(:)
     integer:: obas , oo , opp ,  opti , obs , omagf,i_copy_size
     call tcn('m_suham_init')
     ! --- Hamiltonian offsets, orbital permutation table ---
@@ -86,36 +83,14 @@ contains
        !! Note spinoffdiag=T case: we use nspc,nsp,nspx,ndhamx (a little complicated, I think).
        !     nspx*nspc=nsp
        if(master_mpi)write(stdo,ftox)'suham: PW basis Emin Emax',ftof([pwemin,pwemax],3),'npw ndham',npw,ndham
-       !    ...  Printout
-       ! if (iprint() >= 40) then
-       !    call pshpr(0)
-       !    call dpzero(q,3)
-       !    call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,xx,xx,xx)
-       !    call poppr
-       !    write(stdo,*)' G vectors at the Gamma point:'
-       !    allocate(igv2_iv(3*npw))
-       !    allocate(kv_iv(3*npw))
-       !    allocate(rv_a_ogvx(abs(3*npw))); rv_a_ogvx(:)=0.0d0
-       !    !          call pshpr(iprint())
-       !    !          if (iprint() .ge. 50) call setpr(100)
-       !    call gvlst2 ( alat , plat , q , 0 , 0 , 0 , gmin , gmax , 0 , &
-       !         8 + 2 , npw , npw , kv_iv , rv_a_ogvx , xx , igv2_iv )
-       !    !          call poppr
-       !    if (allocated(kv_iv)) deallocate(kv_iv)
-       !    if (allocated(igv2_iv)) deallocate(igv2_iv)
-       !    deallocate(rv_a_ogvx)
-       ! endif
     endif
-    if(nspc==2 .AND. nsp==2) then
-       !         spinoffdiag=.true.
+    if(nspc==2 .AND. nsp==2) then     !  spinoffdiag=.true.
        ham_nspx= 1
        ham_ndhamx = ndham*2
-    elseif(nspc==1 .AND. nsp==2) then
-       !         spinoffdiag=.false.    !spin no-offdiagonal
+    elseif(nspc==1 .AND. nsp==2) then !  spinoffdiag=.false.    !spin no-offdiagonal
        ham_nspx= 2
        ham_ndhamx= ndham
-    elseif(nspc==1 .AND. nsp==1) then
-       !         spinoffdiag=.false.    !paramagnetic
+    elseif(nspc==1 .AND. nsp==1) then !  spinoffdiag=.false.    !paramagnetic
        ham_nspx= 1            !nsp/nspc
        ham_ndhamx= ndham
     else
@@ -125,14 +100,7 @@ contains
   end subroutine m_suham_init
 end module m_suham
 
-
-
-
-! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-subroutine mptauof(symops,ng,plat,nbas,bas, &
-     iclass,miat,tiat,invg,delta)
-
-  !- Mapping of each atom by points group operations------------------c
+subroutine mptauof(symops,ng,plat,nbas,bas, iclass,miat,tiat,invg,delta) !- Mapping of atomic sites by points group operations.
   ! Modded by okuda 1994 March.
   ! Simplified by kotani 1994 7/31.
   !i  Input
@@ -161,15 +129,10 @@ subroutine mptauof(symops,ng,plat,nbas,bas, &
        tr1,tr2,tr3,ep, dd1,dd2,dd3,t1,t2,t3
   integer::  iprintx=0
   integer :: ires(3, nbas, ng)
-  ! ino delete integer(4) def.      integer(4):: ib1,ib2
   integer:: ib1,ib2
-
   real(8) ::tran(3),delta(3,ng)
   data ep/1.0d-3/
-  !      data ep/1.0d-7/
-
   if(iprintx>=46) write(6,*)'MPTAUOf: search miat tiat for wave function rotation'
-
   do 10 ig=1,ng
      do igd=1,ng
         ! seach for inverse  ig->igd
@@ -185,44 +148,20 @@ subroutine mptauof(symops,ng,plat,nbas,bas, &
            invg(ig)=igd
            goto 16
         endif
-     end do
+     enddo
 16   continue
-
-     !$$$        if(iprintx .ge.46) then
-     !$$$          print *,' '
-     !$$$          print *,' '
-     !$$$          print *,' **** group ops no. ig (igd)= ', ig, invg(ig)
-     !$$$          write(6,1731)symops(1,ig),symops(4,ig),symops(7,ig)
-     !$$$          write(6,1731)symops(2,ig),symops(5,ig),symops(8,ig)
-     !$$$          write(6,1731)symops(3,ig),symops(6,ig),symops(9,ig)
-     !$$$ 1731     format (' ',3f9.4)
-     !$$$        endif
-
      do i=1,3
         do j=1,3
            am(i,j)=symops(i+3*(j-1),ig)
-        end do
-     end do
-
-     ! trial shift vector tran
-     do 120 ib1=1,nbas
+        enddo
+     enddo
+     do 120 ib1=1,nbas ! trial shift vector tran
         do 121 ib2=1,nbas
            tran =  bas(:,ib2)  - matmul(am,bas(:,ib1))
-
            do 30 ibas=1,nbas
-              b1=am(1,1)*bas(1,ibas) &
-                   +am(1,2)*bas(2,ibas)+am(1,3)*bas(3,ibas) &
-                   +tran(1)
-              !     .        +( tr1*plat(1,1)+tr2*plat(1,2)+tr3*plat(1,3) )
-              b2=am(2,1)*bas(1,ibas) &
-                   +am(2,2)*bas(2,ibas)+am(2,3)*bas(3,ibas) &
-                   +tran(2)
-              !     .        +( tr1*plat(2,1)+tr2*plat(2,2)+tr3*plat(2,3) )
-              b3=am(3,1)*bas(1,ibas) &
-                   +am(3,2)*bas(2,ibas)+am(3,3)*bas(3,ibas) &
-                   +tran(3)
-              !     .        +( tr1*plat(3,1)+tr2*plat(3,2)+tr3*plat(3,3) )
-
+              b1=am(1,1)*bas(1,ibas)+am(1,2)*bas(2,ibas)+am(1,3)*bas(3,ibas) +tran(1)
+              b2=am(2,1)*bas(1,ibas)+am(2,2)*bas(2,ibas)+am(2,3)*bas(3,ibas) +tran(2)
+              b3=am(3,1)*bas(1,ibas)+am(3,2)*bas(2,ibas)+am(3,3)*bas(3,ibas) +tran(3)
               do 40 mi=1,nbas
                  if( iclass(mi) /= iclass(ibas) ) cycle
                  do  i1=-3,3
@@ -231,19 +170,15 @@ subroutine mptauof(symops,ng,plat,nbas,bas, &
                           dd1 = ( i1 *plat(1,1)+i2 *plat(1,2)+i3 *plat(1,3) )
                           dd2 = ( i1 *plat(2,1)+i2 *plat(2,2)+i3 *plat(2,3) )
                           dd3 = ( i1 *plat(3,1)+i2 *plat(3,2)+i3 *plat(3,3) )
-
                           t1 = b1 - (bas(1,mi)+dd1)
                           t2 = b2 - (bas(2,mi)+dd2)
                           t3 = b3 - (bas(3,mi)+dd3)
-                          if(abs(t1) <= ep .AND. abs(t2) <= ep .AND. &
-                               abs(t3) <= ep) go to 60
+                          if(abs(t1) <= ep .AND. abs(t2) <= ep .AND. abs(t3) <= ep) go to 60
                        enddo
                     enddo
                  enddo
 40            enddo
-              ! seach failed, Not found mi and dd1. Try next (tr).
-              goto 121
-
+              goto 121 ! seach failed, Not found mi and dd1. Try next (tr).
 60            continue
               miat(ibas,ig)  = mi
               tiat(1,ibas,ig)= dd1
@@ -252,20 +187,15 @@ subroutine mptauof(symops,ng,plat,nbas,bas, &
               ires(1,ibas,ig)= i1
               ires(2,ibas,ig)= i2
               ires(3,ibas,ig)= i3
-
 30         enddo
-           ! When the do-30 loop has been completed, we get out of do-20 loop
-           goto 21
+           goto 21 ! When the do-30 loop has been completed, we get out of do-20 loop
 121     enddo
 120  enddo
      call rx('mptauof: Can not find miat and tiat')
-
 21   continue
      delta(:,ig) = tran          ! r' = am(3,3) r +  delta  !Jun 2000
-
      !- have gotten the translation-> check write --------------------
      if(iprintx >= 46) then
-        !          write(6,4658)tr1,tr2,tr3
         write(6,4658)tran
 4658    format('  Obtained translation operation=',3d12.4)
         do 123  ibas=1,nbas
@@ -275,34 +205,26 @@ subroutine mptauof(symops,ng,plat,nbas,bas, &
 150        format(' ibas=',i3,' miat=',i3,' tiat=',3f11.4,' i1i2i3=',3i3)
 123     enddo
      endif
-     !---------------------------------------------------
 10 enddo
 end subroutine mptauof
 
-
-subroutine rotdlmm(symops,ng,nl ,dlmm)
-  !- Generate rotation matrix D^l_{m,m'} for L-representaiton, corresponding
-  !  to points group operations.
+subroutine rotdlmm(symops,ng,nl ,dlmm) ! Generate rotation matrix D^l_{m,m'} for L-representaiton,
+  !  corresponding to points group operations.
   !i symops(9,ng),ng; point ops.
   !i nl; num.of l =lmax+1
   !o dlmm(2*nl-1,2*nl-1,0:nl-1,ng,2); D^l_{m,m'}. Indexes are for Real harmonics.
-  !r   dlmmc is used as work area about 200kbyte used for  s,p,d,f -> nl=4
+  !r  dlmmc is used as work area about 200kbyte used for  s,p,d,f -> nl=4
   !-----------------------------------------------------------------
   implicit double precision (a-h,o-z)
-  integer:: is,i,ig,ikap,j,l,m,m1,m2,m3,md,mx,ix
-  integer :: ng,nl
-  double precision :: SYMOPS(9,ng), &
-       am(3,3) ,fac1,fac2
+  integer:: is,i,ig,ikap,j,l,m,m1,m2,m3,md,mx,ix, ng,nl
+  double precision :: SYMOPS(9,ng), am(3,3) ,fac1,fac2
   double precision :: dlmm( -(nl-1):(nl-1),-(nl-1):(nl-1),0:nl-1,ng)
-
-  double complex   dlmmc(-(nl-1):(nl-1),-(nl-1):(nl-1),0:nl-1,ng)
   double precision :: det,igann,osq2
-  double complex   msc(0:1,2,2), mcs(0:1,2,2),Img &
-       ,dum(2)
-  parameter(Img=(0d0,1d0))
+  complex(8):: msc(0:1,2,2), mcs(0:1,2,2),dum(2),&
+       dlmmc(-(nl-1):(nl-1),-(nl-1):(nl-1),0:nl-1,ng)
+  complex(8),parameter:: Img=(0d0,1d0)
   integer:: debugmode
   real(8):: ep=1d-3 !ep was 1d-8 before feb2013
-  !      print *; print *,' ROTDLMM:'
   do 10 ig =1,ng
      do  i=1,3
         do  j=1,3
@@ -325,9 +247,8 @@ subroutine rotdlmm(symops,ng,nl ,dlmm)
      ! added region correction so as to go beyond domain error for functions, dsqrt and acos.
      if(abs(cbeta-1d0) <= 1d-6) cbeta= 1d0
      if(abs(cbeta+1d0) <= 1d-6) cbeta=-1d0
-     beta = dacos(cbeta)
+     beta = dacos(cbeta) ! beta= 0~pi
      sbeta= sin(beta)
-     ! beta= 0~pi
      if(sbeta <= 1.0d-6) then
         calpha= 1d0
         salpha= 0d0
@@ -342,7 +263,6 @@ subroutine rotdlmm(symops,ng,nl ,dlmm)
      endif
      co2 = dcos(beta/2d0)
      so2 = dsin(beta/2d0)
-     !         print *,' calpha=',calpha
      if(abs(calpha-1.0d0) <= 1.0d-6) calpha= 1.0d0
      if(abs(calpha+1.0d0) <= 1.0d-6) calpha=-1.0d0
      if(abs(cgamma-1.0d0) <= 1.0d-6) cgamma= 1.0d0
@@ -350,8 +270,7 @@ subroutine rotdlmm(symops,ng,nl ,dlmm)
      alpha=dacos(calpha)
      if(salpha < 0d0) alpha=-alpha
      gamma=dacos(cgamma)
-     if(sgamma < 0d0) gamma=-gamma
-     !         print *,'alpha beta gamma det=',alpha,beta,gamma,det
+     if(sgamma < 0d0) gamma=-gamma  !print *,'alpha beta gamma det=',alpha,beta,gamma,det
      do l =  0, nl-1
         do md= -l, l
            do m = -l, l
@@ -369,8 +288,7 @@ subroutine rotdlmm(symops,ng,nl ,dlmm)
                  endif
               enddo
               ! l-th rep. is odd or even according to (det)**l
-              dlmmc(md,m,l,ig) = fac1*fac2*det**l* &
-                   cdexp( -Img*(alpha*md+gamma*m) )
+              dlmmc(md,m,l,ig) = fac1*fac2*det**l* cdexp( -Img*(alpha*md+gamma*m) )
            enddo
         enddo
      enddo
@@ -383,7 +301,6 @@ subroutine rotdlmm(symops,ng,nl ,dlmm)
      am(3,1)=-sin(beta)*cos(gamma)
      am(3,2)= sin(beta)*sin(gamma)
      am(3,3)= cos(beta)
-
      if(abs(am(1,1)*det-symops(1,ig))>ep .OR. &
           abs(am(2,1)*det-symops(2,ig))>ep .OR. &
           abs(am(3,1)*det-symops(3,ig))>ep .OR. &
@@ -396,8 +313,6 @@ subroutine rotdlmm(symops,ng,nl ,dlmm)
         print *,' rotdlmm: not agree. symgrp and one by eular angle'
         stop
      endif
-     ! cccccccccccccccccccccc
-     !        if(iprint().ge.140) then
      if(debugmode()>9) then
         print *;print *;print *,' **** group ops no. ig=', ig
         write(6,1731)symops(1,ig),symops(4,ig),symops(7,ig)
@@ -409,83 +324,52 @@ subroutine rotdlmm(symops,ng,nl ,dlmm)
         write(6,1731)am(3,1)*det,am(3,2)*det,am(3,3)*det
      endif
 1731 format (' ',3f9.4)
-     ! cccccccccccccccccccccc
 10 enddo
-  ! conversion to cubic rep. Belows are from csconvs
+  ! conversion to real rep. Belows are from csconvs
   !  msc mcs conversion matrix generation 2->m 1->-m for m>0
   osq2 = 1d0/sqrt(2d0)
   do m = 0,1
-     Msc(m,1,1)= osq2*(-1)**m
-     Msc(m,1,2)=-osq2*Img*(-1)**m
-     Msc(m,2,1)= osq2
-     Msc(m,2,2)= osq2*Img
-
-     Mcs(m,1,1)= osq2*(-1)**m
-     Mcs(m,1,2)= osq2
-     Mcs(m,2,1)= osq2*Img*(-1)**m
-     Mcs(m,2,2)=-osq2*Img
+     Msc(m,1,:)= osq2*[complex(8):: (-1d0)**m, -Img*(-1d0)**m] !spherical to real(cubic)
+     Msc(m,2,:)= osq2*[complex(8)::       1d0,            Img]
+     Mcs(m,1,:)= osq2*[complex(8):: (-1d0)**m,      1d0]     !inverse
+     Mcs(m,2,:)= osq2*[complex(8):: Img*(-1d0)**m, -Img]
   enddo
-
-  if(debugmode()>1) print * ,' goto do 123'
-  do 123 is=1,ng
-     !$$$        if(.false.) then
-     !$$$c        if(iprint().ge.150) then
-     !$$$          print *; print *,' **** group ops no. ig=', is
-     !$$$          write(6,1731) symops(1,is),symops(4,is),symops(7,is)
-     !$$$          write(6,1731) symops(2,is),symops(5,is),symops(8,is)
-     !$$$          write(6,1731) symops(3,is),symops(6,is),symops(9,is)
-     !$$$        endif
-     ! convert to cubic rep.
-     do 23   l =0,nl-1
+  converttoreal:do 123 is=1,ng ! convert to real rep.
+     llooop:do 23   l =0,nl-1
         do  m2=-l,l
            do  m1= 1,l
-              dum(1)= dlmmc(m2, m1,l,is)
-              dum(2)= dlmmc(m2,-m1,l,is)
               mx    = mod(m1,2)
-              dlmmc(m2,  m1,l,is)= &
-                   dum(1)*msc(mx,1,1) &
-                   +dum(2)*msc(mx,2,1)
-              dlmmc(m2, -m1,l,is)= &
-                   dum(1)*msc(mx,1,2) &
-                   +dum(2)*msc(mx,2,2)
+              dum= [dlmmc(m2, m1,l,is), dlmmc(m2,-m1,l,is)]
+              dlmmc(m2,  m1,l,is)= sum(dum(:)*msc(mx,:,1))
+              dlmmc(m2, -m1,l,is)= sum(dum(:)*msc(mx,:,2))
            enddo
         enddo
         do m2=  1,l
            do m1= -l,l
-              dum(1)=dlmmc( m2, m1,l,is)
-              dum(2)=dlmmc(-m2, m1,l,is)
               mx=mod(m2,2)
-              dlmmc( m2, m1,l,is)= &
-                   mcs(mx,1,1)*dum(1) &
-                   +mcs(mx,1,2)*dum(2)
-              dlmmc(-m2, m1,l,is)= &
-                   mcs(mx,2,1)*dum(1) &
-                   +mcs(mx,2,2)*dum(2)
+              dum= [dlmmc( m2, m1,l,is),dlmmc(-m2, m1,l,is)]
+              dlmmc( m2, m1,l,is)= sum(mcs(mx,1,:)*dum(:))
+              dlmmc(-m2, m1,l,is)= sum(mcs(mx,2,:)*dum(:))
            enddo
         enddo
         do m2=-l,l
            do m1=-l,l
               dlmm(m2,m1,l,is)=dreal( dlmmc(m2,m1,l,is) )
-              if( abs(dimag(dlmmc(m2,m1,l,is))) >= 1.0d-12 ) stop &
-                   ' rotdlmm: abs(dimag(dlmmc(m2,m1,l,is))) >= 1.0d-12'
+              if( abs(dimag(dlmmc(m2,m1,l,is))) >= 1.0d-12 ) &
+                call rx(' rotdlmm: abs(dimag(dlmmc(m2,m1,l,is))) >= 1.0d-12')
            enddo
         enddo
-        ! ccccccccccccccccccc
         if( .FALSE. ) then
-           !        if(.true.) then
-           !        if(iprint().ge.41) then
            print *; print *,'  points ops  ig, l=', is,l,' cubic   '
            do m2=-l,l
               write(6,"(28f10.5)")( dreal(dlmmc (m2, m1,l,is) ), m1=-l,l)
               !    &    , ( dimag(dlmmc (m2, m1,l,is) ), m1=-l,l),( dlmm(m2, m1,l,is), m1=-l,l)
            enddo
         endif
-        ! cccccccccccccccccccc
-23   enddo
-123 enddo
+23   enddo llooop
+123 enddo converttoreal
   if(debugmode()>1) print *,' end of rotdlmm'
 end subroutine rotdlmm
-
 !--------------------------------------------
 double precision function igann(i)
   integer:: i,ix
@@ -494,4 +378,3 @@ double precision function igann(i)
      igann=igann*dble(ix)
   enddo
 end function igann
-
