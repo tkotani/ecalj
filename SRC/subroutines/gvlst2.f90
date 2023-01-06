@@ -114,26 +114,21 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv)
   if(nn2==0) call gvlstn(qlat(1,2),qlat(1,3),qlat(1,1),q,mshlst,gmax0,nn2) 
   if(nn3==0) call gvlstn(qlat(1,3),qlat(1,1),qlat(1,2),q,mshlst,gmax0,nn3) 
   do m = 1, 3
-     plat1(m,1) = plat(m,1)/nn1
-     plat1(m,2) = plat(m,2)/nn2
-     plat1(m,3) = plat(m,3)/nn3
-     qlat1(m,1) = qlat(m,1)*nn1
-     qlat1(m,2) = qlat(m,2)*nn2
-     qlat1(m,3) = qlat(m,3)*nn3
+     plat1(m,:) = plat(m,:)*[1d0/nn1,1d0/nn2,1d0/nn3]
+     qlat1(m,:) = qlat(m,:)*[nn1,nn2,nn3]
   enddo
   n1l=nn1
   n2l=nn2
   n3l=nn3
-  !! --- Loop through g vectors, shorten, count and keep if within gmax ---
   gmax2 = (gmax0-tol)**2 !this tol is needed for gmax given by gvctof
   gmin2 = gmin0**2
   call shortn3_initialize(qlat1) !initialization for m_shoten3 for qlat1
   ig=0
-  j1loop: do j1 = 0,nn1-1 
+  j1loop: do j1 = 0,nn1-1 !! --- g vectors, shorten, count and keep if within gmax ---
      j2loop: do j2 = 0,nn2-1 
         j3loop: do j3 = 0,nn3-1
            jjj=[j1,j2,j3] 
-           qpg= [1d0/nn1, 1d0/nn2, 1d0/nn3] * (jjj+ matmul(q,plat(:,:))) ! fractional corrdinate on qlat1.
+           qpg= [1d0/nn1, 1d0/nn2, 1d0/nn3] * (jjj+ matmul(q,plat(:,:))) !frac corrdinate on qlat1.
            call shortn3(qpg) ! return nout,nlatout
            gs = matmul(qlat1(:,:), (qpg+nlatout(:,1)))
            gg = sum(gs**2)
@@ -148,27 +143,26 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv)
               if(lgv.and.(.not.lgpq)) gv_tmp(ig,:)= gs - q
            endif
         enddo j3loop
-   enddo j2loop
+     enddo j2loop
   enddo j1loop
   ng = ig
-
-   if(job0/=0) then
+  if(job0/=0) then !symmetry checker
      nginit = ng
      ng=0
      ips=0
      do ig = 1,nginit
         if(job>999.and.ips(ig)==0) then 
+           itemp=0
+           ix=0
            do igrp = 1, ngrp
               gvv = matmul(gsym(:,:,igrp),gv_tmp(ig,:)) !  ... gvv = g(k) gv
               !write(6,ftox) 'iii ig igrp gvv=',ig,igrp,ftof(gvv)
-              itemp=0
-              ix=0
               do jg=1,nginit
                  if(sum(abs(gvv-gv_tmp(jg,:))) < tolg2) then 
                     ix=ix+1
                     itemp(ix)=jg !rotated index for gv_tmp(jg,:)
                     goto 170 !found rotation matching
-                 endif   
+                 endif
               enddo
               goto 70 !failed to find gvv rotated to be gv_tmp. Skip
 170           continue
@@ -180,24 +174,17 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv)
         if(ligv) igv(ng,:)=igv_tmp(ig,:)
         if(lgv )  gv(ng,:)= gv_tmp(ig,:) 
 70      continue
-     enddo
-!     write(stdo,ftox)'gmax ng nginit ngmx=',ftof(gmax),ng,nginit,ngmx,ftof(q)
+     enddo !   write(stdo,ftox)'gmax ng nginit ngmx=',ftof(gmax),ng,nginit,ngmx,ftof(q)
   endif
- 
   if(lsort) then
-     gvsort:block !Sort the list of vectors -- !call gvlsts(ng,gv(1:ng,1:3),kv(1:ng,1:3),igv(1:ng,1:3),ligv) 
+     gvsort:block !Sort vectors -- !call gvlsts(ng,gv(1:ng,1:3),kv(1:ng,1:3),igv(1:ng,1:3),ligv) 
        integer:: iprm(ng)
        call dvshel(1,ng, sum(gv(1:ng,1:3)**2,dim=2)*[((1d0 + 1d-15*ig),ig=1,ng)], iprm,1)
        gv(1:ng,1:3) = gv(iprm+1,1:3)
        kv(1:ng,1:3) = kv(iprm+1,1:3)
        if(ligv) igv(1:ng,1:3) =igv(iprm+1,1:3)
-       !do ig=1,10
-       !   write(6,ftox) ig,' aaaabsgv=',ftof(sum(gv(ig,:)**2))
-       !enddo   
-     endblock gvsort
-     !write(stdo,ftox)'gmax gv=',ftof(gv(1,1:3))
+     endblock gvsort !write(stdo,ftox)'gmax gv=',ftof(gv(1,1:3))
   endif
-!  if(lsort) call gvlsts(ngmx,ng,gv,kv,igv,ligv)! --- Sort the list of vectors --
   if(ipr >= PRTG) write(stdo,ftox)'gvlst2: gmax=',ftof(gmax,3),'a.u. created',ng,&
        'vectors of',n1l*n2l*n3l, '(',(ng*100)/(n1l*n2l*n3l),'%)'
   if(ipr >= PRTG2 .AND. ng > 0 .AND. ligv) then
@@ -256,16 +243,16 @@ subroutine gvlstn(q0,q1,q2,qp,mshlst,gmax0,nn)
      nn = mshlst(min(indx+1,mshlst(0)))
   endif
 end subroutine gvlstn
-subroutine gvlsts(ngxx,ng,gv,kv,igv,ligv)
-  implicit none
-  integer:: ng,kv(ng,3),igv(ng,3),job1,ig,m,jg,iprm(ng),ngxx
-  real(8):: gv(ng,3)
-  logical ligv
-  call dvshel(1,ng, sum(gv**2,dim=2)*[((1d0 + 1d-15*ig),ig=1,ng)], iprm,1)
-  gv(:,:) = gv(iprm+1,:)
-  kv(:,:) = kv(iprm+1,:)
-  if(ligv) igv(:,:) =igv(iprm+1,:) 
-end subroutine gvlsts
+! subroutine gvlsts(ng,gv,kv,igv,ligv)
+!   implicit none
+!   integer:: ng,kv(ng,3),igv(ng,3),job1,ig,m,jg,iprm(ng),ngxx
+!   real(8):: gv(ng,3)
+!   logical ligv
+!   call dvshel(1,ng, sum(gv**2,dim=2)*[((1d0 + 1d-15*ig),ig=1,ng)], iprm,1)
+!   gv(:,:) = gv(iprm+1,:)
+!   kv(:,:) = kv(iprm+1,:)
+!   if(ligv) igv(:,:) =igv(iprm+1,:) 
+! end subroutine gvlsts
 subroutine gvgetf(ng,n,kv,k1,k2,k3,c,c0)!- Gathers Fourier coefficients from 3D array c into list c0.
   implicit none
   integer :: ng,n,k1,k2,k3,kv(ng,3)
@@ -325,12 +312,11 @@ subroutine mshsiz(alat,plat,gmax,ngabc,ng)
   parameter (fmax=600,tolg=1d0,PRTG=30)
   integer :: mshlst(0:3*fmax)
   logical:: fullmesh
+  call tcn('mshsiz')
   q=0d0
   if (gmax == 0) then
-     call pshpr(iprint()-20)
      call gvctof(0,alat,plat,q,ngabc(1),ngabc(2),ngabc(3),gmax,ng)
-     call poppr
-     return
+     goto 999
   endif
   tpiba = 2*4d0*datan(1d0)/alat
   gmax0  = gmax/tpiba ! ... gmax0 = dimensionless gmax
@@ -407,6 +393,8 @@ subroutine mshsiz(alat,plat,gmax,ngabc,ng)
      write(stdo,"('      generated from gmax (a.u.)=',f12.4,': ',i0,' vectors of ', &
           i0,' (',i0,'%)')")  gmax,ng,i1*i2*i3,(ng*100)/(i1*i2*i3)
   endif
+999 continue
+  call tcx('mshsiz')
 end subroutine mshsiz
 subroutine ppfac(fmax,job,fac,nfac) !npfac,pfac,
   !- Find all products of prime factors within some maximum

@@ -38,7 +38,7 @@ subroutine writeband(eferm,evtop,ecbot) !write band file. bnd* and bandplot.isp*
   do isyml = 2,nsyml+1
      ikpoff(isyml) = ikpoff(isyml-1)+ nqp_syml(isyml-1)+nqp2n_syml(isyml-1)
      disoff(isyml) = disoff(isyml-1)+dqsyml(isyml-1)
-     write(stdo,"('ikpoff=',2i5)") isyml,ikpoff(isyml)
+     !write(stdo,"('ikpoff=',2i5)") isyml,ikpoff(isyml)
   enddo
   !! write bandplot.glt for gnuplot
   allocate(fnameb(nsyml,nspx))

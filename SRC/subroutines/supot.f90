@@ -57,13 +57,13 @@ contains
          real(8):: ogv(ngmx,3)
          integer:: okv(ngmx,3)
          call gvlst2(alat, plat, [0d0,0d0,0d0], n1,n2,n3, 0d0,gmax,0,8+1000, ngmx, ng, okv, ogv, xx)  !+1000 for symmetry cheker for sgvsym
-         write(stdo,ftox)' --- gmax ng ngmx=',ftof(gmax),ng,ngmx
+         !write(stdo,ftox)' supot: gmax ng ngmx=',ftof(gmax),ng,ngmx
          ngmx = ng
          allocate(rv_a_ogv(ng,3))
          allocate(iv_a_okv(ng,3))
          rv_a_ogv(1:ng,1:3)=ogv(1:ng,1:3)
          iv_a_okv(1:ng,1:3)=okv(1:ng,1:3)
-         print *,'ogv(1:ng,1:3)',ogv(1,1:3),okv(1,1:3)
+         !print *,'ogv(1:ng,1:3)',ogv(1,1:3),okv(1,1:3)
        endblock gvblock
        lat_ng = ng
        lat_gmax = gmax

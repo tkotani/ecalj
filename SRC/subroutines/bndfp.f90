@@ -1,26 +1,27 @@
-!     ! = Main part of full-potential LDA/GGA/QSGW(for given sigm). Single iteration =
-!     !
-!     ! From density osmrhod and osmrho, m_mkpot_init gives  osmpot, and sv_p_osig, sv_p_otau, sv_p_oppi (potential)
-!     ! Then we do band calcultion m_bandcal_init. It gives osmrho_out and orhoat_out.
-!     ! Finally, osmrho and orhoat are returned after mixing procedure (mixrho).
-!----------------------------
-! o  smrho :smooth density
-! o        :Symmetrized on output
-! o  orhoat:vector of offsets containing site density
-! o        :Symmetrized on output
-!  qbyl  :site- and l-decomposed charges
-!  hbyl  :site- and l-decomposed one-electron energies
+!= Main part of full-potential LDA/GGA/QSGW(for given sigm). Single iteration = 2023-jan memo checked
+! From density osmrhod and osmrho, m_mkpot_init gives potential,
+! osmpot, and sv_p_osig, sv_p_otau, sv_p_oppi (potential site integrals)
+! Then we do band calcultion m_bandcal_init. It gives osmrho_out and orhoat_out.
+! Finally, osmrho and orhoat are returned after mixing procedure (mixrho).
+!-- i/o --------------------------
+!o  smrho :smooth density
+!o        :Symmetrized on output
+!o  orhoat:vector of offsets containing site density
+!o        :Symmetrized on output
 !o   dmatu:   density matrix in m_bandcal
 !o   evalall: eigenvalue in m_bandcal
 !o   force:
-!     i  vorb --> use m_ldau in m_mkpot
-!!--- key quntities --------------
+!i  vorb --> we use m_ldau in m_mkpot
+!--- key quntities --------------
 !  evlall  : eigenvalues
 !  eferm   : Fermi energy
 !  sev     : sum of band energy
 !     eksham   : DFT(Kohn-Sham)  total energy
 !     eharris  : Harris foulkner total energy.
 !       NOTE=>eharris is not correct for LDA+U case (valv locpot2 do not include U contribution).
+!  qbyl  :site- and l-decomposed charges
+!  hbyl  :site- and l-decomposed one-electron energies
+!! NOTE: check lmv7->lmfp(iteration loop)->bndfp
 module m_bndfp
   use m_ftox
   use m_density,only: orhoat,osmrho !input/output unprotected
@@ -314,7 +315,7 @@ contains
        emin = eeem-0.01d0 
        dosw(1)= emin ! lowest energy limit to plot dos
        dosw(2)= eferm+bz_dosmax
-       write(stdo,"(a,3f9.4)")' bndfp:Generating TDOS: efermi, and dos window= ',eferm,dosw
+       write(stdo,ftox)' bndfp:Generating TDOS: efermi=',ftof(eferm),' dos window= ',ftof(dosw)
        allocate( dosi_rv(ndos,nspx),dos_rv(ndos,nspx)) !for xxxdif
        if(cmdopt0('--tdostetf')) ltet= .FALSE. ! Set tetrahedron=F
        if(ltet) then
@@ -325,19 +326,18 @@ contains
           dos_rv(1,:)    = dos_rv(2,:)
           dos_rv(ndos,:) = dos_rv(ndos-1,:)
        else
-          call makdos (nkp, ndhamx, ndhamx, nspx, rv_a_owtkp, evlall,bz_n, bz_w &
-               , -6d0, dosw(1),dosw(2), ndos , dos_rv )
+          call makdos (nkp,ndhamx,ndhamx,nspx,rv_a_owtkp,evlall,bz_n,bz_w,-6d0,dosw(1),dosw(2),ndos,dos_rv)
        endif
-       if(lso==1) dos_rv=0.5d0*dos_rv !call dscal ( ndos , .5d0 , dos_rv , 1 )
-       open(newunit=ifi, file='dos.tot.'//trim(sname) )
+       if(lso==1) dos_rv=0.5d0*dos_rv 
+       open(newunit=ifi,file='dos.tot.'//trim(sname) )
        open(newunit=ifii,file='dosi.tot.'//trim(sname))
        dee=(dosw(2)-dosw(1))/(ndos-1d0)
        dosi=0d0
        do ipts=1,ndos
           eee= dosw(1)+ (ipts-1d0)*(dosw(2)-dosw(1))/(ndos-1d0)-eferm
           dosi(1:nspx)= dosi(1:nspx) + dos_rv(ipts,1:nspx)*dee
-          write(ifi,"(255(f13.5,x))") eee,  (dos_rv(ipts,isp),isp=1,nspx) !dos
-          write(ifii,"(255(f13.5,x))") eee, (dosi_rv(ipts,isp),isp=1,nspx)        !integrated dos
+          write(ifi,"(255(f13.5,x))")  eee,(dos_rv(ipts,isp),isp=1,nspx) !dos
+          write(ifii,"(255(f13.5,x))") eee,(dosi_rv(ipts,isp),isp=1,nspx)        !integrated dos
        enddo
        close(ifi)
        close(ifii)
@@ -348,12 +348,12 @@ contains
     if(lrout/=0) call m_bandcal_allreduce(lwtkb)
     emin=1d9
     if(master_mpi) write(stdo,ftox)
-    do iq = 1, nkp
+    do iq = 1,nkp
        qp=qplist(:,iq)
-       do isp = 1, nspx
+       do isp = 1,nspx
           jsp = isp
           if(master_mpi .AND. iprint()>=35) then
-             write(stdo,ftox)" bndfp: kpt",iq," of",nkp," k isp=",ftof(qp,4),jsp," ndimh nev=", &
+             write(stdo,ftox)" bndfp: kpt",iq," of",nkp," k isp=",ftof(qp,4),jsp," ndimh nev=",&
                   ndimhx_(iq),nevls(iq,jsp)
              write(stdo,"(9f8.4)") (evlall(i,jsp,iq), i=1,nevls(iq,jsp))
           endif
