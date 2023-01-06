@@ -9,7 +9,7 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv)
   use m_mksym,only:  ngrp=>lat_nsgrp,gsym=>rv_a_osymgr
   implicit none
   intent(in)::    alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx
-  intent(out)::                                                   ng,kv,gv,igv !,igv2 
+  intent(out)::                                                      kv,gv,igv !,igv2 
   !- Set up a list of recip vectors within cutoff |q+G| < gmax
   ! ----------------------------------------------------------------------
   !i   alat     Lattice constant
@@ -78,11 +78,17 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv)
   double precision :: gmin0,gmax0,gmin2,gmax2,h1,h2,h3,ddot,tol
   character(256) :: outs
   parameter (PRTG=30,PRTG2=100,tol=1d-8)
-  real(8),parameter:: tolg=1d-5
+  real(8),parameter:: tolg2=1d-2
   logical::  lgpq,lgv,lsort,ligv !,ligv2
   real(8):: plat1(3,3),qlat1(3,3),gg,gs(3)
   integer:: j1,j2,j3,m,jj1,jj2,jj3,nn1,nn2,nn3,i123(3),jjj(3),jg,igrp,jjg
   real(8):: rlatp(3,3),xmx2(3),gvv(3),diffmin
+  integer :: nginit,kv_tmp(ngmx,3),igv_tmp(ngmx,3),ips(ngmx),jx,nxx,itemp(48),ix,iprint
+  real(8):: gv_tmp(ngmx,3)
+
+  call tcn('gvlst2')
+  call pshpr(iprint()-30)
+  
 !  logical,optional:: symcheck
   call getpr(ipr)
   call dinv33(plat,1,qlat,vol)
@@ -119,14 +125,15 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv)
   n2l=nn2
   n3l=nn3
   !! --- Loop through g vectors, shorten, count and keep if within gmax ---
-  gmax2 = (gmax0-tol)**2
+  gmax2 = (gmax0-tol)**2 !this tol is needed for gmax given by gvctof
   gmin2 = gmin0**2
-  call shortn3_initialize(qlat1) !initialization for m_shoten3
+  call shortn3_initialize(qlat1) !initialization for m_shoten3 for qlat1
   ig=0
   j1loop: do j1 = 0,nn1-1 
      j2loop: do j2 = 0,nn2-1 
-        j3loop: do j3 = 0,nn3-1 
-           qpg= [1d0/nn1, 1d0/nn2, 1d0/nn3] * ([j1,j2,j3] + matmul(q,plat(:,:))) ! fractional corrdinate on qlat1.
+        j3loop: do j3 = 0,nn3-1
+           jjj=[j1,j2,j3] 
+           qpg= [1d0/nn1, 1d0/nn2, 1d0/nn3] * (jjj+ matmul(q,plat(:,:))) ! fractional corrdinate on qlat1.
            call shortn3(qpg) ! return nout,nlatout
            gs = matmul(qlat1(:,:), (qpg+nlatout(:,1)))
            gg = sum(gs**2)
@@ -135,41 +142,62 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv)
               if (job0==0) cycle
               if (ig > ngmx) write(stdo,*) 'ERROR: ig ngmx=',ig,ngmx
               if (ig > ngmx) call rx('gvlist2: ng exceeds ngmx')
-              kv(ig,:) = [j1+1,j2+1,j3+1]
-              if(ligv) igv(ig,:) = [j1+nn1*nlatout(1,1), j2+nn2*nlatout(2,1), j3+nn3*nlatout(3,1)]
-              if(lgv.and.lgpq) gv(ig,:) = gs
-              if(lgv.and.(.not.lgpq)) gv(ig,:) = gs - q
+              kv_tmp(ig,:) = jjj+1
+              if(ligv) igv_tmp(ig,:) = jjj + [nn1,nn2,nn3]*nlatout(:,1) !integer index of Gvec
+              if(lgv.and.      lgpq ) gv_tmp(ig,:)= gs 
+              if(lgv.and.(.not.lgpq)) gv_tmp(ig,:)= gs - q
            endif
         enddo j3loop
    enddo j2loop
   enddo j1loop
   ng = ig
-  
-  !symmetry checker (sgvsym). Some ig, which is not symmetrized (when gg<gmax2 truncation destory symmetry).
-  if(job>999) then !present(symcheck)) then
-     do ig = 1,ng
-        do igrp = 1, ngrp
-           gvv = matmul(gsym(:,:,igrp),gv(ig,:)) !  ... gvv = g(k) gv
-           do jg=1,ng
-              if (sum((gvv-gv(jg,:))**2) < tolg) goto 70
+
+   if(job0/=0) then
+     nginit = ng
+     ng=0
+     ips=0
+     do ig = 1,nginit
+        if(job>999.and.ips(ig)==0) then 
+           do igrp = 1, ngrp
+              gvv = matmul(gsym(:,:,igrp),gv_tmp(ig,:)) !  ... gvv = g(k) gv
+              !write(6,ftox) 'iii ig igrp gvv=',ig,igrp,ftof(gvv)
+              itemp=0
+              ix=0
+              do jg=1,nginit
+                 if(sum(abs(gvv-gv_tmp(jg,:))) < tolg2) then 
+                    ix=ix+1
+                    itemp(ix)=jg !rotated index for gv_tmp(jg,:)
+                    goto 170 !found rotation matching
+                 endif   
+              enddo
+              goto 70 !failed to find gvv rotated to be gv_tmp. Skip
+170           continue
            enddo
-           write(stdo,"('--- igvec',i6,' igrp',i4,' gv=',3f9.5,' gv**2 gmax=',2f12.8)") &
-                ig,igrp,gv(ig,:),sum(gv(ig,:)**2),gmax2
-           diffmin=9999
-           do jg=1,ng
-              if(diffmin>sum((gvv-gv(jg,:))**2)) then
-                 jjg=jg
-                 diffmin = sum((gvv-gv(jg,:))**2)
-              endif   
-           enddo
-           write(stdo,"('  ig diffmin=',i5,f18.10,' gv=',3f9.5,' gv**2 gmax=',2f12.8)") &
-                jjg,diffmin,gv(jjg,:), sum(gv(jjg,:)**2),gmax2
-           call rxi('gvlst2: cannot find mapped vector in list:',ig)
-70         continue
-        enddo
+           ips(itemp(1:ix))=1 !jg=itemp(1:ix) need to be included.
+        endif
+        ng = ng+1
+        kv(ng,:) = kv_tmp(ig,:)
+        if(ligv) igv(ng,:)=igv_tmp(ig,:)
+        if(lgv )  gv(ng,:)= gv_tmp(ig,:) 
+70      continue
      enddo
+!     write(stdo,ftox)'gmax ng nginit ngmx=',ftof(gmax),ng,nginit,ngmx,ftof(q)
   endif
-  if(lsort) call gvlsts(ngmx,ng,gv,kv,igv,ligv)! --- Sort the list of vectors --
+ 
+  if(lsort) then
+     gvsort:block !Sort the list of vectors -- !call gvlsts(ng,gv(1:ng,1:3),kv(1:ng,1:3),igv(1:ng,1:3),ligv) 
+       integer:: iprm(ng)
+       call dvshel(1,ng, sum(gv(1:ng,1:3)**2,dim=2)*[((1d0 + 1d-15*ig),ig=1,ng)], iprm,1)
+       gv(1:ng,1:3) = gv(iprm+1,1:3)
+       kv(1:ng,1:3) = kv(iprm+1,1:3)
+       if(ligv) igv(1:ng,1:3) =igv(iprm+1,1:3)
+       !do ig=1,10
+       !   write(6,ftox) ig,' aaaabsgv=',ftof(sum(gv(ig,:)**2))
+       !enddo   
+     endblock gvsort
+     !write(stdo,ftox)'gmax gv=',ftof(gv(1,1:3))
+  endif
+!  if(lsort) call gvlsts(ngmx,ng,gv,kv,igv,ligv)! --- Sort the list of vectors --
   if(ipr >= PRTG) write(stdo,ftox)'gvlst2: gmax=',ftof(gmax,3),'a.u. created',ng,&
        'vectors of',n1l*n2l*n3l, '(',(ng*100)/(n1l*n2l*n3l),'%)'
   if(ipr >= PRTG2 .AND. ng > 0 .AND. ligv) then
@@ -181,6 +209,8 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv)
         write(stdo,"('q  qpg=',3d13.5,3x,3d13.5)")  q,qpg
      enddo
   endif
+  call poppr
+  call tcx('gvlst2')
 end subroutine gvlst2
 subroutine gvlstn(q0,q1,q2,qp,mshlst,gmax0,nn)
   implicit none
