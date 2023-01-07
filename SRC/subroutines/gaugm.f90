@@ -360,7 +360,7 @@ contains
          sig(nf1,nf2,0:lmux),tau(nf1,nf2,0:lmux),ppi(nf1,nf2,0:lmux)
     double precision :: sodb(3,3,0:n0-1),sondb(3,3,0:n0-1)
     double precision :: tmp(nf1,nf2,nlx1,nlx2),a1,a2,vd1(2),vd2(2)
-    double complex hsozz(nf1,nf2,nlx1,nlx2),hsopm(nf1,nf2,nlx1,nlx2)
+    complex(8):: hsozz(nf1,nf2,nlx1,nlx2),hsopm(nf1,nf2,nlx1,nlx2),somatpm,somatzz
     integer :: i1,i2,lmax1,lmax2,lmax,l
     integer :: m1,m2,l1,l2,lso
     complex(8),parameter:: img=(0d0,1d0)
@@ -376,169 +376,37 @@ contains
        enddo
     enddo
     if(lso==0) return
-    ! ... Spin-Orbit matrix elements in real harmonics.
-    !     This is LxSx+LySy part
-    if (lso /= 0) then
-       tmp=0d0 
-       hsopm=0d0
-       hsozz=0d0
-    endif
-    if (lso == 1) then
-       i1loop: do  i1 = 1, nf1s
-          i2loop: do  i2 = 1, nf2s
-             lmax1 = lx1(i1)
-             lmax2 = lx2(i2)
-             lmax = min0(lmax1,lmax2)
-             l1 = 0
-             l2 = 0
-             lloop: do  l = 0, lmax
-                m1loop: do  m1 = -l, l
-                   l1 = l1 + 1
-                   if (m1 >= (-l+1)) l2 = l2 - (2*l + 1)
-                   m2loop: do  m2 = -l, l
-                      l2 = l2 + 1
-                      a1 = dsqrt(dble((l-abs(m2))*(l+abs(m2)+1)))
-                      a2 = dsqrt(dble((l+abs(m2))*(l-abs(m2)+1)))
-                      vd1= [v1(l,i1),d1(l,i1)]
-                      vd2= [v2(l,i2),d2(l,i2)]
-                      tmp(i1,i2,l1,l2) = sum(vd1*matmul(sondb(1:2,1:2,l),vd2))
-                      !         ... Spin up-down block <l,m|L-|l,m'>
-                      if (isp == 1) then
-                         if (abs(m2) > 1 .AND. (abs(m2)+1) <= l) then !             Case A
-                            if (m2 > 0) then
-                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2)=     (-1)**(2*m2-1)*a2*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)-1) ==-m1) hsopm(i1,i2,l1,l2)= img*(-1)**(2*m2-1)*a2*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2)=     a1*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) ==-m1) hsopm(i1,i2,l1,l2)=-img*a1*0.5d0*tmp(i1,i2,l1,l2)
-                            else
-                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2)=-img*(-1)**(2*m2-1)*a2*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)-1) ==-m1) hsopm(i1,i2,l1,l2)=     (-1)**(2*m2-1)*a2*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2)= img*a1*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) ==-m1) hsopm(i1,i2,l1,l2)=     a1*0.5d0*tmp(i1,i2,l1,l2)
-                            endif
-                         elseif (abs(m2) > 1 .AND. (abs(m2)+1) > l) then !             Case B
-                            if (m2 > 0) then
-                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2) =      (-1)**(2*m2+1)*a2*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)-1) ==-m1) hsopm(i1,i2,l1,l2)=  img*(-1)**(2*m2+1)*a2*0.5d0*tmp(i1,i2,l1,l2)
-                            endif
-                            if (m2 < 0) then
-                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2) =  -img*(-1)**(2*m2-1)*a2*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)-1) ==-m1) hsopm(i1,i2,l1,l2)=     (-1)**(2*m2-1)*a2*0.5d0*tmp(i1,i2,l1,l2)
-                            endif
-                         elseif (abs(m2) == 1 .AND. (abs(m2)+1) <= l) then!             Case C
-                            if (m2 > 0) then
-                               if (m1 == 0) hsopm(i1,i2,l1,l2) =       (-1)**m2*a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2) =      a1*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == -m1) hsopm(i1,i2,l1,l2)= -img*a1*0.5d0*tmp(i1,i2,l1,l2)
-                            endif
-                            if (m2 < 0) then
-                               if (m1 == 0) hsopm(i1,i2,l1,l2) =           -img*(-1)**m2*a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2) =  img*a1*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == -m1) hsopm(i1,i2,l1,l2)=     a1*0.5d0*tmp(i1,i2,l1,l2)
-                            endif
-                         elseif (abs(m2) == 1 .AND. (abs(m2)+1) > l) then!             Case D
-                            if (m2 > 0) then
-                               if (m1 == 0) hsopm(i1,i2,l1,l2) =       (-1)**m2*a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
-                            endif
-                            if (m2 < 0) then
-                               if (m1 == 0) hsopm(i1,i2,l1,l2) =  -img*(-1)**m2*a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
-                            endif
-                         elseif (abs(m2) == 0) then!             Case m=0
-                            if (m1 == 1)  hsopm(i1,i2,l1,l2  ) =       a1*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
-                            if (m1 == -1) hsopm(i1,i2,l1,l2) =    -img*a1*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
-                         else
-                            call rx('gaugm this can not occur')
-                         endif
-                         !         ... Spin down-up block ((2,1) block) <l,m|L+|l,m'>
-                      else
-                         if (abs(m2) > 1 .AND. (abs(m2)+1) <= l) then!               Case A
-                            if (m2 > 0) then
-                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2) =   a2*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)-1) == -m1) hsopm(i1,i2,l1,l2) =  -img*a2*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2) =  (-1)**(2*m2+1)*a1*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == -m1) hsopm(i1,i2,l1,l2) =   img*(-1)**(2*m2+1)*a1*0.5d0*tmp(i1,i2,l1,l2)
-                            else
-                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2) =  img*a2*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)-1) == -m1) hsopm(i1,i2,l1,l2) =  a2*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2) =  -img*a1*(-1)**(2*m2+1)*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == -m1) hsopm(i1,i2,l1,l2) =      (-1)**(2*m2+1)*a1*0.5d0*tmp(i1,i2,l1,l2)
-                            endif
-                         elseif (abs(m2) > 1 .AND. (abs(m2)+1) > l) then !               Case B
-                            if (m2 > 0) then
-                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2) =  a2*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)-1) == -m1) hsopm(i1,i2,l1,l2)=     -img*a2*0.5d0*tmp(i1,i2,l1,l2)
-                            endif
-                            if (m2 < 0) then
-                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2) =  img*a2*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)-1) == -m1) hsopm(i1,i2,l1,l2)= a2*0.5d0*tmp(i1,i2,l1,l2)
-                            endif
-                         elseif (abs(m2) == 1 .AND. (abs(m2)+1) <= l) then!               Case C
-                            if (m2 > 0) then
-                               if (m1 == 0) hsopm(i1,i2,l1,l2) =                a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2) =   (-1)**(2*m2+1)*a1*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == -m1) hsopm(i1,i2,l1,l2)=  img*(-1)**(2*m2+1)*a1*0.5d0*tmp(i1,i2,l1,l2)
-                            endif
-                            if (m2 < 0) then
-                               if (m1 == 0) hsopm(i1,i2,l1,l2) =              img*a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2) =   -img*(-1)**(2*m2+1)*a1*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == -m1) hsopm(i1,i2,l1,l2) =       (-1)**(2*m2+1)*a1*0.5d0*tmp(i1,i2,l1,l2)
-                            endif
-                         elseif (abs(m2) == 1 .AND. (abs(m2)+1) > l) then!               Case D
-                            if (m2 > 0) then
-                               if (m1 == 0) hsopm(i1,i2,l1,l2) =         a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
-                            endif
-                            if (m2 < 0) then
-                               if (m1 == 0) hsopm(i1,i2,l1,l2) =     img*a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
-                            endif
-                         elseif (abs(m2) == 0) then !               Case m=0
-                            if (m1 == 1) hsopm(i1,i2,l1,l2) =  -a1*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
-                            if (m1 == -1) hsopm(i1,i2,l1,l2)=  -img*a1*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
-                         endif
-                      endif
-                   enddo m2loop
-                enddo m1loop
-             enddo lloop
-          enddo i2loop
-       enddo i1loop
-    endif
-    ! ... LzSz part
-    if (lso /= 0) then
-       do  i1 = 1, nf1s
-          do  i2 = 1, nf2s
-             lmax1 = lx1(i1)
-             lmax2 = lx2(i2)
-             lmax = min0(lmax1,lmax2)
-             l1 = 0
-             l2 = 0
-             do  l = 0, lmax
-                do  m1 = -l, l
-                   l1 = l1 + 1
-                   if (m1 >= (-l+1)) l2 = l2 - (2*l + 1)
-                   do  m2 = -l, l
-                      l2 = l2 + 1
-                      if (m1 /= 0 .AND. m2 /= 0) then
-                         if (l1 < l2 .AND. m1 == -m2) then
-                            hsozz(i1,i2,l1,l2) = abs(m1)* &
-                                 ( v1(l,i1)*dcmplx(0d0,sodb(1,1,l))*v2(l,i2) &
-                                 + v1(l,i1)*dcmplx(0d0,sodb(1,2,l))*d2(l,i2) &
-                                 + d1(l,i1)*dcmplx(0d0,sodb(2,1,l))*v2(l,i2) &
-                                 + d1(l,i1)*dcmplx(0d0,sodb(2,2,l))*d2(l,i2))
-                         endif
-                         if (l1 > l2 .AND. m1 == -m2) then
-                            hsozz(i1,i2,l1,l2) = -abs(m1)* &
-                                  (v1(l,i1)*dcmplx(0d0,sodb(1,1,l))*v2(l,i2) &
-                                 + v1(l,i1)*dcmplx(0d0,sodb(1,2,l))*d2(l,i2) &
-                                 + d1(l,i1)*dcmplx(0d0,sodb(2,1,l))*v2(l,i2) &
-                                 + d1(l,i1)*dcmplx(0d0,sodb(2,2,l))*d2(l,i2))
-                         endif
-                      endif
-
-                   enddo
-                enddo
-             enddo
-          enddo
-       enddo
-    endif
+    hsopm=0d0  !SO part
+    hsozz=0d0
+    i1loop: do  i1 = 1, nf1s
+       i2loop: do  i2 = 1, nf2s
+          lmax1 = lx1(i1)
+          lmax2 = lx2(i2)
+          lmax = min0(lmax1,lmax2)
+          l1 = 0
+          l2 = 0
+          lloop: do  l = 0, lmax
+             m1loop: do  m1 = -l, l
+                l1 = l1 + 1
+                if (m1 >= (-l+1)) l2 = l2 - (2*l + 1)
+                m2loop: do  m2 = -l, l
+                   l2 = l2 + 1
+                   vd1= [v1(l,i1),d1(l,i1)]
+                   vd2= [v2(l,i2),d2(l,i2)]
+                   if(lso==1) then
+                      call mksomat(l,m1,m2,isp,somatpm) ! LxSx+LySy lm part
+                      hsopm(i1,i2,l1,l2)= somatpm * sum(vd1*matmul(sondb(1:2,1:2,l),vd2)) !lm part \times radial part
+                   endif
+                   if (lso/=0.and. m1+m2==0.AND.m2/=0.and.l1/=l2) then ! ... LzSz part
+                      if(l1<l2) somatzz= img*abs(m1)
+                      if(l1>l2) somatzz=-img*abs(m1)
+                      hsozz(i1,i2,l1,l2)= somatzz * sum(vd1*matmul(sodb(1:2,1:2,l),vd2))
+                   endif
+                enddo m2loop
+             enddo m1loop
+          enddo lloop
+       enddo i2loop
+    enddo i1loop
   end subroutine pvagm1
   subroutine pvaglc(nf1,nf1s,lmx1,lx1,nlx1,v1,d1,isp, &
        nf2,nf2s,lmx2,lx2,nlx2,v2,d2,lso, &
@@ -625,7 +493,7 @@ contains
          sig(nf1,nf2,0:lmux),tau(nf1,nf2,0:lmux),ppi(nf1,nf2,0:lmux)
     !     Spin-Orbit related
     double precision :: sodb(3,3,0:n0-1),sondb(3,3,0:n0-1)
-    complex(8):: hsozz(nf1,nf2,nlx1,nlx2),hsopm(nf1,nf2,nlx1,nlx2),img=(0d0,1d0)
+    complex(8):: hsozz(nf1,nf2,nlx1,nlx2),hsopm(nf1,nf2,nlx1,nlx2),img=(0d0,1d0),somatzz,somatpm
     integer :: i1,i2,lmax1,lmax2,lmax,l
     integer :: m1,m2,l1,l2,lso
     real(8):: tmp(nf1,nf2,nlx1,nlx2),tmp1(nf1,nf2,nlx1,nlx2),a1,a2
@@ -682,123 +550,30 @@ contains
                 if (m1 >= (-l+1)) l2 = l2 - (2*l + 1)
                 do  m2 = -l, l
                    l2 = l2 + 1
-                   !             ... hso_zz
-                   if (i1 > nf1s .AND. i2 > nf2s) then
+                   
+                   if (i1 > nf1s .AND. i2 > nf2s) then !     ... hso_zz
                       tmp1(i1,i2,l1,l2) = sodb(3,3,l)
                    elseif (i1 > nf1s) then                      !             ... hso_zu
-                      tmp1(i1,i2,l1,l2) = sodb(3,1,l)*v2(l,i2) + sodb(3,2,l)*d2(l,i2)
+                      tmp1(i1,i2,l1,l2) = sum(sodb(3,1:2,l)*[v2(l,i2),d2(l,i2)])
                    elseif (i2 > nf2s) then                      !             ... hso_uz
-                      tmp1(i1,i2,l1,l2) = v1(l,i1)*sodb(1,3,l) + d1(l,i1)*sodb(2,3,l)
+                      tmp1(i1,i2,l1,l2) = sum([v1(l,i1),d1(l,i1)]*sodb(1:2,3,l))
                    endif
-                   if (m1 /= 0 .AND. m2 /= 0) then
-                      if (l1 < l2 .AND. m1 == -m2) then
-                         hsozz(i1,i2,l1,l2) =  abs(m1) *dcmplx(0d0,tmp1(i1,i2,l1,l2))
-                      endif
-                      if (l1 > l2 .AND. m1 == -m2) then
-                         hsozz(i1,i2,l1,l2) = -abs(m1) *dcmplx(0d0,tmp1(i1,i2,l1,l2))
-                      endif
+                   if ( m1+m2==0.AND.m2/=0.and.l1/=l2) then ! ... LzSz part
+                      if (l1 < l2 .AND. m1 == -m2) somatzz =  abs(m1)*img 
+                      if (l1 > l2 .AND. m1 == -m2) somatzz = -abs(m1)*img
+                      hsozz(i1,i2,l1,l2) = somatzz * tmp1(i1,i2,l1,l2)
                    endif
-                   !       ... This is LxSx+LySy part
-                   if (lso == 1) then
-                      a1 = dsqrt(dble((l-abs(m2))*(l+abs(m2)+1)))
-                      a2 = dsqrt(dble((l+abs(m2))*(l-abs(m2)+1)))
-                      !         ... hso_zz
+                   
+                   if (lso == 1) then ! LxSx+LySy part
                       if (i1 > nf1s .AND. i2 > nf2s) then
                          tmp(i1,i2,l1,l2) = sondb(3,3,l)
                       elseif (i1 > nf1s) then                         !         ... hso_zu
-                         tmp(i1,i2,l1,l2) = sondb(3,1,l)*v2(l,i2) + sondb(3,2,l)*d2(l,i2)
+                         tmp(i1,i2,l1,l2) = sum(sondb(3,1:2,l)*[v2(l,i2),d2(l,i2)])
                       elseif (i2 > nf2s) then                         !         ... hso_uz
-                         tmp(i1,i2,l1,l2) = v1(l,i1)*sondb(1,3,l) + d1(l,i1)*sondb(2,3,l)
+                         tmp(i1,i2,l1,l2) = sum([v1(l,i1),d1(l,i1)]*sondb(1:2,3,l))
                       endif
-                      !         ... Spin up-down block <l,m|L-|l,m'>
-                      if (isp == 1) then                         !               Case A
-                         if (abs(m2) > 1 .AND. (abs(m2)+1) <= l) then
-                            if (m2 > 0) then
-                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2) = (-1)**(2*m2-1)*a2*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)-1) == -m1) hsopm(i1,i2,l1,l2) =  img*(-1)**(2*m2-1)*a2*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2) =  a1*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == -m1) hsopm(i1,i2,l1,l2) =  -img*a1*0.5d0*tmp(i1,i2,l1,l2)
-                            else
-                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2) = -img*(-1)**(2*m2-1)*a2*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)-1) == -m1) hsopm(i1,i2,l1,l2) = (-1)**(2*m2-1)*a2*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2) =  img*a1*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == -m1) hsopm(i1,i2,l1,l2) =  a1*0.5d0*tmp(i1,i2,l1,l2)
-                            endif
-                         elseif (abs(m2) > 1 .AND. (abs(m2)+1) > l) then
-                            if (m2 > 0) then
-                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2) =  (-1)**(2*m2+1)*a2*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)-1) == -m1) hsopm(i1,i2,l1,l2) =  img*(-1)**(2*m2+1)*a2*0.5d0*tmp(i1,i2,l1,l2)
-                            elseif (m2 < 0) then
-                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2) =  -img*(-1)**(2*m2-1)*a2*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)-1) == -m1) hsopm(i1,i2,l1,l2) = (-1)**(2*m2-1)*a2*0.5d0*tmp(i1,i2,l1,l2)
-                            endif
-                         elseif (abs(m2) == 1 .AND. (abs(m2)+1) <= l) then
-                            if (m2 > 0) then
-                               if (m1 == 0) hsopm(i1,i2,l1,l2) =    (-1)**m2*a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2) =  a1*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == -m1) hsopm(i1,i2,l1,l2) = -img*a1*0.5d0*tmp(i1,i2,l1,l2)
-                            endif
-                            if (m2 < 0) then
-                               if (m1 == 0) hsopm(i1,i2,l1,l2) =          -img*(-1)**m2*a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2) = img*a1*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == -m1) hsopm(i1,i2,l1,l2)=   a1*0.5d0*tmp(i1,i2,l1,l2)
-                            endif
-                         elseif (abs(m2) == 1 .AND. (abs(m2)+1) > l) then
-                            if (m2 > 0) then
-                               if (m1 == 0) hsopm(i1,i2,l1,l2) =  (-1)**m2*a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
-                            elseif (m2 < 0) then
-                               if (m1 == 0) hsopm(i1,i2,l1,l2) = -img*(-1)**m2*a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
-                            endif
-                         elseif (abs(m2) == 0) then
-                            if (m1 == 1) hsopm(i1,i2,l1,l2) =         a1*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
-                            if (m1 == -1) hsopm(i1,i2,l1,l2) =   -img*a1*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
-                         endif
-                         !         ... Spin down-up block <l,m|L+|l,m'>
-                      else
-                         !               Case A
-                         if (abs(m2) > 1 .AND. (abs(m2)+1) <= l) then
-                           if (m2 > 0) then
-                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2) = a2*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)-1) == -m1) hsopm(i1,i2,l1,l2) =  -img*a2*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2) =  (-1)**(2*m2+1)*a1*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == -m1) hsopm(i1,i2,l1,l2) = img*(-1)**(2*m2+1)*a1*0.5d0*tmp(i1,i2,l1,l2)
-                            else
-                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2) =    img*a2*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)-1) == -m1) hsopm(i1,i2,l1,l2) =       a2*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2) =  -img*a1*(-1)**(2*m2+1)*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == -m1) hsopm(i1,i2,l1,l2) =      (-1)**(2*m2+1)*a1*0.5d0*tmp(i1,i2,l1,l2)
-                            endif
-                         elseif (abs(m2) > 1 .AND. (abs(m2)+1) > l) then !               Case B
-                            if (m2 > 0) then
-                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2) =   a2*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)-1) == -m1) hsopm(i1,i2,l1,l2) = -img*a2*0.5d0*tmp(i1,i2,l1,l2)
-                            endif
-                            if (m2 < 0) then
-                               if ((abs(m2)-1) == m1) hsopm(i1,i2,l1,l2) =    img*a2*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)-1) == -m1) hsopm(i1,i2,l1,l2) =     a2*0.5d0*tmp(i1,i2,l1,l2)
-                            endif
-                         elseif (abs(m2) == 1 .AND. (abs(m2)+1) <= l) then                          !               Case C
-                            if (m2 > 0) then
-                               if (m1 == 0) hsopm(i1,i2,l1,l2) =        a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2) =       (-1)**(2*m2+1)*a1*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == -m1) hsopm(i1,i2,l1,l2) =  img*(-1)**(2*m2+1)*a1*0.5d0*tmp(i1,i2,l1,l2)
-                            endif
-                            if (m2 < 0) then
-                               if (m1 == 0) hsopm(i1,i2,l1,l2) =           img*a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == m1) hsopm(i1,i2,l1,l2) = -img*(-1)**(2*m2+1)*a1*0.5d0*tmp(i1,i2,l1,l2)
-                               if ((abs(m2)+1) == -m1) hsopm(i1,i2,l1,l2) =  (-1)**(2*m2+1)*a1*0.5d0*tmp(i1,i2,l1,l2)
-                            endif
-                         elseif (abs(m2) == 1 .AND. (abs(m2)+1) > l) then !D
-                            if (m2 > 0) then
-                               if (m1 == 0) hsopm(i1,i2,l1,l2) =   a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
-                            elseif (m2 < 0) then
-                               if (m1 == 0) hsopm(i1,i2,l1,l2) =  img*a2*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
-                            endif
-                         elseif (abs(m2) == 0) then
-                            if (m1 == 1) hsopm(i1,i2,l1,l2) = -a1*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
-                            if (m1 == -1) hsopm(i1,i2,l1,l2) = -img*a1*dsqrt(0.5d0)*tmp(i1,i2,l1,l2)
-                         endif
-                      endif
+                      call mksomat(l,m1,m2,isp,somatpm) ! LxSx+LySy lm part
+                      hsopm(i1,i2,l1,l2)= somatpm*tmp(i1,i2,l1,l2)
                    endif
                 enddo
              enddo mloop
@@ -1362,4 +1137,106 @@ contains
        enddo
     enddo
   end subroutine paugnl
+
+  subroutine mksomat(l,m1,m2,isp,somatpm)
+  integer:: l,m1,m2,isp
+  real(8):: a1,a2
+  complex(8):: somatpm,img=(0d0,1d0)
+  somatpm=0d0
+  a1 = dsqrt(dble((l-abs(m2))*(l+abs(m2)+1)))
+  a2 = dsqrt(dble((l+abs(m2))*(l-abs(m2)+1)))
+  if (isp == 1) then !     ... Spin up-down block <l,m|L-|l,m'>
+     if (abs(m2) > 1 .AND. (abs(m2)+1) <= l) then !             Case A
+        if (m2 > 0) then
+           if ((abs(m2)-1) == m1) somatpm=     (-1)**(2*m2-1)*a2*0.5d0
+           if ((abs(m2)-1) ==-m1) somatpm= img*(-1)**(2*m2-1)*a2*0.5d0
+           if ((abs(m2)+1) == m1) somatpm=     a1*0.5d0
+           if ((abs(m2)+1) ==-m1) somatpm=-img*a1*0.5d0
+        else
+           if ((abs(m2)-1) == m1) somatpm=-img*(-1)**(2*m2-1)*a2*0.5d0
+           if ((abs(m2)-1) ==-m1) somatpm=     (-1)**(2*m2-1)*a2*0.5d0
+           if ((abs(m2)+1) == m1) somatpm= img*a1*0.5d0
+           if ((abs(m2)+1) ==-m1) somatpm=     a1*0.5d0
+        endif
+     elseif (abs(m2) > 1 .AND. (abs(m2)+1) > l) then !             Case B
+        if (m2 > 0) then
+           if ((abs(m2)-1) == m1) somatpm =      (-1)**(2*m2+1)*a2*0.5d0
+           if ((abs(m2)-1) ==-m1) somatpm=  img*(-1)**(2*m2+1)*a2*0.5d0
+        endif
+        if (m2 < 0) then
+           if ((abs(m2)-1) == m1) somatpm =  -img*(-1)**(2*m2-1)*a2*0.5d0
+           if ((abs(m2)-1) ==-m1) somatpm=     (-1)**(2*m2-1)*a2*0.5d0
+        endif
+     elseif (abs(m2) == 1 .AND. (abs(m2)+1) <= l) then!             Case C
+        if (m2 > 0) then
+           if (m1 == 0) somatpm =       (-1)**m2*a2*dsqrt(0.5d0)
+           if ((abs(m2)+1) == m1) somatpm =      a1*0.5d0
+           if ((abs(m2)+1) == -m1) somatpm= -img*a1*0.5d0
+        endif
+        if (m2 < 0) then
+           if (m1 == 0) somatpm =           -img*(-1)**m2*a2*dsqrt(0.5d0)
+           if ((abs(m2)+1) == m1) somatpm =  img*a1*0.5d0
+           if ((abs(m2)+1) == -m1) somatpm=     a1*0.5d0
+        endif
+     elseif (abs(m2) == 1 .AND. (abs(m2)+1) > l) then!             Case D
+        if (m2 > 0) then
+           if (m1 == 0) somatpm =       (-1)**m2*a2*dsqrt(0.5d0)
+        endif
+        if (m2 < 0) then
+           if (m1 == 0) somatpm =  -img*(-1)**m2*a2*dsqrt(0.5d0)
+        endif
+     elseif (abs(m2) == 0) then!             Case m=0
+        if (m1 == 1)  somatpm =       a1*dsqrt(0.5d0)
+        if (m1 == -1) somatpm =    -img*a1*dsqrt(0.5d0)
+     else
+        call rx('gaugm this can not occur 111')
+     endif
+  else!         ... Spin down-up block ((2,1) block) <l,m|L+|l,m'>
+     if (abs(m2) > 1 .AND. (abs(m2)+1) <= l) then!               Case A
+        if (m2 > 0) then
+           if ((abs(m2)-1) == m1) somatpm =   a2*0.5d0
+           if ((abs(m2)-1) == -m1) somatpm =  -img*a2*0.5d0
+           if ((abs(m2)+1) == m1) somatpm =  (-1)**(2*m2+1)*a1*0.5d0
+           if ((abs(m2)+1) == -m1) somatpm =   img*(-1)**(2*m2+1)*a1*0.5d0
+        else
+           if ((abs(m2)-1) == m1) somatpm =  img*a2*0.5d0
+           if ((abs(m2)-1) == -m1) somatpm =  a2*0.5d0
+           if ((abs(m2)+1) == m1) somatpm =  -img*a1*(-1)**(2*m2+1)*0.5d0
+           if ((abs(m2)+1) == -m1) somatpm =      (-1)**(2*m2+1)*a1*0.5d0
+        endif
+     elseif (abs(m2) > 1 .AND. (abs(m2)+1) > l) then !               Case B
+        if (m2 > 0) then
+           if ((abs(m2)-1) == m1) somatpm =  a2*0.5d0
+           if ((abs(m2)-1) == -m1) somatpm=     -img*a2*0.5d0
+        endif
+        if (m2 < 0) then
+           if ((abs(m2)-1) == m1) somatpm =  img*a2*0.5d0
+           if ((abs(m2)-1) == -m1) somatpm= a2*0.5d0
+        endif
+     elseif (abs(m2) == 1 .AND. (abs(m2)+1) <= l) then!               Case C
+        if (m2 > 0) then
+           if (m1 == 0) somatpm =                a2*dsqrt(0.5d0)
+           if ((abs(m2)+1) == m1) somatpm =   (-1)**(2*m2+1)*a1*0.5d0
+           if ((abs(m2)+1) == -m1) somatpm=  img*(-1)**(2*m2+1)*a1*0.5d0
+        endif
+        if (m2 < 0) then
+           if (m1 == 0) somatpm =              img*a2*dsqrt(0.5d0)
+           if ((abs(m2)+1) == m1) somatpm =   -img*(-1)**(2*m2+1)*a1*0.5d0
+           if ((abs(m2)+1) == -m1) somatpm =       (-1)**(2*m2+1)*a1*0.5d0
+        endif
+     elseif (abs(m2) == 1 .AND. (abs(m2)+1) > l) then!               Case D
+        if (m2 > 0) then
+           if (m1 == 0) somatpm =         a2*dsqrt(0.5d0)
+        endif
+        if (m2 < 0) then
+           if (m1 == 0) somatpm =     img*a2*dsqrt(0.5d0)
+        endif
+     elseif (abs(m2) == 0) then !               Case m=0
+        if (m1 == 1) somatpm =  -a1*dsqrt(0.5d0)
+        if (m1 == -1) somatpm=  -img*a1*dsqrt(0.5d0)
+     else
+        call rx('gaugm this can not occur 222')
+     endif
+  end if
+end subroutine mksomat
 end module m_gaugm
