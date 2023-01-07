@@ -210,7 +210,7 @@ contains
          f1(nr,0:lmx1,nf1s),v1(0:lmx1,nf1s),d1(0:lmx1,nf1s), &
          f2(nr,0:lmx2,nf2s),v2(0:lmx2,nf2s),d2(0:lmx2,nf2s), &
          x1(nr,0:lmx1,nf1s),x2(nr,0:lmx2,nf2s), &
-         sig(nf1,nf2,0:lmux,nsp),tau(nf1,nf2,0:lmux,nsp),vum(0:lmxa,0:lmxa,nlml,6,nsp)
+         sig(nf1,nf2,0:lmux,nsp),tau(nf1,nf2,0:lmux,nsp),vum(0:lmxa,0:lmxa,nlml,3,3,nsp)
     double precision :: sodb(3,3,n0,nsp,2) !Spin-Orbit related
     integer :: ilm1,ilm2,ix
     integer :: i1,i2,ilm,l,ll,nlm,nlm1,nlm2,i,iprint,ii
@@ -263,7 +263,7 @@ contains
        call paug2(nr,nlml,vsm(1,1,i),rwgt,cg,jcg,indxcg,nf1,nf1,lmx1, & !smooth integral f1^ (-vsm) f2^ for nonspherical part of vsm
             lx1,f1,nf2,nf2,lmx2,lx2,f2,ssum,nlx1,nlx2,ppir(1,1,1,1,i))   !Also include local orbitals; require f=0 if no smooth part.
        call paug1(nf1,nf1s,lmx1,lx1,v1,d1,nf2,nf2s,lmx2,lx2,v2,d2,lmxa, & ! integral f1~ vtrue f2~ for nonspherical part of vtrue
-            nlml,cg,jcg,indxcg,vum(0,0,1,1,i),nlx1,nlx2,ppir(1,1,1,1,i))
+            nlml,cg,jcg,indxcg,vum(0,0,1,1,1,i),nlx1,nlx2,ppir(1,1,1,1,i))
        ! --- Moments qm = (f1~*f2~ - f1^*f2^) r^m Y_m ---
        call pvagm3(nf1,nf1s,lmx1,lx1,f1,v1,d1,nf2,nf2s,lmx2,lx2,f2,v2,d2,& ! Needed for the term qm * (gpot0-gpotb) added to ppi
             nr,rofi,rwgt,lmxa,qum(0,0,0,1,i),lmxl,qm)
@@ -1077,16 +1077,7 @@ contains
     !i   indxcg:index for Clebsch Gordon coefficients
     !i   vum   :integrals ((u,s,gz) * v1 * (u,s,gz)),
     !i         :decomposed by M where v1 = sum_M v1_M Y_M
-    !i         :vum(l1,l2,M,1) = (u_l1 v1_M u_l2)
-    !i         :vum(l1,l2,M,2) = (u_l1 v1_M s_l2)
-    !i         :vum(l1,l2,M,3) = (s_l1 v1_M s_l2)
-    !i         :vum(l1,l2,M,4) = (u_l1 v1_M g_l2)
-    !i         :vum(l1,l2,M,5) = (s_l1 v1_M g_l2)
-    !i         :vum(l1,l2,M,6) = (g_l1 v1_M g_l2)
-    !i         :Note that
-    !i         :vum(l2,l1,M,2) = (s_l1 v1_M u_l2)
-    !i         :vum(l2,l1,M,4) = (g_l1 v1_M u_l2)
-    !i         :vum(l2,l1,M,5) = (g_l1 v1_M s_l2)
+    !i         :vum(l1,l2,M,i,j) = (ui_l1 v1_M uj_l2)
     !i   nlx1  :dimensions ppi
     !i   nlx2  :dimensions ppi
     !o Outputs
@@ -1103,7 +1094,7 @@ contains
     implicit none
     integer :: lmx1,lmx2,lmxa,nf1,nf1s,nf2,nf2s,nlml,nlx1,nlx2
     integer :: lx1(nf1),lx2(nf2),jcg(1),indxcg(1)
-    double precision :: vum(0:lmxa,0:lmxa,nlml,6), &
+    double precision :: vum(0:lmxa,0:lmxa,nlml,3,3), &
          v1(0:lmx1,nf1),d1(0:lmx1,nf1), &
          v2(0:lmx2,nf2),d2(0:lmx2,nf2), ppi(nf1,nf2,nlx1,nlx2),cg(1)
     integer :: i1,i2,icg,ilm1,ilm2,ix,l1,l2,ll,mlm,nlm1,nlm2
@@ -1122,10 +1113,10 @@ contains
                 do  icg = indxcg(ix),indxcg(ix+1)-1
                    mlm = jcg(icg)
                    if (mlm > 1 .AND. mlm <= nlml) then
-                      add = v1(l1,i1) * v2(l2,i2) * vum(l1,l2,mlm,1) &
-                           + v1(l1,i1) * d2(l2,i2) * vum(l1,l2,mlm,2) &
-                           + d1(l1,i1) * v2(l2,i2) * vum(l2,l1,mlm,2) &
-                           + d1(l1,i1) * d2(l2,i2) * vum(l1,l2,mlm,3)
+                      add = v1(l1,i1) * v2(l2,i2)  * vum(l1,l2,mlm,1,1) &
+                           + v1(l1,i1) * d2(l2,i2) * vum(l1,l2,mlm,1,2) &
+                           + d1(l1,i1) * v2(l2,i2) * vum(l1,l2,mlm,2,1) &
+                           + d1(l1,i1) * d2(l2,i2) * vum(l1,l2,mlm,2,2)
                       ppi(i1,i2,ilm1,ilm2) = ppi(i1,i2,ilm1,ilm2)+ cg(icg)*add
                    endif
                 enddo
@@ -1150,11 +1141,11 @@ contains
                       mlm = jcg(icg)
                       if (mlm > 1 .AND. mlm <= nlml) then
                          if (i1 > nf1s .AND. i2 > nf2s) then!    <g | V | g>
-                            add = vum(l1,l2,mlm,6)
+                            add = vum(l1,l2,mlm,3,3)
                          elseif (i1 > nf1s) then  !              <g | V | (u,s)>
-                            add = vum(l2,l1,mlm,4) * v2(l2,i2) + vum(l2,l1,mlm,5) * d2(l2,i2)  
+                            add = vum(l2,l1,mlm,1,3) * v2(l2,i2) + vum(l2,l1,mlm,2,3) * d2(l2,i2)  
                          elseif (i2 > nf2s) then !               <(u,s) | V | g>
-                            add = v1(l1,i1) * vum(l1,l2,mlm,4) + d1(l1,i1) * vum(l1,l2,mlm,5)
+                            add = v1(l1,i1) * vum(l1,l2,mlm,1,3) + d1(l1,i1) * vum(l1,l2,mlm,2,3)
                          endif
                          ppi(i1,i2,ilm1,ilm2) = ppi(i1,i2,ilm1,ilm2) + cg(icg)*add
                       endif

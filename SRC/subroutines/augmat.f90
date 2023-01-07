@@ -349,7 +349,7 @@ contains
          v1(nr,nlml,nsp),v2(nr,nlml,nsp),gpot0(nlml),gpotb(nlml), &
          eh(n0,nkaph),rsmh(n0,*),ehl(n0),rsml(n0), rs3,vmtz,&
          pp(n0,2,5), vdif(nr,nsp),sodb(3,3,n0,nsp,2), &
-         vum((lmxa+1)**2*nlml*6*nsp), &
+         vum((lmxa+1)**2,nlml,3,3,nsp), &
          fh(nr*(lmxh+1)*nkap0),xh(nr*(lmxh+1)*nkap0), &
          vh((lmxh+1)*nkap0),fp(nr*(lmxa+1)*(kmax+1)), &
          dh((lmxh+1)*nkap0),xp(nr*(lmxa+1)*(kmax+1)), &
@@ -468,7 +468,7 @@ contains
     double precision :: rmt,a,z,rofi(nr),rwgt(nr),rsml(n0),ehl(n0), &
          v0(nr,nsp),v1(nr,nlml,nsp),pnu(n0,nsp),pnz(n0,nsp), &
          qum(0:lmxa,0:lmxa,0:lmxl,6,nsp), &
-         vum(0:lmxa,0:lmxa,nlml,6,nsp)
+         vum(0:lmxa,0:lmxa,nlml,3,3,nsp)
     logical :: lpz1,lpz2
     integer :: l1,l2,lm,i,mlm,isp
     double precision :: pi,srfpi,xx, &
@@ -581,12 +581,15 @@ contains
                       enddo
                    endif
                 endif
-                vum(l1,l2,mlm,1,isp) = vuu
-                vum(l1,l2,mlm,2,isp) = vus
-                vum(l1,l2,mlm,3,isp) = vss
-                vum(l1,l2,mlm,4,isp) = vuz
-                vum(l1,l2,mlm,5,isp) = vsz
-                vum(l1,l2,mlm,6,isp) = vzz
+                vum(l1,l2,mlm,1,1,isp) = vuu
+                vum(l1,l2,mlm,1,2,isp) = vus
+                vum(l2,l1,mlm,2,1,isp) = vus  !transposed symmetric
+                vum(l1,l2,mlm,2,2,isp) = vss
+                vum(l1,l2,mlm,1,3,isp) = vuz
+                vum(l2,l1,mlm,3,1,isp) = vuz !
+                vum(l1,l2,mlm,2,3,isp) = vsz
+                vum(l2,l1,mlm,3,2,isp) = vsz !
+                vum(l1,l2,mlm,3,3,isp) = vzz
              enddo
           enddo
        enddo
