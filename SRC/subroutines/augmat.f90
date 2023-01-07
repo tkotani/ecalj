@@ -356,7 +356,7 @@ contains
          vp((lmxa+1)*(kmax+1)),dp((lmxa+1)*(kmax+1))
     complex(8):: vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
     complex(8):: vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,nab,2,0:lmaxu)
-    real(8),allocatable:: qum(:)
+    real(8),allocatable:: qum(:,:,:,:,:)
     real(8),parameter:: pi   = 4d0*datan(1d0),  y0   = 1d0/dsqrt(4d0*pi)
     call tcn('augmat')
     call radmsh(rmt,a,nr,rofi)
@@ -370,10 +370,10 @@ contains
     vdif(1:nr,1:nsp) = y0*v1(1:nr,1,1:nsp) - v0(1:nr,1:nsp)
     !vdif= extra part of spherical potential for deterimning radial function
     ! --- Make hab,vab,sab and potential parameters pp ---
+    allocate( qum((lmxa+1)**2,(lmxl+1),3,3,nsp))
     call potpus(z,rmt,lmxa,v0,vdif,a,nr,nsp,lso,rofi,pnu,pnz,ehl,rsml, &
          rs3,vmtz,nab,n0, ppnl,hab,vab,sab,sodb)
     ! --- Moments and potential integrals of ul*ul, ul*sl, sl*sl ---
-    allocate(qum((lmxa+1)**2*(lmxl+1)*6*nsp))
     call momusl(z,rmt,lmxa,pnu,pnz,rsml,ehl,lmxl,nlml,a,nr,nsp,rofi, &
          rwgt,v0,v1,qum,vum)
     ! --- Set up all radial head and tail functions, and their BC's ---
@@ -427,24 +427,10 @@ contains
     !i   v1    :true potential.  Spherical part need not be v0.
     !o Outputs
     !o   qum   :moments (u,s,gz)_l1 * (u,s,gz)_l2 * r**l
-    !o         :qum(l1,l2,l,1) = (u_l1 u_l2) * r**l
-    !o         :qum(l1,l2,l,2) = (u_l1 s_l2) * r**l
-    !o         :qum(l1,l2,l,3) = (s_l1 s_l2) * r**l
-    !o         :qum(l1,l2,l,4) = (u_l1 g_l2) * r**l
-    !o         :qum(l1,l2,l,5) = (s_l1 g_l2) * r**l
-    !o         :qum(l1,l2,l,6) = (g_l1 g_l2) * r**l
+    !o         :qum(l1,l2,l,i,j) = (ui_l1 uj_l2) * r**l
     !o   vum   :integrals ((u,s,gz) * v1 * (u,s,gz)),
     !o         :decomposed by M where v1 = sum_M v1_M Y_M
-    !o         :vum(l1,l2,M,1) = (u_l1 v1_M u_l2)
-    !o         :vum(l1,l2,M,2) = (u_l1 v1_M s_l2)
-    !o         :vum(l1,l2,M,3) = (s_l1 v1_M s_l2)
-    !o         :vum(l1,l2,M,4) = (u_l1 v1_M g_l2)
-    !o         :vum(l1,l2,M,5) = (s_l1 v1_M g_l2)
-    !o         :vum(l1,l2,M,6) = (g_l1 v1_M g_l2)
-    !o         :Note that
-    !o         :vum(l2,l1,M,2) = (s_l1 v1_M u_l2)
-    !o         :vum(l2,l1,M,4) = (g_l1 v1_M u_l2)
-    !o         :vum(l2,l1,M,5) = (g_l1 v1_M s_l2)
+    !o         :vum(l1,l2,M,i,j) = (ui_l1 v1_M uj_l2)
     !l Local variables
     !l   ul    :radial wave functions; see makusp for definition
     !l   sl    :radial wave functions; see makusp for definition
@@ -467,7 +453,7 @@ contains
     parameter (n0=10)
     double precision :: rmt,a,z,rofi(nr),rwgt(nr),rsml(n0),ehl(n0), &
          v0(nr,nsp),v1(nr,nlml,nsp),pnu(n0,nsp),pnz(n0,nsp), &
-         qum(0:lmxa,0:lmxa,0:lmxl,6,nsp), &
+         qum(0:lmxa,0:lmxa,0:lmxl,3,3,nsp), &
          vum(0:lmxa,0:lmxa,nlml,3,3,nsp)
     logical :: lpz1,lpz2
     integer :: l1,l2,lm,i,mlm,isp
@@ -525,12 +511,15 @@ contains
                       enddo
                    endif
                 endif
-                qum(l1,l2,lm,1,isp) = quu
-                qum(l1,l2,lm,2,isp) = qus
-                qum(l1,l2,lm,3,isp) = qss
-                qum(l1,l2,lm,4,isp) = quz
-                qum(l1,l2,lm,5,isp) = qsz
-                qum(l1,l2,lm,6,isp) = qzz
+                qum(l1,l2,lm,1,1,isp) = quu
+                qum(l1,l2,lm,1,2,isp) = qus
+                qum(l1,l2,lm,2,2,isp) = qss
+                qum(l1,l2,lm,1,3,isp) = quz
+                qum(l1,l2,lm,2,3,isp) = qsz
+                qum(l1,l2,lm,3,3,isp) = qzz
+                qum(l2,l1,lm,2,1,isp) = qus !transposed symmetric
+                qum(l2,l1,lm,3,1,isp) = quz !
+                qum(l2,l1,lm,3,2,isp) = qsz !
              enddo
           enddo
        enddo
@@ -583,13 +572,13 @@ contains
                 endif
                 vum(l1,l2,mlm,1,1,isp) = vuu
                 vum(l1,l2,mlm,1,2,isp) = vus
-                vum(l2,l1,mlm,2,1,isp) = vus  !transposed symmetric
                 vum(l1,l2,mlm,2,2,isp) = vss
                 vum(l1,l2,mlm,1,3,isp) = vuz
-                vum(l2,l1,mlm,3,1,isp) = vuz !
                 vum(l1,l2,mlm,2,3,isp) = vsz
-                vum(l2,l1,mlm,3,2,isp) = vsz !
                 vum(l1,l2,mlm,3,3,isp) = vzz
+                vum(l2,l1,mlm,2,1,isp) = vus  !transposed symmetric
+                vum(l2,l1,mlm,3,1,isp) = vuz !
+                vum(l2,l1,mlm,3,2,isp) = vsz !
              enddo
           enddo
        enddo

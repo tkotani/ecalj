@@ -32,6 +32,7 @@ subroutine radwgt(rmax,a,nr,wt)
   enddo
   wt(1) = wt(1)/2
   wt(nr) = wt(nr)/2
+  wt(1)=0d0 !to avoid skipping ir=1 for cases. 2023-jan
 end subroutine radwgt
 subroutine radmwt(opt,rmax,a,nr,rofi,wt)
   !- Makes mesh and weights for numerical integration on shifted log mesh

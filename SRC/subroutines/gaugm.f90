@@ -3,8 +3,7 @@ module m_gaugm !Generic routine to make augmentation matrices
   public gaugm
   private
 contains
-  subroutine gaugm(&
-       nr,nsp,lso,rofi,rwgt,lmxa,lmxl,nlml,vsm,gpotb,gpot0,hab,vab,sab,sodb,qum,vum,&
+  subroutine gaugm(nr,nsp,lso,rofi,rwgt,lmxa,lmxl,nlml,vsm,gpotb,gpot0,hab,vab,sab,sodb,qum,vum,&
        lmaxu,vumm,lldau,idu,&
        lmux, &
        nf1,nf1s,lmx1,lx1,nlx1,f1,x1,v1,d1, &
@@ -205,7 +204,7 @@ contains
     integer :: lmaxu,lldau,idu(4)
     double complex vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,nab,2,0:lmaxu)
     real(8) :: rofi(nr),rwgt(nr),vsm(nr,nlml,nsp), &
-         qum(0:lmxa,0:lmxa,0:lmxl,6,nsp),gpotb(1),gpot0(1), &
+         qum(0:lmxa,0:lmxa,0:lmxl,3,3,nsp),gpotb(1),gpot0(1), &
          hab(3,3,n0,nsp),vab(3,3,n0,nsp),sab(3,3,n0,nsp), &
          f1(nr,0:lmx1,nf1s),v1(0:lmx1,nf1s),d1(0:lmx1,nf1s), &
          f2(nr,0:lmx2,nf2s),v2(0:lmx2,nf2s),d2(0:lmx2,nf2s), &
@@ -266,7 +265,7 @@ contains
             nlml,cg,jcg,indxcg,vum(0,0,1,1,1,i),nlx1,nlx2,ppir(1,1,1,1,i))
        ! --- Moments qm = (f1~*f2~ - f1^*f2^) r^m Y_m ---
        call pvagm3(nf1,nf1s,lmx1,lx1,f1,v1,d1,nf2,nf2s,lmx2,lx2,f2,v2,d2,& ! Needed for the term qm * (gpot0-gpotb) added to ppi
-            nr,rofi,rwgt,lmxa,qum(0,0,0,1,i),lmxl,qm)
+            nr,rofi,rwgt,lmxa,qum(0,0,0,1,1,i),lmxl,qm)
        if (lldau /= 0) call paugnl(nf1,nf1s,lmx1,lx1,v1,d1,nf2,nf2s,lmx2,lx2,v2,d2,& !LDA+U contribution that exists
             lmaxu,vumm,nlx1,nlx2,ppiz(1,1,1,1,i),i,idu) 
        call paug3(nf1,lmx1,lx1,nf2,lmx2,lx2,lmxl,nlml,cg,jcg, & !Assemble ppi from ppi0, non-spherical part and multipole contr ---
@@ -934,12 +933,7 @@ contains
     !i   rwgt  :radial mesh weights
     !i   lmxa  :augmentation l-cutoff
     !i   qum   :integrals (u,s) * (u,s) * r**l (see momusl)
-    !i         :qum(l1,l2,l,1) = int (u_l1 u_l2) * r**l
-    !i         :qum(l1,l2,l,2) = int (u_l1 s_l2) * r**l
-    !i         :qum(l1,l2,l,3) = int (s_l1 s_l2) * r**l
-    !i         :qum(l1,l2,l,4) = int (u_l1 g_l2) * r**l
-    !i         :qum(l1,l2,l,5) = int (s_l1 g_l2) * r**l
-    !i         :qum(l1,l2,l,6) = int (g_l1 g_l2) * r**l
+    !i         :qum(l1,l2,l,i,j) = int (ui_l1 uj_l2) * r**l
     !i         :u and s are augmented functions defined as:
     !i         :u has val=1, slo=1 at rmax, s has val=0, slo=1
     !i   lmxl  :l-cutoff for density, potential on the radial mesh
@@ -963,12 +957,12 @@ contains
     !r   no linear combination of functions is needed.
     !r
     !r   Define the following:
-    !r   Q12uu = qum(l1,l2,lm,1)
-    !r   Q12ss = qum(l1,l2,lm,3)
-    !r   Q12zz = qum(l1,l2,lm,6)
-    !r   Q12us = qum(l1,l2,lm,2) = Q21su;   Q12su = qum(l2,l1,lm,2)
-    !r   Q12uz = qum(l1,l2,lm,4) = Q21zu;   Q12zu = qum(l2,l1,lm,4)
-    !r   Q12sz = qum(l1,l2,lm,5) = Q21zs;   Q12zs = qum(l2,l1,lm,5)
+    !r   Q12uu = qum(l1,l2,lm,1,1)
+    !r   Q12ss = qum(l1,l2,lm,2,2)
+    !r   Q12zz = qum(l1,l2,lm,3,3)
+    !r   Q12us = qum(l1,l2,lm,1,2) = Q21su;   Q12su = qum(l1,l2,lm,2,1)
+    !r   Q12uz = qum(l1,l2,lm,1,3) = Q21zu;   Q12zu = qum(l1,l2,lm,3,1)
+    !r   Q12sz = qum(l1,l2,lm,2,3) = Q21zs;   Q12zs = qum(l1,l1,lm,3,2)
     !r
     !r   Then
     !r   f1~ f2~ = V1*V2*Q12uu + V1*D2*Q12us + D1*V2*Q12su + D1*D2*Q12ss
@@ -1001,20 +995,20 @@ contains
          qm(nf1,nf2,0:lmx1,0:lmx2,0:lmxl), &
          f1(nr,0:lmx1,nf1),v1(0:lmx1,nf1s),d1(0:lmx1,nf1s), &
          f2(nr,0:lmx2,nf2),v2(0:lmx2,nf2s),d2(0:lmx2,nf2s), &
-         qum(0:lmxa,0:lmxa,0:lmxl,6)
+         qum(0:lmxa,0:lmxa,0:lmxl,3,3)
     integer :: i1,i2,l1,l2,lm,i
     double precision :: ssum,sam
-    qm=0d0 !call dpzero(qm,nf1*nf2*(lmx1+1)*(lmx2+1)*(lmxl+1))
+    qm=0d0 
     do  i1 = 1, nf1s
        do  i2 = 1, nf2s
           do  l1 = 0, lx1(i1)
              do  l2 = 0, lx2(i2)
                 do  lm = 0, lmxl
                    qm(i1,i2,l1,l2,lm) = &
-                          v1(l1,i1) * v2(l2,i2) * qum(l1,l2,lm,1) & !from augmented functions
-                        + v1(l1,i1) * d2(l2,i2) * qum(l1,l2,lm,2) &
-                        + d1(l1,i1) * v2(l2,i2) * qum(l2,l1,lm,2) &
-                        + d1(l1,i1) * d2(l2,i2) * qum(l1,l2,lm,3) &
+                          v1(l1,i1) * v2(l2,i2) * qum(l1,l2,lm,1,1) & !from augmented functions
+                        + v1(l1,i1) * d2(l2,i2) * qum(l1,l2,lm,1,2) &
+                        + d1(l1,i1) * v2(l2,i2) * qum(l1,l2,lm,2,1) &
+                        + d1(l1,i1) * d2(l2,i2) * qum(l1,l2,lm,2,2) &
                         - sum([(rwgt(i)*f1(i,l1,i1)*f2(i,l2,i2)*rofi(i)**lm,i=2,nr)])!from smooth fun.
                 enddo
              enddo
@@ -1032,11 +1026,11 @@ contains
                       ssum = sum([(rwgt(i)*f1(i,l1,i1)*f2(i,l2,i2)*rofi(i)**lm,i=2,nr)])
                       !               Both f1~ and f2~ are local orbitals
                       if (i1 > nf1s .AND. i2 > nf2s) then
-                         sam = qum(l1,l2,lm,6) 
+                         sam = qum(l1,l2,lm,3,3) 
                       elseif (i1 > nf1s) then!  f1~ is local, f2~ is linear combination of (u,s)
-                         sam = v2(l2,i2) * qum(l2,l1,lm,4) + d2(l2,i2) * qum(l2,l1,lm,5)
+                         sam = v2(l2,i2) * qum(l2,l1,lm,1,3) + d2(l2,i2) * qum(l2,l1,lm,2,3)
                       elseif (i2 > nf2s) then !f1~ is linear combination of (u,s), f2~ is local
-                         sam = v1(l1,i1) * qum(l1,l2,lm,4) + d1(l1,i1) * qum(l1,l2,lm,5)
+                         sam = v1(l1,i1) * qum(l1,l2,lm,1,3) + d1(l1,i1) * qum(l1,l2,lm,2,3)
                       endif
                       if(sam==0.AND.ssum/=0)call rx('gaugm: inconsistent treatment of local orbitals')
                       qm(i1,i2,l1,l2,lm) = sam-ssum
