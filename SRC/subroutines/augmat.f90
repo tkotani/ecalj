@@ -587,46 +587,24 @@ contains
   end subroutine momusl
   subroutine vlm2us(lmaxu,rmt,idu,lmxa,iblu,vorb,ppnl,vumm)
     !- Rotate vorb from (phi,phidot) to (u,s) and store in vumm
-    ! ----------------------------------------------------------------------
-    !i Inputs
     !i   lmaxu :dimensioning parameter for U matrix
     !i   lmxa  :augmentation l-cutoff
     !i   vorb  :orbital-dependent potential matrices
     !i   ppnl  :potential parameters
-    ! o Inputs/Outputs
-    ! o  iblu  :index to current LDA+U block
-    ! o        :on input, index to last LDA+U block that was accessed
-    ! o        :iblu will be incremented to from blocks at this site
+    !o Inputs/Outputs
+    !o  iblu  :index to current LDA+U block
+    !          :on input, index to last LDA+U block that was accessed
+    ! WARN     :iblu will be incremented to from blocks at this site
     !o Outputs
-    !o   vumm  :vorb for this site in (us) representation
-    !o         :vumm(m1,m2,1) = <u| vorb(m1,m2) |u>
-    !o         :vumm(m1,m2,2) = <u| vorb(m1,m2) |s>
-    !o         :vumm(m1,m2,3) = <s| vorb(m1,m2) |u>
-    !o         :vumm(m1,m2,4) = <s| vorb(m1,m2) |s>
-    !o         :vumm(m1,m2,5) = <u| vorb(m1,m2) |z>
-    !o         :vumm(m1,m2,6) = <s| vorb(m1,m2) |z>
-    !o         :vumm(m1,m2,7) = <z| vorb(m1,m2) |z>
-    !o         :vumm(m1,m2,8) = <z| vorb(m1,m2) |u>
-    !o         :vumm(m1,m2,9) = <z| vorb(m1,m2) |s>
-    !u Updates
-    !u   09 Nov 05 (wrl) Convert dmat to complex form
-    !u   08 Jun 05 (MvS) extended to local orbitals
-    !u   30 Apr 05 Lambrecht first created
-    ! ----------------------------------------------------------------------
+    !o   vumm  :vorb for this site in (us) representation u_i=(u,s,gz)
+    !o         :vumm(m1,m2,i,j) = <u_i| vorb(m1,m2) |u_j>
     implicit none
-    integer :: lmaxu,lmxa,iblu,idu(4)
-    double precision :: rmt
-    integer :: n0,nppn,nab
-    parameter (n0=10,nppn=12,nab=9)
-    double precision :: ppnl(nppn,n0,2)
-    integer :: m1,m2,l,i
-    double precision :: phi,dlphi,phip,dlphip,dphi,dphip
-    double precision :: r12,r21,r11,r22,det
-    double precision :: phz,dphz
+    integer :: lmaxu,lmxa,iblu,idu(4),m1,m2,l,i
+    integer,parameter:: n0=10,nppn=12
+    real(8):: rmt,ppnl(nppn,n0,2),phi,dlphi,phip,dlphip,dphi,dphip, r12,r21,r11,r22,det, phz,dphz
     complex(8):: vzz,vuz,vsz,vzu,vzs, Vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,2,*), &
-         vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,nab,2,0:lmaxu)
-    ! ... Rotate Vorb from phi,phidot basis to u,s basis
-    do  l = 0, min(lmxa,3)
+         vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,3,3,2,0:lmaxu)
+    do  l = 0, min(lmxa,3) ! ... Rotate Vorb from phi,phidot basis to u,s basis
        if (idu(l+1) == 0) cycle
        iblu = iblu+1
        do  i = 1, 2
@@ -637,25 +615,19 @@ contains
           dphi   = phi*dlphi/rmt
           dphip  = dlphip/rmt*phip
           det = phi*dphip - dphi*phip
-          r11 = dphip/det           !           r12 = -dphi/det
-          r21 = -phip/det           !           r22 = phi/det
+          r11 = dphip/det           ! r12 = -dphi/det
+          r21 = -phip/det           ! r22 = phi/det
           phz  = ppnl(11,l+1,i)
           dphz = ppnl(12,l+1,i)
-          block
-            integer::irr
-            real(8):: rrr(4)
-            rrr=[r11*r11, r11*r21, r21*r11, r21*r21]
-            do irr=1,4
-               vumm(-l:l,-l:l,irr,i,l) = Vorb(-l:l,-l:l,i,iblu)*rrr(irr)
-            enddo
-          endblock
+          vumm(-l:l,-l:l,1,1,i,l) = Vorb(-l:l,-l:l,i,iblu)*r11*r11
+          vumm(-l:l,-l:l,1,2,i,l) = Vorb(-l:l,-l:l,i,iblu)*r11*r21
+          vumm(-l:l,-l:l,2,1,i,l) = Vorb(-l:l,-l:l,i,iblu)*r21*r11
+          vumm(-l:l,-l:l,2,2,i,l) = Vorb(-l:l,-l:l,i,iblu)*r21*r21
           if (phz /= 0) then !bugfix 2022-9-20 m1,m2 -->:,:
-             vumm(:,:,5,i,l) = - phz*vumm(:,:,1,i,l) - dphz*vumm(:,:,2,i,l) !vuz
-             vumm(:,:,6,i,l) = - phz*vumm(:,:,3,i,l) - dphz*vumm(:,:,4,i,l) !vsz
-             vumm(:,:,7,i,l) =   phz**2*vumm(:,:,1,i,l) + &
-                  phz*dphz*(vumm(:,:,2,i,l)+vumm(:,:,3,i,l)) + dphz**2*vumm(:,:,4,i,l) !vzz
-             vumm(:,:,8,i,l) = - phz*vumm(:,:,1,i,l) - dphz*vumm(:,:,3,i,l) !vzu
-             vumm(:,:,9,i,l) = - phz*vumm(:,:,2,i,l) - dphz*vumm(:,:,4,i,l) !vzs
+             vumm(:,:,1:2,3,i,l) = - phz*vumm(:,:,1:2,1,i,l) - dphz*vumm(:,:,1:2,2,i,l) !vuz,vsz
+             vumm(:,:,3,1:2,i,l) = - phz*vumm(:,:,1,1:2,i,l) - dphz*vumm(:,:,2,1:2,i,l) !vzu,vzs
+             vumm(:,:,3,3,i,l) =   phz**2*vumm(:,:,1,1,i,l) + &
+                  phz*dphz*(vumm(:,:,1,2,i,l)+vumm(:,:,2,1,i,l)) + dphz**2*vumm(:,:,2,2,i,l) !vzz
           endif
        enddo
     enddo

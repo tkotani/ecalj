@@ -202,7 +202,7 @@ contains
     integer :: nr,nsp,lmxa,lmxl,nlml,lmux,lso, & 
          nf1,nf1s,lmx1,nlx1,lx1(nf1),nf2,nf2s,lmx2,nlx2,lx2(nf2)
     integer :: lmaxu,lldau,idu(4)
-    double complex vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,nab,2,0:lmaxu)
+    complex(8):: vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,3,3,2,0:lmaxu)
     real(8) :: rofi(nr),rwgt(nr),vsm(nr,nlml,nsp), &
          qum(0:lmxa,0:lmxa,0:lmxl,3,3,nsp),gpotb(1),gpot0(1), &
          hab(3,3,n0,nsp),vab(3,3,n0,nsp),sab(3,3,n0,nsp), &
@@ -1346,15 +1346,7 @@ contains
     !i   d1    :slopes of f1 at rofi(nr)
     !i   lmaxu : used to dimension vumm
     !i   vumm  :matrix elements of non-local potential
-    !i         :vumm(m1,m2,1) = <u| vorb(m1,m2) |u>
-    !i         :vumm(m1,m2,2) = <u| vorb(m1,m2) |s>
-    !i         :vumm(m1,m2,3) = <s| vorb(m1,m2) |u>
-    !i         :vumm(m1,m2,4) = <s| vorb(m1,m2) |s>
-    !i         :vumm(m1,m2,5) = <u| vorb(m1,m2) |z>
-    !i         :vumm(m1,m2,6) = <s| vorb(m1,m2) |z>
-    !i         :vumm(m1,m2,7) = <z| vorb(m1,m2) |z>
-    !i         :vumm(m1,m2,8) = <z| vorb(m1,m2) |u>
-    !i         :vumm(m1,m2,9) = <z| vorb(m1,m2) |s>
+    !i         :vumm(m1,m2,1) = <u_i| vorb(m1,m2) |u_j>
     !i   nlx1  :dimensions ppiz
     !i   nlx2  :dimensions ppiz
     !i   isp   : spin we're working on
@@ -1376,8 +1368,7 @@ contains
          v1(0:lmx1,nf1),d1(0:lmx1,nf1), &
          v2(0:lmx2,nf2),d2(0:lmx2,nf2)
     double complex ppiz(nf1,nf2,nlx1,nlx2)
-    double complex vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,nab,2,0:lmaxu)
-    ! ... Local parameters
+    complex(8):: vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,3,3,2,0:lmaxu)
     integer :: i1,i2,ilm1,ilm2,l1,l2,m1,m2
     double complex add
     do  i1 = 1, nf1
@@ -1394,19 +1385,16 @@ contains
                       if (idu(l1+1) /= 0 .AND. l1 == l2) then
                          !           ... (u,s)V(u,s)
                          if (i1 <= nf1s .AND. i2 <= nf2s) then
-                            add = v1(l1,i1) * v2(l2,i2) * vumm(m1,m2,1,isp,l1) &
-                                 + v1(l1,i1) * d2(l2,i2) * vumm(m1,m2,2,isp,l1) &
-                                 + d1(l1,i1) * v2(l2,i2) * vumm(m1,m2,3,isp,l1) &
-                                 + d1(l1,i1) * d2(l2,i2) * vumm(m1,m2,4,isp,l1)
-                            !           ... zVz
-                         elseif (i1 > nf1s .AND. i2 > nf2s) then
-                            add = vumm(m1,m2,7,isp,l1)
-                            !           ... zV(u,s)
-                         elseif (i1 > nf1s) then
-                            add = vumm(m1,m2,8,isp,l1) * v2(l2,i2) + vumm(m1,m2,9,isp,l1) * d2(l2,i2)
-                            !           ... (u,s)Vz
-                         elseif (i2 > nf2s) then
-                            add = v1(l1,i1) * vumm(m1,m2,5,isp,l1) + d1(l1,i1) * vumm(m1,m2,6,isp,l1)
+                            add =  v1(l1,i1) * v2(l2,i2) * vumm(m1,m2,1,1,isp,l1) &
+                                 + v1(l1,i1) * d2(l2,i2) * vumm(m1,m2,1,2,isp,l1) &
+                                 + d1(l1,i1) * v2(l2,i2) * vumm(m1,m2,2,1,isp,l1) &
+                                 + d1(l1,i1) * d2(l2,i2) * vumm(m1,m2,2,2,isp,l1)
+                         elseif (i1 > nf1s .AND. i2 > nf2s) then! ... zVz
+                            add = vumm(m1,m2,3,3,isp,l1) 
+                         elseif (i1 > nf1s) then!           ... zV(u,s)
+                            add = vumm(m1,m2,3,1,isp,l1)*v2(l2,i2)+ vumm(m1,m2,3,2,isp,l1)* d2(l2,i2)
+                         elseif (i2 > nf2s) then!           ... (u,s)Vz
+                            add = v1(l1,i1)*vumm(m1,m2,1,3,isp,l1) + d1(l1,i1)*vumm(m1,m2,2,3,isp,l1)
                          endif
                          ppiz(i1,i2,ilm1,ilm2) = ppiz(i1,i2,ilm1,ilm2) + add
                       endif
