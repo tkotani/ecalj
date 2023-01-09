@@ -95,7 +95,7 @@ contains
          v2(0:lmx2,nf2),d2(0:lmx2,nf2), &
          sig(nf1,nf2,0:lmux),tau(nf1,nf2,0:lmux),ppi(nf1,nf2,0:lmux)
     double precision :: sodb(3,3,0:n0-1),sondb(3,3,0:n0-1)
-    double precision :: tmp(nf1,nf2,nlx1,nlx2),a1,a2,vd1(2),vd2(2)
+    double precision :: a1,a2,vd1(2),vd2(2)
     complex(8):: hsozz(nf1,nf2,nlx1,nlx2),hsopm(nf1,nf2,nlx1,nlx2),somatpm,somatzz
     integer :: i1,i2,lmax1,lmax2,lmax,l
     integer :: m1,m2,l1,l2,lso
@@ -103,140 +103,85 @@ contains
     real(8)::sim,tum,xbc,rwgt(nr),vsms(nr),rofi(nr),&
          f1(nr,0:lmx1,nf1),x1(nr,0:lmx1,nf1), &
          f2(nr,0:lmx2,nf2),x2(nr,0:lmx2,nf2) 
-    real(8):: tmp1(nf1,nf2,nlx1,nlx2)
+    real(8):: sorad
     sig=0d0 
     tau=0d0 
     ppi=0d0 
     do  i1 = 1, nf1
        do  i2 = 1, nf2
-          do  l = 0, min0(lx1(i1),lx2(i2)) !lmax
+          do  l = 0, min0(lx1(i1),lx2(i2))
              sig(i1,i2,l) = sum([(rwgt(ii)*f1(ii,l,i1)*f2(ii,l,i2),ii=2,nr)])
              ppi(i1,i2,l) = sum([(rwgt(ii)*f1(ii,l,i1)*f2(ii,l,i2)*vsms(ii),ii=2,nr)])
              sim  =  sum([(rwgt(ii)*f1(ii,l,i1)*f2(ii,l,i2)/rofi(ii)**2,ii=2,nr)])
              tum  =  sum([(rwgt(ii)*x1(ii,l,i1)*x2(ii,l,i2),ii=2,nr)])
              xbc = f1(nr,l,i1) * x2(nr,l,i2)
              tau(i1,i2,l) = tum + l*(l+1)*sim - xbc
+             !       ... hzz,vzz,szz
+             if (i1 > nf1s .AND. i2 > nf2s) then
+                sig(i1,i2,l) = -sig(i1,i2,l) + sab(3,3,l)
+                tau(i1,i2,l) = -tau(i1,i2,l) + (hab(3,3,l)-vab(3,3,l))
+                ppi(i1,i2,l) = -ppi(i1,i2,l) + vab(3,3,l)
+                !       ... hzu,vzu,szs
+             elseif (i1 > nf1s) then
+                sig(i1,i2,l)= -sig(i1,i2,l) + sum(sab(3,1:2,l)*[v2(l,i2),d2(l,i2)])
+                tau(i1,i2,l)= -tau(i1,i2,l) + sum((hab(3,1:2,l)-vab(3,1:2,l))*[v2(l,i2),d2(l,i2)])
+                ppi(i1,i2,l) = -ppi(i1,i2,l)+ sum(vab(3,1:2,l)*[v2(l,i2),d2(l,i2)])
+                !       ... huz,vuz,ssz
+             elseif (i2 > nf2s) then
+                sig(i1,i2,l) = -sig(i1,i2,l) +sum([v1(l,i1),d1(l,i1)]*sab(1:2,3,l))
+                tau(i1,i2,l) = -tau(i1,i2,l) +sum([v1(l,i1),d1(l,i1)]*(hab(1:2,3,l)-vab(1:2,3,l)))
+                ppi(i1,i2,l) = -ppi(i1,i2,l) +sum([v1(l,i1),d1(l,i1)]*vab(1:2,3,l))
+             else
+                vd1= [v1(l,i1),d1(l,i1)]
+                vd2= [v2(l,i2),d2(l,i2)]
+                sig(i1,i2,l)= -sig(i1,i2,l) + sum(vd1*matmul(sab(1:2,1:2,l),vd2))
+                tau(i1,i2,l)= -tau(i1,i2,l) + sum(vd1*matmul(hab(1:2,1:2,l)-vab(1:2,1:2,l),vd2))
+                ppi(i1,i2,l)= -ppi(i1,i2,l) + sum(vd1*matmul(vab(1:2,1:2,l),vd2))
+             endif
           enddo
-       enddo
-    enddo
-    do  i1 = 1, nf1s
-       do  i2 = 1, nf2s
-          do  l = 0, min0(lx1(i1),lx2(i2))
-             vd1= [v1(l,i1),d1(l,i1)]
-             vd2= [v2(l,i2),d2(l,i2)]
-             sig(i1,i2,l)= -sig(i1,i2,l) + sum(vd1*matmul(sab(1:2,1:2,l),vd2))
-             tau(i1,i2,l)= -tau(i1,i2,l) + sum(vd1*matmul(hab(1:2,1:2,l)-vab(1:2,1:2,l),vd2))
-             ppi(i1,i2,l)= -ppi(i1,i2,l) + sum(vd1*matmul(vab(1:2,1:2,l),vd2))
-          enddo
-       enddo
-    enddo
-    do  i1 = 1, nf1
-       do  i2 = 1, nf2
-          if (i1 > nf1s .OR. i2 > nf2s) then
-             lmax1 = lx1(i1)
-             lmax2 = lx2(i2)
-             lmax = min0(lmax1,lmax2)
-             l1 = 0
-             l2 = 0
-             do  l = 0, lmax
-                !       ... hzz,vzz,szz
-                if (i1 > nf1s .AND. i2 > nf2s) then
-                   sig(i1,i2,l) = -sig(i1,i2,l) + sab(3,3,l)
-                   tau(i1,i2,l) = -tau(i1,i2,l) + (hab(3,3,l)-vab(3,3,l))
-                   ppi(i1,i2,l) = -ppi(i1,i2,l) + vab(3,3,l)
-                   !       ... hzu,vzu,szs
-                elseif (i1 > nf1s) then
-                   sig(i1,i2,l)= -sig(i1,i2,l) + sum(sab(3,1:2,l)*[v2(l,i2),d2(l,i2)])
-                   tau(i1,i2,l)= -tau(i1,i2,l) + sum((hab(3,1:2,l)-vab(3,1:2,l))*[v2(l,i2),d2(l,i2)])
-                   ppi(i1,i2,l) = -ppi(i1,i2,l)+ sum(vab(3,1:2,l)*[v2(l,i2),d2(l,i2)])
-                   !       ... huz,vuz,ssz
-                elseif (i2 > nf2s) then
-                   sig(i1,i2,l) = -sig(i1,i2,l) +sum([v1(l,i1),d1(l,i1)]*sab(1:2,3,l))
-                   tau(i1,i2,l) = -tau(i1,i2,l) +sum([v1(l,i1),d1(l,i1)]*(hab(1:2,3,l)-vab(1:2,3,l)))
-                   ppi(i1,i2,l) = -ppi(i1,i2,l) +sum([v1(l,i1),d1(l,i1)]*vab(1:2,3,l))
-                endif
-             enddo
-          endif
        enddo
     enddo
     
     if(lso==0) return  !SO part from now on ===================
     hsopm=0d0  
     hsozz=0d0
-    i1loop: do  i1 = 1, nf1s
-       i2loop: do  i2 = 1, nf2s
-          lmax1 = lx1(i1)
-          lmax2 = lx2(i2)
-          lmax = min0(lmax1,lmax2)
-          l1 = 0
-          l2 = 0
-          lloop: do  l = 0, lmax
-             m1loop: do  m1 = -l, l
-                l1 = l1 + 1
-                if (m1 >= (-l+1)) l2 = l2 - (2*l + 1)
-                m2loop: do  m2 = -l, l
-                   l2 = l2 + 1
-                   vd1= [v1(l,i1),d1(l,i1)]
-                   vd2= [v2(l,i2),d2(l,i2)]
-                   if(lso==1) then
-                      call mksomat(l,m1,m2,isp,somatpm) ! LxSx+LySy lm part
-                      hsopm(i1,i2,l1,l2)= somatpm * sum(vd1*matmul(sondb(1:2,1:2,l),vd2))
-                      !lm part=somatpm \times radial part
-                   endif
-                   if (lso/=0.and. m1+m2==0.AND.m2/=0.and.l1/=l2) then ! ... LzSz part
-                      if(l1<l2) somatzz= img*abs(m1)
-                      if(l1>l2) somatzz=-img*abs(m1)
-                      hsozz(i1,i2,l1,l2)= somatzz * sum(vd1*matmul(sodb(1:2,1:2,l),vd2))
-                   endif
-                enddo m2loop
-             enddo m1loop
-          enddo lloop
-       enddo i2loop
-    enddo i1loop
-    tmp=0d0  
-    tmp1=0d0 
     i1loop2: do  i1 = 1, nf1
        i2loop2: do  i2 = 1, nf2
-          if (i1 > nf1s .OR. i2 > nf2s) then
-             continue
-          else
-             cycle
-          endif
-          lmax1 = lx1(i1)
-          lmax2 = lx2(i2)
-          lmax = min0(lmax1,lmax2)
           l1 = 0
           l2 = 0
-          lloop2: do  l = 0, lmax
-             mloop2: do  m1 = -l, l
-                l1 = l1 + 1
-                if (m1 >= (-l+1)) l2 = l2 - (2*l + 1)
+          lloop2: do  l = 0, min0(lx1(i1),lx2(i2))
+             mloop2: do  m1 = -l, l               !l1 = l1 + 1
+                l1 = l**2 + l+1+ m1     !l1 + 1   !if (m1 >= (-l+1)) l2 = l2 - (2*l + 1)
                 do  m2 = -l, l
-                   l2 = l2 + 1
-
-                   if (i1 > nf1s .AND. i2 > nf2s) then !     ... hso_zz
-                      tmp1(i1,i2,l1,l2) = sodb(3,3,l)
-                   elseif (i1 > nf1s) then                      !             ... hso_zu
-                      tmp1(i1,i2,l1,l2) = sum(sodb(3,1:2,l)*[v2(l,i2),d2(l,i2)])
-                   elseif (i2 > nf2s) then                      !             ... hso_uz
-                      tmp1(i1,i2,l1,l2) = sum([v1(l,i1),d1(l,i1)]*sodb(1:2,3,l))
-                   endif
+                   l2 = l**2 + l+1 + m2 !l2 + 1    !l2 = l2 + 1
+                   vd1= [v1(l,i1),d1(l,i1)]
+                   vd2= [v2(l,i2),d2(l,i2)]
                    if ( m1+m2==0.AND.m2/=0.and.l1/=l2) then ! ... LzSz part
+                      if (i1 > nf1s .AND. i2 > nf2s) then !     ... hso_zz
+                         sorad = sodb(3,3,l)
+                      elseif (i1 > nf1s) then                      !             ... hso_zu
+                         sorad = sum(sodb(3,1:2,l)*[v2(l,i2),d2(l,i2)])
+                      elseif (i2 > nf2s) then                      !             ... hso_uz
+                         sorad = sum([v1(l,i1),d1(l,i1)]*sodb(1:2,3,l))
+                      else
+                         sorad = sum(vd1*matmul(sodb(1:2,1:2,l),vd2))
+                      endif
                       if (l1 < l2 .AND. m1 == -m2) somatzz =  abs(m1)*img 
                       if (l1 > l2 .AND. m1 == -m2) somatzz = -abs(m1)*img
-                      hsozz(i1,i2,l1,l2) = somatzz * tmp1(i1,i2,l1,l2)
+                      hsozz(i1,i2,l1,l2) = somatzz * sorad
                    endif
-
                    if (lso == 1) then ! LxSx+LySy part
                       if (i1 > nf1s .AND. i2 > nf2s) then
-                         tmp(i1,i2,l1,l2) = sondb(3,3,l)
+                         sorad = sondb(3,3,l)
                       elseif (i1 > nf1s) then                         !         ... hso_zu
-                         tmp(i1,i2,l1,l2) = sum(sondb(3,1:2,l)*[v2(l,i2),d2(l,i2)])
+                         sorad = sum(sondb(3,1:2,l)*[v2(l,i2),d2(l,i2)])
                       elseif (i2 > nf2s) then                         !         ... hso_uz
-                         tmp(i1,i2,l1,l2) = sum([v1(l,i1),d1(l,i1)]*sondb(1:2,3,l))
+                         sorad = sum([v1(l,i1),d1(l,i1)]*sondb(1:2,3,l))
+                      else
+                         sorad = sum(vd1*matmul(sondb(1:2,1:2,l),vd2))
                       endif
                       call mksomat(l,m1,m2,isp,somatpm) ! LxSx+LySy lm part
-                      hsopm(i1,i2,l1,l2)= somatpm*tmp(i1,i2,l1,l2)
+                      hsopm(i1,i2,l1,l2)= somatpm* sorad
                    endif
                 enddo
              enddo mloop2
@@ -244,58 +189,6 @@ contains
        enddo i2loop2
     enddo i1loop2
   end subroutine pvagm
-  subroutine getqm(nf1,nf1s,lmx1,lx1,f1,v1,d1,nf2,nf2s,lmx2,lx2,f2, &
-       v2,d2,nr,rofi,rwgt,lmxa,qum,lmxl,qm) !output = qm = integrals (f1~*f2~ - f1*f2) r**l
-    implicit none
-    integer :: nf1,nf2,nf1s,nf2s,lmx1,lmx2,lmxa,lmxl,nr
-    integer :: lx1(nf1),lx2(nf2)
-    double precision :: rofi(nr),rwgt(nr), &
-         qm(nf1,nf2,0:lmx1,0:lmx2,0:lmxl), &
-         f1(nr,0:lmx1,nf1),v1(0:lmx1,nf1s),d1(0:lmx1,nf1s), &
-         f2(nr,0:lmx2,nf2),v2(0:lmx2,nf2s),d2(0:lmx2,nf2s), &
-         qum(0:lmxa,0:lmxa,0:lmxl,3,3),vd1(2),vd2(2)
-    integer :: i1,i2,l1,l2,lm,i
-    double precision :: ssum,sam
-    qm=0d0 
-    do  i1 = 1, nf1s
-       do  i2 = 1, nf2s
-          do  l1 = 0, lx1(i1)
-             do  l2 = 0, lx2(i2)
-                do  lm = 0, lmxl
-                   vd1=[v1(l1,i1),d1(l1,i1)]
-                   vd2=[v2(l2,i2),d2(l2,i2)]
-                   qm(i1,i2,l1,l2,lm) = sum(vd1*matmul(qum(l1,l2,lm,1:2,1:2),vd2))&
-                        - sum([(rwgt(i)*f1(i,l1,i1)*f2(i,l2,i2)*rofi(i)**lm,i=2,nr)])!from smooth fun.
-                enddo
-             enddo
-          enddo
-       enddo
-    enddo
-    if (nf1s >= nf1 .AND. nf2s >= nf2) return
-    ! --- Moments involving local orbitals ---
-    do  i1 = 1, nf1
-       do  i2 = 1, nf2
-          if (i1 > nf1s .OR. i2 > nf2s) then
-             do  l1 = 0, lx1(i1)
-                do  l2 = 0, lx2(i2)
-                   do  lm = 0, lmxl
-                      ssum = sum([(rwgt(i)*f1(i,l1,i1)*f2(i,l2,i2)*rofi(i)**lm,i=2,nr)])
-                      if (i1 > nf1s .AND. i2 > nf2s) then ! Both f1~ and f2~ are local orbitals
-                         sam = qum(l1,l2,lm,3,3) 
-                      elseif (i1 > nf1s) then!  f1~ is local, f2~ is linear combination of (u,s)
-                         sam = sum([v2(l2,i2),d2(l2,i2)] * qum(l2,l1,lm,1:2,3))
-                      elseif (i2 > nf2s) then !f1~ is linear combination of (u,s), f2~ is local
-                         sam = sum([v1(l1,i1),d1(l1,i1)] * qum(l1,l2,lm,1:2,3))
-                      endif
-                      if(sam==0.AND.ssum/=0)call rx('gaugm: inconsistent treatment of local orbitals')
-                      qm(i1,i2,l1,l2,lm) = sam-ssum
-                   enddo
-                enddo
-             enddo
-          endif
-       enddo
-    enddo
-  end subroutine getqm
   subroutine ppiNS(nr,nlml,vsm,rwgt,cg,jcg,indxcg, &
        nf1,nf1s,lmx1,lx1,f1,&
        nf2,nf2s,lmx2,lx2,f2,ssum,nlx1,nlx2,& 
@@ -309,12 +202,10 @@ contains
          cg(1),ssum(0:lmx1,0:lmx2,nlml)
     integer :: i1,i2,icg,ilm1,ilm2,ix,l1,l2,ll,mlm,nlm1,nlm2,i
     double precision :: sam
-    integer :: lmxa !lmx1,lmx2,lmxa,nf1,nf1s,nf2,nf2s,nlml,nlx1,nlx2
-    !    integer :: lx1(nf1),lx2(nf2),jcg(1),indxcg(1)
+    integer :: lmxa 
     double precision :: vum(0:lmxa,0:lmxa,nlml,3,3), &
          v1(0:lmx1,nf1),d1(0:lmx1,nf1), &
          v2(0:lmx2,nf2),d2(0:lmx2,nf2),vd1(2),vd2(2)
-    !    integer :: i1,i2,icg,ilm1,ilm2,ix,l1,l2,ll,mlm,nlm1,nlm2
     double precision :: add=1d99
     ppi=0d0 
     do  i1 = 1, nf1 ! Sum over CG coefficients, make radial integrals as needed
@@ -341,10 +232,8 @@ contains
           enddo
        enddo
     enddo
-    !return
-    ! ... Combine with CG coefficents paug1
-    do  i1 = 1, nf1s
-       do  i2 = 1, nf2s
+    do  i1 = 1, nf1
+       do  i2 = 1, nf2
           nlm1 = (lx1(i1)+1)**2
           nlm2 = (lx2(i2)+1)**2
           do  ilm1 = 1, nlm1
@@ -355,49 +244,64 @@ contains
                 ix = (ix*(ix-1))/2 + min0(ilm1,ilm2)
                 do  icg = indxcg(ix),indxcg(ix+1)-1
                    mlm = jcg(icg)
+                   vd1=[v1(l1,i1),d1(l1,i1)]
+                   vd2=[v2(l2,i2),d2(l2,i2)]
                    if (mlm > 1 .AND. mlm <= nlml) then
-                      vd1=[v1(l1,i1),d1(l1,i1)]
-                      vd2=[v2(l2,i2),d2(l2,i2)]
-                      ppi(i1,i2,ilm1,ilm2) = ppi(i1,i2,ilm1,ilm2) &
-                           + cg(icg)*sum(vd1*matmul(vum(l1,l2,mlm,1:2,1:2),vd2))
+                      if (i1 > nf1s .AND. i2 > nf2s) then!    <g | V | g>
+                         add = vum(l1,l2,mlm,3,3)
+                      elseif (i1 > nf1s) then  !              <g | V | (u,s)>
+                         add = sum( vum(l1,l2,mlm,3,1:2) * [v2(l2,i2),d2(l2,i2)])
+                      elseif (i2 > nf2s) then !               <(u,s) | V | g>
+                         add = sum([v1(l1,i1),d1(l1,i1)] * vum(l1,l2,mlm,1:2,3))
+                      else
+                         add= sum(vd1*matmul(vum(l1,l2,mlm,1:2,1:2),vd2))
+                      endif
+                      ppi(i1,i2,ilm1,ilm2) = ppi(i1,i2,ilm1,ilm2) + cg(icg)*add
                    endif
                 enddo
              enddo
           enddo
        enddo
     enddo
-    ! --- Matrix elements involving local orbitals ---
-    if (nf1s >= nf1 .AND. nf2s >= nf2) return
+  end subroutine ppiNS
+  subroutine getqm(nf1,nf1s,lmx1,lx1,f1,v1,d1,nf2,nf2s,lmx2,lx2,f2, &
+       v2,d2,nr,rofi,rwgt,lmxa,qum,lmxl,qm) !output = qm = integrals (f1~*f2~ - f1*f2) r**l
+    implicit none
+    integer :: nf1,nf2,nf1s,nf2s,lmx1,lmx2,lmxa,lmxl,nr
+    integer :: lx1(nf1),lx2(nf2)
+    double precision :: rofi(nr),rwgt(nr), &
+         qm(nf1,nf2,0:lmx1,0:lmx2,0:lmxl), &
+         f1(nr,0:lmx1,nf1),v1(0:lmx1,nf1s),d1(0:lmx1,nf1s), &
+         f2(nr,0:lmx2,nf2),v2(0:lmx2,nf2s),d2(0:lmx2,nf2s), &
+         qum(0:lmxa,0:lmxa,0:lmxl,3,3),vd1(2),vd2(2)
+    integer :: i1,i2,l1,l2,lm,i
+    double precision :: ssum,sam
+    qm=0d0 
     do  i1 = 1, nf1
        do  i2 = 1, nf2
-          if (i1 > nf1s .OR. i2 > nf2s) then
-             nlm1 = (lx1(i1)+1)**2
-             nlm2 = (lx2(i2)+1)**2
-             do  ilm1 = 1, nlm1
-                l1 = ll(ilm1)
-                do  ilm2 = 1, nlm2
-                   l2 = ll(ilm2)
-                   ix = max0(ilm1,ilm2)
-                   ix = (ix*(ix-1))/2 + min0(ilm1,ilm2)
-                   do  icg = indxcg(ix),indxcg(ix+1)-1
-                      mlm = jcg(icg)
-                      if (mlm > 1 .AND. mlm <= nlml) then
-                         if (i1 > nf1s .AND. i2 > nf2s) then!    <g | V | g>
-                            add = vum(l1,l2,mlm,3,3)
-                         elseif (i1 > nf1s) then  !              <g | V | (u,s)>
-                            add = sum( vum(l1,l2,mlm,3,1:2) * [v2(l2,i2),d2(l2,i2)])
-                         elseif (i2 > nf2s) then !               <(u,s) | V | g>
-                            add = sum([v1(l1,i1),d1(l1,i1)] * vum(l1,l2,mlm,1:2,3))
-                         endif
-                         ppi(i1,i2,ilm1,ilm2) = ppi(i1,i2,ilm1,ilm2) + cg(icg)*add
-                      endif
-                   enddo
+          do  l1 = 0, lx1(i1)
+             do  l2 = 0, lx2(i2)
+                do  lm = 0, lmxl
+                   ssum = sum([(rwgt(i)*f1(i,l1,i1)*f2(i,l2,i2)*rofi(i)**lm,i=2,nr)])
+                   vd1=[v1(l1,i1),d1(l1,i1)]
+                   vd2=[v2(l2,i2),d2(l2,i2)]
+                   if (i1 > nf1s .AND. i2 > nf2s) then ! Both f1~ and f2~ are local orbitals
+                      sam = qum(l1,l2,lm,3,3) 
+                   elseif (i1 > nf1s) then!  f1~ is local, f2~ is linear combination of (u,s)
+                      sam = sum([v2(l2,i2),d2(l2,i2)] * qum(l2,l1,lm,1:2,3))
+                   elseif (i2 > nf2s) then !f1~ is linear combination of (u,s), f2~ is local
+                      sam = sum([v1(l1,i1),d1(l1,i1)] * qum(l1,l2,lm,1:2,3))
+                   else
+                      sam = sum(vd1*matmul(qum(l1,l2,lm,1:2,1:2),vd2))
+                   endif
+                   if(sam==0.AND.ssum/=0)call rx('gaugm: inconsistent treatment of local orbitals')
+                   qm(i1,i2,l1,l2,lm) = sam-ssum
                 enddo
              enddo
-          endif
+          enddo
        enddo
     enddo
-  end subroutine ppiNS
+  end subroutine getqm
   subroutine ppiall(nf1,lmx1,lx1,nf2,lmx2,lx2,lmxl,nlml, &
        cg,jcg,indxcg,qm,gpotb,gpot0,lmux,ppi0,nlx1,nlx2,&
        ppi)!- Assemble ppi0,qm ppi to ppi
@@ -435,8 +339,8 @@ contains
   subroutine ppildau(nf1,nf1s,lmx1,lx1,v1,d1,nf2,nf2s,lmx2,lx2,v2,d2, &
        lmaxu,vumm,nlx1,nlx2,ppiz,isp,idu) ! ppiz from non-local part of pot (LDA+U)
     implicit none
-    integer :: lmx1,lmx2,nf1,nf1s,nf2,nf2s,nlx1,nlx2,lmaxu, lx1(nf1),lx2(nf2),isp,idu(4)
-    integer :: i1,i2,ilm1,ilm2,l1,l2,m1,m2
+    integer :: lmx1,lmx2,nf1,nf1s,nf2,nf2s,nlx1,nlx2,lmaxu, lx1(nf1),lx2(nf2),isp,idu(4),&
+         i1,i2,ilm1,ilm2,l1,l2,m1,m2
     real(8):: &
          v1(0:lmx1,nf1),d1(0:lmx1,nf1), &
          v2(0:lmx2,nf2),d2(0:lmx2,nf2),vd1(2),vd2(2)
