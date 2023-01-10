@@ -23,88 +23,69 @@ contains
          sig(nf1,nf2,0:lmux,nsp),tau(nf1,nf2,0:lmux,nsp),vum(0:lmxa,0:lmxa,nlml,3,3,nsp)
     double precision :: sodb(3,3,0:n0-1,nsp,2) !Spin-Orbit related
     integer :: ilm1,ilm2,ix,m1,m2
-    integer :: i1,i2,ilm,l,ll,nlm,nlm1,nlm2,i,iprint,ii,icg,lm,mlm,l1,l2
+    integer :: i1,i2,ilm,l,ll,nlm,nlm1,nlm2,i,iprint,ii,icg,lm,mlm,l1,l2,lm1,lm2
     real(8),parameter:: pi= 4d0*datan(1d0),y0= 1d0/dsqrt(4d0*pi)
     real(8):: vsms(nr),ppi0(nf1,nf2,0:lmux), &
-         qm(nf1,nf2,0:lmx1,0:lmx2,0:lmxl) !, ssum((lmx1+1)*(lmx2+1)*nlml)
+         qm(nf1,nf2,0:lmx1,0:lmx2,0:lmxl) , ssum(0:lmx1+1,0:lmx2+1,nlml)
     complex(8),allocatable:: hso(:,:,:,:,:,:),ppiz(:,:,:,:,:)
     complex(8):: ppi  (nf1,nf2,nlx1,nlx2,nsp)
     complex(8):: hsozz(nf1,nf2,nlx1,nlx2,nsp),somatpm,somatzz
     complex(8):: hsopm(nf1,nf2,nlx1,nlx2,nsp) !offdiag parts for <isp|ispo> (see sodb(*,2))
     real(8)::   ppir(nf1,nf2,nlx1,nlx2,nsp),mmm
-    real(8):: vd1x(3),vd2x(3),ssum,sorad1,sorad2
+    real(8):: vd1x(3),vd2x(3),sorad1,sorad2 !,ssum
     complex(8),parameter:: img=(0d0,1d0)
     if(lso/=0)  hsozz=0d0
     if(lso/=0)  hsopm=0d0
     ppir=0d0
     sig=0d0 
     tau=0d0 
-    do i = 1, nsp
+    isploop: do i=1, nsp
        vsms=y0*vsm(1:nr,1,i)!Spherical part of the smooth potential
        ppi0=0d0
-       do  i1 = 1, nf1 ! --- Make sig, tau, ppi0 = spherical part of ppi ---
-          do  i2 = 1, nf2
+       qm=0d0
+       i1loop: do i1 = 1, nf1 ! --- Make sig, tau, ppi0 = spherical part of ppi ---
+          i2loop: do i2 = 1, nf2
              do  l = 0, min0(lx1(i1),lx2(i2))
                 if(i1> nf1s) vd1x= [0d0,0d0,1d0]
                 if(i1<=nf1s) vd1x= [v1(l,i1),d1(l,i1),0d0]
                 if(i2> nf2s) vd2x= [0d0,0d0,1d0]
                 if(i2<=nf2s) vd2x= [v2(l,i2),d2(l,i2),0d0]
-                sig(i1,i2,l,i)= -sum([(rwgt(ii)*f1(ii,l,i1)*f2(ii,l,i2),ii=2,nr)])&
+                sig(i1,i2,l,i)= -sum(rwgt*f1(:,l,i1)*f2(:,l,i2))&
                      + sum(vd1x*matmul(sab(:,:,l,i),vd2x))
-                tau(i1,i2,l,i)= -sum([(rwgt(ii)*x1(ii,l,i1)*x2(ii,l,i2),ii=2,nr)]) &
+                tau(i1,i2,l,i)= -sum(rwgt*x1(:,l,i1)*x2(:,l,i2)) &
                      - l*(l+1)*sum([(rwgt(ii)*f1(ii,l,i1)*f2(ii,l,i2)/rofi(ii)**2,ii=2,nr)]) &
                      + f1(nr,l,i1) * x2(nr,l,i2) &
                      + sum(vd1x*matmul(hab(:,:,l,i)-vab(:,:,l,i),vd2x))
-                ppi0(i1,i2,l)= -sum([(rwgt(ii)*f1(ii,l,i1)*f2(ii,l,i2)*vsms(ii),ii=2,nr)])&
+                ppi0(i1,i2,l)= -sum(rwgt*f1(:,l,i1)*f2(:,l,i2)*vsms)&
                      + sum(vd1x*matmul(vab(:,:,l,i),vd2x))
              enddo
-          enddo
-       enddo
-       ! if(lso/=0) call soagm(nr,rofi,rwgt,vsms,&
-       !         f1,f2,x1,x2,&
-       !         nf1,nf1s,lmx1,lx1,nlx1,v1,d1,& !f1~f2~ part of sig and corresponding tau,ppi0
-       !         nf2,nf2s,lmx2,lx2,nlx2,v2,d2,&
-       !         i,lso,lmux, &
-       !         sodb(1,1,0,i,1),sodb(1,1,0,i,2), &
-       !         hsozz(1,1,1,1,i),hsopm(1,1,1,1,i))
-       if(lso/=0) then
-          do  i1 = 1, nf1
-             do  i2 = 1, nf2
-                do  l = 0, min0(lx1(i1),lx2(i2))
+             !non-Spherical part ppir
+             nlm1 = (lx1(i1)+1)**2 
+             nlm2 = (lx2(i2)+1)**2
+             ssum(0:lx1(i1),0:lx2(i2),1:nlml) = 2d10 ! --- integral not yet calculated
+             do  ilm1 = 1, nlm1
+                l1 = ll(ilm1)
+                do  ilm2 = 1, nlm2
+                   l2 = ll(ilm2)
                    if(i1> nf1s) vd1x= [0d0,0d0,1d0]
-                   if(i1<=nf1s) vd1x= [v1(l,i1),d1(l,i1),0d0]
+                   if(i1<=nf1s) vd1x= [v1(l1,i1),d1(l1,i1),0d0]
                    if(i2> nf2s) vd2x= [0d0,0d0,1d0]
-                   if(i2<=nf2s) vd2x= [v2(l,i2),d2(l,i2),0d0]
-                   sorad1 = sum(vd1x*matmul(sodb(:,:,l,i,1),vd2x))             !diag
-                   if(lso==1) sorad2 = sum(vd1x*matmul(sodb(:,:,l,i,2),vd2x))  !off-diag sondb
-                   m1loop: do  m1 = -l, l     
-                      l1 = l**2 + l+1+ m1     
-                      m2loop: do  m2 = -l, l
-                         l2 = l**2 + l+1 + m2 
-                         if( m1+m2==0.AND.m2/=0.and.l1/=l2) then ! ... LzSz part
-                            if (l1 < l2 .AND. m1 == -m2) somatzz =  abs(m1)*img 
-                            if (l1 > l2 .AND. m1 == -m2) somatzz = -abs(m1)*img
-                            hsozz(i1,i2,l1,l2,i) = somatzz * sorad1
-                         endif
-                         if (lso == 1) then ! LxSx+LySy part
-                            call mksomat(l,m1,m2,i,somatpm) ! LxSx+LySy lm part
-                            hsopm(i1,i2,l1,l2,i)= somatpm* sorad2
-                         endif
-                      enddo m2loop
-                   enddo m1loop
+                   if(i2<=nf2s) vd2x= [v2(l2,i2),d2(l2,i2),0d0]
+                   ix = max0(ilm1,ilm2)
+                   ix = (ix*(ix-1))/2 + min0(ilm1,ilm2)
+                   do  icg = indxcg(ix),indxcg(ix+1)-1
+                      mlm = jcg(icg)
+                      if (1< mlm .AND. mlm <= nlml) then !<(u,s,g) | V | (u,s,g)>
+                         if (ssum(l1,l2,mlm) > 1d10) &
+                              ssum(l1,l2,mlm)= sum(rwgt*vsm(:,mlm,i)*f1(:,l1,i1)*f2(:,l2,i2))
+                         ppir(i1,i2,ilm1,ilm2,i) = ppir(i1,i2,ilm1,ilm2,i) &
+                              + cg(icg)*sum(vd1x*matmul(vum(l1,l2,mlm,:,:,i),vd2x)) &
+                              - cg(icg)*ssum(l1,l2,mlm) 
+                      endif
+                   enddo
                 enddo
              enddo
-          enddo
-       endif   
-       call ppiNS(nr,nlml,vsm(1,1,i),rwgt,cg,jcg,indxcg,& ! ppi from Non-Spherical potential ---
-            nf1,nf1s,lmx1,lx1,f1, & !smooth integral f1^ (-vsm) f2^ for nonspherical part of vsm
-            nf2,nf2s,lmx2,lx2,f2,nlx1,nlx2,&  !,ssum
-            v1,d1,v2,d2,lmxa,vum(0,0,1,1,1,i), & 
-            ppir(1,1,1,1,i)) ! integral f1~ vtrue f2~ for nonspherical part of vtrue
-       
-       qm=0d0 !Multiple mom. qm = integrals (f1~*f2~ - f1*f2) r**l
-       do  i1 = 1, nf1
-          do  i2 = 1, nf2
+             !Multiple mom. Qm = integrals (f1~*f2~ - f1*f2) r**l
              do  l1 = 0, lx1(i1)
                 do  l2 = 0, lx2(i2)
                    do  lm = 0, lmxl
@@ -117,10 +98,7 @@ contains
                    enddo
                 enddo
              enddo
-          enddo
-       enddo
-       do i1 = 1, nf1 !Add ppi0 and multipole part qm to ppir
-          do  i2 = 1, nf2
+             !Add ppi0 and multipole part qm to ppir
              nlm1 = (lx1(i1)+1)**2
              nlm2 = (lx2(i2)+1)**2
              do  ilm1 = 1, nlm1
@@ -140,22 +118,71 @@ contains
                    enddo
                 enddo
              enddo
-          enddo
-       enddo
-       do  i1 = 1, nf1 ! Add tau into ppi 
-          do  i2 = 1, nf2
-             do  ilm = 1, min0((lx1(i1)+1)**2,(lx2(i2)+1)**2)
+             do  ilm = 1, min0((lx1(i1)+1)**2,(lx2(i2)+1)**2) ! Add tau into ppi 
                 ppir(i1,i2,ilm,ilm,i) = ppir(i1,i2,ilm,ilm,i) + tau(i1,i2,ll(ilm),i)
+             enddo
+          enddo i2loop
+       enddo i1loop
+    enddo isploop
+    if(lso/=0) then !So matrix hsozz and hsopm
+       do i = 1, nsp
+          do  i1 = 1, nf1
+             do  i2 = 1, nf2
+                do  l = 0, min0(lx1(i1),lx2(i2))
+                   if(i1> nf1s) vd1x= [0d0,0d0,1d0]
+                   if(i1<=nf1s) vd1x= [v1(l,i1),d1(l,i1),0d0]
+                   if(i2> nf2s) vd2x= [0d0,0d0,1d0]
+                   if(i2<=nf2s) vd2x= [v2(l,i2),d2(l,i2),0d0]
+                   sorad1 = sum(vd1x*matmul(sodb(:,:,l,i,1),vd2x))             !diag
+                   if(lso==1) sorad2 = sum(vd1x*matmul(sodb(:,:,l,i,2),vd2x))  !off-diag sondb
+                   m1loop: do  m1 = -l, l     
+                      lm1 = l**2 + l+1+ m1     
+                      m2loop: do  m2 = -l, l
+                         lm2 = l**2 + l+1 + m2 
+                         if( m1+m2==0.AND.m2/=0.and.lm1/=lm2) then ! ... LzSz part
+                            if (lm1 < lm2 .AND. m1 == -m2) somatzz =  abs(m1)*img 
+                            if (lm1 > lm2 .AND. m1 == -m2) somatzz = -abs(m1)*img
+                            hsozz(i1,i2,lm1,lm2,i) = somatzz * sorad1
+                         endif
+                         if (lso == 1) then ! LxSx+LySy part
+                            call mksomat(l,m1,m2,i,somatpm) ! LxSx+LySy lm part
+                            hsopm(i1,i2,lm1,lm2,i)= somatpm* sorad2
+                         endif
+                      enddo m2loop
+                   enddo m1loop
+                enddo
              enddo
           enddo
        enddo
-    enddo
-    if(lldau /= 0) then ! LDA+U contribution.
+    endif
+    if(lldau/=0) then ! LDA+U contribution.
        allocate(ppiz(nf1,nf2,nlx1,nlx2,nsp))
        ppiz=0d0
        do i=1,nsp
-          call ppildau(nf1,nf1s,lmx1,lx1,v1,d1,nf2,nf2s,lmx2,lx2,v2,d2,lmaxu,vumm,nlx1,nlx2,i,idu,&
-               ppiz(1,1,1,1,i))
+          do  i1 = 1, nf1
+             do  i2 = 1, nf2 
+                ilm1 = 0
+                do  l1 = 0, min(lx1(i1),lmaxu)
+                   do  m1 = -l1, l1
+                      ilm1 = ilm1+1
+                      ilm2 = 0
+                      do  l2 = 0, min(lx2(i2),lmaxu)
+                         do  m2 = -l2, l2
+                            ilm2 = ilm2+1
+                            if (idu(l1+1) /= 0 .AND. l1 == l2) then
+                               if(i1> nf1s) vd1x= [0d0,0d0,1d0]
+                               if(i1<=nf1s) vd1x= [v1(l1,i1),d1(l1,i1),0d0]
+                               if(i2> nf2s) vd2x= [0d0,0d0,1d0]
+                               if(i2<=nf2s) vd2x= [v2(l2,i2),d2(l2,i2),0d0]
+                               ppiz(i1,i2,ilm1,ilm2,i) = ppiz(i1,i2,ilm1,ilm2,i) &
+                                    +sum(vd1x* matmul(vumm(m1,m2,:,:,i,l1),vd2x))
+                            endif
+                         enddo
+                      enddo
+                   enddo
+                enddo
+             enddo
+          enddo
        enddo
        ppi=ppir+ppiz
        deallocate(ppiz)
@@ -163,147 +190,8 @@ contains
        ppi = ppir
     endif
   end subroutine gaugm
-  
-  subroutine soagm(nr,rofi,rwgt,vsms,& ! sig, tau, ppi (spherical part), and SO part.
-       f1,f2,x1,x2,&
-       nf1,nf1s,lmx1,lx1,nlx1,v1,d1,&
-       nf2,nf2s,lmx2,lx2,nlx2,v2,d2,&
-       isp,lso,lmux, &
-       sodb,sondb,&
-       hsozz,hsopm) !output
-    implicit none
-    integer :: lmux,lmx1,lmx2,nf1,nf2,nf1s,nf2s,lx1(nf1),lx2(nf2), nlx1,nlx2,isp,nr,ii
-    real(8) :: hab(3,3,0:n0-1),sab(3,3,0:n0-1),vab(3,3,0:n0-1), &
-         v1(0:lmx1,nf1),d1(0:lmx1,nf1), &
-         v2(0:lmx2,nf2),d2(0:lmx2,nf2), &
-         sig(nf1,nf2,0:lmux),tau(nf1,nf2,0:lmux),ppi0(nf1,nf2,0:lmux),&
-         sabv(3,3,0:n0-1)
-    double precision :: sodb(3,3,0:n0-1),sondb(3,3,0:n0-1)
-    double precision :: a1,a2,vd1(2),vd2(2),vd1x(3),vd2x(3)
-    complex(8):: hsozz(nf1,nf2,nlx1,nlx2),hsopm(nf1,nf2,nlx1,nlx2),somatpm,somatzz
-    integer :: i1,i2,lmax1,lmax2,lmax,l
-    integer :: m1,m2,l1,l2,lso
-    complex(8),parameter:: img=(0d0,1d0)
-    real(8)::sim,tum,xbc,rwgt(nr),vsms(nr),rofi(nr),&
-         f1(nr,0:lmx1,nf1),x1(nr,0:lmx1,nf1), &
-         f2(nr,0:lmx2,nf2),x2(nr,0:lmx2,nf2) 
-    real(8):: sorad1,sorad2
-    hsopm=0d0  
-    hsozz=0d0
-    do  i1 = 1, nf1
-       do  i2 = 1, nf2
-          do  l = 0, min0(lx1(i1),lx2(i2))
-             if(i1> nf1s) vd1x= [0d0,0d0,1d0]
-             if(i1<=nf1s) vd1x= [v1(l,i1),d1(l,i1),0d0]
-             if(i2> nf2s) vd2x= [0d0,0d0,1d0]
-             if(i2<=nf2s) vd2x= [v2(l,i2),d2(l,i2),0d0]
-             sorad1 = sum(vd1x*matmul(sodb(:,:,l),vd2x))
-             if(lso==1) sorad2 = sum(vd1x*matmul(sondb(:,:,l),vd2x))
-             m1loop: do  m1 = -l, l     
-                l1 = l**2 + l+1+ m1     
-                m2loop: do  m2 = -l, l
-                   l2 = l**2 + l+1 + m2 
-                   if( m1+m2==0.AND.m2/=0.and.l1/=l2) then ! ... LzSz part
-                      if (l1 < l2 .AND. m1 == -m2) somatzz =  abs(m1)*img 
-                      if (l1 > l2 .AND. m1 == -m2) somatzz = -abs(m1)*img
-                      hsozz(i1,i2,l1,l2) = somatzz * sorad1
-                   endif
-                   if (lso == 1) then ! LxSx+LySy part
-                      call mksomat(l,m1,m2,isp,somatpm) ! LxSx+LySy lm part
-                      hsopm(i1,i2,l1,l2)= somatpm* sorad2
-                   endif
-                enddo m2loop
-             enddo m1loop
-          enddo
-       enddo
-    enddo
-  end subroutine soagm
-  subroutine ppiNS(nr,nlml,vsm,rwgt,cg,jcg,indxcg, &
-       nf1,nf1s,lmx1,lx1,f1,&
-       nf2,nf2s,lmx2,lx2,f2,nlx1,nlx2,&  !,ssum
-       v1,d1,v2,d2, lmxa,vum,&
-       ppi) !- Add non-spherical constribution to ppi.
-    implicit none
-    integer :: lmx1,lmx2,nf1,nf2,nf1s,nf2s,nlml,nlx1,nlx2,nr
-    integer :: lx1(nf1),lx2(nf2),jcg(1),indxcg(1)
-    double precision :: vsm(nr,nlml),rwgt(nr), &
-         ppi(nf1,nf2,nlx1,nlx2),f1(nr,0:lmx1,nf1),f2(nr,0:lmx2,nf2), &
-         cg(1),ssum(0:lmx1,0:lmx2,nlml)
-    integer :: i1,i2,icg,ilm1,ilm2,ix,l1,l2,ll,mlm,nlm1,nlm2,i
-    double precision :: sam
-    integer :: lmxa 
-    double precision :: vum(0:lmxa,0:lmxa,nlml,3,3), &
-         v1(0:lmx1,nf1),d1(0:lmx1,nf1), &
-         v2(0:lmx2,nf2),d2(0:lmx2,nf2),vd1(2),vd2(2),vd1x(3),vd2x(3)
-    double precision :: add=1d99
-    ppi=0d0 
-    do  i1 = 1, nf1
-       do  i2 = 1, nf2
-          nlm1 = (lx1(i1)+1)**2
-          nlm2 = (lx2(i2)+1)**2
-          ssum(0:lx1(i1),0:lx2(i2),1:nlml) = 2d10 ! --- integral not yet calculated
-          do  ilm1 = 1, nlm1
-             l1 = ll(ilm1)
-             do  ilm2 = 1, nlm2
-                l2 = ll(ilm2)
-                if(i1> nf1s) vd1x= [0d0,0d0,1d0]
-                if(i1<=nf1s) vd1x= [v1(l1,i1),d1(l1,i1),0d0]
-                if(i2> nf2s) vd2x= [0d0,0d0,1d0]
-                if(i2<=nf2s) vd2x= [v2(l2,i2),d2(l2,i2),0d0]
-                ix = max0(ilm1,ilm2)
-                ix = (ix*(ix-1))/2 + min0(ilm1,ilm2)
-                do  icg = indxcg(ix),indxcg(ix+1)-1
-                   mlm = jcg(icg)
-                   if (1< mlm .AND. mlm <= nlml) then !<(u,s,g) | V | (u,s,g)>
-                      if (ssum(l1,l2,mlm) > 1d10) &
-                           ssum(l1,l2,mlm)= sum(rwgt*vsm(:,mlm)*f1(:,l1,i1)*f2(:,l2,i2))
-                      ppi(i1,i2,ilm1,ilm2) = ppi(i1,i2,ilm1,ilm2) &
-                           + cg(icg)*sum(vd1x*matmul(vum(l1,l2,mlm,:,:),vd2x)) &
-                           - cg(icg)*ssum(l1,l2,mlm) 
-                   endif   
-                enddo
-             enddo
-          enddo
-       enddo
-    enddo
-  end subroutine ppiNS
-  subroutine ppildau(nf1,nf1s,lmx1,lx1,v1,d1,nf2,nf2s,lmx2,lx2,v2,d2, &
-       lmaxu,vumm,nlx1,nlx2,isp,idu,& ! ppiz from non-local part of pot (LDA+U)
-       ppiz)
-    implicit none
-    integer :: lmx1,lmx2,nf1,nf1s,nf2,nf2s,nlx1,nlx2,lmaxu, lx1(nf1),lx2(nf2),isp,idu(4),&
-         i1,i2,ilm1,ilm2,l1,l2,m1,m2
-    real(8):: &
-         v1(0:lmx1,nf1),d1(0:lmx1,nf1), &
-         v2(0:lmx2,nf2),d2(0:lmx2,nf2),vd1(2),vd2(2),vd1x(3),vd2x(3)
-    complex(8):: vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,3,3,2,0:lmaxu),add,ppiz(nf1,nf2,nlx1,nlx2)
-    do  i1 = 1, nf1
-       do  i2 = 1, nf2 
-          ilm1 = 0
-          do  l1 = 0, min(lx1(i1),lmaxu)
-             do  m1 = -l1, l1
-                ilm1 = ilm1+1
-                ilm2 = 0
-                do  l2 = 0, min(lx2(i2),lmaxu)
-                   do  m2 = -l2, l2
-                      ilm2 = ilm2+1
-                      if (idu(l1+1) /= 0 .AND. l1 == l2) then
-                         if(i1> nf1s) vd1x= [0d0,0d0,1d0]
-                         if(i1<=nf1s) vd1x= [v1(l1,i1),d1(l1,i1),0d0]
-                         if(i2> nf2s) vd2x= [0d0,0d0,1d0]
-                         if(i2<=nf2s) vd2x= [v2(l2,i2),d2(l2,i2),0d0]
-                         ppiz(i1,i2,ilm1,ilm2) = ppiz(i1,i2,ilm1,ilm2) &
-                              +sum(vd1x* matmul(vumm(m1,m2,:,:,isp,l1),vd2x))
-                      endif
-                   enddo
-                enddo
-             enddo
-          enddo
-       enddo
-    enddo
-  end subroutine ppildau
-
   subroutine mksomat(l,m1,m2,isp,somatpm) ! L-(for isp=1),L+(for isp=2) matrix
+    ! <lm1|L-|lm2> and <lm1|L+|lm2> !extracted from A.Chantis's original. Probably simplified more.
     integer:: l,m1,m2,isp
     real(8):: a1,a2
     complex(8):: somatpm,img=(0d0,1d0)
