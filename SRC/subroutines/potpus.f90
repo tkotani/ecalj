@@ -1,5 +1,7 @@
 module m_potpus
   public potpus
+!  real(8),public, allocatable:: dlphi, dlphip, phi,phip, phz,dphz !3,4,5,6,11,12
+!  real(8),public, allocatable:: s00,s11,szz,s0z,s1z !2,7,8,9,10
   private
 contains
   subroutine potpus(z,rmax,lmxa,v,vdif,a,nr,nsp,lso,rofi,pnu,pnz, &

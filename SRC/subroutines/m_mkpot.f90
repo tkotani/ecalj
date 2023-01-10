@@ -17,8 +17,9 @@ module m_mkpot ! http://dx.doi.org/10.7566/JPSJ.84.034702
   !
   real(8),protected,public:: utot,rhoexc,xcore,valvef,amom, valves,cpnves,rhovxc !energy terms
   real(8),allocatable,protected,public:: fes1_rv(:), fes2_rv(:) !force terms
-  real(8),allocatable,protected,public:: hab_rv(:,:,:), sab_rv(:,:,:), ppnl_rv(:,:,:,:), qmom(:),vesrmt(:)
+  real(8),allocatable,protected,public:: hab_rv(:,:,:), sab_rv(:,:,:), qmom(:),vesrmt(:)
   real(8),protected,public:: qval,vconst,qsc
+  real(8),allocatable,protected,public:: ppnl_rv(:,:,:,:)
 
   !! nov2021 dipole contribution added
   !! oppixd: add dipole part to oppix
