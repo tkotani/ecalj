@@ -341,7 +341,7 @@ contains
   subroutine mkorbm(isp,nev,iq,qp,evec, orbtm)
     use m_lmfinit,only: ispec,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nl,n0,nppn,nab
     use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
-    use m_mkpot,only: ppnl=>ppnl_rv
+    use m_mkpot,only: ppnl=>ppnl_rv,sab_rv!, sab=>sab_rv
     use m_subzi, only: wtkb=>rv_a_owtkb
     use m_qplist,only: nkp
     use m_suham,only: ndham=>ham_ndham, ndhamx=>ham_ndhamx
@@ -385,10 +385,11 @@ contains
     implicit none
     integer :: isp,nev,iq
     integer :: lmxa,lmxax,lmdim,ichan,ib,is,igetss,iv,ilm,l,m,nlma, ll,lc,em,ispc,ksp
-    real(8):: qp(3)
-    real(8):: suml(11),s11,s22,s12,s33,s31,s32,s13,s23, suma,rmt,sab(nab,n0,2),orbtm(nl,nsp,*) 
+    real(8):: qp(3),diff
+    real(8):: suml(11),s11,s22,s12,s33,s31,s32,s13,s23, suma,rmt,orbtm(nl,nsp,*) 
     complex(8):: au,as,az,iot=(0d0,1d0),evec(ndimh,nsp,nev)
     complex(8),allocatable ::aus(:,:,:,:,:)
+    real(8):: sab(nab,n0,2)
     allocate(aus(nlmax,ndham*nspc,3,nsp,nbas))
     aus=0d0
     call makusq(0 , nbas,[-999], nev, isp,1,qp,evec, aus )
@@ -430,22 +431,6 @@ contains
                 mloop: do  m = -l, l
                    em = abs(m)
                    ilm = ilm+1
-                   !    ...    m,...,-m order
-                   !            if (m .lt. 0) then
-                   !            au = 1d0/dsqrt(2d0)*aus(lc-em,iv,1,ksp,ib) -
-                   !     .           iot/dsqrt(2d0)*aus(lc+em,iv,1,ksp,ib)
-                   !            as = 1d0/dsqrt(2d0)*aus(lc-em,iv,2,ksp,ib) -
-                   !     .           iot/dsqrt(2d0)*aus(lc+em,iv,2,ksp,ib)
-                   !            az = 1d0/dsqrt(2d0)*aus(lc-em,iv,3,ksp,ib) -
-                   !     .           iot/dsqrt(2d0)*aus(lc+em,iv,3,ksp,ib)
-                   !            else if (m .gt. 0) then
-                   !            au = (-1)**m/dsqrt(2d0)*aus(lc-m,iv,1,ksp,ib) +
-                   !     .           iot*(-1)**m/dsqrt(2d0)*aus(lc+m,iv,1,ksp,ib)
-                   !            as = (-1)**m/dsqrt(2d0)*aus(lc-m,iv,2,ksp,ib) +
-                   !     .           iot*(-1)**m/dsqrt(2d0)*aus(lc+m,iv,2,ksp,ib)
-                   !            az = (-1)**m/dsqrt(2d0)*aus(lc-m,iv,3,ksp,ib) +
-                   !     .           iot*(-1)**m/dsqrt(2d0)*aus(lc+m,iv,3,ksp,ib)
-                   !            else
                    !    ...   -m,...,m order
                    if (m < 0) then
                       au = iot*1d0/dsqrt(2d0)*aus(lc-em,iv,1,ksp,ib) + &
@@ -467,6 +452,7 @@ contains
                       az = aus(ilm,iv,3,ksp,ib)
                    endif
                    !           If (au,as) are coefficients to (u,s), use this
+                   
                    s11 = dconjg(au)*au*sab(1,l+1,ksp)
                    s12 = 2*dconjg(au)*as*sab(2,l+1,ksp)
                    s22 = dconjg(as)*as*sab(4,l+1,ksp)
@@ -475,12 +461,26 @@ contains
                    s32 = dconjg(az)*as*sab(7,l+1,ksp)
                    s13 = dconjg(au)*az*sab(6,l+1,ksp)
                    s23 = dconjg(as)*az*sab(7,l+1,ksp)
-                   orbtm(l+1,ksp,ib)=orbtm(l+1,ksp,ib)+m*(s11+s12+s22+ &
-                        s33+s32+s23+s31+s13)*wtkb(iv,isp,iq) !corrected. it should be wtkb
+!                   orbtm1 =orbtm1+ m*(s11+s12+s22+ &
+!                        s33+s32+s23+s31+s13)*wtkb(iv,isp,iq) 
+
+                   orbtm(l+1,ksp,ib) = orbtm(l+1,ksp,ib) + m* wtkb(iv,isp,iq)* &
+                        sum( dconjg([au,as,az]) &
+                        *matmul( sab_rv(:,:,l+1+n0*(ib-1)+n0*nbas*(ksp-1)), [au,as,az]))
+
+                   diff= m* wtkb(iv,isp,iq)* &
+                        sum( dconjg([au,as,az]) &
+                        *matmul( sab_rv(:,:,l+1+n0*(ib-1)+n0*nbas*(ksp-1)), [au,as,az]))&
+                        -&
+                        m*(s11+s12+s22+ s33+s32+s23+s31+s13)*wtkb(iv,isp,iq) 
+                   if(abs(diff)>1d-8) stop 'mmmm diff >'
                 enddo mloop
              enddo lloop
           enddo ivloop
-       enddo ispcloop    !      print*, isp, ib, 'ORB.MOMNT=',orbtm(isp,ib)
+          do l=0,lmxa
+             print*, l, ksp,ib,'ORB.MOMNT=',orbtm(l+1,ksp,ib)
+          enddo   
+       enddo ispcloop
     enddo ibloop
     deallocate(aus)
   end subroutine mkorbm

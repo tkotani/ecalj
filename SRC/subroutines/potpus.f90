@@ -1,6 +1,6 @@
 module m_potpus
   public potpus
-!  real(8),public, allocatable:: dlphi, dlphip, phi,phip, phz,dphz !3,4,5,6,11,12
+!  real(8),public, allocatable:: dphi,dphi, pphi,phip, phz,dphz !3,4,5,6,11,12  "dlphi,dlphip 3,4"
 !  real(8),public, allocatable:: s00,s11,szz,s0z,s1z !2,7,8,9,10
   private
 contains
@@ -288,9 +288,10 @@ contains
                hab(1:3,1:3,k,i) = matmul(mmm,matmul(hmat(1:3,1:3),mmmt)) !<(u,s,gz)|h|(u,s,gz)>
              endblock lpzint
           endif
-          ppnl(1:7,k,i) = [0d0, 1d0, rmax*dlphi, rmax*dlphip, phi, phip, p]
+          ppnl(1:6,k,i) = [0d0, 1d0, rmax*dlphi, rmax*dlphip, phi, phip]
+          ppnl(7,k,i)= p ! =<gp|gp>
           if (lpzi(l) /= 0) then  
-             ppnl(8,k,i)  = sab(3,3,k,i)
+             ppnl(8,k,i)  = sab(3,3,k,i) !=<gz|gz>
              ppnl(9,k,i)  = smat(1,3) - sum([phi,  dphi]*matmul(sab(1:2,1:2,k,i),[phz,dphz]))
              ppnl(10,k,i) = smat(2,3) - sum([phip,dphip]*matmul(sab(1:2,1:2,k,i),[phz,dphz]))
              ppnl(11:12,k,i) = [phz, dphz]
