@@ -7,7 +7,7 @@ contains
        , v0 , v1 , v2 , gpotb , gpot0 , nkaph , nkapi , lmxh , lh , &
        eh , rsmh , ehl , rsml , rs3 , vmtz ,  lmaxu , vorb , lldau, idu, &
        iblu,&
-       osig, otau, oppi, ohsozz,ohsopm, ppnl, hab, vab, sab)
+       osig, otau, oppi, ohsozz,ohsopm, ppnl, hab, vab, sab,rotp)
     use m_lmfinit,only: n0,nkap0,nppn,nab,nrmx
     use m_struc_def, only: s_rv1,s_cv1,s_sblock
     use m_gaugm,only:  gaugm
@@ -353,7 +353,9 @@ contains
          fh(nr*(lmxh+1)*nkap0),xh(nr*(lmxh+1)*nkap0), &
          vh((lmxh+1)*nkap0),fp(nr*(lmxa+1)*(kmax+1)), &
          dh((lmxh+1)*nkap0),xp(nr*(lmxa+1)*(kmax+1)), &
-         vp((lmxa+1)*(kmax+1)),dp((lmxa+1)*(kmax+1))
+         vp((lmxa+1)*(kmax+1)),dp((lmxa+1)*(kmax+1)),&
+         rotp(0:lmxa,nsp,2,2)
+         
     complex(8):: vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
     complex(8):: vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,nab,2,0:lmaxu)
     real(8),allocatable:: qum(:,:,:,:,:)
@@ -372,7 +374,7 @@ contains
     ! --- Make hab,vab,sab and potential parameters pp ---
     allocate( qum((lmxa+1)**2,(lmxl+1),3,3,nsp))
     call potpus(z,rmt,lmxa,v0,vdif,a,nr,nsp,lso,rofi,pnu,pnz,ehl,rsml, &
-         rs3,vmtz,nab,n0, ppnl,hab,vab,sab,sodb)
+         rs3,vmtz,nab,n0, ppnl,hab,vab,sab,sodb,rotp)
     ! --- Moments and potential integrals of ul*ul, ul*sl, sl*sl ---
     call momusl(z,rmt,lmxa,pnu,pnz,rsml,ehl,lmxl,nlml,a,nr,nsp,rofi, &
          rwgt,v0,v1,qum,vum)

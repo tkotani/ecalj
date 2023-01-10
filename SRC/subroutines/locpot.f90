@@ -1,8 +1,10 @@
 module m_locpot
+  use m_lmfinit,only: lmxax,nsp,nbas
   use m_MPItk,only: master_mpi
   use m_lgunit,only:stdo
   use m_vxcatom,only: vxcnsp
   public locpot
+  real(8),allocatable,public :: rotp(:,:,:,:,:) 
   private
 contains
   !- Make the potential axt the atomic sites and augmentation matrices.
@@ -12,7 +14,7 @@ contains
     use m_density,only: v0pot,v1pot   !output
     use m_density,only: pnzall,pnuall !output
     use m_lmfinit,only:nkaph,lxcf,lhh,nkapii,nkaphh
-    use m_lmfinit,only:n0,nppn,nab,nrmx,nkap0,nlmx,nbas,nsp,lso,ispec, sspec=>v_sspec,mxcst4
+    use m_lmfinit,only:n0,nppn,nab,nrmx,nkap0,nlmx,nbas,nsp,lso,ispec, sspec=>v_sspec,mxcst4,lmxax
     use m_lmfinit,only:slabl,idu,coreh,ham_frzwf,rsma,alat,v0fix
     use m_uspecb,only:uspecb
     use m_ftox
@@ -148,6 +150,8 @@ contains
     allocate(rhol1(k),rhol2(k),v1(k),v2(k),v1es(k),v2es(k),efg(5,nbas),zz(nbas))
     xcore   = 0d0
     if(master_mpi) open(newunit=ifivesint,file='vesintloc',form='formatted',status='unknown')
+    if(allocated(rotp)) deallocate(rotp)
+    allocate(rotp(0:lmxax,nsp,2,2,nbas))
     ibblock: block
       real(8):: valvs(nbas),cpnvs(nbas),valvt(nbas)
       real(8)::qloc(nbas),aloc(nbas),qlocc(nbas),alocc(nbas) 
@@ -340,7 +344,7 @@ contains
                  lmxb,lhh(:,is),eh,rsmh, ehl,rsml,rs3,vmtz, lmaxu, vorb, lldau(ib), idu, &
                  iblu, &
                  osig(1,ib), otau(1,ib), oppi(1,ib), ohsozz(1,ib), ohsopm(1,ib), &
-                 ppnl(1,1,1,ib), hab(1,1,1,1,ib),vab (1,1,1,1,ib), sab(1,1,1,1,ib) )
+                 ppnl(1,1,1,ib), hab(1,1,1,1,ib),vab (1,1,1,1,ib), sab(1,1,1,1,ib),rotp(0,1,1,1,ib) )
          endif
          j1 = j1+nlml
       enddo ibloop

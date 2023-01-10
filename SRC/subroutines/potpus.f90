@@ -5,7 +5,7 @@ module m_potpus
   private
 contains
   subroutine potpus(z,rmax,lmxa,v,vdif,a,nr,nsp,lso,rofi,pnu,pnz, &
-       ehl,rsml,rs3,vmtz,nab,n0,ppnl,hab,vab,sab,sodb)
+       ehl,rsml,rs3,vmtz,nab,n0,ppnl,hab,vab,sab,sodb,rotp)
     use m_lmfinit,only: stdo,lrel,cc
     use m_ftox
     use m_vxtrap,only: vxtrap,rwftai
@@ -134,6 +134,7 @@ contains
          vx0z,vxz0,vx1z,vxz1,vxzz,vxzu,vxuz,vxzs,vxsz, xxxx(1,1)
     real(8),target:: m(2,2,0:lmxa,nsp)
     real(8):: rwgt(nr),szz_,vzz_,hzz_,vx13,vx23
+    real(8)::rotp(0:lmxa,nsp,2,2)
     call getpr(ipr)
     call vxtrap(1,z,rmax,lmxa,v,a,nr,nsp,pnz,rs3,vmtz,nrx,lpz,nrbig,rofi,rwgtx,xxxx(1,1))
     rwgt= rwgtx(1:nr)
@@ -298,6 +299,11 @@ contains
           else
              ppnl(8:12,k,i) = 0d0 
           endif
+          det    = phi*dphip - dphi*phip
+          rotp(l,i,1,1) = dphip/det
+          rotp(l,i,1,2) = -dphi/det
+          rotp(l,i,2,1) = -phip/det
+          rotp(l,i,2,2) = phi/det
 10     enddo lloop
 80  enddo isploop
     if(lso==0) return

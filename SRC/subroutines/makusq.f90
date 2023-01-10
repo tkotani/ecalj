@@ -210,7 +210,7 @@ subroutine pusq1(mode,ia,isp,nspc,nlmax,lmxh,nbas,q,ndham,ndimh,napw,igvapw,nev,
   parameter (nkap0=3,nlmxx=121)
   complex(8) ,allocatable :: a_zv(:) !b_zv(:),
   integer :: isa,lmxa,lmxha,kmax,nlma,ivec, ilm,k,ll,nkape,ksp,ispc,nlmto
-  real(8) :: pa(3),rmt, phi,phip,dphi,dlphi,dphip,dlphip,det,rotp(nlmxx,2,2),&
+  real(8) :: pa(3),rmt, phi,phip,dphi,dlphi,dphip,dlphip,det,rotpp(nlmxx,2,2),&
        eh(n0,nkap0),rsmh(n0,nkap0)
   call tcn ('pusq1')
   isa =ispec(ia)!%spec
@@ -234,34 +234,35 @@ subroutine pusq1(mode,ia,isp,nspc,nlmax,lmxh,nbas,q,ndham,ndimh,napw,igvapw,nev,
   !     whereas ispc=1 for independent spins, and spin index when nspc=2
   ispcloop: do  ispc = 1, nspc ! ... loop over noncollinear spins
      ksp = max(ispc,isp)
-     if(mode == 1) then
-        if (nlma > nlmxx) call rxi('makusq:  nlmxx < nlma=',nlma)
-        do  ilm = 1, nlma
-           k = ll(ilm)+1
-           dlphi  = ppnl(3,k,ksp)/rmt
-           dlphip = ppnl(4,k,ksp)/rmt
-           phi    = ppnl(5,k,ksp)
-           phip   = ppnl(6,k,ksp)
-           dphi   = phi*dlphi/rmt
-           dphip  = dlphip/rmt*phip
-           det    = phi*dphip - dphi*phip
-           rotp(ilm,1,1) = dphip/det
-           rotp(ilm,1,2) = -dphi/det
-           rotp(ilm,2,1) = -phip/det
-           rotp(ilm,2,2) = phi/det
-        enddo
-     endif
+     ! if(mode == 1) then
+     !    if (nlma > nlmxx) call rxi('makusq:  nlmxx < nlma=',nlma)
+     !    do  ilm = 1, nlma
+     !       k = ll(ilm)+1
+     !       dlphi  = ppnl(3,k,ksp)/rmt
+     !       dlphip = ppnl(4,k,ksp)/rmt
+     !       phi    = ppnl(5,k,ksp)
+     !       phip   = ppnl(6,k,ksp)
+     !       dphi   = phi*dlphi/rmt
+     !       dphip  = dlphip/rmt*phip
+     !       det    = phi*dphip - dphi*phip
+     !       rotpp(ilm,1,1) = dphip/det
+     !       rotpp(ilm,1,2) = -dphi/det
+     !       rotpp(ilm,2,1) = -phip/det
+     !       rotpp(ilm,2,2) = phi/det
+     !    enddo
+     ! endif
      do  ivec = 1, nev ! --- Loop over eigenstates ---
         call rlocb1(ndimh, nlma, kmax, evec(1,ispc,ivec), bstr,a_zv) !b_zv ,a_zv ) !
         call pusq2 (mode, ia, nkape, kmax, lmxa , lmxh, nlmto , &
-             min(nlma,nlmax),a_zv,rotp,evec(1,ispc,ivec),vh,dh,vp,dp,&
+             min(nlma,nlmax),a_zv,rotpp,evec(1,ispc,ivec),vh,dh,vp,dp,ksp,&
              au(1,ivec,1,ksp), as(1,ivec,1,ksp), az(1,ivec,1,ksp) )
      enddo 
   enddo ispcloop
   deallocate(a_zv) 
   call tcx('pusq1')
 end subroutine pusq1
-subroutine pusq2(mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma,cPkL,r,evec,vh,dh,vp,dp, au,as,az)
+subroutine pusq2(mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma,cPkL,r,evec,vh,dh,vp,dp,ksp, au,as,az)
+  use m_locpot,only: rotp
   use m_orbl,only: Orblib,ktab,ltab,offl,norb,ntab,blks
   !- Extract projection of eigenstate onto (u,s,z) for sphere at site ia
   ! ----------------------------------------------------------------------
@@ -297,7 +298,7 @@ subroutine pusq2(mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma,cPkL,r,evec,vh,dh,vp,dp
   !u   12 Feb 02 Extended to local orbitals
   ! ----------------------------------------------------------------------
   implicit none
-  integer :: mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma
+  integer :: mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma,ksp
   double precision :: vh(0:lmxh,1),dh(0:lmxh,1)
   double precision :: vp(0:lmxa,0:kmax),dp(0:lmxa,0:kmax)
   integer :: nlmxx
@@ -311,6 +312,7 @@ subroutine pusq2(mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma,cPkL,r,evec,vh,dh,vp,dp
   integer :: l,ll
   double precision :: xx
   double complex wk(nlmxx,2)
+  complex(8):: auas(2)
   !     call tcn('pusq2')
   if (nlmto == 0) return
   if (nlma > nlmxx) call rxi('makusq:  nlmxx < nlma=',nlma)
@@ -346,14 +348,25 @@ subroutine pusq2(mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma,cPkL,r,evec,vh,dh,vp,dp
      enddo
   enddo
   !     Rotate to (phi,phidot)
-  if (mode /= 0) then
-     call dcopy(2*nlma,au,1,wk(1,1),1)
-     call dcopy(2*nlma,as,1,wk(1,2),1)
-     do  ilma = 1, nlma
-        au(ilma) = wk(ilma,1)*r(ilma,1,1) + wk(ilma,2)*r(ilma,2,1)
-        as(ilma) = wk(ilma,1)*r(ilma,1,2) + wk(ilma,2)*r(ilma,2,2)
-     enddo
-  endif
+   if (.false.) then !mode /= 0) then
+!      call dcopy(2*nlma,au,1,wk(1,1),1)
+!      call dcopy(2*nlma,as,1,wk(1,2),1)
+      do  ilma = 1, nlma
+         auas = matmul([au(ilma),as(ilma)],r(ilma,:,:))
+!         au(ilma) = wk(ilma,1)*r(ilma,1,1) + wk(ilma,2)*r(ilma,2,1)
+!         as(ilma) = wk(ilma,1)*r(ilma,1,2) + wk(ilma,2)*r(ilma,2,2)
+         au(ilma) = auas(1)
+         as(ilma) = auas(2)
+      enddo
+   endif
+   if(mode /= 0) then
+      do  ilma = 1, nlma
+         l=ll(ilma)
+         auas = matmul([au(ilma),as(ilma)],rotp(l,ksp,:,:,ia))
+         au(ilma) = auas(1)
+         as(ilma) = auas(2)
+      enddo
+   endif
   !     call tcx('pusq2')
 end subroutine pusq2
 end module m_makusq
