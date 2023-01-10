@@ -2,7 +2,7 @@ module m_procar
   use m_lmfinit,only: nlmax,nsp,nbas,stdo,sspec=>v_sspec,ispec,nlmax,nspc
   use m_suham,only: ndhamx=>ham_ndhamx,ndham=>ham_ndham,nspx=>ham_nspx
   use m_igv2x,only: igv2x,napw
-  use m_mkpot,only: ppnl_rv
+  use m_mkpot,only: ppnl_rv,sab_rv
   use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize,procid,xmpbnd2
   use m_qplist,only: nkp,xdatt,qplist
 
@@ -31,7 +31,7 @@ contains
     real(8):: ef0
     complex(8):: au,as,az
     real(8):: s11,s22,s33,s12,s13,s23,dwgt(100),dwgtt(100),xdat,qold(3),qp(3)
-    complex(8),allocatable:: auspp(:,:,:,:,:)
+    complex(8),allocatable:: auspp(:,:,:,:,:),auspp2(:,:,:,:,:)
     integer:: iq,isp,jspini,jspend,jspp,iprocar,iband,is,ilm,ndimh,nspc,jsp,ib,nev,i,m,l,ndimhx,nmx
     real(8):: rydberg=13.6058d0,evl(ndhamx,nspx)
     logical:: cmdopt0
@@ -53,7 +53,10 @@ contains
     endif
     allocate( auspp(nlmax,ndhamx,3,nsp,nbas) )
     auspp = 0d0
+    allocate( auspp2(nlmax,ndhamx,3,nsp,nbas) )
+    auspp2 = 0d0
     call makusq(1, nbas,[-999], nev,jsp,1,qp,evec, auspp )
+!    call makusq(0, nbas,[-999], nev,jsp,1,qp,evec, auspp )
     jspini=isp
     jspend=isp
     jspp=isp
@@ -112,6 +115,10 @@ contains
                 s13 = 2*dconjg(au)*az*ppnl_rv(9,l+1,jspp,ib)
                 s23 = 2*dconjg(as)*az*ppnl_rv(10,l+1,jspp,ib)
                 dwgt(ilm)= s11+s22+s33 + s12+s13+s23
+
+!                dwgt(ilm)= sum( dconjg([au,as,az]) &
+!                        *matmul( sab_rv(:,:,l+1+n0*(ib-1)+n0*nbas*(jspp-1)), [au,as,az]))
+                
              enddo
           enddo
           dwgtt = dwgtt + dwgt(1:ilm)
