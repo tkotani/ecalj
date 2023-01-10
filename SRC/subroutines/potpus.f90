@@ -206,8 +206,8 @@ contains
             dmat(1,2)= dmat(2,1)
             vmat(1,2)= vmat(2,1)
             vmat(1:2,1:2) = vmat(1:2,1:2) + dmat(1:2,1:2)
-            smat(1:2,1) = [1d0,0d0]
-            smat(1:2,2) = [0d0, p]
+            smat(1:2,1) = [1d0,0d0] !<g|g>
+            smat(1:2,2) = [0d0, p]  !<gp|gp>
             hmat(1:2,1) = [ghg,0d0]   ! hmat(1,1)=<g H g> = e <g g> = e                       
             hmat(1:2,2) = [ghgp,gphgp]! hmat(1,2)=<g H gp> = <g (H-e) gp> + e <g gp> = <g g>  
             hmat(1:2,1:2)=hmat(1:2,1:2)+dmat(1:2,1:2)
