@@ -22,7 +22,7 @@ module m_bandcal !band structure calculation
   use m_makusq,only: makusq
   use m_ftox
   !! outputs ---------------------------
-  public m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce,m_bandcal_symsmrho
+  public m_bandcal_init, m_bandcal_2nd, m_bandcal_clean, m_bandcal_allreduce, m_bandcal_symsmrho
   integer,allocatable,protected,public::     ndimhx_(:),nev_(:),nevls(:,:)
   real(8),allocatable,protected,public::     evlall(:,:,:),frcband(:,:), orbtm_rv(:,:,:)
   complex(8),allocatable,protected,public::  smrho_out(:),dmatu(:,:,:,:)
@@ -236,7 +236,6 @@ contains
     deallocate(evl)
     call tcx('m_bandcal_init')
   end subroutine m_bandcal_init
-  ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine m_bandcal_2nd(iqini,iqend,ispini,ispend,lrout)! accumule evec things by addrbl
     implicit none
     integer:: iq,nmx,ispinit,isp,jsp,nev,iqini,iqend,lrout,ifig,i,ibas,ispini,ispend,ispendx
@@ -294,8 +293,7 @@ contains
     deallocate(evl)
     call tcx('m_bandcal_2nd')
   end subroutine m_bandcal_2nd
-  ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  subroutine m_bandcal_clean()
+  subroutine m_bandcal_clean() !cleaning allocation
     if (allocated(orbtm_rv)) deallocate(orbtm_rv)
     if (allocated(smrho_out)) deallocate(smrho_out)
     if (allocated(frcband))  deallocate(frcband)
@@ -304,9 +302,7 @@ contains
     if(allocated(sv_p_oeqkkl))deallocate( sv_p_oeqkkl)
     deallocate(evlall)
   end subroutine m_bandcal_clean
-  ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  !     !  Allreduce density-related quantities
-  subroutine m_bandcal_allreduce(lwtkb)
+  subroutine m_bandcal_allreduce(lwtkb) !  Allreduce density-related quantities
     integer:: nnn,ib,i,lwtkb
     if(debug) print *,'goto m_bandcal_allreduce'
     call mpibc2_real(sumqv,size(sumqv),'bndfp_sumqv')
@@ -331,21 +327,18 @@ contains
     if(nlibu>0)  call mpibc2_complex(dmatu,nnn,'bndfp_dmatu')
     if(lso/=0 .AND. lwtkb/=-1) call mpibc2_real(orbtm_rv,size(orbtm_rv),'bndfp_orbtm')
   end subroutine m_bandcal_allreduce
-
   subroutine m_bandcal_symsmrho()
     call tcn('m_bandcal_symsmrho')
     call symsmrho(smrho_out)
     call tcx('m_bandcal_symsmrho')
   end subroutine m_bandcal_symsmrho
-
-  subroutine mkorbm(isp,nev,iq,qp,evec, orbtm)
+  subroutine mkorbm(isp,nev,iq,qp,evec, orbtm) !decomposed orbital moments within MT
     use m_lmfinit,only: ispec,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nl,n0,nppn,nab
     use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
-    use m_mkpot,only: ppnl=>ppnl_rv,sab_rv!, sab=>sab_rv
+    use m_mkpot,only: sab_rv!, sab=>sab_rv ppnl=>ppnl_rv,
     use m_subzi, only: wtkb=>rv_a_owtkb
     use m_qplist,only: nkp
     use m_suham,only: ndham=>ham_ndham, ndhamx=>ham_ndhamx
-    !- Decomposition of norm from projection of w.f into MT sphere
     ! ----------------------------------------------------------------------
     !i   isp   :current spin channel (1 or 2)
     !i   nsp   :2 for spin-polarized case, otherwise 1
@@ -356,7 +349,6 @@ contains
     !i   wtkp  :weight of k-point, including spin degeneracy (bzmesh.f)
     !i   iq    :current k-point
     !i   nbas  :size of basis
-    !i   ppnl  :NMTO potential parameters; see eg potpus.f
     !i   aus   :values of (phi,phidot) MT sphere boundary; see makusq
     !i   nl    :(global maximum l) + 1
     !i   nkp   :number of irreducible k-points (bzmesh.f)
@@ -389,7 +381,7 @@ contains
     real(8):: suml(11),s11,s22,s12,s33,s31,s32,s13,s23, suma,rmt,orbtm(nl,nsp,*) 
     complex(8):: au,as,az,iot=(0d0,1d0),evec(ndimh,nsp,nev)
     complex(8),allocatable ::aus(:,:,:,:,:)
-    real(8):: sab(nab,n0,2)
+!    real(8):: sab(nab,n0,2)
     allocate(aus(nlmax,ndham*nspc,3,nsp,nbas))
     aus=0d0
     call makusq(0 , nbas,[-999], nev, isp,1,qp,evec, aus )
@@ -404,7 +396,8 @@ contains
        if (lmxa == -1) cycle 
        nlma = (lmxa+1)**2
        lmdim = nlma
-       call phvsfp(nsp,lmxa,ppnl(1,1,1,ib),rmt,sab)
+!old   ppnl  :NMTO potential parameters; see eg potpus.f
+!   call phvsfp(nsp,lmxa,ppnl(1,1,1,ib),rmt,sab)
        !       In noncollinear case, isp=1 always => need internal ispc=1..2
        !       ksp is the current spin index in both cases:
        !       ksp = isp  in the collinear case
@@ -431,7 +424,6 @@ contains
                 mloop: do  m = -l, l
                    em = abs(m)
                    ilm = ilm+1
-                   !    ...   -m,...,m order
                    if (m < 0) then
                       au = iot*1d0/dsqrt(2d0)*aus(lc-em,iv,1,ksp,ib) + &
                            1d0/dsqrt(2d0)*aus(lc+em,iv,1,ksp,ib)
@@ -451,35 +443,30 @@ contains
                       as = aus(ilm,iv,2,ksp,ib)
                       az = aus(ilm,iv,3,ksp,ib)
                    endif
-                   !           If (au,as) are coefficients to (u,s), use this
-                   
-                   s11 = dconjg(au)*au*sab(1,l+1,ksp)
-                   s12 = 2*dconjg(au)*as*sab(2,l+1,ksp)
-                   s22 = dconjg(as)*as*sab(4,l+1,ksp)
-                   s33 = dconjg(az)*az*sab(5,l+1,ksp)
-                   s31 = dconjg(az)*au*sab(6,l+1,ksp)
-                   s32 = dconjg(az)*as*sab(7,l+1,ksp)
-                   s13 = dconjg(au)*az*sab(6,l+1,ksp)
-                   s23 = dconjg(as)*az*sab(7,l+1,ksp)
-!                   orbtm1 =orbtm1+ m*(s11+s12+s22+ &
-!                        s33+s32+s23+s31+s13)*wtkb(iv,isp,iq) 
-
                    orbtm(l+1,ksp,ib) = orbtm(l+1,ksp,ib) + m* wtkb(iv,isp,iq)* &
                         sum( dconjg([au,as,az]) &
                         *matmul( sab_rv(:,:,l+1+n0*(ib-1)+n0*nbas*(ksp-1)), [au,as,az]))
-
-                   diff= m* wtkb(iv,isp,iq)* &
-                        sum( dconjg([au,as,az]) &
-                        *matmul( sab_rv(:,:,l+1+n0*(ib-1)+n0*nbas*(ksp-1)), [au,as,az]))&
-                        -&
-                        m*(s11+s12+s22+ s33+s32+s23+s31+s13)*wtkb(iv,isp,iq) 
-                   if(abs(diff)>1d-8) stop 'mmmm diff >'
+                   !           If (au,as) are coefficients to (u,s), use this
+                   ! s11 = dconjg(au)*au*sab(1,l+1,ksp)
+                   ! s12 = 2*dconjg(au)*as*sab(2,l+1,ksp)
+                   ! s22 = dconjg(as)*as*sab(4,l+1,ksp)
+                   ! s33 = dconjg(az)*az*sab(5,l+1,ksp)
+                   ! s31 = dconjg(az)*au*sab(6,l+1,ksp)
+                   ! s32 = dconjg(az)*as*sab(7,l+1,ksp)
+                   ! s13 = dconjg(au)*az*sab(6,l+1,ksp)
+                   ! s23 = dconjg(as)*az*sab(7,l+1,ksp)
+                   ! diff= m* wtkb(iv,isp,iq)* &
+                   !      sum( dconjg([au,as,az]) &
+                   !      *matmul( sab_rv(:,:,l+1+n0*(ib-1)+n0*nbas*(ksp-1)), [au,as,az]))&
+                   !      -&
+                   !      m*(s11+s12+s22+ s33+s32+s23+s31+s13)*wtkb(iv,isp,iq) 
+                   ! if(abs(diff)>1d-8) stop 'mmmm diff >'
                 enddo mloop
              enddo lloop
           enddo ivloop
-          do l=0,lmxa
-             print*, l, ksp,ib,'ORB.MOMNT=',orbtm(l+1,ksp,ib)
-          enddo   
+!          do l=0,lmxa
+!             print*, l, ksp,ib,'ORB.MOMNT=',orbtm(l+1,ksp,ib)
+!          enddo   
        enddo ispcloop
     enddo ibloop
     deallocate(aus)
