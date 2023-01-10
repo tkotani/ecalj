@@ -1,8 +1,8 @@
 module m_procar
-  use m_lmfinit,only: nlmax,nsp,nbas,stdo,sspec=>v_sspec,ispec,nlmax,nspc
+  use m_lmfinit,only: nlmax,nsp,nbas,stdo,sspec=>v_sspec,ispec,nlmax,nspc,n0
   use m_suham,only: ndhamx=>ham_ndhamx,ndham=>ham_ndham,nspx=>ham_nspx
   use m_igv2x,only: igv2x,napw
-  use m_mkpot,only: ppnl_rv,sab_rv
+  use m_mkpot,only: sab_rv !ppnl_rv,
   use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize,procid,xmpbnd2
   use m_qplist,only: nkp,xdatt,qplist
 
@@ -29,9 +29,9 @@ contains
     complex(8):: evec(ndimhx,nmx)
     character*1000::ccc
     real(8):: ef0
-    complex(8):: au,as,az
+    complex(8):: auasaz(3)
     real(8):: s11,s22,s33,s12,s13,s23,dwgt(100),dwgtt(100),xdat,qold(3),qp(3)
-    complex(8),allocatable:: auspp(:,:,:,:,:),auspp2(:,:,:,:,:)
+    complex(8),allocatable:: auspp(:,:,:,:,:)
     integer:: iq,isp,jspini,jspend,jspp,iprocar,iband,is,ilm,ndimh,nspc,jsp,ib,nev,i,m,l,ndimhx,nmx
     real(8):: rydberg=13.6058d0,evl(ndhamx,nspx)
     logical:: cmdopt0
@@ -53,10 +53,8 @@ contains
     endif
     allocate( auspp(nlmax,ndhamx,3,nsp,nbas) )
     auspp = 0d0
-    allocate( auspp2(nlmax,ndhamx,3,nsp,nbas) )
-    auspp2 = 0d0
-    call makusq(1, nbas,[-999], nev,jsp,1,qp,evec, auspp )
-!    call makusq(0, nbas,[-999], nev,jsp,1,qp,evec, auspp )
+!    call makusq(1, nbas,[-999], nev,jsp,1,qp,evec, auspp )
+    call makusq(0, nbas,[-999], nev,jsp,1,qp,evec, auspp ) !for (u,s,gz) 
     jspini=isp
     jspend=isp
     jspp=isp
@@ -82,12 +80,12 @@ contains
           do  l = 0, sspec(is)%lmxa
              do  m = -l, l
                 ilm = ilm+1 !ilm,ib --> evec(ix,
-                au = auspp(ilm,iband,1,jspp,ib)
-                as = auspp(ilm,iband,2,jspp,ib)
-                az = auspp(ilm,iband,3,jspp,ib)
+                auasaz = auspp(ilm,iband,1:3,jspp,ib)
+                !as = auspp(ilm,iband,2,jspp,ib)
+                !az = auspp(ilm,iband,3,jspp,ib)
                 !Note au,as,az are coefficients for phi1*Ylm phi2*Ylm phi3*Ylm.
                 ! If --ylmc, Ylm(complex) is assumed.
-                !  phi1:  linear combination of val funciton (phi and phidot) with val at MT is zero
+                !  phi1:  linear combination of val funciton (val=1 slo=0)  with val at MT is zero
                 !  phi2:  linear combination of slo funciton (phi and phidot) with slo at MT is zero
                 !  phi3:  LO  (phi + phidot) with slo at MT is zero
                 pdosc: Block
@@ -95,30 +93,29 @@ contains
                   integer:: ilmm
                   real(8),parameter:: dsq=1d0/2d0**0.5d0
                   logical:: cmdopt0
-                  if(cmdopt0('--ylmc') .AND. m/=0) then !feb 2022
+                  if(cmdopt0('--ylmc') .AND. m/=0) then !feb 2022 !based on spherical harmonics
                      ilmm = ilm-2*m
                      if(m>0) then
-                        au = dsq*(-1)**m*(auspp(ilm,iband,1,jspp,ib) -img*auspp(ilmm,iband,1,jspp,ib))
-                        as = dsq*(-1)**m*(auspp(ilm,iband,2,jspp,ib) -img*auspp(ilmm,iband,2,jspp,ib))
-                        az = dsq*(-1)**m*(auspp(ilm,iband,3,jspp,ib) -img*auspp(ilmm,iband,3,jspp,ib))
+                        auasaz =[&
+                             dsq*(-1)**m*(auspp(ilm,iband,1,jspp,ib)-img*auspp(ilmm,iband,1,jspp,ib)),&
+                             dsq*(-1)**m*(auspp(ilm,iband,2,jspp,ib)-img*auspp(ilmm,iband,2,jspp,ib)),&
+                             dsq*(-1)**m*(auspp(ilm,iband,3,jspp,ib)-img*auspp(ilmm,iband,3,jspp,ib))]
                      elseif(m<0) then
-                        au = dsq*(img*auspp(ilm,iband,1,jspp,ib) + auspp(ilmm,iband,1,jspp,ib))
-                        as = dsq*(img*auspp(ilm,iband,2,jspp,ib) + auspp(ilmm,iband,2,jspp,ib))
-                        az = dsq*(img*auspp(ilm,iband,3,jspp,ib) + auspp(ilmm,iband,3,jspp,ib))
+                        auasaz = [dsq*(img*auspp(ilm,iband,1,jspp,ib) + auspp(ilmm,iband,1,jspp,ib)),&
+                             dsq*(img*auspp(ilm,iband,2,jspp,ib) + auspp(ilmm,iband,2,jspp,ib)),&
+                             dsq*(img*auspp(ilm,iband,3,jspp,ib) + auspp(ilmm,iband,3,jspp,ib))]
                      endif
                   endif
                 EndBlock pdosc
-                s11 = dconjg(au)*au*ppnl_rv(2,l+1,jspp,ib)
-                s22 = dconjg(as)*as*ppnl_rv(7,l+1,jspp,ib)
-                s33 = dconjg(az)*az*ppnl_rv(8,l+1,jspp,ib)
-                s12 = 0d0
-                s13 = 2*dconjg(au)*az*ppnl_rv(9,l+1,jspp,ib)
-                s23 = 2*dconjg(as)*az*ppnl_rv(10,l+1,jspp,ib)
-                dwgt(ilm)= s11+s22+s33 + s12+s13+s23
-
-!                dwgt(ilm)= sum( dconjg([au,as,az]) &
-!                        *matmul( sab_rv(:,:,l+1+n0*(ib-1)+n0*nbas*(jspp-1)), [au,as,az]))
-                
+                dwgt(ilm)= sum( dconjg(auasaz) &
+                        *matmul( sab_rv(:,:,l+1+n0*(ib-1)+n0*nbas*(jspp-1)),auasaz))
+                ! s11 = dconjg(au)*au*ppnl_rv(2,l+1,jspp,ib)
+                ! s22 = dconjg(as)*as*ppnl_rv(7,l+1,jspp,ib)
+                ! s33 = dconjg(az)*az*ppnl_rv(8,l+1,jspp,ib)
+                ! s12 = 0d0
+                ! s13 = 2*dconjg(au)*az*ppnl_rv(9,l+1,jspp,ib)
+                ! s23 = 2*dconjg(as)*az*ppnl_rv(10,l+1,jspp,ib)
+                ! dwgt(ilm)= s11+s22+s33 + s12+s13+s23
              enddo
           enddo
           dwgtt = dwgtt + dwgt(1:ilm)
