@@ -500,7 +500,7 @@ contains
           nlmax = mxorb / nkaph
           allocate(aus_zv(nlmax*ndham*3*nsp*nbas))
           aus_zv=0d0
-          call makusq(1, nbas,[-999], nev,  isp, 1 , qp , evec , aus_zv )
+          call makusq(0, nbas,[-999], nev,  isp, 1 , qp , evec , aus_zv )
           call gwcphi(isp,nsp,nlmax,ndham,nev,nbas,ipb,lmxax,nlindx,ndima,ppn,aus_zv,&
                cphi(1,1,isp),cphin(1,1,isp ))!cphi coefficients for phi,phidot,pz(val=slope=0). pz is by wf2lo.
           deallocate(aus_zv)
@@ -624,10 +624,12 @@ contains
     close(ifiqg)
     call tcx('m_sugw_init')
   end subroutine m_sugw_init
-  subroutine gwcphi(isp,nsp,nlmax,ndham,nev,nbas,ipb,lmxax,nlindx,ndima,ppnl,aus,  cphi,cphin)
+  subroutine gwcphi(isp,nsp,nlmax,ndham,nev,nbas,ipb,lmxax,nlindx,ndima,ppnl,aus, cphi,cphin)
     use m_struc_def
     use m_density,only: pnzall
     use m_lmfinit,only: ispec,sspec=>v_sspec
+    use m_locpot,only: rotp
+    use m_mkpot,only: sab_rv
     !- Project (phi,phidot) onto MT sphere, Kotani's GW conventions
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -751,8 +753,8 @@ contains
     double complex aus(nlmax,ndham,3,nsp,*),cphi(ndima,nev)
     double precision :: lmat(3,3),pnz(n0,2)
     integer :: lmxa,ichan,ib,is,igetss,iv,ilm,l,im,k,ia,i,ibas
-    double precision :: s00,s11,szz,s0z,s1z,D
-    double complex au,as,az,sqrsz(3)
+    double precision :: s00,s11,szz,s0z,s1z,D,wgt
+    complex(8):: au,as,az,sqrsz(3),auas(2),auasaz(3)
     call dpzero(lmat,9)
     call dpzero(cphin,2*nev)
     do  ib = 1, nbas
@@ -786,9 +788,14 @@ contains
                 au = aus(ilm,iv,1,isp,ib)
                 as = aus(ilm,iv,2,isp,ib)
                 az = aus(ilm,iv,3,isp,ib)
+                wgt = sum(dconjg(auasaz)*matmul( sab_rv(:,:,l+1+n0*(ib-1)+n0*nbas*(isp-1)),auasaz)) 
+                !     Rotate to (phi,phidot)
+                auas = matmul([au,as],rotp(l,isp,:,:,ib)) 
+                au = auas(1)
+                as = auas(2) !au,as,az are on radial functions phi,phidot,gz(val=slo=0) base.
                 sqrsz = [lmat(1,1)*au + lmat(3,1)*az, lmat(2,2)*as + lmat(3,2)*az, lmat(3,3)*az]
-                cphin(1,iv) = cphin(1,iv) +   sum(dconjg(sqrsz(:))*sqrsz(:))
-                cphin(2,iv) = cphin(2,iv) +       dconjg(sqrsz(1))*sqrsz(1)
+                cphin(1,iv) = cphin(1,iv) +   sum(dconjg(sqrsz(:))*sqrsz(:)) !wgt
+                cphin(2,iv) = cphin(2,iv) +       dconjg(sqrsz(1))*sqrsz(1)  !wgt
                 ichan = nlindx(1,l,ia) + im
                 cphi(ichan,iv) = au
                 ichan = nlindx(2,l,ia) + im

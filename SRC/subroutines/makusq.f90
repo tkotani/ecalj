@@ -347,15 +347,15 @@ subroutine pusq2(mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma,cPkL,r,evec,vh,dh,vp,dp
         as(ilma) = as(ilma) + dp(l,k) * cPkL(k,ilma)
      enddo
   enddo
-  !     Rotate to (phi,phidot)
-   if(mode /= 0) then
-      do  ilma = 1, nlma
-         l=ll(ilma)
-         auas = matmul([au(ilma),as(ilma)],rotp(l,ksp,:,:,ia))
-         au(ilma) = auas(1)
-         as(ilma) = auas(2)
-      enddo
-   endif
+  ! !     Rotate to (phi,phidot)
+  !  if(mode /= 0) then
+  !     do  ilma = 1, nlma
+  !        l=ll(ilma)
+  !        auas = matmul([au(ilma),as(ilma)],rotp(l,ksp,:,:,ia))
+  !        au(ilma) = auas(1)
+  !        as(ilma) = auas(2)
+  !     enddo
+  !  endif
   !     call tcx('pusq2')
 end subroutine pusq2
 end module m_makusq

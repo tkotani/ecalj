@@ -53,8 +53,7 @@ contains
     endif
     allocate( auspp(nlmax,ndhamx,3,nsp,nbas) )
     auspp = 0d0
-!    call makusq(1, nbas,[-999], nev,jsp,1,qp,evec, auspp )
-    call makusq(0, nbas,[-999], nev,jsp,1,qp,evec, auspp ) !for (u,s,gz) 
+    call makusq(0, nbas,[-999], nev,jsp,1,qp,evec, auspp ) !for (u,s,gz) !correct 2023-jan mode=0
     jspini=isp
     jspend=isp
     jspp=isp
@@ -85,9 +84,9 @@ contains
                 !az = auspp(ilm,iband,3,jspp,ib)
                 !Note au,as,az are coefficients for phi1*Ylm phi2*Ylm phi3*Ylm.
                 ! If --ylmc, Ylm(complex) is assumed.
-                !  phi1:  linear combination of val funciton (val=1 slo=0)  with val at MT is zero
-                !  phi2:  linear combination of slo funciton (phi and phidot) with slo at MT is zero
-                !  phi3:  LO  (phi + phidot) with slo at MT is zero
+                !  u=phi1: linear combination of phi,phidot (val=1 slo=0) at MP
+                !  s=phi2: linear combination of phi,phidot (val=0 slo=1) at MT
+                !  gz=phi3:  LO  (phi + phidot) with val=slo=0 at MT is zero
                 pdosc: Block
                   complex(8):: img=(0d0,1d0)
                   integer:: ilmm
@@ -107,15 +106,8 @@ contains
                      endif
                   endif
                 EndBlock pdosc
-                dwgt(ilm)= sum( dconjg(auasaz) &
-                        *matmul( sab_rv(:,:,l+1+n0*(ib-1)+n0*nbas*(jspp-1)),auasaz))
-                ! s11 = dconjg(au)*au*ppnl_rv(2,l+1,jspp,ib)
-                ! s22 = dconjg(as)*as*ppnl_rv(7,l+1,jspp,ib)
-                ! s33 = dconjg(az)*az*ppnl_rv(8,l+1,jspp,ib)
-                ! s12 = 0d0
-                ! s13 = 2*dconjg(au)*az*ppnl_rv(9,l+1,jspp,ib)
-                ! s23 = 2*dconjg(as)*az*ppnl_rv(10,l+1,jspp,ib)
-                ! dwgt(ilm)= s11+s22+s33 + s12+s13+s23
+                dwgt(ilm)= sum( dconjg(auasaz) & ! auasaz is for phi,phidot,pz(val=slo=0)
+                     *matmul( sab_rv(:,:,l+1+n0*(ib-1)+n0*nbas*(jspp-1)),auasaz)) 
              enddo
           enddo
           dwgtt = dwgtt + dwgt(1:ilm)
