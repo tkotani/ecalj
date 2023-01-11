@@ -348,17 +348,6 @@ subroutine pusq2(mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma,cPkL,r,evec,vh,dh,vp,dp
      enddo
   enddo
   !     Rotate to (phi,phidot)
-   if (.false.) then !mode /= 0) then
-!      call dcopy(2*nlma,au,1,wk(1,1),1)
-!      call dcopy(2*nlma,as,1,wk(1,2),1)
-      do  ilma = 1, nlma
-         auas = matmul([au(ilma),as(ilma)],r(ilma,:,:))
-!         au(ilma) = wk(ilma,1)*r(ilma,1,1) + wk(ilma,2)*r(ilma,2,1)
-!         as(ilma) = wk(ilma,1)*r(ilma,1,2) + wk(ilma,2)*r(ilma,2,2)
-         au(ilma) = auas(1)
-         as(ilma) = auas(2)
-      enddo
-   endif
    if(mode /= 0) then
       do  ilma = 1, nlma
          l=ll(ilma)

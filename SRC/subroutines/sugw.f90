@@ -500,10 +500,9 @@ contains
           nlmax = mxorb / nkaph
           allocate(aus_zv(nlmax*ndham*3*nsp*nbas))
           aus_zv=0d0
-          call makusq ( 1 ,  nbas,[-999], nev,  isp, 1 , qp , evec , aus_zv )
-          call gwcphi ( isp , nsp , nlmax , ndham , nev &
-               , nbas , ipb , lmxax , nlindx , ndima , ppn , aus_zv , cphi &
-               ( 1 , 1 , isp ) , cphin ( 1 , 1 , isp ) )
+          call makusq(1, nbas,[-999], nev,  isp, 1 , qp , evec , aus_zv )
+          call gwcphi(isp,nsp,nlmax,ndham,nev,nbas,ipb,lmxax,nlindx,ndima,ppn,aus_zv,&
+               cphi(1,1,isp),cphin(1,1,isp ))!cphi coefficients for phi,phidot,pz(val=slope=0). pz is by wf2lo.
           deallocate(aus_zv)
           !     ! We keep note in the followings, but be careful (may contain bugs)...
           !     !  --- Overlap of IPWs, PW expansion of eigenfunctions pwz ---

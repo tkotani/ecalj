@@ -14,10 +14,10 @@ subroutine atwf(mode,a,lmxa,nr,nsp,pnu,pnz,rsml,ehl,rmt,z,v0, & !- Make properti
   !i         :1 return valence wave functions
   !i         :2 return core wave functions
   !i         :3 combination of 1+2
-  !i         :10s digit concerns orthogonalization
-  !i         :0 do not orthogonalize
-  !i         :1 return orthogonalized to valence orbitals
-  !i         :2 return orthogonalized to valence orbitals
+  !ixxx         :10s digit concerns orthogonalization
+  !ixxx         :0 do not orthogonalize
+  !ixxx         :1 return orthogonalized to valence orbitals
+  !ixxx         :2 return orthogonalized to valence orbitals
   !i         :  using large component only
   !i   a     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
   !i   lmxa  :augmentation l-cutoff
@@ -63,13 +63,13 @@ subroutine atwf(mode,a,lmxa,nr,nsp,pnu,pnz,rsml,ehl,rmt,z,v0, & !- Make properti
   double precision :: rmt,z,a,v0(nr,nsp),pnu(n0,nsp),pnz(n0,nsp), &
        gval(nr*2,0:lmxa,nphimx,nsp),ecore(*),gcore(nr,2,*), rsml(n0),ehl(n0)
   logical :: lpz
-  integer :: l,isp,konf,konfz,k,mode0,mode1,  nmcore
+  integer :: l,isp,konf,konfz,k,mode0,  nmcore !,mode1
   double precision :: sumtc,sumec,e,ez,xx
   double precision :: rofi(nr),rwgt(nr),rhoc(nr,2),gp(2*nr*4)
   double precision :: phi,dphi,phip,dphip,p,phz,dphz,phzp,dphzp
   logical:: isanrg, l_dummy_isanrg
   mode0 = mod(mode,10)
-  mode1 = mod(mode/10,10)
+  !mode1 = mod(mode/10,10)
   ! --- Count number of core states ---
   lpz = .false.
   ncore = 0
@@ -108,33 +108,30 @@ subroutine atwf(mode,a,lmxa,nr,nsp,pnu,pnz,rsml,ehl,rmt,z,v0, & !- Make properti
                 gval(1,l,1,isp),gp,e,phi,dphi,phip,dphip,p)
            gval(:,l,2,isp)=gp(1:2*nr) !call dcopy(2*nr,gp,1,gval(1,l,2,isp),1)
            !         phi,phidot already orthogonal if mode1=1
-           if (mode1 == 2) &
-                call ortrwf(10*(mode1-1)+2,z,l,v0(1,isp),nr,nr,nr,rofi,rwgt, &
-                e,e,ez,gval(1,l,1,isp),gval(1,l,2,isp),gval(1,l,3,isp),xx)
+!           if (mode1 == 2) &
+!                call ortrwf(10*(mode1-1)+2,z,l,v0(1,isp),nr,nr,nr,rofi,rwgt, &
+!                e,e,ez,gval(1,l,1,isp),gval(1,l,2,isp),gval(1,l,3,isp),xx)
            !     ... Make local orbital
            if (konf /= konfig(k)) then
-              l_dummy_isanrg=isanrg(nphimx,3,3,'atwf:','nphimx',.true.)
+!              l_dummy_isanrg=isanrg(nphimx,3,3,'atwf:','nphimx',.true.)
               call makrwf(0,z,rofi(nr),l,v0(1,isp),a,nr,rofi,pnz(1,isp),2, &
                    gval(1,l,3,isp),gp,ez,phz,dphz,phzp,dphzp,p)
-              l_dummy_isanrg=isanrg(mode1,0,2,'atwf:','10s digit mode',.true.)
-              if (mode1 == 0) then
+!              l_dummy_isanrg=isanrg(mode1,0,2,'atwf:','10s digit mode',.true.)
+!              if (mode1 == 0) then
                  call wf2lo(l,a,nr,rofi,rwgt,phi,dphi,phip,dphip,phz,dphz, &
                       phzp,dphzp,pnz(1,isp),rsml,ehl, &
                       gval(1,l,1,isp),gval(1,l,2,isp),gval(1,l,3,isp))
-              elseif (pnz(l+1,isp) < 10) then
-                 call ortrwf(10*(mode1-1)+1,z,l,v0(1,isp),nr,nr,nr,rofi, &
-                      rwgt,e,e,ez,gval(1,l,1,isp),gval(1,l,2,isp), &
-                      gval(1,l,3,isp),xx)
-              endif
+!              elseif (pnz(l+1,isp) < 10) then
+!                 call ortrwf(10*(mode1-1)+1,z,l,v0(1,isp),nr,nr,nr,rofi, &
+!                      rwgt,e,e,ez,gval(1,l,1,isp),gval(1,l,2,isp), &
+!                      gval(1,l,3,isp),xx)
+!              endif
            endif
         enddo
      enddo
   endif
-  ! --- Core eigenfunctions and eigenvalues ---
-  if (mode0 >= 2) then
-     call getcor(1,z,a,pnu,pnz,nr,lmxa,rofi,v0,0,0,[0d0,0d0],sumec,sumtc, &
-          rhoc,ncore,ecore,gcore,nmcore) !nmcore jun2012
-  endif
+  if (mode0 >= 2) call getcor(1,z,a,pnu,pnz,nr,lmxa,rofi,v0,0,0,[0d0,0d0],sumec,sumtc, &
+          rhoc,ncore,ecore,gcore,nmcore) !nmcore jun2012 !Core eigenfunctions and eigenvalues --- 
 end subroutine atwf
 subroutine wf2lo(l,a,nr,rofi,rwgt,phi,dphi,phip,dphip,phz,dphz, &
      phzp,dphzp,pnz,rsml,ehl,g0,g1,gz)
@@ -220,115 +217,115 @@ subroutine wf2lo(l,a,nr,rofi,rwgt,phi,dphi,phip,dphip,phz,dphz, &
   endif
 end subroutine wf2lo
 
-subroutine ortrwf(mode,z,l,v,ng,n1,nr,rofi,rwgt,e0,e1,ez,g0,g1,gz,D)
-  use m_addrwf
-  !- Orthogonalize a radial wave function gz to a pair of other functions
-  ! ----------------------------------------------------------------------
-  !i Inputs
-  !i   mode  :1s digit
-  !i         :0 do not change gz, but return scaling factor D that would
-  !i         :  normalize gz after orthogonalization to (g0,g1)
-  !i         :1 orthonormalize gz.
-  !i         :  NB: this routine assumes g0 and g1 are orthogonal
-  !i         :2 orthonormalize g0,g1; do not change gz or compute D
-  !i         :3 orthogonalize g1 to g0; do not normalize
-  !i         :4 orthogonalize g0 and g1 to gz
-  !i         :10s digit
-  !i         :0 use both large and small components of radial w.f.
-  !i         :1 use large component of radial w.f. only.
-  !i            In this case, z,v,e0,e1,ez are not used
-  !i   z     :nuclear charge
-  !i   l     :l quantum number
-  !i   v     :spherical potential (atomsr.f)
-  !i   ng    :leading dimension of g and gadd
-  !i   n1    :if 0<n1<=nr, rwgt(n1) is scaled by 2
-  !i         :(see vxtrap.f)
-  !i   nr    :number of radial mesh points
-  !i   rofi  :radial mesh points
-  !i   rwgt  :radial mesh weights
-  !i   e0    :energy eigenvalue of g0
-  !i   e1    :energy eigenvalue of g1
-  !i   ez    :energy eigenvalue of gz
-  !i   g0    :1st radial w.f. to which to orthogonalize gz
-  !i   g1    :2nd radial w.f. to which to orthogonalize gz
-  !i   gz    :radial w.f. to orthogonalize
-  !o Outputs
-  !o   D     :scaling factor that normalizes the orthogonalized gz
-  !l Local variables
-  !l         :
-  !r Remarks
-  !r
-  !b Bug
-  !b   for 1s digit mode=1, this routine assumes g0 and g1 are orthogonal
-  !u Updates
-  !u   12 Jul 04 Add option 3 to mode.  New argument list
-  !u   06 Mar 02 New routine
-  ! ----------------------------------------------------------------------
-  implicit none
-  integer :: mode,l,ng,n1,nr
-  double precision :: z,v(nr),rofi(nr),rwgt(nr),e0,e1,ez,D
-  double precision :: g0(ng,2),g1(ng,2),gz(ng,2)
-  integer :: mode0,mode1
-  double precision :: s00,s01,s11,s0z,s1z,szz,x,s01hat,s11hat,s1zhat
-  mode0 = mod(mode,10)
-  mode1 = mod(mode/10,10)
-  ! --- mode 2 : orthonormalize g0 and g1 ---
-  if (mode0 == 2) then 
-     !       <g0 g0>
-     call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,e0,0d0,g0,g0,s00)
-     call dscal(nr,1/sqrt(s00),g0(1,1),1)
-     call dscal(nr,1/sqrt(s00),g0(1,2),1)
-     !       <g0 g1>
-     call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,e1,0d0,g0,g1,s01)
-     call daxpy(nr,-s01,g0(1,1),1,g1(1,1),1)
-     call daxpy(nr,-s01,g0(1,2),1,g1(1,2),1)
-     !       <g1 g1>
-     call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e1,e1,0d0,g1,g1,s11)
-     call dscal(nr,1/sqrt(s11),g1(1,1),1)
-     call dscal(nr,1/sqrt(s11),g1(1,2),1)
-     return
-     ! --- mode 3 : orthogonalize g1 to g0 ---
-  elseif (mode0 == 3) then
-     call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,e0,0d0,g0,g0,s00)
-     call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,e1,0d0,g0,g1,s01)
-     call daxpy(nr,-s01/s00,g0(1,1),1,g1(1,1),1)
-     call daxpy(nr,-s01/s00,g0(1,2),1,g1(1,2),1)
-     !       Check
-     call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,e0,0d0,g0,g0,s00)
-     call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,e1,0d0,g0,g1,s01)
-     call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e1,e1,0d0,g1,g1,s11)
-     return
-  endif
-  call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,e0,0d0,g0,g0,s00)
-  call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e1,e1,0d0,g1,g1,s11)
-  call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,e1,0d0,g0,g1,s01)
-  call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,ez,ez,0d0,gz,gz,szz)
-  call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,ez,0d0,g0,gz,s0z)
-  call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e1,ez,0d0,g1,gz,s1z)
-  ! --- mode 4 : orthogonalize g0 and g1 to gz ---
-  if (mode0 == 4) then
-     call daxpy(nr,-s0z/szz,gz(1,1),1,g0(1,1),1)
-     call daxpy(nr,-s0z/szz,gz(1,2),1,g0(1,2),1)
-     call daxpy(nr,-s1z/szz,gz(1,1),1,g1(1,1),1)
-     call daxpy(nr,-s1z/szz,gz(1,2),1,g1(1,2),1)
-     !       Check
-     !        call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e1,ez,0d0,g0,gz,s0z)
-     !        call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e1,ez,0d0,g1,gz,s1z)
-     return
-  endif
-  s01hat = s01/sqrt(s00)
-  s11hat = s11 - s01hat**2
-  s1zhat = s1z - s01*s0z/s00
-  !     Scaling factor that normalizes the orthogonalized gz
-  !     D = sqrt(szz - s0z**2/s00 - s1z**2/s11)
-  D = sqrt(szz - s0z**2/s00 - s1zhat**2/s11hat)
-  if (mode0 == 0) return
-  !     Orthogonalize
-  call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,ez,-s0z/s00,g0,gz,x)
-  call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,ez,-s1z/s11,g1,gz,x)
-  !     Normalize
-  call dscal(nr,1/D,gz(1,1),1)
-  call dscal(nr,1/D,gz(1,2),1)
-end subroutine ortrwf
+! subroutine ortrwf(mode,z,l,v,ng,n1,nr,rofi,rwgt,e0,e1,ez,g0,g1,gz,D)
+!   use m_addrwf
+!   !- Orthogonalize a radial wave function gz to a pair of other functions
+!   ! ----------------------------------------------------------------------
+!   !i Inputs
+!   !i   mode  :1s digit
+!   !i         :0 do not change gz, but return scaling factor D that would
+!   !i         :  normalize gz after orthogonalization to (g0,g1)
+!   !i         :1 orthonormalize gz.
+!   !i         :  NB: this routine assumes g0 and g1 are orthogonal
+!   !i         :2 orthonormalize g0,g1; do not change gz or compute D
+!   !i         :3 orthogonalize g1 to g0; do not normalize
+!   !i         :4 orthogonalize g0 and g1 to gz
+!   !i         :10s digit
+!   !i         :0 use both large and small components of radial w.f.
+!   !i         :1 use large component of radial w.f. only.
+!   !i            In this case, z,v,e0,e1,ez are not used
+!   !i   z     :nuclear charge
+!   !i   l     :l quantum number
+!   !i   v     :spherical potential (atomsr.f)
+!   !i   ng    :leading dimension of g and gadd
+!   !i   n1    :if 0<n1<=nr, rwgt(n1) is scaled by 2
+!   !i         :(see vxtrap.f)
+!   !i   nr    :number of radial mesh points
+!   !i   rofi  :radial mesh points
+!   !i   rwgt  :radial mesh weights
+!   !i   e0    :energy eigenvalue of g0
+!   !i   e1    :energy eigenvalue of g1
+!   !i   ez    :energy eigenvalue of gz
+!   !i   g0    :1st radial w.f. to which to orthogonalize gz
+!   !i   g1    :2nd radial w.f. to which to orthogonalize gz
+!   !i   gz    :radial w.f. to orthogonalize
+!   !o Outputs
+!   !o   D     :scaling factor that normalizes the orthogonalized gz
+!   !l Local variables
+!   !l         :
+!   !r Remarks
+!   !r
+!   !b Bug
+!   !b   for 1s digit mode=1, this routine assumes g0 and g1 are orthogonal
+!   !u Updates
+!   !u   12 Jul 04 Add option 3 to mode.  New argument list
+!   !u   06 Mar 02 New routine
+!   ! ----------------------------------------------------------------------
+!   implicit none
+!   integer :: mode,l,ng,n1,nr
+!   double precision :: z,v(nr),rofi(nr),rwgt(nr),e0,e1,ez,D
+!   double precision :: g0(ng,2),g1(ng,2),gz(ng,2)
+!   integer :: mode0,mode1
+!   double precision :: s00,s01,s11,s0z,s1z,szz,x,s01hat,s11hat,s1zhat
+!   mode0 = mod(mode,10)
+!   mode1 = mod(mode/10,10)
+!   ! --- mode 2 : orthonormalize g0 and g1 ---
+!   if (mode0 == 2) then 
+!      !       <g0 g0>
+!      call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,e0,0d0,g0,g0,s00)
+!      call dscal(nr,1/sqrt(s00),g0(1,1),1)
+!      call dscal(nr,1/sqrt(s00),g0(1,2),1)
+!      !       <g0 g1>
+!      call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,e1,0d0,g0,g1,s01)
+!      call daxpy(nr,-s01,g0(1,1),1,g1(1,1),1)
+!      call daxpy(nr,-s01,g0(1,2),1,g1(1,2),1)
+!      !       <g1 g1>
+!      call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e1,e1,0d0,g1,g1,s11)
+!      call dscal(nr,1/sqrt(s11),g1(1,1),1)
+!      call dscal(nr,1/sqrt(s11),g1(1,2),1)
+!      return
+!      ! --- mode 3 : orthogonalize g1 to g0 ---
+!   elseif (mode0 == 3) then
+!      call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,e0,0d0,g0,g0,s00)
+!      call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,e1,0d0,g0,g1,s01)
+!      call daxpy(nr,-s01/s00,g0(1,1),1,g1(1,1),1)
+!      call daxpy(nr,-s01/s00,g0(1,2),1,g1(1,2),1)
+!      !       Check
+!      call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,e0,0d0,g0,g0,s00)
+!      call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,e1,0d0,g0,g1,s01)
+!      call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e1,e1,0d0,g1,g1,s11)
+!      return
+!   endif
+!   call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,e0,0d0,g0,g0,s00)
+!   call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e1,e1,0d0,g1,g1,s11)
+!   call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,e1,0d0,g0,g1,s01)
+!   call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,ez,ez,0d0,gz,gz,szz)
+!   call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,ez,0d0,g0,gz,s0z)
+!   call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e1,ez,0d0,g1,gz,s1z)
+!   ! --- mode 4 : orthogonalize g0 and g1 to gz ---
+!   if (mode0 == 4) then
+!      call daxpy(nr,-s0z/szz,gz(1,1),1,g0(1,1),1)
+!      call daxpy(nr,-s0z/szz,gz(1,2),1,g0(1,2),1)
+!      call daxpy(nr,-s1z/szz,gz(1,1),1,g1(1,1),1)
+!      call daxpy(nr,-s1z/szz,gz(1,2),1,g1(1,2),1)
+!      !       Check
+!      !        call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e1,ez,0d0,g0,gz,s0z)
+!      !        call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e1,ez,0d0,g1,gz,s1z)
+!      return
+!   endif
+!   s01hat = s01/sqrt(s00)
+!   s11hat = s11 - s01hat**2
+!   s1zhat = s1z - s01*s0z/s00
+!   !     Scaling factor that normalizes the orthogonalized gz
+!   !     D = sqrt(szz - s0z**2/s00 - s1z**2/s11)
+!   D = sqrt(szz - s0z**2/s00 - s1zhat**2/s11hat)
+!   if (mode0 == 0) return
+!   !     Orthogonalize
+!   call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,ez,-s0z/s00,g0,gz,x)
+!   call addrwf(mode1,z,l,v,ng,n1,nr,rofi,rwgt,e0,ez,-s1z/s11,g1,gz,x)
+!   !     Normalize
+!   call dscal(nr,1/D,gz(1,1),1)
+!   call dscal(nr,1/D,gz(1,2),1)
+! end subroutine ortrwf
 
 end module m_atwf
