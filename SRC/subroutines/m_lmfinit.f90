@@ -594,6 +594,7 @@ contains
          if(debug) print *,'nspec ddd000 mxcst j rmt io_help lmxa=',j,rmt(j),io_help,lmxa(j)
          if (rmt(j) == 0 .AND. io_help/=1) then !takao iohelp/=1 added.
             lmxa(j) = -1
+            !call rx('floating orbitals is not allowed since 2023 even in DFT')
          elseif (sw == 2) then   !lmxa not read: look for subsitute
             lmxa(j) = 4
          else ! default is lmxbj
