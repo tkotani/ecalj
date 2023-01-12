@@ -5,6 +5,7 @@ subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu)
   use m_igv2x,only: ndimh
   use m_suham,only: ndham=>ham_ndham,ndhamx=>ham_ndhamx
   use m_makusq,only: makusq
+  use m_locpot,only: rotp
   !- Calculate density matrix for LDA+U channels
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -49,6 +50,7 @@ subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu)
   complex(8),allocatable ::aus(:,:,:,:,:)
   double complex evec(ndimh,nsp,nev)
   real(8)::qp(3)
+  complex(8):: auas(2)
   allocate(aus(nlmax,ndham*nspc,3,nsp,nbas))! aus(2*nlmax*ndhamx*3*nsp*nbas))
   aus=0d0
   call makusq(nbas,[0] , nev,  isp, 1, qp, evec, aus )
@@ -70,17 +72,17 @@ subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu)
            do  ispc = 1, nspc
               ksp = max(ispc,isp)
               !             For rotation (u,s) to (phi,phidot)
-              dlphi  = ppnl(3,l+1,ksp,ib)/rmt
-              dlphip = ppnl(4,l+1,ksp,ib)/rmt
-              phi    = ppnl(5,l+1,ksp,ib)
-              phip   = ppnl(6,l+1,ksp,ib)
-              dphi   = phi*dlphi/rmt
-              dphip  = dlphip/rmt*phip
-              det    = phi*dphip - dphi*phip
-              r(1,1) = dphip/det
-              r(1,2) = -dphi/det
-              r(2,1) = -phip/det
-              r(2,2) = phi/det
+!              dlphi  = ppnl(3,l+1,ksp,ib)/rmt
+!              dlphip = ppnl(4,l+1,ksp,ib)/rmt
+!              phi    = ppnl(5,l+1,ksp,ib)
+!              phip   = ppnl(6,l+1,ksp,ib)
+!              dphi   = phi*dlphi/rmt
+!              dphip  = dlphip/rmt*phip
+!              det    = phi*dphip - dphi*phip
+!              r(1,1) = dphip/det
+!              r(1,2) = -dphi/det
+!              r(2,1) = -phip/det
+!              r(2,2) = phi/det
               !             For projection from loc. orb. onto (u,s)
               phz    = ppnl(11,l+1,ksp,ib)
               dphz   = ppnl(12,l+1,ksp,ib)
@@ -91,18 +93,20 @@ subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu)
                  do  m2 = -l, l
                     ilm2 = ilm2+1
                     add = (0d0,0d0)
-                    !  Since (au,as,az) are coefficients to (u,s,gz), (gz is local orbital with val=slo=0 at MT)
-                    !  Local orbital contribution adds to u,s
-                    !  deltau = -phi(rmax) * az   deltas = -dphi(rmax) * az
+         !  Since (au,as,az) are coefficients to (u,s,gz), (gz is local orbital with val=slo=0 at MT)
+         !  Local orbital contribution adds to u,s
+         !  deltau = -phi(rmax) * az   deltas = -dphi(rmax) * az
                     do  iv = 1, nev
                        az = aus(ilm1,iv,3,ksp,ib)
                        au = aus(ilm1,iv,1,ksp,ib) - phz*az
-                       as = aus(ilm1,iv,2,ksp,ib) - dphz*az
-                       ap1 = au*r(1,1) + as*r(2,1)
+                       as = aus(ilm1,iv,2,ksp,ib) - dphz*az !u,s components
+                       auas= matmul([au,as],rotp(l,ksp,:,:,ib))
+                       ap1 = auas(1) !au*r(1,1) + as*r(2,1) !projection to phi components.
                        az = aus(ilm2,iv,3,ksp,ib)
                        au = aus(ilm2,iv,1,ksp,ib) - phz*az
                        as = aus(ilm2,iv,2,ksp,ib) - dphz*az
-                       ap2 = au*r(1,1) + as*r(2,1)
+                       auas= matmul([au,as],rotp(l,ksp,:,:,ib))
+                       ap2 = auas(1) !au*r(1,1) + as*r(2,1)
                        add = add + ap1*dconjg(ap2)*wtkb(iv,isp,iq)
                     enddo
                     dmatu(m1,m2,ksp,iblu) = dmatu(m1,m2,ksp,iblu) + add

@@ -289,16 +289,15 @@ contains
                hab(1:3,1:3,k,i) = matmul(mmm,matmul(hmat(1:3,1:3),mmmt)) !<(u,s,gz)|h|(u,s,gz)>
              endblock lpzint
           endif
-          ppnl(1:6,k,i) = [0d0, 1d0, rmax*dlphi, rmax*dlphip, phi, phip]
-          ppnl(7,k,i)= p ! =<gp|gp>
-          if (lpzi(l) /= 0) then  
-             ppnl(8,k,i)  = sab(3,3,k,i) !=<gz|gz>
-             ppnl(9,k,i)  = smat(1,3) - sum([phi,  dphi]*matmul(sab(1:2,1:2,k,i),[phz,dphz]))
-             ppnl(10,k,i) = smat(2,3) - sum([phip,dphip]*matmul(sab(1:2,1:2,k,i),[phz,dphz]))
-             ppnl(11:12,k,i) = [phz, dphz]
-          else
-             ppnl(8:12,k,i) = 0d0 
-          endif
+          ppnl(3:6,k,i) = [rmax*dlphi, rmax*dlphip, phi, phip]
+          if (lpzi(l) /= 0) ppnl(11:12,k,i) = [phz, dphz]
+          !ppnl(7,k,i)= p ! =<gp|gp>
+!             ppnl(8,k,i)  = sab(3,3,k,i) !=<gz|gz>
+!             ppnl(9,k,i)  = smat(1,3) - sum([phi,  dphi]*matmul(sab(1:2,1:2,k,i),[phz,dphz]))
+!             ppnl(10,k,i) = smat(2,3) - sum([phip,dphip]*matmul(sab(1:2,1:2,k,i),[phz,dphz]))
+!          else
+!             ppnl(8:12,k,i) = 0d0 
+!          endif
           det    = phi*dphip - dphi*phip
           rotp(l,i,1,1) = dphip/det
           rotp(l,i,1,2) = -dphi/det

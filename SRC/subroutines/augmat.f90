@@ -384,7 +384,7 @@ contains
     call fradhd(nkaph,eh,rsmh,lh,lmxh,nr,rofi,fh,xh,vh,dh)
     call fradpk(kmax,rsma,lmxa,nr,rofi,fp,xp,vp,dp)
     ! LDA+U: rotate vorb from (phi,phidot) to (u,s) for all l with U at this site and store in vumm
-    if (lldau > 0) call vlm2us(lmaxu,rmt,idu,lmxa,iblu,vorb,ppnl,vumm)
+    if (lldau > 0) call vlm2us(lmaxu,rmt,idu,lmxa,iblu,vorb,ppnl,rotp,vumm)
     !...Pkl*Pkl !tail x tail
     kmax1=kmax+1
     call gaugm(nr,nsp,lso,rofi,rwgt,lmxa,lmxl,nlml,v2,gpotb,gpot0,hab,vab,sab,sodb,qum,vum,&
@@ -587,7 +587,7 @@ contains
     enddo
     call tcx('momusl')
   end subroutine momusl
-  subroutine vlm2us(lmaxu,rmt,idu,lmxa,iblu,vorb,ppnl,vumm)
+  subroutine vlm2us(lmaxu,rmt,idu,lmxa,iblu,vorb,ppnl,rotp,vumm)
     !- Rotate vorb from (phi,phidot) to (u,s) and store in vumm
     !i   lmaxu :dimensioning parameter for U matrix
     !i   lmxa  :augmentation l-cutoff
@@ -603,29 +603,40 @@ contains
     implicit none
     integer :: lmaxu,lmxa,iblu,idu(4),m1,m2,l,i
     integer,parameter:: n0=10,nppn=12
-    real(8):: rmt,ppnl(nppn,n0,2),phi,dlphi,phip,dlphip,dphi,dphip, r12,r21,r11,r22,det, phz,dphz
+    real(8):: rmt,phi,dlphi,phip,dlphip,dphi,dphip, r12,r21,r11,r22,det, phz,dphz,&
+         ppnl(nppn,n0,2),rotpp(2,2),rotppt(2,2),rotp(0:lmxa,2,2,2) !nsp=2 expected
     complex(8):: vzz,vuz,vsz,vzu,vzs, Vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,2,*), &
          vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,3,3,2,0:lmaxu)
     do  l = 0, min(lmxa,3) ! ... Rotate Vorb from phi,phidot basis to u,s basis
        if (idu(l+1) == 0) cycle
        iblu = iblu+1
        do  i = 1, 2
-          dlphi  = ppnl(3,l+1,i)/rmt
-          dlphip = ppnl(4,l+1,i)/rmt
-          phi    = ppnl(5,l+1,i)
-          phip   = ppnl(6,l+1,i)
-          dphi   = phi*dlphi/rmt
-          dphip  = dlphip/rmt*phip
-          det = phi*dphip - dphi*phip
-          r11 = dphip/det           ! r12 = -dphi/det
-          r21 = -phip/det           ! r22 = phi/det
-          phz  = ppnl(11,l+1,i)
-          dphz = ppnl(12,l+1,i)
-          vumm(-l:l,-l:l,1,1,i,l) = Vorb(-l:l,-l:l,i,iblu)*r11*r11
-          vumm(-l:l,-l:l,1,2,i,l) = Vorb(-l:l,-l:l,i,iblu)*r11*r21
-          vumm(-l:l,-l:l,2,1,i,l) = Vorb(-l:l,-l:l,i,iblu)*r21*r11
-          vumm(-l:l,-l:l,2,2,i,l) = Vorb(-l:l,-l:l,i,iblu)*r21*r21
-          if (phz /= 0) then !bugfix 2022-9-20 m1,m2 -->:,:
+         dlphi  = ppnl(3,l+1,i)/rmt
+         dlphip = ppnl(4,l+1,i)/rmt
+         phi    = ppnl(5,l+1,i)
+         phip   = ppnl(6,l+1,i)
+         phz  = ppnl(11,l+1,i)
+         dphz = ppnl(12,l+1,i)
+         dphi   = phi*dlphi/rmt
+         dphip  = dlphip/rmt*phip
+         det = phi*dphip - dphi*phip
+         r11 = dphip/det           ! r12 = -dphi/det
+         r21 = -phip/det           ! r22 = phi/det
+          rotpp  = rotp(l,i,:,:)
+          rotppt = transpose(rotpp) !
+          ! Vorb is for E_vorb= a_phi *Vorb *a_phi.
+          !   [a_phi,a_phidot]= matmul([au,as],rotpp)
+          !  Thus we have E_vorb = [a_phi,a_phidot] * vumm* [a_phi,a_phidot]^t
+          !vumm(-l:l,-l:l,1,1,i,l) = Vorb(-l:l,-l:l,i,iblu)*r11*r11
+          !vumm(-l:l,-l:l,1,2,i,l) = Vorb(-l:l,-l:l,i,iblu)*r11*r21
+          !vumm(-l:l,-l:l,2,1,i,l) = Vorb(-l:l,-l:l,i,iblu)*r21*r11
+          !vumm(-l:l,-l:l,2,2,i,l) = Vorb(-l:l,-l:l,i,iblu)*r21*r21
+          vumm(-l:l,-l:l,1,1,i,l) = Vorb(-l:l,-l:l,i,iblu)*rotpp(1,1)*rotppt(1,1)
+          vumm(-l:l,-l:l,1,2,i,l) = Vorb(-l:l,-l:l,i,iblu)*rotpp(1,1)*rotppt(1,2)
+          vumm(-l:l,-l:l,2,1,i,l) = Vorb(-l:l,-l:l,i,iblu)*rotpp(2,1)*rotppt(1,1)
+          vumm(-l:l,-l:l,2,2,i,l) = Vorb(-l:l,-l:l,i,iblu)*rotpp(2,1)*rotppt(1,2)
+          ! (au-a_gzphz,as-dphz)*vumm*(au-a_gzphz,as-dphz)^t is expanded to be
+          if (phz /= 0) then
              vumm(:,:,1:2,3,i,l) = - phz*vumm(:,:,1:2,1,i,l) - dphz*vumm(:,:,1:2,2,i,l) !vuz,vsz
              vumm(:,:,3,1:2,i,l) = - phz*vumm(:,:,1,1:2,i,l) - dphz*vumm(:,:,2,1:2,i,l) !vzu,vzs
              vumm(:,:,3,3,i,l) =   phz**2*vumm(:,:,1,1,i,l) + &
