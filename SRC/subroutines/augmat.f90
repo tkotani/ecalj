@@ -18,7 +18,7 @@ contains
     !o   osig  :augmentation overlap integrals; see Remarks.
     !o   otau  :augmentation kinetic energy integrals; see Remarks.
     !o   oppi  :augmentation kinetic + potential integrals; see Remarks.
-    !o   ppnl  :NMTO potential parameters
+    !o   ppnl  :phz dphz
     !o   hab   :matrix elements of the ham. with true w.f.  See Remarks.
     !o   vab   :matrix elements of the pot. with true w.f.  See Remarks.
     !o   sab   :matrix elements of    unity with true w.f.  See Remarks.
@@ -300,20 +300,6 @@ contains
     !r   To add to ppi, these need to be first rotated to (u,s) basis which is
     !r   done in potpusnl whose output is vumm array for this site (possibly
     !r   for different l's). They are passed on in each gaugm call
-    !r
-    !u Updates
-    !u   09 Nov 05 (wrl) Convert dmat to complex form
-    !u   27 Apr 05  LDA+U (Lambrecht)
-    !u   24 Dec 04 (A. Chantis) ppi matrix elements for full L.S
-    !u    1 Sep 04 Adapted mkpot to handle complex ppi; fold so into ppi
-    !u   12 Aug 04 First implementation of extended local orbitals
-    !u   15 Jul 04 (Chantis) radial integrals for spin-orbit coupling
-    !u   10 Apr 02 Redimensionsed eh,rsmh to accomodate larger lmax
-    !u   27 Aug 01 Extended to local orbitals.  Altered argument list.
-    !u   20 Feb 01 Added ppnl to potential parameters generated
-    !u   13 Jun 00 spin polarized
-    !u   17 May 00 Adapted from nfp augmats.f
-    ! ----------------------------------------------------------------------
 
     ! --- Augmentation matrices for cases P*P, H*H, H*P ---
     ! NOTE for SO
@@ -592,7 +578,7 @@ contains
     !i   lmaxu :dimensioning parameter for U matrix
     !i   lmxa  :augmentation l-cutoff
     !i   vorb  :orbital-dependent potential matrices
-    !i   ppnl  :potential parameters
+    !i   ppnl  : phz dphz
     !o Inputs/Outputs
     !o  iblu  :index to current LDA+U block
     !          :on input, index to last LDA+U block that was accessed
@@ -611,26 +597,13 @@ contains
        if (idu(l+1) == 0) cycle
        iblu = iblu+1
        do  i = 1, 2
-         dlphi  = ppnl(3,l+1,i)/rmt
-         dlphip = ppnl(4,l+1,i)/rmt
-         phi    = ppnl(5,l+1,i)
-         phip   = ppnl(6,l+1,i)
-         phz  = ppnl(11,l+1,i)
-         dphz = ppnl(12,l+1,i)
-         dphi   = phi*dlphi/rmt
-         dphip  = dlphip/rmt*phip
-         det = phi*dphip - dphi*phip
-         r11 = dphip/det           ! r12 = -dphi/det
-         r21 = -phip/det           ! r22 = phi/det
+          phz  = ppnl(11,l+1,i)
+          dphz = ppnl(12,l+1,i)
           rotpp  = rotp(l,i,:,:)
           rotppt = transpose(rotpp) !
           ! Vorb is for E_vorb= a_phi *Vorb *a_phi.
           !   [a_phi,a_phidot]= matmul([au,as],rotpp)
           !  Thus we have E_vorb = [a_phi,a_phidot] * vumm* [a_phi,a_phidot]^t
-          !vumm(-l:l,-l:l,1,1,i,l) = Vorb(-l:l,-l:l,i,iblu)*r11*r11
-          !vumm(-l:l,-l:l,1,2,i,l) = Vorb(-l:l,-l:l,i,iblu)*r11*r21
-          !vumm(-l:l,-l:l,2,1,i,l) = Vorb(-l:l,-l:l,i,iblu)*r21*r11
-          !vumm(-l:l,-l:l,2,2,i,l) = Vorb(-l:l,-l:l,i,iblu)*r21*r21
           vumm(-l:l,-l:l,1,1,i,l) = Vorb(-l:l,-l:l,i,iblu)*rotpp(1,1)*rotppt(1,1)
           vumm(-l:l,-l:l,1,2,i,l) = Vorb(-l:l,-l:l,i,iblu)*rotpp(1,1)*rotppt(1,2)
           vumm(-l:l,-l:l,2,1,i,l) = Vorb(-l:l,-l:l,i,iblu)*rotpp(2,1)*rotppt(1,1)

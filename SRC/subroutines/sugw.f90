@@ -570,7 +570,7 @@ contains
           do  l = 0, sspec(ispec(ib))%lmxa
              do im = 1, 2*l+1
                 ilm = ilm+1
-                auasaz=aus(ilm,iv,1:3,isp,ib)
+                auasaz=aus(ilm,iv,1:3,isp,ib) !coefficient for (u,s,gz)
                 wgt = sum(dconjg(auasaz)*matmul( sab_rv(:,:,l+1+n0*(ib-1)+n0*nbas*(isp-1)),auasaz)) 
                 cphiw(iv) = cphiw(iv) +   wgt
                 !  cphi corresponds to coefficients of augmented functions for

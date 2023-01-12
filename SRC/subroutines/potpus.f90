@@ -1,7 +1,5 @@
 module m_potpus
   public potpus
-!  real(8),public, allocatable:: dphi,dphi, pphi,phip, phz,dphz !3,4,5,6,11,12  "dlphi,dlphip 3,4"
-!  real(8),public, allocatable:: s00,s11,szz,s0z,s1z !2,7,8,9,10
   private
 contains
   subroutine potpus(z,rmax,lmxa,v,vdif,a,nr,nsp,lso,rofi,pnu,pnz, &
@@ -37,20 +35,7 @@ contains
     !i         :The asymptotic form of V-vmtz is taken to be zero.
     !i   nab,n0:first and second dimensions of hab, vab, sab
     !o Outputs
-    !o   ppnl  :NMTO pot pars (but no backward extrapolation; <phi phi>=1)
-    !ox         :(1)  = inverse potential function (not created)
-    !o         :(2)  = normalization of phi (= 1 here for now)
-    !   pvalue(:), pslope(:), ppovl(:,:)
-    !o         :(3)  = rmax * log derivative of phi at rmax      
-    !o         :(4)  = rmax * log derivative of phidot at rmax
-    !o         :(5)  = phi at rmax
-    !o         :(6)  = phidot at rmax
-    !o         :(7)  = normalization of phidot
-    !o         :(8)  = normalization <gz|gz> for local orbital
-    !o         :(9)  = overlap <phi|gz>
-    !o         :(10) = overlap <phidot|gz>
-    !o         :(11) = phz at rmax for local orbitals defined, before (phi,phidot) subtracted
-    !o         :(12) = dphz (slope of phz) at rmax for local orbitals defined
+    !o   ppnl(11:12)  : phz dphz
     !o   hab   :matrix elements of the hamiltonian (spher. v) for this site
     !o         :specified by the potentials v, vdif and the boundary
     !o         :condition pnu (or pnz).  See Remarks.
@@ -289,17 +274,9 @@ contains
                hab(1:3,1:3,k,i) = matmul(mmm,matmul(hmat(1:3,1:3),mmmt)) !<(u,s,gz)|h|(u,s,gz)>
              endblock lpzint
           endif
-          ppnl(3:6,k,i) = [rmax*dlphi, rmax*dlphip, phi, phip]
           if (lpzi(l) /= 0) ppnl(11:12,k,i) = [phz, dphz]
-          !ppnl(7,k,i)= p ! =<gp|gp>
-!             ppnl(8,k,i)  = sab(3,3,k,i) !=<gz|gz>
-!             ppnl(9,k,i)  = smat(1,3) - sum([phi,  dphi]*matmul(sab(1:2,1:2,k,i),[phz,dphz]))
-!             ppnl(10,k,i) = smat(2,3) - sum([phip,dphip]*matmul(sab(1:2,1:2,k,i),[phz,dphz]))
-!          else
-!             ppnl(8:12,k,i) = 0d0 
-!          endif
           det    = phi*dphip - dphi*phip
-          rotp(l,i,1,1) = dphip/det
+          rotp(l,i,1,1) = dphip/det !see sugw for how to use rotp (u,s) to (phi,phidot)
           rotp(l,i,1,2) = -dphi/det
           rotp(l,i,2,1) = -phip/det
           rotp(l,i,2,2) = phi/det

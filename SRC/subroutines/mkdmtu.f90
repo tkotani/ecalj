@@ -27,7 +27,7 @@ subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu)
   !i   nlmax :1st dimension of aus (maximum nlma over all sites)
   !i   nbas  :size of basis
   !i   nev   :actual number of eigenvectors generated
-  !i   ppnl  :nmto-like pot pars
+  !i   ppnl  :phz dphz
   !i   aus   :coefficients to phi and phidot made previously by makusqldau
   !i  lldau  :lldau(ib)=0 => no U on this site otherwise
   !i         :U on site ib with dmat beginning at dmats(*,lldau(ib))
@@ -71,19 +71,6 @@ subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu)
            !           ispc=1 for independent spins, and spin index when nspc=2
            do  ispc = 1, nspc
               ksp = max(ispc,isp)
-              !             For rotation (u,s) to (phi,phidot)
-!              dlphi  = ppnl(3,l+1,ksp,ib)/rmt
-!              dlphip = ppnl(4,l+1,ksp,ib)/rmt
-!              phi    = ppnl(5,l+1,ksp,ib)
-!              phip   = ppnl(6,l+1,ksp,ib)
-!              dphi   = phi*dlphi/rmt
-!              dphip  = dlphip/rmt*phip
-!              det    = phi*dphip - dphi*phip
-!              r(1,1) = dphip/det
-!              r(1,2) = -dphi/det
-!              r(2,1) = -phip/det
-!              r(2,2) = phi/det
-              !             For projection from loc. orb. onto (u,s)
               phz    = ppnl(11,l+1,ksp,ib)
               dphz   = ppnl(12,l+1,ksp,ib)
               ilm1 = l*l
@@ -100,7 +87,7 @@ subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu)
                        az = aus(ilm1,iv,3,ksp,ib)
                        au = aus(ilm1,iv,1,ksp,ib) - phz*az
                        as = aus(ilm1,iv,2,ksp,ib) - dphz*az !u,s components
-                       auas= matmul([au,as],rotp(l,ksp,:,:,ib))
+                       auas= matmul([au,as],rotp(l,ksp,:,:,ib)) ! rotation (u,s) to (phi,phidot) comp.
                        ap1 = auas(1) !au*r(1,1) + as*r(2,1) !projection to phi components.
                        az = aus(ilm2,iv,3,ksp,ib)
                        au = aus(ilm2,iv,1,ksp,ib) - phz*az

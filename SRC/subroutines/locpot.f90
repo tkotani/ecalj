@@ -69,7 +69,7 @@ contains
     !o   osig  :augmentation overlap integrals; see augmat
     !o   otau  :augmentation kinetic energy integrals; see augmat
     !o   oppi  :augmentation kinetic + potential integrals; see augmat
-    !o   ppnl  :NMTO-like potential parameters
+    !o   ppnl  :phz dphz
     !o   hab   :integrals of the ham. with true w.f.  See Remarks in augmat
     !o   vab   :integrals of the pot. with true w.f.  See Remarks in augmat
     !o   sab   :integrals of    unity with true w.f.  See Remarks in augmat
@@ -77,33 +77,6 @@ contains
     !l   lfltwf:T  update potential used to define basis
     !l   iblu  :index to current LDA+U block
     !i   idu   :idu(l+1)=1 => this l has a nonlocal U matrix
-    !r Remarks
-    !u Updates
-    !u   10 Sep 08 Added electric field gradient (AxSv)
-    !u   02 Jan 06 adds core magnetic moment to saloc
-    !u   09 Nov 05 Convert dmat to complex form
-    !u   06 Jul 05 Parameters for extended local orbitals are now input
-    !u   01 Jul 05 handle sites with lmxa=-1 -> no augmentation
-    !u   12 Jun 05 Optionally write sphere densities to file
-    !u   27 Apr 05 Added LDA+U  (Lambrecht)
-    !u    1 Sep 04 Adapted mkpot to handle complex ppi; fold so into ppi
-    !u   15 Jul 04 First implementation of extended local orbitals
-    !u   14 Mar 04 Makes rhov*exc and rhov*vxc
-    !u   14 Mar 04 Makes rhov*exc and rhov*vxc
-    !u   19 Sep 03 (ATP) Enabled partial core occupation
-    !u   02 Oct 02 (WRL) Added background potential
-    !u    9 May 02 Added species-specific freezing of potential
-    !u    8 May 02 Added rhoex and rhoec (T. Miyake)
-    !u    7 May 02 Added rvexv and rvecv (T. Miyake)
-    !u   10 Apr 02 Redimensionsed eh,rsmh to accomodate larger lmax
-    !u   17 Sep 01 Returns qsc.  Altered argument list.
-    !u   28 Aug 01 Extended to local orbitals.  Altered argument list.
-    !u   15 Aug 01 Generates rvepsv and rvvxcv.  New argument list
-    !u   18 Apr 01 Added ability to exclude exchange-correlation potential
-    !u   20 Feb 01 Added ppnl to potential parameters generated
-    !u   13 Jun 00 spin polarized
-    !u    1 May 00 Adapted from nfp locpot.f
-    !u   17 Jun 98 Adapted from DLN to run parallel on SGI
     ! ----------------------------------------------------------------------
     integer::  job,ibx,ir,isp,l,lm
     type(s_rv1) :: orhoat(3,nbas)

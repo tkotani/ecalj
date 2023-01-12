@@ -64,8 +64,6 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
   real(8):: q(3),GcutH,tpiba,xx,tripl,dgetss,bas(3,nbas),rmax(nbas),qpg(3),qpg2(1),denom,gam,srvol,&
        eh(n0,nkap0),rsmh(n0,nkap0)
   complex(8):: ppovl(ngp,ngp), pwhovl(ngp,ndimh),phase,img,fach,mimgl(0:n0)
-!  type(s_site)::ssite(*)
-!  type(s_spec)::sspec(*)
   integer,allocatable:: igvx(:,:),kv(:,:)
   real(8),allocatable:: yl(:)
   complex(8),allocatable:: pwh(:,:),ppovlx(:,:)
@@ -78,9 +76,9 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
      mimgl(l) = (-img)**l
   enddo
   do  ib = 1, nbas
-     bas(:,ib)=rv_a_opos(:,ib)!,ssite(ib)%pos
-     ips(ib) = ispec(ib) !ssite(ib)%spec
-     is = ispec(ib) !ssite(ib)%spec
+     bas(:,ib)=rv_a_opos(:,ib)
+     ips(ib) = ispec(ib)
+     is = ispec(ib) 
      rmax(ib) = sspec(is)%rmt
   enddo
   nlmto = ndimh-napw
