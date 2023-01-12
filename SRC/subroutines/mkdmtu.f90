@@ -51,7 +51,7 @@ subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu)
   real(8)::qp(3)
   allocate(aus(nlmax,ndham*nspc,3,nsp,nbas))! aus(2*nlmax*ndhamx*3*nsp*nbas))
   aus=0d0
-  call makusq(0, nbas,[0] , nev,  isp, 1, qp, evec, aus )
+  call makusq(nbas,[0] , nev,  isp, 1, qp, evec, aus )
   iblu = 0
   do  ib = 1, nbas
      if (lldau(ib) == 0) goto 10
@@ -91,16 +91,9 @@ subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu)
                  do  m2 = -l, l
                     ilm2 = ilm2+1
                     add = (0d0,0d0)
-                    !                 If (au,as) are coefficients to (phi,phidot), use this
-                    !                 do  iv = 1, nev
-                    !                   ap1 = aus(ilm1,iv,1,ksp,ib)
-                    !                   ap2 = aus(ilm2,iv,1,ksp,ib)
-                    !                   add = add + ap1*dconjg(ap2)*wtkb(iv,ksp,iq)
-                    !                 enddo
-
-                    !                 If (au,as) are coefficients to (u,s), use this
-                    !                 Local orbital contribution adds to u,s
-                    !                 deltau = -phi(rmax) * az   deltas = -dphi(rmax) * az
+                    !  Since (au,as,az) are coefficients to (u,s,gz), (gz is local orbital with val=slo=0 at MT)
+                    !  Local orbital contribution adds to u,s
+                    !  deltau = -phi(rmax) * az   deltas = -dphi(rmax) * az
                     do  iv = 1, nev
                        az = aus(ilm1,iv,3,ksp,ib)
                        au = aus(ilm1,iv,1,ksp,ib) - phz*az

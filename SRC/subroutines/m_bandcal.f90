@@ -335,7 +335,7 @@ contains
   subroutine mkorbm(isp,nev,iq,qp,evec, orbtm) !decomposed orbital moments within MT
     use m_lmfinit,only: ispec,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nl,n0,nppn,nab
     use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
-    use m_mkpot,only: sab_rv!, sab=>sab_rv ppnl=>ppnl_rv,
+    use m_mkpot,only: sab_rv
     use m_subzi, only: wtkb=>rv_a_owtkb
     use m_qplist,only: nkp
     use m_suham,only: ndham=>ham_ndham, ndhamx=>ham_ndhamx
@@ -384,7 +384,7 @@ contains
 !    real(8):: sab(nab,n0,2)
     allocate(aus(nlmax,ndham*nspc,3,nsp,nbas))
     aus=0d0
-    call makusq(0 , nbas,[-999], nev, isp,1,qp,evec, aus )
+    call makusq(nbas,[-999], nev, isp,1,qp,evec, aus )
     lmxax = ll(nlmax)
     iot = dcmplx(0d0,1d0)
     ichan = 0
@@ -396,8 +396,6 @@ contains
        if (lmxa == -1) cycle 
        nlma = (lmxa+1)**2
        lmdim = nlma
-!old   ppnl  :NMTO potential parameters; see eg potpus.f
-!   call phvsfp(nsp,lmxa,ppnl(1,1,1,ib),rmt,sab)
        !       In noncollinear case, isp=1 always => need internal ispc=1..2
        !       ksp is the current spin index in both cases:
        !       ksp = isp  in the collinear case
@@ -413,11 +411,9 @@ contains
              !        |Psi>_l = \Sum_{m}(A_l,m * u_l + B_l,m * s_l)*R_l,m --->
              !        |Psi>_l = \Sum_{m}(C_l,m * u_l + D_l,m * s_l)*Y_l,m
              !        R_l,m and Y_l,m are the real and spherical harmonics respectively.
-
              !              | (-1)^m/sqrt(2)*A_l,-m + i*(-1)^m/sqrt(2)*A_l,m , m>0
              !        C_l,m=|  A_l,m                                         , m=0
              !              |  1/sqrt(2)*A_l,-m -  i*1/sqrt(2)*A_l,m         , m<0
-
              !       Same relationships are valid between D and B.
              lloop: do  l = 0, lmxa
                 lc = (l+1)**2 - l
@@ -425,48 +421,24 @@ contains
                    em = abs(m)
                    ilm = ilm+1
                    if (m < 0) then
-                      au = iot*1d0/dsqrt(2d0)*aus(lc-em,iv,1,ksp,ib) + &
-                           1d0/dsqrt(2d0)*aus(lc+em,iv,1,ksp,ib)
-                      as = iot*1d0/dsqrt(2d0)*aus(lc-em,iv,2,ksp,ib) + &
-                           1d0/dsqrt(2d0)*aus(lc+em,iv,2,ksp,ib)
-                      az = iot*1d0/dsqrt(2d0)*aus(lc-em,iv,3,ksp,ib) + &
-                           1d0/dsqrt(2d0)*aus(lc+em,iv,3,ksp,ib)
+                      au= iot*1d0/dsqrt(2d0)*aus(lc-em,iv,1,ksp,ib) + 1d0/dsqrt(2d0)*aus(lc+em,iv,1,ksp,ib)
+                      as= iot*1d0/dsqrt(2d0)*aus(lc-em,iv,2,ksp,ib) + 1d0/dsqrt(2d0)*aus(lc+em,iv,2,ksp,ib)
+                      az= iot*1d0/dsqrt(2d0)*aus(lc-em,iv,3,ksp,ib) + 1d0/dsqrt(2d0)*aus(lc+em,iv,3,ksp,ib)
                    else if (m > 0) then
-                      au = -iot*(-1)**m/dsqrt(2d0)*aus(lc-m,iv,1,ksp,ib) + &
-                           (-1)**m/dsqrt(2d0)*aus(lc+m,iv,1,ksp,ib)
-                      as = -iot*(-1)**m/dsqrt(2d0)*aus(lc-m,iv,2,ksp,ib) + &
-                           (-1)**m/dsqrt(2d0)*aus(lc+m,iv,2,ksp,ib)
-                      az = -iot*(-1)**m/dsqrt(2d0)*aus(lc-m,iv,3,ksp,ib) + &
-                           (-1)**m/dsqrt(2d0)*aus(lc+m,iv,3,ksp,ib)
+                      au= -iot*(-1)**m/dsqrt(2d0)*aus(lc-m,iv,1,ksp,ib)+(-1)**m/dsqrt(2d0)*aus(lc+m,iv,1,ksp,ib)
+                      as= -iot*(-1)**m/dsqrt(2d0)*aus(lc-m,iv,2,ksp,ib)+(-1)**m/dsqrt(2d0)*aus(lc+m,iv,2,ksp,ib)
+                      az= -iot*(-1)**m/dsqrt(2d0)*aus(lc-m,iv,3,ksp,ib)+(-1)**m/dsqrt(2d0)*aus(lc+m,iv,3,ksp,ib)
                    else
-                      au = aus(ilm,iv,1,ksp,ib)
-                      as = aus(ilm,iv,2,ksp,ib)
-                      az = aus(ilm,iv,3,ksp,ib)
-                   endif
+                      au= aus(ilm,iv,1,ksp,ib)
+                      as= aus(ilm,iv,2,ksp,ib)
+                      az= aus(ilm,iv,3,ksp,ib)
+                   endif ! (au as az) are for (u,s,gz) functions where gz=gz'=0 at MT
                    orbtm(l+1,ksp,ib) = orbtm(l+1,ksp,ib) + m* wtkb(iv,isp,iq)* &
                         sum( dconjg([au,as,az]) &
                         *matmul( sab_rv(:,:,l+1+n0*(ib-1)+n0*nbas*(ksp-1)), [au,as,az]))
-                   !           If (au,as) are coefficients to (u,s), use this
-                   ! s11 = dconjg(au)*au*sab(1,l+1,ksp)
-                   ! s12 = 2*dconjg(au)*as*sab(2,l+1,ksp)
-                   ! s22 = dconjg(as)*as*sab(4,l+1,ksp)
-                   ! s33 = dconjg(az)*az*sab(5,l+1,ksp)
-                   ! s31 = dconjg(az)*au*sab(6,l+1,ksp)
-                   ! s32 = dconjg(az)*as*sab(7,l+1,ksp)
-                   ! s13 = dconjg(au)*az*sab(6,l+1,ksp)
-                   ! s23 = dconjg(as)*az*sab(7,l+1,ksp)
-                   ! diff= m* wtkb(iv,isp,iq)* &
-                   !      sum( dconjg([au,as,az]) &
-                   !      *matmul( sab_rv(:,:,l+1+n0*(ib-1)+n0*nbas*(ksp-1)), [au,as,az]))&
-                   !      -&
-                   !      m*(s11+s12+s22+ s33+s32+s23+s31+s13)*wtkb(iv,isp,iq) 
-                   ! if(abs(diff)>1d-8) stop 'mmmm diff >'
                 enddo mloop
              enddo lloop
-          enddo ivloop
-!          do l=0,lmxa
-!             print*, l, ksp,ib,'ORB.MOMNT=',orbtm(l+1,ksp,ib)
-!          enddo   
+          enddo ivloop ! print*, l, ksp,ib,'ORB.MOMNT=',(orbtm(l+1,ksp,ib),l=0,lmxa)
        enddo ispcloop
     enddo ibloop
     deallocate(aus)

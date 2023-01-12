@@ -53,7 +53,7 @@ contains
     endif
     allocate( auspp(nlmax,ndhamx,3,nsp,nbas) )
     auspp = 0d0
-    call makusq(0, nbas,[-999], nev,jsp,1,qp,evec, auspp ) !for (u,s,gz) !correct 2023-jan mode=0
+    call makusq(nbas,[-999], nev,jsp,1,qp,evec, auspp ) !for (u,s,gz) !correct 2023-jan mode=0
     jspini=isp
     jspend=isp
     jspp=isp

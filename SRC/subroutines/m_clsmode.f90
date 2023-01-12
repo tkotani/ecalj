@@ -4,13 +4,11 @@ module m_clsmode
   use m_suham,only:   ndham=>ham_ndham
   use m_mkqp,only: nkp=>bz_nkp
   use m_MPItk,only: master_mpi
-!  use m_mkpot,only: ppnl_rv
   use m_ftox,only: ftox
   integer,parameter,private:: nsitmx = 256
   integer,private::  icls=0 , isite(nsitmx) , iclsl(nsitmx), iclsn(nsitmx),nsites
   complex(8),allocatable,private :: ausc_zv(:)
 contains
-
   subroutine m_clsmode_init()
     logical:: cmdopt0
     character(10):: i2char
@@ -68,7 +66,7 @@ contains
     real(8)::qp(3)
     complex(8):: t_zv(1:ndimhx,1:nmx)
     call rxx(lso==1,'CLS not implemented in noncoll case')
-    call makusq(0, nsites,isite, nev,jsp,iq,qp,t_zv, ausc_zv)
+    call makusq(nsites,isite, nev,jsp,iq,qp,t_zv, ausc_zv)
   end subroutine m_clsmode_set1
 
   subroutine m_clsmode_finalize(bz_ef,ndimh,ndhamx,nspx,nkp,dosw,evlall)

@@ -500,7 +500,7 @@ contains
           nlmax = mxorb / nkaph
           allocate(aus_zv(nlmax*ndham*3*nsp*nbas))
           aus_zv=0d0
-          call makusq(0, nbas,[-999], nev,  isp, 1 , qp , evec , aus_zv )
+          call makusq(nbas,[-999], nev,  isp, 1 , qp , evec , aus_zv )
           call gwcphi(isp,nsp,nlmax,ndham,nev,nbas,ipb,lmxax,nlindx,ndima,ppn,aus_zv,&
                cphi(1,1,isp),cphin(1,1,isp ))!cphi coefficients for phi,phidot,pz(val=slope=0). pz is by wf2lo.
           deallocate(aus_zv)
@@ -788,9 +788,9 @@ contains
                 au = aus(ilm,iv,1,isp,ib)
                 as = aus(ilm,iv,2,isp,ib)
                 az = aus(ilm,iv,3,isp,ib)
+                auasaz=aus(ilm,iv,1:3,isp,ib)
                 wgt = sum(dconjg(auasaz)*matmul( sab_rv(:,:,l+1+n0*(ib-1)+n0*nbas*(isp-1)),auasaz)) 
-                !     Rotate to (phi,phidot)
-                auas = matmul([au,as],rotp(l,isp,:,:,ib)) 
+                auas = matmul([au,as],rotp(l,isp,:,:,ib)) !     Rotate to (phi,phidot)
                 au = auas(1)
                 as = auas(2) !au,as,az are on radial functions phi,phidot,gz(val=slo=0) base.
                 sqrsz = [lmat(1,1)*au + lmat(3,1)*az, lmat(2,2)*as + lmat(3,2)*az, lmat(3,3)*az]
