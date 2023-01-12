@@ -15,7 +15,7 @@ contains
     use m_rdsigm2,only: getsenex, senex,dsene
     use m_mksym,only: lat_npgrp,lat_nsgrp
     use m_mkpot,only: smpot=>osmpot, vconst, vesrmt
-    use m_mkpot,only: osig, otau, oppi, ohsozz,ohsopm, ppn=>ppnl_rv, oppix,spotx
+    use m_mkpot,only: osig, otau, oppi, ohsozz,ohsopm, oppix,spotx
     use m_MPItk,only: numproc=>nsize,procid,master,master_mpi
     use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_setiq,ndimhall
     use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
@@ -552,7 +552,7 @@ contains
     !o Outputs
     !o   cphi :coefficients to phi,phidot,phiz following Kotani conventions
     !o        :cphi(ichan,iv) :
-    !o           ichan = orbital channel, i.e. one of (phi,phidot or phiz)
+    !o           ichan = orbital channel, i.e. one of (phi,phidot or phiz(=gz))
     !o           for a given site, l, and m; see nlindx.
     !o           iv = eigenvector
     !o   cphiw:diagonal matrix elements, one for each eigenvector.
@@ -573,7 +573,8 @@ contains
                 auasaz=aus(ilm,iv,1:3,isp,ib)
                 wgt = sum(dconjg(auasaz)*matmul( sab_rv(:,:,l+1+n0*(ib-1)+n0*nbas*(isp-1)),auasaz)) 
                 cphiw(iv) = cphiw(iv) +   wgt
-                !Rotate to auas to phi,phidot base ! cphi of au,as,az are for phi,phidot,gz(val=slo=0) base.
+                !  cphi corresponds to coefficients of augmented functions for
+                !   {phi,phidot,gz(val=slo=0)}, which are not orthnormal. 
                 cphi(nlindx(1:2,l,ib)+im,iv)= matmul(auasaz(1:2),rotp(l,isp,:,:,ib))
                 if (nlindx(3,l,ib) >= 0) cphi(nlindx(3,l,ib) + im,iv) = auasaz(3)
              enddo
@@ -582,80 +583,3 @@ contains
     enddo
   end subroutine gwcphi
 end module m_sugw
-
-
-!old memo
-    !r Remarks
-    !r   gwcphi converts the projection of an eigenvector into coefficients
-    !r   of (phi,phidot) pairs, or with local orbitals, (phi,phidot,phiz)
-    !r   into Kotani's conventions.  The overlap matrix between
-    !r   the original functions is (see ppnl above)
-    !r
-    !r             (s00   0      s0z  )
-    !r      S =  = ( 0   s11     s1z  )
-    !r             (s0z  s1z     szz  )
-    !r
-    !r *Linear transformation of augmentation orbitals.  This code was
-    !r  originally designed to make a linear transformation of atomic
-    !r  orbitals (phi,phidot,phiz) to an orthonormal set, and generate
-    !r  cphi for the orthonormalized set.  Now it generates cphi for the
-    !r  original (non-orthonormal) orbitals.  To compute the sphere
-    !r  contribution to the normalization, the sphere contribution to matrix
-    !r  elements between eigenvectors is returned in cphiw.
-    !r
-    !r  Vector aus corresponds to coefficients of augmented functions
-    !r  {phi,phidot,gz}, which are not orthnormal.  Let us choose a linear
-    !r  transformation L that transforms new functions {f1~..fn~} back to
-    !r  the original functions {f1...fn}.  L^-1 transforms {f1...fn} to
-    !r  {f1~..fn~}.
-    !r
-    !r  A sum of functions sum_i C_i f_i can be expressed as
-    !r  sum_i C~_i f~_i by provided C~ satisfy
-    !r    sum_j C_j f_j = sum_i C~_i f~_i = sum_ij C~_i L^-1_ij f_j
-    !r                  = sum_j (sum_i L+^-1_ji C~_i) f_j
-    !r  Writing as vectors
-    !r    C+ f> = C+ L L^-1 f> = (L+ C)+ (L^-1 f>)
-    !r  Therefore
-    !r    C~ = L+ C  and  f~> = (L^-1 f>) and then C+ f> = (C~)+ f~>
-    !r
-    !r  If S_ij is the overlap in the old basis, in the new basis it is
-    !r    < f~_i f~_j> = sum_km L^-1_ik S_km L^-1_mj
-    !r             S~  = L^-1 S L^-1+
-    !r             S   = L S~ L+
-    !r
-    !r *Choice of L to orthormal basis.  Then S~ = 1 and
-    !r    S = L L+
-    !r
-    !r  1. No local orbital; basis consists of orthogonal (phi,phidot)
-    !r     See above for overlap matrix.
-    !r
-    !r          (sqrt(s00)  0          )          (1/sqrt(s00)  0          )
-    !r     L  = (                      )   L^-1 = (                        )
-    !r          ( 0          sqrt(s11) )          ( 0          1/sqrt(s11) )
-    !r
-    !r  2. Local orbital; basis consists of (phi,phidot,gz)
-    !r     See above for overlap matrix.
-    !r
-    !r     Let D = sqrt(szz - s0z^2/s00 - s1z^2/s11)
-    !r
-    !r             (sqrt(s00)          0            0)
-    !r             (                                 )
-    !r      L    = ( 0              sqrt(s11)       0)
-    !r             (                                 )
-    !r             (s0z/sqrt(s00)  s1z/sqrt(s11)    D)
-    !r
-    !r
-    !r             (1/sqrt(s00)         0          0 )
-    !r             (                                 )
-    !r      L^-1 = ( 0              1/sqrt(s11)    0 )
-    !r             (                                 )
-    !r             (-s0z/s00/D     -s1z/s11/D     1/D)
-    !r
-    !u Updates
-    !u    5 Jul 05 handle sites with lmxa=-1 -> no augmentation
-    !u   25 Apr 02 Returns cphi as coefficients to original nonlocal
-    !u             orbitals, and cphiw as matrix elements of evecs.
-    !u             Altered argument list.
-    !u   19 Feb 02 Extended to local orbitals.
-    !u   28 Mar 01 written by MvS.
-    ! ----------------------------------------------------------------------
