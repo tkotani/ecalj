@@ -1,5 +1,5 @@
 module m_mkrout
-  use m_struc_def
+  use m_struc_def,only:s_rv1
   use m_uspecb,only:uspecb
   use m_lmfinit,only:nkapii,lhh
   use m_orbl,only: Orblib,ktab,ltab,offl,norb, ntab,blks

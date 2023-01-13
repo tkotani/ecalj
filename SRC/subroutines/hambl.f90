@@ -35,7 +35,7 @@ subroutine hambl(isp,qin,smpot,vconst,osig,otau,oppi, h,s)! Make LDA/GGA Hamilto
   call smhsbl(vconst,qin,ndimh,napw,igvapwin,          h,s)!Smooth and Constant potential parts.
   call hsibl(k1,k2,k3,smpot,isp,qin,ndimh,napw,igvapwin, h)!Smooth potential part, 1st term of (C.3) in Ref.[1]
   do i=1,ndimh
-     h(i+1:ndimh,i)=dconjg(h(i,i+1:ndimh))
+     h(i+1:ndimh,i)=dconjg(h(i,i+1:ndimh)) !RU part = LD part*
      s(i+1:ndimh,i)=dconjg(s(i,i+1:ndimh))
   enddo
   call tcx('hambl')

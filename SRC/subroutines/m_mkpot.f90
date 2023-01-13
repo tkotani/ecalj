@@ -1,4 +1,4 @@
-module m_mkpot ! http://dx.doi.org/10.7566/JPSJ.84.034702
+module m_mkpot ! Seechttp://dx.doi.org/10.7566/JPSJ.84.034702
   use m_lmfinit,only: nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nab,nppn &
        ,lfrce=>ctrl_lfrce,stdl, nchan=>pot_nlma, nvl=>pot_nlml,nkaph
   use m_struc_def,only: s_rv1,s_cv1,s_sblock
@@ -7,9 +7,9 @@ module m_mkpot ! http://dx.doi.org/10.7566/JPSJ.84.034702
   !! output ------------------------------------------------------------------
   type(s_sblock),allocatable,protected,public  :: ohsozz(:,:),ohsopm(:,:) !SOC matrix
   ! Generated at mkpot-locpot-augmat-gaugm
-  type(s_cv1),allocatable,protected,public  :: oppi(:,:) !pi-integral Eq.(C.6)
-  type(s_rv1),allocatable,protected,public  :: otau(:,:) !tau            (C.5)
-  type(s_rv1),allocatable,protected,public  :: osig(:,:) !sigma          (C.4)
+  type(s_cv1),allocatable,protected,public  :: oppi(:,:) !pi-integral Eq.(C.6) 
+  type(s_rv1),allocatable,protected,public  :: otau(:,:) !tau            (C.5) 
+  type(s_rv1),allocatable,protected,public  :: osig(:,:) !sigma          (C.4) 
   complex(8),allocatable,protected ,public  :: osmpot(:,:,:,:)!0th component of Eq.(34)
   ! these are given by call m_mkpot_novxc
   type(s_cv1),allocatable,protected,public  :: oppix(:,:) !pi-integral without xc term
@@ -21,7 +21,7 @@ module m_mkpot ! http://dx.doi.org/10.7566/JPSJ.84.034702
   real(8),protected,public:: qval,vconst,qsc
   real(8),allocatable,protected,public:: ppnl_rv(:,:,:,:)
 
-  !! nov2021 dipole contribution added
+  !! nov2021 dipole contribution added  (not working...)
   !! oppixd: add dipole part to oppix
   !! spotxd:      add dipole part to spotx
   !      type(s_cv1),allocatable,protected,public  :: oppixd(:,:,:)
@@ -43,9 +43,9 @@ contains
     allocate( hab_rv(3,3,n0*nsp*nbas))
     allocate( vab_rv(3,3,n0*nsp*nbas))
     allocate( sab_rv(3,3,n0*nsp*nbas))
+    allocate( ppnl_rv(nppn,n0,nsp,nbas))
     allocate( gpot0(nvl))
     allocate( vval(nchan))
-    allocate( ppnl_rv(nppn,n0,nsp,nbas))
     allocate( fes1_rv(3*nbas))
     allocate( ohsozzx(3,nbas), ohsopmx(3,nbas)) !dummy
     allocate( spotx(k1,k2,k3,nsp)) !smooth potential without XC
@@ -268,7 +268,7 @@ contains
     logical:: cmdopt0,novxc
     logical,optional:: novxc_
     character(80) :: outs
-    integer :: i,lgunit,nglob,ipl,ipr,iprint,n1,n2,n3,ngabc(3),lxcfun,isw,isum
+    integer :: i,ipr,iprint,n1,n2,n3,ngabc(3),lxcfun,isw,isum
     real(8) ,allocatable :: fxc_rv(:,:)
     real(8) ,allocatable :: hpot0_rv(:)
     complex(8) ,allocatable :: smvxc_zv(:)
@@ -326,7 +326,6 @@ contains
        secondcall=.true.
     endif
     ipr = iprint()
-    ipl = ipr
     lxcfun = lxcf
     ngabc=lat_nabc
     vol=lat_vol
@@ -336,7 +335,7 @@ contains
        if(master_mpi) write(stdo,ftox)' Energy for background charge', &
             ' q=',ftod(qbg),'radius r=',rhobg,'E=9/5*q*q/r=',1.8d0*qbg*qbg/rhobg
     endif
-    call rhomom(orhoat,  qmom,vsum) !multipole moments
+    call rhomom(orhoat, qmom,vsum) !multipole moments
     allocate(hpot0_rv(nbas))
     call smves(qmom,gpot0,vval,hpot0_rv,sgp0,smrho,smpot,vconst & ! Smooth electrostatic potential ---
         ,smq,qsmc,fes,rhvsm,zvnsm,zsum,vesrmt,qbg )
@@ -393,10 +392,10 @@ contains
          vvesat,cpnvsa, repat,repatx,repatc,rmuat, valvfa,xcore, sqloc,sqlocc,saloc,qval,qsc )
     if(cmdopt0('--density') .AND. master_mpi .AND. secondcall) return
     ! ... Integral of valence density times estatic potential
-    valves = rhvsm + vvesat ! ... Valence density times Vestatic
-    ! *Associate term (n0~-n0) Ves(n0~) with local part because of the ppi matrix elements
-    ! *Also add fcvxc0(1) to smooth part because rvmusm+fcvxc0 is perturbative approximation for rvmusm
-    !  when cores are not treated perturbatively.
+    valves = rhvsm + vvesat ! ... Valence density times VEelectroStatic
+    ! Associate term (n0~-n0) Ves(n0~) with local part because of the ppi matrix elements
+    ! Also add fcvxc0(1) to smooth part because rvmusm+fcvxc0 is perturbative approximation for rvmusm
+    ! when cores are not treated perturbatively.
     valfsm = rhvsm + sum(rvmusm) - sgp0 - vconst*qbg !rho*Ves +rho*Vxc - Qmom*Ves -vconst*qbg
     valftr = valvfa + sgp0    ! atomic rho*veff + Qmom*Ves
     valvef = valfsm + valftr
@@ -426,7 +425,7 @@ contains
 680 format(3x,a,4x,3f17.6)
 670 format('   Charges:  valence',f12.5,'   cores',f12.5,'   nucleii',f12.5/'   hom background',f12.5, &
          '   deviation from neutrality: ',f12.5)
-    if (ipl >= 1) then
+    if (ipr >= 1) then
        write (stdl,"('fp qvl',f11.6,'  sm',f11.6,'  loc',f11.6,'  qbg',f11.6,' dQ',f11.6)") smq+sqloc,smq,sqloc,qbg,dq
        if (nsp == 2) write (stdl,"('fp mag ',f11.5,'  sm ',f11.5,'  loc ',f11.5)") smag+saloc,smag,saloc
        write (stdl,"('fp pot  rvxc',f18.7,'  rexc ',f18.7,'  rves ',f16.7)") rhovxc,rhoexc,utot
@@ -462,7 +461,7 @@ contains
     type(s_cv1) :: oppi(3,nbas)
     type(s_sblock):: ohsozz(3,nbas),ohsopm(3,nbas)
     type(s_rv1) :: otau(3,nbas), osig(3,nbas)
-    integer :: ib,igetss,is,kmax,lmxa,lmxh,nelt1,nelt2,nglob,nlma,nlmh,nelt !,nso
+    integer :: ib,igetss,is,kmax,lmxa,lmxh,nelt1,nelt2,nlma,nlmh,nelt !,nso
     logical:: cmdopt0
     do  ib = 1, nbas
        is = ispec(ib)
@@ -493,14 +492,15 @@ contains
        allocate(oppi(2,ib)%cv(nelt2))
        if(lso/=0 .OR. cmdopt0('--socmatrix')) then !spin-orbit copling matrix elements
           nelt = (kmax+1)*(kmax+1)*nlma*nlma !ohsopm (L- and L+) is irrelevant for lso=2
-          allocate(ohsozz(1,ib)%sdiag(nelt,nsp), ohsopm(1,ib)%soffd(nelt,nsp)) ! Pkl*Pkl zz and pm component
+          allocate(ohsozz(1,ib)%sdiag(nelt,nsp),ohsopm(1,ib)%soffd(nelt,nsp))! Pkl*Pkl zz and pm component
           nelt = nkaph*nkaph*nlmh*nlmh !*nsp
-          allocate(ohsozz(3,ib)%sdiag(nelt,nsp), ohsopm(3,ib)%soffd(nelt,nsp)) ! Hsm*Hsm
+          allocate(ohsozz(3,ib)%sdiag(nelt,nsp), ohsopm(3,ib)%soffd(nelt,nsp))! Hsm*Hsm
           nelt = nkaph*(kmax+1)*nlmh*nlma !*nsp
-          allocate(ohsozz(2,ib)%sdiag(nelt,nsp), ohsopm(2,ib)%soffd(nelt,nsp)) !
-          !     ohsozz(2,ib): Hsm*Pkl for Lz(diag)
-          !     ohsopm(2,ib): Hsm*Pkl soffd(:,1) = <H|L-(isp=1,isp=2)|P>, soffd(:,2)     = <H|L+(isp=2,isp=1)|P>
-          !                                                            dagger(soffd(:,2))= <P|L-(isp=1,isp=2)|H>
+          allocate(ohsozz(2,ib)%sdiag(nelt,nsp), ohsopm(2,ib)%soffd(nelt,nsp))!
+          !ohsozz(2,ib): Hsm*Pkl for Lz(diag)
+          !ohsopm(2,ib): Hsm*Pkl soffd(:,1) = <H|L-(isp=1,isp=2)|P>,
+          !               soffd(:,2)= <H|L+(isp=2,isp=1)|P>
+          !       dagger(soffd(:,2))= <P|L-(isp=1,isp=2)|H>
        endif
     enddo
   end subroutine dfaugm
