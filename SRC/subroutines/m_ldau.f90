@@ -24,7 +24,7 @@ contains
     endif
     call sudmtu(dmato, vorb)  !read dmatu from dmatu.ext and generate vorbdmat from dmatu.ext
     inquire(file='mmtarget.aftest',exist=mmtargetx)
-    if(mmtargetx) call vorbmodifyaftest()
+    if(mmtargetx) call vorbmodifyaftest_experimental()
     call tcx('m_ldau_init')
   end subroutine m_ldau_init
 
@@ -43,12 +43,12 @@ contains
     call chkdmu(eks,dmatu, dmato, vorb)
     dmato=dmatu !dmato is kept in this module as previous dmat
     inquire(file='mmtarget.aftest',exist=mmtargetx)
-    if(mmtargetx) call vorbmodifyaftest()
+    if(mmtargetx) call vorbmodifyaftest_experimental()
     call tcx('m_ldau_vorbset')
   end subroutine m_ldau_vorbset
 
   ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  subroutine vorbmodifyaftest()
+  subroutine vorbmodifyaftest_experimental()
     use m_lmfinit,only: nlibu,nsp,lmaxu,lmaxu,nsp,nlibu,nbas,stdo
     complex(8):: vorbav(-lmaxu:lmaxu,-lmaxu:lmaxu)
     integer,parameter:: nx=1000
@@ -119,7 +119,7 @@ contains
        enddo
     endif
     ! cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-  end subroutine vorbmodifyaftest
+  end subroutine vorbmodifyaftest_experimental
 
 
 
