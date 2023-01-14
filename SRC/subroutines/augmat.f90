@@ -3,7 +3,7 @@ module m_augmat !- Make augmentation matrices sig,tau,pi for one site
   private
 contains
   subroutine augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax &
-       , nlml , a , nr , nsp , lso , rwgt  & !rofi,
+       , nlml , a , nr , nsp , lso , rwgt  & 
        , v0 , v1 , v2 , gpotb , gpot0 , nkaph , nkapi , lmxh , lh , &
        eh , rsmh , ehl , rsml , rs3 , vmtz ,  lmaxu , vorb , lldau, idu, &
        iblu,&
@@ -593,26 +593,28 @@ contains
          ppnl(nppn,n0,2),rotpp(2,2),rotppt(2,2),rotp(0:lmxa,2,2,2) !nsp=2 expected
     complex(8):: vzz,vuz,vsz,vzu,vzs, Vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,2,*), &
          vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,3,3,2,0:lmaxu)
-    do  l = 0, min(lmxa,3) ! ... Rotate Vorb from phi,phidot basis to u,s basis
+    if(lmaxu>lmxa) call rx('vlm2ux:lmaxu>lmxa')
+    do  l = 0, lmaxu !min(lmxa,3) ! ... Rotate Vorb from phi,phidot basis to u,s basis
        if (idu(l+1) == 0) cycle
        iblu = iblu+1
        do  i = 1, 2
-          phz  = ppnl(11,l+1,i)
-          dphz = ppnl(12,l+1,i)
           rotpp  = rotp(l,i,:,:)
           rotppt = transpose(rotpp) !
           ! Vorb is for E_vorb= a_phi *Vorb *a_phi.
           !   [a_phi,a_phidot]= matmul([au,as],rotpp)
           !  Thus we have E_vorb = [a_phi,a_phidot] * vumm* [a_phi,a_phidot]^t
-          vumm(-l:l,-l:l,1,1,i,l) = Vorb(-l:l,-l:l,i,iblu)*rotpp(1,1)*rotppt(1,1)
-          vumm(-l:l,-l:l,1,2,i,l) = Vorb(-l:l,-l:l,i,iblu)*rotpp(1,1)*rotppt(1,2)
-          vumm(-l:l,-l:l,2,1,i,l) = Vorb(-l:l,-l:l,i,iblu)*rotpp(2,1)*rotppt(1,1)
-          vumm(-l:l,-l:l,2,2,i,l) = Vorb(-l:l,-l:l,i,iblu)*rotpp(2,1)*rotppt(1,2)
-          ! (au-a_gzphz,as-dphz)*vumm*(au-a_gzphz,as-dphz)^t is expanded to be
+          ! NOTE Vorb is for <phi|Vorb|phi>. vumm is for (u,s,pz), where u,s pz contains phi components.
+          vumm(:,:,1,1,i,l) = rotpp(1,1)*Vorb(:,:,i,iblu)*rotppt(1,1)
+          vumm(:,:,1,2,i,l) = rotpp(1,1)*Vorb(:,:,i,iblu)*rotppt(1,2)
+          vumm(:,:,2,1,i,l) = rotpp(2,1)*Vorb(:,:,i,iblu)*rotppt(1,1)
+          vumm(:,:,2,2,i,l) = rotpp(2,1)*Vorb(:,:,i,iblu)*rotppt(1,2)
+          ! (au-phz, as-dphz)*vumm*(au-phz, as-dphz)^t for gz is expanded to be
           if (phz /= 0) then
-             vumm(:,:,1:2,3,i,l) = - phz*vumm(:,:,1:2,1,i,l) - dphz*vumm(:,:,1:2,2,i,l) !vuz,vsz
-             vumm(:,:,3,1:2,i,l) = - phz*vumm(:,:,1,1:2,i,l) - dphz*vumm(:,:,2,1:2,i,l) !vzu,vzs
-             vumm(:,:,3,3,i,l) =   phz**2*vumm(:,:,1,1,i,l) + &
+             phz  = ppnl(11,l+1,i)
+             dphz = ppnl(12,l+1,i)
+             vumm(:,:,1:2,3,i,l)= - phz*vumm(:,:,1:2,1,i,l) - dphz*vumm(:,:,1:2,2,i,l) !vuz,vsz
+             vumm(:,:,3,1:2,i,l)= - phz*vumm(:,:,1,1:2,i,l) - dphz*vumm(:,:,2,1:2,i,l) !vzu,vzs
+             vumm(:,:,3,3,i,l)  =   phz**2*vumm(:,:,1,1,i,l) + &
                   phz*dphz*(vumm(:,:,1,2,i,l)+vumm(:,:,2,1,i,l)) + dphz**2*vumm(:,:,2,2,i,l) !vzz
           endif
        enddo
