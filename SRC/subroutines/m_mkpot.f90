@@ -28,7 +28,7 @@ module m_mkpot ! Seechttp://dx.doi.org/10.7566/JPSJ.84.034702
   !      complex(8),allocatable,protected ,public  :: spotxd(:,:,:,:,:)
 
   private
-  real(8),allocatable,protected,private :: gpot0(:),vval(:),vab_rv(:,:,:) !dummy
+  real(8),allocatable,protected,private :: gpot0(:),vval(:),vab_rv(:,:,:),fes1_rvx(:) !dummy
   type(s_sblock),allocatable,private  :: ohsozzx(:,:),ohsopmx(:,:) !dummy for SOC
   type(s_rv1),allocatable,protected,private  :: otaux(:,:) !dummy
   type(s_rv1),allocatable,protected,private  :: osigx(:,:) !dummy
@@ -46,15 +46,16 @@ contains
     allocate( ppnl_rv(nppn,n0,nsp,nbas))
     allocate( gpot0(nvl))
     allocate( vval(nchan))
-    allocate( fes1_rv(3*nbas))
+    allocate( fes1_rvx(3*nbas))
     allocate( ohsozzx(3,nbas), ohsopmx(3,nbas)) !dummy
     allocate( spotx(k1,k2,k3,nsp)) !smooth potential without XC
     spotx=0d0
     allocate( osigx(3,nbas), otaux(3,nbas), oppix(3,nbas))
     call dfaugm(osigx, otaux, oppix, ohsozzx,ohsopmx) !for sig,tau,ppi without XC(LDA)
     !     We obtain osigx,otaux,oppix,smpotx  (without XC)
-    call mkpot(1, osmrho,orhoat, spotx,osigx,otaux,oppix, fes1_rv,ohsozzx,ohsopmx, novxc_) !when novxc_ exists, we exclud XC(LDA) part.
-    deallocate(ppnl_rv,vesrmt,qmom,hab_rv,vab_rv,sab_rv,gpot0,vval,fes1_rv,ohsozzx,ohsopmx)
+    call mkpot(1, osmrho,orhoat, spotx,osigx,otaux,oppix, fes1_rvx,ohsozzx,ohsopmx, novxc_)
+    !When novxc_ exists, we exclud XC(LDA) part. We only need spotx and oppix
+    deallocate(ppnl_rv,vesrmt,qmom,hab_rv,vab_rv,sab_rv,gpot0,vval,fes1_rvx,ohsozzx,ohsopmx)
   end subroutine m_mkpot_novxc
 
   !$$$      subroutine m_mkpot_novxc_dipole()

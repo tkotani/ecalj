@@ -27,10 +27,10 @@ module m_bndfp
   use m_density,only: orhoat,osmrho !input/output unprotected
   use m_mixrho,only: Mixrho
   real(8),protected,public:: ham_ehf, ham_ehk, sev  !output
-  real(8),protected,public:: eferm, qdiff  !output
+  real(8),protected,public:: eferm, qdiff           !output
   real(8),protected,allocatable,public:: force(:,:) !output
-  ! NOTE: other ouput of bndfp are stored in modules
-  ! m_mkpot(potential), m_bandcal(band,dmatu), m_density(density)
+  ! NOTE: other ouput of bndfp are stored in modules:
+  ! m_mkpot(potential), m_bandcal(band,dmatu), and m_density(density)
   public bndfp, m_bndfp_ef_set
   private
   logical,private:: binit=.true.,initd=.true.
@@ -88,7 +88,6 @@ contains
     !i   lmaxu : lmax for U used to dimension vorb and dmatu. lmaxu=2 if d is, but lmaxu=3 if f is included.
     !i   lldau :lldau(ib)=0 => no U on this site otherwise
     !i         :U on site ib with dmat in dmats(*,lldau(ib))
-    !i   ssite :struct for site-specific information; see m_struc_def.F
     !i   sspec :struct for species-specific information
 
     !i   ndham :dimensioning parameter, at least as large as largest
@@ -110,8 +109,8 @@ contains
 
     !o Outputs
     !o   frc   :forces.  Only calculated if lfrce>0.
-    !o         :If leks<2, forces are HF  forces
-    !o         :If leks>1, forces are HKS forces
+    !o         :If leks=1, forces are HF  forces
+    !o         :If leks=2, forces are HKS forces
     !l   k1,k2,k3: dimensions smrho,smpot.
     !!      nspx: number of independent spin channels
     !!      nspc is now avoided (memo:nspc=2 for lso==1, nspc=1 for lso/=1 See m_lmfinit)
@@ -315,7 +314,7 @@ contains
        emin = eeem-0.01d0 
        dosw(1)= emin ! lowest energy limit to plot dos
        dosw(2)= eferm+bz_dosmax
-       write(stdo,ftox)' bndfp:Generating TDOS: efermi=',ftof(eferm),' dos window= ',ftof(dosw)
+       write(stdo,ftox)' bndfp:Generating TDOS: efermi=',ftof(eferm),' dos window emin emax= ',ftof(dosw)
        allocate( dosi_rv(ndos,nspx),dos_rv(ndos,nspx)) !for xxxdif
        if(cmdopt0('--tdostetf')) ltet= .FALSE. ! Set tetrahedron=F
        if(ltet) then
@@ -326,18 +325,18 @@ contains
           dos_rv(1,:)    = dos_rv(2,:)
           dos_rv(ndos,:) = dos_rv(ndos-1,:)
        else
-          call makdos (nkp,ndhamx,ndhamx,nspx,rv_a_owtkp,evlall,bz_n,bz_w,-6d0,dosw(1),dosw(2),ndos,dos_rv)
+          call makdos(nkp,ndhamx,ndhamx,nspx,rv_a_owtkp,evlall,bz_n,bz_w,-6d0,dosw(1),dosw(2),ndos,dos_rv)
        endif
        if(lso==1) dos_rv=0.5d0*dos_rv 
-       open(newunit=ifi,file='dos.tot.'//trim(sname) )
+       open(newunit=ifi, file='dos.tot.'//trim(sname) )
        open(newunit=ifii,file='dosi.tot.'//trim(sname))
        dee=(dosw(2)-dosw(1))/(ndos-1d0)
        dosi=0d0
        do ipts=1,ndos
           eee= dosw(1)+ (ipts-1d0)*(dosw(2)-dosw(1))/(ndos-1d0)-eferm
           dosi(1:nspx)= dosi(1:nspx) + dos_rv(ipts,1:nspx)*dee
-          write(ifi,"(255(f13.5,x))")  eee,(dos_rv(ipts,isp),isp=1,nspx) !dos
-          write(ifii,"(255(f13.5,x))") eee,(dosi_rv(ipts,isp),isp=1,nspx)        !integrated dos
+          write(ifi,"(255(f13.5,x))")  eee,(dos_rv(ipts,isp),isp=1,nspx) ! dos
+          write(ifii,"(255(f13.5,x))") eee,(dosi_rv(ipts,isp),isp=1,nspx)! integrated dos
        enddo
        close(ifi)
        close(ifii)
@@ -380,9 +379,7 @@ contains
     if (lrout/=0) call m_bandcal_symsmrho()  !Get smrho_out Symmetrize smooth density
     call m_mkrout_init() !Get force frcbandsym, symmetrized atomic densities orhoat_out, and weights hbyl,qbyl
     !!  New boundary conditions pnu for phi and phidot
-    if(.not.PNUFIX) then
-       if (lrout/=0) call pnunew(eferm) !ssite%pnu ssite%pz are revised.
-    endif   
+    if(.not.PNUFIX.and.lrout/=0) call pnunew(eferm) !ssite%pnu ssite%pz are revised.
     !  if(master_mpi) call writeqpyl() !if you like to print writeqbyl
     !! Evaluate Harris-foukner energy (note: we now use NonMagneticCORE mode as default)
     call m_mkehkf_etot1(sev, eharris)

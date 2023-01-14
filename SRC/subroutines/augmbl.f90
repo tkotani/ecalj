@@ -3,14 +3,13 @@ module m_augmbl !Add augmentation part to H and S. aughsoc add SO part to H.
   public augmbl,aughsoc
   private
 contains
-  subroutine augmbl(isp,q,osig,otau,oppi,ndimh, h,s )
+  subroutine augmbl(isp,q,osig,otau,oppi,ndimh, h,s)  !Add augmentation part to H and S. 
     use m_lmfinit,only: nsp,nlmto, sspec=>v_sspec
     use m_lmfinit,only: nbas,nkaph,alat=>lat_alat,ispec
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol,rv_a_opos
     use m_bstrux,only: Bstrux_set, bstr
     use m_orbl,only: Orblib, norb,ltab,ktab,offl
     use m_struc_def,only: s_cv1,s_rv1
-    ! this is used for lso=0 only, but lso=2 should work.
     ! ----------------------------------------------------------------------
     !i Inputs
     !i   isp   :current spin channel
@@ -119,7 +118,7 @@ contains
     enddo
     call tcx ('augmbl')
   end subroutine augmbl
-  subroutine aughsoc(qp,ohsozz,ohsopm, ndimh, hso)
+  subroutine aughsoc(qp,ohsozz,ohsopm,ndimh, hso)
     use m_orbl,only: Orblib, norb,ltab,ktab,offl
     use m_struc_def,only: s_cv1,s_rv1,s_sblock
     use m_lmfinit,only: nsp, lsox=>lso, nbas, nkaph, ispec, sspec=>v_sspec,socaxis
@@ -232,11 +231,10 @@ contains
 
              ! SSb* is the atomic site contribution from ibas (augmentation parts. see m_bandcal_init->hambl->augmbl)
              f1=facso(1,isp); f2=facso(2,isp); f3=facso(3,isp)
-             !                                Lz                      L-                          L+
+             !                Lz                      L-                          L+
              SSbPP(:)= f1*Lzz(1)%sdiag(:,isp1) +f2*Lmp(1)%soffd(:,1)  + f3*Lmp(1)%soffd(:,2)
              SSbHP(:)= f1*Lzz(2)%sdiag(:,isp1) +f2*Lmp(2)%soffd(:,1)  + f3*Lmp(2)%soffd(:,2)
-             SSbPH(:)= f1*dconjg(Lzz(2)%sdiag(:,isp1)) &
-                  +     f2*dconjg(Lmp(2)%soffd(:,2)) + f3*dconjg(Lmp(2)%soffd(:,1))
+             SSbPH(:)= f1*dconjg(Lzz(2)%sdiag(:,isp1)) +f2*dconjg(Lmp(2)%soffd(:,2))+f3*dconjg(Lmp(2)%soffd(:,1))
              SSbHH(:)= f1*Lzz(3)%sdiag(:,isp1) +f2*Lmp(3)%soffd(:,1)  + f3*Lmp(3)%soffd(:,2)
           else
              fac = 1.5d0-isp
@@ -245,14 +243,15 @@ contains
              SSbPH(:) = fac*dconjg(Lzz(2)%sdiag(:,isp))
              SSbHH(:) = fac*Lzz(3)%sdiag(:,isp)
           endif
-          !call augq2zhso(ibas,nkaph,lmxb,nlmb,kmax,nlma,b,ndimh, SSbHH,SSbHP,SSbPH,SSbPP, hso(:,:,isp))
           augq2zhso: block 
             integer::l1,ik1,i1,j,l2,ik2,i2,k,ilm1,jlm1,ilm2,iorb,jorb,k1
-            complex(8):: hsohh(nkaph,nkaph,nlmb,nlmb), & !HH
-                 hsohp(nkaph,0:kmax,nlmb,nlma),&! HP
-                 hsoph(nkaph,0:kmax,nlmb,nlma),&! PH (index ordering is transposed. the same as HP)
+            complex(8):: &
+                 hsohh(nkaph,nkaph,  nlmb,nlmb),& !HH
+                 hsohp(nkaph,0:kmax, nlmb,nlma),&! HP
+                 hsoph(nkaph,0:kmax, nlmb,nlma),&! PH (index ordering is transposed. the same as HP)
                  hsopp(0:kmax,0:kmax,nlma,nlma),& ! PP
                  g(0:kmax,nlma)
+            !call augq2zhso(ibas,nkaph,lmxb,nlmb,kmax,nlma,b,ndimh, SSbHH,SSbHP,SSbPH,SSbPP, hso(:,:,isp))
             hsohh=reshape(SSbHH,shape(hsohh))
             hsohp=reshape(SSbHP,shape(hsohp))
             hsoph=reshape(SSbPH,shape(hsoph))

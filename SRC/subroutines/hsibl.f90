@@ -95,7 +95,7 @@ contains
           ib1=iloop
           ndim1 = 0
           is1=ispec(ib1)
-          call orblib1(ib1) !norb1,ltab1,ktab1,xx,offl1,xx)
+          call orblib1(ib1) !norb1,ltab1,ktab1,offl1
           ofh1 = offl1(1)
           call uspecb(is1,rsmh1,eh1)!       Block routines into groups with common (e,rsm)
           call gtbsl1(1,norb1,ltab1,ktab1,rsmh1,eh1,ntab1,blks1) ![1,1,1,0,1]
@@ -110,7 +110,7 @@ contains
              fac1 = -4d0*pi*dexp(etab(ie)*rtab(ir)**2/4)/dsqrt(vol)
              offi = ndim1-nlm1+1
              do  ilm = nlm1, nlm2
-                w_oc1(:,ilm+offi) = he(:,ie)*hr(:,ir)* yl(:,ilm)*phase(:,ib1) 
+                w_oc1(:,ilm+offi) = he(:,ie)*hr(:,ir)* yl(:,ilm)*phase(:,ib1) !PW coefficients for MTO(ilm+offi)
                 w_ocf1(ilm+offi) = (-img)**ll(ilm) * fac1
              enddo
              ndim1 = ndim1 + max(blks1(iorb1),0)
@@ -122,7 +122,7 @@ contains
                call fftz3(f,n1,n2,n3,k1,k2,k3,1,0,1)
                f = f*vsm(:,:,:,isp)
                call fftz3(f,n1,n2,n3,k1,k2,k3,1,0,-1)
-               call gvgetf(ng,1,kv,k1,k2,k3,f,w_oc1(1,i)) !c(1,i))
+               call gvgetf(ng,1,kv,k1,k2,k3,f,w_oc1(1,i)) !w_oc1(ipw,i) = <MTO(i)|vsm for ith pw
             enddo
           endblock fvsm
           ib2loop: do 1010 ib2 = ib1, nbas !   ... Loop over second of (ib1,ib2) site pairs
