@@ -99,7 +99,7 @@ subroutine fexit0(retval,strng)
 10      format('CPU time:', f9.3,a1,5x,a,' on process=',i0)
      endif
   endif
-  write(stdo,*)'finalizing procid=',procid
+  !write(stdo,*)'finalizing procid=',procid
   if(procid==master) call tcprt(stdo)
   if(retval/=0) then
      write(stdo,"(a,i0,a,i0,a,3d15.8)") &

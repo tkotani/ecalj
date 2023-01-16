@@ -1,11 +1,20 @@
-subroutine bessl(y,lmax,fi,gi)!- Radial part of Bessel and Hankel functions, Standard definitions. 
-  ! ----------------------------------------------------------------------
-  !i Inputs:
-  !i   y     :y = e*r**2 = z**2 = (kappa*r)**2 = -(akap*r)**2, Im kappa>=0
-  !i   loka  :0 Methfessel's conventions
-  !i      xxx:1 Andersen conventions from 2nd generation LMTO !Search loka(just a factor difference)
+subroutine bessl(y,lmax,fi,gi)! Spherical Bessel Neumann Hankel functions
+  !i Inputs:   
+  !i   y     :y = r**2 or (i*r)**2= -r**2  !i=cmplex(0,1d0)
   !i   lmin  :minimum l
   !i   lmax  :maximum l
+  ! TKotani think output for give y is (We use Methfessel's conventions)
+  !     fi_l =   1/r**l     j_l(r) 
+  !     gi_l =   1/r**(l+1) n_l(r) for y>0
+  !     gi_l =  -1/r**(l+1) h^1_l(i*r) for y<0 !(h^1 means 1st kind)
+  ! ,where j_l,n_l,h^1_l are standard sperical bessel functions.
+  ! NOTE:   For r > 40 this algorithm is numerically unstable !!!
+  ! xxx Check this and through away following old memos. !2023-jan
+  !
+  ! Followings are old memo: Removes this old memo when you are definite for the definition above (or corrected).
+  ! ----------------
+  !i Inputs: We use Methfessel's conventions
+  !i   y     :y = e*r**2 = z**2 = (kappa*r)**2 = -(akap*r)**2, Im kappa>=0
   !o Outputs:
   !o   fi    :proportional to (Bessel function) / r**l.  Constant
   !o         :of proportionality depends on conventions; see Remarks.
@@ -13,11 +22,12 @@ subroutine bessl(y,lmax,fi,gi)!- Radial part of Bessel and Hankel functions, Sta
   !o   gi    :proportional to :
   !o         :Neumann function * r**(l+1) for y>0
   !o         :Hankel function  * r**(l+1) for y<0.
+  !
   !o         :See Remarks for constant of proportionality.
   !o         :For y>0 gi is evaluated in a power series expansion.
   !o         :gi(l=0) = cos(sqrt(y))
   !o         :For y<0:
-  !o         :gi(l=0) = exp(-sqrt(-y)) = exp(i kappa r)
+  !o         :gi(l=0) = exp(-sqrt(-y)) = exp(- kappa r)
   !o         :gi(l=1) = (1+sqrt(-y))*exp(-sqrt(-y)) = (1-i kappa r)gi(l=0)
   !o         :gi(l)   = (2l+1)*gi(l-1) - y*gi(l-2)
   !r Remarks:
@@ -25,7 +35,6 @@ subroutine bessl(y,lmax,fi,gi)!- Radial part of Bessel and Hankel functions, Sta
   !r   Let j, n, h be spherical Bessel, Neumann and Hankel functions.
   !r   We use Im kappa > 0.
   !r   Conventions for Hankel functions vary somewhat and are defined below.
-  !r   See radhjz for generation of j,n,h following different conventions.
   !r
   !r  *Jackson, and Morse and Feshback conventions: z = kappa * r
   !r     h = j + i*n,  h = Hankel function of the first kind h^1, and
@@ -46,25 +55,8 @@ subroutine bessl(y,lmax,fi,gi)!- Radial part of Bessel and Hankel functions, Sta
   !r       n_l(z)   -> -cos(z-l*pi/2)/z
   !r       j_l(z)   ->  sin(z-l*pi/2)/z
   !r
-  !r  *Gunnarsson's conventions (PRB 27, 7144, 1983).
-  !r   Somewhat confusing.  Gunnarsson chooses  k = -kappa, Im k <= 0.
-  !r   Apparently his definitions correspond to -1 * standard h^1.
-  !r     h_l = j_l(k r) - i n_l(k r)     see eqn prior to eq. A8
-  !r   Taking his A15 as a definition deriving from Andersen, we have
-  !r   i h_l = -gi(z**2) / (kr)^(l+1)
-  !r         -> - (2l-1)!! / (kr)^(l+1) for k->0  A10 (sign error fixed)
-  !r     h_0 = -exp(-ikr)/ikr
-  !r     h_1 = h_0 (1 - ikr) / kr
-  !r     j_0 = sin(kr)/kr
-  !r     Functions of odd order are imaginary for e<0
-  !r     h_l(kr) = h^1_l(-kr)
-  !r             = i gi_l((kr)**2) / (kr)^(l+1)
-  !r     j_l(kr) = sin(kr)/kr
-  !r     Limiting cases for energy->0:
-  !r     h_l -> i (2l-1)!!/(kr)^(l+1)  j_l -> (kr)^l / (2l+1)!!
-  !r     Wronskian: {h,j} = -1 / i kap
-  !r
-  !r  *Methfessel's conventions (label as an,ak,aj) have the properties:
+  !r  *Methfessel's conventions (label as,an,ak,aj) have the properties:
+  !
   !r     (1)  functions ak and aj, and an are real for e<=0
   !r     (2)  cases e .ne. 0 and e .eq. 0 same equations
   !r     Define akap = -i kappa = sqrt(-e):  akap is real and >0 for e<0.
@@ -80,28 +72,6 @@ subroutine bessl(y,lmax,fi,gi)!- Radial part of Bessel and Hankel functions, Sta
   !r       H_L = Y_L(-grad) ak(r);   J_L = E^(-l) Y_L (-grad) aj(r)
   !r     Limiting cases for energy->0:
   !r       ak -> (2l-1)!!/r^(l+1)      aj -> r^l/(2l+1)!!
-  !r
-  !r  *Andersen conventions (label as K,J)
-  !r       K_l = -1/(2l-1)!! (kappa avw)^(l+1) i h_l(kr)
-  !r           =  1/(2l-1)!! (avw)^(l+1) ak_l
-  !r           =  gi(OKA) / (r/w)^(l+1)
-  !r       J_l = 1/2*(2l-1)!! (kappa avw)^(-l) j_l(kr)
-  !r           = 1/2*(2l-1)!! (avw)^(-l) aj
-  !r           = fi(OKA) * (r/w)^l
-  !r     Define Neumann function as:
-  !r       N_l = K_l - i kap e^l 2/((2l-1)!!)^2 J_l
-  !r     avw is some arbitrary length scale, e.g. average WSR.
-  !r     By setting loka=.true. the fi and gi are rescaled as follows:
-  !r       fi -> fi(OKA) = fi * (2l-1)!!/2
-  !r       gi -> gi(OKA) = gi / (2l-1)!!
-  !r     Limiting cases for energy->0
-  !r       H_l -> (r/w)^(-l-1)         J_l -> (r/w)^l/(2(2l+1))
-  !r     NB: in exact MTO paper, Andersen makes definitions j~ and n~:
-  !r       n_l~(kappa r) =  (kappa r)^l+1/(2l-1)!! n_l(kappa r)
-  !r                     -> 1 - (kappa r)^2/2(2l+3) + ... as kappa r -> 0
-  !r       j_l~(kappa r) =  (2l+1)!!/(kappa r)^l j_l(kappa r)
-  !r                     -> 1 - (kappa r)^2/2(2l+3) + ... as kappa r -> 0
-  !r
   !r
   !r  *Generation of fi and gi:  fi (and gi for y>0) are calculated for
   !r   lmax and lmax-1 by an expansion in powers of x^2=y:
@@ -132,40 +102,22 @@ subroutine bessl(y,lmax,fi,gi)!- Radial part of Bessel and Hankel functions, Sta
   !r     gi(y,l) -> (2l-1)!!       for y->0
   !r     gi(y,l=0) = exp(i*akap*r) for y<=0    akap=sqrt(e) Im(akap)>=0
   !r     gi(y,l=0) = cos(akap*r)   for y>0     akap=sqrt(e) Im(akap)=0
-  !r   As mentioned above
-  !r     fi(OKA) = fi * (2l-1)!!/2  and
-  !r     gi(OKA) = gi / (2l-1)!!    so
-  !r     J(E,r) = fi(OKA) * (r/w)^l     -> (r/w)^l/(2(2l+1)) for e->0
-  !r     K(E,r) = gi(OKA) / (r/w)^(l+1) ->
-  !b Bugs
-  !b   Program never checked for lmax < -1
   !b   For x > 40 this algorithm is numerically unstable !!!
   !u Updates
   !u   23 Jul 08 bug fix: besslr doesn't make fi/gi(lmax+1) when lmax=0
   !u   19 May 04 Changed loka from logical to integer
   ! ----------------------------------------------------------------------
   implicit none
-  ! Passed variables:
-  !integer :: loka
   integer,parameter :: lmin=0
   integer :: lmax
   double precision :: y,fi(lmin:lmax),gi(lmin:lmax)
-  ! Local variables:
   integer :: i,isn,j1,j2,k,l,lmx,lmxp1,lmxp2,nf,tlp1,ll1,ll2,nlmax
   parameter (nlmax=20)
   double precision :: dt,dt2,exppr,my,srmy,g1,t,tol, &
        dum(nlmax*4+2),fac2l(-nlmax:nlmax*2+3)
-!  logical :: lhank
   parameter(tol=1.d-15)
-!  parameter(lhank = .true.)
-  ! Intrinsic functions:
-  !intrinsic dabs,dexp,dsqrt,max0
   lmx = max0(lmax,2)
-!  if (lmin > 0) call rx(' BESSL : lmin gt 0')
-  if (lmx > nlmax+nlmax) then
-     call rxi(' BESSL : lmax gt nlmax*2, lmax=',lmx)
-  endif
-
+  if (lmx > nlmax+nlmax)call rxi(' BESSL : lmax gt nlmax*2, lmax=',lmx)
   ! --- A table of fac2l(l)=(2l-1)!!
   !     data fac2l /1,1,3,15,105,945,10395,135135,2027025,34459425/
   fac2l(0) = 1d0
@@ -175,7 +127,6 @@ subroutine bessl(y,lmax,fi,gi)!- Radial part of Bessel and Hankel functions, Sta
   do  11  l = -1, lmin, -1
      fac2l(l) = fac2l(l+1) / (l+l+1)
 11 enddo
-
   ! --- Case akap=0 ---
   if (y == 0) then
      do  12  l = lmin, lmax
@@ -185,7 +136,6 @@ subroutine bessl(y,lmax,fi,gi)!- Radial part of Bessel and Hankel functions, Sta
      goto 100
   endif
   my = -y
-
   ! --- Get dum(1) = j_{lmx}(x)/x^{lmx} = fi(lmx)
   tlp1 = lmx+lmx+1
   dt = 1d0
@@ -201,7 +151,6 @@ subroutine bessl(y,lmax,fi,gi)!- Radial part of Bessel and Hankel functions, Sta
   call rx('BESSL: series not convergent')
 21 continue
   dum(1) = t/fac2l(lmx+1)
-
   ! --- Get dum(2) = j_{lmx-1}(x)/x^{lmx-1} = fi(lmx-1) ---
   tlp1 =  tlp1-2
   dt = 1d0
@@ -221,25 +170,21 @@ subroutine bessl(y,lmax,fi,gi)!- Radial part of Bessel and Hankel functions, Sta
   ll1 = lmx + lmx + 1
   ll2 = ll1 + 1
   nf = ll1
-  do  40  k = 3, ll2
+  do  k = 3, ll2
      nf = nf-2
      dum(k) = nf*dum(k-1) - y*dum(k-2)
-40 enddo
-  ! --- Get fi and gi from dum ---
+  enddo
   lmxp1 = lmx+1
   lmxp2 = lmx+2
   isn = (-1)**lmin
-  do  50  k = lmin, lmax
+  do   k = lmin, lmax ! --- Get fi and gi from dum ---
      j1 = lmxp1-k
      j2 = lmxp2+k
      fi(k) = dum(j1)
-     !   ... n_l(x) = j_{-l-1}*(-1)^{l+1}
-     gi(k) = dum(j2)*isn
+     gi(k) = dum(j2)*isn !  ... n_l(x) = j_{-l-1}*(-1)^{l+1} !Neumann function
      isn = -isn
-50 enddo
-
-  ! --- For E<0, use Hankel functions rather than Neumann functions ---
-!  if (lhank .AND. y < 0d0) then
+  enddo
+! --- For E<0, use Hankel functions rather than Neumann functions ---
   if ( y < 0d0) then
      srmy = dsqrt(-y)
      gi(0) = 1d0
@@ -247,32 +192,15 @@ subroutine bessl(y,lmax,fi,gi)!- Radial part of Bessel and Hankel functions, Sta
      if (lmax >= 1) gi(1) = g1
      if (lmax >= 2) then
         tlp1 = 1
-        do  62  l = 2, lmax
+        do   l = 2, lmax
            tlp1 = tlp1+2
            gi(l) = tlp1*gi(l-1) - y*gi(l-2)
-62      enddo
+        enddo
      endif
-!      if (lmin <= -1) then
-!         gi(-1) = (gi(0) - g1)/y
-!         tlp1 = 1
-!         if (lmin <= -2) then
-!            do  64  l = -2, lmin,-1
-!               tlp1  = tlp1-2
-!               gi(l) = ((l+l+3)*gi(l+1) - gi(l+2))/y
-! 64         enddo
-!         endif
-!      endif
      exppr = 1d0/dexp(srmy)
-     do  66  l = lmin, lmax
+     do  l = lmin, lmax
         gi(l) = gi(l)*exppr
-66   enddo
+     enddo
   endif
-  ! --- Scaling to Andersen's 2nd generation LMTO conventions ---
 100 continue
-!   if (loka == 1) then
-!      do  68  l = lmin, lmax
-!         fi(l) = fi(l)*fac2l(l)*0.5d0
-!         gi(l) = gi(l)/fac2l(l)
-! 68   enddo
-!  endif
 end subroutine bessl

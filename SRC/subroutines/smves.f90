@@ -1,4 +1,4 @@
-module m_smves
+module m_smves !smooth part of electrostatic potential.
   private
   public smves
 contains
@@ -12,23 +12,19 @@ contains
     use m_esmsmves,only: esmsmves
     use m_hansr,only:corprm
     use m_vesgcm,only: vesgcm
+    use m_ftox
     !- Electrostatic potential of the smooth density.
     ! ----------------------------------------------------------------------
     !i Inputs
-    !i   mode=0 use input vconst
-    !ixxxx     (removed  mode=1 generate vconst as - average v(RMT))
     !i   nbas  :size of basis
     !i   sspec :struct containing species-specific information
-    !i   slat  :struct containing information about the lattice
     !i   k1,k2,k3 dimensions of smrho,smpot for smooth mesh density
     !i   qmom  :multipole moments of on-site densities (rhomom.f)
     !i   smrho :smooth density on real-space mesh
     !i   qbg   : back ground charge
     ! o Inputs/Outputs
     ! o  vconst:constant potential to be added to total
-    ! o        :On input  vconst is set to a default value
-    ! o        :On output vconst may be set to the average estat
-    ! o        :          at the MT boundary.
+    ! o        vconst is the average estat at the MT boundary.
     !o Outputs (see also Remarks)
     !o   gpot0 :integrals of compensating gaussians g_RL * phi0~
     !o         :For accuracy, integral is split into
@@ -150,47 +146,40 @@ contains
     real(8):: qmom(1) , f(3,nbas) , gpot0(1) , vval(1) , hpot0(nbas) &
          , vrmt(nbas),qsmc,smq,rhvsm,sgp0,vconst,zsum,zvnsm,qbg
     real(8):: ceh,cofg,cofh,dgetss,hsum,qcorg,qcorh,qsc, &
-         rfoc,rmt,s1,s2,sbar,sumx,sum1,sum2,u00,u0g,ugg,usm,vbar, vcnsto,z,R,eint
+         rfoc,rmt,s1,s2,sbar,sumx,sum1,sum2,u00,u0g,ugg,usm,vbar,z,R,eint
     complex(8):: smrho(k1,k2,k3,nsp),smpot(k1,k2,k3,nsp)
     complex(8) ,allocatable :: cg1_zv(:), cgsum_zv(:), cv_zv(:)
     real(8),parameter::pi = 4d0*datan(1d0), srfpi = dsqrt(4d0*pi), y0= 1d0/srfpi
     call tcn('smves')
     ipr = iprint()
     if(nsp==2) smrho(:,:,:,1)=smrho(:,:,:,1)+smrho(:,:,:,2)!Electrostatics is only on total density
-    allocate(cv_zv(ng))
+    allocate(cv_zv(ng),cg1_zv(ng),cgsum_zv(ng))
     f=0d0
-    call fftz3(smrho,n1,n2,n3,k1,k2,k3,1,0,-1)! ... FT of smooth density to reciprocal space
-    ! --- Estatic potential of smooth density without gaussians ---
-    call vesft ( ng , rv_a_ogv , iv_a_okv , cv_zv , smrho , smpot , u00 )
-    ! ... Add estatic potential of compensating gaussians to smpot
-    allocate(cg1_zv(ng),cgsum_zv(ng))
-    call vesgcm (qmom , ng , rv_a_ogv , iv_a_okv , cv_zv , cg1_zv , cgsum_zv ,&
-         smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt )
+    call fftz3(smrho,n1,n2,n3,k1,k2,k3,1,0,-1) ! FT of smooth density to reciprocal space
+    call vesft ( ng,rv_a_ogv,iv_a_okv,cv_zv,smrho,smpot,u00 )! Estatic potential of smooth density without gaussians ---
+    call vesgcm (qmom,ng,rv_a_ogv,iv_a_okv,cv_zv,cg1_zv,cgsum_zv ,&
+         smpot,f,gpot0,hpot0,qsmc,zsum,vrmt ) !Add estatic potential of compensating gaussians to smpot
     if(ipr>=40)write(stdo,"(/' after vesgcomp: forces are:'/(i4,3f12.6))")(ib,(f(m,ib),m=1,3),ib=1,nbas)
-    ! --- M. OBATA check
-    call esmsmves(qmom, ng , rv_a_ogv , iv_a_okv , cv_zv , cg1_zv , cgsum_zv, &
-         smrho, qbg, smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt )
-    ! ... Compute e.s. potential at MT boundary
-    call mshvmt(ng , rv_a_ogv , iv_a_okv, cv_zv, smpot , vval )
-    call symvvl(vval,vrmt) 
-    if (allocated(cgsum_zv)) deallocate(cgsum_zv)
-    if (allocated(cg1_zv)) deallocate(cg1_zv)
-    ! --- Make vbar = avg v(RMT) and optionally assign to vconst ---
+    call esmsmves(qmom, ng,rv_a_ogv,iv_a_okv,cv_zv,cg1_zv,cgsum_zv, & !ESM method supplied from M.OBATA
+         smrho, qbg, smpot,f,gpot0,hpot0,qsmc,zsum,vrmt )
+    call mshvmt(ng,rv_a_ogv,iv_a_okv, cv_zv, smpot,vval )
+    call symvvl(vval,vrmt) !Compute e.s. potential at MT boundary vrmt
+    deallocate(cgsum_zv,cg1_zv,cv_zv)
+    ! --- Make 
     vbar = 0d0
     sbar = 0d0
     do  ib = 1, nbas
        rmt = sspec(ispec(ib))%rmt
-       vbar = vbar + rmt**2 * vrmt(ib)
+       vbar = vbar + rmt**2 * vrmt(ib) 
        sbar = sbar + rmt**2
     enddo
-    vbar = vbar/sbar
-    vcnsto = vconst
-    vconst = -vbar !  if (mode /= 0) vconst = -vbar
-    if (ipr >= 20) write (stdo,232) vbar,vcnsto,vconst
-232 format('  smves: avg es pot at rmt=',f9.6,'  avg sphere pot=',f9.6,'  vconst=',f9.6)
+    vbar = vbar/sbar ! vbar =avg v(RMT) and optionally added to vconst
+    vconst = -vbar 
+    if(ipr>=20) write (stdo,232) vconst
+232 format(' smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst=',f9.6)
     if(master_mpi) then
        open(newunit=ifivsmconst,file='vessm.'//trim(sname))
-       write(ifivsmconst,"(d23.15)") vconst
+       write(ifivsmconst,"(d23.15,a)") vconst, '!-(averaged electro static potential at MTs)'
        close(ifivsmconst)
     endif
     ! ... Adjust vbar, vval, gpot0 by vconst
@@ -215,25 +204,19 @@ contains
     ! ... Back transform of density and potential to real-space mesh
     call fftz3(smrho,n1,n2,n3,k1,k2,k3,1,0,1)
     call fftz3(smpot,n1,n2,n3,k1,k2,k3,1,0,1)
-    ! ... Add background to smrho
-    smrho(:,:,:,1)=smrho(:,:,:,1)+qbg/vol
+    smrho(:,:,:,1)=smrho(:,:,:,1)+qbg/vol !Add background to smrho
     if (qbg /= 0) then
        R = (3d0/pi/4d0*vol)**(1d0/3d0)
        eint = qbg*2*9d0/10d0/R
-       call info(30,0,0,' cell interaction energy from homogeneous'// &
-            ' background (q=%d) is %;6,6d',qbg,eint)
+       if(ipr>=30) write(stdo,ftox)' cell interaction energy from homogeneous'// &
+            ' background (q=',ftof(qbg),') is ',ftof(eint)
     endif
-    !call mshint(vol,1,n1,n2,n3,k1,k2,k3,smrho,sum1,sum2)!     Integral n0
-    !call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smrho,smpot,s1,s2)!     Integral n0 phi0~
-    !smq=sum1
     smq = dreal(sum(smrho(:,:,:,1)))               *vol/(n1*n2*n3)  !Integral n0
     s1  = dreal(sum(smrho(:,:,:,1)*smpot(:,:,:,1)))*vol/(n1*n2*n3)  !Integral n0*phi0~
     u0g = s1 - u00
     call ugcomp(qmom,gpot0,hpot0,ugg,f) 
-    if (ipr >= 50) write (stdo,231) (ib,(f(m,ib),m=1,3),ib=1,nbas)
-231 format(/' after ugcomp: forces are'/(i4,3f12.6))
-    if (ipr >= 50) write(stdo,926) u00,u0g,ugg
-926 format(' u00,u0g,ugg=',3f14.6)
+    if(ipr>=50)write (stdo,"(/' after ugcomp: forces are'/(i4,3f12.6))")(ib,(f(m,ib),m=1,3),ib=1,nbas)
+    if(ipr>=50)write(stdo,"(' u00,u0g,ugg=',3f14.6)") u00,u0g,ugg
     ! --- Collect energy terms; make zvnuc for smooth problem ---
     zvnsm = 0d0
     rhvsm = u00 + u0g + vconst*smq
@@ -257,9 +240,7 @@ contains
     enddo
     sgp0 = sumx
     usm = 0.5d0*(rhvsm+zvnsm)
-    if (ipr >= 30) write (stdo,500) usm,smq
-500 format('   smooth rhoves',f14.6,'   charge',f13.6)
-    if (allocated(cv_zv)) deallocate(cv_zv)
+    if (ipr >= 30) write (stdo,"('   smooth rhoves',f14.6,'   charge',f13.6)") usm,smq
     smrho(:,:,:,1)=smrho(:,:,:,1)-qbg/vol! ... subtract background
     smq=smq-qbg
     if (nsp == 2) then!     Restore spin 1 density, copy potential to second spin channel
@@ -279,14 +260,6 @@ contains
     ! ----------------------------------------------------------------------
     !i Inputs
     !i   nbas  :size of basis
-    !i   sspec :struct for species-specific information; see routine uspec
-    !i     Elts read: rmt lmxl
-    !i     Stored:    *
-    !i     Passed to: *
-    !i   slat  :struct for lattice information; see routine ulat
-    !i     Elts read: alat plat nabc nsgrp osymgr oag
-    !i     Stored:    *
-    !i     Passed to: *
     !i   ng    :number of G-vectors
     !i   gv    :list of reciprocal lattice vectors G (gvlist.f)
     !i   kv    :indices for gather/scatter operations (gvlist.f)
@@ -310,7 +283,7 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     integer :: ng,kv(ng,3)
-    real(8):: gv(ng,3) , vval(1)
+    real(8):: gv(ng,3),vval(1)
     double complex smpot(k1,k2,k3),cv(ng)
     integer :: i,ib,is,lmxx,nlmx,iv0,lmxl,nlm,ngabc(3), n1,n2,n3,m,ilm,l,ipr
     double precision :: alat,pi,tpiba,tau(3),rmt,fac,plat(3,3)
@@ -349,9 +322,9 @@ contains
        !   --- j_l(|rmt*q|)/rmt**l for each G and l=0..lmax ---
        !       Does not evolve correctly in the correct large r limit
        call ropbes(agv,rmt**2,lmxl,cgp,sgp,phil,ng)
-       call dscal(3,alat,tau,1)
+       tau=alat*tau !call dscal(3,alat,tau,1)
        do  i = 1, ng
-          fac = -(tau(1)*gv2(i,1)+tau(2)*gv2(i,2)+tau(3)*gv2(i,3))
+          fac = -sum(tau*gv2(i,:)) !+tau(2)*gv2(i,2)+tau(3)*gv2(i,3))
           cgp(i) = dcos(fac)
           sgp(i) = dsin(fac)
        enddo
@@ -364,25 +337,12 @@ contains
              ilm = ilm+1
              vvali = 0
              do  i = 2, ng
-                vvali = vvali + (phil(i,l)*yl(i,ilm))* &
-                     (cv(i)*dcmplx(cgp(i),-sgp(i)))
+                vvali = vvali + (phil(i,l)*yl(i,ilm))*(cv(i)*dcmplx(cgp(i),-sgp(i)))
              enddo
              vval(ilm+iv0) = fprli*vvali
           enddo
           fprli = fprli*(0d0,1d0)*rmt
        enddo
-       !   ... Printout
-       !        if (ipr .gt. 0) then
-       !          do  ilm = 1, nlm
-       !            if (ilm .eq. 1) then
-       !              write(stdo,650) ib,ilm,vval(ilm+iv0)
-       !            elseif (dabs(vval(ilm+iv0)) .gt. 1d-6) then
-       !              write(stdo,651)    ilm,vval(ilm+iv0)
-       !            endif
-       !  650              format(i4,i6,2f12.6)
-       !  651                     format(4x,i6,f12.6)
-       !          enddo
-       !        endif
        iv0 = iv0 + nlm
 10     continue
     enddo
@@ -420,11 +380,11 @@ contains
     !u   23 Aug 01 Newly created.
     ! ----------------------------------------------------------------------
     implicit none
-    real(8):: vval(1) , vrmt(nbas)
+    real(8):: vval(1),vrmt(nbas)
     integer :: ic,ib,ilm,mxint,nclass,ipa(nbas),nrclas,iv0
     integer :: ips(nbas),lmxl(nbas) !ipc(nbas),
     double precision :: pos(3,nbas),posc(3,nbas),plat(3,3),pi,y0
-    integer:: igetss , nlml ,ipr , jpr , ngrp , nn , iclbas,ibas
+    integer:: igetss,nlml ,ipr,jpr,ngrp,nn,iclbas,ibas
     real(8) ,allocatable :: qwk_rv(:)
     real(8) ,allocatable :: sym_rv(:)
     call tcn('symvvl')
@@ -450,8 +410,8 @@ contains
 800          format(' Symmetry class',i3,'   nrclas=',i3,'   nlml=',i3)
              allocate(qwk_rv(nlml))
              allocate(sym_rv(nlml*nlml*nrclas))
-             call symqmp ( nrclas , nlml , nlml , plat , posc , ngrp , rv_a_osymgr &
-                  , rv_a_oag , qwk_rv , ipa , sym_rv , vval , nn )
+             call symqmp ( nrclas,nlml,nlml,plat,posc,ngrp,rv_a_osymgr &
+                 ,rv_a_oag,qwk_rv,ipa,sym_rv,vval,nn )
              if (allocated(sym_rv)) deallocate(sym_rv)
              if (allocated(qwk_rv)) deallocate(qwk_rv)
           endif
@@ -502,7 +462,6 @@ contains
     !i Inputs
     !i   nbas  :size of basis
     !i   sspec :struct containing species-specific information
-    !i   slat  :struct containing information about the lattice
     !i   qmom  :multipole moments of on-site densities (rhomom.f)
     ! o Inputs/Outputs
     ! o  Let n0  = smooth potential without compensating gaussians
@@ -526,7 +485,7 @@ contains
     !u   22 Apr 00 Adapted from nfp ugcomp
     ! ----------------------------------------------------------------------
     implicit none
-    real(8):: qmom(*) , gpot0(*) , f(3,nbas) , hpot0(nbas) , ugg
+    real(8):: qmom(*),gpot0(*),f(3,nbas),hpot0(nbas),ugg
     integer :: ndim,ndim0,i,ib,ilm1,ilm2,is,iv0,jb,js,jv0,nvl,l1,l2, &
          lfoc1,lfoc2,ll,lmax1,lmax2,m,nlm1,nlm2
     parameter (ndim=49, ndim0=2)
@@ -552,10 +511,10 @@ contains
     ugg = 0d0
     iv0 = 0
     ip = 1
-    call dpzero(xugg, mp)
-    call dpzero(xgpot0, nlmx*nbas*mp)
-    call dpzero(xf, 3*nbas*mp)
-    call dpzero(xhpot0, nbas*mp)
+    xugg=0d0   !call dpzero(xugg, mp)
+    xgpot0=0d0 !call dpzero(xgpot0, nlmx*nbas*mp)
+    xf=0d0     !, 3*nbas*mp)
+    xhpot0=0d0
     ibini=1
     ibend=nbas
     do ib=ibini,ibend
@@ -563,13 +522,11 @@ contains
        tau1=rv_a_opos(:,ib) 
        lmax1=sspec(is)%lmxl
        rg1=sspec(is)%rg
-       call corprm(is,qcorg1,qcorh1,qsc1,cofg1,cofh1,ceh1,lfoc1, &
-            rh1,z1)
+       call corprm(is,qcorg1,qcorh1,qsc1,cofg1,cofh1,ceh1,lfoc1, rh1,z1)
        nlm1 = (lmax1+1)**2
-       !   ... Loop over sites where charge lump sees the potential
        if (lmax1 > -1) then
           jv0 = 0
-          do  jb = 1, nbas
+          do  jb = 1, nbas!  Loop over sites where charge lump sees the potential
              js=ispec(jb)
              tau2=rv_a_opos(:,jb) 
              lmax2=sspec(js)%lmxl
@@ -580,9 +537,7 @@ contains
                 if (nlm1 > ndim) call rxi('ugcomp: ndim < nlm1=',nlm1)
                 if (nlm2 > ndim) call rxi('ugcomp: ndim < nlm2=',nlm2)
                 call ggugbl(tau1,tau2,rg1,rg2,nlm1,nlm2,ndim,ndim,s,ds) 
-                ff(1) = 0d0
-                ff(2) = 0d0
-                ff(3) = 0d0
+                ff = 0d0
                 do  ilm1 = 1, nlm1
                    l1 = ll(ilm1)
                    qm1 = qmom(iv0+ilm1)
@@ -596,10 +551,7 @@ contains
                       xugg(ip) = xugg(ip) + cof1*cof2*s(ilm1,ilm2)
                       xgpot0(jv0+ilm2,ip) = xgpot0(jv0+ilm2,ip) &
                            + s(ilm1,ilm2)*cof1*fpi/df(2*l2+1)
-                      !         ... Forces
-                      ff(1) = ff(1) + 0.5d0*cof1*cof2*ds(ilm1,ilm2,1)
-                      ff(2) = ff(2) + 0.5d0*cof1*cof2*ds(ilm1,ilm2,2)
-                      ff(3) = ff(3) + 0.5d0*cof1*cof2*ds(ilm1,ilm2,3)
+                      ff = ff + 0.5d0*cof1*cof2*ds(ilm1,ilm2,1:3) !Forces
                    enddo
                 enddo
                 !     --- Additional h*h, h*g, g*h terms for foca ---
@@ -608,10 +560,7 @@ contains
                         wk,dwk,s0,ds0)
                    xugg(ip) = xugg(ip) + cofh1*s0(1,1)*cofh2
                    xhpot0(jb,ip) = xhpot0(jb,ip) + cofh1*s0(1,1)
-                   ff(1) = ff(1) + 0.5d0*cofh1*cofh2*ds0(1,1,1)
-                   ff(2) = ff(2) + 0.5d0*cofh1*cofh2*ds0(1,1,2)
-                   ff(3) = ff(3) + 0.5d0*cofh1*cofh2*ds0(1,1,3)
-
+                   ff = ff + 0.5d0*cofh1*cofh2*ds0(1,1,1:3)
                    call hgugbl(tau1,tau2,rh1,rg2,ceh1,1,nlm2,ndim,ndim, s,ds)
                    do  ilm2 = 1, nlm2
                       l2 = ll(ilm2)
@@ -619,9 +568,7 @@ contains
                       if (ilm2 == 1) qm2 = qm2 + y0*(qcorg2-z2)
                       cof2 = qm2*fpi/df(2*l2+1)
                       xugg(ip) = xugg(ip) + cofh1*s(1,ilm2)*cof2
-                      ff(1) = ff(1) + 0.5d0*cofh1*cof2*ds(1,ilm2,1)
-                      ff(2) = ff(2) + 0.5d0*cofh1*cof2*ds(1,ilm2,2)
-                      ff(3) = ff(3) + 0.5d0*cofh1*cof2*ds(1,ilm2,3)
+                      ff = ff + 0.5d0*cofh1*cof2*ds(1,ilm2,1:3)
                       xgpot0(jv0+ilm2,ip) = xgpot0(jv0+ilm2,ip) &
                            + s(1,ilm2)*cofh1*fpi/df(2*l2+1)
                    enddo
@@ -632,17 +579,13 @@ contains
                       if (ilm1 == 1) qm1 = qm1 + y0*(qcorg1-z1)
                       cof1 = qm1*fpi/df(2*l1+1)
                       xugg(ip) = xugg(ip) + cof1*s(1,ilm1)*cofh2
-                      ff(1) = ff(1) - 0.5d0*cof1*cofh2*ds(1,ilm1,1)
-                      ff(2) = ff(2) - 0.5d0*cof1*cofh2*ds(1,ilm1,2)
-                      ff(3) = ff(3) - 0.5d0*cof1*cofh2*ds(1,ilm1,3)
+                      ff = ff - 0.5d0*cof1*cofh2*ds(1,ilm1,1:3)
                       xhpot0(jb,ip) = xhpot0(jb,ip) + cof1*s(1,ilm1)
                    enddo
                 endif
                 if (jb /= ib) then
-                   do  m = 1, 3
-                      xf(m,ib,ip) = xf(m,ib,ip) - ff(m)
-                      xf(m,jb,ip) = xf(m,jb,ip) + ff(m)
-                   enddo
+                   xf(1:3,ib,ip) = xf(1:3,ib,ip) - ff
+                   xf(1:3,jb,ip) = xf(1:3,jb,ip) + ff
                 endif
                 jv0 = jv0+nlm2
              endif
@@ -653,14 +596,10 @@ contains
     nvl = iv0
     do  80  ip = 1, mp
        do  82  ib = 1, nbas
-          f(1,ib) = f(1,ib) + xf(1,ib,ip)
-          f(2,ib) = f(2,ib) + xf(2,ib,ip)
-          f(3,ib) = f(3,ib) + xf(3,ib,ip)
+          f(1:3,ib) = f(1:3,ib) + xf(1:3,ib,ip)
           hpot0(ib) = hpot0(ib) + xhpot0(ib,ip)
 82     enddo
-       do  84  i = 1, nvl
-          gpot0(i) = gpot0(i) + xgpot0(i,ip)
-84     enddo
+       gpot0(1:nvl) = gpot0(1:nvl) + xgpot0(1:nvl,ip)
        ugg = ugg + xugg(ip)
 80  enddo
     call tcx('ugcomp')
@@ -680,18 +619,15 @@ contains
     !o   sum   :integral pot*density
     implicit none
     integer :: ng,i, kv(ng,3)
-    real(8):: gv(ng,3) , ssum, tpiba,g2
+    real(8):: gv(ng,3),ssum, tpiba,g2
     complex(8):: smrho(k1,k2,k3),smpot(k1,k2,k3),cv(ng),ccc(ng)
     real(8),parameter:: pi = 4d0*datan(1d0), pi8  = 8d0*pi
     call tcn('vesft')
     tpiba=2d0*pi/alat
     call gvgetf(ng,1,kv,k1,k2,k3,smrho,cv) ! ... Gather density coefficients
-    ! ... smpot(G) = 8 pi /G**2 smrho(G)
-    ccc(1)=0d0
-    ccc(2:ng) = [((pi8/(tpiba**2*sum(gv(i,:)**2)))*cv(i),i=2,ng)]
+    ccc= [complex(8):: 0d0, ((pi8/(tpiba**2*sum(gv(i,:)**2)))*cv(i),i=2,ng)]
     ssum = vol*sum(ccc(2:ng)*cv(2:ng))
-    call gvputf(ng,1,kv,k1,k2,k3,ccc,smpot)! ... Scatter smooth potential into array
+    call gvputf(ng,1,kv,k1,k2,k3,ccc,smpot)! smpot(G) =8pi/G**2 smrho(G)
     call tcx('vesft')
   end subroutine vesft
-
 end module m_smves

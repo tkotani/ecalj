@@ -16,13 +16,13 @@ module m_iqindx_wan
 contains
   !------------------------------------------------------
   subroutine iqindx2_wan(q,  iqindx,qu)
-    intent(in) ::          q
-    intent(out) ::             iqindx,qu
+    intent(in) ::        q
+    intent(out) ::           iqindx,qu
     !! ginv is the inverse of plat (premitive translation vector).
     !! Use kk1,kk2,kk3,nkey(1:3),iqkkk to get iqindx.
     real(8):: q(3),qu(3)
     integer:: iqindx
-    integer:: i_out, iq,iqx ,kkk3(3),ik1(1),ik2(1),ik3(1)
+    integer:: i_out, iq,iqx ,kkk3(3),ik1,ik2,ik3
     real(8):: qx(3),qzz(3)
     logical::debug=.true., init=.true.
     if (init) then
@@ -30,38 +30,23 @@ contains
        call init_iqindx_wan() !ginv)
        init=.false.
     endif
-    !      print *,"iqindx2_wan:: nqtt=",nqtt
     ! ccccccccccccccccccc
-    debug=.false.
-    if(abs(q(1)+0.1d0)+abs(q(2)+0.1d0)<1d-3) then
-       debug=.true.
-    endif
-    ! ccccccccccccccccccc
-    if(debug) write(6,"(' iqindx2_: q=',3f20.15)") q
-    !     print *,"ginv,qzz",ginv,qzz
+    !debug=.false.
+    !if(abs(q(1)+0.1d0)+abs(q(2)+0.1d0)<1d-3) then
+    !   debug=.true.
+    !endif
     call rangedq(matmul(ginv,q), qzz)
     if(debug) write(6,"(' iqindx2_: q=',3f20.15)") qzz
-    !! we generate qzz integer index for qzz
     kkk3 = (qzz+0.5d0*epsd)/epsd
-    if(debug) write(6,*)'kkk3=',kkk3
-    if(debug) write(6,*)'nkey=',nkey
-    if(debug) write(6,*)'kk1=',kk1
-    if(debug) write(6,*)'kk2=',kk2
-    if(debug) write(6,*)'kk3=',kk3
-    ik1= findloc(kk1,value=kkk3(1))
-    ik2= findloc(kk2,value=kkk3(2))
-    ik3= findloc(kk3,value=kkk3(3))
-!    call tabkk(kkk3(1), kk1,nkey(1), ik1)
-!    call tabkk(kkk3(2), kk2,nkey(2), ik2)
-!    call tabkk(kkk3(3), kk3,nkey(3), ik3)
-    if(debug) write(6,"(' 222222a q=',3i8,3f18.12)") kkk3,qzz
-    if(debug) write(6,"(' 222222a ik1,ik2,ik3,q=',3i8,3f18.12)") ik1,ik2,ik3,q
-    iqindx = iqkkk(ik1(1),ik2(1),ik3(1))
-    if(debug) then
-       do iqx=1,nqtt
-          write(6,"(i5,3f13.5)")iqx,qtt(:,iqx)
-       enddo
-    endif
+    ik1= findloc(kk1,value=kkk3(1),dim=1)
+    ik2= findloc(kk2,value=kkk3(2),dim=1)
+    ik3= findloc(kk3,value=kkk3(3),dim=1)
+    iqindx = iqkkk(ik1,ik2,ik3)
+!    if(debug) then
+!       do iqx=1,nqtt
+!          write(6,"(i5,3f13.5)")iqx,qtt(:,iqx)
+!       enddo
+!    endif
     qu =qtt(:,iqindx)
     if(debug) write(6,*) iqindx,qu
   end subroutine iqindx2_wan
@@ -78,29 +63,18 @@ contains
     close(ifwqb)
   end subroutine wan_getqbz
   !--------------------------------
-  subroutine init_iqindx_wan() !ginv_)
-    !      intent(in):: ginv_
-    !! For magnon+wannier
-    !! === mapping of qtt ===
-    !! nkey, kk1,kk2,kk3, iqkkk are to get iqindx.
-    !!  q --> call rangedq(matmul(ginv,q), qx) ---> n= (qx+0.5*epsd)/epsd
-    !!       --->  ik1,ik2,ik3= tabkk(kkk,iqk,nkey) ---> iqkkk(ik1,ik2,ik3)
+  subroutine init_iqindx_wan() ! For magnon+wannier.  mapping of qtt 
     real(8):: qzz(3)
     real(8),allocatable:: qxx(:,:)
-    integer:: isig,i,ix,kkk,kkk3(3),ik1(1),ik2(1),ik3(1),iq,ik
+    integer:: isig,i,ix,kkk,kkk3(3),ik1,ik2,ik3,iq,ik
     integer,allocatable:: ieord(:)
     logical::debug=.false.
-    !      ginv=ginv_
     allocate(ieord(nqtt))
-    if(debug) write(6,"(a,2i5,20f9.4)")' iiiiii nqtt=',nqtt,size(qtt),ginv(1:3,1:3)
     allocate(key(3,0:nqtt),qxx(3,nqtt))
     key=-99999
     do iq=1,nqtt
        call rangedq(matmul(ginv,qtt(:,iq)), qxx(:,iq))
-       !         write(6,"(a,i5,3f13.5,2x,3f13.5)") ' qqqttxx =',iq,qtt(:,iq),qxx(:,iq)
     enddo
-    !      write(6,*)'sssqqq=',sum(abs(qtt(1,1:nqtt))),      sum(abs(qtt(2,1:nqtt))),   sum(abs(qtt(3,1:nqtt)))
-
     !! get key and nkey for each ix.
     key(:,0)=0 !dummy
     do ix =1,3
@@ -129,52 +103,12 @@ contains
     iqkkk=-99999
     do i=1,nqtt
        kkk3= (qxx(:,i)+0.5d0*epsd)/epsd !kkk is digitized by 1/epsd
-       ik1= findloc(kk1,value=kkk3(1))
-       ik2= findloc(kk2,value=kkk3(2))
-       ik3= findloc(kk3,value=kkk3(3))
-!       call tabkk(kkk3(1), kk1,nkey(1), ik1)
-!       call tabkk(kkk3(2), kk2,nkey(2), ik2)
-!       call tabkk(kkk3(3), kk3,nkey(3), ik3)
-       iqkkk(ik1(1),ik2(1),ik3(1))=i
+       ik1= findloc(kk1,value=kkk3(1),dim=1)
+       ik2= findloc(kk2,value=kkk3(2),dim=1)
+       ik3= findloc(kk3,value=kkk3(3),dim=1)
+       iqkkk(ik1,ik2,ik3)=i
     enddo
     deallocate(qxx)
   end subroutine init_iqindx_wan
 end module m_iqindx_wan
 
-! !!------------------------------------------------
-! subroutine tabkk(kkin, kktable,n, nout)
-!   integer, intent(in) :: n,kkin, kktable(n)
-!   integer, intent(out) :: nout
-!   integer:: i,mm,i1,i2
-!   i1=1
-!   i2=n
-!   if(kkin==kktable(1)) then
-!      nout=1
-!      return
-!   elseif(kkin==kktable(n)) then
-!      nout=n
-!      return
-!   endif
-!   do i=1,n
-!      mm=(i1+i2)/2
-!      if(kkin==kktable(mm)) then
-!         nout=mm
-!         return
-!      elseif(kkin>kktable(mm)) then
-!         i1=mm
-!      else
-!         i2=mm
-!      endif
-!   enddo
-!   !$$$      do i=1,n
-!   !$$$         if(kkin==kktable(i)) then
-!   !$$$            nout=i
-!   !$$$            return
-!   !$$$         endif
-!   !$$$      enddo
-!   ! un2016
-!   !      call rx( 'takk: error')
-!   !      write(6,*) i1,i2,kkin
-!   !      write(6,*) kktable(i1),kktable(i2)
-!   nout=-999999
-! end subroutine tabkk
