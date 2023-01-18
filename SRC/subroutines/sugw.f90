@@ -13,7 +13,6 @@ contains
     use m_lattic,only: lat_plat, lat_qlat,rv_a_opos
     use m_supot,only: lat_nabc, lat_gmax
     use m_rdsigm2,only: getsenex, senex,dsene
-    use m_mksym,only: lat_npgrp,lat_nsgrp
     use m_mkpot,only: smpot=>osmpot, vconst, vesrmt
     use m_mkpot,only: osig, otau, oppi, ohsozz,ohsopm, oppix,spotx
     use m_MPItk,only: numproc=>nsize,procid,master,master_mpi
@@ -83,8 +82,8 @@ contains
          k2,k3,konf,konfig(0:n0),l,lchk,ldim,loldpw, &
          lmaxa,lmxax,lsig,mx,mxint,n1,n2,n3,nat, &
          ncore,ndima,nevl,nev,nglob,ngp,ngp_p, &
-         ngpmx,nline,nlinemax,nlmax,nmx,nn1,nn2,nnn,npgrp, &
-         nphimx,npqn,nqbz,nqibz,nqnum,nqnumx,nqtot,nr,nsgrp,iqibz,imx, &
+         ngpmx,nline,nlinemax,nlmax,nmx,nn1,nn2,nnn, &
+         nphimx,npqn,nqbz,nqibz,nqnum,nqnumx,nqtot,nr,iqibz,imx, &
          ifigwb,ifigwa,ifinormchk,ifigw1,ifildima,ifigwn,ifigwbhead, &
          ificlass,ifievec,ifievecx,ifigw2,ifiqbz,ifievv
     complex(8),allocatable :: aus_zv(:)
@@ -158,8 +157,6 @@ contains
     plat =lat_plat
     qlat =lat_qlat
     gmax =lat_gmax
-    npgrp =lat_npgrp
-    nsgrp =lat_nsgrp
     call fftz30(n1,n2,n3,k1,k2,k3)
     lchk = 1
     lwvxc = .not. cmdopt0('--novxc')

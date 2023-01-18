@@ -6,7 +6,7 @@ contains
   subroutine m_mkqp_init()
     use m_lmfinit,only: bz_lshft,bz_tetrahedron,bz_lmet,ctrl_ldos,bz_nabcin
     use m_lattic,only:  lat_plat
-    use m_mksym,only:   rv_a_osymgr,lat_nsgrp,lat_npgrp
+    use m_mksym,only:   rv_a_osymgr,lat_npgrp
     use m_tetirr,only: tetirr
     !! Set up k-points and related quantities for BZ integration
     !! ----------------------------------------------------------------------
@@ -28,7 +28,7 @@ contains
     logical :: gettet
     integer::  lgstar=-2, i_copy_size,i_data_size !lreduc=1,
     logical:: lgors,ltet,lnoirr=.false.,llshft(3),lipq !lsx,
-    integer:: mxkp , nfilqp , nkp , nkxyz(3) , nsgrp , npgrp &
+    integer:: mxkp , nfilqp , nkp , nkxyz(3) , npgrp &
          , lshft(3) , lpbc , ntet , i , iprint , igets
     integer,allocatable :: iv_a_owk(:)
     integer,allocatable :: iv_a_tmp(:)
@@ -41,7 +41,7 @@ contains
     nkxyz=bz_nabcin
     lshft=bz_lshft
     plat =lat_plat
-    nsgrp=lat_nsgrp
+!    nsgrp=lat_nsgrp
     npgrp=lat_npgrp
     lpbc = 0
     ltet = gettet .and. bz_tetrahedron

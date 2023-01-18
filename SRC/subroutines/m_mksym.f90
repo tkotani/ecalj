@@ -1,26 +1,29 @@
-module m_mksym
+module m_mksym !in future this should be replaced with better version with spglib or something else.
   use m_mpitk,only: master_mpi
   use m_mksym_util,only: gensym,grpgen,symtbl
   public :: m_mksym_init, &
-       rv_a_oag,   iv_a_oics, iv_a_oipc , lat_npgrp, lat_nsgrp, &
+       rv_a_oag,   iv_a_oics, lat_npgrp, lat_nsgrp, &
        rv_a_osymgr,iv_a_oistab, ctrl_nclass,iclasst, &
        iclasstaf_, symops_af_, ag_af_, ngrpaf_ !for antiferro symmetry
   !antiferro sym y = matmul(symps_af_(:,:,ig),x)+ ag_af(:,ig), ig=1,ngrpaf_
-  integer, allocatable,protected ::  iv_a_oics (:)
-  integer,  allocatable,protected ::  iv_a_oipc(:)
-  real(8) , allocatable,protected ::  rv_a_oag (:)
-  real(8) , allocatable,protected ::  rv_a_osymgr (:,:,:)
-  integer , allocatable,protected ::  iv_a_oistab (:)
-  integer,allocatable,protected::  iclasst(:)    !class information, 
+  integer, allocatable,protected  ::  iv_a_oics(:) ! ispec= ics(iclass) gives spec for iclass.
+  
+  real(8) , allocatable,protected :: rv_a_osymgr (:,:,:) !point operation for 1,... nsgrp  !(additioanl to npgrp)
+  real(8) , allocatable,protected :: rv_a_oag (:)        !translation for 1,...nsgrp
+  integer , allocatable,protected :: iv_a_oistab (:)! j= istab(i,ig): site i is transformed into site j by grp op ig
+  integer,allocatable,protected   :: iclasst(:)    !class information,
+  
   integer,allocatable,protected:: iclasstaf_(:) !AntiFerro class information 
   real(8),allocatable,protected:: symops_af_(:,:,:), ag_af_(:,:) 
-  integer,protected:: lat_npgrp, lat_nsgrp, ctrl_nclass,&
-       ngrpaf_ ! antiferro
-
+  integer,protected::&
+       lat_nsgrp, & !number of space group symmetry
+       ctrl_nclass,& !number of equivalence class
+       ngrpaf_,& ! antiferro symops_af_ and ag_af_
+       lat_npgrp !number of point group operation with adding iversion. Used in mkqp.f90
 contains
   ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine m_mksym_init(prgnam) ! Driver for calling mksymaf and mksym
-    use m_lmfinit,only: nbas,sstrnsymg,ctrl_noinv, &
+    use m_lmfinit,only: nbas,sstrnsymg,addinv, &
          symgaf,iv_a_oips,slabl,mxspec,procid,master,iantiferro
     use m_lattic,only: rv_a_opos,m_lattic_init,rv_a_opos
     !-------------
@@ -49,14 +52,31 @@ contains
     strn = 'find'
     if(len_trim(sstrnsymg)>0) strn=trim(sstrnsymg)
     if (cmdopt0('--nosym') .OR. cmdopt0('--pdos') ) strn = ' '
+    
     !! when lmfgw, 1st digit of lc is zero--> no inversion added in mksym.
-    lc = 10
-    if ( .NOT. prgnam == 'LMFGWD') lc = 12 ! add inversion if .not.lmfgw
-    if (prgnam=='LMFA' .OR. prgnam=='LMCHK') then
-       lc=20
-       if(ctrl_noinv /=1 ) lc = lc+1  !+1 means add inversion
+    !if(ctrl_noinv==0 )     lc=1  ! Add inversion to get !When we have TR, psi_-k(r) = (psi_k(r))^* (when we have SO/=1).
+    !                      density |psi_-k(r)|^2 = |psi_k^*(r)|^2
+    !if(ctrl_noinv==1 )     lc=0  !  no inversion
+    !if(prgnam == 'LMFGWD') lc=0 !no inversion !probably not meaningful
+    
+    if(addinv) then ! Add inversion to get sampling k points. 
+       lc=1 !When we have TR with keeping spin \sigma, psi_-k\sigm(r) = (psi_k\sigma(r))^* 
+    else
+       lc=0
     endif
-    if(len_trim(symgaf)>0) lc=12 ! inversion allowed for AF case. Good?
+    
+    !if( prgnam == 'LMFGWD') then
+    !   lc= 0 
+    !else
+    !   lc= 1 !add inversion for k mesh points
+    !endif
+    
+!    if (prgnam=='LMFA' .OR. prgnam=='LMCHK') then
+!       lc=0
+!       if(ctrl_noinv==0 ) lc=1  !+1 means add inversion
+!    endif
+    !if(len_trim(symgaf)>0) lc=11 ! inversion allowed for AF case. Good?
+    
     if( .NOT. (prgnam=='LMFA' .OR. prgnam=='LMCHK')) ipr10= iprint()>10 !this is only for master
     if(len_trim(symgaf)>0) then
        if(ipr10) then
@@ -125,24 +145,19 @@ contains
     !- Setup for symmetry group
     !return syminfo for 
     ! ----------------------------------------------------------------------
+    !  split species into classes, Also assign class labels to each class
     !i Inputs
-    !i   mode  : 1s digit
-    !i           0  make space group only
-    !i           1  add inversion to point group (see aginv below)
-    !i           2  Same as 1, but make additionally ag,istab for extra
-    !i              operations, using -g for rotation part; see Remarks
-    !i           10s digit
-    !i           0  do nothing about classes
-    !i           1  split species into classes
-    !i           2  Also assign class labels to each class
-    !i           4  Assume class and species are the same.
+    !i   mode  : 
+    !i           =0  Not add inversion
+    !i           =1  Add inversion to point group 
+    !i               Make additionally ag,istab for extra
+    !i               operations, using -g for rotation part; see Remarks
     !i   slabl : species labels
     !i   ssymgr: string containing symmetry group generators.
     !i           if ssymgr contains 'find', mksym will add basis atoms as
     !i           needed to guarantee generators are valid, and generate
     !i           internally any additonal group operations needed to
     !i           complete the space group.
-    !i
     !
     !r Remarks
     !r   In certain cases the inversion operation may be added to the space
@@ -168,7 +183,7 @@ contains
     integer ::iwdummy ,iwdummy1(1)
     logical :: T,F,cmdopt0,ltmp
     integer:: idest,ig,iprint,igets,isym(10),j1,j2,lpgf, &
-         nbas,nbas0,nclass,ngen,ngnmx,nspec,usegen, nggen,ngmx,incli, oiwk , aginv
+         nbas,nbas0,nclass,ngen,ngnmx,nspec,usegen, nggen,ngmx,incli, oiwk !, aginv
     integer,allocatable :: nrspc_iv(:)
     real(8) ,allocatable :: pos2_rv(:,:)
     integer ,allocatable :: ips2_iv(:)
@@ -179,6 +194,7 @@ contains
     integer:: i_copy_size,i_data_size,i_spackv
     integer:: iv_a_oips(:),iclass(nbas)
     integer, allocatable ::  iv_a_onrc (:)
+    integer,  allocatable ::  iv_a_oipc(:)!class for lmaux                     maybe= iclasst
 !    nbas =ctrl_nbas
     nspec=ctrl_nspec
     plat =lat_plat
@@ -229,7 +245,7 @@ contains
     ! --- Add inversion to point group ---
     incli = -1
     npgrp = nsgrp
-    if (mod(mode,10) /= 0) then
+    if (mode /= 0) then
        ngen = ngen+1
        gen(:,ngen) = [-1d0,0d0,0d0, 0d0,-1d0,0d0, 0d0,0d0,-1d0]
        call pshpr(iprint()-40)
@@ -241,28 +257,22 @@ contains
     if(master_mpi) write(stdo,ftox)'MKSYM: found ',nsgrp,' space group operations'
     if(master_mpi.and.nsgrp/=npgrp)write(stdo,ftox)'       adding inversion gives',npgrp,' operations'
     if(master_mpi.and.incli == -1) write(stdo,*)'  no attempt to add inversion symmetry'
-    if(mod(mode/10,10) == 0) goto 100
+    !if(mod(mode/10,10) == 0) goto 100
     ! Split species into classes : ibas ==> iclass=ipc(ibas) ==> ispec=ics(iclass)
     if(allocated(iv_a_onrc)) deallocate(iv_a_onrc)
     allocate(iv_a_onrc(abs(nspec)))
     iv_a_oipc=iv_a_oips(1:nbas)
-    call splcls ( mod ( mode / 10 , 10 ) .eq.4 , rv_a_opos , nbas &
+    call splcls ( .false., rv_a_opos , nbas & !mod ( mode / 10 , 10 ) .eq.4 
          , nsgrp , iv_a_oistab , nspec , slabl , nclass , iv_a_oipc , iv_a_oics , iv_a_onrc )
-    !   ... Reallocate arrays as permanent arrays
-    i_data_size=size(iv_a_oics); allocate(iv_a_tmp(i_data_size))
-    iv_a_tmp=iv_a_oics; deallocate(iv_a_oics)
-    i_data_size=min(i_data_size,nclass); allocate(iv_a_oics(nclass))
-    iv_a_oics(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
+    ! nbas >nclass;  iv_a_ics(1:nclass) is fine:  !o   ics: class i belongs to species ics(i)
     ! ... Remake istab
     if (allocated(iv_a_oistab)) deallocate(iv_a_oistab)
     allocate(iv_a_oistab(abs(nsgrp*nbas)))
     call dinv33(plat,1,qlat,xx)
     call symtbl(1, nbas, iwdummy1, rv_a_opos , rv_a_osymgr, rv_a_oag, nsgrp, qlat, iv_a_oistab)
-    do ibas=1,nbas
-       iclass(ibas)=iv_a_oipc(ibas) 
-    enddo
+    iclass(1:nbas)=iv_a_oipc(1:nbas) 
     ctrl_nclass=nclass
-100 continue
+!100 continue
     lat_npgrp=npgrp
     lat_nsgrp=nsgrp
   end subroutine mksym

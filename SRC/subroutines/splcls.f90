@@ -20,31 +20,19 @@ subroutine splcls(nosplt,bas,nbas,ng,istab,nspec,slabl,nclass,ipc, ics,nrclas)
   !u   04 Apr 03 Search for equivalent classes more thorough
   ! ----------------------------------------------------------------------
   !     implicit none
-  ! Passed parameters:
   logical :: nosplt
-  integer :: nbas,nspec,nclass,ng,istab(nbas,ng),ipc(nbas), &
-       !     .ics(nspec),nrclas(nspec)
-       ics(*),nrclas(nspec)
+  integer :: nbas,nspec,nclass,ng,istab(nbas,ng),ipc(nbas), ics(*),nrclas(nspec)
   double precision :: bas(3,*)
   character(8) :: slabl(*)
-  ! Local parameters:
   integer :: ib,ic,icn,iclbsj,ig,jb,m,i,is,ipr,idx,ispec,j
   logical :: lyetno
   character(80) :: outs,clabl=''
-
-  !      stdo = lgunit(1)
-  ! ccccccccccccccccccccccccc
-  ! akao
   call getpr(ipr)
-  !      ipr=40
-  !     print * ,'nosplt=',nosplt
-  ! ccccccccccccccccccccccccc
   call icopy(nspec,1,0,nrclas,1)
   nclass = nspec
   do  5  i = 1, nspec
      ics(i) = i
 5 enddo
-
   if (nosplt) then
   else
      ! --- For each species, split to make equivalent classes ---
@@ -115,28 +103,6 @@ subroutine splcls(nosplt,bas,nbas,ng,istab,nspec,slabl,nclass,ipc, ics,nrclas)
 400 format(' SPLCLS: species: ',a,'has inequivalent positions:'/ &
        '  IB: ',i3,',  POS=',3f10.5/ &
        '  JB: ',i3,',  POS=',3f10.5)
-! !-----------------------  
-!   call awrit2('%N SPLCLS:  %i species split into %i classes'// &
-!        '%N Species  Class      Sites...',' ',80,stdo,nspec,nclass)
-!   if (ipr .le. 30) return
-!   do  40  is = 1, nspec
-!      outs = ' '//slabl(is)
-!      do  42  idx = 1, nbas
-!         ic = iclbsj(is,ics,-nclass,idx)
-!         if (ic .gt. 0) then
-!            call clabel(slabl,is,idx,clabl)
-!            outs = ' '
-!            if (idx .eq. 1) outs = ' '//slabl(is)
-!            call awrit1('%(n>9?9:10)p%i:'//clabl,outs,80,0,ic)
-!            do   ib = 1, nbas
-!               if (ipc(ib) .eq. ic) call awrit1('%a%(p>20?p:20)p %i',outs,80,0,ib)
-!            enddo
-!            call awrit0(outs,' ',-80,stdo)
-!         else
-!            exit
-!         endif
-! 42   enddo
-! 40 enddo
 end subroutine splcls
 
 

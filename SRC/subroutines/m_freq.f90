@@ -15,8 +15,8 @@ module m_freq
   use m_readhbe,only: nband
   implicit none
   !!--------------
-  public:: getfreq2, getfreq3, getfreq
-  real(8),allocatable,protected,public:: frhis(:),freq_r(:),freq_i(:),wiw(:), freqx(:),wx(:)
+  public:: getfreq2, getfreq3, getfreq,freq01
+  real(8),allocatable,protected,public::frhis(:),freq_r(:),freq_i(:),wiw(:),freqx(:),wx(:)
   integer,protected,public:: nwhis, npm, nw_i, nw, niw
   private
   real(8),private:: emin,emax,omg2max
@@ -177,5 +177,18 @@ contains
     ua2    = ua*ua
     freqw  = (1d0 - freqx) / freqx
     expa   = exp(-ua2*freqw**2)
+    !   write(6,"(' --- freq01x:  ix    x    freqw(a.u.)---')")
+    !   do      ix = 1,nx
+    !      freqw(ix)  = (1.d0 - freqx(ix)) / freqx(ix)
+    !      write(6,"('            ',i4,2f9.4)") ix,freqx(ix),freqw(ix)
+    !   end do
   end subroutine freq01
 end module m_freq
+
+subroutine freq01x (nx,    freqx,freqw,wx)
+  implicit real*8 (a-h,o-z)
+  real(8):: freqx(nx),freqw(nx),wx(nx),expa(nx)
+  integer:: nx,ix
+  call gauss (nx,0.d0,1.d0,freqx,wx)
+  freqw  = (1d0 - freqx) / freqx
+end subroutine freq01x

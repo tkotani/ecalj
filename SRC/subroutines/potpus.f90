@@ -105,8 +105,8 @@ contains
          hmat(3,3),phmins,phplus,q,r,smat(3,3),tmc, &
          umegam,umegap,vmat(3,3),vl,xx,xxx,yyy,zzz, &
          b,ghg,ghgp,gphgp, g(nr,2),gp(nr,2*4),gz(nr,2),&
-         ev,phi,dphi,phip,dphip,p, dlphi,dlphip,&
-         ez,phz,dphz,phzp,dphzp,pz,dlphz,dlphzp,phz2,dphz2
+         ev,phi,dphi,phip,dphip,p, &
+         ez,phz,dphz,phzp,dphzp,pz,phz2,dphz2
     integer :: nrx
     parameter (nrx=1501)
     double precision :: rwgtx(nrx) !,gzbig(nrx,2)
@@ -165,8 +165,8 @@ contains
           ghg    = ev   ! <g H g> = e <g g> = e
           ghgp   = 1d0  ! <g H gp> = <g (H-e) gp> + e <g gp> = <g g> = 1
           gphgp  = ev*p ! <gp H gp> = <gp (H-e) gp> + e <gp gp> = <gp g> + e p = ep
-          dlphi  = rmax*dphi/phi
-          dlphip = rmax*dphip/phip
+          !dlphi  = rmax*dphi/phi
+          !dlphip = rmax*dphip/phip
           if(lso /= 0) then ! ... Keep local copies of phi and phidot for SO coupling
              psi(:,l,i) = g(:,1)
              dpsi(:,l,i)= gp(:,1)

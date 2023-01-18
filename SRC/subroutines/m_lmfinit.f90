@@ -95,7 +95,8 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa)
   real(8) , allocatable,protected :: rv_a_ocg (:), rv_a_ocy (:)
   integer, allocatable,protected  :: iv_a_oidxcg(:), iv_a_ojcg (:)
   !!
-  integer,protected:: ham_pwmode,ham_nkaph,ham_nlibu, ctrl_noinv,nlmax,mxorb,ctrl_lfrce
+  logical,protected:: addinv
+  integer,protected:: ham_pwmode,ham_nkaph,ham_nlibu, nlmax,mxorb,ctrl_lfrce
   integer,protected:: bz_nevmx, ham_nbf,ham_lsig,bz_nabcin(3)=NULLI, bz_ndos
   real(8),protected:: ham_seref, bz_w,lat_platin(3,3),lat_alat,lat_avw,lat_tolft,lat_gmaxin
   real(8),protected:: lat_gam(1:4)=[0d0,0d0,1d0,1d0], ctrl_mdprm(6)
@@ -187,7 +188,7 @@ contains
     character strn*(recln),strn2*(recln)
     integer:: i_spec
     character fileid*64
-    logical :: lgors,cmdopt,ltmp,ioorbp,noinv
+    logical :: lgors,cmdopt,ltmp,ioorbp!,noinv
     double precision :: dval,dglob,xx(n0*2),dgets !,ekap(6)
     integer :: i,is,iprint, &
          iprt,isw,ifi,ix(n0*nkap0),j,k,l,lfrzw,lrs,lstsym,ltb,nclasp,nglob,scrwid,k1,k2,mpipid 
@@ -989,8 +990,8 @@ contains
            '%N%3fIf NEVMX=0, program uses internal default'// &
            '%N%3fIf NEVMX<0, no eigenvectors are generated')
       if( cmdopt0('--tdos') .OR. cmdopt0('--pdos') .OR. cmdopt0('--zmel0')) bz_nevmx=999999
-      nm='BZ_NOINV'; call gtv(trim(nm),tksw(prgnam,nm),noinv, def_lg=F,note= &
-           'Suppress automatic inclusion of inversion symmetry for BZ')
+!      nm='BZ_NOINV'; call gtv(trim(nm),tksw(prgnam,nm),noinv, def_lg=F,note= &
+!           'Suppress automatic inclusion of inversion symmetry for BZ')
       nm='BZ_FSMOM'; call gtv(trim(nm),tksw(prgnam,nm),bz_fsmom, &
            def_r8=NULLR,note='Fixed-spin moment (fixed-spin moment method)')
       nm='BZ_FSMOMMETHOD';call gtv(trim(nm),tksw(prgnam,nm),bz_fsmommethod, &
@@ -1072,7 +1073,7 @@ contains
     stage2: block !Reorganize ctrl_* in module m_lmfinit ---------------------
       integer:: isw,iprint
       logical:: cmdopt0
-      ctrl_noinv = isw(noinv)  ! T->1 F->0
+      !ctrl_noinv = isw(noinv)  ! T->1 F->0
       ctrl_lrel=lrel
       ctrl_lxcf= ham_lxcf !1 for Ceperly-Alder (VWN),  2 for Barth-Hedin (ASW fit), 103 for PBE-GGA
       maxit=iter_maxit
@@ -1205,30 +1206,18 @@ contains
       !     !     Switches that automatically turn of all symops
       !     ! --pdos mar2003 added. Also in lmv7.F
       lstsym = 0
+      
+      ! addinv=T only when we expect Hamiltonian is real even with keeping spin direction.
+      addinv = .false. !add inversion 
       if ((mdprm(1)>=1 .AND. mdprm(1)<=3) .OR. &
            cmdopt0('--cls') .OR. cmdopt0('--nosym') .OR. cmdopt0('--pdos')) then
          symg = 'e'
          lstsym = 2             !lstsym=2: turn off symops
-         ctrl_noinv=1
+!         addinv=.false.
       endif
       sstrnsymg=trim(symg)
-      !if (cmdopt0('--rdbasp')) call rx('not support --rdbasp')
-      !
-      !!  Add dalat to alat
-      !!   lat_alat=(lat_alat)+dalat !this is a bug; this should be commented out. This
-      !!   is a bug for lm7K when I started lm7K. I had included this bug here. Fixed at 28May2010.
-      !
-      !! Dirac equation requires spin polarization
-      !if( nsp==1 .AND. int(ctrl_lrel)==2 ) call rx('rdccat: Dirac equation requires NSPIN=2')
-      !! ... Suppress inversion when noncollinear magnetism, SX, NLO
-      if(lso /= 0) ctrl_noinv=1 !lqp = lqp-bitand(lqp,1)+1
-
-      !! ... Setup for idxdn ... ctrl->lham,4 is automatic downfolding switch
-      !      j=3+10 ! no downfolding j=3 ; j=+10 nfp-style basis:
-      !      call suidx(nkaph,j,nspec,v_sspec)
-      !! Set default values for species data
-      !call defspc(v_sspec,nspec)
-      !!
+      if(lso == 0) addinv=.true. !lqp = lqp-bitand(lqp,1)+1
+      
       lxcf = ctrl_lxcf
       nspc = 1
       if( lso==1 ) nspc = 2

@@ -474,7 +474,7 @@ contains
     call shortn3_initialize(plat)
     do  20  isop = 1, ngen
        call asymop(gen(1,1,isop),agen(1,isop),':',sg)
-       call awrit0('%a '//sg,sout(9:),len(sout)-9,0)
+       sout(9:)=trim(sout(9:))//' '//trim(sg) !call awrit0('%a '//sg,sout(9:),len(sout)-9,0)
        vec=agen(:,isop)
        call dgemm('N','N',1,3,3,1d0,agen(1,isop),1,qlat,3,0d0,vec,1)
        call asymop(gen(1,1,isop),vec,'::',sg1)
@@ -484,7 +484,7 @@ contains
        call asymop(gen(1,1,isop),vec,'::',sg)
        call word(sg,1,j1,j2)
        if (i2-i1 < j2-j1) sg = sg1
-       call awrit0('%a '//sg,sout2(9:),len(sout2)-9,0)
+       sout2(9:)=trim(sout2(9:))//' '//trim(sg) !call awrit0('%a '//sg,sout2(9:),len(sout2)-9,0)
 20  enddo
     if (ngen > ngen0 .AND. iprint() >= 20) then
        write(stdo,"(' Generators:trans(cart)  = ', a)")trim(adjustl(sout)) 
@@ -1294,19 +1294,14 @@ contains
        else
           t(ip) = '('
           do  12  i = 1, 3
-             m = awrite('%x%;7d%?#n<>3#,#)#', &
-                  sout,len(sout),0,v(i),i,i,i,i,i,i,i)
+             m = awrite('%x%;7d%?#n<>3#,#)#', sout,len(sout),0,v(i),i,i,i,i,i,i,i)
              x = v(i)
              y = v(i)*dsqrt(3d0)*4
-             if (abs(x) > tiny .AND. dabs(dabs(x)-1) > tiny &
-                  .AND. iopt <= 4) then
+             if (abs(x) > tiny .AND. dabs(dabs(x)-1) > tiny .AND. iopt <= 4) then
                 if (abs(1/x-nint(1/x)) < tiny) then
-                   if (x > 0) m = awrite('%x1/%d%?#n<>3#,#)#', &
-                        sout,len(sout),0,1/x,i,i,i,i,i,i,i)
-                   if (x < 0) m = awrite('%x-1/%d%?#n<>3#,#)#', &
-                        sout,len(sout),0,-1/x,i,i,i,i,i,i,i)
-                elseif (abs(y-nint(y)) < tiny .AND. &
-                     abs(y) > .5d0) then
+                   if (x > 0) m = awrite('%x1/%d%?#n<>3#,#)#',  sout,len(sout),0, 1/x,i,i,i,i,i,i,i)
+                   if (x < 0) m = awrite('%x-1/%d%?#n<>3#,#)#', sout,len(sout),0,-1/x,i,i,i,i,i,i,i)
+                elseif (abs(y-nint(y)) < tiny .AND.   abs(y) > .5d0) then
                    d = 12
                    iz = nint(abs(y))
                    id = 12
@@ -1315,8 +1310,7 @@ contains
                    if (iz == 6) id = 2
                    if (iz == 12) id = 1
                    y = y/(12/id)
-                   m = awrite('%x%?#n==1#%j#%d*#sqrt(3)/%i%?#n<>3#,#)#', &
-                        sout,len(sout),0,nint(y),y,id,i,i,i,i,i)
+                   m = awrite('%x%?#n==1#%j#%d*#sqrt(3)/%i%?#n<>3#,#)#',sout,len(sout),0,nint(y),y,id,i,i,i,i,i)
                 endif
              endif
              call strncp(t(ip+1),sout,1,1,m)

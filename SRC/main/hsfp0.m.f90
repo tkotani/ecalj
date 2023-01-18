@@ -23,6 +23,7 @@ program hsfp0
        MPI__barrier
   use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
   use m_lgunit,only: m_lgunit_init
+  use m_freq,only: freq01
   implicit none
   !! = Calculate the diagonal part of self-energy \Sigma within the GW approximation. And some other functions =
   !  See document at the top of hsfp0.sc.m.F
@@ -111,7 +112,7 @@ program hsfp0
 
   integer:: incwfin
   real(8):: ddw
-  real(8),allocatable::freqx(:),freqw(:),wwx(:) !,expa(:)
+  real(8),allocatable::freqx(:),freqw(:),wwx(:),expa(:)
 
   !      logical:: GaussSmear=.true.      !readgwinput,
   integer::ret
@@ -569,8 +570,8 @@ program hsfp0
   if(nq0i/=0) write(6,*) ' *** tot num of q near 0   =', 1/wgt0(1,1)
   write(6,"('  sum(wgt0) from Q0P=',d14.6)")sum(wgt0)
   if(niw/=0) then !! Generate gaussian frequencies x between (0,1) and w=(1-x)/x
-     allocate(freqx(niw),freqw(niw),wwx(niw)) !,expa(niw))
-     call freq01x  (niw, freqx,freqw,wwx) 
+     allocate(freqx(niw),freqw(niw),wwx(niw),expa(niw))
+     call freq01(niw, 1d0, freqx,freqw,wwx,expa) !ua=1d0 is dummy 
   endif
   iii= count(irk/=0) !iii=ivsumxxx(irk,nqibz*ngrp)
   write(6,*) " sum of nonzero iirk=",iii, nqbz
