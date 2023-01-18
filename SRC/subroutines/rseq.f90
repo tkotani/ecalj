@@ -31,32 +31,23 @@ subroutine rseq(eb1,eb2,e,tol,z,l,nod,val,slo,v,g,q,a,b,rofi,nr,nre)
   !u   08 Feb 01 if rseq fails to converge, but the number of nodes is
   !u             correct, rseq returns with a warning instead of aborting
   ! ----------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
+  implicit none
   integer :: l,nod,nr,nre
-  double precision :: eb1,eb2,e,tol,z,val,slo,v(nr),g(nr,2),q,rofi(nr), &
-       a,b
-  ! ... Local parameters
+  double precision :: eb1,eb2,e,tol,z,val,slo,v(nr),g(nr,2),q,rofi(nr), a,b
   integer :: ipr,k,k2,kc,nctp,nctp0,nit,nitmax,nod1,nod2,node,irsq
   double precision :: c,de,e1,e2,fac,fllp1,r,ratio=1d99,re,rhok=1d99,slo1,slo2, &
        slop,tmcr,val1,val2,valu,wgt=1d99
   ! ... Speed of light, or infinity in nonrelativistic case
   common /cc/ c
-  !     double complex gc(nr,2),ec,valc,sloc
   call getpr(ipr)
   nitmax = 80
-  ! cccccccccccccccccccccccccccc
   if (ipr >= 110) write(*,815) z,l,nod,val,slo,eb1,eb2
-  !      write(*,815) z,l,nod,val,slo,eb1,eb2
-  ! ccccccccccccccccccccccccccccc
-815 format(' RSEQ:  Z=',f5.1,'  l=',i1,'  nod=',i1,'  bc=',2f7.3, &
-       '  e1,e2=',2f8.2)
+815 format(' RSEQ:  Z=',f5.1,'  l=',i1,'  nod=',i1,'  bc=',2f7.3,'  e1,e2=',2f8.2)
   e1 = eb1
   e2 = eb2
   call fctp0(l,nr,rofi,v,z,nctp0)
-  if (ipr >= 120) print 301
-301 format(' nit l node nod nre kr', &
-       '        e1            e              e2            de')
+  if (ipr >= 120)write(*,*)' nit l node nod nre kr',&
+       '        e1            e              e2            de'
   ! --- Start iterations to find energy ---
   do  1  nit = 1, nitmax
      if (e <= e1 .OR. e >= e2) e = (e1 + e2)/2
@@ -78,7 +69,6 @@ subroutine rseq(eb1,eb2,e,tol,z,l,nod,val,slo,v,g,q,a,b,rofi,nr,nre)
           a,b,rofi,nr)
      !       Integrate the scalar relativistic eqn outward from origin to kc
      call rsq1(0,e,l,z,v,kc,g,val1,slo1,nod1,a,b,rofi,nr)
-
      node = nod1 + nod2
      if (node /= nod) then
         if (ipr >= 120 .OR. ((nit >= nitmax-5) .AND. ipr>20) ) &
@@ -90,7 +80,6 @@ subroutine rseq(eb1,eb2,e,tol,z,l,nod,val,slo,v,g,q,a,b,rofi,nr,nre)
         goto 1
      endif
 1011 continue
-
      !   ... Calculate q = norm of wave function from trapezoidal rule and
      !       de = estimated correction to eigenvalue
      ratio = val2/val1
@@ -104,11 +93,6 @@ subroutine rseq(eb1,eb2,e,tol,z,l,nod,val,slo,v,g,q,a,b,rofi,nr,nre)
 6    enddo
      q = a*(q - (rofi(nre)+b)*g(nre,1)*g(nre,1)/2)
      de = -val2*(slo2 - ratio*slo1)/q
-
-     ! cccccccccccccccccccccc
-     !        if (ipr .ge. 120 .or. nit .ge. nitmax-5)
-     !     .  write(*,101) nit,l,node,nod,nre,kc,e1,e,e2,de
-     ! ccccccccccccccccccccccc
      if (de > 0d0) e1 = e
      if (de < 0d0) e2 = e
      e = e + de
@@ -119,7 +103,6 @@ subroutine rseq(eb1,eb2,e,tol,z,l,nod,val,slo,v,g,q,a,b,rofi,nr,nre)
   nit = nitmax+1
   !     Fatal if node mismatch
   if (nod /= node) goto 99
-
   ! --- Normalize g ---
 2 continue
   fllp1 = l*(l+1)
@@ -146,7 +129,6 @@ subroutine rseq(eb1,eb2,e,tol,z,l,nod,val,slo,v,g,q,a,b,rofi,nr,nre)
      g(k,1) = 0d0
      g(k,2) = 0d0
 12 enddo
-
   ! --- Possible warning or error exit ---
 99 continue
   if (ipr >= 110 .OR. nit >= nitmax) &
@@ -173,12 +155,7 @@ subroutine rseq(eb1,eb2,e,tol,z,l,nod,val,slo,v,g,q,a,b,rofi,nr,nre)
         !          close(irsq)
      endif
   endif
-  !     ec = e
-  !     valc = val
-  !     sloc = slo
-  !     call zseq(ec,tol,z,l,nod,valc,sloc,v,gc,q,a,b,rofi,nr,nre)
 end subroutine rseq
-
 subroutine rsq1(i0,e,l,z,v,kr,g,val,slo,nn,a,b,rofi,nr)
   !- Integrate the scalar relativistic eqn outward to rofi(kr)
   ! ----------------------------------------------------------------
@@ -214,14 +191,6 @@ subroutine rsq1(i0,e,l,z,v,kr,g,val,slo,nn,a,b,rofi,nr)
        (df1,d(2,1)),(df2,d(2,2)),(df3,d(2,3))
   !     Speed of light, or infinity in nonrelativistic case
   common /cc/ c
-
-  !      double complex gc(nr,2),ec,valc,sloc
-  !      ir = 0
-  !      if (ir .gt. 0) then
-  !        ec = e
-  !        call zsq1(ec,l,z,v,kr,gc,valc,sloc,a,b,rofi,nr)
-  !      endif
-
   nn = 0
   zz = z+z
   fllp1 = l*(l+1)
@@ -230,7 +199,6 @@ subroutine rsq1(i0,e,l,z,v,kr,g,val,slo,nn,a,b,rofi,nr)
   r2 = -5d0*r1
   r3 = 19d0*r1
   h83 = 8d0/3d0
-
   ! --- Approximate g,f by leading term near zero ----
   if (i0 < 5) then
      g0 = 1
@@ -255,16 +223,9 @@ subroutine rsq1(i0,e,l,z,v,kr,g,val,slo,nn,a,b,rofi,nr)
         d(2,ir-1) = drdi*g(ir,2)*sf/r
 2    enddo
   endif
-
   ! --- Setup to integrate over rest of points ------
   if (i0 < 5) then
      i1 = 5
-     !       dg1 = d(1,1)
-     !       dg2 = d(1,2)
-     !       dg3 = d(1,3)
-     !       df1 = d(2,1)
-     !       df2 = d(2,2)
-     !       df3 = d(2,3)
   else
      i1 = i0
      call dpzero(d,6)
@@ -275,12 +236,6 @@ subroutine rsq1(i0,e,l,z,v,kr,g,val,slo,nn,a,b,rofi,nr)
         u     = drdi*c + phi
         x     = -drdi/r
         y     = -fllp1*x*x/u + phi
-        !       det   = r83sq - x*x + u*y
-        !       b1    = g(ir-1,1)*h83 + r1*dg1 + r2*dg2 + r3*dg3
-        !       b2    = g(ir-1,2)*h83 + r1*df1 + r2*df2 + r3*df3
-        !       g(ir,1) = (b1*(h83-x) + b2*u)/det
-        !       g(ir,2) = (b2*(h83+x) - b1*y)/det
-        !       if (g(ir,1)*g(ir-1,1) .lt. 0d0) nn = nn+1
         dg1   = dg2
         df1   = df2
         dg2   = dg3
@@ -313,11 +268,8 @@ subroutine rsq1(i0,e,l,z,v,kr,g,val,slo,nn,a,b,rofi,nr)
 4 enddo
   val = g(kr,1)
   slo = dg3/(a*(rofi(kr) + b))
-
-  !     call prrmsh('g',rofi,g,nr,kr,2)
 end subroutine rsq1
-subroutine rsq2(e,l,z,v,nre,ncmin,val1,slo1,g,val,slo,nn,nc, &
-     a,b,rofi,nr)
+subroutine rsq2(e,l,z,v,nre,ncmin,val1,slo1,g,val,slo,nn,nc, a,b,rofi,nr)
   !- Integrate the scalar relativistic eqn inward from nre to nc
   ! ----------------------------------------------------------------
   !i Inputs:
@@ -441,7 +393,6 @@ subroutine rsq2(e,l,z,v,nre,ncmin,val1,slo1,g,val,slo,nn,nc, &
      d(1,i) = ag1
      d(2,i) = af1
 1 enddo
-
   ! --- All remaining points -----
   q = 1d0/ea
   if (ifac == 1) q = ea
@@ -486,17 +437,14 @@ subroutine rsq2(e,l,z,v,nre,ncmin,val1,slo1,g,val,slo,nn,nc, &
      if (ifac == -1 .AND. mod(ir,2) /= 0 .AND. &
           (ir <= ncmin .OR. g(ir,1)*dg3 >= 0d0)) goto 3
 2 enddo
-
   ! --- Integration done, clean up ---
 3 nc  = ir
   val = g(nc,1)
   drdi= a*(rofi(nc) + b)
   slo = dg3/drdi
-
   !      do  ir  = min(nre+10*ifac,nre),max(nre+10*ifac,nre)
   !        write(*,*) rofi(ir), g(ir,1)
   !      enddo
-
 end subroutine rsq2
 subroutine setcc(lrel)
   !- Set speed of light for radial S-eqn in /cc/ common block
@@ -504,10 +452,8 @@ subroutine setcc(lrel)
   integer :: lrel
   double precision :: c
   common /cc/ c
-
   if (lrel /= 0) then
-     !       should be:
-     !       c = 274.072d0
+     !       should be: c = 274.072d0
      c = 274.074d0
   else
      c = 1d10

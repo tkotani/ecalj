@@ -18,12 +18,9 @@ module m_freq
   public:: getfreq2, getfreq3, getfreq
   real(8),allocatable,protected,public:: frhis(:),freq_r(:),freq_i(:),wiw(:), freqx(:),wx(:)
   integer,protected,public:: nwhis, npm, nw_i, nw, niw
-  !!
   private
   real(8),private:: emin,emax,omg2max
-
 contains
-
   !> Get data set for m_freq. All arguments are input.
   subroutine getfreq3(lqall,epsmode,realomega,imagomega,ua,iprint)!,tetra
     intent(in)::        lqall,epsmode,realomega,imagomega,ua,iprint
@@ -52,7 +49,6 @@ contains
     real(8),allocatable:: qbz2(:,:)
     integer:: iq
     logical,optional:: npmtwo !! Added Aug2017 for hmagnon
-    !      integer:: niw !,nw_input
     logical:: realomega,imagomega,iprint,epsmode,qbzreg
     real(8):: omg2max,ua
     call Findemaxmin(nband,qbze,nqbze,nspin, emax,emin)
@@ -95,14 +91,9 @@ contains
     if(done) call rx('gerfreq is already done') !sanity check
     done =.true.
     nw=-99999 !for sanity check
-    !      nw = nw_input
     !! Histogram bin divisions
     !! We first accumulate Imaginary parts.
     !! Then it is K-K transformed to obtain real part.
-
-    !      call getkeyvalue("GWinput","dw",dw )
-    !      call getkeyvalue("GWinput","omg_c",omg_c )
-    !      write(6,"('dw, omg_c= ',2f13.5)") dw, omg_c
     call getkeyvalue("GWinput","HistBin_ratio",oratio, default=1.03d0)
     call getkeyvalue("GWinput","HistBin_dw",dw, default=1d-5) !a.u.
     aa = oratio-1d0
@@ -118,7 +109,6 @@ contains
        frhis(iw) = bb*( exp(aa*(iw-1)) - 1d0 )
     enddo
     write(6,"('dw, omg_ratio, nwhis= ',d9.2,f13.5,i6)") dw, aa,nwhis
-
     !! Determine nw. Is this correct?
     do iw=3,nwhis
        omg2 = (frhis(iw-2)+frhis(iw-1))/2d0
@@ -128,11 +118,10 @@ contains
        endif
     enddo
     !! document need to be fixed...
-    !      nw=nw2-1      ! nw+1 is how many points of real omega we use
-    ! for dressed coulomb line W(iw=0:nw) iw=0 corresponds omg=0
+    ! nw+1 is how many points of real omega we use
+    ! Screened Coulomb W(iw=0:nw) iw=0 corresponds omg=0
     ! maximum nw=nw2-1 because nwhis=nw2-1
-    !! document need to be fixed...
-    ! w is chosen from condition that frhis_m(nw-3)<dw*(nw_input-3) <frhis_m(nw-2).
+    ! W is chosen from condition that frhis_m(nw-3)<dw*(nw_input-3) <frhis_m(nw-2).
     ! ere frhis_m(iw)= (freqr2(iw)+freqr2(iw+1))/2d0
     ! w was constructed such that omg=dw*(nw-2)> all relevant frequensies needed
     ! for correlation Coulomb Wc(omg),
@@ -140,48 +129,53 @@ contains
     ! Now, frhis_m(nw-1)> all relevent frequensies for Wc(omg)
     ! and one more point omg=frhis_m(nw) needed for extropolation
     !! Determine freq_r
-    if(epsmode) then
-       nw  = nwhis-1
-    endif
+    if(epsmode) nw  = nwhis-1
     allocate(freq_r(0:nw))
     freq_r(0)=0d0
-    do iw=1,nw
-       freq_r(iw)=(frhis(iw)+frhis(iw+1))/2d0
-    enddo
+    freq_r(1:nw)=(frhis(1:nw)+frhis(2:nw+1))/2d0
     !! Timereversal=F is implimented only for tetra=T and sergeyv=T
     !! nw_i and npm
     npm=1
     nw_i=0
     npm2=.false.
-    if(present(npmtwo)) then
-       if(npmtwo) npm2= .TRUE. 
-    endif
+    if(present(npmtwo).and.npmtwo) npm2= .TRUE. 
     if( .NOT. timereversal() .OR. npm2)  then
        write(6,"('TimeReversal off mode')")
        npm=2
        nw_i=-nw
-       !         if(.not.tetra)   call rx( ' tetra=T for timereversal=off')
+       !  if(.not.tetra)   call rx( ' tetra=T for timereversal=off')
     endif
     write(6,*)'Timereversal=',Timereversal()
     !! Determine freq_i  : gaussian frequencies x between (0,1) and w=(1-x)/x
     if (imagomega) then
        write(6,*)' freqimg: niw =',niw
-       allocate( freq_i(niw) ,freqx(niw),wx(niw),expa(niw) )
-       call freq01 (niw,ua, &
-            freqx,freq_i,wx,expa)
-       allocate(wiw(niw))
-       do iw=1,niw
-          wiw(iw)=wx(iw)/(2d0*pi*freqx(iw)*freqx(iw))
-       enddo
-       deallocate(wx,expa) !freqx,
+       allocate( freq_i(niw) ,freqx(niw),wx(niw),expa(niw),wiw(niw))
+       call freq01 (niw,ua, freqx,freq_i,wx,expa)
+       wiw=wx/(2d0*pi*freqx**2)
+       deallocate(wx,expa) 
     endif
-    !! Plot frhis
-    if(onceww(1)) then
+    if(onceww(1)) then !plot frhis
        write(6,*)' we set frhis nwhis noo-->nee=',nwhis,noo,nee
        write(6,*)' --- Frequency bins to accumulate Im part  (a.u.) are ---- '
-       do ihis= 1, nwhis !min(10,nwhis)
-          write(6,"(' ihis Init  End=', i5,2f18.11)") ihis,frhis(ihis),frhis(ihis+1)
-       enddo
+       write(6,"(' ihis Init  End=', i5,2f18.11)") (ihis,frhis(ihis),frhis(ihis+1),ihis=1,nwhis)
     endif
   end subroutine getfreq
+  subroutine freq01 (nx,ua,  freqx,freqw,wx,expa)!Generates a gaussian point x between (0,1) and w = (1-x)/x 
+    ! and the weights in x
+    ! also generates expa = exp(-ua^2 w^2)
+    ! nx    = no. gaussian points
+    ! ua   = s.o.
+    !o freqx = gaussian points
+    !o freqw = (1-x)/x
+    !o wx    = weights of gaussian points x
+    ! expa  = s.o.
+    ! originally 92.02.27 Ferdi.Aryasetiawan
+    implicit real*8 (a-h,o-z)
+    integer:: nx,ix
+    real(8):: freqx(nx),freqw(nx),wx(nx),expa(nx)
+    call gauss   (nx,0.d0,1.d0,freqx,wx)! generate gaussian points
+    ua2    = ua*ua
+    freqw  = (1d0 - freqx) / freqx
+    expa   = exp(-ua2*freqw**2)
+  end subroutine freq01
 end module m_freq

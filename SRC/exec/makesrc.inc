@@ -86,7 +86,6 @@ m_mksym_util.o \
 mtchae.o \
 nwit.o \
 phidx.o \
-phvsfp.o \
 prdmts.o \
 radgkl.o \
 radmsh.o \
