@@ -1208,15 +1208,21 @@ contains
       lstsym = 0
       
       ! addinv=T only when we expect Hamiltonian is real even with keeping spin direction.
-      addinv = .false. !add inversion 
+      ! addinv=T means psi* is eigenfunction.(Time-Reversal with keeping spin).
+      ! 2022-jan-20 new setting of addinv (addinv =.not.ctrl_noinv)
       if ((mdprm(1)>=1 .AND. mdprm(1)<=3) .OR. &
            cmdopt0('--cls') .OR. cmdopt0('--nosym') .OR. cmdopt0('--pdos')) then
          symg = 'e'
-         lstsym = 2             !lstsym=2: turn off symops
-!         addinv=.false.
+         lstsym = 2  !lstsym=2: turn off symops
+         addinv = .false. !add inversion 
+      elseif(lso == 0) then
+         addinv=.true. !add inversion 
+      else
+         addinv=.false. 
       endif
+
+
       sstrnsymg=trim(symg)
-      if(lso == 0) addinv=.true. !lqp = lqp-bitand(lqp,1)+1
       
       lxcf = ctrl_lxcf
       nspc = 1

@@ -2,10 +2,10 @@ INFO: Ubuntu 20.04.4 LTS \n \l
 INFO: GNU Fortran (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
 INFO: -O2 -g -fimplicit-none -ffixed-line-length-132 -JOBJ.gfortran -IOBJ.gfortran
 INFO: MATH: -lmkl_rt
-INFO: git: commit a56084d3af7da44f7ab6fd83d3968de561939dc4
+INFO: git: commit 394fdded2736091e5f9595f7c0c453b9dd1d3b49
 INFO:    : Author: Takao Kotani <takaokotani@gmail.com>
-INFO:    : Date:   Fri Jan 6 08:52:06 2023 +0900
-INFO: linked at Fri Jan  6 09:14:03 JST 2023
+INFO:    : Date:   Thu Jan 19 14:50:44 2023 +0900
+INFO: linked at Thu Jan 19 18:53:55 JST 2023
 === START LFMA ===
  mpisize=           1
   Token           Input   cast  (size,min,read,def)     result
@@ -76,7 +76,7 @@ mmm   eh1    1 -0.10 -0.10 -0.10 -0.10
 mmm rsmh2    1  1.16  1.16  1.16
 mmm  eh2     1 -1.10 -1.10 -1.10
 mmm lh       3  2
- >>      0.03   exit  m_lmfinit       0.03
+ >>      0.06   exit  m_lmfinit       0.06
 xxx isp pz= 1 0.000000  0.000000  0.000000  0.000000
  goto freats
 
@@ -162,10 +162,10 @@ INFO: Ubuntu 20.04.4 LTS \n \l
 INFO: GNU Fortran (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
 INFO: -O2 -g -fimplicit-none -ffixed-line-length-132 -JOBJ.gfortran -IOBJ.gfortran
 INFO: MATH: -lmkl_rt
-INFO: git: commit a56084d3af7da44f7ab6fd83d3968de561939dc4
+INFO: git: commit 394fdded2736091e5f9595f7c0c453b9dd1d3b49
 INFO:    : Author: Takao Kotani <takaokotani@gmail.com>
-INFO:    : Date:   Fri Jan 6 08:52:06 2023 +0900
-INFO: linked at Fri Jan  6 09:14:03 JST 2023
+INFO:    : Date:   Thu Jan 19 14:50:44 2023 +0900
+INFO: linked at Thu Jan 19 18:53:55 JST 2023
 ===START LMF with   ===
  mpisize=           4
   Token           Input   cast  (size,min,read,def)     result
@@ -236,7 +236,6 @@ INFO: linked at Fri Jan  6 09:14:03 JST 2023
  BZ_NPTS           opt    i4       1,  1,   1,  0       3001
  BZ_EFMAX          opt    r8       1,  1,   1,  0       5
  BZ_NEVMX          opt    i4       1,  1,   1,  0       34
- BZ_NOINV          opt    lg       1,  1,   1,  0       T
  BZ_FSMOM          opt    r8       1,  1,   1,  0       -2
   --- Parameters for Ewald sums ---
  EWALD_TOL         opt    r8       1,  1,   1,  0       0.00000001
@@ -256,21 +255,21 @@ pnzall: j isp  pz= 1 2 0.000000  0.000000  0.000000  0.000000
 
 mmm === MTO setting ===
 mmm ispec lmxb lpz nkapii nkaphh=    1    3    0    2    2
+ imx=           3           3           3
 mmm rsmh1    1  1.16  1.16  1.16  1.16
 mmm   eh1    1 -0.10 -0.10 -0.10 -0.10
 mmm rsmh2    1  1.16  1.16  1.16
+ imx=           3           3           3
+ imx=           3           3           3
+ imx=           4           4           4
 mmm  eh2     1 -1.10 -1.10 -1.10
 mmm lh       3  2
- imx=           3           3           3
- >>      0.02   exit  m_lmfinit       0.02
- >> level: 1  CPUsec=      0.02  enter m_lattic_init
+ >>      0.08   exit  m_lmfinit       0.08
  imx=           4           4           4
- imx=           3           3           3
- imx=           3           3           3
+ imx=           4           4           4
+ >> level: 1  CPUsec=      0.08  enter m_lattic_init
 
                 Plat                                  Qlat
- imx=           4           4           4
- imx=           4           4           4
    0.500000   0.500000   0.500000        0.000000   1.000000   1.000000
    0.500000  -0.500000   0.500000        1.000000  -1.000000   0.000000
    0.500000   0.500000  -0.500000        1.000000   0.000000  -1.000000
@@ -280,60 +279,24 @@ mmm lh       3  2
 
  LATTC:  as= 2.000   tol= 1.00E-08   alat= 5.42352   awald= 0.465
          r1=  2.466   nkd= 137      q1=  4.687   nkg= 201
- >>      0.02   exit  m_lattic_ini    0.00
- >> level: 1  CPUsec=      0.02  enter m_mksym_init
- mshsiz   13.000000000000000     
+ >>      0.08   exit  m_lattic_ini    0.00
+ >> level: 1  CPUsec=      0.08  enter m_mksym_init
  Generator 1 already in group as element 1
 SGROUP:  1 symmetry operations from 1
 MKSYM: found  1  space group operations
-       adding inversion gives 2  operations
+   no attempt to add inversion symmetry
 SPLCLS: ibas iclass ispec label(ispec)
  SPLCLS     1    1    1     Fe
- >>      0.02   exit  m_mksym_init    0.00
- mshsiz   13.000000000000000     
- >> level: 1  CPUsec=      0.02  enter m_mkqp_init
- BZMESH:     32 irreducible QP from    4   4   4 shift=TTT
+ >>      0.08   exit  m_mksym_init    0.00
+ >> level: 1  CPUsec=      0.08  enter m_mkqp_init
+ BZMESH:     64 irreducible QP from    4   4   4 shift=TTT
  TETIRR: sorting      384 tetrahedra ...
- mshsiz   13.000000000000000     
- >>      0.02   exit  m_mkqp_init     0.00
- >> level: 1  CPUsec=      0.02  enter m_supot_init
- mshsiz   13.000000000000000     
-gvlst2: gmax=  13.000 a.u. created 2899 vectors of 9261 ( 31 %)
-gvlst2: gmax=  13.000 a.u. created 2899 vectors of 9261 ( 31 %)
-gvlst2: gmax=  13.000 a.u. created 2899 vectors of 9261 ( 31 %)
-gvlst2: gmax=  13.000 a.u. created 2899 vectors of 9261 ( 31 %)
-gvlst2: gmax=  13.000 a.u. created 2899 vectors of 8000 ( 36 %)
-gvlst2: gmax=  13.000 a.u. created 2899 vectors of 8000 ( 36 %)
-gvlst2: gmax=  13.000 a.u. created 2899 vectors of 8000 ( 36 %)
-gvlst2: gmax=  13.000 a.u. created 2899 vectors of 8000 ( 36 %)
-gvlst2: gmax=  13.000 a.u. created 2899 vectors of 5832 ( 49 %)
-gvlst2: gmax=  13.000 a.u. created 2899 vectors of 5832 ( 49 %)
-gvlst2: gmax=  13.000 a.u. created 2899 vectors of 5832 ( 49 %)
-gvlst2: gmax=  13.000 a.u. created 2899 vectors of 5832 ( 49 %)
-gvlst2: gmax=  13.000 a.u. created 2899 vectors of 4096 ( 70 %)
-gvlst2: gmax=  13.000 a.u. created 2899 vectors of 4096 ( 70 %)
-gvlst2: gmax=  13.000 a.u. created 2899 vectors of 4096 ( 70 %)
-gvlst2: gmax=  13.000 a.u. created 2899 vectors of 4096 ( 70 %)
-gvlst2: gmax=  13.000 a.u. created 2827 vectors of 3375 ( 83 %)
-gvlst2: gmax=  13.000 a.u. created 2827 vectors of 3375 ( 83 %)
+ >>      0.08   exit  m_mkqp_init     0.00
+ >> level: 1  CPUsec=      0.08  enter m_supot_init
 MSHSIZ: mesh has 16 x 16 x 16 divisions; length =     0.294     0.294     0.294
       generated from gmax (a.u.)=     13.0000: 2899 vectors of 4096 (70%)
-gvlst2: gmax=  13.000 a.u. created 2827 vectors of 3375 ( 83 %)
-gvlst2: gmax=  13.000 a.u. created 2827 vectors of 3375 ( 83 %)
-gvlst2: gmax=  13.000 a.u. created 2899 vectors of 4096 ( 70 %)
- --- gmax ng ngmx=  13.000000 2899 2899
- ogv(1:ng,1:3)   0.0000000000000000        0.0000000000000000        0.0000000000000000                1           1           1
-gvlst2: gmax=  13.000 a.u. created 2899 vectors of 4096 ( 70 %)
- --- gmax ng ngmx=  13.000000 2899 2899
- ogv(1:ng,1:3)   0.0000000000000000        0.0000000000000000        0.0000000000000000                1           1           1
  SGVSYM: 2899 symmetry stars found for 2899 reciprocal lattice vectors
-gvlst2: gmax=  13.000 a.u. created 2899 vectors of 4096 ( 70 %)
- --- gmax ng ngmx=  13.000000 2899 2899
- ogv(1:ng,1:3)   0.0000000000000000        0.0000000000000000        0.0000000000000000                1           1           1
-gvlst2: gmax=  13.000 a.u. created 2899 vectors of 4096 ( 70 %)
- --- gmax ng ngmx=  13.000000 2899 2899
- ogv(1:ng,1:3)   0.0000000000000000        0.0000000000000000        0.0000000000000000                1           1           1
- >>      0.04   exit  m_supot_init    0.02
+ >>      0.17   exit  m_supot_init    0.09
 
  sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-06
  spec      l    rsm    eh     gmax    last term    cutoff
@@ -344,18 +307,18 @@ gvlst2: gmax=  13.000 a.u. created 2899 vectors of 4096 ( 70 %)
   Fe       0*   1.16  -1.10   6.395    1.24E-06     369 
   Fe       1*   1.16  -1.10   6.825    1.36E-06     429 
   Fe       2    1.16  -1.10   7.254    1.68E-06     531 
- >> level: 1  CPUsec=      0.04  enter m_suham_init
- >>      0.04   exit  m_suham_init    0.00
- >> level: 1  CPUsec=      0.04  enter m_qplist_init
+ >> level: 1  CPUsec=      0.17  enter m_suham_init
+ >>      0.17   exit  m_suham_init    0.00
+ >> level: 1  CPUsec=      0.17  enter m_qplist_init
  m_qplistinit:start
- >>      0.04   exit  m_qplist_ini    0.00
- >> level: 1  CPUsec=      0.04  enter m_qplist_qpsdivider
- >>      0.04   exit  m_qplist_qps    0.00
- >> level: 1  CPUsec=      0.04  enter m_igv2xall_init
- >>      0.04   exit  m_igv2xall_i    0.00
- >> level: 1  CPUsec=      0.04  enter m_hamindex_init
- >>      0.04   exit  m_hamindex_i    0.00
- >> level: 1  CPUsec=      0.04  enter lmfp
+ >>      0.17   exit  m_qplist_ini    0.00
+ >> level: 1  CPUsec=      0.17  enter m_qplist_qpsdivider
+ >>      0.17   exit  m_qplist_qps    0.00
+ >> level: 1  CPUsec=      0.17  enter m_igv2xall_init
+ >>      0.17   exit  m_igv2xall_i    0.00
+ >> level: 1  CPUsec=      0.17  enter m_hamindex_init
+ >>      0.17   exit  m_hamindex_i    0.00
+ >> level: 1  CPUsec=      0.17  enter lmfp
 
  iors  : read rst restart file (binary mesh density)
  iors  : empty file ... nothing read
@@ -383,7 +346,7 @@ rdovfa: read and overlap free-atom densities (mesh density) ...
 --- BNDFP:  begin iteration 1 of 3
  m_mkpot_init: Making one-particle potential ...
   esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
-  smves: avg es pot at rmt= 0.662618  avg sphere pot= 0.000000  vconst=-0.662618
+ smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst=-0.662618
    smooth rhoves     14.303104   charge     4.672541
   smvxcm: all smrho_w is positive
   smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -1.708268 -2.116485 -0.858239
@@ -411,305 +374,65 @@ rdovfa: read and overlap free-atom densities (mesh density) ...
    hom background     0.00000   deviation from neutrality:     -0.00000
 
  m_bandcal_init: start
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
- bndfp: kpt     1 of    32 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
- bndfp: kpt     1 of    32 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
- bndfp: kpt     2 of    32 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
- bndfp: kpt     2 of    32 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
- bndfp: kpt     3 of    32 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
- bndfp: kpt     3 of    32 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
- bndfp: kpt     4 of    32 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
- bndfp: kpt     4 of    32 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
- bndfp: kpt     5 of    32 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
- bndfp: kpt     5 of    32 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
- bndfp: kpt     6 of    32 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
- bndfp: kpt     6 of    32 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
- bndfp: kpt     7 of    32 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
- bndfp: kpt     7 of    32 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
- bndfp: kpt     8 of    32 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
- bndfp: kpt     8 of    32 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
- ... Done MPI k-loop: elapsed time=   0.1828
+ bndfp: kpt     1 of    64 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     1 of    64 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     2 of    64 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     2 of    64 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     3 of    64 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     3 of    64 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     4 of    64 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     4 of    64 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     5 of    64 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     5 of    64 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     6 of    64 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     6 of    64 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     7 of    64 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     7 of    64 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     8 of    64 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     8 of    64 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     9 of    64 k=  0.7500 -0.5000  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     9 of    64 k=  0.7500 -0.5000  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    10 of    64 k=  0.7500 -0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    10 of    64 k=  0.7500 -0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    11 of    64 k=  0.7500  0.0000  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    11 of    64 k=  0.7500  0.0000  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    12 of    64 k=  0.7500  0.2500  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    12 of    64 k=  0.7500  0.2500  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    13 of    64 k=  1.0000 -0.7500  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    13 of    64 k=  1.0000 -0.7500  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    14 of    64 k=  1.0000 -0.5000  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    14 of    64 k=  1.0000 -0.5000  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    15 of    64 k=  1.0000 -0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    15 of    64 k=  1.0000 -0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    16 of    64 k=  1.0000  0.0000  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    16 of    64 k=  1.0000  0.0000  0.7500 ndimh = nmto+napw =    25   25    0
+ ... Done MPI k-loop: elapsed time=   0.5328
 
  bzwts: --- Tetrahedron Integration ---
-  Seek potential shift for fixed-spin mom ...
-  Seek potential shift for fixed-spin mom ...
-  Seek potential shift for fixed-spin mom ...
  BZINTS: Fermi energy:      0.058138;   8.000000 electrons
          Sum occ. bands:   -0.941999, incl. Bloechl correction: -0.005955
-         Mag. moment:      -2.212026
   Seek potential shift for fixed-spin mom ...
- BZWTSF: potential shift bracketed. Unconstrained efermi=  0.058138 constraint fmom= -2.000000 actual mmom= -2.000109 ef=  0.065918 -Vup+Vdn=  0.04512703
+  Seek potential shift for fixed-spin mom ...
+  Seek potential shift for fixed-spin mom ...
+         Mag. moment:      -2.212021
+  Seek potential shift for fixed-spin mom ...
+ BZWTSF: potential shift bracketed. Unconstrained efermi=  0.058138 constraint fmom= -2.000000 actual mmom= -2.000109 ef=  0.065918 -Vup+Vdn=  0.04512701
 
  bzwts: --- Tetrahedron Integration ---
  BZINTS: Fermi energy:      0.065924;   8.000000 electrons
          Sum occ. bands:   -0.895458, incl. Bloechl correction: -0.006213
          Mag. moment:      -1.999974
- bzwtsf: Set Bias field -Vup+Vdn=   0.045127032172427
- bndfp:Generating TDOS: efermi, and dos window=    0.06599998.9900   3.0058
+ bzwtsf: Set Bias field -Vup+Vdn=   0.045127011261111
+ bndfp:Generating TDOS: efermi=  0.065924  dos window emin emax=  9998.990000  3.005847
 
 
  m_bandcal_2nd: to fill eigenfunctions**2 up to Efermi
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+  Smooth density not symmetrized (ngrp=1)
   Smooth density not symmetrized (ngrp=1)
   Smooth density not symmetrized (ngrp=1)
 
 IORBTM:  orbital moments :
  ibas  Spec        spin   Moment decomposed by l ...
-  Smooth density not symmetrized (ngrp=1)
     1    Fe           1    0.000000   -0.001555   -0.064924    0.000200
     1    Fe           2    0.000000    0.002198    0.039677   -0.000030
  total orbital moment   1:   -0.024434
@@ -717,7 +440,7 @@ IORBTM:  orbital moments :
        contr. to mm extrapolated for r>rmt:  -0.005059 est. true mm =-2.020912
 
  mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
-   1    6.918352    2.560631    4.357721     -2.015853   -0.310245   -1.705608
+   1    6.918352    2.560650    4.357703     -2.015853   -0.310246   -1.705607
   Symmetrize density..
  Make new boundary conditions for phi,phidot..
 
@@ -726,16 +449,16 @@ IORBTM:  orbital moments :
  Ek(core)=    2484.196936 Exc=    -107.314527 Ees=   -5009.131332 Eharris=   -2541.031375
 
  mkekin:
-   nout*Vin = smpart,onsite,total=:     -5.231343    -83.337591    -88.568934
-    E_B(band energy sum)=   -0.940585  E_B-nout*Vin=   87.628349
+   nout*Vin = smpart,onsite,total=:     -5.231432    -83.337511    -88.568944
+    E_B(band energy sum)=   -0.940585  E_B-nout*Vin=   87.628359
 
  m_mkpot_energyterms
   esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
-  smves: avg es pot at rmt= 0.660051  avg sphere pot=-0.662618  vconst=-0.660051
-   smooth rhoves     12.107076   charge     3.642279
+ smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst=-0.660051
+   smooth rhoves     12.107134   charge     3.642297
   smvxcm: all smrho_w is positive
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -1.363340 -1.743606 -0.846040
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -1.574530 -2.079781 -0.868573
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -1.363348 -1.743617 -0.846040
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -1.574539 -2.079793 -0.868574
   locpot:
    site  1  z= 26.0  rmt= 2.32497  nr=321   a=0.030  nlml=16  rg=0.581  Vfloat=F
     sm core charge in MT=  0.687311 =total-spillout=  0.702013 -  0.014701
@@ -745,43 +468,43 @@ IORBTM:  orbital moments :
  ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.12822   4.12834   0.00000   0.00000
   mkpot:
    Energy terms:           smooth           local           total
-   rhoval*veff             -5.180862       -84.546557       -89.727419
-   rhoval*ves            -30.753379       -43.625521       -74.378900
-   psnuc*ves              54.967532     -9992.370108     -9937.402576
-   utot                   12.107076     -5017.997814     -5005.890738
-   rho*exc                -2.937870      -104.008781      -106.946650
-   rho*vxc                -3.823387      -137.690338      -141.513725
-   valence chg             3.642279         4.357721         8.000000
-   valence mag            -0.294366        -1.705608        -1.999974
+   rhoval*veff             -5.180949       -84.546477       -89.727426
+   rhoval*ves            -30.753387       -43.625519       -74.378906
+   psnuc*ves              54.967656     -9992.370245     -9937.402589
+   utot                   12.107134     -5017.997882     -5005.890748
+   rho*exc                -2.937888      -104.008763      -106.946651
+   rho*vxc                -3.823410      -137.690315      -141.513726
+   valence chg             3.642297         4.357703         8.000000
+   valence mag            -0.294367        -1.705607        -1.999973
    core charge            18.000000        -0.000000        18.000000
    Charges:  valence     8.00000   cores    18.00000   nucleii   -26.00000
    hom background     0.00000   deviation from neutrality:     -0.00000
 
  m_mkehkf_etot2: Kohn-Sham energy:  Ek = Eband-Vin*nout
- Ek=       87.628349 Ekcore=      2484.196936 Ektot    =     2571.825286
- Exc=    -106.946650 Ees   =     -5005.890738 EKohnSham=    -2541.012103
- Magnetic moment=    -1.999974
+ Ek=       87.628359 Ekcore=      2484.196936 Ektot    =     2571.825295
+ Exc=    -106.946651 Ees   =     -5005.890748 EKohnSham=    -2541.012103
+ Magnetic moment=    -1.999973
   
  mixrho: mixing mode=A  nmix=6  beta=.5  kill=3
  mixrealsmooth= T
  wgtsmooth=   1.5625000000000000E-002
  mixrho:  sought 6 iter from file mixm; read 0.  RMS DQ=2.57e-2
  AMIX: nmix=0 mmix=8  nelts= 10052  beta=0.50000  tm= 5.00000  rmsdel= 1.29D-02
- mixrho: add corrections to qcell smrho =  0.53264D-07  0.33388D-09
+ mixrho: add corrections to qcell smrho =  0.16123D-06  0.10106D-08
 
  iors  : write rst restart file (binary mesh density)
 
    it  1  of  3    ehf=   -2541.031375   ehk=   -2541.012103
-h rel= 1 nit= 3 so= 2 fsmom=-2 mmom=-1.999974 ehf(eV)=-34572.764683 ehk(eV)=-34572.502471 sev(eV)=-12.797405
+h rel= 1 nit= 3 so= 2 fsmom=-2 mmom=-1.999973 ehf(eV)=-34572.764686 ehk(eV)=-34572.502474 sev(eV)=-12.797409
 
 --- BNDFP:  begin iteration 2 of 3
  m_mkpot_init: Making one-particle potential ...
   esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
-  smves: avg es pot at rmt= 0.661334  avg sphere pot=-0.660051  vconst=-0.661334
-   smooth rhoves     13.168414   charge     4.157410
+ smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst=-0.661335
+   smooth rhoves     13.168444   charge     4.157419
   smvxcm: all smrho_w is positive
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -1.524629 -1.917656 -0.853972
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -1.989275 -2.659140 -0.894739
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -1.524634 -1.917662 -0.853972
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -1.989280 -2.659147 -0.894739
   locpot:
    site  1  z= 26.0  rmt= 2.32497  nr=321   a=0.030  nlml=16  rg=0.581  Vfloat=T
     sm core charge in MT=  0.687311 =total-spillout=  0.702013 -  0.014701
@@ -792,343 +515,103 @@ h rel= 1 nit= 3 so= 2 fsmom=-2 mmom=-1.999974 ehf(eV)=-34572.764683 ehk(eV)=-345
      potential shift to crystal energy zero:    0.000523
   mkpot:
    Energy terms:           smooth           local           total
-   rhoval*veff             -8.252342       -82.700639       -90.952981
-   rhoval*ves            -30.688515       -44.730342       -75.418857
-   psnuc*ves              57.025342     -9996.640315     -9939.614973
-   utot                   13.168414     -5020.685329     -5007.516915
-   rho*exc                -3.513904      -103.615631      -107.129535
-   rho*vxc                -4.576796      -137.179252      -141.756048
-   valence chg             4.157410         3.842590         8.000000
-   valence mag            -0.595725        -1.504261        -2.099987
+   rhoval*veff             -8.252390       -82.700594       -90.952984
+   rhoval*ves            -30.688516       -44.730344       -75.418860
+   psnuc*ves              57.025405     -9996.640384     -9939.614979
+   utot                   13.168444     -5020.685364     -5007.516920
+   rho*exc                -3.513915      -103.615621      -107.129535
+   rho*vxc                -4.576809      -137.179239      -141.756048
+   valence chg             4.157419         3.842581         8.000000
+   valence mag            -0.595726        -1.504261        -2.099987
    core charge            18.000000        -0.000000        18.000000
    Charges:  valence     8.00000   cores    18.00000   nucleii   -26.00000
    hom background     0.00000   deviation from neutrality:     -0.00000
 
  m_bandcal_init: start
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
- bndfp: kpt     1 of    32 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
- bndfp: kpt     1 of    32 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
- bndfp: kpt     2 of    32 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
- bndfp: kpt     2 of    32 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
- bndfp: kpt     3 of    32 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
- bndfp: kpt     3 of    32 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
- bndfp: kpt     4 of    32 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
- bndfp: kpt     4 of    32 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
- bndfp: kpt     5 of    32 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
- bndfp: kpt     5 of    32 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
- bndfp: kpt     6 of    32 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
- bndfp: kpt     6 of    32 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
- bndfp: kpt     7 of    32 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
- bndfp: kpt     7 of    32 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
- bndfp: kpt     8 of    32 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
- bndfp: kpt     8 of    32 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
- ... Done MPI k-loop: elapsed time=   0.2010
+ bndfp: kpt     1 of    64 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     1 of    64 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     2 of    64 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     2 of    64 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     3 of    64 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     3 of    64 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     4 of    64 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     4 of    64 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     5 of    64 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     5 of    64 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     6 of    64 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     6 of    64 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     7 of    64 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     7 of    64 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     8 of    64 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     8 of    64 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     9 of    64 k=  0.7500 -0.5000  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     9 of    64 k=  0.7500 -0.5000  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    10 of    64 k=  0.7500 -0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    10 of    64 k=  0.7500 -0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    11 of    64 k=  0.7500  0.0000  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    11 of    64 k=  0.7500  0.0000  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    12 of    64 k=  0.7500  0.2500  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    12 of    64 k=  0.7500  0.2500  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    13 of    64 k=  1.0000 -0.7500  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    13 of    64 k=  1.0000 -0.7500  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    14 of    64 k=  1.0000 -0.5000  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    14 of    64 k=  1.0000 -0.5000  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    15 of    64 k=  1.0000 -0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    15 of    64 k=  1.0000 -0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    16 of    64 k=  1.0000  0.0000  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    16 of    64 k=  1.0000  0.0000  0.7500 ndimh = nmto+napw =    25   25    0
+ ... Done MPI k-loop: elapsed time=   0.5485
 
  bzwts: --- Tetrahedron Integration ---
   Seek potential shift for fixed-spin mom ...
   Seek potential shift for fixed-spin mom ...
   Seek potential shift for fixed-spin mom ...
- BZINTS: Fermi energy:     -0.032499;   8.000000 electrons
-         Sum occ. bands:   -1.539965, incl. Bloechl correction: -0.005688
-         Mag. moment:      -2.209052
+ BZINTS: Fermi energy:     -0.032498;   8.000000 electrons
+         Sum occ. bands:   -1.539963, incl. Bloechl correction: -0.005688
+         Mag. moment:      -2.209048
   Seek potential shift for fixed-spin mom ...
- BZWTSF: potential shift bracketed. Unconstrained efermi= -0.032499 constraint fmom= -2.000000 actual mmom= -2.000215 ef= -0.028915 -Vup+Vdn=  0.05571668
+ BZWTSF: potential shift bracketed. Unconstrained efermi= -0.032498 constraint fmom= -2.000000 actual mmom= -2.000217 ef= -0.028915 -Vup+Vdn=  0.05571720
 
  bzwts: --- Tetrahedron Integration ---
- BZINTS: Fermi energy:     -0.028913;   8.000000 electrons
-         Sum occ. bands:   -1.481871, incl. Bloechl correction: -0.005242
+ BZINTS: Fermi energy:     -0.028912;   8.000000 electrons
+         Sum occ. bands:   -1.481869, incl. Bloechl correction: -0.005242
          Mag. moment:      -2.000008
- bzwtsf: Set Bias field -Vup+Vdn=   0.055716679517357
- bndfp:Generating TDOS: efermi, and dos window=   -0.02899998.9900   2.9110
+ bzwtsf: Set Bias field -Vup+Vdn=   0.055717197836283
+ bndfp:Generating TDOS: efermi= -0.028912  dos window emin emax=  9998.990000  2.911011
 
 
  m_bandcal_2nd: to fill eigenfunctions**2 up to Efermi
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
   Smooth density not symmetrized (ngrp=1)
   Smooth density not symmetrized (ngrp=1)
   Smooth density not symmetrized (ngrp=1)
 
 IORBTM:  orbital moments :
  ibas  Spec        spin   Moment decomposed by l ...
-    1    Fe           1    0.000000   -0.001361   -0.075562    0.000180
-    1    Fe           2    0.000000    0.001859    0.037923    0.000006
- total orbital moment   1:   -0.036955
+    1    Fe           1    0.000000   -0.001351   -0.075522    0.000178
+    1    Fe           2    0.000000    0.001858    0.037926    0.000007
+ total orbital moment   1:   -0.036905
   Smooth density not symmetrized (ngrp=1)
 
  mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
-   1    7.034319    2.394102    4.640217     -2.034690   -0.263381   -1.771308
+   1    7.034319    2.394122    4.640197     -2.034690   -0.263383   -1.771307
   Symmetrize density..
  Make new boundary conditions for phi,phidot..
 
  m_mkehkf_etot1: Harris energy: (B.1) in JPSJ84,034702
- Eb(band sum)=       -1.537588 Vin*nin=     -90.952981 Ek=Eb-Vin*nin=      89.415393
- Ek(core)=    2484.196936 Exc=    -107.129535 Ees=   -5007.516915 Eharris=   -2541.034121
+ Eb(band sum)=       -1.537586 Vin*nin=     -90.952984 Ek=Eb-Vin*nin=      89.415398
+ Ek(core)=    2484.196936 Exc=    -107.129535 Ees=   -5007.516920 Eharris=   -2541.034121
 
  mkekin:
-   nout*Vin = smpart,onsite,total=:     -4.906421    -89.482361    -94.388782
-    E_B(band energy sum)=   -1.537588  E_B-nout*Vin=   92.851194
+   nout*Vin = smpart,onsite,total=:     -4.906513    -89.482262    -94.388775
+    E_B(band energy sum)=   -1.537586  E_B-nout*Vin=   92.851189
 
  m_mkpot_energyterms
   esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
-  smves: avg es pot at rmt= 0.605392  avg sphere pot=-0.661334  vconst=-0.605392
-   smooth rhoves     10.382216   charge     3.359783
+ smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst=-0.605393
+   smooth rhoves     10.382275   charge     3.359803
   smvxcm: all smrho_w is positive
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -1.268817 -1.626828 -0.829695
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -1.434756 -1.891147 -0.846533
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -1.268826 -1.626839 -0.829696
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -1.434766 -1.891160 -0.846534
   locpot:
    site  1  z= 26.0  rmt= 2.32497  nr=321   a=0.030  nlml=16  rg=0.581  Vfloat=F
     sm core charge in MT=  0.687311 =total-spillout=  0.702013 -  0.014701
@@ -1138,45 +621,45 @@ IORBTM:  orbital moments :
  ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.12642   4.12584   0.00000   0.00000
   mkpot:
    Energy terms:           smooth           local           total
-   rhoval*veff             -4.640729       -88.671091       -93.311819
-   rhoval*ves            -30.074824       -47.344488       -77.419311
-   psnuc*ves              50.839257     -9994.591443     -9943.752186
-   utot                   10.382216     -5020.967965     -5010.585749
-   rho*exc                -2.703573      -104.776278      -107.479851
-   rho*vxc                -3.517975      -138.702276      -142.220250
-   valence chg             3.359783         4.640217         8.000000
-   valence mag            -0.228699        -1.771308        -2.000008
+   rhoval*veff             -4.640814       -88.671001       -93.311815
+   rhoval*ves            -30.074842       -47.344467       -77.419309
+   psnuc*ves              50.839393     -9994.591574     -9943.752181
+   utot                   10.382275     -5020.968020     -5010.585745
+   rho*exc                -2.703592      -104.776258      -107.479850
+   rho*vxc                -3.517999      -138.702250      -142.220249
+   valence chg             3.359803         4.640197         8.000000
+   valence mag            -0.228701        -1.771307        -2.000008
    core charge            18.000000        -0.000000        18.000000
    Charges:  valence     8.00000   cores    18.00000   nucleii   -26.00000
    hom background     0.00000   deviation from neutrality:     -0.00000
 
  m_mkehkf_etot2: Kohn-Sham energy:  Ek = Eband-Vin*nout
- Ek=       92.851194 Ekcore=      2484.196936 Ektot    =     2577.048130
- Exc=    -107.479851 Ees   =     -5010.585749 EKohnSham=    -2541.017470
+ Ek=       92.851189 Ekcore=      2484.196936 Ektot    =     2577.048125
+ Exc=    -107.479850 Ees   =     -5010.585745 EKohnSham=    -2541.017470
  Magnetic moment=    -2.000008
   
  mixrho: mixing mode=A  nmix=6  beta=.5  kill=3
  wgtsmooth=   1.5625000000000000E-002
  mixrho:  sought 6 iter from file mixm; read 1.  RMS DQ=1.82e-2  last it=2.57e-2
  AMIX: nmix=1 mmix=8  nelts= 10052  beta=0.50000  tm= 5.00000  rmsdel= 9.08D-03
-   tj:-0.58241
- mixrho: add corrections to qcell smrho = -0.26948D-07 -0.16892D-09
+   tj:-0.58240
+ mixrho: add corrections to qcell smrho =  0.65002D-07  0.40746D-09
 
  iors  : write rst restart file (binary mesh density)
 
    it  2  of  3    ehf=   -2541.034121   ehk=   -2541.017470
  From last iter    ehf=   -2541.031375   ehk=   -2541.012103
  diffe(q)= -0.002746 (0.018151)    tol= 0.000100 (0.000100)   more=T
-i rel= 1 nit= 3 so= 2 fsmom=-2 mmom=-2.000008 ehf(eV)=-34572.802043 ehk(eV)=-34572.575487 sev(eV)=-20.920114
+i rel= 1 nit= 3 so= 2 fsmom=-2 mmom=-2.000008 ehf(eV)=-34572.802042 ehk(eV)=-34572.575487 sev(eV)=-20.920090
 
 --- BNDFP:  begin iteration 3 of 3
  m_mkpot_init: Making one-particle potential ...
   esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
-  smves: avg es pot at rmt= 0.617073  avg sphere pot=-0.605392  vconst=-0.617073
-   smooth rhoves     10.935282   charge     3.526323
+ smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst=-0.617074
+   smooth rhoves     10.935356   charge     3.526347
   smvxcm: all smrho_w is positive
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -1.320096 -1.685334 -0.835179
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -1.544335 -2.042686 -0.857523
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -1.320106 -1.685347 -0.835180
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -1.544348 -2.042704 -0.857525
   locpot:
    site  1  z= 26.0  rmt= 2.32497  nr=321   a=0.030  nlml=16  rg=0.581  Vfloat=T
     sm core charge in MT=  0.687311 =total-spillout=  0.702013 -  0.014701
@@ -1187,344 +670,104 @@ i rel= 1 nit= 3 so= 2 fsmom=-2 mmom=-2.000008 ehf(eV)=-34572.802043 ehk(eV)=-345
      potential shift to crystal energy zero:    0.000720
   mkpot:
    Energy terms:           smooth           local           total
-   rhoval*veff             -5.341217       -87.483796       -92.825014
-   rhoval*ves            -30.260315       -46.747693       -77.008008
-   psnuc*ves              52.130880     -9995.019237     -9942.888357
-   utot                   10.935282     -5020.883465     -5009.948183
-   rho*exc                -2.864431      -104.541831      -107.406262
-   rho*vxc                -3.728020      -138.394714      -142.122734
-   valence chg             3.526323         4.473677         8.000000
-   valence mag            -0.305333        -1.715550        -2.020883
+   rhoval*veff             -5.341322       -87.483672       -92.824994
+   rhoval*ves            -30.260335       -46.747657       -77.007992
+   psnuc*ves              52.131046     -9995.019370     -9942.888324
+   utot                   10.935356     -5020.883514     -5009.948158
+   rho*exc                -2.864454      -104.541805      -107.406259
+   rho*vxc                -3.728050      -138.394679      -142.122730
+   valence chg             3.526347         4.473653         8.000000
+   valence mag            -0.305336        -1.715547        -2.020884
    core charge            18.000000        -0.000000        18.000000
    Charges:  valence     8.00000   cores    18.00000   nucleii   -26.00000
    hom background     0.00000   deviation from neutrality:     -0.00000
 
  m_bandcal_init: start
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
- bndfp: kpt     1 of    32 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
- bndfp: kpt     1 of    32 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
- bndfp: kpt     2 of    32 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
- bndfp: kpt     2 of    32 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
- bndfp: kpt     3 of    32 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
- bndfp: kpt     3 of    32 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
- bndfp: kpt     4 of    32 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
- bndfp: kpt     4 of    32 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
- bndfp: kpt     5 of    32 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
- bndfp: kpt     5 of    32 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
- bndfp: kpt     6 of    32 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
- bndfp: kpt     6 of    32 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
- bndfp: kpt     7 of    32 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
- bndfp: kpt     7 of    32 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
- bndfp: kpt     8 of    32 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
- bndfp: kpt     8 of    32 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
- ... Done MPI k-loop: elapsed time=   0.2438
+ bndfp: kpt     1 of    64 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     1 of    64 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     2 of    64 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     2 of    64 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     3 of    64 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     3 of    64 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     4 of    64 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     4 of    64 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     5 of    64 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     5 of    64 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     6 of    64 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     6 of    64 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     7 of    64 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     7 of    64 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     8 of    64 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     8 of    64 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     9 of    64 k=  0.7500 -0.5000  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     9 of    64 k=  0.7500 -0.5000  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    10 of    64 k=  0.7500 -0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    10 of    64 k=  0.7500 -0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    11 of    64 k=  0.7500  0.0000  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    11 of    64 k=  0.7500  0.0000  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    12 of    64 k=  0.7500  0.2500  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    12 of    64 k=  0.7500  0.2500  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    13 of    64 k=  1.0000 -0.7500  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    13 of    64 k=  1.0000 -0.7500  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    14 of    64 k=  1.0000 -0.5000  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    14 of    64 k=  1.0000 -0.5000  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    15 of    64 k=  1.0000 -0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    15 of    64 k=  1.0000 -0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    16 of    64 k=  1.0000  0.0000  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    16 of    64 k=  1.0000  0.0000  0.7500 ndimh = nmto+napw =    25   25    0
+ ... Done MPI k-loop: elapsed time=   0.5365
 
  bzwts: --- Tetrahedron Integration ---
   Seek potential shift for fixed-spin mom ...
+ BZINTS: Fermi energy:      0.095304;   8.000000 electrons
+         Sum occ. bands:   -0.713143, incl. Bloechl correction: -0.006128
+  Seek potential shift for fixed-spin mom ...
+         Mag. moment:      -2.199023
   Seek potential shift for fixed-spin mom ...
   Seek potential shift for fixed-spin mom ...
- BZINTS: Fermi energy:      0.095305;   8.000000 electrons
-         Sum occ. bands:   -0.713135, incl. Bloechl correction: -0.006128
-         Mag. moment:      -2.199028
-  Seek potential shift for fixed-spin mom ...
- BZWTSF: potential shift bracketed. Unconstrained efermi=  0.095305 constraint fmom= -2.000000 actual mmom= -1.999395 ef=  0.103924 -Vup+Vdn=  0.03892053
+ BZWTSF: potential shift bracketed. Unconstrained efermi=  0.095304 constraint fmom= -2.000000 actual mmom= -1.999392 ef=  0.103923 -Vup+Vdn=  0.03892113
 
  bzwts: --- Tetrahedron Integration ---
- BZINTS: Fermi energy:      0.103912;   8.000000 electrons
-         Sum occ. bands:   -0.673371, incl. Bloechl correction: -0.006482
-         Mag. moment:      -1.999659
- bzwtsf: Set Bias field -Vup+Vdn=   0.038920530837601
- bndfp:Generating TDOS: efermi, and dos window=    0.10399998.9900   3.0438
+ BZINTS: Fermi energy:      0.103911;   8.000000 electrons
+         Sum occ. bands:   -0.673378, incl. Bloechl correction: -0.006482
+         Mag. moment:      -1.999657
+ bzwtsf: Set Bias field -Vup+Vdn=   0.038921129797839
+ bndfp:Generating TDOS: efermi=  0.103911  dos window emin emax=  9998.990000  3.043834
 
 
  m_bandcal_2nd: to fill eigenfunctions**2 up to Efermi
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2941 vectors of 4096 ( 71 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2955 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2961 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2970 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2963 vectors of 4096 ( 72 %)
-gvlst2: gmax=  13.000 a.u. created 2958 vectors of 4096 ( 72 %)
+  Smooth density not symmetrized (ngrp=1)
+  Smooth density not symmetrized (ngrp=1)
+  Smooth density not symmetrized (ngrp=1)
 
 IORBTM:  orbital moments :
  ibas  Spec        spin   Moment decomposed by l ...
-    1    Fe           1    0.000000   -0.001574   -0.058652    0.000204
-    1    Fe           2    0.000000    0.002261    0.043291   -0.000042
- total orbital moment   1:   -0.014512
+    1    Fe           1    0.000000   -0.001557   -0.058574    0.000199
+    1    Fe           2    0.000000    0.002258    0.043279   -0.000041
+ total orbital moment   1:   -0.014437
   Smooth density not symmetrized (ngrp=1)
-  Smooth density not symmetrized (ngrp=1)
-  Smooth density not symmetrized (ngrp=1)
-  Smooth density not symmetrized (ngrp=1)
-       contr. to mm extrapolated for r>rmt:  -0.000645 est. true mm =-2.027445
+       contr. to mm extrapolated for r>rmt:  -0.000645 est. true mm =-2.027443
 
  mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
-   1    6.869830    2.616694    4.253136     -2.026800   -0.306657   -1.720143
+   1    6.869832    2.616709    4.253123     -2.026798   -0.306657   -1.720141
   Symmetrize density..
  Make new boundary conditions for phi,phidot..
 
  m_mkehkf_etot1: Harris energy: (B.1) in JPSJ84,034702
- Eb(band sum)=       -0.712291 Vin*nin=     -92.825014 Ek=Eb-Vin*nin=      92.112722
- Ek(core)=    2484.196936 Exc=    -107.406262 Ees=   -5009.948183 Eharris=   -2541.044786
+ Eb(band sum)=       -0.712299 Vin*nin=     -92.824994 Ek=Eb-Vin*nin=      92.112695
+ Ek(core)=    2484.196936 Exc=    -107.406259 Ees=   -5009.948158 Eharris=   -2541.044785
 
  mkekin:
-   nout*Vin = smpart,onsite,total=:     -5.085052    -81.222387    -86.307439
-    E_B(band energy sum)=   -0.712291  E_B-nout*Vin=   85.595148
+   nout*Vin = smpart,onsite,total=:     -5.085125    -81.222392    -86.307517
+    E_B(band energy sum)=   -0.712299  E_B-nout*Vin=   85.595218
 
  m_mkpot_energyterms
   esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
-  smves: avg es pot at rmt= 0.681671  avg sphere pot=-0.617073  vconst=-0.681671
-   smooth rhoves     12.799950   charge     3.746864
+ smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst=-0.681671
+   smooth rhoves     12.799981   charge     3.746877
   smvxcm: all smrho_w is positive
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -1.410974 -1.806846 -0.853902
-  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -1.613754 -2.129751 -0.874726
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -1.410980 -1.806855 -0.853903
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -1.613760 -2.129759 -0.874726
   locpot:
    site  1  z= 26.0  rmt= 2.32497  nr=321   a=0.030  nlml=16  rg=0.581  Vfloat=F
     sm core charge in MT=  0.687311 =total-spillout=  0.702013 -  0.014701
@@ -1534,56 +777,52 @@ IORBTM:  orbital moments :
  ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.12927   4.12907   0.00000   0.00000
   mkpot:
    Energy terms:           smooth           local           total
-   rhoval*veff             -5.369882       -82.926813       -88.296696
-   rhoval*ves            -30.949292       -42.204804       -73.154096
-   psnuc*ves              56.549192     -9991.454734     -9934.905543
-   utot                   12.799950     -5016.829769     -5004.029819
-   rho*exc                -3.024727      -103.716446      -106.741174
-   rho*vxc                -3.936597      -137.304967      -141.241564
-   valence chg             3.746864         4.253136         8.000000
-   valence mag            -0.279516        -1.720143        -1.999659
+   rhoval*veff             -5.369954       -82.926792       -88.296745
+   rhoval*ves            -30.949291       -42.204849       -73.154141
+   psnuc*ves              56.549253     -9991.454883     -9934.905630
+   utot                   12.799981     -5016.829866     -5004.029885
+   rho*exc                -3.024740      -103.716440      -106.741180
+   rho*vxc                -3.936613      -137.304958      -141.241572
+   valence chg             3.746877         4.253123         8.000000
+   valence mag            -0.279516        -1.720141        -1.999657
    core charge            18.000000        -0.000000        18.000000
    Charges:  valence     8.00000   cores    18.00000   nucleii   -26.00000
-   hom background     0.00000   deviation from neutrality:      0.00000
+   hom background     0.00000   deviation from neutrality:     -0.00000
 
  m_mkehkf_etot2: Kohn-Sham energy:  Ek = Eband-Vin*nout
- Ek=       85.595148 Ekcore=      2484.196936 Ektot    =     2569.792084
- Exc=    -106.741174 Ees   =     -5004.029819 EKohnSham=    -2540.978909
- Magnetic moment=    -1.999659
+ Ek=       85.595218 Ekcore=      2484.196936 Ektot    =     2569.792154
+ Exc=    -106.741180 Ees   =     -5004.029885 EKohnSham=    -2540.978911
+ Magnetic moment=    -1.999657
   
  mixrho: mixing mode=A  nmix=6  beta=.5  kill=3
  wgtsmooth=   1.5625000000000000E-002
  mixrho:  sought 6 iter from file mixm; read 2.  RMS DQ=9.41e-3  last it=1.82e-2
  ...  deleting file mixm nkill=   -3
  AMIX: nmix=2 mmix=8  nelts= 10052  beta=0.50000  tm= 5.00000  rmsdel= 4.71D-03
-   tj: 0.79199  -0.47292
- mixrho: add corrections to qcell smrho = -0.38318D-07 -0.24019D-09
+   tj: 0.79198  -0.47292
+ mixrho: add corrections to qcell smrho =  0.63775D-07  0.39977D-09
 
  iors  : write rst restart file (binary mesh density)
 
-   it  3  of  3    ehf=   -2541.044786   ehk=   -2540.978909
+   it  3  of  3    ehf=   -2541.044785   ehk=   -2540.978911
  From last iter    ehf=   -2541.034121   ehk=   -2541.017470
- diffe(q)= -0.010665 (0.009414)    tol= 0.000100 (0.000100)   more=F
-x rel= 1 nit= 3 so= 2 fsmom=-2 mmom=-1.999659 ehf(eV)=-34572.947148 ehk(eV)=-34572.050844 sev(eV)=-9.691292
- finalizing procid=           1
- finalizing procid=           2
- >>      1.56   exit  lmfp            1.52
-CPU time:    1.565s     Fri Jan  6 09:14:54 2023 on process=0
- finalizing procid=           0
- finalizing procid=           3
+ diffe(q)= -0.010664 (0.009414)    tol= 0.000100 (0.000100)   more=F
+x rel= 1 nit= 3 so= 2 fsmom=-2 mmom=-1.999657 ehf(eV)=-34572.947141 ehk(eV)=-34572.050864 sev(eV)=-9.691399
+ >>      3.73   exit  lmfp            3.56
+CPU time:    3.725s     Thu Jan 19 20:57:15 2023 on process=0
 
   ==== procid=0 ====     calls      == cpu time ===   depth 1
   entry   xxxx  xxxx                per call  total  (depth is by TIM= in ctrl.*.)
-      0      0      0        1       1.57       1.57   main
-      0      0      0        1       0.02       0.02   |--m_lmfinit
+      0      0      0        1       3.72       3.72   main
+      0      0      0        1       0.08       0.08   |--m_lmfinit
       0      0      0        1       0.00       0.00   |--m_lattic_init
       0      0      0        1       0.00       0.00   |--m_mksym_init
       0      0      0        1       0.00       0.00   |--m_mkqp_init
-      0      0      0        1       0.02       0.02   |--m_supot_init
+      0      0      0        1       0.09       0.09   |--m_supot_init
       0      0      0        1       0.00       0.00   |--m_suham_init
       0      0      0        1       0.00       0.00   |--m_qplist_init
       0      0      0        1       0.00       0.00   |--m_qplist_qpsdivider
       0      0      0        1       0.00       0.00   |--m_igv2xall_init
       0      0      0        1       0.00       0.00   |--m_hamindex_init
-      0      0      0        1       1.52       1.52   `--lmfp
+      0      0      0        1       3.56       3.56   `--lmfp
 Exit 0 procid= 0 OK! end of LMF ======================

@@ -101,7 +101,7 @@ MIX     MODE=A{nmix},b={beta},k=4 CONV={conv} CONVC={convc}
 HAM     FTMESH=ftmesh FORCES=1 QASA=3
         NSPIN=2 REL=T
         STABILIZE=1e-8
-	OVEPS=0
+	OVEPS=1d-8
 
 START   NIT=nit BEGMOM=nit==0 CNTROL=nit==0 
 # For no core hole
