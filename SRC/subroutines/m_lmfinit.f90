@@ -1201,26 +1201,23 @@ contains
          enddo
          endif
       enddo
-      !!
       !! ... Suppress symmetry operations for special circumstances
-      !     !     Switches that automatically turn of all symops
-      !     ! --pdos mar2003 added. Also in lmv7.F
-      lstsym = 0
-      
+      lstsym = 0 ! Automatic symmetry finder 
       ! addinv=T only when we expect Hamiltonian is real even with keeping spin direction.
       ! addinv=T means psi* is eigenfunction.(Time-Reversal with keeping spin).
       ! 2022-jan-20 new setting of addinv (addinv =.not.ctrl_noinv)
+      !Add inversion to get !When we have TR, psi_-k(r) = (psi_k(r))^* (when we have SO/=1).
+      !                      density |psi_-k(r)|^2 = |psi_k^*(r)|^2
       if ((mdprm(1)>=1 .AND. mdprm(1)<=3) .OR. &
            cmdopt0('--cls') .OR. cmdopt0('--nosym') .OR. cmdopt0('--pdos')) then
          symg = 'e'
          lstsym = 2  !lstsym=2: turn off symops
          addinv = .false. !add inversion 
       elseif(lso == 0) then
-         addinv=.true. !add inversion 
+         addinv=.true. !add inversion means
       else
          addinv=.false. 
       endif
-
 
       sstrnsymg=trim(symg)
       
@@ -1335,15 +1332,15 @@ contains
       allocate(iv_a_oips(nbas),source=[(ispec(ib), ib=1,nbas)])
       seref= sum([(eref(ispec(ib)),ib=1,nbas)])
       ham_seref= seref
-      if (procid == master) then
-         if (iprint() >= 20) then
-            if (lstsym == 1) then
-               write(stdo,"(/' Automatic symmetry finder turned off.  Use: ',a)") trim(sstrnsymg)
-            elseif (lstsym == 2) then
-               write(stdo,"(/' Symmetry operations suppressed')")
-            endif
-         endif
-      endif
+!      if (procid == master) then
+!         if (iprint() >= 20) then
+!            if (lstsym == 1) then
+!      write(stdo,"(/' Automatic symmetry finder turned off.  Use: ',a)") trim(sstrnsymg)
+!            elseif (lstsym == 2) then
+!               write(stdo,"(/' Symmetry operations suppressed')")
+!            endif
+!         endif
+!      endif
       if (io_help == 0 .AND. io_show > 1) then
          print *, '---------- contents of sstrn ------------'
          print *, 'mix: ', trim(sstrnmix)

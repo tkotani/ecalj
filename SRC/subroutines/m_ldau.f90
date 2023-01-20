@@ -288,7 +288,8 @@ contains
     ! --- Symmetrize output dmatu (req. real harmonics); compare diff ---
     if(iprint()>=60)call praldm(0,60,60,havesh,nbas,nsp,lmaxu,lldau,'Unsymmetrized out dmats',dmatu)
     call symdmu(nlibu,dmatu, nbas,nsp, lmaxu, ng, g, istab, lldau, xx)
-    if(addinv) dmatu= dreal(dmatu) !real if psi* is eigenfunction 
+    if(addinv) dmatu= dreal(dmatu) !this is symmetrization: needed because we skip phi_-k for some
+    ! k points because of extra symmetry of inversion for k points. 2023-jan
     if(master_mpi)write(stdo,ftox)
     if(master_mpi)write(stdo,ftox)'chkdmu: LDA+U. RMSdiff of dmat from symmetrization =',ftod(xx,2)
     ! --- Compute U contribution to total energy; make vorb ---
