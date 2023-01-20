@@ -1,5 +1,5 @@
 subroutine lmfp(llmfgw)
-  use m_lmfinit,only: lhf, maxit,nbas,nsp, ctrl_ldos,ctrl_nitmv,ctrl_nvario, &
+  use m_lmfinit,only: lhf, maxit,nbas,nsp, ctrl_ldos,ctrl_nvario, &
        ham_seref,ctrl_lfrce,  sspec=>v_sspec, ispec, slabl,&
        nlibu,stdo,lrout,leks,plbnd,lpzex, nitrlx, &
        indrx_iv,natrlx,xyzfrz,pdim,qtol,etol,alat
@@ -13,7 +13,7 @@ subroutine lmfp(llmfgw)
   use m_bndfp,only:  Bndfp,   ham_ehf,ham_ehk,qdiff,force,sev
   use m_ldau,only:   M_ldau_vorbset, eorb
   use m_bstrux,only: M_bstrux_init
-  use m_relax,only:  Relax,Prelx1
+  use m_relax,only:  Relax
   use m_mixrho,only: Parms0
   use m_lattic,only: Setopos
   use m_ftox
@@ -55,14 +55,13 @@ subroutine lmfp(llmfgw)
   character(256):: strn,strn2
   real(8),allocatable:: poss(:,:),pos0(:,:)
   include "mpif.h"
- 
   call tcn('lmfp')
   ipr = iprint()
   allocate(pos0(3,nbas),poss(3,nbas))
   poss = rv_a_opos ! Use atomic positon in m_lattic
   call ReadAtomPos(nbas,poss)! Overwrite pos in the file AtomPos.* if it exists.
   call mpi_barrier(MPI_COMM_WORLD,ierr)
-     ! Sep2020 " Shorten site positions" here removed.
+  ! Sep2020 " Shorten site positions" here removed.
   etot = 0d0 ! Total energy mode --etot ==>moved to m_lmfinit ---
   if(nitrlx>0 ) then ! Atomic position Relaxation setup (MDloop)
      icom = 0
@@ -78,9 +77,7 @@ subroutine lmfp(llmfgw)
         close(ifipos)
      endif
   endif
-  
   ! switch were here [irs1,irs2,irs3,irs5,irs1x10] ==> removed 2022-6-20
-
   ! Read atomic- and smooth-part density(rhoat smrho in m_density) from atm.* or rst.*
   vs=2d0
   if(master_mpi) then
@@ -95,7 +92,7 @@ subroutine lmfp(llmfgw)
   k=-1 !try to read rst files containing density
   if(vs==2d0) then       !2020-5-14
      k = iors(nit1,'read') ! read rst file. sspec ssite maybe modified
-  else!vs=1.04d0 for backward compatibility                  
+  else !vs=1.04d0 for backward compatibility                  
      k = iors_old(nit1,'read') ! read rst file. sspec ssite maybe modified
   endif
   call Mpibc1_int(k,1,'lmv7:lmfp_k')
@@ -107,9 +104,8 @@ subroutine lmfp(llmfgw)
      iatom=.false.
   endif
   call Mpi_barrier(MPI_COMM_WORLD,ierr)
-  !smshft is not correct. See T.kotani JPSJ paper for formulation.
+  !smshft is not correct, thus commented out. See T.kotani JPSJ paper for formulation.
   !if(k>=0 .AND. irs1x10) call Smshft(1,poss,poss) ! modify denity after reading rst when irs1x10=True
-
   !==== Main iteration loops ===
   MDloop: do 2000 itrlx = 1,max(1,nitrlx) !loop for atomic position relaxiation(molecular dynamics)
      call Setopos( poss )  ! Set position of atoms 
@@ -171,16 +167,16 @@ subroutine lmfp(llmfgw)
         if( lsc <= 2) exit  !self-consistency exit
 1000 enddo Eleloop              ! ---------------- SCF (iteration) loop end ----
      if(nitrlx==0) exit     !no molecular dynamics (=no atomic position relaxation)
-     !==== Molecular dynamics (relaxiation).
-     MDblock: Block !Not maintained well recently. Relax and Smshft may need to be corrected.
+     !==== Molecular dynamics (relaxiation). I think it is better to comine another approach to move/relax atomic positions.
+     MDblock: Block !Not maintained well recently. But Testinstall/te test
        pos0 = poss !keep old poss to pos0
        ! Relax atomic positions. Get new poss. Shear mode removed.
-       call Relax(itrlx,indrx_iv,natrlx,force,p_rv,hess,0,[0d0],pos0,poss,icom)
+       call Relax(itrlx,indrx_iv,natrlx,force,p_rv,hess,pos0,poss,icom)! input:pos0 to output:poss
        if (itrlx==nitrlx) then !Set minimum gradient positions if this is last step.
           write(stdo,"(a)")'lmfp: restore positions for minimum g (given by relax)'
           do i = 1, natrlx
              poss(indrx_iv(1,i),indrx_iv(2,i)) = p_rv(i,nm) !nm=3. this is given by relax-gradzr
-          enddo !call Prelx1(1 , nm , .false. , natrlx , indrx_iv , p_rv, poss )
+          enddo 
        endif
        if(master_mpi) then !new position written to AtomPos.*
           open(newunit=ifipos,file='AtomPos.'//trim(sname),position='append')
@@ -192,13 +188,12 @@ subroutine lmfp(llmfgw)
           enddo
           close(ifipos)
        endif
-       
-       ! Smshft is not on wrong idea. See TK paper.
+       ! Smshft is on wrong idea. See TK paper.
        !   1. nothing to do means nuleus+core shift.
        !   2. simple superposition of atoms rdovfa
        ! call Smshft(ctrl_lfrce,poss,pos0)!New density after atom shifts.
        if (alat*sum((poss-pos0)**2)**.5>0.05d0) then! 0.05 a.u. is intuitively given. 2022-6-22
-          write(stdo,*)'RRR: Reset density by atom superposition'
+          write(stdo,*)'lmfp-MDMODE: Reset density by atom superposition'
           iv=iprint()
           call Setopos( poss ) ! Set position of atoms before Rdovfa
           call setprint(-1) !supress print out to stdo
@@ -223,7 +218,7 @@ subroutine lmfp(llmfgw)
      endblock MDblock
 2000 enddo MDloop
 9998 continue
-  if(allocated(p_rv)) deallocate(p_rv)
+!  if(allocated(p_rv)) deallocate(p_rv)
   if(allocated(hess)) deallocate(hess)
   call tcx('lmfp')
 end subroutine lmfp

@@ -1,33 +1,27 @@
 module m_relax
   use m_ftox
   use m_lgunit,only:stdo,stdl
-  public relax,prelx1
+  public relax
   private
 contains
-  subroutine relax(it,indrlx,natrlx,force, p,w,nelts,delta,basin,bas,icom)
-    use m_struc_def
-    use m_lmfinit,only:ctrl_nbas,ctrl_nitmv,ctrl_mdprm,slabl,ifrlx,ispec
+!  subroutine relax(it,indrlx,natrlx,force,w,basin,bas,icom)
+  subroutine relax(it,indrlx,natrlx,force, p,w,basin,bas,icom)
+!   use m_lmfinit,only:nbas,slabl,ispec,  nitrlx,ctrl_mdprm,ifrlx
+    use m_lmfinit,only: nbas,nitrlx,ctrl_mdprm,slabl,ifrlx,ispec
     use m_ext,only:     sname
     use m_gradzr,only :Gradzr
+    use m_struc_def
     !- Relax atomic positions and volume using variable metric algorithm
     ! ----------------------------------------------------------------------
     !i Inputs:
-    !i   sctrl :struct for program flow parameters; see routine uctrl
-    !i     Elts read: nbas nitmv mdprm ltb
-    !i     Stored:
-    !i   ssite :struct for site-specific information; see routine usite
-    !i     Elts read: spec relax
-    !i     Duplicate: spec relax relax
-    !i     Stored:
+    !i   basin: original position.
     !i   it:        iteration number
     !i   indrlx(1,i) points to the ith relaxing component and
     !i   indrlx(2,i) points to the corresponding site (see rlxstp)
-    !i   natrlx:    # of relaxing degrees of freedom for atoms or shear
-    !i   natrlx:      # of relaxing degrees of freedom for atoms or shear
-    !i   force:         forces
+    !i   natrlx:    # of relaxing degrees of freedom for atoms
+    !i   force:     forces
     !i   p:         for gradzr (dimensioned in rlxstp)
     !i   w:         the hessian
-    !i   delta,nelts used for printout only, if U[L] turned on (TBE)
     !i basin: original atomic position
     !o Outputs
     !o bas: new atomic position
@@ -49,11 +43,11 @@ contains
     !u   15 Feb 02 (ATP) Added MPI parallelization
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: it,nit,natrlx,nelts,icom,procid,master,mpipid
+    integer,parameter:: nm=3
+    integer :: it,nit,natrlx,icom,procid,master,mpipid,nitr
     integer :: indrlx(2,natrlx)
-    real(8):: force(3,*), w(natrlx,natrlx) , p(natrlx,6) , delta(nelts,*), bas(:,:),basin(:,:)
-!    type(s_site)::ssite(*)
-    integer :: i,j,ipr,ifi,ix,lgunit,nbas,ltb,natrlx2,natrlx3, &
+    real(8):: force(3,*), w(natrlx,natrlx) , p(natrlx,6), bas(:,:),basin(:,:)
+    integer :: i,j,ipr,ifi,ix,lgunit,ltb,natrlx2,natrlx3, &
          ir,iprint,isw,rdm,lrlx,is,idamax,nd,ns,nkill
     parameter (nd=4,ns=6)
     logical :: rdhess,lpp,cmdopt,a2bin,lshr ,readhess
@@ -71,8 +65,7 @@ contains
     call tcn('relax')
     bas=basin
     ! --- Setup ---
-    nbas=  ctrl_nbas
-    nit =  ctrl_nitmv
+    nit =  nitrlx
     mdprm= ctrl_mdprm
     nkill  = nint(mdprm(6))
     lrlx   = nint(mdprm(1))
@@ -205,10 +198,10 @@ contains
     ! --- Periodically remove hessian ---
     if (nkill > 0) then
        if (mod(it,nkill) == 0) then
-          call info(-20,0,0,'   ...  resetting hessian : iter=%i nkill=%i',it,nkill)
+          write(stdo,ftox)'   ...  resetting hessian : iter=',it,' nkill=',nkill
           open(newunit=ifi,file='hssn.'//trim(sname))
           close(ifi,status="delete")
-          call dcopy(natrlx*natrlx,0d0,0,w,1)
+          w=0d0
           call dcopy(natrlx,1d0,0,w,natrlx+1)
        endif
     endif
@@ -222,9 +215,7 @@ contains
        write(stdo,"(/' Updated atom positions:')")
        print *,' Site   Class                      Position(relaxed)'
        do  70  j = 1, nbas
-          is=ispec(j) !ssite(j)%spec
-          clablj=slabl(is) !sspec(is)%name
-!          ifrlx=ssite(j)%relax
+          clablj=slabl(ispec(j)) 
           write (stdo,130) j,clablj,(bas(ix,j),ifrlx(ix,j).eq.1,ix=1,3)
 70     enddo
     endif
@@ -232,9 +223,8 @@ contains
     if (ipr >= 20 .AND. .NOT. lshr) then
        dumstr = 'SITE'
        do  80  j = 1, nbas
-!          ifrlx=ssite(j)%relax
           if (j == 2) dumstr = ' '
-          is=ispec(j) !ssite(j)%spec
+          is=ispec(j) 
           clablj=slabl(is) 
           write(stdl,ftox)dumstr//'ATOM='//clablj,' POS=',ftof(bas(1:3,j),2),'RELAX=',ifrlx(:,j)
 80     enddo
@@ -243,7 +233,13 @@ contains
     flush(stdo)
     flush(stdl)
 130 format(i4,6x,a4,3x,3(f14.8,'(',l1,')'))
-160 format(10x,'DELTA=',3(f13.8),:,4(/31x,3(f13.8),:))
+! 2023-jan moved from lmfp (not yet tested)
+!    if (it==nit) then !Correct poss if this is last step. Set minimum gradient positions 
+!       write(stdo,"(a)")'relax: restore positions for minimum g (given by relax)'
+!       do i = 1, natrlx
+!          bas(indrlx(1,i),indrlx(2,i)) = p(i,nm) !nm=3. this is given by relax-gradzr
+!       enddo
+!    endif
     call tcx('relax')
   end subroutine relax
 
