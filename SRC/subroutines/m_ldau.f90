@@ -226,7 +226,7 @@ contains
   ! ssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine chkdmu(eks, dmatu,dmatuo,vorb)
     use m_lmfinit,only: stdl,nbas,nsp,nlibu,lmaxu,ispec,sspec=>v_sspec,lldau, &
-         tolu=>mix_tolu,umix=>mix_umix,stdo,idu,uh,jh,ham_lsig
+         tolu=>mix_tolu,umix=>mix_umix,stdo,idu,uh,jh,ham_lsig,addinv
     use m_MPItk,only: master_mpi
     use m_mksym,only: g=>rv_a_osymgr,istab=>iv_a_oistab, ng =>lat_nsgrp
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
@@ -286,8 +286,9 @@ contains
     ipl = 1
     ivsiz = nsp*nlibu*(lmaxu*2+1)**2
     ! --- Symmetrize output dmatu (req. real harmonics); compare diff ---
-    if(iprint()>=60) call praldm(0,60,60,havesh,nbas,nsp,lmaxu,lldau,' Unsymmetrized output dmats',dmatu)
+    if(iprint()>=60)call praldm(0,60,60,havesh,nbas,nsp,lmaxu,lldau,'Unsymmetrized out dmats',dmatu)
     call symdmu(nlibu,dmatu, nbas,nsp, lmaxu, ng, g, istab, lldau, xx)
+    if(addinv) dmatu= dreal(dmatu) !real if psi* is eigenfunction 
     if(master_mpi)write(stdo,ftox)
     if(master_mpi)write(stdo,ftox)'chkdmu: LDA+U. RMSdiff of dmat from symmetrization =',ftod(xx,2)
     ! --- Compute U contribution to total energy; make vorb ---
