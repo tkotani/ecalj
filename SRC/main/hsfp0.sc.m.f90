@@ -85,7 +85,7 @@ program hsfp0_sc
   use m_readhbe,only: Readhbe, nband !nprecb,mrecb,mrece,nlmtot,nqbzt,,mrecg
   use m_readfreq_r,only: Readfreq_r, nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i,nw, freq_r
   use m_selectqp,only:Getqpoint,qvec,nq
-  use m_eibzhs,only: Seteibzhs, eibzsym,tiii
+!  use m_eibzhs,only: Seteibzhs, eibzsym,tiii
   use m_readgwinput,only: ReadGwinputKeys,SetIsigMode, ebmx_sig,nbmx_sig,ISigMode
   use m_hamindex,only:ngrp
   use m_lgunit,only:m_lgunit_init
@@ -242,26 +242,25 @@ program hsfp0_sc
   !! When irkip(nqibz,ngrp,nq,nspinmx)/=0, we expect grain-size
   !! on each job of (iqibz,igrp,iq,isp) is almost the same.
   !! Our pupose is to calculate the self-energy zsec(itp,itpp,iq).
-  call Seteibzhs(nspinmx,nq,qvec,iprintx=MPI__root)
+  ! Remove eibzmode symmetrizer 2023Jan22
+  !call Seteibzhs(nspinmx,nq,qvec,iprintx=MPI__root)
 
   Main4SelfEnergy: Block
     if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
     if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')
     if ( .NOT. iSigMode==3) call rx('sxcf_scz: only for jobsw=3')
-    call sxcf_scz (qip= qvec, ef= ef,esmr= esmr, nq= nq, &
-         exchange= exchange, jobsw= iSigMode, nbandmx=nbandmx,ixc=ixc,nspinmx=nspinmx) !nbandmx is input mar2015
+    call sxcf_scz(qvec,ef,esmr,nq,exchange,nbandmx,ixc,nspinmx) !nbandmx is input mar2015 jobsw= iSigMode=3 only
   EndBlock Main4SelfEnergy
-
-  SymmetrizeZsec :Block
-    logical:: eibz4sig
-    if(eibz4sig())then
-       do isp=1,nspinmx
-          call zsecsym(zsecall(:,:,:,isp),ntq,nq,nband,nbandmx,nspinmx,nspin,eibzsym,ngrp,tiii,qvec,isp)
-       enddo
-    endif
-  EndBlock SymmetrizeZsec
+! Remove eibzmode symmetrizer 2023Jan22
+!  SymmetrizeZsec :Block
+!    logical:: eibz4sig
+!    if(eibz4sig())then
+!       do isp=1,nspinmx
+!          call zsecsym(zsecall(:,:,:,isp),ntq,nq,nband,nbandmx,nspinmx,nspin,eibzsym,ngrp,tiii,qvec,isp)
+!       enddo
+!    endif
+!  EndBlock SymmetrizeZsec
   call MPI__reduceSum(root=0, data=zsecall, sizex=ntq*ntq*nq*nspinmx )
-
   if(MPI__root) then
      do is=1,nspinmx
         zsec => zsecall(:,:,:,is)
@@ -273,9 +272,7 @@ program hsfp0_sc
   if(ixc==2 ) call rx0( ' OK! hsfp0_sc: Correlation mode')
   if(ixc==3 ) call rx0( ' OK! hsfp0_sc: Core-exchange mode')
   stop
-  !-----------------------------------------------------------------------------
-contains
-
+contains 
   ! SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
   subroutine Hswriteinit() !contained in hsfp0_sc. Only write out files, no side effect
     implicit none

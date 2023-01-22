@@ -8,7 +8,7 @@ subroutine tetwt5x_dtet4(npm,ncc,q,eband1,eband2,qbas,ginv,efermi,ntetf, nqbzw, 
      iwgt,nbnb,demin,demax,   &    !  job=0  
      frhis,nwhis, &
      nbnbx,ibjb,nhwtot,ihw,nhw,jhw,whw, & !  job=1
-     iq,isp1,isp2,nqibz,eibzmode,nwgt, &
+     iq,isp1,isp2,nqibz,&!eibzmode,nwgt, &
      nbmx,ebmx,mtet, &
      wan)                 
   use m_keyvalue,only: getkeyvalue
@@ -149,7 +149,7 @@ subroutine tetwt5x_dtet4(npm,ncc,q,eband1,eband2,qbas,ginv,efermi,ntetf, nqbzw, 
   integer :: nbandmx_kq,nbandmx_k
   !      real(8):: fermi_dS(3,3) !not yet used...
   logical:: eibzmode, usetetrakbt
-  integer:: nwgt(nqbz)
+!  integer:: nwgt(nqbz)
   real(8):: ebmx,  voltet,det33
   integer:: nbmx,ifile_handle
   logical,optional:: wan
@@ -297,9 +297,9 @@ subroutine tetwt5x_dtet4(npm,ncc,q,eband1,eband2,qbas,ginv,efermi,ntetf, nqbzw, 
   !! === Loop over tetrahedron ===
   do 1000 itet = 1, ntetf !;
      kk (0:3) = ib1bz( idtetf(0:3,itet) )     !  k
-     if(eibzmode) then
-        if(sum(nwgt(kk(0:3)))==0) cycle
-     endif
+!     if(eibzmode) then
+!        if(sum(nwgt(kk(0:3)))==0) cycle
+!     endif
      kkv(1:3, 0:3) = qbzw (1:3, idtetf(0:3,itet) )
      do 1100 im = 1,nmtet
         kkm (0:3)       = ib1bzm( idtetfm(0:3,im,itet) ) !  k   in micro-tet
@@ -434,9 +434,9 @@ subroutine tetwt5x_dtet4(npm,ncc,q,eband1,eband2,qbas,ginv,efermi,ntetf, nqbzw, 
   !!       If they are degenerated, we have some unbiguity.
   !!       (which band connedt to which in the microtetrahedron).
   do kx = 1, nqbz     ! ipr = .false.; if(ipr)  print *,' kx =',kx
-     if(eibzmode) then
-        if(nwgt(kx)==0) cycle
-     endif
+!     if(eibzmode) then
+!        if(nwgt(kx)==0) cycle
+!     endif
      call chkdgn( ekxx1(:,kx), nband, nrank1, ini1,ied1,0 ,ipr)
      call chkdgn( ekxx2(:,kx), nband, nrank2, ini2,ied2,0 ,ipr)
      nrankc1 = 0

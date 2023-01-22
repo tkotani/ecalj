@@ -30,7 +30,7 @@ program hhilbert
   use m_readgwinput,only: ReadGwinputKeys, egauss,ecut,ecuts,nbcut,nbcut2,mtet,ebmx,nbmx,imbas
   use m_qbze,only:    Setqbze, nqbze,nqibze,qbze,qibze
   use m_readhbe,only: Readhbe, nband !, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-  use m_x0kf,only:X0kf_v4hz,X0kf_v4hz_symmetrize,X0kf_v4hz_init,x0kf_v4hz_init_write,x0kf_v4hz_init_read
+  use m_x0kf,only:X0kf_v4hz,X0kf_v4hz_init,x0kf_v4hz_init_write,x0kf_v4hz_init_read !,X0kf_v4hz_symmetrize
   use m_llw,only:     WVRllwR,WVIllwI,w4pmode,MPI__sendllw
   use m_mpi,only: MPI__hx0fp0_rankdivider2Q, MPI__Qtask, &
        MPI__Initialize, MPI__Finalize,MPI__root, &

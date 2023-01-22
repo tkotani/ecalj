@@ -24,7 +24,7 @@ module m_eibz
 contains
 
   subroutine Seteibz(iqxini,iqxend,iprintx)
-    logical:: eibzmode,eibz4x0,tiii,iprintx
+    logical:: eibzmode,tiii,iprintx !,eibz4x0
     integer:: iqxini,iqxend,iqxendx,timereversal
     eibzmode = eibz4x0()
     !! === Use of symmetry. EIBZ procedure PRB81,125102 ===
@@ -51,6 +51,26 @@ contains
             ,igxt(1,1,iqxini:iqxendx), eibzsym(1,1,iqxini:iqxendx)) !dummy
     endif
   end subroutine Seteibz
+  logical function eibz4x0()
+    !! T: EIBZ symmetrization in hx0fp0->x0kf_v4h
+    !! F: no EIBZ symmetrization
+    use m_keyvalue,only: getkeyvalue
+    logical,save:: init=.true.,eibzmode
+    logical ::qbzreg
+    if(init) then
+       call getkeyvalue("GWinput","EIBZmode",eibzmode,default=.true.)
+       if( .NOT. qbzreg()) eibzmode= .FALSE.  !=F (no symmetrization when we use mesh without Gamma).
+       init=.false.
+    endif
+    eibz4x0=eibzmode
+    ! If T, use EIBZ procedure in PRB125102(2010). Not completed yet...
+    ! ARN: time-reversal is not included yet. (see hx0fp0.m.F L1195 call eibzgen).
+    !      eibz. In addition, inefficient method of symmetrization at the bottom of x0kf_v4h
+    !      call eibzgen generates EIBZ.
+    !      Probably, it will make things easier to start from "inversion mesh for q point".
+
+  end function eibz4x0
+
 end module m_eibz
 
 !! ------------------------------------------------------------------
@@ -70,7 +90,7 @@ contains
     intent(in)::         nspinmx,nq,q,iprintx
     integer ::   nspinmx,nq,iqxini,iqxend,iqq,is,kr,kx,igrp
     integer,allocatable:: neibz(:),nwgt(:,:),igx(:,:,:),igxt(:,:,:)
-    logical:: eibz4sig,tiiiout,iprintx
+    logical:: tiiiout,iprintx !eibz4sig,
     real(8):: q(3,nq)
     allocate(irkip_all(nspinmx,nqibz,ngrp,nq)) !this is global
     allocate(nrkip_all(nspinmx,nqibz,ngrp,nq)) !this is global
@@ -134,4 +154,9 @@ contains
        enddo
     endif
   end subroutine Seteibzhs
+  
+  logical function eibz4sig()
+    eibz4sig=.false.
+  end function eibz4sig
+
 end module m_eibzhs

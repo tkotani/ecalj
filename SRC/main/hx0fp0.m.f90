@@ -54,8 +54,8 @@ program hx0fp0
   !      use m_readq0p,only: Readq0p,
   !     &     wqt,q0i,nq0i ,nq0iadd,ixyz,nq0ix,neps
   use m_readVcoud,only: Readvcoud,vcousq,zcousq,ngb,ngc
-  use m_x0kf,only: X0kf_v4hz, X0kf_v4hz_symmetrize,X0kf_v4hz_init,x0kf_zmel,ncount,kc
-  use m_eibz,only:Seteibz, nwgt,neibz,igx,igxt,eibzsym
+  use m_x0kf,only: X0kf_v4hz, X0kf_v4hz_init,x0kf_zmel,ncount,kc !X0kf_v4hz_symmetrize,
+!  use m_eibz,only:Seteibz, nwgt,neibz,igx,igxt,eibzsym
   use m_llw,only: WVRllwR,WVIllwI,MPI__sendllw2
   use m_w0w0i,only: w0w0i
   use m_lgunit,only:m_lgunit_init
@@ -197,11 +197,12 @@ program hx0fp0
   integer:: lxklm,nlxklm,ifrcwx,iq0xx,ircw,nini,nend,iwxx,nw_ixxx,nwxxx,iwx,icc1,icc2!,niw,niwxxx,
   complex(8):: vc1vc2
   !      integer,allocatable:: neibz(:),nwgt(:,:),ngrpt(:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
+  integer,allocatable:: nwgt(:,:)
 
   real(8),allocatable:: aik(:,:,:,:)
   integer,allocatable:: aiktimer(:,:)
   integer:: l2nl
-  logical:: eibz4x0,tiii,iprintx,symmetrize,eibzmode
+  logical:: tiii,iprintx,symmetrize,eibzmode !,eibz4x0
   real(8):: qread(3),imagweight,q00(3),rfac00,q1a,q2a
 
   character(128):: vcoudfile,aaax,itag
@@ -480,8 +481,10 @@ program hx0fp0
   !! This is because band connectivity is judged by just from band ordering in tetrahedron weitht tetwt5.
   !!  For rotation of zcousq.  See readeigen.F rotwv.F ppbafp.fal.F(for index of product basis).
   !! EIBZ mode
-  eibzmode = eibz4x0()
-  call seteibz(iqxini,iqxend,iprintx)
+  eibzmode = .false. !eibz4x0()
+  allocate( nwgt(1,iqxini:iqxend))
+  
+  !call seteibz(iqxini,iqxend,iprintx)
   !! Calculate x0(q,iw) and W == main loop 1001 for iq.
   !! NOTE: iq=1 (q=0,0,0) write 'EPS0inv', which is used for iq>nqibz for ixc=11 mode
   !! Thus it is necessary to do iq=1 in advance to performom iq >nqibz.
@@ -585,7 +588,7 @@ program hx0fp0
      elseif(nolfco .AND. nmbas1==1) then !for <e^iqr|x0|e^iqr>
         call Setppovlz(q,matz=.true.)
      else                     !may2013  this removes O^-1 factor from zmelt
-        call Setppovlz(q,matz=.not.eibz4x0())
+        call Setppovlz(q,matz=.true.) !.not.eibzmode)
      endif
 
      !! rcxq: imaginary part after x0kf_v4h and symmetrization.
@@ -617,11 +620,12 @@ program hx0fp0
            ekxx1(1:nband, kx)  = readeval(qbz(:,kx),   is )
            ekxx2(1:nband, kx)  = readeval(q+qbz(:,kx), isf)
         enddo
-        call gettetwt(q,iq,is,isf,nwgt(:,iq),ekxx1,ekxx2,nband,eibzmode)
+        call gettetwt(q,iq,is,isf,ekxx1,ekxx2,nband)!,,nwgt(:,iq)eibzmode)
         !! == x0kf_v4hz is the main routine to accumalte imaginary part of x0 into rcxq ==
         epsppmode=  epsmode.and.nolfco
-        ierr = x0kf_v4hz_init(0, q, is, isf, iq, nmbas_in, eibzmode, nwgt(:,iq),crpa)
-        ierr = x0kf_v4hz_init(1, q, is, isf, iq, nmbas_in, eibzmode, nwgt(:,iq),crpa)
+        ierr = x0kf_v4hz_init(0, q, is, isf, iq, nmbas_in,crpa)
+        ierr = x0kf_v4hz_init(1, q, is, isf, iq, nmbas_in,crpa)
+        !, eibzmode, nwgt(:,iq)
         write(6,*)'epsppmode=',epsppmode
         !$$$          do icount = 1,ncount
         !$$$            k = kc(icount)
@@ -639,15 +643,15 @@ program hx0fp0
         !$$$               isold=is
         !$$$            endif
         !$$$          enddo
-        call x0kf_v4hz(q,is,isf,iq,nmbas_in,eibzmode,nwgt(:,iq),rcxq,epsppmode,iqxini,rfac00=rfac00,q00=q00)
+        call x0kf_v4hz(q,is,isf,iq,nmbas_in,rcxq,epsppmode,iqxini,rfac00=rfac00,q00=q00) !,eibzmode
         !  rcxq is the accumulating variable for spins
         !!    Symmetrize and convert to Enu basis by dconjg(tranpsoce(zcousq)*rcxq8zcousq if eibzmode
-        if(is==nspinmx .OR. chipm) then !Apr2015. TK think " .OR. chipm" is required for chipm mode
-           ! ecause rcxq is calculated for each is, symmetrized and its contribution
-           ! s added to zxq in dpsion5.
-           call x0kf_v4hz_symmetrize(q,iq,nolfco,zzr,nmbas_in,chipm,eibzmode,eibzsym(:,:,iq),rcxq)
-           !  crystal symmetry of rcxq is recovered for EIBZ mode.
-        endif
+        ! if(is==nspinmx .OR. chipm) then !Apr2015. TK think " .OR. chipm" is required for chipm mode
+        !    ! ecause rcxq is calculated for each is, symmetrized and its contribution
+        !    ! s added to zxq in dpsion5.
+        !    call x0kf_v4hz_symmetrize(q,iq,nolfco,zzr,nmbas_in,chipm,eibzmode,eibzsym(:,:,iq),rcxq)
+        !    !  crystal symmetry of rcxq is recovered for EIBZ mode.
+        ! endif
         call tetdeallocate() !--> deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
         if(debug) write(6,"(a)") ' --- goto dpsion5 --- '
         if(is==nspinmx .OR. chipm) then

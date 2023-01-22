@@ -53,13 +53,8 @@ contains
     if(len_trim(sstrnsymg)>0) strn=trim(sstrnsymg)
     if (cmdopt0('--nosym') .OR. cmdopt0('--pdos') ) strn = ' '
     
-    !! when lmfgw, 1st digit of lc is zero--> no inversion added in mksym.
-    !if(ctrl_noinv==0 )     lc=1  ! Add inversion to get !When we have TR, psi_-k(r) = (psi_k(r))^* (when we have SO/=1).
-    !                      density |psi_-k(r)|^2 = |psi_k^*(r)|^2
-    !if(ctrl_noinv==1 )     lc=0  !  no inversion
-    !if(prgnam == 'LMFGWD') lc=0 !no inversion !probably not meaningful
-    
-    if(addinv) then ! Add inversion to get sampling k points. 
+    !clean 2023jan
+    if(addinv) then ! Add inversion to get sampling k points. phi*
        lc=1 !When we have TR with keeping spin \sigma, psi_-k\sigm(r) = (psi_k\sigma(r))^* 
     else
        lc=0
@@ -255,7 +250,8 @@ contains
     endif
     ! --- Printout of symmetry operations ---
     if(master_mpi) write(stdo,ftox)'MKSYM: found ',nsgrp,' space group operations'
-    if(master_mpi.and.nsgrp/=npgrp)write(stdo,ftox)'       adding inversion gives',npgrp,' operations'
+    if(master_mpi.and.nsgrp/=npgrp)write(stdo,ftox)'    adding inversion gives',npgrp,' operations'//&
+    ' for generating k points; enforce real for dmatu for LDA+U'
     if(master_mpi.and.incli == -1) write(stdo,*)'  no attempt to add inversion symmetry'
     !if(mod(mode/10,10) == 0) goto 100
     ! Split species into classes : ibas ==> iclass=ipc(ibas) ==> ispec=ics(iclass)

@@ -5,14 +5,15 @@ module m_sxcfsc !self-energy calculation
   use m_zmel,only : Get_zmel_init, Setppovlz, Setppovlz_chipm, Deallocate_zmel, get_zmel_modex0, zmel
   use m_itq,only: itq,ntq
   use m_genallcf_v3,only: nlmto,nspin,nctot,niw,ecore !,symgg
-  use m_READ_BZDATA,only: qibz,qbz,wk=>wbz,nqibz,nqbz,wklm,lxklm,nq0i, wqt=>wt,q0i
+  use m_read_bzdata,only: qibz,qbz,wk=>wbz,nqibz,nqbz,wklm,lxklm,nq0i, wqt=>wt,q0i, irk
   use m_readVcoud,only:   Readvcoud, vcoud,ngb,ngc
   use m_readfreq_r,only: freq_r, nw_i,nw,freqx,wx=>wwx,nblochpmx,mrecl,expa_,npm,nprecx
   use m_rdpp,only: Rdpp, nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx
   use m_readqg,only:  ngpmx,ngcmx
   use m_readhbe,only: nband,mrecg
   use m_hamindex,only: ngrp
-  use m_eibzhs,only: nrkip=>nrkip_all,irkip_all
+  !  use m_eibzhs,only: nrkip=>nrkip_all,irkip_all
+!  use m_read_bzdata,only: qbz,nqibz,ginv,irk,nqbz
   use m_readgwinput,only: ua_,  corehole,wcorehole
   use m_mpi,only: MPI__sxcf_rankdivider
   use m_ftox
@@ -23,8 +24,8 @@ module m_sxcfsc !self-energy calculation
   private
 contains
 
-  subroutine sxcf_scz(qip,ef,esmr,nq,exchange,jobsw,nbandmx,ixc,nspinmx)
-    intent(in)        qip,ef,esmr,nq,exchange,jobsw,nbandmx,ixc,nspinmx
+  subroutine sxcf_scz(qvec,ef,esmr,nq,exchange,nbandmx,ixc,nspinmx) !,jobsw
+    intent(in)        qvec,ef,esmr,nq,exchange,nbandmx,ixc,nspinmx !,jobsw
     !> \brief
     !! Calcualte full simga_ij(e_i)= <i|Re[Sigma](e_i)|j> 
     !! ---------------------
@@ -37,7 +38,7 @@ contains
     !!     i and j are band indexes
     !!
     !! \remark
-    !! jobsw switch. We now support only mode=3-----------------
+    !!xxx jobsw switch. We now support only mode=3-----------------
     !!  1,3,5scGW mode.
     !!   diag+@EF      jobsw==1 SE_nn'(ef)+delta_nn'(SE_nn(e_n)-SE_nn(ef))
     !!   modeB (Not Available now)  jobsw==2 SE_nn'((e_n+e_n')/2) 
@@ -120,7 +121,7 @@ contains
     !! \verbatim
     !!
     !! ----------------------------------------------
-    !!     q     =qip(:,iq)  = q-vector in SEc(q,t). 
+    !!     q     =qvec(:,iq)  = q-vector in SEc(q,t). 
     !!    itq     = states t at q
     !!    ntq     = no. states t
     !!    eq      = eigenvalues at q
@@ -155,7 +156,7 @@ contains
     logical :: exchange
     integer :: nq,isp,nspinmx,jobsw 
     integer :: nbandmx(nq,nspinmx)
-    real(8) :: ef,esmr, qip(3,nq)
+    real(8) :: ef,esmr, qvec(3,nq)
     real(8):: ebmx
     complex(8),pointer::zsec(:,:)
     complex(8),pointer::ww(:,:)
@@ -178,7 +179,7 @@ contains
     character(10) :: i2char
     real(8)::polinta, wfacx, wfacx2, weavx2, wexx,ua2_(niw),freqw1,q_r(3),qk(3)
     logical,parameter :: debug=.false.,timemix=.true.
-    logical ::   oncew, onceww, eibz4sig  
+    logical ::   oncew, onceww !, eibz4sig  
     real(8),allocatable:: we_(:,:),wfac_(:,:)
     complex(8),allocatable:: w3p(:),wtff(:)
     logical:: tote=.false.!, hermitianW
@@ -198,8 +199,16 @@ contains
     if(ixc==3.and.nctot==0) return
     !  We divide irkip_all into irkip for nodes. irkip is dependent on rank.
     !  Total number of none zero irkip for all ranks is the number of nonzero irkip_all
-    allocate(irkip(nspinmx,nqibz,ngrp,nq)) ! nrkip is weight correspoinding to irkip for a node.
-    call MPI__sxcf_rankdivider(irkip_all,nspinmx,nqibz,ngrp,nq,  irkip)
+    block
+      integer:: irkip_all(nspinmx,nqibz,ngrp,nq),iqq,is
+      do is = 1,nspinmx
+         do iqq=1,nq
+            irkip_all(is,:,:,iqq)=irk
+         enddo
+      enddo
+      allocate(    irkip(nspinmx,nqibz,ngrp,nq)) ! nrkip is weight correspoinding to irkip for a node.
+      call MPI__sxcf_rankdivider(irkip_all,nspinmx,nqibz,ngrp,nq,  irkip)
+    endblock
 !
     PreIcountBlock: Block!Get nstateMax(ncount),ndiv(icount),nstatei(j,icount),nstatee(j,icount)
       integer:: ndivide,nstateavl,nnn,nloadav,nrem,idiv,j
@@ -218,7 +227,7 @@ contains
                   kr = irkip(isp,kx,irot,ip) ! index for rotated kr in the FBZ
                   if(kr==0) cycle
                   icount=icount+1
-                  q(1:3)= qip(1:3,ip)
+                  q(1:3)= qvec(1:3,ip)
                   qbz_kr= qbz (:,kr)     !rotated qbz vector. 
                   qk =  q - qbz_kr        
                   ekq = readeval(qk, isp) 
@@ -236,14 +245,12 @@ contains
 1140         enddo 
 1120      enddo
 1130  enddo
-      
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!      
-                     ! ndivide = 2 
+                      ! ndivide = 2 
       nstateavl = 16  ! nstateavl=max(sum(nstatemax)/(ncount*ndivide),1)
       if(ixc==3) nstateavl= maxval(nstatemax)
       ! size of average load of middle states (in G)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      
       allocate(ndiv(ncount))
       ndiv = (nstatemax-1)/nstateavl + 1  !number of division for icount
       ndivmx = maxval(ndiv)
@@ -266,6 +273,7 @@ contains
       deallocate(nload,nstatemax)
     EndBlock PreIcountBlock
     write(6,*)'nnn init ncount=',ncount
+    
     ncount = ncount*ndivmx
     ! icount mechanism for sum in MAINicountloop 3030
     IcountBlock: Block !quick loop to gather index sets for main loop
@@ -278,8 +286,8 @@ contains
       iqend = nqibz             !no sum for offset-Gamma points.
       icount=0
       icount0=0
-      do 130 kx = iqini,iqend
-         do 120 isp = 1,nspinmx !empty run to get index for icount ordering
+      do 130 kx = iqini,iqend !this is empty run to get index for icount ordering
+         do 120 isp = 1,nspinmx 
             if(sum(irkip(isp,kx,:,:))==0) cycle ! next kx
             do 140 irot = 1,ngrp !over rotations irot ===
                if(sum(irkip(isp,kx,irot,:))==0) cycle ! next ip
@@ -297,7 +305,7 @@ contains
                      ipc(icount)=ip
                      krc(icount)=kr
                      qibz_k = qibz(:,kx)
-                     q(1:3)= qip(1:3,ip)
+                     q(1:3)= qvec(1:3,ip)
                      eq = readeval(q,isp)
                      omega(:) = eq(itq(:))  !1:ntq
                      qbz_kr= qbz (:,kr)     !rotated qbz vector. 
@@ -358,7 +366,7 @@ contains
        nwxi=nwxic(icount)
        nwx =nwxc(icount)
        qibz_k = qibz(:,kx)
-       q(1:3)= qip(1:3,ip)
+       q(1:3)= qvec(1:3,ip)
        eq = readeval(q,isp)
        omega(:) = eq(itq(:))  !1:ntq
        qbz_kr= qbz (:,kr)     !rotated qbz vector. 
@@ -371,7 +379,7 @@ contains
        ntqxx = nbandmx(ip,isp) ! ntqxx is number of bands for <i|sigma|j>.
        zsec => zsecall(1:ntqxx,1:ntqxx,ip,isp)
        wtt = wk(kr)
-       if(eibz4sig()) wtt=wtt*nrkip(isp,kx,irot,ip)
+       !if(eibz4sig()) wtt=wtt*nrkip(isp,kx,irot,ip)
        !! Get zmel(ib,itpp,it) = <M(qbz_kr,ib) phi(itpp,q-qbz_kr) |phi(q(ip),it)> , qbz_kr= irot(qibz_k)
        if(kxold/=kx) then
           call Readvcoud(qibz_k,kx,NoVcou=.false.) !Readin ngc,ngb,vcousq ! Coulomb matrix
@@ -489,8 +497,8 @@ contains
                    if(ititpskip(it,itp)) cycle
                    ixs= ixss(it,itp) !we_ is \omega_\epsilon in Eq.(55).
                    call alagr3z2wgt(we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp))
-                   wgt3(:,it,itp)=wfac_(it,itp)*wgt3(:,it,itp)
-                   iwgt3(it,itp)=iirx(itp)*(ixs+1-2) !starting omega index ix for it,itp
+                   wgt3(:,it,itp)= wfac_(it,itp)*wgt3(:,it,itp)
+                   iwgt3(it,itp) = iirx(itp)*(ixs+1-2) !starting omega index ix for it,itp
                 enddo                                !iirx=1 for npm=1 I think
                 if(iirx(itp)/=1) call rx('sxcf: iirx=-1(TR breaking) is not yet implemented')
              enddo
@@ -519,10 +527,8 @@ contains
              do ix = nwxi,nwx  !Set wv3(:,:,0:2) is for ix,ix+1,ix+2
                 if(sum(nit_(:,ix))==0) cycle
                 do iw=0,2
-                   if(ikeep+1==ix.and.iw<2) then
-                      wv3(:,:,iw)=wv3(:,:,iw+1) 
-                   elseif(ikeep+2==ix.and.iw<1) then
-                      wv3(:,:,iw)=wv3(:,:,iw+2)
+                   if(ikeep+1==ix.and.iw<2)     then ; wv3(:,:,iw)=wv3(:,:,iw+1) 
+                   elseif(ikeep+2==ix.and.iw<1) then ; wv3(:,:,iw)=wv3(:,:,iw+2)
                    else
                       read(ifrcw(kx),rec=iw+ix-nw_i+1) zw ! direct access Wc(omega) = W(omega) - v
                       ww=>zw(1:ngb,1:ngb)

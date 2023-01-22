@@ -18,7 +18,7 @@ module m_x0kf
   use m_tetwt,only:     whw,ihw,nhw,jhw,n1b,n2b,nbnb,nbnbx,nhwtot
   implicit none
 
-  public:: X0kf_v4hz_init, X0kf_v4hz, X0kf_v4hz_symmetrize, &
+  public:: X0kf_v4hz_init, X0kf_v4hz, &! X0kf_v4hz_symmetrize, &
        X0kf_v4hz_init_write,X0kf_v4hz_init_read,x0kf_zmel,kc,ncount
   integer,allocatable:: kc(:)
   integer:: ncount
@@ -57,9 +57,9 @@ contains
   end subroutine X0kf_v4hz_init_read
 
   !--------------------------------------------------------------------------
-  function X0kf_v4hz_init(job,q,isp_k,isp_kq, iq, nmbas,eibzmode, nwgt, crpa) result(ierr)
-    intent(in)::            job,q,isp_k,isp_kq, iq, nmbas,eibzmode, nwgt, crpa
-    !! === initialzation for calling x0kf_v4h.
+  function X0kf_v4hz_init(job,q,isp_k,isp_kq, iq, nmbas, crpa) result(ierr)
+    intent(in)::          job,q,isp_k,isp_kq, iq, nmbas, crpa
+    !! === initialzation for calling x0kf_v4h. !,eibzmode ,nwgt
     !! Get ncount index for x0kf_v4h in the private variables
     !! Call job=0 and job=1 successively.
     !!   ncount, ngb and nqibz are the key to estimate computational efforts.
@@ -67,9 +67,9 @@ contains
     !     ! We have OUTPUT to private variables nkmin ... jpmc.
     integer::  irot=1,ierr         !, ntqxx,nbmax!,nctot
     integer:: k,isp_k,isp_kq, iq, jpm, ibib, iw,igb2,igb1,it,itp,job,icount, nmbas
-    integer::  nwgt(nqbz)
+!    integer::  nwgt(nqbz)
     real(8):: q(3), imagweight, wpw_k, wpw_kq
-    logical :: iww2=.true., eibzmode, crpa
+    logical :: iww2=.true., crpa !eibzmode, 
     !!
     write(6,'(" x0kf_v4hz_init: job q=",i3,3f8.4)') job,q
     if(npm==1) then
@@ -84,9 +84,9 @@ contains
     endif
     icount=0
     do 110 k = 1,nqbz
-       if( (eibzmode .AND. nwgt(k)==0) .OR. sum(nbnb(k,1:npm))==0   ) then
-          cycle
-       endif
+!       if( (eibzmode .AND. nwgt(k)==0) .OR. sum(nbnb(k,1:npm))==0   ) then
+!          cycle
+!       endif
        if(job==0) then
           nkmin(k) = 999999
           nkmax(k)= -999999
@@ -178,7 +178,7 @@ contains
              do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 !iiww=iw+ihw(ibib,k)-1
                 imagweight = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
                 if(crpa)     imagweight = imagweight*(1d0-wpw_k*wpw_kq)
-                if(eibzmode) imagweight = nwgt(k)*imagweight
+!                if(eibzmode) imagweight = nwgt(k)*imagweight
                 icount = icount+1
                 if(job==1) then
                    whwc (icount)= imagweight
@@ -217,10 +217,10 @@ contains
     logical :: iww2=.true.
     complex(8):: img=(0d0,1d0),zmelt2 !,zzz(ngbb)
     integer ::  nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb !nkqmin, nkqmax,
-    logical :: eibzmode
-    integer::  nwgt(nqbz)
+!    logical :: eibzmode
+!    integer::  nwgt(nqbz)
     real(8)::  wpw_k,wpw_kq
-    integer::  irot=1, neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele
+    integer::  irot=1, neibz,icc,ig,ikp,i,j,itimer,icount,iele !,eibzmoden
     integer:: ieqbz,kold,nxxxx
     integer::nkmin_,nkqmin_,nkoff,nkqoff,ispold,izmel,nmini,nqini,nmtot,nqtot,ispold2
     nkmin_  = nkmin(k)
@@ -236,9 +236,9 @@ contains
   end subroutine x0kf_zmel
 
   !! --------------------------------------------------------------------------------
-  subroutine X0kf_v4hz ( q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt, rcxq,epsppmode,iqxini,rfac00,q00)
-    intent(in)   ::        q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt,      epsppmode,iqxini
-    !! === calculate chi0, or chi0_pm ===
+  subroutine X0kf_v4hz (q, isp_k,isp_kq, iq, nmbas,  rcxq,epsppmode,iqxini,rfac00,q00)
+    intent(in)   ::     q, isp_k,isp_kq, iq, nmbas,     epsppmode,iqxini
+    !! === calculate chi0, or chi0_pm === ! eibzmode, 
     !! We calculate imaginary part of chi0 along real axis.
     !!
     !! NOTE: rcxq is i/o variable for accumulation. We use E_mu basis when chipm=F.
@@ -277,11 +277,11 @@ contains
     logical :: iww2=.true.
     complex(8):: img=(0d0,1d0),zmelt2 !,zzz(ngbb)
     integer ::  nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb !nkqmin, nkqmax,
-    logical :: eibzmode
-    integer::  nwgt(nqbz)
+!    logical :: eibzmode
+!    integer::  nwgt(nqbz)
     real(8)::  wpw_k,wpw_kq,q1a,q2a!, vec_kcrpa(3),vec_kqcrpa(3)
     integer::  irot=1         !, ntqxx,nbmax!,nctot
-    integer::  neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele!,ngbb !eibzsym(ngrp,-1:1),
+    integer::  neibz,icc,ig,ikp,i,j,itimer,icount,iele!,ngbb !eibzsym(ngrp,-1:1),,eibzmoden
     integer:: ieqbz,kold,nxxxx !igx(ngrp*2,nqbz),igxt(ngrp*2,nqbz),
     integer::nkmin_,nkqmin_,izmel,ispold,nmini,nqini,nmtot,nqtot ,ispold2
     !     logical:: interbandonly,intrabandonly
@@ -385,328 +385,328 @@ contains
          sum(abs(rcxq(1:nmbas,1:nmbas,1:nwhis,1:npm))),sum((rcxq(1:nmbas,1:nmbas,1:nwhis,1:npm)))
   end subroutine x0kf_v4hz
 
-  !! --------------------------------------------------------------------------------
-  subroutine X0kf_v4hz_symmetrize(q, iq, nolfco, zzr,nmbas, chipmzzr, eibzmode, eibzsym, rcxq)
-    use m_readqgcou,only: qtt_, nqnum
-    use m_rotMPB2,only:  rotMPB2
-    intent(in)::                    q, iq, nolfco, zzr,nmbas, chipmzzr, eibzmode, eibzsym
-    !! === symmetrization for EPIBZ mode ===
-    integer(4):: nnc,iq,iatom,nctot,nbmx &
-         ,jpm,ibib,itps,nt0,ntp0,ngp_kq,ngp_k,it,itp,iw,igb2,igb1, nn,no,isx,iclose,k
-    real(8):: q(3),ebmx
-    complex(8):: rcxq (nmbas,nmbas,nwhis,npm)
-    complex(8):: imag=(0d0,1d0),trc,aaa !phase(natom),
-    integer(4):: nadd(3)
-    logical,parameter:: debug=.false.
-    complex(8) :: zmelt1,zmelt2,zmeltt(ngb)      !...........................sf 21May02
-    real(8) :: imagweight !............................sf 21May02
-    real(8):: eband(nband)!,ebandr(nband),ebandqr(nband)
-    integer(4):: verbose
-    logical   :: nolfco !iepsmode
-    integer(4):: nmbas, imb1,imb2, imb !nmbas1x !nmbas2,nmbas1,
-    real(8):: vec_kq_g(3),vec_k_g(3),vec_kq(3),vec_k(3),quu(3),tolq=1d-8,quu1(3),quu2(3)!tolqu=1d-4,
-    integer(4):: nbcut,nbcut2
-    logical :: iww1=.true.,iww2=.true.
-    complex(8):: img=(0d0,1d0)
-    integer(4):: nkmin,  nkmax, nkqmin, nkqmax,nkmax1,nkqmax1
-    integer(4):: ib1, ib2,      ngcx,ix,iy
-    complex(8),target :: zzr(ngb,nmbas) !ppovlz(ngb,ngb),
-    integer:: igb
-    logical:: checkbelong,eibzmode, chipmzzr
-    complex(8)::  zcousqc(ngb,ngb) !zcousq(ngb,ngb) ,
-    integer::  eibzsym(ngrp,-1:1),neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele
-    integer:: irotm,nrotmx,ixx,iyy,itt,ntimer, nccc, nxx,iagain,irotm1,irotm2
-    integer,allocatable:: i1(:,:),i2(:,:),nrotm(:)
-    complex(8),allocatable:: zrotm(:,:),zrr(:,:),zrrc(:,:),zrr_(:,:,:),zrrc_(:,:,:),zmmm(:), &
-         zrrx(:,:),rcxq_core(:,:), zcousqr(:,:,:),rcxq0(:,:),rcxq00(:,:),rcxq000(:,:),rcxqwww(:,:)
-    integer:: irot=1
-    integer:: ntqxx,nbmax
-    !! == Symmetrizer of EIBZ PRB.81,125102(2010) Eq.(51) july2012takao ==
-    !! This may be not so effective ---> only for limited cases?
-    !! --- zrotm(J,J') = <Mbar^k_J| \hat{A}^k_i Mbar^k_J'>. ---
-    !! We do \sum_i T_alpha_i [ zrotm_i^dagger (I,I') P_I'J' zrom_i(J'J) ]
-    !! (exactrly speaking, we insert conversion matrix between Enu basis and M_I basis).
-    !!
-    !! input qin = q
-    !! \hat{A}^k_i  is specified by symops(:,:,igx),and igxt (-1 for time-reversal).
-    !! Note that k= \hat{A}^k_i(k) (S_A^k)
-    !! See Eq.(51) around in PRB81 125102(2010)
-    !!
-    !! === zmelt conversion ===
-    if(nolfco .AND. nmbas==1) then
-       write(6,*)' nmbas=1 nolfco=T ---> not need to symmetrize'
-       goto 9999
-    endif
-    !!
-    if(eibzmode) then
-       call iqindx2(q, ginv, qtt_, nqnum, ikp,quu) !to get ikp for timereversal mode
-       if(sum(abs(q-quu))>tolq) call rx( 'x0kf_v4h_symmetrize: eibz 111 q/quu')
-       neibz = sum(eibzsym(:,1))+sum(eibzsym(:,-1))
-       ! timer=-1 means time reversal. eibzsym(ig,itimer) where ig: space rotation.
-       write(6,"(' --- goto symmetrization --- ikp neibz q=',2i3,3f12.8)")ikp,neibz,q
-       call cputid2(' --- x0kf: start symmetrization  ',0)
-       ntimer=1
-       if(sum(eibzsym(:,-1))>0) ntimer=2 !timereversal case
-       allocate(zrotm(ngb,ngb),nrotm(ngrp*2))
-       !!
-       !! == Assemble rotantion matrx zrr,zrrc ==
-       !! Rotation matrix zrrx can be a sparse matrix.
-       !! Thus it is stored to  "i1(nrotmx,nccc),i2(nrotmx,nccc),zrr(nrotmx,icc),nrotm(icc)".
-       !! See folloings: matmul(rcxqwww,zrrx) is given by
-       !!     do irotm1 = 1,nrotm(icc)
-       !!       rcxq0(:,i2(irotm1,icc)) = rcxqwww(:,i1(irotm1,icc)) * zrr(irotm1,i2(irotm1,icc))
+!   !! --------------------------------------------------------------------------------
+!   subroutine X0kf_v4hz_symmetrize(q, iq, nolfco, zzr,nmbas, chipmzzr, eibzmode, eibzsym, rcxq)
+!     use m_readqgcou,only: qtt_, nqnum
+!     use m_rotMPB2,only:  rotMPB2
+!     intent(in)::                    q, iq, nolfco, zzr,nmbas, chipmzzr, eibzmode, eibzsym
+!     !! === symmetrization for EPIBZ mode ===
+!     integer(4):: nnc,iq,iatom,nctot,nbmx &
+!          ,jpm,ibib,itps,nt0,ntp0,ngp_kq,ngp_k,it,itp,iw,igb2,igb1, nn,no,isx,iclose,k
+!     real(8):: q(3),ebmx
+!     complex(8):: rcxq (nmbas,nmbas,nwhis,npm)
+!     complex(8):: imag=(0d0,1d0),trc,aaa !phase(natom),
+!     integer(4):: nadd(3)
+!     logical,parameter:: debug=.false.
+!     complex(8) :: zmelt1,zmelt2,zmeltt(ngb)      !...........................sf 21May02
+!     real(8) :: imagweight !............................sf 21May02
+!     real(8):: eband(nband)!,ebandr(nband),ebandqr(nband)
+!     integer(4):: verbose
+!     logical   :: nolfco !iepsmode
+!     integer(4):: nmbas, imb1,imb2, imb !nmbas1x !nmbas2,nmbas1,
+!     real(8):: vec_kq_g(3),vec_k_g(3),vec_kq(3),vec_k(3),quu(3),tolq=1d-8,quu1(3),quu2(3)!tolqu=1d-4,
+!     integer(4):: nbcut,nbcut2
+!     logical :: iww1=.true.,iww2=.true.
+!     complex(8):: img=(0d0,1d0)
+!     integer(4):: nkmin,  nkmax, nkqmin, nkqmax,nkmax1,nkqmax1
+!     integer(4):: ib1, ib2,      ngcx,ix,iy
+!     complex(8),target :: zzr(ngb,nmbas) !ppovlz(ngb,ngb),
+!     integer:: igb
+!     logical:: checkbelong,eibzmode, chipmzzr
+!     complex(8)::  zcousqc(ngb,ngb) !zcousq(ngb,ngb) ,
+!     integer::  eibzsym(ngrp,-1:1),neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele
+!     integer:: irotm,nrotmx,ixx,iyy,itt,ntimer, nccc, nxx,iagain,irotm1,irotm2
+!     integer,allocatable:: i1(:,:),i2(:,:),nrotm(:)
+!     complex(8),allocatable:: zrotm(:,:),zrr(:,:),zrrc(:,:),zrr_(:,:,:),zrrc_(:,:,:),zmmm(:), &
+!          zrrx(:,:),rcxq_core(:,:), zcousqr(:,:,:),rcxq0(:,:),rcxq00(:,:),rcxq000(:,:),rcxqwww(:,:)
+!     integer:: irot=1
+!     integer:: ntqxx,nbmax
+!     !! == Symmetrizer of EIBZ PRB.81,125102(2010) Eq.(51) july2012takao ==
+!     !! This may be not so effective ---> only for limited cases?
+!     !! --- zrotm(J,J') = <Mbar^k_J| \hat{A}^k_i Mbar^k_J'>. ---
+!     !! We do \sum_i T_alpha_i [ zrotm_i^dagger (I,I') P_I'J' zrom_i(J'J) ]
+!     !! (exactrly speaking, we insert conversion matrix between Enu basis and M_I basis).
+!     !!
+!     !! input qin = q
+!     !! \hat{A}^k_i  is specified by symops(:,:,igx),and igxt (-1 for time-reversal).
+!     !! Note that k= \hat{A}^k_i(k) (S_A^k)
+!     !! See Eq.(51) around in PRB81 125102(2010)
+!     !!
+!     !! === zmelt conversion ===
+!     if(nolfco .AND. nmbas==1) then
+!        write(6,*)' nmbas=1 nolfco=T ---> not need to symmetrize'
+!        goto 9999
+!     endif
+!     !!
+!     if(eibzmode) then
+!        call iqindx2(q, ginv, qtt_, nqnum, ikp,quu) !to get ikp for timereversal mode
+!        if(sum(abs(q-quu))>tolq) call rx( 'x0kf_v4h_symmetrize: eibz 111 q/quu')
+!        neibz = sum(eibzsym(:,1))+sum(eibzsym(:,-1))
+!        ! timer=-1 means time reversal. eibzsym(ig,itimer) where ig: space rotation.
+!        write(6,"(' --- goto symmetrization --- ikp neibz q=',2i3,3f12.8)")ikp,neibz,q
+!        call cputid2(' --- x0kf: start symmetrization  ',0)
+!        ntimer=1
+!        if(sum(eibzsym(:,-1))>0) ntimer=2 !timereversal case
+!        allocate(zrotm(ngb,ngb),nrotm(ngrp*2))
+!        !!
+!        !! == Assemble rotantion matrx zrr,zrrc ==
+!        !! Rotation matrix zrrx can be a sparse matrix.
+!        !! Thus it is stored to  "i1(nrotmx,nccc),i2(nrotmx,nccc),zrr(nrotmx,icc),nrotm(icc)".
+!        !! See folloings: matmul(rcxqwww,zrrx) is given by
+!        !!     do irotm1 = 1,nrotm(icc)
+!        !!       rcxq0(:,i2(irotm1,icc)) = rcxqwww(:,i1(irotm1,icc)) * zrr(irotm1,i2(irotm1,icc))
 
-       allocate(zrrx(nmbas,nmbas))
-       nrotmx = 10000 !trial value
-       do 1011  !this loop is only in order to to set large enough nrotmx.
-          if(allocated(i1)) deallocate(i1,i2,zrr,zrrc)
-          nccc=ngrp*2
-          allocate(i1(nrotmx,nccc),i2(nrotmx,nccc),zrr(nrotmx,nccc),zrrc(nrotmx,nccc))
-          i1=-99999
-          i2=-99999
-          zrr=-99999d0
-          zrrc=-99999d0
-          call cputid2(' --- x0kf:11111   :',0)
-          icc=0
-          do itimer=1,-1,-2
-             if(ntimer==1 .AND. itimer==-1) exit
-             if(itimer==1 ) itt=1
-             if(itimer==-1) itt=2
-             do ig=1,ngrp
-                if(eibzsym(ig,itimer)==1) then
-                   icc=icc+1
-                   !! Get rotation matrix zrrx, which can be a sparse matrix. Thus stored to zrr.
-                   call rotMPB2(nbloch,ngb,q,ig,itimer,ginv,zrotm)
-                   if(nolfco .AND. chipmzzr) then
-                      !!   We assume <svec_I | svec_J >= \delta_IJ, In addition, we use fact that we have no IPW parts in svec.
-                      !!   If IPW part exist, we may have to take into account <IPW|IPW> matrix, e.g. as in ppovlz.
-                      !!   svec --> zzr
-                      if(itimer==1) then
-                         zrrx= matmul(transpose(dconjg(zzr)), matmul(zrotm, zzr))
-                      else
-                         zrrx= matmul(transpose(zzr), matmul(dconjg(zrotm), zzr))
-                      endif
-                   elseif(nolfco) then
-                      call rx( 'x0kf_v4h_symmetrize: this case is not implemented xxxxxxxxxxxxxx')
-                   else
-                      !! zrotm(J,J') is the rotation matrix = <Mbar^k_J| \hat{A}^k_i Mbar^k_J'>
-                      !! See rotMPB2 defined in readeigen.F.
-                      !! zrrx(mu nu)= dconjg(Zcousq(I, mu)) *zrotm(I,J)* Zcousq(J, nu)
-                      !! zrrx is very sparse matrix. Size is \sim ngb or something.
+!        allocate(zrrx(nmbas,nmbas))
+!        nrotmx = 10000 !trial value
+!        do 1011  !this loop is only in order to to set large enough nrotmx.
+!           if(allocated(i1)) deallocate(i1,i2,zrr,zrrc)
+!           nccc=ngrp*2
+!           allocate(i1(nrotmx,nccc),i2(nrotmx,nccc),zrr(nrotmx,nccc),zrrc(nrotmx,nccc))
+!           i1=-99999
+!           i2=-99999
+!           zrr=-99999d0
+!           zrrc=-99999d0
+!           call cputid2(' --- x0kf:11111   :',0)
+!           icc=0
+!           do itimer=1,-1,-2
+!              if(ntimer==1 .AND. itimer==-1) exit
+!              if(itimer==1 ) itt=1
+!              if(itimer==-1) itt=2
+!              do ig=1,ngrp
+!                 if(eibzsym(ig,itimer)==1) then
+!                    icc=icc+1
+!                    !! Get rotation matrix zrrx, which can be a sparse matrix. Thus stored to zrr.
+!                    call rotMPB2(nbloch,ngb,q,ig,itimer,ginv,zrotm)
+!                    if(nolfco .AND. chipmzzr) then
+!                       !!   We assume <svec_I | svec_J >= \delta_IJ, In addition, we use fact that we have no IPW parts in svec.
+!                       !!   If IPW part exist, we may have to take into account <IPW|IPW> matrix, e.g. as in ppovlz.
+!                       !!   svec --> zzr
+!                       if(itimer==1) then
+!                          zrrx= matmul(transpose(dconjg(zzr)), matmul(zrotm, zzr))
+!                       else
+!                          zrrx= matmul(transpose(zzr), matmul(dconjg(zrotm), zzr))
+!                       endif
+!                    elseif(nolfco) then
+!                       call rx( 'x0kf_v4h_symmetrize: this case is not implemented xxxxxxxxxxxxxx')
+!                    else
+!                       !! zrotm(J,J') is the rotation matrix = <Mbar^k_J| \hat{A}^k_i Mbar^k_J'>
+!                       !! See rotMPB2 defined in readeigen.F.
+!                       !! zrrx(mu nu)= dconjg(Zcousq(I, mu)) *zrotm(I,J)* Zcousq(J, nu)
+!                       !! zrrx is very sparse matrix. Size is \sim ngb or something.
 
-                      !$$$                if(itimer==1) then
-                      !$$$                  call matmmsparse(zcousqinv,zrotm,zcousq,zrrx,ngb,1d-8,iele)
-                      !$$$                  ! this means zrrx= matmul(zcousqinv,matmul(zrotm, zcousq))
-                      !$$$                else
-                      !$$$                  call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,ngb,1d-8,iele)
-                      !$$$                  ! this means zrrx= matmul(dconjg(zcousqinv),matmul(dconjg(zrotm), zcousq))
-                      !$$$                endif
-                      if(itimer==1) then
-                         zrrx=zrotm
-                         !                  call matmmsparse(zcousqinv,zrotm,zcousq,zrrx,ngb,1d-8,iele)
-                         ! this means zrrx= matmul(zcousqinv,matmul(zrotm, zcousq))
-                      else
-                         zrrx=dconjg(zrotm)
-                         !                  call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,ngb,1d-8,iele)
-                         ! this means zrrx= matmul(dconjg(zcousqinv),matmul(dconjg(zrotm), zcousq))
-                      endif
-                   endif
-                   i1(:,icc)=0
-                   i2(:,icc)=0
-                   irotm=0
-                   iagain=0
-                   do ix=1,ngb
-                      do iy=1,ngb
-                         if(abs(zrrx(ix,iy))>1d-8) then
-                            irotm=irotm+1
-                            if(irotm>nrotmx) then
-                               iagain=1
-                            endif
-                            if(iagain/=1) then
-                               i1(irotm,icc)=ix
-                               i2(irotm,icc)=iy
-                               zrr(irotm,icc) = zrrx(ix,iy)
-                               zrrc(irotm,icc)= dconjg(zrr(irotm,icc))
-                            endif
-                         endif
-                      enddo
-                   enddo
-                   if(iagain==1) then
-                      nrotmx=irotm !enlarge allocation and do things again.
-                      write(6,*)' warn:(slow speed) xxxx goto 1011 xxxxxx nrotmx+=nrotmx+10000 again'
-                      goto 1011
-                      ! nlarge nrotmx ang try it again.
-                   endif
-                   nrotm(icc)=irotm
-                   if(debug) write(6,*)'ig itimer icc nrotm=',ig,itimer,icc,nrotm(icc) ,iele
-                endif
-             enddo
-          enddo
-          exit
-          continue !only when nrotmx overflow.
-1011   enddo
+!                       !$$$                if(itimer==1) then
+!                       !$$$                  call matmmsparse(zcousqinv,zrotm,zcousq,zrrx,ngb,1d-8,iele)
+!                       !$$$                  ! this means zrrx= matmul(zcousqinv,matmul(zrotm, zcousq))
+!                       !$$$                else
+!                       !$$$                  call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,ngb,1d-8,iele)
+!                       !$$$                  ! this means zrrx= matmul(dconjg(zcousqinv),matmul(dconjg(zrotm), zcousq))
+!                       !$$$                endif
+!                       if(itimer==1) then
+!                          zrrx=zrotm
+!                          !                  call matmmsparse(zcousqinv,zrotm,zcousq,zrrx,ngb,1d-8,iele)
+!                          ! this means zrrx= matmul(zcousqinv,matmul(zrotm, zcousq))
+!                       else
+!                          zrrx=dconjg(zrotm)
+!                          !                  call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,ngb,1d-8,iele)
+!                          ! this means zrrx= matmul(dconjg(zcousqinv),matmul(dconjg(zrotm), zcousq))
+!                       endif
+!                    endif
+!                    i1(:,icc)=0
+!                    i2(:,icc)=0
+!                    irotm=0
+!                    iagain=0
+!                    do ix=1,ngb
+!                       do iy=1,ngb
+!                          if(abs(zrrx(ix,iy))>1d-8) then
+!                             irotm=irotm+1
+!                             if(irotm>nrotmx) then
+!                                iagain=1
+!                             endif
+!                             if(iagain/=1) then
+!                                i1(irotm,icc)=ix
+!                                i2(irotm,icc)=iy
+!                                zrr(irotm,icc) = zrrx(ix,iy)
+!                                zrrc(irotm,icc)= dconjg(zrr(irotm,icc))
+!                             endif
+!                          endif
+!                       enddo
+!                    enddo
+!                    if(iagain==1) then
+!                       nrotmx=irotm !enlarge allocation and do things again.
+!                       write(6,*)' warn:(slow speed) xxxx goto 1011 xxxxxx nrotmx+=nrotmx+10000 again'
+!                       goto 1011
+!                       ! nlarge nrotmx ang try it again.
+!                    endif
+!                    nrotm(icc)=irotm
+!                    if(debug) write(6,*)'ig itimer icc nrotm=',ig,itimer,icc,nrotm(icc) ,iele
+!                 endif
+!              enddo
+!           enddo
+!           exit
+!           continue !only when nrotmx overflow.
+! 1011   enddo
 
-       !! === main part to obtain symmetrized rcxq  ===
-       !! neibz is total number of symmetrization operation.
-       !!      rcxq is rotated and accumulated; finally divied by neibz
-       zcousqc = dconjg(transpose(zcousq))
-       if(debug) call cputid2(' --- x0kf:qqqqq222ini:',0)
-       ! OMP parallel private(rcxq000,icc,itt,icount,rcxqwww,rcxq00,rcxq0,rcxq_core)
-       allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ngb),rcxq_core(ngb,ngb))
-       ! OMP master
-       !$         write(6,'(a,i5,a,i5)') 'OMP parallel nwhis, threads=',omp_get_num_threads(),' nwhis=',nwhis
-       ! OMP end master
-       ! OMP do
-       do iw=1,nwhis
-          do jpm=1,npm
-             rcxq000 = 0d0
-             icc=0
-             do itimer=1,-1,-2
-                if(itimer==1 ) itt=1
-                if(itimer==-1) itt=2
-                icount=0
-                if(itimer==1) then
-                   rcxqwww = rcxq(:,:,iw,jpm)
-                else
-                   rcxqwww = transpose(rcxq(:,:,iw,jpm))
-                endif
-                rcxq00 = 0d0
-                do ig=1,ngrp
-                   if(eibzsym(ig,itimer)==1) then
-                      icount=icount+1
-                      icc=icc+1
-                      rcxq0 =0d0
+!        !! === main part to obtain symmetrized rcxq  ===
+!        !! neibz is total number of symmetrization operation.
+!        !!      rcxq is rotated and accumulated; finally divied by neibz
+!        zcousqc = dconjg(transpose(zcousq))
+!        if(debug) call cputid2(' --- x0kf:qqqqq222ini:',0)
+!        ! OMP parallel private(rcxq000,icc,itt,icount,rcxqwww,rcxq00,rcxq0,rcxq_core)
+!        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ngb),rcxq_core(ngb,ngb))
+!        ! OMP master
+!        !$         write(6,'(a,i5,a,i5)') 'OMP parallel nwhis, threads=',omp_get_num_threads(),' nwhis=',nwhis
+!        ! OMP end master
+!        ! OMP do
+!        do iw=1,nwhis
+!           do jpm=1,npm
+!              rcxq000 = 0d0
+!              icc=0
+!              do itimer=1,-1,-2
+!                 if(itimer==1 ) itt=1
+!                 if(itimer==-1) itt=2
+!                 icount=0
+!                 if(itimer==1) then
+!                    rcxqwww = rcxq(:,:,iw,jpm)
+!                 else
+!                    rcxqwww = transpose(rcxq(:,:,iw,jpm))
+!                 endif
+!                 rcxq00 = 0d0
+!                 do ig=1,ngrp
+!                    if(eibzsym(ig,itimer)==1) then
+!                       icount=icount+1
+!                       icc=icc+1
+!                       rcxq0 =0d0
 
-                      !$$$               if(itimer==1) then
-                      !$$$               do irotm1 = 1,nrotm(icc)
-                      !$$$               do irotm2 = 1,nrotm(icc)
-                      !$$$               rcxq0(i2(irotm2,icc),i2(irotm1,icc)) =rcxq0(i2(irotm2,icc),i2(irotm1,icc))
-                      !$$$     &              +    zrrc(irotm2,icc)* rcxq(i1(irotm2,icc),i1(irotm1,icc),iw,jpm)*zrr(irotm1,icc)
-                      !$$$               enddo
-                      !$$$               enddo
-                      !$$$               else
-                      !$$$               do irotm1 = 1,nrotm(icc)
-                      !$$$               do irotm2 = 1,nrotm(icc)
-                      !$$$               rcxq0(i2(irotm1,icc),i2(irotm2,icc)) =rcxq0(i2(irotm1,icc),i2(irotm2,icc)) !transpose
-                      !$$$     &              +    zrrc(irotm2,icc)* rcxq(i2(irotm2,icc),i1(irotm1,icc),iw,jpm)*zrr(irotm1,icc)
-                      !$$$               enddo
-                      !$$$               enddo
-                      !$$$               endif
+!                       !$$$               if(itimer==1) then
+!                       !$$$               do irotm1 = 1,nrotm(icc)
+!                       !$$$               do irotm2 = 1,nrotm(icc)
+!                       !$$$               rcxq0(i2(irotm2,icc),i2(irotm1,icc)) =rcxq0(i2(irotm2,icc),i2(irotm1,icc))
+!                       !$$$     &              +    zrrc(irotm2,icc)* rcxq(i1(irotm2,icc),i1(irotm1,icc),iw,jpm)*zrr(irotm1,icc)
+!                       !$$$               enddo
+!                       !$$$               enddo
+!                       !$$$               else
+!                       !$$$               do irotm1 = 1,nrotm(icc)
+!                       !$$$               do irotm2 = 1,nrotm(icc)
+!                       !$$$               rcxq0(i2(irotm1,icc),i2(irotm2,icc)) =rcxq0(i2(irotm1,icc),i2(irotm2,icc)) !transpose
+!                       !$$$     &              +    zrrc(irotm2,icc)* rcxq(i2(irotm2,icc),i1(irotm1,icc),iw,jpm)*zrr(irotm1,icc)
+!                       !$$$               enddo
+!                       !$$$               enddo
+!                       !$$$               endif
 
-                      !!  Followings are equivalent with
-                      !!            rcxq00= rcxq00 + matmul(zrrc_(:,:,icc),matmul(rcxqwww,zrr_(:,:,icc)))
-                      do irotm1 = 1,nrotm(icc)
-                         !                 if(abs(zrr(irotm1,icc))<1d-8) cycle
-                         rcxq0(:,i2(irotm1,icc)) =rcxq0(:,i2(irotm1,icc)) + rcxqwww(:,i1(irotm1,icc)) * zrr(irotm1,icc)
-                      enddo
-                      do irotm2 = 1,nrotm(icc)
-                         !                 if(abs(zrrc(irotm2,icc))<1d-8) cycle
-                         rcxq00(i2(irotm2,icc),:)= rcxq00(i2(irotm2,icc),:) + zrrc(irotm2,icc) * rcxq0(i1(irotm2,icc),:)
-                      enddo
+!                       !!  Followings are equivalent with
+!                       !!            rcxq00= rcxq00 + matmul(zrrc_(:,:,icc),matmul(rcxqwww,zrr_(:,:,icc)))
+!                       do irotm1 = 1,nrotm(icc)
+!                          !                 if(abs(zrr(irotm1,icc))<1d-8) cycle
+!                          rcxq0(:,i2(irotm1,icc)) =rcxq0(:,i2(irotm1,icc)) + rcxqwww(:,i1(irotm1,icc)) * zrr(irotm1,icc)
+!                       enddo
+!                       do irotm2 = 1,nrotm(icc)
+!                          !                 if(abs(zrrc(irotm2,icc))<1d-8) cycle
+!                          rcxq00(i2(irotm2,icc),:)= rcxq00(i2(irotm2,icc),:) + zrrc(irotm2,icc) * rcxq0(i1(irotm2,icc),:)
+!                       enddo
 
-                      !               if(itimer==1) then
-                      !                 rcxq000 = rcxq000 + rcxq00
-                      !               else
-                      !                 rcxq000 = rcxq000 + transpose(rcxq00)
-                      !               endif
+!                       !               if(itimer==1) then
+!                       !                 rcxq000 = rcxq000 + rcxq00
+!                       !               else
+!                       !                 rcxq000 = rcxq000 + transpose(rcxq00)
+!                       !               endif
 
-                      !$$$               do irotm = 1,nrotm(icc)
-                      !$$$                iyy = i1(irotm,icc)
-                      !$$$                iy  = i2(irotm,icc)
-                      !$$$                rcxq0(:,iy)= rcxq0(:,iy)+ rcxq(:,iyy,iw,jpm)* zrr(irotm,icc)
-                      !$$$               enddo
-                      !$$$               do irotm = 1,nrotm(icc)
-                      !$$$                iyy = i1(irotm,icc)
-                      !$$$                iy  = i2(irotm,icc)
-                      !$$$                rcxq00(iy,:)= rcxq00(iy,:)+ dconjg(zrr(irotm,icc)) * rcxq0(iyy,:)
-                      !$$$               enddo
-                      !$$$
-                      ! cccccccccccccccccccccccccccccccccccccccccccccccccccccc
-                      !               if(iw==1.and.jpm==1) then
-                      !                  write(6,"('bbbbbbb ig icc iw jpm rcxq', 4i3, 13d13.6)")
-                      !     &                 ig,icc,iw,jpm, sum(abs(rcxq00)), rcxq00(1,1),sum(abs(rcxqwww)),sum((rcxqwww))
-                      !               endif
-                      ! ccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!                       !$$$               do irotm = 1,nrotm(icc)
+!                       !$$$                iyy = i1(irotm,icc)
+!                       !$$$                iy  = i2(irotm,icc)
+!                       !$$$                rcxq0(:,iy)= rcxq0(:,iy)+ rcxq(:,iyy,iw,jpm)* zrr(irotm,icc)
+!                       !$$$               enddo
+!                       !$$$               do irotm = 1,nrotm(icc)
+!                       !$$$                iyy = i1(irotm,icc)
+!                       !$$$                iy  = i2(irotm,icc)
+!                       !$$$                rcxq00(iy,:)= rcxq00(iy,:)+ dconjg(zrr(irotm,icc)) * rcxq0(iyy,:)
+!                       !$$$               enddo
+!                       !$$$
+!                       ! cccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!                       !               if(iw==1.and.jpm==1) then
+!                       !                  write(6,"('bbbbbbb ig icc iw jpm rcxq', 4i3, 13d13.6)")
+!                       !     &                 ig,icc,iw,jpm, sum(abs(rcxq00)), rcxq00(1,1),sum(abs(rcxqwww)),sum((rcxqwww))
+!                       !               endif
+!                       ! ccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-                   endif
-                enddo
+!                    endif
+!                 enddo
 
-                !$$$           if(itimer==1) then
-                !$$$             rcxq000(:,:) = matmul(zcousqc,matmul(rcxq00,zcousq))
-                !$$$c$$$c               call zgemm("N","N",ngb,ngb,ngb, (1d0,0d0), rcxq00, ngb, zcousq,ngb, (0d0,0d0), rzc,ngb)
-                !$$$c$$$c               call zgemm("N","N",ngb,ngb,ngb, (1d0,0d0), zcousqc,ngb, rzc,ngb, (0d0,0d0), rcxq000,ngb)
-                !$$$           elseif(icount>0) then
-                !$$$c$$$c           write(6,*)'qqqqq icount=',icount
-                !$$$c$$$c           rcxq000(:,:) = rcxq000(:,:) + transpose(matmul(transpose(zcousq),matmul(rcxq00,dconjg(zcousq))))
-                !$$$             rcxq000(:,:) = rcxq000(:,:) +   matmul(matmul(zcousqc,transpose(rcxq00)),zcousq)
-                !$$$           endif
+!                 !$$$           if(itimer==1) then
+!                 !$$$             rcxq000(:,:) = matmul(zcousqc,matmul(rcxq00,zcousq))
+!                 !$$$c$$$c               call zgemm("N","N",ngb,ngb,ngb, (1d0,0d0), rcxq00, ngb, zcousq,ngb, (0d0,0d0), rzc,ngb)
+!                 !$$$c$$$c               call zgemm("N","N",ngb,ngb,ngb, (1d0,0d0), zcousqc,ngb, rzc,ngb, (0d0,0d0), rcxq000,ngb)
+!                 !$$$           elseif(icount>0) then
+!                 !$$$c$$$c           write(6,*)'qqqqq icount=',icount
+!                 !$$$c$$$c           rcxq000(:,:) = rcxq000(:,:) + transpose(matmul(transpose(zcousq),matmul(rcxq00,dconjg(zcousq))))
+!                 !$$$             rcxq000(:,:) = rcxq000(:,:) +   matmul(matmul(zcousqc,transpose(rcxq00)),zcousq)
+!                 !$$$           endif
 
-                if(itimer==1) then
-                   rcxq000=rcxq00
-                else
-                   rcxq000=rcxq000+rcxq00
-                endif
-             enddo
-             rcxq_core = rcxq000/neibz
-!#if 1
-!             !! matmul(rcxq(:,:,iw,jpm),zcousq) fails in ifort 14.0.3.
-!             !! It looks that ifort 14.0.3 has a bug
-!             !! But, zgemm works. So I changed like that.
-!             call zgemm('N','N',ngb,ngb,ngb,(1.0d0,0.0d0),rcxq_core,ngb,zcousq, ngb, (0.0d0,0.0d0),rcxq000,ngb)
-!             call zgemm('N','N',ngb,ngb,ngb,(1.0d0,0.0d0),zcousqc  ,ngb,rcxq000,ngb, (0.0d0,0.0d0),rcxq_core,ngb)
-!             rcxq(:,:,iw,jpm) = rcxq_core
-!#else
-             rcxq(:,:,iw,jpm) = matmul(zcousqc,matmul(rcxq_core,zcousq))
-!#endif
-          enddo
-       enddo
-       ! OMP end  do
-       deallocate(rcxq00,rcxq000,rcxq0,rcxqwww)
-       ! OMP end parallel
-       deallocate(zrotm,i1,i2)
+!                 if(itimer==1) then
+!                    rcxq000=rcxq00
+!                 else
+!                    rcxq000=rcxq000+rcxq00
+!                 endif
+!              enddo
+!              rcxq_core = rcxq000/neibz
+! !#if 1
+! !             !! matmul(rcxq(:,:,iw,jpm),zcousq) fails in ifort 14.0.3.
+! !             !! It looks that ifort 14.0.3 has a bug
+! !             !! But, zgemm works. So I changed like that.
+! !             call zgemm('N','N',ngb,ngb,ngb,(1.0d0,0.0d0),rcxq_core,ngb,zcousq, ngb, (0.0d0,0.0d0),rcxq000,ngb)
+! !             call zgemm('N','N',ngb,ngb,ngb,(1.0d0,0.0d0),zcousqc  ,ngb,rcxq000,ngb, (0.0d0,0.0d0),rcxq_core,ngb)
+! !             rcxq(:,:,iw,jpm) = rcxq_core
+! !#else
+!              rcxq(:,:,iw,jpm) = matmul(zcousqc,matmul(rcxq_core,zcousq))
+! !#endif
+!           enddo
+!        enddo
+!        ! OMP end  do
+!        deallocate(rcxq00,rcxq000,rcxq0,rcxqwww)
+!        ! OMP end parallel
+!        deallocate(zrotm,i1,i2)
 
-       !$$$        allocate(zcousqr(ngb,ngb,neibz),rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxqtr(ngb,ngb))
-       !$$$        icc=0
-       !$$$        do itimer=1,-1,-2
-       !$$$        do ig=1,ngrp
-       !$$$          if(eibzsym(ig,itimer)==1) then
-       !$$$            icc=icc+1
-       !$$$            if(itimer==1) then
-       !$$$              call rotMPB(zcousq,nbloch,ngb,q,ig,itimer,ginv,zcousqr(1,1,icc))
-       !$$$            else
-       !$$$!! time reversal mapping ---
-       !$$$              call rotMPB(dconjg(zcousq),nbloch,ngb,q,ig,itimer,ginv,zcousqr(1,1,icc))
-       !$$$            endif
-       !$$$          endif
-       !$$$        enddo
-       !$$$        enddo
-       !$$$
-       !$$$        do iw=1,nwhis
-       !$$$        do jpm=1,npm
-       !$$$          rcxq0=0d0
-       !$$$          icc=0
-       !$$$c          do itimer=1,1 !1,-1,-2
-       !$$$          do itimer=1,-1,-2
-       !$$$          do ig=1,ngrp
-       !$$$            if(eibzsym(ig,itimer)==1) then
-       !$$$             icc=icc+1
-       !$$$             rcxq00(:,:) = matmul(dconjg(transpose(zcousqr(:,:,icc))),
-       !$$$     &                          matmul(rcxq(:,:,iw,jpm),zcousqr(:,:,icc)))
-       !$$$!! time reversal mapping ---
-       !$$$             if(itimer==-1) rcxq00(:,:) = transpose(rcxq00)
-       !$$$             rcxq0(:,:) = rcxq0(:,:)+ rcxq00(:,:)
-       !$$$            endif
-       !$$$          enddo
-       !$$$          enddo
-       !$$$          rcxq(:,:,iw,jpm)=rcxq0(:,:)/neibz
-       !$$$        enddo
-       !$$$        enddo
-       !$$$        deallocate(zcousqr,rcxq0,rcxq00,rcxqtr)
-       if(debug) call cputid2(' --- qqqqq222end:',0)
-    endif
-9999 continue
-    write(6,"(' --- x0kf_v4hz_symmetrize: end')")
-  end subroutine x0kf_v4hz_symmetrize
+!        !$$$        allocate(zcousqr(ngb,ngb,neibz),rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxqtr(ngb,ngb))
+!        !$$$        icc=0
+!        !$$$        do itimer=1,-1,-2
+!        !$$$        do ig=1,ngrp
+!        !$$$          if(eibzsym(ig,itimer)==1) then
+!        !$$$            icc=icc+1
+!        !$$$            if(itimer==1) then
+!        !$$$              call rotMPB(zcousq,nbloch,ngb,q,ig,itimer,ginv,zcousqr(1,1,icc))
+!        !$$$            else
+!        !$$$!! time reversal mapping ---
+!        !$$$              call rotMPB(dconjg(zcousq),nbloch,ngb,q,ig,itimer,ginv,zcousqr(1,1,icc))
+!        !$$$            endif
+!        !$$$          endif
+!        !$$$        enddo
+!        !$$$        enddo
+!        !$$$
+!        !$$$        do iw=1,nwhis
+!        !$$$        do jpm=1,npm
+!        !$$$          rcxq0=0d0
+!        !$$$          icc=0
+!        !$$$c          do itimer=1,1 !1,-1,-2
+!        !$$$          do itimer=1,-1,-2
+!        !$$$          do ig=1,ngrp
+!        !$$$            if(eibzsym(ig,itimer)==1) then
+!        !$$$             icc=icc+1
+!        !$$$             rcxq00(:,:) = matmul(dconjg(transpose(zcousqr(:,:,icc))),
+!        !$$$     &                          matmul(rcxq(:,:,iw,jpm),zcousqr(:,:,icc)))
+!        !$$$!! time reversal mapping ---
+!        !$$$             if(itimer==-1) rcxq00(:,:) = transpose(rcxq00)
+!        !$$$             rcxq0(:,:) = rcxq0(:,:)+ rcxq00(:,:)
+!        !$$$            endif
+!        !$$$          enddo
+!        !$$$          enddo
+!        !$$$          rcxq(:,:,iw,jpm)=rcxq0(:,:)/neibz
+!        !$$$        enddo
+!        !$$$        enddo
+!        !$$$        deallocate(zcousqr,rcxq0,rcxq00,rcxqtr)
+!        if(debug) call cputid2(' --- qqqqq222end:',0)
+!     endif
+! 9999 continue
+!     write(6,"(' --- x0kf_v4hz_symmetrize: end')")
+!   end subroutine x0kf_v4hz_symmetrize
 
 end module m_x0kf
 

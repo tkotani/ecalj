@@ -41,8 +41,8 @@ program hrcxq
        egauss,ecut,ecuts,nbcut,nbcut2,mtet,ebmx,nbmx,imbas
   use m_qbze,only:    Setqbze, nqbze,nqibze,qbze,qibze
   use m_readhbe,only: Readhbe, nband !, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-  use m_eibz,only:    Seteibz, nwgt,neibz,igx,igxt,eibzsym
-  use m_x0kf,only:    X0kf_v4hz, X0kf_v4hz_symmetrize, X0kf_v4hz_init,x0kf_v4hz_init_write,x0kf_v4hz_init_read,x0kf_zmel
+!  use m_eibz,only:    Seteibz, nwgt,neibz,igx,igxt,eibzsym
+  use m_x0kf,only:    X0kf_v4hz, X0kf_v4hz_init,x0kf_v4hz_init_write,x0kf_v4hz_init_read,x0kf_zmel !X0kf_v4hz_symmetrize, 
   use m_llw,only:     WVRllwR,WVIllwI,w4pmode,MPI__sendllw
   !! MPI
   use m_mpi,only: MPI__hx0fp0_rankdivider2Q, MPI__Qtask, &
@@ -58,7 +58,8 @@ program hrcxq
   real(8),allocatable :: symope(:,:), ekxx1(:,:),ekxx2(:,:)
   complex(8),allocatable:: zxq(:,:,:),zxqi(:,:,:),zzr(:,:), rcxq(:,:,:,:)
   logical :: debug=.false. , realomega, imagomega, nolfco=.false.
-  logical :: hx0, eibzmode, eibz4x0,iprintx=.false.,chipm=.false., localfieldcorrectionllw
+  logical :: hx0, iprintx=.false.,chipm=.false., localfieldcorrectionllw
+  !eibzmode, eibz4x0,
   integer:: i_red_npm, i_red_nwhis,  i_red_nmbas2,ierr,ircxq,npmx
   character(10) :: i2char
   character(20):: outs=''
@@ -103,8 +104,9 @@ program hrcxq
   ! nblochpmx = nbloch + ngcmx ! Maximum of MPB = PBpart +  IPWpartforMPB
   iqxini = 1
   iqxend = nqibz + nq0i + nq0iadd ! [iqxini:iqxend] range of q points.
-  eibzmode = eibz4x0()                ! EIBZ mode
-  call Seteibz(iqxini,iqxend,iprintx) ! EIBZ mode
+  ! Remove symmetrizer 2023Jan22
+  !eibzmode = .false. !eibz4x0()                ! EIBZ mode
+  !call Seteibz(iqxini,iqxend,iprintx) ! EIBZ mode
   !!    call Setw4pmode() !W4phonon. !still developing...
   !! Rank divider
   call MPI__hx0fp0_rankdivider2Q(iqxini,iqxend)
@@ -129,23 +131,25 @@ program hrcxq
      nmbas1 = nmbas_in !We (will) use nmbas1 and nmbas2 for block division of matrices.
      nmbas2 = nmbas_in
      !! We set ppovlz for calling get_zmelt (get matrix elements) \in m_zmel \in subroutine x0kf_v4hz
-     call Setppovlz(qp,matz=.not.eibz4x0())
+     call Setppovlz(qp,matz=.true. ) !.not.eibzmode)
      allocate( rcxq(nmbas1,nmbas2,nwhis,npm))
      rcxq = 0d0
      do 1003 is = MPI__Ss,MPI__Se !is=1,nspin. rcxq is acuumulated for spins
         write(6,"(' ### ',2i4,' out of nqibz+n0qi+nq0iadd nsp=',2i4,' ### ')")iq,is,nqibz+nq0i+nq0iadd,nspin
         isf = is
         call X0kf_v4hz_init_read(iq,is) !readin icount data (index sets and tetrahedron weight)
-        call x0kf_v4hz(qp, is,isf, iq, nmbas_in, eibzmode=eibzmode, nwgt=nwgt(:,iq),rcxq=rcxq,iqxini=iqxini)
+        call x0kf_v4hz(qp, is,isf, iq, nmbas_in, rcxq=rcxq,iqxini=iqxini)
+        !, eibzmode=eibzmode
         !  rcxq is accumulating
 1003 enddo
      !! Symmetrize and convert to Enu basis (diagonalized basis for the Coulomb matrix).
      !!   That is, we get dconjg(tranpsoce(zcousq))*rcxq*zcousq for eibzmode
-     if(eibzmode)  then
-        call x0kf_v4hz_symmetrize( qp, iq, &
-             nolfco, zzr, nmbas_in, chipm, eibzmode=eibzmode, eibzsym=eibzsym(:,:,iq), &
-             rcxq=rcxq)              !  crystal symmetry of rcxq is recovered for EIBZ mode.
-     endif
+     ! Remove eibzmode symmetrizer 2023Jan22
+     !     if(eibzmode)  then
+     !        call x0kf_v4hz_symmetrize( qp, iq, &
+     !             nolfco, zzr, nmbas_in, chipm, eibzmode=eibzmode, eibzsym=eibzsym(:,:,iq), &
+     !             rcxq=rcxq)              !  crystal symmetry of rcxq is recovered for EIBZ mode.
+     !     endif
      !! only output in this program
      open(newunit=ircxq,file='rcxq.'//trim(i2char(iq)),form='unformatted')
      write(ircxq) nmbas1,nmbas2

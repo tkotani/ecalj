@@ -118,7 +118,7 @@ program hmagnon
   integer,allocatable:: imbas(:), imbas_s(:),iibas(:)
   real(8):: fourpi,sqfourpi,tpioa,absq,vcou1,vcou1sq
 
-  integer,allocatable:: nwgt(:,:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
+!  integer,allocatable:: nwgt(:,:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
   integer:: ificlass,k !,ifile_handle
   real(8)::ebmx
   integer:: nbmx,mtet(3)
@@ -134,7 +134,7 @@ program hmagnon
   integer::ifgas,ifchipmz_wan,ifchipmr_wan,ifchipmrk_wan
   real(8),allocatable::ev_w1(:,:),ev_w2(:,:)
   complex(8),allocatable::evc_w1(:,:,:),evc_w2(:,:,:)
-  logical::wan=.true.,lhm,lsvd,nms,eibzmode
+  logical::wan=.true.,lhm,lsvd,nms!,eibzmode
   logical(8):: lqsh_all
   real(8):: nms_delta
   logical(8):: ijklmag !for checkorb2
@@ -404,12 +404,12 @@ program hmagnon
   !! This is because band connectivity is judged by just from band ordering in tetrahedron weitht tetwt5.
   !!  For rotation of zcousq.  See readeigen.F rotwv.F ppbafp.fal.F(for index of product basis).
   !     okumura
-  eibzmode=.false.          !simple symmetry
+  !eibzmode=.false.          !simple symmetry
   !$$$c     end okumura
   iqxendx=iqxend
-  allocate( nwgt(1,iqxini:iqxendx),igx(1,1,iqxini:iqxendx) &
-       ,igxt(1,1,iqxini:iqxendx), eibzsym(1,1,iqxini:iqxendx)) !dummy
-  nwgt=1
+!  allocate( nwgt(1,iqxini:iqxendx),igx(1,1,iqxini:iqxendx) &
+!       ,igxt(1,1,iqxini:iqxendx), eibzsym(1,1,iqxini:iqxendx)) !dummy
+!  nwgt=1
 
   !! Wannier eigenvalues are read
   do is=1,nspinmx
@@ -520,11 +520,8 @@ program hmagnon
      write(6,"('= start wan_gettetwt =',2i6,3f9.4)") nwf,iq,q
 
      !! tetrahedron weight
-     call gettetwt(q,iq,isdummy,isdummy,nwgt(:,iq),ev_w1,ev_w2,nwf,eibzmode,wan)
-     !$$$         call gettetwt(q,iq,isdummy,isdummy,nwgt(:,iq),frhis,nwhis,npm,
-     !$$$     i        qbas,ginv, ef, nqibz, nwf,ev_w1,ev_w2, nctot,wan_ecore,
-     !$$$     i        nqbz,qbz,nqbzw,qbzw,  ntetf,idtetf,ib1bz,
-     !$$$     i        nwf,ebmx,mtet,eibzmode,wan) !nov2016
+!call gettetwt(q,iq,isdummy,isdummy,nwgt(:,iq),ev_w1,ev_w2,nwf,eibzmode,wan)
+     call gettetwt(q,iq,isdummy,isdummy,ev_w1,ev_w2,nwf,wan)
      write(6,*) "=== end gettetwt"
      deallocate(ev_w1,ev_w2)
 !!!! normalization of Im[K]:

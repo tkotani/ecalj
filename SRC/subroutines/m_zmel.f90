@@ -73,29 +73,30 @@ contains
   end subroutine Deallocate_zmel0
   ! ssssssssssssssssssssssssssssssssss
   subroutine setppovlz(q,matz)
-    intent(in)::         q,matz
+    intent(in)::       q,matz
+    logical:: matz
     !! set ppovlz for given q
     !    ppolvz(igb,ivcou)= (1    0 ) \times  zcousq(igb, ivcou)
     !                       (0 ppovl)
     !    If matz=F, no multiplication by ivcou.  Thus we have ppolz(igb,igb)
     real(8) :: q(3)
     complex(8),allocatable :: ppovl_(:,:),ppovl(:,:)!,ppovlzinv(:,:)
-    logical:: eibz4x0,matz
+!    logical:: eibz4x0,matz
     integer:: i
     if(allocated(ppovlz)) deallocate(ppovlz)
     if(allocated(ppovl)) deallocate(ppovl)
     allocate( ppovl(ngc,ngc),ppovlz(ngb,ngb))!,   ppovlzinv(ngb,ngb))
     call readppovl0(q,ngc,ppovl) !q was qq
-    if(matz) then   !sep2014 added for eibz4x0=F
+!    if(matz) then   !sep2014 added for eibz4x0=F
        ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
        ppovlz(nbloch+1:nbloch+ngc,:)=matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
-    else
-       ppovlz=0d0
-       do i=1,nbloch
-          ppovlz(i,i)=1d0
-       enddo
-       ppovlz(nbloch+1:nbloch+ngc,nbloch+1:nbloch+ngc) = ppovl
-    endif
+!    else
+!       ppovlz=0d0
+!       do i=1,nbloch
+!          ppovlz(i,i)=1d0
+!       enddo
+!       ppovlz(nbloch+1:nbloch+ngc,nbloch+1:nbloch+ngc) = ppovl
+!    endif
     deallocate(ppovl)
   end subroutine setppovlz
   !----------------------------------------------------

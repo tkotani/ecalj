@@ -35,8 +35,8 @@ program hx0init !initializaiton of x0 calculaiton (W-v)
   use m_readgwinput,only: ReadGwinputKeys, egauss,ecut,ecuts,nbcut,nbcut2,mtet,ebmx,nbmx,imbas
   use m_qbze,only:    Setqbze, nqbze,nqibze,qbze,qibze
   use m_readhbe,only: Readhbe, nband 
-  use m_eibz,only:    Seteibz, nwgt,neibz,igx,igxt,eibzsym
-  use m_x0kf,only:    X0kf_v4hz, X0kf_v4hz_symmetrize, X0kf_v4hz_init,x0kf_v4hz_init_write,x0kf_v4hz_init_read
+!  use m_eibz,only:    Seteibz, nwgt!,neibz,igx,igxt,eibzsym
+  use m_x0kf,only:    X0kf_v4hz, X0kf_v4hz_init,x0kf_v4hz_init_write,x0kf_v4hz_init_read !, X0kf_v4hz_symmetrize
   use m_llw,only:     WVRllwR,WVIllwI,w4pmode,MPI__sendllw
   use m_mpi,only: MPI__hx0fp0_rankdivider2Q, MPI__Qtask, &
        MPI__Initialize, MPI__Finalize,MPI__root, &
@@ -51,12 +51,13 @@ program hx0init !initializaiton of x0 calculaiton (W-v)
   real(8),allocatable :: symope(:,:), ekxx1(:,:),ekxx2(:,:)
   complex(8),allocatable:: zxq(:,:,:),zxqi(:,:,:), rcxq(:,:,:,:)
   logical :: debug=.false. , realomega, imagomega, nolfco=.false.
-  logical :: hx0, eibzmode, crpa, eibz4x0,iprintx=.false.,chipm=.false., localfieldcorrectionllw
+  logical :: hx0, crpa, iprintx=.false.,chipm=.false., localfieldcorrectionllw !eibz4x0,, eibzmode
   integer:: i_red_npm, i_red_nwhis,  i_red_nmbas2,ierr,ircxq,npmx
   character(8) :: charext
   character(20):: outs=''
   integer:: ipart
   logical:: cmdopt2
+!  integer,allocatable:: nwgt(:,:)
   !-------------------------------------------------------------------------
   call MPI__Initialize()
   call M_lgunit_init()
@@ -135,12 +136,13 @@ program hx0init !initializaiton of x0 calculaiton (W-v)
      close(ifwd)
   endif
   allocate(ekxx1(nband,nqbz),ekxx2(nband,nqbz)) ! For eigenvalues.
-  eibzmode = eibz4x0()                ! EIBZ mode
-  call Seteibz(iqxini,iqxend,iprintx) ! EIBZ mode
+  !eibzmode = .false. !eibz4x0()                ! EIBZ mode
+  !call Seteibz(iqxini,iqxend,iprintx) ! EIBZ mode
   !!    call Setw4pmode() !W4phonon. !still developing...
   call MPI__hx0fp0_rankdivider2Q(iqxini,iqxend)! Rank divider
   MPI__Ss = 1
   MPI__Se = nspin
+!  allocate( nwgt(1,iqxini:iqxend))
   !! === do 1001 loop over iq ============================================
   !! external index :iq (q vector IBZ), ,igb1,igb2 (MPB index), jpm,iw (omega)
   !! internal index : k (k vector BZ), it,itp (band)
@@ -158,10 +160,11 @@ program hx0init !initializaiton of x0 calculaiton (W-v)
            ekxx1(1:nband,kx) = readeval(qbz(:,kx),    is ) ! read eigenvalue
            ekxx2(1:nband,kx) = readeval(qp+qbz(:,kx), isf) !
         enddo
-        call gettetwt(qp,iq,is,isf,nwgt(:,iq),ekxx1,ekxx2,nband=nband,eibzmode=eibzmode) ! Tetrahedron weight for x0kf_v4hz
-        ierr=x0kf_v4hz_init(0,qp,is,isf,iq,nmbas_in, eibzmode=eibzmode, nwgt=nwgt(:,iq),crpa=crpa)
-        ierr=x0kf_v4hz_init(1,qp,is,isf,iq,nmbas_in, eibzmode=eibzmode, nwgt=nwgt(:,iq),crpa=crpa)
-        call X0kf_v4hz_init_write(iq,is) !Write whw and indexs to invoke hrcxq
+        call gettetwt(qp,iq,is,isf,ekxx1,ekxx2,nband=nband) !,eibzmode=eibzmode) !,nwgt(:,iq) Tetrahedron weight for x0kf_v4hz
+        ierr=x0kf_v4hz_init(0,qp,is,isf,iq,nmbas_in, crpa=crpa)
+        ierr=x0kf_v4hz_init(1,qp,is,isf,iq,nmbas_in, crpa=crpa)
+        !eibzmode=eibzmode, nwgt=nwgt(:,iq)
+        call X0kf_v4hz_init_write(iq,is)!Write whw and indexs to invoke hrcxq
         call tetdeallocate()
 1103 enddo isloop
 1101 enddo iqloop

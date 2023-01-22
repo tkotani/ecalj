@@ -40,12 +40,12 @@ contains
   end subroutine Tetdeallocate
 
   !! routine --------------------------------------------------------
-  subroutine Gettetwt(q,iq,is,isf,nwgt, &
-       ekxx1,ekxx2,nband,eibzmode, &
+  subroutine Gettetwt(q,iq,is,isf, & !nwgt, &
+       ekxx1,ekxx2,nband,& !eibzmode, &
        wan )                 !Jan2019 okumura's option
-    intent(in)::        q,iq,is,isf,nwgt, &
-         ekxx1,ekxx2,nband,eibzmode, &
-         wan
+    intent(in)::      q,iq,is,isf,&!nwgt, &
+       ekxx1,ekxx2,nband, &!eibzmode, &
+       wan
     !!
     !! nqibz_mtet: is only for mtet/=(/1,1,1/) --->(we usually use only this case)
     !!
@@ -62,7 +62,7 @@ contains
     !      use m_zmel,only: nband
     !      use m_ReadEfermi,only: readefermi,ef
 
-    integer:: is,isf,iq,nwgt(:),nband
+    integer:: is,isf,iq,nband !,nwgt(:)
     !      integer:: ntetf,idtetf(0:3,ntetf),ib1bz(nqbzw)
     real(8):: q(3) !,qlat(3,3),ginv(3,3),ef,qbz(3,nqbz),qbzw(3,nqbzw),ebmx
     real(8):: ekxx1(nband,nqbz),ekxx2(nband,nqbz) !qbzw(:,: )
@@ -139,7 +139,7 @@ contains
     nbnbx,ibjb,nhwtot,        & ! job=1    not-used
     ihw,nhw,jhw,              & ! job=1    not-used
     whw,                      & ! job=1    not-used
-    iq,is,isf,nqibz_mtet, eibzmode,nwgt, &
+    iq,is,isf,nqibz_mtet,&! eibzmode,nwgt, &
          nbmx,ebmx,mtet, wan1 ) !Jan2019 for Wannier
 
     deallocate(ibjb,ihw,jhw,nhw,whw) !dummy
@@ -256,7 +256,7 @@ contains
     nbnbx,ibjb,nhwtot,        &  !job=1
     ihw,nhw,jhw,              &  !job=1
     whw,                      &  !job=1
-    iq,is,isf,nqibz_mtet, eibzmode,nwgt, &
+    iq,is,isf,nqibz_mtet, &!eibzmode,nwgt, &
          nbmx,ebmx,mtet, wan1)           !Jan2019
     deallocate(demin,demax,iwgt,nbnbtt)
 

@@ -19,8 +19,8 @@ program hx0zmel ! Calculate matrix elements zmel needed for calculating x0.
   use m_readgwinput,only: ReadGwinputKeys, egauss,ecut,ecuts,nbcut,nbcut2,mtet,ebmx,nbmx,imbas
   use m_qbze,only:    Setqbze, nqbze,nqibze,qbze,qibze
   use m_readhbe,only: Readhbe, nband !, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-  use m_eibz,only:    Seteibz, nwgt,neibz,igx,igxt,eibzsym
-  use m_x0kf,only:    X0kf_v4hz, X0kf_v4hz_symmetrize, X0kf_v4hz_init, &
+!  use m_eibz,only:    Seteibz, nwgt,neibz,igx,igxt,eibzsym
+  use m_x0kf,only:    X0kf_v4hz,  X0kf_v4hz_init, & !X0kf_v4hz_symmetrize,
        X0kf_v4hz_init_write,X0kf_v4hz_init_read,X0kf_zmel, kc,ncount
   use m_llw,only:     WVRllwR,WVIllwI,w4pmode,MPI__sendllw
   use m_mpi,only: MPI__hx0fp0_rankdivider2Q, MPI__Qtask, &
@@ -35,7 +35,7 @@ program hx0zmel ! Calculate matrix elements zmel needed for calculating x0.
   real(8),allocatable :: symope(:,:), ekxx1(:,:),ekxx2(:,:)
   complex(8),allocatable:: zxq(:,:,:),zxqi(:,:,:),zzr(:,:), rcxq(:,:,:,:)
   logical :: debug=.false. , realomega, imagomega, nolfco=.false.
-  logical :: hx0, eibzmode, eibz4x0,iprintx=.false.,chipm=.false., localfieldcorrectionllw
+  logical :: hx0, iprintx=.false.,chipm=.false., localfieldcorrectionllw !eibz4x0,eibzmode, 
   integer:: i_red_npm, i_red_nwhis,  i_red_nmbas2,ierr,ircxq,npmx,kold,isold
   character(8) :: charext
   character(20):: outs=''
@@ -76,8 +76,8 @@ program hx0zmel ! Calculate matrix elements zmel needed for calculating x0.
   ! nblochpmx = nbloch + ngcmx ! Maximum of MPB = PBpart +  IPWpartforMPB
   iqxini = 1
   iqxend = nqibz + nq0i + nq0iadd ! [iqxini:iqxend] range of q points.
-  eibzmode = eibz4x0()                ! EIBZ mode
-  call Seteibz(iqxini,iqxend,iprintx) ! EIBZ mode
+  !eibzmode = .false. !eibz4x0()                ! EIBZ mode
+  !call Seteibz(iqxini,iqxend,iprintx) ! EIBZ mode
   !!    call Setw4pmode() !W4phonon. !still developing...
   call MPI__hx0fp0_rankdivider2Q(iqxini,iqxend) !! Rank divider
   MPI__Ss = 1
@@ -97,7 +97,7 @@ program hx0zmel ! Calculate matrix elements zmel needed for calculating x0.
         nolfco = .false.
         nmbas_in = ngb
      endif
-     call Setppovlz(qp,matz=.not.eibz4x0())
+     call Setppovlz(qp,matz=.true.) !.not.eibzmode)
      isloop:do 2003 is = MPI__Ss,MPI__Se !is=1,nspin. rcxq is acuumulated for spins
         isf = is
         call X0kf_v4hz_init_read(iq,is) !readin icount data (index sets and tetrahedron weight)

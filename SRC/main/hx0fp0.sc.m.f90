@@ -37,8 +37,8 @@ program hx0fp0_sc
        egauss,ecut,ecuts,nbcut,nbcut2,mtet,ebmx,nbmx,imbas
   use m_qbze,only:    Setqbze, nqbze,nqibze,qbze,qibze
   use m_readhbe,only: Readhbe, nband 
-  use m_eibz,only:    Seteibz, nwgt,neibz,igx,igxt,eibzsym
-  use m_x0kf,only:    X0kf_v4hz, X0kf_v4hz_symmetrize, X0kf_v4hz_init,x0kf_v4hz_init_write,x0kf_v4hz_init_read
+!  use m_eibz,only:    Seteibz, nwgt,neibz,igx,igxt,eibzsym
+  use m_x0kf,only:    X0kf_v4hz, X0kf_v4hz_init,x0kf_v4hz_init_write,x0kf_v4hz_init_read !X0kf_v4hz_symmetrize, 
   use m_llw,only:     WVRllwR,WVIllwI,w4pmode,MPI__sendllw
   use m_mpi,only: MPI__hx0fp0_rankdivider2Q, MPI__Qtask, &
        MPI__Initialize, MPI__Finalize,MPI__root, &
@@ -59,6 +59,7 @@ program hx0fp0_sc
   character(20):: outs=''
   integer:: ipart
   logical:: cmdopt2
+  integer,allocatable:: nwgt(:,:)
   !-------------------------------------------------------------------------
   call MPI__Initialize()
   call m_lgunit_init()
@@ -140,8 +141,10 @@ program hx0fp0_sc
      close(ifwd)
   endif
   allocate(ekxx1(nband,nqbz),ekxx2(nband,nqbz)) ! For eigenvalues.
-  eibzmode = eibz4x0()                ! EIBZ mode
-  call Seteibz(iqxini,iqxend,iprintx) ! EIBZ mode
+  eibzmode = .false. !eibz4x0()                ! EIBZ mode
+  !call Seteibz(iqxini,iqxend,iprintx) ! EIBZ mode
+  allocate( nwgt(1,iqxini:iqxend))
+  
   !!    call Setw4pmode() !W4phonon. !still developing...
   !! Rank divider
   call MPI__hx0fp0_rankdivider2Q(iqxini,iqxend)
@@ -164,8 +167,7 @@ program hx0fp0_sc
   !!
 
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
-  !! do 1101 is for whw and index for x0kf_v4hz
-  do 1101 iq = iqxini,iqxend
+  do 1101 iq = iqxini,iqxend !for whw and index for x0kf_v4hz
      if( .NOT. MPI__Qtask(iq) ) cycle
      call cputid (0)
      qp = qibze(:,iq)
@@ -178,14 +180,14 @@ program hx0fp0_sc
            ekxx1(1:nband,kx) = readeval(qbz(:,kx),    is ) ! read eigenvalue
            ekxx2(1:nband,kx) = readeval(qp+qbz(:,kx), isf) !
         enddo
-        call gettetwt(qp,iq,is,isf,nwgt(:,iq),ekxx1,ekxx2,nband=nband,eibzmode=eibzmode) ! Tetrahedron weight for x0kf_v4hz
-        ierr=x0kf_v4hz_init(0,qp,is,isf,iq,nmbas_in, eibzmode=eibzmode, nwgt=nwgt(:,iq),crpa=crpa)
-        ierr=x0kf_v4hz_init(1,qp,is,isf,iq,nmbas_in, eibzmode=eibzmode, nwgt=nwgt(:,iq),crpa=crpa)
+        call gettetwt(qp,iq,is,isf,ekxx1,ekxx2,nband=nband) !,eibzmode=eibzmode) !,nwgt(:,iq) Tetrahedron weight for x0kf_v4hz
+        ierr=x0kf_v4hz_init(0,qp,is,isf,iq,nmbas_in,crpa=crpa)
+        ierr=x0kf_v4hz_init(1,qp,is,isf,iq,nmbas_in,crpa=crpa)
+        !eibzmode=eibzmode,!nwgt=nwgt(:,iq),
         call X0kf_v4hz_init_write(iq,is)
         call tetdeallocate()
 1103 enddo
 1101 enddo
-
 
   !! Obtain rcxq -------------------
   do 1001 iq = iqxini,iqxend
@@ -205,7 +207,7 @@ program hx0fp0_sc
      nmbas1 = nmbas_in !We (will) use nmbas1 and nmbas2 for block division of matrices.
      nmbas2 = nmbas_in
      !! We set ppovlz for calling get_zmelt (get matrix elements) \in m_zmel \in subroutine x0kf_v4hz
-     call Setppovlz(qp,matz=.not.eibz4x0())
+     call Setppovlz(qp,matz=.true.) !.not.eibzmode)
      allocate( rcxq(nmbas1,nmbas2,nwhis,npm))
      rcxq = 0d0
      do 1003 is = MPI__Ss,MPI__Se !is=1,nspin. rcxq is acuumulated for spins
@@ -213,23 +215,24 @@ program hx0fp0_sc
         if(debug) write(6,*)' niw nw=',niw,nw
         isf = is
         call X0kf_v4hz_init_read(iq,is)
-        call x0kf_v4hz(qp, is,isf, iq, nmbas_in, eibzmode=eibzmode, nwgt=nwgt(:,iq),rcxq=rcxq,iqxini=iqxini)
+        call x0kf_v4hz(qp, is,isf, iq, nmbas_in, rcxq=rcxq,iqxini=iqxini)
+        !, eibzmode=eibzmode
         !  rcxq is accumulating for spins
 1003 enddo
      !! Symmetrize and convert to Enu basis (diagonalized basis for the Coulomb matrix).
      !!   That is, we get dconjg(tranpsoce(zcousq))*rcxq*zcousq for eibzmode
-     if(eibzmode)  then
-        call x0kf_v4hz_symmetrize( qp, iq, &
-             nolfco, zzr, nmbas_in, chipm, eibzmode=eibzmode, eibzsym=eibzsym(:,:,iq), &
-             rcxq=rcxq)              !  crystal symmetry of rcxq is recovered for EIBZ mode.
-     endif
+     ! Remove symmetrizer 2023Jan22
+     !     if(eibzmode)  then 
+     !        call x0kf_v4hz_symmetrize( qp, iq, &
+     !             nolfco, zzr, nmbas_in, chipm, eibzmode=eibzmode, eibzsym=eibzsym(:,:,iq), &
+     !             rcxq=rcxq)              !  crystal symmetry of rcxq is recovered for EIBZ mode.
+     !     endif
      open(newunit=ircxq,file='rcxq.'//trim(i2char(iq)),form='unformatted')
      write(ircxq) nmbas1,nmbas2
      write(ircxq) rcxq
      close(ircxq)
      deallocate(rcxq)
 1001 enddo
-
 
   !!-Hilbert transformation -----------
   do 1201 iq = iqxini,iqxend
