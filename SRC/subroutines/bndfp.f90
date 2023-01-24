@@ -368,7 +368,7 @@ contains
     if(cmdopt0('--cls')) then
        dosw(1)= emin  - 0.5d0    ! lowest energy limit to plot dos
        dosw(2)= eferm + bz_dosmax ! highest energy limit to plot dos
-       if (master_mpi) call m_clsmode_finalize(eferm,ndimh,ndhamx,nspx,nkp,dosw,evlall)
+       call m_clsmode_finalize(eferm,ndimh,ndhamx,nspx,nkp,dosw,evlall)
        call rx0('Done cls mode:')
     endif
     !! write out orbital moment
