@@ -73,7 +73,7 @@ contains
     use m_igv2x,only: napw,ndimh,ndimhx,igv2x
     use m_procar,only: M_procar_init,dwgtall,nchanp,m_procar_closeprocar,m_procar_writepdos
     use m_bandcal,only: M_bandcal_init,M_bandcal_2nd,M_bandcal_clean,M_bandcal_allreduce, &
-         evlall,smrho_out,sv_p_oqkkl,sv_p_oeqkkl, ndimhx_,nev_,nevls,m_bandcal_symsmrho
+         evlall,smrho_out,sv_p_oqkkl,sv_p_oeqkkl, ndimhx_,nevls,m_bandcal_symsmrho !,nev_
     use m_mkrout,only: M_mkrout_init,orhoat_out,frcbandsym,hbyl_rv,qbyl_rv
     use m_addrbl,only: M_addrbl_allocate_swtk,swtk
     use m_sugw,only: M_sugw_init
@@ -81,7 +81,6 @@ contains
     use m_gennlat_sig,only: M_gennlat_init_sig
     use m_dfrce,only: dfrce
     use m_sugcut,only:sugcut
-
     !i   nbas  : size of basis
     !i   nsp   : number of spins
     !i   nlibu : total number of LDA+U blocks (used to dimension dmatu and vorb)
@@ -142,7 +141,7 @@ contains
     logical:: fsmode !for --fermisurface for xcrysden.
     logical,save:: siginit=.true.
     integer:: iter,i,ifi,ipr,iq,isp,jsp,iprint,ipts
-    integer:: idummy, unlink,ifih,ifii,ib,ix,ifimag
+    integer:: idummy, unlink,ifih,ifii,ib,ix,ifimag,nevmin
     real(8):: ekinval,eharris,eksham,  dosw(2),dum,evtop,ecbot,qp(3),rydberg,xxx,eeem
     real(8):: fh_rv(3,nbas),vnow_magfield,eee,dosi(2),dee,efermxxx,emin,qvalm(2)
     real(8),allocatable:: dosi_rv(:,:),dos_rv(:,:),qmom_in(:)
@@ -237,7 +236,7 @@ contains
     !! Broadcast. Use allreduce to avoid knowing which node to which node.
     !! Because mpi is f77, ndimhx_ and so on are not protected.
     call mpibc2_int(ndimhx_,size(ndimhx_),'bndfp_ndimhx_') !all reduce (instead of which node to which node).
-    call mpibc2_int(nev_,   size(nev_),   'bndfp_nev_') !all reduce
+    !call mpibc2_int(nev_,   size(nev_),   'bndfp_nev_') !all reduce
     call mpibc2_int(nevls,  size(nevls),  'bndfp_nevls') !all reduce (to avoid which node to which node).
     call xmpbnd2(kpproc,ndhamx,nkp,nspx,evlall) !all eigenvalues broadcasted
     evtop=-9999
@@ -248,14 +247,14 @@ contains
              if(evlall(ix,jsp,iq)<eferm) evtop = max(evtop,evlall(ix,jsp,iq))
              if(evlall(ix,jsp,iq)>eferm) ecbot = min(ecbot,evlall(ix,jsp,iq))
           enddo
-          if(master_mpi .AND. iq==1)write(stdl,"('fp evl',8f8.4)")(evlall(i,jsp,iq),i=1,nev_(iq))
+          if(master_mpi .AND. iq==1)write(stdl,"('fp evl',8f8.4)")(evlall(i,jsp,iq),i=1,nevls(iq,jsp))
        enddo
     enddo
-    
     !! pdos mode (--mkprocar and --fullmesh)
     fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface')
     PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
-    if(fullmesh .AND. procaron) call m_procar_writepdos(evlall,nev_,eferm,kpproc)
+    nevmin=minval(nevls(1:nkp,1:nspx))
+    if(fullmesh .AND. procaron) call m_procar_writepdos(evlall,nevmin,eferm,kpproc) !nev_
     if(fullmesh .AND. procaron) call rx0('Done pdos: --mkprocar & --fullmesh. Check by "grep k-point PROCAR.*.*"')
     !! boltztrap data
     if( cmdopt0('--boltztrap')) call writeboltztrap(eferm)
@@ -274,7 +273,8 @@ contains
        if(fsmode) call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
        call rx0('plot band mode done') ! end of band plbnd/=0, that is, band plot mode.
     endif
-    
+    if(plbnd/=0 .AND. fsmode) call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
+    if(plbnd/=0) call rx0('plot band mode done') ! end of band plbnd/=0, that is, band plot mode.
     !! New eferm and wtkb determined from evlall
     call m_subzi_bzintegration(evlall,swtk, eferm,sev,qvalm,vnow_magfield) !Get the Fermi energy eferm,...
     if(fsmom/=NULLR .AND. master_mpi) then !moved from m_subzi_bzintegration at 2022-dec
@@ -308,7 +308,6 @@ contains
        write(ifi,"(i6,'# iter CAUTION! This file is overwritten by lmf-MPIK SC loop')")iter
        close(ifi)
     endif
-    
     !! Generate total DOS  emin=dosw(1) emax=dosw(2) dos range
     if(master_mpi .AND. (tdos .OR. ldos/=0)) then
        emin = eeem-0.01d0 
@@ -342,7 +341,6 @@ contains
        close(ifii)
     endif
     if(tdos) call rx0('Done tdos mode:')
-
     !! AllReduce band quantities.
     if(lrout/=0) call m_bandcal_allreduce(lwtkb)
     emin=1d9
@@ -352,8 +350,8 @@ contains
        do isp = 1,nspx
           jsp = isp
           if(master_mpi .AND. iprint()>=35) then
-             write(stdo,ftox)" bndfp: kpt",iq," of",nkp," k isp=",ftof(qp,4),jsp," ndimh nev=",&
-                  ndimhx_(iq),nevls(iq,jsp)
+             write(stdo,ftox)" bndfp: kpt",iq," of",nkp," k isp=",ftof(qp,4),jsp," ndimh nev=", &
+                  ndimhx_(iq,jsp),nevls(iq,jsp)
              write(stdo,"(9f8.4)") (evlall(i,jsp,iq), i=1,nevls(iq,jsp))
           endif
           emin= min(minval( evlall(1:nevls(iq,jsp),jsp,iq)),emin)

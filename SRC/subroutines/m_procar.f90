@@ -120,13 +120,13 @@ contains
     deallocate( auspp )
   end subroutine m_procar_init
   !!--------------------------------------------------------
-  subroutine m_procar_writepdos(evlall,nev_,ef0,kpproc)
+  subroutine m_procar_writepdos(evlall,nevmin,ef0,kpproc)
     use m_mkqp,only: nkabc=> bz_nabc
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
     use m_ext,only:sname
     use m_tetirr,only: tetirr
     real(8) evlall(:,:,:)
-    integer:: nev_(:)
+!    integer:: nev_(:)
     logical:: cmdopt0
     integer:: kpproc(*)
     integer,allocatable:: ipqe(:,:,:),idtete(:,:)
@@ -135,7 +135,6 @@ contains
     nkk1=nkabc(1)
     nkk2=nkabc(2)
     nkk3=nkabc(3)
-    nevmin=minval(nev_(1:nkp))
     !! pdos mode (--mkprocar and --fullmesh). ===
     if(debug) print *,'mmmm procid sum dwgt check=',procid,sum(dwgtall)
     call xmpbnd2(kpproc,nbas*nchanp*ndhamx,nkp,nspx,dwgtall)

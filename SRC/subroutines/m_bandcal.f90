@@ -22,8 +22,8 @@ module m_bandcal !band structure calculation
   use m_makusq,only: makusq
   use m_ftox
   !! outputs ---------------------------
-  public m_bandcal_init, m_bandcal_2nd, m_bandcal_clean, m_bandcal_allreduce, m_bandcal_symsmrho
-  integer,allocatable,protected,public::     ndimhx_(:),nev_(:),nevls(:,:)
+  public m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce,m_bandcal_symsmrho
+  integer,allocatable,protected,public::     ndimhx_(:,:),nevls(:,:) !,nev_(:)
   real(8),allocatable,protected,public::     evlall(:,:,:),frcband(:,:), orbtm_rv(:,:,:)
   complex(8),allocatable,protected,public::  smrho_out(:),dmatu(:,:,:,:)
   type(s_rv1),allocatable,protected,public:: sv_p_oeqkkl(:,:), sv_p_oqkkl(:,:)
@@ -45,7 +45,6 @@ contains
     logical:: ltet,cmdopt0,dmatuinit=.true.,wsene
     character(3):: charnum3
     call tcn('m_bandcal_init')
-    if(master_mpi) write(stdo,ftox)
     if(master_mpi) write(stdo,ftox)' m_bandcal_init: start'
     sigmamode = mod(lrsig,10)/=0
     writeham= cmdopt0('--writeham')
@@ -61,9 +60,9 @@ contains
        allocate( frcband(3,1:nbas)) !force for band
        frcband  = 0d0
     endif
-    allocate( ndimhx_(nkp),nev_(nkp),nevls(nkp,nspx))
+    allocate( ndimhx_(nkp,nspx),nevls(nkp,nspx)) !,nev_(nkp)
     ndimhx_=0
-    nev_   =0
+    !nev_   =0
     nevls  =0
     if(nlibu>0 .AND. dmatuinit) then
        allocate( dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu))
@@ -84,6 +83,7 @@ contains
     sumev = 0d0
     sumqv = 0d0
     if (lswtk==1)  call swtkzero()
+    !write(stdo,*)'iiiiqqq procid iqini iqend=',procid,iqini,iqend
     bandcalculation_q: do 2010 iq = iqini, iqend 
        qp = qplist(:,iq)
        !write(stdo,ftox)'m_bandcal_init: procid iq=',procid,iq,ftof(qp)
@@ -200,6 +200,7 @@ contains
           endif
           evl(nev+1:ndhamx,jsp)=1d99 !to skip these data
           nevls(iq,jsp) = nev   !nov2014 isp and jsp is confusing...
+          ndimhx_(iq,jsp)= ndimhx     !Ham dimenstion
           evlall(1:ndhamx,jsp,iq) = evl(1:ndhamx,jsp)
           if(master_mpi .AND. epsovl>=1.000001d-14 .AND. plbnd/=0) then
              write(stdo,"(' : ndimhx=',i5,' --> nev=',i5' by HAM_OVEPS ',d11.2)") ndimhx,nev,epsovl
@@ -220,8 +221,8 @@ contains
 2005   enddo bandcalculation_spin
        if(allocated(hammhso)) deallocate(hammhso)
        if(allocated(hamm)) deallocate(hamm,ovlm)
-       ndimhx_(iq)= ndimhx     !Ham dimenstion
-       nev_(iq)   = nev        !calculated number of bands  
+       !nev_(iq)   = nev     !calculated number of bands 2023jan Use nevls
+       !write(stdo,*)'mmqq procid=',procid,'iq isp=',iq,isp,' nev=',nev_(iq)
 2010 enddo bandcalculation_q
     !! ... Average forces so net force on system is zero (APW case)
     if (pwemax>0 .AND. mod(pwmode,10)>0 .AND. lfrce/=0) then
@@ -297,7 +298,7 @@ contains
     if (allocated(orbtm_rv)) deallocate(orbtm_rv)
     if (allocated(smrho_out)) deallocate(smrho_out)
     if (allocated(frcband))  deallocate(frcband)
-    if (allocated(ndimhx_))  deallocate(ndimhx_,nev_,nevls)
+    if (allocated(ndimhx_))  deallocate(ndimhx_,nevls)
     if(allocated(sv_p_oqkkl)) deallocate( sv_p_oqkkl)
     if(allocated(sv_p_oeqkkl))deallocate( sv_p_oeqkkl)
     deallocate(evlall)
