@@ -2,13 +2,13 @@ module m_makusq
   public makusq
   private
   contains
-subroutine makusq(nsites,isite, nev,isp,iq,q,evec,  aus)
+subroutine makusq(nsites,isite, nev,isp,iq,q,evec,  auszall)
   use m_lmfinit,only: ispec,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nkapii,lhh,rsma
   use m_suham,only: ndham=>ham_ndham
   use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
   use m_uspecb,only:uspecb
   use m_lattic,only: rv_a_opos
-  !- Accumulate coefficients of (u,s) in all augmentation spheres at one k-pt
+  !- Accumulate coefficients of (u,s,z) in all augmentation spheres at one k-pt
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   mode  :0generate coefficients for u,s functions (u(rmt)=1 u'(rmt)=0 s(rmt)=0 s'(rmt)=1) See Remarks.
@@ -17,20 +17,20 @@ subroutine makusq(nsites,isite, nev,isp,iq,q,evec,  aus)
   !i         :If nonzero, coefficients are made just for a subset
   !i         :of sites (see isite); nsites is the number of sites
   !i   isite :sites at which to calculate coefficients; see nsites
-  !i   nlmax :1st dimension of aus (maximum nlma over all sites)
-  !i   ndham :dimensions aus
+  !i   nlmax :1st dimension of ausz (maximum nlma over all sites)
+  !i   ndham :dimensions ausz
   !i   ndimh :dimensions evec
   !i   napw  :number of G vectors in PW basis (gvlst2.f)
   !i   igvapw:G vectors in PW basis, units of qlat (gvlst2.f)
-  !i   nev   :number of eigenvectors for which to accumulate aus
+  !i   nev   :number of eigenvectors for which to accumulate ausz
   !i   nsp   :2 for spin-polarized case, otherwise 1
   !i   nspc  :2 for coupled spins; otherwise 1
-  !i   isp   :spin channel, used only to address element in aus
-  !i   iq    :qp index, used only to address element in aus
+  !i   isp   :spin channel, used only to address element in ausz
+  !i   iq    :qp index, used only to address element in ausz
   !i   q     :Bloch vector
   !i   evec  :eigenvectors for this q
   !o Outputs
-  !o   aus   :val,slo of w.f. at MT sphere surface added to aus; see Remarks
+  !o   ausz   :val,slo of w.f. at MT sphere surface added to ausz; see Remarks
   !l Local variables
   !l   ispc  :the current spin index in the coupled spins case.
   !l         :Some quantities have no separate address space for each
@@ -46,12 +46,12 @@ subroutine makusq(nsites,isite, nev,isp,iq,q,evec,  aus)
   !l         :(potential- and density-like objects).
   !r Remarks
   !r   Makes coefficients for projection of wave function onto
-  !r   augmented functions (u,s) which is valid inside the MT spheres.
+  !r   augmented functions (u,s,z) which is valid inside the MT spheres.
   !r   u and s are linear combinations of and phi,phidot defined as:
   !r   u has val=1, slo=0 at rmax, s has val=0, slo=1
   !r
   !r   For example, for EELS matrix elements <nk|r|core> we will need
-  !r    |nk> = \sum_L(au_nkL*u_l*Y_L + as_nkL*s_l*Y_L)
+  !r    |nk> = \sum_L(au_nkL*u_l*Y_L + as_nkL*s_l*Y_L + az_nkl*gz_l*Y_L)
   !r
   !r   These are generated from the potential later (see vcdmel)
   !r   makusq returns the au_nkL and as_nkL at one spin and k-pt for
@@ -63,15 +63,14 @@ subroutine makusq(nsites,isite, nev,isp,iq,q,evec,  aus)
   integer:: mode,isp,iq, nev,n0,nppn, nsites,isite(nsites)
   parameter (n0=10,nppn=12)
   real(8):: q(3)
-  double complex evec(ndimh,nsp,nev), &
-       aus(nlmax,ndham*nspc,3,nsp,nsites,iq)
-  ! ... Local parameters
-  integer :: nkap0
+  complex(8):: evec(ndimh,nsp,nev)
+  complex(8),target:: auszall(nlmax,ndham*nspc,3,nsp,nsites,iq)
+  complex(8),pointer:: ausz(:,:,:,:)
+  integer :: nkap0,nkape
   parameter (nkap0=3)
   double precision :: eh(n0,nkap0),rsmh(n0,nkap0),a,rmt
   integer :: igetss,ib,nkapi,is,nr,kmax,lmxa,lmxl,lmxh,i
   call tcn ('makusq')
-  ! --- Start loop over atoms ---
   do  i = 1, nsites
      if (nsites == nbas) then
         ib = i
@@ -87,6 +86,7 @@ subroutine makusq(nsites,isite, nev,isp,iq,q,evec,  aus)
      rmt=sspec(is)%rmt
      call uspecb(is,rsmh,eh)
      nkapi= nkapii(is)
+     nkape = nkapii(is)
      lmxh = sspec(is)%lmxb
      if (lmxa == -1) goto 10
      !   --- Set up all radial head and tail functions, and their BC's
@@ -97,26 +97,28 @@ subroutine makusq(nsites,isite, nev,isp,iq,q,evec,  aus)
      call radmsh(rmt,a,nr,rofi_rv )
      call fradhd(nkapi,eh,rsmh,lhh(:,is),lmxh,nr,rofi_rv,fh_rv,xh_rv,vh_rv,dh_rv )
      call fradpk(kmax,rsma(is),lmxa,nr,rofi_rv,fp_rv,xp_rv,vp_rv,dp_rv)
-     !   --- Add to the coefficient for the projection onto (u,s) for this site
-     call pusq1( ib,isp,nspc,nlmax,lmxh,nbas,q,ndham,ndimh,napw,igvapw,nev,evec,vh_rv,dh_rv,vp_rv,dp_rv,&
-          aus(1,1,1,1,i,iq),aus(1,1,2,1,i,iq),aus(1,1,3,1,i,iq))
+     !   --- Add to the coefficient for the projection onto (u,s,gz) for this site
+     ausz => auszall(:,:,1:3,:,i,iq)
+     call pusq1(ib,isp,nspc,nlmax,lmxh,nbas,q,ndham,ndimh,napw,igvapw,nev,evec,vh_rv,dh_rv,vp_rv,dp_rv,&
+            lmxa,kmax,nkape, ausz) 
      endblock
 10   continue
   enddo
   call tcx('makusq')
 end subroutine makusq
 ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-subroutine pusq1(ia,isp,nspc,nlmax,lmxh,nbas,q,ndham,ndimh,napw,igvapw,nev,evec,vh,dh,vp,dp, &
-     au,as,az)
-  use m_lmfinit,only: nkapii,ispec,sspec=>v_sspec
-  use m_uspecb,only: uspecb
+subroutine pusq1(ib,isp,nspc,nlmax,lmxh,nbas,q,ndham,ndimh,napw,igvapw,nev,evec,vh,dh,vp,dp, &
+  lmxa,kmax,nkape, ausz)!      au,as,az) !ausz) !  
+  use m_lmfinit,only: nkapii,ispec
   use m_bstrux,only: bstrux_set,bstr
   use m_lattic,only: rv_a_opos
   use m_rlocbl,only: rlocb1
+!  use m_locpot,only: rotp ! rotp  :2x2 rotation matrices rotating (phi,phidot) to (u,s) from m_locpot
+  use m_orbl,only: Orblib,ktab,ltab,offl,norb,ntab,blks
   !- Add to the coefficient for the projection onto (u,s) for one site
   ! ----------------------------------------------------------------------
   !i Inputs
-  !i   ia    :augmentation sphere
+  !i   ib    :augmentation sphere
   !i   isp   :current spin index for collinear case
   !i   nspc  :2 for coupled spins; otherwise 1
   !i   nlmax :dimensions au,as
@@ -124,15 +126,15 @@ subroutine pusq1(ia,isp,nspc,nlmax,lmxh,nbas,q,ndham,ndimh,napw,igvapw,nev,evec,
   !i   nbas  :size of basis
   !i   q     :bloch vector
   !i   ndham :dimensions au,as,az
-  !i   ndimh :dimension of hamiltonian, evec
+  !i   ndimh :dimension of hamiltonibn, evec
   !i   napw  :number of G vectors in PW basis (gvlst2.f)
   !i   igvapw:G vectors in PW basis, units of qlat (gvlst2.f)
   !i   nev   :number of eigenvectors to sum over
   !i   evec  :eigenvectors
-  !i   vh    :value of head function in sphere ia
-  !i   dh    :slope of head function in sphere ia
-  !i   vp    :value of PkL expansion of tail function in sphere ia
-  !i   dp    :slope of PkL expansion of tail function in sphere ia
+  !i   vh    :value of head function in sphere ib
+  !i   dh    :slope of head function in sphere ib
+  !i   vp    :value of PkL expansion of tail function in sphere ib
+  !i   dp    :slope of PkL expansion of tail function in sphere ib
   !l Local variables
   !l   ksp   :the current spin index in both independent and coupled
   !l         :spins cases.
@@ -141,109 +143,112 @@ subroutine pusq1(ia,isp,nspc,nlmax,lmxh,nbas,q,ndham,ndimh,napw,igvapw,nev,evec,
   !o   as    :projection of this evec onto s function; see potpus.f
   !o   az    :projection of this evec onto local orbitals; see potpus.f
   ! ----------------------------------------------------------------------
-  integer :: mode,ia,isp,nspc,lmxh,nlmax, &
-       nbas,ndham,ndimh,napw,igvapw(3,napw),nev,nlmbx,n0,nppn
-  parameter (nlmbx=25, n0=10, nppn=12)
-  real(8):: q(3),vp(*),dp(*),vh(*),dh(*)
-  complex(8):: evec(ndimh,nspc,ndimh), &
-       au(nlmax,ndham*nspc,3,2), &
-       as(nlmax,ndham*nspc,3,2), &
-       az(nlmax,ndham*nspc,3,2)
-  integer,parameter :: nkap0=3
-  complex(8) ,allocatable :: a_zv(:) !b_zv(:),
-  integer:: isa,lmxa,lmxha,kmax,nlma,ivec, ilm,k,ll,nkape,ksp,ispc,nlmto
-  real(8):: pa(3),rmt, phi,phip,dphi,dlphi,dphip,dlphip,det,& !rotpp(nlmxx,2,2),
-       eh(n0,nkap0),rsmh(n0,nkap0)
-  call tcn ('pusq1')
-  isa =ispec(ia)
-  pa  =rv_a_opos(:,ia) 
-  lmxa=sspec(isa)%lmxa
-  if (lmxa == -1) return
-  lmxha=sspec(isa)%lmxb
-  kmax=sspec(isa)%kmxt
-  rmt=sspec(isa)%rmt
-  nlmto = ndimh-napw !mto dimension
-  nlma  = (lmxa+1)**2
-  call uspecb(isa,rsmh,eh)
-  nkape = nkapii(isa)
-  call bstrux_set(ia,q) !bstr
-  allocate(a_zv((kmax+1)*nlma))
   !     In noncollinear case, isp=1 always => need internal ispc=1..2
   !     ksp is the current spin index in both cases:
   !     ksp = isp  in the collinear case
   !         = ispc in the noncollinear case
   !     whereas ispc=1 for independent spins, and spin index when nspc=2
+  integer :: mode,ib,isp,nspc,lmxh,nlmax, &
+       nbas,ndham,ndimh,napw,igvapw(3,napw),nev,nlmbx,n0,nppn
+  parameter (nlmbx=25, n0=10, nppn=12)
+  real(8):: q(3),vh(0:lmxh,1),dh(0:lmxh,1),vp(0:lmxa,0:kmax),dp(0:lmxa,0:kmax)
+  complex(8):: evec(ndimh,nspc,ndimh), ausz(nlmax,ndham*nspc,1:3,2)
+  integer,parameter :: nkap0=3
+  complex(8) ,allocatable :: cPkl(:,:)
+  integer:: isa,lmxa,lmxha,kmax,nlma,ivec, ilm,k,ll,nkape,ksp,ispc
+  real(8):: pa(3),rmt, phi,phip,dphi,dlphi,dphip,dlphip,det
+  call tcn ('pusq1')
+  call bstrux_set(ib,q) !bstr
+  nlma  = (lmxa+1)**2
+  allocate(cPkl(0:kmax,nlma))
   ispcloop: do  ispc = 1, nspc ! ... loop over noncollinear spins
      ksp = max(ispc,isp)
      do  ivec = 1, nev ! Loop over eigenstates
-        call rlocb1(ndimh, nlma, kmax, evec(1,ispc,ivec), bstr,a_zv)
-        call pusq2(ia, nkape, kmax, lmxa,lmxh, nlmto,&
-             min(nlma,nlmax),a_zv,evec(1,ispc,ivec),vh,dh,vp,dp,ksp,&
-             au(1,ivec,1,ksp), as(1,ivec,1,ksp), az(1,ivec,1,ksp) )
-     enddo 
+        call rlocb1(ndimh, nlma, kmax, evec(1,ispc,ivec), bstr,cPkl)
+        pusq22: block
+          logical:: s12
+          integer :: io1,l1,ik1,nlm11,nlm12,ilm1,i1,ilma,k,l,ll
+          call orblib(ib) !Return norb,ltab,ktab,offl
+          do  io1 = 1, norb !   Contribution from head part
+             l1  = ltab(io1)
+             ik1 = ktab(io1)
+             nlm11 = l1**2+1
+             nlm12 = nlm11 + blks(io1)-1
+             i1 = offl(io1)-nlm11+1 !  i1 = hamiltonian offset for first orbital in block
+             if (ik1 <= nkape) s12=.true.
+             if (ik1 >  nkape) s12=.false.
+             do  ilm1 = nlm11, nlm12
+                l = ll(ilm1)
+                if(s12)      ausz(ilm1,ivec,1:2,ksp)= ausz(ilm1,ivec,1:2,ksp) + [vh(l,ik1),dh(l,ik1)] * evec(ilm1+i1,ispc,ivec)
+                if(.not.s12) ausz(ilm1,3,ivec,ksp) = ausz(ilm1,ivec,3,ksp) + evec(ilm1+i1,ispc,ivec)
+             enddo
+          enddo
+          do ilma = 1, nlma ! Contribution from tail part
+             l = ll(ilma)
+             ausz(ilma,ivec,1:2,ksp)=ausz(ilma,ivec,1:2,ksp)+[sum(vp(l,:)*cPkL(:,ilma)),sum(dp(l,:)*cPkL(:,ilma))]
+          enddo
+        endblock pusq22
+     enddo
   enddo ispcloop
-  deallocate(a_zv) 
+  deallocate(cPkl) 
   call tcx('pusq1')
 end subroutine pusq1
-subroutine pusq2(ia,nkape,kmax,lmxa,lmxh,nlmto,nlma,cPkL,evec,vh,dh,vp,dp,ksp, au,as,az)
-  use m_locpot,only: rotp ! rotp  :2x2 rotation matrices rotating (phi,phidot) to (u,s) from m_locpot
-  use m_orbl,only: Orblib,ktab,ltab,offl,norb,ntab,blks
-  !- Extract projection of eigenstate onto (u,s,z) for sphere at site ia
-  ! ----------------------------------------------------------------------
-  !i Inputs
-  !i   ia    :augmentation sphere
-  !i   nkape :number of envelope function types which are joined to (u,s)
-  !i         :Any ktab > nkape is a local orbital
-  !i   kmax  :polynomial cutoff in P_kL expansion of envelope tails
-  !i   lmxa  :augmentation l-cutoff
-  !i   lmxh  :basis l-cutoff
-  !i   nlmto :dimension of lmto component of basis
-  !i   nlma  :number of L's in augmentation sphere = (lmxa+1)**2
-  !i   evec  :eigenvector
-  !i   vh    :value of head function in sphere ia
-  !i   dh    :slope of head function in sphere ia
-  !i   vp    :value of PkL expansion of tail function in sphere ia
-  !i   dp    :slope of PkL expansion of tail function in sphere ia
-  !i   cPkL  :coefficients to P_kL expansion of evec
-  !o Outputs
-  !o   au    :projection of this evec onto u function; see potpus.f
-  !o   as    :projection of this evec onto s function; see potpus.f
-  !o   az    :projection of this evec onto local orbitals; see potpus.f
-  ! ----------------------------------------------------------------------
-  implicit none
-  integer :: mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma,ksp
-  double precision :: vh(0:lmxh,1),dh(0:lmxh,1)
-  double precision :: vp(0:lmxa,0:kmax),dp(0:lmxa,0:kmax)
-  complex(8):: au(nlma),as(nlma),az(nlma), evec(nlmto),cPkL(0:kmax,nlma)
-  integer :: io1,l1,ik1,nlm11,nlm12,ilm1,i1,ilma,k
-  integer :: l,ll
-  complex(8):: auas(2)
-  call tcn('pusq2')
-  call orblib(ia) !Return norb,ltab,ktab,offl
-  ! --- Loop over all orbitals centered at this site ---
-  do  io1 = 1, norb !   Contribution from head part
-     l1  = ltab(io1)
-     ik1 = ktab(io1)
-     nlm11 = l1**2+1
-     nlm12 = nlm11 + blks(io1)-1
-     i1 = offl(io1)-nlm11+1 !  i1 = hamiltonian offset for first orbital in block
-     if (ik1 <= nkape) then
-        do  ilm1 = nlm11, nlm12
-           l = ll(ilm1)
-           au(ilm1) = au(ilm1) + vh(l,ik1) * evec(ilm1+i1)
-           as(ilm1) = as(ilm1) + dh(l,ik1) * evec(ilm1+i1)
-        enddo
-     else
-        do  ilm1 = nlm11, nlm12
-           az(ilm1) = az(ilm1) + evec(ilm1+i1)
-        enddo
-     endif
-  enddo
-  do  ilma = 1, nlma ! Contribution from tail part
-     l = ll(ilma)
-     au(ilma) = au(ilma) + sum(vp(l,:) * cPkL(:,ilma))
-     as(ilma) = as(ilma) + sum(dp(l,:) * cPkL(:,ilma))
-  enddo
-  call tcx('pusq2')
-end subroutine pusq2
 end module m_makusq
+! subroutine pusq2(ib,nkape,kmax,lmxa,lmxh,nlmto,nlma,cPkL,evec,vh,dh,vp,dp,ksp, ausz) !au,as,az)
+! !  use m_locpot,only: rotp ! rotp  :2x2 rotation matrices rotating (phi,phidot) to (u,s) from m_locpot
+!   use m_orbl,only: Orblib,ktab,ltab,offl,norb,ntab,blks
+!   !- Extract projection of eigenstate onto (u,s,z) for sphere at site ib
+!   ! ----------------------------------------------------------------------
+!   !i Inputs
+!   !i   ib    :augmentation sphere
+!   !i   nkape :number of envelope function types which are joined to (u,s)
+!   !i         :Any ktab > nkape is a local orbital
+!   !i   kmax  :polynomial cutoff in P_kL expansion of envelope tails
+!   !i   lmxa  :augmentation l-cutoff
+!   !i   lmxh  :basis l-cutoff
+!   !i   nlmto :dimension of lmto component of basis
+!   !i   nlma  :number of L's in augmentation sphere = (lmxa+1)**2
+!   !i   evec  :eigenvector
+!   !i   vh    :value of head function in sphere ib
+!   !i   dh    :slope of head function in sphere ib
+!   !i   vp    :value of PkL expansion of tail function in sphere ib
+!   !i   dp    :slope of PkL expansion of tail function in sphere ib
+!   !i   cPkL  :coefficients to P_kL expansion of evec
+!   !o Outputs
+!   !o   au    :projection of this evec onto u function; see potpus.f
+!   !o   as    :projection of this evec onto s function; see potpus.f
+!   !o   az    :projection of this evec onto local orbitals; see potpus.f
+!   ! ----------------------------------------------------------------------
+!   implicit none
+!   integer :: mode,ib,nkape,kmax,lmxa,lmxh,nlmto,nlma,ksp
+!   double precision :: vh(0:lmxh,1),dh(0:lmxh,1)
+!   double precision :: vp(0:lmxa,0:kmax),dp(0:lmxa,0:kmax)
+!   complex(8):: ausz(nlma,3), evec(nlmto),cPkL(0:kmax,nlma) !,as(nlma),az(nlma)
+!   integer :: io1,l1,ik1,nlm11,nlm12,ilm1,i1,ilma,k
+!   integer :: l,ll
+!   call tcn('pusq2')
+!   call orblib(ib) !Return norb,ltab,ktab,offl
+!   ! --- Loop over all orbitals centered at this site ---
+!   do  io1 = 1, norb !   Contribution from head part
+!      l1  = ltab(io1)
+!      ik1 = ktab(io1)
+!      nlm11 = l1**2+1
+!      nlm12 = nlm11 + blks(io1)-1
+!      i1 = offl(io1)-nlm11+1 !  i1 = hamiltonian offset for first orbital in block
+!      if (ik1 <= nkape) then
+!         do  ilm1 = nlm11, nlm12
+!            l = ll(ilm1)
+!            ausz(ilm1,1:2) = ausz(ilm1,1:2) + [vh(l,ik1),dh(l,ik1)] * evec(ilm1+i1)
+!         enddo
+!      else
+!         do  ilm1 = nlm11, nlm12
+!            ausz(ilm1,3) = ausz(ilm1,3) + evec(ilm1+i1)
+!         enddo
+!      endif
+!   enddo
+!    do  ilma = 1, nlma ! Contribution from tail part
+!       l = ll(ilma)
+!       ausz(ilma,1:2)=ausz(ilma,1:2)+[sum(vp(l,:)*cPkL(:,ilma)),sum(dp(l,:)*cPkL(:,ilma))]
+!    enddo
+!   call tcx('pusq2')
+! end subroutine pusq2
