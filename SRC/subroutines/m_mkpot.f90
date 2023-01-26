@@ -1,51 +1,43 @@
-module m_mkpot ! Seechttp://dx.doi.org/10.7566/JPSJ.84.034702
+module m_mkpot ! Potential terms. See http://dx.doi.org/10.7566/JPSJ.84.034702
   use m_lmfinit,only: nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nppn &
        ,lfrce=>ctrl_lfrce,stdl, nchan=>pot_nlma, nvl=>pot_nlml,nkaph
   use m_struc_def,only: s_rv1,s_cv1,s_sblock
-
-  public:: m_mkpot_init, m_mkpot_deallocate, m_mkpot_energyterms, m_mkpot_novxc !,m_Mkpot_novxc_dipole
-  !! output ------------------------------------------------------------------
+  public:: m_mkpot_init, m_mkpot_energyterms, m_mkpot_novxc, m_mkpot_deallocate !,m_Mkpot_novxc_dipole
+  ! Potential terms, call m_mkpot_init. Generated at mkpot-locpot-augmat-gaugm
   type(s_sblock),allocatable,protected,public  :: ohsozz(:,:),ohsopm(:,:) !SOC matrix
-  ! Generated at mkpot-locpot-augmat-gaugm
   type(s_cv1),allocatable,protected,public  :: oppi(:,:) !pi-integral Eq.(C.6) 
   type(s_rv1),allocatable,protected,public  :: otau(:,:) !tau            (C.5) 
   type(s_rv1),allocatable,protected,public  :: osig(:,:) !sigma          (C.4) 
   complex(8),allocatable,protected ,public  :: osmpot(:,:,:,:)!0th component of Eq.(34)
-  ! these are given by call m_mkpot_novxc
-  type(s_cv1),allocatable,protected,public  :: oppix(:,:) !pi-integral without xc term
-  complex(8),allocatable,protected ,public  :: spotx(:,:,:,:)!0th component of Eq.(34) without xc term
-  !
-  real(8),protected,public:: utot,rhoexc,xcore,valvef,amom, valves,cpnves,rhovxc !energy terms
   real(8),allocatable,protected,public:: fes1_rv(:), fes2_rv(:) !force terms
   real(8),allocatable,protected,public:: hab_rv(:,:,:), sab_rv(:,:,:), qmom(:),vesrmt(:)
   real(8),protected,public:: qval,vconst,qsc
   real(8),allocatable,protected,public:: phzdphz(:,:,:,:)
-
-  !! nov2021 dipole contribution added  (not working...)
-  !! oppixd: add dipole part to oppix
-  !! spotxd:      add dipole part to spotx
+  ! Energy terms by call m_mkpot_energyterms
+  real(8),protected,public:: utot,rhoexc,xcore,valvef,amom, valves,cpnves,rhovxc
+  ! NoVxc terms  by call m_mkpot_novxc
+  type(s_cv1),allocatable,protected,public  :: oppix(:,:) !pi-integral without xc term
+  complex(8),allocatable,protected ,public  :: spotx(:,:,:,:)!0th component of Eq.(34) without xc term
+  private
+  !! nov2021 dipole contribution added  (not working...)! oppixd,spotxd: dipole part to oppix,spotx
   !      type(s_cv1),allocatable,protected,public  :: oppixd(:,:,:)
   !      complex(8),allocatable,protected ,public  :: spotxd(:,:,:,:,:)
-
-  private
-  real(8),allocatable,protected,private :: gpot0(:),vval(:),vab_rv(:,:,:),fes1_rvx(:) !dummy
-  type(s_sblock),allocatable,private  :: ohsozzx(:,:),ohsopmx(:,:) !dummy for SOC
-  type(s_rv1),allocatable,protected,private  :: otaux(:,:) !dummy
-  type(s_rv1),allocatable,protected,private  :: osigx(:,:) !dummy
 contains
   subroutine m_mkpot_novxc() ! outputs are oppix and spotx (for no vxc terms).
     use m_supot,only: k1,k2,k3
     use m_density,only: osmrho, orhoat !main input density
+    use m_struc_def,only: s_rv1,s_sblock
     logical:: novxc_
+    real(8),allocatable :: fes1_rvx(:)! gpot0(:),vval(:),vab_rv(:,:,:) !dummy
+    type(s_sblock),allocatable:: ohsozzx(:,:),ohsopmx(:,:) !dummy for SOC
+    type(s_rv1),allocatable   :: otaux(:,:) !dummy
+    type(s_rv1),allocatable   :: osigx(:,:) !dummy
     write(stdo,"(a)")' m_mkpot_novxc: Making one-particle potential without XC part ...'
     allocate( vesrmt(nbas))
     allocate( qmom(nvl)) !rhomom
     allocate( hab_rv(3,3,n0*nsp*nbas))
-    allocate( vab_rv(3,3,n0*nsp*nbas))
     allocate( sab_rv(3,3,n0*nsp*nbas))
     allocate( phzdphz(nppn,n0,nsp,nbas))
-    allocate( gpot0(nvl))
-    allocate( vval(nchan))
     allocate( fes1_rvx(3*nbas))
     allocate( ohsozzx(3,nbas), ohsopmx(3,nbas)) !dummy
     allocate( spotx(k1,k2,k3,nsp)) !smooth potential without XC
@@ -55,69 +47,20 @@ contains
     !     We obtain osigx,otaux,oppix,smpotx  (without XC)
     call mkpot(1, osmrho,orhoat, spotx,osigx,otaux,oppix, fes1_rvx,ohsozzx,ohsopmx, novxc_)
     !When novxc_ exists, we exclud XC(LDA) part. We only need spotx and oppix
-    deallocate(phzdphz,vesrmt,qmom,hab_rv,vab_rv,sab_rv,gpot0,vval,fes1_rvx,ohsozzx,ohsopmx)
+    deallocate(phzdphz,vesrmt,qmom,hab_rv,sab_rv,fes1_rvx,ohsozzx,ohsopmx)
   end subroutine m_mkpot_novxc
-
-  !$$$      subroutine m_mkpot_novxc_dipole()
-  !$$$! output: oppixd, spotxd
-  !$$$! Assuming osigx,otaux are allocated already by calling m_mkpot_novxc in advance.
-  !$$$! nov2021:   dipole option is added whether we calculate <i|{\bf r}|j> matrix (by differece).
-  !$$$      use m_supot,only: k1,k2,k3
-  !$$$      use m_density,only: osmrho, orhoat !main input density
-  !$$$      use m_lmfinit,only: nkaph,nsp,nbas,ssite=>v_ssite,sspec=>v_sspec
-  !$$$      integer:: i,lfrzw,ib,is,kmax,lmxa,lmxh,nlma,nlmh,iidipole,ilfzw
-  !$$$      logical:: novxc_
-  !$$$      write(stdo,"(a)")' m_mkpot_novxc_dipole: Making one-particle potential without XC part ...'
-  !$$$      allocate( vesrmt(nbas))
-  !$$$      allocate(  qmom(nvl)) !rhomom
-  !$$$      allocate( phzdphz(nppn,n0,nsp,nbas))
-  !$$$      allocate(  hab_rv(nab*n0*nsp*nbas))
-  !$$$      allocate(  vab_rv(nab*n0*nsp*nbas))
-  !$$$      allocate(  sab_rv(nab*n0*nsp*nbas))
-  !$$$      allocate(  gpot0(nvl))
-  !$$$      allocate(  vval(nchan))
-  !$$$      allocate(  fes1_rv(3*nbas))
-  !$$$      allocate( ohsozzx(3,nbas), ohsopmx(3,nbas)) !dummy
-  !$$$      lfrzw = 0
-  !$$$      if(ham_frzwf) lfrzw = 1   !freeze all augmentation wave
-  !$$$      ilfzw = 1 + 10*lfrzw !+ 100    ! Adding 100 means excluding XC(LDA) part. nolxc=T
-  !$$$      allocate( spotxd(k1,k2,k3,nsp,3), oppixd(3,nbas,3)) !smooth potential without XC
-  !$$$      spotxd=0d0
-  !$$$      do  ib = 1, nbas
-  !$$$         is = int(ssite(ib)%spec)
-  !$$$         lmxa=sspec(is)%lmxa
-  !$$$         lmxh=sspec(is)%lmxb
-  !$$$         kmax=sspec(is)%kmxt
-  !$$$         nlma = (lmxa+1)**2
-  !$$$         nlmh = (lmxh+1)**2
-  !$$$         do iidipole=1,3        !see dfaugm
-  !$$$            allocate(oppixd(1,ib,iidipole)%cv((kmax+1)*(kmax+1)*nlma*nlma*nsp))
-  !$$$            allocate(oppixd(3,ib,iidipole)%cv( nkaph*nkaph*nlmh*nlmh*nsp))
-  !$$$            allocate(oppixd(2,ib,iidipole)%cv( nkaph*(kmax+1)*nlmh*nlma*nsp))
-  !$$$         enddo
-  !$$$      enddo
-  !$$$      do iidipole=1,3
-  !$$$         call mkpot(ilfzw,osmrho,orhoat,
-  !$$$     o        spotxd(:,:,:,:,iidipole),osigx,otaux,oppixd(:,:,iidipole),fes1_rv,ohsozzx,ohsopmx,
-  !$$$     &        novxc_,dipole_=iidipole) !!when novxc_ exists, we exclud XC(LDA) part.
-  !$$$      enddo
-  !$$$      deallocate(vesrmt,qmom,phzdphz,hab_rv,vab_rv,sab_rv,gpot0,vval,fes1_rv,ohsozzx,ohsopmx)
-  !$$$      end subroutine
-
   subroutine m_mkpot_init()
     use m_supot,only: k1,k2,k3
     use m_density,only: osmrho, orhoat !main input density
     use m_lmfinit,only: lso,nbas,sspec=>v_sspec, nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex
+    use m_struc_def,only: s_rv1,s_sblock
     integer:: i,is,ib,kmax,lmxa,lmxh,nelt2,nlma,nlmh,iprint
     call tcn('m_mkpot_init')
     if(iprint()>=10) write(stdo,"(a)")' m_mkpot_init: Making one-particle potential ...'
     allocate( vesrmt(nbas))
     allocate( osmpot(k1,k2,k3,nsp)) 
     allocate( qmom(nvl))
-    allocate( gpot0(nvl))
-    allocate( vval(nchan))
     allocate( hab_rv(3,3,n0*nsp*nbas))
-    allocate( vab_rv(3,3,n0*nsp*nbas))
     allocate( sab_rv(3,3,n0*nsp*nbas))
     allocate( phzdphz(nppn,n0,nsp,nbas))
     allocate( fes1_rv(3*nbas))
@@ -127,7 +70,6 @@ contains
     call mkpot(1,osmrho,orhoat,osmpot,osig , otau , oppi, fes1_rv, ohsozz,ohsopm)
     call tcx('m_mkpot_init')
   end subroutine m_mkpot_init
-  
   subroutine m_mkpot_energyterms(smrho_out,orhoat_out) 
     use m_MPItk,only: master_mpi
     use m_struc_def
@@ -141,7 +83,6 @@ contains
     call mkpot(0, smrho_out,orhoat_out, osmpot,osig,otau,oppi,fes2_rv,ohsozz,ohsopm) !job=0 is for no augmentation term
     call tcx('m_mkpot_energyterms')
   end subroutine m_mkpot_energyterms
-   
   !- Make the potential from the density (smrho, orhoat)
   subroutine mkpot(job,smrho,orhoat, smpot,osig,otau,oppi,fes,ohsozz,ohsopm, novxc_) !dipole_)
     ! job=0 => not make core and augmentation matrices
@@ -296,7 +237,11 @@ contains
     logical:: secondcall=.false.     !      integer,optional:: dipole_
     integer:: j,k !dipole,
     real(8),parameter::  pi=4d0*datan(1d0),tpi=2d0*pi
+    real(8),allocatable :: gpot0(:),vval(:),vab_rv(:,:,:) !dummy
     call tcn('mkpot')
+    allocate( gpot0(nvl))
+    allocate( vab_rv(3,3,n0*nsp*nbas))
+    allocate( vval(nchan))
     !! new density mode
     if(cmdopt0('--density') .AND. master_mpi .AND. secondcall) then
        plat =lat_plat
@@ -434,7 +379,6 @@ contains
     if (dabs(dq)>1d-3) write(stdo,"(a,f13.6)")' (warning) system not neutral, dq=',dq
     call tcx('mkpot')
   end subroutine mkpot
-
   subroutine dfaugm(osig, otau, oppi, ohsozz,ohsopm )
     use m_struc_def,only:s_rv1,s_cv1,s_sblock
     use m_lmfinit,only: lso,nkaph,nsp,nbas,ispec,sspec=>v_sspec
@@ -506,7 +450,54 @@ contains
   end subroutine dfaugm
   subroutine m_mkpot_deallocate()
     if (allocated(vesrmt)) then
-       deallocate(vesrmt,fes1_rv,phzdphz,sab_rv,vab_rv,hab_rv,vval,gpot0,qmom,oppi,otau,osig,osmpot,ohsozz,ohsopm)
+       deallocate(vesrmt,fes1_rv,phzdphz,sab_rv,hab_rv,qmom,oppi,otau,osig,osmpot,ohsozz,ohsopm)
     endif
   end subroutine m_mkpot_deallocate
 end module m_mkpot
+
+
+  !$$$      subroutine m_mkpot_novxc_dipole()
+  !$$$! output: oppixd, spotxd
+  !$$$! Assuming osigx,otaux are allocated already by calling m_mkpot_novxc in advance.
+  !$$$! nov2021:   dipole option is added whether we calculate <i|{\bf r}|j> matrix (by differece).
+  !$$$      use m_supot,only: k1,k2,k3
+  !$$$      use m_density,only: osmrho, orhoat !main input density
+  !$$$      use m_lmfinit,only: nkaph,nsp,nbas,ssite=>v_ssite,sspec=>v_sspec
+  !$$$      integer:: i,lfrzw,ib,is,kmax,lmxa,lmxh,nlma,nlmh,iidipole,ilfzw
+  !$$$      logical:: novxc_
+  !$$$      write(stdo,"(a)")' m_mkpot_novxc_dipole: Making one-particle potential without XC part ...'
+  !$$$      allocate( vesrmt(nbas))
+  !$$$      allocate(  qmom(nvl)) !rhomom
+  !$$$      allocate( phzdphz(nppn,n0,nsp,nbas))
+  !$$$      allocate(  hab_rv(nab*n0*nsp*nbas))
+  !$$$      allocate(  vab_rv(nab*n0*nsp*nbas))
+  !$$$      allocate(  sab_rv(nab*n0*nsp*nbas))
+  !$$$      allocate(  gpot0(nvl))
+  !$$$      allocate(  vval(nchan))
+  !$$$      allocate(  fes1_rv(3*nbas))
+  !$$$      allocate( ohsozzx(3,nbas), ohsopmx(3,nbas)) !dummy
+  !$$$      lfrzw = 0
+  !$$$      if(ham_frzwf) lfrzw = 1   !freeze all augmentation wave
+  !$$$      ilfzw = 1 + 10*lfrzw !+ 100    ! Adding 100 means excluding XC(LDA) part. nolxc=T
+  !$$$      allocate( spotxd(k1,k2,k3,nsp,3), oppixd(3,nbas,3)) !smooth potential without XC
+  !$$$      spotxd=0d0
+  !$$$      do  ib = 1, nbas
+  !$$$         is = int(ssite(ib)%spec)
+  !$$$         lmxa=sspec(is)%lmxa
+  !$$$         lmxh=sspec(is)%lmxb
+  !$$$         kmax=sspec(is)%kmxt
+  !$$$         nlma = (lmxa+1)**2
+  !$$$         nlmh = (lmxh+1)**2
+  !$$$         do iidipole=1,3        !see dfaugm
+  !$$$            allocate(oppixd(1,ib,iidipole)%cv((kmax+1)*(kmax+1)*nlma*nlma*nsp))
+  !$$$            allocate(oppixd(3,ib,iidipole)%cv( nkaph*nkaph*nlmh*nlmh*nsp))
+  !$$$            allocate(oppixd(2,ib,iidipole)%cv( nkaph*(kmax+1)*nlmh*nlma*nsp))
+  !$$$         enddo
+  !$$$      enddo
+  !$$$      do iidipole=1,3
+  !$$$         call mkpot(ilfzw,osmrho,orhoat,
+  !$$$     o        spotxd(:,:,:,:,iidipole),osigx,otaux,oppixd(:,:,iidipole),fes1_rv,ohsozzx,ohsopmx,
+  !$$$     &        novxc_,dipole_=iidipole) !!when novxc_ exists, we exclud XC(LDA) part.
+  !$$$      enddo
+  !$$$      deallocate(vesrmt,qmom,phzdphz,hab_rv,vab_rv,sab_rv,gpot0,vval,fes1_rv,ohsozzx,ohsopmx)
+  !$$$      end subroutine
