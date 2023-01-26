@@ -96,7 +96,7 @@ contains
     integer :: lh(nkap0),nkapi,nkape,k
     double precision :: eh(n0,nkap0),rsmh(n0,nkap0)
     double precision :: ehl(n0),rsml(n0)
-    double precision :: rofi(nr),rwgt(nr), &
+    double precision :: rofi(nrmx),rwgt(nrmx), &
          gpotb(81),z,a,rmt,qc,ceh,rfoc, &
          qcorg,qcorh,qsc,cofg,cofh,qsca,rg,qv,cpnvs, &
          qloc,qlocc,xcor, aloc,alocc!,rvexl, rvecl,rvvxvl,rvvxtl !,rvepvl,rveptl
@@ -119,7 +119,7 @@ contains
     call tcn('locpot')
     ipr = iprint()
     if (ipr >= 30) write(stdo,"('  locpot:')")
-    k = nr*nlmx*nsp
+    k = nrmx*nlmx*nsp
     allocate(rhol1(k),rhol2(k),v1(k),v2(k),v1es(k),v2es(k),efg(5,nbas),zz(nbas))
     xcore   = 0d0
     if(master_mpi) open(newunit=ifivesint,file='vesintloc',form='formatted',status='unknown')
@@ -165,7 +165,7 @@ contains
               '  nlml=',i2,'  rg=',f5.3,'  Vfloat=',l1)") ib,z,rmt,nr,a,nlml,rg,lfltwf
          if(ipr>=30.and. kcor/=0 .and. sum(abs(qcor))/=0 ) write(stdo,ftox)&
               ' core hole: kcor=',kcor,'lcor=',lcor,'qcor amom=',ftof(qcor)
-!         call rxx(nr .gt. nrmx,  'locpot: increase nrmx')
+         call rxx(nr .gt. nrmx,  'locpot: increase nrmx')
          call rxx(nlml .gt. nlmx,'locpot: increase nlmx')
          call radmsh(rmt,a,nr,rofi)
          call radwgt(rmt,a,nr,rwgt)
