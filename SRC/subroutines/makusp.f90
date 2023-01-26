@@ -1,8 +1,15 @@
 subroutine makusp(n0,z,nsp,rmax,lmxa,v,a,nr,rs3,vmtz,pnu,pnz,rsml,ehl, ul,sl,gz,ruu,rus,rss)
   use m_hansr,only: hansr
   use m_vxtrap,only: vxtrap
-  !- Augmentation fcts of pure val,slo (times r) from spherical V and b.c.
+  !- Augmentation functions of pure val,slo (times r) from spherical V and b.c.
   ! ----------------------------------------------------------------------
+  !r  ul: linear combination of phi,phidot val=1 slo=0
+  !r  sl: linear combination of phi,phidot val=0 slo=1
+  !r      ul and sl are r * u and r * s, respectively.
+  !r  gz: gz is made for any l for pnz is nonzero where:
+  !r      gz = r* ( phi_z - phi_z(rmax) u - (phi_z)'(rmax) s )
+  !r      Here phi_z be the w.f. corresponding to loc. orbital spec'd by pnz.
+  !r      By construction, gz/r has value=slope = 0 at rmax.
   !i Inputs
   !i   n0    :leading dimension of pnu and pnz
   !i   z     :nuclear charge
@@ -49,16 +56,6 @@ subroutine makusp(n0,z,nsp,rmax,lmxa,v,a,nr,rs3,vmtz,pnu,pnz,rsml,ehl, ul,sl,gz,
   !l         :  approximation.
   !b Bugs
   !b   lpzi=3 is not implemented
-  !r Remarks
-  !r   This routine makes linear combinations (u,s) of phi,phidot
-  !r   defined as : u has val=1, slo=1 at rmax, s has val=0, slo=1
-  !r   ul and sl are r * u and r * s, respectively.
-  !r
-  !r   Construction of local orbital when val,slo=0 at rmax (lpzi=1):
-  !r   Let phi_z be the w.f. corresponding to loc. orbital spec'd by pnz.
-  !r   gz is made for any l for pnz is nonzero where:
-  !r      gz = r* ( phi_z - phi_z(rmax) u - (phi_z)'(rmax) s )
-  !r   By construction, gz/r has value, slope = 0 at rmax.
   !r
   !u Updates
   !u   12 Aug 04 First implementation of extended local orbitals
@@ -74,59 +71,46 @@ subroutine makusp(n0,z,nsp,rmax,lmxa,v,a,nr,rs3,vmtz,pnu,pnz,rsml,ehl, ul,sl,gz,
        v(nr,1),pnu(n0,2),pnz(n0,2), &
        ul(nr,lmxa+1,1),sl(nr,lmxa+1,1),gz(nr,lmxa+1,1), &
        ruu(nr,lmxa+1,2,1),rus(nr,lmxa+1,2,1),rss(nr,lmxa+1,2,1)
-  integer :: i,l,k,nrx,lpz,lpzi,nrbig,idx
-  parameter (nrx=1501)
+  integer :: i,l,k,lpz,lpzi,nrbig,idx
+!  parameter (nrx=1501)
   double precision :: dphi,dphip,enu,ez,p,phi,phip, &
-       g(nrx,2),gp(nrx,8),gzl(nrx,2),phz,dphz
-  double precision :: rofi(nrx),rwgt(nrx),vbig(nrx,2)
+       g(nr,2),gp(nr,8),gzl(nr,2),phz,dphz
+  double precision :: rofi(nr),rwgt(nr)!,vbig(nrx,2)
   double precision :: xi(0:n0),wk(2),fac1
-  logical:: isanrg, l_dummy_isanrg
-  ! --- Make rofi,rwgt, and possibly extended mesh ---
-  call vxtrap(1,z,rmax,lmxa,v,a,nr,nsp,pnz,rs3,vmtz,nrx,lpz,nrbig,rofi,rwgt,vbig)
-  ! ino isanrg is logical function,       call isanrg(nrbig,nr,nrx,'makusp:','nrbig',.true.)
-  l_dummy_isanrg=isanrg(nrbig,nr,nrx,'makusp:','nrbig',.true.)
-  ! --- Loop over spins and l ---
+!  logical:: isanrg, l_dummy_isanrg
+! --- Make rofi,rwgt, and possibly extended mesh ---
+!  call vxtrap(1,z,rmax,lmxa,v,a,nr,nsp,pnz,rs3,vmtz,nrx,lpz,nrbig,rofi,rwgt,vbig)
+!  if(nrbig<nr.or.nrbig>nrx) call rx('makusp:nrbig<nr.or.nrbig>nrx')
+  call radmsh(rmax,a,nr,rofi)
   do  i = 1, nsp
      do  l = 0, lmxa
         k = l+1
         lpzi = 0
-        if (pnz(k,i) >  0) lpzi = 1
+        if (pnz(k,i) >  0)  lpzi = 1
         if (pnz(k,i) >= 10) lpzi = 2
-        if (pnz(k,i) >= 20) lpzi = 3
-        if (lpzi == 3) call rxi('makusp: not implemented lpzi=',lpzi)
         if (lpzi /= 0) then
-           call makrwf(0,z,rmax,l,v(1,i),a,nr,rofi,pnz(1,i),2, &
-                gzl,gp,ez,phz,dphz,phip,dphip,p)
-           !         Scale extended local orbital
-           if (lpzi > 1) then
+           call makrwf(0,z,rmax,l,v(1,i),a,nr,rofi,pnz(1,i),2, gzl,gp,ez,phz,dphz,phip,dphip,p)
+           if (lpzi > 1) then !  Scale extended local orbital
               call hansr(rsml(l),0,l,1,[l],[ehl(l)],[rmax**2],1,1,[idx],11,xi)
               fac1 = gzl(nr,1)/rmax/xi(l)
-              call dscal(2*nr,1/fac1,gzl,1)
+              gzl=gzl/fac1 !call dscal(2*nr,1/fac1,gzl,1)
            endif
         endif
         call makrwf(0,z,rmax,l,v(1,i),a,nr,rofi,pnu(1,i),2,g,gp, &
              enu,phi,dphi,phip,dphip,p)
-
         !   ... Scale gz so that <|gz-P(g,gp)|^2> = 1
         call makus2(lpzi,nr,rofi,g,gp,gzl,phi,dphi,phip,dphip, &
              phz,dphz,l,enu,ez,z,v(1,i),ul(1,k,i),sl(1,k,i), &
              ruu(1,k,1,i),rus(1,k,1,i),rss(1,k,1,i), &
              ruu(1,k,2,i),rus(1,k,2,i),rss(1,k,2,i))
-        if (pnz(k,i) > 0) call dcopy(nr,gzl,1,gz(1,k,i),1)
+        if (pnz(k,i) > 0) gz(:,k,i)=gzl(1:nr,1) !call dcopy(nr,gzl,1,gz(1,k,i),1)
      enddo
   enddo
-
-  ! --- If at least one semicore state, zero out missing ones ---
-  if (lpz /= 0) then
-     do  i = 1, nsp
-        do  l = 0, lmxa
-           k = l+1
-           if (pnz(k,i) == 0) then
-              call dpzero(gz(1,k,i),nr)
-           endif
-        enddo
+  do  i = 1, nsp
+     do  l = 0, lmxa
+        if(pnz(l+1,i) == 0) gz(1:nr,l+1,i)=0d0 !zero out missing ones 
      enddo
-  endif
+  enddo
 end subroutine makusp
 subroutine makus2(lpz,nr,rofi,g,gp,gz,phi,dphi,phip,dphip,phz, &
      dphz,l,e,ez,z,v,  ul,sl,ruu,rus,rss,ruz,rsz,rzz)

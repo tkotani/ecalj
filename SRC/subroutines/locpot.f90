@@ -96,7 +96,7 @@ contains
     integer :: lh(nkap0),nkapi,nkape,k
     double precision :: eh(n0,nkap0),rsmh(n0,nkap0)
     double precision :: ehl(n0),rsml(n0)
-    double precision :: rofi(nrmx),rwgt(nrmx), &
+    double precision :: rofi(nr),rwgt(nr), &
          gpotb(81),z,a,rmt,qc,ceh,rfoc, &
          qcorg,qcorh,qsc,cofg,cofh,qsca,rg,qv,cpnvs, &
          qloc,qlocc,xcor, aloc,alocc!,rvexl, rvecl,rvvxvl,rvvxtl !,rvepvl,rveptl
@@ -119,7 +119,7 @@ contains
     call tcn('locpot')
     ipr = iprint()
     if (ipr >= 30) write(stdo,"('  locpot:')")
-    k = nrmx*nlmx*nsp
+    k = nr*nlmx*nsp
     allocate(rhol1(k),rhol2(k),v1(k),v2(k),v1es(k),v2es(k),efg(5,nbas),zz(nbas))
     xcore   = 0d0
     if(master_mpi) open(newunit=ifivesint,file='vesintloc',form='formatted',status='unknown')
@@ -158,19 +158,14 @@ contains
          call gtpcor(is, kcor,lcor,qcor) !qcor(1:2) is meaningful only when kcor/=0 
          call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor, qc0,qv(ib),qsc0)
          if(qsc0 /= qsca(ib) .OR. qc /= qc0-qsc0) then
-            if(iprint()>0)write(stdo,ftox)' is=',is,'qsc0=',ftof(qsc0),'qsca',ftof(qsca(ib)),'qc',ftof(qc),'qc0',ftof(qc0)
+            if(ipr>0)write(stdo,ftox)' is=',is,'qsc0=',ftof(qsc0),'qsca',ftof(qsca(ib)),'qc',ftof(qc),'qc0',ftof(qc0)
             call rxs('problem in locpot -- possibly low LMXA or orbital mismatch, species ',spid)
          endif
-         if(ipr >= 20) then
-            write(stdo,"('   site',i3,'  z=',f5.1,'  rmt=',f8.5,'  nr=',i3,'   a=',f5.3, &
-                 '  nlml=',i2,'  rg=',f5.3,'  Vfloat=',l1)") ib,z,rmt,nr,a,nlml,rg,lfltwf
-            if (kcor/= 0) then
-               if(sum(abs(qcor)) /= 0 ) then
-                  if(ipr>=30)write(stdo,ftox)' core hole: kcor=',kcor,'lcor=',lcor,'qcor amom=',ftof(qcor)
-               endif
-            endif
-         endif
-         call rxx(nr .gt. nrmx,  'locpot: increase nrmx')
+         if(ipr>= 20) write(stdo,"('   site',i3,'  z=',f5.1,'  rmt=',f8.5,'  nr=',i3,'   a=',f5.3, &
+              '  nlml=',i2,'  rg=',f5.3,'  Vfloat=',l1)") ib,z,rmt,nr,a,nlml,rg,lfltwf
+         if(ipr>=30.and. kcor/=0 .and. sum(abs(qcor))/=0 ) write(stdo,ftox)&
+              ' core hole: kcor=',kcor,'lcor=',lcor,'qcor amom=',ftof(qcor)
+!         call rxx(nr .gt. nrmx,  'locpot: increase nrmx')
          call rxx(nlml .gt. nlmx,'locpot: increase nlmx')
          call radmsh(rmt,a,nr,rofi)
          call radwgt(rmt,a,nr,rwgt)
