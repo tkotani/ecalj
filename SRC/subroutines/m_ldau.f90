@@ -2,17 +2,14 @@ module m_ldau
   use m_mpitk,only:master_mpi
   use m_ftox
   public:: m_ldau_init,m_ldau_vorbset
-  complex(8),allocatable,protected,public::  vorb(:,:,:,:)
-  real(8),protected,public:: eorb=0d0
-  !!
+  complex(8),allocatable,protected,public::  vorb(:,:,:,:) !potential
+  real(8),protected,public:: eorb=0d0 !energy of U term
   private
-  complex(8),allocatable,private::  dmato(:,:,:,:)
+  complex(8),allocatable,private::  dmato(:,:,:,:) !previous density matrix
   logical,private:: init=.true.
 contains
-  !! LDA+U initialization
-  subroutine m_ldau_init()
+  subroutine m_ldau_init()! LDA+U initialization
     use m_lmfinit,only: nlibu,nsp,lmaxu,lmaxu,nsp,nlibu
-    !      use m_chkdmu,only: sudmtu
     integer:: i,idmatu
     logical:: mmtargetx
     call tcn('m_ldau_init')
@@ -27,10 +24,7 @@ contains
     if(mmtargetx) call vorbmodifyaftest_experimental()
     call tcx('m_ldau_init')
   end subroutine m_ldau_init
-
-  !! vorb LDA+U mixing
-  subroutine m_ldau_vorbset(eks,dmatu)
-    !      use m_chkdmu,only: Chkdmu
+  subroutine m_ldau_vorbset(eks,dmatu) ! Get vorb and set dmato=dmatu.
     use m_lmfinit,only: nlibu,nsp,lmaxu,lmaxu,nsp,nlibu,nbas,stdo
     complex(8):: dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
     complex(8):: vorbav(-lmaxu:lmaxu,-lmaxu:lmaxu)
@@ -105,7 +99,7 @@ contains
     do i=-lmaxu,lmaxu
        vorbav(i,i) =  1d0
     enddo
-    if(nlibu==6) then
+    if(nlibu==6) then !experimental part for a specific system NiSe and so on.
        do iblu =1,6
           fac=1d0
           if(iblu>3) fac=-1d0

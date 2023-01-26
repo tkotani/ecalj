@@ -45,7 +45,7 @@ contains
     allocate( osigx(3,nbas), otaux(3,nbas), oppix(3,nbas))
     call dfaugm(osigx, otaux, oppix, ohsozzx,ohsopmx) !for sig,tau,ppi without XC(LDA)
     !     We obtain osigx,otaux,oppix,smpotx  (without XC)
-    call mkpot(1, osmrho,orhoat, spotx,osigx,otaux,oppix, fes1_rvx,ohsozzx,ohsopmx, novxc_)
+    call mkpot(1, osmrho,orhoat, spotx,osigx,otaux,oppix,fes1_rvx,ohsozzx,ohsopmx, novxc_)
     !When novxc_ exists, we exclud XC(LDA) part. We only need spotx and oppix
     deallocate(phzdphz,vesrmt,qmom,hab_rv,sab_rv,fes1_rvx)
   end subroutine m_mkpot_novxc
@@ -87,13 +87,13 @@ contains
   subroutine mkpot(job,smrho,orhoat, smpot,osig,otau,oppi,fes,ohsozz,ohsopm, novxc_) !dipole_)
     ! job=0 => not make core and augmentation matrices
     ! job=1 => make core and augmentation matrices
-    ! xxx problematic option dipole_ removed. (for <i|{\bf r}|j> matrix for novxc)
+    ! xxxxxx problematic option dipole_ removed. (for <i|{\bf r}|j> matrix for novxc)
+    use m_ldau,only: vorb !input. 'U-V_LDA(couter term)' of LDA+U
     use m_lmfinit,only:lso,nbas,ispec,sspec=>v_sspec,nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex
     use m_lattic,only: lat_plat,lat_qlat, lat_vol,rv_a_opos
     use m_supot,only: k1,k2,k3,lat_nabc
     use m_MPItk,only: master_mpi
     use m_struc_def
-    use m_ldau,only: vorb !input. 'U-V_LDA(couter term)' of LDA+U
     use m_bstrux,only: m_bstrux_init
     use m_elocp,only: elocp
     use m_locpot,only: Locpot
