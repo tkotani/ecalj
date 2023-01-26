@@ -12,7 +12,7 @@ module m_mkpot ! Potential terms. See http://dx.doi.org/10.7566/JPSJ.84.034702
   real(8),allocatable,protected,public:: fes1_rv(:), fes2_rv(:) !force terms
   real(8),allocatable,protected,public:: hab_rv(:,:,:), sab_rv(:,:,:), qmom(:),vesrmt(:)
   real(8),protected,public:: qval,vconst,qsc
-  real(8),allocatable,protected,public:: phzdphz(:,:,:,:)
+  real(8),allocatable,protected,public:: phzdphz(:,:,:,:) !val and slo at Rmt for local orbitals.
   ! Energy terms by call m_mkpot_energyterms
   real(8),protected,public:: utot,rhoexc,xcore,valvef,amom, valves,cpnves,rhovxc
   ! NoVxc terms  by call m_mkpot_novxc
@@ -39,15 +39,15 @@ contains
     allocate( sab_rv(3,3,n0*nsp*nbas))
     allocate( phzdphz(nppn,n0,nsp,nbas))
     allocate( fes1_rvx(3*nbas))
-    allocate( ohsozzx(3,nbas), ohsopmx(3,nbas)) !dummy
     allocate( spotx(k1,k2,k3,nsp)) !smooth potential without XC
     spotx=0d0
+    allocate( ohsozzx(3,nbas), ohsopmx(3,nbas)) !dummy
     allocate( osigx(3,nbas), otaux(3,nbas), oppix(3,nbas))
     call dfaugm(osigx, otaux, oppix, ohsozzx,ohsopmx) !for sig,tau,ppi without XC(LDA)
     !     We obtain osigx,otaux,oppix,smpotx  (without XC)
     call mkpot(1, osmrho,orhoat, spotx,osigx,otaux,oppix, fes1_rvx,ohsozzx,ohsopmx, novxc_)
     !When novxc_ exists, we exclud XC(LDA) part. We only need spotx and oppix
-    deallocate(phzdphz,vesrmt,qmom,hab_rv,sab_rv,fes1_rvx,ohsozzx,ohsopmx)
+    deallocate(phzdphz,vesrmt,qmom,hab_rv,sab_rv,fes1_rvx)
   end subroutine m_mkpot_novxc
   subroutine m_mkpot_init()
     use m_supot,only: k1,k2,k3
