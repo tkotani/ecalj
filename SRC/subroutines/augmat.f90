@@ -446,7 +446,7 @@ contains
     logical :: lpz1,lpz2
     integer :: l1,l2,lm,i,mlm,isp
     double precision :: pi,srfpi,xx, &
-         quu,qus,qss,quz,qsz,qzz,vuu,vus,vss,vv,vuz,vsz,vzz, &
+         quu,qus,qss,quz,qsz,qzz,vuu,vus,vss,vv,vuz,vsz,vzz,vvv(nr), &
          ul(nr,0:lmxa,nsp),ruu(nr,0:lmxa,2,nsp), &
          sl(nr,0:lmxa,nsp),rus(nr,0:lmxa,2,nsp), &
          gz(nr,0:lmxa,nsp),rss(nr,0:lmxa,2,nsp)
@@ -461,42 +461,30 @@ contains
           do  l2 = 0, lmxa
              lpz1 = pnz(l1+1,1) .ne. 0
              lpz2 = pnz(l2+1,1) .ne. 0
+             quu = 0d0
+             qus = 0d0
+             qss = 0d0
+             quz = 0d0
+             qsz = 0d0
+             qzz = 0d0
              do  lm = 0, lmxl
-                quu = 0d0
-                qus = 0d0
-                qss = 0d0
-                quz = 0d0
-                qsz = 0d0
-                qzz = 0d0
                 if (l1 == l2 .AND. lm == 0) then
-                   do  i = 2, nr
-                      xx = rwgt(i)
-                      quu = quu + xx * ruu(i,l1,1,isp)
-                      qus = qus + xx * rus(i,l1,1,isp)
-                      qss = qss + xx * rss(i,l1,1,isp)
-                   enddo
+                   quu= sum(rwgt*ruu(:,l1,1,isp))
+                   qus= sum(rwgt*rus(:,l1,1,isp))
+                   qss= sum(rwgt*rss(:,l1,1,isp))
                    if (lpz1) then
-                      do  i = 2, nr
-                         xx = rwgt(i)
-                         quz = quz + xx * ruu(i,l1,2,isp)
-                         qsz = qsz + xx * rus(i,l1,2,isp)
-                         qzz = qzz + xx * rss(i,l1,2,isp)
-                      enddo
+                      quz= sum(rwgt*ruu(:,l1,2,isp))
+                      qsz= sum(rwgt*rus(:,l1,2,isp))
+                      qzz= sum(rwgt*rss(:,l1,2,isp))
                    endif
                 else
-                   do  i = 2, nr
-                      xx = rwgt(i) * rofi(i)**lm
-                      quu = quu + xx * ul(i,l1,isp) * ul(i,l2,isp)
-                      qus = qus + xx * ul(i,l1,isp) * sl(i,l2,isp)
-                      qss = qss + xx * sl(i,l1,isp) * sl(i,l2,isp)
-                   enddo
+                   quu= sum(rwgt*rofi**lm*ul(:,l1,isp)*ul(:,l2,isp))
+                   qus= sum(rwgt*rofi**lm*ul(:,l1,isp)*sl(:,l2,isp))
+                   qss= sum(rwgt*rofi**lm*sl(:,l1,isp)*sl(:,l2,isp))
                    if (lpz2) then
-                      do  i = 2, nr
-                         xx = rwgt(i) * rofi(i)**lm
-                         quz = quz + xx * ul(i,l1,isp) * gz(i,l2,isp)
-                         qsz = qsz + xx * sl(i,l1,isp) * gz(i,l2,isp)
-                         qzz = qzz + xx * gz(i,l1,isp) * gz(i,l2,isp)
-                      enddo
+                      quz= sum(rwgt*rofi**lm*ul(:,l1,isp)*gz(:,l2,isp))
+                      qsz= sum(rwgt*rofi**lm*sl(:,l1,isp)*gz(:,l2,isp))
+                      qzz= sum(rwgt*rofi**lm*gz(:,l1,isp)*gz(:,l2,isp))
                    endif
                 endif
                 qum(l1,l2,lm,1,1,isp) = quu
@@ -525,38 +513,41 @@ contains
                 vuz = 0d0
                 vsz = 0d0
                 vzz = 0d0
+                vvv = v1(:,mlm,isp)
+                if (mlm == 1) vvv(2:) = vvv(2:) - [(srfpi*2d0*z/rofi(i),i=2,nr)]
+                vvv(1)=0d0
                 if (l1 == l2 .AND. mlm == 1) then
-                   do  i = 2, nr
-                      vv = v1(i,mlm,isp) - srfpi*2d0*z/rofi(i)
-                      vuu = vuu + (rwgt(i)*vv) * ruu(i,l1,1,isp)
-                      vus = vus + (rwgt(i)*vv) * rus(i,l1,1,isp)
-                      vss = vss + (rwgt(i)*vv) * rss(i,l1,1,isp)
-                   enddo
+                   vuu= sum(rwgt*vvv* ruu(:,l1,1,isp))
+                   vus= sum(rwgt*vvv* rus(:,l1,1,isp))
+                   vss= sum(rwgt*vvv* rss(:,l1,1,isp))
                    if (lpz1) then
-                      do  i = 2, nr
-                         vv = v1(i,mlm,isp) - srfpi*2d0*z/rofi(i)
-                         vuz = vuz + (rwgt(i)*vv) * ruu(i,l1,2,isp)
-                         vsz = vsz + (rwgt(i)*vv) * rus(i,l1,2,isp)
-                         vzz = vzz + (rwgt(i)*vv) * rss(i,l1,2,isp)
-                      enddo
+                      vuz= sum(rwgt*vvv* ruu(:,l1,2,isp))
+                      vsz= sum(rwgt*vvv* rus(:,l1,2,isp))
+                      vzz= sum(rwgt*vvv* rss(:,l1,2,isp))
                    endif
+                   ! do  i = 2, nr
+                   !    vv = vvv(i) !v1(i,mlm,isp) - srfpi*2d0*z/rofi(i)
+                   !    vuu = vuu + (rwgt(i)*vv) * ruu(i,l1,1,isp)
+                   !    vus = vus + (rwgt(i)*vv) * rus(i,l1,1,isp)
+                   !    vss = vss + (rwgt(i)*vv) * rss(i,l1,1,isp)
+                   ! enddo
+                   ! if (lpz1) then
+                   !    do  i = 2, nr
+                   !       vv = vvv(i) !v1(i,mlm,isp) - srfpi*2d0*z/rofi(i)
+                   !       vuz = vuz + (rwgt(i)*vv) * ruu(i,l1,2,isp)
+                   !       vsz = vsz + (rwgt(i)*vv) * rus(i,l1,2,isp)
+                   !       vzz = vzz + (rwgt(i)*vv) * rss(i,l1,2,isp)
+                   !    enddo
+                   ! endif
                 else
-                   do  i = 2, nr
-                      vv = v1(i,mlm,isp)
-                      if (mlm == 1) vv = vv - srfpi*2d0*z/rofi(i)
-                      vuu = vuu + (rwgt(i)*vv) * ul(i,l1,isp)*ul(i,l2,isp)
-                      vus = vus + (rwgt(i)*vv) * ul(i,l1,isp)*sl(i,l2,isp)
-                      vss = vss + (rwgt(i)*vv) * sl(i,l1,isp)*sl(i,l2,isp)
-                   enddo
-                   if (lpz2) then
-                      do  i = 2, nr
-                         vv = v1(i,mlm,isp)
-                         if (mlm == 1) vv = vv - srfpi*2d0*z/rofi(i)
-                         vuz = vuz + (rwgt(i)*vv) * ul(i,l1,isp)*gz(i,l2,isp)
-                         vsz = vsz + (rwgt(i)*vv) * sl(i,l1,isp)*gz(i,l2,isp)
-                         vzz = vzz + (rwgt(i)*vv) * gz(i,l1,isp)*gz(i,l2,isp)
-                      enddo
-                   endif
+                    vuu= sum(rwgt*vvv* ul(:,l1,isp)*ul(:,l2,isp))
+                    vus= sum(rwgt*vvv* ul(:,l1,isp)*sl(:,l2,isp))
+                    vss= sum(rwgt*vvv* sl(:,l1,isp)*sl(:,l2,isp))
+                    if (lpz2) then
+                       vuz= sum(rwgt*vvv* ul(:,l1,isp)*gz(:,l2,isp))
+                       vsz= sum(rwgt*vvv* sl(:,l1,isp)*gz(:,l2,isp))
+                       vzz= sum(rwgt*vvv* gz(:,l1,isp)*gz(:,l2,isp))
+                    endif
                 endif
                 vum(l1,l2,mlm,1,1,isp) = vuu
                 vum(l1,l2,mlm,1,2,isp) = vus

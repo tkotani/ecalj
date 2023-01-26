@@ -94,8 +94,7 @@ contains
     !r   hab(7), and hab(6) and hab(8); but both are kept for convenience,
     !r   because of the nonhermiticity in h.
     implicit none
-    integer :: lmxa,lso,nr,nsp !,n0,nppn
-!    parameter (nppn=12)
+    integer :: lmxa,lso,nr,nsp 
     real(8):: z,rmax,a,rofi(1),v(nr,nsp),ehl(n0),rsml(n0), &
          pnu(n0,nsp),pnz(n0,nsp),phzdphz(nppn,n0,2), & !,pp(n0,2,5)
          hab(3,3,n0,nsp),sab(3,3,n0,nsp),vab(3,3,n0,nsp),vdif(nr,nsp), &
@@ -274,7 +273,7 @@ contains
                hab(1:3,1:3,k,i) = matmul(mmm,matmul(hmat(1:3,1:3),mmmt)) !<(u,s,gz)|h|(u,s,gz)>
              endblock lpzint
           endif
-          if (lpzi(l) /= 0) phzdphz(11:12,k,i) = [phz, dphz]
+          if (lpzi(l) /= 0) phzdphz(1:2,k,i) = [phz, dphz]
           det    = phi*dphip - dphi*phip
           rotp(l,i,1,1) = dphip/det !see sugw for how to use rotp (u,s) to (phi,phidot)
           rotp(l,i,1,2) = -dphi/det
@@ -287,8 +286,8 @@ contains
     call soprm(5,lpzi,psi,dpsi,pzi,nr,nsp,lmxa,lmxa,v,dv,enumx, ezum,z,rofi,rwgt,wrk,sop,sopz)
     do i = 1, nsp ! Make the spin diagonal radial integrals
        do l = 0, lmxa
-          phz = phzdphz(11,l+1,i)
-          dphz = phzdphz(12,l+1,i)
+          phz = phzdphz(1,l+1,i)
+          dphz = phzdphz(2,l+1,i)
           k = l + 1
           if (lpzi(l)==0) then 
              sodbmat: block  !note original sodb is transposed to avoid confusing defition. 2022-12-26
@@ -321,10 +320,10 @@ contains
     enddo
     do l = 0, lmxa !   ... Make the spin off-diagonal radial integrals
        k = l + 1
-       phz   = phzdphz(11,k,1)
-       dphz  = phzdphz(12,k,1)
-       phz2  = phzdphz(11,k,2)
-       dphz2 = phzdphz(12,k,2)
+       phz   = phzdphz(1,k,1)
+       dphz  = phzdphz(2,k,1)
+       phz2  = phzdphz(1,k,2)
+       dphz2 = phzdphz(2,k,2)
        if (lpzi(l)==0) then 
           sooff2: block
             real(8),pointer::mmm1(:,:),mmm2(:,:)
