@@ -25,7 +25,7 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa)
   integer,parameter::  noutmx=48
   logical,parameter::  T=.true., F=.false.
   integer,parameter::  NULLI=-99999,nkap0=3,mxspec=256,lstrn=10000
-  integer,parameter::  n0=10,nppn=12, nab=9, nrmx=1501,nlmx=64 ,n00=n0*nkap0
+  integer,parameter::  n0=10,nppn=2, nrmx=1501,nlmx=64 ,n00=n0*nkap0
   real(8),parameter::  NULLR =-99999, fs = 20.67098d0, degK = 6.3333d-6 ! defaults for MD
   real(8),parameter::  fpi  = 16d0*datan(1d0), y0 = 1d0/dsqrt(fpi)
   real(8),parameter::  pi = 4d0*datan(1d0), srfpi = dsqrt(4d0*pi)

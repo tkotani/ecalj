@@ -574,6 +574,7 @@ contains
     call tcx('momusl')
   end subroutine momusl
   subroutine vlm2us(lmaxu,rmt,idu,lmxa,iblu,vorb,phzdphz,rotp,vumm)
+    use m_lmfinit,only: nppn
     !- Rotate vorb from (phi,phidot) to (u,s) and store in vumm
     !i   lmaxu :dimensioning parameter for U matrix
     !i   lmxa  :augmentation l-cutoff
@@ -588,7 +589,7 @@ contains
     !o         :vumm(m1,m2,i,j) = <u_i| vorb(m1,m2) |u_j>
     implicit none
     integer :: lmaxu,lmxa,iblu,idu(4),m1,m2,l,i
-    integer,parameter:: n0=10,nppn=12
+    integer,parameter:: n0=10
     real(8):: rmt,phi,dlphi,phip,dlphip,dphi,dphip, r12,r21,r11,r22,det, phz,dphz,&
          phzdphz(nppn,n0,2),rotpp(2,2),rotppt(2,2),rotp(0:lmxa,2,2,2) !nsp=2 expected
     complex(8):: vzz,vuz,vsz,vzu,vzs, Vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,2,*), &

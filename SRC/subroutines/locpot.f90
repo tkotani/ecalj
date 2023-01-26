@@ -14,7 +14,7 @@ contains
     use m_density,only: v0pot,v1pot   !output
     use m_density,only: pnzall,pnuall !output
     use m_lmfinit,only:nkaph,lxcf,lhh,nkapii,nkaphh
-    use m_lmfinit,only:n0,nppn,nab,nrmx,nkap0,nlmx,nbas,nsp,lso,ispec, sspec=>v_sspec,mxcst4,lmxax
+    use m_lmfinit,only:n0,nppn,nrmx,nkap0,nlmx,nbas,nsp,lso,ispec, sspec=>v_sspec,mxcst4,lmxax
     use m_lmfinit,only:slabl,idu,coreh,ham_frzwf,rsma,alat,v0fix,jnlml
     use m_uspecb,only:uspecb
     use m_ftox

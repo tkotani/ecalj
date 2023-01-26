@@ -1,5 +1,5 @@
 module m_gaugm !Generic routine to make augmentation matrices
-  use m_lmfinit,only: n0,nab
+  use m_lmfinit,only: n0
   public gaugm
   private
 contains

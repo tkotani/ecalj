@@ -29,8 +29,7 @@ module m_bndfp
   real(8),protected,public:: ham_ehf, ham_ehk, sev  !output
   real(8),protected,public:: eferm, qdiff           !output
   real(8),protected,allocatable,public:: force(:,:) !output
-  ! NOTE: other ouput of bndfp are stored in modules:
-  ! m_mkpot(potential), m_bandcal(band,dmatu), and m_density(density)
+  !NOTE: other ouputs are in: m_mkpot(potential), m_bandcal(band,dmatu), and m_density(density)
   public bndfp, m_bndfp_ef_set
   private
   logical,private:: binit=.true.,initd=.true.
@@ -40,22 +39,22 @@ contains
     eferm  = bz_ef00
     binit=.false.
   end subroutine m_bndfp_ef_set
-  subroutine bndfp(iter, llmfgw, plbnd)
+  subroutine bndfp(iter, llmfgw, plbnd) !Single iteration for given density and dmatu
     ! llmfgw=T is for generating eigenfunctions for GW calculations, no iteration.
     ! plbnd/=0 means band plot mode. no iteration.
     !     ! All read only in bndfp. Data are stored in modules such as m_bandcal, m_mkpot
     !     ! For example,, rightafter call m_bandcal_init, we can get evalall, which is used in other modules.
     use m_supot,only: ngabc=>lat_nabc,k1,k2,k3 !for charge mesh
     use m_suham,only: ndham=>ham_ndham, ndhamx=>ham_ndhamx,nspx=>ham_nspx
-    use m_lmfinit, only: n0,nab,nppn,ncutovl,lso,ndos=>bz_ndos,bz_w,fsmom=>bz_fsmom, &
+    use m_lmfinit, only: ncutovl,lso,ndos=>bz_ndos,bz_w,fsmom=>bz_fsmom, &
          bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n, &
          ctrl_nspec,ctrl_pfloat,ldos=>ctrl_ldos,qbg=>zbak,lfrce=>ctrl_lfrce, &
          pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps, &
          ham_scaledsigma, &
-         alat=>lat_alat,stdo,stdl,procid,master, &! & bz_doswin,
+         alat=>lat_alat,stdo,stdl,procid,master, &
          nkaph,nlmax,nl,nbas,nsp, bz_dosmax, &
          lekkl,lmaxu,nlibu,lldau,lpztail,leks,lrout &
-         ,  nchan=>pot_nlma, nvl=>pot_nlml,nspc,pnufix
+         ,  nchan=>pot_nlma, nvl=>pot_nlml,nspc,pnufix !lmfinit contains fixed input 
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
     use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
@@ -81,6 +80,8 @@ contains
     use m_gennlat_sig,only: M_gennlat_init_sig
     use m_dfrce,only: dfrce
     use m_sugcut,only:sugcut
+    ! inputs
+    ! main input are osmrho, orhoat (in m_mkpot_init), specifing density, and vorb, which is potential for LDA+U
     !i   nbas  : size of basis
     !i   nsp   : number of spins
     !i   nlibu : total number of LDA+U blocks (used to dimension dmatu and vorb)
@@ -115,14 +116,13 @@ contains
     !!      nspc is now avoided (memo:nspc=2 for lso==1, nspc=1 for lso/=1 See m_lmfinit)
     !!      ndhamx: maximum size of hamiltonian
     !     l   lekkl :0 do not accumulate oeqkkl; 1 do accumulate oeqkkl
-    !r Remarks ---- now improving...
-    !r   Band pass consists of:
-    !r   (1) m_mkpot_init make the effective potential,
+    !r How bndfp works?
+    !r   (1) m_mkpot_init   make the effective potential,
     !r   (2) m_bandcal_init generate eigenvalues (and eigenvectors if lrout), then m_bzintegration_init
-    !r   (3) m_bandcal_2nd  if lrout, assemble the output density by BZ integration
+    !r   (3) m_bandcal_2nd  If lrout, assemble the output density by BZ integration
     !r   (4) evaluate hf (and KS, if leks) energy by BZ integration
     !r   (5) mixrho the output density to make a new input density.
-    !u Updates before github 2009 was removed. See history github ecalj after 2009.
+    !See history github ecalj after 2009.
     implicit none
 
     include "mpif.h"
