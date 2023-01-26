@@ -330,15 +330,14 @@ contains
     lxcfun = lxcf
     ngabc=lat_nabc
     vol=lat_vol
-    ! --- Printout for smooth background charge ---
-    if (qbg /= 0) then
+    if (qbg /= 0) then !Printout for smooth background charge 
        rhobg = (3d0/4d0/pi*vol)**(1d0/3d0)
        if(master_mpi) write(stdo,ftox)' Energy for background charge', &
             ' q=',ftod(qbg),'radius r=',rhobg,'E=9/5*q*q/r=',1.8d0*qbg*qbg/rhobg
     endif
     call rhomom(orhoat, qmom,vsum) !multipole moments
     allocate(hpot0_rv(nbas))
-    call smves(qmom,gpot0,vval,hpot0_rv,sgp0,smrho,smpot,vconst & ! Smooth electrostatic potential ---
+    call smves(qmom,gpot0,vval,hpot0_rv,sgp0,smrho,smpot,vconst & ! Smooth electrostatic potential
         ,smq,qsmc,fes,rhvsm,zvnsm,zsum,vesrmt,qbg )
     smag = 0
     if(nsp == 2) smag = 2d0*dreal(sum(smrho(:,:,:,1)))*vol/(n1*n2*n3) - smq !spin part.

@@ -15,7 +15,7 @@ contains
     use m_density,only: pnzall,pnuall !output
     use m_lmfinit,only:nkaph,lxcf,lhh,nkapii,nkaphh
     use m_lmfinit,only:n0,nppn,nab,nrmx,nkap0,nlmx,nbas,nsp,lso,ispec, sspec=>v_sspec,mxcst4,lmxax
-    use m_lmfinit,only:slabl,idu,coreh,ham_frzwf,rsma,alat,v0fix
+    use m_lmfinit,only:slabl,idu,coreh,ham_frzwf,rsma,alat,v0fix,jnlml
     use m_uspecb,only:uspecb
     use m_ftox
     use m_struc_def
@@ -103,7 +103,7 @@ contains
     real(8),pointer:: pnu(:,:),pnz(:,:)
     ! ... for sm. Hankel tails
     double precision :: rs3,vmtz
-    character chole*8
+!    character chole*8
     integer :: kcor,lcor
     double precision :: qcor(2),qc0,qsc0
     real(8),allocatable:: wk(:),rhol1(:),rhol2(:), v1(:),v2(:),v1es(:),v2es(:),efg(:,:),zz(:)
@@ -127,43 +127,41 @@ contains
     allocate(rotp(0:lmxax,nsp,2,2,nbas))
     ibblock: block
       real(8):: valvs(nbas),cpnvs(nbas),valvt(nbas)
-      real(8)::qloc(nbas),aloc(nbas),qlocc(nbas),alocc(nbas) 
+      real(8):: qloc(nbas),aloc(nbas),qlocc(nbas),alocc(nbas) 
       real(8):: rhexc(nsp,nbas),rhex(nsp,nbas),rhec(nsp,nbas),rhvxc(nsp,nbas)
       real(8):: xcor(nbas),qv(nbas),qsca(nbas)
       valvs=0d0;cpnvs=0d0;valvt=0d0 
       qloc=0d0;aloc=0d0;qlocc=0d0;alocc=0d0
       rhexc=0d0;rhex=0d0;rhec=0d0;rhvxc=0d0 ;xcor=0d0;qv=0d0;qsca=0d0
       iblu = 0
-      j1 = 1
       ibloop: do  ib = 1, nbas
          is=ispec(ib) 
          pnu=>pnuall(:,:,ib)
          pnz=>pnzall(:,:,ib)
-         z=sspec(is)%z
-         qc=sspec(is)%qc
-         rg=sspec(is)%rg
-         spid=slabl(is) 
-         a=sspec(is)%a
-         nr=sspec(is)%nr
-         rmt=sspec(is)%rmt
+         z=   sspec(is)%z
+         qc=  sspec(is)%qc
+         rg=  sspec(is)%rg
+         a=   sspec(is)%a
+         nr=  sspec(is)%nr
+         rmt= sspec(is)%rmt
          lmxa=sspec(is)%lmxa
          lmxl=sspec(is)%lmxl
          lmxb=sspec(is)%lmxb
-         zz(ib)=z
-         if (lmxa == -1) cycle ! floating orbital
          kmax=sspec(is)%kmxt
+         spid=slabl(is) 
+         zz(ib)=z
+         nlml = (lmxl+1)**2
          lfltwf = (.not.mxcst4(is)).and.(.not.ham_frzwf).and.job==1 ! modify b.c. of Rad.wave func.
+         j1 = jnlml(ib) !1+sum((sspec(ispec(1:ib-1))%lmxl+1)**2) !j1=1+nlml+nlml...
+         if(lmxa == -1) cycle ! floating orbital
          call corprm(is, qcorg,qcorh,qsca(ib),cofg,cofh,ceh,lfoc,rfoc,z)
-         chole=coreh(is)
          call gtpcor(is, kcor,lcor,qcor) !qcor(1:2) is meaningful only when kcor/=0 
          call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor, qc0,qv(ib),qsc0)
-         if (qsc0 /= qsca(ib) .OR. qc /= qc0-qsc0) then
+         if(qsc0 /= qsca(ib) .OR. qc /= qc0-qsc0) then
             if(iprint()>0)write(stdo,ftox)' is=',is,'qsc0=',ftof(qsc0),'qsca',ftof(qsca(ib)),'qc',ftof(qc),'qc0',ftof(qc0)
             call rxs('problem in locpot -- possibly low LMXA or orbital mismatch, species ',spid)
          endif
-         nlml = (lmxl+1)**2
-         nrml = nr*nlml
-         if (ipr >= 20) then
+         if(ipr >= 20) then
             write(stdo,"('   site',i3,'  z=',f5.1,'  rmt=',f8.5,'  nr=',i3,'   a=',f5.3, &
                  '  nlml=',i2,'  rg=',f5.3,'  Vfloat=',l1)") ib,z,rmt,nr,a,nlml,rg,lfltwf
             if (kcor/= 0) then
@@ -176,16 +174,16 @@ contains
          call rxx(nlml .gt. nlmx,'locpot: increase nlmx')
          call radmsh(rmt,a,nr,rofi)
          call radwgt(rmt,a,nr,rwgt)
-         !   ... Write true density to file rhoMT.ib
+         ! Write true density to file rhoMT.ib
          if(cmdopt0('--wrhomt'))call wrhomt('rhoMT.','density',ib,orhoat(1,ib)%v,rofi,nr,nlml,nsp)
          call locpt2(z,rmt,rg,a,nr,nsp,cofg,cofh & ! Make potential and energy terms at this site ---
-              ,ceh,rfoc,lfoc,nlml,qmom ( j1 ),vval ( j1 ),rofi &
-              ,rwgt,orhoat( 1,ib )%v,orhoat( 2,ib )%v,&
-              orhoat( 3,ib )%v,rhol1,rhol2,v1,v2,v1es,v2es, &
+              ,ceh,rfoc,lfoc,nlml,qmom(j1),vval(j1),rofi &
+              ,rwgt,orhoat(1,ib)%v,orhoat(2,ib)%v,orhoat( 3,ib )%v,&
+              rhol1,rhol2,v1,v2,v1es,v2es, &
               valvs(ib),cpnvs(ib),rhexc(:,ib),rhex(:,ib),rhec(:,ib),rhvxc(:,ib),&
               valvt(ib),xcor(ib) ,qloc(ib),qlocc(ib),aloc(ib),alocc(ib),gpotb,& 
               rhobg,efg(1,ib),ifivesint,lxcf) 
-         !! write density 1st(true) component and counter components.
+         ! write density 1st(true) component and counter components.
          if(cmdopt0('--density') .AND. master_mpi .AND. secondcall) then
             write(stdo,"(' TotalValenceChange diff in MT; ib,\int(rho2-rho1)=',i5,f13.5)") ib,qloc(ib)
             write(strib,'(i10)') ib
@@ -204,8 +202,7 @@ contains
             enddo
             close(ibx)
          endif
-         
-         !   ... Write true potential to file vtrue.ib
+         ! Write true potential to file vtrue.ib
          if(cmdopt0('--wpotmt'))call wrhomt('vtrue.','potential',ib,v1,rofi,nr,nlml,nsp)
          if (lfltwf) then !   ... Update the potential used to define basis set
             do i = 0, nsp-1
@@ -282,14 +279,14 @@ contains
          do  i = 0, nsp-1 ! Store the potential used in mkrout to calculate the core
             v1pot(ib)%v(1+nr*i: nr+nr*i) = y0*v1(1+nr*nlml*i : nr+nr*nlml*i)
          enddo
-         if (lfoc==0) xcore = xcore + xcor(ib)
-         if (kcor/=0) then !  Check for core moment mismatch ; add to total moment
+         if(lfoc==0) xcore = xcore + xcor(ib)
+         if(kcor/=0) then !  Check for core moment mismatch ; add to total moment
             if (dabs(qcor(2)-alocc(ib)) > 0.01d0) then
                if(ipr>=10) write(stdo,ftox) ' (warning) core moment mismatch spec=',is,&
                     'input file=',qcor(2),'core density=',alocc
             endif
          endif
-         !   --- Make augmentation matrices sig, tau, ppi ---
+         ! Make augmentation matrices sig, tau, ppi ---
          if (job==1) then !     ... Smooth Hankel tails for local orbitals
             rsmh= 0d0
             eh  = 0d0
@@ -312,14 +309,13 @@ contains
             if( .NOT. novxc .AND. cmdopt0('--socmatrix') ) lsox=1
             if (ipr >= 20) write(stdo,467) y0*(gpot0(j1)-gpotb(1))
 467         format('     potential shift to crystal energy zero:',f12.6)
-            call augmat ( z,rmt,rsma(is),lmxa,pnu,pnz,kmax,nlml, a,nr,nsp,lsox,rwgt,& !rofi,
-                 v0pot(ib)%v,v1,v2,gpotb,gpot0 ( j1 ),nkaph,nkapi,&
+            call augmat(z,rmt,rsma(is),lmxa,pnu,pnz,kmax,nlml, a,nr,nsp,lsox,rwgt,& 
+                 v0pot(ib)%v,v1,v2,gpotb,gpot0(j1),nkaph,nkapi,&
                  lmxb,lhh(:,is),eh,rsmh, ehl,rsml,rs3,vmtz, lmaxu, vorb, lldau(ib), idu, &
                  iblu, &
                  osig(1,ib), otau(1,ib), oppi(1,ib), ohsozz(1,ib), ohsopm(1,ib), &
                  ppnl(1,1,1,ib), hab(1,1,1,1,ib),vab (1,1,1,1,ib), sab(1,1,1,1,ib),rotp(0,1,1,1,ib) )
          endif
-         j1 = j1+nlml
       enddo ibloop
       vvesat = sum(valvs)
       cpnvsa = sum(cpnvs)
@@ -343,8 +339,9 @@ contains
   end subroutine locpot
 
   subroutine locpt2(z,rmt,rg,a,nr,nsp,cofg,cofh,ceh,rfoc,lfoc, &
-       nlml,qmom,vval,rofi,rwgt,rho1,rho2,rhoc,rhol1,rhol2,v1,v2,v1es, &
-       v2es,vvesat,cpnves,rhoexc,rhoex,rhoec,rhovxc, valvef,xcore,qloc, & 
+       nlml,qmom,vval,rofi,rwgt,rho1,rho2,rhoc,&
+       rhol1,rhol2,v1,v2,v1es,v2es,&
+       vvesat,cpnves,rhoexc,rhoex,rhoec,rhovxc, valvef,xcore,qloc, & 
        qlocc,aloc,alocc,gpotb,rhobg,efg,ifivesint,lxcfun) 
     use m_hansr,only:hansmr
     use m_ftox

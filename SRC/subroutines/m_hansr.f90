@@ -149,13 +149,6 @@ contains
        endif
        n1 = n0+1
     endif
-
-    ! ... For debugging
-    !     call awrit8(' hansr: sort=%l rc1=%,2;2d rc2=%,2;2d'//
-    !    .  ' nxi=%i nr=%i (%i pwr, %i smooth, %i asym)',
-    !    .  ' ',120,6,lsort,dsqrt(rc1),dsqrt(rc2),nxi,nr,n1-1,n2-n1,nr-n2+1)
-
-
     ! --- Setup for the energy-independent wk, points n1..n2 ---
     if (lsort) then
        do  20  ir = n1, n2-1
@@ -348,10 +341,9 @@ contains
     !r   xi is the radial part divided by r**l.
     !r   xi is evaluated by upward recursion for l>lmin+2.
     ! ---------------------------------------------------------------
-    !     implicit none
+    implicit none
     integer :: nrx,nr,lmin,lmax
     double precision :: rsq(nrx),e,xi(nrx,lmin:lmax),rsm,wk(nr),wk2(nr)
-    ! Local variables
     double precision :: sre,r2,xx,ra,h0,arsm,earsm
     double precision :: akap,a,r,um,up,x,facgl,facdu,dudr
     integer :: l,ir
@@ -464,19 +456,15 @@ contains
     !o           Solid hankel function is hl(ilm) = xi(l)*cy(ilm)*yl(ilm)
     !o           Energy derivative is    hlp(ilm) = x(l-1)/2*cy(ilm)*yl(ilm)
     ! ---------------------------------------------------------------
-    !     implicit none
-    ! ... Passed parameters
+    implicit none
     integer :: nrx,nr,lmin,lmax
     double precision :: rsq(nr),e,xi(nrx,lmin:lmax)
-    ! ... Local parameters
     double precision :: sre,r2,r,h0,xx,akap
     integer :: l,ir
-
     if (lmin /= 0 .AND. lmin /= -1) &
          call rx('hanr: input lmin must be -1 or 0')
     if (lmax < lmin .OR. nr <= 0) return
     akap = dsqrt(-e)
-
     ! --- Make xi(lmin), xi(lmin+1) ---
     ! ... xi(-1) for lmax=-1 only
     if (lmin == -1 .AND. lmax == -1) then
@@ -510,7 +498,6 @@ contains
           xi(ir,1) = h0*(1d0+sre)/rsq(ir)
 10     enddo
     endif
-
     ! --- xi(*,lmin+2:lmax) by upward recursion ---
     do  30  l = lmin+2, lmax
        xx = 2*l-1
@@ -568,13 +555,11 @@ contains
     !u   28 Aug 04 Also generate ddhsp
     !u   16 Jun 04 First created
     ! ---------------------------------------------------------------
-    !     implicit none
-    ! ... Passed parameters
+    implicit none
     integer :: mode,lmax
     double precision :: r,e,rsm
     double precision :: hs(0:lmax),dhs(0:lmax),ddhs(0:lmax)
     double precision :: hsp(0:lmax),dhsp(0:lmax),ddhsp(0:lmax)
-    ! ... Local parameters
     integer :: idx,l,mode0,mode1
     double precision :: xi(-1:lmax+2) !,wk(2)
     if (lmax < 0) return
@@ -710,15 +695,12 @@ contains
     endif
   end subroutine hansmr
   subroutine corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc, rfoc,z)
-    use m_struc_def
     use m_lmfinit,only: pnux=>pnusp,pzx=>pzsp,sspec=>v_sspec
     !- Returns parameters for smooth core+nucleus representation
     ! ----------------------------------------------------------------------
     !i Inputs
-    !i     Elts read: lfoca rfoca qc z ctail etail stc orhoc lmxb pz rmt rg
-    !i     Stored:    *
-    !i     Passed to: *
-    !i   is    :species index
+    !i  sspec, pnusp, pzsp
+    !i   is: species index
     !o Outputs
     !o   cofg  :coefficient to Gaussian part of pseudocore density
     !o         :assigned so that pseudocore charge = true core charge
@@ -765,18 +747,17 @@ contains
     implicit none
     integer :: is,i_copy_size
     real(8):: qcorg , qcorh , qsc , cofg , cofh , ceh , rfoc , z
-    !  type(s_spec)::sspec(is)
     integer:: n0 , lfoc , lmxb , l,isp
     parameter (n0=10)
     real(8):: pnu(n0),pz(n0),ccof,q0,q1,qc,rmt,rsm,stc,x0(0:n0), xi(0:n0),dgetss
     real(8),parameter:: fpi = 16d0*datan(1d0), srfpi = dsqrt(fpi), y0 = 1d0/srfpi
     lfoc=sspec(is)%lfoca
     rfoc=sspec(is)%rfoca
-    qc=sspec(is)%qc
-    z=sspec(is)%z
+    qc=  sspec(is)%qc
+    z=   sspec(is)%z
     ccof=sspec(is)%ctail
-    ceh=sspec(is)%etail
-    stc=sspec(is)%stc
+    ceh= sspec(is)%etail
+    stc= sspec(is)%stc
     lmxb=sspec(is)%lmxb
     pnu= pnux(1:n0,1,is) !sspec(is)%p
     pz = pzx(1:n0,1,is)  !sspec(is)%pz
