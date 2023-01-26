@@ -3,8 +3,8 @@ module m_potpus
   private
 contains
   subroutine potpus(z,rmax,lmxa,v,vdif,a,nr,nsp,lso,rofi,pnu,pnz, &
-       ehl,rsml,rs3,vmtz,nab,n0,ppnl,hab,vab,sab,sodb,rotp)
-    use m_lmfinit,only: stdo,lrel,cc
+       ehl,rsml,rs3,vmtz,phzdphz,hab,vab,sab,sodb,rotp)
+    use m_lmfinit,only: stdo,lrel,cc,n0,nppn
     use m_ftox
     use m_vxtrap,only: vxtrap,rwftai
     !- Potential parameters for potential and boundary condition
@@ -33,9 +33,9 @@ contains
     !i   rs3   :minimum smoothing radius for extrapolation of MT potential
     !i   vmtz  :muffin-tin zero: subtracted from V in the fitting procedure.
     !i         :The asymptotic form of V-vmtz is taken to be zero.
-    !i   nab,n0:first and second dimensions of hab, vab, sab
+    !i   n0: second dimensions of hab, vab, sab
     !o Outputs
-    !o   ppnl(11:12)  : phz dphz
+    !o   phzdphz(11:12)  : phz dphz
     !o   hab   :matrix elements of the hamiltonian (spher. v) for this site
     !o         :specified by the potentials v, vdif and the boundary
     !o         :condition pnu (or pnz).  See Remarks.
@@ -94,10 +94,10 @@ contains
     !r   hab(7), and hab(6) and hab(8); but both are kept for convenience,
     !r   because of the nonhermiticity in h.
     implicit none
-    integer :: lmxa,lso,nr,nsp,n0,nab,nppn
-    parameter (nppn=12)
+    integer :: lmxa,lso,nr,nsp !,n0,nppn
+!    parameter (nppn=12)
     real(8):: z,rmax,a,rofi(1),v(nr,nsp),ehl(n0),rsml(n0), &
-         pnu(n0,nsp),pnz(n0,nsp),ppnl(nppn,n0,2), & !,pp(n0,2,5)
+         pnu(n0,nsp),pnz(n0,nsp),phzdphz(nppn,n0,2), & !,pp(n0,2,5)
          hab(3,3,n0,nsp),sab(3,3,n0,nsp),vab(3,3,n0,nsp),vdif(nr,nsp), &
          sodb(3,3,n0,nsp,2),rs3,vmtz
     integer:: ipr,ir,i,j,k,l,lpz,lpzi(0:n0),nrbig
@@ -274,7 +274,7 @@ contains
                hab(1:3,1:3,k,i) = matmul(mmm,matmul(hmat(1:3,1:3),mmmt)) !<(u,s,gz)|h|(u,s,gz)>
              endblock lpzint
           endif
-          if (lpzi(l) /= 0) ppnl(11:12,k,i) = [phz, dphz]
+          if (lpzi(l) /= 0) phzdphz(11:12,k,i) = [phz, dphz]
           det    = phi*dphip - dphi*phip
           rotp(l,i,1,1) = dphip/det !see sugw for how to use rotp (u,s) to (phi,phidot)
           rotp(l,i,1,2) = -dphi/det
@@ -287,8 +287,8 @@ contains
     call soprm(5,lpzi,psi,dpsi,pzi,nr,nsp,lmxa,lmxa,v,dv,enumx, ezum,z,rofi,rwgt,wrk,sop,sopz)
     do i = 1, nsp ! Make the spin diagonal radial integrals
        do l = 0, lmxa
-          phz = ppnl(11,l+1,i)
-          dphz = ppnl(12,l+1,i)
+          phz = phzdphz(11,l+1,i)
+          dphz = phzdphz(12,l+1,i)
           k = l + 1
           if (lpzi(l)==0) then 
              sodbmat: block  !note original sodb is transposed to avoid confusing defition. 2022-12-26
@@ -321,10 +321,10 @@ contains
     enddo
     do l = 0, lmxa !   ... Make the spin off-diagonal radial integrals
        k = l + 1
-       phz   = ppnl(11,k,1)
-       dphz  = ppnl(12,k,1)
-       phz2  = ppnl(11,k,2)
-       dphz2 = ppnl(12,k,2)
+       phz   = phzdphz(11,k,1)
+       dphz  = phzdphz(12,k,1)
+       phz2  = phzdphz(11,k,2)
+       dphz2 = phzdphz(12,k,2)
        if (lpzi(l)==0) then 
           sooff2: block
             real(8),pointer::mmm1(:,:),mmm2(:,:)

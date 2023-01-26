@@ -9,7 +9,7 @@ module m_locpot
 contains
   !- Make the potential axt the atomic sites and augmentation matrices.
   subroutine locpot(orhoat,qmom,vval,gpot0,job,rhobg,nlibu,lmaxu,vorb,lldau,novxc, &!,idipole 
-       osig , otau, oppi, ohsozz,ohsopm, ppnl, hab, vab, sab, & 
+       osig , otau, oppi, ohsozz,ohsopm, phzdphz, hab, vab, sab, & 
        vvesat,cpnvsa, rhoexc,rhoex,rhoec,rhovxc, valvef, xcore, sqloc,sqlocc,saloc, qval,qsc )
     use m_density,only: v0pot,v1pot   !output
     use m_density,only: pnzall,pnuall !output
@@ -69,7 +69,7 @@ contains
     !o   osig  :augmentation overlap integrals; see augmat
     !o   otau  :augmentation kinetic energy integrals; see augmat
     !o   oppi  :augmentation kinetic + potential integrals; see augmat
-    !o   ppnl  :phz dphz
+    !o   phzdphz  :phz dphz
     !o   hab   :integrals of the ham. with true w.f.  See Remarks in augmat
     !o   vab   :integrals of the pot. with true w.f.  See Remarks in augmat
     !o   sab   :integrals of    unity with true w.f.  See Remarks in augmat
@@ -91,7 +91,7 @@ contains
          qval,sqloc,sqlocc,saloc, & !,focvxc(nsp)focexc(nsp),focex(nsp),focec(nsp),
          valvef,vvesat,xcore,& !rvvxc, & !,rveps rvepsv, ,rvexv,rvecv,rvvxcv
          hab(3,3,n0,nsp,nbas),vab(3,3,n0,nsp,nbas),sab(3,3,n0,nsp,nbas), &
-         gpot0(1),ppnl(nppn,n0,nsp,nbas),rhobg
+         gpot0(1),phzdphz(nppn,n0,nsp,nbas),rhobg
     character spid*8
     integer :: lh(nkap0),nkapi,nkape,k
     double precision :: eh(n0,nkap0),rsmh(n0,nkap0)
@@ -314,7 +314,7 @@ contains
                  lmxb,lhh(:,is),eh,rsmh, ehl,rsml,rs3,vmtz, lmaxu, vorb, lldau(ib), idu, &
                  iblu, &
                  osig(1,ib), otau(1,ib), oppi(1,ib), ohsozz(1,ib), ohsopm(1,ib), &
-                 ppnl(1,1,1,ib), hab(1,1,1,1,ib),vab (1,1,1,1,ib), sab(1,1,1,1,ib),rotp(0,1,1,1,ib) )
+                 phzdphz(1,1,1,ib), hab(1,1,1,1,ib),vab (1,1,1,1,ib), sab(1,1,1,1,ib),rotp(0,1,1,1,ib) )
          endif
       enddo ibloop
       vvesat = sum(valvs)

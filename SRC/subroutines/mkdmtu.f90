@@ -1,6 +1,6 @@
 subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu)
   use m_lmfinit,only: ispec,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nl,n0,nppn,nlibu,lmaxu,nlibu,lldau,idu
-  use m_mkpot,only: ppnl=>ppnl_rv
+  use m_mkpot,only: phzdphz
   use m_subzi, only: wtkb=>rv_a_owtkb
   use m_igv2x,only: ndimh
   use m_suham,only: ndham=>ham_ndham,ndhamx=>ham_ndhamx
@@ -27,7 +27,7 @@ subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu)
   !i   nlmax :1st dimension of aus (maximum nlma over all sites)
   !i   nbas  :size of basis
   !i   nev   :actual number of eigenvectors generated
-  !i   ppnl  :phz dphz
+  !i   phzdphz  :phz dphz
   !i   aus   :coefficients to phi and phidot made previously by makusqldau
   !i  lldau  :lldau(ib)=0 => no U on this site otherwise
   !i         :U on site ib with dmat beginning at dmats(*,lldau(ib))
@@ -71,8 +71,8 @@ subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu)
            !           ispc=1 for independent spins, and spin index when nspc=2
            do  ispc = 1, nspc
               ksp = max(ispc,isp)
-              phz    = ppnl(11,l+1,ksp,ib)
-              dphz   = ppnl(12,l+1,ksp,ib)
+              phz    = phzdphz(11,l+1,ksp,ib)
+              dphz   = phzdphz(12,l+1,ksp,ib)
               ilm1 = l*l
               do  m1 = -l, l
                  ilm1 = ilm1+1

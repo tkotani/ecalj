@@ -7,8 +7,8 @@ contains
        , v0 , v1 , v2 , gpotb , gpot0 , nkaph , nkapi , lmxh , lh , &
        eh , rsmh , ehl , rsml , rs3 , vmtz ,  lmaxu , vorb , lldau, idu, &
        iblu,&
-       osig, otau, oppi, ohsozz,ohsopm, ppnl, hab, vab, sab,rotp)
-    use m_lmfinit,only: n0,nkap0,nppn,nab,nrmx
+       osig, otau, oppi, ohsozz,ohsopm, phzdphz, hab, vab, sab,rotp)
+    use m_lmfinit,only: n0,nkap0,nppn,nrmx
     use m_struc_def, only: s_rv1,s_cv1,s_sblock
     use m_gaugm,only:  gaugm
     use m_potpus,only: potpus
@@ -18,7 +18,7 @@ contains
     !o   osig  :augmentation overlap integrals; see Remarks.
     !o   otau  :augmentation kinetic energy integrals; see Remarks.
     !o   oppi  :augmentation kinetic + potential integrals; see Remarks.
-    !o   ppnl  :phz dphz
+    !o   phzdphz  :phz dphz
     !o   hab   :matrix elements of the ham. with true w.f.  See Remarks.
     !o   vab   :matrix elements of the pot. with true w.f.  See Remarks.
     !o   sab   :matrix elements of    unity with true w.f.  See Remarks.
@@ -327,7 +327,7 @@ contains
     type(s_sblock):: ohsozz(3),ohsopm(3)
     type(s_rv1) :: otau(3)
     type(s_rv1) :: osig(3)
-    real(8):: ppnl(nppn,n0,2), hab(3,3,n0,nsp),vab(3,3,n0,nsp),sab(3,3,n0,nsp)
+    real(8):: phzdphz(nppn,n0,2), hab(3,3,n0,nsp),vab(3,3,n0,nsp),sab(3,3,n0,nsp)
 
     integer :: lmxa,kmax,nlml,nr,nsp,nkaph,nkapi,lmxh,lso, lmaxu,lldau,iblu,idu(4)
     integer::  lh(nkap0), k,ll,lmxl,nlma,nlmh,i, lxa(0:kmax),kmax1
@@ -343,7 +343,7 @@ contains
          rotp(0:lmxa,nsp,2,2)
          
     complex(8):: vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
-    complex(8):: vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,nab,2,0:lmaxu)
+    complex(8):: vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,3,3,2,0:lmaxu)
     real(8),allocatable:: qum(:,:,:,:,:)
     real(8),parameter:: pi   = 4d0*datan(1d0),  y0   = 1d0/dsqrt(4d0*pi)
     call tcn('augmat')
@@ -360,7 +360,7 @@ contains
     ! --- Make hab,vab,sab and potential parameters pp ---
     allocate( qum((lmxa+1)**2,(lmxl+1),3,3,nsp))
     call potpus(z,rmt,lmxa,v0,vdif,a,nr,nsp,lso,rofi,pnu,pnz,ehl,rsml, &
-         rs3,vmtz,nab,n0, ppnl,hab,vab,sab,sodb,rotp)
+         rs3,vmtz, phzdphz,hab,vab,sab,sodb,rotp)
     ! --- Moments and potential integrals of ul*ul, ul*sl, sl*sl ---
     call momusl(z,rmt,lmxa,pnu,pnz,rsml,ehl,lmxl,nlml,a,nr,nsp,rofi, &
          rwgt,v0,v1,qum,vum)
@@ -370,7 +370,7 @@ contains
     call fradhd(nkaph,eh,rsmh,lh,lmxh,nr,rofi,fh,xh,vh,dh)
     call fradpk(kmax,rsma,lmxa,nr,rofi,fp,xp,vp,dp)
     ! LDA+U: rotate vorb from (phi,phidot) to (u,s) for all l with U at this site and store in vumm
-    if (lldau > 0) call vlm2us(lmaxu,rmt,idu,lmxa,iblu,vorb,ppnl,rotp,vumm)
+    if (lldau > 0) call vlm2us(lmaxu,rmt,idu,lmxa,iblu,vorb,phzdphz,rotp,vumm)
     !...Pkl*Pkl !tail x tail
     kmax1=kmax+1
     call gaugm(nr,nsp,lso,rofi,rwgt,lmxa,lmxl,nlml,v2,gpotb,gpot0,hab,vab,sab,sodb,qum,vum,&
@@ -573,12 +573,12 @@ contains
     enddo
     call tcx('momusl')
   end subroutine momusl
-  subroutine vlm2us(lmaxu,rmt,idu,lmxa,iblu,vorb,ppnl,rotp,vumm)
+  subroutine vlm2us(lmaxu,rmt,idu,lmxa,iblu,vorb,phzdphz,rotp,vumm)
     !- Rotate vorb from (phi,phidot) to (u,s) and store in vumm
     !i   lmaxu :dimensioning parameter for U matrix
     !i   lmxa  :augmentation l-cutoff
     !i   vorb  :orbital-dependent potential matrices
-    !i   ppnl  : phz dphz
+    !i   phzdphz  : phz dphz
     !o Inputs/Outputs
     !o  iblu  :index to current LDA+U block
     !          :on input, index to last LDA+U block that was accessed
@@ -590,7 +590,7 @@ contains
     integer :: lmaxu,lmxa,iblu,idu(4),m1,m2,l,i
     integer,parameter:: n0=10,nppn=12
     real(8):: rmt,phi,dlphi,phip,dlphip,dphi,dphip, r12,r21,r11,r22,det, phz,dphz,&
-         ppnl(nppn,n0,2),rotpp(2,2),rotppt(2,2),rotp(0:lmxa,2,2,2) !nsp=2 expected
+         phzdphz(nppn,n0,2),rotpp(2,2),rotppt(2,2),rotp(0:lmxa,2,2,2) !nsp=2 expected
     complex(8):: vzz,vuz,vsz,vzu,vzs, Vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,2,*), &
          vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,3,3,2,0:lmaxu)
     if(lmaxu>lmxa) call rx('vlm2ux:lmaxu>lmxa')
@@ -610,8 +610,8 @@ contains
           vumm(:,:,2,2,i,l) = rotpp(2,1)*Vorb(:,:,i,iblu)*rotppt(1,2)
           ! (au-phz, as-dphz)*vumm*(au-phz, as-dphz)^t for gz is expanded to be
           if (phz /= 0) then
-             phz  = ppnl(11,l+1,i)
-             dphz = ppnl(12,l+1,i)
+             phz  = phzdphz(11,l+1,i)
+             dphz = phzdphz(12,l+1,i)
              vumm(:,:,1:2,3,i,l)= - phz*vumm(:,:,1:2,1,i,l) - dphz*vumm(:,:,1:2,2,i,l) !vuz,vsz
              vumm(:,:,3,1:2,i,l)= - phz*vumm(:,:,1,1:2,i,l) - dphz*vumm(:,:,2,1:2,i,l) !vzu,vzs
              vumm(:,:,3,3,i,l)  =   phz**2*vumm(:,:,1,1,i,l) + &

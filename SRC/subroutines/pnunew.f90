@@ -2,7 +2,7 @@ subroutine pnunew(eferm)
   use m_ftox
   use m_MPItk,only: master_mpi
   use m_lmfinit,only:nbas,nsp,ispec,sspec=>v_sspec,ham_frzwf,idmodis=>idmod,slabl,&
-       pmin=>ham_pmin,pmax=>ham_pmax,n0,nab,mxcst4
+       pmin=>ham_pmin,pmax=>ham_pmax,n0,mxcst4
   use m_mkrout,only: hbyl=>hbyl_rv,qbyl=>qbyl_rv
   use m_lgunit,only:stdo
   use m_phidx,only: phidx

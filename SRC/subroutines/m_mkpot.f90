@@ -1,5 +1,5 @@
 module m_mkpot ! Seechttp://dx.doi.org/10.7566/JPSJ.84.034702
-  use m_lmfinit,only: nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nab,nppn &
+  use m_lmfinit,only: nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nppn &
        ,lfrce=>ctrl_lfrce,stdl, nchan=>pot_nlma, nvl=>pot_nlml,nkaph
   use m_struc_def,only: s_rv1,s_cv1,s_sblock
 
@@ -19,7 +19,7 @@ module m_mkpot ! Seechttp://dx.doi.org/10.7566/JPSJ.84.034702
   real(8),allocatable,protected,public:: fes1_rv(:), fes2_rv(:) !force terms
   real(8),allocatable,protected,public:: hab_rv(:,:,:), sab_rv(:,:,:), qmom(:),vesrmt(:)
   real(8),protected,public:: qval,vconst,qsc
-  real(8),allocatable,protected,public:: ppnl_rv(:,:,:,:)
+  real(8),allocatable,protected,public:: phzdphz(:,:,:,:)
 
   !! nov2021 dipole contribution added  (not working...)
   !! oppixd: add dipole part to oppix
@@ -43,7 +43,7 @@ contains
     allocate( hab_rv(3,3,n0*nsp*nbas))
     allocate( vab_rv(3,3,n0*nsp*nbas))
     allocate( sab_rv(3,3,n0*nsp*nbas))
-    allocate( ppnl_rv(nppn,n0,nsp,nbas))
+    allocate( phzdphz(nppn,n0,nsp,nbas))
     allocate( gpot0(nvl))
     allocate( vval(nchan))
     allocate( fes1_rvx(3*nbas))
@@ -55,7 +55,7 @@ contains
     !     We obtain osigx,otaux,oppix,smpotx  (without XC)
     call mkpot(1, osmrho,orhoat, spotx,osigx,otaux,oppix, fes1_rvx,ohsozzx,ohsopmx, novxc_)
     !When novxc_ exists, we exclud XC(LDA) part. We only need spotx and oppix
-    deallocate(ppnl_rv,vesrmt,qmom,hab_rv,vab_rv,sab_rv,gpot0,vval,fes1_rvx,ohsozzx,ohsopmx)
+    deallocate(phzdphz,vesrmt,qmom,hab_rv,vab_rv,sab_rv,gpot0,vval,fes1_rvx,ohsozzx,ohsopmx)
   end subroutine m_mkpot_novxc
 
   !$$$      subroutine m_mkpot_novxc_dipole()
@@ -70,7 +70,7 @@ contains
   !$$$      write(stdo,"(a)")' m_mkpot_novxc_dipole: Making one-particle potential without XC part ...'
   !$$$      allocate( vesrmt(nbas))
   !$$$      allocate(  qmom(nvl)) !rhomom
-  !$$$      allocate( ppnl_rv(nppn,n0,nsp,nbas))
+  !$$$      allocate( phzdphz(nppn,n0,nsp,nbas))
   !$$$      allocate(  hab_rv(nab*n0*nsp*nbas))
   !$$$      allocate(  vab_rv(nab*n0*nsp*nbas))
   !$$$      allocate(  sab_rv(nab*n0*nsp*nbas))
@@ -101,7 +101,7 @@ contains
   !$$$     o        spotxd(:,:,:,:,iidipole),osigx,otaux,oppixd(:,:,iidipole),fes1_rv,ohsozzx,ohsopmx,
   !$$$     &        novxc_,dipole_=iidipole) !!when novxc_ exists, we exclud XC(LDA) part.
   !$$$      enddo
-  !$$$      deallocate(vesrmt,qmom,ppnl_rv,hab_rv,vab_rv,sab_rv,gpot0,vval,fes1_rv,ohsozzx,ohsopmx)
+  !$$$      deallocate(vesrmt,qmom,phzdphz,hab_rv,vab_rv,sab_rv,gpot0,vval,fes1_rv,ohsozzx,ohsopmx)
   !$$$      end subroutine
 
   subroutine m_mkpot_init()
@@ -119,7 +119,7 @@ contains
     allocate( hab_rv(3,3,n0*nsp*nbas))
     allocate( vab_rv(3,3,n0*nsp*nbas))
     allocate( sab_rv(3,3,n0*nsp*nbas))
-    allocate( ppnl_rv(nppn,n0,nsp,nbas))
+    allocate( phzdphz(nppn,n0,nsp,nbas))
     allocate( fes1_rv(3*nbas))
     allocate( osig(3,nbas), otau(3,nbas), oppi(3,nbas))
     allocate( ohsozz(3,nbas), ohsopm(3,nbas))
@@ -388,7 +388,7 @@ contains
     ! --- Make local potential at atomic sites and augmentation matrices ---
     rhobg=qbg/vol
     call locpot(orhoat,qmom,vval,gpot0,job,rhobg,nlibu,lmaxu,vorb,lldau,novxc, & !,idipole )
-         osig,otau, oppi,ohsozz,ohsopm, ppnl_rv,hab_rv,vab_rv,sab_rv,  &
+         osig,otau, oppi,ohsozz,ohsopm, phzdphz,hab_rv,vab_rv,sab_rv,  &
          vvesat,cpnvsa, repat,repatx,repatc,rmuat, valvfa,xcore, sqloc,sqlocc,saloc,qval,qsc )
     if(cmdopt0('--density') .AND. master_mpi .AND. secondcall) return
     ! ... Integral of valence density times estatic potential
@@ -506,7 +506,7 @@ contains
   end subroutine dfaugm
   subroutine m_mkpot_deallocate()
     if (allocated(vesrmt)) then
-       deallocate(vesrmt,fes1_rv,ppnl_rv,sab_rv,vab_rv,hab_rv,vval,gpot0,qmom,oppi,otau,osig,osmpot,ohsozz,ohsopm)
+       deallocate(vesrmt,fes1_rv,phzdphz,sab_rv,vab_rv,hab_rv,vval,gpot0,qmom,oppi,otau,osig,osmpot,ohsozz,ohsopm)
     endif
   end subroutine m_mkpot_deallocate
 end module m_mkpot
