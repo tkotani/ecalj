@@ -601,9 +601,9 @@ contains
           vumm(:,:,2,1,i,l) = rotpp(2,1)*Vorb(:,:,i,iblu)*rotppt(1,1)
           vumm(:,:,2,2,i,l) = rotpp(2,1)*Vorb(:,:,i,iblu)*rotppt(1,2)
           ! (au-phz, as-dphz)*vumm*(au-phz, as-dphz)^t for gz is expanded to be
+          phz  = phzdphz(1,l+1,i)
+          dphz = phzdphz(2,l+1,i)
           if (phz /= 0) then
-             phz  = phzdphz(11,l+1,i)
-             dphz = phzdphz(12,l+1,i)
              vumm(:,:,1:2,3,i,l)= - phz*vumm(:,:,1:2,1,i,l) - dphz*vumm(:,:,1:2,2,i,l) !vuz,vsz
              vumm(:,:,3,1:2,i,l)= - phz*vumm(:,:,1,1:2,i,l) - dphz*vumm(:,:,2,1:2,i,l) !vzu,vzs
              vumm(:,:,3,3,i,l)  =   phz**2*vumm(:,:,1,1,i,l) + &
