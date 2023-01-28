@@ -465,7 +465,8 @@ contains
     if(dexist) then
        open(newunit=idmat,file='dmats.'//trim(sname))
 825    continue
-       read(idmat,*)str
+!       read(idmat,*)str    !bug at 2022-12-11.
+       read(idmat,"(a)")str !bug recovered at 2023-01-28
        if(str(1:1) == '#') goto 825
        if(index(str,' sharm ')/=0) then
           havesh = 1 !spherical(complex) harmonics
@@ -510,7 +511,8 @@ contains
        open(newunit=foccn,file='occnum.'//trim(sname))
        havesh = 1
 12     continue
-       read(foccn,*) str
+!      read(foccn,*) str  !bug at 2022-12-11.
+       read(foccn,"(a)") str  !bug recovered at 2023-01-28
        if (str(1:1) == '#') goto 12
        if (str(1:1) == '%') then
           if(index(str,' real ')/=0) havesh=0
