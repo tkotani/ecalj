@@ -1,6 +1,6 @@
 subroutine makusp(n0,z,nsp,rmax,lmxa,v,a,nr,pnu,pnz,rsml,ehl, ul,sl,gz,ruu,rus,rss)
   use m_hansr,only: hansr
-  use m_vxtrap,only: vxtrap
+!  use m_vxtrap,only: vxtrap
   !- Augmentation functions of pure val,slo (times r) from spherical V and b.c.
   ! ----------------------------------------------------------------------
   !r  ul: linear combination of phi,phidot val=1 slo=0

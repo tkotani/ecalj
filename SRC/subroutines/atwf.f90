@@ -202,8 +202,7 @@ subroutine wf2lo(l,a,nr,rofi,rwgt,phi,dphi,phip,dphip,phz,dphz, &
   elseif (lpzi == 2 .OR. lpzi == 3) then
      call dcopy(nr,gz,1,gzbig,1)
      call dcopy(nr,gz(1,2),1,gzbig(1+nr),1)
-     call rwftai(5,rofi(nr),a,nr,nr,rofi,phz,dphz,xx,l, &
-          ehl(k),rsml(k),gzbig)
+     call rwftai(rofi(nr),a,nr,nr,rofi,phz,dphz,xx,l, ehl(k),rsml(k),gzbig)
      !       If rwftai scales gzbig, rescale phz,gz
      if (gzbig(nr) /= gz(nr,1)) then
         xx = gzbig(nr)/gz(nr,1)

@@ -6,7 +6,7 @@ contains
        ehl,rsml,rs3,vmtz,phzdphz,hab,vab,sab,sodb,rotp)
     use m_lmfinit,only: stdo,lrel,cc,n0,nppn
     use m_ftox
-    use m_vxtrap,only: vxtrap,rwftai
+    use m_vxtrap,only: rwftai
     !- Potential parameters for potential and boundary condition
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -99,14 +99,14 @@ contains
          pnu(n0,nsp),pnz(n0,nsp),phzdphz(nppn,n0,nsp), & !,pp(n0,2,5)
          hab(3,3,n0,nsp),sab(3,3,n0,nsp),vab(3,3,n0,nsp),vdif(nr,nsp), &
          sodb(3,3,n0,nsp,2),rs3,vmtz
-    integer:: ipr,ir,i,j,k,l,lpz,lpzi(0:n0),nrbig
+    integer:: ipr,ir,i,j,k,l,lpzi(0:n0),nrbig
     real(8):: dmat(3,3),det,vi, &
          hmat(3,3),phmins,phplus,q,r,smat(3,3),tmc, &
          umegam,umegap,vmat(3,3),vl,xx,xxx,yyy,zzz, &
          b,ghg,ghgp,gphgp, g(nr,2),gp(nr,2*4),gz(nr,2),&
          ev,phi,dphi,phip,dphip,p, &
          ez,phz,dphz,phzp,dphzp,pz,phz2,dphz2
-    integer :: nrx
+    integer :: nrx,idn
     parameter (nrx=1501)
     double precision :: rwgtx(nrx) !,gzbig(nrx,2)
     real(8),allocatable:: gzbig(:,:)    !     double precision gbig(nrx*2),gpbig(nrx*8),vbig(nrx,2)
@@ -118,11 +118,24 @@ contains
          vx0z,vxz0,vx1z,vxz1,vxzz,vxzu,vxuz,vxzs,vxsz, xxxx(1,1)
     real(8),target:: m(2,2,0:lmxa,nsp)
     real(8):: rwgt(nr),szz_,vzz_,hzz_,vx13,vx23
-    real(8)::rotp(0:lmxa,nsp,2,2)
+    real(8)::rotp(0:lmxa,nsp,2,2),rbig,fac=2d0
     call getpr(ipr)
-    call vxtrap(1,z,rmax,lmxa,v,a,nr,nsp,pnz,rs3,vmtz,nrx,lpz,nrbig,rofi,rwgtx,xxxx(1,1))
-    rwgt= rwgtx(1:nr)
-    b   = rmax/(dexp(a*nr - a) - 1d0)
+    if (maxval(pnz(1:lmxa+1,1)) >=10) then ! big radius for extended local orbitals 
+       nrbig= nrx
+       rbig = rmax * (dexp(a*nrx-a)-1d0)/(dexp(a*nr-a)-1d0)
+       if (rbig > fac*rmax) then ! rbig=fac*rmax is maximum
+          idn = dlog(fac)/a !If rbig>fac*rmax, estimate from exp((nrbig-nr)a) = fac 
+          if (mod(idn,2) == 1) idn = idn-1
+          nrbig = min(nr+idn,nrx)
+          rbig = rmax * (dexp(a*nrbig-a)-1d0)/(dexp(a*nr-a)-1d0)
+       endif
+    else
+       nrbig = nr
+       rbig = rmax
+    endif
+    call radmsh(rbig,a,nrbig,rofi) !extended mesh to rbig
+    call radwgt(rmax,a,nr,rwgt)
+    b  = rmax/(dexp(a*nr - a) - 1d0)
     if (lso /= 0) then !Gradient of average v (for spin-orbit)
        if (lrel == 0) call rx('spin-orbit requires REL=1')
        if (nsp == 1)  call rx('spin-orbit requires NSPIN=2')
@@ -136,7 +149,7 @@ contains
     phzdphz=0d0
     isploop: do 80  i = 1, nsp
        if(ipr>=40)             write(stdo,ftox)' potpus spin=',i,'pnu=',ftof(pnu(1:lmxa+1,i),3)
-       if(ipr>=40.and.lpz/= 0) write(stdo,ftox)' pnz=',ftof(pnz(1:lmxa+1,i),3)
+       if(ipr>=40.and. sum(pnz(1:lmxa+1,1))/=0) write(stdo,ftox)' pnz=',ftof(pnz(1:lmxa+1,i),3)
        lloop: do  10  l = 0, lmxa
           k = l+1
           lpzi(l) = 0
@@ -147,7 +160,7 @@ contains
              if (lpzi(l)==2) then ! Extend local orbital to large mesh; match gz to envelope
                 allocate(gzbig(nrbig,2))
                 gzbig(1:nr,:) = gz(1:nr,:)
-                call rwftai(5,rmax,a,nr,nrbig,rofi,phz,dphz,xx,l,ehl(k), rsml(k),gzbig)
+                call rwftai(rmax,a,nr,nrbig,rofi,phz,dphz,xx,l,ehl(k), rsml(k),gzbig)
                 if (gzbig(nr,1) /= gz(nr,1)) then !   If rwftai scales gzbig, rescale phz,gz
                    xx = gzbig(nr,1)/gz(nr,1)
                    phz  = phz*xx
