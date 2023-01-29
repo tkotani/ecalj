@@ -124,9 +124,8 @@ contains
        nrbig= nrx
        rbig = rmax * (dexp(a*nrx-a)-1d0)/(dexp(a*nr-a)-1d0)
        if (rbig > fac*rmax) then ! rbig=fac*rmax is maximum
-          idn = dlog(fac)/a !If rbig>fac*rmax, estimate from exp((nrbig-nr)a) = fac 
-          if (mod(idn,2) == 1) idn = idn-1
-          nrbig = min(nr+idn,nrx)
+          ! Estimate nrbig from exp((nrbig-nr)a) = fac 
+          nrbig = min( nr+(floor(dlog(fac)/a)/2)*2, nrx)
           rbig = rmax * (dexp(a*nrbig-a)-1d0)/(dexp(a*nr-a)-1d0)
        endif
     else
