@@ -18,6 +18,7 @@ subroutine makusq(nsites,isite,nev,isp,iq,q,evec, auszall)!Accumulate coefficien
   real(8):: q(3),eh(n0,nkap0),rsmh(n0,nkap0),a,rmt
   complex(8):: evec(ndimh,nspc,nev)
   complex(8),target:: auszall(nlmax,ndham*nspc,3,nsp,nsites,iq)
+  auszall=0d0
   call tcn ('makusq')
   do  i = 1, nsites
      if (nsites == nbas) ib = i

@@ -1,4 +1,4 @@
-subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu)
+subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu) !Get density matrix dmatu for LDA+U (phi-projected density matrix)
   use m_lmfinit,only: ispec,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nl,n0,nppn,nlibu,lmaxu,nlibu,lldau,idu
   use m_mkpot,only: phzdphz
   use m_subzi, only: wtkb=>rv_a_owtkb
@@ -6,17 +6,9 @@ subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu)
   use m_suham,only: ndham=>ham_ndham,ndhamx=>ham_ndhamx
   use m_makusq,only: makusq
   use m_locpot,only: rotp
-  !- Calculate density matrix for LDA+U channels
   ! ----------------------------------------------------------------------
   !i Inputs
-  !i   ssite :struct for site-specific information; see routine usite
-  !i     Elts read: spec
-  !i     Stored: *
-  !i     Passed to: *
-  !i   sspec :struct for species-specific information; see routine uspec
-  !i     Elts read: lmxa idu
-  !i     Stored: *
-  !i     Passed to: *
+  !i   sspec : lmxa idu
   !i   wtkb  :eigenvalue weights for BZ integration of occupied states
   !i   isp   :current spin channel (1 or 2)
   !i   iq    :qp index, used only to address element in wtkb
@@ -57,9 +49,8 @@ subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu)
   iblu = 0
   do  ib = 1, nbas
      if (lldau(ib) == 0) goto 10
-     is = ispec(ib) !ssite(ib)%spec
+     is = ispec(ib)
      lmxa=sspec(is)%lmxa
-     !idu= sspec(is)%idu
      rmt= sspec(is)%rmt
      do  l = 0, min(lmxa,3)
         if (idu(l+1,is) /= 0) then
@@ -71,8 +62,8 @@ subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu)
            !           ispc=1 for independent spins, and spin index when nspc=2
            do  ispc = 1, nspc
               ksp = max(ispc,isp)
-              phz    = phzdphz(11,l+1,ksp,ib)
-              dphz   = phzdphz(12,l+1,ksp,ib)
+              phz    = phzdphz(1,l+1,ksp,ib)
+              dphz   = phzdphz(2,l+1,ksp,ib)
               ilm1 = l*l
               do  m1 = -l, l
                  ilm1 = ilm1+1
@@ -96,7 +87,7 @@ subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu)
                        ap2 = auas(1) !au*r(1,1) + as*r(2,1)
                        add = add + ap1*dconjg(ap2)*wtkb(iv,isp,iq)
                     enddo
-                    dmatu(m1,m2,ksp,iblu) = dmatu(m1,m2,ksp,iblu) + add
+                    dmatu(m1,m2,ksp,iblu) = dmatu(m1,m2,ksp,iblu) + add !dmatu is for phi-projected density matrix
                  enddo
               enddo
            enddo

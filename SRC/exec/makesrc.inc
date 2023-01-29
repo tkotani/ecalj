@@ -63,6 +63,7 @@ gtbsl1.o \
 gtpcor.o \
 gvctof.o \
 gvlst2.o \
+gvmtch.o \
 m_hansr.o \
 hnsmft.o \
 hsmq.o \
@@ -207,6 +208,7 @@ vcdmel.o \
 vesgcm.o \
 vxtrap.o \
 wrhomt.o \
+ncutcorrect.o \
 stonerrsa.o \
 polinta.o \
 lmaux.o \
@@ -285,6 +287,7 @@ genallcf_mod.o \
 rgwinf_mod.o \
 cputid.o \
 mate.o \
+bib1.o \
 reindx.o \
 bz.o \
 genqbz.o \

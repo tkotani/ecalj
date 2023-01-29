@@ -168,7 +168,7 @@ contains
             rsml= rsmlss(:,is)
             ehl=  ehlss(:,is)
             call makusp(n0,z,nsp,rmt,lmxa,v0pot(ib)%v, a,nr,&! Augmented wave functions
-                 xx,xx,pnu,pnz,rsml,ehl,ul_rv,sl_rv,gz_rv,ruu_rv, rus_rv,rss_rv )
+                 pnu,pnz,rsml,ehl,ul_rv,sl_rv,gz_rv,ruu_rv, rus_rv,rss_rv )
             !   ... Contracted density matrix as coffs to products of (u,s,gz)
             chh_rv=0d0
             chp_rv=0d0

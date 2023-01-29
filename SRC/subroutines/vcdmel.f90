@@ -92,7 +92,7 @@ subroutine vcdmel(nl,nlmax,ndham,ndimh,nq,nsp,nspc,ef,evl,aus,nsite,isite,iclsl,
      rsml= rsmlss(:,is)
      ehl = ehlss(:,is)
      call makusp ( n0 , z , nsp , rmt , lmxa , v0pot(ib)%v , a , nr , &
-          xx , xx , pnu , pnz , rsml , ehl , ul_rv , sl_rv , gz_rv, ruu_rv , rus_rv , rss_rv )
+          pnu , pnz , rsml , ehl , ul_rv , sl_rv , gz_rv, ruu_rv , rus_rv , rss_rv )
      !   --- Matrix elements of u,s with core
      write(6,"('CLS atom: ib name n l=',i5,' ',a,2i5)") ib, trim(clabl),ncls,lcls
      allocate(g_rv(nr*2))

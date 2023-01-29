@@ -1,4 +1,4 @@
-subroutine makusp(n0,z,nsp,rmax,lmxa,v,a,nr,rs3,vmtz,pnu,pnz,rsml,ehl, ul,sl,gz,ruu,rus,rss)
+subroutine makusp(n0,z,nsp,rmax,lmxa,v,a,nr,pnu,pnz,rsml,ehl, ul,sl,gz,ruu,rus,rss)
   use m_hansr,only: hansr
   use m_vxtrap,only: vxtrap
   !- Augmentation functions of pure val,slo (times r) from spherical V and b.c.
@@ -19,11 +19,6 @@ subroutine makusp(n0,z,nsp,rmax,lmxa,v,a,nr,rs3,vmtz,pnu,pnz,rsml,ehl, ul,sl,gz,
   !i   v     :spherical potential (atomsr.f)
   !i   a     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
   !i   nr    :number of radial mesh points
-  !i   rs3   :minimum smoothing radius for extrapolation of MT potential
-  !i         :Not used now
-  !i   vmtz  :muffin-tin zero: subtracted from V in the fitting procedure.
-  !i         :The asymptotic form of V-vmtz is taken to be zero.
-  !i         :Not used now
   !i   pnu   :boundary conditions.  If Dl = log. deriv. at rmax,
   !i          pnu = .5 - atan(Dl)/pi + (princ.quant.number).
   !i   pnz   :boundary conditions for (optional) second p.q.n.
@@ -67,7 +62,7 @@ subroutine makusp(n0,z,nsp,rmax,lmxa,v,a,nr,rs3,vmtz,pnu,pnz,rsml,ehl, ul,sl,gz,
   ! ----------------------------------------------------------------------
   implicit none
   integer :: lmxa,nr,nsp,n0
-  double precision :: a,rmax,z,rs3,vmtz,rsml(0:lmxa),ehl(0:lmxa), &
+  double precision :: a,rmax,z,rsml(0:lmxa),ehl(0:lmxa), &
        v(nr,1),pnu(n0,2),pnz(n0,2), &
        ul(nr,lmxa+1,1),sl(nr,lmxa+1,1),gz(nr,lmxa+1,1), &
        ruu(nr,lmxa+1,2,1),rus(nr,lmxa+1,2,1),rss(nr,lmxa+1,2,1)

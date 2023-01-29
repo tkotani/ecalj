@@ -7,7 +7,7 @@ module m_clsmode
   use m_ftox,only: ftox
   integer,parameter,private:: nsitmx = 256
   integer,private::  icls=0 , isite(nsitmx) , iclsl(nsitmx), iclsn(nsitmx),nsites
-  complex(8),allocatable,private :: ausc_zv(:)
+  complex(8),allocatable,private :: ausc_zv(:),ausc(:)
 contains
   subroutine m_clsmode_init()
     logical:: cmdopt0
@@ -53,6 +53,7 @@ contains
           write(6,"(a)") aaachar
        endif
        allocate(ausc_zv(3*nlmax*ndham*nsites*nsp*nkp))
+       allocate(ausc(3*nlmax*ndham*nsites*nsp*nkp))
        ausc_zv=0d0
     else
        icls = 0
@@ -66,7 +67,8 @@ contains
     real(8)::qp(3)
     complex(8):: t_zv(1:ndimhx,1:nmx)
     call rxx(lso==1,'CLS not implemented in noncoll case')
-    call makusq(nsites,isite, nev,jsp,iq,qp,t_zv, ausc_zv)
+    call makusq(nsites,isite, nev,jsp,iq,qp,t_zv, ausc)!ausc_zv is accumulating
+    ausc_zv = ausc_zv + ausc
   end subroutine m_clsmode_set1
 
   subroutine m_clsmode_finalize(bz_ef,ndimh,ndhamx,nspx,nkp,dosw,evlall)

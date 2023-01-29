@@ -454,7 +454,7 @@ contains
     pi = 4d0*datan(1d0)
     srfpi = dsqrt(4d0*pi)
     gz=0d0
-    call makusp(n0,z,nsp,rmt,lmxa,v0,a,nr,xx,xx,pnu,pnz,rsml,ehl, ul,sl,gz,ruu,rus,rss)
+    call makusp(n0,z,nsp,rmt,lmxa,v0,a,nr,pnu,pnz,rsml,ehl, ul,sl,gz,ruu,rus,rss)
     ! --- Moments ---
     do  isp = 1, nsp
        do  l1 = 0, lmxa
@@ -565,7 +565,8 @@ contains
     call tcx('momusl')
   end subroutine momusl
   subroutine vlm2us(lmaxu,rmt,idu,lmxa,iblu,vorb,phzdphz,rotp,vumm)
-    use m_lmfinit,only: nppn
+    use m_lmfinit,only: nppn,stdo
+    use m_ftox
     !- Rotate vorb from (phi,phidot) to (u,s) and store in vumm
     !i   lmaxu :dimensioning parameter for U matrix
     !i   lmxa  :augmentation l-cutoff
@@ -600,6 +601,7 @@ contains
           vumm(:,:,1,2,i,l) = rotpp(1,1)*Vorb(:,:,i,iblu)*rotppt(1,2)
           vumm(:,:,2,1,i,l) = rotpp(2,1)*Vorb(:,:,i,iblu)*rotppt(1,1)
           vumm(:,:,2,2,i,l) = rotpp(2,1)*Vorb(:,:,i,iblu)*rotppt(1,2)
+          !write(stdo,ftox)' vvvvlm2us ',iblu,l,i,ftod(phzdphz(1:2,l+1,i))
           ! (au-phz, as-dphz)*vumm*(au-phz, as-dphz)^t for gz is expanded to be
           phz  = phzdphz(1,l+1,i)
           dphz = phzdphz(2,l+1,i)

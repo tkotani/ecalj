@@ -35,7 +35,7 @@ contains
     !i         :The asymptotic form of V-vmtz is taken to be zero.
     !i   n0: second dimensions of hab, vab, sab
     !o Outputs
-    !o   phzdphz(11:12)  : phz dphz
+    !o   phzdphz(1:2)  : phz dphz
     !o   hab   :matrix elements of the hamiltonian (spher. v) for this site
     !o         :specified by the potentials v, vdif and the boundary
     !o         :condition pnu (or pnz).  See Remarks.
@@ -133,6 +133,7 @@ contains
     vab=0d0
     sab=0d0
     if(lso/=0) sodb=0d0
+    phzdphz=0d0
     isploop: do 80  i = 1, nsp
        if(ipr>=40)             write(stdo,ftox)' potpus spin=',i,'pnu=',ftof(pnu(1:lmxa+1,i),3)
        if(ipr>=40.and.lpz/= 0) write(stdo,ftox)' pnz=',ftof(pnz(1:lmxa+1,i),3)
@@ -273,8 +274,9 @@ contains
                hab(1:3,1:3,k,i) = matmul(mmm,matmul(hmat(1:3,1:3),mmmt)) !<(u,s,gz)|h|(u,s,gz)>
              endblock lpzint
           endif
-          if (lpzi(l) /= 0) phzdphz(1:2,k,i) = [phz, dphz]
-          det    = phi*dphip - dphi*phip
+          if(lpzi(l)/=0) phzdphz(1:2,k,i) = [phz, dphz]
+!          if(lpzi(l)/=0) write(stdo,ftox)'ppppotpus',k,i,ftod(phzdphz(1:2,k,i))
+          det = phi*dphip - dphi*phip
           rotp(l,i,1,1) = dphip/det !see sugw for how to use rotp (u,s) to (phi,phidot)
           rotp(l,i,1,2) = -dphi/det
           rotp(l,i,2,1) = -phip/det
@@ -286,8 +288,6 @@ contains
     call soprm(5,lpzi,psi,dpsi,pzi,nr,nsp,lmxa,lmxa,v,dv,enumx, ezum,z,rofi,rwgt,wrk,sop,sopz)
     do i = 1, nsp ! Make the spin diagonal radial integrals
        do l = 0, lmxa
-          phz = phzdphz(1,l+1,i)
-          dphz = phzdphz(2,l+1,i)
           k = l + 1
           if (lpzi(l)==0) then 
              sodbmat: block  !note original sodb is transposed to avoid confusing defition. 2022-12-26
@@ -302,6 +302,8 @@ contains
           else !  ...  Make the local orbitals spin diagonal integrals
              sodbint: block !gz= (gz0 - gz0(rmax) u - r*(gz0/r)'(rmax) s) = (gz0 - phz u - dphz s)
                real(8):: mm0(3,3),mmz(3,3),mmm(3,3),mmmt(3,3),somat(3,3)
+               phz = phzdphz(1,l+1,i)
+               dphz = phzdphz(2,l+1,i)
                mm0(:,1)=[m(:,1,l,i), 0d0] !1st col (u s gz0)^t= MM0 t(phi phidot gz0)^t
                mm0(:,2)=[m(:,2,l,i), 0d0] 
                mm0(:,3)=[0d0,  0d0,  1d0]
@@ -320,10 +322,6 @@ contains
     enddo
     do l = 0, lmxa !   ... Make the spin off-diagonal radial integrals
        k = l + 1
-       phz   = phzdphz(1,k,1)
-       dphz  = phzdphz(2,k,1)
-       phz2  = phzdphz(1,k,2)
-       dphz2 = phzdphz(2,k,2)
        if (lpzi(l)==0) then 
           sooff2: block
             real(8),pointer::mmm1(:,:),mmm2(:,:)
@@ -341,6 +339,10 @@ contains
           sooff3: block ! gz= (gz0 - gz0(rmax) u - r*(gz0/r)'(rmax) s) = (gz0 - phz u - dphz s)
             real(8):: mm1(3,3),mm2(3,3),mm1z(3,3),mm2z(3,3),mmm1(3,3),mmm2(3,3)
             real(8):: soud(3,3),sodu(3,3),ppp(3,3)
+            phz   = phzdphz(1,k,1)
+            dphz  = phzdphz(2,k,1)
+            phz2  = phzdphz(1,k,2)
+            dphz2 = phzdphz(2,k,2)
             MM1(:,1)=[m(:,1,l,1), 0d0] !L 1st col (u s gz0)^t= MM0 t(phi phidot gz0)^t
             MM1(:,2)=[m(:,2,l,1), 0d0] 
             MM1(:,3)=[0d0,   0d0, 1d0]
