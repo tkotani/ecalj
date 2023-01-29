@@ -96,7 +96,7 @@ contains
     implicit none
     integer :: lmxa,lso,nr,nsp 
     real(8):: z,rmax,a,rofi(1),v(nr,nsp),ehl(n0),rsml(n0), &
-         pnu(n0,nsp),pnz(n0,nsp),phzdphz(nppn,n0,2), & !,pp(n0,2,5)
+         pnu(n0,nsp),pnz(n0,nsp),phzdphz(nppn,n0,nsp), & !,pp(n0,2,5)
          hab(3,3,n0,nsp),sab(3,3,n0,nsp),vab(3,3,n0,nsp),vdif(nr,nsp), &
          sodb(3,3,n0,nsp,2),rs3,vmtz
     integer:: ipr,ir,i,j,k,l,lpz,lpzi(0:n0),nrbig
