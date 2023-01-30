@@ -538,14 +538,6 @@ subroutine poseof(iunit)
   backspace iunit
 91 continue
 end subroutine poseof
-SUBROUTINE GTBVEC(K,B,SHIFT,V)
-  implicit none
-  integer :: K(3)
-  double precision :: V(3),B(3,3),SHIFT(3)
-  V(1) = SHIFT(1) + K(1)*B(1,1) + K(2)*B(1,2) + K(3)*B(1,3)
-  V(2) = SHIFT(2) + K(1)*B(2,1) + K(2)*B(2,2) + K(3)*B(2,3)
-  V(3) = SHIFT(3) + K(1)*B(3,1) + K(2)*B(3,2) + K(3)*B(3,3)
-END SUBROUTINE GTBVEC
 logical function isanrg(i,i1,i2,t1,t2,lreqd)
   logical :: lreqd
   integer :: i,i1,i2,lgunit,iprint,k1,k2,it1
@@ -626,15 +618,15 @@ subroutine getqkey(qx,nqtt,epsd,  nkey,key) !qx is digitized by epsd
   enddo
   nkey=ik
 end subroutine getqkey
-function zxx(a,b) result(ab)
-  integer:: i,j
-  complex(8) :: a(:),b(:),ab(size(a),size(b))
-  do i=1,size(a)
-     do j=1,size(b)
-        ab(i,j)=dconjg(a(i))*b(j)
-     enddo
-  enddo
-end function zxx
+! function zxx(a,b) result(ab)
+!   integer:: i,j
+!   complex(8) :: a(:),b(:),ab(size(a),size(b))
+!   do i=1,size(a)
+!      do j=1,size(b)
+!         ab(i,j)=dconjg(a(i))*b(j)
+!      enddo
+!   enddo
+! end function zxx
 
 real(8) function avwsr(plat,alat,vol,nbas)
   !- Calculate the average ws radius
