@@ -261,7 +261,7 @@ contains
     call strcop(shortname(procid),name,10,'.',i)
     namelen(procid) = i-1
     master = 0
-    mlog = cmdopt('--mlog',6,0,strn)
+    mlog = .false. !cmdopt('--mlog',6,0,strn)
     call getpr(ipr)
     ipl = 1
     nx = 0
@@ -549,12 +549,12 @@ contains
        !        rewind ifi
     endif
     call MPI_BCAST(ifi,1,MPI_INTEGER,master,MPI_COMM_WORLD,ierr)
-    if (mlog) then
-       call gettime(datim)
-       call awrit3(' mixrho '//datim//' Process %i of %i on ' &
-            //shortname(procid)(1:namelen(procid))// &
-            ' bcast ifi = %i',' ',256,stml,procid,numprocs,ifi)
-    endif
+!    if (mlog) then
+!       call gettime(datim)
+!       call awrit3(' mixrho '//datim//' Process %i of %i on ' &
+!            //shortname(procid)(1:namelen(procid))// &
+!            ' bcast ifi = %i',' ',256,stml,procid,numprocs,ifi)
+!    endif
     !     NB: For now, nx must be zero
     k9 = 10
     call pvmix5 ( nmix , mxsav , fnam , ifi , .true. , rmsdel , locmix &
@@ -579,9 +579,9 @@ contains
     endif
 
     ! --- Printout smooth density mixing data ---
-    if (nnnew+nnmix > 0 .AND. ipr >= 20) call awrit2( &
-         ' mixrho: (warning) scr. and lin-mixed densities had'// &
-         ' %i and %i negative points',' ',80,stdo,nnnew,nnmix)
+!    if (nnnew+nnmix > 0 .AND. ipr >= 20) call awrit2( &
+!         ' mixrho: (warning) scr. and lin-mixed densities had'// &
+!         ' %i and %i negative points',' ',80,stdo,nnnew,nnmix)
     call rhoqm(smrnew,k1,k2,k3,n1,n2,n3,nsp,vol,qscr)
     !     if (ipr .gt. 30) write(stdo,100)
     !    .  sumo*fac,sumu*fac,sums*fac,rms,summ*fac
@@ -753,18 +753,18 @@ contains
 450       format(a,'rms difference:  smooth',f10.6,'   local',f10.6: &
                '   tot',f10.6)
        endif
-    elseif (ipr >= 20) then
-       call awrit3(' rms smooth dq=%;3g  max local dq=%;3g  dq=%;3g', &
-            ' ',80,stdo,rms,difx,rmsdel)
+!    elseif (ipr >= 20) then
+!       call awrit3(' rms smooth dq=%;3g  max local dq=%;3g  dq=%;3g', &
+!            ' ',80,stdo,rms,difx,rmsdel)
     endif
-    if (ipl > 0 .AND. ipr > 0) then
-       call awrit6('%xfp %?;n;elind %;4g  ;%j;'// &
-            '%?#(n==1)#Broyden n %1i wc %;3g#%2j#%-3j'// &
-            '%?#(n==0)#Anderson n %i beta %j%;3g#%3j#', &
-            sout,80,0,isw(elinl.ne.0),elinl,broy,nmix,wc,beta)
-       call awrit3('%a  sm-dq %;3g  mx loc %;3g  dq %;3g',sout,80, &
-            -stdl,rms,difx,rmsdel)
-    endif
+!    if (ipl > 0 .AND. ipr > 0) then
+!       call awrit6('%xfp %?;n;elind %;4g  ;%j;'// &
+!            '%?#(n==1)#Broyden n %1i wc %;3g#%2j#%-3j'// &
+!            '%?#(n==0)#Anderson n %i beta %j%;3g#%3j#', &
+!            sout,80,0,isw(elinl.ne.0),elinl,broy,nmix,wc,beta)
+!       call awrit3('%a  sm-dq %;3g  mx loc %;3g  dq %;3g',sout,80, &
+!            -stdl,rms,difx,rmsdel)
+!    endif
     call tcx('mixrho')
     nnnew = 0
     nnmix = 0
@@ -1120,7 +1120,8 @@ contains
        , sv_p_orhnew , co , cn , ng2 , ng02 , cnst , nda , a , qkl , rms2 &
        , nmixr )
     use m_lmfinit,only:ispec,sspec=>v_sspec
-    use m_struc_def  
+    use m_struc_def
+    use m_ftox
     !- Copy rho into holding array, read prior iterations from disk
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -1241,8 +1242,8 @@ contains
     call strcop(shortname(procid),name,10,'.',i)
     namelen(procid) = i-1
     master = 0
-    mlog = cmdopt('--mlog',6,0,strn)
-
+!    mlog = cmdopt('--mlog',6,0,strn)
+    mlog=.false.
     !      stdo = lgunit(1)
     lcnst = cnst(0) .gt. 0
 
@@ -1442,35 +1443,36 @@ contains
        endif
        call MPI_BCAST(readerror,1,MPI_LOGICAL, &
             master,MPI_COMM_WORLD,ierr)
-       if (mlog) then
-          call gettime(datim)
-          call awrit3(' mixrho '//datim//' Process %i of %i on ' &
-               //shortname(procid)(1:namelen(procid))// &
-               ' bcast readerror = %l',' ', &
-               256,stml,procid,numprocs,readerror)
-       endif
+       ! if (mlog) then
+       !    call gettime(datim)
+       !    call awrit3(' mixrho '//datim//' Process %i of %i on ' &
+       !         //shortname(procid)(1:namelen(procid))// &
+       !         ' bcast readerror = %l',' ', &
+       !         256,stml,procid,numprocs,readerror)
+       ! endif
        if (readerror) goto 31
        call MPI_BCAST(nmixr,1,MPI_INTEGER,master,MPI_COMM_WORLD,ierr)
-       if (mlog) then
-          call gettime(datim)
-          call awrit3(' mixrho '//datim//' Process %i of %i on ' &
-               //shortname(procid)(1:namelen(procid))// &
-               ' bcast nmixr = %i',' ', &
-               256,stml,procid,numprocs,nmixr)
-       endif
+       ! if (mlog) then
+       !    call gettime(datim)
+       !    call awrit3(' mixrho '//datim//' Process %i of %i on ' &
+       !         //shortname(procid)(1:namelen(procid))// &
+       !         ' bcast nmixr = %i',' ', &
+       !         256,stml,procid,numprocs,nmixr)
+       ! endif
        call MPI_BCAST(na,1,MPI_INTEGER,master,MPI_COMM_WORLD,ierr)
-       if (mlog) then
-          call gettime(datim)
-          call awrit3(' mixrho '//datim//' Process %i of %i on ' &
-               //shortname(procid)(1:namelen(procid))// &
-               ' bcast na = %i',' ', &
-               256,stml,procid,numprocs,na)
-       endif
+       ! if (mlog) then
+       !    call gettime(datim)
+       !    call awrit3(' mixrho '//datim//' Process %i of %i on ' &
+       !         //shortname(procid)(1:namelen(procid))// &
+       !         ' bcast na = %i',' ', &
+       !         256,stml,procid,numprocs,na)
+       ! endif
        if (nda*nsp /= na) then
           if (procid == master) then
-             call awrit2 &
-                  (' mixrho:  expecting %i elements but found %i ...' &
-                  //' discarding file',' ',80,stdo,nda*nsp,na)
+             write(stdo,ftox)' mixrho:  expecting',nda*nsp,'elements but found',na,'discarding file'
+!             call awrit2 &
+!                  ( %i elements but found %i ...' &
+!                  //' discarding file',' ',80,stdo,nda*nsp,na)
           endif
           nmixr = 0
           goto 31
@@ -1494,23 +1496,21 @@ contains
        if (nmixr > 0) then
           call MPI_BCAST(a,nda*nsp*(mxsav+2)*2,MPI_DOUBLE_PRECISION, &
                master,MPI_COMM_WORLD,ierr)
-          if (mlog) then
-             call gettime(datim)
-             call awrit3(' mixrho '//datim//' Process %i of %i on ' &
-                  //shortname(procid)(1:namelen(procid))// &
-                  ' bcast (mix) a %i d.p. numbers',' ', &
-                  256,stml,procid,numprocs,nda*nsp*(mxsav+2)*2)
-          endif
+          ! if (mlog) then
+          !    call gettime(datim)
+          !    call awrit3(' mixrho '//datim//' Process %i of %i on ' &
+          !         //shortname(procid)(1:namelen(procid))// &
+          !         ' bcast (mix) a %i d.p. numbers',' ', &
+          !         256,stml,procid,numprocs,nda*nsp*(mxsav+2)*2)
+          ! endif
        endif
 31     continue
-       if (iprint() >= 20) then
+       if (iprint() >= 20) then !this is needed for test
           j = awrite('%x mixrho:  sought %i iter from file', &
                outs,len(outs),0,nmix,0,0,0,0,0,0,0)
           outs(j+2:len(outs)) = fnam
-          call awrit2('%a; read %i.  RMS DQ=%1,3;3e',outs,80,0,nmixr, &
-               rms2)
-          if (rmsdel /= 0) &
-               call awrit1('%a  last it=%1,3;3e',outs,80,0,rmsdel)
+          call awrit2('%a; read %i.  RMS DQ=%1,3;3e',outs,80,0,nmixr, rms2)
+          if (rmsdel/= 0) call awrit1('%a  last it=%1,3;3e',outs,80,0,rmsdel)
           call awrit0('%a',outs,-len(outs),-stdo)
        endif
        !       call prm('a after read',a,nda*nsp,nda*nsp,(mxsav+2)*2)
@@ -2796,14 +2796,14 @@ contains
     lbroy = 0
     if (it(1) >= 3) lbroy = 1
     if (it(1) >= 5) lbroy = 2
-    if (lbroy == 1) call awrit0('%a%bB',outs,len(outs),0)
-    if (lbroy == 2) call awrit0('%a%bC',outs,len(outs),0)
+!    if (lbroy == 1) call awrit0('%a%bB',outs,len(outs),0)
+!    if (lbroy == 2) call awrit0('%a%bC',outs,len(outs),0)
     ! ... Pick up nmix
     jp = np+1
     call chrps2(strn,',; ',3,np+1,jp,it)
     if (it(1) == 0) then
        if (a2vec(strn,lstrn,jp,2,',; ',3,1,1,it,nmixj) < 0) goto 999
-       call awrit1('%a  nmix=%i',outs,len(outs),0,nmixj)
+!       call awrit1('%a  nmix=%i',outs,len(outs),0,nmixj)
     endif
     ! ... Pick up rmsc
     rmsc = -1
@@ -2820,10 +2820,10 @@ contains
     endif
     if (i < 0) goto 999
     !     if (i .gt. 0) lpr = .true.
-    if (rmsc >= 0 .AND. iter < 0) &
-         call awrit1('%a  err<%1;3g',outs,len(outs),0,rmsc)
-    if (rmsc >= 0 .AND. iter > 0) &
-         call awrit2('%a  err(%1;3g)<%1;3g',outs,len(outs),0,rmserr,rmsc)
+!    if (rmsc >= 0 .AND. iter < 0) &
+!         call awrit1('%a  err<%1;3g',outs,len(outs),0,rmsc)
+!    if (rmsc >= 0 .AND. iter > 0) &
+!         call awrit2('%a  err(%1;3g)<%1;3g',outs,len(outs),0,rmserr,rmsc)
     ! ... Pick up nit
     jp = np
     i = parg(',n=',2,strn,jp,lstrn,',; ',2,1,it,nit)
@@ -2831,14 +2831,14 @@ contains
     ! ... increment nit if rmserr>rmsc and iter>=nit+nitj
     nbump = 0
     if (nit /= -1) then
-       if (iter < 0) call awrit1('%a  nit=%i',outs,len(outs),0,nit)
+!       if (iter < 0) call awrit1('%a  nit=%i',outs,len(outs),0,nit)
        if (iter > 0) then
-          call awrit2('%a  it %i of %i',outs,len(outs),0,iter,nit+nitj)
+!          call awrit2('%a  it %i of %i',outs,len(outs),0,iter,nit+nitj)
           if (iblk >= lstblk .AND. iter >= nit+nitj .AND. &
                rmserr > rmsc .AND. rmsc > 0) then
              nbump = iter - (nit+nitj) + 1
              nit = nit + nbump
-             call awrit0('%a(*)',outs,len(outs),0)
+!             call awrit0('%a(*)',outs,len(outs),0)
           endif
        endif
     endif
@@ -2858,7 +2858,7 @@ contains
        kp = jp+1
        call chrps2(strn,',; ',3,jp+5,kp,it)
        fnam = strn(jp+1:kp)
-       call awrit0('%a  fnam='//fnam,outs,len(outs),0)
+!       call awrit0('%a  fnam='//fnam,outs,len(outs),0)
        !       lpr = .true.
     endif
     ! ... Pick up mixing wc
@@ -2867,20 +2867,20 @@ contains
        i = parg(',wc=',4,strn,jp,lstrn,',; ',2,1,it,wcj)
        if (i < 0) goto 999
        !       if (i .gt. 0) lpr = .true.
-       if (i > 0) call awrit1('%a  wc=%d',outs,len(outs),0,wcj)
+!       if (i > 0) call awrit1('%a  wc=%d',outs,len(outs),0,wcj)
     endif
     ! ... Pick up mixing beta
     jp = np
     i = parg(',b=',4,strn,jp,lstrn,',; ',2,1,it,bet)
     if (i < 0) goto 999
     !     if (i .gt. 0) lpr = .true.
-    call awrit1('%a  beta=%d',outs,len(outs),0,bet)
+!    call awrit1('%a  beta=%d',outs,len(outs),0,bet)
     ! ... Pick up elind
     jp = np
     i = parg(',elind=',4,strn,jp,lstrn,',; ',2,1,it,elin)
     if (i < 0) goto 999
     !     if (i .gt. 0) lpr = .true.
-    if (elin /= 0) call awrit1('%a  elind=%;3d',outs,len(outs),0,elin)
+!    if (elin /= 0) call awrit1('%a  elind=%;3d',outs,len(outs),0,elin)
     ! ... Pick up weights
     jp = np
     i = parg(',w=',4,strn,jp,lstrn,',; ',2,2,it,wt)
@@ -2889,12 +2889,12 @@ contains
     j = parg(',wa=',4,strn,jp,lstrn,',; ',2,1,it,wt(3))
     if (j < 0) goto 999
     if (i > 0 .OR. j > 0) then
-       call awrit2('%a  wgt=%d,%d',outs,len(outs),0,wt(1),wt(2))
-       if (j > 0 .AND. wgt(3) /= -9) then
-          call awrit1('%a(%d)',outs,len(outs),0,wt(3))
-       elseif (j > 0) then
-          call awrit0('%a(-)',outs,len(outs),0)
-       endif
+!       call awrit2('%a  wgt=%d,%d',outs,len(outs),0,wt(1),wt(2))
+!       if (j > 0 .AND. wgt(3) /= -9) then
+!          call awrit1('%a(%d)',outs,len(outs),0,wt(3))
+!       elseif (j > 0) then
+!          call awrit0('%a(-)',outs,len(outs),0)
+!       endif
     endif
     !...  Pick up iteration number for file kill
     killj = -1
@@ -2902,8 +2902,8 @@ contains
     i = parg(',k=',2,strn,jp,lstrn,',; ',2,1,it,killj)
     if (i < 0) goto 999
     !     if (i .gt. 0) lpr = .true.
-    if (killj /= -1) call awrit1('%a  kill=%i',outs,len(outs), &
-         0,killj)
+!    if (killj /= -1) call awrit1('%a  kill=%i',outs,len(outs), &
+!         0,killj)
     !...  Pick up betv
     jp = np
     i = parg(',bv=',4,strn,jp,lstrn,',; ',2,2,it,bv)
@@ -2915,10 +2915,10 @@ contains
     if (i < 0) goto 999
     if (i > 0) lpr = .TRUE. 
     if (iter == nitj+nit .AND. iblk >= lstblk) bv(1) = bv(2)
-    if (bv(1) /= 1) call awrit1('%a  betv=%1;3g',outs,len(outs),0,bv)
+!    if (bv(1) /= 1) call awrit1('%a  betv=%1;3g',outs,len(outs),0,bv)
     ! ... If iter < 0, printout and parse through all strings
     if (iter < 0) then
-       if (iprint() >= 10) call awrit0('%a',outs,-len(outs),-i1mach(2))
+!       if (iprint() >= 10) call awrit0('%a',outs,-len(outs),-i1mach(2))
        lagain = nit .ne. -1
        outs = '         mode=A'
     endif
@@ -2926,7 +2926,7 @@ contains
     ! --- If this is last pass, eg nitj <= iter <nitj+nit ---
     if (iter > 0 .AND. iblk >= lstblk .AND. nitj < iter &
          .AND. (iter <= nitj+nit .OR. nit == -1)) then
-       if (iprint() >= 20) call awrit0('%a',outs,-len(outs),-i1mach(2))
+!       if (iprint() >= 20) call awrit0('%a',outs,-len(outs),-i1mach(2))
        broy = lbroy
        nmix = nmixj
        wgt(1) = wt(1)
@@ -2965,7 +2965,7 @@ contains
 
     ! --- Error exit ---
 999 outs = 'parmxp: parse failed:'//strn(1:lstrn)
-    if (iprint() >= 10) call awrit0('%a',outs,-len(outs),-i1mach(2))
+!    if (iprint() >= 10) call awrit0('%a',outs,-len(outs),-i1mach(2))
     parmxp = .false.
     ! --- Normal exit ---
 9999 continue
