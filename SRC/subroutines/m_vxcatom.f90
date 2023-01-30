@@ -549,15 +549,13 @@ subroutine vxcns5(isw,ipr,strn,nlml,nsp,nr,ri,rwgt,rl,vl,suml,ssum)
   integer :: isw,ipr,nlml,nsp,nr
   double precision :: ri(nr),rwgt(nr),rl(nr,nlml,nsp),vl(nr,nlml,nsp), suml(0:20,nsp),ssum(nsp)
   integer :: ir,lmax,ilm,isp,l,ll
-  double precision :: dot3
   lmax = ll(nlml)
   do   isp = 1, nsp
      call dpzero(suml(0,isp),lmax+1)
      do  ilm = 1, nlml
         l = ll(ilm)
         if (isw == 1) then
-           suml(l,isp) = suml(l,isp) + &
-                dot3(nr,rl(1,ilm,isp),vl(1,ilm,isp),rwgt)
+           suml(l,isp) = suml(l,isp) +sum(rl(:,ilm,isp)*vl(1,ilm,isp)*rwgt)
         else
            do  ir = 1, nr
               suml(l,isp) = suml(l,isp) + &

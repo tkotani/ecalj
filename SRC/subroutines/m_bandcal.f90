@@ -21,6 +21,7 @@ module m_bandcal !band structure calculation
   use m_augmbl,only: aughsoc
   use m_makusq,only: makusq
   use m_ftox
+  use m_zhev,only: zhev_tk4
   !! outputs ---------------------------
   public m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce,m_bandcal_symsmrho
   integer,allocatable,protected,public::     ndimhx_(:,:),nevls(:,:) !,nev_(:)

@@ -3,12 +3,18 @@ module m_potpus
   private
 contains
   subroutine potpus(z,rmax,lmxa,v,vdif,a,nr,nsp,lso,rofi,pnu,pnz,ehl,rsml,rs3,vmtz, &
-       phzdphz,hab,vab,sab,sodb,rotp)
+       phzdphz,hab,vab,sab,sodb,rotp) ! Get phzdphz and matrix hab,vab,sab,sodb for (u,s,gz)
     use m_lmfinit,only: stdo,lrel,cc,n0,nppn
     use m_ftox
     use m_vxtrap,only: rwftai
-    !- Get phzdphz and 
     ! ----------------------------------------------------------------------
+    !r   A local orbital gz first type is defined as follows.
+    !r      gz = r * ( phi_z - phi_z(rmax) u - (phi_z)'(rmax) s )
+    !r   By construction, gz/r has both value = 0 and slope = 0 at rmax.
+    !
+    !r   A local orbital gz the second type is defined as gz=r*phi_z;
+    !r     for r>rmax a smooth Hankel tail (spec'd by ehl,rsml) is attached as MTO.
+    !    (t.k. will remove this second type probably in future. 2023jan plan)
     !i Inputs
     !i   z     :nuclear charge
     !i   rmax  :augmentation radius, in a.u.
@@ -48,7 +54,7 @@ contains
     !o         :Notice that for now only spin-diagonal matrix
     !o         :elements are evaluated, since we plan to calculate
     !o         :only H_so = so*sz*lz   ===>SO calcualtion aughsoc
-    !  (hab,vab,sab,sodb) are 3x3 matrices with u,s,gz are basis funcitons.
+    !NOTE: hab,vab,sab,sodb are 3x3 matrices with u,s,gz are basis funcitons.
     !l Local variables
     !l   lpzi  :flags how local orbitals is to be treated in current channel
     !l         :0 no local orbital gz
@@ -60,8 +66,6 @@ contains
     !l         :  and is coupled to the valence states in an extended atom
     !l         :  approximation.
     !r Remarks
-    !r   This routine makes linear combinations of phi,phidot and the
-    !r   matrix elements of them in the supplied spherical potential.
     !r   Linear combinations (u,s) of phi,phidot are defined as :
     !r     u has val=1, slo=1 at rmax;   s has val=0, slo=1
     !
@@ -76,12 +80,6 @@ contains
     !r   From the boundary conditions (1s digit+fractional part of pnz),
     !r   wave function phi_z can be generated for r<rmax.
     !
-    !r   A local orbital of the first type is defined as follows.
-    !r      gz = r * ( phi_z - phi_z(rmax) u - (phi_z)'(rmax) s )
-    !r   By construction, gz/r has both value = 0 and slope = 0 at rmax.
-    !
-    !r   A local orbital of the second type is defined as gz=r*phi_z;
-    !r   for r>rmax a smooth Hankel tail (spec'd by ehl,rsml) is attached as MTO.
     !
     !r  NOTE:
     !   hab,vab,sab are matrix elements of the true wave function (including
@@ -405,7 +403,7 @@ contains
     Tfg = (avg+diff)/2
     Tgf = (avg-diff)/2
   end subroutine pvpus1
-  subroutine soprm(lpzi,phi,phid,phiz,nr,nsp,lmxs,lmx,v,dv,enu, ez,z,ri,wi,wk,sop,sopz)
+  subroutine soprm(lpzi,phi,phid,phiz,nr,nsp,lmxs,lmx,v,dv,enu, ez,z,ri,rwgt,wk,sop,sopz)
     use m_lgunit,only:stdo
     !- Radial matrix elements between orbitals of different spin
     ! make spin-orbit parameters, i.e. matrix elements
@@ -420,16 +418,16 @@ contains
     !i   phid  :energy derivative of phi
     !i   phiz  :local orbital wave function
     !i   nr    :number of radial mesh points
-    !i   nsp   :2 for spin-polarized case, otherwise 1
+    !i   nsp   :2 for spin-polarized case, otherrwgtse 1
     !i   lmxs  :phi,phid,phiz,sop,sopz are dimensioned 0:lmxs
     !i   lmx   :lmx(j) = maximum l for atom j
     !i   v     :electron part of potential: complete potential is v(r)-2*z/r.
-    !i   dv    :(mode=1) radial derivative of potential, dV/dr with V=(V+ + V-)/2
+    !i   dv    :(mode=1) radial derivative of potential, dV/dr rwgtth V=(V+ + V-)/2
     !i   enu   :enu's for making charge density
     !i   ez    :enu's for local orbitals
     !i   z     :nuclear charge
     !i   ri    :radial mesh
-    !i   wi    :weights for integration on mesh
+    !i   rwgt    :weights for integration on mesh
     !i   wk    :work array of length nr*4
     !o  Outputs
     !o   sop   :sop(l,is1,is2,i=1..3) : matrix elements between orbitals
@@ -457,88 +455,84 @@ contains
     double precision :: z, &
          phi(nr,0:lmxs,nsp),phid(nr,0:lmxs,nsp),phiz(nr,0:lmxs,nsp), &
          ri(nr),sop(0:lmxs,nsp,nsp,3),v(nr,nsp),wk(nr,4),dv(nr), &
-         wi(nr),sopz(0:lmxs,nsp,nsp,3),enu(0:8,nsp),ez(0:8,nsp)
+         rwgt(nr),sopz(0:lmxs,nsp,nsp,3),enu(0:8,nsp),ez(0:8,nsp)
     integer :: l,ir,is,is1,is2,ipr,lmin
-    double precision :: c,pa,r,r1,r2,dot3,vavg,eavg,eavgz,dva,xx,xxz,xxavg,wkz(nr,4)
+    double precision :: c,pa,r,r1,r2,vavg(nr),eavg,eavgz,dva(nr),xx(nr),xxz(nr),xxavg(nr),wkz(nr,4)
     common /cc/ c ! c = 274.071979d0 or 1d10 !  Speed of light, or infinity in nonrelativistic case
     data pa /1d0/
     call getpr(ipr)
-    lmin = 1
     if (ipr > 50) print '(/'' soprm: overlaps  phi*phi     phi*phidot'')'
     do   is = 1, nsp
        do   l = 0, lmx
-          r1 = dot3(nr,phi(1,l,is),phi(1,l,is),wi)
+          r1 = sum(phi(:,l,is)*phi(:,l,is)*rwgt)
           phi(:,l,is) = phi(:,l,is)/dsqrt(r1) 
-          r2 = dot3(nr,phi(1,l,is),phid(1,l,is),wi)
+          r2 = sum(phi(:,l,is)*phid(:,l,is)*rwgt)
           phid(:,l,is)=phid(:,l,is) -r2*phi(:,l,is)
           if (ipr > 50) write(stdo,"('  spin',i2,'  l=',i1,2f13.6)") is,l,r1,r2
        enddo
     enddo
-    wk = 0d0
-    wkz= 0d0
     sop=0d0
     sopz=0d0
+    lmin = 1
     do  l = lmin, lmx
        eavg = (enu(l,1)+enu(l,nsp))/2
        if (lpzi(l) /= 0) eavgz = (ez(l,1)+ez(l,nsp))/2
-       do  is2 = 1, nsp
-          do  is1 = 1, nsp
-             do  ir = 2, nr
-                r = ri(ir)
-                vavg = (v(ir,1)+v(ir,nsp))/2 - 2*z/r
-                dva  = dv(ir) + 2*z/r**2
-                xx = 1/r/(1d0+pa*(eavg-vavg)/c**2)**2
-                if (lpzi(l) /= 0) then
-                   xxz = 1/r/(1d0+pa*(eavgz-vavg)/c**2)**2
-                   xxavg = 0.5d0*(xx+xxz)
-                   wkz(ir,1) = phiz(ir,l,is1)*dva
-                   wkz(ir,2) = phiz(ir,l,is1)*xxz
-                   wkz(ir,3) = phi(ir,l,is2)*xxavg
-                   wkz(ir,4) = phid(ir,l,is2)*xxavg
-                endif
-                wk(ir,1) = phi(ir,l,is1)*dva
-                wk(ir,3) = phid(ir,l,is1)*dva
-                wk(ir,2) = phi(ir,l,is2)*xx
-                wk(ir,4) = phid(ir,l,is2)*xx
-             enddo
-             sop(l,is1,is2,1) = dot3(nr,wk,wk(1,2),wi)*2d0/c**2
-             sop(l,is1,is2,2) = dot3(nr,wk,wk(1,4),wi)*2d0/c**2
-             sop(l,is1,is2,3) = dot3(nr,wk(1,3),wk(1,4),wi)*2d0/c**2
+       do is2 = 1, nsp
+          do is1 = 1, nsp
+             vavg(1)=0d0
+             dva(1)=0d0
+             xx(1)=0d0
+             vavg(2:) = (v(2:,1)+v(2:,nsp))/2 - 2*z/ri(2:)
+             dva(2:)  = dv(2:) + 2*z/ri(2:)**2
+             xx(2:) = 1/ri(2:)/(1d0+pa*(eavg-vavg(:))/c**2)**2
+             wk(:,1) = phi(:,l,is1)*dva(:)
+             wk(:,2) = phi(:,l,is2)*xx(:)
+             wk(:,3) = phid(:,l,is1)*dva(:)
+             wk(:,4) = phid(:,l,is2)*xx(:)
+             sop(l,is1,is2,1) = sum(wk(:,1)*wk(:,2)*rwgt)*2d0/c**2
+             sop(l,is1,is2,2) = sum(wk(:,1)*wk(:,4)*rwgt)*2d0/c**2
+             sop(l,is1,is2,3) = sum(wk(:,3)*wk(:,4)*rwgt)*2d0/c**2
              if (lpzi(l) /= 0) then
-                sopz(l,is1,is2,1) = dot3(nr,wkz,wkz(1,2),wi)*2d0/c**2
-                sopz(l,is1,is2,2) = dot3(nr,wkz,wkz(1,3),wi)*2d0/c**2
-                sopz(l,is1,is2,3) = dot3(nr,wkz,wkz(1,4),wi)*2d0/c**2
+                xxz(2:) = 1/ri(2:)/(1d0+pa*(eavgz-vavg(2:))/c**2)**2
+                xxavg(2:) = 0.5d0*(xx(2:)+xxz(2:))
+                wkz(:,1) = phiz(:,l,is1)*dva(:)
+                wkz(:,2) = phiz(:,l,is1)*xxz(:)
+                wkz(:,3) = phi(:,l,is2)*xxavg(:)
+                wkz(:,4) = phid(:,l,is2)*xxavg(:)
+                sopz(l,is1,is2,1) = sum(wkz(:,1)*wkz(:,2)*rwgt)*2d0/c**2
+                sopz(l,is1,is2,2) = sum(wkz(:,1)*wkz(:,3)*rwgt)*2d0/c**2
+                sopz(l,is1,is2,3) = sum(wkz(:,1)*wkz(:,4)*rwgt)*2d0/c**2
              endif
           enddo
        enddo
     enddo
-    ! Printout
-    if (ipr <= 50) return
-    write(stdo,332) 'spin-orbit coupling'
-332 format(' soprm:  matrix elements for perturbation from ',a/ &
-         13x,'l',4x,'<phi || phi>',2x,'<dot || phi>',2x,'<dot || dot>')
-    if (nsp == 1) then
-       do  l = lmin, lmx
-          write(stdo,333) '          ',  l,sop(l,1,1,1),sop(l,1,1,2),sop(l,1,1,3)
-          if(lpzi(l)/=0)write(stdo,333) '          ', l,sopz(l,1,1,1),sopz(l,1,1,2),sopz(l,1,1,3)
-       enddo
-    else
-       do  l = lmin, lmx
-          write(stdo,333) 'up   up   ', l,sop(l,1,1,1),sop(l,1,1,2),sop(l,1,1,3)
-          write(stdo,333) 'down down ', l,sop(l,2,2,1),sop(l,2,2,2),sop(l,2,2,3)
-          write(stdo,333) 'up   down ', l,sop(l,1,2,1),sop(l,1,2,2),sop(l,1,2,3)
-          write(stdo,333) 'down up   ', l,sop(l,2,1,1),sop(l,2,1,2),sop(l,2,1,3)
-          write(stdo,333)
-          if (lpzi(l) /= 0) then
-             write(stdo,335) 'up   up   ', l,sopz(l,1,1,1),sopz(l,1,1,2),sopz(l,1,1,3)
-             write(stdo,335) 'down down ', l,sopz(l,2,2,1),sopz(l,2,2,2),sopz(l,2,2,3)
-             write(stdo,335) 'up   down ', l,sopz(l,1,2,1),sopz(l,1,2,2),sopz(l,1,2,3)
-             write(stdo,335) 'down up   ', l,sopz(l,2,1,1),sopz(l,2,1,2),sopz(l,2,1,3)
-             write(stdo,335)
-          endif
-       enddo
-    endif
-333 format(1x,a,i3,1x, 3f14.8)
-335 format(1x,a,i3,'l',3f14.8)
+!     ! Printout
+!     if (ipr <= 50) return
+!     write(stdo,332) 'spin-orbit coupling'
+! 332 format(' soprm:  matrix elements for perturbation from ',a/ &
+!          13x,'l',4x,'<phi || phi>',2x,'<dot || phi>',2x,'<dot || dot>')
+!     if (nsp == 1) then
+!        do  l = lmin, lmx
+!           write(stdo,333) '          ',  l,sop(l,1,1,1),sop(l,1,1,2),sop(l,1,1,3)
+!           if(lpzi(l)/=0)write(stdo,333) '          ', l,sopz(l,1,1,1),sopz(l,1,1,2),sopz(l,1,1,3)
+!        enddo
+!     else
+!        do  l = lmin, lmx
+!           write(stdo,333) 'up   up   ', l,sop(l,1,1,1),sop(l,1,1,2),sop(l,1,1,3)
+!           write(stdo,333) 'down down ', l,sop(l,2,2,1),sop(l,2,2,2),sop(l,2,2,3)
+!           write(stdo,333) 'up   down ', l,sop(l,1,2,1),sop(l,1,2,2),sop(l,1,2,3)
+!           write(stdo,333) 'down up   ', l,sop(l,2,1,1),sop(l,2,1,2),sop(l,2,1,3)
+!           write(stdo,333)
+!           if (lpzi(l) /= 0) then
+!              write(stdo,335) 'up   up   ', l,sopz(l,1,1,1),sopz(l,1,1,2),sopz(l,1,1,3)
+!              write(stdo,335) 'down down ', l,sopz(l,2,2,1),sopz(l,2,2,2),sopz(l,2,2,3)
+!              write(stdo,335) 'up   down ', l,sopz(l,1,2,1),sopz(l,1,2,2),sopz(l,1,2,3)
+!              write(stdo,335) 'down up   ', l,sopz(l,2,1,1),sopz(l,2,1,2),sopz(l,2,1,3)
+!              write(stdo,335)
+!           endif
+!        enddo
+!     endif
+! 333 format(1x,a,i3,1x, 3f14.8)
+! 335 format(1x,a,i3,'l',3f14.8)
   end subroutine soprm
 end module m_potpus
