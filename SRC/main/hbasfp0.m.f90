@@ -18,6 +18,7 @@ program hbasfp0
   !      use m_lgunit,only: m_lgunit_init
   !      use m_mpi,only: MPI__Initialize
   use m_mpi,only: MPI__Initialize !no mpi now but used for exit routine rx, finalizing MPI
+  use m_excore,only: excore
   implicit none
   integer:: &
        ifphiv(2),ifphic(2), iphiv(2),iphivd(2),iphic(2),iphi(2),iphidot(2), &

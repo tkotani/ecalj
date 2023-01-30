@@ -74,7 +74,7 @@ contains
     integer ,allocatable :: bmap_iv(:)
     real(8) ,allocatable :: wk_rv(:)
     double precision emin,emax,e1,e2,dum,tol,e,elo,ehi,sumwt,&
-         dmin,dmax,dval,egap,amom,cv,tRy
+         dmin,dmax,egap,amom,cv,tRy
     character outs*100,ryy*3
     logical cmdopt0,lfill
     real(8) ,allocatable :: tlst_rv(:)
@@ -192,10 +192,10 @@ contains
           call bzints ( n1 , n2 , n3 , eb , dum , nkp , nevxx , nbmxx , &
                nspx , emin , emax , dos_rv , nptdos , efermi , job , ntet &
                , idtet , sumev , qval )
-          dmin = dval ( dos_rv , 1 )
-          if ( nspx .eq. 2 ) dmin = dmin + dval ( dos_rv , nptdos +  1 )
-          dmax = dval ( dos_rv , nptdos )
-          if ( nspx .eq. 2 ) dmax = dmax + dval ( dos_rv , nptdos +  nptdos )
+          dmin = sum(dos_rv(1,1:nspx))/nspx
+          dmax = sum(dos_rv(nptdos,1:nspx))/nspx
+          !if ( nspx .eq. 2 ) dmin = dmin + dos_rv(1,nspx)
+          !if ( nspx .eq. 2 ) dmax = dmax + dos_rv(nptdos,nspx)
           if (dmin .gt. zval) then
              emin = 3*emin-2*emax
              write(stdo,"(' (warning): initial NOS ( ',d14.6,x,d14.6,' ) does'//&
@@ -492,8 +492,8 @@ contains
     ehi = -enull
     nval = zval + 1d-7
     ! --- Find bottom and top of each band ---
-    call dvset(ebbot,1,nband*nsp,elo)
-    call dvset(ebtop,1,nband*nsp,ehi)
+    ebbot=elo 
+    ebtop=ehi 
     do  ikp = 1, nkp
        do  isp = 1, nsp
           do  iba = 1, nband

@@ -610,6 +610,6 @@ subroutine ivprm(m,n,vecs,wk,iprm,lopt)
         wk(j,i) = vecs(j,k)
      enddo
 10 enddo
-  if (lopt) call icopy(n*m,wk,1,vecs,1)
+  if (lopt) vecs=wk !call icopy(n*m,wk,1,vecs,1)
 end subroutine ivprm
 

@@ -1,3 +1,6 @@
+module m_excore
+  public excore
+  contains
 subroutine excore(nrmx,nl,nnc,nclass,nspn,nbas, &
      phic,nindxc,iclass, &
      a,b,nr,rofi)
@@ -262,7 +265,7 @@ subroutine mksxa(nl,nsxamx, &
 
   !      external clebsh ,mscmul
   double complex msc(0:1,2,2),mcs(0:1,2,2),Img &
-       ,ap,am,mscmul
+       ,ap,am!,mscmul
 
   integer :: ngautx
   data Img/(0.0d0,1.0d0)/
@@ -494,7 +497,7 @@ subroutine clebsh_t(cg,j1mx)
   double precision :: &
        k1,k2,k3,k4,k5,k6,k7,k8,k9,k10
   double precision :: &
-       fac,fac2, igan, &
+       fac,fac2, &!@igan, &
        cg( (j1mx+1)**2, (j1mx+1)**2, 0:2*j1mx)
   !$$$#ifdef COMMONLL
   !$$$      integer(4) ll(51**2)
@@ -503,7 +506,7 @@ subroutine clebsh_t(cg,j1mx)
   !$$$      integer(4) ll
   !$$$      external ll
   !$$$#endif
-  external igan
+  !external igan
 
   print *, ' go into clebsh j1mx=',j1mx
   do 403   jm1=1, (j1mx+1)**2
@@ -598,7 +601,7 @@ subroutine convsx(sxx,j1,j2,j3,j4,nl,msc,mcs)
   !     &        -(nlx-1):(nlx-1),-(nlx-1):(nlx-1))
 
   double complex &
-       msc(0:1,2,2),Img,ap,am,mscmul
+       msc(0:1,2,2),Img,ap,am!,mscmul
   !  inversion test
   double complex &
        mcs(0:1,2,2)
@@ -725,13 +728,4 @@ real(8) function igan(i)
   igan= product([(ix,ix=1,i)])
 END function igan
 
-
-
-
-
-
-
-
-
-
-
+end module m_excore

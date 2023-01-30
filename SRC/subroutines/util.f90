@@ -63,19 +63,6 @@ character(8) function charext(num)
   if(num >99999) call rx( ' charext:can not produce')
 END function charext
 ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-integer function ichangesign(a,n)
-  implicit none
-  integer:: i,n
-  real(8):: a(n)
-  ichangesign=-1
-  do i=1,n-1
-     if(a(i)*a(i+1) <0) then
-        ichangesign=i
-        exit
-     endif
-  enddo
-end function ichangesign
-! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
 character(3) function charnum3(num)
   integer(4) ::num
   charnum3 = &
@@ -288,12 +275,6 @@ subroutine dpzero(array,leng)
      array(i) = 0
   enddo
 end subroutine dpzero
-real function rval(array,index)
-  integer :: index
-  !- Returns the real value of ARRAY(INDEX)
-  real :: array(index)
-  rval = array(index)
-end function rval
 real(8) function dval(array,index)
   integer :: index
   !- Returns the double precision value of ARRAY(INDEX)
@@ -312,18 +293,6 @@ integer function ival2(array,nda,i1,i2)
   integer :: nda,i1,i2,array(nda,1)
   ival2 = array(i1,i2)
 end function ival2
-logical function logval(array,index)
-  !- Returns the integer value of ARRAY(INDEX)
-  integer :: index
-  logical :: array(index)
-  logval = array(index)
-end function logval
-complex function cval(array,index)
-  !- Returns the complex value of ARRAY(INDEX)
-  integer :: index
-  complex :: array(index)
-  cval = array(index)
-end function cval
 subroutine dvset(array,i1,i2,val)
   !- Sets some elements of double precision array to value
   integer :: i1,i2

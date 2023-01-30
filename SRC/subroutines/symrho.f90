@@ -71,7 +71,7 @@ subroutine symrat(nbas, nsp, lf, sv_p_orhoat , qbyl , hbyl , f )
   type(s_rv1) :: sv_p_orhoat(3,nbas)
   parameter (n0=10)
   real(8):: f(3,nbas),qbyl(n0,nsp,nbas),hbyl(n0,nsp,nbas)
-  integer:: ib0,ic,ipr,iprint,is,lmxa,lmxl,nclass,ngrp,nlml,nlmx,nr,nrclas,igetss,mxint,ival,ibas
+  integer:: ib0,ic,ipr,iprint,is,lmxa,lmxl,nclass,ngrp,nlml,nlmx,nr,nrclas,igetss,ival,ibas
   integer ,allocatable :: ipa_iv(:)
   integer ,allocatable :: ips_iv(:)
   real(8) ,allocatable :: pos_rv(:)
@@ -89,7 +89,7 @@ subroutine symrat(nbas, nsp, lf, sv_p_orhoat , qbyl , hbyl , f )
   do ibas=1,nbas
      pos0_rv(:,ibas)= rv_a_opos(:,ibas) !ssite(i_spackv)%pos
   enddo
-  nclass = mxint ( nbas,ipc_iv )
+  nclass = maxval(ipc_iv )
   allocate(ipa_iv(nbas))
   allocate(pos_rv(3*nbas))
   if (iprint() >= 40) then
@@ -98,7 +98,7 @@ subroutine symrat(nbas, nsp, lf, sv_p_orhoat , qbyl , hbyl , f )
   do  ic = 1, nclass
      call psymr0 ( - 2,ic,nbas,ipc_iv,pos0_rv,pos_rv, ipa_iv,nrclas )
      if (nrclas > 0) then
-        ib0 = ival ( ipa_iv,1 )
+        ib0 = ipa_iv(1) !ival ( ipa_iv,1 )
         is = ispec(ib0) 
         lmxl=sspec(is)%lmxl
         lmxa=sspec(is)%lmxa

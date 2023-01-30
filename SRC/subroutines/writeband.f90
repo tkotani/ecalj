@@ -331,4 +331,16 @@ subroutine writeband(eferm,evtop,ecbot) !write band file. bnd* and bandplot.isp*
 !   write(ifbndo,"(i6)") 0
 !   close(ifbndo)
 end subroutine writeband
+integer function ichangesign(a,n)
+  implicit none
+  integer:: i,n
+  real(8):: a(n)
+  ichangesign=-1
+  do i=1,n-1
+     if(a(i)*a(i+1) <0) then
+        ichangesign=i
+        exit
+     endif
+  enddo
+end function ichangesign
 

@@ -230,7 +230,7 @@ contains
     ! ... Local parameters
     integer :: i,i1,i2,i3,lxcf,nx,iprint,n1x,lxcg,nglob,mode1
     parameter (n1x=512)
-    double precision :: alfa,dfdr,dvdr,f,f1,f2,rrho,fac,dmach,rrmin
+    double precision :: alfa,dfdr,dvdr,f,f1,f2,rrho,fac,rrmin
     double precision :: repnl(nsp),rmunl(nsp),vavgnl(nsp)
     double precision :: vxc2(n1x,2),vxc1(n1x,2), &
          vx1(n1x,2),vc1(n1x,2), &
@@ -242,7 +242,7 @@ contains
     real(8):: rhomin
     logical :: newmode=.true.
     integer:: nnn,isp
-    real(8):: sss ,smmin(nsp)
+    real(8):: sss ,smmin(nsp),dmach
     call tcn('smvxc2')
     if (n1 > n1x) call rxi('smvxc2: increase n1x, need',n1)
     lxcf = mod(lxcfun,100)

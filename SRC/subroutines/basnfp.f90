@@ -31,7 +31,7 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, &
        npr(0:nl-1,nn,0:nl-1,nn),nprpd(0:nl-1,nn,0:nl-1,nn), &
        iprad,l1,l2,n1,n2,lx,nx, ifix,icx
   real(8):: phi(nrx,0:nl-1,nn) 
-  integer(4):: nrofi, i,kmax,nx1,nx2,ib1,ib2,iadd,mintc,mxintc,ibx, &
+  integer(4):: nrofi, i,kmax,nx1,nx2,ib1,ib2,iadd,ibx, &
        nxx( 0:2*(nl-1) ),nprad, nprod, &
        nxxold( 0:2*(nl-1) ), ngmxx( 0:2*(nl-1) ),nodnum,nbasen
   real(8)::    aa,bb,tot, hnrofi,rmax, &

@@ -431,9 +431,9 @@ subroutine bin2av(fmt,w,nblk,ndec,res,cast,i1,i2,sep,mxln,lnull, &
   logical :: lnull
   ! ... Local parameters
   logical :: lneg,llnull
-  integer :: nblk2,ival,i,k,ip0,NULLI
+  integer :: nblk2,ivalxx,i,k,ip0,NULLI
   real :: rval
-  double precision :: dval
+  double precision :: dvalxx
   parameter (NULLI=-99999)
 
   if (mxln <= 0) return
@@ -442,17 +442,17 @@ subroutine bin2av(fmt,w,nblk,ndec,res,cast,i1,i2,sep,mxln,lnull, &
      if (nblk < 0) then
         nblk2 = -nblk
         lneg = .false.
-        if (cast == 2) lneg = ival(res,i+1) < 0
+        if (cast == 2) lneg = ivalxx(res,i+1) < 0
         if (cast == 3) lneg = rval(res,i+1) < 0
-        if (cast == 4) lneg = dval(res,i+1) < 0
+        if (cast == 4) lneg = dvalxx(res,i+1) < 0
         if (lneg) nblk2 = nblk2-1
      endif
      !       Set flag llnul if lnull is ON and argument matches NULLI
      llnull = .false.
      if (lnull) then
-        if (cast == 2) llnull = ival(res,i+1) == NULLI
+        if (cast == 2) llnull = ivalxx(res,i+1) == NULLI
         if (cast == 3) llnull = rval(res,i+1) == NULLI
-        if (cast == 4) llnull = dval(res,i+1) == dble(NULLI)
+        if (cast == 4) llnull = dvalxx(res,i+1) == dble(NULLI)
         if (llnull) then
            call skpblb(fmt,len(fmt),ip0)
            fmt(2+ip0:) = ':n'
@@ -485,6 +485,18 @@ subroutine bin2av(fmt,w,nblk,ndec,res,cast,i1,i2,sep,mxln,lnull, &
      endif
   enddo
 end subroutine bin2av
+real(8) function dvalxx(array,index)
+  integer :: index
+  !- Returns the double precision value of ARRAY(INDEX)
+  double precision :: array(index)
+  dvalxx = array(index)
+END function dvalxx
+real function rval(array,index)
+  integer :: index
+  !- Returns the real value of ARRAY(INDEX)
+  real :: array(index)
+  rval = array(index)
+end function rval
 
 subroutine awrit8(fmt,sout,mxln,ifi,a1,a2,a3,a4,a5,a6,a7,a8)
   !- Subroutine versions of integer function awrite
@@ -535,18 +547,24 @@ end subroutine awrit8
 
 integer function ivawrt(ia,n,a1,a2,a3,a4,a5,a6,a7,a8)
   !     implicit none
-  integer :: ia,n,ival
+  integer :: ia,n,ivalxx
   double precision :: a1(1),a2(1),a3(1),a4(1),a5(1),a6(1),a7(1),a8(1)
   ivawrt=99999
-  if (ia == 1) ivawrt = ival(a1,n)
-  if (ia == 2) ivawrt = ival(a2,n)
-  if (ia == 3) ivawrt = ival(a3,n)
-  if (ia == 4) ivawrt = ival(a4,n)
-  if (ia == 5) ivawrt = ival(a5,n)
-  if (ia == 6) ivawrt = ival(a6,n)
-  if (ia == 7) ivawrt = ival(a7,n)
-  if (ia == 8) ivawrt = ival(a8,n)
+  if (ia == 1) ivawrt = ivalxx(a1,n)
+  if (ia == 2) ivawrt = ivalxx(a2,n)
+  if (ia == 3) ivawrt = ivalxx(a3,n)
+  if (ia == 4) ivawrt = ivalxx(a4,n)
+  if (ia == 5) ivawrt = ivalxx(a5,n)
+  if (ia == 6) ivawrt = ivalxx(a6,n)
+  if (ia == 7) ivawrt = ivalxx(a7,n)
+  if (ia == 8) ivawrt = ivalxx(a8,n)
 end function ivawrt
+integer function ivalxx(array,index)
+  !- Returns the integer value of ARRAY(INDEX)
+  integer :: index
+  integer :: array(index)
+  ivalxx = array(index)
+end function ivalxx
 
 ! real(8) function dvawrt(ia,n,a1,a2,a3,a4,a5,a6,a7,a8)
 !   !     implicit none

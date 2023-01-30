@@ -50,7 +50,7 @@ subroutine addsvv(nam,nelt,ival)
   ival = nnam
   call locase(symnam(nnam))
   allocate (symptr(nnam)%p(1:nelt))
-  call dvset(symptr(nnam)%p,1,nelt,0d0)
+  symptr(nnam)%p=0d0 
   size(nnam) = nelt
   return
 

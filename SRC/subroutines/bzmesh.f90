@@ -127,7 +127,7 @@ subroutine bzmesh(plat,qb,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx,igstar,lpbc)
   m1 = n1*ifac(1)
   m2 = n2*ifac(2)
   m3 = n3*ifac(3)
-  call iinit(ipq,n1*n2*n3)
+  ipq=0 !call iinit(ipq,n1*n2*n3)
   w0 = 2d0/(n1*n2*n3)
   nq = 0
   swgt = 0d0

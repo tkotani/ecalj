@@ -89,7 +89,7 @@ contains
          ificlass,ifievec,ifievecx,ifigw2,ifiqbz,ifievv
     complex(8),allocatable :: aus_zv(:)
     real(8),allocatable :: ww_rv(:)
-    real(8):: QpGcut_psi,QpGcut_cou,dum,dval,xx(5),gmax,ecore(50),a,z,rmt(nbas),b,vshft, &
+    real(8):: QpGcut_psi,QpGcut_cou,dum,xx(5),gmax,ecore(50),a,z,rmt(nbas),b,vshft, &
          alat,alfa,ef0,plat(3,3),qlat(3,3),qp(3),qpos,q_p(3), epsovl! pnu(n0,2),pnz(n0,2)
     real(8),pointer:: pnu(:,:),pnz(:,:)
     integer,allocatable:: ips(:),ipc(:),ipcx(:),lmxa(:), ngvecp_p(:,:) 

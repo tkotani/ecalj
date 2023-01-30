@@ -395,7 +395,7 @@ contains
        ips(ibas)  = ispec(ibas) 
        pos(:,ibas)= rv_a_opos(:,ibas) !ssite(i_spackv)%pos
     enddo
-    nclass = mxint(nbas,ipc)
+    nclass = maxval(ipc)
     do  ib = 1, nbas
        lmxl ( ib ) = int(sspec(ips(ib))%lmxl)
     enddo

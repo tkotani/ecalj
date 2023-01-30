@@ -412,7 +412,7 @@ contains
     enddo
 
     ! --- Renormalize atom density or potential ---
-    call ivset(irchan,1,n0,0)
+    irchan=0 !call ivset(irchan,1,n0,0)
     !! takao jun2012: rnatm is not tested ---> this is related to SPEC_ATOM_RCFA on.
     call rnatm(pl,qat,n0,irchan,lmxa,z,a,b,rofi,ev,nr,rcfa,nsp,v,rho,plplus,qlplus)
     !     call prrmsh('starting total rho',rofi,rhot,nr,nr,nsp)

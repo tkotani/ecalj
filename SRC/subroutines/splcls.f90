@@ -29,6 +29,7 @@ subroutine splcls(nosplt,bas,nbas,ng,istab,nspec,slabl,nclass,ipc, ics,nrclas)
   character(80) :: outs,clabl=''
   call getpr(ipr)
   call icopy(nspec,1,0,nrclas,1)
+  !nrclas= 0
   nclass = nspec
   do  5  i = 1, nspec
      ics(i) = i

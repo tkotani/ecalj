@@ -88,14 +88,3 @@ subroutine readin5(i0,i1,i2)
   recxxx2 = recxxx//' 0 0 0'
   read(recxxx2,*) i0, i1, i2
 end subroutine readin5
-! ssssssssssssssssssssssssssssssssssssss
-subroutine readin6(i0,i1,i2,i3)
-  !     ! readin i0,i1,i2; these defaults value are 0 0 0 if these are not given.
-  integer:: i0,i1,i2,i3
-  character(len=100):: recxxx
-  character(len=106):: recxxx2
-  read (5,"(a100)",end=1100) recxxx
-1100 continue
-  recxxx2 = recxxx//' 0 0 0 0'
-  read(recxxx2,*) i0, i1, i2,i3
-end subroutine readin6
