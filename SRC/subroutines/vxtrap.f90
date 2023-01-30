@@ -1,15 +1,15 @@
-module m_vxtrap !- Extrapolate potential, radial wave function outside MT boundary
+module m_vxtrap !Radial wave function outside MT boundary
   public rwftai
   private
 contains
   subroutine rwftai(rmt,a,nrmt,nrbig,ribig,phi,dphi,tphi,l, ehl,rsml,g)
     use m_hansr,only :hansr
-    !- Extend radial wave function outside MT boundary
+    !Extend radial wave function outside MT boundary
+    ! Compute radial wave function on extended mesh using
+    !  rsml,ehl for tail, scale gz so that value
+    !  matches envelope h(rsm,eh)
     ! ----------------------------------------------------------------------
     !i Inputs 
-    !i         :Compute radial wave function on extended mesh using
-    !i         : rsml,ehl for tail, scale gz so that value
-    !i         : matches envelope h(rsm,eh)
     !i   rmt   :augmentation radius, in a.u., by species
     !i   a     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
     !i   nrmt  :number of radial mesh points between origin and rmt
