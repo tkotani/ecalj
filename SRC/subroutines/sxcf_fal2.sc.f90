@@ -351,7 +351,7 @@ contains
           endif
        enddo
     endif
-!    
+    
     if(nctot/=0) ekc(1:nctot)= ecore(1:nctot,isp) ! core
     kxold=-9999
     !nccc= max(ncount/50,1) !just for printing
@@ -382,31 +382,23 @@ contains
        !if(eibz4sig()) wtt=wtt*nrkip(isp,kx,irot,ip)
        !! Get zmel(ib,itpp,it) = <M(qbz_kr,ib) phi(itpp,q-qbz_kr) |phi(q(ip),it)> , qbz_kr= irot(qibz_k)
        if(kxold/=kx) then
-          call Readvcoud(qibz_k,kx,NoVcou=.false.) !Readin ngc,ngb,vcousq ! Coulomb matrix
-          call Setppovlz(qibz_k,matz=.true.) !ppovlz overlap matrix
+          call Readvcoud(qibz_k,kx,NoVcou=.false.) !Readin ngc,ngb,vcoud ! Coulomb matrix
+          call Setppovlz(qibz_k,matz=.true.) !Set ppovlz overlap matrix in m_zmel
           if(debug) write(6,*) ' sxcf_fal2sc: ngb ngc nbloch=',ngb,ngc,nbloch
           kxold =kx
        endif
        nstate = nstateMAX(icount) ! for the case of correlation
-       !nstate_i= nstateic(icount)
-       !nstate_e= nstateec(icount)
-       ns1=nstti(icount)
-       ns2=nstte(icount)
+       ns1=nstti(icount) ! Range of middle states is [ns1:ns2] 
+       ns2=nstte(icount) ! nstte(icount) is upper bound of middle states
        write(6,ftox)'do3030:isp kx ip',isp,kx,ip,'icou/ncou=',icount,ncount,'ns1:ns2=',ns1,ns2
-       !! zmelc zmel         
-       ! if(mod(icount,nccc)==0)
        call get_zmel_modex0(ns1,1,isp,isp) !set lower bound of middle state
-       call Get_zmel_init(q,qibz_k,irot,qbz_kr,isp, ns2-nctot,ntqxx,nctot,ncc=0,iprx=debug)
-       ! range of middle states is [ns1:ns2]
-       !nstte(icount) is upper bound of middle states
-!       call Get_zmel_init(q,qibz_k,irot,qbz_kr,isp, nstate-nctot,ntqxx,nctot,ncc=0,iprx=debug)
-       ExchangeSelfEnergy: Block
-         real(8):: wfacx
-         if(exchange) then      
+       call Get_zmel_init(q,qibz_k,irot,qbz_kr,isp, ns2-nctot,ntqxx,nctot,ncc=0,iprx=debug)!Get zmel
+       Exchangemode: if(exchange) then      
+          ExchangeSelfEnergy: Block
+            real(8):: wfacx
             allocate(vcoud_(ngb),wtff(ns1:ns2),w3p(ns1:ns2)) !range of middle states ns1:ns2
             vcoud_= vcoud
-            if(kx == iqini) vcoud_(1) = wklm(1)* fpi*sqrt(fpi) /wk(kx)
-            !voud_(1) is effective v(q=0) averaged in the Gamma cell.
+            if(kx == iqini) vcoud_(1) = wklm(1)* fpi*sqrt(fpi) /wk(kx) !voud_(1) is effective v(q=0) averag in the Gamma cell.
             wtff= [(wfacx(-1d99, ef, ekc(it), esmr),it=ns1,ns2)]
             do itpp= lbound(zsec,2),ubound(zsec,2)
                do itp = lbound(zsec,1),ubound(zsec,1)
@@ -417,40 +409,34 @@ contains
                      ns2c= min(ns2,nctot) !ns2c upper limit of core index of core+valence
                      ns1c= ns1 !ns1c lower limit of core index of core+valence
                      w3p(ns1c:ns2c) = w3p(ns1c:ns2c) * wcorehole(ns1c:ns2c,isp)
-                  endif   
+                  endif
                   zsec(itp,itpp) = zsec(itp,itpp) - wtt * sum( w3p(:) )
                enddo
             enddo
             deallocate(vcoud_,wtff,w3p)
             if(timemix) call timeshow("ExchangeSelfEnergy cycle")
-            cycle  !end of exchange mode             
-         endif                  ! end of if(exchange)
-       EndBlock ExchangeSelfEnergy
+          EndBlock ExchangeSelfEnergy
+          cycle  !end of exchange mode             
+       endif Exchangemode
        !     ! Integration along imag axis for zwz(omega) for given it,itp,itpp
        !     ! itp  : left-hand end of expternal band index.
        !     ! itpp : right-hand end of expternal band index.
        !     ! it   : intermediate state of G.
        !     !===  See Eq.(55) around of PRB76,165106 (2007)
        !
-       !---------
        zmelcww: Block !range of middle states is [ns1:ns2] instead of [1:nstate]. 2022-8-28
          complex(8):: zmelcww(1:ntqxx,ns1:ns2,1:ngb)
          zmelcww=0d0
          allocate(zmelc(1:ntqxx,ns1:ns2,1:ngb)) !1:nstate,1:ngb))
          forall(itp=1:ntqxx) zmelc(itp,:,:)=transpose(dconjg(zmel(:,:,itp))) 
-         !-----
-         if(timemix) call timeshow(" CorrelationSelfEnergyImagAxis:")
-         !print *,'ns1ns2=',ns1,ns2,ntqxx
          CorrelationSelfEnergyImagAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
-           real(8):: esmrx(nstate)
-           real(8):: omegat(ntqxx)
-           real(8)::wgtim(0:npm*niw,ntqxx,ns1:ns2) !nstate) !
+           real(8):: esmrx(nstate), omegat(ntqxx), wgtim(0:npm*niw,ntqxx,ns1:ns2)
            complex(8),target:: zw(nblochpmx,nblochpmx),zwz(ns1:ns2,ntqxx,ntqxx)
            logical:: init=.true.
+           if(timemix) call timeshow(" CorrelationSelfEnergyImagAxis:")
            ns2c= min(ns2,nctot)
            ns1c= max(min(ns1,nctot),1)
-           ns1v= max(nctot+1,ns1)
-           !print *,'ns1c,ns2c,ns1v=',ns1c,ns2c,ns1v
+           ns1v= max(nctot+1,ns1) !    !print *,'ns1c,ns2c,ns1v=',ns1c,ns2c,ns1v
            esmrx(ns1c:ns2c)= 0d0
            esmrx(ns1v:ns2) = esmr
            omegat(1:ntqxx) = omega(1:ntqxx)
@@ -470,19 +456,17 @@ contains
               call matmaw(zmelc,ww,zmelcww, size(zmelc,1)*size(zmelc,2), size(ww,1), size(ww,2),&
                    &           wtt*wgtim(ixx,:,:))
            enddo iwimag
-         EndBlock CorrelationSelfEnergyImagAxis
-         !---------
-         if(timemix) call timeshow(" CorrelationSelfEnergyRealAxis:")
+         EndBlock CorrelationSelfEnergyImagAxis 
          CorrelationSelfEnergyRealAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
            real(8):: we_(nt_max,ntqxx),wfac_(nt_max,ntqxx)
            integer:: ixss(nt_max,ntqxx),iirx(ntqxx)
            logical:: ititpskip(nt_max,ntqxx)
            complex(8),target:: zw(nblochpmx,nblochpmx)
+           if(timemix) call timeshow(" CorrelationSelfEnergyRealAxis:")
            if(debug)write(6,*)' CorrelationSelfEnergyRealAxis: Block '
            call weightset4intreal(nctot,esmr,omega,ekc,freq_r,nw_i,nw,&
                 ntqxx,nt0m,nt0p,ef,nwx,nwxi,nt_max,wfaccut,wtt,&
                 we_,wfac_,ixss,ititpskip,iirx)
-           if(timemix) call timeshow(" CorrR2:")
            CorrR2:Block
              real(8):: wgt3(0:2,nt_max,ntqxx)    ! 3-point interpolation weight for we_(it,itp) 
              complex(8)::zadd(ntqxx),wv33(ngb,ngb) ! ixss is starting index of omega
@@ -491,6 +475,7 @@ contains
              integer:: nit_(ntqxx,nwxi:nwx),icountp,ncoumx,iit
              integer,allocatable:: itc(:,:,:),itpc(:,:)
              real(8),allocatable:: wgt3p(:,:,:)
+             if(timemix) call timeshow(" CorrR2:")
              iwgt3=0
              do itp=1,ntqxx
                 do it=1,nt_max
@@ -539,7 +524,6 @@ contains
                 do itp=lbound(zsec,1),ubound(zsec,1)
                    do iit=1,nit_(itp,ix) !for it for given itp,ix
                       it =itc(iit,ix,itp)  !wv33 gives interpolated value of W(we_(it,itp))
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                       if(it <ns1 .or. ns2<it ) cycle !xxxxxxxxxxxxxxxx
                       wv33 = wv3(:,:,0)*wgt3(0,it,itp) &
                            + wv3(:,:,1)*wgt3(1,it,itp) &

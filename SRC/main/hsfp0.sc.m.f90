@@ -118,39 +118,27 @@ program hsfp0_sc
   real(8) ::  wgtq0p,quu(3), eftrue,esmref,esmr,ef !,ecorem
   character(128) :: ixcc
   logical :: legas, exonly, iprintx, selectqp=.false.,diagonly=.false.
-  logical :: exchange, hermitianW=.true., screen = .false.
+  logical :: exchange, hermitianW=.true.!, screen = .false.
   integer,allocatable:: irkip(:,:,:,:), nrkip(:,:,:,:)
   real(8),allocatable:: vxcfp(:,:,:), eqt(:), eq(:), eqx(:,:,:),eqx0(:,:,:)
   complex(8),pointer::zsec(:,:,:)
-  !!
   call MPI__Initialize()
   call M_lgunit_init()
   call date_and_time(values=timevalues)
   write(6,"('mpirank=',i5,' YYYY.MM.DD.HH.MM.msec=',9i4)")mpi__rank,timevalues(1:3),timevalues(5:8)
   hartree=2d0*rydberg()
-
   if(MPI__root) then
      write(6,*) ' --- Choose modes below ------------'
      write(6,*) '  Sx(1) Sc(2) ScoreX(3) '
      write(6,*) '  [option --- (+ QPNT.{number} ?)] '
-     !        write(6,*) '  Add 1000, eg, 1001 is diagonal only mode for one-shot Z=1'
      write(6,*) ' --- Put number above ! ------------'
      read(5,*) ixc
      write(6,*) ' ixc=', ixc !computational mode index
   endif
   call MPI__Broadcast(ixc)
-  !      if(ixc>1000) then         !selected QP
-  !        ixc=mod(ixc,1000)
-  !        selectqp  =.true.
-  !        diagonly  =.true.
-  !        hermitianW=.false.
-  !        write(6,*) "--- Diagonal-only mode. jobsw=5; see description at the top of sxcf_fal2.sc.F."
-  !        write(6,*) "--- This is the same as one-shot calculaiton with iSigMode5 in GWinput."
-  !      endif
   write(ixcc,"('.mode=',i4.4)")ixc
   call MPI__consoleout('hsfp0_sc'//trim(ixcc)) !Open console output stdout.irank.hsfp0_sc.mode
   call pshpr(60)
-
   if(ixc==3) then; incwfin= -2 !core exchange mode
   else           ; incwfin= -1 !use 7th colmn for core at the end section of GWIN
   endif
@@ -185,17 +173,12 @@ program hsfp0_sc
   call Readngmx2() !return ngpmx and ngcmx in m_readqg
   write(6,*)' max number of G for QGpsi and QGcou: ngcmx ngpmx=',ngcmx,ngpmx
   call pshpr(60)
-  if( .NOT. exchange .OR. (exchange .AND. screen)) then !screen means screened exchange case
-     call readfreq_r() !Readin WV.d and freq_r
-  endif
-  !! Determine Fermi energy ef for given valn (legas=T), or Get charge given by z and konf.==
+  if(.NOT.exchange) call readfreq_r()  !Readin WV.d and freq_r
   legas=.false. ! if legas=T, homogenius electron gas test case.
-  call efsimplef2ax(legas, esmref, &
-       valn, ef)
+  call efsimplef2ax(legas, esmref, & !Get number of valn val enelctron and Fermi energy ef.
+       valn, ef)!  legas=T, give ef for given valn.
   eftrue = ef
-  if(ixc==3) then
-     ef = LOWESTEVAL() -1d-3 !lowesteigen(nspin,nband,qbz,nqbz) - 1d-3 !lowesteb was
-  endif
+  if(ixc==3)ef = LOWESTEVAL() -1d-3 !lowesteigen(nspin,nband,qbz,nqbz) - 1d-3 !lowesteb was
   !!--------------
   write(6,'(" --- computational conditions --- ")')
   write(6,'("    deltaw  =",f13.6)') deltaw
@@ -204,9 +187,7 @@ program hsfp0_sc
   write(6,*)' ef    =',ef
   write(6,*)' esmr  =',esmr
   write(6,*)' valn  =',valn
-  !! Core-exchange case. We set Ef just below the valence eigenvalue (to pick up only cores).==
-  ! exonly removed
-  if(ixc==3) then
+  if(ixc==3) then ! Core-exchange mode. We set Ef just below the valence eigenvalue (to pick up only cores)
      write(6,"(a)")'CoreEx mode: We change ef as ef=LOWESTEVAL-1d-3, slightly below the bottom of valence.'
      write(6,"(a,f13.5,i5,i5)")' CoreEx mode: ef nspin nctot=',ef,nspin,nctot
      do ix=1,nctot
@@ -237,6 +218,7 @@ program hsfp0_sc
   deallocate(eqt)
   call Hswriteinit()        !internal subroutine.  Write initial part of output files
 
+  !! Currently, irkip, involved in eibz (extended BZ) mode is removed.
   !! == irkip:  parallelization is controled by irkip ==
   !! We have to distribute non-zero irkip to all ranks (irkip is dependent on rank).
   !! When irkip(nqibz,ngrp,nq,nspinmx)/=0, we expect grain-size
@@ -251,7 +233,7 @@ program hsfp0_sc
     if ( .NOT. iSigMode==3) call rx('sxcf_scz: only for jobsw=3')
     call sxcf_scz(qvec,ef,esmr,nq,exchange,nbandmx,ixc,nspinmx) !nbandmx is input mar2015 jobsw= iSigMode=3 only
   EndBlock Main4SelfEnergy
-! Remove eibzmode symmetrizer 2023Jan22
+! Remove eibzmode symmetrizer 2023Jan22 (extended irreducibel BZ mode)
 !  SymmetrizeZsec :Block
 !    logical:: eibz4sig
 !    if(eibz4sig())then
@@ -272,8 +254,9 @@ program hsfp0_sc
   if(ixc==2 ) call rx0( ' OK! hsfp0_sc: Correlation mode')
   if(ixc==3 ) call rx0( ' OK! hsfp0_sc: Core-exchange mode')
   stop
+
+! SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
 contains 
-  ! SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
   subroutine Hswriteinit() !contained in hsfp0_sc. Only write out files, no side effect
     implicit none
     write (6,*)' ***'
@@ -403,8 +386,8 @@ contains
        close(ifsec2(is))
     endif                     !ixc
   end subroutine HsWriteResult
-
 end program hsfp0_sc
+
 
 subroutine rsexx (nspin, itq, q, ntq,nq,ginv, vxco)
   implicit real*8 (a-h,o-z)

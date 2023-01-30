@@ -81,22 +81,14 @@ contains
     !    If matz=F, no multiplication by ivcou.  Thus we have ppolz(igb,igb)
     real(8) :: q(3)
     complex(8),allocatable :: ppovl_(:,:),ppovl(:,:)!,ppovlzinv(:,:)
-!    logical:: eibz4x0,matz
+!    logical:: eibz4x0
     integer:: i
     if(allocated(ppovlz)) deallocate(ppovlz)
     if(allocated(ppovl)) deallocate(ppovl)
     allocate( ppovl(ngc,ngc),ppovlz(ngb,ngb))!,   ppovlzinv(ngb,ngb))
     call readppovl0(q,ngc,ppovl) !q was qq
-!    if(matz) then   !sep2014 added for eibz4x0=F
-       ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
-       ppovlz(nbloch+1:nbloch+ngc,:)=matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
-!    else
-!       ppovlz=0d0
-!       do i=1,nbloch
-!          ppovlz(i,i)=1d0
-!       enddo
-!       ppovlz(nbloch+1:nbloch+ngc,nbloch+1:nbloch+ngc) = ppovl
-!    endif
+    ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
+    ppovlz(nbloch+1:nbloch+ngc,:)=matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
     deallocate(ppovl)
   end subroutine setppovlz
   !----------------------------------------------------
@@ -130,7 +122,7 @@ contains
     integer :: ng,is,irot
     allocate( ppbir(nlnmx*nlnmx*mdimx*nclass,ng,nspin))
     do irot = 1,ng
-       do is = 1,nspin
+       do is = 1,nspin 
           !! ppbir is rotated <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)> by rotated cg coefficients cgr
           call ppbafp_v2 (irot,ng,is,&
           mdimx,lx,nx,nxx, & ! Bloch wave
@@ -150,16 +142,16 @@ contains
     !  in,il,im      = index for n,l,m s. indxlnm.f
     !   ppb            = <Phi(RLn) Phi(RL'n') B(R,i)>
     implicit none
-    integer(4),intent(in) :: ig,ng,isp!,nspin,nclass,nlnmx,mdimx
-    !      integer(4),intent(in) :: il(nlnmx,nclass),in(nlnmx,nclass),im(nlnmx,nclass)
-    integer(4),intent(in) :: lx(nclass),nx(0: 2*(nl-1),nclass)
-    integer(4),intent(in) :: lmxax,nxx,mdimx
+    integer,intent(in) :: ig,ng,isp!,nspin,nclass,nlnmx,mdimx
+    !      integer,intent(in) :: il(nlnmx,nclass),in(nlnmx,nclass),im(nlnmx,nclass)
+    integer,intent(in) :: lx(nclass),nx(0: 2*(nl-1),nclass)
+    integer,intent(in) :: lmxax,nxx,mdimx
     real(8), intent(out) :: ppb(nlnmx,nlnmx,mdimx,nclass)
     real(8), intent(in) :: cgr((lmxax+1)**2,(lmxax+1)**2,(2*lmxax+1)**2,ng)
     real(8), intent(in) :: ppbrd(0:nl-1,nn,0:nl-1,nn,0:2*(nl-1),nxx,nclass*nspin)
-    integer(4) :: ic, i,lb,nb,mb,lmb,i1,ibas,i2 !nl,nn,
-    integer(4) :: np,lp,mp,lmp,n,l,m,lm!, mnl(nclass)
-    do ic  = 1, nclass
+    integer :: ic, i,lb,nb,mb,lmb,i1,ibas,i2 !nl,nn,
+    integer :: np,lp,mp,lmp,n,l,m,lm!, mnl(nclass)
+    do concurrent (ic=1:nclass)
        ibas = ic
        i = 0 !i = product basis index.
        do lb  = 0, lx (ibas)
@@ -167,18 +159,16 @@ contains
              do mb  = -lb, lb
                 i    = i+1           !The number of product basis is  =(i at the end of loop).
                 lmb  = lb*lb + lb + mb + 1
-                do  i2 = 1,mnl(ic) !phi2 index
+                do concurrent (i2 = 1:mnl(ic),i1 = 1:mnl(ic)) !phi1 phi2 index
                    np   = in(i2,ic)
                    lp   = il(i2,ic)
                    mp   = im(i2,ic)
                    lmp  = lp*lp + lp + mp + 1
-                   do  i1 = 1,mnl(ic) !phi1 index
-                      n    = in(i1,ic)
-                      l    = il(i1,ic)
-                      m    = im(i1,ic)
-                      lm   = l*l + l + m + 1
-                      ppb(i1,i2,i,ic)=cgr(lm,lmp,lmb,ig)*ppbrd(l,n,lp,np,lb,nb,isp+nspin*(ic-1))
-                   enddo
+                   n    = in(i1,ic)
+                   l    = il(i1,ic)
+                   m    = im(i1,ic)
+                   lm   = l*l + l + m + 1
+                   ppb(i1,i2,i,ic)=cgr(lm,lmp,lmb,ig)*ppbrd(l,n,lp,np,lb,nb,isp+nspin*(ic-1))
                 enddo
              enddo
           enddo
@@ -268,8 +258,8 @@ contains
       complex(8),parameter:: img=(0d0,1d0),tpi= 8d0*datan(1d0)
       complex(8):: expikt(natom)
       complex(8),allocatable::  zmelt(:,:,:)
-      integer(4) :: ngp1, ngp2
-      integer(4) :: ngvecpB1(3,ngpmx),ngvecpB2(3,ngpmx),nadd(3)
+      integer :: ngp1, ngp2
+      integer :: ngvecpB1(3,ngpmx),ngvecpB2(3,ngpmx),nadd(3)
       real(8):: q_rkt(3),qt(3),q_rk(3)!,qik(3)
       real(8) :: qdiff(3)
       complex(8) :: geig1(ngpmx,nband),geig2(ngpmx,nband)
@@ -399,16 +389,16 @@ contains
     use m_read_ppovl,only: getppx2,igggi,igcgp2i,nxi,nxe,nyi,nye,nzi,nze, &
          nvggg,nvgcgp2,ngvecc, nggg,ngcgp,ngcread, ggg,ppovlinv, ngc2,ngvecc2
     implicit none
-    integer(4):: itp,igc
-    integer(4),intent(in) :: ngp1, ngvecp1(3,ngp1), ngp2
-    integer(4),intent(in) :: ngvecp2(3,ngp2), ngc,nadd(3),ntp0,nt0
+    integer:: itp,igc
+    integer,intent(in) :: ngp1, ngvecp1(3,ngp1), ngp2
+    integer,intent(in) :: ngvecp2(3,ngp2), ngc,nadd(3),ntp0,nt0
     complex(8),intent(in) :: geigq1(ngp1,ntp0),geigq2(ngp2,nt0)
     real(8),intent(in) :: shtv(3),q(3),qi(3), symope(3,3),qlat(3,3)
     real(8),intent(in) :: qt(3)
     complex(8),intent(out) :: zmelp(ngc,nt0,ntp0)
     complex(8),parameter :: img=(0d0,1d0)
     real(8), parameter :: pi=3.1415926535897932D0
-    integer(4) :: nn(1:3)
+    integer :: nn(1:3)
     integer::igcgp2,iggg,igp1,igp2
     integer,allocatable:: ngveccR(:,:)
     complex(8),allocatable::ggitp(:,:),gp2phas2(:),phase(:)
@@ -428,8 +418,8 @@ contains
          ngveccR)
     allocate(ggitp(ntp0,ngcgp))
     ggitp = 0d0
-    do igp1  = 1,ngp1   !for ngp1
-       do igcgp2= 1,ngcgp !for ngc+ngp2
+    do concurrent (igcgp2=1:ngcgp) !for ngc+ngp2
+       do igp1  = 1,ngp1   !for ngp1
           nn = ngvecp1(:,igp1)- nvgcgp2(:,igcgp2) - nadd ! G1 -(Gc+G2) - Gadd ! -Gadd= -rk + qt -q_rk
           if(nn(1)<nxi .OR. nxe<nn(1) .OR. nn(2)<nyi .OR. nye<nn(2) .OR. nn(3)<nzi .OR. nze<nn(3)) cycle
           iggg = igggi(nn(1),nn(2),nn(3)) !inversion table
@@ -442,20 +432,16 @@ contains
     !! note \bfr'= g (\bfr) +\delta_g  (\bfr= {\bf r})
     !! mapping of function g[f(\bfr)]= f(g^-1(\bfr)+\delta_{g^-1})
     allocate(gp2phas2(nt0),phase(ngc))
-    do igc=1,ngc
-       phase(igc)=exp( img*2d0*pi*sum((q+matmul(qlat,ngveccR(:,igc)))*shtv) )
-    enddo
+    phase(:)=[(exp( img*2d0*pi*sum((q+matmul(qlat,ngveccR(:,igc)))*shtv) ),igc=1,ngc)]
     !! zmelp0(igc'(Gc'),it(G2),itp(G1)) = <G1|G2 Gc'> geig*(G1,itp)geig(G2,it) = <itp(G1)|it(G2) Gc'>
     allocate(zmelp0(ngc,nt0,ntp0))
     zmelp0=0d0
     allocate(ggitp_(ngp2,ngc))
-    do itp= 1,ntp0
-       do igc=1,ngc
-          do igp2=1,ngp2
-             nn = ngveccR(:,igc) + ngvecp2(:,igp2)
-             igcgp2 = igcgp2i(nn(1),nn(2),nn(3))
-             ggitp_(igp2,igc) = phase(igc)*ggitp(itp,igcgp2)
-          enddo
+    do concurrent (itp= 1:ntp0)
+       do concurrent (igc=1:ngc,igp2=1:ngp2)
+          nn = ngveccR(:,igc) + ngvecp2(:,igp2)
+          igcgp2 = igcgp2i(nn(1),nn(2),nn(3))
+          ggitp_(igp2,igc) = phase(igc)*ggitp(itp,igcgp2)
        enddo
        zmelp0(:,:,itp)= matmul(transpose(ggitp_),geigq2)
     enddo
@@ -509,13 +495,14 @@ contains
     if(mdimx /= maxval(mdim) ) call rx( 'psi2b_v3: wrong mdimx')
     if(sum(mdim(iclass(1:natom)))/= nbloch ) call rx( 'psi2b_v3: wrong nbloch')
     allocate(iasx(natom))
-    ias = 1
-    do ia = 1,natom
-       iasx(ia) = ias
-       ias = ias + nlnmv(iclass(ia))
-    enddo
-    if(ias-1/=nlmto) call rx( ' psi2b_v3:sum(nlnmv)/= nlmto')
-    do  ia = 1,natom
+!    ias = 1
+!    do ia = 1,natom
+!       iasx(ia) = ias
+!       ias = ias + nlnmv(iclass(ia))
+!    enddo
+    if(sum(nlnmv(iclass(1:natom)))/=nlmto) call rx( ' psi2b_v3:sum(nlnmv)/= nlmto')
+    iasx=[(sum(nlnmv(iclass(1:ia-1)))+1,ia=1,natom)]
+    iatomloop: do concurrent(ia = 1:natom)
        ic   = iclass(ia)
        nc   = nlnmc(ic)
        nv   = nlnmv(ic)
@@ -523,15 +510,15 @@ contains
        ias  = iasx(ia)
        iap  = iatomp(ia)
        icp  = iclass(iap)
-       do   i = 1,mdim(icp)   ! loop over optimal product basis
+       prodloop: do concurrent(i=1:mdim(icp))   ! loop over optimal product basis
           !     sum(Ln) bkq(Ln,t') * <phi(Ln) phi(L'n') B(i)> !bkq is complex but < > is real
           ib = imdim(iap)-1+i
-          zpsi2b(ib,nctot+1:nctot+nt0,ncc+1:ncc+ntp0)= phase(ia) * & !     <psi(k+q,t') | psi(k,t) B(i)>
-          matmul( transpose(cphik(ias:ias+nv-1,1:nt0)), &
+          zpsi2b(ib,nctot+1:nctot+nt0,ncc+1:ncc+ntp0)= & !     <psi(k+q,t') | psi(k,t) B(i)>
+               phase(ia) * matmul( transpose(cphik(ias:ias+nv-1,1:nt0)), &
                dconjg( matmul(transpose(ppb(nc1:nc+nv,nc1:nc+nv,i,icp)),cphikq(ias:ias+nv-1,1:ntp0)) ) ) !zz
-       end do                 !end of optimal product basis-loop
-    end do !end of atom-loop
-    deallocate(zz,zppb,iasx)
+       enddo prodloop 
+    enddo iatomloop
+    deallocate(zz,zppb)!,iasx)
   end subroutine psi2b_v3
   !------------------------------------------------------------------------------------
   subroutine psicb_v3 (nctot,ncc,nt0,ntp0,  iclass, phase, &
@@ -586,36 +573,33 @@ contains
     if(ncc/=0 .AND. ncc/=nctot) call rx( "psicb_v3: ncc/=0 and ncc/=ncctot")
     if(sum(ncore(iclass(1:natom)))/= nctot) call rx( "psicb_v3:sum(ncore) wrong")
     zpsi2b = 0d0
-    ias        = 1
-    ics        = 0
-    do ia = 1,natom
-       ic         = iclass(ia)
-       nc         = nlnmc(ic)
-       nv         = nlnmv(ic)
-       nc1        = nc + 1
-       iap        = iatomp(ia)
-       icp        = iclass(iap)
-       ib         = imdim(iap)-1
-       do i = 1,mdim(icp)
-          ib         = ib + 1
-          do itp = 1,ntp0
-             do  it = 1,ncore(ic)
-                icr      = icore(it,ic)
-                zpsi2b(ib,ics+it,ncc+itp) = phase(ia)* &
-                     dconjg(sum(cphikq(ias:ias+nv-1,itp)*ppb(nc1:nc+nv,icr,i,icp)))
-             enddo  !end of t'(unoccupied)-loop
-          enddo  !end of t(occupied)-loop
-          if(ncc==0) cycle
-          do itp = 1,ncore(ic)
-             do  it = 1,nt0
-                icr      = icore(itp,ic)
-                zpsi2b(ib,nctot+it,ics+itp) = dconjg(phase(ia))* &
-                     sum(cphik(ias:ias+nv-1,it)*ppb(nc1:nc+nv,icr,i,icp))
-             enddo  !end of t'(unoccupied)-loop
-          enddo  !end of t(occupied)-loop
-       enddo !end of optimal product basis-loop
-       ias   = ias + nlnmv(ic)
-       ics   = ics + ncore(ic)
+    do concurrent(ia = 1:natom)
+       ic    = iclass(ia)
+       nc    = nlnmc(ic)
+       nv    = nlnmv(ic)
+       nc1   = nc + 1
+       iap   = iatomp(ia)
+       icp   = iclass(iap)
+       ib    = imdim(iap)-1
+       ias   =  sum(nlnmv(iclass(1:ia-1)))+1
+       ics   =  sum(ncore(iclass(1:ia-1)))
+       do concurrent (i = 1:mdim(icp)) !product basis
+          do itp = 1,ntp0 
+             do  it = 1,ncore(ic) 
+                zpsi2b(imdim(iap)+i-1,ics+it,ncc+itp) = phase(ia)* & !ib=imdim(iap)+i-1
+                     dconjg(sum(cphikq(ias:ias+nv-1,itp)*ppb(nc1:nc+nv,icore(it,ic),i,icp)))
+             enddo  
+          enddo
+       enddo
+       if(ncc==0) cycle
+       do concurrent (i = 1:mdim(icp)) !product basis
+          do itp = 1,ncore(ic) 
+             do  it = 1,nt0 
+                zpsi2b(imdim(iap)+i-1,nctot+it,ics+itp) = dconjg(phase(ia))* &
+                     sum(cphik(ias:ias+nv-1,it)*ppb(nc1:nc+nv,icore(itp,ic),i,icp))
+             enddo
+          enddo
+       enddo
     enddo
   end subroutine psicb_v3
 
@@ -630,7 +614,7 @@ contains
     ! this is for Wanner (readeigW, drvmelp3)
     implicit none
     real(8):: q(3),q_rk(3),qik(3),ginv(3,3)
-    integer(4):: ngp1, ngp2, ngpmx,nqbz,nqibz, ngcmx ,nctot,nband, &
+    integer:: ngp1, ngp2, ngpmx,nqbz,nqibz, ngcmx ,nctot,nband, &
          ntp0,nt0,nbloch,noccx,  itx, ngc,nnum,inum,ig1,ig2,igc, &
          ngvecpB1(3,ngpmx), &
          ngvecpB2(3,ngpmx), &
@@ -645,7 +629,7 @@ contains
     complex(8):: geig1(ngpmx,nband),geig2(ngpmx,nband) &
          ,zmelt(1:nbloch+ngc,1:nctot+nt0,1:ntp0)
     real(8):: q_rkt(3),qt(3),qu1(3),qu2(3)
-    integer(4)::verbose
+    integer::verbose
     call readqg('QGpsi', q,    qt,   ngp1, ngvecpB1)
     call readqg('QGpsi', q_rk, q_rkt,ngp2, ngvecpB2)
     call readgeigW(q,    ngpmx, isp, qu1, geig1)
