@@ -36,7 +36,7 @@ contains
     integer :: getdig,i,ip,j,k,m,ifi,iprint,lpbc, &
          nbas,nclasp,nclass,nl,nlspc,nsp,modep(3),parg,nbasp, &
          nbaspp,nkd,nkq,nspec,neul,nc,mxcsiz,nttab,igets, & ! & npadl,npadr,
-         iosits,cmplat,ngrp,ival,irs(5),nclspp,bitand,igetss, &
+         iosits,cmplat,ngrp,irs(5),nclspp,bitand,igetss, &
          ngmx,nsgrp
     integer:: oeold  , olmx , opold , owk2 , orham , oamsh &
          , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl , mxclas
@@ -201,7 +201,7 @@ contains
           call dpscop ( rv_a_opos , xv , 3 , 3 * i - 2 , 1 , 1d0 )
           !       posp+ = (plat)^-1 pos+
           call dgemm('T','N',3,1,3,1d0,qlat,3,xv,3,0d0,xv(4),3)
-          ip = ival ( iv_a_oips , i )
+          ip = iv_a_oips(i)
           print 345, i, slabl(ip), (xv(j),j=1,3), (xv(3+j),j=1,3)
 345       format(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)
        enddo

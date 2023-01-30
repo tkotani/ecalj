@@ -135,12 +135,8 @@ contains
     if (ctmp == '"') j=j+1
     if (opt2 == 1) call get_environment_variable(ctbl(i,2),ctbl(i,2))
     goto 2
-
   end subroutine parchv
-
-
 end module m_rdfiln
-
 
 subroutine rdfiln(unit,cch,mxlev,loop0,nlin,list,lstsiz, &
      ilist,nlist,vnam,ctbl,mxchr,a,recrd,recl,nr)
@@ -1464,7 +1460,6 @@ subroutine rdfiln(unit,cch,mxlev,loop0,nlin,list,lstsiz, &
   ! --- General error exit ---
 999 call fexit(-1,1,' Exit -1: rdfiln: parse failed, line %i',nrd)
 end subroutine rdfiln
-
 subroutine rdfile(unit,cch,recrd,mxrecs,a,recl,nr)
   !- Reads entire disk file into recrd, calling rdfiln.
   implicit none
@@ -1488,6 +1483,9 @@ subroutine rdfile(unit,cch,recrd,mxrecs,a,recl,nr)
   if (nr == mxrecs) return
   goto 10
 end subroutine rdfile
+
+
+
 
 subroutine rdfilx(a,recl,lif,j,nrd,ctbl,mxchr,nchr,liff0)
   !- Determines whether an 'if' or 'ifdef' expression is true

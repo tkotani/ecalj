@@ -242,13 +242,13 @@ contains
     real(8):: rhomin
     logical :: newmode=.true.
     integer:: nnn,isp
-    real(8):: sss ,smmin(nsp),dmach
+    real(8):: sss ,smmin(nsp)
     call tcn('smvxc2')
     if (n1 > n1x) call rxi('smvxc2: increase n1x, need',n1)
     lxcf = mod(lxcfun,100)
     lxcg = mod(lxcfun/100,100)
     alfa = 2d0/3d0
-    fac = dmach(1)**(1d0/3d0)
+    fac = tiny(0d0)**(1d0/3d0) !dmach(1)**(1d0/3d0)
     rhoeps = 0
     rhoex  = 0
     rhoec  = 0

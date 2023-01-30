@@ -2260,8 +2260,7 @@ contains
        do  12  i = 1, nda
           if ( dabs ( a ( i , 0 , 1 ) - a ( i , 0 , 2 ) ) >= 5d-9 ) &
                print 311 , i , a ( i , 0 , 2 ) , a ( i , 0 , 1 ) , a ( i , 0 &
-               , 1 ) - a ( i , 0 , 2 ) , dval ( xmp1_rv , i )
-
+               , 1 ) - a ( i , 0 , 2 ) , xmp1_rv(i) 
 12     enddo
 311    format(i5,4f14.6)
 310    format(14x,'Old',11X,' New',9X,'Diff',10X,'Mixed')

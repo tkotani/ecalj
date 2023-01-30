@@ -39,6 +39,7 @@ subroutine rangedq(qin, qout) ! qout is in [-0.5d0,0.5d0)
      if(qout(ix)>0.5d0-tol) qout(ix)=-0.5d0 !this is needed to distinguish 0.5d0 and -0.5d0.
   enddo
 end subroutine rangedq
+
 character(10) function i2char(numin)
   !! convert num to char. See charnum3 to understand this.
   implicit none
@@ -240,55 +241,12 @@ subroutine dpcopy(afrom,ato,n1,n2,fac) !- Copy and scale a portion of a vector
   enddo
 end subroutine dpcopy
 subroutine dpzero(array,leng)
-  !- Initializes double precision array to zero
   integer :: leng,i
   double precision :: array(leng)
   do   i=1, leng
      array(i) = 0
   enddo
 end subroutine dpzero
-real(8) function dval(array,index)
-  integer :: index
-  !- Returns the double precision value of ARRAY(INDEX)
-  double precision :: array(index)
-  dval = array(index)
-END function dval
-integer function ival(array,index)
-  !- Returns the integer value of ARRAY(INDEX)
-  integer :: index
-  integer :: array(index)
-  ival = array(index)
-end function ival
-integer function ival2(array,nda,i1,i2)
-  !- Returns the integer value of ARRAY(i1,i2)
-  !     implicit none
-  integer :: nda,i1,i2,array(nda,1)
-  ival2 = array(i1,i2)
-end function ival2
-subroutine dvset(array,i1,i2,val)
-  !- Sets some elements of double precision array to value
-  integer :: i1,i2
-  double precision :: array(i2),val
-  integer :: i
-  do   i = i1, i2
-     array(i) = val
-  enddo
-end subroutine dvset
-subroutine ivset(array,i1,i2,val)
-  !- Sets some elements of integer array to value
-  integer :: i1,i2,array(1),val,i
-  do   i = i1, i2
-     array(i) = val
-  enddo
-end subroutine ivset
-subroutine lvset(array,i1,i2,val)
-  !- Sets some elements of logical array to value
-  integer :: i1,i2,i
-  logical :: array(1),val
-  do  i = i1, i2
-     array(i) = val
-  enddo
-end subroutine lvset
 subroutine dpscop(afrom,ato,nel,n1,n2,fac)
   !- shift and copy.
   !i nel number of elements
@@ -310,18 +268,6 @@ subroutine dpscop(afrom,ato,nel,n1,n2,fac)
 end subroutine dpscop
 !> taken from https://community.intel.com/t5/Intel-Fortran-Compiler/Weird-Fortran/td-p/1185072?
 !> for f90
-function i1mach(i) result(s)
-  implicit none
-  integer :: i,s
-  s=99999
-  if(i==2 .OR. i==4) then
-     s=6
-  elseif(i==9) then
-     s=huge(0)
-  else
-     call rx('i1mach not defined')
-  endif
-end function i1mach
 !$$$Cr Remarks
 !$$$C   dmach(1-3) are as returned by the BLAS subroutine dmach and are
 !$$$C   defined as follows.
@@ -342,6 +288,18 @@ end function i1mach
 !$$$C   d1mach(5) = log10(b)
 !$$$C   d1mach and dmach call the C segment mkcon found in fsubs.c
 !$$$C ----------------------------------------------------------------------
+function i1mach(i) result(s)
+  implicit none
+  integer :: i,s
+  s=99999
+  if(i==2 .OR. i==4) then
+     s=6
+  elseif(i==9) then
+     s=huge(0)
+  else
+     call rx('i1mach not defined')
+  endif
+end function i1mach
 function d1mach(i) result(s)
   implicit none
   integer:: i
@@ -361,7 +319,6 @@ function d1mach(i) result(s)
   s = dm(i)
   return
 end function d1mach
-! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
 function dmach(i) result(s)
   implicit none
   integer:: i
@@ -433,20 +390,6 @@ integer function mxint(n,ivec)
   mxint = imax
 end function mxint
 
-subroutine shoist(istab,nbas,ag,g,ng)
-  use m_lgunit,only:stdo
-  !- Show istab
-  !     implicit none
-  integer :: ng,nbas
-  double precision :: g(3,3,ng),ag(3,ng)
-  integer :: istab(nbas,ng)
-  integer :: i,ig
-  write(stdo,*)'  ib  istab ...'
-  do  30  i = 1, nbas
-     write(stdo,333) i, (istab(i,ig), ig=1,ng)
-333  format(i4,':',48i3)
-30 enddo
-end subroutine shoist
 subroutine poseof(iunit)
   !- Positions file handle at end-of-file
   integer :: iunit
