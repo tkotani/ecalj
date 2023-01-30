@@ -218,12 +218,12 @@ contains
       iqini = 1
       iqend = nqibz             
       icount=0
-      do 1130 kx = iqini,iqend !quick loop
-         do 1120 isp = 1,nspinmx !empty run to get index for icount ordering
+      kxloop:do kx = iqini,iqend !quick loop
+         isploop: do isp = 1,nspinmx !empty run to get index for icount ordering
             if(sum(irkip(isp,kx,:,:))==0) cycle ! next kx
-            do 1140 irot = 1,ngrp !over rotations irot ===
+            irotloop: do irot = 1,ngrp !over rotations irot ===
                if(sum(irkip(isp,kx,irot,:))==0) cycle ! next ip
-               do 1150 ip = 1,nq         
+               iqloop: do 1150 ip = 1,nq         
                   kr = irkip(isp,kx,irot,ip) ! index for rotated kr in the FBZ
                   if(kr==0) cycle
                   icount=icount+1
@@ -241,10 +241,10 @@ contains
                      nbmax  = min(nband,nbmxe) 
                      nstateMax(icount) = nctot + nbmax ! = nstate for the case of correlation
                   endif
-1150            enddo 
-1140         enddo 
-1120      enddo
-1130  enddo
+1150           enddo iqloop
+            enddo irotloop
+         enddo isploop
+      enddo kxloop
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!      
                       ! ndivide = 2 
       nstateavl = 16  ! nstateavl=max(sum(nstatemax)/(ncount*ndivide),1)
