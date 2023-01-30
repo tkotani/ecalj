@@ -127,13 +127,13 @@ contains
     call sgroup(10+modes,gen,agen,ngen,g,ag,nggen,ngmx,qlat)
     ng = min(nggen,ngmx)
     if (nggen > ngmx) return
-    i = mxint(nbas,ips)
+    i = maxval(ips) !mxint(nbas,ips)
     if (i /= nspec .AND. iprint() > 0) &
          call awrit2(' GENSYM (warning) %i species supplied but only '// &
          '%i spec used ...%N%8fpossible errors in class data',' ',120,6, &
          nspec,i)
     nspec = i
-    call iinit(nrspec,nspec)
+    nrspec=0 !call iinit(nrspec,nspec)
     do  22  ibas = 1, nbas
        ic = ips(ibas)
        nrspec(ic) = nrspec(ic)+1

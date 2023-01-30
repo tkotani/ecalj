@@ -390,10 +390,10 @@ contains
        rsmfa = rmtl(is)/2
        rfoca = rmtl(is)/2
        lmxa = 3
-       call dpzero(pnu,2*n0)
-       call dpzero(pnz,2*n0)
-       call dpzero(qat,2*n0)
-       call iinit(idmod,n0)
+       pnu=0d0
+       pnz=0d0
+       qat=0d0
+       idmod=0
        call defpq(z(is),lmxa,nsp,pnu,qat)
        eref = 0
        nrmt = 0
@@ -728,7 +728,7 @@ contains
     if (opt1 >= 1) then
 
        !   ... Local copy of lock and wsr, adjusting to freeze ES sites
-       call icopy(nspec,lock,1,llock,1)
+       llock=lock !call icopy(nspec,lock,1,llock,1)
        les = .false.
        do  is  = 1, nspec
           if (z(is) == 0) then
@@ -756,7 +756,7 @@ contains
           endif
 
           !     ... Restore wsr(Z=0)
-          call icopy(nspec,lock,1,llock,1)
+          llock=lock !call icopy(nspec,lock,1,llock,1)
           do  is  = 1, nspec
              if (z(is) == 0) wsr(is) = wsrs(is)
           enddo

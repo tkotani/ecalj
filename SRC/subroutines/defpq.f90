@@ -151,7 +151,8 @@ subroutine defpq(z,lmax,nsp,p,q)
        7.64D+00,  6.95D+00,  6.46D+00,  5.80D+00, &
        7.68D+00,  6.95D+00,  6.44D+00,  5.82D+00/
 
-  call fsanrg(z,0d0,100d0,0d0,' ','atomic number z',.true.)
+  !call fsanrg(z,0d0,100d0,0d0,' ','atomic number z',.true.)
+  if(z<0d0.or.z>100d0) call rx('defpq:wrong atomic number z')
   iz = nint(max(z,0d0))
   if (iz > z) then !takao added -1d-12 for safe.
      iz2 = max(iz-1,0)

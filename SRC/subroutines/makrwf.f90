@@ -41,7 +41,8 @@ subroutine makrwf(mode,z,rmax,l,v,a,nr,rofi,pnu,nptdif,g,gp, enu,phi,dphi,phip,d
   real(8):: a,rmax,z,rofi(1),v(nr,1),pnu(1:l+1),g(nr,2),gp(nr,2,4),phi,phip,dphi,dphip,p,&
        b,dnu,eb1,eb2,enu,slo(5),sum,val(5)
   real(8),parameter:: pi = 4d0*datan(1d0), tol = 1d-12
-  call fsanrg(rmax,rofi(nr),rofi(nr),1d-8,'makrwf:','rmax',.true.)! rmax must match to rofi(nr)
+  !call fsanrg(rmax,rofi(nr),rofi(nr),1d-8,'makrwf:','rmax',.true.)! rmax must match to rofi(nr)
+  if(abs(rmax-rofi(nr))>1d-8) call rx('makrwf: rmax/=rofi(nr)')
   if (mod(mode,10) == 0) then
      b   = rmax/(dexp(a*nr-a)-1d0)
      konf = mod(pnu(l+1),10d0)

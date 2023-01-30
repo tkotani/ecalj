@@ -194,47 +194,53 @@ subroutine mpibc2(vec,n,cast,mlog,funnam,label)
   integer, allocatable :: ibuf(:)
   real(8) ,allocatable :: dbuf(:)
   integer :: obuf
-
   if (n <= 0) return
   master = 0
   call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
   call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
-
   if (cast == 2) then
      allocate(ibuf(n), stat=ierr)
-     call MPI_ALLREDUCE(vec,ibuf,n, &
-          MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,ierr)
+     call MPI_ALLREDUCE(vec,ibuf,n,  MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,ierr)
      call icopy(n,ibuf,1,vec,1)
      deallocate(ibuf, stat=ierr)
   elseif (cast == 4) then
      allocate(dbuf(n), stat=ierr)
-     call MPI_ALLREDUCE(vec,dbuf,n, &
-          MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
+     call MPI_ALLREDUCE(vec,dbuf,n,  MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
      call dcopy(n,dbuf,1,vec,1)
      deallocate(dbuf, stat=ierr)
   elseif (cast == 6) then
      allocate(dbuf(2*n), stat=ierr)
-     call MPI_ALLREDUCE(vec,dbuf,2*n, &
-          MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
+     call MPI_ALLREDUCE(vec,dbuf,2*n,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
      call dcopy(2*n,dbuf,1,vec,1)
      deallocate(dbuf, stat=ierr)
   else
      call rxi('mpibc2: cast not implemented',cast)
   endif
-
   if (mlog) then
      call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
-     !call strcop(shortname(procid),name,10,'.',ierr)
      shortname(procid)=name
      namelen(procid) = ierr-1
      call gettime(datim)
-     !        call awrit2(strn,' ',-256,lgunit(3),procid,numprocs)
      write(stml,"(a,i0,' of ',i0,' on ',a)") &
           ' '//funnam//' '//datim//' Process ',procid,numprocs, &
           shortname(procid)(1:namelen(procid))//' allreduce '//label
   endif
 end subroutine mpibc2
-
+subroutine icopy(n,dx,incx,dy,incy)
+  !     copies a vector, x, to a vector, y.  Adapted from:
+  !     jack dongarra, linpack, 3/11/78.
+  integer :: dx(1),dy(1)
+  integer :: i,incx,incy,ix,iy,n
+  ix = 1
+  iy = 1
+  if (incx < 0) ix = (1-n)*incx + 1
+  if (incy < 0) iy = (1-n)*incy + 1
+  do  10  i = 1, n
+     dy(iy) = dx(ix)
+     ix = ix + incx
+     iy = iy + incy
+10 enddo
+end subroutine icopy
 integer function mpipid(mode)
   !- Returns MPI procid
   ! ----------------------------------------------------------------------
