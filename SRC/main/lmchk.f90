@@ -36,7 +36,7 @@ program lmchk
      call M_lmfinit_init(prgnam) ! show help and quit for --input
      call Rx0('end of help mode')
   endif
-  call M_rdfiln_init()
+  if(master_mpi) call M_rdfiln_init()
   call M_lmfinit_init(prgnam) ! Computational settings go into m_lmfinit
   if(cmdopt2('--pr=',outs)) then
      read(outs,*) k

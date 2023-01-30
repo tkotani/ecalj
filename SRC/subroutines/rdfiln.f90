@@ -1,24 +1,23 @@
-! this is too expensive to maintain in future.
-module m_rdfiln
-  public M_rdfiln_init, recln,recrd,nrecs,mxrecs
-
-  integer,parameter:: recln=511, mxrecs=10000
-  character*(recln),protected:: recrd(mxrecs)
-  integer,protected:: nrecs
-
+module m_rdfiln ! preprocessor. ctrl.* is conveted to ctrl_preprocessd.*   File to File, no side effect.
+  ! We should write a substution for this preprocessor by python
+  public M_rdfiln_init
   private
 contains
   subroutine m_rdfiln_init() !Read recln,recrd,nrecs,mxrecs for m_lmfinit_init
     !     -vfoobar replaced simplified contents of ctrl into recrd
     use m_lgunit,only:stdo
     use m_ext,only: sname
-    integer:: nfilin,master=0,ierr,i,procid=0,mpipid
+    use m_lmfinit,only: recln 
+    integer:: nfilin,master=0,ierr,i,procid=0,mpipid,ncp
     character(8) :: alabl
     character:: strn*1000
     logical:: fileexist,lshowp,lshow,cmdopt0,mlog
+    integer,parameter:: mxrecs=10000
+    character*(recln):: recrd(mxrecs)
+    integer:: nrecs    
     include "mpif.h"
     procid = mpipid(1)
-    mlog = cmdopt0('--mlog')  !! set log for --mlog (not maintained well)
+!    mlog = cmdopt0('--mlog')  !! set log for --mlog (not maintained well)
     !      stdo = lgunit(1)
     if(procid==master) then
        inquire(file='ctrl.'//trim(sname),exist=fileexist)
@@ -28,20 +27,20 @@ contains
        alabl = '#{}% ct '
        call rdfile(nfilin,alabl,recrd,mxrecs,strn,recln,nrecs) !read ctrl into recrd
        close(nfilin)
-    endif
-    call mpibc1( nrecs,1,2,mlog,'main','nrecs')
-    call MPI_BCAST( recrd,recln*(nrecs+1),MPI_CHARACTER,master,MPI_COMM_WORLD,ierr)
-    !! Show or not show readin ctrl file.
-    lshowp = cmdopt0('--showp')
-    lshow  = cmdopt0('--show')
-    if(procid==master .AND. (lshow .OR. lshowp) ) then
-       write(stdo,"('---- preprocessed ctrl file -------')")
+    ! endif
+    ! call mpibc1( nrecs,1,2,mlog,'main','nrecs')
+    ! call MPI_BCAST( recrd,recln*(nrecs+1),MPI_CHARACTER,master,MPI_COMM_WORLD,ierr)
+    ! !! Show or not show readin ctrl file.
+    ! !lshow  = cmdopt0('--show')
+    ! if(procid==master) then
+       open(newunit=ncp,file='ctrl_preprocessed.'//trim(sname))
+       write(ncp,"(i10, ' #---- preprocessed ctrl file -------')")nrecs
        do i = 1, nrecs
-          if(trim(recrd(i))=='') cycle
-          write(stdo,"(a)")'%% '//trim(recrd(i))//' %%'
-       enddo
-       write(stdo,"(a,' preprocesses ctrl file. nrecs=', i5)")trim(sname),nrecs
+          write(ncp,"(a)")trim(recrd(i))
+       enddo    
+       close(ncp)
     endif
+    lshowp = cmdopt0('--showp')
     if(lshowp) call Rx0('end of --showp')
     !  recrd already replace foobar with foobar2 if we have an command-line option
     !    -vfoobar=foobar2 option (replacement of %const defined in ctrl file).

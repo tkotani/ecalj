@@ -22,6 +22,7 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa)
   !i          functions are less than tol.
 
   !!---- initial settings read from ctrl and processed -------
+  integer,parameter:: recln=511
   integer,parameter::  noutmx=48
   logical,parameter::  T=.true., F=.false.
   integer,parameter::  NULLI=-99999,nkap0=3,mxspec=256,lstrn=10000
@@ -136,14 +137,14 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa)
   
 contains
   subroutine m_lmfinit_init(prgnam)
-    use m_rdfiln,only: recln,nrecs,recrd
+!    use m_rdfiln,only: recln ,nrecs,recrd
     use m_struc_func
     use m_toksw,only:tksw
     use m_gtv
     !! All the initial data are pushed into m_lmfinit
     !! ----------------------------------------------------------------------
     !! Inputs
-    !!   recrd (recln*nrecs) : preprocessed input
+    !!   recrd (recln*nrecs) : preprocessed input file from ctrl_preprocessed.* file.
     !!   prgnam: name of main program
     !! Outputs are give in m_lmfinit
     !     ! We have three stages (stage 1, stage 2 , stage 3) in this routine. Search 'stage'.
@@ -184,6 +185,7 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     include "mpif.h"
+    integer,parameter:: maxp=3
     character,intent(in)::  prgnam*(*)
     character strn*(recln),strn2*(recln)
     integer:: i_spec
@@ -238,20 +240,31 @@ contains
     integer,allocatable :: iv_a_oips_bakup (:)
     integer :: ctrl_nspec_bakup,inumaf,iin,iout,ik,iprior,ibp1,indx,iposn,m,nvi,nvl
     logical :: ipr10,fullmesh,lzz
-    integer,parameter:: maxp=3
     integer,allocatable:: idxdn(:,:,:)
+    character*(recln),allocatable:: recrd(:)
     
     procid = mpipid(1)
     nproc  = mpipid(0)
-    stage1: block !read ctrl file 
+    stage1: block !read ctrl file
       logical:: cmdopt0,cmdopt2,isanrg !external functions need to be decleared in block. 
-      integer:: setprint0,iprint,isw
+      integer:: setprint0,iprint,isw,ncp,nrecs
       real(8):: avwsr,dasum,rydberg
+
       scrwid = 80
       nullrv = nullr
       nulliv  =nulli
       debug = cmdopt0('--debug')
+      
+      call MPI_BARRIER( MPI_COMM_WORLD, ierr )
+      open(newunit=ncp,file='ctrl_preprocessed.'//trim(sname))
+      read(ncp,*) nrecs
+      allocate(recrd(nrecs))
+      do i = 1, nrecs
+         read(ncp,"(a)")recrd(i)
+      enddo
+      close(ncp)
       call gtv_setrcd(recrd,nrecs,recln,stdo,stdl,stde_in=stdo) !Copy recrd to rcd in m_gtv
+      
       call toksw_init(debug)
       if (       master_mpi) io_show = 1
       if ( .NOT. master_mpi) io_show = 0
@@ -1174,7 +1187,6 @@ contains
       eh3=-0.5d0
       rs3= 0.5d0
       do j=1,nspec !additional data supplied from rdovfa.f90 and iors.f90
-!!!!!!
          v_sspec(j)%z=z(j)
          v_sspec(j)%a=spec_a(j)
          v_sspec(j)%nr=nr(j)
