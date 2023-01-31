@@ -17,37 +17,19 @@ contains
     integer:: nrecs    
     include "mpif.h"
     procid = mpipid(1)
-!    mlog = cmdopt0('--mlog')  !! set log for --mlog (not maintained well)
-    !      stdo = lgunit(1)
-    if(procid==master) then
-       inquire(file='ctrl.'//trim(sname),exist=fileexist)
-       if( .NOT. fileexist) call rx("No ctrl file found! ctrl."//trim(sname))
-       open(newunit=nfilin,file='ctrl.'//trim(sname))
-       call findctrlstart(nfilin) ! if a tag 'ctrlstart' in ctrl, ctrl is read from the tag.
-       alabl = '#{}% ct '
-       call rdfile(nfilin,alabl,recrd,mxrecs,strn,recln,nrecs) !read ctrl into recrd
-       close(nfilin)
-    ! endif
-    ! call mpibc1( nrecs,1,2,mlog,'main','nrecs')
-    ! call MPI_BCAST( recrd,recln*(nrecs+1),MPI_CHARACTER,master,MPI_COMM_WORLD,ierr)
-    ! !! Show or not show readin ctrl file.
-    ! !lshow  = cmdopt0('--show')
-    ! if(procid==master) then
-       open(newunit=ncp,file='ctrl_preprocessed.'//trim(sname))
-       write(ncp,"(i10, ' #---- preprocessed ctrl file -------')")nrecs
-       do i = 1, nrecs
-          write(ncp,"(a)")trim(recrd(i))
-       enddo    
-       close(ncp)
-    endif
-    lshowp = cmdopt0('--showp')
-    if(lshowp) call Rx0('end of --showp')
-    !  recrd already replace foobar with foobar2 if we have an command-line option
-    !    -vfoobar=foobar2 option (replacement of %const defined in ctrl file).
-    ! Following ctrlrecrd is just for check recrd contains simplified ctrl with -vfoobar replacement.
-    !      do i=1,nrecs
-    !         if(len_trim(recrd(i))/=0) write(6,"(a)") trim(recrd(i))
-    !     enddo
+    inquire(file='ctrl.'//trim(sname),exist=fileexist)
+    if( .NOT. fileexist) call rx("No ctrl file found! ctrl."//trim(sname))
+    open(newunit=nfilin,file='ctrl.'//trim(sname))
+    call findctrlstart(nfilin) ! if a tag 'ctrlstart' in ctrl, ctrl is read from the tag.
+    alabl = '#{}% ct '
+    call rdfile(nfilin,alabl,recrd,mxrecs,strn,recln,nrecs) !read ctrl into recrd
+    close(nfilin)
+    open(newunit=ncp,file='ctrl_preprocessed.'//trim(sname))
+    write(ncp,"(i10, ' #---- preprocessed ctrl file -------')")nrecs
+    do i = 1, nrecs
+       write(ncp,"(a)")trim(recrd(i))
+    enddo
+    close(ncp)
   end subroutine m_rdfiln_init
 
   subroutine parchv(recrd,recl,mxchr,cex,sep,opts,nchr,ctbl,j)
