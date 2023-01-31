@@ -129,9 +129,7 @@ contains
     if (nggen > ngmx) return
     i = maxval(ips) !mxint(nbas,ips)
     if (i /= nspec .AND. iprint() > 0) &
-         call awrit2(' GENSYM (warning) %i species supplied but only '// &
-         '%i spec used ...%N%8fpossible errors in class data',' ',120,6, &
-         nspec,i)
+         write(stdo,ftox)' GENSYM (warning)',nspec,'species supplied but only',i,'spec used ...'
     nspec = i
     nrspec=0 !call iinit(nrspec,nspec)
     do  22  ibas = 1, nbas
@@ -224,8 +222,8 @@ contains
        ! --- Extend the group by all products with sig ----
        do  9  ig = 1, ng
           if (spgeql(mode0,g(1,ig),ag(1,ig),sig,asig,qb)) then
-             if (ipr > 30) call awrit2(' Generator %i already in group '// &
-                  'as element %i',' ',80,stdo,igen,ig)
+             if (ipr > 30) write(stdo,ftox)' Generator ',igen,' already in group '// &
+                  'as element ',ig
              !        write(stdo,650) igen,ig
              !  650   format(' generator',i3,'  is already in group as element',i3)
              goto 80
@@ -240,7 +238,7 @@ contains
 1      enddo
        ! ... Products of type  g1 sig**p g2
 2      nnow = ng
-       if (ipr >= 40) call awrit2('%a  %i is %i,',sout,80,0,igen,iord)
+       if(ipr>=40) write(stdo,ftox)trim(sout),' ',igen,' is ',iord
        do  8  j = 1, ng
           call spgcop(g(1,j),ag(1,j),h,ah)
           do  10  ip = 1, iord-1
@@ -285,8 +283,7 @@ contains
 80  enddo
     ! --- Printout ---
     if (ipr >= 30) then
-       if (sout /= ' ' .AND. ipr >= 60) call awrit0 &
-            (' Order of generator'//sout//'%a%b',' ',80,stdo)
+       if (sout /= ' ' .AND. ipr >= 60) write(stdo,ftox)' Order of generator'//trim(sout)
        write(stdo,ftox)'SGROUP: ',ng,'symmetry operations from',ngen
        if (ipr >= 60 .AND. ng > 1) then
           write(stdo,'('' ig group op'')')
@@ -474,7 +471,7 @@ contains
     call shortn3_initialize(plat)
     do  20  isop = 1, ngen
        call asymop(gen(1,1,isop),agen(1,isop),':',sg)
-       sout(9:)=trim(sout(9:))//' '//trim(sg) !call awrit0('%a '//sg,sout(9:),len(sout)-9,0)
+       sout(9:)=trim(sout(9:))//' '//trim(sg) 
        vec=agen(:,isop)
        call dgemm('N','N',1,3,3,1d0,agen(1,isop),1,qlat,3,0d0,vec,1)
        call asymop(gen(1,1,isop),vec,'::',sg1)
@@ -484,7 +481,7 @@ contains
        call asymop(gen(1,1,isop),vec,'::',sg)
        call word(sg,1,j1,j2)
        if (i2-i1 < j2-j1) sg = sg1
-       sout2(9:)=trim(sout2(9:))//' '//trim(sg) !call awrit0('%a '//sg,sout2(9:),len(sout2)-9,0)
+       sout2(9:)=trim(sout2(9:))//' '//trim(sg) 
 20  enddo
     if (ngen > ngen0 .AND. iprint() >= 20) then
        write(stdo,"(' Generators:trans(cart)  = ', a)")trim(adjustl(sout)) 
@@ -524,7 +521,7 @@ contains
        ! ---   Extend the group by all products with sig ---
        do  9  ig = 1, ng
           if (grpeql(symops(1,ig),sig) .AND. ipr > 30) &
-               call awrit2(' Generator %i already in group as element %i',' ',80,stdo,igen,ig)
+               write(stdo,ftox)' Generator ',igen,' already in group as element',ig
           if (grpeql(symops(1,ig),sig)) goto 80
 9      enddo
 
@@ -537,7 +534,7 @@ contains
 1      enddo
        ! --- Products of type  g1 sig**p g2 ---
 2      nnow = ng
-       if(ipr >= 40) call awrit2('%a  %i is %i,',sout,80,0,igen,iord)
+       if(ipr >= 40) write(stdo,ftox)'%a  %i is %i,',trim(sout),' ',igen,' is',iord
        do  8  j = 1, ng
           call grpcop(symops(1,j),h)
           do  10  ip = 1, iord-1
@@ -923,26 +920,26 @@ contains
                 endif
 12           enddo
              !       ... Candidate not valid
-             if (ipr >= 90) then
-                call asymop(g(:,:,ig),ag(1,ng+1),' ',sg)
-                call awrit1(' symcry: excluded candidate ig=%,2i  '//sg &
-                     //'%a',' ',80,stdo,ig)
-             endif
+             !if (ipr >= 90) then
+             !   call asymop(g(:,:,ig),ag(1,ng+1),' ',sg)
+             !   call awrit1(' symcry: excluded candidate ig=%,2i  '//sg &
+             !        //'%a',' ',80,stdo,ig)
+             !endif
              goto 20
 10        enddo
           !     --- Valid ag found; add g to list ---
           ng = ng+1
           if (ig > ng) g(:,:,ng)=g(:,:,ig) 
-          if (ipr >= 70) then
-             call asymop(g(:,:,ng),ag(1,ng),' ',sg)
-             call awrit1(' symcry: accepted candidate ig=%,2i  '//sg &
-                  //'%a',' ',80,stdo,ig)
-          endif
+          !if (ipr >= 70) then
+          !   call asymop(g(:,:,ng),ag(1,ng),' ',sg)
+          !   call awrit1(' symcry: accepted candidate ig=%,2i  '//sg &
+          !        //'%a',' ',80,stdo,ig)
+          !endif
           goto 30
 20     enddo
 30  enddo
-    if (ipr >= 30) call awrit2(' SYMCRY: crystal invariant under '// &
-         '%i symmetry operations for tol=%;3g',' ',80,stdo,ng,tol1)
+    if (ipr >= 30) write(stdo,ftox)' SYMCRY: crystal invariant under ' &
+         ,ng,'symmetry operations for tol=',ftof(tol1)
     if (ipr >= 60 .AND. ng > 1) then
        write(stdo,'('' ig  group op'')')
        do  60  ig = 1, ng
@@ -970,7 +967,7 @@ contains
     double precision :: grp(3,3),ag(3)
     character*(*) sg,asep
     double precision :: vecg(3),dasum
-    integer :: nrot,ip,isw,awrite,i1,i2,fmtv
+    integer :: nrot,ip,isw,i1,i2,fmtv
     logical :: li
     ! --- Get consitutents of grp ---
     call csymop(1,grp,li,nrot,vecg)
@@ -1295,12 +1292,19 @@ contains
           t(ip) = '('
           do  12  i = 1, 3
              m = awrite('%x%;7d%?#n<>3#,#)#', sout,len(sout),0,v(i),i,i,i,i,i,i,i)
+             write(6,*)'zzzaaa111',i,v(i),'!',trim(sout),'!',m
              x = v(i)
              y = v(i)*dsqrt(3d0)*4
              if (abs(x) > tiny .AND. dabs(dabs(x)-1) > tiny .AND. iopt <= 4) then
                 if (abs(1/x-nint(1/x)) < tiny) then
-                   if (x > 0) m = awrite('%x1/%d%?#n<>3#,#)#',  sout,len(sout),0, 1/x,i,i,i,i,i,i,i)
-                   if (x < 0) m = awrite('%x-1/%d%?#n<>3#,#)#', sout,len(sout),0,-1/x,i,i,i,i,i,i,i)
+!                   if (x > 0) m = awrite('%x1/%d%?#n<>3#,#)#',  sout,len(sout),0, 1/x,i,i,i,i,i,i,i)
+!                   if (x < 0) m = awrite('%x-1/%d%?#n<>3#,#)#', sout,len(sout),0,-1/x,i,i,i,i,i,i,i)
+!                   if (x > 0) write(sout,   ) 1/nint(x), -1/nint(x)  , or ) added
+
+                   if(x>0) m = awrite('%x1/%d%?#n<>3#,#)#',  sout,len(sout),0, 1/x,i,i,i,i,i,i,i)
+                   if(x<0) m = awrite('%x-1/%d%?#n<>3#,#)#', sout,len(sout),0,-1/x,i,i,i,i,i,i,i)
+
+                   write(6,*)'xxxxaaa111',1/x,i,m,'!',trim(sout),'!'
                 elseif (abs(y-nint(y)) < tiny .AND.   abs(y) > .5d0) then
                    d = 12
                    iz = nint(abs(y))
@@ -1311,6 +1315,7 @@ contains
                    if (iz == 12) id = 1
                    y = y/(12/id)
                    m = awrite('%x%?#n==1#%j#%d*#sqrt(3)/%i%?#n<>3#,#)#',sout,len(sout),0,nint(y),y,id,i,i,i,i,i)
+                   write(6,*)'yyyyyaaa111',y,id,i,m,'!',trim(sout),'!'
                 endif
              endif
              call strncp(t(ip+1),sout,1,1,m)
