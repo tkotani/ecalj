@@ -1506,13 +1506,10 @@ contains
        endif
 31     continue
        if (iprint() >= 20) then !this is needed for test
-          write(outs,ftox)' mixrho:  sought',nmix,'iter from file'//trim(fnam)
-          !outs(j+2:len(outs)) = fnam
-          call awrit2('%a; read %i.  RMS DQ=%1,3;3e',outs,80,0,nmixr, rms2)
-!          write(stdo,ftox)' read ',nmixr,' RMS DQ=',ftof(rms2)
-!          if (rmsdel/= 0) write(stdo,ftox)'  last it rmsdel=',ftof(rmsdel)
-          if (rmsdel/= 0) call awrit1('%a  last it=%1,3;3e',outs,80,0,rmsdel)
-          call awrit0('%a',outs,-len(outs),-stdo)
+          write(stdo,fmt=ftox, advance='no')' mixrho: sought',nmix,'iter from file '//trim(fnam)
+          write(stdo,fmt='("; read ",g0," RMS DQ=",es8.2e1)',advance='no') nmixr, rms2
+          if (rmsdel/= 0) write(stdo,"('  last it=',es8.2e1)",advance='no')rmsdel
+          write(stdo,*)
        endif
        ! --- Save iterations on disk ---
     else
