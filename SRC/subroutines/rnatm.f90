@@ -2,7 +2,7 @@
 subroutine rnatm(pl,ql,n0,irchan,lmax,z,a,b,rofi,ev, &
      nr,rc,nsp,v,rho,plplus,qlplus)
   use m_lmfinit,only: stdo
-
+  use m_ftox
 
   !- Renormalise charge or potential for a free atom
   ! ----------------------------------------------------------------------
@@ -66,15 +66,14 @@ subroutine rnatm(pl,ql,n0,irchan,lmax,z,a,b,rofi,ev, &
   if (rcw == 0) rcw = abs(rc(1)/8)
   tol = 1d-10
   if (lmax > 8) call rx('RNATM: lmax > 8')
-  call info2(20,1,0, &
-       ' RNATM: renormalize sphere density  rc=%,1d  w=%,1d',rc,rcw)
-
+  if(iprint()>20) write(stdo,ftox)&
+       ' RNATM: renormalize sphere density rc=',ftof(rc),'rcw=',ftof(rcw)
   pot = rc(1) .lt. 0
   if (pot) call rx('RNATM not set up for pot now')
 
   ltop = -1
   do   isp = 1, nsp
-     if (nsp == 2) call info2(20,0,0,' Spin %i:',isp,0)
+     if (nsp == 2) write(stdo,ftox)' Spin=',isp
      do l = 0, lmax
         do iz= 0,1
            lp1 = l+1

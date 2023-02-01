@@ -147,17 +147,17 @@ subroutine vcdmel(nl,nlmax,ndham,ndimh,nq,nsp,nspc,ef,evl,aus,nsite,isite,iclsl,
   call tcx ('vcdmel')
 end subroutine vcdmel
 subroutine pvcdm1(ncls,lcls,gcore,z,lmxa,v,a,nr,rofi,ul,sl,nsp,lmxax,ume,sme)
+  use m_lmfinit,only: stdo
+  use m_ftox
   !- Radial matrix elements < (u,s) | r | core >
   implicit none
   integer ncls,lcls,lmxa,nr,nsp,lmxax
   double precision a,z,gcore(nr,2),rofi(nr),v(nr,nsp),&
        ul(nr,0:lmxa,nsp),sl(nr,0:lmxa,nsp),ume(0:lmxax,nsp),sme(0:lmxax,nsp)
-  integer nodes,l,nre,isp,ll,ir,i1mach
+  integer nodes,l,nre,isp,ll,ir,i1mach,iprint
   double precision e1,e2,slo,val,rmax,b,ecore,tol,yyy,dlml,slo1,r,wgt,uc,sc,ecor0,sum
   do  isp = 1, nsp
-     if (nsp .eq. 2) then
-        call info2(30,0,0,' Spin %i ..',isp,0)
-     endif
+     if (nsp .eq. 2.and.iprint()>30) write(stdo,ftox)' Spin',isp,'..'
      !   --- gcore <- core level wave function * r ---
      tol = 1.d-8
      e1 = -2.5d0*z*z - 5

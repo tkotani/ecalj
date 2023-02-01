@@ -156,8 +156,7 @@ subroutine rfalsi(xn,fn,xtol,ftol,dxmn,dxmx,isw,wk,ir)
   ! ... Special treatments
   if (fn == 0) then
      ir = 1
-     call info2(31,0,0, &
-          ' rfalsi:  fn=0 at xn=%1,8;8g; return ir=%i',xn,ir)
+     if(ipr>30) write(stdo,ftox)' rfalsi: fn=0 at xn=',ftof(xn),'; return ir=',ir
      goto 999
   elseif (ir == 0) then
      ir = -1

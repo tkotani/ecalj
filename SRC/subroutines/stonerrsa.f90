@@ -2,7 +2,8 @@ module m_stonerrsa
   private
   contains
 subroutine stonerrsa(nq,nw,nmbas,qp,momsite,mmnorm,eiqrm,freq, x0et)
-  use m_lmfinit,only: stdo
+  use m_lgunit,only: stdo
+  use m_ftox
   !- Transverse susceptibility matrix <~e| X |e~> from X^{-1}=X0^{-1}+U
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -105,8 +106,8 @@ subroutine stonerrsa(nq,nw,nmbas,qp,momsite,mmnorm,eiqrm,freq, x0et)
 ! #endif
 
   ! --- x2et=<~e|X(w)|e~>  &&  <eiqr|~e><~e|X|~e><eiqr|~e> ---
-  call info0(20,1,0,' STONERRSA:  calculate full Xi for each q'// &
-       '%N Magnetic moments, by (magnetic) site:')
+  write(stdo,*)' STONERRSA:  calculate full Xi for each q'// &
+       ' Magnetic moments, by (magnetic) site:'
   if (ipr >= 20) write(stdo,"(1x,12f8.4)") momsite
   !     write(stdo,"( 5x,'q',10x,'qvec' )")
   x0inv = x0et
@@ -135,7 +136,7 @@ subroutine stonerrsa(nq,nw,nmbas,qp,momsite,mmnorm,eiqrm,freq, x0et)
         qxq_inv_i(iw,iq) = dimag( 1d0/qxq(iw,iq) )
 
         !      write(stdo,"( i4, f13.5, 2d15.7 )") iw,rymev*freq(iw)
-        !     .             , qxq_r(iw,iq),qxq_i(iw,iq)
+        !     .             , qxq_r(iw,iq),qxq_i(iw,iq)[
      enddo
   enddo
 
@@ -143,12 +144,10 @@ subroutine stonerrsa(nq,nw,nmbas,qp,momsite,mmnorm,eiqrm,freq, x0et)
   !     Liqin: these should be passed as arguments
   emin_intp = 0d0; dw_intp = 1d-2; emax_intp = 1000d0
   nw_intp = int((emax_intp-emin_intp)/dw_intp) + 1
-  call info(20,0,0,' Make <q|X|q>: for %i energy points; '// &
-       'emax = %;5,5d eV',nwx,rydberg*freq(nwx))
-  call info5(20,0,0,' Interpolate energy window with '// &
-       'emin:dw:emax = %;4d:%;4d:%;4d meV (%i points)',emin_intp, &
-       dw_intp,emax_intp,nw_intp,0)
-
+  write(stdo,ftox)' Make <q|X|q>: for ',nwx,' energy points; '// &
+       'emax = ',ftof(rydberg*freq(nwx)),'eV'
+  write(stdo,ftox)' Interpolate energy window with '// &
+       'emin:dw:emax = ',ftof([emin_intp,dw_intp,emax_intp]),'meV (',nw_intp,' points)'
   allocate(qxq_intp(nw_intp,nq),e_intp(nw_intp) )
   do  iq = 1, nq
      do  iw = 1, nw_intp
@@ -162,8 +161,8 @@ subroutine stonerrsa(nq,nw,nmbas,qp,momsite,mmnorm,eiqrm,freq, x0et)
   enddo
 
   if (ipr >= 30) then
-     call info0(30,1,0,' Data for pole search of evl(<q|X|q>)%N'// &
-          '%5fq %13fqxq_r_max %14fqxq_r_min %14fqxq_i_max %14fqxq_i_min')
+     write(stdo,*)' Data for pole search of evl(<q|X|q>)'// &
+          'q qxq_r_max qxq_r_min qxq_i_max qxq_i_min'
      do  iq = 1, nq
         jmax=maxloc(-dble(qxq_intp(1:nw_intp,iq)),dim=1)
         jmin=minloc(-dble(qxq_intp(1:nw_intp,iq)),dim=1)
@@ -281,8 +280,7 @@ subroutine stonerrsa(nq,nw,nmbas,qp,momsite,mmnorm,eiqrm,freq, x0et)
      vpole_af(iq) = rtmp
   enddo
 
-  call info0(20,1,0,' Results for pole search of evl(<q|X|q>)%N'// &
-       '%5fq %9fFM pole %23fAFM pole')
+  write(stdo,*)' Results for pole search of evl(<q|X|q>); q FM pole AFM pole'
   do  iq = 1, nq
      write(stdo,102) iq, rymev*epole_fm(iq), vpole_fm(iq) &
           ,rymev*epole_af(iq), vpole_af(iq)
@@ -331,9 +329,9 @@ subroutine stonerrsa(nq,nw,nmbas,qp,momsite,mmnorm,eiqrm,freq, x0et)
      enddo
   enddo
 
-  call info0(20,1,0,' Inverse of effective mag. moment meffi(1,1)'// &
-       ' = [xinvh(1,1,iw)-xinvh(1,1,iw=0)]/w%N'// &
-       '%5fq%11fiw=1%21fFM pole%18fAFM pole%17fintp FM%18fintp AF')
+  write(stdo,*)' Inverse of effective mag. moment meffi(1,1)'// &
+       ' = [xinvh(1,1,iw)-xinvh(1,1,iw=0)]/w'// &
+       ' q iw FM pole AFM pole intp FM intp AF'
   do  iq = 1, nq
      write(stdo,  "(3x,i3, 5(2d12.4,1x) )" ) iq,dxidw_eb(1,1,iq,1) &
           ,dxidw_eb(1,1,iq,iwpolf),dxidw_eb(1,1,iq,iwpola) &

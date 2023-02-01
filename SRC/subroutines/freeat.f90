@@ -363,9 +363,8 @@ contains
     nr = 1d0+dlog(1d0+rmax/b)/a
     if (mod(nr,2) == 0) nr = nr-1
     rmax = b*(dexp(a*(nr-1))-1d0)
-    call info5(21,0,0,'conf:   rmt=%,6;6d  rmax=%,6;6d'// &
-         '  a=%d  nr=%i  nr(rmax)=%i',rmt,rmax,a,nrmt,nr)
-
+    if(iprint()>20)write(stdo,ftox)'conf: rmt rmax a=',ftof(rmt),ftof(rmax),ftof(a),'nrmt nr=',nrmt,nr
+!         '  a=%d  nr=%i  nr(rmax)=%i',rmt,rmax,a,nrmt,nr)
     ! --- Make atom self-consistent ---
     nitmax = nrmix
     !      nmix = nrmix(2)

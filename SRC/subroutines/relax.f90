@@ -174,10 +174,10 @@ contains
     if (ir == 0) icom = 1
     ! --- Printout  ---
     if (ipr >= 40) then
-       call info0(-40,0,0,'        Gradients:')
+       write(stdo,*)'        Gradients:'
        print 100, (p(i,2), i = 1, natrlx)
        if (lrlx /= 4 .AND. (it /= 1 .OR. xtol /= 0)) then
-          call info0(-40,0,0,'      Diagonal inverse Hessian:')
+          write(stdo,*)'      Diagonal inverse Hessian:'
           print 100, (w(i,i), i = 1,natrlx)
        endif
     endif

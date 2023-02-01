@@ -55,7 +55,7 @@ subroutine ovlpfa(nbas,nxi,nxi0,exi,hfc,rsmfa,ng,ngmx,  gv,cv)
   call dpzero(cv,2*ng*nsp)
   sum(1) = 0d0
   sum(2) = 0d0
-  call info0(31,1,0,' ovlpfa: overlap smooth part of FA densities')
+  if(ipr>=30) write(stdo,*)' ovlpfa: overlap smooth part of FA densities'
   ibini=1
   ibend=nbas
   do ib=ibini,ibend
@@ -99,11 +99,11 @@ subroutine ovlpfa(nbas,nxi,nxi0,exi,hfc,rsmfa,ng,ngmx,  gv,cv)
      endif
   enddo
   ipr  = iprint()
-  call info5(31,0,0,' total smooth Q = %,6;6d'// &
-       '%?#n==2#  moment = %,5;5d#%j#%?#n>40#  FT (0,0,0) = %,6;6d', &
-       sum(1)+sum(2),nsp,sum(1)-sum(2),ipr, &
-       (cv(1,1)+cv(1,nsp))*vol/(3-nsp))
-
+  if(ipr>30) then
+     write(stdo,ftox)' total smooth Q = ',sum(1)+sum(2)
+!     write(stdo,ftox)' FT(0,0,0)=',(cv(1,1)+cv(1,nsp))*vol/(3-nsp))
+     if(nsp==2) write(stdo,ftox)' total moment=',sum(1)-sum(2)
+  endif   
   call tcx('ovlpfa')
 end subroutine ovlpfa
 

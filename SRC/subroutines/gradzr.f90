@@ -435,13 +435,13 @@ contains
        dgg = ddot(n,p(1,ng),1,p(1,nd),1)
        resg = dsqrt(ddot(n,p(1,ng),1,p(1,ng),1))
        gtop = p(idamax(n,p(1,ng),1),ng)
-       call info5(-30,0,0,' gradzr new line %i:  g.h=%;4g'// &
-            '  g.(h-g)=%;4g  max g=%1;3g  |grad|=%1;3g  ', &
-            lminn,dgg,dgg+gg,gtop,resg)
+       ! call info5(-30,0,0,' gradzr new line %i:  g.h=%;4g'// &
+       !      '  g.(h-g)=%;4g  max g=%1;3g  |grad|=%1;3g  ', &
+       !      lminn,dgg,dgg+gg,gtop,resg)
     endif
-    call info2(-40,0,0,'  p=%n:;10F',npr,p(1,nx))
-    call info2(-40,0,0,'  g=%n:;10F',npr,p(1,ng))
-    call info2(-40,0,0,'  h=%n:;10F',npr,p(1,nd))
+    ! call info2(-40,0,0,'  p=%n:;10F',npr,p(1,nx))
+    ! call info2(-40,0,0,'  g=%n:;10F',npr,p(1,ng))
+    ! call info2(-40,0,0,'  h=%n:;10F',npr,p(1,nd))
 
     ! --- Begin or continue current line minimization ---
 20  continue
@@ -549,14 +549,14 @@ contains
 
     elseif (ir == 4) then
        xn = xmax + dxmxl
-       call info2(-10,0,0,'%x gradzr: found extremum without root:'// &
-            '  attempt new xn=%1;4g',xn,0)
+!       call info2(-10,0,0,'%x gradzr: found extremum without root:'// &
+!            '  attempt new xn=%1;4g',xn,0)
        ir = -5
        goto 991
 
     elseif (ir /= 0) then
-       call info2(-1,0,0,' gradzr (abort) line %i encountered ir=%i '// &
-            'from rfalsi',lminn,ir)
+!       call info2(-1,0,0,' gradzr (abort) line %i encountered ir=%i '// &
+!            'from rfalsi',lminn,ir)
        goto 991
 
        ! --- Line minimization has converged ---
@@ -632,11 +632,11 @@ contains
        dxlast = xn*p(idamax(n,p(1,nd),1),nd)
 
        !       Printout for line min convergence
-       call info8(-30,0,0,'%x gradzr cvg line %i:'// &
-            '%?#n==0#  gam=%1;3g#%j#  x=%1;8d'// &
-            '  |g.h|=%1;3g  dxmax=%1;3g'// &
-            '%?#n#  evmin=%1;2g#%j#', &
-            lminn,isw2,gam,xn,gfn,dxlast,isw31,evmin)
+       ! call info8(-30,0,0,'%x gradzr cvg line %i:'// &
+       !      '%?#n==0#  gam=%1;3g#%j#  x=%1;8d'// &
+       !      '  |g.h|=%1;3g  dxmax=%1;3g'// &
+       !      '%?#n#  evmin=%1;2g#%j#', &
+       !      lminn,isw2,gam,xn,gfn,dxlast,isw31,evmin)
     endif
 
     ! --- Cleanup ---
@@ -670,12 +670,12 @@ contains
 
     ! --- Global convergence FP or CG ---
 998 continue
-    call info5(-20,0,0, &
-         '%x gradzr converged to dxmax=%1;3g, |dx|=%1;3g,'// &
-         '  gmax=%1;3g, |grad|=%1;3g in %i line min', &
-         dxtop,resx,gtop,resg,lminn)
-    call info2(-30,0,0,' p=%n:;10F',npr,p(1,nx))
-    call info2(-30,0,0,' g=%n:;10F',npr,p(1,ng))
+    ! call info5(-20,0,0, &
+    !      '%x gradzr converged to dxmax=%1;3g, |dx|=%1;3g,'// &
+    !      '  gmax=%1;3g, |grad|=%1;3g in %i line min', &
+    !      dxtop,resx,gtop,resg,lminn)
+    ! call info2(-30,0,0,' p=%n:;10F',npr,p(1,nx))
+    ! call info2(-30,0,0,' g=%n:;10F',npr,p(1,ng))
 
     !     Restore position vector to current position
     call daxpy(n,xn,p(1,nd),1,p(1,nx),1)
@@ -1003,11 +1003,11 @@ subroutine brmin(n,x,g,isw,ipr,dxmx,xtol,gtol,hmax,w,diff,hess,ir)
         enddo
 6    enddo
 
-     call info8(-25,0,0,' brmin: start'// &
-          '%?#(n==1|n==2|n==3)#  xtol=|%1;2g|#%j#'// &
-          '%?#(n==0|n==2|n==3)#  gtol=|%1;2g|#%j#'// &
-          '  isw=%i  |g|=%1;3g', &
-          isw1,xtol,isw1,gtol,isw,dsqrt(ddot(n,g,1,g,1)),0,0)
+     ! call info8(-25,0,0,' brmin: start'// &
+     !      '%?#(n==1|n==2|n==3)#  xtol=|%1;2g|#%j#'// &
+     !      '%?#(n==0|n==2|n==3)#  gtol=|%1;2g|#%j#'// &
+     !      '  isw=%i  |g|=%1;3g', &
+     !      isw1,xtol,isw1,gtol,isw,dsqrt(ddot(n,g,1,g,1)),0,0)
 
      ! --- Subsequent iterations  ---
   else
@@ -1142,20 +1142,20 @@ subroutine brmin(n,x,g,isw,ipr,dxmx,xtol,gtol,hmax,w,diff,hess,ir)
      diff = max(diff,dabs(w(i,ns)))
   enddo
 
-  if (scale /= 1) then
-     call info8(-30,0,0,' brmin: iter %i  max shift=%1;4g  '// &
-          '|g|=%1;4g  max g=%1;4g  scale H by %1;3g', &
-          iabs(ir),diff,dsqrt(ddot(n,g,1,g,1)),gmax,scale,0,0,0)
-  else
-     call info8(-30,0,0,' brmin: iter %i  max shift=%1;4g  '// &
-          '|g|=%1;4g  max g=%1;4g%?#n#  evmin=%1;2g#%j#',iabs(ir), &
-          diff,dsqrt(ddot(n,g,1,g,1)),gmax,isw31,evmin,0,0)
-  endif
+  ! if (scale /= 1) then
+  !    call info8(-30,0,0,' brmin: iter %i  max shift=%1;4g  '// &
+  !         '|g|=%1;4g  max g=%1;4g  scale H by %1;3g', &
+  !         iabs(ir),diff,dsqrt(ddot(n,g,1,g,1)),gmax,scale,0,0,0)
+  ! else
+  !    call info8(-30,0,0,' brmin: iter %i  max shift=%1;4g  '// &
+  !         '|g|=%1;4g  max g=%1;4g%?#n#  evmin=%1;2g#%j#',iabs(ir), &
+  !         diff,dsqrt(ddot(n,g,1,g,1)),gmax,isw31,evmin,0,0)
+  ! endif
   npr = min(n,8)
-  call info0(-60,0,0,' Updated x: ')
-  do  i = 1, n, npr
-     call info(-60,0,0,' %n;10,6D',min(npr,n-i+1),x(i))
-  enddo
+  ! call info0(-60,0,0,' Updated x: ')
+  ! do  i = 1, n, npr
+  !    call info(-60,0,0,' %n;10,6D',min(npr,n-i+1),x(i))
+  ! enddo
 
   !     Global convergence criteria: shift relative to start of line min
   itol = mod(isw1,4)
@@ -1164,13 +1164,13 @@ subroutine brmin(n,x,g,isw,ipr,dxmx,xtol,gtol,hmax,w,diff,hess,ir)
 
   ! ... Case brmin has converged globally
   if (resg == 0 .OR. (cnvgg .AND. cnvgx)) then
-     call info5(-20,0,0, &
-          '%x brmin converged to dxmax=%1;3g, |dx|=%1;3g,'// &
-          '  gmax=%1;3g, |grad|=%1;3g in %i iter', &
-          dxtop,resx,gtop,resg,ir)
+     ! call info5(-20,0,0, &
+     !      '%x brmin converged to dxmax=%1;3g, |dx|=%1;3g,'// &
+     !      '  gmax=%1;3g, |grad|=%1;3g in %i iter', &
+     !      dxtop,resx,gtop,resg,ir)
      npr = min(n,6)
-     call info(-30,0,0,' p=%n:;10F',npr,x)
-     call info(-30,0,0,' g=%n:;10F',npr,g)
+     ! call info(-30,0,0,' p=%n:;10F',npr,x)
+     ! call info(-30,0,0,' g=%n:;10F',npr,g)
      ir = 0
   endif
 

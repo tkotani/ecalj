@@ -14,6 +14,7 @@ contains
     use m_supot,only: lat_nabc, lat_ng
     use m_lmfinit, only:   mix_b,mix_bv,mix_w,mix_wc,mix_nsave,mix_mmix
     use m_ext,only:      sname
+    use m_ftox
     !!= Mix old and new charge densities =
     !!  Takao's version: real space mixing of smrho. It works OK. However,
     !!  we may need to fix it so that this is well-defined chi=|rho-f(rho)|**2 minimization mixing.
@@ -622,8 +623,8 @@ contains
        if (wt(1)*wt(2) /= 0) then
           !          rms2f = rms2f * 2
        else
-          call info2(20,0,0,' Constrained spin mixing, wt =%2:1;5d.'// &
-               '  Constrained rms DQ=%1,3;3e',wt,rms2f)
+          write(stdo,ftox)' Constrained spin mixing wt =',ftof(wt), &
+               ' Constrained rms DQ=',ftod(rms2f)
           rmsdel = rms2f
        endif
        !!=== 12. Mix the soup of densities ===

@@ -18,6 +18,7 @@ contains
     use m_lattic,only: lat_plat
     use m_ext,only:sname
     use m_density,only: pnuall,pnzall
+    use m_ftox
     !!- I/O for charge density to rst or rsta. ssite sspec are readin
     !! read write
     !!     smrho, rhoat
@@ -223,10 +224,8 @@ contains
           if (nat > nat0) then
              if (isanrg(nat0,  nat,nat,msg,'nat', .TRUE. )) goto 999
           elseif (nat == nat0 .AND. nbas /= nbas0) then
-             call info2(10,0,0, &
-                  '%9f(warning) mismatch in nbas ... skipping sites'// &
-                  '%N%18f expected nbas=%i but rst file has nbas=%i', &
-                  nbas,nbas0)
+             write(stdo,ftox)'(warning) mismatch in nbas'//&
+                  'expected nbas=',nbas,'but rst file has nbas=',nbas0
              !       OK to reduce nat (e.g. E.S.); these sites will be skipped
           elseif (nat < nat0) then
              write(stdo,*)'   (warning) rst mismatch in nat ... skipping sites'

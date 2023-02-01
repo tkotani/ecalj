@@ -1,6 +1,7 @@
 subroutine splwts(nqp,nband,nbmx,nsp,wgts,evl,n,w,efermi, &
      metal,sumev,bndwts,wtot,entrpy,dosef,cv)
   use m_lmfinit,only: stdo
+  use m_ftox
   !- make sampling weights for integrals under the Fermi surface
   !-----------------------------------------------------------------------
   !i  Input
@@ -103,8 +104,7 @@ subroutine splwts(nqp,nband,nbmx,nsp,wgts,evl,n,w,efermi, &
      isplwts=1093
      open(isplwts,file="BandWeight.dat")
      do  isp = 1, nsp
-        call info2(30,0,0,' SPLWTS: band weights .. '// &
-             '%?;(n==2);Spin %i;;%N       eval      weight',nsp,isp)
+        write(stdo,ftox)'SPLWTS: band weights .. Spin=',isp,'       eval      weight'
         if(fractional) then
            write(isplwts,*)"! Fractional occupation (criterion 0.1<wgt<0.9)"
            write(stdo,*)   "! Fractional occupation (criterion 0.1<wgt<0.9)"

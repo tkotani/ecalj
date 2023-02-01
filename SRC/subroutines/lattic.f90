@@ -424,6 +424,7 @@ subroutine lattc(as,tol,rpad,alat,alat0,platin,g1,g2,g3,gt,plat,qlat,lmax,vol,aw
 60 if(dabs(alat0/alat-1d0) > 0.04d0) call rx('lattc: alat and alat0 deviate by more than 4 %')
 end subroutine lattc
 subroutine lctoff(a0,v0,lmax,tol,r0,q0) !- makes limits r0,q0 for sums in real and recip space for a lattice
+  use m_lgunit,only:stdo
   !  with lattice constant 1.
   !u Updates
   !u   25 Jun 03 (Kino) bug fix in dimension of f and g
@@ -436,7 +437,7 @@ subroutine lctoff(a0,v0,lmax,tol,r0,q0) !- makes limits r0,q0 for sums in real a
   q1 = 0.001d0
   if (lmax > 2) q1 = dsqrt(.5d0*(lmax-2))*a0/pi
   gq1 = (2d0*pi*q1)**(lmax-2)*dexp(-(pi*q1/a0)**2)*4d0*pi/v0
-  if (tol > gq1) call info0(10,0,0,' lctoff (warning): tol gt gq1')
+  if (tol > gq1) write(stdo,*)' lctoff (warning): tol gt gq1'
   q2 = 50d0
   q0 = 5d0
   do  33  i = 1, 25

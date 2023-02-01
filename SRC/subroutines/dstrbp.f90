@@ -72,7 +72,7 @@ subroutine dstrbp(nloop,np,nblk,index)
 END SUBROUTINE dstrbp
 
 SUBROUTINE single(nloop,np,xnode,inode)
-
+  use m_ftox
   IMPLICIT NONE
   INTEGER :: i=0,j=0,nloop,np
   INTEGER :: min=0,rem=0
@@ -84,9 +84,7 @@ SUBROUTINE single(nloop,np,xnode,inode)
   ! Split nblock evenly with nodes
   times = nloop/np
   rem2 = MOD(nloop,np)
-  call info5(41,0,0, &
-       ' DSTRBP, single:  nloop = %i  np = %i  times = %i  rem2 = %i', &
-       nloop,np,times,rem2,0)
+  if(iprint()>40) write(*,ftox)' DSTRBP, single:  nloop=',nloop,'np=',np,'times=',times,'rem2=',rem2
   !      if (iprint() .gt. 40)
   !     .  WRITE(LGUNIT(1),*) 'nloop=',nloop,'np=',np,'times=',times
   !     .  ,'rem2=',rem2

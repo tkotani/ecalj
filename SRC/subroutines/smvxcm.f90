@@ -332,8 +332,8 @@ contains
        vavgnl = 0d0
     endif
     ! ... LDA, GGA Printout
-    if (nx > 0) call info5(20,0,0,' smvxcm (warning) mesh density ' &
-         //'negative at %i point%?#n>1#s##:  rhomin=%;3g',nx,nx,rrmin,0,0)
+    if (nx > 0.and.iprint()>=20) write(stdo,ftox)' smvxcm (warning) mesh density ' &
+         //'negative at ',nx,'point; rhomin=',rrmin
     if (lxcg /= 0) then
        rhoeps = rhoeps + repnl
        rhomu = rhomu + rmunl

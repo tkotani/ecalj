@@ -73,9 +73,9 @@ subroutine gradfl(lmax,nd,nr,np,ir0,ir1,lgg,lx,nn,ri,yl,gyl,fl,  gp,ggp)
            lerr = 1
            if (iprint() >= 50 .AND. &! & takao. too noizy.
               dabs(egf0) .gt. 1d-3*max(dabs(gf(1)),dabs(gf(2)))) then
-              call info5(40,0,0,' gradfl (warning): uncertainty in grad'// &
-                   ' f(r=0,L=%i):  f=%;3g  est err= %;3g',ilm,gf(1),egf0,0,0)
-              print *,'TAKAO: this warning is probably not a problem. If you like, plot ri.vs.gf as in gradfl.'
+!         call info5(40,0,0,' gradfl (warning): uncertainty in grad'// &
+!                 ' f(r=0,L=%i):  f=%;3g  est err= %;3g',ilm,gf(1),egf0,0,0)
+!   print *,'TAKAO: this warning is probably not a problem. If you like, plot ri.vs.gf as in gradfl.'
            endif
         endif
         do    ip = 1, np

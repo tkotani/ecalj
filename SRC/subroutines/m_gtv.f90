@@ -502,11 +502,11 @@ contains
     if (debug .AND. io_help /= 0) then
        !        call info2(0,0,0,' gtv:  name='//name//'; cast='//ig//
        !     .    ' ... help mode',0,0)
-    elseif (debug) then
-       call info2(0,0,0,' gtv:  name='//name//'; cast='//ig// &
-            '%?!n>0!; contents from occurence #%-1j%i of token !!'// &
-            '%?!n>1!; attempt to read %-1j%i elements', &
-            cindx2,sizez)
+!    elseif (debug) then
+!       call info2(0,0,0,' gtv:  name='//name//'; cast='//ig// &
+!            '%?!n>0!; contents from occurence #%-1j%i of token !!'// &
+!            '%?!n>1!; attempt to read %-1j%i elements', &
+!            cindx2,sizez)
     endif
     if (-nminl == NULLI) then
        write(sout, &
@@ -528,35 +528,36 @@ contains
 
     !  --- Help mode ---
     if (io_help /= 0) then
-       !         print *,'hhhhhhhhhhhhhhh mode',note,present(note)
-       !       if (lgx .and. .false.) then
        if (lgx) then
-          call info2(1,0,0,trim(sout)// &
-               '%?!(n==1)!%50pdefault = %l',nndef,defa(1).ne.0)
+          !call info2(1,0,0,trim(sout)//'%?!(n==1)!%50pdefault = %l',nndef,defa(1).ne.0)
+          if(nndef==0) write(stdo,ftox)trim(sout)
+          if(nndef==1) write(stdo,ftox)trim(sout)//repeat(" ",50-len(trim(sout)))//'default=',defa(1)/=0
        elseif (nndef >= 1 .AND. defa(1) == NULLI) then
           if (nminl == NULLI) then
-             call info0(1,0,0,trim(sout)// &
-                  '%50psize and defaults depend on other input')
+             write(stdo,ftox)trim(sout)//repeat(" ",50-len(trim(sout)))//'size and defaults depend on other input'
           else
-             call info0(1,0,0,trim(sout)// &
-                  '%50pdefault depends on other input')
+             write(stdo,ftox)trim(sout)//repeat(" ",50-len(trim(sout)))//'default depends on other input'
           endif
        elseif (nminl == NULLI .AND. nndef >= 1) then
-          call info2(1,0,0,trim(sout)// &
-               '%50pdef = %g ... size depends on other input',defa,0)
+          write(stdo,ftox)trim(sout)//repeat(" ",50-len(trim(sout)))//'... size depends on other input def=',defa(1:nndef)
+!          !call info2(1,0,0,trim(sout)//'%50pdef = %g ,defa,0)
        elseif (nminl == NULLI) then
-          call info0(1,0,0,trim(sout)// &
-               '%50psize depends on other input')
+          write(stdo,ftox) trim(sout)//repeat(" ",50-len(trim(sout)))//'size depends on other input'
        elseif (nndef >= 1 .AND. nndef <= 4) then
-          call info2(1,0,0,trim(sout)//'%50pdefault =%n:1g',nndef,defa)
-       elseif (nndef >= 1) then
-          call info2(1,0,0,trim(sout)//'%50pdefault =%n:1g ...',3,defa)
+!          call info2(1,0,0,trim(sout)//'%50pdefault =%n:1g',nndef,defa)
+          if(sum(abs(defa(1:nndef)-nint(defa(1:nndef))))<1d-12) then
+             write(stdo,ftox)trim(sout)//repeat(" ",50-len(trim(sout)))//'default=',nint(defa(1:nndef))
+          elseif(sum(abs(defa(1:nndef)))<1d-2) then
+             write(stdo,ftox)trim(sout)//repeat(" ",50-len(trim(sout)))//'default=',ftod(defa(1:nndef),3)
+          else   
+             write(stdo,ftox)trim(sout)//repeat(" ",50-len(trim(sout)))//'default=',ftof(defa(1:nndef),3)
+          endif   
        else
-          call info0(1,0,0,trim(sout))
+          write(stdo,*)trim(sout)
        endif
 
        if (present(note)) then
-          call info0(1,0,0,'   '//note)
+          write(stdo,*)'   '//note
        endif
        if ( lor ) then
           write(stdo,"(a)") &
@@ -641,8 +642,8 @@ contains
           elseif (nminl == 1) then
              sout = ' gtv (abort): no expression read for token '//name
           else
-             call info(0,0,0,' gtv: parsed %i%-1j elements: %n:1g',nn, &
-                  ddat)
+             !call info(0,0,0,' gtv: parsed %i%-1j elements: %n:1g',nn, &
+             !     ddat)
              write(opts(1),"(i4)") nn
              write(opts(2),"(i4)") nminl
              sout = ' gtv (abort): only '// trim(adjustl(opts(1))) // &
@@ -828,8 +829,8 @@ contains
 
     ! --- Token has no arguments ---
     if ( ig == '---' ) then
-       if (debug) call info0(0,0,0, &
-            ' getinput: found token '//trim(name))
+!       if (debug) call info0(0,0,0, &
+!            ' getinput: found token '//trim(name))
        return
     endif
 
@@ -880,9 +881,9 @@ contains
     ii = 0
     n = a2vec(rcd(i1:ie),ie-i1+1,ii,4,', ',2,-3,nin,iarr,arr)
     if (n < 0) n = -n-1
-    if (debug) call info(0,0,0, &
-         ' getinput: sought %i numbers, read %i from '//trim(name), &
-         nin,n)
+!    if (debug) call info(0,0,0, &
+!         ' getinput: sought %i numbers, read %i from '//trim(name), &
+!         nin,n)
 
     if (present(nout) ) nout = n
     ! --- Copy array to data ---

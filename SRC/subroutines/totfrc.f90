@@ -3,6 +3,7 @@ subroutine totfrc(leks,fes1,fes2,dfhf,fin,fout)! Add together and print contribu
   use m_mksym,only:  rv_a_osymgr , iv_a_oistab ,lat_nsgrp
   use m_struc_def
   use m_lgunit,only:stdo,stdl
+  use m_ftox
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   nbas  :size of basis
@@ -71,8 +72,8 @@ subroutine totfrc(leks,fes1,fes2,dfhf,fin,fout)! Add together and print contribu
 711     format('fp ib',i4,'  fh ',3f8.2,'   fks ',3f8.2)
      endif
   enddo
-  call info5(10,0,0,' Maximum Harris force = %;3g mRy/au (site %i)' &
-       //'%?#n#  Max eval correction = %;1d##',c*fmax,ibmx,isw(dfmax.gt.0),c*dfmax,0)
+  write(stdo,ftox)' Maximum Harris force = ',ftof(c*fmax),'mRy/au (site',ibmx,')'
+  if(dfmax>0) write(stdo,ftox)' Max eval correction = ',ftof(c*dfmax)
   !     Symmetrize forces to machine precision
   ng=lat_nsgrp
   if (ng > 1) then

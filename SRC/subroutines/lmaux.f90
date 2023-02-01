@@ -14,6 +14,7 @@ contains
     use m_struc_def
     !      use m_ovmin , only: ovmin
     use m_lattic,only:lat_plat,rv_a_opos
+    use m_ftox
     !! check crystal structure symmetry and get WSR
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -95,9 +96,8 @@ contains
     !      if (getdig(mode,0,2) .ne. 0) then
     if (rmaxs <= 0d0) then
        rmaxs = 2.7d0*avw
-       call info5(30,0,0,'%1f'// &
-            'Use default rmaxs = %;3d a.u. = %;3d*avw = %;3d*alat', &
-            rmaxs,rmaxs/avw,rmaxs/alat,0,0)
+       write(stdo,ftox)'Use default rmaxs=',rmaxs,'a.u.',&
+            'rmaxs/avw=',ftof(rmaxs/avw),'rmaxs/alat=',ftof(rmaxs/alat)
     endif
     ! ... Get neighbor table iax for each atom in the cluster
 !    if (lpbc == 0) then
@@ -120,8 +120,8 @@ contains
     j = 6
     if (cmdopt('--slat',j-1,0,outs)) then
        if (iprint() >= 10) then
-          call info0(10,1,0,' LMCHK:  print multiples of plat%N'// &
-               '  i1  i2  i3%7fx%11fy%11fz%11flen')
+          write(stdo,ftox)' LMCHK:  print multiples of plat'//new_line('a')// &
+               '  i1  i2  i3=       x           y           z           flen'
           do  i = -2, 2
              do  j = -2, 2
                 do  k = -2, 2
@@ -143,7 +143,7 @@ contains
     j = 9
     ifx=0
     if (cmdopt('--getwsr',j-1,0,outs)) then
-       call info(10,1,0,' ... Make sphere radii',0,0)
+       write(stdo,*)' ... Make sphere radii'
        allocate(zz_rv(nspec))
        allocate(rmt_rv(nspec))
        do i_spackv=1,nspec
@@ -240,6 +240,7 @@ contains
     use m_lmfinit,only: nsp
     use m_freeat,only:freats
     use m_xclda,only:evxcv
+    use m_ftox
     ! C- Estimate muffin-tin radii overlapping atomic potentials
     ! C ----------------------------------------------------------------------
     ! Ci Inputs
@@ -536,9 +537,11 @@ contains
     strn = 'estat'
     if (opt1 .eq. 1) strn = 'LDA'
     if (opt1 .eq. 2) strn = 'sum-of-atomic'
-    call info(30,1,0,' makrm0: initial MT radii from first '//strn(1:20)//'%a potential maximum',0,0)
-    call info(30,0,0,'  site   spec%12frmt'//'%7frmt-%7frmt-%7frold%3flock%N%34f<spec avg>  spec-min',0,0)
-
+    if(ipr>=30) then
+       write(stdo,ftox)' makrm0: initial MT radii from first '//trim(strn)//' potential maximum'
+       write(stdo,ftox)'  site   spec            rmt       rmt-       rmt-       rold   lock'//&
+         new_line('a')//repeat(' ',34)//'<spec avg>  spec-min'
+    endif 
     !C ... First loop for printout only, so can hang on to original rmt
     do  ib = 1, nbas
        is = ips(ib)
@@ -553,12 +556,10 @@ contains
        !C       Index where to poke rnew
        k = ib
        if (opt2 .ge. 1) k = is
-
        if (ipr .ge. 30) then
-          write(stdo,344) ib,is,spid,rmti(ib),rmti(ib)-rbar, rmti(ib)-rmin,rmt(k), sym(1+mod(lock(k)/2,2))
+          write(stdo,344)ib,is,spid,rmti(ib),rmti(ib)-rbar,rmti(ib)-rmin,rmt(k),sym(1+mod(lock(k)/2,2))
 344       format(i5,2x,i3,':',a,4f11.4,3x,a)
        endif
-
     enddo
 
     !C     print *, rmt

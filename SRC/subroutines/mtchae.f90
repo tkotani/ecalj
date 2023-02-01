@@ -202,9 +202,9 @@ subroutine mtchre(mode,l,rsmin,rsmax,emin,emax,r1,r2,phi1,dphi1, &
 
   ! --- Vary rsm to match phi to h ---
   if (mode0 == 0 .OR. mode0 == 10) then
-     call info2(IPRT1,0,-1, &
-          ' mtchre: match sm H(l=%i) to phi''/phi=%,1;3d varying rsm ...', &
-          l,dphi1/phi1)
+!     call info2(IPRT1,0,-1, &
+!          ' mtchre: match sm H(l=%i) to phi''/phi=%,1;3d varying rsm ...', &
+!          l,dphi1/phi1)
      call mtchr2(0,l,rsmin,rsmax,(rsmin+rsmax)/2,r1,phi1,dphi1,rsm, &
           eh,ekin,ir)
      !   ... rfalsi unable to bound the search : handle error
@@ -216,13 +216,13 @@ subroutine mtchre(mode,l,rsmin,rsmax,emin,emax,r1,r2,phi1,dphi1, &
            goto 10
         endif
      else
-        call info2(IPRT1,0,0,' found rsm=%;4d',rsm,0)
+!        call info2(IPRT1,0,0,' found rsm=%;4d',rsm,0)
      endif
 
      ! --- Vary eh to match phi to h ---
   elseif (mode0 == 1 .OR. mode0 == 11) then
-     call info2(IPRT1,0,-1, &
-          ' mtchre: match sm H(l=%i) to phi varying eh ...',l,0)
+!     call info2(IPRT1,0,-1, &
+!          ' mtchre: match sm H(l=%i) to phi varying eh ...',l,0)
      call mtchr2(1,l,emin,emax,(emin+emax)/2,r1,phi1,dphi1,rsm,eh, &
           ekin,ir)
      !   ... rfalsi unable to bound the search : handle error
@@ -234,7 +234,7 @@ subroutine mtchre(mode,l,rsmin,rsmax,emin,emax,r1,r2,phi1,dphi1, &
            goto 10
         endif
      else
-        call info2(IPRT1,0,0,' found eh=%;4d',eh,0)
+!        call info2(IPRT1,0,0,' found eh=%;4d',eh,0)
      endif
 
      ! --- Vary rsm (and eh) to match K.E. (and log der) to h ---
@@ -404,9 +404,9 @@ subroutine mtchre(mode,l,rsmin,rsmax,emin,emax,r1,r2,phi1,dphi1, &
 
   call poppr
 
-  if (ir == -2) &
-       call info5(IPRTW,0,0,' mtchre (warning) failed to match K.E. '// &
-       'of sm H(l=%i):  sought %;3d; best value %;3d',l,phi2,ekin,0,0)
+!  if (ir == -2) &
+!       call info5(IPRTW,0,0,' mtchre (warning) failed to match K.E. '// &
+!       'of sm H(l=%i):  sought %;3d; best value %;3d',l,phi2,ekin,0,0)
   if (ir == -1) call rxi( &
        'mtchre: failed to match phi to envelope, mode',mod(mode,100))
 
