@@ -667,40 +667,39 @@ contains
     character*1:: leftp='('
     ! --- Do until no more symbolic representation, do ---
     nt = len(t)
+    write(6,*)'pppppppppppp=', trim(t)
     ng = 0
     i = 0
-90  call skipbl(t,nt,i)
-    if (i >= nt) return
-    ng = ng+1
-    call parsop(t,i,g(1,ng))
-    if (t(i+1:i+1) == '*') then
-       i = i+1
-       call parsop(t,i,h)
-       call grpprd(g(1,ng),h,hh)
-       call dcopy(9,hh,1,g(1,ng),1)
-    endif
-    call dpzero(ag(1,ng),3)
-    ! ... Compatibility with old :T(x,y,z)
-    if (t(i+1:i+2) == ':T' .OR. t(i+1:i+2) == ':t') i=i+2
-    ! ... Compatibility with ::(x,y,z)
-    flgp = .false.
-    if (t(i+1:i+2) == '::') then
-       flgp = .true.
-       i=i+2
-    elseif (t(i+1:i+1) == ':') then
-       i=i+1
-    endif
-    if (t(i+1:i+1) == leftp) then
-       if ( .NOT. parsvc(-1,t,i,ag(1,ng))) &
-            call fexit(-1,111,' Exit -1 PSYMOP: '// &
-            'failed to parse translation, ig=%i',ng)
-       if (flgp) then
-          call dcopy(3,ag(1,ng),1,vec,1)
-          call grpop(vec,ag(1,ng),plat,1)
-          !         call dgemm('N','N',3,1,3,1d0,plat,3,vec,3,0d0,ag(1,ng),3)
+    do
+       call skipbl(t,nt,i)
+       if (i >= nt) return
+       ng = ng+1
+       call parsop(t,i,g(1,ng))
+       if (t(i+1:i+1) == '*') then
+          i = i+1
+          call parsop(t,i,h)
+          call grpprd(g(1,ng),h,hh)
+          call dcopy(9,hh,1,g(1,ng),1)
        endif
-    endif
-    goto 90
+       call dpzero(ag(1,ng),3)
+       !    ! ... Compatibility with old :T(x,y,z)
+       !    if (t(i+1:i+2) == ':T' .OR. t(i+1:i+2) == ':t') i=i+2
+       ! ... Compatibility with ::(x,y,z)
+       flgp = .false.
+       if (t(i+1:i+2) == '::') then
+          flgp = .true.
+          i=i+2
+       elseif (t(i+1:i+1) == ':') then
+          i=i+1
+       endif
+       if (t(i+1:i+1) == leftp) then
+          if (flgp) then
+             vec= ag(1:3,ng)
+             call grpop(vec,ag(1,ng),plat,1)
+          endif
+       endif
+    enddo
+    !    goto 90
   end subroutine psymop
   subroutine parsop(t,i,a)
     !- Parse string for a point group operator
@@ -1233,41 +1232,40 @@ contains
     double precision :: x,y,z,d
     character rchr*9, sout*50, add*1,soutx*50
     integer :: itrm,ix(3),ich,iopt,m,i,iz,id,mx !,awrite !,a2vec
-    logical :: lveq0(3),lveq1(3),a2bin
+    logical :: lveq0(3),lveq1(3)!,a2bin
     data rchr /'(XxYyZzDd'/
+    integer:: mmm
     ! --- Convert t to vec ---
     if (iopt == -1) then
-       call dpzero(v,3)
+       v=0d0
        ich = 0
        call chrps2(t(ip),rchr,len(rchr),ich,ich,itrm)
+       write(6,*) t(ip:ip+2), 'itrm=',itrm
        !   ... First char not in rchr: not a recognizable vector
        parsvc = .false.
        if (itrm == 0) return
-       !   ... '('
-       if (itrm == 1) then
+       
+       if (itrm == 1) then !   '(' is found. We expect t(ip:)='(..., ..., ...)
           ip = ip+1
-          ! this doesn't handle complicated cases
-          !         parsvc = a2vec(t,ip+100,ip,4,',)',2,3,3,ix,v) .eq. 3
-          if ( .NOT. a2bin(t,v,4,0,',',ip,-1)) return
-          if ( .NOT. a2bin(t,v,4,1,',',ip,-1)) return
-          if ( .NOT. a2bin(t,v,4,2,')',ip,-1)) return
+          mmm=index(t(ip),')') !we have t(ip+mmm-1)=')'
+          read(t(ip:ip+mmm-2),*) v
+          !if ( .NOT. a2bin(t,v,4,0,',',ip,-1)) return
+          !if ( .NOT. a2bin(t,v,4,1,',',ip,-1)) return
+          !if ( .NOT. a2bin(t,v,4,2,')',ip,-1)) return
           parsvc = .true.
           return
        else
-          !         ... 'd'
-          if (itrm >= 8) then
+          if (itrm >= 8) then!         ... 'd'
              v(1) = 1
              v(2) = 1
              v(3) = 1
-             !         ... 'x' 'y' or 'z'
-          else
+          else!         ... 'x' 'y' or 'z'
              v(itrm/2) = 1
           endif
           parsvc = .true.
           ip = ip+1
        endif
        return
-
        ! --- Convert vec to t ---
     elseif (mod(iopt,4) == 1 .OR. mod(iopt,4) == 2) then
        parsvc = .true.

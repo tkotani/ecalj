@@ -36,7 +36,6 @@ contains
     shortname(procid) = trim(name)
     strprocid=trim(i2char(procid))
     call Gettime(datim)
-    call Finits() !read and set arguments addsyv in symvar.F
     mlog = cmdopt0('--mlog') !! set log for --mlog (not maintained well)
     if(mlog) write(stml,"(a)")' lmf '//datim//' Process ' &
          //trim(i2char(procid))//' of '//trim(i2char(nproc-1))//' on '//trim(shortname(procid))

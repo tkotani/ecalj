@@ -50,7 +50,7 @@ contains
     integer :: i,j,ipr,ifi,ix,lgunit,ltb,natrlx2,natrlx3, &
          ir,iprint,isw,rdm,lrlx,is,idamax,nd,ns,nkill
     parameter (nd=4,ns=6)
-    logical :: rdhess,lpp,cmdopt,a2bin,lshr ,readhess
+    logical :: rdhess,lpp,cmdopt,lshr ,readhess !,a2bin
     double precision :: mdprm(6),step,xtol,gtol,xtoll,grfac,wkg(28),ddot, xv(6)
     equivalence (step,mdprm(5)), (xtol,mdprm(3)), (gtol,mdprm(4))
     character clablj*8,dumstr*6,strn*128
@@ -118,21 +118,21 @@ contains
 
     ! --- Relax ---
     grfac = 1.2d0
-    if (cmdopt('-grfac=',6,0,strn)) then
-       j = 6
-       if ( .NOT. a2bin(strn,grfac,4,0,' ',j,len(strn))) then
-          print *, 'RELAX: Ignored command line value of grfac'
-          grfac = 1.2d0
-       endif
-    endif
+    ! if (cmdopt('-grfac=',6,0,strn)) then
+    !    j = 6
+    !    if ( .NOT. a2bin(strn,grfac,4,0,' ',j,len(strn))) then
+    !       print *, 'RELAX: Ignored command line value of grfac'
+    !       grfac = 1.2d0
+    !    endif
+    ! endif
     xtoll = abs(xtol)
-    if (cmdopt('-xtoll=',6,0,strn)) then
-       j = 6
-       if ( .NOT. a2bin(strn,xtoll,4,0,' ',j,len(strn))) then
-          print *, 'RELAX: Ignored command line value of xtoll'
-          xtoll = abs(xtol)
-       endif
-    endif
+    ! if (cmdopt('-xtoll=',6,0,strn)) then
+    !    j = 6
+    !    if ( .NOT. a2bin(strn,xtoll,4,0,' ',j,len(strn))) then
+    !       print *, 'RELAX: Ignored command line value of xtoll'
+    !       xtoll = abs(xtol)
+    !    endif
+    ! endif
     ! ... the user sets xtol _and_ gtol.
     if (lrlx == 4) isw = 00021 + 40
     if (lrlx == 5) isw = 00121 + 40

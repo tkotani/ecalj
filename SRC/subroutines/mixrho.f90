@@ -2806,15 +2806,15 @@ contains
     rmsc = -1
     jp = np
     ! ... set variable errmin to current value of errmin
-    call getsyv('errmin',xx,j)
-    call lodsyv('errmin',1,errmin,k)
+!    call getsyv('errmin',xx,j)
+!    call lodsyv('errmin',1,errmin,k)
     i = parg(',r<',4,strn,jp,lstrn,',; ',2,1,it,rmsc)
     ! ... Put back the original one, or remove newly created one
-    if (j == k) then
-       call lodsyv('errmin',1,xx,k)
-    else
-       call clrsyv(k-1)
-    endif
+!    if (j == k) then
+!       call lodsyv('errmin',1,xx,k)
+!    else
+!       call clrsyv(k-1)
+!    endif
     if (i < 0) goto 999
     !     if (i .gt. 0) lpr = .true.
 !    if (rmsc >= 0 .AND. iter < 0) &

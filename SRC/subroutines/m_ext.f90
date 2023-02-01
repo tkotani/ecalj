@@ -16,4 +16,3 @@ contains
     enddo
   end subroutine m_ext_init
 end module m_ext
-
