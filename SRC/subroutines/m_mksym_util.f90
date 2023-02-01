@@ -1232,7 +1232,7 @@ contains
     character*(1) t(0:*)
     double precision :: x,y,z,d
     character rchr*9, sout*50, add*1,soutx*50
-    integer :: itrm,a2vec,awrite,ix(3),ich,iopt,m,i,iz,id,mx
+    integer :: itrm,ix(3),ich,iopt,m,i,iz,id,mx !,awrite !,a2vec
     logical :: lveq0(3),lveq1(3),a2bin
     data rchr /'(XxYyZzDd'/
     ! --- Convert t to vec ---
@@ -1292,6 +1292,7 @@ contains
           t(ip) = '('
           do  12  i = 1, 3
              write(sout,ftox)ftof(v(i))
+             if(abs(nint(v(i))-v(i))<1d-6) write(sout,ftox) nint(v(i))
              !m = awrite('%x%;7d%?#n<>3#,#)#', sout,len(sout),0,v(i),i,i,i,i,i,i,i)
              !write(6,*)'zzzaaa111',i,v(i),'!',trim(sout),'!'
              x = v(i)
@@ -1313,7 +1314,7 @@ contains
                    if (iz == 12) id = 1
                    y = y/(12/id)
                    !m = awrite('%x%?#n==1#%j#%d*# sqrt(3)/%i%?#n<>3#,#)#',soutx,len(soutx),0,nint(y),y,id,i,i,i,i,i)
-                   if(nint(y)==1) write(sout,"('sqrt(3)/',g0)") nint(y),id
+                   if(nint(y)==1) write(sout,"('sqrt(3)/',g0)") id
                    if(nint(y)/=1) write(sout,"(g0,'*sqrt(3)/',g0)") nint(y),id
                    !write(6,*)'yyyyyaaa111',y,id,i,'!',trim(sout),'!',trim(soutx),'!'
                 endif
@@ -1326,7 +1327,7 @@ contains
              call strncp(t(ip+1),sout,1,1,m) !t(ip+1:ip+m)=trim(sout) !
              ip = ip+m
 12        enddo
-          write(6,*)'wwwww',t(0:ip)
+!          write(6,*)'wwwww',t(0:ip)
        endif
        ip = ip+1
     endif
