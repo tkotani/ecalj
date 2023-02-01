@@ -889,7 +889,7 @@ contains
     double precision :: plat(3,3),qlat(3,3),bas(3,nbas),bast(3,nbas), g(3,3,*),ag(3,*)
     integer :: ibas,ic,iclbsj,icmin,ig,ipr,jbas,kbas,kc, m,mbas,nj,nm,ng0
     double precision :: dbas(3),tol1
-    character sg*35
+    character sg*135
     real(8):: rfrac(3),epsr=1d-12
     call getpr(ipr)
     tol1=toll
@@ -944,7 +944,7 @@ contains
        write(stdo,'('' ig  group op'')')
        do  60  ig = 1, ng
           call asymop(g(:,:,ig),ag(1,ig),' ',sg)
-          write(stdo,'(i4,2x,a)') ig,sg
+          write(stdo,'(i4,2x,a)') ig,trim(sg)
 60     enddo
     endif
   end subroutine symcry
@@ -1231,8 +1231,8 @@ contains
     double precision :: v(3)
     character*(1) t(0:*)
     double precision :: x,y,z,d
-    character rchr*9, sout*50
-    integer :: itrm,a2vec,awrite,ix(3),ich,iopt,m,i,iz,id
+    character rchr*9, sout*50, add*1,soutx*50
+    integer :: itrm,a2vec,awrite,ix(3),ich,iopt,m,i,iz,id,mx
     logical :: lveq0(3),lveq1(3),a2bin
     data rchr /'(XxYyZzDd'/
     ! --- Convert t to vec ---
@@ -1291,20 +1291,18 @@ contains
        else
           t(ip) = '('
           do  12  i = 1, 3
-             m = awrite('%x%;7d%?#n<>3#,#)#', sout,len(sout),0,v(i),i,i,i,i,i,i,i)
-             write(6,*)'zzzaaa111',i,v(i),'!',trim(sout),'!',m
+             write(sout,ftox)ftof(v(i))
+             !m = awrite('%x%;7d%?#n<>3#,#)#', sout,len(sout),0,v(i),i,i,i,i,i,i,i)
+             !write(6,*)'zzzaaa111',i,v(i),'!',trim(sout),'!'
              x = v(i)
              y = v(i)*dsqrt(3d0)*4
              if (abs(x) > tiny .AND. dabs(dabs(x)-1) > tiny .AND. iopt <= 4) then
                 if (abs(1/x-nint(1/x)) < tiny) then
-!                   if (x > 0) m = awrite('%x1/%d%?#n<>3#,#)#',  sout,len(sout),0, 1/x,i,i,i,i,i,i,i)
-!                   if (x < 0) m = awrite('%x-1/%d%?#n<>3#,#)#', sout,len(sout),0,-1/x,i,i,i,i,i,i,i)
-!                   if (x > 0) write(sout,   ) 1/nint(x), -1/nint(x)  , or ) added
-
-                   if(x>0) m = awrite('%x1/%d%?#n<>3#,#)#',  sout,len(sout),0, 1/x,i,i,i,i,i,i,i)
-                   if(x<0) m = awrite('%x-1/%d%?#n<>3#,#)#', sout,len(sout),0,-1/x,i,i,i,i,i,i,i)
-
-                   write(6,*)'xxxxaaa111',1/x,i,m,'!',trim(sout),'!'
+!                   if (x > 0) m = awrite('%x1/%d  %?#n<>3#,#)#',  sout,len(sout),0, 1/x,i,i,i,i,i,i,i)
+!                   if (x < 0) m = awrite('%x-1/%d %?#n<>3#,#)#', sout,len(sout),0,-1/x,i,i,i,i,i,i,i)
+                   write(sout,"('1/',g0)")  nint(abs(1/x))
+                   if(x<0) sout='-'//adjustl(sout)
+                   !write(6,*)'xxxxaaa111',1/x,i,'!',trim(sout),'!'
                 elseif (abs(y-nint(y)) < tiny .AND.   abs(y) > .5d0) then
                    d = 12
                    iz = nint(abs(y))
@@ -1314,13 +1312,21 @@ contains
                    if (iz == 6) id = 2
                    if (iz == 12) id = 1
                    y = y/(12/id)
-                   m = awrite('%x%?#n==1#%j#%d*#sqrt(3)/%i%?#n<>3#,#)#',sout,len(sout),0,nint(y),y,id,i,i,i,i,i)
-                   write(6,*)'yyyyyaaa111',y,id,i,m,'!',trim(sout),'!'
+                   !m = awrite('%x%?#n==1#%j#%d*# sqrt(3)/%i%?#n<>3#,#)#',soutx,len(soutx),0,nint(y),y,id,i,i,i,i,i)
+                   if(nint(y)==1) write(sout,"('sqrt(3)/',g0)") nint(y),id
+                   if(nint(y)/=1) write(sout,"(g0,'*sqrt(3)/',g0)") nint(y),id
+                   !write(6,*)'yyyyyaaa111',y,id,i,'!',trim(sout),'!',trim(soutx),'!'
                 endif
              endif
-             call strncp(t(ip+1),sout,1,1,m)
+             add=','
+             if(i==3) add=')'
+             sout=trim(adjustl(sout))//add
+             m=len(trim(sout))
+             !write(6,*)'vvvvv!',i,trim(sout),'!'
+             call strncp(t(ip+1),sout,1,1,m) !t(ip+1:ip+m)=trim(sout) !
              ip = ip+m
 12        enddo
+          write(6,*)'wwwww',t(0:ip)
        endif
        ip = ip+1
     endif
