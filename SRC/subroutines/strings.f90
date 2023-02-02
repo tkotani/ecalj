@@ -162,6 +162,7 @@ subroutine chrps2(s,ch,nch,maxch,ich,iterm)
   integer :: ich,maxch,iterm,nch
   character(1) :: ch(nch),s(0:*)
   integer :: i
+!  write(6,*)'mmmmixrho ccccc',s(ich:maxch)
   iterm = 0
 10 do  20  i = 1, nch
      if (s(ich) /= ch(i)) goto 20

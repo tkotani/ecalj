@@ -1047,20 +1047,22 @@ contains
          smalit = NULLI
          nm='ITER_NIT';call gtv(trim(nm),tksw(prgnam,nm),iter_maxit,def_i4=30, &
               note='maximum number of iterations in self-consistency cycle')
-         nm='ITER_NRMIX'; call gtv(trim(nm),tksw(prgnam,nm),smalit,def_i4=80,note='Sphere program, max iter')
+         nm='ITER_NRMIX'; call gtv(trim(nm),tksw(prgnam,nm),smalit,def_i4=80,&
+              note='lmfa rseq max iter')
          ! we use mixrho.F ->parmxp.F. But too complicated to touch it.
-         nm='ITER_MIX'; sw=tksw(prgnam,nm); call gtv(trim(nm),sw,iter_mix, &
-              nmin=10,nout=nout,note='Mixing rules for charge mixing.  Syntax:')
+         nm='ITER_MIX'; sw=tksw(prgnam,nm); call gtv(trim(nm),sw,iter_mix,nmin=10,nout=nout, &
+              note='Mixing rules for charge mixing.  Syntax:')
          if(io_help/=0 .AND. tksw(prgnam,nm)/=2) print 345
 345      format(3x,'A[nmix][,b=beta][,bv=betv][,n=nit][,w=w1,w2][,nam=fn][,k=nkill]','[;...] or'/ &
-              3x,'B[nmix][,b=beta][,bv=betv][,wc=wc][,n=#][,w=w1,w2][,nam=fn]','[,k=nkill]')
-         nm='ITER_CONV';call gtv(trim(nm),tksw(prgnam,nm),etol,def_r8=1d-4,note= &
-              'Tolerance in energy change from prior iteration for self-consistency')
-         nm='ITER_CONVC'; call gtv(trim(nm),tksw(prgnam,nm),qtol, &
-              def_r8=1d-4,note='Tolerance in output-input charge for self-consistency')
-         nm='ITER_UMIX';call gtv(trim(nm),tksw(prgnam,nm),mix_umix,def_r8=.5d0,note='Mixing parameter for densmat in LDA+U')
-         !2022mar9 default umix=0.5
-         nm='ITER_TOLU';call gtv(trim(nm),tksw(prgnam,nm),mix_tolu,def_r8=0d0,note='Tolerance for densmat in LDA+U')
+                3x,'B[nmix][,b=beta][,bv=betv][,wc=wc][,n=#][,w=w1,w2][,nam=fn]','[,k=nkill]')
+         nm='ITER_CONV';call gtv(trim(nm),tksw(prgnam,nm),etol,def_r8=1d-4,&
+              note='Tolerance in energy change from prior iteration for self-consistency')
+         nm='ITER_CONVC'; call gtv(trim(nm),tksw(prgnam,nm),qtol,def_r8=1d-4, &
+              note='Tolerance in output-input charge for self-consistency')
+         nm='ITER_UMIX';call gtv(trim(nm),tksw(prgnam,nm),mix_umix,def_r8=.5d0,&
+              note='Mixing parameter for densmat in LDA+U') !2022mar9 default umix=0.5
+         nm='ITER_TOLU';call gtv(trim(nm),tksw(prgnam,nm),mix_tolu,def_r8=0d0,&
+              note='Tolerance for densmat in LDA+U')
       endif                     ! iterations category
 
       !! Dynamics (only for relaxation  2022-6-20 touched slightly)

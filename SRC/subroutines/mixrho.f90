@@ -2724,9 +2724,9 @@ contains
     double precision :: wgt(3),beta,elind,wc,betv,rmserr
     ! Local variables
     integer :: i,j,np,it(5),parg,nit,nmixj,jp,kp,killj,nitj, &
-         iprint,i1mach,a2vec,lstblk,lstitj,iblk,nbump,k,ia0,lbroy
+         iprint,i1mach,a2vec,lstblk,lstitj,iblk,nbump,k,ia0,lbroy,iterm
     logical :: lpr,lagain,cmdopt
-    character outs*100,fnam*8
+    character outs*100,fnam*8,num*10
     double precision :: bet,elin,wt(3),wcj,rmsc,bv(2),errmin,xx
     ! ... this is the only way to create static variables in fortran
     common /parmx1/ lstblk,lstitj,errmin
@@ -2796,15 +2796,21 @@ contains
 !    if (lbroy == 2) call awrit0('%a%bC',outs,len(outs),0)
     ! ... Pick up nmix
     jp = np+1
-    call chrps2(strn,',; ',3,np+1,jp,it)
-    write(6,*)' mmmmmmixrho strn=$',trim(strn),'$',strn(jp:jp),it(1)
-    if (it(1) == 0) then
-    write(6,*)' mmmmmmixrho it(1)=0'
-!comment out 2023feb    
-       !       call rx("we don't support this descrition 2023feb")
-       if (a2vec(strn,lstrn,jp,2,',; ',3,1,1,it,nmixj) < 0) goto 999
-!       call awrit1('%a  nmix=%i',outs,len(outs),0,nmixj)
-    endif
+
+    iterm = index(trim(strn),',')
+    if(iterm>2) read(strn(2:iterm-1),*) nmixj
+    iterm = index(trim(strn),' ')
+    if(iterm>2) read(strn(2:iterm-1),*) nmixj
+    !write(6,*)' mmmmmmixrho strn=$',trim(strn),'##',nmixj
+    
+!    call chrps2(strn,',; ',3,np+1,jp,it)
+!    if (it(1) == 0) then
+!    write(6,*)' mmmmmmixrho it(1)=0'
+!!comment out 2023feb    
+!       !       call rx("we don't support this descrition 2023feb")
+!       if (a2vec(strn,lstrn,jp,2,',; ',3,1,1,it,nmixj) < 0) goto 999
+!!       call awrit1('%a  nmix=%i',outs,len(outs),0,nmixj)
+!    endif
     
     ! ... Pick up rmsc
     rmsc = -1
