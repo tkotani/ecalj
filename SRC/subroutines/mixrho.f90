@@ -2730,7 +2730,6 @@ contains
     double precision :: bet,elin,wt(3),wcj,rmsc,bv(2),errmin,xx
     ! ... this is the only way to create static variables in fortran
     common /parmx1/ lstblk,lstitj,errmin
-
     parmxp = .true.
     ia0 = -1
 !    call bin2a0(ia0)
@@ -2925,7 +2924,6 @@ contains
        lagain = nit .ne. -1
        outs = '         mode=A'
     endif
-
     ! --- If this is last pass, eg nitj <= iter <nitj+nit ---
     if (iter > 0 .AND. iblk >= lstblk .AND. nitj < iter &
          .AND. (iter <= nitj+nit .OR. nit == -1)) then
@@ -2956,7 +2954,6 @@ contains
        lagain = .true.
        outs = ' mixing: mode=A'
     endif
-
     !  99 continue
     if (lagain) then
        call chrps2(strn,'; ',2,lstrn,np,it)
@@ -2965,42 +2962,40 @@ contains
     else
        goto 9999
     endif
-
     ! --- Error exit ---
 999 outs = 'parmxp: parse failed:'//strn(1:lstrn)
 !    if (iprint() >= 10) call awrit0('%a',outs,-len(outs),-i1mach(2))
     parmxp = .false.
-    ! --- Normal exit ---
-9999 continue
+9999 continue ! --- Normal exit ---
 !    call bin2a0(ia0)
   end function parmxp
-
-  subroutine parmx0(i1,i2,errxx)
-    !- sets lstblk,lstitj and errmin
-    !     implicit none
-    integer :: i1,i2,lstblk,lstitj,mode
-    double precision :: errxx,errmin
-    ! ... this is the only way to create static variables in fortran
-    common /parmx1/ lstblk,lstitj,errmin
-    if (i1 > 0) lstblk = i1
-    if (i2 > 0) lstitj = i2
-    if (errxx >= 0d0) then
-       if (errmin > 0) errmin = min(errmin,errxx)
-       if (errmin == 0) errmin = errxx
-    endif
-    !     print *, 'errmin=',errmin
-    return
-    entry parms0(i1,i2,errxx,mode)
-    if (mode > 0) then
-       i1 = lstblk
-       i2 = lstitj
-       errxx = errmin
-    else
-       lstblk = i1
-       lstitj = i2
-       errmin = errxx
-    endif
-  end subroutine parmx0
+  
+  ! subroutine parmx0(i1,i2,errxx)
+  !   !- sets lstblk,lstitj and errmin
+  !   !     implicit none
+  !   integer :: i1,i2,lstblk,lstitj,mode
+  !   double precision :: errxx,errmin
+  !   ! ... this is the only way to create static variables in fortran
+  !   common /parmx1/ lstblk,lstitj,errmin
+  !   if (i1 > 0) lstblk = i1
+  !   if (i2 > 0) lstitj = i2
+  !   if (errxx >= 0d0) then
+  !      if (errmin > 0) errmin = min(errmin,errxx)
+  !      if (errmin == 0) errmin = errxx
+  !   endif
+  !   !     print *, 'errmin=',errmin
+  !   return
+  !   entry parms0(i1,i2,errxx,mode)
+  !   if (mode > 0) then
+  !      i1 = lstblk
+  !      i2 = lstitj
+  !      errxx = errmin
+  !   else
+  !      lstblk = i1
+  !      lstitj = i2
+  !      errmin = errxx
+  !   endif
+  ! end subroutine parmx0
 
   subroutine dpsadd(adest,asrc,nel,n1,n2,fac)
     !- shift and add. nel=number of elements, n1,n2= start in asrc,adest
