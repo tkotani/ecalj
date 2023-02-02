@@ -877,7 +877,7 @@ contains
        return
     endif
 
-    ! --- ASCII-numerical conversion. I think this is for CONST section.
+    ! --- ASCII-numerical conversion. Simple matematical conversion.
     ii = 0
     n = a2vec(rcd(i1:ie),ie-i1+1,ii,4,', ',2,-3,nin,iarr,arr)
     if (n < 0) n = -n-1

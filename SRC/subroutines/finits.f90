@@ -1,28 +1,3 @@
-subroutine finits()       !job,fcn,fcargs,iarg)
-  use m_ext,only:sname
-  implicit none
-  !! Set the numbr of iprint(), extension, and -vnam=val
-  integer :: iarg
-  double precision :: fcargs(1)
-  logical :: lsequ,lext
-  integer :: i,fext,nargf,n,it(5),iv(5),k
-  logical:: cmdopt
-  character strn*256
-  character(100) :: extns
-  !! Command line arguments and extension ---
-  lext = .false.
-  do iarg = 1,nargf()-1
-     call getarg(iarg,strn)
-     extns = strn
-     !  ... v encountered ... parse variables
-     if (lsequ(strn,'-v',2,' ',n)) then
-        i = 2
-        call parsyv(strn,len(strn),999,0,i)
-     endif
-     if (lsequ(strn,'-',1,' ',n)) cycle
-  enddo
-end subroutine finits
-
 subroutine fexit0(retval,strng)
   use m_MPItk,only:  m_MPItk_finalize
   use m_lgunit,only:stdo,stdl

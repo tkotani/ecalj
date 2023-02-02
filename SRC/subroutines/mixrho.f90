@@ -1227,8 +1227,7 @@ contains
 
     character fnam*8
     ! ... Local parameters
-    integer :: ib,na,i,j,k,m,np,iprint,nmixr,is,igetss, &
-         awrite,off,nlml,lmxl,k9l
+    integer :: ib,na,i,j,k,m,np,iprint,nmixr,is,igetss, off,nlml,lmxl,k9l !awrite,
     real(8) ,allocatable :: rofi_rv(:)
 
     logical :: lcnst,lfdmp,lddump
@@ -2798,10 +2797,15 @@ contains
     ! ... Pick up nmix
     jp = np+1
     call chrps2(strn,',; ',3,np+1,jp,it)
+    write(6,*)' mmmmmmixrho strn=$',trim(strn),'$',strn(jp:jp),it(1)
     if (it(1) == 0) then
+    write(6,*)' mmmmmmixrho it(1)=0'
+!comment out 2023feb    
+       !       call rx("we don't support this descrition 2023feb")
        if (a2vec(strn,lstrn,jp,2,',; ',3,1,1,it,nmixj) < 0) goto 999
 !       call awrit1('%a  nmix=%i',outs,len(outs),0,nmixj)
     endif
+    
     ! ... Pick up rmsc
     rmsc = -1
     jp = np
