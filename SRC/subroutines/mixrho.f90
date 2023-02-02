@@ -2613,7 +2613,7 @@ contains
   !  111 format(i5,4f14.6)
   !  110 format(14x,'OLD',11X,' NEW',9X,'DIFF',10X,'MIXED')
   !     end
-  logical function parmxp(iter,strn,lstrn,broy,nmix,wgt,beta, &
+  logical function parmxp(iter,strnin,lstrn,broy,nmix,wgt,beta, &
        elind,mixnam,wc,nkill,betv,rmserr)
     !- Parse strng to get mixing parameters for current iteration
     ! --------------------------------------------------
@@ -2719,29 +2719,29 @@ contains
     ! Passed parameters
     integer :: broy
     !     character strn*(*),mixnam*8
-    character strn*(*),mixnam*8
+    character strnin*(*),mixnam*8
     integer :: iter,lstrn,nkill,nmix
     double precision :: wgt(3),beta,elind,wc,betv,rmserr
     ! Local variables
     integer :: i,j,np,it(5),parg,nit,nmixj,jp,kp,killj,nitj, &
          iprint,i1mach,a2vec,lstblk,lstitj,iblk,nbump,k,ia0,lbroy,iterm
     logical :: lpr,lagain,cmdopt
-    character outs*100,fnam*8,num*10
+    character outs*100,fnam*8,num*10,strn*1000
     double precision :: bet,elin,wt(3),wcj,rmsc,bv(2),errmin,xx
     ! ... this is the only way to create static variables in fortran
     common /parmx1/ lstblk,lstitj,errmin
 
     parmxp = .true.
     ia0 = -1
-    call bin2a0(ia0)
+!    call bin2a0(ia0)
     ! ... Internal defaults
     if (iter > 0) then
        nkill = 0
        nit = -1
     endif
-    if (strn == ' ' .OR. lstrn <= 0) goto 9999
+    if (strnin == ' ' .OR. lstrn <= 0) goto 9999
     ! ... Passed defaults
-    call bin2a0(10)
+!    call bin2a0(10)
     fnam = mixnam
     lbroy = broy
     wcj = wc
@@ -2763,7 +2763,9 @@ contains
     np = 0
     ! --- Entry point for parsing a new set of switches ---
 10  continue
-    call skipbl(strn,lstrn,np)
+    !call skipbl(strn,lstrn,np)
+    strn=adjustl(strnin)
+    np=0
     if (np >= lstrn) then
        if (iter < 0) goto 9999
        if (cmdopt('--nomixcycle',12,0,outs)) then
@@ -2970,7 +2972,7 @@ contains
     parmxp = .false.
     ! --- Normal exit ---
 9999 continue
-    call bin2a0(ia0)
+!    call bin2a0(ia0)
   end function parmxp
 
   subroutine parmx0(i1,i2,errxx)
