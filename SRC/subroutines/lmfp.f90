@@ -14,7 +14,7 @@ subroutine lmfp(llmfgw)
   use m_ldau,only:   M_ldau_vorbset, eorb
   use m_bstrux,only: M_bstrux_init
   use m_relax,only:  Relax
-  use m_mixrho,only: Parms0
+!  use m_mixrho,only: Parms0
   use m_lattic,only: Setopos
   use m_ftox
   use m_rdovfa,only:rdovfa
@@ -213,7 +213,7 @@ subroutine lmfp(llmfgw)
           endif
           exit
        endif
-       call Parms0(0,0,0d0,0) !   reset mixing block
+!       call Parms0(0,0,0d0,0) !   reset mixing block
        if(itrlx==nitrlx .AND. master_mpi) write(stdo,"(a)")' LMFP: relaxation incomplete'
      endblock MDblock
 2000 enddo MDloop

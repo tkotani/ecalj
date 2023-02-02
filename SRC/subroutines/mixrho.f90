@@ -1,7 +1,7 @@
 module m_mixrho
   use m_lgunit,only:stdo,stml
   integer,parameter,public:: kmxv=15
-  public:: mixrho,parms0
+  public:: mixrho!,parms0
   private
   !  mixing routine of smrho, rh. T.kotani think this routine is too compicated to maintain.
   !  It is better to rewrite all with keeping the functionality
@@ -231,7 +231,7 @@ contains
     double complex xxc
     !      logical parmxp
     character sout*80,fnam*8
-    integer ::iwdummy ,isp,nnnx,ng02,ng2, iprint,ifile_handle
+    integer ::iwdummy ,isp,nnnx,ng02,ng2, iprint,ifile_handle,killj
     real(8):: smmin,sss,wgtsmooth,wdummy(1,1,1,1)
     complex(8),allocatable:: smrnewbk(:,:,:,:),w_owk(:)
     !      complex(8),allocatable:: w_oqkl(:)
@@ -252,7 +252,7 @@ contains
        dmxp(6) = mix_nsave
        dmxp(7) = mix_mmix
        dmxp(9) = mix_bv
-       call parms0(0,0,0d0,0) !reset mixing block
+       !call parms0(0,0,0d0,0) !reset mixing block
        initd=.false.
     endif
     ! ccccccccccccccccccccccccccccccccccc
@@ -294,9 +294,18 @@ contains
     rmsdel = dmxp(11)
     rms2 = 0
     if (ipr >= 20) write(stdo,*) ' '
-    if ( .NOT. parmxp(iter,mixmod,len(mixmod),broy,nmix,wt,beta,elinl, &
-         fnam,wc,nkill,dmxp(9),rms2)) call rx('MIXRHO: parse in parmxp failed')
-
+    if(.NOT. parmxp(mixmod,len(mixmod),broy,nmix,wt,beta,elinl,fnam,wc,killj,dmxp(9))) &
+         call rx('MIXRHO: parse in parmxp failed')
+    !r Periodic file deletion (nkill):  parmxp returns nkill as -nkill when
+    !r   mod(iter,nkill) is zero, as a signal that the current mixing
+    !r   file is to be deleted after it is used.  Here nitj is the sum of
+    !r   the number of iterations prior to the current group.
+    nkill = max(killj,0)
+    if (nkill > 1) then
+       if (mod(iter,nkill) == 0) nkill=-nkill
+    endif
+    if (nkill == 1) nkill=-nkill
+    
     !     In case parmxp doesn't touch wt, unset flag
     if (wt(3) == -9) wt(3) = 0
     if (nmix == 0) broy = 0
@@ -2613,8 +2622,8 @@ contains
   !  111 format(i5,4f14.6)
   !  110 format(14x,'OLD',11X,' NEW',9X,'DIFF',10X,'MIXED')
   !     end
-  logical function parmxp(iter,strnin,lstrn,broy,nmix,wgt,beta, &
-       elind,mixnam,wc,nkill,betv,rmserr)
+  logical function parmxp(strnin,lstrn,broy,nmix,wgt,beta, &
+       elind,mixnam,wc,killj,betv)!,rmserr)!nkill
     !- Parse strng to get mixing parameters for current iteration
     ! --------------------------------------------------
     !i Inputs
@@ -2630,9 +2639,7 @@ contains
     ! o       started caused by the condition rmserr<rmsc. This acts as a signal
     ! o       in the event that one may wish to kill the mix files.
     !o Outputs
-    !o   Each of mixing parameters broy,nmix,wgt,beta,mixnam,wc,nkill may be
-    !o   updated depending on the current iteration and strn.  Parameters
-    !o   not found withing strn take default values (see Remarks).
+    !o   Each of mixing parameters broy,nmix,wgt,beta,mixnam,wc,killj
     !o   broy   0 for linear or Anderson mixing
     !o          1 for Broyden mixing
     !o          2 for conjugate gradients mixing
@@ -2648,15 +2655,14 @@ contains
     !r Remarks
     !r The general syntax for strn is a sequence of groups of mixing
     !r parameters.  The syntax of one group looks like the following.
-    !r   A[nmix][some-parameters--see below][;another-sequence]  or
-    !r   B[nmix][some-parameters--see below][;another-sequence]
+    !r   A[nmix][some-parameters--see below]
+    !r   B[nmix][some-parameters--see below]
     !r   thus a ';' indicates the start of a new block in the sequence
     !r   The mixing parameters are as follows:
     !r   ,b=#:   set mixing beta=#.
     !r           (NB: for Broyden mixing, only meaningful to get started)
     !r   ,bv=#[,#2] set extra potential mixing parameter betv to #.  If
     !r           last in this block, set to #2.
-    !r   ,n=#    do this mixing for # iterations
     !r   ,k=#    kill the mixing file after # iterations
     !r   ,fn=nam set the mixing file name to 'nam'
     !r   ,wc=#   set Broyden wc to #.  Smaller wc more heavily weights
@@ -2672,23 +2678,12 @@ contains
     !r           the value of errmin, which may be used in parsing expr.
     !r           The latter is set by calling parmx0(0,0,errmin).
     !r           If r<expr is to be used then n=1 must also be set.
-    !r Groups are separated by a ";".  parmxp determines which group belongs
-    !r   to the current iteration (iter) by adding the number of iterations
-    !r   nit for the first group, second group, etc. until their sum exceeds
-    !r   the current iteration number (iter).  Thus if strn = "B,n=2;A,n=3",
-    !r   the current group would be "B,n=2" for iter = 1,2,6,7,11,12,...
-    !r   and would be "A,n=3" for iter = 3,4,5,8,9,10.
-    !r Example value of strn : B30,n=8,w=2,1,fn=mxm,wc=11,k=3;A2,b=1
-    !r   does 8 iterations of Broyden mixing, followed by Anderson mixing
+    !r Example value of strn : B30,w=2,1,fn=mxm,wc=11,k=3
+    !r   does Broyden mixing.
     !r   The Broyden iterations weight the (up+down) double that of
     !r   (up-down) for the spin pol case, and iterations are saved in a file
     !r   which is deleted at the end of every third iteration.  WC is 11.
     !r   beta assumes the default value.
-    !r   The Anderson iterations mix two prior iterations with beta of 1.
-    !r Periodic file deletion (nkill):  parmxp returns nkill as -nkill when
-    !r   mod(iter-nitj,nkill) is zero, as a signal that the current mixing
-    !r   file is to be deleted after it is used.  Here nitj is the sum of
-    !r   the number of iterations prior to the current group.
     !b Bugs:
     !b   parmxp cannot tell if this iterations is the last one in a block
     !b   if the constraint rmsc<rmserr is not satisfied.  If it is not,
@@ -2720,7 +2715,7 @@ contains
     integer :: broy
     !     character strn*(*),mixnam*8
     character strnin*(*),mixnam*8
-    integer :: iter,lstrn,nkill,nmix
+    integer :: iter,lstrn,nmix
     double precision :: wgt(3),beta,elind,wc,betv,rmserr
     ! Local variables
     integer :: i,j,np,it(5),parg,nit,nmixj,jp,kp,killj,nitj, &
@@ -2728,19 +2723,8 @@ contains
     logical :: lpr,lagain,cmdopt
     character outs*100,fnam*8,num*10,strn*1000
     double precision :: bet,elin,wt(3),wcj,rmsc,bv(2),errmin,xx
-    ! ... this is the only way to create static variables in fortran
-    common /parmx1/ lstblk,lstitj,errmin
     parmxp = .true.
-    ia0 = -1
-!    call bin2a0(ia0)
-    ! ... Internal defaults
-!    if (iter > 0) then
-       nkill = 0
-       nit = -1
-!    endif
     if (strnin == ' ' .OR. lstrn <= 0) goto 9999
-    ! ... Passed defaults
-!    call bin2a0(10)
     fnam = mixnam
     lbroy = broy
     wcj = wc
@@ -2754,95 +2738,32 @@ contains
     wt(3) = wgt(3)
     nit = -1
     if (wgt(3) == -9) wt(3) = 0
-    ! ... lpr: switch to determine whether to print or not
-    !     lpr = .false.
-    ! ... iblk,iit: current mixing block and iter within block
-    iblk = 0
-    nitj = 0
-    
-    ! --- Entry point for parsing a new set of switches ---
-10  continue
     strn=adjustl(strnin)
-    np=0
-    ! ... Switch for Broyden or Anderson mixing
-    jp = np
-    call chrps2(strn,'AaBbCc',6,np,jp,it)
+    np =0
+    jp =0
+    iblk = 1
+    
+    call chrps2(strn,'AaBbCc',6,np,jp,it)!Broyden or Anderson mixing
     if (it(1) == 0) goto 999
-    iblk = iblk+1
-    write(6,*)'bbbbbbbbblock',iblk,lstblk,lstitj,errmin
-    ! ... If iblk=lstblk, override nitj with lstitj
-    if (iter > 0 .AND. iblk == lstblk) then
-       nitj = -lstitj
-       if (lstitj > 0) nitj = iter - lstitj
-       lstitj = -nitj
-       !  ...  A bug if starting iteration bigger than iter
-       if (nitj > iter) call rx('parmxp: bad lstitj')
-    endif
     lbroy = 0
     if (it(1) >= 3) lbroy = 1
     if (it(1) >= 5) lbroy = 2
     if (lbroy == 1) outs =' mixrho: mixing mode=A' ! call awrit0('%a%bB',outs,len(outs),0)
     if (lbroy == 2) outs =' mixrho: mixing mode=B' !call awrit0('%a%bC',outs,len(outs),0)
     ! ... Pick up nmix
-    jp = np+1
-
     iterm = index(trim(strn),',')
     if(iterm>2) read(strn(2:iterm-1),*) nmixj
     iterm = index(trim(strn),' ')
     if(iterm>2) read(strn(2:iterm-1),*) nmixj
-    !write(6,*)' mmmmmmixrho strn=$',trim(strn),'##',nmixj
-    !    call chrps2(strn,',; ',3,np+1,jp,it)
-    !    if (it(1) == 0) then
-    !       write(6,*)' mmmmmmixrho it(1)=0'
-    !       if (a2vec(strn,lstrn,jp,2,',; ',3,1,1,it,nmixj) < 0) goto 999
-    !    endif
-    
     ! ... Pick up rmsc
     rmsc = -1
     jp = np
-    ! ... set variable errmin to current value of errmin
-!    call getsyv('errmin',xx,j)
-!    call lodsyv('errmin',1,errmin,k)
     i = parg(',r<',4,strn,jp,lstrn,',; ',2,1,it,rmsc)
-    ! ... Put back the original one, or remove newly created one
-!    if (j == k) then
-!       call lodsyv('errmin',1,xx,k)
-!    else
-!       call clrsyv(k-1)
-!    endif
     if (i < 0) goto 999
-    !     if (i .gt. 0) lpr = .true.
-!    if (rmsc >= 0 .AND. iter < 0) &
-!         call awrit1('%a  err<%1;3g',outs,len(outs),0,rmsc)
-!    if (rmsc >= 0 .AND. iter > 0) &
-!         call awrit2('%a  err(%1;3g)<%1;3g',outs,len(outs),0,rmserr,rmsc)
     ! ... Pick up nit
-    jp = np
-    i = parg(',n=',2,strn,jp,lstrn,',; ',2,1,it,nit)
-    if (i < 0) goto 999
-    ! ... increment nit if rmserr>rmsc and iter>=nit+nitj
-    nbump = 0
-    if (nit /= -1) then
-!       if (iter < 0) call awrit1('%a  nit=%i',outs,len(outs),0,nit)
-       if (iter > 0) then
-!          call awrit2('%a  it %i of %i',outs,len(outs),0,iter,nit+nitj)
-          if (iblk >= lstblk .AND. iter >= nit+nitj .AND. &
-               rmserr > rmsc .AND. rmsc > 0) then
-             nbump = iter - (nit+nitj) + 1
-             nit = nit + nbump
-!             call awrit0('%a(*)',outs,len(outs),0)
-          endif
-       endif
-    endif
-
-    ! ... ATP added this:
-    if (rmserr < rmsc .AND. iblk == lstblk .AND. rmserr /= 0) &
-         rmserr = -rmserr
-
-    !      if (nit .eq. -1 .and. iter .gt. 0)
-    !     .  call awrit1('%a  it %i of *',outs,len(outs),0,iter)
-
-    !     if (i .gt. 0) lpr = .true.
+    !jp = np
+    !i = parg(',n=',2,strn,jp,lstrn,',; ',2,1,it,nit)
+    !if (i < 0) goto 999
     ! ... Pick up file name
     jp = np
     i = parg(',fn=',0,strn,jp,lstrn,',; ',2,0,it,0)
@@ -2850,29 +2771,21 @@ contains
        kp = jp+1
        call chrps2(strn,',; ',3,jp+5,kp,it)
        fnam = strn(jp+1:kp)
-!       call awrit0('%a  fnam='//fnam,outs,len(outs),0)
-       !       lpr = .true.
     endif
     ! ... Pick up mixing wc
     jp = np
     if (lbroy == 1) then
        i = parg(',wc=',4,strn,jp,lstrn,',; ',2,1,it,wcj)
        if (i < 0) goto 999
-       !       if (i .gt. 0) lpr = .true.
-!       if (i > 0) call awrit1('%a  wc=%d',outs,len(outs),0,wcj)
     endif
     ! ... Pick up mixing beta
     jp = np
     i = parg(',b=',4,strn,jp,lstrn,',; ',2,1,it,bet)
     if (i < 0) goto 999
-    !     if (i .gt. 0) lpr = .true.
-!    call awrit1('%a  beta=%d',outs,len(outs),0,bet)
     ! ... Pick up elind
     jp = np
     i = parg(',elind=',4,strn,jp,lstrn,',; ',2,1,it,elin)
     if (i < 0) goto 999
-    !     if (i .gt. 0) lpr = .true.
-!    if (elin /= 0) call awrit1('%a  elind=%;3d',outs,len(outs),0,elin)
     ! ... Pick up weights
     jp = np
     i = parg(',w=',4,strn,jp,lstrn,',; ',2,2,it,wt)
@@ -2880,113 +2793,37 @@ contains
     jp = np
     j = parg(',wa=',4,strn,jp,lstrn,',; ',2,1,it,wt(3))
     if (j < 0) goto 999
-    if (i > 0 .OR. j > 0) then
-!       call awrit2('%a  wgt=%d,%d',outs,len(outs),0,wt(1),wt(2))
-!       if (j > 0 .AND. wgt(3) /= -9) then
-!          call awrit1('%a(%d)',outs,len(outs),0,wt(3))
-!       elseif (j > 0) then
-!          call awrit0('%a(-)',outs,len(outs),0)
-!       endif
-    endif
     !...  Pick up iteration number for file kill
     killj = -1
     jp = np
     i = parg(',k=',2,strn,jp,lstrn,',; ',2,1,it,killj)
     if (i < 0) goto 999
-    !     if (i .gt. 0) lpr = .true.
-!    if (killj /= -1) call awrit1('%a  kill=%i',outs,len(outs), &
-!         0,killj)
     !...  Pick up betv
     jp = np
     i = parg(',bv=',4,strn,jp,lstrn,',; ',2,2,it,bv)
-    !     if only one element found, copy 1st element to second:
-    if (i == -2) then
+    if (i == -2) then ! if only one element found, bv(2) = bv(1)
        bv(2) = bv(1)
        i = 1
     endif
     if (i < 0) goto 999
     if (i > 0) lpr = .TRUE. 
-    if (iter == nitj+nit .AND. iblk >= lstblk) bv(1) = bv(2)
-!    if (bv(1) /= 1) call awrit1('%a  betv=%1;3g',outs,len(outs),0,bv)
-    ! ... If iter < 0, printout and parse through all strings
-    if (iter < 0) then
-!       if (iprint() >= 10) call awrit0('%a',outs,-len(outs),-i1mach(2))
-       lagain = nit .ne. -1
-       outs = '         mode=A'
-    endif
-    ! --- If this is last pass, eg nitj <= iter <nitj+nit ---
-!    if (iter > 0 .AND. iblk >= lstblk .AND. nitj < iter &
-!         .AND. (iter <= nitj+nit .OR. nit == -1)) then
-    !       if (iprint() >= 20) call awrit0('%a',outs,-len(outs),-i1mach(2))
-    if(.true.) then
-       broy = lbroy
-       nmix = nmixj
-       wgt(1) = wt(1)
-       wgt(2) = wt(2)
-       if (wgt(3) == -9) wt(3) = 0
-       wgt(3) = wt(3)
-       beta = bet
-       elind = elin
-       mixnam = fnam
-       wc = wcj
-       nkill = max(killj,0)
-       if (nkill > 1) then
-          if (mod(iter-nitj,nkill) == 0) nkill=-nkill
-       endif
-       if (nkill == 1) nkill=-nkill
-       betv = bv(1)
-       lstblk = iblk
-       lstitj = -nitj
-       if (nbump > 0) lstitj = lstitj - (nbump-1)
-       !       print *, 'exiting', lstitj,nbump
-       goto 9999
-    else
-       nitj = nitj+nit
-       lagain = .true.
-       outs = ' mixing: mode=A'
-    endif
-    !  99 continue
-    if (lagain) then
-       call chrps2(strn,'; ',2,lstrn,np,it)
-       np = np+1
-       goto 10
-    else
-       goto 9999
-    endif
-    ! --- Error exit ---
-999 outs = 'parmxp: parse failed:'//strn(1:lstrn)
-!    if (iprint() >= 10) call awrit0('%a',outs,-len(outs),-i1mach(2))
+    broy = lbroy
+    nmix = nmixj
+    wgt(1) = wt(1)
+    wgt(2) = wt(2)
+    if (wgt(3) == -9) wt(3) = 0
+    wgt(3) = wt(3)
+    beta = bet
+    elind = elin
+    mixnam = fnam
+    wc = wcj
+    betv = bv(1)
+    goto 9999
+999 outs = 'parmxp: parse failed:'//strn(1:lstrn) !error exit
     parmxp = .false.
 9999 continue ! --- Normal exit ---
-!    call bin2a0(ia0)
   end function parmxp
-  
-   subroutine parmx0(i1,i2,errxx)
-  !   !- sets lstblk,lstitj and errmin
-  !   !     implicit none
-     integer :: i1,i2,lstblk,lstitj,mode
-     double precision :: errxx,errmin
-  !   ! ... this is the only way to create static variables in fortran
-     common /parmx1/ lstblk,lstitj,errmin
-  !   if (i1 > 0) lstblk = i1
-  !   if (i2 > 0) lstitj = i2
-  !   if (errxx >= 0d0) then
-  !      if (errmin > 0) errmin = min(errmin,errxx)
-  !      if (errmin == 0) errmin = errxx
-  !   endif
-  !   !     print *, 'errmin=',errmin
-  !   return
-     entry parms0(i1,i2,errxx,mode)
-  !   if (mode > 0) then
-  !      i1 = lstblk
-  !      i2 = lstitj
-  !      errxx = errmin
-  !   else
-        lstblk = i1
-        lstitj = i2
-        errmin = errxx
-  !   endif
-   end subroutine parmx0
+ 
 
   subroutine dpsadd(adest,asrc,nel,n1,n2,fac)
     !- shift and add. nel=number of elements, n1,n2= start in asrc,adest
