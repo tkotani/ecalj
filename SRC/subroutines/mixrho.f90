@@ -187,7 +187,7 @@ contains
     !u   30 May 00 Adapted from nfp mix_rho
     ! ----------------------------------------------------------------------
     implicit none
-    real(8),save::  dmxp(25)
+    real(8),save::  dmxp(7),rmsdelsave,betakeep
 
     include "mpif.h"
     integer :: numprocs, ierr, status(MPI_STATUS_SIZE)
@@ -244,18 +244,6 @@ contains
     call tcn('mixrho')
     if (mixmod == 'none') return
     !  Initial setup for mixrho (charge mixing). This is used in mixrho-parmax.
-    if(initd) then
-       dmxp   = 0d0
-       dmxp(2) = mix_b
-       dmxp(3) = mix_wc
-       dmxp(4:5)= mix_w(1:2)
-       dmxp(6) = mix_nsave
-       dmxp(7) = mix_mmix
-       dmxp(9) = mix_bv
-       !call parms0(0,0,0d0,0) !reset mixing block
-       initd=.false.
-    endif
-    ! ccccccccccccccccccccccccccccccccccc
     call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
     call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
     call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
@@ -278,24 +266,36 @@ contains
     elinl = elind
     kmxs = 3
     kmxr = 8
+    
     ! --- Iteration-dependent mixing parameters ---
+    if(initd) then
+       dmxp   = 0d0
+       betakeep = mix_b
+       dmxp(3) = mix_wc
+       dmxp(4:5)= mix_w(1:2)
+       dmxp(6) = mix_nsave
+       dmxp(7) = mix_mmix
+!       dmxp(9) = mix_bv
+       !call parms0(0,0,0d0,0) !reset mixing block
+       rmsdelsave=0d0
+       initd=.false.
+    endif
+    ! ccccccccccccccccccccccccccccccccccc
+    
     broy  = dmxp(1)
-    beta  = dmxp(2)
+    beta  = betakeep
     wc    = dmxp(3)
     wt(1) = dmxp(4)
     wt(2) = dmxp(5)
-    wt(3) = dmxp(4)
-    !     Flags parmxp that there are no extra elements to mix
-    if (nx == 0) wt(3) = -9
+    wt(3) = -9 !     Flags parmxp that there are no extra elements to mix
     mxsav = nint(dmxp(6))
     nmix  = nint(dmxp(7))
-    nkill = nint(dmxp(8))
     fnam  = 'mixm'
-    rmsdel = dmxp(11)
     rms2 = 0
     if (ipr >= 20) write(stdo,*) ' '
-    if(.NOT. parmxp(mixmod,len(mixmod),broy,nmix,wt,beta,elinl,fnam,wc,killj,dmxp(9))) &
+    if(.NOT. parmxp(mixmod,len(mixmod),broy,nmix,wt,beta,elinl,fnam,wc,killj))& !,dmxp(9))) &
          call rx('MIXRHO: parse in parmxp failed')
+    
     !r Periodic file deletion (nkill):  parmxp returns nkill as -nkill when
     !r   mod(iter,nkill) is zero, as a signal that the current mixing
     !r   file is to be deleted after it is used.  Here nitj is the sum of
@@ -306,6 +306,7 @@ contains
     endif
     if (nkill == 1) nkill=-nkill
     
+    rmsdel = rmsdelsave
     !     In case parmxp doesn't touch wt, unset flag
     if (wt(3) == -9) wt(3) = 0
     if (nmix == 0) broy = 0
@@ -740,17 +741,17 @@ contains
     !     print *, 'qcell after shift',qcell; stop
 
     ! --- Clean up ---
-    if (nmix < 0) dmxp(7) = -nmix
-    if (beta0 /= beta) dmxp(2) = beta
-    dmxp(11) = rmsdel
-    dmxp(12) = difx
-    dmxp(13) = iabs(nmix)
-    dmxp(14) = broy
-    dmxp(15) = beta
-    if (broy == 1) dmxp(15) = 1
-    dmxp(25) = 0
-    if (wt(1) /= 0 .OR. wt(2) /= 0) dmxp(25) = 1
-    if (wt(3) /= 0) dmxp(25) = dmxp(25) + 10
+!    if (nmix < 0) dmxp(7) = -nmix
+    if (beta0 /= beta) betakeep = beta
+    rmsdelsave = rmsdel
+    ! dmxp(12) = difx
+    ! dmxp(13) = iabs(nmix)
+    ! dmxp(14) = broy
+    ! dmxp(15) = beta
+    ! if (broy == 1) dmxp(15) = 1
+    ! dmxp(25) = 0
+    ! if (wt(1) /= 0 .OR. wt(2) /= 0) dmxp(25) = 1
+    ! if (wt(3) /= 0) dmxp(25) = dmxp(25) + 10
 
     ! ... Printout
     if (ipr >= 10 .AND. abs(qcell) > 1d-6) write(stdo, &
@@ -2622,8 +2623,7 @@ contains
   !  111 format(i5,4f14.6)
   !  110 format(14x,'OLD',11X,' NEW',9X,'DIFF',10X,'MIXED')
   !     end
-  logical function parmxp(strnin,lstrn,broy,nmix,wgt,beta, &
-       elind,mixnam,wc,killj,betv)!,rmserr)!nkill
+  logical function parmxp(strnin,lstrn,broy,nmix,wgt,beta,elind,mixnam,wc,killj) !,betv)!,rmserr)!nkill
     !- Parse strng to get mixing parameters for current iteration
     ! --------------------------------------------------
     !i Inputs
@@ -2731,8 +2731,8 @@ contains
     nmixj = nmix
     bet = beta
     elin = elind
-    bv(1) = betv
-    bv(2) = betv
+!    bv(1) = betv
+!    bv(2) = betv
     wt(1) = wgt(1)
     wt(2) = wgt(2)
     wt(3) = wgt(3)
@@ -2817,7 +2817,7 @@ contains
     elind = elin
     mixnam = fnam
     wc = wcj
-    betv = bv(1)
+!    betv = bv(1)
     goto 9999
 999 outs = 'parmxp: parse failed:'//strn(1:lstrn) !error exit
     parmxp = .false.
