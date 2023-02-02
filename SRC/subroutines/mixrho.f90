@@ -187,7 +187,11 @@ contains
     !u   30 May 00 Adapted from nfp mix_rho
     ! ----------------------------------------------------------------------
     implicit none
-    real(8),save::  dmxp(7),rmsdelsave,betakeep
+    real(8),save::  dmxp(7),rmsdelsave,betakeep,betainit
+    logical,save:: bexist
+    integer,save:: broy,nmix,killj,mxsav,broyinit,nmixinit
+    real(8),save:: wt(3),wtinit(3),wc,elinl
+    character,save:: fnaminit*8
 
     include "mpif.h"
     integer :: numprocs, ierr, status(MPI_STATUS_SIZE)
@@ -209,8 +213,8 @@ contains
     double precision :: qval,elind=0d0
     double complex smrnew(k1,k2,k3,nsp),smrho(k1,k2,k3,nsp)
     integer :: i,i1,i2,i3,ib,ipl,ipr,is,k0,k9, &
-         lmxl,n1,n2,n3,ng,nglob,nlml,nr,nmixr,nmix,nda,mxsav,ifi,nlm0, &
-         kkk,nnnew,nnmix,ngabc(3),igetss,broy,nx, &
+         lmxl,n1,n2,n3,ng,nglob,nlml,nr,nmixr,nda,ifi,nlm0, &
+         kkk,nnnew,nnmix,ngabc(3),igetss,nx, &
          nkill,isw,naa,kmxr,kmxs,locmix,offx,off2
     integer:: ng0 !,  oa , oaa !, ocn ,owk , oqkl
     integer ,allocatable :: ips0_iv(:)
@@ -226,12 +230,12 @@ contains
     parameter (nlm0=49)
     double precision :: a,beta0,beta,dif,difx,difxu,fac,rms,rmt, &
          sumo,summ,sums,top,vol,alat,tpiba,pi,dquns,rmsuns,ddot,q1, &
-         qin(2),qout(2),qscr(2),qmix(2),qcell,rms2,rms2f,wc,rsmv,qmx, &
-         dgets,wt(3),rmsdel,elinl,srfpi,xx
+         qin(2),qout(2),qscr(2),qmix(2),qcell,rms2,rms2f,rsmv,qmx, &
+         dgets,rmsdel,srfpi,xx
     double complex xxc
     !      logical parmxp
     character sout*80,fnam*8
-    integer ::iwdummy ,isp,nnnx,ng02,ng2, iprint,ifile_handle,killj
+    integer ::iwdummy ,isp,nnnx,ng02,ng2, iprint,ifile_handle!,killj
     real(8):: smmin,sss,wgtsmooth,wdummy(1,1,1,1)
     complex(8),allocatable:: smrnewbk(:,:,:,:),w_owk(:)
     !      complex(8),allocatable:: w_oqkl(:)
@@ -279,23 +283,41 @@ contains
        !call parms0(0,0,0d0,0) !reset mixing block
        rmsdelsave=0d0
        initd=.false.
+!    endif
+!    ! ccccccccccccccccccccccccccccccccccc
+!    if(initd) then
+       broy  = dmxp(1)
+       beta  = betakeep
+       wc    = dmxp(3)
+       wt(1) = dmxp(4)
+       wt(2) = dmxp(5)
+       wt(3) = -9 !     Flags parmxp that there are no extra elements to mix
+       mxsav = nint(dmxp(6))
+       nmix  = nint(dmxp(7))
+       !       if (ipr >= 20) write(stdo,*) ' '
+       fnam='mixm'
+       if(.NOT. parmxp(mixmod,len(mixmod),broy,nmix,wt,beta,elinl,fnam,wc,killj))& 
+            call rx('MIXRHO: parse in parmxp failed')
+       write(stdo,ftox)'wwwwwwmix',broy,nmix,ftof(wt),'beta=',ftof(beta),ftof(elinl),ftof(wc),killj!,trim(fnam)
+       fnaminit=fnam
+       wtinit=wt
+       bexist=.false.
+       betakeep=beta
+       betainit=beta
+       broyinit=broy
+       nmixinit=nmix
+       if(beta/=betakeep) bexist=.true.
     endif
-    ! ccccccccccccccccccccccccccccccccccc
-    
-    broy  = dmxp(1)
-    beta  = betakeep
-    wc    = dmxp(3)
-    wt(1) = dmxp(4)
-    wt(2) = dmxp(5)
-    wt(3) = -9 !     Flags parmxp that there are no extra elements to mix
-    mxsav = nint(dmxp(6))
-    nmix  = nint(dmxp(7))
-    fnam  = 'mixm'
+
     rms2 = 0
-    if (ipr >= 20) write(stdo,*) ' '
-    if(.NOT. parmxp(mixmod,len(mixmod),broy,nmix,wt,beta,elinl,fnam,wc,killj))& !,dmxp(9))) &
-         call rx('MIXRHO: parse in parmxp failed')
+    fnam = 'mixm' !fnaminit
+    wt   = wtinit
+    nmix = nmixinit
+    broy = broyinit
+    beta = betakeep
+    if(bexist) beta=betainit
     
+    write(stdo,ftox)'wwwwwwmix2',broy,nmix,ftof(wt),'beta=',ftof(beta),ftof(elinl),ftof(wc),killj!,trim(fnam)
     !r Periodic file deletion (nkill):  parmxp returns nkill as -nkill when
     !r   mod(iter,nkill) is zero, as a signal that the current mixing
     !r   file is to be deleted after it is used.  Here nitj is the sum of
