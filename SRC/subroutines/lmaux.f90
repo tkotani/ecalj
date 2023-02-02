@@ -35,7 +35,7 @@ contains
     logical :: cmdopt,T,F,swtmp
     parameter (T=.true., F=.false., NULLI=-99999)
     integer :: getdig,i,ip,j,k,m,ifi,iprint,lpbc, &
-         nbas,nclasp,nclass,nl,nlspc,nsp,modep(3),parg,nbasp, &
+         nbas,nclasp,nclass,nl,nlspc,nsp,modep(3),nbasp, &
          nbaspp,nkd,nkq,nspec,neul,nc,mxcsiz,nttab,igets, & ! & npadl,npadr,
          iosits,cmplat,ngrp,irs(5),nclspp,bitand,igetss, &
          ngmx,nsgrp
@@ -1529,7 +1529,7 @@ contains
     double precision :: fovl,xtol,gtol,dxmn,dxmx,fovmx
     double precision :: wk(0:27)
     integer :: i1mach,isw,ir,i,j,j1,j2,ls,m,lstyle, &! & op
-         iv,parg,nlstc,mxint,nclass,ib,ic,iclbsj,maxit,ipr,n!,lgunit
+         iv,nlstc,mxint,nclass,ib,ic,iclbsj,maxit,ipr,n!,lgunit
     character dc*1
     integer,allocatable:: olist(:)
     real(8),allocatable:: w_opos(:,:),w_oz(:),w_ormax(:),w_oips(:),w_op(:)

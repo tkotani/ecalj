@@ -139,7 +139,6 @@ contains
     integer:: ifis,ndimsig_r,lwsig, nbas_dummy!nbas,
     logical :: llshft(3),cmdopt,lphase,lsplts,lnwmsh, &
          latvec,lfbzin,lfbzout
-    integer :: parg,isw
     character outs*80,out2*80,dc*1,rots*120
     integer :: i,j,ifis2,ifiz,isp,nspsigm,nglob,lrsig, &
          nkxyz(3),nk1,nk2,nk3,nsgrp,nsgrps,mxkp,nqp,nqps, &
