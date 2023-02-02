@@ -5,7 +5,7 @@ subroutine finits()       !job,fcn,fcargs,iarg)
   integer :: iarg
   double precision :: fcargs(1)
   logical :: lsequ,lext
-  integer :: i,fext,nargf,n,it(5),iv(5),a2vec,k
+  integer :: i,fext,nargf,n,it(5),iv(5),k
   logical:: cmdopt
   character strn*256
   character(100) :: extns

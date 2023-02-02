@@ -34,29 +34,25 @@ CLEAN   rm -f atm.cu dos.cu mixm.cu out.lmf.cu save.cu ctrl.cu log.cu moms.cu rs
 #   rmt   MT radius.  lmf can handle up to about
 #                     10% overlaps with negligible loss in accuracy.
 #   gmax  energy cutoff for specifying FT mesh
-% const a=6.798
-CONST   a={a} da=0 nit=12
-        nk=12 dist=0 bzj=1
-        vol=a^3/4 avw=(3/4/pi*vol)^(1/3) rmt=.87*avw
-        gmax={cupval?12:9} nkgw=8
+
+% const a=6.798 da=0 nit=12 vol=a^3/4 avw=(3/4/pi*vol)^(1/3) rmt=.87*avw nk=12 gmax={cupval?12:9} 
 STRUC   NBAS=1 NSPEC=1 NL=5
-        ALAT=a PLAT=  .0 .5 .5  .5  .0 .5  .5 .5  .0
-        DALAT=da
+        ALAT={a} PLAT=  .0 .5 .5  .5  .0 .5  .5 .5  .0
+        DALAT={da}
 # Use one the two following line with dist<>0 for a volume-conserving shear
 # SHEAR=0 0 1 ... => tetragonal  SHEAR=1 1 1 ... => trigonal
-        SHEAR=0 0 1 1+dist
-#       SHEAR=1 1 1 1+dist
+        SHEAR=0 0 1 1
+#       SHEAR=1 1 1 1
 SITE    ATOM=A POS= 0 0 0
 % const pwmode=0 pwemin=1 pwemax=3 oveps=0
 HAM     NSPIN=1 REL=t XCFUN=2 
         FORCES=0 TOL=1e-6
-        GMAX=gmax
+        GMAX={gmax}
         FTMESH=10 10 10
         PWMODE={pwmode} PWEMIN={pwemin} PWEMAX={pwemax} OVEPS={oveps}
-GW      NKABC=nkgw GCUTB=2.7 GCUTX=2.2
 % const hf=f
 OPTIONS NSPIN=1 REL=t XCFUN=2 HF={hf}
-BZ      NKABC=nk BZJOB=bzj W=.002 NPTS=1001 SAVDOS=t
+BZ      NKABC={nk} BZJOB=1 W=.002 NPTS=1001 SAVDOS=t
 # Because bigbas=t is really large, use a more cautious metal treatment
 % ifdef bigbas
         METAL=3
@@ -65,17 +61,16 @@ BZ      NKABC=nk BZJOB=bzj W=.002 NPTS=1001 SAVDOS=t
 % ifdef hf
         NEVMX=-1
 % endif
-EWALD   AS=2.0 TOL=1D-12 ALAT0=a NKRMX=600 NKDMX=600
+EWALD   AS=2.0 TOL=1D-12 ALAT0={a} NKRMX=600 NKDMX=600
 # Because bigbas=t is really large, use a smaller mixing to help convergence
 %ifdef bigbas&f
 # for version 7
-ITER    MIX=A1,b=.5,n=1;A0,b=.5,n=2 CONV=1e-5 CONVC=1e-5 NIT=nit
+ITER    MIX=A1,b=.5,n=1;A0,b=.5,n=2 CONV=1e-5 CONVC=1e-5 NIT={nit}
 MIX     MODE=A1,b=.5,n=1;A0,b=.5,n=2 CONV=1e-5 CONVC=1e-5
 %endif
 # for version 7
-ITER    MIX=A3 CONV=1e-5 CONVC=1e-5 NIT=nit
+ITER    MIX=A3 CONV=1e-5 CONVC=1e-5 NIT={nit}
 MIX     MODE=A3 CONV=1e-5 CONVC=1e-5
-START   NIT=nit
 
 #  ... Tokens for SPEC category
 #  KMXA  defines the cutoff in the polynomial expansion of augmented basis functions.
@@ -93,7 +88,7 @@ START   NIT=nit
 #  CONST category above.  But variables defined with the %const or %var
 #  are defined for the preprocessor stages, and are cleared once the
 #  preprocessor is complete.  See doc/input-file-style.txt
-SPEC    ATOM=A Z=29 R=rmt IDMOD=0,0,0,1,1
+SPEC    ATOM=A Z=29 R={rmt} IDMOD=0,0,0,1,1
         P=4.65,4.34,3.87,4.11
 
 %ifdef cupval&bigbas
@@ -111,7 +106,7 @@ SPEC    ATOM=A Z=29 R=rmt IDMOD=0,0,0,1,1
         A=.025
         EREF=-3304.4345
 # The following line is not needed since these are the defaults.
-        RSMG=.25*rmt RFOCA=0.4*rmt LFOCA=1 LMX=3 LMXA=3
+        RSMG=.25*{rmt} RFOCA=0.4*{rmt} LFOCA=1 LMX=3 LMXA=3
 
 % const rsm1=2.5 rsmd1=1 ed1=-.01
         RSMH={rsm1},{rsm1},{rsmd1} EH=-.01,-.01,{ed1},-.01,-.01

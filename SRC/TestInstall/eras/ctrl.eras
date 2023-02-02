@@ -15,10 +15,10 @@ OPTIONS NSPIN={nsp}  REL=t CCOR=T LMH=F ADNF=f  HF={hf} SO={so}
 SYMGRP  find
 BZ      METAL=2 TETRA=t NEVMX=50 EFMAX=3 NKABC={nk} {nk} {nk} BZJOB=f
 STR     RMAX=3.02
-CONST   a=5.732/0.529177249 fv=1 tet=1.0
+%const  a=5.732/0.529177249 fv=1 tet=1.0
 STRUC   NBAS=2 NSPEC=2 NL=4
-        ALAT=a*fv PLAT=  0 .5 .5  .5  0 .5  .5 .5  0
-        SHEAR=0 0 1 tet
+        ALAT={a}*{fv} PLAT=  0 .5 .5  .5  0 .5  .5 .5  0
+        SHEAR=0 0 1 {tet}
 SITE    ATOM=Er POS=  0   0   0
         ATOM=As POS= .50 .50 .50
 SPEC    ATOM=Er Z=68 R=2.8464  LMX=3 LMXA=3 RSMH= 1.6 1.6  1.6  1 EH= -0.1 -0.1 -0.1 -0.1
@@ -36,15 +36,3 @@ MIX     MODE=A,b=0.2,w=0.8,0.2 CONV=0 CONVC=1E-5 TOLU=1e-5 UMIX=1
 HAM     FTMESH=30 30 30
 # for v7
         NSPIN={nsp} REL=t HF={hf} SO={so}
-START  NIT={nit} CNVG=1E-5 FREE={free} BEGMOM=1 CNTROL=T
-        ATOM=Er       P=6.5 6.5 5.5 4.5
-                      Q=2 0 0  0 0 0  0 0 0  12 0 0
-        ATOM=As       P=4.5 4.25 4.2
-                      Q=2 0 0 3 0 0 0 0 0
------
-        ATOM=Er       P=6.5 6.25 5.5 4.5 6.5 6.25 5.5 4.5
-                      Q=  1 0 0  0 0 0 0 0 0 7 0 0
-                        1 0 0  0 0 0 0 0 0 5 0 0
-        ATOM=As       P=4.5 4.25 4.2  4.5 4.25 4.2
-                      Q=  1 0 0   3 0 0  0 0 0
-                        1 0 0   0 0 0  0 0 0

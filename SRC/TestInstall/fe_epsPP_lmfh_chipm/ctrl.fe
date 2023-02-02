@@ -3,13 +3,9 @@ HAM     GMAX=9 FTMESH=15 FORCES=1 XCFUN=2
         RDSIG=12 SIGP:3,0,0,0,2.5,0,.09,0
         RSRNGE=8
         NSPIN=2 REL=t XCFUN=2 SO=0
-
-GW      NKABC=nkgw nkgw nkgw2 GCUTB=2.7 GCUTX=2.2 MKSIG=3 ECUTS=2
 IO      SHOW=f HELP=F VERBOS=31 20 WKP=F IACTIV=0
-GF      MODE=0 GFOPTS=p3
 STR     RMAX=3.5
-CONST   rc=0 nk=8 nk2=nk bzj=0 cbya=1.63299316 nkgw=8 nkgw2=nk2
-
+%const nk=8 bzj=0 
 HEADER  fe for gw
 
 STRUC   NL=5 NSPEC=1
@@ -33,8 +29,8 @@ SPEC
 
 OPTIONS  HF=0 
 
-BZ      NKABC=nk nk nk2 N.W=.002 NPTS=1001 NKABC2=6 JOB2=bzj
-        BZJOB=bzj
+BZ      NKABC={nk} {nk} {nk} N.W=.002 NPTS=1001 NKABC2=6 
+        BZJOB={bzj}
         EF0=0 DELEF=.1 TETRA=2 DOS=0-1 0+.5 METAL=3
         EMESH=12 10 -1 0 .5 .5 INVIT=f NOINV=T
 

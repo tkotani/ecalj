@@ -877,14 +877,11 @@ contains
        return
     endif
 
-    ! --- ASCII-numerical conversion ---
+    ! --- ASCII-numerical conversion. I think this is for CONST section.
     ii = 0
     n = a2vec(rcd(i1:ie),ie-i1+1,ii,4,', ',2,-3,nin,iarr,arr)
     if (n < 0) n = -n-1
-!    if (debug) call info(0,0,0, &
-!         ' getinput: sought %i numbers, read %i from '//trim(name), &
-!         nin,n)
-
+!  if(debug) write(stdo,ftox)' getinput: sought',nin,'numbers. Read',n,'from'//trim(name)
     if (present(nout) ) nout = n
     ! --- Copy array to data ---
     if (n == 0) then;
