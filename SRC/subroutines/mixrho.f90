@@ -2734,10 +2734,10 @@ contains
     ia0 = -1
 !    call bin2a0(ia0)
     ! ... Internal defaults
-    if (iter > 0) then
+!    if (iter > 0) then
        nkill = 0
        nit = -1
-    endif
+!    endif
     if (strnin == ' ' .OR. lstrn <= 0) goto 9999
     ! ... Passed defaults
 !    call bin2a0(10)
@@ -2759,27 +2759,17 @@ contains
     ! ... iblk,iit: current mixing block and iter within block
     iblk = 0
     nitj = 0
-    np = 0
+    
     ! --- Entry point for parsing a new set of switches ---
 10  continue
-    !call skipbl(strn,lstrn,np)
     strn=adjustl(strnin)
     np=0
-    if (np >= lstrn) then
-       if (iter < 0) goto 9999
-       if (cmdopt('--nomixcycle',12,0,outs)) then
-          nkill = -999
-          goto 9999
-       else
-          np = 0
-          goto 10
-       endif
-    endif
     ! ... Switch for Broyden or Anderson mixing
     jp = np
     call chrps2(strn,'AaBbCc',6,np,jp,it)
     if (it(1) == 0) goto 999
     iblk = iblk+1
+    write(6,*)'bbbbbbbbblock',iblk,lstblk,lstitj,errmin
     ! ... If iblk=lstblk, override nitj with lstitj
     if (iter > 0 .AND. iblk == lstblk) then
        nitj = -lstitj
@@ -2925,9 +2915,10 @@ contains
        outs = '         mode=A'
     endif
     ! --- If this is last pass, eg nitj <= iter <nitj+nit ---
-    if (iter > 0 .AND. iblk >= lstblk .AND. nitj < iter &
-         .AND. (iter <= nitj+nit .OR. nit == -1)) then
-!       if (iprint() >= 20) call awrit0('%a',outs,-len(outs),-i1mach(2))
+!    if (iter > 0 .AND. iblk >= lstblk .AND. nitj < iter &
+!         .AND. (iter <= nitj+nit .OR. nit == -1)) then
+    !       if (iprint() >= 20) call awrit0('%a',outs,-len(outs),-i1mach(2))
+    if(.true.) then
        broy = lbroy
        nmix = nmixj
        wgt(1) = wt(1)
@@ -2970,13 +2961,13 @@ contains
 !    call bin2a0(ia0)
   end function parmxp
   
-  ! subroutine parmx0(i1,i2,errxx)
+   subroutine parmx0(i1,i2,errxx)
   !   !- sets lstblk,lstitj and errmin
   !   !     implicit none
-  !   integer :: i1,i2,lstblk,lstitj,mode
-  !   double precision :: errxx,errmin
+     integer :: i1,i2,lstblk,lstitj,mode
+     double precision :: errxx,errmin
   !   ! ... this is the only way to create static variables in fortran
-  !   common /parmx1/ lstblk,lstitj,errmin
+     common /parmx1/ lstblk,lstitj,errmin
   !   if (i1 > 0) lstblk = i1
   !   if (i2 > 0) lstitj = i2
   !   if (errxx >= 0d0) then
@@ -2985,17 +2976,17 @@ contains
   !   endif
   !   !     print *, 'errmin=',errmin
   !   return
-  !   entry parms0(i1,i2,errxx,mode)
+     entry parms0(i1,i2,errxx,mode)
   !   if (mode > 0) then
   !      i1 = lstblk
   !      i2 = lstitj
   !      errxx = errmin
   !   else
-  !      lstblk = i1
-  !      lstitj = i2
-  !      errmin = errxx
+        lstblk = i1
+        lstitj = i2
+        errmin = errxx
   !   endif
-  ! end subroutine parmx0
+   end subroutine parmx0
 
   subroutine dpsadd(adest,asrc,nel,n1,n2,fac)
     !- shift and add. nel=number of elements, n1,n2= start in asrc,adest
