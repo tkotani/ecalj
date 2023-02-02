@@ -2761,8 +2761,6 @@ contains
     iblk = 0
     nitj = 0
     np = 0
-    outs = ' mixrho: mixing mode=A'
-
     ! --- Entry point for parsing a new set of switches ---
 10  continue
     call skipbl(strn,lstrn,np)
@@ -2792,8 +2790,8 @@ contains
     lbroy = 0
     if (it(1) >= 3) lbroy = 1
     if (it(1) >= 5) lbroy = 2
-!    if (lbroy == 1) call awrit0('%a%bB',outs,len(outs),0)
-!    if (lbroy == 2) call awrit0('%a%bC',outs,len(outs),0)
+    if (lbroy == 1) outs =' mixrho: mixing mode=A' ! call awrit0('%a%bB',outs,len(outs),0)
+    if (lbroy == 2) outs =' mixrho: mixing mode=B' !call awrit0('%a%bC',outs,len(outs),0)
     ! ... Pick up nmix
     jp = np+1
 
@@ -2802,15 +2800,11 @@ contains
     iterm = index(trim(strn),' ')
     if(iterm>2) read(strn(2:iterm-1),*) nmixj
     !write(6,*)' mmmmmmixrho strn=$',trim(strn),'##',nmixj
-    
-!    call chrps2(strn,',; ',3,np+1,jp,it)
-!    if (it(1) == 0) then
-!    write(6,*)' mmmmmmixrho it(1)=0'
-!!comment out 2023feb    
-!       !       call rx("we don't support this descrition 2023feb")
-!       if (a2vec(strn,lstrn,jp,2,',; ',3,1,1,it,nmixj) < 0) goto 999
-!!       call awrit1('%a  nmix=%i',outs,len(outs),0,nmixj)
-!    endif
+    !    call chrps2(strn,',; ',3,np+1,jp,it)
+    !    if (it(1) == 0) then
+    !       write(6,*)' mmmmmmixrho it(1)=0'
+    !       if (a2vec(strn,lstrn,jp,2,',; ',3,1,1,it,nmixj) < 0) goto 999
+    !    endif
     
     ! ... Pick up rmsc
     rmsc = -1
@@ -3450,6 +3444,7 @@ subroutine ftlxp2(rsmv,tau,kmxvin,k0,nlm,ng,gv,g2,yl,h,cv,fkl)
      enddo
   enddo
 end subroutine ftlxp2
+
 integer function parg(tok,cast,strn,ip,lstr,sep,itrm,narg,it,res)
   !- Returns vector of binary values from a string
   ! ----------------------------------------------------------------------
