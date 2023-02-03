@@ -200,7 +200,6 @@ vcdmel.o \
 vesgcm.o \
 vxtrap.o \
 wrhomt.o \
-stonerrsa.o \
 polinta.o \
 lmaux.o \
 pwmat.o \
