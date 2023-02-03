@@ -62,7 +62,6 @@ gtbsl1.o \
 gtpcor.o \
 gvctof.o \
 gvlst2.o \
-gvmtch.o \
 m_hansr.o \
 hnsmft.o \
 hsmq.o \
