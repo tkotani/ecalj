@@ -187,7 +187,7 @@ contains
     !u   30 May 00 Adapted from nfp mix_rho
     ! ----------------------------------------------------------------------
     implicit none
-    real(8),save::  dmxp(7),rmsdelsave,betakeep,betainit
+    real(8),save::  dmxp(7),rmsdelsave,betakeep,betainit,beta
     logical,save:: bexist
     integer,save:: broy,nmix,killj,mxsav,broyinit,nmixinit
     real(8),save:: wt(3),wtinit(3),wc,elinl
@@ -228,7 +228,7 @@ contains
     real(8) ,allocatable :: wk2_rv(:)
     equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
     parameter (nlm0=49)
-    double precision :: a,beta0,beta,dif,difx,difxu,fac,rms,rmt, &
+    double precision :: a,beta0,dif,difx,difxu,fac,rms,rmt, &
          sumo,summ,sums,top,vol,alat,tpiba,pi,dquns,rmsuns,ddot,q1, &
          qin(2),qout(2),qscr(2),qmix(2),qcell,rms2,rms2f,rsmv,qmx, &
          dgets,rmsdel,srfpi,xx
@@ -273,27 +273,15 @@ contains
     
     ! --- Iteration-dependent mixing parameters ---
     if(initd) then
-       dmxp   = 0d0
-       betakeep = mix_b
-       dmxp(3) = mix_wc
-       dmxp(4:5)= mix_w(1:2)
-       dmxp(6) = mix_nsave
-       dmxp(7) = mix_mmix
-!       dmxp(9) = mix_bv
-       !call parms0(0,0,0d0,0) !reset mixing block
        rmsdelsave=0d0
        initd=.false.
-!    endif
-!    ! ccccccccccccccccccccccccccccccccccc
-!    if(initd) then
-       broy  = dmxp(1)
-       beta  = betakeep
-       wc    = dmxp(3)
-       wt(1) = dmxp(4)
-       wt(2) = dmxp(5)
+       broy  = 0
+       beta  = 1d0
+       wc    = mix_wc
+       wt(1:2) = mix_w(1:2)
        wt(3) = -9 !     Flags parmxp that there are no extra elements to mix
-       mxsav = nint(dmxp(6))
-       nmix  = nint(dmxp(7))
+       mxsav = mix_nsave
+       nmix  = mix_mmix
        !       if (ipr >= 20) write(stdo,*) ' '
        fnam='mixm'
        if(.NOT. parmxp(mixmod,len(mixmod),broy,nmix,wt,beta,elinl,fnam,wc,killj))& 
@@ -302,11 +290,10 @@ contains
        fnaminit=fnam
        wtinit=wt
        bexist=.false.
-       betakeep=beta
        betainit=beta
        broyinit=broy
        nmixinit=nmix
-       if(beta/=betakeep) bexist=.true.
+       if(beta/=1d0) bexist=.true.
     endif
 
     rms2 = 0
@@ -314,7 +301,6 @@ contains
     wt   = wtinit
     nmix = nmixinit
     broy = broyinit
-    beta = betakeep
     if(bexist) beta=betainit
     
     write(stdo,ftox)'wwwwwwmix2',broy,nmix,ftof(wt),'beta=',ftof(beta),ftof(elinl),ftof(wc),killj!,trim(fnam)
@@ -764,7 +750,7 @@ contains
 
     ! --- Clean up ---
 !    if (nmix < 0) dmxp(7) = -nmix
-    if (beta0 /= beta) betakeep = beta
+    !    if (beta0 /= beta) betakeep = beta
     rmsdelsave = rmsdel
     ! dmxp(12) = difx
     ! dmxp(13) = iabs(nmix)
