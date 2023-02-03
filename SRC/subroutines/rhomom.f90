@@ -24,7 +24,7 @@ subroutine rhomom (sv_p_orhoat, qmom,vsum)
   real(8),parameter:: fpi  = 16d0*datan(1d0), y0 = 1d0/dsqrt(fpi)
   real(8),parameter:: pi = 4d0*datan(1d0), srfpi = dsqrt(4d0*pi)
   ipr  = iprint()
-  if (ipr >= 40) write(stdo,"(/' rhomom:   ib   ilm      qmom',8x,'Qval',7x, 'Qc',8x,'Z')")
+  if (ipr >= 45) write(stdo,"(/' rhomom:   ib   ilm      qmom',8x,'Qval',7x, 'Qc',8x,'Z')")
   do  ib = 1, nbas
      is = ispec(ib) !ssite(ib)%spec
      lmxl=sspec(is)%lmxl
@@ -41,7 +41,7 @@ subroutine rhomom (sv_p_orhoat, qmom,vsum)
      call pvrhom(rmt,a,nlml, nr, nsp, &
           sv_p_orhoat(1,ib)%v, sv_p_orhoat(2,ib)%v, sv_p_orhoat(3,ib)%v,&
           cofg, cofh, rg, ceh, rfoc, z, qmom(j1), vs1(ib),vs2(ib))
-     if (ipr >= 40) then
+     if (ipr >= 45) then
         write(stdo,220) ib,1,qmom(j1),qmom(j1)/y0,qc,z
         do  ilm = 2, nlml
            if (dabs(qmom(j1+ilm-1)) > 1d-6) write(stdo,220) ib,ilm,qmom(j1+ilm-1)

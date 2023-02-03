@@ -222,7 +222,7 @@ logical function a2bin(instr,res,cast,count,term,j,jmaxi)
   return
   ! ... handle variable token: get value and treat as number token
 30 call getsyv(vartok,numtok,ival)
-  write(6,*)'vvvtok  ',vartok,numtok,ival
+!  write(6,*)'vvvtok  ',vartok,numtok,ival
   if (ival == 0) return
   ! ... handle number token: put it on the number stack
 40 numnum = numnum+1

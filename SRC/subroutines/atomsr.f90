@@ -188,7 +188,7 @@ subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, &
   ! --- Start self-consistency loop ---
   drho = 100d0
   last = .false.
-  if (iprint() >= 30) write(stdo,341)
+  if (iprint() >= 41) write(stdo,341)
   jmix = 0
   dold = 1
   beta1 = beta
@@ -241,7 +241,7 @@ subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, &
      !call dpscop ( rho_rv , rhoin , nr * nsp , 1 + nr * nsp * (nmix + 2 ) , 1 , 1d0 )
      rhoin(1:nr,1:nsp) = reshape(rho_rv(1+nr*nsp*(nmix+2):nr*nsp+nr*nsp*(nmix+2)),[nr,nsp])
      if (last) goto 90
-     if (iprint() >= 41 .OR. iprint() >= 30 .AND. &
+     if (iprint() >= 41 .AND. &
           (drho < tolch .OR. iter == niter-1 .OR. iter == 1)) &
           write(stdo,340) iter,ssum,drho,vnucl,rho0t,vsum,beta1
 340  format(i5,f12.6,1p,e12.3,0p,f14.4,e14.4,f14.4,f7.2)

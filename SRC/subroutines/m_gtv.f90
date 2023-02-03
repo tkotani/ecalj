@@ -529,7 +529,6 @@ contains
     !  --- Help mode ---
     if (io_help /= 0) then
        if (lgx) then
-          !call info2(1,0,0,trim(sout)//'%?!(n==1)!%50pdefault = %l',nndef,defa(1).ne.0)
           if(nndef==0) write(stdo,ftox)trim(sout)
           if(nndef==1) write(stdo,ftox)trim(sout)//repeat(" ",50-len(trim(sout)))//'default=',defa(1)/=0
        elseif (nndef >= 1 .AND. defa(1) == NULLI) then
@@ -540,11 +539,9 @@ contains
           endif
        elseif (nminl == NULLI .AND. nndef >= 1) then
           write(stdo,ftox)trim(sout)//repeat(" ",50-len(trim(sout)))//'... size depends on other input def=',defa(1:nndef)
-!          !call info2(1,0,0,trim(sout)//'%50pdef = %g ,defa,0)
        elseif (nminl == NULLI) then
           write(stdo,ftox) trim(sout)//repeat(" ",50-len(trim(sout)))//'size depends on other input'
        elseif (nndef >= 1 .AND. nndef <= 4) then
-!          call info2(1,0,0,trim(sout)//'%50pdefault =%n:1g',nndef,defa)
           if(sum(abs(defa(1:nndef)-nint(defa(1:nndef))))<1d-12) then
              write(stdo,ftox)trim(sout)//repeat(" ",50-len(trim(sout)))//'default=',nint(defa(1:nndef))
           elseif(sum(abs(defa(1:nndef)))<1d-2) then
@@ -661,7 +658,7 @@ contains
     if (ig=='r8' .AND. nn==1)      then ;   dat  = ddat(1)
     elseif (lgx .AND. nn==1)       then ;   lg = nint(ddat(1)) /= 0
     elseif (ig=='i4' .AND. nn==1)  then ;   idat = ddat(1)
-   elseif (ig=='r8v' .AND. nn > 0) then ; datv(1:nn)  = ddat(1:nn)
+    elseif (ig=='r8v' .AND. nn > 0) then ; datv(1:nn)  = ddat(1:nn)
     elseif (ig=='i4v' .AND. nn > 0) then ; idatv(1:nn) = ddat(1:nn)
     endif
     ! ... Printout

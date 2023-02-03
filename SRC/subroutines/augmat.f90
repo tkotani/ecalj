@@ -571,10 +571,13 @@ contains
     complex(8):: vzz,vuz,vsz,vzu,vzs, Vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,2,*), &
          vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,3,3,2,0:lmaxu)
     if(lmaxu>lmxa) call rx('vlm2ux:lmaxu>lmxa')
+    vumm=0d0 !corrected at 2023feb3 
     do  l = 0, lmaxu !min(lmxa,3) ! ... Rotate Vorb from phi,phidot basis to u,s basis
        if (idu(l+1) == 0) cycle
        iblu = iblu+1
        do  i = 1, 2
+!          write(6,*) 'sumcheck1 ',sum(Vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,i,iblu))
+!          write(6,*) 'sumcheck1a',sum(abs(Vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,i,iblu)))
           rotpp  = rotp(l,i,:,:)
           rotppt = transpose(rotpp) !
           ! Vorb is for E_vorb= a_phi *Vorb *a_phi.
@@ -597,5 +600,6 @@ contains
           endif
        enddo
     enddo
+!    write(6,*) 'sumcheck2',sum(vumm),sum(abs(vumm))
   end subroutine vlm2us
 end module m_augmat

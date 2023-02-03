@@ -85,9 +85,8 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa)
   character(128),protected :: iter_mix=' '
   real(8),protected:: etol,qtol 
   integer,protected:: iter_maxit=1
-  integer,protected:: mix_kill,mix_lxpot,mix_mmix,mix_mode,mix_nmix,mix_nsave !mix_nitu,
-  real(8),protected:: mix_b,mix_bv,mix_tolu,mix_umix,mix_w(3),mix_wc !,mix_elind
-  character(8),protected:: mix_fn
+  integer,protected:: mix_nsave !mix_nitu,
+  real(8),protected:: mix_tolu,mix_umix
   !!
   integer,protected:: pwmode,ncutovl ,ndimx    !ncutovl is by takao. not in lm-7.0beta.npwpad,
   real(8),protected:: pwemax,pwemin,oveps!,delta_stabilize
@@ -465,6 +464,14 @@ contains
            'Include APWs with energy E > PWEMIN (Ry)')
       nm='HAM_PWEMAX'; call gtv(trim(nm),tksw(prgnam,nm), pwemax, def_r8=0d0, nout=nout, note= &
            'Include APWs with energy E < PWEMAX (Ry)')
+      ! Pnu taken from lmfa calculation. pzsp and pnusp are overwritten. 2022-9-5 takao
+      nm='HAM_READP'; call gtv(trim(nm),tksw(prgnam,nm),readpnu,def_lg=F, &
+           note='Read Pnu and PZ (b.c. of radial func) from atmpnu.*(by lmfa) ' &
+           //'when we have no rst file')
+      nm='HAM_V0FIX'; call gtv(trim(nm),tksw(prgnam,nm),v0fix,def_lg=F, &
+           note='Fix potential of radial functions-->Fix radial func. if READP=T together')
+      nm='HAM_PNUFIX'; call gtv(trim(nm),tksw(prgnam,nm),pnufix,def_lg=F, &
+           note='Fix b.c. of radial functions')
       !! SYMGRP
       nm='SYMGRP'; call gtv(trim(nm),tksw(prgnam,nm),symg, note='Generators for symmetry group')
       !   for AF --- !june2015
@@ -717,14 +724,6 @@ contains
                  new_line('a')//'     Add 10 to attach Hankel tail',nout=nout) !zero default by zerov
             if(nsp==2) pzsp(1:n0,2,j) = pzsp(1:n0,1,j) !takao
             
-! Pnu taken from lmfa calculation. pzsp and pnusp are overwritten. 2022-9-5 takao
-            nm='HAM_READP'; call gtv(trim(nm),tksw(prgnam,nm),readpnu,def_lg=F, &
-                 note='Read Pnu and PZ (b.c. of radial func) from atmpnu.*(by lmfa) ' &
-                 //'when we have no rst file')
-            nm='HAM_V0FIX'; call gtv(trim(nm),tksw(prgnam,nm),v0fix,def_lg=F, &
-                 note='Fix potential of radial functions-->Fix radial func. if READP=T together')
-            nm='HAM_PNUFIX'; call gtv(trim(nm),tksw(prgnam,nm),pnufix,def_lg=F, &
-                 note='Fix b.c. of radial functions')
             readpnublock:block ! P = PrincipleQnum - 0.5*atan(dphidr/phi)/pi
               integer:: ifipnu,lr,iz,nspx,lrmx,isp,ispx
               real(8):: pnur,pzav(n0),pnav(n0)
@@ -808,7 +807,6 @@ contains
             endif
             nm='SPEC_ATOM_KMXA'; call gtv(trim(nm),tksw(prgnam,nm), kmxt(j),def_i4=3,&
                  cindx=jj,note='k-cutoff for projection of wave functions in sphere.')
-! radius            
             xxx = 0d0
             if(io_help==1) xxx = NULLI
             nm='SPEC_ATOM_RSMA'; call gtv(trim(nm),tksw(prgnam,nm), rsma(j), def_r8=xxx,cindx=jj,&
@@ -820,23 +818,22 @@ contains
             !      note='Smoothing for core tail.')
             !nm='SPEC_ATOM_RSMFA'; call gtv(trim(nm),tksw(prgnam,nm),rsmfa(j), def_r8=xxx,cindx=jj,&
             !     note='Smoothing for free atom.  input<0 => choose default * -input')
-             if(rsma(j)==0d0) rsma(j) = 0.4d0*rmt(j)
-             rg(j)= 0.25d0*rmt(j)
-             rfoca(j)= 0.4d0*rmt(j)
-       
             !nm='SPEC_ATOM_RCFA'; call gtv(trim(nm),tksw(prgnam,nm), rcfa(1:2,j),def_r8v=zerov,&
             !     nmin=2,cindx=jj,note= &
             !     'Cutoff radius for renormalization of free atom density'// &
             !     '(WARN:takao rnatm.F is not tested).'//new_line('a')//'   '//'Optional 2nd argument = width'// &
             !     new_line('a')//'   '//'RCFA<0 => renormalize potential instead of density')
-            rcfa=0d0
-            
             !    nm='SPEC_ATOM_IDXDN'; removed...
 
             !          nm='SPEC_ATOM_RS3'; call gtv(trim(nm),tksw(prgnam,nm),rs3(j), &
             !               def_r8=0.5d0,cindx=jj, &
             !          note='Minimum smoothing radius for local orbital')
 
+             if(rsma(j)==0d0) rsma(j) = 0.4d0*rmt(j)
+             rg(j)= 0.25d0*rmt(j)
+             rfoca(j)= 0.4d0*rmt(j)
+             rcfa=0d0
+            
             !! --- explanation of s_spec ---
             !r  idmod  idmol(l) controls how linearization energy is
             !r         determined for an orbital of angular momentum l
@@ -883,14 +880,14 @@ contains
          call mpibc1_int(idu(:,j),4,'m_lmfinit_idu')
          call mpibc1_real(uh(:,j),4,'m_lmfinit_uh') !bug fix at oct26 2021 (it was _int-->not passed )
          call mpibc1_real(jh(:,j),4,'m_lmfinit_jh')
-         !     Sanity checks
+         
          if (io_help == 0 .AND. lmxaj >= 0) then
             if(tksw(prgnam,'SPEC_ATOM_LFOCA')/= 2)l_dummy_isanrg=isanrg(lfoca(j),0,2,'rdctrl','lfoca',T)
             if(tksw(prgnam,'SPEC_ATOM_LMXL')/= 2) l_dummy_isanrg= &
                  isanrg(lmxl(j),min(0,lmxaj),max(0,lmxaj),'rdctrl','lmxl',T)
             if(tksw(prgnam,'SPEC_ATOM_KMXA')/= 2)l_dummy_isanrg=isanrg(kmxt(j),2,25,' rdctrl (warning):','kmxa',F)
          endif
-         coreh(j) = ' '
+         coreh(j) = ' ' !core hole mode
          nm='SPEC_ATOM_C-HOLE'; call gtv(trim(nm),tksw(prgnam,nm),coreh(j), &
               nmin=10,cindx=jj,note='Channel for core hole')
          nm='SPEC_ATOM_C-HQ'; call gtv(trim(nm),tksw(prgnam,nm),coreq(:,j), &
@@ -1032,23 +1029,12 @@ contains
       nm='EWALD_TOL'; call gtv(trim(nm),tksw(prgnam,nm),lat_tol, def_r8=1d-8,note='Ewald tolerance')
       nm='EWALD_NKDMX'; call gtv(trim(nm),tksw(prgnam,nm),lat_nkdmx, def_i4=3000,note='Ewald tolerance')
       !! Iterations (formerly MIX) ---
-      mix_b = NULLI            ! Not set
       if (tksw(prgnam,'ITER')/=2) then
          if (io_show+io_help/=0) write(stdo,*)' --- Parameters for iterations ---'
          !     Default values for smix (array has same same structure as lstra smix)
-         mix_b = 1             ! beta
-         mix_bv = 1            ! bv
-         mix_fn='mixm'
-         mix_kill =  0         ! nkill
-         mix_lxpot =  0        ! lxpot
-         mix_mmix = -1         ! mmix
-         mix_mode = 0          ! mode (0=Anderson)
          mix_nsave = 8         ! nsave = # iter to save on disk
          mix_tolu = 0          ! tolu
          mix_umix = 1          ! umix (mixing parm for LDA+U)
-         mix_w(1) = 1          ! w(1)
-         mix_w(2) = 1          ! w(2)
-         mix_wc = -1           ! wc
          smalit = NULLI
          nm='ITER_NIT';call gtv(trim(nm),tksw(prgnam,nm),iter_maxit,def_i4=30, &
               note='maximum number of iterations in self-consistency cycle')
@@ -1071,10 +1057,10 @@ contains
          elinl=0d0 
          broy  = 0
          beta  = 1d0
-         wc    = mix_wc
-         wt(1:2) = mix_w(1:2)
+         wc    = -1
+         wt(1:2) = 1
          wt(3) = -9 !     Flags parmxp that there are no extra elements to mix
-         nmix  = mix_mmix  !out
+         nmix  = -1
          if(.NOT. parmxp(trim(iter_mix),len(trim(iter_mix)),broy,nmix,wt,beta,elinl,wc,killj))& 
               call rx('MIXRHO: parse in parmxp failed')
          write(stdo,ftox)' mmmixing parameters: A/B nmix wt:',broy,nmix,ftof(wt),&

@@ -156,6 +156,7 @@ contains
        enddo
     endif
     if(lldau/=0) then ! LDA+U contribution.
+!       write(6,*) 'sumcheck',sum(vumm),sum(abs(vumm))
        allocate(ppiz(nf1,nf2,nlx1,nlx2,nsp))
        ppiz=0d0
        do i=1,nsp

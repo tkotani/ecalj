@@ -235,7 +235,7 @@ contains
     ipr    = iprint()
     lfrz   = 0
     lgrad  = lxcfun/10
-    if(ipr>29) then
+    if(ipr>49) then
        print *
        do i = 1, nsp
           do l = 0, lmxa
