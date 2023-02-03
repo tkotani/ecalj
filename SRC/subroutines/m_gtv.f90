@@ -47,10 +47,9 @@ module m_gtv
   implicit none
   integer,parameter,private :: nrcd=600000
   character(nrcd),private:: rcd  !ifc henry is strange
-  !     character(nrcd),allocatable,private:: rcd(1)
-
   integer,private:: io_show,io_help,stdo,stdl,stde
   logical,private::  debug=.false.
+  
   interface gtv
      module procedure &
           gtv_r8,gtv_i4,gtv_r8v,gtv_i4v,gtv_char,gtv_lg,gtv_none
@@ -888,5 +887,271 @@ contains
     elseif (ig=='i4v') then;  idatv(1:n) = arr(1:n)
     endif
   end subroutine getinput_entrance
-
 end module m_gtv
+
+
+logical function parmxp(strnin,lstrn,broy,nmix,wgt,beta,elind,wc,killj) !,betv)!,rmserr)!nkill 
+  !- Parse strng to get mixing parameters for current iteration
+  ! --------------------------------------------------
+  !i Inputs
+  !i iter: current iteration
+  !i       iter=-1 => strn parsed to check integrity of string,
+  !i       and optionally to display (iprint().ge.10)
+  !i       parmxp does not set parameters broy...betv in this case
+  !i strn: string, parsed to extract mixing parameters for this iteration.
+  ! o Inputs/Outputs
+  ! o rmserr used in a conditional expression to determine whether
+  ! o       mixing mode should shift (see "r<expr", Remarks)
+  ! o       On output, rmserr is changed to -rmserr if a new mixing block is
+  ! o       started caused by the condition rmserr<rmsc. This acts as a signal
+  ! o       in the event that one may wish to kill the mix files.
+  !o Outputs
+  !o   Each of mixing parameters broy,nmix,wgt,beta,wc,killj
+  !o   broy   0 for linear or Anderson mixing
+  !o          1 for Broyden mixing
+  !o          2 for conjugate gradients mixing
+  !o   nmix   number of prior iterations to include in mix
+  !o   wgt    relative weights to assign; see Remarks
+  !o   beta   mixing beta (Anderson and CG mixing)
+  !o   elind  Lindhard screening parameter (when dielectric F can be est)
+  !o   wc     mixing weights for Broyden mixing (see Remarks)
+  !o   killj  for periodic mixing file deletion 
+  !o   betv   for independent potential mixing
+  !o   parmxp returns false if the parse fails, otherwise true.
+  !r Remarks
+  !r The general syntax for strn is a sequence of groups of mixing
+  !r parameters.  The syntax of one group looks like the following.
+  !r   A[nmix][some-parameters--see below]
+  !r   B[nmix][some-parameters--see below]
+  !r   thus a ';' indicates the start of a new block in the sequence
+  !r   The mixing parameters are as follows:
+  !r   ,b=#:   set mixing beta=#.
+  !r           (NB: for Broyden mixing, only meaningful to get started)
+  !r   ,bv=#[,#2] set extra potential mixing parameter betv to #.  If
+  !r           last in this block, set to #2.
+  !r   ,k=#    kill the mixing file after # iterations
+  !r   ,fn=nam set the mixing file name to 'nam'
+  !r   ,wc=#   set Broyden wc to #.  Smaller wc more heavily weights
+  !r           most recent iterations.  wc<0 sets wc to abs(wc)*rms error.
+  !r   ,w=w1,w2 (spin pol only).  Spin-pol calculations mix up+down and
+  !r           up-down.  w1 and w2 are the relative weights to assign
+  !r           to these two channels.  w2=0=> magnetic moments frozen;
+  !r           w1=0 => total charge is frozen.
+  !r   ,wa=#   weight for additonal parameters to be mixed
+  !r   ,elind=# Lindhard screening parameter
+  !r   ,r<expr continue this block of mixing sequence until rmserr<expr.
+  !r           NB: parmxp temporarily loads into the variables table
+  !r           the value of errmin, which may be used in parsing expr.
+  !r           The latter is set by calling parmx0(0,0,errmin).
+  !r           If r<expr is to be used then n=1 must also be set.
+  !r Example value of strn : B30,w=2,1,fn=mxm,wc=11,k=3
+  !r   does Broyden mixing.
+  !r   The Broyden iterations weight the (up+down) double that of
+  !r   (up-down) for the spin pol case, and iterations are saved in a file
+  !r   which is deleted at the end of every third iteration.  WC is 11.
+  !r   beta assumes the default value.
+  !b Bugs:
+  !b   parmxp cannot tell if this iterations is the last one in a block
+  !b   if the constraint rmsc<rmserr is not satisfied.  If it is not,
+  !b   betv always returns bv(1).
+  !r Defaults:
+  !r   nkill has hardwired defaults of -1 and 0.
+  !r   nit defaults to infinity
+  !r   broy,nmix,wgt,beta,wc,betv default to their input values.
+  !r   Setting input wgt(3) to -9 signals that wgt(3) is not used.
+  !l Local variables
+  !l   iblk:  index to current sequence of mixing parameters
+  !l   nitj:  effective iter corresponding to last iteration of last
+  !l          mixing block, to determine position in current mixing block
+  !l   lstblk:index to block of mixing parameters of last call.  Normally
+  !l          set and saved internally.  Caller may set lstblk (entry
+  !l           parmx0) to fix the current place in the mixing block group.
+  !l   lstitj:performs a dual function, depending on sign.
+  !l          lstitj<=0: corresponds to -nitj of prior call.  parmxp sets
+  !l                     lstitj internally for this mode.
+  !l          lstitj>0:  (set by caller), which iteration within the
+  !l                     current mixing block the next iteration will
+  !l                     correspond to.
+  !u Updates
+  !u    20 Jul 08 (ATP) returns rmserr as -rmserr to signal new block
+  !u    1  Jun 00 added argument elind
+  ! --------------------------------------------------
+  implicit none
+  integer :: broy
+  character strnin*(*)
+  integer :: iter,lstrn,nmix
+  double precision :: wgt(3),beta,elind,wc,betv,rmserr
+  integer :: i,j,np,it(5),parg,nit,nmixj,jp,kp,killj,nitj, &
+       iprint,i1mach,a2vec,lstblk,lstitj,iblk,nbump,k,ia0,lbroy,iterm
+  logical :: lpr,lagain,cmdopt
+  character outs*100,fnam*8,num*10,strn*1000
+  double precision :: bet,elin,wt(3),wcj,rmsc,bv(2),errmin,xx
+  parmxp = .true.
+  if (strnin == ' ' .OR. lstrn <= 0) goto 9999
+  lbroy = broy
+  wcj = wc
+  nmixj = nmix
+  bet = beta
+  elin = elind
+  !    bv(1) = betv
+  !    bv(2) = betv
+  wt(1) = wgt(1)
+  wt(2) = wgt(2)
+  wt(3) = wgt(3)
+  nit = -1
+  if (wgt(3) == -9) wt(3) = 0
+  strn=adjustl(strnin)
+  np =0
+  jp =0
+  iblk = 1
+  call chrps2(strn,'AaBbCc',6,np,jp,it)!Broyden or Anderson mixing
+  if (it(1) == 0) goto 999
+  lbroy = 0
+  if (it(1) >= 3) lbroy = 1
+  if (it(1) >= 5) lbroy = 2
+  if (lbroy == 1) outs =' mixrho: mixing mode=A' ! call awrit0('%a%bB',outs,len(outs),0)
+  if (lbroy == 2) outs =' mixrho: mixing mode=B' !call awrit0('%a%bC',outs,len(outs),0)
+  ! ... Pick up nmix
+  iterm = index(trim(strn),',')
+  if(iterm>2) read(strn(2:iterm-1),*) nmixj
+  iterm = index(trim(strn),' ')
+  if(iterm>2) read(strn(2:iterm-1),*) nmixj
+  ! ... Pick up rmsc
+  rmsc = -1
+  jp = np
+  i = parg(',r<',4,strn,jp,lstrn,',; ',2,1,it,rmsc)
+  if (i < 0) goto 999
+  ! ... Pick up nit
+  !jp = np
+  !i = parg(',n=',2,strn,jp,lstrn,',; ',2,1,it,nit)
+  !if (i < 0) goto 999
+  ! ... Pick up file name
+  jp = np
+  i = parg(',fn=',0,strn,jp,lstrn,',; ',2,0,it,0)
+  if (i > 0) then
+     kp = jp+1
+     call chrps2(strn,',; ',3,jp+5,kp,it)
+     fnam = strn(jp+1:kp)
+  endif
+  ! ... Pick up mixing wc
+  jp = np
+  if (lbroy == 1) then
+     i = parg(',wc=',4,strn,jp,lstrn,',; ',2,1,it,wcj)
+     if (i < 0) goto 999
+  endif
+  ! ... Pick up mixing beta
+  jp = np
+  i = parg(',b=',4,strn,jp,lstrn,',; ',2,1,it,bet)
+  if (i < 0) goto 999
+  ! ... Pick up elind
+  jp = np
+  i = parg(',elind=',4,strn,jp,lstrn,',; ',2,1,it,elin)
+  if (i < 0) goto 999
+  ! ... Pick up weights
+  jp = np
+  i = parg(',w=',4,strn,jp,lstrn,',; ',2,2,it,wt)
+  if (i < 0) goto 999
+  jp = np
+  j = parg(',wa=',4,strn,jp,lstrn,',; ',2,1,it,wt(3))
+  if (j < 0) goto 999
+  !...  Pick up iteration number for file kill
+  killj = -1
+  jp = np
+  i = parg(',k=',2,strn,jp,lstrn,',; ',2,1,it,killj)
+  if (i < 0) goto 999
+  !...  Pick up betv
+  jp = np
+  i = parg(',bv=',4,strn,jp,lstrn,',; ',2,2,it,bv)
+  if (i == -2) then ! if only one element found, bv(2) = bv(1)
+     bv(2) = bv(1)
+     i = 1
+  endif
+  if (i < 0) goto 999
+  if (i > 0) lpr = .TRUE. 
+  broy = lbroy
+  nmix = nmixj
+  wgt(1) = wt(1)
+  wgt(2) = wt(2)
+  if (wgt(3) == -9) wt(3) = 0
+  wgt(3) = wt(3)
+  beta = bet
+  elind = elin
+  wc = wcj
+  !    betv = bv(1)
+  goto 9999
+999 outs = 'parmxp: parse failed:'//strn(1:lstrn) !error exit
+  parmxp = .false.
+9999 continue ! --- Normal exit ---
+end function parmxp
+integer function parg(tok,cast,strn,ip,lstr,sep,itrm,narg,it,res)
+  !- Returns vector of binary values from a string
+  ! ----------------------------------------------------------------------
+  !i Inputs
+  !i   tok:  token marking input
+  !i  cast:  0=logical, 2=int, 3=real, 4=double
+  !i  strn(ip:lstr):string to parse, from (ip=0 for first char)
+  !i  lstr:  length of strn
+  !i  sep:   string of characters, each of which separates arguments
+  !i  itrm:  characters sep(itrm:*) signal the last argument
+  !i  narg:  number of values to parse.
+  ! o Inputs/Outputs
+  !o   ip:   on input, position in strn where to start parsing
+  !o         on ouput, position in strn on exit.
+  !o Outputs
+  !o   res:  Vector of numbers that were converted
+  !o   it:   Vector of indices, one for each entry in res, labeling
+  !o         which char in 'sep' terminated the expr. for that entry.
+  !o parg:   0 if token is not matched in strn.
+  !o         n if token match and converted sans error narg numbers
+  !o           (for narg=0, returns 1 if token matched)
+  !o        -n if error on conversion of argument n
+  ! ----------------------------------------------------------------------
+  !     implicit none
+  ! Passed Parameters
+  integer :: lstr,ip,cast,narg,itrm,it(1)
+  character*(*) tok,sep,strn
+  double precision :: res(narg)
+  ! Local Variables
+  logical :: ldum,parstr
+  character term*1
+  integer :: jp,np,nsep,lentok,a2vec
+  nsep = len(sep)
+  lentok = len(tok)
+  term = tok(lentok:lentok)
+  ! --- Find end of string ---
+  jp = ip
+  it(1) = 0
+  if (itrm <= nsep) &
+       call chrps2(strn,sep(itrm:nsep),nsep-itrm+1,lstr,jp,it)
+  if (it(1) /= 0) then
+     np = jp
+  else
+     np = lstr
+  endif
+  !     print *, 'np,lstr=',np,lstr,ip,jp
+  ! --- Parse for tok within string strn, returning 0 if missing  ---
+  !      print *, tok
+  !      print *, strn
+  if (tok /= ' ') then
+     if (narg == 0 .AND. np == lentok) then
+        ip = np+1
+        parg = 0
+        if (strn(1:np) == tok(1:np)) parg = 1
+        return
+     elseif ( .NOT. parstr(strn,tok,np-lentok,lentok,term,ip,jp)) then
+        parg = 0
+        ip = np+1
+        return
+     endif
+  else
+     jp = ip
+  endif
+  ! --- Parse for vector of binary values to convert
+  if (narg == 0) then
+     ip = jp
+     parg = 1
+     return
+  endif
+  ip = jp
+  parg = a2vec(strn,np,ip,cast,sep,nsep,itrm,narg,it,res)
+end function parg
