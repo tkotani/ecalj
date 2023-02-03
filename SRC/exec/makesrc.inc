@@ -121,10 +121,7 @@ rdsigm2.o\
 xcpbe.o \
 m_ext.o\
 a2bin.o \
-a2bina.o \
-a2vec.o \
 amix.o \
-awrite.o \
 broyj.o \
 cmdopt.o \
 cpudel.o \
@@ -136,11 +133,9 @@ gradfl.o \
 gradzr.o \
 hunti.o \
 huntx.o \
-info.o \
 iprint.o \
 llnew.o  \
 matm.o \
-mkilst.o \
 mklagw.o \
 mklegw.o \
 mpibc.o \
@@ -152,7 +147,6 @@ rdfiln.o \
 rfalsi.o \
 strings.o \
 symvar.o \
-symvec.o \
 words.o \
 zhev.o \
 tc.o \
@@ -206,7 +200,6 @@ vcdmel.o \
 vesgcm.o \
 vxtrap.o \
 wrhomt.o \
-ncutcorrect.o \
 stonerrsa.o \
 polinta.o \
 lmaux.o \
@@ -285,7 +278,6 @@ genallcf_mod.o \
 rgwinf_mod.o \
 cputid.o \
 mate.o \
-bib1.o \
 reindx.o \
 bz.o \
 genqbz.o \
