@@ -1,5 +1,5 @@
 ! no hope to improve this routine ! Replace this by python or something else!
-! a2bin, a2bina, a2vec are used only at limited parts.
+! a2bin, a2vec are used at rdfiln,symvar, m_gtv
 integer function a2vec(str,lstr,ip,cast,sep,nsep,itrm,nvec,ix,res)
   !- Parses ascii string for a vector of binary values
   ! ----------------------------------------------------------------------

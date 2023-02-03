@@ -1,5 +1,7 @@
-module m_rdfiln ! preprocessor. ctrl.* is conveted to ctrl_preprocessd.*   File to File, no side effect.
-  ! We should write a substution for this preprocessor by python
+module m_rdfiln! preprocessor. ctrl.* is conveter to ctrl_preprocessd.*
+  ! This routine depends on a2bin.f90 (ascii to num) and symvar.f90 (console inputs).
+  ! File to File, no side effect. 
+  ! Not maintain this routine. We should rewrite a substution by python.
   public M_rdfiln_init
   private
 contains
@@ -31,7 +33,6 @@ contains
     enddo
     close(ncp)
   end subroutine m_rdfiln_init
-
 
   subroutine parchv(recrd,recl,mxchr,cex,sep,opts,nchr,ctbl,j)
     !- Parses a string for one or more character variable declarations

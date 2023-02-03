@@ -1,4 +1,6 @@
-subroutine finits()       !job,fcn,fcargs,iarg)
+! Manage commandline inputs. -vfoobar.
+! It is better to replace this by code in python.
+subroutine finits()  
   use m_ext,only:sname
   implicit none
   !! Set the numbr of iprint(), extension, and -vnam=val
@@ -159,8 +161,6 @@ subroutine addsyv(nam,val,ival)
   tmpval = symval(nvar2)
   symval(nvar2) = symval(nvar)
   symval(nvar) = tmpval
-  return
-
 end subroutine addsyv
 subroutine parsyv(recrd,size,mxdecl,iopt,i)
   !- Parses a string for one or more variable declarations
@@ -175,8 +175,7 @@ subroutine parsyv(recrd,size,mxdecl,iopt,i)
   !o   i:      last character parsed
   !r Remarks
   ! ----------------------------------------------------------------
-  !     implicit none
-  ! Passed parameters
+  implicit none
   integer :: size,i,mxdecl,iopt
   character(1) :: recrd(0:*)
   ! Local parameters
@@ -186,14 +185,11 @@ subroutine parsyv(recrd,size,mxdecl,iopt,i)
   character(1) :: aops(7)
   character(255) :: a,aa,tmpdir
   data aops/'=','*','/','+','-','^',' '/
-
   ndecl = 0
 10 continue
   call skipbl(recrd,size,i)
   if (i >= size .OR. ndecl >= mxdecl) return
   j=i
-  !      call chrps2(recrd,aops,7,size,j,nextop)
-  !      if (j .ge. size .or. nextop .eq. 7) return
   call chrps2(recrd,aops,6,size,j,nextop)
   if (j >= size) return
   i0 = j+1
@@ -212,21 +208,6 @@ subroutine parsyv(recrd,size,mxdecl,iopt,i)
      call strcop(a(7:),recrd(i0+1),min(size-i0,len(a)),'`',k)
      if (a(k+6:k+6) /= '`') goto 999
      call rx('I think no way to go thru here')
-     !        tmpdir = ' '
-     !        call get_environment_variable('TMPDIR',tmpdir)
-     !        if (tmpdir .eq. ' ') tmpdir = '.'
-     !        call strcat(tmpdir,len(tmpdir),' ','/parsyv.xxx',11,' ',m)
-     !        a(k+7:) = ' > '
-     !        call strcat(a(k+10:),len(a)-10,' ',tmpdir,len(tmpdir),' ',m)
-     !        call fsystm(a,m)
-     !        ifi = fopnx(tmpdir,72,1,-1)
-     !        rewind ifi
-     !        aa = ' '
-     !        read(ifi,'(a)') aa
-     !        call fclose(ifi)
-     !        m = 0
-     !        lrd = a2bin(aa,dum,4,0,' ',m,-1)
-     !        i0 = i0+k+1
   else
      lrd = a2bin(recrd,dum,4,0,' ',i0,-1)
   endif
