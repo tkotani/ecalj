@@ -2818,7 +2818,7 @@ subroutine splrho(mode,nsp,nr,nlml,rho1,rho2,rhoc)
   fac = 1
   if (mod(mode,10) /= 0) fac = .5d0
   call dsumdf(nr*nlml,fac,rho1,0,1,rho1(1,1,2),0,1)
-  if (mod(mod(mode/10,10),2)  == 0) call dsumdf(nr*nlml,fac,rho2,0,1,rho2(1,1,2),0,1)
+  if (mod(mod(mode/10,10),2)  == 0)  call dsumdf(nr*nlml,fac,rho2,0,1,rho2(1,1,2),0,1)
   if (mod(mod(mode/10,10)/2,2) == 0) call dsumdf(nr,fac,rhoc,0,1,rhoc(1,2),0,1)
 end subroutine splrho
 subroutine lgstar(mode,ng,n,gv,ng0,ips0,cg)
@@ -2919,8 +2919,7 @@ subroutine lgstar(mode,ng,n,gv,ng0,ips0,cg)
      enddo
   enddo
 end subroutine lgstar
-subroutine dsumdf(n,scal,a1,ofa1,l1,a2,ofa2,l2)
-  !- Returns scaled sum and difference of two vectors
+subroutine dsumdf(n,scal,a1,ofa1,l1,a2,ofa2,l2)! Returns scaled sum and difference of two vectors
   ! ----------------------------------------------------------------
   !i Inputs
   !i   n    :number elements to scale and combine
@@ -2935,11 +2934,9 @@ subroutine dsumdf(n,scal,a1,ofa1,l1,a2,ofa2,l2)
   !o   a1   :a1 <- scal*(a1+a2)
   !o   a2   :a1 <- scal*(a1-a2)
   ! ----------------------------------------------------------------
-  !     implicit none
-  ! Passed parameters
+  implicit none
   integer :: n,l1,l2,ofa1,ofa2
   double precision :: scal, a1(1), a2(1)
-  ! Local parameters
   real(8) ,allocatable :: a_rv(:)
   ! --- a1-a2-> temp;  a1+a2 -> a1;  temp -> a2 ---
   allocate(a_rv(n))
@@ -2952,23 +2949,19 @@ subroutine dsumdf(n,scal,a1,ofa1,l1,a2,ofa2,l2)
   call dscal(n,scal,a1(1+ofa1),l1)
   call dscal(n,scal,a2(1+ofa2),l1)
 end subroutine dsumdf
-subroutine dpdump(array,length,ifile)
-  !     - Binary I/O of an array
+subroutine dpdump(array,length,ifile)! Binary I/O of an array
   integer:: length,ifile
   double precision :: array(length)
   if (ifile > 0) read(ifile) array
   if (ifile < 0) write(-ifile) array
 end subroutine dpdump
-logical function lddump(array,length,ifile)
-  !- Binary I/O of an array, returning T if I/O without error or EOF
-  !     implicit none
+logical function lddump(array,length,ifile)! Binary I/O of an array, returning T if I/O without error or EOF
   integer :: length,ifile
   double precision :: array(length),xx,yy
   lddump = .true.
   if (ifile > 0) then
      yy = array(length)
-     !       (some random number)
-     xx = -1.9283746d0*datan(1d0)
+     xx = -1.9283746d0*datan(1d0) !       (some random number)
      array(length) = xx
      read(ifile,end=90,err=91) array
      if (xx /= array(length)) return

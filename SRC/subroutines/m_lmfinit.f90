@@ -1075,8 +1075,7 @@ contains
          wt(1:2) = mix_w(1:2)
          wt(3) = -9 !     Flags parmxp that there are no extra elements to mix
          nmix  = mix_mmix  !out
-         fnam='mixm'
-         if(.NOT. parmxp(trim(iter_mix),len(trim(iter_mix)),broy,nmix,wt,beta,elinl,fnam,wc,killj))& 
+         if(.NOT. parmxp(trim(iter_mix),len(trim(iter_mix)),broy,nmix,wt,beta,elinl,wc,killj))& 
               call rx('MIXRHO: parse in parmxp failed')
          write(stdo,ftox)' mmmixing parameters: A/B nmix wt:',broy,nmix,ftof(wt),&
               'beta elin wc killj=',ftof(beta),ftof(elinl),ftof(wc),killj
@@ -2013,7 +2012,7 @@ end module m_lmfinit
 
 
 
-logical function parmxp(strnin,lstrn,broy,nmix,wgt,beta,elind,mixnam,wc,killj) !,betv)!,rmserr)!nkill
+logical function parmxp(strnin,lstrn,broy,nmix,wgt,beta,elind,wc,killj) !,betv)!,rmserr)!nkill 
   !- Parse strng to get mixing parameters for current iteration
   ! --------------------------------------------------
   !i Inputs
@@ -2029,7 +2028,7 @@ logical function parmxp(strnin,lstrn,broy,nmix,wgt,beta,elind,mixnam,wc,killj) !
   ! o       started caused by the condition rmserr<rmsc. This acts as a signal
   ! o       in the event that one may wish to kill the mix files.
   !o Outputs
-  !o   Each of mixing parameters broy,nmix,wgt,beta,mixnam,wc,killj
+  !o   Each of mixing parameters broy,nmix,wgt,beta,wc,killj
   !o   broy   0 for linear or Anderson mixing
   !o          1 for Broyden mixing
   !o          2 for conjugate gradients mixing
@@ -2037,9 +2036,8 @@ logical function parmxp(strnin,lstrn,broy,nmix,wgt,beta,elind,mixnam,wc,killj) !
   !o   wgt    relative weights to assign; see Remarks
   !o   beta   mixing beta (Anderson and CG mixing)
   !o   elind  Lindhard screening parameter (when dielectric F can be est)
-  !o   mixnam file name to read prior iterations
   !o   wc     mixing weights for Broyden mixing (see Remarks)
-  !o   nkill  for periodic mixing file deletion (see Remarks)
+  !o   killj  for periodic mixing file deletion 
   !o   betv   for independent potential mixing
   !o   parmxp returns false if the parse fails, otherwise true.
   !r Remarks
@@ -2081,7 +2079,7 @@ logical function parmxp(strnin,lstrn,broy,nmix,wgt,beta,elind,mixnam,wc,killj) !
   !r Defaults:
   !r   nkill has hardwired defaults of -1 and 0.
   !r   nit defaults to infinity
-  !r   broy,nmix,wgt,beta,mixnam,wc,betv default to their input values.
+  !r   broy,nmix,wgt,beta,wc,betv default to their input values.
   !r   Setting input wgt(3) to -9 signals that wgt(3) is not used.
   !l Local variables
   !l   iblk:  index to current sequence of mixing parameters
@@ -2100,14 +2098,11 @@ logical function parmxp(strnin,lstrn,broy,nmix,wgt,beta,elind,mixnam,wc,killj) !
   !u    20 Jul 08 (ATP) returns rmserr as -rmserr to signal new block
   !u    1  Jun 00 added argument elind
   ! --------------------------------------------------
-  !     implicit none
-  ! Passed parameters
+  implicit none
   integer :: broy
-  !     character strn*(*),mixnam*8
-  character strnin*(*),mixnam*8
+  character strnin*(*)
   integer :: iter,lstrn,nmix
   double precision :: wgt(3),beta,elind,wc,betv,rmserr
-  ! Local variables
   integer :: i,j,np,it(5),parg,nit,nmixj,jp,kp,killj,nitj, &
        iprint,i1mach,a2vec,lstblk,lstitj,iblk,nbump,k,ia0,lbroy,iterm
   logical :: lpr,lagain,cmdopt
@@ -2115,7 +2110,6 @@ logical function parmxp(strnin,lstrn,broy,nmix,wgt,beta,elind,mixnam,wc,killj) !
   double precision :: bet,elin,wt(3),wcj,rmsc,bv(2),errmin,xx
   parmxp = .true.
   if (strnin == ' ' .OR. lstrn <= 0) goto 9999
-  fnam = mixnam
   lbroy = broy
   wcj = wc
   nmixj = nmix
@@ -2205,7 +2199,6 @@ logical function parmxp(strnin,lstrn,broy,nmix,wgt,beta,elind,mixnam,wc,killj) !
   wgt(3) = wt(3)
   beta = bet
   elind = elin
-  mixnam = fnam
   wc = wcj
   !    betv = bv(1)
   goto 9999
