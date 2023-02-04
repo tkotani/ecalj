@@ -26,7 +26,7 @@ contains
     alabl = '#{}% ct '
     call rdfile(nfilin,alabl,recrd,mxrecs,strn,recln,nrecs) !read ctrl into recrd
     close(nfilin)
-    open(newunit=ncp,file='ctrl_preprocessed.'//trim(sname))
+    open(newunit=ncp,file='ctrlp.'//trim(sname))
     write(ncp,"(i10, ' #---- preprocessed ctrl file -------')")nrecs
     do i = 1, nrecs
        write(ncp,"(a)")trim(recrd(i))

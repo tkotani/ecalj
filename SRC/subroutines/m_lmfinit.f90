@@ -254,7 +254,7 @@ contains
          nrecs=0
       else   
          call MPI_BARRIER( MPI_COMM_WORLD, ierr )
-         open(newunit=ncp,file='ctrl_preprocessed.'//trim(sname))
+         open(newunit=ncp,file='ctrlp.'//trim(sname)) !Readin ctrlp, which contains only python-type math expressions. See subroutine mathexpr
          read(ncp,*) nrecs
          allocate(recrd(nrecs))
          do i = 1, nrecs

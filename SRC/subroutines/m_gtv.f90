@@ -876,6 +876,7 @@ contains
     ! --- ASCII-numerical conversion. Simple matematical conversion.
     ii = 0
     n = a2vec(rcd(i1:ie),ie-i1+1,ii,4,', ',2,-3,nin,iarr,arr)
+!    write(*,*)'vvvvvvec2 ',rcd(i1:ie),n
     if (n < 0) n = -n-1
 !  if(debug) write(stdo,ftox)' getinput: sought',nin,'numbers. Read',n,'from'//trim(name)
     if (present(nout) ) nout = n
@@ -1084,7 +1085,9 @@ integer function parg(tok,strn,ip,lstr,sep,itrm,narg,it,res)
   ! Local Variables
   logical :: ldum,parstr
   character term*1
-  integer :: jp,np,nsep,lentok,a2vec
+  character(100)::ddd
+  integer :: jp,np,nsep,lentok,a2vec,ipx
+  integer::itx(100)
   nsep = len(sep)
   lentok = len(tok)
   term = tok(lentok:lentok)
@@ -1124,5 +1127,32 @@ integer function parg(tok,strn,ip,lstr,sep,itrm,narg,it,res)
   endif
   ip = jp
   cast=4
-  parg = a2vec(strn,np,ip,cast,sep,nsep,itrm,narg,it,res)
+  
+  ddd=trim(strn(ip+1:))
+  np=len(trim(ddd))
+  ipx=0
+  parg = a2vec(trim(ddd),np,ipx,cast,sep,nsep,itrm,narg,itx,res)
+!  write(*,*)'vvvvvvec1 ',trim(ddd),'parg=', parg
+
+!  ipx=ip
+!  parg = a2vec(strn,np,ip,cast,sep,nsep,itrm,narg,it,res)
+!  write(*,*)'vvvvvvec1 ',trim(strn(ipx+1:)), parg
 end function parg
+
+subroutine mathexpr(expr,dat) !python version for a2vec
+  use m_MPItk,only: procid
+  integer::ix
+  character(8)  xt
+  character(100):: fff
+  real(8)::dat
+  character(*)::expr
+  fff='fa2q19'//trim(xt(procid))
+  !expr='2.3*sqrt(1.5)'
+  call execute_command_line("echo '"//trim(expr)//"'"//&
+       "|python -c 'import sys;from math import *;print(eval(sys.stdin.read()))'"&
+       ">"//trim(fff),wait=.true. )
+  open(newunit=ix,file=trim(fff))
+  read(ix,*) dat
+  close(ix,status='delete')
+  print *,'data=',dat
+end subroutine mathexpr
