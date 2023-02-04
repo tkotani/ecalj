@@ -1149,7 +1149,10 @@ subroutine mathexpr(expr,dat) !python version for a2vec
   fff='fa2q19'//trim(xt(procid))
   !expr='2.3*sqrt(1.5)'
   call execute_command_line("echo '"//trim(expr)//"'"//&
-       "|python -c 'import sys;from math import *;print(eval(sys.stdin.read()))'"&
+       "|python -c '&
+       import sys;&
+       from math import *;&
+       print(eval(sys.stdin.read()))&'"&
        ">"//trim(fff),wait=.true. )
   open(newunit=ix,file=trim(fff))
   read(ix,*) dat
