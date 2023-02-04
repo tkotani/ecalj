@@ -58,10 +58,10 @@ SITE    ATOM=A POS= 0 0 0
 %endif
 HAM     FORCES=0 XCFUN=2 TOL=1e-6 NSPIN=1 REL=t
         GMAX={gmax}
-GW      NKABC=nkgw GCUTB=2.7 GCUTX=2.2
+#GW      NKABC=nkgw GCUTB=2.7 GCUTX=2.2
 % const hf=f
 OPTIONS NSPIN=1 REL=t XCFUN=2 HF={hf}
-BZ      NKABC=nk BZJOB=bzj N=0 W=.002 NPTS=1001 SAVDOS=t
+BZ      NKABC={nk} BZJOB={bzj} N=0 W=.002 NPTS=1001 SAVDOS=t
 # Because bigbas=t is really large, use a more cautious metal treatment
 % ifdef bigbas
         METAL=3

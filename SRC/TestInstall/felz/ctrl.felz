@@ -21,7 +21,7 @@ IO      SHOW=F HELP=F VERBOS={verb} WKP=F
 %const a=2.87/0.529177 gmax=13 	nmix=3 nk=4 Rf=0.99 R=Rf*sqrt(3)*a/4
 STRUC   NBAS=1 NSPEC=1 NL=5
         ALAT={a} PLAT= .5 .5 .5  .5 -.5 .5  .5 .5 -.5
-% const so=0
+% const so=0 nit=1
 OPTIONS NSPIN=2 REL=T SO={so} XCFUN=2 
 SYMGRP  i*i
 SYMGRP  find
@@ -37,7 +37,7 @@ SPEC    ATOM=Fe Z=26 R={R} LMX=3 LMXA=3 KMXA=4 LFOCA=1 A=0.03
 SITE    ATOM=Fe POS= 0 0 0
 EWALD   TOL=1D-8 NKDMX=1999 NKRMX=1999
 # for version 7
-ITER    MIX=A6,k=3,b=.5 CONV=1d-4 CONVC=1d-4 NIT=nit
+ITER    MIX=A6,k=3,b=.5 CONV=1d-4 CONVC=1d-4 NIT={nit}
 #MIX     MODE=A6,k=nmix,b=beta CONV=conv CONVC=convc
 % const pwmode=0 pwemin=0 pwemax=3 
 HAM     OPTIONS NSPIN=2 REL=T SO={so} XCFUN=2 GMAX={gmax}

@@ -139,12 +139,11 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa)
   logical,protected:: bexist
   
 contains
-  subroutine m_lmfinit_init(prgnam)
-!    use m_rdfiln,only: recln ,nrecs,recrd
+  subroutine m_lmfinit_init(prgnam) ! All the initial data are set in module variables 
+    !                                 from ctrl_preprocessed.sname
     use m_struc_func
     use m_toksw,only:tksw
     use m_gtv
-    !! All the initial data are pushed into m_lmfinit
     !! ----------------------------------------------------------------------
     !! Inputs
     !!   recrd (recln*nrecs) : preprocessed input file from ctrl_preprocessed.* file.
@@ -243,6 +242,11 @@ contains
     integer,allocatable:: idxdn(:,:,:)
     character*(recln),allocatable:: recrd(:)
 
+    call clrsyv(0) !These are not necessary. But this makes logic clarified. 2023feb
+    call clrsvv(0) !Reset parameters in addsyv(given from command line) and addsvv(defined in ctrl).
+    !      So, we are sure that a2vec works with no external parameters. (pure mathematical).
+    !      This means a2vec, used in gtv, can be replaced by eval in python.
+    
     procid = mpipid(1)
     nproc  = mpipid(0)
     stage1: block !read ctrl file
