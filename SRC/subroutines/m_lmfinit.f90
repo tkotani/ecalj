@@ -1,28 +1,18 @@
 module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa)
   !                to run lmfp.F is stored in this module
-  ! call m_lmfinit_init set all initial data.
+  !                We perform 'call m_lmfinit_init', which sets all initial data.
+  !! m_lmfinit_init have three stages. Search the word 'Block' in the followings.
+  !! >lmf-MPIK --help show useful help.
+  !! At the bottom of this code, we keep old document for variables such as ctrl_*, ham_* and so on (search 'old doc')
+  !! This old document may/maynot be a help to read the code.
   use m_ext,only :sname        ! sname contains extension. foobar of ctrl.foobar
   use m_struc_def,only: s_spec ! spec structures.
   use m_MPItk,only: master_mpi
   use m_lgunit,only: stdo,stdl
   use m_density,only: pnuall,pnzall !these are set here! log-derivative of radial functions.
   implicit none
-  !
-  !! m_lmfinit_init have three stages. Search the word 'Block' in the followings.
-  !! At the bottom of this code,
-  !! I put old document for variables such as ctrl_*, ham_* and so on (search 'old doc')
-  !! The old document may/maynot be a help to read the code.
-  
-  !! >lmf-MPIK --help show useful help.
-  !i   alat  :length scale of lattice and basis vectors, a.u.
-  !i   ng    :number of G-vectors
-  !i   gv    :list of reciprocal lattice vectors G (gvlist.f)
-  !i   tol   :tolerance in wave function precision:
-  !i         :Here wave function cutoff for g-vectors whose wave
-  !i          functions are less than tol.
-
-  !!---- initial settings read from ctrl and processed -------
-  integer,parameter:: recln=511
+  !!---- initial settings read from ctrl_processed.sname
+  integer,parameter::  recln=511
   integer,parameter::  noutmx=48
   logical,parameter::  T=.true., F=.false.
   integer,parameter::  NULLI=-99999,nkap0=3,mxspec=256,lstrn=10000
@@ -31,7 +21,6 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa)
   real(8),parameter::  fpi  = 16d0*datan(1d0), y0 = 1d0/dsqrt(fpi)
   real(8),parameter::  pi = 4d0*datan(1d0), srfpi = dsqrt(4d0*pi)
   integer,protected::  io_show,io_help=0,nvario=0, lat_nkqmx,nat,lxcf !,irs4
-  integer(2),protected:: nono
   character(lstrn),protected:: sstrnmix,sstrnsymg
   character(256),protected:: header,symg=' ',   symgaf=' '!for Antiferro
   logical,protected :: ham_frzwf,ham_ewald
@@ -132,8 +121,8 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa)
   !   arg 5: step length
   !   arg 6: Remove hessian after this many steps
 
-  logical,protected:: readpnu,v0fix,pnufix
   ! mixrho
+  logical,protected:: readpnu,v0fix,pnufix
   integer,protected:: broyinit,nmixinit,killj
   real(8),protected:: wtinit(3),wc,elinl,betainit
   logical,protected:: bexist
@@ -324,7 +313,10 @@ contains
             do while (nspec <= 0)
                j = j+1; jj= (/1,j/)
                if ( .NOT. debug) call pshpr(0)
-               call gtv(trim(nm),0,nono,Texist=ltmp,cindx=jj)
+               block
+                   integer(2):: nono !this is key to choose gtv_none
+                   call gtv(trim(nm),0,nono,Texist=ltmp,cindx=jj)
+               endblock    
                if ( .NOT. debug) call poppr
                if ( .NOT. ltmp) nspec = j-1
             enddo
