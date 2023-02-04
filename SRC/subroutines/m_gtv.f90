@@ -927,8 +927,6 @@ logical function parmxp(strnin,lstrn,broy,nmix,wgt,beta,elind,wc,killj) !,betv)!
   !r   The mixing parameters are as follows:
   !r   ,b=#:   set mixing beta=#.
   !r           (NB: for Broyden mixing, only meaningful to get started)
-  !r   ,bv=#[,#2] set extra potential mixing parameter betv to #.  If
-  !r           last in this block, set to #2.
   !r   ,k=#    kill the mixing file after # iterations
   !r   ,fn=nam set the mixing file name to 'nam'
   !r   ,wc=#   set Broyden wc to #.  Smaller wc more heavily weights
@@ -953,7 +951,6 @@ logical function parmxp(strnin,lstrn,broy,nmix,wgt,beta,elind,wc,killj) !,betv)!
   !b Bugs:
   !b   parmxp cannot tell if this iterations is the last one in a block
   !b   if the constraint rmsc<rmserr is not satisfied.  If it is not,
-  !b   betv always returns bv(1).
   !r Defaults:
   !r   nkill has hardwired defaults of -1 and 0.
   !r   nit defaults to infinity
@@ -980,12 +977,12 @@ logical function parmxp(strnin,lstrn,broy,nmix,wgt,beta,elind,wc,killj) !,betv)!
   integer :: broy
   character strnin*(*)
   integer :: iter,lstrn,nmix
-  double precision :: wgt(3),beta,elind,wc,betv,rmserr
+  double precision :: wgt(3),beta,elind,wc,betv,rmserr,akillj
   integer :: i,j,np,it(5),parg,nit,nmixj,jp,kp,killj,nitj, &
        iprint,i1mach,a2vec,lstblk,lstitj,iblk,nbump,k,ia0,lbroy,iterm
   logical :: lpr,lagain,cmdopt
   character outs*100,fnam*8,num*10,strn*1000
-  double precision :: bet,elin,wt(3),wcj,rmsc,bv(2),errmin,xx
+  double precision :: bet,elin,wt(3),wcj,rmsc,errmin,xx
   parmxp = .true.
   if (strnin == ' ' .OR. lstrn <= 0) goto 9999
   lbroy = broy
@@ -993,12 +990,7 @@ logical function parmxp(strnin,lstrn,broy,nmix,wgt,beta,elind,wc,killj) !,betv)!
   nmixj = nmix
   bet = beta
   elin = elind
-  !    bv(1) = betv
-  !    bv(2) = betv
-  wt(1) = wgt(1)
-  wt(2) = wgt(2)
-  wt(3) = wgt(3)
-  nit = -1
+  wt = wgt
   if (wgt(3) == -9) wt(3) = 0
   strn=adjustl(strnin)
   np =0
@@ -1019,55 +1011,35 @@ logical function parmxp(strnin,lstrn,broy,nmix,wgt,beta,elind,wc,killj) !,betv)!
   ! ... Pick up rmsc
   rmsc = -1
   jp = np
-  i = parg(',r<',4,strn,jp,lstrn,',; ',2,1,it,rmsc)
+  i = parg(',r<',strn,jp,lstrn,',; ',2,1,it,rmsc)
   if (i < 0) goto 999
-  ! ... Pick up nit
-  !jp = np
-  !i = parg(',n=',2,strn,jp,lstrn,',; ',2,1,it,nit)
-  !if (i < 0) goto 999
-  ! ... Pick up file name
-  jp = np
-  i = parg(',fn=',0,strn,jp,lstrn,',; ',2,0,it,0)
-  if (i > 0) then
-     kp = jp+1
-     call chrps2(strn,',; ',3,jp+5,kp,it)
-     fnam = strn(jp+1:kp)
-  endif
   ! ... Pick up mixing wc
   jp = np
   if (lbroy == 1) then
-     i = parg(',wc=',4,strn,jp,lstrn,',; ',2,1,it,wcj)
+     i = parg(',wc=',strn,jp,lstrn,',; ',2,1,it,wcj)
      if (i < 0) goto 999
   endif
   ! ... Pick up mixing beta
   jp = np
-  i = parg(',b=',4,strn,jp,lstrn,',; ',2,1,it,bet)
+  i = parg(',b=',strn,jp,lstrn,',; ',2,1,it,bet)
   if (i < 0) goto 999
   ! ... Pick up elind
   jp = np
-  i = parg(',elind=',4,strn,jp,lstrn,',; ',2,1,it,elin)
+  i = parg(',elind=',strn,jp,lstrn,',; ',2,1,it,elin)
   if (i < 0) goto 999
   ! ... Pick up weights
   jp = np
-  i = parg(',w=',4,strn,jp,lstrn,',; ',2,2,it,wt)
+  i = parg(',w=',strn,jp,lstrn,',; ',2,2,it,wt)
   if (i < 0) goto 999
   jp = np
-  j = parg(',wa=',4,strn,jp,lstrn,',; ',2,1,it,wt(3))
+  j = parg(',wa=',strn,jp,lstrn,',; ',2,1,it,wt(3))
   if (j < 0) goto 999
   !...  Pick up iteration number for file kill
-  killj = -1
+  akillj = -1
   jp = np
-  i = parg(',k=',2,strn,jp,lstrn,',; ',2,1,it,killj)
+  i = parg(',k=',strn,jp,lstrn,',; ',2,1,it,akillj)
+  killj=akillj
   if (i < 0) goto 999
-  !...  Pick up betv
-  jp = np
-  i = parg(',bv=',4,strn,jp,lstrn,',; ',2,2,it,bv)
-  if (i == -2) then ! if only one element found, bv(2) = bv(1)
-     bv(2) = bv(1)
-     i = 1
-  endif
-  if (i < 0) goto 999
-  if (i > 0) lpr = .TRUE. 
   broy = lbroy
   nmix = nmixj
   wgt(1) = wt(1)
@@ -1077,18 +1049,16 @@ logical function parmxp(strnin,lstrn,broy,nmix,wgt,beta,elind,wc,killj) !,betv)!
   beta = bet
   elind = elin
   wc = wcj
-  !    betv = bv(1)
   goto 9999
 999 outs = 'parmxp: parse failed:'//strn(1:lstrn) !error exit
   parmxp = .false.
 9999 continue ! --- Normal exit ---
 end function parmxp
-integer function parg(tok,cast,strn,ip,lstr,sep,itrm,narg,it,res)
-  !- Returns vector of binary values from a string
+integer function parg(tok,strn,ip,lstr,sep,itrm,narg,it,res)
+  !- Returns res= real(8) values from a string
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   tok:  token marking input
-  !i  cast:  0=logical, 2=int, 3=real, 4=double
   !i  strn(ip:lstr):string to parse, from (ip=0 for first char)
   !i  lstr:  length of strn
   !i  sep:   string of characters, each of which separates arguments
@@ -1153,5 +1123,6 @@ integer function parg(tok,cast,strn,ip,lstr,sep,itrm,narg,it,res)
      return
   endif
   ip = jp
+  cast=4
   parg = a2vec(strn,np,ip,cast,sep,nsep,itrm,narg,it,res)
 end function parg

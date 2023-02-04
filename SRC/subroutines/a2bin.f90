@@ -1,79 +1,3 @@
-subroutine parsyv(recrd,size,mxdecl,iopt,i)
-  !- Parses a string for one or more variable declarations
-  ! ----------------------------------------------------------------
-  !i Inputs
-  !i   recrd(0:*): string recrd is parsed from i to size-1
-  !i   iopt:   0: var declaration of existing variable is supressed
-  !i           1: var declaration of existing variable supersedes
-  !i   mxdecl: parsing ends if number of declarations exceeds mxdecl
-  !i   i:      parsing starts at char i (origin at 0)
-  !o Outputs
-  !o   i:      last character parsed
-  !r Remarks
-  ! ----------------------------------------------------------------
-  implicit none
-  integer :: size,i,mxdecl,iopt
-  character(1) :: recrd(0:*)
-  ! Local parameters
-  double precision :: dum,dum2
-  integer :: j,nextop,i0,ndecl,k,ifi,m
-  logical :: a2bin,lrd=.false.
-  character(1) :: aops(7)
-  character(255) :: a,aa,tmpdir
-  data aops/'=','*','/','+','-','^',' '/
-  ndecl = 0
-10 continue
-  call skipbl(recrd,size,i)
-  if (i >= size .OR. ndecl >= mxdecl) return
-  j=i
-  call chrps2(recrd,aops,6,size,j,nextop)
-  if (j >= size) return
-  i0 = j+1
-  if (nextop > 1) then
-     if (recrd(i0) /= '=') goto 999
-     i0 = i0+1
-  endif
-  j = j-i
-  if (j > 15) call fexit(-1,9,'parsyv: var def too long',0)
-  call skipbl(recrd,size,i0)
-  ! ... This branch writes echo `...` to file tmpdir, reads file contents
-  !     and parses result
-  if (recrd(i0) == '`') then
-     a = 'echo `'
-     k = 1
-     call strcop(a(7:),recrd(i0+1),min(size-i0,len(a)),'`',k)
-     if (a(k+6:k+6) /= '`') goto 999
-     call rx('I think no way to go thru here')
-  else
-     lrd = a2bin(recrd,dum,4,0,' ',i0,-1)
-  endif
-  if (lrd) then
-     ndecl = ndecl+1
-     call strcop(a,recrd(i),j,'=',i)
-     if (nextop == 1) then
-        call getsyv(a(1:j),dum2,i)
-        if (i == 0) call addsyv(a(1:j),dum,i)
-        if (i /= 0 .AND. iopt /= 0) call chsyv(a(1:j),dum,i)
-     else
-        dum2 = 0
-        call getsyv(a(1:j),dum2,i)
-        if (i == 0) call addsyv(a(1:j),0d0,i)
-        if (nextop == 2) dum = dum2*dum
-        if (nextop == 3) dum = dum2/dum
-        if (nextop == 4) dum = dum2+dum
-        if (nextop == 5) dum = dum2-dum
-        if (nextop == 6) dum = dum2**dum
-        call chsyv(a(1:j),dum,i)
-     endif
-  endif
-  i = i0
-  goto 10
-999 continue
-  print *, 'parsyv: bad syntax in var def, parsing at: ', &
-       (recrd(i), i=i0-1,min(i0+15,size)),' ...'
-  call fexit(-1,9,'parsyv aborting',0)
-end subroutine parsyv
-
 ! no hope to improve this routine ! Replace this by python or something else!
 ! a2bin, a2vec are used at rdfiln,symvar, m_gtv
 integer function a2vec(str,lstr,ip,cast,sep,nsep,itrm,nvec,ix,res)
@@ -301,7 +225,7 @@ logical function a2bin(instr,res,cast,count,term,j,jmaxi)
   return
   ! ... handle variable token: get value and treat as number token
 30 call getsyv(vartok,numtok,ival)
-!  write(6,*)'vvvtok  ',vartok,numtok,ival
+  write(6,*)'vvvtok  ',vartok,numtok,ival
   if (ival == 0) return
   ! ... handle number token: put it on the number stack
 40 numnum = numnum+1
@@ -1061,7 +985,6 @@ subroutine ran1in(iseed)
   integer :: ix1,ix2,ix3
   real :: r(97),rm1,rm2
   common /dran1/ ix1,ix2,ix3,rm1,rm2,r
-
   rm1 = 1./m1
   rm2 = 1./m2
   ! Seed the first, second and third sequences
@@ -1078,4 +1001,3 @@ subroutine ran1in(iseed)
 11 enddo
   return
 end subroutine ran1in
-

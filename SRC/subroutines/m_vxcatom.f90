@@ -1627,10 +1627,6 @@ subroutine vxc0sp(a,b,rofi,rho,nr,v,rho0,rep,rmu,nsp,exrmx)
   ub4pi = 1d0/(4d0*pi)
   lxcfun = lxcf_g
   lxcf = mod(lxcfun,100)
-  ! --- Add background rho to calculate vxc ---
-  !      rhobg = 0d0
-  !      call getsyv('rhobg',rhobg,i)
-  !      call addzbk(rofi,nr,1,nsp,rho,rhobg,1d0)
 
   !! === Extrapolate rho to origin ===
   do  10  isp = 1, nsp

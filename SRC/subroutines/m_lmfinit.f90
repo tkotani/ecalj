@@ -242,7 +242,7 @@ contains
     logical :: ipr10,fullmesh,lzz
     integer,allocatable:: idxdn(:,:,:)
     character*(recln),allocatable:: recrd(:)
-    
+
     procid = mpipid(1)
     nproc  = mpipid(0)
     stage1: block !read ctrl file
@@ -304,19 +304,8 @@ contains
          i0=1
       endif
       if ( i0 >=1 ) call tcinit(io_tim(2),io_tim(1),levelinit)
-      call tcn('m_lmfinit')
-      
-      ! !! CONST --- for backword compatibility. We will remove this.
-      ! call numsyv(nvario)
-      ! nm='CONST'
-      ! call gtv(trim(nm),tksw(prgnam,nm), bigstr, note='obsolate: This is for old version',nout=nout)
-      ! if (nout == 1) then
-      !    i = 0
-      !    call parsyv(bigstr,len_trim(bigstr),1999,0,i)
-      !    if (io_show /= 0) call shosyv(0,0,0,stdo)
-      ! endif
-
-      
+      call tcn('m_lmfinit') !after tcinit call
+      ! --- CONST here removed.2023feb
       !! Struc 
       if (tksw(prgnam,'STRUC') == 2) goto 59
       nm='STRUC_ALAT';call gtv(trim(nm),tksw(prgnam,nm),alat,note= 'Units of length (a.u.)')

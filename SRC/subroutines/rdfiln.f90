@@ -33,7 +33,6 @@ contains
     enddo
     close(ncp)
   end subroutine m_rdfiln_init
-
   subroutine rdfile(unit,cch,recrd,mxrecs,a,recl,nr)
     !- Reads entire disk file into recrd, calling rdfiln.
     implicit none
@@ -44,7 +43,7 @@ contains
     character ctbl(mxchr,2)*(ctlen)
     logical loop0(0:mxlev)
     integer :: nlin(0:mxlev),list(lstsiz,mxlev), &
-         ilist(mxlev),nlist(0:mxlev)
+         ilist(mxlev),nlist(0:mxlev),ival
     character vnam(mxlev)*16
     nr = 0
 10  continue
@@ -114,7 +113,7 @@ contains
        ! ... Prior declaration of variable; ignore this declaration
     else if (i >= 0 .AND. opt1 == 0) then
        j = j+k
-       call eostr(recrd,recl,11,' ',j)
+       call eostr(recrd(0),recl,11,' ',j)
        !        call skipbl(recrd,recl,j)
        !        call skp2bl(recrd,recl,j)
        goto 2
@@ -1863,7 +1862,6 @@ contains
     !       i>0 and aa2(i1:i2) = (possibly modified) substring of ctbl
     !       and m = number of characters to advance in recrd
 20  continue
-
     !   ... Substitute a character variable
     if (i >= 0) then
        jr = jr+m
@@ -1913,11 +1911,9 @@ contains
        endif
     endif
     goto 10
-
 999 continue
     call pvfil3('could',' not',' parse',recrd,1,reclr)
   end function pvfil2
-
   subroutine pvfil3(s1,s2,s3,recrd,jr,reclr)
     !- Error exit
     implicit none
@@ -1934,9 +1930,92 @@ contains
     !      call setpr(20)
     call fexit(-1,009,aa,0d0)
   end subroutine pvfil3
-
-
-
+  subroutine strip(str,i1,i2) !- Returns indices to first and last nonblank characters in a string
+    implicit none
+    integer :: i1,i2
+    character*(*) str
+    integer :: i
+    i1 = 0
+    do  i = 1, len(str)
+       if(str(i:i) /= ' ') then
+          i1 = i
+          goto 2
+       endif
+    enddo
+    i1 = 1
+    i2 = 0
+    return
+2   continue
+    i2 = len(str) + 1
+    do  i = len(str), 1, -1
+       if(str(i:i) /= ' ') then
+          i2 = i
+          exit
+       endif
+    enddo
+  end subroutine strip
+  subroutine mkilst(strn,nlist,list)
+    !- Resolve list (ascii string) into a vector of integers
+    ! ----------------------------------------------------------------------
+    !i Inputs
+    !i   strn  :string holding list of integers
+    !o Outputs
+    !o   nlist :number of integers in list
+    !o         :nlist<0 => mkilst failed to parse list
+    !o   list  :list of integers
+    !r Remarks
+    !r   Syntax: Na,Nb,... where each of the Na, Nb, etc ... has a syntax
+    !r   low:high:step
+    !r   low, high, and step are integer expressions specifying the sequence
+    !r     low, low+step, low+2*step, ... high.
+    !r   If :step is missing, the step size defaults to 1.  If also :high
+    !r   is missing,  the sequence reduces to a single integer. Thus,
+    !r     '5+1'       becomes a single number, 6.
+    !r     '5+1:8+2'   becomes a sequence of numbers, 6 7 8 9 10
+    !r     '5+1:8+2:2' becomes a sequence of numbers, 6 8 10.
+    !r   Sequences may be strung together separated by commas, eg
+    !r     '11,2,5+1:8+2:2' becomes a list 11 2 6 8 10.
+    !u Updates
+    !u   02 Feb 01 strn is now a character string
+    ! ----------------------------------------------------------------------
+    !     implicit none
+    integer :: list(*),nlist
+    character*(*) strn
+    integer :: it(512),iv(512),a2vec,ip,i,j,k
+    ip = 0
+    nlist = -1
+    call skipbl(strn,len(strn),ip)
+    k = a2vec(strn,len(strn),ip,2,',: ',3,3,100,it,iv)
+    if (k < 1) return
+    if (k >= 99) call rx('mkilst: increase size of iv')
+    it(k+1) = 0
+    iv(k+1) = iv(k)
+    ! ... loop over all iv
+    nlist = 0
+    i = 0
+14  continue
+    i = i+1
+    ! ... Case iv => a single number
+    if (it(i) /= 2) then
+       nlist = nlist+1
+       list(nlist) = iv(i)
+       ! ... Case iv => n1:n2:n3
+    elseif (it(i+1) == 2) then
+       do  j = iv(i), iv(i+1), iv(i+2)
+          nlist = nlist+1
+          list(nlist) = j
+       enddo
+       i = i+2
+       ! ... Case iv => n1:n2
+    else
+       do    j = iv(i), iv(i+1)
+          nlist = nlist+1
+          list(nlist) = j
+       enddo
+       i = i+1
+    endif
+    if (i < k) goto 14
+  end subroutine mkilst
   subroutine findctrlstart(nfilin)
     ! if we find 'ctrlstart', locate reading at the next line of ctrlstart.
     !     this is useful if you like to use script, GWinput, ctrl in a file.
@@ -1950,8 +2029,6 @@ contains
 1010 continue
     rewind(nfilin)
   end subroutine findctrlstart
-
-
   subroutine cpstr(strn,lstr,opt,delim,is,io,sout)
     !- Copy a string, excluding delimiters
     ! ----------------------------------------------------------------------
@@ -2042,418 +2119,76 @@ contains
 20  rdstrn = .false.
     return
   end function rdstrn
+  subroutine eostr(strn,lstr,opt,delim,is)
+    !- Mark end of a string
+    ! ----------------------------------------------------------------------
+    !i Inputs
+    !i   strn,is string, and first character (1st character starts at 1)
+    !i   delim   string delimiter marking end of string
+    !i   opt     1s  digit 1: exclude delimiters between " " or ' '
+    !i           10s digit 1: skip initial blanks
+    !i                     2: use strn(is) as delimiter;  delim is not used
+    !o Outputs
+    !i   is      smaller of position in strn of delimiter and lstr+1
+    ! ----------------------------------------------------------------------
+    !     implicit none
+    integer :: lstr,is,opt
+    character *(*) strn, delim*1
+    character ch*3
+    integer :: i2,opt0,opt1,it,k
+    data ch /' "'''/
+    opt0 = mod(opt,10)
+    opt1 = mod(opt/10,10)
+    ch(1:1) = delim
+    if (opt1 == 2) then
+       ch(1:1) = strn(is:is)
+    else
+       is = is-1
+    endif
+    ! ... Skip past leading blanks
+    if (opt1 == 1) then
+       call skipbl(strn,lstr,is)
+    endif
+    ! ... Find i2 : points to past last char of the argument
+    k = 1
+    if (opt0 /= 0) k = 3
+    i2 = is
+12  is = i2
+    call chrps2(strn,ch,k,lstr,i2,it)
+    if (it == 1 .AND. i2 < lstr) i2 = i2+1
+    ! ... A quote encountered ... find match and continue
+    if (it > 1 .AND. i2 < lstr) then
+       i2 = i2+1
+       is = i2
+       call chrpos(strn,ch(it:it),lstr,i2)
+       i2 = i2+1
+       goto 12
+    endif
+    is = min(i2,lstr+1)
+  end subroutine eostr
 end module m_rdfiln
 
-
-subroutine macset(args,err)
-  !- Routines for macro definitions
-  ! ----------------------------------------------------------------------
-  !i Inputs
-  !i   args   :ascii string defining macro, of form:
-  !i          :macro_name(arg1,arg2,..) expand_string
-  !i   err
-  !o Outputs
-  !l Local variables
-  !l   nmaca  : nmaca(i) = number of argments for macro i; limited to nmxarg
-  !l   macarag:macarag(j,i) is the variable names for argument j to macro i
-  !l          :First argument is macro name
-  !r Remarks
-  !r
-  !u Updates
-  !u   08 Jan 07  Increase the max number of macros
-  !u   19 Dec 02  First created
-  ! ----------------------------------------------------------------------
+!awrite is only for m_rdfiln now 2023feb
+subroutine awrit8(fmt,sout,mxln,ifi,a1,a2,a3,a4,a5,a6,a7,a8)
+  !- Subroutine versions of integer function awrite
   !     implicit none
-  ! ... Passed parameters
-  integer :: nmac,nmacx,nmxarg,err
-  character*(*) args,strout
-
-  ! ... Local parameters
-  parameter (nmacx=10,nmxarg=5)
-  !     logical savvar(nmacx)
-  !     double precision locval(nmacx)
-  integer :: nmaca(nmacx),nchar(nmxarg,2)
-  character(16) :: macarg(nmxarg,nmacx),argsub(nmacx)
-  character(256) :: macexp(nmacx),strn,strn2
-  integer :: j,j1,j2,i1,i2,iarg,imac,i,ls,errin
-  save nmac,nmaca,macarg,macexp
-  data nmac /0/
-
-  ! ... too many macros ... exit err=-1
-  err = -1
-  if (nmac >= nmacx) goto 99
-
-  ! ... No macro defined ... exit err=-2
-  call word(args,1,j1,j2)
-  err = -2
-  if (j1 > j2) goto 99
-  ! ... macro name doesn't start with a letter ... exit err=-3
-  err = -3
-  call wordg(args(j1:),10,'A-Za-z_0-9',1,i1,i2)
-  if (i2 < i1) goto 99
-  ! ... Assign macro name
-  macarg(1,nmac+1) = args(j1+i1-1:j1+i2-1)
-  ! ... First letter after macro name isn't '(' ... exit err=-4
-  err = -4
-  i1 = i2+j1
-  call nword(args,1,i1,i2)
-  if (args(i1:i1) /= '(') goto 99
-
-  ! --- Assign macro arguments ---
-  i1 = i1+1
-  iarg = 1
-10 continue
-
-  ! ... Error if macro has too many arguments
-  iarg = iarg+1
-  err = -5
-  if (iarg > nmxarg) goto 99
-
-  ! ... Error if no terminator to macro
-  call nwordg(args,1,'),',1,i1,i2)
-  err = -6
-  if (i2 >= len(args)) goto 99
-
-  macarg(iarg,nmac+1) = args(i1:i2)
-  i1 = i2+2
-  if (args(i2+1:i2+1) /= ')') goto 10
-
-  ! ... get macro string ... error if none
-  err = -7
-  call nword(args,1,i1,i2)
-  if (i2 < i1) goto 99
-  macexp(nmac+1) = args(i1:i2)
-
-  ! ... Macro arguments complete ... increment number of macros by 1
-  nmac = nmac+1
-  nmaca(nmac) = iarg
-  err = 0
-  goto 99
-
-  ! --- macro evaluation ---
-  entry macevl(args,strout,err)
-  ! Input err:   0 -> just return index to macro in err if it exists
-  ! Input err: <>0 -> return index to macro, and strout = expansion
-
-  errin = err
-
-  ! ... No macro defined ... exit err=-2
-  call word(args,1,j1,j2)
-  err = -2
-  if (j1 > j2) goto 99
-
-  ! ... No match to existing macro names ... exit err=-1
-  err = -1
-  call wordg(args(j1:),10,'A-Za-z_0-9',1,i1,i2)
-  if (i2 < i1) goto 99
-  do  imac = 1, nmac
-     if (macarg(1,imac) == args(j1+i1-1:j1+i2-1)) goto 15
-  enddo
-  goto 99
-
-  ! ... macro found
-15 continue
-  if (errin == 0) then
-     err = imac
-     return
-  endif
-
-  ! ... First letter after macro name isn't '(' ... exit err=-4
-  err = -4
-  i1 = i2+j1
-  call nword(args,1,i1,i2)
-  if (args(i1:i1) /= '(') goto 99
-
-  ! --- Assign macro arguments ---
-  i1 = i1+1
-  iarg = 1
-20 continue
-
-  ! ... Error if macro has too many arguments
-  iarg = iarg+1
-  err = -5
-  if (iarg > nmaca(imac)) goto 99
-
-  ! ... Error if no terminator to macro
-  call nwordg(args,1,'),',1,i1,i2)
-  err = -6
-  if (i2 >= len(args)) goto 99
-
-  ! ... For this variable, evaluate argument and load var table with res
-  argsub(iarg) = args(i1:i2)
-  i1 = i2+2
-  if (args(i2+1:i2+1) /= ')') goto 20
-
-  ! ... count number of characters in each macro string
-  do  i = 2, nmaca(imac)
-     call word(macarg(i,imac),1,j1,j2)
-     nchar(i,1) = j2
-     call word(argsub(i),1,j1,j2)
-     nchar(i,2) = j2
-  enddo
-  !     i = which string holds current value of macro
-  !     j = pointer to current index in string
-  i = 1
-  j = 1
-  strn = macexp(imac)
-  ls = len(strn)
-  call skpblb(strn,len(strn),i)
-  ls = i+1
-  ! --- macro substitution ---
-30 continue
-  do  i = 2, nmaca(imac)
-     if (strn(j:j+nchar(i,1)-1) == macarg(i,imac)) then
-        !         Also next character cann be part of a word
-        call wordg(strn(j+nchar(i,1)-1:),10,'A-Za-z_0-9',1,i1,i2)
-        if (i2 <= i1) then
-           strn2(1:ls) = strn
-           strn(j:j+nchar(i,2)-1) = argsub(i)
-           ls = ls + nchar(i,2)-nchar(i,1)
-           strn(j+nchar(i,2):ls) = strn2(j+nchar(i,1):)
-           if (nchar(i,2)-nchar(i,1) < 0) then
-              strn(ls+1:ls+1) = ' '
-           endif
-           j = j + nchar(i,2)-1
-           goto 35
-        endif
-     endif
-  enddo
-35 continue
-  !     Move past current word
-  call nwordg(strn,10,'A-Za-z_0-9',1,j,j2)
-  if (j2 > j) then
-     j = j2+1
-  else
-     j = j+1
-  endif
-  if (j <= ls) goto 30
-  err = imac
-  strout = strn(1:ls)
-  ! --- Error exit ---
-99 continue
-end subroutine macset
-subroutine eostr(strn,lstr,opt,delim,is)
-  !- Mark end of a string
-  ! ----------------------------------------------------------------------
-  !i Inputs
-  !i   strn,is string, and first character (1st character starts at 1)
-  !i   delim   string delimiter marking end of string
-  !i   opt     1s  digit 1: exclude delimiters between " " or ' '
-  !i           10s digit 1: skip initial blanks
-  !i                     2: use strn(is) as delimiter;  delim is not used
-  !o Outputs
-  !i   is      smaller of position in strn of delimiter and lstr+1
-  ! ----------------------------------------------------------------------
-  !     implicit none
-  integer :: lstr,is,opt
-  character *(*) strn, delim*1
-  character ch*3
-  integer :: i2,opt0,opt1,it,k
-  data ch /' "'''/
-  opt0 = mod(opt,10)
-  opt1 = mod(opt/10,10)
-  ch(1:1) = delim
-  if (opt1 == 2) then
-     ch(1:1) = strn(is:is)
-  else
-     is = is-1
-  endif
-  ! ... Skip past leading blanks
-  if (opt1 == 1) then
-     call skipbl(strn,lstr,is)
-  endif
-  ! ... Find i2 : points to past last char of the argument
-  k = 1
-  if (opt0 /= 0) k = 3
-  i2 = is
-12 is = i2
-  call chrps2(strn,ch,k,lstr,i2,it)
-  if (it == 1 .AND. i2 < lstr) i2 = i2+1
-  ! ... A quote encountered ... find match and continue
-  if (it > 1 .AND. i2 < lstr) then
-     i2 = i2+1
-     is = i2
-     call chrpos(strn,ch(it:it),lstr,i2)
-     i2 = i2+1
-     goto 12
-  endif
-  is = min(i2,lstr+1)
-end subroutine eostr
-subroutine strip(str,i1,i2) !- Returns indices to first and last nonblank characters in a string
-  implicit none
-  integer :: i1,i2
-  character*(*) str
-  integer :: i
-  i1 = 0
-  do  i = 1, len(str)
-     if(str(i:i) /= ' ') then
-        i1 = i
-        goto 2
-     endif
-  enddo
-  i1 = 1
-  i2 = 0
+  double precision :: a1(1),a2(1),a3(1),a4(1),a5(1),a6(1),a7(1),a8(1)
+  character*(*) sout,fmt
+  integer :: ifi,mxln,ip,jp,awrite
+  save ip
+  entry awrit7(fmt,sout,mxln,ifi,a1,a2,a3,a4,a5,a6,a7)
+  entry awrit6(fmt,sout,mxln,ifi,a1,a2,a3,a4,a5,a6)
+  entry awrit5(fmt,sout,mxln,ifi,a1,a2,a3,a4,a5)
+  entry awrit4(fmt,sout,mxln,ifi,a1,a2,a3,a4)
+  entry awrit3(fmt,sout,mxln,ifi,a1,a2,a3)
+  entry awrit2(fmt,sout,mxln,ifi,a1,a2)
+  entry awrit1(fmt,sout,mxln,ifi,a1)
+  entry awrit0(fmt,sout,mxln,ifi)
+  ip = awrite(fmt,sout,mxln,ifi,a1,a2,a3,a4,a5,a6,a7,a8)
   return
-2 continue
-  i2 = len(str) + 1
-  do  i = len(str), 1, -1
-     if(str(i:i) /= ' ') then
-        i2 = i
-        exit
-     endif
-  enddo
-end subroutine strip
-
-
-subroutine addsvv(nam,nelt,ival)
-  !- Add a symbolic vector to list
-  ! ----------------------------------------------------------------
-  !i Inputs
-  !i   nam:  name of variable
-  !i   nelt: number of elements of the vector
-  !o Outputs
-  !o   ival  index to which variable is declared or accessed
-  !r Remarks
-  !r   addsvv  adds a symbolic name and value to the internal table,
-  !r           and allocates memory for the vector.
-  !r   lodsvv  sets a range of elements of a vector associated with
-  !r           a name or an index, depending on iopt.
-  !r           iopt=0: index associated with name
-  !r           iopt=1: name associated with index
-  !r   getsvv  gets a range of elements of a vector associated with
-  !r           a name or an index, depending on iopt.
-  !r   sizsvv  returns the length of a vector associated with
-  !r           a name or an index, depending on iopt.
-  !r   numsvv  returns the number of variables now declared
-  !r   watsvv  returns name associated with index
-  !r
-  !r   Compiler must have either F90 or POINTER capability
-  !u Updates
-  !u   18 Jan 06 works with F90 compiler
-  ! ----------------------------------------------------------------
-  !     implicit none
-  ! Passed parameters
-  character*(*) nam
-  double precision :: vec(1)
-  integer :: ival,first,last,nelt,nvar,ifi,iopt
-  ! Local parameters
-  integer :: mxnam,namlen
-  parameter (mxnam=24,namlen=16)
-  character*(namlen) symnam(mxnam), tmpnam
-  integer :: size(mxnam)
-  integer :: nnam,i,io,i1,i2,i2x
-  double precision :: x1,xn
-  type row
-     real(8), allocatable :: p(:)
-  end type row
-  type(row) :: symptr(mxnam)
-  save symptr
-  save symnam, size, nnam
-  data nnam /0/
-  ! --- Start of addsvv ---
-  nnam = nnam+1
-  if (nnam > mxnam) call rx('addsvv: too many names')
-  symnam(nnam) = nam
-  ival = nnam
-  call locase(symnam(nnam))
-  allocate (symptr(nnam)%p(1:nelt))
-  symptr(nnam)%p=0d0 
-  size(nnam) = nelt
-  return
-
-  ! --- lodsvv, getsvv ---
-  entry lodsvv(nam,ival,iopt,i1,i2,vec)
-
-  io = -1
-  goto  10
-
-  entry getsvv(nam,ival,iopt,i1,i2,vec)
-
-  io = 1
-  goto  10
-
-  entry sizsvv(nam,ival,iopt,i1)
-
-  io = -2
-  goto  10
-
-  ! --- lodsvv, getsvv ---
-  entry numsvv(nvar)
-  nvar = nnam
-  return
-
-  ! --- watsvv ---
-  entry watsvv(nam,ival)
-  nam = ' '
-  if (ival <= nnam) nam = symnam(ival)
-  return
-
-  ! --- Print out table ---
-  entry shosvv(first,last,ifi)
-  write(ifi,332)
-332 format('  Vec       Name            Size   Val[1..n]')
-  do  60  i = max(first,1), min(last,nnam)
-     call dpscop(symptr(i)%p,x1,1,1,1,1d0)
-     call dpscop(symptr(i)%p,xn,1,size(i),1,1d0)
-     write(ifi,333) i, symnam(i), size(i), x1, xn
-60 enddo
-333 format(i4, 4x, a20, i4, 2g14.5)
-  return
-
-  ! --- Find an index associated with a name ---
-10 continue
-  ! ... If iopt=0, find the index associated with this name
-  if (iopt == 0) then
-     ival = 0
-     tmpnam = nam
-     call locase(tmpnam)
-     do  16  i = 1, nnam
-        if (tmpnam /= symnam(i)) goto 16
-        ival = i
-        goto 20
-16   enddo
-  endif
-  ! --- Set/Retrieve portions of an array[index], depending on io ---
-20 continue
-  if (io == 0) return
-  if (io == -2) then
-     i1 = size(ival)
-     return
-  endif
-  ! ... Return unless ival in range
-  if (ival <= 0 .OR. ival > nnam) return
-  i2x = min(i2,size(ival))
-  if (i2x < i1) return
-  if (io == -1) call dpscop(vec,symptr(ival)%p,i2x-i1+1,1,i1,1d0)
-  if (io ==  1) call dpscop(symptr(ival)%p,vec,i2x-i1+1,i1,1,1d0)
-  return
-end subroutine addsvv
-subroutine parsvv(recrd,recl,indx,mxelt,i1,ip)
-  !- Parses a string for one or more elements of a vector variable
-  !     implicit none
-  ! Passed parameters
-  integer :: recl,ip,mxelt,indx,i1
-  character recrd*(100)
-  ! Local parameters
-  double precision :: res
-  integer :: nelt,i,k,ix,a2vec
-  nelt = 0
-  do  33  i = 1, 999
-     call skipbl(recrd,recl,ip)
-     if (ip >= recl .OR. nelt >= mxelt) goto 99
-     k = a2vec(recrd,recl,ip,4,' ',1,1,1,ix,res)
-     if (k == -1) return
-     call lodsvv(' ',indx,1,i1+nelt,i1+nelt,res)
-     nelt = nelt+k
-33 enddo
-99 continue
-end subroutine parsvv
-
-
-
-
-
-
+  entry awrip(jp)
+  jp = ip
+end subroutine awrit8
 integer function awrite(fmt,sout,mxln,ifi,a1,a2,a3,a4,a5,a6,a7,a8)
   !- Formatted output, with ascii conversion of binary numbers
   !i ifi: <>0, local output string written to abs(ifi);
@@ -2593,7 +2328,7 @@ integer function awrite(fmt,sout,mxln,ifi,a1,a2,a3,a4,a5,a6,a7,a8)
   lfmt = len(fmt)
   ls = len(s)
   lnull = lnulls
- ! --- Parse next character in fmt ---
+  ! --- Parse next character in fmt ---
 19 ia = ia-1
 20 iff = iff+1
   !  ...  End of fmt
@@ -2851,7 +2586,6 @@ integer function awrite(fmt,sout,mxln,ifi,a1,a2,a3,a4,a5,a6,a7,a8)
   call clrsyv(nsyv)
   return
 end function awrite
-
 subroutine bin2av(fmt,w,nblk,ndec,res,cast,i1,i2,sep,mxln,lnull, &
      outs,ip)
   !- Write out a vector of of numbers using bin2a
@@ -2953,54 +2687,6 @@ real function rval(array,index)
   real :: array(index)
   rval = array(index)
 end function rval
-
-subroutine awrit8(fmt,sout,mxln,ifi,a1,a2,a3,a4,a5,a6,a7,a8)
-  !- Subroutine versions of integer function awrite
-  !     implicit none
-  double precision :: a1(1),a2(1),a3(1),a4(1),a5(1),a6(1),a7(1),a8(1)
-  character*(*) sout,fmt
-  integer :: ifi,mxln,ip,jp,awrite
-  save ip
-  entry awrit7(fmt,sout,mxln,ifi,a1,a2,a3,a4,a5,a6,a7)
-  entry awrit6(fmt,sout,mxln,ifi,a1,a2,a3,a4,a5,a6)
-  entry awrit5(fmt,sout,mxln,ifi,a1,a2,a3,a4,a5)
-  entry awrit4(fmt,sout,mxln,ifi,a1,a2,a3,a4)
-  entry awrit3(fmt,sout,mxln,ifi,a1,a2,a3)
-  entry awrit2(fmt,sout,mxln,ifi,a1,a2)
-  entry awrit1(fmt,sout,mxln,ifi,a1)
-  entry awrit0(fmt,sout,mxln,ifi)
-  ip = awrite(fmt,sout,mxln,ifi,a1,a2,a3,a4,a5,a6,a7,a8)
-  return
-  entry awrip(jp)
-  jp = ip
-end subroutine awrit8
-
-! subroutine vwrt(ia,n,a1,a2,a3,a4,a5,a6,a7,a8,cast,ires,res)
-!   !- Writes either integer or double into ires or res, depending on cast
-!   ! ----------------------------------------------------------------------
-!   !i Inputs
-!   !i   ia    :indicates which of arrays a1..a8 to extract element from
-!   !i   n     :which entry in array a_ia
-!   !i   a1..a8:element is extracted from one of these arrays
-!   !i   cast  :array cast
-!   !o Outputs
-!   !o   ires  :if cast is integer, result poked into ires
-!   !o   res   :if cast is double, result poked into res
-!   !u Updates
-!   ! ----------------------------------------------------------------------
-!   !     implicit none
-!   integer :: ia,n,cast,ivawrt,ires
-!   double precision :: dvawrt,res
-!   double precision :: a1(1),a2(1),a3(1),a4(1),a5(1),a6(1),a7(1),a8(1)
-!   if (cast == 2) then
-!      ires = ivawrt(ia,n,a1,a2,a3,a4,a5,a6,a7,a8)
-!   elseif (cast == 4) then
-!      res = dvawrt(ia,n,a1,a2,a3,a4,a5,a6,a7,a8)
-!   else
-!      call rxi('vwrt: cannot handle cast',cast)
-!   endif
-! end subroutine vwrt
-
 integer function ivawrt(ia,n,a1,a2,a3,a4,a5,a6,a7,a8)
   !     implicit none
   integer :: ia,n,ivalxx
@@ -3021,22 +2707,6 @@ integer function ivalxx(array,index)
   integer :: array(index)
   ivalxx = array(index)
 end function ivalxx
-
-! real(8) function dvawrt(ia,n,a1,a2,a3,a4,a5,a6,a7,a8)
-!   !     implicit none
-!   integer :: ia,n
-!   double precision :: a1(1),a2(1),a3(1),a4(1),a5(1),a6(1),a7(1),a8(1)
-!   dvawrt=1d99
-!   if (ia == 1) dvawrt = a1(n)
-!   if (ia == 2) dvawrt = a2(n)
-!   if (ia == 3) dvawrt = a3(n)
-!   if (ia == 4) dvawrt = a4(n)
-!   if (ia == 5) dvawrt = a5(n)
-!   if (ia == 6) dvawrt = a6(n)
-!   if (ia == 7) dvawrt = a7(n)
-!   if (ia == 8) dvawrt = a8(n)
-! END function dvawrt
-
 subroutine bin2a(fmt,nblk,ndec,res,cast,count,mxlen,outstr,ip)
   !- Converts number to ascii format, stripping leading blanks, trailing 0
   ! ----------------------------------------------------------------------
@@ -3113,7 +2783,6 @@ subroutine bin2a(fmt,nblk,ndec,res,cast,count,mxlen,outstr,ip)
   ! ----------------------------------------------------------------------
   implicit none
   ! Passed Parameters
-
   !c kino's correctio for ifort was
   !c     character(mxlen):: outstr ! ?---> !character(*) can not check size of outstr.
   !c However, because of a bug in grortran4.3.4, this is not allowed. Thus I now use character(*).
@@ -3136,9 +2805,7 @@ subroutine bin2a(fmt,nblk,ndec,res,cast,count,mxlen,outstr,ip)
   parameter (NULLI=-99999)
   save isw0
   data isw0 /0/
-
   !     write(*,"('enter bin2a: cast,fmt=',i4,1x,a$)") cast,fmt
-
   ! --- Convert binary to ascii representation (log, int, char) ---
   lnull = .false.
   llnull = .false.
@@ -3420,14 +3087,12 @@ subroutine bin2a(fmt,nblk,ndec,res,cast,count,mxlen,outstr,ip)
   if (ip == mxlen .AND. n2 < n1) outstr(ip:ip) = '|'
   if (iprint() > 120) print '(1x,a,a)', 'bin2a:',outstr(1:ip)
 end subroutine bin2a
-
 subroutine bin2al(fmt,res,count,strn)
   character*(*) fmt, strn
   integer :: count
   logical res(0:*)
   write(strn,fmt) res(count)
 end subroutine bin2al
-
 subroutine bin2ai(fmt,res,count,strn,lnull)
   !- Conversion of integer to ascii string
   ! ----------------------------------------------------------------------
@@ -3450,7 +3115,6 @@ subroutine bin2ai(fmt,res,count,strn,lnull)
   write(strn,fmt) res(count)
   lnull = res(count) .eq. NULLI
 end subroutine bin2ai
-
 subroutine nlchar(ich,ps)
   integer :: ich
   character(*) ps
@@ -3458,7 +3122,6 @@ subroutine nlchar(ich,ps)
      ps(1:1) =  char(10)
   endif
 end subroutine nlchar
-
 integer function getdig(n,i,base)
   !- Extracts one digit from an integer
   ! ----------------------------------------------------------------
@@ -3471,7 +3134,6 @@ integer function getdig(n,i,base)
   integer :: n,i,base
   getdig = mod(n/base**i,base)
 end function getdig
-
 subroutine pretty(sin,nblk,ndec,precsn,sw,sout,nout)
   !- Prettifies an ascii representation of a floating-point number
   !i  nblk: number of leading blanks in output string
@@ -3735,26 +3397,23 @@ subroutine pretty(sin,nblk,ndec,precsn,sw,sout,nout)
      sout(nout+1:nout+7-j) = 'e' // sexp(j+1:5)
      nout = nout+6-j
   endif
-
   !      print *, 'final string:', sout(1:nout)
   !      print *, '--------------'
-
 end subroutine pretty
-
 double precision function dround(x,n)
   !- Rounds double precision x after n digits
   !     implicit none
   integer :: n,is,i
   double precision :: x,s
-! #if QUAD
-!   double precision :: xnint
-! #endif
-! #if QUAD
-!   s = qlog10(dble(abs(x)))
-! #else
+  ! #if QUAD
+  !   double precision :: xnint
+  ! #endif
+  ! #if QUAD
+  !   s = qlog10(dble(abs(x)))
+  ! #else
   dround=1d99
   s = dlog10(dabs(x))
-!#endif
+  !#endif
   is = s
   if (is > 0) then
      is = -int(is) + n-1
@@ -3765,15 +3424,14 @@ double precision function dround(x,n)
   do    i = 1, iabs(is)
      s = 10*s
   enddo
-!#if QUAD
-!  if (is > 0) dround = xnint(s*dble(x))/s
-!  if (is < 0) dround = xnint(dble(x)/s)*s
-!#else
+  !#if QUAD
+  !  if (is > 0) dround = xnint(s*dble(x))/s
+  !  if (is < 0) dround = xnint(dble(x)/s)*s
+  !#else
   if (is > 0) dround = dnint(s*x)/s
   if (is < 0) dround = dnint(x/s)*s
-!#endif
+  !#endif
 END function dround
-
 logical function a2bina(instr,res,cast,count,term,j,jmaxi)
   !- Convert ASCII to logical, integer, real, double, with possible assignment
   ! ----------------------------------------------------------------
@@ -3907,7 +3565,6 @@ logical function a2bina(instr,res,cast,count,term,j,jmaxi)
      call chsyv(a,dum,i)
      !       call shosyv(0,0,0,6)
   endif
-
   tj = j
   if (nxtexp) goto 10
 end function a2bina
@@ -3920,7 +3577,6 @@ real(8) function v2dbl(resL,resI,resR,resd,cast,n)
   integer :: resI(n)
   real :: resR(n)
   double precision :: resD(n)
-
   if (cast == 0) then
      v2dbl = 0
      if (resL(n)) v2dbl = 1
@@ -3934,86 +3590,3 @@ real(8) function v2dbl(resL,resI,resR,resd,cast,n)
      call rx('v2dbl: bad cast')
   endif
 end function v2dbl
-
-
-  subroutine mkilst(strn,nlist,list)
-    !- Resolve list (ascii string) into a vector of integers
-    ! ----------------------------------------------------------------------
-    !i Inputs
-    !i   strn  :string holding list of integers
-    !o Outputs
-    !o   nlist :number of integers in list
-    !o         :nlist<0 => mkilst failed to parse list
-    !o   list  :list of integers
-    !r Remarks
-    !r   Syntax: Na,Nb,... where each of the Na, Nb, etc ... has a syntax
-    !r   low:high:step
-    !r   low, high, and step are integer expressions specifying the sequence
-    !r     low, low+step, low+2*step, ... high.
-    !r   If :step is missing, the step size defaults to 1.  If also :high
-    !r   is missing,  the sequence reduces to a single integer. Thus,
-    !r     '5+1'       becomes a single number, 6.
-    !r     '5+1:8+2'   becomes a sequence of numbers, 6 7 8 9 10
-    !r     '5+1:8+2:2' becomes a sequence of numbers, 6 8 10.
-    !r   Sequences may be strung together separated by commas, eg
-    !r     '11,2,5+1:8+2:2' becomes a list 11 2 6 8 10.
-    !u Updates
-    !u   02 Feb 01 strn is now a character string
-    ! ----------------------------------------------------------------------
-    !     implicit none
-    integer :: list(*),nlist
-    character*(*) strn
-    integer :: it(512),iv(512),a2vec,ip,i,j,k
-    ip = 0
-    nlist = -1
-    call skipbl(strn,len(strn),ip)
-    k = a2vec(strn,len(strn),ip,2,',: ',3,3,100,it,iv)
-    if (k < 1) return
-    if (k >= 99) call rx('mkilst: increase size of iv')
-    it(k+1) = 0
-    iv(k+1) = iv(k)
-    ! ... loop over all iv
-    nlist = 0
-    i = 0
-14  continue
-    i = i+1
-    ! ... Case iv => a single number
-    if (it(i) /= 2) then
-       nlist = nlist+1
-       list(nlist) = iv(i)
-       ! ... Case iv => n1:n2:n3
-    elseif (it(i+1) == 2) then
-       do  j = iv(i), iv(i+1), iv(i+2)
-          nlist = nlist+1
-          list(nlist) = j
-       enddo
-       i = i+2
-       ! ... Case iv => n1:n2
-    else
-       do    j = iv(i), iv(i+1)
-          nlist = nlist+1
-          list(nlist) = j
-       enddo
-       i = i+1
-    endif
-    if (i < k) goto 14
-  end subroutine mkilst
-! #if TEST
-! subroutine fmain
-!   implicit none
-!   character(20) :: strn
-!   integer :: nlist,list(20),i
-
-!   strn = '                 2,1'
-!   call mkilst(strn,nlist,list)
-!   print *, nlist, (list(i), i=1,nlist)
-!   strn = '                2,1 '
-!   call mkilst(strn,nlist,list)
-!   print *, nlist, (list(i), i=1,nlist)
-!   strn = '             22:33:3'
-!   call mkilst(strn,nlist,list)
-!   print *, nlist, (list(i), i=1,nlist)
-
-! end subroutine fmain
-! #endif
-

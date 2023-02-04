@@ -1,6 +1,8 @@
 #NOTE: when you add your foobar.F, choose one of *_list.
 
 ELIB_list=\
+addsyv.o\
+addsvv.o\
 diagcv2.o \
 m_shortn3.o\
 m_shortn3_plat.o\
@@ -146,7 +148,6 @@ polint.o \
 rdfiln.o \
 rfalsi.o \
 strings.o \
-symvar.o \
 words.o \
 zhev.o \
 tc.o \
