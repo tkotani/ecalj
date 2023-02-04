@@ -220,7 +220,6 @@ contains
     double precision :: vsn,vers,xv(2*n0),xvv(3)
     character(256*16) :: bigstr=' '
     integer:: it
-    !      logical :: parmxp
     logical::  debug=.false.
     integer:: lp1,lpzi
     real(8):: xxx
@@ -232,13 +231,11 @@ contains
     character(128) :: nm
     real(8):: nullrv(256),d2,plat(3,3),rydberg
     integer:: nulliv(256),jj(2) !,nkapsi
-!    logical:: noelind
     integer:: levelinit=0
     integer:: lx,lxx
     character*256:: sss
     logical:: sexist
     integer:: ibas,ierr,lc, iqnu=0
-    !      logical:: ltet
     integer:: ifzbak,nn1,nn2,nnx,lmxxx,nlaj,isp
     integer,allocatable :: iv_a_oips_bakup (:)
     integer :: ctrl_nspec_bakup,inumaf,iin,iout,ik,iprior,ibp1,indx,iposn,m,nvi,nvl
