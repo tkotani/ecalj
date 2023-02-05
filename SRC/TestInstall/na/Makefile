@@ -19,13 +19,13 @@ define test1.exec
 	# --- Test 1.  Basic check of programs lmfa,lmf ---
 	#
 	@cat message.test1.$(TARGET)
-	$(bindir)/lmfa --no-iactiv $(TARGET) -vnk=6 -vbigbas=t -vnapval=0 > $1 2>&1
-	$(LMFP)  --no-iactiv $(TARGET) -vnk=6 -vbigbas=t -vnapval=0 >> $1 2>&1
+	$(bindir)/lmfa --no-iactiv $(TARGET) -vnk=6 -vnapval=0 > $1 2>&1
+	$(LMFP)  --no-iactiv $(TARGET) -vnk=6 -vnapval=0 -vp1=3.38 >> $1 2>&1
 	rm rst.$(TARGET) mixm.$(TARGET)
-	$(bindir)/lmfa --no-iactiv $(TARGET) -vnk=6 -vbigbas=t -vnapval=1 >> $1 2>&1
-	$(LMFP)  --no-iactiv $(TARGET) -vnk=6 -vbigbas=t -vnapval=1 >> $1 2>&1
+	$(bindir)/lmfa --no-iactiv $(TARGET) -vnk=6 -vnapval=1 >> $1 2>&1
+	$(LMFP)  --no-iactiv $(TARGET) -vnk=6 -vnapval=1 >> $1 2>&1
 	rm mixm.$(TARGET) rst.$(TARGET)
-	$(LMFP)  --no-iactiv $(TARGET) -vnk=6 -vbigbas=t -vnapval=2 >> $1 2>&1
+	$(LMFP)  --no-iactiv $(TARGET) -vnk=6 -vnapval=2 -vpz1=12.94 >> $1 2>&1
 endef
 
 ###########################################################
