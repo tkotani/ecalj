@@ -27,18 +27,15 @@ SYMGRP  i*i
 SYMGRP  find
 BZ      NKABC={nk} TETRA=1 METAL=3 EF0=0.058 DELEF=0.01 N=1 W=0.02
         NPTS=3001 BZJOB=1 DOS=0.5 2 SAVDOS=F EFMAX=5 NEVMX=34 NOINV=T
-%ifdef fsmom
-        FSMOM={fsmom}
-%endif
+%const nullr=-99999 fsmom=nullr
+       FSMOM={fsmom}
 SPEC    ATOM=Fe Z=26 R={R} LMX=3 LMXA=3 KMXA=4 LFOCA=1 A=0.03
         RSMH={R}/2 {R}/2 {R}/2 {R}/2 EH=-0.1 -0.1 -0.1 -0.1
         RSMH2={R}/2 {R}/2 {R}/2 EH2=-1.1 -1.1 -1.1
         Q=2 0 6 MMOM=0 0 -2.2
 SITE    ATOM=Fe POS= 0 0 0
 EWALD   TOL=1D-8 NKDMX=1999 NKRMX=1999
-# for version 7
 ITER    MIX=A6,k=3,b=.5 CONV=1d-4 CONVC=1d-4 NIT={nit}
-#MIX     MODE=A6,k=nmix,b=beta CONV=conv CONVC=convc
 % const pwmode=0 pwemin=0 pwemax=3 
 HAM     OPTIONS NSPIN=2 REL=T SO={so} XCFUN=2 GMAX={gmax}
         PWMODE={pwmode} PWEMIN={pwemin} PWEMAX={pwemax} 

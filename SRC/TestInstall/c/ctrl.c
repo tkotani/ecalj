@@ -9,9 +9,6 @@ CLEAN   rm -f ctrl.c moms.c atm.c mixm.c rst.c save.c log.c hssn.c wkp.c bsmv.c 
 %const ef0=0 nk=4 lmxa=3  nit=10 hf=f zbak=0
 OPTIONS NSPIN=2 REL=t FRZ=0 NRMIX=2 TPAN=0 HF={hf} ESP=F XCN=0 LMH=0
         XCFUN=2 FORCES=12
-% ifdef minx
-        MSTAT: t,f,t,.0005,.002 NMOVE=10
-% endif
 SYMGRP  find
 ITER    MIX=A2,b=.5 CONV=1e-5 CONVC=.0005 NIT={nit}
 MIX     MODE=A2,b=.5 CONV=1e-5 CONVC=.0005

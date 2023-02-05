@@ -18,9 +18,17 @@ contains
     character*(recln):: recrd(mxrecs)
     integer:: nrecs    
     include "mpif.h"
+
     procid = mpipid(1)
     inquire(file='ctrl.'//trim(sname),exist=fileexist)
     if( .NOT. fileexist) call rx("No ctrl file found! ctrl."//trim(sname))
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!    call system('ctrl2ctrlp.py < ctrl.'//trim(sname)//'>ctrlp.'//trim(sname))
+!    return 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+    
     open(newunit=nfilin,file='ctrl.'//trim(sname))
     call findctrlstart(nfilin) ! if a tag 'ctrlstart' in ctrl, ctrl is read from the tag.
     alabl = '#{}% ct '

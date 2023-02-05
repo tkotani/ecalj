@@ -418,3 +418,5 @@ fp ib   3  fh     2.13    4.85   11.49   fks    -4.44    6.93    6.36
 fp ib   4  fh     6.99    3.33   11.62   fks    10.70   -7.05    7.09
 fp elind 1.44  Broyden n 2 wc -1  sm-dq 0.0231  mx loc 0.0351  dq 0.0275
  CPU time:    2.027 sec    Sat Jan 15 14:46:11 2022 on 
+===START LMF with   ===
+ mpisize=           1

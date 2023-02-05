@@ -23,11 +23,8 @@ SITE    ATOM=Er POS=  0   0   0
         ATOM=As POS= .50 .50 .50
 SPEC    ATOM=Er Z=68 R=2.8464  LMX=3 LMXA=3 RSMH= 1.6 1.6  1.6  1 EH= -0.1 -0.1 -0.1 -0.1
         RSMH2= 4.5 4.5 0 0 EH2=-0.5 -0.5 0 0 EREF=-26155.557342 MMOM=0 0 0 3 A=.03 
-#       PZ=0,0,0,5.4
-% ifdef ldau
 % const udc=2
         IDU= 0 0 {udc} {udc} UH= 0 0 0.1 0.632 JH= 0 0 0 0.055
-% endif
         ATOM=As  Z=33 R=2.5691 LMX=2 LMXA=2 RSMH= 1.4 1.4 1.4  EH= -0.6 -0.1 -0.1
         EREF=-4515.471448 A=.03 
 % const nit=1

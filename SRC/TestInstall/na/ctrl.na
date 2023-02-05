@@ -42,7 +42,7 @@ TESTGW  echo -1 | lmfgw na -vnk=6 -vbigbas=2 -vnapval=1
 
 %const nk=10 dist=0 bzj=0 
 %const a=7.964 da=0 nit=12
-%const  vol=a^3/2 avw=(3/4/4/pi*vol)^(1/3) rmt=.80*avw gmax=11
+%const  vol=a^3/2 avw=(3/4/4/pi*vol)^(1/3) rmt=.80*avw gmax=8
 
 STRUC   NBAS={les?4:1} NSPEC={les?2:1} NL=5
         ALAT={a}  PLAT= -.5  .5  .5   .5 -.5  .5   .5  .5 -.5

@@ -30,21 +30,21 @@ STR     RMAX=3
 STRUC   NBAS=8 NSPEC=5 NL=4
         ALAT={a} PLAT= 1 0 0   0 {s} 0   0 0 {q}
 SPEC
-        ATOM=Cr1  Z=24 R={Rcat} LMX={lmx} LMXA={asa?lmx:3} KMXA=5 LFOCA=0 A=0.03
+        ATOM=Cr1  Z=24 R={Rcat} LMX={lmx} LMXA=3 KMXA=5 LFOCA=0 A=0.03
                   P=4.9 4.9 3.8 4.1 PZ=0 {cpl?3.9:0} IDMOD=0 0 0 0
                   Q=2 0 4 0 MMOM=0 0 4 0
                   RSMH= {Rcat}/2 {Rcat}/2 {Rcat}/2 {Rcat}/2
                   RSMH2={Rcat}/2 {Rcat}/2 {Rcat}/2 {Rcat}/2
                   EH= -0.01 -0.01 -0.01 -0.01
                   EH2=-0.1 -0.1 -0.1 -0.1 
-        ATOM=Cr2  Z=24 R={Rcat} LMX={lmx} LMXA={asa?lmx:3} KMXA=5 LFOCA=0 A=0.03
+        ATOM=Cr2  Z=24 R={Rcat} LMX={lmx} LMXA=3 KMXA=5 LFOCA=0 A=0.03
                   P=4.9 4.9 3.8 PZ=0 {cpl?3.9:0} IDMOD=0 0 0 0
                   Q=2 0 4 0 MMOM=0 0 -4 0
                   RSMH= {Rcat}/2 {Rcat}/2 {Rcat}/2 {Rcat}/2
                   RSMH2={Rcat}/2 {Rcat}/2 {Rcat}/2 {Rcat}/2
                   EH= -0.01 -0.01 -0.01 -0.01
                   EH2=-0.1 -0.1 -0.1 -0.1 
-        ATOM=N1   Z=7  R={Ran} LMX=2 LMXA={asa?2:3} KMXA=5 LFOCA=0 RFREE=6 A=0.03
+        ATOM=N1   Z=7  R={Ran} LMX=2 LMXA=3 KMXA=5 LFOCA=0 RFREE=6 A=0.03
                   P=2.85 2.8 3.2 4.1 IDMOD=1 0 0 0
                   Q=2 3 0 0 MMOM=0
                   RSMH= {Ran}/2 {Ran}/2 {Ran}/2
@@ -52,7 +52,7 @@ SPEC
                   EH= -0.01 -0.01 -0.01
                   EH2=-0.1 -0.1 -0.1
                   CSTRMX=1
-        ATOM=N2   Z=7  R={Ran} LMX=2 LMXA={asa?2:3} KMXA=5 LFOCA=0 RFREE=6 A=0.03
+        ATOM=N2   Z=7  R={Ran} LMX=2 LMXA=3 KMXA=5 LFOCA=0 RFREE=6 A=0.03
                   P=2.85 2.8 3.2 4.1 IDMOD=1 0 0 0
                   Q=2 3 0 0 MMOM=0
                   RSMH= {Ran}/2 {Ran}/2 {Ran}/2
@@ -60,7 +60,7 @@ SPEC
                   EH= -0.01 -0.01 -0.01
                   EH2=-0.1 -0.1 -0.1
                   CSTRMX=1
-        ATOM=Nh   Z=7  R={Ran} LMX=2 LMXA={asa?2:3} KMXA=5 LFOCA=0 RFREE=6 A=0.03
+        ATOM=Nh   Z=7  R={Ran} LMX=2 LMXA=3 KMXA=5 LFOCA=0 RFREE=6 A=0.03
                   P=2.85 2.8 3.2 4.1 IDMOD=1 0 0 0
                   Q=2 4 0 0 MMOM=0
                   RSMH= {Ran}/2 {Ran}/2 {Ran}/2

@@ -10,7 +10,7 @@ contains
     use m_struc_def
     use m_supot,only: iv_a_okv,rv_a_ogv,k1,k2,k3
     use m_lmfinit,only:lat_alat,nbas,stdl,ispec,sspec=>v_sspec,nsp,&
-         broyinit,nmixinit,betainit,killj,wtinit,wc,elinls=>elinl,bexist,mix_nsave
+         broyinit,nmixinit,betainit,killj,wtinit,wc,bexist,mix_nsave !elinls=>elinl,
     use m_lattic,only: lat_vol
     use m_supot,only:  lat_nabc, lat_ng
     use m_ext,only:    sname
@@ -202,7 +202,7 @@ contains
     !      logical parmxp
     character sout*80,fnam*8
     integer ::iwdummy ,isp,nnnx,ng02,ng2, iprint,ifile_handle
-    real(8):: smmin,sss,wgtsmooth,wdummy(1,1,1,1),elinl
+    real(8):: smmin,sss,wgtsmooth,wdummy(1,1,1,1)!,elinl
     complex(8),allocatable:: smrnewbk(:,:,:,:),w_owk(:)
     !      complex(8),allocatable:: w_oqkl(:)
     real(8),allocatable:: w_oqkl(:)
@@ -233,7 +233,7 @@ contains
     ng=lat_ng
     vol=lat_vol
     alat = lat_alat
-    elinl = elinls
+!    elinl = elinls
     kmxs = 3
     kmxr = 8
     if(initd) then
@@ -296,8 +296,8 @@ contains
     !      wt(1) = 1 ; wt(2) = 1; print * , '!! wt=', wt(1:2)
 
     if (nmix < 0) nmix = mxsav
-    if (elinl < 0d0) elinl = -(3*pi**2*qval/vol)**.66666d0*elinl
-    if (elinl < .01d0) elinl = 0
+!    if (elinl < 0d0) elinl = -(3*pi**2*qval/vol)**.66666d0*elinl
+!    if (elinl < .01d0) elinl = 0
 
     ! ... Initial charges
     call rhoqm(smrho,k1,k2,k3,n1,n2,n3,nsp,vol,qin)
@@ -711,17 +711,18 @@ contains
     if (ipr >= 10 .AND. abs(qcell) > 1d-6) write(stdo, &
          '('' add q='',f10.6,'' to preserve neutrality'')') qcell
 
-    if (ipr >= 30) then
-       if (elinl /= 0) then
-          write(stdo,450) ' unscreened ',rmsuns,difxu
-          write(stdo,450) '   screened ',rms,difx,rmsdel
-450       format(a,'rms difference:  smooth',f10.6,'   local',f10.6: &
-               '   tot',f10.6)
-       endif
+!     if (ipr >= 30) then
+!        if (elinl /= 0) then
+!           write(stdo,450) ' unscreened ',rmsuns,difxu
+!           write(stdo,450) '   screened ',rms,difx,rmsdel
+! 450       format(a,'rms difference:  smooth',f10.6,'   local',f10.6: &
+!                '   tot',f10.6)
+!        endif
+!    
 !    elseif (ipr >= 20) then
 !       call awrit3(' rms smooth dq=%;3g  max local dq=%;3g  dq=%;3g', &
 !            ' ',80,stdo,rms,difx,rmsdel)
-    endif
+!    endif
 !    if (ipl > 0 .AND. ipr > 0) then
 !       call awrit6('%xfp %?;n;elind %;4g  ;%j;'// &
 !            '%?#(n==1)#Broyden n %1i wc %;3g#%2j#%-3j'// &

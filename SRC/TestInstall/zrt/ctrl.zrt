@@ -4,20 +4,9 @@
 % const nitf=1000000
 % const fs=0.048377 K=157895
 % const restart=0 timestep=1/fs temp=300/K reltime=5/fs print=10
-% const tb=0 fp=1 ftb=0
+% const fp=1 
 % const verb=30 dos=0 force=dyn>0|relmode>0
 % const nbo=2 nbz=2 lmax=2 laug=2
-HEADER  ZrO_2 fluorite in tetragonal setting, with tetragonal distortion
-        dc is the shift of the oxygens in units of the c-axis
-TESTLMF lmfa -vfp=1 zrt --no-iactiv
-        lmf  -vnitq=1 -vforce=1 -vfp=1 zrt
-        cp mixm.zrt mixm.zrt~
-        lmf  -vnitq=0 -vforce=1 -vfp=1 zrt --rs=1,2
-        lmf  -vnitq=1 -vforce=1 -vfp=1 zrt --rs=1,1
-        mv mixm.zrt~ mixm.zrt
-        lmf  -vnitq=1 -vforce=1 -vfp=1 zrt --rs=2,0
-CLEAN   rm -f atm.zrt log.zrt moms.zrt rsta.zrt save.zrt ctrl.zrt mixm.zrt rst.zrt wkp.zrt moms.zrt rsta.zrt
-VERS    LMF-6.10 TB-8 FTB-6.8 LMASA-6.10 LM:7 FP:7
 IO      SHOW=F HELP=F VERBOS={verb} WKP=F IACTIV=F
 %const af=9.8 a0=af/sqrt(2)  v0=0.5*af^3 vfrac=0.91 v=v0*vfrac Ran=1.8 Rcat=2.1 rf=1 s=0.5
 %const nk=4  q=sqrt(2) a=(v/q)^(1/3) dc=0.03 d=dc*q 
@@ -31,16 +20,13 @@ SPEC    ATOM=Zr R={Rcat}*{rf} Z=40 A=0.03
         LMX={lmax} KMXA=4 LMXA=2 RSMA={Rcat}/3 LMXL=2 LFOCA=1 Q=2 0 2
         P=5.8 5.8 4.1 4.1
         RSMH=  {Rcat}*{s} {Rcat}*{s} {Rcat}*{s} EH=  -0.01 -0.01 -0.01
-% if nbz==2
         RSMH2= {Rcat}*{s} {Rcat}*{s} {Rcat}*{s} EH2= -1 -1 -1
-% endif
+	
         ATOM=O  R={Ran}*{rf}  Z=8  A=0.03
         LMX={lmax} KMXA=4 LMXA=2 RSMA={Ran}/3 LMXL=2 LFOCA=0 Q=2 4 0 
         P=2.9 2.9 3.1 4.1
         RSMH=  {Ran}*{s} {Ran}*{s} {Ran}*{s} EH=  -0.01 -0.01 -0.01
-% if nbo==2
         RSMH2= {Ran}*{s} {Ran}*{s} {Ran}*{s} EH2= -1 -1 -1
-% endif
 
 SITE    ATOM=Zr POS=0   0    {q}/2     DELTA=0 0 0
         ATOM=Zr POS=1/2 1/2 0          DELTA=0 0 0
@@ -56,10 +42,5 @@ OPTIONS PFLOAT=0
 # for version 7
 ITER    MIX=A{nmix},b={beta} CONV={conv} CONVC={convc} NIT={nitq} 
 MIX     MODE=A{nmix},b={beta} CONV={conv} CONVC={convc}
-% if dyn==0
+
 DYN     MSTAT:{relmode},{hessian},{xtol},{gtol},{step},0 NIT={nitf}
-# for Version 7:
-       MSTAT[MODE={relmode} HESS={hessian} XTOL={xtol} GTOL={gtol} STEP{step} NKILL=0] NIT={nitf}
-% else
-DYN     MD:{restart},{timestep},{temp},{reltime},{print},0 NIT={nitf}
-% endif

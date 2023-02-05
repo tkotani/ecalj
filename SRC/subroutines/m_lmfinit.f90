@@ -124,7 +124,7 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa)
   ! mixrho
   logical,protected:: readpnu,v0fix,pnufix
   integer,protected:: broyinit,nmixinit,killj
-  real(8),protected:: wtinit(3),wc,elinl,betainit
+  real(8),protected:: wtinit(3),wc,betainit !,elinl
   logical,protected:: bexist
   
 contains
@@ -391,7 +391,8 @@ contains
            'Controls the ansatz for density shift in force calculation.'// &
            new_line('a')//'   '//'-1 no force: no shift'//&
            new_line('a')//'   '//' 1 free-atom shift  12 screened core+nucleus')
-      ! ELIND removed.
+      ! ELIND removed. !elind for mixrho may/maynot
+      ! give a little better, but difficult to handle automatically.
       nm='HAM_XCFUN'; call gtv(trim(nm),tksw(prgnam,nm),ham_lxcf,def_i4=2, &
            note='Specifies local exchange correlation functional:'// &
            new_line('a')//'   '//'1 for Ceperly-Alder (VWN)'// &
@@ -586,10 +587,13 @@ contains
               Texist=ltmp,note='Basis smoothing radii, second group ')
          nnx=0
          if (ltmp) then
-            nnx=nout
-            do i=1,nout
-               if(rsmh2(i,j)==0d0) cycle
-               nnx=i
+            nnx=0
+            !print *,'rsmh2=',rsmh2(1:nout,j)
+            do i=nout,1,-1 !count down scheme. bug detour of gtv !nout=n0 if all rsmh2=0. 2023feb
+               if(rsmh2(i,j)/=0d0) then
+                  nnx=i
+                  exit
+               endif
             enddo
             sw = tksw(prgnam,nm)
             if (nnx>0) then
@@ -1036,18 +1040,18 @@ contains
               note='Mixing parameter for densmat in LDA+U') !2022mar9 default umix=0.5
          nm='ITER_TOLU';call gtv(trim(nm),tksw(prgnam,nm),mix_tolu,def_r8=0d0,&
               note='Tolerance for densmat in LDA+U')
-         elinl=0d0 
+!         elinl=1.291 !0d0 
          broy  = 0
          beta  = 1d0
          wc    = -1
          wt(1:2) = 1
          wt(3) = -9 !     Flags parmxp that there are no extra elements to mix
          nmix  = -1
-         if(.NOT. parmxp(trim(iter_mix),len(trim(iter_mix)),broy,nmix,wt,beta,elinl,wc,killj))& 
+         if(.NOT. parmxp(trim(iter_mix),len(trim(iter_mix)),broy,nmix,wt,beta,wc,killj))& 
               call rx('MIXRHO: parse in parmxp failed')
          write(stdo,ftox)' mmmixing parameters: A/B nmix wt:',broy,nmix,ftof(wt),&
-              'beta elin wc killj=',ftof(beta),ftof(elinl),ftof(wc),killj
-         !output wc,killj,elinl,wtinit,betainit,broyinit,nmixinit,bexist
+              'beta elin wc killj=',ftof(beta),ftof(wc),killj !,ftof(elinl)
+         !output wc,killj,wtinit,betainit,broyinit,nmixinit,bexist
          wtinit  =wt    !out
          betainit=beta  !out
          broyinit=broy  !out
@@ -1213,8 +1217,8 @@ contains
          pnzall(:,1:nsp,j) = pzsp(1:n0,1:nsp,is)
          if(procid==master) then
          do isp=1,nsp
-         write(6,ftox)'pnuall: j isp pnu=',j,isp,ftof(pnuall(1:lmxa(is)+1,isp,is),6)
-         write(6,ftox)'pnzall: j isp  pz=',j,isp,ftof(pnzall(1:lmxa(is)+1,isp,is),6)
+         write(6,ftox)'pnuall: j isp pnu=',j,isp,ftof(pnuall(1:lmxa(is)+1,isp,j),6)
+         write(6,ftox)'pnzall: j isp  pz=',j,isp,ftof(pnzall(1:lmxa(is)+1,isp,j),6)
          enddo
          endif
       enddo

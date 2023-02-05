@@ -953,7 +953,6 @@ tail = tail + """                 # For sp-bonded solids, ELIND=-1 may give fast
 
       #For QSGW. you have to set them. Better to get some samples.
       RDSIG=12
-      SIGP[MODE=3]
       # Now we use no cutoff procedure for Sigma-Vxc in lmf. (only in emax_sigm is effective in GWinput). 
       # default:SIGP_EMAX=9999.
 
@@ -976,12 +975,10 @@ tail = tail + """                 # For sp-bonded solids, ELIND=-1 may give fast
       # If you use larger OVEPS, you have smaller number of basis (APW+MTO) for expanding eigenfunctions.
 
 OPTIONS PFLOAT=1 #not need to change this. Just for backward compatibility.
-
       # Q=band (this is quit switch if you like to add)
 
-
 # Relaxiation sample
-#DYN     MSTAT[MODE=5 HESS=T XTOL=.001 GTOL=0 STEP=.015]  NIT=20
+DYN     MODE=5 HESS=T XTOL=.001 GTOL=0 STEP=.015 NIT=20
 # See file://Document/Manual/CaterogyAndToken.org
 
 """

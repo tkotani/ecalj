@@ -9,23 +9,9 @@ TSTPDOS lmfa gas -vnit=10
         mv dos.gas tdos.gas
         echo 1001 -1.2 .7 | lmdos gas -vpdos=t --pdos:mode=1
         mv dos.gas pdos.gas
-# PLTIDOS compares the sum of partial (sphere) dos to the total dos
-PLTIDOS echo 24 30 -1.2 0.7 | pldos -fplot -lst="1" -int tdos.gas
-        mv dosp.dat dost.dat
-        cat plot.dos | grep dosp | sed "s/-lt 1,/-lt 2,/" | sed "s/dosp/dost/" >plot.dos~
-        echo 24 30 -1.2 0.7 | pldos -fplot -lst="1:20" -int pdos.gas
-        cat plot.dos~ >>plot.dos
-PLOTDOS echo 15 7 -1.2 0.7 | pldos -fplot -lst="1;2;3;6;7;8" pdos.gas
-
-
 %const  a=10.66 da=0 bzj=0 avw=2.62434548 lf1=4 lf2=lf1 lmxa=lf1 lmxae=lf2 rw=1.00 
 %const wto=0 kl=0 tet=1 nit=1 lf1=4 lf2=lf1 lmxa=lf1 lmxae=lf2 nk=6 nk2=nk 
-# for partial dos mode=2
-# %ifdef pdos
-# SYMGRP  i*i
-# %endif
 SYMGRP  find
-#R4Z*I MX*I R3D
 STRUC   NBAS=4/1 NCLASS=4/1 NSPEC=4/1 NL=5 ELINK=-2
         ALAT={a} DALAT={da} PLAT= 0 .5 .5    .5 0 .5    .5 .5 0 TET={tet}
 SITE    ATOM=C1  POS=  0+{wto}   0+{wto}   0+{wto}
@@ -61,4 +47,3 @@ HAM     NMTO=0 KMTO=-.4 .1 .6 1.1 EWALD=T
         FORCES=0 FTMESH=24 TOL=1d-6 QASA=3
         PWMODE={pwmode} PWEMIN={pwemin} PWEMAX={pwemax} OVMIN={ovmin}
 VERS    LMFP-5.0 LMASA-6 TB-6 LMF-6 FTB-6 LM:7 FP:7
-START   CNTROL=0 BEGMOM=0 CNVG=1d-5 NIT=nit

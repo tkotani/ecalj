@@ -891,7 +891,7 @@ contains
 end module m_gtv
 
 
-logical function parmxp(strnin,lstrn,broy,nmix,wgt,beta,elind,wc,killj) !,betv)!,rmserr)!nkill 
+logical function parmxp(strnin,lstrn,broy,nmix,wgt,beta,wc,killj) !,betv)!,rmserr)!nkill 
   !- Parse strng to get mixing parameters for current iteration
   ! --------------------------------------------------
   !i Inputs
@@ -914,7 +914,7 @@ logical function parmxp(strnin,lstrn,broy,nmix,wgt,beta,elind,wc,killj) !,betv)!
   !o   nmix   number of prior iterations to include in mix
   !o   wgt    relative weights to assign; see Remarks
   !o   beta   mixing beta (Anderson and CG mixing)
-  !o   elind  Lindhard screening parameter (when dielectric F can be est)
+  !oxxx   elind  Lindhard screening parameter (when dielectric F can be est)
   !o   wc     mixing weights for Broyden mixing (see Remarks)
   !o   killj  for periodic mixing file deletion 
   !o   betv   for independent potential mixing
@@ -978,7 +978,7 @@ logical function parmxp(strnin,lstrn,broy,nmix,wgt,beta,elind,wc,killj) !,betv)!
   integer :: broy
   character strnin*(*)
   integer :: iter,lstrn,nmix
-  double precision :: wgt(3),beta,elind,wc,betv,rmserr,akillj
+  double precision :: wgt(3),beta,wc,betv,rmserr,akillj !elind,
   integer :: i,j,np,it(5),parg,nit,nmixj,jp,kp,killj,nitj, &
        iprint,i1mach,a2vec,lstblk,lstitj,iblk,nbump,k,ia0,lbroy,iterm
   logical :: lpr,lagain,cmdopt
@@ -990,7 +990,7 @@ logical function parmxp(strnin,lstrn,broy,nmix,wgt,beta,elind,wc,killj) !,betv)!
   wcj = wc
   nmixj = nmix
   bet = beta
-  elin = elind
+!  elin = elind
   wt = wgt
   if (wgt(3) == -9) wt(3) = 0
   strn=adjustl(strnin)
@@ -1024,10 +1024,10 @@ logical function parmxp(strnin,lstrn,broy,nmix,wgt,beta,elind,wc,killj) !,betv)!
   jp = np
   i = parg(',b=',strn,jp,lstrn,',; ',2,1,it,bet)
   if (i < 0) goto 999
-  ! ... Pick up elind
-  jp = np
-  i = parg(',elind=',strn,jp,lstrn,',; ',2,1,it,elin)
-  if (i < 0) goto 999
+!  ! ... Pick up elind
+!  jp = np
+!  i = parg(',elind=',strn,jp,lstrn,',; ',2,1,it,elin)
+!  if (i < 0) goto 999
   ! ... Pick up weights
   jp = np
   i = parg(',w=',strn,jp,lstrn,',; ',2,2,it,wt)
@@ -1048,7 +1048,7 @@ logical function parmxp(strnin,lstrn,broy,nmix,wgt,beta,elind,wc,killj) !,betv)!
   if (wgt(3) == -9) wt(3) = 0
   wgt(3) = wt(3)
   beta = bet
-  elind = elin
+!  elind = elin
   wc = wcj
   goto 9999
 999 outs = 'parmxp: parse failed:'//strn(1:lstrn) !error exit
