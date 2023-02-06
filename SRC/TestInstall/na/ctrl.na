@@ -24,7 +24,7 @@ TESTGW  echo -1 | lmfgw na -vnk=6 -vbigbas=2 -vnapval=1
 #            2 Put Na p state in the valence as an extended local orbital
 #   les      Add empty spheres to check high-lying bands (implies napval)
 % const bigbas=2 napval=0 les=0
-% cvar les napval=1
+#% cvar les napval=1
 
 # ... Variable declarations used as input in other categories
 #   a     the lattice constant, in a.u.

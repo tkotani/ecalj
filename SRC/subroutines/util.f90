@@ -515,6 +515,7 @@ subroutine cexit(pv,ps)
   integer:: status,ierr
   if (ps /= 0) then
      if (pv == 0) then
+        call flush()
         call MPI_finalized(status,ierr)
         if (status == 0) then
            call MPI_finalize(ierr)

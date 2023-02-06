@@ -18,7 +18,7 @@ CLEAN   rm -f atm.felz fe.felz mixm.felz out.felz save.felz ctrl.felz log.felz m
 % const verb=30
 VERS    LMF-6.10 LMASA-6.10 LM:7 FP:7
 IO      SHOW=F HELP=F VERBOS={verb} WKP=F
-%const a=2.87/0.529177 gmax=13 	nmix=3 nk=4 Rf=0.99 R=Rf*sqrt(3)*a/4
+%const a=2.87/0.529177 gmax=13 nmix=3 nk=4 rf=0.99 R=rf*sqrt(3)*a/4
 STRUC   NBAS=1 NSPEC=1 NL=5
         ALAT={a} PLAT= .5 .5 .5  .5 -.5 .5  .5 .5 -.5
 % const so=0 nit=1

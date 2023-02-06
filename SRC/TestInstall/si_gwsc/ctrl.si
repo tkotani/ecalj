@@ -28,7 +28,7 @@ SYMGRP find   # 'find' evaluate space-group symmetry (just from lattice) automat
 
                # Enlarge this, when your enlarge pwemax, and check little dependence on kmxa. 
 #id  = Si
-%const bohr=0.529177 a= 5.43095/bohr
+%const bohr=0.529177 a=5.43095/bohr
 STRUC
      ALAT={a} 
      PLAT=0 0.5 0.5  0.5 0 0.5  0.5 0.5 0 

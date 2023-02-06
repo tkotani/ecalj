@@ -10,7 +10,7 @@ OPTIONS NSPIN={nsp} REL=T CCOR={ccor}
 SYMGRP  find
 STR     RMAXS=2.5 NOCALC=F
 % const ng=16 nk1=12 nz=10 a=7.1866
-HAM     FORCES={lfrce} FTMESH={ng} TOL=1d-7
+HAM     FORCES={lfrce} FTMESH={ng} TOL=1e-7
 % const  pwmode=0 pwemin=1 pwemax=3 oveps=0
         PWMODE={pwmode} PWEMIN={pwemin} PWEMAX={pwemax} OVEPS={oveps}
         NSPIN={nsp} REL=T NONCOL={nc} SO={so}
@@ -22,10 +22,10 @@ SITE    ATOM=Pt POS=   0.01   0.02   0.03
 % const w=.005
 BZ      NKABC={nk1} {nk1} {nk1} BZJOB={bzj} METAL={met} TETRA={tetra} NPTS=900 SAVDOS=F DELEF=.1 N=-101 W={w}
         EMESH={nz} 10 -1 -.05 .5 .3 .01*0 NOINV=0
-CLASS   ATOM=Co Z=27 LMX=2 LMXA={nl-1} R/W={rw}+.01 IDXDN=1 1 1 {idxf} EREF=-2781.6524 MMOM=0 0 -2 A=0.03 KMXA=4
+CLASS   ATOM=Co Z=27 LMX=2 LMXA={nl}-1 R/W={rw}+.01 IDXDN=1 1 1 {idxf} EREF=-2781.6524 MMOM=0 0 -2 A=0.03 KMXA=4
         RSMH= 2.3  2.3  1   EH= -0.1 -0.1 -0.2 RSMH2= 0 1.2 0  EH2= -1 -1 -1
         BAS: {nel},0,1,2.3,-.1,2,2,1,-.1,0,2,1.3,-1,0,1,2,-3 
-        ATOM=Pt Z=78 LMX=2 LMXA={nl-1}+1 R/W={rw}-.01 IDXDN=1 1 1 {idxf} EREF=-36805.4789 A=0.03 KMXA=5
+        ATOM=Pt Z=78 LMX=2 LMXA={nl} R/W={rw}-.01 IDXDN=1 1 1 {idxf} EREF=-36805.4789 A=0.03 KMXA=5
         BAS: {nel},0,1,2.3,-.1,2,2,1,-.1,0,2,1.3,-1,0,1,2,-3  LFOCA=1
         RSMH= 2.25 2.25 .95 EH= -.05 -.05 -.15
 ITER    MIX=B,b=.3 NIT={nit} 

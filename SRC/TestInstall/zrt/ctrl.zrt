@@ -1,11 +1,10 @@
-% const nitq=100 qtol=1d-5 nmix=1 beta=1 UL=T io=F
-% const conv=1d-3 convc=1d-2 ftmesh=24
+% const nitq=100 qtol=1e-5 nmix=1 beta=1 UL=T io=F
+% const conv=1e-3 convc=1e-2 ftmesh=24
 % const dyn=0 relmode=0 xtol=0.001 gtol=0.001 step=0.001 hessian=0
 % const nitf=1000000
 % const fs=0.048377 K=157895
-% const restart=0 timestep=1/fs temp=300/K reltime=5/fs print=10
-% const fp=1 
-% const verb=30 dos=0 force=dyn>0|relmode>0
+% const restart=0 timestep=1/fs temp=300/K reltime=5/fs 
+% const verb=30 dos=0 force=0
 % const nbo=2 nbz=2 lmax=2 laug=2
 IO      SHOW=F HELP=F VERBOS={verb} WKP=F IACTIV=F
 %const af=9.8 a0=af/sqrt(2)  v0=0.5*af^3 vfrac=0.91 v=v0*vfrac Ran=1.8 Rcat=2.1 rf=1 s=0.5
@@ -35,7 +34,7 @@ SITE    ATOM=Zr POS=0   0    {q}/2     DELTA=0 0 0
         ATOM=O POS=1/2 0     {q}/4-{d}         DELTA=0 0 0
         ATOM=O POS=1/2 0     3*{q}/4-{d}       DELTA=0 0 0
 % const pwmode=0 pwemin=1 pwemax=3 oveps=0
-HAM     FTMESH={ftmesh} TOL=1d-8 FRZ=F FORCES={force} XCFUN=2
+HAM     FTMESH={ftmesh} TOL=1e-8 FRZ=F FORCES={force} XCFUN=2
         PWMODE={pwmode} PWEMIN={pwemin} PWEMAX={pwemax} OVEPS={oveps}
 # for version 7
 OPTIONS PFLOAT=0

@@ -13,7 +13,7 @@ SYMGRP find  # 'find' evaluate space-group symmetry automatically.
              # Do lmchk to check how it is evaluated.
 %const kmxa=7  # kmxa=7 is good for pwemax=5 or lower.
                # larger kmxa is better but time-consuming (maybe not the critical part for large systems).
-% const da=0d0 wto=0d0 kl=0d0 tet=1
+% const da=0e0 wto=0e0 kl=0e0 tet=1
 STRUC   ALAT=10.66 DALAT={da} PLAT= 0 .5 .5    .5 0 .5    .5 .5 0
         SHEAR=0 0 1 {tet}
   NBAS= 2  NSPEC=2

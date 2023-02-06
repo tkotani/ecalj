@@ -31,6 +31,7 @@ subroutine fexit0(retval,strng)
   integer :: master,procid,ierr,ia
   parameter (master = 0)
   include "mpif.h"
+  call flush()
   ia=0
   goto 5
 
@@ -97,12 +98,14 @@ end subroutine rx0s
 
 subroutine rx(string) !error exit
   character*(*) string
+  call flush()
   call fexit0(-1,string)
   call rx0s(string)         !for single core exit
 end subroutine rx
 
 subroutine rx0(string) !normal exit
   character*(*) string
+  call flush()
   call fexit0(0,string)
   call rx0s(string)         !for single core exit
 end subroutine rx0
@@ -111,6 +114,7 @@ subroutine rx1(string,arg) ! Error exit, with a single argument
   character(15):: f2a
   character*(*) string
   double precision :: arg
+  call flush()
   call fexit0(-1,trim(' Exit -1 '//string//trim(f2a(arg))))
 end subroutine rx1
 

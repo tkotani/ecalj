@@ -1,6 +1,6 @@
 %const  xcr=.1459771443 zcr=0.2497534934 xn=0.09939163258 zn=0.749777179
 %const  cpl=0
-%const  aR=7.8406 nmix=3 beta=0.5 conv=1d-5 convc=1d-5 lmx=2 asa=f
+%const  aR=7.8406 nmix=3 beta=0.5 conv=1e-5 convc=1e-5 lmx=2 asa=f
 TESTCLS lmfa crn
 #       mpix -np=16 lmf-MPIK --rs=0 crn
 #       mpix -np=16 lmf-MPIK --rs=1,0 --cls:5,0,1 -vnit=1 -vmetal=2 crn
@@ -31,14 +31,14 @@ STRUC   NBAS=8 NSPEC=5 NL=4
         ALAT={a} PLAT= 1 0 0   0 {s} 0   0 0 {q}
 SPEC
         ATOM=Cr1  Z=24 R={Rcat} LMX={lmx} LMXA=3 KMXA=5 LFOCA=0 A=0.03
-                  P=4.9 4.9 3.8 4.1 PZ=0 {cpl?3.9:0} IDMOD=0 0 0 0
+                  P=4.9 4.9 3.8 4.1 PZ=0 0 IDMOD=0 0 0 0
                   Q=2 0 4 0 MMOM=0 0 4 0
                   RSMH= {Rcat}/2 {Rcat}/2 {Rcat}/2 {Rcat}/2
                   RSMH2={Rcat}/2 {Rcat}/2 {Rcat}/2 {Rcat}/2
                   EH= -0.01 -0.01 -0.01 -0.01
                   EH2=-0.1 -0.1 -0.1 -0.1 
         ATOM=Cr2  Z=24 R={Rcat} LMX={lmx} LMXA=3 KMXA=5 LFOCA=0 A=0.03
-                  P=4.9 4.9 3.8 PZ=0 {cpl?3.9:0} IDMOD=0 0 0 0
+                  P=4.9 4.9 3.8 PZ=0 0 IDMOD=0 0 0 0
                   Q=2 0 4 0 MMOM=0 0 -4 0
                   RSMH= {Rcat}/2 {Rcat}/2 {Rcat}/2 {Rcat}/2
                   RSMH2={Rcat}/2 {Rcat}/2 {Rcat}/2 {Rcat}/2
@@ -70,24 +70,20 @@ SPEC
                   C-HOLE=1s C-HQ=-1,-1
                   CSTRMX=1
 SITE    
-% var x=xCr z=zCr
-        ATOM=Cr1 POS=      {x}  1/4*{s}       {z}*{q}
-        ATOM=Cr1 POS=     -{x}  3/4*{s}      -{z}*{q}
-        ATOM=Cr2 POS=  1/2-{x}  3/4*{s}  (1/2+{z})*{q}
-        ATOM=Cr2 POS=  1/2+{x}  1/4*{s}  (1/2-{z})*{q}
-
-% var x=xN z=zN
-        ATOM=Nh  POS=      {x}  1/4*{s}       {z}*{q}
-        ATOM=N1  POS=     -{x}  3/4*{s}      -{z}*{q}
-        ATOM=N2  POS=  1/2-{x}  3/4*{s}  (1/2+{z})*{q}
-        ATOM=N2  POS=  1/2+{x}  1/4*{s}  (1/2-{z})*{q}
+        ATOM=Cr1 POS=      {xcr}  1/4*{s}       {zcr}*{q}
+        ATOM=Cr1 POS=     -{xcr}  3/4*{s}      -{zcr}*{q}
+        ATOM=Cr2 POS=  1/2-{xcr}  3/4*{s}  (1/2+{zcr})*{q}
+        ATOM=Cr2 POS=  1/2+{xcr}  1/4*{s}  (1/2-{zcr})*{q}
+        ATOM=Nh  POS=      {xn}  1/4*{s}       {zn}*{q}
+        ATOM=N1  POS=     -{xn}  3/4*{s}      -{zn}*{q}
+        ATOM=N2  POS=  1/2-{xn}  3/4*{s}  (1/2+{zn})*{q}
+        ATOM=N2  POS=  1/2+{xn}  1/4*{s}  (1/2-{zn})*{q}
 BZ      NKABC={nk} 2*{nk} {nk} BZJOB=T T T METAL={metal} TETRA=T 
         EF0=0.4 DELEF=0.1 NEVMX=256 EFMAX=5 DOSMAX=1.5 NPTS=1001
         N=1 W=.01
 # for version 7
 ITER    MIX=A{nmix},b={beta},k=4 CONV={conv} CONVC={convc} NIT={nit}
-MIX     MODE=A{nmix},b={beta},k=4 CONV={conv} CONVC={convc}
 HAM     FTMESH={ftmesh} FORCES=1 
         NSPIN=2 REL=T
         STABILIZE=1e-8
-	OVEPS=1d-8
+	OVEPS=1e-8

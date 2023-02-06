@@ -1,38 +1,38 @@
 HEADER  Master file for transition and other elemental metals
 %const scale=.983 lmxf=6 hf=f tp=t xcn=0 lmh=f co=t so=f sharm=f
 %const nit=0 ccor=t twoc=f gamrep=twoc gfmod=0 version=7
-%const  vol=4.711^3*.995/sqrt(2) Z=27 nd0=7 np0=0 ef0=0 mom=1.6
-%const  eref=lmh?-2783.53:-2781.6524 hcp=t nsp=2
+%const  vol=4.711^3*.995/sqrt(2) z=27 nd0=7 np0=0 ef0=0 mom=1.6
+%const  eref=-2781.6524 hcp=t nsp=2
 %const  afcc=(4*vol)^(1/3) abcc=(2*vol)^(1/3) ahcp=(vol*sqrt(2))^(1/3)
 IO      SHOW=f HELP=F VERBOS=31 20 WKP=F IACTIV=t
-%const fcc=f bcc=f bct=f nsp=1
+%const fcc=f bcc=f bct=f
 STR     RMAX=3.5
 %const nk=16 cbya=sqrt(8/3) a=ahcp tet=1
 %const bzj=0 mom={mom} 
         
 % const nl=3
-STRUC   NBAS={hcp?2:1} NCLASS=1 NSPEC=1 NL={nl} EBAS=-.01 -1 -2 SHEAR=0 0 1 {tet}
+STRUC   NBAS=2 NCLASS=1 NSPEC=1 NL={nl} EBAS=-.01 -1 -2 SHEAR=0 0 1 {tet}
         ALAT={a} PLAT=0 -1 0  sqrt(3)/2 1/2 0   0 0 {cbya}
         ALAT={a} PLAT=1 0 0   1/2 sqrt(3)/2 0   0 0 {cbya}
 SYMGRP  find
 #SYMGRP  R6Z:T(.5,1/sqrt(12),{cbya}/2) MZ MX
 
 %const rw=1
-SPEC   ATOM=A Z={Z} R/W={rw} LMXB=lmxb LMXF={lmxf} EREF={eref} A=.01 LMX=2 MMOM=0 0 -2
+SPEC   ATOM=A Z={z} R/W={rw} LMXB=lmxb LMXF={lmxf} EREF={eref} A=.01 LMX=2 MMOM=0 0 -2
         RSMH= 1.70,1.70,1.05  EH= -0.1,-0.1,-0.3
 #       The following for NRL conventions
 SITE    ATOM=A XPOS=1/3 -1/3 1/2
         ATOM=A XPOS= 0 0 0
 % const scr=0
-OPTIONS NSPIN={nsp} REL=t TPAN={tp} XCFUN=2 XCN={xcn} HF={hf}
+OPTIONS REL=t TPAN={tp} XCFUN=2 XCN={xcn} HF={hf}
         Q =BAND INVIT=T GRCOR={lmh} LMH={lmh} SO={so} SHARM={sharm}
-        CCOR={ccor} GAMMA={gamrep} SAVVEC={gfmod>=10} SCR={scr}
+        CCOR={ccor} GAMMA={gamrep} SCR={scr}
 % const ng=12 ng2=20 met=1
-HAM     FRZ=f FTMESH={ng} {ng} {ng2} TOL=1d-6
+HAM     FRZ=f FTMESH={ng} {ng} {ng2} TOL=1e-6
         NSPIN={nsp} REL=t SO={so} XCFUN=2
 BZ      NKABC={nk} BZJOB={bzj} W=.002 NPTS=1001 NKABC2=6 SAVDOS=t
         EF0={ef0} DELEF=.1 TETRA=2 DOS={ef0}-1 {ef0}+.5 METAL={met}
         EMESH=12 10 -1 -.025 .5 .5 INVIT=f NOINV=f
-EWALD   AS=2.0 TOL=1D-6 ALAT0=a
+EWALD   AS=2.0 TOL=1e-6 ALAT0=a
 % const w1=1 w2=1
 ITER    MIX=B3,n=5,b=.7,w={w1},{w2}  NIT={nit}
