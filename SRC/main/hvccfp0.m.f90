@@ -5,7 +5,7 @@ program hvccfp0
   !-------------------------------------------------------------
   ! int
   !    strx: structure constant for e=0 (means 1/|r-r'| )
-
+  use m_lattic,only:lctoff
   use m_genallcf_v3,only: Genallcf_v3,  alat,nbas=>natom, bas=>pos
   use m_hamindex,only:    Readhamindex,plat,qlat
   use m_read_bzdata,only: Read_bzdata, ginv,nqbz,qbz,nqibz,qibz,nq0i,wqt=>wt,q0i,nq0iadd

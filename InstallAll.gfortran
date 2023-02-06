@@ -27,8 +27,8 @@ popd
 ### Use SRC/exec/Makefile
 pushd .
 cd SRC/exec
-make -j $CORES PLATFORM=gfortran LIBMATH="$MATH" ||my_error
-make -j $CORES PLATFORM=gfortran BINDIR=$BINDIR install ||my_error
+make -j PLATFORM=gfortran LIBMATH="$MATH" ||my_error
+make -j PLATFORM=gfortran BINDIR=$BINDIR install ||my_error
 popd
 
 echo '=== goto test ==='

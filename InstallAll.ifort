@@ -26,8 +26,8 @@ popd
 ### 
 pushd .
 cd SRC/exec
-make -j $CORES PLATFORM=ifort LIBMATH="$MATH" ||my_error
-make -j $CORES PLATFORM=ifort BINDIR=$BINDIR install ||my_error
+make -j  PLATFORM=ifort LIBMATH="$MATH" ||my_error
+make -j  PLATFORM=ifort BINDIR=$BINDIR install ||my_error
 popd
 
 echo '=== goto test ==='
