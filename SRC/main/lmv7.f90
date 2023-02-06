@@ -50,45 +50,37 @@ program lmf
   if(iargc()==0) call rx0('no args: lmf-MPIK --help show help')
   if(cmdopt0('--help')) then  !help and quit
      call m_lmfinit_init(prgnam) ! show help and quit for --input
-     call Rx0('end of help mode')
+     call rx0('end of help mode')
   endif
 
   !! --writepdos mode and exit
-  if( Cmdopt0('--writepdos') ) then
+  if( cmdopt0('--writepdos') ) then
      !! See job_pdos. New pdos mode (use --mkprocar and --fullmesh together).
      !! We use all k points (--fullmesh), instead of using crystal symmetry. See job_pdos
      if(master_mpi) write(6,*) '... Doing writepdos mode. Wait a while ...'
      if(master_mpi) write(6,*) '... See job_pdos to know how to call --writepdos mode'
-     call Writepdos(trim(sname))
-     call Rx0('done: end of --writepdos mode.')
+     call writepdos(trim(sname))
+     call rx0('done: end of --writepdos mode.')
   endif
 
   !! --wdsawada mode and exit
   if( Cmdopt0('--wdsawada') ) then !! Sawada's simple mode and exit
      if(master_mpi)write(6,*) '... write Dos from tetraf.dat and eigenf.dat. '
      if(master_mpi)write(6,*) '...  eigenf.dat is for qplistf.dat '
-     call Writedossawada()
-     call Rx0('done: end of --wdsawada mode.')
+     call writedossawada()
+     call rx0('done: end of --wdsawada mode.')
   endif
 
-  !! Read ctrl.* into m_rdfiln
-  ! m_rdfiln is too complicated to maintain. We will use simple reader.
-  ! 'math operation' and '-v substitution' may be convenient, but probably we will separate them away.
-  ! 'math operation' allows expression such as ALAT=7.88*1.1 in ctrl file (a2bin.f90)
-!  call Finits() !Read command line arguments by -vfoobar, handled in addsyv.f90
-  if(master_mpi) call m_rdfiln_init() ! Preprocess ctrl.* into ctrl_preprocessed.*
-!  if(master_mpi) call shosyv(0,0,0,6)
-!  if(master_mpi) call shosvv(0,10000,6)
-  
-  if(cmdopt0('--quit=ctrl')) call Rx0('--quit=ctrl')
-  ! Set all the initial conditions in the module m_lmfinit. All variables except v_sspec and v_ssite are protected.
-  call m_lmfinit_init(prgnam) ! Computational settings from ctrl_preprocessed.* file is stored in m_lmfinit
+  if(master_mpi) call m_rdfiln_init() ! Preprocess ctrl.* and -vfoober into ctrlp.*
+  if(cmdopt0('--quit=ctrlp')) call rx0('--quit=ctrlp')
+  ! Read ctrlp into module m_lmfinit. All variables except v_sspec are protected.
+  call m_lmfinit_init(prgnam)
   call m_lattic_init()      ! lattice setup (for ewald sum)
   call m_mksym_init(prgnam) !symmetry go into m_lattic and m_mksym
   if(trim(prgnam)=='LMF') call m_mkqp_init() ! data of BZ go into m_mkqp
-  !!======================================================================
+  
   !! Main program. lmf-MPIK/lmfgw-MPIK. 'call lmfp'---------------------
-  !! --rs=3 mode is removed. (--rs=3 meand fixed density Harris-foukner MD).
+  !! --rs=3 is removed. (--rs=3 meand fixed density Harris-foukner MD).
   !! Sep2020 comment " Shorten site positions" removed. (we are useing shortn3 mainly now)
   ! Get jobgw for lmfgw mode. Quit for job=0
   jobgw=-1
@@ -103,18 +95,18 @@ program lmf
         write(stdo,*) '  jobgw 0 or 1?'
         read (5,*) jobgw
      endif
-     call Mpibc1_int(jobgw,1,'lmfp_jobgw')
+     call mpibc1_int(jobgw,1,'lmfp_jobgw')
   endif
   if(jobgw==0) then ! Index for hamiltonian gen_hamindex
      if(master_mpi) call m_hamindex0_init()
-     call Rx0(' OK! '//'lmfgw mode=0 generated HAMindex0')
+     call rx0(' OK! '//'lmfgw mode=0 generated HAMindex0')
   endif
   !! Array allocated in supot rhoat smrho.
   call m_supot_init() ! get G vectors for charge
-  call Sugcut(1)
+  call sugcut(1)
   call m_suham_init()   ! Get estimated dimension of Hamiltonian (probably simplified in future).
   if(nlibu>0) call m_ldau_init() !! LDA+U initialization
-  if(cmdopt0('--quit=dmat')) call Rx0('--quit=dmat')
+  if(cmdopt0('--quit=dmat')) call rx0('--quit=dmat')
   call m_qplist_init(plbnd,jobgw==1) ! Get q point list at which we do band calculations
   call m_qplist_qspdivider()  !generate iqini:iqend,isini,isend  for each rank
   call m_igv2xall_init(1,nkp) !G vectors for qplist. (1,nkp) is needed for gwb.head
@@ -138,15 +130,13 @@ program lmf
   if(cmdopt0('--getq')) then ! Current version is not for spin dependent, with many restrictions.
      if(master_mpi) call Getqmode()
      call Rx0('--getq mode done')
-  endif
-!  call praugm() !print out properties of species
-  call Lmfp(jobgw==1) !main routine
-  call Rx0("OK! end of "//trim(prgnam)//" ======================")
+  endif !call praugm()
+  call lmfp(jobgw==1) !main routine
+  call rx0("OK! end of "//trim(prgnam)//" ======================")
 end program Lmf
 
 include "show_programinfo.fpp" !this is for 'call show_programinfo'
 ! preprocessed from show_programinfo.f90 by Makefile
-
 
 ! subroutine praugm() !print out only
 !   use m_struc_def 
