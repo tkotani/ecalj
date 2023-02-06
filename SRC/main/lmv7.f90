@@ -75,10 +75,10 @@ program lmf
   ! m_rdfiln is too complicated to maintain. We will use simple reader.
   ! 'math operation' and '-v substitution' may be convenient, but probably we will separate them away.
   ! 'math operation' allows expression such as ALAT=7.88*1.1 in ctrl file (a2bin.f90)
-  call Finits() !Read command line arguments by -vfoobar, handled in addsyv.f90
+!  call Finits() !Read command line arguments by -vfoobar, handled in addsyv.f90
   if(master_mpi) call m_rdfiln_init() ! Preprocess ctrl.* into ctrl_preprocessed.*
-  if(master_mpi) call shosyv(0,0,0,6)
-  if(master_mpi) call shosvv(0,10000,6)
+!  if(master_mpi) call shosyv(0,0,0,6)
+!  if(master_mpi) call shosvv(0,10000,6)
   
   if(cmdopt0('--quit=ctrl')) call Rx0('--quit=ctrl')
   ! Set all the initial conditions in the module m_lmfinit. All variables except v_sspec and v_ssite are protected.

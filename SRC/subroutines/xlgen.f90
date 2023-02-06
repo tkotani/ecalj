@@ -41,7 +41,7 @@ subroutine xlgen(plat,rmax,rmax2,nvmax,opts,mode,nv,vecs)! Generate a list of la
   character(8):: xt
   !we ssume mode=11 or 2
   call latlim(plat,rmax,imx(1),imx(2),imx(3))
-!  write(6,*)"imx=",imx
+  write(6,*)"imx=",imx
   ivck = 0
   if (mod(opts,10) == 1) ivck = 1
   rsqr = rmax*rmax

@@ -1,6 +1,7 @@
 !=========================================================================
 module m_gtv
   use m_ftox
+  use m_MPItk,only:procid
   !- module to read ctrl file -------------------------------
   !r gtv is the main rouitne. Its has interface.
   !r
@@ -61,6 +62,8 @@ module m_gtv
           getinput_char,getinput_none
   end interface getinput
 
+  public gtv,gtv_setrcd,gtv_setio
+  private
 contains
   subroutine gtv_setio(debug_in,io_show_in,io_help_in)
     !- Set io_show and io_help for m_gtv
@@ -740,7 +743,8 @@ contains
     real(8) :: arr(1000)
 
     character(50),save:: tokencut(10)
-    integer :: a2vec
+    integer :: a2vec,ixx
+    character(8):: xt
 
     entry getinput_r8 (name,  dat,nin,cindx2,Texist,nout)
     ig = 'r8' ;  goto 990
@@ -872,12 +876,24 @@ contains
        endif
        return
     endif
-
+    
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+!    write(*,*) 'vvvvv'
+    call system('echo '//trim(rcd(i1:ie))//'|a2vec.py >tempxxx.'//xt(procid))
+    open(newunit=ixx,file='tempxxx.'//xt(procid))
+    read(ixx,*) n
+    read(ixx,*) arr(1:min(n,nin))
+    close(ixx)
+    n=min(n,nin)
+!    write(*,*)'vvvvvvec2y ',ig,arr(1:n)
+! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
     ! --- ASCII-numerical conversion. Simple matematical conversion.
-    ii = 0
-    n = a2vec(rcd(i1:ie),ie-i1+1,ii,4,', ',2,-3,nin,iarr,arr)
-!    write(*,*)'vvvvvvec2 ',rcd(i1:ie),n
-    if (n < 0) n = -n-1
+    ! ii = 0
+    ! n = a2vec(rcd(i1:ie),ie-i1+1,ii,4,', ',2,-3,nin,iarr,arr)
+    ! if (n < 0) n = -n-1
+    ! write(*,*)'vvvvvvec2x ',arr(1:n)
+    !write(*,*)
+
 !  if(debug) write(stdo,ftox)' getinput: sought',nin,'numbers. Read',n,'from'//trim(name)
     if (present(nout) ) nout = n
     ! --- Copy array to data ---
@@ -1056,6 +1072,7 @@ logical function parmxp(strnin,lstrn,broy,nmix,wgt,beta,wc,killj) !,betv)!,rmser
 9999 continue ! --- Normal exit ---
 end function parmxp
 integer function parg(tok,strn,ip,lstr,sep,itrm,narg,it,res)
+  use m_MPItk,only:procid
   !- Returns res= real(8) values from a string
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -1077,17 +1094,16 @@ integer function parg(tok,strn,ip,lstr,sep,itrm,narg,it,res)
   !o           (for narg=0, returns 1 if token matched)
   !o        -n if error on conversion of argument n
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! Passed Parameters
+  implicit none
   integer :: lstr,ip,cast,narg,itrm,it(1)
   character*(*) tok,sep,strn
   double precision :: res(narg)
-  ! Local Variables
   logical :: ldum,parstr
   character term*1
   character(100)::ddd
   integer :: jp,np,nsep,lentok,a2vec,ipx
-  integer::itx(100)
+  integer::itx(100),ixx
+  character(8):: xt
   nsep = len(sep)
   lentok = len(tok)
   term = tok(lentok:lentok)
@@ -1129,33 +1145,39 @@ integer function parg(tok,strn,ip,lstr,sep,itrm,narg,it,res)
   cast=4
   
   ddd=trim(strn(ip+1:))
-  np=len(trim(ddd))
-  ipx=0
-  parg = a2vec(trim(ddd),np,ipx,cast,sep,nsep,itrm,narg,itx,res)
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+!   write(*,*) 'vvvvv'
+   call system('echo '//trim(ddd)//'|a2vec.py >tempxxx2.'//xt(procid))
+   open(newunit=ixx,file='tempxxx2.'//xt(procid))
+   read(ixx,*) parg
+   read(ixx,*) res(1:min(narg,parg))
+   close(ixx)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+!  np=len(trim(ddd))
+!  ipx=0
+!  parg = a2vec(trim(ddd),np,ipx,cast,sep,nsep,itrm,narg,itx,res)
 !  write(*,*)'vvvvvvec1 ',trim(ddd),'parg=', parg
 
-!  ipx=ip
-!  parg = a2vec(strn,np,ip,cast,sep,nsep,itrm,narg,it,res)
-!  write(*,*)'vvvvvvec1 ',trim(strn(ipx+1:)), parg
 end function parg
 
-subroutine mathexpr(expr,dat) !python version for a2vec
-  use m_MPItk,only: procid
-  integer::ix
-  character(8)  xt
-  character(100):: fff
-  real(8)::dat
-  character(*)::expr
-  fff='fa2q19'//trim(xt(procid))
-  !expr='2.3*sqrt(1.5)'
-  call execute_command_line("echo '"//trim(expr)//"'"//&
-       "|python -c '&
-       import sys;&
-       from math import *;&
-       print(eval(sys.stdin.read()))&'"&
-       ">"//trim(fff),wait=.true. )
-  open(newunit=ix,file=trim(fff))
-  read(ix,*) dat
-  close(ix,status='delete')
-  print *,'data=',dat
-end subroutine mathexpr
+! subroutine mathexpr(expr,dat) !python version for a2vec
+!   use m_MPItk,only: procid
+!   integer::ix
+!   character(8)  xt
+!   character(100):: fff
+!   real(8)::dat
+!   character(*)::expr
+!   fff='fa2q19'//trim(xt(procid))
+!   !expr='2.3*sqrt(1.5)'
+!   call execute_command_line("echo '"//trim(expr)//"'"//&
+!        "|python -c '&
+!        import sys;&
+!        from math import *;&
+!        print(eval(sys.stdin.read()))&'"&
+!        ">"//trim(fff),wait=.true. )
+!   open(newunit=ix,file=trim(fff))
+!   read(ix,*) dat
+!   close(ix,status='delete')
+!   print *,'data=',dat
+! end subroutine mathexpr

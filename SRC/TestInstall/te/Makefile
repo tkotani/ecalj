@@ -20,17 +20,17 @@ define test1.exec
 	#
 	@cat message.test1.$(TARGET)
 	$(bindir)/lmfa $(TARGET) -vdyn='DYN' -vnk=3 -vnit=3 -vlf1=4 \
-		-vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1d-4 > $1 2>&1
+		-vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1e-4 > $1 2>&1
         $(LMFP) $(TARGET) -vdyn='DYN' -vnk=3 -vnit=3 -vlf1=4 \
-		-vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1d-4 -vnbas=12 -vnspec=2 >> $1 2>&1
+		-vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1e-4 -vnbas=12 -vnspec=2 >> $1 2>&1
         rm -f mixm.$(TARGET)
 	cp rst.$(TARGET) rst.$(TARGET).bk
         $(LMFP) $(TARGET) -vnk=3 -vnit=3 -vlf1=4 \
-		-vlmxl=4 -vnk=3 -vngd=20 -vkmx=5 -vconv=1d-4 -vpwmode=11 >> $1 2>&1
+		-vlmxl=4 -vnk=3 -vngd=20 -vkmx=5 -vconv=1e-4 -vpwmode=11 >> $1 2>&1
         rm -f mixm.$(TARGET)
 	cp rst.$(TARGET).bk rst.$(TARGET)
         $(LMFP)  $(TARGET) -vnk=3 -vnit=3 -vlf1=4 \
-		-vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1d-4 >> $1 2>&1
+		-vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1e-4 >> $1 2>&1
 endef
 
 ###########################################################

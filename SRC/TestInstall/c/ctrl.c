@@ -1,6 +1,6 @@
 HEADER  sc C atom
 VERS    LMASA-6 LMF-6 LM:7 FP:7
-IO      SHOW=F HELP=F VERBOS=30 40 60 60 WKP=F
+IO      SHOW=F HELP=F VERBOS=30 40 50 60 WKP=F
 TESTLMF lmfa --no-iactiv c -vzbak=0
         lmf  --no-iactiv c -vzbak=0
 TESTION lmfa --no-iactiv c -vzbak=1
@@ -18,7 +18,7 @@ HAM     NSPIN=2  REL=t XCFUN=2
         FTMESH=50 50 50  TOL=1E-6 FRZ=f
         FORCES=12 CONV=1e-5 CONVC=.0005
 STRUC   NBAS=1 NSPEC=1 
-        ALAT=10/2^(1/3) PLAT=   1 1 0  1 0 1  0 1 1
+        ALAT=7.9370052598409968 PLAT=   1 1 0  1 0 1  0 1 1
 FIT     WVS=1 1  NFIT=2 EFIT=-.5 -2
 BZ      NKABC={nk} {nk} {nk}  BZJOB=f GETQP=f
         METAL=2 TETRA=t  SAVDOS=f DOS=ef0-1.5 ef0+0.5

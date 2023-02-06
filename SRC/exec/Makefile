@@ -184,7 +184,7 @@ clean:
 cleanall:
 	rm -rf $(progslm) $(progsgw) $(progsw) $(progslm2) $(obj_path) moduledepends.* 
 install: 
-	cp $(script) $(progslm) $(progsgw) $(progsw) $(prog2) ctrlgen*.py job* run_arg* ctrl2* $(BINDIR)
+	cp $(script) $(progslm) $(progsgw) $(progsw) $(prog2) ctrlgen*.py job* run_arg* ctrl2* a2vec* $(BINDIR)
 dep:
 	@echo 'This generate a call-caller data set for SRC/*/*.f90 .'
 	@echo 'No arguments required. This drives ../TOOLS/f_calltree.py '

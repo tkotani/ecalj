@@ -45,16 +45,16 @@ subroutine iosave(flg,vstrn,vars,ifi,nvario)
   ib = -1
   !      call bin2a0(ib)
   !      call bin2a0(10)
-  call numsyv(nvar)
+!  call numsyv(nvar)
   outstr = flg(1:1)
   p1 = '6'
   p2 = '6'
   ! --- Output variables up to nvario ---
-  do  10  i = 4, min(nvario,nvar)
-     nam = ' '
-     call watsyv(nam,val,i)
-     outstr=trim(outstr)//' '//trim(nam)//'='//ftom(val)
-10 enddo
+!  do  10  i = 4, min(nvario,nvar)
+!     nam = ' '
+!     call watsyv(nam,val,i)
+!     outstr=trim(outstr)//' '//trim(nam)//'='//ftom(val)
+!10 enddo
   ! --- Output all variables in string ---
   k0 = 0
   call skipbl(vstrn,len(vstrn),k0)
