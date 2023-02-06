@@ -24,6 +24,7 @@ program lmf
   use m_mksym,only:    m_mksym_init
   use m_lgunit,only:   m_lgunit_init, stdo,stdl
   use m_sugcut,only:sugcut
+  use m_cmdpath,only:setcmdpath
   implicit none
   integer:: k, iarg,jobgw,iprint,nit1,ifi,ifile_handle,nx,ny,nk1,nk2,nk3,i,j,ix
   logical:: fileexist,cmdopt0,cmdopt2, writeham,lbin,sigx
@@ -70,7 +71,7 @@ program lmf
      call writedossawada()
      call rx0('done: end of --wdsawada mode.')
   endif
-
+  call setcmdpath()
   if(master_mpi) call m_rdfiln_init() ! Preprocess ctrl.* and -vfoober into ctrlp.*
   if(cmdopt0('--quit=ctrlp')) call rx0('--quit=ctrlp')
   ! Read ctrlp into module m_lmfinit. All variables except v_sspec are protected.

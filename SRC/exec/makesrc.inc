@@ -1,8 +1,7 @@
 #NOTE: when you add your foobar.F, choose one of *_list.
 
 ELIB_list=\
-addsyv.o\
-addsvv.o\
+m_cmdpath.o\
 diagcv2.o \
 m_shortn3.o\
 m_shortn3_plat.o\
@@ -122,7 +121,6 @@ switch.o \
 rdsigm2.o\
 xcpbe.o \
 m_ext.o\
-a2bin.o \
 amix.o \
 broyj.o \
 cmdopt.o \

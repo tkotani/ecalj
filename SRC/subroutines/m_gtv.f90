@@ -2,6 +2,7 @@
 module m_gtv
   use m_ftox
   use m_MPItk,only:procid
+  use m_cmdpath,only:cmdpath
   !- module to read ctrl file -------------------------------
   !r gtv is the main rouitne. Its has interface.
   !r
@@ -743,7 +744,7 @@ contains
     real(8) :: arr(1000)
 
     character(50),save:: tokencut(10)
-    integer :: a2vec,ixx
+    integer :: ixx
     character(8):: xt
 
     entry getinput_r8 (name,  dat,nin,cindx2,Texist,nout)
@@ -878,8 +879,8 @@ contains
     endif
     
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
-!    write(*,*) 'vvvvv'
-    call system('echo '//trim(rcd(i1:ie))//'|a2vec.py >tempxxx.'//xt(procid))
+    !    write(*,*) 'vvvvv'
+    call system('echo '//trim(rcd(i1:ie))//'|'//trim(cmdpath)//'a2vec.py >tempxxx.'//xt(procid))
     open(newunit=ixx,file='tempxxx.'//xt(procid))
     read(ixx,*) n
     read(ixx,*) arr(1:min(n,nin))
