@@ -256,6 +256,7 @@ contains
             hsohp=reshape(SSbHP,shape(hsohp))
             hsoph=reshape(SSbPH,shape(hsoph))
             hsopp=reshape(SSbPP,shape(hsopp))
+            !write(6,*)'hhhhhhhsss',sum(hsohh),sum(hsohp),sum(hsoph),sum(hsopp)
             call orblib(ibas) !return norb,ltab,ktab,offl...
             do iorb = 1, norb
                l1  = ltab(iorb)

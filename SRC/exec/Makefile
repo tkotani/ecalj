@@ -91,7 +91,7 @@ result_etc_issue := $(shell grep -v \"^\$\" /etc/issue | head -1 )
 result_git_commit1 := $(shell git log|head -1)
 result_git_commit2 := $(shell git log|head -2|tail -n 1)
 result_git_commit3 := $(shell git log|head -3|tail -n 1)
-result_fflags := $(shell echo ${FFLAGS} | head -1)
+result_fflags := $(shell echo ${FFLAGS} | head -1|cut -b -100)
 result_libloc := $(shell echo ${LIBLOC} | head -1)
 VERSIONFLAGS = \
 -D___UNAME_A___="\"$(result_uname_a)\""   \
@@ -110,9 +110,9 @@ VERSIONFLAGS = \
 ########################################
 # Generate o of main routines for lmf 
 ########################################
-$(main)show_programinfo.fpp: $(main)*.f90 $(ELIB) $(MPI) $(MLO) $(GWLIB) $(main)show_programinfo.f90
+$(main)show_programinfo.fpp: $(main)*.f90 $(ELIB) $(MPI) $(MLO) $(GWLIB) $(main)show_programinfo.template
 	@echo generating $(main)show_programinfo.fpp 
-	@cpp $(VERSIONFLAGS) $(main)show_programinfo.f90 >  $@
+	@cpp $(VERSIONFLAGS) $(main)show_programinfo.template >  $@
 $(obj_path)/lmf-MPIK.o: $(main)lmv7.f90 $(main)show_programinfo.fpp
 	$(FC) $(FFLAGS_NONE) -c $(main)lmv7.f90 -o $@
 $(obj_path)/lmfa.o:     $(main)show_programinfo.fpp

@@ -271,7 +271,7 @@ subroutine q0irre(qibz,nqibz,q0,wt0,nx06,symops,ngrp, q0i,nq0i,wt,plat,ltrans,if
   !! output: q0i,nq0i
   ! xxxxxxx NOTE:input q0i(1:3,1:nq0i) is kept. Output nq0i is larger than input nq0i.
   implicit none
-  integer :: ixx,ix,i,ngrp,ig,nq0i,nx06,ifix,irr(nx06),nqirr,nqibz,ib,nqbz
+  integer :: ixx,ix,i,ngrp,ig,nq0i,nx06,ifix,irr(nx06),nqirr,nqibz,ib,nqbz,ierr,retval
   real(8) :: q0(1:3,nx06),q0i(1:3,nx06),symops(3,3,ngrp),sym(3,3), &
        qt(3) ,wt0(nx06), wt(nx06),qx(3),qibz(3,nqibz)
   logical:: ltrans
@@ -283,8 +283,7 @@ subroutine q0irre(qibz,nqibz,q0,wt0,nx06,symops,ngrp, q0i,nq0i,wt,plat,ltrans,if
   if(ltrans) then
      platt=transpose(plat)
   endif
-
-  wt=0d0
+  wt(1:nx06)=0d0
   ixx = 0 !nq0i !=0 apr2013
   do i = 1,nx06
      qt = q0(:,i)
@@ -298,6 +297,7 @@ subroutine q0irre(qibz,nqibz,q0,wt0,nx06,symops,ngrp, q0i,nq0i,wt,plat,ltrans,if
      enddo
 980  continue
   enddo
+
   !! for genMLWFdipole 2022
   if(cmdopt0('--allqbz')) then
      nq0i=ixx

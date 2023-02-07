@@ -269,6 +269,8 @@ subroutine gvputf(ng,n,kv,k1,k2,k3,c0,c)!- Pokes Fourier coefficients from list 
   integer :: ig,i,j1,j2,j3
   c=0d0
   do ig=1,ng
+!     write(6,*) 'ddddddddddd',ig, kv(ig,1),kv(ig,2),kv(ig,3)
+!     write(6,*) 'ddddddddddd',sum(c0(ig,:))
      c(kv(ig,1),kv(ig,2),kv(ig,3),:) = c0(ig,:)
   enddo   
 end subroutine gvputf
@@ -348,6 +350,7 @@ subroutine mshsiz(alat,plat,gmax,ngabc,ng)
            call gvlstn(qlat(1,i),qlat(1,i2),qlat(1,i3),q,mshlst,gmaxn,nn)
            nmxn(i)=nn
            if (nmxn(i) /= nmx(i)) change = .TRUE. 
+!           print *,'nmxn=',i,nn,change
            !       The granularity of gvlstn may be too coarse.
            !       Don't assign, ngabcn(i) = nn but find next one smaller in mshlst
            indx = 1
@@ -364,6 +367,7 @@ subroutine mshsiz(alat,plat,gmax,ngabc,ng)
         exit
      endif   ! ... Count the number of G vectors for (smaller) trial ngabcn
      call gvlst2(alat,plat,q,ngabcn(1),ngabcn(2),ngabcn(3), 0d0,gmax,[0],000, 0,ngn,kxx,gxx,kxx,kxx)
+     print *,'nnnnnn',ngn,nginit
      if (dble(ngn) >= nginit*tolg) then
         ng = ngn
         ngabc=ngabcn

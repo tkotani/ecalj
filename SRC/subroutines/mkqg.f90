@@ -56,7 +56,7 @@ subroutine mkQG2(iq0pin, gammacellctrl,lnq0iadd,lmagnon)! Make required q and G 
   real(8),allocatable:: wt0(:)
   integer,allocatable::irr(:)
   real(8):: dq_(3),qlatbz(3,3)
-  integer:: gammacellctrl,nnng(3),ifi0,itet,ifi00,ifidmlx
+  integer:: gammacellctrl,nnng(3),ifi0,itet,ifi00,ifidmlx,ierr,retval
   real(8)::imat33(3,3),unit,QpGx2,aaa
   logical:: lnq0iadd, lmagnon
   logical ::unit2=.false. ,cmdopt0
@@ -208,7 +208,7 @@ subroutine mkQG2(iq0pin, gammacellctrl,lnq0iadd,lmagnon)! Make required q and G 
   print *,' --- We find all q0i in qbz. Skip qreduce.'
   goto 2001
 2111 continue
-
+ 
   !! Accumulate all required q points
   deallocate(qq,irr)
   nqnum = nqbz  + nqbz*(nq0i+nq0iadd)
@@ -272,10 +272,12 @@ subroutine mkQG2(iq0pin, gammacellctrl,lnq0iadd,lmagnon)! Make required q and G 
   endif
 2001 continue
 
+
   !! Here we get all requied q points. We do reduce them by space group symmetry.
   if(allocated(wt0)) deallocate(wt0)
   allocate(wt0(nqnum+nq0i+ nq0iadd ),qi(3,nqnum+nq0i+ nq0iadd ),wti(nqnum+nq0i+ nq0iadd ))
   wt0=1d0
+  write(6,*)'ppppppppp',nqnum,nq0i,nq0iadd
   !! Set irreducible k-point flag. irr=1 for (irredusible point) flag, otherwise =0.
   !! irr(iq)=1 for irreducile qq(:,iq), iq=1,nqnum
   call q0irre(qibz,nqibz,qq,wt0,nqnum,symops,ngrp, qi,nqi,wti,plat,.true.,0,irr,nqbz)
@@ -283,6 +285,8 @@ subroutine mkQG2(iq0pin, gammacellctrl,lnq0iadd,lmagnon)! Make required q and G 
   !! nqnum is the finally obtained number of q points.
   allocate(ngpn(nqnum), ngcn(nqnum))
   if(debug) write(6,*) ' --- q vector in 1st BZ + Q0P shift. ngp ---'
+
+  
   imx=0
   imxc=0
   do iq = 1, nqnum

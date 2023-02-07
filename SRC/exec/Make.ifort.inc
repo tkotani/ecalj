@@ -11,8 +11,8 @@ module = -module $(moddir)
 #FFLAGS = -O2 -132 $(module)
 #FFLAGS_LESS = -O0 -132 $(module)
 #FFLAGS_NONE = -O0 -132 $(module)
-FFLAGS = -O2 -132 $(module)
-FFLAGS_LESS = -O0 -132 $(module)
-FFLAGS_NONE = -O0 -132 $(module)
+FFLAGS = -O2 -132 /Qinit:snan $(module)
+FFLAGS_LESS = -O0 -132 /Qinit:snan $(module)
+FFLAGS_NONE = -O0 -132 /Qinit:snan $(module)
 
 

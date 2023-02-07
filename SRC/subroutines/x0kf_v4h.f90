@@ -71,7 +71,7 @@ contains
     real(8):: q(3), imagweight, wpw_k, wpw_kq
     logical :: iww2=.true., crpa !eibzmode, 
     !!
-    write(6,'(" x0kf_v4hz_init: job q=",i3,3f8.4)') job,q
+    write(6,'(" x0kf_v4hz_init: job q =",i3,3f8.4)') job,q
     if(npm==1) then
        ncc=0
     else
@@ -223,6 +223,11 @@ contains
     integer::  irot=1, neibz,icc,ig,ikp,i,j,itimer,icount,iele !,eibzmoden
     integer:: ieqbz,kold,nxxxx
     integer::nkmin_,nkqmin_,nkoff,nkqoff,ispold,izmel,nmini,nqini,nmtot,nqtot,ispold2
+    if(npm==1) then
+       ncc=0
+    else
+       ncc=nctot !stored to private variable
+    endif
     nkmin_  = nkmin(k)
     nkqmin_ = nkqmin(k)
     nmini= nkmin_

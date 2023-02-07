@@ -351,7 +351,6 @@ contains
               new_line('a')//'   '//'1 : Add L.S to hamiltonian'// &
               new_line('a')//'   '//'2 : Add Lz.Sz only to hamiltonian') !//
          !     .        new_line('a')//'   '//'3 : Like 2, but also compute <L.S-LzSz> by perturbation')
-         if (io_help==0) l_dummy_isanrg=isanrg(lso,0,2,' rdctrl:','SO',T)
       endif
       !! SOC Spin-block matrix Aug2021 ! Taken from (A8) in Ke.Liqin2019,PhysRevB.99.054418
       nm='HAM_SOCAXIS';call gtv(trim(nm),tksw(prgnam,nm),socaxis,nmin=3,nout=nout,def_r8v=[0d0,0d0,1d0], &
@@ -377,6 +376,7 @@ contains
          endif
          !2022-10-13 to avoid supot-gvlst2 error.  When lat_gmaxn=Integer,
          ! it hits just on the bondary of lattice. ambiguity
+         ftmesh=0
          nm='HAM_FTMESH'; call gtv(trim(nm),sw,ftmesh,nout=nout, note='No. divisions for plane-wave mesh '// &
               'along each of 3 lattice vectors.'// &
               new_line('a')//'   '//'Supply one number for all vectors or a separate '// &
@@ -970,7 +970,7 @@ contains
       call fill3in(nout,bz_lshft)
       nm='BZ_METAL'; call gtv(trim(nm),tksw(prgnam,nm),bz_lmet, &
            def_i4=3,note='0 insulator only; 3 for metal (2 is for maintenance)')
-      if(io_help==0 .AND. bz_lmet/=3 .AND. bz_lmet/=0 .AND. bz_lmet/=2) call rx('BZ_METAL error')
+      if(prgnam/='LMFA'.and.io_help==0.and.bz_lmet/=3 .AND. bz_lmet/=0 .AND. bz_lmet/=2) call rx('BZ_METAL error')
       nm='BZ_TETRA'; call gtv(trim(nm),tksw(prgnam,nm),bz_tetrahedron,& ! & tetrahedron switch
            def_lg=T,note='Tetrahedron integration')
       if(cmdopt0('--tdos') .OR. cmdopt0('--pdos')) then
@@ -1281,6 +1281,7 @@ contains
 110     enddo
         nnrlx=0
         do ib = 1,nbas
+           nnrli = 0
            lmri = nl*nl*nkaph*(ib-1)
            do  ik = 1, nkaph
               do   li = 0, nl-1
@@ -1290,10 +1291,11 @@ contains
               enddo
            enddo
            nnrlx = max(nnrlx,nnrli)
-           nnrli = 0
         enddo
         nnrl = nnrlx
         ndimx=nnrl
+!        print *,'dddddddddd',nnrl,nnrlx,nl,nkaph
+!        print *,'dddddddddi',iprmb
         allocate(ltabx(n00,nbas),ktabx(n00,nbas),offlx(n00,nbas),ndimxx(nbas),norbx(nbas))
         norbx=0
         ndimxx=0

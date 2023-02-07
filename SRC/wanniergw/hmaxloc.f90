@@ -318,8 +318,7 @@ program hmaxloc
   print *,'goto mptauof'
   call mptauof(symgg,ngrp,plat,natom,pos,iclasst &
        ,miat,tiat,invgx,shtvg )
-  write (*,*)  'tiat=', tiat(1:3,1:natom,invr),invr
-
+!  write (*,*)  'tiat=', tiat(1:3,1:natom,invr),invr
   !----------------------------------------------
   call pshpr(60)
 

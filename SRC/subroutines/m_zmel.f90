@@ -485,7 +485,7 @@ contains
     integer :: nlmto,nctot,ncc,nt0,ntp0,nlnmx,natom,nbloch, &
          ia,ic,nc,nv,nc1,ias,iap,icp,i,mdimx,nclass,itp,jp,ib, &
          nzwork1,nzwork2,mdim(nclass),iclass(natom), &
-         imdim(natom),iatomp(natom)
+         imdim(natom),iatomp(natom),ierr
     integer,allocatable::iasx(:)
     real(8)::  ppb(nlnmx,nlnmx,mdimx,nclass)
     complex(8):: cphik(nlmto,*),cphikq(nlmto,ntp0),phase(natom), &
@@ -502,7 +502,8 @@ contains
 !    enddo
     if(sum(nlnmv(iclass(1:natom)))/=nlmto) call rx( ' psi2b_v3:sum(nlnmv)/= nlmto')
     iasx=[(sum(nlnmv(iclass(1:ia-1)))+1,ia=1,natom)]
-    iatomloop: do concurrent(ia = 1:natom)
+
+    iatomloop: do ia=1,natom !do concurrent(ia = 1:natom)
        ic   = iclass(ia)
        nc   = nlnmc(ic)
        nv   = nlnmv(ic)
@@ -510,15 +511,24 @@ contains
        ias  = iasx(ia)
        iap  = iatomp(ia)
        icp  = iclass(iap)
-       prodloop: do concurrent(i=1:mdim(icp))   ! loop over optimal product basis
+       write(*,*)'xxxxxxx1 ',ias,nv,nt0,icp,mdim(icp)
+       write(*,*)'xxxxxxx2 ',nctot,ncc,ntp0
+       call flush()
+       prodloop: do i=1,mdim(icp) !do concurrent(i=1:mdim(icp))   ! loop over optimal product basis
           !     sum(Ln) bkq(Ln,t') * <phi(Ln) phi(L'n') B(i)> !bkq is complex but < > is real
           ib = imdim(iap)-1+i
+          write(6,*)'dddddddddddddddddd',ib
+          write(6,*)'dddddd3=',sum(cphikq(ias:ias+nv-1,1:ntp0))
+          write(6,*)'dddddd1=',sum(ppb(nc1:nc+nv,nc1:nc+nv,i,icp))
+          write(6,*)'dddddd2=',sum(cphik(ias:ias+nv-1,1:nt0))
           zpsi2b(ib,nctot+1:nctot+nt0,ncc+1:ncc+ntp0)= & !     <psi(k+q,t') | psi(k,t) B(i)>
                phase(ia) * matmul( transpose(cphik(ias:ias+nv-1,1:nt0)), &
                dconjg( matmul(transpose(ppb(nc1:nc+nv,nc1:nc+nv,i,icp)),cphikq(ias:ias+nv-1,1:ntp0)) ) ) !zz
+          write(6,*)'ddddddxxx='
        enddo prodloop 
     enddo iatomloop
     deallocate(zz,zppb)!,iasx)
+    call flush()
   end subroutine psi2b_v3
   !------------------------------------------------------------------------------------
   subroutine psicb_v3 (nctot,ncc,nt0,ntp0,  iclass, phase, &

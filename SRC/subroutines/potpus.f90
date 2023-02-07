@@ -109,7 +109,7 @@ contains
          sopz(0:lmxa,nsp,nsp,3), &
          psi(nr,0:lmxa,nsp),dpsi(nr,0:lmxa,nsp), &
          pzi(nr,0:lmxa,nsp),ezum(0:8,nsp), &
-         enumx(0:8,nsp),wrk(nr,4), x21,x11,x22,x12,vx00,vx01,vx10,vx11, &
+         enumx(0:8,nsp), x21,x11,x22,x12,vx00,vx01,vx10,vx11, &
          vx0z,vxz0,vx1z,vxz1,vxzz,vxzu,vxuz,vxzs,vxsz, xxxx(1,1)
     real(8),target:: m(2,2,0:lmxa,nsp)
     real(8):: rwgt(nr),szz_,vzz_,hzz_,vx13,vx23
@@ -290,7 +290,7 @@ contains
 80  enddo isploop
     if(lso==0) return
     ! Get spin-orbit parameters
-    call soprm(lpzi,psi,dpsi,pzi,nr,nsp,lmxa,lmxa,v,dv,enumx, ezum,z,rofi,rwgt,wrk,sop,sopz)
+    call soprm(lpzi,psi,dpsi,pzi,nr,nsp,lmxa,lmxa,v,dv,enumx, ezum,z,rofi,rwgt,sop,sopz)
     do i = 1, nsp ! Make the spin diagonal radial integrals
        do l = 0, lmxa
           k = l + 1
@@ -403,7 +403,7 @@ contains
     Tfg = (avg+diff)/2
     Tgf = (avg-diff)/2
   end subroutine pvpus1
-  subroutine soprm(lpzi,phi,phid,phiz,nr,nsp,lmxs,lmx,v,dv,enu, ez,z,ri,rwgt,wk,sop,sopz)
+  subroutine soprm(lpzi,phi,phid,phiz,nr,nsp,lmxs,lmx,v,dv,enu, ez,z,ri,rwgt,sop,sopz)
     use m_lgunit,only:stdo
     !- Radial matrix elements between orbitals of different spin
     ! make spin-orbit parameters, i.e. matrix elements
@@ -473,6 +473,8 @@ contains
     enddo
     sop=0d0
     sopz=0d0
+    wk=0d0
+    wkz=0d0
     lmin = 1
     do  l = lmin, lmx
        eavg = (enu(l,1)+enu(l,nsp))/2
@@ -493,6 +495,8 @@ contains
              sop(l,is1,is2,2) = sum(wk(:,1)*wk(:,4)*rwgt)*2d0/c**2
              sop(l,is1,is2,3) = sum(wk(:,3)*wk(:,4)*rwgt)*2d0/c**2
              if (lpzi(l) /= 0) then
+                xxz(1)=0d0
+                xxavg(1)=0d0
                 xxz(2:) = 1/ri(2:)/(1d0+pa*(eavgz-vavg(2:))/c**2)**2
                 xxavg(2:) = 0.5d0*(xx(2:)+xxz(2:))
                 wkz(:,1) = phiz(:,l,is1)*dva(:)

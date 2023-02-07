@@ -15,7 +15,7 @@ module m_q0p
   !! (I still not understand why it does not show divergent behevior in the anisotropic case).
   !!
   implicit none
-  integer,public,protected:: nq0i,nq0itrue,nq0iadd ! Number of Q0P
+  integer,public,protected:: nq0i=0,nq0itrue=0,nq0iadd=0 ! Number of Q0P
   integer,public,protected,allocatable:: ixyz(:)  ! ixyz(1:nq0i+nq0iadd) q0i for x,y,z directions
   real(8),public,allocatable,protected:: q0i(:,:),wt(:) ! Q0P and its weight.
   integer,public,allocatable,protected:: epslgroup(:) !EPSwklm
