@@ -243,6 +243,9 @@ contains
             call getarg( i, argv )
             aaa=trim(aaa)//' '//trim(argv)
          enddo
+         open(newunit=ifi,file='save.'//trim(sname),position='append')
+         write(ifi, "(a)") 'Start '//trim(prgnam)//trim(aaa)
+         close(ifi)
          !write(*,*)'arg=',aaa
          cmdl=trim(cmdpath)//'ctrl2ctrlp.py '//trim(aaa)//'<ctrl.'//trim(sname)//' >ctrlp.'//trim(sname)
          write(stdo,*)'cmdl=',trim(cmdl)

@@ -41,7 +41,7 @@ subroutine lmfp(llmfgw)
   integer,parameter:: nm=3
   character alabl*8, flg*3
   logical :: cmdopt,llmfgw,lbin,cmdopt0 !,lshr=.false.
-  integer :: i,ifi,ipr, k, nit1,numq, lsc, icom,  nvrelx , itrlx
+  integer :: i,ifi,ipr, k, nit1,numq, lsc, icom,  nvrelx , itrlx,lscx
   integer:: ibas,unlink,ifipos,ifile_handle,iter,j,idmatu,iprint
   real(8) :: gam(4),gam1,bstim,pletot(6,2), plat(3,3),xvcart(3),xvfrac(3),seref,etot(2),vs,vs1
   real(8),allocatable :: ftot_rv(:), wk_rv(:), p_rv(:,:),hess(:,:)
@@ -208,7 +208,7 @@ subroutine lmfp(llmfgw)
        endif
        if(icom==1) then ! Exit when relaxation converged or maximum number of iterations
           if(master_mpi) then
-             call nwitsv(ctrl_nvario,'C',nsp,amom,etot,sev)
+             call nwit(-99,iter,maxit,hsign,leks,etol,qtol,qdiff,amom,etot,sev,lscx)
              write(stdo,"(a,i5)")' LMFP: relaxation converged after iteration(s) of ',itrlx
           endif
           exit

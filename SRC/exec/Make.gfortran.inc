@@ -7,21 +7,21 @@ module = -J$(moddir) -I$(moddir)
 
 # ##############################
 FFLAGS_COMMON= -g -fimplicit-none -ffixed-line-length-132 -finit-integer=-9999999 -finit-real=nan $(module)
-# FFLAGS = -O2  $(FFLAGS_COMMON)
-# FFLAGS_LESS = -O0   $(FFLAGS_COMMON)
-# FFLAGS_LESS2 = -O0  $(FFLAGS_COMMON)
-# FFLAGS_LESS3 = -O0  $(FFLAGS_COMMON)
-# FFLAGS_NONE = -O0   $(FFLAGS_COMMON)
-# FLAGS_LESS67 = -O0  $(FFLAGS_COMMON)
+FFLAGS = -O2  $(FFLAGS_COMMON)
+FFLAGS_LESS = -O0   $(FFLAGS_COMMON)
+FFLAGS_LESS2 = -O0  $(FFLAGS_COMMON)
+FFLAGS_LESS3 = -O0  $(FFLAGS_COMMON)
+FFLAGS_NONE = -O0   $(FFLAGS_COMMON)
+FLAGS_LESS67 = -O0  $(FFLAGS_COMMON)
 
 #-fomit-frame-pointer -funroll-loops  -ffast-math
 # safer option (debug)
 #  -pg for profiling??? how to use gprof
-FFLAGS =      -g  -fbacktrace $(FFLAGS_COMMON)
-FFLAGS_LESS = -g  -fbacktrace $(FFLAGS_COMMON)
-FFLAGS_LESS2 = -g  -fbacktrace $(FFLAGS_COMMON)
-FFLAGS_LESS3 = -g  -fbacktrace $(FFLAGS_COMMON)
-FFLAGS_NONE = -g  -fbacktrace $(FFLAGS_COMMON)
+#FFLAGS =      -g  -fbacktrace $(FFLAGS_COMMON)
+#FFLAGS_LESS = -g  -fbacktrace $(FFLAGS_COMMON)
+#FFLAGS_LESS2 = -g  -fbacktrace $(FFLAGS_COMMON)
+#FFLAGS_LESS3 = -g  -fbacktrace $(FFLAGS_COMMON)
+#FFLAGS_NONE = -g  -fbacktrace $(FFLAGS_COMMON)
 
 #-DMPIK 
 LIBLOC = ${LIBMATH}
