@@ -31,7 +31,7 @@ module m_zmel
   private
   integer,allocatable,private :: miat(:,:)
   real(8),allocatable,private :: tiat(:,:,:),shtvg(:,:)
-  real(8),allocatable,private :: ppbir(:,:,:)
+  real(8),allocatable,private :: ppbir(:,:,:,:,:,:)
   complex(8),allocatable,private :: ppovlz(:,:)
   real(8),private:: qlatinv(3,3),q_bk(3)=1d10,qk_bk(3)=1d10
   logical,private:: init=.true.
@@ -119,21 +119,47 @@ contains
   !----------------------------------------------------
   subroutine ppbafp_v2_zmel(ng)
     intent(in)::              ng
-    integer :: ng,is,irot
-    allocate( ppbir(nlnmx*nlnmx*mdimx*nclass,ng,nspin))
+    integer :: ng,is,irot,lmxax
+    integer :: ic, i,lb,nb,mb,lmb,i1,ibas,i2 !nl,nn,
+    integer :: np,lp,mp,lmp,n,l,m,lm
+    lmxax=nl-1
+    allocate( ppbir(nlnmx,nlnmx,mdimx,nclass,ng,nspin))
     do irot = 1,ng
        do is = 1,nspin 
           !! ppbir is rotated <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)> by rotated cg coefficients cgr
-          call ppbafp_v2 (irot,ng,is,&
-          mdimx,lx,nx,nxx, & ! Bloch wave
-          cgr,nl-1,        & ! rotated CG
-          ppbrd,           & ! radial integrals
-          ppbir(:,irot,is)) ! in m_zmel
+          do concurrent (ic=1:nclass)
+             ibas = ic
+             i = 0 !i = product basis index.
+             do lb  = 0, lx (ibas)
+                do nb  = 1, nx (lb,ibas)
+                   do mb  = -lb, lb
+                      i    = i+1           !The number of product basis is  =(i at the end of loop).
+                      lmb  = lb*lb + lb + mb + 1
+                      do concurrent (i2 = 1:mnl(ic),i1 = 1:mnl(ic)) !phi1 phi2 index
+                         np   = in(i2,ic)
+                         lp   = il(i2,ic)
+                         mp   = im(i2,ic)
+                         lmp  = lp*lp + lp + mp + 1
+                         n    = in(i1,ic)
+                         l    = il(i1,ic)
+                         m    = im(i1,ic)
+                         lm   = l*l + l + m + 1
+                         ppbir(i1,i2,i,ic,irot,is)=cgr(lm,lmp,lmb,irot)*ppbrd(l,n,lp,np,lb,nb,is+nspin*(ic-1))
+                      enddo
+                   enddo
+                enddo
+             enddo
+          enddo
+!          call ppbafp_v2 (irot,ng,is,&
+!          mdimx,lx,nx,nxx, & ! Bloch wave
+!          cgr,lmxax,        & ! rotated CG
+!          ppbrd,           & ! radial integrals
+!          ppbir(:,irot,is)) ! in m_zmel
        enddo
     enddo
   end subroutine ppbafp_v2_zmel
-  ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  subroutine ppbafp_v2 (ig,ng,isp, mdimx,lx,nx,nxx, &! & Bloch wave
+  ! ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+  subroutine ppbafp_v2 (irot,ng,isp, mdimx,lx,nx,nxx, &! & Bloch wave
     cgr,lmxax,    & !rotated CG
     ppbrd,           & !radial integrals
     ppb)
@@ -142,7 +168,7 @@ contains
     !  in,il,im      = index for n,l,m s. indxlnm.f
     !   ppb            = <Phi(RLn) Phi(RL'n') B(R,i)>
     implicit none
-    integer,intent(in) :: ig,ng,isp!,nspin,nclass,nlnmx,mdimx
+    integer,intent(in) :: irot,ng,isp!,nspin,nclass,nlnmx,mdimx
     !      integer,intent(in) :: il(nlnmx,nclass),in(nlnmx,nclass),im(nlnmx,nclass)
     integer,intent(in) :: lx(nclass),nx(0: 2*(nl-1),nclass)
     integer,intent(in) :: lmxax,nxx,mdimx
@@ -168,7 +194,7 @@ contains
                    l    = il(i1,ic)
                    m    = im(i1,ic)
                    lm   = l*l + l + m + 1
-                   ppb(i1,i2,i,ic)=cgr(lm,lmp,lmb,ig)*ppbrd(l,n,lp,np,lb,nb,isp+nspin*(ic-1))
+                   ppb(i1,i2,i,ic)=cgr(lm,lmp,lmb,irot)*ppbrd(l,n,lp,np,lb,nb,isp+nspin*(ic-1))
                 enddo
              enddo
           enddo
@@ -254,7 +280,7 @@ contains
       use m_readeigen,only : readgeigf
       integer:: it,ia,kx,verbose,nstate,imdim(natom),nt0,ntp0,invr, iatomp(natom),ispq_rk
       real(8):: symope(3,3),shtv(3),tr(3,natom),qk(3)
-      real(8),allocatable :: ppb(:)
+      real(8),allocatable :: ppb(:,:,:,:)
       complex(8),parameter:: img=(0d0,1d0),tpi= 8d0*datan(1d0)
       complex(8):: expikt(natom)
       complex(8),allocatable::  zmelt(:,:,:)
@@ -292,8 +318,8 @@ contains
       shtv  = matmul(symope,shtvg(:,invr))
       !! ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
       !! Note spin-dependence. Look for ixx==8 in hbas.m.F calling basnfp.F, which gives ppbrd.
-      allocate( ppb(nlnmx*nlnmx*mdimx*nclass))
-      ppb = ppbir(:,irot,ispq)
+      allocate( ppb(nlnmx,nlnmx,mdimx,nclass))
+      ppb = ppbir(:,:,:,:,irot,ispq)
       do ia = 1,natom
          imdim(ia)  = sum(nblocha(iclass(1:ia-1)))+1
          expikt(ia) = exp(img *tpi* sum(kvec*tr(:,ia)) )  !phase expikt(ia) is for exp(ik.T(R))
