@@ -1,4 +1,5 @@
-subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, &
+subroutine atomsc(  & !- Makes an atomic sphere self-consistent and get atomic charges
+  lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, &
      nr,rofi,ec,ev,pnu,qnu,idmod,v,dv,rhoin,rho,rhoc,nrmix,qc,sumec, &
      sumtc,sumev,ekin,utot,rhoeps,etot,amgm,rhrmx,vrmax,qtot,exrmax, &
      job,niter,lfrz,plplus,qlplus,nmcore,qelectron,vsum)
@@ -6,7 +7,6 @@ subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, &
   use m_getqvc
   use m_lgunit,only: stdo
   use m_amix,only: amix
-  !- Makes an atomic sphere self-consistent and get atomic charges
   ! ----------------------------------------------------------------
   !i Inputs
   !i   lgdd  :T  add q2 phi phidd into the density

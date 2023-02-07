@@ -1,8 +1,9 @@
-module m_addrwf
+module m_addrwf !- Add constant * radial wave function to another radial wave function
+  private
+  public addrwf
 contains
   subroutine addrwf(mode,z,l,v,ndg,n1,nr,rofi,rwgt,eadd,ev,fac,gadd, g,s)
     use m_vxtrap,only: rwftai
-    !- Add constant * radial wave function to another radial wave function
     ! ----------------------------------------------------------------------
     !i Inputs
     !i  mode   :0 use both large and small components of radial w.f.
@@ -41,7 +42,6 @@ contains
     integer :: l,ndg,n1,nr,mode
     real(8):: fac,rofi(nr),rwgt(nr), gadd(ndg,2),g(ndg,2),s
     real(8),optional:: z,v(nr),ev,eadd
-    ! ... Local parameters
     integer :: ir
     double precision :: cc,vi,fllp1,gf11,gf22,gf12,r,tmc
     common /cc/ cc

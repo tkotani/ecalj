@@ -1,4 +1,4 @@
-module m_mpi
+module m_mpi !MPI utility for fpgw
   implicit none
   include "mpif.h"
 
