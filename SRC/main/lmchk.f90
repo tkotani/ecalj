@@ -2,7 +2,6 @@ program lmchk
   use m_lmfinit,only:m_Lmfinit_init,nlibu,plbnd
   use m_ext,only:      m_Ext_init,sname
   use m_lattic,only:   m_Lattic_init
-  use m_rdfiln,only:   m_Rdfiln_init
   use m_MPItk,only:    m_MPItk_init,m_MPItk_finalize,nsize,master_mpi
   use m_lmaux,only: lmaux
   use m_mksym,only: m_mksym_init
@@ -32,7 +31,6 @@ program lmchk
      call m_lmfinit_init(prgnam) ! show help and quit for --input
      call rx0('end of help mode')
   endif
-  if(master_mpi) call m_rdfiln_init()
   call m_lmfinit_init(prgnam) ! Computational settings go into m_lmfinit
   if(cmdopt2('--pr=',outs)) then
      read(outs,*) k

@@ -143,7 +143,6 @@ nintsp.o \
 platsl.o \
 poldvm.o \
 polint.o \
-rdfiln.o \
 rfalsi.o \
 strings.o \
 words.o \

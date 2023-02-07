@@ -132,6 +132,7 @@ contains
     use m_toksw,only:tksw
     use m_gtv,only: gtv,gtv_setrcd,gtv_setio
     use m_ftox
+    use m_cmdpath,only:cmdpath
     !! ----------------------------------------------------------------------
     !! Inputs
     !!   recrd (recln*nrecs) : preprocessed input file from ctrl_preprocessed.* file.
@@ -230,11 +231,26 @@ contains
     integer,allocatable:: idxdn(:,:,:)
     character*(recln),allocatable:: recrd(:)
 
-!    call clrsyv(0) !These are not necessary. But this makes logic clarified. 2023feb
-!    call clrsvv(0) !Reset parameters in addsyv(given from command line) and addsvv(defined in ctrl).
-    !      So, we are sure that a2vec works with no external parameters. (pure mathematical).
-    !      This means a2vec, used in gtv, can be replaced by eval in python.
-    
+    if(master_mpi) then
+       ctrl2ctrlp: block !Get ctrlp file.
+         integer:: i
+         character(512):: aaa,cmdl,argv
+         logical:: fileexist
+         inquire(file='ctrl.'//trim(sname),exist=fileexist)
+         if( .NOT. fileexist) call rx("No ctrl file found!! ctrl."//trim(sname))
+         aaa=''
+         do i = 1, iargc()
+            call getarg( i, argv )
+            aaa=trim(aaa)//' '//trim(argv)
+         enddo
+         !write(*,*)'arg=',aaa
+         cmdl=trim(cmdpath)//'ctrl2ctrlp.py '//trim(aaa)//'<ctrl.'//trim(sname)//' >ctrlp.'//trim(sname)
+         write(stdo,*)'cmdl=',trim(cmdl)
+         call system(cmdl)
+       endblock ctrl2ctrlp
+    endif
+    call MPI_BARRIER( MPI_COMM_WORLD, ierr )
+  
     procid = mpipid(1)
     nproc  = mpipid(0)
     stage1: block !read ctrl file
@@ -242,18 +258,16 @@ contains
       integer:: setprint0,iprint,isw,ncp,nrecs,nmix,broy
       real(8):: avwsr,dasum,rydberg,wt(3),beta
       character(8):: fnam
-
       scrwid = 80
       nullrv = nullr
       nulliv  =nulli
       debug = cmdopt0('--debug')
       if (cmdopt0('--help')) io_help = 1 !help mode on
-
       if(io_help==1) then 
          nrecs=0
       else   
-         call MPI_BARRIER( MPI_COMM_WORLD, ierr )
-         open(newunit=ncp,file='ctrlp.'//trim(sname)) !Readin ctrlp, which contains only python-type math expressions. See subroutine mathexpr
+         open(newunit=ncp,file='ctrlp.'//trim(sname))
+         !Readin ctrlp, which contains only python-type math expressions. See subroutine mathexpr
          read(ncp,*) nrecs
          allocate(recrd(nrecs))
          do i = 1, nrecs

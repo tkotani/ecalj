@@ -11,7 +11,6 @@ program lmf
   use m_ext,only:      m_Ext_init,sname
   use m_lattic,only:   m_Lattic_init
   use m_mkqp,only:     m_Mkqp_init,bz_nabc
-  use m_rdfiln,only:   m_Rdfiln_init
   use m_MPItk,only:    m_MPItk_init, m_MPItk_finalize, nsize, master_mpi
   use m_hamindex, only:m_hamindex_init
   use m_hamindex0,only:m_hamindex0_init
@@ -72,7 +71,6 @@ program lmf
      call rx0('done: end of --wdsawada mode.')
   endif
   call setcmdpath()
-  if(master_mpi) call m_rdfiln_init() ! Preprocess ctrl.* and -vfoober into ctrlp.*
   if(cmdopt0('--quit=ctrlp')) call rx0('--quit=ctrlp')
   ! Read ctrlp into module m_lmfinit. All variables except v_sspec are protected.
   call m_lmfinit_init(prgnam)

@@ -1,7 +1,6 @@
 program lmfa
   use m_lmfinit,only:m_Lmfinit_init
   use m_ext,only:      m_Ext_init,sname
-  use m_rdfiln,only:   m_Rdfiln_init
   use m_MPItk,only:    m_MPItk_init,m_MPItk_finalize,nsize,master_mpi
   use m_lgunit,only:   m_lgunit_init, stdo,stdl
   use m_freeat,only:   Freeat
@@ -31,7 +30,6 @@ program lmfa
      call m_lmfinit_init(prgnam) ! show help and quit for --input
      call Rx0('end of help mode')
   endif
-  if(master_mpi) call m_rdfiln_init() ! ctrl to ctrl_preprocessed
   call m_lmfinit_init(prgnam) ! Computational settings. Set data from ctrl_preprocessed.
   call Freeat()  !Spherical atom calculation
   call m_MPItk_finalize()
