@@ -43,10 +43,9 @@ subroutine writeband(eferm,evtop,ecbot) !write band file. bnd* and bandplot.isp*
   !! write bandplot.glt for gnuplot
   allocate(fnameb(nsyml,nspx))
   do jsp = 1, nspx
-     ifglt =ifile_handle()
-     ifglts(jsp)=ifglt
      fname='bandplot.isp'//char(48+jsp)
-     open(unit=ifglt, file=trim(fname)//'.glt')
+     open(newunit=ifglt, file=trim(fname)//'.glt')
+     ifglts(jsp)=ifglt
      write(ifglt,'(a)')'set terminal postscript enhanced color eps'
      write(ifglt,'(a)')'set output "'//trim(fname)//'.band.eps"'
      write(ifglt,'(a)')'set xzeroaxis'
@@ -81,8 +80,7 @@ subroutine writeband(eferm,evtop,ecbot) !write band file. bnd* and bandplot.isp*
   enddo
 
   !! Write bnd**.isp*.glt, open qplist.dat
-  iqplist = ifile_handle()
-  open(iqplist,file='qplist.dat')
+  open(newunit=iqplist,file='qplist.dat')
   do 4111 isyml = 1,nsyml
      ne = nqp_syml(isyml) !+nqp2n_syml(isyml)
      do iq = 1,ne
@@ -98,8 +96,8 @@ subroutine writeband(eferm,evtop,ecbot) !write band file. bnd* and bandplot.isp*
         enddo
      enddo
      do 4113 jsp = 1, nspx   ! ispx index.
-        ifbndsp(jsp) =ifile_handle()
-        open(unit=ifbndsp(jsp),file=fnameb(isyml,jsp))
+!        ifbndsp(jsp) =ifile_handle()
+        open(newunit=ifbndsp(jsp),file=fnameb(isyml,jsp))
         write(ifbndsp(jsp),"('#  ',i5,f10.5,15x,'QPE(ev)',11x,'1st-deri')") nkp,eferm
         ibb=0
         do 5113 i=1,minval(nevls(:,:)) !band index
@@ -254,7 +252,7 @@ subroutine writeband(eferm,evtop,ecbot) !write band file. bnd* and bandplot.isp*
            ! or metal crosspoint point across eferm
            ! heck i-th band is near VCM and CBM
            if(semiconband .OR. metalband) then
-              ifmass(jsp) = ifile_handle()
+!              ifmass(jsp) = ifile_handle()
               ibb = ibb+1
               if(metalband) then
                  imin=max(2,idat-1)  !diffeb is given from 2 to ne-1
@@ -269,7 +267,7 @@ subroutine writeband(eferm,evtop,ecbot) !write band file. bnd* and bandplot.isp*
                  !     &            trim(fnamem(ibb,isyml,jsp)),idat,isyml, kef/tpiba, dEdkatef, 2d0*kef/dEdkatef
               endif
               !               print *,'ffff ', ibb,isyml,jsp,trim(fnamem(ibb,isyml,jsp))
-              open(unit=ifmass(jsp),file=trim(fnamem(ibb,isyml,jsp)))
+              open(newunit=ifmass(jsp),file=trim(fnamem(ibb,isyml,jsp)))
               write(ifmass(jsp),"(a)") '# mass1 is for metal, mass2 is for semiconductor'
               write(ifmass(jsp),"(a)") '# isyml,ib,iq,isp, |k|/(2pi*alat), QPE-EF, QPE-QPE(start),' &
                    //' mass2=2*(2*(QPE-QPE(start))/|k|**2), mass1=2*|k|/(dE/dk)'

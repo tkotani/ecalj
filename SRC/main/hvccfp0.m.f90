@@ -72,7 +72,7 @@ program hvccfp0
   logical:: is_mix0vec,wvcc !,newaniso
   character(128):: vcoudfile
   real(8),allocatable:: wqfac(:),qbzwww(:,:)
-  integer:: ifiwqfac,iqbz,iqbzx,nnn,ixyz,ifq0p,ifile_handle,incwfin
+  integer:: ifiwqfac,iqbz,iqbzx,nnn,ixyz,ifq0p,incwfin 
   character(128) :: ixcc
   logical:: cmdopt2
   character(20):: outs=''
@@ -415,8 +415,7 @@ program hvccfp0
      if( .FALSE. ) then
         do ibas= 1,1 !1,nbas
            do l   =  0,lx(ibas)
-              if1011=ifile_handle()
-              open(if1011,file='ProdOld_ibas'//charnum3(ibas)//'_l'//charnum3(l))
+              open(newunit=if1011,file='ProdOld_ibas'//charnum3(ibas)//'_l'//charnum3(l))
               nxdim = nx(l,ibas)
               do ix=1,nxdim
                  write(if1011,"(' -- -- -- ',3i3,' --- ' )") ix,l,ibas

@@ -139,7 +139,7 @@ program hsfp0
   integer,allocatable:: irkip_all(:,:,:,:),irkip(:,:,:,:)
   integer:: irank,nrank
 
-  integer:: ififr,ifile_handle
+  integer:: ififr
   integer:: timevalues(8)  ,isp,dest,ificlass,ifiq0p
   character(128) :: ixcc
 
@@ -155,8 +155,7 @@ program hsfp0
   if(cohtest) then
      screen = .true.
      ixc = 2; nz=0
-     ifcoh=ifile_handle()
-     open(ifcoh,file='COH')
+     open(newunit=ifcoh,file='COH')
   elseif(MPI__root) then
      write(6,*) ' --- Choose omodes below ----------------'
      write(6,*) '  Sx(1) Sc(2) ScoreX(3) Spectrum(4) '
@@ -347,8 +346,7 @@ program hsfp0
      !!      nw_i=0 for time-reversal case.
      !!  NOTE: We assume freq_r(i) == -freq_r(-i) in this code. feb2006
      !!  NOTE: this program assumes freq_r(iw)=freq_r(-iw). freq_r(iw <0) is redundant.
-     ififr=ifile_handle()
-     open(UNIT=ififr,file='freq_r')
+     open(newUNIT=ififr,file='freq_r')
      read(ififr,*)nwxx       !number of energy points
      if(nwxx/= nw+1) call rx( ' freq_r nw /=nw')
      allocate(freq_r(nw_i:nw)) !freq_r(1)=0d0

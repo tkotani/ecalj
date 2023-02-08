@@ -18,7 +18,7 @@ subroutine excore(nrmx,nl,nnc,nclass,nspn,nbas, &
        gc(:,:,:,:), sxadata(:),sigkcc(:,:,:,:,:)
   integer(4),allocatable:: indxsxa(:,:),lcr(:,:,:),ncr(:,:)
   integer(4):: ir,l,n,ic,ncrr,ncmxx(nclass),kmax,k,it,isp, &
-       isx,lm1,lm2,lm3,lm4,ibas,icr,icrd,nsxatot,ifexcore,ifile_handle
+       isx,lm1,lm2,lm3,lm4,ibas,icr,icrd,nsxatot,ifexcore
   real(8):: rkp(nrmx,0:2*(nl-1)),rkm(nrmx,0:2*(nl-1))
   !$$$#ifdef COMMONLL
   !$$$      integer(4) ll(51**2)
@@ -134,8 +134,7 @@ subroutine excore(nrmx,nl,nnc,nclass,nspn,nbas, &
   if(nspn==1) wgtx=2d0
   exacct = sum(exacc(1:nbas,1:nspn))*wgtx
 
-  ifexcore=ifile_handle()
-  open (ifexcore,file='TEEXXcc')
+  open (newunit=ifexcore,file='TEEXXcc')
   write(6,*) '==== EXCORE ==> TEEXXcc ============'
   write(ifexcore,*) '======================================='
   write(ifexcore,*) '  Exchange energy core-core   Exx (eV) '

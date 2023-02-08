@@ -46,17 +46,15 @@ contains
     double precision :: rtab(n0,2),etab(n0,2),rsmfa
 !    double precision :: rs3,eh3!,vmtz
     !integer :: idmod(n0)
-    integer:: iofa, i_dum,ifile_handle
+    integer:: iofa, i_dum
     integer:: ifives,ifiwv
     character strn*120
     logical :: cmdopt
-    ifi = ifile_handle()
-    open(ifi,file='atm.'//trim(sname))
+    open(newunit=ifi,file='atm.'//trim(sname))
     rewind ifi
     hfct = 0d0
     open(newunit=ifives,file='vesintatm.'//trim(sname)//'.chk')
-    ifiwv = ifile_handle()
-    open(ifiwv,file='veswavatm.'//trim(sname)//'.chk')
+    open(newunit=ifiwv,file='veswavatm.'//trim(sname)//'.chk')
     do  is = 1, nspec ! Takao found that Li requires -0.5 to have positive smooth rho.
        if(sspec(is)%z<3.5) then !At least for Li, fitting is not good (negative smooth rho).
           exi(1) = -0.5

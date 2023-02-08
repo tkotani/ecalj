@@ -39,7 +39,6 @@ subroutine rangedq(qin, qout) ! qout is in [-0.5d0,0.5d0)
      if(qout(ix)>0.5d0-tol) qout(ix)=-0.5d0 !this is needed to distinguish 0.5d0 and -0.5d0.
   enddo
 end subroutine rangedq
-
 character(10) function i2char(numin)
   !! convert num to char. See charnum3 to understand this.
   implicit none
@@ -236,16 +235,12 @@ subroutine dpcopy(afrom,ato,n1,n2,fac) !- Copy and scale a portion of a vector
   call dcopy(n2-n1+1,afrom(n1),1,ato(n1),1)
   return
 100 continue
-  do    i = n1, n2
-     ato(i) = fac*afrom(i)
-  enddo
+  ato(n1:n2) = fac*afrom(n1:n2)
 end subroutine dpcopy
 subroutine dpzero(array,leng)
   integer :: leng,i
   double precision :: array(leng)
-  do   i=1, leng
-     array(i) = 0
-  enddo
+  array=0d0
 end subroutine dpzero
 subroutine dpscop(afrom,ato,nel,n1,n2,fac)
   !- shift and copy.
@@ -255,11 +250,10 @@ subroutine dpscop(afrom,ato,nel,n1,n2,fac)
   !     implicit none
   integer :: n1,n2,i,iadd,ntop,nel
   double precision :: afrom(1),ato(1),fac
-  if (fac /= 1d0) goto 100
-  call dcopy(nel,afrom(n1),1,ato(n2),1)
-  return
-  ! --- fac not unity ---
-100 continue
+  if(fac == 1d0) then
+     call dcopy(nel,afrom(n1),1,ato(n2),1)
+     return
+  endif   
   iadd = n2-n1
   ntop = n1+nel-1
   do    i = n1, ntop
@@ -342,70 +336,21 @@ function dmach(i) result(s)
   s = dm(i)
   return
 end function dmach
-
 integer function isw(sw) ! Returns integer 0 logical sw is false, 1 if true
   logical :: sw
   isw = 0
   if (sw) isw = 1
 end function isw
-
-module NaNum
-  real(8),parameter :: NaN = -9999999
-!  contains
-!    subroutine naninit()
-!    use, intrinsic :: ieee_arithmetic
-!    NaN=ieee_value(1d0,IEEE_QUIET_NAN)
-!  end subroutine naninit
-end module NaNum
-
 subroutine gettime(datim)
-  !     implicit none
   character datim*(*)
-!  datim = ' '
   call ftime(datim)
 end subroutine gettime
-
-integer(4) function nwordr()
+integer(4) function nwordr() !  nword=NWORD_RECORDSIZE
   real(8):: r
-  integer(4):: len
-  !      nword = 4 ! in alpha
-  !      nword =1 ! in AIX
-  !      nword=NWORD_RECORDSIZE
+  integer(4):: len   
   inquire(iolength=len) r
-  nwordr = 8/len
-  !      write(6,*)' nword=',nword
+  nwordr = 8/len !   write(6,*)' nword=',nword
 END function nwordr
-
-integer function mxint(n,ivec)
-  !- Return the largest integer in ivec
-  !     implicit none
-  integer :: n,ivec(n)
-  integer :: imax,i
-  mxint = 0
-  if (n <= 0) return
-  imax = ivec(1)
-  do   i = 1, n
-     imax = max(imax,ivec(i))
-  enddo
-  mxint = imax
-end function mxint
-
-subroutine poseof(iunit)
-  !- Positions file handle at end-of-file
-  integer :: iunit
-  integer :: i,nrec
-  nrec = 0
-  rewind iunit
-  do  10  i = 1, 100000000
-     read(iunit,"(a1)",end=90,err=91)
-     nrec = i
-10 enddo
-  write(*,"(' POSEOF: no EOF found for file',i3)") iunit
-  return
-90 continue
-  backspace iunit
-91 continue
-end subroutine poseof
 logical function isanrg(i,i1,i2,t1,t2,lreqd)
   logical :: lreqd
   integer :: i,i1,i2,lgunit,iprint,k1,k2,it1
@@ -425,13 +370,11 @@ subroutine fsanrg(f,f1,f2,tol,t1,t2,lreqd)
   if (f1==f2 .AND. f>=f1-tol/2d0 .AND. f<=f2+tol/2d0) return
   call rx(trim(t1)//' '//trim(t2))
 end subroutine fsanrg
-
 subroutine setfac(n,fac) !- set up array of factorials.
   integer :: n,i,ik,m
   real(8):: fac(0:n)
   fac=[(product([(dble(ik),ik=1,m)]),m=0,n)]
 end subroutine setfac
-
 subroutine stdfac(n,df) !- Set up array of double factorials.
   !  for odd numbers,  makes 1*3*5*..*n
   !  for even numbers, makes 2*4*6*..*n
@@ -439,27 +382,24 @@ subroutine stdfac(n,df) !- Set up array of double factorials.
   real(8):: df(0:n)
   df=[(product([(dble(ik),ik=m,1,-2)]),m=0,n)]
 end subroutine stdfac
-
 integer function nargf()
   integer :: iargc
   nargf = iargc() + 1
 end function nargf
 subroutine ftime(datim)!fortran-callable date and time
   character datim*(*)
-  call fdate(datim)
-!  datim=datim(1:24) !takao. If this is not, write(6,*) gives CR at the ene of datim*26.
+  call fdate(datim)!datim=datim(1:24) !takao. If this is not, write(6,*) gives CR at the ene of datim*26.
 end subroutine ftime
-
 subroutine readx(ifil,n)
   integer::ifil,n,i,j
   character(72) :: rchar
-  do 10 i = 1,n
+  do i = 1,n
      read(ifil,*)rchar
      j       = 0
      rchar=trim(adjustl(rchar))
      if(rchar(1:3) == '***')return
      if(rchar(1:3) == '###')return
-10 enddo
+  enddo
   call rx( 'readx: cannot find the string(rw.f)')
 end subroutine readx
 real(8) function derfc(x)
@@ -486,16 +426,6 @@ subroutine getqkey(qx,nqtt,epsd,  nkey,key) !qx is digitized by epsd
   enddo
   nkey=ik
 end subroutine getqkey
-! function zxx(a,b) result(ab)
-!   integer:: i,j
-!   complex(8) :: a(:),b(:),ab(size(a),size(b))
-!   do i=1,size(a)
-!      do j=1,size(b)
-!         ab(i,j)=dconjg(a(i))*b(j)
-!      enddo
-!   enddo
-! end function zxx
-
 real(8) function avwsr(plat,alat,vol,nbas)
   !- Calculate the average ws radius
   !     implicit none
@@ -507,24 +437,6 @@ real(8) function avwsr(plat,alat,vol,nbas)
        plat(1,3)*(plat(2,1)*plat(3,2) - plat(2,2)*plat(3,1)))
   avwsr = (3/(16*datan(1.d0)*nbas)*vol)**(1.d0/3.d0)
 END function avwsr
-
-subroutine cexit(pv,ps)
-  implicit none
-  include 'mpif.h'
-  integer:: pv,ps,i
-  integer:: status,ierr
-  if (ps /= 0) then
-     if (pv == 0) then
-        call flush()
-        call MPI_finalized(status,ierr)
-        if (status == 0) then
-           call MPI_finalize(ierr)
-        endif
-     endif
-     call exit(pv)
-  endif
-end subroutine cexit
-
 subroutine locase(ps)
   character(*) ps
   integer::i,n,shift
@@ -537,7 +449,6 @@ subroutine locase(ps)
      endif
   enddo
 end subroutine locase
-
 module m_factorial
   real(8),allocatable,protected:: factorial(:),factorial2(:)
 contains
@@ -549,5 +460,22 @@ contains
     call stdfac(lmaxf,factorial2)
   end subroutine factorial_init
 end module m_factorial
+! function zxx(a,b) result(ab)
+!   integer:: i,j
+!   complex(8) :: a(:),b(:),ab(size(a),size(b))
+!   do i=1,size(a)
+!      do j=1,size(b)
+!         ab(i,j)=dconjg(a(i))*b(j)
+!      enddo
+!   enddo
+! end function zxx
+module NaNum
+  real(8),parameter :: NaN = -9999999
+!  contains
+!    subroutine naninit()
+!    use, intrinsic :: ieee_arithmetic
+!    NaN=ieee_value(1d0,IEEE_QUIET_NAN)
+!  end subroutine naninit
+end module NaNum
 
 

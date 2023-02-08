@@ -71,17 +71,15 @@ subroutine pnunew(eferm)
   endif
   ! --- For each site, do ---
   do  ib = 1, nbas
-     is=ispec(ib) !ssite(ib)%spec
+     is=ispec(ib) 
      pnu=>pnuall(:,:,ib)
      pnz=>pnzall(:,:,ib)
-!     pnu=ssite(ib)%pnu
-!     pnz=ssite(ib)%pz
      lmxa=sspec(is)%lmxa
      rmt=sspec(is)%rmt
      idmod=idmodis(:,is)
      if (lmxa .eq. -1) goto 10
-     spid=slabl(is) !sspec(is)%name
-     if (mxcst4(is)) idmod=1 !call ivset(idmod,1,n0,1)
+     spid=slabl(is)
+     if (mxcst4(is)) idmod=1 
      if (ipr >40) write(stdo,320) ib,is,spid
 320  format(/' site',i5,'   species',i4,':',a)
      if (ipr >40) write(stdo,311)

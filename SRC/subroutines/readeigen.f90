@@ -171,7 +171,7 @@ contains
   ! sssssssssssssssssssssssssssssssssssssssssssss
   subroutine init_readeigen() !nband_in,mrece_in)
     !!-- initialization. Save QpGpsi EVU EVD to arrays.--
-    integer:: iq,is,ifiqg,nnnn,ikp,isx,mrecb_in,ik,ib,verbose,ifile_handle
+    integer:: iq,is,ifiqg,nnnn,ikp,isx,mrecb_in,ik,ib,verbose
     integer:: ifev,nband_ev, nqi_, nsp_ev ,ngpmx_ ,nqnum_
     real(8):: QpGcut_psi
     real(8),allocatable:: qtt_(:,:),qtti_(:,:)
@@ -179,8 +179,7 @@ contains
     if(nsp<0 .OR. nsp>2) call rx( 'init_reaeigen:nsp wrong')
     !write(*,*)'nqi=',nqi!,nqnum
     call init_iqindx_qtt()
-    ifiqg  = ifile_handle()
-    open(ifiqg ,file='QGpsi',form='unformatted')
+    open(newunit=ifiqg ,file='QGpsi',form='unformatted')
     read(ifiqg) nqnum_ , ngpmx_, QpGcut_psi, nnnn,nqi_ ,imx
     write(6,*)'read(ifiqg)', nqnum , ngpmx_, QpGcut_psi, nnnn,nqi
     if(nqi  /=  nqi_) call rx( 'init_readeigen:nqi/=nqi_ 11111')
@@ -303,7 +302,7 @@ contains
          geig4(:,:),cphi4(:,:), &
          cbwf(:,:,:,:),uum(:,:,:,:,:)
     logical :: keepeigen
-    integer:: ikpx,ifi,ifile_handle
+    integer:: ikpx,ifi
     character*(8):: fname
     keepeig = keepeigen()
     write(6,*)' init_readeigen_mlw_noeval'
@@ -360,8 +359,7 @@ contains
     cbwf = 0d0
     if(Wpkm4crpa) then
        fname='pkm4crpa'
-       ifi=ifile_handle()
-       open(ifi,file=fname,form='formatted',status='unknown')
+       open(newunit=ifi,file=fname,form='formatted',status='unknown')
        write(ifi,"('== p_km^alpha in PRB83,121101 ! weight in l-subspace ==')")
        write(ifi,"('( = c^sigma_km in book of 45th IFFK by Ersoy)')")
        write(ifi,"(8i8)") nqtt,nwf,nsp,iko_ix,iko_fx

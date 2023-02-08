@@ -15,15 +15,14 @@ contains
     use m_iqindx_qtt,only: iqindx2_
     intent(in)::            ib,q,isp
     !      intent(out)::                    wpw
-    integer:: ib,isp,iq,ibin,iqin,ifi,ispin,ifile_handle
+    integer:: ib,isp,iq,ibin,iqin,ifi,ispin
     real(8):: wpw,q(3),wpwin,qvec(3),qin(3)
     character*8::fname
     logical:: outofrange,debug=.false.
     if(debug)print *,' iiiiiiqqq readpkm4crpa',init
-    ifi= ifile_handle()
     fname= 'pkm4crpa'
     if(init) then
-       open(ifi,file=fname,form='formatted',status='unknown')
+       open(newunit=ifi,file=fname,form='formatted',status='unknown')
        read(ifi,*)
        read(ifi,*)
        read(ifi,*) nqbz,nwf,nsp,iko_ix,iko_fx

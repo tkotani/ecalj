@@ -698,10 +698,9 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, &
   !r    in fp/locpot.f just befor locpt2 in lmto (lmf).
   if(ixx==8) then
      sqrtfpi = sqrt(fpi)
-     ifv = ifile_handle()
      ibas=ic
      if(valmt) then
-        open(ifv,file='ValMT.'//charnum3(ibas)//'.chk',form='unformatted')
+        open(newunit=ifv,file='ValMT.'//charnum3(ibas)//'.chk',form='unformatted')
         read(ifv) nr_r,nlml_r,nsp_r
         write(6,"('readin nr nlml nsp=',3i5)") nr_r,nlml_r,nsp_r
         allocate(rofi_r(nr_r),rho1(nr_r,nlml_r,nsp_r),rspin(nrofi),den(nrofi,nsp),r11(nrofi))
@@ -709,7 +708,7 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, &
         read(ifv) rofi_r, rho1
         close(ifv)
      else
-        open(ifv,file='rhoMT.'//xtxx(ibas),form='unformatted',status='old',err=1031)
+        open(newunit=ifv,file='rhoMT.'//xtxx(ibas),form='unformatted',status='old',err=1031)
         goto 1032
 1031    continue
         call rx( 'rhoMT by locpot-wrhomt. open error')
@@ -727,7 +726,7 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, &
      if(nsp_r/=nsp) call rx( " ReadinError: ValMT: nspr/= nsp")
      if(nsp/=2    ) call rx( " This mode is only for nsp==2")
      rho1= sqrtfpi*rho1  !rho1 is not including sqrt(fpi) Right?
-     open(ifv,file='MixSpin.'//charnum3(ibas))
+     open(newunit=ifv,file='MixSpin.'//charnum3(ibas))
      write(ifv,"(2i10,' ! ibas, max l of product basis' )") ibas,2*(nl-1)
      write(ifv,"(i10,'           ! nxx(lx)'  )") nxx(0:2*(nl-1))
      do ilmx = 1, (2*(nl-1)+1)**2

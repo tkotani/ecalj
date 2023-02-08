@@ -53,7 +53,7 @@ program gwinit_v2
   character(len=6)::seg1
   character(len=10) :: keyw1='unit_2pioa',keyw2
   real(8)::a1,a2,unit
-  integer:: ibzcase,ifile_handle
+  integer:: ibzcase !,ifile_handle
   character(len=550):: pppx
   character(len=10) :: add,esmr_char
   logical :: gwinputexist,qpntexist,anfexist
@@ -87,7 +87,7 @@ program gwinit_v2
   call getbzdata1(qlat,(/n1q,n2q,n3q/),symops,ngrp,tetrai=.false.,tetraf=.false.,mtet=(/1,1,1/),gammacellctrl=0)
   !! Write to file KPNTin1BZ
   nnn = n1q*n2q*n3q
-  ifkpt = ifile_handle()
+!  ifkpt = ifile_handle()
   nqs=0
 !  open(ifkpt,file='KPTin1BZ.gwinit.chk')
 !  do      i1 = 1,nnn
@@ -98,8 +98,8 @@ program gwinit_v2
 !  close (ifkpt)
   write(6,"(' --- TOTAL num of q is n1*n2*n3=',i10)")nnn
   ! --- Sample QPNT file ---------------
-  ifqpnt = ifile_handle()
-  open (ifqpnt,file='QPNT.chk')
+!  ifqpnt = ifile_handle()
+  open (newunit=ifqpnt,file='QPNT.chk')
   write(ifqpnt,"(a,a)") " --- Specify the q and band indeces", &
        " for which we evaluate the self-energy ---"
   write(ifqpnt,*)
@@ -126,8 +126,8 @@ program gwinit_v2
   enddo
 
   !! Write GWinput.tmp ===============================================
-  ifigwinp= ifile_handle()
-  open(ifigwinp,file='GWinput.tmp')
+!  ifigwinp= ifile_handle()
+  open(newunit=ifigwinp,file='GWinput.tmp')
   ifi = ifigwinp
   write(ifi,"(a)")'!!! Starting from ! (or nonkeyword) is comment line !!! '
   write(ifi,"(a)")'!!! Each lines consists of "keyword value(s)"  !!! '

@@ -1,5 +1,6 @@
 module m_smvxcm
   public smvxcm
+  private
 contains
   subroutine smvxcm(lfrce,smrho,smpot,smvxc,smvx,smvc,smexc,repsm,repsmx,repsmc,rmusm,rvmusm,rvepsm,f)
     use m_supot,only: rv_a_ogv,iv_a_okv, lat_nabc, lat_ng,k1,k2,k3
@@ -132,14 +133,11 @@ contains
     rvmusm = 0d0
     ! --- Direct branch (lfoc2 .eq. 0) ---
     if (lfoc2 == 0) then
-       !call mshint(vol,1,n1,n2,n3,k1,k2,k3,smrho_w,sum1,sum2)
        call smvxc2 ( 0 ,  nsp , lxcfun , vol , n1 , n2 , n3 ,&
             k1 , k2 , k3 , smrho_w , smvxc , smvx , smvc , smexc  &
             , repsm , repsmx , repsmc , rmusm , vxcavg )
        smpot(:,:,:,1:nsp) = smpot(:,:,:,1:nsp)+smvxc(:,:,:,1:nsp)
        do  i = 1, nsp
-          !call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smvxc(1,1,1,i),smrho(1,1,1,i),rvmusm(i),x2)
-          !call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smexc(1,1,1),  smrho(1,1,1,i),rvepsm(i),x2)
           rvmusm(i)=dreal(sum(smvxc(:,:,:,i)*smrho(:,:,:,i)))*vol/(n1*n2*n3)
           rvepsm(i)=dreal(sum(smexc(:,:,:)*smrho(:,:,:,i)))*vol/(n1*n2*n3)
        enddo

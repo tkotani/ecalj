@@ -1590,7 +1590,7 @@ contains
     character(80) :: a, ch(1)
     logical :: lterse,cmdopt,lrmt
     character(8) :: clabl,clablj
-    integer:: ifile_handle,ifp,js
+    integer:: ifp,js
     character(10):: i2char
     call getpr(ipr)
     lrmt = rmt(1) .gt. 0
@@ -1628,8 +1628,7 @@ contains
        if(.NOT.lrmt)write(stdo,*)'    Site   ic Spec        Rmax      Position'
     endif
     volsph = 0d0
-    ifp=ifile_handle()
-    open(ifp,file='SiteInfo.lmchk')
+    open(newunit=ifp,file='SiteInfo.lmchk')
 
     do  20  ibas = 1, nbasp
        ic = ips(ibas) !class id

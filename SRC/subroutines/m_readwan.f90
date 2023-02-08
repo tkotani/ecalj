@@ -47,9 +47,8 @@ contains
     if ( .NOT. readwan) call rx("read_wandata have not yet done.") !! use nsp_w, nwf
     do 6001 is=1,nsp_w
        write (6,"('--- Reading HrotRS  :: isp=',I6)") is
-       ifh=ifile_handle()
-       if(is==1) open(ifh,file='HrotRS.up',form='unformatted')
-       if(is==2) open(ifh,file='HrotRS.dn',form='unformatted')
+       if(is==1) open(newunit=ifh,file='HrotRS.up',form='unformatted')
+       if(is==2) open(newunit=ifh,file='HrotRS.dn',form='unformatted')
        read(ifh)alat,plat,natom
        if (is==1) allocate(pos(3,natom))
        read(ifh)pos
@@ -78,7 +77,7 @@ contains
     real(8),allocatable:: eval(:)
     integer::iq
 !!! fat band plot test
-    integer::iffb,ifile_handle,iband
+    integer::iffb,iband
     real(8):: rydberg
     logical::sw=.true.
 
@@ -260,12 +259,11 @@ contains
   !---------------------------------------
   subroutine write_qdata(ginv,nqtt_in,qtt_in)
     intent(in)             ginv,nqtt_in,qtt_in
-    integer::ifwqb,ifile_handle
+    integer::ifwqb
     integer::nqtt_in
     real(8)::qtt_in(3,nqtt_in)
     real(8)::ginv(3,3)
-    ifwqb=ifile_handle()
-    open(ifwqb,file="wanqbz",form='unformatted')
+    open(newunit=ifwqb,file="wanqbz",form='unformatted')
     write(ifwqb) ginv
     write(ifwqb) nqtt_in
     write(ifwqb) qtt_in
@@ -274,8 +272,7 @@ contains
   !---------------------------------------
   subroutine read_wandata() !nwf,nsp_w,nqtt_w
     integer::ifhamw
-    ifhamw=ifile_handle()
-    open(ifhamw,file="wan4chi.d",form='unformatted')
+    open(newunit=ifhamw,file="wan4chi.d",form='unformatted')
     read(ifhamw) nwf,nsp_w,nqtt_w
     close(ifhamw)
     write(6,*) "nwf,nsp_w,nqtt",nwf,nsp_w,nqtt_w
@@ -286,7 +283,7 @@ contains
     intent(in)::       nwf
     intent(out)::          scrw_
     integer::nwf
-    integer::ifscrwv,ifscrv!,ifd,ife,ifa,ifile_handle
+    integer::ifscrwv,ifscrv!,ifd,ife,ifa
     integer::ir1,irws1
     character(len=9)::charadummy !dummy
     real(8)::rws1(3),freq,freq2 !dummy
@@ -302,10 +299,8 @@ contains
     !     allocate(rw_w(nwf,nwf,nwf,nwf),cw_w(nwf,nwf,nwf,nwf))
     allocate(scrw4(nwf,nwf,nwf,nwf), scrv4(nwf,nwf,nwf,nwf))
     allocate(scrw_(nwf*nwf,nwf*nwf));scrw_=0d0
-    ifscrwv=ifile_handle()
-    open(ifscrwv,file="Screening_W-v.UP",form="formatted") !only up
-    ifscrv=ifile_handle()
-    open(ifscrv,file="Coulomb_v.UP",form="formatted") !only up
+    open(newunit=ifscrwv,file="Screening_W-v.UP",form="formatted") !only up
+    open(newunit=ifscrv,file="Coulomb_v.UP",form="formatted") !only up
     !$$$      !!! write direct index (ijkl)
     !$$$      ifd=ifile_handle()
     !$$$      open(ifd,file="ijkl_direct.d",form="formatted")
@@ -326,18 +321,15 @@ contains
           do 4003 kwf=1,nwf
              do 4004 lwf=1,nwf
                 klwf=klwf+1
-
 !!! Vare Coulomb (v)
                 read(ifscrv,"(A,2i5, 3f12.6, 5i5,2f12.6)") &
                      charadummy,ir1, irws1, rws1 ,is,iwf1,iwf2,iwf3,iwf4 &
                      ,scrv4(iwf1,iwf2,iwf3,iwf4)
-
 !!! Screened Coulomb (W-v)
                 read(ifscrwv,"(A,2i5, 3f12.6, 5i5,4f12.6)") &
                      charadummy,ir1, irws1, rws1  &
                      ,is,iwf1,iwf2,iwf3,iwf4,freq, freq2 &
                      ,scrw4(iwf1,iwf2,iwf3,iwf4)
-
                 !$$$         print *,"readscr     :",iwf1,iwf2,iwf3,iwf4
                 !$$$         print *,"readscr  W-v:",scrw4(iwf1,iwf2,iwf3,iwf4)
                 !$$$         print *,"readscr    v:",scrv4(iwf1,iwf2,iwf3,iwf4)
@@ -380,8 +372,8 @@ contains
     !      close(ifd)
     !      close(ife)
     !      close(ifa)
-    !      close(ifscrv)
-    !      close(ifscrwv)
+    close(ifscrv)
+    close(ifscrwv)
     call writescrw(scrw_) !! display matrix element of Wijkl
   end subroutine readscr
 
@@ -398,8 +390,7 @@ contains
 
        print *,"checkorb nwf",nwf_in
        if ( .NOT. allocated(idorb)) allocate(idorb(nwf_in))
-       ifdorb=ifile_handle()
-       open(ifdorb,file="Worb2lorb.d",form="unformatted")
+       open(newunit=ifdorb,file="Worb2lorb.d",form="unformatted")
        read(ifdorb) idorb(1:nwf_in)
        read(ifdorb) nclass_mlwf
        if ( .NOT. allocated(nbasclass_mlwf)) allocate(nbasclass_mlwf(nclass_mlwf+1))
@@ -630,8 +621,7 @@ contains
     character(*):: filename
     !      real(8):: pi,znorm
     integer:: iwf,jwf,ijwf,klwf,iffile
-    iffile=ifile_handle()
-    open(iffile,file=filename(:len_trim(filename)))
+    open(newunit=iffile,file=filename(:len_trim(filename)))
     do iwf=1,nwf
        ijwf=(1+nwf)*iwf-nwf   !!! iwf=jwf
        do jwf=1,nwf
@@ -658,18 +648,14 @@ contains
     logical:: diag
     logical(8)::intended_iwf
     real(8):: iddmat_in
-
     integer:: iwf,jwf,kwf,lwf, &
          ijwf,klwf,iffile, lorb
-    integer(4):: iddmat
-
-    iffile=ifile_handle()
-    open(iffile,file=filename(:len_trim(filename)))
+    integer:: iddmat
+    open(newunit=iffile,file=filename(:len_trim(filename)))
 !!! diagonal
     call getkeyvalue("GWinput","output_ddmat_atom",iddmat_in,default=1d0)
     iddmat=int(iddmat_in)
     write(6,"('output_ddmat_atom =',i5)") iddmat
-
     ijwf=0; klwf=0; zmat_o=(0d0,0d0)
     if (diag) then
        do 5001 iwf=1,nwf

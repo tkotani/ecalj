@@ -68,7 +68,7 @@ contains
     integer(4),allocatable::ncwf2(:,:,:),  ooo(:,:,:)
     integer:: ia,l,m,ic1,isp,lt,nt,nsp,nr,ncorex,ifix
     real(8)::a,b,zz, efdummy,dw,diw,pi
-    integer:: nwdummy,ifile_handle,ict
+    integer:: nwdummy,ict
     if(done_genallcf_v3) call rx('genallcf_v3 is already called')
     done_genallcf_v3=.true.
     open(newunit=ifi,file='LMTO',form='unformatted')
@@ -673,9 +673,8 @@ module m_ReadEfermi
 contains
   subroutine readefermi()
     implicit none
-    integer:: ifief,ifile_handle
-    ifief=ifile_handle()
-    open(ifief,file='EFERMI')
+    integer:: ifief
+    open(newunit=ifief,file='EFERMI')
     read(ifief,*) ef,bandgap
     close(ifief)
     write(6,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
@@ -683,9 +682,8 @@ contains
   !---
   subroutine readefermi_kbt()
     implicit none
-    integer:: ifief_kbt,ifile_handle
-    ifief_kbt=ifile_handle()
-    open(ifief_kbt,file='EFERMI_kbt')
+    integer:: ifief_kbt
+    open(newunit=ifief_kbt,file='EFERMI_kbt')
     read(ifief_kbt,*) ef_kbt,bandgap
     close(ifief_kbt)
     write(6,"(a,f12.6)")' --- READIN ef from EFERMI_kbt. ef=',ef_kbt

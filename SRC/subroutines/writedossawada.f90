@@ -31,7 +31,7 @@ subroutine writedossawada()
   logical:: mlog
   integer, dimension(:),allocatable :: kpproc
   complex(8),allocatable:: ham(:,:,:)
-  integer::numprocs,procid,ierr,itete,iteti,mpipid,ifile_handle,ikp
+  integer::numprocs,procid,ierr,itete,iteti,mpipid,ikp
 !#if MPIK
   include "mpif.h"
 !#endif
@@ -103,8 +103,8 @@ subroutine writedossawada()
   if(procid==0) then        !master only
      allocate(pdosp (ndos,0:nbas))
      bin2 = 2d0 * bin
-     ifi= ifile_handle()
-     open(ifi,file='dosf.dat')
+     !ifi= ifile_handle()
+     open(newunit=ifi,file='dosf.dat')
      do ibas=0,nbas
         do i = 2, ndos - 1
            pdosp(i,ibas)=(pdosalla(i+1,ibas) - pdosalla(i-1,ibas))/bin2

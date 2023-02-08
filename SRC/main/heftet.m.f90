@@ -60,7 +60,7 @@ program heftet
   real(8) :: elo,ehi,e1,e2,efermi,dum,dosef,efxx,rydberg,dum111(1,1,1) &
        ,tol=1d-10,toql=1d-8, volwgt
   real(8),allocatable:: dos(:)
-  integer:: nwin,bzcase=1,ifile_handle,ifi
+  integer:: nwin,bzcase=1,ifi
   real(8)::ddq(3),bandgap,tolq=1d-8
   ! space group infermation
   integer(4),allocatable :: iclasst(:), invgx(:), miat(:,:)
@@ -241,9 +241,8 @@ program heftet
              valn,dos_kbt,nptdos_kbt,e11,e22, &
              kbt, efermi,   & ! & !efermi: Fermi level at 0K
              efermi_kbt)     !,e11,e22,dosef_kbt) !!efermi_kbt: Fermi level at finite tempearture.
-        ifief_kbt = ifile_handle()
         deallocate(dos_kbt)
-        open(ifief_kbt,file='EFERMI_kbt')
+        open(newunit=ifief_kbt,file='EFERMI_kbt')
         write(ifief_kbt,"(2d23.15,a)") efermi_kbt, kbt,' ! This efermi kbt are obtained by heftet:'
         close(ifief_kbt)
      endif

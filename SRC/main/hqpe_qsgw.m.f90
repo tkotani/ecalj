@@ -278,7 +278,6 @@ program hqpe_qsgw
         ! rint *, iwini_int, iwend_int
         nw = iwend - iwini +1
         ! rint *, iwini_int, iwend_int
-        ifoutsec_int=ifile_handle()
 
 
         allocate(omega_int(ntq,iwini_int:iwend_int), rsecomg_int(iwini_int:iwend_int,ntq,nq), &
@@ -287,7 +286,7 @@ program hqpe_qsgw
 
         if(is==1) sss='.UP'
         if(is==2) sss='.DN'
-        open(ifoutsec_int,file='SEComg_int'//sss)
+        open(newunit=ifoutsec_int,file='SEComg_int'//sss)
         do ip = 1, nq
            do i  = 1,ntq
               iw_int = iwini_int

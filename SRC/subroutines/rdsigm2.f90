@@ -53,8 +53,7 @@ contains
     !      ldim  = ham_ldham(1)
     ndimsig= ldim             !if(mtosigmaonly()) mode. Dimension of sigm is the size of MTOs.
     if(procid==master) then
-       ifi=ifile_handle()
-       open(ifi,file='sigm.'//trim(sname),form='unformatted')
+       open(newunit=ifi,file='sigm.'//trim(sname),form='unformatted')
        read(ifi,err=9995,end=9995) nspsigm,ndimh_dummy,nk1,nk2,nk3,nqp
        write(stdo,"(' sigm file has ',i5,' irreducible QP: nk =',3i5)") nqp,nk1,nk2,nk3
        laf=allocated(symops_af) !jun2015takao !reserved for future

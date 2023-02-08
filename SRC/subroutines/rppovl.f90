@@ -73,9 +73,8 @@ contains
     if(init) then
        init=.false.
        allocate( qxtable(3,nqini:nqnumt) )
-       ippovlginit=ifile_handle()
        do iqi = nqini,nqnumt
-          open(ippovlginit,file="PPOVLG."//charnum3(iqi),form='unformatted')
+          open(newunit=ippovlginit,file="PPOVLG."//charnum3(iqi),form='unformatted')
           read(ippovlginit) qx
           qxtable(:,iqi) = qx
           close(ippovlginit) ! brought from outside of do iqi loop
@@ -115,8 +114,7 @@ contains
     endif
 
     open(newunit=ippovlg,file= "PPOVLG."//charnum3(iqi),form='unformatted')
-    ippovli=ifile_handle()
-    open(ippovli,file= "PPOVLI."//charnum3(iqi),form='unformatted')
+    open(newunit=ippovli,file= "PPOVLI."//charnum3(iqi),form='unformatted')
     read(ippovlg) qx, ngcread !, ngcx_s(iqi),ngc2_s(iqi)
     ngc = ngcread
     read(ippovli) qx, ngcread2 !, ngcx_s(iqi),ngc2_s(iqi)

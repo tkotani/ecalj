@@ -3,10 +3,9 @@ subroutine readppovl0(q,ngc,ppovl)
   integer, intent(in) :: ngc
   complex(8), intent(out) :: ppovl(ngc,ngc)
   real(8), intent(in) :: q(3)
-  integer:: ngc_r,ippovl0,ifile_handle
+  integer:: ngc_r,ippovl0
   real(8):: qx(3),tolq=1d-8
-  ippovl0=ifile_handle()
-  open(ippovl0,file='PPOVL0',form='unformatted')
+  open(newunit=ippovl0,file='PPOVL0',form='unformatted')
   do
      read(ippovl0) qx,ngc_r
      if(sum(abs(qx-q))<tolq) then
@@ -45,7 +44,7 @@ module m_readQG
 contains
   !----------------------------------
   subroutine readngmx2()
-    integer:: ngmx,ifile_handle,ifiqg
+    integer:: ngmx,ifiqg
     open(newunit=ifiqg, file='QGpsi',form='unformatted')
     read(ifiqg) nqnump, ngpmx, QpGcut_psi
     close(ifiqg)
@@ -60,13 +59,12 @@ contains
     !- get ngcmx or mgpmx
     integer:: ngmx,ifile_handle,ifiqg,ngcmx,ngpmx
     character*(*) key
-    ifiqg=ifile_handle()
     if    (key=='QGpsi') then
-       open(ifiqg, file='QGpsi',form='unformatted')
+       open(newunit=ifiqg, file='QGpsi',form='unformatted')
        read(ifiqg) nqnump, ngpmx, QpGcut_psi
        ngmx=ngpmx
     elseif(key=='QGcou') then
-       open(ifiqg, file='QGcou',form='unformatted')
+       open(newunit=ifiqg, file='QGcou',form='unformatted')
        read(ifiqg) nqnumc, ngcmx, QpGcut_cou
        ngmx=ngcmx
     else
@@ -150,15 +148,14 @@ contains
   !> initialization. readin QGpsi or QGcou.
   subroutine init_readqg(ifi)
     integer, intent(in) :: ifi
-    integer:: ifiqg,iq,verbose,ifile_handle,ngcmx,ngpmx
+    integer:: ifiqg,iq,verbose,ngcmx,ngpmx
     real(8)::qq(3)
     real(8),allocatable:: qxx(:,:)
     integer:: isig,i,ix,kkk,kkk3(3),ik1(1),ik2(1),ik3(1),ik
     integer,allocatable:: ieord(:),key(:,:)
     write(6,*)' init_readqg ifi=',ifi
-    ifiqg=ifile_handle()
     if(ifi==1) then
-       open(ifiqg, file='QGpsi',form='unformatted')
+       open(newunit=ifiqg, file='QGpsi',form='unformatted')
        read(ifiqg) nqnump, ngpmx, QpGcut_psi
        if(verbose()>49) write(6,"('init_readqg ngnumc ngcmx QpGcut_psi=',2i5,f8.3)") &
             nqnump, ngpmx, QpGcut_psi
@@ -169,7 +166,7 @@ contains
           if(verbose()>40) write(6,"('init_readqg psi qp ngp =',3f8.3,i5)") qp(1:3,iq),ngp(iq)
        enddo
     elseif(ifi==2) then
-       open(ifiqg, file='QGcou',form='unformatted')
+       open(newunit=ifiqg, file='QGcou',form='unformatted')
        read(ifiqg) nqnumc, ngcmx, QpGcut_cou
        allocate(ngvecc(3,ngcmx,nqnumc),qc(3,nqnumc),ngc(nqnumc))
        do iq=1, nqnumc
