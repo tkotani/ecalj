@@ -8,6 +8,7 @@ import sys,re
 from math import *
 instr=sys.stdin.read()
 instrl=instr.split('\n')
+
 aaa=''
 labels=[]
 T,t,F,f=1,1,0,0
@@ -67,3 +68,17 @@ for iline in midfile.split('\n'): #line by line, for pure mathematical operation
 ll=len(outfile.split('\n'))
 print(ll,' !line number')
 print(outfile)
+
+# print('==========================')
+# lll=''
+# ix=0
+# for lin in outfile.split('\n'): 
+#      line=lin
+#      if(len(line)==0): continue
+#      if(line[0]!=' '):
+#          ladd=line.rstrip('\n').split(' ')[0]+'\n'+line
+#          if(len(ladd)!=0): lll='\n'+lll+'\n*Category: '+ladd
+#      else    :
+#          lll=lll+line.rstrip(' ')
+# lll=lll+'\n'
+# print(lll)

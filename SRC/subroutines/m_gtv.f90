@@ -886,7 +886,7 @@ contains
     read(ixx,*) arr(1:min(n,nin))
     close(ixx)
     n=min(n,nin)
-!    write(*,*)'vvvvvvec2y ',ig,arr(1:n)
+!    write(*,*)'vvvvvvec2y ',trim(rcd(i1:ie)),n,arr(1:n)
 ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
     ! --- ASCII-numerical conversion. Simple matematical conversion.
     ! ii = 0
@@ -1154,6 +1154,7 @@ integer function parg(tok,strn,ip,lstr,sep,itrm,narg,it,res)
    read(ixx,*) parg
    read(ixx,*) res(1:min(narg,parg))
    close(ixx)
+!   write(*,*)'vvvvvvec1 ',trim(ddd),'  ',res(1:min(narg,parg)),'parg=', parg
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
 !  np=len(trim(ddd))
 !  ipx=0

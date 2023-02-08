@@ -15,11 +15,6 @@ VERS      LMASA-6 LMF-6 FTB-6 LM:7 FP:7 ASA:7
 % const pwmode=0 pwemin=1 pwemax=3 oveps=0
 IO        VERBOS=30 SHOW=f HELP=f WKP=f IACTIV=t ERRTOL=2 OUTPUT=* ERR=* 
 ... Invoking lmsf1 generates this input for SYMGRP (see second line)
-.SYMGRP    r6z(0,0,1.43369176/3) r2(1/2,sqrt(3/4),0)
-SYMGRP    
-... this is Stuttart version:
-SYMGRP    NGEN=2 GENGRP=R6Z:(0,0,.47789725) R2X:(0,0,.47789725) 
-          SPCGRP=P6_222 USESYM=F 
 STRUC     NBAS=9 NCLASS=2 NSPEC=2 ALAT=8.37
           PLAT=0.86602540 -.50000000 0.00000000 
                0.00000000 1.00000000 0.00000000 
