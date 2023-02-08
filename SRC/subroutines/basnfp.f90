@@ -827,6 +827,15 @@ subroutine addd(a1,a,n)
   enddo
 end subroutine addd
 
+! taken from basn.f
+integer function nodnum(f,n)
+  integer::i,n
+  real(8):: f(n)
+  nodnum=0
+  do i=2,n-1
+     if(f(i)*f(i+1)<0) nodnum=nodnum+1
+  enddo
+END function nodnum
 ! real(8) function derie (x,y)
 !   implicit none
 !   real(8) :: x(3),y(3),deri1,deri2,xm1,xm2,xx,deriei,dxdi,dydi

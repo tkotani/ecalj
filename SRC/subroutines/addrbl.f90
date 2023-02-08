@@ -17,7 +17,7 @@ contains
     use m_suham,only: &
          ndham=>ham_ndham,ndhamx=>ham_ndhamx,nspx=>ham_nspx
     use m_lmfinit,only:alat=>lat_alat,nbas, ispec,sspec=>v_sspec,nsp,nspc,lmet=>bz_lmet,&
-         lekkl, zbak ,lfrce=>ctrl_lfrce
+         zbak ,lfrce
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol
     use m_supot,only: lat_nabc,k1,k2,k3
     use m_igv2x,only: napw,ndimh,ndimhx,igapw=>igv2x
@@ -169,7 +169,7 @@ contains
     call rlocbl (lfrce , nbas , isp , q , &
          ndham , ndimh , nspc , napw , igapw , nevec &
          , evec , ewgt , evl , sv_p_osig , sv_p_otau , sv_p_oppi &
-         , lekkl , sv_p_oqkkl , sv_p_oeqkkl , f )
+         , 1 , sv_p_oqkkl , sv_p_oeqkkl , f ) !lekkl=1
     ! ... Weights for spin moments
     if (lswtk>0 .AND. nspc==2) then
        allocate(evecc(ndimh,2,ndimh,2),work(ndimh,2,ndimh,2))

@@ -5,7 +5,7 @@ module m_freeat
 contains
   subroutine freeat()
     use m_ext,only:sname
-    use m_lmfinit,only: smalit,ctrl_lxcf,ham_seref,nsp,nspec, sspec=>v_sspec,&
+    use m_lmfinit,only: smalit,lxcf,ham_seref,nsp,nspec, sspec=>v_sspec,&
          idmod,slabl,vmtz,eref,rs3,eh3,nmcore,coreh,coreq,rcfa,pnux=>pnusp,pzx=>pzsp,qnu
     use m_ftox
     !- For each species, makes free atom self-consistent
@@ -35,7 +35,7 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     integer :: ifi,iprint,is,nglob,nr,nrmt,nrmx, &
-         n0,nkap0,nxi,nxi0,nrmix,lxcfun,igets,lmxa,kcor,lcor
+         n0,nkap0,nxi,nxi0,nrmix,igets,lmxa,kcor,lcor
     character(8) :: spid,chole(8)
     parameter ( nrmx=1501, nxi0=10, n0=10, nkap0=3)
     double precision :: qc,ccof,ceh,z,rmt,rfoca,qcor(2),a,sumec, &
@@ -46,11 +46,12 @@ contains
     double precision :: rtab(n0,2),etab(n0,2),rsmfa
 !    double precision :: rs3,eh3!,vmtz
     !integer :: idmod(n0)
-    integer:: iofa, i_dum
+    integer:: iofa, i_dum,ifile_handle
     integer:: ifives,ifiwv
     character strn*120
     logical :: cmdopt
-    open(newunit=ifi,file='atm.'//trim(sname))
+    ifi=ifile_handle()
+    open(ifi,file='atm.'//trim(sname))
     rewind ifi
     hfct = 0d0
     open(newunit=ifives,file='vesintatm.'//trim(sname)//'.chk')
@@ -75,7 +76,7 @@ contains
           nxi = 6
        endif
        nrmix=smalit
-       lxcfun = int(ctrl_lxcf)
+!       lxcfun = int(ctrl_lxcf)
        spid = slabl(is) !sspec(is)%name
        !       rsmfa= sspec(is)%rsmfa
        rfoca= sspec(is)%rfoca
@@ -105,7 +106,7 @@ contains
        !rcfa=sspec(is)%rcfa
        print *,'goto freats'
        call freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,kcor,lcor,qcor, &
-            nrmix,1,lxcfun,z,rmt,a,nrmt,pnu,pz,qat,rs3(is),eh3(is),vmtz(is),rcfa(:,is), &
+            nrmix,1,lxcf,z,rmt,a,nrmt,pnu,pz,qat,rs3(is),eh3(is),vmtz(is),rcfa(:,is), &
             idmod(:,is),lmxa,eref(is),rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof, &
             ceh,sumec,sumtc,v,etot,nmcore(is),ifives,ifiwv)
        print *,'end of freats: spid nmcore=',spid,nmcore(is)
@@ -128,7 +129,7 @@ contains
   end subroutine freeat
 
   subroutine freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,kcor,lcor,qcor, &
-       nrmix,lwf,lxcfun,z,rmt,a,nrmt,pnu,pz,qat,rs3,eh3,vmtz,rcfa, &
+       nrmix,lwf,lxcf,z,rmt,a,nrmt,pnu,pz,qat,rs3,eh3,vmtz,rcfa, &
        idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof,ceh, &
        sec,stc,v,etot,nmcore,ifives,ifiwv)
     use m_lmfinit,only: nsp,lrel
@@ -154,7 +155,7 @@ contains
     !i         :xxx nrmix(2) = no prior iterations Anderson mixing in
     !i         :           self-consistency cycle.
     !i   lwf   :1 print information about wave functions
-    !i   lxcfun:selects local exchange-correlation functional
+    !i   lxcf:selects local exchange-correlation functional
     !i   z     :nuclear charge
     !i   rmt   :augmentation radius, in a.u.
     !i   a     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
@@ -202,7 +203,7 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     ! ... Passed parameters
-    integer :: nrmx,nrmt,is,nxi0,nxi,nrmix,lwf,lxcfun,n0,kcor,lcor
+    integer :: nrmx,nrmt,is,nxi0,nxi,nrmix,lwf,lxcf,n0,kcor,lcor
     parameter (nrmx=1501,n0=10)
     character(8) :: spid
     double precision :: rsmfa,rfoca,qc,ccof,ceh,sec,stc,z,rmt,a,eref, &
@@ -232,7 +233,7 @@ contains
     real(8),allocatable:: plplus(:,:),qlplus(:,:)
     ipr    = iprint()
     lfrz   = 0
-    lgrad  = lxcfun/10
+    lgrad  = lxcf/10
     if(ipr>49) then
        print *
        do i = 1, nsp

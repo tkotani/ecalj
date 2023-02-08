@@ -2,13 +2,11 @@ subroutine pnunew(eferm)
   use m_ftox
   use m_MPItk,only: master_mpi
   use m_lmfinit,only:nbas,nsp,ispec,sspec=>v_sspec,ham_frzwf,idmodis=>idmod,slabl,&
-       pmin=>ham_pmin,pmax=>ham_pmax,n0,mxcst4
+       pmin=>ham_pmin,pmax=>ham_pmax,n0,frzwfa
   use m_mkrout,only: hbyl=>hbyl_rv,qbyl=>qbyl_rv
   use m_lgunit,only:stdo
   use m_phidx,only: phidx
-
   use m_density,only: v0pot,pnuall,pnzall !output
-  
   !!= Makes new boundary conditions pnu for phi,phidot =
   !!* takao sep2010. P is setted to that at efermi if PZ is for semicore.
   ! ----------------------------------------------------------------------
@@ -46,7 +44,6 @@ subroutine pnunew(eferm)
   real(8) ,allocatable :: rofi_rv(:)
   real(8) ,allocatable :: v0i_rv(:)
   double precision pi,rmt,p1,ebar,a,d0l,pfree,pold,ptry,z,val(5),slo(5),dl,phi,dphi
-!  real(8):: pnu(n0,2),pnz(n0,2)
   real(8),pointer:: pnu(:,:),pnz(:,:)
   double precision ez,umegam,phip,dphip,dlphi,dlphip,cz
   double precision pznew,fi(0:10),gi(0:10),xx,dnz
@@ -69,22 +66,20 @@ subroutine pnunew(eferm)
      print *, '                   ebar for valence is at the Fermi energy.'
      print *, ' idmod=0-> If P=prty(fractional part is log.-derivative)<pfeee, we use pfree.'
   endif
-  ! --- For each site, do ---
-  do  ib = 1, nbas
+  ibloop: do  ib = 1, nbas
      is=ispec(ib) 
      pnu=>pnuall(:,:,ib)
      pnz=>pnzall(:,:,ib)
      lmxa=sspec(is)%lmxa
      rmt=sspec(is)%rmt
      idmod=idmodis(:,is)
-     if (lmxa .eq. -1) goto 10
+     if (lmxa .eq. -1) cycle
      spid=slabl(is)
-     if (mxcst4(is)) idmod=1 
-     if (ipr >40) write(stdo,320) ib,is,spid
-320  format(/' site',i5,'   species',i4,':',a)
-     if (ipr >40) write(stdo,311)
-     do  l = 0, lmxa
-        do  isp = 1, nsp
+     if (frzwfa(is)) idmod=1 
+     if (ipr >40) write(stdo,"(/' site',i5,'   species',i4,':',a)") ib,is,spid
+     if (ipr >40) write(stdo,"(' l isp idmod     ql',9x,'ebar',7x,' pold',8x,'ptry',8x,'pfree',8x,'pnew',8x)")
+     lloop: do  l = 0, lmxa
+        isploop: do  isp = 1, nsp
            m = l+1
            p1 = 2d10
            pznew = 2d10
@@ -202,15 +197,9 @@ subroutine pnunew(eferm)
                  if (ptry .gt. ipqn+pmax(m)) pnu(m,isp) = ipqn+pmax(m)
               endif
            endif
-           if (ipr>40) write(stdo,310) &
+           if (ipr>40) write(stdo,"(i2,i2,i6,6f12.6,l)") &
                 l,isp,idmod(m),qbyl(m,isp,ib),ebar,pold,ptry,pfree,pnu(m,isp)
-!           if (ipr>40 .and. isp .eq. 2) write(stdo,410) &
-!                idmod(m),qbyl(m,isp,ib),ebar,pold,ptry,pfree,pnu(m,isp)
-310        format(i2,i2,i6,6f12.6,l)
-!410        format(' spn 2',i2,6f12.6,l)
-311        format(' l isp idmod     ql',9x,'ebar',7x,' pold',8x,'ptry',8x,'pfree',8x,'pnew',8x)
-           !     --- Set the new pnz ---
-           if (lpz) then
+           if (lpz) then !Set the new pnz 
               pold = mod(pnz(m,isp),10d0)
               ipqn = pold
               ptry = pold
@@ -222,13 +211,10 @@ subroutine pnunew(eferm)
                  d0l = l
                  if (ptry .lt. pfree) pnz(m,isp) = pfree + (pnz(m,isp)-mod(pnz(m,isp),10d0))
               endif
-              if (ipr>40) write(stdo,520)l,isp,idmod(m),ez,pold,ptry,pfree,pnz(m,isp)
-!              if (ipr>40.and. isp .eq. 2) write(stdo,520)l,isp,idmod(m),ez,pold,ptry,pfree,pnz(m,isp)
-520           format(i2,i2,i6,'      ---   ',6f12.6)
-!620           format(' spn 2',i2,'      ---   ',6f12.6)
+              if (ipr>40) write(stdo,"(i2,i2,i6,'      ---   ',6f12.6)")l,isp,idmod(m),ez,pold,ptry,pfree,pnz(m,isp)
            elseif (lpz) then
            endif
-        enddo !end of spin loop
+        enddo isploop
         phispinsym= cmdopt0('--phispinsym') !! spin averaged pnu takaoAug2019
         if(phispinsym) then
            if(ipr>0.and.m==lmxa+1) write(6,*)'pnunew: --phispinsym enforces spin-averaged pnu' 
@@ -239,12 +225,9 @@ subroutine pnunew(eferm)
               pnz(m,1:nsp) = pmean
            endif
         endif
-     enddo 
-     !ssite(ib)%pnu=pnu
-     !ssite(ib)%pz=pnz
+     enddo lloop
      pnuall(:,1:nsp,ib)=pnu(:,1:nsp)
      pnzall(:,1:nsp,ib)=pnz(:,1:nsp)
-10   continue
-  enddo
+  enddo ibloop
   call tcx('pnunew')
 end subroutine pnunew

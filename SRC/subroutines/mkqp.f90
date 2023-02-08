@@ -4,13 +4,13 @@ module m_mkqp
   integer,protected:: bz_nabc(3),bz_ntet, bz_nkp
 contains
   subroutine m_mkqp_init()
-    use m_lmfinit,only: bz_lshft,bz_tetrahedron,bz_lmet,ctrl_ldos,bz_nabcin
+    use m_lmfinit,only: bz_lshft,bz_tetrahedron,bz_lmet,ldos,bz_nabcin
     use m_lattic,only:  lat_plat
     use m_mksym,only:   rv_a_osymgr,lat_npgrp
     use m_tetirr,only: tetirr
     !! Set up k-points and related quantities for BZ integration
     !! ----------------------------------------------------------------------
-    !! gettet: = bz_lmet/=0 .or. ctrl_ldos/=0 given at setup
+    !! gettet: = bz_lmet/=0 .or. ldos/=0 given at setup
     !!            T read or generate tetrahedra corners, if
     !!             tetrahedron integration set
     !!   lnoirr: =F (T suppress generation of inequivalent tetrahedra)
@@ -36,7 +36,7 @@ contains
     character outs*80
     integer ::iwdummy
     call tcn('m_mkqp_init')
-    gettet = bz_lmet/=0 .or. ctrl_ldos/=0
+    gettet = bz_lmet/=0 .or. ldos/=0
     ntet = 0
     nkxyz=bz_nabcin
     lshft=bz_lshft

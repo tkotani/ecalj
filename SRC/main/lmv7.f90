@@ -6,11 +6,11 @@
 !     In principle, all the data are generared and stored in some modules with 'protection'.
 !     We can not modify data in a module by other modules (in prinicple, not everywhere yet).
 program lmf
-  use m_lmfinit,only:  m_Lmfinit_init,nlibu,plbnd,lrout,ctrl_lfrce
+  use m_lmfinit,only:  m_lmfinit_init,nlibu,plbnd
   use m_writeham,only: m_writeham_init, m_writeham_write
-  use m_ext,only:      m_Ext_init,sname
-  use m_lattic,only:   m_Lattic_init
-  use m_mkqp,only:     m_Mkqp_init,bz_nabc
+  use m_ext,only:      m_ext_init,sname
+  use m_lattic,only:   m_lattic_init
+  use m_mkqp,only:     m_mkqp_init,bz_nabc
   use m_MPItk,only:    m_MPItk_init, m_MPItk_finalize, nsize, master_mpi
   use m_hamindex, only:m_hamindex_init
   use m_hamindex0,only:m_hamindex0_init

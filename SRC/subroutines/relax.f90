@@ -4,10 +4,9 @@ module m_relax
   public relax
   private
 contains
-!  subroutine relax(it,indrlx,natrlx,force,w,basin,bas,icom)
   subroutine relax(it,indrlx,natrlx,force, p,w,basin,bas,icom)
-!   use m_lmfinit,only:nbas,slabl,ispec,  nitrlx,ctrl_mdprm,ifrlx
-    use m_lmfinit,only: nbas,nitrlx,ctrl_mdprm,slabl,ifrlx,ispec
+    use m_lmfinit,only: nbas,nitrlx,slabl,ifrlx,ispec
+    use m_lmfinit,only: lrlxr,rdhessr,nkillr,xtolr,gtolr,stepr
     use m_ext,only:     sname
     use m_gradzr,only :Gradzr
     use m_struc_def
@@ -48,11 +47,11 @@ contains
     integer :: indrlx(2,natrlx)
     real(8):: force(3,*), w(natrlx,natrlx) , p(natrlx,6), bas(:,:),basin(:,:)
     integer :: i,j,ipr,ifi,ix,lgunit,ltb,natrlx2,natrlx3, &
-         ir,iprint,isw,rdm,lrlx,is,idamax,nd,ns,nkill
+         ir,iprint,isw,rdm,is,idamax,nd,ns,lrlx
     parameter (nd=4,ns=6)
-    logical :: rdhess,lpp,cmdopt,lshr ,readhess !,a2bin
-    double precision :: mdprm(6),step,xtol,gtol,xtoll,grfac,wkg(28),ddot, xv(6)
-    equivalence (step,mdprm(5)), (xtol,mdprm(3)), (gtol,mdprm(4))
+    logical :: lpp,cmdopt,lshr ,readhess !,a2bin
+    double precision :: xtolrl,grfac,wkg(28),ddot, xv(6)
+!    equivalence (stepr,mdprm(5)), (xtolr,mdprm(3)), (gtolr,mdprm(4))
     character clablj*8,dumstr*6,strn*128
     save ir,wkg
     data wkg /28*0d0/
@@ -66,12 +65,14 @@ contains
     bas=basin
     ! --- Setup ---
     nit =  nitrlx
-    mdprm= ctrl_mdprm
-    nkill  = nint(mdprm(6))
-    lrlx   = nint(mdprm(1))
-    lshr   = lrlx .gt. 100
-    lrlx   = mod(lrlx,100)
-    rdhess = nint(mdprm(2)) .eq. 1
+!    lrlxr   = nint(mdprm(1))
+!    rdhessr = nint(mdprm(2)) .eq. 1
+!    xtolr   = mdprm(3)
+!    gtolr   = mdprm(4)
+!    stepr   = mdprm(5)
+!    nkillr  = nint(mdprm(6))
+    lshr   = lrlxr .gt. 100
+    lrlx   = mod(lrlxr,100)
     call getpr(ipr)
     ! --- Make vector of positions and gradients ---
     j = 1
@@ -91,7 +92,7 @@ contains
        call dcopy(natrlx*natrlx,0d0,0,w,1)
        call dcopy(natrlx,1d0,0,w,natrlx+1)
        !   ... Read Hessian from disc
-       if (rdhess) then
+       if (rdhessr) then
           if (procid == master) then
              open(newunit=ifi,file='hssn.'//trim(sname),form='unformatted')
              readhess=.false.
@@ -125,24 +126,24 @@ contains
     !       grfac = 1.2d0
     !    endif
     ! endif
-    xtoll = abs(xtol)
-    ! if (cmdopt('-xtoll=',6,0,strn)) then
+    xtolrl = abs(xtolr)
+    ! if (cmdopt('-xtolrl=',6,0,strn)) then
     !    j = 6
-    !    if ( .NOT. a2bin(strn,xtoll,4,0,' ',j,len(strn))) then
-    !       print *, 'RELAX: Ignored command line value of xtoll'
-    !       xtoll = abs(xtol)
+    !    if ( .NOT. a2bin(strn,xtolrl,4,0,' ',j,len(strn))) then
+    !       print *, 'RELAX: Ignored command line value of xtolrl'
+    !       xtolrl = abs(xtolr)
     !    endif
     ! endif
-    ! ... the user sets xtol _and_ gtol.
+    ! ... the user sets xtolr _and_ gtolr.
     if (lrlx == 4) isw = 00021 + 40
     if (lrlx == 5) isw = 00121 + 40
     if (lrlx == 6) isw = 00221 + 00
     if (lrlx == 4 .OR. lrlx == 5 .OR. lrlx == 6) then
-       if (xtol == 0 .AND. gtol == 0) call rx('RELAX: both xtol and gtol are zero')
-       if (gtol == 0) isw = isw-10
-       if (xtol == 0) isw = isw-20
+       if (xtolr == 0 .AND. gtolr == 0) call rx('RELAX: both xtolr and gtolr are zero')
+       if (gtolr == 0) isw = isw-10
+       if (xtolr == 0) isw = isw-20
     endif
-    call gradzr(natrlx,p,w,xtoll,step,xtol,gtol,grfac,wkg,isw,ir)
+    call gradzr(natrlx,p,w,xtolrl,stepr,xtolr,gtolr,grfac,wkg,isw,ir)
     if (ir > 0) then
        call rx1('RELAX: gradzr returned ir=%i ... aborting',ir)
     endif
@@ -176,7 +177,7 @@ contains
     if (ipr >= 40) then
        write(stdo,*)'        Gradients:'
        print 100, (p(i,2), i = 1, natrlx)
-       if (lrlx /= 4 .AND. (it /= 1 .OR. xtol /= 0)) then
+       if (lrlx /= 4 .AND. (it /= 1 .OR. xtolr /= 0)) then
           write(stdo,*)'      Diagonal inverse Hessian:'
           print 100, (w(i,i), i = 1,natrlx)
        endif
@@ -185,7 +186,7 @@ contains
     ! --- Update atom positions ---
     call prelx1(1,1,lshr,natrlx,indrlx,p,bas)
     ! --- Write Hessian to disc ---
-    if (rdhess .AND. (icom == 1 .OR. it == nit) .OR. .TRUE. ) then
+    if (rdhessr .AND. (icom == 1 .OR. it == nit) .OR. .TRUE. ) then
        if (procid == master) then
           open(newunit=ifi,file='hssn.'//trim(sname),form='unformatted')
           write(ifi) natrlx,natrlx,11
@@ -196,9 +197,9 @@ contains
     if (procid == master) call poppr
     call getpr(ipr)
     ! --- Periodically remove hessian ---
-    if (nkill > 0) then
-       if (mod(it,nkill) == 0) then
-          write(stdo,ftox)'   ...  resetting hessian : iter=',it,' nkill=',nkill
+    if (nkillr > 0) then
+       if (mod(it,nkillr) == 0) then
+          write(stdo,ftox)'   ...  resetting hessian : iter=',it,' nkillr=',nkillr
           open(newunit=ifi,file='hssn.'//trim(sname))
           close(ifi,status="delete")
           w=0d0
@@ -234,7 +235,7 @@ contains
     flush(stdl)
 130 format(i4,6x,a4,3x,3(f14.8,'(',l1,')'))
 ! 2023-jan moved from lmfp (not yet tested)
-!    if (it==nit) then !Correct poss if this is last step. Set minimum gradient positions 
+!    if (it==nit) then !Correct poss if this is last stepr. Set minimum gradient positions 
 !       write(stdo,"(a)")'relax: restore positions for minimum g (given by relax)'
 !       do i = 1, natrlx
 !          bas(indrlx(1,i),indrlx(2,i)) = p(i,nm) !nm=3. this is given by relax-gradzr
@@ -242,7 +243,6 @@ contains
 !    endif
     call tcx('relax')
   end subroutine relax
-
   subroutine prelx1(mode,nm,lshr,natrlx,indrlx,p,bas)
     !- Copy vector of variables to be minimized from/to bas
     ! ----------------------------------------------------------------------
@@ -262,14 +262,11 @@ contains
     !u Updates
     !u   09 Mar 06 Extracted from relax.f for use by other routines
     ! ----------------------------------------------------------------------
-    !     implicit none
-    ! ... Passed parameters
+    implicit none
     integer :: mode,nm,natrlx,indrlx(2,natrlx)
     double precision :: p(natrlx,nm),bas(3,*)
     logical :: lshr
-    ! ... Local parameters
     integer :: i,j,iat,ix
-
     ! --- Update atom positions, or vice-versa ---
     if ( .NOT. lshr) then
        j = 1
@@ -289,19 +286,15 @@ contains
        else
           call dcopy(natrlx,bas,1,p(1,nm),1)
        endif
-
     endif
   end subroutine prelx1
-
   subroutine grdep2(i1,i2,indrlx,dstprm,dist)
-
     !- Build up actual distortion from distortion parms
     !r Distortion is added into dist
     !     implicit none
     integer :: i1,i2,indrlx(i2)
     double precision :: dstprm(i2),dist(6)
     integer :: i,ip
-
     do  i = i1, i2
        ip = indrlx(i)
        !       1 + 2 + 3
@@ -322,8 +315,5 @@ contains
           dist(ip) = dist(ip) + dstprm(i)
        endif
     enddo
-
   end subroutine grdep2
-
-
 end module m_relax

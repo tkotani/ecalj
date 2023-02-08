@@ -2,7 +2,7 @@
 !! spin symmetic (or nspin=1, not 2 channell binded and so on...
 ! sssssssssssssssssssssssssssssssssssssssssssssssssss
 subroutine getqmode()     !no output. getq mode just output. Not return variables.
-  use m_lmfinit, only: nspec=>ctrl_nspec,sspec=>v_sspec,ispec,nbas,stdo
+  use m_lmfinit, only: nspec,sspec=>v_sspec,ispec,nbas,stdo
   use m_ext,only:sname
   ! read veswavatm.* and qbyl.*
   implicit none

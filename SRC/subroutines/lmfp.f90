@@ -1,6 +1,6 @@
 subroutine lmfp(llmfgw)
-  use m_lmfinit,only: lhf, maxit,nbas,nsp, ctrl_ldos,ctrl_nvario, &
-       ham_seref,ctrl_lfrce,  sspec=>v_sspec, ispec, slabl,&
+  use m_lmfinit,only: lhf, maxit,nbas,nsp, &
+       ham_seref,  sspec=>v_sspec, ispec, slabl,&
        nlibu,stdo,lrout,leks,plbnd,lpzex, nitrlx, &
        indrx_iv,natrlx,xyzfrz,pdim,qtol,etol,alat
   use m_lattic,only: qlat=>lat_qlat,rv_a_opos
@@ -154,7 +154,7 @@ subroutine lmfp(llmfgw)
            !     :3 otherwise
            hsign= (lhf.or.iatom).and.iter==1
            if(itrlx>1) hsign=.false.
-           call nwit(ctrl_nvario,iter,maxit,hsign,leks,etol,qtol,qdiff,amom,etot,sev,lsc)
+           call nwit(0,iter,maxit,hsign,leks,etol,qtol,qdiff,amom,etot,sev,lsc)
         endif
         call mpibc1_int(lsc,1,'lmfp_lsc')
         if (lsc==2 .AND. ( .NOT. lhf) .AND. maxit>1) lsc = 3

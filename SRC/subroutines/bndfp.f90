@@ -48,12 +48,10 @@ contains
     use m_suham,only: ndham=>ham_ndham, ndhamx=>ham_ndhamx,nspx=>ham_nspx
     use m_lmfinit, only: ncutovl,lso,ndos=>bz_ndos,bz_w,fsmom=>bz_fsmom, &
          bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n, &
-         ctrl_nspec,ctrl_pfloat,ldos=>ctrl_ldos,qbg=>zbak,lfrce=>ctrl_lfrce, &
-         pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps, &
-         ham_scaledsigma, &
-         alat=>lat_alat,stdo,stdl,procid,master, &
+         ldos,qbg=>zbak,lfrce,pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps, &
+         ham_scaledsigma, alat=>lat_alat,stdo,stdl,procid,master, &
          nkaph,nlmax,nl,nbas,nsp, bz_dosmax, &
-         lekkl,lmaxu,nlibu,lldau,lpztail,leks,lrout &
+         lmaxu,nlibu,lldau,lpztail,leks,lrout &
          ,  nchan=>pot_nlma, nvl=>pot_nlml,nspc,pnufix !lmfinit contains fixed input 
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
     use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
@@ -115,7 +113,6 @@ contains
     !!      nspx: number of independent spin channels
     !!      nspc is now avoided (memo:nspc=2 for lso==1, nspc=1 for lso/=1 See m_lmfinit)
     !!      ndhamx: maximum size of hamiltonian
-    !     l   lekkl :0 do not accumulate oeqkkl; 1 do accumulate oeqkkl
     !r How bndfp works?
     !r   (1) m_mkpot_init   make the effective potential,
     !r   (2) m_bandcal_init generate eigenvalues (and eigenvectors if lrout), then m_bzintegration_init
@@ -124,7 +121,6 @@ contains
     !r   (5) mixrho the output density to make a new input density.
     !See history github ecalj after 2009.
     implicit none
-
     include "mpif.h"
     integer :: ierr, status(MPI_STATUS_SIZE)
     integer :: MAX_PROCS
@@ -133,7 +129,6 @@ contains
     character*(MPI_MAX_PROCESSOR_NAME) name
     character(10) :: shortname(0:MAX_PROCS-1)
     double precision :: sttime,entime
-
     integer:: plbnd,nk1,nk2,nk3,nx,ny
     logical:: llmfgw,sigx
     logical:: ltet,cmdopt0,sigmamode,tdos,debug=.false.

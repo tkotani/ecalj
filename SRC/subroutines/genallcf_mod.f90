@@ -36,10 +36,10 @@ module m_genallcf_v3 !-- Read basis data ----------------------------------
        nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw
   real(8),protected,public::  plat(3,3),alat,deltaw,esmr,delta,tpioa
   real(8), allocatable,protected,public:: pos(:,:),z(:),ecore(:,:) !,symgg(:,:,:)
-  logical,protected,public:: done_genallcf_v3=.false.
   character(8),allocatable,protected,public:: spid(:)
   character(8),allocatable,protected,public :: clabl(:)
   private
+  logical,protected,private:: done_genallcf_v3=.false.
 contains
   subroutine setesmr(esmr_in)
     intent(in)::       esmr_in
@@ -639,35 +639,36 @@ contains
 1   enddo
     return
   end function noflnm
-  ! integer function maxnn (nindxv,nindxc, nl,nclass)
-  !   implicit real*8 (a-h,o-z)
-  !   integer:: nindxv(nl*nclass),nindxc(nl*nclass)
-  !   integer:: i,ntot,nclass,nl
-  !   maxnn      = -1
-  !   do       i = 1,nl*nclass
-  !      ntot       = nindxv(i) + nindxc(i)
-  !      if (ntot > maxnn) maxnn = ntot
-  !   end do
-  ! end function maxnn
- 
 end module m_genallcf_v3
+subroutine reindx (noccv,nunoccv,nindxv, &
+     noccc,nunoccc,nindxc, &
+     nl,nn,nnv,nnc,nclass, &
+     nocc,nunocc,nindx)
+  implicit real*8 (a-h,o-z)
+  implicit integer(i-n)
+  dimension noccv(0:nl-1,nnv,nclass),nunoccv(0:nl-1,nnv,nclass), &
+       noccc(0:nl-1,nnc,nclass),nunoccc(0:nl-1,nnc,nclass), &
+       nindxv(0:nl-1,nclass),nindxc(0:nl-1,nclass), &
+       nocc(0:nl-1,nn,nclass),nunocc(0:nl-1,nn,nclass), &
+       nindx(0:nl-1,nclass)
+  do      ic = 1,nclass
+     do       l = 0,nl-1
+        ncore      = nindxc(l,ic)
+        nval       = nindxv(l,ic)
+        nindx(l,ic)= ncore + nval
+        if (ncore+nval > nn) call rx( 'reindx: ncore+nval > nn')
+        do       n = 1,ncore
+           nocc(l,n,ic)   = noccc(l,n,ic)
+           nunocc(l,n,ic) = nunoccc(l,n,ic)
+        end do
+        do       n = 1,nval
+           nocc(l,ncore+n,ic)   = noccv(l,n,ic)
+           nunocc(l,ncore+n,ic) = nunoccv(l,n,ic)
+        end do
+     end do
+  end do
+end subroutine reindx
 
-
-!------------------------
-module m_readhbe
-  integer,protected:: nprecb,nlmtot,nqbzt,nband
-  integer:: mrecb,mrece,mrecg !these can not be protected because of bug of ifort?
-  !      integer:: nband !not yet protected!
-contains
-  subroutine readhbe()
-    integer:: ifhbe
-    open(newunit=ifhbe, file='hbe.d', action='read')
-    read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-    close(ifhbe)
-  end subroutine readhbe
-end module m_readhbe
-
-!------------------------
 module m_ReadEfermi
   real(8),protected:: bandgap, ef, ef_kbt
 contains
@@ -689,6 +690,19 @@ contains
     write(6,"(a,f12.6)")' --- READIN ef from EFERMI_kbt. ef=',ef_kbt
   end subroutine readefermi_kbt
 end module m_ReadEfermi
+
+module m_readhbe
+  integer,protected:: nprecb,nlmtot,nqbzt,nband
+  integer:: mrecb,mrece,mrecg !these can not be protected because of bug of ifort?
+  !      integer:: nband !not yet protected!
+contains
+  subroutine readhbe()
+    integer:: ifhbe
+    open(newunit=ifhbe, file='hbe.d', action='read')
+    read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+    close(ifhbe)
+  end subroutine readhbe
+end module m_readhbe
 
 !$$$!----------------------------------------------------------
 !$$$!! we neede module reading m_genallfc_v3 should be here after it is dedined in this file

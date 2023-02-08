@@ -30,7 +30,7 @@ program lmfa
      call m_lmfinit_init(prgnam) ! show help and quit for --input
      call Rx0('end of help mode')
   endif
-  call m_lmfinit_init(prgnam) ! Computational settings. Set data from ctrl_preprocessed.
+  call m_lmfinit_init(prgnam) ! Computational settings.
   call Freeat()  !Spherical atom calculation
   call m_MPItk_finalize()
   if(master_mpi) write(6,"(a)") "OK! end of "//trim(prgnam)//" ======================"

@@ -37,13 +37,14 @@ program hx0fp0_sc
        egauss,ecut,ecuts,nbcut,nbcut2,mtet,ebmx,nbmx,imbas
   use m_qbze,only:    Setqbze, nqbze,nqibze,qbze,qibze
   use m_readhbe,only: Readhbe, nband 
-!  use m_eibz,only:    Seteibz, nwgt,neibz,igx,igxt,eibzsym
-  use m_x0kf,only:    X0kf_v4hz, X0kf_v4hz_init,x0kf_v4hz_init_write,x0kf_v4hz_init_read !X0kf_v4hz_symmetrize, 
+  use m_x0kf,only:    X0kf_v4hz, X0kf_v4hz_init,x0kf_v4hz_init_write,x0kf_v4hz_init_read
+  !X0kf_v4hz_symmetrize, 
   use m_llw,only:     WVRllwR,WVIllwI,w4pmode,MPI__sendllw
   use m_mpi,only: MPI__hx0fp0_rankdivider2Q, MPI__Qtask, &
        MPI__Initialize, MPI__Finalize,MPI__root, &
        MPI__Broadcast, MPI__rank,MPI__size, MPI__consoleout,MPI__barrier
   use m_lgunit,only: m_lgunit_init
+!  use m_eibz,only:    Seteibz, nwgt,neibz,igx,igxt,eibzsym
   !! ------------------------------------------------------------------------
   implicit none
   integer:: MPI__Ss,MPI__Se
@@ -190,7 +191,7 @@ program hx0fp0_sc
 1101 enddo
 
   !! Obtain rcxq -------------------
-  do 1001 iq = iqxini,iqxend
+  iqloop: do 1001 iq = iqxini,iqxend
      if( .NOT. MPI__Qtask(iq) ) cycle
      call cputid (0)
      qp = qibze(:,iq)
@@ -210,7 +211,7 @@ program hx0fp0_sc
      call Setppovlz(qp,matz=.true.) !.not.eibzmode)
      allocate( rcxq(nmbas1,nmbas2,nwhis,npm))
      rcxq = 0d0
-     do 1003 is = MPI__Ss,MPI__Se !is=1,nspin. rcxq is acuumulated for spins
+     isploop: do is = MPI__Ss,MPI__Se !is=1,nspin. rcxq is acuumulated for spins
         write(6,"(' ### ',2i4,' out of nqibz+n0qi+nq0iadd nsp=',2i4,' ### ')")iq,is,nqibz+nq0i+nq0iadd,nspin
         if(debug) write(6,*)' niw nw=',niw,nw
         isf = is
@@ -218,7 +219,7 @@ program hx0fp0_sc
         call x0kf_v4hz(qp, is,isf, iq, nmbas_in, rcxq=rcxq,iqxini=iqxini)
         !, eibzmode=eibzmode
         !  rcxq is accumulating for spins
-1003 enddo
+     enddo isploop
      !! Symmetrize and convert to Enu basis (diagonalized basis for the Coulomb matrix).
      !!   That is, we get dconjg(tranpsoce(zcousq))*rcxq*zcousq for eibzmode
      ! Remove symmetrizer 2023Jan22
@@ -232,7 +233,7 @@ program hx0fp0_sc
      write(ircxq) rcxq
      close(ircxq)
      deallocate(rcxq)
-1001 enddo
+1001 enddo iqloop
 
   !!-Hilbert transformation -----------
   do 1201 iq = iqxini,iqxend
@@ -263,8 +264,6 @@ program hx0fp0_sc
      endif
      !! === ImagOmega end ===
 1201 enddo
-
-
   !! == Divergent part and non-analytic constant part of W(0) ==
   call MPI__barrier()
   call MPI__sendllw(iqxend) !!! Send all LLW data to mpi_root.

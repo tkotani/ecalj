@@ -6,12 +6,12 @@ subroutine symrhoat(sv_p_orhoat, qbyl, hbyl, f)!- Symmetrize charge density and 
   use m_supot,only: rv_a_ogv , iv_a_oips0 , zv_a_obgv ,iv_a_okv
   use m_mksym,only: iv_a_oistab , rv_a_osymgr, rv_a_oag
   use m_struc_def
-  use m_lmfinit,only: nbas,nsp,lf=>ctrl_lfrce
+  use m_lmfinit,only: nbas,nsp,lfrce
   use m_supot,only: lat_nabc
   use m_lgunit,only:stdo
   ! ----------------------------------------------------------------------
   !i Inputs
-  !i   lf    :>0 symmetrize forces
+  !i   lfrce    :>0 symmetrize forces
   !i Inputs/Outputs
   ! ox  smrho :smooth density
   ! ox        :Symmetrized on output
@@ -37,22 +37,22 @@ subroutine symrhoat(sv_p_orhoat, qbyl, hbyl, f)!- Symmetrize charge density and 
   if(iprint()>=10) write(stdo,*)' Symmetrize density..'
   ngabc=lat_nabc
   call fftz30(n1,n2,n3,k1,k2,k3)
-  call symrat ( nbas , nsp , lf , sv_p_orhoat , qbyl , hbyl , f )
+  call symrat (sv_p_orhoat , qbyl , hbyl , f )
   if ( iprint ( ) > 50 ) call prrhat (sv_p_orhoat )
   call tcx('symrhoat')
 end subroutine symrhoat
-subroutine symrat(nbas, nsp, lf, sv_p_orhoat , qbyl , hbyl , f )
+subroutine symrat(sv_p_orhoat , qbyl , hbyl , f )
   use m_struc_def
   use m_mksym,only: iv_a_oistab , rv_a_osymgr, rv_a_oag,lat_nsgrp,ipc_iv=>iclasst
   use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
   use m_lgunit,only:stdo
-  use m_lmfinit,only: ispec,sspec=>v_sspec
+  use m_lmfinit,only: ispec,sspec=>v_sspec,lfrce,nbas,nsp,n0
   !     - Symmetrize the atomic charge densities and the forces.
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   nbas  :size of basis
   !i   nsp   :2 for spin-polarized case, otherwise 1
-  !i   lf    :>0 symmetrize forces
+  !i   lfrce    :>0 symmetrize forces
   !i Inputs/Outputs
   ! o  orhoat:vector of offsets containing site density
   ! o        :Symmetrized on output
@@ -67,9 +67,7 @@ subroutine symrat(nbas, nsp, lf, sv_p_orhoat , qbyl , hbyl , f )
   !u   01 Jul 05 handle sites with lmxa=-1 -> no augmentation
   ! ----------------------------------------------------------------------
   implicit none
-  integer:: nbas,nsp,n0,lf
   type(s_rv1) :: sv_p_orhoat(3,nbas)
-  parameter (n0=10)
   real(8):: f(3,nbas),qbyl(n0,nsp,nbas),hbyl(n0,nsp,nbas)
   integer:: ib0,ic,ipr,iprint,is,lmxa,lmxl,nclass,ngrp,nlml,nlmx,nr,nrclas,igetss,ival,ibas
   integer ,allocatable :: ipa_iv(:)
@@ -118,7 +116,7 @@ subroutine symrat(nbas, nsp, lf, sv_p_orhoat , qbyl , hbyl , f )
            call psymrq ( nrclas,nsp,ipa_iv,lmxa,qbyl,hbyl ) !write qbyl
         endif
         !   ... Symmetrize the forces
-        if ( lf /= 0 ) call psymrf ( nrclas,ipa_iv,nlmx,sym_rv, f )
+        if ( lfrce /= 0 ) call psymrf ( nrclas,ipa_iv,nlmx,sym_rv, f )
         if (allocated(rho_rv)) deallocate(rho_rv)
         if (allocated(sym_rv)) deallocate(sym_rv)
      endif

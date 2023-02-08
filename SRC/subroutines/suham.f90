@@ -7,7 +7,7 @@ module m_suham
 contains
   subroutine m_suham_init() !Get Hamiltonian dimension
     use m_struc_def
-    use m_lmfinit,only:lso, ctrl_nbas,ctrl_nspec, ctrl_nl,nspc,nsp,nlmto,nbas,nl,nspec, &
+    use m_lmfinit,only:lso,nspc,nsp,nlmto, &
          pwmode=>ham_pwmode,pwemax,pwemin &
          ,alat=>lat_alat, lat_tolft,nkaph, pot_nlma, pot_nlml ,stdo,nlmto
     use m_supot,only: lat_ng, rv_a_ogv

@@ -23,7 +23,7 @@ module m_mksym !in future this should be replaced with better version with spgli
 contains
   ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine m_mksym_init(prgnam) ! Driver for calling mksymaf and mksym
-    use m_lmfinit,only: nbas,sstrnsymg,addinv, &
+    use m_lmfinit,only: nspec,nbas,sstrnsymg,addinv, &
          symgaf,iv_a_oips,slabl,mxspec,procid,master,iantiferro
     use m_lattic,only: rv_a_opos,m_lattic_init,rv_a_opos
     !-------------
@@ -86,24 +86,25 @@ contains
        strn2=trim(strn)//' '//trim(symgaf)
        !NOTE: a little confusing.
        ! Module variables are written by mksymaf-mksym but overwitten by next call of mksym.
-       call mksymaf(iantiferro,iv_a_oips,nbas,procid==master,strn2,lc,slabl,mxspec)
+       call mksymaf(iantiferro,iv_a_oips,procid==master,strn2,lc,slabl,mxspec)
        if(ipr10) write(6,"(a)") ' AF: ===== end of AF section================= '
        if(ipr10) write(6,"(a)")
     endif
     if(procid==master) call pshpr(60)
     allocate(iclasst(nbas))
-    call mksym(lc,slabl,strn,iv_a_oips,iclasst,nbas)
+    call mksym(lc,slabl,strn,iv_a_oips,iclasst)
     if(procid==master) call poppr
     call tcx('m_mksym_init')
   end subroutine m_mksym_init
 
   ! SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
-  subroutine mksymaf(iantiferro,iv_a_oips_in,nbas,imaster,strn2,lc,slabl,mxspec) !all input. Get iclassaf_
-    intent(in)::     iantiferro,iv_a_oips_in,nbas,imaster,strn2,lc,slabl,mxspec
+  subroutine mksymaf(iantiferro,iv_a_oips_in,imaster,strn2,lc,slabl,mxspec) !all input. Get iclassaf_
+    use m_lmfinit,only: nbas,stdo
+    intent(in)::     iantiferro,iv_a_oips_in,imaster,strn2,lc,slabl,mxspec
     logical::  imaster
     character  strn2*(*)
     character(8) :: slabl(mxspec)
-    integer:: inumaf,iv_a_oips_in(nbas),j,k,nbas,  lc, mxspec,ib,iantiferro(nbas)
+    integer:: inumaf,iv_a_oips_in(nbas),j,k,lc, mxspec,ib,iantiferro(nbas)
     integer,allocatable::iv_a_oips(:)
     allocate(iv_a_oips(nbas))
     iv_a_oips=iv_a_oips_in
@@ -120,7 +121,7 @@ contains
     ngrpaf_     = lat_nsgrp
     allocate(iclasstaf_(nbas),symops_af_(3,3,ngrpaf_),ag_af_(3,ngrpaf_))
     if(imaster) call pshpr(60)
-    call mksym(lc,slabl,strn2,iv_a_oips,iclasstaf_,nbas) !strn2 and v_ssite2 are used.
+    call mksym(lc,slabl,strn2,iv_a_oips,iclasstaf_) !strn2 and v_ssite2 are used.
     deallocate(iv_a_oips)
     if(imaster) call poppr()
     if(imaster) write(6,"(a)")' AF: mksym, generator= SYMGRP+SYMGRPAF= '//trim(strn2)
@@ -130,12 +131,12 @@ contains
   end subroutine mksymaf
 
   ! SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSs
-  subroutine mksym(mode,slabl,ssymgr,iv_a_oips,iclass,nbas)!return symmerty info
-    use m_lmfinit,only: ctrl_nbas,ctrl_nspec,stdo
+  subroutine mksym(mode,slabl,ssymgr,iv_a_oips,iclass)!return symmerty info
+    use m_lmfinit,only: nbas,stdo,nspec
     use m_lattic,only: lat_plat,rv_a_opos
     use m_ftox
     implicit none
-    intent(in)::   mode,slabl,ssymgr,iv_a_oips,       nbas
+    intent(in)::   mode,slabl,ssymgr,iv_a_oips
     intent(out)::                               iclass
     !- Setup for symmetry group
     !return syminfo for 
@@ -178,7 +179,7 @@ contains
     integer ::iwdummy ,iwdummy1(1)
     logical :: T,F,cmdopt0,ltmp
     integer:: idest,ig,iprint,igets,isym(10),j1,j2,lpgf, &
-         nbas,nbas0,nclass,ngen,ngnmx,nspec,usegen, nggen,ngmx,incli, oiwk !, aginv
+         nbas0,nclass,ngen,ngnmx,usegen, nggen,ngmx,incli, oiwk !, aginv
     integer,allocatable :: nrspc_iv(:)
     real(8) ,allocatable :: pos2_rv(:,:)
     integer ,allocatable :: ips2_iv(:)
@@ -190,8 +191,6 @@ contains
     integer:: iv_a_oips(:),iclass(nbas)
     integer, allocatable ::  iv_a_onrc (:)
     integer,  allocatable ::  iv_a_oipc(:)!class for lmaux                     maybe= iclasst
-!    nbas =ctrl_nbas
-    nspec=ctrl_nspec
     plat =lat_plat
     ngmx = 48
 5   continue! ... Re-entry when ngmx was increased
@@ -256,7 +255,7 @@ contains
     !if(mod(mode/10,10) == 0) goto 100
     ! Split species into classes : ibas ==> iclass=ipc(ibas) ==> ispec=ics(iclass)
     if(allocated(iv_a_onrc)) deallocate(iv_a_onrc)
-    allocate(iv_a_onrc(abs(nspec)))
+    allocate(iv_a_onrc(nspec))
     iv_a_oipc=iv_a_oips(1:nbas)
     call splcls ( .false., rv_a_opos , nbas & !mod ( mode / 10 , 10 ) .eq.4 
          , nsgrp , iv_a_oistab , nspec , slabl , nclass , iv_a_oipc , iv_a_oics , iv_a_onrc )

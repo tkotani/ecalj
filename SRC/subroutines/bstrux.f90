@@ -16,7 +16,7 @@ contains
   subroutine bstrux_set(ia,qin)!set bstr and dbstr for given ibas and q
     use m_qplist,only: iqini,iqend
     use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat
-    use m_lmfinit,only: lfrce=>ctrl_lfrce
+    use m_lmfinit,only: lfrce
     use m_ftox
     use m_lgunit,only:stdo
     implicit none
@@ -43,7 +43,7 @@ contains
   end subroutine bstrux_set
   subroutine m_bstrux_init() !q for qplist --> not yet for sugw.
     use m_qplist,only: qplist,iqini,iqend
-    use m_lmfinit,only: lfrce=>ctrl_lfrce,nlmax,kmxt,nspec,nbas,ispec,sspec=>v_sspec,rsma
+    use m_lmfinit,only: lfrce,nlmax,kmxt,nspec,nbas,ispec,sspec=>v_sspec,rsma
     use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat,rv_a_opos
     use m_igv2x,only: napw, igvapw=>igv2x, ndimh,m_Igv2x_setiq !igvapwin=>igv2x,
     integer:: kmaxx,ia,isa,lmxa,lmxb,kmax,nlmb,nlma,mode,inn(3),ig,iq,ndimhmax

@@ -7,7 +7,7 @@ module m_zmel
        nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, niw, &
        alat,delta,deltaw,esmr,iclass,nlnmv,  nlnmc,  icore,ncore,occv,unoccv , &
        occc,unoccc, nocc, nunocc, plat, pos,z,ecore, &
-       done_genallcf_v3, &
+!       done_genallcf_v3, &
        il, in, im, mnl=>nlnm , nl,nn,nlnmx
   use m_hamindex,only: ngrp, symgg=>symops,invg=>invgx
   use m_rdpp,only: Rdpp, nxx,lx,nx,mdimx,nbloch,cgr,ppbrd,nblocha,done_rdpp

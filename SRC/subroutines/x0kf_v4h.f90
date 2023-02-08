@@ -1,8 +1,8 @@
 module m_x0kf
   use m_keyvalue,only : Getkeyvalue
   use m_pkm4crpa,only : Readpkm4crpa
-  use m_zmel,only:Get_zmel_init,Dconjg_zmel,Deallocate_zmel,Deallocate_zmel0,zmel,get_zmel_modex0,rwzmel,zmel0 &
-       ,setzmel0,unsetzmel0
+  use m_zmel,only:Get_zmel_init,Dconjg_zmel,Deallocate_zmel,Deallocate_zmel0,zmel,get_zmel_modex0,&
+       rwzmel,zmel0,setzmel0,unsetzmel0
   ! qm0                      !GramSchmidt_zmel,
   use m_freq,only:  npm, nwhis
   use m_genallcf_v3,only:  nsp=>nspin ,nlmto,nctot
@@ -16,20 +16,19 @@ module m_x0kf
   !! q-dependent quantities
   use m_readVcoud,only: zcousq,ngc,ngb
   use m_tetwt,only:     whw,ihw,nhw,jhw,n1b,n2b,nbnb,nbnbx,nhwtot
+  
   implicit none
-
-  public:: X0kf_v4hz_init, X0kf_v4hz, &! X0kf_v4hz_symmetrize, &
-       X0kf_v4hz_init_write,X0kf_v4hz_init_read,x0kf_zmel,kc,ncount
+  public:: X0kf_v4hz_init, X0kf_v4hz,X0kf_v4hz_init_write,X0kf_v4hz_init_read,x0kf_zmel,&
+       kc,ncount ! X0kf_v4hz_symmetrize, 
   integer,allocatable:: kc(:)
   integer:: ncount
-
+  
   private
   integer:: ncc
   integer,allocatable:: nkmin(:), nkmax(:),nkqmin(:),nkqmax(:)
   real(8),allocatable:: whwc(:)
   integer,allocatable:: iwc(:),itc(:),itpc(:),jpmc(:)
 contains
-  !--------------------------------------------------------------------------
   subroutine X0kf_v4hz_init_write(iq,is)
     integer:: iq,is,ix0
     character(10) :: i2char
@@ -41,8 +40,6 @@ contains
     deallocate( whwc, kc, iwc, itc, itpc, jpmc )
     close(ix0)
   end subroutine X0kf_v4hz_init_write
-
-  !--------------------------------------------------------------------------
   subroutine X0kf_v4hz_init_read(iq,is)
     integer:: iq,is,ix0
     character(10) :: i2char
@@ -55,8 +52,6 @@ contains
     read(ix0) nkmin,nkmax,nkqmin,nkqmax
     close(ix0)
   end subroutine X0kf_v4hz_init_read
-
-  !--------------------------------------------------------------------------
   function X0kf_v4hz_init(job,q,isp_k,isp_kq, iq, nmbas, crpa) result(ierr)
     intent(in)::          job,q,isp_k,isp_kq, iq, nmbas, crpa
     !! === initialzation for calling x0kf_v4h. !,eibzmode ,nwgt
@@ -67,7 +62,6 @@ contains
     !     ! We have OUTPUT to private variables nkmin ... jpmc.
     integer::  irot=1,ierr         !, ntqxx,nbmax!,nctot
     integer:: k,isp_k,isp_kq, iq, jpm, ibib, iw,igb2,igb1,it,itp,job,icount, nmbas
-!    integer::  nwgt(nqbz)
     real(8):: q(3), imagweight, wpw_k, wpw_kq
     logical :: iww2=.true., crpa !eibzmode, 
     !!
@@ -239,8 +233,6 @@ contains
     !      call rwzmel(iq,k,isp_k,isp_kq,'w',q=q)
     !      call Deallocate_zmel()
   end subroutine x0kf_zmel
-
-  !! --------------------------------------------------------------------------------
   subroutine X0kf_v4hz (q, isp_k,isp_kq, iq, nmbas,  rcxq,epsppmode,iqxini,rfac00,q00)
     intent(in)   ::     q, isp_k,isp_kq, iq, nmbas,     epsppmode,iqxini
     !! === calculate chi0, or chi0_pm === ! eibzmode, 
@@ -290,8 +282,7 @@ contains
     integer:: ieqbz,kold,nxxxx !igx(ngrp*2,nqbz),igxt(ngrp*2,nqbz),
     integer::nkmin_,nkqmin_,izmel,ispold,nmini,nqini,nmtot,nqtot ,ispold2
     !     logical:: interbandonly,intrabandonly
-    logical:: izmel0,cmdopt0,zmel0mode
-
+    logical:: izmel0,cmdopt0!,zmel0mode
     !      integer,allocatable:: it_(:,:,:),itp_(:,:,:)
     !!-----------------------------------------------------------
     !! Main loop over k-points ---------------------------------------------------------
@@ -329,8 +320,7 @@ contains
     !! zmel(ngb, nctot+nt0,ncc+ntp0) in m_zmel
     !        nkmin:nt0,           nkqmin:ntp0
     !     nt0=nkmax-nkmin+1  , ntp0=nkqmax-nkqmin+1
-
-    zmel0mode=cmdopt0('--zmel0')
+    !zmel0mode=cmdopt0('--zmel0')
     if(.not.cmdopt0('--zmel0')) goto 2000 !goto main mode
     kold = -999 !zmel0mode ==============================
     zmel0modeicount: do icount = 1,ncount
@@ -360,7 +350,6 @@ contains
           enddo                   !compute difference for zmel0 mode
        enddo
     enddo zmel0modeicount 
-    
 2000 continue !mainmode ===================================
     mainloop: do 1000 icount = 1,ncount
        k = kc(icount)
@@ -402,6 +391,7 @@ contains
     if(debug) write(6,"(' --- ', 3d13.5)") &
          sum(abs(rcxq(1:nmbas,1:nmbas,1:nwhis,1:npm))),sum((rcxq(1:nmbas,1:nmbas,1:nwhis,1:npm)))
   end subroutine x0kf_v4hz
+end module m_x0kf
 
 !   !! --------------------------------------------------------------------------------
 !   subroutine X0kf_v4hz_symmetrize(q, iq, nolfco, zzr,nmbas, chipmzzr, eibzmode, eibzsym, rcxq)
@@ -725,6 +715,5 @@ contains
 ! 9999 continue
 !     write(6,"(' --- x0kf_v4hz_symmetrize: end')")
 !   end subroutine x0kf_v4hz_symmetrize
-
-end module m_x0kf
+!end module m_x0kf
 

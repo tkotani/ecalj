@@ -14,7 +14,7 @@ contains
     use m_density,only: v0pot,v1pot   !output
     use m_density,only: pnzall,pnuall !output
     use m_lmfinit,only:nkaph,lxcf,lhh,nkapii,nkaphh
-    use m_lmfinit,only:n0,nppn,nrmx,nkap0,nlmx,nbas,nsp,lso,ispec, sspec=>v_sspec,mxcst4,lmxax
+    use m_lmfinit,only:n0,nppn,nrmx,nkap0,nlmx,nbas,nsp,lso,ispec, sspec=>v_sspec,frzwfa,lmxax
     use m_lmfinit,only:slabl,idu,coreh,ham_frzwf,rsma,alat,v0fix,jnlml
     use m_uspecb,only:uspecb
     use m_ftox
@@ -151,7 +151,7 @@ contains
          spid=slabl(is) 
          zz(ib)=z
          nlml = (lmxl+1)**2
-         lfltwf = (.not.mxcst4(is)).and.(.not.ham_frzwf).and.job==1 ! modify b.c. of Rad.wave func.
+         lfltwf = (.not.frzwfa(is)).and.(.not.ham_frzwf).and.job==1 ! modify b.c. of Rad.wave func.
          j1 = jnlml(ib) !1+sum((sspec(ispec(1:ib-1))%lmxl+1)**2) !j1=1+nlml+nlml...
          if(lmxa == -1) cycle ! floating orbital
          call corprm(is, qcorg,qcorh,qsca(ib),cofg,cofh,ceh,lfoc,rfoc,z)

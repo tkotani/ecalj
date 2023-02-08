@@ -3,16 +3,14 @@ module m_lmaux
   public:: lmaux
   private
 contains
-
   subroutine lmaux()        !main part of lmchk
     use m_mksym,only: ctrl_nclass,iv_a_oics,iclasst
-    use m_lmfinit,only: iv_a_oips,str_mxnbr,str_rmax,ctrl_nbas,ctrl_nspec,ctrl_nspin, &
-         ctrl_nl,ctrl_omax1,ctrl_omax2,ctrl_wsrmax,slabl,sspec=>v_sspec, &
-         lat_avw,lat_alat,mxcst2
+    use m_lmfinit,only: iv_a_oips,str_mxnbr,str_rmax,nbas,nspec,nsp, &
+         nl,ctrl_omax1,ctrl_omax2,ctrl_wsrmax,slabl,sspec=>v_sspec, &
+         lat_avw,lat_alat,cstrmx
     use m_lattic,only: lat_nkd
     use m_lattic,only: lat_nkq
     use m_struc_def
-    !      use m_ovmin , only: ovmin
     use m_lattic,only:lat_plat,rv_a_opos
     use m_ftox
     !! check crystal structure symmetry and get WSR
@@ -35,8 +33,8 @@ contains
     logical :: cmdopt,T,F,swtmp
     parameter (T=.true., F=.false., NULLI=-99999)
     integer :: getdig,i,ip,j,k,m,ifi,iprint,lpbc, &
-         nbas,nclasp,nclass,nl,nlspc,nsp,modep(3),nbasp, &
-         nbaspp,nkd,nkq,nspec,neul,nc,mxcsiz,nttab,igets, & ! & npadl,npadr,
+         nclasp,nclass,nlspc,modep(3),nbasp, &
+         nbaspp,nkd,nkq,neul,nc,mxcsiz,nttab,igets, & ! & npadl,npadr,
          iosits,cmplat,ngrp,irs(5),nclspp,bitand,igetss, &
          ngmx,nsgrp
     integer:: oeold  , olmx , opold , owk2 , orham , oamsh &
@@ -62,11 +60,11 @@ contains
     integer,allocatable:: lmxa(:)
     real(8),allocatable:: z(:),rmax(:)
     print *,' lmaux:'
-    nbas=ctrl_nbas
+!    nbas=ctrl_nbas
     nclass=ctrl_nclass
-    nl=ctrl_nl
-    nspec=ctrl_nspec
-    nsp=ctrl_nspin
+!    nl=ctrl_nl
+!    nspec=ctrl_nspec
+!    nsp=ctrl_nspin
     !      modep = ctrl_modep
     modep=99999 !bug fix 2022-6-29 (no initialization before. No problem as long as lmchk works.)
     lpbc = 0
@@ -153,7 +151,7 @@ contains
        allocate(lock_iv(nspec))
        lock_iv(:)=0
        do  i = 1, nspec
-          lock_iv(i)= mxcst2(i) !bitand ( int ( sspec ( i )%mxcst ) , 2 ) )
+          lock_iv(i)= cstrmx(i) !bitand ( int ( sspec ( i )%mxcst ) , 2 ) )
        enddo
        if (lpbc == 0) then
           i = 3

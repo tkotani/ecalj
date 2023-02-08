@@ -14,7 +14,7 @@ contains
   subroutine m_supot_init()
     use m_lattic,only: rv_a_odlv,rv_a_oqlv,lat_plat,rv_a_opos,lat_qlat
     use m_mksym,only:   rv_a_osymgr,rv_a_oag
-    use m_lmfinit,only : lcd4,ctrl_nbas,ctrl_nspin,lat_alat,ftmesh,lat_gmaxin,stdo
+    use m_lmfinit,only : lcd4,nsp,lat_alat,ftmesh,lat_gmaxin,stdo
     use m_lattic,only: lat_vol, lat_awald
     use m_lattic,only: lat_nkd, lat_nkq
     use m_mksym,only:  lat_nsgrp
@@ -27,7 +27,7 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     integer,parameter:: mode=0
-    integer:: nbas ,  nsp , nkd , nkq , ngmx , ng , ngrp , iprint
+    integer:: nkd , nkq , ngmx , ng , ngrp , iprint
     double precision :: awald,alat,vol,plat(3,3),gmax,xx
     real(8):: qpg(3),gg,qlat1(3,3),gmax2,gs(3),qlat(3,3),tpiba,  tol=1d-8
     integer:: ig,j1,j2,j3
@@ -36,8 +36,8 @@ contains
     n2=>ngabc(2)
     n3=>ngabc(3)
     ngabc=ftmesh !initial condition for mshsiz
-    nbas=ctrl_nbas
-    nsp=ctrl_nspin
+!    nbas=ctrl_nbas
+!    nsp=ctrl_nspin
     alat=lat_alat
     vol=lat_vol
     awald=lat_awald

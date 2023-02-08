@@ -6,8 +6,8 @@ module m_bandcal !band structure calculation
   use m_mkqp,only: ntet=> bz_ntet, bz_nabc
   use m_qplist,only: qplist
   use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_setiq
-  use m_lmfinit,only: lrsig=>ham_lsig, lso,ham_scaledsigma,lekkl, &
-       lmet=>bz_lmet,nbas,epsovl=>ham_oveps,nspc,plbnd,lfrce=>ctrl_lfrce, &
+  use m_lmfinit,only: lrsig=>ham_lsig, lso,ham_scaledsigma, &
+       lmet=>bz_lmet,nbas,epsovl=>ham_oveps,nspc,plbnd,lfrce, &
        pwmode=>ham_pwmode,pwemax,stdl
   use m_MPItk,only: mlog, master_mpi, procid,strprocid, numprocs=>nsize, mlog_MPIiq
   use m_subzi, only: nevmx,lswtk,rv_a_owtkb
@@ -72,7 +72,7 @@ contains
     if(lrout/=0) then
        allocate( sv_p_oeqkkl(3,nbas), sv_p_oqkkl(3,nbas))
        call dfqkkl( sv_p_oqkkl ) !zero clear
-       if(lekkl==1) call dfqkkl( sv_p_oeqkkl )!zero clear
+       call dfqkkl( sv_p_oeqkkl )!zero clear !if(lekkl==1) 
        allocate( smrho_out(k1*k2*k3*nsp) )
        smrho_out = 0d0
     endif
@@ -249,7 +249,7 @@ contains
     if(master_mpi) write(stdo,ftox)
     if(master_mpi) write(stdo,ftox)' m_bandcal_2nd: to fill eigenfunctions**2 up to Efermi'
     call dfqkkl( sv_p_oqkkl ) !zero clear
-    if(lekkl==1) call dfqkkl( sv_p_oeqkkl ) !zero clear
+    call dfqkkl( sv_p_oeqkkl ) !zero clear if(lekkl==1) 
     if (lfrce>0)  frcband  = 0d0
     if (lswtk==1) call swtkzero()
     if(lso/=0) orbtm_rv=0d0
@@ -317,7 +317,7 @@ contains
              nnn = size(sv_p_oqkkl(i,ib)%v)
              if(nnn>0) call mpibc2_real(sv_p_oqkkl(i,ib)%v,nnn,'bndfp_qkkl')
           endif
-          if(lekkl==1 .AND. allocated(sv_p_oeqkkl(i,ib)%v)) then
+          if(allocated(sv_p_oeqkkl(i,ib)%v)) then !lekkl==1 
              nnn = size(sv_p_oeqkkl(i,ib)%v)
              if(nnn>0) call mpibc2_real(sv_p_oeqkkl(i,ib)%v,nnn,'bndfp_eqkkl')
           endif

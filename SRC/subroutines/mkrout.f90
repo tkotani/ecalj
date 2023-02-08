@@ -11,14 +11,14 @@ module m_mkrout
   private
 contains
   subroutine m_mkrout_init()
-    use m_lmfinit,only: sspec=>v_sspec,ispec,nsp,n0,ctrl_lfrce,lrout,nbas
+    use m_lmfinit,only: sspec=>v_sspec,ispec,nsp,n0,lfrce,lrout,nbas
     use m_bandcal,only: sv_p_oqkkl,sv_p_oeqkkl,frcband
     use m_mkpot,only: hab_rv,sab_rv
     use m_suham,only: ham_ndham
     use m_rhocor,only: getcor
     integer:: ib,is,nr,lmxl,nlml
     call tcn('m_mkrout_init')
-    if(ctrl_lfrce>0 ) then
+    if(lfrce>0 ) then
        if(allocated(frcbandsym)) deallocate(frcbandsym)
        allocate(frcbandsym(3,nbas)) !for forces
        frcbandsym=frcband         !part of atomic force from band part
@@ -52,7 +52,7 @@ contains
   !!-------------------------------
   subroutine mkrout( sv_p_oqkkl, sv_p_oeqkkl, orhoat_out, hab,sab, qbyl, hbyl)
     use m_lmfinit,only: procid,master,nkaph &
-         , sspec=>v_sspec,ispec,nbas,nsp,lekkl,lrout,n0,nlmto,nmcore,rsma
+         , sspec=>v_sspec,ispec,nbas,nsp,lrout,n0,nlmto,nmcore,rsma !lekkl=1
     use m_lgunit,only: stdo
     use m_struc_def
     use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
@@ -65,7 +65,7 @@ contains
     !i   nbas  :size of basis
     !i   nsp   :2 for spin-polarized case, otherwise 1
     !i   nlmto :dimension of lower block of LMTO part of hamiltonian
-    !l   lekkl :1 Find band CG from eqkkl/qkkl
+    !l   lekkl :True. eqkkl/qkkl
     !i   oqkkl :local density-matrix (rhocbl or comparable routine)
     !o   oeqkkl:local part of energy-weighted density matrix
     !i   hab   :hamiltonian matrix elements of radial wave functions at each
@@ -199,7 +199,7 @@ contains
             ! So, we need to go though anothe pass with lekkl=1 (OPTION_PFLOAT=1).
             ! In future, code above to generate hbyl will be removed.
             ! ino Jan.04.2012:           rv_p_oqhh => sv_p_oeqkkl(3,ib)%v
-            if(lekkl /= 0) then
+!            if(lekkl /= 0) then
                nlml1 = 1
                dmatl_rv=0d0 !call dpzero( dmatl_rv,( lmxa + 1) ** 2 * nlml1 * nsp * 9 )
                k = max(nkaph,1+kmax)**2*(lmxa+1)**2*nlml1*nsp
@@ -213,7 +213,7 @@ contains
                     ,chp_rv,cpp_rv,dmatl_rv)!dmatl_rv is energy weighted. c.f.previous call to mkrou1.
                call mkrou3( mode=1,lmxa=lmxa, nlml=nlml1,nsp=nsp &
                     ,pnz= pnz, dmatl=dmatl_rv, sab=sab(1,1,1,1,ib ), qsum=hbyl(1,1,ib )  )
-            endif
+!            endif
             call radsum ( nr,nr,nlml,nsp,rwgt_rv,orhoat_out( 1,ib )%v, sum1 )
             call radsum ( nr,nr,nlml,nsp,rwgt_rv,orhoat_out( 2,ib )%v, sum2 )
             sum1 = sum1/y0

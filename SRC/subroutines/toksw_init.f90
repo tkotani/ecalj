@@ -6,7 +6,7 @@ subroutine toksw_init(debug)
   !!   If SPEC_ATOM_RSMA~ exits, it means SPEC_ATOM_RSMA is optional.
   !!   If SPEC_ATOM_RSMA~ do not exit, it means SPEC_ATOM_RSMA is not used.
   use m_toksw
-  !     implicit none
+  implicit none
   character*(200):: io_sw, struc_sw
   character*(50) sscale
   character*(200):: dyn_mstat, dyn_md
@@ -22,8 +22,6 @@ subroutine toksw_init(debug)
   sscale = ' SPEC_SCLWSR~ SPEC_WSRMAX~ SPEC_OMAX1~ SPEC_OMAX2~'
   dyn_mstat = ' DYN_MODE~ DYN_HESS~ '// &
        'DYN_XTOL~ DYN_GTOL~ DYN_STEP~ DYN_NKILL~ ' !DYN_MSTAT_PDEF~ '
-  !dyn_md = ' DYN_MD~ DYN_MD_MODE DYN_MD_TSTEP~ DYN_MD_TEMP~ '// &
-  !     'DYN_MD_TAUP~ DYN_MD_TIME DYN_MD_TAUB~ '
   ! --- LMFA switches ---
   call nswadd()
   call tkadd(" LMFA::" )
@@ -94,11 +92,6 @@ subroutine toksw_init(debug)
   call tkadd(" HAM_NSPIN~")
   call tkadd(" HAM_REL~ HAM_SO~ HAM_SOCAXIS~")
   call tkadd(" HAM_XCFUN~")
-
-  ! This call tkadd(" SPEC_ATOM_MIX~") was missing,
-  ! then the initialization of default values for mxcst are not supplied
-  !   --->this results in a strange behevior!!
-  ! takao Sep11-tukuba 2009
   call tkadd(" SPEC_ATOM_MIX~")
 
   ! --- LMFGWD switches ---
@@ -284,14 +277,7 @@ subroutine toksw_init(debug)
   call tkadd(" SPEC_ATOM_R/W")
   call tkadd(" SPEC_ATOM_UH~")
   call tkadd(" SPEC_ATOM_Z")
-  ! This call tkadd(" SPEC_ATOM_MIX~") was missing,
-  ! then the initialization of default values for mxcst are not supplied
-  !   --->this results in a strange behevior!!
-  ! takao Sep11-tukuba 2009
   call tkadd(" SPEC_ATOM_MIX~")
-  ! ... for LMFRS
-  call tkadd(" SPEC_ATOM_HCR~")
-  call tkadd(" SPEC_ATOM_HCR/R~")
   call tkadd(" STR~")
   call tkadd(" STR_RMAX~ STR_RMAXS~")
   call tkadd(" SITE")
@@ -365,9 +351,7 @@ subroutine toksw_init(debug)
   call tkadd(" HAM_XCFUN~")
   call tkadd(" DYN~")
   call tkadd(dyn_mstat)
-  !call tkadd(dyn_md)
   call tkadd(" DYN_NIT~")
-
   ! --- LMCHK switches ---
   call nswadd()
   call tkadd(" LMCHK::" )
@@ -413,13 +397,11 @@ subroutine toksw_init(debug)
   call tkadd(" EWALD_NKDMX~")
   call tkadd(" EWALD_RPAD~")
   call tkadd(" EWALD_TOL~")
-
   call tkadd(" HAM")
   call tkadd(" HAM_NSPIN~")
   call tkadd(" HAM_NONCOL~ HAM_SS~")
   call tkadd(" HAM_XCFUN~")
   call tkadd(" HAM_SO~ HAM_SOCAXIS~")
-
   call tkadd(" BZ")
   call tkadd(" BZ_NOINV~")
 end subroutine toksw_init

@@ -55,7 +55,7 @@ contains
     implicit none
     integer:: ifwqb, ifile_handle
     ifwqb=ifile_handle()
-    open(ifwqb,file="wanqbz",form='unformatted')
+    open(newunit=ifwqb,file="wanqbz",form='unformatted')
     read(ifwqb) ginv
     read(ifwqb) nqtt
     allocate(qtt(3,nqtt))

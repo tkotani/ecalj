@@ -15,10 +15,10 @@ contains
     rv_a_opos(:,1:nbas)= posin(:,1:nbas)
   end subroutine Setopos
   subroutine m_lattic_init() ! Sets up the real and rmeciprocal space lattice vectors !no shear now  ldist=0
-    use m_lmfinit,only:ctrl_nbas,lat_alat,lat_as,lat_tol,lat_rpad,lat_nkdmx,lat_nkqmx,lat_gam,&
+    use m_lmfinit,only:nbas,lat_alat,lat_as,lat_tol,lat_rpad,lat_nkdmx,lat_nkqmx,lat_gam,&
          lat_platin, poss=>pos
     implicit none
-    integer::  lmxst , nkd , nkdmx , nkq , nkqmx , nbas,i_data_size,ib
+    integer::  lmxst , nkd , nkdmx , nkq , nkqmx,i_data_size,ib
     real(8),allocatable:: rv_a_tmp(:)
     real(8):: alat,awald,awald0,gam(4),gx,gy,gz,gt,tol,vol, &
          xx1,xx2,dotprd,pi,rpad, plat0(3,3),plat(3,3),qlat(3,3) 
@@ -34,7 +34,6 @@ contains
     gam = lat_gam
     alat = lat_alat
     plat0=lat_platin
-    nbas=ctrl_nbas
     allocate(rv_a_opos(3,nbas))
     rv_a_opos(:,1:nbas)= poss(:,1:nbas)
     if(abs(gt-1d0)>1d-10) call rdistn( rv_a_opos , rv_a_opos , nbas , gx , gy , gz , gt )
