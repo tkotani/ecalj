@@ -6,7 +6,7 @@ contains
   subroutine lmaux()        !main part of lmchk
     use m_mksym,only: ctrl_nclass,iv_a_oics,iclasst
     use m_lmfinit,only: iv_a_oips,str_mxnbr,str_rmax,nbas,nspec,nsp, &
-         nl,ctrl_omax1,ctrl_omax2,ctrl_wsrmax,slabl,sspec=>v_sspec, &
+         nl,omax1,omax2,ctrl_wsrmax,slabl,sspec=>v_sspec, &
          lat_avw,lat_alat,cstrmx
     use m_lattic,only: lat_nkd
     use m_lattic,only: lat_nkq
@@ -53,7 +53,7 @@ contains
     real(8) ,allocatable :: rmtc_rv(:)
     double precision :: xv(10),xx,alat,plat(3,3),facrmx,facrng, & ! & ,plat2(9)
          dval,avw,ekap(2),enu,qss(4),ckbas,cksumf,ehterm(4), rmaxs, &
-         qlat(9),emad,trumad,vmtz(2),omax1(3),omax2(3),wsrmax
+         qlat(9),emad,trumad,vmtz(2),wsrmax
     parameter (ngmx=48,mxclas=1000)
     integer:: i_copy_size, i_spackv, i_spacks
     integer:: ifx,w_dummy(1)=1
@@ -163,10 +163,10 @@ contains
        call makrm0 ( 101 , nspec , nbas , alat , plat , rv_a_opos , &
             slabl , iv_a_oips , modep , lock_iv , zz_rv , rmt_rv ) !sarray%
        !   ... Scale sphere radii satisfying constraints
-       i_copy_size=size(ctrl_omax1)
-       call dcopy(i_copy_size,ctrl_omax1,1,omax1,1)
-       i_copy_size=size(ctrl_omax2)
-       call dcopy(i_copy_size,ctrl_omax2,1,omax2,1)
+!       i_copy_size=size(ctrl_omax1)
+!       call dcopy(i_copy_size,ctrl_omax1,1,omax1,1)
+!       i_copy_size=size(ctrl_omax2)
+!       call dcopy(i_copy_size,ctrl_omax2,1,omax2,1)
        wsrmax=ctrl_wsrmax
        call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , rv_a_opos &
             , iv_a_oips , modep , slabl , zz_rv , lock_iv , 1d0 , wsrmax &

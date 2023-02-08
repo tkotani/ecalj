@@ -744,8 +744,9 @@ contains
     real(8) :: arr(1000)
 
     character(50),save:: tokencut(10)
-    integer :: ixx
+    integer :: ixx,ix
     character(8):: xt
+    character(512):: ddd
 
     entry getinput_r8 (name,  dat,nin,cindx2,Texist,nout)
     ig = 'r8' ;  goto 990
@@ -827,11 +828,8 @@ contains
        ie = ii0-1 + iex
     enddo
     Texist = .true.
-
     ! --- Token has no arguments ---
     if ( ig == '---' ) then
-!       if (debug) call info0(0,0,0, &
-!            ' getinput: found token '//trim(name))
        return
     endif
 
@@ -878,15 +876,16 @@ contains
        return
     endif
     
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
-    !    write(*,*) 'vvvvv'
-    call system('echo '//trim(rcd(i1:ie))//'|'//trim(cmdpath)//'a2vec.py >tempxxx.'//xt(procid))
-    open(newunit=ixx,file='tempxxx.'//xt(procid))
-    read(ixx,*) n
-    read(ixx,*) arr(1:min(n,nin))
-    close(ixx)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    call getdval(rcd(i1:ie),n,arr) !only numbers separated by space followed by non-math characters.
+    ! ddd=rcd(i1:ie)
+    ! call system('echo '//trim(ddd)//'|'//trim(cmdpath)//'a2vec.py >tempxxx.'//trim(xt(procid)))
+    ! open(newunit=ixx,file='tempxxx.'//trim(xt(procid)))
+    ! read(ixx,*) n
+    ! read(ixx,*) arr(1:min(n,nin))
+    ! close(ixx)
     n=min(n,nin)
-!    write(*,*)'vvvvvvec2y ',trim(rcd(i1:ie)),n,arr(1:n)
+    ! write(*,*)'vvvvvvec2y ',trim(ddd),n,arr(1:n)
 ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
     ! --- ASCII-numerical conversion. Simple matematical conversion.
     ! ii = 0
@@ -894,7 +893,6 @@ contains
     ! if (n < 0) n = -n-1
     ! write(*,*)'vvvvvvec2x ',arr(1:n)
     !write(*,*)
-
 !  if(debug) write(stdo,ftox)' getinput: sought',nin,'numbers. Read',n,'from'//trim(name)
     if (present(nout) ) nout = n
     ! --- Copy array to data ---
@@ -1144,42 +1142,235 @@ integer function parg(tok,strn,ip,lstr,sep,itrm,narg,it,res)
   endif
   ip = jp
   cast=4
-  
   ddd=trim(strn(ip+1:))
-
+  call getdval(ddd, parg, res)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
-!   write(*,*) 'vvvvv'
-   call system('echo '//trim(ddd)//'|a2vec.py >tempxxx2.'//xt(procid))
-   open(newunit=ixx,file='tempxxx2.'//xt(procid))
-   read(ixx,*) parg
-   read(ixx,*) res(1:min(narg,parg))
-   close(ixx)
-!   write(*,*)'vvvvvvec1 ',trim(ddd),'  ',res(1:min(narg,parg)),'parg=', parg
+   ! call system('echo '//trim(ddd)//'|a2vec.py >tempxxx2.'//trim(xt(procid)))
+   ! open(newunit=ixx,file='tempxxx2.'//trim(xt(procid)))
+   ! read(ixx,*) parg
+   ! read(ixx,*) res(1:min(narg,parg))
+   ! close(ixx)
+   ! write(*,*)'vvvvvvec1 ',trim(ddd),'  ',res(1:min(narg,parg)),'parg=', parg
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
 !  np=len(trim(ddd))
 !  ipx=0
 !  parg = a2vec(trim(ddd),np,ipx,cast,sep,nsep,itrm,narg,itx,res)
 !  write(*,*)'vvvvvvec1 ',trim(ddd),'parg=', parg
-
 end function parg
 
-! subroutine mathexpr(expr,dat) !python version for a2vec
-!   use m_MPItk,only: procid
-!   integer::ix
-!   character(8)  xt
-!   character(100):: fff
-!   real(8)::dat
-!   character(*)::expr
-!   fff='fa2q19'//trim(xt(procid))
-!   !expr='2.3*sqrt(1.5)'
-!   call execute_command_line("echo '"//trim(expr)//"'"//&
-!        "|python -c '&
-!        import sys;&
-!        from math import *;&
-!        print(eval(sys.stdin.read()))&'"&
-!        ">"//trim(fff),wait=.true. )
-!   open(newunit=ix,file=trim(fff))
-!   read(ix,*) dat
-!   close(ix,status='delete')
-!   print *,'data=',dat
-! end subroutine mathexpr
+
+subroutine find_region(lev,instr,token,toks,tokt,ntk,itrm,eor, &
+     is,ie)
+  !- Finds substring corresponding to ntk-th token.
+  ! ----------------------------------------------------------------------
+  !i Inputs
+  !i   lev   :token level, reserved for acceleration (not used now).
+  !i   instr :input string, where token and contents are embedded
+  !i   token :token to match in instr; see Remarks
+  !i   toks: :(only used if 1000s digit of itrm is set)
+  !i         :list of characters that must precede token to satisfy a
+  !i         :match.  Eliminates strings matching token embedded within
+  !i         :other string.  Example:
+  !i         :Example: given token ATOM, and
+  !i         :toks='[ ' matches ' ATOM' and '[ATOM] but not 'CATOM'
+  !i   tokt: :terminator(s) to token
+  !i         :Example: given token ATOM,
+  !i         :tokt='=:' matches matches ATOM= and ATOM:
+  !i   ntk   :search for ntk-th occurence of token
+  !i   itrm  :(itrm=0) start-of-region begins with second character following
+  !i         :         token (1st char is token terminator)
+  !i         :         end-of-region is delimited by first occurence of string
+  !i         :         contained in eor following start-of-region
+  !i         :
+  !i         :(itrm=1) the first nonblank character after the token and its
+  !i         :         terminator must be '['.  Note: '[' may also server as
+  !i         :         start-of-region begins with the character following it.
+  !i         :         end-of-region is delimited by the matching ']'
+  !i         :         Note: '[...]' pairs may be nested; it is an error for
+  !i         :         '[' not to have a matching ']'.
+  !i         :
+  !i         :(itrm=2) If the first nonblank character after the token and its
+  !i         :         terminator is '[', follow the syntax of itrm=1.
+  !i         :         Otherwise, follow the syntax of itrm=0.
+  !i         :(itrm=11)Identical to itrm=1, with the addition that '[' may
+  !i         :         serve both as terminator and start-of-region marker
+  !i         :(itrm=12)Identical to itrm=2, with the addition that '[' may
+  !i         :         serve both as terminator and start-of-region marker
+  !i
+  !i         :Adding 100 to itrm causes find_region to move
+  !i         :start-of-region marker to 1st nonblank character
+  !i         :Adding 1000 to itrm turns on the pre-token matching;
+  !i         :see toks above
+  !i
+  !i   eor   :string demarcating end-of-region.  Its use depends on
+  !i         :how start-of-region was determined (see itrm)
+  !i         :If start-of-region is NOT determined by '[',
+  !i         :the first string after start-of-region that matches the
+  !i         :contents of eor demarcates end-of-region
+  !i         :If start-of-region IS determined by '[', eor is not used
+  !o Outputs
+  !o   is    : start-of-region containing token contents, i.e.
+  !o         : token(is:is) is the first character after the terminator
+  !o         : If token is not matched, is=-99999
+  !o         : If token is matched but no '[' follows and itrm=1, is=-99998
+  !o         : If token is matched and itrm=1, but the matching ']' terminator
+  !o         :          cannot be found, is=-99997
+  !o   ie    : end-of-region containing ntk-th occurence of token contents
+  !o         : This index is EITHER:
+  !o         : (itrm=0) index to end-of-region.
+  !o         : (itrm>0) start of ntk+1 th occurence of token.
+  !o         : In either case, when marker is not found, ie=end of instr
+  !o         : -99999  token not found
+  !o         : -99998  missing start-of-region '['
+  !o         : -99997  missing end-of-region ']'
+  !l Local variables
+  !l         :
+  !r Remarks
+  !r   Find pointers is and ie of instr(is:ie) that demarcate token
+  !r   contents.  How start-of region and end-of-region are determined depends
+  !r   on itrm; see above.
+  !r   Examples:
+  !r      token        tokt   itrm  Matches
+  !r     '@CAT@HAM'    ' '     0    '@CAT@HAM '
+  !r     'SIG'         ' =:'   1    'SIG= [' or  'SIG: [' or 'SIG ['
+  !r     'ATOM'        '='     2    'ATOM='  or 'ATOM= ['
+  !u Updates
+  !u   07 Aug 07 Adapted from region_finder (TK)
+  ! ----------------------------------------------------------------------
+  implicit none
+  ! ... Passed parameters
+  character(*),intent(in) :: instr,token,toks,tokt,eor
+  integer :: is,ntk,lev,ie,itrm
+  ! ... Local parameters
+  integer :: j,i0,k,lentok,litrm,nnest,isave,i1,iprint,itrm2
+  logical :: debug
+  character(1) :: cc
+  debug = iprint() .ge. 110
+  ie = len(instr)
+  lentok = len(token)
+
+  ! --- Find ntk-th occurence of token ---
+  !     After this do loop:
+  !     1.  token+terminator was located
+  !     2.  If terminator is '[', nnest=1 and litrm=1
+  is = 1
+  nnest = 0
+  itrm2 = mod(itrm,100)
+  litrm = itrm2
+  do  j = 1, ntk
+10   continue
+     !       i0 = 0 if token not found
+     i0 = index(instr(is:ie),token)
+     !       No match ; exit
+     if ( i0==0 ) then
+        is = -99999
+        if (debug) write(*,333) token, instr(1:min(10,len(instr)))
+333     format(' find_region: token `',a, &
+             ''' not found in string ',a,' ...')
+        return
+     endif
+     is = is + i0-1 + lentok
+     !   ... One of toks must precede token; otherwise no match
+     if (itrm >= 1000 .AND. is-lentok > 1) then
+        do  k = 1, len(toks)
+           if (instr(is-lentok-1:is-lentok-1) == toks(k:k)) goto 15
+        enddo
+        goto 10
+15      continue
+     endif
+     !   ... Terminator must follow; otherwise no match
+     if (itrm2 > 10) then                ! Special case TOKEN[...
+        cc = adjustl(instr(is:))
+        if (cc == '[') then
+           is = is-1+index(instr(is:ie),cc)
+           nnest = 1
+           litrm = 1
+           goto 20
+        endif
+     endif
+     do  k = 1, len(tokt)
+        if (instr(is:is) == tokt(k:k)) goto 20
+     enddo
+     goto 10
+20   continue
+  enddo
+  is = is+1
+  ! --- Find is = start-of-region ---
+  !     If itrm=0, token terminator marks start-of-region
+  !     In this case, this branch is not executed.
+  !     If nnest>0, terminator was '[' which marks start-of-region
+  !     In this case, this branch is not executed.
+  !     In remaining cases, if the next nonblank character is '[',
+  !     it marks start-of-region
+  !     litrm is either 0 or 1 after this branch
+  if (itrm2 > 0 .AND. nnest == 0) then
+     cc = adjustl(instr(is:ie))
+     if (itrm2 == 1 .OR. itrm2 == 11) then
+        if (cc /= '[') then
+           if (debug) write(*,"(a)") ' find_region: missing ''['' '// &
+                'after '//instr(is-lentok:is+1)//'...'
+           is = -99998
+           return
+        else
+           i0 = index(instr(is:ie),'[')
+           !           if (i0 .eq. 0) call rx('bug in find_region')
+           is = is + i0
+        endif
+     elseif (itrm2 == 2 .OR. itrm2 == 12) then
+        if (cc /= '[') then
+           litrm = 0
+        else
+           i0 = index(instr(is:ie),'[')
+           is = is + i0
+           litrm = 1
+        endif
+     else
+        call rxi('illegal value for itrm:',itrm)
+     endif
+  endif
+
+  ! --- Find ie = end-of-region.  Action depends on litrm ---
+  if (litrm == 0) then
+     i0 = index(instr(is:ie),eor)
+     !       i0=0 => no eor was found => ie remains (length of instr)
+     if (i0 /= 0) ie = is-1 + i0-1
+     !     Require that end-of-region correspond to ']' matching '['
+  else
+     isave = is
+     nnest = 1
+     do  while (nnest .gt. 0)
+        i0 = index(instr(is:ie),']')
+        if (i0 == 0) then
+           if (debug) write(*,"(a)") ' find_region: missing '']'' '// &
+                'after '//instr(isave-lentok:min(isave+10,ie))//'...'
+           is = -99997
+           return
+        endif
+        i1 = index(instr(is:ie),'[')
+        if (i1 > 0 .AND. i1 < i0) then
+           is = is+i1
+           nnest = nnest+1
+        else
+           is = is+i0
+           nnest = nnest-1
+        endif
+     enddo
+     ie = is-2
+     is = isave
+  endif
+  ! ... Move start-of-region to first nonblank character
+  if (ie > is .AND. mod(itrm,1000) >= 100) then
+     cc = adjustl(instr(is:ie))
+     if (cc /= ' ') then
+        i1 = index(instr(is:ie),cc)
+        !         print *, instr(is:ie)
+        is = is+i1-1
+        !         print *, instr(is:ie)
+     endif
+  endif
+  ! ... Printout
+  if (debug) &
+       write(*,"(' find_region: contents of ', a,' : |',a,'|')") &
+       token, instr(is:ie)
+end subroutine find_region
+

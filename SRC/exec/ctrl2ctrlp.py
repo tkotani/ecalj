@@ -62,7 +62,7 @@ for iline in midfile.split('\n'): #line by line, for pure mathematical operation
             eout=eval(ix) # math
         except:
             pass
-        nnn.append(str(eout))
+        nnn.append(str(eout)) #.replace(',',' ').replace('=','= '))
     #print('input :'+''.join(mmm))  #print('output:'+''.join(nnn))
     outfile=outfile+''.join(nnn)+'\n'
 ll=len(outfile.split('\n'))

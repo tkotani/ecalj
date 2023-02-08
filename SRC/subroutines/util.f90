@@ -478,4 +478,27 @@ module NaNum
 !  end subroutine naninit
 end module NaNum
 
-
+subroutine getdval(dddin, ncount,arr) !Read undefinit number of real(8) array
+  integer:: ncount, i,ix,iy
+  real(8):: arr(*)
+  character(*):: dddin
+  character(500):: ddd
+  print *,'getdval'
+  ddd = trim(dddin)//' '
+  ncount=0
+  do i=1,100
+     ddd=adjustl(ddd)
+     if(len(trim(ddd))==0) goto 1012
+     !print *,'ddd:',trim(ddd)
+     read(ddd,*,err=1012) arr(i)
+     ncount=ncount+1
+     ix = scan(ddd,' ')
+     iy = scan(ddd,',')
+     if(ix==0) ix=99999
+     if(iy==0) iy=99999
+     ddd=ddd(min(ix,iy)+1:)
+  enddo
+  call rx('error: getdval')
+1012 continue
+  write(6,*) arr(1:ncount)
+end subroutine getdval

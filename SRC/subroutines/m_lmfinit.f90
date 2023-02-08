@@ -24,10 +24,11 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa)
   integer,protected:: nspc,procid,nproc,master=0,nspx,& ! & ,stdo,stdl
        maxit,gga,ftmesh(3),nmto=0,lrsigx=0,nsp=1,lrel=1,lso=0 !ctrl_nl,ctrl_nspin,ctrl_nspec,ctrl_pfloat,
   real(8),protected:: pmin(n0),pmax(n0),ham_pmax(10),ham_pmin(10), &
-       ctrl_wsrmax,ctrl_rmaxes, ctrl_omax1(3),ctrl_omax2(3),ctrl_sclwsr,ctrl_rmines, tolft,scaledsigma, & 
+       ctrl_wsrmax, ctrl_sclwsr, tolft,scaledsigma, & 
        ham_oveps,ham_scaledsigma
   !! ... OPTIONS
-  real(8),protected:: rmines,rmaxes,  cc !speed of light
+  !  real(8),protected:: rmines,rmaxes,
+  real(8):: cc !speed of light
   integer,protected :: smalit, lstonr(3)=0,nl !,lpfloat=1
   logical,protected :: lhf,lcd4
   !! ... STRUC
@@ -219,6 +220,10 @@ contains
     integer,allocatable:: idxdn(:,:,:)
     character*(recln),allocatable:: recrd(:)
     if(master_mpi) then
+       if(prgnam == 'LMF')    write(stdo,*) 'm_lmfinit:program LMF'
+       if(prgnam == 'LMFGWD') write(stdo,*) 'm_lmfinit:program LMFGWD'
+       if(prgnam == 'LMFA') write(stdo,*)   'm_lmfinit:program LMFA'
+
        GetCtrlp: block !Get ctrlp file
          integer:: i
          character(512):: aaa,cmdl,argv
@@ -330,8 +335,8 @@ contains
 59    continue
       !! Options
       nm='OPTIONS_HF';call gtv(trim(nm),tksw(prgnam,nm),lhf,def_lg=F,note='T for non-self-consistent Harris')
-      nm='OPTIONS_RMINES';call gtv(trim(nm),tksw(prgnam,nm),rmines,def_r8=1d0,note='Minimum MT radius when finding new ES')
-      nm='OPTIONS_RMAXES';call gtv(trim(nm),tksw(prgnam,nm),rmaxes,def_r8=2d0,note='Maximum MT radius when finding new ES')
+!      nm='OPTIONS_RMINES';call gtv(trim(nm),tksw(prgnam,nm),rmines,def_r8=1d0,note='Minimum MT radius when finding new ES')
+!      nm='OPTIONS_RMAXES';call gtv(trim(nm),tksw(prgnam,nm),rmaxes,def_r8=2d0,note='Maximum MT radius when finding new ES')
 !      lpfloat=1
       !!HAM
       nm='HAM_NSPIN';call gtv(trim(nm),tksw(prgnam,nm),nsp,def_i4=1,note='Set to 2 for spin polarized calculations')
@@ -1097,10 +1102,10 @@ contains
 !      ctrl_nl=nl
 !      ctrl_nspec=nspec
 !      ctrl_nspin=nsp
-      ctrl_omax1 = omax1
-      ctrl_omax2 = omax2
-      ctrl_rmaxes= rmaxes
-      ctrl_rmines= rmines
+!      ctrl_omax1 = omax1
+!      ctrl_omax2 = omax2
+!      ctrl_rmaxes= rmaxes
+!      ctrl_rmines= rmines
       ctrl_sclwsr= sclwsr
       ctrl_wsrmax= wsrmax
 !      ctrl_pfloat= lpfloat
