@@ -72,9 +72,6 @@ for ilinex in midfile.split('\n'): #line by line, for pure mathematical operatio
         nnn.append(str(eout)) #.replace(',',' ').replace('=','= '))
     #print('input :'+''.join(mmm))  #print('output:'+''.join(nnn))
     outfile=outfile+''.join(nnn)+'\n'
-#llx=len(outfile.split('\n'))
-#print(outfile.split('\n'))
-#print('outfile=###'+outfile+'###')
 
 lll=''
 init=False
@@ -88,7 +85,6 @@ for line in outfile.split('\n'):
          init=True
      elif(init==True):
          lll=lll+line.rstrip(' ')
-#print(lll)
 lll=lll[1:] #remove initial \n
 
 lmax=0
@@ -100,5 +96,41 @@ for line in lll.split('\n'):
 llx=len(outfile0.split('\n'))+len(lll.split('\n'))
 print(llx,lmax,'# of line, # of reclen Category per line\n'+outfile0+'\n'+lll)
 
+print ('@@@@@@@@@@@@@@@@@')
+for iline in lll.split('\n'):
+    line=[i for i in iline.split(' ') if i!='']
+    #print(line)
+    tok=''
+    tokk=[]
+    cat=line[0].split(' ')[0]
+    id=0
+    idx=''
+    line.append('EOL') #for re.match satisfied at the end 
+    for i in line[1:]:
+        #print(line)
+        if cat=='SITE':
+            tokx=i
+            if(tokx[0:4]=='ATOM'):
+                id=id+1
+        if cat=='SPEC':
+            tokx=i
+            if(tokx[0:4]=='ATOM'):
+                id=id+1
+        if re.match('[a-zA-Z]',i[0]):
+            dat=cat+'_'+tok
+            dat=dat.replace('=',idx+'=')
+            if(id>0  and (not 'ATOM' in dat) ):
+                dat=dat.replace('_','_ATOM_')
+            tokk.append(dat) #tok write
+            
+            idx=''
+            if(id>0):
+                idx='('+str(id)+')'
+            tok=i
+        else:
+            tok=tok +' '+ i
+    for itk in tokk:
+        if(itk[-1]!='_'): print(itk)
+#print('tokkk=',tokk)
 #print('=====following is for human readable ===========')
 #print(outfile)
