@@ -12,7 +12,10 @@ instrl=instr.split('\n')
 aaa=''
 labels=[]
 T,t,F,f=1,1,0,0
-for line in instrl: # Values from %const section !line cannot contain python keyword
+pat=r'(\r?\n)|(\r\n?)'
+aft=r'\n'
+for linei in instrl: # Values from %const section !line cannot contain python keyword
+    line=re.sub(pat,aft,linei) #for DOS compatible
     if(len(line)==0): continue
     if(line[0]!='%'): continue
     if(line[0]=='#'): continue
@@ -51,7 +54,8 @@ for i,irep in constrep.items():
 
 #Pure math section. # we replaced {foobar} with numerical values.
 outfile=''
-for iline in midfile.split('\n'): #line by line, for pure mathematical operations.
+for ilinex in midfile.split('\n'): #line by line, for pure mathematical operations.
+    iline=re.sub(pat,aft,ilinex) #for DOS compatible
     if(len(iline)==0): continue
     if(iline[0]=='%'): continue 
     iii= iline.split('#')[0].split('!')[0].split('%')[0]  #print('iii ',iii)
