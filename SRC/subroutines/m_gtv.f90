@@ -2,7 +2,7 @@
 module m_gtv
   use m_ftox
   use m_MPItk,only:procid
-  use m_cmdpath,only:cmdpath
+!  use m_cmdpath,only:cmdpath
   !- module to read ctrl file -------------------------------
   !r gtv is the main rouitne. Its has interface.
   !r
@@ -91,9 +91,13 @@ contains
     integer:: stdo_in,stdl_in,stde_in
     ! ... Passed parameters
     integer :: nrecs,recln
-    character*(recln):: recrd(nrecs),rrr
+    character(recln):: recrd(nrecs),rrr
     ! ... Local parameters
     integer :: i,ioff,ioff2,j,l
+!    do i=1,nrecs
+!       write(6,*)trim(recrd(i))
+!    enddo
+!    stop
     stdo = stdo_in
     stdl = stdl_in
     stde = stde_in
@@ -116,7 +120,6 @@ contains
        endif
     enddo
     rcd(ioff2:) = ' @CAT@EOF'
-    !      write(6,*) 'xxxxxxxxxx rcd=',trim(rcd)
     ioff2 = ioff2+9
     if (ioff2 > nrcd) call rxi('m_gtv: increase size of rcd; need at least',ioff2)
   end subroutine gtv_setrcd

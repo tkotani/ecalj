@@ -502,3 +502,39 @@ subroutine getdval(dddin, ncount,arr) !Read undefinit number of real(8) array
 1012 continue
   write(6,*) arr(1:ncount)
 end subroutine getdval
+
+
+! module m_gettoken
+!   use m_lmfinit,only: recrd,nrec
+!   character(recln),allocatable ::recrd(:)
+! contains
+!   subroutine gettoken(cattok,j,arr)
+!     character(20):: cat
+!     real(8):: arr(:)
+!     icat=scan(cattok),'_')
+!     cat = cattok(1:icat-1)
+!     catr= cattok(icat+1:)
+!     itok=scan(catr),'_')
+!     tok =catr(cat+1:itok-1)
+!     catrr=catr(itok+1:)
+!     caton=.false.
+!     do iline=1,nrec
+!        rrr=recrd(iline)
+!        if(rrr(1:len(cat))==trim(cat)) icatl=iline
+!     enddo
+!     catlines=''
+!     do iline=icatl,nrec
+!        if(rrr(1:len(cat))/=' ') exit
+!        catlines = catlines+recrd(iline)
+!     enddo
+!     ddd=catlines
+
+!     toklines=''
+!     itok=0
+!     ix=1
+!     do i=1,100000
+!        iend=scan(ddd,' ')
+!        dat=ddd(:iend)
+!        if(dat(len(tok))==trim(tok)) itok=itok+1
+!        if(itok==j) then
+!           toklines=tokline+dat

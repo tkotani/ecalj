@@ -12,7 +12,7 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa)
   use m_density,only: pnuall,pnzall !these are set here! log-derivative of radial functions.
   implicit none
   type(s_spec),allocatable:: v_sspec(:) !nspec: number of species in the cell)
-  integer,parameter::  recln=511, noutmx=48,NULLI=-99999,nkap0=3,mxspec=256,lstrn=10000
+  integer,parameter::  noutmx=48,NULLI=-99999,nkap0=3,mxspec=256,lstrn=10000
   integer,parameter::  n0=10,nppn=2, nrmx=1501,nlmx=64 ,n00=n0*nkap0
   real(8),parameter::  fpi=16d0*datan(1d0), y0=1d0/dsqrt(fpi), pi=4d0*datan(1d0), srfpi = dsqrt(4d0*pi)
   real(8),parameter::  NULLR =-99999, fs = 20.67098d0, degK = 6.3333d-6 ! defaults for MD
@@ -114,7 +114,10 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa)
   integer,protected:: broyinit,nmixinit,killj
   real(8),protected:: wtinit(3),wc,betainit !,elinl
   logical,protected:: bexist
-  
+
+  integer,parameter:: recln=512
+  integer,protected:: reclnr,nrecs
+  character(:),allocatable:: recrd(:)
 contains
   subroutine m_lmfinit_init(prgnam) ! All the initial data are set in module variables from ctrlp.*
     use m_toksw,only:tksw
@@ -218,7 +221,7 @@ contains
     integer :: ctrl_nspec_bakup,inumaf,iin,iout,ik,iprior,ibp1,indx,iposn,m,nvi,nvl
     logical :: ipr10,fullmesh,lzz
     integer,allocatable:: idxdn(:,:,:)
-    character*(recln),allocatable:: recrd(:)
+    character(:),allocatable:: recrd(:)
     if(master_mpi) then
        if(prgnam == 'LMF')    write(stdo,*) 'm_lmfinit:program LMF'
        if(prgnam == 'LMFGWD') write(stdo,*) 'm_lmfinit:program LMFGWD'
@@ -249,7 +252,7 @@ contains
     
     Stage1readctrl: block !read ctrl file
       logical:: cmdopt0,cmdopt2,isanrg,parmxp
-      integer:: setprint0,iprint,isw,ncp,nrecs,nmix,broy
+      integer:: setprint0,iprint,isw,ncp,nmix,broy
       real(8):: avwsr,dasum,rydberg,wt(3),beta
       character(8):: fnam
       scrwid = 80
@@ -262,15 +265,17 @@ contains
       else   
          open(newunit=ncp,file='ctrlp.'//trim(sname))
          !Readin ctrlp, which contains only python-type math expressions. See subroutine mathexpr
-         read(ncp,*) nrecs
-         allocate(recrd(nrecs))
+         read(ncp,*) nrecs,reclnr
+         allocate(character(reclnr):: recrd(nrecs))
+         print *,'nrecs reclr=',nrecs,reclnr
          do i = 1, nrecs
             read(ncp,"(a)")recrd(i)
+!            write(*,*)trim(recrd(i))
          enddo
          close(ncp)
       endif
-      call gtv_setrcd(recrd,nrecs,recln,stdo,stdl,stde_in=stdo) !Copy recrd to rcd in m_gtv
-         call toksw_init(debug)
+      call gtv_setrcd(recrd,nrecs,reclnr,stdo,stdl,stde_in=stdo) !Copy recrd to rcd in m_gtv
+      call toksw_init(debug)
       if (       master_mpi) io_show = 1
       if ( .NOT. master_mpi) io_show = 0
       if (io_help == 1) then

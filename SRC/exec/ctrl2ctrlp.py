@@ -26,8 +26,7 @@ for line in instrl: # Values from %const section !line cannot contain python key
 constrep={i:str(eval(i)) for i in labels} #replacement dic
 for i in constrep.keys():
     exec('del '+str(i)) #delete const variables after we get numerical constrep 
-#print(constrep)
-outfile=''
+outfile0=''
 for iarg in sys.argv[1:]: # -vfoobar replacemebt by args
     try:
         vin=iarg.split('-v')[1]
@@ -35,12 +34,15 @@ for iarg in sys.argv[1:]: # -vfoobar replacemebt by args
         continue
     label,val=vin.split('=')
     try:
-        outfile=outfile+' '+str(label)+' '+str(eval(val))+'\n'
+        outfile0=outfile0+' '+str(label)+' '+str(eval(val))+' ! -vfoobar\n'
     except:
-        outfile=outfile+' '+str(label)+' '+str(val)+'\n'
+        outfile0=outfile0+' '+str(label)+' '+str(val)+' ! -vfoobar char\n'
     constrep[label]=str(val)
-outfile=outfile+'=== end of -vfoobar ===\n'
-#print(constrep)
+#print(sys.argv[1:])
+#print(outfile0.split('\n'))
+outfile0=outfile0[0:-1] #remove final \n
+#print(outfile0.split('\n'))
+#sys.exit()
 
 midfile=instr
 for i,irep in constrep.items():
@@ -48,6 +50,7 @@ for i,irep in constrep.items():
     midfile=midfile.replace(ix,irep) #print('ix rep=',ix,irep)
 
 #Pure math section. # we replaced {foobar} with numerical values.
+outfile=''
 for iline in midfile.split('\n'): #line by line, for pure mathematical operations.
     if(len(iline)==0): continue
     if(iline[0]=='%'): continue 
@@ -65,20 +68,33 @@ for iline in midfile.split('\n'): #line by line, for pure mathematical operation
         nnn.append(str(eout)) #.replace(',',' ').replace('=','= '))
     #print('input :'+''.join(mmm))  #print('output:'+''.join(nnn))
     outfile=outfile+''.join(nnn)+'\n'
-ll=len(outfile.split('\n'))
-print(ll,' !line number')
-print(outfile)
+#llx=len(outfile.split('\n'))
+#print(outfile.split('\n'))
+#print('outfile=###'+outfile+'###')
 
-# print('==========================')
-# lll=''
-# ix=0
-# for lin in outfile.split('\n'): 
-#      line=lin
-#      if(len(line)==0): continue
-#      if(line[0]!=' '):
-#          ladd=line.rstrip('\n').split(' ')[0]+'\n'+line
-#          if(len(ladd)!=0): lll='\n'+lll+'\n*Category: '+ladd
-#      else    :
-#          lll=lll+line.rstrip(' ')
-# lll=lll+'\n'
-# print(lll)
+lll=''
+init=False
+ix=0
+for line in outfile.split('\n'):
+     if(len(line)==0): continue
+     if(line[0]!=' '):
+         ix=ix+1
+         ladd=line
+         if(len(ladd)!=0): lll= lll+'\n'+ladd
+         init=True
+     elif(init==True):
+         lll=lll+line.rstrip(' ')
+#print(lll)
+lll=lll[1:] #remove initial \n
+
+lmax=0
+for line in lll.split('\n'):
+    #print(len(line),line)
+    if(len(line)>lmax): lmax=len(line)
+#print(len(outfile0.split('\n')))
+#print(lll.split('\n'))
+llx=len(outfile0.split('\n'))+len(lll.split('\n'))
+print(llx,lmax,'# of line, # of reclen Category per line\n'+outfile0+'\n'+lll)
+
+#print('=====following is for human readable ===========')
+#print(outfile)

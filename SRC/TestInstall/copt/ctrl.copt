@@ -5,7 +5,7 @@
 % const a=7.1866 ca=.975
 IO      SHOW=F HELP=F VERBOS=30 20 IACTIV=t
 OPTIONS NSPIN={nsp} REL=T CCOR={ccor}
-        SCR={scr} TWOC={twoc} GAMMA={gamma} NSPH={nsph} HF=hf
+        SCR={scr} TWOC={twoc} GAMMA={gamma} NSPH={nsph} 
         SO={so}
 SYMGRP  find
 STR     RMAXS=2.5 NOCALC=F
