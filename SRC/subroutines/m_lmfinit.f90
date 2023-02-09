@@ -122,6 +122,7 @@ contains
   subroutine m_lmfinit_init(prgnam) ! All the initial data are set in module variables from ctrlp.*
     use m_toksw,only:tksw
     use m_gtv,only: gtv,gtv_setrcd,gtv_setio
+    use m_gtv2,only: gtv2_setrcd
     use m_ftox
     use m_cmdpath,only:cmdpath
     !! ----------------------------------------------------------------------
@@ -173,7 +174,7 @@ contains
     character strn*(recln),strn2*(recln)
     integer:: i_spec
     character fileid*64
-    logical :: lgors,cmdopt,ltmp,ioorbp!,noinv
+    logical :: lgors,cmdopt,ltmp,ioorbp,cmdopt0
     double precision :: dval,dglob,xx(n0*2),dgets !,ekap(6)
     integer :: i,is,iprint, &
          iprt,isw,ifi,ix(n0*nkap0),j,k,l,lfrzw,lrs,lstsym,ltb,nclasp,nglob,scrwid,k1,k2,mpipid 
@@ -185,7 +186,6 @@ contains
     integer :: ohave,oics,opnusp,opp,oqnu,osgw,osoptc,oves,owk !osordn,
     real(8):: pnuspx(20) ,temp33(9)
     integer:: nnn
-    integer:: i_copy_size,i_spacks,iendx,inix,i_spackv
     real(8):: seref
     integer:: ib 
     integer,allocatable:: wowk(:)
@@ -221,8 +221,8 @@ contains
     integer :: ctrl_nspec_bakup,inumaf,iin,iout,ik,iprior,ibp1,indx,iposn,m,nvi,nvl
     logical :: ipr10,fullmesh,lzz
     integer,allocatable:: idxdn(:,:,:)
-    character(:),allocatable:: recrd(:)
-    if(master_mpi) then
+    if (cmdopt0('--help')) io_help = 1 !help mode on
+    if(master_mpi.and.io_help==0) then
        if(prgnam == 'LMF')    write(stdo,*) 'm_lmfinit:program LMF'
        if(prgnam == 'LMFGWD') write(stdo,*) 'm_lmfinit:program LMFGWD'
        if(prgnam == 'LMFA') write(stdo,*)   'm_lmfinit:program LMFA'
@@ -274,6 +274,7 @@ contains
          enddo
          close(ncp)
       endif
+      call gtv2_setrcd(recrd)
       call gtv_setrcd(recrd,nrecs,reclnr,stdo,stdl,stde_in=stdo) !Copy recrd to rcd in m_gtv
       call toksw_init(debug)
       if (       master_mpi) io_show = 1
