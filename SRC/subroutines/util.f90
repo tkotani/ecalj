@@ -483,7 +483,7 @@ subroutine getdval(dddin, ncount,arr) !Read undefinit number of real(8) array
   real(8):: arr(*)
   character(*):: dddin
   character(500):: ddd
-  print *,'getdval'
+!  print *,'getdval'
   ddd = trim(dddin)//' '
   ncount=0
   do i=1,100

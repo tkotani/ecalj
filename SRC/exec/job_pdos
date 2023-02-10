@@ -3,7 +3,7 @@
 echo $0 $@
 #if [ $#  != 3 ] || [ $2 != "-np" ]; then
 if [ $# -le 2 ] || [ $2 != "-np" ]; then
-  echo "An example of usage: job_band_pdos si -np 4 [options for lmf]"
+  echo "An example of usage: job_pdos si -np 4 [options for lmf]"
   echo "   For example, [options for lmf] is ' -vnspin=2 -vso=1 -vnk1=10 -vnk2=10 -vnk3=10'"
   exit
 else

@@ -21,13 +21,10 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa)
   character(lstrn),protected:: sstrnsymg
   character(256),protected:: header,symg=' ',   symgaf=' '!for Antiferro
   logical,protected :: ham_frzwf,ham_ewald
-  integer,protected:: nspc,procid,nproc,master=0,nspx,& ! & ,stdo,stdl
-       maxit,gga,ftmesh(3),nmto=0,lrsigx=0,nsp=1,lrel=1,lso=0 !ctrl_nl,ctrl_nspin,ctrl_nspec,ctrl_pfloat,
+  integer,protected:: nspc,procid,nproc,master=0,nspx,& 
+       maxit,gga,ftmesh(3),nmto=0,lrsigx=0,nsp=1,lrel=1,lso=0 
   real(8),protected:: pmin(n0),pmax(n0),ham_pmax(10),ham_pmin(10), &
-       ctrl_wsrmax, ctrl_sclwsr, tolft,scaledsigma, & 
-       ham_oveps,ham_scaledsigma
-  !! ... OPTIONS
-  !  real(8),protected:: rmines,rmaxes,
+       tolft,scaledsigma, ham_oveps,ham_scaledsigma
   real(8):: cc !speed of light
   integer,protected :: smalit, lstonr(3)=0,nl !,lpfloat=1
   logical,protected :: lhf,lcd4
@@ -35,7 +32,7 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa)
   real(8),protected:: dlat,alat=NULLR,dalat=NULLR,vol,avw 
   integer,protected:: nbas=NULLI,nspec
   !! ... SPEC
-  real(8),protected:: omax1(3),omax2(3),wsrmax,sclwsr,vmtz(mxspec)=-.5d0
+  real(8),protected:: omax1(3)=0d0,omax2(3)=0d0,wsrmax=0d0,sclwsr=0d0,vmtz(mxspec)=-.5d0
   character*8,allocatable,protected:: slabl(:)
   integer,protected:: lmxbx=-1,lmxax,nkaph,nkapi
   logical,allocatable,protected:: cstrmx(:),frzwfa(:)
@@ -295,7 +292,7 @@ contains
       elseif(cmdopt2('-pr',outs))  then; read(outs,*) verbos
       endif
       i0 = setprint0(verbos)      !Set initial verbos
-      if( .NOT. master_mpi) i0=setprint0(-100) !iprint() is negative except master
+      if( .NOT. master_mpi) i0=setprint0(-100) !iprint() is 0 except master
       !! Timing
       nm='IO_TIM';call gtv(trim(nm),tksw(prgnam,nm),io_tim,note='Turns CPU timing log. Value sets tree depth.'// &
            new_line('a')//'  Optional 2nd arg prints CPU times as routines execute.'// &
@@ -478,19 +475,19 @@ contains
       if (io_help == 1) nspec = 1
       if (tksw(prgnam,'SPEC') == 2) goto 79
       if (io_show+io_help/=0) write(stdo,*)' --- Parameters for species data ---'
-      if (io_help /= 0) write(stdo,*)' * The next four tokens apply to the automatic sphere resizer'
-      nm='SPEC_SCLWSR'; call gtv(trim(nm),tksw(prgnam,nm), sclwsr, def_r8=0d0, note= &
-           'Scales sphere radii, trying to reach volume = '// &
-           'SCLWSR * cell volume'// &
-           new_line('a')//'   '//'SCLWSR=0 turns off this option.'// &
-           new_line('a')//'   '//'Add  10  to initially scale non-ES first;'// &
-           new_line('a')//'   '//' or  20  to scale ES independently.')
-      nm='SPEC_OMAX1'; call gtv(trim(nm),tksw(prgnam,nm),omax1, def_r8v=(/0d0,0d0,0d0/),note= &
-           'Limits max sphere overlaps when adjusting MT radii')
-      nm='SPEC_OMAX2'; call gtv(trim(nm),tksw(prgnam,nm), omax2, def_r8v=(/0d0,0d0,0d0/),note= &
-           'Sphere overlap constraints of second type',nout=nout)
-      nm='SPEC_WSRMAX'; call gtv(trim(nm),tksw(prgnam,nm),wsrmax, def_r8=0d0,note= &
-           'If WSRMAX is nonzero, no sphere radius may exceed its value')
+      ! if (io_help /= 0) write(stdo,*)' * The next four tokens apply to the automatic sphere resizer'
+      ! nm='SPEC_SCLWSR'; call gtv(trim(nm),tksw(prgnam,nm), sclwsr, def_r8=0d0, note= &
+      !      'Scales sphere radii, trying to reach volume = '// &
+      !      'SCLWSR * cell volume'// &
+      !      new_line('a')//'   '//'SCLWSR=0 turns off this option.'// &
+      !      new_line('a')//'   '//'Add  10  to initially scale non-ES first;'// &
+      !      new_line('a')//'   '//' or  20  to scale ES independently.')
+      ! nm='SPEC_OMAX1'; call gtv(trim(nm),tksw(prgnam,nm),omax1, def_r8v=(/0d0,0d0,0d0/),note= &
+      !      'Limits max sphere overlaps when adjusting MT radii')
+      ! nm='SPEC_OMAX2'; call gtv(trim(nm),tksw(prgnam,nm), omax2, def_r8v=(/0d0,0d0,0d0/),note= &
+      !      'Sphere overlap constraints of second type',nout=nout)
+      ! nm='SPEC_WSRMAX'; call gtv(trim(nm),tksw(prgnam,nm),wsrmax, def_r8=0d0,note= &
+      !      'If WSRMAX is nonzero, no sphere radius may exceed its value')
       if (io_help == 1) then
          write(*,382)
 382      format(/' * ', &
@@ -845,10 +842,11 @@ contains
                  'idmod=0 floats P to band CG, 1 freezes P, 2 freezes enu')
             ! cstrmx(for lmchk)   Exclude this species when auto-resizing sphere radii
             ! frzwfa   Freeze augmentation w.f. for this species (FP)
-            nm='SPEC_ATOM_CSTRMX'; call gtv(trim(nm),tksw(prgnam,nm), &
-                 cstrmx(j),cindx=jj,def_lg=F,note='Set to exclude this'// &
-                 ' species when automatically resizing sphere radii (SCLWSR>0)') !for lmchk
-            if (sclwsr == 0) cstrmx(j) = F
+            !nm='SPEC_ATOM_CSTRMX'; call gtv(trim(nm),tksw(prgnam,nm), &
+            !     cstrmx(j),cindx=jj,def_lg=F,note='Set to exclude this'// &
+            !     ' species when automatically resizing sphere radii (SCLWSR>0)') !for lmchk
+            !if (sclwsr == 0) cstrmx(j) = F
+            cstrmx(j) = F
             nm='SPEC_ATOM_FRZWF'; call gtv(trim(nm),tksw(prgnam,nm),frzwfa(j),cindx=jj,def_lg=F,note= &
                  'Set to freeze augmentation wave functions for this species')
          endif                    ! end of input dependent on presence of aug sphere.
@@ -1112,8 +1110,8 @@ contains
 !      ctrl_omax2 = omax2
 !      ctrl_rmaxes= rmaxes
 !      ctrl_rmines= rmines
-      ctrl_sclwsr= sclwsr
-      ctrl_wsrmax= wsrmax
+!      ctrl_sclwsr= sclwsr
+!      ctrl_wsrmax= wsrmax
 !      ctrl_pfloat= lpfloat
       if (dalat == NULLR) dalat=0d0
       lat_alat=alat+dalat

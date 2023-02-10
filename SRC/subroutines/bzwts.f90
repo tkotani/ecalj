@@ -84,6 +84,7 @@ contains
     master = 0
     call tcn('bzwts')
     ipr=iprint()
+!    print *,'iiiiiiiiiiii ipr=',ipr
     qval(1) = 0
     qval(2) = 0
     ent = 0
@@ -244,7 +245,7 @@ contains
                   .true.,sumev,wtkb,qval,ent,dosef,cv)
              call poppr
              if (dabs(zval - qval(1)) .lt. 1d-12) then
-                write(stdo,ftox)' Fermi energy, ',ftof(efermi),&
+                if(ipr>0) write(stdo,ftox)' Fermi energy, ',ftof(efermi),&
                      &' found after ',it,' bisections,',ftof(qval(1)),&
                      &' electrons, DOS(E_f)=',ftof(dosef(1))
                 goto 3

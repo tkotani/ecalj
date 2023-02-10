@@ -6,8 +6,8 @@ contains
   subroutine lmaux()        !main part of lmchk
     use m_mksym,only: ctrl_nclass,iv_a_oics,iclasst
     use m_lmfinit,only: iv_a_oips,str_mxnbr,str_rmax,nbas,nspec,nsp, &
-         nl,omax1,omax2,ctrl_wsrmax,slabl,sspec=>v_sspec, &
-         lat_avw,lat_alat,cstrmx
+         nl,omax1,omax2,wsrmax,slabl,sspec=>v_sspec, &
+         lat_avw,alat,cstrmx
     use m_lattic,only: lat_nkd
     use m_lattic,only: lat_nkq
     use m_struc_def
@@ -51,26 +51,20 @@ contains
     integer ,allocatable :: ips2_iv(:)
     real(8) ,allocatable :: zc_rv(:)
     real(8) ,allocatable :: rmtc_rv(:)
-    double precision :: xv(10),xx,alat,plat(3,3),facrmx,facrng, & ! & ,plat2(9)
+    double precision :: xv(10),xx,plat(3,3),facrmx,facrng, & ! & ,plat2(9)
          dval,avw,ekap(2),enu,qss(4),ckbas,cksumf,ehterm(4), rmaxs, &
-         qlat(9),emad,trumad,vmtz(2),wsrmax
+         qlat(9),emad,trumad,vmtz(2)
     parameter (ngmx=48,mxclas=1000)
     integer:: i_copy_size, i_spackv, i_spacks
     integer:: ifx,w_dummy(1)=1
     integer,allocatable:: lmxa(:)
     real(8),allocatable:: z(:),rmax(:)
     print *,' lmaux:'
-!    nbas=ctrl_nbas
     nclass=ctrl_nclass
-!    nl=ctrl_nl
-!    nspec=ctrl_nspec
-!    nsp=ctrl_nspin
-    !      modep = ctrl_modep
     modep=99999 !bug fix 2022-6-29 (no initialization before. No problem as long as lmchk works.)
     lpbc = 0
     nclasp=ctrl_nclass !sarray%nclasp
     avw=lat_avw
-    alat=lat_alat
     plat=lat_plat
     nkd=lat_nkd
     nkq=lat_nkq
@@ -167,7 +161,7 @@ contains
 !       call dcopy(i_copy_size,ctrl_omax1,1,omax1,1)
 !       i_copy_size=size(ctrl_omax2)
 !       call dcopy(i_copy_size,ctrl_omax2,1,omax2,1)
-       wsrmax=ctrl_wsrmax
+!       wsrmax=ctrl_wsrmax
        call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , rv_a_opos &
             , iv_a_oips , modep , slabl , zz_rv , lock_iv , 1d0 , wsrmax &
             , omax1 , omax2 , rmt_rv )
