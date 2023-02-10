@@ -286,6 +286,7 @@ contains
           do ix=1,ndhamx !2022dec evtop,ecbot for magnetic case
              if(evlall(ix,jsp,iq)<eferm) evtop = max(evtop,evlall(ix,jsp,iq))
              if(evlall(ix,jsp,iq)>eferm) ecbot = min(ecbot,evlall(ix,jsp,iq))
+             eeem = min(eeem,evlall(ix,jsp,iq)) !forgotton. recovered at 2023feb
           enddo
        enddo
     enddo
