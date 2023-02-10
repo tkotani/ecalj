@@ -264,7 +264,7 @@ contains
          !Readin ctrlp, which contains only python-type math expressions. See subroutine mathexpr
          read(ncp,*) nrecs,reclnr
          allocate(character(reclnr):: recrd(nrecs))
-         print *,'nrecs reclr=',nrecs,reclnr
+!         print *,'nrecs reclr=',nrecs,reclnr
          do i = 1, nrecs
             read(ncp,"(a)")recrd(i)
 !            write(*,*)trim(recrd(i))

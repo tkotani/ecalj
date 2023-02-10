@@ -500,7 +500,7 @@ subroutine getdval(dddin, ncount,arr) !Read undefinit number of real(8) array
   enddo
   call rx('error: getdval')
 1012 continue
-  write(6,*) arr(1:ncount)
+  !write(6,*) 'getdval=',arr(1:ncount)
 end subroutine getdval
 
 module m_gtv2
