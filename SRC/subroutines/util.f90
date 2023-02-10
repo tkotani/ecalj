@@ -504,7 +504,7 @@ subroutine getdval(dddin, ncount,arr) !Read undefinit number of real(8) array
 end subroutine getdval
 
 module m_gtv2
-  public gtv2c,gtv2_setrcd
+  public rval2,gtv2_setrcd
   private
     integer::nrecs
     character(:),allocatable:: recrd(:)
@@ -517,66 +517,36 @@ contains
     allocate(character(reclnr)::recrd(nrecs))
     recrd=recrdin
   end subroutine gtv2_setrcd
-  subroutine gtv2(cattok, rr,ii,rv,iv, nout,nreq,  &
-       drr,dii,drv,div) ! Choose of optional variable
-    character(*):: cattok !  nout     unknown
-    integer,optional:: nout,nreq             ! 
-    real(8),optional:: drv(:),drr
-    integer,optional:: div(:),dii
-    integer,optional:: iv(:),ii
-    real(8),optional:: rv(:),rr
-    integer:: nreqz
-    real(8):: rvtemp(100)
-    !if(present(drr)) default=drr
-    !if(present(irr)) default=irr
-    !if(present(drv)) default=drv
-    !if(present(irv)) default=irv
-
-    if(present(nout)) then
-       call gtv2c(cattok,rvtemp, nout=nout)
-!    elseif(present(nreq).or.default)
-!       nreqz=nreq
-!       nreqz=size(default)
-!       call gtv2c(cattok,rvtemp, nreqz)
-!    elseif(default)
-!       call gtv2c(cattok,rvtemp, nreq)
-    endif
-  end subroutine gtv2
-  !     character(*):: rec,cattok !  nout     unknown
-  !     real(8):: arr(1000)
-  !     integer::ncat,i,ncount,nrec
-  !     !if default is set, nreq=size(default). !  nreq     required num without default
-  !     if(present(rr)) then
-  !        defaultv = defaultr
-  subroutine gtv2c(cattok, rv,  nout,nreq,defaultrv)
+  subroutine rval2(cattok, rr,rv, nout,nreq, default) !Choose one of nout or nreq or default
+      integer:: NULL=-99999
       integer,optional:: nout,nreq          
-      real(8),optional:: defaultrv(:)
-      real(8):: rv(:)
-      character(*):: cattok !  nout     unknown
+      real(8),optional:: default(:),rr
+      real(8),optional,allocatable:: rv(:)
+      character(*):: cattok
       real(8):: arr(1000)
       integer::ncat,i,ncount,nsizez
-      !if default is set, nreq=size(default). !  nreq     required num without default
-      i=0
-      if(present(nout))i=i+1
-      if(present(nreq))i=i+1
-      if(present(defaultrv))i=i+1
-      if(i>1) call rx('i>1')
-      ncat=len(trim(cattok))
-      if(present(nreq)) then
-         nsizez=nreq
-      elseif(present(defaultrv)) then
-         nsizez=size(defaultrv)
-         rv(1:nsizez)=defaultrv(1:nsizez)
-      endif   
+      logical:: nomode,nrmode,ndmode
+      if(present(nout))    nomode=.True.
+      if(present(nreq))    nrmode=.True.
+      if(present(default)) ndmode=.True.
+!      if(count([nomode,nrmode,ndmode])>1) call rx('rval2: chooose one of nout nreq default')
+!      if(present(defaulti)) defi=.True.
+!      if(present(defaultr)) defr=.True.
+!      if(count([defr,defi])>1)call rx('rval2: chooose defaulti or defaultr')
+      nsizez=0
+      if(ndmode) nsizez=size(default)
+      if(nrmode) nsizez=nreq
       do i=1,nrecs
          if( recrd(i)(1:ncat+1)==trim(cattok)//'=' ) then
-            call getdval(trim(recrd(i)(ncat+1:)),ncount,rv) !Read undefinit number of real(8) array
+            call getdval(trim(recrd(i)(ncat+1:)),ncount,arr) !Read undefinit number of real(8) array
             exit
          endif
       enddo
-      if(present(nreq).or.present(defaultrv)) then
-         if(ncount/=nsizez) call rx('ncount /=nsize')
-      endif
+      if(nsizez>0.and.ncount/=nsizez) call rx('ncount/=nsize') 
+      allocate(rv(ncount))
+      if(nsizez==0.and.ndmode) rv(1:ncount)=default(1:ncount)
+      if(present(rv)) rv(1:ncount)=arr(1:ncount)
+      if(present(rr)) rr=arr(1)
       nout=ncount
  end subroutine
 end module

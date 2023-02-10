@@ -117,15 +117,16 @@ for iline in lll.split('\n'):
             if(tokx[0:4]=='ATOM'):
                 id=id+1
         if re.match('[a-zA-Z]',i[0]):
-            dat=cat+'_'+tok
-            dat=dat.replace('=',idx+'=')
+            ic='_'
+            if(cat=='SYMGRP'): ic=' '
+            dat=cat+ic+tok
+            dat=dat.replace('=',idx+' ',1)
             if(id>0  and (not 'ATOM' in dat) ):
                 dat=dat.replace('_','_ATOM_')
             tokk.append(dat) #tok write
-            
             idx=''
             if(id>0):
-                idx='('+str(id)+')'
+                idx='_'+str(id)
             tok=i
         else:
             tok=tok +' '+ i
