@@ -684,7 +684,7 @@ for ispec in uniq(sitename):
 #    aaa=aaa+ ' R='+ '%6.3f' %
     if(zspec):
         z=spec2z[ispec]
-        speckey=z2qdicatom[z]
+        speckey=z2dicatom[z]
     else:
         speckey=ispec
         z=dicatom[speckey].split('atomz=')[1].split('@')[0]
