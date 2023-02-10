@@ -19,7 +19,7 @@ for linei in instrl: # Values from %const section !line cannot contain python ke
     if(len(line)==0): continue
     if(line[0]!='%'): continue
     if(line[0]=='#'): continue
-    #print(line)
+    #line=re.sub('=\s+','=',line) #remove space after =
     constdata0=(line.split('const')[1]).split('#')[0].split(' ')
     for ix in constdata0:
         if(ix!=''):

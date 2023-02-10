@@ -332,7 +332,8 @@ contains
 
     !C     Sets scale for neighbor table
     double precision facr,facri
-    parameter (facr=4d0,facri=1.02d0) !enlarge facr because mp-632250 (H only failed)
+    !parameter (facr=2d0,facri=1.02d0) !enlarge facr because mp-632250 (H only failed). But this makes lmf-MPIK a little slow. 2023fab 
+    parameter (facr=4d0,facri=1.02d0) !enlarge facr because mp-632250 (H only failed). But this makes lmf-MPIK a little slow. 2023fab 
     !C     Relative positions
     double precision rpos(3,mxcsiz),ri,rbar,rmin,vrmax,cur,slo,di
     character*1 sym(2)

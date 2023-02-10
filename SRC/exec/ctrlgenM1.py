@@ -978,7 +978,7 @@ OPTIONS PFLOAT=1 #not need to change this. Just for backward compatibility.
       # Q=band (this is quit switch if you like to add)
 
 # Relaxiation sample
-DYN     MODE=5 HESS=T XTOL=.001 GTOL=0 STEP=.015 NIT=20
+#DYN     MODE=5 HESS=T XTOL=.001 GTOL=0 STEP=.015 NIT=20
 # See file://Document/Manual/CaterogyAndToken.org
 
 """
