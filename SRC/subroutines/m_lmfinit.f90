@@ -337,6 +337,30 @@ contains
          call rval2('SPEC_R/A@' //xn(j),rr=rr, nout=n3); if(n3==1.and.n2==0.and.n1==0) rmt(j)=rr*alat
          call rval2('SPEC_A@'   //xn(j),rr=rr, defa =[0d0]);        spec_a(j)=rr
          call rval2('SPEC_NR@'  //xn(j),rr=rr, defa=[real(8)::0]);  nr(j)=nint(rr)
+         ! 1st MTO sets
+         call rval2('SPEC_RSMH@'//xn(j),rv=rv,nout=nnx); rsmh1(1:nnx,j)=rv
+         nn1=0
+         do i=nnx,1,-1 !count down scheme. bug detour of gtv !nout=n0 if all rsmh2=0. 2023feb
+            if(rsmh1(i,j)/=0d0) then
+               nn1=i
+               exit
+            endif
+         enddo
+         call rval2('SPEC_EH@'//xn(j),rv=rv,nreq=nn1); eh1(1:nn1,j)=rv
+         ! ! 2nd MTO sets 
+         call rval2('SPEC_RSMH2@'//xn(j),rv=rv,nout=nnx); rsmh2(1:nnx,j)=rv
+         nn2=0
+         do i=nnx,1,-1 
+            if(rsmh2(i,j)/=0d0) then
+               nn2=i
+               exit
+            endif
+         enddo
+         call rval2('SPEC_EH2@'//xn(j), rv=rv, nreq=nn2); eh2(1:nn2,j)=rv
+         if(nn2>0) nkapi=2
+         if(nn2>0) nkapii(j)=2
+         lmxb(j)=max(nn1,nn2)-1 
+         
       enddo specloop
       
       call gtv_setrcd(recrd,nrecs,reclnr,stdo,stdl,stde_in=stdo) !Copy recrd to rcd in m_gtv
@@ -622,42 +646,43 @@ contains
 !         endif
          !nm='SPEC_ATOM_NR'; call gtv(trim(nm),tksw(prgnam,nm),nr(j),def_i4=i0,cindx=jj, note='Number of radial mesh points')
          if (nr(j) == 0) nr(j) = i0
-         !... Basis set for lmf  1st MTO sets ----------
-         nm='SPEC_ATOM_RSMH'; call gtv(trim(nm),tksw(prgnam,nm),rsmh1(1:,j),cindx=jj,nout=nout,def_r8v=zerov, &
-              note='Smoothing radii for basis. Gives l-cut max for base')!nout=n0 because of default
-         nnx=nout
-         do i=1,nout
-            if(rsmh1(i,j)==0d0) cycle
-            nnx=i
-         enddo
-         nm='SPEC_ATOM_EH'; call gtv(trim(nm),tksw(prgnam,nm), eh1(1:,j),nmin=nnx,cindx=jj, def_r8v=zerov, &
-              note='Kinetic energies for basis')
-         nn1=nnx
-         !---- 2nd MTO sets
-         nm='SPEC_ATOM_RSMH2'; call gtv(trim(nm),tksw(prgnam,nm),rsmh2(1:,j),def_r8v=zerov,cindx=jj,nout=nout, &
-              Texist=ltmp,note='Basis smoothing radii, second group ')
-         nnx=0
-         if (ltmp) then
-            nnx=0
-            !print *,'rsmh2=',rsmh2(1:nout,j)
-            do i=nout,1,-1 !count down scheme. bug detour of gtv !nout=n0 if all rsmh2=0. 2023feb
-               if(rsmh2(i,j)/=0d0) then
-                  nnx=i
-                  exit
-               endif
-            enddo
-            sw = tksw(prgnam,nm)
-            if (nnx>0) then
-               nkapi=2
-               nkapii(j)=2
-               sw = 1
-            endif
-            nm='SPEC_ATOM_EH2'; call gtv(trim(nm),sw,eh2(1:,j),nmin=nnx,cindx=jj, &
-                 note='Basis kinetic energies, second group')
-         endif
-         nn2=nnx
-         lmxbj=max(nn1,nn2)-1
+         ! !... Basis set for lmf  1st MTO sets ----------
+         ! nm='SPEC_ATOM_RSMH'; call gtv(trim(nm),tksw(prgnam,nm),rsmh1(1:,j),cindx=jj,nout=nout,def_r8v=zerov, &
+         !      note='Smoothing radii for basis. Gives l-cut max for base')!nout=n0 because of default
+         ! nnx=nout
+         ! do i=1,nout
+         !    if(rsmh1(i,j)==0d0) cycle
+         !    nnx=i
+         ! enddo
+         ! nm='SPEC_ATOM_EH'; call gtv(trim(nm),tksw(prgnam,nm), eh1(1:,j),nmin=nnx,cindx=jj, def_r8v=zerov, &
+         !      note='Kinetic energies for basis')
+         ! nn1=nnx
+         ! !---- 2nd MTO sets
+         ! nm='SPEC_ATOM_RSMH2'; call gtv(trim(nm),tksw(prgnam,nm),rsmh2(1:,j),def_r8v=zerov,cindx=jj,nout=nout, &
+         !      Texist=ltmp,note='Basis smoothing radii, second group ')
+         ! nnx=0
+         ! if (ltmp) then
+         !    nnx=0
+         !    !print *,'rsmh2=',rsmh2(1:nout,j)
+         !    do i=nout,1,-1 !count down scheme. bug detour of gtv !nout=n0 if all rsmh2=0. 2023feb
+         !       if(rsmh2(i,j)/=0d0) then
+         !          nnx=i
+         !          exit
+         !       endif
+         !    enddo
+         !    sw = tksw(prgnam,nm)
+         !    if (nnx>0) then
+         !       nkapi=2
+         !       nkapii(j)=2
+         !       sw = 1
+         !    endif
+         !    nm='SPEC_ATOM_EH2'; call gtv(trim(nm),sw,eh2(1:,j),nmin=nnx,cindx=jj, &
+         !         note='Basis kinetic energies, second group')
+         ! endif
+         ! nn2=nnx
+         ! lmxbj=max(nn1,nn2)-1
          ! optional cutoff for l-base. redundunt, I think.
+         lmxbj=lmxb(j)
          nm='SPEC_ATOM_LMX'; call gtv(trim(nm),tksw(prgnam,nm),lmxxx, &
               def_i4=10,cindx=jj,nout=nout,note='optional l-cutoff for basis')
          lmxbj=min(lmxxx,lmxbj)
