@@ -72,6 +72,7 @@ for ilinex in midfile.split('\n'): #line by line, for pure mathematical operatio
         nnn.append(str(eout)) #.replace(',',' ').replace('=','= '))
     #print('input :'+''.join(mmm))  #print('output:'+''.join(nnn))
     outfile=outfile+''.join(nnn)+'\n'
+outfile=re.sub('\t',' ',outfile) # 2023feb22:46
 
 lll=''
 init=False
@@ -92,7 +93,7 @@ for line in lll.split('\n'):
     #print(len(line),line)
     if(len(line)>lmax): lmax=len(line)
 #print(len(outfile0.split('\n')))
-#print(lll.split('\n'))
+#print('lxxxxxxx',lll)
 catok=''
 nbas=0
 nspec=0
