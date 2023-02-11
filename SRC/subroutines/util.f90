@@ -514,23 +514,35 @@ contains
     allocate(character(reclnr)::recrd(nrecs))
     recrd=recrdin
   end subroutine gtv2_setrcd
-  subroutine rval2(cattok, rr,rv, nout,nreq, defa) !Choose one of nout or nreq or defa(default)
+  subroutine rval2(cattok, ch,rr,rv, nout,nreq, defa) !Choose one of nout or nreq or defa(default)
       integer:: NULL=-99999
       integer,optional:: nout,nreq          
       real(8),optional:: defa(:),rr
       real(8),optional,allocatable:: rv(:)
+      character(*),optional:: ch
       character(*):: cattok
       integer::ncat,i,ncount,ndefa
       real(8):: arr(1000)
       logical:: nomode,nrmode,ndmode
-      character(8):: xt
+      character(8):: xn
+      write(6,*)'cccccccc rval2 ',trim(cattok)
+      ncat=len(trim(cattok))
+      if(present(ch)) then
+         do i=1,nrecs
+            if( recrd(i)(1:ncat)==trim(cattok) ) then
+               read(recrd(i)(ncat+1:),"(a)") ch
+               return
+            endif
+         enddo
+         return
+      endif   
+      
       nomode=.false.; nrmode=.false.; ndmode=.false.
       if(present(nout))    nomode=.True.
       if(present(nreq))    nrmode=.True.
       if(present(defa)) ndmode=.True.
       if(count([nomode,nrmode,ndmode])>1) call rx('rval2: chooose one of nout nreq default')
       if(ndmode) ndefa =size(defa)
-      ncat=len(trim(cattok))
       do i=1,nrecs
          if( recrd(i)(1:ncat)==trim(cattok) ) then
             call getdval(trim(recrd(i)(ncat+1:)),ncount,arr) !Read undefinit number of real(8) array
@@ -539,10 +551,10 @@ contains
       enddo
       if(ndmode)then !default mode
          if(ncount>ndefa) ncount=ndefa !truncation
-         if(ncount>0.and.ncount/=ndefa)call rx('rval2: '//trim(cattok)//' default mode. ncount='//xt(ncount)//'/=ndefa='//xt(ndefa))
+         if(ncount>0.and.ncount/=ndefa)call rx('rval2: '//trim(cattok)//' default mode. ncount='//xn(ncount)//'/=ndefa='//xn(ndefa))
       elseif(nrmode) then !nrequest mode
          if(ncount>nreq) ncount=nreq !truncation
-         if(ncount/=nreq) call rx('rval2: '//trim(cattok)//' nreq mode. ncount='//xt(ncount)//'/=nreq='//xt(nreq))
+         if(ncount/=nreq) call rx('rval2: '//trim(cattok)//' nreq mode. ncount='//xn(ncount)//'/=nreq='//xn(nreq))
       endif
       
       if(present(rv)) then !rv mode
@@ -571,3 +583,18 @@ contains
       if(present(rr)) write(6,*)'cccccccc rr rval2 mode ncount val ',trim(cattok),nomode,nrmode,ndmode,ncount,rr
  end subroutine
 end module
+character(8) function xn(num)
+  integer :: num
+  if(num==0) then
+     xn=''
+     return
+  endif
+  xn = char(48+mod(num,10))
+  if(num>9)     xn = char(48+mod(num/10,10))//xn
+  if(num>99)    xn = char(48+mod(num/100,10))//xn
+  if(num>999)   xn = char(48+mod(num/1000,10))//xn
+  if(num>9999)  xn = char(48+mod(num/10000,10))//xn
+  if(num>99999) xn = char(48+mod(num/100000,10))//xn
+  if(num>999999) call rx( ' xn:can not produce')
+!  xn='.'//xn !no dot. see function xt
+END function xn

@@ -123,12 +123,12 @@ for iline in lll.split('\n'):
             if(cat=='SYMGRP'): ic=' '
             dat=cat+ic+tok
             dat=dat.replace('=',idx+' ',1)
-            if(id>0  and (not 'ATOM' in dat) ):
-                dat=dat.replace('_','_ATOM_')
+            #if(id>0  and (not 'ATOM' in dat) ):
+            #    dat=dat.replace('_','_')
             tokk.append(dat) #tok write
             idx=''
             if(id>0):
-                idx='_'+str(id)
+                idx='@'+str(id)
             tok=i
         else:
             tok=tok +' '+ i
