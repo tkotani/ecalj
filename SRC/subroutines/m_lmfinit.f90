@@ -263,7 +263,7 @@ contains
     
     Stage1readctrl: block !read ctrl file
       logical:: cmdopt0,cmdopt2,isanrg,parmxp
-      integer:: setprint0,iprint,isw,ncp,nmix,broy,n
+      integer:: setprint0,iprint,isw,ncp,nmix,broy,n,n1,n2,n3
       real(8):: avwsr,dasum,rydberg,wt(3),beta
       character(8):: fnam,xn
       call gtv2_setrcd(recrd)
@@ -328,28 +328,15 @@ contains
       coreh = ''
       coreq = NULLR
       eref = 0d0
+      avw = avwsr(plat,alat,vol,nbas)
       specloop: do j=1,nspec !SPEC_ATOM_foobar. In SPEC category, we do j=j+1 after we find ATOM=xx. See ctrl2ctrlp.py
          call rval2('SPEC_ATOM@'//xn(j), ch=ch); slabl(j)=trim(adjustl(ch))
          call rval2('SPEC_Z@'//xn(j),    rr=rr); z(j)=rr
-         
-      !    sw = tksw(prgnam,'SPEC_ATOM_R')
-      !    if (sw /= 2) then
-      !       nout = 0
-      !       nm='SPEC_ATOM_R';call gtv(trim(nm),sw,rmt(j),cindx=jj,nout=nout,note= 'Augmentation sphere radius rmax',or=T)
-      !       if (nout /= 1) then
-      !          nm='SPEC_ATOM_R/W';call gtv(trim(nm),sw,rmt(j),cindx=jj,nout=nout,note='rmax relative to average WS radius',or=T)
-      !          if (nout == 1) then
-      !             rmt(j) =rmt(j)*avw
-      !          else
-      !             nm='SPEC_ATOM_R/A';call gtv(trim(nm),sw,rmt(j),cindx=jj,nout=nout,note='rmax ratio to alat')
-      !             if (nout == 1) then
-      !                rmt(j) =rmt(j)*alat
-      !             else
-      !                rmt(j) = 0d0 !!     takao for lmchk even when R is not given. See default of LMCHK
-      !             endif
-      !          endif
-      !       endif
-      !    endif
+         call rval2('SPEC_R@'  //xn(j), rr=rr, nout=n1); if(n1==1) rmt(j)=rr
+         call rval2('SPEC_R/W@' //xn(j),rr=rr, nout=n2); if(n2==1.and.n1==0) rmt(j)=rr*avw
+         call rval2('SPEC_R/A@' //xn(j),rr=rr, nout=n3); if(n3==1.and.n2==0.and.n1==0) rmt(j)=rr*alat
+         call rval2('SPEC_A@'   //xn(j),rr=rr, defa =[0d0]);        spec_a(j)=rr
+         call rval2('SPEC_NR@'  //xn(j),rr=rr, defa=[real(8)::0]);  nr(j)=nint(rr)
       enddo specloop
       
       call gtv_setrcd(recrd,nrecs,reclnr,stdo,stdl,stde_in=stdo) !Copy recrd to rcd in m_gtv
@@ -392,7 +379,7 @@ contains
 !      nm='STRUC_NBAS';call gtv(trim(nm),tksw(prgnam,nm),nbas,note='Size of basis')
 !      nm='STRUC_PLAT';call gtv(trim(nm),tksw(prgnam,nm),temp33,nmin=9,nout=nout,note='Primitive lattice vectors')
       !plat= reshape(temp33,[3,3])
-      avw = avwsr(plat,alat,vol,nbas)
+      !avw = avwsr(plat,alat,vol,nbas)
       ! if(io_help == 0) then ! .AND. nspec == NULLI) then
       !    nm='SPEC_ATOM'; sw = tksw(prgnam,nm)
       !    if (sw /= 2) then
@@ -595,44 +582,45 @@ contains
          jj= (/1,j/)
          !nm='SPEC_ATOM'; call gtv(trim(nm),tksw(prgnam,nm),slabl(j), nmin=10,cindx=jj,note='Species label')
          !nm='SPEC_ATOM_Z'; call gtv(trim(nm),tksw(prgnam,nm),z(j), cindx=jj,note='Atomic number')
-         sw = tksw(prgnam,'SPEC_ATOM_R')
-         if (sw /= 2) then
-            nout = 0
-            nm='SPEC_ATOM_R';call gtv(trim(nm),sw,rmt(j),cindx=jj,nout=nout,note= 'Augmentation sphere radius rmax',or=T)
-            if (nout /= 1) then
-               nm='SPEC_ATOM_R/W';call gtv(trim(nm),sw,rmt(j),cindx=jj,nout=nout,note='rmax relative to average WS radius',or=T)
-               if (nout == 1) then
-                  rmt(j) =rmt(j)*avw
-               else
-                  nm='SPEC_ATOM_R/A';call gtv(trim(nm),sw,rmt(j),cindx=jj,nout=nout,note='rmax ratio to alat')
-                  if (nout == 1) then
-                     rmt(j) =rmt(j)*alat
-                  else
-                     rmt(j) = 0d0 !!     takao for lmchk even when R is not given. See default of LMCHK
-                  endif
-               endif
-            endif
-         endif
+         ! sw = tksw(prgnam,'SPEC_ATOM_R')
+         ! if (sw /= 2) then
+         !    nout = 0
+         !    nm='SPEC_ATOM_R';call gtv(trim(nm),sw,rmt(j),cindx=jj,nout=nout,note= 'Augmentation sphere radius rmax',or=T)
+         !    if (nout /= 1) then
+         !       nm='SPEC_ATOM_R/W';call gtv(trim(nm),sw,rmt(j),cindx=jj,nout=nout,note='rmax relative to average WS radius',or=T)
+         !       if (nout == 1) then
+         !          rmt(j) =rmt(j)*avw
+         !       else
+         !          nm='SPEC_ATOM_R/A';call gtv(trim(nm),sw,rmt(j),cindx=jj,nout=nout,note='rmax ratio to alat')
+         !          if (nout == 1) then
+         !             rmt(j) =rmt(j)*alat
+         !          else
+         !             rmt(j) = 0d0 !!     takao for lmchk even when R is not given. See default of LMCHK
+         !          endif
+         !       endif
+         !    endif
+         ! endif
          if(debug) print *,'nspec bbb mxcst j-loop j nspec',j,nspec
          !    Radial mesh parameters: determine default value of a
          i0 = NULLI
          xxx = NULLR
-         if (io_help /= 1) then
-            call pshpr(0)
-            call rmesh(z(j),rmt(j),lrel,.false.,nrmx,xxx,i0)
-            call poppr
-            if (xxx == .03d0) xxx = .015d0 !.025d0 jun2012 .025 to .015 as default.
-         endif
-         nm='SPEC_ATOM_A'; call gtv(trim(nm),tksw(prgnam,nm),spec_a(j),def_r8=xxx,cindx=jj,nout=nout, &
-              note='Radial mesh point spacing parameter')
-         !     Determine default NR
-         if (tksw(prgnam,'SPEC_ATOM_NR') /= 2) then
-            i0 = 0
-            call pshpr(0)
-            call rmesh(z(j),rmt(j),lrel,.false.,nrmx,spec_a(j),i0)
-            call poppr
-         endif
-         nm='SPEC_ATOM_NR'; call gtv(trim(nm),tksw(prgnam,nm),nr(j),def_i4=i0,cindx=jj, note='Number of radial mesh points')
+!         if (io_help /= 1) then
+         call pshpr(0)
+         call rmesh(z(j),rmt(j),lrel,.false.,nrmx,xxx,i0)
+         call poppr
+         if (xxx == .03d0) xxx = .015d0 !.025d0 jun2012 .025 to .015 as default.
+!         endif
+         !nm='SPEC_ATOM_A'; call gtv(trim(nm),tksw(prgnam,nm),spec_a(j),def_r8=xxx,cindx=jj,nout=nout, &
+         !     note='Radial mesh point spacing parameter')
+         !!     Determine default NR
+         if(spec_a(j)==0d0) spec_a(j)=xxx
+!         if (tksw(prgnam,'SPEC_ATOM_NR') /= 2) then
+         i0 = 0
+         call pshpr(0)
+         call rmesh(z(j),rmt(j),lrel,.false.,nrmx,spec_a(j),i0)
+         call poppr
+!         endif
+         !nm='SPEC_ATOM_NR'; call gtv(trim(nm),tksw(prgnam,nm),nr(j),def_i4=i0,cindx=jj, note='Number of radial mesh points')
          if (nr(j) == 0) nr(j) = i0
          !... Basis set for lmf  1st MTO sets ----------
          nm='SPEC_ATOM_RSMH'; call gtv(trim(nm),tksw(prgnam,nm),rsmh1(1:,j),cindx=jj,nout=nout,def_r8v=zerov, &
