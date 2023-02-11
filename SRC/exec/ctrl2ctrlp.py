@@ -45,7 +45,6 @@ for iarg in sys.argv[1:]: # -vfoobar replacemebt by args
 #print(outfile0.split('\n'))
 outfile0=outfile0[0:-1] #remove final \n
 #print(outfile0.split('\n'))
-#sys.exit()
 
 midfile=instr
 for i,irep in constrep.items():
@@ -73,7 +72,6 @@ for ilinex in midfile.split('\n'): #line by line, for pure mathematical operatio
     #print('input :'+''.join(mmm))  #print('output:'+''.join(nnn))
     outfile=outfile+''.join(nnn)+'\n'
 outfile=re.sub('\t',' ',outfile) # 2023feb22:46
-
 lll=''
 init=False
 ix=0
@@ -87,7 +85,7 @@ for line in outfile.split('\n'):
      elif(init==True):
          lll=lll+line.rstrip(' ')
 lll=lll[1:] #remove initial \n
-
+lll=re.sub('=\s+','=',lll) 
 lmax=0
 for line in lll.split('\n'):
     #print(len(line),line)

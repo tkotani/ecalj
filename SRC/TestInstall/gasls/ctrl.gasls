@@ -12,13 +12,13 @@ TSTPDOS lmfa gas -vnit=10
 %const  a=10.66 da=0 bzj=0 avw=2.62434548 lf1=4 lf2=lf1 lmxa=lf1 lmxae=lf2 rw=1.00 
 %const wto=0 kl=0 tet=1 nit=1 lf1=4 lf2=lf1 lmxa=lf1 lmxae=lf2 nk=6 nk2=nk 
 SYMGRP  find
-STRUC   NBAS=4/1 NCLASS=4/1 NSPEC=4/1 NL=5 ELINK=-2
+STRUC   NBAS=4/1 NSPEC=4/1 NL=5 ELINK=-2
         ALAT={a} DALAT={da} PLAT= 0 .5 .5    .5 0 .5    .5 .5 0 TET={tet}
 SITE    ATOM=C1  POS=  0+{wto}   0+{wto}   0+{wto}
         ATOM=A1  POS= .25-{wto}+{kl} .25-{wto}+{kl} .25-{wto}+{kl}
         ATOM=EA1 POS= .50+{kl}/2   .50+{kl}/2   .50+{kl}/2
         ATOM=EC1 POS= .75   .75   .75
-CLASS   ATOM=C1 Z=31 R={avw}*{rw} A=.015 EREF=-3882.1256
+SPEC    ATOM=C1 Z=31 R={avw}*{rw} A=.015 EREF=-3882.1256
           PZ=0,0,3.90 P=0,0,4.3 LMX=3 LMXL=2 LMXA={lmxa}
           RSMH=1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1 RSMH2=1.6,0,.9 EH2=-1,-1,-1
         ATOM=A1 Z=33 R={avw}*{rw} A=.015 EREF=-4515.4714

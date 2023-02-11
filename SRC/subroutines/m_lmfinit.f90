@@ -211,7 +211,7 @@ contains
     integer:: jj(2) !,nkapsi
     integer:: levelinit=0
     integer:: lx,lxx
-    character*256:: sss
+    character*256:: sss,ch
     logical:: sexist
     integer:: ibas,ierr,lc, iqnu=0
     integer:: ifzbak,nn1,nn2,nnx,lmxxx,nlaj,isp
@@ -265,7 +265,7 @@ contains
       logical:: cmdopt0,cmdopt2,isanrg,parmxp
       integer:: setprint0,iprint,isw,ncp,nmix,broy,n
       real(8):: avwsr,dasum,rydberg,wt(3),beta
-      character(8):: fnam
+      character(8):: fnam,xn
       call gtv2_setrcd(recrd)
       call rval2('IO_VERBOS' , rr=rr, defa=[real(8)::  30]); verbos=nint(rr)
       call rval2('IO_TIM'    , rr=rr, defa=[real(8)::  1 ]); io_tim=nint(rr)
@@ -299,16 +299,38 @@ contains
            ehvl(n0,nspec), qpol(n0,nspec),stni(nspec), &
            rg(nspec),rsma(nspec),rfoca(nspec),rcfa(2,nspec), & !,rsmfa(nspec)
            rham(nspec),rmt(nspec),rsmv(nspec), &
-            spec_a(nspec),z(nspec),nr(nspec),eref(nspec), &
+           spec_a(nspec),z(nspec),nr(nspec),eref(nspec), &
            coreh(nspec),coreq(2,nspec), idxdn(n0,nkap0,nspec), idu(4,nspec),uh(4,nspec),jh(4,nspec), &
            cstrmx(nspec),frzwfa(nspec), kmxt(nspec),lfoca(nspec),lmxl(nspec),lmxa(nspec),&
-           lmxb(nspec),nmcore(nspec),rs3(nspec),eh3(nspec))
-      allocate(lpz(nspec),lpzex(nspec))
-      allocate(nkapii(nspec),nkaphh(nspec))
-      allocate(slabl(nspec))
-      ! specloop: do j=1,nspec
-      !    call rval2('SPEC_ATOM_'//xt(j), ch=ch); slabl(j)=ch
-      !    call rval2('SPEC_ATOM_Z'//xt(j), rr=rr); z(j)=rr
+           lmxb(nspec),nmcore(nspec),rs3(nspec),eh3(nspec),&
+           lpz(nspec),lpzex(nspec),nkapii(nspec),nkaphh(nspec),slabl(nspec))
+      lpz=0
+      lpzex=0
+      cstrmx=F
+      frzwfa=F
+      nkapii=1
+      nkapi = 1
+      lpzi = 0
+      qpol = NULLR
+      rsmh1 = 0d0
+      rsmh2 = 0d0
+      eh1  = 0d0
+      eh2 = 0d0
+      idmod = NULLI
+      ehvl = NULLR
+      rcfa = NULLR
+      rfoca = 0d0
+      rg = 0d0
+      rham = NULLR
+      rsma = 0d0 
+      spec_a=0d0
+      nr=0
+      coreh = ''
+      coreq = NULLR
+      eref = 0d0
+      specloop: do j=1,nspec !SPEC_ATOM_foobar. In SPEC category, we do j=j+1 after we find ATOM=xx. See ctrl2ctrlp.py
+         call rval2('SPEC_ATOM@'//xn(j), ch=ch); slabl(j)=trim(adjustl(ch))
+         call rval2('SPEC_Z@'//xn(j),    rr=rr); z(j)=rr
          
       !    sw = tksw(prgnam,'SPEC_ATOM_R')
       !    if (sw /= 2) then
@@ -328,7 +350,7 @@ contains
       !          endif
       !       endif
       !    endif
-      ! enddo
+      enddo specloop
       
       call gtv_setrcd(recrd,nrecs,reclnr,stdo,stdl,stde_in=stdo) !Copy recrd to rcd in m_gtv
       call toksw_init(debug)
@@ -557,49 +579,22 @@ contains
 
 !xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx      
       !! SPEC_ATOM_*
-!      if (nspec == 0) goto 79
-      ! allocate(pnuall(n0,nsp,nbas),pnzall(n0,nsp,nbas))
-      ! allocate(pnusp(n0,nsp,nspec),qnu(n0,nsp,nspec), pzsp(n0,nsp,nspec),amom(n0,nspec),idmod(n0,nspec), &
-      !      rsmh1(n0,nspec),eh1(n0,nspec),rsmh2(n0,nspec),eh2(n0,nspec), &
-      !      ehvl(n0,nspec), qpol(n0,nspec),stni(nspec), &
-      !      rg(nspec),rsma(nspec),rfoca(nspec),rcfa(2,nspec), & !,rsmfa(nspec)
-      !      rham(nspec),rmt(nspec),rsmv(nspec), &
-      !       spec_a(nspec),z(nspec),nr(nspec),eref(nspec), &
-      !      coreh(nspec),coreq(2,nspec), idxdn(n0,nkap0,nspec), idu(4,nspec),uh(4,nspec),jh(4,nspec), &
-      !      cstrmx(nspec),frzwfa(nspec), kmxt(nspec),lfoca(nspec),lmxl(nspec),lmxa(nspec),&
-      !      lmxb(nspec),nmcore(nspec),rs3(nspec),eh3(nspec))
-      ! allocate(lpz(nspec),lpzex(nspec))
-      ! allocate(nkapii(nspec),nkaphh(nspec))
-      lpz=0
-      lpzex=0
-      cstrmx=F
-      frzwfa=F
-      nkapii=1
-      nkapi = 1
-      lpzi = 0
-      qpol = NULLR
-      rsmh1 = 0d0
-      rsmh2 = 0d0
-      eh1  = 0d0
-      eh2 = 0d0
-      idmod = NULLI
-      ehvl = NULLR
       do 1111 j = 1, nspec
          if(debug) print *,'nspec mxcst j-loop j nspec',j,nspec
-         rcfa(:,j) = NULLR; rfoca(j) = 0d0; rg(j) = 0d0
-         rham(j) = NULLR; rsma(j) = 0d0 !; rsmfa(j) = 0d0
-         spec_a(j) = NULLR; nr(j) = NULLI
+!         rcfa(:,j) = NULLR; rfoca(j) = 0d0; rg(j) = 0d0
+!         rham(j) = NULLR; rsma(j) = 0d0 !; rsmfa(j) = 0d0
+!         spec_a(j) = NULLR; nr(j) = NULLI
          !exi(:,j) = NULLR
-         coreh(j) = ' '; coreq(:,j) = NULLR
-         eref(j) = 0d0
+!         coreh(j) = ' '; coreq(:,j) = NULLR
+!         eref(j) = 0d0
          if (io_help /= 0) then
             write(stdo,'(1x)')
          elseif (io_help == 0 .AND. io_show>0) then
             write(stdo,ftox)' ... Species ',j
          endif
          jj= (/1,j/)
-         nm='SPEC_ATOM'; call gtv(trim(nm),tksw(prgnam,nm),slabl(j), nmin=10,cindx=jj,note='Species label')
-         nm='SPEC_ATOM_Z'; call gtv(trim(nm),tksw(prgnam,nm),z(j), cindx=jj,note='Atomic number')
+         !nm='SPEC_ATOM'; call gtv(trim(nm),tksw(prgnam,nm),slabl(j), nmin=10,cindx=jj,note='Species label')
+         !nm='SPEC_ATOM_Z'; call gtv(trim(nm),tksw(prgnam,nm),z(j), cindx=jj,note='Atomic number')
          sw = tksw(prgnam,'SPEC_ATOM_R')
          if (sw /= 2) then
             nout = 0
