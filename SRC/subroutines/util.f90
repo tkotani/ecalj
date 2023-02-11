@@ -482,14 +482,12 @@ subroutine getdval(dddin, ncount,arr) !Read undefinit number of real(8) array
   integer:: ncount, i,ix,iy
   real(8):: arr(*)
   character(*):: dddin
-  character(500):: ddd
-!  print *,'getdval'
+  character(500):: ddd !  print *,'getdval'
   ddd = trim(dddin)//' '
   ncount=0
   do i=1,100
      ddd=adjustl(ddd)
-     if(len(trim(ddd))==0) goto 1012
-     !print *,'ddd:',trim(ddd)
+     if(len(trim(ddd))==0) goto 1012  !print *,'ddd:',trim(ddd)
      read(ddd,*,err=1012) arr(i)
      ncount=ncount+1
      ix = scan(ddd,' ')
@@ -499,89 +497,77 @@ subroutine getdval(dddin, ncount,arr) !Read undefinit number of real(8) array
      ddd=ddd(min(ix,iy)+1:)
   enddo
   call rx('error: getdval')
-1012 continue
-  !write(6,*) 'getdval=',arr(1:ncount)
+1012 continue   !write(6,*) 'getdval=',arr(1:ncount)
 end subroutine getdval
 
 module m_gtv2
   public rval2,gtv2_setrcd
   private
-    integer::nrecs
+    integer::nrecs,reclnr
     character(:),allocatable:: recrd(:)
 contains
   subroutine gtv2_setrcd(recrdin)
-    integer::nrecs,reclnr
-    character(*):: recrdin(:)
+    character(len=*):: recrdin(:)
     nrecs = size(recrdin)
     reclnr= len(recrdin(1))
+    !write(6,*)nrecs,reclnr
     allocate(character(reclnr)::recrd(nrecs))
     recrd=recrdin
   end subroutine gtv2_setrcd
-  subroutine rval2(cattok, rr,rv, nout,nreq, default) !Choose one of nout or nreq or default
+  subroutine rval2(cattok, rr,rv, nout,nreq, defa) !Choose one of nout or nreq or defa(default)
       integer:: NULL=-99999
       integer,optional:: nout,nreq          
-      real(8),optional:: default(:),rr
+      real(8),optional:: defa(:),rr
       real(8),optional,allocatable:: rv(:)
       character(*):: cattok
+      integer::ncat,i,ncount,ndefa
       real(8):: arr(1000)
-      integer::ncat,i,ncount,nsizez
       logical:: nomode,nrmode,ndmode
+      character(8):: xt
+      nomode=.false.; nrmode=.false.; ndmode=.false.
       if(present(nout))    nomode=.True.
       if(present(nreq))    nrmode=.True.
-      if(present(default)) ndmode=.True.
-!      if(count([nomode,nrmode,ndmode])>1) call rx('rval2: chooose one of nout nreq default')
-!      if(present(defaulti)) defi=.True.
-!      if(present(defaultr)) defr=.True.
-!      if(count([defr,defi])>1)call rx('rval2: chooose defaulti or defaultr')
-      nsizez=0
-      if(ndmode) nsizez=size(default)
-      if(nrmode) nsizez=nreq
+      if(present(defa)) ndmode=.True.
+      if(count([nomode,nrmode,ndmode])>1) call rx('rval2: chooose one of nout nreq default')
+      if(ndmode) ndefa =size(defa)
+      ncat=len(trim(cattok))
       do i=1,nrecs
-         if( recrd(i)(1:ncat+1)==trim(cattok)//'=' ) then
+         if( recrd(i)(1:ncat)==trim(cattok) ) then
             call getdval(trim(recrd(i)(ncat+1:)),ncount,arr) !Read undefinit number of real(8) array
             exit
          endif
       enddo
-      if(nsizez>0.and.ncount/=nsizez) call rx('ncount/=nsize') 
-      allocate(rv(ncount))
-      if(nsizez==0.and.ndmode) rv(1:ncount)=default(1:ncount)
-      if(present(rv)) rv(1:ncount)=arr(1:ncount)
-      if(present(rr)) rr=arr(1)
-      nout=ncount
+      if(ndmode)then !default mode
+         if(ncount>ndefa) ncount=ndefa !truncation
+         if(ncount>0.and.ncount/=ndefa)call rx('rval2: '//trim(cattok)//' default mode. ncount='//xt(ncount)//'/=ndefa='//xt(ndefa))
+      elseif(nrmode) then !nrequest mode
+         if(ncount>nreq) ncount=nreq !truncation
+         if(ncount/=nreq) call rx('rval2: '//trim(cattok)//' nreq mode. ncount='//xt(ncount)//'/=nreq='//xt(nreq))
+      endif
+      
+      if(present(rv)) then !rv mode
+        if(allocated(rv)) deallocate(rv)
+        if(ncount==0.and.ndmode) then
+           ncount=ndefa
+           allocate(rv(ncount))
+           rv(1:ncount)=defa(1:ncount)
+        else   
+           allocate(rv(ncount))
+           rv(1:ncount)=arr(1:ncount)
+        endif   
+      else !rr mode
+         if(.not.present(rr)) call rx('rval2:neither rr nor rv given')
+        if(ncount==0.and.ndmode) then
+           ncount=1
+           rr=defa(1)
+        elseif(ncount==1) then   
+           rr=arr(1)
+        else
+           rr=NULL
+        endif
+      endif
+      if(present(nout)) nout=ncount !nomode
+      if(present(rv)) write(6,*)'cccccccc rv rval2 mode ncount val ',trim(cattok),nomode,nrmode,ndmode,ncount,rv(1:ncount)
+      if(present(rr)) write(6,*)'cccccccc rr rval2 mode ncount val ',trim(cattok),nomode,nrmode,ndmode,ncount,rr
  end subroutine
 end module
-
-! module m_gettoken
-!   use m_lmfinit,only: recrd,nrec
-!   character(recln),allocatable ::recrd(:)
-! contains
-!   subroutine gettoken(cattok,j,arr)
-!     character(20):: cat
-!     real(8):: arr(:)
-!     icat=scan(cattok),'_')
-!     cat = cattok(1:icat-1)
-!     catr= cattok(icat+1:)
-!     itok=scan(catr),'_')
-!     tok =catr(cat+1:itok-1)
-!     catrr=catr(itok+1:)
-!     caton=.false.
-!     do iline=1,nrec
-!        rrr=recrd(iline)
-!        if(rrr(1:len(cat))==trim(cat)) icatl=iline
-!     enddo
-!     catlines=''
-!     do iline=icatl,nrec
-!        if(rrr(1:len(cat))/=' ') exit
-!        catlines = catlines+recrd(iline)
-!     enddo
-!     ddd=catlines
-
-!     toklines=''
-!     itok=0
-!     ix=1
-!     do i=1,100000
-!        iend=scan(ddd,' ')
-!        dat=ddd(:iend)
-!        if(dat(len(tok))==trim(tok)) itok=itok+1
-!        if(itok==j) then
-!           toklines=tokline+dat

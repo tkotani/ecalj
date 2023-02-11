@@ -420,3 +420,12 @@ fp elind 1.44  Broyden n 2 wc -1  sm-dq 0.0231  mx loc 0.0351  dq 0.0275
  CPU time:    2.027 sec    Sat Jan 15 14:46:11 2022 on 
 ===START LMF with   ===
  mpisize=           1
+=== START LFMA ===
+ mpisize=           1
+=== START LFMA ===
+ mpisize=           1
+=== START LFMA ===
+ mpisize=           1
+fa Z  27.0   rm  47.28  qc 18.00  qspl 0.00438  dq 0.00000  Etot   -2781.537171
+fa Z  78.0   rm  49.08  qc 68.00  qspl 0.02952  dq 0.00000  Etot  -36805.450714
+ CPU time:    0.187 sec    Sat Feb 11 13:55:39 2023 on 

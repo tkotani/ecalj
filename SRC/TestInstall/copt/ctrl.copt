@@ -10,11 +10,11 @@ OPTIONS NSPIN={nsp} REL=T CCOR={ccor}
 SYMGRP  find
 STR     RMAXS=2.5 NOCALC=F
 % const ng=16 nk1=12 nz=10 a=7.1866
-HAM     FORCES={lfrce} FTMESH={ng} TOL=1e-7
+HAM     FORCES={lfrce} FTMESH={ng} {ng} {ng} TOL=1e-7
 % const  pwmode=0 pwemin=1 pwemax=3 oveps=0
         PWMODE={pwmode} PWEMIN={pwemin} PWEMAX={pwemax} OVEPS={oveps}
         NSPIN={nsp} REL=T NONCOL={nc} SO={so}
-STRUC   NBAS=4 NCLASS=2 NSPEC=2 NL={nl} ALAT={a} PLAT=1 0 0  0 1 0   0 0 1
+STRUC   NBAS=4 NSPEC=2 NL={nl} ALAT={a} PLAT=1 0 0  0 1 0   0 0 1
 SITE    ATOM=Pt POS=   0.01   0.02   0.03
         ATOM=Co POS=  .51  .51   0
         ATOM=Co POS=   0  .51  .501

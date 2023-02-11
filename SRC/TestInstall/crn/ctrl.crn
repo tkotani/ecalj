@@ -83,7 +83,7 @@ BZ      NKABC={nk} 2*{nk} {nk} BZJOB=T T T METAL={metal} TETRA=T
         N=1 W=.01
 # for version 7
 ITER    MIX=A{nmix},b={beta},k=4 CONV={conv} CONVC={convc} NIT={nit}
-HAM     FTMESH={ftmesh} FORCES=1 
+HAM     FTMESH={ftmesh} {ftmesh} {ftmesh} FORCES=1 
         NSPIN=2 REL=T
         STABILIZE=1e-8
 	OVEPS=1e-8

@@ -23,7 +23,7 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa)
   logical,protected :: ham_frzwf,ham_ewald
   integer,protected:: nspc,procid,nproc,master=0,nspx,& 
        maxit,gga,ftmesh(3),nmto=0,lrsigx=0,nsp=1,lrel=1,lso=0 
-  real(8),protected:: pmin(n0),pmax(n0),ham_pmax(10),ham_pmin(10), &
+  real(8),protected:: pmin(n0)=0d0,pmax(n0)=0d0,&
        tolft,scaledsigma, ham_oveps,ham_scaledsigma
   real(8):: cc !speed of light
   integer,protected :: smalit, lstonr(3)=0,nl !,lpfloat=1
@@ -68,7 +68,7 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa)
   real(8),protected:: mix_tolu,mix_umix
   !!
   integer,protected:: pwmode,ncutovl ,ndimx    !ncutovl is by takao. not in lm-7.0beta.npwpad,
-  real(8),protected:: pwemax,pwemin,oveps!,delta_stabilize
+  real(8),protected:: pwemax,oveps,pwemin=0d0!,delta_stabilize
   integer,allocatable,protected ::  iv_a_oips (:)   ,  lpz(:),lpzex(:),lhh(:,:)
   !! ClebshGordon coefficient (GW part use clebsh_t)
   real(8) , allocatable,protected :: rv_a_ocg (:), rv_a_ocy (:)
@@ -113,13 +113,13 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa)
   logical,protected:: bexist
 
   integer,parameter:: recln=512
-  integer,protected:: reclnr,nrecs
+  integer,protected:: reclnr,nrecs,nrecs2
   character(:),allocatable:: recrd(:)
 contains
   subroutine m_lmfinit_init(prgnam) ! All the initial data are set in module variables from ctrlp.*
     use m_toksw,only:tksw
     use m_gtv,only: gtv,gtv_setrcd,gtv_setio
-    use m_gtv2,only: gtv2_setrcd
+    use m_gtv2,only: gtv2_setrcd,rval2
     use m_ftox
     use m_cmdpath,only:cmdpath
     !! ----------------------------------------------------------------------
@@ -174,7 +174,7 @@ contains
     logical :: lgors,cmdopt,ltmp,ioorbp,cmdopt0
     double precision :: dval,dglob,xx(n0*2),dgets !,ekap(6)
     integer :: i,is,iprint, &
-         iprt,isw,ifi,ix(n0*nkap0),j,k,l,lfrzw,lrs,lstsym,ltb,nclasp,nglob,scrwid,k1,k2,mpipid 
+         iprt,isw,ifi,ix(n0*nkap0),j,k,l,lfrzw,lrs,lstsym,ltb,nclasp,nglob,k1,k2,mpipid 
     character*(8),allocatable::clabl(:)
     integer,allocatable:: ipc(:),initc(:),ics(:)
     real(8),allocatable:: pnuspc(:,:,:),qnuc(:,:,:,:),pp(:,:,:,:),ves(:),zc(:)
@@ -206,8 +206,9 @@ contains
     integer:: ii,sw
     real(8):: dasum!,dglob
     character(128) :: nm
-    real(8):: nullrv(256),d2,plat(3,3),rydberg
-    integer:: nulliv(256),jj(2) !,nkapsi
+    real(8):: d2,plat(3,3),rydberg,rr
+    real(8),allocatable ::rv(:)
+    integer:: jj(2) !,nkapsi
     integer:: levelinit=0
     integer:: lx,lxx
     character*256:: sss
@@ -216,88 +217,142 @@ contains
     integer:: ifzbak,nn1,nn2,nnx,lmxxx,nlaj,isp
     integer,allocatable :: iv_a_oips_bakup (:)
     integer :: ctrl_nspec_bakup,inumaf,iin,iout,ik,iprior,ibp1,indx,iposn,m,nvi,nvl
-    logical :: ipr10,fullmesh,lzz
+    logical :: ipr10,fullmesh,lzz,fileexist
     integer,allocatable:: idxdn(:,:,:)
-    if (cmdopt0('--help')) io_help = 1 !help mode on
-    if(master_mpi.and.io_help==0) then
-       if(prgnam == 'LMF')    write(stdo,*) 'm_lmfinit:program LMF'
-       if(prgnam == 'LMFGWD') write(stdo,*) 'm_lmfinit:program LMFGWD'
-       if(prgnam == 'LMFA') write(stdo,*)   'm_lmfinit:program LMFA'
-
-       GetCtrlp: block !Get ctrlp file
-         integer:: i
-         character(512):: aaa,cmdl,argv
-         logical:: fileexist
-         inquire(file='ctrl.'//trim(sname),exist=fileexist)
-         if( .NOT. fileexist) call rx("No ctrl file found!! ctrl."//trim(sname))
-         aaa=''
-         do i = 1, iargc()
-            call getarg( i, argv )
-            aaa=trim(aaa)//' '//trim(argv)
-         enddo
-         open(newunit=ifi,file='save.'//trim(sname),position='append')
-         write(ifi, "(a)") 'Start '//trim(prgnam)//trim(aaa)
-         close(ifi)
-         cmdl=trim(cmdpath)//'ctrl2ctrlp.py '//trim(aaa)//'<ctrl.'//trim(sname)//' >ctrlp.'//trim(sname)
-         write(stdo,*)'cmdl=',trim(cmdl)
-         call system(cmdl) !Main part of conversion by python code
-       endblock GetCtrlp
-    endif
-    call MPI_BARRIER( MPI_COMM_WORLD, ierr )
     procid = mpipid(1)
     nproc  = mpipid(0)
-    
-    Stage1readctrl: block !read ctrl file
-      logical:: cmdopt0,cmdopt2,isanrg,parmxp
-      integer:: setprint0,iprint,isw,ncp,nmix,broy
-      real(8):: avwsr,dasum,rydberg,wt(3),beta
-      character(8):: fnam
-      scrwid = 80
-      nullrv = nullr
-      nulliv  =nulli
-      debug = cmdopt0('--debug')
-      if (cmdopt0('--help')) io_help = 1 !help mode on
+    debug = cmdopt0('--debug')
+    if(cmdopt0('--help')) io_help = 1 !help mode on
+    if(prgnam == 'LMF')    write(stdo,*) 'm_lmfinit:program LMF'
+    if(prgnam == 'LMFGWD') write(stdo,*) 'm_lmfinit:program LMFGWD'
+    if(prgnam == 'LMFA') write(stdo,*)   'm_lmfinit:program LMFA'
+    Generatectrlp:block
+      if(master_mpi.and.io_help==0) then
+         inquire(file='ctrl.'//trim(sname),exist=fileexist)
+         if( .NOT. fileexist) call rx("No ctrl file found!! ctrl."//trim(sname))
+         GetCtrlp: block !Get ctrlp file
+           character(512):: aaa,cmdl,argv
+           aaa=''
+           do i = 1, iargc()
+              call getarg( i, argv )
+              aaa=trim(aaa)//' '//trim(argv) !command inputs are connected
+           enddo
+           open(newunit=ifi,file='save.'//trim(sname),position='append')
+           write(ifi,"(a)") 'Start '//trim(prgnam)//trim(aaa)
+           close(ifi)
+           cmdl=trim(cmdpath)//'ctrl2ctrlp.py '//trim(aaa)//'<ctrl.'//trim(sname)//' >ctrlp.'//trim(sname)
+           write(stdo,*)'cmdl for python=',trim(cmdl)
+           call system(cmdl) !Main part of conversion by python code
+         endblock GetCtrlp
+      endif
+      call MPI_BARRIER( MPI_COMM_WORLD, ierr)
+    end block Generatectrlp
+    Readctrlp: block !Readin ctrlp, which was given by ctrl2ctrlp.py
       if(io_help==1) then 
          nrecs=0
       else   
-         open(newunit=ncp,file='ctrlp.'//trim(sname))
-         !Readin ctrlp, which contains only python-type math expressions. See subroutine mathexpr
-         read(ncp,*) nrecs,reclnr
-         allocate(character(reclnr):: recrd(nrecs))
-!         print *,'nrecs reclr=',nrecs,reclnr
-         do i = 1, nrecs
-            read(ncp,"(a)")recrd(i)
-!            write(*,*)trim(recrd(i))
+         open(newunit=ifi,file='ctrlp.'//trim(sname))
+         read(ifi,*) nrecs,reclnr,nrecs2
+         allocate(character(reclnr):: recrd(nrecs2))
+         do i = 1, nrecs2
+            read(ifi,"(a)")recrd(i)
          enddo
-         close(ncp)
+         close(ifi)
       endif
+    endblock Readctrlp
+    
+    Stage1readctrl: block !read ctrl file
+      logical:: cmdopt0,cmdopt2,isanrg,parmxp
+      integer:: setprint0,iprint,isw,ncp,nmix,broy,n
+      real(8):: avwsr,dasum,rydberg,wt(3),beta
+      character(8):: fnam
       call gtv2_setrcd(recrd)
+      call rval2('IO_VERBOS' , rr=rr, defa=[real(8)::  30]); verbos=nint(rr)
+      call rval2('IO_TIM'    , rr=rr, defa=[real(8)::  1 ]); io_tim=nint(rr)
+      call rval2('STRUC_ALAT', rr=rr, nout=n);  alat=rr
+      call rval2('STRUC_DALAT',rr=rr, nout=n);  dalat=rr
+      call rval2('STRUC_NBAS', rr=rr, nout=n);  nbas=nint(rr)
+      call rval2('STRUC_PLAT', rv=rv, nreq=9);  plat=reshape(rv,shape(plat))
+      call rval2('STRUC_NSPEC',rr=rr, nreq=1);  nspec=nint(rr)
+      call rval2('HAM_NSPIN',  rr=rr, defa=[real(8):: 1]);  nsp=nint(rr)
+      call rval2('HAM_REL',    rr=rr, defa=[real(8):: 1]);  lrel=nint(rr)
+      call rval2('HAM_SO',     rr=rr, defa=[real(8):: 0]);  lso=nint(rr)
+      call rval2('HAM_SOCAXIS',rv=rv, defa=[0d0,0d0,1d0]);  socaxis=rv
+      call rval2('HAM_GMAX',   rr=rr, defa=[0d0]);          lat_gmaxin=rr
+      call rval2('HAM_FTMESH', rv=rv, defa=[0d0,0d0,0d0]);  ftmesh=rv
+      call rval2('HAM_TOL',   rr=rr,  defa=[1d-6]); tolft=rr
+      call rval2('HAM_FRZWF', rr=rr,  defa=[real(8):: 0]); ham_frzwf= nint(rr)==1 
+      call rval2('HAM_XCFUN', rr=rr,  defa=[real(8):: 2]); lxcf=nint(rr)
+      call rval2('HAM_FORCES',rr=rr,  defa=[real(8):: 0]); lfrce=nint(rr)
+      call rval2('HAM_RDSIG', rr=rr,  defa=[real(8):: 1]); lrsigx=nint(rr)
+      call rval2('HAM_ScaledSigma', rr=rr, defa=[1d0]   ); scaledsigma=rr
+      call rval2('HAM_EWALD', rr=rr,  defa=[real(8):: 0]); ham_ewald= nint(rr)==1
+      call rval2('HAM_OVEPS', rr=rr,  defa=[1d-7]);   oveps=rr
+      call rval2('HAM_PWMODE', rr=rr, defa=[real(8):: 0]);  pwmode=nint(rr)
+      call rval2('HAM_PWEMAX', rr=rr, defa=[real(8):: 0]);  pwemax=rr
+      call rval2('HAM_READP',rr=rr, defa=[real(8):: 0]); readpnu= nint(rr)==1
+      call rval2('HAM_V0FIX',rr=rr, defa=[real(8):: 0]); v0fix =  nint(rr)==1
+      call rval2('HAM_PNUFIX',rr=rr,defa=[real(8):: 0]); pnufix=  nint(rr)==1
+      allocate(pnuall(n0,nsp,nbas),pnzall(n0,nsp,nbas))
+      allocate(pnusp(n0,nsp,nspec),qnu(n0,nsp,nspec), pzsp(n0,nsp,nspec),amom(n0,nspec),idmod(n0,nspec), &
+           rsmh1(n0,nspec),eh1(n0,nspec),rsmh2(n0,nspec),eh2(n0,nspec), &
+           ehvl(n0,nspec), qpol(n0,nspec),stni(nspec), &
+           rg(nspec),rsma(nspec),rfoca(nspec),rcfa(2,nspec), & !,rsmfa(nspec)
+           rham(nspec),rmt(nspec),rsmv(nspec), &
+            spec_a(nspec),z(nspec),nr(nspec),eref(nspec), &
+           coreh(nspec),coreq(2,nspec), idxdn(n0,nkap0,nspec), idu(4,nspec),uh(4,nspec),jh(4,nspec), &
+           cstrmx(nspec),frzwfa(nspec), kmxt(nspec),lfoca(nspec),lmxl(nspec),lmxa(nspec),&
+           lmxb(nspec),nmcore(nspec),rs3(nspec),eh3(nspec))
+      allocate(lpz(nspec),lpzex(nspec))
+      allocate(nkapii(nspec),nkaphh(nspec))
+      allocate(slabl(nspec))
+      ! specloop: do j=1,nspec
+      !    call rval2('SPEC_ATOM_'//xt(j), ch=ch); slabl(j)=ch
+      !    call rval2('SPEC_ATOM_Z'//xt(j), rr=rr); z(j)=rr
+         
+      !    sw = tksw(prgnam,'SPEC_ATOM_R')
+      !    if (sw /= 2) then
+      !       nout = 0
+      !       nm='SPEC_ATOM_R';call gtv(trim(nm),sw,rmt(j),cindx=jj,nout=nout,note= 'Augmentation sphere radius rmax',or=T)
+      !       if (nout /= 1) then
+      !          nm='SPEC_ATOM_R/W';call gtv(trim(nm),sw,rmt(j),cindx=jj,nout=nout,note='rmax relative to average WS radius',or=T)
+      !          if (nout == 1) then
+      !             rmt(j) =rmt(j)*avw
+      !          else
+      !             nm='SPEC_ATOM_R/A';call gtv(trim(nm),sw,rmt(j),cindx=jj,nout=nout,note='rmax ratio to alat')
+      !             if (nout == 1) then
+      !                rmt(j) =rmt(j)*alat
+      !             else
+      !                rmt(j) = 0d0 !!     takao for lmchk even when R is not given. See default of LMCHK
+      !             endif
+      !          endif
+      !       endif
+      !    endif
+      ! enddo
+      
       call gtv_setrcd(recrd,nrecs,reclnr,stdo,stdl,stde_in=stdo) !Copy recrd to rcd in m_gtv
       call toksw_init(debug)
       if (       master_mpi) io_show = 1
       if ( .NOT. master_mpi) io_show = 0
-      if (io_help == 1) then
-         write(stdo,*)' Token           Input   cast  (size,min) --------------------------'
-      elseif(io_show/=0) then
-         write(stdo,*)' Token           Input   cast  (size,min,read,def)     result'
-      endif
+      if(io_help==1)write(stdo,*)' Token           Input   cast  (size,min) --------------------------'
+      if(io_show/=0)write(stdo,*)' Token           Input   cast  (size,min,read,def)     result'
       call gtv_setio(debug,io_show,io_help) ! In case io_help changed
       !! IO
       i0=setprint0(30)      !initial verbose set
-      nm='IO_VERBOS'; call gtv(trim(nm),tksw(prgnam,nm),verbos, &
-           note='Verbosity for printout. Set from the command-line with --pr=xxx',def_i4=30,nout=nout)
-      if(io_help==1)                                  verbos=30
+      !      nm='IO_VERBOS'; call gtv(trim(nm),tksw(prgnam,nm),verbos, &
+      !           note='Verbosity for printout. Set from the command-line with --pr=xxx',def_i4=30,nout=nout)
+      !      if(io_help==1)                                  verbos=30
       if    (cmdopt2('--pr=',outs))then; read(outs,*) verbos
       elseif(cmdopt2('--pr',outs)) then; read(outs,*) verbos
       elseif(cmdopt2('-pr',outs))  then; read(outs,*) verbos
       endif
-      i0 = setprint0(verbos)      !Set initial verbos
-      if( .NOT. master_mpi) i0=setprint0(-100) !iprint() is 0 except master
+      i0 = setprint0(verbos)                   !Set initial verbos
+      if( .NOT. master_mpi) i0=setprint0(-100) !iprint()=0 except master
       !! Timing
-      nm='IO_TIM';call gtv(trim(nm),tksw(prgnam,nm),io_tim,note='Turns CPU timing log. Value sets tree depth.'// &
-           new_line('a')//'  Optional 2nd arg prints CPU times as routines execute.'// &
-           new_line('a')//'  Args may be set through command-line: --time=#1[,#2]',def_i4v=(/1,1/),nmin=1,nout=i0)
-      if(i0==1) io_tim(2)=io_tim(1)
+      !nm='IO_TIM';call gtv(trim(nm),tksw(prgnam,nm),io_tim,note='Turns CPU timing log. Value sets tree depth.'// &
+      !     new_line('a')//'  Optional 2nd arg prints CPU times as routines execute.'// &
+      !     new_line('a')//'  Args may be set through command-line: --time=#1[,#2]',def_i4v=(/1,1/),nmin=1,nout=i0)
+      !if(i0==1) io_tim(2)=io_tim(1)
       if (cmdopt2('--time',outs) ) then !!  Override with '--time=' commmand-line arg
          outs=trim(outs(2:))//' 999 999'
          read(outs,*)io_tim(1),io_tim(2)
@@ -308,63 +363,64 @@ contains
       if ( i0 >=1 ) call tcinit(io_tim(2),io_tim(1),levelinit)
       call tcn('m_lmfinit') !after tcinit call
       ! --- CONST here removed.2023feb
+      
       !! Struc 
-      if (tksw(prgnam,'STRUC') == 2) goto 59
-      nm='STRUC_ALAT';call gtv(trim(nm),tksw(prgnam,nm),alat,note= 'Units of length (a.u.)')
-      nm='STRUC_NBAS';call gtv(trim(nm),tksw(prgnam,nm),nbas,note='Size of basis')
-      nm='STRUC_PLAT';call gtv(trim(nm),tksw(prgnam,nm),temp33,nmin=9,nout=nout,note='Primitive lattice vectors')
-      plat= reshape(temp33,[3,3])
+!      if (tksw(prgnam,'STRUC') == 2) goto 59
+!      nm='STRUC_ALAT';call gtv(trim(nm),tksw(prgnam,nm),alat,note= 'Units of length (a.u.)')
+!      nm='STRUC_NBAS';call gtv(trim(nm),tksw(prgnam,nm),nbas,note='Size of basis')
+!      nm='STRUC_PLAT';call gtv(trim(nm),tksw(prgnam,nm),temp33,nmin=9,nout=nout,note='Primitive lattice vectors')
+      !plat= reshape(temp33,[3,3])
       avw = avwsr(plat,alat,vol,nbas)
-      if(io_help == 0) then ! .AND. nspec == NULLI) then
-         nm='SPEC_ATOM'; sw = tksw(prgnam,nm)
-         if (sw /= 2) then
-            j = 0; nspec = 0
-            do while (nspec <= 0)
-               j = j+1; jj= (/1,j/)
-               if ( .NOT. debug) call pshpr(0)
-               block
-                   integer(2):: nono !this is key to choose gtv_none
-                   call gtv(trim(nm),0,nono,Texist=ltmp,cindx=jj)
-               endblock    
-               if ( .NOT. debug) call poppr
-               if ( .NOT. ltmp) nspec = j-1
-            enddo
-            if (io_show>0) write(stdo,ftox) ' ... found',nspec,'species in SPEC category'
-         endif
-      endif
-      nm='STRUC_DALAT'; call gtv(trim(nm),tksw(prgnam,nm),dalat,def_r8=0d0, &
-           note='added to alat after reading inputs (only affecting to SPEC_ATOM_R/A case)')
+      ! if(io_help == 0) then ! .AND. nspec == NULLI) then
+      !    nm='SPEC_ATOM'; sw = tksw(prgnam,nm)
+      !    if (sw /= 2) then
+      !       j = 0; nspec = 0
+      !       do while (nspec <= 0)
+      !          j = j+1; jj= (/1,j/)
+      !          if ( .NOT. debug) call pshpr(0)
+      !          block
+      !              integer(2):: nono !this is key to choose gtv_none
+      !              call gtv(trim(nm),0,nono,Texist=ltmp,cindx=jj)
+      !          endblock    
+      !          if ( .NOT. debug) call poppr
+      !          if ( .NOT. ltmp) nspec = j-1
+      !       enddo
+      !       if (io_show>0) write(stdo,ftox) ' ... found',nspec,'species in SPEC category'
+      !    endif
+      ! endif
+!      nm='STRUC_DALAT'; call gtv(trim(nm),tksw(prgnam,nm),dalat,def_r8=0d0, &
+!           note='added to alat after reading inputs (only affecting to SPEC_ATOM_R/A case)')
       !xxx    STRUC_NL here removed, Lattice distortion or rotatation here removed.
-59    continue
+!59    continue
       !! Options
       nm='OPTIONS_HF';call gtv(trim(nm),tksw(prgnam,nm),lhf,def_lg=F,note='T for non-self-consistent Harris')
 !      nm='OPTIONS_RMINES';call gtv(trim(nm),tksw(prgnam,nm),rmines,def_r8=1d0,note='Minimum MT radius when finding new ES')
 !      nm='OPTIONS_RMAXES';call gtv(trim(nm),tksw(prgnam,nm),rmaxes,def_r8=2d0,note='Maximum MT radius when finding new ES')
 !      lpfloat=1
       !!HAM
-      nm='HAM_NSPIN';call gtv(trim(nm),tksw(prgnam,nm),nsp,def_i4=1,note='Set to 2 for spin polarized calculations')
-      if(io_help==0.and.(nsp/=1.and.nsp/=2)) call rx('nsp=1 or 2')
+!      nm='HAM_NSPIN';call gtv(trim(nm),tksw(prgnam,nm),nsp,def_i4=1,note='Set to 2 for spin polarized calculations')
+!      if(io_help==0.and.(nsp/=1.and.nsp/=2)) call rx('nsp=1 or 2')
       lcd4=F
       if (prgnam == 'LMF' .OR. prgnam == 'LMFGWD') lcd4=T
-      nm='HAM_REL'; call gtv(trim(nm),tksw(prgnam,nm),lrel,def_i4=1, &
-           note='relativistic switch'//&
-           new_line('a')//'   '//'0 for nonrelativistic Schrodinger equation'// &
-           new_line('a')//'   '//'1 for scalar relativistic Schrodinger equation'//&
-           new_line('a')//'   '//'2 for Dirac equation')
+      ! nm='HAM_REL'; call gtv(trim(nm),tksw(prgnam,nm),lrel,def_i4=1, &
+      !      note='relativistic switch'//&
+      !      new_line('a')//'   '//'0 for nonrelativistic Schrodinger equation'// &
+      !      new_line('a')//'   '//'1 for scalar relativistic Schrodinger equation'//&
+      !      new_line('a')//'   '//'2 for Dirac equation')
       !  spin-orbit coupling;  lso  =0 (no so): =1(L.S): =2(LzSz).
-      if (lrel==2) lso=1
-      if (nsp==2 .OR. io_help/=0) then
-         if (io_help /= 0) write(stdo,*)'* To read the magnetic parameters below, HAM_NSPIN must be 2'
-         nm='HAM_SO'; call gtv(trim(nm),tksw(prgnam,nm), lso,def_i4=0,note= &
-              'Spin-orbit coupling (for REL=1)'// &
-              new_line('a')//'   '//'0 : no SO coupling'// &
-              new_line('a')//'   '//'1 : Add L.S to hamiltonian'// &
-              new_line('a')//'   '//'2 : Add Lz.Sz only to hamiltonian') !//
-         !     .        new_line('a')//'   '//'3 : Like 2, but also compute <L.S-LzSz> by perturbation')
-      endif
+!      if (lrel==2) lso=1
+!      if (nsp==2 .OR. io_help/=0) then
+!         if (io_help /= 0) write(stdo,*)'* To read the magnetic parameters below, HAM_NSPIN must be 2'
+!         nm='HAM_SO'; call gtv(trim(nm),tksw(prgnam,nm), lso,def_i4=0,note= &
+!              'Spin-orbit coupling (for REL=1)'// &
+!              new_line('a')//'   '//'0 : no SO coupling'// &
+!              new_line('a')//'   '//'1 : Add L.S to hamiltonian'// &
+!              new_line('a')//'   '//'2 : Add Lz.Sz only to hamiltonian') !//
+!         !     .        new_line('a')//'   '//'3 : Like 2, but also compute <L.S-LzSz> by perturbation')
+!      endif
       !! SOC Spin-block matrix Aug2021 ! Taken from (A8) in Ke.Liqin2019,PhysRevB.99.054418
-      nm='HAM_SOCAXIS';call gtv(trim(nm),tksw(prgnam,nm),socaxis,nmin=3,nout=nout,def_r8v=[0d0,0d0,1d0], &
-           note='SOC axis! 0,0,1(default) or 1,1,0 only effective for HAM_SO=1')
+!      nm='HAM_SOCAXIS';call gtv(trim(nm),tksw(prgnam,nm),socaxis,nmin=3,nout=nout,def_r8v=[0d0,0d0,1d0], &
+!           note='SOC axis! 0,0,1(default) or 1,1,0 only effective for HAM_SO=1')
       ! note:  We register HAM_SOCAXIS~ in toksw_init (extention ~ means optional token)
       ! Sanity check
       !  In general cases (except 001), we nees spin-symmetirc radial functions because we
@@ -375,106 +431,100 @@ contains
          if( sum(abs(socaxis-[0d0,0d0,1d0])) >1d-6 .AND. ( .NOT. cmdopt0('--phispinsym'))) &
               call rx('We need --phispinsym for SO=1 and HAM_SOCAXIS/=001')
       endif
-      sw = tksw(prgnam,'HAM_GMAX')
-      if(sw/=2) then
-         nm='HAM_GMAX';call gtv(trim(nm),sw,lat_gmaxin,nmin=1,nout=nout,note='Energy cutoff for plane-wave mesh',or=T)
-         if (nout /= 0) then
-            sw = 2
-!            if( lat_gmaxin-int(lat_gmaxin)<1d-3) lat_gmaxin=lat_gmaxin+0.11d0 !commented because gvlst2 improved. 2023-jan
-         else
-            lat_gmaxin = 0
-         endif
+!      sw = tksw(prgnam,'HAM_GMAX')
+!      if(sw/=2) then
+!         nm='HAM_GMAX';call gtv(trim(nm),sw,lat_gmaxin,nmin=1,nout=nout,note='Energy cutoff for plane-wave mesh',or=T)
+!         if (nout /= 0) then
+!            sw = 2
+!         else
+!            lat_gmaxin = 0
+!         endif
          !2022-10-13 to avoid supot-gvlst2 error.  When lat_gmaxn=Integer,
          ! it hits just on the bondary of lattice. ambiguity
-         ftmesh=0
-         nm='HAM_FTMESH'; call gtv(trim(nm),sw,ftmesh,nout=nout, note='No. divisions for plane-wave mesh '// &
-              'along each of 3 lattice vectors.'// &
-              new_line('a')//'   '//'Supply one number for all vectors or a separate '// &
-              'number for each vector.')
-         call fill3in(nout,ftmesh)
-      endif
-      nm='HAM_TOL'; call gtv(trim(nm),tksw(prgnam,nm),tolft, def_r8=1d-6, note='w.f. tolerance for FT mesh')
-      nm='HAM_FRZWF'; call gtv(trim(nm),tksw(prgnam,nm),ham_frzwf,def_lg=F, &
-           note='Set to freeze augmentation wave functions for all species')
-      nm='HAM_FORCES'; call gtv(trim(nm),tksw(prgnam,nm),lfrce, def_i4=0,note= &
-           'Controls the ansatz for density shift in force calculation.'// &
-           new_line('a')//'   '//'-1 no force: no shift'//&
-           new_line('a')//'   '//' 1 free-atom shift  12 screened core+nucleus')
-      ! ELIND removed. !elind for mixrho may/maynot
-      ! give a little better, but difficult to handle automatically.
-      nm='HAM_XCFUN'; call gtv(trim(nm),tksw(prgnam,nm),lxcf,def_i4=2, &
-           note='Specifies local exchange correlation functional:'// &
-           new_line('a')//'   '//'1 for Ceperly-Alder (VWN)'// &
-           new_line('a')//'   '//'2 for Barth-Hedin (ASW fit)'// &
-           new_line('a')//'   '//'103 for PBE-GGA (use xcpbe.F in ABINIT')
-      nm='HAM_RDSIG'; call gtv(trim(nm),tksw(prgnam,nm),lrsigx,def_i4=1, note= &
-           'Controls how self-energy is added to '// &
-           'local exchange correlation functional:'// &
-           new_line('a')//'   '//'   0: do not read Sigma'// &
-           new_line('a')//'   '//'   1(or not zero): read sigm=Sigma-Vxc. Default now')
-      nm='HAM_ScaledSigma'; call gtv(trim(nm),tksw(prgnam,nm),scaledsigma, &
-           def_r8=1d0, note='=\alpha_Q for QSGW-LDA hybrid. \alpha \times (\Sigma-Vxc^LDA) is added to LDA/GGA Hamiltonian.')
-      nm='HAM_EWALD'; call gtv(trim(nm),tksw(prgnam,nm),ham_ewald, def_lg=.false.,note='Make strux by Ewald summation')
-      !    nm='HAM_VMTZ'; call gtv(trim(nm),tksw(prgnam,nm),vmtz,def_r8=0d0, note='Muffin-tin zero defining wave functions')
-      nm='HAM_PMIN'; call gtv(trim(nm),tksw(prgnam,nm),pmin, def_r8v=zerov,nout=nout,note= &
-           'Global minimum in fractional part of P-functions.'// &
-           new_line('a')//'   '//'Enter values for l=0..:'// &
-           new_line('a')//'   '//'0: no minimum constraint'// &
-           new_line('a')//'   '//'#: with #<1, floor of fractional P is #'// &
-           new_line('a')//'   '//'1: use free-electron value as minimum')
-      nm='HAM_PMAX'; call gtv(trim(nm),tksw(prgnam,nm), pmax, def_r8v=zerov, nout=nout, note= &
-           'Global maximum in fractional part of P-functions.'// &
-           new_line('a')//'   '//'Enter values for l=0..:'// &
-           new_line('a')//'   '//'0: no maximum constraint'// &
-           new_line('a')//'   '//'#: with #<1, ceiling of fractional P is #')
-      !      We set default oveps=1d-7 16Nov2015. This was zero before the data.
-      nm='HAM_OVEPS'; call gtv(trim(nm),tksw(prgnam,nm), oveps, def_r8=1d-7, nout=nout, note= &
-           'Diagonalize hamiltonian in reduced hilbert space,'// &
-           new_line('a')//'   '//'discarding part with evals of overlap < OVEPS')
+!         ftmesh=0
+!         nm='HAM_FTMESH'; call gtv(trim(nm),sw,ftmesh,nout=nout, note='No. divisions for plane-wave mesh '// &
+!              'along each of 3 lattice vectors.'// &
+!              new_line('a')//'   '//'Supply one number for all vectors or a separate '// &
+!              'number for each vector.')
+!         call fill3in(nout,ftmesh)
+!      endif
+      ! nm='HAM_TOL'; call gtv(trim(nm),tksw(prgnam,nm),tolft, def_r8=1d-6, note='w.f. tolerance for FT mesh')
+      ! nm='HAM_FRZWF'; call gtv(trim(nm),tksw(prgnam,nm),ham_frzwf,def_lg=F, &
+      !      note='Set to freeze augmentation wave functions for all species')
+      ! nm='HAM_FORCES'; call gtv(trim(nm),tksw(prgnam,nm),lfrce, def_i4=0,note= &
+      !      'Controls the ansatz for density shift in force calculation.'// &
+      !      new_line('a')//'   '//'-1 no force: no shift'//&
+      !      new_line('a')//'   '//' 1 free-atom shift  12 screened core+nucleus')
+      ! ! ELIND removed. !elind for mixrho may/maynot
+      ! ! give a little better, but difficult to handle automatically.
+      ! nm='HAM_XCFUN'; call gtv(trim(nm),tksw(prgnam,nm),lxcf,def_i4=2, &
+      !      note='Specifies local exchange correlation functional:'// &
+      !      new_line('a')//'   '//'1 for Ceperly-Alder (VWN)'// &
+      !      new_line('a')//'   '//'2 for Barth-Hedin (ASW fit)'// &
+      !      new_line('a')//'   '//'103 for PBE-GGA (use xcpbe.F in ABINIT')
+      ! nm='HAM_RDSIG'; call gtv(trim(nm),tksw(prgnam,nm),lrsigx,def_i4=1, note= &
+      !      'Controls how self-energy is added to '// &
+      !      'local exchange correlation functional:'// &
+      !      new_line('a')//'   '//'   0: do not read Sigma'// &
+      !      new_line('a')//'   '//'   1(or not zero): read sigm=Sigma-Vxc. Default now')
+      ! nm='HAM_ScaledSigma'; call gtv(trim(nm),tksw(prgnam,nm),scaledsigma, &
+      !      def_r8=1d0, note='=\alpha_Q for QSGW-LDA hybrid. \alpha \times (\Sigma-Vxc^LDA) is added to LDA/GGA Hamiltonian.')
+      ! nm='HAM_EWALD'; call gtv(trim(nm),tksw(prgnam,nm),ham_ewald, def_lg=.false.,note='Make strux by Ewald summation')
+      ! !    nm='HAM_VMTZ'; call gtv(trim(nm),tksw(prgnam,nm),vmtz,def_r8=0d0, note='Muffin-tin zero defining wave functions')
+      ! nm='HAM_PMIN'; call gtv(trim(nm),tksw(prgnam,nm),pmin, def_r8v=zerov,nout=nout,note= &
+      !      'Global minimum in fractional part of P-functions.'// &
+      !      new_line('a')//'   '//'Enter values for l=0..:'// &
+      !      new_line('a')//'   '//'0: no minimum constraint'// &
+      !      new_line('a')//'   '//'#: with #<1, floor of fractional P is #'// &
+      !      new_line('a')//'   '//'1: use free-electron value as minimum')
+      ! nm='HAM_PMAX'; call gtv(trim(nm),tksw(prgnam,nm), pmax, def_r8v=zerov, nout=nout, note= &
+      !      'Global maximum in fractional part of P-functions.'// &
+      !      new_line('a')//'   '//'Enter values for l=0..:'// &
+      !      new_line('a')//'   '//'0: no maximum constraint'// &
+      !      new_line('a')//'   '//'#: with #<1, ceiling of fractional P is #')
+      ! !      We set default oveps=1d-7 16Nov2015. This was zero before the data.
+      ! nm='HAM_OVEPS'; call gtv(trim(nm),tksw(prgnam,nm), oveps, def_r8=1d-7, nout=nout, note= &
+      !      'Diagonalize hamiltonian in reduced hilbert space,'// &
+      !      new_line('a')//'   '//'discarding part with evals of overlap < OVEPS')
+
       if(cmdopt0('--zmel0')) OVEPS=0d0
-      !      nm='HAM_STABILIZE'; call gtv(trim(nm),tksw(prgnam,nm),
-      !     .     delta_stabilize, def_r8=-1d0, nout=nout,note=
-      !     .     'Experimental. Stabilizer for Diagonalize hamiltonian (negative means unused),'//
-      !     .     new_line('a')//'   '//' "H --> H + HAM_STABILIZE*O^-1" in zhev_tk(diagonalization)')
-      !  ham_delta_stabilize=delta_stabilize !takao sep2010
-      nm='HAM_PWMODE'; call gtv(trim(nm),tksw(prgnam,nm),pwmode, & 
-           def_i4=0,note= &
-           'Controls APW addition to LMTO basis'// &
-           new_line('a')//'   '//'1s digit:'// &
-           new_line('a')//'   '//'  LMTO basis only'// &
-           new_line('a')//'   '//'  Mixed LMTO+PW'// &
-           new_line('a')//'   '//'  PW basis only'// &
-           new_line('a')//'   '//'10s digit:'// &
-           new_line('a')//'   '//'  PW basis G is given at q=0'// &
-           new_line('a')//'   '//'  PW basis q-dependent. q+G cutoff')
+      !!      nm='HAM_STABILIZE'; call gtv(trim(nm),tksw(prgnam,nm),
+      !!     .     delta_stabilize, def_r8=-1d0, nout=nout,note=
+      !!     .     'Experimental. Stabilizer for Diagonalize hamiltonian (negative means unused),'//
+      !!     .     new_line('a')//'   '//' "H --> H + HAM_STABILIZE*O^-1" in zhev_tk(diagonalization)')
+      !!  ham_delta_stabilize=delta_stabilize !takao sep2010
+      ! nm='HAM_PWMODE'; call gtv(trim(nm),tksw(prgnam,nm),pwmode, & 
+      !      def_i4=0,note= &
+      !      'Controls APW addition to LMTO basis'// &
+      !      new_line('a')//'   '//'1s digit:'// &
+      !      new_line('a')//'   '//'  LMTO basis only'// &
+      !      new_line('a')//'   '//'  Mixed LMTO+PW'// &
+      !      new_line('a')//'   '//'  PW basis only'// &
+      !      new_line('a')//'   '//'10s digit:'// &
+      !      new_line('a')//'   '//'  PW basis G is given at q=0'// &
+      !      new_line('a')//'   '//'  PW basis q-dependent. q+G cutoff')
       if(pwmode==10) pwmode=0   !takao added. corrected Sep2011
 !!!!!!!!!!!!!!!!!!!!!!!!
       if(prgnam=='LMFGWD') pwmode=10+ mod(pwmode,10)
       if(iprint()>0) write(stdo,ftox) ' ===> for --jobgw, pwmode is switched to be ',pwmode
 !!!!!!!!!!!!!!!!!!!!!!!!
-      nm='HAM_PWEMIN'; call gtv(trim(nm),tksw(prgnam,nm), pwemin, def_r8=0d0, nout=nout, note= &
-           'Include APWs with energy E > PWEMIN (Ry)')
-      nm='HAM_PWEMAX'; call gtv(trim(nm),tksw(prgnam,nm), pwemax, def_r8=0d0, nout=nout, note= &
-           'Include APWs with energy E < PWEMAX (Ry)')
+!      nm='HAM_PWEMIN'; call gtv(trim(nm),tksw(prgnam,nm), pwemin, def_r8=0d0, nout=nout, note= &
+!           'Include APWs with energy E > PWEMIN (Ry)')
+!      nm='HAM_PWEMAX'; call gtv(trim(nm),tksw(prgnam,nm), pwemax, def_r8=0d0, nout=nout, note= &
+!           'Include APWs with energy E < PWEMAX (Ry)')
       ! Pnu taken from lmfa calculation. pzsp and pnusp are overwritten. 2022-9-5 takao
-      nm='HAM_READP'; call gtv(trim(nm),tksw(prgnam,nm),readpnu,def_lg=F, &
-           note='Read Pnu and PZ (b.c. of radial func) from atmpnu.*(by lmfa) ' &
-           //'when we have no rst file')
-      nm='HAM_V0FIX'; call gtv(trim(nm),tksw(prgnam,nm),v0fix,def_lg=F, &
-           note='Fix potential of radial functions-->Fix radial func. if READP=T together')
-      nm='HAM_PNUFIX'; call gtv(trim(nm),tksw(prgnam,nm),pnufix,def_lg=F, &
-           note='Fix b.c. of radial functions')
-      !! SYMGRP
-      nm='SYMGRP'; call gtv(trim(nm),tksw(prgnam,nm),symg, note='Generators for symmetry group')
-      !   for AF --- !june2015
-      if( .NOT. (prgnam=='LMFA' .OR. prgnam=='LMCHK')) then
-         nm='SYMGRPAF'; call gtv(trim(nm),tksw(prgnam,nm),symgaf, &
-              note='One (or multiple) Extra Generator for adding anti ferro symmetry')
-      endif
+      ! nm='HAM_READP'; call gtv(trim(nm),tksw(prgnam,nm),readpnu,def_lg=F, &
+      !      note='Read Pnu and PZ (b.c. of radial func) from atmpnu.*(by lmfa) ' &
+      !      //'when we have no rst file')
+      ! nm='HAM_V0FIX'; call gtv(trim(nm),tksw(prgnam,nm),v0fix,def_lg=F, &
+      !      note='Fix potential of radial functions-->Fix radial func. if READP=T together')
+      ! nm='HAM_PNUFIX'; call gtv(trim(nm),tksw(prgnam,nm),pnufix,def_lg=F, &
+      !      note='Fix b.c. of radial functions')
+      
       !! Species
-      if (io_help == 1) nspec = 1
-      if (tksw(prgnam,'SPEC') == 2) goto 79
-      if (io_show+io_help/=0) write(stdo,*)' --- Parameters for species data ---'
+!      if (io_help == 1) nspec = 1
+!      if (tksw(prgnam,'SPEC') == 2) goto 79
+!      if (io_show+io_help/=0) write(stdo,*)' --- Parameters for species data ---'
       ! if (io_help /= 0) write(stdo,*)' * The next four tokens apply to the automatic sphere resizer'
       ! nm='SPEC_SCLWSR'; call gtv(trim(nm),tksw(prgnam,nm), sclwsr, def_r8=0d0, note= &
       !      'Scales sphere radii, trying to reach volume = '// &
@@ -488,28 +538,38 @@ contains
       !      'Sphere overlap constraints of second type',nout=nout)
       ! nm='SPEC_WSRMAX'; call gtv(trim(nm),tksw(prgnam,nm),wsrmax, def_r8=0d0,note= &
       !      'If WSRMAX is nonzero, no sphere radius may exceed its value')
-      if (io_help == 1) then
-         write(*,382)
-382      format(/' * ', &
-              'The following tokens are input for each species. ', &
-              'Data sandwiched'/3x,'between successive occurences of ', &
-              'token ATOM apply to one species.')
-         nspec = 1
+!       if (io_help == 1) then
+!          write(*,382)
+! 382      format(/' * ', &
+!               'The following tokens are input for each species. ', &
+!               'Data sandwiched'/3x,'between successive occurences of ', &
+!               'token ATOM apply to one species.')
+!          nspec = 1
+!       endif
+
+      !! SYMGRP
+      nm='SYMGRP'; call gtv(trim(nm),tksw(prgnam,nm),symg, note='Generators for symmetry group')
+      !   for AF --- !june2015
+      if( .NOT. (prgnam=='LMFA' .OR. prgnam=='LMCHK')) then
+         nm='SYMGRPAF'; call gtv(trim(nm),tksw(prgnam,nm),symgaf, &
+              note='One (or multiple) Extra Generator for adding anti ferro symmetry')
       endif
+
+!xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx      
       !! SPEC_ATOM_*
-      if (nspec == 0) goto 79
-      allocate(pnuall(n0,nsp,nbas),pnzall(n0,nsp,nbas))
-      allocate(pnusp(n0,nsp,nspec),qnu(n0,nsp,nspec), pzsp(n0,nsp,nspec),amom(n0,nspec),idmod(n0,nspec), &
-           rsmh1(n0,nspec),eh1(n0,nspec),rsmh2(n0,nspec),eh2(n0,nspec), &
-           ehvl(n0,nspec), qpol(n0,nspec),stni(nspec), &
-           rg(nspec),rsma(nspec),rfoca(nspec),rcfa(2,nspec), & !,rsmfa(nspec)
-           rham(nspec),rmt(nspec),rsmv(nspec), &
-            spec_a(nspec),z(nspec),nr(nspec),eref(nspec), &
-           coreh(nspec),coreq(2,nspec), idxdn(n0,nkap0,nspec), idu(4,nspec),uh(4,nspec),jh(4,nspec), &
-           cstrmx(nspec),frzwfa(nspec), kmxt(nspec),lfoca(nspec),lmxl(nspec),lmxa(nspec),&
-           lmxb(nspec),nmcore(nspec),rs3(nspec),eh3(nspec))
-      allocate(lpz(nspec),lpzex(nspec))
-      allocate(nkapii(nspec),nkaphh(nspec))
+!      if (nspec == 0) goto 79
+      ! allocate(pnuall(n0,nsp,nbas),pnzall(n0,nsp,nbas))
+      ! allocate(pnusp(n0,nsp,nspec),qnu(n0,nsp,nspec), pzsp(n0,nsp,nspec),amom(n0,nspec),idmod(n0,nspec), &
+      !      rsmh1(n0,nspec),eh1(n0,nspec),rsmh2(n0,nspec),eh2(n0,nspec), &
+      !      ehvl(n0,nspec), qpol(n0,nspec),stni(nspec), &
+      !      rg(nspec),rsma(nspec),rfoca(nspec),rcfa(2,nspec), & !,rsmfa(nspec)
+      !      rham(nspec),rmt(nspec),rsmv(nspec), &
+      !       spec_a(nspec),z(nspec),nr(nspec),eref(nspec), &
+      !      coreh(nspec),coreq(2,nspec), idxdn(n0,nkap0,nspec), idu(4,nspec),uh(4,nspec),jh(4,nspec), &
+      !      cstrmx(nspec),frzwfa(nspec), kmxt(nspec),lfoca(nspec),lmxl(nspec),lmxa(nspec),&
+      !      lmxb(nspec),nmcore(nspec),rs3(nspec),eh3(nspec))
+      ! allocate(lpz(nspec),lpzex(nspec))
+      ! allocate(nkapii(nspec),nkaphh(nspec))
       lpz=0
       lpzex=0
       cstrmx=F
@@ -524,7 +584,6 @@ contains
       eh2 = 0d0
       idmod = NULLI
       ehvl = NULLR
-      allocate(slabl(nspec))
       do 1111 j = 1, nspec
          if(debug) print *,'nspec mxcst j-loop j nspec',j,nspec
          rcfa(:,j) = NULLR; rfoca(j) = 0d0; rg(j) = 0d0
@@ -904,7 +963,7 @@ contains
          nkaph = nkapi + lpzi     !-1
          mxorb= nkaph*nlmax
       endif
-79    continue
+!79    continue
       !! Site ---
       if(io_show+io_help/=0 .AND. tksw(prgnam,'SITE')/=2)write(stdo,*)' --- Parameters for site ---'
       if(io_help == 1) then
@@ -957,6 +1016,7 @@ contains
               note='antiferro ID:=i and -i should be af-pair, we look for space-group operation with spin-flip')
       enddo
 89    continue
+      
       !! Structure constants
       nm='STR_RMAXS'; call gtv(trim(nm),tksw(prgnam,nm),str_rmax, &
            nout=nout,note='Radial cutoff for strux, in a.u.',or=T)
@@ -1143,8 +1203,8 @@ contains
       call scg ( lmxcg , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg )
 
       ham_nkaph=nkaph
-      ham_pmax=pmax
-      ham_pmin=pmin
+!      ham_pmax=pmax
+!      ham_pmin=pmin
       if (procid==master) then
          inquire(file='sigm.'//trim(sname),exist=sexist)
          if (lrsigx/=0 .AND. ( .NOT. sexist) ) then

@@ -66,7 +66,7 @@ subroutine fexit0(retval,strng)
   if(retval/=0) then
      write(stdo,"(a,i0,a,i0,a,3d15.8)") &
           "ERROR Exit ",retval,' procid= ',procid,' '//trim(strng),(argss(ix),ix=1,ia)
-     call MPI_abort(MPI_comm_world,retval,ierr)
+     !call MPI_abort(MPI_comm_world,retval,ierr)
   else
      if(procid==master)write(stdo,"(a,i0,a,3d15.8)")'Exit 0 procid= ',procid,' '//trim(strng),(argss(ix),ix=1,ia)
   endif

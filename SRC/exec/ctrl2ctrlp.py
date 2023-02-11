@@ -93,10 +93,9 @@ for line in lll.split('\n'):
     if(len(line)>lmax): lmax=len(line)
 #print(len(outfile0.split('\n')))
 #print(lll.split('\n'))
-llx=len(outfile0.split('\n'))+len(lll.split('\n'))
-print(llx,lmax,'# of line, # of reclen Category per line\n'+outfile0+'\n'+lll)
-
-print ('@@@@@@@@@@@@@@@@@')
+catok=''
+nbas=0
+nspec=0
 for iline in lll.split('\n'):
     line=[i for i in iline.split(' ') if i!='']
     #print(line)
@@ -112,10 +111,12 @@ for iline in lll.split('\n'):
             tokx=i
             if(tokx[0:4]=='ATOM'):
                 id=id+1
+                nbas=nbas+1
         if cat=='SPEC':
             tokx=i
             if(tokx[0:4]=='ATOM'):
                 id=id+1
+                nspec=nspec+1
         if re.match('[a-zA-Z]',i[0]):
             ic='_'
             if(cat=='SYMGRP'): ic=' '
@@ -131,7 +132,14 @@ for iline in lll.split('\n'):
         else:
             tok=tok +' '+ i
     for itk in tokk:
-        if(itk[-1]!='_'): print(itk)
-#print('tokkk=',tokk)
-#print('=====following is for human readable ===========')
-#print(outfile)
+        if(itk[-1]!='_'): 
+            #print(itk)
+            catok=catok+itk+'\n'
+catok=catok+'STRUC_NSPEC '+str(nspec)+'\n' # less prior if STRUC_NSPEC already in ctrl
+catok=catok+'STRUC_NBAS '+str(nbas)+'\n'   # less prior
+#lx=catok.split('\n')
+#print(lx)
+llx=len(outfile0.split('\n'))+len(lll.split('\n'))
+print(llx,lmax,llx+len(catok.split('\n'))+1,'# of line; # of reclen;#  of all lines\n'+outfile0+'\n'+lll)
+print('@@@@@@@@@@@@@@@@@')
+print(catok)

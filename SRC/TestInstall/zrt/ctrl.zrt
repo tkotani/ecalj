@@ -34,7 +34,7 @@ SITE    ATOM=Zr POS=0   0    {q}/2     DELTA=0 0 0
         ATOM=O POS=1/2 0     {q}/4-{d}         DELTA=0 0 0
         ATOM=O POS=1/2 0     3*{q}/4-{d}       DELTA=0 0 0
 % const pwmode=0 pwemin=1 pwemax=3 oveps=0
-HAM     FTMESH={ftmesh} TOL=1e-8 FRZ=F FORCES={force} XCFUN=2
+HAM     FTMESH={ftmesh} {ftmesh} {ftmesh} TOL=1e-8 FRZ=F FORCES={force} XCFUN=2
         PWMODE={pwmode} PWEMIN={pwemin} PWEMAX={pwemax} OVEPS={oveps}
 # for version 7
 OPTIONS PFLOAT=0
