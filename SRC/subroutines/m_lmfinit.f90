@@ -304,6 +304,15 @@ contains
            cstrmx(nspec),frzwfa(nspec), kmxt(nspec),lfoca(nspec),lmxl(nspec),lmxa(nspec),&
            lmxb(nspec),nmcore(nspec),rs3(nspec),eh3(nspec),&
            lpz(nspec),lpzex(nspec),nkapii(nspec),nkaphh(nspec),slabl(nspec))
+      rs3=0.5d0
+      eh3=0.5d0
+      pnusp=0d0
+      lfoca=0
+      kmxt=-1
+      rsmv=0d0
+      pzsp=0d0
+      qnu=0d0
+      nmcore=0
       lpz=0
       lpzex=0
       cstrmx=F
@@ -316,7 +325,7 @@ contains
       rsmh2 = 0d0
       eh1  = 0d0
       eh2 = 0d0
-      idmod = NULLI
+      idmod = 0
       ehvl = NULLR
       rcfa = NULLR
       rfoca = 0d0
@@ -359,9 +368,41 @@ contains
          call rval2('SPEC_EH2@'//xn(j), rv=rv, nreq=nn2); eh2(1:nn2,j)=rv
          if(nn2>0) nkapi=2
          if(nn2>0) nkapii(j)=2
-         lmxb(j)=max(nn1,nn2)-1 
+         lmxb(j)=max(nn1,nn2)-1
+         call rval2('SPEC_LMX@'//xn(j), rr=rr, defa=[real(8):: 999]); lmxxx=nint(rr) 
+         lmxb(j)=min(lmxxx,lmxb(j))
+         call rval2('SPEC_LMXA@'//xn(j),rr=rr, defa=[real(8):: lmxb(j)]); lmxa(j)=nint(rr)
+         if(rmt(j)==0d0) lmxa(j)=-1
+         call rval2('SPEC_LMXL@'//xn(j),rr=rr, defa=[real(8):: lmxa(j)]); lmxl(j)=nint(rr) !'lmax for which to accumulate rho,V in sphere'
+         call rval2('SPEC_P@'//xn(j),   rv=rv,nout=n); pnusp(1:n,1,j)=rv
+         call rval2('SPEC_Q@'//xn(j),   rv=rv,nout=n); qnu(1:n,1,j)=rv
+         if(nsp==2) then
+            call rval2('SPEC_MMOM@'//xn(j), rv=rv,nout=n)
+            qnu(1:n,2,j)=rv
+         endif   
+         call rval2('SPEC_NMCORE@'//xn(j),rr=rr, defa=[real(8):: 0]); nmcore(j)=nint(rr)
+         call rval2('SPEC_PZ@'//xn(j),rv=rv,nout=n);  pzsp(1:n,1,j)=rv
+!         i0 = 1
+!         if (z(j) <= 8) i0 = 0
+!         call rval2('SPEC_LFOCA@'//xn(j),rr=rr, defa=[real(8):: i0]); lfoca(j)=nint(rr) !lfoca=0 or 1 
+!         call rval2('SPEC_KMXA@'//xn(j),rr=rr, defa=[real(8)::  3]); kmxt(j) =nint(rr)
+!         call rval2('SPEC_RSMA@'//xn(j),rr=rr, defa=[0.4d0*rmt(j)]); rsma(j) =rr
+         
+!         call rval2('SPEC_IDMOD@'//xn(j),rr=rv,nout=n); idmod=rv(1:n)
+!                 idmod(1:nlaj,j),def_i4v=(/(0,i=1,n0)/), cindx=jj,note= &
+!                 'idmod=0 floats P to band CG, 1 freezes P, 2 freezes enu')
+            ! cstrmx(for lmchk)   Exclude this species when auto-resizing sphere radii
+            ! frzwfa   Freeze augmentation w.f. for this species (FP)
+            !nm='SPEC_ATOM_CSTRMX'; call gtv(trim(nm),tksw(prgnam,nm), &
+            !     cstrmx(j),cindx=jj,def_lg=F,note='Set to exclude this'// &
+            !     ' species when automatically resizing sphere radii (SCLWSR>0)') !for lmchk
+            !if (sclwsr == 0) cstrmx(j) = F
+            !cstrmx(j) = F
+            !nm='SPEC_ATOM_FRZWF'; call gtv(trim(nm),tksw(prgnam,nm),frzwfa(j),cindx=jj,def_lg=F,note= &
+            !     'Set to freeze augmentation wave functions for this species')
          
       enddo specloop
+      lmxbx=maxval(lmxb)
       
       call gtv_setrcd(recrd,nrecs,reclnr,stdo,stdl,stde_in=stdo) !Copy recrd to rcd in m_gtv
       call toksw_init(debug)
@@ -682,30 +723,25 @@ contains
          ! nn2=nnx
          ! lmxbj=max(nn1,nn2)-1
          ! optional cutoff for l-base. redundunt, I think.
-         lmxbj=lmxb(j)
-         nm='SPEC_ATOM_LMX'; call gtv(trim(nm),tksw(prgnam,nm),lmxxx, &
-              def_i4=10,cindx=jj,nout=nout,note='optional l-cutoff for basis')
-         lmxbj=min(lmxxx,lmxbj)
-         lmxb(j)=lmxbj
-         lmxbx=max(lmxbx,lmxbj)
+!         lmxbj=lmxb(j)
+!         nm='SPEC_ATOM_LMX'; call gtv(trim(nm),tksw(prgnam,nm),lmxxx, &
+!              def_i4=10,cindx=jj,nout=nout,note='optional l-cutoff for basis')
+!         lmxbj=min(lmxxx,lmxbj)
+!         lmxb(j)=lmxbj
+!         lmxbx=max(lmxbx,lmxbj)
          !     ... Determine lmxa: floating orbitals have no lmxa
-         nm='SPEC_ATOM_LMXA'; sw = tksw(prgnam,nm)
-         if(debug) print *,'nspec ddd000 mxcst j rmt io_help lmxa=',j,rmt(j),io_help,lmxa(j)
+         
          if (rmt(j) == 0 .AND. io_help/=1) then !takao iohelp/=1 added.
             lmxa(j) = -1
-            !call rx('floating orbitals is not allowed since 2023 even in DFT')
-         elseif (sw == 2) then   !lmxa not read: look for subsitute
-            lmxa(j) = 4
-         else ! default is lmxbj
-            call gtv(trim(nm),sw,lmxa(j),def_i4=lmxbj,cindx=jj,Texist=ltmp,note='l-cutoff for augmentation')
+!         else
+!            nm='SPEC_ATOM_LMXA'; sw = tksw(prgnam,nm)
+!            call gtv(trim(nm),sw,lmxa(j),def_i4=lmxb(j),cindx=jj,Texist=ltmp,note='l-cutoff for augmentation')
          endif
          lmxaj = lmxa(j)
-         !     nlaj = number of elements associated with lmxa
-         !     0 => no elements
-         !     nlaji: ditto, but used to specify number of default values
+!         write(6,*)'lllllllllll',j,'lmxa=',lmxa(j)
          nlaj = 1+lmxaj
          if (io_help == 1) nlaj = 1
-         if(debug) print *,'nspec ddd111 mxcst j-loop j nspec nlaj lmxaj=',j,nspec,nlaj,lmxaj
+!         if(debug) print *,'nspec ddd111 mxcst j-loop j nspec nlaj lmxaj=',j,nspec,nlaj,lmxaj
          !     ... Parameters that depend on the existence of an augmentation sphere
          !     lmxl = l-cutoff for numerical rep'sn of density in sphere
          !     lfoca = mode for treating core
@@ -714,40 +750,40 @@ contains
          ! kmxv(j) = 15            !Not input
          !     Cannot set default here: need set after rescaling of rmt
          !     rsmv(j) = rmt(j)*.5d0   !Not input
-         rsmv(j) = 0d0           !Not input
-         kmxt(j) = -1            !If sought, default will be set below
-         lfoca(j) = 0            !If sought, default will be reset below
-         nmcore(j)=0
-         lmxl(j) =  lmxaj        !Use lmxaj in case not sought (ASA:mpol)
+!         rsmv(j) = 0d0           !Not input
+!         kmxt(j) = -1            !If sought, default will be set below
+!         lfoca(j) = 0            !If sought, default will be reset below
+!         nmcore(j)=0
+!         lmxl(j) =  lmxaj        !Use lmxaj in case not sought (ASA:mpol)
          !nxi(j) = NULLI          !If sought, default will be set below
-         pnusp(:,:,j)=0d0
-         pzsp(:,:,j)=0d0
-         rs3(j) = NULLI          !If sought, default will be set below
+!         pnusp(:,:,j)=0d0
+!         pzsp(:,:,j)=0d0
+!         rs3(j) = NULLI          !If sought, default will be set below
          idxdn(:,:,j) = 1
-         pnusp(1,1,j) = NULLI      !If sought, default will be set below
-         qnu(1,1,j) = NULLI      !If sought, default will be set below
+!         pnusp(1,1,j) = NULLI      !If sought, default will be set below
+!         qnu(1,1,j) = NULLI      !If sought, default will be set below
          if (nlaj /= 0) then
-            nm='SPEC_ATOM_LMXL'; call gtv(trim(nm),tksw(prgnam,nm),lmxl(j), &
-                 cindx=jj,def_i4=lmxaj,note='lmax for which to accumulate rho,V in sphere')
+!            nm='SPEC_ATOM_LMXL'; call gtv(trim(nm),tksw(prgnam,nm),lmxl(j), &
+!                 cindx=jj,def_i4=lmxaj,note='lmax for which to accumulate rho,V in sphere')
             !     ... Set up default P,Q in absence of explicit specification
-            pnusp(:,:,j)=0d0
-            qnu(:,:,j)=0d0
+!            pnusp(:,:,j)=0d0
+            !qnu(:,:,j)=0d0
             ! -- takao move back default value of dev_r8v to zero june2012 --
-            nm='SPEC_ATOM_P'; call gtv(trim(nm),tksw(prgnam,nm), &
-                 pnusp(1:nlaj,1,j),def_r8v=zerov,cindx=jj,note= &
-                 'Starting log der. parameters for each l')
-            nm='SPEC_ATOM_Q'; call gtv(trim(nm),tksw(prgnam,nm), &
-                 qnu(1:nlaj,1,j),def_r8v=zerov,cindx=jj,note= &
-                 'Starting valence charges for each l channel.'// &
-                 new_line('a')//'  '//' Q do not include semicore(PZ) electrons.'// &
-                 new_line('a')//'  '//' Charge configuration is shown by lmfa'// &
-                 new_line('a')//'  '//' WARN: This version cannot treat two valence channels'// &
-                 new_line('a')//'  '//' per l (Q for a l-channl is zero if the l is with PZ).'// &
-                 new_line('a')//'  '//' This causes a problem typically in Li; then we '// &
-                 new_line('a')//'  '//' can not treat both of PZ=1.9 and P=2.2 as valence.'// &
-                 new_line('a')//'  '//' To avoid this, use Q=0,1 together.'// &
-                 ' This trick supply an '// &
-                 new_line('a')//'  '//' electron to 2p channel; this trick works fine.')
+            ! nm='SPEC_ATOM_P'; call gtv(trim(nm),tksw(prgnam,nm), &
+            !      pnusp(1:nlaj,1,j),def_r8v=zerov,cindx=jj,note= &
+            !      'Starting log der. parameters for each l')
+            ! nm='SPEC_ATOM_Q'; call gtv(trim(nm),tksw(prgnam,nm), &
+            !      qnu(1:nlaj,1,j),def_r8v=zerov,cindx=jj,note= &
+            !      'Starting valence charges for each l channel.'// &
+            !      new_line('a')//'  '//' Q do not include semicore(PZ) electrons.'// &
+            !      new_line('a')//'  '//' Charge configuration is shown by lmfa'// &
+            !      new_line('a')//'  '//' WARN: This version cannot treat two valence channels'// &
+            !      new_line('a')//'  '//' per l (Q for a l-channl is zero if the l is with PZ).'// &
+            !      new_line('a')//'  '//' This causes a problem typically in Li; then we '// &
+            !      new_line('a')//'  '//' can not treat both of PZ=1.9 and P=2.2 as valence.'// &
+            !      new_line('a')//'  '//' To avoid this, use Q=0,1 together.'// &
+            !      ' This trick supply an '// &
+            !      new_line('a')//'  '//' electron to 2p channel; this trick works fine.')
             !! ==== Reset default P,Q in absence of explicit specification ====
             if (io_help == 0) then
                if (io_show /= 0) call pshpr(50)
@@ -770,22 +806,41 @@ contains
                if (io_show /= 0) call poppr
             endif
             if (nsp == 2) call dcopy(n0,pnusp(1,1,j),1,pnusp(1,2,j),1)
-            if (nsp == 2 .OR. io_help == 1) then
-               nm='SPEC_ATOM_MMOM'; call gtv(trim(nm),tksw(prgnam,nm), &
-                    qnu(1:nlaj,2,j),def_r8v=zerov,cindx=jj,note= &
-                    'Starting mag. moms for each l channel.'// &
-                    new_line('a')//'  '//' For a chanel with PZ, this is enforced to be zero.'// &
-                    new_line('a')//'  '//' See explanation for SPEC_ATOM_Q.')
-            endif
-            nm='SPEC_ATOM_NMCORE'; call gtv(trim(nm),tksw(prgnam,nm),nmcore(j),&
-                 def_i4=0,cindx=jj,note='spin-averaged core: jun2012takao'// &
-                 new_line('a')//'   '//'0(default): spin-polarized core'// &
-                 new_line('a')//'   '//'1         : spin-averaged core density is from spin-averaged potential')
-            nm='SPEC_ATOM_PZ'; call gtv(trim(nm),tksw(prgnam,nm),pzsp(1:nlaj,1,j),def_r8v=zerov,cindx=jj,note= &
-                 'Starting semicore log der. parameters'// &
-                 new_line('a')//'     Add 10 to attach Hankel tail',nout=nout) !zero default by zerov
+            ! if (nsp == 2 .OR. io_help == 1) then
+            !    nm='SPEC_ATOM_MMOM'; call gtv(trim(nm),tksw(prgnam,nm), &
+            !         qnu(1:nlaj,2,j),def_r8v=zerov,cindx=jj,note= &
+            !         'Starting mag. moms for each l channel.'// &
+            !         new_line('a')//'  '//' For a chanel with PZ, this is enforced to be zero.'// &
+            !         new_line('a')//'  '//' See explanation for SPEC_ATOM_Q.')
+            ! endif
+            ! nm='SPEC_ATOM_NMCORE'; call gtv(trim(nm),tksw(prgnam,nm),nmcore(j),&
+            !      def_i4=0,cindx=jj,note='spin-averaged core: jun2012takao'// &
+            !      new_line('a')//'   '//'0(default): spin-polarized core'// &
+            !      new_line('a')//'   '//'1         : spin-averaged core density is from spin-averaged potential')
+            ! nm='SPEC_ATOM_PZ'; call gtv(trim(nm),tksw(prgnam,nm),pzsp(1:nlaj,1,j),def_r8v=zerov,cindx=jj,note= &
+            !      'Starting semicore log der. parameters'// &
+            !      new_line('a')//'     Add 10 to attach Hankel tail',nout=nout) !zero default by zerov
             if(nsp==2) pzsp(1:n0,2,j) = pzsp(1:n0,1,j) !takao
-            
+            !! lmxb corrected by pzsp
+            nnx=0 !nout
+            do i=n0,1,-1
+               if(pzsp(i,1,j)>0d0) then
+                  nnx=i
+                  lmxb(j)=max(lmxb(j),nnx-1)
+                  exit
+               endif
+            enddo
+            if (nnx>0) then
+               if (maxval(pzsp(1:nnx,1,j))>0) then
+                  lpzi = 1 !max(lpzi,1) !,2
+                  lpz(j)=1
+                  if ( sum(floor(pzsp(1:nlaj,1,j)/10))>0 ) then
+                     lpzex(j)=1
+                  endif
+               endif
+            endif
+            if(maxval(pzsp(1:nnx,1,j))>10d0) lpztail= .TRUE. ! PZ +10 mode exist or not.
+
             readpnublock:block ! P = PrincipleQnum - 0.5*atan(dphidr/phi)/pi
               integer:: ifipnu,lr,iz,nspx,lrmx,isp,ispx
               real(8):: pnur,pzav(n0),pnav(n0)
@@ -816,26 +871,6 @@ contains
               endif
             endblock readpnublock
             
-            !! lmxb corrected by pzsp
-            nnx=nout
-            do i=nout,1,-1
-               if(pzsp(i,1,j)/=0d0) then
-                  nnx=i
-                  lmxb(j)=max(lmxb(j),nnx-1)
-                  exit
-               endif
-            enddo
-
-            if (nout>0) then
-               if (dasum(nlaj,pzsp(1,1,j),1) /= 0) then
-                  lpzi = max(lpzi,1) !,2
-                  lpz(j)=1
-                  if ( sum(int(pzsp(1:nlaj,1,j)/10))>0 ) then
-                     lpzex(j)=1
-                  endif
-               endif
-            endif
-            if(maxval(pzsp(1:nout,1,j))>10d0) lpztail= .TRUE. ! PZ +10 mode exist or not.
             !     ! correct qnu jun2012takao  2012july->mod(int(pz...,10)
             !     ! our four cases are
             !     !  P=Pdefault      ! qnu
@@ -848,14 +883,14 @@ contains
                      if( int(pnuspdefault(lx+1,1)) < int(pnusp(lx+1,1,j)) ) then
                         qnu(lx+1,1,j)= 0d0 ! pnuspdefault is filled and no q for pnusp. (core hole case or so)
                      endif
-                  else           !PZ exist
-                     !     print *,'qnu=',lx,qnu(lx+1,1,j)
+                  else           !PZ exist   !     print *,'qnu=',lx,qnu(lx+1,1,j)
                      if( mod(int(pzsp(lx+1,1,j)),10)<int(pnuspdefault(lx+1,1)) ) then
                         qnu(lx+1,1,j)= qnu(lx+1,1,j)+ 2d0*(2d0*lx+1d0)
                      endif
                   endif
                enddo
             endif
+            
             i0 = 1
             if (z(j) <= 8) i0 = 0
             if (io_help == 1) i0 = NULLI
@@ -874,27 +909,11 @@ contains
             nm='SPEC_ATOM_RSMA'; call gtv(trim(nm),tksw(prgnam,nm), rsma(j), def_r8=xxx,cindx=jj,&
                  note='Smoothing for projection of wave functions in sphere.'// &
                  new_line('a')//'   '//'input<0 => choose default * -input')
-            ! nm='SPEC_ATOM_RSMG'; call gtv(trim(nm),tksw(prgnam,nm),    rg(j), def_r8=xxx,cindx=jj,&
-            !      note='Smoothing for projection of charge in sphere.')
-            ! nm='SPEC_ATOM_RFOCA'; call gtv(trim(nm),tksw(prgnam,nm),rfoca(j), def_r8=xxx,cindx=jj,&
-            !      note='Smoothing for core tail.')
-            !nm='SPEC_ATOM_RSMFA'; call gtv(trim(nm),tksw(prgnam,nm),rsmfa(j), def_r8=xxx,cindx=jj,&
-            !     note='Smoothing for free atom.  input<0 => choose default * -input')
-            !nm='SPEC_ATOM_RCFA'; call gtv(trim(nm),tksw(prgnam,nm), rcfa(1:2,j),def_r8v=zerov,&
-            !     nmin=2,cindx=jj,note= &
-            !     'Cutoff radius for renormalization of free atom density'// &
-            !     '(WARN:takao rnatm.F is not tested).'//new_line('a')//'   '//'Optional 2nd argument = width'// &
-            !     new_line('a')//'   '//'RCFA<0 => renormalize potential instead of density')
-            !    nm='SPEC_ATOM_IDXDN'; removed...
-
-            !          nm='SPEC_ATOM_RS3'; call gtv(trim(nm),tksw(prgnam,nm),rs3(j), &
-            !               def_r8=0.5d0,cindx=jj, &
-            !          note='Minimum smoothing radius for local orbital')
-
-             if(rsma(j)==0d0) rsma(j) = 0.4d0*rmt(j)
-             rg(j)= 0.25d0*rmt(j)
-             rfoca(j)= 0.4d0*rmt(j)
-             rcfa=0d0
+            if(rsma(j)==0d0) rsma(j) = 0.4d0*rmt(j)
+            
+            rg(j)= 0.25d0*rmt(j)
+            rfoca(j)= 0.4d0*rmt(j)
+            rcfa=0d0
             
             !! --- explanation of s_spec ---
             !r  idmod  idmol(l) controls how linearization energy is
@@ -904,6 +923,7 @@ contains
             !r         2 freeze to spec'd linearization energy
             !r         3 float to natural center of band (C parameter)
             ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+            
             nm='SPEC_ATOM_IDMOD'; call gtv(trim(nm),tksw(prgnam,nm), &
                  idmod(1:nlaj,j),def_i4v=(/(0,i=1,n0)/), cindx=jj,note= &
                  'idmod=0 floats P to band CG, 1 freezes P, 2 freezes enu')
@@ -913,7 +933,7 @@ contains
             !     cstrmx(j),cindx=jj,def_lg=F,note='Set to exclude this'// &
             !     ' species when automatically resizing sphere radii (SCLWSR>0)') !for lmchk
             !if (sclwsr == 0) cstrmx(j) = F
-            cstrmx(j) = F
+            !cstrmx(j) = F
             nm='SPEC_ATOM_FRZWF'; call gtv(trim(nm),tksw(prgnam,nm),frzwfa(j),cindx=jj,def_lg=F,note= &
                  'Set to freeze augmentation wave functions for this species')
          endif                    ! end of input dependent on presence of aug sphere.
@@ -1258,8 +1278,8 @@ contains
          enddo
       enddo
       allocate(v_sspec(nspec))
-      eh3=-0.5d0
-      rs3= 0.5d0
+!      eh3=-0.5d0
+!      rs3= 0.5d0
       do j=1,nspec !additional data supplied from rdovfa.f90 and iors.f90
          v_sspec(j)%z=z(j)
          v_sspec(j)%a=spec_a(j)
