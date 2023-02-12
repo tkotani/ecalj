@@ -1,6 +1,4 @@
-! FCPP#define F90 1
-subroutine rnatm(pl,ql,n0,irchan,lmax,z,a,b,rofi,ev, &
-     nr,rc,nsp,v,rho,plplus,qlplus)
+subroutine rnatm(pl,ql,n0,irchan,lmax,z,a,b,rofi,ev,nr,rc,nsp,v,rho,plplus,qlplus)
   use m_lmfinit,only: stdo
   use m_ftox
 

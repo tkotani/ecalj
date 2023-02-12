@@ -1,5 +1,7 @@
 
 module m_getqvc
+  public getqvc
+  private
 contains
   subroutine getqvc(nsp,nl,lmx,z,pnu,qnu,ncmx,nvmx,kcor,lcor,qcor, qc,qt,dq,ec,ev)! Gets the charge and related parameters within an atom
     ! ----------------------------------------------------------------

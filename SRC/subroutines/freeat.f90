@@ -6,7 +6,7 @@ contains
   subroutine freeat()
     use m_ext,only:sname
     use m_lmfinit,only: smalit,lxcf,ham_seref,nsp,nspec, sspec=>v_sspec,&
-         idmod,slabl,vmtz,eref,rs3,eh3,nmcore,coreh,coreq,rcfa,pnux=>pnusp,pzx=>pzsp,qnu
+         idmod,slabl,vmtz,eref,rs3,eh3,nmcore,coreh,coreq,pnux=>pnusp,pzx=>pzsp,qnu
     use m_ftox
     !- For each species, makes free atom self-consistent
     ! ----------------------------------------------------------------------
@@ -92,21 +92,13 @@ contains
        pnu(:,1)=  pnux(1:n0,1,is) ! sspec(is)%p
        if(nsp==2) pnu(:,2)= pnu(:,1)
        qat(1:n0,1:nsp)=  qnu(1:n0,1:nsp,is) !sspec(is)%q
-!       idmod= sspec(is)%idmod
        lmxa = sspec(is)%lmxa
        pz(:,1) =  pzx(1:n0,1,is) ! sspec(is)%pz
        if(nsp==2) pz(:,2)= pz(:,1)
-       
        write(6,ftox)'xxx isp pz=',is,ftof(pz(1:lmxa+1,1),6)
-      
-!       eref = eref(is)
-       !rs3=sspec(is)%rs3
-       !eh3=sspec(is)%eh3
-       !vmtz=sspec(is)%vmtz
-       !rcfa=sspec(is)%rcfa
        print *,'goto freats'
        call freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,kcor,lcor,qcor, &
-            nrmix,1,lxcf,z,rmt,a,nrmt,pnu,pz,qat,rs3(is),eh3(is),vmtz(is),rcfa(:,is), &
+            nrmix,1,lxcf,z,rmt,a,nrmt,pnu,pz,qat,rs3(is),eh3(is),vmtz(is),& !rcfa(:,is), &
             idmod(:,is),lmxa,eref(is),rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof, &
             ceh,sumec,sumtc,v,etot,nmcore(is),ifives,ifiwv)
        print *,'end of freats: spid nmcore=',spid,nmcore(is)
@@ -129,14 +121,13 @@ contains
   end subroutine freeat
 
   subroutine freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,kcor,lcor,qcor, &
-       nrmix,lwf,lxcf,z,rmt,a,nrmt,pnu,pz,qat,rs3,eh3,vmtz,rcfa, &
+       nrmix,lwf,lxcf,z,rmt,a,nrmt,pnu,pz,qat,rs3,eh3,vmtz, & !,rcfa removed 2023feb. rnatm meaninful?
        idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof,ceh, &
        sec,stc,v,etot,nmcore,ifives,ifiwv)
     use m_lmfinit,only: nsp,lrel
     use m_ftox
-
     use m_ext,only:sname
-    use m_getqvc
+    use m_getqvc,only: getqvc
     !- Makes one free atom self-consistent, fits rho tails to smoothed Hankels
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -220,10 +211,10 @@ contains
          ec(ncmx),ev(nvmx),sumev,vrmax(2),exrmax(2),ekin,utot,rhoeps, &
          amgm,rhrmx,qvt,qtot,qct,qvin,qcin,r,wt0,wt1,qtt,qtin,pnul, &
          pzl,pnu(n0,2),qat(n0,2),pl(n0,2),rhoin(nrmx*2), &
-         rhot(nrmx*2),ql(3,n0,2),pz(n0,2),rcfa(2) ,qatbk(n0,2)
+         rhot(nrmx*2),ql(3,n0,2),pz(n0,2) ,qatbk(n0,2) !,rcfa(2)
     !     double precision qz(n0,2)
     integer :: i,ifi,ipr,iprint,isp,isw,l,lfrz, &
-         lgrad,lmxa,lplfa,nitmax,nmix,nr,lplawv,irchan(n0)
+         lgrad,lmxa,lplfa,nitmax,nmix,nr,lplawv !,irchan(n0)
     real(8) ,allocatable :: g_rv(:)
     real(8) ,allocatable :: psi_rv(:)
     integer :: itab(n0,2)
@@ -410,9 +401,9 @@ contains
     enddo
 
     ! --- Renormalize atom density or potential ---
-    irchan=0 !call ivset(irchan,1,n0,0)
+    !irchan=0 !call ivset(irchan,1,n0,0)
     !! takao jun2012: rnatm is not tested ---> this is related to SPEC_ATOM_RCFA on.
-    call rnatm(pl,qat,n0,irchan,lmxa,z,a,b,rofi,ev,nr,rcfa,nsp,v,rho,plplus,qlplus)
+    !call rnatm(pl,qat,n0,irchan,lmxa,z,a,b,rofi,ev,nr,rcfa,nsp,v,rho,plplus,qlplus)
     !     call prrmsh('starting total rho',rofi,rhot,nr,nr,nsp)
     do  isp = 1, nsp
        do  i = 1, nr
