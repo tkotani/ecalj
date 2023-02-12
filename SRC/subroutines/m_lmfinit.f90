@@ -444,8 +444,61 @@ contains
       if( cmdopt0('--tdos') .OR. cmdopt0('--pdos') .OR. cmdopt0('--zmel0')) bz_nevmx=999999
       call rval2('BZ_FSMOM',rr=rr, defa=[NULLR]); bz_fsmom=rr !'Fixed-spin moment (fixed-spin moment method)')
       call rval2('BZ_FSMOMMETHOD', rr=rr, defa=[real(8):: 0]); bz_fsmommethod=nint(rr) !'Method of Fixed-spin moment 0:original 1:discrete')
-!xxxxxxxxxxxxxxx
 
+!xxxxxxxxxxxxxxx
+      !! Ewald sums ---
+      call rval2('EWALD_AS',rr=rr,defa=[2d0]);   lat_as=rr  !'Ewald smoothing parameter')
+      call rval2('EWALD_TOL',rr=rr,defa=[1d-8]); lat_tol=rr !'Ewald tolerance')
+      call rval2('EWALD_NKDMX',rr=rr,defa=[real(8):: 300]); lat_nkdmx=nint(rr) !'Ewald tolerance'
+      mix_nsave = 8         ! nsave = # iter to save on disk
+      mix_tolu = 0          ! tolu
+      mix_umix = 1          ! umix (mixing parm for LDA+U)
+      smalit = NULLI
+      call rval2('ITER_NIT', rr=rr, defa=[real(8):: 30]); iter_maxit=nint(rr) !'maximum number of iterations in self-consistency cycle')
+      call rval2('ITER_NRMIX',rr=rr,defa=[real(8):: 80]); smalit=nint(rr)     !'lmfa rseq max iter')
+      call rval2('ITER_MIX', ch=ch); iter_mix= trim(adjustl(ch))
+ !            note='Mixing rules for charge mixing.  Syntax:')
+ !        if(io_help/=0 .AND. tksw(prgnam,nm)/=2) write(stdo,"&
+ !             ( 3x,'A[nmix][,b=beta][,bv=betv][,n=nit][,w=w1,w2][,nam=fn][,k=nkill]','[;...] or'/ &
+ !               3x,'B[nmix][,b=beta][,bv=betv][,wc=wc][,n=#][,w=w1,w2][,nam=fn]','[,k=nkill]')" )
+      call rval2('ITER_CONV', rr=rr,defa=[1d-4]); etol=rr !'Tolerance in energy change from prior iteration for self-consistency')
+      call rval2('ITER_CONVC',rr=rr,defa=[1d-4]); qtol=rr !'Tolerance in output-input charge for self-consistency')
+      call rval2('ITER_UMIX',rr=rr,defa=[.5d0]) ; mix_umix=rr !'Mixing parameter for densmat in LDA+U') !2022mar9 default umix=0.5
+      call rval2('ITER_TOLU',rr=rr,defa=[0d0])  ; mix_tolu=rr !'Tolerance for densmat in LDA+U')
+      broy  = 0
+      beta  = 1d0
+      wc    = -1
+      wt(1:2) = 1
+      wt(3) = -9 !     Flags parmxp that there are no extra elements to mix
+      nmix  = -1
+      if(.NOT. parmxp(trim(iter_mix),len(trim(iter_mix)),broy,nmix,wt,beta,wc,killj))& 
+           call rx('MIXRHO: parse in parmxp failed')
+      write(stdo,ftox)' mmmixing parameters: A/B nmix wt:',broy,nmix,ftof(wt),&
+           'beta elin wc killj=',ftof(beta),ftof(wc),killj !,ftof(elinl)
+      !output wc,killj,wtinit,betainit,broyinit,nmixinit,bexist
+      wtinit  =wt    !out
+      betainit=beta  !out
+      broyinit=broy  !out
+      nmixinit=nmix  !out
+      bexist=.false. 
+      if(beta/=1d0) bexist=.true. !out
+!xxxxxxxxxxxxxxx
+      !! Dynamics (only for relaxation  2022-6-20 touched slightly)
+      if(io_show+io_help/=0 .AND. tksw(prgnam,'DYN')/=2)write(stdo,*)' --- Parameters for dynamics and statics ---'
+      call rval2('DYN_MODE',rr=rr,defa=[real(8):: 0]); lrlxr=nint(rr) 
+!           '0: no relaxation  '// &
+!           new_line('a')//'    '//'4: relaxation: conjugate gradients  '// &
+!           new_line('a')//'    '//'5: relaxation: Fletcher-Powell  '// &
+!           new_line('a')//'    '//'6: relaxation: Broyden')
+!      if(lrlxr/=0.or.io_help/=0) then
+      if(lrlxr/=0) lfrce=1
+      call rval2('DYN_NIT',rr=rr,  defa=[real(8):: 1]); nitrlx=nint(rr) !'maximum number of relaxation steps (statics)'//' or time steps (dynamics)')
+      call rval2('DYN_HESS',rr=rr, defa=[real(8):: 1]); rdhessr= nint(rr)==1 !'Read hessian matrix')
+      call rval2('DYN_XTOL',rr=rr, defa=[1d-3]);xtolr=rr !Convergence criterion in displacements XTOL>0: use length; <0: use max val; =0: do not use')
+      call rval2('DYN_GTOL',rr=rr, defa=[0d0]); gtolr=rr !Convergence criterion in gradients'GTOL>0: use length;  <0: use max val;  =0: do not use')
+      call rval2('DYN_STEP',rr=rr, defa=[0.015d0]); stepr=rr !Initial (and maximum) step length'
+      call rval2('DYN_NKILL',rr=rr,defa=[real(8):: 0]);nkillr=nint(rr)!'Remove hessian after NKILL iter')
+!xxxxxxxxxxxxxxx
       
       if(cmdopt0('--help')) io_help = 1 !help mode on
       call gtv_setrcd(recrd,nrecs,reclnr,stdo,stdl,stde_in=stdo) !Copy recrd to rcd in m_gtv
@@ -1147,56 +1200,56 @@ contains
       !      def_i4=0,note='Method of Fixed-spin moment 0:original 1:discrete')
 
       
-      !! Ewald sums ---
-      if (io_show+io_help/=0 .AND. tksw(prgnam,'EWALD')/=2) write(stdo,*)' --- Parameters for Ewald sums ---'
-      nm='EWALD_AS'; call gtv(trim(nm),tksw(prgnam,nm),lat_as, def_r8=2d0,note='Ewald smoothing parameter')
-      nm='EWALD_TOL'; call gtv(trim(nm),tksw(prgnam,nm),lat_tol, def_r8=1d-8,note='Ewald tolerance')
-      nm='EWALD_NKDMX'; call gtv(trim(nm),tksw(prgnam,nm),lat_nkdmx, def_i4=3000,note='Ewald tolerance')
-      !! Iterations (formerly MIX) ---
-      if (tksw(prgnam,'ITER')/=2) then
-         if (io_show+io_help/=0) write(stdo,*)' --- Parameters for iterations ---'
-         !     Default values for smix (array has same same structure as lstra smix)
-         mix_nsave = 8         ! nsave = # iter to save on disk
-         mix_tolu = 0          ! tolu
-         mix_umix = 1          ! umix (mixing parm for LDA+U)
-         smalit = NULLI
-         nm='ITER_NIT';call gtv(trim(nm),tksw(prgnam,nm),iter_maxit,def_i4=30, &
-              note='maximum number of iterations in self-consistency cycle')
-         nm='ITER_NRMIX'; call gtv(trim(nm),tksw(prgnam,nm),smalit,def_i4=80,&
-              note='lmfa rseq max iter')
-         ! we use mixrho.F ->parmxp.F. But too complicated to touch it.
-         nm='ITER_MIX'; sw=tksw(prgnam,nm); call gtv(trim(nm),sw,iter_mix,nmin=10,nout=nout, &
-              note='Mixing rules for charge mixing.  Syntax:')
-         if(io_help/=0 .AND. tksw(prgnam,nm)/=2) write(stdo,"&
-              ( 3x,'A[nmix][,b=beta][,bv=betv][,n=nit][,w=w1,w2][,nam=fn][,k=nkill]','[;...] or'/ &
-                3x,'B[nmix][,b=beta][,bv=betv][,wc=wc][,n=#][,w=w1,w2][,nam=fn]','[,k=nkill]')" )
-         nm='ITER_CONV';call gtv(trim(nm),tksw(prgnam,nm),etol,def_r8=1d-4,&
-              note='Tolerance in energy change from prior iteration for self-consistency')
-         nm='ITER_CONVC'; call gtv(trim(nm),tksw(prgnam,nm),qtol,def_r8=1d-4, &
-              note='Tolerance in output-input charge for self-consistency')
-         nm='ITER_UMIX';call gtv(trim(nm),tksw(prgnam,nm),mix_umix,def_r8=.5d0,&
-              note='Mixing parameter for densmat in LDA+U') !2022mar9 default umix=0.5
-         nm='ITER_TOLU';call gtv(trim(nm),tksw(prgnam,nm),mix_tolu,def_r8=0d0,&
-              note='Tolerance for densmat in LDA+U')
-!         elinl=1.291 !0d0 
-         broy  = 0
-         beta  = 1d0
-         wc    = -1
-         wt(1:2) = 1
-         wt(3) = -9 !     Flags parmxp that there are no extra elements to mix
-         nmix  = -1
-         if(.NOT. parmxp(trim(iter_mix),len(trim(iter_mix)),broy,nmix,wt,beta,wc,killj))& 
-              call rx('MIXRHO: parse in parmxp failed')
-         write(stdo,ftox)' mmmixing parameters: A/B nmix wt:',broy,nmix,ftof(wt),&
-              'beta elin wc killj=',ftof(beta),ftof(wc),killj !,ftof(elinl)
-         !output wc,killj,wtinit,betainit,broyinit,nmixinit,bexist
-         wtinit  =wt    !out
-         betainit=beta  !out
-         broyinit=broy  !out
-         nmixinit=nmix  !out
-         bexist=.false. 
-         if(beta/=1d0) bexist=.true. !out
-      endif                     ! iterations category
+!       !! Ewald sums ---
+!       if (io_show+io_help/=0 .AND. tksw(prgnam,'EWALD')/=2) write(stdo,*)' --- Parameters for Ewald sums ---'
+!       nm='EWALD_AS'; call gtv(trim(nm),tksw(prgnam,nm),lat_as, def_r8=2d0,note='Ewald smoothing parameter')
+!       nm='EWALD_TOL'; call gtv(trim(nm),tksw(prgnam,nm),lat_tol, def_r8=1d-8,note='Ewald tolerance')
+!       nm='EWALD_NKDMX'; call gtv(trim(nm),tksw(prgnam,nm),lat_nkdmx, def_i4=3000,note='Ewald tolerance')
+!       !! Iterations (formerly MIX) ---
+!       if (tksw(prgnam,'ITER')/=2) then
+!          if (io_show+io_help/=0) write(stdo,*)' --- Parameters for iterations ---'
+!          !     Default values for smix (array has same same structure as lstra smix)
+!          mix_nsave = 8         ! nsave = # iter to save on disk
+!          mix_tolu = 0          ! tolu
+!          mix_umix = 1          ! umix (mixing parm for LDA+U)
+!          smalit = NULLI
+!          nm='ITER_NIT';call gtv(trim(nm),tksw(prgnam,nm),iter_maxit,def_i4=30, &
+!               note='maximum number of iterations in self-consistency cycle')
+!          nm='ITER_NRMIX'; call gtv(trim(nm),tksw(prgnam,nm),smalit,def_i4=80,&
+!               note='lmfa rseq max iter')
+!          ! we use mixrho.F ->parmxp.F. But too complicated to touch it.
+!          nm='ITER_MIX'; sw=tksw(prgnam,nm); call gtv(trim(nm),sw,iter_mix,nmin=10,nout=nout, &
+!               note='Mixing rules for charge mixing.  Syntax:')
+!          if(io_help/=0 .AND. tksw(prgnam,nm)/=2) write(stdo,"&
+!               ( 3x,'A[nmix][,b=beta][,bv=betv][,n=nit][,w=w1,w2][,nam=fn][,k=nkill]','[;...] or'/ &
+!                 3x,'B[nmix][,b=beta][,bv=betv][,wc=wc][,n=#][,w=w1,w2][,nam=fn]','[,k=nkill]')" )
+!          nm='ITER_CONV';call gtv(trim(nm),tksw(prgnam,nm),etol,def_r8=1d-4,&
+!               note='Tolerance in energy change from prior iteration for self-consistency')
+!          nm='ITER_CONVC'; call gtv(trim(nm),tksw(prgnam,nm),qtol,def_r8=1d-4, &
+!               note='Tolerance in output-input charge for self-consistency')
+!          nm='ITER_UMIX';call gtv(trim(nm),tksw(prgnam,nm),mix_umix,def_r8=.5d0,&
+!               note='Mixing parameter for densmat in LDA+U') !2022mar9 default umix=0.5
+!          nm='ITER_TOLU';call gtv(trim(nm),tksw(prgnam,nm),mix_tolu,def_r8=0d0,&
+!               note='Tolerance for densmat in LDA+U')
+! !         elinl=1.291 !0d0 
+!          broy  = 0
+!          beta  = 1d0
+!          wc    = -1
+!          wt(1:2) = 1
+!          wt(3) = -9 !     Flags parmxp that there are no extra elements to mix
+!          nmix  = -1
+!          if(.NOT. parmxp(trim(iter_mix),len(trim(iter_mix)),broy,nmix,wt,beta,wc,killj))& 
+!               call rx('MIXRHO: parse in parmxp failed')
+!          write(stdo,ftox)' mmmixing parameters: A/B nmix wt:',broy,nmix,ftof(wt),&
+!               'beta elin wc killj=',ftof(beta),ftof(wc),killj !,ftof(elinl)
+!          !output wc,killj,wtinit,betainit,broyinit,nmixinit,bexist
+!          wtinit  =wt    !out
+!          betainit=beta  !out
+!          broyinit=broy  !out
+!          nmixinit=nmix  !out
+!          bexist=.false. 
+!          if(beta/=1d0) bexist=.true. !out
+!       endif                     ! iterations category
       
       !! Dynamics (only for relaxation  2022-6-20 touched slightly)
       if(io_show+io_help/=0 .AND. tksw(prgnam,'DYN')/=2)write(stdo,*)' --- Parameters for dynamics and statics ---'
