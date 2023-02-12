@@ -222,12 +222,11 @@ contains
     procid = mpipid(1)
     nproc  = mpipid(0)
     debug = cmdopt0('--debug')
-    if(cmdopt0('--help')) io_help = 1 !help mode on
     if(prgnam == 'LMF')    write(stdo,*) 'm_lmfinit:program LMF'
     if(prgnam == 'LMFGWD') write(stdo,*) 'm_lmfinit:program LMFGWD'
     if(prgnam == 'LMFA') write(stdo,*)   'm_lmfinit:program LMFA'
-    Generatectrlp:block
-      if(master_mpi.and.io_help==0) then
+    ConvertCtrl2Ctrlp: block
+      if(master_mpi) then
          inquire(file='ctrl.'//trim(sname),exist=fileexist)
          if( .NOT. fileexist) call rx("No ctrl file found!! ctrl."//trim(sname))
          GetCtrlp: block !Get ctrlp file
@@ -242,58 +241,29 @@ contains
            close(ifi)
            cmdl=trim(cmdpath)//'ctrl2ctrlp.py '//trim(aaa)//'<ctrl.'//trim(sname)//' >ctrlp.'//trim(sname)
            write(stdo,*)'cmdl for python=',trim(cmdl)
-           call system(cmdl) !Main part of conversion by python code
+           call system(cmdl) !Main part 
          endblock GetCtrlp
       endif
       call MPI_BARRIER( MPI_COMM_WORLD, ierr)
-    end block Generatectrlp
-    Readctrlp: block !Readin ctrlp, which was given by ctrl2ctrlp.py
-      if(io_help==1) then 
-         nrecs=0
-      else   
-         open(newunit=ifi,file='ctrlp.'//trim(sname))
-         read(ifi,*) nrecs,reclnr,nrecs2
-         allocate(character(reclnr):: recrd(nrecs2))
-         do i = 1, nrecs2
-            read(ifi,"(a)")recrd(i)
-         enddo
-         close(ifi)
-      endif
-    endblock Readctrlp
-    
-    Stage1readctrl: block !read ctrl file
+    end block ConvertCtrl2Ctrlp
+    ReadCtrlp: block !Readin ctrlp given by ctrl2ctrlp.py above
+      open(newunit=ifi,file='ctrlp.'//trim(sname))
+      read(ifi,*) nrecs,reclnr,nrecs2
+      allocate(character(reclnr):: recrd(nrecs2))
+      do i = 1, nrecs2
+         read(ifi,"(a)")recrd(i)
+      enddo
+      close(ifi)
+    endblock ReadCtrlp
+    Stage1readctrl: block !Read Category-Token from recrd by rval2
       logical:: cmdopt0,cmdopt2,isanrg,parmxp
       integer:: setprint0,iprint,isw,ncp,nmix,broy,n,n1,n2,n3
       real(8):: avwsr,dasum,rydberg,wt(3),beta
       character(8):: fnam,xn
       call gtv2_setrcd(recrd)
-      call rval2('IO_VERBOS' , rr=rr, defa=[real(8)::  30]); verbos=nint(rr)
-      call rval2('IO_TIM'    , rr=rr, defa=[real(8)::  1 ]); io_tim=nint(rr)
-      call rval2('STRUC_ALAT', rr=rr, nout=n);  alat=rr
-      call rval2('STRUC_DALAT',rr=rr, nout=n);  dalat=rr
-      call rval2('STRUC_NBAS', rr=rr, nout=n);  nbas=nint(rr)
-      call rval2('STRUC_PLAT', rv=rv, nreq=9);  plat=reshape(rv,shape(plat))
       call rval2('STRUC_NSPEC',rr=rr, nreq=1);  nspec=nint(rr)
-      call rval2('OPTIONS_HF' ,rr=rr, defa=[real(8):: 0]);  lhf= nint(rr)==1 ! for non-self-consistent Harris'
+      call rval2('STRUC_NBAS', rr=rr, nreq=1);  nbas=nint(rr)
       call rval2('HAM_NSPIN',  rr=rr, defa=[real(8):: 1]);  nsp=nint(rr)
-      call rval2('HAM_REL',    rr=rr, defa=[real(8):: 1]);  lrel=nint(rr)
-      call rval2('HAM_SO',     rr=rr, defa=[real(8):: 0]);  lso=nint(rr)
-      call rval2('HAM_SOCAXIS',rv=rv, defa=[0d0,0d0,1d0]);  socaxis=rv
-      call rval2('HAM_GMAX',   rr=rr, defa=[0d0]);          lat_gmaxin=rr
-      call rval2('HAM_FTMESH', rv=rv, defa=[0d0,0d0,0d0]);  ftmesh=rv
-      call rval2('HAM_TOL',   rr=rr,  defa=[1d-6]); tolft=rr
-      call rval2('HAM_FRZWF', rr=rr,  defa=[real(8):: 0]); ham_frzwf= nint(rr)==1 
-      call rval2('HAM_XCFUN', rr=rr,  defa=[real(8):: 2]); lxcf=nint(rr)
-      call rval2('HAM_FORCES',rr=rr,  defa=[real(8):: 0]); lfrce=nint(rr)
-      call rval2('HAM_RDSIG', rr=rr,  defa=[real(8):: 1]); lrsigx=nint(rr)
-      call rval2('HAM_ScaledSigma', rr=rr, defa=[1d0]   ); scaledsigma=rr
-      call rval2('HAM_EWALD', rr=rr,  defa=[real(8):: 0]); ham_ewald= nint(rr)==1
-      call rval2('HAM_OVEPS', rr=rr,  defa=[1d-7]);   oveps=rr
-      call rval2('HAM_PWMODE', rr=rr, defa=[real(8):: 0]);  pwmode=nint(rr)
-      call rval2('HAM_PWEMAX', rr=rr, defa=[real(8):: 0]);  pwemax=rr
-      call rval2('HAM_READP',rr=rr, defa=[real(8):: 0]); readpnu= nint(rr)==1
-      call rval2('HAM_V0FIX',rr=rr, defa=[real(8):: 0]); v0fix =  nint(rr)==1
-      call rval2('HAM_PNUFIX',rr=rr,defa=[real(8):: 0]); pnufix=  nint(rr)==1
       allocate(pnuall(n0,nsp,nbas),pnzall(n0,nsp,nbas))
       allocate(pnusp(n0,nsp,nspec),qnu(n0,nsp,nspec), pzsp(n0,nsp,nspec),amom(n0,nspec),idmod(n0,nspec), &
            rsmh1(n0,nspec),eh1(n0,nspec),rsmh2(n0,nspec),eh2(n0,nspec), &
@@ -328,13 +298,30 @@ contains
       rcfa = 0d0
       rfoca = 0d0
       rg = 0d0
-!      rham = NULLR
-!      rsma = 0d0 
-!      spec_a=0d0
-!      nr=0
-!      coreh = ''
-!      coreq = NULLR
-!      eref = 0d0
+      call rval2('IO_VERBOS' , rr=rr, defa=[real(8)::  30]); verbos=nint(rr)
+      call rval2('IO_TIM'    , rr=rr, defa=[real(8)::  1 ]); io_tim=nint(rr)
+      call rval2('STRUC_ALAT', rr=rr, nout=n);  alat=rr
+      call rval2('STRUC_DALAT',rr=rr, nout=n);  dalat=rr
+      call rval2('STRUC_PLAT', rv=rv, nreq=9);  plat=reshape(rv,shape(plat))
+      call rval2('OPTIONS_HF' ,rr=rr, defa=[real(8):: 0]);  lhf= nint(rr)==1 ! for non-self-consistent Harris'
+      call rval2('HAM_REL',    rr=rr, defa=[real(8):: 1]);  lrel=nint(rr)
+      call rval2('HAM_SO',     rr=rr, defa=[real(8):: 0]);  lso=nint(rr)
+      call rval2('HAM_SOCAXIS',rv=rv, defa=[0d0,0d0,1d0]);  socaxis=rv
+      call rval2('HAM_GMAX',   rr=rr, defa=[0d0]);          lat_gmaxin=rr
+      call rval2('HAM_FTMESH', rv=rv, defa=[0d0,0d0,0d0]);  ftmesh=rv
+      call rval2('HAM_TOL',   rr=rr,  defa=[1d-6]); tolft=rr
+      call rval2('HAM_FRZWF', rr=rr,  defa=[real(8):: 0]); ham_frzwf= nint(rr)==1 
+      call rval2('HAM_XCFUN', rr=rr,  defa=[real(8):: 2]); lxcf=nint(rr)
+      call rval2('HAM_FORCES',rr=rr,  defa=[real(8):: 0]); lfrce=nint(rr)
+      call rval2('HAM_RDSIG', rr=rr,  defa=[real(8):: 1]); lrsigx=nint(rr)
+      call rval2('HAM_ScaledSigma', rr=rr, defa=[1d0]   ); scaledsigma=rr
+      call rval2('HAM_EWALD', rr=rr,  defa=[real(8):: 0]); ham_ewald= nint(rr)==1
+      call rval2('HAM_OVEPS', rr=rr,  defa=[1d-7]);   oveps=rr
+      call rval2('HAM_PWMODE', rr=rr, defa=[real(8):: 0]);  pwmode=nint(rr)
+      call rval2('HAM_PWEMAX', rr=rr, defa=[real(8):: 0]);  pwemax=rr
+      call rval2('HAM_READP',rr=rr, defa=[real(8):: 0]); readpnu= nint(rr)==1
+      call rval2('HAM_V0FIX',rr=rr, defa=[real(8):: 0]); v0fix =  nint(rr)==1
+      call rval2('HAM_PNUFIX',rr=rr,defa=[real(8):: 0]); pnufix=  nint(rr)==1
       avw = avwsr(plat,alat,vol,nbas)
       specloop: do j=1,nspec !SPEC_ATOM_foobar. In SPEC category, we do j=j+1 after we find ATOM=xx. See ctrl2ctrlp.py
          call rval2('SPEC_ATOM@'//xn(j), ch=ch); slabl(j)=trim(adjustl(ch))
@@ -418,11 +405,49 @@ contains
          endif   
          call rval2('SITE_RELAX@'//xn(j),rv=rv,defa=[real(8):: 1,1,1]); ifrlx(:,j)=nint(rv) !relax site positions (lattice dynamics) 
          call rval2('SITE_AF@'//xn(j),   rr=rr,defa=[real(8):: 0]); iantiferro(j)=nint(rr)
-              !'antiferro ID:=i and -i should be af-pair, we look for space-group operation with spin-flip')
+         !'antiferro ID:=i and -i should be af-pair, we look for space-group operation with spin-flip')
       enddo ibasloop
-
+      
+      ! Structure constants
+      call rval2('STR_RMAXS',rr=rr,nout=n); str_rmax=rr  ! Radial cutoff for strux, in a.u.',or=T
+      if(n ==0 ) then
+         call rval2('STR_RMAX',rr=rr)
+         str_rmax=rr*avw  ! 'Radial cutoff for strux, in units of avw')
+      endif
+      call rval2('STR_MXNBR',rr=rr, defa=[real(8):: 0d0]); str_mxnbr=rr !'Max number of nbrs (for dimensioning arrays)')
+      call rval2('BZ_NKABC',rv=rv, nout=n); bz_nabcin(1:n)=nint(rv) !'No. qp along each of 3 lattice vectors.'//new_line('a')//'   '//&
+      call fill3in(n,bz_nabcin)
+      bz_lshft=0
+      call rval2('BZ_BZJOB',rv=rv, nout=n); bz_lshft(1:n)=nint(rv) !  '0 centers BZ mesh at origin, 1 centers off origin'// &
+      call fill3in(n,bz_lshft)
+      
+      call rval2('BZ_METAL', rr=rr, defa=[real(8):: 3]); bz_lmet=nint(rr) !'0 insulator only; 3 for metal (2 is for maintenance)')
+      call rval2('BZ_TETRA', rr=rr, defa=[real(8):: 1]); bz_tetrahedron= nint(rr)==1 ! & tetrahedron switch
+      if(cmdopt0('--tdos') .OR. cmdopt0('--pdos')) then
+         write(stdo,*)' --tdos or --pdos enforces BZ_METAL=3 and BZ_TETRA=T'
+         bz_lmet=3
+         bz_tetrahedron=.true.
+      endif
+      call rval2('BZ_N', rr=rr, defa=[real(8):: 0]); bz_n=nint(rr) 
+      !          N>0: Polynomial order for Methfessel-Paxton sampling', N=0: Conventional Gaussian sampling'// &
+      !          N<0: Broadening by Fermi-Dirac distribution'.     Use in conjunction with BZ_W
+      call rval2('BZ_W', rr=rr, defa=[5d-3]); bz_w=rr
+      ! If BZ_N>=0, Line broadening for sampling integratio'
+      ! If BZ_N<0,  Temperature for Fermi distribution (Ry)'
+      call rval2('BZ_ZBAK',  rr=rr, defa=[0d0]); zbak=rr !'Homogeneous background charge'
+      call rval2('BZ_SAVDOS',rr=rr, defa=[real(8):: 0]); ldos=nint(rr)! '0(F) or 1(T): Write dos.tot.* file (settings are NPTS and DOS)'
+      call rval2('BZ_NPTS',  rr=rr, defa=[real(8):: 2001]); bz_ndos=nint(rr) !'No. DOS points (sampling integration)')
+      call rval2('BZ_DOSMAX',rr=rr, defa=[40d0/rydberg()]); bz_dosmax=rr ! Maximum energy to which DOS accumulated, relative to Efermi
+      call rval2('BZ_EFMAX', rr=rr, defa=[5d0]); bz_efmax=rr !Find evecs up to efmax'
+      call rval2('BZ_NEVMX', rr=rr, defa=[real(8):: 0]); bz_nevmx=nint(rr) ! Find at most nevmx eigenvectors'
+      !          NEVMX=0:use internal default, NEVMX<0: no eigenvectors are generated
+      if( cmdopt0('--tdos') .OR. cmdopt0('--pdos') .OR. cmdopt0('--zmel0')) bz_nevmx=999999
+      call rval2('BZ_FSMOM',rr=rr, defa=[NULLR]); bz_fsmom=rr !'Fixed-spin moment (fixed-spin moment method)')
+      call rval2('BZ_FSMOMMETHOD', rr=rr, defa=[real(8):: 0]); bz_fsmommethod=nint(rr) !'Method of Fixed-spin moment 0:original 1:discrete')
+!xxxxxxxxxxxxxxx
 
       
+      if(cmdopt0('--help')) io_help = 1 !help mode on
       call gtv_setrcd(recrd,nrecs,reclnr,stdo,stdl,stde_in=stdo) !Copy recrd to rcd in m_gtv
       call toksw_init(debug)
       if (       master_mpi) io_show = 1
@@ -1060,68 +1085,68 @@ contains
 !       enddo
 ! 89    continue
       
-      !! Structure constants
-      nm='STR_RMAXS'; call gtv(trim(nm),tksw(prgnam,nm),str_rmax, &
-           nout=nout,note='Radial cutoff for strux, in a.u.',or=T)
-      if (nout == 0) then       !nout=-1 if sw=2; otherwise nout=0 unless data was read
-         nm='STR_RMAX'; call gtv(trim(nm),tksw(prgnam,nm),str_rmax, &
-              def_r8=0d0,note='Radial cutoff for strux, in units of avw')
-         str_rmax = str_rmax*avw
-      endif
-      nm='STR_MXNBR'; call gtv(trim(nm),tksw(prgnam,nm),str_mxnbr,def_i4=0,note='Max number of nbrs (for dimensioning arrays)')
+      !Structure constants
+      ! nm='STR_RMAXS'; call gtv(trim(nm),tksw(prgnam,nm),str_rmax, &
+      !      nout=nout,note='Radial cutoff for strux, in a.u.',or=T)
+      ! if (nout == 0) then       !nout=-1 if sw=2; otherwise nout=0 unless data was read
+      !    nm='STR_RMAX'; call gtv(trim(nm),tksw(prgnam,nm),str_rmax, &
+      !         def_r8=0d0,note='Radial cutoff for strux, in units of avw')
+      !    str_rmax = str_rmax*avw
+      ! endif
+      ! nm='STR_MXNBR'; call gtv(trim(nm),tksw(prgnam,nm),str_mxnbr,def_i4=0,note='Max number of nbrs (for dimensioning arrays)')
       !! Brillouin Zone 
-      if(io_show+io_help/=0 .AND. tksw(prgnam,'BZ')/=2)write(stdo,*)' --- Parameters for Brillouin zone integration ---'
-      nm='BZ_NKABC'; sw=tksw(prgnam,nm)!; if (bz_lio1) sw = 2
-      call gtv(trim(nm),sw,bz_nabcin,nout=nout, &
-           note='No. qp along each of 3 lattice vectors.'//new_line('a')//'   '//&
-           'Supply one number for all vectors or a separate '// &
-           'number for each vector.')
-      call fill3in(nout,bz_nabcin)
-      nm='BZ_BZJOB';call gtv(trim(nm),tksw(prgnam,nm),bz_lshft,nout=nout,def_i4v=izerv(1:1),note= &
-           '0 centers BZ mesh at origin, 1 centers off origin'// &
-           new_line('a')//'   '//'Supply one number for all vectors or a separate '// &
-           'number for each vector.')
-      call fill3in(nout,bz_lshft)
-      nm='BZ_METAL'; call gtv(trim(nm),tksw(prgnam,nm),bz_lmet, &
-           def_i4=3,note='0 insulator only; 3 for metal (2 is for maintenance)')
-      if(prgnam/='LMFA'.and.io_help==0.and.bz_lmet/=3 .AND. bz_lmet/=0 .AND. bz_lmet/=2) call rx('BZ_METAL error')
-      nm='BZ_TETRA'; call gtv(trim(nm),tksw(prgnam,nm),bz_tetrahedron,& ! & tetrahedron switch
-           def_lg=T,note='Tetrahedron integration')
-      if(cmdopt0('--tdos') .OR. cmdopt0('--pdos')) then
-         write(stdo,*)' --tdos or --pdos enforces BZ_METAL=3 and BZ_TETRA=T'
-         bz_lmet=3
-         bz_tetrahedron=.true.
-      endif
-      nm='BZ_N'; call gtv(trim(nm),tksw(prgnam,nm),bz_n, def_i4=0,note= &
-           'N>0: Polynomial order for Methfessel-Paxton sampling'// &
-           new_line('a')//'    '//'N=0: Conventional Gaussian sampling'// &
-           new_line('a')//'    '//'N<0: Broadening by Fermi-Dirac distribution'// &
-           new_line('a')//'    '//'To be used in conjunction with W= ; see next')
-      nm='BZ_W'; call gtv(trim(nm),tksw(prgnam,nm),bz_w, def_r8=5d-3,note= &
-           'If BZ_N>=0, Line broadening for sampling integratio'// &
-           new_line('a')//' If BZ_N<0,  Temperature for Fermi distribution (Ry)')
-      ! BZ_EF0, BZ_DELEF removed. !c!! remove writing ZBAK file here. (Write ZBAK file. sep2020)
-      nm='BZ_ZBAK'; call gtv(trim(nm),tksw(prgnam,nm),zbak,def_r8=0d0,note='Homogeneous background charge')
-      nm='BZ_SAVDOS'; call gtv(trim(nm),tksw(prgnam,nm),ldos, def_i4=0,note=&
-           'Choose 0(F) or 1(T): Write dos.tot.* file (settings are NPTS and DOS)')
-      nm='BZ_NPTS'; call gtv(trim(nm),tksw(prgnam,nm),bz_ndos,def_i4=2001, &
-           note='No. DOS points (sampling integration)')
-      nm='BZ_DOSMAX'; call gtv(trim(nm),tksw(prgnam,nm),bz_dosmax,def_r8=40d0/rydberg(), &
-           note='Maximum energy to which DOS accumulated, relative to Efermi') !march 2013
-      xxx = 5d0
-      nm='BZ_EFMAX'; call gtv(trim(nm),tksw(prgnam,nm),bz_efmax, &
-           def_r8=xxx,note='Find evecs up to efmax')
-      nm='BZ_NEVMX'; call gtv(trim(nm),tksw(prgnam,nm),bz_nevmx, &
-           def_i4=0,note='Find at most nevmx eigenvectors'// &
-           new_line('a')//'   '//'If NEVMX=0, program uses internal default'// &
-           new_line('a')//'   '//'If NEVMX<0, no eigenvectors are generated')
-      if( cmdopt0('--tdos') .OR. cmdopt0('--pdos') .OR. cmdopt0('--zmel0')) bz_nevmx=999999
-!      nm='BZ_NOINV'; call gtv(trim(nm),tksw(prgnam,nm),noinv, def_lg=F,note= &
-!           'Suppress automatic inclusion of inversion symmetry for BZ')
-      nm='BZ_FSMOM'; call gtv(trim(nm),tksw(prgnam,nm),bz_fsmom, &
-           def_r8=NULLR,note='Fixed-spin moment (fixed-spin moment method)')
-      nm='BZ_FSMOMMETHOD';call gtv(trim(nm),tksw(prgnam,nm),bz_fsmommethod, &
-           def_i4=0,note='Method of Fixed-spin moment 0:original 1:discrete')
+      ! if(io_show+io_help/=0 .AND. tksw(prgnam,'BZ')/=2)write(stdo,*)' --- Parameters for Brillouin zone integration ---'
+      ! nm='BZ_NKABC'; sw=tksw(prgnam,nm)!; if (bz_lio1) sw = 2
+      ! call gtv(trim(nm),sw,bz_nabcin,nout=nout, &
+      !      note='No. qp along each of 3 lattice vectors.'//new_line('a')//'   '//&
+      !      'Supply one number for all vectors or a separate '// &
+      !      'number for each vector.')
+      ! call fill3in(nout,bz_nabcin)
+      ! nm='BZ_BZJOB';call gtv(trim(nm),tksw(prgnam,nm),bz_lshft,nout=nout,def_i4v=izerv(1:1),note= &
+      !      '0 centers BZ mesh at origin, 1 centers off origin'// &
+      !      new_line('a')//'   '//'Supply one number for all vectors or a separate '// &
+      !      'number for each vector.')
+      ! call fill3in(nout,bz_lshft)
+      ! nm='BZ_METAL'; call gtv(trim(nm),tksw(prgnam,nm),bz_lmet, &
+      !      def_i4=3,note='0 insulator only; 3 for metal (2 is for maintenance)')
+      ! if(prgnam/='LMFA'.and.io_help==0.and.bz_lmet/=3 .AND. bz_lmet/=0 .AND. bz_lmet/=2) call rx('BZ_METAL error')
+       !nm='BZ_TETRA'; call gtv(trim(nm),tksw(prgnam,nm),bz_tetrahedron,& ! & tetrahedron switch
+       !     def_lg=T,note='Tetrahedron integration')
+      ! if(cmdopt0('--tdos') .OR. cmdopt0('--pdos')) then
+      !    write(stdo,*)' --tdos or --pdos enforces BZ_METAL=3 and BZ_TETRA=T'
+      !    bz_lmet=3
+      !    bz_tetrahedron=.true.
+      ! endif
+      ! nm='BZ_N'; call gtv(trim(nm),tksw(prgnam,nm),bz_n, def_i4=0,note= &
+      !      'N>0: Polynomial order for Methfessel-Paxton sampling'// &
+      !      new_line('a')//'    '//'N=0: Conventional Gaussian sampling'// &
+      !      new_line('a')//'    '//'N<0: Broadening by Fermi-Dirac distribution'// &
+      !      new_line('a')//'    '//'To be used in conjunction with W= ; see next')
+      ! nm='BZ_W'; call gtv(trim(nm),tksw(prgnam,nm),bz_w, def_r8=5d-3,note= &
+      !      'If BZ_N>=0, Line broadening for sampling integratio'// &
+      !      new_line('a')//' If BZ_N<0,  Temperature for Fermi distribution (Ry)')
+      ! ! BZ_EF0, BZ_DELEF removed. !c!! remove writing ZBAK file here. (Write ZBAK file. sep2020)
+      ! nm='BZ_ZBAK'; call gtv(trim(nm),tksw(prgnam,nm),zbak,def_r8=0d0,note='Homogeneous background charge')
+      ! nm='BZ_SAVDOS'; call gtv(trim(nm),tksw(prgnam,nm),ldos, def_i4=0,note=&
+      !      'Choose 0(F) or 1(T): Write dos.tot.* file (settings are NPTS and DOS)')
+      ! nm='BZ_NPTS'; call gtv(trim(nm),tksw(prgnam,nm),bz_ndos,def_i4=2001, &
+      !      note='No. DOS points (sampling integration)')
+      ! nm='BZ_DOSMAX'; call gtv(trim(nm),tksw(prgnam,nm),bz_dosmax,def_r8=40d0/rydberg(), &
+      !      note='Maximum energy to which DOS accumulated, relative to Efermi') !march 2013
+      ! xxx = 5d0
+      ! nm='BZ_EFMAX'; call gtv(trim(nm),tksw(prgnam,nm),bz_efmax, &
+      !      def_r8=xxx,note='Find evecs up to efmax')
+      ! nm='BZ_NEVMX'; call gtv(trim(nm),tksw(prgnam,nm),bz_nevmx, &
+      !      def_i4=0,note='Find at most nevmx eigenvectors'// &
+      !      new_line('a')//'   '//'If NEVMX=0, program uses internal default'// &
+      !      new_line('a')//'   '//'If NEVMX<0, no eigenvectors are generated')
+      ! if( cmdopt0('--tdos') .OR. cmdopt0('--pdos') .OR. cmdopt0('--zmel0')) bz_nevmx=999999
+      ! nm='BZ_FSMOM'; call gtv(trim(nm),tksw(prgnam,nm),bz_fsmom, &
+      !      def_r8=NULLR,note='Fixed-spin moment (fixed-spin moment method)')
+      ! nm='BZ_FSMOMMETHOD';call gtv(trim(nm),tksw(prgnam,nm),bz_fsmommethod, &
+      !      def_i4=0,note='Method of Fixed-spin moment 0:original 1:discrete')
+
+      
       !! Ewald sums ---
       if (io_show+io_help/=0 .AND. tksw(prgnam,'EWALD')/=2) write(stdo,*)' --- Parameters for Ewald sums ---'
       nm='EWALD_AS'; call gtv(trim(nm),tksw(prgnam,nm),lat_as, def_r8=2d0,note='Ewald smoothing parameter')

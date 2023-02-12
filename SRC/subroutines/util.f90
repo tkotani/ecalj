@@ -547,8 +547,9 @@ contains
       if(count([nomode,nrmode,ndmode])>1) call rx('rval2: chooose one of nout nreq default')
       if(ndmode) ndefa =size(defa)
       do i=1,nrecs
-         if( recrd(i)(1:ncat)==trim(cattok) ) then
-            call getdval(trim(recrd(i)(ncat+1:)),ncount,arr) !Read undefinit number of real(8) array
+         if( recrd(i)(1:ncat+1)==trim(cattok)//' ' ) then
+!            print *,'BZ_N xxxxx',recrd(i)(1:ncat), 'xxxx', trim(recrd(i)(ncat+1:))
+            call getdval(trim(recrd(i)(ncat+2:)),ncount,arr) !Read undefinit number of real(8) array
             exit
          endif
       enddo

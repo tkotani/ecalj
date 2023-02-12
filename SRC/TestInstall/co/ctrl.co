@@ -31,7 +31,7 @@ OPTIONS REL=t TPAN={tp} XCFUN=2 XCN={xcn} HF={hf}
 HAM     FRZ=f FTMESH={ng} {ng} {ng2} TOL=1e-6
         NSPIN={nsp} REL=t SO={so} XCFUN=2
 BZ      NKABC={nk} BZJOB={bzj} W=.002 NPTS=1001 NKABC2=6 SAVDOS=t
-        EF0={ef0} DELEF=.1 TETRA=2 DOS={ef0}-1 {ef0}+.5 METAL={met}
+        EF0={ef0} DELEF=.1 TETRA=T DOS={ef0}-1 {ef0}+.5 METAL={met}
         EMESH=12 10 -1 -.025 .5 .5 INVIT=f NOINV=f
 EWALD   AS=2.0 TOL=1e-6 ALAT0=a
 % const w1=1 w2=1
