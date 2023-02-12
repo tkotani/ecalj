@@ -117,11 +117,11 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa)
   character(:),allocatable:: recrd(:)
 contains
   subroutine m_lmfinit_init(prgnam) ! All the initial data are set in module variables from ctrlp.*
-    use m_toksw,only:tksw
-    use m_gtv,only: gtv,gtv_setrcd,gtv_setio
+!    use m_toksw,only:tksw
+!    use m_gtv,only: gtv,gtv_setrcd,gtv_setio
     use m_gtv2,only: gtv2_setrcd,rval2
-    use m_ftox
     use m_cmdpath,only:cmdpath
+    use m_ftox
     !! ----------------------------------------------------------------------
     !! Inputs
     !!   recrd (recln*nrecs) : preprocessed input file from ctrl_preprocessed.* file.
@@ -164,8 +164,7 @@ contains
     !r  Read input data specified by tokens (see m_toksw.F)
     ! ----------------------------------------------------------------------
     implicit none
-    include "mpif.h"
-!    real(8):: mdprm(6)
+    include "mpif.h" 
     integer,parameter:: maxp=3
     character,intent(in)::  prgnam*(*)
     character strn*(recln),strn2*(recln)
@@ -188,7 +187,6 @@ contains
     integer,allocatable:: wowk(:)
     logical:: isanrg,l_dummy_isanrg
     integer:: lmxcg,lmxcy,lnjcg,lnxcg,nlm
-
     integer::nout,nn,i0,ivec(10),iosite
     integer:: io_tim(2),verbos!io_iactive,
     character(256)::  a,outs
@@ -201,8 +199,8 @@ contains
     integer:: lp1,lpzi
     real(8):: xxx
     real(8)::  avwsr
-    integer::  izerv(n0)=(/(0,i=1,n0)/)
-    real(8)::  zerov(n0)=(/(0d0,i=1,n0)/)
+!    integer::  izerv(n0)=(/(0,i=1,n0)/)
+!    real(8)::  zerov(n0)=(/(0d0,i=1,n0)/)
     integer:: ii,sw
     real(8):: dasum!,dglob
     character(128) :: nm
@@ -489,7 +487,7 @@ contains
       if(beta/=1d0) bexist=.true. !out
 !xxxxxxxxxxxxxxx
       !! Dynamics (only for relaxation  2022-6-20 touched slightly)
-      if(io_show+io_help/=0 .AND. tksw(prgnam,'DYN')/=2)write(stdo,*)' --- Parameters for dynamics and statics ---'
+!      if(io_show+io_help/=0 .AND. tksw(prgnam,'DYN')/=2)write(stdo,*)' --- Parameters for dynamics and statics ---'
       call rval2('DYN_MODE',rr=rr,defa=[real(8):: 0]); lrlxr=nint(rr) 
 !           '0: no relaxation  '// &
 !           new_line('a')//'    '//'4: relaxation: conjugate gradients  '// &
@@ -506,13 +504,13 @@ contains
 !xxxxxxxxxxxxxxx
       
       if(cmdopt0('--help')) io_help = 1 !help mode on
-      call gtv_setrcd(recrd,nrecs,reclnr,stdo,stdl,stde_in=stdo) !Copy recrd to rcd in m_gtv
-      call toksw_init(debug)
+!      call gtv_setrcd(recrd,nrecs,reclnr,stdo,stdl,stde_in=stdo) !Copy recrd to rcd in m_gtv
+!      call toksw_init(debug)
       if (       master_mpi) io_show = 1
       if ( .NOT. master_mpi) io_show = 0
       if(io_help==1)write(stdo,*)' Token           Input   cast  (size,min) --------------------------'
       if(io_show/=0)write(stdo,*)' Token           Input   cast  (size,min,read,def)     result'
-      call gtv_setio(debug,io_show,io_help) ! In case io_help changed
+!      call gtv_setio(debug,io_show,io_help) ! In case io_help changed
       !! IO
       i0=setprint0(30)      !initial verbose set
       !      nm='IO_VERBOS'; call gtv(trim(nm),tksw(prgnam,nm),verbos, &
@@ -1058,12 +1056,12 @@ contains
          call mpibc1_real(uh(:,j),4,'m_lmfinit_uh') !bug fix at oct26 2021 (it was _int-->not passed )
          call mpibc1_real(jh(:,j),4,'m_lmfinit_jh')
          
-         if (io_help == 0 .AND. lmxaj >= 0) then
-            if(tksw(prgnam,'SPEC_ATOM_LFOCA')/= 2)l_dummy_isanrg=isanrg(lfoca(j),0,2,'rdctrl','lfoca',T)
-            if(tksw(prgnam,'SPEC_ATOM_LMXL')/= 2) l_dummy_isanrg= &
-                 isanrg(lmxl(j),min(0,lmxaj),max(0,lmxaj),'rdctrl','lmxl',T)
-            if(tksw(prgnam,'SPEC_ATOM_KMXA')/= 2)l_dummy_isanrg=isanrg(kmxt(j),2,25,' rdctrl (warning):','kmxa',F)
-         endif
+!         if (io_help == 0 .AND. lmxaj >= 0) then
+!            if(tksw(prgnam,'SPEC_ATOM_LFOCA')/= 2)l_dummy_isanrg=isanrg(lfoca(j),0,2,'rdctrl','lfoca',T)
+!            if(tksw(prgnam,'SPEC_ATOM_LMXL')/= 2) l_dummy_isanrg= &
+!                 isanrg(lmxl(j),min(0,lmxaj),max(0,lmxaj),'rdctrl','lmxl',T)
+!            if(tksw(prgnam,'SPEC_ATOM_KMXA')/= 2)l_dummy_isanrg=isanrg(kmxt(j),2,25,' rdctrl (warning):','kmxa',F)
+!         endif
          
          !         coreh(j) = ' ' !core hole mode
          !         nm='SPEC_ATOM_C-HOLE'; call gtv(trim(nm),tksw(prgnam,nm),coreh(j), &
@@ -1090,7 +1088,7 @@ contains
       endif
 !79    continue
       !! Site ---
-      if(io_show+io_help/=0 .AND. tksw(prgnam,'SITE')/=2)write(stdo,*)' --- Parameters for site ---'
+!      if(io_show+io_help/=0 .AND. tksw(prgnam,'SITE')/=2)write(stdo,*)' --- Parameters for site ---'
       if(io_help == 1) then
          nbas = 1
          if (iprint() > 0) write(*,383)
