@@ -118,7 +118,7 @@ for iline in lll.split('\n'):
                 nspec=nspec+1
         if re.match('[a-zA-Z]',i[0]):
             ic='_'
-            if(cat=='SYMGRP'): ic=' '
+            #if(cat=='SYMGRP'): ic=' '
             dat=cat+ic+tok
             dat=dat.replace('=',idx+' ',1)
             #if(id>0  and (not 'ATOM' in dat) ):
@@ -130,9 +130,10 @@ for iline in lll.split('\n'):
             tok=i
         else:
             tok=tok +' '+ i
+    #print('tokk=',tokk) 
     for itk in tokk:
-        if(itk[-1]!='_'): 
-            #print(itk)
+        if(itk[-1]!='_' and itk[0:6]!='SYMGRP'):  #Skip SYMGRP. We don't need process SYMGRP SYMGRPAF
+            #print('itk=',itk)
             catok=catok+itk+'\n'
 catok=catok+'STRUC_NSPEC '+str(nspec)+'\n' # less prior if STRUC_NSPEC already in ctrl
 catok=catok+'STRUC_NBAS '+str(nbas)+'\n'   # less prior

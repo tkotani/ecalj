@@ -445,6 +445,11 @@ contains
       call rval2('BZ_FSMOM',rr=rr, defa=[NULLR]); bz_fsmom=rr !'Fixed-spin moment (fixed-spin moment method)')
       call rval2('BZ_FSMOMMETHOD', rr=rr, defa=[real(8):: 0]); bz_fsmommethod=nint(rr) !'Method of Fixed-spin moment 0:original 1:discrete')
 
+      call rval2('SYMGRP', ch=ch); symg=adjustl(ch) ! Generators for symmetry group'
+      call rval2('SYMGRPAF', ch=ch); symgaf=adjustl(ch) ! Extra Generator for adding anti ferro symmetry'
+      write(stdo,*)'symg  =',trim(symg)
+      write(stdo,*)'symgaf=',trim(symgaf)
+      
 !xxxxxxxxxxxxxxx
       !! Ewald sums ---
       call rval2('EWALD_AS',rr=rr,defa=[2d0]);   lat_as=rr  !'Ewald smoothing parameter')
@@ -719,12 +724,11 @@ contains
 !       endif
 
       !! SYMGRP
-      nm='SYMGRP'; call gtv(trim(nm),tksw(prgnam,nm),symg, note='Generators for symmetry group')
-      !   for AF --- !june2015
-      if( .NOT. (prgnam=='LMFA' .OR. prgnam=='LMCHK')) then
-         nm='SYMGRPAF'; call gtv(trim(nm),tksw(prgnam,nm),symgaf, &
-              note='One (or multiple) Extra Generator for adding anti ferro symmetry')
-      endif
+!      nm='SYMGRP'; call gtv(trim(nm),tksw(prgnam,nm),symg, note='Generators for symmetry group')
+!      if( .NOT. (prgnam=='LMFA' .OR. prgnam=='LMCHK')) then
+!         nm='SYMGRPAF'; call gtv(trim(nm),tksw(prgnam,nm),symgaf, &
+!              note='One (or multiple) Extra Generator for adding anti ferro symmetry')
+!      endif
 
 !xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx      
       !! SPEC_ATOM_*
@@ -1392,7 +1396,7 @@ contains
       if ((lrlxr>=1 .AND. lrlxr<=3) .OR. &
            cmdopt0('--cls') .OR. cmdopt0('--nosym') .OR. cmdopt0('--pdos')) then
          symg = 'e'
-         lstsym = 2  !lstsym=2: turn off symops
+!         lstsym = 2  !lstsym=2: turn off symops
          addinv = .false. !add inversion 
       elseif(lso == 0) then
          addinv=.true. !add inversion means
@@ -1512,10 +1516,10 @@ contains
 !            endif
 !         endif
 !      endif
-      if (io_help == 0 .AND. io_show > 1) then
-         print *, 'symg:', trim(sstrnsymg)
-         call rx0('done show')
-      endif
+!      if (io_help == 0 .AND. io_show > 1) then
+!         print *, 'symg:', trim(sstrnsymg)
+!         call rx0('done show')
+!      endif
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
       if( cmdopt0('--quit=show') ) call rx0(trim(prgnam)//' --quit=show')
