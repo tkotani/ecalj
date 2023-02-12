@@ -1251,27 +1251,27 @@ contains
 !          if(beta/=1d0) bexist=.true. !out
 !       endif                     ! iterations category
       
-      !! Dynamics (only for relaxation  2022-6-20 touched slightly)
-      if(io_show+io_help/=0 .AND. tksw(prgnam,'DYN')/=2)write(stdo,*)' --- Parameters for dynamics and statics ---'
-      nm='DYN_MODE'; call gtv(trim(nm),tksw(prgnam,nm),lrlxr,def_i4=0,note= &
-           '0: no relaxation  '// &
-           new_line('a')//'    '//'4: relaxation: conjugate gradients  '// &
-           new_line('a')//'    '//'5: relaxation: Fletcher-Powell  '// &
-           new_line('a')//'    '//'6: relaxation: Broyden')
-      if(lrlxr/=0.or.io_help/=0) then
-         lfrce=1
-         nm='DYN_NIT'; call gtv(trim(nm),tksw(prgnam,nm),nitrlx,def_i4=1, &
-              note='maximum number of relaxation steps (statics)'//' or time steps (dynamics)')
-         nm='DYN_HESS'; call gtv(trim(nm),tksw(prgnam,nm),rdhessr,def_lg=T,note='Read hessian matrix')
-         nm='DYN_XTOL'; call gtv(trim(nm),tksw(prgnam,nm),xtolr,def_r8=1d-3,note= &
-              'Convergence criterion in displacements'//new_line('a')//'   '//'XTOL>0: use length; <0: use max val; =0: do not use')
-         nm='DYN_GTOL'; call gtv(trim(nm),tksw(prgnam,nm),gtolr,def_r8=0d0,note= &
-              'Convergence criterion in gradients'// &
-              new_line('a')//'   '//'GTOL>0: use length;  <0: use max val;  =0: do not use')
-         nm='DYN_STEP'; call gtv(trim(nm),tksw(prgnam,nm),stepr,def_r8=0.015d0,note= &
-              'Initial (and maximum) step length')
-         nm='DYN_NKILL'; call gtv(trim(nm),tksw(prgnam,nm),nkillr,def_i4=0,note='Remove hessian after NKILL iter')
-      endif
+      ! !! Dynamics (only for relaxation  2022-6-20 touched slightly)
+      ! if(io_show+io_help/=0 .AND. tksw(prgnam,'DYN')/=2)write(stdo,*)' --- Parameters for dynamics and statics ---'
+      ! nm='DYN_MODE'; call gtv(trim(nm),tksw(prgnam,nm),lrlxr,def_i4=0,note= &
+      !      '0: no relaxation  '// &
+      !      new_line('a')//'    '//'4: relaxation: conjugate gradients  '// &
+      !      new_line('a')//'    '//'5: relaxation: Fletcher-Powell  '// &
+      !      new_line('a')//'    '//'6: relaxation: Broyden')
+      ! if(lrlxr/=0.or.io_help/=0) then
+      !    lfrce=1
+      !    nm='DYN_NIT'; call gtv(trim(nm),tksw(prgnam,nm),nitrlx,def_i4=1, &
+      !         note='maximum number of relaxation steps (statics)'//' or time steps (dynamics)')
+      !    nm='DYN_HESS'; call gtv(trim(nm),tksw(prgnam,nm),rdhessr,def_lg=T,note='Read hessian matrix')
+      !    nm='DYN_XTOL'; call gtv(trim(nm),tksw(prgnam,nm),xtolr,def_r8=1d-3,note= &
+      !         'Convergence criterion in displacements'//new_line('a')//'   '//'XTOL>0: use length; <0: use max val; =0: do not use')
+      !    nm='DYN_GTOL'; call gtv(trim(nm),tksw(prgnam,nm),gtolr,def_r8=0d0,note= &
+      !         'Convergence criterion in gradients'// &
+      !         new_line('a')//'   '//'GTOL>0: use length;  <0: use max val;  =0: do not use')
+      !    nm='DYN_STEP'; call gtv(trim(nm),tksw(prgnam,nm),stepr,def_r8=0.015d0,note= &
+      !         'Initial (and maximum) step length')
+      !    nm='DYN_NKILL'; call gtv(trim(nm),tksw(prgnam,nm),nkillr,def_i4=0,note='Remove hessian after NKILL iter')
+      ! endif
       if (io_help>0) then
          write(stdo,"(a)")'==============================================='
          call lmhelp(prgnam)
@@ -1284,16 +1284,6 @@ contains
       maxit=iter_maxit
       nl = max(lmxbx,lmxax)+1 !max l-base l-aug +1
       nlmax=nl**2
-!      ctrl_nl=nl
-!      ctrl_nspec=nspec
-!      ctrl_nspin=nsp
-!      ctrl_omax1 = omax1
-!      ctrl_omax2 = omax2
-!      ctrl_rmaxes= rmaxes
-!      ctrl_rmines= rmines
-!      ctrl_sclwsr= sclwsr
-!      ctrl_wsrmax= wsrmax
-!      ctrl_pfloat= lpfloat
       if (dalat == NULLR) dalat=0d0
       lat_alat=alat+dalat
       lat_avw=avw
@@ -1322,10 +1312,7 @@ contains
       allocate(iv_a_oidxcg(abs(lnxcg)))
       call sylmnc ( rv_a_ocy , lmxcy )
       call scg ( lmxcg , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg )
-
       ham_nkaph=nkaph
-!      ham_pmax=pmax
-!      ham_pmin=pmin
       if (procid==master) then
          inquire(file='sigm.'//trim(sname),exist=sexist)
          if (lrsigx/=0 .AND. ( .NOT. sexist) ) then
@@ -1338,7 +1325,6 @@ contains
       ham_scaledsigma=scaledsigma
       ham_pwmode=pwmode
       ham_oveps=oveps
-
       !! idxdn= 1 or 3
       !r     1  Orbital is included as "active" orbitals, which means
       !r           they are included in the hamiltonian and diagonalized
@@ -1371,8 +1357,6 @@ contains
          enddo
       enddo
       allocate(v_sspec(nspec))
-!      eh3=-0.5d0
-!      rs3= 0.5d0
       do j=1,nspec !additional data supplied from rdovfa.f90 and iors.f90
          v_sspec(j)%z=z(j)
          v_sspec(j)%a=spec_a(j)
