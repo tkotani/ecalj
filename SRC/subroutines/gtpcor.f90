@@ -20,7 +20,7 @@ subroutine gtpcor(is,kcore,lcore,qcore)!- Unpacks parameters related to partial 
   lcore = -1
   qcore = 0d0
   ch=coreh(is)
-  if (ch == ' ') return
+  if (len(trim(adjustl(ch))) == 0) return
   qcore=coreq(:,is)
   read (ch,'(i1)') kcore
   if (ch(2:2) == 's' .OR. ch(2:2) == 'S') lcore = 0

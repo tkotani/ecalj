@@ -39,7 +39,7 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa)
   integer,allocatable,protected:: lmxb(:),lmxa(:),idmod(:,:),idu(:,:),kmxt(:),lfoca(:),lmxl(:),nr(:),& 
        nmcore(:), nkapii(:),nkaphh(:)
   real(8),allocatable,protected:: rsmh1(:,:),rsmh2(:,:),eh1(:,:),eh2(:,:), &
-       rs3(:),rham(:),alpha(:,:),ehvl(:,:), uh(:,:),jh(:,:), eh3(:),&
+       rs3(:),alpha(:,:),ehvl(:,:), uh(:,:),jh(:,:), eh3(:),&
        qpol(:,:),stni(:), pnusp(:,:,:),qnu(:,:,:),     pnuspdefault(:,:),qnudefault(:,:),qnudummy(:,:), &
        coreq(:,:), rg(:),rsma(:),rfoca(:),rcfa(:,:), rmt(:),pzsp(:,:,:), amom(:,:),spec_a(:),z(:),eref(:),rsmv(:)
   character*(8),allocatable,protected:: coreh(:)
@@ -274,6 +274,7 @@ contains
       call rval2('STRUC_NBAS', rr=rr, nout=n);  nbas=nint(rr)
       call rval2('STRUC_PLAT', rv=rv, nreq=9);  plat=reshape(rv,shape(plat))
       call rval2('STRUC_NSPEC',rr=rr, nreq=1);  nspec=nint(rr)
+      call rval2('OPTIONS_HF' ,rr=rr, defa=[real(8):: 0]);  lhf= nint(rr)==1 ! for non-self-consistent Harris'
       call rval2('HAM_NSPIN',  rr=rr, defa=[real(8):: 1]);  nsp=nint(rr)
       call rval2('HAM_REL',    rr=rr, defa=[real(8):: 1]);  lrel=nint(rr)
       call rval2('HAM_SO',     rr=rr, defa=[real(8):: 0]);  lso=nint(rr)
@@ -298,12 +299,15 @@ contains
            rsmh1(n0,nspec),eh1(n0,nspec),rsmh2(n0,nspec),eh2(n0,nspec), &
            ehvl(n0,nspec), qpol(n0,nspec),stni(nspec), &
            rg(nspec),rsma(nspec),rfoca(nspec),rcfa(2,nspec), & !,rsmfa(nspec)
-           rham(nspec),rmt(nspec),rsmv(nspec), &
+           rmt(nspec),rsmv(nspec), &
            spec_a(nspec),z(nspec),nr(nspec),eref(nspec), &
            coreh(nspec),coreq(2,nspec), idxdn(n0,nkap0,nspec), idu(4,nspec),uh(4,nspec),jh(4,nspec), &
            cstrmx(nspec),frzwfa(nspec), kmxt(nspec),lfoca(nspec),lmxl(nspec),lmxa(nspec),&
            lmxb(nspec),nmcore(nspec),rs3(nspec),eh3(nspec),&
            lpz(nspec),lpzex(nspec),nkapii(nspec),nkaphh(nspec),slabl(nspec))
+      idu=0
+      uh=0d0
+      jh=0d0
       rs3=0.5d0
       eh3=0.5d0
       pnusp=0d0
@@ -315,7 +319,7 @@ contains
       nmcore=0
       lpz=0
       lpzex=0
-      cstrmx=F
+      cstrmx=F !Exclude this species when auto-resizing sphere radii
       frzwfa=F
       nkapii=1
       nkapi = 1
@@ -330,13 +334,13 @@ contains
       rcfa = NULLR
       rfoca = 0d0
       rg = 0d0
-      rham = NULLR
-      rsma = 0d0 
-      spec_a=0d0
-      nr=0
-      coreh = ''
-      coreq = NULLR
-      eref = 0d0
+!      rham = NULLR
+!      rsma = 0d0 
+!      spec_a=0d0
+!      nr=0
+!      coreh = ''
+!      coreq = NULLR
+!      eref = 0d0
       avw = avwsr(plat,alat,vol,nbas)
       specloop: do j=1,nspec !SPEC_ATOM_foobar. In SPEC category, we do j=j+1 after we find ATOM=xx. See ctrl2ctrlp.py
          call rval2('SPEC_ATOM@'//xn(j), ch=ch); slabl(j)=trim(adjustl(ch))
@@ -382,25 +386,22 @@ contains
          endif   
          call rval2('SPEC_NMCORE@'//xn(j),rr=rr, defa=[real(8):: 0]); nmcore(j)=nint(rr)
          call rval2('SPEC_PZ@'//xn(j),rv=rv,nout=n);  pzsp(1:n,1,j)=rv
-!         i0 = 1
-!         if (z(j) <= 8) i0 = 0
-!         call rval2('SPEC_LFOCA@'//xn(j),rr=rr, defa=[real(8):: i0]); lfoca(j)=nint(rr) !lfoca=0 or 1 
-!         call rval2('SPEC_KMXA@'//xn(j),rr=rr, defa=[real(8)::  3]); kmxt(j) =nint(rr)
-!         call rval2('SPEC_RSMA@'//xn(j),rr=rr, defa=[0.4d0*rmt(j)]); rsma(j) =rr
-         
-!         call rval2('SPEC_IDMOD@'//xn(j),rr=rv,nout=n); idmod=rv(1:n)
-!                 idmod(1:nlaj,j),def_i4v=(/(0,i=1,n0)/), cindx=jj,note= &
-!                 'idmod=0 floats P to band CG, 1 freezes P, 2 freezes enu')
-            ! cstrmx(for lmchk)   Exclude this species when auto-resizing sphere radii
-            ! frzwfa   Freeze augmentation w.f. for this species (FP)
-            !nm='SPEC_ATOM_CSTRMX'; call gtv(trim(nm),tksw(prgnam,nm), &
-            !     cstrmx(j),cindx=jj,def_lg=F,note='Set to exclude this'// &
-            !     ' species when automatically resizing sphere radii (SCLWSR>0)') !for lmchk
-            !if (sclwsr == 0) cstrmx(j) = F
-            !cstrmx(j) = F
-            !nm='SPEC_ATOM_FRZWF'; call gtv(trim(nm),tksw(prgnam,nm),frzwfa(j),cindx=jj,def_lg=F,note= &
-            !     'Set to freeze augmentation wave functions for this species')
-         
+         i0 = 1
+         if (z(j) <= 8) i0 = 0
+         call rval2('SPEC_LFOCA@'//xn(j),rr=rr, defa=[real(8):: i0]); lfoca(j)=nint(rr) !lfoca=0 or 1 
+         call rval2('SPEC_KMXA@'//xn(j),rr=rr, defa=[real(8)::  3]); kmxt(j) =nint(rr)
+         call rval2('SPEC_RSMA@'//xn(j),rr=rr, defa=[0.4d0*rmt(j)]); rsma(j) =rr
+         call rval2('SPEC_IDMOD@'//xn(j),rv=rv,nout=n); idmod(1:n,j)=rv  !  'idmod=0 floats P to band CG, 1 freezes P, 2 freezes enu'
+         call rval2('SPEC_FRZWF@'//xn(j),rr=rr,defa=[real(8):: 0]); frzwfa(j)= nint(rr)==1
+         call rval2('SPEC_IDU@'//xn(j), rv=rv,nout=n); idu(1:n,j)=nint(rv)!U mode: 0 nothing, 1 AMF, 2 FLL, 3 mixed. +10:no LDA+U if sigm.* exist
+         call rval2('SPEC_UH@'//xn(j),  rv=rv,nout=n); uh(1:n,j)=rv ! Hubbard U for LDA+U
+         call rval2('SPEC_JH@'//xn(j),  rv=rv,nout=n); jh(1:n,j)=rv ! Exchange parameter J for LDA+U
+         call rval2('SPEC_C-HOLE@'//xn(j),ch=ch); coreh(j)=trim(adjustl(ch)) ! Channel for core hole
+         call rval2('SPEC_C-HQ@'//xn(j),rv=rv,defa=[-1d0,0d0]) ; coreq(:,j)=rv
+!              'Charge and Moment of core hole:'// &
+!               Q(spin1) = full + C-HQ(1)/2 + C-HQ(2)/2
+!               Q(spin2) = full + C-HQ(1)/2 - C-HQ(2)/2
+         call rval2('SPEC_ATOM_EREF'//xn(j), rr=rr,defa=[0d0]); eref(j)=rr
       enddo specloop
       lmxbx=maxval(lmxb)
       
@@ -467,7 +468,7 @@ contains
       !xxx    STRUC_NL here removed, Lattice distortion or rotatation here removed.
 !59    continue
       !! Options
-      nm='OPTIONS_HF';call gtv(trim(nm),tksw(prgnam,nm),lhf,def_lg=F,note='T for non-self-consistent Harris')
+!      nm='OPTIONS_HF';call gtv(trim(nm),tksw(prgnam,nm),lhf,def_lg=F,note='T for non-self-consistent Harris')
 !      nm='OPTIONS_RMINES';call gtv(trim(nm),tksw(prgnam,nm),rmines,def_r8=1d0,note='Minimum MT radius when finding new ES')
 !      nm='OPTIONS_RMAXES';call gtv(trim(nm),tksw(prgnam,nm),rmaxes,def_r8=2d0,note='Maximum MT radius when finding new ES')
 !      lpfloat=1
@@ -891,25 +892,24 @@ contains
                enddo
             endif
             
-            i0 = 1
-            if (z(j) <= 8) i0 = 0
-            if (io_help == 1) i0 = NULLI
-            nm='SPEC_ATOM_LFOCA';call gtv(trim(nm),tksw(prgnam,nm),lfoca(j), &
-                 def_i4=i0,cindx=jj,note='FOCA switch 0(within MT):' &
-                 //'=1(frozenCore). Default: 1 for z>8;0 for z<=8') !takao Aug2010
-            if(io_help==0) then
-               if(lfoca(j)/=0 .AND. lfoca(j)/=1) then
-                  call rx('LFOCA should be 0 or 1 (Aug2010): 2 is not allowed')
-               endif
-            endif
-            nm='SPEC_ATOM_KMXA'; call gtv(trim(nm),tksw(prgnam,nm), kmxt(j),def_i4=3,&
-                 cindx=jj,note='k-cutoff for projection of wave functions in sphere.')
-            xxx = 0d0
-            if(io_help==1) xxx = NULLI
-            nm='SPEC_ATOM_RSMA'; call gtv(trim(nm),tksw(prgnam,nm), rsma(j), def_r8=xxx,cindx=jj,&
-                 note='Smoothing for projection of wave functions in sphere.'// &
-                 new_line('a')//'   '//'input<0 => choose default * -input')
-            if(rsma(j)==0d0) rsma(j) = 0.4d0*rmt(j)
+            ! i0 = 1
+            ! if (z(j) <= 8) i0 = 0
+            ! if (io_help == 1) i0 = NULLI
+            ! nm='SPEC_ATOM_LFOCA';call gtv(trim(nm),tksw(prgnam,nm),lfoca(j), &
+            !      def_i4=i0,cindx=jj,note='FOCA switch 0(within MT):' &
+            !      //'=1(frozenCore). Default: 1 for z>8;0 for z<=8') !takao Aug2010
+            ! if(io_help==0) then
+            !    if(lfoca(j)/=0 .AND. lfoca(j)/=1) then
+            !       call rx('LFOCA should be 0 or 1 (Aug2010): 2 is not allowed')
+            !    endif
+            ! endif
+            !nm='SPEC_ATOM_KMXA'; call gtv(trim(nm),tksw(prgnam,nm), kmxt(j),def_i4=3,&
+            !     cindx=jj,note='k-cutoff for projection of wave functions in sphere.')
+             
+            ! nm='SPEC_ATOM_RSMA'; call gtv(trim(nm),tksw(prgnam,nm), rsma(j), def_r8=0.4d0*rmt(j),cindx=jj,&
+            !      note='Smoothing for projection of wave functions in sphere.'// &
+            !      new_line('a')//'   '//'input<0 => choose default * -input')
+            ! if(rsma(j)==0d0) rsma(j) = 0.4d0*rmt(j)
             
             rg(j)= 0.25d0*rmt(j)
             rfoca(j)= 0.4d0*rmt(j)
@@ -924,27 +924,21 @@ contains
             !r         3 float to natural center of band (C parameter)
             ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
             
-            nm='SPEC_ATOM_IDMOD'; call gtv(trim(nm),tksw(prgnam,nm), &
-                 idmod(1:nlaj,j),def_i4v=(/(0,i=1,n0)/), cindx=jj,note= &
-                 'idmod=0 floats P to band CG, 1 freezes P, 2 freezes enu')
-            ! cstrmx(for lmchk)   Exclude this species when auto-resizing sphere radii
-            ! frzwfa   Freeze augmentation w.f. for this species (FP)
-            !nm='SPEC_ATOM_CSTRMX'; call gtv(trim(nm),tksw(prgnam,nm), &
-            !     cstrmx(j),cindx=jj,def_lg=F,note='Set to exclude this'// &
-            !     ' species when automatically resizing sphere radii (SCLWSR>0)') !for lmchk
-            !if (sclwsr == 0) cstrmx(j) = F
-            !cstrmx(j) = F
-            nm='SPEC_ATOM_FRZWF'; call gtv(trim(nm),tksw(prgnam,nm),frzwfa(j),cindx=jj,def_lg=F,note= &
-                 'Set to freeze augmentation wave functions for this species')
+            !nm='SPEC_ATOM_IDMOD'; call gtv(trim(nm),tksw(prgnam,nm), &
+            !     idmod(1:nlaj,j),def_i4v=(/(0,i=1,n0)/), cindx=jj,note= &
+            !     'idmod=0 floats P to band CG, 1 freezes P, 2 freezes enu')
+            !nm='SPEC_ATOM_FRZWF'; call gtv(trim(nm),tksw(prgnam,nm),frzwfa(j),cindx=jj,def_lg=F,note= &
+            !     'Set to freeze augmentation wave functions for this species')
          endif                    ! end of input dependent on presence of aug sphere.
 
-         sw = tksw(prgnam,'SPEC_ATOM_IDU')
-         if (io_help > 0 .AND. sw < 2) write(stdo,*)' * ... The next three tokens are for LDA+U'
-         nm='SPEC_ATOM_IDU'; call gtv(trim(nm),sw,idu(:,j),cindx=jj, def_i4v=(/(0,i=1,n0)/),note= &
-              'LDA+U mode:  0 nothing, 1 AMF, 2 FLL, 3 mixed; +10: no LDA+U if sigm.* exist')
-         nm='SPEC_ATOM_UH';call gtv(trim(nm),sw,uh(:,j),cindx=jj,def_r8v=zerov,note='Hubbard U for LDA+U')
-         nm='SPEC_ATOM_JH';call gtv(trim(nm),sw,jh(:,j),cindx=jj,def_r8v=zerov,note='Exchange parameter J for LDA+U')
+         ! sw = tksw(prgnam,'SPEC_ATOM_IDU')
+         ! if (io_help > 0 .AND. sw < 2) write(stdo,*)' * ... The next three tokens are for LDA+U'
+         ! nm='SPEC_ATOM_IDU'; call gtv(trim(nm),sw,idu(:,j),cindx=jj, def_i4v=(/(0,i=1,n0)/),note= &
+         !      'LDA+U mode:  0 nothing, 1 AMF, 2 FLL, 3 mixed; +10: no LDA+U if sigm.* exist')
+         ! nm='SPEC_ATOM_UH';call gtv(trim(nm),sw,uh(:,j),cindx=jj,def_r8v=zerov,note='Hubbard U for LDA+U')
+         ! nm='SPEC_ATOM_JH';call gtv(trim(nm),sw,jh(:,j),cindx=jj,def_r8v=zerov,note='Exchange parameter J for LDA+U')
          !! 2019 automatic turn off lda+u mode; Enforce uh=jh=0 when sigm exist !!
+         
          if(procid==master .AND. sum(abs(idu(:,j)))/=0) then
             inquire(file='sigm.'//trim(sname),exist=sexist)
             if(sexist) then
@@ -970,20 +964,23 @@ contains
                  isanrg(lmxl(j),min(0,lmxaj),max(0,lmxaj),'rdctrl','lmxl',T)
             if(tksw(prgnam,'SPEC_ATOM_KMXA')/= 2)l_dummy_isanrg=isanrg(kmxt(j),2,25,' rdctrl (warning):','kmxa',F)
          endif
-         coreh(j) = ' ' !core hole mode
-         nm='SPEC_ATOM_C-HOLE'; call gtv(trim(nm),tksw(prgnam,nm),coreh(j), &
-              nmin=10,cindx=jj,note='Channel for core hole')
-         nm='SPEC_ATOM_C-HQ'; call gtv(trim(nm),tksw(prgnam,nm),coreq(:,j), &
-              def_r8v=(/-1d0,0d0/),cindx=jj,nmin=2,note= &
-              'Charge in core hole.  '// &
-              'Optional 2nd entry is moment of core hole:'// &
-              new_line('a')//'   '//'Q(spin1) = full + C-HQ(1)/2 + C-HQ(2)/2'// &
-              new_line('a')//'   '//'Q(spin2) = full + C-HQ(1)/2 - C-HQ(2)/2')
-         nm='SPEC_ATOM_EREF'; call gtv(trim(nm),tksw(prgnam,nm),eref(j), &
-              def_r8=0d0,cindx=jj,note= &
-              'Reference energy subtracted from total energy')
+         
+         !         coreh(j) = ' ' !core hole mode
+         !         nm='SPEC_ATOM_C-HOLE'; call gtv(trim(nm),tksw(prgnam,nm),coreh(j), &
+         !              nmin=10,cindx=jj,note='Channel for core hole')
+         !         write(6,*)j, 'ccccC-HOLE###'//trim(coreh(j))//'###'
+         !         nm='SPEC_ATOM_C-HQ'; call gtv(trim(nm),tksw(prgnam,nm),coreq(:,j), &
+         !              def_r8v=(/-1d0,0d0/),cindx=jj,nmin=2,note= &
+         !              'Charge in core hole.  '// &
+         !              'Optional 2nd entry is moment of core hole:'// &
+         !              new_line('a')//'   '//'Q(spin1) = full + C-HQ(1)/2 + C-HQ(2)/2'// &
+         !              new_line('a')//'   '//'Q(spin2) = full + C-HQ(1)/2 - C-HQ(2)/2')
+         
+         ! nm='SPEC_ATOM_EREF'; call gtv(trim(nm),tksw(prgnam,nm),eref(j), &
+         !      def_r8=0d0,cindx=jj,note= &
+         !      'Reference energy subtracted from total energy')
          nkaphh(j) = nkapii(j) + lpzex(j)
-         continue  ! Loop over species
+!         continue  ! Loop over species
 1111  enddo
       if (io_help==0) then
          lmxax = maxval(lmxa) !Maximum L-cutoff
@@ -1009,11 +1006,11 @@ contains
       pos  = NULLR
       ! ITE_ATOM_*
       do  j = 1, nbas
-         if (io_help /= 0) then
-            write(stdo,'(1x)')
-         elseif (io_help == 0 .AND. io_show>0) then
-            write(stdo,ftox)' ... Site ',j
-         endif
+!         if (io_help /= 0) then
+!            write(stdo,'(1x)')
+!         elseif (io_help == 0 .AND. io_show>0) then
+!            write(stdo,ftox)' ... Site ',j
+!         endif
          jj=(/1,j/)
          nm='SITE_ATOM';call gtv(trim(nm),tksw(prgnam,nm),alabl,nmin=10, cindx=jj,note='Species label')
          if(io_help /= 1) then
@@ -1421,7 +1418,7 @@ contains
       call suldau(nbas,nlibu,k,wowk)!Count LDA+U blocks (printout only)
       ham_nlibu=nlibu
       call poppr
-      deallocate(wowk,amom, qpol,stni,rg,rfoca,rham,idxdn, rmt,  lfoca,lmxl, spec_a,nr,rsmv)
+      deallocate(wowk,amom, qpol,stni,rg,rfoca,idxdn, rmt,  lfoca,lmxl, spec_a,nr,rsmv)
       !! --- takao embed contents in susite here. This is only for lmf and lmfgw.
       allocate(iv_a_oips(nbas),source=[(ispec(ib), ib=1,nbas)])
       seref= sum([(eref(ispec(ib)),ib=1,nbas)])

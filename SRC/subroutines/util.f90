@@ -531,9 +531,12 @@ contains
          do i=1,nrecs
             if( recrd(i)(1:ncat)==trim(cattok) ) then
                read(recrd(i)(ncat+1:),"(a)") ch
-               return
+               goto 1012
             endif
          enddo
+         ch=''
+1012     continue
+         write(6,*)'cccccccc ',trim(cattok),'ch=###'//trim(ch)//'###'
          return
       endif   
       
