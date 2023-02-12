@@ -1,4 +1,7 @@
 module m_gtv2
+  use m_ftox
+  use m_lgunit,only:stdo
+  use m_MPItk,only:master_mpi
   public rval2,gtv2_setrcd
   private
     integer::nrecs,reclnr
@@ -18,11 +21,13 @@ contains
       real(8),optional,allocatable:: rv(:)
       character(*),optional:: ch
       character(*):: cattok
-      integer::ncat,i,ncount,ndefa
-      real(8):: arr(1000)
-      logical:: nomode,nrmode,ndmode
+      integer::ncat,i,ncount,ndefa,lx
+      real(8):: arr(1000),rvx(1000)
+      logical:: nomode,nrmode,ndmode,debug=.false.
+      character(4):: modec
       character(8):: xn
-      write(6,*)'cccccccc rval2 ',trim(cattok)
+      character(256):: outx
+      if(debug) write(stdo,*)'cccccccc rval2 ',trim(cattok)
       ncat=len(trim(cattok))
       if(present(ch)) then
          do i=1,nrecs
@@ -33,7 +38,7 @@ contains
          enddo
          ch=''
 1012     continue
-         write(6,*)'cccccccc ',trim(cattok),'ch=###'//trim(ch)//'###'
+         if(debug) write(stdo,*)'cccccccc ',trim(cattok),'ch=###'//trim(ch)//'###'
          return
       endif   
       nomode=.false.; nrmode=.false.; ndmode=.false.
@@ -66,9 +71,10 @@ contains
         else   
            allocate(rv(ncount))
            rv(1:ncount)=arr(1:ncount)
-        endif   
+        endif
+        rvx(1:ncount)=rv(1:ncount)
       else !rr mode
-         if(.not.present(rr)) call rx('rval2:neither rr nor rv given')
+        if(.not.present(rr)) call rx('rval2:neither rr nor rv given')
         if(ncount==0.and.ndmode) then
            ncount=1
            rr=defa(1)
@@ -77,10 +83,21 @@ contains
         else
            rr=NULL
         endif
+        rvx(1)=rr
       endif
       if(present(nout)) nout=ncount !nomode
-      if(present(rv)) write(6,*)'cccccccc rv rval2 mode ncount val ',trim(cattok),nomode,nrmode,ndmode,ncount,rv(1:ncount)
-      if(present(rr)) write(6,*)'cccccccc rr rval2 mode ncount val ',trim(cattok),nomode,nrmode,ndmode,ncount,rr
+!print
+      modec='----'
+      if(nomode) modec='----'
+      if(nrmode) modec='requ'
+      if(ndmode) modec='defa'
+      if(debug.and.present(rv)) write(stdo,*)'cccccccrr rval2 mode ncount val ',&
+           trim(cattok),nomode,nrmode,ndmode,ncount,rv(1:ncount)
+      if(debug.and.present(rr)) write(stdo,*)'cccccccrv rval2 mode ncount val ',&
+           trim(cattok),nomode,nrmode,ndmode,ncount,rr
+      outx='rval2: '//trim(cattok)
+      lx=len_trim(outx)
+      if(master_mpi) write(stdo,ftox) trim(outx)//repeat(' ',30-lx),trim(modec),'n=',ncount,'val=',ftof(rvx(1:ncount),8)
  end subroutine
 end module
 ! !=========================================================================

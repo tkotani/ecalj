@@ -356,7 +356,7 @@ contains
 !              'Charge and Moment of core hole:'// &
 !               Q(spin1) = full + C-HQ(1)/2 + C-HQ(2)/2 
 !               Q(spin2) = full + C-HQ(1)/2 - C-HQ(2)/2
-         call rval2('SPEC_ATOM_EREF'//xn(j), rr=rr,defa=[0d0]); eref(j)=rr
+         call rval2('SPEC_EREF'//xn(j), rr=rr,defa=[0d0]); eref(j)=rr
       enddo specloop
       lmxbx=maxval(lmxb)
       ibasloop: do j = 1, nbas
@@ -430,8 +430,6 @@ contains
       nmix  = -1
       if(.NOT. parmxp(trim(iter_mix),len(trim(iter_mix)),broy,nmix,wt,beta,wc,killj))& 
            call rx('MIXRHO: parse in parmxp failed')
-      write(stdo,ftox)' mmmixing parameters: A/B nmix wt:',broy,nmix,ftof(wt),&
-           'beta elin wc killj=',ftof(beta),ftof(wc),killj !Get wc,killj,wtinit,betainit,broyinit,nmixinit,bexist
       wtinit  =wt    !out
       betainit=beta  !out
       broyinit=broy  !out
@@ -447,6 +445,8 @@ contains
       call rval2('DYN_GTOL',rr=rr, defa=[0d0]); gtolr=rr !Convergence criterion in gradients'GTOL>0: use length;  <0: use max val;  =0: do not use')
       call rval2('DYN_STEP',rr=rr, defa=[0.015d0]); stepr=rr !Initial (and maximum) step length'
       call rval2('DYN_NKILL',rr=rr,defa=[real(8):: 0]);nkillr=nint(rr)!'Remove hessian after NKILL iter')
+      write(stdo,ftox)'mixing parameters: A/B nmix wt:',broy,nmix,ftof(wt),&
+           'beta elin wc killj=',ftof(beta),ftof(wc),killj !Get wc,killj,wtinit,betainit,broyinit,nmixinit,bexist
       !============ end of reading catok =======================      
       ! Print verbose
       i0=setprint0(30)      !initial verbose set
@@ -659,11 +659,10 @@ contains
       !r     1  Orbital is included as "active" orbitals, which means
       !r           they are included in the hamiltonian and diagonalized
       !r     3   Neglected.
-      ! xxxxxxxxx
-      !r     10  Orbital is a local orbital whose value and slope are
+      !rxxx     10  Orbital is a local orbital whose value and slope are
       !r         constructed to be zero at the MT boundary.
       !r         It is included in the basis.
-      !r     11  Orbital is a local orbital with a smooth Hankel tail
+      !rxxx     11  Orbital is a local orbital with a smooth Hankel tail
       !r         and it is included in the basis.
       do j=1,nspec
          do  ik = 1, nkap0
@@ -970,12 +969,13 @@ contains
   subroutine getiout(a,iin,iout) !a(1:iout) can be nonzero.
     integer:: iin,iout,i
     real(8):: a(iin)
-    do i=iin,1,-1
-       if(a(i)>0) then
-          iout=i-1 !angular mom
-          exit
-       endif
-    enddo
+    iout= findloc([(a(i)>0,i=1,iin)],dim=1,value=.true.,back=.true.)-1
+     ! do i=iin,1,-1
+     !    if(a(i)>0) then
+     !       iout=i-1 !angular mom
+     !       exit
+     !    endif
+     ! enddo
   end subroutine getiout
   subroutine fill3in(nin,res)!- fills res(2) or res(2:3) if res(1) or res(1:2) are given
     integer :: nin,res(3)
