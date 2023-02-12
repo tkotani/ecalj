@@ -39,9 +39,9 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa)
   integer,allocatable,protected:: lmxb(:),lmxa(:),idmod(:,:),idu(:,:),kmxt(:),lfoca(:),lmxl(:),nr(:),& 
        nmcore(:), nkapii(:),nkaphh(:)
   real(8),allocatable,protected:: rsmh1(:,:),rsmh2(:,:),eh1(:,:),eh2(:,:), &
-       rs3(:),alpha(:,:),ehvl(:,:), uh(:,:),jh(:,:), eh3(:),&
-       qpol(:,:),stni(:), pnusp(:,:,:),qnu(:,:,:),     pnuspdefault(:,:),qnudefault(:,:),qnudummy(:,:), &
-       coreq(:,:), rg(:),rsma(:),rfoca(:),rcfa(:,:), rmt(:),pzsp(:,:,:), amom(:,:),spec_a(:),z(:),eref(:),rsmv(:)
+       rs3(:),alpha(:,:), uh(:,:),jh(:,:), eh3(:),&
+       qpol(:,:),stni(:), pnusp(:,:,:),qnu(:,:,:),rcfa(:,:),  pnuspdefault(:,:),qnudefault(:,:),qnudummy(:,:), &
+       coreq(:,:), rg(:),rsma(:),rfoca(:), rmt(:),pzsp(:,:,:), amom(:,:),spec_a(:),z(:),eref(:)
   character*(8),allocatable,protected:: coreh(:)
   !! ... SITE
   integer,allocatable,protected :: ispec(:)
@@ -297,9 +297,9 @@ contains
       allocate(pnuall(n0,nsp,nbas),pnzall(n0,nsp,nbas))
       allocate(pnusp(n0,nsp,nspec),qnu(n0,nsp,nspec), pzsp(n0,nsp,nspec),amom(n0,nspec),idmod(n0,nspec), &
            rsmh1(n0,nspec),eh1(n0,nspec),rsmh2(n0,nspec),eh2(n0,nspec), &
-           ehvl(n0,nspec), qpol(n0,nspec),stni(nspec), &
+           qpol(n0,nspec),stni(nspec), &
            rg(nspec),rsma(nspec),rfoca(nspec),rcfa(2,nspec), & !,rsmfa(nspec)
-           rmt(nspec),rsmv(nspec), &
+           rmt(nspec), &
            spec_a(nspec),z(nspec),nr(nspec),eref(nspec), &
            coreh(nspec),coreq(2,nspec), idxdn(n0,nkap0,nspec), idu(4,nspec),uh(4,nspec),jh(4,nspec), &
            cstrmx(nspec),frzwfa(nspec), kmxt(nspec),lfoca(nspec),lmxl(nspec),lmxa(nspec),&
@@ -311,16 +311,11 @@ contains
       rs3=0.5d0
       eh3=0.5d0
       pnusp=0d0
-      lfoca=0
-      kmxt=-1
-      rsmv=0d0
       pzsp=0d0
       qnu=0d0
-      nmcore=0
       lpz=0
       lpzex=0
       cstrmx=F !Exclude this species when auto-resizing sphere radii
-      frzwfa=F
       nkapii=1
       nkapi = 1
       lpzi = 0
@@ -330,8 +325,7 @@ contains
       eh1  = 0d0
       eh2 = 0d0
       idmod = 0
-      ehvl = NULLR
-      rcfa = NULLR
+      rcfa = 0d0
       rfoca = 0d0
       rg = 0d0
 !      rham = NULLR
@@ -404,6 +398,30 @@ contains
          call rval2('SPEC_ATOM_EREF'//xn(j), rr=rr,defa=[0d0]); eref(j)=rr
       enddo specloop
       lmxbx=maxval(lmxb)
+!!
+      allocate(pos(3,nbas),ispec(nbas),ifrlx(3,nbas),iantiferro(nbas))
+      ibasloop: do  j = 1, nbas
+         call rval2('SITE_ATOM@'//xn(j),ch=ch); alabl=trim(adjustl(ch))
+         do  i = 1, nspec
+            if (trim(alabl) == trim(slabl(i)) ) then
+               ispec(j) = i
+               goto 8811
+            endif
+         enddo
+         call rx('Category SITE referred to nonexistent species: '//trim(alabl))
+8811     continue
+         call rval2('SITE_POS@'//xn(j),rv=rv,  nout=n); pos(1:n,j)=rv !cartesian in alat
+         if(n/=3) then
+            call rval2('SITE_XPOS@'//xn(j),rv=rv, nout=n) !fractional (POSCAR direct) in alat
+            if(n/=3) call rx('SITE_POS is not supplied')
+            pos(:,j)= matmul(plat,rv)
+         endif   
+         call rval2('SITE_RELAX@'//xn(j),rv=rv,defa=[real(8):: 1,1,1]); ifrlx(:,j)=nint(rv) !relax site positions (lattice dynamics) 
+         call rval2('SITE_AF@'//xn(j),   rr=rr,defa=[real(8):: 0]); iantiferro(j)=nint(rr)
+              !'antiferro ID:=i and -i should be af-pair, we look for space-group operation with spin-flip')
+      enddo ibasloop
+
+
       
       call gtv_setrcd(recrd,nrecs,reclnr,stdo,stdl,stde_in=stdo) !Copy recrd to rcd in m_gtv
       call toksw_init(debug)
@@ -913,7 +931,7 @@ contains
             
             rg(j)= 0.25d0*rmt(j)
             rfoca(j)= 0.4d0*rmt(j)
-            rcfa=0d0
+!            rcfa=0d0
             
             !! --- explanation of s_spec ---
             !r  idmod  idmol(l) controls how linearization energy is
@@ -1000,47 +1018,47 @@ contains
               'token ATOM apply to one site.'/3x,'Alternatively, all ', &
               'site data can be read in via the SITE file.')
       endif
-      allocate(pos(3,nbas),ispec(nbas),ifrlx(3,nbas),iantiferro(nbas))
-      ifrlx = 0
-      ispec  = NULLI
-      pos  = NULLR
-      ! ITE_ATOM_*
-      do  j = 1, nbas
-!         if (io_help /= 0) then
-!            write(stdo,'(1x)')
-!         elseif (io_help == 0 .AND. io_show>0) then
-!            write(stdo,ftox)' ... Site ',j
-!         endif
-         jj=(/1,j/)
-         nm='SITE_ATOM';call gtv(trim(nm),tksw(prgnam,nm),alabl,nmin=10, cindx=jj,note='Species label')
-         if(io_help /= 1) then
-            do  i = 1, nspec
-               if (trim(alabl) == trim(slabl(i)) ) then
-                  ispec(j) = i
-                  goto 881
-               endif
-            enddo
-            call rxs('Category SITE referred to nonexistent species: ',alabl)
-         endif
-881      continue
-         !  ... Site positions
-         sw= tksw(prgnam,'SITE_ATOM_XPOS')
-         nm='SITE_ATOM_POS'; call gtv(trim(nm),tksw(prgnam,nm),pos(:,j), &
-              nout=nout,cindx=jj,note='Atom coordinates, cartesian in alat', or=(sw.ne.2))
-         if(nout==0 .OR. tksw(prgnam,'SITE_ATOM_POS')==2)then
-            !nout=-1 if sw=2; otherwise nout=0 unless data was read
-            nm='SITE_ATOM_XPOS'; call gtv(trim(nm),tksw(prgnam,nm),pos(:,j), &
-                 cindx=jj,note='Atom POS. fractional(POSCAR direct) coordinates')
-            xvv=pos(:,j)
-            pos(:,j)= matmul(plat,xvv) 
-         endif
-         nm='SITE_ATOM_RELAX'; call gtv(trim(nm),tksw(prgnam,nm),ifrlx(:,j), &
-              def_i4v=(/(1,i=1,n0)/),cindx=jj,note= &
-              'relax site positions (lattice dynamics) or Euler angles (spin dynamics)')
-         nm='SITE_ATOM_AF'; call gtv(trim(nm),tksw(prgnam,nm),iantiferro(j), cindx=jj,def_i4=0, &
-              note='antiferro ID:=i and -i should be af-pair, we look for space-group operation with spin-flip')
-      enddo
-89    continue
+!      allocate(pos(3,nbas),ispec(nbas),ifrlx(3,nbas),iantiferro(nbas))
+!       ifrlx = 0
+!       ispec  = NULLI
+!       pos  = NULLR
+!       ! ITE_ATOM_*
+!       do  j = 1, nbas
+! !         if (io_help /= 0) then
+! !            write(stdo,'(1x)')
+! !         elseif (io_help == 0 .AND. io_show>0) then
+! !            write(stdo,ftox)' ... Site ',j
+! !         endif
+!          jj=(/1,j/)
+!          nm='SITE_ATOM';call gtv(trim(nm),tksw(prgnam,nm),alabl,nmin=10, cindx=jj,note='Species label')
+!          if(io_help /= 1) then
+!             do  i = 1, nspec
+!                if (trim(alabl) == trim(slabl(i)) ) then
+!                   ispec(j) = i
+!                   goto 881
+!                endif
+!             enddo
+!             call rxs('Category SITE referred to nonexistent species: ',alabl)
+!          endif
+! 881      continue
+!          !  ... Site positions
+!          sw= tksw(prgnam,'SITE_ATOM_XPOS')
+!          nm='SITE_ATOM_POS'; call gtv(trim(nm),tksw(prgnam,nm),pos(:,j), &
+!               nout=nout,cindx=jj,note='Atom coordinates, cartesian in alat', or=(sw.ne.2))
+!          if(nout==0 .OR. tksw(prgnam,'SITE_ATOM_POS')==2)then
+!             !nout=-1 if sw=2; otherwise nout=0 unless data was read
+!             nm='SITE_ATOM_XPOS'; call gtv(trim(nm),tksw(prgnam,nm),pos(:,j), &
+!                  cindx=jj,note='Atom POS. fractional(POSCAR direct) coordinates')
+!             xvv=pos(:,j)
+!             pos(:,j)= matmul(plat,xvv) 
+!          endif
+!          nm='SITE_ATOM_RELAX'; call gtv(trim(nm),tksw(prgnam,nm),ifrlx(:,j), &
+!               def_i4v=(/(1,i=1,n0)/),cindx=jj,note= &
+!               'relax site positions (lattice dynamics) or Euler angles (spin dynamics)')
+!          nm='SITE_ATOM_AF'; call gtv(trim(nm),tksw(prgnam,nm),iantiferro(j), cindx=jj,def_i4=0, &
+!               note='antiferro ID:=i and -i should be af-pair, we look for space-group operation with spin-flip')
+!       enddo
+! 89    continue
       
       !! Structure constants
       nm='STR_RMAXS'; call gtv(trim(nm),tksw(prgnam,nm),str_rmax, &
@@ -1418,7 +1436,7 @@ contains
       call suldau(nbas,nlibu,k,wowk)!Count LDA+U blocks (printout only)
       ham_nlibu=nlibu
       call poppr
-      deallocate(wowk,amom, qpol,stni,rg,rfoca,idxdn, rmt,  lfoca,lmxl, spec_a,nr,rsmv)
+      deallocate(wowk,amom, qpol,stni,rg,rfoca,idxdn, rmt,  lfoca,lmxl, spec_a,nr) !,rsmv)
       !! --- takao embed contents in susite here. This is only for lmf and lmfgw.
       allocate(iv_a_oips(nbas),source=[(ispec(ib), ib=1,nbas)])
       seref= sum([(eref(ispec(ib)),ib=1,nbas)])
