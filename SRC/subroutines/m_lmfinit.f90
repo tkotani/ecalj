@@ -1,22 +1,23 @@
 module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa)
-  !                to run lmfp.F is stored in this module
+  !                to run lmf-MPIK,lmfa,lmchk are stored in this module
   !                We perform 'call m_lmfinit_init', which sets all initial data.
   !! m_lmfinit_init have three stages. Search the word 'Block' in the followings.
-  !! >lmf-MPIK --help show useful help.
   !! At the bottom of this code, we keep old document for variables such as ctrl_*, ham_* and so on (search 'old doc')
   !! This old document may/maynot be a help to read the code.
   use m_ext,only :sname        ! sname contains extension. foobar of ctrl.foobar
   use m_struc_def,only: s_spec ! spec structures.
   use m_MPItk,only: master_mpi
   use m_lgunit,only: stdo,stdl
-  use m_density,only: pnuall,pnzall !these are set here! log-derivative of radial functions.
+  use m_density,only: pnuall,pnzall !These are set here! log-derivative of radial functions.
   implicit none
-  type(s_spec),allocatable:: v_sspec(:) !nspec: number of species in the cell)
+  type(s_spec),allocatable:: v_sspec(:) !nspec: number of species in the cell
+
   integer,parameter::  noutmx=48,NULLI=-99999,nkap0=3,mxspec=256,lstrn=10000
   integer,parameter::  n0=10,nppn=2, nrmx=1501,nlmx=64 ,n00=n0*nkap0
   real(8),parameter::  fpi=16d0*datan(1d0), y0=1d0/dsqrt(fpi), pi=4d0*datan(1d0), srfpi = dsqrt(4d0*pi)
   real(8),parameter::  NULLR =-99999, fs = 20.67098d0, degK = 6.3333d-6 ! defaults for MD
   logical,parameter::  T=.true., F=.false.
+  
   integer,protected::  io_show,io_help=0, lat_nkqmx,nat, lxcf 
   character(lstrn),protected:: sstrnsymg
   character(256),protected:: header,symg=' ',   symgaf=' '!for Antiferro
