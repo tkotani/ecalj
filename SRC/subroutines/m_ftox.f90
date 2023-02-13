@@ -28,23 +28,17 @@
 !>nnn3 0.12D+01 0.46D+01 0.12D+03 0.46D+07 0.91D+05
 module m_FtoX
   public :: ftof,ftod,ftom,ftox
-  
   character(11):: ftox='(*(g0,x))'
-  private
-  !ftom is removing right-end zeros below decimal point.
-  
+  private   !ftom is removing right-end zeros below decimal point.
   interface ftof !123.456789 format
      module procedure ftof,ftofv,ftoc,ftocv
   endinterface ftof
-  
   interface ftod !0.123456D+8 format
      module procedure ftod,ftodv,ftocd,ftocdv
   endinterface ftod
-  
   interface ftom !zero of righthand-side are truncated (mainly for inputs)
      module procedure ftom,ftomv
   endinterface ftom
-
 contains
   function ftodv(argv,ixx) result(farg)
     intent(in):: argv,ixx
@@ -60,7 +54,6 @@ contains
     if(allocated(farg)) deallocate(farg)
     allocate(farg,source=mmm(1:len(trim(mmm))))
   end function ftodv
-
   function ftofv(argv,ixx) result(farg)
     intent(in):: argv,ixx
     real(8):: argv(:)
@@ -75,7 +68,6 @@ contains
     if(allocated(farg)) deallocate(farg)
     allocate(farg,source=mmm(1:len(trim(mmm))))
   end function ftofv
-
   function ftocdv(argv,ixx) result(farg)
     intent(in):: argv,ixx
     complex(8):: argv(:)
@@ -90,7 +82,6 @@ contains
     if(allocated(farg)) deallocate(farg)
     allocate(farg,source=mmm(1:len(trim(mmm))))
   end function ftocdv
-
   function ftocv(argv,ixx) result(farg)
     intent(in):: argv,ixx
     complex(8):: argv(:)
@@ -105,7 +96,6 @@ contains
     if(allocated(farg)) deallocate(farg)
     allocate(farg,source=mmm(1:len(trim(mmm))))
   end function ftocv
-
   function ftomv(argv,ixx) result(farg)
     intent(in):: argv,ixx
     integer:: i,ix
@@ -121,7 +111,6 @@ contains
     if(allocated(farg)) deallocate(farg)
     allocate(farg,source=mmm(1:len(trim(mmm))))
   end function ftomv
-  
 !ccccccccccccccccccccccccccccccccccccccccccccccccccc
   function ftof(arg,ixx) result(farg)
     intent(in)::arg,ixx
