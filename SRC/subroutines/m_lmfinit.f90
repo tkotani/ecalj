@@ -8,115 +8,50 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa) !TK ex
   use m_MPItk,only: master_mpi
   use m_lgunit,only: stdo,stdl
   use m_density,only: pnuall,pnzall !These are set here! log-derivative of radial functions.
-  implicit none
-  type(s_spec),allocatable:: v_sspec(:) !nspec: number of species in the cell
-  integer,parameter::  noutmx=48,NULLI=-99999,nkap0=3,mxspec=256,lstrn=10000
-  integer,parameter::  n0=10,nppn=2, nrmx=1501,nlmx=64 ,n00=n0*nkap0
-  real(8),parameter::  fpi=16d0*datan(1d0), y0=1d0/dsqrt(fpi), pi=4d0*datan(1d0), srfpi = dsqrt(4d0*pi)
-  real(8),parameter::  NULLR =-99999, fs = 20.67098d0, degK = 6.3333d-6 ! defaults for MD
-  logical,parameter::  T=.true., F=.false.
-  integer,protected::  io_help=0, lat_nkqmx,nat, lxcf 
-  character(lstrn),protected:: sstrnsymg
-  character(256),protected:: header,symg=' ',   symgaf=' '!for Antiferro
-  logical,protected :: ham_frzwf,ham_ewald
-  integer,protected:: nspc,procid,nproc,master=0,nspx,& 
-       maxit,gga,ftmesh(3),nmto=0,lrsigx=0,nsp=1,lrel=1,lso=0 
-  real(8),protected:: pmin(n0)=0d0,pmax(n0)=0d0,&
-       tolft,scaledsigma, ham_oveps,ham_scaledsigma
-  real(8):: cc !speed of light
-  integer,protected :: smalit, lstonr(3)=0,nl 
-  logical,protected :: lhf,lcd4
-  !! ... STRUC
-  real(8),protected:: dlat,alat=NULLR,dalat=NULLR,vol,avw 
-  integer,protected:: nbas=NULLI,nspec
-  !! ... SPEC
-  real(8),protected:: omax1(3)=0d0,omax2(3)=0d0,wsrmax=0d0,sclwsr=0d0,vmtz(mxspec)=-.5d0
-  character*8,allocatable,protected:: slabl(:)
-  integer,protected:: lmxbx=-1,lmxax,nkaph,nkapi
-  logical,allocatable,protected:: cstrmx(:),frzwfa(:)
-  integer,allocatable,protected:: lmxb(:),lmxa(:),idmod(:,:),idu(:,:),kmxt(:),lfoca(:),lmxl(:),nr(:),& 
-       nmcore(:), nkapii(:),nkaphh(:)
-  real(8),allocatable,protected:: rsmh1(:,:),rsmh2(:,:),eh1(:,:),eh2(:,:), &
-       rs3(:),alpha(:,:), uh(:,:),jh(:,:), eh3(:),&
-       qpol(:,:),stni(:), pnusp(:,:,:),qnu(:,:,:), pnuspdefault(:,:),qnudefault(:,:),qnudummy(:,:), &
-       coreq(:,:), rg(:),rsma(:),rfoca(:), rmt(:),pzsp(:,:,:), amom(:,:),spec_a(:),z(:),eref(:)
-  character*(8),allocatable,protected:: coreh(:)
-  !! ... SITE
-  integer,allocatable,protected :: ispec(:)
+  implicit none 
+  type(s_spec),allocatable:: v_sspec(:)! unprotected, changed only by readin iors/rdovfa (see lmfp.f90)
+  integer,parameter:: noutmx=48,NULLI=-99999,nkap0=3,mxspec=256,lstrn=1000,n0=10,nppn=2,nrmx=1501,nlmx=64,n00=n0*nkap0
+  real(8),parameter:: fpi=16d0*datan(1d0), y0=1d0/dsqrt(fpi), pi=4d0*datan(1d0), srfpi = dsqrt(4d0*pi),&
+       NULLR =-99999, fs = 20.67098d0, degK = 6.3333d-6 ! defaults for MD
+  logical,parameter:: T=.true., F=.false.
+  integer,protected:: lat_nkqmx,lat_nkdmx,nat, lxcf, smalit,lstonr(3)=0,nl,nbas=NULLI,nspec,&
+       nspc,procid,nproc,master=0,nspx, maxit,gga,ftmesh(3),nmto=0,lrsigx=0,nsp=1,lrel=1,lso=0,&
+       lmxbx=-1,lmxax,nkaph,nkapi,bz_lshft(3)=0, bz_lmet,bz_n,bz_lmull,bz_fsmommethod,str_mxnbr,&
+       iter_maxit=1, mix_nsave,  pwmode,ncutovl ,ndimx,&
+       natrlx,pdim, leks,lrout,plbnd, pot_nlma, pot_nlml,ham_nspx, nlmto,& !total number of MTOs 
+       lrlxr,nkillr,nitrlx,   broyinit,nmixinit,killj ,&
+       ham_pwmode,ham_nkaph,ham_nlibu, nlmax,mxorb,lfrce,bz_nevmx,ham_nbf,ham_lsig,bz_nabcin(3)=NULLI, bz_ndos,ldos,&
+       lmaxu,nlibu
+  logical,protected :: ham_frzwf,ham_ewald, lhf,lcd4,bz_tetrahedron, addinv,&
+       readpnu,v0fix,pnufix,bexist,rdhessr, lpztail=.false., xyzfrz(3)
+  real(8),protected:: pmin(n0)=0d0,pmax(n0)=0d0,tolft,scaledsigma, ham_oveps,ham_scaledsigma, cc,&!speed of light
+       dlat,alat=NULLR,dalat=NULLR,vol,avw ,omax1(3)=0d0,omax2(3)=0d0,wsrmax=0d0,sclwsr=0d0,vmtz(mxspec)=-.5d0,&
+       bz_efmax,bz_zval,bz_fsmom,bz_semsh(10),zbak,bz_range=5d0,bz_dosmax,&
+       lat_as,lat_tol,lat_rpad=0d0, str_rmax=nullr, etol,qtol,mix_tolu,mix_umix, pwemax,oveps,pwemin=0d0,&
+       ham_seref, bz_w,lat_platin(3,3),lat_alat,lat_avw,lat_tolft,lat_gmaxin,lat_gam(1:4)=[0d0,0d0,1d0,1d0] ,&
+       socaxis(3), xtolr,gtolr,stepr, wtinit(3),wc,betainit 
+  character(lstrn),protected:: sstrnsymg, symg=' ',   symgaf=' '!for Antiferro
+  character(128),protected :: iter_mix=' ' !mix
   character(8),protected:: alabl
-  real(8),allocatable,protected :: pos(:,:) 
-  integer,allocatable,protected :: ifrlx(:,:),ndelta(:) 
-  real(8),allocatable,protected :: delta(:,:),mpole(:),dpole(:,:)
-  integer,allocatable,protected ::iantiferro(:)
-  !! ... BZ
-  integer,protected:: bz_lshft(3)=0, bz_lmet,bz_n,bz_lmull,bz_fsmommethod
-  real(8),protected:: bz_efmax,bz_zval,bz_fsmom,bz_semsh(10),zbak,bz_range=5d0,bz_dosmax
-  logical,protected:: bz_tetrahedron 
-  !! ... Ewald
-  real(8),protected:: lat_as,lat_tol,lat_rpad=0d0
-  integer,protected:: lat_nkdmx
-  !! ... STR
-  real(8),protected:: str_rmax=nullr
-  integer,protected:: str_mxnbr
-  !! ... Iteration, MIX
-  character(128),protected :: iter_mix=' '
-  real(8),protected:: etol,qtol 
-  integer,protected:: iter_maxit=1
-  integer,protected:: mix_nsave 
-  real(8),protected:: mix_tolu,mix_umix
-  !!
-  integer,protected:: pwmode,ncutovl ,ndimx    !ncutovl is by takao. not in lm-7.0beta.npwpad,
-  real(8),protected:: pwemax,oveps,pwemin=0d0!,delta_stabilize
-  integer,allocatable,protected ::  iv_a_oips (:)   ,  lpz(:),lpzex(:),lhh(:,:)
-  !! ClebshGordon coefficient (GW part use clebsh_t)
-  real(8) , allocatable,protected :: rv_a_ocg (:), rv_a_ocy (:)
-  integer, allocatable,protected  :: iv_a_oidxcg(:), iv_a_ojcg (:)
-  !!
-  logical,protected:: addinv
-  integer,protected:: ham_pwmode,ham_nkaph,ham_nlibu, nlmax,mxorb,lfrce
-  integer,protected:: bz_nevmx, ham_nbf,ham_lsig,bz_nabcin(3)=NULLI, bz_ndos,ldos
-  real(8),protected:: ham_seref, bz_w,lat_platin(3,3),lat_alat,lat_avw,lat_tolft,lat_gmaxin
-  real(8),protected:: lat_gam(1:4)=[0d0,0d0,1d0,1d0] 
-!  integer,protected:: lekkl  
-  integer,protected:: lmaxu,nlibu
-  integer,allocatable,protected::lldau(:)
-  logical,protected:: lpztail=.false.
-  integer,protected:: leks,lrout,plbnd,  pot_nlma,  pot_nlml,ham_nspx 
-  integer,protected:: nlmto !total number of MTOs 
-  real(8),protected:: socaxis(3) !SOC
-  integer,protected:: natrlx,pdim
-  logical,protected:: xyzfrz(3)
-  integer,allocatable:: indrx_iv(:,:) 
-  !! sspec unprotected, but there are changed only by readin parts, iors/rdovfa (see lmfp.f90)
-  integer,allocatable,public,target:: ltabx(:,:),ktabx(:,:),offlx(:,:),ndimxx(:),norbx(:)
-  integer,allocatable,public,protected:: jma(:),jnlml(:)
+  character*8,allocatable,protected:: slabl(:)
+  logical,allocatable,protected:: cstrmx(:),frzwfa(:)
+  integer,allocatable,protected:: lmxb(:),lmxa(:),idmod(:,:),idu(:,:),kmxt(:),lfoca(:),lmxl(:),nr(:),nmcore(:),nkapii(:),nkaphh(:),&
+       ispec(:),ifrlx(:,:),ndelta(:), iantiferro(:), iv_a_oips (:),  lpz(:),lpzex(:),lhh(:,:)
+  real(8),allocatable,protected:: rsmh1(:,:),rsmh2(:,:),eh1(:,:),eh2(:,:),rs3(:),alpha(:,:),uh(:,:),jh(:,:),eh3(:),&
+       qpol(:,:),stni(:),pnusp(:,:,:),qnu(:,:,:),pnuspdefault(:,:),qnudefault(:,:),qnudummy(:,:),&
+       coreq(:,:),rg(:),rsma(:),rfoca(:), rmt(:),pzsp(:,:,:), amom(:,:),spec_a(:),z(:),eref(:)
+  character*(8),allocatable,protected:: coreh(:)
+  real(8),allocatable,protected:: pos(:,:), delta(:,:),mpole(:),dpole(:,:)
+  real(8),allocatable,protected:: rv_a_ocg (:), rv_a_ocy(:)  !ClebshGordon coefficient (GW part use clebsh_t)
+  integer,allocatable,protected:: iv_a_oidxcg(:),iv_a_ojcg(:)!ClebshGordon coefficient (GW part use clebsh_t)
+  integer,allocatable,protected:: lldau(:), indrx_iv(:,:) ,jma(:),jnlml(:)
+  integer,allocatable,target:: ltabx(:,:),ktabx(:,:),offlx(:,:),ndimxx(:),norbx(:)
   !! DYN! molecular dynamics section DYN (only relaxiation, 2022-6-22)
-  !   lrlxr: 0 no relaxation or dynamics
-  !          4 relax with conjugate gradients
-  !          5 relax with variable metric
-  !          6 relax with Broyden
-  !   rdhessr: T read hessian matrix
-  !   xtolr: relaxation x-tolerance
-  !   gtolr: relaxation g-tolerance
-  !   stepr: step length
+  !   lrlxr: 0 no relaxation or dynamics, 4 relax with conjugate gradients, 5 relax with variable metric, 6 relax with Broyden
+  !   rdhessr: T read hessian matrix, xtolr: relaxation x-tolerance, gtolr: relaxation g-tolerance, stepr: step length
   !   nkillr: Remove hessian after this many steps
-  integer,protected:: lrlxr,nkillr ! 2023feb
-  logical:: rdhessr
-  real(8),protected:: xtolr,gtolr,stepr    ! 2023feb
-  integer,protected:: nitrlx ! nitmv   max number of mol-dynamics iterations
-  ! mixrho
-  logical,protected:: readpnu,v0fix,pnufix
-  integer,protected:: broyinit,nmixinit,killj
-  real(8),protected:: wtinit(3),wc,betainit 
-  logical,protected:: bexist
-
-  integer,parameter:: recln=512
-  integer,protected:: reclnr,nrecs,nrecs2
-  character(:),allocatable:: recrd(:)
 contains
   subroutine m_lmfinit_init(prgnam) ! All the initial data are set in module variables from ctrlp.*
-!    use m_toksw,only:tksw
-!    use m_gtv,only: gtv,gtv_setrcd,gtv_setio
     use m_gtv2,only: gtv2_setrcd,rval2
     use m_cmdpath,only:cmdpath
     use m_ftox
@@ -156,9 +91,12 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     include "mpif.h" 
+    integer,parameter:: recln=512
+    integer:: reclnr,nrecs,nrecs2
+    character(:),allocatable:: recrd(:)
     integer,parameter:: maxp=3
     character,intent(in)::  prgnam*(*)
-    character strn*(recln),strn2*(recln)
+    character:: strn*(recln),strn2*(recln)
     integer:: i_spec
     character fileid*64
     logical :: lgors,cmdopt,ltmp,ioorbp,cmdopt0
@@ -206,16 +144,26 @@ contains
     logical :: ipr10,fullmesh,lzz,fileexist
     logical:: logarr(100)
     integer,allocatable:: idxdn(:,:,:)
-    if(master_mpi.and.cmdopt0('--help')) then
-       call lmhelp(prgnam)
-       call rx0('end of help mode')
+    if(master_mpi.and.cmdopt0('--help')) then !minimum help
+       write(stdo,343)
+343    format(&
+            /'Usage:  lmf,lmfa,lmf-MPIK,lmchk [--OPTION] [-var-assign] [extension]'&
+            /'  See ecalj/Document/* and so on!' &
+            /'  -vnam=expr',  t17,'Define numerical variable nam' &
+            /'  --help',      t17,'Show this document'&
+            /'  --pr=#1',     t17,'Set the verbosity (stack) to values #1' &
+            /'  --time=#1,#2',t17,'Print timing info to # levels (#1=summary; #2=on-the-fly)' &
+            /'  --jobgw       lmf-MPIK works as the GW driver (previous lmfgw-MPIK)' &
+            /'  --quit=band, --quit=mkpot or --quit=dmat: Stop points. Surpress writing rst' &
+            /'  NOTE: lmf read rst.* prior to atm.* file (Removed --rs options at 2022-6-20)' &
+            /'  NOTE: Other command-line-options => Search call cmdopt in SRC/*/*.f90'&
+            )
+       call rx0('End of help mode')
     endif
     procid = mpipid(1)
     nproc  = mpipid(0)
     debug = cmdopt0('--debug')
-    if(prgnam == 'LMF')    write(stdo,*) 'm_lmfinit:program LMF'
-    if(prgnam == 'LMFGWD') write(stdo,*) 'm_lmfinit:program LMFGWD'
-    if(prgnam == 'LMFA') write(stdo,*)   'm_lmfinit:program LMFA'
+    write(stdo,*) 'm_lmfinit:program '//trim(prgnam)
     ConvertCtrl2Ctrlp: block
       if(master_mpi) then
          inquire(file='ctrl.'//trim(sname),exist=fileexist)
@@ -265,27 +213,8 @@ contains
            lmxb(nspec),nmcore(nspec),rs3(nspec),eh3(nspec),&
            lpz(nspec),lpzex(nspec),nkapii(nspec),nkaphh(nspec),slabl(nspec),&
            pos(3,nbas),ispec(nbas),ifrlx(3,nbas),iantiferro(nbas))
-      idu=0
-      uh=0d0
-      jh=0d0
-      rs3=0.5d0
-      eh3=0.5d0
-      pnusp=0d0
-      pzsp=0d0
-      qnu=0d0
-      lpz=0
-      lpzex=0
-      cstrmx=F !Exclude this species when auto-resizing sphere radii
-      nkapii=1
-      nkapi = 1
-      lpzi = 0
-      rsmh1 = 0d0
-      rsmh2 = 0d0
-      eh1  = 0d0
-      eh2 = 0d0
-      idmod = 0
-      rfoca = 0d0
-      rg = 0d0
+      idu=0; uh=0d0; jh=0d0; rs3=0.5d0; eh3=0.5d0; pnusp=0d0; pzsp=0d0; qnu=0d0; lpz=0; lpzex=0; cstrmx=F 
+      nkapii=1; nkapi=1; lpzi = 0; rsmh1 = 0d0; rsmh2 = 0d0; eh1  = 0d0; eh2 = 0d0; idmod=0; rfoca = 0d0; rg=0d0
       call rval2('IO_VERBOS' , rr=rr, defa=[real(8)::  30]); verbos=nint(rr)
       call rval2('IO_TIM'    , rr=rr, defa=[real(8)::  1 ]); io_tim=nint(rr)
       call rval2('STRUC_ALAT', rr=rr, nout=n);  alat=rr
@@ -299,36 +228,36 @@ contains
       !  use  <up|Lz|up> for the place of <up|Lz|dn>, for example.
       !  If we like to take into account spin-dependent radial functions,
       !     We need to calculate ohsozz%soffd, ohsopm%sdiag. See 'call gaugm' at the end of augmat.
-      call rval2('HAM_GMAX',   rr=rr, defa=[0d0]);          lat_gmaxin=rr
-      call rval2('HAM_FTMESH', rv=rv, defa=[0d0,0d0,0d0]);  ftmesh=rv
-      call rval2('HAM_TOL',   rr=rr,  defa=[1d-6]); tolft=rr
-      call rval2('HAM_FRZWF', rr=rr,  defa=[real(8):: 0]); ham_frzwf= nint(rr)==1 
-      call rval2('HAM_XCFUN', rr=rr,  defa=[real(8):: 2]); lxcf=nint(rr)
-      call rval2('HAM_FORCES',rr=rr,  defa=[real(8):: 0]); lfrce=nint(rr)
-      call rval2('HAM_RDSIG', rr=rr,  defa=[real(8):: 1]); lrsigx=nint(rr)
+      call rval2('HAM_GMAX',  rr=rr, defa=[0d0]);          lat_gmaxin=rr
+      call rval2('HAM_FTMESH',rv=rv, defa=[0d0,0d0,0d0]);  ftmesh=rv
+      call rval2('HAM_TOL',   rr=rr, defa=[1d-6]); tolft=rr
+      call rval2('HAM_FRZWF', rr=rr, defa=[real(8):: 0]); ham_frzwf= nint(rr)==1 
+      call rval2('HAM_XCFUN', rr=rr, defa=[real(8):: 2]); lxcf=nint(rr)
+      call rval2('HAM_FORCES',rr=rr, defa=[real(8):: 0]); lfrce=nint(rr)
+      call rval2('HAM_RDSIG', rr=rr, defa=[real(8):: 1]); lrsigx=nint(rr)
       call rval2('HAM_ScaledSigma', rr=rr, defa=[1d0]   ); scaledsigma=rr
-      call rval2('HAM_EWALD', rr=rr,  defa=[real(8):: 0]); ham_ewald= nint(rr)==1
-      call rval2('HAM_OVEPS', rr=rr,  defa=[1d-7]);   oveps=rr
-      call rval2('HAM_PWMODE', rr=rr, defa=[real(8):: 0]);  pwmode=nint(rr)
-      call rval2('HAM_PWEMAX', rr=rr, defa=[real(8):: 0]);  pwemax=rr
-      call rval2('HAM_READP',rr=rr, defa=[real(8):: 0]); readpnu= nint(rr)==1
-      call rval2('HAM_V0FIX',rr=rr, defa=[real(8):: 0]); v0fix =  nint(rr)==1
+      call rval2('HAM_EWALD', rr=rr, defa=[real(8):: 0]); ham_ewald= nint(rr)==1
+      call rval2('HAM_OVEPS', rr=rr, defa=[1d-7]);   oveps=rr
+      call rval2('HAM_PWMODE',rr=rr, defa=[real(8):: 0]);  pwmode=nint(rr)
+      call rval2('HAM_PWEMAX',rr=rr, defa=[real(8):: 0]);  pwemax=rr
+      call rval2('HAM_READP', rr=rr, defa=[real(8):: 0]); readpnu= nint(rr)==1
+      call rval2('HAM_V0FIX', rr=rr, defa=[real(8):: 0]); v0fix =  nint(rr)==1
       call rval2('HAM_PNUFIX',rr=rr,defa=[real(8):: 0]); pnufix=  nint(rr)==1
       avw = avwsr(plat,alat,vol,nbas)
       specloop: do j=1,nspec !SPEC_ATOM j is spec index. In SPEC category, we do j=j+1 after we find ATOM=xx. See ctrl2ctrlp.py
-         call rval2('SPEC_ATOM@'//xn(j), ch=ch); slabl(j)=trim(adjustl(ch))
-         call rval2('SPEC_Z@'//xn(j),    rr=rr); z(j)=rr
-         call rval2('SPEC_R@'  //xn(j), rr=rr, nout=n1); if(n1==1) rmt(j)=rr
+         call rval2('SPEC_ATOM@'//xn(j),ch=ch); slabl(j)=trim(adjustl(ch))
+         call rval2('SPEC_Z@'   //xn(j),rr=rr); z(j)=rr
+         call rval2('SPEC_R@'   //xn(j),rr=rr, nout=n1); if(n1==1) rmt(j)=rr
          call rval2('SPEC_R/W@' //xn(j),rr=rr, nout=n2); if(n2==1.and.n1==0) rmt(j)=rr*avw
          call rval2('SPEC_R/A@' //xn(j),rr=rr, nout=n3); if(n3==1.and.n2==0.and.n1==0) rmt(j)=rr*alat
          call rval2('SPEC_A@'   //xn(j),rr=rr, defa =[0d0]);        spec_a(j)=rr
          call rval2('SPEC_NR@'  //xn(j),rr=rr, defa=[real(8)::0]);  nr(j)=nint(rr)
          call rval2('SPEC_RSMH@'//xn(j),rv=rv,nout=nnx); rsmh1(1:nnx,j)=rv       ! 1st MTO sets
          nn1 = findloc([(rsmh1(i,j)>0d0,i=1,nnx)],value=.true.,dim=1,back=.true.)! 1st MTO sets
-         call rval2('SPEC_EH@'//xn(j),rv=rv,nreq=nn1); eh1(1:nn1,j)=rv           ! 1st MTO sets 
+         call rval2('SPEC_EH@'  //xn(j),rv=rv,nreq=nn1); eh1(1:nn1,j)=rv           ! 1st MTO sets 
          call rval2('SPEC_RSMH2@'//xn(j),rv=rv,nout=nnx); rsmh2(1:nnx,j)=rv      ! 2nd MTO sets 
          nn2 = findloc([(rsmh2(i,j)>0d0,i=1,nnx)],value=.true.,dim=1,back=.true.)! 2nd MTO sets 
-         call rval2('SPEC_EH2@'//xn(j), rv=rv, nreq=nn2); eh2(1:nn2,j)=rv        ! 2nd MTO sets 
+         call rval2('SPEC_EH2@' //xn(j),rv=rv, nreq=nn2); eh2(1:nn2,j)=rv        ! 2nd MTO sets 
          if(nn2>0) nkapi=2
          if(nn2>0) nkapii(j)=2
          call rval2('SPEC_LMX@'//xn(j), rr=rr, defa=[real(8):: 999]);     lmxb(j)=min(nint(rr), max(nn1,nn2)-1)
@@ -447,7 +376,10 @@ contains
       call rval2('DYN_NKILL',rr=rr,defa=[real(8):: 0]);nkillr=nint(rr)!'Remove hessian after NKILL iter')
       write(stdo,ftox)'mixing parameters: A/B nmix wt:',broy,nmix,ftof(wt),&
            'beta elin wc killj=',ftof(beta),ftof(wc),killj !Get wc,killj,wtinit,betainit,broyinit,nmixinit,bexist
-      !============ end of reading catok =======================      
+    endblock Stage1GetCatok
+    Stage2SetModuleParameters: block
+      integer:: isw,iprint,setprint0
+      logical:: cmdopt0,cmdopt2
       ! Print verbose
       i0=setprint0(30)      !initial verbose set
       if    (cmdopt2('--pr=',outs))then; read(outs,*) verbos
@@ -475,7 +407,7 @@ contains
       if(pwmode==10) pwmode=0   !takao added. corrected Sep2011
       if(prgnam=='LMFGWD') pwmode=10+ mod(pwmode,10)
       if(iprint()>0) write(stdo,ftox) ' ===> for --jobgw, pwmode is switched to be ',pwmode
-      nspecset: do 1111 j = 1, nspec
+      nspecloop: do 1111 j = 1, nspec
          write(stdo,'(1x)')
          write(stdo,ftox)' ... Species ',j
          !    Radial mesh parameters: determine default value of a
@@ -602,15 +534,11 @@ contains
          call mpibc1_real(uh(:,j),4,'m_lmfinit_uh') !bug fix at oct26 2021 (it was _int-->not passed )
          call mpibc1_real(jh(:,j),4,'m_lmfinit_jh')
          nkaphh(j) = nkapii(j) + lpzex(j)
-1111  enddo nspecset
+1111  enddo nspecloop
       lmxax = maxval(lmxa) !Maximum L-cutoff
       nlmax = (lmxax+1)**2
       nkaph = nkapi + lpzi     !-1
       mxorb= nkaph*nlmax
-    endblock Stage1GetCatok
-    Stage2SetModuleParameters: block
-      integer:: isw,iprint
-      logical:: cmdopt0
       maxit=iter_maxit
       nl = max(lmxbx,lmxax)+1 !max l-base l-aug +1
       nlmax=nl**2
@@ -730,6 +658,7 @@ contains
       nspc = 1
       if( lso==1 ) nspc = 2
       orbital: block
+        integer:: ib,l,lmr,ia, nnrlx,lmri,ik,nnrl,nnrli,li, iprmb(nbas * nl**2 * maxp )
         !o   norb  :number of orbital types for ib; see Remarks
         !o   ltab  :table of l-quantum numbers for each type
         !o   ktab  :table of energy index for each type
@@ -740,7 +669,6 @@ contains
         !r   Each orbital corresponds to a unique radial wave function at the
         !r   site where the orbit is centered.  There can be multiple 'k'
         !r   indices (radial wave function shapes) for a particular l.
-        integer:: ib,l,lmr,ia, nnrlx,lmri,ik,nnrl,nnrli,li, iprmb(nbas * nl**2 * maxp )
         iprmb=-1
         nlmto = 0
         do 110 ib = 1,nbas
@@ -807,7 +735,7 @@ contains
          jnlml(i+1)= (lmxl(ispec(i))+1)**2 +jnlml(i)
          jma(i+1)= (lmxa(ispec(i))+1)**2 +jma(i)
       enddo
-      !     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
+      !  Make nat = number of real atoms as nbas - # sites w/ floating orbitals !we will remove floating orbtail (2023plan)
       if (procid == master) then
          nat = nbas
          do  i = 1, nbas
@@ -970,12 +898,6 @@ contains
     integer:: iin,iout,i
     real(8):: a(iin)
     iout= findloc([(a(i)>0,i=1,iin)],dim=1,value=.true.,back=.true.)-1
-     ! do i=iin,1,-1
-     !    if(a(i)>0) then
-     !       iout=i-1 !angular mom
-     !       exit
-     !    endif
-     ! enddo
   end subroutine getiout
   subroutine fill3in(nin,res)!- fills res(2) or res(2:3) if res(1) or res(1:2) are given
     integer :: nin,res(3)

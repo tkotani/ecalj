@@ -1,6 +1,6 @@
 !! == Main program for lmf part. Now we use MPI for all program
- !  Based on the paper  [1] TK. H.Kino H.Akai, JPSJ84,034702(2015)
-!                ecalj/Document/PAPERandPRESENTATION/KotaniKinoAkai2015FormulationPMT.pdf
+!  Based on the paper  [1] TK. H.Kino H.Akai, JPSJ84,034702(2015): We will write newer paper (2023plan)
+!    ecalj/Document/PAPERandPRESENTATION/KotaniKinoAkai2015FormulationPMT.pdf
 !  lmf-MPIK and lmfgw-MPIK
 !     We use module-based programing.
 !     In principle, all the data are generared and stored in some modules with 'protection'.
@@ -72,10 +72,10 @@ program lmf
   endif
   call setcmdpath()
   if(cmdopt0('--quit=ctrlp')) call rx0('--quit=ctrlp')
-  ! Read ctrlp into module m_lmfinit. All variables except v_sspec are protected.
-  call m_lmfinit_init(prgnam)
-  call m_lattic_init()      ! lattice setup (for ewald sum)
-  call m_mksym_init(prgnam) !symmetry go into m_lattic and m_mksym
+  
+  call m_lmfinit_init(prgnam)! Read ctrlp into module m_lmfinit. All variables except v_sspec are protected.
+  call m_lattic_init()       ! lattice setup (for ewald sum)
+  call m_mksym_init(prgnam)  !symmetry go into m_lattic and m_mksym
   if(trim(prgnam)=='LMF') call m_mkqp_init() ! data of BZ go into m_mkqp
   
   !! Main program. lmf-MPIK/lmfgw-MPIK. 'call lmfp'---------------------
