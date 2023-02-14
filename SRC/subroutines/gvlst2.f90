@@ -367,7 +367,7 @@ subroutine mshsiz(alat,plat,gmax,ngabc,ng)
         exit
      endif   ! ... Count the number of G vectors for (smaller) trial ngabcn
      call gvlst2(alat,plat,q,ngabcn(1),ngabcn(2),ngabcn(3), 0d0,gmax,[0],000, 0,ngn,kxx,gxx,kxx,kxx)
-     print *,'nnnnnn',ngn,nginit
+!     print *,'nnnnnn',ngn,nginit
      if (dble(ngn) >= nginit*tolg) then
         ng = ngn
         ngabc=ngabcn
