@@ -1,15 +1,10 @@
-include ../Makefile.define
+include ../../Makefile
 
 TARGET=felz
 
 out3=out.lmf.fsmom.$(TARGET)
 out4=out.lmf.lzsz.$(TARGET)
 out4b=out.lmf.ls.$(TARGET)
-
-all: help
-
-help:
-	@echo "Do not call this Makefile alone."
 
 ###########################################################
 #----- subroutine test3.exec

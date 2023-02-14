@@ -69,12 +69,11 @@ MIX     MODE=A3 CONV=1e-5 CONVC=1e-5
 %const p1=3.5
 SPEC    ATOM=A Z=11 R={rmt}
         P=3.7,{p1},3.20,4.12,5.1 IDMOD=0,0,1,1,1
-        LMXA=4 LMX=4
         KMXA=4
         A=.025
         EREF=-323.3409
 # The following line is not needed since these are the defaults.
-        RSMG=.25*{rmt} RFOCA=0.4*{rmt} LFOCA=1 LMX=3 LMXA=3
+        RSMG=.25*{rmt} RFOCA=0.4*{rmt} LFOCA=1 LMX=3 LMXA=4
 %const rsm1=2.6 rsm2=1.2 e2=-1.2 
         RSMH={rsm1},{rsm1},{rsm1},{rsm1},{rsm1} EH=-.01,-.01,-.01,-.01,-.01
 %const pz1=2.9

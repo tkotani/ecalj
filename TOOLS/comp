@@ -1,78 +1,37 @@
-#!/usr/bin/perl
-# ex) comp refdir/out.lmf.copt out.lmf.copt 1e-4 ehf= -v "^ it" -t
-
-use strict;
-use warnings;
-
-my $invert = "";
-my $tail = 0;
-
-my @args = ();
-while( @ARGV ) {
-    my $a = shift @ARGV;
-    if ( $a eq "-v" ) { 
-	$a = shift @ARGV;
-	$invert = $a; 
-    }
-    elsif ( $a eq "-t" ) { 
-	$tail = 1; 
-    }
-    else { 
-	push( @args, $a ); 
-    }
-}
-
-if ( @args != 5 ) {
-    die "Too few/many arguments\n";
-}
-
-my $refout = shift @args;
-my $testout = shift @args;
-my $label = shift @args;
-my $tol = shift @args;
-my $keyword = shift @args;
-
-# allow "ehk=-.0012455"
-# allow "Maximum Harris force = 0"
-my $reg = "-?\\d*(?:\\.\\d+)?(?:[eEdD][+-]\\d+)?";
-
-my $grep = "grep '$keyword'";
-if ( $invert ne "" ) {
-    $grep .= " | grep -v '$invert'";
-}
-if ( $tail == 1 ) {
-    $grep .= " | tail -1";
-} else {
-    $grep .= " | head -1";
-}
-my $extract  = "perl -pe 's/.*$keyword\\s*($reg).*/\$1/'";
-my $command1 = "cat $refout  | $grep | $extract"; 
-my $command2 = "cat $testout | $grep | $extract"; 
-#print "$command2\n";
-
-my $refval  = `$command1`;
-my $testval = `$command2`;
-chomp($refval);
-chomp($testval);
-$refval  =~ s/D/E/i;
-$testval =~ s/D/E/i;
-#print "$refval $testval\n";
-
-my $tol_s = sprintf( "%5s", $tol );
-my $line = "$label $tol_s";
-if ( $refval eq "" ) {
-    print "$line                                           SKIP\n";
-    exit 0;    
-}
-
-my $diff = $refval - $testval;
-my $refval_s  = sprintf( "%16s", $refval );
-my $testval_s = sprintf( "%16s", $testval );
-my $diff_s    = sprintf( "%.1e", $diff );
-$line = "$line $refval_s $testval_s $diff_s";
-if ( $refval <= $testval + $tol &&
-     $refval >= $testval - $tol ) {
-    print "$line OK\n";
-} else {
-    print "$line ERR\n";
-}
+#!/usr/bin/env python3
+import os,sys,re
+#print(sys.argv[1:])
+f1= sys.argv[1]
+f2= sys.argv[2]
+label=sys.argv[3]
+tol=sys.argv[4]
+key=sys.argv[5]
+ix=0
+for i,dat in enumerate(sys.argv[:]):
+    if(dat=='-v'):
+        ix=i+1
+        break
+if(ix!=0): key2=sys.argv[ix]
+#print(len(f1))
+val=[-9999,-9999]
+for ifnum,ifi in enumerate([f1,f2]):
+    ifile=open(ifi,'rt').read().split('\n')
+    for i,line in enumerate(ifile): #print(line.split(' '))
+        if(re.search(key,line)):
+            if(ix==0 or (ix!=0 and re.search(key2,line))):
+                line=re.sub('=\s+','=',line)
+                line=re.sub(':\s+',':',line)
+                #print(key,line)
+                val[ifnum]= float(re.split(key,line)[1].split(' ')[0])
+#sys.exit()
+if(val[0]==-9999 or val[1]==-9999): sys.exit()
+diff=val[0]-val[1]
+out='ERR'
+if(abs(diff)<float(tol)): out='OK!'
+keys=label+(26-len(label))*' '+out
+keys=keys+' '+str(val[0])+' '+str(val[1])
+keys=keys+(60-len(keys))*' '+' tol='+str(tol)+' diff='+str(diff)+' Key1:'+key
+if(ix!=0): keys= keys+ ' Key2:'+key2
+print(keys)
+#print(val)
+sys.exit()

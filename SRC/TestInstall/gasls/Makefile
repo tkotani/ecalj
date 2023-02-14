@@ -1,4 +1,4 @@
-include ../Makefile.define
+include ../../Makefile
 
 TARGET=gasls
 
@@ -8,10 +8,6 @@ out4c=out.lmf.ls-bands.$(TARGET)
 lineeval=3
 evalso=5
 
-all: help
-
-help:
-	@echo "Do not call this Makefile alone."
 
 ###########################################################
 #----- subroutine test4.exec

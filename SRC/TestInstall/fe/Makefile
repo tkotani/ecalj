@@ -1,4 +1,4 @@
-include ../Makefile.define
+include ../../Makefile
 
 TARGET=fe
 
@@ -11,10 +11,6 @@ out2xb=dos-cls.$(TARGET)
 out2xc=dos-mull.$(TARGET)
 
 outtdos=dos.tot.$(TARGET)
-all: help
-
-help:
-	@echo "Do not call this Makefile alone."
 
 ###########################################################
 #----- subroutine test2.exec

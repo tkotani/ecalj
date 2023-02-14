@@ -1,14 +1,9 @@
-include ../Makefile.define
+include ../../Makefile
 
 TARGET=c
 
 out3a=out.lmf.neutral.$(TARGET)
 out3b=out.lmf.ionized.$(TARGET)
-
-all: help
-
-help:
-	@echo "Do not call this Makefile alone."
 
 ###########################################################
 #----- subroutine test3.exec

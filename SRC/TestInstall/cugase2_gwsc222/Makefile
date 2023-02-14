@@ -1,14 +1,9 @@
-include ../Makefile.define
+include ../../Makefile
 
 # directroy where input/output files are saved.
 TARGET=cugase2_gwsc222
 # material in the tests.
 MATERIAL=cugase2
-
-all: help
-
-help:
-	@echo "Do not call this Makefile alone."
 
 # exec default case for $(TARGET).
 $(TARGET).exec:

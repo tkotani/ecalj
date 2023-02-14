@@ -1,14 +1,9 @@
-include ../Makefile.define
+include ../../Makefile
 
 TARGET=cu
 
 out1=out.lmf.$(TARGET)
 out1x=bnds.$(TARGET)
-
-all: help
-
-help:
-	@echo "Do not call this Makefile alone."
 
 ###########################################################
 #----- subroutine test1.exec

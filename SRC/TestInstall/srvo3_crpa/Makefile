@@ -1,14 +1,9 @@
-include ../Makefile.define
+include ../../Makefile
 
 # directroy where input/output files are saved.
 TARGET=srvo3_crpa
 # material in the tests.
 MATERIAL=srvo3
-
-all: help
-
-help:
-	@echo "Do not call this Makefile alone."
 
 # exec default case for $(TARGET).
 $(TARGET).exec:

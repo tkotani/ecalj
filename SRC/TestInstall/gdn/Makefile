@@ -1,4 +1,4 @@
-include ../Makefile.define
+include ../../Makefile
 
 TARGET=gdn
 
@@ -6,10 +6,6 @@ out1=out.lmf.$(TARGET)
 out2=out.lmf-dos.$(TARGET)
 out2x=dos-mull.$(TARGET)
 
-all: help
-
-help:
-	@echo "Do not call this Makefile alone."
 
 ###########################################################
 #----- subroutine test1.exec

@@ -1,14 +1,9 @@
-include ../Makefile.define
+include ../../Makefile
 
 # directroy where input/output files are saved.
 TARGET=nio_gwsc444
 # material in the tests.
 MATERIAL=nio
-
-all: help
-
-help:
-	@echo "Do not call this Makefile alone."
 
 # exec default case for $(TARGET).
 $(TARGET).exec:

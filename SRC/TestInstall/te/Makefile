@@ -1,13 +1,9 @@
-include ../Makefile.define
+include ../../Makefile
 
 TARGET=te
 
 out1=out.lmf.$(TARGET)
 
-all: help
-
-help:
-	@echo "Do not call this Makefile alone."
 
 ###########################################################
 #----- subroutine test1.exec

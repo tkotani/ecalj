@@ -1,14 +1,9 @@
-include ../Makefile.define
+include ../../Makefile
 
 TARGET=crn
 
 out2=out.lmf-dos.$(TARGET)
 out2x=dos-vcdmel.$(TARGET)
-
-all: help
-
-help:
-	@echo "Do not call this Makefile alone."
 
 ###########################################################
 #----- subroutine test2.exec

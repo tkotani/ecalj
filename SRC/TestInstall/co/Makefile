@@ -1,4 +1,4 @@
-include ../Makefile.define
+include ../../Makefile
 
 TARGET=co
 
@@ -9,11 +9,6 @@ pdos1001=dos.isp1.site001.$(TARGET)
 pdos1002=dos.isp1.site002.$(TARGET)
 pdos2001=dos.isp2.site001.$(TARGET)
 pdos2002=dos.isp2.site002.$(TARGET)
-
-all: help
-
-help:
-	@echo "Do not call this Makefile alone."
 
 ###########################################################
 #----- subroutine test1.exec

@@ -5,10 +5,6 @@ TARGET=si_gwsc
 # material in the tests.
 MATERIAL=si
 
-all: help
-
-help:
-	@echo "Do not call this Makefile alone."
 
 # exec default case for $(TARGET).
 $(TARGET).exec:

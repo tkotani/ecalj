@@ -98,7 +98,7 @@ ifneq ($(checkonly),yes)
 	# clear the work target directory if it exists.
 	rm -rf $(work)/$(TARGET)
 	# copy Makefile.define to the work.
-	cp -f Makefile $(work)
+	#cp -f Makefile $(work)
 	# copy target directory to the work.
 	cp -r $(TARGET) $(work)
 	@cd $(work)/$(TARGET) # only effective in shell script
@@ -120,18 +120,11 @@ endif
 	echo "   FAILED in some tests! See " $(work)/summary.txt  || \
 	echo "   OK! All passed! "
 
-#
-# local variables
-
-#2014-11-19kino
+########## changed for work/copt/* and so on.
+bindir=../../bin/
 LMF=$(bindir)/lmf-MPIK
 LMFP=mpirun -np $(mpi_size) $(bindir)/lmf-MPIK
-#
 comp=test.comp
-
-#
-# tolerance
-#
 # test1
 defatol1=1e-5
 dehf1tol1=1e-5
@@ -152,234 +145,102 @@ dmom1tol3=1e-4
 dorbmtol=1e-5
 # test4c
 gmtol=1e-4
-
-###########################################################
-#----- subroutine test1.check
 define test1.check
 	@echo "compare $1 and $2"
-	@$(bindir)/comp \
-		$1 $2 \
-		'FA etot (last species)  ' $(defatol1) \
-		'etot=' -t > $(comp)
-	@$(bindir)/comp \
-		$1 $2 \
-		'1st  iter ehf.eV       ' $(dehf1tol1) \
-		'ehf\(eV\)=' -v '^   it' >> $(comp)
-	@$(bindir)/comp \
-		$1 $2 \
-		'1st  iter ehk.eV       ' $(dehf1tol1) \
-		'ehk\(eV\)=' -v '^   it' >> $(comp)
-	@$(bindir)/comp \
-		$1 $2 \
-		'1st  iter max force     ' $(dfmax1tol1) \
-		'Maximum Harris force =' >> $(comp)
-	@$(bindir)/comp \
-		$1 $2 \
-		'1st  iter mmom          ' $(dmom1tol1) \
-		'mmom=' >> $(comp)
-	@$(bindir)/comp \
-		$1 $2 \
-		'last iter ehf.eV       ' $(dehf1toln) \
-		'ehf\(eV\)=' -v '^   it' -t >> $(comp)
-	@$(bindir)/comp \
-		$1 $2 \
-		'last iter ehk.eV       ' $(dehf1toln) \
-		'ehk\(eV\)=' -v '^   it' -t >> $(comp)
-	@$(bindir)/comp \
-		$1 $2 \
-		'last iter E(LDA+U).eV   ' $(dehf1toln) \
-		'Etot.*LDA.*=' -t >> $(comp)
-	@$(bindir)/comp \
-		$1 $2 \
-		'last iter E(MTO+PW).eV  ' $(dehf1toln) \
-		'pwmode=[^0].*ehf\(eV\)=' -t >> $(comp)
-	@$(bindir)/comp \
-		$1 $2 \
-		'last iter max force     ' $(dfmax1tol1) \
-		'Maximum Harris force =' -t >> $(comp)
-	@$(bindir)/comp \
-		$1 $2 \
-		'last iter mmom          ' $(dmom1tol1) \
-		'mmom=' -t >> $(comp)
-	@$(bindir)/comp \
-		$1 $2 \
-		'chk1ch last iter RMS dq ' $(drmsqtol1) \
-		'RMS DQ=' -v '^   it' -t >> $(comp)
+	@$(bindir)/comp $1 $2 'FA etot (last species)  ' $(defatol1) 'etot='  > $(comp)
+	@$(bindir)/comp $1 $2 '1st  iter ehf.eV       ' $(dehf1tol1) 'ehf\(eV\)=' -v '^h' >> $(comp)
+	@$(bindir)/comp $1 $2 '1st  iter ehk.eV       ' $(dehf1tol1) 'ehk\(eV\)=' -v '^h' >> $(comp)
+	@$(bindir)/comp $1 $2 '1st  iter mmom          ' $(dmom1tol1) 'mmom=' -v '^h' >> $(comp)
+	@$(bindir)/comp $1 $2 '2nd  iter ehf.Ry       ' $(dehf1toln) 'ehf=' -v 'it  2'  >> $(comp)
+	@$(bindir)/comp $1 $2 '2nd  iter ehk.Ry       ' $(dehf1toln) 'ehk=' -v 'it  2'  >> $(comp)
+	@$(bindir)/comp $1 $2 '9th  iter ehf.Ry       ' $(dehf1toln) 'ehf=' -v 'it  9'  >> $(comp)
+	@$(bindir)/comp $1 $2 '9th  iter ehk.Ry       ' $(dehf1toln) 'ehk=' -v 'it  9'  >> $(comp)
+	@$(bindir)/comp $1 $2 'last iter x ehf.eV       ' $(dehf1toln) 'ehf\(eV\)=' -v '^x'  >> $(comp)
+	@$(bindir)/comp $1 $2 'last iter x ehk.eV       ' $(dehf1toln) 'ehk\(eV\)=' -v '^x'  >> $(comp)
+	@$(bindir)/comp $1 $2 'last iter c ehf.eV       ' $(dehf1toln) 'ehf\(eV\)=' -v '^c'  >> $(comp)
+	@$(bindir)/comp $1 $2 'last iter c ehk.eV       ' $(dehf1toln) 'ehk\(eV\)=' -v '^c'  >> $(comp)
+	@$(bindir)/comp $1 $2 'last iter E(LDA+U).eV   ' $(dehf1toln) 'Etot\(LDA+U\)='  >> $(comp)
+	@$(bindir)/comp $1 $2 'last iter max force     ' $(dfmax1tol1) 'Maximum Harris force ='  >> $(comp)
+	@$(bindir)/comp $1 $2 'last iter mmom          ' $(dmom1tol1) 'mmom='  >> $(comp)
+	@$(bindir)/comp $1 $2 'chk1ch last iter RMS dq ' $(drmsqtol1) 'RMS DQ=' >> $(comp)
 	@cat $(comp)
 	@-grep 'ERR' $(comp) > /dev/null && \
 	echo '$(TARGET) TEST 1 FAILED comparison $1 $2' || \
 	echo '$(TARGET) TEST 1 PASSED $2'
-	#
-	# add summary.txt
 	@-grep 'ERR' $(comp) > /dev/null && \
 	echo " FAILED: $(TARGET) TEST1 $2" >> ../summary.txt || \
 	echo "PASSED: $(TARGET) TEST1 $2" >> ../summary.txt
 	@echo "[note] run make show-summary to confirm the result."
 endef
-
-#	@-$(bindir)/compall \
-#		$(REFDIR)/bnds.$(TARGET) bnds.$(TARGET) \
-#		$(pdostol) >> $(comp) 2> /dev/null
-
-###########################################################
-#----- subroutine test2.check
 define test2.check
 	@rm -f $(comp)
-	@-$(bindir)/compall \
-		$1 $2 \
-		$(dosclstol) >> $(comp) 
+	@-$(bindir)/compall $1 $2 $(dosclstol) >> $(comp) 
 	@tail -1 $(comp)
 	@-grep 'ERR' $(comp) > /dev/null && \
 	echo '$(TARGET) TEST2 FAILED comparison $1 $2' || \
 	echo '$(TARGET) TEST2 PASSED $2'
-	#
-	# add summary.txt
 	@-grep 'ERR' $(comp) > /dev/null && \
 	echo " FAILED: $(TARGET) TEST2 $2" >> ../summary.txt || \
 	echo "PASSED: $(TARGET) TEST2 $2" >> ../summary.txt
 	@echo "[note] run make show-summary to confirm the result."
 endef
-
-###########################################################
-#----- subroutine test3.check
 define test3.check
 	@echo "compare $1 and $2"
-	@$(bindir)/comp \
-		$1 $2 \
-		'FA etot (last species)  ' $(defatol1) \
-		'etot=' -t > $(comp)
-	@$(bindir)/comp \
-		$1 $2 \
-		'1st  iter ehf.eV       ' $(dehf1tol1) \
-		'ehf\(eV\)=' -v '^   it' >> $(comp)
-	@$(bindir)/comp \
-		$1 $2 \
-		'1st  iter ehk.eV       ' $(dehf1tol1) \
-		'ehk\(eV\)=' -v '^   it' >> $(comp)
-	@$(bindir)/comp \
-		$1 $2 \
-		'1st  iter max force     ' $(dfmax1tol1) \
-		'Maximum Harris force =' >> $(comp)
-	@$(bindir)/comp \
-		$1 $2 \
-		'1st  iter unconst. mmom ' $(dmom1tol3) \
-		'Mag. moment:' >> $(comp)
-	@$(bindir)/comp \
-		$1 $2 \
-		'1st  iter mmom          ' $(dmom1tol1) \
-		'mmom=' >> $(comp)
-	@$(bindir)/comp \
-		$1 $2 \
-		'last iter ehf.eV       ' $(dehf1toln) \
-		'ehf\(eV\)=' -v '^   it' -t >> $(comp)
-	@$(bindir)/comp \
-		$1 $2 \
-		'last iter ehk.eV       ' $(dehf1toln) \
-		'ehk\(eV\)=' -v '^   it' -t >> $(comp)
-	@$(bindir)/comp \
-		$1 $2 \
-		'last iter max force     ' $(dfmax1tol1) \
-		'Maximum Harris force =' -t >> $(comp)
-	@$(bindir)/comp \
-		$1 $2 \
-		'last iter mmom          ' $(dmom1tol1) \
-		'mmom=' -t >> $(comp)
-	@$(bindir)/comp \
-		$1 $2 \
-		'chk1ch last iter RMS dq ' $(drmsqtol1) \
-		'RMS DQ=' -v '^   it' -t >> $(comp)
+	@$(bindir)/comp $1 $2 'FA etot (last species)  ' $(defatol1) 'etot=' -t > $(comp)
+	@$(bindir)/comp $1 $2 '1st  iter ehf.eV       ' $(dehf1tol1) 'ehf\(eV\)='  >> $(comp)
+	@$(bindir)/comp $1 $2 '1st  iter ehk.eV       ' $(dehf1tol1) 'ehk\(eV\)='  >> $(comp)
+	@$(bindir)/comp $1 $2 '1st  iter unconst. mmom ' $(dmom1tol3) 'Mag. moment:' >> $(comp)
+	@$(bindir)/comp $1 $2 '1st  iter mmom          ' $(dmom1tol1) 'mmom=' >> $(comp)
+	@$(bindir)/comp $1 $2 'last iter ehf.eV       ' $(dehf1toln) 'ehf\(eV\)=' -v '^c' -t >> $(comp)
+	@$(bindir)/comp $1 $2 'last iter ehk.eV       ' $(dehf1toln) 'ehk\(eV\)=' -v '^c' -t >> $(comp)
+	@$(bindir)/comp $1 $2 'last iter max force     ' $(dfmax1tol1) 'Maximum Harris force =' -t >> $(comp)
+	@$(bindir)/comp $1 $2 'last iter mmom          ' $(dmom1tol1) 'mmom=' -t >> $(comp)
+	@$(bindir)/comp $1 $2 'chk1ch last iter RMS dq ' $(drmsqtol1) 'RMS DQ=' >> $(comp)
 	@cat $(comp)
-
 	@-grep 'ERR' $(comp) > /dev/null && \
 	echo '$(TARGET) TEST 3 FAILED comparison $1 $2' || \
 	echo '$(TARGET) TEST 3 PASSED $2'
-	#
-	# add summary.txt
 	@-grep 'ERR' $(comp) > /dev/null && \
 	echo " FAILED: $(TARGET) TEST3 $2" >> ../summary.txt || \
 	echo "PASSED: $(TARGET) TEST3 $2" >> ../summary.txt
 	@echo "[note] run make show-summary to confirm the result."
 endef
-
-#takao removed a block this was right after @cat $(comp)
-#	@-$(bindir)/compall \
-#		$(REFDIR)/bnds.$(TARGET) bnds.$(TARGET) \
-#		$(pdostol) >> $(comp) 2> /dev/null
-#	@tail -1 $(comp)
-
-###########################################################
-#----- subroutine test4a.check
 define test4a.check
 	@echo "compare $1 and $2"
-	@$(bindir)/comp \
-		$1 $2 \
-		'Orbital moment          ' $(dorbmtol) \
-		'total orbital moment   1:' -t > $(comp)
-	@$(bindir)/comp \
-		$1 $2 \
-		'last iter ehf.eV       ' $(dehf1toln) \
-		'ehf\(eV\)=' -v '^   it' -t >> $(comp)
-	@$(bindir)/comp \
-		$1 $2 \
-		'last iter ehk.eV       ' $(dehf1toln) \
-		'ehk\(eV\)=' -v '^   it' -t >> $(comp)
-	@$(bindir)/comp \
-		$1 $2 \
-		'last iter ehf.eV E(MTO+PW)' $(dehf1toln) \
-		'pwmode=[^0].*ehf\(eV\)=' -t >> $(comp)
-	@$(bindir)/comp \
-		$1 $2 \
-		'last iter ehk E(MTO+PW)  ' $(dehf1toln) \
-		'pwmode=[^0].*ehk\(eV\)=' -t >> $(comp)
+	@$(bindir)/comp $1 $2 'Orbital moment          ' $(dorbmtol) 'total orbital moment   1:' -t > $(comp)
+	@$(bindir)/comp $1 $2 'last iter ehf.eV       ' $(dehf1toln) 'ehf\(eV\)=' -v '^   it' -t >> $(comp)
+	@$(bindir)/comp $1 $2 'last iter ehk.eV       ' $(dehf1toln) 'ehk\(eV\)=' -v '^   it' -t >> $(comp)
+	@$(bindir)/comp $1 $2 'last iter ehf.eV E(MTO+PW)' $(dehf1toln) 'pwmode=[^0].*ehf\(eV\)=' -t >> $(comp)
+	@$(bindir)/comp $1 $2 'last iter ehk E(MTO+PW)  ' $(dehf1toln) 'pwmode=[^0].*ehk\(eV\)=' -t >> $(comp)
 	@cat $(comp)
 	@-grep 'ERR' $(comp) > /dev/null && \
 	echo '$(TARGET) TEST 4a FAILED comparison $1 $2' || \
 	echo '$(TARGET) TEST 4a PASSED $2'
-	#
-	# add summary.txt
 	@-grep 'ERR' $(comp) > /dev/null && \
 	echo " FAILED: $(TARGET) TEST4a $2 " >> ../summary.txt || \
 	echo "PASSED: $(TARGET) TEST4a $2 " >> ../summary.txt
 	@echo "[note] run make show-summary to confirm the result."
 endef
-
-###########################################################
-#----- subroutine test4b.check
 define test4b.check
 	@echo "compare $1 and $2"
-	@$(bindir)/comp \
-		$1 $2 \
-		'Orbital moment          ' $(dorbmtol) \
-		'total orbital moment   1:' -t > $(comp)
+	@$(bindir)/comp $1 $2 'Orbital moment          ' $(dorbmtol) 'total orbital moment   1:' -t > $(comp)
 	@cat $(comp)
 	@-grep 'ERR' $(comp) > /dev/null && \
 	echo '$(TARGET) TEST 4b FAILED comparison $1 $2' || \
 	echo '$(TARGET) TEST 4b PASSED $2'
-	#
-	# add summary.txt
 	@-grep 'ERR' $(comp) > /dev/null && \
 	echo " FAILED: $(TARGET) TEST4b $2" >> ../summary.txt || \
 	echo "PASSED: $(TARGET) TEST4b $2" >> ../summary.txt
 	@echo "[note] run make show-summary to confirm the result."
 endef
-
-###########################################################
-#----- subroutine test4c.check
 define test4c.check
-	$(bindir)/comp.eval \
-		$1 $2 \
-		' 0.00000  0.00000  0.00000' \
-		$(lineeval) $(evalso) $(gmtol) > $(comp)
+	$(bindir)/comp.eval $1 $2 ' 0.00000  0.00000  0.00000' $(lineeval) $(evalso) $(gmtol) > $(comp)
 	@cat $(comp)
 	@-grep 'ERR' $(comp) > /dev/null && \
 	echo '$(TARGET) TEST 4c FAILED comparison $1 $2' || \
 	echo '$(TARGET) TEST 4c PASSED $2'
-	#
-	# add summary.txt
 	@-grep 'ERR' $(comp) > /dev/null && \
 	echo " FAILED: $(TARGET) TEST4c $2" >> ../summary.txt || \
 	echo "PASSED: $(TARGET) TEST4c $2" >> ../summary.txt
 	@echo "[note] run make show-summary to confirm the result."
 endef
-
-#	@echo "Date: `date`"      >> ../summary.txt
