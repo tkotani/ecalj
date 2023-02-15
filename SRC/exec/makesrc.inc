@@ -70,7 +70,6 @@ iofa.o \
 iorbtm.o \
 iors.o \
 iors_old.o \
-iosave.o \
 latlim.o \
 lattic.o \
 ldau.o \
@@ -273,7 +272,6 @@ genallcf_mod.o \
 rgwinf_mod.o \
 cputid.o \
 mate.o \
-reindx.o \
 bz.o \
 genqbz.o \
 switches.o \
