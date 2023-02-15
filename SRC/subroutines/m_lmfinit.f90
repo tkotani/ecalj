@@ -29,7 +29,7 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa) !TK ex
        bz_efmax,bz_zval,bz_fsmom,bz_semsh(10),zbak,bz_range=5d0,bz_dosmax,&
        lat_as,lat_tol,lat_rpad=0d0, str_rmax=nullr, etol,qtol,mix_tolu,mix_umix, pwemax,oveps,pwemin=0d0,&
        ham_seref, bz_w,lat_platin(3,3),lat_alat,lat_avw,lat_tolft,lat_gmaxin,lat_gam(1:4)=[0d0,0d0,1d0,1d0] ,&
-       socaxis(3), xtolr,gtolr,stepr, wtinit(3),wc,betainit 
+       socaxis(3), xtolr,gtolr,stepr, wtinit(2),wc,betainit 
   character(lstrn),protected:: sstrnsymg, symg=' ',   symgaf=' '!for Antiferro
   character(128),protected :: iter_mix=' ' !mix
   character(8),protected:: alabl
@@ -46,26 +46,22 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa) !TK ex
   integer,allocatable,protected:: iv_a_oidxcg(:),iv_a_ojcg(:)!ClebshGordon coefficient (GW part use clebsh_t)
   integer,allocatable,protected:: lldau(:), indrx_iv(:,:) ,jma(:),jnlml(:)
   integer,allocatable,target:: ltabx(:,:),ktabx(:,:),offlx(:,:),ndimxx(:),norbx(:)
-  !! DYN! molecular dynamics section DYN (only relaxiation, 2022-6-22)
-  !   lrlxr: 0 no relaxation or dynamics, 4 relax with conjugate gradients, 5 relax with variable metric, 6 relax with Broyden
-  !   rdhessr: T read hessian matrix, xtolr: relaxation x-tolerance, gtolr: relaxation g-tolerance, stepr: step length
-  !   nkillr: Remove hessian after this many steps
 contains
   subroutine m_lmfinit_init(prgnam) ! All the initial data are set in module variables from ctrlp.*
     use m_gtv2,only: gtv2_setrcd,rval2
     use m_cmdpath,only:cmdpath
     use m_ftox
-    ! Inputs.
-    !   ctrl file ctrl.sname
+    ! Inputs
+    !   file  : ctrl.sname
     !   prgnam: name of main program
     ! Outputs
     !    All the module variables. Only v_sspec can be modifed from outside (at readin part of atomic results).
     ! We have three stages (stage 1, stage 2 , stage 3) in this routine. Search 'stage'.
     ! Following memo is not so completed yet.
-    !   BZ*  : Brillouin Zone related
-    !   HAM* :  Hamiltonian related
+    !   BZ_  : Brillouin Zone related
+    !   HAM_ :  Hamiltonian related
     !   v_sspec : SPEC data.
-    !   SITE: site information
+    !   SITE_: site information
     !   slabl : vector of species labels (species<-class<-nbas)
     !   avw   : the average Wigner-Seitz radius
     !   lrel  :specifies type of Schrodinger equation
@@ -88,67 +84,38 @@ contains
     !   stde  :standard error file
     !   stdl  :standard log file
     !   stdo  :standard output file
+    ! DYN_ molecular dynamics section DYN (only relaxiation, 2022-6-22)
+    !   lrlxr: 0 no relaxation or dynamics, 4 relax with conjugate gradients, 5 relax with variable metric, 6 relax with Broyden
+    !   rdhessr: T read hessian matrix, xtolr: relaxation x-tolerance, gtolr: relaxation g-tolerance, stepr: step length
+    !   nkillr: Remove hessian after this many steps
     ! ----------------------------------------------------------------------
     implicit none
     include "mpif.h" 
+    character,intent(in)::  prgnam*(*)
     integer,parameter:: recln=512
-    integer:: reclnr,nrecs,nrecs2
+    character:: strn*(recln),strn2*(recln)
     character(:),allocatable:: recrd(:)
     integer,parameter:: maxp=3
-    character,intent(in)::  prgnam*(*)
-    character:: strn*(recln),strn2*(recln)
-    integer:: i_spec
     character fileid*64
-    logical :: lgors,cmdopt,ltmp,ioorbp,cmdopt0
-    double precision :: dval,dglob,xx(n0*2),dgets !,ekap(6)
-    integer :: i,is,iprint, &
-         iprt,isw,ifi,ix(n0*nkap0),j,k,l,lfrzw,lrs,k1,k2,mpipid 
-    character*(8),allocatable::clabl(:)
-    integer,allocatable:: ipc(:),initc(:),ics(:)
-    real(8),allocatable:: pnuspc(:,:,:),qnuc(:,:,:,:),pp(:,:,:,:),ves(:),zc(:)
-    integer:: dvec1(3)=1, dvec2(3)=0
-    double precision :: orbp(n0,2,nkap0)
-!    integer :: ohave,oics,opnusp,opp,oqnu,osgw,osoptc,oves,owk !osordn,
-    real(8):: pnuspx(20) ,temp33(9)
-    integer:: nnn
-    real(8):: seref
-    integer:: ib 
-    integer,allocatable:: wowk(:)
-    logical:: isanrg,l_dummy_isanrg
-    integer:: lmxcg,lmxcy,lnjcg,lnxcg,nlm
-    integer::nout,nn,i0,ivec(10),iosite
-    integer:: io_tim(2),verbos!io_iactive,
-    character(256)::  a,outs
-    logical::  mlog=.false.
-    integer:: lmxbj,lmxaj,nlbj
-    double precision :: vsn,vers,xv(2*n0),xvv(3)
-    character(256*16) :: bigstr=' '
-    integer:: it
-    logical::  debug=.false.
-    integer:: lp1,lpzi
-    real(8):: xxx
-    real(8)::  avwsr
-    integer:: ii,sw
-    real(8):: dasum!,dglob
+    character(256)::  a,outs,sss,ch
     character(128) :: nm
-    real(8):: d2,plat(3,3),rydberg,rr
+    logical :: cmdopt0,  debug=.false.,sexist, ipr10,fullmesh,lzz,fileexist, logarr(100), mlog=.false.
+    integer :: i,is,iprint, iprt,isw,ifi,ix(n0*nkap0),j,k,l,lfrzw,lrs,k1,k2,mpipid, lmxbj,lmxaj,nlbj,&
+         ibas,ierr,lc, iqnu=0, ifzbak,nn1,nn2,nnx,lmxxx,nlaj,isp,&
+         inumaf,iin,iout,ik,iprior,ibp1,indx,iposn,m,nvi,nvl,nn1xx,nn2xx, nnn,ib,&
+         lmxcg,lmxcy,lnjcg,lnxcg,nlm,nout,nn,i0,ivec(10),iosite,io_tim(2),verbos,&
+         lp1,lpzi,ii,sw,it,levelinit=0, lx,lxx, reclnr,nrecs,nrecs2
+    real(8):: pnuspx(20) ,temp33(9),seref, xxx, avwsr, d2,plat(3,3),rydberg,rr, vsn,vers,xv(2*n0),xvv(3)
     real(8),allocatable ::rv(:)
-    integer:: levelinit=0
-    integer:: lx,lxx
-    character*256:: sss,ch
-    logical:: sexist
-    integer:: ibas,ierr,lc, iqnu=0
-    integer:: ifzbak,nn1,nn2,nnx,lmxxx,nlaj,isp
-    integer,allocatable :: iv_a_oips_bakup (:)
-    integer :: ctrl_nspec_bakup,inumaf,iin,iout,ik,iprior,ibp1,indx,iposn,m,nvi,nvl,nn1xx,nn2xx
-    logical :: ipr10,fullmesh,lzz,fileexist
-    logical:: logarr(100)
-    integer,allocatable:: idxdn(:,:,:)
+    character*(8),allocatable::clabl(:)
+    integer,allocatable:: ipc(:),initc(:),ics(:),wowk(:), idxdn(:,:,:)
+    real(8),allocatable:: pnuspc(:,:,:),qnuc(:,:,:,:),pp(:,:,:,:),ves(:),zc(:)
     if(master_mpi.and.cmdopt0('--help')) then !minimum help
        write(stdo,343)
 343    format(&
             /'Usage:  lmf,lmfa,lmf-MPIK,lmchk [--OPTION] [-var-assign] [extension]'&
-            /'  See ecalj/Document/* and so on!' &
+            /' For usage, see ecalj/Document/* and so on!' &
+            /' Some options---'&
             /'  -vnam=expr',  t17,'Define numerical variable nam' &
             /'  --help',      t17,'Show this document'&
             /'  --pr=#1',     t17,'Set the verbosity (stack) to values #1' &
@@ -163,7 +130,7 @@ contains
     procid = mpipid(1)
     nproc  = mpipid(0)
     debug = cmdopt0('--debug')
-    write(stdo,*) 'm_lmfinit:program '//trim(prgnam)
+    if(master_mpi) write(stdo,"(a)")'m_lmfinit: '//trim(prgnam)
     ConvertCtrl2Ctrlp: block
       if(master_mpi) then
          inquire(file='ctrl.'//trim(sname),exist=fileexist)
@@ -179,7 +146,7 @@ contains
            write(ifi,"(a)") 'Start '//trim(prgnam)//trim(aaa)
            close(ifi)
            cmdl=trim(cmdpath)//'ctrl2ctrlp.py '//trim(aaa)//'<ctrl.'//trim(sname)//' >ctrlp.'//trim(sname)
-           write(stdo,*)'cmdl for python=',trim(cmdl)
+           write(stdo,"(a)")'cmdl for python='//trim(cmdl)
            call system(cmdl) !Main part 
          endblock GetCtrlp
       endif
@@ -195,9 +162,9 @@ contains
       close(ifi)
     endblock ReadCtrlp
     Stage1GetCatok: block !Read Category-Token from recrd by rval2
-      logical:: cmdopt0,cmdopt2,isanrg,parmxp
+      logical:: cmdopt0,cmdopt2,parmxp
       integer:: setprint0,iprint,isw,ncp,nmix,broy,n,n1,n2,n3
-      real(8):: avwsr,dasum,rydberg,wt(3),beta
+      real(8):: avwsr,rydberg,wt(2),beta
       character(8):: fnam,xn
       call gtv2_setrcd(recrd)
       call rval2('STRUC_NSPEC',rr=rr, nreq=1);  nspec=nint(rr)
@@ -245,6 +212,7 @@ contains
       call rval2('HAM_PNUFIX',rr=rr,defa=[real(8):: 0]); pnufix=  nint(rr)==1
       avw = avwsr(plat,alat,vol,nbas)
       specloop: do j=1,nspec !SPEC_ATOM j is spec index. In SPEC category, we do j=j+1 after we find ATOM=xx. See ctrl2ctrlp.py
+         if(master_mpi) write(stdo,"(a,g0)")'=== SPEC =',j
          call rval2('SPEC_ATOM@'//xn(j),ch=ch); slabl(j)=trim(adjustl(ch))
          call rval2('SPEC_Z@'   //xn(j),rr=rr); z(j)=rr
          call rval2('SPEC_R@'   //xn(j),rr=rr, nout=n1); if(n1==1) rmt(j)=rr
@@ -289,6 +257,7 @@ contains
       enddo specloop
       lmxbx=maxval(lmxb)
       ibasloop: do j = 1, nbas
+         if(master_mpi) write(stdo,"(a,g0)")'=== SITE =',j
          call rval2('SITE_ATOM@'//xn(j),ch=ch); alabl=trim(adjustl(ch))
          ispec(j)= findloc([(trim(alabl)==trim(slabl(i)),i=1,nspec)],dim=1,value=.true.)
          if(ispec(j)==0) call rx('Category SITE referred to nonexistent species: '//trim(alabl))
@@ -345,26 +314,34 @@ contains
       call rval2('ITER_NIT', rr=rr, defa=[real(8):: 30]); iter_maxit=nint(rr) !'maximum number of iterations in self-consistency cycle')
       call rval2('ITER_NRMIX',rr=rr,defa=[real(8):: 80]); smalit=nint(rr)     !'lmfa rseq max iter')
       call rval2('ITER_MIX', ch=ch); iter_mix= trim(adjustl(ch)) !Mixing rule for charge mixing.
-      !          Anderson: A[nmix][,b=beta][,bv=betv][,n=nit][,w=w1,w2][,nam=fn][,k=nkill]
-      !          Broyden:  B[nmix][,b=beta][,bv=betv][,wc=wc][,n=#][,w=w1,w2][,nam=fn][,k=nkill]
+      !          Anderson: A[nmix][,b=beta][,bv=betv][,w=w1,w2][,nam=fn][,k=nkill]
+      !          Broyden:  B[nmix][,b=beta][,bv=betv][,wc=wc][,w=w1,w2][,nam=fn][,k=nkill]
+      broyinit=0 !anderon
+      ch=trim(adjustl(ch))//' -1' ! nmix=-1 default
+      if(ch(1:1)=='B'.or.ch(1:1)=='b') broyinit=1 !broyden
+      read(ch(2:),*) nmixinit
       call rval2('ITER_CONV', rr=rr,defa=[1d-4]); etol=rr   !Tolerance in energy change from prior iteration for self-consistency')
       call rval2('ITER_CONVC',rr=rr,defa=[1d-4]); qtol=rr   !Tolerance in output-input charge for self-consistency')
       call rval2('ITER_UMIX',rr=rr,defa=[.5d0]) ; mix_umix=rr !Mixing parameter for densmat in LDA+U') !2022mar9 default umix=0.5
       call rval2('ITER_TOLU',rr=rr,defa=[0d0])  ; mix_tolu=rr !Tolerance for densmat in LDA+U')
-      broy  = 0
-      beta  = 1d0
-      wc    = -1
-      wt(1:2) = 1
-      wt(3) = -9 !     Flags parmxp that there are no extra elements to mix
-      nmix  = -1
-      if(.NOT. parmxp(trim(iter_mix),len(trim(iter_mix)),broy,nmix,wt,beta,wc,killj))& 
-           call rx('MIXRHO: parse in parmxp failed')
-      wtinit  =wt    !out
-      betainit=beta  !out
-      broyinit=broy  !out
-      nmixinit=nmix  !out
-      bexist=.false. 
-      if(beta/=1d0) bexist=.true. !out
+      call rval2('ITER_TOLU',rr=rr,defa=[0d0])  ; mix_tolu=rr !Tolerance for densmat in LDA+U')
+      call rval2('ITER_b',   rr=rr,defa=[1d0])  ; betainit=rr
+      if(betainit/=1d0) bexist=.true. !out
+      call rval2('ITER_wc',  rr=rr,defa=[-1d0]) ; wc=rr
+      call rval2('ITER_w',   rv=rv,defa=[1d0,1d0]); wtinit=rv
+      call rval2('ITER_k',   rr=rr,defa=[real(8):: -1]); killj=nint(rr)
+! !!!!!!!!!!!!!!!!!
+!       broy=0
+!       betainit  = 1d0
+!       wc    = -1
+!       wt(1:2) = 1
+!       nmix  = -1
+!       if(.NOT. parmxp(trim(iter_mix),len(trim(iter_mix)),broy,nmix,wt,betainit,wc,killj))& 
+!            call rx('MIXRHO: parse in parmxp failed')
+! !!!!!!!!!!!!!!!!!!!!!!
+!      wtinit  =wt    !out
+!      nmixinit=nmix  !out
+      
       call rval2('DYN_MODE',rr=rr,defa=[real(8):: 0]); lrlxr=nint(rr) ! Dynamics is only for relaxation
       !  lrlxr=  0: no relaxation, 4:relaxation(conjugate gradients), 5:relaxation(Fletcher-Powell), 6:relaxation(Broyden)
       if(lrlxr/=0) lfrce=1
@@ -374,31 +351,28 @@ contains
       call rval2('DYN_GTOL',rr=rr, defa=[0d0]); gtolr=rr !Convergence criterion in gradients'GTOL>0: use length;  <0: use max val;  =0: do not use')
       call rval2('DYN_STEP',rr=rr, defa=[0.015d0]); stepr=rr !Initial (and maximum) step length'
       call rval2('DYN_NKILL',rr=rr,defa=[real(8):: 0]);nkillr=nint(rr)!'Remove hessian after NKILL iter')
-      write(stdo,ftox)'mixing parameters: A/B nmix wt:',broy,nmix,ftof(wt),&
-           'beta elin wc killj=',ftof(beta),ftof(wc),killj !Get wc,killj,wtinit,betainit,broyinit,nmixinit,bexist
+      if(master_mpi)write(stdo,ftox)'mixing param: A/B nmix wt=',broy,nmixinit,ftof(wtinit),'beta wc killj=',&
+           ftof(betainit),ftof(wc),killj
     endblock Stage1GetCatok
     Stage2SetModuleParameters: block
       integer:: isw,iprint,setprint0
       logical:: cmdopt0,cmdopt2
-      ! Print verbose
-      i0=setprint0(30)      !initial verbose set
+      i0=setprint0(30)       !Initial verbose set
       if    (cmdopt2('--pr=',outs))then; read(outs,*) verbos
       elseif(cmdopt2('--pr',outs)) then; read(outs,*) verbos
       elseif(cmdopt2('-pr',outs))  then; read(outs,*) verbos
       endif
-      i0 = setprint0(verbos)                   !Set initial verbos
+      i0 = setprint0(verbos) !Set initial verbos
       if( .NOT. master_mpi) i0=setprint0(-100) !iprint()=0 except master
-      ! Timing: Turns CPU timing log #1:tree depth #2:CPU times as routines execute.
-      !         Args may be set by command-line: --time=#1,#2
-      if(cmdopt2('--time',outs) ) then 
-         outs=trim(outs(2:))//' 999 999'
+      if(cmdopt2('--time',outs) ) then ! Timing: Turns CPU timing log #1:tree depth #2:CPU times as routines execute.
+         outs=trim(outs(2:))//' 999 999' ! --time=#1,#2     
          read(outs,*)io_tim(1),io_tim(2)
          if(io_tim(1)==999) io_tim(1)=5
          if(io_tim(2)==999) io_tim(2)=2
          i0=1
       endif
-      if(i0>=1) call tcinit(io_tim(2),io_tim(1),levelinit)
-      call tcn('m_lmfinit') !after tcinit call ==============================================
+      if(i0>=1) call tcinit(io_tim(2),io_tim(1),levelinit) !Start tcn (timing monitor) 
+      call tcn('m_lmfinit') 
       lcd4=F
       if (prgnam == 'LMF' .OR. prgnam == 'LMFGWD') lcd4=T
       if(sum(abs(socaxis-[0d0,0d0,1d0])) >1d-6 .AND. (.NOT.cmdopt0('--phispinsym'))) &
@@ -407,9 +381,7 @@ contains
       if(pwmode==10) pwmode=0   !takao added. corrected Sep2011
       if(prgnam=='LMFGWD') pwmode=10+ mod(pwmode,10)
       if(iprint()>0) write(stdo,ftox) ' ===> for --jobgw, pwmode is switched to be ',pwmode
-      nspecloop: do 1111 j = 1, nspec
-         write(stdo,'(1x)')
-         write(stdo,ftox)' ... Species ',j
+      nspecloop: do 1111 j = 1, nspec !nspec (atomic type)
          !    Radial mesh parameters: determine default value of a
          i0 = NULLI
          xxx = NULLR
@@ -422,17 +394,19 @@ contains
          call pshpr(0)
          call rmesh(z(j),rmt(j),lrel,.false.,nrmx,spec_a(j),i0)
          call poppr
-         if (nr(j) == 0) nr(j) = i0
-         if (rmt(j) == 0 ) lmxa(j) = -1
+         if(nr(j) == 0) nr(j) = i0
+         if(rmt(j) == 0 ) lmxa(j) = -1
          lmxaj = lmxa(j)
          nlaj = 1+lmxaj
          idxdn(:,:,j) = 1
-         pnuqnublock: if (nlaj /= 0) then
-            !! ==== Reset default P,Q in absence of explicit specification ====
+         PnuQnuSetting: if (nlaj /= 0) then
+            !Pnu is fractional quantum number. When P=4.56 for example, 4 is principle quantum number (nodenum-l). .56 is
+            !for log derivative (+inf to -inf is mapped to 0 to 1.) to determine radial functions.
+            ! P = PrincipleQnum - 0.5*atan(dphidr/phi)/pi
+            ! === Reset default P,Q in absence of explicit specification ====
             !     ! -- takao jun2012. qnu is set by default p. --
             !     ! This looks too complicated. Fix this in future.
             !     ! In anyway, we expect pnusp and qnu are correctly returned (qnu does not care value of given P).
-            !     print *,'qnuin ',sum(abs(qnu(:,:,j))),qnu(:,:,j)
             !     ! set default pnusp. See the following section 'correct qnu'
             !     ! isp=1 means charge. isp=2 means mmom
             if(allocated(pnuspdefault)) deallocate(pnuspdefault,qnudefault,qnudummy)
@@ -445,8 +419,8 @@ contains
             call defpq(z(j),lmxaj,1,pnuspdefault,qnudefault)! qnu is given here for default pnusp.
             call defpq(z(j),lmxaj,1,pnusp(1,1,j),qnudummy)  ! set pnusp. qnu is kept (but not used here).
             if(iqnu==0) qnu(:,1,j)=qnudefault(:,1)
-            if (nsp == 2) call dcopy(n0,pnusp(1,1,j),1,pnusp(1,2,j),1)
-            if(nsp==2) pzsp(1:n0,2,j) = pzsp(1:n0,1,j) !takao
+            if(nsp == 2) call dcopy(n0,pnusp(1,1,j),1,pnusp(1,2,j),1)
+            if(nsp==2) pzsp(1:n0,2,j) = pzsp(1:n0,1,j) 
             !! lmxb corrected by pzsp
             nnx=0 !nout
             do i=n0,1,-1
@@ -466,7 +440,7 @@ contains
                endif
             endif
             if(maxval(pzsp(1:nnx,1,j))>10d0) lpztail= .TRUE. ! PZ +10 mode exist or not.
-            readpnublock:block ! P = PrincipleQnum - 0.5*atan(dphidr/phi)/pi
+            ReadPnuFromLMFA:block 
               integer:: ifipnu,lr,iz,nspx,lrmx,isp,ispx
               real(8):: pnur,pzav(n0),pnav(n0)
               character(8):: charext
@@ -493,7 +467,7 @@ contains
                  enddo
                  close(ifipnu)
               endif
-            endblock readpnublock
+            endblock ReadPnuFromLMFA
             ! our four cases are
             !     P=Pdefault      ! qnu
             !     Pdefault < P    ! Pdefault is filled as core
@@ -512,10 +486,8 @@ contains
                   endif
                enddo
             endif
-         endif pnuqnublock    
-         rg(j)= 0.25d0*rmt(j)
-         rfoca(j)= 0.4d0*rmt(j)
-         if(procid==master .AND. sum(abs(idu(:,j)))/=0) then
+         endif PnuQnuSetting
+         if(master_mpi .AND. sum(abs(idu(:,j)))/=0) then
             inquire(file='sigm.'//trim(sname),exist=sexist)
             if(sexist) then
                do lxx=0+1,3+1
@@ -526,13 +498,13 @@ contains
                   endif
                enddo
             endif
-            do lxx=0+1,3+1
-               idu(lxx,j) = mod(idu(lxx,j),10)
-            enddo
+            idu(0+1:3+1,j) = mod(idu(0+1:3+1,j),10)
          endif
-         call mpibc1_int(idu(:,j),4,'m_lmfinit_idu')
-         call mpibc1_real(uh(:,j),4,'m_lmfinit_uh') !bug fix at oct26 2021 (it was _int-->not passed )
-         call mpibc1_real(jh(:,j),4,'m_lmfinit_jh')
+         call mpibc1_int(idu(:,j),4,'m_lmfinit_idu') !lda+u
+         call mpibc1_real(uh(:,j),4,'m_lmfinit_uh')  !lda+u 
+         call mpibc1_real(jh(:,j),4,'m_lmfinit_jh')  !lda+u
+         rg(j)   = 0.25d0*rmt(j)
+         rfoca(j)= 0.4d0*rmt(j)
          nkaphh(j) = nkapii(j) + lpzex(j)
 1111  enddo nspecloop
       lmxax = maxval(lmxa) !Maximum L-cutoff
@@ -551,25 +523,16 @@ contains
       !! set cg coefficients for lmf --- Choose dimensions for arrays
       lmxcg=8
       lmxcy=12
-      !      if (lmxcg .le. 6) then
-      !        lnjcg = 6500
-      !        lnxcg = 1300
-      !      else if (lmxcg .le. 8) then
       lnjcg = 22700
       lnxcg = 3400
-      !      else if (lmxcg .le. 10) then
-      !        lnjcg = 62200
-      !        lnxcg = 7400
-      !      else
-      !        call rxi('setcg: cannot handle lmxcg=',lmxcg)
-      !      endif
+      !  for (lmxcg .le. 10);  lnjcg = 62200; lnxcg = 7400
       nlm=(lmxcy+1)**2
       allocate(rv_a_ocy(abs(nlm)))
       allocate(rv_a_ocg(abs(lnjcg)))
       allocate(iv_a_ojcg(abs(lnjcg)))
       allocate(iv_a_oidxcg(abs(lnxcg)))
-      call sylmnc ( rv_a_ocy , lmxcy )
-      call scg ( lmxcg , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg ) !set CG coefficients for lmf part.
+      call sylmnc( rv_a_ocy , lmxcy ) ! for Clebsh-Gordon coefficients for lmf part
+      call scg( lmxcg , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg ) !set CG coefficients for lmf part.
       ham_nkaph=nkaph
       if (procid==master) then
          inquire(file='sigm.'//trim(sname),exist=sexist)
@@ -627,16 +590,21 @@ contains
          v_sspec(j)%rfoca=rfoca(j)
          v_sspec(j)%rg=rg(j)
          v_sspec(j)%rmt=rmt(j)
+! 501 format(/' species data:  augmentation',27x,'density'/ &
+!        ' spec       rmt   rsma lmxa kmxa',5x,' lmxl     rg   rsmv foca   rfoca')
+!      write (stdo,500) spec_a(j),rmt(j),rsma(js),lmxa(j),kmxt(j), lmxl(j),rg(j),rsmv,lfoca(j),rfoca(j)
+! 500  format(1x,a,f6.3,f7.3,2i5,6x,i4,2f7.3,i5,f8.3)
       enddo
+      if(master_mpi) write(stdo,ftox)'pnu list       ibas isp  pnu(0:lmxa) '
       do j=1,nbas
          is=ispec(j) 
          pnuall(:,1:nsp,j) = pnusp(1:n0,1:nsp,is)
          pnzall(:,1:nsp,j) = pzsp(1:n0,1:nsp,is)
          if(procid==master) then
-         do isp=1,nsp
-         write(6,ftox)'pnuall: j isp pnu=',j,isp,ftof(pnuall(1:lmxa(is)+1,isp,j),6)
-         write(6,ftox)'pnzall: j isp  pz=',j,isp,ftof(pnzall(1:lmxa(is)+1,isp,j),6)
-         enddo
+            do isp=1,nsp       
+               write(stdo,ftox)'pnu: j isp pnu=',j,isp,ftof(pnuall(1:lmxa(is)+1,isp,j),3)
+               write(stdo,ftox)'pnz: j isp  pz=',j,isp,ftof(pnzall(1:lmxa(is)+1,isp,j),3)
+            enddo
          endif
       enddo
       !! ... Suppress symmetry operations for special circumstances
@@ -764,8 +732,8 @@ contains
       logical:: cmdopt0
       integer:: iprint
       if (cmdopt0('--etot')) then
-         lfrce=0
-         maxit=1
+         lfrce=0 !force calculation or not
+         maxit=1 !max number of iteration for electronic structure part
       endif
       if(lhf) maxit= 1
       if (lrel /= 0) then
@@ -774,7 +742,7 @@ contains
          cc = 1d10      !nrel 
       endif
       call setcc(lrel) !lrel/=0 means scalar relativistiv c=274.074d0 in a.u.
-      fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !fullmesh stop just after do 2010 iq loop.
+      fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !compute eigenvalues for fullmesh q points 
       lrout = 1 ! Whether to evaluate output density and/or KS energy
       leks = 1
       if (bz_nevmx == -1) then !bz_nevmx ! Maximum number of eigenvalues
@@ -783,10 +751,10 @@ contains
       endif
       if(cmdopt0('--band') .OR. fullmesh) then !Switch to plot bands at specified qp
          lfrce = 0
-         plbnd = 1
+         plbnd = 1 !band plot mode
          lrout = 0
       else
-         plbnd=0
+         plbnd=0 
       endif
       if(lrout == 0 ) maxit = 1
       if(bz_lmet/=0 .OR. bz_tetrahedron ) ldos=1
@@ -801,24 +769,25 @@ contains
               '      To make output density turn off HF=t and/or NEVMX<0'
          call Rx('incompatible input. see the end of console output')
       endif
-      !! LDA+U block (it was suldau.F)
-      nlibu = 0
-      lmaxu = 0
-      allocate(lldau(nbas))
-      lldau = 0
-      if(master_mpi) write(stdo,*)
-      do  ib = 1, nbas
-         is = ispec(ib)
-         do  lx = 0, min(v_sspec(is)%lmxa,3)
-            if (idu(lx+1,is) /= 0) then
-               if (lldau(ib) ==0) lldau(ib) = nlibu+1
-               nlibu = nlibu+1
-               lmaxu = max(lmaxu,lx)
-               !if(master_mpi)write(stdo,ftox)'lda+u block ibas lx=', ib,lx, &
-               !'JH=',ftof(v_sspec(is)%jh(lx+1),3),'UH',ftof(v_sspec(is)%uh(lx+1),3)
-            endif
-         enddo
-      enddo       !! aug2012 we now fix lcplxp=1 (complex ppi integral)
+      LDApU: block 
+        nlibu = 0
+        lmaxu = 0
+        allocate(lldau(nbas))
+        lldau = 0
+        if(master_mpi) write(stdo,*)
+        do  ib = 1, nbas
+           is = ispec(ib)
+           do  lx = 0, min(v_sspec(is)%lmxa,3)
+              if (idu(lx+1,is) /= 0) then
+                 if (lldau(ib) ==0) lldau(ib) = nlibu+1
+                 nlibu = nlibu+1
+                 lmaxu = max(lmaxu,lx)
+                 !if(master_mpi)write(stdo,ftox)'lda+u block ibas lx=', ib,lx, &
+                 !'JH=',ftof(v_sspec(is)%jh(lx+1),3),'UH',ftof(v_sspec(is)%uh(lx+1),3)
+              endif
+           enddo
+        enddo       !! aug2012 we now fix lcplxp=1 (complex ppi integral)
+      endblock LDApU
       ! lhh, nkapii, nkaphh (nkaphh = nkapii(1 or 2) +1) if extented local orbital exist)
       allocate(lhh(nkap0,nspec))
       lhh=-1
@@ -828,21 +797,20 @@ contains
          if(nkapii(i)==2) call getiout(rsmh2(1,i),lmxbj+1,lhh(2,i))
          if(lpz(i)==1 )   call getiout(pzsp(1,1,i),lmxbj+1,lhh(nkaph,i))!lh for lo
       enddo
-      if(master_mpi) then
-         write(stdo,*)
-         write(stdo,"('mmm === MTO setting ===')")
+      ShowMTOsetting:if(master_mpi) then
+         write(stdo,"('mto === MTO setting ===')")
          do i=1,nspec
             lmxbj = lmxb(i)
-            write(stdo,"('mmm ispec lmxb lpz nkapii nkaphh=',10i5)")i,lmxb(i),lpz(i),nkapii(i),nkaphh(i)
-            write(stdo,"('mmm rsmh1 ',i4,100f6.2)")i, rsmh1(1:lhh(1,i)+1,i)
-            write(stdo,"('mmm   eh1 ',i4,100f6.2)")i,   eh1(1:lhh(1,i)+1,i)
-            if(nkapii(i)==2) write(stdo,"('mmm rsmh2 ',i4,100f6.2)")i, rsmh2(1:lhh(2,i)+1,i)
-            if(nkapii(i)==2) write(stdo,"('mmm  eh2  ',i4,100f6.2)")i,   eh2(1:lhh(2,i)+1,i)
-            if(lpz(i)==1 ) write(stdo,"('mmm pz    ',i4,100f6.2)")i,    pzsp(1:lhh(nkaph,i)+1,1,i)
-            write(stdo,"('mmm lh    ',i4,100i3)")  lhh(1:nkaph,i)
+            write(stdo,"('mto ispec lmxb lpz nkapii nkaphh=',10i5)")i,lmxb(i),lpz(i),nkapii(i),nkaphh(i)
+            write(stdo,"('mto rsmh1 ',i4,100f6.2)")i, rsmh1(1:lhh(1,i)+1,i)
+            write(stdo,"('mto   eh1 ',i4,100f6.2)")i,   eh1(1:lhh(1,i)+1,i)
+            if(nkapii(i)==2) write(stdo,"('mto rsmh2 ',i4,100f6.2)")i, rsmh2(1:lhh(2,i)+1,i)
+            if(nkapii(i)==2) write(stdo,"('mto  eh2  ',i4,100f6.2)")i,   eh2(1:lhh(2,i)+1,i)
+            if(lpz(i)==1 ) write(stdo,"('mto pz    ',i4,100f6.2)")i,    pzsp(1:lhh(nkaph,i)+1,1,i)
+            write(stdo,"('mto lh    ',i4,100i3)")  lhh(1:nkaph,i)
          enddo
-      endif
-      relaxmodesetting: block ! Atomic position Relaxation setup (DYN mode)
+      endif ShowMTOsetting
+      DYNsetting: block ! Atomic position Relaxation setup (DYN mode)
         integer:: i,j,k,iprint !,ifrlx(3)
         logical:: force,mdxx
         ! nitrlx = num of iteration cycle for atomic relaxiation (outer loop)
@@ -890,7 +858,7 @@ contains
            endif
 9299       continue
         endif
-      endblock relaxmodesetting
+      endblock DYNsetting
     endblock Stage3InitialSetting
     call tcx('m_lmfinit')
   end subroutine m_lmfinit_init
@@ -912,7 +880,6 @@ end module m_lmfinit
 ! mmmm old doc mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
 ! Hereafter are list of variables. Old document, but it maybe a help.
 ! TK tried to remove obsolate things 
-! def      Uncertainty in Fermi level
 ! dosw     Energy window over which DOS accumulated
 ! fsmom    fixed-spin moment (fixed spin moment method)
 ! ef       Fermi level
@@ -1015,6 +982,3 @@ end module m_lmfinit
 !r   umix    mixing parameter for LDA+U
 !r   w..     Linear mixing weights
 !r   wc      Broyden weight
-
-
-

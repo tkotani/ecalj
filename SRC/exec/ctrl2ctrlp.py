@@ -96,16 +96,19 @@ catok=''
 nbas=0
 nspec=0
 for iline in lll.split('\n'):
-    line=[i for i in iline.split(' ') if i!='']
-    #print(line)
+    line=iline
+    cat=iline.split(' ')[0]
+    if cat=='ITER': line=line.replace(',',' ')
+    
+    line=[i for i in line.split(' ') if i!='']
     tok=''
     tokk=[]
     cat=line[0].split(' ')[0]
     id=0
     idx=''
     line.append('EOL') #for re.match satisfied at the end 
-    for i in line[1:]:
-        #print(line)
+    for ix in line[1:]:
+        i=ix
         if cat=='SITE':
             tokx=i
             if(tokx[0:4]=='ATOM'):

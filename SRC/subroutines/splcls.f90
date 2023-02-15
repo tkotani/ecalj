@@ -89,36 +89,15 @@ subroutine splcls(nosplt,bas,nbas,ng,istab,nspec,slabl,nclass,ipc, ics,nrclas)
      endif
   endif
   if(ipr>=30) then
-     write(stdo,"(a)")'SPLCLS: ibas iclass ispec label(ispec)'
+     write(stdo,"(a)")'splcls:  ibas iclass ispec label(ispec)'
      do j=1,nbas
         ic   = ipc(j) !class
         ispec= ics(ic)!spec
-        write(stdo,"(a,3i5,a)")" SPLCLS ",j,ic,ispec,'     '//trim(slabl(ispec))
+        write(stdo,"(a,3i5,a)")"      ",j,ic,ispec,'     '//trim(slabl(ispec))
      enddo
   endif
-  ! ccccccccccccccccccccccc
-  !      print *,' ipr=',ipr,nclass,nspec
-  !      print *,' ics=',ics(1:nspec)
-  ! ccccccccccccccccccccccccc
   if (nclass == nspec .OR. ipr < 20) return
 400 format(' SPLCLS: species: ',a,'has inequivalent positions:'/ &
        '  IB: ',i3,',  POS=',3f10.5/ &
        '  JB: ',i3,',  POS=',3f10.5)
 end subroutine splcls
-
-
-! subroutine clabel(slabl,is,idx,clabl)
-! !  C- Make class label from species label
-! !  Ci Inputs
-! !  Ci   slabl,is: species label is slabl(is)
-! !  Ci   idx:      class to make is the idx_th class for species is
-! !  Ci             From the ics table, the class corrsponding to idx is
-! !  Ci             iclbsj(is,ics,-nclass,idx)
-! !  Co   clabl:    class label
-! !  C     implicit none
-!   integer is,idx
-!   character*8 slabl(is),clabl
-!   clabl = slabl(is)
-!   if (idx .gt. 1) call awrit1('%a%i',clabl,8,0,idx)
-! end subroutine clabel
-

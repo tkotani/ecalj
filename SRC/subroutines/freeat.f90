@@ -95,8 +95,8 @@ contains
        lmxa = sspec(is)%lmxa
        pz(:,1) =  pzx(1:n0,1,is) ! sspec(is)%pz
        if(nsp==2) pz(:,2)= pz(:,1)
-       write(6,ftox)'xxx isp pz=',is,ftof(pz(1:lmxa+1,1),6)
-       print *,'goto freats'
+!       write(6,ftox)'xxx isp pz=',is,ftof(pz(1:lmxa+1,1),6)
+       write(stdo,"(a)")'freats:'
        call freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,kcor,lcor,qcor, &
             nrmix,1,lxcf,z,rmt,a,nrmt,pnu,pz,qat,rs3(is),eh3(is),vmtz(is),& !rcfa(:,is), &
             idmod(:,is),lmxa,eref(is),rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof, &

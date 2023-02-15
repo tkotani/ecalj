@@ -1,4 +1,4 @@
-module m_density !all are changing during iteration. Not protected.
+module m_density !all are changing during iteration. Not protected!!!!
   use m_struc_def,only: s_rv1
   type(s_rv1), allocatable :: v0pot(:) !v0pot(ib)%v MT potential that defines wave functions
   type(s_rv1), allocatable :: v1pot(:) !v1pot(ib)%v  MT potential of spherical part

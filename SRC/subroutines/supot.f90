@@ -1,6 +1,5 @@
 module m_supot
   use m_struc_def,only: s_rv1
-
   complex(8) ,allocatable,protected ::  zv_a_obgv (:)
   integer,   allocatable,protected ::  iv_a_oips0 (:)
   real(8),   allocatable,protected ::  rv_a_ogv (:,:)
@@ -10,8 +9,7 @@ module m_supot
   integer,protected,target,private::  ngabc(3)
   integer,protected,pointer:: n1,n2,n3
 contains
-
-  subroutine m_supot_init()
+  subroutine m_supot_init()! Initialization for G vectors bgv,ips0,gv,kv !See gvlst2 and sgvsym
     use m_lattic,only: rv_a_odlv,rv_a_oqlv,lat_plat,rv_a_opos,lat_qlat
     use m_mksym,only:   rv_a_osymgr,rv_a_oag
     use m_lmfinit,only : lcd4,nsp,lat_alat,ftmesh,lat_gmaxin,stdo
@@ -20,13 +18,7 @@ contains
     use m_mksym,only:  lat_nsgrp
     use m_shortn3,only: shortn3_initialize,shortn3,nout,nlatout
     use m_ftox
-    !- Initialization for G vectors bgv,ips0,gv,kv !See gvlst2 and sgvsym
-    ! ----------------------------------------------------------------------
-    !i Inputs
-    !i   mode=0 for FP clculaiton (=1 make Madelung matrix for monopoles (ASA))
-    ! ----------------------------------------------------------------------
     implicit none
-    integer,parameter:: mode=0
     integer:: nkd , nkq , ngmx , ng , ngrp , iprint
     double precision :: awald,alat,vol,plat(3,3),gmax,xx
     real(8):: qpg(3),gg,qlat1(3,3),gmax2,gs(3),qlat(3,3),tpiba,  tol=1d-8
@@ -36,8 +28,6 @@ contains
     n2=>ngabc(2)
     n3=>ngabc(3)
     ngabc=ftmesh !initial condition for mshsiz
-!    nbas=ctrl_nbas
-!    nsp=ctrl_nspin
     alat=lat_alat
     vol=lat_vol
     awald=lat_awald

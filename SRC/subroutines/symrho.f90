@@ -38,7 +38,7 @@ subroutine symrhoat(sv_p_orhoat, qbyl, hbyl, f)!- Symmetrize charge density and 
   ngabc=lat_nabc
   call fftz30(n1,n2,n3,k1,k2,k3)
   call symrat (sv_p_orhoat , qbyl , hbyl , f )
-  if ( iprint ( ) > 50 ) call prrhat (sv_p_orhoat )
+  if ( iprint ( ) > 60 ) call prrhat (sv_p_orhoat )
   call tcx('symrhoat')
 end subroutine symrhoat
 subroutine symrat(sv_p_orhoat , qbyl , hbyl , f )

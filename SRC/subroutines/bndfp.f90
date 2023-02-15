@@ -308,7 +308,7 @@ contains
     if(master_mpi .AND. (tdos .OR. ldos/=0)) then
        emin = eeem-0.01d0 
        dosw(1)= emin ! lowest energy limit to plot dos
-       dosw(2)= eferm+bz_dosmax
+       dosw(2)= eferm+bz_dosmax !max energy limit to plot dos
        write(stdo,ftox)' bndfp:Generating TDOS: efermi=',ftof(eferm),' dos window emin emax= ',ftof(dosw)
        allocate( dosi_rv(ndos,nspx),dos_rv(ndos,nspx)) !for xxxdif
        if(cmdopt0('--tdostetf')) ltet= .FALSE. ! Set tetrahedron=F

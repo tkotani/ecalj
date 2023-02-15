@@ -245,7 +245,10 @@ contains
 
     rms2 = 0
     fnam = 'mixm' !fnaminit
-    wt   = wtinit
+    wt(1:2)   = wtinit
+    !     In case parmxp doesn't touch wt, unset flag
+!    if (wt(3) == -9) wt(3) = 0
+    wt(3) = 0 !2023feb
     nmix = nmixinit
     broy = broyinit
     if(bexist) beta=betainit
@@ -262,8 +265,6 @@ contains
     if (nkill == 1) nkill=-nkill
     
     rmsdel = rmsdelsave
-    !     In case parmxp doesn't touch wt, unset flag
-    if (wt(3) == -9) wt(3) = 0
     if (nmix == 0) broy = 0
     ! ... Initial printout
     !      call awrit7(' Mix density with beta=%;4d'//

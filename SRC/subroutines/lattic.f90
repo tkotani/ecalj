@@ -172,7 +172,7 @@ contains
     if (iprint() < 30) goto 60
     write (stdo,340) as,tol,alat,awald
     write (stdo,342) r0+radd,nkd,q0+qadd,nkg
-340 format(/' LATTC:  as=',f6.3,'   tol=',1p,e9.2, &
+340 format(/'LATTC:  as=',f6.3,'   tol=',1p,e9.2, &
          '   alat=',0p,f8.5,'   awald=',f6.3)
 342 format(9x,'r1=',f7.3,'   nkd=',i4,'      q1=',f7.3,'   nkg=',i4)
 60  if(dabs(alat0/alat-1d0) > 0.04d0) call rx('lattc: alat and alat0 deviate by more than 4 %')

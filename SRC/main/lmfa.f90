@@ -25,7 +25,6 @@ program lmfa
   if(master_mpi) write(stdo,*) 'mpisize=',nsize
   if(master_mpi) write(stdl,*) 'mpisize=',nsize
   if(master_mpi) call setcmdpath()
-!  call Finits() !read and set arguments 
   if(cmdopt0('--help')) then  !help and quit
      call m_lmfinit_init(prgnam) ! show help and quit for --input
      call Rx0('end of help mode')

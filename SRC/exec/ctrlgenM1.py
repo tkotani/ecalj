@@ -904,7 +904,7 @@ tail = tail + """      #For Molecule, you may also need to set FSMOM=n_up-n_dn, 
       # NOTE: because of inversion in space-group symmetry, we may have 
       #       |phi_sigm^\bfk|^2 = |phi_sigm^{-\bfk}|^2. This is not for NOINV.
 
-ITER MIX=A8,b=.2 CONV=1e-5 CONVC=1e-5 NIT={nit}
+ITER MIX=A5 b=.2 CONV=1e-5 CONVC=1e-5 NIT={nit}
 #ITER MIX=B CONV=1e-6 CONVC=1e-6 NIT={nit}
                 # MIX=A: Anderson mixing.
                 # MIX=B: Broyden mixing (default). 

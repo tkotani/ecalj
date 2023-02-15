@@ -26,7 +26,6 @@ subroutine sgvsym(ngrp,g,ag,ng,gv,ips0,bgv)
   !u    7 Sep 98 Adapted from nfp su_gvsym.f
   ! ----------------------------------------------------------------------
   implicit none
-  ! ... Passed parameters
   integer :: ngrp,ng,ips0(ng)
   double precision :: g(3,3,1),ag(3,1),gv(ng,3)
   complex(8):: bgv(ng)
@@ -110,7 +109,6 @@ subroutine sgvsym(ngrp,g,ag,ng,gv,ips0,bgv)
      endif
 40 enddo
   if (ksum /= ng) call rxi('SGVSYM error, ksum=',ksum)
-
   ! --- Printout ---
   if (iprint() < 60) return
   j = min(ng,300)
@@ -125,7 +123,6 @@ subroutine sgvsym(ngrp,g,ag,ng,gv,ips0,bgv)
         write(stdo,250) nstar,vv
 250     format(/'   Star',i6,'  length =',f8.4)
         kstar = 0
-
         do  56  i = i0, ng
            if (ips0(i) == i0) then
               kstar = kstar+1
@@ -135,6 +132,5 @@ subroutine sgvsym(ngrp,g,ag,ng,gv,ips0,bgv)
 56      enddo
      endif
 50 enddo
-
 end subroutine sgvsym
 
