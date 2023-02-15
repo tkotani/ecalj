@@ -32,7 +32,6 @@ m_struc_func.o\
 m_lmfinit.o\
 writeband.o\
 writepdos.o\
-lmhelp.o\
 util.o\
 m_hamindex0.o \
 m_hamindex.o \
@@ -119,7 +118,6 @@ rdsigm2.o\
 xcpbe.o \
 m_ext.o\
 amix.o \
-broyj.o \
 cmdopt.o \
 cpudel.o \
 sort.o \
@@ -127,7 +125,6 @@ fftz3.o \
 finits.o \
 fpiint.o \
 gradfl.o \
-gradzr.o \
 hunti.o \
 huntx.o \
 iprint.o \

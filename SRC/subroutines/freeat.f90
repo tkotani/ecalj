@@ -746,6 +746,7 @@ contains
 
   subroutine popta1(rsm,eh,l,z,rmt,nr,nrmt,rofi,h,v,a,b,enu,p, &
        phi,dphi,phip,dphip,eval,qrmt)
+    use m_mtchae,only:mtchae
     use m_hansr,only:hansmd
     !- Calculate expectation value for smooth Hankel
     ! ----------------------------------------------------------------------

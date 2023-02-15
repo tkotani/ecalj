@@ -124,6 +124,7 @@ contains
     if (allocated(ips_iv)) deallocate(ips_iv)
   end subroutine elocp
   subroutine loctsh(mode0,spid,z,a,nr,nrmt,nsp,lmxb,rofi,v,pnu,pnz,rs3,eh3,vmtz, vsel,rsml,ehl)
+    use m_mtchae,only:mtchre
     use m_lmfinit,only: stdo
     use m_hansr,only:hansmr
     use m_ftox
