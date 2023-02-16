@@ -236,6 +236,7 @@ end subroutine q02q
 subroutine q02q0g0(qin,qout,ng)
   implicit real*8(a-h,o-z)
   implicit integer (i-n)
+  integer:: ng(3)
   ! qin = qout + ng
 
   parameter (eps=1d-6)

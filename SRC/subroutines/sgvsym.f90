@@ -66,7 +66,7 @@ subroutine sgvsym(ngrp,g,ag,ng,gv,ips0,bgv)
                diffmin = sum((v-gv(jg,:))**2)
             endif   
          enddo
-         write(stdo,"(' nearest :',i5,13x,3f9.5,' gv**2 ',f12.8,' diff=',d8.2)") &
+         write(stdo,"(' nearest :',i5,13x,3f9.5,' gv**2 ',f12.8,' diff=',d10.2)") &
               jjg, gv(jjg,:), sum(gv(jjg,:)**2),diffmin
          call rxi('SGVSYM: cannot find mapped vector in list:',i0)
 !!!!!!!!!!!!!!!!!!!!!!!!!         
