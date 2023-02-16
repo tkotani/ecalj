@@ -596,7 +596,6 @@ subroutine writeOmg(is,mmn,rn,bb,wbb,wbz,tpia, &
         omgi = omgi + wbz(iq)*wbb(ibb)*(dble(nwf)-a2mmn)
      enddo
   enddo
-  print *,'ooooooooooomgi=', omgi
   omg = 0d0
   do im = 1,nwf
      do iq = 1,nqbz

@@ -23,7 +23,7 @@ contains
       character(*):: cattok
       integer::ncat,i,ncount,ndefa,lx
       real(8):: arr(1000),rvx(1000)
-      logical:: nomode,nrmode,ndmode,debug=.true.
+      logical:: nomode,nrmode,ndmode,debug=.false.
       character(4):: modec
       character(8):: xn
       character(256):: outx

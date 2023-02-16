@@ -8,8 +8,11 @@ LIBLOC = ${LIBMATH}
 LKFLAGS2 = $(LIBMATH) 
 # -check -traceback -debug extended
 module = -module $(moddir) 
-FFLAGS = -O2 -traceback   -init:snan $(module)
-FFLAGS_LESS = -O0  -traceback -init:snan $(module)
-FFLAGS_NONE = -O0  -traceback -init:snan $(module)
+FFLAGS = -O2       -init:snan $(module)
+FFLAGS_LESS = -O0  -init:snan $(module)
+FFLAGS_NONE = -O0  -init:snan $(module)
+#FFLAGS = -O2 -traceback   -init:snan $(module)
+#FFLAGS_LESS = -O0  -traceback -init:snan $(module)
+#FFLAGS_NONE = -O0  -traceback -init:snan $(module)
 
 

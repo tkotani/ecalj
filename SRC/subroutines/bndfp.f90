@@ -314,14 +314,13 @@ contains
        if(cmdopt0('--tdostetf')) ltet= .FALSE. ! Set tetrahedron=F
        if(ltet) then
           call bzints(nkabc(1),nkabc(2),nkabc(3), evlall &
-               , dum , nkp , nevmin , ndhamx , nspx , dosw(1),dosw(2), dosi_rv , ndos ,xxx , & !nevmin at 2023feb
-!               , dum , nkp , ndhamx , ndhamx , nspx , dosw(1),dosw(2), dosi_rv , ndos ,xxx , &
+               , dum ,nkp,nevmin,ndhamx,nspx , dosw(1),dosw(2), dosi_rv , ndos ,xxx , &             !ndhamx=>nevmin at 2023feb
                1, ntet , iv_a_oidtet , dum , dum ) !job=1 give IntegratedDos to dosi_rv
           dos_rv(2:ndos-1,:)=(dosi_rv(3:ndos,:)-dosi_rv(1:ndos-2,:))/(2d0*(dosw(2)-dosw(1))/(ndos-1))
           dos_rv(1,:)    = dos_rv(2,:)
           dos_rv(ndos,:) = dos_rv(ndos-1,:)
        else
-          call makdos(nkp,ndhamx,ndhamx,nspx,rv_a_owtkp,evlall,bz_n,bz_w,-6d0,dosw(1),dosw(2),ndos,dos_rv)
+          call makdos(nkp,nevmin,ndhamx,nspx,rv_a_owtkp,evlall,bz_n,bz_w,-6d0,dosw(1),dosw(2),ndos,dos_rv) !ndmahx=>nevmin
        endif
        if(lso==1) dos_rv=0.5d0*dos_rv 
        open(newunit=ifi, file='dos.tot.'//trim(sname) )
@@ -755,7 +754,6 @@ contains
        ibandloop: do  61  iband = 1, nband
           isploop: do   isp = 1, nsp
              e = evl(iband,isp,iq)
-             if(e>1d10) cycle !cleaned as e=1d99
              meshpt = (e - emin) / step
              mesh1 = meshpt - mrange
              mesh2 = meshpt + mrange
