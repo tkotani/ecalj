@@ -61,6 +61,10 @@ contains
     integer,optional:: ixx
     character(1000):: mmm
     integer::ix,i
+    if(size(argv)==0) then
+      allocate(farg,source='')
+      return
+    endif
     ix=6
     if(present(ixx)) ix=ixx
     write(mmm,"(*(g0,x))") (ftof(argv(i),ix),i=1,size(argv))
@@ -75,6 +79,10 @@ contains
     integer,optional:: ixx
     character(1000):: mmm
     integer:: i,ix
+    if(size(argv)==0) then
+      allocate(farg,source='')
+      return
+    endif
     ix=6
     if(present(ixx)) ix=ixx
     write(mmm,"(*(g0,x))") (ftocd(argv(i),ix),i=1,size(argv))
@@ -89,7 +97,10 @@ contains
     integer,optional:: ixx
     character(1000):: mmm
     integer:: i,ix
-    ix=6
+    if(size(argv)==0) then
+      allocate(farg,source='')
+      return
+    endif
     if(present(ixx)) ix=ixx
     write(mmm,"(*(g0,x))") (ftoc(argv(i),ix),i=1,size(argv))
     mmm=adjustl(mmm)
@@ -103,6 +114,10 @@ contains
     character(:),allocatable:: farg
     integer,optional:: ixx
     character(1000):: mmm
+    if(size(argv)==0) then
+      allocate(farg,source='')
+      return
+    endif
     ix=6
     if(present(ixx)) ix=ixx
 !    print *,'ftomv',size(argv)

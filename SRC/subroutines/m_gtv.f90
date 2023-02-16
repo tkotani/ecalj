@@ -101,6 +101,7 @@ contains
            trim(cattok),nomode,nrmode,ndmode,ncount,rr
       outx='rval2: '//trim(cattok)
       lx=len_trim(outx)
-      if(master_mpi) write(stdo,ftox) trim(outx)//repeat(' ',30-lx),trim(modec),'n=',ncount,'val=',ftof(rvx(1:ncount),8)
+      if(master_mpi) write(stdo,ftox) trim(outx)//repeat(' ',30-lx),trim(modec),'n=',ncount &
+           ,'val=',ftof(rvx(1:ncount),8)
  end subroutine
 end module
