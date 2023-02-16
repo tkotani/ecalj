@@ -234,23 +234,10 @@ subroutine q02q(q0,qbas,q)
 end subroutine q02q
 !-----------------------------------------------------------------------
 subroutine q02q0g0(qin,qout,ng)
-  implicit real*8(a-h,o-z)
-  implicit integer (i-n)
-  integer:: ng(3)
-  ! qin = qout + ng
-
-  parameter (eps=1d-6)
   real(8) :: qin(3), qout(3)
-  integer(4) :: ng(3)
-
-  do i = 1,3
-     q = qin(i) - eps
-     ng(i) = nint(q)
-     !         g = anint(q)
-     qout(i) = q - dble(ng(i)) + eps
-  enddo
-
-  return
+  integer :: ng(3)
+  ng = nint(qin)
+  qout=qin-ng
 end subroutine q02q0g0
 !-----------------------------------------------------------------------
 subroutine read_syml(qbandx,nqbandx,nqband)
