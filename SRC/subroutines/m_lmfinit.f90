@@ -351,7 +351,7 @@ contains
       call rval2('DYN_GTOL',rr=rr, defa=[0d0]); gtolr=rr !Convergence criterion in gradients'GTOL>0: use length;  <0: use max val;  =0: do not use')
       call rval2('DYN_STEP',rr=rr, defa=[0.015d0]); stepr=rr !Initial (and maximum) step length'
       call rval2('DYN_NKILL',rr=rr,defa=[real(8):: 0]);nkillr=nint(rr)!'Remove hessian after NKILL iter')
-      if(master_mpi)write(stdo,ftox)'mixing param: A/B nmix wt=',broy,nmixinit,ftof(wtinit),'beta wc killj=',&
+      if(master_mpi)write(stdo,ftox)'mixing param: A/B nmix wt=',broyinit,nmixinit,ftof(wtinit),'beta wc killj=',&
            ftof(betainit),ftof(wc),killj
     endblock Stage1GetCatok
     Stage2SetModuleParameters: block

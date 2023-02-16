@@ -24,7 +24,7 @@ subroutine hklft(v,rsm,e,tau,alat,kmax,nlm,k0,cy,hkl)
   real(8),parameter:: pi = 4d0*datan(1d0)
   if (nlm == 0) return
   gam = .25d0*rsm**2
-  call sylm(v(:)*2*pi/alat, yl, ll(nlm), v2)
+  call sylm(v*2*pi/alat, yl, ll(nlm), v2)
   hkl(0,:) = -4d0*pi*exp(gam*(e-v2))/(e-v2)*exp(-2d0*pi*img*sum(tau*v)) &
        * [((-img)**ll(ilm)*cy(ilm)*yl(ilm), ilm=1,nlm)]
   do k = 1, kmax

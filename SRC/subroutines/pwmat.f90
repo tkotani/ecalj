@@ -119,6 +119,7 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
            oi = offl(io) ! offh = hamiltonian offset to this block
            denom = eh(l+1,ik) - qpg2(1)
            gam   = 1d0/4d0*rsmh(l+1,ik)**2
+           if(abs(denom)<1d-10) cycle  !2023feb ok?
            fach  = -pi4/vol/denom * phase * mimgl(l) * exp(gam*denom)
            pwh(ig,oi+1:oi+blks(io)) = fach * yl(ol+1:ol+blks(io))
         enddo

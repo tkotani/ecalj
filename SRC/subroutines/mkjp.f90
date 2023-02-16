@@ -113,18 +113,15 @@ subroutine vcoulq_4(q,nbloch,ngc,nbas,lx,lxx,nx,nxx,alat,qlat,vol,ngvecc, &
   tpiba = 2*pi/alat
   do ig1 = 1,ngc
      qg(1:3) = tpiba * (q(1:3)+ matmul(qlat, ngvecc(1:3,ig1)))
-     absqg2(ig1)  = sum(qg(1:3)**2)
+     absqg2(ig1)  = sum(qg(1:3)**2)+1d-32
      !---for spgg fourvp ----------
-     do ibas=1,nbas
-        phase(ig1,ibas) = exp( img*sum(qg(1:3)*bas(1:3,ibas))*alat  )
-     enddo
+     phase(ig1,:) = exp( img*matmul(qg(1:3),bas(1:3,:))*alat  )
      call sylm(qg/sqrt(absqg2(ig1)),yl,lxx,r2s) !spherical factor Y( q+G )
      do lm =1,(lxx+1)**2
         l = ll(lm)
         pjyl_(lm,ig1) = fpi*img**l *cy(lm)*yl(lm)  * sqrt(absqg2(ig1))**l  !*phase
         ! <jlyl | exp i q+G r> projection of exp(i q+G r) to jl yl  on MT
      enddo
-     !--------------
   enddo
 
 
@@ -458,7 +455,7 @@ subroutine mkjp_4(q,ngc,ngvecc,alat,qlat,lxx,lx,nxx,nx,bas,a,b,rmax,nr,nrx,rprod
   complex(8) :: img =(0d0,1d0),phase
   complex(8),allocatable :: pjyl(:,:)
   real(8),allocatable ::ajr(:,:,:),a1(:,:,:), qg(:,:),absqg(:)
-  real(8):: rofi(nrx),rkpr(nrx,0:lxx),rkmr(nrx,0:lxx),eee
+  real(8):: rofi(nrx),rkpr(nrx,0:lxx),rkmr(nrx,0:lxx),eee,qg1a(3)
   logical :: debug=.false.
   ! rkpr(nr,0:lx),rkmr(nr,0:lx),
   !-------------------------------------------------
@@ -479,7 +476,7 @@ subroutine mkjp_4(q,ngc,ngvecc,alat,qlat,lxx,lx,nxx,nx,bas,a,b,rmax,nr,nrx,rprod
      qg(1:3,ig1) = tpiba * (q(1:3)+ matmul(qlat, ngvecc(1:3,ig1)))
      qg1(1:3) = qg(1:3,ig1)
      absqg(ig1)  = sqrt(sum(qg1(1:3)**2))
-     absqg1   = absqg(ig1)
+     absqg1   = absqg(ig1) +1d-32
      phase = exp( img*sum(qg1(1:3)*bas(1:3))*alat  )
      call sylm(qg1/absqg1,yl,lx,r2s) !spherical factor Y( q+G )
      do lm =1,nlx

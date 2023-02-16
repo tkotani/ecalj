@@ -23,11 +23,11 @@ contains
       character(*):: cattok
       integer::ncat,i,ncount,ndefa,lx
       real(8):: arr(1000),rvx(1000)
-      logical:: nomode,nrmode,ndmode,debug=.false.
+      logical:: nomode,nrmode,ndmode,debug=.true.
       character(4):: modec
       character(8):: xn
       character(256):: outx
-      if(debug) write(stdo,*)'cccccccc rval2 ',trim(cattok)
+      if(debug) write(stdo,*)'ccccccccinit rval2 ',trim(cattok),nrecs
       ncat=len(trim(cattok))
       if(present(ch)) then
          do i=1,nrecs
@@ -47,13 +47,17 @@ contains
       if(present(defa)) ndmode=.True. !default mode
       if(count([nomode,nrmode,ndmode])>1) call rx('rval2: chooose one of nout nreq default or none')
       if(ndmode) ndefa =size(defa)
+      if(debug) write(stdo,*)'cccccccc2 goto nrecloop'
+      ncount=0
       do i=1,nrecs
          if( recrd(i)(1:ncat+1)==trim(cattok)//' ' ) then
+            if(debug) write(6,*)'goto getdval',trim(recrd(i)(ncat+2:))//'@@@',ncount
 !            print *,'BZ_N xxxxx',recrd(i)(1:ncat), 'xxxx', trim(recrd(i)(ncat+1:))
             call getdval(trim(recrd(i)(ncat+2:)),ncount,arr) !Read undefinit number of real(8) array
             exit
          endif
       enddo
+      if(debug) write(stdo,*)'cccccccc3333 end nrecloop',ncount
       if(ndmode)then !default mode
          if(ncount>ndefa) ncount=ndefa !truncation
          if(ncount>0.and.ncount/=ndefa)call rx('rval2: '//trim(cattok)//' default mode. ncount='//xn(ncount)//'/=ndefa='//xn(ndefa))

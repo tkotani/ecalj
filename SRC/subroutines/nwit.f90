@@ -32,9 +32,9 @@ subroutine nwit(nvario,iter,maxit,lhf,lhk,etol,qtol,qdiff,amom,etot,sev, lsc)
   double precision :: etol,qtol,qdiff,amom,etot(2)
   integer :: lbl
   logical :: more,letol,lqtol
-  double precision :: ehf1,ehk1,diffe,sev
+  double precision :: diffe,sev
   character flg*1
-  save ehf1,ehk1
+  real(8),save:: ehf1=0d0,ehk1=0d0
   character*255:: formatc(903:904),lbll
   real(8):: rydberg
   character(360) :: sout

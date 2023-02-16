@@ -570,6 +570,13 @@ subroutine sxcf_fal3z(&
                     exxq = exxq - wtt * sum( w3p(:,itp) )
                  enddo
               endif
+
+              if(debug) then
+                 do itp = 1,ntp0
+                    write(6,'(" exchange zsec=",i3,6d15.7)') itp,zsec(iwini,itp,ip)
+                 enddo
+              endif
+
               deallocate( w3p)  !,rmelt,cmelt)
               cycle
            endif

@@ -314,7 +314,8 @@ contains
        if(cmdopt0('--tdostetf')) ltet= .FALSE. ! Set tetrahedron=F
        if(ltet) then
           call bzints(nkabc(1),nkabc(2),nkabc(3), evlall &
-               , dum , nkp , ndhamx , ndhamx , nspx , dosw(1),dosw(2), dosi_rv , ndos ,xxx , &
+               , dum , nkp , nevmin , ndhamx , nspx , dosw(1),dosw(2), dosi_rv , ndos ,xxx , & !nevmin at 2023feb
+!               , dum , nkp , ndhamx , ndhamx , nspx , dosw(1),dosw(2), dosi_rv , ndos ,xxx , &
                1, ntet , iv_a_oidtet , dum , dum ) !job=1 give IntegratedDos to dosi_rv
           dos_rv(2:ndos-1,:)=(dosi_rv(3:ndos,:)-dosi_rv(1:ndos-2,:))/(2d0*(dosw(2)-dosw(1))/(ndos-1))
           dos_rv(1,:)    = dos_rv(2,:)
@@ -754,6 +755,7 @@ contains
        ibandloop: do  61  iband = 1, nband
           isploop: do   isp = 1, nsp
              e = evl(iband,isp,iq)
+             if(e>1d10) cycle !cleaned as e=1d99
              meshpt = (e - emin) / step
              mesh1 = meshpt - mrange
              mesh2 = meshpt + mrange

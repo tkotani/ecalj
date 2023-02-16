@@ -403,8 +403,7 @@ subroutine poiss0(z,a,b,rofi,rho,nr,vhrmax,v,rhovh,vsum,nsp)
 27 enddo
   ! --- Integral vh and  rho * vh ---
   vhint=0d0
-  rhovh(1) = 0d0
-  rhovh(nsp) = 0d0
+  rhovh(1:nsp) = 0d0
   vsum = 0d0
   vhat0 = 0d0
   do  30  ir = 2, nr
@@ -414,8 +413,8 @@ subroutine poiss0(z,a,b,rofi,rho,nr,vhrmax,v,rhovh,vsum,nsp)
      if (ir == nr) wgt = 1d0/3d0
      ro = 0d0
      do  31  isp = 1, nsp
-        rhovh(isp) =  rhovh(isp) &
-             + wgt*drdi*rho(ir,isp)*(v(ir,1) - 2d0*z/r)
+!        write(6,*) ir,wgt,drdi,rho(ir,isp),(v(ir,1) - 2d0*z/r)
+        rhovh(isp)= rhovh(isp)+ wgt*drdi*rho(ir,isp)*(v(ir,1) - 2d0*z/r)
         ro = ro + rho(ir,isp)
 31   enddo
      vhat0 = vhat0 + wgt*drdi*ro*(1d0/r - 1d0/rmax)

@@ -456,7 +456,7 @@ contains
          wk(nr,nlml,nsp),rhoc(nr,nsp)
     double precision :: efg(5)
     integer :: ipr,iprint,ll,i,isp,ilm,l,lxcfun,nglob,nrml
-    double precision :: rhochs(nr*2),rhonsm(nr),df(0:20),cof(nlml), &
+    double precision :: rhochs(nr),rhonsm(nr),df(0:20),cof(nlml), &
          rhocsm(nr),tmp(nsp),xil(0:0),xill(nr) !xi(0:20,2),
     double precision :: afoc,ag,b,cof0,fac,qv1,qv2,qcor1,qcor2, &
          r,rep1(nsp),rep2(nsp),rep1x(nsp),rep2x(nsp),rep1c(nsp),rep2c(nsp), &
@@ -492,8 +492,11 @@ contains
     enddo
     ! --- Make core and nucleus pseudodensities ---
     rhonsm(:) = -z*fac *gg(:) ! nucleus Gaussian (negative sign)
-    rhochs(:) = srfpi*cofh*xill(:)*rofi(:)**2 !pseudocore
-    rhocsm(:) = srfpi*cofg*fac *gg(:)   + rhochs(:) ! pcore= pseudocore - Gaussian
+!    do i=1,nr
+!       write(6,*)'ffffffover',i,xill(i),rofi(i)**2 
+!    enddo
+    rhochs = srfpi*cofh*xill(:)*rofi(:)**2 !pseudocore
+    rhocsm = srfpi*cofg*fac *gg(:)   + rhochs(:) ! pcore= pseudocore - Gaussian
     sumh  = sum(rwgt*rhochs)
     samh = -y0*cofh*4d0*pi*dexp(ceh*rfoc*rfoc*0.25d0)/ceh
     if(ipr>=20.AND.dabs(samh)>1d-6) write(stdo,ftox)'    sm core charge in MT=',ftof(sumh),&

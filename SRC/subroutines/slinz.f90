@@ -58,6 +58,7 @@ subroutine slinz(volwgt,ec,emin,emax,dosi,nr)! Adds to number-of-states for one 
   i2 = max0(i02,1)
   i3 = min0(i03-1,nr)
   if (i2 <= i3) then
+!     print *,'eeeeee=',e1,e2,e3,e4
      c3 = volwgt*(e1+e2-e3-e4)/((e3-e1)*(e4-e1)*(e3-e2)*(e4-e2))
      c2 = volwgt*3d0/((e3-e1)*(e4-e1))
      c1 = c2*(e2-e1)

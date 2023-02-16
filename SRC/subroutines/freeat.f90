@@ -1245,7 +1245,7 @@ contains
     eh = -akap*akap
 
     if (ipr >= 20) then
-       write(stdo,"(' Fit with Hankel e=',f10.6,' coeff=',f10.6)")eh,c
+       write(stdo,"(' Fit with Hankel e=',g0,' coeff=',g0)")eh,c
        !        call awrit2('%a  Fit with Hankel e=%;5g  coeff=%;5g',sout,
        !     .  len(sout),-stdo,eh,c)
     endif

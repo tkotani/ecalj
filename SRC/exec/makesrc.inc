@@ -48,7 +48,6 @@ bzwts.o \
 chgmsh.o \
 config.o \
 defpq.o \
-defwsr.o \
 delstp.o \
 dostet.o \
 dstrbp.o \
