@@ -24,7 +24,7 @@ subroutine fexit0(retval,strng)
   integer :: master,procid,ierr,ia
   parameter (master = 0)
   include "mpif.h"
-  call flush()
+  call flush(stdo)
   ia=0
   goto 5
   entry fexit(retval,iopt,strng,args)
@@ -80,22 +80,25 @@ subroutine rx0s(string) !normal exit for master_mpi
   call exit(0)
 end subroutine rx0s
 subroutine rx(string) !error exit
+  use m_lgunit,only:stdo,stdl
   character*(*) string
-  call flush()
+  call flush(stdo)
   call fexit0(-1,string)
   call rx0s(string)         !for single core exit
 end subroutine rx
 subroutine rx0(string) !normal exit
+  use m_lgunit,only:stdo,stdl
   character*(*) string
-  call flush()
+  call flush(stdo)
   call fexit0(0,string)
   call rx0s(string)         !for single core exit
 end subroutine rx0
 subroutine rx1(string,arg) ! Error exit, with a single argument
+  use m_lgunit,only:stdo,stdl
   character(15):: f2a
   character*(*) string
   double precision :: arg
-  call flush()
+  call flush(stdo)
   call fexit0(-1,trim(' Exit -1 '//string//trim(f2a(arg))))
 end subroutine rx1
 subroutine rx2(string,arg1,arg2) ! Error exit, with two arguments
@@ -145,13 +148,14 @@ subroutine rx_(string) !error exit routine
   call exit(-1)
 end subroutine rx_
 subroutine cexit(pv,ps)
+  use m_lgunit,only:stdo,stdl
   implicit none
   include 'mpif.h'
   integer:: pv,ps,i
   integer:: status,ierr
   if (ps /= 0) then
      if (pv == 0) then
-        call flush()
+        call flush(stdo)
         call MPI_finalized(status,ierr)
         if (status == 0) then
            call MPI_finalize(ierr)

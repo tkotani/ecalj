@@ -483,6 +483,7 @@ contains
        mdimx,nlmto,nbloch,nlnmx, &
        natom,nclass, &
        zpsi2b)
+    use m_lgunit,only:stdo,stdl
     ! originaly 92.03.17 by Ferdi. takao modified at Apr 2002(v2) Feb2006(v3).
     ! calculates <psi(k',t') | psi(k,t) B(R,i)>
     ! for all R
@@ -540,7 +541,7 @@ contains
        enddo prodloop 
     enddo iatomloop
     deallocate(zz,zppb)
-    call flush()
+    call flush(stdo)
   end subroutine psi2b_v3
   !------------------------------------------------------------------------------------
   subroutine psicb_v3 (nctot,ncc,nt0,ntp0,  iclass, phase, &

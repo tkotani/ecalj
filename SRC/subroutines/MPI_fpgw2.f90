@@ -191,6 +191,7 @@ contains
 
   !     !======================================================
   subroutine MPI__consoleout(idn)
+    use m_lgunit,only:stdo,stdl
     implicit none
     character(1024*4) :: cwd, stdout
     character*(*):: idn
@@ -198,7 +199,7 @@ contains
     if( mpi__size > 1 ) then
        if( mpi__root ) then
           write(6,"(' MPI outputs in each rank are in stdout.{RankId}.',a)")idn
-          call flush(6)
+          call flush(stdo)
        end if
        !        write(6,"('   stdout.',i4.4,'.',a)") mpi__rank,idn
        write(stdout,"('stdout.',i4.4,'.',a)") mpi__rank,idn
@@ -210,6 +211,7 @@ contains
 
   !     !======================================================
   subroutine MPI__consoleout_magnon(idn,size_lim)
+    use m_lgunit,only:stdo,stdl
     implicit none
     character(1024*4) :: cwd, stdout
     character*(*):: idn
@@ -224,7 +226,7 @@ contains
     if( mpi__sizeMG > 1 ) then
        if( mpi__root ) then
           write(6,"(' MPI outputs in each rank are in stdout.{RankId}.',a)")idn
-          call flush(6)
+          call flush(stdo)
        end if
        !        write(6,"('   stdout.',i4.4,'.',a)") mpi__rank,idn
        write(stdout,"('stdout.',i4.4,'.',a)") mpi__rankMG,idn
