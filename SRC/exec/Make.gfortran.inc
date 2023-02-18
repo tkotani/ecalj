@@ -1,5 +1,6 @@
 ### NOTE. we use mpi compilar, but lmfa, lmdos lmchk lmf2gw lmfham1 are only for -np 1
 FC = mpif90 -Wsurprising -Wmaybe-uninitialized
+#-fallow-argument-mismatch
 LK = mpif90 
 LIBMATH = -lmkl_rt
 

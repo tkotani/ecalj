@@ -116,13 +116,13 @@ subroutine symqmp(nrclas,nlml,nlmx,plat,posc,ngrp,g,ag,qwk,ipa,sym,qmp,nn)
   integer :: nrclas,nlmx,ipa(nrclas),nlml,ngrp,nn
   double precision :: plat(3,3),posc(3,nrclas),g(3,3,ngrp),ag(3,ngrp)
   double precision :: sym(nlmx,nlmx,nrclas),qwk(nlml),qmp(*)
-  integer :: ia,ilm
+  integer :: ia,ilm,ixx
   double precision :: wgt,xx,qlat(3,3)
   call tcn('symqmp')
   if (nlml > nlmx) call rxi('symqmp: increase nlmx to',nlml)
   call dinv33(plat,1,qlat,xx)
   ! ... Make the symmetry projectors
-  call symprj(nrclas,nlmx,ngrp,xx,xx,g,ag,plat,qlat,posc,sym)
+  call symprj(nrclas,nlmx,ngrp,ixx,xx,g,ag,plat,qlat,posc,sym)
   ! ... Accumulate symmetrized qmpol on first site
   call dpzero(qwk, nlml)
   do  ia = 1, nrclas

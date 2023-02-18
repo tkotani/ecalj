@@ -1,138 +1,91 @@
-#+TITLE: install ecalj
+#+TITLE: install ecalj (checked 2023feb)
 #+Author: takao kotani
 #+email: takaokotani@gmail.com
 
 * Souce codes, Test, make system are under SRC/
 SRC/ 
-├── TestInstall : GW install test 
+├── TestInstall : Root of Install test 
 ├── exec        : Makefile and scripts
-├── main        : All main *.F
-├── subroutines : All subrouitnes. *.F
-└── wanniergw  :  Maxloc Wannier related source codes *.F and scripts 
+├── main        : All main *.f90
+├── subroutines : All subrouitnes. *.f90
+└── wanniergw  :  Maxloc Wannier related source codes *.f90 and scripts 
                   Wannier part is separated because we will throw it away, because
                   we are moving to MTO-based localized basis.
-
 All fortran codes are in main/ subrouitnes/ and wanniergw/
-We have a makefile which generates all required binaries in exec/.
+We have a Makefile which generates all required binaries in exec/.
 Make can be invoked by InstallAll.ifort (or .*) in ecalj/. Look into InstallAll.ifort
 
 * How to install 
-To install, you have to do these steps. 
+To install, you have to do these five steps. 
  1. Get ecalj package and some required softwares.
  2. Make and install
  3. Install test.
- 4. Install crystal structure tools. Viewer, converter, BZ and symmetry line generators. These are at ecalj/StructureTool and eecalj/GetSyml.
+ 4. Install crystal structure tools. Viewer, converter, BZ and symmetry line generators. These are at ecalj/StructureTool.
+ 5. Install VESTA and ecalj/GetSyml.
+** Step 1. Get ecalj package and get tools.
 
-You can perform steps 2,3 and 4 just by a command. That is
-#+begin_src
-InstallAll.foobar 
+*** tools  and libraries
+We may need to install following tools and libraries.
+It dependes on systems. Here is a case of ubuntu.
+#+begin_src bash
+ sudo apt-get update
+ sudo apt-get install git gitk gfortran mpich csh bash tcsh gawk emacs numpy matplotlib
+ sudo apt-get -y install intel-mkl
 #+end_src
-at ecalj/. Please look into the file at first.
+Some memos here. 
++ etags is automatically installed when you install emacs in the latest ubuntu.
++ We need python 3 (usually already in ubuntu. Type \>python (ctrl+D for quit)).
++ git makes things easier. Especiall for version up. >git diff at ecalj/ shows orginal and your modification.
 
-Current version uses MPI-fortran compilar.
-Only one make file we use now at ecalj/SRC/exec where we also includes some scripts files.
-All fortran source files are in SRC/subroutines, SRC/main, and SRC/wanniergw.
-We now do not generate single core version of lmf-MPIK, (lmfgw-MPIK is not now. it is lmf-MPIK --jobgw).
-Binaries such as lmfa works with single core, however, we use MPI-fortran to make things si
+*** Get ecalj package 
+#+begin_src bash
+git clone https://github.com/tkotani/ecalj.git # Get source code  
+#+end_src
+After you did the above git clone command, a directory ecalj/ appears.
+We can check history of ecalj by ">gitk --all" at ecalj/ directory after you got git clone.
 
-When installation procedure have finished, we have all required binaries and
-shell scripts in your ~/bin/ directory, or somewhere else where BINDIR 
-specified in InstallAll.foobar. 
+** Steps 2,3,4 are automatically performed 
+Do
+#+begin_src
+./InstallAll.foobar 
+#+end_src
+at ecalj/. Please examine ./InstallAll.foobar in advance
 
-Watch InstallAll.foobar show no serious errors. 
-As long as all binaries generated, things fine.
-But, when you do version up, be careful if error occurs, you may still use old versions,
-because the installer may not stop even when linker causes errors.
+If you see "OK! All passed!", you have succeeded.
+
+Make command path to your bin/ like
+#+begin_src bash
+PATH="~/bin/:$PATH"
+#+end_src
+
+** Step 5. Install VEST and getsyml
+We have to install VESTA and make sure that 'viewvesta' command works.
+You need to read [[file:GetSyml/README.org][GetSyml/README.org]] to install getsyml.py.
+It is useful to get Brillowin zone plot and symmetry line plot in it.
+Generated syml.* is used for the band plot in ecalj.
+(syml is a little strange... we will fix)
+
+** Additinal memo
+When Install.foobar have finished, 
+we have all required binaries and shell scripts in your ~/bin/ directory, 
+or somewhere else where BINDIR specified in InstallAll.foobar. 
 
 In the following explanation, we assume gfortran in ubuntu.
 We can also use ifort and others in your environment with
 minimum changes in Makefiles. 
 Let me have your InstallAll.foobar; it is very helpful for us.
 
-For small systems such as Si and GaAs, 
-we can use even Ubuntu + gfortran + note PC to observe how QSGW works.
-Usually, I expect that you get QSGW band structure of GaAs 6x6x6 within a few hours.
-
-** Get ecalj package and get tools.
-You may need to install following tools and libraries.  
-It dependes on systems. Here is a case of ubuntu.
-#+begin_src bash
- sudo apt-get install git  #version control and to get source from github  
- sudo apt-get install gitk #git gui if you like. >gitk --all is convenient to observe git branch.   
- sudo apt-get install gfortran      # GFORTRAN  
- sudo apt-get install openmpi-bin libopenmpi-dev #  or openmpi-dev ?
- #sudo apt-get install libfftw3-3 libblas3gf liblapack3gf  # FFTW  BLAS  
- sudo apt-get install csh bash tcsh gawk  # shells  
- suto apt-get install emacs #just for etags
-#+end_src
-Some memos here. Then you need to install mkl (intel math library)
-+ I think etags is automatically installed when you install emacs in the latest ubuntu. etags is only for developers.
-+ We now use python 3 is assumed (usually already in ubuntu. Type \>python (ctrl+D for quit)).
-+ Version ctrl, git, which makes things easier. Especiall for version up. >git diff at ecalj/ shows orginal and your modification.
-
-After you have installed git (version control software), you can get ecalj package by  
-#+begin_src bash
-git clone https://github.com/tkotani/ecalj.git # Get source code  
-#+end_src
-for ecalj. Or get it in the form *.zip from the page https://github.com/tkotani/ecalj (push zip button). 
-I recommend you to use git, to check your changes ($git diff), and know the ecalj version id, and upgrade.
-After you did the above git clone command, a directory ecalj/ appears 
-(under the directory at which you did git clone).
-
-We can check history of ecalj by ">gitk --all" at ecalj/ directory after you got git clone.
-
-
-** Steps. 2 and 3 are performed by InstallAll.foobar.
-Do
-#+begin_src bash
- cd ecalj  
- InstallAll.ifort
-#+end_src
-(in the case of ifort) at ecalj/. To clean all, do ./CleanAll
-You also have InstallAll.gfortran as well.
-
-Please look into the script "InstallAll.ifort". It is a small text file.
-It contains the setting of your BINDIR= directory,
-to which the InstallAll.ifort will copy all required binaries and scripts.
-It internally uses three machine-compilar dependent files at
-SRC/exec/make.foobar.inc, which you may need to set for your machine.
-At the last stage of the script, it starts a series of automatic tests.
-
-Neglect failure for nio_gwsc; it may show one-failure among two checks.
-The test may use fourteen minutes (in my thinkpadT480s)... 
-  
-InstallAll.ifort may not work for your environment. 
-Then you need to prepare your own InstallAll.foobar, 
-in which you have to set compilar, linker, compilar options.
-When InstallAll.ifort works well, it will show OK! signs finally. 
-(Some tests such as nio_gwsc may fail in cases, but usually no problem. 
- Ask to takaokotani@gmail.com if too much errors you observed.).
-
-** Structure tools
-You have to install VESTA and make sure that 'viewvesta' command works.
-You need to read [[file:GetSyml/README.org][GetSyml/README.org]] to install getsyml.py.
-It is useful to get Brillowin zone plot and symmetry line plot in it.
-Generated syml.* is used for the band plot in ecalj.
-
 * Clean up:  
 If something wrong. 
-Do "make clean" or "make cleanall" and start over at SRC/exec.
-You can do this by CleanAll at ecalj as well.
-Look into Makefile if you like to know what they do.
-"make cleanall" removes directory OBJ.foobar/ which contains *.o *.mode.
+Do "./CleanAll" and redo ./InstallAll.foobar
+or do make cleanall at ecalj/SRC/exec (look into InstallAll.foobar)
 
 * Note to Make binaries
 See ecalj/InstallAll.foobar, which call make.
-We now use mpi-compilar only. 
-We have a make files for ecalj at ecalj/SRC/exec/Makefile.
-All required binaries are generated by this makefile.
-lmf-MPIK is for one-body part, needed for the main script of QSGW, gwsc.
-(k-point parallel versions. there are rooms of parallelization).
-
+This invoke ecalj/SRC/exec/Makefile.
 Let us assume gfortran case. Move to ecalj/SRC/exec/, 
-then do "make -j4 PLATFORM=gfortran LIBMATH=xxx". 
-Then make process start. 
-(LIBMATH= specify BLAS,Lapack, and fftw.)
+then do "make -j PLATFORM=gfortran LIBMATH=xxx". 
+Then make process start. (LIBMATH= -mkl or -mkl_rt)
 The ecalj/exec/Makefile contains lines
 #+begin_src bash
   PLATFORM=gfortran   #default is PLATFORM=gfortran  
@@ -144,90 +97,33 @@ as a part of the Makefile. Thus we have to check settings in it
 in advance to run "make PLATFORM=ifort", to overwrite 
 default setting to read Make.gfortran.inc.
 
-LIBMATH= should contain path to the math libraries, FFTW, BLAS and LAPACK.
-An example is   
-#+begin_src bash
-  LIBMATH="/usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf"  
-#+end_src
+* Install test system at ecalj/SRC/TestInstall.
+We have a test system with make at
+ecalj/SRC/TestInstall. Look into Makefile,
+which is the main contrller for test.
+At each directory such as TestInstall/copt/, we have 
+makefile, which is called from ecalj/SRC/TestInstall/Makefile
 
-Compilar options FFLAGS=, FFLAGS_LESS=... can be choosed by your own
-manner. Usually Make.inc.gfortran works without changes
-(let me know your changes).
-Let us consider ifort case. In this case, we run  
-#+begin_src bash
-make PLATFORM=ifort LIBMATH='-mkl'   
-#+end_src
+Set your starting files and result for test at TestInstall/foobar/*, 
+and write TestInstall/foobar/makefile. And register the test to 
+TestInstall/Makefile.
 
-Parallel make works.
-#+begin_src bash
- make -j24 PLATFORM=gfortran  
-#+end_src
-can speed it up for multicore machines(24 core in this case). 
-
-Finally run  
-#+begin_src bash
-make PLATFORM=gfortran install  
-#+end_src
-
-* Install test at ecalj/SRC/TestInstall.
-We have to check whether binaries works fine or not.
-For this purpose, we have a test system with make files.
-Move to ecalj/SRC/TestInstall. Then type make (with no arguments). 
-It shows help about how to do test.
 To test all of binaries, just do
 >make all  
-
-All tests may require ~7 min or so.
-
-Help of make (no arguments) at ecalj/TestInstall, shows
 >make lmall   !tests only LDA part.  
 >make gwall   !tests only GW part.  
-
 
 * WARN! Some install problems 
 If you have some info. I will add it here.
 ** Compilar bug: 
 In cases, we have troubles due to the compilar.
-Usually we use -O2 in Make.inc.*. But we may need to use -O1 or -O0 for some files to avoid compilar bugs.
-If necessary, you may specify -O0 or something for some *.F files at Make.foobar.inc.
+Usually we use -O2 in Make.inc.*. 
+But we may need to use -O1 or -O0 for some files to avoid compilar bugs.
+See SRC/exec/Make.foobar.inc (as well as Make.foobar.inc).
+We set some conditional compilation setteings.
 
 ** Ifort 2018 fails tests (or not compiled)
    Version up, please.
-** I saw that current ecalj with gfortran4.6 or 4.7 works fine with
-  FFLAGS=-O2, but failed with FFLAGS=-O3. (I am not sure now).
-** We may need -heap-arrays 100 
-  (when zero, we had a problem in a version of ifort). 
-  In cases, -heap-arrays option did not generate working binaries.
-  However, I think "ulimit -s unlimited" before QSGW calculations and
-  so on works OK. So, maybe we don't need -heap-arrays option.
-** mpiifort works for liker, but mpif90 did not... 
-  (but opposite case maybe). Need to set this in lm7K/MAKEINC/Make.inc.ifort
-  lm7K/MAKEINC/Make.inc.ifort_mpik and fpgw/exec/make.inc.ifort
-  (FC and LK variables).
+** openmpi failed on ubuntu22
+  I obseved that gfortran+openmpi failed for ubuntu22. Use mpich.
 
-** Move binaries to your bin by 
-make install at ecalj/lm7K. It just moves all requied binaries to your ~/bin.
-In advance, you have to make your bin, and add ~/bin to  your path
-(e.g. "export PATH=$HOME/bin:$PATH" in .bashrc . Then login again or "source .bashrc")
-
-** Q. What is soft link foo -> bar?  A. "foo" is an alias of the file "bar"  ***
-
-Then you have to run  
->make  
->make install  
-
-Before this, you have to set blas and lapack in fpge/exec/make.inc.
-(for ifort, -mkl is enough. LIBMATH= should be the same as that in Make.inc.*.
-"make install" copy requied files to your ~/bin.
-
-** We often see "Segmentation fault"due to stacksize limit 
-(See the size by a command "ulimit -a"). 
-It is needed to run "ulimit -s unimited" in the job-submition script 
-or before running GW jobs. 
-
-
-
-** You may/maynot need to add -heap-arrays 1 
-(for large calculations. Because we
-use large stacksize) to ecalj/lm7K/MAKEINC/Make.inc.ifort_mpi, but I
-am not so sure about this.

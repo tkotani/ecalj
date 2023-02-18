@@ -35,11 +35,11 @@ program lmf
   call m_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
   call m_MPItk_init(prgnam) ! mpi initialization
   call m_lgunit_init() !set stdo,stdl
-  call setcmdpath() !Set self-command path
+  call setcmdpath() !Set self-command path (this is for call system at m_lmfinit)
   aaa=''
   do iarg=1,iargc()
      call getarg(iarg,sss)
-     aaa=aaa//' '//trim(sss)
+     aaa=aaa//' '//trim(sss) !command-line
   enddo
   aaa='===START '//trim(prgnam)//' with  '//trim(aaa)//' ==='
   if(master_mpi) call show_programinfo(stdo)

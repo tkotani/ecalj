@@ -52,7 +52,6 @@ Email to takaokotani@gmail.com.
    As it is combined with seekpath and spglib, 
    Brillowin Zone and symmetry lines are automatically drawn with matplotlib.
 
-
 * Permission
 - For publications, make a citation cleary to this homepage such as;
 ---------------
@@ -88,7 +87,6 @@ I will organize a document of Category and Tokens (set in ctrl file) at
 
 * How to perform paper quality calculations with minimum costs?
   See [[file:README_hints.org][README_hints.org]]
-
 * Usage minimum. QSGW for Si
 See Section.4. of [[file:Document/Manual/ecaljmanual.pdf][Document/Manual/ecaljmanual.pdf]]
 Here I show its very minimum to illustrate our simplified procedure.
@@ -161,7 +159,6 @@ band plot in [[./GetSyml/][./GetSyml/]]
 The symmetry line is written into syml.* and used for the
 band plot mode, job_band. The BZ and the lines are visualized.
 
-
 ** Install the viever at StructureTool/
 Here we use VESTA at http://jp-minerals.org/vesta/.
 Download it, and expand it to a directory. 
@@ -192,7 +189,6 @@ See Lincence.txt in it. Folllowing citations are required.
  1.Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, 
     Band structure diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017) 
  2.You should also cite spglib that is an essential library used in the implementation.
-
 
 * How to do version up?
 -----
@@ -226,26 +222,10 @@ e.g. by >git diff d2281:README 81d27:README (here d2281 and 81d27 are
 several digits of the begining of its version id). 
 >git show 81d27:README is also useful.  
 
-
-
------------------
-
-
-* History (not maintained well).
-See git log.
-. Jul,Aug 2019: GaussianFilterX0, ESM mode(no samples yet). Reorganize document
-. May 2019: org documentaion started. Use ifile_handle().
-. March 2019: this document is cleaned up slightly
-. March 2016: new histgram bin m_freq.F 
-  (HistBin_ratio and HisBin_dw are used to specify new mesh.
-. March 2016:  wklm(1) is only used (only f_L for l=m=0 is used. 
-  See Eq.28 in JPSJ83,094711(2014).)
-
-
 * MEMO
 ** For 4f, we need modification to GWinput.tmp
-   See [[./Document/Manual/GdQSGW4.pdf][./Document/Manual/GdQSGW4.pdf]]
-
+   Old memo is at [[./Document/Manual/GdQSGW4.pdf][./Document/Manual/GdQSGW4.pdf]]
+   Latest version automatically set default for 4f systems.
 ** (for previous users): known bug(or not) for spin susceptibility mode
 (This mode is now obsolate because we are switching to a new method
 with localized basis for spin susceptibility.)
@@ -263,7 +243,17 @@ especially for cases with more than two atoms in the cell
 (thus fe\_epsPP\_lmfh test may not work for this case...)
 A possible test is by removing symmetrization---> use eibzsym=F. 
 
-
 ** We have old documents at [[./Document/LMF@2009/]]
 These are back up files at year2009. We still have some meaningful information in it.
 But this is very detailed and mainly for developers.
+
+* History (not maintained well).
+See git log.
+. Feb,2023: Revove awrite rdfile. Simplified input systems for lmf part
+. Jul,Aug 2019: GaussianFilterX0, ESM mode(no samples yet). Reorganize document
+. May 2019: org documentaion started. Use ifile_handle().
+. March 2019: this document is cleaned up slightly
+. March 2016: new histgram bin m_freq.F 
+  (HistBin_ratio and HisBin_dw are used to specify new mesh.
+. March 2016:  wklm(1) is only used (only f_L for l=m=0 is used. 
+  See Eq.28 in JPSJ83,094711(2014).)
