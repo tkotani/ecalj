@@ -187,8 +187,8 @@ endef
 define test3.check
 	@echo "compare $1 and $2"
 	@$(bindir)/comp $1 $2 'FA etot (last species)  ' $(defatol1) 'etot=' -t > $(comp)
-	@$(bindir)/comp $1 $2 '1st  iter ehf.eV       ' $(dehf1tol1) 'ehf\(eV\)='  >> $(comp)
-	@$(bindir)/comp $1 $2 '1st  iter ehk.eV       ' $(dehf1tol1) 'ehk\(eV\)='  >> $(comp)
+	@$(bindir)/comp $1 $2 '1st  iter ehf.eV       ' $(dehf1tol1) 'ehf\(eV\)=' -v '^h'  >> $(comp)
+	@$(bindir)/comp $1 $2 '1st  iter ehk.eV       ' $(dehf1tol1) 'ehk\(eV\)=' -v '^h'  >> $(comp)
 	@$(bindir)/comp $1 $2 '1st  iter unconst. mmom ' $(dmom1tol3) 'Mag. moment:' >> $(comp)
 	@$(bindir)/comp $1 $2 '1st  iter mmom          ' $(dmom1tol1) 'mmom=' >> $(comp)
 	@$(bindir)/comp $1 $2 'last iter ehf.eV       ' $(dehf1toln) 'ehf\(eV\)=' -v '^c' -t >> $(comp)
