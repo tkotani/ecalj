@@ -453,8 +453,9 @@ contains
                  read(ifrcwi(kx),rec=ixx) zw ! direct access read Wc(i*omega)=W(i*omega)-v
               endif
               ww=>zw(1:ngb,1:ngb)
-              call matmaw(zmelc,ww,zmelcww, size(zmelc,1)*size(zmelc,2), size(ww,1), size(ww,2),&
-                   &           wtt*wgtim(ixx,:,:))
+              associate( nleft=>size(zmelc,1)*size(zmelc,2), nm=>size(ww,1), nright=>size(ww,2))
+                call matmaw(zmelc,ww,zmelcww, nleft, nm, nright, wtt*wgtim(ixx,:,:))
+              end associate
            enddo iwimag
          EndBlock CorrelationSelfEnergyImagAxis 
          CorrelationSelfEnergyRealAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
@@ -535,8 +536,15 @@ contains
            Endblock CorrR2
          EndBlock CorrelationSelfEnergyRealAxis
          if(timemix) call timeshow(" End of CorrelationSelfEnergyRealAxis:")
-         call matma(zmelcww,[(transpose(zmel(:,:,itpp)),itpp=lbound(zmel,3),ubound(zmel,3))],zsec,&
-              size(zsec,1), size(zmelcww,2)*size(zmelcww,3), size(zsec,2)) !  zsec accumulated
+         block
+           integer:: n1,nm,n2
+           complex(8):: zmeltr(ns1:ns2,1:ngb,lbound(zsec,2):ubound(zsec,2))
+           do concurrent (itpp=lbound(zsec,2):ubound(zsec,2))
+              zmeltr(:,:,itpp)=transpose(zmel(:,:,itpp))
+           enddo
+           n1=size(zsec,1); nm=size(zmelcww,2)*size(zmelcww,3); n2=size(zsec,2)
+           zsec= zsec+ matmul(reshape(zmelcww,[n1,nm]),reshape(zmeltr,[nm,n2]))
+         endblock
        EndBlock zmelcww
        forall(itp=lbound(zsec,1):ubound(zsec,1)) zsec(itp,itp)=dreal(zsec(itp,itp))+img*min(dimag(zsec(itp,itp)),0d0) !enforce Imzsec<0
        call Deallocate_zmel()

@@ -93,12 +93,12 @@ end function fullmesh
 !$$$      noshorbz=.true. !<--- i think this is better in future.
 !$$$      end
 
-integer function matmul_pwhovl()
-  ! switch used in gwd/pwmat.F
-  !  matmul_pwhovl=1 uses matmul,
-  !  matmul_pwhovl=2 and matmul_pwhovl=3 uses BLAS. In cases, it fails in centos(gfortran and so) in core-i7.
-  matmul_pwhovl=2
-end function matmul_pwhovl
+!integer function matmul_pwhovl()
+!  ! switch used in gwd/pwmat.F
+!  !  matmul_pwhovl=1 uses matmul,
+!  !  matmul_pwhovl=2 and matmul_pwhovl=3 uses BLAS. In cases, it fails in centos(gfortran and so) in core-i7.
+!  matmul_pwhovl=2
+!end function matmul_pwhovl
 
 logical function oncewrite(id)
   integer:: id

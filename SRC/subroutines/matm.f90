@@ -1,13 +1,12 @@
 !> interface for matrix multiplication  c=a*b -------------------------
 subroutine matm(a,b,c,n1,n2,n3)
-  integer(4), intent(in) :: n1,n2,n3
+  integer, intent(in) :: n1,n2,n3
   complex(8), intent(in) :: a(n1,n2), b(n2,n3)
   complex(8), intent(out) :: c(n1,n3)
   c=matmul(a,b)
 end subroutine matm
-
 subroutine matmaw(a,b,c,n1,n2,n3,ww)
-  integer(4), intent(in) :: n1,n2,n3
+  integer, intent(in) :: n1,n2,n3
   complex(8), intent(in) :: a(n1,n2), b(n2,n3)
   real(8), intent(in) :: ww(n1)
   complex(8), intent(out) :: c(n1,n3)
@@ -18,16 +17,9 @@ subroutine matmaw(a,b,c,n1,n2,n3,ww)
   enddo
   c= c+ matmul(aa,b)
 end subroutine matmaw
-subroutine matma(a,b,c,n1,n2,n3)
-  integer(4), intent(in) :: n1,n2,n3
-  complex(8), intent(in) :: a(n1,n2), b(n2,n3)
-  complex(8), intent(out) :: c(n1,n3)
-  c= c+ matmul(a,b)
-end subroutine matma
-
 subroutine matcinv(n,a)
   implicit none
-  integer(4) :: n, info, ipiv(n)
+  integer :: n, info, ipiv(n)
   complex(8):: a(n,n)
   complex(8),allocatable:: work(:)
   call zgetrf(n,n,a,n,ipiv,info)
@@ -43,10 +35,9 @@ subroutine matcinv(n,a)
      call rx( 'matcinv: zegtri ')
   endif
 end subroutine matcinv
-
 subroutine matinv(n,a)
   implicit none
-  integer(4) :: n, info, ipiv(n)
+  integer :: n, info, ipiv(n)
   real(8):: a(n,n)
   real(8),allocatable:: work(:)
   call dgetrf(n,n,a,n,ipiv,info)
@@ -62,7 +53,6 @@ subroutine matinv(n,a)
      call rx( 'matinv: degtri ')
   endif
 end subroutine matinv
-
 subroutine matinv2(n,a,info)
   implicit none
   integer :: n, info, ipiv(n)

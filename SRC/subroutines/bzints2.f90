@@ -25,18 +25,6 @@ SUBROUTINE BZINTS2x(volwgt,EP,WP,NQ,nband,NB,NSP,EMIN,EMAX,DOS,NR,EF,JOB,NTET,ID
   implicit integer (i-n)
   DIMENSION EP(nb,nsp,nq),DOS(NR),EC(4),WC(4,2),WP(nband,nsp,nq), &
        idtet(0:4,*)
-  ! ccccccccccccccccccccccccccccccccc
-  !        do  is  = 1,nsp !Readin eband
-  !        do  iqi = 1,nq
-  !        do   it = 1,nb
-  !          write(6,'("is q ib eband =",3i5,d13.6)')is,iqi,it,ep(it,is,iqi)
-  !        enddo
-  !        enddo
-  !        enddo
-  !        stop 'test end xxxxxxxxxx'
-  ! cccccccccccccccccccccccccccccccccc
-
-
   IF (JOB /= 1 .AND. JOB /= 2) STOP '*** BAD JOB IN BZINTS2x'
   !      IF (JOB .EQ. 1) call dinit(dos,2*nr)
   ! takao
@@ -52,15 +40,6 @@ SUBROUTINE BZINTS2x(volwgt,EP,WP,NQ,nband,NB,NSP,EMIN,EMAX,DOS,NR,EF,JOB,NTET,ID
         iq2=idtet(2,itet)
         iq3=idtet(3,itet)
         iq4=idtet(4,itet)
-
-        ! ccccccccccccccccccccccccccccccccccccccccccccccccccccc
-        !      if(iq1==iq2.and.iq2==iq3.and.iq3==iq4) then
-        !        write(6,"( 'itet= ',i5,' iq= ',4i5,' vol=',i4)")
-        !     &  itet,iq1,iq2,iq3,iq4,idtet(0,ITET)
-        !      endif
-        ! ccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-
         DO  20  IB = 1, nb !nband
            ! ----- SET UP ENERGIES AT 4 CORNERS OF TETRAHEDRA ------
            ec(1) = ep(ib,isp,iq1)
@@ -74,19 +53,8 @@ SUBROUTINE BZINTS2x(volwgt,EP,WP,NQ,nband,NB,NSP,EMIN,EMAX,DOS,NR,EF,JOB,NTET,ID
            ebot = dmin1(ec(1),ec(2),ec(3),ec(4))
            IF (JOB == 1) THEN
               if ( ebot < emax ) &
-                                !     .         CALL SLINZ(volwgt*idtet(0,ITET),EC,EMIN,EMAX,DOS,NR)
-                                ! takao
+                   !   CALL SLINZ(volwgt*idtet(0,ITET),EC,EMIN,EMAX,DOS,NR)
                    CALL SLINZ2(volwgt*idtet(0,ITET),EC,EMIN,EMAX,DOS,NR)
-              ! cccccccccccccccccccccccccccccccccc
-              !      if(abs(emax-emin).lt.1.0d-6) then
-              !      if(abs(dos(46)-dos(47))>8*1d-4) then
-              !        write(6,*)dos(46),dos(47)
-              !        write(6,*)isp,itet,iq1,iq2,iq3,iq4,ec
-              !      stop
-              !      endif
-              !      endif
-              ! cccccccccccccccccccccccccccccccccc
-
            ELSE
               if ( ef >= ebot ) then
                  CALL FSWGTS(volwgt*idtet(0,ITET),EC,EF,ETOP,WC)
@@ -98,20 +66,6 @@ SUBROUTINE BZINTS2x(volwgt,EP,WP,NQ,nband,NB,NSP,EMIN,EMAX,DOS,NR,EF,JOB,NTET,ID
                  WP(ib,isp,iq2) = WP(ib,isp,iq2) + WC(2,1) + WC(2,2)
                  WP(ib,isp,iq3) = WP(ib,isp,iq3) + WC(3,1) + WC(3,2)
                  WP(ib,isp,iq4) = WP(ib,isp,iq4) + WC(4,1) + WC(4,2)
-
-                 ! cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-                 ! takao for test
-                 !              print 123, itet,
-                 !     &                   WC(1,1)+WC(2,1)+WC(3,1)+WC(4,1),
-                 !     &                   WC(1,2)+WC(2,2)+WC(3,2)+WC(4,2),
-                 !     &                   WC(1,1)+WC(2,1)+WC(3,1)+WC(4,1)
-                 !     &                 + WC(1,2)+WC(2,2)+WC(3,2)+WC(4,2),
-                 !     &                   volwgt*idtet(0,ITET)
-                 !  123         format(' itet=',i4,' wc1 sum=',d23.16,' wc2 sum=',d23.16,
-                 !     &               ' wc1+wc2 sum=',d23.16,
-                 !     &               ' volwgt*idtet(0)=',d23.16)
-                 ! cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
               endif
            ENDIF
 20      enddo

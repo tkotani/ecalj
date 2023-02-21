@@ -1,15 +1,17 @@
 module m_pwmat
-  public pwmat
+  public pwmat,mkppovl2
   private
   contains
 ! Matrix elements (IPW,IPW) and (IPW,envelope function)
 subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
   use m_struc_def     
-  use m_lmfinit,only: alat=>lat_alat,ispec,sspec=>v_sspec
+  use m_lmfinit,only: alat=>lat_alat,ispec,sspec=>v_sspec,n0,nkap0,pi,pi4
   use m_lattic,only:  qlat=>lat_qlat, vol=>lat_vol,plat=>lat_plat,rv_a_opos
   use m_uspecb,only:uspecb
   use m_orbl,only: Orblib,ktab,ltab,offl,norb
   use m_ropyln,only: ropyln
+!  integer,parameter:: n0=10,nkap0=3
+!  real(8),parameter:: pi=4d0*datan(1d0), pi4=4d0*pi
   implicit none
   !!   We have  q+G(igvx; internal in pwmat) = qp + G(igapw).
   !!  (because qp may be shortedned q (when w(oigv2)=igapw is generated) igapw is used in hambl.
@@ -55,12 +57,10 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
   !u   10 Apr 02 Redimensionsed eh,rsmh to accomodate larger lmax
   !u   09 Apr 01 Adapted from Kotani's pplmat2
   ! ----------------------------------------------------------------------
-  integer,parameter:: n0=10,nkap0=3
-  real(8),parameter:: pi=4d0*datan(1d0), pi4=4d0*pi
   integer:: ngp,nlmax,igv(3,ngp),nbas,ndimh, napw,igapw(3,napw),&
        ips(nbas),ib,is,igetss,ngmx,ig,lmxax,ll,iwk(3),nlmto,iga, ifindiv2,&
        inn(3),matmul_pwhovl,&
-       lh(nkap0),nkapi,io,l,ik,offh,ilm,blks(n0*nkap0),ntab(n0*nkap0),oi,ol
+       lh(nkap0),nkapi,io,l,ik,offh,ilm,blks(n0*nkap0),ntab(n0*nkap0),oi,ol,igx
   real(8):: q(3),GcutH,tpiba,xx,tripl,dgetss,bas(3,nbas),rmax(nbas),qpg(3),qpg2(1),denom,gam,srvol,&
        eh(n0,nkap0),rsmh(n0,nkap0)
   complex(8):: ppovl(ngp,ngp), pwhovl(ngp,ndimh),phase,img,fach,mimgl(0:n0)
@@ -97,9 +97,8 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
   call poppr
   ! --- Expansion of envelope basis functions in PWs ---
   !     pwh(ig,j) = Fourier coff ig for envelope function j, where ig is index to igvx
-  allocate(pwh(ngmx,ndimh))
+  allocate(pwh(ngmx,ndimh),yl(nlmax))
   pwh = 0d0
-  allocate(yl(nlmax))
   lmxax = ll(nlmax)
   ! ... Fourier coefficients of smoothed hankels for all LMTOs
   !     Could be optimized, ala hsibl, but not a critical step for GW.
@@ -110,7 +109,7 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
         phase = exp( -img * sum( qpg*bas(:,ib)*alat )  )
         is = ispec(ib) !ssite(ib)%spec
         call uspecb(is,rsmh,eh)
-        call orblib(ib)!return norb,ltab,ktab,offl
+        call orblib(ib) !return norb,ltab,ktab,offl
         call gtbsl8(norb,ltab,ktab,rsmh,eh,ntab,blks)
         do  io = 1, norb
            l  = ltab(io) ! l,ik = l and kaph indices, needed to address eh,rsmh
@@ -125,29 +124,16 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
         enddo
      enddo
   enddo
-  ! ... Fourier coefficients to APWs
-  !     APWs are normalized:  |G> = 1/sqrt(vol) exp[i G.r]
-  do  iga = 1, napw
-     pwh(:,iga+nlmto) = 0d0
-     ! Index to igvx that corresponds to igapw, ig = ifindiv2(igapw(1,iga),igvx,ngmx)
-     ig = ifindiv2(igapw(1:3,iga)+inn(1:3),igvx,ngmx)
+  ! ... Fourier coefficients to APWs. APWs are normalized:  |G> = 1/sqrt(vol) exp[i G.r]
+  pwh(:,nlmto+1:) = 0d0
+  do iga= 1,napw 
+     ig = findloc([(all(igapw(:,iga)+inn(:)==igvx(:,igx)),igx=1,ngmx)],value=.true.,dim=1)!
      pwh(ig,iga+nlmto) = 1d0/srvol
   enddo
   ! --- Matrix elements between each (IPW,envelope function) pair ---
   allocate(ppovlx(ngp,ngmx))
   call ipwovl(alat,plat,qlat,ngp,igv,ngmx,igvx,nbas,rmax,bas,ppovlx)
-  if(debug) print *,'sss:  pwmat ppovlx=',sum(abs(ppovlx))
-  if(debug) print *,'sss:  pwmat pwh   =',sum(abs(pwh))
-  if(matmul_pwhovl()==1) then
-     pwhovl= matmul(ppovlx,pwh)
-  elseif(matmul_pwhovl()==2) then
-     call matm(ppovlx,pwh,pwhovl,ngp,ngmx,ndimh)
-  elseif(matmul_pwhovl()==3) then
-     call zgemm('N','N',ngp,ndimh,ngmx,dcmplx(1d0,0d0),ppovlx,ngp,pwh,ngmx,dcmplx(0d0,0d0),pwhovl,ngp)
-  else
-     call rx('pwmat: matmul_pwovl is wrong')
-  endif
-  if(debug) print *,'sss:  pwmat pwhovl=',sum(abs(pwhovl))
+  pwhovl= matmul(ppovlx,pwh)
   deallocate(yl,igvx,pwh,kv,ppovlx)
 end subroutine pwmat
 subroutine ipwovl(alat,plat,qlat,ng1,igv1,ng2,igv2,nbas, rmax,bas,ppovl)
@@ -177,11 +163,10 @@ subroutine ipwovl(alat,plat,qlat,ng1,igv1,ng2,igv2,nbas, rmax,bas,ppovl)
   ! ----------------------------------------------------------------------
   implicit none
   integer :: nbas,ng1,ng2,igv1(3,ng1),igv2(3,ng2)
-  double precision :: alat,plat(3,3),qlat(3,3),rmax(nbas),bas(3,nbas)
-  double complex ppovl(ng1,ng2)
+  real(8):: alat,plat(3,3),qlat(3,3),rmax(nbas),bas(3,nbas),tripl,pi,tpibaqlat(3,3),vol
+  complex(8):: ppovl(ng1,ng2)
   integer :: nx(3),ig1,ig2,n1x,n2x,n3x,n1m,n2m,n3m
-  double precision :: tripl,pi,tpibaqlat(3,3),vol
-  double complex,allocatable :: ppox(:,:,:)
+  complex(8),allocatable :: ppox(:,:,:)
   pi  = 4d0*datan(1d0)
   vol = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
   ! ... Find the range of G = G1*G2
@@ -194,12 +179,11 @@ subroutine ipwovl(alat,plat,qlat,ng1,igv1,ng2,igv2,nbas, rmax,bas,ppovl)
   allocate( ppox(n1m:n1x,n2m:n2x,n3m:n3x) )
   ppox = 99999999999d0
   ! ... For each G in set of G2*G1, integral(cell-MT spheres) G2*G1
-  tpibaqlat = 2*pi/alat * qlat
   do  ig1 = 1, ng1
      do  ig2 = 1, ng2
         nx(1:3) = igv2(1:3,ig2) - igv1(1:3,ig1)
         if (ppox(nx(1),nx(2),nx(3)) == 99999999999d0) then
-           call matgg2(alat,bas,rmax,nbas,vol,tpibaqlat,nx, ppox(nx(1),nx(2),nx(3)))
+           call matgg2(alat,bas,rmax,nbas,vol,2*pi/alat*qlat,nx, ppox(nx(1),nx(2),nx(3)))
         endif
      enddo
   enddo
@@ -212,9 +196,8 @@ subroutine ipwovl(alat,plat,qlat,ng1,igv1,ng2,igv2,nbas, rmax,bas,ppovl)
   enddo
   deallocate(ppox)
 end subroutine ipwovl
-end module m_pwmat
-
 subroutine matgg2(alat,bas,rmax,nbas,vol,tpibaqlat,igv,ppovl)
+  use m_lmfinit,only:pi4
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   alat  :length scale of lattice and basis vectors, a.u.
@@ -241,11 +224,7 @@ subroutine matgg2(alat,bas,rmax,nbas,vol,tpibaqlat,igv,ppovl)
   !r   The l=0 Bessel function is j_0(x) = sin(x)/x.  For a sphere at the origin
   !r     int_S iG.r d^3r = 4 pi / G^3 int_(0,G rmax) dx x sin x
   !r                     = 4 pi / G^3 [sin(G rmax) - G rmax cos(G rmax)]
-  !u Updates
-  !u   30 Mar 01 adapted from Kotani
-  ! ----------------------------------------------------------------------
   implicit none
-  real(8),parameter:: pi4=12.566370614359172d0
   integer:: nbas,igv(3),ibas
   real(8):: alat,bas(3,nbas),rmax(nbas),vol,tpibaqlat(3,3),absg,ggvec(3),grmx
   complex(8):: ppovl,  img = (0d0,1d0)
@@ -263,19 +242,47 @@ subroutine matgg2(alat,bas,rmax,nbas,vol,tpibaqlat,igv,ppovl)
      endif
   enddo
 end subroutine matgg2
-integer function ifindiv2(igapw,igv2,ng)
-  !- Find index ig so that igapw=igv2(:,ig)
-  !i   igapw :vector of APWs, in units of reciprocal lattice vectors
-  !i   igv2  :List of G vectors
-  !i   ng    :number of G
+subroutine mkppovl2(alat,plat,qlat,ng1,ngvec1,ng2,ngvec2,nbas,rmax,bas, ppovl)
+  !- < G1 | G2 > matrix where G1 denotes IPW, zero within MT sphere.
   implicit none
-  integer :: ng,igapw(3),igv2(3,ng),ig
-  ifindiv2=-9999
-  do ig=1, ng
-     if(sum(abs(igapw(:)-igv2(:,ig)))==0) then
-        ifindiv2 = ig
-        return
-     endif   
+  integer::  nbas, ng1,ng2,nx(3),ig1,ig2, ngvec1(3,ng1),ngvec2(3,ng2), &
+       n1x,n2x,n3x,n1m,n2m,n3m
+  real(8) :: tripl,rmax(nbas),pi = 4d0*datan(1d0)
+  real(8) :: plat(3,3),qlat(3,3), &
+       alat,tpibaqlat(3,3),voltot, bas(3,nbas)
+  complex(8) :: ppovl(ng1,ng2)
+  complex(8),allocatable :: ppox(:,:,:)
+  logical:: debug=.false.
+  voltot    = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
+  tpibaqlat =  2*pi/alat *qlat
+  ! < G1 | G2 >
+  n1x = maxval( ngvec2(1,:)) - minval( ngvec1(1,:))
+  n1m = minval( ngvec2(1,:)) - maxval( ngvec1(1,:))
+  n2x = maxval( ngvec2(2,:)) - minval( ngvec1(2,:))
+  n2m = minval( ngvec2(2,:)) - maxval( ngvec1(2,:))
+  n3x = maxval( ngvec2(3,:)) - minval( ngvec1(3,:))
+  n3m = minval( ngvec2(3,:)) - maxval( ngvec1(3,:))
+  if(debug) print *,' mkppovl2: 1 ',n1x,n1m,n2x,n2m,n3x,n3m
+  allocate( ppox(n1m:n1x,n2m:n2x,n3m:n3x) )
+  ppox = 1d99
+  do ig1  = 1, ng1
+     do ig2  = 1, ng2
+        nx(1:3) = ngvec2(1:3,ig2) - ngvec1(1:3,ig1) ! G2-G1
+        if( ppox(nx(1),nx(2),nx(3)) == 1d99 ) then
+           call matgg2(alat,bas,rmax,nbas,voltot, tpibaqlat, &
+                nx(1:3),ppox( nx(1),nx(2),nx(3)))
+        endif
+     enddo
   enddo
-  call rx('ifindiv2: igapw not found in igv')
-end function ifindiv2
+  if(debug) print *,' mkppovl2: 2 ',n1x,n1m,n2x,n2m,n3x,n3m
+  do ig1 = 1,ng1
+     do ig2 = 1,ng2
+        nx(1:3) = ngvec2(1:3,ig2) -ngvec1(1:3,ig1) ! G2-G1
+        ppovl(ig1,ig2) = ppox( nx(1),nx(2),nx(3) )
+     enddo
+  enddo
+  deallocate(ppox)
+end subroutine mkppovl2
+
+end module m_pwmat
+
