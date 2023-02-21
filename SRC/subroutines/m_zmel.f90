@@ -1,5 +1,5 @@
 !! Get the matrix element zmel =  ZO^-1 <MPB psi|psi> , where ZO is ppovlz.
-!!  "call get_zmel" return zmel
+!!  "call get_zmel_init" return zmel
 !!  All dependencies (use foobar below ) are inputs (must be protected).
 module m_zmel
   use m_genallcf_v3,only: &

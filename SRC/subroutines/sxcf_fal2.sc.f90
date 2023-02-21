@@ -380,7 +380,6 @@ contains
        zsec => zsecall(1:ntqxx,1:ntqxx,ip,isp)
        wtt = wk(kr)
        !if(eibz4sig()) wtt=wtt*nrkip(isp,kx,irot,ip)
-       !! Get zmel(ib,itpp,it) = <M(qbz_kr,ib) phi(itpp,q-qbz_kr) |phi(q(ip),it)> , qbz_kr= irot(qibz_k)
        if(kxold/=kx) then
           call Readvcoud(qibz_k,kx,NoVcou=.false.) !Readin ngc,ngb,vcoud ! Coulomb matrix
           call Setppovlz(qibz_k,matz=.true.) !Set ppovlz overlap matrix in m_zmel
@@ -392,7 +391,9 @@ contains
        ns2=nstte(icount) ! nstte(icount) is upper bound of middle states
        write(6,ftox)'do3030:isp kx ip',isp,kx,ip,'icou/ncou=',icount,ncount,'ns1:ns2=',ns1,ns2
        call get_zmel_modex0(ns1,1,isp,isp) !set lower bound of middle state
-       call Get_zmel_init(q,qibz_k,irot,qbz_kr,isp, ns2-nctot,ntqxx,nctot,ncc=0,iprx=debug)!Get zmel
+       !! Get zmel(ib,it,itpp) = <M(qbz_kr,ib) phi(it,q-qbz_kr) |phi(q(ip),itpp)> , qbz_kr= irot(qibz_k)
+       !                            MPB        middle state        end state
+       call Get_zmel_init(q,qibz_k,irot,qbz_kr,isp, ns2-nctot,ntqxx,nctot,ncc=0,iprx=debug)!Get zmel(ngb,1:ns2-ns1+1,ntqxx)
        Exchangemode: if(exchange) then      
           ExchangeSelfEnergy: Block
             real(8):: wfacx
