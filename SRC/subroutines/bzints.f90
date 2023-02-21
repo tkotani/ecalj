@@ -1,4 +1,4 @@
-subroutine bzints(n1,n2,n3,ep,wp,nq,nband,nbmx,nsp,emin,emax,dos,nr,ef,job,ntet,idtet,sumev,sumwp)
+subroutine bzints(n1n2n3,ep,wp,nq,nband,nbmx,nsp,emin,emax,dos,nr,ef,job,ntet,idtet,sumev,sumwp)
   use m_lgunit,only:stdo
   !- BZ integrations by linear method
   ! ----------------------------------------------------------------------
@@ -30,7 +30,7 @@ subroutine bzints(n1,n2,n3,ep,wp,nq,nband,nbmx,nsp,emin,emax,dos,nr,ef,job,ntet,
   !u   17 Jan 05 Returns sumwp
   ! ----------------------------------------------------------------------
   implicit none
-  integer :: n1,n2,n3,nq,nband,nbmx,nsp,idtet(0:4,*),nr,job,ntet
+  integer :: n1n2n3,nq,nband,nbmx,nsp,idtet(0:4,*),nr,job,ntet
   double precision :: ep(nbmx,nsp,nq),dos(nr,nsp),wp(nband,nsp,nq),emin,emax,ef,sumev,sumwp
   integer :: ib,iq,iq1,iq2,iq3,iq4,isp,itet,jjob
   integer :: ipr
@@ -44,7 +44,7 @@ subroutine bzints(n1,n2,n3,ep,wp,nq,nband,nbmx,nsp,emin,emax,dos,nr,ef,job,ntet,
   if (jjob == 2) wp=0d0
   sev1 = 0d0
   sev2 = 0d0
-  volwgt = dble(3d0-nsp)/(n1*n2*n3*6d0)
+  volwgt = dble(3d0-nsp)/(n1n2n3*6d0)
   if (job < 0) volwgt = volwgt/2d0
   do  40  isp = 1, nsp
      ! --- Loop over tetrahedra ---

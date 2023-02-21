@@ -7,9 +7,10 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa) !TK ex
   use m_struc_def,only: s_spec ! spec structures.
   use m_MPItk,only: master_mpi
   use m_lgunit,only: stdo,stdl
-  use m_density,only: pnuall,pnzall !These are set here! log-derivative of radial functions.
+!NOTE: m_density contains Not protected vatiables!  =====
+  use m_density,only: pnuall,pnzall ! These are set here! log-derivative of radial functions.
   implicit none 
-  type(s_spec),allocatable:: v_sspec(:)! unprotected, changed only by readin iors/rdovfa (see lmfp.f90)
+  type(s_spec),allocatable:: v_sspec(:)! unprotected but given at readin iors/rdovfa. That is, v_sspec is give by lmfa only. unchanged during lmf-MPIK
   integer,parameter:: noutmx=48,NULLI=-99999,nkap0=3,mxspec=256,lstrn=1000,n0=10,nppn=2,nrmx=1501,nlmx=64,n00=n0*nkap0
   real(8),parameter:: fpi=16d0*datan(1d0), y0=1d0/dsqrt(fpi), pi=4d0*datan(1d0), srfpi = dsqrt(4d0*pi),&
        NULLR =-99999, fs = 20.67098d0, degK = 6.3333d-6 ! defaults for MD
@@ -38,8 +39,9 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa) !TK ex
   integer,allocatable,protected:: lmxb(:),lmxa(:),idmod(:,:),idu(:,:),kmxt(:),lfoca(:),lmxl(:),nr(:),nmcore(:),nkapii(:),nkaphh(:),&
        ispec(:),ifrlx(:,:),ndelta(:), iantiferro(:), iv_a_oips (:),  lpz(:),lpzex(:),lhh(:,:)
   real(8),allocatable,protected:: rsmh1(:,:),rsmh2(:,:),eh1(:,:),eh2(:,:),rs3(:),alpha(:,:),uh(:,:),jh(:,:),eh3(:),&
-       qpol(:,:),stni(:),pnusp(:,:,:),qnu(:,:,:),pnuspdefault(:,:),qnudefault(:,:),qnudummy(:,:),&
-       coreq(:,:),rg(:),rsma(:),rfoca(:), rmt(:),pzsp(:,:,:), amom(:,:),spec_a(:),z(:),eref(:)
+       qpol(:,:),stni(:),&
+       pnusp(:,:,:),pzsp(:,:,:),qnu(:,:,:),&
+       coreq(:,:),rg(:),rsma(:),rfoca(:), rmt(:), amom(:,:),spec_a(:),z(:),eref(:)
   character*(8),allocatable,protected:: coreh(:)
   real(8),allocatable,protected:: pos(:,:), delta(:,:),mpole(:),dpole(:,:)
   real(8),allocatable,protected:: rv_a_ocg (:), rv_a_ocy(:)  !ClebshGordon coefficient (GW part use clebsh_t)
@@ -106,7 +108,8 @@ contains
          lmxcg,lmxcy,lnjcg,lnxcg,nlm,nout,nn,i0,ivec(10),iosite,io_tim(2),verbos,&
          lp1,lpzi,ii,sw,it,levelinit=0, lx,lxx, reclnr,nrecs,nrecs2
     real(8):: pnuspx(20) ,temp33(9),seref, xxx, avwsr, d2,plat(3,3),rydberg,rr, vsn,vers,xv(2*n0),xvv(3)
-    real(8),allocatable ::rv(:)
+    real(8),allocatable ::rv(:)&
+         ,pnuspdefault(:,:),qnudefault(:,:),qnudummy(:,:)
     character*(8),allocatable::clabl(:)
     integer,allocatable:: ipc(:),initc(:),ics(:),wowk(:), idxdn(:,:,:)
     real(8),allocatable:: pnuspc(:,:,:),qnuc(:,:,:,:),pp(:,:,:,:),ves(:),zc(:)
@@ -330,18 +333,6 @@ contains
       call rval2('ITER_wc',  rr=rr,defa=[-1d0]) ; wc=rr
       call rval2('ITER_w',   rv=rv,defa=[1d0,1d0]); wtinit=rv
       call rval2('ITER_k',   rr=rr,defa=[real(8):: -1]); killj=nint(rr)
-! !!!!!!!!!!!!!!!!!
-!       broy=0
-!       betainit  = 1d0
-!       wc    = -1
-!       wt(1:2) = 1
-!       nmix  = -1
-!       if(.NOT. parmxp(trim(iter_mix),len(trim(iter_mix)),broy,nmix,wt,betainit,wc,killj))& 
-!            call rx('MIXRHO: parse in parmxp failed')
-! !!!!!!!!!!!!!!!!!!!!!!
-!      wtinit  =wt    !out
-!      nmixinit=nmix  !out
-      
       call rval2('DYN_MODE',rr=rr,defa=[real(8):: 0]); lrlxr=nint(rr) ! Dynamics is only for relaxation
       !  lrlxr=  0: no relaxation, 4:relaxation(conjugate gradients), 5:relaxation(Fletcher-Powell), 6:relaxation(Broyden)
       if(lrlxr/=0) lfrce=1

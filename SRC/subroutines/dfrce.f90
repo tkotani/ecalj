@@ -231,7 +231,7 @@ contains
   subroutine pvdf1(job,nsp,ib,iv0,qmom, qmout,ng,gv,g2,yl,iv,qlat,kmax,cnomin,ceps,cdvxc,cvin , sv_p_orhoat, fes1,fes2,fxc)
     use m_struc_def 
     use m_lmfinit,only: nbas,ispec,sspec=>v_sspec
-    use m_lmfinit,only:lat_alat,pnux=>pnusp,pzx=>pzsp
+    use m_lmfinit,only:lat_alat,pnuall,pnzall
     use m_lattic,only: lat_vol,rv_a_opos
     use m_supot,only: lat_nabc
     use m_hansr,only:corprm
@@ -302,8 +302,8 @@ contains
     ! --- Unscreened rigid charge density shift, job 1, in cdn0 ---
     if (job0 == 1) then
        z=sspec(is)%z
-       pnu=pnux(1:n0,1,is) !sspec(is)%p
-       pnz=pzx(1:n0,1,is)  !sspec(is)%pz
+       pnu=pnuall(1:n0,1,ib)
+       pnz=pnzall(1:n0,1,ib)
        lmxa=sspec(is)%lmxa
        a=sspec(is)%a
        nr=sspec(is)%nr

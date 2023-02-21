@@ -749,7 +749,7 @@ contains
     real(8):: qcorg , qcorh , qsc , cofg , cofh , ceh , rfoc , z
     integer:: n0 , lfoc , lmxb , l,isp
     parameter (n0=10)
-    real(8):: pnu(n0),pz(n0),ccof,q0,q1,qc,rmt,rsm,stc,x0(0:n0), xi(0:n0),dgetss
+    real(8):: pnu(n0),pz(n0),ccof,q0,q1,qc,rmt,rsm,x0(0:n0), xi(0:n0),dgetss
     real(8),parameter:: fpi = 16d0*datan(1d0), srfpi = dsqrt(fpi), y0 = 1d0/srfpi
     lfoc=sspec(is)%lfoca
     rfoc=sspec(is)%rfoca
@@ -757,7 +757,6 @@ contains
     z=   sspec(is)%z
     ccof=sspec(is)%ctail
     ceh= sspec(is)%etail
-    stc= sspec(is)%stc
     lmxb=sspec(is)%lmxb
     pnu= pnux(1:n0,1,is) !sspec(is)%p
     pz = pzx(1:n0,1,is)  !sspec(is)%pz

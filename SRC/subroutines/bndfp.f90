@@ -313,7 +313,7 @@ contains
        allocate( dosi_rv(ndos,nspx),dos_rv(ndos,nspx)) !for xxxdif
        if(cmdopt0('--tdostetf')) ltet= .FALSE. ! Set tetrahedron=F
        if(ltet) then
-          call bzints(nkabc(1),nkabc(2),nkabc(3), evlall &
+          call bzints(nkabc(1)*nkabc(2)*nkabc(3), evlall &
                , dum ,nkp,nevmin,ndhamx,nspx , dosw(1),dosw(2), dosi_rv , ndos ,xxx , &             !ndhamx=>nevmin at 2023feb
                1, ntet , iv_a_oidtet , dum , dum ) !job=1 give IntegratedDos to dosi_rv
           dos_rv(2:ndos-1,:)=(dosi_rv(3:ndos,:)-dosi_rv(1:ndos-2,:))/(2d0*(dosw(2)-dosw(1))/(ndos-1))

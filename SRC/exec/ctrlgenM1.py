@@ -449,21 +449,21 @@ ctrlgenM1.py. tkotani and h.kino aug_2013 version :
        >ctrlgenM1.py si --nk1=8 --nk2=8 --nk3=8 --tratio=1.0  --xcfun=vwn
 """)
 print() 
-print( " === INPUT options (shown values are default) === ")
+print( "=== Start ctrlgenM1.py  === ")
 print( "  --help  %s"      % showhelpw)
 print( "  --showatomlist  %s"      % showatomlistw)
-print( "  --nspin=%s"  % nspin_val)
-print( "  --so=%s"     % so_val)
-print( "  --nk1=%s Division for BZ integral along a-axis"   % nk_val1)
-print( "  --nk2=%s   (if not give, nk2=nk1) along b-axis"   % nk_val2)
-print( "  --nk3=%s   (if not give, nk3=nk1) along c-axis"   % nk_val3)
-print( "  --xcfun=%s   !(bh,vwn,pbe)"      % xcfun_str )#,xcfun_val
+#print( "  --nspin=%s"  % nspin_val)
+#print( "  --so=%s"     % so_val)
+#print( "  --nk1=%s Division for BZ integral along a-axis"   % nk_val1)
+#print( "  --nk2=%s   (if not give, nk2=nk1) along b-axis"   % nk_val2)
+#print( "  --nk3=%s   (if not give, nk3=nk1) along c-axis"   % nk_val3)
+#print( "  --xcfun=%s   !(bh,vwn,pbe)"      % xcfun_str )#,xcfun_val
 #print( "  --mmom='%s\' ! mmom is the initial magnetic moment for each spec,l-channel. Effective for --nspin=2" % mmom_val
 print( " +++ Followings are for experts to change +++")
 print( "  --tratio=%s (for MT radius: we use touching MT radius \\times this ratio. lmf --getwsr is called." % touchingratio)
 print( "               if negative, we use use defalut MT radius in ctrlgenM1.py)")
 print( "  --systype=%s !(bulk,molecule)" % systype_val)
-print( "  --insulator  %s !not set this if you are not expert. (do not set for --systype=molecule)"    %  insulatorw)
+#print( "  --insulator  %s !not set this if you are not expert. (do not set for --systype=molecule)"    %  insulatorw)
 print( "  --fsmom=%s ! (only for FSMOM mode. --systype=molecule automatically set this)"    %  fsmom_val)
 print( "  --ssig=%s ! ScaledSigma(experimental =1.0 is the standard QSGW"    %  ssig_val)
 #print( "  --ehmol ! if this exists, set EH used for a molecule paper (Not for PMT-QSGW. --ehmol may give better total energy in LDA)")
@@ -519,7 +519,7 @@ try:
 except:
     sys.exit()
 print 
-print( "... Generate ctrlgenM1.ctrl."+ext+" from ctrls."+ext + " ...")
+print(" We generate ctrlgenM1.ctrl."+ext+" from ctrls."+ext + " ...")
 ctrls = "ctrls." + ext
 f=open(ctrls,'rt')
 ctrlsdat = f.read() 
@@ -527,7 +527,7 @@ f.close()
 
 listctrls  = lineReadfile(ctrls) 
 listspec   = GetCat(listctrls,"SPEC")  # SPEC section only
-print ('readin SPEC and #=',listspec,len(listspec))
+print ('  readin SPEC and #=',listspec,len(listspec))
 
 listsite   = GetCat(listctrls,"SITE")  # SITE section only
 liststruc  = GetCat(listctrls,"STRUC")  # SPEC section only 
@@ -535,9 +535,9 @@ listno     = RemoveCat2(RemoveCat2(RemoveCat2(listctrls,"SITE"),"SPEC"),"STRUC")
 
 sitename = getsitename(listsite)
 speclist = getsitename(listspec)
-print( '### SITE  ', sitename)
-print( '### SPEC  ', speclist)
-print( '### other ', listno)
+print( '  ### SITE  ', sitename)
+print( '  ### SPEC  ', speclist)
+print( '  ### other ', listno)
 
 ########### obtain mapping spec to Z dictionary spec2z ####
 spec2z={}
@@ -547,7 +547,7 @@ if(len(listspec)==0):
     #listspec = re.split('\n',specstd)  # SPEC standard if no SPEC is in ctrls.*
     #print specstd
     #sys.exit()
-    print( " NO SPEC is found in "+ctrls+". USE standard SPEC; try to see; ctrlgenM1.py --showatomlist")
+    print("  NO SPEC is found in "+ctrls+". USE standard SPEC; try to see; ctrlgenM1.py --showatomlist")
 #    for ils in sitename:
 #        print 'site=',ils
 #         spec2z[ils]=dicatom[ils].split('atomz=')[1].split('@')[0]
@@ -559,7 +559,7 @@ else:
     zspec=True
     for ils in listspec:
         atomsss=ils.split('ATOM=')
-        print( 'readin spec=',len(atomsss),atomsss)
+        print('readin spec=',len(atomsss),atomsss)
         if(len(atomsss)>1):
             specname=atomsss[1].split(' ')[0]
             specz=ils.split('Z=')[1].split(' ')[0]
@@ -633,7 +633,7 @@ f.write(alltmp+specsec0)
 f.close()
 
 
-print('goto lmchk --getwsr tmp')
+print('=== Goto lmchk --getwsr tmp to get MT radius')
 #### Get touching MT radius and make rdic ########################
 rlmchk=0
 #print type(touchingratio)
@@ -649,24 +649,23 @@ if(rlmchk==1):
     except:
         print( ' Error: Can not readin rmt.tmp! Check structure by >viewvesta ctrls.foobar! ')
         sys.exit()
-    print( listr)
+    #print(' ', listr)
     rdic={}
     for i in listr:
         xx=re.split(' +',i)
-        print(xx)
-        #rdic[xx[0]]=xx[1]
+        #print(' ',xx)
         rdic[xx[0]]= float(xx[1]) #*string.atof(touchingratio) #r_mul_val)
         rdic[xx[0]]= str(rdic[xx[0]])
 
 #print " Rmax is taken from lmchk --getwsr. See llmchk_getwsr "
-    print()
-    print( ' rmt.tmp: --getwsr gives  R= -->', rdic)
+    print( '  rmt.tmp: --getwsr gives  R= -->', rdic)
     print( '  note: we use R=3.0 if R is larger than 3.0')
-    print( 'rdic',rdic)
+    print( '  rdic',rdic)
 ################################################################### 
 
+#print ('zspec=',zspec)
+
 #print dicatom
-print ('zspec=',zspec)
 #specdat = re.split('\WATOM=\W*',glist(listspec))[1:]
 #print  'specdat',specdat
 #specdic={}
@@ -692,13 +691,13 @@ for ispec in uniq(sitename):
     try:
 #### in the case of touching MT
 #        print ispec,speckey,'tratio=',touchingratio
-        print( 'from atomlist= ', dicatom[speckey])
+        print( '  From atomlist" ', dicatom[speckey])
         if touchingratio >0:
 #            rrr = string.atof(rdic[speckey]) * touchingratio
             rrr = float(rdic[ispec]) * touchingratio
         else:
             rrr = float(getdataa(dicatom[speckey],'R='))/0.529177 #*r_mul_val
-        print( rrr)
+        #print( rrr)
         if(rrr>3.0 and float(z)>2.8 and float(z) <3.2 ): rrr=2.9 #upper limit of R for Li
         if(rrr>3.0): rrr=3.0 #upper limit of R
         rrrh = rrr/2.0
@@ -708,7 +707,7 @@ for ispec in uniq(sitename):
         sys.exit(-1)
 
     try:
-        print('skey=',speckey)
+        print('  SPECkey=',speckey)
         eh1data= getdataa( dicatom[speckey],'eh=')
         eh1value= eh1data.split('*')[0]+' '
         eh1count = int(eh1data.split('*')[1])
@@ -777,9 +776,8 @@ f.close()
 if (iexit != 0):
     print ('! Exit -1: not go through lmfa. You may need to modify SPEC for atoms not in atomlist.')
 else:
-    print( ' ------tail of llmf.tmp2 ----------------------------------')
-    os.system("tail llmfa.tmp2")
-    print( ' ----  lmfa has done! --------------------------------------')
+    print( '=== Check lmfa works for ctrl.tmp2 ')
+    os.system("tail -n 1 llmfa.tmp2")
     print ()
 
 # mmmx = mtodic[ikey]
@@ -906,10 +904,12 @@ tail = tail + """      #For Molecule, you may also need to set FSMOM=n_up-n_dn, 
 
 ITER MIX=A5 b=.2 CONV=1e-5 CONVC=1e-5 NIT={nit}
 #ITER MIX=B CONV=1e-6 CONVC=1e-6 NIT={nit}
-                # MIX=A: Anderson mixing.
-                # MIX=B: Broyden mixing (default). 
+                # MIX=A#1: Anderson mixing.
+                # MIX=B#1: Broyden mixing (default). 
                 #        Unstable than Anderson mixing. But faseter. It works fine for sp bonded systems.
+                # #1 is the number to keep history   
                 #  See file://Document/Manual/CaterogyAndToken.org
+                # b: is mixing ratio. smaller makes convergece path stable but slower
 
 HAM   NSPIN={nspin}   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (initial guess of magnetic polarization).
       FORCES=0  # 0: no force calculation, 1: forces calculaiton 
@@ -926,27 +926,22 @@ tail = tail + "      XCFUN={xcfun}"+ """
           #   (subs/evxc.F had a problem when =2 if rho(up)=0 or rho(down)=0).
                 # =103 PBE-GGA
 
-      PWMODE=1  # 0:  MTO basis only (LMTO) !2021feb. I set PWMODE=1 as default (for smooth bandplot).
+      PWMODE=1  # 0:  MTO basis only (LMTO) !2021feb. I set PWMODE=1 as default (for smooth bandplot). 
                 # 1 : APW+MTO        (PMT)  !2022jun17 PWMODE=1 causes problem for QSGW
-                                            (even when PWMODE=1, I enforce PWMODE=11 for lmfgw mode).
+                                            (even when PWMODE=1, I enforce PWMODE=11 for GWdriver mode --jobgw).
+                                            !   |G|cutoff 
                 # 11: APW+MTO        (PMT)  ! |q+G|cutoff
                 # 12: APW basis only (LAPW) ! |q+G|cutoff
                 #
       PWEMAX={pwemax} # (in Ry). When you use larger pwemax more than 5, be careful
                       # about overcompleteness. In cases, e.g.Fe, you may need larger KMXA for larger PWEMAX.
 """
-if (False): #systype_val.upper()=="BULK") :
-    tail = tail + """      ELIND=-1    # this is to accelarate convergence. Not affect to the final results.
-"""
-else :
-    tail =  tail + """      ELIND=0    # this is to accelarate convergence. Not affect to the final results.
-"""
 
 tail = tail + """                 # For sp-bonded solids, ELIND=-1 may give faster convergence.
                  # For O2 molecule, Fe, and so on, use ELIND=0(this is default).
       READP=T  # Read P,PZ values from results of atom calculation.
       PNUFIX=T # B.C. (phi'/phi) of radial functions are fixed.
-      FRZWF=F #If T, fix augmentation function. This is worth to test in future.
+      FRZWF=F #If T, fix augmentation function. This is worth to test in future. FRZWF=T may give not low-enough energy.
       #  See HAM_FRZWF, file://Document/Manual/CaterogyAndToken.org
 
       #For LDA+U calculation, see ecalj manual.

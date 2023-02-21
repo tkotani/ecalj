@@ -8,6 +8,10 @@ contains
     use m_lmfinit,only: stdo,stdl
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
     use m_MPItk,only: master_mpi
+    implicit none
+    intent(in)::   nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,&
+       metal,tetra,norder,npts,width,rnge,wtkp,eb
+    intent(out)::                                  efermi,sumev,wtkb,dosef,qval,ent,lfill
     !- BZ integration for fermi level, band sum and qp weights
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -41,8 +45,7 @@ contains
     !o   dosef :DOS at Fermi level
     !o   qval  :qval(1) = total charge; qval(2) = magnetic moment
     !o   ent   :entropy term (actually TS)
-    !l Local variables
-    !l   lfill :true => insulator
+    !o   lfill :true => insulator
     !u Updates
     !u   12 Jul 08 (ATP) bzwts now returns entropy term (actually kTS)
     !u   04 Jun 08 (ATP) Handles metal case when nkp=1
@@ -58,7 +61,6 @@ contains
     !u             zval, where emin, emax found by efrang.
     !u   22 Sep 01 Returns dosef now.  Altered argument list.
     ! ----------------------------------------------------------------------
-    implicit none
     logical metal,tetra
     integer nbmx,norder,npts,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,&
          idtet(5,ntet),ifile_handle
@@ -99,13 +101,6 @@ contains
     dosef(1) = 0
     dosef(nspx) = 0
     egap = nulli
-    !  if (nsp .eq. 2 .and. nspc .eq. 1 .and. cmdopt('--oldbz',7,0,outs))&
-    !       then
-    !     nspx  = nsp
-    !     nevxx = nevx
-    !     nbmxx = nbmx
-    !     job = 1
-    !  endif
     !     Force coupled spins: find range
     if (nspx .ne. nsp .and. nspc .eq. 1) then
        nbpw = int(dlog(dble(i1mach(9))+1d0)/dlog(2d0))
@@ -137,7 +132,7 @@ contains
        efermi = (emin + emax) / 2
     endif
     ! ... Pretend as though spin-pol bands are coupled to find E_f
-    if (nsp .eq. 2 .and. nspc .eq. 1 .and. job .eq. -1) then
+    if (nsp .eq. 2 .and. nspc .eq. 1 ) then
        nbpw = int(dlog(dble(i1mach(9))+1d0)/dlog(2d0))
        allocate(bmap_iv(nevx*nsp*nkp/nbpw+1))
        bmap_iv(:)=0
@@ -174,7 +169,7 @@ contains
                &  ,'gap=',ftof(emax-emin), 'Ry =',ftof((emax-emin)*13.6058d0),'eV'
        endif
        ! --- BZ weights, sumev and E_f by tetrahedron method (Blochl wts) ---
-    else if (tetra) then
+    elseif (tetra) then
        if (ipr .ge. 30) write (stdo,103)
 103    format(/' bzwts: --- Tetrahedron Integration ---')
        if (lfill) then
@@ -190,9 +185,9 @@ contains
        tol = 1d-6
        !  Preliminary check that dos lies within emin,emax.  Widen emin,emax if not
        if (.not. lfill) then
-          call bzints ( n1 , n2 , n3 , eb , dum , nkp , nevxx , nbmxx , &
+          call bzints ( n1*n2*n3 , eb , dum , nkp , nevxx , nbmxx , &
                nspx , emin , emax , dos_rv , nptdos , efermi , job , ntet &
-               , idtet , sumev , qval )
+               , idtet , sumev , qval(1) )
           dmin = sum(dos_rv(1,1:nspx))/nspx
           dmax = sum(dos_rv(nptdos,1:nspx))/nspx
           !if ( nspx .eq. 2 ) dmin = dmin + dos_rv(1,nspx)
@@ -211,9 +206,9 @@ contains
 101    format(9x,'Est E_f ',10x,'Window',8x,'Tolerance',2x,'n(E_f)')
        itmax = 5
        do   it = 1, itmax
-          call bzints ( n1 , n2 , n3 , eb , dum , nkp , nevxx , nbmxx , &
+          call bzints ( n1*n2*n3 , eb , dum , nkp , nevxx , nbmxx , &
                nspx , emin , emax , dos_rv , nptdos , efermi , job , ntet &
-               , idtet , sumev , qval )
+               , idtet , sumev , qval(1) )
           call fermi ( zval , dos_rv , nptdos , emin , emax , nspx , &
                efermi , emin , emax , dosef(1) )
           if (ipr .ge. 35)&
@@ -226,8 +221,8 @@ contains
 1      continue
        if (allocated(dos_rv)) deallocate(dos_rv)
 2      continue
-       call bzints(n1,n2,n3,eb,wtkb,nkp,nevxx,nbmxx,&
-            nspx,emin,emin,emin,1,efermi,2*job,ntet,idtet,sumev,qval)
+       call bzints(n1*n2*n3,eb,wtkb,nkp,nevxx,nbmxx,&
+            nspx,emin,emin,emin,1,efermi,2*job,ntet,idtet,sumev,qval(1))
     else
        ! --- BZ weights, sumev and E_f by Methfessel-Paxton sampling ---
        if(ipr>0) write(stdo,"(a,i0,a,f15.6)")' BZWTS : --- Brillouin Zone sampling; N=',n,' W=',width
@@ -304,7 +299,7 @@ contains
        if(nsp .eq. 2 .and. nspx .eq. 1) call dscal(nkp,2d0,wtkp,1)
     endif
     ! ... Restore to uncoupled bands; ditto with weights
-    if (nsp .eq. 2 .and. nspc .eq. 1 .and. job .eq. -1) then
+    if (nsp==2 .and. nspc==1 ) then
        call ebcpl(1 , nbmx , nevx , nsp , nspc , nkp , nbpw, bmap_iv , wk_rv , eb )
        if(metal) call ebcpl(1 , nevx , nevx , nsp , nspc, nkp, nbpw , bmap_iv , wk_rv , wtkb )
        if(allocated(tlst_rv)) deallocate(tlst_rv)

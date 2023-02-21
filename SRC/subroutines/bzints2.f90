@@ -390,25 +390,25 @@ subroutine efrang3(nsp,nkp,nband,zval,eband, e1,e2,elo,ehi,bandgap)
   endif
 end subroutine efrang3
 
-!--------------------------------------------------
-subroutine getvaln(konfig,z,nl,natom,iclass,nclass, valn)
-  ! - Get valn
-  !o valn    = number of valence electron.
+! !--------------------------------------------------
+! subroutine getvaln(konfig,z,nl,natom,iclass,nclass, valn)
+!   ! - Get valn
+!   !o valn    = number of valence electron.
 
-  implicit none
-  integer(4):: nclass,natom,nl,ia,ic,l
-  real(8)   :: valn,ef, z(nclass)
-  integer(4):: iclass(natom),konfig(0:nl-1,nclass)
-  valn    = 0d0
-  do ia   = 1,natom
-     ic    = iclass(ia)
-     valn  = valn + z(ic)
-     do    l = 0,nl-1
-        valn  = valn - (konfig(l,ic)-l-1) *( 2*l +1)*2
-     end do
-  end do
-  print *,' getvaln: valn=',valn
-end subroutine getvaln
+!   implicit none
+!   integer(4):: nclass,natom,nl,ia,ic,l
+!   real(8)   :: valn,ef, z(nclass)
+!   integer(4):: iclass(natom),konfig(0:nl-1,nclass)
+!   valn    = 0d0
+!   do ia   = 1,natom
+!      ic    = iclass(ia)
+!      valn  = valn + z(ic)
+!      do    l = 0,nl-1
+!         valn  = valn - (konfig(l,ic)-l-1) *( 2*l +1)*2
+!      end do
+!   end do
+!   print *,' getvaln: valn=',valn
+! end subroutine getvaln
 
 
 

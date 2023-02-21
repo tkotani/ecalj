@@ -1,4 +1,7 @@
 subroutine fermi2( qval,dos,ndos,emin,emax,  eferm,e1,e2,dosef)!Makes fermi energy from integrated density
+  implicit none
+  intent(in)::     qval,dos,ndos,emin,emax  
+  intent(out)::                              eferm,e1,e2,dosef
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   qval, number of electrons to fermi level; dos(i) integrated
@@ -11,7 +14,6 @@ subroutine fermi2( qval,dos,ndos,emin,emax,  eferm,e1,e2,dosef)!Makes fermi ener
   !r Remarks
   !r   emin and e1 (and emax and e2) may point to the same address.
   ! ----------------------------------------------------------------------
-  implicit none
   integer:: ndos
   real(8):: qval,dos,emin,emax,eferm,e1,e2,dosef
   integer:: i1,ie
@@ -38,13 +40,10 @@ subroutine fermi2( qval,dos,ndos,emin,emax,  eferm,e1,e2,dosef)!Makes fermi ener
   EFERM = e1 + (QVAL-Q1)/(Q2-Q1)*DE
   dosef = (q2-q1)/de
 end subroutine fermi2
-
-! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-subroutine fermi_kbt( qval,dos,ndos,emin,emax, kbt, eferm_init, &
-     eferm_kbt)
+subroutine fermi_kbt( qval,dos,ndos,emin,emax, kbt, eferm_init,  eferm_kbt)
   implicit none
-  intent(in)::   qval,dos,ndos,emin,emax, kbt, eferm_init
-  intent(out)::  eferm_kbt
+  intent(in)::        qval,dos,ndos,emin,emax, kbt, eferm_init
+  intent(out)::                                                  eferm_kbt
   !- Makes fermi energy from integrated density
   ! ----------------------------------------------------------------------
   !i Inputs

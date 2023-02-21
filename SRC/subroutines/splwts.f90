@@ -17,7 +17,7 @@ subroutine splwts(nqp,nband,nbmx,nsp,wgts,evl,n,w,efermi, &
   !i    efermi : Fermi energy
   !o  Output
   !o    bndwts : band and E_F - dependent k-point weights for integration
-  !o    wtot   : sum of all weights (charge)
+  !o    wtot   : sum of all weights (charge) qval
   !o    entrpy : electron entropy
   !o    dosef  : DOS at Fermi energy
   !o    cv     : electronic specific heat
