@@ -326,7 +326,7 @@ contains
                 ntqxx,nt0m,nt0p,ef,nwx,nwxi,nt_max,wfaccut,wtt,&
                 we_,wfac_,ixss,ititpskip,iirx)
            CorrR2:Block
-             real(8):: wgt3(0:2,nt_max,ntqxx)    ! 3-point interpolation weight for we_(it,itp) 
+             real(8):: wgt3(0:2,nt_max,ntqxx),amat(3,3),amatinv(3,3)    ! 3-point interpolation weight for we_(it,itp) 
              complex(8)::zadd(ntqxx),wv33(ngb,ngb) ! ixss is starting index of omega
              complex(8):: wv3(ngb,ngb,0:2)
              integer:: iwgt3(nt_max,ntqxx),i1,i2,iw,ikeep,ix
@@ -339,8 +339,15 @@ contains
                 do it=1,nt_max
                    if(ititpskip(it,itp)) cycle
                    ixs= ixss(it,itp) !we_ is \omega_\epsilon in Eq.(55).
-                   call alagr3z2wgt(we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp))
-                   wgt3(:,it,itp)= wfac_(it,itp)*wgt3(:,it,itp)
+                     !call alagr3z2wgt(we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp))
+                     associate( x=>we_(it,itp),xi=>freq_r(ixs-1:ixs+1)) !,wgt=>wgt3(:,it,itp))
+                       amat(1:3,1) = 1d0
+                       amat(1:3,2) = xi(1:3)**2
+                       amat(1:3,3) = xi(1:3)**4
+                       call minv33(amat,amatinv)
+                       wgt3(:,it,itp)= wfac_(it,itp)*matmul([1d0,x**2,x**4], amatinv) !wgt3(:,it,itp)
+                     endassociate
+!                   wgt3(:,it,itp)= wfac_(it,itp)*wgt3(:,it,itp)
                    iwgt3(it,itp) = iirx(itp)*(ixs+1-2) !starting omega index ix for it,itp
                 enddo                                !iirx=1 for npm=1 I think
                 if(iirx(itp)/=1) call rx('sxcf: iirx=-1(TR breaking) is not yet implemented')
