@@ -1,8 +1,135 @@
-module m_sxcfsc !self-energy calculation 
+!> \brief
+!! Calcualte full simga_ij(e_i)= <i|Re[Sigma](e_i)|j> 
+!! ---------------------
+!! \param exchange 
+!!   - T : Calculate the exchange self-energy
+!!   - F : Calculate correlated part of the self-energy
+!! \param zsec
+!!   - S_ij= <i|Re[S](e_i)|j>
+!!   - Note that S_ij itself is not Hermite becasue it includes e_i.
+!!     i and j are band indexes
+!!
+!! \remark
+!!xxx jobsw switch. We now support only mode=3-----------------
+!!  1,3,5scGW mode.
+!!   diag+@EF      jobsw==1 SE_nn'(ef)+delta_nn'(SE_nn(e_n)-SE_nn(ef))
+!!   modeB (Not Available now)  jobsw==2 SE_nn'((e_n+e_n')/2) 
+!!   mode A        jobsw==3 (SE_nn'(e_n)+SE_nn'(e_n'))/2 (Usually usued in QSGW).
+!!   diagonly      jobsw==5 delta_nn' SE_nn(e_n) (not efficient memoryuse; but we don't use this mode so often).
+!!
+!! \verbatim
+!!  eftrue is added. !Jan2013
+!!   ef=eftrue(true fermi energy) for valence exchange and correlation mode.
+!!   but ef is not the true fermi energy for core-exchange mode.
+!!
+!! Jan2006
+!!     "zsec from im-axis integral part"  had been symmetrized as
+!!     &        wtt*.5d0*(   sum(zwzi(:,itp,itpp))+ !S_{ij}(e_i)
+!!     &        dconjg( sum(zwzi(:,itpp,itp)) )   ) !S_{ji}^*(e_j)= S_{ij}(e_j)
+!!     However, I now do it just the 1st term.
+!!     &        wtt* sum(zwzi(:,itp,itpp))   !S_{ij}(e_i)
+!!     This is OK because the symmetrization is in hqpe.sc.F
+!!     Now zsec given in this routine is simply written as <i|Re[S](e_i)|j>.
+!!     ( In the version until Jan2006 (fpgw032f8), only the im-axis part was symmetrized.
+!!     But it was not necessary from the begining because it was done in hqpe.sc.F
+!!     
+!!     (Be careful as for the difference between
+!!     <i|Re[S](e_i)|j> and transpose(dconjg(<i|Re[S](e_i)|j>)).
+!!     ---because e_i is included.
+!!     The symmetrization (hermitian) procedure is inlucded in hqpe.sc.F
+!!
+!!     NOTE: matrix element is given by "call get_zmelt". It returns  zmelt or zmeltt.
+!!
+!!
+!! Output file in hsfp0 should contain hermitean part of SE
+!!    ( hermitean of SE_nn'(e_n) means SE_n'n(e_n')^* )
+!!             we use that zwz(itp,itpp)=dconjg( zwz(itpp,itp) )
+!! Caution! npm=2 is not examined enough...
+!!
+!! Calculate the exchange part and the correlated part of self-energy.
+!! T.Kotani started development after the analysis of F.Aryasetiawan's LMTO-ASA-GW.
+!! We still use some of his ideas in this code.
+!!
+!! See paper   
+!! [1]T. Kotani and M. van Schilfgaarde, ??Quasiparticle self-consistent GW method: 
+!!     A basis for the independent-particle approximation, Phys. Rev. B, vol. 76, no. 16, p. 165106[24pages], Oct. 2007.
+!! [2]T. Kotani, Quasiparticle Self-Consistent GW Method Based on the Augmented Plane-Wave 
+!!    and Muffin-Tin Orbital Method, J. Phys. Soc. Jpn., vol. 83, no. 9, p. 094711 [11 Pages], Sep. 2014.
+!!
+!! -------------------------------------------------------------------------------
+!! Omega integral for SEc
+!!   The integral path is deformed along the imaginary-axis, but together with contribution of poles.
+!!   See Fig.1 and around in Ref.[1].
+!!
+!! ---Integration along imaginary axis.---
+!!   ( Current version for it, wintzsg_npm, do not assume time-reversal when npm=2.)
+!!   Integration along the imaginary axis: -----------------
+!!    (Here is a memo by F.Aryasetiawan.)
+!!     (i/2pi) < [w'=-inf,inf] Wc(k,w')(i,j)/(w'+w-e(q-k,n) >
+!!    Gaussian integral along the imaginary axis.  
+!!    transform: x = 1/(1+w')
+!!     this leads to a denser mesh in w' around 0 for equal mesh x
+!!    which is desirable since Wc and the lorentzian are peaked around w'=0
+!!     wint = - (1/pi) < [x=0,1] Wc(iw') (w-e)x^2/{(w-e)^2 + w'^2} >
+!!     
+!!     the integrand is peaked around w'=0 or x=1 when w=e
+!!     to handel the problem, add and substract the singular part as follows:
+!!     wint = - (1/pi) < [x=0,1] { Wc(iw') - Wc(0)exp(-a^2 w'^2) }
+!!     * (w-e)/{(w-e)^2 +w'^2}x^2 >
+!!     - (1/2) Wc(0) sgn(w-e) exp(a^2 (w-e)^2) erfc(a|w-e|)
+!!     
+!!     the second term of the integral can be done analytically, which
+!!     results in the last term a is some constant
+!!     
+!!     when w = e, (1/pi) (w-e)/{(w-e)^2 + w'^2} ==> delta(w') and
+!!     the integral becomes -Wc(0)/2
+!!     this together with the contribution from the pole of G (s.u.)
+!!     gives the so called static screened exchange -Wc(0)
+!!
+!! ---Integration along real axis (contribution from the poles of G: SEc(pole))
+!!    See Eq.(34),(55), and (58) and around in Ref.[1]. We now use Gaussian Smearing.
+!! -------------------------------------------------------------------------------
+!! \endverbatim
+!! \verbatim
+!!
+!! ----------------------------------------------
+!!     q     =qvec(:,iq)  = q-vector in SEc(q,t). 
+!!    itq     = states t at q
+!!    ntq     = no. states t
+!!    eq      = eigenvalues at q
+!!     ef      = fermi level in Rydberg
+!!   WVI, WVR: direct access files for W. along im axis (WVI) or along real axis (WVR)
+!!   freq_r(nw_i:nw)   = frequencies along real axis. freq_r(0)=0d0
+!!
+!!    qlat    = base reciprocal lattice vectors
+!!    ginv    = inverse of qbas =transpose(plat)
+!!
+!!     wk     = weight for each k-point in the FBZ
+!!    qbz     = k-points in the 1st BZ
+!!
+!!    wx      = weights at gaussian points x between (0,1)
+!!     ua_      = constant in exp(-ua^2 w'^2) s. wint.f
+!!     expa    = exp(-ua^2 w'^2) s. wint.f
+!!
+!!    irkip(k,R,nq) = gives index in the FBZ with k{IBZ, R=rotation
+!!
+!!   nqibz   = number of k-points in the irreducible BZ
+!!   nqbz    =                           full BZ
+!!    nctot   = total no. of allowed core states
+!!    nbloch  = total number of Bloch basis functions
+!!    nlmto   = total number of MTO+lo basis functions
+!!    ngrp    = no. group elements (rotation matrices)
+!!    niw     = no. frequencies along the imaginary axis
+!!    nw_i:nw  = no. frequencies along the real axis. nw_i=0 or -nw.
+!!    zsec(itp,itpp,iq)> = <psi(itp,q(:,iq)) |SEc| psi(iq,q(:,iq)>
+!!
+!! ----------------------------------------------
+!! \endverbatim
+module m_sxcf_main
   use m_readqg,only   : Readqg0
   use m_readeigen,only: Readeval
   use m_keyvalue,only   : Getkeyvalue
-  use m_zmel,only : Get_zmel_init, Setppovlz, Setppovlz_chipm, Deallocate_zmel, get_zmel_modex0, zmel
+  use m_zmel,only : Get_zmel_init, Setppovlz, Setppovlz_chipm, Deallocate_zmel, zmel
   use m_itq,only: itq,ntq
   use m_genallcf_v3,only: nlmto,nspin,nctot,niw,ecore !,symgg
   use m_read_bzdata,only: qibz,qbz,wk=>wbz,nqibz,nqbz,wklm,lxklm,nq0i, wqt=>wt,q0i, irk
@@ -12,147 +139,20 @@ module m_sxcfsc !self-energy calculation
   use m_readqg,only:  ngpmx,ngcmx
   use m_readhbe,only: nband,mrecg
   use m_hamindex,only: ngrp
-  !  use m_eibzhs,only: nrkip=>nrkip_all,irkip_all
+!  use m_eibzhs,only: nrkip=>nrkip_all,irkip_all
 !  use m_read_bzdata,only: qbz,nqibz,ginv,irk,nqbz
   use m_readgwinput,only: ua_,  corehole,wcorehole
   use m_mpi,only: MPI__sxcf_rankdivider
   use m_ftox
+  use m_sxcf_count,only: ncount,ispc,kxc,irotc,ipc,krc,nstateMax,nstti,nstte,nwxic, nwxc, nt_maxc
   implicit none
   !---------------------------------      
-  public sxcf_scz, zsecall
+  public sxcf_scz_main, zsecall
   complex(8),allocatable,target:: zsecall(:,:,:,:) !output
   private
 contains
-
-  subroutine sxcf_scz(qvec,ef,esmr,nq,exchange,nbandmx,ixc,nspinmx) !,jobsw
-    intent(in)        qvec,ef,esmr,nq,exchange,nbandmx,ixc,nspinmx !,jobsw
-    !> \brief
-    !! Calcualte full simga_ij(e_i)= <i|Re[Sigma](e_i)|j> 
-    !! ---------------------
-    !! \param exchange 
-    !!   - T : Calculate the exchange self-energy
-    !!   - F : Calculate correlated part of the self-energy
-    !! \param zsec
-    !!   - S_ij= <i|Re[S](e_i)|j>
-    !!   - Note that S_ij itself is not Hermite becasue it includes e_i.
-    !!     i and j are band indexes
-    !!
-    !! \remark
-    !!xxx jobsw switch. We now support only mode=3-----------------
-    !!  1,3,5scGW mode.
-    !!   diag+@EF      jobsw==1 SE_nn'(ef)+delta_nn'(SE_nn(e_n)-SE_nn(ef))
-    !!   modeB (Not Available now)  jobsw==2 SE_nn'((e_n+e_n')/2) 
-    !!   mode A        jobsw==3 (SE_nn'(e_n)+SE_nn'(e_n'))/2 (Usually usued in QSGW).
-    !!   diagonly      jobsw==5 delta_nn' SE_nn(e_n) (not efficient memoryuse; but we don't use this mode so often).
-    !!
-    !! \verbatim
-    !!  eftrue is added. !Jan2013
-    !!   ef=eftrue(true fermi energy) for valence exchange and correlation mode.
-    !!   but ef is not the true fermi energy for core-exchange mode.
-    !!
-    !! Jan2006
-    !!     "zsec from im-axis integral part"  had been symmetrized as
-    !!     &        wtt*.5d0*(   sum(zwzi(:,itp,itpp))+ !S_{ij}(e_i)
-    !!     &        dconjg( sum(zwzi(:,itpp,itp)) )   ) !S_{ji}^*(e_j)= S_{ij}(e_j)
-    !!     However, I now do it just the 1st term.
-    !!     &        wtt* sum(zwzi(:,itp,itpp))   !S_{ij}(e_i)
-    !!     This is OK because the symmetrization is in hqpe.sc.F
-    !!     Now zsec given in this routine is simply written as <i|Re[S](e_i)|j>.
-    !!     ( In the version until Jan2006 (fpgw032f8), only the im-axis part was symmetrized.
-    !!     But it was not necessary from the begining because it was done in hqpe.sc.F
-    !!     
-    !!     (Be careful as for the difference between
-    !!     <i|Re[S](e_i)|j> and transpose(dconjg(<i|Re[S](e_i)|j>)).
-    !!     ---because e_i is included.
-    !!     The symmetrization (hermitian) procedure is inlucded in hqpe.sc.F
-    !!
-    !!     NOTE: matrix element is given by "call get_zmelt". It returns  zmelt or zmeltt.
-    !!
-    !!
-    !! Output file in hsfp0 should contain hermitean part of SE
-    !!    ( hermitean of SE_nn'(e_n) means SE_n'n(e_n')^* )
-    !!             we use that zwz(itp,itpp)=dconjg( zwz(itpp,itp) )
-    !! Caution! npm=2 is not examined enough...
-    !!
-    !! Calculate the exchange part and the correlated part of self-energy.
-    !! T.Kotani started development after the analysis of F.Aryasetiawan's LMTO-ASA-GW.
-    !! We still use some of his ideas in this code.
-    !!
-    !! See paper   
-    !! [1]T. Kotani and M. van Schilfgaarde, ??Quasiparticle self-consistent GW method: 
-    !!     A basis for the independent-particle approximation, Phys. Rev. B, vol. 76, no. 16, p. 165106[24pages], Oct. 2007.
-    !! [2]T. Kotani, Quasiparticle Self-Consistent GW Method Based on the Augmented Plane-Wave 
-    !!    and Muffin-Tin Orbital Method, J. Phys. Soc. Jpn., vol. 83, no. 9, p. 094711 [11 Pages], Sep. 2014.
-    !!
-    !! -------------------------------------------------------------------------------
-    !! Omega integral for SEc
-    !!   The integral path is deformed along the imaginary-axis, but together with contribution of poles.
-    !!   See Fig.1 and around in Ref.[1].
-    !!
-    !! ---Integration along imaginary axis.---
-    !!   ( Current version for it, wintzsg_npm, do not assume time-reversal when npm=2.)
-    !!   Integration along the imaginary axis: -----------------
-    !!    (Here is a memo by F.Aryasetiawan.)
-    !!     (i/2pi) < [w'=-inf,inf] Wc(k,w')(i,j)/(w'+w-e(q-k,n) >
-    !!    Gaussian integral along the imaginary axis.  
-    !!    transform: x = 1/(1+w')
-    !!     this leads to a denser mesh in w' around 0 for equal mesh x
-    !!    which is desirable since Wc and the lorentzian are peaked around w'=0
-    !!     wint = - (1/pi) < [x=0,1] Wc(iw') (w-e)x^2/{(w-e)^2 + w'^2} >
-    !!     
-    !!     the integrand is peaked around w'=0 or x=1 when w=e
-    !!     to handel the problem, add and substract the singular part as follows:
-    !!     wint = - (1/pi) < [x=0,1] { Wc(iw') - Wc(0)exp(-a^2 w'^2) }
-    !!     * (w-e)/{(w-e)^2 +w'^2}x^2 >
-    !!     - (1/2) Wc(0) sgn(w-e) exp(a^2 (w-e)^2) erfc(a|w-e|)
-    !!     
-    !!     the second term of the integral can be done analytically, which
-    !!     results in the last term a is some constant
-    !!     
-    !!     when w = e, (1/pi) (w-e)/{(w-e)^2 + w'^2} ==> delta(w') and
-    !!     the integral becomes -Wc(0)/2
-    !!     this together with the contribution from the pole of G (s.u.)
-    !!     gives the so called static screened exchange -Wc(0)
-    !!
-    !! ---Integration along real axis (contribution from the poles of G: SEc(pole))
-    !!    See Eq.(34),(55), and (58) and around in Ref.[1]. We now use Gaussian Smearing.
-    !! -------------------------------------------------------------------------------
-    !! \endverbatim
-    !! \verbatim
-    !!
-    !! ----------------------------------------------
-    !!     q     =qvec(:,iq)  = q-vector in SEc(q,t). 
-    !!    itq     = states t at q
-    !!    ntq     = no. states t
-    !!    eq      = eigenvalues at q
-    !!     ef      = fermi level in Rydberg
-    !!   WVI, WVR: direct access files for W. along im axis (WVI) or along real axis (WVR)
-    !!   freq_r(nw_i:nw)   = frequencies along real axis. freq_r(0)=0d0
-    !!
-    !!    qlat    = base reciprocal lattice vectors
-    !!    ginv    = inverse of qbas =transpose(plat)
-    !!
-    !!     wk     = weight for each k-point in the FBZ
-    !!    qbz     = k-points in the 1st BZ
-    !!
-    !!    wx      = weights at gaussian points x between (0,1)
-    !!     ua_      = constant in exp(-ua^2 w'^2) s. wint.f
-    !!     expa    = exp(-ua^2 w'^2) s. wint.f
-    !!
-    !!    irkip(k,R,nq) = gives index in the FBZ with k{IBZ, R=rotation
-    !!
-    !!   nqibz   = number of k-points in the irreducible BZ
-    !!   nqbz    =                           full BZ
-    !!    nctot   = total no. of allowed core states
-    !!    nbloch  = total number of Bloch basis functions
-    !!    nlmto   = total number of MTO+lo basis functions
-    !!    ngrp    = no. group elements (rotation matrices)
-    !!    niw     = no. frequencies along the imaginary axis
-    !!    nw_i:nw  = no. frequencies along the real axis. nw_i=0 or -nw.
-    !!    zsec(itp,itpp,iq)> = <psi(itp,q(:,iq)) |SEc| psi(iq,q(:,iq)>
-    !!
-    !! ----------------------------------------------
-    !! \endverbatim
+  subroutine sxcf_scz_main(qvec,ef,esmr,nq,exchange,nbandmx,ixc,nspinmx) 
+    intent(in)             qvec,ef,esmr,nq,exchange,nbandmx,ixc,nspinmx
     logical :: exchange
     integer :: nq,isp,nspinmx,jobsw 
     integer :: nbandmx(nq,nspinmx)
@@ -187,161 +187,13 @@ contains
     logical:: iprx,cmdopt0
     integer:: ixx,ixc,icount,ndivmx,ns1,ns2,ns1c,ns2c,ns1v
     real(8),parameter:: pi=4d0*datan(1d0), fpi=4d0*pi, tpi=8d0*datan(1d0),ddw=10d0
-    integer:: ncount,kxold,nccc,icount0
-    integer,allocatable:: ispc(:),kxc(:),irotc(:),ipc(:),krc(:),nstateMax(:),nstti(:),nstte(:)
-    integer,allocatable:: nwxic(:), nwxc(:), nt_maxc(:),irkip(:,:,:,:)
+    integer:: kxold,nccc,icount0
     complex(8),allocatable:: zmelc(:,:,:)
-    integer,allocatable::ndiv(:),nstatei(:,:),nstatee(:,:)
-    !!----------------------------------------------------------------
-    if(npm==2) call rx('sxcf: npm=2 need to be examined')
+    integer,allocatable::ndiv(:),nstatei(:,:),nstatee(:,:),irkip(:,:,:,:)
+    iqini = 1
+    iqend = nqibz             
     allocate(zsecall(ntq,ntq,nq,nspinmx)) !, coh(ntq,nq) ) kount(nqibz,nq),
     zsecall = 0d0
-    if(ixc==3.and.nctot==0) return
-    !  We divide irkip_all into irkip for nodes. irkip is dependent on rank.
-    !  Total number of none zero irkip for all ranks is the number of nonzero irkip_all
-    block
-      integer:: irkip_all(nspinmx,nqibz,ngrp,nq),iqq,is
-      do is = 1,nspinmx
-         do iqq=1,nq
-            irkip_all(is,:,:,iqq)=irk
-         enddo
-      enddo
-      allocate(    irkip(nspinmx,nqibz,ngrp,nq)) ! nrkip is weight correspoinding to irkip for a node.
-      call MPI__sxcf_rankdivider(irkip_all,nspinmx,nqibz,ngrp,nq,  irkip)
-    endblock
-!
-    PreIcountBlock: Block!Get nstateMax(ncount),ndiv(icount),nstatei(j,icount),nstatee(j,icount)
-      integer:: ndivide,nstateavl,nnn,nloadav,nrem,idiv,j
-      integer,allocatable:: nload(:)
-      ncount=count(irkip/=0)
-      allocate(nstateMax(ncount))
-      iqini = 1
-      iqend = nqibz             
-      icount=0
-      kxloop:do kx = iqini,iqend !quick loop
-         isploop: do isp = 1,nspinmx !empty run to get index for icount ordering
-            if(sum(irkip(isp,kx,:,:))==0) cycle ! next kx
-            irotloop: do irot = 1,ngrp !over rotations irot ===
-               if(sum(irkip(isp,kx,irot,:))==0) cycle ! next ip
-               iqloop: do 1150 ip = 1,nq         
-                  kr = irkip(isp,kx,irot,ip) ! index for rotated kr in the FBZ
-                  if(kr==0) cycle
-                  icount=icount+1
-                  q(1:3)= qvec(1:3,ip)
-                  qbz_kr= qbz (:,kr)     !rotated qbz vector. 
-                  qk =  q - qbz_kr        
-                  ekq = readeval(qk, isp) 
-                  ekc(nctot+1:nctot+nband) = ekq (1:nband)
-                  nt0p = count(ekq<ef+ddw*esmr) +nctot 
-                  if(exchange) then
-                     nstateMax(icount) = nt0p
-                  else   
-                     ebmx=1d10 !this is needed probably for filling 1d99 for ekc(i) above boundary.
-                     nbmxe = count(ekc<ebmx)-nctot !nocc (ekc,ebmx,nstatetot)-nctot!
-                     nbmax  = min(nband,nbmxe) 
-                     nstateMax(icount) = nctot + nbmax ! = nstate for the case of correlation
-                  endif
-1150           enddo iqloop
-            enddo irotloop
-         enddo isploop
-      enddo kxloop
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!      
-                      ! ndivide = 2 
-      nstateavl = 16  ! nstateavl=max(sum(nstatemax)/(ncount*ndivide),1)
-      if(ixc==3) nstateavl= maxval(nstatemax)
-      ! size of average load of middle states (in G)
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      allocate(ndiv(ncount))
-      ndiv = (nstatemax-1)/nstateavl + 1  !number of division for icount
-      ndivmx = maxval(ndiv)
-      allocate(nstatei(ndivmx,ncount),nstatee(ndivmx,ncount),nload(ndivmx))
-      do icount=1,ncount
-         nnn = nstatemax(icount)    !total number of middle states for given icount
-         ndiv(icount) = (nnn-1)/nstateavl + 1  !number of division for icount
-         nloadav = nnn/ndiv(icount) !number of average load of middle states
-         nrem = nnn - ndiv(icount)*nloadav !remnant count
-         nload(1:nrem) = nloadav+1
-         nload(nrem+1:ndiv(icount)) = nloadav !write(6,ftox)'nload=',nload(1:ndiv(icount))
-         nstatei(:,icount)= [(sum(nload(1:idiv-1))+1,idiv=1,ndiv(icount))]!init index for(idiv,icount)
-         nstatee(:,icount)= [(sum(nload(1:idiv)),    idiv=1,ndiv(icount))]!end  index
-      enddo
-!      do icount=1,ncount
-!      do j=1,ndiv(icount)
-!        write(6,ftox)'nnnx icou ndiv=',icount,j,nstatei(j,icount),nstatee(j,icount),nstatemax(icount)
-!      enddo
-!      enddo
-      deallocate(nload,nstatemax)
-    EndBlock PreIcountBlock
-    write(6,*)'nnn init ncount=',ncount
-    
-    ncount = ncount*ndivmx
-    ! icount mechanism for sum in MAINicountloop 3030
-    IcountBlock: Block !quick loop to gather index sets for main loop
-      integer:: idiv
-!      ncount=count(irkip/=0)
-      allocate(ispc(ncount),kxc(ncount),irotc(ncount),ipc(ncount),krc(ncount))
-      allocate(nwxic(ncount), nwxc(ncount), nt_maxc(ncount),nstateMax(ncount))
-      allocate(nstti(ncount),nstte(ncount))
-      iqini = 1
-      iqend = nqibz             !no sum for offset-Gamma points.
-      icount=0
-      icount0=0
-      do 130 kx = iqini,iqend !this is empty run to get index for icount ordering
-         do 120 isp = 1,nspinmx 
-            if(sum(irkip(isp,kx,:,:))==0) cycle ! next kx
-            do 140 irot = 1,ngrp !over rotations irot ===
-               if(sum(irkip(isp,kx,irot,:))==0) cycle ! next ip
-               do 150 ip = 1,nq         
-                  kr = irkip(isp,kx,irot,ip) ! index for rotated kr in the FBZ
-                  if(kr==0) cycle
-                  icount0=icount0+1
-                  do idiv=1,ndiv(icount0) !icount loop have further division by ndiv
-                     icount=icount+1
-                     nstti(icount)=nstatei(idiv,icount0) ![nstti,nstte] specify range of int. states.
-                     nstte(icount)=nstatee(idiv,icount0) !
-                     ispc(icount)=isp!icount specify isp,kx,irot,iq. (kx,irot) gives kr in the all FZ.
-                     kxc(icount)=kx
-                     irotc(icount)=irot
-                     ipc(icount)=ip
-                     krc(icount)=kr
-                     qibz_k = qibz(:,kx)
-                     q(1:3)= qvec(1:3,ip)
-                     eq = readeval(q,isp)
-                     omega(:) = eq(itq(:))  !1:ntq
-                     qbz_kr= qbz (:,kr)     !rotated qbz vector. 
-                     qk =  q - qbz_kr        
-                     ekq = readeval(qk, isp) 
-                     ekc(nctot+1:nctot+nband) = ekq (1:nband)
-                     nt0  = count(ekc<ef) 
-                     nt0p = count(ekq<ef+ddw*esmr) +nctot 
-                     nt0m = count(ekq<ef-ddw*esmr) +nctot
-                     ntqxx = nbandmx(ip,isp) ! ntqxx is number of bands for <i|sigma|j>.
-                     !write(6,*) icount, ispc(icount),kxc(icount),' irot ',irot,ip,kr
-                     if(exchange) then
-                        nstateMax(icount) = nt0p
-                     else   
-                        ebmx=1d10 !this is because filling 1d99 for ekc(i) above boundary.
-                        nbmxe = count(ekc<ebmx)-nctot !nocc (ekc,ebmx,nstatetot)-nctot!
-                        nbmax  = min(nband,nbmxe) 
-                        nstateMax(icount) = nctot + nbmax ! = nstate for the case of correlation
-                        call get_nwx(omega,ntq,ntqxx,nt0p,nt0m,nstateMax(icount),freq_r,&
-                             nw_i,nw,esmr,ef,ekc,wfaccut,nctot,nband,debug,nwxi,nwx,nt_max)
-                        !Get index nwxi nwx nt_max.
-                        ! get_nwx is not written clearly, but works and not time-consuming.
-                        nwxic(icount)=nwxi 
-                        nwxc(icount)=nwx
-                        nt_maxc(icount)=nt_max
-                     endif
-                  enddo
-150            enddo
-140         enddo
-120      enddo
-130   enddo
-      if(icount0/=count(irkip/=0)) call rx('sxcf: icount/=count(irkip/=0)')
-      ncount=icount
-    EndBlock IcountBlock
-    write(6,*)'nnn dev  ncount=',ncount
-    
     if(.not.exchange) then! Read WV* containing W-v in MPB
        allocate(ifrcw(iqini:iqend),ifrcwi(iqini:iqend))
        do kx=iqini,iqend
@@ -351,7 +203,6 @@ contains
           endif
        enddo
     endif
-    
     if(nctot/=0) ekc(1:nctot)= ecore(1:nctot,isp) ! core
     kxold=-9999
     !nccc= max(ncount/50,1) !just for printing
@@ -380,41 +231,46 @@ contains
        zsec => zsecall(1:ntqxx,1:ntqxx,ip,isp)
        wtt = wk(kr)
        !if(eibz4sig()) wtt=wtt*nrkip(isp,kx,irot,ip)
-       if(kxold/=kx) then
-          call Readvcoud(qibz_k,kx,NoVcou=.false.) !Readin ngc,ngb,vcoud ! Coulomb matrix
-          call Setppovlz(qibz_k,matz=.true.) !Set ppovlz overlap matrix in m_zmel
-          if(debug) write(6,*) ' sxcf_fal2sc: ngb ngc nbloch=',ngb,ngc,nbloch
-          kxold =kx
-       endif
        nstate = nstateMAX(icount) ! for the case of correlation
        ns1=nstti(icount) ! Range of middle states is [ns1:ns2] 
        ns2=nstte(icount) ! nstte(icount) is upper bound of middle states
        write(6,ftox)'do3030:isp kx ip',isp,kx,ip,'icou/ncou=',icount,ncount,'ns1:ns2=',ns1,ns2
-       call get_zmel_modex0(ns1,1,isp,isp) !set lower bound of middle state
-       !! Get zmel(ib,it,itpp) = <M(qbz_kr,ib) phi(it,q-qbz_kr) |phi(q(ip),itpp)> , qbz_kr= irot(qibz_k)
-       !                            MPB        middle state        end state
-       call Get_zmel_init(q,qibz_k,irot,qbz_kr,isp, ns2-nctot,ntqxx,nctot,ncc=0,iprx=debug)!Get zmel(ngb,1:ns2-ns1+1,ntqxx)
+       !! Get 
+       !       call get_zmel_modex0(ns1,1,isp,isp) !set lower bound of middle state
+       ZmelBlock: block !Get zmel(ib,   it,     itpp) = <M(qbz_kr,ib,isp) phi(it,q-qbz_kr,isp) |phi(q(ip),itpp)> , qbz_kr= irot(qibz_k)
+       !                      it=> MiddleState,1:ns2-ns1+1   itpp=>EndState, 1:ntqxx
+         if(kxold/=kx) then
+            call Readvcoud(qibz_k,kx,NoVcou=.false.) !Readin ngc,ngb,vcoud ! Coulomb matrix
+            call Setppovlz(qibz_k,matz=.true.)       !Set ppovlz overlap matrix used in Get_zmel_init in m_zmel
+            if(debug) write(6,*) ' sxcf_fal2sc: ngb ngc nbloch=',ngb,ngc,nbloch
+            kxold =kx
+         endif
+         call Get_zmel_init(q,qibz_k,irot,qbz_kr, ns1,ns2-nctot,isp, 1,ntqxx,isp, nctot,ncc=0,iprx=debug)!Return zmel middle=> 1:nctot+ns2-nctot-ns1+1
+       endblock ZmelBlock
        Exchangemode: if(exchange) then      
           ExchangeSelfEnergy: Block
             real(8):: wfacx
-            allocate(vcoud_(ngb),wtff(ns1:ns2),w3p(ns1:ns2)) !range of middle states ns1:ns2
+            allocate(vcoud_(ngb),wtff(ns1:ns2)) !range of middle states ns1:ns2
             vcoud_= vcoud
-            if(kx == iqini) vcoud_(1) = wklm(1)* fpi*sqrt(fpi) /wk(kx) !voud_(1) is effective v(q=0) averag in the Gamma cell.
+            if(kx == iqini) vcoud_(1)=wklm(1)*fpi*sqrt(fpi)/wk(kx) !voud_(1) is effective v(q=0) in the Gamma cell.
             wtff= [(wfacx(-1d99, ef, ekc(it), esmr),it=ns1,ns2)]
             do itpp= lbound(zsec,2),ubound(zsec,2)
                do itp = lbound(zsec,1),ubound(zsec,1)
-                  w3p(ns1:ns2)=[(sum(dconjg(zmel(:,it,itp))*vcoud_(:)*zmel(:,it,itpp)),it=1,ns2-ns1+1)]
-                  ns1v= max(nctot+1,ns1) ! minimum index of valence for core+valence
-                  w3p(ns1v:ns2) = w3p(ns1v:ns2) * wtff(ns1v:ns2)
-                  if(corehole) then !not checked well
-                     ns2c= min(ns2,nctot) !ns2c upper limit of core index of core+valence
-                     ns1c= ns1 !ns1c lower limit of core index of core+valence
-                     w3p(ns1c:ns2c) = w3p(ns1c:ns2c) * wcorehole(ns1c:ns2c,isp)
-                  endif
-                  zsec(itp,itpp) = zsec(itp,itpp) - wtt * sum( w3p(:) )
+                  block
+                    complex(8):: w3p(ns1:ns2)
+                    w3p(ns1:ns2)=[(sum(dconjg(zmel(:,it,itp))*vcoud_(:)*zmel(:,it,itpp)),it=1,ns2-ns1+1)]
+                    ns1v= max(nctot+1,ns1) ! minimum index of valence for core+valence
+                    w3p(ns1v:ns2) = w3p(ns1v:ns2) * wtff(ns1v:ns2)
+                    if(corehole) then !not checked well
+                       ns2c= min(ns2,nctot) !ns2c upper limit of core index of core+valence
+                       ns1c= ns1 !ns1c lower limit of core index of core+valence
+                       w3p(ns1c:ns2c) = w3p(ns1c:ns2c) * wcorehole(ns1c:ns2c,isp)
+                    endif
+                    zsec(itp,itpp) = zsec(itp,itpp) - wtt * sum( w3p(:) )
+                endblock
                enddo
             enddo
-            deallocate(vcoud_,wtff,w3p)
+            deallocate(vcoud_,wtff)
             if(timemix) call timeshow("ExchangeSelfEnergy cycle")
           EndBlock ExchangeSelfEnergy
           cycle  !end of exchange mode             
@@ -442,7 +298,7 @@ contains
            esmrx(ns1v:ns2) = esmr
            omegat(1:ntqxx) = omega(1:ntqxx)
            itpdo:do itp = lbound(zsec,1), ubound(zsec,1)
-              do     it = lbound(zmelc,2),ubound(zmelc,2)
+              do    it  = lbound(zmelc,2),ubound(zmelc,2)
                  we = .5d0*(omegat(itp)-ekc(it))
                  call wintzsg_npm_wgtim(npm, ua_,expa_, we,esmrx(it), wgtim(:,itp,it))
               enddo   !Integration weight wgtim along im axis for zwz(0:niw*npm) 
@@ -458,7 +314,7 @@ contains
                 call matmaw(zmelc,ww,zmelcww, nleft, nm, nright, wtt*wgtim(ixx,:,:))
               end associate
            enddo iwimag
-         EndBlock CorrelationSelfEnergyImagAxis 
+         EndBlock CorrelationSelfEnergyImagAxis
          CorrelationSelfEnergyRealAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
            real(8):: we_(nt_max,ntqxx),wfac_(nt_max,ntqxx)
            integer:: ixss(nt_max,ntqxx),iirx(ntqxx)
@@ -552,10 +408,7 @@ contains
        deallocate(zmelc)
        if(timemix) call timeshow("   end icount do 3030")
 3030 enddo MAINicountloop
-  end subroutine sxcf_scz
-
-
-  !SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+  endsubroutine sxcf_scz_main
   subroutine weightset4intreal(nctot,esmr,omega,ekc,freq_r,nw_i,nw,&
        ntqxx,nt0m,nt0p,ef,nwx,nwxi,nt_max,wfaccut,wtt, we_,wfac_,ixss,ititpskip,iirx)
     implicit none
@@ -606,88 +459,10 @@ contains
              if(freq_r(iwp)>we) exit
           enddo
           ixss(it,itp) = ixs
-          if(nw_i==0) then
-             if(ixs+1>nwx) call rx( ' sxcf: ixs+1>nwx xxx2')
-          else
-             if(omg >=ef .and. ixs+1> nwx ) then
-                call rx( ' sxcf: ixs+1>nwx yyy2a')
-             endif
-             if(omg < ef .and. abs(ixs+1)> abs(nwxi) ) then
-                call rx( ' sxcf: ixs-1<nwi yyy2b')
-             endif
-          endif
+          if(nw_i==0.and.ixs+1>nwx) call rx( ' sxcf: ixs+1>nwx xxx2')
+          if(nw_i/=0.and.omg >=ef .and. ixs+1> nwx) call rx( ' sxcf: ixs+1>nwx yyy2a')
+          if(nw_i/=0.and.omg < ef .and. abs(ixs+1)> abs(nwxi)) call rx( ' sxcf: ixs-1<nwi yyy2b')
        enddo
     enddo
   end subroutine weightset4intreal
-  !SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
-  subroutine get_nwx(omega,ntq,ntqxx,nt0p,nt0m,nstate,freq_r,&
-       nw_i,nw,esmr,ef,ekc,wfaccut,nctot,nband,debug,&
-       nwxi,nwx,nt_max)
-    implicit none
-    intent(in)::     omega,ntq,ntqxx,nt0p,nt0m,nstate,freq_r,&
-         nw_i,nw,esmr,ef,ekc,wfaccut,nctot,nband,debug
-    intent(out)::     nwxi,nwx,nt_max
-    !> Determine indexes of a range for calculation. !! It is better to clean this up...
-    integer:: nctot,nw_i,nw,nstate,nt0p,nt0m,ntq, nband,ntqxx
-    real(8):: esmr,ef,ekc(nctot+nband),wfaccut,freq_r(nw_i:nw)
-    real(8):: wfac,wfacx2,we,weavx2,esmrx,wexx
-    real(8),pointer::omg
-    real(8),target:: omega(ntq)
-    integer:: nt_max,nwxi,nwx,itp,it,itini,itend,iwp,ixs=-9999,ixsmin,ixsmx,verbose
-    logical::debug
-    !!     maximum ixs reqired.
-    ixsmx =0
-    ixsmin=0
-    do 301 itp = 1,ntqxx
-       omg => omega(itp) 
-       if (omg < ef) then
-          itini= 1
-          itend= nt0p
-       else
-          itini= nt0m+1
-          itend= nstate
-       endif
-       do 311 it=itini,itend
-          esmrx = esmr
-          if(it<=nctot) esmrx = 0d0
-          wfac = wfacx2(omg,ef, ekc(it),esmrx)
-          if(wfac<wfaccut) cycle !Gaussian case
-          we = .5d0*(weavx2(omg,ef,ekc(it),esmr)-omg)
-          if(it<=nctot) then
-             if(wfac>wfaccut) call rx( "sxcf: it<=nctot.and.wfac/=0")
-          endif
-          do iwp = 1,nw
-             ixs=iwp
-             if(freq_r(iwp)>abs(we)) exit
-          enddo
-          if(ixs>ixsmx  .and. omg>=ef ) ixsmx  = ixs
-          if(ixs>ixsmin .and. omg< ef ) ixsmin = ixs
-          wexx  = we
-          if(ixs+1 > nw) then
-             write (*,*)'nw_i ixsmin wexx',nw_i,ixsmin,wexx,' omg ekc(it) ef ', omg,ekc(it),ef
-             call rx( ' sxcf 222: |w-e| out of range')
-          endif
-311    enddo !continue
-301 enddo !continue               
-    if(nw_i==0) then          !time reversal
-       nwxi = 0
-       nwx  = max(ixsmx+1,ixsmin+1)
-    else                      !no time revarsal working?
-       nwxi = -ixsmin-1
-       nwx  =  ixsmx+1
-    endif
-    if(nwx > nw .or. nwxi < nw_i ) call rx( ' get_nwx : |w-e| > max(w)')
-    nt_max=nt0p               !initial nt_max
-    do 401 itp = 1,ntqxx
-       omg => omega(itp)
-       if (omg > ef) then
-          do  it = nt0m+1,nstate ! nt0m corresponds to efm
-             wfac = wfacx2 (ef,omg, ekc(it),esmr)
-             if(wfac>wfaccut) then
-                if (it > nt_max) nt_max=it ! nt_max is  unocc. state
-             endif               ! that ekc(it>nt_max)-omega > 0
-          enddo                 ! so it > nt_max does not contribute to omega pole integral
-       endif
-401 enddo !continue               
-  end subroutine get_nwx
-end module m_sxcfsc
+endmodule m_sxcf_main

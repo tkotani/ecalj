@@ -74,9 +74,10 @@ program hsfp0_sc
   use m_rdpp,only: Rdpp, nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx
   !     ! Generate matrix element for "call get_zmelt".
   use m_zmel,only: Mptauof_zmel
-  use m_itq,only: Setitq_hsfp0sc,itq,nbandmx, ntq
+  use m_itq,only: setitq_hsfp0sc,itq,nbandmx, ntq
   use m_anf,only: Anfcond, laf
-  use m_sxcfsc,only: Sxcf_scz,zsecall
+  use m_sxcf_count,only: sxcf_scz_count
+  use m_sxcf_main,only: sxcf_scz_main,zsecall
   use m_mpi,only: &
        MPI__Initialize,MPI__real8send,MPI__real8recv,MPI__send_iv,MPI__recv_iv, &
        MPI__Finalize,MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum, &
@@ -84,16 +85,13 @@ program hsfp0_sc
        MPI__barrier, MPI__reduceSum
   use m_readhbe,only: Readhbe, nband !nprecb,mrecb,mrece,nlmtot,nqbzt,,mrecg
   use m_readfreq_r,only: Readfreq_r, nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i,nw, freq_r
-  use m_selectqp,only:Getqpoint,qvec,nq
+!  use m_selectqp,only:Getqpoint,qvec,nq
 !  use m_eibzhs,only: Seteibzhs, eibzsym,tiii
   use m_readgwinput,only: ReadGwinputKeys,SetIsigMode, ebmx_sig,nbmx_sig,ISigMode
   use m_hamindex,only:ngrp
-  use m_lgunit,only:m_lgunit_init
-
+  use m_lgunit,only:m_lgunit_init,stdo
   implicit none
-  !! -----------------------------------------------------------------------------------
   ! real(8),parameter :: ua  = 1d0 ! constant in w(0)exp(-ua^2*w'^2) to take care of peak around w'=0
-  !------------------------------------
 !!!   test switches to calculate the self-energy based on an another separation of \Sigma.
 !!!     \Sigma = \Sigma_{sx} + \Sigma_{coh} + \Sigma_{img axis} + \Sigma_{pole} by Hedin PR(1965)A785
 !!!     I found COH term has inevitably poor accuracy.
@@ -113,20 +111,19 @@ program hsfp0_sc
        ixc,  maxocc, iaf, ip, is, nspinmx, i, ifoutsex, ix, ifoutsec, &
        ifsec(2), ifxc(2),ifsex(2), ifsex2(2),ifsec2(2),  ifsecomg(2), &
        nq0ix, incwfin, ngpn1,ngcn1, &
-       iqxend,iqxini, timevalues(8) , ret,dest ,irank,isp
+       iqxend,iqxini, timevalues(8) , ret,dest ,irank,isp,nq
   real(8) :: voltot,valn,efnew, rydberg,hartree,qreal(3), tripl !rs,alpha,ntot,
   real(8) ::  wgtq0p,quu(3), eftrue,esmref,esmr,ef !,ecorem
   character(128) :: ixcc
-  logical :: legas, exonly, iprintx, selectqp=.false.,diagonly=.false.
+  logical :: legas, exonly, iprintx,diagonly=.false. !, selectqp=.false.
   logical :: exchange, hermitianW=.true.!, screen = .false.
   integer,allocatable:: irkip(:,:,:,:), nrkip(:,:,:,:)
-  real(8),allocatable:: vxcfp(:,:,:), eqt(:), eq(:), eqx(:,:,:),eqx0(:,:,:)
+  real(8),allocatable:: vxcfp(:,:,:), eqt(:), eq(:), eqx(:,:,:),eqx0(:,:,:),qvec(:,:)
   complex(8),pointer::zsec(:,:,:)
   call MPI__Initialize()
   call M_lgunit_init()
   call date_and_time(values=timevalues)
   write(6,"('mpirank=',i5,' YYYY.MM.DD.HH.MM.msec=',9i4)")mpi__rank,timevalues(1:3),timevalues(5:8)
-  hartree=2d0*rydberg()
   if(MPI__root) then
      write(6,*) ' --- Choose modes below ------------'
      write(6,*) '  Sx(1) Sc(2) ScoreX(3) '
@@ -171,15 +168,13 @@ program hsfp0_sc
   call INIT_READEIGEN2()! initialize m_readeigen
   call Mptauof_zmel(symgg,ngrp) ! Put space-group transformation information to m_zmel
   call Readngmx2() !return ngpmx and ngcmx in m_readqg
-  write(6,*)' max number of G for QGpsi and QGcou: ngcmx ngpmx=',ngcmx,ngpmx
+  write(stdo,"(*(g0))")' max number of G for QGpsi and QGcou: ngcmx ngpmx=',ngcmx,ngpmx
   call pshpr(60)
   if(.NOT.exchange) call readfreq_r()  !Readin WV.d and freq_r
   legas=.false. ! if legas=T, homogenius electron gas test case.
-  call efsimplef2ax(legas, esmref, & !Get number of valn val enelctron and Fermi energy ef.
-       valn, ef)!  legas=T, give ef for given valn.
+  call efsimplef2ax(legas,esmref, valn,ef)!Get num of val electron valn and Fermi energy ef. legas=T give ef for given valn.
   eftrue = ef
   if(ixc==3)ef = LOWESTEVAL() -1d-3 !lowesteigen(nspin,nband,qbz,nqbz) - 1d-3 !lowesteb was
-  !!--------------
   write(6,'(" --- computational conditions --- ")')
   write(6,'("    deltaw  =",f13.6)') deltaw
   write(6,'("    esmr    =",f13.6)') esmr
@@ -187,6 +182,24 @@ program hsfp0_sc
   write(6,*)' ef    =',ef
   write(6,*)' esmr  =',esmr
   write(6,*)' valn  =',valn
+  nspinmx = nspin
+  call anfcond()
+  if(laf) nspinmx=1         !!! Antiferro case. Only calculate up spin
+  !!  We calculate <ki|\sigma|kj> for i \in itq (and j \in itq).
+  !!  During iteration, we use NTQXX file, to keep itq set.
+  !!  If we already have NTQXX (in your pre gwsc calculion), the NTQXX is read.
+  if( mpi__root .AND. mpi__rank/=0) call rx('mpi__root .AND. mpi__rank/=0')
+  do irank = 0,mpi__size-1  ! irank=0 may write NTQXX if it exists. irank>0 is reading mode.
+     if(mpi__rank==irank) call Setitq_hsfp0sc(qibz,nqibz,nqibz,nspin,nbmx_sig,ebmx_sig,eftrue,nspinmx) !read NTQXX
+  enddo
+  call MPI__barrier() !mpi barrier is only for root ?
+  SchedulingSelfEnergyCalculation: Block
+    if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
+    if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')
+    if ( .NOT. iSigMode==3) call rx('sxcf_scz: only for jobsw=3') !nbandmx is input mar2015 jobsw= iSigMode=3 only
+    call sxcf_scz_count(ef,esmr,exchange,nbandmx,ixc,nspinmx) !initializatition quick
+  endblock SchedulingSelfEnergyCalculation
+  
   if(ixc==3) then ! Core-exchange mode. We set Ef just below the valence eigenvalue (to pick up only cores)
      write(6,"(a)")'CoreEx mode: We change ef as ef=LOWESTEVAL-1d-3, slightly below the bottom of valence.'
      write(6,"(a,f13.5,i5,i5)")' CoreEx mode: ef nspin nctot=',ef,nspin,nctot
@@ -194,30 +207,19 @@ program hsfp0_sc
         write(6,"(i4,x,d13.5,x,d13.5)") ix,(ecore(ix,is),is=1,nspin)
      enddo
   endif
-  call Getqpoint(selectqp,nqibz,qibz) !Get q(3,nq) from <QPNT> or qibz
-  call anfcond()
-  nspinmx = nspin
-  if(laf) nspinmx=1         !!! Antiferro case. Only calculate up spin
-  !!  We calculate <ki|\sigma|kj> for i \in itq (and j \in itq).
-  !!  During iteration, we use NTQXX file, to keep itq set.
-  !!  If we already have NTQXX (in your pre gwsc calculion), the NTQXX is read.
-  if( mpi__root .AND. mpi__rank/=0) call rx('mpi__root .AND. mpi__rank/=0')
-  do irank = 0,mpi__size-1  ! irank=0 may write NTQXX if it exists. irank>0 is reading mode.
-     if(mpi__rank==irank) call Setitq_hsfp0sc(qibz,nqibz,nq,nspin,nbmx_sig,ebmx_sig,eftrue,nspinmx) !read NTQXX
-     call MPI__barrier() !mpi barrier is only for root ?
-  enddo
   !! Read eigenvalues given by lmf for writing out files.
-  allocate(eqx(ntq,nq,nspin),eqx0(ntq,nq,nspin),eqt(nband))
+  allocate(eqx(ntq,nqibz,nspin),eqt(nband),qvec(3,nqibz)) !,eqx0(ntq,nq,nspin)
+  qvec=qibz
+  nq  =nqibz
   do is = 1,nspin
-     do ip = 1,nq
-        eqt= READEVAL(qvec(1,ip),is)
-        eqx0(1:ntq,ip,is) = eqt(itq(1:ntq))
+     do ip = 1,nqibz
+        eqt= READEVAL(qibz(1,ip),is)
         eqx (1:ntq,ip,is) = rydberg()*(eqt(itq(1:ntq))- eftrue)
      enddo
   enddo
   deallocate(eqt)
+  hartree=2d0*rydberg()
   call Hswriteinit()        !internal subroutine.  Write initial part of output files
-
   !! Currently, irkip, involved in eibz (extended BZ) mode is removed.
   !! == irkip:  parallelization is controled by irkip ==
   !! We have to distribute non-zero irkip to all ranks (irkip is dependent on rank).
@@ -226,12 +228,9 @@ program hsfp0_sc
   !! Our pupose is to calculate the self-energy zsec(itp,itpp,iq).
   ! Remove eibzmode symmetrizer 2023Jan22
   !call Seteibzhs(nspinmx,nq,qvec,iprintx=MPI__root)
-
-  Main4SelfEnergy: Block
-    if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
-    if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')
-    if ( .NOT. iSigMode==3) call rx('sxcf_scz: only for jobsw=3')
-    call sxcf_scz(qvec,ef,esmr,nq,exchange,nbandmx,ixc,nspinmx) !nbandmx is input mar2015 jobsw= iSigMode=3 only
+  
+  Main4SelfEnergy: Block !time-consuming part Need highly paralellized
+    call sxcf_scz_main(qibz,ef,esmr,nqibz,exchange,nbandmx,ixc,nspinmx) !main part of job
   EndBlock Main4SelfEnergy
 ! Remove eibzmode symmetrizer 2023Jan22 (extended irreducibel BZ mode)
 !  SymmetrizeZsec :Block
@@ -242,7 +241,7 @@ program hsfp0_sc
 !       enddo
 !    endif
 !  EndBlock SymmetrizeZsec
-  call MPI__reduceSum(root=0, data=zsecall, sizex=ntq*ntq*nq*nspinmx )
+  call MPI__reduceSum(root=0, data=zsecall, sizex=ntq*ntq*nqibz*nspinmx )
   if(MPI__root) then
      do is=1,nspinmx
         zsec => zsecall(:,:,:,is)
@@ -254,7 +253,6 @@ program hsfp0_sc
   if(ixc==2 ) call rx0( ' OK! hsfp0_sc: Correlation mode')
   if(ixc==3 ) call rx0( ' OK! hsfp0_sc: Core-exchange mode')
   stop
-
 ! SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
 contains 
   subroutine Hswriteinit() !contained in hsfp0_sc. Only write out files, no side effect
@@ -302,7 +300,6 @@ contains
        deallocate(vxcfp)
     endif
   end subroutine Hswriteinit
-
   ! SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
   subroutine HsWriteResult() !contained in hsfp0_sc. Only write out files, no side effect
     implicit none
@@ -387,7 +384,6 @@ contains
     endif                     !ixc
   end subroutine HsWriteResult
 end program hsfp0_sc
-
 
 subroutine rsexx (nspin, itq, q, ntq,nq,ginv, vxco)
   implicit real*8 (a-h,o-z)

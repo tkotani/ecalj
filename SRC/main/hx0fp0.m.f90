@@ -1078,30 +1078,6 @@ end subroutine getsqovlp
 !      end
 !--------------------------------------------------------------------
 
-function matcinvf(a) result(b)
-  !!== Test routine for Inversion ==
-  implicit none
-  integer :: info,n,n2(2)
-  integer,allocatable :: ipiv(:)
-  complex(8):: a(:,:), b(1)
-  complex(8),allocatable:: work(:)
-  n2= SHAPE(a)
-  n=n2(1)
-  call zcopy(n,b,1,a,1)
-  call zgetrf(n,n,a,n,ipiv,info)
-  if(info/=0) then
-     write(6,*)' matcinv: zegtrf info=',info
-     call rx( ' matcinv: zegtrf ')
-  endif
-  allocate(work(n*n))
-  call zgetri(n,a,n,ipiv,work,n*n,info)
-  deallocate(work)
-  if(info/=0) then
-     write(6,*)'matcinv: zegtri info=',info
-     call rx( 'matcinv: zegtri ')
-  endif
-end function matcinvf
-
 !--------------------------------------------------------------------
 subroutine diagno00(nbloch,wpvc,eval)
   !! == ontain eigenvalue only for input complex matrix wpvc(nbloch,nbloch)

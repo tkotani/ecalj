@@ -1,7 +1,7 @@
 module m_x0kf
   use m_keyvalue,only : Getkeyvalue
   use m_pkm4crpa,only : Readpkm4crpa
-  use m_zmel,only:Get_zmel_init,Dconjg_zmel,Deallocate_zmel,Deallocate_zmel0,zmel,get_zmel_modex0,&
+  use m_zmel,only:Get_zmel_init,Dconjg_zmel,Deallocate_zmel,Deallocate_zmel0,zmel,&
        rwzmel,zmel0,setzmel0,unsetzmel0
   ! qm0                      !GramSchmidt_zmel,
   use m_freq,only:  npm, nwhis
@@ -216,19 +216,19 @@ contains
     real(8)::  wpw_k,wpw_kq
     integer::  irot=1, neibz,icc,ig,ikp,i,j,itimer,icount,iele !,eibzmoden
     integer:: ieqbz,kold,nxxxx
-    integer::nkmin_,nkqmin_,nkoff,nkqoff,ispold,izmel,nmini,nqini,nmtot,nqtot,ispold2
+    integer:: nkoff,nkqoff,ispold,izmel,nmini,nqini,nmtot,nqtot,ispold2 !nkmin_,nkqmin_,
     if(npm==1) then
        ncc=0
     else
        ncc=nctot !stored to private variable
     endif
-    nkmin_  = nkmin(k)
-    nkqmin_ = nkqmin(k)
-    nmini= nkmin_
-    nqini= nkqmin_
+!    nkmin_  = nkmin(k)
+!    nkqmin_ = nkqmin(k)
+!    nmini= nkmin_
+!    nqini= nkqmin_
     !      call Deallocate_zmel()
-    call Get_zmel_modex0(nkmin_,nkqmin_,isp_k,isp_kq) !oct-2021(nkmin(k),nkqmin(k),isp_k,isp_kq)
-    call Get_zmel_init(q+rk(:,k), q, irot, q, nxxxx, nkmax(k),nkqmax(k),nctot,ncc,iprx=.false.)
+!    call Get_zmel_modex0(nkmin_,nkqmin_,isp_k,isp_kq) !oct-2021(nkmin(k),nkqmin(k),isp_k,isp_kq)
+    call Get_zmel_init(q+rk(:,k),q,irot,q, nkmin(k),nkmax(k),isp_k, nkqmin(k),nkqmax(k),isp_kq, nctot,ncc,iprx=.false.)
     call Dconjg_zmel()        !zmel = dconjg(zmel)
     !      call rwzmel(iq,k,isp_k,isp_kq,'w',q=q)
     !      call Deallocate_zmel()

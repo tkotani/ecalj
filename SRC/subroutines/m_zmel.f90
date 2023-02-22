@@ -7,11 +7,10 @@ module m_zmel
        nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, niw, &
        alat,delta,deltaw,esmr,iclass,nlnmv,  nlnmc,  icore,ncore,occv,unoccv , &
        occc,unoccc, nocc, nunocc, plat, pos,z,ecore, &
-!       done_genallcf_v3, &
        il, in, im, mnl=>nlnm , nl,nn,nlnmx
   use m_hamindex,only: ngrp, symgg=>symops,invg=>invgx
   use m_rdpp,only: Rdpp, nxx,lx,nx,mdimx,nbloch,cgr,ppbrd,nblocha,done_rdpp
-  use m_readeigen,only: Readcphif !,Readgeigf
+  use m_readeigen,only: Readcphif 
   use m_read_bzdata,only: nqbz,nqibz,  qlat,ginv,qbz,qibz,wbz, done_read_bzdata
   use m_readhbe,only: nband
   use m_itq,only: itq,ntq
@@ -19,13 +18,15 @@ module m_zmel
   use m_hamindex0,only: Readhamindex0,iclasst
   use m_readVcoud,only: zcousq,ngc,ngb !! zcousq is the eigenfuncition of the Coulomb matrix
   !!------------------------------------------------------
-  public:: Get_zmel_init, Get_zmel_modex0,  Dconjg_zmel, Deallocate_zmel, Deallocate_zmel0, &
-       Setppovlz, Setppovlz_chipm,  Mptauof_zmel ,rwzmel, &! & GramSchmidt_zmel (test code)
-       drvmelp3,ppbafp_v2,setzmel0,unsetzmel0 !these are for old-fashioned codes in wannier/
-  !! OUTPUT:  zmel for exchange=F, zmeltt for exchange=T.
+  ! OUTPUT: zmel(nbb,nmtot, nqtot) ,nbb:mixproductbasis, nmtot:middlestate, nqtot:endstate
   complex(8),allocatable,protected,public :: zmel(:,:,:),zmel0(:,:,:) !for  Get_zmel
-  integer,protected:: nbb             !1st dimension of zmel
+  !                                                      zmel0 is just one another zmel which can be contained in m_zmel
   real(8),protected,public:: qm0(3) !for zmel0
+  integer,protected:: nbb           !1st dimension of zmel. MPB
+  public:: Get_zmel_init, Dconjg_zmel, Deallocate_zmel, Deallocate_zmel0, &
+       Setppovlz, Setppovlz_chipm,  Mptauof_zmel,rwzmel &! & GramSchmidt_zmel (test code)
+       ,&
+       drvmelp3,setzmel0,unsetzmel0,ppbafp_v2 !these are for old-fashioned codes in wannier/
   !!------------------------------------------------------
   !! set by Mptauof_zmel in advance
   private
@@ -36,7 +37,7 @@ module m_zmel
   real(8),private:: qlatinv(3,3),q_bk(3)=1d10,qk_bk(3)=1d10
   logical,private:: init=.true.
   complex(8),allocatable,private :: cphiq(:,:), cphim(:,:),cphitemp(:,:)
-  logical:: modex0=.false.
+!  logical:: modex0=.false.
   integer:: nkmin, nkqmin, isp_k, isp_kq,nmtot,nqtot,ispq_bk,ispm_bk
   logical:: debug=.false.,zzmel0=.false.
   integer:: nbbx=0
@@ -118,7 +119,7 @@ contains
   end subroutine mptauof_zmel
   !----------------------------------------------------
   subroutine ppbafp_v2_zmel(ng)
-    intent(in)::              ng
+    intent(in)::            ng
     integer :: ng,is,irot,lmxax
     integer :: ic, i,lb,nb,mb,lmb,i1,ibas,i2 !nl,nn,
     integer :: np,lp,mp,lmp,n,l,m,lm
@@ -150,18 +151,13 @@ contains
                 enddo
              enddo
           enddo
-!          call ppbafp_v2 (irot,ng,is,&
-!          mdimx,lx,nx,nxx, & ! Bloch wave
-!          cgr,lmxax,        & ! rotated CG
-!          ppbrd,           & ! radial integrals
-!          ppbir(:,irot,is)) ! in m_zmel
        enddo
     enddo
   end subroutine ppbafp_v2_zmel
   ! ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine ppbafp_v2 (irot,ng,isp, mdimx,lx,nx,nxx, &! & Bloch wave
     cgr,lmxax,    & !rotated CG
-    ppbrd,           & !radial integrals
+    ppbrd,        & !radial integrals
     ppb)
     ! <Phi(RLn) Phi(RL'n') B(R,i)>. Atomic part of MPB
     !  n differenciates core phi phidot localOrbital.
@@ -208,16 +204,12 @@ contains
     integer:: iq,k,isp_k,isp_kq,izmel,nmtot_,nqtot_
     character(1):: rw
     character(10) :: i2char
-    character*256::fff
+    character*256::fff,fname
     real(8),optional:: q(3)
     integer::nnn
-    open(newunit=izmel,file='zmel.'//trim(i2char(iq))//'_' &
-         //trim(i2char(k))//'_'//trim(i2char(isp_k))//trim(i2char(isp_kq)), &
-         form='unformatted')
+    fname=trim(i2char(iq))//'_'//trim(i2char(k))//'_'//trim(i2char(isp_k))//trim(i2char(isp_kq))
+    open(newunit=izmel,file='zmel.'//trim(fname),form='unformatted')
     if(rw=='r' .AND. present(izmel0)) then
-       fff=trim('zmel.'//trim(i2char(iq))//'_' &
-            //trim(i2char(k))//'_'//trim(i2char(isp_k))//trim(i2char(isp_kq)))
-       print *,'fff=',trim(fff)
        read(izmel) nbb,nmtot_,nqtot_,qm0
        if(allocated(zmel0)) deallocate(zmel0)
        allocate(zmel0(1:nbb,1:nmtot_,1:nqtot_))
@@ -232,20 +224,19 @@ contains
        write(izmel) zmel
     endif
     close(izmel)
-    !      if(rw=='r'.and.(.not.present(izmel0))) nnn=unlink(fff)
   end subroutine rwzmel
   !! ------------------------------------
-  subroutine get_zmel_modex0(n1,n2,n3,n4)
-    integer:: n1,n2,n3,n4
-    modex0=.true.
-    nkmin =n1
-    nkqmin=n2
-    isp_k =n3
-    isp_kq=n4
-  end subroutine get_zmel_modex0
-  !! ------------------------------------
-  subroutine Get_zmel_init(q,kvec,irot,rkvec,isp, nmmax,nqmax, nctot,ncc,iprx)
-    intent(in)::           q,kvec,irot,rkvec,isp, nmmax,nqmax, nctot,ncc,iprx
+  ! subroutine get_zmel_modex0(n1,n2,n3,n4)
+  !   integer:: n1,n2,n3,n4
+  !   modex0=.true.
+  !   nkmin =n1
+  !   nkqmin=n2
+  !   isp_k =n3
+  !   isp_kq=n4
+  ! end subroutine get_zmel_modex0
+  ! !! ------------------------------------
+  subroutine Get_zmel_init(q,kvec,irot,rkvec, nmini,nmmax,ispm, nqini,nqmax,ispq, nctot,ncc,iprx)
+    intent(in)::           q,kvec,irot,rkvec, nmini,nmmax,ispm, nqini,nqmax,ispq, nctot,ncc,iprx
     !! Get zmel= <phiq(q,ncc+nqmax,ispq) |phim(q-rkvec,nctot+nmmax,ispm) MPB(rkvec,ngb)> ZO^-1
     !! kvec is in the IBZ, rk = Rot_irot(kvec)
     !! \parameter all inputs
@@ -258,24 +249,22 @@ contains
     !!                   ngc: # of IPW for the Screened Coulomb interaction.
     !!                   igc is for given
     ! zmelt= <itp|it,ib>
-    ! zmel(igb,it,itp) = transpose(dcojng(ppovlz))*zmelt(:,it*itp)
+    ! zmel(igb,it,itp) = transpose(dcojng(ppovlz))*zmelt(:,it,itp)
     !   matmul(symgg(:,:,irot),kvec)-rkvec can have difference of reciprocal vectors.
     logical:: iprx
     integer:: isp,nmmax,nqmax,irot,ispq,ispm,nmini,nqini, nctot,ncc
     real(8) ::  quu(3),q(3), kvec(3),rkvec(3)
     real(8),parameter::tolq=1d-8
-    !      if(allocated(zmel)) deallocate(zmel)
-    ispq = isp
-    ispm = isp
-    nmini=1
-    nqini=1
-    if(modex0) then
-       nmini= nkmin ! (k)
-       nqini= nkqmin! (k)
-       ispm = isp_k
-       ispq = isp_kq
-    endif
-
+!    ispq = isp
+!    ispm = isp
+!    nmini=1
+!    nqini=1
+!    if(modex0) then
+!       nmini= nkmin ! (k)
+!       nqini= nkqmin! (k)
+!       ispm = isp_k
+!       ispq = isp_kq
+!    endif
     ZmeltMain: Block
       use m_readeigen,only : readgeigf
       integer:: it,ia,kx,verbose,nstate,imdim(natom),nt0,ntp0,invr, iatomp(natom),ispq_rk
@@ -290,13 +279,11 @@ contains
       real(8) :: qdiff(3)
       complex(8) :: geig1(ngpmx,nband),geig2(ngpmx,nband)
       logical:: debug=.false.
-
       if(init) then
          call minv33(qlat,qlatinv)
          allocate( cphiq(nlmto,nband), cphim(nlmto,nband), cphitemp(nlmto,nband))
          init=.false.
       endif
-
       if(sum(abs(q-q_bk))>tolq .OR. ispq/=ispq_bk)  then
          cphitemp= readcphif(q,ispq)
          cphiq(1:nlmto,1:ntq) = cphitemp(1:nlmto,itq(1:ntq))
@@ -311,7 +298,7 @@ contains
          ispm_bk= ispm
       endif
       !! Rotate atomic positions invrot*R = R' + T
-      invr  =  invg(irot)       !invrot (irot,invg,ngrp)
+      invr  = invg(irot)       !invrot (irot,invg,ngrp)
       tr    = tiat(:,:,invr)
       iatomp= miat(:,invr)
       symope= symgg(:,:,irot)
@@ -380,13 +367,13 @@ contains
       deallocate(zmelt)
     EndBlock ZmeltMain
   end subroutine get_zmel_init
-
   subroutine setzmel0()
     zzmel0=.true.
   end subroutine setzmel0
   subroutine unsetzmel0()
     zzmel0=.false.
   end subroutine unsetzmel0
+  
   ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   !> Mattrix elements <Plane psi |psi> from interstitial plane wave.
   !! zmelp(igc(qi),it(q2),itp(q1)) = <itp(for q1+G1)| it(for q2+G2) igc>
@@ -625,7 +612,6 @@ contains
        enddo
     enddo
   end subroutine psicb_v3
-
   ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine drvmelp3( q, ntp0, q_rk,nt0, qik, isp,ginv, &
        ngc,ngcmx,ngpmx,nband,itp0, &

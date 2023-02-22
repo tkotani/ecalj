@@ -6,6 +6,10 @@ subroutine efsimplef2ax ( legas, esmr, valn,ef)
   use m_readhbe,only: nband
   use m_mpi, only: mpi__root
   use m_hamindex,only:   zbak
+  implicit none
+  intent(in)::            legas 
+  intent(inout)::                esmr, valn !in for legas=T
+  intent(out)::                             ef
   !!== Calculate efermi for discrete sum. (not for tetrahedron method) ==
   !! You need to call init_reaeigen before you call this.
   !! user readeval (readeigen.f) to get eigenvalues.
@@ -20,27 +24,25 @@ subroutine efsimplef2ax ( legas, esmr, valn,ef)
   !      e(iband) < efm : occupation is one
   ! efm< e(iband) < efp : occupation is wfacef.
   ! efp< e(iband)       : occupation is zero
-
-  implicit none
-  integer(4):: is,iq,ik,isig,kpx,ifev(2) !nspin,nqibz
-  integer(4):: ieaord(nband*nqibz*nspin),mbytes,mwords,iwksize, &
+  integer:: is,iq,ik,isig,kpx,ifev(2) !nspin,nqibz
+  integer:: ieaord(nband*nqibz*nspin),mbytes,mwords,iwksize, &
        iqibz  !,iindxk
   real(8)   :: ekt(nband, nqibz,nspin), ektx(nband*nqibz*nspin)
   real(8)   :: wgt(nband, nqibz,nspin), wgtx(nband*nqibz*nspin)
   real(8)   :: qx(3),qbas(3,3),wwg !qbzx(3), ,ginv(3,3),
 
-  integer(4):: ncore,l,ia,ic ,ierr
-  !      integer(4):: konfig(0:nl-1,nclass) !konf(nl,nclass)
+  integer:: ncore,l,ia,ic ,ierr
+  !      integer:: konfig(0:nl-1,nclass) !konf(nl,nclass)
   real(8)   :: valn,ef
 
-  integer(4) :: nbnqnsp,ix,ikx=-9999,ikini,nne
+  integer :: nbnqnsp,ix,ikx=-9999,ikini,nne
   real(8)    :: ew1,ew2,ein,valx,enumef_gauss,esmr, efini &
        ,eee2,wwg2 ,enumef
   !      real(8) :: efp,efm,wwgo,wfacef
   logical :: legas,autoew,GaussSmear=.true. !is external
 
-  integer(4):: ifile_handle,if8301,if8302 !nqbz,
-  !      integer(4):: n_index_qbz,index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)
+  integer:: ifile_handle,if8301,if8302 !nqbz,
+  !      integer:: n_index_qbz,index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)
   !     real(8)   :: qbz(3,nqbz)
   !      integer:: ifzbak
   !      real(8)::zbak
@@ -128,20 +130,16 @@ subroutine efsimplef2ax ( legas, esmr, valn,ef)
      else
         wwg2= wwg2 + wgtx(ieaord(ik))
      endif
-     !---
      wwg = wwg + wgtx(ieaord(ik))
      if(wwg<valn+2d0) write(6,*) ik,ieaord(ik),ektx(ieaord(ik)),wwg
-
      if (mpi__root) then
         write(if8301,"(2i6,3d23.15)") &
              ik,ieaord(ik),ektx(ieaord(ik)),wwg,wgtx(ieaord(ik))
      endif
-
      if( wwg>valn-1d-8 .AND. ierr==1 ) then
         write(6,*)
         efini = .5*(ektx(ieaord(ik+1))+ ektx(ieaord(ik)))
         if(autoew) then
-           ! top2rx 2013.08.09 kino            if(ik<3) stop ' efsimplef2: ik<3'
            if(ik<3) call rx( ' efsimplef2: ik<3')
            esmr  = ektx(ieaord(ik)) - ektx(ieaord(ik-1))
         endif
@@ -149,12 +147,8 @@ subroutine efsimplef2ax ( legas, esmr, valn,ef)
      endif
      if( wwg > valn+1d0) ikx=ik
   enddo
-
-  ! top2rx 2013.08.09 kino      if(ierr==1) stop ' efsimplef2: ierr=1 given nval is too large'
   if(ierr==1) call rx( ' efsimplef2: ierr=1 given nval is too large')
-
   nbnqnsp = nband*nqibz*nspin
-  ! c gaussian
   if(GaussSmear) then
      valx= enumef_gauss(wgtx(ieaord(1:nbnqnsp)),ektx(ieaord(1:nbnqnsp)) &
           ,efini,esmr,nbnqnsp)
@@ -247,25 +241,25 @@ subroutine efsimplef2a (nspin,wibz,qibz,ginv,nband,nqibz, konfig,z,nl,natom,icla
   ! efp< e(iband)       : occupation is zero
 
   implicit none
-  integer(4):: is,iq,nspin,nqibz,ik,isig,kpx,nband,ifev(2)
-  integer(4):: ieaord(nband*nqibz*nspin),mbytes,mwords,iwksize, &
+  integer:: is,iq,nspin,nqibz,ik,isig,kpx,nband,ifev(2)
+  integer:: ieaord(nband*nqibz*nspin),mbytes,mwords,iwksize, &
        iqibz  !,iindxk
   real(8)   :: ekt(nband, nqibz,nspin), ektx(nband*nqibz*nspin)
   real(8)   :: wgt(nband, nqibz,nspin), wgtx(nband*nqibz*nspin)
   real(8)   :: qbzx(3), qx(3),qbas(3,3),ginv(3,3),wwg
 
-  integer(4):: nclass,natom,nl,ncore,l,ia,ic !,indxk(*)
+  integer:: nclass,natom,nl,ncore,l,ia,ic !,indxk(*)
   real(8)   :: wibz(nqibz),valn,ef, z(nclass),qibz(3,nqibz)
-  integer(4):: iclass(natom),konfig(0:nl-1,nclass),ierr
+  integer:: iclass(natom),konfig(0:nl-1,nclass),ierr
 
-  integer(4) :: nbnqnsp,ix,ikx=-99999,ikini,nne
+  integer :: nbnqnsp,ix,ikx=-99999,ikini,nne
   real(8)    :: ew1,ew2,ein,valx,enumef_gauss,esmr, efini &
        ,eee2,wwg2 ,enumef
   !      real(8) :: efp,efm,wwgo,wfacef
   logical :: legas,autoew,GaussSmear=.true. !is external
 
-  integer(4):: nqbz,if8301,if8302 !ifile_handle,
-  !      integer(4):: n_index_qbz,index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)
+  integer:: nqbz,if8301,if8302 !ifile_handle,
+  !      integer:: n_index_qbz,index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)
   real(8)   :: qbz(3,nqbz)
   !      integer:: ifzbak
   !      real(8)::zbak
@@ -448,7 +442,7 @@ end subroutine efsimplef2a
 !------------------------------------------------------
 real(8) function enumef_gauss( wgtx,ektx,ein,esmr,nbnqnsp)
   implicit none
-  integer(4):: nbnqnsp,ik
+  integer:: nbnqnsp,ik
   real(8) :: ektx(nbnqnsp),wgtx(nbnqnsp),wwg, &
        derfcx,ein,esmr
   wwg = 0d0
@@ -494,7 +488,7 @@ END function enumef
 subroutine findemaxmin(nband,qbz,nqbz,nspin, emax,emin)
   use m_readeigen, only: readeval
   implicit none
-  integer(4) :: nband,nqbz,nspin,isp,kx,i !,ifev(2)
+  integer :: nband,nqbz,nspin,isp,kx,i !,ifev(2)
   real(8)::emax,emin,qbz(3,nqbz),eee
   real(8),allocatable:: ekxxx(:,:,:)
   allocate( ekxxx(nband,nqbz,nspin))
@@ -516,7 +510,7 @@ end subroutine findemaxmin
 !$$$      subroutine findemaxmin(ifev,nband,nqbz,nspin,
 !$$$     o   emax,emin)
 !$$$      implicit none
-!$$$      integer(4) :: nband,nqbz,nspin,isp,kx,ifev(2)
+!$$$      integer :: nband,nqbz,nspin,isp,kx,ifev(2)
 !$$$      real(8)::emax,emin
 !$$$      real(8),allocatable:: ekxxx(:,:,:)
 !$$$      allocate( ekxxx(nband,nqbz,nspin))

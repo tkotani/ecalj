@@ -5,8 +5,8 @@ module m_readVcoud        ! Coulomb matrix for given q
   !-----------------------------------
   integer,protected :: ngb, ngc, iq
   real(8),protected :: q(3)
-  real(8),allocatable,protected    :: vcousq(:), vcoud(:) !,vcousq0(:),vcoudummy(:)
-  complex(8),allocatable,protected :: zcousq(:,:) !,zcousqrsum(:,:,:),zcousqr(:,:)
+  real(8),allocatable,protected    :: vcousq(:), vcoud(:) 
+  complex(8),allocatable,protected :: zcousq(:,:) 
 contains
   !-----------------------------------
   subroutine Readvcoud(q,iq,NoVcou)

@@ -17,6 +17,32 @@ subroutine matmaw(a,b,c,n1,n2,n3,ww)
   enddo
   c= c+ matmul(aa,b)
 end subroutine matmaw
+
+function matcinvf(b) result(a)
+  !!== Test routine for Inversion ==
+  implicit none
+  integer :: info,n,n2(2)
+  integer,allocatable :: ipiv(:)
+  complex(8):: b(:,:)
+  complex(8),allocatable:: a(:,:)
+  complex(8),allocatable:: work(:)
+  n2= SHAPE(b)
+  n=n2(1)
+  allocate(a,source=b) !call zcopy(n,b,1,a,1)
+  call zgetrf(n,n,a,n,ipiv,info)
+  if(info/=0) then
+     write(6,*)' matcinvf: zegtrf info=',info
+     call rx( ' matcinvf: zegtrf ')
+  endif
+  allocate(work(n*n))
+  call zgetri(n,a,n,ipiv,work,n*n,info)
+  deallocate(work)
+  if(info/=0) then
+     write(6,*)'matcinv: zegtri info=',info
+     call rx( 'matcinv: zegtri ')
+  endif
+end function matcinvf
+
 subroutine matcinv(n,a)
   implicit none
   integer :: n, info, ipiv(n)

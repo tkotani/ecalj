@@ -2,11 +2,11 @@ module m_itq
   use m_keyvalue,only: Getkeyvalue
   use m_readeigen,only: Readeval
   use m_readhbe,only: nband
-
   implicit none
+  public itq,ntq,setitq_hsfp0sc,setitq,nbandmx,setitq_hsfp0
   integer,allocatable,protected :: itq(:),nbandmx(:,:)
   integer,protected  :: ntq !ngcmx,ngpmx,
-
+  private
   !!======================================================================
 contains
   !!======================================================================

@@ -287,6 +287,7 @@ excore.o \
 mkjp.o \
 strxq.o \
 sxcf_fal2.sc.o \
+sxcf_fal2_count.sc.o \
 sxcf_fal2.o \
 wronkj.o \
 rpaq.o \
