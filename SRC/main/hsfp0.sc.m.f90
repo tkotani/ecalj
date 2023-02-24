@@ -190,7 +190,7 @@ program hsfp0_sc
   !!  If we already have NTQXX (in your pre gwsc calculion), the NTQXX is read.
   if( mpi__root .AND. mpi__rank/=0) call rx('mpi__root .AND. mpi__rank/=0')
   do irank = 0,mpi__size-1  ! irank=0 may write NTQXX if it exists. irank>0 is reading mode.
-     if(mpi__rank==irank) call Setitq_hsfp0sc(qibz,nqibz,nqibz,nspin,nbmx_sig,ebmx_sig,eftrue,nspinmx) !read NTQXX
+     if(mpi__rank==irank) call Setitq_hsfp0sc(qibz,nqibz,nspin,nbmx_sig,ebmx_sig,eftrue,nspinmx) !read NTQXX
   enddo
   call MPI__barrier() !mpi barrier is only for root ?
   SchedulingSelfEnergyCalculation: Block

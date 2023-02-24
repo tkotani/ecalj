@@ -5,7 +5,7 @@ module m_itq
   implicit none
   public itq,ntq,setitq_hsfp0sc,setitq,nbandmx,setitq_hsfp0
   integer,allocatable,protected :: itq(:),nbandmx(:,:)
-  integer,protected  :: ntq !ngcmx,ngpmx,
+  integer,protected  :: ntq 
   private
   !!======================================================================
 contains
@@ -22,9 +22,9 @@ contains
     enddo
   end subroutine setitq
   !!======================================================================
-  subroutine setitq_hsfp0sc(qibz,nqibz,nq,nspin,nbmx_sig,ebmx_sig,eftrue,nspinmx)
-    intent(in)::              qibz,nqibz,nq,nspin,nbmx_sig,ebmx_sig,eftrue,nspinmx
-    integer:: nqibz,nq,nspin,nbmx_sig,nspinmx
+  subroutine setitq_hsfp0sc(qibz,nqibz,nspin,nbmx_sig,ebmx_sig,eftrue,nspinmx)
+    intent(in)::            qibz,nqibz,nspin,nbmx_sig,ebmx_sig,eftrue,nspinmx
+    integer:: nqibz,nspin,nbmx_sig,nspinmx
     real(8):: qibz(3,nqibz),ebmx_sig,eftrue
     real(8),allocatable:: eqt(:)
     integer:: ifih,ntqxx,is,ip,iband,i,nband_r,nq_r
@@ -34,7 +34,7 @@ contains
     !! Get ntq
     if(lntq) then
        read(ifih,*) nband_r,nq_r,ntq
-       if(nband_r/=nband .OR. nq_r/=nq) then
+       if(nband_r/=nband .OR. nq_r/=nqibz) then
           rewind ifih
           lntq=.false.
        endif
@@ -42,7 +42,7 @@ contains
        ntq=0
        allocate(eqt(nband))
        do is = 1,nspin
-          do ip = 1,nq
+          do ip = 1,nqibz
              eqt= readeval(qibz(1,ip),is)
              do iband=1,nband
                 ntq = max(iband,ntq)
@@ -52,7 +52,7 @@ contains
        enddo
        ntq = min(ntq, nbmx_sig)
        deallocate(eqt)
-       write(ifih,"(3i10)") nband,nq,ntq
+       write(ifih,"(3i10)") nband,nqibz,ntq
     endif
     !! Determine ntq.  See also in sxcf_fal.sc.F ntq should be common for all ixc modes.
     !! FIX NTQ during iteration by the file NTQ 15jun2015
@@ -61,11 +61,11 @@ contains
 !!!! count number of band to calculate.
     !! I think it it better to determine nbandmx in a manner within LDA
     !! (need to care degeneracy...).
-    allocate(nbandmx(nq,nspinmx))
+    allocate(nbandmx(nqibz,nspinmx))
     !!   Get nbandmx(iq,isp)
     allocate(eqt(nband))
     do is = 1,nspinmx
-       do ip = 1,nq
+       do ip = 1,nqibz
           eqt= READEVAL(qibz(1,ip),is)
           if(lntq) then
              read(ifih,*) ntqxx ! ntqxx = ntq !jun2016
@@ -130,13 +130,12 @@ module m_selectqp
   implicit none
   integer,protected:: nq
   real(8),allocatable,protected ::qvec(:,:)
-
 contains
   subroutine getqpoint(selectqp,nqibz,qibz)
     real(8):: qibz(3,nqibz)
     logical:: lqall,laff,selectqp
     integer:: ifqpnt,ret,nqibz,i,iaf,iq,iqall,k
-    if(selectqp) then ! .AND. MPI__root) then
+    if(selectqp) then 
        call GETKEYVALUE("GWinput","<QPNT>",unit=ifqpnt,status=ret)
        lqall      = .false.
        laff        = .false.
