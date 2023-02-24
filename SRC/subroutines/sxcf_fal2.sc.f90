@@ -219,7 +219,7 @@ contains
        qibz_k = qibz(:,kx)
        q(1:3)= qvec(1:3,ip)
        eq = readeval(q,isp)
-       omega(:) = eq(itq(:))  !1:ntq
+       omega(1:ntq) = eq(1:ntq)  !1:ntq
        qbz_kr= qbz (:,kr)     !rotated qbz vector. 
        qk =  q - qbz_kr        
        ekq = readeval(qk, isp) 

@@ -1,6 +1,6 @@
 module m_sxcf_count !job scheduler for self-energy calculation. icount mechanism
   use m_readeigen,only: Readeval
-  use m_itq,only: itq,ntq
+  use m_itq,only: ntq
   use m_genallcf_v3,only: nlmto,nspin,nctot,niw,ecore
   use m_read_bzdata,only: qibz,qbz,wk=>wbz,nqibz,nqbz,wklm,lxklm,nq0i, wqt=>wt,q0i, irk
   use m_readfreq_r,only: freq_r, nw_i,nw,freqx,wx=>wwx,nblochpmx,mrecl,expa_,npm,nprecx
@@ -166,7 +166,7 @@ contains
                      qibz_k = qibz(:,kx)
                      q(1:3)= qibz(1:3,ip)
                      eq = readeval(q,isp)
-                     omega(:) = eq(itq(:))  !1:ntq
+                     omega(1:ntq) = eq(1:ntq)
                      qbz_kr= qbz (:,kr)     !rotated qbz vector. 
                      qk =  q - qbz_kr        
                      ekq = readeval(qk, isp) 

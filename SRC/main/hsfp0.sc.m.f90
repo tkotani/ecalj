@@ -74,7 +74,7 @@ program hsfp0_sc
   use m_rdpp,only: Rdpp, nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx
   !     ! Generate matrix element for "call get_zmelt".
   use m_zmel,only: Mptauof_zmel
-  use m_itq,only: setitq_hsfp0sc,itq,nbandmx, ntq
+  use m_itq,only: setitq_hsfp0sc,nbandmx, ntq
   use m_anf,only: Anfcond, laf
   use m_sxcf_count,only: sxcf_scz_count
   use m_sxcf_main,only: sxcf_scz_main,zsecall
@@ -214,7 +214,7 @@ program hsfp0_sc
   do is = 1,nspin
      do ip = 1,nqibz
         eqt= READEVAL(qibz(1,ip),is)
-        eqx (1:ntq,ip,is) = rydberg()*(eqt(itq(1:ntq))- eftrue)
+        eqx (1:ntq,ip,is) = rydberg()*(eqt(1:ntq)- eftrue)
      enddo
   enddo
   deallocate(eqt)
@@ -270,7 +270,7 @@ contains
     !! Print LDA exchange-correlation files XCU and XCD
     if(ixc==1) then
        allocate(  vxcfp(ntq,nq,nspin) )
-       call rsexx(nspin,itq,qvec,ntq,nq, ginv, vxcfp) !add ginv july2011
+       call rsexx(nspin,qvec,ntq,nq, ginv, vxcfp) !add ginv july2011
        if(MPI__root) then
           do is = 1,nspinmx
              if(is==1) open(newunit=ifxc(1),file='XCU')!//xt(nz))
@@ -286,11 +286,11 @@ contains
              do ip = 1,nq
                 do i  = 1,ntq
                    write(ifoutsex,"(3i5,3d24.16,3x,d24.16,3x,d24.16)") &
-                        itq(i),ip,is, qvec(1:3,ip), eqx(i,ip,is), vxcfp(i,ip,is)
+                        i,ip,is, qvec(1:3,ip), eqx(i,ip,is), vxcfp(i,ip,is)
                    if(eqx(i,ip,is) <1d20 .AND. vxcfp(i,ip,is)/=0d0) then
                       !    !takao june2009. See lmf2gw (evl_d=1d20; in Ry.. but eqx is in eV. no problem for inequality).
                       write(6,"(' j iq isp=' i3,i4,i2,'  q=',3f8.4,'  eig=',f10.4,'  Sxc(LDA)=',f10.4)") &
-                           itq(i),ip,is, qvec(1:3,ip), eqx(i,ip,is), vxcfp(i,ip,is)
+                           i,ip,is, qvec(1:3,ip), eqx(i,ip,is), vxcfp(i,ip,is)
                    endif
                 enddo
              enddo
@@ -332,11 +332,11 @@ contains
        do ip = 1,nq
           do i  = 1,ntq
              write(ifoutsex,"(3i5,3d24.16,3x,d24.16,3x,d24.16)") &
-                  itq(i),ip,is, qvec(1:3,ip), eqx(i,ip,is), &
+                  i,ip,is, qvec(1:3,ip), eqx(i,ip,is), &
                   hartree*dreal(zsec(i,i,ip)) !sf 21May02
              if( eqx(i,ip,is)<1d20 .AND. abs(zsec(i,i,ip))/=0d0 ) then !takao june2009
                 write(6,"(' j iq isp=' i3,i4,i2,'  q=',3f8.4,' eig=',f10.4,'  Sx=',f10.4)") &
-                     itq(i),ip,is, qvec(1:3,ip), eqx(i,ip,is), &
+                     i,ip,is, qvec(1:3,ip), eqx(i,ip,is), &
                      hartree*dreal(zsec(i,i,ip)) !sf 21May02
              endif
           enddo
@@ -368,12 +368,12 @@ contains
           do i  = 1,ntq
              if( eqx(i,ip,is)<1d20 .AND. abs(zsec(i,i,ip))/=0d0 ) then !takao june2009
                 write(6,"(' j iq isp=' i3,i4,i2,'  q=',3f8.4,'  eig=',f8.4,'  Re(Sc) =',f8.4,'  Img(Sc) =',f8.4 )") &
-                     itq(i),ip,is, qvec(1:3,ip), eqx(i,ip,is), &
+                     i,ip,is, qvec(1:3,ip), eqx(i,ip,is), &
                      hartree*dreal(zsec(i,i,ip)), &
                      hartree*dimag(zsec(i,i,ip))
              endif
              write(ifoutsec,"(3i5,3d24.16,3x,d24.16,3x,d24.16, 3x,d24.16)") &
-                  itq(i),ip,is, qvec(1:3,ip), eqx(i,ip,is), &
+                  i,ip,is, qvec(1:3,ip), eqx(i,ip,is), &
                   hartree*dreal(zsec(i,i,ip)), &
                   hartree*dimag(zsec(i,i,ip))
           end do
@@ -385,10 +385,10 @@ contains
   end subroutine HsWriteResult
 end program hsfp0_sc
 
-subroutine rsexx (nspin, itq, q, ntq,nq,ginv, vxco)
+subroutine rsexx (nspin, q, ntq,nq,ginv, vxco)
   implicit real*8 (a-h,o-z)
   implicit integer (i-n)
-  dimension vxco(ntq,nq,nspin),q(3,nq),itq(ntq) !itq is not dependent on q, right?
+  dimension vxco(ntq,nq,nspin),q(3,nq)!,itq(ntq) !itq is not dependent on q, right?
   real(8),allocatable :: qqq(:,:),vxcfpx(:,:,:)
   logical ::nocore,lfind
   real(8)::  rydberg,tolq=1d-5,qx(3),ginv(3,3)
@@ -419,6 +419,6 @@ subroutine rsexx (nspin, itq, q, ntq,nq,ginv, vxco)
      enddo
      call rx( ' rsexx: not find ikp')
 100  continue
-     vxco(1:ntq,iq,1:nspin)=rydberg()*vxcfpx(itq(1:ntq),ikpx,1:nspin)
+     vxco(1:ntq,iq,1:nspin)=rydberg()*vxcfpx(1:ntq,ikpx,1:nspin)
   enddo
 end subroutine rsexx
