@@ -1,6 +1,6 @@
 module m_sxcf_count !job scheduler for self-energy calculation. icount mechanism
   use m_readeigen,only: Readeval
-  use m_itq,only: ntq
+  use m_itq,only: ntq,nbandmx
   use m_genallcf_v3,only: nlmto,nspin,nctot,niw,ecore
   use m_read_bzdata,only: qibz,qbz,wk=>wbz,nqibz,nqbz,wklm,lxklm,nq0i, wqt=>wt,q0i, irk
   use m_readfreq_r,only: freq_r, nw_i,nw,freqx,wx=>wwx,nblochpmx,mrecl,expa_,npm,nprecx
@@ -16,11 +16,11 @@ module m_sxcf_count !job scheduler for self-energy calculation. icount mechanism
   integer,allocatable,public:: nwxic(:), nwxc(:), nt_maxc(:)
   !=========================================================
 contains
-  subroutine sxcf_scz_count(ef,esmr,exchange,nbandmx,ixc,nspinmx) 
-    intent(in)              ef,esmr,exchange,nbandmx,ixc,nspinmx
+  subroutine sxcf_scz_count(ef,esmr,exchange,ixc,nspinmx) 
+    intent(in)              ef,esmr,exchange,ixc,nspinmx
     logical :: exchange
     integer :: isp,nspinmx,jobsw 
-    integer :: nbandmx(nqibz,nspinmx)
+!    integer :: nbandmx(nqibz,nspinmx)
     real(8) :: ef,esmr
     real(8):: ebmx
     complex(8),pointer::zsec(:,:)

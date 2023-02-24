@@ -185,8 +185,8 @@ program hsfp0_sc
   nspinmx = nspin
   call anfcond()
   if(laf) nspinmx=1         !!! Antiferro case. Only calculate up spin
-  !!  We calculate <ki|\sigma|kj> for i \in itq (and j \in itq).
-  !!  During iteration, we use NTQXX file, to keep itq set.
+  !!  We calculate <ki|\sigma|kj> 
+  !!  During iteration, we use NTQXX file, to keep nbandmx
   !!  If we already have NTQXX (in your pre gwsc calculion), the NTQXX is read.
   if( mpi__root .AND. mpi__rank/=0) call rx('mpi__root .AND. mpi__rank/=0')
   do irank = 0,mpi__size-1  ! irank=0 may write NTQXX if it exists. irank>0 is reading mode.
@@ -197,7 +197,7 @@ program hsfp0_sc
     if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
     if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')
     if ( .NOT. iSigMode==3) call rx('sxcf_scz: only for jobsw=3') !nbandmx is input mar2015 jobsw= iSigMode=3 only
-    call sxcf_scz_count(ef,esmr,exchange,nbandmx,ixc,nspinmx) !initializatition quick
+    call sxcf_scz_count(ef,esmr,exchange,ixc,nspinmx) !initializatition quick
   endblock SchedulingSelfEnergyCalculation
   
   if(ixc==3) then ! Core-exchange mode. We set Ef just below the valence eigenvalue (to pick up only cores)
@@ -230,7 +230,7 @@ program hsfp0_sc
   !call Seteibzhs(nspinmx,nq,qvec,iprintx=MPI__root)
   
   Main4SelfEnergy: Block !time-consuming part Need highly paralellized
-    call sxcf_scz_main(qibz,ef,esmr,nqibz,exchange,nbandmx,ixc,nspinmx) !main part of job
+    call sxcf_scz_main(qibz,ef,esmr,nqibz,exchange,ixc,nspinmx) !main part of job
   EndBlock Main4SelfEnergy
 ! Remove eibzmode symmetrizer 2023Jan22 (extended irreducibel BZ mode)
 !  SymmetrizeZsec :Block

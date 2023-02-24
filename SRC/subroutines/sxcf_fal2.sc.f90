@@ -130,7 +130,7 @@ module m_sxcf_main
   use m_readeigen,only: Readeval
   use m_keyvalue,only   : Getkeyvalue
   use m_zmel,only : Get_zmel_init, Setppovlz, Setppovlz_chipm, Deallocate_zmel, zmel
-  use m_itq,only: itq,ntq
+  use m_itq,only: itq,ntq,nbandmx
   use m_genallcf_v3,only: nlmto,nspin,nctot,niw,ecore !,symgg
   use m_read_bzdata,only: qibz,qbz,wk=>wbz,nqibz,nqbz,wklm,lxklm,nq0i, wqt=>wt,q0i, irk
   use m_readVcoud,only:   Readvcoud, vcoud,ngb,ngc
@@ -151,11 +151,11 @@ module m_sxcf_main
   complex(8),allocatable,target:: zsecall(:,:,:,:) !output
   private
 contains
-  subroutine sxcf_scz_main(qvec,ef,esmr,nq,exchange,nbandmx,ixc,nspinmx) 
-    intent(in)             qvec,ef,esmr,nq,exchange,nbandmx,ixc,nspinmx
+  subroutine sxcf_scz_main(qvec,ef,esmr,nq,exchange,ixc,nspinmx) 
+    intent(in)             qvec,ef,esmr,nq,exchange,ixc,nspinmx
     logical :: exchange
     integer :: nq,isp,nspinmx,jobsw 
-    integer :: nbandmx(nq,nspinmx)
+!    integer :: nbandmx(nq,nspinmx)
     real(8) :: ef,esmr, qvec(3,nq)
     real(8):: ebmx
     complex(8),pointer::zsec(:,:)
