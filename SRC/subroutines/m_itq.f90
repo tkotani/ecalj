@@ -22,10 +22,12 @@ contains
     enddo
   end subroutine setitq
   !!======================================================================
-  subroutine setitq_hsfp0sc(qibz,nqibz,nspin,nbmx_sig,ebmx_sig,eftrue,nspinmx)
-    intent(in)::            qibz,nqibz,nspin,nbmx_sig,ebmx_sig,eftrue,nspinmx
-    integer:: nqibz,nspin,nbmx_sig,nspinmx
-    real(8):: qibz(3,nqibz),ebmx_sig,eftrue
+  subroutine setitq_hsfp0sc(nbmx_sig,ebmx_sig,eftrue,nspinmx)
+    use m_read_bzdata,only:qibz,nqibz
+    use m_genallcf_v3,only: nspin
+    intent(in)::            nbmx_sig,ebmx_sig,eftrue,nspinmx
+    integer:: nbmx_sig,nspinmx
+    real(8):: ebmx_sig,eftrue
     real(8),allocatable:: eqt(:)
     integer:: ifih,ntqxx,is,ip,iband,i,nband_r,nq_r
     logical:: lntq

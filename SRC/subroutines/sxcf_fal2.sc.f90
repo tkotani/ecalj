@@ -138,28 +138,25 @@ module m_sxcf_main
   use m_rdpp,only: Rdpp, nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx
   use m_readqg,only:  ngpmx,ngcmx
   use m_readhbe,only: nband,mrecg
-  use m_hamindex,only: ngrp
-!  use m_eibzhs,only: nrkip=>nrkip_all,irkip_all
-!  use m_read_bzdata,only: qbz,nqibz,ginv,irk,nqbz
   use m_readgwinput,only: ua_,  corehole,wcorehole
   use m_mpi,only: MPI__sxcf_rankdivider
   use m_ftox
   use m_sxcf_count,only: ncount,ispc,kxc,irotc,ipc,krc,nstateMax,nstti,nstte,nwxic, nwxc, nt_maxc
+!  use m_hamindex,only: ngrp
+!  use m_eibzhs,only: nrkip=>nrkip_all,irkip_all
+!  use m_read_bzdata,only: qbz,nqibz,ginv,irk,nqbz
   implicit none
-  !---------------------------------      
   public sxcf_scz_main, zsecall
   complex(8),allocatable,target:: zsecall(:,:,:,:) !output
   private
 contains
-  subroutine sxcf_scz_main(qvec,ef,esmr,nq,exchange,ixc,nspinmx) 
-    intent(in)             qvec,ef,esmr,nq,exchange,ixc,nspinmx
+  subroutine sxcf_scz_main(ef,esmr,exchange,ixc,nspinmx) 
+    intent(in)             ef,esmr,exchange,ixc,nspinmx
     logical :: exchange
-    integer :: nq,isp,nspinmx,jobsw 
-!    integer :: nbandmx(nq,nspinmx)
-    real(8) :: ef,esmr, qvec(3,nq)
+    integer :: isp,nspinmx,jobsw  !nqibz, nbandmx(nqibz,nspinmx)
+    real(8) :: ef,esmr !, qvec(3,nqibz)
     real(8):: ebmx
-    complex(8),pointer::zsec(:,:)
-    complex(8),pointer::ww(:,:)
+    complex(8),pointer::zsec(:,:), ww(:,:)
     integer,allocatable :: ifrcw(:),ifrcwi(:)
     integer :: ip, it, itp, i, ix, kx, irot, kr
     integer :: nt0p, nt0m,nstate , nbmax, ntqxx 
@@ -192,7 +189,7 @@ contains
     integer,allocatable::ndiv(:),nstatei(:,:),nstatee(:,:),irkip(:,:,:,:)
     iqini = 1
     iqend = nqibz             
-    allocate(zsecall(ntq,ntq,nq,nspinmx)) !, coh(ntq,nq) ) kount(nqibz,nq),
+    allocate(zsecall(ntq,ntq,nqibz,nspinmx)) !, coh(ntq,nqibz) ) kount(nqibz,nqibz),
     zsecall = 0d0
     if(.not.exchange) then! Read WV* containing W-v in MPB
        allocate(ifrcw(iqini:iqend),ifrcwi(iqini:iqend))
@@ -217,7 +214,7 @@ contains
        nwxi=nwxic(icount)
        nwx =nwxc(icount)
        qibz_k = qibz(:,kx)
-       q(1:3)= qvec(1:3,ip)
+       q(1:3)= qibz(1:3,ip)
        eq = readeval(q,isp)
        omega(1:ntq) = eq(1:ntq)  !1:ntq
        qbz_kr= qbz (:,kr)     !rotated qbz vector. 
@@ -287,6 +284,7 @@ contains
          allocate(zmelc(1:ntqxx,ns1:ns2,1:ngb)) !1:nstate,1:ngb))
          forall(itp=1:ntqxx) zmelc(itp,:,:)=transpose(dconjg(zmel(:,:,itp))) 
          CorrelationSelfEnergyImagAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
+!           use m_purewintz,only: wintzsg_npm_wgtim
            real(8):: esmrx(nstate), omegat(ntqxx), wgtim(0:npm*niw,ntqxx,ns1:ns2)
            complex(8),target:: zw(nblochpmx,nblochpmx),zwz(ns1:ns2,ntqxx,ntqxx)
            logical:: init=.true.
@@ -297,11 +295,13 @@ contains
            esmrx(ns1c:ns2c)= 0d0
            esmrx(ns1v:ns2) = esmr
            omegat(1:ntqxx) = omega(1:ntqxx)
-           itpdo:do itp = lbound(zsec,1), ubound(zsec,1)
-              do    it  = lbound(zmelc,2),ubound(zmelc,2)
+!           itpdo:do concurrent( itp = lbound(zsec,1):ubound(zsec,1), it=lbound(zmelc,2):ubound(zmelc,2))
+           itpdo:do itp = lbound(zsec,1),ubound(zsec,1)
+              do it=lbound(zmelc,2),ubound(zmelc,2)
                  we = .5d0*(omegat(itp)-ekc(it))
                  call wintzsg_npm_wgtim(npm, ua_,expa_, we,esmrx(it), wgtim(:,itp,it))
-              enddo   !Integration weight wgtim along im axis for zwz(0:niw*npm) 
+                 !Integration weight wgtim along im axis for zwz(0:niw*npm)
+              enddo
            enddo itpdo
            iwimag:do ixx=0,niw !niw is ~10. ixx=0 is for omega=0 nw_i=0 (Time reversal) or nw_i =-nw
               if(ixx==0) then ! at omega=0 ! nw_i=0 (Time reversal) or nw_i =-nw
