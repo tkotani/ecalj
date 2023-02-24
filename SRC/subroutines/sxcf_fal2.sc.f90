@@ -242,7 +242,7 @@ contains
             if(debug) write(6,*) ' sxcf_fal2sc: ngb ngc nbloch=',ngb,ngc,nbloch
             kxold =kx
          endif
-         call Get_zmel_init(q,qibz_k,irot,qbz_kr, ns1,ns2,isp, 1,ntqxx,isp, nctot,ncc=0,iprx=debug)!Return zmel middle=> ns1:ns2
+         call Get_zmel_init(q,qibz_k,irot,qbz_kr, ns1,ns2,isp, 1,ntqxx,isp, nctot,ncc=0,iprx=debug)!Return zmel middle=> ns1:ns2-ns1+1
        endblock ZmelBlock
        Exchangemode: if(exchange) then      
           ExchangeSelfEnergy: Block
