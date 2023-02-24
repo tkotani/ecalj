@@ -50,7 +50,7 @@ contains
     logical:: tote=.false.!, hermitianW
     real(8),allocatable:: vcoud_(:),wfft(:)
     logical:: iprx,cmdopt0
-    integer:: ixx,ixc,icount,ndivmx,ns1,ns2,ns1c,ns2c,ns1v
+    integer:: ixx,ixc,icount,ndivmx
     real(8),parameter:: pi=4d0*datan(1d0), fpi=4d0*pi, tpi=8d0*datan(1d0),ddw=10d0
     integer:: kxold,nccc,icount0
     complex(8),allocatable:: zmelc(:,:,:)
@@ -107,12 +107,13 @@ contains
       enddo kxloop
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!      
       ! ndivide = 2 
-      nstateavl = 16  ! nstateavl=max(sum(nstatemax)/(ncount*ndivide),1)
+      nstateavl = 16  ! middle stats are batched by nstateavl.
+      !nstateavl=max(sum(nstatemax)/(ncount*ndivide),1)
       if(ixc==3) nstateavl= maxval(nstatemax)
       ! size of average load of middle states (in G)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       allocate(ndiv(ncount))
-      ndiv = (nstatemax-1)/nstateavl + 1  !number of division for icount
+      ndiv = (nstatemax-1)/nstateavl + 1  !number of division for middle states.
       ndivmx = maxval(ndiv)
       allocate(nstatei(ndivmx,ncount),nstatee(ndivmx,ncount),nload(ndivmx))
       do icount=1,ncount
@@ -154,9 +155,9 @@ contains
                   kr = irkip(isp,kx,irot,ip) ! index for rotated kr in the FBZ
                   if(kr==0) cycle
                   icount0=icount0+1
-                  do idiv=1,ndiv(icount0) !icount loop have further division by ndiv
+                  do idiv=1,ndiv(icount0) !icount loop have further division of middle states by ndiv
                      icount=icount+1
-                     nstti(icount)=nstatei(idiv,icount0) ![nstti,nstte] specify range of int. states.
+                     nstti(icount)=nstatei(idiv,icount0) ! [nstti,nstte] specify range of middle states.
                      nstte(icount)=nstatee(idiv,icount0) !
                      ispc(icount)=isp!icount specify isp,kx,irot,iq. (kx,irot) gives kr in the all FZ.
                      kxc(icount)=kx

@@ -5,18 +5,6 @@ subroutine matm(a,b,c,n1,n2,n3)
   complex(8), intent(out) :: c(n1,n3)
   c=matmul(a,b)
 end subroutine matm
-subroutine matmaw(a,b,c,n1,n2,n3,ww)
-  integer, intent(in) :: n1,n2,n3
-  complex(8), intent(in) :: a(n1,n2), b(n2,n3)
-  real(8), intent(in) :: ww(n1)
-  complex(8), intent(out) :: c(n1,n3)
-  complex(8):: aa(n1,n2)
-  integer:: ix
-  do ix=1,n2
-     aa(:,ix) = ww(:)*a(:,ix)
-  enddo
-  c= c+ matmul(aa,b)
-end subroutine matmaw
 
 function matcinvf(b) result(a)
   !!== Test routine for Inversion ==

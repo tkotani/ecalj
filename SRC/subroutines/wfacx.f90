@@ -9,8 +9,8 @@ real(8) function wfacx(el,eh, ek,esmr)
      if(el <= ek .AND. ek <eh ) wfacx=1d0
      return
   endif
-  wfacx = 0.5d0*derfcx(-(eh-ek)/sqrt(2d0)/esmr) &
-       -0.5d0*derfcx(-(el-ek)/sqrt(2d0)/esmr)
+  wfacx = 0.5d0*erfc(-(eh-ek)/sqrt(2d0)/esmr) &
+       -  0.5d0*erfc(-(el-ek)/sqrt(2d0)/esmr)
 END function wfacx
 
 !> Now the ordering of e1,e2 does not matter.May2006
@@ -32,8 +32,8 @@ real(8) function wfacx2(e1,e2, ek,esmr)
      if(el <= ek .AND. ek <eh ) wfacx2=1d0
      return
   endif
-  wfacx2 = 0.5d0*derfcx(-(eh-ek)/sqrt(2d0)/esmr) &
-       -0.5d0*derfcx(-(el-ek)/sqrt(2d0)/esmr)
+  wfacx2 = 0.5d0*erfc(-(eh-ek)/sqrt(2d0)/esmr) &
+       -   0.5d0*erfc(-(el-ek)/sqrt(2d0)/esmr)
 END function wfacx2
 
 !> Now the ordering of e1,e2 does not matter.May2006
@@ -60,8 +60,8 @@ real(8) function weavx2(e1,e2, ek,esmr)
      !        endif
      return
   endif
-  wtt=    0.5d0*derfcx(-(eh-ek)/sqrt(2d0)/esmr) &
-       -0.5d0*derfcx(-(el-ek)/sqrt(2d0)/esmr)
+  wtt=    0.5d0*erfc(-(eh-ek)/sqrt(2d0)/esmr) &
+       -  0.5d0*erfc(-(el-ek)/sqrt(2d0)/esmr)
   sig2= 2d0*esmr**2
   if(wtt<1d-10) then
      weavx2=9999999999d99

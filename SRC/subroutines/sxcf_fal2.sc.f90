@@ -182,7 +182,7 @@ contains
     logical:: tote=.false.!, hermitianW
     real(8),allocatable:: vcoud_(:),wfft(:)
     logical:: iprx,cmdopt0
-    integer:: ixx,ixc,icount,ndivmx,ns1,ns2,ns1c,ns2c,ns1v
+    integer:: ixx,ixc,icount,ns1,ns2,ns1c,ns2c,ns1v
     real(8),parameter:: pi=4d0*datan(1d0), fpi=4d0*pi, tpi=8d0*datan(1d0),ddw=10d0
     integer:: kxold,nccc,icount0
     complex(8),allocatable:: zmelc(:,:,:)
@@ -242,7 +242,7 @@ contains
             if(debug) write(6,*) ' sxcf_fal2sc: ngb ngc nbloch=',ngb,ngc,nbloch
             kxold =kx
          endif
-         call Get_zmel_init(q,qibz_k,irot,qbz_kr, ns1,ns2-nctot,isp, 1,ntqxx,isp, nctot,ncc=0,iprx=debug)!Return zmel middle=> 1:nctot+ns2-nctot-ns1+1
+         call Get_zmel_init(q,qibz_k,irot,qbz_kr, ns1,ns2,isp, 1,ntqxx,isp, nctot,ncc=0,iprx=debug)!Return zmel middle=> ns1:ns2
        endblock ZmelBlock
        Exchangemode: if(exchange) then      
           ExchangeSelfEnergy: Block
@@ -280,11 +280,11 @@ contains
        !
        zmelcww: Block !range of middle states is [ns1:ns2] instead of [1:nstate]. 2022-8-28
          complex(8):: zmelcww(1:ntqxx,ns1:ns2,1:ngb)
-         zmelcww=0d0
          allocate(zmelc(1:ntqxx,ns1:ns2,1:ngb)) !1:nstate,1:ngb))
          forall(itp=1:ntqxx) zmelc(itp,:,:)=transpose(dconjg(zmel(:,:,itp))) 
          CorrelationSelfEnergyImagAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
-!           use m_purewintz,only: wintzsg_npm_wgtim
+           use m_purewintz,only: wintzsg_npm_wgtim
+           integer:: iacc
            real(8):: esmrx(nstate), omegat(ntqxx), wgtim(0:npm*niw,ntqxx,ns1:ns2)
            complex(8),target:: zw(nblochpmx,nblochpmx),zwz(ns1:ns2,ntqxx,ntqxx)
            logical:: init=.true.
@@ -295,15 +295,16 @@ contains
            esmrx(ns1c:ns2c)= 0d0
            esmrx(ns1v:ns2) = esmr
            omegat(1:ntqxx) = omega(1:ntqxx)
-!           itpdo:do concurrent( itp = lbound(zsec,1):ubound(zsec,1), it=lbound(zmelc,2):ubound(zmelc,2))
-           itpdo:do itp = lbound(zsec,1),ubound(zsec,1)
-              do it=lbound(zmelc,2),ubound(zmelc,2)
+           itpdo:do concurrent(itp = lbound(zsec,1):ubound(zsec,1), it=lbound(zmelc,2):ubound(zmelc,2))
+!           itpdo:do itp = lbound(zsec,1),ubound(zsec,1);  do it=lbound(zmelc,2),ubound(zmelc,2)
                  we = .5d0*(omegat(itp)-ekc(it))
-                 call wintzsg_npm_wgtim(npm, ua_,expa_, we,esmrx(it), wgtim(:,itp,it))
+                 call wintzsg_npm_wgtim(npm, ua_,expa_, we,esmrx(it), wgtim(:,itp,it)) !pure
                  !Integration weight wgtim along im axis for zwz(0:niw*npm)
-              enddo
+!              enddo
            enddo itpdo
-           iwimag:do ixx=0,niw !niw is ~10. ixx=0 is for omega=0 nw_i=0 (Time reversal) or nw_i =-nw
+           zmelcww=0d0
+           iwimag: do ixx=0,niw !concurrent may (or maynot) be problematic because zmelcww is for reduction (accumlation)
+!           iwimag:do concurrent(ixx=0:niw) !niw is ~10. ixx=0 is for omega=0 nw_i=0 (Time reversal) or nw_i =-nw
               if(ixx==0) then ! at omega=0 ! nw_i=0 (Time reversal) or nw_i =-nw
                  read(ifrcw(kx),rec=1+(0-nw_i)) zw ! direct access read Wc(0) = W(0) - v
               elseif(ixx>0) then ! 
@@ -311,7 +312,7 @@ contains
               endif
               ww=>zw(1:ngb,1:ngb)
               associate( nleft=>size(zmelc,1)*size(zmelc,2), nm=>size(ww,1), nright=>size(ww,2))
-                call matmaw(zmelc,ww,zmelcww, nleft, nm, nright, wtt*wgtim(ixx,:,:))
+                call matmaw(zmelc,ww,zmelcww, nleft, nm, nright, wtt*wgtim(ixx,:,:)) !pure
               end associate
            enddo iwimag
          EndBlock CorrelationSelfEnergyImagAxis
@@ -331,63 +332,59 @@ contains
              complex(8)::zadd(ntqxx),wv33(ngb,ngb) ! ixss is starting index of omega
              complex(8):: wv3(ngb,ngb,0:2)
              integer:: iwgt3(nt_max,ntqxx),i1,i2,iw,ikeep,ix
-             integer:: nit_(ntqxx,nwxi:nwx),icountp,ncoumx,iit
+             integer:: nit_(ntqxx,nwxi:nwx),icountp,ncoumx,iit,irs
              integer,allocatable:: itc(:,:,:),itpc(:,:)
              real(8),allocatable:: wgt3p(:,:,:)
              if(timemix) call timeshow(" CorrR2:")
-             iwgt3=0
-             do itp=1,ntqxx
-                do it=1,nt_max
+             do concurrent( itp=1:ntqxx, it=1:nt_max) !itp:end states, it:middle states
                 block
                   integer:: ixs
                   real(8):: amat(3,3),amatinv(3,3)   
                   if(ititpskip(it,itp)) cycle
-                  ixs = ixss(it,itp) !we_ is \omega_\epsilon in Eq.(55).
-                  !call alagr3z2wgt(we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp))
+                  ixs = ixss(it,itp) !we_ is \omega_\epsilon in Eq.(55). !call alagr3z2wgt(we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp))
                   associate( x=>we_(it,itp),xi=>freq_r(ixs-1:ixs+1)) !,wgt=>wgt3(:,it,itp))
                     amat(1:3,1) = 1d0
                     amat(1:3,2) = xi(1:3)**2
                     amat(1:3,3) = xi(1:3)**4
-                    call minv33(amat,amatinv)
-                    !amatinv = minv33f(amat)
-                    wgt3(:,it,itp)= wfac_(it,itp)*matmul([1d0,x**2,x**4], amatinv) !wgt3(:,it,itp)
+                    wgt3(:,it,itp)= wfac_(it,itp)*matmul([1d0,x**2,x**4], minv33f(amat)) !amatinv) !call minv33(amat,amatinv)
                   endassociate   !  wgt3(:,it,itp)= wfac_(it,itp)*wgt3(:,it,itp)
                   iwgt3(it,itp) = iirx(itp)*(ixs+1-2) !starting omega index ix for it,itp
                 endblock
              enddo
+             ! icount mechanism for sum ix,it,itp where W(we_(it,itp))=\sum_{i=0}^2 W(:,:,ix+i)*wgt3(i)         
+             do concurrent(ix = nwxi:nwx,itp=lbound(zsec,1):ubound(zsec,1))
+                nit_(itp,ix)=count([((.not.ititpskip(it,itp)).and.iwgt3(it,itp)==ix,it=1,nt_max)])
              enddo
-             !! icount mechanism for sum ix,it,itp where W(we_(it,itp))=\sum_{i=0}^2 W(:,:,ix+i)*wgt3(i)         
-             do ix = nwxi,nwx 
-                do itp=lbound(zsec,1),ubound(zsec,1)
-                   nit_(itp,ix)=count([((.not.ititpskip(it,itp)).and.iwgt3(it,itp)==ix,it=1,nt_max)])
-                   if(nit_(itp,ix)/=0)write(6,ftox)'icou ix itp ncou/nall=',icount,ix,itp,nit_(itp,ix),ntqxx*nt_max
-                enddo
-             enddo
+             !do if(nit_(itp,ix)/=0)write(6,ftox)'icou ix itp ncou/nall=',icount,ix,itp,nit_(itp,ix),ntqxx*nt_max
              ncoumx=maxval(nit_)
-             allocate(itc(ncoumx,nwxi:nwx,ntqxx))!,itpc(ncoumx,nwxi:nwx),wgt3p(0:2,ncoumx,nwxi:nwx))
-             do ix = nwxi,nwx 
-                do itp=lbound(zsec,1),ubound(zsec,1)
-                   iit=0
-                   do it=1,nt_max
-                      if((.not.ititpskip(it,itp)).and.iwgt3(it,itp)==ix) then
-                         iit=iit+1
-                         itc(iit,ix,itp)=it !it for given ix,itp possible iit=1,nit_(itp,ix)
-                      endif
-                   enddo
+             allocate(itc(ncoumx,nwxi:nwx,ntqxx)) !,itpc(ncoumx,nwxi:nwx),wgt3p(0:2,ncoumx,nwxi:nwx))
+             do concurrent(ix = nwxi:nwx,itp=lbound(zsec,1):ubound(zsec,1))
+                iit=0
+                do it=1,nt_max
+                   if((.not.ititpskip(it,itp)).and.iwgt3(it,itp)==ix) then
+                      iit=iit+1
+                      itc(iit,ix,itp)=it !it for given ix,itp possible iit=1,nit_(itp,ix)
+                   endif
                 enddo
              enddo
              !   ix-shifting whenr reading zw(:,:,ix)
              ikeep=99999
              do ix = nwxi,nwx  !Set wv3(:,:,0:2) is for ix,ix+1,ix+2
                 if(sum(nit_(:,ix))==0) cycle
-                do iw=0,2
-                   if(ikeep+1==ix.and.iw<2)     then ; wv3(:,:,iw)=wv3(:,:,iw+1) 
-                   elseif(ikeep+2==ix.and.iw<1) then ; wv3(:,:,iw)=wv3(:,:,iw+2)
-                   else
-                      read(ifrcw(kx),rec=iw+ix-nw_i+1) zw ! direct access Wc(omega) = W(omega) - v
-                      ww=>zw(1:ngb,1:ngb)
-                      wv3(:,:,iw)=(ww+transpose(dconjg(ww)))/2d0 !hermite part
-                   endif
+                if(ikeep+1==ix) then ! use wv3 at previous ix. a cash mechanism
+                   wv3(:,:,0)=wv3(:,:,1) 
+                   wv3(:,:,1)=wv3(:,:,2)
+                   irs=2
+                elseif(ikeep+2==ix) then 
+                   wv3(:,:,0)=wv3(:,:,2) 
+                   irs=1
+                else !ikeep+n==ix where n>2
+                   irs=0
+                endif   
+                do iw=irs,2
+                   read(ifrcw(kx),rec=iw+ix-nw_i+1) zw ! direct access Wc(omega) = W(omega) - v
+                   ww=>zw(1:ngb,1:ngb)
+                   wv3(:,:,iw)=(ww+transpose(dconjg(ww)))/2d0 !hermite part
                 enddo ! wv3 should contain zw(ix+0:ix+2) now
                 ikeep=ix
                 do itp=lbound(zsec,1),ubound(zsec,1)
@@ -432,8 +429,9 @@ contains
     real(8):: we_(nt_max,ntqxx),wfac_(nt_max,ntqxx)
     integer:: ixss(nt_max,ntqxx),iirx(ntqxx)
     logical:: ititpskip(nt_max,ntqxx)
-    integer:: itini,iii,it,itend,wp,ixs=-9999,itp,iwp,nt0p
+    integer:: itini,iii,it,itend,wp,itp,iwp,nt0p,ixs
     real(8):: omg,esmrx,wfacx2,we,wfac,weavx2
+    ixs=-9999
     ititpskip=.false.
     do itp = 1,ntqxx          !this loop should finish in a second
        omg = omega(itp)
@@ -476,4 +474,37 @@ contains
        enddo
     enddo
   end subroutine weightset4intreal
+  pure subroutine matmaw(a,b,c,n1,n2,n3,ww)
+    integer, intent(in) :: n1,n2,n3
+    complex(8), intent(in) :: a(n1,n2), b(n2,n3)
+    real(8), intent(in) :: ww(n1)
+    complex(8), intent(inout) :: c(n1,n3)
+    complex(8):: aa(n1,n2)
+    integer:: ix
+    do ix=1,n2
+       aa(:,ix) = ww(:)*a(:,ix)
+    enddo
+    c= c+ matmul(aa,b)
+  end subroutine matmaw
+  pure function minv33f(matrix) result(inverse) !Inverts 3X3 matrix
+    implicit none
+    real(8),intent(in) :: matrix(3,3)
+    real(8) :: inverse(3,3)
+    real(8) :: det
+    inverse(:,1)= crossf(matrix(:,2),matrix(:,3))
+    inverse(:,2)= crossf(matrix(:,3),matrix(:,1))
+    inverse(:,3)= crossf(matrix(:,1),matrix(:,2))
+    det = sum(matrix(:,1)*inverse(:,1)) !ddot(3,matrix,1,inverse,1)
+    !if (abs(det) ==0d0) call rx( 'minv33: vanishing determinant')
+    inverse = transpose(inverse)
+    inverse = inverse/det
+  end function minv33f
+  pure  function crossf(a,b) result(c)
+    implicit none
+    intent(in):: a,b
+    real(8):: a(3),b(3),c(3)
+    c(1)=a(2)*b(3)-a(3)*b(2)
+    c(2)=a(3)*b(1)-a(1)*b(3)
+    c(3)=a(1)*b(2)-a(2)*b(1)
+  end function crossf
 endmodule m_sxcf_main

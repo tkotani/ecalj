@@ -192,46 +192,28 @@ contains
     if(job==0) write(6,"('x0kf_v4hz_init: job=0 ncount ngb nqibz=',3i8)") ncount, ngb, nqibz
   end function x0kf_v4hz_init
   !! --------------------------------------------------------------------------------
-  subroutine X0kf_zmel ( q,iq,k, isp_k,isp_kq)
-    intent(in)   ::        q,iq,k, isp_k,isp_kq
-    !! === calculate zmel for chi0, or chi0_pm ===
-    !! note: zmel: matrix element <phi phi |M_I>
-    !! nlmto   = total number of atomic basis functions within MT
-    !! nqbz    = number of k-points in the 1st BZ
-    !!
-    integer:: k,isp_k,isp_kq,iq, jpm, ibib, iw,igb2,igb1,it,itp
+  subroutine X0kf_zmel ( q,iq,k, isp_k,isp_kq) ! zmel= <phi phi |M_I> for chi0, or chi0_pm 
+    intent(in)   ::      q,iq,k, isp_k,isp_kq   
+    integer:: k,isp_k,isp_kq,iq 
     real(8):: q(3)
-    complex(8) :: imag=(0d0,1d0),trc,aaa
-    integer::   nadd(3), igc !nband,!ngpmx, ngcmx,nqbze, ngc,
-    complex(8),allocatable :: zmelt(:,:,:)
-    complex(8),allocatable::  z1p(:,:)
-    logical,parameter:: debug=.false.
-    real(8) :: imagweight
-    !      integer:: nmbas !, imb1,imb2, imb verbose,
-    logical :: iww2=.true.
-    complex(8):: img=(0d0,1d0),zmelt2 !,zzz(ngbb)
-    integer ::  nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb !nkqmin, nkqmax,
-!    logical :: eibzmode
-!    integer::  nwgt(nqbz)
-    real(8)::  wpw_k,wpw_kq
-    integer::  irot=1, neibz,icc,ig,ikp,i,j,itimer,icount,iele !,eibzmoden
-    integer:: ieqbz,kold,nxxxx
-    integer:: nkoff,nkqoff,ispold,izmel,nmini,nqini,nmtot,nqtot,ispold2 !nkmin_,nkqmin_,
+!    complex(8),allocatable :: zmelt(:,:,:)
+!    complex(8),allocatable::  z1p(:,:)
+!    logical,parameter:: debug=.false.
+!    real(8) :: imagweight
+!    logical :: iww2=.true.
+!    complex(8):: img=(0d0,1d0),zmelt2 !,zzz(ngbb)
+!    integer ::  nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb !nkqmin, nkqmax,
+!    real(8)::  wpw_k,wpw_kq
+    integer::  irot=1 !, neibz,icc,ig,ikp,i,j,itimer,icount,iele !,eibzmoden
+!    integer:: ieqbz,kold,nxxxx
+!    integer:: nkoff,nkqoff,ispold,izmel,nmini,nqini,nmtot,nqtot,ispold2 !nkmin_,nkqmin_,
     if(npm==1) then
        ncc=0
     else
        ncc=nctot !stored to private variable
     endif
-!    nkmin_  = nkmin(k)
-!    nkqmin_ = nkqmin(k)
-!    nmini= nkmin_
-!    nqini= nkqmin_
-    !      call Deallocate_zmel()
-!    call Get_zmel_modex0(nkmin_,nkqmin_,isp_k,isp_kq) !oct-2021(nkmin(k),nkqmin(k),isp_k,isp_kq)
-    call Get_zmel_init(q+rk(:,k),q,irot,q, nkmin(k),nkmax(k),isp_k, nkqmin(k),nkqmax(k),isp_kq, nctot,ncc,iprx=.false.)
-    call Dconjg_zmel()        !zmel = dconjg(zmel)
-    !      call rwzmel(iq,k,isp_k,isp_kq,'w',q=q)
-    !      call Deallocate_zmel()
+    call Get_zmel_init(q+rk(:,k),q,irot,q, nkmin(k)+nctot,nkmax(k)+nctot,isp_k, nkqmin(k),nkqmax(k),isp_kq, nctot,ncc,iprx=.false.)
+    call Dconjg_zmel() 
   end subroutine x0kf_zmel
   subroutine X0kf_v4hz (q, isp_k,isp_kq, iq, nmbas,  rcxq,epsppmode,iqxini,rfac00,q00)
     intent(in)   ::     q, isp_k,isp_kq, iq, nmbas,     epsppmode,iqxini

@@ -165,14 +165,12 @@ contains
     !   ppb            = <Phi(RLn) Phi(RL'n') B(R,i)>
     implicit none
     integer,intent(in) :: irot,ng,isp!,nspin,nclass,nlnmx,mdimx
-    !      integer,intent(in) :: il(nlnmx,nclass),in(nlnmx,nclass),im(nlnmx,nclass)
     integer,intent(in) :: lx(nclass),nx(0: 2*(nl-1),nclass)
     integer,intent(in) :: lmxax,nxx,mdimx
-    real(8), intent(out) :: ppb(nlnmx,nlnmx,mdimx,nclass)
     real(8), intent(in) :: cgr((lmxax+1)**2,(lmxax+1)**2,(2*lmxax+1)**2,ng)
     real(8), intent(in) :: ppbrd(0:nl-1,nn,0:nl-1,nn,0:2*(nl-1),nxx,nclass*nspin)
-    integer :: ic, i,lb,nb,mb,lmb,i1,ibas,i2 !nl,nn,
-    integer :: np,lp,mp,lmp,n,l,m,lm!, mnl(nclass)
+    real(8), intent(out) :: ppb(nlnmx,nlnmx,mdimx,nclass)
+    integer :: ic, i,lb,nb,mb,lmb,i1,ibas,i2, np,lp,mp,lmp,n,l,m,lm
     do concurrent (ic=1:nclass)
        ibas = ic
        i = 0 !i = product basis index.
@@ -225,19 +223,10 @@ contains
     endif
     close(izmel)
   end subroutine rwzmel
-  !! ------------------------------------
-  ! subroutine get_zmel_modex0(n1,n2,n3,n4)
-  !   integer:: n1,n2,n3,n4
-  !   modex0=.true.
-  !   nkmin =n1
-  !   nkqmin=n2
-  !   isp_k =n3
-  !   isp_kq=n4
-  ! end subroutine get_zmel_modex0
-  ! !! ------------------------------------
-  subroutine Get_zmel_init(q,kvec,irot,rkvec, nmini,nmmax,ispm, nqini,nqmax,ispq, nctot,ncc,iprx)
-    intent(in)::           q,kvec,irot,rkvec, nmini,nmmax,ispm, nqini,nqmax,ispq, nctot,ncc,iprx
-    !! Get zmel= <phiq(q,ncc+nqmax,ispq) |phim(q-rkvec,nctot+nmmax,ispm) MPB(rkvec,ngb)> ZO^-1
+  subroutine Get_zmel_init(q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc,iprx)
+    intent(in)::           q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc,iprx
+    ! ns1:ns2 is the range of middle states (count including core index (i=1,nctot). Thus kth valence is at nctot+k.
+    !! Get zmel= <phiq(q,ncc+nqmax,ispq) |phim(q-rkvec, ns1:ns2, ispm) MPB(rkvec,ngb)> ZO^-1
     !! kvec is in the IBZ, rk = Rot_irot(kvec)
     !! \parameter all inputs
     !! \parameter matrix <MPB psi|psi>
@@ -252,19 +241,11 @@ contains
     ! zmel(igb,it,itp) = transpose(dcojng(ppovlz))*zmelt(:,it,itp)
     !   matmul(symgg(:,:,irot),kvec)-rkvec can have difference of reciprocal vectors.
     logical:: iprx
-    integer:: isp,nmmax,nqmax,irot,ispq,ispm,nmini,nqini, nctot,ncc
+    integer:: isp,nmmax,ns1,ns2,nqmax,irot,ispq,ispm,nmini,nqini, nctot,ncc
     real(8) ::  quu(3),q(3), kvec(3),rkvec(3)
     real(8),parameter::tolq=1d-8
-!    ispq = isp
-!    ispm = isp
-!    nmini=1
-!    nqini=1
-!    if(modex0) then
-!       nmini= nkmin ! (k)
-!       nqini= nkqmin! (k)
-!       ispm = isp_k
-!       ispq = isp_kq
-!    endif
+    nmini = ns1          !starting index of middle state  (nctot+nvalence order)
+    nmmax = ns2-nctot    !end      index of middle state  (nctot+nvalence order)
     ZmeltMain: Block
       use m_readeigen,only : readgeigf
       integer:: it,ia,kx,verbose,nstate,imdim(natom),nt0,ntp0,invr, iatomp(natom),ispq_rk
@@ -357,11 +338,13 @@ contains
       nbb=ngb
       if(nbbx/=0) nbb=nbbx
       if(zzmel0) then
-         allocate( zmel0(nbb,nmtot, nqtot))
+!         allocate( zmel0(nbb,nmtot, nqtot))
+         allocate( zmel0(nbb,ns1:ns2, nqtot))
          call matm(dconjg(transpose(ppovlz)), dconjg(zmelt), zmel0,nbb,ngb,nmtot*nqtot)
       else
          if(allocated(zmel)) deallocate(zmel)
-         allocate( zmel(nbb,nmtot, nqtot))
+!         allocate( zmel(nbb,nmtot, nqtot))
+         allocate( zmel(nbb,ns1:ns2, nqtot))
          call matm(dconjg(transpose(ppovlz)), dconjg(zmelt), zmel,nbb,ngb,nmtot*nqtot)
       endif
       deallocate(zmelt)

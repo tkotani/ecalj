@@ -56,8 +56,7 @@ subroutine strx00(tau,awald,alat,vol,glat,nkg,dlat,nkd,dl)
   double precision :: awald,alat,vol,dl
   ! local parameters
   integer :: ir,ir1
-  double precision :: pi,tpi,gamma,tpiba2,r1,r2,derfc,d1mach
-  external derfc,d1mach
+  double precision :: pi,tpi,gamma,tpiba2,r1,r2,d1mach
 
   pi = 4*datan(1d0)
   tpi = 2*pi
@@ -83,7 +82,7 @@ subroutine strx00(tau,awald,alat,vol,glat,nkg,dlat,nkd,dl)
      r1 = alat*dsqrt((tau(1)-dlat(1,ir))**2 + &
           (tau(2)-dlat(2,ir))**2 + &
           (tau(3)-dlat(3,ir))**2)
-     dl = dl + derfc(awald*r1)/r1
+     dl = dl + erfc(awald*r1)/r1
 20 enddo
 end subroutine strx00
 

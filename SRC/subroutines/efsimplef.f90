@@ -438,8 +438,6 @@ subroutine efsimplef2a (nspin,wibz,qibz,ginv,nband,nqibz, konfig,z,nl,natom,icla
      write(6,*)' efsimplef2:end'
   endif
 end subroutine efsimplef2a
-!----------------------------------------------------------------------------
-!------------------------------------------------------
 real(8) function enumef_gauss( wgtx,ektx,ein,esmr,nbnqnsp)
   implicit none
   integer:: nbnqnsp,ik
@@ -447,23 +445,11 @@ real(8) function enumef_gauss( wgtx,ektx,ein,esmr,nbnqnsp)
        derfcx,ein,esmr
   wwg = 0d0
   do ik = 1, nbnqnsp
-     wwg= wwg + wgtx(ik) &
-          *0.5d0* derfcx( -(ein-ektx(ik))/sqrt(2d0)/esmr )
+     wwg= wwg + wgtx(ik) *0.5d0* erfc( -(ein-ektx(ik))/sqrt(2d0)/esmr )
   enddo
   enumef_gauss = wwg
   !     write(6,*)' ein enumef=', ein, enumef
 END function enumef_gauss
-
-real(8) function derfcx(a)
-  real(8):: a, derfc,ax, amx=12d0
-  ax = a
-  if( abs(a)>amx) ax= a/abs(a) * amx
-  !      write(6,*)' xxx ',ax
-  !      write(6,*)' yyy ',derfc(ax)
-  derfcx=derfc(ax)
-END function derfcx
-
-!------------
 real(8) function enumef( wgtx,ektx,ein,esmr,nbnqnsp)
   implicit real*8(a-h,o-z)
   integer:: nbnqnsp,ik
@@ -481,9 +467,6 @@ real(8) function enumef( wgtx,ektx,ein,esmr,nbnqnsp)
   enumef = wwg
   !     write(6,*)' ein enumef=', ein, enumef
 END function enumef
-
-
-
 !---------------------------------------------------------------
 subroutine findemaxmin(nband,qbz,nqbz,nspin, emax,emin)
   use m_readeigen, only: readeval

@@ -184,10 +184,7 @@ subroutine delstd(n,x,d,s,e,ep)
   integer :: i,k
   double precision :: a,h1,h2,h3,s0,ex2,derfc,srpi
   !      intrinsic dsqrt,datan,dexp
-  external derfc
-
   srpi = dsqrt(4d0*datan(1d0))
-
   ! ... Fermi-Dirac broadening
   if (n < 0) then
      if (x < -36d0) goto 91
@@ -203,7 +200,7 @@ subroutine delstd(n,x,d,s,e,ep)
   if (x < -6d0) goto 91
   if (x >  6d0) goto 92
   ex2 = dexp(-x*x)
-  s0 = .5d0 * derfc(x)
+  s0 = .5d0 * erfc(x)
   a = 1d0/srpi
   k = 0
   h1 = 1d0
