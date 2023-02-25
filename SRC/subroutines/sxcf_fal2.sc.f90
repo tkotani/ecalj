@@ -141,7 +141,7 @@ module m_sxcf_main
   use m_readgwinput,only: ua_,  corehole,wcorehole
   use m_mpi,only: MPI__sxcf_rankdivider
   use m_ftox
-  use m_sxcf_count,only: ncount,ispc,kxc,irotc,ipc,krc,nstateMax,nstti,nstte,nwxic, nwxc, nt_maxc
+  use m_sxcf_count,only: ncount,ispc,kxc,irotc,ipc,krc,nstateMax,nstti,nstte,nstte2, nwxic, nwxc
 !  use m_hamindex,only: ngrp
 !  use m_eibzhs,only: nrkip=>nrkip_all,irkip_all
 !  use m_read_bzdata,only: qbz,nqibz,ginv,irk,nqbz
@@ -211,8 +211,8 @@ contains
        irot=irotc(icount)
        ip  =ipc(icount)
        kr  =krc(icount) !=irkip(isp,kx,irot,ip) runs all the k mesh points required for q(ip).
-       nwxi=nwxic(icount)
-       nwx =nwxc(icount)
+       nwxi=nwxic(icount) !minimum omega for W
+       nwx =nwxc(icount)  !max omega for W
        qibz_k = qibz(:,kx)
        q(1:3)= qibz(1:3,ip)
        eq = readeval(q,isp) !readin eigenvalue
@@ -228,9 +228,9 @@ contains
        zsec => zsecall(1:ntqxx,1:ntqxx,ip,isp)
        wtt = wk(kr)
        !if(eibz4sig()) wtt=wtt*nrkip(isp,kx,irot,ip)
-       ns1=nstti(icount) ! Range of middle states is [ns1:ns2] 
-       ns2=nstte(icount) ! 
-       ns2r=min(ns2,nt_maxc(icount)) !Range of middle states [ns1:ns2r] for CorrelationSelfEnergyRealAxis
+       ns1 =nstti(icount) ! Range of middle states is [ns1:ns2] 
+       ns2 =nstte(icount) ! 
+       ns2r=nstte2(icount) !Range of middle states [ns1:ns2r] for CorrelationSelfEnergyRealAxis
        write(6,ftox)'do3030:isp kx ip',isp,kx,ip,'icou/ncou=',icount,ncount,'ns1:ns2=',ns1,ns2
        ZmelBlock:block !zmel= <M(qbz_kr,ib) phi(it,q-qbz_kr,isp) |phi(itpp,q,isp)> 
        !                       ib=1,ngb !MPB,  it=ns1:ns2 ! MiddleState, itpp=1:ntqxx ! EndState, 
@@ -360,7 +360,6 @@ contains
              ikeep=99999
              do ix = nwxi,nwx  !Set wv3(:,:,0:2) is for ix,ix+1,ix+2
                 if(sum(nit_(:,ix))==0) cycle
-!             where(sum(nit_(:,nwxi:nwx),dim=1)/=0)
                 if(ikeep+1==ix) then ! use wv3 at previous ix. a cash mechanism
                    wv3(:,:,0)=wv3(:,:,1) 
                    wv3(:,:,1)=wv3(:,:,2)

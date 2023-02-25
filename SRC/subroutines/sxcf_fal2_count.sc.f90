@@ -12,8 +12,8 @@ module m_sxcf_count !job scheduler for self-energy calculation. icount mechanism
   public sxcf_scz_count
   !=== Job scheduler ==============
   integer,public:: ncount 
-  integer,allocatable,public:: ispc(:),kxc(:),irotc(:),ipc(:),krc(:),nstateMax(:),nstti(:),nstte(:)
-  integer,allocatable,public:: nwxic(:), nwxc(:), nt_maxc(:)
+  integer,allocatable,public:: ispc(:),kxc(:),irotc(:),ipc(:),krc(:),nstateMax(:),nstti(:),nstte(:),nstte2(:)
+  integer,allocatable,public:: nwxic(:), nwxc(:)
   !=========================================================
 contains
   subroutine sxcf_scz_count(ef,esmr,exchange,ixc,nspinmx) 
@@ -132,8 +132,8 @@ contains
     IcountBlock: Block !quick loop to gather index sets for main loop
       integer:: idiv       !      ncount=count(irkip/=0)
       allocate(ispc(ncount),kxc(ncount),irotc(ncount),ipc(ncount),krc(ncount))
-      allocate(nwxic(ncount), nwxc(ncount), nt_maxc(ncount),nstateMax(ncount))
-      allocate(nstti(ncount),nstte(ncount))
+      allocate(nwxic(ncount),nwxc(ncount),nstateMax(ncount))
+      allocate(nstti(ncount),nstte(ncount),nstte2(ncount))
       iqini = 1
       iqend = nqibz             !no sum for offset-Gamma points.
       icount=0
@@ -182,7 +182,7 @@ contains
                         ! get_nwx is not written clearly, but works and not time-consuming.
                         nwxic(icount)=nwxi 
                         nwxc(icount)=nwx
-                        nt_maxc(icount)=nt_max
+                        nstte2(icount)=min(nstte(icount),nt_max)
                      endif
                   enddo idivloop
 150            enddo iploop
@@ -228,20 +228,20 @@ contains
           wfac = wfacx2(omg,ef, ekc(it),esmrx)
           if(wfac<wfaccut) cycle !Gaussian case
           we = .5d0*(weavx2(omg,ef,ekc(it),esmr)-omg)
-          if(it<=nctot) then
-             if(wfac>wfaccut) call rx( "sxcf: it<=nctot.and.wfac/=0")
-          endif
+!          if(it<=nctot) then
+!             if(wfac>wfaccut) call rx( "sxcf: it<=nctot.and.wfac/=0")
+!          endif
           do iwp = 1,nw
              ixs=iwp
              if(freq_r(iwp)>abs(we)) exit
           enddo
           if(ixs>ixsmx  .and. omg>=ef ) ixsmx  = ixs
           if(ixs>ixsmin .and. omg< ef ) ixsmin = ixs
-          wexx  = we
-          if(ixs+1 > nw) then
-             write (*,*)'nw_i ixsmin wexx',nw_i,ixsmin,wexx,' omg ekc(it) ef ', omg,ekc(it),ef
-             call rx( ' sxcf 222: |w-e| out of range')
-          endif
+!          wexx  = we
+!          if(ixs+1 > nw) then
+!             write (*,*)'nw_i ixsmin wexx',nw_i,ixsmin,wexx,' omg ekc(it) ef ', omg,ekc(it),ef
+!             call rx( ' sxcf 222: |w-e| out of range')
+!          endif
 311    enddo !continue
 301 enddo !continue               
     if(nw_i==0) then          !time reversal
