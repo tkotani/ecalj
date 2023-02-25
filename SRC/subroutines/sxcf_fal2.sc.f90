@@ -336,7 +336,7 @@ contains
              integer,allocatable:: itc(:,:,:),itpc(:,:)
              real(8),allocatable:: wgt3p(:,:,:)
              if(timemix) call timeshow(" CorrR2:")
-             do concurrent( itp=1:ntqxx, it=1:nt_max) !itp:end states, it:middle states
+             do concurrent( itp=1:ntqxx, it=ns1:min(ns2,nt_max)) !it=ns1:ns2) !itp:end states, it:middle states
                 block
                   integer:: ixs
                   real(8):: amat(3,3),amatinv(3,3)   
@@ -353,19 +353,23 @@ contains
              enddo
              ! icount mechanism for sum ix,it,itp where W(we_(it,itp))=\sum_{i=0}^2 W(:,:,ix+i)*wgt3(i)         
              do concurrent(ix = nwxi:nwx,itp=lbound(zsec,1):ubound(zsec,1))
-                nit_(itp,ix)=count([((.not.ititpskip(it,itp)).and.iwgt3(it,itp)==ix,it=1,nt_max)])
+                nit_(itp,ix)=count([((.not.ititpskip(it,itp)).and.iwgt3(it,itp)==ix, it=ns1,min(ns2,nt_max))])
              enddo
+             ncoumx=maxval(nit_) !+ns1+1
              !do if(nit_(itp,ix)/=0)write(6,ftox)'icou ix itp ncou/nall=',icount,ix,itp,nit_(itp,ix),ntqxx*nt_max
-             ncoumx=maxval(nit_)
              allocate(itc(ncoumx,nwxi:nwx,ntqxx)) !,itpc(ncoumx,nwxi:nwx),wgt3p(0:2,ncoumx,nwxi:nwx))
-             do concurrent(ix = nwxi:nwx,itp=lbound(zsec,1):ubound(zsec,1))
-                iit=0
-                do it=1,nt_max
-                   if((.not.ititpskip(it,itp)).and.iwgt3(it,itp)==ix) then
-                      iit=iit+1
-                      itc(iit,ix,itp)=it !it for given ix,itp possible iit=1,nit_(itp,ix)
-                   endif
-                enddo
+             do concurrent(ix=nwxi:nwx, itp=1:ntqxx) !lbound(zsec,1):ubound(zsec,1))
+                block
+                  integer:: iit,it
+                  iit=0
+                  do it=ns1,min(ns2,nt_max) !
+                     if((.not.ititpskip(it,itp)).and.iwgt3(it,itp)==ix) then
+                        iit=iit+1
+                        itc(iit,ix,itp)=it !it for given ix,itp possible iit=1,nit_(itp,ix)
+                     endif
+                  enddo
+                  nit_(itp,ix)=iit
+                endblock
              enddo
              !   ix-shifting whenr reading zw(:,:,ix)
              ikeep=99999
@@ -390,7 +394,7 @@ contains
                 do itp=lbound(zsec,1),ubound(zsec,1)
                    do iit=1,nit_(itp,ix) !for it for given itp,ix
                       it =itc(iit,ix,itp)  !wv33 gives interpolated value of W(we_(it,itp))
-                      if(it <ns1 .or. ns2<it ) cycle !xxxxxxxxxxxxxxxx
+!                      if(it <ns1 .or. ns2<it ) cycle !xxxxxxxxxxxxxxxx
                       wv33 = wv3(:,:,0)*wgt3(0,it,itp) &
                            + wv3(:,:,1)*wgt3(1,it,itp) &
                            + wv3(:,:,2)*wgt3(2,it,itp) 
