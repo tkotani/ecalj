@@ -303,7 +303,6 @@ contains
               end associate
            enddo iwimag
          EndBlock CorrelationSelfEnergyImagAxis
-         
          CorrelationSelfEnergyRealAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
            real(8):: we_(ns1:ns2r,ntqxx),wfac_(ns1:ns2r,ntqxx)
            integer:: ixss(ns1:ns2r,ntqxx),iirx(ntqxx)
@@ -321,7 +320,6 @@ contains
              integer:: iwgt3(ns1:ns2r,ntqxx),i1,i2,iw,ikeep,ix
              integer:: nit_(ntqxx,nwxi:nwx),icountp,ncoumx,iit,irs
              integer,allocatable:: itc(:,:,:),itpc(:,:)
-             real(8),allocatable:: wgt3p(:,:,:)
              if(timemix) call timeshow(" CorrR2:")
              do concurrent( itp=1:ntqxx, it=ns1:ns2r) !it=ns1:ns2) !itp:end states, it:middle states
                 block
