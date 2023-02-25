@@ -180,7 +180,7 @@ contains
     real(8),allocatable:: we_(:,:),wfac_(:,:)
     complex(8),allocatable:: w3p(:),wtff(:)
     logical:: tote=.false.!, hermitianW
-    real(8),allocatable:: vcoud_(:),wfft(:)
+!    real(8),allocatable:: vcoud_(:),wfft(:)
     logical:: iprx,cmdopt0
     integer:: ixx,ixc,icount,ns1,ns2,ns1c,ns2c,ns1v
     real(8),parameter:: pi=4d0*datan(1d0), fpi=4d0*pi, tpi=8d0*datan(1d0),ddw=10d0
@@ -215,10 +215,10 @@ contains
        nwx =nwxc(icount)
        qibz_k = qibz(:,kx)
        q(1:3)= qibz(1:3,ip)
-       eq = readeval(q,isp)
+       eq = readeval(q,isp) !readin eigenvalue
        omega(1:ntq) = eq(1:ntq)  !1:ntq
        qbz_kr= qbz (:,kr)     !rotated qbz vector. 
-       qk =  q - qbz_kr        
+       qk =  q - qbz_kr       !<M(qbz_kr) phi(q-qbz_kr)|phi(q)>
        ekq = readeval(qk, isp) 
        ekc(nctot+1:nctot+nband) = ekq (1:nband)
        nt0  = count(ekc<ef) 
@@ -228,12 +228,11 @@ contains
        zsec => zsecall(1:ntqxx,1:ntqxx,ip,isp)
        wtt = wk(kr)
        !if(eibz4sig()) wtt=wtt*nrkip(isp,kx,irot,ip)
-       nstate = nstateMAX(icount) ! for the case of correlation
        ns1=nstti(icount) ! Range of middle states is [ns1:ns2] 
-       ns2=nstte(icount) ! nstte(icount) is upper bound of middle states
-       ns2r=min(ns2,nt_maxc(icount))
+       ns2=nstte(icount) ! 
+       ns2r=min(ns2,nt_maxc(icount)) !Range of middle states [ns1:ns2r] for CorrelationSelfEnergyRealAxis
        write(6,ftox)'do3030:isp kx ip',isp,kx,ip,'icou/ncou=',icount,ncount,'ns1:ns2=',ns1,ns2
-       ZmelBlock:block !zmel(ib,it,itpp)=<M(qbz_kr,ib,isp) phi(it,q-qbz_kr,isp)|phi(q(ip),itpp)>,qbz_kr=irot(qibz_k)
+       ZmelBlock:block !zmel= <M(qbz_kr,ib) phi(it,q-qbz_kr,isp) |phi(itpp,q,isp)> 
        !                       ib=1,ngb !MPB,  it=ns1:ns2 ! MiddleState, itpp=1:ntqxx ! EndState, 
          if(kxold/=kx) then
             call Readvcoud(qibz_k,kx,NoVcou=.false.) !Readin ngc,ngb,vcoud ! Coulomb matrix
@@ -246,28 +245,24 @@ contains
        endblock ZmelBlock
        Exchangemode: if(exchange) then      
           ExchangeSelfEnergy: Block
-            real(8):: wfacx
-            allocate(vcoud_(ngb),wtff(ns1:ns2)) !range of middle states ns1:ns2
+            real(8):: wfacx,vcoud_(ngb),wtff(ns1:ns2) !range of middle states ns1:ns2
             vcoud_= vcoud
             if(kx == iqini) vcoud_(1)=wklm(1)*fpi*sqrt(fpi)/wk(kx) !voud_(1) is effective v(q=0) in the Gamma cell.
             wtff= [(wfacx(-1d99, ef, ekc(it), esmr),it=ns1,ns2)]
-            do itpp= lbound(zsec,2),ubound(zsec,2)
-               do itp = lbound(zsec,1),ubound(zsec,1)
-                  block
-                    complex(8):: w3p(ns1:ns2)
-                    w3p(ns1:ns2)=[(sum(dconjg(zmel(:,it,itp))*vcoud_(:)*zmel(:,it,itpp)),it=ns1,ns2)]
-                    ns1v= max(nctot+1,ns1) ! minimum index of valence for core+valence
-                    w3p(ns1v:ns2) = w3p(ns1v:ns2) * wtff(ns1v:ns2)
-                    if(corehole) then !not checked well
-                       ns2c= min(ns2,nctot) !ns2c upper limit of core index of core+valence
-                       ns1c= ns1 !ns1c lower limit of core index of core+valence
-                       w3p(ns1c:ns2c) = w3p(ns1c:ns2c) * wcorehole(ns1c:ns2c,isp)
-                    endif
-                    zsec(itp,itpp) = zsec(itp,itpp) - wtt * sum( w3p(:) )
-                endblock
-               enddo
+            do concurrent(itp=lbound(zsec,1):ubound(zsec,1),itpp=lbound(zsec,2):ubound(zsec,2))
+               block
+                 complex(8):: w3p(ns1:ns2)
+                 w3p(ns1:ns2)=[(sum(dconjg(zmel(:,it,itp))*vcoud_(:)*zmel(:,it,itpp)),it=ns1,ns2)]
+                 ns1v= max(nctot+1,ns1) ! minimum index of valence for core+valence
+                 w3p(ns1v:ns2) = w3p(ns1v:ns2) * wtff(ns1v:ns2)
+                 if(corehole) then !not checked well
+                    ns2c= min(ns2,nctot) !ns2c upper limit of core index of core+valence
+                    ns1c= ns1 !ns1c lower limit of core index of core+valence
+                    w3p(ns1c:ns2c) = w3p(ns1c:ns2c) * wcorehole(ns1c:ns2c,isp)
+                 endif
+                 zsec(itp,itpp) = zsec(itp,itpp) - wtt * sum( w3p(:) )
+               endblock
             enddo
-            deallocate(vcoud_,wtff)
             if(timemix) call timeshow("ExchangeSelfEnergy cycle")
           EndBlock ExchangeSelfEnergy
           cycle  !end of exchange mode             
@@ -285,17 +280,14 @@ contains
          CorrelationSelfEnergyImagAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
            use m_purewintz,only: wintzsg_npm_wgtim
            integer:: iacc
-           real(8):: esmrx(nstate), omegat(ntqxx), wgtim(0:npm*niw,ntqxx,ns1:ns2)
+           real(8):: esmrx(ns1:ns2), omegat(ntqxx), wgtim(0:npm*niw,ntqxx,ns1:ns2)
            complex(8),target:: zw(nblochpmx,nblochpmx),zwz(ns1:ns2,ntqxx,ntqxx)
            logical:: init=.true.
            if(timemix) call timeshow(" CorrelationSelfEnergyImagAxis:")
-           ns2c= min(ns2,nctot)
-           ns1c= max(min(ns1,nctot),1)
-           ns1v= max(nctot+1,ns1) !    !print *,'ns1c,ns2c,ns1v=',ns1c,ns2c,ns1v
-           esmrx(ns1c:ns2c)= 0d0
-           esmrx(ns1v:ns2) = esmr
+           esmrx(ns1:nctot)= 0d0
+           esmrx(max(nctot+1,ns1):ns2) = esmr
            omegat(1:ntqxx) = omega(1:ntqxx)
-           itpdo:do concurrent(itp = lbound(zsec,1):ubound(zsec,1), it=lbound(zmelc,2):ubound(zmelc,2))
+           itpdo:do concurrent(itp = lbound(zsec,1):ubound(zsec,1), it=ns1:ns2)
                  we = .5d0*(omegat(itp)-ekc(it))
                  call wintzsg_npm_wgtim(npm, ua_,expa_, we,esmrx(it), wgtim(:,itp,it)) !pure
                  !Integration weight wgtim along im axis for zwz(0:niw*npm)

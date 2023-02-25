@@ -107,7 +107,7 @@ contains
       enddo kxloop
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!      
       ! ndivide = 2 
-      nstateavl = 16  ! middle stats are batched by nstateavl.
+      nstateavl = 16  ! middle states are batched by nstateavl.
       !nstateavl=max(sum(nstatemax)/(ncount*ndivide),1)
       if(ixc==3) nstateavl= maxval(nstatemax)
       ! size of average load of middle states (in G)
