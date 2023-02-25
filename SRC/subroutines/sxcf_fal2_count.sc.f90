@@ -67,10 +67,10 @@ contains
             irkip_all(is,:,:,iqq)=irk
          enddo
       enddo
-      allocate(    irkip(nspinmx,nqibz,ngrp,nqibz)) ! nrkip is weight correspoinding to irkip for a node.
+      allocate( irkip(nspinmx,nqibz,ngrp,nqibz) ) ! nrkip is weight correspoinding to irkip for a node.
       call MPI__sxcf_rankdivider(irkip_all,nspinmx,nqibz,ngrp,nqibz,  irkip)
     endblock rankdivider
-    PreIcountBlock: Block!Get nstateMax(ncount),ndiv(icount),nstatei(j,icount),nstatee(j,icount)
+    PreIcountBlock: Block!Get Size: nstateMax(ncount),ndiv(icount),nstatei(j,icount),nstatee(j,icount)
       integer:: ndivide,nstateavl,nnn,nloadav,nrem,idiv,j
       integer,allocatable:: nload(:)
       ncount=count(irkip/=0)
@@ -83,7 +83,7 @@ contains
             if(sum(irkip(isp,kx,:,:))==0) cycle ! next kx
             irotloop: do irot = 1,ngrp !over rotations irot ===
                if(sum(irkip(isp,kx,irot,:))==0) cycle ! next ip
-               iqloop: do 1150 ip = 1,nqibz         
+               iqloop: do ip = 1,nqibz         
                   kr = irkip(isp,kx,irot,ip) ! index for rotated kr in the FBZ
                   if(kr==0) cycle
                   icount=icount+1
@@ -101,17 +101,15 @@ contains
                      nbmax  = min(nband,nbmxe) 
                      nstateMax(icount) = nctot + nbmax ! = nstate for the case of correlation
                   endif
-1150           enddo iqloop
+               enddo iqloop
             enddo irotloop
          enddo isploop
       enddo kxloop
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!      
-      ! ndivide = 2 
       nstateavl = 16  ! middle states are batched by nstateavl.
-      !nstateavl=max(sum(nstatemax)/(ncount*ndivide),1)
-      if(ixc==3) nstateavl= maxval(nstatemax)
-      ! size of average load of middle states (in G)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      !nstateavl=max(sum(nstatemax)/(ncount*ndivide),1)
+      if(ixc==3) nstateavl= maxval(nstatemax) ! size of average load of middle states (in G)
       allocate(ndiv(ncount))
       ndiv = (nstatemax-1)/nstateavl + 1  !number of division for middle states.
       ndivmx = maxval(ndiv)
@@ -126,19 +124,13 @@ contains
          nstatei(:,icount)= [(sum(nload(1:idiv-1))+1,idiv=1,ndiv(icount))]!init index for(idiv,icount)
          nstatee(:,icount)= [(sum(nload(1:idiv)),    idiv=1,ndiv(icount))]!end  index
       enddo
-      !      do icount=1,ncount
-      !      do j=1,ndiv(icount)
-      !        write(6,ftox)'nnnx icou ndiv=',icount,j,nstatei(j,icount),nstatee(j,icount),nstatemax(icount)
-      !      enddo
-      !      enddo
       deallocate(nload,nstatemax)
     EndBlock PreIcountBlock
     write(6,*)'nnn init ncount=',ncount
     ncount = ncount*ndivmx
     ! icount mechanism for sum in MAINicountloop 3030
     IcountBlock: Block !quick loop to gather index sets for main loop
-      integer:: idiv
-      !      ncount=count(irkip/=0)
+      integer:: idiv       !      ncount=count(irkip/=0)
       allocate(ispc(ncount),kxc(ncount),irotc(ncount),ipc(ncount),krc(ncount))
       allocate(nwxic(ncount), nwxc(ncount), nt_maxc(ncount),nstateMax(ncount))
       allocate(nstti(ncount),nstte(ncount))
@@ -146,16 +138,16 @@ contains
       iqend = nqibz             !no sum for offset-Gamma points.
       icount=0
       icount0=0
-      do 130 kx = iqini,iqend !this is empty run to get index for icount ordering
-         do 120 isp = 1,nspinmx 
+      kxloop: do 130 kx = iqini,iqend !this is empty run to get index for icount ordering
+         isploop: do 120 isp = 1,nspinmx 
             if(sum(irkip(isp,kx,:,:))==0) cycle ! next kx
-            do 140 irot = 1,ngrp !over rotations irot ===
+            irotloop: do 140 irot = 1,ngrp !over rotations irot ===
                if(sum(irkip(isp,kx,irot,:))==0) cycle ! next ip
-               do 150 ip = 1,nqibz         
+               iploop: do 150 ip = 1,nqibz         
                   kr = irkip(isp,kx,irot,ip) ! index for rotated kr in the FBZ
                   if(kr==0) cycle
                   icount0=icount0+1
-                  do idiv=1,ndiv(icount0) !icount loop have further division of middle states by ndiv
+                  idivloop: do idiv=1,ndiv(icount0) !icount loop have further division of middle states by ndiv
                      icount=icount+1
                      nstti(icount)=nstatei(idiv,icount0) ! [nstti,nstte] specify range of middle states.
                      nstte(icount)=nstatee(idiv,icount0) !
@@ -192,11 +184,11 @@ contains
                         nwxc(icount)=nwx
                         nt_maxc(icount)=nt_max
                      endif
-                  enddo
-150            enddo
-140         enddo
-120      enddo
-130   enddo
+                  enddo idivloop
+150            enddo iploop
+140         enddo irotloop
+120      enddo isploop
+130   enddo kxloop
       if(icount0/=count(irkip/=0)) call rx('sxcf: icount/=count(irkip/=0)')
       ncount=icount
     EndBlock IcountBlock

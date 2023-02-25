@@ -207,7 +207,7 @@ contains
     MAINicountloop: do 3030 icount=1,ncount   !we only consider bzcase()==1 now
        !write(6,*)'do 3030 icount=',icount
        isp =ispc(icount)
-       kx  =kxc(icount) !for W(kx), kx is irreducible
+       kx  =kxc(icount) !for W(kx), kx is irreducible !kx is main axis
        irot=irotc(icount)
        ip  =ipc(icount)
        kr  =krc(icount) !=irkip(isp,kx,irot,ip) runs all the k mesh points required for q(ip).
@@ -273,24 +273,21 @@ contains
        !     ! it   : intermediate state of G.
        !     !===  See Eq.(55) around of PRB76,165106 (2007)
        !
-       zmelcww: Block !range of middle states is [ns1:ns2] instead of [1:nstate]. 2022-8-28
+       zmelcww: Block !range of middle states is [ns1:ns2] 
          complex(8):: zmelcww(1:ntqxx,ns1:ns2,1:ngb)
-         allocate(zmelc(1:ntqxx,ns1:ns2,1:ngb)) !1:nstate,1:ngb))
+         allocate(zmelc(1:ntqxx,ns1:ns2,1:ngb)) 
          forall(itp=1:ntqxx) zmelc(itp,:,:)=transpose(dconjg(zmel(:,:,itp))) 
          CorrelationSelfEnergyImagAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
            use m_purewintz,only: wintzsg_npm_wgtim
-           integer:: iacc
-           real(8):: esmrx(ns1:ns2), omegat(ntqxx), wgtim(0:npm*niw,ntqxx,ns1:ns2)
+           real(8):: esmrx(ns1:ns2), wgtim(0:npm*niw,ntqxx,ns1:ns2)
            complex(8),target:: zw(nblochpmx,nblochpmx),zwz(ns1:ns2,ntqxx,ntqxx)
            logical:: init=.true.
            if(timemix) call timeshow(" CorrelationSelfEnergyImagAxis:")
            esmrx(ns1:nctot)= 0d0
            esmrx(max(nctot+1,ns1):ns2) = esmr
-           omegat(1:ntqxx) = omega(1:ntqxx)
            itpdo:do concurrent(itp = lbound(zsec,1):ubound(zsec,1), it=ns1:ns2)
-                 we = .5d0*(omegat(itp)-ekc(it))
-                 call wintzsg_npm_wgtim(npm, ua_,expa_, we,esmrx(it), wgtim(:,itp,it)) !pure
-                 !Integration weight wgtim along im axis for zwz(0:niw*npm)
+              call wintzsg_npm_wgtim(npm,ua_,expa_,we=.5d0*(omega(itp)-ekc(it)),esmr=esmrx(it),  &
+                   wgtim=wgtim(:,itp,it))! Integration weight wgtim along im axis for zwz(0:niw*npm)
            enddo itpdo
            zmelcww=0d0
            iwimag:do ixx=0,niw !concurrent may(or maynot) be problematic because zmelcww is for accumlation
@@ -306,6 +303,7 @@ contains
               end associate
            enddo iwimag
          EndBlock CorrelationSelfEnergyImagAxis
+         
          CorrelationSelfEnergyRealAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
            real(8):: we_(ns1:ns2r,ntqxx),wfac_(ns1:ns2r,ntqxx)
            integer:: ixss(ns1:ns2r,ntqxx),iirx(ntqxx)
@@ -319,8 +317,7 @@ contains
            if(any(iirx(1:ntqxx)/=1)) call rx('sxcf: iirx=-1(TR breaking) is not yet implemented')
            CorrR2:Block
              real(8):: wgt3(0:2,ns1:ns2r,ntqxx),amat(3,3),amatinv(3,3)!3-point interpolation weight for we_(it,itp) 
-             complex(8)::zadd(ntqxx),wv33(ngb,ngb) ! ixss is starting index of omega
-             complex(8):: wv3(ngb,ngb,0:2)
+             complex(8)::zadd(ntqxx),wv33(ngb,ngb),wv3(ngb,ngb,0:2)
              integer:: iwgt3(ns1:ns2r,ntqxx),i1,i2,iw,ikeep,ix
              integer:: nit_(ntqxx,nwxi:nwx),icountp,ncoumx,iit,irs
              integer,allocatable:: itc(:,:,:),itpc(:,:)
@@ -365,6 +362,7 @@ contains
              ikeep=99999
              do ix = nwxi,nwx  !Set wv3(:,:,0:2) is for ix,ix+1,ix+2
                 if(sum(nit_(:,ix))==0) cycle
+!             where(sum(nit_(:,nwxi:nwx),dim=1)/=0)
                 if(ikeep+1==ix) then ! use wv3 at previous ix. a cash mechanism
                    wv3(:,:,0)=wv3(:,:,1) 
                    wv3(:,:,1)=wv3(:,:,2)
@@ -393,6 +391,7 @@ contains
              enddo
            Endblock CorrR2
          EndBlock CorrelationSelfEnergyRealAxis
+         
          if(timemix) call timeshow(" End of CorrelationSelfEnergyRealAxis:")
          block
            integer:: n1,nm,n2
