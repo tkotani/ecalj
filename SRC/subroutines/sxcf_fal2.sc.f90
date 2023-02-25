@@ -187,9 +187,10 @@ contains
     integer:: kxold,nccc,icount0
     complex(8),allocatable:: zmelc(:,:,:)
     integer,allocatable::ndiv(:),nstatei(:,:),nstatee(:,:),irkip(:,:,:,:)
+    integer:: ns2r
     iqini = 1
     iqend = nqibz             
-    allocate(zsecall(ntq,ntq,nqibz,nspinmx)) !, coh(ntq,nqibz) ) kount(nqibz,nqibz),
+    allocate(zsecall(ntq,ntq,nqibz,nspinmx)) 
     zsecall = 0d0
     if(.not.exchange) then! Read WV* containing W-v in MPB
        allocate(ifrcw(iqini:iqend),ifrcwi(iqini:iqend))
@@ -210,7 +211,6 @@ contains
        irot=irotc(icount)
        ip  =ipc(icount)
        kr  =krc(icount) !=irkip(isp,kx,irot,ip) runs all the k mesh points required for q(ip).
-       nt_max=nt_maxc(icount)
        nwxi=nwxic(icount)
        nwx =nwxc(icount)
        qibz_k = qibz(:,kx)
@@ -231,18 +231,18 @@ contains
        nstate = nstateMAX(icount) ! for the case of correlation
        ns1=nstti(icount) ! Range of middle states is [ns1:ns2] 
        ns2=nstte(icount) ! nstte(icount) is upper bound of middle states
+       ns2r=min(ns2,nt_maxc(icount))
        write(6,ftox)'do3030:isp kx ip',isp,kx,ip,'icou/ncou=',icount,ncount,'ns1:ns2=',ns1,ns2
-       !! Get 
-       !       call get_zmel_modex0(ns1,1,isp,isp) !set lower bound of middle state
-       ZmelBlock: block !Get zmel(ib,   it,     itpp) = <M(qbz_kr,ib,isp) phi(it,q-qbz_kr,isp) |phi(q(ip),itpp)> , qbz_kr= irot(qibz_k)
-       !                      it=> MiddleState,1:ns2-ns1+1   itpp=>EndState, 1:ntqxx
+       ZmelBlock:block !zmel(ib,it,itpp)=<M(qbz_kr,ib,isp) phi(it,q-qbz_kr,isp)|phi(q(ip),itpp)>,qbz_kr=irot(qibz_k)
+       !                       ib=1,ngb !MPB,  it=ns1:ns2 ! MiddleState, itpp=1:ntqxx ! EndState, 
          if(kxold/=kx) then
             call Readvcoud(qibz_k,kx,NoVcou=.false.) !Readin ngc,ngb,vcoud ! Coulomb matrix
             call Setppovlz(qibz_k,matz=.true.)       !Set ppovlz overlap matrix used in Get_zmel_init in m_zmel
             if(debug) write(6,*) ' sxcf_fal2sc: ngb ngc nbloch=',ngb,ngc,nbloch
             kxold =kx
          endif
-         call Get_zmel_init(q,qibz_k,irot,qbz_kr, ns1,ns2,isp, 1,ntqxx,isp, nctot,ncc=0,iprx=debug)!Return zmel middle=> ns1:ns2-ns1+1
+         call Get_zmel_init(q,qibz_k,irot,qbz_kr, ns1,ns2,isp, 1,ntqxx,isp, nctot,ncc=0,iprx=debug)
+                            !Return zmel middle=> ns1:ns2
        endblock ZmelBlock
        Exchangemode: if(exchange) then      
           ExchangeSelfEnergy: Block
@@ -255,7 +255,7 @@ contains
                do itp = lbound(zsec,1),ubound(zsec,1)
                   block
                     complex(8):: w3p(ns1:ns2)
-                    w3p(ns1:ns2)=[(sum(dconjg(zmel(:,it,itp))*vcoud_(:)*zmel(:,it,itpp)),it=1,ns2-ns1+1)]
+                    w3p(ns1:ns2)=[(sum(dconjg(zmel(:,it,itp))*vcoud_(:)*zmel(:,it,itpp)),it=ns1,ns2)]
                     ns1v= max(nctot+1,ns1) ! minimum index of valence for core+valence
                     w3p(ns1v:ns2) = w3p(ns1v:ns2) * wtff(ns1v:ns2)
                     if(corehole) then !not checked well
@@ -296,14 +296,12 @@ contains
            esmrx(ns1v:ns2) = esmr
            omegat(1:ntqxx) = omega(1:ntqxx)
            itpdo:do concurrent(itp = lbound(zsec,1):ubound(zsec,1), it=lbound(zmelc,2):ubound(zmelc,2))
-!           itpdo:do itp = lbound(zsec,1),ubound(zsec,1);  do it=lbound(zmelc,2),ubound(zmelc,2)
                  we = .5d0*(omegat(itp)-ekc(it))
                  call wintzsg_npm_wgtim(npm, ua_,expa_, we,esmrx(it), wgtim(:,itp,it)) !pure
                  !Integration weight wgtim along im axis for zwz(0:niw*npm)
-!              enddo
            enddo itpdo
            zmelcww=0d0
-           iwimag: do ixx=0,niw !concurrent may (or maynot) be problematic because zmelcww is for reduction (accumlation)
+           iwimag:do ixx=0,niw !concurrent may(or maynot) be problematic because zmelcww is for accumlation
 !           iwimag:do concurrent(ixx=0:niw) !niw is ~10. ixx=0 is for omega=0 nw_i=0 (Time reversal) or nw_i =-nw
               if(ixx==0) then ! at omega=0 ! nw_i=0 (Time reversal) or nw_i =-nw
                  read(ifrcw(kx),rec=1+(0-nw_i)) zw ! direct access read Wc(0) = W(0) - v
@@ -317,52 +315,52 @@ contains
            enddo iwimag
          EndBlock CorrelationSelfEnergyImagAxis
          CorrelationSelfEnergyRealAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
-           real(8):: we_(nt_max,ntqxx),wfac_(nt_max,ntqxx)
-           integer:: ixss(nt_max,ntqxx),iirx(ntqxx)
-           logical:: ititpskip(nt_max,ntqxx)
+           real(8):: we_(ns1:ns2r,ntqxx),wfac_(ns1:ns2r,ntqxx)
+           integer:: ixss(ns1:ns2r,ntqxx),iirx(ntqxx)
+           logical:: ititpskip(ns1:ns2r,ntqxx)
            complex(8),target:: zw(nblochpmx,nblochpmx)
            if(timemix) call timeshow(" CorrelationSelfEnergyRealAxis:")
            if(debug)write(6,*)' CorrelationSelfEnergyRealAxis: Block '
            call weightset4intreal(nctot,esmr,omega,ekc,freq_r,nw_i,nw,&
-                ntqxx,nt0m,nt0p,ef,nwx,nwxi,nt_max,wfaccut,wtt,&
+                ntqxx,nt0m,nt0p,ef,nwx,nwxi,ns1,ns2r,wfaccut,wtt,&
                 we_,wfac_,ixss,ititpskip,iirx)
            if(any(iirx(1:ntqxx)/=1)) call rx('sxcf: iirx=-1(TR breaking) is not yet implemented')
            CorrR2:Block
-             real(8):: wgt3(0:2,nt_max,ntqxx),amat(3,3),amatinv(3,3)    ! 3-point interpolation weight for we_(it,itp) 
+             real(8):: wgt3(0:2,ns1:ns2r,ntqxx),amat(3,3),amatinv(3,3)!3-point interpolation weight for we_(it,itp) 
              complex(8)::zadd(ntqxx),wv33(ngb,ngb) ! ixss is starting index of omega
              complex(8):: wv3(ngb,ngb,0:2)
-             integer:: iwgt3(nt_max,ntqxx),i1,i2,iw,ikeep,ix
+             integer:: iwgt3(ns1:ns2r,ntqxx),i1,i2,iw,ikeep,ix
              integer:: nit_(ntqxx,nwxi:nwx),icountp,ncoumx,iit,irs
              integer,allocatable:: itc(:,:,:),itpc(:,:)
              real(8),allocatable:: wgt3p(:,:,:)
              if(timemix) call timeshow(" CorrR2:")
-             do concurrent( itp=1:ntqxx, it=ns1:min(ns2,nt_max)) !it=ns1:ns2) !itp:end states, it:middle states
+             do concurrent( itp=1:ntqxx, it=ns1:ns2r) !it=ns1:ns2) !itp:end states, it:middle states
                 block
                   integer:: ixs
                   real(8):: amat(3,3),amatinv(3,3)   
                   if(ititpskip(it,itp)) cycle
-                  ixs = ixss(it,itp) !we_ is \omega_\epsilon in Eq.(55). !call alagr3z2wgt(we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp))
-                  associate( x=>we_(it,itp),xi=>freq_r(ixs-1:ixs+1)) !,wgt=>wgt3(:,it,itp))
+                  ixs = ixss(it,itp) !we_ is \omega_\epsilon in Eq.(55).
+                  !call alagr3z2wgt(we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp))
+                  associate( x=>we_(it,itp),xi=>freq_r(ixs-1:ixs+1)) 
                     amat(1:3,1) = 1d0
                     amat(1:3,2) = xi(1:3)**2
                     amat(1:3,3) = xi(1:3)**4
-                    wgt3(:,it,itp)= wfac_(it,itp)*matmul([1d0,x**2,x**4], minv33f(amat)) !amatinv) !call minv33(amat,amatinv)
-                  endassociate   !  wgt3(:,it,itp)= wfac_(it,itp)*wgt3(:,it,itp)
+                    wgt3(:,it,itp)= wfac_(it,itp)*matmul([1d0,x**2,x**4], inverse33(amat)) 
+                  endassociate  
                   iwgt3(it,itp) = iirx(itp)*(ixs+1-2) !starting omega index ix for it,itp
                 endblock
              enddo
              ! icount mechanism for sum ix,it,itp where W(we_(it,itp))=\sum_{i=0}^2 W(:,:,ix+i)*wgt3(i)         
              do concurrent(ix = nwxi:nwx,itp=lbound(zsec,1):ubound(zsec,1))
-                nit_(itp,ix)=count([((.not.ititpskip(it,itp)).and.iwgt3(it,itp)==ix, it=ns1,min(ns2,nt_max))])
+                nit_(itp,ix)=count([((.not.ititpskip(it,itp)).and.iwgt3(it,itp)==ix, it=ns1,ns2r)])
              enddo
-             ncoumx=maxval(nit_) !+ns1+1
-             !do if(nit_(itp,ix)/=0)write(6,ftox)'icou ix itp ncou/nall=',icount,ix,itp,nit_(itp,ix),ntqxx*nt_max
+             ncoumx=maxval(nit_) 
              allocate(itc(ncoumx,nwxi:nwx,ntqxx)) !,itpc(ncoumx,nwxi:nwx),wgt3p(0:2,ncoumx,nwxi:nwx))
              do concurrent(ix=nwxi:nwx, itp=1:ntqxx) !lbound(zsec,1):ubound(zsec,1))
                 block
                   integer:: iit,it
                   iit=0
-                  do it=ns1,min(ns2,nt_max) !
+                  do it=ns1,ns2r
                      if((.not.ititpskip(it,itp)).and.iwgt3(it,itp)==ix) then
                         iit=iit+1
                         itc(iit,ix,itp)=it !it for given ix,itp possible iit=1,nit_(itp,ix)
@@ -394,7 +392,6 @@ contains
                 do itp=lbound(zsec,1),ubound(zsec,1)
                    do iit=1,nit_(itp,ix) !for it for given itp,ix
                       it =itc(iit,ix,itp)  !wv33 gives interpolated value of W(we_(it,itp))
-!                      if(it <ns1 .or. ns2<it ) cycle !xxxxxxxxxxxxxxxx
                       wv33 = wv3(:,:,0)*wgt3(0,it,itp) &
                            + wv3(:,:,1)*wgt3(1,it,itp) &
                            + wv3(:,:,2)*wgt3(2,it,itp) 
@@ -421,18 +418,19 @@ contains
        if(timemix) call timeshow("   end icount do 3030")
 3030 enddo MAINicountloop
   endsubroutine sxcf_scz_main
-  subroutine weightset4intreal(nctot,esmr,omega,ekc,freq_r,nw_i,nw,&
-       ntqxx,nt0m,nt0p,ef,nwx,nwxi,nt_max,wfaccut,wtt, we_,wfac_,ixss,ititpskip,iirx)
+  subroutine weightset4intreal(& ! generate required data set for main part of real part integration.
+         nctot,esmr,omega,ekc,freq_r,nw_i,nw,ntqxx,nt0m,nt0p,ef,nwx,nwxi,ns1,ns2r,wfaccut,wtt,&
+         we_,wfac_,ixss,ititpskip,iirx)
     implicit none
-    intent(in)::               nctot,esmr,omega,ekc,freq_r,nw_i,nw,&
-         ntqxx,nt0m,nt0p,ef,nwx,nwxi,nt_max,wfaccut,wtt
-    intent(out)::                                      we_,wfac_,ixss,ititpskip,iirx
-    !! generate required data set for main part of real part integration.
-    integer:: ntqxx,nctot,nw_i,nw,nt0m,nwx,nwxi,nt_max
+    intent(in)::&
+         nctot,esmr,omega,ekc,freq_r,nw_i,nw,ntqxx,nt0m,nt0p,ef,nwx,nwxi,ns1,ns2r,wfaccut,wtt
+    intent(out)::&
+         we_,wfac_,ixss,ititpskip,iirx
+    integer:: ntqxx,nctot,nw_i,nw,nt0m,nwx,nwxi,ns2r,ns1
     real(8):: ef,omega(ntqxx),ekc(ntqxx),freq_r(nw_i:nw),esmr,wfaccut,wtt
-    real(8):: we_(nt_max,ntqxx),wfac_(nt_max,ntqxx)
-    integer:: ixss(nt_max,ntqxx),iirx(ntqxx)
-    logical:: ititpskip(nt_max,ntqxx)
+    real(8):: we_(ns1:ns2r,ntqxx),wfac_(ns1:ns2r,ntqxx)
+    integer:: ixss(ns1:ns2r,ntqxx),iirx(ntqxx)
+    logical:: ititpskip(ns1:ns2r,ntqxx)
     integer:: itini,iii,it,itend,wp,itp,iwp,nt0p,ixs
     real(8):: omg,esmrx,wfacx2,we,wfac,weavx2
     ixs=-9999
@@ -442,16 +440,14 @@ contains
        iirx(itp) = 1
        if( omg < ef .and. nw_i/=0) iirx(itp) = -1
        if (omg >= ef) then
-          itini= nt0m+1
-          itend= nt_max
+          itini= max(ns1,nt0m+1)
+          itend= ns2r
           iii=  1
        else
-          itini= 1
-          itend= nt0p
+          itini= max(1,ns1)
+          itend= min(nt0p,ns2r)
           iii= -1
        endif
-       ititpskip(:itini-1,itp)=.true.
-       ititpskip(itend+1:,itp)=.true.
        do it = itini,itend     ! nt0p corresponds to efp
           esmrx = esmr
           if(it<=nctot) esmrx = 0d0
@@ -466,15 +462,11 @@ contains
           !   wfac_ = $w$ weight (smeared thus truncated by ef). See the sentences.
           we_(it,itp) = .5d0* abs( omg-weavx2(omg,ef, ekc(it),esmr) ) 
           we= we_(it,itp) 
-          if(it<=nctot .and.wfac>wfaccut) call rx( "sxcf: it<=nctot.and.wfac/=0")
           do iwp = 1,nw 
              ixs = iwp
              if(freq_r(iwp)>we) exit
           enddo
           ixss(it,itp) = ixs
-          if(nw_i==0.and.ixs+1>nwx) call rx( ' sxcf: ixs+1>nwx xxx2')
-          if(nw_i/=0.and.omg >=ef .and. ixs+1> nwx) call rx( ' sxcf: ixs+1>nwx yyy2a')
-          if(nw_i/=0.and.omg < ef .and. abs(ixs+1)> abs(nwxi)) call rx( ' sxcf: ixs-1<nwi yyy2b')
        enddo
     enddo
   end subroutine weightset4intreal
@@ -490,20 +482,18 @@ contains
     enddo
     c= c+ matmul(aa,b)
   end subroutine matmaw
-  pure function minv33f(matrix) result(inverse) !Inverts 3X3 matrix
+  pure function inverse33(matrix) result(inverse) !Inverts 3X3 matrix
     implicit none
     real(8),intent(in) :: matrix(3,3)
-    real(8) :: inverse(3,3)
-    real(8) :: det
+    real(8) :: inverse(3,3), det
     inverse(:,1)= crossf(matrix(:,2),matrix(:,3))
     inverse(:,2)= crossf(matrix(:,3),matrix(:,1))
     inverse(:,3)= crossf(matrix(:,1),matrix(:,2))
-    det = sum(matrix(:,1)*inverse(:,1)) !ddot(3,matrix,1,inverse,1)
-    !if (abs(det) ==0d0) call rx( 'minv33: vanishing determinant')
+    det = sum(matrix(:,1)*inverse(:,1)) 
     inverse = transpose(inverse)
     inverse = inverse/det
-  end function minv33f
-  pure  function crossf(a,b) result(c)
+  end function inverse33
+  pure function crossf(a,b) result(c)
     implicit none
     intent(in):: a,b
     real(8):: a(3),b(3),c(3)
