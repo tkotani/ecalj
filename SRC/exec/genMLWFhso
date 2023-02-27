@@ -16,74 +16,85 @@ MATERIAL=$1
 MPI_SIZE=$3
 NO_MPI=0
 ### end of processing input arguments ###
-if [ ! -e bnds.$1 ];then 
-    echo "!!! Perform job_band in advance!" 
+if [ ! -e bnd001.spin1 ];then 
+    $echo_run echo "!!! Perform job_band in advance!" 
     exit
 fi
 
+### Read funcitons run_arg and run_arg_tee defined in a file run_arg ###
+source $nfpgw/run_arg
+
+
 ######## start here ##########
-echo "### START genMLWF: MPI size= " $MPI_SIZE, "MATERIAL= "$MATERIAL
-rm -f SYML BNDS
+$echo_run echo "### START genMLWF: MPI size= " $MPI_SIZE, "MATERIAL= "$MATERIAL
+rm -f SYML 
 ln -s syml.${MATERIAL} SYML
-ln -s bnds.${MATERIAL} BNDS
+#ln -s bnds.${MATERIAL} BNDS
 ## Make softlink from sigm --> simg.$MATERIAL.
 ## If sigm and sigm.$MATERIAL coexist, sigm.$MATERIAL is moved to sigm.$MATERIAL.backup in advance.
 if [ -e sigm ]; then 
     if [ -e sigm.$MATERIAL ]; then
 	mv sigm.$MATERIAL sigm.$MATERIAL.bakup 
   	ln -s -f sigm sigm.$MATERIAL 
-  	echo '--- sigm is used. sigm.$MATERIAL is softlink to it  ---'
+  	$echo_run echo '--- sigm is used. sigm.$MATERIAL is softlink to it  ---'
     fi
 else
-    echo '--- Neither sigm nor sigm.$MATERIAL exists. ==> LDA '
+    $echo_run echo '--- Neither sigm nor sigm.$MATERIAL exists. ==> LDA '
 fi 
 
 ######## lmf part #########################################
-set -x
-$nfpgw/lmfa  $MATERIAL >& llmfa 
-mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK  $MATERIAL >& llmf_start
+run_arg '---' $NO_MPI   $nfpgw /lmfa  llmfa $MATERIAL # if lmfa is not yet.
+run_arg '---' $MPI_SIZE $nfpgw /lmf-MPIK llmf_start $MATERIAL
 rm -f ewindow.${MATERIAL}* qbyl.${MATERIAL}* eigze*.${MATERIAL}* # remove temporaly files.
-$nfpgw/lmf-MPIK --job=0 --jobgw $MATERIAL >& llmfgw00 
-$nfpgw/qg4gw  --job=1 >&   lqg4gw  
-mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK --job=1 --jobgw $MATERIAL >& llmfgw01 
-#$nfpgw/lmf2gw  >&   llmf2gw 
+
+##### preparation of required inputs for GW (mainly prepare required eigenfuncitons) ######
+argin=0; run_arg $argin $NO_MPI   $nfpgw /lmf-MPIK  llmfgw00 $MATERIAL --jobgw
+argin=1; run_arg $argin $NO_MPI   $nfpgw /qg4gw      lqg4gw   #Generate requied q+G vectors.
+argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmf-MPIK llmfgw01 $MATERIAL --jobgw
+#run_arg  '---' $NO_MPI   $nfpgw /lmf2gw     llmf2gw  #reform data for gw
+
 ##### GW related part (up to preparation of MPB) ###########
-$nfpgw/rdata4gw_v2 --job=0 >& lrdata4gw_v2 # Prepare all files for GW
-$nfpgw/heftet --job=1 >& leftet # A file EFERMI for hx0fp0 generated
-$nfpgw/hbasfp0 --job=0 >& lbas   # Product basis generation mode=4
-echo 1| $nfpgw/hmaxloc >& lmaxloc1     # b-vector BBVEC
-echo 1| mpirun -np $MPI_SIZE $nfpgw/hpsig_MPI >& lpsig_MPI # PSIG* =<Psi|Gaussian>.
+run_arg $argin $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2
+if [ -e ANFcond ];then # This is for ANFcond. Unused recently
+    #  cp EVU EVD  
+    $echo_run echo "Not maintained recently" 
+    exit 10
+fi
+argin=1; run_arg $argin $NO_MPI $nfpgw /heftet leftet # A file EFERMI for hx0fp0
+#argin=1; run_arg $argin $NO_MPI $nfpgw /hchknw lchknw # A file NW, containing nw for given QPNT (probably only for one-shot GW).
+argin=0; run_arg $argin $NO_MPI $nfpgw /hbasfp0 lbas  # Product basis generation 
+
+##### maxloc start here #########################
+argin=1 ;run_arg $argin $NO_MPI $nfpgw   /hmaxloc lmaxloc1     # b-vector BBVEC
+argin=1 ;run_arg $argin $MPI_SIZE $nfpgw /hpsig_MPI lpsig_MPI # PSIG* =<Psi|Gaussian>.
 # Gather all PSIG* into a file. (U meand UP isp=1, D means Down spin isp=2)
-set +x
 cat PSIGU.* >PSIGU
 rm -f PSIGU.*
 if [ -e PSIGD.0000 ]; then 
     cat PSIGD.* >PSIGD
     rm -f PSIGD.*
 fi
-set -x
-echo 2|mpirun -np $MPI_SIZE $nfpgw/huumat_MPI >& luumat2
-# UU (UUmatrix <u_k,i|u_k+b,j>) matrix are caltulated.
+
+argin=2 ;run_arg $argin $MPI_SIZE $nfpgw /huumat_MPI luumat2   # UU (UUmatrix <u_k,i|u_k+b,j>) matrix are caltulated.
 # Gather all UU*.* into a file UUU/UUD.
-set +x
 cat UUU.* >UUU
 rm -f UUU.*
 if [ -e UUD.0000 ]; then 
     cat UUD.* >UUD
     rm -f UUD.*
 fi
-
-set -x
 # -- Main part of Wannier (Both of Souza's and Marzari's and procedures sucessively).
-echo 2| $nfpgw/hmaxloc >& lmaxloc2  #(band plot data are generated.)
-#run_arg '---' $NO_MPI $nfpgw  /wanplot lwanplot 
-#$nfpgw/wanplot >& lwanplot
+argin=2; run_arg $argin $NO_MPI $nfpgw /hmaxloc lmaxloc2  #(band plot data are generated.)
 
 
+############## Wannier function plot. *.xsf for Xcrysden. ############
+run_arg '---' $NO_MPI $nfpgw  /wanplot lwanplot 
 
 #### dipole part ####
-$nfpgw/qg4gw  --job=1 --allqbz >&   lqg4gwdipole  
-mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK --jobgw --job=1 --socmatrix $MATERIAL >& llmfgw01hso
-$nfpgw/hsocmat >& lsocmat
-exit
-
+argin=1; run_arg $argin $NO_MPI $nfpgw  /qg4gw lqg4gwdipole --allqbz
+argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmf-MPIK llmfgw01hso $MATERIAL --socmatrix --jobgw
+run_arg '---' $NO_MPI $nfpgw /hsocmat  lsocmat
+#$nfpgw/qg4gw  --job=1 --allqbz >&   lqg4gwdipole
+#mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK --jobgw --job=1 --socmatrix $MATERIAL >& llmfgw01hso
+#$nfpgw/hsocmat >& lsocmat
+exit 0

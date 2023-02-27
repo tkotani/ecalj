@@ -278,35 +278,30 @@ contains
     implicit none
     integer:: iii,ixx,iyy, ifsec(2), ifsex(2), ifsex2(2),ifsec2(2)
     character(1):: keys
+    character(4):: kcore
     if(is==1) keys='U'
     if(is==2) keys='D'
+    kcore=''
+    if(ixc==3) kcore='core'
     if(exchange) then
-       if(ixc==1) then
-          open(newunit=ifsex(is),file='SEX'//keys) !//xt(nz))
-          open(newunit=ifsex2(is),file='SEX2'//keys,form='unformatted') !out SEX_nn'
-       elseif(ixc==3) then
-          open(newunit=ifsex(is),file='SEXcore'//keys) !//xt(nz))
-          open(newunit=ifsex2(is),file='SEXcore2'//keys,form='unformatted') !out SEXcore_nn'
-       endif
+       open(newunit=ifsex(is), file='SEX'//trim(kcore)//keys) !//xt(nz))
+       open(newunit=ifsex2(is),file='SEX'//trim(kcore)//'2'//keys,form='unformatted') !out SEX_nn'
        write(ifsex(is),*) '======================================='
        write(ifsex(is),"('Self-energy exchange SEx(q,t): is=',i3)") is
        write(ifsex(is),*) '======================================='
-       call winfo(ifsex(is),nspin,nq,ntq,is,nbloch,ngpn1, &
-            ngcn1,nqbz,nqibz,ef,deltaw,alat,esmr)
+       call winfo(ifsex(is),nspin,nq,ntq,is,nbloch,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat,esmr)
        write (ifsex(is),*)' *** '
-       write (ifsex(is),"(a)") ' jband   iq ispin                  '// &
-            '           qibz            eigen-Ef (in eV)           exchange (in eV)'
+       write (ifsex(is),"(a)")&
+       ' jband   iq ispin                             qibz            eigen-Ef (in eV)           exchange (in eV)'
        write(ifsex2(is)) nspin, nq, ntq,nqbz,nqibz, n1,n2,n3
        write(stdo,*)
        do ip = 1,nq
           do i  = 1,ntq
              write(ifsex(is),"(3i5,3d24.16,3x,d24.16,3x,d24.16)") &
-                  i,ip,is, qibz(1:3,ip), eqx(i,ip,is), &
-                  hartree*dreal(zsec(i,i,ip)) !sf 21May02
-             if( eqx(i,ip,is)<1d20 .AND. abs(zsec(i,i,ip))/=0d0 ) then !takao june2009
+                  i,ip,is, qibz(1:3,ip), eqx(i,ip,is), hartree*dreal(zsec(i,i,ip)) 
+             if( eqx(i,ip,is)<1d20 .AND. abs(zsec(i,i,ip))/=0d0 ) then 
                 write(stdo,"(' j iq isp=' i3,i4,i2,'  q=',3f8.4,' eig=',f10.4,'  Sx=',f10.4)") &
-                     i,ip,is, qibz(1:3,ip), eqx(i,ip,is), &
-                     hartree*dreal(zsec(i,i,ip)) !sf 21May02
+                     i,ip,is, qibz(1:3,ip), eqx(i,ip,is), hartree*dreal(zsec(i,i,ip))
              endif
           enddo
           write(ifsex2(is)) is, qibz(1:3,ip), zsec(1:ntq,1:ntq,ip) !SEC_nn' out
@@ -314,19 +309,13 @@ contains
        close(ifsex(is))
        close(ifsex2(is))
     elseif(ixc==2) then
-!       if(is == 1 .AND. ixc==2) then
-          open(newunit=ifsec(is),file='SEC'//keys) !//xt(nz))
-          open(newunit=ifsec2(is),file='SEC2'//keys,form='unformatted') !out SEC_nn'
-!       elseif(is == 2 .AND. ixc==2) then
-!          open(newunit=ifsec(2),file='SECD') !//xt(nz))
-!          open(newunit=ifsec2(2),file='SEC2D',form='unformatted') !out SEC_nn'
-!       endif
+       open(newunit=ifsec(is),file='SEC'//keys) !//xt(nz))
+       open(newunit=ifsec2(is),file='SEC2'//keys,form='unformatted') !out SEC_nn'
        write(ifsec2(is)) nspin, nq, ntq ,nqbz,nqibz  ,n1,n2,n3
        write(ifsec(is),*) '=========================================='
        write(ifsec(is),"('Self-energy correlated SEc(qt,w): is=',i3)") is
        write(ifsec(is),*) '=========================================='
-       call winfo(ifsec(is),nspin,nq,ntq,is,nbloch,ngpn1, &
-            ngcn1,nqbz,nqibz,ef,deltaw,alat,esmr)
+       call winfo(ifsec(is),nspin,nq,ntq,is,nbloch,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat,esmr)
        write (ifsec(is),*)' *** '
        write (ifsec(is),"(a)") ' jband   iq ispin                  '// &
             '           qibz            eigen-Ef (in eV)           '// &
@@ -336,20 +325,16 @@ contains
           do i  = 1,ntq
              if( eqx(i,ip,is)<1d20 .AND. abs(zsec(i,i,ip))/=0d0 ) then !takao june2009
                 write(stdo,"(' j iq isp=' i3,i4,i2,'  q=',3f8.4,'  eig=',f8.4,'  Re(Sc) =',f8.4,'  Img(Sc) =',f8.4 )") &
-                     i,ip,is, qibz(1:3,ip), eqx(i,ip,is), &
-                     hartree*dreal(zsec(i,i,ip)), &
-                     hartree*dimag(zsec(i,i,ip))
+                     i,ip,is, qibz(1:3,ip), eqx(i,ip,is),hartree*dreal(zsec(i,i,ip)),hartree*dimag(zsec(i,i,ip))
              endif
              write(ifsec(is),"(3i5,3d24.16,3x,d24.16,3x,d24.16, 3x,d24.16)") &
-                  i,ip,is, qibz(1:3,ip), eqx(i,ip,is), &
-                  hartree*dreal(zsec(i,i,ip)), &
-                  hartree*dimag(zsec(i,i,ip))
+                  i,ip,is, qibz(1:3,ip), eqx(i,ip,is),hartree*dreal(zsec(i,i,ip)),hartree*dimag(zsec(i,i,ip))
           end do
           write(ifsec2(is)) is, qibz(1:3,ip), zsec(1:ntq,1:ntq,ip) !SEC_nn' out
        end do
        close(ifsec(is))
        close(ifsec2(is))
-    endif                     !ixc
+    endif      
   end subroutine HsWriteResult
 end program hsfp0_sc
 

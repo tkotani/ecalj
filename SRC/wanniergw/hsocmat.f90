@@ -204,6 +204,7 @@ program hsocmat
         !          endif
         !c          dipole(:,:,:,isp) = dipole(:,:,:,isp) + dipoig1
         !c          orthcheck(:,:,isp)= orthcheck(:,:,isp) + orth
+        close(ifievec_) !suzuki 2023feb
 1014 enddo
 1012 enddo
 
