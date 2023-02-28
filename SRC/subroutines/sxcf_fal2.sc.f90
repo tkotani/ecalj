@@ -160,7 +160,7 @@ contains
     integer,allocatable :: ifrcw(:),ifrcwi(:)
     integer :: ip, it, itp, i, ix, kx, irot, kr
     integer :: nt0p, nt0m,nstate , nbmax, ntqxx 
-    integer :: nt,ixs,iw,ivc,ifvcoud,ngb0
+    integer :: nt,iw,ivc,ifvcoud,ngb0
     integer :: ifwd,nrot,nwp,ierr 
     integer :: iqini,iqend
     integer :: invr,ia,nn,ntp0,no,itpp,nrec,itini,itend,nbmxe
@@ -175,7 +175,7 @@ contains
     complex(8), parameter :: img=(0d0,1d0)
     character(10) :: i2char
     real(8)::polinta, wfacx, wfacx2, weavx2, wexx,ua2_(niw),freqw1,q_r(3),qk(3)
-    logical,parameter :: debug=.false.,timemix=.true.
+    logical,parameter :: debug=.false.,timemix=.false.
     logical ::   oncew, onceww !, eibz4sig  
     real(8),allocatable:: we_(:,:),wfac_(:,:)
     complex(8),allocatable:: w3p(:),wtff(:)
@@ -201,9 +201,7 @@ contains
           endif
        enddo
     endif
-    if(nctot/=0) ekc(1:nctot)= ecore(1:nctot,isp) ! core
-    kxold=-9999
-    !nccc= max(ncount/50,1) !just for printing
+    kxold=-9999     !nccc= max(ncount/50,1) !just for printing
     MAINicountloop: do 3030 icount=1,ncount   !we only consider bzcase()==1 now
        !write(6,*)'do 3030 icount=',icount
        isp =ispc(icount)
@@ -220,6 +218,7 @@ contains
        qbz_kr= qbz (:,kr)     !rotated qbz vector. 
        qk =  q - qbz_kr       !<M(qbz_kr) phi(q-qbz_kr)|phi(q)>
        ekq = readeval(qk, isp) 
+       ekc(1:nctot)= ecore(1:nctot,isp) ! core
        ekc(nctot+1:nctot+nband) = ekq (1:nband)
        nt0  = count(ekc<ef) 
        nt0p = count(ekq<ef+ddw*esmr) +nctot 
@@ -231,7 +230,7 @@ contains
        ns1 =nstti(icount) ! Range of middle states is [ns1:ns2] 
        ns2 =nstte(icount) ! 
        ns2r=nstte2(icount) !Range of middle states [ns1:ns2r] for CorrelationSelfEnergyRealAxis
-       write(6,ftox)'do3030:isp kx ip',isp,kx,ip,'icou/ncou=',icount,ncount,'ns1:ns2=',ns1,ns2
+!       write(6,ftox)'do3030:isp kx ip',isp,kx,ip,'icou/ncou=',icount,ncount,'ns1:ns2=',ns1,ns2
        ZmelBlock:block !zmel= <M(qbz_kr,ib) phi(it,q-qbz_kr,isp) |phi(itpp,q,isp)> 
        !                       ib=1,ngb !MPB,  it=ns1:ns2 ! MiddleState, itpp=1:ntqxx ! EndState, 
          if(kxold/=kx) then
@@ -261,7 +260,7 @@ contains
                     w3p(ns1c:ns2c) = w3p(ns1c:ns2c) * wcorehole(ns1c:ns2c,isp)
                  endif
                  zsec(itp,itpp) = zsec(itp,itpp) - wtt * sum( w3p(:) )
-               endblock
+               end block
             enddo
             if(timemix) call timeshow("ExchangeSelfEnergy cycle")
           EndBlock ExchangeSelfEnergy
@@ -290,7 +289,7 @@ contains
                    wgtim=wgtim(:,itp,it))! Integration weight wgtim along im axis for zwz(0:niw*npm)
            enddo itpdo
            zmelcww=0d0
-           iwimag:do ixx=0,niw !concurrent may(or maynot) be problematic because zmelcww is for accumlation
+           iwimag:do ixx=0,niw !concurrent may(or maynot) be problematic because zmelcww is for reduction 
 !           iwimag:do concurrent(ixx=0:niw) !niw is ~10. ixx=0 is for omega=0 nw_i=0 (Time reversal) or nw_i =-nw
               if(ixx==0) then ! at omega=0 ! nw_i=0 (Time reversal) or nw_i =-nw
                  read(ifrcw(kx),rec=1+(0-nw_i)) zw ! direct access read Wc(0) = W(0) - v
@@ -306,40 +305,36 @@ contains
          CorrelationSelfEnergyRealAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
            real(8):: we_(ns1:ns2r,ntqxx),wfac_(ns1:ns2r,ntqxx)
            integer:: ixss(ns1:ns2r,ntqxx),iirx(ntqxx)
-           logical:: ititpskip(ns1:ns2r,ntqxx)
+!           logical:: ititpskip(ns1:ns2r,ntqxx)
            complex(8),target:: zw(nblochpmx,nblochpmx)
            if(timemix) call timeshow(" CorrelationSelfEnergyRealAxis:")
            if(debug)write(6,*)' CorrelationSelfEnergyRealAxis: Block '
            call weightset4intreal(nctot,esmr,omega,ekc,freq_r,nw_i,nw,&
                 ntqxx,nt0m,nt0p,ef,nwx,nwxi,ns1,ns2r,wfaccut,wtt,&
-                we_,wfac_,ixss,ititpskip,iirx)
+                we_,wfac_,ixss,iirx)
            if(any(iirx(1:ntqxx)/=1)) call rx('sxcf: iirx=-1(TR breaking) is not yet implemented')
            CorrR2:Block
-             real(8):: wgt3(0:2,ns1:ns2r,ntqxx),amat(3,3),amatinv(3,3)!3-point interpolation weight for we_(it,itp) 
+             real(8):: wgt3(0:2,ns1:ns2r,ntqxx),amat(3,3)!3-point interpolation weight for we_(it,itp) 
              complex(8)::zadd(ntqxx),wv33(ngb,ngb),wv3(ngb,ngb,0:2)
              integer:: iwgt3(ns1:ns2r,ntqxx),i1,i2,iw,ikeep,ix
              integer:: nit_(ntqxx,nwxi:nwx),icountp,ncoumx,iit,irs
              integer,allocatable:: itc(:,:,:),itpc(:,:)
              if(timemix) call timeshow(" CorrR2:")
              do concurrent( itp=1:ntqxx, it=ns1:ns2r) !it=ns1:ns2) !itp:end states, it:middle states
-                block
-                  integer:: ixs
-                  real(8):: amat(3,3),amatinv(3,3)   
-                  if(ititpskip(it,itp)) cycle
-                  ixs = ixss(it,itp) !we_ is \omega_\epsilon in Eq.(55).
+                !we_ is \omega_\epsilon in Eq.(55).
+                associate(ixs => ixss(it,itp) , x=>we_(it,itp),xi=>freq_r(ixs-1:ixs+1)) 
+                  if(ixs==0) cycle
                   !call alagr3z2wgt(we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp))
-                  associate( x=>we_(it,itp),xi=>freq_r(ixs-1:ixs+1)) 
-                    amat(1:3,1) = 1d0
-                    amat(1:3,2) = xi(1:3)**2
-                    amat(1:3,3) = xi(1:3)**4
-                    wgt3(:,it,itp)= wfac_(it,itp)*matmul([1d0,x**2,x**4], inverse33(amat)) 
-                  endassociate  
+                  amat(1:3,1) = 1d0
+                  amat(1:3,2) = xi(1:3)**2
+                  amat(1:3,3) = xi(1:3)**4
+                  wgt3(:,it,itp)= wfac_(it,itp)*matmul([1d0,x**2,x**4], inverse33(amat)) 
                   iwgt3(it,itp) = iirx(itp)*(ixs+1-2) !starting omega index ix for it,itp
-                endblock
+                endassociate
              enddo
              ! icount mechanism for sum ix,it,itp where W(we_(it,itp))=\sum_{i=0}^2 W(:,:,ix+i)*wgt3(i)         
              do concurrent(ix = nwxi:nwx,itp=lbound(zsec,1):ubound(zsec,1))
-                nit_(itp,ix)=count([((.not.ititpskip(it,itp)).and.iwgt3(it,itp)==ix, it=ns1,ns2r)])
+                nit_(itp,ix)=count([(ixss(it,itp)>0.and.iwgt3(it,itp)==ix, it=ns1,ns2r)])
              enddo
              ncoumx=maxval(nit_) 
              allocate(itc(ncoumx,nwxi:nwx,ntqxx)) !,itpc(ncoumx,nwxi:nwx),wgt3p(0:2,ncoumx,nwxi:nwx))
@@ -348,7 +343,7 @@ contains
                   integer:: iit,it
                   iit=0
                   do it=ns1,ns2r
-                     if((.not.ititpskip(it,itp)).and.iwgt3(it,itp)==ix) then
+                     if(ixss(it,itp)>0.and.iwgt3(it,itp)==ix) then
                         iit=iit+1
                         itc(iit,ix,itp)=it !it for given ix,itp possible iit=1,nit_(itp,ix)
                      endif
@@ -408,21 +403,20 @@ contains
   endsubroutine sxcf_scz_main
   subroutine weightset4intreal(& ! generate required data set for main part of real part integration.
          nctot,esmr,omega,ekc,freq_r,nw_i,nw,ntqxx,nt0m,nt0p,ef,nwx,nwxi,ns1,ns2r,wfaccut,wtt,&
-         we_,wfac_,ixss,ititpskip,iirx)
+         we_,wfac_,ixss,iirx)
     implicit none
     intent(in)::&
          nctot,esmr,omega,ekc,freq_r,nw_i,nw,ntqxx,nt0m,nt0p,ef,nwx,nwxi,ns1,ns2r,wfaccut,wtt
     intent(out)::&
-         we_,wfac_,ixss,ititpskip,iirx
+         we_,wfac_,ixss,iirx !,ititpskip
     integer:: ntqxx,nctot,nw_i,nw,nt0m,nwx,nwxi,ns2r,ns1
     real(8):: ef,omega(ntqxx),ekc(ntqxx),freq_r(nw_i:nw),esmr,wfaccut,wtt
     real(8):: we_(ns1:ns2r,ntqxx),wfac_(ns1:ns2r,ntqxx)
     integer:: ixss(ns1:ns2r,ntqxx),iirx(ntqxx)
-    logical:: ititpskip(ns1:ns2r,ntqxx)
+!    logical:: ititpskip(ns1:ns2r,ntqxx)
     integer:: itini,iii,it,itend,wp,itp,iwp,nt0p,ixs
     real(8):: omg,esmrx,wfacx2,we,wfac,weavx2
-    ixs=-9999
-    ititpskip=.false.
+    ixss=0
     do itp = 1,ntqxx          !this loop should finish in a second
        omg = omega(itp)
        iirx(itp) = 1
@@ -437,12 +431,13 @@ contains
           iii= -1
        endif
        do it = itini,itend     ! nt0p corresponds to efp
+!          ititpskip(it,itp)=.false.
           esmrx = esmr
           if(it<=nctot) esmrx = 0d0
           wfac_(it,itp) = wfacx2(omg,ef, ekc(it),esmrx)
           wfac = wfac_(it,itp)
           if(wfac<wfaccut) then
-             ititpskip(it,itp)=.true.
+!             ititpskip(it,itp)=.true.
              cycle 
           endif
           wfac_(it,itp)=  wfac_(it,itp)*wtt*iii

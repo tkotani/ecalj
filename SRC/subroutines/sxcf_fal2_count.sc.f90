@@ -91,6 +91,7 @@ contains
                   qbz_kr= qbz (:,kr)     !rotated qbz vector. 
                   qk =  q - qbz_kr        
                   ekq = readeval(qk, isp) 
+                  ekc(1:nctot)= ecore(1:nctot,isp) ! core
                   ekc(nctot+1:nctot+nband) = ekq (1:nband)
                   nt0p = count(ekq<ef+ddw*esmr) +nctot 
                   if(exchange) then
@@ -163,6 +164,7 @@ contains
                      qbz_kr= qbz (:,kr)     !rotated qbz vector. 
                      qk =  q - qbz_kr        
                      ekq = readeval(qk, isp) 
+                     ekc(1:nctot)= ecore(1:nctot,isp) ! core
                      ekc(nctot+1:nctot+nband) = ekq (1:nband)
                      nt0  = count(ekc<ef) 
                      nt0p = count(ekq<ef+ddw*esmr) +nctot 
