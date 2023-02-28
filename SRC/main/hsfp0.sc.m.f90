@@ -157,8 +157,8 @@ program hsfp0_sc
     if( mpi__root .AND. mpi__rank/=0) call rx('mpi__root .AND. mpi__rank/=0') 
     do irank = 0,mpi__size-1  ! irank=0 may write NTQXX if it exists. irank>0 is reading mode.
        if(mpi__rank==irank) call Setitq_hsfp0sc(nbmx_sig,ebmx_sig,eftrue,nspinmx) !read NTQXX and set nbandmx
+       if(irank==0) call MPI__barrier() !barrier for writing NTQXX at irank=0
     enddo
-    call MPI__barrier() !mpi barrier is only for root ?
   endblock InitializationBlock
   SchedulingSelfEnergyCalculation: Block
     use m_sxcf_count,only: sxcf_scz_count
