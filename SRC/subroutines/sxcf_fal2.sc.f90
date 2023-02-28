@@ -316,14 +316,15 @@ contains
            CorrR2:Block
              real(8):: wgt3(0:2,ns1:ns2r,ntqxx),amat(3,3)!3-point interpolation weight for we_(it,itp) 
              complex(8)::zadd(ntqxx),wv33(ngb,ngb),wv3(ngb,ngb,0:2)
-             integer:: iwgt3(ns1:ns2r,ntqxx),i1,i2,iw,ikeep,ix
+             integer:: iwgt3(ns1:ns2r,ntqxx),i1,i2,iw,ikeep,ix,ixs
              integer:: nit_(ntqxx,nwxi:nwx),icountp,ncoumx,iit,irs
              integer,allocatable:: itc(:,:,:),itpc(:,:)
              if(timemix) call timeshow(" CorrR2:")
              do concurrent( itp=1:ntqxx, it=ns1:ns2r) !it=ns1:ns2) !itp:end states, it:middle states
                 !we_ is \omega_\epsilon in Eq.(55).
-                associate(ixs => ixss(it,itp) , x=>we_(it,itp),xi=>freq_r(ixs-1:ixs+1)) 
-                  if(ixs==0) cycle
+                ixs=ixss(it,itp)
+                if(ixs==0) cycle
+                associate(x=>we_(it,itp),xi=>freq_r(ixs-1:ixs+1)) 
                   !call alagr3z2wgt(we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp))
                   amat(1:3,1) = 1d0
                   amat(1:3,2) = xi(1:3)**2
