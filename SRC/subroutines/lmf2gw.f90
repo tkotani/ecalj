@@ -96,15 +96,10 @@ module m_lmf2gw
   real(8),allocatable :: wt(:),q0i(:,:)
   integer,allocatable,target:: ngvecptt(:,:,:),ngvecctt(:,:,:),ngptt(:),ngctt(:)
   real(8),allocatable:: qtt(:,:)
-
   integer,allocatable:: ngplist(:),ndimhall(:),iqindex(:)
   real(8),allocatable:: qplist(:,:)
-
-  !      character*256,allocatable:: extp(:)
-  !      integer,allocatable:: iprocq(:,:)
   integer:: nqirr     ! = Number of q points for irr=1 (see m_qplist, output of qg4gw).
   real(8),allocatable,protected :: qibz(:,:)
-
 contains
   subroutine lmf2gw()
     !! Files, gwa.* gwb.* gw1.* gw2.* are converted to DATA4GW and CphiGeig.
@@ -155,34 +150,6 @@ contains
     allocate(bas(3,nbas),lmxaa(nbas),qplist(3,nqirr),ngplist(nqirr),ndimhall(nqirr))
     read(ifigwb) bas,lmxaa,qplist,ngplist,ndimhall
     close(ifigwb)
-
-    !$$$!! NLAindx augmentation indexing !  call rdibasindx2(ldim2,nphi,nphimx,nindx,lindx,ibasindx,ifi)
-    !$$$      open(newunit=ifi,file='NLAindx')
-    !$$$      allocate(nindx(ldim2),lindx(ldim2),ibasindx(ldim2))
-    !$$$      read(ifi,*)
-    !$$$      read(ifi,*) i
-    !$$$      if (ldim2 /= i) call rx('lmf2gw: ldim2/=i')
-    !$$$      nphimx = 0
-    !$$$      nn = 0
-    !$$$      do
-    !$$$          read(ifi,*,err=101,end=101) ipqn,l,ib,ii
-    !$$$          do m=1,2*l+1
-    !$$$            nn = nn+1
-    !$$$            nindx   (nn) = ipqn ! principle
-    !$$$            lindx   (nn) = l    ! l
-    !$$$            ibasindx(nn) = ib   ! ibas
-    !$$$          enddo
-    !$$$          nphimx = max(nphimx,ipqn)
-    !$$$       enddo
-    !$$$ 101   continue
-    !$$$       close(ifi)
-    !$$$!! readin CLASS
-    !$$$      open(newunit=ifefclass,file='CLASS')
-    !$$$      nclass=0
-    !$$$      do ibas = 1,nbas
-    !$$$        read(ifefclass,*)  ibasx,  nclassx
-    !$$$        if(nclassx>nclass) nclass= nclassx
-    !$$$  enddo
     call readhamindex0()
     nclass=nclass_in
     allocate(nindx(ldim2),lindx(ldim2),ibasindx(ldim2))
@@ -192,23 +159,18 @@ contains
     nphimx=nphimx_in
     allocate( iclass(nbas) )
     iclass=iclass_in
-    allocate(lmxa_d(nclass), nr(nclass), ncore_d(nclass), konf_d(0:lmxamx,nclass), zz(nclass), &
-         aa(nclass), bb(nclass) )
-    do ibas=1,nbas
-       lmxa_d(iclass(ibas)) = lmxaa(ibas)
-    enddo
+    allocate(lmxa_d(nclass), nr(nclass), ncore_d(nclass), konf_d(0:lmxamx,nclass), zz(nclass),aa(nclass),bb(nclass) )
+    lmxa_d(iclass(1:nbas)) = lmxaa(1:nbas)
     !! ATOMIC PART ic = ibas scheme ==,  GET nrxx and ncoremx ----------------------
     open(newunit=ifigwa,file='gwa',form='unformatted')
-    allocate(nncx(0:lmxamx,nbas),konf(lmxamx+1,nbas),spid(nbas))
-    allocate(ec_d(ncoremx, nclass, nsp),gx_d (nrmx, 0:lmxamx, nphimx,  nclass,nsp), &
-         gcore_d(nrmx, ncoremx, nclass,nsp)  )
+    allocate(nncx(0:lmxamx,nbas),konf(lmxamx+1,nbas),spid(nbas),ec_d(ncoremx, nclass, nsp),&
+         gx_d(nrmx,0:lmxamx,nphimx,nclass,nsp), gcore_d(nrmx,ncoremx,nclass,nsp)  )
     do 3001 ibas = 1, nbas
        read(ifigwa) z, nr_A, a_A, b_A, rofi_Anr,lmxa,nspdummy,ncore,spid(ibas)
        allocate(rofi_A(nr_A), gcore_A(nr_A,ncore),ec_A(ncore))
        read(ifigwa) konf(1:lmxa+1,ibas)
        read(ifigwa) rofi_A(1:nr_A)
-       write(6,"(' site',i3,'  z=',f5.1,'  rmax=',f8.5,'  lmax=',i1,'  konf=',10i1)") &
-            ibas,z,rofi_A(nr_A),lmxa,konf(1:lmxa+1,ibas)
+       write(6,"(' site',i3,'  z=',f5.1,'  rmax=',f8.5,'  lmax=',i1,'  konf=',10i1)")ibas,z,rofi_A(nr_A),lmxa,konf(1:lmxa+1,ibas)
        ic = iclass(ibas)
        zz(ic)= z
        aa(ic)= a_A
@@ -224,23 +186,9 @@ contains
              read(ifigwa) gx_d(1:nr_A,l,1,ic,isp) !phi
              read(ifigwa) gx_d(1:nr_A,l,2,ic,isp) !phidot
              if (konf_d(l,ic) >= 10) read(ifigwa) gx_d(1:nr_A,l,3,ic,isp) !phiz
-             !$$$           m = 2
-             !$$$           if (konf_d(l,ic) .ge. 10) m = 3
-             !$$$           n = 0
-             !$$$           do  i1 = 1, m
-             !$$$           do  i2 = 1, i1
-             !$$$             n = n+1
-             !$$$             call gintxx(gx_d(1,l,i1,ic,isp),gx_d(1,l,i2,ic,isp),a_A,b_A,nr_A,ovv(n))
-             !$$$           enddo
-             !$$$           enddo
-             !$$$           write(6,'(i3,2f11.5,2f15.10,f12.6)')l,gx_d(nr_A,l,1,ic,isp),gx_d(nr_A,l,2,ic,isp),
-             !$$$     &          ovv(1),ovv(3),ovv(2)
-             !$$$           if (m .eq. 3) write(6,"('  gz(rmax); <gz gz> <gz g> <gz gp> = ',f8.5,f15.10,2f12.7)")
-             !$$$     &          gx_d(nr_A,l,3,ic,isp), ovv(6),ovv(4),ovv(5)
           enddo
        enddo
-       !! core part
-       if (ncore /= 0) write(6,'(''  l  k isp       ecore      gc(rmax)     <gc gc>'')')
+       if(ncore/=0) write(6,'(''  l  k isp       ecore      gc(rmax)     <gc gc>'')')! core part
        icore = 0
        icors = 0
        do isp = 1, nsp
@@ -261,7 +209,6 @@ contains
        enddo
        deallocate(rofi_A,gcore_A,ec_A)
 3001 enddo
-    !!
     allocate(iantiferro(nbas))
     read(ifigwa)iantiferro(1:nbas) !iantiferro may2015
     close(ifigwa)
@@ -282,7 +229,6 @@ contains
     do ibas=1,nbas
        write(6,"(a,i4,a)") ' i spid=',ibas,' '//trim(spid(ibas))
     enddo
-    !------
     open(newunit=ifiqg ,file='QGpsi',form='unformatted')
     open(newunit=ifiqgc,file='QGcou',form='unformatted')
     read(ifiqg ) nqnum, ngpmx,QpGcut_psi,nqbz,nqirr
@@ -291,10 +237,10 @@ contains
     allocate(qtt(3,nqtt),ngvecptt(3,ngpmx,nqtt),ngvecctt(3,ngpmx,nqtt),ngptt(nqtt),ngctt(nqtt),iqindex(nqtt))
     irrq=0
     do iq=1,nqtt
-       read (ifiqg)  qtt(1:3,iq), ngptt(iq) , irr
-       read (ifiqg)  ngvecptt(1:3,1:ngptt(iq),iq)
-       read (ifiqgc) qxx, ngctt(iq)
-       read (ifiqgc) ngvecctt(1:3,1:ngctt(iq),iq)
+       read(ifiqg)  qtt(1:3,iq), ngptt(iq) , irr
+       read(ifiqg)  ngvecptt(1:3,1:ngptt(iq),iq)
+       read(ifiqgc) qxx, ngctt(iq)
+       read(ifiqgc) ngvecctt(1:3,1:ngctt(iq),iq)
        if(irr==1) then
           irrq=irrq+1
           iqindex(irrq)=iq
@@ -305,14 +251,13 @@ contains
     close(ifiqg)
     close(ifiqgc)
     write(6,*)'QpGcut_psi QpGcutCou =',QpGcut_psi,QpGcut_Cou
-
     set_mnla :block
       integer :: ix, ibas,lx,nx,mx,ic,nvmax(0:lmxamx,nclass)
       write(*,*) '--- set_mnla ---'
       nvmax=0
       do ix =1,ldim2
          nx = nindx(ix)
-         lx   = lindx(ix)
+         lx = lindx(ix)
          ibas =ibasindx(ix)
          ic = iclass(ibas)
          if( nx> nvmax(lx,ic) ) nvmax(lx,ic) = nx
@@ -329,10 +274,7 @@ contains
                endif
                do mx = -lx,lx
                   ix=ix+1
-                  mnla(1,ix)=mx
-                  mnla(2,ix)=nx
-                  mnla(3,ix)=lx
-                  mnla(4,ix)=ibas
+                  mnla(1:4,ix)=[mx,nx,lx,ibas]
                   write(6,"(5i5)") mnla(1:4,ix),ix
                enddo
             enddo
@@ -344,6 +286,5 @@ contains
          call rx('lmf2gw: Error in set_mnla: ix!=ldim2')
       endif
     endblock set_mnla
-
   end subroutine lmf2gw
 end module m_lmf2gw

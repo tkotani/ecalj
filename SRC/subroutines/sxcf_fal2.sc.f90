@@ -230,9 +230,9 @@ contains
        ns1 =nstti(icount) ! Range of middle states is [ns1:ns2] 
        ns2 =nstte(icount) ! 
        ns2r=nstte2(icount) !Range of middle states [ns1:ns2r] for CorrelationSelfEnergyRealAxis
-!       write(6,ftox)'do3030:isp kx ip',isp,kx,ip,'icou/ncou=',icount,ncount,'ns1:ns2=',ns1,ns2
+       !       write(6,ftox)'do3030:isp kx ip',isp,kx,ip,'icou/ncou=',icount,ncount,'ns1:ns2=',ns1,ns2
        ZmelBlock:block !zmel= <M(qbz_kr,ib) phi(it,q-qbz_kr,isp) |phi(itpp,q,isp)> 
-       !                       ib=1,ngb !MPB,  it=ns1:ns2 ! MiddleState, itpp=1:ntqxx ! EndState, 
+         !                   ib=1,ngb !MPB, it=ns1:ns2 ! MiddleState, itpp=1:ntqxx ! EndState, 
          if(kxold/=kx) then
             call Readvcoud(qibz_k,kx,NoVcou=.false.) !Readin ngc,ngb,vcoud ! Coulomb matrix
             call Setppovlz(qibz_k,matz=.true.)       !Set ppovlz overlap matrix used in Get_zmel_init in m_zmel
@@ -366,7 +366,7 @@ contains
                 else !ikeep+n==ix where n>2
                    irs=0
                 endif   
-                do iw=irs,2
+                do iw=irs,2 !we can skip iw=0,1 if cached.
                    read(ifrcw(kx),rec=iw+ix-nw_i+1) zw ! direct access Wc(omega) = W(omega) - v
                    ww=>zw(1:ngb,1:ngb)
                    wv3(:,:,iw)=(ww+transpose(dconjg(ww)))/2d0 !hermite part
@@ -414,7 +414,6 @@ contains
     real(8):: ef,omega(ntqxx),ekc(ntqxx),freq_r(nw_i:nw),esmr,wfaccut,wtt
     real(8):: we_(ns1:ns2r,ntqxx),wfac_(ns1:ns2r,ntqxx)
     integer:: ixss(ns1:ns2r,ntqxx),iirx(ntqxx)
-!    logical:: ititpskip(ns1:ns2r,ntqxx)
     integer:: itini,iii,it,itend,wp,itp,iwp,nt0p,ixs
     real(8):: omg,esmrx,wfacx2,we,wfac,weavx2
     ixss=0
@@ -432,13 +431,11 @@ contains
           iii= -1
        endif
        do it = itini,itend     ! nt0p corresponds to efp
-!          ititpskip(it,itp)=.false.
           esmrx = esmr
           if(it<=nctot) esmrx = 0d0
           wfac_(it,itp) = wfacx2(omg,ef, ekc(it),esmrx)
           wfac = wfac_(it,itp)
           if(wfac<wfaccut) then
-!             ititpskip(it,itp)=.true.
              cycle 
           endif
           wfac_(it,itp)=  wfac_(it,itp)*wtt*iii

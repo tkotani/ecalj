@@ -7,8 +7,11 @@ LIBMATH = -lmkl_rt
 module = -J$(moddir) -I$(moddir)
 
 # ##############################
-#FFLAGS_COMMON= -g -fimplicit-none -finit-integer=NaN -finit-real=NaN $(module) -fallow-argument-mismatch
+
+#2023feb: For newer gfortran, we need -fallow-argument-mismatch
+# FFLAGS_COMMON= -g -fimplicit-none -finit-integer=NaN -finit-real=NaN $(module) -fallow-argument-mismatch
 FFLAGS_COMMON= -g -fimplicit-none -finit-integer=NaN -finit-real=NaN $(module)
+
 FFLAGS = -O2  $(FFLAGS_COMMON)
 FFLAGS_LESS = -O0   $(FFLAGS_COMMON)
 FFLAGS_LESS2 = -O0  $(FFLAGS_COMMON)
