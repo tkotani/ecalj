@@ -13,54 +13,51 @@ program rdata4gw_v2
   use m_lgunit,only: m_lgunit_init
   use m_pwmat,only: mkppovl2
   use m_lgunit,only:stdo
-  ! xx nphi,        ! number of augmentation nRl channels, as distinct from:
-  ! ldim2,       ! number of nRLm channels = 2*ldim for phi+phidot case.
-  ! nphimx       ! Maxmum number of phi for all l ---  2 for phi+phidot case.
-  !o  hbe.d   :  datasize
-  !o  CPHI    :  Coefficients of eigenfun for augmentation wave in each MT
-  !o  EV[UD]  : valence eigen value
-  !o  PHIVC   : valence phi phidot, local core
-  !o  ECORE   : core eigenvalue
-  !o  VXCFP   : LDA Vxc. VXCFPV which contains Vxc(nval) is generated for NoCore case.
-  !o  LMTO    : basic date for the crystal.
-  !o  HVCCIN  : required inputs for hvccfp0. Informations in this files
-  !o            are also in GWIN (duplicated--it shuold be improved in future.)
-  !o
-  !o   NQIBZ             : number of q point ---used only for hparainfo.
-  !o @MNLA_CPHI  : Checkwrite. check write. Ording of index for CPHI.
-  !o @MNLA_core  : Checkwrite. index for core
-
-  !r--- From DATA4GW_V2 (old document)-----
-  !r   nbas            : the number atom in the primitive cell
-  !r   bas(1:3,1:nbas) : atomic posion in Cartesian coordinate (alat unit),.
-  !r   lmxa(1:nbas)    : maximum l number for each atom for augmentation.
-
-  !r  alat        : lattice constant in a.u.
-  !r  plat(1:3,1) : 1st primitive translation vector in the unit of alat
-  !r  plat(1:3,2) : 2nd primitive translation vector
-  !r  plat(1:3,3) : 3rd primitive translation vector
-
-  !--   eigenfunctions for all q points.
-  !r  evl (1:nbandmx)          :  eigenvalue
-  !r  cphi(1:ldim2,1:nbandmx) : the coefficienets of eigenfunction for phi(augmentation wave)
-  !r  geig(1:ngp,  1:nbandmx) : the coefficienets of eigenfunction for IPW
-  !r
-  !r   nindx   (1;ldim2) : n index (phi=1 phidot=2 localorbital=3)
-  !r   lindx   (1:ldim2) : l index
-  !r   ibasindx(1:ldim2) : ibas index . These are used to re-ordering cphi.
-  !r                     :  mindx(1:ldim2)  is generated under the asuumption that
-  !r                        m=-l:l is successively ordered.
-  !r
-  !r  vxclda (1:nbandmx) : lda XC potential <psi|Vxc(n)|psi> for each eigenfunctions
-
-  !--   Atomic data for all the atom in the cell, ibas=1,nbas
-  !r   Z:
-  !r   nr a,b; mesh is r(i)=b*(exp(a(i-1))-1)
-  !r   ncore: number of core.
-  !r   konf(0:lmxa): principle quantum number of valence electron.
-  !r   ec(1:ncore)
-  !r   gx : radial wave function phi.
-  !r
+  use m_ftox
+  !check core index               : open(newunit=ifnlax,file='@MNLA_core.chk')
+  !datasize                       : open(newunit=ifhbed,file='hbe.d') 
+  !eigencore                      : open(newunit=ifec, file='ECORE')
+  !valence phi phidot, local core: open(newunit=ifphi,file='PHIVC',form='unformatted')
+  !Ording of index for CPHI.(eigen within MT): open(newunit=ifoc,file='@MNLA_CPHI')
+  !eigenf within MT               : open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
+  !eigenf PW                      : open(newunit=ifgeig,file='GEIG',form='unformatted',access='direct',recl=mrecg)
+  !LDA Vxc.                       : open(newunit=ifv,file='VXCFP',form='unformatted')
+  !valence eigen value            : open(newunit=ifev,file='EValue',form='unformatted')
+  !input for hvccfp0              : open(newunit=ifhvccfp,file='HVCCIN',form='unformatted')
+  ! gvec: open(newunit=ippovlgg,file= "PPOVLGG",form='unformatted')
+  ! overlap of IPW:   open(newunit=ippovl0,form='unformatted',file='PPOVL0')
+  ! overlap of IPW:   open(newunit=ippovlg,file= "PPOVLG."//charnum3(iqi),form='unformatted')
+  ! overlap of IPW:   open(newunit=ippovli,file= "PPOVLI."//charnum3(iqi),form='unformatted')
+  ! open(newunit=ifigwin,file='LMTO',form='unformatted')
+  !
+  !  nbas            : the number atom in the primitive cell
+  !  bas(1:3,1:nbas) : atomic posion in Cartesian coordinate (alat unit),.
+  !  lmxa(1:nbas)    : maximum l number for each atom for augmentation.
+  !  alat        : lattice constant in a.u.
+  !  plat(1:3,1) : 1st primitive translation vector in the unit of alat
+  !  plat(1:3,2) : 2nd primitive translation vector
+  !  plat(1:3,3) : 3rd primitive translation vector
+  !  evl (1:nbandmx)          :  eigenvalue
+  !  cphi(1:ldim2,1:nbandmx) : the coefficienets of eigenfunction for phi(augmentation wave)
+  !  geig(1:ngp,  1:nbandmx) : the coefficienets of eigenfunction for IPW
+  !  nindx   (1;ldim2) : n index (phi=1 phidot=2 localorbital=3)
+  !  lindx   (1:ldim2) : l index
+  !  ibasindx(1:ldim2) : ibas index . These are used to re-ordering cphi.
+  !                     :  mindx(1:ldim2)  is generated under the asuumption that
+  !                        m=-l:l is successively ordered.
+  !
+  !  nphi,     ! number of augmentation nRl channels, as distinct from:
+  !  ldim2,       ! number of nRLm channels = 2*ldim for phi+phidot case.
+  !  nphimx       ! Maxmum number of phi for all l ---  2 for phi+phidot case.
+  !  vxclda (1:nbandmx) : lda XC potential <psi|Vxc(n)|psi> for each eigenfunctions
+  !
+  !-  Atomic data for all the atom in the cell, ibas=1,nbas
+  !   Z:
+  !   nr a,b; mesh is r(i)=b*(exp(a(i-1))-1)
+  !   ncore: number of core.
+  !   konf(0:lmxa): principle quantum number of valence electron.
+  !   ec(1:ncore)
+  !   gx : radial wave function phi.
   use m_keyvalue,only: getkeyvalue
   use m_mpi,only: MPI__Initialize
   !use m_mathlib,only: rs
@@ -102,13 +99,13 @@ program rdata4gw_v2
   real(8),allocatable:: sumc(:,:,:)
   integer:: inorm ,ib1,ib2,itest,inormo
   complex(8),allocatable:: cphir(:,:),geigr(:,:,:)
-  integer(4)::ificg
-  integer(4)::iff,iffx
-  integer(4),allocatable:: iffg(:)
-  integer(4):: ifgeig,iadd,normcheck,verbose !,bzcase
-  integer(4)::version
+  integer::ificg
+  integer::iff,iffx
+  integer,allocatable:: iffg(:)
+  integer:: ifgeig,normcheck,verbose !,bzcase
+  integer::version
   character(8):: xt
-  integer(4):: l_given,m_given,ic_given,isp_given,iffr,ixx
+  integer:: l_given,m_given,ic_given,isp_given,iffr,ixx
   complex(8),allocatable :: gg(:)
   real(8),allocatable:: www(:,:,:)
   logical(8):: ppovl0l=.true.
@@ -122,7 +119,7 @@ program rdata4gw_v2
   logical:: rmeshrefine
   integer:: nr_n
   real(8):: aa_n,bb_n,rmaxx,ab_n,delr,delrset,qu(3)
-  real(8),allocatable:: rofi_n(:), gx_raw_n (:,:,:,:,:), gcore_n  (:,:,:,:) , aann(:)
+  real(8),allocatable:: rofi_n(:), gx_raw_n (:,:,:,:,:), gcore_n  (:,:,:,:) , aann(:),bbnn(:)
   integer,allocatable:: nrnn(:)
   integer:: igp1,igp2,   icold,nev,iread !ifnband,
   integer:: igg,iorb, igc
@@ -162,27 +159,20 @@ program rdata4gw_v2
   write(ifnlax,'(" ------- core ------------")')
   inum = 0
   do ibas = 1,nbas
-     ic  = iclass(ibas)
-     vkonf(:,ic) = [(mod(konf(l,ic),10),l=0,lmxa(ic))]
-  enddo
-  do ibas = 1,nbas
      ic   = iclass(ibas)
+     vkonf(:,ic) = [(mod(konf(l,ic),10),l=0,lmxa(ic))]
      icore = 0             
-     do l   = 0, lmxa(ic)
-        kkkmx = vkonf(l,ic) - 1
-        do kkk = l+1,kkkmx  ! kkkmx is the principle quantum number for core.
+     do l  = 0, lmxa(ic)
+        do kkk = l+1,vkonf(l,ic)-1 !kkk is the quantum principle number
            icore = icore+1
-           n    = kkk - l   ! n is starting from 1 for any l. ! kkk is the quantum principle number
+           n  = kkk - l   ! n is starting from 1 for any l.  
            do mmm=-l,l
               inum = inum+1
               write(ifnlax,'(10i5)') mmm, n, l, icore, ibas !MNLA index. magnetic radial l numcore, ibas
            enddo
         enddo
      enddo
-     if(ncore(ic)/=icore) then
-        write(stdo,*)ncore(ic),icore
-        call rx( ' rdata xxx1: ncore(ic)/=icore')
-     endif
+     if(ncore(ic)/=icore) call rx('rdata xxx1: ncore(ic)/=icore '//xt(ncore(ic))//xt(icore) )
   enddo
   close(ifnlax)
   inum=0
@@ -269,8 +259,8 @@ program rdata4gw_v2
   if(rmeshrefine()) then
      print *,'rmeshrefine:'
      delr = delrset()       !delr is dr/di at rmax in a.u.
-     print *,' delr nclass=',delr,nclass
-     allocate(nrnn(nclass),aann(nclass))
+     write(stdo,*)' meshrefine : delr nclass=',delr,nclass
+     allocate(nrnn(nclass),aann(nclass),bbnn(nclass))
      do ic = 1,nclass
         if(minval(abs(iclass-ic))/=0) cycle !jan2008
         rmaxx = bb(ic)*(exp((nr(ic)-1)*aa(ic))-1d0)
@@ -288,23 +278,23 @@ program rdata4gw_v2
      enddo
      nrmx = maxval(nrnn(1:nclass))
      write(stdo,*) ' New nrmx =',nrmx
-     allocate( gx_raw_n (nrmx, 0:lmxamx, nphimx, nclass,nsp), gcore_n(nrmx, ncoremx, nclass,nsp) )
+     allocate( gx_raw_n(nrmx,0:lmxamx, nphimx, nclass,nsp), gcore_n(nrmx, ncoremx, nclass,nsp) )
      do ic = 1,nclass
-        if(minval(abs(iclass-ic))/=0) cycle 
+        if(minval(abs(iclass-ic))/=0) cycle !jan2008
         write(stdo,"('  input  nr a b =',i5,3d13.6)") nr(ic),aa(ic),bb(ic)
+        allocate(rofi,source = [(bb(ic)*(exp((ir-1)*aa(ic))-1d0),ir=1,nr(ic))])
         nr_n = nrnn(ic)
         aa_n = aann(ic)
         bb_n = rofi(nr(ic))/(exp(aa_n*(nr_n-1))-1d0)
-        allocate(rofi,   source=[(bb(ic)*(exp((ir-1)*aa(ic))-1d0),ir=1,nr(ic))])
-        allocate(rofi_n, source=[(bb_n*  (exp((ir-1)*aa_n)  -1d0),ir=1:nr_n)]
+        allocate(rofi_n,source=[(bb_n*(exp((ir-1)*aa_n)-1d0),ir=1,nr_n)])
         do isp = 1, nsp
            do lx = 0,lmxa(ic)
               do nx = 1,nvmax(lx,ic)
-                 call rrefine(rofi,nr(ic),rofi_n,nr_n, gx_raw(1,lx,nx,ic,isp), gx_raw_n(1,lx,nx,ic,isp) )
+                 call rrefine(rofi,nr(ic),rofi_n,nrnn(ic), gx_raw(1, lx, nx, ic,isp), gx_raw_n(1, lx, nx, ic,isp) )
               enddo
            enddo
            do icore = 1,ncore(ic)
-              call rrefine(rofi,nr(ic),rofi_n,nr_n, gcore(1,icore, ic,isp),  gcore_n(1,icore, ic,isp) )
+              call rrefine(rofi,nr(ic),rofi_n,nrnn(ic), gcore(1,icore, ic,isp), gcore_n(1,icore, ic,isp) )
            enddo
         enddo
         aa(ic) = aa_n
@@ -315,20 +305,17 @@ program rdata4gw_v2
      enddo
      deallocate( gcore )
      deallocate( gx_raw)
-     allocate  ( gx_raw (nrmx, 0:lmxamx, nphimx, nclass,nsp), &
-          gcore  (nrmx, ncoremx, nclass,nsp) )
-     gx_raw = gx_raw_n
-     gcore  = gcore_n
+     allocate(gx_raw,source = gx_raw_n)
+     allocate(gcore, source = gcore_n)
      print *,'rmeshrefine: end'
   endif
-  allocate(gx_in  (nrmx, 0:lmxamx, nphimx, nclass,nsp), &! & scaled gx_raw to avoid degeneracy of overalp
+  allocate(gx_in(nrmx, 0:lmxamx, nphimx, nclass,nsp), &! & scaled gx_raw to avoid degeneracy of overalp
        gx_orth(nrmx, 0:lmxamx, nphimx, nclass,nsp)  ) ! OrthoNormalized
   ! ATOMIC PART ic = ibas scheme -------------------------------
   write(stdo,*) '########## goto atomic part ##############'
   nnc = 0
   lmxax = lmxamx
-  allocate( zzp(nmax,nmax,0:lmxax,nclass,nsp),zzpi(nmax,nmax,0:lmxax,nclass,nsp), &
-       eb(nmax),nncx(0:lmxax,nbas),rmax(nbas))
+  allocate( zzp(nmax,nmax,0:lmxax,nclass,nsp),zzpi(nmax,nmax,0:lmxax,nclass,nsp),eb(nmax),nncx(0:lmxax,nbas),rmax(nbas))
   do ibas=1,nbas
      ic   = iclass(ibas)
      do l  = 0,lmxa(ic)
@@ -383,9 +370,8 @@ program rdata4gw_v2
            enddo
         enddo
      enddo
-     ! ... Get overlap matrix ovv of radial functions.
      ovv=0d0
-     do isp = 1, nsp
+     do isp = 1, nsp ! ... Get overlap matrix ovv of radial functions.
         do irad1 = 1,nrad(ibas)
            do irad2 = 1,nrad(ibas)
               l1 = lindx_r (irad1,ibas)
@@ -393,8 +379,7 @@ program rdata4gw_v2
               l2 = lindx_r (irad2,ibas)
               n2 = nindx_r (irad2,ibas)
               if(l1/=l2) cycle
-              call gintxx( gx_in(1, l1, n1, ic,isp), &
-                   gx_in(1, l1, n2, ic,isp),aa(ic),bb(ic), nr(ic), ovv(n1,n2,l1,ic,isp) )
+              call gintxx( gx_in(1,l1,n1,ic,isp),gx_in(1,l1,n2,ic,isp),aa(ic),bb(ic), nr(ic), ovv(n1,n2,l1,ic,isp) )
            enddo
         enddo
      enddo
@@ -445,17 +430,6 @@ program rdata4gw_v2
 1010 enddo ibasloop
   close(ifphi)
   close(ifec)
-  ! --- end of atomic part --------------------------------------------
-  !! Band part
-  !$$$      if(checknorm) then
-  !$$$         open(newunit=inorm, file = "normchk.dia.chk")
-  !$$$         open(newunit=inormo,file = "normchk.off.chk")
-  !$$$         write(inorm,849)
-  !$$$         write(inormo,849)
-  !$$$ 849     format('#       IPW         IPW(diag)   Onsite(tot)',
-  !$$$     .      '   Onsite(phi)      Total  #check in rdata4gw ')
-  !$$$         allocate(sumc(nbandmx,nbandmx,nsp))
-  !$$$      endif
   write(stdo,*) '########## goto Eigfun part ############## '
   allocate(cphix(ldim2,nbandmx), cphir(ldim2,nbandmx),geigr(1:ngpmx,1:nbandmx,1:nsp))
   open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
@@ -463,14 +437,13 @@ program rdata4gw_v2
   open(newunit=ifv,file='VXCFP',form='unformatted')
   write(ifv) nbandmx,nqirr
   allocate(qirr(3,nqirr),evl(nbandmx, nqirr, nsp),vxclda(nbandmx, nqirr, nsp),vvv1(nbandmx),vvv2(nbandmx),vvv3(nbandmx))
-  !,cphi(ldim2, nbandmx))!, evl(nbandmx) )
   irreducibleqloop: do 1200 iqq = 1,nqirr !irreducible points. At qirr, we calculated eigenfunctions.
      if(mod(iqq,10)==1 .OR. iqq>nqirr-5) write(stdo,*) ' iqq=',iqq
-     do 1201 isp =1,nsp
+     ndimh      = ndimhall(iqq)
+     ngp        = ngplist(iqq)
+     qirr(:,iqq)= qplist(:,iqq)
+     isploop:do 1201 isp =1,nsp
         open(newunit=ifigwb_,file='gwb'//trim(xt(iqq))//trim(xt(isp)),form='unformatted')
-        ndimh  =  ndimhall(iqq)
-        ngp       =  ngplist(iqq)
-        qirr(:,iqq)= qplist(:,iqq)
         geigr(1:ngpmx,1:ndimh,isp)=0d0
         evl(:,iqq,isp)=1d20
         read(ifigwb_) evl(1:ndimh,iqq,isp),cphir(1:ldim2,1:ndimh),geigr(1:ngp,1:ndimh,isp),vxclda(1:ndimh,iqq,isp),nev !nev is # of eigenfunctions.
@@ -488,79 +461,28 @@ program rdata4gw_v2
               m  = mindx(ix)
               ic = iclass(ib)
               nm = nvmax(l,ic)
-              cphix(iord(m,1:nm,l,ib),iband) = &
-                   cphix(iord(m,1:nm,l,ib),iband) +  zzpi(1:nm,n,l,ic,isp) * cphir(ix,iband)
+              cphix(iord(m,1:nm,l,ib),iband) = cphix(iord(m,1:nm,l,ib),iband) + zzpi(1:nm,n,l,ic,isp)*cphir(ix,iband)
            enddo
         enddo
         iqqisp= isp + nsp*(iqq-1)
-        write(ifcphi, rec=iqqisp) cphix(1:ldim2,1:nbandmx) !cphi(1:ldim2,1:nband,iqq,isp)
-        !$$$        if(checknorm) then
-        !$$$           do ib1=1,nev
-        !$$$             do ib2=1,nev
-        !$$$               if(ib1/=ib2.and.checkdia) cycle
-        !$$$               sumc(ib1,ib2,isp) = sum(dconjg(cphix(1:ldim2,ib1))*cphix(1:ldim2,ib2))
-        !$$$             enddo
-        !$$$           enddo
-        !$$$  endif
+        write(ifcphi, rec=iqqisp) cphix(1:ldim2,1:nbandmx)
         close(ifigwb_)
-1201 enddo
-     !!--- Plane wave part ---
-     ! iqx=-99999
-     ! do iqtt=1,nqtt
-     !    if(sum(abs(qirr(:,iqq)-qtt(:,iqtt)))<tolq) then
-     !       iqx=iqtt
-     !       exit
-     !    endif
-     ! enddo
-     iqx= findloc([(sum(abs(qirr(:,iqq)-qtt(:,iqtt)))<tolq,iqtt=1,nqtt)],dim=1,value=.true.)
-     ngvecp =>ngvecptt(1:3,1:ngptt(iqx),iqx)
-     ngvecc =>ngvecctt(1:3,1:ngctt(iqx),iqx)
-     ngp=ngptt(iqx)
-     ngc=ngctt(iqx)
-     if(debug) print *,' iqq ngp ngc qirr =',iqq,ngp,qirr(:,iqq)
-     do isp=1,nsp
         iqqisp= isp + nsp*(iqq-1)
         if(ngpmx/=0) write(ifgeig, rec=iqqisp) geigr(1:ngpmx,1:nbandmx,isp)
-     enddo
+1201 enddo isploop
      write(ifv) qirr(1:3,iqq), vxclda(1:nbandmx,iqq,1:nsp) ! VXCFP
-     !$$$        if(checknorm) then
-     !$$$           xx=0d0
-     !$$$           qx   = qirr(1:3,iqq)
-     !$$$           allocate(ppovl(ngp,ngp))
-     !$$$!     ppovl = <exp (i (q+G')) | exp (i (q+G))>
-     !$$$!     I think P_{k+G} for eieigenfunction is completele zero (no high-l contribution)
-     !$$$!     Thus we need to use mkppovl2 for normalization check.
-     !$$$           call mkppovl2(alat,plat,qlat,
-     !$$$     &        ngp, ngvecp, ngp, ngvecp,  nbas, rmax, bas,     ppovl)
-     !$$$           do isp=1,nsp
-     !$$$           do ib1=1,nev
-     !$$$           do ib2=1,nev
-     !$$$             if(ib1/=ib2.and.checkdia) cycle
-     !$$$             xx(3)=sum( dconjg(geigr(1:ngp,ib1,isp))*matmul(ppovl,geigr(1:ngp,ib2,isp)))
-     !$$$             xx(1)=sumc(ib1,ib2,isp)
-     !$$$             if(ib1==ib2) write(inorm, '(5f14.6)') xx(3),xx(4),xx(1),xx(2),xx(1)+xx(3)
-     !$$$             if(ib1/=ib2) write(inormo,'(2i4,5f14.6)') ib1,ib2,xx(3),xx(1),xx(1)+xx(3)
-     !$$$           enddo
-     !$$$           enddo
-     !$$$           enddo
-     !$$$           write(inorm,*)
-     !$$$           write(inormo,*)
-     !$$$           deallocate(ppovl)
-     !$$$        endif
 1200 enddo irreducibleqloop
   print *,' end of eigensection-----'
-  print *
   open(newunit=ifev,file='EValue',form='unformatted')
   write(ifev) nbandmx, nqirr, nsp
   write(ifev) qirr(1:3,1:nqirr) !qirr
   write(ifev) evl(1:nbandmx, 1:nqirr, 1:nsp )
   close(ifev)
-  print *,' iclass=',iclass,' nqirr nbas',nqirr,nbas
-  write(stdo,"(a,100i4)") ' iantiferro=',iantiferro(1:nbas)
+  write(stdo,ftox)' iclass=',iclass,' nqirr nbas',nqirr,nbas
+  write(stdo,ftox)' iantiferro=',iantiferro(1:nbas)
   do iq=1,nqirr
-     write(*,"(' qirr=',i4,3f9.5)")iq, qirr(1:3,iq)
+     write(stdo,ftox)'iq qirr=',iq,ftof(qirr(1:3,iq))
   enddo
-  !! --- required Input for hvccfp0 ---
   open(newunit=ifhvccfp,file='HVCCIN',form='unformatted')
   write(ifhvccfp) alat, plat,qlat,nqirr, nbas,nbandmx
   write(ifhvccfp) qirr(:,1:nqirr), bas, rmax
@@ -570,32 +492,18 @@ program rdata4gw_v2
   write(stdo,"('  ngrp   = ',i3)")ngrp
   write(stdo,'("  qibz=",i3,3f12.5)')(i,qibz(1:3,i),i=1,nqibz)
   !! === make <Gc-Gp1+Gp2> matrix ===
-  iadd=0
-  dQpG=0d0
-  do iq0i =1,nq0i+nq0iadd
-     abq0i= sum(q0i(1:3,iq0i)**2)**.5
-     if(abq0i>dQpG ) dQpG=abq0i
-  enddo
-  allocate(qibze(3,nqibz + nq0i+nq0iadd+iadd)) !nq0i+1 is for gamma point for bzcase==2
+  dQpG=maxval(sum(q0i(1:3,1:nq0i+nq0iadd)**2,dim=1))**.5
+  allocate(qibze(3,nqibz + nq0i+nq0iadd)) !+iadd)) !nq0i+1 is for gamma point for bzcase==2
+  qibze(1:3,1:nqibz)=qibz(1:3,1:nqibz)
+  qibze(1:3,nqibz+1:nqibz+nq0i+nq0iadd)=q0i(1:3,1:nq0i+nq0iadd)
   do iqi =1,nqibz + nq0i+nq0iadd
-     if( iqi <=nqibz) then
-        qibze(1:3,iqi)  = qibz(1:3,iqi)
-     elseif( iqi > nqibz) then
-        qibze(1:3,iqi)  = q0i (1:3,iqi-nqibz)
-     endif
      write(stdo,"(' iqi qibze=',i4,3f9.5)")iqi,qibze(:,iqi)
   enddo
-  nqnumt= nqibz+nq0i+nq0iadd+iadd
-  write(stdo,"(' nqnumt nqibz nq0i+nq0iadd iadd =',4i6)")nqnumt,nqibz,nq0i+nq0iadd,iadd
-  ! cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+  nqnumt= nqibz+nq0i+nq0iadd !+iadd
+  write(stdo,"(' nqnumt nqibz nq0i+nq0iadd =',4i6)")nqnumt,nqibz,nq0i+nq0iadd !,iadd
   QpGcutggg = (2d0+1d-2)*QpGcut_psi + QpGcut_cou+ 2d0*pi/alat*dQpG
   if(QpGcutggg<1d-9) QpGcutggg=0d0
-  dQQ=0d0
-  do iqi =1,nqnumt
-     do iqi2=1,nqnumt
-        dQQ= max( sum(qibze(1:3,iqi)**2)**.5 + sum(qibze(1:3,iqi2)**2)**.5, dQQ)
-     enddo
-  enddo
+  dQQ= 2d0*maxval(sum(qibze(1:3,:)**2,dim=1)**.5)
   QpGcutgcgp = (1d0+1d-2)*QpGcut_psi + QpGcut_cou+ 2d0* 2d0*pi/alat*dQQ
   if(QpGcutgcgp<1d-9) QpGcutgcgp=0d0
   qx = 0d0
@@ -620,7 +528,6 @@ program rdata4gw_v2
   do ix=1,nqirr
      write(stdo,"(' qirr  = ',3f10.4)") qirr(1:3,ix)
   enddo
-  !----------------------
   if(debug) print *,' --- goto PPOVLG section ---',nggg,ngcgp,nqnumt-nqini+1
   open(newunit=ippovlgg,file= "PPOVLGG",form='unformatted')
   write(ippovlgg) nggg, ngcgp, nqnumt-nqini+1,nqini,nqnumt
@@ -631,17 +538,10 @@ program rdata4gw_v2
   close(ippovlgg)
   print *,' --- Write PPOVLG ----'
   if(ppovl0l) open(newunit=ippovl0,form='unformatted',file='PPOVL0')
-  iqiloop: do 2010 iqi = nqini, nqnumt    !nqibz + nq0i + iadd
+  iqiloop: do 2010 iqi = nqini, nqnumt    !nqibz + nq0i !+ iadd
      open(newunit=ippovlg,file= "PPOVLG."//charnum3(iqi),form='unformatted')
      open(newunit=ippovli,file= "PPOVLI."//charnum3(iqi),form='unformatted')
      qx  = qibze(1:3,iqi)
-!     iqx=-99999
-!     do iqtt=1,nqtt
-!        if(sum(abs(qx(:)-qtt(:,iqtt)))<tolq) then
-!           iqx=iqtt
-!           exit
-!        endif
-!     enddo
      iqx= findloc([(sum(abs(qx(:)-qtt(:,iqtt)))<tolq,iqtt=1,nqtt)],dim=1,value=.true.)
      ngvecp =>ngvecptt(1:3,1:ngptt(iqx),iqx)
      ngvecc =>ngvecctt(1:3,1:ngctt(iqx),iqx)
