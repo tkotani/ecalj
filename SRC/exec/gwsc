@@ -1,117 +1,114 @@
-#!/bin/bash 
-# ---------------------------------------------------------
-# QP self-consistent GW itteration using MPI. Using run_arg
-### you may need to set echo_run and serial_run in /run_arg for cray machine
-# ---------------------------------------------------------
-if [ $# -ne 4 ] || [ $2 != "-np" ] ; then
-    echo "An example of usage: gwsc 5 -np 4 si, where 5 means 5+1 iterations"
-    exit 101
-fi
-n=$0
-nfpgw=`dirname $0`
-TARGET=$4
-MPI_SIZE=$3
-NO_MPI=0
-ITER=$1
-### Read funcitons run_arg and run_arg_tee defined in a file run_arg ###
-source $nfpgw/run_arg #define echo_run and serial_run in run_arg
-$echo_run echo "### START gwsc: ITER= "$ITER, "MPI size= " $MPI_SIZE, "TARGET= "$TARGET
-if [ ! -e SEBK ]; then
-    mkdir SEBK
-fi
-if [ ! -e STDOUT ]; then
-    mkdir STDOUT
-fi
-## mv sigm or simg.$TARGET to sigm. And make softlink to simg.$TARGET.
-## sigm is prior to simg.$TARGET.
-if [ -e sigm ]; then
-    if [ -e sigm.$TARGET ]; then
-	mv sigm.$TARGET sigm.$TARGET.bakup 
-	ln -s -f sigm sigm.$TARGET 
-	$echo_run echo '--- sigm is used. sigm.$TARGET is softlink to it  ---'
-    fi
-else
-    if [ -e sigm.$TARGET ]; then
-	mv sigm.$TARGET sigm
-	ln -s -f sigm sigm.$TARGET 
-	$echo_run echo '--- sigm.$TARGET is moved to sigm. sigm.$TARGET is softlink now.  ---'
-    else
-	$echo_run echo '--- No sigm nor sigm.$TARGET files for starting ---'
-    fi
-fi 
-##### itteration loop start ##########################################
-for ix in `seq 0 ${ITER}`
-do  ##### self-consistent calculation for given Sigma(self-energy ###
-    $echo_run echo " ---- goto sc calculation for given sigma-vxc --- ix=",$ix
-    if [ $ix == 0 ]; then # ix=0 is for iteration from LDA.
-	if [ -e sigm.$TARGET ] ; then
-	    $echo_run echo " we have sigm already, skip iter=0"
-	    continue # goto ix=1
-	fi   
-	$echo_run echo "No sigm ---> LDA caculation for eigenfunctions "
-	rm -f llmf
-	run_arg '---' $MPI_SIZE $nfpgw          /lmf-MPIK llmf_lda $TARGET
-	cp rst.$TARGET rst.$TARGET.lda
-    else
-	run_arg '---' $MPI_SIZE $nfpgw          /lmf-MPIK llmf $TARGET
-    fi
-    rm -f ewindow.${TARGET}* qbyl.${TARGET}* eigze*.${TARGET}* mixm.${TARGET}
-    run_arg '---' $NO_MPI  $nfpgw  /lmf-MPIK  llmfgw00 $TARGET --jobgw=0
-    run_arg '---' $NO_MPI  $nfpgw  /qg4gw lqg4gw   --job=1 #Generate requied q+G v
-    run_arg '---' $MPI_SIZE $nfpgw /lmf-MPIK llmfgw01 $TARGET --jobgw=1
-    ##### main stage of gw ################
-    run_arg '---' $NO_MPI  $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files
-    mv norm* STDOUT
-    rm gwa gwb*
-    run_arg '---' $NO_MPI $nfpgw   /heftet leftet --job=1 # A file EFERMI for hx0fp0
+#!/usr/bin/env python3
+# -*- coding:utf-8 -*-
+'''
+QSGW calculation with MPI.
+'''
+import os, datetime, shutil, glob
+from gwutil import *
+'''
+    main program of gwsc.py
+'''
+#get argments
+target,nloop,ncore,ncore2=Obtain_args()
+epath=os.path.dirname(os.path.abspath(__file__)) #if gwsc.py is in ecalj bin dir
+tmp=[int(s.strip('RUN.ITER')) for s in os.listdir() if 'RUN.ITER' in s]
+Iter0=max(tmp) if len(tmp)!=0 else 0
+initxt=("### START gwsc: ITER= %d, MPI size=  %d, TARGET= %s"%(nloop,ncore,target)
+            if ncore==ncore2 else
+        "### START gwsc: ITER= %d, MPI size=  %d, %d, TARGET= %s"%(nloop,ncore,ncore2,target))
+print(initxt,flush=True)
+#initial directry config
+gen_dir('SEBK')
+gen_dir('STDOUT')
+#set target fine name
+sigm_name='sigm.%s'%target
+rst_name='rst.%s'%target
+#serch sigm and sigm.target files
+if os.path.isfile('sigm') and os.path.isfile(sigm_name):
+    shutil.move(sigm_name, sigm_name+'.bakup')
+    os.symlink('sigm',sigm_name)
+    print('--- sigm is used. sigm.$TARGET is softlink to it  ---',flush=True)
+elif os.path.isfile(sigm_name):
+    shutil.move(sigm_name, sigm)
+    os.symlink('sigm',sigm_name)
+    print('--- sigm.$TARGET is moved to sigm. sigm.$TARGET is softlink now.  ---',flush=True)
+else:
+    print('--- No sigm nor sigm.$TARGET files for starting ---',flush=True)
+#main iteration
+for i in range(nloop+1):
+    niter=i+Iter0
+    if not (Iter0!=0 and i==0):
+        print(" ---- goto sc calculation for given sigma-vxc --- ix=%d"%niter,flush=True)
+        #lmf calculation
+    if Iter0!=0 and i==0:
+        '''
+        if continue previous calc, we do not need initial lda calculation
+        skip meaning is keeping consistency of iteration number
+        '''
+        continue
+    elif i==0:
+        if os.path.isfile(sigm_name):
+            print(" we have sigm already, skip iter=0",flush=True)
+        else:
+            print("No sigm ---> LDA caculation for eigenfunctions ",flush=True)
+            remove('llmf')
+            run_program(100,epath,'lmf-MPIK','llmf_lda',ncore,target)
+            shutil.copy(rst_name,rst_name+'.lda')
+    else:
+        run_program(100,epath,'lmf-MPIK','llmf',ncore,target)
+    #gw initialize
+    run_program(0,epath,'lmf-MPIK','llmfgw00',0,target+' --jobgw=0')
+    run_program(1,epath,'qg4gw','lqg4gw --job=1')
+    run_program(1,epath,'lmf-MPIK','llmfgw01',ncore,target+' --jobgw=1')
+    ##### main stage of gw ####
+    run_program(1,epath,'rdata4gw_v2','lrdata4gw_v2') #prepare files
+    mv_files(glob.glob('norm*'),'STDOUT')
+    rm_files(['gwa']+glob.glob('gwb*'))
+    run_program(1,epath,'heftet','leftet --job=1')       # A file EFERMI for hx0fp0
     ### Core part of the self-energy (exchange only) ###
-    run_arg '---' $NO_MPI $nfpgw   /hbasfp0 lbasC --job=3 # Product basis generation 
-    run_arg '---' $MPI_SIZE $nfpgw /hvccfp0 lvccC --job=3 # Coulomb matrix for lbasC 
-    run_arg '---' $MPI_SIZE $nfpgw /hsfp0_sc lsxC --job=3 # Sigma from core1
-    mv stdout* STDOUT
+    run_program(3,epath,'hbasfp0','lbasC --job=3')       # Product basis generation
+    run_program(3,epath,'hvccfp0','lvccC --job=3',ncore) # Coulomb matrix for lbasC
+    run_program(3,epath,'hsfp0_sc','lsxC --job=3',ncore2) # Sigma from core1
+    mv_files(glob.glob('stdout*'),'STDOUT')
     ### Valence part of the self-energy Sigma ###
-    run_arg  '---' $NO_MPI $nfpgw   /hbasfp0 lbas --job=0 # Product basis generation 
-    run_arg  '---' $MPI_SIZE $nfpgw /hvccfp0 lvcc --job=0 # Coulomb matrix for lbas 
-    run_arg  '---' $MPI_SIZE $nfpgw /hsfp0_sc lsx --job=1 # Exchange Sigma
-    mv stdout* STDOUT
-    if [ -e WV.d ]; then
-	rm -f WV* 
-    fi
-    # following two runs are most expensive #
-    run_arg '---' $MPI_SIZE $nfpgw /hx0init lx0init --job=11 #x0 part
-    #run_arg '---' $MPI_SIZE $nfpgw /hx0zmel  lx0zmel    #x0 part
-    run_arg '---' $MPI_SIZE $nfpgw /hrcxq    lrcxq       #x0 part
-    run_arg '---' $MPI_SIZE $nfpgw /hhilbert lhilbert    #x0 part
-    mv stdout* STDOUT
-    run_arg '---' $MPI_SIZE $nfpgw /hsfp0_sc lsc --job=2 #correlation Sigma
-    mv stdout* STDOUT
-    run_arg '---' $NO_MPI $nfpgw   /hqpe_sc lqpe #all Sigma are combined.
-    $echo_run echo -n 'OK! --> '
+    run_program(0,epath,'hbasfp0','lbas --job=0')        # Product basis generation
+    run_program(0,epath,'hvccfp0','lvcc --job=0',ncore) # Coulomb matrix for lbas
+    run_program(1,epath,'hsfp0_sc','lsx --job=1',ncore2) # Exchange Sigma
+    mv_files(glob.glob('stdout*'),'STDOUT')
+    run_program(11,epath,'hx0init','lx0init --job=11',ncore2)    #x0 part
+    run_program(100,epath,'hx0zmel','lx0zmel',ncore2)   #x0 part
+    run_program(100,epath,'hrcxq','lrcxq',ncore2)       #x0 part
+    run_program(100,epath,'hhilbert','lhilbert',ncore2) #x0 part
+    mv_files(glob.glob('stdout*'),'STDOUT')
+    run_program(2,epath,'hsfp0_sc','lsc --job=2',ncore2) #correlation Sigma
+    mv_files(glob.glob('stdout*'),'STDOUT')
+    run_program(0,epath,'hqpe_sc','lqpe')        #all Sigma are combined.
     ### final part of iteration loop. Manupulate files ###
-    ln -s -f sigm sigm.$TARGET
-    mv SEX* SEC* XC* SEBK
-    for file in sigm QPU QPD TOTE.UP TOTE.DN lqpe lsc lsx lx0 llmfgw01 evecfix.chk llmf ESEAVR 
-    do
-	if [ -e $file ]; then
-	    cp $file $file.${ix}run
-	fi
-    done
-    if [ $ix == 0 ] && [ ${ITER} != 0 ]; then
-	mkdir RUN0
-	run_arg '---' $MPI_SIZE $nfpgw           /lmf-MPIK llmf_oneshot $TARGET
-	cp ctrl.$TARGET rst.$TARGET sigm.$TARGET llmf_oneshot save.$TARGET RUN0
-    fi
-    mkdir RUN.ITER${ix}
-    cp ctrl.$TARGET rst.$TARGET sigm.$TARGET GWinput save.$TARGET RUN.ITER${ix}
-    $echo_run echo == $ix 'iteration over =='
-done 
-################## end of loop #######################
+    remove(sigm_name)
+    os.symlink('sigm',sigm_name)
+    mv_files(glob.glob('SEX*')+glob.glob('SEC*')+glob.glob('XC*'),'SEBK')
+    for f in ['sigm','QPU','QPD','TOTE.UP','TOTE.DN','lqpe','lsc','lsx','lx0','llmfgw01','evecfix.chk','llmf','ESEAVR']:
+        if os.path.isfile(f):
+            shutil.copy(f,f+'.%drun'%niter)
+    if i==0 and Iter0!=0 and nloop!=0:
+        run0='RUN0'
+        gen_dir(run0)
+        run_program(100,epath,'lmf-MPIK','llmf_oneshot',ncore,target)
+        cp_files(['ctrl.%s'%target,rst_name,sigm_name,'llmf_oneshot','save.%s'%target],run0)
+    rundir='RUN.ITER%d'%niter
+    gen_dir(rundir)
+    cp_files(['ctrl.%s'%target,rst_name,sigm_name,'GWinput','save.%s'%target],rundir)
+    print('OK! --> == %d iteration over =='%niter,flush=True)
+    ##### end of loop #####
+
 ### finally we have llmf_gwscend ###
-run_arg '---' $MPI_SIZE $nfpgw             /lmf-MPIK llmf_gwscend.${ITER} $TARGET
-rm -f ewindow.${TARGET}* qbyl.${TARGET}* eigze*.${TARGET}* _IN_
-if [ ${ITER} == 0 ]; then
-    mkdir RUN0
-    cp ctrl.$TARGET rst.$TARGET sigm.$TARGET llmf_gwscend.${ITER} save.$TARGET RUN0
-fi
-$echo_run echo OK! ==== All calclation finished for  gwsc $argv ====
-exit
+run_program(100,epath,'lmf-MPIK','llmf_gwscemd.%d'%niter,ncore,target)
+rm_files(glob.glob('ewindow.%s*')+glob.glob('qbyl.%s*'%target)+glob.glob('eigze*.%s*'%target)+['_IN_'])
+if nloop==0:
+    run0='RUN0'
+    gen_dir(run0)
+    cp_files(['ctrl.%s'%target,rst_name,sigm_name,'llmf_gwscend.%d'%niter,'save.%s'%target],run0)
+    argv=''
+    print('OK! ==== All calclation finished for  gwsc %s ===='%argv)
+
+    
