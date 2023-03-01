@@ -1,11 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 '''
-QP self-consistent GW itteration using MPI.
-It is rewrited gwsc code using python 3.x.
+QSGW calculation with MPI.
 '''
 import os, datetime, shutil, glob
-
 def Obtain_args():
     '''
     arguments settings
@@ -65,7 +63,7 @@ def run_codes(argin,epath,command,output,mpi_size=0,target=''):
     '''
     run ecalj code and write std output
     Arguments
-          argin: argument of ecalj code --- in run_arg replace 100
+          argin: argument of ecalj code 
           epath: path of ecalj bin
         command: run command
          output: output file
@@ -76,11 +74,8 @@ def run_codes(argin,epath,command,output,mpi_size=0,target=''):
     import subprocess
     echo_arg='%d'%argin if argin !=100 else '---'
     mpirun='mpirun -np %d '%mpi_size if mpi_size!=0 else ''
-    print('OK! --> Start echo '+echo_arg+' | '+mpirun+epath+'/'+command+' '+target+' > '+output,flush=True)
-    f=open('_IN_','w')
-    f.write(echo_arg)
-    f.close()
-    run_command=mpirun+epath+'/'+command+' '+target+' < _IN_ > '+output
+    run_command = mpirun+epath+'/'+command+' '+target+' > '+output
+    print('OK! --> Start echo '+run_command,flush=True)
     info=subprocess.run(run_command,shell=True)
     if info.returncode!=0: #if return error
         print('Error in '+command+' input_arg='+echo_arg+'. See OutputFile='+output,flush=True)
@@ -140,25 +135,25 @@ def main():
         else:
             run_codes(100,epath,'lmf-MPIK','llmf',ncore,target)
         #gw initialize
-        run_codes(0,epath,'lmf-MPIK','llmfgw00',0,target+' --jobgw')
-        run_codes(1,epath,'qg4gw','lqg4gw')
-        run_codes(1,epath,'lmf-MPIK','llmfgw01',ncore,target+' --jobgw')
+        run_codes(0,epath,'lmf-MPIK','llmfgw00',0,target+' --jobgw=0')
+        run_codes(1,epath,'qg4gw','lqg4gw --job=1')
+        run_codes(1,epath,'lmf-MPIK','llmfgw01',ncore,target+' --jobgw=1')
 
         ##### main stage of gw ####
         run_codes(1,epath,'rdata4gw_v2','lrdata4gw_v2') #prepare files
         mv_files(glob.glob('norm*'),'STDOUT')
         rm_files(['gwa']+glob.glob('gwb*'))
 
-        run_codes(1,epath,'heftet','leftet')       # A file EFERMI for hx0fp0
+        run_codes(1,epath,'heftet','leftet --job=1')       # A file EFERMI for hx0fp0
         ### Core part of the self-energy (exchange only) ###
-        run_codes(3,epath,'hbasfp0','lbasC')       # Product basis generation
-        run_codes(3,epath,'hvccfp0','lvccC',ncore) # Coulomb matrix for lbasC
-        run_codes(3,epath,'hsfp0_sc','lsxC',ncore2) # Sigma from core1
+        run_codes(3,epath,'hbasfp0','lbasC --job=3')       # Product basis generation
+        run_codes(3,epath,'hvccfp0','lvccC --job=3',ncore) # Coulomb matrix for lbasC
+        run_codes(3,epath,'hsfp0_sc','lsxC --job=3',ncore2) # Sigma from core1
         mv_files(glob.glob('stdout*'),'STDOUT')
         ### Valence part of the self-energy Sigma ###
-        run_codes(0,epath,'hbasfp0','lbas')        # Product basis generation
-        run_codes(0,epath,'hvccfp0','lvcc',ncore) # Coulomb matrix for lbas
-        run_codes(1,epath,'hsfp0_sc','lsx',ncore2) # Exchange Sigma
+        run_codes(0,epath,'hbasfp0','lbas --job=0')        # Product basis generation
+        run_codes(0,epath,'hvccfp0','lvcc --job=0',ncore) # Coulomb matrix for lbas
+        run_codes(1,epath,'hsfp0_sc','lsx --job=1',ncore2) # Exchange Sigma
         mv_files(glob.glob('stdout*'),'STDOUT')
         if os.path.isfile('WV.d'):
             rm_files(glob.glob('WV*'))
@@ -167,13 +162,13 @@ def main():
             lx0_para_option
         except NameError:
             lx0_para_option='' #set lx0_para_option='-nq 4 -ns 1'
-        run_codes(11,epath,'hx0init','lx0init',ncore2,lx0_para_option)    #x0 part
+        run_codes(11,epath,'hx0init','lx0init --job=11',ncore2,lx0_para_option)    #x0 part
         run_codes(100,epath,'hx0zmel','lx0zmel',ncore2,lx0_para_option)   #x0 part
         run_codes(100,epath,'hrcxq','lrcxq',ncore2,lx0_para_option)       #x0 part
         run_codes(100,epath,'hhilbert','lhilbert',ncore2,lx0_para_option) #x0 part
 
         mv_files(glob.glob('stdout*'),'STDOUT')
-        run_codes(2,epath,'hsfp0_sc','lsc',ncore2) #correlation Sigma
+        run_codes(2,epath,'hsfp0_sc','lsc --job=2',ncore2) #correlation Sigma
         mv_files(glob.glob('stdout*'),'STDOUT')
         run_codes(0,epath,'hqpe_sc','lqpe')        #all Sigma are combined.
         ### final part of iteration loop. Manupulate files ###

@@ -138,42 +138,44 @@ program hsfp0
 
   integer,allocatable:: irkip_all(:,:,:,:),irkip(:,:,:,:)
   integer:: irank,nrank
-
   integer:: ififr
   integer:: timevalues(8)  ,isp,dest,ificlass,ifiq0p
   character(128) :: ixcc
-
   integer:: nw,ifcoh, ixx(2)
   real(8)::dwdummy, ef
+  logical:: cmdopt2
+  character(20):: outs=''
   !...  mode switch. --------------
   call MPI__Initialize()
   call M_lgunit_init()
   call date_and_time(values=timevalues)
   write(6,'(a,9i5)')'dateandtime1=',MPI__rank,timevalues(1:8)
-
   hartree=2d0*rydberg()
   if(cohtest) then
      screen = .true.
      ixc = 2; nz=0
      open(newunit=ifcoh,file='COH')
   elseif(MPI__root) then
-     write(6,*) ' --- Choose omodes below ----------------'
-     write(6,*) '  Sx(1) Sc(2) ScoreX(3) Spectrum(4) '
-     write(6,*) '  EXX_val-val (5)  Exx_core-val(6) '
-     write(6,*) '  Sx_sf(11) Sc_sf(12) '
-     write(6,*) '  [option --- (+ QPNT.{number} ?)] '
-     write(6,*) ' --- Put number above ! -----------------'
-     read(5,*) ixc           !call readin5(ixc,nz,idummy)
+     if(cmdopt2('--job=',outs)) then
+        read(outs,*) ixc
+     else
+        write(6,*) ' --- Choose omodes below ----------------'
+        write(6,*) '  Sx(1) Sc(2) ScoreX(3) Spectrum(4) '
+        write(6,*) '  EXX_val-val (5)  Exx_core-val(6) '
+        write(6,*) '  Sx_sf(11) Sc_sf(12) '
+        write(6,*) '  [option --- (+ QPNT.{number} ?)] '
+        write(6,*) ' --- Put number above ! -----------------'
+        read(5,*) ixc           !call readin5(ixc,nz,idummy)
+        write(*,*) ' ixc=', ixc !computational mode index
+     endif
      nz=0
   endif
   call MPI__Broadcast(ixc)
   call MPI__Broadcast(nz)
-  !      if(MPI__root) call headver('hsfp0',ixc)
   write(ixcc,"('.mode=',i4.4)")ixc
   call MPI__consoleout('hsfp0'//trim(ixcc))
   write(6,*) ' ixc nz=',ixc, nz
   if(ixc==0) call rx( ' --- ixc=0 --- Choose computational mode!')
-
   !!  tetraex is only for Ex.
   tetraex=tetra_hsfp0()
   iii=verbose()

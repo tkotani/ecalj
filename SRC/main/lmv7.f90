@@ -30,17 +30,33 @@ program lmf
   character:: outs*20,aaa*512,sss*128
   character(8):: prgnam
   ! Bootstrap building up of module variables. Variables are set in modules and proteted (except m_density).
-  prgnam='LMF'
-  if(cmdopt0('--jobgw')) prgnam='LMFGWD'
   call m_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
   call m_MPItk_init(prgnam) ! mpi initialization
   call m_lgunit_init() !set stdo,stdl
   call setcmdpath() !Set self-command path (this is for call system at m_lmfinit)
+  if(cmdopt2('--jobgw=',outs))then
+     prgnam='LMFGWD'
+     read(outs,*) jobgw
+     if(jobgw/=0.and.jobgw/=1) call rx0(' Set --jobgw=0 or 1')
+  else   
+     prgnam='LMF'
+     jobgw=-1 
+  endif   
+  call mpibc1_int(jobgw,1,'lmfp_jobgw')
   aaa=''
   do iarg=1,iargc()
      call getarg(iarg,sss)
-     aaa=aaa//' '//trim(sss) !command-line
+     print *,iarg,trim(sss)
+     aaa=trim(aaa)//' '//trim(sss) !command-line
   enddo
+  if(master_mpi.and.len_trim(aaa)==0) then
+     write(stdo,*)' usage: mpirun -np 4 lmf-MPIK foobar [options]'
+     write(stdo,*)'     GW preparation mode. Then we need '
+     write(stdo,*)'     --jobgw=0 : init mode creates HAMindex0'
+     write(stdo,*)'     --jobgw=1 : GW setup for eigenfunctions: HAMindex gwa.* gwb.*'
+     write(stdo,*)' There are many possible [options]. grep cmdopt SRC/*/*.f90'
+     call rx(' Set command line inputs') 
+  endif
   aaa='===START '//trim(prgnam)//' with  '//trim(aaa)//' ==='
   if(master_mpi) call show_programinfo(stdo)
   if(master_mpi) write(stdo,"(a)") trim(aaa)
@@ -74,20 +90,6 @@ program lmf
   ! --rs=3 is removed. (--rs=3 meand fixed density Harris-foukner MD).
   ! Sep2020:  Shorten site positions" removed. (we are useing shortn3 mainly now)
   ! Get jobgw for lmfgw mode. Quit for job=0
-  jobgw=-1
-  if(prgnam =='LMFGWD') then
-     if( cmdopt2('--job=',outs) ) then
-        read(outs,*) jobgw
-     elseif(master_mpi) then
-        write(stdo,*)
-        write(stdo,*) ' === lmfgw-MPIK: Choose one of following jobs: ==='
-        write(stdo,*) '  0 : init mode creates HAMindex0'
-        write(stdo,*) '  1 : GW setup for eigenfunctions: HAMindex gwa.* gwb.*'
-        write(stdo,*) '  jobgw 0 or 1?'
-        read (5,*) jobgw
-     endif
-     call mpibc1_int(jobgw,1,'lmfp_jobgw')
-  endif
   if(jobgw==0) then ! Index for hamiltonian gen_hamindex
      if(master_mpi) call m_hamindex0_init()
      call rx0(' OK! '//'lmfgw mode=0 generated HAMindex0')

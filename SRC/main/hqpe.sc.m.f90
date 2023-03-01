@@ -61,8 +61,9 @@ program hqpe_sc
   call m_lgunit_init()
   hartree=2d0*rydberg()
   !! Shift quasiparticle energies (eV)
-  write (*,*)' q+band index for zero?'
-  read (*,*)jin
+!  write (*,*)' q+band index for zero?'
+  !  read (*,*)jin
+  jin=0
   call getkeyvalue("GWinput","EXonly",wex,default=0d0,status=ret)
   if(wex==0d0) then
      exonly=.false.

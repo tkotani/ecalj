@@ -1,40 +1,27 @@
 #!/bin/bash
-#for tatara in kyushu-u This is neglected in other cases.
-###make_ref.awk if(-e /home/etc/intelMPI.csh) source /home/etc/intelMPI.csh
-###ref2cmd.awk %HEADER
-### MPI version 
 if [ $# -ne 3 ] || [ $1 != "-np" ] ; then
     echo "An example of usage: epsPP_lmfh_chipm -np 4 fe"
     exit 101
 fi
-
 n=$0
 nfpgw=`dirname $0`
 TARGET=$3
 MPI_SIZE=$2
 NO_MPI=0
 ITER=$1
-lx0_para_option=""  #set lx0_para_option='-nq 4 -ns 1'
-
 source $nfpgw/run_arg #define echo_run and serial_run in run_arg
 $echo_run echo "### START epsPP_lmfh: MPI size= " $MPI_SIZE, "TARGET= "$TARGET
-
 ######## \epsilon calculation.
 $echo_run echo $nfpgw
 $echo_run echo $TARGET
-#LMJOB= $TARGET
-
-
-argin=0; run_arg $argin $NO_MPI  $nfpgw  /lmf-MPIK  llmfgw00 $TARGET  --novxc --jobgw
-argin=4; run_arg $argin $NO_MPI  $nfpgw  /qg4gw lqg4gw04   #Generate requied q+G v
-
-argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmf-MPIK llmfgw01 $TARGET --jobgw --wrhomt
-#run_arg  '---' $NO_MPI   $nfpgw /lmf2gw     llmf2gw  #reform data for gw
-run_arg $argin $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files
+run_arg '---' $NO_MPI  $nfpgw  /lmf-MPIK  llmfgw00 $TARGET  --novxc --jobgw=0
+run_arg '---' $NO_MPI  $nfpgw  /qg4gw lqg4gw04  --job=4 #Generate requied q+G v
+run_arg '---' $MPI_SIZE $nfpgw /lmf-MPIK llmfgw01 $TARGET --jobgw=1 --wrhomt
+run_arg '---' $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files
 rm gwa gwb.*
-argin=1;   run_arg $argin $NO_MPI $nfpgw   /heftet leftet # A file EFERMI for hx0fp0
-argin=8;   run_arg $argin $NO_MPI $nfpgw   /hbasfp0 lbas   # Product basis generation mode=8
-argin=222; run_arg $argin $MPI_SIZE $nfpgw /hx0fp0 lx0 $lx0_para_option #x0 part
+run_arg '---' $NO_MPI $nfpgw   /heftet leftet --job=1 # A file EFERMI for hx0fp0
+$nfpgw/hbasfp0 --job=8 >& lbas # Product basis generation mode=8
+mpirun -np $MPI_SIZE $nfpgw/hx0fp0 --job=222 >& lx0 #x0 part
 
  
 

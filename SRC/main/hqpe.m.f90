@@ -26,12 +26,13 @@ program hqpe
   logical :: nozmode=.false.
   !      call m_lgunit_init()
   ! shift quasiparticle energies (eV)
-  write (*,*)' q+band index for zero?'
-  read (*,*)jin
-  if(jin>=1000) then
-     jin=jin-1000
-     nozmode=.true.
-  endif
+!  write (*,*)' q+band index for zero?'
+!  read (*,*)jin
+  jin=0
+!  if(jin>=1000) then
+!     jin=jin-1000
+!     nozmode=.true.
+!  endif
   call getkeyvalue("GWinput","<QPNT>",unit=ifqpnt,status=ret)
   laf        = .false.
   call readx   (ifqpnt,10)

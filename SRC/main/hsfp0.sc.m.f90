@@ -79,7 +79,7 @@ program hsfp0_sc
   integer::  ixc, ip, is, nspinmx, i, ix, nq0ix, ngpn1,ngcn1, timevalues(8), irank,isp,nq
   real(8) :: voltot,valn,efnew,hartree,qreal(3),wgtq0p,quu(3), eftrue,esmref,esmr,ef
   character(128) :: ixcc
-  logical :: legas, exonly, iprintx,diagonly=.false.,exchange, hermitianW=.true.
+  logical:: legas, exonly, iprintx,diagonly=.false.,exchange, hermitianW=.true.
   integer,allocatable:: irkip(:,:,:,:), nrkip(:,:,:,:)
   real(8),allocatable:: vxcfp(:,:,:), eqt(:), eq(:), eqx(:,:,:),eqx0(:,:,:)
   complex(8),pointer::zsec(:,:,:)
@@ -92,17 +92,23 @@ program hsfp0_sc
     use m_readeigen,only: INIT_READEIGEN,INIT_READEIGEN2,LOWESTEVAL
     integer:: incwfin
     real(8):: tripl
+    logical:: cmdopt2
+    character(20):: outs=''
     call MPI__Initialize()
     call M_lgunit_init()
     call date_and_time(values=timevalues)
     write(stdo,"('mpirank=',i5,' YYYY.MM.DD.HH.MM.msec=',9i4)")mpi__rank,timevalues(1:3),timevalues(5:8)
     if(MPI__root) then
-       write(stdo,*) ' --- Choose modes below ------------'
-       write(stdo,*) '  Sx(1) Sc(2) ScoreX(3) '
-       write(stdo,*) '  [option --- (+ QPNT.{number} ?)] '
-       write(stdo,*) ' --- Put number above ! ------------'
-       read(5,*) ixc
-       write(stdo,*) ' ixc=', ixc !computational mode index
+       if(cmdopt2('--job=',outs)) then
+          read(outs,*) ixc
+       else
+          write(stdo,*) ' --- Choose modes below ------------'
+          write(stdo,*) '  Sx(1) Sc(2) ScoreX(3) '
+          write(stdo,*) '  [option --- (+ QPNT.{number} ?)] '
+          write(stdo,*) ' --- Put number above ! ------------'
+          read(5,*) ixc
+          write(stdo,*) ' ixc=', ixc !computational mode index
+       endif
     endif
     call MPI__Broadcast(ixc)
     write(ixcc,"('.mode=',i4.4)")ixc
