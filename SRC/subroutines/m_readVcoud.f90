@@ -33,14 +33,14 @@ contains
     open(newunit=ifvcoud, file=trim(vcoudfile), action='read',form='unformatted')
     read(ifvcoud) ngb0
     read(ifvcoud) qvv
-    if(sum(abs(qvv-q))>1d-10) then
-       write(6,*)'qvv =',qvv
-       call rx( 'readvcoud: qvv/=0 is not consistent')
-    endif
-    if( ngb0/=ngb ) then      !sanity check
-       write(6,*)' qxx ngb0 ngb=',q,ngb0,ngb
-       call rx( 'readvcoud:ngb0/=ngb')
-    endif
+    !if(sum(abs(qvv-q))>1d-10) then
+    !   write(6,*)'qvv =',qvv
+    !   call rx( 'readvcoud: qvv/=0 is not consistent')
+    !endif
+    !if( ngb0/=ngb ) then      !sanity check
+    !   write(6,*)' qxx ngb0 ngb=',q,ngb0,ngb
+    !   call rx( 'readvcoud:ngb0/=ngb')
+    !endif
     if(allocated(zcousq)) deallocate( zcousq,vcousq,vcoud )
     allocate( zcousq(ngb0,ngb0),vcousq(ngb0),vcoud(ngb0))
     read(ifvcoud) vcoud

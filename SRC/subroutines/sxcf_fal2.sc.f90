@@ -185,7 +185,6 @@ contains
     integer:: ixx,ixc,icount,ns1,ns2,ns1c,ns2c,ns1v
     real(8),parameter:: pi=4d0*datan(1d0), fpi=4d0*pi, tpi=8d0*datan(1d0),ddw=10d0
     integer:: kxold,nccc,icount0
-    complex(8),allocatable:: zmelc(:,:,:)
     integer,allocatable::ndiv(:),nstatei(:,:),nstatee(:,:),irkip(:,:,:,:)
     integer:: ns2r
     iqini = 1
@@ -231,56 +230,53 @@ contains
        ns2 =nstte(icount) ! 
        ns2r=nstte2(icount) !Range of middle states [ns1:ns2r] for CorrelationSelfEnergyRealAxis
        !       write(6,ftox)'do3030:isp kx ip',isp,kx,ip,'icou/ncou=',icount,ncount,'ns1:ns2=',ns1,ns2
-       ZmelBlock:block !zmel= <M(qbz_kr,ib) phi(it,q-qbz_kr,isp) |phi(itpp,q,isp)> 
-         !                   ib=1,ngb !MPB, it=ns1:ns2 ! MiddleState, itpp=1:ntqxx ! EndState, 
+       ZmelBlock:block !zmel(ib=ngb,it=ns1:ns2,itpp=1:ntqxx)= <M(qbz_kr,ib) phi(it,q-qbz_kr,isp) |phi(itpp,q,isp)> 
          if(kxold/=kx) then
             call Readvcoud(qibz_k,kx,NoVcou=.false.) !Readin ngc,ngb,vcoud ! Coulomb matrix
             call Setppovlz(qibz_k,matz=.true.)       !Set ppovlz overlap matrix used in Get_zmel_init in m_zmel
             if(debug) write(6,*) ' sxcf_fal2sc: ngb ngc nbloch=',ngb,ngc,nbloch
             kxold =kx
          endif
-         call Get_zmel_init(q,qibz_k,irot,qbz_kr, ns1,ns2,isp, 1,ntqxx,isp, nctot,ncc=0,iprx=debug)
-                            !Return zmel middle=> ns1:ns2
+         call Get_zmel_init(q,qibz_k,irot,qbz_kr, ns1,ns2,isp, 1,ntqxx,isp, nctot,ncc=0,iprx=debug) !Return zmel(ngb,ns1:ns2,ntqxx)
        endblock ZmelBlock
-       Exchangemode: if(exchange) then      
+       ExchangeMode: if(exchange) then      
           ExchangeSelfEnergy: Block
             real(8):: wfacx,vcoud_(ngb),wtff(ns1:ns2) !range of middle states ns1:ns2
             vcoud_= vcoud
             if(kx == iqini) vcoud_(1)=wklm(1)*fpi*sqrt(fpi)/wk(kx) !voud_(1) is effective v(q=0) in the Gamma cell.
-            wtff= [(wfacx(-1d99, ef, ekc(it), esmr),it=ns1,ns2)]
+            ns1v= max(nctot+1,ns1) ! minimum index of valence for core+valence
+            wtff(ns1:ns1v-1) = 1d0
+            wtff(ns1v:ns2)   = [(wfacx(-1d99, ef, ekc(it), esmr),it=ns1v,ns2)]
             do concurrent(itp=lbound(zsec,1):ubound(zsec,1),itpp=lbound(zsec,2):ubound(zsec,2))
                block
                  complex(8):: w3p(ns1:ns2)
-                 w3p(ns1:ns2)=[(sum(dconjg(zmel(:,it,itp))*vcoud_(:)*zmel(:,it,itpp)),it=ns1,ns2)]
-                 ns1v= max(nctot+1,ns1) ! minimum index of valence for core+valence
-                 w3p(ns1v:ns2) = w3p(ns1v:ns2) * wtff(ns1v:ns2)
+                 w3p(ns1:ns2)=[(sum(dconjg(zmel(:,it,itp))*vcoud_(:)*zmel(:,it,itpp)),it=ns1,ns2)] * wtff(ns1:ns2)
                  if(corehole) then !not checked well
                     ns2c= min(ns2,nctot) !ns2c upper limit of core index of core+valence
                     ns1c= ns1 !ns1c lower limit of core index of core+valence
                     w3p(ns1c:ns2c) = w3p(ns1c:ns2c) * wcorehole(ns1c:ns2c,isp)
                  endif
                  zsec(itp,itpp) = zsec(itp,itpp) - wtt * sum( w3p(:) )
-               end block
+               endblock
             enddo
-            if(timemix) call timeshow("ExchangeSelfEnergy cycle")
           EndBlock ExchangeSelfEnergy
+          if(timemix) call timeshow("ExchangeSelfEnergy cycle")
           cycle  !end of exchange mode             
-       endif Exchangemode
+       endif ExchangeMode
        !     ! Integration along imag axis for zwz(omega) for given it,itp,itpp
        !     ! itp  : left-hand end of expternal band index.
        !     ! itpp : right-hand end of expternal band index.
        !     ! it   : intermediate state of G.
        !     !===  See Eq.(55) around of PRB76,165106 (2007)
        !
-       zmelcww: Block !range of middle states is [ns1:ns2] 
+       CorrelationMode: Block !range of middle states is [ns1:ns2] 
+         complex(8):: zmelc  (1:ntqxx,ns1:ns2,1:ngb)
          complex(8):: zmelcww(1:ntqxx,ns1:ns2,1:ngb)
-         allocate(zmelc(1:ntqxx,ns1:ns2,1:ngb)) 
-         forall(itp=1:ntqxx) zmelc(itp,:,:)=transpose(dconjg(zmel(:,:,itp))) 
+         zmelc = reshape(dconjg(zmel),shape=shape(zmelc),order=[3,2,1])
          CorrelationSelfEnergyImagAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
            use m_purewintz,only: wintzsg_npm_wgtim
            real(8):: esmrx(ns1:ns2), wgtim(0:npm*niw,ntqxx,ns1:ns2)
            complex(8),target:: zw(nblochpmx,nblochpmx),zwz(ns1:ns2,ntqxx,ntqxx)
-           logical:: init=.true.
            if(timemix) call timeshow(" CorrelationSelfEnergyImagAxis:")
            esmrx(ns1:nctot)= 0d0
            esmrx(max(nctot+1,ns1):ns2) = esmr
@@ -305,10 +301,9 @@ contains
          CorrelationSelfEnergyRealAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
            real(8):: we_(ns1:ns2r,ntqxx),wfac_(ns1:ns2r,ntqxx)
            integer:: ixss(ns1:ns2r,ntqxx),iirx(ntqxx)
-!           logical:: ititpskip(ns1:ns2r,ntqxx)
            complex(8),target:: zw(nblochpmx,nblochpmx)
            if(timemix) call timeshow(" CorrelationSelfEnergyRealAxis:")
-           if(debug)write(6,*)' CorrelationSelfEnergyRealAxis: Block '
+           if(debug)   write(6,*)' CorrelationSelfEnergyRealAxis: Block '
            call weightset4intreal(nctot,esmr,omega,ekc,freq_r,nw_i,nw,&
                 ntqxx,nt0m,nt0p,ef,nwx,nwxi,ns1,ns2r,wfaccut,wtt,&
                 we_,wfac_,ixss,iirx)
@@ -383,22 +378,17 @@ contains
                 enddo
              enddo
            Endblock CorrR2
+           if(timemix) call timeshow(" End of CorrelationSelfEnergyRealAxis:")
          EndBlock CorrelationSelfEnergyRealAxis
-         
-         if(timemix) call timeshow(" End of CorrelationSelfEnergyRealAxis:")
-         block
+         AccumulateZsec: block 
            integer:: n1,nm,n2
-           complex(8):: zmeltr(ns1:ns2,1:ngb,lbound(zsec,2):ubound(zsec,2))
-           do concurrent (itpp=lbound(zsec,2):ubound(zsec,2))
-              zmeltr(:,:,itpp)=transpose(zmel(:,:,itpp))
-           enddo
+           complex(8):: zmeltr(ns1:ns2,1:ngb,1:ntqxx)
+           zmeltr = reshape(zmel,shape=[ns2-ns1+1,ngb,ntqxx],order=[2,1,3])
            n1=size(zsec,1); nm=size(zmelcww,2)*size(zmelcww,3); n2=size(zsec,2)
            zsec= zsec+ matmul(reshape(zmelcww,[n1,nm]),reshape(zmeltr,[nm,n2]))
-         endblock
-       EndBlock zmelcww
+         endblock AccumulateZsec
+       EndBlock CorrelationMode
        forall(itp=lbound(zsec,1):ubound(zsec,1)) zsec(itp,itp)=dreal(zsec(itp,itp))+img*min(dimag(zsec(itp,itp)),0d0) !enforce Imzsec<0
-       call Deallocate_zmel()
-       deallocate(zmelc)
        if(timemix) call timeshow("   end icount do 3030")
 3030 enddo MAINicountloop
   endsubroutine sxcf_scz_main

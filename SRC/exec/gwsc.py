@@ -14,7 +14,7 @@ epath=os.path.dirname(os.path.abspath(__file__)) #if gwsc.py is in ecalj bin dir
 tmp=[int(s.strip('RUN.ITER')) for s in os.listdir() if 'RUN.ITER' in s]
 Iter0=max(tmp) if len(tmp)!=0 else 0
 initxt=("### START gwsc: ITER= %d, MPI size=  %d, TARGET= %s"%(nloop,ncore,target)
-            if ncore==ncore2 else
+        if ncore==ncore2 else
         "### START gwsc: ITER= %d, MPI size=  %d, %d, TARGET= %s"%(nloop,ncore,ncore2,target))
 print(initxt,flush=True)
 #initial directry config
