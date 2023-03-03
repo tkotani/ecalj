@@ -142,9 +142,6 @@ module m_sxcf_main
   use m_mpi,only: MPI__sxcf_rankdivider
   use m_ftox
   use m_sxcf_count,only: ncount,ispc,kxc,irotc,ipc,krc,nstateMax,nstti,nstte,nstte2, nwxic, nwxc
-!  use m_hamindex,only: ngrp
-!  use m_eibzhs,only: nrkip=>nrkip_all,irkip_all
-!  use m_read_bzdata,only: qbz,nqibz,ginv,irk,nqbz
   implicit none
   public sxcf_scz_main, zsecall
   complex(8),allocatable,target:: zsecall(:,:,:,:) !output
@@ -153,40 +150,23 @@ contains
   subroutine sxcf_scz_main(ef,esmr,exchange,ixc,nspinmx) 
     intent(in)             ef,esmr,exchange,ixc,nspinmx
     logical :: exchange
-    integer :: isp,nspinmx,jobsw  !nqibz, nbandmx(nqibz,nspinmx)
-    real(8) :: ef,esmr !, qvec(3,nqibz)
-    real(8):: ebmx
-    complex(8),pointer::zsec(:,:), ww(:,:)
-    integer,allocatable :: ifrcw(:),ifrcwi(:)
-    integer :: ip, it, itp, i, ix, kx, irot, kr
-    integer :: nt0p, nt0m,nstate , nbmax, ntqxx 
-    integer :: nt,iw,ivc,ifvcoud,ngb0
-    integer :: ifwd,nrot,nwp,ierr 
-    integer :: iqini,iqend
-    integer :: invr,ia,nn,ntp0,no,itpp,nrec,itini,itend,nbmxe
-    integer :: iwp,nwxi,nwx,iir, igb1,igb2,ix0,iii
-    integer :: invrot,nocc,nlmtobnd,nt0,verbose,ififr, istate,  nt_max ,noccx
-    real(8) :: ekc(nctot+nband),ekq(nband), det, q(3) !,ua_
-    real(8) :: wtt,wfac,we!,esmrx
-    real(8) :: qvv(3),eq(nband),omega(ntq),quu(3),freqw,ratio
-    real(8) :: qibz_k(3),qbz_kr(3),vc,omega0,omg
-    complex(8),allocatable,target:: zwz(:,:,:),zw(:,:)
-    real(8), parameter :: wfaccut=1d-8,tolq=1d-8
-    complex(8), parameter :: img=(0d0,1d0)
+    integer :: ip,it,itp,i,ix,kx,irot,kr,nt0p,nt0m,nstate,nbmax,ntqxx,nt,iw,ivc,ifvcoud,ngb0,ifwd,nrot,nwp,ierr,iqini,iqend
+    integer :: invr,ia,nn,ntp0,no,itpp,nrec,itini,itend,nbmxe,iwp,nwxi,nwx,iir, igb1,igb2,ix0,iii,isp,nspinmx
+    integer :: invrot,nocc,nlmtobnd,nt0,verbose,ififr, istate, nt_max ,noccx,ns2r, kxold,nccc,icount0
+    integer:: ixx,ixc,icount,ns1,ns2,ns1c,ns2c,ns1v
+    real(8) :: ekc(nctot+nband),ekq(nband),det,q(3),wtt,wfac,we,qvv(3),eq(nband),omega(ntq),quu(3),ef,esmr,&
+         freqw,ratio,qibz_k(3),qbz_kr(3),vc,omega0,omg, polinta, wfacx, wfacx2, weavx2, wexx,ua2_(niw),freqw1,q_r(3),qk(3)
+    logical:: tote=.false., iprx,cmdopt0, oncew, onceww !, eibz4sig  
     character(10) :: i2char
-    real(8)::polinta, wfacx, wfacx2, weavx2, wexx,ua2_(niw),freqw1,q_r(3),qk(3)
+    real(8),parameter :: wfaccut=1d-8,tolq=1d-8, pi=4d0*datan(1d0), fpi=4d0*pi, tpi=8d0*datan(1d0),ddw=10d0
+    complex(8), parameter :: img=(0d0,1d0)
     logical,parameter :: debug=.false.,timemix=.false.
-    logical ::   oncew, onceww !, eibz4sig  
+    complex(8),allocatable,target:: zwz(:,:,:),zw(:,:)
     real(8),allocatable:: we_(:,:),wfac_(:,:)
     complex(8),allocatable:: w3p(:),wtff(:)
-    logical:: tote=.false.!, hermitianW
-!    real(8),allocatable:: vcoud_(:),wfft(:)
-    logical:: iprx,cmdopt0
-    integer:: ixx,ixc,icount,ns1,ns2,ns1c,ns2c,ns1v
-    real(8),parameter:: pi=4d0*datan(1d0), fpi=4d0*pi, tpi=8d0*datan(1d0),ddw=10d0
-    integer:: kxold,nccc,icount0
-    integer,allocatable::ndiv(:),nstatei(:,:),nstatee(:,:),irkip(:,:,:,:)
-    integer:: ns2r
+    complex(8),pointer::zsec(:,:), ww(:,:)
+    integer,allocatable :: ifrcw(:),ifrcwi(:),ndiv(:),nstatei(:,:),nstatee(:,:),irkip(:,:,:,:)
+    if(nw_i/=0) call rx('current version we assume nw_i=0. Time-reversal symmetry')
     iqini = 1
     iqend = nqibz             
     allocate(zsecall(ntq,ntq,nqibz,nspinmx)) 
@@ -244,9 +224,8 @@ contains
             real(8):: wfacx,vcoud_(ngb),wtff(ns1:ns2) !range of middle states ns1:ns2
             vcoud_= vcoud
             if(kx == iqini) vcoud_(1)=wklm(1)*fpi*sqrt(fpi)/wk(kx) !voud_(1) is effective v(q=0) in the Gamma cell.
-            ns1v= max(nctot+1,ns1) ! minimum index of valence for core+valence
-            wtff(ns1:ns1v-1) = 1d0
-            wtff(ns1v:ns2)   = [(wfacx(-1d99, ef, ekc(it), esmr),it=ns1v,ns2)]
+            ns1v = max(nctot+1,ns1) ! minimum index of valence for core+valence
+            wtff = [(1d0,it=ns1,ns1v-1),(wfacx(-1d99, ef, ekc(it), esmr),it=ns1v,ns2)]
             do concurrent(itp=lbound(zsec,1):ubound(zsec,1),itpp=lbound(zsec,2):ubound(zsec,2))
                block
                  complex(8):: w3p(ns1:ns2)
@@ -278,8 +257,7 @@ contains
            real(8):: esmrx(ns1:ns2), wgtim(0:npm*niw,ntqxx,ns1:ns2)
            complex(8),target:: zw(nblochpmx,nblochpmx),zwz(ns1:ns2,ntqxx,ntqxx)
            if(timemix) call timeshow(" CorrelationSelfEnergyImagAxis:")
-           esmrx(ns1:nctot)= 0d0
-           esmrx(max(nctot+1,ns1):ns2) = esmr
+           esmrx= [(0d0,it=ns1,nctot),(esmr,it=max(nctot+1,ns1),ns2)]
            itpdo:do concurrent(itp = lbound(zsec,1):ubound(zsec,1), it=ns1:ns2)
               call wintzsg_npm_wgtim(npm,ua_,expa_,we=.5d0*(omega(itp)-ekc(it)),esmr=esmrx(it),  &
                    wgtim=wgtim(:,itp,it))! Integration weight wgtim along im axis for zwz(0:niw*npm)
@@ -299,33 +277,53 @@ contains
            enddo iwimag
          EndBlock CorrelationSelfEnergyImagAxis
          CorrelationSelfEnergyRealAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
-           real(8):: we_(ns1:ns2r,ntqxx),wfac_(ns1:ns2r,ntqxx)
-           integer:: ixss(ns1:ns2r,ntqxx),iirx(ntqxx)
+           integer:: ixss(ns1:ns2r,ntqxx),iirx(ntqxx),iii,itini,itend
+           real(8):: we_(ns1:ns2r,ntqxx),wfac_(ns1:ns2r,ntqxx),omg,wfacx2, weavx2,esmrxx
            complex(8),target:: zw(nblochpmx,nblochpmx)
            if(timemix) call timeshow(" CorrelationSelfEnergyRealAxis:")
            if(debug)   write(6,*)' CorrelationSelfEnergyRealAxis: Block '
-           call weightset4intreal(nctot,esmr,omega,ekc,freq_r,nw_i,nw,&
-                ntqxx,nt0m,nt0p,ef,nwx,nwxi,ns1,ns2r,wfaccut,wtt,&
-                we_,wfac_,ixss,iirx)
-           if(any(iirx(1:ntqxx)/=1)) call rx('sxcf: iirx=-1(TR breaking) is not yet implemented')
+           ixss=0
+           do itp = 1,ntqxx
+              omg = omega(itp)
+              if (omg >= ef) then
+                 itini= max(ns1,nt0m+1)
+                 itend= ns2r
+                 iii=  1
+              else
+                 itini= ns1
+                 itend= min(nt0p,ns2r)
+                 iii= -1
+              endif
+              do it = itini,itend     ! nt0p corresponds to efp
+                 esmrxx = esmr
+                 if(it<=nctot) esmrxx = 0d0
+                 wfac_(it,itp) = wfacx2(omg,ef, ekc(it),esmrxx) !Gaussian smearing 
+                 if(wfac_(it,itp)<wfaccut) cycle 
+                 wfac_(it,itp)=  wfac_(it,itp)*wtt*iii !wfac_ = $w$ weight (smeared thus truncated by ef). See the sentences.
+                 we_(it,itp)  = .5d0*abs(omg-weavx2(omg,ef, ekc(it),esmr)) !we_= \bar{\omega_\epsilon} in sentences next to Eq.58 in PRB76,165106 (2007)
+                 ixss(it,itp) = findloc(freq_r(1:nw)>we_(it,itp),value=.true.,dim=1)
+              enddo
+           enddo
+           !call weightset4intreal(esmr,omega,ekc,ntqxx,nt0m,nt0p,ef,nwx,nwxi,ns1,ns2r,wfaccut,wtt,&
+           !             we_,wfac_,ixss) 
+           !iirx = 1
+           !where( omega<ef .and. nw_i/=0) iirx = -1
+           !if(any(iirx(1:ntqxx)/=1)) call rx('sxcf: iirx=-1(TR breaking) is not yet implemented')
            CorrR2:Block
              real(8):: wgt3(0:2,ns1:ns2r,ntqxx),amat(3,3)!3-point interpolation weight for we_(it,itp) 
-             complex(8)::zadd(ntqxx),wv33(ngb,ngb),wv3(ngb,ngb,0:2)
-             integer:: iwgt3(ns1:ns2r,ntqxx),i1,i2,iw,ikeep,ix,ixs
-             integer:: nit_(ntqxx,nwxi:nwx),icountp,ncoumx,iit,irs
+             complex(8)::zadd(ntqxx),wv3(ngb,ngb,0:2)
+             integer:: iwgt3(ns1:ns2r,ntqxx),i1,i2,iw,ikeep,ix,ixs,nit_(ntqxx,nwxi:nwx),icountp,ncoumx,iit,irs
              integer,allocatable:: itc(:,:,:),itpc(:,:)
              if(timemix) call timeshow(" CorrR2:")
              do concurrent( itp=1:ntqxx, it=ns1:ns2r) !it=ns1:ns2) !itp:end states, it:middle states
-                !we_ is \omega_\epsilon in Eq.(55).
                 ixs=ixss(it,itp)
                 if(ixs==0) cycle
-                associate(x=>we_(it,itp),xi=>freq_r(ixs-1:ixs+1)) 
-                  !call alagr3z2wgt(we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp))
-                  amat(1:3,1) = 1d0
+                associate(x=>we_(it,itp),xi=>freq_r(ixs-1:ixs+1)) !call alagr3z2wgt(we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp))
+                  amat(1:3,1) = 1d0        
                   amat(1:3,2) = xi(1:3)**2
                   amat(1:3,3) = xi(1:3)**4
-                  wgt3(:,it,itp)= wfac_(it,itp)*matmul([1d0,x**2,x**4], inverse33(amat)) 
-                  iwgt3(it,itp) = iirx(itp)*(ixs+1-2) !starting omega index ix for it,itp
+                  wgt3(:,it,itp)= wfac_(it,itp)*matmul([1d0,x**2,x**4], inverse33(amat))  !x=>we_ is \omega_\epsilon in Eq.(55).
+                  iwgt3(it,itp) = ixs+1-2 !starting omega index ix for it,itp !!  iwgt3(it,itp) = iirx(itp)*(ixs+1-2) 
                 endassociate
              enddo
              ! icount mechanism for sum ix,it,itp where W(we_(it,itp))=\sum_{i=0}^2 W(:,:,ix+i)*wgt3(i)         
@@ -347,7 +345,6 @@ contains
                   nit_(itp,ix)=iit
                 endblock
              enddo
-             !   ix-shifting whenr reading zw(:,:,ix)
              ikeep=99999
              do ix = nwxi,nwx  !Set wv3(:,:,0:2) is for ix,ix+1,ix+2
                 if(sum(nit_(:,ix))==0) cycle
@@ -370,10 +367,8 @@ contains
                 do itp=lbound(zsec,1),ubound(zsec,1)
                    do iit=1,nit_(itp,ix) !for it for given itp,ix
                       it =itc(iit,ix,itp)  !wv33 gives interpolated value of W(we_(it,itp))
-                      wv33 = wv3(:,:,0)*wgt3(0,it,itp) &
-                           + wv3(:,:,1)*wgt3(1,it,itp) &
-                           + wv3(:,:,2)*wgt3(2,it,itp) 
-                      zmelcww(itp,it,:)= zmelcww(itp,it,:) +  matmul(zmelc(itp,it,:),wv33)
+                      zmelcww(itp,it,:) = zmelcww(itp,it,:) +  matmul(zmelc(itp,it,:), &
+                           wv3(:,:,0)*wgt3(0,it,itp) +wv3(:,:,1)*wgt3(1,it,itp) +wv3(:,:,2)*wgt3(2,it,itp) )
                    enddo
                 enddo
              enddo
@@ -393,51 +388,41 @@ contains
 3030 enddo MAINicountloop
   endsubroutine sxcf_scz_main
   subroutine weightset4intreal(& ! generate required data set for main part of real part integration.
-         nctot,esmr,omega,ekc,freq_r,nw_i,nw,ntqxx,nt0m,nt0p,ef,nwx,nwxi,ns1,ns2r,wfaccut,wtt,&
-         we_,wfac_,ixss,iirx)
+         esmr,omega,ekc,ntqxx,nt0m,nt0p,ef,nwx,nwxi,ns1,ns2r,wfaccut,wtt,&
+         we_,wfac_,ixss) !,iirx)
+    use m_genallcf_v3,only: nctot
+    use m_readfreq_r,only: freq_r,nw_i,nw
     implicit none
     intent(in)::&
-         nctot,esmr,omega,ekc,freq_r,nw_i,nw,ntqxx,nt0m,nt0p,ef,nwx,nwxi,ns1,ns2r,wfaccut,wtt
+         esmr,omega,ekc,ntqxx,nt0m,nt0p,ef,nwx,nwxi,ns1,ns2r,wfaccut,wtt
     intent(out)::&
-         we_,wfac_,ixss,iirx !,ititpskip
-    integer:: ntqxx,nctot,nw_i,nw,nt0m,nwx,nwxi,ns2r,ns1
-    real(8):: ef,omega(ntqxx),ekc(ntqxx),freq_r(nw_i:nw),esmr,wfaccut,wtt
+         we_,wfac_,ixss!,iirx !,ititpskip
+    integer:: ntqxx,nt0m,nwx,nwxi,ns2r,ns1
+    real(8):: ef,omega(ntqxx),ekc(ntqxx),esmr,wfaccut,wtt !,freq_r(nw_i:nw)
     real(8):: we_(ns1:ns2r,ntqxx),wfac_(ns1:ns2r,ntqxx)
-    integer:: ixss(ns1:ns2r,ntqxx),iirx(ntqxx)
+    integer:: ixss(ns1:ns2r,ntqxx)!,iirx(ntqxx)
     integer:: itini,iii,it,itend,wp,itp,iwp,nt0p,ixs
-    real(8):: omg,esmrx,wfacx2,we,wfac,weavx2
+    real(8):: omg,esmrx,wfacx2,weavx2
     ixss=0
-    do itp = 1,ntqxx          !this loop should finish in a second
+    do itp = 1,ntqxx
        omg = omega(itp)
-       iirx(itp) = 1
-       if( omg < ef .and. nw_i/=0) iirx(itp) = -1
        if (omg >= ef) then
           itini= max(ns1,nt0m+1)
           itend= ns2r
           iii=  1
        else
-          itini= max(1,ns1)
+          itini= ns1
           itend= min(nt0p,ns2r)
           iii= -1
        endif
        do it = itini,itend     ! nt0p corresponds to efp
           esmrx = esmr
           if(it<=nctot) esmrx = 0d0
-          wfac_(it,itp) = wfacx2(omg,ef, ekc(it),esmrx)
-          wfac = wfac_(it,itp)
-          if(wfac<wfaccut) then
-             cycle 
-          endif
-          wfac_(it,itp)=  wfac_(it,itp)*wtt*iii
-          !   Gaussian smearing we_= \bar{\omega_\epsilon} in sentences next to Eq.58 in PRB76,165106 (2007)
-          !   wfac_ = $w$ weight (smeared thus truncated by ef). See the sentences.
-          we_(it,itp) = .5d0* abs( omg-weavx2(omg,ef, ekc(it),esmr) ) 
-          we= we_(it,itp) 
-          do iwp = 1,nw 
-             ixs = iwp
-             if(freq_r(iwp)>we) exit
-          enddo
-          ixss(it,itp) = ixs
+          wfac_(it,itp) = wfacx2(omg,ef, ekc(it),esmrx) !Gaussian smearing 
+          if(wfac_(it,itp)<wfaccut) cycle 
+          wfac_(it,itp)=  wfac_(it,itp)*wtt*iii !wfac_ = $w$ weight (smeared thus truncated by ef). See the sentences.
+          we_(it,itp)  = .5d0*abs(omg-weavx2(omg,ef, ekc(it),esmr)) !we_= \bar{\omega_\epsilon} in sentences next to Eq.58 in PRB76,165106 (2007)
+          ixss(it,itp) = findloc(freq_r(1:nw)>we_(it,itp),value=.true.,dim=1)
        enddo
     enddo
   end subroutine weightset4intreal
