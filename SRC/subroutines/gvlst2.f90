@@ -9,7 +9,8 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv)
   use m_mksym,only:  ngrp=>lat_nsgrp,gsym=>rv_a_osymgr
   implicit none
   intent(in)::    alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx
-  intent(out)::                                                      kv,gv,igv !,igv2 
+  intent(out)::                                                      kv,gv,igv 
+  intent(inout)::                                                 ng
   !- Set up a list of recip vectors within cutoff |q+G| < gmax
   ! ----------------------------------------------------------------------
   !i   alat     Lattice constant
@@ -36,7 +37,7 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv)
   !i           Energy cutoff is gmax**2.
   !i           If input gmax is zero, gvlst2 will generate it from n1..n3
   !i           (It is an error for both gmax and n1..n3 to be zero.)
-  !o   ng       Number of lattice vectors
+  !io   ng       Number of lattice vectors
   !o   kv       indices for gather/scatter operations.
   !o            kv(ig,i=1,2,3) for vector ig point to which entry
   !o            (i1,i2,i3) vector ig belongs
@@ -85,11 +86,8 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv)
   real(8):: rlatp(3,3),xmx2(3),gvv(3),diffmin
   integer :: nginit,kv_tmp(ngmx,3),igv_tmp(ngmx,3),ips(ngmx),jx,nxx,itemp(48),ix,iprint
   real(8):: gv_tmp(ngmx,3)
-
   call tcn('gvlst2')
   call pshpr(iprint()-30)
-  
-!  logical,optional:: symcheck
   call getpr(ipr)
   call dinv33(plat,1,qlat,vol)
   pi = 4d0*datan(1d0)
@@ -139,8 +137,7 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv)
               if (ig > ngmx) call rx('gvlist2: ng exceeds ngmx')
               kv_tmp(ig,:) = jjj+1
               if(ligv) igv_tmp(ig,:) = jjj + [nn1,nn2,nn3]*nlatout(:,1) !integer index of Gvec
-              if(lgv.and.      lgpq ) gv_tmp(ig,:)= gs 
-              if(lgv.and.(.not.lgpq)) gv_tmp(ig,:)= gs - q
+              if(lgv)  gv_tmp(ig,:)= merge(gs,gs-q,mask=lgpq)
            endif
         enddo j3loop
      enddo j2loop
@@ -157,15 +154,13 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv)
            do igrp = 1, ngrp
               gvv = matmul(gsym(:,:,igrp),gv_tmp(ig,:)) !  ... gvv = g(k) gv
               !write(6,ftox) 'iii ig igrp gvv=',ig,igrp,ftof(gvv)
-              do jg=1,nginit
-                 if(sum(abs(gvv-gv_tmp(jg,:))) < tolg2) then 
-                    ix=ix+1
-                    itemp(ix)=jg !rotated index for gv_tmp(jg,:)
-                    goto 170 !found rotation matching
-                 endif
-              enddo
-              goto 70 !failed to find gvv rotated to be gv_tmp. Skip
-170           continue
+              jg = findloc([(sum(abs(gvv-gv_tmp(jg,:)))<tolg2,jg=1,nginit)],value=.true.,dim=1)
+              if(jg/=0) then
+                 ix=ix+1
+                 itemp(ix)=jg
+              else
+                 goto 70
+              endif   
            enddo
            ips(itemp(1:ix))=1 !jg=itemp(1:ix) need to be included.
         endif
@@ -185,13 +180,13 @@ subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx, ng,kv,gv,igv)
        if(ligv) igv(1:ng,1:3) =igv(iprm+1,1:3)
      endblock gvsort !write(stdo,ftox)'gmax gv=',ftof(gv(1,1:3))
   endif
-  if(ipr >= PRTG) write(stdo,ftox)'gvlst2: gmax=',ftof(gmax,3),'a.u. created',ng,&
-       'vectors of',n1l*n2l*n3l, '(',(ng*100)/(n1l*n2l*n3l),'%)'
+  if(ipr>=PRTG)write(stdo,ftox)'gvlst2: gmax=',ftof(gmax,3),'a.u. created',ng,'vectors of',n1l*n2l*n3l,&
+       '(',(ng*100)/(n1l*n2l*n3l),'%)'
   if(ipr >= PRTG2 .AND. ng > 0 .AND. ligv) then
      write(stdo,"(' G vectors (multiples of reciprocal lattice vectors)'/ '   ig    G1   G2   G3     E')")
      do  ig = 1, ng
         i123 = igv(ig,:)
-        qpg= q + matmul(qlat,i123) !(i,1)*i1 + qlat(i,2)*i2 + qlat(i,3)*i3
+        qpg= q + matmul(qlat,i123) 
         write(stdo,"(i5,1x,3i5,2x,f8.4)")  ig,i123,sum(qpg**2) *tpiba**2
         write(stdo,"('q  qpg=',3d13.5,3x,3d13.5)")  q,qpg
      enddo
@@ -223,19 +218,17 @@ subroutine gvlstn(q0,q1,q2,qp,mshlst,gmax0,nn)
   !o     nn :   meshsize
   !r Remarks
   !r   q0,q1,q2,qp and G are all dimensionless (units of 2*pi/a)
-  !u Updates
-  !u   15 Apr 05 Bug fix when nn > max mshlst
   ! ----------------------------------------------------------------------
   integer :: nmin,nmax,nn,mshlst(0:*), indx
   double precision :: q0(3),q1(3),q2(3),qp(3),gmax0,qperp(3),ddot,qqperp
   ! ... qperp = q1 x q2 / |q1 x q2| ; qqperp = q . qperp
-  qperp(1)  = q1(2)*q2(3) - q1(3)*q2(2)
-  qperp(2)  = q1(3)*q2(1) - q1(1)*q2(3)
-  qperp(3)  = q1(1)*q2(2) - q1(2)*q2(1)
-  call dscal(3,1/sqrt(ddot(3,qperp,1,qperp,1)),qperp,1)
-  qqperp = ddot(3,q0,1,qperp,1)
-  nmax =  gmax0/abs(Qqperp) - ddot(3,qp,1,qperp,1)/Qqperp + 1
-  nmin = -gmax0/abs(Qqperp) - ddot(3,qp,1,qperp,1)/Qqperp - 1
+  qperp=[q1(2)*q2(3) - q1(3)*q2(2),&
+       q1(3)*q2(1) - q1(1)*q2(3),&
+       q1(1)*q2(2) - q1(2)*q2(1)]
+  qperp  = qperp/sum(qperp**2)**.5 
+  qqperp = sum(q0*qperp)
+  nmax =  gmax0/abs(Qqperp) - sum(qp*qperp)/Qqperp + 1
+  nmin = -gmax0/abs(Qqperp) - sum(qp*qperp)/Qqperp - 1
   nn = 2*max(iabs(nmin),nmax)+1
   if (mshlst(0) /= 0) then
      indx = 1
@@ -243,16 +236,6 @@ subroutine gvlstn(q0,q1,q2,qp,mshlst,gmax0,nn)
      nn = mshlst(min(indx+1,mshlst(0)))
   endif
 end subroutine gvlstn
-! subroutine gvlsts(ng,gv,kv,igv,ligv)
-!   implicit none
-!   integer:: ng,kv(ng,3),igv(ng,3),job1,ig,m,jg,iprm(ng),ngxx
-!   real(8):: gv(ng,3)
-!   logical ligv
-!   call dvshel(1,ng, sum(gv**2,dim=2)*[((1d0 + 1d-15*ig),ig=1,ng)], iprm,1)
-!   gv(:,:) = gv(iprm+1,:)
-!   kv(:,:) = kv(iprm+1,:)
-!   if(ligv) igv(:,:) =igv(iprm+1,:) 
-! end subroutine gvlsts
 subroutine gvgetf(ng,n,kv,k1,k2,k3,c,c0)!- Gathers Fourier coefficients from 3D array c into list c0.
   implicit none
   integer :: ng,n,k1,k2,k3,kv(ng,3)
@@ -269,8 +252,6 @@ subroutine gvputf(ng,n,kv,k1,k2,k3,c0,c)!- Pokes Fourier coefficients from list 
   integer :: ig,i,j1,j2,j3
   c=0d0
   do ig=1,ng
-!     write(6,*) 'ddddddddddd',ig, kv(ig,1),kv(ig,2),kv(ig,3)
-!     write(6,*) 'ddddddddddd',sum(c0(ig,:))
      c(kv(ig,1),kv(ig,2),kv(ig,3),:) = c0(ig,:)
   enddo   
 end subroutine gvputf
@@ -279,12 +260,12 @@ subroutine gvaddf(ng,kv,k1,k2,k3,c0,c)! Adds Fourier coefficients from list c0 i
   integer :: ng,k1,k2,k3,kv(ng,3)
   complex(8):: c0(ng),c(k1,k2,k3)
   integer :: ig,j1,j2,j3
-  do  10  ig = 1, ng
+  do  ig = 1, ng
      j1 = kv(ig,1)
      j2 = kv(ig,2)
      j3 = kv(ig,3)
      c(j1,j2,j3) = c(j1,j2,j3) + c0(ig)
-10 enddo
+  enddo
 end subroutine gvaddf
 subroutine mshsiz(alat,plat,gmax,ngabc,ng)
   use m_lgunit,only:stdo
@@ -350,7 +331,6 @@ subroutine mshsiz(alat,plat,gmax,ngabc,ng)
            call gvlstn(qlat(1,i),qlat(1,i2),qlat(1,i3),q,mshlst,gmaxn,nn)
            nmxn(i)=nn
            if (nmxn(i) /= nmx(i)) change = .TRUE. 
-!           print *,'nmxn=',i,nn,change
            !       The granularity of gvlstn may be too coarse.
            !       Don't assign, ngabcn(i) = nn but find next one smaller in mshlst
            indx = 1
@@ -367,14 +347,13 @@ subroutine mshsiz(alat,plat,gmax,ngabc,ng)
         exit
      endif   ! ... Count the number of G vectors for (smaller) trial ngabcn
      call gvlst2(alat,plat,q,ngabcn(1),ngabcn(2),ngabcn(3), 0d0,gmax,[0],000, 0,ngn,kxx,gxx,kxx,kxx)
-!     print *,'nnnnnn',ngn,nginit
      if (dble(ngn) >= nginit*tolg) then
         ng = ngn
         ngabc=ngabcn
      else
         exit
      endif
-  enddo Getngloop !21 continue !takao
+  enddo Getngloop 
   call poppr
   i1 = ngabc(1)
   i2 = ngabc(2)
@@ -384,16 +363,14 @@ subroutine mshsiz(alat,plat,gmax,ngabc,ng)
      write(stdo,300) fmax
      write(stdo,301)
   endif
-300 format(' WARNING!'/' At least one of the mesh divisions ', &
-       'reached its maximal value fmax = ',i4/ &
+300 format(' WARNING!'/' At least one of the mesh divisions reached its maximal value fmax = ',i4/ &
        ' You might need to increase parameter fmax in mshsiz')
 301 format(/1x,79('*')/)
   if (iprint() >= PRTG) then
      s1 = alat*sqrt(ddot(3,plat(1,1),1,plat(1,1),1))/i1
      s2 = alat*sqrt(ddot(3,plat(1,2),1,plat(1,2),1))/i2
      s3 = alat*sqrt(ddot(3,plat(1,3),1,plat(1,3),1))/i3
-     write(stdo,"('MSHSIZ: mesh has ',i0,' x ',i0,' x ',i0, &
-          ' divisions; length =',3f10.3)")i1,i2,i3,s1,s2,s3
+     write(stdo,"('MSHSIZ: mesh has ',i0,' x ',i0,' x ',i0,' divisions; length =',3f10.3)")i1,i2,i3,s1,s2,s3
      write(stdo,"('      generated from gmax (a.u.)=',f12.4,': ',i0,' vectors of ', &
           i0,' (',i0,'%)')")  gmax,ng,i1*i2*i3,(ng*100)/(i1*i2*i3)
   endif

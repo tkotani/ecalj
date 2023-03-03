@@ -13,7 +13,7 @@ module m_igv2x !Return G vectors (integer sets) for given q points specifiec by 
 contains
   !!-----------------------------
   subroutine m_Igv2x_setiq(iq) ! Return G vectors for given qplist(:,iq)
-    integer:: iq
+    integer,intent(in):: iq
     napw  => napwall(iq)
     ndimh => ndimhall(iq)  !nlmto+napw
     ndimhx=> ndimhxall(iq) !nlmto+napw (but x2 when SO=1)

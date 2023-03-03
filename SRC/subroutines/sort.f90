@@ -1,5 +1,4 @@
 ! Sort routines
-
 subroutine dvheap(m,n,vecs,iprm,tol,opts)
   !- Heapsort array of double-precision vectors
   ! ----------------------------------------------------------------
@@ -30,7 +29,6 @@ subroutine dvheap(m,n,vecs,iprm,tol,opts)
   double precision :: di,dl
   integer :: l,ir,irra,i,j,mm,i1,i2,nn
   logical :: norm
-
   do  ir = 1, n
      iprm(ir) = ir
   enddo
@@ -38,7 +36,6 @@ subroutine dvheap(m,n,vecs,iprm,tol,opts)
   norm = mod(opts/10,10) .ne. 0
   l = n/2+1
   ir = n
-
   ! --- For each l = n/2+1, 1, -1 do ---
 10 continue
   ! ... "Hiring phase"
@@ -213,12 +210,9 @@ subroutine dvheap(m,n,vecs,iprm,tol,opts)
   ! ... Put rra into its slot
   iprm(i+i1) = irra
   go to 140
-
   ! --- Sort vecs ---
 200 continue
-  if (mod(opts,10) == 0) &
-       call dvprm(m,n,vecs,vecs(1,n+1),iprm, .TRUE. )
-
+  if (mod(opts,10) == 0) call dvprm(m,n,vecs,vecs(1,n+1),iprm, .TRUE. )
 end subroutine dvheap
 subroutine dvprm(m,n,vecs,wk,iprm,lopt)
   !- Permute an array of double precision vectors according to iprm
@@ -238,7 +232,6 @@ subroutine dvprm(m,n,vecs,wk,iprm,lopt)
   logical :: lopt
   double precision :: vecs(m,n),wk(m,n)
   integer :: i,j,k
-
   do  10  i = 1, n
      k = iprm(i)
      do   j = 1, m
@@ -247,7 +240,6 @@ subroutine dvprm(m,n,vecs,wk,iprm,lopt)
 10 enddo
   if (lopt) call dpcopy(wk,vecs,1,n*m,1d0)
 end subroutine dvprm
-
 subroutine dvshel(m,n,vecs,iprm,lopt)
   !- Shell sort of a array of double precision vectors
   ! ----------------------------------------------------------------
@@ -286,7 +278,6 @@ subroutine dvshel(m,n,vecs,iprm,lopt)
   if (n <= 1) return
   if (lopt == 0 .AND. m > mmax) &
        call rx('dvshel increase mmax')
-
   ! ... Loop over partial sorts
 12 continue
   inc = inc/3
@@ -378,7 +369,6 @@ subroutine dvperm(m,n,vecs,wk,iprm,lopt)
 10 enddo
   if (lopt) call dpcopy(wk,vecs,1,n*m,1d0)
 end subroutine dvperm
-
 subroutine ivheap(m,n,vecs,iprm,opts)
   !- Heapsort array of integer vectors
   ! ----------------------------------------------------------------
@@ -579,7 +569,6 @@ subroutine ivheap(m,n,vecs,iprm,opts)
   ! ... Put rra into its slot
   iprm(i+i1) = irra
   go to 140
-
   ! --- Sort vecs ---
 200 continue
   if (mod(opts,10) == 0) then
@@ -587,7 +576,6 @@ subroutine ivheap(m,n,vecs,iprm,opts)
      call ivprm(m,n,vecs,wk,iprm,.true.) !wk jan2015
      deallocate(wk)
   endif
-
 end subroutine ivheap
 subroutine ivprm(m,n,vecs,wk,iprm,lopt)
   !- Permute an array of integer vectors according to iprm
@@ -603,7 +591,6 @@ subroutine ivprm(m,n,vecs,wk,iprm,lopt)
   logical :: lopt
   integer :: vecs(m,n),wk(m,n)
   integer :: i,j,k
-
   do  10  i = 1, n
      k = iprm(i)
      do  j = 1, m

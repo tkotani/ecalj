@@ -47,23 +47,23 @@ contains
   end subroutine onoff_write_pkm4crpa
   ! sssssssssssssssssssssssssssssssssssssssssssss
   !> Return ev(1:nband) for given q(1:3) and isp
-  function readeval(q,isp) result(ev)
-    intent(in)  ::    q,isp
+  pure function readeval(q,isp) result(ev)
+    intent(in)  ::       q,isp
     integer :: isp
     real(8) :: q(3), ev(nband)
     integer:: iq,iqindx,i
     real(8):: qu(3)
-    if(init) call rx( 'readeigen: modele is not initialized yet')
+!    if(init) call rx( 'readeigen: modele is not initialized yet')
     !      iq = iqindx(q, ginv,qtt,nqtt)
     call iqindx2_(q, iq, qu) !qu is used q. q-qu is a G vector.
-    if(debug) then
-       write(6,*)'iq iqimap(iq)=',iq,iqimap(iq)
-       write(6,"('iq iqimap(iq) q=',2i8,3f13.5)")iq,iqimap(iq),q
-    endif
+!    if(debug) then
+!       write(6,*)'iq iqimap(iq)=',iq,iqimap(iq)
+!       write(6,"('iq iqimap(iq) q=',2i8,3f13.5)")iq,iqimap(iq),q
+!    endif
     ev(1:nband) = evud(1:nband,iqimap(iq),isp) !iqimap is given in suham.F/gen_hamindex
-    if(debug) then
-       write(6,"(9f9.4)")ev(1:9)
-    endif
+!    if(debug) then
+!       write(6,"(9f9.4)")ev(1:9)
+!    endif
   end function readeval
   !> Return ev(1:nband) for given q(1:3) and isp
   function readgeigf(q,isp) result(geigen)

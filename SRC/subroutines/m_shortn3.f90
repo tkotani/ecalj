@@ -2,20 +2,16 @@ module m_shortvec ! core of m_shortn3: Find shortest vectors in modulo of rlat
   public:: shortvec,shortvecinitialize
 contains
   subroutine shortvec(pin,rlatp,xmx2,noutmx,nout,nlatout)
-    !!
-    !!
-    ! i pin is the fractional coodinate on rlat.
-    ! i rlatp,xmx2 are passed from shortvecinitialize
-    !!   rlatp(i,j)= sum( rlat(:,i)*rlat(:,j) )
-    !!   rlat(3,i) i-th vertor for modulo
-    ! i noutmax: upper limit of nlatout
-    ! o nout
-    ! o nlatout
-    !!  Shortest vectors are
-    !!    pin+nlatout(:,ix), where ix=1:nout, is the shortest vectors.
-    !!    We may have multiple nlatout (# is nout).
-    !!
-    !!==========================================================================
+    !i pin is the fractional coodinate on rlat.
+    !i rlatp,xmx2 are passed from shortvecinitialize
+    !   rlatp(i,j)= sum( rlat(:,i)*rlat(:,j) )
+    !   rlat(3,i) i-th vertor for modulo
+    !i noutmax: upper limit of nlatout
+    !o nout
+    !o nlatout
+    ! Shortest vectors are
+    !    pin+nlatout(:,ix), where ix=1:nout, is the shortest vectors.
+    !    We may have multiple nlatout (# is nout).
     implicit none
     integer:: noutmx
     integer:: nlatout(3,noutmx)
@@ -29,7 +25,6 @@ contains
     nmax =  nrmax
     ! we are looking for shortest vectors
     ik=0
-    rmin=1d9
     nknknk= (2*nmax(1)+1)*(2*nmax(2)+1)*(2*nmax(3)+1)
     allocate( nlat0(3, nknknk), rnorm(nknknk) )
     do ik1=-nmax(1),nmax(1)
@@ -39,25 +34,20 @@ contains
              nlat0(:,ik) = [ik1,ik2,ik3]
              rr= pin + nlat0(:,ik)
              rnorm(ik) = sum(rr*matmul(rlatp,rr))
-             if(rnorm(ik)<rmin) rmin=rnorm(ik)
           enddo
        enddo
     enddo
     nk=ik
-    ! rint *,'nk rmin=',nk,rmin
+    rmin=minval(rnorm(1:nk))
     nout=0
     do ik=1,nk
        rr= pin + nlat0(:,ik)
-       ! rint *,'ik rr   =',ik,rr
-       ! rint *,'ik rnorm=',ik,rnorm(ik)
        if(rnorm(ik)<rmin+eps) then
           nout=nout+1
-          if(nout>noutmx) stop 'shortn3: enlarge noutmx'
+          if(nout>noutmx) call rx('shortn3: enlarge noutmx')
           nlatout(:,nout)=nlat0(:,ik)
-          ! rint *,'ik nlat0',nlat0(:,ik)
        endif
     enddo
-    ! rite(6,"('pin=',3f8.3,' nmax=',3i4,' nout=',i3)")pin, nmax(1:3),nout
     deallocate(rnorm,nlat0)
     return
   end subroutine shortvec
@@ -78,8 +68,6 @@ contains
     call ellipsoidxmax(rlatp,xmx2)
   end subroutine shortvecinitialize
 end module m_shortvec
-
-!==============================================
 module m_shortn3! shortest vectors. modulo of rlat(1:3,i),i=1,3)
   ! Set rlat at first, then call shortn3(pin)
   ! Shortest p= pin + matmul(rlat(:,:),nlatout(:,i)) for i=1,nout
@@ -101,53 +89,26 @@ contains
     call shortvec(pin,rlatp,xmx2,noutmx,nout,nlatout)
   end subroutine shortn3
 end module m_shortn3
-
-
 subroutine ellipsoidxmax(nn, xmx2)
+  implicit none
   !!== Maximum value for x_i for ellipsoid ==
   !!  Ellipsoid is given as 1d0 = sum x_i nn(i,j) x_j.
-  ! i nn(3,3)
-  ! o xmx2(i)  Maximum of x_i**2
-  !!==========================================
-  implicit none
-  real(8),target:: nn(3,3)
-  real(8):: v2(2),ainv(2,2), rmax2, xmx2(3),det,fac,nv2(2)
-  real(8),pointer::n11,n12,n13,n21,n22,n23,n31,n32,n33
-  n11=>nn(1,1)
-  n12=>nn(1,2)
-  n13=>nn(1,3)
-  n21=>nn(2,1)
-  n22=>nn(2,2)
-  n23=>nn(2,3)
-  n31=>nn(3,1)
-  n32=>nn(3,2)
-  n33=>nn(3,3)
-  det= n22*n33-n23*n32
-  ainv(1,1)=  n33/det
-  ainv(2,2)=  n22/det
-  ainv(1,2)= -n23/det
-  ainv(2,1)= -n32/det
-  nv2  = [n12,n13]
-  fac = n11-sum(nv2 *matmul(ainv,nv2))
-  ! rint *,'ainv=',ainv
-  ! rint *,'ainv*nv=',matmul(ainv,nv2)
-  xmx2(1) = 1d0/fac
-
-  det= n33*n11-n31*n13
-  ainv(1,1)=  n11/det
-  ainv(2,2)=  n33/det
-  ainv(1,2)= -n31/det
-  ainv(2,1)= -n13/det
-  nv2  = [n23,n21]
-  fac = n22-sum(nv2 *matmul(ainv,nv2))
-  xmx2(2) = 1d0/fac
-
-  det= n11*n22-n12*n21
-  ainv(1,1)=  n22/det
-  ainv(2,2)=  n11/det
-  ainv(1,2)= -n12/det
-  ainv(2,1)= -n21/det
-  nv2  = [n31,n32]
-  fac = n33-sum(nv2 *matmul(ainv,nv2))
-  xmx2(3) = 1d0/fac
+  !i nn(3,3)
+  !o xmx2(i)  Maximum of x_i**2
+  real(8):: nn(3,3),v2(2),ainv(2,2), rmax2, xmx2(3),det,fac1,fac2,fac3,nv2(2)
+  associate(&
+       n11=>nn(1,1),n12=>nn(1,2),n13=>nn(1,3), &
+       n21=>nn(2,1),n22=>nn(2,2),n23=>nn(2,3), &
+       n31=>nn(3,1),n32=>nn(3,2),n33=>nn(3,3))
+    ainv(1,1:2)=  [ n33,-n23]
+    ainv(2,1:2)=  [-n32, n22]
+    fac1 = n11-sum([n12,n13]*matmul(ainv,[n12,n13]))/(n22*n33-n23*n32)
+    ainv(1,1:2)=  [ n11,-n31]
+    ainv(2,1:2)=  [-n13, n33]
+    fac2 = n22-sum([n23,n21]*matmul(ainv,[n23,n21]))/(n33*n11-n31*n13)
+    ainv(1,1:2)=  [ n22,-n12]
+    ainv(2,1:2)=  [-n21, n11]
+    fac3 = n33-sum([n31,n32] *matmul(ainv,[n31,n32]))/(n11*n22-n12*n21)
+    xmx2 = [1d0/fac1,1d0/fac2,1d0/fac3]
+  endassociate
 end subroutine ellipsoidxmax

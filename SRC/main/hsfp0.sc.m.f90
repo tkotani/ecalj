@@ -78,7 +78,7 @@ program hsfp0_sc
   !  --->   I found COH term method show poor accuracy.
   integer::  ixc, ip, is, nspinmx, i, ix, nq0ix, ngpn1,ngcn1, timevalues(8), irank,isp,nq
   real(8) :: voltot,valn,efnew,hartree,qreal(3),wgtq0p,quu(3), eftrue,esmref,esmr,ef
-  character(128) :: ixcc
+  character(128) :: ixcname
   logical:: legas, exonly, iprintx,diagonly=.false.,exchange, hermitianW=.true.
   integer,allocatable:: irkip(:,:,:,:), nrkip(:,:,:,:)
   real(8),allocatable:: vxcfp(:,:,:), eqt(:), eq(:), eqx(:,:,:),eqx0(:,:,:)
@@ -111,8 +111,8 @@ program hsfp0_sc
        endif
     endif
     call MPI__Broadcast(ixc)
-    write(ixcc,"('.mode=',i4.4)")ixc
-    call MPI__consoleout('hsfp0_sc'//trim(ixcc)) !Open console output stdout.irank.hsfp0_sc.mode
+    write(ixcname,"('.mode=',i4.4)")ixc
+    call MPI__consoleout('hsfp0_sc'//trim(ixcname)) !Open console output stdout.irank.hsfp0_sc.mode
     call pshpr(60)
     if(ixc==3) then; incwfin= -2 !core exchange mode
     else           ; incwfin= -1 !use 7th colmn for core at the end section of GWIN

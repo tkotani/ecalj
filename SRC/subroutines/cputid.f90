@@ -17,12 +17,10 @@ real(8) function cpumin(ifile,cpu0)
 6400 format(/' cpu time = ',f15.4,' secs ',f15.4,' mins ')
   return
 END function cpumin
+
 subroutine cputid(ifile)
   implicit none
   include 'mpif.h'
-  ! cpu time in seconds and minutes for RISC IBM: mclock()/100 (secs)
-  !                     for HP: secnds(0.0)
-  !                        DEC: etime(etw)
   ! ifile = file number where the cpu time information is
   !         to be printed
   ! ifile = 0 ==> screen (id=6)
@@ -106,9 +104,6 @@ subroutine cputid(ifile)
 6402 format(a,', realtime nodeMAX=',f12.4,' secs (',f7.1,' mins), MIN=',f12.4,' secs (',f7.1,' mins)')
   return
 end subroutine cputid
-
-
-
 module m_realtimediff
   implicit none
   integer,parameter:: nmax=10000
@@ -117,8 +112,6 @@ module m_realtimediff
   real(8):: elapse(nmax)=nmax*0.0d0
   real(8):: start(nmax)=nmax*0.0d0
 end module m_realtimediff
-
-
 subroutine realtimediff(id,msg0)
   use m_realtimediff
   implicit none
@@ -145,7 +138,6 @@ subroutine realtimediff(id,msg0)
      elapse(id)=elapse(id)+diff-start(id)
   endif
 end subroutine realtimediff
-
 subroutine print_realtimediff()
   use m_realtimediff
   implicit none

@@ -14,6 +14,7 @@ subroutine sxcf_fal3z(&
   use m_keyvalue,only: getkeyvalue
   use m_zmel,only: Get_zmel_init,Setppovlz, Deallocate_zmel, zmel
   use m_readVcoud,only:   Readvcoud, vcoud,vcousq,zcousq,ngb,ngc
+  use m_wfac,only:wfacx2,weavx2
   implicit none
   intent(in)::&
        kount,ixc,deltaw,shtw,qip,itq, ntq,ef,ef2,esmr,esmr2, nsp,isp,  &
@@ -229,7 +230,7 @@ subroutine sxcf_fal3z(&
   real(8) :: q(3),qbas(3*3),ginv(3*3), wk(nqbz),wik(nqibz),qibz(3,nqibz),qbz(3,nqbz),&
        &freqx(niw),wx(niw),     eq(nband,nq), ekq(nband), ekc(nctot+nband), &
        &tpi,ef,ef2,esmr,esmr2,efp,efm,wtx,wfac,wfacx,we,esmrx, dwdummy,&
-       &wtt,wexx,www,exx,exxq ,wfacx2,weavx2,wex
+       &wtt,wexx,www,exx,exxq,wex
   integer:: ngpmx, ngcmx, igc,                     nadd(3)
   real(8) :: wgt0(nq0i,ngrp),qk(3), qdiff(3),add(3),symgg(3,3,ngrp),symope(3,3),&
        & qxx(3),q0i(1:3,1:nq0i),shtv(3),alat,ecore(nctot), coh(ntq,nq)

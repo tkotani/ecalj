@@ -7,6 +7,7 @@ module m_sxcf_count !job scheduler for self-energy calculation. icount mechanism
   use m_readhbe,only: nband,mrecg
   use m_hamindex,only: ngrp
   use m_mpi,only: MPI__sxcf_rankdivider
+  use m_wfac,only:wfacx2,weavx2
   use m_ftox
   implicit none
   public sxcf_scz_count
@@ -199,6 +200,7 @@ contains
   subroutine get_nwx(omega,ntq,ntqxx,nt0p,nt0m,nstate,freq_r,&
        nw_i,nw,esmr,ef,ekc,wfaccut,nctot,nband,debug,&
        nwxi,nwx,nt_max)
+    use m_wfac,only:wfacx2,weavx2
     implicit none
     intent(in)::     omega,ntq,ntqxx,nt0p,nt0m,nstate,freq_r,&
        nw_i,nw,esmr,ef,ekc,wfaccut,nctot,nband,debug
@@ -207,7 +209,7 @@ contains
     !> Determine indexes of a range for calculation. !! It is better to clean this up...
     integer:: nctot,nw_i,nw,nstate,nt0p,nt0m,ntq, nband,ntqxx
     real(8):: esmr,ef,ekc(nctot+nband),wfaccut,freq_r(nw_i:nw)
-    real(8):: wfac,wfacx2,we,weavx2,esmrx,wexx
+    real(8):: wfac,we,esmrx,wexx
     real(8),pointer::omg
     real(8),target:: omega(ntq)
     integer:: nt_max,nwxi,nwx,itp,it,itini,itend,iwp,ixs=-9999,ixsmin,ixsmx,verbose

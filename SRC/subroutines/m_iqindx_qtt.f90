@@ -4,17 +4,25 @@ module m_iqindx_qtt
   use m_hamindex,only: qtt,nqtt
   use m_read_bzdata,only: ginv
   implicit none
-
   public:: Iqindx2_, Init_iqindx_qtt
-
   private
   integer,allocatable,private:: key(:,:),kk1(:),kk2(:),kk3(:),iqkkk(:,:,:)
   integer,private:: nkey(3)
   real(8),private:: epsd=1d-7 !key parameter to map to integer index
 contains
-  subroutine iqindx2_(q, iqindx,qu) !Find index for q=qq(:,iqindx).Modulo of premitive vector.
-    intent(in)::      q
-    intent(out)::        iqindx,qu ! qu(i) = q(i) + matmul(qlat(i,:)* nxx(:))
+  pure subroutine rangedq(qin, qout) ! qout is in [-0.5d0,0.5d0)
+    implicit none
+    intent(in)::     qin
+    intent(out)::         qout
+    integer :: ix
+    real(8):: qin(3),qout(3)
+    real(8),parameter::tol=1d-6
+    qout = qin-nint(qin)
+    qout = merge(-0.5d0,qout,mask=qout>.5d0-tol)
+  end subroutine rangedq
+  pure subroutine iqindx2_(q, iqindx,qu) !Find index for q=qq(:,iqindx).Modulo of premitive vector.
+    intent(in)::           q
+    intent(out)::             iqindx,qu ! qu(i) = q(i) + matmul(qlat(i,:)* nxx(:))
     !! ginv is the inverse of plat (premitive translation vector).
     real(8) :: q(3),qu(3),qx(3),qzz(3)
     integer :: iqindx, kkk3(3), ik1(1),ik2(1),ik3(1)
