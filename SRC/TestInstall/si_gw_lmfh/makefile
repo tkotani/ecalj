@@ -1,10 +1,6 @@
 include ../../Makefile
-
-# directroy where input/output files are saved.
 TARGET=si_gw_lmfh
-# material in the tests.
 MATERIAL=si
-
 # exec default case for $(TARGET).
 $(TARGET).exec:
 	# exec lmfa command.
@@ -19,7 +15,6 @@ $(TARGET).exec:
 	@echo  >> ../summary.txt
 	@-$(bindir)/dqpu $(REFDIR)/QPU QPU && echo "PASSED: $(TARGET) QPU" >> ../summary.txt || echo "FAILED: $(TARGET) QPU compared by ./bin/dqpu" >> ../summary.txt
 
-
 # check default case for $(TARGET).
 $(TARGET).check:
 	# add summary.txt
@@ -27,10 +22,3 @@ $(TARGET).check:
 	@echo  >> ../summary.txt
 	@-$(bindir)/dqpu $(REFDIR)/QPU QPU && echo "PASSED: $(TARGET) QPU" >> ../summary.txt || echo "FAILED: $(TARGET) QPU compared by ./bin/dqpu" >> ../summary.txt
 
-# exec case1 for $(TARGET).
-$(TARGET).case1.exec:
-	@echo "nothing to exec for $@"
-
-# check case1 for $(TARGET).
-$(TARGET).case1.check:
-	@echo "nothing to check for $@"

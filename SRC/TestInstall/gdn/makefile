@@ -1,14 +1,9 @@
 include ../../Makefile
-
 TARGET=gdn
-
 out1=out.lmf.$(TARGET)
 out2=out.lmf-dos.$(TARGET)
 out2x=dos-mull.$(TARGET)
-
-
 ###########################################################
-#----- subroutine test1.exec
 define test1.exec
 	#-------------------------------------------
 	# Case GdN: Test of LDA+U, and also LDA with spin polarized 4f core
@@ -30,8 +25,6 @@ define test1.exec
 	$(bindir)/lmfa $(TARGET) -vcoref=t >> $1 2>&1
 	$(LMFP)  $(TARGET) -vcoref=t >> $1 2>&1
 endef
-
-#----- subroutine test2.exec
 define test2.exec
 	#
 	# --- Test 2.  Core-level spectroscopy (EELS), Mulliken analysis, partial DOS ---
@@ -46,8 +39,6 @@ define test2.exec
 		-vnk=2 $(TARGET) >> $1 2>&1
 	mv dos.$(TARGET) dos-mull.$(TARGET)
 endef
-
-#----- subroutine plot.pldos
 define plot.pldos
 	echo 150 10 -9 10 | $(bindir)/pldos -ef=0 -escl=13.6 -fplot '-lst=8' \
 		-ref:fn=tdos.$(TARGET):chan=1:scale dos-mull.$(TARGET) \
@@ -56,7 +47,6 @@ define plot.pldos
 	mv ps.dat ps.pldos.dat
 	@echo "[note] run make plot-dos to plot dos"
 endef
-
 ###########################################################
 # exec default case for $(TARGET).
 $(TARGET).exec:
@@ -70,17 +60,5 @@ $(TARGET).check:
 	$(call test1.check,$(REFDIR)/$(out1),$(out1))
 	$(call test2.check,$(REFDIR)/$(out2x),$(out2x))
 	$(call plot.pldos)
-	ghostscript ps.pldos.dat
-
-# exec case1 for $(TARGET).
-$(TARGET).case1.exec:
-	@echo "nothing to exec for $@"
-
-# check case1 for $(TARGET).
-$(TARGET).case1.check:
-	@echo "nothing to check for $@"
-
-# plot graph on the display
-plot-dos:
 	ghostscript ps.pldos.dat
 

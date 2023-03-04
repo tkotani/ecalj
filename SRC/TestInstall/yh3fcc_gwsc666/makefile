@@ -1,10 +1,8 @@
 include ../../Makefile
-
 # directroy where input/output files are saved.
 TARGET=yh3fcc_gwsc666
 # material in the tests.
 MATERIAL=yh3
-
 # exec default case for $(TARGET).
 $(TARGET).exec:
 	# exec lmfa command.
@@ -12,7 +10,6 @@ $(TARGET).exec:
 	# exec gwsc command.
 	rm log.$(MATERIAL) QPU
 	$(bindir)/gwsc 0 -np $(mpi_size) $(MATERIAL)
-
 # check default case for $(TARGET).
 $(TARGET).check:
 	# add summary.txt
@@ -32,10 +29,3 @@ $(TARGET).check:
 	echo "result checked by diffnum: NG" >> ../summary.txt
 	@echo "[note] run make show-summary to confirm the result."
 
-# exec case1 for $(TARGET).
-$(TARGET).case1.exec:
-	@echo "nothing to exec for $@"
-
-# check case1 for $(TARGET).
-$(TARGET).case1.check:
-	@echo "nothing to check for $@"

@@ -94,12 +94,12 @@ $(TARGET).check:
 
 
 # exec case1 for $(TARGET).
-$(TARGET).case1.exec:
-	@echo "nothing to exec for $@"
+#$(TARGET).case1.exec:
+#	@echo "nothing to exec for $@"
 
 # check case1 for $(TARGET).
-$(TARGET).case1.check:
-	@echo "nothing to check for $@"
+#$(TARGET).case1.check:
+#	@echo "nothing to check for $@"
 
 # # plot graphs on the display
 # plot-band:

@@ -1,9 +1,6 @@
 include ../../Makefile
-
 TARGET=zrt
-
 out1=out.lmf.$(TARGET)
-
 ###########################################################
 #----- subroutine test1.exec
 define test1.exec
@@ -29,10 +26,3 @@ $(TARGET).exec:
 $(TARGET).check:
 	$(call test1.check,$(REFDIR)/$(out1),$(out1))
 
-# exec case1 for $(TARGET).
-$(TARGET).case1.exec:
-	@echo "nothing to exec for $@"
-
-# check case1 for $(TARGET).
-$(TARGET).case1.check:
-	@echo "nothing to check for $@"

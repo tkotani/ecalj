@@ -1,11 +1,6 @@
 include ../../Makefile
-
 TARGET=na
-
 out1=out.lmf.$(TARGET)
-
-###########################################################
-#----- subroutine test1.exec
 define test1.exec
 	#-------------------------------------------
 	# Case na: illustration of low- and high-lying local orbitals
@@ -22,21 +17,10 @@ define test1.exec
 	rm mixm.$(TARGET) rst.$(TARGET)
 	$(LMFP)  --no-iactiv $(TARGET) -vnk=6 -vnapval=2 -vpz1=12.94 >> $1 2>&1
 endef
-
 ###########################################################
-# exec default case for $(TARGET).
 $(TARGET).exec:
 	$(call test1.exec,$(out1))
 	$(call test1.check,$(REFDIR)/$(out1),$(out1))
-
 # check default case for $(TARGET).
 $(TARGET).check:
 	$(call test1.check,$(REFDIR)/$(out1),$(out1))
-
-# exec case1 for $(TARGET).
-$(TARGET).case1.exec:
-	@echo "nothing to exec for $@"
-
-# check case1 for $(TARGET).
-$(TARGET).case1.check:
-	@echo "nothing to check for $@"

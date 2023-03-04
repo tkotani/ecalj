@@ -1,10 +1,6 @@
 include ../../Makefile
-
-# directroy where input/output files are saved.
 TARGET=nio_gwsc
-# material in the tests.
 MATERIAL=nio
-
 # exec default case for $(TARGET).
 $(TARGET).exec:
 	# exec lmfa command.
@@ -22,11 +18,3 @@ $(TARGET).check:
 	@echo  >> ../summary.txt
 	@-$(bindir)/dqpu QPU $(REFDIR)/QPU && echo "PASSED: $(TARGET) QPU" >> ../summary.txt || echo "FAILED: $(TARGET) QPU compared by ./bin/dqpu" >> ../summary.txt
 	@-$(bindir)/diffnum  log.$(MATERIAL) $(REFDIR)/log.$(MATERIAL) 'fp evl' && echo "PASSED: $(TARGET) diffnum log.$(MATERIAL) fp evl" >> ../summary.txt || echo "FAILED: $(TARGET) diffnum log.$(MATERIAL) fp evl" >> ../summary.txt
-
-# exec case1 for $(TARGET).
-$(TARGET).case1.exec:
-	@echo "nothing to exec for $@"
-
-# check case1 for $(TARGET).
-$(TARGET).case1.check:
-	@echo "nothing to check for $@"

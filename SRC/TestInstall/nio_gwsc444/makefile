@@ -1,10 +1,6 @@
 include ../../Makefile
-
-# directroy where input/output files are saved.
 TARGET=nio_gwsc444
-# material in the tests.
 MATERIAL=nio
-
 # exec default case for $(TARGET).
 $(TARGET).exec:
 	# exec lmfa command.
@@ -31,11 +27,3 @@ $(TARGET).check:
 	echo "result checked by diffnum: OK" >> ../summary.txt || \
 	echo "result checked by diffnum: NG" >> ../summary.txt
 	@echo "[note] run make show-summary to confirm the result."
-
-# exec case1 for $(TARGET).
-$(TARGET).case1.exec:
-	@echo "nothing to exec for $@"
-
-# check case1 for $(TARGET).
-$(TARGET).case1.check:
-	@echo "nothing to check for $@"

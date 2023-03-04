@@ -1,10 +1,8 @@
 include ../../Makefile
-
 # directroy where input/output files are saved.
 TARGET=srvo3_crpa
 # material in the tests.
 MATERIAL=srvo3
-
 # exec default case for $(TARGET).
 $(TARGET).exec:
 	# exec lmfa command.
@@ -26,10 +24,3 @@ $(TARGET).check:
 	@echo  >> ../summary.txt
 	@-$(bindir)/diffnum2 Screening_W-v.h $(REFDIR)/Screening_W-v.h && echo "PASSED: $(TARGET) Screening_W-v.h" >> ../summary.txt || echo "FAILED: $(TARGET) Screening_W-v.h" >> ../summary.txt
 	@-$(bindir)/diffnum2 Screening_W-v_crpa.h $(REFDIR)/Screening_W-v_crpa.h && echo "PASSED: $(TARGET) Screening_W-v_crpa.h" >> ../summary.txt || echo "FAILED: $(TARGET) Screening_W-v_crpa.h" >> ../summary.txt
-# exec case1 for $(TARGET).
-$(TARGET).case1.exec:
-	@echo "nothing to exec for $@"
-
-# check case1 for $(TARGET).
-$(TARGET).case1.check:
-	@echo "nothing to check for $@"

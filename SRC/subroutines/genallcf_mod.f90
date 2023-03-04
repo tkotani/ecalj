@@ -116,6 +116,8 @@ contains
     enddo
     write(stdo,*)' --- valence product basis section'
     ! valence
+    occv=0
+    unoccv=0
     read(ifi,*)
     do      ic = 1,nclass
        do       l = 0,nl-1
@@ -148,15 +150,20 @@ contains
        ncwf = ncwf2
     elseif( incwfx==-2 ) then
        write(stdo,*)' ### incwf=-2 Use NOT(ForSxc) for core and Pro-basis '
-       call notbit(nl*nnc*nclass, ncwf2)
-       ncwf  = ncwf2
-       occc= ncwf
+       ncwf2 = merge(1-ncwf2,ncwf2,ncwf2==0.or.ncwf2==1)  !!call notbit(nl*nnc*nclass, ncwf2)
+       ncwf = ncwf2
+       occc = ncwf
        unoccc= 0
-       ooo=0
-       call ibitand(nl*nnv*nclass, unoccv,occv, ooo)
-       unoccv = ooo
-    elseif( incwfx==-3 ) then
-       call ibiton(nclass,nl,nnc,nindxc, occc, ncwf)
+       unoccv= merge(1,unoccv,occv==1.or.unoccv==1)
+    elseif( incwfx==-3 ) then !   call ibiton(nclass,nl,nnc,nindxc, occc, ncwf)
+       occc=0
+       ncwf=0
+       do ic = 1,nclass
+          do l = 0,nl-1
+             occc(l+1,n,:)=[(1,i=1,nindxc(l,ic))]
+             ncwf(l+1,n,:)=[(1,i=1,nindxc(l,ic))]
+          end do
+       end do
        unoccc= 0
        write(stdo,*)' ### incwf=-3  occ=1 unocc=0 incwf=1 for all core '
     elseif( incwfx==-4 ) then
@@ -326,39 +333,6 @@ contains
     end do
     return
   end subroutine incor
-  subroutine notbit(n,idat)
-    integer :: idat(n),i,n,ix
-    do i=1,n
-       ix =  idat(i)
-       if(idat(i)==0) then
-          idat(i)=1
-       elseif(idat(i)==1) then
-          idat(i)=0
-       endif
-       !       write(stdo,*)'notbit=',i,ix,idat(i)
-    enddo
-  end subroutine notbit
-  subroutine ibiton(nclass,nl,nnc,nindxc, noccc,ncwf)
-    integer ::nclass,nl,nnc,noccc(0:nl-1,nnc,nclass),nindxc(0:nl-1,nclass)
-    integer ::ncwf(0:nl-1,nnc,nclass),ic,l,n
-    noccc=0
-    ncwf=0
-    do      ic = 1,nclass
-       do       l = 0,nl-1
-          do       n = 1,nindxc(l,ic)
-             noccc(l,n,ic)=1
-             ncwf(l,n,ic) =1
-          end do
-       end do
-    end do
-  end subroutine ibiton
-  subroutine ibitand(n,a,b,c)
-    integer :: n, a(n),b(n),c(n),i
-    do i = 1,n
-       if( a(i)==1 .OR. b(i)==1 ) c(i)=1
-       write (6,"('ibitand:: ',4i3)")i,a(i),b(i),c(i)
-    enddo
-  end subroutine ibitand
   subroutine idxlnmc(nindxv,nindxc, &
        nl,nn,nnv,nnc,nlnmx,nlnmxv,nlnmxc,nclass, &
        il,in,im,ilnm, &
@@ -428,7 +402,6 @@ contains
     end do
     return
   end subroutine idxlnmc
-  ! ssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine maxdim (nocc,nunocc,nindx,nl,nn,nclass, &
        nprodx,nlnx,nlnmx,nlnax)
     ! largest number of product basis, (l,n) and (l,n,m)
@@ -504,14 +477,6 @@ contains
     implicit integer(i-n)
     dimension nindx(0:nl-1,nclass),iclass(natom)
     noflmto= sum([ (sum([((2*l+1)*nindx(l,iclass(ic)),l=0,nl-1)]),ic=1,natom) ])
-    ! noflmto   = 0
-    ! do  i = 1,natom
-    !    ic        = iclass(i)
-    !    do  l = 0,nl-1
-    !       noflmto   = noflmto + (2*l+1)*nindx(l,ic)
-    !    enddo
-    ! enddo
-    ! return
   end function noflmto
   integer function nalwln (nocc,nunocc,nindx,nl,nn)
     ! gives the number of allowed product radial phi
@@ -543,32 +508,19 @@ contains
 101 enddo
     return
   end function nalwln
-  integer function nofln(nindx,nl)
-    ! count the number of l,n
+  integer function nofln(nindx,nl)   ! count the number of l,n
     implicit real*8(a-h,o-z)
     implicit integer(i-n)
     dimension nindx(0:nl-1)
     nofln= sum(nindx(0:nl-1))
-    ! nofln      = 0
-    ! do       l = 0,nl-1
-    !    nofln      = nofln + nindx(l)
-    ! end do
-    ! return
   end function nofln
-  !------------------------------------------------------------------
   integer function noflnm(nindx,nl) ! number of l,n,m
     implicit real*8(a-h,o-z)
     implicit integer(i-n)
     dimension nindx(0:nl-1)
     noflnm  = sum([(nindx(l)*(2*l+1),l=0,nl-1)])
-!     noflnm    = 0
-!     do 1    l = 0,nl-1
-!        noflnm    = noflnm + nindx(l)*(2*l+1)
-! 1   enddo
-!     return
   end function noflnm
 end module m_genallcf_v3
-
 subroutine reindx (noccv,nunoccv,nindxv, &
      noccc,nunoccc,nindxc, &
      nl,nn,nnv,nnc,nclass, &
@@ -631,22 +583,3 @@ contains
     close(ifhbe)
   end subroutine readhbe
 end module m_readhbe
-
-!$$$!----------------------------------------------------------
-!$$$!! we neede module reading m_genallfc_v3 should be here after it is dedined in this file
-!$$$      module m_readclasst
-!$$$      use m_genallcf_v3,only: natom
-!$$$      integer,allocatable,protected :: iclasst(:)!, invgx(:)
-!$$$      contains
-!$$$      subroutine Readclasst()
-!$$$      integer:: ibas,ibasx,ificlass
-!$$$      allocate(iclasst(natom))
-!$$$      write(stdo,*)'  --- Read true CLASS (crystalographyically equivalent sites) ---'
-!$$$      open(newunit=ificlass, file='CLASS', action='read')
-!$$$      do ibas = 1,natom
-!$$$        read(ificlass,*)  ibasx, iclasst(ibas)
-!$$$        write(stdo,"(2i10)") ibasx, iclasst(ibas)
-!$$$      enddo
-!$$$      close(ificlass)
-!$$$      end subroutine
-!$$$      end module m_readclasst
