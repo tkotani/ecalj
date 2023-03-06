@@ -5,10 +5,8 @@ module m_mksym_util
   private
   real(8),parameter:: toll=1d-4,tiny=1d-4
 contains
-  subroutine gensym(slabl,gens,usegen,lcar,lfix,lsmall,nbas, &
-       nspec,ngmx,plat,platcv,bas,ips,nrspec,ng,g, &
-       ag,ngen,gen,nwgens,nggen,isym,istab)
-    !- Generate the space group !,ldist,dist
+  subroutine gensym(slabl,gens,usegen,lcar,lfix,lsmall,nbas, nspec,ngmx,plat,platcv,bas,ips,nrspec,ng,g, &
+       ag,ngen,gen,nwgens,nggen,isym,istab)  ! Generate the space group 
     ! ----------------------------------------------------------------------
     !i Inputs:
     !i   slabl: name of the different species.
@@ -86,9 +84,7 @@ contains
     !u   03 Nov 01 Shortened argument list, eliminating duplicate bas,ips
     ! ----------------------------------------------------------------------
     implicit none
-    ! Passed parameters:
-    integer :: nbas,isym(*),istab(nbas,*),nspec,ngen,ngmx, &
-         ng,nrspec(nspec),usegen,ips(nbas),nggen 
+    integer :: nbas,isym(*),istab(nbas,*),nspec,ngen,ngmx, ng,nrspec(nspec),usegen,ips(nbas),nggen 
     double precision :: plat(9),platcv(9),g(9,*),ag(3,*),bas(3,nbas)
     character(8) ::  slabl(*), gens*(*), nwgens*(*)
     logical :: lcar,lfix
@@ -99,7 +95,7 @@ contains
     parameter(ngnmx=10)
     double precision :: gen(9,ngnmx),agen(3,ngnmx)
     integer ::iwdummy,iwdummy1(1)
-    !      stdo = lgunit(1)
+    character(8):: xt
     call rxx(.not. lcar, 'gensym not implemented lcar')
     call rxx(lfix,  'gensym not implemented lfix')
     call rxx(lsmall,'gensym not implemented lsmall')
@@ -119,9 +115,7 @@ contains
     endif
     do  10  igen = 1, ngen
        call grpprd(gen(1,igen),plat,platt)
-       if ( .NOT. latvec(3,toll,qlat,platt)) &
-            call fexit(-1,111,' Exit -1 GENSYM: '// &
-            'generator %i imcompatible with underlying lattice',igen)
+       if(.NOT.latvec(3,toll,qlat,platt))call rx('GENSYM: imcompatible with lattice generators. igen='//trim(xt(igen)))
 10  enddo
     ! ... Set up space group (g,ag,ng) given point group generators gen
     call sgroup(10+modes,gen,agen,ngen,g,ag,nggen,ngmx,qlat)
@@ -131,7 +125,7 @@ contains
     if (i /= nspec .AND. iprint() > 0) &
          write(stdo,ftox)' GENSYM (warning)',nspec,'species supplied but only',i,'spec used ...'
     nspec = i
-    nrspec=0 !call iinit(nrspec,nspec)
+    nrspec=0 
     do  22  ibas = 1, nbas
        ic = ips(ibas)
        nrspec(ic) = nrspec(ic)+1
@@ -762,8 +756,9 @@ contains
        goto 99
     endif
     return
-99  print *, 'PARSOP: parse error at ',(t(iii),iii = 0,i),'  ...'
-    call fexit(-1,119,' ',0)
+99  continue
+    write(stdo,*)'PARSOP: parse error at ',i,'t= ',t(i)
+    call rx('PARSOP: parse error')
   end subroutine parsop
   ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine symlat(platcp,ngrp,grp,isym)
@@ -1006,6 +1001,7 @@ contains
   end subroutine asymop
   ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine csymop(iopt,grp,li,nrot,vecg)
+    use m_ftox
     !- Decomposes a group operation into its consitutents, or vice-versa
     ! ----------------------------------------------------------------------
     !i Inputs:
@@ -1031,15 +1027,14 @@ contains
     logical :: li
     integer :: i,idamax,j,in
     double precision :: costbn,detop,ddet33,dnrm2,sinpb3,twopi,vfac, wk(9),sintbn,omcos,ddot
+    character(8):: xt
     twopi = 8*datan(1d0)
     ! --- Make grp from (nrot,vecg,li) ---
     if (iopt == -1) then
        call dpzero(grp,9)
        in = iabs(nrot)
-       if (in <= 0 .OR. in == 5 .OR. in > 6) &
-            call fexit(-1,111,'%N Exit -1 CSYMOP: '// &
-            'abs(nrot) must 1,2,3,4 or 6, but is %i',in)
-       if (in == 1) then
+       if(in <= 0 .OR. in == 5 .OR. in > 6)call rx('CSYMOP: abs(nrot) must 1,2,3,4 or 6, but is '//trim(xt(in)))
+       if(in == 1) then
           call dcopy(3,1d0,0,grp,4)
        else
           sintbn = dsin(twopi/nrot)
@@ -1063,8 +1058,7 @@ contains
        ! ... Require |determinant=1|
        call dinv33(grp,0,wk,detop)
        if (dabs(dabs(detop)-1.0d0) > tiny) &
-            call fexit(-1,111,'%N Exit -1 ASYMOP: '// &
-            'determinant of group op must be +/- 1, but is %d',detop)
+            call rx('Exit -1 ASYMOP: determinant of group op must be +/- 1, but is '//trim(ftof(detop)))
        detop = dsign(1.d0,detop)
        !   ... li is T if to multiply by inversion
        li = detop .lt. 0d0
@@ -1086,9 +1080,7 @@ contains
                 vecg(i) = 0.5d0*(grp(i,i)+1.0d0)
 10           enddo
              j = idamax(3,vecg,1)
-             if (vecg(j) < 0d0) &
-                  call fexit2(-1,111,' Exit -1 ASYMOP:  bad component %i'// &
-                  ' of operation.  Diagonal element = %d',j,grp(j,j))
+             if(vecg(j) < 0d0)call rx('ASYMOP: bad operation j='//trim(xt(j))//'. Diagonal element is '//ftof(grp(j,j)))
              vecg(j) = dsqrt(vecg(j))
              vfac = 0.5d0/vecg(j)
              do  12  i = 1, 3
@@ -1113,10 +1105,7 @@ contains
        call dscal(9,detop,grp(1,1),1)
     endif
   end subroutine csymop
-  ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  subroutine symtbl(mode,nbas,ipc,pos,g,ag,ng,qlat,istab)
-    !- Make symmetry transformation table for posis atoms; check classes
-    ! ----------------------------------------------------------------------
+  subroutine symtbl(mode,nbas,ipc,pos,g,ag,ng,qlat,istab) ! Make symmetry transformation table for posis atoms; check classes
     !i Inputs
     !i   mode  :1st digit
     !i         :0  site ib is transformed into istab(ib,ig) by grp op ig
@@ -1135,7 +1124,6 @@ contains
     !i   qlat  :primitive reciprocal lattice vectors, in units of 2*pi/alat
     !o Outputs
     !o   istab :table of site permutations for each group op; see mode
-    ! ----------------------------------------------------------------------
     implicit none
     integer :: nbas,ng,mode
     integer :: ipc(1),istab(nbas,1)
@@ -1144,6 +1132,7 @@ contains
     double precision :: tol1
     character(200)::aaa
     integer,allocatable:: w_oiwk(:)
+    character(8):: xt
     if (ng == 0) return
     mode1 = mod(mode,10)
     mode10 = mod(mode/10,10)
@@ -1173,25 +1162,22 @@ contains
 10     enddo
 20  enddo
     if (mode10 == 0) return
-    ! --- Check atom classes ---
     allocate(w_oiwk(nbas))
-    do  50  ib = 1, nbas
+    do  50  ib = 1, nbas ! --- Check atom classes ---
        ic = ipc(ib)
        w_oiwk=0
        do  30  ig = 1, ng
           w_oiwk(istab(ib,ig)) = 1
 30     enddo
        do  40  jb = 1, nbas
-          if (w_oiwk(jb) == 1) goto 40
+          if(w_oiwk(jb) == 1) goto 40
           jc = ipc(jb)
-          if (ic == jc) call fexit2(-1,111,' Exit -1 SYMTBL:  '// &
-               'site ib=%i in same class as inequivalent site jb=%i',ib,jb)
+          if(ic==jc) call rx('SYMTBL: site1 is inequivalent site2: sitesare'//trim(xt(ib))//trim(xt(jb)))
 40     enddo
 50  enddo
     deallocate(w_oiwk)
   end subroutine symtbl
-  subroutine istbpm(istab,nbas,ng,istab2)
-    !- Makes inverse of istab
+  subroutine istbpm(istab,nbas,ng,istab2)  !- Makes inverse of istab
     integer :: nbas,ng
     integer :: istab(nbas,ng),istab2(nbas,ng)
     integer :: ib,ig,ibp
@@ -1202,9 +1188,7 @@ contains
        enddo
     enddo
   end subroutine istbpm
-  logical function parsvc(iopt,t,ip,v)
-    !- Parses string, converting to a vector, or vice-versa
-    ! ----------------------------------------------------------------------
+  logical function parsvc(iopt,t,ip,v)  !- Parses string, converting to a vector, or vice-versa
     !i Inputs:
     !i   iopt   -1 to convert string t to vector,
     !i           1 to convert vector v to string t
@@ -1224,7 +1208,6 @@ contains
     !r   'X', 'Y', 'Z' for (1,0,0), (0,1,0), (0,0,1).
     !b Bugs
     !b   no check is made on the length of t
-    ! ----------------------------------------------------------------------
     implicit none
     integer :: ip
     double precision :: v(3)
@@ -1291,17 +1274,12 @@ contains
           do  12  i = 1, 3
              write(sout,ftox)ftof(v(i))
              if(abs(nint(v(i))-v(i))<1d-6) write(sout,ftox) nint(v(i))
-             !m = awrite('%x%;7d%?#n<>3#,#)#', sout,len(sout),0,v(i),i,i,i,i,i,i,i)
-             !write(6,*)'zzzaaa111',i,v(i),'!',trim(sout),'!'
              x = v(i)
              y = v(i)*dsqrt(3d0)*4
              if (abs(x) > tiny .AND. dabs(dabs(x)-1) > tiny .AND. iopt <= 4) then
                 if (abs(1/x-nint(1/x)) < tiny) then
-!                   if (x > 0) m = awrite('%x1/%d  %?#n<>3#,#)#',  sout,len(sout),0, 1/x,i,i,i,i,i,i,i)
-!                   if (x < 0) m = awrite('%x-1/%d %?#n<>3#,#)#', sout,len(sout),0,-1/x,i,i,i,i,i,i,i)
                    write(sout,"('1/',g0)")  nint(abs(1/x))
                    if(x<0) sout='-'//adjustl(sout)
-                   !write(6,*)'xxxxaaa111',1/x,i,'!',trim(sout),'!'
                 elseif (abs(y-nint(y)) < tiny .AND.   abs(y) > .5d0) then
                    d = 12
                    iz = nint(abs(y))
@@ -1311,29 +1289,22 @@ contains
                    if (iz == 6) id = 2
                    if (iz == 12) id = 1
                    y = y/(12/id)
-                   !m = awrite('%x%?#n==1#%j#%d*# sqrt(3)/%i%?#n<>3#,#)#',soutx,len(soutx),0,nint(y),y,id,i,i,i,i,i)
                    if(nint(y)==1) write(sout,"('sqrt(3)/',g0)") id
                    if(nint(y)/=1) write(sout,"(g0,'*sqrt(3)/',g0)") nint(y),id
-                   !write(6,*)'yyyyyaaa111',y,id,i,'!',trim(sout),'!',trim(soutx),'!'
                 endif
              endif
              add=','
              if(i==3) add=')'
              sout=trim(adjustl(sout))//add
              m=len(trim(sout))
-             !write(6,*)'vvvvv!',i,trim(sout),'!'
              call strncp(t(ip+1),sout,1,1,m) !t(ip+1:ip+m)=trim(sout) !
              ip = ip+m
 12        enddo
-!          write(6,*)'wwwww',t(0:ip)
        endif
        ip = ip+1
     endif
   end function parsvc
-  ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  subroutine grpfnd(tol,g,ag,ig,pos,nbas,qlat,ia,ja)
-    !- Find index to site ja site into which g,ag transforms site ia
-    ! ----------------------------------------------------------------------
+  subroutine grpfnd(tol,g,ag,ig,pos,nbas,qlat,ia,ja) !- Find index to site ja site into which g,ag transforms site ia
     !i Inputs
     !i   tol   :tolerance in site positions
     !i   g     :rotation part of space group
@@ -1351,7 +1322,6 @@ contains
     !o         :if zero, no equivalent site was found.
     !u Updates
     !u   26 Jan 01  Add ability to operate with -g (ia<0)
-    ! ----------------------------------------------------------------------
     implicit none
     integer :: ia,ja,ig
     double precision :: g(3,3,ig),ag(3,ig),pos(3,1),qlat(3,3),tol
@@ -1377,8 +1347,6 @@ contains
        endif
 10  enddo
   end subroutine grpfnd
-
-  ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   logical function spgeql(mode,g1,a1,g2,a2,qb)
     !- Determines whether space group op g1 is equal to g2
     ! ----------------------------------------------------------------------
@@ -1415,7 +1383,6 @@ contains
 20  enddo
     return
   end function spgeql
-  ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   logical function grpeql(g1,g2)    !- Checks if G1 is equal to G2
          implicit none
     double precision :: g1(9),g2(9),dabs,x1,x2
@@ -1428,7 +1395,6 @@ contains
 10  enddo
     grpeql = .true.
   end function grpeql
-  ! ssssssssssssssssssssssssssssssssssssssss
   SUBROUTINE GRPOP(V,V1,G,I)
     !     implicit none
     double precision :: G(3,3,*),V(3),V1(3)
@@ -1438,7 +1404,6 @@ contains
     V1(3) = G(3,1,I)*V(1) + G(3,2,I)*V(2) + G(3,3,I)*V(3)
     RETURN
   END SUBROUTINE GRPOP
-  ! sssssssssssssssssssssssssssssssssssssssssssssss
   logical function latvec(n,tol,qlat,vec)
     !- Checks whether a set of vectors are lattice vectors
     ! ----------------------------------------------------------------------

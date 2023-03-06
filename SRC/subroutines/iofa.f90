@@ -1,4 +1,4 @@
-integer function iofa(spid,nxi0,nxi,exi,hfc,hfct,rsm,z,rmt,a,nr,qc,ccof,ceh,stc,rho,rhoc,v,ifi)
+integer function iofa(spid,nxi0,nxi,exi,hfc,hfct,rsm,z,rmt,a,nr,qc,ccof,ceh,stc,rho,rhoc,v,ifi,rw)
   use m_lmfinit,only: nsp,lrel
   use m_lgunit,only:stdo
   !- I/O for free-atom data, one species
@@ -37,11 +37,12 @@ integer function iofa(spid,nxi0,nxi,exi,hfc,hfct,rsm,z,rmt,a,nr,qc,ccof,ceh,stc,
   integer :: i,jfi,lrel0,nglob,nsp0,ipr,iprint
   logical :: isanrg
   character msg*23
+  character(*):: rw
   ipr    = iprint()
   msg  = '         File mismatch:'
   iofa   = -1
   ! --- Input ---
-  if (ifi > 0) then
+  if (rw=='read') then
      jfi = ifi
      read(jfi,*,end=998,err=998) spid
      read(jfi,*) z,a,nsp0,lrel0,nr,rmt,rsm
@@ -62,8 +63,7 @@ integer function iofa(spid,nxi0,nxi,exi,hfc,hfct,rsm,z,rmt,a,nr,qc,ccof,ceh,stc,
      read(ifi,333) v(1:nr)
      if (nsp == 2) read(ifi,333) v(nr+1:2*nr)
   endif
-  ! --- Output ---
-  if (ifi < 0)  then
+  if (rw=='write')  then
      jfi = -ifi
      write(jfi,"(a,a)")spid,' ===  z       a      nsp   lrel   nr   rmt  rsm'
      write(jfi,102) z,a,nsp,lrel,nr,rmt,rsm

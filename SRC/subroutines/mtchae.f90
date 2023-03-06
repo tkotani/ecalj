@@ -99,6 +99,7 @@ contains
        phi2,dphi2,rsm,eh,ekin,ir)
     use m_lgunit,only:stdo
     use m_hansr,only:hansmd
+    use m_ftox
     !- Finds envelope function parameters that match conditions on sphere
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -192,14 +193,11 @@ contains
     parameter (tol=1d-12,IPRT1=100/1,IPRTW=50/1,maxit=50,dxrsm=.05d0)
     double precision :: xnow,alfa,beta,xclose,bclose,eclose,tclose,wk(12)
     logical:: isanrg, l_dummy_isanrg
-
-    !      stdo = lgunit(1)
+    character(8):: xt
     call getpr(ipr)
     mode0 = mod(mode,100)
     mode2 = mod(mode/100,10)
-    ! ino isanrg is logical function,       call isanrg(l,0,8,'mtchre','l',.true.)
     l_dummy_isanrg=isanrg(l,0,8,'mtchre','l',.true.)
-
     ! ... Start of matching in current mode
 10  continue
 
@@ -287,9 +285,7 @@ contains
                   xnow > max(rsmin,rsmax)+1d-6 .OR. &
                   rsmin == rsmax) then
                 ir = -1
-                if (mode2 >= 1) call fexit2(-1,111, &
-                     ' Exit -1 : mtchre : failed to match phi''/phi=%,1;3d'// &
-                     ' to envelope, l=%i',dphi1/phi1,l)
+                if(mode2>=1)call rx('mtchre:err to match phi to envelope. l dphi1/phi1='//trim(xt(l))//' '//trim(ftof(dphi1/phi1)))
                 return
              endif
              xnow = xnow + dxrsm

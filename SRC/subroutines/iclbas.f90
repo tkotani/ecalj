@@ -51,7 +51,6 @@ integer function iclbsj(ic,ipc,nbas,nrbas)
      iclbsj = -n
      return
   endif
-  call fexit3(-1,111,' Exit -1 ICLBSJ: sought atom no. %i'// &
-       ' in class %i but only %i atoms exist',nrbas,ic,n)
+  call rx3('ICLBSJ: sought atom no.#1 in class #2 but only #3 atoms exist. #1#2#3=',nrbas,ic,n)
 end function iclbsj
 

@@ -240,14 +240,14 @@ contains
     if (i .eq. 1) return
     if (i .eq. 2) then
        if(lgunit2==0) then
-          lgunit2=ifile_handle()
-          open(lgunit2,file='log.'//trim(sname),position='append')
+!          lgunit2=ifile_handle()
+          open(newunit=lgunit2,file='log.'//trim(sname),position='append')
        endif
        lgunit = lgunit2
     elseif (i .eq. 3) then
        if(lgunit3==0) then
-          lgunit3=ifile_handle()
-          open(lgunit3,file='mlog.'//trim(sname)//'_'//trim(i2char(procid)))
+!          lgunit3=ifile_handle()
+          open(newunit=lgunit3,file='mlog.'//trim(sname)//'_'//trim(i2char(procid)))
        endif
        lgunit = lgunit3
     endif

@@ -1,6 +1,5 @@
 module m_mixrho
-  use m_lgunit,only:stdo,stml
-!  integer,parameter,public:: kmxv=15
+  use m_lgunit,only:stdo,stml !  integer,parameter,public:: kmxv=15
   public:: mixrho
   private
   !  mixing routine of smrho, rh. T.kotani think this routine is too compicated to maintain.
@@ -242,12 +241,10 @@ contains
        beta=1d0
        initd=.false.
     endif
-
     rms2 = 0
     fnam = 'mixm' !fnaminit
     wt(1:2)   = wtinit
-    !     In case parmxp doesn't touch wt, unset flag
-!    if (wt(3) == -9) wt(3) = 0
+    !     In case parmxp doesn't touch wt, unset flag 
     wt(3) = 0 !2023feb
     nmix = nmixinit
     broy = broyinit
@@ -274,43 +271,14 @@ contains
     !     .  ' ',80,stdo,beta,isw(elinl.ne.0),elinl,broy,nmix,
     !     .  broy,nmix)
     !      call rx('done')
-
-    ! ! ... Interactively reset mix-parms block
-    ! i1 = 0
-    ! i2 = 0
-    ! !      call query('mix-parms-block',2,i1)
-    ! !      call query('block-iter',2,i2)
-    ! if (i1 > 0 .OR. i2 > 0) then
-    !    if (i2 <= 0) i2 = 1
-    !    call parmx0(i1,i2,0d0)
-    !    if ( .NOT. parmxp(iter,mixmod,len(mixmod),broy,nmix,wt,beta, &
-    !         elinl,fnam,wc,nkill,dmxp(9),rms2))call rx( &
-    !         'MIXRHO: parse in parmxp failed')
-    ! endif
-
-    if (nsp == 1) wt(2) = 0
-    if (wt(1)**2+wt(2)**2+wt(3)**2 == 0) &
-         call fexit(-1,111,' Exit -1 MIXRHO: '// &
-         'bad mixing weights w =%3:1;6d',wt)
+    if (nsp == 1) wt(2)=0d0
+    if (sum(wt**2)==0d0) call rx('MIXRHO: bad mixing weights wt=0')
     call dscal(3,1/dsqrt(wt(1)**2+wt(2)**2+wt(3)**2),wt,1)
-
-    !      wt(1) = 1 ; wt(2) = 1; print * , '!! wt=', wt(1:2)
-
     if (nmix < 0) nmix = mxsav
-!    if (elinl < 0d0) elinl = -(3*pi**2*qval/vol)**.66666d0*elinl
-!    if (elinl < .01d0) elinl = 0
-
     ! ... Initial charges
     call rhoqm(smrho,k1,k2,k3,n1,n2,n3,nsp,vol,qin)
     call rhoqm(smrnew,k1,k2,k3,n1,n2,n3,nsp,vol,qout)
-
-
-    !!== difference in smooth part ==
-    !      write(6,"(a,3d13.5)") ' mixrho: dqsum rmsuns='
-    !     &  , dreal(sum((smrnew-smrho)/(n1*n2*n3)))
-    !     &  , sqrt( sum((smrnew-smrho)**2)/(n1*n2*n3) )
     fac = vol/(n1*n2*n3)
-
     !!== RMS differences screened and input sm density; count neg points ==
     sumo = sum(dble(smrho))
     sums = sum(dble(smrnew))
@@ -333,84 +301,9 @@ contains
        enddo
     enddo
     rms = dsqrt(fac*rms/vol)
-    !!     Defer printout until after file read prior iterations; see '100' below
-
-
-    !!== elind mode ==
-    ! if(noelind()) then
-    !    !        allocate(w_ocn(2*ng))
-    !    !        w_ocn=0d0
-    ! else
-    !    ! --- Screen sm output rho; distribute screening rho over local rho ---
-    !    ! ... 1. Overwrite smrho+, smrho- with smrho, smrho+ - smrho-
-    !    if (nsp == 2) then
-    !       call dsumdf(kkk*2,1d0,smrho,0,1,smrho(1,1,1,2),0,1)
-    !       call dsumdf(kkk*2,1d0,smrnew,0,1,smrnew(1,1,1,2),0,1)
-    !    endif
-    !    ! ... <smrout-smrhoin> and <(smrout-smrhoin)**2>, unscreened smrout
-    !    dquns = 0
-    !    rmsuns = 0
-    !    do isp=1,nsp
-    !       do   i3 = 1, n3
-    !          do   i2 = 1, n2
-    !             do   i1 = 1, n1
-    !                dquns  = dquns  + dble(smrnew(i1,i2,i3,isp)-smrho(i1,i2,i3,isp))
-    !                rmsuns = rmsuns + dble(smrnew(i1,i2,i3,isp)-smrho(i1,i2,i3,isp))**2
-    !             enddo
-    !          enddo
-    !       enddo
-    !    enddo
-    !    rmsuns = dsqrt(rmsuns/(n1*n2*n3))
-    !    ! ... 2. cn <- (smrnew - smrho)(G)
-    !    allocate(w_ocn(2*ng),w_owk(kkk))
-    !    call dcopy(kkk*2,smrnew,1,w_owk,1)
-    !    !        call dpadd(w_owk,smrho,1,kkk*2,-1d0)
-    !    call daxpy(kkk*2,-1d0,smrho,1,w_owk,1)
-    !    call fftz3(w_owk,n1,n2,n3,k1,k2,k3,1,0,-1)
-    !    call gvgetf ( ng , 1 , iv_a_okv , k1 , k2 , k3 , w_owk , &
-    !         w_ocn )
-    !    deallocate(w_owk)
-    !    ! ... 3. Sum of local densities on Fourier mesh (up+down)
-    !    allocate(cg1_zv(ng))
-    !    allocate(cg2_zv(ng))
-    !    cg1_zv=0d0
-    !    cg2_zv=0d0
-    !    call rhgcmp ( 131 , 1 , nbas , ssite , sspec ,  sv_p_orhold , kmxs , ng , cg1_zv )
-    !    call rhgcmp ( 131 , 1 , nbas , ssite , sspec ,  sv_p_orhnew , kmxs , ng , cg2_zv )
-    !    !     call gvputf(ng,1,w(okv),k1,k2,k3,w(ocg1),smrnew)
-    !    !     call fftz3(smrnew,n1,n2,n3,k1,k2,k3,1,0,1)
-    !    !     call zprm3('input local densities (r)',0,smrnew,k1,k2,k3)
-
-    !    ! ... Add output-input difference in gaussian rho to make total rho
-    !    call daxpy ( 2 * ng ,   1d0 , cg2_zv , 1 , w_ocn , 1 )
-    !    call daxpy ( 2 * ng , - 1d0 , cg1_zv , 1 , w_ocn , 1 )
-    !    deallocate(cg1_zv,cg2_zv)
-
-    !    ! ... 4. Make cn = screening charge = (eps^-1 - 1) (n_out - n_in)
-    !    tpiba = 2*pi/alat
-    !    call lindsc ( 2 , ng , rv_a_ogv , tpiba , elinl , w_ocn )
-    !    ! ... 5. Add cn = screening charge into smrnew
-    !    !      call defcc(owk,kkk)
-    !    allocate(w_owk(kkk))
-    !    call gvputf ( ng , 1 , iv_a_okv , k1 , k2 , k3 , w_ocn , w_owk )
-    !    call fftz3(w_owk,n1,n2,n3,k1,k2,k3,1,0,1)
-    !    call daxpy(kkk*2,1d0,w_owk,1,smrnew,1)
-    !    deallocate(w_owk)
-    !    ! ... 6. Restore smrho+, smrho-
-    !    if (nsp == 2) then
-    !       call dsumdf(kkk*2,.5d0,smrho,0,1,smrho(1,1,1,2),0,1)
-    !       call dsumdf(kkk*2,.5d0,smrnew,0,1,smrnew(1,1,1,2),0,1)
-    !    endif
-    ! endif
-!    if( .NOT. noelind()) then
-!       ! --- 7. Project cn = screening density into local densities ---
-!       k0 = 20
-!       allocate(fkl_zv((k0+1)*nlm0*nbas))
-!       call ftlxp ( nbas , ssite , sspec , alat , ng , rv_a_ogv , &
-!            w_ocn , k0 , nlm0 , fkl_zv)
-!    endif
+    !!== elind mode ==> removed
     do  ib = 1, nbas
-       is = ispec(ib) !int(ssite(ib)%spec)
+       is = ispec(ib) 
        a   =sspec(is)%a
        nr  =sspec(is)%nr
        rmt =sspec(is)%rmt
@@ -488,31 +381,18 @@ contains
        call lgstar ( 1 , ng , nsp , rv_a_ogv , i , ips0_iv , co_rv)
        deallocate(w_owk)
     endif
-
-
-
-
-    !      call defrr(oa,-nda*nsp*(mxsav+2)*2)
     allocate(w_oa(nda*nsp*(mxsav+2)*2))
     w_oa=0d0
-
-    ! ... Allocate memory for coffs to G_kL expansion of rho
-    !      oqkl = 1
-    !      if (locmix .ge. 2) call defcc(oqkl,-(kmxr+1)*nlm0*nsp*4*nbas)
     if(locmix >= 2) then
        allocate(w_oqkl(2*(kmxr+1)*nlm0*nsp*4*nbas))
        w_oqkl=0d0
     else
        allocate(w_oqkl(1))
     endif
-
-
     ! --- 9. Read prior iterations from disk; update with current iter ---
     if (procid == master) then
        ifi=ifile_handle()
        open(ifi,file=trim(fnam)//'.'//trim(sname),form='unformatted')
-       !        ifi = fopna(fnam,-1,4)
-       !        rewind ifi
     endif
     call MPI_BCAST(ifi,1,MPI_INTEGER,master,MPI_COMM_WORLD,ierr)
 !    if (mlog) then
@@ -521,16 +401,15 @@ contains
 !            //shortname(procid)(1:namelen(procid))// &
 !            ' bcast ifi = %i',' ',256,stml,procid,numprocs,ifi)
 !    endif
-    !     NB: For now, nx must be zero
     k9 = 10
-    call pvmix5 ( nmix , mxsav , fnam , ifi , .true. , rmsdel , locmix &
+    call pvmix5 ( nmix , mxsav , fnam , ifi , rmsdel , locmix &
          , k9 , nbas , kmxr , nlm0 ,  nsp , sv_p_orhold &
          , sv_p_orhnew , co_rv , w_ocn , ng2 , ng02 , (/0/) , nda , w_oa , w_oqkl &
          , rms2 , nmixr )
     rmsdel = rms2
     nmix = min(nmix,nmixr)
     ! ... Write this and prior iterations onto disk
-    call pvmix5 ( nmix , mxsav , fnam , - ifi , .true. , rmsdel , &
+    call pvmix5 ( nmix , mxsav , fnam , - ifi ,  rmsdel , &
          locmix , k9 , nbas , kmxr , nlm0 ,   nsp , sv_p_orhold &
          , sv_p_orhnew , co_rv , w_ocn , ng , ng02 , (/0/) , nda , w_oa , w_oqkl &
          , rms2 , nmixr )
@@ -921,11 +800,7 @@ contains
             w_orsm ( 1 , 4 ) , sv_p_orhold( 1 , ib )%v , sv_p_orhold( 2 , ib )%v &
             , sv_p_orhold( 3 , ib )%v , sv_p_orhnew ( 1 , ib ) %v , sv_p_orhnew &
             ( 2 , ib ) %v , sv_p_orhnew ( 3 , ib ) %v , rwgt_rv , difa )
-
-
-
        difx  = dmax1(difx,difa)
-
        if (allocated(rwgt_rv)) deallocate(rwgt_rv)
        if (allocated(ri_rv)) deallocate(ri_rv)
        ! i#error, rlse?  orsm = ['orsm(4)', 'integer']
@@ -934,12 +809,9 @@ contains
 10     continue
     enddo
   end subroutine pvmix3
-
-
   subroutine pvmix4(nr,nlml,nsp,ri,locmix,wt,beta,ib, &
        rhos1,rhos2,rhns1,rhns2, &
        rho1,rho2,rho3,rhn1,rhn2,rhn3,rwgt,dif)
-
     !- Linear mixing of local densities for one site
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -993,13 +865,11 @@ contains
     !      call prrmsh('rhns1',ri,rhns1,nr,nr,nlml*nsp) ! rhscrs1+rhscrs2
     !      call prrmsh('rhns2',ri,rhns2,nr,nr,nlml*nsp) ! rhscrs1-rhscrs2
 
-
     ! ... Setup
     !      stdo = lgunit(1)
     pi = 4d0*datan(1d0)
     srfpi = dsqrt(4d0*pi)
     rmt = ri(nr)
-
     ! ... rho+,rho- -> rho,amag  and some integrated quantities
     call splrho(0,nsp,nr,nlml,rho1,rho2,rho3)
     call splrho(0,nsp,nr,nlml,rhn1,rhn2,rhn3)
@@ -1024,7 +894,6 @@ contains
     enddo
     vsph = (4d0*pi/3d0)*rmt**3
     dif = dsqrt(dif/vsph)
-
     ! --- Overwrite rho with (1-beta)*rho + beta*rhn ---
     !     wt(1)=0 => only mix spin part (set i=2)
     !     wt(2)=0 => only mix charge part (set i=1)
@@ -1045,11 +914,9 @@ contains
     if (wt(1) == 0 .OR. wt(2) == 0) npc = nr
     call dscal(npc,1-beta,rho3(1,i),1)
     call daxpy(npc,beta,rhn3(1,i),1,rho3(1,i),1)
-
     ! ... Charges and mag. moments of mixed density
     qmix = srfpi*(ddot(nr,rho2,1,rwgt,1))
     if (nsp == 2) amix = srfpi*ddot(nr,rho2(1,1,nsp),1,rwgt,1)
-
     ! --- Subtract smoothed (1-beta)*rhos + beta*rhns ---
     if (locmix >= 2) then
        call splrho(20,nsp,nr,nlml,rhos1,rhos2,rho3)
@@ -1062,11 +929,9 @@ contains
        call splrho(21,nsp,nr,nlml,rhos1,rhos2,rho3)
        call splrho(21,nsp,nr,nlml,rhns1,rhns2,rhn3)
     endif
-
     ! ... Restore rho,amag -> rho+,rho-
     call splrho(1,nsp,nr,nlml,rho1,rho2,rho3)
     call splrho(1,nsp,nr,nlml,rhn1,rhn2,rhn3)
-
     if (iprint() >45 ) then
        write(stdo,100) ib,qold,qnew,qnew,dif,qmix
 100    format(' site ',i4,f12.6,5f14.6)
@@ -1074,15 +939,11 @@ contains
        if (nsp == 2) write(stdo,101) amold,amnew,amix
 101    format(' mmom   ',2f14.6,28x,f14.6)
     endif
-
     !       print *, 'end of pvmix4'
     !       call prrmsh('rho1 after lin mix',ri,rho1,nr,nr,nlml*nsp)
     !       call prrmsh('rho2 after lin mix',ri,rho2,nr,nr,nlml*nsp)
-
   end subroutine pvmix4
-
-
-  subroutine pvmix5 ( nmix , mxsav , fnam , ifi , lbin , rmsdel &
+  subroutine pvmix5 ( nmix , mxsav , fnam , ifi , rmsdel &
        , locmix , k9 , nbas , kmxr , nlm0 , nsp , sv_p_orhold &
        , sv_p_orhnew , co , cn , ng2 , ng02 , cnst , nda , a , qkl , rms2 &
        , nmixr )
@@ -1097,7 +958,7 @@ contains
     !i   fnam  :file name (for printout)
     !i   ifi   :file logical unit; sign delineates whether copying into
     !i         :or out of holding array
-    !i   lbin  :T if binary read
+    !i   lbin=T
     !i  rmsdel :Same as rms2 (see Outputs), from prior iteration.
     !i         :If no prior iteration, rsmdel=0.  For printout only.
     !i  locmix :switch governing linear transformation of local densities
@@ -1400,8 +1261,9 @@ contains
        readerror = .true.
        if (procid == master) then
           readerror = .false.
-          if (lbin) read (ifi,err=311,end=311) nmixr, na
-          if ( .NOT. lbin) read (ifi,*,err=311,end=311) nmixr, na
+          !if (lbin)
+          read (ifi,err=311,end=311) nmixr, na
+          !if ( .NOT. lbin) read (ifi,*,err=311,end=311) nmixr, na
           goto 312
 311       continue
           readerror = .true.
@@ -1447,13 +1309,13 @@ contains
        if (procid == master) then
           readerror = .false.
           do  30  j = 1, k
-             if (lbin) then
+!             if (lbin) then
                 if ( .NOT. lddump(a(1,1,j+1,1),na,ifi)) readerror = .TRUE. 
                 if ( .NOT. lddump(a(1,1,j+1,2),na,ifi)) readerror = .TRUE. 
-             else
-                if ( .NOT. lfdmp(a(1,1,j+1,1),na,ifi)) readerror = .TRUE. 
-                if ( .NOT. lfdmp(a(1,1,j+1,2),na,ifi)) readerror = .TRUE. 
-             endif
+!             else
+!                if ( .NOT. lfdmp(a(1,1,j+1,1),na,ifi)) readerror = .TRUE. 
+!                if ( .NOT. lfdmp(a(1,1,j+1,2),na,ifi)) readerror = .TRUE. 
+!             endif
              if (readerror) goto 313
              nmixr = j
 30        enddo
@@ -1481,18 +1343,11 @@ contains
     else
        if (procid == master) then
           rewind (-ifi)
-          if (lbin) write (-ifi) min(nmix+1,mxsav), nda*nsp
-          if ( .NOT. lbin) write (-ifi,*) min(nmix+1,mxsav), nda*nsp
+          write (-ifi) min(nmix+1,mxsav), nda*nsp
           do  j = 1, min(nmix+1,mxsav)
-             if (lbin) then
-                call dpdump(a(1,1,j,1),nda*nsp,ifi)
-                call dpdump(a(1,1,j,2),nda*nsp,ifi)
-             else
-                call dfdump(a(1,1,j,1),nda*nsp,ifi)
-                call dfdump(a(1,1,j,2),nda*nsp,ifi)
-             endif
+             write(-ifi)a(:,:,j,1)
+             write(-ifi)a(:,:,j,2)
           enddo
-          !       call prm('a after write',a,nda*nsp,nda*nsp,(mxsav+2)*2)
        endif
     endif
 
@@ -2227,12 +2082,9 @@ contains
 311    format(i5,4f14.6)
 310    format(14x,'Old',11X,' New',9X,'Diff',10X,'Mixed')
     endif
-
     ! --- Save x^(m+2) into a(*,0,2) and exit ---
     call dcopy ( nda , xmp1_rv , 1 , a ( 1 , 0 , 2 ) , 1 )
-
     if (allocated(xmp1_rv)) deallocate(xmp1_rv)
-
     if (allocated(f_rv)) deallocate(f_rv)
     if (allocated(ui_rv)) deallocate(ui_rv)
     if (allocated(vti_rv)) deallocate(vti_rv)
@@ -2240,105 +2092,8 @@ contains
     if (allocated(df_rv)) deallocate(df_rv)
     if (allocated(dx_rv)) deallocate(dx_rv)
     if (allocated(wk_rv)) deallocate(wk_rv)
-
   end subroutine pqmixb
-  !   subroutine pqmixc(nda,nmix,mmix,mxsav,beta,rms2,a,xn)
-  !     use m_gradzr,only:drgrzr
-  !     !      use m_lgunit,only:stdo
-  !     use m_ftox
-  !     !- C. G. mixing of a vector
-  !     ! ------------------------------------------------------------------
-  !     !i  mmix: number of iterates available to mix
-  !     !i  a:    (*,i,1)  output values for prev. iteration i
-  !     !i        (*,i,2)  input  values for prev. iteration i
-  !     ! o nmix: nmix > 0: number of iter to try and mix
-  !     !i        nmix < 0: use mmix instead of nmix.
-  !     !o  nmix: (abs)  number of iter actually mixed.
-  !     !o        (sign) <0, intended that caller update nmix for next call.
-  !     !o  xn:   projection along line minimization.
-  !     !o        (sign) <0, new line minimization
-  !     !r  Notations:
-  !     !r  x^(m): input vector for iteration m
-  !     !r  F^(m): difference between output and input vector in iteration m
-  !     ! ------------------------------------------------------------------
-  !     implicit none
-  !     integer :: nda,nmix,mmix,mxsav
-  !     double precision :: beta,rms2,xn,a(nda,0:mxsav+1,2)
-  !     double precision :: ddot,dval,dxmx,xtoll,grfac,wk(0:26)
-  !     save wk
-  !     real(8) ,allocatable :: p_rv(:)
-  !     real(8) ,allocatable :: dx_rv(:)
-  !     integer :: ir,imix,jmix,km,iprint,i1mach,i,idx,idamax
-  !     real(8):: ww(1,1) !dummy
-  !     ! --- Allocate some arrays ---
-  !     allocate(p_rv(nda*6))
-  !     allocate(dx_rv(nda))
-  !     ! ... imix is a local copy of nmix
-  !     imix = nmix
-  !     if (imix < 0) imix = mmix
-
-  !     ! --- Starting from iteration mmix, build the Jacobian matrix ---
-  ! 1   jmix = min(mmix,iabs(imix))
-  !     ir = 0
-  !     do  10  km = jmix, 0, -1
-
-  !        call dcopy ( nda , a ( 1 , km , 2 ) , 1 , dx_rv , 1 )
-
-  !        call daxpy ( nda , - 1d0 , a ( 1 , km , 1 ) , 1 , dx_rv , &
-  !             1 )
-
-  !        rms2 = dsqrt ( ddot ( nda , dx_rv , 1 , dx_rv , 1 ) / ( &
-  !             nda - 0 ) )
-
-  !        idx = idamax ( nda , dx_rv , 1 )
-
-  !        dxmx = beta * abs ( dval ( dx_rv , idx ) )
-
-  !        xtoll = dxmx/10
-  !        grfac = min(2d0,1/beta)
-  !        call pshpr(80)
-  !        wk(0) = xn
-  !        call drgrzr ( nda , a ( 1 , km , 2 ) , dx_rv , p_rv , ww &
-  !             , xtoll , dxmx , 1d-10 , 1d-10 , grfac , wk , ' ' , 00040 &
-  !             , ir )
-
-  !        xn = wk(0)
-  !        call poppr
-
-  ! 10  enddo
-  !     if (ir == -1) xn = -xn
-
-  !     ! --- Check for interactive change of nmix ---
-  !     ! NB negative sign signals request for permanent change in nmix
-  !     km = imix
-  !     !      if (iprint() .gt. 30) call query('redo, nmix=',2,imix)
-  !     if (iabs(imix) > mmix .AND. imix /= km) &
-  !          write(stdo,ftox)' (warning) only ',mmix,' iter available'
-  !     if (km /= imix) goto 1
-  !     nmix = imix
-
-  !     ! --- Printout ---
-  !     if (iprint() > 40) then
-  !        print 310
-  !        do  12  i = 1, nda
-  !           if ( dabs ( a ( i , 0 , 1 ) - a ( i , 0 , 2 ) ) >= 5d-9 ) &
-  !                print 311 , i , a ( i , 0 , 2 ) , a ( i , 0 , 1 ) , a ( i , 0 &
-  !                , 1 ) - a ( i , 0 , 2 ) , dval ( p_rv , i )
-
-  ! 12     enddo
-  ! 311    format(i5,4f14.6)
-  ! 310    format(14x,'Old',11X,' New',9X,'Diff',10X,'Mixed')
-  !     endif
-
-  !     ! --- Save x^(m+2) into a(*,0,2) and exit ---
-  !     call dcopy ( nda , p_rv , 1 , a ( 1 , 0 , 2 ) , 1 )
-
-  !     if (allocated(dx_rv)) deallocate(dx_rv)
-  !     if (allocated(p_rv)) deallocate(p_rv)
-
-  !   end subroutine pqmixc
-  subroutine pqmxup(na,mxsav,nclass,nl,nsp,nx,lmx, &
-       pnu,qnu,xnew,pold,qold,xold,cnst,nda,a,rms2)
+  subroutine pqmxup(na,mxsav,nclass,nl,nsp,nx,lmx,pnu,qnu,xnew,pold,qold,xold,cnst,nda,a,rms2)
     !- Copy from holding array into P,Q
     implicit none
     integer :: nda,mxsav,nclass,nl,nsp,nx,lmx(nclass),cnst(0:*)
@@ -2347,7 +2102,6 @@ contains
          pold(nl,nsp,nclass),qold(3,nl,nsp,nclass),xold(nx),ddot
     integer :: ic,isp,l,na,i
     logical :: lcnst
-
     lcnst = cnst(0) .gt. 0
     na = 1
     rms2 = 0
@@ -2368,7 +2122,6 @@ contains
 12        enddo
 11     enddo
 110 enddo
-
     call dcopy(nx,a(na,0,2),1,xnew,1)
     rms2 =  rms2 + ddot(nx,xnew,1,xnew,1) - &
          2*ddot(nx,xnew,1,xold,1) + &
@@ -2376,229 +2129,12 @@ contains
     na = na + nx
     rms2 = dsqrt(4*rms2/(na-0))
   end subroutine pqmxup
-  subroutine pqmxio(nmix,mxsav,ifi,lbin,nclass,nl,nsp,nx,lmx, &
-       pnu,pold,qnu,qold,xnew,xold,cnst,nda,a,na,rms2)
-    !      use m_lgunit,only:stdo
-    use m_ftox
-    !- Copy P,Q into holding array, read prior P,Q from disk
-    ! -----------------------------------------------------------------
-    !i  nmix  number of prior iterations sought; returns no. actually read
-    !i  mxsav maximum number of prior iter to save, and dimensions a
-    !i  ifi   : >0, copy pnu,qnu to a(1..nda,0,1), pold,qold to a(1..nda,0,2)
-    !i          read prior iter into a(1..nda,1..nmix,1..2)
-    !i          <0  write a(1..nda,1..nmix,1..2) to disk
-    !i          (NB: Does not update pnu,qnu from a)
-    !i  lbin  :T: read prior iterations from binary file, else ascii file
-    !i  nclass:number of inequivalent classes
-    !i  nl    :(global maximum l) + 1
-    !i  nsp   :2 for spin-polarized case, otherwise 1
-    !i  nx    :number of p,q and number of extra data xnew,xold
-    !i  lmx   :lmx(j) = maximum l for atom j
-    !i  pnu   :boundary conditions.  If Dl = log. deriv. at rmax,
-    !i         pnu = .5 - atan(Dl)/pi + (princ.quant.number).
-    !i  qnu   :energy-weighted moments of the sphere charges
-    !i  qold  :old moments
-    !i  xnew  :additional parameters to be included in mix
-    !i  xold  :additional parameters to be included in mix
-    !i  cnst  :for each class, if nonzero, copy pold->pnu
-    !i  nda   :leading dimension of a (must be at least na)
-    ! o Inputs/Outputs
-    ! o (Inputs for ifi<0, outputs for ifi>0)
-    ! o  a    :array containing input,output of prior iterations.
-    ! o       :a is updated with input,output from last iteration.
-    ! o       :and prior iterations are read from file ifi
-    ! o  na   :number of values included into mix
-    !o Outputs
-    !i  rms2  :rms change in parameters to be mixed.
-    ! -----------------------------------------------------------------
-    implicit none
-    logical :: lbin
-    integer :: nda,nmix,mxsav,ifi,nclass,nl,nsp,lmx(nclass),nx,cnst(0:*)
-    double precision :: a(nda,0:mxsav+1,2),rms2, &
-         pnu(nl,nsp,nclass), qnu(3,nl,nsp,nclass), xnew(nx), &
-         pold(nl,nsp,nclass),qold(3,nl,nsp,nclass),xold(nx)
-    ! Local variables
-    double precision :: ddot
-    integer :: i1mach,ic,na,isp,i,j,k,l,iprint,mmix
-    logical :: lcnst
-
-    lcnst = cnst(0) .gt. 0
-
-    ! --- Copy p,q to a; calc. RMS error; read prior iter from ifi ---
-    if (ifi > 0) then
-       na = 1
-       do  100  isp = 1, nsp
-          do  10  ic = 1, nclass
-             if (lcnst) then
-                if (cnst(ic) /= 0) then
-                   do  121  l = 0, lmx(ic)
-                      pnu(l+1,isp,ic) = pold(l+1,isp,ic)
-                      do  21  i = 1, 3
-                         qnu(i,l+1,isp,ic) = qold(i,l+1,isp,ic)
-21                    enddo
-121                enddo
-                   goto 10
-                endif
-             endif
-             do  11  l = 0, lmx(ic)
-                a(na,0,1) = pnu(l+1,isp,ic)
-                a(na,0,2) = pold(l+1,isp,ic)
-                do  20  i = 1, 3
-                   a(na+i,0,1) = qnu(i,l+1,isp,ic)
-                   a(na+i,0,2) = qold(i,l+1,isp,ic)
-20              enddo
-                na = na+4
-11           enddo
-10        enddo
-100    enddo
-
-       !   ... Append extra vector to a
-       call dcopy(nx,xnew,1,a(na,0,1),1)
-       call dcopy(nx,xold,1,a(na,0,2),1)
-       na = na + nx - 1
-       rms2 =  dsqrt(dabs(ddot(na,a,1,a,1) - 2*ddot(na,a,1,a(1,0,2),1) &
-            + ddot(na,a(1,0,2),1,a(1,0,2),1))/(na-0))
-       !        call prmx('a1',a,na,na,1)
-       !        call prmx('a2',a(1,0,2),na,na,1)
-       mmix = 0
-       if (lbin) then
-          do  30  j = 1, min(nmix,mxsav)
-             read(ifi,err=31,end=31) ((a(i,j,k), i=1,na), k=1,2)
-             mmix = j
-30        enddo
-       else
-          do  33  j = 1, min(nmix,mxsav)
-             read(ifi,333,err=31,end=31) ((a(i,j,k), i=1,na), k=1,2)
-             mmix = j
-33        enddo
-       endif
-       goto 32
-31     if (iprint() >= 30) &
-            write(stdo,ftox)' PQMXIO:  sought ',nmix,' mixing iter from disk, but read ',mmix
-32     continue
-       nmix = mmix
-       ! --- Save iterations to disk ---
-    else
-       if (lbin) then
-          do  34  j = 0, min(nmix,mxsav)-1
-             write(-ifi) ((a(i,j,k), i=1,na), k=1,2)
-34        enddo
-       else
-          do  35  j = 0, min(nmix,mxsav)-1
-             write(-ifi,333) ((a(i,j,k), i=1,na), k=1,2)
-35        enddo
-333       format(1p,4e20.13)
-       endif
-    endif
-  end subroutine pqmxio
-  ! testing ...
-  !      subroutine fmain
-  !      implicit none
-  !      integer nclass,nl,nsp
-  !      parameter (nclass=2,nl=3,nsp=2)
-  !      integer lmx(nclass),fadd,mxsav,mmix,nmix,ifi,nlspc,fopn,i,wksize,
-  !     .  nx,iter,fopna
-  !      double precision pnu(nl,nsp,nclass),pold(nl,nsp,nclass),
-  !     .  qnu(3,nl,nsp,nclass),qold(3,nl,nsp,nclass),wj(10),rms2,
-  !     .  rmsdel,pwk(nl,nsp,nclass),qwk(3,nl,nsp,nclass),
-  !     .  xnew(100),xold(100),dmxprm(20)
-  !      character*82 mixmod
-  !      parameter (wksize=250000)
-  !      integer w(wksize)
-  !      common /w/ w
-
-  !      call wkinit(wksize)
-  !      call finits(2,0,0,ifi)
-  !      call initqu(.true.)
-  !      i = 51
-  !      call pshpr(i)
-
-  !      mixmod = 'B,w=0,1,wa=1,fn=mm,k=2'
-  !      mixmod = 'B,n=3,w=0,1,wa=1,fn=mm,k=3'
-  !      mixmod = 'B,w=1,2,wa=1,b=.4,n=3;B,b=.02,w=2,1,n=3'
-  !      dmxprm(1) = 0.0d0
-  !      dmxprm(2) = 1.0d0
-  !      dmxprm(3) = -1.0d0
-  !      dmxprm(4) = 1.0d0
-  !      dmxprm(5) = 1.0d0
-  !      dmxprm(6) = 50.0d0
-  !      dmxprm(7) = -1.0d0
-  !      dmxprm(8) = -1.0d0
-  !      dmxprm(9) = 1.0d0
-  !      dmxprm(10) = -1.0d0
-  !      dmxprm(11) = 0.0d0
-  !      dmxprm(12) = 0.0d0
-  !      dmxprm(13) = 0.0d0
-  !      dmxprm(14) = 0.0d0
-  !      dmxprm(15) = 0.0d0
-  !      dmxprm(16) = 0.0d0
-  !      dmxprm(17) = 0.0d0
-  !      dmxprm(18) = 0.0d0
-  !      dmxprm(19) = 0.0d0
-  !      dmxprm(20) = 0.0d0
-  !      print *, 'iter?'
-  !      read(*,*) iter
-  !*     iter = 5
-  !      nx = 9*nclass
-
-  !      ifi = fadd('LOG',10,0)
-  !      nlspc = nl*nsp*nclass
-  !      do  2  i = 1, nclass
-  !    2 lmx(i) = 2
-
-  !      ifi = fopna('MIXV',-1,0)
-  !      do  10  i = 1, 1
-  !      call dfdump(pnu,nlspc,ifi)
-  !      call dfdump(pold,nlspc,ifi)
-  !      call dfdump(qnu,3*nlspc,ifi)
-  !      call dfdump(qold,3*nlspc,ifi)
-  !      call dfdump(xnew,nx,ifi)
-  !      call dfdump(xold,nx,ifi)
-  !      if (i .gt. 1) then
-  !        call snot(1*nl*nsp*nclass,pwk,pold)
-  !        call snot(3*nl*nsp*nclass,qwk,qold)
-  !      endif
-  !      call pqmix(nclass,nl,lmx,nsp,nx,iter,mixmod,dmxprm,0,
-  !     .  pold,qold,xold,pnu,qnu,xnew)
-  !      stop 'patch call to shoctl'
-  !      call shoctl(nclass,'xx',nl,nsp,lmx,pnu,qnu,
-  !     .  0,pnu,fopn('LOG'))
-
-  !   10 continue
-  !      end
-  !      subroutine snot(n,f1,f2)
-  !      implicit none
-  !      integer n,i
-  !      double precision f1(n),f2(n)
-
-  !      write(*,110)
-  !      do  12  i = 1, n
-  !        if (dabs(f1(i)-f2(i)) .ge. 5d-9)
-  !     .  write(*,111) i,f1(i),f2(i),f1(i)-f2(i)
-  !   12 continue
-  !  111 format(i5,4f14.6)
-  !  110 format(14x,'OLD',11X,' NEW',9X,'DIFF',10X,'MIXED')
-  !     end
- 
-
   subroutine dpsadd(adest,asrc,nel,n1,n2,fac)
-    !- shift and add. nel=number of elements, n1,n2= start in asrc,adest
-    !     implicit none
     integer :: n1,n2,i,iadd,ntop,nel
     double precision :: asrc(1),adest(1),fac
     call daxpy(nel,fac,asrc(n2),1,adest(n1),1)
   end subroutine dpsadd
-
-  subroutine dpsdmp(array,n1,n2,ifile)
-    !- Binary I/O of an array segment
-    integer :: n1,n2,ifile,length
-    double precision :: array(n2)
-    length = n2-n1+1
-    if (length > 0) call dpdump(array(n1),length,ifile)
-  end subroutine dpsdmp
-
-  subroutine pkl2ro(mode,ib,rsm,kmax,nr,nlml,nsp,rofi,rwgt,k0,nlm0, &
-       fklc,fklr,rho1,rho2,qmx)
+  subroutine pkl2ro(mode,ib,rsm,kmax,nr,nlml,nsp,rofi,rwgt,k0,nlm0,fklc,fklr,rho1,rho2,qmx)
     !- Put PkL or GkL expansion of a function on a radial mesh for one site
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -2847,33 +2383,14 @@ contains
        do  k = 1, n
           gmax = max(gmax,abs(gin(k)))
        enddo
-
-       !$$$c#if AWRITE
-       !$$$        if (ipr .ge. 30) then
-       !$$$          j = isw3
-       !$$$          call awrit8(' broyj:  start'//
-       !$$$     .    '%?#(n==2|n==3|n==4)#  xtol=%1;2g#%j#'//
-       !$$$     .    '%?#(n==1|n==3|n==4)#  gtol=%1;2g#%j#  beta=%1;2g'//
-       !$$$     .    '  w0=%1;2g  isw=%i  gmax=%1;2g',' ',80,i1mach(2),
-       !$$$     .    j,xtol,j,gtol,beta,w0,isw,gmax)
-       !$$$        endif
-       !$$$c#endif
-
        If (dxmx > 0d0 .AND. gmax > dxmx) then
           betx = beta*dxmx/gmax
-          !$$$c#if AWRITE
-          !$$$          call awrit3(' broyj:  max shift = %1;3g'//
-          !$$$     .    ' is larger than dxmx = %1;3g.  Scale by %1;3g',
-          !$$$     .    ' ',80,i1mach(2),gmax,dxmx,dxmx/gmax)
-          !$$$c#endif
        endif
        do    k = 1, n
           xnew(k) = xin(k) + betx*gin(k)
        enddo
-
        ! --- Subsequent iterations: Broyden mixing ---
     else
-
        !   ... Make xold, gold
        do  20  k = 1, n
           wk(k,1,0) = xin(k) - wk(k,1,0)
@@ -2961,7 +2478,6 @@ contains
              xnew(k) = xnew(k) - gmi*wk(k,1,ir-i)*w(i)
           enddo
 70     enddo
-
        !   ... Cap to maximum allowed shift xnew-xin
        if (dxmx > 0d0) then
           diff = 0
@@ -2970,11 +2486,6 @@ contains
           enddo
           if (diff > dxmx) then
              betx = dxmx/diff
-             !$$$c#if AWRITE
-             !$$$            call awrit3(' broyj:  max shift = %1;3g'//
-             !$$$     .      ' is larger than dxmx = %1;3g.  Scale by %1;3g',
-             !$$$     .      ' ',80,i1mach(2),diff,dxmx,dxmx/diff)
-             !$$$c#endif
              do   k = 1, n
                 xnew(k) = xin(k) + betx*(xnew(k)-xin(k))
              enddo
@@ -2999,20 +2510,9 @@ contains
          gmax < gtol .AND. (isw3 == 1 .OR. isw3 == 3)  .OR. &
          xmax < xtol .AND. (isw3 == 2 .OR. isw3 == 3)  .OR. &
          gmax < gtol .AND. (isw3 == 1 .OR. isw3 == 3))) j = 0
-    !$$$c#if AWRITE
-    !$$$      if (ipr .ge. 20 .and. j .eq. 0) then
-    !$$$        call awrit3(' broyj: converged to max dx'//
-    !$$$     .  '=%1;2g, gmax=%1;2g using %i iterations',' ',80,
-    !$$$     .  i1mach(2),xmax,gmax,ir)
-    !$$$      elseif (ipr .ge. 30 .and. ir .ne. 1) then
-    !$$$        call awrit4(' broyj:  ir=%i  dxmax=%1;2g  gmax=%1;2g'//
-    !$$$     .  '  wc=%1;2g',' ',80,i1mach(2),ir,xmax,gmax,wc)
-    !$$$      endif
-    !$$$c#endif
     broyj = j
   end function broyj
 end module m_mixrho
-
 subroutine splrho(mode,nsp,nr,nlml,rho1,rho2,rhoc)
   !- Overwrite spin pol local rho+,rho- with rho,rho+ - rho-, or reverse
   ! ----------------------------------------------------------------------

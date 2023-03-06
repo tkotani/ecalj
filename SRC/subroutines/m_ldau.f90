@@ -154,8 +154,7 @@ contains
     INQUIRE (FILE =fff, EXIST = fexist)
     if(fexist)      write(6,*)'... reading file mixsigma'
     if( .NOT. fexist) write(6,*)'... No file mixsigma'
-    ifi=ifile_handle()
-    open(ifi,file=fff,form='unformatted')
+    open(newunit=ifi,file=fff,form='unformatted')
     if(fexist) then
        read(ifi,err=903,end=903) nitr,ndaf
        if (ndaf /= nda) goto 903
@@ -348,8 +347,8 @@ contains
 !    if(iprint()>0) write(6,ftox)'=== representation in spherical harmonics vorb ==='
 !    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau, 'New vorb',vorb)
     if (master_mpi) then
-       idmat = ifile_handle()
-       open(idmat,file='dmats.'//trim(sname)) !havesh mush be 1
+!       idmat = ifile_handle()
+       open(newunit=idmat,file='dmats.'//trim(sname)) !havesh mush be 1
        if(iprint()>0) write(stdo,*)' ... Writing density matrix dmats.*... '
        !write(idmat,ftox)'# === dmats in sph harmonics (read by lmfp-m_ldau_init-sudmtu)==='
        call praldm(idmat,0,0,havesh,nbas,nsp,lmaxu,lldau,' dmats !spherical harmonics',dmatu)

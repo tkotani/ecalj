@@ -1,7 +1,5 @@
-subroutine tcinit(ltrace,lprof,levelinit)
+subroutine tcinit(ltrace,lprof,levelinit)! Setup for timer and workspace routines
   use m_lgunit,only:stdo
-  !- Setup for timer and workspace routines
-  ! ----------------------------------------------------------------------
   !i Inputs
   !i   ltrace : >0 turn on running account of cpu usage
   !i            The value of ltrace is the depth to which quantities shown
@@ -13,11 +11,9 @@ subroutine tcinit(ltrace,lprof,levelinit)
   !u Updates
   !u   30 Jun 06 ltrace <0 => running workspace printout
   !u   15 Feb 02 tcprt now writes to a logical unit, rather than stdout
-  ! ----------------------------------------------------------------------
   implicit none
   integer :: ltrace,lprof,levelinit,iwnow
-  integer :: i,ii,init,it,jcb,jlev,job,jt0,l,level,levx,lok,lpr,ltop, &
-       ltr,mfree,mmax,mnow,nn,nx
+  integer :: i,ii,init,it,jcb,jlev,job,jt0,l,level,levx,lok,lpr,ltop, ltr,mfree,mmax,mnow,nn,nx
   parameter (nx = 200)
   character(20) :: name(nx),nam0
   character*(*) str1,str2
@@ -31,29 +27,25 @@ subroutine tcinit(ltrace,lprof,levelinit)
   save
   data nn/0/, ii/0/, init/0/, ltr/0/, lpr/0/ !level/0/,
   level=levelinit
-  !      stdo = lgunit(1)
   if (ltrace /= 0) ltr = ltrace
   if (lprof > 0) lpr = lprof
   ltop = max0(iabs(ltr),lpr)
   jt0 = 1000*cpusec()
   init = 1
   return
-  ! ccccccccccccccccccccccccccccccccccccccccccccccccccc
-  entry tcn(str1)
+  entry tcn(str1) ! ccccccccccccccccccccccccccccccccccccccccccccccccccc
   levx = level
   level = level+1
   if (level > ltop) return
   nam0 = str1
   job = 1
   goto 95
-  ! ccccccccccccccccccccccccccccccccccccccccccccccccccc
-  entry tclev(str1,ilev)
+  entry tclev(str1,ilev) ! ccccccccccccccccccccccccccccccccccccccccccccccccccc
   ilev = level-1
   str1 = ' '
   if (ilev >= 0) str1 = name(icall(ilev))
   return
-  ! ccccccccccccccccccccccccccccccccccccccccccccccccccc
-  entry tcx(str2)
+  entry tcx(str2)! ccccccccccccccccccccccccccccccccccccccccccccccccccc
   levx = level-1
   level = level-1
   if (level+1 > ltop) return
@@ -93,10 +85,8 @@ subroutine tcinit(ltrace,lprof,levelinit)
   ttot(nn) = 0
   name(nn) = nam0
   lev(nn) = level-1
-  !      print *,'level-2=',level-2
   icb(nn) = icall(level-2)
   ii = nn
-  ! ... do real operations here
 91 continue
   if (job == 1) then
      it = 1000*cpusec()
@@ -107,9 +97,7 @@ subroutine tcinit(ltrace,lprof,levelinit)
      elseif (iabs(ltr) > levx .AND. iprint() > 0) then
         write(stdo,100) level,0.001*(it-jt0),str1,mnow,mmax
      endif
-100  format(' >> level:',i2,'  CPUsec=',f10.2,'  enter ',a:t43, &
-          '  mnow =',i11,'  mmax=',i11)
-     !       jt1 = it
+100  format(' >> level:',i2,'  CPUsec=',f10.2,'  enter ',a:t43,'  mnow =',i11,'  mmax=',i11)
      return
   else
      it = 1000*cpusec()
@@ -123,8 +111,7 @@ subroutine tcinit(ltrace,lprof,levelinit)
            write(stdo,101) 0.001d0*(it-jt0),str2,tm,mnow,mmax
         elseif (iwk0(ii) /= iwk1(ii)) then
            write(stdo,102) 0.001*(it-jt0),str2,tm,iwk1(ii)-iwk0(ii)
-102        format(' >>',f10.2,'   exit  ',a,t35,f8.2, &
-                1x,i7,'K left on stack')
+102        format(' >>',f10.2,'   exit  ',a,t35,f8.2, 1x,i7,'K left on stack')
         else
            write(stdo,101) 0.001d0*(it-jt0),str2,tm
 101        format(' >>',f10.2,'   exit  ',a,t35,f8.2:'  mnow =',i11,'  mmax=',i11)
@@ -132,8 +119,7 @@ subroutine tcinit(ltrace,lprof,levelinit)
      endif
      return
   endif
-  ! ccccccccccccccccccccccccccccccccccccccccccccccccccc
-  entry tcprt(ifi)
+  entry tcprt(ifi)  ! ccccccccccccccccccccccccccccccccccccccccccccccccccc
   if (lpr == 0) return
   if (iprint() > 0) write (ifi,800) lpr
 800 format(/'  ==== procid=0 ====     calls      == cpu time ===   depth',i2/ &
@@ -165,18 +151,14 @@ subroutine tcinit(ltrace,lprof,levelinit)
 99      continue
         if (last == 1) tt(lv) = '`--'
         tavg = ttot(i)/max(ncall(i),1)
-!        call strip(name(i),j1,j2)
-        if (iprint() > 0) write (ifi,700) iwk0(i),iwk2(i),iwk3(i),ncall(i), &
-             tavg,ttot(i),(tt(l),l=0,lev(i)),trim(name(i))
+        if (iprint() > 0) write (ifi,700) iwk0(i),iwk2(i),iwk3(i),ncall(i),tavg,ttot(i),(tt(l),l=0,lev(i)),trim(name(i))
 700     format(3i7,i9,2f11.2,3x,30a)
         lvl = lv
      endif
 20 enddo
 end subroutine tcinit
-! sssssssssssssssss
-subroutine tc(string)
-  !- Routine for tracing program flow
-  !     implicit none
+subroutine tc(string) !- Routine for tracing program flow
+  implicit none
   integer :: i1mach,ltr,ltc,ncall
   character*(*) string
   double precision :: x
@@ -194,7 +176,6 @@ subroutine tc(string)
      if (ltr == 1) call cpudel(i1mach(2),string,x)
   endif
   return
-  ! sssssssssssssssss
-  entry tcget(ltc)
+  entry tcget(ltc) ! sssssssssssssssss
   ltc = ltr
 end subroutine tc

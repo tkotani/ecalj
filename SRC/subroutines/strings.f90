@@ -229,6 +229,6 @@ subroutine tokmat(string,token,n,len,term,itoken,ltoken,lopt)
   itoken = -1
   if (lopt) then
      print *, 'TOKMAT: unmatched ', (string(i), i=1,len)
-     call cexit(-1,1)
+     call rx('TOKMAT: unmatched ')
   endif
 end subroutine tokmat

@@ -1109,9 +1109,10 @@ contains
           !         If Vconst > Vtarget, constraint cannot be satisified
           Vconst = vola - fpi3*dm(3)
           if (Vconst > vol*volfac) then
-             call fexit2(-1,111,' Exit -1 : SCLWSR: constrained '// &
-                  'sphere vol (%;0d) exceeds target vol=%;0d', &
-                  Vconst,vol*volfac)
+             block
+               use m_ftox
+               call rx(-1,' Exit -1 :SCLWSR: constrained sphere vol'//ftof(Vconst,3)//'exceeds target vol='//ftof(vol*volfac))
+             endblock  
           endif
           if (dabs(dm(3)) > tiny) then
              r =  dm(2) / dm(3)
@@ -2242,8 +2243,7 @@ contains
                    goto 73
                 endif
 72           enddo
-             call fexit3(-1,1,' Exit -1 pairc: cannot find pair'// &
-                  ' matching sites (%i,%i), pair %i',ib,jb,it-ntab(ib))
+             call rx3('pairc: cannot find pair matching sites,pair =',ib,jb,it-ntab(ib))
 73           continue
 70        enddo
 170    enddo

@@ -1043,6 +1043,7 @@ contains
   end subroutine bzwtsm
 
   subroutine fermi(qval,dos,ndos,emin,emax,nsp,eferm,e1,e2,dosef)
+    use m_ftox
     !- Makes fermi energy from integrated density
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -1057,15 +1058,11 @@ contains
     !r   emin and e1 (and emax and e2) may point to the same address.
     !r   This version uses idos decomposed into spin up, down for nsp=2
     ! ----------------------------------------------------------------------
-    !     implicit none
-    ! Passed parameters
+    implicit none
     integer :: ndos,nsp
     double precision :: qval,dos(ndos,1),emin,emax,eferm,e1,e2,dosef
-    ! Local parameters
     integer :: i1,ie,i2
     double precision :: de,q1,q2,d1mach,wt
-    ! External procedures
-
     ! --- Check bounds of DOS ---
     wt = 1d0/2
     i2 = 1
@@ -1075,10 +1072,7 @@ contains
     endif
     q1 = (dos(1,1)+dos(1,i2))*wt
     q2 = (dos(ndos,1)+dos(ndos,i2))*wt
-    if (q1 > qval .OR. q2 < qval) call fexit3(-1,111, &
-         ' Exit -1 FERMI: NOS ( %1,6;6g %1,6;6g ) does not '// &
-         'encompass Q = %1;6g',q1,q2,qval)
-
+    if(q1 > qval .OR. q2 < qval) call rx('FERMI: NOS ( '//ftof([q1,q2])//') does not encompass Q ='//ftof(qval))
     ! --- Find bin that boxes E_f ---
     de = (emax-emin)/(ndos-1)
     i1 = 1
@@ -1097,5 +1091,4 @@ contains
     eferm = e1 + (qval-q1)/(q2-q1)*de
     dosef = (q2-q1)/de
   end subroutine fermi
-
 end module m_bzwts

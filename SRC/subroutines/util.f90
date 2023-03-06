@@ -38,8 +38,23 @@ pure subroutine rangedq(qin, qout) ! qout is in [-0.5d0,0.5d0)
   qout= qin-nint(qin)
   qout= merge(-0.5d0,qout,mask=qout>.5d0-tol)
 end subroutine rangedq
-character(10) function i2char(numin)
-  !! convert num to char. See charnum3 to understand this.
+!sssssssssssssssssssssssssssssssssssssssssssssssssss
+character(8) function xt(num)
+  integer :: num
+  if(num==0) then
+     xt=''
+     return
+  endif
+  xt = char(48+mod(num,10))
+  if(num>9)     xt = char(48+mod(num/10,10))//xt
+  if(num>99)    xt = char(48+mod(num/100,10))//xt
+  if(num>999)   xt = char(48+mod(num/1000,10))//xt
+  if(num>9999)  xt = char(48+mod(num/10000,10))//xt
+  if(num>99999) xt = char(48+mod(num/100000,10))//xt
+  if(num>999999) call rx( ' xt:can not produce')
+  xt='.'//xt
+END function xt
+character(10) function i2char(numin) ! convert num to char. See charnum3 to understand this.
   implicit none
   integer(4) ::num,itens,iten,numin
   num=abs(numin)
@@ -61,7 +76,6 @@ character(8) function charext(num)
   if(num>9999)charext= char(48+mod(num/10000,10))//charext
   if(num >99999) call rx( ' charext:can not produce')
 END function charext
-! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
 character(3) function charnum3(num)
   integer(4) ::num
   charnum3 = &
@@ -69,7 +83,6 @@ character(3) function charnum3(num)
        char(48+mod(num/10,10))// &
        char(48+mod(num,10))
 END function charnum3
-! sssssssssssssssssssssssssssssssssssssssssssssssssss
 character(4) function charnum4(num)
   integer(4) ::num
   charnum4 = &
@@ -78,17 +91,14 @@ character(4) function charnum4(num)
        char(48+mod(num/10,10))// &
        char(48+mod(num,10))
 END function charnum4
-! sssssssssssssssssssssssssssssssssssssssssssssssssss
 character(9) function ftoa9(arg)
   real(8):: arg
   write(ftoa9,"(1x,f8.3)") arg
 END function ftoa9
-! sssssssssssssssssssssssssssssssssssssssssssssssssss
 character(15) function f2a(arg)
   real(8):: arg
   write(f2a,"(d13.5)") arg
 END function f2a
-! sssssssssssssssssssssssssssssssssssssssssssssssssss
 character(20) function xts(num1,num2)
   integer(4) :: num,num1,num2
   num = num2
@@ -109,23 +119,6 @@ character(20) function xts(num1,num2)
   if(num>99999) xts = char(48+mod(num/100000,10))//xts
   if(num>999999) call rx( ' xts:can not produce')
 END function xts
-! sssssssssssssssssssssssssssssssssssssssssssssssssss
-character(8)  function xt(num)
-  integer :: num
-  if(num==0) then
-     xt=''
-     return
-  endif
-  xt = char(48+mod(num,10))
-  if(num>9)     xt = char(48+mod(num/10,10))//xt
-  if(num>99)    xt = char(48+mod(num/100,10))//xt
-  if(num>999)   xt = char(48+mod(num/1000,10))//xt
-  if(num>9999)  xt = char(48+mod(num/10000,10))//xt
-  if(num>99999) xt = char(48+mod(num/100000,10))//xt
-  if(num>999999) call rx( ' xt:can not produce')
-  xt='.'//xt
-END function xt
-! sssssssssssssssssssssssssssssssssssssssssssssssssss
 character(20) function xxt(num1,num2)
   integer :: num,num1,num2
   num = num2
@@ -163,8 +156,6 @@ pure subroutine cross(a,b,c)
   c(3)=a(1)*b(2)-a(2)*b(1)
   return
 end subroutine cross
-!> This is a replacement of dinv33 of Ferdi's GW  => dinv33(plat,1,qlat,det)
-!! the SAME as the one of dinv33 in extens.f in ferdi/lmto/extens.f
 subroutine minv33tp(plat,qlat)
   implicit none
   real(8),intent(in)::  plat(3,3)
@@ -176,7 +167,6 @@ subroutine minv33tp(plat,qlat)
   det  = sum( plat(1:3,1)*qlat(1:3,1) )
   qlat = qlat/det
 end subroutine minv33tp
-
 subroutine minv33(matrix,inverse) !Inverts 3X3 matrix
   !o   inverse
   implicit none

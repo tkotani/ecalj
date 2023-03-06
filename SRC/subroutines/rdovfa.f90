@@ -60,8 +60,8 @@ contains
     hfc=0d0
     hfct=0d0
     if (procid == master) then
-       ifi=ifile_handle()
-       open(ifi,file='atm.'//trim(sname))  !! Read free-atom density for all species ---
+!       ifi=ifile_handle()
+       open(newunit=ifi,file='atm.'//trim(sname))  !! Read free-atom density for all species ---
     endif
     isloop: do  10  is = 1, nspec
        spid(is)=slabl(is)
@@ -98,7 +98,7 @@ contains
              lfail = iofa ( spidr , n0 , nxi ( is ) , exi ( 1 , is ) , hfc &
                   ( 1 , 1 , is ) , hfct ( 1 , 1 , is ) , rsmfa ( is ) , z0 , rmt0 &
                   , a0 , nr0 , qc , ccof , ceh , stc , rv_a_orhofa( is )%v , sspec &
-                  ( is ) %rv_a_orhoc , rv_a_ov0a ( is ) %v , ifi )    < 0
+                  ( is ) %rv_a_orhoc , rv_a_ov0a ( is ) %v , ifi,'read' )    < 0
              if (lfail) call rxs('missing species data, species ',spid(is))
           endif
        endif

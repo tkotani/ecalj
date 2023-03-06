@@ -51,7 +51,7 @@ contains
        ikt  = getikt(q)       !index for q
        ikt2 = getikt(qtarget) !index for qtarget
        if(napw_in /= napwk(ikt) ) then
-          call rx_('rotwv: napw_in /= napw(ikt)')
+          call rx('rotwv: napw_in /= napw(ikt)')
        endif
        do ig = 1,napw_in
           if(pwmode>10) then

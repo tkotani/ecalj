@@ -127,9 +127,9 @@ contains
     character(*)::rwrw
     data vec0 /0d0,0d0,0d0/
     !      call tcn('iors')
-    ifi=ifile_handle()
-    open(ifi,file='rst.'//trim(sname),form='unformatted')
-    if(trim(rwrw)=='write') ifi=-ifi
+    !ifi=ifile_handle()
+    open(newunit=ifi,file='rst.'//trim(sname),form='unformatted')
+!    if(trim(rwrw)=='write') ifi=-ifi
 
     ! ... MPI setup
     nproc  = mpipid(0)
@@ -155,7 +155,7 @@ contains
     if (ipr >= 10) then
        fid0 = 'read'
        i = 5
-       if (ifi < 0) then
+       if (trim(rwrw)=='write') then
           fid0 = 'write'
           i = i+1
        endif
@@ -174,7 +174,7 @@ contains
        write(stdo,"(/' iors  : ',a)") fid0(1:i)
     endif
     ! --- Input ---
-    if (ifi > 0) then
+    if (trim(rwrw)=='read') then
        jfi = ifi
        if (procid == master) then
           rewind jfi
@@ -621,7 +621,7 @@ contains
           iors_old = 0
           return
        endif
-       jfi = -ifi
+       jfi = ifi
        rewind jfi
        fid0 = fid
 !       call strip(fid0,i0,i1)

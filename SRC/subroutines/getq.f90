@@ -4,6 +4,7 @@ module m_getqvc
   private
 contains
   subroutine getqvc(nsp,nl,lmx,z,pnu,qnu,ncmx,nvmx,kcor,lcor,qcor, qc,qt,dq,ec,ev)! Gets the charge and related parameters within an atom
+    use m_ftox
     ! ----------------------------------------------------------------
     !i Inputs
     !i   nsp   :2 for spin-polarized case, otherwise 1
@@ -28,18 +29,15 @@ contains
     !u   26 Jan 06 bug fix for core hole, case lmx < lcor
     !r   (ATP) adapted from getq for one sphere, enables core hole
     ! ----------------------------------------------------------------
-    !     implicit none
-    ! ... Passed parameters
+    implicit none
     integer :: nl,nsp,lmx,ncmx,nvmx,kcor,lcor
-    double precision :: pnu(nl,nsp),qnu(3,nl,nsp),qcor(2), &
-         qc,qt,dq,z
+    double precision :: pnu(nl,nsp),qnu(3,nl,nsp),qcor(2), qc,qt,dq,z
     real(8),optional:: ec(*),ev(*)
-    ! ... Local parameters
     integer :: l,k,konf,konfig,konfg(0:10),isp,lmaxc,ncore,nval
     integer :: iprint
     double precision :: ecore0,eval0,deg
+    character(8):: xt
     parameter (ecore0=-5.d0, eval0=-.5d0)
-
     call config(pnu(1,1),lmx,z,konfg,lmaxc)
     if (kcor > 0) then
        lmaxc = max(lmaxc,lcor)
@@ -57,8 +55,7 @@ contains
           if (l <= lmx) konfig = pnu(l+1,isp)
           if (konfig <= 0) then
              !            if (iprint() .eq. 0) call setpr(10)
-             call fexit2(-1,1,' Exit -1 GETQVC: '// &
-                  'bad pnu(l=%i) (%,1d)',l,pnu(l+1,isp))
+             call rx('GETQVC: bad l pnu='//trim(xt(l))//' '//ftof(pnu(l+1,isp)))
           endif
           do  konf = l+1, konfig-1
              if (ncmx /= 0) then

@@ -251,6 +251,7 @@ contains
   end subroutine addsds
   subroutine mkewgt(lmet,wgt,qval,ndimh,evl, nevec,ewgt,sumev,sumqv)
     use m_lmfinit,only: bz_w,bz_n,stdo
+    use m_ftox
     !- State-dependent weights for sampling BZ integration.
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -295,9 +296,8 @@ contains
     double precision :: evl(ndimh),ewgt(1),sumev(2),sumqv
     integer :: i,i1,i2,ie,iprint,iq,k,nord
     double precision :: dn,eff,fevec,fn,sn,width,wtop,wx,x
-    if (qval/2 > ndimh) call fexit2(-1,111,'%N Exit -1 : MKEWGT: ' &
-         //'Basis with ndimh=%i is insufficient to carry q/2=%d states', &
-         ndimh,qval/2)
+    character(8):: xt
+    if(qval/2>ndimh)call rx('MKEWGT: Basis with ndimh='//trim(xt(ndimh))//' is insufficient to carry q/2='//ftof(qval/2)//' states')
     ! --- Nonmetal case ---
     if (lmet == 0) then
        !        if (numq .ne. 1) call rxi('mkewgt: nonmetal but numq=',numq)
