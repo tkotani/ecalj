@@ -17,7 +17,6 @@ module m_zmel
   use m_readQG,only: ngpmx,ngcmx,Readqg
   use m_hamindex0,only: Readhamindex0,iclasst
   use m_readVcoud,only: zcousq,ngc,ngb !! zcousq is the eigenfuncition of the Coulomb matrix
-  !!------------------------------------------------------
   ! OUTPUT: zmel(nbb,nmtot, nqtot) ,nbb:mixproductbasis, nmtot:middlestate, nqtot:endstate
   complex(8),allocatable,protected,public :: zmel(:,:,:),zmel0(:,:,:) !for  Get_zmel
   !                                                      zmel0 is just one another zmel which can be contained in m_zmel
@@ -57,7 +56,6 @@ contains
        zmel(igb,it,:) = vec
     enddo
   end subroutine GramSchmidt_zmel
-  ! ssssssssssssssssssssssssssssssssss
   subroutine Dconjg_zmel()
     if(zzmel0) then
        zmel0 = dconjg(zmel0)
@@ -65,14 +63,12 @@ contains
        zmel = dconjg(zmel)
     endif
   end subroutine Dconjg_zmel
-  ! ssssssssssssssssssssssssssssssssss
   subroutine Deallocate_zmel()
     if(allocated(zmel)) deallocate(zmel)
   end subroutine Deallocate_zmel
   subroutine Deallocate_zmel0()
     if(allocated(zmel0)) deallocate(zmel0)
   end subroutine Deallocate_zmel0
-  ! ssssssssssssssssssssssssssssssssss
   subroutine setppovlz(q,matz)
     intent(in)::       q,matz
     logical:: matz
@@ -86,15 +82,14 @@ contains
     integer:: i
     if(allocated(ppovlz)) deallocate(ppovlz)
     if(allocated(ppovl)) deallocate(ppovl)
-    allocate( ppovl(ngc,ngc),ppovlz(ngb,ngb))!,   ppovlzinv(ngb,ngb))
+    allocate( ppovl(ngc,ngc),ppovlz(ngb,ngb))
     call readppovl0(q,ngc,ppovl) !q was qq
     ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
     ppovlz(nbloch+1:nbloch+ngc,:)=matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
     deallocate(ppovl)
   end subroutine setppovlz
-  !----------------------------------------------------
   subroutine setppovlz_chipm(zzr,nmbas1)
-    intent(in)::               zzr,nmbas1
+    intent(in)::             zzr,nmbas1
     integer::nmbas1
     complex(8):: zzr(ngb,nmbas1)
     if(allocated(ppovlz)) deallocate(ppovlz)
@@ -102,10 +97,8 @@ contains
     ppovlz= zzr
     nbbx=nmbas1
   end subroutine setppovlz_chipm
-  !----------------------------------------------------
-  subroutine mptauof_zmel(symops,ng)
-    !! Set miat,tiat,invgx,shtvg, and then call ppbafp_v2_zmel successively
-    intent(in)::            symops,ng
+  subroutine mptauof_zmel(symops,ng)! Set miat,tiat,invgx,shtvg, and then call ppbafp_v2_zmel successively
+    intent(in)::          symops,ng
     integer:: ng
     real(8):: symops(9,ng)
     integer,allocatable ::  invgx(:)
@@ -154,7 +147,6 @@ contains
        enddo
     enddo
   end subroutine ppbafp_v2_zmel
-  ! ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine ppbafp_v2 (irot,ng,isp, mdimx,lx,nx,nxx, &! & Bloch wave
     cgr,lmxax,    & !rotated CG
     ppbrd,        & !radial integrals
@@ -195,9 +187,8 @@ contains
        enddo
     enddo
   end subroutine ppbafp_v2
-  !! ------------------------------------
   subroutine rwzmel(iq,k,isp_k,isp_kq,rw,q,izmel0)
-    intent(in)::      iq,k,isp_k,isp_kq,rw,q,izmel0
+    intent(in)::    iq,k,isp_k,isp_kq,rw,q,izmel0
     logical,optional::izmel0
     integer:: iq,k,isp_k,isp_kq,izmel,nmtot_,nqtot_
     character(1):: rw
@@ -230,7 +221,6 @@ contains
     !! kvec is in the IBZ, rk = Rot_irot(kvec)
     !! \parameter all inputs
     !! \parameter matrix <MPB psi|psi>
-    !! memo =========================================
     !! igb: index of mixed product basis       at rkvec (or written as rk)
     !!   igb=1,ngb
     !!   ngb=nbloch+ngc  ngb: # of mixed product basis
@@ -271,82 +261,85 @@ contains
          q_bk=q
          ispq_bk=ispq
       endif
-      !! qk = q-rk. rk is inside 1st BZ, not restricted to the irreducible BZ
-      qk =  q - rkvec
+      qk =  q - rkvec ! qk = q-rk. rk is inside 1st BZ, not restricted to the irreducible BZ
       if(sum(abs(qk-qk_bk))>tolq .OR. ispm/=ispm_bk) then
          cphim= readcphif(qk, ispm) !all readin but we need only bands nmini:nmmax
          qk_bk= qk
          ispm_bk= ispm
       endif
-      !! Rotate atomic positions invrot*R = R' + T
-      invr  = invg(irot)       !invrot (irot,invg,ngrp)
+      invr  = invg(irot)       !invrot (irot,invg,ngrp) ! Rotate atomic positions invrot*R = R' + T
       tr    = tiat(:,:,invr)
       iatomp= miat(:,invr)
       symope= symgg(:,:,irot)
       shtv  = matmul(symope,shtvg(:,invr))
-      !! ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
-      !! Note spin-dependence. Look for ixx==8 in hbas.m.F calling basnfp.F, which gives ppbrd.
-      allocate( ppb(nlnmx,nlnmx,mdimx,nclass))
-      ppb = ppbir(:,:,:,:,irot,ispq)
+      allocate( ppb(nlnmx,nlnmx,mdimx,nclass)) ! ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
+      ppb = ppbir(:,:,:,:,irot,ispq) !rotated ppb. MPB has no spin dependence
       do ia = 1,natom
          imdim(ia)  = sum(nblocha(iclass(1:ia-1)))+1
          expikt(ia) = exp(img *tpi* sum(kvec*tr(:,ia)) )  !phase expikt(ia) is for exp(ik.T(R))
       end do
       nt0= nmmax-nmini+1
       ntp0=nqmax-nqini+1
-      nmtot  = nctot + nt0     ! = phi_middle
+      nmtot  = nctot + nt0     ! = phi_middle nmtot=ns2-ns1+1
       nqtot  = ncc   + ntp0    ! = phi_end
       allocate(zmelt(1:nbloch+ngc,nmtot,nqtot))
       zmelt=0d0
-      !! MTO Core part
-      if(ncc>0 .OR. nctot>0) then
+      CoreRelatedPartWithinMT: if(ncc>0 .OR. nctot>0) then
          call psicb_v3  ( nctot,ncc,nmmax,nqmax,iclass,expikt, &
-              cphim(1,nmini), & ! & middle phi
-              cphiq(1,nqini), &! & end phi
+              cphim(1,nmini), & ! middle phi
+              cphiq(1,nqini), & ! end phi
               ppb,  nblocha, imdim,iatomp, &
               mdimx,nlmto,nbloch,nlnmx,natom,nclass, &
               icore,ncore,nl,nnc, &
               zmelt(1:nbloch,:,:))
-      endif
-      !! MTO Valence part
-      if(nmmax*nqmax>0) then      ! val num of nm  ! val num of nq
-         call psi2b_v3( nctot,ncc, nmmax-nmini+1,   nqmax-nqini+1, iclass,expikt, &
-              cphim(1,nmini), &
-              cphiq(1,nqini), &
-              ppb, nblocha, imdim,iatomp, &
-              mdimx,nlmto,nbloch,nlnmx, natom,nclass, &
+      endif CoreRelatedPartWithinMT
+      ValenceValenceWithinMT: if(nt0*ntp0>0) then ! nt0=valence num of middle states ! ntp0=valence num of end states
+         call psi2b_v3( nctot,ncc, nt0, ntp0, iclass,expikt, &
+              cphim(1,nmini), cphiq(1,nqini), ppb, nblocha, imdim,iatomp, mdimx,nlmto,nbloch,nlnmx, natom,nclass, &
               zmelt(1:nbloch,:,:))
-      endif
-      !! IPW part
-      q_rk=qk
-      ispq_rk=ispm
-      call readqg('QGpsi',q,    qt,   ngp1, ngvecpB1) !q is mapped to qt in BZ
-      call readqg('QGpsi',q_rk, q_rkt,ngp2, ngvecpB2)
-      geig1= readgeigf(q,ispq)       !call readgeig(q,    ngpmx_in, ispq, qu1, geig1)
-      geig2= readgeigf(q_rk,ispq_rk)
-      qdiff = matmul(symope,kvec)  - qt + q_rkt ! rk -q +(q-rk) is not zero. <rk q-rk |q>
-      nadd = nint(matmul(qlatinv,qdiff)) !nadd: difference in the unit of reciprocal lattice vectors.
-      call melpln2t(ngp1, ngvecpB1 &
-           ,  ngp2, ngvecpB2,   ngc,  nadd, &
-! bugfix (probably affects to interband,intraband dielectric function cases?) 2022-8-28
-!           geig1(1:ngp1,nqini-1+itq(1:ntp0)), ntp0,& ! &  q1=(shifted q) ->iq ngp1 1:ntp0 q-point
-!           geig2(1:ngp2,1:nt0), nt0, &! &  q2=(shifted q-rk) -> kp ngp2 1:nt0  occupied
-           geig1(1:ngp1, itq(nqini:nqmax)),ntp0,& ! &  q1=(shifted q) ->iq ngp1 1:ntp0 q-point
-           geig2(1:ngp2,     nmini:nmmax), nt0, & ! &  q2=(shifted q-rk) -> kp ngp2 1:nt0  occupied
-           shtv, matmul(symope,kvec),kvec, symope, qlat, qt, &
-           zmelt(nbloch+1:nbloch+ngc,nctot+1:nctot+nt0,ncc+1:ncc+ntp0))
+         ! IPW part for Valence x Valence = <IPW phi_valence |phi_valence>
+         q_rk=qk
+         ispq_rk=ispm
+         call readqg('QGpsi',q,    qt,   ngp1, ngvecpB1) !q is mapped to qt in BZ
+         call readqg('QGpsi',q_rk, q_rkt,ngp2, ngvecpB2)
+         geig1= readgeigf(q,ispq)       !call readgeig(q,    ngpmx_in, ispq, qu1, geig1)
+         geig2= readgeigf(q_rk,ispq_rk)
+         qdiff = matmul(symope,kvec)  - qt + q_rkt ! rk -q +(q-rk) is not zero. <rk q-rk |q>
+         nadd = nint(matmul(qlatinv,qdiff)) !nadd: difference in the unit of reciprocal lattice vectors.
+         call melpln2t(ngp1, ngvecpB1 &
+              ,  ngp2, ngvecpB2,   ngc,  nadd, &
+                                ! bugfix (probably affects to interband,intraband dielectric function cases?) 2022-8-28
+                                !           geig1(1:ngp1,nqini-1+itq(1:ntp0)), ntp0,& ! &  q1=(shifted q) ->iq ngp1 1:ntp0 q-point
+                                !           geig2(1:ngp2,1:nt0), nt0, &! &  q2=(shifted q-rk) -> kp ngp2 1:nt0  occupied
+              geig1(1:ngp1, itq(nqini:nqmax)),ntp0,& ! &  q1=(shifted q) ->iq ngp1 1:ntp0 q-point
+              geig2(1:ngp2,     nmini:nmmax), nt0, & ! &  q2=(shifted q-rk) -> kp ngp2 1:nt0  occupied
+              shtv, matmul(symope,kvec),kvec, symope, qlat, qt, &
+              zmelt(nbloch+1:nbloch+ngc,nctot+1:nctot+nt0,ncc+1:ncc+ntp0))
+      endif ValenceValenceWithinMT
       nbb=ngb
       if(nbbx/=0) nbb=nbbx
-      if(zzmel0) then
-!         allocate( zmel0(nbb,nmtot, nqtot))
-         allocate( zmel0(nbb,ns1:ns2, nqtot))
-         call matm(dconjg(transpose(ppovlz)), dconjg(zmelt), zmel0,nbb,ngb,nmtot*nqtot)
+      if(allocated(zmel)) deallocate(zmel)
+      allocate(zmel(nbb,ns1:ns2, nqtot))
+      if(nt0==0) then ! core only for middle states. fast mode 
+         zmel=0d0
+         block
+           integer:: ia,it,ics,iap,icp
+           do concurrent(ia=1:natom)
+              ics = sum(ncore(iclass(1:ia-1)))
+              iap = iatomp(ia)
+              icp = iclass(iap)
+              do concurrent(it=1:ncore(iclass(ia)))
+                 if(ics+it<ns1.or.ns2<ics+it) cycle
+                 associate(nb1 => imdim(iap),nb2 => imdim(iap)+nblocha(icp)-1)
+                   zmel(1:nbb,ics+it,1:nqtot) = dconjg(matmul(transpose(ppovlz(nb1:nb2,1:nbb)),zmelt(nb1:nb2,ics+it,1:nqtot)))
+                 endassociate
+              enddo
+           enddo
+         endblock
       else
-         if(allocated(zmel)) deallocate(zmel)
-!         allocate( zmel(nbb,nmtot, nqtot))
-         allocate( zmel(nbb,ns1:ns2, nqtot))
          call matm(dconjg(transpose(ppovlz)), dconjg(zmelt), zmel,nbb,ngb,nmtot*nqtot)
       endif
+      if(zzmel0) call move_alloc(from=zmel,to=zmel0)
       deallocate(zmelt)
     EndBlock ZmeltMain
   end subroutine get_zmel_init
@@ -356,8 +349,6 @@ contains
   subroutine unsetzmel0()
     zzmel0=.false.
   end subroutine unsetzmel0
-  
-  ! sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   !> Mattrix elements <Plane psi |psi> from interstitial plane wave.
   !! zmelp(igc(qi),it(q2),itp(q1)) = <itp(for q1+G1)| it(for q2+G2) igc>
   !! NOTE: shtv = g(delta_{g^-1})
@@ -377,10 +368,9 @@ contains
   !! ggitp(Gc+G2)= \sum_G1 <(Symope(Gc)+G2)-G1> geigq1(G1,itp)*exp(-i*G1*shtv)*exp(-i(q-Gadd)*shtv)
   !! NOTE: nvgcgp2(:,igcgp2) means symope(Gc)+ G2
   subroutine melpln2t( ngp1, ngvecp1, ngp2, ngvecp2, ngc, nadd, &
-       geigq1, ntp0, &! &  q1=q    ---> iq 1:ntp0 q-point
-       geigq2, nt0,  &! &  q2=q-rk ---> kp 1:nt0  occupied
-       shtv,q, qi, symope, qlat, &! & 
-       qt, &! & qt oct2013 for G1
+       geigq1, ntp0, &!  q1=q    ---> iq 1:ntp0 q-point
+       geigq2, nt0,  &!  q2=q-rk ---> kp 1:nt0  occupied
+       shtv,q, qi, symope, qlat, qt, &
        zmelp)
     use m_read_ppovl,only: getppx2,igggi,igcgp2i,nxi,nxe,nyi,nye,nzi,nze, &
          nvggg,nvgcgp2,ngvecc, nggg,ngcgp,ngcread, ggg,ppovlinv, ngc2,ngvecc2
@@ -446,12 +436,8 @@ contains
     deallocate(zmelp0)
     if(verbose()>=100) write(6,*)' melpln2t: end'
   end subroutine melpln2t
-  ! ssssssssssssssssssssssssssssssssssssssss
   subroutine psi2b_v3(nctot,ncc,nt0,ntp0,iclass,phase, &
-       cphik,  cphikq, ppb, &
-       mdim,imdim,iatomp, &
-       mdimx,nlmto,nbloch,nlnmx, &
-       natom,nclass, &
+       cphik,cphikq, ppb, mdim,imdim,iatomp, mdimx,nlmto,nbloch,nlnmx, natom,nclass,&
        zpsi2b)
     use m_lgunit,only:stdo,stdl
     ! originaly 92.03.17 by Ferdi. takao modified at Apr 2002(v2) Feb2006(v3).
@@ -460,22 +446,17 @@ contains
     ! psi(k,t) = sum(RLn) b(RLn,k,t)*X(RLn,k)
     ! B(R,i)   = Bloch orthonormal product basis for atom R
     ! psi(k,t) is stored after nctot
-
-    ! nt0        = no. t
-    ! ntp0       = no. t'
-    ! coskt,sinkt= exp(ik.T)
-    ! cphik  b(k)
-    ! cphikq b(k')
-
+    ! nt0        = no. of valence middle states
+    ! ntp0       = no. of valence end states
+    ! cphik  b(k) ! middle states
+    ! cphikq b(k')!end states
     ! ppb        = <phi(RLn) phi(RL'n') B(R,i)>
-
     ! nlnmv      = number of l,n,m for valence
     ! nlnmc      = number of n,l,m for core states
     ! mdim       = number of optimal product basis functions for each class
     ! nctot      = total no. allowed core states
     ! nbloch     = total no. optimal product basis
     ! nlnmx      = maximum number of l,n,m
-
     ! zpsi2b     =  the matrix elements
     !----------------------------------------------------------
     implicit none
@@ -504,9 +485,8 @@ contains
        icp  = iclass(iap)
        prodloop: do concurrent(i=1:mdim(icp))   ! loop over optimal product basis
           !     sum(Ln) bkq(Ln,t') * <phi(Ln) phi(L'n') B(i)> !bkq is complex but < > is real
-          ib = imdim(iap)-1+i
-          zpsi2b(ib,nctot+1:nctot+nt0,ncc+1:ncc+ntp0)= & !     <psi(k+q,t') | psi(k,t) B(i)>
-               phase(ia) * matmul( transpose(cphik(ias:ias+nv-1,1:nt0)), &
+          ib = imdim(iap)-1+i  !   <psi(k+q,t') | psi(k,t) B(i)>
+          zpsi2b(ib,nctot+1:nctot+nt0,ncc+1:ncc+ntp0)= phase(ia) * matmul( transpose(cphik(ias:ias+nv-1,1:nt0)), &
                dconjg( matmul(transpose(ppb(nc1:nc+nv,nc1:nc+nv,i,icp)),cphikq(ias:ias+nv-1,1:ntp0)) ) ) !zz
        enddo prodloop 
     enddo iatomloop
@@ -514,25 +494,13 @@ contains
     call flush(stdo)
   end subroutine psi2b_v3
   !------------------------------------------------------------------------------------
-  subroutine psicb_v3 (nctot,ncc,nt0,ntp0,  iclass, phase, &
-       cphik, &
-       cphikq, &
-       ppb, &
-       mdim, &
-       imdim,iatomp, &
-       mdimx,nlmto,nbloch,nlnmx,natom,nclass, &
-       icore,ncore,nl,nnc, &
+  subroutine psicb_v3(nctot,ncc,nt0,ntp0,iclass,phase,&
+       cphik,cphikq,ppb,mdim,imdim,iatomp,mdimx,nlmto,nbloch,nlnmx,natom,nclass,icore,ncore,nl,nnc, &
        zpsi2b)
     implicit none
-    intent(in)          nctot,ncc,nt0,ntp0,  iclass, phase, &
-         cphik, &
-         cphikq, &
-         ppb, &
-         mdim, &
-         imdim,iatomp, &
-         mdimx,nlmto,nbloch,nlnmx,natom,nclass, &
-         icore,ncore,nl,nnc
-    intent(out) zpsi2b
+    intent(in)::       nctot,ncc,nt0,ntp0,iclass,phase,&
+         cphik,cphikq,ppb,mdim,imdim,iatomp,mdimx,nlmto,nbloch,nlnmx,natom,nclass,icore,ncore,nl,nnc
+    intent(out):: zpsi2b
     !- Calculates <psi (k+q,t) |core(k,t) B(R,ibloch)> ---------------------
     !      also   <core(k+q,t) |psi (k,t) B(R,ibloch)>
     !r B(R,i)   = Mixed basis.
@@ -560,9 +528,8 @@ contains
     integer:: nl,nlmto,nbloch,nclass,natom,nctot,ncc,nt0,ntp0,mdimx,nlnmx,nnc, &
          ib,ias,ics,ia,ic,nc,nv,nc1,iap,icp,i,itp,it,icr,icore(nl*nl*nnc,nclass),ncore(nclass), &
          mdim(nclass),iclass(natom),imdim(natom),iatomp(natom),verbose,ixx
-    real(8)::   ppb(nlnmx,nlnmx,mdimx,nclass) !  coskt(natom),sinkt(natom)
-    complex(8):: zpsi2b(nbloch,nt0+nctot,ntp0+ncc), &
-         cphikq(nlmto,*), cphik(nlmto,*),phase(natom)
+    real(8)::   ppb(nlnmx,nlnmx,mdimx,nclass) 
+    complex(8):: zpsi2b(nbloch,nt0+nctot,ntp0+ncc), cphikq(nlmto,*), cphik(nlmto,*),phase(natom)
     if(ncc/=0 .AND. ncc/=nctot) call rx( "psicb_v3: ncc/=0 and ncc/=ncctot")
     if(sum(ncore(iclass(1:natom)))/= nctot) call rx( "psicb_v3:sum(ncore) wrong")
     zpsi2b = 0d0
@@ -576,29 +543,16 @@ contains
        ib    = imdim(iap)-1
        ias   =  sum(nlnmv(iclass(1:ia-1)))+1
        ics   =  sum(ncore(iclass(1:ia-1)))
-       do concurrent (i = 1:mdim(icp)) !product basis
-          do itp = 1,ntp0 
-             do  it = 1,ncore(ic) 
-                zpsi2b(imdim(iap)+i-1,ics+it,ncc+itp) = phase(ia)* & !ib=imdim(iap)+i-1
-                     dconjg(sum(cphikq(ias:ias+nv-1,itp)*ppb(nc1:nc+nv,icore(it,ic),i,icp)))
-             enddo  
-          enddo
+       do concurrent(i=1:mdim(icp), itp=1:ntp0, it=1:ncore(ic)) !product basis
+          zpsi2b(imdim(iap)+i-1,ics+it,ncc+itp) =phase(ia)*dconjg(sum(cphikq(ias:ias+nv-1,itp)*ppb(nc1:nc+nv,icore(it,ic),i,icp)))
        enddo
        if(ncc==0) cycle
-       do concurrent (i = 1:mdim(icp)) !product basis
-          do itp = 1,ncore(ic) 
-             do  it = 1,nt0 
-                zpsi2b(imdim(iap)+i-1,nctot+it,ics+itp) = dconjg(phase(ia))* &
-                     sum(cphik(ias:ias+nv-1,it)*ppb(nc1:nc+nv,icore(itp,ic),i,icp))
-             enddo
-          enddo
+       do concurrent(i=1:mdim(icp), itp=1:ncore(ic), it=1:nt0)
+          zpsi2b(imdim(iap)+i-1,nctot+it,ics+itp) =dconjg(phase(ia))*sum(cphik(ias:ias+nv-1,it)*ppb(nc1:nc+nv,icore(itp,ic),i,icp))
        enddo
     enddo
   end subroutine psicb_v3
-  ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-  subroutine drvmelp3( q, ntp0, q_rk,nt0, qik, isp,ginv, &
-       ngc,ngcmx,ngpmx,nband,itp0, &
-       symope, shtv, qlat, qlatinv,qibz,qbz,nqbz,nqibz, &
+  subroutine drvmelp3(q,ntp0,q_rk,nt0,qik,isp,ginv,ngc,ngcmx,ngpmx,nband,itp0, symope, shtv, qlat, qlatinv,qibz,qbz,nqbz,nqibz, &
        rmel, cmel, nbloch,noccx,nctot, &
        zmelt)
     use m_readqg,only: readqg
@@ -646,5 +600,4 @@ contains
     zmelt(nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,1:ntp0) =zmelpl(1:ngc,  1:nt0, 1:ntp0)
     deallocate(zmelpl)
   end subroutine drvmelp3
-
 end module m_zmel
