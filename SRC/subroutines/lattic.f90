@@ -113,7 +113,7 @@ contains
     integer :: k,iprint,m,i1mach,modeg(3),isw
     double precision :: qlat0(3,3),vol0,plat0(3,3),radd,qadd
     double precision :: qdist0,a0,rdist0,tol1,r0,q0,one(3,3),oned(3,3)
-    integer:: ifile_handle,ifp,i
+    integer:: ifp,i
     real(8):: rxx,qxx
     plat0=platin !call dcopy(9,platin,1,plat0,1)
     call dinv33(plat0,1,qlat0,vol0)

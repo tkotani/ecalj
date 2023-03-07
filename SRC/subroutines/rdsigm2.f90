@@ -45,7 +45,7 @@ contains
     use m_hamindex,only: symops_af,napwmx
     use m_MPItk,only: procid,master
     use m_ext,only:sname
-    integer:: ierr,ifi,ndimh_dummy,ifile_handle,ifis2,ik1,ik2,ik3,is,iset,nqp
+    integer:: ierr,ifi,ndimh_dummy,ifis2,ik1,ik2,ik3,is,iset,nqp
     logical:: laf,mlog,cmdopt, mtosigmaonly,cmdopt0
     character strn*120
     real(8),allocatable:: qsmesh2(:,:,:,:)

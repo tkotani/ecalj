@@ -85,7 +85,7 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, &
   integer:: npbasmax(0:2*(nl-1)),ifinin,iax,izz,naxx,verbose
   integer,allocatable:: ipx(:,:)
   real(8):: bb1,bb1s,aa_in,bb_in
-  integer:: nl2m1,nrofi_in,ifile_handle
+  integer:: nl2m1,nrofi_in
   !-------------------------------------------
   print *,' basnfp_v2: ********** start ******** nrofi=',nrofi
   !      if(iread==1) goto 2001
@@ -284,7 +284,6 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, &
      !$$$c q near zero test
      !$$$c This section is just to set nxxx and absqg2x(1:nxxx).
      !$$$        write(6,*) '--- readin Q0P -------'
-     !$$$        ifq0p=ifile_handle()
      !$$$        open (ifq0p,file='Q0P')
      !$$$        read (ifq0p,"(i5)") nq0i
      allocate( absqg2x(nq0i) ) !wqt(1:nq0i),q0i(1:3,1:nq0i),

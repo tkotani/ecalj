@@ -99,7 +99,7 @@ program mkhamloc
   logical,allocatable::eflg(:),loflg(:)
 
   integer(4):: ifmto,ifqpl,ifinput,ifout,i,j,jj,n,m,t,l,k,access,loop,nq,Lmax,i1,i2,i3,LD,imax,itr &
-       ,ikpd,ikp,ifih,it,iq,rq,lold,kold,ibold,ifig=-999,ii,ifile_handle,id,jd,fflg,LLdum,idum,ifo2 &
+       ,ikpd,ikp,ifih,it,iq,rq,lold,kold,ibold,ifig=-999,ii,id,jd,fflg,LLdum,idum,ifo2 &
        ,jsp,nn,LL,LE,lso1,flg_osym,flg_ssym,lenMTO,nmax,nmin,nevd,j1,j2,j3,ioncut,jorb,lenlo,jskip &
        ,ifir,NR,NS,NM,nlo,neh2,NL,jp,ilo,ifjorb,njorb,iffix,ifmax,lcut,rcut,nbsec,maxitr,jdum
   integer(4),allocatable:: nev(:),jspl(:),isptab(:),llist(:),ir(:,:),ilorb(:),jlist(:,:),llen(:)

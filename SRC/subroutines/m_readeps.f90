@@ -38,7 +38,6 @@ contains
     real(8):: q(3)
     integer:: iq,iq_read,ngb_read
     real(8):: q_read(3),tolq=1d-8
-    integer::ifile_handle
     integer::ifw4p,ngbq0,ix
     character(10)::i2char
     logical::ext

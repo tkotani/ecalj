@@ -71,7 +71,7 @@ contains
     logical,allocatable :: iwgt(:,:,:,:)
     integer,allocatable:: nbnbtt(:,:),noccxvv(:) !  &         idtetf(:,:),ib1bz(:)
     logical :: eibzmode,tetra,tmpwwk=.false.,debug
-    integer::kx,ncc,job,jpm,noccxvx(2)=-9999,ik,jhwtot,ib1,ib2,ibib,noccx,noccxv,verbose,ifief!,ifile_handle
+    integer::kx,ncc,job,jpm,noccxvx(2)=-9999,ik,jhwtot,ib1,ib2,ibib,noccx,noccxv,verbose,ifief
     real(8),allocatable:: ecore_(:,:)
     integer:: ix
     logical,optional:: wan
@@ -117,7 +117,6 @@ contains
     !      endif
     allocate(ibjb(1,1,1,1),ihw(1,1,1),jhw(1,1,1),nhw(1,1,1),whw(1)) !dummy
     !--- EFERMI
-    !      ifief=ifile_handle()
     !      open(ifief,file='EFERMI')
     !      read(ifief,*) ef
     !      close(ifief)

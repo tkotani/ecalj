@@ -71,7 +71,7 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     logical :: ltet,lwt,tdos,cmdopt0,PROCARon,fullmesh
-    integer :: nkp,mpsord,ifile_handle
+    integer :: nkp,mpsord
     double precision :: zval,ef0,def,esmear
     integer :: ifi,lerr,iprint,n
     character(11) :: strni(2)
@@ -142,7 +142,7 @@ contains
     intent(out)::                                 eferm,sev,sumqv,vnow
     logical:: lfill=.false.,ltet
     logical:: debug,cmdopt0 !goto99,
-    integer:: ierr,ifimag,i,ifi,ifile_handle,unlink !,iobzwt
+    integer:: ierr,ifimag,i,ifi,unlink !,iobzwt
     real(8):: dosrng,evlall(*),sev,sumqv(3,*),eferm,vnow,ef0,bz_ef
     real(8),parameter::    NULLR =-99999
     real(8):: swtk(*)

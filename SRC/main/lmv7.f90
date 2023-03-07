@@ -25,7 +25,7 @@ program lmf
   use m_sugcut,only:sugcut
   use m_cmdpath,only:setcmdpath
   implicit none
-  integer:: k, iarg,jobgw,iprint,nit1,ifi,ifile_handle,nx,ny,nk1,nk2,nk3,i,j,ix
+  integer:: k, iarg,jobgw,iprint,nit1,ifi,nx,ny,nk1,nk2,nk3,i,j,ix
   logical:: fileexist,cmdopt0,cmdopt2, writeham,lbin,sigx
   character:: outs*20,aaa*512,sss*128
   character(8):: prgnam

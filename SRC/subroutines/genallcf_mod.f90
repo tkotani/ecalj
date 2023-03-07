@@ -143,19 +143,18 @@ contains
        enddo
     enddo
     close(ifi)
-    !===================================================
     !----- product basis setting
     if( incwfx==-1 ) then
        write(stdo,*)' ### incwf=-1 Use ForSxc for core'
        ncwf = ncwf2
     elseif( incwfx==-2 ) then
        write(stdo,*)' ### incwf=-2 Use NOT(ForSxc) for core and Pro-basis '
-       ncwf2 = merge(1-ncwf2,ncwf2,ncwf2==0.or.ncwf2==1)  !!call notbit(nl*nnc*nclass, ncwf2)
+       ncwf2 = merge(1-ncwf2,ncwf2,ncwf2==0.or.ncwf2==1) 
        ncwf = ncwf2
        occc = ncwf
        unoccc= 0
        unoccv= merge(1,unoccv,occv==1.or.unoccv==1)
-    elseif( incwfx==-3 ) then !   call ibiton(nclass,nl,nnc,nindxc, occc, ncwf)
+    elseif( incwfx==-3 ) then 
        occc=0
        ncwf=0
        do ic = 1,nclass
@@ -402,6 +401,7 @@ contains
     end do
     return
   end subroutine idxlnmc
+  ! ssssssssssssssssssssssssssssssssssssssssssssssssssssss
   subroutine maxdim (nocc,nunocc,nindx,nl,nn,nclass, &
        nprodx,nlnx,nlnmx,nlnax)
     ! largest number of product basis, (l,n) and (l,n,m)
@@ -508,7 +508,7 @@ contains
 101 enddo
     return
   end function nalwln
-  integer function nofln(nindx,nl)   ! count the number of l,n
+  integer function nofln(nindx,nl)    ! count the number of l,n
     implicit real*8(a-h,o-z)
     implicit integer(i-n)
     dimension nindx(0:nl-1)
@@ -521,6 +521,7 @@ contains
     noflnm  = sum([(nindx(l)*(2*l+1),l=0,nl-1)])
   end function noflnm
 end module m_genallcf_v3
+
 subroutine reindx (noccv,nunoccv,nindxv, &
      noccc,nunoccc,nindxc, &
      nl,nn,nnv,nnc,nclass, &

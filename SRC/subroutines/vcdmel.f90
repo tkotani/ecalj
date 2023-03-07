@@ -56,7 +56,7 @@ subroutine vcdmel(nl,nlmax,ndham,ndimh,nq,nsp,nspc,ef,evl,aus,nsite,isite,iclsl,
   real(8):: a,rmt,z,xx,rsml(n0),ehl(n0)
   double precision ume(0:lmxax,nsp,nsite),sme(0:lmxax,nsp,nsite)
   character clabl*8
-  integer:: nbandx,nspx,npts,ifid,ikp,ichib,ifile_handle,ifdos,ie,ild
+  integer:: nbandx,nspx,npts,ifid,ikp,ichib,ifdos,ie,ild
   logical:: lidos
   real(8),allocatable:: wk_rv(:),dos_rv(:,:,:)
   real(8):: emin,dosw(2),emax,del

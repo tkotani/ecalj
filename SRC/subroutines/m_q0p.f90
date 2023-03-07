@@ -50,7 +50,7 @@ contains
 
     real(8),allocatable:: funa(:,:),wsumau(:),yll(:,:),alpqg2,qg2,tpiba,wtrue00
     real(8):: qg(3), qdum(6),alpm,QpGcut,q(3)
-    integer:: ig,lm,iq!,ifile_handle
+    integer:: ig,lm,iq
     integer:: nmm !not output
     integer:: ifi0,ifi00,il,ix,ni,ifinin
     integer:: nq0i0,nq0i00,nany,ifqpnt,ret
@@ -222,8 +222,7 @@ contains
     integer,allocatable::irrx(:)
     real(8),allocatable:: funa(:,:),wsumau(:),yll(:,:),alpqg2,qg2,tpiba,wtrue00
     real(8):: qg(3)
-    integer:: ig,lm,iq!,ifile_handle !,n1q,n2q,n3q
-    integer:: nq0x,nmm ,iq0,iqx!not output
+    integer:: ig,lm,iq, nq0x,nmm ,iq0,iqx!not output
     real(8):: tolq=1d-8
     write(6,"(    'getq0p: offset Gamma method by T.Kotani,JPSJ83,094711,(2014)')")
     write(6,"(a)")'        We use only wklm(lm=0) so as to keep positive definite weight(from mar2016)'

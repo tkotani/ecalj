@@ -11,21 +11,21 @@ module m_read_ppovl
   integer,allocatable,protected:: igggi(:,:,:),igcgp2i(:,:,:)
   integer,protected:: nxi,nxe,nyi,nye,nzi,nze
   !     !
-  integer(4),private:: iqix=-1, ippovl=0, ngcmx, ngc2mx, nqq, ngggmx, ngcgpmx,nqini,nqnumt
+  integer,private:: iqix=-1, ippovl=0, ngcmx, ngc2mx, nqq, ngggmx, ngcgpmx,nqini,nqnumt
   logical,private:: ppovlclosed=.true.,init=.true.
-  integer(4),allocatable,private :: ngcx_s(:),ngc2_s(:) ,ngvecc2_0_s(:,:,:)
+  integer,allocatable,private :: ngcx_s(:),ngc2_s(:) ,ngvecc2_0_s(:,:,:)
   real(8),allocatable,private    :: qx_s(:,:)
   complex(8),allocatable,private :: ppx_s(:,:,:)
   logical,private:: debug=.false.
   real(8),allocatable,private:: qxtable(:,:)
-  integer(4), private:: loopnum = 0, iex,gex
+  integer, private:: loopnum = 0, iex,gex
   integer,private:: nnxi,nnxe,nnyi,nnye,nnzi,nnze
 contains
   subroutine getppx2(qbas,qi)
     !! This return nvggg,nvgcgp2,ngvecc,  nggg,ngcgp,ngcread, ggg,ppovlinv
     real(8), intent(in)  ::qbas(3,3),qi(3)
-    integer(4):: ngc, iqi,ippovlg,ippovli, ippovlginit
-    integer(4):: access,ifile_handle
+    integer:: ngc, iqi,ippovlg,ippovli, ippovlginit
+    integer:: access
     real(8)::qx(3)
     logical ::ippovlggooo=.true.
     integer:: ngcread2,ippovlgg

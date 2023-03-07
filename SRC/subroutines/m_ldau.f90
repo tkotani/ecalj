@@ -146,7 +146,7 @@ contains
     character(20) :: fff
     logical :: fexist
     real(8):: acc
-    integer(4):: ido,ifile_handle
+    integer(4):: ido
     iprintxx = 30
     beta=.3d0
     allocate ( a(nda,0:mxsav+1,2) )
@@ -254,7 +254,7 @@ contains
     double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
     double complex dmatuo(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
     double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
-    integer :: l,lmxa,ib,is,iblu,igetss,idmat,ivsiz,ifile_handle !,idu(4)
+    integer :: l,lmxa,ib,is,iblu,igetss,idmat,ivsiz
     integer :: iprint,ipl,havesh
     double precision :: ddmat,eorbi,eterms(20),ddot,xx !,uh(4),jh(4)
     logical:: fexist,mmtargetx,eee
@@ -347,7 +347,6 @@ contains
 !    if(iprint()>0) write(6,ftox)'=== representation in spherical harmonics vorb ==='
 !    call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau, 'New vorb',vorb)
     if (master_mpi) then
-!       idmat = ifile_handle()
        open(newunit=idmat,file='dmats.'//trim(sname)) !havesh mush be 1
        if(iprint()>0) write(stdo,*)' ... Writing density matrix dmats.*... '
        !write(idmat,ftox)'# === dmats in sph harmonics (read by lmfp-m_ldau_init-sudmtu)==='

@@ -10,9 +10,8 @@ module m_HamPMT
 contains
   subroutine ReadHamPMTInfo() ! read information for crystal strucre, k points, neighbor pairs.
     implicit none
-    integer:: ififft,ifile_handle,i,lold,m
+    integer:: ififft,i,lold,m
     character*4:: cccx
-    !ififft = ifile_handle() !return unused file handle
     open(newunit=ififft,file='HamiltonianPMTInfo',form='unformatted')
     allocate(plat(3,3),qlat(3,3)) !plat primitive vectors, qlat:primitive in reciprocal space
     read(ififft) plat,nkk1,nkk2,nkk3,nbas,qlat
@@ -67,7 +66,7 @@ contains
     use m_readqplist,only: eferm
     implicit none
     integer:: ifihmto
-    integer:: ifile_handle,ikpd,ikp,ib1,ib2,ifih,it,iq,nev,nmx,ifig=-999,i,j,ndimPMT,lold,m
+    integer::ikpd,ikp,ib1,ib2,ifih,it,iq,nev,nmx,ifig=-999,i,j,ndimPMT,lold,m
     complex(8),allocatable:: hamm(:,:),ovlm(:,:)!,t_zv(:,:)!,ovlmx(:,:)
     logical:: lprint=.true.,savez=.false.,getz=.false.,skipdiagtest=.false.
 !    real(8),allocatable:: evl(:)
@@ -255,7 +254,7 @@ module m_HamRsMTO
 contains
   !! read RealSpace MTO Hamiltonian
   subroutine ReadHamRsMTO()
-    integer:: ifihmto,ifile_handle
+    integer:: ifihmto
     open(newunit=ifihmto,file='HamRsMTO',form='unformatted')
     read(ifihmto) ndimMTO,npairmx,nspx
     allocate(ix(ndimMTO))
@@ -435,13 +434,12 @@ program lmfham1
   real(8)::qp(3),pi=4d0*atan(1d0),epsovl=0d0 !1d-8
   logical:: lprint=.true.,savez=.false.,getz=.false. !dummy
   integer:: ifig=-999       !dummy
-  integer:: ndatx,ifsy1,ifsy2,ifile_handle,ifsy,iix(36)
+  integer:: ndatx,ifsy1,ifsy2,ifsy,iix(36)
   logical:: symlcase=.true.
   call MPI__Initialize()
   if(symlcase) then ! When symlcase=T, read qplist.dat (q points list, see bndfp.F). 
      call readqplistsy()
      open(newunit=ifsy1,file='band_lmfham_spin1.dat')
-     !if(nspx==2) ifsy2 = ifile_handle()
      if(nspx==2) open(newunit=ifsy2,file='band_lmfham_spin2.dat')
      write(6,*)  'ndat =',ndat
   endif

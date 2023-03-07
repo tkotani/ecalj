@@ -41,7 +41,7 @@ contains
     use m_read_bzdata,only:  wbz,lxklm,dmlx,epinvq0i,epinv,wklm
     intent(in)::     nw_i,nw,nq0i,niw,q0i !llw,llwI,
     real(8)   :: q0i(1:3,1:nq0i)
-    integer:: nw_i,nw,nq0i,nq0ix,niw,ifidmlx ,ifile_handle,i,ifw0w0i,ixc,nlxklm
+    integer:: nw_i,nw,nq0i,nq0ix,niw,ifidmlx,i,ifw0w0i,ixc,nlxklm
     logical:: readw0w0itest
     complex(8):: llmat_dummy(3,3)
     write(6,*) 'w0w0i:'
@@ -56,7 +56,6 @@ contains
     call getw0(llwI,1,niw  ,nq0i,dmlx,epinvq0i,wklm,wbz(1), lxklm,  q0i,epinv,w0i, llmat_dummy)
     !$$$!! test mode
     !$$$      if(ixc/=1011) then
-    !$$$c      ifw0w0i = ifile_handle()
     !$$$      open(newunit=ifw0w0i,file='W0W0I',form='unformatted')
     !$$$      write(ifw0w0i) nw_i,nw,niw,nq0i
     !$$$      write(ifw0w0i) llw(nw_i:nw,1:nq0i)

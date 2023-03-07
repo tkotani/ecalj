@@ -10,7 +10,6 @@ contains
   integer function iors_old(nit,rwrw)!,irs5)
     use m_density,only: osmrho, orhoat !these are allocated
     use m_bndfp,only: m_bndfp_ef_SET,eferm
-
     use m_supot,only: lat_nabc
     use m_struc_func,only: mpibc1_s_spec!,mpibc1_s_site
     use m_lmfinit,only: lat_alat,nsp,lrel,nl,ispec,sspec=>v_sspec, nbas,nat,nspec,n0,idmodis=>idmod,slabl,&
@@ -123,14 +122,10 @@ contains
          pnzs(n0,2),dval,rsmfa
     character spid*8,spid0*8,fid0*68,line*20,msg*23,use*80,ignore*80, &
          msgw*17,datimp*32,usernm*32,hostnm*32,jobid*32,ffmt*32,ifmt*32
-    integer:: fextg, i_dummy_fextg,ifile_handle
+    integer:: fextg, i_dummy_fextg
     character(*)::rwrw
     data vec0 /0d0,0d0,0d0/
-    !      call tcn('iors')
-    !ifi=ifile_handle()
     open(newunit=ifi,file='rst.'//trim(sname),form='unformatted')
-!    if(trim(rwrw)=='write') ifi=-ifi
-
     ! ... MPI setup
     nproc  = mpipid(0)
     procid = mpipid(1)
@@ -246,7 +241,7 @@ contains
        if (procid == master) then
           read(jfi,err=999,end=999) n11,n21,n31
           if (n11 == n1 .AND. n21 == n2 .AND. n31 == n3) then
-             call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp0 , osmrho, lbin , jfi )
+             call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp0 , osmrho, lbin , jfi,rwrw )
              if (nsp > nsp0) then
                 i = k1*k2*k3*2
                 call dscal ( i , 0.5d0 , osmrho , 1 )
@@ -259,7 +254,7 @@ contains
              call fftz30(n11,n21,n31,k11,k21,k31)
              allocate(h_zv(k11*k21*k31*nsp))
              h_zv(:)=0.0d0
-             call dpdftr ( n11 , n21 , n31 , k11 , k21 , k31 , nsp0 , h_zv , lbin , jfi )
+             call dpdftr ( n11 , n21 , n31 , k11 , k21 , k31 , nsp0 , h_zv , lbin , jfi,rwrw )
              if (nsp > nsp0) then
                 i = k11*k21*k31*2
                 call dscal ( i , 0.5d0 , h_zv , 1 )
@@ -289,47 +284,15 @@ contains
           call dpdump(wk,100,jfi)
        endif
        call mpibc1_real(wk,1,'iors:eferm')
-       !        if (irs4 .ne. 0) then
-       !          ignore=trim(ignore)//'ef window,' !binit=T in bndfp==> set eferm=0d0
-       !        else
        use=trim(use)//'use window,'
        call m_bndfp_ef_SET(wk(1)) !bz_ef00) !,bz_def00)
-       !        endif
        !   --- Read atomic positions,forces,velocities ---
        line = 'site data'
-!       if (irs3 /= 0) then
-!          ignore=trim(ignore)//'positions,'
-!       else
-!          use=trim(use)//' positions,'
-!          !          if (lshear) use=trim(use)//' (sheared)'
-!!          !         Must be enough sites to read from rst file
-!          if (nbas0 < nbas) then
-!             call info0(1,0,0,'%9f oops ... cannot use file site positions (site mismatch)')
-!             if (isanrg(nbas0, nbas,nbas,msg,'nbas', .TRUE. )) goto 999
-!          endif
-!       endif
        do  ib = 1, nbas0
           if (procid == master) then
              read(jfi,err=999,end=999) jb,pos,forcexxx!,vel
           endif
-          !call mpibc1_real(pos,3,'iors_pos')
-          !call mpibc1_real(force,3,'iors_force')
-          !          call mpibc1_real(vel,3,'iors_vel')
           if (ib > nbas) goto 10
-          !         rst file positions in pos0
-          !          if (lshear) then
-          !            call dgemm('T','N',3,1,3,1d0,qlat0,3,pos,3,0d0,pos0,3)
-          !           call dgemm('N','N',3,1,3,1d0,plat,3,pos0,3,0d0,pos,3)
-          !          endif
-          !pos0=pos
-          !if (irs3 /= 0) then !overwrite pos,vel
-             !pos=ssite(ib)%pos
-             !            vel=0d0
-          !endif
-          !ssite(ib)%pos  =pos
-          !ssite(ib)%pos0 =pos0
-          !ssite(ib)%force=force
-          !           ssite(ib)%vel  =vel
 10        continue
        enddo
        !   --- Read information for local densities ---
@@ -345,10 +308,7 @@ contains
        allocate(orhoat(3,nbas), v1pot(nbas),v0pot(nbas))
        ibaug = 0
        do  ib = 1, nbas
-          !ic=ssite(ib)%class
           is=ispec(ib) !ssite(ib)%spec
-          !         is = -1 -> spec struc does not have these parameters
-          !         lskip = .false.
           if (is /= -1) then
              spid=slabl(is) !sspec(is)%name
              a=sspec(is)%a
@@ -381,8 +341,6 @@ contains
           ql=0d0
           pnu=>pnuall(:,:,ib)
           pnz=>pnzall(:,:,ib)
-          !pnu=ssite(ib)%pnu(:,1:nsp)
-          !pnz=ssite(ib)%pz(:,1:nsp)
           idmod=0
           idmoz=0
           if (procid == master) then
@@ -410,32 +368,10 @@ contains
              read(jfi) (idmod(l+1), l=0,lmxa0)
              read(jfi) (idmoz(l+1), l=0,lmxa0)
           endif
-          !          pnus =sspec(is)%p
-          !          pnzs =sspec(is)%pz
-!          if  (irs5 == 0 ) then
-             !ssite(ib)%pnu(:,1:nsp)=pnu(:,1:nsp)
-             !ssite(ib)%pz(:,1:nsp)=pnz(:,1:nsp)
              pnuall(:,1:nsp,ib)=pnu(:,1:nsp)
              pnzall(:,1:nsp,ib)=pnz(:,1:nsp)
-             !$$$C     ... Verify lowest valence pnu compatible with file
-             !$$$            lfail = .false.
-             !$$$            ltmp1 = .false.
-             !$$$            ltmp2 = .false.
-             !$$$            do  i = 1, lmxa+1
-             !$$$              vec0(1) = mod(pnz(i,1),10d0)
-             !$$$              if (vec0(1) .eq. 0) vec0(1) = pnu(i,1)
-             !$$$              vec0(2) = mod(pnzs(i,1),10d0)
-             !$$$              if (vec0(2) .eq. 0) vec0(2) = pnus(i,1)
-             !$$$              ltmp1 = ltmp1 .or. int(pnu(i,1)) .ne. int(pnus(i,1))
-             !$$$              ltmp2 = ltmp2 .or.
-             !$$$     .        int(mod(pnz(i,1),10d0)) .ne. int(mod(pnzs(i,1),10d0))
-             !$$$              lfail = lfail .or. min(int(pnu(i,1)),int(vec0(1))) .ne.
-             !$$$     .        min(int(pnus(i,1)),int(vec0(2)))
-             !$$$            enddo
              if (ipr >= 20) write(stdo,203) ib,spid,'file pnu',(pnu(i,1), i=1,lmxa+1)
-             !            if (ltmp1 .and. ipr.ge.20) write(stdo,204) 'given pnu is',(pnus(i,1), i=1,lmxa+1)
              if (ipr >= 20) write(stdo,203) ib,spid,'file pz ',(pnz(i,1), i=1,lmxa+1)
-             !            if (ltmp2 .and. ipr.ge.20) write(stdo,204) 'given pz  is',(pnzs(i,1), i=1,lmxa+1)
 203          format(9x,'site',i4,':',a,':',a,' is',8f6.2)
 204          format(26x,a,8f6.2)
 !             if (lfail .AND. irs5 == 1) then
@@ -484,14 +420,14 @@ contains
           allocate(v1pot(ib)%v(nr*nsp))
           ! ccccccccccccccccccccccccccc
           if (procid == master) then
-             call dpdbyl ( orhoat( 1 , ib )%v , nr0 , nlml0 , nlml , nsp0 , nsp , lbin , jfi )
-             call dpdbyl ( orhoat( 2 , ib )%v , nr0 , nlml0 , nlml , nsp0 , nsp , lbin , jfi )
+             call dpdbyl ( orhoat( 1 , ib )%v , nr0 , nlml0 , nlml , nsp0 , nsp , lbin , jfi,'read'  )
+             call dpdbyl ( orhoat( 2 , ib )%v , nr0 , nlml0 , nlml , nsp0 , nsp , lbin , jfi,'read'  )
              if (nlml0 > nlml .AND. ipr >= 10) write(stdo,202) ib,spid,'truncate',nlml0,nlml
              if (nlml0 < nlml .AND. ipr >= 10) write(stdo,202) ib,spid,'inflate',nlml0,nlml
 202          format(9x,'site',i4,', species ',a,': ',a,' local density from nlm=',i3,' to',i3)
-             call dpdbyl(orhoat(3,ib)%v,nr0,1,1,nsp0, nsp , lbin , jfi )
-             call dpdbyl ( v0pot(ib)%v, nr0, 1, 1, nsp0, nsp , lbin , jfi )
-             call dpdbyl ( v1pot(ib)%v, nr0, 1, 1, nsp0, nsp , lbin , jfi )
+             call dpdbyl(orhoat(3,ib)%v,nr0,1,1,nsp0, nsp , lbin , jfi,'read'  )
+             call dpdbyl ( v0pot(ib)%v, nr0, 1, 1, nsp0, nsp , lbin , jfi,'read'  )
+             call dpdbyl ( v1pot(ib)%v, nr0, 1, 1, nsp0, nsp , lbin , jfi,'read' )
              if (nsp0 < nsp) then
                 call dscal ( nr0 * 2 , 2d0 , v0pot(ib)%v , 1 )
                 call dscal ( nr0 * 2 , 2d0 , v1pot(ib)%v , 1 )
@@ -651,12 +587,12 @@ contains
 
        !   --- Write smooth charge density ---
        write(jfi) n1,n2,n3
-       call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp , osmrho, lbin , - jfi )
+       call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp , osmrho, lbin , jfi,rwrw )
 
        !   --- Write information related to dynamics ---
        wk=1d99 !call dpzero(wk,100)
        wk(1)= eferm !sbz%ef !dummy ! we use wk(1) only wk(2:100) are dummy
-       call dpdump(wk,100,-jfi)
+       call dpdump(wk,100,jfi,'write')
        do  110  ib = 1, nbas
           !pos  =ssite(ib)%pos
           !force=ssite(ib)%force
@@ -703,11 +639,11 @@ contains
           write(jfi) (idmod(l+1), l=0,lmxa)
           !     ... Write arrays for local density and potential
           nlml = (lmxl+1)**2
-          call dpdbyl ( orhoat( 1 , ib )%v , nr , nlml , nlml , nsp  , nsp , lbin , - jfi )
-          call dpdbyl ( orhoat( 2 , ib )%v , nr , nlml , nlml , nsp  , nsp , lbin , - jfi )
-          call dpdbyl ( orhoat( 3 , ib )%v , nr , 1 , 1 , nsp , nsp   , lbin , - jfi )
-          call dpdbyl ( v0pot(ib)%v , nr , 1 , 1 , nsp , nsp , lbin , - jfi  )
-          call dpdbyl ( v1pot(ib)%v , nr , 1 , 1 , nsp , nsp , lbin , - jfi  )
+          call dpdbyl ( orhoat( 1 , ib )%v , nr , nlml , nlml , nsp  , nsp , lbin ,  jfi,'write' )
+          call dpdbyl ( orhoat( 2 , ib )%v , nr , nlml , nlml , nsp  , nsp , lbin ,  jfi,'write'  )
+          call dpdbyl ( orhoat( 3 , ib )%v , nr , 1 , 1 , nsp , nsp   , lbin ,  jfi,'write'  )
+          call dpdbyl ( v0pot(ib)%v , nr , 1 , 1 , nsp , nsp , lbin ,  jfi,'write'   )
+          call dpdbyl ( v1pot(ib)%v , nr , 1 , 1 , nsp , nsp , lbin ,  jfi,'write'   )
           if (ipr >= 50) then
              write(stdo,349) ib,spid,lmxa,lmxl,rmt,nr,a, (pnu(l+1,1),l=0,lmxa)
              if (nsp == 2)  write(stdo,350) (pnu(l+1,2), l=0,lmxa)
@@ -731,7 +667,7 @@ contains
           if (lmxa == -1) goto 130
           write(jfi) nr,a,qc,cof,eh,stc,lfoc,rfoc
           !     ... For now, ASA stores no core data
-          call dpdump ( sspec(is)%rv_a_orhoc , nr * nsp , - jfi )
+          call dpdump ( sspec(is)%rv_a_orhoc , nr * nsp , jfi,'write' )
           write(jfi) rsmfa,nxi
           write(jfi) ((exi(i),hfc(i,isp),i=1,nxi),isp=1,nsp)
 130    enddo
@@ -747,14 +683,7 @@ contains
     if (ipr > 0) write(stdo,'('' iors  : read failed in: '',a)') line
     !      call tcx('iors')
   end function iors_old
-  subroutine dfsdmp(array,n1,n2,ifile)
-    !- ASCII I/O of an array segment
-    integer :: n1,n2,ifile,length
-    double precision :: array(n2)
-    length = n2-n1+1
-    if (length > 0) call dfdump(array(n1),length,ifile)
-  end subroutine dfsdmp
-  subroutine dpdftr(n1,n2,n3,k1,k2,k3,n,f,lbin,ifi)
+  subroutine dpdftr(n1,n2,n3,k1,k2,k3,n,f,lbin,ifi,rwrw)
     !- Dump/read an array of reals given on a Fourier transform mesh.
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -773,6 +702,7 @@ contains
     ! ----------------------------------------------------------------------
     !     implicit none
     ! ... Passed parameters
+    character(*)::rwrw
     logical :: lbin
     integer :: n1,n2,n3,k1,k2,k3,n,ifi
     double complex f(k1,k2,k3,n)
@@ -783,7 +713,7 @@ contains
     double precision :: row(n1)
     n1mx = n1
     ! --- Input ---
-    if (ifi > 0) then
+    if (trim(rwrw)=='read') then
        jfi = ifi
        if (n1 > n1mx) call rx('dpdftr: increase n1mx')
        call dpzero(f, 2*k1*k2*k3*n)
@@ -799,8 +729,8 @@ contains
        enddo
 
        ! --- Output ---
-    elseif (ifi < 0) then
-       jfi = -ifi
+    elseif (trim(rwrw)=='wirte') then
+       jfi = ifi
        do  i = 1, n
           do  i3 = 1, n3
              do  i2 = 1, n2
@@ -822,7 +752,7 @@ contains
     endif
 
   end subroutine dpdftr
-  subroutine dpdbyl(a,nr,nlm,nlm0,nsp0,nsp,lbin,ifi)
+  subroutine dpdbyl(a,nr,nlm,nlm0,nsp0,nsp,lbin,ifi,rwrw)
     !- Dumps or reads an array given as a(nr,nlm,nsp).
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -852,44 +782,39 @@ contains
     logical :: isanrg
     integer :: jfi,isp,ilm,i,nlmx
     double precision :: xx
-
+    character(*)::rwrw
     ! --- Output ---
-    if (ifi < 0) then
+    if (trim(rwrw)=='write') then
        if (isanrg(nsp0,nsp,nsp,'dpdbyl writing rho','nsp', .TRUE. )) &
             stop
-       jfi = -ifi
+       jfi = ifi
        do  10  isp = 1, nsp
           do  12  ilm = 1, nlm
              if (lbin) then
                 write(jfi) (a(i,ilm,isp),i=1,nr)
              else
-                call dfdump(a(1,ilm,isp),nr,-jfi)
+                call dfdump(a(1,ilm,isp),nr,jfi,'write')
              endif
 12        enddo
 10     enddo
        return
     endif
-
     ! --- Input ---
     jfi = ifi
     nlmx = min0(nlm,nlm0)
-
     ! ... loop over spins
     do  20  isp = 1, nsp
-
        ! ...   read the desired components
        do  22  ilm = 1, nlmx
-
           if (isp == 2 .AND. nsp0 == 1) then
              call dscal(nr,0.5d0,a(1,ilm,1),1)
              call dpscop(a(1,ilm,1),a(1,ilm,2),nr,1,1,1d0)
           elseif (lbin) then
              read(jfi) (a(i,ilm,isp), i=1,nr)
           else
-             call dfdump(a(1,ilm,isp),nr,jfi)
+             call dfdump(a(1,ilm,isp),nr,jfi,rwrw,'read')
           endif
 22     enddo
-
        ! ...   read and discard higher components in file
        do  24  ilm = nlmx+1,nlm
           if (isp == 2 .AND. nsp0 == 1) then
@@ -899,37 +824,22 @@ contains
              read(jfi,*) (xx, i=1,nr)
           endif
 24     enddo
-
        ! ...   zero out unset components in array
        do  26  ilm = nlmx+1,nlm0
           call dpzero(a(1,ilm,isp),nr)
 26     enddo
-
 20  enddo
   end subroutine dpdbyl
 end module m_iors_old
-
-! xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-subroutine dfdump(array,length,ifile)
+subroutine dfdump(array,length,ifile,rwrw)
   !- ASCII I/O of an array
   !     implicit none
+  character(*)::rwrw
   integer :: ifile,length
   double precision :: array(length)
-  if (ifile > 0) read(ifile,333) array
-  if (ifile < 0) write(-ifile,333) array
+  if (trim(rwrw)=='read') read(ifile,333) array
+  if (trim(rwrw)=='write') write(ifile,333) array
 333 format(1p,4e20.13)
 end subroutine dfdump
-logical function lfdmp(array,length,ifile)
-  !- ASCII I/O of an array, returning T if I/O without error or EOF
-  !     implicit none
-  integer :: length,ifile
-  double precision :: array(length)
-  lfdmp = .true.
-  if (ifile > 0) read(ifile,333,end=90,err=90) array
-  if (ifile < 0) write(-ifile,333) array
-333 format(1p,4e20.13)
-  return
-90 lfdmp = .false.
-end function lfdmp
 
 

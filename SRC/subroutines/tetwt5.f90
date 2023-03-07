@@ -151,7 +151,7 @@ subroutine tetwt5x_dtet4(npm,ncc,q,eband1,eband2,qbas,ginv,efermi,ntetf, nqbzw, 
   logical:: eibzmode, usetetrakbt
 !  integer:: nwgt(nqbz)
   real(8):: ebmx,  voltet,det33
-  integer:: nbmx,ifile_handle
+  integer:: nbmx
   logical,optional:: wan
 !!! tetrakbt
   real(8):: temperature     ![K], temporally
@@ -183,7 +183,6 @@ subroutine tetwt5x_dtet4(npm,ncc,q,eband1,eband2,qbas,ginv,efermi,ntetf, nqbzw, 
   !        mtett=.false.
   !      endif
   !$$$      if(mtett) then
-  !$$$        ifmtet=ifile_handle()
   !$$$        open (ifmtet, file='mtet',form='unformatted')
   !$$$        read(ifmtet) nmtet,nqbzwm,nqbzm,ntetfm !,n_index_qbzm
   !$$$        allocate(

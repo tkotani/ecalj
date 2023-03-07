@@ -10,7 +10,6 @@ m_orbl.o\
 m_ftox.o\
 getgv2.o\
 m_gennlat.o\
-mkppovl2.o\
 m_density.o\
 m_ldau.o\
 boltztrap.o\
@@ -292,7 +291,6 @@ sxcf_fal2.o \
 wronkj.o \
 rpaq.o \
 m_readeps.o \
-m_readq0p.o \
 m_readQGcou.o\
 m_pbindex.o \
 m_rotMPB.o \

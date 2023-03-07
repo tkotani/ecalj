@@ -11,7 +11,7 @@ subroutine writeband(eferm,evtop,ecbot) !write band file. bnd* and bandplot.isp*
   character*300::filenm(2),bchar
   real(8):: rydberg=13.6058d0 !,vadd
   character*3::charnum3
-  integer::ifbndsp(2),iprint,iq,i,ifile_handle,ifglt,ifbndsp_nearef(2),ifmass(2),ifmglt,ifmglt2
+  integer::ifbndsp(2),iprint,iq,i,ifglt,ifbndsp_nearef(2),ifmass(2),ifmglt,ifmglt2
   character*300::aaa,addx
   real(8):: emin=-20d0,emax=20d0 !eV for default plotting.
   integer:: ikps,ne,ifi,ix,nee,ibb,ilt,imin,imax
@@ -96,7 +96,6 @@ subroutine writeband(eferm,evtop,ecbot) !write band file. bnd* and bandplot.isp*
         enddo
      enddo
      do 4113 jsp = 1, nspx   ! ispx index.
-!        ifbndsp(jsp) =ifile_handle()
         open(newunit=ifbndsp(jsp),file=fnameb(isyml,jsp))
         write(ifbndsp(jsp),"('#  ',i5,f10.5,15x,'QPE(ev)',11x,'1st-deri')") nkp,eferm
         ibb=0
@@ -134,12 +133,10 @@ subroutine writeband(eferm,evtop,ecbot) !write band file. bnd* and bandplot.isp*
   !$$$!! write massplot.glt for gnuplot (curvature, not the slope for metal).
   !$$$      allocate(fnamem(minval(nevls(:,:)),nsymln+1:nsyml,nspx))
   !      do jsp = 1, nspx
-  !$$$c        ifmglt=ifile_handle()
   !$$$c        fname='massplot.isp'//char(48+jsp)
-  !$$$c        open(unit=ifmglt,file=trim(fname)//'.glt')
-  !$$$c        ifmglt2=ifile_handle()
+  !$$$c        open(newunit=ifmglt,file=trim(fname)//'.glt')
   !$$$        fname2='massplotband.isp'//char(48+jsp)
-  !$$$c        open(unit=ifmglt2,file=trim(fname2)//'.glt')
+  !$$$c        open(newunit=ifmglt2,file=trim(fname2)//'.glt')
   !$$$c   set terminal postscript enhanced color eps
   !$$$c   set output 'temp.eps'
   !$$$c        write(ifmglt,'(a)')'set terminal postscript enhanced color eps'
@@ -252,7 +249,6 @@ subroutine writeband(eferm,evtop,ecbot) !write band file. bnd* and bandplot.isp*
            ! or metal crosspoint point across eferm
            ! heck i-th band is near VCM and CBM
            if(semiconband .OR. metalband) then
-!              ifmass(jsp) = ifile_handle()
               ibb = ibb+1
               if(metalband) then
                  imin=max(2,idat-1)  !diffeb is given from 2 to ne-1

@@ -27,7 +27,7 @@ contains
     !o         :  smrho = smrho(k1,k2,k3)
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: procid, master, mpipid, nrmx, n0,i_spec,ifile_handle
+    integer :: procid, master, mpipid, nrmx, n0,i_spec
     parameter ( nrmx=1501, n0=10 )
     integer:: nxi(nspec)
     type(s_rv1) :: rv_a_orhofa(nspec)
@@ -60,7 +60,6 @@ contains
     hfc=0d0
     hfct=0d0
     if (procid == master) then
-!       ifi=ifile_handle()
        open(newunit=ifi,file='atm.'//trim(sname))  !! Read free-atom density for all species ---
     endif
     isloop: do  10  is = 1, nspec

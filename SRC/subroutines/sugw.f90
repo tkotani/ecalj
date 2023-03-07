@@ -122,7 +122,7 @@ contains
     character*256:: ext,sprocid,extn
     logical ::nexist,magexist  !! june2013 magfield is added for fsmom mode.
     real(8):: vnow
-    integer:: ifimag,ifile_handle !=9078
+    integer:: ifimag
     integer,parameter:: noutmx=48
     integer:: iout,nout,nlatout(3,noutmx),iapw,ival
     real(8)::ppin(3)

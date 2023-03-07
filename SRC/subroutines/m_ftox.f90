@@ -231,7 +231,7 @@ contains
     implicit none
     character(10):: i2char
     character*100 ext
-    integer i, fopn, i1mach, fhndl,ifile_handle,procid
+    integer i, fopn, i1mach, fhndl,procid
     integer,save:: lgunit1=0,lgunit2=0,lgunit3=0
     include "mpif.h"
     integer mpipid
@@ -240,13 +240,11 @@ contains
     if (i .eq. 1) return
     if (i .eq. 2) then
        if(lgunit2==0) then
-!          lgunit2=ifile_handle()
           open(newunit=lgunit2,file='log.'//trim(sname),position='append')
        endif
        lgunit = lgunit2
     elseif (i .eq. 3) then
        if(lgunit3==0) then
-!          lgunit3=ifile_handle()
           open(newunit=lgunit3,file='mlog.'//trim(sname)//'_'//trim(i2char(procid)))
        endif
        lgunit = lgunit3

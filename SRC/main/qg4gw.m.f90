@@ -53,7 +53,7 @@ program qg4gw
   real(8),allocatable :: symops(:,:,:)
   character(len=150):: recrdxxx
   !      character(len=10) :: keyw1='unit_2pioa',keyw2
-  integer(4)::nnn(3),ret,verbose,q0pchoice,wgtq0p,iq0pinxxx ,ifile_handle,n1,n2,n3
+  integer(4)::nnn(3),ret,verbose,q0pchoice,wgtq0p,iq0pinxxx,n1,n2,n3
   logical:: GaussSmear,KeepEigen,core_orth,ldummy, lnq0iadd=.false. !keepppovl,
   integer:: gammacellctrl=0
   logical:: lmagnon = .false., cmdopt2

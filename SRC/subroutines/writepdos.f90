@@ -13,7 +13,7 @@ subroutine writepdos(ext)! Readin pdosinput, and print out pdos files.
   logical::cmdopt2!,mlog
 
   integer, dimension(:),allocatable :: kpproc
-  integer::numprocs,procid,ierr,itete,iteti,mpipid,ifile_handle
+  integer::numprocs,procid,ierr,itete,iteti,mpipid
 !#if MPIK
   include "mpif.h"
 !#endif

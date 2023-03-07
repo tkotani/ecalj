@@ -43,7 +43,7 @@ contains
     !! natom: number of atoms in the primitive cell.
     !! ibaswf(nwf): atomic position for the Wannier orbital.
     !! pos(3,natom): atomic poisition in the cell.
-    integer(4):: is, ifh, n1, n2, n3, ifile_handle,nq
+    integer(4):: is, ifh, n1, n2, n3, nq
     if ( .NOT. readwan) call rx("read_wandata have not yet done.") !! use nsp_w, nwf
     do 6001 is=1,nsp_w
        write (6,"('--- Reading HrotRS  :: isp=',I6)") is
@@ -129,7 +129,6 @@ contains
           !$$$            !!! initial operation
           !$$$            if (sw) then
           !$$$               sw=.false.
-          !$$$               iffb=ifile_handle()
           !$$$               if(is==1) open(iffb,file="fband.up.tmp")
           !$$$               if(is==2) open(iffb,file="fband.dn.tmp")
           !$$$               write(iffb,"('# ef nwf',f9.4,i4)") ef,nwf
@@ -302,13 +301,10 @@ contains
     open(newunit=ifscrwv,file="Screening_W-v.UP",form="formatted") !only up
     open(newunit=ifscrv,file="Coulomb_v.UP",form="formatted") !only up
     !$$$      !!! write direct index (ijkl)
-    !$$$      ifd=ifile_handle()
     !$$$      open(ifd,file="ijkl_direct.d",form="formatted")
     !$$$      !!! write exchange index (ijkl)
-    !$$$      ife=ifile_handle()
     !$$$      open(ife,file="ijkl_exchange.d",form="formatted")
     !$$$      !!! write all index (i,j,k,l --> ijwf,klwf)
-    !$$$      ifa=ifile_handle()
     !$$$      open(ifa,file="ijkl_all.d",form="formatted")
     !$$$      write(ifa,*) "# iwf jwf kwf lwf ijwf klwf"
     !     read Screening W, V
@@ -736,22 +732,6 @@ contains
 
     close(iffile)
   end subroutine writeddmat
-
-  !---------------------------------------
-  integer function ifile_handle() !! find open file handle
-    implicit none
-    integer:: i
-    logical:: nexist
-    do i=5001,9999
-       inquire(unit=i,opened=nexist)
-       if( .NOT. nexist) then
-          ifile_handle=i
-          return
-       endif
-    enddo
-    stop 'ifile_handle: we did not find open file hundle'
-  end function ifile_handle
-  !---------------------------------------
   real(8) function det33(am)
     implicit none
     real(8),intent(in) :: am(3,3)

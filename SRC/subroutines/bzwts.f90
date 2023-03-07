@@ -62,14 +62,11 @@ contains
     !u   22 Sep 01 Returns dosef now.  Altered argument list.
     ! ----------------------------------------------------------------------
     logical metal,tetra
-    integer nbmx,norder,npts,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,&
-         idtet(5,ntet),ifile_handle
+    integer nbmx,norder,npts,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet(5,ntet)
     double precision zval,eb(nbmx,nsp,nkp),width,rnge,wtkp(nkp),&
          wtkb(nevx,nsp,nkp),efermi,sumev,dosef(2),qval(2),ent
     integer:: it , itmax , n , nptdos , nspx , nbmxx , nevxx , ib &
-         , ikp , ipr , job , nbpw , i1mach , nev&
-         , mkdlst , ifi , i , j , lry , procid , mpipid , master &
-         , nulli , isw
+         , ikp , ipr , job , nbpw , i1mach , nev, mkdlst , ifi , i , j , lry , procid , mpipid , master, nulli , isw
     real(8) ,allocatable :: dos_rv(:,:)
     real(8) ,allocatable :: bot_rv(:)
     real(8) ,allocatable :: top_rv(:)

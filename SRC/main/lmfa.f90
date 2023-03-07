@@ -12,7 +12,7 @@ program lmfa
   character:: outs*20,aaa*512,sss*128,uuu*128
   character prgnam*8
   character(8) :: charext
-  integer:: iarg,jobgw,iprint,nit1,ifi,irs1x,ifile_handle
+  integer:: iarg,jobgw,iprint,nit1,ifi,irs1x
   data prgnam /'LMFA'/
   call m_ext_init()        ! Get sname, e.g. trim(sname)=si of ctrl.si
   call m_MPItk_init(prgnam)

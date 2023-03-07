@@ -38,19 +38,15 @@ contains
          n0,nkap0,nxi,nxi0,nrmix,igets,lmxa,kcor,lcor
     character(8) :: spid,chole(8)
     parameter ( nrmx=1501, nxi0=10, n0=10, nkap0=3)
-    double precision :: qc,ccof,ceh,z,rmt,rfoca,qcor(2),a,sumec, &
-         sumtc,seref,dgets,dgetss,etot
+    double precision :: qc,ccof,ceh,z,rmt,rfoca,qcor(2),a,sumec, sumtc,seref,dgets,dgetss,etot
     double precision :: hfc(nxi0,2),exi(nxi0),hfct(nxi0,2)
     double precision :: v(nrmx*2),rho(nrmx*2),rhoc(nrmx*2),rofi(nrmx*2)
-    double precision :: pnu(n0,2),pz(n0,2),qat(n0,2)!,rcfa(2)
+    double precision :: pnu(n0,2),pz(n0,2),qat(n0,2)
     double precision :: rtab(n0,2),etab(n0,2),rsmfa
-!    double precision :: rs3,eh3!,vmtz
-    !integer :: idmod(n0)
-    integer:: iofa, i_dum,ifile_handle
+    integer:: iofa, i_dum
     integer:: ifives,ifiwv
     character strn*120
     logical :: cmdopt
-!    ifi=ifile_handle()
     open(ifi,file='atm.'//trim(sname))
     rewind ifi
     hfct = 0d0
@@ -76,9 +72,7 @@ contains
           nxi = 6
        endif
        nrmix=smalit
-!       lxcfun = int(ctrl_lxcf)
-       spid = slabl(is) !sspec(is)%name
-       !       rsmfa= sspec(is)%rsmfa
+       spid = slabl(is) 
        rfoca= sspec(is)%rfoca
        qcor = coreq(:,is)
        chole= coreh(is)
@@ -94,8 +88,7 @@ contains
        qat(1:n0,1:nsp)=  qnu(1:n0,1:nsp,is) !sspec(is)%q
        lmxa = sspec(is)%lmxa
        pz(:,1) =  pzx(1:n0,1,is) ! sspec(is)%pz
-       if(nsp==2) pz(:,2)= pz(:,1)
-!       write(6,ftox)'xxx isp pz=',is,ftof(pz(1:lmxa+1,1),6)
+       if(nsp==2) pz(:,2)= pz(:,1) !       write(6,ftox)'xxx isp pz=',is,ftof(pz(1:lmxa+1,1),6)
        write(stdo,"(a)")'freats:'
        call freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,kcor,lcor,qcor, &
             nrmix,1,lxcf,z,rmt,a,nrmt,pnu,pz,qat,rs3(is),eh3(is),vmtz(is),& !rcfa(:,is), &
@@ -108,8 +101,7 @@ contains
           call dcopy(nrmt,rhoc(1+nr),1,rhoc(1+nrmt),1)
           call dcopy(nrmt,v(1+nr),1,v(1+nrmt),1)
        endif
-       i_dum = iofa(spid,nxi0,nxi,exi,hfc,hfct,rsmfa,z,rmt, &
-            a,nrmt,qc,ccof,ceh,sumtc,rho,rhoc,v,ifi,'write')
+       i_dum = iofa(spid,nxi0,nxi,exi,hfc,hfct,rsmfa,z,rmt,a,nrmt,qc,ccof,ceh,sumtc,rho,rhoc,v,ifi,'write')
     enddo
     close(ifi)
     if(iprint() > 30)  then

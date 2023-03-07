@@ -149,7 +149,7 @@ program htetwt
   integer:: i_reduction_npm, i_reduction_nwhis,  i_reduction_nmbas2
   logical:: crpa
   integer,allocatable :: iclasst(:), invgx(:)
-  integer:: ibasx,ificlass,ifile_handle,ifiq0p
+  integer:: ibasx,ificlass,ifiq0p
   complex(8),allocatable:: ppovl_(:,:)
   logical:: tetra !,readw0w0itest=.false.
   integer::nw_ixx,nwxx

@@ -32,7 +32,7 @@ contains
     integer:: ikp,ifbnd,nsymln,onesp=0,jobgw
     real(8):: qps_syml(3,nsymlmax), qpe_syml(3,nsymlmax),rq
     real(8)::  totxdatt
-    integer:: ifile_handle, fxsts,ii,ifiproc
+    integer:: fxsts,ii,ifiproc
     character(512)::schar
     character(3):: charnum3
     character(50)::infoq

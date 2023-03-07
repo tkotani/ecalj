@@ -12,7 +12,7 @@ module m_mkrout
 contains
   subroutine m_mkrout_init()
     use m_lmfinit,only: sspec=>v_sspec,ispec,nsp,n0,lfrce,lrout,nbas
-    use m_bandcal,only: sv_p_oqkkl,sv_p_oeqkkl,frcband
+    use m_bandcal,only: oqkkl,oeqkkl,frcband
     use m_mkpot,only: hab_rv,sab_rv
     use m_suham,only: ham_ndham
     use m_rhocor,only: getcor
@@ -42,7 +42,7 @@ contains
        allocate(qbyl_rv(n0,nsp,nbas))
        allocate(hbyl_rv(n0,nsp,nbas))
     endif
-    call mkrout(sv_p_oqkkl,sv_p_oeqkkl, orhoat_out, hab_rv,sab_rv,qbyl_rv,hbyl_rv)
+    call mkrout(oqkkl,oeqkkl, orhoat_out, hab_rv,sab_rv,qbyl_rv,hbyl_rv)
     if (lrout/=00) then
        !!  Symmetrize output atomic density and forces frcbandsym is symmetrized
        call symrhoat ( orhoat_out, qbyl_rv, hbyl_rv, frcbandsym)
@@ -50,7 +50,7 @@ contains
     call tcx('m_mkrout_init')
   end subroutine m_mkrout_init
   !!-------------------------------
-  subroutine mkrout( sv_p_oqkkl, sv_p_oeqkkl, orhoat_out, hab,sab, qbyl, hbyl)
+  subroutine mkrout( oqkkl, oeqkkl, orhoat_out, hab,sab, qbyl, hbyl)
     use m_lmfinit,only: procid,master,nkaph &
          , sspec=>v_sspec,ispec,nbas,nsp,lrout,n0,nlmto,nmcore,rsma !lekkl=1
     use m_lgunit,only: stdo
@@ -95,8 +95,8 @@ contains
     ! ----------------------------------------------------------------------
     implicit none
     type(s_rv1) :: orhoat_out(3,nbas)
-    type(s_rv1) :: sv_p_oeqkkl(3,nbas)
-    type(s_rv1) :: sv_p_oqkkl(3,nbas)
+    type(s_rv1) :: oeqkkl(3,nbas)
+    type(s_rv1) :: oqkkl(3,nbas)
     real(8):: qbyl(n0,nsp,nbas) , hbyl(n0,nsp,nbas) , sab(3,3,n0,nsp,nbas), hab(3,3,n0,nsp,nbas)
     integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc &
          , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , r , ncore , igetss
@@ -176,7 +176,7 @@ contains
             dmatl_rv=0d0
             call mkrou1(nsp, nlmh,nlma,nlml,kmax  &
                  , nkaph,nkapi,norb,ltab,ktab,blks &
-                 ,sv_p_oqkkl(3,ib)%v,sv_p_oqkkl(2,ib)%v,sv_p_oqkkl(1,ib)%v&!,OQHH,OQHP,OQPP,
+                 ,oqkkl(3,ib)%v,oqkkl(2,ib)%v,oqkkl(1,ib)%v&!,OQHH,OQHP,OQPP,
                  ,vh_rv,dh_rv,vp_rv,dp_rv,chh_rv, chp_rv,cpp_rv,dmatl_rv )
             !   ... True local density for this sphere 1st component
             call mkrou2( nsp,lmxa,nlml,pnz,dmatl_rv,nr,ul_rv &
@@ -198,7 +198,7 @@ contains
             ! This is because above codes to give hbyl is wrong.
             ! So, we need to go though anothe pass with lekkl=1 (OPTION_PFLOAT=1).
             ! In future, code above to generate hbyl will be removed.
-            ! ino Jan.04.2012:           rv_p_oqhh => sv_p_oeqkkl(3,ib)%v
+            ! ino Jan.04.2012:           rv_p_oqhh => oeqkkl(3,ib)%v
 !            if(lekkl /= 0) then
                nlml1 = 1
                dmatl_rv=0d0 !call dpzero( dmatl_rv,( lmxa + 1) ** 2 * nlml1 * nsp * 9 )
@@ -208,7 +208,7 @@ contains
                cpp_rv=0d0
                call mkrou1(nsp, nlmh, nlma, nlml1,kmax & 
                     ,nkaph,nkapi,norb,ltab,ktab,blks &
-                    ,sv_p_oeqkkl(3,ib)%v, sv_p_oeqkkl(2,ib)%v,sv_p_oeqkkl(1,ib)%v& !&,OQHH,OQHP,OQPP,
+                    ,oeqkkl(3,ib)%v, oeqkkl(2,ib)%v,oeqkkl(1,ib)%v& !&,OQHH,OQHP,OQPP,
                     ,vh_rv,dh_rv,vp_rv,dp_rv,chh_rv &
                     ,chp_rv,cpp_rv,dmatl_rv)!dmatl_rv is energy weighted. c.f.previous call to mkrou1.
                call mkrou3( mode=1,lmxa=lmxa, nlml=nlml1,nsp=nsp &

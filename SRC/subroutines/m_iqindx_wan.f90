@@ -53,8 +53,7 @@ contains
   !!-------------------
   subroutine wan_getqbz()
     implicit none
-    integer:: ifwqb, ifile_handle
-    ifwqb=ifile_handle()
+    integer:: ifwqb
     open(newunit=ifwqb,file="wanqbz",form='unformatted')
     read(ifwqb) ginv
     read(ifwqb) nqtt

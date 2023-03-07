@@ -58,7 +58,6 @@ program hmagnon
   real(8):: ua=1d0 ! this is a dummy.
   integer:: ifrb(2),ifcb(2),ifrhb(2),ifchb(2) !,ifev(2)
   integer:: ndble=8
-  integer:: nwordr
   real(8),allocatable:: vxcfp(:,:), &
        wgt0(:,:) !,q0i(:,:) wqt(:),
   complex(8),allocatable:: zxq(:,:,:),zxqi(:,:,:),zxq2(:,:,:), &
@@ -119,7 +118,7 @@ program hmagnon
   real(8):: fourpi,sqfourpi,tpioa,absq,vcou1,vcou1sq
 
 !  integer,allocatable:: nwgt(:,:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
-  integer:: ificlass,k !,ifile_handle
+  integer:: ificlass,k 
   real(8)::ebmx
   integer:: nbmx,mtet(3)
 
@@ -377,7 +376,7 @@ program hmagnon
   print *,"noccxv ",noccxv
   noccx  = noccxv + nctot
   nprecx = ndble  !We use double precision arrays only.
-  mrecl  = nprecx*2*nblochpmx*nblochpmx/nwordr()
+!  mrecl  = nprecx*2*nblochpmx*nblochpmx
   nspinmx = nspin
   iqxini=1
   mtet=(/1,1,1/) !dummy
@@ -737,8 +736,6 @@ else
   write(ifchipmr_wan,*) "# syml: ",epslgroup(iq)," "
 endif
 endif
-!$$$         ifchipmrk_wan=ifile_handle()
-!$$$         open(ifchipmrk_wan,file="wan_ChiPMr-k.mat"//charnum4(iq))
 endif
 
 !!! unit matrix (dimension: nwf*nwf), need for 1-WK matrix
@@ -762,8 +759,6 @@ endif
 ! ccccc
 if (l1wkout) then
 if (MPI__task(iq)) then
-   !$$$  ifwkeigen2=ifile_handle()
-   !$$$  open(ifwkeigen2,file="wk_eval_list.dat"//charnum4(iq))
 open(newunit=ifwkeigen3,file="1wk_eval_list.dat"//charnum4(iq))
 endif
 endif

@@ -9,7 +9,7 @@ subroutine zsecsym(zsec,ntq,nq,nband,nbandmx,nspinmx,nspin, eibzsym,ngrp,tiii,q,
   logical,intent(in):: tiii !time reversal switch
   real(8),intent(in):: q(3,nq)
   complex(8),allocatable::zsect(:,:)
-  integer:: ifile_handle,iqq
+  integer:: iqq
   integer:: procid,nrankv,ifvxc_,ifevec_,ifiproc,iqqxx, &
        isp,ixx,ixxx,nqixx,nspxx,ispxx,iqbz,i,igrp,iq
   character*256:: extn,ext

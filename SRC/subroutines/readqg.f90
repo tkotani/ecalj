@@ -57,7 +57,7 @@ contains
     intent(in) ::        key
     intent(out)::           ngmx
     !- get ngcmx or mgpmx
-    integer:: ngmx,ifile_handle,ifiqg,ngcmx,ngpmx
+    integer:: ngmx,ifiqg,ngcmx,ngpmx
     character*(*) key
     if    (key=='QGpsi') then
        open(newunit=ifiqg, file='QGpsi',form='unformatted')

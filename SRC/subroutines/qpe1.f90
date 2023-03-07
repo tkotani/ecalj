@@ -153,7 +153,6 @@ subroutine qpe1 (ifqpe,iftote,iftote2,itq,q, &
      hartreeinv=.5d0/rydberg()
      print *," EGAS mode eshift?"
      read(5,*) eshift0
-     !        ifegas=ifile_handle()
      open(newunit=ifegas,file='egas.rlt')
      eshift0 = eshift0/rydberginv
      print *,' deltaw=',deltaw

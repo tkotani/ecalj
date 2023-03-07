@@ -22,7 +22,7 @@ subroutine getwemax(lqall,wemax)
   real(8),allocatable:: q(:,:),eqt(:) !,q0p(:,:)
   logical ::  legas = .false., tetra,lqallxxx
   real(8):: omegav,omegac,eee,efnew,emaxv,eminc,ffac,we,valn
-  integer:: ifile_handle,ifief,ib,ip,iq,iqall,it,k,is,nspinmx
+  integer:: ifief,ib,ip,iq,iqall,it,k,is,nspinmx
   !      logical :: tetra=.false.
 
   lqallxxx=.true.
@@ -65,7 +65,6 @@ subroutine getwemax(lqall,wemax)
   if (laf .OR. iaf==1) nspinmx =1
 
   !      if(tetra) then
-  !        ifief=ifile_handle()
   !        open( ifief,file='EFERMI')
   !        read( ifief,*) ef
   !        close(ifief)

@@ -41,7 +41,7 @@ subroutine efsimplef2ax ( legas, esmr, valn,ef)
   !      real(8) :: efp,efm,wwgo,wfacef
   logical :: legas,autoew,GaussSmear=.true. !is external
 
-  integer:: ifile_handle,if8301,if8302 !nqbz,
+  integer:: if8301,if8302 !nqbz,
   !      integer:: n_index_qbz,index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)
   !     real(8)   :: qbz(3,nqbz)
   !      integer:: ifzbak
@@ -106,9 +106,7 @@ subroutine efsimplef2ax ( legas, esmr, valn,ef)
   !      enddo
 
   if (mpi__root) then
-     !         if8301=ifile_handle()
      open(newunit=if8301,file = "DOSACC.lda")
-     !         if8302=ifile_handle()
      open(newunit=if8302,file = "DOSACC2.lda")
   endif
   wwg = 0d0
@@ -242,27 +240,18 @@ subroutine efsimplef2a (nspin,wibz,qibz,ginv,nband,nqibz, konfig,z,nl,natom,icla
 
   implicit none
   integer:: is,iq,nspin,nqibz,ik,isig,kpx,nband,ifev(2)
-  integer:: ieaord(nband*nqibz*nspin),mbytes,mwords,iwksize, &
-       iqibz  !,iindxk
+  integer:: ieaord(nband*nqibz*nspin),mbytes,mwords,iwksize,iqibz  !,iindxk
   real(8)   :: ekt(nband, nqibz,nspin), ektx(nband*nqibz*nspin)
   real(8)   :: wgt(nband, nqibz,nspin), wgtx(nband*nqibz*nspin)
   real(8)   :: qbzx(3), qx(3),qbas(3,3),ginv(3,3),wwg
-
   integer:: nclass,natom,nl,ncore,l,ia,ic !,indxk(*)
   real(8)   :: wibz(nqibz),valn,ef, z(nclass),qibz(3,nqibz)
   integer:: iclass(natom),konfig(0:nl-1,nclass),ierr
-
   integer :: nbnqnsp,ix,ikx=-99999,ikini,nne
-  real(8)    :: ew1,ew2,ein,valx,enumef_gauss,esmr, efini &
-       ,eee2,wwg2 ,enumef
-  !      real(8) :: efp,efm,wwgo,wfacef
+  real(8)    :: ew1,ew2,ein,valx,enumef_gauss,esmr, efini,eee2,wwg2 ,enumef
   logical :: legas,autoew,GaussSmear=.true. !is external
-
-  integer:: nqbz,if8301,if8302 !ifile_handle,
-  !      integer:: n_index_qbz,index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)
+  integer:: nqbz,if8301,if8302 
   real(8)   :: qbz(3,nqbz)
-  !      integer:: ifzbak
-  !      real(8)::zbak
   !--------------------------------------------------------------------
   autoew =.false.
   if(GaussSmear) then
@@ -319,9 +308,7 @@ subroutine efsimplef2a (nspin,wibz,qibz,ginv,nband,nqibz, konfig,z,nl,natom,icla
   call dcopy ( nband*nqibz*nspin, wgt,1, wgtx ,1)
   call sortea( ektx,ieaord,nband*nqibz*nspin,isig)
   if (mpi__root) then
-     !         if8301=ifile_handle()
      open(newunit=if8301,file = "DOSACC.lda")
-     !         if8302=ifile_handle()
      open(newunit=if8302,file = "DOSACC2.lda")
   endif
   wwg = 0d0

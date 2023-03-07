@@ -142,7 +142,7 @@ contains
     character*256:: extn,aaa,fname
     integer,parameter :: nsize= 1000000
     integer:: ifiproc,nqixx,nspxx,numprocxx,ixxx,ifiqibz
-    integer::  id,nsizex,iqqxx,ifile_handle,ib,ii,ipqn,nn,nnn(3),ifiqg,ifiqgc,irr,irrq,iqibz
+    integer::  id,nsizex,iqqxx,ib,ii,ipqn,nn,nnn(3),ifiqg,ifiqgc,irr,irrq,iqibz
     !! =================================================================
     call setprint0(30)
     open(newunit=ifigwb,file='gwb.head',form='unformatted')

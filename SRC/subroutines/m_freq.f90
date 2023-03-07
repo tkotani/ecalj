@@ -84,7 +84,7 @@ contains
     real(8)::omg_c,dw,omg2,wemax
     real(8), allocatable :: freqr2(:)  ,frhis_tmp(:)
     real(8)::  pi = 4d0*datan(1d0), aa,bb,ratio,oratio,daa
-    integer::nee,noo,ifif,ifile_handle
+    integer::nee,noo,ifif
     logical,optional:: npmtwo !! Added Aug2017 for hmagnon
     logical:: npm2
     logical,save:: done=.false.

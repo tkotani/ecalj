@@ -103,7 +103,6 @@ subroutine writedossawada()
   if(procid==0) then        !master only
      allocate(pdosp (ndos,0:nbas))
      bin2 = 2d0 * bin
-     !ifi= ifile_handle()
      open(newunit=ifi,file='dosf.dat')
      do ibas=0,nbas
         do i = 2, ndos - 1

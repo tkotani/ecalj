@@ -5,6 +5,32 @@ module m_mixrho
   !  mixing routine of smrho, rh. T.kotani think this routine is too compicated to maintain.
   !  It may be better to rewrite all with keeping the functionality
 contains
+  integer function ifile_handle() ! find unused file handle
+    implicit none
+    integer:: i
+    logical:: nexist
+    integer,save:: irem=2001
+    character*256::nnn
+    ifile_handle=-999999
+    do i=irem,9999
+       inquire(unit=i,opened=nexist,name=nnn)
+       if( .NOT. nexist) then
+          ifile_handle=i
+          irem=i+1
+          return
+       endif
+       !         print *,'mpipid i=',mpipid(1),i,trim(nnn)
+    enddo
+    do i=5001,irem
+       inquire(unit=i,opened=nexist)
+       if( .NOT. nexist) then
+          ifile_handle=i
+          irem=i
+          return
+       endif
+    enddo
+    call rx('ifile_handle: we did not find open file handle')
+  end function ifile_handle
   subroutine mixrho(iter, qval,  sv_p_orhnew, sv_p_orhold, smrnew, smrho,rmsdel)
     use m_struc_def
     use m_supot,only: iv_a_okv,rv_a_ogv,k1,k2,k3
@@ -200,7 +226,7 @@ contains
     double complex xxc
     !      logical parmxp
     character sout*80,fnam*8
-    integer ::iwdummy ,isp,nnnx,ng02,ng2, iprint,ifile_handle
+    integer ::iwdummy ,isp,nnnx,ng02,ng2, iprint!,ifile_handle
     real(8):: smmin,sss,wgtsmooth,wdummy(1,1,1,1)!,elinl
     complex(8),allocatable:: smrnewbk(:,:,:,:),w_owk(:)
     !      complex(8),allocatable:: w_oqkl(:)

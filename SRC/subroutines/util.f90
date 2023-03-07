@@ -338,11 +338,14 @@ subroutine gettime(datim)
   character datim*(*)
   call ftime(datim)
 end subroutine gettime
-integer(4) function nwordr() !  nword=NWORD_RECORDSIZE
-  real(8):: r
-  integer(4):: len   
-  inquire(iolength=len) r
-  nwordr = 8/len !   write(6,*)' nword=',nword
+integer function nwordr() !  nword=NWORD_RECORDSIZE
+   real(8):: r
+   integer:: len   
+   !inquire(iolength=len) r
+   nwordr = 1 !8/len
+!   write(6,*)' nword=',nwordr
+!   call flush(6)
+! !  stop
 END function nwordr
 logical function isanrg(i,i1,i2,t1,t2,lreqd)
   logical :: lreqd

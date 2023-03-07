@@ -151,13 +151,10 @@ Lr  =" atomz=103@ pz='PZ=0,6'@ eh=-1*4@ eh2=-2*4@ R=?@"
 ### This gives smaller basis than those used in our dimer paper. ###
 """
 
-
 #---------------------------------------------------
-def manip_argset(argset):
-#    global nspin_val, xcfun_val, mmom_val,  systype_val,nk_val,showatomlist,showhelp #rlmchk,r_mul_val,
+def manip_argset(argset): #  global nspin_val, xcfun_val, mmom_val,  systype_val,nk_val,showatomlist,showhelp #rlmchk,r_mul_val,
     error_title="ARGUMENT ERROR"
     ierror=0
-# defalut setting
     nspin_val="1"
     so_val="0"
     xcfun_str="vwn"
@@ -199,10 +196,6 @@ def manip_argset(argset):
                 mmom_val=mmomlist[1]
         elif re.match("--insulator",arg)!=None:
             metali=0
-#    elif re.match("--r_mul",arg)!=None:
-#                rlist=arg.split("=")
-#                if len(rlist)==2:
-#                        r_mul_val=rlist[1]
         elif re.match("--nk1",arg)!=None:
             nklist=arg.split("=")
             if len(nklist)==2:
@@ -234,18 +227,13 @@ def manip_argset(argset):
                 touchingratio=float(touchingratio)
         elif re.match("--ehmol",arg)!=None:
                 eh1set=0
-#    elif arg=="--rlmchk":
-#        rlmchk=1
         elif arg=="--showatomlist":
             showatomlist=1
         elif arg=="--help":
             showhelp=1
-#    elif arg=="--readrmt":
-#        readrmt=1
         elif re.match("-",arg):
             sys.stderr.write( error_title + ", unknown arg:  "+arg+"\n")
             ierror+=1
-        
     if xcfun_str.upper()=="PBE":
         xcfun_val="103"
     elif xcfun_str.upper()=="VWN":
@@ -255,7 +243,6 @@ def manip_argset(argset):
     else:
         sys.stderr.write(error_title+", --xc="+xcfun_str+" : unknown\n")
         ierror+=1
-
     if systype_val.upper()=="MOLECULE":
         do_nothing=0
         nk_val1="1"
@@ -266,14 +253,11 @@ def manip_argset(argset):
     else:
         sys.stderr.write(error_title+", --systype="+systype_val+" : unknown\n")
         ierror+=1
-
     if ierror!=0:
         print ("ABORT. Check names of args. Some are not defined.")
         sys.exit(-1)
-    return nspin_val,so_val,xcfun_val,xcfun_str,mmom_val,systype_val,nk_val1,nk_val2,nk_val3, showatomlist, showhelp,metali,fsmom_val,ssig_val,touchingratio,eh1set
-
-
-#-------------------------------------------------------
+    return nspin_val,so_val,xcfun_val,xcfun_str,mmom_val,systype_val,nk_val1,nk_val2,nk_val3, \
+        showatomlist, showhelp,metali,fsmom_val,ssig_val,touchingratio,eh1set
 def  line2Token(linein):
     """ convert the result of readline to token """
 #    """ input=readlines() output=token""
@@ -290,13 +274,10 @@ def  line2Token(linein):
         for x in lista:
             if x!="":
                 listout.append(x)
-
     return listout
-
 #---------------------------------------------------
 def lineReadfile(filename):
     """ read file and make list of the content of the file, and \n->'' """
-#    "input:filename output=readlines() "
     f = open(filename)
     list1 =[]
     while 1:
@@ -309,7 +290,6 @@ def lineReadfile(filename):
         list1.append(s)
     f.close()
     return list1
-
 #----------------------------------------------------------------------------
 def RemoveCat(listctrl,key):
     """ remove a category (key) from listctrl input:devided line, output: combined line"""
@@ -321,13 +301,8 @@ def RemoveCat(listctrl,key):
             if(re.match('^\w',x)): ix=0
         if(re.match(sss,x)): ix=1
         if(ix==0): res = res+'\n'+ x
-
     res=res+'\n'
-#    print res
-#    sys.exit()
-
     return res
-
 def RemoveCat2(listctrl,key):
     """ remove a category (key) from listctrl input:devided line, output: devided line"""
     res=[]
@@ -338,33 +313,19 @@ def RemoveCat2(listctrl,key):
             if(re.match('^\w',x)): ix=0
         if(re.match(sss,x)): ix=1
         if(ix==0): res.append(x)
-
-#    res=res+'\n'
-#    print res
-#    sys.exit()
-    return res
-
 def GetCat(listctrl,key):
     """ get a category (key) from listctrl This returns lines. Not good correspondence to RemoveCat """
     res=[]
     ix=0
     sss ='^('+key.upper()+'|'+key.lower()+')'+'(\s|\Z)'
-#    print sss
     for x in listctrl:
-#        print x
         if(ix==1):
             if(re.match('^\w',x)): break
         if(re.match(sss, x )): ix=1
         if(ix==1): res.append(x)
-
-#    res=res+'\n'
-#    print res
-#    sys.exit()
     return res
-
 def countnum(mmm,key):
     xx2=re.split(key+"\s*",mmm)
-    #print 'xx2=',key, xx2
     try:
         xx=re.split(' *',xx2[1])
     except:
@@ -373,12 +334,10 @@ def countnum(mmm,key):
     for i in xx:
         try:
             yy = float(i)
-            #print yy
             num=num+1
         except:
             break
     return num
-
 def getsitename(listsite):
     ddd=[]
     for x in listsite:
@@ -388,13 +347,11 @@ def getsitename(listsite):
     for i in ddd:
         rrr.append(re.split(' ',i)[0])
     return rrr
-
 def glist(list):
     aaa=''
     for i in list:
         aaa=aaa+i+'\n'
     return aaa
-
 def uniq(list):
     result = []
     for l in list:
@@ -403,10 +360,8 @@ def uniq(list):
     return result
 def getdataa(aaa,key):
     return (aaa.split(key)[1].split('@')[0]).strip()+' '
-
 def getdataa2(aaa,key):
     return (aaa.split(key+"'")[1].split("'@")[0]).strip()+' '
-
 
 
 #===============================================================================
@@ -568,13 +523,8 @@ else:
             specextra[specname]= sss
             print( ils,specname,specz)
     specextradata=True
-
-#print spec2z
-#sys.exit()
-
 ansite = '%i' % len(sitename)
 anspec = '%i' % len(uniq(sitename))
-
 #### specsec0 for --getwsr (calculate touching MT radius) ###
 specsec0=''
 for ispec in uniq(sitename):
@@ -926,8 +876,8 @@ tail = tail + "      XCFUN={xcfun}"+ """
 
       PWMODE=1  # 0:  MTO basis only (LMTO) !2021feb. I set PWMODE=1 as default (for smooth bandplot). 
                 # 1 : APW+MTO        (PMT)  !2022jun17 PWMODE=1 causes problem for QSGW
-                                            (even when PWMODE=1, I enforce PWMODE=11 for GWdriver mode --jobgw).
-                                            !   |G|cutoff 
+                #                           (even when PWMODE=1, I enforce PWMODE=11 for GWdriver mode --jobgw).
+                # 2 : APW only              !   |G|cutoff 
                 # 11: APW+MTO        (PMT)  ! |q+G|cutoff
                 # 12: APW basis only (LAPW) ! |q+G|cutoff
                 #
@@ -944,19 +894,18 @@ tail = tail + """                 # For sp-bonded solids, ELIND=-1 may give fast
 
       #For LDA+U calculation, see ecalj manual.
 
-      #For QSGW. you have to set them. Better to get some samples.
       RDSIG=12
+      #For QSGW. you have to set them. Better to get some samples.
       # Now we use no cutoff procedure for Sigma-Vxc in lmf. (only in emax_sigm is effective in GWinput). 
-      # default:SIGP_EMAX=9999.
 
       ScaledSigma={ssig} # ScaledSigma* \Sigma + (1-ScaledSigma)*Vxc^LDA
       # This is a RPA-level hybridyzation method, in contrast to the B3LYP (hartree-fock level hybridyzation)
 
       SO={so}   #default = 0 
       #Spin-orbit coupling (for REL=1)
-      #0 : no SO coupling
-      #1 : Add L.S to hamiltonian (but non-colinear density yet).
-      #2 : Add Lz.Sz only to hamiltonian
+      # 0 : no SO coupling
+      # 1 : Add L.S to hamiltonian (but non-colinear density yet).
+      # 2 : Add Lz.Sz only to hamiltonian
       #
       # For QSGW with SO=1 pertubation, run SO=1 with --rs=1,0 with NIT=1,
       #  starting from converged rst.* sigm.*  ESEAVR, and
@@ -967,23 +916,15 @@ tail = tail + """                 # For sp-bonded solids, ELIND=-1 may give fast
       # See cal zhev_tk3 in ecalj/lm7K/fp/bndfp.F. For using large pwemax, you may need to set OVEPS=1d-6 ~ 1d-8.
       # If you use larger OVEPS, you have smaller number of basis (APW+MTO) for expanding eigenfunctions.
 
-OPTIONS PFLOAT=1 #not need to change this. Just for backward compatibility.
-      # Q=band (this is quit switch if you like to add)
-
-# Relaxiation sample
+# Relaxiation MODE. We calculate force by force theorem and relax.
 #DYN     MODE=5 HESS=T XTOL=.001 GTOL=0 STEP=.015 NIT=20
 # See file://Document/Manual/CaterogyAndToken.org
-
+# We now have to set DYN with DYN_MODE DYN_XTOL DYN_GTOL DYN_STEP DYN_NIT
+# 
 """
 
-### Write ctrl.ext
-#g = open("ctrl."+ext,'wt')
-#g.write(ctrlnospec+aaa+tail)
-#g.close()
 g = open("ctrlgenM1.ctrl."+ext,'wt')
-#g.write('\n'.join(listctrl)+tail)
 g.write(alltmp+specsec+tail)
 g.close()
 print( "OK! A template of ctrl file, ctrlgenM1.ctrl."+ext+", is generated.")
-#print "Copy it to ctrl."+ext+"; then Do lmchk "+ext" to check crystal structure (option --pr60 show more info)."
 sys.exit()

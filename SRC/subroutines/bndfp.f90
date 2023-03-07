@@ -1,6 +1,6 @@
 != Main part of full-potential LDA/GGA/QSGW(for given sigm). Single iteration = 2023-jan memo checked
 ! From density osmrhod and osmrho, m_mkpot_init gives potential,
-! osmpot, and sv_p_osig, sv_p_otau, sv_p_oppi (potential site integrals)
+! osmpot, and osig, otau, oppi (potential site integrals)
 ! Then we do band calcultion m_bandcal_init. It gives osmrho_out and orhoat_out.
 ! Finally, osmrho and orhoat are returned after mixing procedure (mixrho).
 !-- i/o --------------------------
@@ -46,13 +46,10 @@ contains
     !     ! For example,, rightafter call m_bandcal_init, we can get evalall, which is used in other modules.
     use m_supot,only: ngabc=>lat_nabc,k1,k2,k3 !for charge mesh
     use m_suham,only: ndham=>ham_ndham, ndhamx=>ham_ndhamx,nspx=>ham_nspx
-    use m_lmfinit, only: ncutovl,lso,ndos=>bz_ndos,bz_w,fsmom=>bz_fsmom, &
-         bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n, &
+    use m_lmfinit, only: ncutovl,lso,ndos=>bz_ndos,bz_w,fsmom=>bz_fsmom, bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n, &
          ldos,qbg=>zbak,lfrce,pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps, &
-         ham_scaledsigma, alat=>lat_alat,stdo,stdl,procid,master, &
-         nkaph,nlmax,nl,nbas,nsp, bz_dosmax, &
-         lmaxu,nlibu,lldau,lpztail,leks,lrout &
-         ,  nchan=>pot_nlma, nvl=>pot_nlml,nspc,pnufix !lmfinit contains fixed input 
+         ham_scaledsigma, alat=>lat_alat,stdo,stdl,procid,master, nkaph,nlmax,nl,nbas,nsp, bz_dosmax, &
+         lmaxu,nlibu,lldau,lpztail,leks,lrout,  nchan=>pot_nlma, nvl=>pot_nlml,nspc,pnufix !lmfinit contains fixed input 
     use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
     use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
@@ -60,17 +57,16 @@ contains
     use m_subzi, only: M_subzi_init, lwtkb,rv_a_owtkb,M_subzi_setlwtkb,M_subzi_bzintegration
     use m_rsibl, only : Rsibl_ev ! to plot wavefunction in the fat band mode
     use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq,xmpbnd2
-    !      use m_lmfgw,only: M_lmfgw_init !,jobgw !,sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx
+    !      use m_lmfgw,only: M_lmfgw_init !,jobgw !,osigx,otaux,oppix,spotx
     use m_mkpot,only: M_mkpot_init,M_mkpot_deallocate, M_mkpot_energyterms,M_mkpot_novxc,& ! & M_mkpot_novxc_dipole,
          osmpot, qmom, vconst, osig,otau,oppi, qval , qsc , fes1_rv , fes2_rv
     use m_clsmode,only: M_clsmode_init,m_clsmode_set1,m_clsmode_finalize
     use m_qplist,only:  qplist,nkp,xdatt,labeli,labele,dqsyml,etolc,etolv, &
-         nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml, &
-         iqini,iqend,ispini,ispend,kpproc    ! MPIK divider. iqini:iqend are node-dependent
+         nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml,iqini,iqend,ispini,ispend,kpproc    ! MPIK divider. iqini:iqend are node-dependent
     use m_igv2x,only: napw,ndimh,ndimhx,igv2x
     use m_procar,only: M_procar_init,dwgtall,nchanp,m_procar_closeprocar,m_procar_writepdos
     use m_bandcal,only: M_bandcal_init,M_bandcal_2nd,M_bandcal_clean,M_bandcal_allreduce, &
-         evlall,smrho_out,sv_p_oqkkl,sv_p_oeqkkl, ndimhx_,nevls,m_bandcal_symsmrho !,nev_
+         evlall,smrho_out,oqkkl,oeqkkl, ndimhx_,nevls,m_bandcal_symsmrho !,nev_
     use m_mkrout,only: M_mkrout_init,orhoat_out,frcbandsym,hbyl_rv,qbyl_rv
     use m_addrbl,only: M_addrbl_allocate_swtk,swtk
     use m_sugw,only: M_sugw_init
@@ -313,8 +309,7 @@ contains
        allocate( dosi_rv(ndos,nspx),dos_rv(ndos,nspx)) !for xxxdif
        if(cmdopt0('--tdostetf')) ltet= .FALSE. ! Set tetrahedron=F
        if(ltet) then
-          call bzints(nkabc(1)*nkabc(2)*nkabc(3), evlall &
-               , dum ,nkp,nevmin,ndhamx,nspx , dosw(1),dosw(2), dosi_rv , ndos ,xxx , &             !ndhamx=>nevmin at 2023feb
+          call bzints(nkabc(1)*nkabc(2)*nkabc(3), evlall, dum ,nkp,nevmin,ndhamx,nspx , dosw(1),dosw(2), dosi_rv, ndos,xxx, & !ndhamx=>nevmin at 2023feb
                1, ntet , iv_a_oidtet , dum , dum ) !job=1 give IntegratedDos to dosi_rv
           dos_rv(2:ndos-1,:)=(dosi_rv(3:ndos,:)-dosi_rv(1:ndos-2,:))/(2d0*(dosw(2)-dosw(1))/(ndos-1))
           dos_rv(1,:)    = dos_rv(2,:)
@@ -346,8 +341,7 @@ contains
        do isp = 1,nspx
           jsp = isp
           if(master_mpi .AND. iprint()>=35) then
-             write(stdo,ftox)" bndfp: kpt",iq," of",nkp," k isp=",ftof(qp,4),jsp," ndimh nev=", &
-                  ndimhx_(iq,jsp),nevls(iq,jsp)
+             write(stdo,ftox)" bndfp: kpt",iq," of",nkp," k isp=",ftof(qp,4),jsp," ndimh nev=",ndimhx_(iq,jsp),nevls(iq,jsp)
              write(stdo,"(9f8.4)") (evlall(i,jsp,iq), i=1,nevls(iq,jsp))
           endif
           emin= min(minval( evlall(1:nevls(iq,jsp),jsp,iq)),emin)
@@ -383,7 +377,7 @@ contains
        qmom_in=qmom !multipole moments.
        eksham = 0d0 !   ... Evaluate KS total energy and output magnetic moment
        if(leks>=1) then
-          call mkekin(osig,otau,oppi,sv_p_oqkkl,vconst,osmpot,smrho_out,sev,  ekinval)
+          call mkekin(osig,otau,oppi,oqkkl,vconst,osmpot,smrho_out,sev,  ekinval)
           call m_mkpot_energyterms(smrho_out, orhoat_out) !qmom is revised for given orhoat_out
           if(cmdopt0('--density')) then
              call mpi_barrier(MPI_comm_world,ierr)
@@ -417,7 +411,7 @@ contains
     call tcx('bndfp')
   end subroutine bndfp
 !========================================================  
-  subroutine mkekin(sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,smpot,smrho,sumev, ekinval)
+  subroutine mkekin(osig,otau,oppi,oqkkl,vconst,smpot,smrho,sumev, ekinval)
     use m_struc_def
     use m_lmfinit,only:nkaph,nsp,nspc,stdo,nbas,ispec,sspec=>v_sspec,nlmto
     use m_lattic,only: lat_vol
@@ -543,18 +537,17 @@ contains
     !u   20 Jun 00 adapted from nfp get_ekin
     ! ----------------------------------------------------------------------
     implicit none
-    type(s_cv1),target :: sv_p_oppi(3,nbas)
-    type(s_rv1),target :: sv_p_otau(3,1)
-    type(s_rv1),target :: sv_p_osig(3,1)
-    type(s_rv1),target :: sv_p_oqkkl(3,nbas)
+    type(s_cv1),target :: oppi(3,nbas)
+    type(s_rv1),target :: otau(3,1)
+    type(s_rv1),target :: osig(3,1)
+    type(s_rv1),target :: oqkkl(3,nbas)
     real(8),pointer:: OQPP(:), OQHP(:),OQHH(:), &
          OSIGHH(:),OSIGHP(:),OSIGPP(:), &
          OTAUHH(:),OTAUHP(:),OTAUPP(:)
     complex(8),pointer:: OPPIHH(:),OPPIHP(:),OPPIPP(:)
     real(8):: sumev , ekinval , vconst
     complex(8):: smpot(k1,k2,k3,nsp),smrho(k1,k2,k3,nsp)
-    integer :: ib,igetss,ipr,is,kmax,lgunit,lmxa,lmxh,n0,n1,n2,n3, &
-         ngabc(3),nglob,nkap0,nlma,nlmh
+    integer :: ib,igetss,ipr,is,kmax,lgunit,lmxa,lmxh,n0,n1,n2,n3, ngabc(3),nglob,nkap0,nlma,nlmh
     logical :: lgors
     parameter (n0=10,nkap0=3)
     double precision :: qum1,qum2,sraugm,srhov,srmesh,sum1,sum2,sumh,sumq,sumt,vol,xx
@@ -584,25 +577,23 @@ contains
        call orblib(ib) ! norb , ltab , ktab , offl ,ntab,blks
        nlma = (lmxa+1)**2
        nlmh = (lmxh+1)**2
-       OQHH => sv_p_oqkkl(3,ib)%v !head x head index=3
-       OQHP => sv_p_oqkkl(2,ib)%v !head x tail index=2
-       OQPP => sv_p_oqkkl(1,ib)%v !tail x tail index=1
-       OTAUHH =>sv_p_otau(3,ib)%v
-       OTAUHP =>sv_p_otau(2,ib)%v
-       OTAUPP =>sv_p_otau(1,ib)%v
-       OSIGHH =>sv_p_osig(3,ib)%v
-       OSIGHP =>sv_p_osig(2,ib)%v
-       OSIGPP =>sv_p_osig(1,ib)%v
-       OPPIHH =>sv_p_oppi(3,ib)%cv
-       OPPIHP =>sv_p_oppi(2,ib)%cv
-       OPPIPP =>sv_p_oppi(1,ib)%cv
-       call pvgtkn ( kmax , lmxa , nlma , nkaph , norb , ltab , ktab &
+       OQHH => oqkkl(3,ib)%v !head x head index=3
+       OQHP => oqkkl(2,ib)%v !head x tail index=2
+       OQPP => oqkkl(1,ib)%v !tail x tail index=1
+       OTAUHH =>otau(3,ib)%v
+       OTAUHP =>otau(2,ib)%v
+       OTAUPP =>otau(1,ib)%v
+       OSIGHH =>osig(3,ib)%v
+       OSIGHP =>osig(2,ib)%v
+       OSIGPP =>osig(1,ib)%v
+       OPPIHH =>oppi(3,ib)%cv
+       OPPIHP =>oppi(2,ib)%cv
+       OPPIPP =>oppi(1,ib)%cv
+       call pvgtkn ( kmax , lmxa , nlma , nkaph , norb , ltab , ktab & !  Add site augmentation contribution to rhout * (ham - ke)
             , blks , lmxh , nlmh , OTAUHH , OSIGHH , OPPIHH &
             , OTAUHP , OSIGHP , OPPIHP &
-            , OTAUPP , OSIGPP , OPPIPP  &
-            , OQHH , OQHP , OQPP , nsp , nspc , sumt &
-            , sumq , sumh )
-       !       Add site augmentation contribution to rhout * (ham - ke)
+            , OTAUPP , OSIGPP , OPPIPP &
+            , OQHH , OQHP , OQPP , nsp , nspc , sumt, sumq , sumh ) 
        sraugm = sraugm + sumh - sumt
 10     continue
     enddo
@@ -615,8 +606,7 @@ contains
     call tcx('mkekin')
   end subroutine mkekin
   subroutine pvgtkn(kmax,lmxa,nlma,nkaph,norb,ltab,ktab,blks,lmxh, &
-       nlmh,tauhh,sighh,ppihhz,tauhp,sighp,ppihpz, &
-       taupp,sigpp,ppippz,qhh,qhp,qpp,nsp,nspc,&
+       nlmh,tauhh,sighh,ppihhz,tauhp,sighp,ppihpz, taupp,sigpp,ppippz,qhh,qhp,qpp,nsp,nspc,&
        sumt,sumq,sumh) 
     !- Local contribution to kinetic energy for one site
     ! ----------------------------------------------------------------------
@@ -683,9 +673,7 @@ contains
        nlm22 = nlm21 + blks(io2)-1
        do  io1 = 1, norb; if(blks(io1)==0) cycle 
           associate(k1=>ktab(io1),nlm11 => ltab(io1)**2+1)
-            sumh = sumh+sum([( &
-                 sum(qhh(k1,k2,ilm1,nlm21:nlm22,:)*ppihhz(k1,k2,ilm1,nlm21:nlm22,:)) &
-                 ,ilm1=nlm11,nlm11+blks(io1)-1) ])
+            sumh= sumh+sum([( sum(qhh(k1,k2,ilm1,nlm21:nlm22,:)*ppihhz(k1,k2,ilm1,nlm21:nlm22,:)) ,ilm1=nlm11,nlm11+blks(io1)-1) ])
             do  ilm1 = nlm11, nlm11+ blks(io1)-1
                if( nlm21<= ilm1 .and. ilm1<=nlm21+blks(io2)-1) then
                   sumt = sumt + sum(qhh(k1,k2,ilm1,ilm1,:)*tauhh(k1,k2,ll(ilm1),:))
@@ -768,7 +756,6 @@ contains
           enddo isploop
 61     enddo ibandloop
 7   enddo iqloop
-100 format(/1x,'MAKDOS :  range of gaussians is ',f5.2,'W (',i4,' bins).' &
-         /11x,'Error estimate in DOS : ',1pe9.2,' per state.')
+100 format(/1x,'MAKDOS :  range of gaussians is ',f5.2,'W (',i4,' bins).'/11x,'Error estimate in DOS : ',1pe9.2,' per state.')
   end subroutine makdos
 end module m_bndfp

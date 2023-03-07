@@ -78,7 +78,7 @@ program rdata4gw_v2
   real(8),allocatable:: rofi(:), evl(:,:,:),vvv1(:),vvv2(:),vvv3(:)
   integer,allocatable:: lmxaa(:),nncx(:,:),nrGG(:), indxk(:),ipq(:) ,lcutmx(:) 
   real(8),allocatable :: rmax(:),gen(:,:),wgt(:) ,symgr(:,:,:),qibze(:,:)
-  integer :: idxk,nwordr
+  integer :: idxk
   complex(8),allocatable :: ppovl(:,:),ppx(:,:),ppovlinv(:,:)
   integer:: icore1,nnnn, mrecg!,nqi
   integer,allocatable:: invgx(:)
@@ -109,7 +109,7 @@ program rdata4gw_v2
   complex(8),allocatable :: gg(:)
   real(8),allocatable:: www(:,:,:)
   logical(8):: ppovl0l=.true.
-  integer:: ippovl0,ifile_handle
+  integer:: ippovl0
   logical::  ngczero=.false.,qreduce
   integer:: nqnumt,imx     ,ix1     ,idum1,idum2,idum3, idum4 !ingczero
   real(8),allocatable::qsave(:,:)
@@ -205,12 +205,12 @@ program rdata4gw_v2
      enddo
   enddo
   open(newunit=ifhbed,file='hbe.d')
-  ndble = 8
   write(stdo,'( " ldim2 nbandmx=",3i5)') ldim2, nbandmx
-  mrecb = 2*ldim2*nbandmx *ndble/nwordr()
-  mrece = nbandmx         *ndble/nwordr()
-  mrecg = 2*ngpmx*nbandmx *ndble/nwordr()
-  write(ifhbed,"(1x,i3,6i12)") ndble,mrecb,mrece,ldim2,nqbz,nbandmx,mrecg
+  ndble = 8
+  mrecb = 2*ldim2*nbandmx *ndble !byte size
+  mrece = nbandmx         *ndble 
+  mrecg = 2*ngpmx*nbandmx *ndble 
+  write(ifhbed,"(*(g0,x))") ndble,mrecb,mrece,ldim2,nqbz,nbandmx,mrecg
   write(ifhbed,*)' precision, mrecl of b, mrecl of eval, ldim2(p+d+l)  nqbz  nbandmx mrecg'
   close(ifhbed)
   open(newunit=ifec, file='ECORE')

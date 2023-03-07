@@ -209,7 +209,7 @@ program hx0fp0
   integer:: src,dest
   logical:: lqall
   integer,allocatable ::  invgx(:) !iclasst(:),
-  integer:: ificlass,ifile_handle,k
+  integer:: ificlass,k
   complex(8),allocatable:: ppovl_(:,:)
 
   logical:: readw0w0itest=.false.,hx0,cmdopt0
