@@ -1,5 +1,5 @@
 real(8) function tolq()
-  tolq=1d-6 !tolerance to judge identical q vectors when rotated
+  tolq=1d-4 !tolerance to judge identical q vectors when rotated
 END function tolq
 
 logical function mtosigmaonly() !this is also in fpgw/gwsrc/switches.
