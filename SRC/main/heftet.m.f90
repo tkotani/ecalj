@@ -6,7 +6,7 @@ program heftet
   use m_read_bzdata,only: read_bzdata, &
        idteti,qbz,qibz,dq_,nqibz,ntetf,nteti,ginv,nqbz
   use m_genallcf_v3,only: genallcf_v3, nclass,natom,nspin,nl,nn,nnv,nnc, &
-       nlmto,nlnmx, nctot,niw,  alat, delta,deltaw,esmr,clabl,iclass, il,in,im,nlnm, &
+       nlmto,nlnmx, nctot,niw,  alat, delta,deltaw,esmr,clabl,iclass, &!il,in,im,nlnm, &
        plat, pos,z,ecore, konf,nlnx
   use m_hamindex,only:   Readhamindex
   use m_readeigen,only: init_readeigen,readeval

@@ -6,7 +6,6 @@ module m_eibz
        nclass,natom,nspin,nl,nn, &
        nlmto,nlnmx, nctot, &
        alat, deltaw,clabl,iclass, &
-       il, in, im, nlnm, &
        plat, pos, ecore
   use m_hamindex,only: symgg =>symops
   use m_qbze,only: Setqbze, &

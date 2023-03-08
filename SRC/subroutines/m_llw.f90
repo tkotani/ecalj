@@ -3,7 +3,7 @@ module m_llw
   !     &     wqt,q0i,nq0i ,nq0iadd,ixyz
   use m_rdpp,only: nblochpmx
   use m_genallcf_v3,only: nclass,natom,nspin,nl,nn, &
-       nlmto,nlnmx, nctot,alat, deltaw,clabl,iclass, il, in, im, nlnm, &
+       nlmto,nlnmx, nctot,alat, deltaw,clabl,iclass, & !il, in, im, nlnm, &
        plat, pos, ecore, tpioa
   use m_freq,only: frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,niw !output of getfreq
   use m_qbze,only: Setqbze, nqbze,nqibze,qbze,qibze

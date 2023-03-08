@@ -5,9 +5,9 @@ module m_zmel
   use m_genallcf_v3,only: &
        nclass,natom,nspin,nl,nn,nnv,nnc, &
        nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, niw, &
-       alat,delta,deltaw,esmr,iclass,nlnmv,  nlnmc,  icore,ncore,occv,unoccv , &
-       occc,unoccc, nocc, nunocc, plat, pos,z,ecore, &
-       il, in, im, mnl=>nlnm , nl,nn,nlnmx
+       alat,delta,deltaw,esmr,iclass,nlnmv,  nlnmc,  icore,ncore , &
+       plat, pos,z,ecore, &
+       mnl=>nlnm , nl,nn,nlnmx ,il, in, im 
   use m_hamindex,only: ngrp, symgg=>symops,invg=>invgx
   use m_rdpp,only: Rdpp, nxx,lx,nx,mdimx,nbloch,cgr,ppbrd,nblocha,done_rdpp
   use m_readeigen,only: Readcphif 
@@ -526,7 +526,7 @@ contains
     !r
     !-------------------------------------------------------------------------
     integer:: nl,nlmto,nbloch,nclass,natom,nctot,ncc,nt0,ntp0,mdimx,nlnmx,nnc, &
-         ib,ias,ics,ia,ic,nc,nv,nc1,iap,icp,i,itp,it,icr,icore(nl*nl*nnc,nclass),ncore(nclass), &
+         ias,ics,ia,ic,nc,nv,nc1,iap,icp,i,itp,it,icr,icore(nl*nl*nnc,nclass),ncore(nclass), &
          mdim(nclass),iclass(natom),imdim(natom),iatomp(natom),verbose,ixx
     real(8)::   ppb(nlnmx,nlnmx,mdimx,nclass) 
     complex(8):: zpsi2b(nbloch,nt0+nctot,ntp0+ncc), cphikq(nlmto,*), cphik(nlmto,*),phase(natom)
@@ -540,7 +540,6 @@ contains
        nc1   = nc + 1
        iap   = iatomp(ia)
        icp   = iclass(iap)
-       ib    = imdim(iap)-1
        ias   =  sum(nlnmv(iclass(1:ia-1)))+1
        ics   =  sum(ncore(iclass(1:ia-1)))
        do concurrent(i=1:mdim(icp), itp=1:ntp0, it=1:ncore(ic)) !product basis
@@ -595,9 +594,8 @@ contains
          shtv, matmul(symope,qik),qik, symope, qlat, qt,& ! & qt is dummy...
          zmelpl)
     zmelt=0d0
-    zmelt(1:nbloch, 1:nctot+nt0, 1:ntp0) = &
-         dcmplx(rmel (1:nbloch, 1:nctot+nt0, 1:ntp0),  cmel (1:nbloch, 1:nctot+nt0, 1:ntp0))
-    zmelt(nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,1:ntp0) =zmelpl(1:ngc,  1:nt0, 1:ntp0)
+    zmelt(1:nbloch, 1:nctot+nt0, 1:ntp0) = dcmplx(rmel (1:nbloch, 1:nctot+nt0, 1:ntp0),  cmel (1:nbloch, 1:nctot+nt0, 1:ntp0))
+    zmelt(nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,1:ntp0) = zmelpl(1:ngc,  1:nt0, 1:ntp0)
     deallocate(zmelpl)
   end subroutine drvmelp3
 end module m_zmel

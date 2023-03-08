@@ -116,7 +116,7 @@ contains
     complex(8),allocatable:: w3p(:),wtff(:)
     complex(8),pointer::zsec(:,:), ww(:,:)
     integer,allocatable :: ifrcw(:),ifrcwi(:),ndiv(:),nstatei(:,:),nstatee(:,:),irkip(:,:,:,:)
-    logical,parameter:: cache=.true. 
+    logical,parameter:: cache=.true.
     if(nw_i/=0) call rx('Current version we assume nw_i=0. Time-reversal symmetry')
     iqini = 1
     iqend = nqibz             
@@ -158,8 +158,7 @@ contains
        ns1 =nstti(icount) ! Range of middle states is [ns1:ns2] 
        ns2 =nstte(icount) ! 
        ns2r=nstte2(icount) !Range of middle states [ns1:ns2r] for CorrelationSelfEnergyRealAxis
-       !if(eibz4sig()) wtt=wtt*nrkip(isp,kx,irot,ip)
-       !       write(6,ftox)'do3030:isp kx ip',isp,kx,ip,'icou/ncou=',icount,ncount,'ns1:ns2=',ns1,ns2
+       !if(eibz4sig()) wtt=wtt*nrkip(isp,kx,irot,ip); write(6,ftox)'do3030:isp kx ip',isp,kx,ip,'icou/ncou=',icount,ncount,'ns1:ns2=',ns1,ns2
        ZmelBlock:block !zmel(ib=ngb,it=ns1:ns2,itpp=1:ntqxx)= <M(qbz_kr,ib) phi(it,q-qbz_kr,isp) |phi(itpp,q,isp)> 
          if(cache.and.kxold/=kx) then !this is a cache mechanism of zmel vcoud when kxold=kx !we can skip this if no cache
             call Readvcoud(qibz_k,kx,NoVcou=.false.) !Readin ngc,ngb,vcoud ! Coulomb matrix
@@ -171,6 +170,7 @@ contains
        ExchangeMode: if(exchange) then      
           ExchangeSelfEnergy: Block
             real(8):: wfacx,vcoud_(ngb),wtff(ns1:ns2) !range of middle states ns1:ns2
+            !character(8):: xt ;call timeshow("ExchangeMODE1 icount="//trim(xt(icount)))
             vcoud_= vcoud                                    ! kx==1 must be for q=0     
             if(kx==1) vcoud_(1)=wklm(1)*fpi*sqrt(fpi)/wk(kx) ! voud_(1) is effective v(q=0) in the Gamma cell. 
             wtff = [(1d0,it=ns1,nctot), (wfacx(-1d99, ef, ekc(it), esmr),it=nctot+1,ns2)]
@@ -200,8 +200,8 @@ contains
                 if(it<=nctot) then ! if w = e the integral = -v(0)/2 ! frequency integral
                    cons = 1d0/(we**2*x**2 + (1d0-x)**2)
                    wgtim_(1:niw)= we*cons*wt*(-1d0/pi)
-                   wgtim_(0)= merge(-sum(wgtim_(1:niw)*expa_)-0.5d0*dsign(1d0,we)*dexp(we**2*ua_**2)*erfc(ua_*dabs(we)),&
-                        0d0, mask= dabs(we)<rmax/ua_)
+                   wgtim_(0)= merge(-sum(wgtim_(1:niw)*expa_)-0.5d0*dsign(1d0,we)*dexp(we**2*ua_**2)*erfc(ua_*dabs(we)), 0d0, &
+                        mask=dabs(we)<rmax/ua_)
                    if(npm==2) wgtim_(niw+1:2*niw) = cons*(1d0/x-1d0)*wt/pi !Asymmetric contribution need check
                 else
                    omd   = 1d0/x - 1d0

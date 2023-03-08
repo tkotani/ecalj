@@ -475,7 +475,7 @@ subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, &
            endif
         enddo
      enddo
-     write(6,"(' *** lx  *** Used nb =',2i5)") lx,nb
+     write(6,"('    *** lx  =',i4,'*** Used nb =',i4)") lx,nb
      deallocate( ovvc, zz, eb,ibo)
   enddo
 
