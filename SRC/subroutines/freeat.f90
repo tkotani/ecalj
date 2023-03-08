@@ -47,7 +47,7 @@ contains
     integer:: ifives,ifiwv
     character strn*120
     logical :: cmdopt
-    open(ifi,file='atm.'//trim(sname))
+    open(newunit=ifi,file='atm.'//trim(sname))
     rewind ifi
     hfct = 0d0
     open(newunit=ifives,file='vesintatm.'//trim(sname)//'.chk')

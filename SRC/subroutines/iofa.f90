@@ -64,7 +64,7 @@ integer function iofa(spid,nxi0,nxi,exi,hfc,hfct,rsm,z,rmt,a,nr,qc,ccof,ceh,stc,
      if (nsp == 2) read(ifi,333) v(nr+1:2*nr)
   endif
   if (rw=='write')  then
-     jfi = -ifi
+     jfi = ifi
      write(jfi,"(a,a)")spid,' ===  z       a      nsp   lrel   nr   rmt  rsm'
      write(jfi,102) z,a,nsp,lrel,nr,rmt,rsm
 102  format(2d24.16,3i5,2d24.16)
