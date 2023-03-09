@@ -55,7 +55,6 @@ contains
          dval,avw,ekap(2),enu,qss(4),ckbas,cksumf,ehterm(4), rmaxs, &
          qlat(9),emad,trumad,vmtz(2)
     parameter (ngmx=48,mxclas=1000)
-    integer:: i_copy_size, i_spackv, i_spacks
     integer:: ifx,w_dummy(1)=1
     integer,allocatable:: lmxa(:)
     real(8),allocatable:: z(:),rmax(:)
@@ -75,11 +74,8 @@ contains
     allocate(lmxa(nclasp),z(nclasp))
     lmxa(1:nclasp) = sspec(iv_a_oics(1:nclasp))%lmxa !sarray%
     z   (1:nclasp) = sspec(iv_a_oics(1:nclasp))%z
-    !print *,' nclasp,lmxa=',nclasp,lmxa
-    !print *,' z   =',z
     nbasp = nbas !+ npadl + npadr
     nbaspp = nbas !2*nbasp - nbas
-    !      stdo = lgunit(1)
     j = 10
     if (cmdopt('--shorten',j-1,0,outs)) then
        call shorps ( nbasp , plat , modep , rv_a_opos , rv_a_opos )
@@ -95,19 +91,11 @@ contains
 !    if (lpbc == 0) then
        i = 3 !3dim
        j = -1
-!    elseif (lpbc == 1 .OR. lpbc == 11) then
-!       i = 2
-!       j = 1
-!    else
-!       call rx('ASASTR: not implemented for lpbc>1')
-!    endif
     mxcsiz = str_mxnbr !int(sstr%mxnbr)
-
     call pshpr(iprint()-20)
     call pairs ( nbas , nbasp , alat , plat ,(/ rmaxs / 2/) , rv_a_opos &
          , (/- 1/), w_dummy , nttab , iv_a_ontab , iv_a_oiax , mxcsiz ) !, i,j
     call poppr
-
     ! --- Print out a few superlattice vectors ---
     j = 6
     if (cmdopt('--slat',j-1,0,outs)) then
@@ -138,14 +126,14 @@ contains
        write(stdo,*)' ... Make sphere radii'
        allocate(zz_rv(nspec))
        allocate(rmt_rv(nspec))
-       do i_spackv=1,nspec
-          zz_rv (i_spackv) = sspec(i_spackv)%z
-          rmt_rv(i_spackv) = sspec(i_spackv)%rmt
+       do i=1,nspec
+          zz_rv (i) = sspec(i)%z
+          rmt_rv(i) = sspec(i)%rmt
        enddo
        allocate(lock_iv(nspec))
        lock_iv(:)=0
        do  i = 1, nspec
-          lock_iv(i)= cstrmx(i) !bitand ( int ( sspec ( i )%mxcst ) , 2 ) )
+          lock_iv(i)= merge(1,0,cstrmx(i))
        enddo
        if (lpbc == 0) then
           i = 3
@@ -157,15 +145,9 @@ contains
        call makrm0 ( 101 , nspec , nbas , alat , plat , rv_a_opos , &
             slabl , iv_a_oips , modep , lock_iv , zz_rv , rmt_rv ) !sarray%
        !   ... Scale sphere radii satisfying constraints
-!       i_copy_size=size(ctrl_omax1)
-!       call dcopy(i_copy_size,ctrl_omax1,1,omax1,1)
-!       i_copy_size=size(ctrl_omax2)
-!       call dcopy(i_copy_size,ctrl_omax2,1,omax2,1)
-!       wsrmax=ctrl_wsrmax
        call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , rv_a_opos &
             , iv_a_oips , modep , slabl , zz_rv , lock_iv , 1d0 , wsrmax &
             , omax1 , omax2 , rmt_rv )
-       i_copy_size=1;
        nclspp = max(2*nclasp-nclass,nspec)
        allocate(rmax(nclspp))
        print *,' zzzz nclspp=',nclspp
@@ -2706,18 +2688,12 @@ subroutine defwsr(wsr,z)
   !u Updates
   !u   19 Apr 02 Adapted from Stuttgart LMTO56
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! Passed variables:
+  implicit none
   double precision :: wsr,z
-  ! Local variables:
   integer :: iprint,iz
   double precision :: cpwsr(0:100)
-  ! External calls:
-  !      external isanrg
   logical:: isanrg, l_dummy_isanrg
-  ! Intrinsic functions:
   intrinsic idnint
-  ! Data statements:
   data cpwsr/2.00d0, &
        1.39d0,2.55d0,3.04d0,2.27d0,1.96d0,1.66d0,1.90d0,1.90d0, &
        2.17d0,2.89d0,3.76d0,3.25d0,2.95d0,2.63d0,2.56d0,2.70d0, &
@@ -2736,15 +2712,10 @@ subroutine defwsr(wsr,z)
        4.44d0,5.81d0,4.30d0,3.84d0,3.52d0, &
        3.32d0,3.13d0,3.02d0,2.96d0,2.93d0, &
        2.93d0,2.95d0,2.99d0,3.05d0,3.17d0/
-
-  iz = idnint(z)
-  !      l_dummy_isanrg=isanrg(iz,0,100,'DEFWSR:','z',.true.)
+  iz = nint(z)
   wsr = cpwsr(iz)
   if (iprint() >= 120) write(stdo,300) iz,wsr
 300 format(/' DEFWSR: default radius for z=',i2,': ',f8.2)
 end subroutine defwsr
-
-
-
 end module m_lmaux
 

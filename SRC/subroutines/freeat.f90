@@ -3,18 +3,13 @@ module m_freeat
   public freeat,freats
   private
 contains
-  subroutine freeat()
+  subroutine freeat() !For all species, we make free atom self-consistent, and get density to files.
     use m_ext,only:sname
-    use m_lmfinit,only: smalit,lxcf,ham_seref,nsp,nspec, sspec=>v_sspec,&
+    use m_lmfinit,only: smalit,lxcf,ham_seref,nsp,nspec, sspec=>v_sspec,& 
          idmod,slabl,vmtz,eref,rs3,eh3,nmcore,coreh,coreq,pnux=>pnusp,pzx=>pzsp,qnu
     use m_ftox
-    !- For each species, makes free atom self-consistent
-    ! ----------------------------------------------------------------------
     !i Inputs
-    !i   sspec :struct for species-specific information; see routine uspec
-    !i     Elts read: rsmfa rfoca coreq z rmt a nr p q idmod lmxa pz eref
-    !i                rs3 eh3 vmtz
-    !i     Stored:    name coreh z rmt a nr norp ntorb
+    !i   sspec%*
     !o Outputs via iofa
     !l Local variables
     !l   ccof  :coefficient to fit of core tail to smoothed Hankel
@@ -34,44 +29,27 @@ contains
     !u   10 Jun 00 spin polarized
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: ifi,iprint,is,nglob,nr,nrmt,nrmx, &
-         n0,nkap0,nxi,nxi0,nrmix,igets,lmxa,kcor,lcor
+    integer :: ifi,iprint,is,nglob,nr,nrmt,nrmx, n0,nkap0,nxi,nxi0,nrmix,igets,lmxa,kcor,lcor,iofa, i_dum,ifives,ifiwv
     character(8) :: spid,chole(8)
     parameter ( nrmx=1501, nxi0=10, n0=10, nkap0=3)
-    double precision :: qc,ccof,ceh,z,rmt,rfoca,qcor(2),a,sumec, sumtc,seref,dgets,dgetss,etot
-    double precision :: hfc(nxi0,2),exi(nxi0),hfct(nxi0,2)
-    double precision :: v(nrmx*2),rho(nrmx*2),rhoc(nrmx*2),rofi(nrmx*2)
-    double precision :: pnu(n0,2),pz(n0,2),qat(n0,2)
-    double precision :: rtab(n0,2),etab(n0,2),rsmfa
-    integer:: iofa, i_dum
-    integer:: ifives,ifiwv
+    real(8) :: qc,ccof,ceh,z,rmt,rfoca,qcor(2),a,sumec, sumtc,seref,dgets,dgetss,etot
+    real(8) :: hfc(nxi0,2),exi(nxi0),hfct(nxi0,2), v(nrmx*2),rho(nrmx*2),rhoc(nrmx*2),rofi(nrmx*2)
+    real(8) :: pnu(n0,2),pz(n0,2),qat(n0,2), rtab(n0,2),etab(n0,2),rsmfa
     character strn*120
     logical :: cmdopt
     open(newunit=ifi,file='atm.'//trim(sname))
-    rewind ifi
-    hfct = 0d0
     open(newunit=ifives,file='vesintatm.'//trim(sname)//'.chk')
     open(newunit=ifiwv,file='veswavatm.'//trim(sname)//'.chk')
+    hfct = 0d0
     do  is = 1, nspec ! Takao found that Li requires -0.5 to have positive smooth rho.
        if(sspec(is)%z<3.5) then !At least for Li, fitting is not good (negative smooth rho).
-          exi(1) = -0.5
-          exi(2) = -1
-          exi(3) = -2
-          exi(4) = -4
-          exi(5) = -6
-          exi(6) = -9
-          exi(7) = -15
+          exi(1:7) = [real(8):: -0.5, -1,-2,-4,-6,-9,-15]
           nxi = 7
        else !this is original setting. For CrN. This is necessary(maybe long range cutoff is required).
-          exi(1) = -1
-          exi(2) = -2
-          exi(3) = -4
-          exi(4) = -6
-          exi(5) = -9
-          exi(6) = -15
+          exi(1:6) = [real(8)::       -1,-2,-4,-6,-9,-15]
           nxi = 6
        endif
-       nrmix=smalit
+       nrmix= smalit
        spid = slabl(is) 
        rfoca= sspec(is)%rfoca
        qcor = coreq(:,is)
@@ -79,15 +57,15 @@ contains
        call gtpcor(is,kcor,lcor,qcor)
        z   = sspec(is)%z
        rmt = sspec(is)%rmt
-       rsmfa=.5d0*rmt            ! moved to here 2022-6-27
        a   = sspec(is)%a
        nrmt= sspec(is)%nr
+       rsmfa=.5d0*rmt            ! moved to here 2022-6-27
        if (z == 0 .AND. rmt == 0) cycle !floating orbital
-       pnu(:,1)=  pnux(1:n0,1,is) ! sspec(is)%p
+       pnu(:,1)=  pnux(1:n0,1,is) 
        if(nsp==2) pnu(:,2)= pnu(:,1)
-       qat(1:n0,1:nsp)=  qnu(1:n0,1:nsp,is) !sspec(is)%q
+       qat(1:n0,1:nsp)=  qnu(1:n0,1:nsp,is) 
        lmxa = sspec(is)%lmxa
-       pz(:,1) =  pzx(1:n0,1,is) ! sspec(is)%pz
+       pz(:,1) =  pzx(1:n0,1,is) 
        if(nsp==2) pz(:,2)= pz(:,1) !       write(6,ftox)'xxx isp pz=',is,ftof(pz(1:lmxa+1,1),6)
        write(stdo,"(a)")'freats:'
        call freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,kcor,lcor,qcor, &
@@ -184,26 +162,22 @@ contains
     !u   10 Apr 02 Redimensionsed etab,rtab to accomodate larger lmax
     ! ----------------------------------------------------------------------
     implicit none
-    ! ... Passed parameters
     integer :: nrmx,nrmt,is,nxi0,nxi,nrmix,lwf,lxcf,n0,kcor,lcor
     parameter (nrmx=1501,n0=10)
     character(8) :: spid
-    double precision :: rsmfa,rfoca,qc,ccof,ceh,sec,stc,z,rmt,a,eref, &
+    real(8) :: rsmfa,rfoca,qc,ccof,ceh,sec,stc,z,rmt,a,eref, &
          v(nrmx*2),rho(nrmx*2),rhoc(nrmx*2),hfc(nxi0,*),hfct(nxi0,*), &
          exi(*),rtab(n0,2),etab(n0,2),rofi(nrmx*2),rs3,eh3,vmtz,qcor(2)
-    ! ... Local parameters
     logical :: cmdopt
     integer :: ncmx,nvmx
     parameter (ncmx=50, nvmx=20)
     integer :: idmod(n0)
-    !     integer idmoz(n0)
     character str*8,strn*32
-    double precision :: rmax,b,etot,dq, &
+    real(8) :: rmax,b,etot,dq, &
          ec(ncmx),ev(nvmx),sumev,vrmax(2),exrmax(2),ekin,utot,rhoeps, &
          amgm,rhrmx,qvt,qtot,qct,qvin,qcin,r,wt0,wt1,qtt,qtin,pnul, &
          pzl,pnu(n0,2),qat(n0,2),pl(n0,2),rhoin(nrmx*2), &
          rhot(nrmx*2),ql(3,n0,2),pz(n0,2) ,qatbk(n0,2) !,rcfa(2)
-    !     double precision qz(n0,2)
     integer :: i,ifi,ipr,iprint,isp,isw,l,lfrz, &
          lgrad,lmxa,lplfa,nitmax,nmix,nr,lplawv !,irchan(n0)
     real(8) ,allocatable :: g_rv(:)
@@ -224,7 +198,6 @@ contains
           enddo
        enddo
     endif
-
     ! --- Get species data ----
     call dpzero(pl,2*n0)
     call dpzero(ql,2*3*n0)
@@ -233,8 +206,8 @@ contains
     plplus=0d0
     qlplus=0d0
     !      print *,'NOTE: when we have two valence: P and PZ, We assume eigen(PZ) is deeper than eigen(P).'
-    do  101  i = 1, nsp
-       do  10  l = 0, lmxa
+    nsploop: do  101  i = 1, nsp
+       lloop: do  10  l = 0, lmxa
           pnul = pnu(l+1,i)
           pzl  = mod(pz(l+1,1),10d0)
           if(nsp==1) qvaltot = qat(l+1,1)
@@ -285,13 +258,11 @@ contains
                 if(nsp==2)write(stdo,"(a,i2,3f8.3)")'=== Charge for l: Qtot=Qv=    ',l,qvaltot,ql(1,l+1,i)
              endif
           endif
-10     enddo
-101 enddo
-    !!
-    print *
+10     enddo lloop
+101 enddo nsploop
+    write(stdo,*)
     write(stdo,"(a)")'conf:------------------------------------------------------'
     write(stdo,"(a,a)")'conf:SPEC_ATOM= '//trim(spid),' : --- Table for atomic configuration ---'
-    !      write(stdo,"(a)")'conf When int(P)z .ne. int(P), Qval: Q for MTOcore(PZ)+MTO(P)'
     write(stdo,"(a)")'conf:  isp  l  int(P) int(P)z    Qval     Qcore   CoreConf'
     do i = 1, nsp
        do l = 0, lmxa
@@ -311,10 +282,8 @@ contains
           write(stdo,"('conf: ', i4,i3,3x,i5,i3,6x,f8.3,1x,f8.3,' => ',10(i1,','))") &
                i,l,ipl,iplz,qlplus(l,i)+ql(1,l+1,i),qcc, (ix,ix=l+1,miplzipl-1)
        enddo
-       !      write(stdo,"(a)")'conf:-----------------------------------------------------'
     Enddo
     write(stdo,"('usedQ=',10f10.3)") (sum(qlplus(l,1:nsp)+ql(1,l+1,1:nsp)),l=0,lmxa)
-
     ! ov 2010 QvalCheck
     do i = 1, nsp
        do l = 0, lmxa
@@ -325,31 +294,25 @@ contains
           endif
        enddo
     enddo
-
     call getqvc(nsp, n0, lmxa, z, pl, ql, 0, 0, kcor, lcor, qcor, qc, qtot, amgm )
     qtot=qtot+sum(qlplus(:,:)) !takao feb2011
     amgm=amgm+sum(qlplus(:,1)-qlplus(:,nsp)) !takao feb2011
-    if(ipr>=20) write(stdo,ftox)'conf: Species ',spid,'Z=',ftof(z,2), &
-         'Qc=',ftof(qc,3),'R=',ftof(rmt),'Q=',ftof(qtot),'nsp=',nsp,'mom=',ftof(amgm)
-
-    ! --- Set up radial mesh for free atom ---
+    if(ipr>=20) write(stdo,ftox)'conf: Species ',spid,'Z=',ftof(z,2),'Qc=',ftof(qc,3),'R=',ftof(rmt),'Q=',ftof(qtot),&
+         'nsp=',nsp,'mom=',ftof(amgm)
     rmax = 50d0
     if (z < 10) rmax = 25
     if (z <=  6) rmax = 20
     call pshpr(0)
-    call rmesh(z,rmt,lrel,lgrad,nrmx,a,nrmt)
+    call rmesh(z,rmt,lrel,lgrad,nrmx,a,nrmt) !Set up radial mesh for free atom ---
     call poppr
     b = rmt/(dexp(a*nrmt-a)-1d0)
     nr = 1d0+dlog(1d0+rmax/b)/a
     if (mod(nr,2) == 0) nr = nr-1
     rmax = b*(dexp(a*(nr-1))-1d0)
     if(iprint()>20)write(stdo,ftox)'conf: rmt rmax a=',ftof(rmt),ftof(rmax),ftof(a),'nrmt nr=',nrmt,nr
-!         '  a=%d  nr=%i  nr(rmax)=%i',rmt,rmax,a,nrmt,nr)
     ! --- Make atom self-consistent ---
     nitmax = nrmix
-    !      nmix = nrmix(2)
     nmix = -30
-    !     call pshpr(min(iprint(),40))
     ec(1) = 0
     print *,'goto atomc xxx'
     qelectron = z+qtot     !total number of electrons. 22mar2013
@@ -359,18 +322,14 @@ contains
          nitmax,lfrz,plplus,qlplus,nmcore,qelectron,vsum)
     print *,'end of atomsc xxxxx'
     print *,'vsum=',vsum,is
-
     if(ifives>0) then
        print *,'ifives=',ifives
        write(ifives,"(f23.15,i5,a)") vsum,is, ' !spatical integral of electrostatic potential'
        print *,' write end of ifives'
     endif
     if(ifiwv>0) write(ifiwv,"(f23.15,' ! total charge')") sum(qlplus(0:lmxa,1:nsp)+ql(1,1:lmxa+1,1:nsp))
-
     dq=dq+sum(qlplus(:,:)) !takao feb2011
-    if (ipr>=20)write(stdo,ftox)'sumev=',ftof(sumev),'etot=',ftof(etot), &
-         'eref=',ftof(eref),'etot-eref=',ftof(etot-eref)
-
+    if (ipr>=20)write(stdo,ftox)'sumev=',ftof(sumev),'etot=',ftof(etot),'eref=',ftof(eref),'etot-eref=',ftof(etot-eref)
     !! june2012takao comment out followings. because confusing.
     !      call dcopy(lmxa+1,ql,3,qat,1)
     !      call dcopy(lmxa+1,ql(1,1,nsp),3,qat(1,2),1)
@@ -379,9 +338,7 @@ contains
     !      if (nsp .eq. 2)
     !     .call awrit4('fa  Pl2%n:-1d  Ql2%n:-1d',
     !     .' ',80,stdl,lmxa+1,pl(1,nsp),lmxa+1,qat(1,nsp))
-
-    if (dabs(dq) > 1d-5 .AND. iprint() >= 10) &
-         write(stdo,ftox)' freeat (warning) atom not neutral, Q=',ftof(dq)
+    if (dabs(dq) > 1d-5 .AND. iprint() >= 10) write(stdo,ftox)' freeat (warning) atom not neutral, Q=',ftof(dq)
     ! .. Subtract core from density to make valence density
     do  isp = 1, nsp
        do  i = 1, nr
@@ -389,7 +346,6 @@ contains
           rho(i+(isp-1)*nr) = rho(i+(isp-1)*nr)-rhoc(i+(isp-1)*nr)
        enddo
     enddo
-
     ! --- Renormalize atom density or potential ---
     !irchan=0 !call ivset(irchan,1,n0,0)
     !! takao jun2012: rnatm is not tested ---> this is related to SPEC_ATOM_RCFA on.
@@ -400,41 +356,12 @@ contains
           rhot(i+(isp-1)*nr) = rho(i+(isp-1)*nr)+rhoc(i+(isp-1)*nr)
        enddo
     enddo
-    !     call prrmsh('ending total rho',rofi,rhot,nr,nr,nsp)
-
-    ! --- Print info about free-atom wavefunctions ---
-!    if (lwf /= 0) then
-!       if (ipr > 30) then
-          allocate(g_rv(nr*2))
-          allocate(psi_rv(nr*(lmxa+1)*nsp))
-          lplawv = 0
-          if (ipr >= 50) lplawv = 1
-          call pratfs (is, spid , lplawv , z , a , nr , rmax , nrmt , lmxa &
-               , pl,pz, nsp , v , rofi , g_rv , psi_rv, plplus,qlplus,ifiwv)
-          deallocate(psi_rv)
-          deallocate(g_rv)
-!       endif
-
-       ! ! --- Optimise smooth-Hankel basis ---
-       ! call dvset(rtab,1,n0,-1d0)
-       ! call dpzero(etab,n0)
-       ! i = 1
-       ! if ( .NOT. cmdopt('--noopt',7,0,strn)) then
-       !    if (cmdopt('--norscnst',10,0,strn)) i = 0
-       !    if (z > 0) then
-       !       !c     stop 'xxxxxxxxxxxxxxx end cccccxxx000'
-       !       !             write(stdo,*) '111 ',i,z,a,nr,rmax,nrmt,rmt,lmxa,pl,ql,nsp
-       !       !             write(stdo,*) '222 ',sum(v(1:nr)),sum(rofi(1:nr)),spid
-       !       ! cccccccccccccccccccccccccc
-       !       call optfab(i,z,a,nr,rmax,nrmt,rmt,lmxa,pl,ql,nsp,v, &
-       !            rofi,spid,itab,rtab,etab)
-       !       !   ... Fit value and slope of local orbitals
-       !       call ftfalo(i,z,a,nr,rmax,nrmt,rmt,lmxa,pnu,pz,rs3,eh3,vmtz, &
-       !            nsp,v,rofi,spid)
-       !    endif
-       ! endif
-!    endif
-
+    allocate(g_rv(nr*2))
+    allocate(psi_rv(nr*(lmxa+1)*nsp))
+    lplawv = 0
+    if (ipr >= 50) lplawv = 1 !Print info about free-atom wavefunctions ---
+    call pratfs (is, spid , lplawv , z , a , nr , rmax , nrmt , lmxa, pl,pz, nsp , v , rofi , g_rv , psi_rv, plplus,qlplus,ifiwv)
+    deallocate(psi_rv,g_rv)
     ! --- Print charges within/outside MT sphere ---
     if (z > 0) then
        qvt = 0d0
@@ -458,50 +385,32 @@ contains
 301    enddo
        qtt = qvt + qct
        qtin = qvin + qcin
-       if (ipr >= 40) write (stdo,550) qvin,qvt-qvin,qvt,qcin,qct-qcin, &
-            qct,qtin,qtt-qtin,qtt
-550    format(/' Charges:     inside',7x,'outside',7x,'sum' &
-            /' valence',3f13.6/' core   ',3f13.6/' total  ',3f13.6)
-
-       write (stdl,710) z,rmax,qc,qct-qcin,dq,etot
-710    format('fa Z',f6.1,'   rm',f7.2,'  qc',f6.2,'  qspl',f8.5, &
-            '  dq',f8.5,'  Etot',f15.6)
+       if(ipr>=40)write(stdo,"(/' Charges:     inside',7x,'outside',7x,'sum'/' valence',3f13.6/' core   ',3f13.6/' total  ', &
+            3f13.6)")                           qvin,       qvt-qvin,    qvt,   qcin,qct-qcin,qct,   qtin,qtt-qtin,  qtt
+       write (stdl,"('fa Z',f6.1,'   rm',f7.2,'  qc',f6.2,'  qspl',f8.5,'  dq',f8.5,'  Etot',f15.6)")z,rmax,qc,qct-qcin,dq,etot
     else
        qvt = 0
     endif
-    ! --- Attach smooth Hankel tails to valence density ---
-    !     lplfa = nglob('lplfa')
     lplfa = 0
     if (qvt > 1d-6) then
        if (lplfa == 1) then
-          write(stdo,344)
-344       format(/' write plot file with valence density..')
+          write(stdo,"(/' write plot file with valence density..')")
           if (is < 10) write (str,'(''pl'',i1)') is
           if (is >= 10) write (str,'(''pl'',i2)') is
-          !          ifi = fopna(str,-1,0)
           open(newunit=ifi,file=trim(str)//'.'//trim(sname))
-          write (ifi,490) spid,rmt,rsmfa,nxi
-490       format('# fit to fa density: ',a/ &
-               '# rmt=',f7.3,'   rsm=',f7.3,'   nxi=',i2)
+          write (ifi,"('# fit to fa density: ',a/'# rmt=',f7.3,'   rsm=',f7.3,'   nxi=',i2)") spid,rmt,rsmfa,nxi
           close(ifi)
        endif
-       call tailsm(0,nr,nrmt,nsp,a,b,rmt,rsmfa,nxi0,nxi,exi,rofi, &
-            rho,rhot,hfc,hfct)
-       !       call prrmsh('rho-fa',rofi,rho,nr,nr,1)
+       call tailsm(0,nr,nrmt,nsp,a,b,rmt,rsmfa,nxi0,nxi,exi,rofi, rho,rhot,hfc,hfct) !Attach smooth Hankel tails to valence density ---
     else
        call dpzero(hfc, nxi0*nsp)
        call dpzero(hfct, nxi0*nsp)
     endif
-    ! --- Fit analytical expression to tail of core density ---
-    call fctail(nr,nrmt,a,b,rfoca,rofi,rhoc,ccof,ceh)
+    call fctail(nr,nrmt,a,b,rfoca,rofi,rhoc,ccof,ceh) !Fit analytical expression to tail of core density ---
   end subroutine freats
-
-
-  subroutine pratfs(is,spid,lplawv,z,a,nr,rmax,nrmt,lmaxa,pl,pz,nsp,v,rofi,g,psi,plplus,qlplus,ifiwv)
+  subroutine pratfs(is,spid,lplawv,z,a,nr,rmax,nrmt,lmaxa,pl,pz,nsp,v,rofi,g,psi,plplus,qlplus,ifiwv)!Prints out core and valence energy levels of free-atom
     use m_ext,only:sname
     use m_ftox
-    !- Prints out core and valence energy levels of free-atom
-    ! ----------------------------------------------------------------------
     !i Inputs
     !i   spid  :species label
     !i   z     :nuclear charge
@@ -518,26 +427,19 @@ contains
     !i   g     :normalized wave function times r (work array)
     !o Outputs
     !o   psi   :normalized wave functions for each l
-    !r Remarks
-    !u Updates
-    ! ----------------------------------------------------------------------
     implicit none
     integer :: n0,nr,lmaxa,nrmt,lplawv,nsp
     parameter (n0=10)
-    double precision :: z,a,rmax,pl(n0,nsp),v(nr,nsp),rofi(nr), pz(n0,nsp),&
-         g(2*nr),psi(nr,0:lmaxa,nsp)
-    ! ... Local parameters
-    integer :: nglob,isp,l,konfig,nn,nre,i,konf, &
-         konfg(0:8),ifi,lmaxc
-    double precision :: ev(0:20),pi,b,tol,eb1,eb2,dl,val,slo,sum,pzero, &
-         pmax,ctp,ecor,rmt
+    real(8) :: z,a,rmax,pl(n0,nsp),v(nr,nsp),rofi(nr), pz(n0,nsp),g(2*nr),psi(nr,0:lmaxa,nsp)
+    integer :: nglob,isp,l,konfig,nn,nre,i,konf,  konfg(0:8),ifi,lmaxc
+    real(8) :: ev(0:20),pi,b,tol,eb1,eb2,dl,val,slo,sum,pzero, pmax,ctp,ecor,rmt
     character(1) :: lsym(0:n0-1), cc
     character:: spid*8
     character(15)::  str
     data lsym /'s','p','d','f','g','5','6','7','8','9'/
     integer::iz,ifiwv,ifipnu,is,ipz
     real(8):: pnu
-    !! feb2011 "plplus,qlplus" mechanism is a fixing. Previous version did not allow SPEC_ATOM_Q setting for l with PZ.
+    !! feb2011   "plplus,qlplus" mechanism is a fixing. Previous version did not allow SPEC_ATOM_Q setting for l with PZ.
     !! Now, the "plplus,qlplus" mechanism allows to set Q (valence charge, not including semicore charge).
     !! Our current version assumes MTOcore(specified by PZ) is below MTO(specified by P).
     real(8):: plplus(0:lmaxa,nsp),qlplus(0:lmaxa,nsp),pfree
@@ -548,9 +450,7 @@ contains
     b = rmax/(dexp(a*nr-a)-1d0)
     rmt = b*(dexp(a*nrmt-a)-1d0)
     tol = 1d-8
-    write(stdo,580)
-580 format(/' Free-atom wavefunctions:')
-!    write(6,ftox)'zzz isp pz=',is,ftof(pz(1:lmaxa+1,1),6)
+    write(stdo,"(/' Free-atom wavefunctions:')")
     if(ifiwv>0) write(ifiwv,"(i2,i3,' !nsp,lmaxa')")nsp,lmaxa
     open(newunit=ifipnu,file='atmpnu.'//trim(charext(is))//'.'//trim(sname))
     do  80  isp = 1, nsp
@@ -653,9 +553,7 @@ contains
 495       format(f9.5,1p,16d14.5)
 50     enddo
        close(ifi)
-       !        call fclr(str,ifi)
     endif
-
 !!! print out qbyl
     !      open('qinrmt.'//trim(sname))
     !      do  ib = 1, nbas
@@ -663,15 +561,8 @@ contains
     !        write(ifqbyl,"(i3,10f12.6)") sspec(ispec)%lmxa, (sum(qbyl_rv(il,1:nsp,ib)),il=1,lmaxa)
     !      enddo
     !      close(ifqbyl)
-
-
   end subroutine pratfs
-
-
-  subroutine ppratf(e,z,nr,nre,rofi,a,b,v,g,pzero,pmax,ctp)
-
-    !- Find outermost node and maximum of wavefct
-    ! ----------------------------------------------------------------------
+  subroutine ppratf(e,z,nr,nre,rofi,a,b,v,g,pzero,pmax,ctp) ! Find outermost node and maximum of wavefct
     !i Inputs
     !i   e     :wave function eigenvalue
     !i   z     :nuclear charge
@@ -688,15 +579,11 @@ contains
     !o   ctp   :classical turning point
     !r Remarks
     !u Updates
-    ! ----------------------------------------------------------------------
     implicit none
-    ! ... Passed parameters
     integer :: nr,nre
-    double precision :: a,b,ctp,e,pmax,pzero,z,rofi(nr),v(nr),g(nr)
-    ! ... Local parameters
+    real(8) :: a,b,ctp,e,pmax,pzero,z,rofi(nr),v(nr),g(nr)
     integer :: i,ir
-    double precision :: g1,g2,rho1,rho2,rho3,x
-
+    real(8) :: g1,g2,rho1,rho2,rho3,x
     ! ... Find the classical turning point
     do  20 i = nr-1, 5, -1
        ir = i
@@ -706,7 +593,6 @@ contains
     g2 = e-v(ir+1) + 2d0*z/rofi(ir+1)
     ctp = rofi(nr)
     if (g1*g2 < 0d0) ctp = (rofi(ir)*g2-rofi(ir+1)*g1)/(g2-g1)
-
     ! ... Find the outermost node
     do  10  i = nre-1, 5, -1
        ir = i
@@ -717,7 +603,6 @@ contains
     g1 = g(ir)
     g2 = g(ir+1)
     if (ir > 5) pzero = (rofi(ir)*g2-rofi(ir+1)*g1)/(g2-g1)
-
     ! ... Find the outermost maximum
     do  30  i = nre-2, 5, -1
        ir = i
@@ -732,14 +617,9 @@ contains
        pmax = b*(dexp(a*(ir+x))-1d0)
     endif
   end subroutine ppratf
-
-
-  subroutine popta1(rsm,eh,l,z,rmt,nr,nrmt,rofi,h,v,a,b,enu,p, &
-       phi,dphi,phip,dphip,eval,qrmt)
+  subroutine popta1(rsm,eh,l,z,rmt,nr,nrmt,rofi,h,v,a,b,enu,p, phi,dphi,phip,dphip,eval,qrmt)!- Calculate expectation value for smooth Hankel
     use m_mtchae,only:mtchae
     use m_hansr,only:hansmd
-    !- Calculate expectation value for smooth Hankel
-    ! ----------------------------------------------------------------------
     !i Inputs
     !i   rsm   :smoothing radius of basis function
     !i   eh    :energy of basis function
@@ -766,31 +646,15 @@ contains
     !u Updates
     !u   24 Sep 04 return qrmt
     !u   16 Jun 04 Adapted to new hansmd, mtchae
-    ! ----------------------------------------------------------------------
     implicit none
-    ! ... Passed parameters
     integer :: l,nr,nrmt
-    double precision :: a,b,dphi,dphip,eh,enu,eval,p,phi,phip,rmt,rsm,z, &
-         rofi(nr),h(nr),v(nr),qrmt
-    ! ... Local parameters
+    real(8) :: a,b,dphi,dphip,eh,enu,eval,p,phi,phip,rmt,rsm,z,rofi(nr),h(nr),v(nr),qrmt
     integer :: i
-    double precision :: alfa,beta,det(1),drdi,hlap, &
-         hum,hum1,hum2,r,sum,sum1,sum2,tum2,vum2,wt
-    !     double precision xi(0:20)
-
-    double precision :: hs(0:l),dhs(0:l),ddhs(0:l)
-
-    !     pi = 4d0*datan(1d0)
-    !     asm = 1d0/rsm
-    !     lp1 = l+1
-
-    ! ... Integrals over smooth Hankel on mesh
-    !     gfac = (asm*asm/pi)**1.5d0 * dexp(eh*rsm*rsm/4d0)
-    !     ta2 = 2d0*asm*asm
+    real(8) :: alfa,beta,det(1),drdi,hlap,hum,hum1,hum2,r,sum,sum1,sum2,tum2,vum2,wt
+    real(8) :: hs(0:l),dhs(0:l),ddhs(0:l)
     tum2 = 0d0
     sum2 = 0d0
     vum2 = 0d0
-
     do  10  i = nrmt, nr
        r = rofi(i)
        !   ... Make r*h and r Laplacian h, including L^2
@@ -805,7 +669,6 @@ contains
        !       gl = gfac * dexp(-asm*asm*r*r) * ta2**l * (r**lp1)
        !C      r * (nabla_r - l(l+1)/r^2) h_l
        !       hlap = -4d0*pi*gl - eh*h(i)
-
        !  ...  Accumulate <h h>, <h v h>, <h -nabla h>
        wt = 2*(mod(i+1,2)+1)/3d0
        if (i == nrmt .OR. i == nr) wt = 1d0/3d0
@@ -815,9 +678,7 @@ contains
        tum2 = tum2 + wt*drdi*h(i)*(-hlap)
 10  enddo
     hum2 = tum2+vum2
-
-    ! --- BC's: match phi,phidot to envelope at RMT ---
-    call mtchae(0,rsm,eh,l,rmt,phi,dphi,phip,dphip,alfa,beta)
+    call mtchae(0,rsm,eh,l,rmt,phi,dphi,phip,dphip,alfa,beta) ! --- BC's: match phi,phidot to envelope at RMT ---
     !C    OLD matching
     !C    Match value, slope fl,dfl to linear combination of phi,phidot
     !     call hansmr(rmt,eh,asm,xi,l+1)
@@ -833,24 +694,16 @@ contains
     !     det = phi*dphip-dphi*phip
     !     alfa = (fl*dphip-dfl*phip)/det
     !     beta = (dfl*phi-fl*dphi)/det
-
+    !
     !     O = alpha^2 <phi | phi> + beta^2 <phidot | phidot>
     sum1 = alfa*alfa + beta*beta*p
     hum1 = alfa*alfa*enu + alfa*beta + beta*beta*enu*p
-
     sum = sum1+sum2
     hum = hum1+hum2
     eval = hum/sum
-
     qrmt = sum2/sum
   end subroutine popta1
-
-
-  subroutine popta2(l,x0,y0,dx,e1,e2,e3,xmin,xmax,xshx,xnew,stiff, &
-       jpr)
-
-    !- Find minimum from three values
-    ! ----------------------------------------------------------------------
+  subroutine popta2(l,x0,y0,dx,e1,e2,e3,xmin,xmax,xshx,xnew,stiff,jpr)! Find minimum from three values
     !i Inputs
     !i   l     :angular momentum
     !i   x0    :starting value
@@ -866,16 +719,9 @@ contains
     !o Outputs
     !o   xnew  :new estimate for the minimum
     !o   stiff :estimated curvature
-    !r Remarks
-    ! ----------------------------------------------------------------------
     implicit none
-    ! ... Passed parameters
-    integer :: jpr,l
-    double precision :: dx,e1,e2,e3,stiff,x0,xmax,xmin,xnew,xshx,y0
-    ! ... Local parameters
-    integer :: ie0
-    double precision :: a,aa,b,c,ee1,ee2,ee3,een,enew,xadd
-
+    integer :: jpr,l,ie0
+    real(8):: dx,e1,e2,e3,stiff,x0,xmax,xmin,xnew,xshx,y0,a,aa,b,c,ee1,ee2,ee3,een,enew,xadd
     c = e2
     b = (e3-e1)/(2*dx)
     a = (e1+e3-2*e2)/(2*dx*dx)
@@ -889,28 +735,22 @@ contains
        enew = a*xadd*xadd + b*xadd + c
     endif
     aa = 2*1d3*a
-
     if (xadd > xshx)  xadd = xshx
     if (xadd < -xshx) xadd = -xshx
     xnew = x0+xadd
     if (xnew > xmax) xnew = xmax
     if (xnew < xmin) xnew = xmin
-
     ie0 = e2
     ee1 = 1d3*(e1-ie0)
     ee2 = 1d3*(e2-ie0)
     ee3 = 1d3*(e3-ie0)
     een = 1d3*(enew-ie0)
     stiff = aa
-
     if (jpr > 0) write (stdo,810)l,x0,y0,ee1,ee2,ee3,aa,een,xnew
 810 format(i3,f8.3,f8.3,f10.3,2f9.3,f9.1,f10.3,f8.3,a)
   end subroutine popta2
-
-  subroutine popta3(mode,l,z,nn,rmt,nr,nrmt,rofi,v,a,b,evl,pnu,g)
+  subroutine popta3(mode,l,z,nn,rmt,nr,nrmt,rofi,v,a,b,evl,pnu,g)!Get exact fa wavefunction, eigval, pnu at Rmt.
     use m_ftox
-    !- Get exact fa wavefunction, eigval, pnu at Rmt.
-    ! ----------------------------------------------------------------------
     !i Inputs
     !i   mode  :0 boundary condition is val,slo = 0 at nr
     !i         :1 boundary condition is that w.f. satisfy pnu at nrmt
@@ -931,18 +771,12 @@ contains
     !o Outputs
     !o   g     :normalized wave function times r
     !o   evl   :eigenvalue
-    !r Remarks
-    ! ----------------------------------------------------------------------
     implicit none
-    ! ... Passed parameters
     integer :: mode,l,nn,nr,nrmt
-    double precision :: a,b,evl,pnu,rmt,z,rofi(nr),v(nr),g(nr*2)
-    ! ... Local parameters
+    real(8) :: a,b,evl,pnu,rmt,z,rofi(nr),v(nr),g(nr*2)
     integer :: nre,konfig,nri,nn2
-    double precision :: d0l,p0l,dphi,drdi,du,eb1,eb2,g1,g2,g3,g4,g5,pi, &
-         slo,slou,sum,tol,val,valu,dnu
+    real(8) :: d0l,p0l,dphi,drdi,du,eb1,eb2,g1,g2,g3,g4,g5,pi, slo,slou,sum,tol,val,valu,dnu
     pi = 4d0*datan(1d0)
-
     eb1 = -50 !ccctakao 30
     eb2 = 20
     tol = 1d-10
@@ -959,11 +793,8 @@ contains
        nri = nrmt
     endif
     call rseq(eb1,eb2,evl,tol,z,l,nn,val,slo,v,g,sum,a,b,rofi,nri,nre)
-    if (mode == 1) then
-       !       integration becomes rather strange for r>>rmt.
-       !       Need to truncate radius.
+    if (mode == 1) then  ! integration becomes rather strange for r>>rmt. Need to truncate radius.
        call rsq1(nri,evl,l,z,v,nr,g,val,slo,nn2,a,b,rofi,nr)
-       !       call prrmsh('g',rofi,g,nr,nr,1)
        call rx('not finished mode 1')
     endif
     g1 = g(nrmt-2)
@@ -977,7 +808,6 @@ contains
     du   = rmt*slou/valu
     dphi = du-1
     pnu  = nn+l+1 + (0.5d0-datan(dphi)/pi)
-
     ! ... Don't set too low..
     d0l = l
     p0l = nn+l+1 + 0.5d0-datan(d0l)/pi
@@ -988,13 +818,9 @@ contains
 145    format(' l=',i1,'  increase Pnu=',f8.3,'  to ',f8.3)
        pnu = p0l
     endif
-
   end subroutine popta3
-
-  subroutine popta4(l,z,rmt,nrmt,rofi,v,g,gp,a,b,pnu,enu,p,phi,dphi,phip,dphip)
+  subroutine popta4(l,z,rmt,nrmt,rofi,v,g,gp,a,b,pnu,enu,p,phi,dphi,phip,dphip)!Potential parameters at MT sphere
   use m_phidx,only: phidx
-    !- Potential parameters at MT sphere
-    ! ----------------------------------------------------------------------
     !i Inputs
     !i   l     :angular momentum
     !i   z     :nuclear charge
@@ -1015,53 +841,29 @@ contains
     !o   phip  :energy derivative of phi
     !o   dphip :radial derivative of dphi
     !o   p     :<gp**2> (potential parameter)
-    !r Remarks
-    ! ----------------------------------------------------------------------
     implicit none
-    ! ... Passed parameters
     integer :: l,nrmt
-    double precision :: a,b,dphi,dphip,enu,p,phi,phip,pnu,rmt,z
-    double precision :: rofi(nrmt),v(nrmt),g(nrmt),gp(nrmt,4)
-    ! ... Local parameters
+    real(8) :: a,b,dphi,dphip,enu,p,phi,phip,pnu,rmt,z, rofi(nrmt),v(nrmt),g(nrmt),gp(nrmt,4)
     integer :: konfig,nn,nre
-    double precision :: dnu,eb1,eb2,pi,slo(5),sum,tol,val(5)
+    real(8) :: dnu,eb1,eb2,pi,slo(5),sum,tol,val(5)
     pi = 4d0*datan(1d0)
     eb1 = -50 !ccctakao -30
     eb2 = 20
     tol = 1d-10
-
     konfig = pnu
     nn = konfig-l-1
     dnu = dtan(pi*(0.5d0-pnu))
     val(1) = rmt
     slo(1) = dnu+1d0
     enu=-0.5d0
-
-    call rseq(eb1,eb2,enu,tol,z,l,nn,val,slo,v,g,sum,a,b,rofi,nrmt, &
-         nre)
+    call rseq(eb1,eb2,enu,tol,z,l,nn,val,slo,v,g,sum,a,b,rofi,nrmt,nre)
     val(1) = val(1)/dsqrt(sum)
     slo(1) = slo(1)/dsqrt(sum)
-
-    !      call phidot(z,l,v,enu,a,b,rofi,nrmt,g,val,slo,tol,nn,gp,phi,dphi,
-    !     .  phip,dphip,p)
-
-    call phidx(1,z,l,v,0d0,0d0,rofi,nrmt,2,tol,enu,val,slo,nn,g,gp, &
-         phi,dphi,phip,dphip,p,0d0,[0d0],0d0,[0d0])
-    !     dphip = (slo(2)-phip)/rmt
-
-
-    !|    write(stdo,200) l,enu,p,phi,dphi,phip,dphip
-    ! 200 format(' PP',i2,'  e',f10.5,'  p',f10.5,'  bc',4f10.5)
-
+    call phidx(1,z,l,v,0d0,0d0,rofi,nrmt,2,tol,enu,val,slo,nn,g,gp, phi,dphi,phip,dphip,p,0d0,[0d0],0d0,[0d0])
   end subroutine popta4
-
-
-  subroutine popta5(lmax,rtab,etab,itab,z,pl,rmax,rmt,nr,nrmt, &
-       rofi,psi,v,g,a,b,spid)
+  subroutine popta5(lmax,rtab,etab,itab,z,pl,rmax,rmt,nr,nrmt,rofi,psi,v,g,a,b,spid) !- Write wave functions to plot file
     use m_ext,only:sname
     use m_hansr,only:hansmr
-    !- Write wave functions to plot file
-    ! ----------------------------------------------------------------------
     !i Inputs
     !i   lmax  :maximum l for a given site
     !i   rtab  :smoothing radii for wavefunction, each l
@@ -1083,31 +885,20 @@ contains
     !i   spid
     !o Outputs
     !    wave functions written to disk
-    !l Local variables
-    !l         :
-    !r Remarks
-    !u Updates
-    ! ----------------------------------------------------------------------
     implicit none
-    ! ... Passed parameters
     integer :: itab(0:*),lmax,nr,nrmt,n0
     parameter (n0=10)
-    double precision :: a,b,rmax,rmt,z,rtab(0:*),etab(0:*), &
-         rofi(nr),psi(nr,0:*),g(nr,2),v(nr),pl(0:n0-1)
+    real(8) :: a,b,rmax,rmt,z,rtab(0:*),etab(0:*), rofi(nr),psi(nr,0:*),g(nr,2),v(nr),pl(0:n0-1)
     character spid*8
-    ! ... Local parameters
     integer :: i,ifi,konfig,l,lp1,m,n,nn,nre
     integer :: ltab(n0)
-    double precision :: asm,dfl,drdi,eb1,eb2,eh,evl,fac,fl,flp1,r,rsm, &
-         slo,sum1,sum2,tol,val,wt,xi(0:20)
+    real(8) :: asm,dfl,drdi,eb1,eb2,eh,evl,fac,fl,flp1,r,rsm, slo,sum1,sum2,tol,val,wt,xi(0:20)
     character str*32
-
     eb1 = -20
     eb2 = 20
     tol = 1d-8
     n = 0
-
-    do  10  l = 0, lmax
+    lloop: do  10  l = 0, lmax
        if (itab(l) == 0) goto 10
        n = n+1
        ltab(n) = l
@@ -1117,10 +908,8 @@ contains
        asm = 1d0/rsm
        konfig = pl(l)
        nn = konfig-l-1
-
-       ! ...   Smooth hankel fct outside rmt
        sum2 = 0d0
-       do  12  i = nrmt, nr
+       do    i = nrmt, nr ! ...   Smooth hankel fct outside rmt
           r = rofi(i)
           call hansmr(r,eh,asm,xi,l)
           psi(i,n) = xi(l)*(r**lp1)
@@ -1128,46 +917,37 @@ contains
           if (i == nrmt .OR. i == nr) wt=1d0/3d0
           drdi = a*(r+b)
           sum2 = sum2 + wt*drdi*psi(i,n)**2
-12     enddo
-
-       ! ...   Attach numerical solution inside MT sphere
-       call hansmr(rmt,eh,asm,xi,l+1)
+       enddo
+       call hansmr(rmt,eh,asm,xi,l+1) !Attach numerical solution inside MT sphere
        fl   = xi(l)*rmt**l
        flp1 = xi(l+1)*rmt**(l+1)
        dfl  = l*fl/rmt-flp1
        val = rmt*fl
        slo = rmt*dfl+fl
        evl = -0.5d0
-       call rseq(eb1,eb2,evl,tol,z,l,nn,val,slo,v, &
-            g,sum1,a,b,rofi,nrmt,nre)
+       call rseq(eb1,eb2,evl,tol,z,l,nn,val,slo,v, g,sum1,a,b,rofi,nrmt,nre)
        fac = val/(g(nrmt,1)*dsqrt(sum1+sum2))
-       do  14  i = 1, nrmt
+       do   i = 1, nrmt
           psi(i,n) = fac*g(i,1)
-14     enddo
+       enddo
        fac = 1d0/dsqrt(sum1+sum2)
-       do  16  i = nrmt+1,nr
+       do  i = nrmt+1,nr
           psi(i,n) = psi(i,n)*fac
-16     enddo
-10  enddo
-    ! ... Write the plot file
-    write (str,'(''wfa_'',a)') spid
-    write (stdo,344) str
-344 format(/' Write fit wavefunctions to plot file: ',a)
-    !      ifi = fopna(str,-1,0)
+       enddo
+10  enddo lloop
+    write(str,'(''wfa_'',a)') spid
+    write(stdo,"(/' Write fit wavefunctions to plot file: ',a)") str
     open(newunit=ifi,file=trim(str)//'.'//trim(sname))
-    write (ifi,490) spid,rmax,rmt,(ltab(i),i=1,n)
-490 format('# Free-atom opt basis (divided by r) for species ',a/'# rmax=',f7.3,'   rmt=',f7.3,'   l=',8i2)
-    write (ifi,'(''% rows '',i5,'' cols '',i3)') nr,n+1
-    do  30  i = 1, nr
-       write (ifi,495) rofi(i),(psi(i,m),m=1,n)
-495    format(f9.5,1p,8d14.5)
-30  enddo
+    write(ifi,"('# Free-atom opt basis (divided by r) for species ',a/'# rmax=',f7.3,'   rmt=',f7.3,'   l=',8i2)") &
+         spid,rmax,rmt,(ltab(i),i=1,n)
+    write(ifi,'(''% rows '',i5,'' cols '',i3)') nr,n+1
+    do  i = 1, nr
+       write (ifi,"(f9.5,1p,8d14.5)") rofi(i),(psi(i,m),m=1,n)
+    enddo
     close(ifi)
   end subroutine popta5
-  subroutine fctail(nr,nrmt,a,b,rsm,rofi,rhoc,c,eh)
+  subroutine fctail(nr,nrmt,a,b,rsm,rofi,rhoc,c,eh)!Fit one Hankel to tail of core density.
     use m_lmfinit,only: nsp
-    !- Fit one Hankel to tail of core density.
-    ! ----------------------------------------------------------------------
     !i Inputs
     !i   nr    :number of radial mesh points
     !i   nrmt  :number points to muffin-tin radius
@@ -1184,70 +964,45 @@ contains
     !r Remarks
     !b Bugs
     !b   Should this be fit to smoothed function??
-    !u Updates
-    !u   19 Apr 02 Make rmt a local variable.
-    ! ----------------------------------------------------------------------
     implicit none
-    ! ... Passed parameters
-    integer :: nr,nrmt
-    double precision :: a,b,c,eh,rmt,rsm,rofi(nr),rhoc(nr,2)
-    ! ... Local parameters
-    integer :: i,ipr
-    double precision :: ak1,akap,fit,q,q0,r,s,v0,wt
+    integer :: nr,nrmt,i,ipr
+    real(8) :: a,b,c,eh,rmt,rsm,rofi(nr),rhoc(nr,2),ak1,akap,fit,q,q0,r,s,v0,wt
     character sout*80
     call getpr(ipr)
     rmt = rofi(nrmt)
     q0 = 0d0
-    do  10  i = nrmt, nr
+    do  i = nrmt, nr
        r = rofi(i)
        wt = 2*(mod(i+1,2)+1)*a*(r+b)/3d0
        if (i == nrmt .OR. i == nr) wt = a*(r+b)/3d0
        q0 = q0 + wt*(rhoc(i,1)+rhoc(i,nsp))/(3-nsp)
-10  enddo
+    enddo
     v0 = (rhoc(nrmt,1)+rhoc(nrmt,nsp))/(3-nsp)/(rmt*rmt)
     write(stdo,"('conf: Core rhoc(rmt)=',f9.6,' spillout=',f9.6)")v0,q0
-    !      write(stdo,"(a)")'conf:-----------------------------------------------------'
-    !      sout = ' '
-    !      call awrit3('%?#(n>=30)#%N## coretail: q=%;3g, spill out=%;3g.',
-    !     .sout,len(sout),0,ipr,v0,q0)
-
-    !      if (ipr .ge. 20) write (stdo,339) v0,q0
-    !  339 format(/' coretail:  rho(rmt)=',f12.8,'   charge=',f12.8)
     if (dabs(q0) < 1d-6) then
        c = 0d0
        eh = -1d0
        return
     endif
-    ! ... Parameters of hankel fct
-    s = dsqrt(rmt**4 * v0**2 + 4*rmt*q0*v0)
+    s = dsqrt(rmt**4 * v0**2 + 4*rmt*q0*v0) !Parameters of hankel fct
     ak1 = (rmt*rmt*v0+s)/(2d0*q0)
-    !     ak2 = (rmt*rmt*v0-s)/(2d0*q0)
-    !|      write(stdo,975) ak1,ak2
-    !|  975 format('ak1,ak2=',2f14.8)
     akap = ak1
     c = rmt*v0*dexp(akap*rmt)
     eh = -akap*akap
-    if (ipr >= 20) then
-       write(stdo,"(' Fit with Hankel e=',g0,' coeff=',g0)")eh,c
-       !        call awrit2('%a  Fit with Hankel e=%;5g  coeff=%;5g',sout,
-       !     .  len(sout),-stdo,eh,c)
-    endif
-    if (ipr > 30) then
-       write (stdo,501)
+    if(ipr >= 20) write(stdo,"(' Fit with Hankel e=',g0,' coeff=',g0)")eh,c
+    if(ipr > 30) then
+       write (stdo,"(6x,'r',12x,'rhoc',10x,'fit')")
        q = 0d0
-       do  20  i = nrmt, nr
+       do  i = nrmt, nr
           r = rofi(i)
           wt = 2*(mod(i+1,2)+1)*a*(r+b)/3d0
           if (i == nrmt .OR. i == nr) wt = a*(r+b)/3d0
           fit = c*dexp(-akap*r)*r
           q = q+wt*fit
-          if ((rhoc(i,1)+rhoc(i,nsp))/(3-nsp) < 1d-8) goto 90
+          if ((rhoc(i,1)+rhoc(i,nsp))/(3-nsp) < 1d-8) exit
           if (mod(i,5) == 0 .OR. i == nrmt) &
-               write (stdo,500) r,(rhoc(i,1)+rhoc(i,nsp))/(3-nsp),fit
-500       format(f12.6,2f14.8)
-501       format(6x,'r',12x,'rhoc',10x,'fit')
-20     enddo
-90     continue
+               write (stdo,"(f12.6,2f14.8)") r,(rhoc(i,1)+rhoc(i,nsp))/(3-nsp),fit
+       enddo
     endif
   end subroutine fctail
 end module m_freeat
