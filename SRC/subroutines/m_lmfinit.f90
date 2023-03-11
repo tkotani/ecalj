@@ -7,6 +7,7 @@ module m_lmfinit ! All ititial data (except rst/atm data via iors/rdovfa) !TK ex
   use m_struc_def,only: s_spec ! spec structures.
   use m_MPItk,only: master_mpi
   use m_lgunit,only: stdo,stdl
+!  use m_rseq,only:setcc
 !NOTE: m_density contains Not protected vatiables!  =====
   use m_density,only: pnuall,pnzall ! These are set here! log-derivative of radial functions.
   implicit none 
@@ -973,3 +974,18 @@ end module m_lmfinit
 !r   umix    mixing parameter for LDA+U
 !r   w..     Linear mixing weights
 !r   wc      Broyden weight
+subroutine setcc(lrel)
+  !- Set speed of light for radial S-eqn in /cc/ common block
+  !     implicit none
+  integer :: lrel
+  double precision :: c
+  common /cc/ c
+  if (lrel /= 0) then
+     !       should be: c = 274.072d0
+     c = 274.074d0
+  else
+     c = 1d10
+  endif
+end subroutine setcc
+
+

@@ -1,5 +1,6 @@
 subroutine makrwf(mode,z,rmax,l,v,a,nr,rofi,pnu,nptdif,g,gp, enu,phi,dphi,phip,dphip,p)
   use m_phidx,only: phidx
+  use m_rseq,only: rseq
   !- Radial wave functions and energy derivative
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -54,7 +55,7 @@ subroutine makrwf(mode,z,rmax,l,v,a,nr,rofi,pnu,nptdif,g,gp, enu,phi,dphi,phip,d
      eb2 =  20d0
      if (z == 1 .AND. l > 2) eb2 = 100
      enu = -0.5d0
-     call rseq(eb1,eb2,enu,tol,z,l,nn,val,slo,v,g,sum,a,b,rofi,nr,  nre)
+     call rseq(eb1,eb2,enu,tol,z,l,nn,val(1),slo(1),v,g,sum,a,b,rofi,nr,  nre)
      val(1) = val(1)/dsqrt(sum)
      slo(1) = slo(1)/dsqrt(sum)
      modep = 1

@@ -1,5 +1,6 @@
-module m_freeat
+module m_freeat !free-standing spherical atom calculaitons for initial contdition
   use m_lgunit,only: stdo,stdl
+  use m_rseq,only: rseq!,setcc
   public freeat,freats
   private
 contains
@@ -8,25 +9,12 @@ contains
     use m_lmfinit,only: smalit,lxcf,ham_seref,nsp,nspec, sspec=>v_sspec,& 
          idmod,slabl,vmtz,eref,rs3,eh3,nmcore,coreh,coreq,pnux=>pnusp,pzx=>pzsp,qnu
     use m_ftox
-    !i Inputs
-    !i   sspec%*
-    !o Outputs via iofa
-    !l Local variables
-    !l   ccof  :coefficient to fit of core tail to smoothed Hankel
-    !l   ceh   :energy of core tail to smoothed Hankel
-    !l   sumtc :core kinetic energy
-    !r Remarks
-    !u Updates
-    !u   01 Feb 06 Enables renormalized free atom density
-    !u   01 Jul 05 Skips spheres with Z=0 and R=0
-    !u   21 Jun 04 Added fit of sm. Hankel tails to local orbitals
-    !u   18 Sep 03 (ATP) Enabled partial core occupation
-    !u   06 Sep 03 Constrain rsm in fit to FA wave function
-    !u   18 Mar 03 Altered sign of magnetic moment to conform to std
-    !u   19 Apr 02 Redesigned freats call to avoid the use of structures
-    !u   22 Dec 01 Adjustments to accomodate changes in phidxasz
-    !u   22 Mar 01 Added printout of reference energy
-    !u   10 Jun 00 spin polarized
+    !Inputs  are module variables of m_lmfinit
+    !Outputs are via iofa, atmpnu are pnu (logarismic derivatives of atoms).
+    ! Memo
+    !   ccof  :coefficient to fit of core tail to smoothed Hankel
+    !   ceh   :energy of core tail to smoothed Hankel
+    !   sumtc :core kinetic energy
     ! ----------------------------------------------------------------------
     implicit none
     integer :: ifi,iprint,is,nglob,nr,nrmt,nrmx, n0,nkap0,nxi,nxi0,nrmix,igets,lmxa,kcor,lcor,iofa, i_dum,ifives,ifiwv
@@ -165,21 +153,17 @@ contains
     integer :: nrmx,nrmt,is,nxi0,nxi,nrmix,lwf,lxcf,n0,kcor,lcor
     parameter (nrmx=1501,n0=10)
     character(8) :: spid
-    real(8) :: rsmfa,rfoca,qc,ccof,ceh,sec,stc,z,rmt,a,eref, &
-         v(nrmx*2),rho(nrmx*2),rhoc(nrmx*2),hfc(nxi0,*),hfct(nxi0,*), &
+    real(8) :: rsmfa,rfoca,qc,ccof,ceh,sec,stc,z,rmt,a,eref, v(nrmx*2),rho(nrmx*2),rhoc(nrmx*2),hfc(nxi0,*),hfct(nxi0,*), &
          exi(*),rtab(n0,2),etab(n0,2),rofi(nrmx*2),rs3,eh3,vmtz,qcor(2)
     logical :: cmdopt
     integer :: ncmx,nvmx
     parameter (ncmx=50, nvmx=20)
     integer :: idmod(n0)
     character str*8,strn*32
-    real(8) :: rmax,b,etot,dq, &
-         ec(ncmx),ev(nvmx),sumev,vrmax(2),exrmax(2),ekin,utot,rhoeps, &
-         amgm,rhrmx,qvt,qtot,qct,qvin,qcin,r,wt0,wt1,qtt,qtin,pnul, &
-         pzl,pnu(n0,2),qat(n0,2),pl(n0,2),rhoin(nrmx*2), &
+    real(8) :: rmax,b,etot,dq, ec(ncmx),ev(nvmx),sumev,vrmax(2),exrmax(2),ekin,utot,rhoeps, &
+         amgm,rhrmx,qvt,qtot,qct,qvin,qcin,r,wt0,wt1,qtt,qtin,pnul, pzl,pnu(n0,2),qat(n0,2),pl(n0,2),rhoin(nrmx*2), &
          rhot(nrmx*2),ql(3,n0,2),pz(n0,2) ,qatbk(n0,2) !,rcfa(2)
-    integer :: i,ifi,ipr,iprint,isp,isw,l,lfrz, &
-         lgrad,lmxa,lplfa,nitmax,nmix,nr,lplawv !,irchan(n0)
+    integer :: i,ifi,ipr,iprint,isp,isw,l, lgrad,lmxa,lplfa,nitmax,nmix,nr,lplawv !,irchan(n0)
     real(8) ,allocatable :: g_rv(:)
     real(8) ,allocatable :: psi_rv(:)
     integer :: itab(n0,2)
@@ -187,8 +171,8 @@ contains
     integer:: ipl, ipz,iplx,iplv,ix, nmcore, ifives,ifiwv,iplz,miplzipl
     real(8):: qcc,qzz, qvalv,qvaltot,qval,vsum,qelectron,qvalz
     real(8),allocatable:: plplus(:,:),qlplus(:,:)
+    logical::lfrz=.false.
     ipr    = iprint()
-    lfrz   = 0
     lgrad  = lxcf/10
     if(ipr>49) then
        print *
@@ -199,13 +183,10 @@ contains
        enddo
     endif
     ! --- Get species data ----
-    call dpzero(pl,2*n0)
-    call dpzero(ql,2*3*n0)
-    allocate(plplus(0:lmxa,nsp),qlplus(0:lmxa,nsp))
-    !! plplus, qlplus are higher ones (when PZ exist).
-    plplus=0d0
-    qlplus=0d0
-    !      print *,'NOTE: when we have two valence: P and PZ, We assume eigen(PZ) is deeper than eigen(P).'
+    pl=0d0
+    ql=0d0
+    allocate(plplus(0:lmxa,nsp),qlplus(0:lmxa,nsp),source=0d0)! plplus, qlplus are higher ones (when PZ exist).
+    ! print *,'NOTE: when we have two valence: P and PZ, We assume eigen(PZ) is deeper than eigen(P).'
     nsploop: do  101  i = 1, nsp
        lloop: do  10  l = 0, lmxa
           pnul = pnu(l+1,i)
@@ -278,7 +259,7 @@ contains
           miplzipl = ipl
           if(iplz/=0) miplzipl = min(iplz,ipl)
           qcc= (miplzipl-l-1)*(4*l+2)/nsp
-          !!  plplus, qlplus for P;   ql for Pz
+          !  plplus, qlplus for P;   ql for Pz
           write(stdo,"('conf: ', i4,i3,3x,i5,i3,6x,f8.3,1x,f8.3,' => ',10(i1,','))") &
                i,l,ipl,iplz,qlplus(l,i)+ql(1,l+1,i),qcc, (ix,ix=l+1,miplzipl-1)
        enddo
@@ -316,10 +297,8 @@ contains
     ec(1) = 0
     print *,'goto atomc xxx'
     qelectron = z+qtot     !total number of electrons. 22mar2013
-    call atomsc(.false.,n0,nsp,lmxa,z,0d0,kcor,lcor,qcor,rmax,a,nr, &
-         rofi,ec,ev,pl,ql,idmod,v,0d0,rhoin,rho,rhoc,nmix,qc,sec,stc, &
-         sumev,ekin,utot,rhoeps,etot,amgm,rhrmx,vrmax,dq,exrmax,'gue', &
-         nitmax,lfrz,plplus,qlplus,nmcore,qelectron,vsum)
+    call atomsc(.false.,n0,nsp,lmxa,z,0d0,kcor,lcor,qcor,rmax,a,nr, rofi,ec,ev,pl,ql,idmod,v,0d0,rhoin,rho,rhoc,nmix,qc,sec,stc, &
+         sumev,ekin,utot,rhoeps,etot,amgm,rhrmx,vrmax,dq,exrmax,'gue', nitmax,lfrz,plplus,qlplus,nmcore,qelectron,vsum)
     print *,'end of atomsc xxxxx'
     print *,'vsum=',vsum,is
     if(ifives>0) then
@@ -476,8 +455,7 @@ contains
                 val = 1d-30
                 slo = -val
              endif
-             call rseq(eb1,eb2,ev(l),tol,z,l,nn,val,slo,v(1,isp),g,sum,a,b, &
-                  rofi,nr,nre)
+             call rseq(eb1,eb2,ev(l),tol,z,l,nn,val,slo,v(1,isp),g,sum,a,b,rofi,nr,nre)
              call gintsl(g,g,a,b,nr,rofi,sum)
              call gintsl(g,g,a,b,nrmt,rofi,pmax)
              block
@@ -545,8 +523,7 @@ contains
 344    format(/' Write valence wavefunctions to plot file: ',a)
        open(newunit=ifi,file=trim(str)//'.'//trim(sname))
        write (ifi,490) spid,rmax,rmt,nr,lmaxa,nr,1+nsp*(lmaxa+1)
-490    format('# Free-atom wavefunctions (divided by r) for species ', &
-            a/'# rmax=',f7.3,'   rmt=',f7.3,'   nr=',i5,'   lmax=',i3/ &
+490    format('# Free-atom wavefunctions (divided by r) for species ',a/'# rmax=',f7.3,'   rmt=',f7.3,'   nr=',i5,'   lmax=',i3/ &
             '% rows ',i5,' cols ',i3)
        do  50  i=1,nr
           write (ifi,495) rofi(i),((psi(i,l,isp),l=0,lmaxa),isp=1,nsp)
@@ -617,335 +594,6 @@ contains
        pmax = b*(dexp(a*(ir+x))-1d0)
     endif
   end subroutine ppratf
-  subroutine popta1(rsm,eh,l,z,rmt,nr,nrmt,rofi,h,v,a,b,enu,p, phi,dphi,phip,dphip,eval,qrmt)!- Calculate expectation value for smooth Hankel
-    use m_mtchae,only:mtchae
-    use m_hansr,only:hansmd
-    !i Inputs
-    !i   rsm   :smoothing radius of basis function
-    !i   eh    :energy of basis function
-    !i   l     :l quantum number
-    !i   z     :nuclear charge
-    !i   rmt   :muffin-tin radius
-    !i   nr    :number of radial mesh points
-    !i   nrmt  :number points to muffin-tin radius
-    !i   rofi  :radial mesh points
-    !i   h     :work array
-    !i   v     :spherical potential (atomsr.f)
-    !i   a     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
-    !i   b     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
-    !i   enu   :enu's for making charge density
-    !i   p     :<gp**2> (potential parameter)
-    !o   phi   :wave function at rmt
-    !o   dphi  :radial derivative of of phi at rmt
-    !o   phip  :energy derivative of phi
-    !o   dphip :radial derivative of dphi
-    !o Outputs
-    !o   eval  :expectation value
-    !o   qrmt  :fraction of (wave function)^2 for r>rmt
-    !r Remarks
-    !u Updates
-    !u   24 Sep 04 return qrmt
-    !u   16 Jun 04 Adapted to new hansmd, mtchae
-    implicit none
-    integer :: l,nr,nrmt
-    real(8) :: a,b,dphi,dphip,eh,enu,eval,p,phi,phip,rmt,rsm,z,rofi(nr),h(nr),v(nr),qrmt
-    integer :: i
-    real(8) :: alfa,beta,det(1),drdi,hlap,hum,hum1,hum2,r,sum,sum1,sum2,tum2,vum2,wt
-    real(8) :: hs(0:l),dhs(0:l),ddhs(0:l)
-    tum2 = 0d0
-    sum2 = 0d0
-    vum2 = 0d0
-    do  10  i = nrmt, nr
-       r = rofi(i)
-       !   ... Make r*h and r Laplacian h, including L^2
-       call hansmd(2,r,eh,rsm,l,hs,dhs,ddhs,det,det,det)
-       h(i) = hs(l)*r
-       hlap = ddhs(l)*r
-       !C      Old : r*h and r Laplacian h, including L^2
-       !C      h = r*radial part of sm. Hankel
-       !       call hansmr(r,eh,asm,xi,l)
-       !       h(i) = xi(l)*(r**lp1)
-       !C      radial part of Gaussian
-       !       gl = gfac * dexp(-asm*asm*r*r) * ta2**l * (r**lp1)
-       !C      r * (nabla_r - l(l+1)/r^2) h_l
-       !       hlap = -4d0*pi*gl - eh*h(i)
-       !  ...  Accumulate <h h>, <h v h>, <h -nabla h>
-       wt = 2*(mod(i+1,2)+1)/3d0
-       if (i == nrmt .OR. i == nr) wt = 1d0/3d0
-       drdi = a*(r+b)
-       sum2 = sum2 + wt*drdi*h(i)*h(i)
-       vum2 = vum2 + wt*drdi*h(i)*h(i)*(v(i)-2d0*z/r)
-       tum2 = tum2 + wt*drdi*h(i)*(-hlap)
-10  enddo
-    hum2 = tum2+vum2
-    call mtchae(0,rsm,eh,l,rmt,phi,dphi,phip,dphip,alfa,beta) ! --- BC's: match phi,phidot to envelope at RMT ---
-    !C    OLD matching
-    !C    Match value, slope fl,dfl to linear combination of phi,phidot
-    !     call hansmr(rmt,eh,asm,xi,l+1)
-    !C    Value and radial derivative of h (JMP 39, 3393, Eq. 4.7)
-    !     fl = xi(l)*rmt**l
-    !     flp1 = xi(l+1)*rmt**(l+1)
-    !     dfl = l*fl/rmt-flp1
-    !C    Match fl,dfl to linear combination of phi,phidot
-    !C    Use  phi=phi(R); phip=phidot(R) dphi=phi'(R); dphip=phidot'(R)
-    !C    (phi  phip ) (alpha)   (fl )    (alpha)    1  (dphip -phip) (fl )
-    !C    (          ) (     ) = (   ) -> (     ) = --- (           ) (   )
-    !C    (dphi dphip) (beta )   (dfl)    (beta )   det (-dphi  phi ) (dfl)
-    !     det = phi*dphip-dphi*phip
-    !     alfa = (fl*dphip-dfl*phip)/det
-    !     beta = (dfl*phi-fl*dphi)/det
-    !
-    !     O = alpha^2 <phi | phi> + beta^2 <phidot | phidot>
-    sum1 = alfa*alfa + beta*beta*p
-    hum1 = alfa*alfa*enu + alfa*beta + beta*beta*enu*p
-    sum = sum1+sum2
-    hum = hum1+hum2
-    eval = hum/sum
-    qrmt = sum2/sum
-  end subroutine popta1
-  subroutine popta2(l,x0,y0,dx,e1,e2,e3,xmin,xmax,xshx,xnew,stiff,jpr)! Find minimum from three values
-    !i Inputs
-    !i   l     :angular momentum
-    !i   x0    :starting value
-    !i   y0    :used for printout
-    !i   dx    :excursion in x for numerical differentiation
-    !i   e1    :function value at x0-dx
-    !i   e2    :function value at x0
-    !i   e3    :function value at x0+dx
-    !i   xmin  :boundary: estimated minimum must be >= xmin
-    !i   xmax  :boundary: estimated minimum must be <= xmax
-    !i   xshx  :maximum step size
-    !i   jpr   :printout verbosity
-    !o Outputs
-    !o   xnew  :new estimate for the minimum
-    !o   stiff :estimated curvature
-    implicit none
-    integer :: jpr,l,ie0
-    real(8):: dx,e1,e2,e3,stiff,x0,xmax,xmin,xnew,xshx,y0,a,aa,b,c,ee1,ee2,ee3,een,enew,xadd
-    c = e2
-    b = (e3-e1)/(2*dx)
-    a = (e1+e3-2*e2)/(2*dx*dx)
-    if (a <= 0d0) then
-       xadd = -xshx
-       enew = e1
-       if (e3 < e1) xadd = xshx
-       if (e3 < e1) enew = e3
-    else
-       xadd = -b/(2*a)
-       enew = a*xadd*xadd + b*xadd + c
-    endif
-    aa = 2*1d3*a
-    if (xadd > xshx)  xadd = xshx
-    if (xadd < -xshx) xadd = -xshx
-    xnew = x0+xadd
-    if (xnew > xmax) xnew = xmax
-    if (xnew < xmin) xnew = xmin
-    ie0 = e2
-    ee1 = 1d3*(e1-ie0)
-    ee2 = 1d3*(e2-ie0)
-    ee3 = 1d3*(e3-ie0)
-    een = 1d3*(enew-ie0)
-    stiff = aa
-    if (jpr > 0) write (stdo,810)l,x0,y0,ee1,ee2,ee3,aa,een,xnew
-810 format(i3,f8.3,f8.3,f10.3,2f9.3,f9.1,f10.3,f8.3,a)
-  end subroutine popta2
-  subroutine popta3(mode,l,z,nn,rmt,nr,nrmt,rofi,v,a,b,evl,pnu,g)!Get exact fa wavefunction, eigval, pnu at Rmt.
-    use m_ftox
-    !i Inputs
-    !i   mode  :0 boundary condition is val,slo = 0 at nr
-    !i         :1 boundary condition is that w.f. satisfy pnu at nrmt
-    !i         :  (under development)
-    !i   l     :angular momentum
-    !i   z     :nuclear charge
-    !i   rmax  :sphere radius
-    !i   rmt   :muffin-tin radius, in a.u.
-    !i   nr    :number of radial mesh points
-    !i   nrmt  :number of radial mesh points to rmt
-    !i   rofi  :radial mesh points
-    !i   v     :spherical potential (atomsr.f)
-    !i   a     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
-    !i   b     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
-    ! o Inputs/Outputs
-    ! o  nn    :number of nodes (input mode 0; output mode 1)
-    ! o  pnu   :boundary condition at rmt (output mode 0; input mode 1)
-    !o Outputs
-    !o   g     :normalized wave function times r
-    !o   evl   :eigenvalue
-    implicit none
-    integer :: mode,l,nn,nr,nrmt
-    real(8) :: a,b,evl,pnu,rmt,z,rofi(nr),v(nr),g(nr*2)
-    integer :: nre,konfig,nri,nn2
-    real(8) :: d0l,p0l,dphi,drdi,du,eb1,eb2,g1,g2,g3,g4,g5,pi, slo,slou,sum,tol,val,valu,dnu
-    pi = 4d0*datan(1d0)
-    eb1 = -50 !ccctakao 30
-    eb2 = 20
-    tol = 1d-10
-    val = 1d-30
-    slo = -val
-    evl = -0.5d0
-    nri = nr
-    if (mode == 1) then
-       konfig = pnu
-       nn = konfig-l-1
-       dnu = dtan(pi*(0.5d0-pnu))
-       val = rmt
-       slo = dnu+1d0
-       nri = nrmt
-    endif
-    call rseq(eb1,eb2,evl,tol,z,l,nn,val,slo,v,g,sum,a,b,rofi,nri,nre)
-    if (mode == 1) then  ! integration becomes rather strange for r>>rmt. Need to truncate radius.
-       call rsq1(nri,evl,l,z,v,nr,g,val,slo,nn2,a,b,rofi,nr)
-       call rx('not finished mode 1')
-    endif
-    g1 = g(nrmt-2)
-    g2 = g(nrmt-1)
-    g3 = g(nrmt)
-    g4 = g(nrmt+1)
-    g5 = g(nrmt+2)
-    drdi = a*(rmt+b)
-    valu = g3
-    slou = (-2*g5+16*g4-16*g2+2*g1)/(24d0*drdi)
-    du   = rmt*slou/valu
-    dphi = du-1
-    pnu  = nn+l+1 + (0.5d0-datan(dphi)/pi)
-    ! ... Don't set too low..
-    d0l = l
-    p0l = nn+l+1 + 0.5d0-datan(d0l)/pi
-    p0l = nn+l+1 + 0.1d0
-!    write(6,ftox)' l pnu',l,ftof(pnu)
-    if (pnu < p0l) then
-       write (stdo,145) l,pnu,p0l
-145    format(' l=',i1,'  increase Pnu=',f8.3,'  to ',f8.3)
-       pnu = p0l
-    endif
-  end subroutine popta3
-  subroutine popta4(l,z,rmt,nrmt,rofi,v,g,gp,a,b,pnu,enu,p,phi,dphi,phip,dphip)!Potential parameters at MT sphere
-  use m_phidx,only: phidx
-    !i Inputs
-    !i   l     :angular momentum
-    !i   z     :nuclear charge
-    !i   rmt   :muffin-tin radius, in a.u.
-    !i   nrmt  :number of radial mesh points to rmt
-    !i   rofi  :radial mesh points
-    !i   v     :spherical potential (atomsr.f)
-    !i   g     :normalized wave function times r
-    !i   gp    :energy derivative(s) of g
-    !i   a     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
-    !i   b     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
-    !i   pnu   :boundary conditions.  If Dl = log. deriv. at rmax,
-    !i          pnu = .5 - atan(Dl)/pi + (princ.quant.number).
-    !i   enu   :enu's for making charge density
-    !o Outputs
-    !o   phi   :wave function at rmt
-    !o   dphi  :radial derivative of of phi at rmt
-    !o   phip  :energy derivative of phi
-    !o   dphip :radial derivative of dphi
-    !o   p     :<gp**2> (potential parameter)
-    implicit none
-    integer :: l,nrmt
-    real(8) :: a,b,dphi,dphip,enu,p,phi,phip,pnu,rmt,z, rofi(nrmt),v(nrmt),g(nrmt),gp(nrmt,4)
-    integer :: konfig,nn,nre
-    real(8) :: dnu,eb1,eb2,pi,slo(5),sum,tol,val(5)
-    pi = 4d0*datan(1d0)
-    eb1 = -50 !ccctakao -30
-    eb2 = 20
-    tol = 1d-10
-    konfig = pnu
-    nn = konfig-l-1
-    dnu = dtan(pi*(0.5d0-pnu))
-    val(1) = rmt
-    slo(1) = dnu+1d0
-    enu=-0.5d0
-    call rseq(eb1,eb2,enu,tol,z,l,nn,val,slo,v,g,sum,a,b,rofi,nrmt,nre)
-    val(1) = val(1)/dsqrt(sum)
-    slo(1) = slo(1)/dsqrt(sum)
-    call phidx(1,z,l,v,0d0,0d0,rofi,nrmt,2,tol,enu,val,slo,nn,g,gp, phi,dphi,phip,dphip,p,0d0,[0d0],0d0,[0d0])
-  end subroutine popta4
-  subroutine popta5(lmax,rtab,etab,itab,z,pl,rmax,rmt,nr,nrmt,rofi,psi,v,g,a,b,spid) !- Write wave functions to plot file
-    use m_ext,only:sname
-    use m_hansr,only:hansmr
-    !i Inputs
-    !i   lmax  :maximum l for a given site
-    !i   rtab  :smoothing radii for wavefunction, each l
-    !i   etab  :smoothed hankel energies for wavefunction, each l
-    !i   itab  :1 if a wave function calculated, 0 if not
-    !i   z     :nuclear charge
-    !i   pnu   :boundary conditions.  If Dl = log. deriv. at rmax,,
-    !i         :pl = .5 - atan(Dl)/pi + (princ.quant.number).
-    !i   rmax  :muffin-tin radius, in a.u.
-    !i   rmt   :muffin-tin radius
-    !i   nr    :number of radial mesh points
-    !i   nrmt  :number points to muffin-tin radius
-    !i   rofi  :radial mesh points
-    !i   psi   :wave function tabulated on the rofi mesh
-    !i   v     :spherical potential (atomsr.f)
-    !i   g     :normalized wave function times r
-    !i   a     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
-    !i   b     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
-    !i   spid
-    !o Outputs
-    !    wave functions written to disk
-    implicit none
-    integer :: itab(0:*),lmax,nr,nrmt,n0
-    parameter (n0=10)
-    real(8) :: a,b,rmax,rmt,z,rtab(0:*),etab(0:*), rofi(nr),psi(nr,0:*),g(nr,2),v(nr),pl(0:n0-1)
-    character spid*8
-    integer :: i,ifi,konfig,l,lp1,m,n,nn,nre
-    integer :: ltab(n0)
-    real(8) :: asm,dfl,drdi,eb1,eb2,eh,evl,fac,fl,flp1,r,rsm, slo,sum1,sum2,tol,val,wt,xi(0:20)
-    character str*32
-    eb1 = -20
-    eb2 = 20
-    tol = 1d-8
-    n = 0
-    lloop: do  10  l = 0, lmax
-       if (itab(l) == 0) goto 10
-       n = n+1
-       ltab(n) = l
-       lp1 = l+1
-       rsm = rtab(l)
-       eh = etab(l)
-       asm = 1d0/rsm
-       konfig = pl(l)
-       nn = konfig-l-1
-       sum2 = 0d0
-       do    i = nrmt, nr ! ...   Smooth hankel fct outside rmt
-          r = rofi(i)
-          call hansmr(r,eh,asm,xi,l)
-          psi(i,n) = xi(l)*(r**lp1)
-          wt = 2*(mod(i+1,2)+1)/3d0
-          if (i == nrmt .OR. i == nr) wt=1d0/3d0
-          drdi = a*(r+b)
-          sum2 = sum2 + wt*drdi*psi(i,n)**2
-       enddo
-       call hansmr(rmt,eh,asm,xi,l+1) !Attach numerical solution inside MT sphere
-       fl   = xi(l)*rmt**l
-       flp1 = xi(l+1)*rmt**(l+1)
-       dfl  = l*fl/rmt-flp1
-       val = rmt*fl
-       slo = rmt*dfl+fl
-       evl = -0.5d0
-       call rseq(eb1,eb2,evl,tol,z,l,nn,val,slo,v, g,sum1,a,b,rofi,nrmt,nre)
-       fac = val/(g(nrmt,1)*dsqrt(sum1+sum2))
-       do   i = 1, nrmt
-          psi(i,n) = fac*g(i,1)
-       enddo
-       fac = 1d0/dsqrt(sum1+sum2)
-       do  i = nrmt+1,nr
-          psi(i,n) = psi(i,n)*fac
-       enddo
-10  enddo lloop
-    write(str,'(''wfa_'',a)') spid
-    write(stdo,"(/' Write fit wavefunctions to plot file: ',a)") str
-    open(newunit=ifi,file=trim(str)//'.'//trim(sname))
-    write(ifi,"('# Free-atom opt basis (divided by r) for species ',a/'# rmax=',f7.3,'   rmt=',f7.3,'   l=',8i2)") &
-         spid,rmax,rmt,(ltab(i),i=1,n)
-    write(ifi,'(''% rows '',i5,'' cols '',i3)') nr,n+1
-    do  i = 1, nr
-       write (ifi,"(f9.5,1p,8d14.5)") rofi(i),(psi(i,m),m=1,n)
-    enddo
-    close(ifi)
-  end subroutine popta5
   subroutine fctail(nr,nrmt,a,b,rsm,rofi,rhoc,c,eh)!Fit one Hankel to tail of core density.
     use m_lmfinit,only: nsp
     !i Inputs
@@ -1000,9 +648,464 @@ contains
           fit = c*dexp(-akap*r)*r
           q = q+wt*fit
           if ((rhoc(i,1)+rhoc(i,nsp))/(3-nsp) < 1d-8) exit
-          if (mod(i,5) == 0 .OR. i == nrmt) &
-               write (stdo,"(f12.6,2f14.8)") r,(rhoc(i,1)+rhoc(i,nsp))/(3-nsp),fit
+          if (mod(i,5) == 0 .OR. i == nrmt) write (stdo,"(f12.6,2f14.8)") r,(rhoc(i,1)+rhoc(i,nsp))/(3-nsp),fit
        enddo
     endif
   end subroutine fctail
+  subroutine atomsc(  & !- Makes an atomic sphere self-consistent and get atomic charges
+       lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, nr,rofi,ec,ev,pnu,qnu,idmod,v,dv,rhoin,rho,rhoc,nrmix,qc,sumec, &
+       sumtc,sumev,ekin,utot,rhoeps,etot,amgm,rhrmx,vrmax,qtot,exrmax, job,niter,lfrz,plplus,qlplus,nmcore,qelectron,vsum)
+    use m_lmfinit,only: lrel
+    use m_getqvc
+    use m_lgunit,only: stdo
+    use m_amix,only: amix
+    ! ----------------------------------------------------------------
+    !i Inputs
+    !i   lgdd  :T  add q2 phi phidd into the density
+    !i         :F  add q2 <phi phidd> phi phi into the density
+    !i         :NB: both produce the same integrated density.
+    !i         :Which one should be used depends on the context.
+    !i   nl    :leading dimension of pnu,qnu.
+    !i         :Also, total charge cutoff; see Remarks
+    !i   nsp   :2 for spin-polarized case, otherwise 1
+    !i   lmax  :maximum l for this site (but see Remarks)
+    !i   z     :nuclear charge
+    !i   rhozbk:constant nuclear background density (jellium) added to z
+    !i   kcor  :(partial core occupation) p.q.n for occupation
+    !i   lcor  :(partial core occupation) l quantum for occupation
+    !i   qcor  :(partial core occupation) core charge and moment
+    !i   rmax  :potential, density calculated to rmax
+    !i   a     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
+    !i   b     :                 -//-
+    !i   pnu   :boundary conditions.  If Dl = log. deriv. at rmax,,
+    !i         :pnu = .5 - atan(dnu)/pi + (princ.quant.number).
+    !i   qnu   :energy moments of charge (see Remarks)
+    !i   idmod :0,1 or 2, specifing how the enu is set for an l-channel
+    ! i   pz   :pnu for second panel (npan=2)
+    ! i   qz   :qnu for second panel (npan=2)
+    ! i   idmoz:idmod for second panel; specifies how semicore state
+    ! i        :is treated
+    ! i   npan :>1 for two-panel calculations
+    !i   v     :spherical potential (job='pot', else input v not used)
+    !i   dv    :constant potential shift added to sphere.
+    !i         :Not used now.
+    !i   rhoin:input density (job='rho', else input rhoin not used)
+    !i         :used internally as a work array
+    !i   nrmix :number of prior densities to mix to accelerate convergence
+    !i         :to self-consistency (Anderson mixing); see Remarks.
+    !i         :nrmix<0, linear mixing, with mixing beta |nrmix/100|
+    !i   job   :(see Remarks)
+    !i         :job='pot': start with potential
+    !i         :job='rho': start with rhoin.
+    !i         :job='gue': start with guessed charge density.
+    !i   niter :number of iterations to attempt convergence to
+    !i          self-consistency (see Remarks)
+    !i   lfrz  :0 for soft core, >0 for frozen core
+    ! o Input/Outputs
+    ! o  ec    :core eigenvalues.  On input, these are guessed values.
+    ! o        :if input ec(1) = 0, atomsc makes an internal choice fo ec.
+    ! o  ev    :valence eigenvalues  On input, these are guessed values.
+    ! o        :if input ec(1) = 0, atomsc makes an internal choice for ev.
+    !o Outputs
+    !o   rofi  :dimensioned (nr,2).
+    !o         :(*,1) radial mesh points
+    !o         :(*,2) weights
+    !o   rho   :spherical charge density = 4 pi r**2 rhotrue
+    !o   rhoc  :core charge density (unchanged if lfrz=1)
+    !o   qc:   :core electronic charge
+    !o   sumec :core single particle energy
+    !o   sumtc :core kinetic energy (unchanged if lfrz=1)
+    !o   ekin  :total kinetic energy
+    !o   utot  :electrostatic energy
+    !o   rhoeps:exchange-correlation energy
+    !o   etot  :sphere total energy
+    !o   amgm  :difference between spin up and spin down charge
+    !o   rhrmx :true density at rmax
+    !o   vrmax :true potential at rmax
+    !o   qtot  :net charge in sphere
+    !o   exrmax:exchange-correlation energy at rmax
+    !r Remarks
+    !r   Boundary conditions pnu, moments qnu, and the electrostatic
+    !r   potential at rmax are all that is required to uniquely determine
+    !r   a self-consistent spherical charge and potential.  'job'
+    !r   determines how the starting potential is made, but the final
+    !r   potential  and density should be independent of the initial choice.
+    !r
+    !r   atomsc uses the boundary condition that the potential at rmax
+    !r   is zero, regardless of the total net charge inside the sphere.
+    !r   See subroutine madpot for discussion of how this choice affects
+    !r   the Madelung energy.
+    !r
+    !r   Sphere total energy is sum of K.E., Hartree energy, XC energy:
+    !r      etot = ekin + utot + rhoeps
+    !r   The kinetic energy is computed via double-counting terms
+    !r     ekin = sumev + sumec + dsumec - rhovh - rhomu
+    !b Bugs
+    !b   Total energy terms need to be cleaned up and simplified.
+    ! ----------------------------------------------------------------
+    use m_ftox
+    use m_vxcatom,only: vxc0sp
+    implicit none
+    logical :: lfrz,lgdd
+    character job*3
+    integer :: nr,nsp,nl,nrmix,niter,kcor,lcor,ncmx,nvmx,lmax, idmod(0:nl-1)
+    parameter (ncmx=50, nvmx=20)
+    double precision :: ec(ncmx),ev(nvmx),rofi(nr,2),v(nr,nsp),rho(nr,nsp),rhoc(nr,nsp),rhoin(nr,nsp),pnu(nl,2), &
+         qnu(3,nl,nsp),z,rmax,a,qc,vrmax(nsp),exrmax(2),dv,rhrmx, rhozbk,qcor(2),amgm,ekin,etot,qtot,rhoeps,sumec,sumev,sumtc,utot
+    logical :: last,cmdopt,ltmp
+    integer :: iprint,ir,isp,iter,jmix,nglob,ipr1,l,ii
+    character strn*10
+    real(8):: b,ddot,decay,dl,dold,drdi,drho,dsumec,ea,fac,pi,rho0t,rhomu,rhovh,rmsdel,ro,ssum,tolrsq,vhrmax,vnucl,vrhoc,vsum, &
+         zvnucl,rvh(2),rho0(2),reps(2),rmu(2),sec(2),stc(2),sev(2),dasum
+    integer:: nmix 
+    real(8) ,allocatable :: rho_rv(:)
+    real(8):: plplus(0:lmax,nsp),qlplus(0:lmax,nsp),qelectron
+    double precision :: norm(10,10),awk(10,2),beta,beta1
+    parameter (beta = 0.3d0)
+    double precision :: tolch,tl
+    parameter (tolch=5d-5,tolrsq=1d-12)! tolch is tolerance for change in the charge density, tolv for rseq
+    integer:: nmcore
+    print *,'atomsc nmcore=',nmcore
+    if (lmax >= nl) call rx('atomsc:  lmax too large')
+    pi = 4d0*datan(1d0)
+    b = rmax/(dexp(a*(nr-1)) - 1)
+    vhrmax = 0d0
+    nmix = min(max(nrmix,0),10)
+    sec = 0d0
+    stc = 0d0
+    allocate(rho_rv(nr*nsp*2*(nmix+2)))
+    ! --- Core charge, radial mesh points and weights ---
+    if (kcor /= 0) then
+       if (qcor(1) /= 0 .OR. qcor(2) /= 0) then
+          write(stdo,ftox)'Add core hole:  kcor=',kcor,' lcor=',lcor,' qcor=',ftof(qcor),'amom=',ftof(qcor(2))
+       endif
+    endif
+    call getqvc(nsp,nl,lmax,z,pnu,qnu,0,0,kcor,lcor,qcor,qc,qtot,amgm)
+    ! --- Guesses for core and valence eigenvalues ---   ! takao probably not needed here
+    if (ec(1) == 0) call getqvc(nsp,nl,lmax,z,pnu,qnu,ncmx,nvmx,kcor,lcor,qcor,qc,qtot,amgm,ec,ev) !only for core number check since we set ev and ev below.
+    ! ill be replace by simple code.
+    call radmsh(rmax,a,nr,rofi)
+    call radwgt(rmax,a,nr,rofi(1,2))
+    !! initialize ev here(overide getqvc now).feb2011
+    ev = -0.5d0
+    ec = -5.0d0
+    if (job == 'pot') then !Initial charge density ---
+       call newrho(z,lrel,lgdd,nl,1,lmax,a,b,nr,rofi,v,rhoin,rhoc,kcor, &
+            lcor,qcor,pnu,qnu,sec,stc,sev,ec,ev,tolrsq,nsp,lfrz,000,plplus,qlplus,nmcore)
+       if (niter == 0) then
+          rho=rhoin
+          if(allocated(rho_rv)) deallocate(rho_rv)
+          return
+       endif
+    else if (job == 'gue') then
+       decay = 1d0+z/10d0
+       decay = dmin1(decay,5d0)
+       decay = 5
+       rhoin(:,1) = dexp(-decay*rofi(:,1))*rofi(:,1)**2
+       fac = z/(sum(rhoin(:,1)*a*(rofi(:,1)+b))*nsp)
+       rhoin(:,1)=rhoin(:,1)*fac
+       if(nsp==2) rhoin(:,2)=rhoin(:,1)
+    elseif (job /= 'rho') then
+       call rx('atomsc: job not pot|rho|gue')
+    endif
+    rho_rv(1+nr*nsp*(nmix+2):nr*nsp+nr*nsp*(nmix+2))= reshape(rhoin(1:nr,1:nsp),[nr*nsp])
+    drho = 100d0
+    last = .false.
+    if (iprint() >= 41) write(stdo,341)
+    jmix = 0
+    dold = 1
+    beta1 = beta
+    vrhoc=-1d99
+    if (nrmix < 0) beta1 = dble(-nrmix)/100
+    do  35  iter = 1, niter !Start self-consistency loop ---
+       tl = tolrsq
+       call addzbk(rofi,nr,nsp,rhoin,rhozbk,-1d0)
+       if(abs(rmax-rofi(nr,1))>1d-6) call rx('atomsr.F:something wrong. abs(rmax-rofi(nr,1))>1d-3')
+       vhrmax=2d0*(qelectron-z)/rmax
+       call poiss0(z,a,b,rofi,rhoin,nr,vhrmax,v,rvh,vsum,nsp) !  Hartree potential
+       vsum = vsum + 4d0*pi*(z-qelectron)*rmax**2
+       call addzbk(rofi,nr,nsp,rhoin,rhozbk,1d0)
+       vnucl = v(1,1)  
+       if (last .AND. iprint() >= 50) call pshpr(80)
+       call vxc0sp(a,b,rofi,rhoin,nr,v,rho0,reps,rmu,nsp,exrmax(1))! Exchange-correlation potential
+       if (last .AND. iprint() >= 50) call poppr
+       fac = 4*pi*rofi(nr,1)**2
+       rhrmx = rhoin(nr,1)/fac
+       if (nsp == 2) then !       Get rhrmx, exrmax
+          exrmax(2) = exrmax(1)
+          rhrmx = rhrmx + rhoin(nr,2)/fac
+       endif
+       ipr1 = 0
+       if (last .AND. iprint()>= 40) ipr1 = 1
+       if (last .AND. iprint() > 40) ipr1 = 2
+       if( .NOT. last) call pshpr(15) !low print()
+       call newrho(z,lrel,lgdd,nl,1,lmax,a,b,nr,rofi,v,rho,rhoc, &
+            kcor,lcor,qcor,pnu,qnu,sec,stc,sev,ec,ev,tl,nsp,lfrz,ipr1,plplus,qlplus,nmcore)
+       if( .NOT. last) call poppr !set back to original print()
+       drho = 0d0
+       ssum = 0d0
+       vrhoc = 0d0
+       rho0t = 0d0
+       do  40  isp = 1, nsp
+          rho0t = rho0t + rho0(isp)
+          ssum = ssum + ddot(nr,rofi(1,2),1,rho(1,isp),1)
+          do  42  ir = 1, nr
+             drdi = a*(rofi(ir,1) + b)
+             drho = drho + rofi(ir,2)/drdi*dabs(rho(ir,isp)-rhoin(ir,isp))
+42        enddo
+          do  41  ir = 2, nr
+             vrhoc = vrhoc + rofi(ir,2)*(v(ir,isp)-2*z/rofi(ir,1))*rhoc(ir,isp)
+41        enddo
+40     enddo
+       rho_rv(1:nr*nsp) = reshape(rho(1:nr,1:nsp),[nr*nsp])
+       jmix = amix(nr*nsp , min ( jmix , nmix ) , nmix , 0 , beta1, iprint ( ) - 70 , .9d0 ,  rho_rv , awk , rmsdel )
+       rhoin(1:nr,1:nsp) = reshape(rho_rv(1+nr*nsp*(nmix+2):nr*nsp+nr*nsp*(nmix+2)),[nr,nsp])
+       if (last) goto 90
+       if (iprint() >= 41 .AND.(drho < tolch .OR. iter == niter-1 .OR. iter == 1)) &
+            write(stdo,340) iter,ssum,drho,vnucl,rho0t,vsum,beta1
+340    format(i5,f12.6,1p,e12.3,0p,f14.4,e14.4,f14.4,f7.2)
+341    format(/'  iter     qint',9x,'drho',10x,'vh0',10x,'rho0',10x,'vsum',5x,'beta')
+       last = (drho .lt. tolch .or. iter .eq. niter-1)
+       jmix = jmix+1
+       beta1 = min(max((1-drho/dold)/beta1,beta1-.2d0,beta), 1d0,beta1+.2d0)!Beta for next iteration
+       if (nmix > 0 .AND. drho < 1) beta1 = 1
+       if (nrmix < 0) beta1 = dble(-nrmix)/100
+       dold = drho
+35  enddo
+90  continue
+    if (allocated(rho_rv)) deallocate(rho_rv)
+    if (iprint() >= 30) write(stdo,'(1x)')
+    ! --- Collect terms for total energy ---
+    rhoeps = 0d0
+    rhomu  = 0d0
+    sumev  = 0d0
+    if ( .NOT. lfrz) then
+       sumec = 0d0
+       sumtc = 0d0
+    endif
+    rhovh  = 0d0
+    do  isp = 1, nsp
+       if(nsp==2.AND.iprint()>30)write(stdo,"(' Spin',i2,':',/' vrmax=',f12.5,'    sumev= ',f12.5,'    sumec=',f12.5,/' rhovh=',&
+            f12.5,'    rhoeps=',f12.5,'    rhomu=',f12.5)") isp,v(nr,isp)-2*z/rmax, sev(isp),sec(isp),rvh(isp),reps(isp),rmu(isp)
+       rhoeps = rhoeps + reps(isp)
+       rhomu = rhomu + rmu(isp)
+       sumev = sumev + sev(isp)
+       if ( .NOT. lfrz) then
+          sumec = sumec + sec(isp)
+          sumtc = sumtc + stc(isp)
+       endif
+       rhovh = rhovh + rvh(isp)
+    enddo
+    zvnucl = -z*vnucl
+    utot = .5d0*(rhovh + zvnucl)
+    dsumec = vrhoc - (sumec-sumtc)! Correction to core eigenvalues if sumec not obtained from this V
+    ekin = sumev + sumec + dsumec - rhovh - rhomu
+    etot = ekin + utot + rhoeps
+    if (iprint() >= 40) write(stdo,139) sumev,sumec,vnucl,rhovh,zvnucl,utot,rhomu,rhoeps,dsumec,ekin,sumtc,etot
+139 format(/' sumev=',f13.6,'    sumec =',f13.6,'   vnucl =',f13.6 /' rhovh=',f13.6,'    zvnucl=',f13.6,'   utot  =',f13.6 &
+         /' rhomu=',f13.6,'    rhoeps=',f13.6,'   dsumec=',f13.6     /' ekin= ',f13.6,'    tcore =',f13.6,'   etot  =',f13.6)
+    vrmax(1) = -2*z/rmax + sum(v(nr,1:nsp))/nsp
+    vrmax(2) = 0d0
+    if(nsp==2) vrmax(2) = v(nr,1)-v(nr,2)
+  end subroutine atomsc
+  subroutine addzbk(rofi,nr,nsp,rho,rhozbk,scale)
+    implicit none
+    integer :: nr,nsp,ir,isp
+    double precision :: rofi(nr),rho(nr,*),rhozbk,scale,s
+    if(rhozbk == 0) return
+    s = 16d0*datan(1d0)*scale*rhozbk
+    do isp = 1, nsp
+       rho(:,isp) = rho(:,isp) + s*rofi(:)**2
+    enddo
+  end subroutine addzbk
+  subroutine newrho(z,lrel,lgdd,nl,nlr,lmax,a,b,nr,rofi,v,rho,rhoc, &
+       kcor,lcor,qcor,pnu,qnu,sumec,sumtc,sumev,ec,ev,tol,nsp,lfrz,ipr,plplus,qlplus,nmcore)
+    !! ev is dummy now. feb2010 takao
+    !- Makes spherical charge density for a spherical potential.
+    !  ---------------------------------------------------
+    !i Inputs:
+    !i   z     :nuclear charge
+    !i   lrel  :0 for nonrelativistic, 1 for relativistic
+    !i   lgdd  :T q2 is coefficient to phidot**2 + phi*phidotdot
+    !i         :F q2 is coefficient to phidot**2 - p phi**2
+    !i         :Both produce the same integrated density; see Remarks.
+    !i         :lgdd=F follows Stuttgart conventions.
+    !i   nl    :(global maximum l) + 1
+    !i   nlr   :second dimension of rho:
+    !r         :1 if spherical part of rho is to be generated
+    !i         :nl if generated rho is to be decomposed by l
+    !i         :In the latter case, the core is not calculated
+    !i   lmax  :maximum l for a given site
+    !i   a     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
+    !i   b     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
+    !i   nr    :number of radial mesh points
+    !i   rofi  :radial mesh points
+    !i   v     :spherical potential (atomsr.f)
+    !i   kcor  :(partial core occupation) p.q.n for occupation
+    !i   lcor  :(partial core occupation) l quantum for occupation
+    !i   qcor  :(partial core occupation) core charge and moment
+    !i   pnu   :boundary conditions.  If Dl = log. deriv. at rmax,,
+    !i         :pnu = .5 - atan(dnu)/pi + (princ.quant.number).
+    !i   qnu   :energy moments of charge (see Remarks)
+    !i   tol   :precision to which wave functions are integrated.
+    !i   nsp   :2 for spin-polarized case, otherwise 1
+    !i   g     :normalized wave function times r
+    !i   gp    :energy derivatives of g
+    !i   lfrz  :T, do not make core rho
+    !i   ipr   :0 no printout
+    !i         :1 summary printout of core
+    !i         :2 detailed printout of core
+    !o Outputs:
+    !o   rho   :spherical charge density times 4*pi*r*r
+    !o   rhoc  :core density times 4*pi*r*r
+    !o   sumec :sum of core eigenvalues
+    !o   sumtc :core kinetic energy = sumec - v*rhoc
+    !o   sumev :sum of valence eigenvalues
+    !o   ec    :core eigenvalues
+    !o   ev    :valence eigenvalues !not output now
+    !r Remarks:
+    !r   rho is determined by boundary conditions pnu and moments qnu.
+    !r   For rmax>10 sets phidot, phidotdot are made zero.
+    !r
+    !r   Recall that val,slo correspond to u = r*phi, so
+    !r     rmax * slo / val = D_u = D_phi + 1.
+    !r     For val=rmax  slo = D + 1
+    !r
+    !r   Switch lgdd concerns the contribution of <phidot|phidot> to the
+    !r   sphere charge.  The zeroth moment may be defined as the amount of
+    !r   charge in channel l, i.e.
+    !r     q^0 = (amount of <phi|phi>) +  p* (amount of <phidot|phidot>)
+    !r   where
+    !r     p = <phidot|phidot>
+    !r   Then q^0 is not the amount of phi*phi inside the sphere, but rather
+    !r   but instead, it is
+    !r     (q_0 - p q_2)
+    !r   since q2 is the amount of <phidot|phidot>.  The charge density is
+    !r     rho= (q_0 - p q_2) phi*phi + 2 q_1 phi*phidot + q_2 phidot*phidot
+    !r   This is the Stuttgart convention (lgdd=F)
+    !r
+    !r   Methfessel convention:  to avoid explicit dependence of rho on
+    !r   p, he approximated p*phi*phi with -phi*phidotdot (they have the
+    !r   same integrated charge).  Then
+    !r     rho= q_0 phi*phi + 2 q_1 phi*phidot +
+    !r          q_2 (phidot*phidot + phi*phidotdot)
+    !  ---------------------------------------------------
+    use m_rhocor,only:rhocor
+    use m_phidx,only: phidx
+    use m_lmfinit,only:cc
+    implicit none
+    logical :: lgdd,lfrz
+    integer :: nl,nlr,lmax,nr,nsp,lrel,kcor,lcor,ipr,iz
+    double precision :: z,a,b,tol,sumev(nsp),sumec(nsp),sumtc(nsp),ec(*),ev(*),qcor(2),v(nr,nsp),rofi(nr),&
+         rho(nr,nlr,nsp),rhoc(nr,nsp), qnu(3,nl,nsp),pnu(nl,nsp)
+    logical :: free
+    integer :: konfig(0:10),l,isp,ir,ival,nn,nre,jr,lmaxc,lr,k,nrmx
+    parameter (nrmx=1501)
+    real(8):: c,rocrit,eb1,eb2,q0,q1,q2,rmax,eval,dl,val(5),slo(5),sum,ro,phi,dphi,phip,dphip,p,fllp1,r,tmc,gfac,q00,&
+         g(2*nrmx),gp(2*nrmx*4)
+    common /cc/ c !Speed of light, or infinity in nonrelativistic case
+    real(8):: plplus(0:lmax,nsp),qlplus(0:lmax,nsp)
+    real(8),parameter:: pi = 4d0*datan(1d0)
+    integer::nmcore !jun2012
+    call setcc(lrel)
+   ! real(8),pointer::c
+   ! c=>cc
+    if (nr > nrmx) call rxi(' newrho: increase nrx, need',nr)
+    lr = 1
+    rocrit = 0.002d0/4
+    eb1 = -50d0
+    eb2 =  50d0
+    rmax = rofi(nr)
+    free = rmax>9.99d0
+    call config(pnu,lmax,z,konfig,lmaxc)
+    if (kcor > 0) then
+       lmaxc = max(lmaxc,lcor)
+       konfig(lcor) = max(konfig(lcor),kcor+1)
+    endif
+    ! --- Calculate core density ---
+    if (nlr == 1) then
+       if ( .NOT. lfrz) then
+          rhoc=0d0
+          call rhocor(0,z,lmaxc,nsp,konfig,a,b,nr,rofi,v,g,kcor,lcor,qcor,tol,ec,sumec,sumtc,rhoc,nmcore=nmcore,ipr=ipr)
+       endif
+       call dcopy(nr*nsp,rhoc,1,rho,1)
+    endif
+    eval=-0.5d0 !initial condition. the same as getqvc ! --- Loop over valence states ---
+    sumev= 0d0
+    do  202  isp = 1, nsp
+       do  201  l = 0, lmax
+          izloop: do  20  iz=0,1  !takao feb2011
+             if (nlr == nl) lr = l+1
+             q0 = max(qnu(1,l+1,isp),0d0)
+             q1 = qnu(2,l+1,isp)
+             q2 = qnu(3,l+1,isp)
+             if (q0 < 1d-6) goto 20
+             nn = int(pnu(l+1,isp)) - l - 1
+             val(1) = rmax
+             dl = dtan(pi*(0.5d0 - pnu(l+1,isp)))
+             slo(1) = dl + 1
+             !! Setting when iz=1 override setting when iz=1
+             if(iz==1)then
+                if(plplus(l,isp)>0d0 .AND. qlplus(l,isp)>0d0) then ! note this is a case of Qv(lower principle quantum number).
+                   !  Search "=== Charge for l" in freeat.F, and NOTE: above it.   print *,'vvvvvv', plplus(l,isp)
+                   q0=qlplus(l,isp)
+                   q1=0d0
+                   q2=0d0
+                   nn=int(plplus(l,isp)) - l - 1
+                   dl = dtan(pi*(0.5d0 - plplus(l,isp)))
+                   slo(1) = dl + 1
+                else
+                   cycle
+                endif
+             endif
+             if (free) val(1) = 1d-30
+             if (free) slo(1) = -val(1)
+             call rseq(eb1,eb2,eval,tol,z,l,nn,val(1),slo(1),v(1,isp),g, sum,a,b,rofi,nr,nre) 
+             sumev(isp) = sumev(isp) + eval*q0 + q1
+             ro = g(nr)**2
+             if(.NOT.free.AND.ro<rocrit) write(*,"(' NEWRHO (warning): PHP,PHPP set to zero,l,nn,nre,rho=',3i5,2f8.4)") l,nn,nre,ro
+             if (free .OR. ro < rocrit) then
+                gp=0d0 !call dpzero(gp,8*nr)
+                p = 0
+             else
+                val(1) = val(1)/dsqrt(sum)
+                slo(1) = slo(1)/dsqrt(sum)
+                call phidx(1,z,l,v(1,isp),0d0,0d0,rofi,nr,2,tol,eval,val,slo,nn,g,gp,phi,dphi,phip,dphip,p,0d0,[0d0],0d0,[0d0])
+             endif
+             fllp1 = l*(l+1)
+             !  ...  Case add q2 phi phidd rho
+             if (lgdd) then
+                k = 2*nr
+                do  ir = 2, nre
+                   jr = ir + nr
+                   r = rofi(ir)
+                   tmc = c - (v(ir,isp) - 2d0*z/r - eval)/c
+                   gfac = 1d0 + fllp1/(tmc*r)**2
+                   rho(ir,lr,isp) =  rho(ir,lr,isp) +  q0*(gfac*g(ir)**2 + g(jr)**2) + &
+                        2*q1*(gfac*g(ir)*gp(ir)+g(jr)*gp(jr)) + q2*(gfac*(gp(ir)**2 + g(ir)*gp(ir+k)) + gp(jr)**2 + g(jr)*gp(jr+k))
+                enddo
+             else!Case add -p q2 phi phi into rho
+                q00 = q0-p*q2
+                do ir = 2, nre
+                   jr = ir + nr
+                   r = rofi(ir)
+                   tmc = c - (v(ir,isp) - 2d0*z/r - eval)/c
+                   gfac = 1d0 + fllp1/(tmc*r)**2
+                   rho(ir,lr,isp) = rho(ir,lr,isp) &
+                        + q00*(gfac*g(ir)**2+g(jr)**2) + 2*q1*(gfac*g(ir)*gp(ir)+g(jr)*gp(jr)) + q2*(gfac*gp(ir)**2+gp(jr)**2)
+                enddo
+             endif
+20        enddo izloop
+201    enddo
+202 enddo
+    !      call tcx('newrho')
+  end subroutine newrho
+  subroutine gintsl(g1,g2,a,b,nr,rofi, ssum) ! Integrate inner product of two wave equations, large component only
+    implicit none ! g1,g2  : wave function, mesh rofi(i) = b [e^(a(i-1)) -1],i=1,nr
+    integer :: nr,ir
+    real(8) :: a,b,g1(nr),g2(nr),rofi(nr),ssum
+    ssum = (4d0*sum([((rofi(ir)+b)*(g1(ir)*g2(ir)),ir=2,nr-1,2)]) & !2,4,... nr-1
+         +  2d0*sum([((rofi(ir)+b)*(g1(ir)*g2(ir)),ir=3,nr-2,2)]) & !3,5,7,...
+         +            (rofi(nr)+b)*(g1(nr)*g2(nr)) )*a/3d0
+  end subroutine gintsl
 end module m_freeat

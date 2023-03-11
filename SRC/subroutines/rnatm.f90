@@ -136,8 +136,7 @@ end subroutine rnatm
 
 subroutine makrvl(z,l,a,b,nr,rofi,konfig,v,ev,tol,rho)
   use m_lmfinit,only:lrel_g=>lrel
-
-
+  use m_rseq,only: rseq
   !- Makes contribution to charge density from a given spin and l,
   !  for free atom and given spherical potential (Adapted from nwrofp)
   ! ----------------------------------------------------------------------
@@ -182,14 +181,12 @@ subroutine makrvl(z,l,a,b,nr,rofi,konfig,v,ev,tol,rho)
   slo = -val
   lrel = lrel_g
   if (lrel == 0) then
-     call rseq(eb1,eb2,eval,tol,z,l,nn,val,slo,v,g, &
-          sum,a,b,rofi,nr,nre)
+     call rseq(eb1,eb2,eval,tol,z,l,nn,val,slo,v,g, sum,a,b,rofi,nr,nre)
      do  77  ir = 1, nre
         rho(ir)= a*(rofi(ir)+b)*g(ir)**2
 77   enddo
   else
-     call rseq(eb1,eb2,eval,tol,z,l,nn,val,slo,v,g, &
-          sum,a,b,rofi,nr,nre)
+     call rseq(eb1,eb2,eval,tol,z,l,nn,val,slo,v,g, sum,a,b,rofi,nr,nre)
      fllp1 = l*(l+1)
      c = 274.074d0
      rho(1) = 0

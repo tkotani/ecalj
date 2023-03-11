@@ -146,10 +146,10 @@ subroutine vcdmel(nl,nlmax,ndham,ndimh,nq,nsp,nspc,ef,evl,aus,nsite,isite,iclsl,
   if (allocated(s_rv)) deallocate(s_rv)
   call tcx ('vcdmel')
 end subroutine vcdmel
-subroutine pvcdm1(ncls,lcls,gcore,z,lmxa,v,a,nr,rofi,ul,sl,nsp,lmxax,ume,sme)
+subroutine pvcdm1(ncls,lcls,gcore,z,lmxa,v,a,nr,rofi,ul,sl,nsp,lmxax,ume,sme) !- Radial matrix elements < (u,s) | r | core >
   use m_lmfinit,only: stdo
+  use m_rseq,only: rseq
   use m_ftox
-  !- Radial matrix elements < (u,s) | r | core >
   implicit none
   integer ncls,lcls,lmxa,nr,nsp,lmxax
   double precision a,z,gcore(nr,2),rofi(nr),v(nr,nsp),&
