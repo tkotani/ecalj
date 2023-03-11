@@ -77,13 +77,6 @@ subroutine vcoulq_4(q,nbloch,ngc,nbas,lx,lxx,nx,nxx,alat,qlat,vol,ngvecc, &
   complex(8) :: img=(0d0,1d0)
   real(8):: bas(3,nbas),r2s,rmax(nbas)
   integer(4):: lm
-  !$$$#ifdef COMMONLL
-  !$$$      integer(4)::ll(51**2)
-  !$$$      common/llblock/ll
-  !$$$#else
-  !$$$      integer(4) :: ll
-  !$$$      external ll
-  !$$$#endif
   real(8)::  fkk(0:lxx),fkj(0:lxx),fjk(0:lxx),fjj(0:lxx),sigx(0:lxx),radsig(0:lxx)
   complex(8):: fouvp_ig1_ig2, fouvp_ig2_ig1, sgpp_ig1_ig2
 

@@ -1,4 +1,4 @@
-subroutine diagcvh2(hh,ngb,eb)
+subroutine diagcvh2(hh,ngb,eb)!  diagonalizes and returns eigenstates
   implicit none
   integer(4):: nmx,nev,i,ngb
   complex(8):: hh(ngb,ngb),hhx(ngb,ngb),oo(ngb,ngb),zz(ngb,ngb)
@@ -10,12 +10,7 @@ subroutine diagcvh2(hh,ngb,eb)
      oo(i,i) = 1d0
   enddo
   call diagcv(oo,hhx,zz,ngb, eb,nmx,1d99,nev)
-  !      print *,' diagcvv: ngb,nev=',ngb,nev
-  !      do i=1,nev
-  !        write(6,'(i4,d23.16)')i, eb(i)
-  !      enddo
 end subroutine diagcvh2
-
 subroutine diagcv(s,h,t,n,evl,nmx,emx,nev)
   !  diagonalizes and returns the nev lowest eigenstates
   !  eigenvecs are returned for i.lt.nmx. emx is dummy
@@ -54,7 +49,6 @@ subroutine diagcv(s,h,t,n,evl,nmx,emx,nev)
   deallocate(work,rwork,iwork,ifail)
   return
 end subroutine diagcv
-
 subroutine rss(nn,omat,eb,zz,ierr)!get eigenvalues and eigenvectors for real-symmetric funciton.
   integer:: ierr,lwork,nn
   real(8):: omat(nn,nn),omatin(nn,nn),eb(nn),zz(nn,nn)
@@ -66,7 +60,6 @@ subroutine rss(nn,omat,eb,zz,ierr)!get eigenvalues and eigenvectors for real-sym
   zz=omatin
   deallocate(work)
 end subroutine rss
-
 !     For diagonalizing Non-Hermite matrix (2017/09/22, Okumura)
 !     For Hermite matrix, use 'diagcv2.F'
 subroutine diagcvuh3(uh,n,ev)
@@ -83,7 +76,6 @@ subroutine diagcvuh3(uh,n,ev)
   enddo
   call diagcvz(oo,hhx,zz,n, ev,nmx,1d99,nev)
 end subroutine diagcvuh3
-
 subroutine diagcvz(s,uh,t,n,evl,nmx,emx,nev)
   !  diagonalizes and returns the nev lowest eigenstates
   !  eigenvecs are returned for i.lt.nmx. emx is dummy
@@ -119,7 +111,6 @@ subroutine diagcvz(s,uh,t,n,evl,nmx,emx,nev)
   deallocate(WORK,RWORK)
   return
 end subroutine diagcvz
-
 !     For Hermite matrix, use 'diagcv2.F'
 subroutine diagcvuh3_vec(uh,n,ev,vr)
   ! uh:Non-Hermite matrix, n:dimenstion, ev:eigenvalue(COMPLEX), vr:right-eigenvecter
@@ -136,7 +127,6 @@ subroutine diagcvuh3_vec(uh,n,ev,vr)
   enddo
   call diagcvz_r(oo,hhx,zz,n, ev,nmx,1d99,nev,vr)
 end subroutine diagcvuh3_vec
-
 subroutine diagcvz_r(s,uh,t,n,evl,nmx,emx,nev,vr)
   !  diagonalizes and returns the nev lowest eigenstates
   !  eigenvecs are returned for i.lt.nmx. emx is dummy

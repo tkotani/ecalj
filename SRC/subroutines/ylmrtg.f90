@@ -111,44 +111,4 @@ subroutine ylmrtg(nlm,rotp,rmat)! Matrix to rotate cubic harmonics for a given r
      call dgemm('N','N',nlmi,nlmi,nlmi,1d0,yp(offs+1,offs+1),ndim, &
           y(offs+1,offs+1),ndim,0d0,rmat(offs+1,offs+1),nlm)
 40 enddo
-  !      call prmx('ylmrtg: rmat',rmat,nlm,nlm,nlm)
-  !     call tcx('ylmrtg')
 end subroutine ylmrtg
-
-! ... testing
-!      subroutine fmain
-!      implicit none
-!      integer lmax,nlm,ng,i,wksize
-!      parameter (lmax=8, nlm=(lmax+1)**2, wksize=30000)
-!      double precision p(3*nlm),xmat(nlm**2),cy(289),
-!     .  g(9,10),rold(nlm**2),rnew(nlm**2),diff,ag(3,10)
-!      character*40 strn
-
-!      integer w(wksize)
-!      common /w/ w
-
-!      call wkinit(wksize)
-!      call sylmnc(cy,lmax+1)
-!      call ylmrt0(lmax,nlm,xmat,p,cy)
-!    1 print *, 'generator?'
-!      read(*,'(a40)') strn
-!      i = 0
-!      call psymop(strn,w,g,ag,ng)
-!      call awrit1(' group op %9:1d',' ',80,6,g)
-
-!      call ylmrt1(lmax,nlm,g(1,1),rold,xmat,p,cy)
-!      call ylmrtg(nlm,g,rnew)
-!      call prmx('ok rotation matrix',rold,nlm,nlm,nlm)
-!      call prmx('   rotation matrix',rnew,nlm,nlm,nlm)
-
-!      do  10  i = 1, nlm**2
-!        diff = rnew(i)-rold(i)
-!        if (abs(diff) .gt. 1d-12) then
-!          print *, 'error, i=',i,rnew(i),rold(i)
-!          stop
-!        endif
-!   10 continue
-!      print *, 'rotation matrix ok, max err=', sngl(diff)
-!      goto 1
-!      end
-

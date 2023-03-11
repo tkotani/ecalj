@@ -1,8 +1,6 @@
-subroutine makrwf(mode,z,rmax,l,v,a,nr,rofi,pnu,nptdif,g,gp, enu,phi,dphi,phip,dphip,p)
+subroutine makrwf(mode,z,rmax,l,v,a,nr,rofi,pnu,nptdif,g,gp, enu,phi,dphi,phip,dphip,p)!Radial wave functions and energy derivative
   use m_phidx,only: phidx
   use m_rseq,only: rseq
-  !- Radial wave functions and energy derivative
-  ! ----------------------------------------------------------------------
   !i Inputs
   !i   mode  :1s digit specifies boundary conditions
   !i         :0 input boundary conditions
@@ -32,17 +30,10 @@ subroutine makrwf(mode,z,rmax,l,v,a,nr,rofi,pnu,nptdif,g,gp, enu,phi,dphi,phip,d
   !r   This routine makes r*phi and r*phidot, where phi and phidot
   !r   are true radial wave function and energy derivatives.
   !r   phi is normalized, and p = <phidot**2>
-  !u Updates
-  !u   16 Aug 04 10s digit to explicitly satisfy Wronskian
-  !u   22 Dec 01 Adjustments to accomodate changes in phidx
-  !u   16 May 00 New routine
-  ! ----------------------------------------------------------------------
   implicit none
   integer :: mode,l,nr,nptdif, konf,nn,nre,modep
-  real(8):: a,rmax,z,rofi(1),v(nr,1),pnu(1:l+1),g(nr,2),gp(nr,2,4),phi,phip,dphi,dphip,p,&
-       b,dnu,eb1,eb2,enu,slo(5),sum,val(5)
+  real(8):: a,rmax,z,rofi(1),v(nr,1),pnu(1:l+1),g(nr,2),gp(nr,2,4),phi,phip,dphi,dphip,p,b,dnu,eb1,eb2,enu,slo(5),sum,val(5)
   real(8),parameter:: pi = 4d0*datan(1d0), tol = 1d-12
-  !call fsanrg(rmax,rofi(nr),rofi(nr),1d-8,'makrwf:','rmax',.true.)! rmax must match to rofi(nr)
   if(abs(rmax-rofi(nr))>1d-8) call rx('makrwf: rmax/=rofi(nr)')
   if (mod(mode,10) == 0) then
      b   = rmax/(dexp(a*nr-a)-1d0)
@@ -62,6 +53,5 @@ subroutine makrwf(mode,z,rmax,l,v,a,nr,rofi,pnu,nptdif,g,gp, enu,phi,dphi,phip,d
   else
      modep = 2
   endif
-  call phidx(modep,z,l,v,0d0,0d0,rofi,nr,nptdif,tol,enu,val,slo, &
-       nn,g,gp,phi,dphi,phip,dphip,p,0d0,[0d0],0d0,[0d0])
+  call phidx(modep,z,l,v,0d0,0d0,rofi,nr,nptdif,tol,enu,val,slo,nn,g,gp,phi,dphi,phip,dphip,p,0d0,[0d0],0d0,[0d0])
 end subroutine makrwf

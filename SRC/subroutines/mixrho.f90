@@ -2003,7 +2003,6 @@ contains
     double precision :: ddot,dval,wc
     integer:: im , km , i , iprint , i1mach , imix , jmix
     real(8) ,allocatable :: xmp1_rv(:)
-
 !    integer:: broyj
     real(8) ,allocatable :: f_rv(:)
     real(8) ,allocatable :: ui_rv(:)
@@ -2012,32 +2011,17 @@ contains
     real(8) ,allocatable :: df_rv(:)
     real(8) ,allocatable :: dx_rv(:)
     real(8) ,allocatable :: wk_rv(:)
-
-
-    ! heap
-    !      integer w(1)
-    !      common /w/ w
-
     ! --- Allocate some arrays ---
     allocate(xmp1_rv(nda))
-
     allocate(f_rv(nda))
-
     allocate(ui_rv(nda))
-
     allocate(vti_rv(nda))
-
     allocate(xold_rv(nda))
-
     allocate(df_rv(nda))
-
     allocate(dx_rv(nda))
-
-
     ! ... imix is a local copy of nmix
     imix = nmix
     if (imix < 0) imix = mmix
-
     ! --- Starting from iteration mmix, build the Jacobian matrix ---
 1   jmix = min(mmix,iabs(imix))
     allocate(wk_rv(nda*2*(jmix+2)))

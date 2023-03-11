@@ -1,4 +1,3 @@
-
 module m_getqvc
   public getqvc
   private

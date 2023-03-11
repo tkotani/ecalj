@@ -1,5 +1,4 @@
-subroutine cpudel(unit,strn,delt)
-  !- incremental cup time, in seconds
+subroutine cpudel(unit,strn,delt)  !- incremental cup time, in seconds
   ! ----------------------------------------------------------------------
   !i Inputs:
   !i   unit>=0: printout of time to unit; else no printing
@@ -29,8 +28,7 @@ subroutine cpudel(unit,strn,delt)
         tnew = tnew/60
      endif
   endif
-  if (unit >= 0 .AND. tnew > 0d0) &
-       write(unit,333) strn,delt,tnew,timeu
+  if (unit >= 0 .AND. tnew > 0d0) write(unit,333) strn,delt,tnew,timeu
 333 format(' cpudel',a25,'  time(s):',g10.3,'  total:',f8.3,a1)
 end subroutine cpudel
 real(8) function cpusec()

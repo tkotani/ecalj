@@ -1,6 +1,4 @@
-subroutine defpq(z,lmax,nsp,p,q)
-  !- Generate default values for P and Q
-  ! ----------------------------------------------------------------------
+subroutine defpq(z,lmax,nsp,p,q)  !- Generate default values for P and Q
   !i Inputs
   !i   z     :nuclear charge
   !i   lmax  :l-cutoff
@@ -20,8 +18,7 @@ subroutine defpq(z,lmax,nsp,p,q)
   !u   24 Oct 07 Handle NULL input values
   !u   02 Mar 01 Handles fractional Z case
   ! ----------------------------------------------------------------------
-  !     implicit none
-  ! ... Passed parameters
+  implicit none
   integer :: lmax,nsp,n0
   parameter (n0=10)
   double precision :: z,p(n0,2),q(n0,2)
@@ -31,7 +28,6 @@ subroutine defpq(z,lmax,nsp,p,q)
   double precision :: pdef(0:3,0:100),dasum,w1,w2
   integer :: NULLI
   parameter (NULLI=-99999)
-
   data ((pdef(l,iz),l=0,3),iz=0,9) / &
        1.50D+00,  2.50D+00,  3.50D+00,  4.50D+00, &
        1.76D+00,  2.30D+00,  3.16D+00,  4.11D+00, &
@@ -333,6 +329,5 @@ subroutine atmoms(k0,q0,z)
      k0(2) = 3
      k0(3) = 4
   endif
-
 end subroutine atmoms
 

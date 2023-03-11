@@ -1,8 +1,6 @@
-subroutine bzmesh(plat,qb,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx,igstar,lpbc)
+subroutine bzmesh(plat,qb,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx,igstar,lpbc) !- Divides the reciprocal lattice into microcells
   use m_ext,only: sname   !file extension. Open a file like file='ctrl.'//trim(sname)
   use m_lgunit,only:stdo
-  !- Divides the reciprocal lattice into microcells
-  !-----------------------------------------------------------------------
   !i Inputs:
   !i  plat     :primitive lattice vectors
   !i  n1,n2,n3 :no. divisions for the 3 recip. latt. vecs; (see Remarks)

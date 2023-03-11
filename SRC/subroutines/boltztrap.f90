@@ -1,4 +1,4 @@
-subroutine writeboltztrap(eferm)
+subroutine writeboltztrap(eferm) !write input file for boltztrap !test by gomi at year2020 around
   use m_lmfinit,only: nlmax,nsp,nbas,stdo,sspec=>v_sspec,nlmax,nspc,qbg=>zbak,alat=>lat_alat
   use m_suham,only: ndhamx=>ham_ndhamx,ndham=>ham_ndham
   use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize,procid
@@ -9,12 +9,10 @@ subroutine writeboltztrap(eferm)
   use m_hamindex, only: ngrp,symops !,norbmto,ibastab,ltab,ktab,offl, symops_af
   use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
   use m_bandcal,only: evlall
-
   character strn*120,strn2*120
   integer:: iqread,iqindex,job,ist,ip,ni,ix,ifi,jsp,ncount,iq,iband,i,j,nbandx,ig
   real(8):: eferm,qvec(3),symxx(3,3)
   character(10):: i2char
-
   !   qbg = !homogenious background charge.  qcore + qval-qbg = \sum_i Z_i
   iqread=0
   iqindex = index(strn(12:),'nb=')+2
@@ -23,11 +21,9 @@ subroutine writeboltztrap(eferm)
      read(strn(12+iqindex:),*) nbandx
      nbandx=min(nbandx,ndhamx)
   endif
-
   !      open(newunit=ifi,file='efermi.lmf') !readin fermi energy from efermi.lmf
   !      read(ifi,*)  eferm
   !      close(ifi)
-
   open(newunit=ifi,file=trim(sname)//'.intrans_template.boltztrap')
   write(ifi,"(a)")'GENE          # format '
   write(ifi,"(a)")'0 0 0 0       # iskip (not presently used) idebug setgap shiftgap'

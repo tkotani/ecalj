@@ -405,6 +405,7 @@ contains
   end subroutine pvpus1
   subroutine soprm(lpzi,phi,phid,phiz,nr,nsp,lmxs,lmx,v,dv,enu, ez,z,ri,rwgt,sop,sopz)
     use m_lgunit,only:stdo
+    use m_lmfinit,only: c=>cc
     !- Radial matrix elements between orbitals of different spin
     ! make spin-orbit parameters, i.e. matrix elements
     !  <phi|so|phi> <phi|so|phidot> <phidot|so|phidot>
@@ -457,8 +458,7 @@ contains
          ri(nr),sop(0:lmxs,nsp,nsp,3),v(nr,nsp),wk(nr,4),dv(nr), &
          rwgt(nr),sopz(0:lmxs,nsp,nsp,3),enu(0:8,nsp),ez(0:8,nsp)
     integer :: l,ir,is,is1,is2,ipr,lmin
-    double precision :: c,pa,r,r1,r2,vavg(nr),eavg,eavgz,dva(nr),xx(nr),xxz(nr),xxavg(nr),wkz(nr,4)
-    common /cc/ c ! c = 274.071979d0 or 1d10 !  Speed of light, or infinity in nonrelativistic case
+    double precision :: pa,r,r1,r2,vavg(nr),eavg,eavgz,dva(nr),xx(nr),xxz(nr),xxavg(nr),wkz(nr,4)
     data pa /1d0/
     call getpr(ipr)
     if (ipr > 50) print '(/'' soprm: overlaps  phi*phi     phi*phidot'')'

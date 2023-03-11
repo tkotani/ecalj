@@ -1,6 +1,6 @@
 module m_freeat !free-standing spherical atom calculaitons for initial contdition
   use m_lgunit,only: stdo,stdl
-  use m_rseq,only: rseq!,setcc
+  use m_rseq,only: rseq
   public freeat,freats
   private
 contains
@@ -920,6 +920,7 @@ contains
   end subroutine addzbk
   subroutine newrho(z,lrel,lgdd,nl,nlr,lmax,a,b,nr,rofi,v,rho,rhoc, &
        kcor,lcor,qcor,pnu,qnu,sumec,sumtc,sumev,ec,ev,tol,nsp,lfrz,ipr,plplus,qlplus,nmcore)
+    use m_lmfinit,only: c=>cc
     !! ev is dummy now. feb2010 takao
     !- Makes spherical charge density for a spherical potential.
     !  ---------------------------------------------------
@@ -1001,15 +1002,11 @@ contains
     logical :: free
     integer :: konfig(0:10),l,isp,ir,ival,nn,nre,jr,lmaxc,lr,k,nrmx
     parameter (nrmx=1501)
-    real(8):: c,rocrit,eb1,eb2,q0,q1,q2,rmax,eval,dl,val(5),slo(5),sum,ro,phi,dphi,phip,dphip,p,fllp1,r,tmc,gfac,q00,&
+    real(8):: rocrit,eb1,eb2,q0,q1,q2,rmax,eval,dl,val(5),slo(5),sum,ro,phi,dphi,phip,dphip,p,fllp1,r,tmc,gfac,q00,&
          g(2*nrmx),gp(2*nrmx*4)
-    common /cc/ c !Speed of light, or infinity in nonrelativistic case
     real(8):: plplus(0:lmax,nsp),qlplus(0:lmax,nsp)
     real(8),parameter:: pi = 4d0*datan(1d0)
     integer::nmcore !jun2012
-    call setcc(lrel)
-   ! real(8),pointer::c
-   ! c=>cc
     if (nr > nrmx) call rxi(' newrho: increase nrx, need',nr)
     lr = 1
     rocrit = 0.002d0/4

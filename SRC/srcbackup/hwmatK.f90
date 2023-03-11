@@ -104,7 +104,7 @@ program hwmat
   !      parameter (mwords=mbytes/4)
   !      parameter (iwksize=mwords * 1000 *1000)
   !      integer w
-  !      common /w/ w(iwksize)
+  !      commonb /w/ w(iwksize)
 
   integer(4) ::ib,iqx,igp,iii,ivsumxxx,isx,iflegas, iqpntnum
 

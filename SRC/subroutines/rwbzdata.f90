@@ -1,7 +1,5 @@
-!! read BZDATA
-module m_read_bzdata
+module m_read_bzdata ! read BZDATA
   implicit none
-
   public:: Read_bzdata
   !! We set following data when you call read_BZDATA()
   integer,protected,public :: n1,n2,n3,ngrp,nqbz,nqibz,nqbzw,nteti,ntetf ,itet
@@ -19,8 +17,6 @@ module m_read_bzdata
   real(8),allocatable,public:: epinv(:,:,:),wklm(:), dmlx(:,:), epinvq0i(:,:) !EPSwklm
   integer,protected,allocatable,public:: ixyz(:) ! ixyz(1:nq0i+nq0iadd) q0i for x,y,z directions
   private
-
-  !! =====================================================
 contains
   subroutine read_BZDATA(hx0)
     intent(in)::           hx0

@@ -1,5 +1,4 @@
-!  Spherical Bessel function
-module m_ropbes
+module m_ropbes !  Spherical Bessel function
   public ropbes
   private
   contains

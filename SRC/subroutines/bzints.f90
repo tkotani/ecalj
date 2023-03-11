@@ -1,7 +1,5 @@
-subroutine bzints(n1n2n3,ep,wp,nq,nband,nbmx,nsp,emin,emax,dos,nr,ef,job,ntet,idtet,sumev,sumwp)
+subroutine bzints(n1n2n3,ep,wp,nq,nband,nbmx,nsp,emin,emax,dos,nr,ef,job,ntet,idtet,sumev,sumwp)!- BZ integrations by linear method
   use m_lgunit,only:stdo
-  !- BZ integrations by linear method
-  ! ----------------------------------------------------------------------
   !i Inputs
   !i   nq    :no. of irr. k-points
   !i   ep    :energy bands
@@ -53,12 +51,8 @@ subroutine bzints(n1n2n3,ep,wp,nq,nband,nbmx,nsp,emin,emax,dos,nr,ef,job,ntet,id
         iq2 = idtet(2,itet)
         iq3 = idtet(3,itet)
         iq4 = idtet(4,itet)
-        do  20  ib = 1, nband
-           ! --- Set up energies at 4 corners of tetrahedron ---
-           ec(1) = ep(ib,isp,iq1)
-           ec(2) = ep(ib,isp,iq2)
-           ec(3) = ep(ib,isp,iq3)
-           ec(4) = ep(ib,isp,iq4)
+        do  20  ib = 1, nband! --- Set up energies at 4 corners of tetrahedron ---
+           ec(1:4) = ep(ib,isp,[iq1,iq2,iq3,iq4])
            etop = dmax1(ec(1),ec(2),ec(3),ec(4))
            ebot = dmin1(ec(1),ec(2),ec(3),ec(4))
            if (jjob == 1) then
@@ -98,8 +92,7 @@ subroutine bzints(n1n2n3,ep,wp,nq,nband,nbmx,nsp,emin,emax,dos,nr,ef,job,ntet,id
        9x,'Sum occ. bands:',f12.6, ', incl. Bloechl correction:',f10.6)
 923 format(' BZINTS: Fermi energy:',f14.6,';',F11.6,' electrons', &
        '  amom=',f8.4/9x,'Sum occ. bands:',f12.6,', incl. Bloechl correction:',f10.6)
-924 format(' (warning): non-integral number of electrons ---', &
-       ' possible band crossing at E_f')
+924 format(' (warning): non-integral number of electrons ---',' possible band crossing at E_f')
 end subroutine bzints
 
 

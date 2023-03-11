@@ -92,13 +92,6 @@ program h_uumatrix
        ,l1,l2,lm1,lm2,ibas2,lm3,ig1,ig2,ir,ia1,ma,ia2,m2,l3,m1,lxx &
        , iopen,ico,lxd,lx !,ll
   real(8):: ylk
-  !$$$#ifdef COMMONLL
-  !$$$      integer(4):: ll(51**2)
-  !$$$      common/llblock/ll
-  !$$$#else
-  !$$$      integer(4) ll
-  !$$$#endif
-  ! m
   integer(4) :: ixc,idummy,idummy2,i1,i2,i3,nbbloop, &
        ifq0p,ifuu(2), &
        ifbb,nbb,iko_ixs(2),iko_fxs(2),noxs(2), &

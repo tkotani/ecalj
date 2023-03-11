@@ -4,6 +4,7 @@ module m_addrwf !- Add constant * radial wave function to another radial wave fu
 contains
   subroutine addrwf(mode,z,l,v,ndg,n1,nr,rofi,rwgt,eadd,ev,fac,gadd, g,s)
     use m_vxtrap,only: rwftai
+    use m_lmfinit,only: cc
     ! ----------------------------------------------------------------------
     !i Inputs
     !i  mode   :0 use both large and small components of radial w.f.
@@ -43,8 +44,7 @@ contains
     real(8):: fac,rofi(nr),rwgt(nr), gadd(ndg,2),g(ndg,2),s
     real(8),optional:: z,v(nr),ev,eadd
     integer :: ir
-    double precision :: cc,vi,fllp1,gf11,gf22,gf12,r,tmc
-    common /cc/ cc
+    double precision :: vi,fllp1,gf11,gf22,gf12,r,tmc
     fllp1 = l*(l+1)
     s = 0
     if (n1 > 0 .AND. n1 < nr) rwgt(n1) = 2*rwgt(n1)

@@ -20,16 +20,6 @@ subroutine excore(nrmx,nl,nnc,nclass,nspn,nbas, &
   integer(4):: ir,l,n,ic,ncrr,ncmxx(nclass),kmax,k,it,isp, &
        isx,lm1,lm2,lm3,lm4,ibas,icr,icrd,nsxatot,ifexcore
   real(8):: rkp(nrmx,0:2*(nl-1)),rkm(nrmx,0:2*(nl-1))
-  !$$$#ifdef COMMONLL
-  !$$$      integer(4) ll(51**2)
-  !$$$      common/llblock/ll
-  !$$$#else
-  !$$$      integer(4):: ll
-  !$$$      external ll
-  !$$$#endif
-
-  !-----------------------------------------------------------
-  ! ncmx
   do ic = 1,nclass
      ncmxx(ic) = sum(nindxc(0:nl-1,ic))
   enddo
@@ -498,15 +488,6 @@ subroutine clebsh_t(cg,j1mx)
   double precision :: &
        fac,fac2, &!@igan, &
        cg( (j1mx+1)**2, (j1mx+1)**2, 0:2*j1mx)
-  !$$$#ifdef COMMONLL
-  !$$$      integer(4) ll(51**2)
-  !$$$      common/llblock/ll
-  !$$$#else
-  !$$$      integer(4) ll
-  !$$$      external ll
-  !$$$#endif
-  !external igan
-
   print *, ' go into clebsh j1mx=',j1mx
   do 403   jm1=1, (j1mx+1)**2
      do 405 jm2=1, (j1mx+1)**2

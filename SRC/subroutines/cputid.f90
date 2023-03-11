@@ -1,14 +1,8 @@
 real(8) function cpumin(ifile,cpu0)
   implicit real*8(a-h,o-z)
   integer:: ifile
-  ! cpu time in minutes for RISC: mclock()/600.d0
-  ! cpusek is the total cputime - cpu0
-  !     cpumin   = mclock()/600.d0 - cpu0
   cpusec   = (secnds(0.0) - cpu0)
   cpumin   = cpusec/60.d0
-  !     cpusec=0d0
-  !     cpumin=0d0
-  !----
   if(ifile <= 0)then
      write(6,6400)cpusec,cpumin
   else
@@ -17,7 +11,6 @@ real(8) function cpumin(ifile,cpu0)
 6400 format(/' cpu time = ',f15.4,' secs ',f15.4,' mins ')
   return
 END function cpumin
-
 subroutine cputid(ifile)
   implicit none
   include 'mpif.h'

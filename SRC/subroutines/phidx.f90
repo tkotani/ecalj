@@ -1,6 +1,6 @@
 module m_phidx
-  private
   public phidx
+  private
 contains
   subroutine phidx(job,z,l,v,hcr,vmtz,rofi,nr,nptdif,tol,e,val,slo,nn,g,gp,phi,dphi,phip,dphip,p,phia,phiap,dla,dlap)!Generate potential parameters for a prescribed energy or b.c.
     use m_rseq,only: rseq,rsq1
@@ -232,6 +232,7 @@ contains
     dla    = rdphia/phia
   end subroutine makdla
   subroutine gintsr(g1,g2,a,b,nr,z,e,l,v,rofi,sum)
+    use m_lmfinit,only: c=>cc
     !- Integrate inner product of two wave equations
     ! ----------------------------------------------------------------
     !i   g1,g2 :First and second radial wave functions
@@ -252,8 +253,7 @@ contains
     integer :: nr,l
     double precision :: a,b,z,e,sum,g1(nr,2),g2(nr,2),v(nr),rofi(nr)
     integer :: i,ir
-    double precision :: fllp1,c,r,tmc,fi
-    common /cc/ c !Speed of light, or infinity in nonrelativistic case
+    double precision :: fllp1,r,tmc,fi
     tmc(i,r) = c - (v(i) - 2d0*z/r - e)/c
     fi(i,r) = (r+b)*(g1(i,1)*g2(i,1)*(1 + fllp1/(tmc(i,r)*r)**2) + g1(i,2)*g2(i,2))
     fllp1 = l*(l+1)

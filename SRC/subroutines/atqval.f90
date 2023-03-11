@@ -1,5 +1,4 @@
-subroutine atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc,qv,qsc)
-  !- Return valence and core charge for one site
+subroutine atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc,qv,qsc)  ! Return valence and core charge for one site
   ! ----------------------------------------------------------------------
   !i Inputs
   !i   lmxa  :augmentation l-cutoff

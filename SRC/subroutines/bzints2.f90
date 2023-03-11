@@ -1,5 +1,4 @@
-SUBROUTINE BZINTS2x(volwgt,EP,WP,NQ,nband,NB,NSP,EMIN,EMAX,DOS,NR,EF,JOB,NTET,IDTET)
-  !-  Bz integrations by linear method.
+SUBROUTINE BZINTS2x(volwgt,EP,WP,NQ,nband,NB,NSP,EMIN,EMAX,DOS,NR,EF,JOB,NTET,IDTET)!-  Bz integrations by linear method.
   ! ----------------------------------------------------------------------
   !i Inputs:
   !i  ep, energy bands;

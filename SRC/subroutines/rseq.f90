@@ -1,6 +1,7 @@
 module m_rseq
-!  use m_lmfinit,only: c=>cc
-  public rseq,rsq1 
+  use m_lmfinit,only: c=>cc
+  public rseq,rsq1
+  private
 contains
   subroutine rseq(eb1,eb2,e,tol,z,l,nod,val,slo,v,g,q,a,b,rofi,nr,nre) !- Solves radial wave equation for given BCs and number of nodes
     ! ----------------------------------------------------------------------
@@ -38,10 +39,7 @@ contains
     integer :: l,nod,nr,nre
     double precision :: eb1,eb2,e,tol,z,val,slo,v(nr),g(nr,2),q,rofi(nr), a,b
     integer :: ipr,k,k2,kc,nctp,nctp0,nit,nitmax,nod1,nod2,node,irsq
-    double precision :: c,de,e1,e2,fac,fllp1,r,ratio=1d99,re,rhok=1d99,slo1,slo2, &
-         slop,tmcr,val1,val2,valu,wgt=1d99
-    ! ... Speed of light, or infinity in nonrelativistic case
-    common /cc/ c
+    double precision :: de,e1,e2,fac,fllp1,r,ratio=1d99,re,rhok=1d99,slo1,slo2, slop,tmcr,val1,val2,valu,wgt=1d99
     call getpr(ipr)
     nitmax = 80
     if (ipr >= 110) write(*,815) z,l,nod,val,slo,eb1,eb2
@@ -49,8 +47,7 @@ contains
     e1 = eb1
     e2 = eb2
     call fctp0(l,nr,rofi,v,z,nctp0)
-    if (ipr >= 120)write(*,*)' nit l node nod nre kr',&
-         '        e1            e              e2            de'
+    if (ipr >= 120)write(*,*)' nit l node nod nre kr','        e1            e              e2            de'
     ! --- Start iterations to find energy ---
     do  1  nit = 1, nitmax
        if (e <= e1 .OR. e >= e2) e = (e1 + e2)/2
@@ -188,12 +185,9 @@ contains
     double precision :: e,z,v(nr),g(nr,2),val,slo,a,b,rofi(nr)
     ! Local parameters:
     integer :: ir,i1
-    double precision :: d(2,3),zz,c,fllp1,r83sq,r1,r2,r3,h83,g0,s,sf,aa, &
+    double precision :: d(2,3),zz,fllp1,r83sq,r1,r2,r3,h83,g0,s,sf,aa, &
          f0,dg1,dg2,dg3,df1,df2,df3,r,drdi,phi,u,x,y,det,b1,b2
-    equivalence (dg1,d(1,1)),(dg2,d(1,2)),(dg3,d(1,3)), &
-         (df1,d(2,1)),(df2,d(2,2)),(df3,d(2,3))
-    !     Speed of light, or infinity in nonrelativistic case
-    common /cc/ c
+    equivalence (dg1,d(1,1)),(dg2,d(1,2)),(dg3,d(1,3)), (df1,d(2,1)),(df2,d(2,2)),(df3,d(2,3))
     nn = 0
     zz = z+z
     fllp1 = l*(l+1)
@@ -309,21 +303,9 @@ contains
     double precision :: e,z,v(nr),val1,slo1,g(nr,2),val,slo,a,b,rofi(nr)
     ! Local parameters:
     integer :: i,ir,irp1,i2,i1,ifac
-    double precision :: d(2,3),zz,c,fllp1,r83sq,r1,r2,r3,h83,ea,rpb, &
+    double precision :: d(2,3),zz,fllp1,r83sq,r1,r2,r3,h83,ea,rpb, &
          q,ag1,ag2,ag3,af1,af2,af3,gg,ff,vb,drdi,r,phi,u,x,y, &
          dg1,dg2,dg3,df1,df2,df3,det,b1,b2
-    ! Speed of light in common to  relativity
-    common /cc/ c
-    !      double complex gc(nr,2),ec,valc,sloc,val1c,slo1c
-    !      ir = 0
-    !      if (ir .gt. 0) then
-    !        ec = e
-    !        val1c = val1
-    !        slo1c = slo1
-    !        call zsq2(ec,l,z,v,nre,ncmin,val1c,slo1c,gc,valc,sloc,nn,nc,
-    !     .    a,b,rofi,nr)
-    !      endif
-
     nn = 0
     zz = z + z
     fllp1 = l*(l + 1)

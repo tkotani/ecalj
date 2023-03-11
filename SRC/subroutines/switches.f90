@@ -17,7 +17,6 @@ real(8) function deltaq_scale()
      call rx( 'Use Q0Pchoice = 1 or 2 (=1 is default)')
   endif
 END function deltaq_scale
-
 logical function localfieldcorrectionllw()
   use m_keyvalue,only: getkeyvalue
   logical,save:: init=.true.,ttt
@@ -28,18 +27,14 @@ logical function localfieldcorrectionllw()
   endif
   localfieldcorrectionllw=ttt
 end function localfieldcorrectionllw
-
-
 logical function addbasnew()
   addbasnew=.true. !new version of adding polynomial-like product basis in MTs.
   ! If false, use old version (less product basis set is added.)
 end function addbasnew
-
 !$$$      logical function newaniso()
 !$$$      newaniso=.true. !new GW mode. not the offset Gamma method.
 !$$$                      !combines methods by two Christoph.
 !$$$      end
-
 real(8) function screenfac()
   ! The Coulomb interaction is given as exp(- screeenfac()*r)/r (see hvccfp0.m.F)
   ! Formally scrennfac=0d0 is correct, however, we can not choose too small screenfac
@@ -59,12 +54,10 @@ real(8) function screenfac()
   ! screenfac = - TFscreen**2 = energy (negative) ==> (\nabla^2 + e) v= \delta(r-r')
   screenfac= -tss**2 !-ttt  !note negative sign for exp(-sqrt(e)r)
 END function screenfac
-
 !! testmode
 logical function testomitq0()
   testomitq0=.false.
 end function testomitq0
-
 !      integer function nomatm()
 !c In cases (corei7+gfortran and so on in my case),zgemm did not work.
 !c now in ppbafp.fal.F
@@ -81,11 +74,9 @@ logical function is_mix0vec()
   ! s_mis0vec=.false. is original version. But it caused a problem at BZ bounday.
   is_mix0vec=.true.
 end function is_mix0vec
-
 logical function evaltest()
   evaltest=.false.
 end function evaltest
-
 !      logical function test_symmetric_W()
 !      use m_keyvalue
 !      logical,save:: init=.true.,ttt
@@ -133,7 +124,6 @@ logical function onceww(i)
      onceww=.false.
   endif
 end function onceww
-
 ! ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ! for future use. NaN generator.
 real(8) function NaNdble()
@@ -169,8 +159,6 @@ logical function qbzreg()
   endif
   qbzreg= ccrq
 end function qbzreg
-
-
 logical function smbasis() !
   use m_keyvalue,only: getkeyvalue
   integer(4),save:: smbasis0
@@ -446,9 +434,6 @@ end function tetra_hsfp0
 !$$$      endif
 !$$$      bzcase=bzcasex
 !$$$      end
-
-
-!$$$c------------------------------------------
 real(8) function wgtq0p() !essentially dummy
   wgtq0p=0.01d0
 END function wgtq0p
@@ -456,49 +441,11 @@ END function wgtq0p
 !$$$c  Offset gamma has integration weight of 8*wgtq0p*(number of BZmesh)
 !$$$c  On the other hand, we subtract weight of wgtq0p*(number of BZmesh)
 !$$$c  from the eight nearest mesh points to Gamma.
-!$$$c------------------------------------------------------
-!$$$      use m_keyvalue,only: getkeyvalue
-!$$$      logical,save ::init=.true.
-!$$$      real(8),save:: www
-!$$$      real(8):: escale,w1,w2
-!$$$      integer(4)::  q0pchoice
-!$$$c      common /wgtq00/www
-!$$$      logical :: noq0p
-!$$$      if(init) then
-!$$$        call getkeyvalue("GWinput","WgtQ0P",www,default=0.01d0)
-!$$$c        write(6,"('wgtq0p (weight for Q0P for BZmesh=2)=',f13.8)")www
-!$$$        if(q0pchoice()<0)  then
-!$$$          www = escale()**3 !1d0-wres
-!$$$c2          call wgtscale(escale(),w1,w2)
-!$$$c2           www = 1d0 - w2*( 1d0-escale()**3 )
-!$$$cc          www = 1d0
-!$$$        endif
-!$$$        call getkeyvalue("GWinput","TestNoQ0P",noq0p,default=.false.)
-!$$$        if(noq0p) www=0d0
-!$$$        init =.false.
-!$$$      endif
-!$$$      wgtq0p = www
-!$$$      return
-!$$$      end
 
 real(8) function escale()
-  use m_keyvalue,only: getkeyvalue
-  !c--- used q0pchoice<0 mode -------
+  use m_keyvalue,only: getkeyvalue   !c--- used q0pchoice<0 mode -------
   call getkeyvalue("GWinput","q0scale",escale,default=0.8d0)
 END function escale
-
-!      subroutine  rewrite_wgtq0p(aaa)
-!      real(8):: www,aaa
-!      common /wgtq00/www
-!      www = aaa
-!      write(6,*) ' www=',www
-!      return
-!      end
-
-!      logical function test_omitq0p()
-!      test_omitq0p=.false.
-!      end
-
 integer(4) function normcheck()
   use m_keyvalue,only: getkeyvalue
   ! write normcheck files or not
@@ -514,7 +461,6 @@ integer(4) function normcheck()
   endif
   normcheck=nnn
 END function normcheck
-
 integer(4) function auxfunq0p()
   ! =0: usual auxially function  exp(-alpha |q|^2) /q^2
   ! =1: new auxally function     exp(-alpha |q|) /q^2
@@ -529,7 +475,6 @@ integer(4) function auxfunq0p()
   !      auxfunq0p=nnn
   auxfunq0p=0
 END function auxfunq0p
-
 subroutine wgtscale(q1,w1,w2)
   implicit none
   real(8):: q1,q2,w1,qav2,w2,qav

@@ -97,7 +97,7 @@ contains
           is1=ispec(ib1)
           call orblib1(ib1) !norb1,ltab1,ktab1,offl1
           ofh1 = offl1(1)
-          call uspecb(is1,rsmh1,eh1)!       Block routines into groups with common (e,rsm)
+          call uspecb(is1,rsmh1,eh1)
           call gtbsl1(1,norb1,ltab1,ktab1,rsmh1,eh1,ntab1,blks1) ![1,1,1,0,1]
           irob1loop: do  iorb1 = 1, norb1
              if (blks1(iorb1) == 0) cycle
@@ -130,7 +130,7 @@ contains
              ncut=ngcut(:,:,is2)
              call orblib2(ib2) !norb2,ltab2,ktab2,offl2
              ofh2 = offl2(1)
-             call uspecb(is2,rsmh2,eh2) ! Block into groups with consecutive l and common (e,rsm)
+             call uspecb(is2,rsmh2,eh2) 
              call gtbsl1(1,norb2,ltab2,ktab2,rsmh2,eh2,ntab2,blks2) ![1,1,1,0,1]
              ndim2 = 0
              do  iorb2 = 1, norb2

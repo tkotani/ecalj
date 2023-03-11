@@ -232,6 +232,7 @@ contains
 80  enddo
   end subroutine rhocor
   subroutine xyrhsr(ecore,l,z,a,b,nr,nre,g,rofi,v,rho,deg,vrho, rhormx)
+    use m_lmfinit,only: c=>cc
     !- Make density and integrate potential*density for one core state
     ! ----------------------------------------------------------------------
     !i Inputs
@@ -259,14 +260,10 @@ contains
     !u Updates
     ! ----------------------------------------------------------------------
     implicit none
-    ! ... Passed parameters
     integer :: nr,nre,l
     double precision :: a,b,z,ecore,g(nr,2),rofi(*),v(nr),rho(nr),rhormx
-    ! ... Local parameters
     integer :: nrmx,ir
-    double precision :: fpi,fllp1,vrho,r,wgt,tmc,c,gfac,rhoir,deg,rmax
-    !     Speed of light, or infinity in nonrelativistic case
-    common /cc/ c
+    double precision :: fpi,fllp1,vrho,r,wgt,tmc,gfac,rhoir,deg,rmax
     fpi = 16d0*datan(1d0)
     fllp1 = l*(l+1)
     vrho = 0

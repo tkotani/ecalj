@@ -115,16 +115,6 @@ program hwmatK_MPI
        eband(:,:,:), ene(:) !,ecore(:,:)
   integer(4),allocatable ::idtetx(:,:),idtet(:,:),ipq(:) &
        ,iene(:,:,:),ibzx(:) ! ,nstar(:)
-  !      real(8) :: qbasmc(3,3)
-
-  ! worksize in megabytes (1 word = 4 bytes)
-  !      integer(4) :: mbytes,mwords,iwksize
-  !      parameter (mbytes=60)
-  !      parameter (mwords=mbytes/4)
-  !      parameter (iwksize=mwords * 1000 *1000)
-  !      integer w
-  !      common /w/ w(iwksize)
-
   integer(4) ::ib,iqx,igp,iii,ivsumxxx,isx,iflegas, iqpntnum
 
   real(8),allocatable   :: eex1(:,:,:),exsp1(:,:,:),qqex1(:,:,:,:)

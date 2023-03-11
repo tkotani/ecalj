@@ -1316,7 +1316,6 @@ contains
     !o             atoms, so that all pairs connected to site ib are grouped
     !o             together.  For each pair ip, iax(*,ip) contains:
     !o   iax(1)   :site index to basis atoms ib=source;
-    !o             all pairs with common ib are contiguous
     !o   iax(2)   :site index to jb=field of each pair
     !o   iax(3..5):multiples of plat added the difference in site positions
     !o             that connect the pair.

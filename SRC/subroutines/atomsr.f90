@@ -1,6 +1,4 @@
-subroutine poiss0(z,a,b,rofi,rho,nr,vhrmax,v,rhovh,vsum,nsp)
-  !- Hartree potential for spherical rho.
-  !  ---------------------------------------------------------------------
+subroutine poiss0(z,a,b,rofi,rho,nr,vhrmax,v,rhovh,vsum,nsp)!- Hartree potential for spherical rho.
   !i Inputs:
   !i   z     :nuclear charge
   !i   a     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
@@ -19,7 +17,6 @@ subroutine poiss0(z,a,b,rofi,rho,nr,vhrmax,v,rhovh,vsum,nsp)
   !r    Solves Poisson's equation for given spherical charge density
   !r    and a specified value vhrmax at rofi(nr).
   !r    rho =  4*pi*r*r*rhotrue  but  v = vtrue
-  ! ----------------------------------------------------------------------
   implicit double precision (a-h,o-z)
   integer :: nr,nsp
   double precision :: rofi(nr),v(nr,nsp),rho(nr,nsp),rhovh(nsp),pi,ea,rpb,a,b,z

@@ -1,12 +1,9 @@
-subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, &
-       phitoto,phitotr,nsp,nclass, &
-       cutbase,lcutmx,ixx,alat,nc_max) !,iread
+subroutine basnfp_v2 (nocc,nunocc,nindx, nl,nn,nrx,nrofi,r,aa,bb,ic, & !Generate product basis siwhin MT
+       phitoto,phitotr,nsp,nclass, cutbase,lcutmx,ixx,alat,nc_max)
   use m_keyvalue,only:getkeyvalue
   use m_lldata,only: ll
   use m_read_bzdata,only: Read_bzdata, q0i,nq0i,wqt=>wt
-  !use m_mathlib,only: rs
-  ! takao kotani Apr 2002.
-  ! gives an index for the allowed product basis
+  ! takao kotani Apr 2002.   ! gives an index for the allowed product basis
   ! A new routine by t.kotani mod. from indxbas of fa.
 
   !i phitotr: atomic radial functions. raw

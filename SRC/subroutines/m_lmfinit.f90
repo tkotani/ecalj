@@ -733,7 +733,7 @@ contains
       else 
          cc = 1d10      !nrel 
       endif
-      call setcc(lrel) !lrel/=0 means scalar relativistiv c=274.074d0 in a.u.
+!      call setcc(lrel) !lrel/=0 means scalar relativistiv c=274.074d0 in a.u.
       fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !compute eigenvalues for fullmesh q points 
       lrout = 1 ! Whether to evaluate output density and/or KS energy
       leks = 1
@@ -974,18 +974,3 @@ end module m_lmfinit
 !r   umix    mixing parameter for LDA+U
 !r   w..     Linear mixing weights
 !r   wc      Broyden weight
-subroutine setcc(lrel)
-  !- Set speed of light for radial S-eqn in /cc/ common block
-  !     implicit none
-  integer :: lrel
-  double precision :: c
-  common /cc/ c
-  if (lrel /= 0) then
-     !       should be: c = 274.072d0
-     c = 274.074d0
-  else
-     c = 1d10
-  endif
-end subroutine setcc
-
-

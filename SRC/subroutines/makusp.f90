@@ -109,6 +109,7 @@ subroutine makusp(n0,z,nsp,rmax,lmxa,v,a,nr,pnu,pnz,rsml,ehl, ul,sl,gz,ruu,rus,r
 end subroutine makusp
 subroutine makus2(lpz,nr,rofi,g,gp,gz,phi,dphi,phip,dphip,phz, &
      dphz,l,e,ez,z,v,  ul,sl,ruu,rus,rss,ruz,rsz,rzz)
+  use m_lmfinit,only: c=>cc
   !- Kernel to make u and s from g and gp, for one l
   ! ----------------------------------------------------------------------
   !i Inputs
@@ -161,8 +162,7 @@ subroutine makus2(lpz,nr,rofi,g,gp,gz,phi,dphi,phip,dphip,phz, &
        sl(nr),ruu(nr),rus(nr),rss(nr),ruz(nr),rsz(nr),rzz(nr)
   integer :: ir,jr
   double precision :: as,au,bs,bu,det,fllp1,gfac,gf11,gf12,gf22,r,sx, &
-       tmcr,ux,c,phzl,dphzl
-  common /cc/ c
+       tmcr,ux,phzl,dphzl
   fllp1 = l*(l+1)
   det = phi*dphip - dphi*phip
   au = dphip/det

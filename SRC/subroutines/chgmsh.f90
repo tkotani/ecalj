@@ -1,6 +1,4 @@
-subroutine chgmsh(iopt,plat,n,m1,m2,m3,l1,l2,l3,f0, n1,n2,n3,k1,k2,k3,f)
-  !- Retabulate a function on a different real-space mesh
-  ! ----------------------------------------------------------------------
+subroutine chgmsh(iopt,plat,n,m1,m2,m3,l1,l2,l3,f0, n1,n2,n3,k1,k2,k3,f) ! Retabulate a function on a different real-space mesh
   !i Inputs
   !i   iopt  :0 Use default (smaller of iopt=1,2)
   !i         :1 use Nyquist cutoff
@@ -21,9 +19,6 @@ subroutine chgmsh(iopt,plat,n,m1,m2,m3,l1,l2,l3,f0, n1,n2,n3,k1,k2,k3,f)
   !o    f         function on n1,n2,n3 mesh
   !r Remarks
   !r   f0 and f may occupy the same address space
-  !u Updates
-  !u   25 Jun 00 added argument n
-  ! ----------------------------------------------------------------------
   implicit none
   integer :: iopt,n,m1,m2,m3,n1,n2,n3,l1,l2,l3,k1,k2,k3
   double precision :: plat(3,3)
@@ -50,14 +45,7 @@ subroutine chgmsh(iopt,plat,n,m1,m2,m3,l1,l2,l3,f0, n1,n2,n3,k1,k2,k3,f)
   call gvctof(iopt,1d0,plat,tau,n1,n2,n3,gmax2,ng2)
   gmax = dmin1(gmax1,gmax2)
   ngmx = min0(ng1,ng2)
-  !      if(fullmesh()) then
-  !         print *,'full mesh mode'
-  !         gmax=1d10
-  !         ngmx=min0(m1*m2*m3,n1*n2*n3)
-  !      endif
   allocate(gv1(ngmx*3), gv2(ngmx*3),kv1(ngmx*3),kv2(ngmx*3))
-  !      call gvlist(1d0,plat,wdummy,m1,m2,m3,gmax,8,ngmx,ng1,kv1,gv1,wdummy,wdummy)
-  !      call gvlist(1d0,plat,wdummy,n1,n2,n3,gmax,8,ngmx,ng2,kv2,gv2,wdummy,wdummy)
   call gvlst2(1d0,plat,wdummy,m1,m2,m3,0d0,gmax,0,8,ngmx,ng1,kv1,gv1,wdummy)!,wdummy)
   call gvlst2(1d0,plat,wdummy,n1,n2,n3,0d0,gmax,0,8,ngmx,ng2,kv2,gv2,wdummy)!,wdummy)
   if (ng1 /= ng2) call rx('chgmsh: ng1 /= ng2')
@@ -137,12 +125,6 @@ subroutine pchms2(f0,m1,m2,l1,l2,k1,k2,n,f)
 20   enddo
 10 enddo
 end subroutine pchms2
-! subroutine pgvmat2 (ng1,gv1, ng2,gv2,kv2 )
-!   integer:: ng1,ng2,kv2(1)
-!   real(8):: gv1(1),gv2(1)
-!   call pgvmat ( ng1,gv1, ng2,gv2,kv2 )
-! end subroutine pgvmat2
-
 subroutine pgvmat(ngs,gvs,ngb,gvb,kvb)
   implicit none
   integer :: ngs,ngb

@@ -1023,9 +1023,6 @@ subroutine zgesvdnn2(no,nn, nnmx,epsmx, &
   !     &  stop 'sumcheck zzz  zzz-uu*s*vt= error'
   !      deallocate(vtt)
 end subroutine zgesvdnn2
-
-
-!---------------------------------------------------------------------
 subroutine mkb0( q, lxx,lx,nxx,nx, aa,bb, nrr,nrx,rprodx, &
      alat,bas,nbas,nbloch, &
      b0mat)
@@ -1033,27 +1030,16 @@ subroutine mkb0( q, lxx,lx,nxx,nx, aa,bb, nrr,nrx,rprodx, &
   use m_lldata,only: ll
   implicit none
   integer(4) :: nlx,l,n,m,nr,ir,lm,ibl1,ibas,nrx,nbloch
-
   integer(4) :: nbas,lxx, lx(nbas), nxx, nx(0:lxx,nbas),nrr(nbas)
   real(8)    :: rprodx(nrx,nxx,0:lxx,nbas),aa(nbas),bb(nbas), &
        phi(0:lxx),psi(0:lxx), bas(3,nbas), &
        alat, &
        pi,fpi,tpiba,qg1(3),q(3),absqg,r2s,a,b
-
   complex(8) :: b0mat(nbloch),img=(0d0,1d0) ,phase
-
   integer(4),allocatable:: ibasbl(:), nbl(:), lbl(:), lmbl(:)
   real(8),allocatable :: ajr(:,:),rofi(:),rob0(:,:,:)
   real(8),allocatable::cy(:),yl(:)
   complex(8),allocatable :: pjyl(:,:)
-  !$$$#ifdef COMMONLL
-  !$$$      integer(4) ll(51**2)
-  !$$$      common/llblock/ll
-  !$$$#else
-  !$$$      integer(4) ll
-  !$$$#endif
-
-  !-----
   write(6,*)'mkb0:'
   pi   = 4d0*datan(1d0)
   fpi  = 4*pi
