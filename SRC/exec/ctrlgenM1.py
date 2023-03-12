@@ -313,6 +313,12 @@ def RemoveCat2(listctrl,key):
             if(re.match('^\w',x)): ix=0
         if(re.match(sss,x)): ix=1
         if(ix==0): res.append(x)
+
+#    res=res+'\n'
+#    print res
+#    sys.exit()
+    return res
+
 def GetCat(listctrl,key):
     """ get a category (key) from listctrl This returns lines. Not good correspondence to RemoveCat """
     res=[]

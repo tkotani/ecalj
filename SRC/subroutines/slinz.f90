@@ -1,5 +1,4 @@
 subroutine slinz(volwgt,ec,emin,emax,dosi,nr)! Adds to number-of-states for one tetrahedron
-  ! ----------------------------------------------------------------
   !i Inputs
   !i   volwgt:weight on tetrahedron
   !i   ec    :energies at corners of tetrahedron
@@ -8,11 +7,6 @@ subroutine slinz(volwgt,ec,emin,emax,dosi,nr)! Adds to number-of-states for one 
   !o Outputs
   !o   dosi(k), integrated density in kth bin from tethdn.
   !o   ec:   sorted on output
-  !r Remarks
-  !r
-  !u Updates
-  !u   19 Jun 04 Put in guard against integer overflow
-  ! ----------------------------------------------------------------
   implicit none
   integer :: nr
   double precision :: ec(4),dosi(nr),volwgt,emin,emax
@@ -20,8 +14,7 @@ subroutine slinz(volwgt,ec,emin,emax,dosi,nr)! Adds to number-of-states for one 
   double precision :: c0,c1,c2,c3,cc,de,e,e1,e2,e3,e4,x
   double precision :: fuzz,mxmin,xx
   parameter (fuzz=1d-8)
-  !     Guard against overflow, underflow. Make -1 < i0[1..4] < nr+1
-  mxmin(xx) = min(max(xx,-2*de),nr*de)/de+1.9999999d0
+  mxmin(xx) = min(max(xx,-2*de),nr*de)/de+1.9999999d0 !     Guard against overflow, underflow. Make -1 < i0[1..4] < nr+1
   ! --- Sort the ec ---
   do   i = 1, 3
      do   j = 1, 4-i
@@ -45,20 +38,15 @@ subroutine slinz(volwgt,ec,emin,emax,dosi,nr)! Adds to number-of-states for one 
   i02 = mxmin(e2-emin)
   i03 = mxmin(e3-emin)
   i04 = mxmin(e4-emin)
-  ! --------------------------------
   i1 = max0(i01,1)
   i2 = min0(i02-1,nr)
   if (i1 <= i2) then
      cc = volwgt/((e2-e1)*(e3-e1)*(e4-e1))
-     do  20  i = i1, i2
-        x = emin - e1 + (i-1)*de
-        dosi(i) = dosi(i) + cc*x**3
-20   enddo
+     dosi(i1:i2) = dosi(i1:i2) + [(cc*(emin-e1+(i-1)*de)**3,i=i1,i2)]
   endif
   i2 = max0(i02,1)
   i3 = min0(i03-1,nr)
-  if (i2 <= i3) then
-!     print *,'eeeeee=',e1,e2,e3,e4
+  if (i2 <= i3) then !     print *,'eeeeee=',e1,e2,e3,e4
      c3 = volwgt*(e1+e2-e3-e4)/((e3-e1)*(e4-e1)*(e3-e2)*(e4-e2))
      c2 = volwgt*3d0/((e3-e1)*(e4-e1))
      c1 = c2*(e2-e1)
@@ -79,8 +67,5 @@ subroutine slinz(volwgt,ec,emin,emax,dosi,nr)! Adds to number-of-states for one 
   endif
   i4 = max0(i04,1)
 26 continue
-  do  25  i = i4, nr
-     dosi(i) = dosi(i) + volwgt
-25 enddo
+  dosi(i4:nr) = dosi(i4:nr) + volwgt
 end subroutine slinz
-
